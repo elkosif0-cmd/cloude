@@ -1,7 +1,8 @@
-# أغنام الوادي — Public Safe Build
+# Aghnam Alwadi — locked full-data build
 
-نسخة نشر عامة من تطبيق أغنام الوادي.
+The full business dataset is committed only in encrypted form.
 
-- تم استبعاد قاعدة بيانات العملاء والطلبات المضمّنة حفاظًا على الخصوصية.
-- الواجهة والوحدات الأساسية محفوظة.
-- يعيد `build.py` تكوين ملفات الموقع داخل `dist/` عند النشر على Cloudflare Pages.
+- The unlock password is **not stored in this repository**.
+- PBKDF2-HMAC-SHA-256 derives independent encryption and authentication keys.
+- The dataset uses ChaCha20 encryption plus HMAC-SHA-256 authentication.
+- The browser decrypts the data only after the correct password is entered.
