@@ -1,8 +1,10 @@
 const APP_ORIGINS = new Set([
+  "https://s-kosif.pages.dev",
   "https://aghnam-alwadi.pages.dev",
   "https://aghnam-alwadi-iphone.pages.dev"
 ]);
 const PREVIEW_RES = [
+  /^https:\/\/[a-z0-9-]+\.s-kosif\.pages\.dev$/i,
   /^https:\/\/[a-z0-9-]+\.aghnam-alwadi\.pages\.dev$/i,
   /^https:\/\/[a-z0-9-]+\.aghnam-alwadi-iphone\.pages\.dev$/i
 ];
