@@ -110,7 +110,7 @@ jobs:
           assert '{"__aghnam_private":"modules"}' in app, "v25 modules left in plaintext"
           js=Path("dist/skosif-v30.js").read_text(encoding="utf-8")
           for marker in [
-            "Fusion Operations & Decision OS",
+            "Operations & Decision OS",
             "محرك التسعير V30",
             "Customer 360",
             "حوكمة واعتماد الأسعار",
@@ -129,7 +129,7 @@ jobs:
           for marker in ["calculateUsableUnitCost","applyRoundingPolicy","calculateBoxPricing","hasCircularDependency","nrvAllocate","yieldTrial","selfTest"]:
               assert marker in core, marker
           ui=Path("dist/skosif-pricing-v35.js").read_text(encoding="utf-8")
-          for marker in ["محرك V35","Strict Pricing Kernel","AskJev"]:
+          for marker in ["محرك التسعير الدقيق","Strict Pricing Kernel","AskJev"]:
               assert marker in ui, marker
           sess=Path("dist/skosif-session-v36.js").read_text(encoding="utf-8")
           for marker in ["hasStorageAccess","requestStorageAccess","indexedDB","aghnamJevSession","serviceWorker","SKosifSessionHealthV36"]:
@@ -140,5 +140,10 @@ jobs:
           motion=Path("dist/skosif-motion-v38.js").read_text(encoding="utf-8")
           for marker in ["requestAnimationFrame","prefers-reduced-motion","constellation","vortex","celebration","SKosifMotionV38"]:
               assert marker in motion, marker
-          print("S.kosif V38 validation: OK")
+          shell=Path("dist/skosif-shell-v33.js").read_text(encoding="utf-8")
+          for marker in ["العمل اليومي","أدوات متقدمة","executive-light","executive-dark","gourmet","contrast"]:
+              assert marker in shell, marker
+          for forbidden in ["id=\"sk-fab\"","id=\"jev-fab\"","id=\"v29-fab\"","id=\"sx-taskbar\"","id=\"sk36-health\"","id=\"sk38-motion-btn\""]:
+              assert forbidden not in app, forbidden
+          print("S.kosif canonical validation: OK")
           PY
