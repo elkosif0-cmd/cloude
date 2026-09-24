@@ -49,6 +49,29 @@ jobs:
           node --check meat-economics.js
           node --check motion.js
 
+      - name: Verify canonical source tree
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          legacy=[]
+          for p in Path(".").iterdir():
+              if p.is_file() and re.search(r"(?:-v\d+|^v\d+-|jev-v\d+|mobile-v\d+)", p.name, re.I):
+                  legacy.append(p.name)
+          assert not legacy, "legacy versioned runtime files remain: " + ", ".join(sorted(legacy))
+          required=[
+              "mobile.js","mobile.css","jev.js","jev.css","jev-question.js","jev-question.css",
+              "inventory.js","inventory.css","operations.js","operations.css","supply.js","supply.css",
+              "ux.js","ux.css","catalog.js","catalog.css","shell.js","shell.css",
+              "sales-matching.js","sales-matching.css","pricing-core.js","pricing.js","pricing.css",
+              "session-health.js","session-health.css","meat-economics.js","meat-economics.css",
+              "motion.js","motion.css","core-bridge.js","react-import.js"
+          ]
+          missing=[x for x in required if not Path(x).exists()]
+          assert not missing, "canonical files missing: " + ", ".join(missing)
+          print("Canonical source tree: OK")
+          PY
+
       - name: Test strict pricing kernel
         working-directory: app
         run: |
