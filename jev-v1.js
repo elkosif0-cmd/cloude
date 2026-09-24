@@ -85,7 +85,7 @@
     }catch(e){status.innerHTML='<span class="jev-offline">'+esc(e.message||e)+'</span>'}finally{btn.disabled=false}
   }
   function bind(){
-    const modal=document.getElementById("jev-modal");modal.setAttribute("aria-hidden","false")};
+    const modal=document.getElementById("jev-modal");
     modal.querySelector(".jev-close").onclick=()=>{modal.classList.remove("open");modal.setAttribute("aria-hidden","true")};
     modal.addEventListener("click",e=>{if(e.target===modal)modal.querySelector(".jev-close").click()});
     document.querySelectorAll(".jev-type").forEach(b=>b.onclick=()=>setType(b.dataset.type));
