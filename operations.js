@@ -55,7 +55,7 @@
     close();
     setTimeout(()=>{
       if(clickText(m[2])) return;
-      if(id==="sim"||id==="catalog"){window.AghnamV29?.open?.();return}
+      if(id==="sim"||id==="catalog"){window.SKosifInventory?.open?.();return}
       if(id==="approvals"){openHub("approvals");return}
       if(id==="health"){openHub("health");return}
       openHub("overview");
