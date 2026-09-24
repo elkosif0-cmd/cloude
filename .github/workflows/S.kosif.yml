@@ -133,13 +133,13 @@ jobs:
           for marker in ["محرك التسعير الدقيق","Strict Pricing Kernel","AskJev"]:
               assert marker in ui, marker
           sess=Path("dist/session-health.js").read_text(encoding="utf-8")
-          for marker in ["hasStorageAccess","requestStorageAccess","indexedDB","aghnamJevSession","serviceWorker","SKosifSessionHealthV36"]:
+          for marker in ["hasStorageAccess","requestStorageAccess","indexedDB","aghnamJevSession","serviceWorker","SKosifSessionHealth"]:
               assert marker in sess, marker
           meat=Path("dist/meat-economics.js").read_text(encoding="utf-8")
           for marker in ["اقتصاديات الذبيحة","dressing","allocate","aging","أعمار الذمم"]:
               assert marker in meat, marker
           motion=Path("dist/motion.js").read_text(encoding="utf-8")
-          for marker in ["requestAnimationFrame","prefers-reduced-motion","constellation","vortex","celebration","SKosifMotionV38"]:
+          for marker in ["requestAnimationFrame","prefers-reduced-motion","constellation","vortex","celebration","SKosifMotion"]:
               assert marker in motion, marker
           shell=Path("dist/shell.js").read_text(encoding="utf-8")
           for marker in ["العمل اليومي","أدوات متقدمة","executive-light","executive-dark","gourmet","contrast"]:
