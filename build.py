@@ -2,103 +2,121 @@ from pathlib import Path
 import base64, gzip, hashlib, re, shutil
 import private_blocks
 
-out=Path("dist")
-if out.exists(): shutil.rmtree(out)
+out = Path("dist")
+if out.exists():
+    shutil.rmtree(out)
 out.mkdir()
 
-parts=sorted(Path("payload").glob("index.html.gz.b64.part*"))
-if not parts: raise SystemExit("No safe app payload parts found")
-payload="".join(p.read_text(encoding="utf-8").strip() for p in parts)
-html=gzip.decompress(base64.b64decode(payload))
-if b'const SEED_B64 = "";' not in html: raise SystemExit("Safe app marker missing")
-text=html.decode("utf-8")
+parts = sorted(Path("payload").glob("index.html.gz.b64.part*"))
+if not parts:
+    raise SystemExit("No safe app payload parts found")
+payload = "".join(p.read_text(encoding="utf-8").strip() for p in parts)
+html = gzip.decompress(base64.b64decode(payload))
+if b'const SEED_B64 = "";' not in html:
+    raise SystemExit("Safe app marker missing")
+text = html.decode("utf-8")
 
-# Patches that must run inside the app's private scope are spliced in
-# ahead of a known anchor. A payload that no longer has the anchor is
-# built without the patch rather than failing the deploy.
+# Private-scope patches are semantic modules now; no release-number stacking.
 for patch_name, anchor in [
-    ("react-import-v33.js", "try{\n  const V25_PARSE_OLD=parseBackupPayload;"),
-    ("core-bridge-v31.js", "if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();"),
+    ("modules/app/react-import.js", "try{\n  const V25_PARSE_OLD=parseBackupPayload;"),
+    ("modules/app/core-bridge.js", "if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();"),
 ]:
     if anchor in text:
-        patch=Path(patch_name).read_text(encoding="utf-8")
-        text=text.replace(anchor, patch+"\n"+anchor, 1)
+        patch = Path(patch_name).read_text(encoding="utf-8")
+        text = text.replace(anchor, patch + "\n" + anchor, 1)
     else:
         print(f"warning: {patch_name} not applied (anchor missing)")
 
+# Product branding only; business data remains untouched.
+text = re.sub(r"<title>[^<]*</title>", "<title>S.kosif</title>", text, count=1, flags=re.I)
+text = re.sub(
+    r'<meta\s+name=["\']apple-mobile-web-app-title["\'][^>]*>',
+    '<meta name="apple-mobile-web-app-title" content="S.kosif">',
+    text,
+    count=1,
+    flags=re.I,
+)
 
-# Product branding: keep business data intact, rename only the application shell.
-text=re.sub(r"<title>[^<]*</title>","<title>S.kosif</title>",text,count=1,flags=re.I)
-text=re.sub(r'<meta\s+name=["\']apple-mobile-web-app-title["\'][^>]*>', '<meta name="apple-mobile-web-app-title" content="S.kosif">', text, count=1, flags=re.I)
+CSS_ASSETS = [
+    "modules/ui/mobile.css",
+    "modules/decision/bridge.css",
+    "modules/decision/question.css",
+    "modules/tools/smart.css",
+    "modules/app/core.css",
+    "modules/features/supply.css",
+    "modules/ui/workspace.css",
+    "modules/features/catalog.css",
+    "modules/ui/shell.css",
+    "modules/features/matching.css",
+    "modules/features/pricing.css",
+    "modules/app/session.css",
+    "modules/features/meatops.css",
+    "modules/ui/motion.css",
+]
 
-for css_name, version in [
-    ("mobile-v28.css","28"),
-    ("jev-v1.css","1"),
-    ("jev-question-v1.css","1"),
-    ("v29-smart.css","29"),
-    ("skosif-v30.css","30"),
-    ("skosif-supply-v31.css","31"),
-    ("skosif-sinam-v32.css","32"),
-    ("skosif-catalog-v32.css","32"),
-    ("skosif-shell-v33.css","33"),
-    ("skosif-jazarti-v34.css","34"),
-    ("skosif-pricing-v35.css","35"),
-    ("skosif-session-v36.css","36"),
-    ("skosif-meatops-v37.css","37"),
-    ("skosif-motion-v38.css","38")
-]:
-    if css_name not in text:
-        text=text.replace("</head>",f'<link rel="stylesheet" href="./{css_name}?v={version}"></head>',1)
+JS_ASSETS = [
+    "modules/ui/mobile.js",
+    "modules/decision/bridge.js",
+    "modules/decision/question.js",
+    "modules/tools/smart.js",
+    "modules/app/core.js",
+    "modules/features/supply.js",
+    "modules/ui/workspace.js",
+    "modules/features/catalog.js",
+    "modules/ui/shell.js",
+    "modules/features/matching.js",
+    "modules/features/pricing-core.js",
+    "modules/features/pricing.js",
+    "modules/app/session.js",
+    "modules/features/meatops.js",
+    "modules/ui/motion.js",
+]
 
-for js_name, version in [
-    ("mobile-v28.js","28"),
-    ("jev-v1.js","1"),
-    ("jev-question-v1.js","1"),
-    ("v29-smart.js","29"),
-    ("skosif-v30.js","30"),
-    ("skosif-supply-v31.js","31"),
-    ("skosif-sinam-v32.js","32"),
-    ("skosif-catalog-v32.js","32"),
-    ("skosif-shell-v33.js","33"),
-    ("skosif-jazarti-v34.js","34"),
-    ("skosif-pricing-core-v35.js","35"),
-    ("skosif-pricing-v35.js","35"),
-    ("skosif-session-v36.js","36"),
-    ("skosif-meatops-v37.js","37"),
-    ("skosif-motion-v38.js","38")
-]:
-    if js_name not in text:
-        head,sep,tail=text.rpartition("</body>")
-        if not sep: raise SystemExit("Final body close missing")
-        text=head+f'<script src="./{js_name}?v={version}" defer></script></body>'+tail
+REV = "clean-20260924"
+for asset in CSS_ASSETS:
+    if asset not in text:
+        text = text.replace("</head>", f'<link rel="stylesheet" href="./{asset}?rev={REV}"></head>', 1)
 
-text,private=private_blocks.extract(text)
-(out/"app-safe.html").write_text(text,encoding="utf-8")
-(out/"index.html").write_bytes(Path("unlock.html").read_bytes())
+for asset in JS_ASSETS:
+    if asset not in text:
+        head, sep, tail = text.rpartition("</body>")
+        if not sep:
+            raise SystemExit("Final body close missing")
+        text = head + f'<script src="./{asset}?rev={REV}" defer></script></body>' + tail
 
-for name in ["icon-192.png","icon-512.png","apple-touch-icon.png"]:
-    src=Path("payload")/(name+".b64")
-    (out/name).write_bytes(base64.b64decode(src.read_text(encoding="utf-8").strip()))
+text, private = private_blocks.extract(text)
+(out / "app-safe.html").write_text(text, encoding="utf-8")
+(out / "index.html").write_bytes(Path("unlock.html").read_bytes())
 
-for name in [
-    "sw.js","manifest.webmanifest","INSTALL-iPHONE-ar.txt","_headers",
-    "mobile-v28.css","mobile-v28.js","jev-v1.css","jev-v1.js",
-    "jev-question-v1.css","jev-question-v1.js","v29-smart.css","v29-smart.js","skosif-v30.css","skosif-v30.js","skosif-supply-v31.css","skosif-supply-v31.js","skosif-sinam-v32.css","skosif-sinam-v32.js","skosif-catalog-v32.css","skosif-catalog-v32.js","skosif-shell-v33.css","skosif-shell-v33.js","skosif-jazarti-v34.css","skosif-jazarti-v34.js","skosif-pricing-v35.css","skosif-pricing-core-v35.js","skosif-pricing-v35.js","skosif-session-v36.css","skosif-session-v36.js","skosif-meatops-v37.css","skosif-meatops-v37.js","skosif-motion-v38.css","skosif-motion-v38.js"
-]:
-    src=Path(name)
-    if src.exists(): (out/name).write_bytes(src.read_bytes())
+for name in ["icon-192.png", "icon-512.png", "apple-touch-icon.png"]:
+    src = Path("payload") / (name + ".b64")
+    (out / name).write_bytes(base64.b64decode(src.read_text(encoding="utf-8").strip()))
 
-shutil.copytree("secure",out/"secure")
-if private: private_blocks.encrypt(private,Path("secure"),out/"secure")
+for name in ["sw.js", "manifest.webmanifest", "INSTALL-iPHONE-ar.txt", "_headers"]:
+    src = Path(name)
+    if src.exists():
+        (out / name).write_bytes(src.read_bytes())
 
-# Name the service-worker cache after the build contents so every release
-# replaces the copy cached on installed phones.
-digest=hashlib.sha256()
-for f in sorted(out.rglob("*")):
-    if f.is_file() and f.name!="sw.js":
-        digest.update(str(f.relative_to(out)).encode()); digest.update(f.read_bytes())
-sw=(out/"sw.js").read_text(encoding="utf-8")
-sw,n=re.subn(r"const CACHE='[^']*';",f"const CACHE='skosif-{digest.hexdigest()[:12]}';",sw,count=1)
-if n!=1: raise SystemExit("sw.js CACHE marker missing")
-(out/"sw.js").write_text(sw,encoding="utf-8")
-print("Built S.kosif V38 adaptive motion release:",len(list(out.rglob("*"))),"entries")
+for asset in CSS_ASSETS + JS_ASSETS:
+    src = Path(asset)
+    dst = out / asset
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    dst.write_bytes(src.read_bytes())
+
+shutil.copytree("secure", out / "secure")
+if private:
+    private_blocks.encrypt(private, Path("secure"), out / "secure")
+
+# Content-address the service-worker cache so every successful release replaces old assets.
+digest = hashlib.sha256()
+for file in sorted(out.rglob("*")):
+    if file.is_file() and file.name != "sw.js":
+        digest.update(str(file.relative_to(out)).encode())
+        digest.update(file.read_bytes())
+sw = (out / "sw.js").read_text(encoding="utf-8")
+sw, n = re.subn(r"const CACHE='[^']*';", f"const CACHE='skosif-{digest.hexdigest()[:12]}';", sw, count=1)
+if n != 1:
+    raise SystemExit("sw.js CACHE marker missing")
+(out / "sw.js").write_text(sw, encoding="utf-8")
+
+print("Built S.kosif semantic modular release:", len(list(out.rglob("*"))), "entries")
