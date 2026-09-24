@@ -24,9 +24,10 @@ describe('S.kosif Meat Economics V37', () => {
       { id:'c1', name:'نعيمي', liveWeightKg:50, carcassWeightKg:30, totalCostHalalas:toHalalas(1200) },
       [{ id:'all', name:'الكل', yieldPct:100, pricePerKgHalalas:toHalalas(60) }]
     );
-    expect(row.costPerKgHalalas).toBe(toHalalas(40));
-    expect(row.marginPerKgHalalas).toBe(toHalalas(20));
-    expect(row.marginPct).toBeCloseTo(33.333333,5);
+    expect(row).toBeDefined();
+    expect(row!.costPerKgHalalas).toBe(toHalalas(40));
+    expect(row!.marginPerKgHalalas).toBe(toHalalas(20));
+    expect(row!.marginPct).toBeCloseTo(33.333333,5);
   });
 
   it('suggests a price from target margin', () => {
