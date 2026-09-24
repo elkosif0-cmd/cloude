@@ -1,4 +1,4 @@
-/* S.kosif — Semantic UI Shell
+/* S.kosif — Canonical semantic shell
    - تنقل مجمّع حسب القسم: شريط جانبي على الشاشات الكبيرة، وقائمة «الأقسام» على الجوال
    - رأس صفحة لكل قسم (أيقونة + عنوان عربي + وصف إنجليزي)
    - وضع داكن بأسلوب سِنام (يحفظ اختيارك)
@@ -35,7 +35,7 @@
     suppliers:["⛟","الموردون","Suppliers & Inbound Quality"], cash:["⇄","السيولة","Cash Flow & Forecast"], excel:["⊞","مطابقة إكسل","Excel Reconciliation"],
     reports:["▤","التقارير","Reports Centre"], health:["♡","الصحة","Storage Health"],
   };
-  const GROUPS=[["العمل اليومي",["overview","k32","pricing","customers","suppliers","cash"]],["الأدوات المتقدمة",["kernel","decision","meat","approvals","smartmatch","excel","reports","health"]]];
+  const GROUPS=[["العمل اليومي",["overview","k32","pricing","customers","suppliers","cash","smartmatch"]],["أدوات متقدمة",["kernel","decision","meat","approvals","excel","reports","health"]]];
   /* تبويبات الطبقات الأخرى تُعرّف نفسها بطرق مختلفة (data-* أو id) */
   const IDS={"sk34-tab":"smartmatch","sk35-tab":"kernel","sk37-tab":"meat"};
   const keyOf=b=>b.dataset.skTab||b.dataset.sk31Tab||(b.hasAttribute("data-k32-tab")?"k32":"")||b.dataset.sk33Tab||IDS[b.id]||"";
@@ -76,12 +76,12 @@
     const panel=document.querySelector(".sk-panel"), tabs=document.querySelector(".sk-tabs"), head=document.querySelector(".sk-head");
     if(!panel||!tabs||!head||panel.classList.contains("sk33"))return !!panel;
     panel.classList.add("sk33");
-    /* رأس نظيف: اختيار الثيم + القفل، بدون أزرار وضع مكررة */
+    /* أزرار الرأس: اختيار الثيمات (10 ثيمات) + الوضع الداكن + القفل */
     const close=$("sk-close");
     const tools=document.createElement("div");tools.className="sk33-tools";
-    tools.innerHTML='<button type="button" id="sk33-themes" aria-label="اختيار ثيم التطبيق" title="المظهر والثيمات (4 خيارات)">🎨</button><button type="button" id="sk33-lock" aria-label="قفل التطبيق">🔒</button>';
+    tools.innerHTML='<button type="button" id="sk33-themes" aria-label="المظهر والثيمات" title="المظهر والثيمات">المظهر</button><button type="button" id="sk33-lock" aria-label="قفل التطبيق" title="قفل التطبيق">قفل</button>';
     head.insertBefore(tools,close);
-    $("sk33-themes").onclick=themeSheet;
+    $("sk33-themes").onclick=()=>{themeSheet();setTimeout(enhanceThemeMotion,30)};
     $("sk33-lock").onclick=lockSheet;
     /* زر «الأقسام» للجوال */
     tabs.insertAdjacentHTML("afterbegin",'<button type="button" class="sk33-menu" aria-label="كل الأقسام">☰ الأقسام</button>');
@@ -107,47 +107,45 @@
       if(!btns.length)return "";
       return '<section><h5>'+esc(t)+'</h5><div>'+btns.map(b=>{const k=keyOf(b),m=META[k]||["•",b.textContent,""];return '<button type="button" data-go="'+esc(k)+'"><i>'+m[0]+'</i><b>'+esc(m[1])+'</b><small>'+esc(m[2])+'</small></button>'}).join("")+'</div></section>';
     }).join("");
-    const toolsSection='<section><h5>الإعدادات والمظهر</h5><div>'+
-      '<button type="button" id="sk33-open-themes"><i>🎨</i><b>المظهر والثيمات</b><small>4 ثيمات احترافية</small></button>'+
-      '<button type="button" id="sk33-open-yield"><i>✂</i><b>حاسبة تشفي اللحوم</b><small>حساب الهدر والتصافي</small></button>'+
+    const toolsSection='<section><h5>أدوات متقدمة</h5><div>'+
+      '<button type="button" id="sk33-open-inventory"><i>▦</i><b>المخزون الذكي</b><small>تغطية ونقطة إعادة الطلب</small></button>'+
+      '<button type="button" id="sk33-open-jev"><i>J</i><b>مساعد القرار Jev</b><small>قرار منظم بعد الحساب</small></button>'+
+      '<button type="button" id="sk33-open-health"><i>✓</i><b>تشخيص النظام</b><small>التخزين والجلسة والـPWA</small></button>'+
+      '<button type="button" id="sk33-open-themes"><i>◐</i><b>المظهر والحركة</b><small>4 ثيمات موحدة وحركة اختيارية</small></button>'+
     '</div></section>';
-    document.body.insertAdjacentHTML("beforeend",'<div id="sk33-launch" class="sk33-sheet-wrap" role="dialog" aria-modal="true" aria-label="الأقسام"><div class="sk33-sheet"><div class="sk33-sheet-head"><b>أدوات S.kosif</b><button type="button" class="sk33-x" aria-label="إغلاق">×</button></div>'+html+toolsSection+'</div></div>');
+    document.body.insertAdjacentHTML("beforeend",'<div id="sk33-launch" class="sk33-sheet-wrap" role="dialog" aria-modal="true" aria-label="الأقسام"><div class="sk33-sheet"><div class="sk33-sheet-head"><b>الأقسام والأدوات</b><button type="button" class="sk33-x" aria-label="إغلاق">×</button></div>'+html+toolsSection+'</div></div>');
     const w=$("sk33-launch");
     w.querySelector(".sk33-x").onclick=()=>w.remove(); w.onclick=e=>{if(e.target===w)w.remove()};
     w.querySelectorAll("[data-go]").forEach(x=>x.onclick=()=>{const b=[...tabs.querySelectorAll("button")].find(y=>keyOf(y)===x.dataset.go);w.remove();if(b){b.click();b.scrollIntoView&&b.scrollIntoView({block:"nearest",inline:"nearest"})}});
-    $("sk33-open-themes").onclick=()=>{w.remove();themeSheet()};
-    $("sk33-open-yield").onclick=()=>{w.remove();yieldSheet()};
+    $("sk33-open-themes").onclick=()=>{w.remove();themeSheet();setTimeout(enhanceThemeMotion,30)};
+    $("sk33-open-inventory").onclick=()=>{w.remove();window.AghnamV29?.open?.();setTimeout(()=>document.querySelector('[data-v29-tab="inventory"]')?.click(),80)};
+    $("sk33-open-jev").onclick=()=>{w.remove();window.AskJev?.open?.("choice")};
+    $("sk33-open-health").onclick=()=>{w.remove();window.SKosifSessionHealthV36?.open?.()};
     applyTheme();
   }
 
-  /* ---------- منظومة الـ 10 ثيمات ---------- */
+  /* ---------- منظومة الثيمات الموحدة ---------- */
   const THEMES=[
-    {id:"eataly",name:"فاتح مهني",desc:"واجهة هادئة عالية الوضوح للعمل اليومي",dots:["#FAF8F5","#1E201D","#A82A2A","#C28B28"]},
-    {id:"pasture",name:"المراعي الخضراء",desc:"أخضر طبيعي مريح للعمليات والكتالوج",dots:["#F2F9F5","#0F291E","#059669","#D97706"]},
-    {id:"notte",name:"داكن احترافي",desc:"وضع داكن مريح مع تباين واضح للبيانات",dots:["#141312","#FAF7F2","#D84D4D","#E5AC44"]},
-    {id:"qahwa",name:"القهوة النجدية",desc:"دفء محايد بلمسات تراثية سعودية",dots:["#F9F6F0","#2C180E","#6C2E12","#B45309"]}
+    {id:"executive-light",name:"تنفيذي فاتح",desc:"هادئ وواضح للعمل اليومي",dots:["#F8FAFC","#0F172A","#0F766E","#D97706"]},
+    {id:"executive-dark",name:"تنفيذي داكن",desc:"تباين مريح للعمل المسائي",dots:["#0B1220","#F8FAFC","#2DD4BF","#F59E0B"]},
+    {id:"gourmet",name:"ذواقة",desc:"درجات دافئة مناسبة لتجارة اللحوم",dots:["#FFF8EE","#3B2418","#9A3412","#166534"]},
+    {id:"contrast",name:"تباين عالٍ",desc:"وضوح قوي للنصوص والأرقام",dots:["#FFFFFF","#000000","#005A4F","#B54708"]}
   ];
 
   function themeNow(){
     const t=load(K.theme,"");
     if(t&&THEMES.some(x=>x.id===t))return t;
-    if(t==="dark")return "notte";
-    if(t==="light")return "eataly";
-    return matchMedia("(prefers-color-scheme: dark)").matches?"notte":"eataly";
+    if(["dark","notte","cyber","royal"].includes(t))return "executive-dark";
+    if(["eataly","light","sinam","pasture","amber","graphite","lavender","qahwa"].includes(t))return "executive-light";
+    return matchMedia("(prefers-color-scheme: dark)").matches?"executive-dark":"executive-light";
   }
 
   function applyTheme(){
     const t=themeNow();
-    ["sk-modal","sk33-launch","sk33-lockw","sk31-po-sheet","sk33-themew","sk33-yieldw","k32-drawer"].forEach(id=>{
+    ["sk-modal","sk33-launch","sk33-lockw","sk31-po-sheet","sk33-themew","k32-drawer"].forEach(id=>{
       const el=$(id);if(el)el.dataset.skTheme=t;
     });
     document.documentElement.dataset.skTheme=t;
-    const b=$("sk33-theme");
-    if(b){
-      const isDark=["notte"].includes(t);
-      b.textContent=isDark?"☀":"☾";
-      b.setAttribute("aria-pressed",isDark);
-    }
   }
 
   function setTheme(id){
@@ -157,13 +155,6 @@
     if(th)toast("تم تطبيق ثيم «"+th.name+"» بنجاح 🎨");
     const w=$("sk33-themew");
     if(w)w.remove();
-  }
-
-  function toggleTheme(){
-    const cur=themeNow();
-    const isDark=["notte"].includes(cur);
-    save(K.theme,isDark?"eataly":"notte");
-    applyTheme();
   }
 
   function themeSheet(){
@@ -183,7 +174,7 @@
       '<div id="sk33-themew" class="sk33-sheet-wrap" role="dialog" aria-modal="true" aria-label="اختيار ثيم التطبيق">'+
         '<div class="sk33-sheet" style="max-height:86dvh">'+
           '<div class="sk33-sheet-head">'+
-            '<div><b>مظهر وثيمات S.kosif</b><small style="display:block;color:var(--ink-3)">4 ثيمات احترافية منتقاة بعناية</small></div>'+
+            '<div><b>مظهر وثيمات S.kosif</b><small style="display:block;color:var(--ink-3)">4 أنماط موحدة</small></div>'+
             '<button type="button" class="sk33-x" aria-label="إغلاق">×</button>'+
           '</div>'+
           '<p class="sk33-note">اختر المظهر المفضل لمنصة العمليات والكتالوج. يتم حفظ اختيارك فوراً على جهازك.</p>'+
@@ -201,98 +192,17 @@
     applyTheme();
   }
 
-  /* ---------- حاسبة تشفي اللحوم والهدر ---------- */
-  function yieldSheet(){
-    $("sk33-yieldw")?.remove();
-    document.body.insertAdjacentHTML("beforeend",
-      '<div id="sk33-yieldw" class="sk33-sheet-wrap" role="dialog" aria-modal="true" aria-label="حاسبة تشفي اللحوم">'+
-        '<div class="sk33-sheet" style="max-height:88dvh">'+
-          '<div class="sk33-sheet-head">'+
-            '<div><b>حاسبة تشفي الذبائح ونسبة الهدر</b><small style="display:block;color:var(--ink-3)">Yield & Carcass Cost Simulator</small></div>'+
-            '<button type="button" class="sk33-x" aria-label="إغلاق">×</button>'+
-          '</div>'+
-          '<p class="sk33-note">أداة تسعير دقيقة لحساب التكلفة الفعلية للكيلو الصافي وسعر البيع المقترح بعد حساب الهدر والعظم والتصافي.</p>'+
-          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
-            '<label class="sk-field"><span>الوزن القائم (كجم)</span><input type="number" id="yd-live-kg" value="20" min="5" step="0.5"></label>'+
-            '<label class="sk-field"><span>سعر شراء الذبيحة (ر.س)</span><input type="number" id="yd-price" value="950" min="50" step="10"></label>'+
-            '<label class="sk-field"><span>نسبة التصافي المذبوح (٪)</span><input type="number" id="yd-dress-pct" value="52" min="30" max="75" step="1"></label>'+
-            '<label class="sk-field"><span>نسبة العظم والشحم الهدر (٪)</span><input type="number" id="yd-waste-pct" value="25" min="5" max="50" step="1"></label>'+
-            '<label class="sk-field" style="grid-column:1/-1"><span>هامش الربح المستهدف (٪)</span><input type="number" id="yd-margin-pct" value="30" min="0" max="80" step="1"></label>'+
-          '</div>'+
-          '<div class="sk33-yield-box">'+
-            '<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><span>وزن الذبيحة المذبوحة:</span><b id="yd-dress-kg">—</b></div>'+
-            '<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><span>صافي اللحم القابل للبيع:</span><b id="yd-prime-kg" style="color:var(--sk33-green)">—</b></div>'+
-            '<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><span>تكلفة الكيلو القائم:</span><b id="yd-live-cost">—</b></div>'+
-            '<div class="sk33-yield-kpis">'+
-              '<div class="sk33-yield-kpi"><span>تكلفة الكيلو الصافي</span><b id="yd-net-cost">—</b></div>'+
-              '<div class="sk33-yield-kpi"><span>سعر البيع المقترح</span><b id="yd-suggest-price">—</b></div>'+
-              '<div class="sk33-yield-kpi"><span>الربح المتوقع</span><b id="yd-profit">—</b></div>'+
-            '</div>'+
-          '</div>'+
-          '<button type="button" id="yd-share-btn" class="sk-primary sk33-wide">📤 مشاركة تقرير التشفي بالواتساب</button>'+
-        '</div>'+
-      '</div>'
-    );
-
-    const w=$("sk33-yieldw");
-    w.querySelector(".sk33-x").onclick=()=>w.remove();
-    w.onclick=e=>{if(e.target===w)w.remove()};
-
-    function calcYield(){
-      const liveKg=num($("yd-live-kg")?.value)||20;
-      const price=num($("yd-price")?.value)||950;
-      const dressPct=(num($("yd-dress-pct")?.value)||52)/100;
-      const wastePct=(num($("yd-waste-pct")?.value)||25)/100;
-      const targetMarg=(num($("yd-margin-pct")?.value)||30)/100;
-
-      const dressKg=liveKg*dressPct;
-      const primeKg=dressKg*(1-wastePct);
-      const liveCost=liveKg>0?price/liveKg:0;
-      const netCost=primeKg>0?price/primeKg:0;
-      const baseSell=targetMarg<1?netCost/(1-targetMarg):netCost;
-      const sellWithVat=baseSell*1.15;
-      const profit=(baseSell-netCost)*primeKg;
-
-      if($("yd-dress-kg"))$("yd-dress-kg").textContent=dressKg.toFixed(2)+" كجم";
-      if($("yd-prime-kg"))$("yd-prime-kg").textContent=primeKg.toFixed(2)+" كجم";
-      if($("yd-live-cost"))$("yd-live-cost").textContent=money(liveCost)+"/كجم";
-      if($("yd-net-cost"))$("yd-net-cost").textContent=money(netCost);
-      if($("yd-suggest-price"))$("yd-suggest-price").textContent=money(sellWithVat);
-      if($("yd-profit"))$("yd-profit").textContent=money(profit);
-    }
-
-    ["yd-live-kg","yd-price","yd-dress-pct","yd-waste-pct","yd-margin-pct"].forEach(id=>{
-      $(id)?.addEventListener("input",calcYield);
-    });
-
-    $("yd-share-btn").onclick=()=>{
-      const liveKg=num($("yd-live-kg")?.value)||20;
-      const price=num($("yd-price")?.value)||950;
-      const primeKg=$("yd-prime-kg")?.textContent||"";
-      const netCost=$("yd-net-cost")?.textContent||"";
-      const sellWithVat=$("yd-suggest-price")?.textContent||"";
-      const profit=$("yd-profit")?.textContent||"";
-
-      const txt=[
-        "🥩 *تقرير تشفي وحساب تكلفة الذبيحة — "+BIZ+"*",
-        "─────────────────",
-        "• الوزن القائم: "+liveKg+" كجم (سعر الشراء: "+money(price)+")",
-        "• صافي اللحم الصالح للبيع: "+primeKg,
-        "• التكلفة الحقيقية للكيلو الصافي: "+netCost,
-        "• سعر البيع المقترح للكيلو (شامل 15٪): "+sellWithVat,
-        "• صافي الربح المتوقع للذبيحة: "+profit,
-        "─────────────────",
-        "S.kosif Yield Engine"
-      ].join("\n");
-      window.open("https://wa.me/?text="+encodeURIComponent(txt),"_blank","noopener");
-    };
-
-    calcYield();
-    applyTheme();
+  function enhanceThemeMotion(){
+    const w=$("sk33-themew"); if(!w||w.querySelector(".sk33-motion"))return;
+    const grid=w.querySelector(".sk33-theme-grid"); if(!grid)return;
+    grid.insertAdjacentHTML("afterend",'<section class="sk33-motion"><div><b>الحركة</b><small>اختيارية ومخففة تلقائياً على الجوال</small></div><div>'+
+      [["off","إيقاف"],["flow","انسياب"],["constellation","شبكة"],["vortex","دوامة"]].map(([id,label])=>'<button type="button" data-motion="'+id+'">'+label+'</button>').join("")+
+      '</div></section>');
+    w.querySelectorAll("[data-motion]").forEach(b=>b.onclick=()=>window.SKosifMotionV38?.setMode?.(b.dataset.motion));
   }
 
   /* نوافذ الوحدات الأخرى تُنشأ لاحقاً؛ نطبّق عليها الوضع عند ظهورها */
-  new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1&&/^(sk31-po-sheet|sk33-launch|sk33-lockw|sk33-themew|sk33-yieldw)$/.test(n.id||""))n.dataset.skTheme=themeNow()}).observe(document.body,{childList:true});
+  new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1&&/^(sk31-po-sheet|sk33-launch|sk33-lockw|sk33-themew)$/.test(n.id||""))n.dataset.skTheme=themeNow()}).observe(document.body,{childList:true});
 
   /* ---------- القفل ---------- */
   function lockNow(){
@@ -456,25 +366,12 @@
     }
     return shell();
   }
-  /* ---------- شريط سفلي واحد بدل أربعة أزرار عائمة ----------
-     زر «الأقسام» يفتح مركز S.kosif، و«Jev» و«أدوات» تضغط الأزرار الأصلية (المخفية) نفسها */
-  function dock(){
-    const bar=document.getElementById("sx-taskbar"); if(!bar)return false;
-    if(bar.querySelector(".sk33-dock"))return true;
-    const box=document.createElement("div");box.className="sk33-dock";
-    const btn=(id,icon,label,fn)=>{const b=document.createElement("button");b.type="button";b.dataset.dock=id;b.innerHTML='<i aria-hidden="true">'+icon+'</i><span>'+label+'</span>';b.onclick=fn;box.appendChild(b)};
-    btn("hub","▦","اليومي",()=>{if(window.SKosif)window.SKosif.open("overview")});
-    if($("jev-fab"))btn("jev","✦","Jev",()=>$("jev-fab").click());
-    if($("v29-fab"))btn("v29","⚡","متقدمة",()=>$("v29-fab").click());
-    const main=bar.querySelector("#sx-command");
-    main?main.after(box):bar.prepend(box);
-    document.body.classList.add("sk33-docked");
-    return true;
-  }
+  /* ---------- التنقل أصبح داخل التطبيق؛ لا شريط عائم ---------- */
+  function dock(){ document.body.classList.add("sk33-docked"); return true; }
   function init(){
-    let d=0;const dt=setInterval(()=>{if(dock()||++d>40)clearInterval(dt)},300);
+    dock();
     let tries=0;const t=setInterval(()=>{if((attach()&&document.querySelector("[data-k32-tab]")&&document.querySelector("[data-sk31-tab]"))||++tries>40){clearInterval(t);group();pageHead()}},250);
-    window.SKosifShell={open:(tab)=>{if(window.SKosif)window.SKosif.open("overview");attach();if(tab)render(tab)},lock:lockNow,version:"clean-2026.09"};
+    window.SKosifShell={open:(tab)=>{if(window.SKosif)window.SKosif.open("overview");attach();if(tab)render(tab)},lock:lockNow,version:"1.0"};
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
