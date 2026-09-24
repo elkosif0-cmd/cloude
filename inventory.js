@@ -1,4 +1,4 @@
-/* Aghnam Alwadi — Smart Operations V29 */
+/* Aghnam Alwadi — Inventory & Decision Log */
 (()=> {
   const STORE_INV="aghnam_v29_inventory";
   const STORE_LOG="aghnam_v29_jev_log";
@@ -28,9 +28,7 @@
     document.body.insertAdjacentHTML("beforeend",[      '<div id="v29-modal" class="v29-backdrop" aria-hidden="true">',
       '<section class="v29-panel" role="dialog" aria-modal="true" aria-labelledby="v29-title">',
       '<div class="v29-head"><div class="v29-logo">S</div><div><b id="v29-title">المخزون والقرارات</b><span>تغطية · إعادة طلب · سجل قرارات Jev</span></div><button id="v29-close" class="v29-close" type="button">×</button></div>',
-      '<div class="v29-tabs"><button class="active" data-v29-tab="inventory">المخزون الذكي</button><button data-v29-tab="decisions">سجل Jev</button></div>',
-      '<div class="v29-view active" data-v29-view="pricing">'+pricingHTML()+'</div>',
-      '<div class="v29-view active" data-v29-view="inventory">'+inventoryHTML()+'</div>',
+      '<div class="v29-tabs"><button class="active" data-v29-tab="inventory">المخزون الذكي</button><button data-v29-tab="decisions">سجل Jev</button></div>',      '<div class="v29-view active" data-v29-view="inventory">'+inventoryHTML()+'</div>',
       '<div class="v29-view" data-v29-view="decisions">'+logHTML()+'</div>',
       '</section></div>'
     ].join(""));
