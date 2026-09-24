@@ -81,7 +81,7 @@
     const tools=document.createElement("div");tools.className="sk33-tools";
     tools.innerHTML='<button type="button" id="sk33-themes" aria-label="المظهر والثيمات" title="المظهر والثيمات">المظهر</button><button type="button" id="sk33-lock" aria-label="قفل التطبيق" title="قفل التطبيق">قفل</button>';
     head.insertBefore(tools,close);
-    $("sk33-themes").onclick=themeSheet;
+    $("sk33-themes").onclick=()=>{themeSheet();setTimeout(enhanceThemeMotion,30)};
     $("sk33-lock").onclick=lockSheet;
     /* زر «الأقسام» للجوال */
     tabs.insertAdjacentHTML("afterbegin",'<button type="button" class="sk33-menu" aria-label="كل الأقسام">☰ الأقسام</button>');
@@ -146,12 +146,6 @@
       const el=$(id);if(el)el.dataset.skTheme=t;
     });
     document.documentElement.dataset.skTheme=t;
-    const b=$("sk33-theme");
-    if(b){
-      const isDark=t==="executive-dark";
-      b.textContent=isDark?"☀":"☾";
-      b.setAttribute("aria-pressed",isDark);
-    }
   }
 
   function setTheme(id){
@@ -161,13 +155,6 @@
     if(th)toast("تم تطبيق ثيم «"+th.name+"» بنجاح 🎨");
     const w=$("sk33-themew");
     if(w)w.remove();
-  }
-
-  function toggleTheme(){
-    const cur=themeNow();
-    const isDark=cur==="executive-dark";
-    save(K.theme,isDark?"executive-light":"executive-dark");
-    applyTheme();
   }
 
   function themeSheet(){
