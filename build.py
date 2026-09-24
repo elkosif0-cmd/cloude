@@ -18,6 +18,7 @@ text=html.decode("utf-8")
 # built without the patch rather than failing the deploy.
 for patch_name, anchor in [
     ("react-import-v33.js", "try{\n  const V25_PARSE_OLD=parseBackupPayload;"),
+    ("core-bridge-v31.js", "if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();"),
 ]:
     if anchor in text:
         patch=Path(patch_name).read_text(encoding="utf-8")
@@ -35,7 +36,8 @@ for css_name, version in [
     ("jev-v1.css","1"),
     ("jev-question-v1.css","1"),
     ("v29-smart.css","29"),
-    ("skosif-v30.css","30")
+    ("skosif-v30.css","30"),
+    ("skosif-supply-v31.css","31")
 ]:
     if css_name not in text:
         text=text.replace("</head>",f'<link rel="stylesheet" href="./{css_name}?v={version}"></head>',1)
@@ -45,7 +47,8 @@ for js_name, version in [
     ("jev-v1.js","1"),
     ("jev-question-v1.js","1"),
     ("v29-smart.js","29"),
-    ("skosif-v30.js","30")
+    ("skosif-v30.js","30"),
+    ("skosif-supply-v31.js","31")
 ]:
     if js_name not in text:
         head,sep,tail=text.rpartition("</body>")
@@ -63,7 +66,7 @@ for name in ["icon-192.png","icon-512.png","apple-touch-icon.png"]:
 for name in [
     "sw.js","manifest.webmanifest","INSTALL-iPHONE-ar.txt","_headers",
     "mobile-v28.css","mobile-v28.js","jev-v1.css","jev-v1.js",
-    "jev-question-v1.css","jev-question-v1.js","v29-smart.css","v29-smart.js","skosif-v30.css","skosif-v30.js"
+    "jev-question-v1.css","jev-question-v1.js","v29-smart.css","v29-smart.js","skosif-v30.css","skosif-v30.js","skosif-supply-v31.css","skosif-supply-v31.js"
 ]:
     src=Path(name)
     if src.exists(): (out/name).write_bytes(src.read_bytes())

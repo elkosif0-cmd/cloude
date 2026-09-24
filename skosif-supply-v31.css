@@ -1,0 +1,26 @@
+/* S.kosif V31 — الموردون والسيولة */
+.sk31-card{border:1px solid var(--line,#e4e7ec);background:var(--surface,#fff);border-radius:15px;padding:12px;margin-top:10px}
+.sk31-card>summary{cursor:pointer;list-style:none}.sk31-card>summary::-webkit-details-marker{display:none}
+.sk31-card[open]>summary{margin-bottom:10px}
+.sk31-row{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px;margin-bottom:8px}
+.sk31-row small,.sk31-sub{color:var(--ink-3,#8a93a8);font-size:11px}
+.sk31-sub{display:block;margin-top:2px}
+.sk31-h{margin:18px 0 6px;font-size:14px}
+.sk31-bad{color:#b42318}
+.sk31-tier,.sk31-risk{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+.sk31-tAp{background:#dcfae6;color:#067647}.sk31-tA{background:#e6f4ea;color:#067647}.sk31-tB{background:#eef4ff;color:#3538cd}
+.sk31-tC{background:#fef0c7;color:#93370d}.sk31-tD{background:#fee4e2;color:#b42318}
+.sk31-low{background:#dcfae6;color:#067647}.sk31-moderate{background:#fef0c7;color:#93370d}
+.sk31-high{background:#fddcab;color:#93370d}.sk31-critical{background:#fee4e2;color:#b42318}
+.sk31-del{border:0;background:transparent;font-size:16px;cursor:pointer;padding:4px}
+.sk31-po{padding:5px 10px;font-size:12px}
+.sk31-chart{display:flex;align-items:flex-end;gap:8px;height:170px;margin:14px 0 4px;padding:10px;border:1px solid var(--line,#e4e7ec);border-radius:14px;background:var(--surface-2,#f8fafc);overflow-x:auto}
+.sk31-col{flex:1 0 42px;display:flex;flex-direction:column;align-items:center;height:100%}
+.sk31-col small{font-size:10px;color:var(--ink-3,#8a93a8);margin-top:4px;white-space:nowrap}
+.sk31-bars{flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center;gap:3px}
+.sk31-bars i{display:block;width:40%;max-width:22px;min-height:2px;border-radius:5px 5px 0 0}
+i.sk31-in{background:#12b76a}i.sk31-out{background:#f04438}
+.sk31-legend{display:flex;gap:14px;font-size:12px;margin-bottom:8px}
+.sk31-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-left:5px;vertical-align:middle}
+@media (max-width:640px){.sk31-chart{height:140px}.sk31-col{flex-basis:34px}}
+.sk31-title{margin:4px 0 8px}.sk31-title h3{margin:0 0 4px;font-size:17px}.sk31-title p{margin:0;color:var(--ink-3,#8a93a8);font-size:12.5px;line-height:1.7}
