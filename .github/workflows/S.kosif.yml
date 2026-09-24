@@ -42,6 +42,7 @@ jobs:
           node --check skosif-pricing-core-v35.js
           node --check skosif-pricing-v35.js
           node --check skosif-session-v36.js
+          node --check skosif-meatops-v37.js
           node --check jev-v1.js
           node --check jev-question-v1.js
           node --check v29-smart.js
@@ -52,6 +53,12 @@ jobs:
           npm ci
           npx tsc -p tsconfig.pricing-core.json --noEmit
           npx vitest run src/engine/corePricing/pricing.test.ts
+
+      - name: Test meat economics engine
+        working-directory: app
+        run: |
+          npx tsc -p tsconfig.meatops.json --noEmit
+          npx vitest run src/engine/meatOps/ops.test.ts
 
       - name: Build S.kosif
         env:
@@ -77,6 +84,8 @@ jobs:
             "skosif-pricing-v35.js?v=35",
             "skosif-session-v36.css?v=36",
             "skosif-session-v36.js?v=36",
+            "skosif-meatops-v37.css?v=37",
+            "skosif-meatops-v37.js?v=37",
             "jev-v1.js?v=1",
             "jev-question-v1.js?v=1",
             "v29-smart.js?v=29"
@@ -84,7 +93,7 @@ jobs:
           for marker in required:
               assert marker in app, marker
           for f in [
-            "skosif-v30.css","skosif-v30.js","skosif-sinam-v32.css","skosif-sinam-v32.js","skosif-jazarti-v34.css","skosif-jazarti-v34.js","skosif-pricing-v35.css","skosif-pricing-core-v35.js","skosif-pricing-v35.js","skosif-session-v36.css","skosif-session-v36.js","jev-v1.js","jev-question-v1.js",
+            "skosif-v30.css","skosif-v30.js","skosif-sinam-v32.css","skosif-sinam-v32.js","skosif-jazarti-v34.css","skosif-jazarti-v34.js","skosif-pricing-v35.css","skosif-pricing-core-v35.js","skosif-pricing-v35.js","skosif-session-v36.css","skosif-session-v36.js","skosif-meatops-v37.css","skosif-meatops-v37.js","jev-v1.js","jev-question-v1.js",
             "v29-smart.js","sw.js","manifest.webmanifest","secure/crypto.json"
           ]:
               assert Path("dist",f).exists(), f
@@ -122,5 +131,8 @@ jobs:
           sess=Path("dist/skosif-session-v36.js").read_text(encoding="utf-8")
           for marker in ["hasStorageAccess","requestStorageAccess","indexedDB","aghnamJevSession","serviceWorker","SKosifSessionHealthV36"]:
               assert marker in sess, marker
-          print("S.kosif V36 validation: OK")
+          meat=Path("dist/skosif-meatops-v37.js").read_text(encoding="utf-8")
+          for marker in ["اقتصاديات الذبيحة","dressing","allocate","aging","أعمار الذمم"]:
+              assert marker in meat, marker
+          print("S.kosif V37 validation: OK")
           PY
