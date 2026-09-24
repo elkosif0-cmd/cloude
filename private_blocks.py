@@ -8,7 +8,7 @@ them to secure/private.* encrypted with the same keys as the data seed.
 unlock.html decrypts them with the entered password and puts them back
 before opening the app.
 
-Keys come from AGHNAM_UNLOCK_PASSWORD with the seed's own PBKDF2 salt and
+Keys come from KOSIF_UNLOCK_PASSWORD (or AGHNAM_UNLOCK_PASSWORD) with the seed's own PBKDF2 salt and
 iteration count, so unlocking costs no extra key derivation. The password
 is checked against the seed's HMAC tag first, so a wrong password fails the
 build instead of publishing data nobody can open.
@@ -16,7 +16,8 @@ build instead of publishing data nobody can open.
 from pathlib import Path
 import base64, gzip, hashlib, hmac, json, os, re, struct
 
-PASSWORD_ENV = "AGHNAM_UNLOCK_PASSWORD"
+PASSWORD_ENV = "KOSIF_UNLOCK_PASSWORD"
+LEGACY_PASSWORD_ENV = "AGHNAM_UNLOCK_PASSWORD"
 
 CATALOG_START = "/* ===== بيانات ملف الإكسل"
 CATALOG_PLACEHOLDER = ("/*AGHNAM_PRIVATE:catalog*/const SEED_RAWS=[],SEED_BOXES=[],"
@@ -90,7 +91,7 @@ def extract(text):
 
 def encrypt(blocks, secure_dir, out_dir):
     """Write out_dir/private.json and its cipher parts. Needs the unlock password."""
-    password = os.environ.get(PASSWORD_ENV, "")
+    password = os.environ.get(PASSWORD_ENV) or os.environ.get(LEGACY_PASSWORD_ENV, "")
     if not password:
         raise SystemExit(f"{PASSWORD_ENV} is not set; refusing to publish private data unencrypted")
     meta = json.loads((secure_dir / "crypto.json").read_text(encoding="utf-8"))

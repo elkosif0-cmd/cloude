@@ -40,7 +40,7 @@ jobs:
 
       - name: Build S.kosif
         env:
-          AGHNAM_UNLOCK_PASSWORD: ${{ secrets.AGHNAM_UNLOCK_PASSWORD }}
+          KOSIF_UNLOCK_PASSWORD: ${{ secrets.KOSIF_UNLOCK_PASSWORD }}
         run: python3 build.py
 
       - name: Validate production bundle

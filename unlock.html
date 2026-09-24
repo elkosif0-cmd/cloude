@@ -84,7 +84,7 @@ try{
 $("p").value="";
 document.open();document.write(app);document.close();
 }catch(err){console.error(err);$("msg").textContent="كلمة المرور غير صحيحة أو تعذر فتح البيانات.";$("progress").textContent="";$("p").select()}
-finally{$("go").disabled=false}
+finally{const g=$("go");if(g)g.disabled=false}
 });
 </script>
 </body></html>
