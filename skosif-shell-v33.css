@@ -681,3 +681,27 @@ body.sk33-docked #sk-fab,body.sk33-docked #jev-fab,body.sk33-docked #v29-fab{dis
   /* مساحة للشريط السفلي حتى لا يغطي آخر المحتوى */
   .sk-panel #sk-body{padding-bottom:72px}
 }
+
+/* ---------- V39: إكمال الثيمات العشرة ----------
+   قواعد الوضع الداكن كانت مربوطة باسم "dark" فقط، بينما الثيمات الداكنة الفعلية
+   هي notte وcyber وroyal: التبويب النشط كان نصاً داكناً على خلفية داكنة. */
+:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-tabs button.active{background:var(--sk33-accent);color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-tabs button{color:var(--ink-2)}
+:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-kpi{background:var(--surface-2);border-color:var(--line)}
+:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-kpi b{color:var(--ink)}
+:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-kpi.good b{color:#5EEAD4}
+:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-kpi.warn b{color:#FCD34D}
+:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-table th{background:var(--surface-2);color:var(--ink-2)}
+:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) :is(.sk-table td,.sk-table th){border-color:var(--line)}
+:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) :is(.sk-field input,.sk-field select,.sk33-ta,.sk31-sheet textarea){background:var(--surface-2);color:var(--ink);border-color:var(--line)}
+:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-warning{background:#3B2A14;color:#FCD34D;border-color:#78350F}
+:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-success{background:#132D1E;color:#86EFAC;border-color:#14532D}
+:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-secondary{background:var(--surface-2);color:var(--ink);border-color:var(--line)}
+:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-primary{background:var(--sk33-accent);color:#fff}
+:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) :is(.sk31-bad){color:#FCA5A5}
+:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) :is(.sk31-sub,.sk33-note,.sk-field span){color:var(--ink-3)}
+
+/* الكتالوج يتبع ألوان الثيم المختار (الخلفية والبطاقات والنصوص والحدود) في الثيمات العشرة */
+[data-sk-theme] .k32{--k32-cream:var(--surface-2);--k32-card:var(--surface);--k32-card-subtle:var(--surface-2);--k32-ink:var(--ink);--k32-ink-light:var(--ink-2);--k32-mute:var(--ink-3);--k32-line:var(--line);--k32-line-subtle:var(--line)}
+:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .k32{--k32-wine:#E26A6A;--k32-wine-soft:#3A1C1C;--k32-green:#5FAE84;--k32-green-light:#16261D;--k32-gold:#EAB54F;--k32-gold-soft:#342817;
+  --k32-shadow-sm:0 2px 8px rgba(0,0,0,.3);--k32-shadow-md:0 8px 24px rgba(0,0,0,.4);--k32-shadow-lg:0 16px 40px rgba(0,0,0,.5)}
