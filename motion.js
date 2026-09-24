@@ -4,7 +4,7 @@
    reduced-motion support, visibility pause, no audio, no DOM ownership. */
 (()=>{
 "use strict";
-if(window.SKosifMotionV38)return;
+if(window.SKosifMotion)return;
 
 const VERSION="38.0";
 const PREF="skosif_v38_motion_mode";
@@ -258,7 +258,7 @@ function boot(){
   matchMedia("(prefers-reduced-motion: reduce)").addEventListener?.("change",()=>{updateControl();prefersReduced()?stop():mode!=="off"&&start()});
   setInterval(syncTheme,1200);
   if(mode!=="off"&&!prefersReduced())start();
-  window.SKosifMotionV38=Object.freeze({
+  window.SKosifMotion=Object.freeze({
     version:VERSION,
     get mode(){return mode},
     setMode,
