@@ -10,10 +10,8 @@
     return "الشاشة الحالية: "+(document.title||"S.kosif")+"\nالمسار: "+location.hash+"\n\n"+t;
   }
   function shell(){
-    if(document.getElementById("jev-fab"))return;
-    document.body.insertAdjacentHTML("beforeend",`
-      <button id="jev-fab" type="button" aria-label="Jev"><span>Jev<small>قرار</small></span></button>
-      <div class="jev-backdrop" id="jev-modal" aria-hidden="true">
+    if(document.getElementById("jev-modal"))return;
+    document.body.insertAdjacentHTML("beforeend",`<div class="jev-backdrop" id="jev-modal" aria-hidden="true">
         <section class="jev-panel" role="dialog" aria-modal="true" aria-labelledby="jev-title">
           <div class="jev-head"><div class="jev-mark">J</div><div class="jev-title"><b id="jev-title">مركز قرارات Jev</b><span>قرار احتمالي مساعد — وليس مصدر حقيقة</span></div><button class="jev-close" type="button" aria-label="إغلاق">×</button></div>
           <div class="jev-presets">
@@ -87,8 +85,7 @@
     }catch(e){status.innerHTML='<span class="jev-offline">'+esc(e.message||e)+'</span>'}finally{btn.disabled=false}
   }
   function bind(){
-    const modal=document.getElementById("jev-modal");
-    document.getElementById("jev-fab").onclick=()=>{modal.classList.add("open");modal.setAttribute("aria-hidden","false")};
+    const modal=document.getElementById("jev-modal");modal.setAttribute("aria-hidden","false")};
     modal.querySelector(".jev-close").onclick=()=>{modal.classList.remove("open");modal.setAttribute("aria-hidden","true")};
     modal.addEventListener("click",e=>{if(e.target===modal)modal.querySelector(".jev-close").click()});
     document.querySelectorAll(".jev-type").forEach(b=>b.onclick=()=>setType(b.dataset.type));
