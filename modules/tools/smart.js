@@ -1,8 +1,7 @@
-/* Aghnam Alwadi — Smart Operations semantic */
+/* S.kosif — Smart inventory and decision log */
 (()=> {
   const STORE_INV="aghnam_v29_inventory";
   const STORE_LOG="aghnam_v29_jev_log";
-  const STORE_PRICE="aghnam_v29_last_price";
   const MAX_LOG=100;
   const $=id=>document.getElementById(id);
   const n=v=>Number(String(v??"").replace(/,/g,""))||0;
@@ -16,46 +15,24 @@
   function emitOpen(){
     $("v29-modal")?.classList.add("open");
     $("v29-modal")?.setAttribute("aria-hidden","false");
+    setTab("inventory");
     renderInventory();
     renderLog();
-    loadLastPrice();
   }
   function close(){
     $("v29-modal")?.classList.remove("open");
     $("v29-modal")?.setAttribute("aria-hidden","true");
   }
   function shell(){
-    if($("v29-fab")) return;
-    document.body.insertAdjacentHTML("beforeend",[
-      '<button id="v29-fab" class="v29-fab" type="button" aria-label="مركز التشغيل الذكي"><b>V29</b><small>ذكي</small></button>',
-      '<div id="v29-modal" class="v29-backdrop" aria-hidden="true">',
+    if($("v29-modal")) return;
+    document.body.insertAdjacentHTML("beforeend",[      '<div id="v29-modal" class="v29-backdrop" aria-hidden="true">',
       '<section class="v29-panel" role="dialog" aria-modal="true" aria-labelledby="v29-title">',
-      '<div class="v29-head"><div class="v29-logo">29</div><div><b id="v29-title">مركز التشغيل الذكي</b><span>تسعير · مخزون · سجل قرارات Jev</span></div><button id="v29-close" class="v29-close" type="button">×</button></div>',
-      '<div class="v29-tabs"><button class="active" data-v29-tab="pricing">التسعير الذكي</button><button data-v29-tab="inventory">المخزون الذكي</button><button data-v29-tab="decisions">سجل Jev</button></div>',
-      '<div class="v29-view active" data-v29-view="pricing">'+pricingHTML()+'</div>',
-      '<div class="v29-view" data-v29-view="inventory">'+inventoryHTML()+'</div>',
+      '<div class="v29-head"><div class="v29-logo">S</div><div><b id="v29-title">المخزون والقرارات</b><span>تغطية · إعادة طلب · سجل قرارات Jev</span></div><button id="v29-close" class="v29-close" type="button">×</button></div>',
+      '<div class="v29-tabs"><button class="active" data-v29-tab="inventory">المخزون الذكي</button><button data-v29-tab="decisions">سجل Jev</button></div>',      '<div class="v29-view active" data-v29-view="inventory">'+inventoryHTML()+'</div>',
       '<div class="v29-view" data-v29-view="decisions">'+logHTML()+'</div>',
       '</section></div>'
     ].join(""));
     bind();
-  }
-
-  function pricingHTML(){
-    return [
-      '<div class="v29-section-title"><div><b>محرك التسعير اليومي</b><span>الحسابات تتم داخل التطبيق أولًا</span></div><span class="v29-deterministic">حساب قطعي</span></div>',
-      '<div class="v29-form-grid">',
-      field("v29-item","الصنف","text","مثال: بوفتيك"),
-      field("v29-buy","سعر الشراء شامل الضريبة","number","0.00","0.01"),
-      field("v29-sell","سعر البيع الحالي شامل الضريبة","number","0.00","0.01"),
-      field("v29-waste","الهدر %","number","0","0.1"),
-      field("v29-vat","الضريبة %","number","15","0.1"),
-      field("v29-margin","الهامش المستهدف %","number","25","0.1"),
-      '</div>',
-      '<button id="v29-price-calc" class="v29-primary" type="button">احسب السعر الآمن</button>',
-      '<div id="v29-price-error" class="v29-error"></div>',
-      '<div id="v29-price-result" class="v29-results"></div>',
-      '<div class="v29-helper">طريقة الحساب: تكلفة الشراء بدون الضريبة ← تكلفة الوحدة القابلة للبيع بعد الهدر ← سعر التعادل والسعر المستهدف. Jev لا يحسب الأرقام.</div>'
-    ].join("");
   }
   function inventoryHTML(){
     return [
@@ -91,62 +68,9 @@
     if(tab==="inventory") renderInventory();
     if(tab==="decisions") renderLog();
   }
-
-  function calcPrice(){
-    const item=$("v29-item").value.trim()||"الصنف";
-    const buy=n($("v29-buy").value), sell=n($("v29-sell").value);
-    const waste=n($("v29-waste").value), vat=n($("v29-vat").value), target=n($("v29-margin").value);
-    const err=$("v29-price-error"), out=$("v29-price-result");
-    err.textContent="";
-    if(buy<=0){err.textContent="أدخل سعر شراء أكبر من صفر.";out.innerHTML="";return null}
-    if(waste<0||waste>=100){err.textContent="الهدر يجب أن يكون بين 0 و أقل من 100٪.";return null}
-    if(vat<0||vat>100||target<0||target>=100){err.textContent="راجع نسبة الضريبة والهامش المستهدف.";return null}
-    const buyNet=buy/(1+vat/100);
-    const effective=buyNet/(1-waste/100);
-    const breakEvenInc=effective*(1+vat/100);
-    const targetNet=effective/(1-target/100);
-    const targetInc=targetNet*(1+vat/100);
-    const sellNet=sell>0?sell/(1+vat/100):0;
-    const profit=sellNet-effective;
-    const margin=sellNet>0?(profit/sellNet)*100:0;
-    const marginInc=sell>0?(profit/sell)*100:0;
-    const gap=sell>0?targetInc-sell:0;
-    const status=sell<=0?"لا يوجد سعر حالي":sell+0.0001<breakEvenInc?"خسارة":sell+0.0001<targetInc?"أقل من المستهدف":"ضمن/فوق المستهدف";
-    const cls=status==="خسارة"?"bad":status==="أقل من المستهدف"?"warn":"good";
-    const r={item,buy,sell,waste,vat,target,buyNet,effective,breakEvenInc,targetInc,sellNet,profit,margin,marginInc,gap,status,ts:new Date().toISOString()};
-    write(STORE_PRICE,r);
-    out.innerHTML=[
-      '<div class="v29-kpis">',
-      kpi("تكلفة بدون الضريبة",money(buyNet)),
-      kpi("تكلفة بعد الهدر",money(effective)),
-      kpi("سعر التعادل شامل الضريبة",money(breakEvenInc)),
-      kpi("السعر المستهدف",money(targetInc),"accent"),
-      sell>0?kpi("هامش السعر الحالي",pct(margin),margin<target?"warn":"good"):"",
-      sell>0?kpi("الربح للوحدة بدون الضريبة",money(profit),profit<0?"bad":"good"):"",
-      '</div>',
-      '<div class="v29-status '+cls+'"><b>'+status+'</b>'+(sell>0?'<span>الفارق عن السعر المستهدف: '+money(gap)+'</span>':'')+'</div>',
-      '<button id="v29-price-jev" class="v29-jev-btn" type="button">اسأل Jev: أرفع السعر أم أثبته أم أعمل عرض؟</button>'
-    ].join("");
-    $("v29-price-jev").onclick=()=>askPriceJev(r);
-    return r;
-  }
-
   function kpi(label,value,cls=""){
     return '<div class="v29-kpi '+cls+'"><span>'+label+'</span><b>'+value+'</b></div>';
   }
-
-  function askPriceJev(r){
-    if(!window.AskJev){alert("قسم Jev غير جاهز بعد.");return}
-    close();
-    window.AskJev.open("choice");
-    setTimeout(()=>{
-      const q=$("jev-ask-q"),o=$("jev-ask-options"),screen=$("jev-ask-screen");
-      if(q) q.value="للصنف "+r.item+": سعر الشراء شامل الضريبة "+r.buy+"، الهدر "+r.waste+"٪، سعر البيع الحالي "+r.sell+"، سعر التعادل المحسوب "+r.breakEvenInc.toFixed(2)+"، السعر المستهدف "+r.targetInc.toFixed(2)+"، والهامش الحالي "+r.margin.toFixed(1)+"٪. ما القرار الأنسب؟";
-      if(o) o.value="رفع السعر\nتثبيت السعر\nعرض ترويجي مؤقت\nإعادة التفاوض على تكلفة الشراء";
-      if(screen) screen.checked=false;
-    },120);
-  }
-
   function stockCalc(){
     const item=$("v29-stock-item").value.trim()||"الصنف";
     const stock=n($("v29-stock").value), daily=n($("v29-daily").value);
@@ -240,18 +164,11 @@
     const blob=new Blob([JSON.stringify({exported_at:new Date().toISOString(),decisions:list},null,2)],{type:"application/json"});
     const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="aghnam-jev-decisions-"+new Date().toISOString().slice(0,10)+".json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
   }
-  function loadLastPrice(){
-    const r=read(STORE_PRICE,null); if(!r)return;
-    const vals={"v29-item":r.item,"v29-buy":r.buy,"v29-sell":r.sell,"v29-waste":r.waste,"v29-vat":r.vat,"v29-margin":r.target};
-    Object.entries(vals).forEach(([id,v])=>{if($(id)&&!$(id).value)$(id).value=v});
-  }
 
   function bind(){
-    $("v29-fab").onclick=emitOpen;
     $("v29-close").onclick=close;
     $("v29-modal").addEventListener("click",e=>{if(e.target===$("v29-modal"))close()});
     document.querySelectorAll("[data-v29-tab]").forEach(b=>b.onclick=()=>setTab(b.dataset.v29Tab));
-    $("v29-price-calc").onclick=calcPrice;
     $("v29-stock-calc").onclick=stockCalc;
     $("v29-stock-save").onclick=saveStock;
     $("v29-stock-clear").onclick=()=>{if(confirm("مسح كل الأصناف المحفوظة؟")){write(STORE_INV,[]);renderInventory()}};
@@ -261,5 +178,5 @@
   }
 
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",shell,{once:true});else shell();
-  window.AghnamV29={open:emitOpen,version:"29.0",logDecision};
+  window.AghnamV29={open:emitOpen,version:"1.0",logDecision};
 })();
