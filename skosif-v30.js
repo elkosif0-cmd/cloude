@@ -1,4 +1,4 @@
-/* S.kosif Fusion V30 — unified capability layer */
+/* S.kosif — unified operations capability layer */
 (()=> {
   "use strict";
   const APP="S.kosif";
@@ -139,7 +139,7 @@
 
   function pricingHTML(){
     return [
-      '<div class="sk-section-title"><b>محرك التسعير V30</b><span>VAT · هدر · مصروفات · هامش · حساسية · تقريب</span></div>',
+      '<div class="sk-section-title"><b>التسعير السريع</b><span>VAT · هدر · مصروفات · هامش · حساسية · تقريب</span></div>',
       '<div class="sk-grid2">',
       f("sk-p-name","الصنف","text","اسم الصنف"),
       f("sk-p-buy","شراء شامل الضريبة","number","0.00","0.01"),
@@ -192,7 +192,7 @@
   function k(a,b,c=""){return '<div class="sk-kpi '+c+'"><span>'+a+'</span><b>'+b+'</b></div>'}
   function makeApproval(snap){
     let a=load(STORE.approve,[]);
-    a.unshift({id:"APR-"+Date.now(),createdAt:now(),status:"pending",item:snap.item,currentPrice:snap.inputs.sell,proposedPrice:snap.results.targetGross,targetMargin:snap.inputs.target,reason:"ناتج محرك S.kosif V30",snapshotId:snap.id});
+    a.unshift({id:"APR-"+Date.now(),createdAt:now(),status:"pending",item:snap.item,currentPrice:snap.inputs.sell,proposedPrice:snap.results.targetGross,targetMargin:snap.inputs.target,reason:"ناتج محرك S.kosif ",snapshotId:snap.id});
     save(STORE.approve,a.slice(0,100));toast("تم إنشاء مذكرة اعتماد للسعر المقترح.");show("approvals");
   }
   function askPricing(snap){
