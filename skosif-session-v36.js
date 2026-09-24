@@ -139,23 +139,15 @@ async function run(){
   if($("#sk36-body"))$("#sk36-body").innerHTML='<div class="sk36-loading">جارٍ الفحص…</div>';
   latest=await diagnose();if($("#sk36-body"))render(latest);badge(latest);return latest;
 }
-function ensureBadge(){
-  if($("#sk36-health"))return;
-  const b=document.createElement("button");b.id="sk36-health";b.type="button";b.className="sk36-health";b.innerHTML='<i></i><span>الجلسة</span>';b.onclick=open;
-  const host=$("#sx-taskbar .sx-status");if(host)host.prepend(b);else document.body.appendChild(b);
-}
-function badge(r){
-  ensureBadge();const b=$("#sk36-health");if(!b)return;
-  b.classList.toggle("bad",!!r.critical.length);b.classList.toggle("warn",!r.critical.length&&!!r.warnings.length);
-  const s=b.querySelector("span");if(s)s.textContent=r.critical.length?"مشكلة":r.warnings.length?"تنبيه":"سليم";
-}
+function ensureBadge(){ return; }
+function badge(){ return; }
 function augmentJev(){
   let token=false;try{token=!!sessionStorage.getItem(JKEY)}catch{}
   const off=$(".jev-offline");if(!off||off.dataset.sk36==="1"||token)return;
   off.dataset.sk36="1";const b=document.createElement("button");b.type="button";b.className="sk36-inline";b.textContent="تشخيص الجلسة";b.onclick=open;off.insertAdjacentElement("afterend",b);
 }
 async function boot(){
-  ensureBadge();latest=await diagnose();badge(latest);
+  latest=await diagnose();
   const mo=new MutationObserver(augmentJev);mo.observe(document.documentElement,{childList:true,subtree:true});
   addEventListener("online",async()=>badge(await diagnose()));addEventListener("offline",async()=>badge(await diagnose()));
   window.SKosifSessionHealthV36=Object.freeze({version:VER,open,diagnose,get latest(){return latest}});
