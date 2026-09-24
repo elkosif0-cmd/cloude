@@ -3,7 +3,7 @@
    Manual corrections are stored as local aliases and reused in future matching. */
 (()=>{
   "use strict";
-  if(window.SKosifJazartiV34)return;
+  if(window.SKosifSalesMatching)return;
   const VER="34.0", ALIAS_KEY="skosif_v34_product_aliases";
   const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
   const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
@@ -222,7 +222,7 @@
   function init(){
     let n=0;const t=setInterval(()=>{if(attach()||++n>40)clearInterval(t)},250);
     watchSW();
-    window.SKosifJazartiV34=Object.freeze({version:VER,open,normalizeArabic,similarity,bestMatch,aliases});
+    window.SKosifSalesMatching=Object.freeze({version:VER,open,normalizeArabic,similarity,bestMatch,aliases});
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
