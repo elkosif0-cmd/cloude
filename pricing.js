@@ -1,7 +1,7 @@
 /* S.kosif — Precise Pricing UI adapter */
 (()=>{
   "use strict";
-  if(window.SKosifPricingV35)return;
+  if(window.SKosifPricing)return;
   const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
   const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
   const num=v=>{const n=Number(String(v??"").replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[٬,\s]/g,"").replace("٫","."));return Number.isFinite(n)?n:0};
@@ -51,6 +51,6 @@
     const group=tabs.querySelector('.sk33-group[data-g="التسعير والقرار"]');(group||tabs).appendChild(b);return true;
   }
   document.addEventListener("click",e=>{if(!e.target.closest(".sk33-menu"))return;setTimeout(()=>{const w=$("#sk33-launch");if(!w||w.querySelector("[data-sk35-go]"))return;const sec=[...w.querySelectorAll("section")].find(x=>/التسعير والقرار/.test(x.querySelector("h5")?.textContent||""));const grid=sec?.querySelector("div");if(!grid)return;grid.insertAdjacentHTML("beforeend",'<button type="button" data-sk35-go><i>ƒ</i><b>محرك التسعير الدقيق</b><small>Strict Pricing Kernel</small></button>');$("[data-sk35-go]",w).onclick=()=>{w.remove();open()}},30)},true);
-  function init(){let n=0;const t=setInterval(()=>{if(attach()||++n>40)clearInterval(t)},250);window.SKosifPricingV35=Object.freeze({version:"35.0",open,calculate:()=>calc()})}
+  function init(){let n=0;const t=setInterval(()=>{if(attach()||++n>40)clearInterval(t)},250);window.SKosifPricing=Object.freeze({version:"35.0",open,calculate:()=>calc()})}
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
