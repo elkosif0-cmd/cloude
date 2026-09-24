@@ -159,15 +159,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="h-16 px-5 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-500 text-white flex items-center justify-center font-black text-sm shadow-md shadow-blue-500/20">
-              الوادي
+              S
             </div>
             <div>
               <div className="text-sm font-extrabold text-slate-900 dark:text-white leading-tight">
-                أغنام الوادي
+                S.kosif
               </div>
               <div className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                v19.10 JEV Green Hybrid
+                V30 Fusion + JEV
               </div>
             </div>
           </div>
