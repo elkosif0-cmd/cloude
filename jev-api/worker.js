@@ -1,5 +1,11 @@
-const APP_ORIGIN = "https://aghnam-alwadi-iphone.pages.dev";
-const PREVIEW_RE = /^https:\/\/[a-z0-9-]+\.aghnam-alwadi-iphone\.pages\.dev$/i;
+const APP_ORIGINS = new Set([
+  "https://aghnam-alwadi.pages.dev",
+  "https://aghnam-alwadi-iphone.pages.dev"
+]);
+const PREVIEW_RES = [
+  /^https:\/\/[a-z0-9-]+\.aghnam-alwadi\.pages\.dev$/i,
+  /^https:\/\/[a-z0-9-]+\.aghnam-alwadi-iphone\.pages\.dev$/i
+];
 const PASSWORD_SALT_B64 = "Tf6IJk44RB0qtFk4g8MJrg==";
 const PASSWORD_HASH_HEX = "dd6f8fb3cbf42ff53ea48896a01f72c32ff832f9e69781983ec5883fb8295b47";
 const SESSION_TTL_SECONDS = 8 * 60 * 60;
@@ -8,11 +14,11 @@ const enc = new TextEncoder();
 const dec = new TextDecoder();
 
 function allowedOrigin(origin) {
-  return origin === APP_ORIGIN || PREVIEW_RE.test(origin || "");
+  return APP_ORIGINS.has(origin) || PREVIEW_RES.some(re=>re.test(origin || ""));
 }
 function cors(origin) {
   return {
-    "access-control-allow-origin": allowedOrigin(origin) ? origin : APP_ORIGIN,
+    "access-control-allow-origin": allowedOrigin(origin) ? origin : "https://aghnam-alwadi.pages.dev",
     "access-control-allow-methods": "POST,GET,OPTIONS",
     "access-control-allow-headers": "content-type,authorization",
     "access-control-max-age": "86400",
@@ -129,7 +135,7 @@ export default {
       if(!allowedOrigin(origin)) return new Response(null,{status:403});
       return new Response(null,{status:204,headers:cors(origin)});
     }
-    if(url.pathname==="/health") return json({ok:true,service:"Aghnam Jev API",bridge:"service-binding",version:"1.0.0"},200,origin);
+    if(url.pathname==="/health") return json({ok:true,service:"Aghnam Jev API",bridge:"service-binding",version:"1.1.0"},200,origin);
     if(!allowedOrigin(origin)) return json({ok:false,error:"Origin not allowed"},403,origin);
     if(request.method!=="POST") return json({ok:false,error:"Method not allowed"},405,origin);
     if(!env.SESSION_SECRET || !env.JEV_BRIDGE_TOKEN || !env.JEV_BRIDGE) return json({ok:false,error:"الخدمة غير مهيأة"},503,origin);
