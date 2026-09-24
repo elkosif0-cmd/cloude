@@ -4,7 +4,7 @@
    Safari/iOS, PWA and Jev session prerequisites and offers safe recovery. */
 (()=>{
 "use strict";
-if(window.SKosifSessionHealthV36)return;
+if(window.SKosifSessionHealth)return;
 const VER="36.0",JKEY="aghnamJevSession",API="https://aghnam-jev-api.kosif199022.workers.dev",PROBE="skosif_v36_probe";
 const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
@@ -150,7 +150,7 @@ async function boot(){
   latest=await diagnose();
   const mo=new MutationObserver(augmentJev);mo.observe(document.documentElement,{childList:true,subtree:true});
   addEventListener("online",async()=>badge(await diagnose()));addEventListener("offline",async()=>badge(await diagnose()));
-  window.SKosifSessionHealthV36=Object.freeze({version:VER,open,diagnose,get latest(){return latest}});
+  window.SKosifSessionHealth=Object.freeze({version:VER,open,diagnose,get latest(){return latest}});
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
 })();
