@@ -95,9 +95,15 @@ def encrypt(blocks, secure_dir, out_dir):
     if not password:
         raise SystemExit(f"{PASSWORD_ENV} is not set; refusing to publish private data unencrypted")
     meta = json.loads((secure_dir / "crypto.json").read_text(encoding="utf-8"))
-    enc_key, mac_key = _derive(password, meta)
-    if not _check_password(mac_key, meta, secure_dir):
-        raise SystemExit(f"{PASSWORD_ENV} does not open secure/crypto.json; check the password")
+    # A secret pasted into a dashboard often picks up a trailing space or
+    # newline; only a candidate that opens the seed is accepted.
+    for candidate in dict.fromkeys([password, password.strip()]):
+        enc_key, mac_key = _derive(candidate, meta)
+        if _check_password(mac_key, meta, secure_dir):
+            break
+    else:
+        raise SystemExit(f"{PASSWORD_ENV} does not open secure/crypto.json "
+                         f"(length {len(password)}); check the password")
     plain = gzip.compress(json.dumps(blocks, ensure_ascii=False).encode("utf-8"), mtime=0)
     nonce = os.urandom(12)
     ct = chacha20(enc_key, nonce, plain)
