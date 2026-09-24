@@ -27,7 +27,7 @@ for patch_name, anchor in [
 
 # Product branding: keep business data intact, rename only the application shell.
 text=re.sub(r"<title>[^<]*</title>","<title>S.kosif</title>",text,count=1,flags=re.I)
-text=re.sub(r'<meta\\s+name=["\\']apple-mobile-web-app-title["\\'][^>]*>', '<meta name="apple-mobile-web-app-title" content="S.kosif">', text, count=1, flags=re.I)
+text=re.sub(r'<meta\s+name=["\']apple-mobile-web-app-title["\'][^>]*>', '<meta name="apple-mobile-web-app-title" content="S.kosif">', text, count=1, flags=re.I)
 
 for css_name, version in [
     ("mobile-v28.css","28"),
@@ -75,7 +75,7 @@ for f in sorted(out.rglob("*")):
     if f.is_file() and f.name!="sw.js":
         digest.update(str(f.relative_to(out)).encode()); digest.update(f.read_bytes())
 sw=(out/"sw.js").read_text(encoding="utf-8")
-sw,n=re.subn(r"const CACHE='[^']*';",f"const CACHE='aghnam-{digest.hexdigest()[:12]}';",sw,count=1)
+sw,n=re.subn(r"const CACHE='[^']*';",f"const CACHE='skosif-{digest.hexdigest()[:12]}';",sw,count=1)
 if n!=1: raise SystemExit("sw.js CACHE marker missing")
 (out/"sw.js").write_text(sw,encoding="utf-8")
 print("Built S.kosif V30 password-locked Fusion release:",len(list(out.rglob("*"))),"entries")
