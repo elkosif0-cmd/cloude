@@ -120,11 +120,11 @@
     $("sk33-open-themes").onclick=()=>{w.remove();themeSheet();setTimeout(enhanceThemeMotion,30)};
     $("sk33-open-inventory").onclick=()=>{w.remove();window.AghnamV29?.open?.();setTimeout(()=>document.querySelector('[data-v29-tab="inventory"]')?.click(),80)};
     $("sk33-open-jev").onclick=()=>{w.remove();window.AskJev?.open?.("choice")};
-    $("sk33-open-health").onclick=()=>{w.remove();window.SKosifSessionHealthV36?.open?.()};yieldSheet()};
+    $("sk33-open-health").onclick=()=>{w.remove();window.SKosifSessionHealthV36?.open?.()};
     applyTheme();
   }
 
-  /* ---------- منظومة الـ 10 ثيمات ---------- */
+  /* ---------- منظومة الثيمات الموحدة ---------- */
   const THEMES=[
     {id:"executive-light",name:"تنفيذي فاتح",desc:"هادئ وواضح للعمل اليومي",dots:["#F8FAFC","#0F172A","#0F766E","#D97706"]},
     {id:"executive-dark",name:"تنفيذي داكن",desc:"تباين مريح للعمل المسائي",dots:["#0B1220","#F8FAFC","#2DD4BF","#F59E0B"]},
@@ -142,7 +142,7 @@
 
   function applyTheme(){
     const t=themeNow();
-    ["sk-modal","sk33-launch","sk33-lockw","sk31-po-sheet","sk33-themew","sk33-yieldw","k32-drawer"].forEach(id=>{
+    ["sk-modal","sk33-launch","sk33-lockw","sk31-po-sheet","sk33-themew","k32-drawer"].forEach(id=>{
       const el=$(id);if(el)el.dataset.skTheme=t;
     });
     document.documentElement.dataset.skTheme=t;
@@ -214,98 +214,8 @@
     w.querySelectorAll("[data-motion]").forEach(b=>b.onclick=()=>window.SKosifMotionV38?.setMode?.(b.dataset.motion));
   }
 
-  /* ---------- حاسبة تشفي اللحوم والهدر ---------- */
-  function yieldSheet(){
-    $("sk33-yieldw")?.remove();
-    document.body.insertAdjacentHTML("beforeend",
-      '<div id="sk33-yieldw" class="sk33-sheet-wrap" role="dialog" aria-modal="true" aria-label="حاسبة تشفي اللحوم">'+
-        '<div class="sk33-sheet" style="max-height:88dvh">'+
-          '<div class="sk33-sheet-head">'+
-            '<div><b>حاسبة تشفي الذبائح ونسبة الهدر</b><small style="display:block;color:var(--ink-3)">Yield & Carcass Cost Simulator</small></div>'+
-            '<button type="button" class="sk33-x" aria-label="إغلاق">×</button>'+
-          '</div>'+
-          '<p class="sk33-note">أداة تسعير دقيقة لحساب التكلفة الفعلية للكيلو الصافي وسعر البيع المقترح بعد حساب الهدر والعظم والتصافي.</p>'+
-          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
-            '<label class="sk-field"><span>الوزن القائم (كجم)</span><input type="number" id="yd-live-kg" value="20" min="5" step="0.5"></label>'+
-            '<label class="sk-field"><span>سعر شراء الذبيحة (ر.س)</span><input type="number" id="yd-price" value="950" min="50" step="10"></label>'+
-            '<label class="sk-field"><span>نسبة التصافي المذبوح (٪)</span><input type="number" id="yd-dress-pct" value="52" min="30" max="75" step="1"></label>'+
-            '<label class="sk-field"><span>نسبة العظم والشحم الهدر (٪)</span><input type="number" id="yd-waste-pct" value="25" min="5" max="50" step="1"></label>'+
-            '<label class="sk-field" style="grid-column:1/-1"><span>هامش الربح المستهدف (٪)</span><input type="number" id="yd-margin-pct" value="30" min="0" max="80" step="1"></label>'+
-          '</div>'+
-          '<div class="sk33-yield-box">'+
-            '<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><span>وزن الذبيحة المذبوحة:</span><b id="yd-dress-kg">—</b></div>'+
-            '<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><span>صافي اللحم القابل للبيع:</span><b id="yd-prime-kg" style="color:var(--sk33-green)">—</b></div>'+
-            '<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><span>تكلفة الكيلو القائم:</span><b id="yd-live-cost">—</b></div>'+
-            '<div class="sk33-yield-kpis">'+
-              '<div class="sk33-yield-kpi"><span>تكلفة الكيلو الصافي</span><b id="yd-net-cost">—</b></div>'+
-              '<div class="sk33-yield-kpi"><span>سعر البيع المقترح</span><b id="yd-suggest-price">—</b></div>'+
-              '<div class="sk33-yield-kpi"><span>الربح المتوقع</span><b id="yd-profit">—</b></div>'+
-            '</div>'+
-          '</div>'+
-          '<button type="button" id="yd-share-btn" class="sk-primary sk33-wide">📤 مشاركة تقرير التشفي بالواتساب</button>'+
-        '</div>'+
-      '</div>'
-    );
-
-    const w=$("sk33-yieldw");
-    w.querySelector(".sk33-x").onclick=()=>w.remove();
-    w.onclick=e=>{if(e.target===w)w.remove()};
-
-    function calcYield(){
-      const liveKg=num($("yd-live-kg")?.value)||20;
-      const price=num($("yd-price")?.value)||950;
-      const dressPct=(num($("yd-dress-pct")?.value)||52)/100;
-      const wastePct=(num($("yd-waste-pct")?.value)||25)/100;
-      const targetMarg=(num($("yd-margin-pct")?.value)||30)/100;
-
-      const dressKg=liveKg*dressPct;
-      const primeKg=dressKg*(1-wastePct);
-      const liveCost=liveKg>0?price/liveKg:0;
-      const netCost=primeKg>0?price/primeKg:0;
-      const baseSell=targetMarg<1?netCost/(1-targetMarg):netCost;
-      const sellWithVat=baseSell*1.15;
-      const profit=(baseSell-netCost)*primeKg;
-
-      if($("yd-dress-kg"))$("yd-dress-kg").textContent=dressKg.toFixed(2)+" كجم";
-      if($("yd-prime-kg"))$("yd-prime-kg").textContent=primeKg.toFixed(2)+" كجم";
-      if($("yd-live-cost"))$("yd-live-cost").textContent=money(liveCost)+"/كجم";
-      if($("yd-net-cost"))$("yd-net-cost").textContent=money(netCost);
-      if($("yd-suggest-price"))$("yd-suggest-price").textContent=money(sellWithVat);
-      if($("yd-profit"))$("yd-profit").textContent=money(profit);
-    }
-
-    ["yd-live-kg","yd-price","yd-dress-pct","yd-waste-pct","yd-margin-pct"].forEach(id=>{
-      $(id)?.addEventListener("input",calcYield);
-    });
-
-    $("yd-share-btn").onclick=()=>{
-      const liveKg=num($("yd-live-kg")?.value)||20;
-      const price=num($("yd-price")?.value)||950;
-      const primeKg=$("yd-prime-kg")?.textContent||"";
-      const netCost=$("yd-net-cost")?.textContent||"";
-      const sellWithVat=$("yd-suggest-price")?.textContent||"";
-      const profit=$("yd-profit")?.textContent||"";
-
-      const txt=[
-        "🥩 *تقرير تشفي وحساب تكلفة الذبيحة — "+BIZ+"*",
-        "─────────────────",
-        "• الوزن القائم: "+liveKg+" كجم (سعر الشراء: "+money(price)+")",
-        "• صافي اللحم الصالح للبيع: "+primeKg,
-        "• التكلفة الحقيقية للكيلو الصافي: "+netCost,
-        "• سعر البيع المقترح للكيلو (شامل 15٪): "+sellWithVat,
-        "• صافي الربح المتوقع للذبيحة: "+profit,
-        "─────────────────",
-        "S.kosif Yield Engine"
-      ].join("\n");
-      window.open("https://wa.me/?text="+encodeURIComponent(txt),"_blank","noopener");
-    };
-
-    calcYield();
-    applyTheme();
-  }
-
   /* نوافذ الوحدات الأخرى تُنشأ لاحقاً؛ نطبّق عليها الوضع عند ظهورها */
-  new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1&&/^(sk31-po-sheet|sk33-launch|sk33-lockw|sk33-themew|sk33-yieldw)$/.test(n.id||""))n.dataset.skTheme=themeNow()}).observe(document.body,{childList:true});
+  new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1&&/^(sk31-po-sheet|sk33-launch|sk33-lockw|sk33-themew)$/.test(n.id||""))n.dataset.skTheme=themeNow()}).observe(document.body,{childList:true});
 
   /* ---------- القفل ---------- */
   function lockNow(){
