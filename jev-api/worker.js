@@ -1,8 +1,7 @@
 const APP_ORIGIN = "https://aghnam-alwadi-iphone.pages.dev";
 const PREVIEW_RE = /^https:\/\/[a-z0-9-]+\.aghnam-alwadi-iphone\.pages\.dev$/i;
 const PASSWORD_SALT_B64 = "Tf6IJk44RB0qtFk4g8MJrg==";
-const PASSWORD_HASH_HEX = "fc2746719793721e02a956f2855a1159250b3766d3b90bbefb3a0640267f724f";
-const PASSWORD_ITERATIONS = 350000;
+const PASSWORD_HASH_HEX = "dd6f8fb3cbf42ff53ea48896a01f72c32ff832f9e69781983ec5883fb8295b47";
 const SESSION_TTL_SECONDS = 8 * 60 * 60;
 
 const enc = new TextEncoder();
@@ -49,11 +48,12 @@ function equalBytes(a,b) {
 }
 async function verifyPassword(password) {
   if(typeof password!=="string" || password.length<8 || password.length>128) return false;
-  const base=await crypto.subtle.importKey("raw",enc.encode(password),"PBKDF2",false,["deriveBits"]);
-  const bits=await crypto.subtle.deriveBits({
-    name:"PBKDF2",hash:"SHA-256",salt:fromB64(PASSWORD_SALT_B64),iterations:PASSWORD_ITERATIONS
-  },base,256);
-  return equalBytes(new Uint8Array(bits),fromHex(PASSWORD_HASH_HEX));
+  const salt=fromB64(PASSWORD_SALT_B64);
+  const pass=enc.encode(password);
+  const input=new Uint8Array(salt.length+pass.length);
+  input.set(salt,0); input.set(pass,salt.length);
+  const digest=new Uint8Array(await crypto.subtle.digest("SHA-256",input));
+  return equalBytes(digest,fromHex(PASSWORD_HASH_HEX));
 }
 async function hmac(secret, text) {
   const key=await crypto.subtle.importKey("raw",enc.encode(secret),{name:"HMAC",hash:"SHA-256"},false,["sign"]);
@@ -135,10 +135,14 @@ export default {
     if(!env.SESSION_SECRET || !env.JEV_BRIDGE_TOKEN || !env.JEV_BRIDGE) return json({ok:false,error:"الخدمة غير مهيأة"},503,origin);
 
     if(url.pathname==="/session") {
-      let body; try{body=await request.json()}catch{return json({ok:false,error:"طلب غير صالح"},400,origin)}
-      const ok=await verifyPassword(body?.password);
-      if(!ok) return json({ok:false,error:"بيانات الدخول غير صحيحة"},401,origin);
-      return json({ok:true,token:await makeSession(env.SESSION_SECRET),expires_in:SESSION_TTL_SECONDS},200,origin);
+      try {
+        let body; try{body=await request.json()}catch{return json({ok:false,error:"طلب غير صالح"},400,origin)}
+        const ok=await verifyPassword(body?.password);
+        if(!ok) return json({ok:false,error:"بيانات الدخول غير صحيحة"},401,origin);
+        return json({ok:true,token:await makeSession(env.SESSION_SECRET),expires_in:SESSION_TTL_SECONDS},200,origin);
+      } catch(e) {
+        return json({ok:false,error:"تعذر إنشاء جلسة آمنة"},500,origin);
+      }
     }
 
     if(url.pathname==="/api/jev") {
