@@ -1,6 +1,4 @@
-/* Aghnam Alwadi — Jev Decision Center v1 */
-#jev-fab{position:fixed;left:18px;bottom:22px;z-index:135;width:58px;height:58px;border:0;border-radius:18px;background:linear-gradient(145deg,#5b4ae8,#765df2);color:#fff;box-shadow:0 12px 32px rgba(82,65,210,.34);font:900 15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;display:grid;place-items:center;cursor:pointer}
-#jev-fab small{display:block;font-size:9px;opacity:.8;font-weight:700;margin-top:-5px}
+/* Jev Decision Center */
 .jev-backdrop{display:none;position:fixed;inset:0;z-index:240;background:rgba(15,23,42,.52);backdrop-filter:blur(4px);padding:18px}
 .jev-backdrop.open{display:grid;place-items:center}
 .jev-panel{width:min(720px,100%);max-height:min(820px,92dvh);overflow:auto;background:var(--surface,#fff);color:var(--ink,#20283b);border:1px solid var(--line,#e7eaf0);border-radius:24px;box-shadow:0 30px 90px rgba(15,23,42,.24);padding:20px}
