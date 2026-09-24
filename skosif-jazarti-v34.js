@@ -201,6 +201,8 @@
   }
   async function watchSW(){
     if(!("serviceWorker" in navigator))return;
+    /* أول زيارة: لا يوجد متحكم سابق، فتسلّم عامل الخدمة الأول ليس «تحديثاً» */
+    const hadController=!!navigator.serviceWorker.controller;
     try{
       const reg=await navigator.serviceWorker.getRegistration();
       if(!reg)return;
@@ -210,7 +212,7 @@
         nw.addEventListener("statechange",()=>{if(nw.state==="installed"&&navigator.serviceWorker.controller){waiting=nw;banner()}});
       });
       navigator.serviceWorker.addEventListener("controllerchange",()=>{
-        if(controllerChanged)return;controllerChanged=true;
+        if(controllerChanged||!hadController)return;controllerChanged=true;
         if(sessionStorage.getItem("skosif_v34_reload")==="1"){sessionStorage.removeItem("skosif_v34_reload");location.reload()}
         else banner();
       });

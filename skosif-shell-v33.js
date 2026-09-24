@@ -29,23 +29,32 @@
   /* ---------- خريطة الأقسام ---------- */
   const META={
     overview:["◎","المركز","Command Center"], k32:["▦","الكتالوج والعروض","Catalog & Offers"],
-    pricing:["⌗","التسعير","Pricing Engine"], approvals:["✓","اعتماد الأسعار","Price Governance"], decision:["◈","مختبر القرار","Decision & Sensitivity Lab"],
-    customers:["☺","العملاء","Customer 360"],
+    pricing:["⌗","التسعير السريع","Quick Pricing"], kernel:["∑","محرك التسعير الدقيق","Pricing Kernel"], approvals:["✓","اعتماد الأسعار","Price Governance"], decision:["◈","مختبر القرار","Decision & Sensitivity Lab"],
+    meat:["◐","اقتصاديات الذبيحة","Carcass Economics & Receivables"],
+    customers:["☺","العملاء","Customer 360"], smartmatch:["≋","مطابقة المبيعات","Arabic POS Matching"],
     suppliers:["⛟","الموردون","Suppliers & Inbound Quality"], cash:["⇄","السيولة","Cash Flow & Forecast"], excel:["⊞","مطابقة إكسل","Excel Reconciliation"],
     reports:["▤","التقارير","Reports Centre"], health:["♡","الصحة","Storage Health"],
   };
-  const GROUPS=[["التشغيل اليومي",["overview","k32"]],["التسعير والقرار",["pricing","approvals","decision"]],["المبيعات والعملاء",["customers"]],["التوريد والمالية",["suppliers","cash","excel"]],["التقارير والنظام",["reports","health"]]];
-  const keyOf=b=>b.dataset.skTab||b.dataset.sk31Tab||(b.hasAttribute("data-k32-tab")?"k32":"")||b.dataset.sk33Tab||"";
+  const GROUPS=[["التشغيل اليومي",["overview","k32"]],["التسعير والقرار",["pricing","kernel","decision","meat","approvals"]],["المبيعات والعملاء",["customers","smartmatch"]],["التوريد والمالية",["suppliers","cash","excel"]],["التقارير والنظام",["reports","health"]]];
+  /* تبويبات الطبقات الأخرى تُعرّف نفسها بطرق مختلفة (data-* أو id) */
+  const IDS={"sk34-tab":"smartmatch","sk35-tab":"kernel","sk37-tab":"meat"};
+  const keyOf=b=>b.dataset.skTab||b.dataset.sk31Tab||(b.hasAttribute("data-k32-tab")?"k32":"")||b.dataset.sk33Tab||IDS[b.id]||"";
+  /* أسماء تقنية تظهر للمستخدم بأسماء عملية */
+  const LABELS={pricing:"التسعير السريع",kernel:"محرك التسعير الدقيق",meat:"اقتصاديات الذبيحة"};
 
   /* ---------- الغلاف: تجميع التبويبات + رأس الصفحة ---------- */
   function group(){
     const tabs=document.querySelector(".sk-tabs"); if(!tabs)return;
     const loose=[...tabs.children].filter(el=>el.tagName==="BUTTON"&&!el.classList.contains("sk33-menu"));
-    if(!loose.length)return;
+    const all=[...tabs.querySelectorAll("button:not(.sk33-menu)")];
+    /* لا شيء جديد: التبويبات مرتبة سابقاً */
+    if(!loose.length&&tabs.dataset.sk33Count===String(all.length))return;
+    tabs.dataset.sk33Count=String(all.length);
     for(const [title,keys] of GROUPS){
       let g=tabs.querySelector('.sk33-group[data-g="'+title+'"]');
       if(!g){g=document.createElement("div");g.className="sk33-group";g.dataset.g=title;g.innerHTML='<span class="sk33-gtitle">'+esc(title)+'</span>';tabs.appendChild(g)}
-      for(const k of keys){const b=loose.find(x=>keyOf(x)===k);if(b){b.dataset.sk33Icon=(META[k]||["•"])[0];g.appendChild(b)}}
+      /* يشمل التبويبات التي أضافتها طبقات أخرى داخل المجموعات مباشرة، ليبقى الترتيب ثابتاً */
+      for(const k of keys){const b=all.find(x=>keyOf(x)===k);if(b){b.dataset.sk33Icon=(META[k]||["•"])[0];if(LABELS[k]&&b.textContent.trim()!==LABELS[k])b.textContent=LABELS[k];g.appendChild(b)}}
     }
     /* أي تبويب غير معروف يبقى في آخر مجموعة */
     const rest=[...tabs.children].filter(el=>el.tagName==="BUTTON"&&!el.classList.contains("sk33-menu"));
@@ -82,12 +91,11 @@
     new MutationObserver(()=>group()).observe(tabs,{childList:true});
     tabs.addEventListener("click",e=>{
       const b=e.target.closest("button:not(.sk33-menu)"); if(!b)return;
-      /* الوحدات الأخرى لا تعرف تبويبات V33؛ نزيل تمييزها عند فتح غيرها */
-      if(!b.dataset.sk33Tab)tabs.querySelectorAll("[data-sk33-tab]").forEach(x=>x.classList.remove("active"));
-      setTimeout(pageHead,60);
+      /* بعض الطبقات لا تميّز تبويبها ولا تزيل تمييز غيرها؛ نوحّد ذلك هنا ليطابق رأس الصفحة التبويب المفتوح */
+      setTimeout(()=>{tabs.querySelectorAll("button:not(.sk33-menu)").forEach(x=>x.classList.toggle("active",x===b));pageHead()},90);
     });
     /* الوحدات تعيد رسم المحتوى؛ نحدّث الرأس عند فتح اللوحة */
-    const modal=$("sk-modal"); if(modal)new MutationObserver(()=>{if(modal.classList.contains("open")){applyTheme();setTimeout(pageHead,60)}}).observe(modal,{attributes:true,attributeFilter:["class"]});
+    const modal=$("sk-modal"); if(modal)new MutationObserver(()=>{if(modal.classList.contains("open")){applyTheme();group();setTimeout(pageHead,60)}}).observe(modal,{attributes:true,attributeFilter:["class"]});
     applyTheme();
     pageHead();
     return true;
@@ -455,7 +463,23 @@
     }
     return shell();
   }
+  /* ---------- شريط سفلي واحد بدل أربعة أزرار عائمة ----------
+     زر «الأقسام» يفتح مركز S.kosif، و«Jev» و«أدوات» تضغط الأزرار الأصلية (المخفية) نفسها */
+  function dock(){
+    const bar=document.getElementById("sx-taskbar"); if(!bar)return false;
+    if(bar.querySelector(".sk33-dock"))return true;
+    const box=document.createElement("div");box.className="sk33-dock";
+    const btn=(id,icon,label,fn)=>{const b=document.createElement("button");b.type="button";b.dataset.dock=id;b.innerHTML='<i aria-hidden="true">'+icon+'</i><span>'+label+'</span>';b.onclick=fn;box.appendChild(b)};
+    btn("hub","▦","الأقسام",()=>{if(window.SKosif)window.SKosif.open("overview")});
+    if($("jev-fab"))btn("jev","✦","Jev",()=>$("jev-fab").click());
+    if($("v29-fab"))btn("v29","⚡","أدوات",()=>$("v29-fab").click());
+    const main=bar.querySelector("#sx-command");
+    main?main.after(box):bar.prepend(box);
+    document.body.classList.add("sk33-docked");
+    return true;
+  }
   function init(){
+    let d=0;const dt=setInterval(()=>{if(dock()||++d>40)clearInterval(dt)},300);
     let tries=0;const t=setInterval(()=>{if((attach()&&document.querySelector("[data-k32-tab]")&&document.querySelector("[data-sk31-tab]"))||++tries>40){clearInterval(t);group();pageHead()}},250);
     window.SKosifShell={open:(tab)=>{if(window.SKosif)window.SKosif.open("overview");attach();if(tab)render(tab)},lock:lockNow,version:"33.0"};
   }
