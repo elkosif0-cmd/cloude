@@ -67,12 +67,14 @@
     const panel=document.querySelector(".sk-panel"), tabs=document.querySelector(".sk-tabs"), head=document.querySelector(".sk-head");
     if(!panel||!tabs||!head||panel.classList.contains("sk33"))return !!panel;
     panel.classList.add("sk33");
-    /* أزرار الرأس: الوضع الداكن + القفل */
+    /* أزرار الرأس: اختيار الثيمات (10 ثيمات) + الوضع الداكن + القفل */
     const close=$("sk-close");
     const tools=document.createElement("div");tools.className="sk33-tools";
-    tools.innerHTML='<button type="button" id="sk33-theme" aria-label="تبديل الوضع الداكن">☾</button><button type="button" id="sk33-lock" aria-label="قفل التطبيق">🔒</button>';
+    tools.innerHTML='<button type="button" id="sk33-themes" aria-label="اختيار ثيم التطبيق" title="المظهر والثيمات (10 خيارات)">🎨</button><button type="button" id="sk33-theme" aria-label="تبديل الوضع الداكن">☾</button><button type="button" id="sk33-lock" aria-label="قفل التطبيق">🔒</button>';
     head.insertBefore(tools,close);
-    $("sk33-theme").onclick=toggleTheme; $("sk33-lock").onclick=lockSheet;
+    $("sk33-themes").onclick=themeSheet;
+    $("sk33-theme").onclick=toggleTheme;
+    $("sk33-lock").onclick=lockSheet;
     /* زر «الأقسام» للجوال */
     tabs.insertAdjacentHTML("afterbegin",'<button type="button" class="sk33-menu" aria-label="كل الأقسام">☰ الأقسام</button>');
     tabs.querySelector(".sk33-menu").onclick=launcher;
@@ -98,23 +100,198 @@
       if(!btns.length)return "";
       return '<section><h5>'+esc(t)+'</h5><div>'+btns.map(b=>{const k=keyOf(b),m=META[k]||["•",b.textContent,""];return '<button type="button" data-go="'+esc(k)+'"><i>'+m[0]+'</i><b>'+esc(m[1])+'</b><small>'+esc(m[2])+'</small></button>'}).join("")+'</div></section>';
     }).join("");
-    document.body.insertAdjacentHTML("beforeend",'<div id="sk33-launch" class="sk33-sheet-wrap" role="dialog" aria-modal="true" aria-label="الأقسام"><div class="sk33-sheet"><div class="sk33-sheet-head"><b>الأقسام</b><button type="button" class="sk33-x" aria-label="إغلاق">×</button></div>'+html+'</div></div>');
+    const toolsSection='<section><h5>أدوات إضافية ومظهر</h5><div>'+
+      '<button type="button" id="sk33-open-themes"><i>🎨</i><b>المظهر والثيمات</b><small>10 خيارات تصميم</small></button>'+
+      '<button type="button" id="sk33-open-yield"><i>✂</i><b>حاسبة تشفي اللحوم</b><small>حساب الهدر والتصافي</small></button>'+
+    '</div></section>';
+    document.body.insertAdjacentHTML("beforeend",'<div id="sk33-launch" class="sk33-sheet-wrap" role="dialog" aria-modal="true" aria-label="الأقسام"><div class="sk33-sheet"><div class="sk33-sheet-head"><b>الأقسام والأدوات</b><button type="button" class="sk33-x" aria-label="إغلاق">×</button></div>'+html+toolsSection+'</div></div>');
     const w=$("sk33-launch");
     w.querySelector(".sk33-x").onclick=()=>w.remove(); w.onclick=e=>{if(e.target===w)w.remove()};
     w.querySelectorAll("[data-go]").forEach(x=>x.onclick=()=>{const b=[...tabs.querySelectorAll("button")].find(y=>keyOf(y)===x.dataset.go);w.remove();if(b){b.click();b.scrollIntoView&&b.scrollIntoView({block:"nearest",inline:"nearest"})}});
+    $("sk33-open-themes").onclick=()=>{w.remove();themeSheet()};
+    $("sk33-open-yield").onclick=()=>{w.remove();yieldSheet()};
     applyTheme();
   }
 
-  /* ---------- الوضع الداكن ---------- */
-  function themeNow(){const t=load(K.theme,"");return t||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}
+  /* ---------- منظومة الـ 10 ثيمات ---------- */
+  const THEMES=[
+    {id:"eataly",name:"إيتالي الذواقة",desc:"الإيطالي الكلاسيكي: عاجي دافئ وإسبريسو",dots:["#FAF8F5","#1E201D","#A82A2A","#C28B28"]},
+    {id:"sinam",name:"سِنام الأصيل",desc:"أحجار الصحراء، عنابي ملكي، ونحاسي",dots:["#FDFBF7","#291A10","#881337","#C2410C"]},
+    {id:"pasture",name:"المراعي الخضراء",desc:"مراعي طبيعية، زمردي، ونعناعي منعش",dots:["#F2F9F5","#0F291E","#059669","#D97706"]},
+    {id:"royal",name:"الفخامة الملكية",desc:"كحلي ملكي داكن، ياقوتي، وذهب ناصع",dots:["#0F172A","#F8FAFC","#2563EB","#F59E0B"]},
+    {id:"amber",name:"الزعفران والتوابل",desc:"كستناء محمص، زعفران ذهبي، وقرفة دافئة",dots:["#FFFDF7","#331A05","#B45309","#D97706"]},
+    {id:"graphite",name:"الرخام والغرافيت",desc:"أبيض ناصع، رمادي غرافيتي نقي، وفضي",dots:["#FFFFFF","#18181B","#27272A","#4F46E5"]},
+    {id:"notte",name:"ليل الذواقة الداكن",desc:"إسبريسو داكن محمص، ياقوتي، ونحاس عتيق",dots:["#141312","#FAF7F2","#D84D4D","#E5AC44"]},
+    {id:"cyber",name:"سايبر أوبسيديان",desc:"حجر السج، تركواز نيون كهربائي، وبنفسجي",dots:["#09090B","#F4F4F5","#0D9488","#8B5CF6"]},
+    {id:"lavender",name:"خزامى نجد الفاخرة",desc:"بنفسجي ملكي، خزامى برية، وعاجي ليلكي",dots:["#FAF7FD","#2D1445","#7E22CE","#BE185D"]},
+    {id:"qahwa",name:"القهوة النجدية والتمور",desc:"هيل وزعفران، بني موكا، وأخضر واحة النخيل",dots:["#F9F6F0","#2C180E","#6C2E12","#B45309"]}
+  ];
+
+  function themeNow(){
+    const t=load(K.theme,"");
+    if(t&&THEMES.some(x=>x.id===t))return t;
+    if(t==="dark")return "notte";
+    if(t==="light")return "eataly";
+    return matchMedia("(prefers-color-scheme: dark)").matches?"notte":"eataly";
+  }
+
   function applyTheme(){
     const t=themeNow();
-    ["sk-modal","sk33-launch","sk33-lockw","sk31-po-sheet"].forEach(id=>{const el=$(id);if(el)el.dataset.skTheme=t});
-    const b=$("sk33-theme"); if(b){b.textContent=t==="dark"?"☀":"☾";b.setAttribute("aria-pressed",t==="dark")}
+    ["sk-modal","sk33-launch","sk33-lockw","sk31-po-sheet","sk33-themew","sk33-yieldw","k32-drawer"].forEach(id=>{
+      const el=$(id);if(el)el.dataset.skTheme=t;
+    });
+    document.documentElement.dataset.skTheme=t;
+    const b=$("sk33-theme");
+    if(b){
+      const isDark=["notte","cyber","royal"].includes(t);
+      b.textContent=isDark?"☀":"☾";
+      b.setAttribute("aria-pressed",isDark);
+    }
   }
-  function toggleTheme(){save(K.theme,themeNow()==="dark"?"light":"dark");applyTheme()}
+
+  function setTheme(id){
+    save(K.theme,id);
+    applyTheme();
+    const th=THEMES.find(x=>x.id===id);
+    if(th)toast("تم تطبيق ثيم «"+th.name+"» بنجاح 🎨");
+    const w=$("sk33-themew");
+    if(w)w.remove();
+  }
+
+  function toggleTheme(){
+    const cur=themeNow();
+    const isDark=["notte","cyber","royal"].includes(cur);
+    save(K.theme,isDark?"eataly":"notte");
+    applyTheme();
+  }
+
+  function themeSheet(){
+    $("sk33-themew")?.remove();
+    const cur=themeNow();
+    const cards=THEMES.map(th=>
+      '<div class="sk33-theme-card'+(th.id===cur?' active':'')+'" data-th-id="'+esc(th.id)+'">'+
+        '<div class="sk33-theme-swatches">'+
+          th.dots.map(c=>'<span class="sk33-swatch-dot" style="background:'+c+'"></span>').join("")+
+        '</div>'+
+        '<b>'+esc(th.name)+'</b>'+
+        '<span>'+esc(th.desc)+'</span>'+
+      '</div>'
+    ).join("");
+
+    document.body.insertAdjacentHTML("beforeend",
+      '<div id="sk33-themew" class="sk33-sheet-wrap" role="dialog" aria-modal="true" aria-label="اختيار ثيم التطبيق">'+
+        '<div class="sk33-sheet" style="max-height:86dvh">'+
+          '<div class="sk33-sheet-head">'+
+            '<div><b>مظهر وثيمات S.kosif</b><small style="display:block;color:var(--ink-3)">10 خيارات تصميم منتقاة بعناية</small></div>'+
+            '<button type="button" class="sk33-x" aria-label="إغلاق">×</button>'+
+          '</div>'+
+          '<p class="sk33-note">اختر المظهر المفضل لمنصة العمليات والكتالوج. يتم حفظ اختيارك فوراً على جهازك.</p>'+
+          '<div class="sk33-theme-grid">'+cards+'</div>'+
+        '</div>'+
+      '</div>'
+    );
+
+    const w=$("sk33-themew");
+    w.querySelector(".sk33-x").onclick=()=>w.remove();
+    w.onclick=e=>{if(e.target===w)w.remove()};
+    w.querySelectorAll("[data-th-id]").forEach(card=>{
+      card.onclick=()=>setTheme(card.dataset.thId);
+    });
+    applyTheme();
+  }
+
+  /* ---------- حاسبة تشفي اللحوم والهدر ---------- */
+  function yieldSheet(){
+    $("sk33-yieldw")?.remove();
+    document.body.insertAdjacentHTML("beforeend",
+      '<div id="sk33-yieldw" class="sk33-sheet-wrap" role="dialog" aria-modal="true" aria-label="حاسبة تشفي اللحوم">'+
+        '<div class="sk33-sheet" style="max-height:88dvh">'+
+          '<div class="sk33-sheet-head">'+
+            '<div><b>حاسبة تشفي الذبائح ونسبة الهدر</b><small style="display:block;color:var(--ink-3)">Yield & Carcass Cost Simulator</small></div>'+
+            '<button type="button" class="sk33-x" aria-label="إغلاق">×</button>'+
+          '</div>'+
+          '<p class="sk33-note">أداة تسعير دقيقة لحساب التكلفة الفعلية للكيلو الصافي وسعر البيع المقترح بعد حساب الهدر والعظم والتصافي.</p>'+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
+            '<label class="sk-field"><span>الوزن القائم (كجم)</span><input type="number" id="yd-live-kg" value="20" min="5" step="0.5"></label>'+
+            '<label class="sk-field"><span>سعر شراء الذبيحة (ر.س)</span><input type="number" id="yd-price" value="950" min="50" step="10"></label>'+
+            '<label class="sk-field"><span>نسبة التصافي المذبوح (٪)</span><input type="number" id="yd-dress-pct" value="52" min="30" max="75" step="1"></label>'+
+            '<label class="sk-field"><span>نسبة العظم والشحم الهدر (٪)</span><input type="number" id="yd-waste-pct" value="25" min="5" max="50" step="1"></label>'+
+            '<label class="sk-field" style="grid-column:1/-1"><span>هامش الربح المستهدف (٪)</span><input type="number" id="yd-margin-pct" value="30" min="0" max="80" step="1"></label>'+
+          '</div>'+
+          '<div class="sk33-yield-box">'+
+            '<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><span>وزن الذبيحة المذبوحة:</span><b id="yd-dress-kg">—</b></div>'+
+            '<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><span>صافي اللحم القابل للبيع:</span><b id="yd-prime-kg" style="color:var(--sk33-green)">—</b></div>'+
+            '<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><span>تكلفة الكيلو القائم:</span><b id="yd-live-cost">—</b></div>'+
+            '<div class="sk33-yield-kpis">'+
+              '<div class="sk33-yield-kpi"><span>تكلفة الكيلو الصافي</span><b id="yd-net-cost">—</b></div>'+
+              '<div class="sk33-yield-kpi"><span>سعر البيع المقترح</span><b id="yd-suggest-price">—</b></div>'+
+              '<div class="sk33-yield-kpi"><span>الربح المتوقع</span><b id="yd-profit">—</b></div>'+
+            '</div>'+
+          '</div>'+
+          '<button type="button" id="yd-share-btn" class="sk-primary sk33-wide">📤 مشاركة تقرير التشفي بالواتساب</button>'+
+        '</div>'+
+      '</div>'
+    );
+
+    const w=$("sk33-yieldw");
+    w.querySelector(".sk33-x").onclick=()=>w.remove();
+    w.onclick=e=>{if(e.target===w)w.remove()};
+
+    function calcYield(){
+      const liveKg=num($("yd-live-kg")?.value)||20;
+      const price=num($("yd-price")?.value)||950;
+      const dressPct=(num($("yd-dress-pct")?.value)||52)/100;
+      const wastePct=(num($("yd-waste-pct")?.value)||25)/100;
+      const targetMarg=(num($("yd-margin-pct")?.value)||30)/100;
+
+      const dressKg=liveKg*dressPct;
+      const primeKg=dressKg*(1-wastePct);
+      const liveCost=liveKg>0?price/liveKg:0;
+      const netCost=primeKg>0?price/primeKg:0;
+      const baseSell=targetMarg<1?netCost/(1-targetMarg):netCost;
+      const sellWithVat=baseSell*1.15;
+      const profit=(baseSell-netCost)*primeKg;
+
+      if($("yd-dress-kg"))$("yd-dress-kg").textContent=dressKg.toFixed(2)+" كجم";
+      if($("yd-prime-kg"))$("yd-prime-kg").textContent=primeKg.toFixed(2)+" كجم";
+      if($("yd-live-cost"))$("yd-live-cost").textContent=money(liveCost)+"/كجم";
+      if($("yd-net-cost"))$("yd-net-cost").textContent=money(netCost);
+      if($("yd-suggest-price"))$("yd-suggest-price").textContent=money(sellWithVat);
+      if($("yd-profit"))$("yd-profit").textContent=money(profit);
+    }
+
+    ["yd-live-kg","yd-price","yd-dress-pct","yd-waste-pct","yd-margin-pct"].forEach(id=>{
+      $(id)?.addEventListener("input",calcYield);
+    });
+
+    $("yd-share-btn").onclick=()=>{
+      const liveKg=num($("yd-live-kg")?.value)||20;
+      const price=num($("yd-price")?.value)||950;
+      const primeKg=$("yd-prime-kg")?.textContent||"";
+      const netCost=$("yd-net-cost")?.textContent||"";
+      const sellWithVat=$("yd-suggest-price")?.textContent||"";
+      const profit=$("yd-profit")?.textContent||"";
+
+      const txt=[
+        "🥩 *تقرير تشفي وحساب تكلفة الذبيحة — "+BIZ+"*",
+        "─────────────────",
+        "• الوزن القائم: "+liveKg+" كجم (سعر الشراء: "+money(price)+")",
+        "• صافي اللحم الصالح للبيع: "+primeKg,
+        "• التكلفة الحقيقية للكيلو الصافي: "+netCost,
+        "• سعر البيع المقترح للكيلو (شامل 15٪): "+sellWithVat,
+        "• صافي الربح المتوقع للذبيحة: "+profit,
+        "─────────────────",
+        "S.kosif Yield Engine"
+      ].join("\n");
+      window.open("https://wa.me/?text="+encodeURIComponent(txt),"_blank","noopener");
+    };
+
+    calcYield();
+    applyTheme();
+  }
+
   /* نوافذ الوحدات الأخرى تُنشأ لاحقاً؛ نطبّق عليها الوضع عند ظهورها */
-  new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1&&/^(sk31-po-sheet|sk33-launch|sk33-lockw)$/.test(n.id||""))n.dataset.skTheme=themeNow()}).observe(document.body,{childList:true});
+  new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1&&/^(sk31-po-sheet|sk33-launch|sk33-lockw|sk33-themew|sk33-yieldw)$/.test(n.id||""))n.dataset.skTheme=themeNow()}).observe(document.body,{childList:true});
 
   /* ---------- القفل ---------- */
   function lockNow(){

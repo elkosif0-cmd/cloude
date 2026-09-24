@@ -1,32 +1,98 @@
-/* S.kosif V33 — أسلوب النوافذ وتجربة الذواقة الإيطالية الفاخرة (Eataly Editorial Architecture) */
-[data-sk-theme="light"] .sk-panel, [data-sk-theme="light"] .sk33-sheet, [data-sk-theme="light"].sk31-sheet-wrap .sk31-sheet {
-  --surface: #FFFFFF;
-  --surface-2: #FAF8F5;
-  --surface-warm: #F4EFE6;
-  --ink: #1E201D;
-  --ink-2: #4E524B;
-  --ink-3: #82877E;
-  --line: #E8E3D8;
-  --line-light: #F2EFE9;
-  --sk33-accent: #A82A2A;
-  --sk33-accent-2: #C28B28;
-  --sk33-green: #244C37;
+/* S.kosif V33 — منظومة الثيمات العشرة الفاخرة (10 Curated Gourmet & Operational Themes) */
+
+/* 1. إيتالي الذواقة — Eataly Gourmet (Default) */
+[data-sk-theme="eataly"] .sk-panel, [data-sk-theme="eataly"] .sk33-sheet, [data-sk-theme="light"] .sk-panel, [data-sk-theme="light"] .sk33-sheet {
+  --surface: #FFFFFF; --surface-2: #FAF8F5; --surface-warm: #F4EFE6;
+  --ink: #1E201D; --ink-2: #4E524B; --ink-3: #82877E;
+  --line: #E8E3D8; --line-light: #F2EFE9;
+  --sk33-accent: #A82A2A; --sk33-accent-2: #C28B28; --sk33-green: #244C37;
+  --k32-cream: #FAF8F5; --k32-card: #FFFFFF; --k32-ink: #1E201D; --k32-wine: #A82A2A; --k32-green: #244C37; --k32-gold: #C28B28;
 }
 
-[data-sk-theme="dark"] .sk-panel, [data-sk-theme="dark"] .sk33-sheet, [data-sk-theme="dark"].sk31-sheet-wrap .sk31-sheet {
-  --surface: #191816;
-  --surface-2: #24211D;
-  --surface-warm: #2E2A25;
-  --ink: #F7F5F0;
-  --ink-2: #D6D0C5;
-  --ink-3: #9C9588;
-  --line: #38342E;
-  --line-light: #2D2924;
-  --sk33-accent: #D84D4D;
-  --sk33-accent-2: #E5AC44;
-  --sk33-green: #4E8E6A;
+/* 2. سِنام الأصيل — Sinam Desert Oasis */
+[data-sk-theme="sinam"] .sk-panel, [data-sk-theme="sinam"] .sk33-sheet {
+  --surface: #FDFBF7; --surface-2: #F5EFE6; --surface-warm: #EADFCF;
+  --ink: #291A10; --ink-2: #6B4D3B; --ink-3: #9E7D6A;
+  --line: #E2D3BE; --line-light: #EDE3D5;
+  --sk33-accent: #881337; --sk33-accent-2: #C2410C; --sk33-green: #2E5A36;
+  --k32-cream: #FDFBF7; --k32-card: #FFFFFF; --k32-ink: #291A10; --k32-wine: #881337; --k32-green: #2E5A36; --k32-gold: #C2410C;
+}
+
+/* 3. المراعي الخضراء — Emerald Pastures */
+[data-sk-theme="pasture"] .sk-panel, [data-sk-theme="pasture"] .sk33-sheet {
+  --surface: #FFFFFF; --surface-2: #F2F9F5; --surface-warm: #E3F2E9;
+  --ink: #0F291E; --ink-2: #2D5A47; --ink-3: #5C8A76;
+  --line: #D0E5D9; --line-light: #E5F2EC;
+  --sk33-accent: #059669; --sk33-accent-2: #D97706; --sk33-green: #047857;
+  --k32-cream: #F2F9F5; --k32-card: #FFFFFF; --k32-ink: #0F291E; --k32-wine: #B91C1C; --k32-green: #047857; --k32-gold: #D97706;
+}
+
+/* 4. الفخامة الملكية — Royal Sapphire */
+[data-sk-theme="royal"] .sk-panel, [data-sk-theme="royal"] .sk33-sheet {
+  --surface: #0F172A; --surface-2: #1E293B; --surface-warm: #334155;
+  --ink: #F8FAFC; --ink-2: #CBD5E1; --ink-3: #94A3B8;
+  --line: #334155; --line-light: #1E293B;
+  --sk33-accent: #2563EB; --sk33-accent-2: #F59E0B; --sk33-green: #10B981;
+  --k32-cream: #0B1120; --k32-card: #1E293B; --k32-ink: #F8FAFC; --k32-wine: #EF4444; --k32-green: #10B981; --k32-gold: #F59E0B;
   color-scheme: dark;
 }
+
+/* 5. الزعفران والتوابل — Spiced Saffron & Amber */
+[data-sk-theme="amber"] .sk-panel, [data-sk-theme="amber"] .sk33-sheet {
+  --surface: #FFFDF7; --surface-2: #FFF8E7; --surface-warm: #FEEDCA;
+  --ink: #331A05; --ink-2: #7A4315; --ink-3: #A86B32;
+  --line: #F4DEB3; --line-light: #FBEFD5;
+  --sk33-accent: #B45309; --sk33-accent-2: #D97706; --sk33-green: #3F6212;
+  --k32-cream: #FFFDF7; --k32-card: #FFFFFF; --k32-ink: #331A05; --k32-wine: #B91C1C; --k32-green: #3F6212; --k32-gold: #D97706;
+}
+
+/* 6. الرخام والغرافيت — Minimalist Slate & Marble */
+[data-sk-theme="graphite"] .sk-panel, [data-sk-theme="graphite"] .sk33-sheet {
+  --surface: #FFFFFF; --surface-2: #F4F4F5; --surface-warm: #E4E4E7;
+  --ink: #18181B; --ink-2: #52525B; --ink-3: #71717A;
+  --line: #E4E4E7; --line-light: #F4F4F5;
+  --sk33-accent: #27272A; --sk33-accent-2: #4F46E5; --sk33-green: #15803D;
+  --k32-cream: #FAFAFA; --k32-card: #FFFFFF; --k32-ink: #18181B; --k32-wine: #DC2626; --k32-green: #15803D; --k32-gold: #D97706;
+}
+
+/* 7. ليل الذواقة الداكن — Notte Dark Espresso (Modern Dark) */
+[data-sk-theme="notte"] .sk-panel, [data-sk-theme="notte"] .sk33-sheet, [data-sk-theme="dark"] .sk-panel, [data-sk-theme="dark"] .sk33-sheet {
+  --surface: #141312; --surface-2: #1F1D1A; --surface-warm: #2C2925;
+  --ink: #FAF7F2; --ink-2: #D8D2C7; --ink-3: #9E9689;
+  --line: #38342E; --line-light: #2A2722;
+  --sk33-accent: #D84D4D; --sk33-accent-2: #E5AC44; --sk33-green: #4E8E6A;
+  --k32-cream: #121110; --k32-card: #1F1D1A; --k32-ink: #FAF7F2; --k32-wine: #D84D4D; --k32-green: #4E8E6A; --k32-gold: #E5AC44;
+  color-scheme: dark;
+}
+
+/* 8. سايبر أوبسيديان — Cyber Obsidian Tech */
+[data-sk-theme="cyber"] .sk-panel, [data-sk-theme="cyber"] .sk33-sheet {
+  --surface: #09090B; --surface-2: #18181B; --surface-warm: #27272A;
+  --ink: #F4F4F5; --ink-2: #A1A1AA; --ink-3: #71717A;
+  --line: #27272A; --line-light: #18181B;
+  --sk33-accent: #0D9488; --sk33-accent-2: #8B5CF6; --sk33-green: #10B981;
+  --k32-cream: #000000; --k32-card: #121215; --k32-ink: #F4F4F5; --k32-wine: #F43F5E; --k32-green: #10B981; --k32-gold: #06B6D4;
+  color-scheme: dark;
+}
+
+/* 9. خزامى نجد الفاخرة — Najdi Lavender */
+[data-sk-theme="lavender"] .sk-panel, [data-sk-theme="lavender"] .sk33-sheet {
+  --surface: #FAF7FD; --surface-2: #F3EDF9; --surface-warm: #E8DCF3;
+  --ink: #2D1445; --ink-2: #65408A; --ink-3: #9676B8;
+  --line: #DFCEF0; --line-light: #EFE4F9;
+  --sk33-accent: #7E22CE; --sk33-accent-2: #BE185D; --sk33-green: #047857;
+  --k32-cream: #FAF7FD; --k32-card: #FFFFFF; --k32-ink: #2D1445; --k32-wine: #BE185D; --k32-green: #047857; --k32-gold: #9333EA;
+}
+
+/* 10. القهوة النجدية والتمور — Najdi Qahwa & Heritage */
+[data-sk-theme="qahwa"] .sk-panel, [data-sk-theme="qahwa"] .sk33-sheet {
+  --surface: #F9F6F0; --surface-2: #EFE8DC; --surface-warm: #E2D7C5;
+  --ink: #2C180E; --ink-2: #5F4231; --ink-3: #8C6F5C;
+  --line: #D9CBBA; --line-light: #E9DFC4;
+  --sk33-accent: #6C2E12; --sk33-accent-2: #B45309; --sk33-green: #1E3A2B;
+  --k32-cream: #F9F6F0; --k32-card: #FFFFFF; --k32-ink: #2C180E; --k32-wine: #8C2508; --k32-green: #1E3A2B; --k32-gold: #B45309;
+}
+
 
 [data-sk-theme="dark"] .sk-panel {
   background: var(--surface);
@@ -465,3 +531,134 @@
   border-color: #38342E !important;
   color: #F7F5F0 !important;
 }
+
+/* ==========================================================
+   9. THEME SELECTOR & LIVE PREVIEW CARDS (10 THEMES)
+   ========================================================== */
+.sk33-theme-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0 6px;
+}
+
+@media (max-width: 480px) {
+  .sk33-theme-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sk33-theme-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: start;
+  padding: 14px;
+  border: 2px solid var(--line);
+  background: var(--surface-2);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.sk33-theme-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--sk33-accent);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.sk33-theme-card.active {
+  border-color: var(--sk33-accent);
+  background: var(--surface-warm);
+  box-shadow: 0 4px 16px rgba(168, 42, 42, 0.2);
+}
+
+.sk33-theme-swatches {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.sk33-swatch-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sk33-theme-card b {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.sk33-theme-card span {
+  font-size: 11px;
+  color: var(--ink-3);
+  line-height: 1.4;
+}
+
+.sk33-theme-card.active::after {
+  content: "✓ مفعل";
+  position: absolute;
+  top: 10px;
+  inset-inline-end: 10px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #FFFFFF;
+  background: var(--sk33-accent);
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+/* ==========================================================
+   10. CARCASS YIELD & BUTCHERY CALCULATOR (حاسبة تشفي اللحوم)
+   ========================================================== */
+.sk33-yield-box {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  margin: 12px 0;
+}
+
+.sk33-yield-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+@media (max-width: 500px) {
+  .sk33-yield-kpis {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sk33-yield-kpi {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px;
+  text-align: center;
+}
+
+.sk33-yield-kpi span {
+  display: block;
+  font-size: 10.5px;
+  color: var(--ink-3);
+  margin-bottom: 3px;
+}
+
+.sk33-yield-kpi b {
+  display: block;
+  font-size: 16px;
+  color: var(--sk33-accent);
+  font-weight: 800;
+}
+
