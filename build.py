@@ -24,11 +24,17 @@ for patch_name, anchor in [
     else:
         print(f"warning: {patch_name} not applied (anchor missing)")
 
+
+# Product branding: keep business data intact, rename only the application shell.
+text=re.sub(r"<title>[^<]*</title>","<title>S.kosif</title>",text,count=1,flags=re.I)
+text=re.sub(r'<meta\\s+name=["\\']apple-mobile-web-app-title["\\'][^>]*>', '<meta name="apple-mobile-web-app-title" content="S.kosif">', text, count=1, flags=re.I)
+
 for css_name, version in [
     ("mobile-v28.css","28"),
     ("jev-v1.css","1"),
     ("jev-question-v1.css","1"),
-    ("v29-smart.css","29")
+    ("v29-smart.css","29"),
+    ("skosif-v30.css","30")
 ]:
     if css_name not in text:
         text=text.replace("</head>",f'<link rel="stylesheet" href="./{css_name}?v={version}"></head>',1)
@@ -37,7 +43,8 @@ for js_name, version in [
     ("mobile-v28.js","28"),
     ("jev-v1.js","1"),
     ("jev-question-v1.js","1"),
-    ("v29-smart.js","29")
+    ("v29-smart.js","29"),
+    ("skosif-v30.js","30")
 ]:
     if js_name not in text:
         head,sep,tail=text.rpartition("</body>")
@@ -54,7 +61,7 @@ for name in ["icon-192.png","icon-512.png","apple-touch-icon.png"]:
 for name in [
     "sw.js","manifest.webmanifest","INSTALL-iPHONE-ar.txt","_headers",
     "mobile-v28.css","mobile-v28.js","jev-v1.css","jev-v1.js",
-    "jev-question-v1.css","jev-question-v1.js","v29-smart.css","v29-smart.js"
+    "jev-question-v1.css","jev-question-v1.js","v29-smart.css","v29-smart.js","skosif-v30.css","skosif-v30.js"
 ]:
     src=Path(name)
     if src.exists(): (out/name).write_bytes(src.read_bytes())
@@ -71,4 +78,4 @@ sw=(out/"sw.js").read_text(encoding="utf-8")
 sw,n=re.subn(r"const CACHE='[^']*';",f"const CACHE='aghnam-{digest.hexdigest()[:12]}';",sw,count=1)
 if n!=1: raise SystemExit("sw.js CACHE marker missing")
 (out/"sw.js").write_text(sw,encoding="utf-8")
-print("Built password-locked full-data mobile v28 + Jev + V29 smart operations release:",len(list(out.rglob("*"))),"entries")
+print("Built S.kosif V30 password-locked Fusion release:",len(list(out.rglob("*"))),"entries")
