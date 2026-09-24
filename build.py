@@ -38,6 +38,7 @@ for css_name, version in [
     ("v29-smart.css","29"),
     ("skosif-v30.css","30"),
     ("skosif-supply-v31.css","31"),
+    ("skosif-sinam-v32.css","32"),
     ("skosif-catalog-v32.css","32"),
     ("skosif-shell-v33.css","33")
 ]:
@@ -51,6 +52,7 @@ for js_name, version in [
     ("v29-smart.js","29"),
     ("skosif-v30.js","30"),
     ("skosif-supply-v31.js","31"),
+    ("skosif-sinam-v32.js","32"),
     ("skosif-catalog-v32.js","32"),
     ("skosif-shell-v33.js","33")
 ]:
@@ -70,7 +72,7 @@ for name in ["icon-192.png","icon-512.png","apple-touch-icon.png"]:
 for name in [
     "sw.js","manifest.webmanifest","INSTALL-iPHONE-ar.txt","_headers",
     "mobile-v28.css","mobile-v28.js","jev-v1.css","jev-v1.js",
-    "jev-question-v1.css","jev-question-v1.js","v29-smart.css","v29-smart.js","skosif-v30.css","skosif-v30.js","skosif-supply-v31.css","skosif-supply-v31.js","skosif-catalog-v32.css","skosif-catalog-v32.js","skosif-shell-v33.css","skosif-shell-v33.js"
+    "jev-question-v1.css","jev-question-v1.js","v29-smart.css","v29-smart.js","skosif-v30.css","skosif-v30.js","skosif-supply-v31.css","skosif-supply-v31.js","skosif-sinam-v32.css","skosif-sinam-v32.js","skosif-catalog-v32.css","skosif-catalog-v32.js","skosif-shell-v33.css","skosif-shell-v33.js"
 ]:
     src=Path(name)
     if src.exists(): (out/name).write_bytes(src.read_bytes())
@@ -88,4 +90,4 @@ sw=(out/"sw.js").read_text(encoding="utf-8")
 sw,n=re.subn(r"const CACHE='[^']*';",f"const CACHE='skosif-{digest.hexdigest()[:12]}';",sw,count=1)
 if n!=1: raise SystemExit("sw.js CACHE marker missing")
 (out/"sw.js").write_text(sw,encoding="utf-8")
-print("Built S.kosif V30 password-locked Fusion release:",len(list(out.rglob("*"))),"entries")
+print("Built S.kosif V32 Sinam-inspired Fusion release:",len(list(out.rglob("*"))),"entries")

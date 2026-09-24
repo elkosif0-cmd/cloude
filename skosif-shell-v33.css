@@ -77,3 +77,5 @@
 .sk33-matrix td.sk33-base{outline:2px solid var(--ink,#1d2939);outline-offset:-2px;font-weight:900}
 .sk33-ta{width:100%;border:1px solid var(--line,#e4e7ec);border-radius:12px;padding:10px;font:inherit;font-size:14px;background:var(--surface-2,#f8fafc);color:inherit;direction:rtl;resize:vertical}
 .sk33-end{align-self:end}
+/* شريط عنوان نافذة V32 داكن دائماً؛ أزرار الرأس تتبعه في الوضعين */
+.sx-titlebar .sk33-tools button,.sx-titlebar .sk-close{background:#292524!important;border-color:#44403c!important;color:#f5f5f4!important}
