@@ -64,6 +64,15 @@ let app=await fetch("./app-safe.html",{cache:"no-store"}).then(r=>{if(!r.ok)thro
 const marker='const SEED_B64 = "";';
 if(!app.includes(marker))throw new Error("app-marker");
 app=app.replace(marker,'const SEED_B64 = "'+seed+'";');
+const pr=await fetch("./secure/private.json",{cache:"no-store"});
+if(pr.ok){
+  const pm=await pr.json(),pn=b64(pm.nonce_b64),pct=await loadCipher(pm);
+  const psigned=new Uint8Array(pn.length+pct.length);psigned.set(pn);psigned.set(pct,pn.length);
+  if(!await crypto.subtle.verify("HMAC",macKey,b64(pm.tag_b64),psigned))throw new Error("bad-private");
+  const pz=new Blob([xor(pct,ek,pn,1)]).stream().pipeThrough(new DecompressionStream("gzip"));
+  const blocks=JSON.parse(await new Response(pz).text());
+  for(const [ph,orig] of Object.entries(blocks)){if(!app.includes(ph))throw new Error("private-marker");app=app.replace(ph,()=>orig);}
+}
 $("progress").textContent="جارٍ تفعيل Jev…";
 try{
   const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),8000);

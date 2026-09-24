@@ -1,5 +1,6 @@
 from pathlib import Path
 import base64, gzip, hashlib, re, shutil
+import private_blocks
 
 out=Path("dist")
 if out.exists(): shutil.rmtree(out)
@@ -44,6 +45,7 @@ for js_name, version in [
         if not sep: raise SystemExit("Final body close missing")
         text=head+f'<script src="./{js_name}?v={version}" defer></script></body>'+tail
 
+text,private=private_blocks.extract(text)
 (out/"app-safe.html").write_text(text,encoding="utf-8")
 (out/"index.html").write_bytes(Path("unlock.html").read_bytes())
 
@@ -60,6 +62,7 @@ for name in [
     if src.exists(): (out/name).write_bytes(src.read_bytes())
 
 shutil.copytree("secure",out/"secure")
+if private: private_blocks.encrypt(private,Path("secure"),out/"secure")
 
 # Name the service-worker cache after the build contents so every release
 # replaces the copy cached on installed phones.
