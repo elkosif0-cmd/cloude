@@ -35,6 +35,7 @@ jobs:
           python3 -m py_compile build.py
           node --check skosif-v30.js
           node --check skosif-supply-v31.js
+          node --check skosif-sinam-v32.js
           node --check jev-v1.js
           node --check jev-question-v1.js
           node --check v29-smart.js
@@ -54,6 +55,8 @@ jobs:
           required=[
             "skosif-v30.css?v=30",
             "skosif-v30.js?v=30",
+            "skosif-sinam-v32.css?v=32",
+            "skosif-sinam-v32.js?v=32",
             "jev-v1.js?v=1",
             "jev-question-v1.js?v=1",
             "v29-smart.js?v=29"
@@ -61,7 +64,7 @@ jobs:
           for marker in required:
               assert marker in app, marker
           for f in [
-            "skosif-v30.css","skosif-v30.js","jev-v1.js","jev-question-v1.js",
+            "skosif-v30.css","skosif-v30.js","skosif-sinam-v32.css","skosif-sinam-v32.js","jev-v1.js","jev-question-v1.js",
             "v29-smart.js","sw.js","manifest.webmanifest","secure/crypto.json"
           ]:
               assert Path("dist",f).exists(), f
@@ -82,5 +85,8 @@ jobs:
             "صحة البيانات والتخزين"
           ]:
               assert marker in js, marker
-          print("S.kosif V30 validation: OK")
+          sx=Path("dist/skosif-sinam-v32.js").read_text(encoding="utf-8")
+          for marker in ["Command palette","Zero-PII","SKosifSafeCSV","beforeinstallprompt"]:
+              assert marker in sx, marker
+          print("S.kosif V32 validation: OK")
           PY
