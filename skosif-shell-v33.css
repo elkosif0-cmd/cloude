@@ -1,132 +1,47 @@
-/* S.kosif V33 — منظومة الثيمات العشرة الفاخرة (10 Curated Gourmet & Operational Themes) */
-
-/* 1. إيتالي الذواقة — Eataly Gourmet (Default) */
-[data-sk-theme="eataly"] .sk-panel, [data-sk-theme="eataly"] .sk33-sheet, [data-sk-theme="light"] .sk-panel, [data-sk-theme="light"] .sk33-sheet {
-  --surface: #FFFFFF; --surface-2: #FAF8F5; --surface-warm: #F4EFE6;
-  --ink: #1E201D; --ink-2: #4E524B; --ink-3: #82877E;
-  --line: #E8E3D8; --line-light: #F2EFE9;
-  --sk33-accent: #A82A2A; --sk33-accent-2: #C28B28; --sk33-green: #244C37;
-  --k32-cream: #FAF8F5; --k32-card: #FFFFFF; --k32-ink: #1E201D; --k32-wine: #A82A2A; --k32-green: #244C37; --k32-gold: #C28B28;
+/* S.kosif — Canonical Shell & Theme System */
+:root,[data-sk-theme="executive-light"]{
+  --surface:#FFFFFF;--surface-2:#F6F8FA;--surface-3:#EEF2F4;
+  --ink:#0F172A;--ink-2:#334155;--ink-3:#64748B;--line:#DDE3E8;
+  --accent:#0F766E;--accent-2:#D97706;--danger:#B42318;--success:#067647;--focus:#0EA5E9;
+  --sk33-bg:#F8FAFC;--sk33-card:#FFFFFF;--sk33-ink:#0F172A;--sk33-muted:#64748B;--sk33-line:#DDE3E8;--sk33-accent:#0F766E;--sk33-accent2:#D97706;--sk33-green:#067647
+}
+[data-sk-theme="executive-dark"]{
+  --surface:#101826;--surface-2:#182234;--surface-3:#223047;
+  --ink:#F8FAFC;--ink-2:#D8E1EA;--ink-3:#9BAABD;--line:#34445A;
+  --accent:#0F766E;--accent-2:#D97706;--danger:#FDA29B;--success:#6CE9A6;--focus:#38BDF8;
+  --sk33-bg:#0B1220;--sk33-card:#101826;--sk33-ink:#F8FAFC;--sk33-muted:#9BAABD;--sk33-line:#34445A;--sk33-accent:#0F766E;--sk33-accent2:#D97706;--sk33-green:#2DD4BF;
+  color-scheme:dark
+}
+[data-sk-theme="gourmet"]{
+  --surface:#FFFDF8;--surface-2:#FFF5E8;--surface-3:#F7E9D6;
+  --ink:#3B2418;--ink-2:#654535;--ink-3:#8A6855;--line:#E8D8C5;
+  --accent:#9A3412;--accent-2:#166534;--danger:#B42318;--success:#166534;--focus:#B45309;
+  --sk33-bg:#FFF8EE;--sk33-card:#FFFDF8;--sk33-ink:#3B2418;--sk33-muted:#8A6855;--sk33-line:#E8D8C5;--sk33-accent:#9A3412;--sk33-accent2:#166534;--sk33-green:#166534
+}
+[data-sk-theme="contrast"]{
+  --surface:#FFFFFF;--surface-2:#F2F2F2;--surface-3:#E6E6E6;
+  --ink:#000000;--ink-2:#111111;--ink-3:#333333;--line:#6B7280;
+  --accent:#005A4F;--accent-2:#B54708;--danger:#9B1C1C;--success:#075E45;--focus:#005FCC;
+  --sk33-bg:#FFFFFF;--sk33-card:#FFFFFF;--sk33-ink:#000000;--sk33-muted:#333333;--sk33-line:#6B7280;--sk33-accent:#005A4F;--sk33-accent2:#B54708;--sk33-green:#075E45
+}
+[data-sk-theme] .sk-panel,[data-sk-theme] .sk33-sheet,[data-sk-theme] .sk36-panel{
+  background:var(--surface)!important;color:var(--ink)!important;border-color:var(--line)!important
+}
+[data-sk-theme] :is(.sk-kpi,.sk34-help,.sk34-match,.sk35-features article,.sk36-card,.sk37-cut,.sk31-col){
+  background:var(--surface-2)!important;border-color:var(--line)!important;color:var(--ink)!important
+}
+[data-sk-theme] :is(.sk-table th,.sk-tabs,.sk33-pagehead){background:var(--surface-2)!important;color:var(--ink-2)!important}
+[data-sk-theme] :is(.sk-table td,.sk-table th,.sk-field input,.sk-field select,.sk33-ta,.sk37-ta){border-color:var(--line)!important;color:var(--ink)!important}
+[data-sk-theme] :is(.sk-field input,.sk-field select,.sk33-ta,.sk37-ta){background:var(--surface)!important}
+[data-sk-theme] .sk-primary{background:var(--accent)!important;color:#fff!important}
+[data-sk-theme] .sk-secondary{background:var(--surface-2)!important;color:var(--ink)!important;border-color:var(--line)!important}
+[data-sk-theme] .sk-tabs button.active{background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important}
+[data-sk-theme] .k32{
+  --k32-cream:var(--surface-2);--k32-card:var(--surface);--k32-card-subtle:var(--surface-2);
+  --k32-ink:var(--ink);--k32-ink-light:var(--ink-2);--k32-mute:var(--ink-3);--k32-line:var(--line);--k32-line-subtle:var(--line)
 }
 
-/* 2. سِنام الأصيل — Sinam Desert Oasis */
-[data-sk-theme="sinam"] .sk-panel, [data-sk-theme="sinam"] .sk33-sheet {
-  --surface: #FDFBF7; --surface-2: #F5EFE6; --surface-warm: #EADFCF;
-  --ink: #291A10; --ink-2: #6B4D3B; --ink-3: #9E7D6A;
-  --line: #E2D3BE; --line-light: #EDE3D5;
-  --sk33-accent: #881337; --sk33-accent-2: #C2410C; --sk33-green: #2E5A36;
-  --k32-cream: #FDFBF7; --k32-card: #FFFFFF; --k32-ink: #291A10; --k32-wine: #881337; --k32-green: #2E5A36; --k32-gold: #C2410C;
-}
-
-/* 3. المراعي الخضراء — Emerald Pastures */
-[data-sk-theme="pasture"] .sk-panel, [data-sk-theme="pasture"] .sk33-sheet {
-  --surface: #FFFFFF; --surface-2: #F2F9F5; --surface-warm: #E3F2E9;
-  --ink: #0F291E; --ink-2: #2D5A47; --ink-3: #5C8A76;
-  --line: #D0E5D9; --line-light: #E5F2EC;
-  --sk33-accent: #059669; --sk33-accent-2: #D97706; --sk33-green: #047857;
-  --k32-cream: #F2F9F5; --k32-card: #FFFFFF; --k32-ink: #0F291E; --k32-wine: #B91C1C; --k32-green: #047857; --k32-gold: #D97706;
-}
-
-/* 4. الفخامة الملكية — Royal Sapphire */
-[data-sk-theme="royal"] .sk-panel, [data-sk-theme="royal"] .sk33-sheet {
-  --surface: #0F172A; --surface-2: #1E293B; --surface-warm: #334155;
-  --ink: #F8FAFC; --ink-2: #CBD5E1; --ink-3: #94A3B8;
-  --line: #334155; --line-light: #1E293B;
-  --sk33-accent: #2563EB; --sk33-accent-2: #F59E0B; --sk33-green: #10B981;
-  --k32-cream: #0B1120; --k32-card: #1E293B; --k32-ink: #F8FAFC; --k32-wine: #EF4444; --k32-green: #10B981; --k32-gold: #F59E0B;
-  color-scheme: dark;
-}
-
-/* 5. الزعفران والتوابل — Spiced Saffron & Amber */
-[data-sk-theme="amber"] .sk-panel, [data-sk-theme="amber"] .sk33-sheet {
-  --surface: #FFFDF7; --surface-2: #FFF8E7; --surface-warm: #FEEDCA;
-  --ink: #331A05; --ink-2: #7A4315; --ink-3: #A86B32;
-  --line: #F4DEB3; --line-light: #FBEFD5;
-  --sk33-accent: #B45309; --sk33-accent-2: #D97706; --sk33-green: #3F6212;
-  --k32-cream: #FFFDF7; --k32-card: #FFFFFF; --k32-ink: #331A05; --k32-wine: #B91C1C; --k32-green: #3F6212; --k32-gold: #D97706;
-}
-
-/* 6. الرخام والغرافيت — Minimalist Slate & Marble */
-[data-sk-theme="graphite"] .sk-panel, [data-sk-theme="graphite"] .sk33-sheet {
-  --surface: #FFFFFF; --surface-2: #F4F4F5; --surface-warm: #E4E4E7;
-  --ink: #18181B; --ink-2: #52525B; --ink-3: #71717A;
-  --line: #E4E4E7; --line-light: #F4F4F5;
-  --sk33-accent: #27272A; --sk33-accent-2: #4F46E5; --sk33-green: #15803D;
-  --k32-cream: #FAFAFA; --k32-card: #FFFFFF; --k32-ink: #18181B; --k32-wine: #DC2626; --k32-green: #15803D; --k32-gold: #D97706;
-}
-
-/* 7. ليل الذواقة الداكن — Notte Dark Espresso (Modern Dark) */
-[data-sk-theme="notte"] .sk-panel, [data-sk-theme="notte"] .sk33-sheet, [data-sk-theme="dark"] .sk-panel, [data-sk-theme="dark"] .sk33-sheet {
-  --surface: #141312; --surface-2: #1F1D1A; --surface-warm: #2C2925;
-  --ink: #FAF7F2; --ink-2: #D8D2C7; --ink-3: #9E9689;
-  --line: #38342E; --line-light: #2A2722;
-  --sk33-accent: #D84D4D; --sk33-accent-2: #E5AC44; --sk33-green: #4E8E6A;
-  --k32-cream: #121110; --k32-card: #1F1D1A; --k32-ink: #FAF7F2; --k32-wine: #D84D4D; --k32-green: #4E8E6A; --k32-gold: #E5AC44;
-  color-scheme: dark;
-}
-
-/* 8. سايبر أوبسيديان — Cyber Obsidian Tech */
-[data-sk-theme="cyber"] .sk-panel, [data-sk-theme="cyber"] .sk33-sheet {
-  --surface: #09090B; --surface-2: #18181B; --surface-warm: #27272A;
-  --ink: #F4F4F5; --ink-2: #A1A1AA; --ink-3: #71717A;
-  --line: #27272A; --line-light: #18181B;
-  --sk33-accent: #0D9488; --sk33-accent-2: #8B5CF6; --sk33-green: #10B981;
-  --k32-cream: #000000; --k32-card: #121215; --k32-ink: #F4F4F5; --k32-wine: #F43F5E; --k32-green: #10B981; --k32-gold: #06B6D4;
-  color-scheme: dark;
-}
-
-/* 9. خزامى نجد الفاخرة — Najdi Lavender */
-[data-sk-theme="lavender"] .sk-panel, [data-sk-theme="lavender"] .sk33-sheet {
-  --surface: #FAF7FD; --surface-2: #F3EDF9; --surface-warm: #E8DCF3;
-  --ink: #2D1445; --ink-2: #65408A; --ink-3: #9676B8;
-  --line: #DFCEF0; --line-light: #EFE4F9;
-  --sk33-accent: #7E22CE; --sk33-accent-2: #BE185D; --sk33-green: #047857;
-  --k32-cream: #FAF7FD; --k32-card: #FFFFFF; --k32-ink: #2D1445; --k32-wine: #BE185D; --k32-green: #047857; --k32-gold: #9333EA;
-}
-
-/* 10. القهوة النجدية والتمور — Najdi Qahwa & Heritage */
-[data-sk-theme="qahwa"] .sk-panel, [data-sk-theme="qahwa"] .sk33-sheet {
-  --surface: #F9F6F0; --surface-2: #EFE8DC; --surface-warm: #E2D7C5;
-  --ink: #2C180E; --ink-2: #5F4231; --ink-3: #8C6F5C;
-  --line: #D9CBBA; --line-light: #E9DFC4;
-  --sk33-accent: #6C2E12; --sk33-accent-2: #B45309; --sk33-green: #1E3A2B;
-  --k32-cream: #F9F6F0; --k32-card: #FFFFFF; --k32-ink: #2C180E; --k32-wine: #8C2508; --k32-green: #1E3A2B; --k32-gold: #B45309;
-}
-
-
-[data-sk-theme="dark"] .sk-panel {
-  background: var(--surface);
-  color: var(--ink);
-  border-color: var(--line);
-}
-
-[data-sk-theme="dark"] .sk-tabs button.active {
-  background: var(--sk33-accent);
-  color: #FFFFFF;
-  box-shadow: 0 6px 18px rgba(216, 77, 77, 0.35);
-}
-
-[data-sk-theme="dark"] .sk-kpi {
-  background: var(--surface-2);
-  border-color: var(--line);
-}
-
-[data-sk-theme="dark"] .sk-kpi.good b { color: #5EEAD4; }
-[data-sk-theme="dark"] .sk-kpi.warn b { color: #FCD34D; }
-[data-sk-theme="dark"] .sk-table th { background: var(--surface-2); color: var(--ink-2); }
-[data-sk-theme="dark"] .sk-table td, [data-sk-theme="dark"] .sk-table th { border-color: var(--line); }
-[data-sk-theme="dark"] .sk-field input, [data-sk-theme="dark"] .sk-field select, [data-sk-theme="dark"] .sk33-ta {
-  background: var(--surface-2);
-  color: var(--ink);
-  border-color: var(--line);
-}
-
-[data-sk-theme="dark"] .sk-warning { background: #3B2A14; color: #FCD34D; border-color: #78350F; }
-[data-sk-theme="dark"] .sk-success { background: #132D1E; color: #86EFAC; border-color: #14532D; }
-[data-sk-theme="dark"] .sk-secondary { background: var(--surface-2); color: var(--ink); border-color: var(--line); }
-[data-sk-theme="dark"] .sk-primary { background: var(--sk33-accent); color: #FFFFFF; }
-[data-sk-theme="dark"] .sk-mark { background: linear-gradient(135deg, #B91C1C, #B45309); }
-[data-sk-theme="dark"] .sk-close, [data-sk-theme="dark"] .sk33-tools button {
+.sk33-tools button {
   background: var(--surface-2);
   border-color: var(--line);
   color: var(--ink);
@@ -664,16 +579,7 @@
 
 
 /* ---------- V39: شريط سفلي موحّد + رأس أخف على الجوال ---------- */
-/* الأزرار العائمة القديمة (S، Jev، V29) صارت داخل الشريط السفلي */
-body.sk33-docked #sk-fab,body.sk33-docked #jev-fab,body.sk33-docked #v29-fab{display:none!important}
-.sk33-dock{display:flex;align-items:center;gap:5px}
-.sk33-dock button{display:flex;align-items:center;gap:5px;min-height:36px;padding:0 10px;border:1px solid #44403c;background:#292524;color:#f5f5f4;border-radius:11px;font:800 11.5px/1 inherit;font-family:inherit;cursor:pointer;white-space:nowrap}
-.sk33-dock button i{font-style:normal;font-size:14px;line-height:1}
-.sk33-dock button[data-dock="hub"]{background:#f59e0b;border-color:#f59e0b;color:#1c1917}
-.sx-minimized:empty{display:none}
-@media (max-width:760px){
-  .sk33-dock button{padding:0 8px}
-  /* رأس النافذة على الجوال: الاسم فقط + الثيمات + القفل + الإغلاق */
+/* رأس النافذة على الجوال: الاسم فقط + الثيمات + القفل + الإغلاق */
   .sk-panel .sk-headtxt span{display:none}
   .sk-panel .sx-window-controls,.sk-panel #sk33-theme{display:none!important}
   .sk-panel .sk33-tools{gap:5px}
@@ -685,23 +591,40 @@ body.sk33-docked #sk-fab,body.sk33-docked #jev-fab,body.sk33-docked #v29-fab{dis
 /* ---------- V39: إكمال الثيمات العشرة ----------
    قواعد الوضع الداكن كانت مربوطة باسم "dark" فقط، بينما الثيمات الداكنة الفعلية
    هي notte وcyber وroyal: التبويب النشط كان نصاً داكناً على خلفية داكنة. */
-:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-tabs button.active{background:var(--sk33-accent);color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.35)}
-:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-tabs button{color:var(--ink-2)}
-:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-kpi{background:var(--surface-2);border-color:var(--line)}
-:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-kpi b{color:var(--ink)}
-:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-kpi.good b{color:#5EEAD4}
-:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-kpi.warn b{color:#FCD34D}
-:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-table th{background:var(--surface-2);color:var(--ink-2)}
-:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) :is(.sk-table td,.sk-table th){border-color:var(--line)}
-:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) :is(.sk-field input,.sk-field select,.sk33-ta,.sk31-sheet textarea){background:var(--surface-2);color:var(--ink);border-color:var(--line)}
-:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-warning{background:#3B2A14;color:#FCD34D;border-color:#78350F}
-:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-success{background:#132D1E;color:#86EFAC;border-color:#14532D}
-:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-secondary{background:var(--surface-2);color:var(--ink);border-color:var(--line)}
-:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .sk-primary{background:var(--sk33-accent);color:#fff}
-:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) :is(.sk31-bad){color:#FCA5A5}
-:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) :is(.sk31-sub,.sk33-note,.sk-field span){color:var(--ink-3)}
+
 
 /* الكتالوج يتبع ألوان الثيم المختار (الخلفية والبطاقات والنصوص والحدود) في الثيمات العشرة */
 [data-sk-theme] .k32{--k32-cream:var(--surface-2);--k32-card:var(--surface);--k32-card-subtle:var(--surface-2);--k32-ink:var(--ink);--k32-ink-light:var(--ink-2);--k32-mute:var(--ink-3);--k32-line:var(--line);--k32-line-subtle:var(--line)}
-:is([data-sk-theme="notte"],[data-sk-theme="cyber"],[data-sk-theme="royal"]) .k32{--k32-wine:#E26A6A;--k32-wine-soft:#3A1C1C;--k32-green:#5FAE84;--k32-green-light:#16261D;--k32-gold:#EAB54F;--k32-gold-soft:#342817;
-  --k32-shadow-sm:0 2px 8px rgba(0,0,0,.3);--k32-shadow-md:0 8px 24px rgba(0,0,0,.4);--k32-shadow-lg:0 16px 40px rgba(0,0,0,.5)}
+
+
+/* Canonical workspace structure */
+.sk33-gtitle{display:block!important;font-size:9px!important;letter-spacing:0!important;text-transform:none!important;color:var(--ink-3)!important;margin:8px 10px 5px!important}
+.sk33-group[data-g="العمل اليومي"]{border-inline-start:3px solid var(--accent)}
+.sk33-group[data-g="أدوات متقدمة"]{border-inline-start:3px solid var(--accent-2)}
+.sk33-tools{gap:6px!important}
+.sk33-tools button{width:auto!important;min-width:52px!important;padding:0 10px!important;font-size:10px!important;font-weight:800!important}
+.sk33-theme-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.sk33-motion{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.sk33-motion>div:first-child b{display:block;font-size:11px}
+.sk33-motion>div:first-child small{display:block;margin-top:2px;color:var(--ink-3);font-size:9px}
+.sk33-motion>div:last-child{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.sk33-motion button{min-height:38px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--ink);font:800 9px inherit}
+.sk33-motion button:hover{border-color:var(--accent);color:var(--accent)}
+
+/* No floating launchers or bottom dock */
+#sk-fab,#jev-fab,#v29-fab,#sx-taskbar,#sk36-health,#sk38-motion-btn{display:none!important}
+
+/* Keep business UI calm and consistent */
+.sk-panel,.sk33-sheet,.jev-panel,.v29-panel,.sk36-panel{box-shadow:0 24px 70px rgba(15,23,42,.18)!important}
+.sk-kpi,.card,.stat-card,.sk34-match,.sk35-features article{border-radius:12px!important}
+button{transition:background-color .16s ease,border-color .16s ease,color .16s ease,transform .16s ease}
+@media(hover:hover) and (pointer:fine){button:not(:disabled):hover{transform:translateY(-1px)}}
+@media(max-width:760px){
+  .sk33-theme-grid{grid-template-columns:1fr 1fr!important}
+  .sk33-motion>div:last-child{grid-template-columns:1fr 1fr}
+  .sk33-tools button{min-width:46px!important;padding:0 8px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  *{scroll-behavior:auto!important}
+  button{transition:none!important}
+}
