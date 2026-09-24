@@ -35,7 +35,7 @@
     suppliers:["⛟","الموردون","Suppliers & Inbound Quality"], cash:["⇄","السيولة","Cash Flow & Forecast"], excel:["⊞","مطابقة إكسل","Excel Reconciliation"],
     reports:["▤","التقارير","Reports Centre"], health:["♡","الصحة","Storage Health"],
   };
-  const GROUPS=[["التشغيل اليومي",["overview","k32"]],["التسعير والقرار",["pricing","kernel","decision","meat","approvals"]],["المبيعات والعملاء",["customers","smartmatch"]],["التوريد والمالية",["suppliers","cash","excel"]],["التقارير والنظام",["reports","health"]]];
+  const GROUPS=[["العمل اليومي",["overview","k32","pricing","customers","suppliers","cash","smartmatch"]],["أدوات متقدمة",["kernel","decision","meat","approvals","excel","reports","health"]]];
   /* تبويبات الطبقات الأخرى تُعرّف نفسها بطرق مختلفة (data-* أو id) */
   const IDS={"sk34-tab":"smartmatch","sk35-tab":"kernel","sk37-tab":"meat"};
   const keyOf=b=>b.dataset.skTab||b.dataset.sk31Tab||(b.hasAttribute("data-k32-tab")?"k32":"")||b.dataset.sk33Tab||IDS[b.id]||"";
@@ -79,10 +79,9 @@
     /* أزرار الرأس: اختيار الثيمات (10 ثيمات) + الوضع الداكن + القفل */
     const close=$("sk-close");
     const tools=document.createElement("div");tools.className="sk33-tools";
-    tools.innerHTML='<button type="button" id="sk33-themes" aria-label="اختيار ثيم التطبيق" title="المظهر والثيمات (10 خيارات)">🎨</button><button type="button" id="sk33-theme" aria-label="تبديل الوضع الداكن">☾</button><button type="button" id="sk33-lock" aria-label="قفل التطبيق">🔒</button>';
+    tools.innerHTML='<button type="button" id="sk33-themes" aria-label="المظهر والثيمات" title="المظهر والثيمات">المظهر</button><button type="button" id="sk33-lock" aria-label="قفل التطبيق" title="قفل التطبيق">قفل</button>';
     head.insertBefore(tools,close);
     $("sk33-themes").onclick=themeSheet;
-    $("sk33-theme").onclick=toggleTheme;
     $("sk33-lock").onclick=lockSheet;
     /* زر «الأقسام» للجوال */
     tabs.insertAdjacentHTML("afterbegin",'<button type="button" class="sk33-menu" aria-label="كل الأقسام">☰ الأقسام</button>');
@@ -108,39 +107,37 @@
       if(!btns.length)return "";
       return '<section><h5>'+esc(t)+'</h5><div>'+btns.map(b=>{const k=keyOf(b),m=META[k]||["•",b.textContent,""];return '<button type="button" data-go="'+esc(k)+'"><i>'+m[0]+'</i><b>'+esc(m[1])+'</b><small>'+esc(m[2])+'</small></button>'}).join("")+'</div></section>';
     }).join("");
-    const toolsSection='<section><h5>أدوات إضافية ومظهر</h5><div>'+
-      '<button type="button" id="sk33-open-themes"><i>🎨</i><b>المظهر والثيمات</b><small>10 خيارات تصميم</small></button>'+
-      '<button type="button" id="sk33-open-yield"><i>✂</i><b>حاسبة تشفي اللحوم</b><small>حساب الهدر والتصافي</small></button>'+
+    const toolsSection='<section><h5>أدوات متقدمة</h5><div>'+
+      '<button type="button" id="sk33-open-inventory"><i>▦</i><b>المخزون الذكي</b><small>تغطية ونقطة إعادة الطلب</small></button>'+
+      '<button type="button" id="sk33-open-jev"><i>J</i><b>مساعد القرار Jev</b><small>قرار منظم بعد الحساب</small></button>'+
+      '<button type="button" id="sk33-open-health"><i>✓</i><b>تشخيص النظام</b><small>التخزين والجلسة والـPWA</small></button>'+
+      '<button type="button" id="sk33-open-themes"><i>◐</i><b>المظهر والحركة</b><small>4 ثيمات موحدة وحركة اختيارية</small></button>'+
     '</div></section>';
     document.body.insertAdjacentHTML("beforeend",'<div id="sk33-launch" class="sk33-sheet-wrap" role="dialog" aria-modal="true" aria-label="الأقسام"><div class="sk33-sheet"><div class="sk33-sheet-head"><b>الأقسام والأدوات</b><button type="button" class="sk33-x" aria-label="إغلاق">×</button></div>'+html+toolsSection+'</div></div>');
     const w=$("sk33-launch");
     w.querySelector(".sk33-x").onclick=()=>w.remove(); w.onclick=e=>{if(e.target===w)w.remove()};
     w.querySelectorAll("[data-go]").forEach(x=>x.onclick=()=>{const b=[...tabs.querySelectorAll("button")].find(y=>keyOf(y)===x.dataset.go);w.remove();if(b){b.click();b.scrollIntoView&&b.scrollIntoView({block:"nearest",inline:"nearest"})}});
-    $("sk33-open-themes").onclick=()=>{w.remove();themeSheet()};
-    $("sk33-open-yield").onclick=()=>{w.remove();yieldSheet()};
+    $("sk33-open-themes").onclick=()=>{w.remove();themeSheet();setTimeout(enhanceThemeMotion,30)};
+    $("sk33-open-inventory").onclick=()=>{w.remove();window.AghnamV29?.open?.();setTimeout(()=>document.querySelector('[data-v29-tab="inventory"]')?.click(),80)};
+    $("sk33-open-jev").onclick=()=>{w.remove();window.AskJev?.open?.("choice")};
+    $("sk33-open-health").onclick=()=>{w.remove();window.SKosifSessionHealthV36?.open?.()};yieldSheet()};
     applyTheme();
   }
 
   /* ---------- منظومة الـ 10 ثيمات ---------- */
   const THEMES=[
-    {id:"eataly",name:"إيتالي الذواقة",desc:"الإيطالي الكلاسيكي: عاجي دافئ وإسبريسو",dots:["#FAF8F5","#1E201D","#A82A2A","#C28B28"]},
-    {id:"sinam",name:"سِنام الأصيل",desc:"أحجار الصحراء، عنابي ملكي، ونحاسي",dots:["#FDFBF7","#291A10","#881337","#C2410C"]},
-    {id:"pasture",name:"المراعي الخضراء",desc:"مراعي طبيعية، زمردي، ونعناعي منعش",dots:["#F2F9F5","#0F291E","#059669","#D97706"]},
-    {id:"royal",name:"الفخامة الملكية",desc:"كحلي ملكي داكن، ياقوتي، وذهب ناصع",dots:["#0F172A","#F8FAFC","#2563EB","#F59E0B"]},
-    {id:"amber",name:"الزعفران والتوابل",desc:"كستناء محمص، زعفران ذهبي، وقرفة دافئة",dots:["#FFFDF7","#331A05","#B45309","#D97706"]},
-    {id:"graphite",name:"الرخام والغرافيت",desc:"أبيض ناصع، رمادي غرافيتي نقي، وفضي",dots:["#FFFFFF","#18181B","#27272A","#4F46E5"]},
-    {id:"notte",name:"ليل الذواقة الداكن",desc:"إسبريسو داكن محمص، ياقوتي، ونحاس عتيق",dots:["#141312","#FAF7F2","#D84D4D","#E5AC44"]},
-    {id:"cyber",name:"سايبر أوبسيديان",desc:"حجر السج، تركواز نيون كهربائي، وبنفسجي",dots:["#09090B","#F4F4F5","#0D9488","#8B5CF6"]},
-    {id:"lavender",name:"خزامى نجد الفاخرة",desc:"بنفسجي ملكي، خزامى برية، وعاجي ليلكي",dots:["#FAF7FD","#2D1445","#7E22CE","#BE185D"]},
-    {id:"qahwa",name:"القهوة النجدية والتمور",desc:"هيل وزعفران، بني موكا، وأخضر واحة النخيل",dots:["#F9F6F0","#2C180E","#6C2E12","#B45309"]}
+    {id:"executive-light",name:"تنفيذي فاتح",desc:"هادئ وواضح للعمل اليومي",dots:["#F8FAFC","#0F172A","#0F766E","#D97706"]},
+    {id:"executive-dark",name:"تنفيذي داكن",desc:"تباين مريح للعمل المسائي",dots:["#0B1220","#F8FAFC","#2DD4BF","#F59E0B"]},
+    {id:"gourmet",name:"ذواقة",desc:"درجات دافئة مناسبة لتجارة اللحوم",dots:["#FFF8EE","#3B2418","#9A3412","#166534"]},
+    {id:"contrast",name:"تباين عالٍ",desc:"وضوح قوي للنصوص والأرقام",dots:["#FFFFFF","#000000","#005A4F","#B54708"]}
   ];
 
   function themeNow(){
     const t=load(K.theme,"");
     if(t&&THEMES.some(x=>x.id===t))return t;
-    if(t==="dark")return "notte";
-    if(t==="light")return "eataly";
-    return matchMedia("(prefers-color-scheme: dark)").matches?"notte":"eataly";
+    if(["dark","notte","cyber","royal"].includes(t))return "executive-dark";
+    if(["eataly","light","sinam","pasture","amber","graphite","lavender","qahwa"].includes(t))return "executive-light";
+    return matchMedia("(prefers-color-scheme: dark)").matches?"executive-dark":"executive-light";
   }
 
   function applyTheme(){
@@ -151,7 +148,7 @@
     document.documentElement.dataset.skTheme=t;
     const b=$("sk33-theme");
     if(b){
-      const isDark=["notte","cyber","royal"].includes(t);
+      const isDark=t==="executive-dark";
       b.textContent=isDark?"☀":"☾";
       b.setAttribute("aria-pressed",isDark);
     }
@@ -168,8 +165,8 @@
 
   function toggleTheme(){
     const cur=themeNow();
-    const isDark=["notte","cyber","royal"].includes(cur);
-    save(K.theme,isDark?"eataly":"notte");
+    const isDark=cur==="executive-dark";
+    save(K.theme,isDark?"executive-light":"executive-dark");
     applyTheme();
   }
 
@@ -190,7 +187,7 @@
       '<div id="sk33-themew" class="sk33-sheet-wrap" role="dialog" aria-modal="true" aria-label="اختيار ثيم التطبيق">'+
         '<div class="sk33-sheet" style="max-height:86dvh">'+
           '<div class="sk33-sheet-head">'+
-            '<div><b>مظهر وثيمات S.kosif</b><small style="display:block;color:var(--ink-3)">10 خيارات تصميم منتقاة بعناية</small></div>'+
+            '<div><b>مظهر وثيمات S.kosif</b><small style="display:block;color:var(--ink-3)">4 أنماط موحدة</small></div>'+
             '<button type="button" class="sk33-x" aria-label="إغلاق">×</button>'+
           '</div>'+
           '<p class="sk33-note">اختر المظهر المفضل لمنصة العمليات والكتالوج. يتم حفظ اختيارك فوراً على جهازك.</p>'+
@@ -206,6 +203,15 @@
       card.onclick=()=>setTheme(card.dataset.thId);
     });
     applyTheme();
+  }
+
+  function enhanceThemeMotion(){
+    const w=$("sk33-themew"); if(!w||w.querySelector(".sk33-motion"))return;
+    const grid=w.querySelector(".sk33-theme-grid"); if(!grid)return;
+    grid.insertAdjacentHTML("afterend",'<section class="sk33-motion"><div><b>الحركة</b><small>اختيارية ومخففة تلقائياً على الجوال</small></div><div>'+
+      [["off","إيقاف"],["flow","انسياب"],["constellation","شبكة"],["vortex","دوامة"]].map(([id,label])=>'<button type="button" data-motion="'+id+'">'+label+'</button>').join("")+
+      '</div></section>');
+    w.querySelectorAll("[data-motion]").forEach(b=>b.onclick=()=>window.SKosifMotionV38?.setMode?.(b.dataset.motion));
   }
 
   /* ---------- حاسبة تشفي اللحوم والهدر ---------- */
