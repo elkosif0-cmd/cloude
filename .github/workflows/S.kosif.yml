@@ -39,6 +39,8 @@ jobs:
           node --check v29-smart.js
 
       - name: Build S.kosif
+        env:
+          AGHNAM_UNLOCK_PASSWORD: ${{ secrets.AGHNAM_UNLOCK_PASSWORD }}
         run: python3 build.py
 
       - name: Validate production bundle
@@ -67,6 +69,9 @@ jobs:
           assert '"name":"S.kosif"' in manifest
           assert "const SEED_B64 = \"\";" in app
           assert len(list(Path("dist/secure").glob("seed.enc.b64.part*"))) == 6
+          assert Path("dist/secure/private.json").exists(), "private data not encrypted"
+          assert "SEED_RAWS=[{" not in app, "price catalog left in plaintext"
+          assert '{"__aghnam_private":"modules"}' in app, "v25 modules left in plaintext"
           js=Path("dist/skosif-v30.js").read_text(encoding="utf-8")
           for marker in [
             "Fusion Operations & Decision OS",
