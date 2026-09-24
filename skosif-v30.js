@@ -95,18 +95,15 @@
   }
 
   function shell(){
-    if($("sk-fab"))return;
-    document.body.insertAdjacentHTML("beforeend",[
-      '<button id="sk-fab" class="sk-fab" type="button" aria-label="S.kosif"><b>S</b><small>kosif</small></button>',
-      '<div id="sk-modal" class="sk-backdrop" aria-hidden="true"><section class="sk-panel" role="dialog" aria-modal="true">',
-      '<header class="sk-head"><div class="sk-mark">S</div><div class="sk-headtxt"><b>S.kosif</b><span>Fusion Operations & Decision OS — V30</span></div><button id="sk-close" class="sk-close" type="button">×</button></header>',
+    if($("sk-modal"))return;
+    document.body.insertAdjacentHTML("beforeend",[      '<div id="sk-modal" class="sk-backdrop" aria-hidden="true"><section class="sk-panel" role="dialog" aria-modal="true">',
+      '<header class="sk-head"><div class="sk-mark">S</div><div class="sk-headtxt"><b>S.kosif</b><span>Operations & Decision OS</span></div><button id="sk-close" class="sk-close" type="button">×</button></header>',
       '<nav class="sk-tabs">',
       '<button data-sk-tab="overview" class="active">المركز</button><button data-sk-tab="pricing">التسعير</button><button data-sk-tab="customers">العملاء</button><button data-sk-tab="approvals">الاعتماد</button><button data-sk-tab="reports">التقارير</button><button data-sk-tab="health">الصحة</button>',
       '</nav>',
       '<div id="sk-body" class="sk-body"></div>',
       '</section></div>'
     ].join(""));
-    $("sk-fab").onclick=()=>openHub("overview");
     $("sk-close").onclick=close;
     $("sk-modal").onclick=e=>{if(e.target===$("sk-modal"))close()};
     document.querySelectorAll("[data-sk-tab]").forEach(b=>b.onclick=()=>show(b.dataset.skTab));
@@ -256,7 +253,7 @@
   }
 
   function exportHealth(){
-    const payload={app:APP,version:"30.0",createdAt:now(),storage:parseStorage().rows,snapshots:load(STORE.snap,[]).length,approvals:load(STORE.approve,[]).length};
+    const payload={app:APP,version:"1.0",createdAt:now(),storage:parseStorage().rows,snapshots:load(STORE.snap,[]).length,approvals:load(STORE.approve,[]).length};
     const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),a=document.createElement("a");
     a.href=URL.createObjectURL(blob);a.download="S.kosif-health-"+new Date().toISOString().slice(0,10)+".json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
   }
@@ -278,7 +275,7 @@
   function init(){
     shell();brand();
     const ob=new MutationObserver(()=>brand());ob.observe(document.documentElement,{subtree:true,childList:true});
-    window.SKosif={open:openHub,openModule,version:"30.0"};
+    window.SKosif={open:openHub,openModule,version:"1.0"};
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
