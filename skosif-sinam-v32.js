@@ -82,23 +82,7 @@
     {id:"v29-modal",panel:".v29-panel",head:".v29-head",title:"V29"}
   ];
   const minimized=new Map();
-  function ensureTaskbar(){
-    if($("#sx-taskbar"))return;
-    document.body.insertAdjacentHTML("beforeend",[
-      '<div id="sx-taskbar" class="sx-taskbar">',
-      '<button id="sx-command" class="sx-task-main" type="button" title="بحث وأوامر (Ctrl/⌘ K)"><b>S</b><span>⌘K</span></button>',
-      '<div id="sx-minimized" class="sx-minimized"></div>',
-      '<div class="sx-status">',
-      '<button id="sx-net" class="sx-net" type="button" title="حالة الاتصال"><i></i><span>متصل</span></button>',
-      '<button id="sx-install" class="sx-install" type="button" hidden>تثبيت</button>',
-      '<span class="sx-shield" title="Jev Zero-PII Guard">🛡️</span>',
-      '</div></div>'
-    ].join(""));
-    $("#sx-command").onclick=openPalette;
-    $("#sx-net").onclick=()=>toast(navigator.onLine?"الاتصال متاح. التطبيق يحتفظ بنسخ محلية للعمل.":"أنت الآن دون اتصال. الوظائف المحلية تظل متاحة.");
-    $("#sx-install").onclick=installPWA;
-    updateNetwork();
-  }
+  function ensureTaskbar(){ return; }
   function minimizedRender(){
     ensureTaskbar();
     const host=$("#sx-minimized");
@@ -132,10 +116,9 @@
     panel.dataset.sxWindow="1";panel.classList.add("sx-windowed");head.classList.add("sx-titlebar");
     const controls=document.createElement("div");
     controls.className="sx-window-controls";
-    controls.innerHTML='<button type="button" data-sx-min title="تصغير">—</button><button type="button" data-sx-max title="تكبير">□</button>';
+    controls.innerHTML='<button type="button" data-sx-max title="تكبير">□</button>';
     const close=head.lastElementChild;
-    if(close&&close.tagName==="BUTTON")head.insertBefore(controls,close);else head.appendChild(controls);
-    $("[data-sx-min]",controls).onclick=e=>{e.stopPropagation();minimize(def,backdrop,panel)};
+    if(close&&close.tagName==="BUTTON")head.insertBefore(controls,close);else head.appendChild(controls);minimize(def,backdrop,panel)};
     const max=$("[data-sx-max]",controls);max.onclick=e=>{e.stopPropagation();toggleMax(panel,max)};
     head.addEventListener("dblclick",e=>{if(!mobile()&&!e.target.closest("button,input,select,textarea"))toggleMax(panel,max)});
     let drag=null;
