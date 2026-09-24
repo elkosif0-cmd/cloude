@@ -1137,3 +1137,12 @@ html[data-theme="dark"] .k32 {
   border-color: var(--k32-green);
 }
 
+
+/* تراث الوادي: رأس العروض على الرَّق مع رسم الوادي */
+html[data-sk-theme="heritage"] .k32-hero{background:linear-gradient(to left,#faf1e4 42%,rgba(250,241,228,0) 70%),url(./art/hero.webp) left bottom/auto 100% no-repeat,#faf1e4;border:1px solid var(--line);color:var(--ink)}
+html[data-sk-theme="heritage"] .k32-hero::before{display:none}
+html[data-sk-theme="heritage"] .k32-hero h3{color:var(--ink);font-family:"Aref Ruqaa","Amiri",serif}
+html[data-sk-theme="heritage"] .k32-hero p{color:var(--ink-2)}
+html[data-sk-theme="heritage"] .k32-hero-brand{color:var(--ink-2);background:rgba(255,255,255,.6);border-color:var(--line)}
+html[data-sk-theme="heritage"] .k32-hero-meta>*{color:var(--ink-2);background:rgba(255,255,255,.7);border-color:var(--line)}
+html[data-sk-theme="heritage"] .k32-hero-actions button{color:var(--ink);background:rgba(255,255,255,.75);border-color:var(--line)}

@@ -41,6 +41,7 @@ for name in ["sw.js","manifest.webmanifest","INSTALL-iPHONE-ar.txt","_headers"]:
     (out/name).write_bytes(Path(name).read_bytes())
 (out/"skosif.css").write_text(bundle_css,encoding="utf-8")
 (out/"skosif.js").write_text(bundle_js,encoding="utf-8")
+shutil.copytree("ui/art",out/"art")
 
 shutil.copytree("secure",out/"secure")
 if private: private_blocks.encrypt(private,Path("secure"),out/"secure")

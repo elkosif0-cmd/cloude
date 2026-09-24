@@ -515,7 +515,7 @@
       /* Hero Banner */
       '<section class="k32-hero">'+
         '<div class="k32-hero-top">'+
-          '<div class="k32-hero-brand"><span>'+esc(BIZ)+'</span> • Eataly Inspired Selections</div>'+
+          '<div class="k32-hero-brand"><span>'+esc(BIZ)+'</span></div>'+
           '<div class="k32-hero-actions">'+
             '<button type="button" class="k32-share" id="k32-share"'+(nOffers?'':' disabled')+'>'+
               '<span>📤 عروض الشهر ('+nOffers+')</span>'+

@@ -61,11 +61,12 @@ function redact(text){
 }
 
 /* ---------- الثيمات: نظام واحد للتطبيق كله ----------
-   «الأصلي» لا يغيّر شيئاً. كل ثيم آخر يعيد تعريف متغيرات الألوان التي
+   «تراث الوادي» هو ثيم التطبيق الافتراضي. «الأصلي» لا يغيّر شيئاً. كل ثيم آخر يعيد تعريف متغيرات الألوان التي
    يبني عليها التطبيق (الأرضية، الأسطح، الحبر، الهوية، الشريط الجانبي). */
 const THEME_KEY="skosif_theme";
 const THEMES=[
-  {id:"",name:"الأصلي",desc:"بنفسجي هادئ وشريط كحلي",dark:false,c:{bg:"#edf0fa",s:"#ffffff",s2:"#f7f8fd",s3:"#eff1f8",ink:"#1d2a4d",ink2:"#4d5670",ink3:"#8a91a8",line:"#e7eaf3",pri:"#5b3fd6",pri2:"#7859d4",soft:"#efebfd",side:"#2c3048",side2:"#33374f",sink:"#d5d8e6",smute:"#8d92ab"}},
+  {id:"heritage",name:"تراث الوادي",desc:"رَقّ عتيق وحبر بني ورسوم الوادي — ثيم التطبيق",dark:false,heritage:true,c:{bg:"#f4ead8",s:"#fbf5ea",s2:"#f6eddd",s3:"#efe3cc",ink:"#2b1a0f",ink2:"#5b4330",ink3:"#8c735a",line:"#e3d3b8",pri:"#8a5a2b",pri2:"#b8864e",soft:"#f3dfbd",side:"#efe2cc",side2:"#e7d6b8",sink:"#3a2414",smute:"#8c735a"}},
+  {id:"original",name:"الأصلي",desc:"بنفسجي هادئ وشريط كحلي",dark:false,c:{bg:"#edf0fa",s:"#ffffff",s2:"#f7f8fd",s3:"#eff1f8",ink:"#1d2a4d",ink2:"#4d5670",ink3:"#8a91a8",line:"#e7eaf3",pri:"#5b3fd6",pri2:"#7859d4",soft:"#efebfd",side:"#2c3048",side2:"#33374f",sink:"#d5d8e6",smute:"#8d92ab"}},
   {id:"eataly",name:"إيتالي الذواقة",desc:"عاجي دافئ وإسبريسو وعنابي",dark:false,c:{bg:"#faf8f5",s:"#ffffff",s2:"#f6f2ea",s3:"#efe9de",ink:"#1e201d",ink2:"#4a4e46",ink3:"#82877e",line:"#e8e3d8",pri:"#a82a2a",pri2:"#c28b28",soft:"#f7e9e4",side:"#1e201d",side2:"#2a2c28",sink:"#ede7dc",smute:"#9a9c94"}},
   {id:"sinam",name:"سِنام الأصيل",desc:"أحجار الصحراء وعنابي ملكي ونحاسي",dark:false,c:{bg:"#fdfbf7",s:"#ffffff",s2:"#f8f3ea",s3:"#f1e9db",ink:"#291a10",ink2:"#5a4636",ink3:"#8c7a6b",line:"#eadfcf",pri:"#881337",pri2:"#c2410c",soft:"#f9e7ec",side:"#291a10",side2:"#37251a",sink:"#f3e8da",smute:"#a89080"}},
   {id:"pasture",name:"المراعي الخضراء",desc:"زمردي طبيعي ولمسة ذهبية",dark:false,c:{bg:"#f2f9f5",s:"#ffffff",s2:"#eaf5ef",s3:"#ddeee4",ink:"#0f291e",ink2:"#3b5a4c",ink3:"#6f8c7e",line:"#d5e8dd",pri:"#047857",pri2:"#d97706",soft:"#e3f6ee",side:"#0f291e",side2:"#173a2b",sink:"#ddf1e6",smute:"#86a898"}},
@@ -77,8 +78,9 @@ const THEMES=[
   {id:"notte",name:"ليل الذواقة",desc:"إسبريسو داكن ونحاس عتيق",dark:true,c:{bg:"#141312",s:"#1d1b19",s2:"#252220",s3:"#2e2a27",ink:"#faf7f2",ink2:"#d8d0c4",ink3:"#a39a8e",line:"#3a3531",pri:"#d84d4d",pri2:"#e5ac44",soft:"#3a2222",side:"#0e0d0c",side2:"#1a1817",sink:"#ede6db",smute:"#8f877c"}},
   {id:"cyber",name:"سايبر أوبسيديان",desc:"حجر السج وتركواز وبنفسجي",dark:true,c:{bg:"#09090b",s:"#121216",s2:"#18181d",s3:"#202027",ink:"#f4f4f5",ink2:"#d4d4d8",ink3:"#a1a1aa",line:"#2a2a33",pri:"#14b8a6",pri2:"#8b5cf6",soft:"#0f2e2c",side:"#050507",side2:"#101014",sink:"#e4e4e7",smute:"#7a7a85"}}
 ];
+const DEFAULT_THEME="heritage";
 const themeById=id=>THEMES.find(t=>t.id===id)||THEMES[0];
-function themeNow(){const t=load(THEME_KEY,"");return THEMES.some(x=>x.id===t)?t:""}
+function themeNow(){const t=load(THEME_KEY,"");return THEMES.some(x=>x.id===t)?t:DEFAULT_THEME}
 function themeCSS(t){
   const c=t.c,R='html[data-sk-theme]:not(#sk)';
   return R+'{color-scheme:'+(t.dark?'dark':'light')+
@@ -104,12 +106,56 @@ function themeCSS(t){
   R+' .seg button[aria-pressed="true"],'+R+' .tabs button[aria-selected="true"]{background:'+c.pri+'!important;color:#fff!important}\n'+
   R+' .v24-dl,'+R+' .v195-teaser,'+R+' .v197-teaser{background:'+c.s+'!important;color:'+c.ink+'!important;border-color:'+c.line+'!important}\n'+
   R+' .t th,'+R+' table th{background:'+c.s2+'!important;color:'+c.ink2+'!important;border-color:'+c.line+'!important}\n'+
-  R+' .topbar .v24-ico,'+R+' .topbar .menu-btn,'+R+' #v24-icons svg{color:'+c.ink2+'!important}\n';
+  R+' .topbar .v24-ico,'+R+' .topbar .menu-btn,'+R+' #v24-icons svg{color:'+c.ink2+'!important}\n'+
+  (t.heritage?heritageCSS(t):'');
+}
+/* تراث الوادي: شريط جانبي فاتح، خط نسخ وعناوين رقعة، بطاقات بألوان هادئة ورسوم الوادي */
+function heritageCSS(t){
+  const c=t.c,R='html[data-sk-theme]:not(#sk)';
+  return R+'{--font:"Amiri","Noto Naskh Arabic",serif;--f-purple:#f9e3d6;--f-green:#e8ead6;--f-orange:#f6e6cc;--f-blue:#e5eae8}\n'+
+  R+' body{background:radial-gradient(ellipse at 20% 0%,#fbf3e4 0,transparent 55%),radial-gradient(ellipse at 90% 100%,#efe0c4 0,transparent 60%),'+c.bg+'!important}\n'+
+  R+' .app,'+R+' .maincol{background:transparent!important}\n'+
+  R+' h1,'+R+' h2,'+R+' h3,'+R+' .card-h h3,'+R+' #v24-pagehead h2,'+R+' .topbar .ttl h2{font-family:"Aref Ruqaa","Amiri",serif!important;font-weight:700!important;letter-spacing:0!important}\n'+
+  R+' .rail{background:'+c.side+' url(./art/landscape.webp) center bottom/100% auto no-repeat local!important;border-inline-start:1px solid '+c.line+'!important;padding-bottom:200px!important}\n'+
+  R+' .rail .brand{flex-direction:column!important;height:auto!important;flex-shrink:0!important;gap:2px!important;padding:18px 18px 12px!important;border-bottom:1px solid '+c.line+'!important}\n'+
+  R+' .rail .brand::before{content:"";display:block;width:150px;height:104px;background:url(./art/sheep.webp) center/contain no-repeat;-webkit-mask-image:radial-gradient(ellipse at center,#000 60%,transparent 78%);mask-image:radial-gradient(ellipse at center,#000 60%,transparent 78%)}\n'+
+  R+' .rail .brand-mark,'+R+' .rail #app-name{display:none!important}\n'+
+  R+' .rail #biz-name{display:block!important;margin:0!important;font:700 34px/1.2 "Aref Ruqaa","Amiri",serif!important;color:'+c.sink+'!important;text-align:center}\n'+
+  R+' .rail #biz-name::after{content:"التسعير والطلبات والعملاء في مكان واحد";display:block;margin-top:4px;font:400 13px/1.6 "Amiri",serif;color:'+c.smute+'}\n'+
+  R+' .rail .nav-group,'+R+' .rail .nav-group span,'+R+' .rail .v17-mode-note{color:'+c.smute+'!important}\n'+
+  R+' .rail .nav-btn{color:'+c.sink+'!important;font-size:16px!important}\n'+
+  R+' .rail .nav-btn svg{color:'+c.pri+'!important;stroke:currentColor!important}\n'+
+  R+' .rail .nav-btn:hover{background:rgba(138,90,43,.08)!important}\n'+
+  R+' .rail .nav-btn[aria-current="page"]{background:'+c.soft+'!important;color:'+c.sink+'!important;box-shadow:inset 0 0 0 1px #e2c894!important;border-radius:10px!important}\n'+
+  R+' .rail .nav-btn[aria-current="page"] svg{color:'+c.sink+'!important}\n'+
+  R+' .rail .nav-btn .badge{background:'+c.pri+'!important;color:#fff!important}\n'+
+  R+' .rail .modeseg{background:rgba(138,90,43,.08)!important}\n'+
+  R+' .rail .modeseg button{color:'+c.ink2+'!important}\n'+
+  R+' .rail .modeseg button[aria-pressed="true"]{background:'+c.pri+'!important;color:#fff!important}\n'+
+  R+' .rail .sk-rail-close{background:rgba(138,90,43,.1)!important;color:'+c.sink+'!important}\n'+
+  R+' .rail .status-card{background:'+c.s+'!important;color:'+c.ink+'!important;border-color:'+c.line+'!important}\n'+
+  R+' .topbar{background:rgba(251,245,234,.92)!important;border-bottom:1px solid '+c.line+'!important;box-shadow:none!important}\n'+
+  R+' #v23-topsearch{background:'+c.s2+'!important;border:1px solid '+c.line+'!important}\n'+
+  R+' .card,'+R+' .v12-kpi,'+R+' .stat{background:'+c.s+'!important;border:1px solid '+c.line+'!important;border-radius:14px!important;box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 6px 18px -12px rgba(90,60,30,.35)!important}\n'+
+  R+' .bento .bk{border:1px solid '+c.line+'!important;border-radius:14px!important;box-shadow:0 6px 18px -12px rgba(90,60,30,.35)!important}\n'+
+  R+' .bento .bk *{color:'+c.ink+'!important}\n'+
+  R+' .bento .bk .v{font-family:"Aref Ruqaa","Amiri",serif!important}\n'+
+  R+' .bento .bk .ico{background:rgba(255,255,255,.55)!important}\n'+
+  R+' .bento .bk .ico svg,'+R+' .bento .bk .ico svg *{color:'+c.pri+'!important;stroke:'+c.pri+'!important}\n'+
+  R+' .btn:not(.primary){background:'+c.s2+'!important;border-color:'+c.line+'!important;color:'+c.ink+'!important}\n'+
+  R+' .btn.primary{background:'+c.pri+'!important;border-color:'+c.pri+'!important}\n';
+}
+function heritageFonts(){
+  if(document.getElementById("sk-heritage-fonts"))return;
+  const l=document.createElement("link");l.id="sk-heritage-fonts";l.rel="stylesheet";
+  l.href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&display=swap";
+  document.head.appendChild(l);
 }
 function applyTheme(id){
   const t=themeById(id??themeNow()),de=document.documentElement;
   let st=document.getElementById("sk-theme-css");
-  if(!t.id){de.removeAttribute("data-sk-theme");if(st)st.textContent="";return}
+  if(t.id==="original"){de.removeAttribute("data-sk-theme");if(st)st.textContent="";return}
+  if(t.heritage)heritageFonts();
   if(!st){st=document.createElement("style");st.id="sk-theme-css";document.head.appendChild(st)}
   st.textContent=themeCSS(t);
   de.setAttribute("data-sk-theme",t.id);
@@ -119,7 +165,7 @@ function applyTheme(id){
 }
 function setTheme(id){
   const t=themeById(id);save(THEME_KEY,t.id);
-  if(t.id)save(t.dark?"skosif_theme_dark":"skosif_theme_light",t.id);
+  if(t.id!=="original")save(t.dark?"skosif_theme_dark":"skosif_theme_light",t.id);
   else{try{localStorage.setItem("aghnam-v12-theme","light")}catch{}document.documentElement.setAttribute("data-theme","light")}
   applyTheme(t.id);
   toast("المظهر: "+t.name,"ok");
@@ -127,9 +173,9 @@ function setTheme(id){
 /* زر الفاتح/الداكن في الشريط العلوي يبدّل بين آخر ثيم فاتح وآخر ثيم داكن */
 addEventListener("click",e=>{
   const b=e.target.closest&&e.target.closest('[data-act="v12-theme"]');
-  if(!b||!themeNow())return;
+  if(!b||themeNow()==="original")return;
   e.preventDefault();e.stopImmediatePropagation();
-  setTheme(themeById(themeNow()).dark?load("skosif_theme_light","eataly"):load("skosif_theme_dark","notte"));
+  setTheme(themeById(themeNow()).dark?load("skosif_theme_light",DEFAULT_THEME):load("skosif_theme_dark","notte"));
 },true);
 
 /* ---------- القفل التلقائي ---------- */
@@ -160,6 +206,17 @@ function settingsCard(root){
   $("#sk-lock-min",root).onchange=e=>{save(LOCK_KEY,num(e.target.value));last=Date.now();toast(num(e.target.value)?"القفل التلقائي: "+e.target.selectedOptions[0].text:"أُوقف القفل التلقائي","info")};
   $("#sk-lock-now",root).onclick=lockNow;
   $("#sk-density",root).onchange=e=>{window.V21RAD&&window.V21RAD.setDensity(e.target.value);toast(e.target.value==="compact"?"واجهة مضغوطة":"واجهة مريحة","info")};
+}
+
+/* ---------- ترحيب لوحة العمل ---------- */
+function dashHero(root){
+  if(!root||root.querySelector("#sk-hero"))return;
+  const biz=(($("#biz-name")||{}).textContent||"").trim()||"S.kosif",now=new Date();
+  const day=now.toLocaleDateString("ar-SA-u-nu-latn",{weekday:"long"});
+  const greg=now.toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"});
+  const hijri=now.toLocaleDateString("ar-SA-u-ca-islamic-umalqura-nu-latn",{day:"numeric",month:"long",year:"numeric"});
+  root.insertAdjacentHTML("afterbegin",'<section class="sk-hero" id="sk-hero"><div class="sk-hero-txt"><h2>مرحباً بك في '+esc(biz)+'</h2><p>كل ما تحتاجه لإدارة أعمالك في مكان واحد…</p></div>'+
+    '<div class="sk-hero-date"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14h2M12 14h2M16 14h.01M8 17h2M12 17h2"/></svg><div><b>'+esc(day)+'</b><span>'+esc(greg)+'</span><small>'+esc(hijri)+'</small></div></div></section>');
 }
 
 /* ---------- إشعار التحديث (داخل الصفحة، يظهر فقط عند وجود نسخة أحدث) ---------- */
@@ -208,7 +265,7 @@ applyTheme();
 function boot(){
   flush();drawerClose();applyTheme();
   const c=core();
-  if(c){c.onView("settings",settingsCard);c.onView("customers",customerCards)}
+  if(c){c.onView("settings",settingsCard);c.onView("customers",customerCards);c.onView("dash",dashHero)}
   addEventListener("resize",()=>{if(innerWidth>760)$("#rail")?.classList.remove("open")});
   updates();
 }
