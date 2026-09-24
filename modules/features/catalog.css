@@ -1,0 +1,1215 @@
+/* S.kosif semantic — الكتالوج والعروض الفاخرة (تصميم مستوحى من Eataly Gourmet Selections & Monthly Offers) */
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+.k32 {
+  --k32-cream: #FAF8F5;
+  --k32-card: #FFFFFF;
+  --k32-card-subtle: #F6F3EE;
+  --k32-ink: #1E201D;
+  --k32-ink-light: #4A4D48;
+  --k32-mute: #767B73;
+  --k32-line: #E8E4DC;
+  --k32-line-subtle: #F0ECE4;
+  --k32-wine: #A82A2A;
+  --k32-wine-soft: #FDF2F2;
+  --k32-green: #244C37;
+  --k32-green-light: #EBF4EF;
+  --k32-gold: #C28B28;
+  --k32-gold-soft: #FDF8EE;
+  --k32-shadow-sm: 0 2px 8px rgba(30, 32, 29, 0.04);
+  --k32-shadow-md: 0 8px 24px rgba(30, 32, 29, 0.07);
+  --k32-shadow-lg: 0 16px 40px rgba(30, 32, 29, 0.10);
+  --k32-radius-sm: 8px;
+  --k32-radius-md: 14px;
+  --k32-radius-lg: 20px;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Naskh Arabic", sans-serif;
+  background: var(--k32-cream);
+  color: var(--k32-ink);
+  margin: -4px -4px 0;
+  padding: 0 6px 20px;
+  border-radius: var(--k32-radius-lg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* الوضع الداكن */
+@media (prefers-color-scheme: dark) {
+  .k32 {
+    --k32-cream: #141312;
+    --k32-card: #1E1C1A;
+    --k32-card-subtle: #272421;
+    --k32-ink: #F5F3EF;
+    --k32-ink-light: #D4CFC7;
+    --k32-mute: #9C968D;
+    --k32-line: #332F2A;
+    --k32-line-subtle: #2A2723;
+    --k32-wine: #D84D4D;
+    --k32-wine-soft: #381A1A;
+    --k32-green: #4E8E6A;
+    --k32-green-light: #182A20;
+    --k32-gold: #E5AC44;
+    --k32-gold-soft: #362916;
+    --k32-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+    --k32-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+    --k32-shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.45);
+  }
+}
+
+:root[data-theme="dark"] .k32, .dark .k32, [data-sk-theme="dark"] .k32 {
+  --k32-cream: #141312;
+  --k32-card: #1E1C1A;
+  --k32-card-subtle: #272421;
+  --k32-ink: #F5F3EF;
+  --k32-ink-light: #D4CFC7;
+  --k32-mute: #9C968D;
+  --k32-line: #332F2A;
+  --k32-line-subtle: #2A2723;
+  --k32-wine: #D84D4D;
+  --k32-wine-soft: #381A1A;
+  --k32-green: #4E8E6A;
+  --k32-green-light: #182A20;
+  --k32-gold: #E5AC44;
+  --k32-gold-soft: #362916;
+  --k32-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --k32-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --k32-shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.45);
+}
+
+[data-sk-theme="light"] .k32 {
+  --k32-cream: #FAF8F5;
+  --k32-card: #FFFFFF;
+  --k32-card-subtle: #F6F3EE;
+  --k32-ink: #1E201D;
+  --k32-ink-light: #4A4D48;
+  --k32-mute: #767B73;
+  --k32-line: #E8E4DC;
+  --k32-line-subtle: #F0ECE4;
+  --k32-wine: #A82A2A;
+  --k32-wine-soft: #FDF2F2;
+  --k32-green: #244C37;
+  --k32-green-light: #EBF4EF;
+  --k32-gold: #C28B28;
+  --k32-gold-soft: #FDF8EE;
+}
+
+/* ==========================================================
+   1. HERO BANNER — أسلوب إيتالي التحريري الفاخر
+   ========================================================== */
+.k32-hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px 24px 22px;
+  border-radius: var(--k32-radius-lg);
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #1C3B2C 0%, #13271D 50%, #0E1A14 100%);
+  box-shadow: var(--k32-shadow-md);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.k32-hero::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  right: -20%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(194, 139, 40, 0.25) 0%, rgba(36, 76, 55, 0) 70%);
+  pointer-events: none;
+}
+
+.k32-hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  z-index: 1;
+}
+
+.k32-hero-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #E2D9C8;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 12px;
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.k32-hero-brand span::before {
+  content: "✦ ";
+  color: var(--k32-gold);
+}
+
+.k32-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1;
+}
+
+.k32-share {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+
+.k32-share:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: #FFFFFF;
+  transform: translateY(-1px);
+}
+
+.k32-share:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.k32-hero-content {
+  z-index: 1;
+}
+
+.k32-hero h3 {
+  margin: 6px 0 6px;
+  font-size: clamp(26px, 4.5vw, 36px);
+  font-weight: 700;
+  font-family: 'Amiri', "Noto Naskh Arabic", serif;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: #FFFFFF;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.k32-hero p {
+  margin: 0;
+  font-size: 14px;
+  color: #D3DDD7;
+  max-width: 620px;
+  line-height: 1.6;
+}
+
+.k32-hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  z-index: 1;
+}
+
+.k32-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #FAF8F5;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.k32-meta-pill b {
+  color: var(--k32-gold);
+}
+
+/* ==========================================================
+   2. SEARCH & QUICK FILTERS BAR
+   ========================================================== */
+.k32-search-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 16px 0 10px;
+}
+
+.k32-search {
+  flex: 1;
+  position: relative;
+  display: block;
+}
+
+.k32-search input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 48px;
+  border: 1px solid var(--k32-line);
+  border-radius: 999px;
+  background: var(--k32-card);
+  color: var(--k32-ink);
+  padding: 0 46px 0 20px;
+  font: inherit;
+  font-size: 14.5px;
+  box-shadow: var(--k32-shadow-sm);
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+[dir="rtl"] .k32-search input {
+  padding: 0 20px 0 46px;
+}
+
+.k32-search input:focus {
+  border-color: var(--k32-green);
+  box-shadow: 0 0 0 3px rgba(36, 76, 55, 0.12);
+}
+
+.k32-search-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  inset-inline-end: 18px;
+  color: var(--k32-mute);
+  pointer-events: none;
+  font-size: 16px;
+}
+
+/* ==========================================================
+   3. EATALY-STYLE ACTION BAR & CONTROLS
+   ========================================================== */
+.k32-bar {
+  position: sticky;
+  top: -14px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--k32-card);
+  border: 1px solid var(--k32-line);
+  border-radius: var(--k32-radius-md);
+  box-shadow: var(--k32-shadow-sm);
+  backdrop-filter: blur(10px);
+  margin-bottom: 12px;
+}
+
+.k32-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.k32-btn-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--k32-line);
+  background: var(--k32-card-subtle);
+  color: var(--k32-ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.k32-btn-toggle:hover {
+  background: var(--k32-line-subtle);
+  border-color: var(--k32-mute);
+}
+
+.k32-btn-toggle.on {
+  background: var(--k32-green);
+  border-color: var(--k32-green);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(36, 76, 55, 0.25);
+}
+
+.k32-btn-toggle .badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--k32-wine);
+}
+
+.k32-grid-layout-selector {
+  display: none;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (min-width: 680px) {
+  .k32-grid-layout-selector {
+    display: flex;
+  }
+}
+
+.k32-layout-btn {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--k32-line);
+  background: transparent;
+  color: var(--k32-mute);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.15s ease;
+}
+
+.k32-layout-btn:hover {
+  color: var(--k32-ink);
+  border-color: var(--k32-mute);
+}
+
+.k32-layout-btn.on {
+  background: var(--k32-card-subtle);
+  border-color: var(--k32-green);
+  color: var(--k32-green);
+  font-weight: 800;
+}
+
+/* ==========================================================
+   4. EATALY-STYLE QUICK CATEGORY CHIPS
+   ========================================================== */
+.k32-cat-nav {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 0 10px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.k32-cat-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.k32-cat-chip {
+  flex: none;
+  border: 1px solid var(--k32-line);
+  background: var(--k32-card);
+  color: var(--k32-ink-light);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.k32-cat-chip:hover {
+  border-color: var(--k32-mute);
+  color: var(--k32-ink);
+}
+
+.k32-cat-chip.on {
+  background: var(--k32-ink);
+  border-color: var(--k32-ink);
+  color: #FFFFFF;
+}
+
+@media (prefers-color-scheme: dark) {
+  .k32-cat-chip.on {
+    background: #FFFFFF;
+    border-color: #FFFFFF;
+    color: #141312;
+  }
+}
+
+/* ==========================================================
+   5. FILTER & SORT DRAWER / SHEET
+   ========================================================== */
+.k32-sheet {
+  margin: 10px 0 14px;
+  border: 1px solid var(--k32-line);
+  background: var(--k32-card);
+  border-radius: var(--k32-radius-md);
+  box-shadow: var(--k32-shadow-md);
+  overflow: hidden;
+  animation: k32FadeSlide 0.22s ease-out;
+}
+
+@keyframes k32FadeSlide {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.k32-sheet > button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  text-align: start;
+  border: 0;
+  border-bottom: 1px solid var(--k32-line-subtle);
+  background: transparent;
+  color: var(--k32-ink);
+  font: inherit;
+  font-size: 14px;
+  padding: 13px 18px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.k32-sheet > button:last-child {
+  border-bottom: 0;
+}
+
+.k32-sheet > button:hover {
+  background: var(--k32-card-subtle);
+}
+
+.k32-sheet > button.on {
+  color: var(--k32-green);
+  font-weight: 800;
+  background: var(--k32-green-light);
+}
+
+.k32-sheet > button.on::after {
+  content: "✓";
+  font-weight: 900;
+}
+
+.k32-filter {
+  padding: 16px 20px;
+}
+
+.k32-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 14.5px;
+  padding: 6px 0 14px;
+  border-bottom: 1px solid var(--k32-line-subtle);
+  cursor: pointer;
+}
+
+.k32-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.k32-toggle i {
+  width: 46px;
+  height: 26px;
+  border-radius: 999px;
+  background: #D8D2C5;
+  position: relative;
+  transition: background 0.2s ease;
+}
+
+.k32-toggle i::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  inset-inline-start: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.k32-toggle input:checked + i {
+  background: var(--k32-wine);
+}
+
+.k32-toggle input:checked + i::after {
+  transform: translateX(-20px);
+}
+
+[dir="ltr"] .k32-toggle input:checked + i::after {
+  transform: translateX(20px);
+}
+
+.k32-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--k32-line-subtle);
+}
+
+.k32-group b {
+  width: 100%;
+  font-size: 12.5px;
+  color: var(--k32-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.k32-chip {
+  border: 1px solid var(--k32-line);
+  background: var(--k32-card-subtle);
+  color: var(--k32-ink);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.k32-chip:hover {
+  border-color: var(--k32-mute);
+}
+
+.k32-chip.on {
+  background: var(--k32-green);
+  border-color: var(--k32-green);
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.k32-reset {
+  margin-top: 14px;
+  border: 0;
+  background: transparent;
+  color: var(--k32-wine);
+  font: inherit;
+  font-weight: 700;
+  font-size: 13.5px;
+  cursor: pointer;
+  padding: 4px 0;
+  text-decoration: underline;
+}
+
+/* ==========================================================
+   6. EATALY-STYLE PRODUCT GRID & CARDS
+   ========================================================== */
+.k32-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.k32-grid[data-cols="3"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.k32-grid[data-cols="4"] {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 600px) {
+  .k32-grid, .k32-grid[data-cols="3"], .k32-grid[data-cols="4"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .k32-grid:not([data-cols]) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1025px) {
+  .k32-grid:not([data-cols]) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* بطاقة المنتج الفاخرة */
+.k32-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--k32-card);
+  border: 1px solid var(--k32-line);
+  border-radius: var(--k32-radius-md);
+  padding: 12px;
+  min-width: 0;
+  box-shadow: var(--k32-shadow-sm);
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.k32-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--k32-mute);
+  box-shadow: var(--k32-shadow-md);
+}
+
+/* حاوية صورة المنتج الإيطالية */
+.k32-img {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 52px;
+  background: linear-gradient(145deg, #F9F5EC, #ECE3D0);
+  border: 1px solid var(--k32-line-subtle);
+  overflow: hidden;
+  user-select: none;
+  transition: transform 0.3s ease;
+}
+
+.k32-card:hover .k32-img {
+  transform: scale(1.02);
+}
+
+@media (prefers-color-scheme: dark) {
+  .k32-img {
+    background: linear-gradient(145deg, #2A2621, #1C1A17);
+  }
+}
+
+/* شارات Eataly الترويجية */
+.k32-badge {
+  position: absolute;
+  bottom: 8px;
+  inset-inline-start: 8px;
+  background: var(--k32-wine);
+  color: #FFFFFF;
+  font-style: normal;
+  font-weight: 800;
+  font-size: 11px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 10px rgba(168, 42, 42, 0.35);
+  z-index: 2;
+}
+
+.k32-kind {
+  position: absolute;
+  top: 8px;
+  inset-inline-start: 8px;
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--k32-green);
+  padding: 3px 8px;
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  z-index: 2;
+}
+
+.k32-origin {
+  position: absolute;
+  top: 8px;
+  inset-inline-end: 8px;
+  font-style: normal;
+  font-size: 9.5px;
+  font-weight: 600;
+  background: rgba(30, 32, 29, 0.75);
+  color: #FFFFFF;
+  padding: 2px 7px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+  z-index: 2;
+}
+
+/* اسم المنتج والمصنع بأسلوب Eataly */
+.k32-producer {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--k32-mute);
+  font-weight: 600;
+  margin: 10px 0 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.k32-card h4 {
+  margin: 2px 0 6px;
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight: 700;
+  color: var(--k32-ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.8em;
+}
+
+.k32-cat-tag {
+  display: inline-block;
+  font-size: 11px;
+  color: var(--k32-mute);
+  margin-bottom: 6px;
+}
+
+/* مؤشر الهامش والربحية */
+.k32-margin {
+  align-self: flex-start;
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.k32-ex { background: #DCFAE6; color: #067647; }
+.k32-good { background: #E8F3EC; color: #1F4D3A; }
+.k32-low { background: #FEF0C7; color: #93370D; }
+.k32-loss { background: #FEE4E2; color: #B42318; }
+.k32-na { background: #EEF0F3; color: #475467; }
+
+/* قسم التسعير مستوحى مباشرة من Eataly */
+.k32-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px dashed var(--k32-line-subtle);
+  min-width: 0;
+}
+
+.k32-unit {
+  font-size: 11.5px;
+  color: var(--k32-mute);
+  line-height: 1.4;
+}
+
+.k32-unit span {
+  display: block;
+  white-space: nowrap;
+}
+
+.k32-now {
+  text-align: end;
+  line-height: 1.15;
+  margin-inline-start: auto;
+  white-space: nowrap;
+}
+
+.k32-now s {
+  display: block;
+  font-size: 12px;
+  color: var(--k32-mute);
+  text-decoration: line-through;
+  opacity: 0.85;
+}
+
+.k32-now b {
+  font-size: clamp(17px, 4.4vw, 21px);
+  font-weight: 800;
+  color: var(--k32-wine);
+  font-feature-settings: "tnum";
+}
+
+.k32-now small {
+  font-size: 11px;
+  color: var(--k32-mute);
+  margin-inline-start: 3px;
+  font-weight: 600;
+}
+
+/* زر التعديل / العرض */
+.k32-btn {
+  margin-top: 12px;
+  border: 1px solid var(--k32-green);
+  border-radius: 999px;
+  background: var(--k32-green);
+  color: #FFFFFF;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.k32-btn:hover {
+  background: #1B3B2B;
+  border-color: #1B3B2B;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(36, 76, 55, 0.25);
+}
+
+.k32-btn.has-offer {
+  background: var(--k32-wine);
+  border-color: var(--k32-wine);
+}
+
+.k32-btn.has-offer:hover {
+  background: #8F2222;
+  border-color: #8F2222;
+  box-shadow: 0 4px 12px rgba(168, 42, 42, 0.25);
+}
+
+/* ==========================================================
+   7. MODAL / DIALOG — نافذة العروض المتقدمة
+   ========================================================== */
+.k32-modal-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 350;
+  background: rgba(18, 20, 18, 0.65);
+  backdrop-filter: blur(6px);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  animation: k32Fade 0.2s ease-out;
+}
+
+@keyframes k32Fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.k32-modal {
+  width: min(440px, 100%);
+  background: var(--k32-card);
+  border: 1px solid var(--k32-line);
+  border-radius: var(--k32-radius-lg);
+  padding: 24px;
+  box-shadow: var(--k32-shadow-lg);
+  color: var(--k32-ink);
+}
+
+.k32-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.k32-modal-head h4 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.k32-modal-close {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--k32-line);
+  background: var(--k32-card-subtle);
+  border-radius: 50%;
+  font-size: 16px;
+  color: var(--k32-ink);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.k32-preset-btns {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 12px 0 16px;
+}
+
+.k32-preset-btn {
+  border: 1px solid var(--k32-line);
+  background: var(--k32-card-subtle);
+  color: var(--k32-ink);
+  padding: 8px 4px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.k32-preset-btn:hover {
+  background: var(--k32-wine);
+  color: #FFFFFF;
+  border-color: var(--k32-wine);
+}
+
+.k32-preview-box {
+  background: var(--k32-card-subtle);
+  border: 1px solid var(--k32-line);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin: 14px 0;
+}
+
+.k32-preview-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.k32-preview-row:last-child {
+  margin-bottom: 0;
+  padding-top: 6px;
+  border-top: 1px dashed var(--k32-line);
+  font-weight: 700;
+}
+
+/* ==========================================================
+   8. FUNCTIONAL UPGRADES: CART, QUOTE BUILDER & SAVINGS
+   ========================================================== */
+.k32-savings {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--k32-wine);
+  background: var(--k32-wine-soft);
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-inline-start: 4px;
+}
+
+.k32-card-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.k32-cart-btn {
+  border: 1px solid var(--k32-green);
+  border-radius: 999px;
+  background: var(--k32-green);
+  color: #FFFFFF;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 9px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.18s ease;
+}
+
+.k32-cart-btn:hover {
+  background: #1B3B2B;
+  transform: translateY(-1px);
+}
+
+.k32-opt-btn {
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--k32-line);
+  background: var(--k32-card-subtle);
+  color: var(--k32-ink);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.k32-opt-btn:hover {
+  background: var(--k32-line-subtle);
+  border-color: var(--k32-mute);
+}
+
+.k32-opt-btn.has-offer {
+  background: var(--k32-wine-soft);
+  border-color: var(--k32-wine);
+  color: var(--k32-wine);
+}
+
+/* شريط السلة العائم في الأسفل */
+.k32-cart-bar {
+  position: fixed;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(600px, calc(100% - 24px));
+  background: #1E201D;
+  color: #FFFFFF;
+  border-radius: 20px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  z-index: 250;
+  animation: k32SlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes k32SlideUp {
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.k32-cart-bar-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.k32-cart-badge {
+  background: var(--k32-wine);
+  color: #FFFFFF;
+  border-radius: 12px;
+  padding: 6px 10px;
+  font-size: 12.5px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.k32-cart-summary b {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--k32-gold);
+}
+
+.k32-cart-summary span {
+  font-size: 11px;
+  color: #D3DDD7;
+}
+
+.k32-cart-open-btn {
+  border: 0;
+  background: #FFFFFF;
+  color: #1E201D;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.k32-cart-open-btn:hover {
+  transform: scale(1.03);
+}
+
+/* درج عرض السعر والطلبات (Quotation Drawer) */
+.k32-drawer-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 360;
+  background: rgba(18, 20, 18, 0.65);
+  backdrop-filter: blur(6px);
+  display: grid;
+  place-items: end center;
+  animation: k32Fade 0.2s ease-out;
+}
+
+@media (min-width: 650px) {
+  .k32-drawer-wrap { place-items: center; }
+}
+
+.k32-drawer {
+  width: min(540px, 100%);
+  max-height: 90dvh;
+  overflow: auto;
+  background: var(--k32-card);
+  color: var(--k32-ink);
+  border-radius: 24px 24px 0 0;
+  padding: 22px 20px calc(24px + env(safe-area-inset-bottom));
+  box-shadow: var(--k32-shadow-lg);
+  border: 1px solid var(--k32-line);
+}
+
+@media (min-width: 650px) {
+  .k32-drawer { border-radius: 24px; }
+}
+
+.k32-cart-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--k32-line-subtle);
+}
+
+.k32-cart-item:last-child {
+  border-bottom: 0;
+}
+
+.k32-cart-item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--k32-card-subtle);
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+}
+
+.k32-cart-qty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.k32-qty-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--k32-line);
+  background: var(--k32-card-subtle);
+  color: var(--k32-ink);
+  border-radius: 6px;
+  font-weight: 800;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.k32-qty-btn:hover {
+  background: var(--k32-line);
+}
+
+.k32-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--k32-line);
+  background: var(--k32-card-subtle);
+  color: var(--k32-ink);
+  padding: 7px 14px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.k32-export-btn:hover {
+  background: var(--k32-green);
+  color: #FFFFFF;
+  border-color: var(--k32-green);
+}
+
