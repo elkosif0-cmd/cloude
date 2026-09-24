@@ -76,7 +76,7 @@
       document.getElementById("jev-ask-answer").textContent=s.headline;
       document.getElementById("jev-ask-detail").textContent=s.detail;
       document.getElementById("jev-ask-json").textContent=JSON.stringify(d.result,null,2);
-      result.classList.add("show"); status.textContent="تمت الإجابة.";
+      result.classList.add("show"); status.textContent="تمت الإجابة."; window.dispatchEvent(new CustomEvent("jev:decision",{detail:{source:"سؤال Jev",type:askMode,question:q,summary:[s.headline,s.detail].filter(Boolean).join(" — "),result:d.result}}));
     }catch(e){status.innerHTML='<span class="jev-ask-error">'+esc(e.message||e)+'</span>'}finally{btn.disabled=false}
   }
   function install(){
