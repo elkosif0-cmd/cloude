@@ -15,7 +15,8 @@ text=html.decode("utf-8")
 for css_name, version in [
     ("mobile-v28.css","28"),
     ("jev-v1.css","1"),
-    ("jev-question-v1.css","1")
+    ("jev-question-v1.css","1"),
+    ("v29-smart.css","29")
 ]:
     if css_name not in text:
         text=text.replace("</head>",f'<link rel="stylesheet" href="./{css_name}?v={version}"></head>',1)
@@ -23,7 +24,8 @@ for css_name, version in [
 for js_name, version in [
     ("mobile-v28.js","28"),
     ("jev-v1.js","1"),
-    ("jev-question-v1.js","1")
+    ("jev-question-v1.js","1"),
+    ("v29-smart.js","29")
 ]:
     if js_name not in text:
         head,sep,tail=text.rpartition("</body>")
@@ -40,10 +42,10 @@ for name in ["icon-192.png","icon-512.png","apple-touch-icon.png"]:
 for name in [
     "sw.js","manifest.webmanifest","INSTALL-iPHONE-ar.txt","_headers",
     "mobile-v28.css","mobile-v28.js","jev-v1.css","jev-v1.js",
-    "jev-question-v1.css","jev-question-v1.js"
+    "jev-question-v1.css","jev-question-v1.js","v29-smart.css","v29-smart.js"
 ]:
     src=Path(name)
     if src.exists(): (out/name).write_bytes(src.read_bytes())
 
 shutil.copytree("secure",out/"secure")
-print("Built password-locked full-data mobile v28 + Jev Q&A release:",len(list(out.rglob("*"))),"entries")
+print("Built password-locked full-data mobile v28 + Jev + V29 smart operations release:",len(list(out.rglob("*"))),"entries")
