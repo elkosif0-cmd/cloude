@@ -1,0 +1,143 @@
+name: S.kosif Clean Architecture
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: s-kosif-clean-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: S.kosif Clean Production Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout S.kosif
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate source syntax
+        run: |
+          python3 -m py_compile build.py
+          find modules -type f -name '*.js' -print0 | sort -z | xargs -0 -n1 node --check
+
+      - name: Test strict pricing kernel
+        working-directory: app
+        run: |
+          npm ci
+          npx tsc -p tsconfig.pricing-core.json --noEmit
+          npx vitest run src/engine/corePricing/pricing.test.ts
+
+      - name: Test meat economics engine
+        working-directory: app
+        run: |
+          npx tsc -p tsconfig.meatops.json --noEmit
+          npx vitest run src/engine/meatOps/ops.test.ts
+
+      - name: Build S.kosif
+        env:
+          KOSIF_UNLOCK_PASSWORD: ${{ secrets.KOSIF_UNLOCK_PASSWORD }}
+        run: python3 build.py
+
+      - name: Validate clean production bundle
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          app = Path("dist/app-safe.html").read_text(encoding="utf-8")
+          manifest = Path("dist/manifest.webmanifest").read_text(encoding="utf-8")
+
+          required = [
+              "modules/ui/mobile.css",
+              "modules/decision/bridge.css",
+              "modules/decision/question.css",
+              "modules/tools/smart.css",
+              "modules/app/core.css",
+              "modules/features/supply.css",
+              "modules/ui/workspace.css",
+              "modules/features/catalog.css",
+              "modules/ui/shell.css",
+              "modules/features/matching.css",
+              "modules/features/pricing.css",
+              "modules/app/session.css",
+              "modules/features/meatops.css",
+              "modules/ui/motion.css",
+              "modules/ui/mobile.js",
+              "modules/decision/bridge.js",
+              "modules/decision/question.js",
+              "modules/tools/smart.js",
+              "modules/app/core.js",
+              "modules/features/supply.js",
+              "modules/ui/workspace.js",
+              "modules/features/catalog.js",
+              "modules/ui/shell.js",
+              "modules/features/matching.js",
+              "modules/features/pricing-core.js",
+              "modules/features/pricing.js",
+              "modules/app/session.js",
+              "modules/features/meatops.js",
+              "modules/ui/motion.js",
+          ]
+          for marker in required:
+              assert marker in app, marker
+              assert Path("dist", marker).exists(), marker
+
+          legacy_links = [
+              "mobile-v28", "v29-smart", "skosif-v30", "skosif-supply-v31",
+              "skosif-sinam-v32", "skosif-catalog-v32", "skosif-shell-v33",
+              "skosif-jazarti-v34", "skosif-pricing-v35", "skosif-session-v36",
+              "skosif-meatops-v37", "skosif-motion-v38", "jev-v1", "jev-question-v1",
+          ]
+          for legacy in legacy_links:
+              assert legacy not in app, f"legacy asset still linked: {legacy}"
+
+          assert "<title>S.kosif</title>" in app
+          assert '"name":"S.kosif"' in manifest
+          assert 'const SEED_B64 = "";' in app
+          assert len(list(Path("dist/secure").glob("seed.enc.b64.part*"))) == 6
+          assert Path("dist/secure/private.json").exists(), "private data not encrypted"
+          assert "SEED_RAWS=[{" not in app, "price catalog left in plaintext"
+          assert '{"__aghnam_private":"modules"}' in app, "private modules left in plaintext"
+
+          shell = Path("dist/modules/ui/shell.js").read_text(encoding="utf-8")
+          assert 'const GROUPS=[["العمل اليومي"' in shell
+          assert '["أدوات متقدمة"' in shell
+          for theme in ["executive-light", "executive-dark", "gourmet", "contrast"]:
+              assert theme in shell, theme
+          assert "10 خيارات تصميم" not in shell
+
+          shell_css = Path("dist/modules/ui/shell.css").read_text(encoding="utf-8")
+          for selector in ["#sk-fab", "#jev-fab", "#v29-fab", "#sk38-motion-btn"]:
+              assert selector in shell_css
+          assert "display:none!important" in shell_css
+
+          motion = Path("dist/modules/ui/motion.js").read_text(encoding="utf-8")
+          assert "function ensureControl(){}" in motion
+          assert 'document.createElement("button")' not in motion
+
+          pricing = Path("dist/modules/features/pricing-core.js").read_text(encoding="utf-8")
+          for marker in ["calculateUsableUnitCost", "applyRoundingPolicy", "calculateBoxPricing", "selfTest"]:
+              assert marker in pricing, marker
+
+          meat = Path("dist/modules/features/meatops.js").read_text(encoding="utf-8")
+          for marker in ["اقتصاديات الذبيحة", "dressing", "allocate", "aging"]:
+              assert marker in meat, marker
+
+          print("S.kosif clean modular validation: OK")
+          PY
