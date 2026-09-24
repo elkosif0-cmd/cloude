@@ -117,8 +117,8 @@ jobs:
 
           shell = Path("dist/modules/ui/shell.js").read_text(encoding="utf-8")
           assert 'const GROUPS=[["العمل اليومي"' in shell
-          assert '["الأدوات المتقدمة"' in shell
-          for theme in ["فاتح مهني", "المراعي الخضراء", "داكن احترافي", "القهوة النجدية"]:
+          assert '["أدوات متقدمة"' in shell
+          for theme in ["executive-light", "executive-dark", "gourmet", "contrast"]:
               assert theme in shell, theme
           assert "10 خيارات تصميم" not in shell
 
