@@ -17,8 +17,8 @@ text=html.decode("utf-8")
 # ahead of a known anchor. A payload that no longer has the anchor is
 # built without the patch rather than failing the deploy.
 for patch_name, anchor in [
-    ("react-import-v33.js", "try{\n  const V25_PARSE_OLD=parseBackupPayload;"),
-    ("core-bridge-v31.js", "if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();"),
+    ("react-import.js", "try{\n  const V25_PARSE_OLD=parseBackupPayload;"),
+    ("core-bridge.js", "if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();"),
 ]:
     if anchor in text:
         patch=Path(patch_name).read_text(encoding="utf-8")
@@ -31,46 +31,25 @@ for patch_name, anchor in [
 text=re.sub(r"<title>[^<]*</title>","<title>S.kosif</title>",text,count=1,flags=re.I)
 text=re.sub(r'<meta\s+name=["\']apple-mobile-web-app-title["\'][^>]*>', '<meta name="apple-mobile-web-app-title" content="S.kosif">', text, count=1, flags=re.I)
 
-for css_name, version in [
-    ("mobile-v28.css","28"),
-    ("jev-v1.css","1"),
-    ("jev-question-v1.css","1"),
-    ("v29-smart.css","29"),
-    ("skosif-v30.css","30"),
-    ("skosif-supply-v31.css","31"),
-    ("skosif-sinam-v32.css","32"),
-    ("skosif-catalog-v32.css","32"),
-    ("skosif-shell-v33.css","33"),
-    ("skosif-jazarti-v34.css","34"),
-    ("skosif-pricing-v35.css","35"),
-    ("skosif-session-v36.css","36"),
-    ("skosif-meatops-v37.css","37"),
-    ("skosif-motion-v38.css","38")
-]:
+CSS_FILES=[
+    "mobile.css","jev.css","jev-question.css","inventory.css","operations.css",
+    "supply.css","ux.css","catalog.css","shell.css","sales-matching.css",
+    "pricing.css","session-health.css","meat-economics.css","motion.css"
+]
+for css_name in CSS_FILES:
     if css_name not in text:
-        text=text.replace("</head>",f'<link rel="stylesheet" href="./{css_name}?v={version}"></head>',1)
+        text=text.replace("</head>",f'<link rel="stylesheet" href="./{css_name}"></head>',1)
 
-for js_name, version in [
-    ("mobile-v28.js","28"),
-    ("jev-v1.js","1"),
-    ("jev-question-v1.js","1"),
-    ("v29-smart.js","29"),
-    ("skosif-v30.js","30"),
-    ("skosif-supply-v31.js","31"),
-    ("skosif-sinam-v32.js","32"),
-    ("skosif-catalog-v32.js","32"),
-    ("skosif-shell-v33.js","33"),
-    ("skosif-jazarti-v34.js","34"),
-    ("skosif-pricing-core-v35.js","35"),
-    ("skosif-pricing-v35.js","35"),
-    ("skosif-session-v36.js","36"),
-    ("skosif-meatops-v37.js","37"),
-    ("skosif-motion-v38.js","38")
-]:
+JS_FILES=[
+    "mobile.js","jev.js","jev-question.js","inventory.js","operations.js",
+    "supply.js","ux.js","catalog.js","shell.js","sales-matching.js",
+    "pricing-core.js","pricing.js","session-health.js","meat-economics.js","motion.js"
+]
+for js_name in JS_FILES:
     if js_name not in text:
         head,sep,tail=text.rpartition("</body>")
         if not sep: raise SystemExit("Final body close missing")
-        text=head+f'<script src="./{js_name}?v={version}" defer></script></body>'+tail
+        text=head+f'<script src="./{js_name}" defer></script></body>'+tail
 
 text,private=private_blocks.extract(text)
 (out/"app-safe.html").write_text(text,encoding="utf-8")
@@ -80,11 +59,7 @@ for name in ["icon-192.png","icon-512.png","apple-touch-icon.png"]:
     src=Path("payload")/(name+".b64")
     (out/name).write_bytes(base64.b64decode(src.read_text(encoding="utf-8").strip()))
 
-for name in [
-    "sw.js","manifest.webmanifest","INSTALL-iPHONE-ar.txt","_headers",
-    "mobile-v28.css","mobile-v28.js","jev-v1.css","jev-v1.js",
-    "jev-question-v1.css","jev-question-v1.js","v29-smart.css","v29-smart.js","skosif-v30.css","skosif-v30.js","skosif-supply-v31.css","skosif-supply-v31.js","skosif-sinam-v32.css","skosif-sinam-v32.js","skosif-catalog-v32.css","skosif-catalog-v32.js","skosif-shell-v33.css","skosif-shell-v33.js","skosif-jazarti-v34.css","skosif-jazarti-v34.js","skosif-pricing-v35.css","skosif-pricing-core-v35.js","skosif-pricing-v35.js","skosif-session-v36.css","skosif-session-v36.js","skosif-meatops-v37.css","skosif-meatops-v37.js","skosif-motion-v38.css","skosif-motion-v38.js"
-]:
+for name in ["sw.js","manifest.webmanifest","INSTALL-iPHONE-ar.txt","_headers",*CSS_FILES,*JS_FILES]:
     src=Path(name)
     if src.exists(): (out/name).write_bytes(src.read_bytes())
 
