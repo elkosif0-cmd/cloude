@@ -35,6 +35,7 @@ jobs:
           python3 -m py_compile build.py
           node --check skosif-v30.js
           node --check skosif-supply-v31.js
+          node --check skosif-catalog-v32.js
           node --check jev-v1.js
           node --check jev-question-v1.js
           node --check v29-smart.js
