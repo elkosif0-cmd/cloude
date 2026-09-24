@@ -1,7 +1,7 @@
 /* S.kosif — Meat Economics & Receivables */
 (()=>{
 "use strict";
-if(window.SKosifMeatOpsV37)return;
+if(window.SKosifMeatEconomics)return;
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 const num=v=>Number(String(v??"").replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[٬,\s]/g,"").replace("٫","."))||0;
 const money=v=>new Intl.NumberFormat("ar-SA",{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(v)||0)+" ر.س";
@@ -79,6 +79,6 @@ function attach(){
   const tabs=$(".sk-tabs");if(!tabs||$("#sk37-tab"))return !!tabs;
   const b=document.createElement("button");b.id="sk37-tab";b.type="button";b.textContent="اقتصاديات اللحوم";b.onclick=open;(tabs.querySelector('.sk33-group[data-g="التسعير والقرار"]')||tabs).appendChild(b);return true;
 }
-function init(){let n=0;const t=setInterval(()=>{if(attach()||++n>40)clearInterval(t)},250);window.SKosifMeatOpsV37=Object.freeze({version:"37.0",open,dressing,allocate,aging})}
+function init(){let n=0;const t=setInterval(()=>{if(attach()||++n>40)clearInterval(t)},250);window.SKosifMeatEconomics=Object.freeze({version:"37.0",open,dressing,allocate,aging})}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
