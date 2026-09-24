@@ -3,7 +3,7 @@
    Jev privacy guard, safe CSV helpers. Does not own business data. */
 (()=>{
   "use strict";
-  if(window.SKosifSinamV32) return;
+  if(window.SKosifUX) return;
 
   const VERSION="32.0";
   const PREF="skosif_v32_";
@@ -156,7 +156,7 @@
     ["السيولة الشهرية","Cash Flow","◒",()=>window.SKosifSupply?.open?.("cash")],
     ["اسأل Jev","Decision Assistant","J",()=>window.AskJev?.open?.("noul")],
     ["Jev اختيارات متعددة","Decision Choice","J",()=>window.AskJev?.open?.("choice")],
-    ["المخزون الذكي","Inventory","▦",()=>{window.AghnamV29?.open?.();setTimeout(()=>document.querySelector('[data-v29-tab="inventory"]')?.click(),80)}],
+    ["المخزون الذكي","Inventory","▦",()=>{window.SKosifInventory?.open?.();setTimeout(()=>document.querySelector('[data-v29-tab="inventory"]')?.click(),80)}],
     ["ذكاء المبيعات","ABC / RFM / Pareto","↗",()=>window.SKosif?.openModule?.("sales")],
     ["اقتصاديات الطلب","Order Economics","Σ",()=>window.SKosif?.openModule?.("economics")],
     ["هندسة البوكسات","Box Engineering","▦",()=>window.SKosif?.openModule?.("boxes")],
@@ -226,7 +226,7 @@
   function boot(){
     ensureTaskbar();ensurePalette();scanWindows();updateNetwork();
     const mo=new MutationObserver(()=>scanWindows());mo.observe(document.documentElement,{childList:true,subtree:true});
-    window.SKosifSinamV32=Object.freeze({
+    window.SKosifUX=Object.freeze({
       version:VERSION,
       openCommandPalette:openPalette,
       redact,
