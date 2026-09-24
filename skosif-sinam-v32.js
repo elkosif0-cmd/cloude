@@ -161,6 +161,9 @@
   /* ---------- Command palette ---------- */
   const commands=[
     ["المركز التنفيذي","S.kosif Command Center","⌂",()=>window.SKosif?.open?.("overview")],
+    ["الكتالوج ومختارات الذواقة","Gourmet Catalog & Offers","▦",()=>window.SKosifCatalog?.open?.()],
+    ["سلة الطلبيات وعروض الأسعار","Order & Quotation Cart","🛒",()=>{window.SKosifCatalog?.open?.();setTimeout(()=>document.getElementById("k32-open-cart-bar")?.click(),250)}],
+    ["تصدير الكتالوج إكسل (CSV)","Export Catalog to Excel","📊",()=>window.SKosifCatalog?.exportCatalogCSV?.()],
     ["التسعير الذكي","Pricing V30","ر.س",()=>window.SKosif?.open?.("pricing")],
     ["العملاء 360","Customer 360","◎",()=>window.SKosif?.open?.("customers")],
     ["اعتماد الأسعار","Price Governance","✓",()=>window.SKosif?.open?.("approvals")],

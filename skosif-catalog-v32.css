@@ -971,3 +971,245 @@
   border-top: 1px dashed var(--k32-line);
   font-weight: 700;
 }
+
+/* ==========================================================
+   8. FUNCTIONAL UPGRADES: CART, QUOTE BUILDER & SAVINGS
+   ========================================================== */
+.k32-savings {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--k32-wine);
+  background: var(--k32-wine-soft);
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-inline-start: 4px;
+}
+
+.k32-card-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.k32-cart-btn {
+  border: 1px solid var(--k32-green);
+  border-radius: 999px;
+  background: var(--k32-green);
+  color: #FFFFFF;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 9px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.18s ease;
+}
+
+.k32-cart-btn:hover {
+  background: #1B3B2B;
+  transform: translateY(-1px);
+}
+
+.k32-opt-btn {
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--k32-line);
+  background: var(--k32-card-subtle);
+  color: var(--k32-ink);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.k32-opt-btn:hover {
+  background: var(--k32-line-subtle);
+  border-color: var(--k32-mute);
+}
+
+.k32-opt-btn.has-offer {
+  background: var(--k32-wine-soft);
+  border-color: var(--k32-wine);
+  color: var(--k32-wine);
+}
+
+/* شريط السلة العائم في الأسفل */
+.k32-cart-bar {
+  position: fixed;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(600px, calc(100% - 24px));
+  background: #1E201D;
+  color: #FFFFFF;
+  border-radius: 20px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  z-index: 250;
+  animation: k32SlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes k32SlideUp {
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.k32-cart-bar-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.k32-cart-badge {
+  background: var(--k32-wine);
+  color: #FFFFFF;
+  border-radius: 12px;
+  padding: 6px 10px;
+  font-size: 12.5px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.k32-cart-summary b {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--k32-gold);
+}
+
+.k32-cart-summary span {
+  font-size: 11px;
+  color: #D3DDD7;
+}
+
+.k32-cart-open-btn {
+  border: 0;
+  background: #FFFFFF;
+  color: #1E201D;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.k32-cart-open-btn:hover {
+  transform: scale(1.03);
+}
+
+/* درج عرض السعر والطلبات (Quotation Drawer) */
+.k32-drawer-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 360;
+  background: rgba(18, 20, 18, 0.65);
+  backdrop-filter: blur(6px);
+  display: grid;
+  place-items: end center;
+  animation: k32Fade 0.2s ease-out;
+}
+
+@media (min-width: 650px) {
+  .k32-drawer-wrap { place-items: center; }
+}
+
+.k32-drawer {
+  width: min(540px, 100%);
+  max-height: 90dvh;
+  overflow: auto;
+  background: var(--k32-card);
+  color: var(--k32-ink);
+  border-radius: 24px 24px 0 0;
+  padding: 22px 20px calc(24px + env(safe-area-inset-bottom));
+  box-shadow: var(--k32-shadow-lg);
+  border: 1px solid var(--k32-line);
+}
+
+@media (min-width: 650px) {
+  .k32-drawer { border-radius: 24px; }
+}
+
+.k32-cart-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--k32-line-subtle);
+}
+
+.k32-cart-item:last-child {
+  border-bottom: 0;
+}
+
+.k32-cart-item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--k32-card-subtle);
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+}
+
+.k32-cart-qty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.k32-qty-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--k32-line);
+  background: var(--k32-card-subtle);
+  color: var(--k32-ink);
+  border-radius: 6px;
+  font-weight: 800;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.k32-qty-btn:hover {
+  background: var(--k32-line);
+}
+
+.k32-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--k32-line);
+  background: var(--k32-card-subtle);
+  color: var(--k32-ink);
+  padding: 7px 14px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.k32-export-btn:hover {
+  background: var(--k32-green);
+  color: #FFFFFF;
+  border-color: var(--k32-green);
+}
+

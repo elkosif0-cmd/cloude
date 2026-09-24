@@ -1,15 +1,16 @@
-/* S.kosif V32 — الكتالوج والعروض الفاخرة
-   تصميم مستوحى من أسلوب متجر Eataly للمأكولات الفاخرة والعروض الشهرية:
+/* S.kosif V32 — الكتالوج والعروض الفاخرة + حاسبة الطلبيات وعروض الأسعار
+   تصميم وقدرات مستوحاة من متجر Eataly للمأكولات الفاخرة والعروض الشهرية:
    - واجهة عروض تحريرية فاخرة (Editorial Gourmet Layout)
    - شبكة مرنة مع مبدل أعمدة العرض (2 / 3 / 4 أعمدة)
-   - بطاقات منتجات بشارات الخصم ونسب التوفير، السعر المشطوب، سعر الكيلو، ومنشأ السلالة
-   - نافذة تفاعلية راقية لضبط نسبة العرض مع معاينة فورية للهامش والتكلفة
-   - شريط تصفية وتصنيف علوي سلس
-   - مشاركة العروض بتنسيق تسويقي راقٍ على واتساب
+   - حاسبة وسلة طلبيات فورية (Order & Quotation Cart Builder)
+   - بطاقات منتجات بشارات الخصم، حساب التوفير بالريال، السعر المشطوب، وسعر الكيلو
+   - تصدير الكتالوج والعروض إلى ملف Excel / CSV بنقرة واحدة
+   - إنشاء ومشاركة عروض أسعار وفواتير أولية منسقة للعملاء عبر واتساب
+   - نافذة تفاعلية راقية لضبط نسبة الخصم مع معاينة فورية للهامش والتكلفة
    - قراءة حية من محرك التسعير عبر SKosifCore.catalog() */
 (()=>{
   "use strict";
-  const OFFERS_KEY="skosif_v32_offers", BIZ="أغنام الوادي", SUBLINE="مختارات الذواقة واللحوم البلدية الفاخرة";
+  const OFFERS_KEY="skosif_v32_offers", CART_KEY="skosif_v32_cart", BIZ="أغنام الوادي", SUBLINE="مختارات الذواقة واللحوم البلدية الفاخرة";
   const $=id=>document.getElementById(id);
   const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
   const nf2=new Intl.NumberFormat("ar-SA",{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -25,9 +26,13 @@
     kind:"all",
     cat:"",
     band:"",
+    budget:"",
     sheet:null,
     cols: load("skosif_v32_cols", 3),
-    modalItem: null
+    modalItem: null,
+    cartOpen: false,
+    custName: load("skosif_v32_cust_name", ""),
+    custNotes: load("skosif_v32_cust_notes", "")
   };
 
   function toast(msg){
@@ -53,14 +58,16 @@
 
   function withOffer(it,d,offers){
     const off=Number(offers[it.id])||0;
-    if(!(off>0)||!(it.price>0))return {...it,off:0,now:it.price};
+    if(!(off>0)||!(it.price>0))return {...it,off:0,now:it.price,saving:0};
     const now=Math.round(it.price*(1-off)*100)/100;
+    const saving=Math.round((it.price-now)*100)/100;
     const base=d.netBase?now/(1+d.vat):now;
     const profit=now/(1+d.vat)-(it.cost||0);
     return {
       ...it,
       off,
       now,
+      saving,
       nowMargin:base>0?profit/base:null,
       belowCost:it.cost!=null&&now<it.cost*(1+d.vat)
     };
@@ -112,6 +119,10 @@
     if(ui.cat)items=items.filter(it=>it.cat===ui.cat);
     if(ui.band)items=items.filter(it=>it.band===ui.band);
 
+    if(ui.budget==="low")items=items.filter(it=>(it.now||it.price)<=250);
+    else if(ui.budget==="mid")items=items.filter(it=>{const p=(it.now||it.price);return p>250&&p<=500;});
+    else if(ui.budget==="high")items=items.filter(it=>(it.now||it.price)>500);
+
     const m=x=>x.off>0?(x.nowMargin??-9):(x.margin??-9);
     const p=x=>x.now??x.price??0;
     const offPct=x=>x.off||0;
@@ -130,11 +141,185 @@
     return {d,items,all:d.items.filter(it=>it.status!=="archived"),offers};
   }
 
+  /* ---------- سلة الطلبات وعروض الأسعار (Cart Management) ---------- */
+  function getCart(){
+    return load(CART_KEY, {});
+  }
+  function setCart(cart){
+    save(CART_KEY, cart);
+  }
+  function addToCart(id, qty=1){
+    const cart=getCart();
+    cart[id]=(cart[id]||0)+qty;
+    if(cart[id]<=0)delete cart[id];
+    setCart(cart);
+    const {all}=listItems();
+    const item=all.find(x=>x.id===id);
+    if(item)toast("تمت إضافة «"+item.name+"» إلى سلة الطلب 🛒");
+    render();
+  }
+  function updateCartQty(id, delta){
+    const cart=getCart();
+    const cur=cart[id]||0;
+    const nxt=cur+delta;
+    if(nxt<=0)delete cart[id];
+    else cart[id]=nxt;
+    setCart(cart);
+    render();
+  }
+  function clearCart(){
+    setCart({});
+    toast("تم إفراغ سلة الطلب");
+    render();
+  }
+
+  function getCartTotals(){
+    const cart=getCart(), {all, d, offers}=listItems();
+    let totalItems=0, subtotal=0, totalSavings=0, netTotal=0;
+    const lines=[];
+
+    for(const [id, qty] of Object.entries(cart)){
+      if(qty<=0)continue;
+      const raw=all.find(x=>x.id===id);
+      if(!raw)continue;
+      const it=withOffer(raw, d, offers);
+      const originalPrice=it.price*qty;
+      const actualPrice=(it.now||it.price)*qty;
+      const savings=(it.saving||0)*qty;
+
+      totalItems+=qty;
+      subtotal+=originalPrice;
+      netTotal+=actualPrice;
+      totalSavings+=savings;
+
+      lines.push({
+        item: it,
+        qty,
+        originalPrice,
+        actualPrice,
+        savings
+      });
+    }
+    return {totalItems, subtotal, netTotal, totalSavings, lines};
+  }
+
+  /* ---------- تصدير الكتالوج إلى ملف Excel / CSV ---------- */
+  function exportCatalogCSV(){
+    const {all, d, offers}=listItems();
+    if(!all.length){
+      toast("الكتالوج فارغ حالياً.");
+      return;
+    }
+
+    const headers=["المعرف","اسم الصنف","التصنيف","السلالة/المصدر","النوع","السعر الأساسي (ر.س)","نسبة الخصم","سعر العرض (ر.س)","مقدار التوفير (ر.س)","سعر الكيلو (ر.س)","الوزن التقريبي (كجم)","حالة الهامش"];
+    const rows=[headers];
+
+    all.forEach(raw=>{
+      const it=withOffer(raw, d, offers);
+      rows.push([
+        it.id||"",
+        it.name||"",
+        it.cat||"",
+        ORIGIN(it),
+        it.kind==="box"?"بوكس فاخر":"صنف",
+        it.price!=null?it.price.toFixed(2):"",
+        it.off>0?Math.round(it.off*100)+"%":"0%",
+        it.now!=null?it.now.toFixed(2):"",
+        it.saving>0?it.saving.toFixed(2):"0",
+        it.pricePerKg!=null?it.pricePerKg.toFixed(2):"",
+        it.weight!=null?it.weight:"",
+        (BAND[it.band]||BAND.na)[0]
+      ]);
+    });
+
+    const csvContent="\uFEFF"+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\r\n");
+    const blob=new Blob([csvContent],{type:"text/csv;charset=utf-8;"});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement("a");
+    link.href=url;
+    link.download="كتالوج_وعروض_"+BIZ.replace(/\s+/g,"_")+"_"+new Date().toISOString().slice(0,10)+".csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast("تم تصدير ملف الكتالوج بصيغة Excel / CSV بنجاح 📊");
+  }
+
+  /* ---------- مشاركة عرض السعر للعميل عبر واتساب ---------- */
+  function sendCustomerQuotation(){
+    const {totalItems, subtotal, netTotal, totalSavings, lines}=getCartTotals();
+    if(!totalItems){
+      toast("سلة الطلب فارغة حالياً.");
+      return;
+    }
+
+    const custName=ui.custName.trim()||"العميل الكريم";
+    const notes=ui.custNotes.trim();
+
+    const msg=[
+      "🌿 *عرض سعر وطلبية — "+BIZ+"*",
+      "✨ *Gourmet Order Quotation*",
+      "─────────────────",
+      "👤 *العميل:* "+custName,
+      "📅 *التاريخ:* "+new Date().toLocaleDateString("ar-SA"),
+      ""
+    ];
+
+    lines.forEach((l, idx)=>{
+      const unitSpec=l.item.kind==="box"&&l.item.pricePerKg?" ("+sar(l.item.pricePerKg)+" ر.س/كجم)":"";
+      msg.push((idx+1)+". *"+l.item.name+"* ("+ORIGIN(l.item)+")");
+      msg.push("   الكمية: *"+l.qty+"* × "+sar(l.item.now||l.item.price)+" ر.س"+unitSpec);
+      if(l.savings>0){
+        msg.push("   (وفرت: "+sar(l.savings)+" ر.س)");
+      }
+      msg.push("   الإجمالي: *"+sar(l.actualPrice)+" ر.س*");
+      msg.push("");
+    });
+
+    msg.push("─────────────────");
+    if(totalSavings>0){
+      msg.push("💰 *المجموع قبل الخصم:* "+sar(subtotal)+" ر.س");
+      msg.push("🎁 *إجمالي الخصم والتوفير:* −"+sar(totalSavings)+" ر.س");
+    }
+    msg.push("💳 *المبلغ النهائي المطلوب:* *"+sar(netTotal)+" ر.س*");
+    msg.push("📌 *الأسعار شاملة ضريبة القيمة المضافة (15٪)*");
+
+    if(notes){
+      msg.push("");
+      msg.push("📝 *ملاحظات التقطيع والتوصيل:*");
+      msg.push(notes);
+    }
+
+    msg.push("");
+    msg.push("🥩 *الذبح طازج والتجهيز يومي والتوصيل مبرد ومعقم حتى باب منزلك.*");
+    msg.push("📲 لتأكيد الطلب برجاء الرد على هذه الرسالة 🌿");
+
+    const text=msg.join("\n");
+    window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank","noopener");
+  }
+
+  function copyQuotation(){
+    const {totalItems, subtotal, netTotal, totalSavings, lines}=getCartTotals();
+    if(!totalItems){
+      toast("السلة فارغة.");
+      return;
+    }
+    const linesTxt=lines.map((l,i)=>(i+1)+". "+l.item.name+" ("+l.qty+"× "+sar(l.item.now||l.item.price)+" ر.س) = "+sar(l.actualPrice)+" ر.س").join("\n");
+    const summary="عرض سعر "+BIZ+"\n"+linesTxt+"\nالإجمالي: "+sar(netTotal)+" ر.س (شامل الضريبة)";
+    navigator.clipboard.writeText(summary).then(()=>{
+      toast("تم نسخ تفاصيل عرض السعر إلى الحافظة بنجاح 📋");
+    }).catch(()=>{
+      toast("تعذر النسخ التلقائي.");
+    });
+  }
+
   function card(it){
     const b=BAND[it.band]||BAND.na;
     const marg=it.off>0?it.nowMargin:it.margin;
     const hasOffer=it.off>0;
     const originTag=ORIGIN(it);
+    const cart=getCart();
+    const inCartQty=cart[it.id]||0;
 
     return '<article class="k32-card" data-id="'+esc(it.id)+'">'+
       '<div class="k32-img">'+
@@ -149,6 +334,7 @@
       '<div class="k32-margin k32-'+b[1]+'">'+
         (it.byProduct||marg==null?b[0]:'هامش '+pct(marg))+
         (it.belowCost?' · تنبيه: تحت التكلفة':'')+
+        (it.saving>0?'<span class="k32-savings">وفر '+sar(it.saving)+' ر.س</span>':'')+
       '</div>'+
       '<div class="k32-price">'+
         '<div class="k32-unit">'+
@@ -162,9 +348,14 @@
           (it.now!=null?'<b>'+sar(it.now)+'</b><small>ر.س</small>':'<b>—</b>')+
         '</div>'+
       '</div>'+
-      '<button class="k32-btn'+(hasOffer?' has-offer':'')+'" type="button" data-k32-offer="'+esc(it.id)+'">'+
-        (hasOffer?'<span>🏷️ تعديل العرض ('+pct(it.off)+')</span>':'<span>+ إضافة عرض موسمي</span>')+
-      '</button>'+
+      '<div class="k32-card-actions">'+
+        '<button class="k32-cart-btn" type="button" data-k32-add="'+esc(it.id)+'">'+
+          (inCartQty>0?'<span>🛒 بالطلب ('+inCartQty+') +</span>':'<span>🛒 أضف للطلب</span>')+
+        '</button>'+
+        '<button class="k32-opt-btn'+(hasOffer?' has-offer':'')+'" type="button" data-k32-offer="'+esc(it.id)+'" title="تعديل نسبة الخصم">'+
+          '🏷️'+
+        '</button>'+
+      '</div>'+
     '</article>';
   }
 
@@ -194,6 +385,12 @@
           '<input type="checkbox" id="k32-offers-only"'+(ui.offersOnly?' checked':'')+'>'+
           '<i></i>'+
         '</label>'+
+        '<div class="k32-group"><b>ميزانية السعر</b>'+
+          chip("data-k32-budget","","الكل",!ui.budget)+
+          chip("data-k32-budget","low","أقل من 250 ر.س",ui.budget==="low")+
+          chip("data-k32-budget","mid","250 إلى 500 ر.س",ui.budget==="mid")+
+          chip("data-k32-budget","high","أكثر من 500 ر.س",ui.budget==="high")+
+        '</div>'+
         '<div class="k32-group"><b>نوع المنتج</b>'+
           [["all","الكل"],["raw","أصناف ولحوم"],["box","بوكسات عائلية"]].map(o=>chip("data-k32-kind",o[0],o[1],ui.kind===o[0])).join("")+
         '</div>'+
@@ -250,11 +447,84 @@
     '</div>';
   }
 
+  /* درج سلة الطلب وعرض الأسعار */
+  function cartDrawerHTML(){
+    if(!ui.cartOpen)return "";
+    const {totalItems, subtotal, netTotal, totalSavings, lines}=getCartTotals();
+
+    return '<div class="k32-drawer-wrap" id="k32-drawer">'+
+      '<div class="k32-drawer">'+
+        '<div class="k32-modal-head">'+
+          '<div>'+
+            '<h4>🛒 سلة طلبيات وعروض الأسعار</h4>'+
+            '<small style="color:var(--k32-mute)">'+totalItems+' منتجات مختارة للعميل</small>'+
+          '</div>'+
+          '<button type="button" class="k32-modal-close" id="k32-drawer-x">✕</button>'+
+        '</div>'+
+
+        (lines.length?
+          '<div>'+
+            '<div style="max-height:260px;overflow-y:auto;padding-right:2px">'+
+              lines.map(l=>
+                '<div class="k32-cart-item">'+
+                  '<div class="k32-cart-item-icon">'+ICON(l.item)+'</div>'+
+                  '<div>'+
+                    '<b style="display:block;font-size:13.5px">'+esc(l.item.name)+'</b>'+
+                    '<span style="font-size:11.5px;color:var(--k32-mute)">'+sar(l.item.now||l.item.price)+' ر.س / الوحدة</span>'+
+                  '</div>'+
+                  '<div style="text-align:end">'+
+                    '<div class="k32-cart-qty">'+
+                      '<button type="button" class="k32-qty-btn" data-qty-id="'+esc(l.item.id)+'" data-qty-delta="-1">−</button>'+
+                      '<b style="min-width:20px;text-align:center;font-size:13.5px">'+l.qty+'</b>'+
+                      '<button type="button" class="k32-qty-btn" data-qty-id="'+esc(l.item.id)+'" data-qty-delta="1">+</button>'+
+                    '</div>'+
+                    '<b style="display:block;font-size:13px;margin-top:4px;color:var(--k32-wine)">'+sar(l.actualPrice)+' ر.س</b>'+
+                  '</div>'+
+                '</div>'
+              ).join("")+
+            '</div>'+
+
+            '<div style="margin:16px 0;border-top:1px solid var(--k32-line);padding-top:12px">'+
+              '<label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px">اسم العميل / الجهة:</label>'+
+              '<input type="text" id="k32-cust-name" value="'+esc(ui.custName)+'" placeholder="مثال: مطعم الأصيل، أو فلان الفلاني" style="width:100%;box-sizing:border-box;height:38px;border:1px solid var(--k32-line);border-radius:8px;padding:0 10px;font:inherit;font-size:13.5px;background:var(--k32-card-subtle);color:inherit;margin-bottom:8px">'+
+
+              '<label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px">ملاحظات التقطيع والتوصيل:</label>'+
+              '<input type="text" id="k32-cust-notes" value="'+esc(ui.custNotes)+'" placeholder="مثال: تقطيع ثلاجة أرباع، تغليف سحب هواء، مفروم ناعم..." style="width:100%;box-sizing:border-box;height:38px;border:1px solid var(--k32-line);border-radius:8px;padding:0 10px;font:inherit;font-size:13.5px;background:var(--k32-card-subtle);color:inherit">'+
+            '</div>'+
+
+            '<div class="k32-preview-box">'+
+              '<div class="k32-preview-row"><span>المجموع قبل الخصم:</span><b>'+sar(subtotal)+' ر.س</b></div>'+
+              (totalSavings>0?'<div class="k32-preview-row" style="color:var(--k32-wine)"><span>إجمالي الخصم والتوفير:</span><b>−'+sar(totalSavings)+' ر.س</b></div>':'')+
+              '<div class="k32-preview-row"><span>القيمة المضافة (15٪):</span><b>مشمولة بالسعر</b></div>'+
+              '<div class="k32-preview-row" style="font-size:16px;color:var(--k32-green)"><span>الإجمالي المستحق:</span><b>'+sar(netTotal)+' ر.س</b></div>'+
+            '</div>'+
+
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px">'+
+              '<button type="button" id="k32-send-quotation" style="border:0;background:#25D366;color:#FFFFFF;border-radius:12px;padding:12px;font:inherit;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">'+
+                '<span>📲 إرسال بالواتساب</span>'+
+              '</button>'+
+              '<button type="button" id="k32-copy-quotation" style="border:1px solid var(--k32-line);background:var(--k32-card-subtle);color:inherit;border-radius:12px;padding:12px;font:inherit;font-weight:700;font-size:13px;cursor:pointer">'+
+                '📋 نسخ عرض السعر'+
+              '</button>'+
+            '</div>'+
+
+            '<div style="display:flex;justify-content:space-between;margin-top:14px">'+
+              '<button type="button" id="k32-clear-cart" style="border:0;background:transparent;color:var(--k32-wine);font:inherit;font-size:12px;font-weight:700;cursor:pointer">إفراغ السلة</button>'+
+              '<button type="button" id="k32-drawer-close-btn" style="border:1px solid var(--k32-line);background:var(--k32-card-subtle);border-radius:8px;padding:6px 14px;font:inherit;font-size:12.5px;cursor:pointer;color:inherit">متابعة التصفح</button>'+
+            '</div>'+
+          '</div>'
+          : '<div class="sk-empty" style="padding:40px 10px">السلة فارغة حالياً.<br>اضغط زر «🛒 أضف للطلب» بجانب أي منتج لإضافته لعرض السعر.</div>'
+        )+
+      '</div>'+
+    '</div>';
+  }
+
   function html(){
     const {items,all,offers}=listItems();
     const nOffers=Object.keys(offers).filter(id=>all.some(x=>x.id===id)).length;
-    const filtered=ui.offersOnly||ui.kind!=="all"||ui.cat||ui.band;
+    const filtered=ui.offersOnly||ui.kind!=="all"||ui.cat||ui.band||ui.budget;
     const cats=[...new Set(all.map(x=>x.cat).filter(Boolean))];
+    const {totalItems, netTotal, totalSavings}=getCartTotals();
 
     return '<div class="k32">'+
       /* Hero Banner */
@@ -263,13 +533,16 @@
           '<div class="k32-hero-brand"><span>'+esc(BIZ)+'</span> • Eataly Inspired Selections</div>'+
           '<div class="k32-hero-actions">'+
             '<button type="button" class="k32-share" id="k32-share"'+(nOffers?'':' disabled')+'>'+
-              '<span>📤 مشاركة العروض ('+nOffers+')</span>'+
+              '<span>📤 عروض الشهر ('+nOffers+')</span>'+
+            '</button>'+
+            '<button type="button" class="k32-export-btn" id="k32-export-csv" title="تصدير الكتالوج بصيغة Excel / CSV">'+
+              '<span>📊 تصدير Excel</span>'+
             '</button>'+
           '</div>'+
         '</div>'+
         '<div class="k32-hero-content">'+
           '<h3>'+(ui.offersOnly?'عروض الشهر الحصرية • Monthly Offers':'الكتالوج ومختارات الذواقة')+'</h3>'+
-          '<p>'+esc(SUBLINE)+' — تجربة استثنائية من المراعي الطبيعية تُجهز وتُقطع وفق أرقى معايير الجودة.</p>'+
+          '<p>'+esc(SUBLINE)+' — تجربة استثنائية من المراعي الطبيعية تُجهز وتُقطع وفق أرقى معايير الجودة مع حاسبة طلبيات وعروض أسعار متكاملة.</p>'+
         '</div>'+
         '<div class="k32-hero-meta">'+
           '<div class="k32-meta-pill">إجمالي الأصناف: <b>'+items.length+'</b></div>'+
@@ -288,7 +561,7 @@
 
       /* Quick Category Filter Pills (Eataly Navigation Style) */
       '<nav class="k32-cat-nav" aria-label="أقسام الكتالوج">'+
-        '<button type="button" class="k32-cat-chip'+(!ui.cat&&!ui.offersOnly&&ui.kind==="all"?' on':'')+'" data-k32-quick="all">جميع المختارات</button>'+
+        '<button type="button" class="k32-cat-chip'+(!ui.cat&&!ui.offersOnly&&ui.kind==="all"&&!ui.budget?' on':'')+'" data-k32-quick="all">جميع المختارات</button>'+
         '<button type="button" class="k32-cat-chip'+(ui.offersOnly?' on':'')+'" data-k32-quick="offers" style="color:var(--k32-wine)">🔥 عروض الشهر</button>'+
         '<button type="button" class="k32-cat-chip'+(ui.kind==="box"?' on':'')+'" data-k32-quick="box">📦 البوكسات العائلية</button>'+
         '<button type="button" class="k32-cat-chip'+(ui.kind==="raw"&&!ui.cat?' on':'')+'" data-k32-quick="raw">🥩 الأصناف والذبائح</button>'+
@@ -322,8 +595,23 @@
         ? '<div class="k32-grid" data-cols="'+ui.cols+'">'+items.map(card).join("")+'</div>'
         : '<div class="sk-empty">'+(all.length?'لا توجد منتجات مطابقة لمعايير البحث الحالية.':'الكتالوج فارغ حالياً.')+'</div>')+
 
-      /* Modal */
+      /* Floating Cart Bar (Appears when items are in cart) */
+      (totalItems>0
+        ? '<div class="k32-cart-bar">'+
+            '<div class="k32-cart-bar-info">'+
+              '<div class="k32-cart-badge">🛒 '+totalItems+'</div>'+
+              '<div class="k32-cart-summary">'+
+                '<b>'+sar(netTotal)+' ر.س</b>'+
+                '<span>طلب العميل '+(totalSavings>0?'(وفر '+sar(totalSavings)+' ر.س)':'')+'</span>'+
+              '</div>'+
+            '</div>'+
+            '<button type="button" class="k32-cart-open-btn" id="k32-open-cart-bar">إتمام عرض السعر ➜</button>'+
+          '</div>'
+        : '')+
+
+      /* Modals */
       modalHTML()+
+      cartDrawerHTML()+
     '</div>';
   }
 
@@ -457,6 +745,11 @@
       render();
     });
 
+    document.querySelectorAll("[data-k32-budget]").forEach(b=>b.onclick=()=>{
+      ui.budget=b.dataset.k32Budget;
+      render();
+    });
+
     document.querySelectorAll("[data-k32-cat]").forEach(b=>b.onclick=()=>{
       ui.cat=b.dataset.k32Cat;
       render();
@@ -465,7 +758,7 @@
     document.querySelectorAll("[data-k32-quick]").forEach(b=>b.onclick=()=>{
       const v=b.dataset.k32Quick;
       if(v==="all"){
-        Object.assign(ui,{offersOnly:false,kind:"all",cat:""});
+        Object.assign(ui,{offersOnly:false,kind:"all",cat:"",budget:""});
       } else if(v==="offers"){
         ui.offersOnly=!ui.offersOnly;
       } else if(v==="box"){
@@ -499,15 +792,58 @@
 
     const rs=document.querySelector("[data-k32-reset]");
     if(rs)rs.onclick=()=>{
-      Object.assign(ui,{offersOnly:false,kind:"all",cat:"",band:"",sheet:null,q:""});
+      Object.assign(ui,{offersOnly:false,kind:"all",cat:"",band:"",budget:"",sheet:null,q:""});
       render();
     };
 
     document.querySelectorAll("[data-k32-offer]").forEach(b=>b.onclick=()=>setOffer(b.dataset.k32Offer));
+    document.querySelectorAll("[data-k32-add]").forEach(b=>b.onclick=()=>addToCart(b.dataset.k32Add, 1));
+
     const sh=$("k32-share");
     if(sh)sh.onclick=shareOffers;
 
-    /* Modal Events */
+    const expBtn=$("k32-export-csv");
+    if(expBtn)expBtn.onclick=exportCatalogCSV;
+
+    const openCartBtn=$("k32-open-cart-bar");
+    if(openCartBtn)openCartBtn.onclick=()=>{ui.cartOpen=true;render()};
+
+    /* Drawer Events */
+    const drawerX=$("k32-drawer-x"), drawerCloseBtn=$("k32-drawer-close-btn");
+    const closeDrawer=()=>{ui.cartOpen=false;render()};
+    if(drawerX)drawerX.onclick=closeDrawer;
+    if(drawerCloseBtn)drawerCloseBtn.onclick=closeDrawer;
+
+    document.querySelectorAll("[data-qty-id]").forEach(b=>b.onclick=()=>{
+      const id=b.dataset.qtyId, delta=Number(b.dataset.qtyDelta)||0;
+      updateCartQty(id, delta);
+    });
+
+    const sendQBtn=$("k32-send-quotation");
+    if(sendQBtn)sendQBtn.onclick=sendCustomerQuotation;
+
+    const copyQBtn=$("k32-copy-quotation");
+    if(copyQBtn)copyQBtn.onclick=copyQuotation;
+
+    const clearCartBtn=$("k32-clear-cart");
+    if(clearCartBtn)clearCartBtn.onclick=clearCart;
+
+    const custNameInput=$("k32-cust-name");
+    if(custNameInput){
+      custNameInput.oninput=()=>{
+        ui.custName=custNameInput.value;
+        save("skosif_v32_cust_name", ui.custName);
+      };
+    }
+    const custNotesInput=$("k32-cust-notes");
+    if(custNotesInput){
+      custNotesInput.oninput=()=>{
+        ui.custNotes=custNotesInput.value;
+        save("skosif_v32_cust_notes", ui.custNotes);
+      };
+    }
+
+    /* Offer Modal Events */
     const modalX=$("k32-modal-x"), modalCloseBtn=$("k32-modal-close-btn");
     const closeModal=()=>{ui.modalItem=null;render()};
     if(modalX)modalX.onclick=closeModal;
@@ -580,7 +916,7 @@
     const t=setInterval(()=>{
       if(attach()||++tries>40)clearInterval(t);
     },250);
-    window.SKosifCatalog={open,version:"32.5"};
+    window.SKosifCatalog={open,version:"32.6",addToCart,exportCatalogCSV,getCartTotals};
   }
 
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});
