@@ -83,7 +83,7 @@
       const r=await fetch(API+"/api/jev",{method:"POST",headers:{"content-type":"application/json","authorization":"Bearer "+token},body:JSON.stringify(payload)});
       const d=await r.json();
       if(!r.ok||!d.ok)throw new Error(d.error||"تعذر تشغيل Jev");
-      big.textContent=summary(d.result);pre.textContent=JSON.stringify(d.result,null,2);res.classList.add("show");status.textContent="تم — استخدم النتيجة كمساعد قرار وراجع الأرقام القطعية.";
+      const resultText=summary(d.result);big.textContent=resultText;pre.textContent=JSON.stringify(d.result,null,2);res.classList.add("show");status.textContent="تم — استخدم النتيجة كمساعد قرار وراجع الأرقام القطعية.";window.dispatchEvent(new CustomEvent("jev:decision",{detail:{source:"مركز قرارات Jev",type,question:instructions,summary:resultText,result:d.result}}));
     }catch(e){status.innerHTML='<span class="jev-offline">'+esc(e.message||e)+'</span>'}finally{btn.disabled=false}
   }
   function bind(){
