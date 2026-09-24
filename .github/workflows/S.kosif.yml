@@ -1,0 +1,80 @@
+name: S.kosif
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: s-kosif-main
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: S.kosif Production Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout S.kosif
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate source syntax
+        run: |
+          python3 -m py_compile build.py
+          node --check skosif-v30.js
+          node --check jev-v1.js
+          node --check jev-question-v1.js
+          node --check v29-smart.js
+
+      - name: Build S.kosif
+        run: python3 build.py
+
+      - name: Validate production bundle
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          app=Path("dist/app-safe.html").read_text(encoding="utf-8")
+          unlock=Path("dist/index.html").read_text(encoding="utf-8")
+          manifest=Path("dist/manifest.webmanifest").read_text(encoding="utf-8")
+          required=[
+            "skosif-v30.css?v=30",
+            "skosif-v30.js?v=30",
+            "jev-v1.js?v=1",
+            "jev-question-v1.js?v=1",
+            "v29-smart.js?v=29"
+          ]
+          for marker in required:
+              assert marker in app, marker
+          for f in [
+            "skosif-v30.css","skosif-v30.js","jev-v1.js","jev-question-v1.js",
+            "v29-smart.js","sw.js","manifest.webmanifest","secure/crypto.json"
+          ]:
+              assert Path("dist",f).exists(), f
+          assert "<title>S.kosif</title>" in app
+          assert "S.kosif" in unlock
+          assert '"name":"S.kosif"' in manifest
+          assert "const SEED_B64 = \"\";" in app
+          assert len(list(Path("dist/secure").glob("seed.enc.b64.part*"))) == 6
+          js=Path("dist/skosif-v30.js").read_text(encoding="utf-8")
+          for marker in [
+            "Fusion Operations & Decision OS",
+            "محرك التسعير V30",
+            "Customer 360",
+            "حوكمة واعتماد الأسعار",
+            "صحة البيانات والتخزين"
+          ]:
+              assert marker in js, marker
+          print("S.kosif V30 validation: OK")
+          PY
