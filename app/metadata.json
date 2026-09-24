@@ -1,6 +1,6 @@
 {
-  "name": "منظومة أغنام الوادي v19.10",
-  "description": "منظومة أغنام الوادي v19.10 — JEV Green Hybrid: محرك التسعير وهندسة البوكسات، ذكاء المبيعات والعملاء، إدارة التكاليف، وحوكمة الأسعار",
+  "name": "S.kosif",
+  "description": "S.kosif — Fusion Operations & Decision OS: محرك التسعير وهندسة البوكسات، ذكاء المبيعات والعملاء، إدارة التكاليف، وحوكمة الأسعار",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

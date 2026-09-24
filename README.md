@@ -1,8 +1,13 @@
-# Aghnam Alwadi — locked full-data build
+# S.kosif — Fusion Operations & Decision OS
 
-The full business dataset is committed only in encrypted form.
+S.kosif is the production application shell for the encrypted business dataset and the unified operations, pricing, customer, reporting, governance and Jev decision modules.
 
-- The unlock password is **not stored in this repository**.
+- Production source branch: `main`
+- Build command: `python3 build.py`
+- Output directory: `dist`
+- The full business dataset is committed only in encrypted form.
+- The unlock password is not stored in this repository.
 - PBKDF2-HMAC-SHA-256 derives independent encryption and authentication keys.
 - The dataset uses ChaCha20 encryption plus HMAC-SHA-256 authentication.
 - The browser decrypts the data only after the correct password is entered.
+- Jev remains a decision-support layer; deterministic calculations are performed locally first.

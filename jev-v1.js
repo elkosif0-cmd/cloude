@@ -7,7 +7,7 @@
     const el=document.querySelector(".maincol")||document.querySelector(".main")||document.body;
     let t=(el?.innerText||"").replace(/\n{3,}/g,"\n\n").trim();
     if(t.length>11000)t=t.slice(0,11000)+"\n…";
-    return "الشاشة الحالية: "+(document.title||"أغنام الوادي")+"\nالمسار: "+location.hash+"\n\n"+t;
+    return "الشاشة الحالية: "+(document.title||"S.kosif")+"\nالمسار: "+location.hash+"\n\n"+t;
   }
   function shell(){
     if(document.getElementById("jev-fab"))return;
@@ -70,7 +70,7 @@
     const instructions=document.getElementById("jev-q").value.trim();
     if(!instructions){status.textContent="اكتب السؤال أولًا.";return}
     const raw=document.getElementById("jev-criteria").value.split(/\n+/).map(s=>s.trim()).filter(Boolean);
-    const payload={type,instructions,state:document.getElementById("jev-use-screen").checked?currentContext():"قرار داخل تطبيق أغنام الوادي"};
+    const payload={type,instructions,state:document.getElementById("jev-use-screen").checked?currentContext():"قرار داخل تطبيق S.kosif"};
     if(type==="noul"){
       const yes=raw.find(x=>/^نعم\s*[:：]/.test(x)),no=raw.find(x=>/^لا\s*[:：]/.test(x));
       if(yes)payload.true_criteria=yes.replace(/^نعم\s*[:：]\s*/,"");
