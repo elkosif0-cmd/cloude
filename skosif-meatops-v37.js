@@ -1,4 +1,4 @@
-/* S.kosif V37 — Meat Economics & Receivables */
+/* S.kosif — Meat Economics & Receivables */
 (()=>{
 "use strict";
 if(window.SKosifMeatOpsV37)return;
@@ -32,7 +32,7 @@ function aging(rows){
   rows.forEach(r=>{if(!r.outstanding)return;const d=new Date(r.date);if(Number.isNaN(d.getTime()))return;const age=Math.max(0,Math.floor((today-d)/86400000));out.total+=r.outstanding;if(age===0)out.current+=r.outstanding;else if(age<=30)out.d1+=r.outstanding;else if(age<=60)out.d31+=r.outstanding;else if(age<=90)out.d61+=r.outstanding;else out.d90+=r.outstanding});return out;
 }
 function html(){
-  return '<div class="sk37-head"><div><b>اقتصاديات الذبيحة والتحصيل</b><span>Carcass → Cuts → Margin → Receivables</span></div><i>V37</i></div>'+
+  return '<div class="sk37-head"><div><b>اقتصاديات الذبيحة والتحصيل</b><span>Carcass → Cuts → Margin → Receivables</span></div><i>متقدم</i></div>'+
   '<div class="sk37-tabs"><button data-sk37="carcass" class="active">الذبيحة والقطعيات</button><button data-sk37="ar">أعمار الذمم</button></div>'+
   '<div id="sk37-body">'+carcassHTML()+'</div>';
 }
