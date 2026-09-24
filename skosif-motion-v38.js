@@ -22,7 +22,7 @@ const prefersReduced=()=>matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isMobile=()=>matchMedia("(max-width:760px)").matches;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 
-let canvas,ctx,w=0,h=0,dpr=1,raf=0,running=false,mode=localStorage.getItem(PREF)||"flow";
+let canvas,ctx,w=0,h=0,dpr=1,raf=0,running=false,mode=localStorage.getItem(PREF)||(matchMedia("(max-width:760px)").matches?"off":"flow");
 let particles=[],waves=[],pointer={x:null,y:null,active:false};
 let fps=60,frames=0,lastFps=performance.now(),slowSamples=0;
 let baseCount=0,lastTheme="";
@@ -216,19 +216,8 @@ function ensureAmbient(){
   const d=document.createElement("div");d.id="sk38-ambient";d.setAttribute("aria-hidden","true");
   d.innerHTML='<i></i><i></i>';document.body.appendChild(d);
 }
-function ensureControl(){
-  if($("#sk38-motion-btn"))return;
-  const b=document.createElement("button");b.id="sk38-motion-btn";b.type="button";b.className="sk38-motion-btn";b.title="أنماط الحركة";b.innerHTML='<i>✦</i><span id="sk38-motion-label"></span><small id="sk38-fps"></small>';
-  b.onclick=cycleMode;
-  const host=$("#sx-taskbar .sx-status");
-  if(host)host.prepend(b);else document.body.appendChild(b);
-  updateControl();
-}
-function updateControl(){
-  const b=$("#sk38-motion-btn");if(!b)return;
-  b.classList.toggle("off",mode==="off"||prefersReduced());
-  const l=$("#sk38-motion-label");if(l)l.textContent=prefersReduced()?"تقليل الحركة":MODE_LABELS[mode];
-}
+function ensureControl(){ return; }
+function updateControl(){ return; }
 function reveal(root=document){
   const nodes=root.querySelectorAll?.(".sk-module,.sk-kpi,.sk34-match,.sk35-features article,.sk37-cut,.card,.stat-card,.modal-card,.dlg,.panel");
   if(!nodes)return;
@@ -255,7 +244,6 @@ function bindPointer(){
 function observe(){
   const mo=new MutationObserver(ms=>{
     for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1)reveal(n);
-    ensureControl();
   });
   mo.observe(document.documentElement,{subtree:true,childList:true});
 }
@@ -264,7 +252,7 @@ function syncTheme(){
   for(const p of particles){const c=colors();p.color=c[(Math.random()*c.length)|0]}
 }
 function boot(){
-  ensureAmbient();ensureCanvas();ensureControl();bindPointer();observe();reveal();
+  ensureAmbient();ensureCanvas();bindPointer();observe();reveal();
   addEventListener("resize",()=>resize(),{passive:true});
   document.addEventListener("visibilitychange",()=>{if(document.hidden)stop();else if(mode!=="off"&&!prefersReduced())start()});
   matchMedia("(prefers-reduced-motion: reduce)").addEventListener?.("change",()=>{updateControl();prefersReduced()?stop():mode!=="off"&&start()});
