@@ -8,7 +8,7 @@
     const el=document.querySelector(".maincol")||document.querySelector(".main")||document.body;
     let t=(el?.innerText||"").replace(/\n{3,}/g,"\n\n").trim();
     if(t.length>10000)t=t.slice(0,10000)+"\n…";
-    return "سؤال Jev داخل تطبيق أغنام الوادي\nالشاشة: "+(document.title||"أغنام الوادي")+"\nالمسار: "+location.hash+"\n\n"+t;
+    return "سؤال Jev داخل تطبيق S.kosif\nالشاشة: "+(document.title||"S.kosif")+"\nالمسار: "+location.hash+"\n\n"+t;
   }
   function resultSummary(r){
     const a=r?.answers?.decision||r?.decision||r;
@@ -56,7 +56,7 @@
     if(!q){status.textContent="اكتب السؤال أولًا.";return}
     const token=sessionStorage.getItem(SKEY);
     if(!token){status.innerHTML='<span class="jev-ask-error">Jev غير مفعّل لهذه الجلسة. أعد الدخول للتطبيق من شاشة كلمة المرور.</span>';return}
-    const state=document.getElementById("jev-ask-screen")?.checked ? screenState() : "سؤال مباشر داخل تطبيق أغنام الوادي";
+    const state=document.getElementById("jev-ask-screen")?.checked ? screenState() : "سؤال مباشر داخل تطبيق S.kosif";
     const payload={type:askMode,instructions:q,state};
     if(askMode==="noul"){
       payload.true_criteria="نعم: الأدلة المتاحة تؤيد السؤال أو القرار";
