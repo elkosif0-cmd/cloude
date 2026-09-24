@@ -118,9 +118,9 @@
     w.querySelector(".sk33-x").onclick=()=>w.remove(); w.onclick=e=>{if(e.target===w)w.remove()};
     w.querySelectorAll("[data-go]").forEach(x=>x.onclick=()=>{const b=[...tabs.querySelectorAll("button")].find(y=>keyOf(y)===x.dataset.go);w.remove();if(b){b.click();b.scrollIntoView&&b.scrollIntoView({block:"nearest",inline:"nearest"})}});
     $("sk33-open-themes").onclick=()=>{w.remove();themeSheet();setTimeout(enhanceThemeMotion,30)};
-    $("sk33-open-inventory").onclick=()=>{w.remove();window.AghnamV29?.open?.();setTimeout(()=>document.querySelector('[data-v29-tab="inventory"]')?.click(),80)};
+    $("sk33-open-inventory").onclick=()=>{w.remove();window.SKosifInventory?.open?.();setTimeout(()=>document.querySelector('[data-v29-tab="inventory"]')?.click(),80)};
     $("sk33-open-jev").onclick=()=>{w.remove();window.AskJev?.open?.("choice")};
-    $("sk33-open-health").onclick=()=>{w.remove();window.SKosifSessionHealthV36?.open?.()};
+    $("sk33-open-health").onclick=()=>{w.remove();window.SKosifSessionHealth?.open?.()};
     applyTheme();
   }
 
@@ -198,7 +198,7 @@
     grid.insertAdjacentHTML("afterend",'<section class="sk33-motion"><div><b>الحركة</b><small>اختيارية ومخففة تلقائياً على الجوال</small></div><div>'+
       [["off","إيقاف"],["flow","انسياب"],["constellation","شبكة"],["vortex","دوامة"]].map(([id,label])=>'<button type="button" data-motion="'+id+'">'+label+'</button>').join("")+
       '</div></section>');
-    w.querySelectorAll("[data-motion]").forEach(b=>b.onclick=()=>window.SKosifMotionV38?.setMode?.(b.dataset.motion));
+    w.querySelectorAll("[data-motion]").forEach(b=>b.onclick=()=>window.SKosifMotion?.setMode?.(b.dataset.motion));
   }
 
   /* نوافذ الوحدات الأخرى تُنشأ لاحقاً؛ نطبّق عليها الوضع عند ظهورها */
