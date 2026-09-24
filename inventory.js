@@ -180,5 +180,5 @@
   }
 
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",shell,{once:true});else shell();
-  window.AghnamV29={open:emitOpen,version:"1.0",logDecision};
+  window.SKosifInventory={open:emitOpen,version:"1.0",logDecision};
 })();
