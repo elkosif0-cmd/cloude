@@ -11,7 +11,7 @@
   }
   function shell(){
     if(document.getElementById("jev-fab"))return;
-    document.body.insertAdjacentHTML("beforeend",\`
+    document.body.insertAdjacentHTML("beforeend",`
       <button id="jev-fab" type="button" aria-label="Jev"><span>Jev<small>قرار</small></span></button>
       <div class="jev-backdrop" id="jev-modal" aria-hidden="true">
         <section class="jev-panel" role="dialog" aria-modal="true" aria-labelledby="jev-title">
@@ -30,7 +30,7 @@
           <div class="jev-status" id="jev-status"></div>
           <div class="jev-result" id="jev-result"><h4>نتيجة Jev</h4><div class="big" id="jev-big"></div><pre id="jev-json"></pre></div>
         </section>
-      </div>\`);
+      </div>`);
     bind();
   }
   let type="noul";
