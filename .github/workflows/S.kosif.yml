@@ -43,6 +43,7 @@ jobs:
           node --check skosif-pricing-v35.js
           node --check skosif-session-v36.js
           node --check skosif-meatops-v37.js
+          node --check skosif-motion-v38.js
           node --check jev-v1.js
           node --check jev-question-v1.js
           node --check v29-smart.js
@@ -86,6 +87,8 @@ jobs:
             "skosif-session-v36.js?v=36",
             "skosif-meatops-v37.css?v=37",
             "skosif-meatops-v37.js?v=37",
+            "skosif-motion-v38.css?v=38",
+            "skosif-motion-v38.js?v=38",
             "jev-v1.js?v=1",
             "jev-question-v1.js?v=1",
             "v29-smart.js?v=29"
@@ -93,7 +96,7 @@ jobs:
           for marker in required:
               assert marker in app, marker
           for f in [
-            "skosif-v30.css","skosif-v30.js","skosif-sinam-v32.css","skosif-sinam-v32.js","skosif-jazarti-v34.css","skosif-jazarti-v34.js","skosif-pricing-v35.css","skosif-pricing-core-v35.js","skosif-pricing-v35.js","skosif-session-v36.css","skosif-session-v36.js","skosif-meatops-v37.css","skosif-meatops-v37.js","jev-v1.js","jev-question-v1.js",
+            "skosif-v30.css","skosif-v30.js","skosif-sinam-v32.css","skosif-sinam-v32.js","skosif-jazarti-v34.css","skosif-jazarti-v34.js","skosif-pricing-v35.css","skosif-pricing-core-v35.js","skosif-pricing-v35.js","skosif-session-v36.css","skosif-session-v36.js","skosif-meatops-v37.css","skosif-meatops-v37.js","skosif-motion-v38.css","skosif-motion-v38.js","jev-v1.js","jev-question-v1.js",
             "v29-smart.js","sw.js","manifest.webmanifest","secure/crypto.json"
           ]:
               assert Path("dist",f).exists(), f
@@ -134,5 +137,8 @@ jobs:
           meat=Path("dist/skosif-meatops-v37.js").read_text(encoding="utf-8")
           for marker in ["اقتصاديات الذبيحة","dressing","allocate","aging","أعمار الذمم"]:
               assert marker in meat, marker
-          print("S.kosif V37 validation: OK")
+          motion=Path("dist/skosif-motion-v38.js").read_text(encoding="utf-8")
+          for marker in ["requestAnimationFrame","prefers-reduced-motion","constellation","vortex","celebration","SKosifMotionV38"]:
+              assert marker in motion, marker
+          print("S.kosif V38 validation: OK")
           PY
