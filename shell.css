@@ -441,14 +441,8 @@
   align-self: end;
 }
 
-.sx-titlebar .sk33-tools button, .sx-titlebar .sk-close {
-  background: #24211D !important;
-  border-color: #38342E !important;
-  color: #F7F5F0 !important;
-}
-
 /* ==========================================================
-   9. THEME SELECTOR & LIVE PREVIEW CARDS (10 THEMES)
+   THEME SELECTOR & LIVE PREVIEW CARDS
    ========================================================== */
 .sk33-theme-grid {
   display: grid;
@@ -531,69 +525,7 @@
   border-radius: 999px;
 }
 
-/* ==========================================================
-   10. CARCASS YIELD & BUTCHERY CALCULATOR (حاسبة تشفي اللحوم)
-   ========================================================== */
-.sk33-yield-box {
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 16px;
-  margin: 12px 0;
-}
-
-.sk33-yield-kpis {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 12px;
-}
-
-@media (max-width: 500px) {
-  .sk33-yield-kpis {
-    grid-template-columns: 1fr;
-  }
-}
-
-.sk33-yield-kpi {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 10px;
-  text-align: center;
-}
-
-.sk33-yield-kpi span {
-  display: block;
-  font-size: 10.5px;
-  color: var(--ink-3);
-  margin-bottom: 3px;
-}
-
-.sk33-yield-kpi b {
-  display: block;
-  font-size: 16px;
-  color: var(--sk33-accent);
-  font-weight: 800;
-}
-
-
-/* ---------- V39: شريط سفلي موحّد + رأس أخف على الجوال ---------- */
-/* رأس النافذة على الجوال: الاسم فقط + الثيمات + القفل + الإغلاق */
-  .sk-panel .sk-headtxt span{display:none}
-  .sk-panel .sx-window-controls,.sk-panel #sk33-theme{display:none!important}
-  .sk-panel .sk33-tools{gap:5px}
-  .sk-panel .sk33-tools button,.sk-panel .sk-close{width:38px;height:38px}
-  /* مساحة للشريط السفلي حتى لا يغطي آخر المحتوى */
-  .sk-panel #sk-body{padding-bottom:72px}
-}
-
-/* ---------- V39: إكمال الثيمات العشرة ----------
-   قواعد الوضع الداكن كانت مربوطة باسم "dark" فقط، بينما الثيمات الداكنة الفعلية
-   هي notte وcyber وroyal: التبويب النشط كان نصاً داكناً على خلفية داكنة. */
-
-
-/* الكتالوج يتبع ألوان الثيم المختار (الخلفية والبطاقات والنصوص والحدود) في الثيمات العشرة */
+/* الكتالوج يتبع الرموز الدلالية للثيم المختار */
 [data-sk-theme] .k32{--k32-cream:var(--surface-2);--k32-card:var(--surface);--k32-card-subtle:var(--surface-2);--k32-ink:var(--ink);--k32-ink-light:var(--ink-2);--k32-mute:var(--ink-3);--k32-line:var(--line);--k32-line-subtle:var(--line)}
 
 
@@ -611,8 +543,6 @@
 .sk33-motion button{min-height:38px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--ink);font:800 9px inherit}
 .sk33-motion button:hover{border-color:var(--accent);color:var(--accent)}
 
-/* No floating launchers or bottom dock */
-#sk-fab,#jev-fab,#v29-fab,#sx-taskbar,#sk36-health,#sk38-motion-btn{display:none!important}
 
 /* Keep business UI calm and consistent */
 .sk-panel,.sk33-sheet,.jev-panel,.v29-panel,.sk36-panel{box-shadow:0 24px 70px rgba(15,23,42,.18)!important}
