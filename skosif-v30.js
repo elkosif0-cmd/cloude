@@ -13,9 +13,10 @@
   const now=()=>new Date().toISOString();
 
   function brand(){
-    document.title=APP;
+    /* لا نكتب إلا عند الاختلاف: كل كتابة تُطلق MutationObserver من جديد */
+    if(document.title!==APP) document.title=APP;
     document.querySelectorAll(".brand h1,.app-brand h1,[data-app-name]").forEach(el=>{
-      if(el && el.textContent.trim()) el.textContent=APP;
+      if(el && el.textContent.trim() && el.textContent!==APP) el.textContent=APP;
     });
   }
 
