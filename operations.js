@@ -272,9 +272,22 @@
     if(tab==="health") $("sk-export-health").onclick=exportHealth;
   }
 
+  function installEntry(){
+    if(document.getElementById("sk-entry")) return true;
+    const menu=document.querySelector(".menu-btn");
+    const host=document.querySelector(".topbar-actions,.header-actions,.app-actions,.toolbar-actions") || menu?.parentElement || document.querySelector(".topbar,.app-header,.toolbar");
+    if(!host) return false;
+    const b=document.createElement("button");
+    b.id="sk-entry"; b.type="button"; b.className="sk-entry";
+    b.textContent="S.kosif"; b.setAttribute("aria-label","فتح أدوات S.kosif");
+    b.onclick=()=>openHub("overview");
+    host.appendChild(b);
+    return true;
+  }
+
   function init(){
-    shell();brand();
-    const ob=new MutationObserver(()=>brand());ob.observe(document.documentElement,{subtree:true,childList:true});
+    shell();brand();installEntry();
+    const ob=new MutationObserver(()=>{brand();installEntry()});ob.observe(document.documentElement,{subtree:true,childList:true});
     window.SKosif={open:openHub,openModule,version:"1.0"};
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
