@@ -469,25 +469,12 @@
     }
     return shell();
   }
-  /* ---------- شريط سفلي واحد بدل أربعة أزرار عائمة ----------
-     زر «الأقسام» يفتح مركز S.kosif، و«Jev» و«أدوات» تضغط الأزرار الأصلية (المخفية) نفسها */
-  function dock(){
-    const bar=document.getElementById("sx-taskbar"); if(!bar)return false;
-    if(bar.querySelector(".sk33-dock"))return true;
-    const box=document.createElement("div");box.className="sk33-dock";
-    const btn=(id,icon,label,fn)=>{const b=document.createElement("button");b.type="button";b.dataset.dock=id;b.innerHTML='<i aria-hidden="true">'+icon+'</i><span>'+label+'</span>';b.onclick=fn;box.appendChild(b)};
-    btn("hub","▦","الأقسام",()=>{if(window.SKosif)window.SKosif.open("overview")});
-    if($("jev-fab"))btn("jev","✦","Jev",()=>$("jev-fab").click());
-    if($("v29-fab"))btn("v29","⚡","أدوات",()=>$("v29-fab").click());
-    const main=bar.querySelector("#sx-command");
-    main?main.after(box):bar.prepend(box);
-    document.body.classList.add("sk33-docked");
-    return true;
-  }
+  /* ---------- التنقل أصبح داخل التطبيق؛ لا شريط عائم ---------- */
+  function dock(){ document.body.classList.add("sk33-docked"); return true; }
   function init(){
-    let d=0;const dt=setInterval(()=>{if(dock()||++d>40)clearInterval(dt)},300);
+    dock();
     let tries=0;const t=setInterval(()=>{if((attach()&&document.querySelector("[data-k32-tab]")&&document.querySelector("[data-sk31-tab]"))||++tries>40){clearInterval(t);group();pageHead()}},250);
-    window.SKosifShell={open:(tab)=>{if(window.SKosif)window.SKosif.open("overview");attach();if(tab)render(tab)},lock:lockNow,version:"33.0"};
+    window.SKosifShell={open:(tab)=>{if(window.SKosif)window.SKosif.open("overview");attach();if(tab)render(tab)},lock:lockNow,version:"1.0"};
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
