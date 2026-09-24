@@ -142,6 +142,7 @@ setInterval(idleCheck,30000);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")idleCheck()});
 
 /* ---------- بطاقة المظهر والقفل داخل «الإعدادات» ---------- */
+const density=()=>{try{return localStorage.getItem("aghnam-v21-density")==="compact"?"compact":"cozy"}catch{return "cozy"}};
 function settingsCard(root){
   if(!root||root.querySelector("#sk-look"))return;
   const cur=themeNow(),lock=num(load(LOCK_KEY,0));
@@ -152,10 +153,13 @@ function settingsCard(root){
       '<b>'+esc(t.name)+(t.dark?' <small>داكن</small>':'')+'</b><span>'+esc(t.desc)+'</span></button>').join("")+'</div>'+
     '<div class="sk-look-row"><label class="sk-field"><span>القفل التلقائي بعد عدم الاستخدام</span><select id="sk-lock-min">'+
       [[0,"متوقف"],[5,"5 دقائق"],[15,"15 دقيقة"],[30,"30 دقيقة"],[60,"ساعة"]].map(o=>'<option value="'+o[0]+'"'+(o[0]===lock?' selected':'')+'>'+o[1]+'</option>').join("")+
-    '</select></label><button type="button" class="btn" id="sk-lock-now">قفل الآن</button></div></div></section>');
+    '</select></label>'+
+    '<label class="sk-field"><span>كثافة الواجهة</span><select id="sk-density"><option value="cozy"'+(density()==="cozy"?" selected":"")+'>مريحة</option><option value="compact"'+(density()==="compact"?" selected":"")+'>مضغوطة</option></select></label>'+
+    '<button type="button" class="btn" id="sk-lock-now">قفل الآن</button></div></div></section>');
   $$("[data-sk-theme-pick]",root).forEach(b=>b.onclick=()=>{setTheme(b.dataset.skThemePick);$$("[data-sk-theme-pick]",root).forEach(x=>{const on=x===b;x.classList.toggle("on",on);x.setAttribute("aria-checked",String(on))})});
   $("#sk-lock-min",root).onchange=e=>{save(LOCK_KEY,num(e.target.value));last=Date.now();toast(num(e.target.value)?"القفل التلقائي: "+e.target.selectedOptions[0].text:"أُوقف القفل التلقائي","info")};
   $("#sk-lock-now",root).onclick=lockNow;
+  $("#sk-density",root).onchange=e=>{window.V21RAD&&window.V21RAD.setDensity(e.target.value);toast(e.target.value==="compact"?"واجهة مضغوطة":"واجهة مريحة","info")};
 }
 
 /* ---------- إشعار التحديث (داخل الصفحة، يظهر فقط عند وجود نسخة أحدث) ---------- */
