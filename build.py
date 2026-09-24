@@ -38,7 +38,8 @@ for css_name, version in [
     ("v29-smart.css","29"),
     ("skosif-v30.css","30"),
     ("skosif-supply-v31.css","31"),
-    ("skosif-catalog-v32.css","32")
+    ("skosif-catalog-v32.css","32"),
+    ("skosif-shell-v33.css","33")
 ]:
     if css_name not in text:
         text=text.replace("</head>",f'<link rel="stylesheet" href="./{css_name}?v={version}"></head>',1)
@@ -50,7 +51,8 @@ for js_name, version in [
     ("v29-smart.js","29"),
     ("skosif-v30.js","30"),
     ("skosif-supply-v31.js","31"),
-    ("skosif-catalog-v32.js","32")
+    ("skosif-catalog-v32.js","32"),
+    ("skosif-shell-v33.js","33")
 ]:
     if js_name not in text:
         head,sep,tail=text.rpartition("</body>")
@@ -68,7 +70,7 @@ for name in ["icon-192.png","icon-512.png","apple-touch-icon.png"]:
 for name in [
     "sw.js","manifest.webmanifest","INSTALL-iPHONE-ar.txt","_headers",
     "mobile-v28.css","mobile-v28.js","jev-v1.css","jev-v1.js",
-    "jev-question-v1.css","jev-question-v1.js","v29-smart.css","v29-smart.js","skosif-v30.css","skosif-v30.js","skosif-supply-v31.css","skosif-supply-v31.js","skosif-catalog-v32.css","skosif-catalog-v32.js"
+    "jev-question-v1.css","jev-question-v1.js","v29-smart.css","v29-smart.js","skosif-v30.css","skosif-v30.js","skosif-supply-v31.css","skosif-supply-v31.js","skosif-catalog-v32.css","skosif-catalog-v32.js","skosif-shell-v33.css","skosif-shell-v33.js"
 ]:
     src=Path(name)
     if src.exists(): (out/name).write_bytes(src.read_bytes())

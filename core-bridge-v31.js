@@ -5,7 +5,7 @@ window.SKosifCore = Object.freeze({
   raws: () => JSON.parse(JSON.stringify((S && Array.isArray(S.raws)) ? S.raws : [])),
   /* الأصناف والبوكسات بأرقام محرك التسعير نفسه (لا حساب مكرر خارج التطبيق) */
   catalog: () => {
-    if (!S) return { vat: 0.15, netBase: true, items: [] };
+    if (!S) return { vat: 0.15, netBase: true, yieldMethod: true, items: [] };
     const C = Engine.compute(S), out = [];
     const fin = x => (typeof x === 'number' && isFinite(x)) ? x : null;
     for (const [id, c] of C.R) {
@@ -20,6 +20,6 @@ window.SKosifCore = Object.freeze({
         byProduct: false, price: fin(c.price), cost: fin(c.total), profit: fin(c.profit), margin: fin(c.margin),
         band: c.band, pricePerKg: fin(c.pricePerKg), weight: fin(c.weight), target: fin(c.target) });
     }
-    return { vat: C.v, netBase: C.netBase, items: out };
+    return { vat: C.v, netBase: C.netBase, yieldMethod: C.yieldM, items: out };
   },
 });

@@ -7,7 +7,7 @@
    يضيف تبويبين إلى مركز S.kosif ولا يغيّر بيانات التطبيق الأساسي (يقرأها فقط). */
 (()=>{
   "use strict";
-  const STORE={batches:"skosif_v31_supplier_batches",opex:"skosif_v31_monthly_opex"};
+  const STORE={batches:"skosif_v31_supplier_batches",opex:"skosif_v31_monthly_opex",season:"skosif_v33_season_factors"};
   const PRICING_KEY="aghnam-pricing-v3", MASTER_KEY="aghnam-v15-master-lists";
   const DB_NAME="aghnam-app-v7";
   const VAT=0.15, WASTE_STD=0.08;
@@ -117,6 +117,7 @@
         kpi("قيمة الهدر",money(wasteCost)),
         kpi("خسارة تجاوز المتفق عليه",money(over),over>0?"warn":"good"),
       '</div>',
+      '<div class="sk-actions"><button id="sk31-po-new" class="sk-secondary" type="button">منشئ أمر شراء (واتساب)</button></div>',
       '<details class="sk31-card" '+(rows.length?'':'open')+'><summary><b>＋ تسجيل شحنة مستلمة</b></summary>',
         '<div class="sk-grid2">',
           field("sk31-date","التاريخ","date","",'value="'+today+'"'),
@@ -190,13 +191,8 @@
       if(!confirm("حذف هذه الشحنة؟"))return;
       save(STORE.batches,load(STORE.batches,[]).filter(b=>b.id!==btn.dataset.id));render("suppliers");
     });
-    document.querySelectorAll(".sk31-po").forEach(btn=>btn.onclick=()=>{
-      const unit=btn.dataset.unit||"كجم";
-      const q=window.prompt("الكمية المطلوبة ("+unit+") من "+btn.dataset.item+":","");
-      if(q==null)return;const qty=num(q);if(qty<=0){toast("أدخل كمية صحيحة");return}
-      const need=new Date(Date.now()+86400000).toLocaleDateString("ar-SA");
-      copy(["السلام عليكم "+btn.dataset.sup+"،","نرغب بتوريد:","• "+btn.dataset.item+": "+qty+" "+unit,"موعد الاستلام المطلوب: "+need,"نسبة الهدر المتفق عليها كما في العقد.","مع الشكر — S.kosif"].join("\n"));
-    });
+    document.querySelectorAll(".sk31-po").forEach(btn=>btn.onclick=()=>poComposer(btn.dataset.sup,btn.dataset.item,btn.dataset.unit||"كجم"));
+    const poBtn=$("sk31-po-new"); if(poBtn)poBtn.onclick=()=>poComposer("","","كجم");
     const csv=$("sk31-csv");
     if(csv)csv.onclick=()=>{
       const rows=load(STORE.batches,[]).map(batchCalc);
@@ -207,6 +203,39 @@
       const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="skosif-supplier-batches.csv";document.body.appendChild(a);a.click();a.remove();
       setTimeout(()=>URL.revokeObjectURL(a.href),1000);
     };
+  }
+
+  /* منشئ أمر الشراء: مورد + عدة أصناف + موعد التسليم → معاينة → واتساب أو نسخ */
+  function poComposer(sup,item,unit){
+    document.getElementById("sk31-po-sheet")?.remove();
+    const sups=knownSuppliers(load(STORE.batches,[])), raws=catalogRaws();
+    const tomorrow=new Date(Date.now()+86400000).toISOString().slice(0,10);
+    document.body.insertAdjacentHTML("beforeend",
+      '<div id="sk31-po-sheet" class="sk31-sheet-wrap" role="dialog" aria-modal="true" aria-label="أمر شراء"><div class="sk31-sheet">'+
+      '<div class="sk31-sheet-head"><b>أمر شراء للمورد</b><button type="button" class="sk31-x" aria-label="إغلاق">×</button></div>'+
+      '<label class="sk-field"><span>المورد</span><input id="sk31-po-sup" list="sk31-po-sups" value="'+esc(sup)+'" placeholder="اسم المورد"><datalist id="sk31-po-sups">'+sups.map(x=>'<option value="'+esc(x)+'">').join("")+'</datalist></label>'+
+      '<label class="sk-field"><span>الأصناف والكميات (سطر لكل صنف)</span><textarea id="sk31-po-items" rows="4" placeholder="حبشي: 100 كجم">'+(item?esc(item)+': ':'')+'</textarea></label>'+
+      '<div class="sk31-chips">'+raws.slice(0,12).map(r=>'<button type="button" class="sk31-chip" data-po-add="'+esc(r.name)+'">+ '+esc(r.name)+'</button>').join("")+'</div>'+
+      '<div class="sk-grid2">'+field("sk31-po-date","موعد التسليم","date","",'value="'+tomorrow+'"')+field("sk31-po-note","ملاحظة","text","مثال: ذبح صباحي، تبريد")+'</div>'+
+      '<label class="sk-field"><span>معاينة الرسالة</span><textarea id="sk31-po-preview" rows="7" readonly></textarea></label>'+
+      '<div class="sk-actions"><button id="sk31-po-wa" class="sk-primary" type="button">إرسال واتساب</button><button id="sk31-po-copy" class="sk-secondary" type="button">نسخ</button></div>'+
+      '</div></div>');
+    const w=$("sk31-po-sheet"), items=$("sk31-po-items");
+    const text=()=>{
+      const lines=items.value.split("\n").map(x=>x.trim()).filter(Boolean);
+      const d=$("sk31-po-date").value, note=$("sk31-po-note").value.trim();
+      return ["السلام عليكم "+($("sk31-po-sup").value.trim()||"")+"،","نرغب بتوريد:",...lines.map(l=>"• "+l),
+        d?"موعد التسليم: "+new Date(d+"T12:00").toLocaleDateString("ar-SA-u-ca-gregory",{weekday:"long",day:"numeric",month:"long"}):"",
+        note?"ملاحظة: "+note:"","نسبة الهدر حسب المتفق عليه.","مع الشكر — "+"أغنام الوادي"].filter(Boolean).join("\n");
+    };
+    const upd=()=>{$("sk31-po-preview").value=text()};
+    w.querySelectorAll("input,textarea").forEach(el=>el.addEventListener("input",upd));
+    w.querySelectorAll("[data-po-add]").forEach(b=>b.onclick=()=>{items.value=(items.value.trim()?items.value.trim()+"\n":"")+b.dataset.poAdd+": ";items.focus();upd()});
+    w.querySelector(".sk31-x").onclick=()=>w.remove();
+    w.onclick=e=>{if(e.target===w)w.remove()};
+    $("sk31-po-copy").onclick=()=>copy(text());
+    $("sk31-po-wa").onclick=()=>window.open("https://wa.me/?text="+encodeURIComponent(text()),"_blank","noopener");
+    upd(); items.focus(); items.setSelectionRange(items.value.length,items.value.length);
   }
 
   /* ---------- تبويب السيولة ---------- */
@@ -234,6 +263,23 @@
     return out;
   }
   let cashRange=6;
+  /* المواسم بالتقويم الهجري (أم القرى): رمضان، وموسم الأضحى (من 25 ذو القعدة إلى 13 ذو الحجة) */
+  const hijri=new Intl.DateTimeFormat("en-u-ca-islamic-umalqura",{month:"numeric",day:"numeric"});
+  function seasonShare(ym){
+    const [y,mo]=ym.split("-").map(Number), days=new Date(y,mo,0).getDate();
+    let r=0,a=0;
+    for(let d=1;d<=days;d++){
+      const p=Object.fromEntries(hijri.formatToParts(new Date(y,mo-1,d,12)).map(x=>[x.type,x.value]));
+      const hm=+p.month, hd=+p.day;
+      if(hm===9)r++; else if((hm===11&&hd>=25)||(hm===12&&hd<=13))a++;
+    }
+    return {r:r/days,a:a/days};
+  }
+  function monthsAhead(n){
+    const out=[],d=new Date();d.setDate(1);
+    for(let i=1;i<=n;i++){const x=new Date(d.getFullYear(),d.getMonth()+i,1);out.push(x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0"))}
+    return out;
+  }
   async function cashHTML(){
     const lines=await readSalesLines();
     const batches=load(STORE.batches,[]).map(batchCalc);
@@ -248,6 +294,12 @@
     const rows=months.map(m=>{const inn=inByM[m]||0,pur=purByM[m]||0,out=pur+opex;return {m,inn,pur,opex,out,net:inn-out,cover:out>0?inn/out:null}});
     const tIn=rows.reduce((a,r)=>a+r.inn,0),tOut=rows.reduce((a,r)=>a+r.out,0),max=Math.max(1,...rows.map(r=>Math.max(r.inn,r.out)));
     const label=m=>{const [y,mo]=m.split("-");return new Date(+y,+mo-1,1).toLocaleDateString("ar-SA-u-ca-gregory",{month:"short",year:"numeric"})};
+    /* التوقع: متوسط آخر 3 أشهر فيها بيانات، مضروباً في معامل الموسم */
+    const season=load(STORE.season,{r:1.3,a:1.8});
+    const hist=dataMonths.slice(-3), baseIn=hist.length?hist.reduce((a,m)=>a+(inByM[m]||0),0)/hist.length:0, basePur=hist.length?hist.reduce((a,m)=>a+(purByM[m]||0),0)/hist.length:0;
+    const fc=monthsAhead(cashRange).map(m=>{const sh=seasonShare(m),f=1+sh.r*(num(season.r)-1)+sh.a*(num(season.a)-1);
+      const inn=baseIn*f,pur=basePur*f,out=pur+opex;return {m,f,sh,inn,out,net:inn-out,cover:out>0?inn/out:null}});
+    const tag=r=>r.sh.a>0.05?'<span class="sk31-risk sk31-high">موسم الأضحى</span>':r.sh.r>0.05?'<span class="sk31-risk sk31-moderate">رمضان</span>':'';
     return [
       '<div class="sk31-title"><h3>مؤشر السيولة الشهري</h3><p>الداخل: المبيعات المستوردة في مركز البيانات. الخارج: مشتريات الشحنات المسجلة في «الموردون» + المصروفات التشغيلية الشهرية.</p></div>',
       lines===null?'<p class="sk-warning">تعذر قراءة المبيعات المستوردة على هذا الجهاز.</p>':(!lines.length?'<p class="sk-warning">لا توجد مبيعات مستوردة بعد — استورد ملف المبيعات من مركز البيانات ليظهر الداخل.</p>':''),
@@ -266,12 +318,25 @@
       '<div class="sk31-legend"><span><i class="sk31-in"></i>الداخل</span><span><i class="sk31-out"></i>الخارج</span></div>',
       '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الشهر</th><th>الداخل</th><th>مشتريات</th><th>تشغيلية</th><th>الصافي</th><th>التغطية</th></tr></thead><tbody>',
       rows.map(r=>'<tr><td>'+label(r.m)+'</td><td>'+money(r.inn)+'</td><td>'+money(r.pur)+'</td><td>'+money(r.opex)+'</td><td class="'+(r.net<0?'sk31-bad':'')+'">'+money(r.net)+'</td><td>'+(r.cover==null?'—':r.cover.toFixed(2)+'×')+'</td></tr>').join(""),
-      '</tbody></table></div>'
+      '</tbody></table></div>',
+      '<h4 class="sk31-h">توقع الأشهر القادمة</h4>',
+      hist.length?'<p class="sk31-sub">الأساس: متوسط آخر '+hist.length+' أشهر فيها بيانات (داخل '+money(baseIn)+'، مشتريات '+money(basePur)+')، مضروباً في معامل الموسم حسب أيام رمضان وموسم الأضحى في كل شهر.</p>':'<p class="sk-warning">لا توجد بيانات سابقة كافية للتوقع.</p>',
+      '<div class="sk-grid2">',
+        field("sk31-sr","معامل رمضان","number","1.3",'step="0.05" min="0" value="'+num(season.r)+'"'),
+        field("sk31-sa","معامل موسم الأضحى","number","1.8",'step="0.05" min="0" value="'+num(season.a)+'"'),
+      '</div>',
+      '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الشهر</th><th>المعامل</th><th>داخل متوقع</th><th>خارج متوقع</th><th>الصافي</th><th>التغطية</th></tr></thead><tbody>',
+      fc.map(r=>'<tr><td>'+label(r.m)+' '+tag(r)+'</td><td>'+r.f.toFixed(2)+'×</td><td>'+money(r.inn)+'</td><td>'+money(r.out)+'</td><td class="'+(r.net<0?'sk31-bad':'')+'">'+money(r.net)+'</td><td>'+(r.cover==null?'—':r.cover.toFixed(2)+'×')+'</td></tr>').join(""),
+      '</tbody></table></div>',
+      (fc.some(r=>r.net<0)?'<p class="sk-warning">شهر أو أكثر متوقع فيه عجز — جهّز سيولة أو رتّب شروط دفع آجلة مع الموردين قبل الموسم.</p>':'')
     ].join("");
   }
   function bindCash(){
     const r=$("sk31-range");if(r)r.onchange=()=>{cashRange=num(r.value)||6;render("cash")};
     const o=$("sk31-opex");if(o)o.onchange=()=>{save(STORE.opex,Math.max(0,num(o.value)));render("cash")};
+    const sr=$("sk31-sr"),sa=$("sk31-sa");
+    const ss=()=>{save(STORE.season,{r:Math.max(0,num(sr.value)||1),a:Math.max(0,num(sa.value)||1)});render("cash")};
+    if(sr)sr.onchange=ss; if(sa)sa.onchange=ss;
   }
 
   /* ---------- الربط مع مركز S.kosif ---------- */

@@ -1,0 +1,79 @@
+/* S.kosif V33 — أسلوب النوافذ (مستفاد من سِنام) */
+/* ألوان النافذتين: فاتح ثابت، وداكن بأسلوب سِنام (حجري + أحمر/كهرماني) */
+[data-sk-theme="light"] .sk-panel,[data-sk-theme="light"] .sk33-sheet,[data-sk-theme="light"].sk31-sheet-wrap .sk31-sheet{
+  --surface:#fff;--surface-2:#f8fafc;--ink:#1d2939;--ink-2:#667085;--ink-3:#8a93a8;--line:#e4e7ec;--sk33-accent:#b42318;--sk33-accent-2:#b54708}
+[data-sk-theme="dark"] .sk-panel,[data-sk-theme="dark"] .sk33-sheet,[data-sk-theme="dark"].sk31-sheet-wrap .sk31-sheet{
+  --surface:#1c1917;--surface-2:#292524;--ink:#f5f5f4;--ink-2:#d6d3d1;--ink-3:#a8a29e;--line:#3f3a36;--sk33-accent:#dc2626;--sk33-accent-2:#f59e0b;
+  color-scheme:dark}
+[data-sk-theme="dark"] .sk-panel{background:#1c1917;color:#f5f5f4;border-color:#3f3a36}
+[data-sk-theme="dark"] .sk-tabs button.active{background:var(--sk33-accent);color:#fff;box-shadow:0 6px 16px rgba(220,38,38,.35)}
+[data-sk-theme="dark"] .sk-kpi{background:#292524;border-color:#3f3a36}
+[data-sk-theme="dark"] .sk-kpi.good b{color:#4ade80}[data-sk-theme="dark"] .sk-kpi.warn b{color:#fbbf24}
+[data-sk-theme="dark"] .sk-table th{background:#292524;color:#d6d3d1}
+[data-sk-theme="dark"] .sk-table td,[data-sk-theme="dark"] .sk-table th{border-color:#3f3a36}
+[data-sk-theme="dark"] .sk-field input,[data-sk-theme="dark"] .sk-field select,[data-sk-theme="dark"] .sk33-ta{background:#292524;color:#f5f5f4;border-color:#44403c}
+[data-sk-theme="dark"] .sk-warning{background:#3b2a12;color:#fcd34d;border-color:#78350f}
+[data-sk-theme="dark"] .sk-success{background:#12301f;color:#86efac;border-color:#14532d}
+[data-sk-theme="dark"] .sk-secondary{background:#292524;color:#f5f5f4;border-color:#44403c}
+[data-sk-theme="dark"] .sk-primary{background:var(--sk33-accent);color:#fff}
+[data-sk-theme="dark"] .sk-mark{background:linear-gradient(135deg,#b91c1c,#b45309)}
+[data-sk-theme="dark"] .sk-close,[data-sk-theme="dark"] .sk33-tools button{background:#292524;border-color:#44403c;color:#f5f5f4}
+/* الكتالوج V32 يتبع اختيار الوضع في النافذة بدل إعداد الجهاز */
+[data-sk-theme="dark"] .k32{--k32-cream:#16140f;--k32-green:#7fc8a4;--k32-wine:#f19a9a;--k32-gold:#f0b44c;--k32-ink:#f2efe8;--k32-mute:#b3ab9c;--k32-line:#2e2a22;--k32-card:#1f1c16}
+[data-sk-theme="light"] .k32{--k32-cream:#faf7f2;--k32-green:#1f4d3a;--k32-wine:#9b2c2c;--k32-gold:#a86b12;--k32-ink:#1d2939;--k32-mute:#5d6b63;--k32-line:#ece6da;--k32-card:#fff}
+[data-sk-theme="light"] .k32-bar button,[data-sk-theme="light"] .k32-btn,[data-sk-theme="light"] .k32-chip.on{color:#fff}
+[data-sk-theme="light"] .k32-img{background:linear-gradient(160deg,#f3ede1,#e8dfcd)}
+[data-sk-theme="dark"] .k32-bar button,[data-sk-theme="dark"] .k32-btn,[data-sk-theme="dark"] .k32-chip.on{color:#10251b}
+[data-sk-theme="dark"] .k32-img{background:linear-gradient(160deg,#2a261d,#221f18)}
+
+/* أدوات الرأس */
+.sk33-tools{display:flex;gap:6px}
+.sk33-tools button{width:42px;height:42px;border:1px solid var(--line,#e4e7ec);background:var(--surface-2,#f8fafc);color:inherit;border-radius:13px;font-size:17px;cursor:pointer}
+
+/* رأس الصفحة */
+#sk33-pagehead{display:flex;align-items:center;gap:12px;margin:2px 0 12px;padding:12px 14px;border:1px solid var(--line,#e4e7ec);border-radius:16px;background:var(--surface-2,#f8fafc)}
+#sk33-pagehead i{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-style:normal;font-size:20px;color:#fff;background:linear-gradient(135deg,var(--sk33-accent,#b42318),var(--sk33-accent-2,#b54708));flex:none}
+#sk33-pagehead b{display:block;font-size:17px;font-weight:900}
+#sk33-pagehead span{display:block;font-size:11px;color:var(--ink-3,#8a93a8);letter-spacing:.02em}
+
+/* شريط التبويبات المجمّع (الجوال: شريط أفقي) */
+.sk-panel.sk33 .sk-tabs{align-items:center}
+.sk33-group{display:contents}
+.sk33-group.empty,.sk33-gtitle{display:none}
+.sk33-menu{flex:none!important;background:var(--surface,#fff)!important;color:var(--ink,#1d2939)!important;border:1px solid var(--line,#e4e7ec)!important}
+
+/* الشاشات الكبيرة: شريط جانبي مجمّع */
+@media (min-width:900px){
+  .sk-panel.sk33{width:min(1180px,100%);display:grid;grid-template-columns:230px minmax(0,1fr);grid-template-areas:"head head" "tabs page" "tabs body";column-gap:18px;align-content:start}
+  .sk-panel.sk33>.sk-head{grid-area:head;margin-bottom:12px}
+  .sk-panel.sk33>.sk-tabs{grid-area:tabs;position:sticky;top:0;align-self:start;display:block;margin:0;padding:10px;max-height:calc(94dvh - 110px);overflow:auto;border-radius:16px}
+  .sk-panel.sk33>#sk33-pagehead{grid-area:page}
+  .sk-panel.sk33>#sk-body{grid-area:body;min-width:0}
+  .sk-panel.sk33 .sk33-menu{display:none}
+  .sk-panel.sk33 .sk33-group{display:block;margin-bottom:10px}
+  .sk-panel.sk33 .sk33-group.empty{display:none}
+  .sk-panel.sk33 .sk33-gtitle{display:block;font-size:10.5px;font-weight:800;color:var(--ink-3,#8a93a8);margin:6px 8px 4px;letter-spacing:.03em}
+  .sk-panel.sk33 .sk33-group button{display:flex;align-items:center;gap:9px;width:100%;min-height:40px;text-align:start;justify-content:flex-start;margin:2px 0}
+  .sk-panel.sk33 .sk33-group button::before{content:attr(data-sk33-icon);width:22px;text-align:center;opacity:.8}
+}
+
+/* النوافذ المنبثقة (الأقسام، القفل) */
+.sk33-sheet-wrap{position:fixed;inset:0;z-index:320;background:rgba(12,10,9,.6);backdrop-filter:blur(4px);display:grid;place-items:end center}
+.sk33-sheet{width:min(560px,100%);max-height:88dvh;overflow:auto;background:var(--surface,#fff);color:var(--ink,#1d2939);border-radius:22px 22px 0 0;padding:16px 14px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -20px 60px rgba(0,0,0,.3)}
+@media (min-width:700px){.sk33-sheet-wrap{place-items:center}.sk33-sheet{border-radius:22px}}
+.sk33-sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.sk33-sheet-head b{font-size:18px;font-weight:900}
+.sk33-x{width:38px;height:38px;border-radius:12px;border:1px solid var(--line,#e4e7ec);background:var(--surface-2,#f8fafc);color:inherit;font-size:22px;cursor:pointer}
+.sk33-sheet h5{margin:12px 2px 6px;font-size:11.5px;color:var(--ink-3,#8a93a8);font-weight:800}
+.sk33-sheet section>div{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sk33-sheet [data-go]{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center;text-align:start;padding:11px;border:1px solid var(--line,#e4e7ec);border-radius:14px;background:var(--surface-2,#f8fafc);color:inherit;font:inherit;cursor:pointer}
+.sk33-sheet [data-go] i{grid-row:1/3;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-style:normal;color:#fff;background:linear-gradient(135deg,var(--sk33-accent,#b42318),var(--sk33-accent-2,#b54708))}
+.sk33-sheet [data-go] b{font-size:13.5px}.sk33-sheet [data-go] small{font-size:10px;color:var(--ink-3,#8a93a8)}
+.sk33-note{font-size:12.5px;line-height:1.8;color:var(--ink-2,#667085);margin:0 0 10px}
+.sk33-wide{width:100%;margin:6px 0 12px;min-height:46px}
+.sk33-h{margin:18px 0 8px;font-size:14px}
+.sk33-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.sk33-chip{border:1px solid var(--line,#e4e7ec);background:var(--surface-2,#f8fafc);color:inherit;border-radius:999px;padding:7px 12px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+.sk33-matrix td,.sk33-matrix th{text-align:center;white-space:nowrap}
+.sk33-matrix td.sk33-base{outline:2px solid var(--ink,#1d2939);outline-offset:-2px;font-weight:900}
+.sk33-ta{width:100%;border:1px solid var(--line,#e4e7ec);border-radius:12px;padding:10px;font:inherit;font-size:14px;background:var(--surface-2,#f8fafc);color:inherit;direction:rtl;resize:vertical}
+.sk33-end{align-self:end}
