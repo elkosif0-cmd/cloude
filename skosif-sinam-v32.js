@@ -118,7 +118,7 @@
     controls.className="sx-window-controls";
     controls.innerHTML='<button type="button" data-sx-max title="تكبير">□</button>';
     const close=head.lastElementChild;
-    if(close&&close.tagName==="BUTTON")head.insertBefore(controls,close);else head.appendChild(controls);minimize(def,backdrop,panel)};
+    if(close&&close.tagName==="BUTTON")head.insertBefore(controls,close);else head.appendChild(controls);
     const max=$("[data-sx-max]",controls);max.onclick=e=>{e.stopPropagation();toggleMax(panel,max)};
     head.addEventListener("dblclick",e=>{if(!mobile()&&!e.target.closest("button,input,select,textarea"))toggleMax(panel,max)});
     let drag=null;
@@ -147,7 +147,7 @@
     ["الكتالوج ومختارات الذواقة","Gourmet Catalog & Offers","▦",()=>window.SKosifCatalog?.open?.()],
     ["سلة الطلبيات وعروض الأسعار","Order & Quotation Cart","🛒",()=>{window.SKosifCatalog?.open?.();setTimeout(()=>document.getElementById("k32-open-cart-bar")?.click(),250)}],
     ["تصدير الكتالوج إكسل (CSV)","Export Catalog to Excel","📊",()=>window.SKosifCatalog?.exportCatalogCSV?.()],
-    ["التسعير الذكي","Pricing V30","ر.س",()=>window.SKosif?.open?.("pricing")],
+    ["التسعير السريع","Quick Pricing","ر.س",()=>window.SKosif?.open?.("pricing")],
     ["العملاء 360","Customer 360","◎",()=>window.SKosif?.open?.("customers")],
     ["اعتماد الأسعار","Price Governance","✓",()=>window.SKosif?.open?.("approvals")],
     ["التقارير","Executive Reports","▤",()=>window.SKosif?.open?.("reports")],
@@ -156,13 +156,12 @@
     ["السيولة الشهرية","Cash Flow","◒",()=>window.SKosifSupply?.open?.("cash")],
     ["اسأل Jev","Decision Assistant","J",()=>window.AskJev?.open?.("noul")],
     ["Jev اختيارات متعددة","Decision Choice","J",()=>window.AskJev?.open?.("choice")],
-    ["مركز V29","Inventory & Pricing","29",()=>window.AghnamV29?.open?.()],
+    ["المخزون الذكي","Inventory","▦",()=>{window.AghnamV29?.open?.();setTimeout(()=>document.querySelector('[data-v29-tab="inventory"]')?.click(),80)}],
     ["ذكاء المبيعات","ABC / RFM / Pareto","↗",()=>window.SKosif?.openModule?.("sales")],
     ["اقتصاديات الطلب","Order Economics","Σ",()=>window.SKosif?.openModule?.("economics")],
     ["هندسة البوكسات","Box Engineering","▦",()=>window.SKosif?.openModule?.("boxes")],
     ["المطابقة","Reconciliation","≋",()=>window.SKosif?.openModule?.("recon")],
     ["الهندسة المالية","Financial Engineering","ƒ",()=>window.SKosif?.openModule?.("finance")],
-    ["مختبر الجزارة","Yield Lab","✂",()=>window.SKosif?.openModule?.("yield")],
     ["NRV وتفكيك الذبيحة","NRV","⚖",()=>window.SKosif?.openModule?.("nrv")]
   ];
   let paletteOpen=false;
@@ -172,7 +171,7 @@
       '<div id="sx-palette" class="sx-palette" aria-hidden="true"><div class="sx-palette-card" role="dialog" aria-modal="true">',
       '<div class="sx-palette-search"><span>⌕</span><input id="sx-q" type="search" autocomplete="off" placeholder="ابحث في S.kosif…"><kbd>ESC</kbd></div>',
       '<div id="sx-results" class="sx-results"></div>',
-      '<footer><span>↑↓ للتنقل · Enter للفتح</span><span>S.kosif V32</span></footer>',
+      '<footer><span>↑↓ للتنقل · Enter للفتح</span><span>S.kosif</span></footer>',
       '</div></div>'
     ].join(""));
     $("#sx-palette").onclick=e=>{if(e.target===$("#sx-palette"))closePalette()};
