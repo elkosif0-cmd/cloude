@@ -4,6 +4,7 @@ import {makeScopedKey,readActiveScope} from '../../data/scope-key';
 import {buildStockPositions,type StockMovement,type StockMovementType} from './inventory-engine';
 import {YieldPanel} from './YieldPanel';
 import {TraceabilityPanel} from './TraceabilityPanel';
+import {MeatOperationsPanel} from './MeatOperationsPanel';
 import './stock-workspace.css';
 
 const STORAGE_BASE='stock.movements';
@@ -65,5 +66,6 @@ export function StockWorkspace(){
     </div>
     <YieldPanel/>
     <TraceabilityPanel/>
+    <MeatOperationsPanel/>
   </section>;
 }
