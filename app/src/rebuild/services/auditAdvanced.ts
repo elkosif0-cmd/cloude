@@ -58,8 +58,8 @@ export function setRequestStatus(s:AdvancedAuditState,id:string,status:RequestSt
 export function classifyDocument(name:string,type=''){
  const v=(name+' '+type).toLowerCase();
  const rules:[string,RegExp][]=[
-  ['trial-balance',/(trial.?balance|\btb\b|ميزان.?المراجعة)/i],['general-ledger',/(general.?ledger|\bgl\b|استاذ|الأستاذ)/i],['journal',/(journal|قيود|اليومية)/i],
-  ['financial-statements',/(financial.?statements|قوائم.?مالية)/i],['chart-of-accounts',/(chart.?of.?accounts|\bcoa\b|دليل.?الحسابات)/i],
+  ['trial-balance',/(trial.?balance|\btb\b|(?:ال)?ميزان.*(?:ال)?مراجعة)/i],['general-ledger',/(general.?ledger|\bgl\b|(?:ال)?أ?ستاذ)/i],['journal',/(journal|قيود|(?:ال)?يومية)/i],
+  ['financial-statements',/(financial.?statements|(?:ال)?قوائم.*(?:ال)?مالية)/i],['chart-of-accounts',/(chart.?of.?accounts|\bcoa\b|دليل.*حسابات)/i],
   ['inventory-count',/(inventory.?count|جرد)/i],['inventory',/(inventory|مخزون)/i],['purchase-support',/(purchase|supplier|مشتريات|مورد)/i],
   ['cash-flow-support',/(cash.?flow|تدفقات.?نقدية)/i],['equity-movement-support',/(equity|حقوق.?الملكية)/i],['controls-document',/(control|رقابة|ضوابط)/i]
  ];return rules.find(([,r])=>r.test(v))?.[0]||'other';

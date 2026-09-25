@@ -8,7 +8,7 @@ describe('zero-legacy audit domain',()=>{
  });
  it('flags duplicate, round, weekend and near-materiality entries',()=>{
   const rows=[
-   {date:'2026-09-25',reference:'JV-1',amount:49000},
+   {date:'2026-09-25',reference:'JV-1',amount:49123},
    {date:'2026-09-26',reference:'JV-1',amount:50000},
    {date:'2026-09-27',reference:'JV-2',amount:1234}
   ];

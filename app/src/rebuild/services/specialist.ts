@@ -36,7 +36,7 @@ export const CARCASS_PRESETS:CarcassPreset[]=[
  {id:'goat',name:'تيس بلدي',liveKg:26,carcassKg:13.5,totalCost:950,targetMarginPct:28,cuts:[{id:'leg',name:'فخذ',yieldPct:29,pricePerKg:90},{id:'shoulder',name:'كتف',yieldPct:23,pricePerKg:85},{id:'ribs',name:'أضلاع',yieldPct:18,pricePerKg:95},{id:'trim',name:'تشفية',yieldPct:18,pricePerKg:70},{id:'offal',name:'سقط ورأس',yieldPct:12,pricePerKg:40}]}
 ];
 export function carcassEconomics(input:CarcassPreset){
- const carcass={liveWeightKg:n(input.liveKg),carcassWeightKg:n(input.carcassKg),totalCostHalalas:toHalalas(n(input.totalCost))};
+ const carcass={id:input.id,name:input.name,liveWeightKg:n(input.liveKg),carcassWeightKg:n(input.carcassKg),totalCostHalalas:toHalalas(n(input.totalCost))};
  const cuts=input.cuts.map(x=>({id:x.id,name:x.name,yieldPct:n(x.yieldPct),pricePerKgHalalas:toHalalas(n(x.pricePerKg))}));
  const allocations=allocateCarcassCost(carcass,cuts).map(x=>({...x,costPerKg:toSar(x.costPerKgHalalas),pricePerKg:toSar(x.pricePerKgHalalas),marginPerKg:toSar(x.marginPerKgHalalas),revenue:toSar(x.revenueIfSoldHalalas),suggestedPrice:toSar(suggestPriceHalalas(x.costPerKgHalalas,n(input.targetMarginPct)))}));
  return{dressingPct:dressingPct(carcass),allocations,totalRevenue:allocations.reduce((a,x)=>a+x.revenue,0),totalCost:n(input.totalCost)};
