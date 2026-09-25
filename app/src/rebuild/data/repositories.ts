@@ -15,9 +15,9 @@ const KEYS={
  inventory:'skosif_erp_inventory_v1',expiry:'skosif_inv_expiry_batches',supplierBatches:'skosif_v31_supplier_batches',
  finance:'skosif_erp_finance_v1',income:'skosif_income_statements_v1',payables:'skosif_erp_payables_v1',
  jev:'aghnam_v29_jev_log',migration:'skosif_rebuild_migration_v1',
- trace:'skosif_v38_trace_batches',cold:'skosif_v38_coldchain',credit:'skosif_v38_b2b_credit',
- aging:'skosif_v38_aging_lots',subscriptions:'skosif_v38_subscriptions',poHistory:'skosif_v38_po_history',
- butcherShifts:'skosif_v38_butcher_shifts',batchOrders:'skosif_v38_batch_orders'
+ trace:'skosif_v38_batches',cold:'skosif_v38_coldchain',credit:'skosif_v38_ledger',
+ aging:'skosif_ops_aging_chamber',subscriptions:'skosif_ops_subscriptions',poHistory:'skosif_ops_po_history',
+ butcherShifts:'skosif_ops_butcher_shifts',batchOrders:'skosif_v38_batch_orders'
 } as const;
 
 const DEFAULT_SETTINGS:AppSettings={
