@@ -2,6 +2,7 @@ import {useEffect,useMemo,useState} from 'react';
 import {JsonStorageRepository} from '../../data/json-storage-repository';
 import {readActiveScope,writeActiveScope} from '../../data/scope-key';
 import type {Company,FiscalPeriod} from './company-context';
+import {AccessPanel} from './AccessPanel';
 import './system-workspace.css';
 
 const COMPANY_KEY='skosif.v1.system.companies';
@@ -86,5 +87,7 @@ export function SystemWorkspace(){
       <p>{scopeText}{selectedPeriod?' · '+(companyPeriods.find((p)=>p.id===selectedPeriod)?.label??''):''}</p>
       <div className="period-chips">{companyPeriods.map((period)=><span key={period.id}>{period.label} · {period.startDate} → {period.endDate}</span>)}</div>
     </section>
+
+    <AccessPanel/>
   </section>;
 }
