@@ -10,6 +10,7 @@ import {buildReceiptPosting,type GoodsReceiptDocument,type PurchaseDocumentLine,
 import type {Supplier} from './suppliers-engine';
 import {SuppliersPanel} from './SuppliersPanel';
 import {ReceivingInspectionPanel} from './ReceivingInspectionPanel';
+import {WorkspaceSectionNav,WorkspaceSectionPage} from '../../shell/WorkspaceSectionNav';
 import './procurement-workspace.css';
 
 export function ProcurementWorkspace(){
@@ -34,6 +35,7 @@ export function ProcurementWorkspace(){
   const [inputVatAccount,setInputVatAccount]=useState('account-1150');
   const [payableAccount,setPayableAccount]=useState('account-2100');
   const [message,setMessage]=useState('');
+  const [section,setSection]=useState('orders');
 
   const supplierRepo=useMemo(()=>new JsonStorageRepository<Supplier>(window.localStorage,makeScopedKey('procurement.suppliers',scope)),[scope]);
   const itemRepo=useMemo(()=>new JsonStorageRepository<CatalogItem>(window.localStorage,makeScopedKey('catalog.items',scope)),[scope]);
@@ -120,15 +122,17 @@ export function ProcurementWorkspace(){
   }
 
   return <section className="procurement-workspace">
-    <div className="procurement-kpis">
+    <WorkspaceSectionNav active={section} onChange={setSection} items={[
+      {id:'orders',label:'الأوامر والاستلام',badge:orders.filter(o=>o.status==='OPEN').length},
+      {id:'suppliers',label:'الموردون',badge:suppliers.length},
+      {id:'inspection',label:'تدقيق الاستلام'},
+    ]}/>
+    <WorkspaceSectionPage id="orders" active={section}><div className="procurement-kpis">
       <article className="sk-surface"><span>أوامر شراء مفتوحة</span><strong>{orders.filter(x=>x.status==='OPEN').length}</strong></article>
       <article className="sk-surface"><span>قيمة المسودة الحالية</span><strong className="sk-number">{draftOrderValue.toLocaleString('en-US')}</strong></article>
       <article className="sk-surface"><span>استلامات مرحّلة</span><strong>{receipts.filter(x=>x.status==='POSTED').length}</strong></article>
       <article className="sk-surface"><span>فروقات الاستلام الحالي</span><strong>{matches.filter(x=>x.status!=='MATCH').length}</strong></article>
     </div>
-
-    <SuppliersPanel onChanged={()=>{void supplierRepo.list().then(setSuppliers);}}/>
-    <ReceivingInspectionPanel/>
 
     <div className="procurement-grid">
       <section className="sk-surface procurement-form">
@@ -166,6 +170,8 @@ export function ProcurementWorkspace(){
     <section className="procurement-register sk-surface">
       <span className="eyebrow">Procurement Register</span><h3>سجل أوامر الشراء</h3>
       {orders.length===0?<p className="procurement-empty">لا توجد أوامر شراء بعد.</p>:<div className="procurement-table"><table><thead><tr><th>الرقم</th><th>المورد</th><th>السطور</th><th>الحالة</th></tr></thead><tbody>{orders.map(o=><tr key={o.id}><td>{o.number}</td><td>{suppliers.find(s=>s.id===o.supplierId)?.name??o.supplierId}</td><td>{o.lines.length}</td><td>{o.status}</td></tr>)}</tbody></table></div>}
-    </section>
+    </section></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="suppliers" active={section}><SuppliersPanel onChanged={()=>{void supplierRepo.list().then(setSuppliers);}}/></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="inspection" active={section}><ReceivingInspectionPanel/></WorkspaceSectionPage>
   </section>;
 }
