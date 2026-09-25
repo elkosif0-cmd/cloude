@@ -1,5 +1,6 @@
 import {useMemo,useState} from 'react';
 import {calculateSalesTotals,type SalesLine} from './sales-engine';
+import {CustomersPanel} from './CustomersPanel';
 import './sales-workspace.css';
 
 export function SalesWorkspace(){
@@ -36,6 +37,7 @@ export function SalesWorkspace(){
       <article className="sk-surface"><span>الضريبة</span><strong className="sk-number">{totals.vat.toLocaleString('en-US')}</strong></article>
       <article className="sk-surface"><span>الإجمالي</span><strong className="sk-number">{totals.total.toLocaleString('en-US')}</strong></article>
     </div>
+    <CustomersPanel/>
     <div className="sales-grid">
       <section className="sk-surface sales-form">
         <span className="eyebrow">Sales Engine</span><h3>إنشاء سطور بيع</h3>
