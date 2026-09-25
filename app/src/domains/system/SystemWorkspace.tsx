@@ -3,6 +3,7 @@ import {JsonStorageRepository} from '../../data/json-storage-repository';
 import {readActiveScope,writeActiveScope} from '../../data/scope-key';
 import type {Company,FiscalPeriod} from './company-context';
 import {AccessPanel} from './AccessPanel';
+import {GovernancePanel} from './GovernancePanel';
 import './system-workspace.css';
 
 const COMPANY_KEY='skosif.v1.system.companies';
@@ -89,5 +90,6 @@ export function SystemWorkspace(){
     </section>
 
     <AccessPanel/>
+    <GovernancePanel/>
   </section>;
 }
