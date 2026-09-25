@@ -9,9 +9,9 @@ export default {
   async queue(batch, env) {
     for (const msg of batch.messages) {
       try {
-        const r = await env.BRIDGE.fetch(new Request('https://wa-kosif.internal/send-bundle', {
+        const r = await env.DISPATCH.fetch(new Request('https://wa-kosif-dispatch.internal/internal-bundle', {
           method: 'POST',
-          headers: { authorization: 'Bearer ' + env.BRIDGE_KEY, 'content-type': 'application/json' },
+          headers: { 'content-type': 'application/json' },
           body: JSON.stringify(msg.body),
         }));
         const text = await r.text();
