@@ -2,6 +2,7 @@ import React,{useEffect,useState}from'react';
 import{AppShell,RouteId}from'./layouts/AppShell';
 import{CommandView,CatalogView,SalesView}from'./views/DailyViews';
 import{InventoryView,FinanceView}from'./views/OperationsFinanceViews';
+import{SubscriptionsPanel}from'./views/OperationalToolsViews';
 import{IntelligenceView,AuditView,SystemView}from'./views/AdvancedViews';
 import{migratePrivateCatalog,migrateIndexedDb}from'./data/repositories';
 import{AppErrorBoundary}from'./components/ErrorBoundary';
@@ -19,7 +20,7 @@ export default function RebuiltApp(){
  return <AppErrorBoundary><AppShell route={route} onRoute={go}>
   {route==='command'&&<CommandView go={go}/>}
   {route==='sales'&&<SalesView/>}
-  {route==='inventory'&&<InventoryView/>}
+  {route==='inventory'&&<><InventoryView/><SubscriptionsPanel/></>}
   {route==='finance'&&<FinanceView/>}
   {route==='catalog'&&<CatalogView/>}
   {route==='intelligence'&&<IntelligenceView/>}
