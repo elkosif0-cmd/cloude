@@ -32,7 +32,7 @@ export type SalesIntelligenceSummary={
 };
 
 function money(value:number){return Math.round((value+Number.EPSILON)*100)/100;}
-function percent(value:number){return Math.round((value+Number.EPSILON)*10000)/100;}
+function percent(value:number){return Math.round((value+Number.EPSILON)*100)/100;}
 function daysBetween(fromIso:string,toIso:string){
   const from=Date.parse(fromIso.slice(0,10)+'T00:00:00Z');
   const to=Date.parse(toIso.slice(0,10)+'T00:00:00Z');
