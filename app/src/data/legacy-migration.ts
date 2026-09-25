@@ -23,6 +23,9 @@ export type MigrationReport={
   coldChainEvents:number;
   expiryBatches:number;
   jevDecisions:number;
+  butcherShifts:number;
+  agingPieces:number;
+  subscriptions:number;
   legacyCommerceRows:number;
   warnings:string[];
 };
@@ -146,6 +149,9 @@ export function inspectLegacyDataset(dataset:LegacyDataset):MigrationReport{
   const coldChain=parseJson<any[]>(dataset.local['skosif_v38_coldchain'],[]);
   const expiry=parseJson<any[]>(dataset.local['skosif_inv_expiry_batches'],[]);
   const jevLog=parseJson<any[]>(dataset.local['aghnam_v29_jev_log'],[]);
+  const butcherShifts=parseJson<any[]>(dataset.local['skosif_ops_butcher_shifts'],[]);
+  const agingPieces=parseJson<any[]>(dataset.local['skosif_ops_aging_chamber'],[]);
+  const subscriptions=parseJson<any[]>(dataset.local['skosif_ops_subscriptions'],[]);
   const raws=Array.isArray(pricing?.raws)?pricing.raws:[];
   const idbRows=Object.values(dataset.idb).reduce((sum,rows)=>sum+(Array.isArray(rows)?rows.length:0),0);
   const customerRows=[
@@ -170,6 +176,9 @@ export function inspectLegacyDataset(dataset:LegacyDataset):MigrationReport{
     coldChainEvents:coldChain.length,
     expiryBatches:expiry.length,
     jevDecisions:jevLog.length,
+    butcherShifts:butcherShifts.length,
+    agingPieces:agingPieces.length,
+    subscriptions:subscriptions.length,
     legacyCommerceRows:['orders','order_items','payments','sales_lines','sales_descriptions','ops_orders'].reduce((sum,key)=>sum+(dataset.idb[key]?.length??0),0),
     warnings:[],
   };
@@ -382,6 +391,63 @@ function mapJevDecisions(dataset:LegacyDataset){
   }));
 }
 
+function mapButcherShifts(dataset:LegacyDataset){
+  const rows=parseJson<any[]>(dataset.local['skosif_ops_butcher_shifts'],[]);
+  return rows.map((row,index)=>({
+    id:text(row?.id)||stableId('shift',row?.carcassTag||index,index),
+    butcher:text(row?.butcher)||'قصاب',
+    carcassTag:text(row?.carcassTag)||('TAG-'+(index+1)),
+    hangingKg:numeric(row?.hangingKg),
+    primeKg:numeric(row?.primeKg),
+    boneKg:numeric(row?.boneKg),
+    fatKg:numeric(row?.fatKg),
+    wasteKg:numeric(row?.wasteKg),
+    date:text(row?.date)||new Date().toISOString().slice(0,10),
+    legacySource:'skosif_ops_butcher_shifts',
+  }));
+}
+
+function mapAgingPieces(dataset:LegacyDataset){
+  const rows=parseJson<any[]>(dataset.local['skosif_ops_aging_chamber'],[]);
+  return rows.map((row,index)=>({
+    id:text(row?.id)||stableId('aging',row?.tag||index,index),
+    tag:text(row?.tag)||text(row?.id)||('AG-'+(index+1)),
+    cut:text(row?.cut)||'قطعة معتقة',
+    type:['dry','umai','wet'].includes(text(row?.type))?text(row?.type):'dry',
+    rawKg:numeric(row?.rawKg),
+    rawCostKg:numeric(row?.rawCostKg),
+    entryDate:text(row?.entryDate)||new Date().toISOString().slice(0,10),
+    targetDays:numeric(row?.targetDays)||30,
+    marginPercent:numeric(row?.margin)||35,
+    status:text(row?.status)==='done'?'DONE':'ACTIVE',
+    finalUsableKg:row?.finalUsableKg!==undefined?numeric(row?.finalUsableKg):undefined,
+    finishDate:text(row?.finishDate)||undefined,
+    legacySource:'skosif_ops_aging_chamber',
+  }));
+}
+
+function mapSubscriptions(dataset:LegacyDataset,customers:any[]){
+  const rows=parseJson<any[]>(dataset.local['skosif_ops_subscriptions'],[]);
+  return rows.map((row,index)=>{
+    const phone=text(row?.phone);
+    const name=text(row?.name);
+    const customer=customers.find(c=>c.phone&&c.phone===phone)||customers.find(c=>c.name===name);
+    return {
+      id:text(row?.id)||stableId('subscription',row?.phone||row?.name,index),
+      customerId:customer?.id,
+      customerName:name,
+      phone,
+      planCode:text(row?.plan)||'custom',
+      planName:text(row?.planName)||'اشتراك لحوم',
+      cycle:text(row?.cycle)||'شهري',
+      price:numeric(row?.price),
+      address:text(row?.addr)||undefined,
+      status:text(row?.status)==='inactive'?'INACTIVE':'ACTIVE',
+      legacySource:'skosif_ops_subscriptions',
+    };
+  });
+}
+
 function mapLegacyCommerce(dataset:LegacyDataset){
   const stores=['orders','order_items','payments','sales_lines','sales_descriptions','ops_orders','imports','import_errors','pricing_snapshots'];
   const records:any[]=[];
@@ -422,6 +488,9 @@ export async function applyLegacyMigration(storage:StorageLike,dataset:LegacyDat
   const traceability=mapTraceability(dataset,items,suppliers);
   const coldChain=mapColdChain(dataset,traceability);
   const jevDecisions=mapJevDecisions(dataset);
+  const butcherShifts=mapButcherShifts(dataset);
+  const agingPieces=mapAgingPieces(dataset);
+  const subscriptions=mapSubscriptions(dataset,customers);
   const commerce=mapLegacyCommerce(dataset);
 
   mergeEnvelope(storage,makeScopedKey('catalog.items',scope),items);
@@ -434,6 +503,9 @@ export async function applyLegacyMigration(storage:StorageLike,dataset:LegacyDat
   mergeEnvelope(storage,makeScopedKey('stock.traceability-batches',scope),traceability);
   mergeEnvelope(storage,makeScopedKey('stock.temperature-events',scope),coldChain);
   mergeEnvelope(storage,makeScopedKey('intelligence.jev-decisions',scope),jevDecisions);
+  mergeEnvelope(storage,makeScopedKey('stock.butcher-shifts',scope),butcherShifts);
+  mergeEnvelope(storage,makeScopedKey('stock.aging-pieces',scope),agingPieces);
+  mergeEnvelope(storage,makeScopedKey('sales.subscriptions',scope),subscriptions);
   mergeEnvelope(storage,makeScopedKey('legacy.commerce',scope),commerce);
 
   await archiveLegacyDataset(dataset);
