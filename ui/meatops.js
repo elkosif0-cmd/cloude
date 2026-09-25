@@ -139,7 +139,19 @@ function runAR(){
   '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>العميل</th><th>التاريخ</th><th>الفاتورة</th><th>المدفوع</th><th>المتبقي</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+esc(r.customer)+'</td><td>'+esc(r.date)+'</td><td>'+money(r.total)+'</td><td>'+money(r.paid)+'</td><td>'+money(r.outstanding)+'</td></tr>').join("")+'</tbody></table></div>';
 }
 const roots={};
-function paintCarcass(){const r=roots.carcass;if(!r||!r.isConnected)return;r.innerHTML=carcassHTML();bind()}
+function butcheryHubNav(activeId){
+  const tabs=[
+    {id:"carcass",icon:"🥩",title:"تفكيك وتصافي الذبيحة وعائد القطعيات"},
+    {id:"blending",icon:"🍔",title:"خلط وفرم اللحوم ونسب الدهن (Lean/Fat)"}
+  ];
+  return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-butchery-go="'+t.id+'"><span>'+t.icon+'</span><span>'+t.title+'</span></button>').join("")+'</div>';
+}
+function paintCarcass(){
+  const r=roots.carcass;if(!r||!r.isConnected)return;
+  r.innerHTML=butcheryHubNav("carcass")+'<section class="card"><div class="card-b sk-stack">'+carcassHTML()+'</div></section>';
+  bind();
+  $$("[data-butchery-go]",r).forEach(b=>b.onclick=()=>window.SKosifCore?.go(b.dataset.butcheryGo));
+}
 function paintAR(){const r=roots.ar;if(!r||!r.isConnected)return;r.innerHTML=arHTML();bind();if(arText.trim())runAR()}
 window.SK.view("receivables",{title:"الذمم والتحصيل",sub:"أعمار الذمم: الرصيد المتبقي لكل عميل موزعاً على فترات التأخير",emoji:"⏳",
   render(node){roots.ar=node;paintAR()}});

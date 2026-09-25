@@ -300,14 +300,10 @@ function dashHero(root){
     '<div class="sk-hero-date"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14h2M12 14h2M16 14h.01M8 17h2M12 17h2"/></svg><div><b>'+esc(day)+'</b><span>'+esc(greg)+'</span><small>'+esc(hijri)+'</small></div></div></section>'+
     '<div class="sk-ops-pulse" id="sk-pulse">'+pulseItems()+'</div>'+
     '<div class="sk-quick-launch" id="sk-quick-launch">'+
-      '<button type="button" class="sk-ql-btn" data-go="zatca">'+(ICONS.zatca||'')+'<span>فاتورة سريعة<br><small style="color:var(--ink-3);">ZATCA حرارية</small></span></button>'+
-      '<button type="button" class="sk-ql-btn" data-go="labels">'+(ICONS.labels||'')+'<span>ملصق ميزان<br><small style="color:var(--ink-3);">باركود 60×40</small></span></button>'+
-      '<button type="button" class="sk-ql-btn" data-go="operations">'+(ICONS.operations||'')+'<span>حاسبة الشواء<br><small style="color:var(--ink-3);">عروض المناسبات</small></span></button>'+
-      '<button type="button" class="sk-ql-btn" data-go="blending">'+(ICONS.blending||'')+'<span>خلط اللحوم<br><small style="color:var(--ink-3);">نسب البرجر والمفروم</small></span></button>'+
-      '<button type="button" class="sk-ql-btn" data-go="execreports">'+(ICONS.execreports||'')+'<span>التقارير اليومية<br><small style="color:var(--ink-3);">EOD والأرباح</small></span></button>'+
-      '<button type="button" class="sk-ql-btn" data-go="scanner">'+(ICONS.scanner||'')+'<span>مسح باركود<br><small style="color:var(--ink-3);">كاميرا الجوال</small></span></button>'+
-      '<button type="button" class="sk-ql-btn" data-go="carcass">'+(ICONS.carcass||'')+'<span>اقتصاديات الذبيحة<br><small style="color:var(--ink-3);">تفكيك وتصافي</small></span></button>'+
-      '<button type="button" class="sk-ql-btn" data-go="traceability">'+(ICONS.traceability||'')+'<span>سلسلة التبريد<br><small style="color:var(--ink-3);">HACCP والثلاجات</small></span></button>'+
+      '<button type="button" class="sk-ql-btn" data-go="zatca" style="border-right:3px solid var(--brand,#8a5a2b);">'+(ICONS.zatca||'')+'<span><b>مركز نقاط البيع والكاشير (F2)</b><br><small style="color:var(--ink-3);">الفاتورة • الباركود • ملصق الميزان • الشيف</small></span></button>'+
+      '<button type="button" class="sk-ql-btn" data-go="carcass" style="border-right:3px solid #059669;">'+(ICONS.carcass||'')+'<span><b>ورشة الجزارة وتجهيز الذبائح</b><br><small style="color:var(--ink-3);">خريطة التشريح • التشفية • خلط المفروم</small></span></button>'+
+      '<button type="button" class="sk-ql-btn" data-go="inventory" style="border-right:3px solid #d97706;">'+(ICONS.inventory||'')+'<span><b>مركز التبريد والتعتيق والمخزون (F9)</b><br><small style="color:var(--ink-3);">رادار FIFO • غرف التعتيق • التبريد HACCP</small></span></button>'+
+      '<button type="button" class="sk-ql-btn" data-go="execreports" style="border-right:3px solid #4f46e5;">'+(ICONS.execreports||'')+'<span><b>مركز المالية والتقارير والتدقيق</b><br><small style="color:var(--ink-3);">الأرباح • أعمار الذمم • الموردين • المراجعة</small></span></button>'+
     '</div>');
   $$("#sk-quick-launch [data-go]",root).forEach(b=>{
     b.onclick=()=>{

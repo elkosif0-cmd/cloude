@@ -961,17 +961,75 @@ function bindB2BCredit(){
 }
 
 /* ==========================================================================
-   Screen Dispatcher & Registration
+   Screen Dispatcher & Unified Workspaces Registration
    ========================================================================== */
+function posHubNav(activeId){
+  const tabs=[
+    {id:"zatca",icon:"🧾",title:"فاتورة الكاشير والإيصال (F2)"},
+    {id:"scanner",icon:"📷",title:"قارئ الباركود بالكاميرا (F4)"},
+    {id:"labels",icon:"🏷️",title:"ملصقات الموازين والتغليف (F3)"},
+    {id:"culinary",icon:"👨‍🍳",title:"نصائح الشيف والطهي"}
+  ];
+  return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-pos-go="'+t.id+'"><span>'+t.icon+'</span><span>'+t.title+'</span></button>').join("")+'</div>';
+}
+
+function butcheryHubNav(activeId){
+  const tabs=[
+    {id:"carcass",icon:"🥩",title:"تفكيك وتصافي الذبيحة وعائد القطعيات"},
+    {id:"blending",icon:"🍔",title:"خلط وفرم اللحوم ونسب الدهن (Lean/Fat)"}
+  ];
+  return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-butchery-go="'+t.id+'"><span>'+t.icon+'</span><span>'+t.title+'</span></button>').join("")+'</div>';
+}
+
+function storageHubNav(activeId){
+  const tabs=[
+    {id:"inventory",icon:"📦",title:"رادار الصلاحية والمخزون FIFO (F9)"},
+    {id:"operations",icon:"🥩",title:"غرف التعتيق ومناسبات الشواء (F8)"},
+    {id:"traceability",icon:"🌡️",title:"مراقبة سلسلة التبريد HACCP"}
+  ];
+  return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-storage-go="'+t.id+'"><span>'+t.icon+'</span><span>'+t.title+'</span></button>').join("")+'</div>';
+}
+
+function financeHubNav(activeId){
+  const tabs=[
+    {id:"execreports",icon:"📊",title:"التقارير التنفيذية والرسوم البيانية"},
+    {id:"b2bcredit",icon:"🤝",title:"ائتمان المطاعم وكشوف الحساب"},
+    {id:"suppliers",icon:"🚛",title:"سجل وتقييم الموردين"}
+  ];
+  return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-finance-go="'+t.id+'"><span>'+t.icon+'</span><span>'+t.title+'</span></button>').join("")+'</div>';
+}
+
 function paint(id){
   const r=roots[id]; if(!r||!r.isConnected)return;
-  if(id==="zatca"){ r.innerHTML='<section class="card"><div class="card-b sk-stack">'+zatcaHTML()+'</div></section>'; bindZatca(); }
-  if(id==="blending"){ r.innerHTML='<section class="card"><div class="card-b sk-stack">'+blendingHTML()+'</div></section>'; bindBlending(); }
-  if(id==="labels"){ r.innerHTML='<section class="card"><div class="card-b sk-stack">'+labelsHTML()+'</div></section>'; bindLabels(); }
-  if(id==="traceability"){ r.innerHTML='<section class="card"><div class="card-b sk-stack">'+traceabilityHTML()+'</div></section>'; bindTraceability(); }
-  if(id==="culinary"){ r.innerHTML='<section class="card"><div class="card-b sk-stack">'+culinaryHTML()+'</div></section>'; bindCulinary(); }
-  if(id==="scanner"){ r.innerHTML='<section class="card"><div class="card-b sk-stack">'+scannerHTML()+'</div></section>'; bindScanner(); }
-  if(id==="b2bcredit"){ r.innerHTML='<section class="card"><div class="card-b sk-stack">'+b2bcreditHTML()+'</div></section>'; bindB2BCredit(); }
+  if(["zatca","scanner","labels","culinary"].includes(id)){
+    let html="", bind=null;
+    if(id==="zatca"){ html=zatcaHTML(); bind=bindZatca; }
+    else if(id==="scanner"){ html=scannerHTML(); bind=bindScanner; }
+    else if(id==="labels"){ html=labelsHTML(); bind=bindLabels; }
+    else if(id==="culinary"){ html=culinaryHTML(); bind=bindCulinary; }
+    r.innerHTML=posHubNav(id)+'<section class="card"><div class="card-b sk-stack">'+html+'</div></section>';
+    if(bind)bind();
+    $$("[data-pos-go]",r).forEach(b=>b.onclick=()=>window.SKosifCore?.go(b.dataset.posGo));
+    return;
+  }
+  if(id==="blending"){
+    r.innerHTML=butcheryHubNav(id)+'<section class="card"><div class="card-b sk-stack">'+blendingHTML()+'</div></section>';
+    bindBlending();
+    $$("[data-butchery-go]",r).forEach(b=>b.onclick=()=>window.SKosifCore?.go(b.dataset.butcheryGo));
+    return;
+  }
+  if(id==="traceability"){
+    r.innerHTML=storageHubNav(id)+'<section class="card"><div class="card-b sk-stack">'+traceabilityHTML()+'</div></section>';
+    bindTraceability();
+    $$("[data-storage-go]",r).forEach(b=>b.onclick=()=>window.SKosifCore?.go(b.dataset.storageGo));
+    return;
+  }
+  if(id==="b2bcredit"){
+    r.innerHTML=financeHubNav(id)+'<section class="card"><div class="card-b sk-stack">'+b2bcreditHTML()+'</div></section>';
+    bindB2BCredit();
+    $$("[data-finance-go]",r).forEach(b=>b.onclick=()=>window.SKosifCore?.go(b.dataset.financeGo));
+    return;
+  }
 }
 
 /* Register all 7 views */

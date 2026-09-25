@@ -745,11 +745,20 @@ function bindAging(content){
 /* ==========================================================================
    Master Render & Tab Switcher
    ========================================================================== */
+function storageHubNav(activeId){
+  const tabs=[
+    {id:"inventory",icon:"📦",title:"رادار الصلاحية والمخزون FIFO (F9)"},
+    {id:"operations",icon:"🥩",title:"غرف التعتيق ومناسبات الشواء (F8)"},
+    {id:"traceability",icon:"🌡️",title:"مراقبة سلسلة التبريد HACCP"}
+  ];
+  return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-storage-go="'+t.id+'"><span>'+t.icon+'</span><span>'+t.title+'</span></button>').join("")+'</div>';
+}
+
 function paintOps(){
   const r=roots.ops;
   if(!r||!r.isConnected)return;
 
-  r.innerHTML='<div class="sk-ops-wrap">'+
+  r.innerHTML=storageHubNav("operations")+'<div class="sk-ops-wrap">'+
     '<div class="sk-ops-nav" role="tablist">'+
       '<button type="button" role="tab" aria-selected="'+(opsTab==="bbq")+'" class="'+(opsTab==="bbq"?'active':'')+'" data-tab="bbq">🍖 حاسبة الشواء والمناسبات</button>'+
       '<button type="button" role="tab" aria-selected="'+(opsTab==="po")+'" class="'+(opsTab==="po"?'active':'')+'" data-tab="po">📋 أوامر الشراء واستلام الذبائح</button>'+
@@ -759,6 +768,8 @@ function paintOps(){
     '</div>'+
     '<div id="sk-ops-tab-content"></div>'+
   '</div>';
+
+  $$("[data-storage-go]",r).forEach(b=>b.onclick=()=>window.SKosifCore?.go(b.dataset.storageGo));
 
   $$(".sk-ops-nav button",r).forEach(b=>{
     b.onclick=()=>{
