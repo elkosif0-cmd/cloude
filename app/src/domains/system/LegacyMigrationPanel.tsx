@@ -21,6 +21,7 @@ function Summary({report}:{report:MigrationReport}){
     ['قطع تعتيق',report.agingPieces],
     ['اشتراكات',report.subscriptions],
     ['أسماء مستعارة ذكية',report.productAliases],
+    ['عروض مناسبات',report.cateringQuotes],
     ['سجلات تجارة قديمة',report.legacyCommerceRows],
   ] as const;
   return <div className="legacy-migration__summary">{rows.map(([label,value])=><article key={label}><span>{label}</span><strong className="sk-number">{value}</strong></article>)}</div>;
@@ -89,7 +90,7 @@ export function LegacyMigrationPanel(){
     {message?<p className="system-message">{message}</p>:null}
 
     <div className="legacy-migration__rules">
-      <div><b>يُنقل مباشرة</b><span>الكتالوج، العملاء، الموردون، العروض، شحنات الموردين، تخطيط إعادة الطلب، ائتمان B2B، دفعات التتبع والصلاحية، سجل التبريد، قرارات Jev، ورديات التشفية، التعتيق، الاشتراكات، والأسماء المستعارة التي تعلمتها المطابقة.</span></div>
+      <div><b>يُنقل مباشرة</b><span>الكتالوج، العملاء، الموردون، العروض، شحنات الموردين، تخطيط إعادة الطلب، ائتمان B2B، دفعات التتبع والصلاحية، سجل التبريد، قرارات Jev، ورديات التشفية، التعتيق، الاشتراكات، الأسماء المستعارة التي تعلمتها المطابقة، وعروض المناسبات المحفوظة.</span></div>
       <div><b>يُحفظ دون فقد</b><span>الطلبات، المدفوعات، سطور المبيعات، الواردات والبيانات غير المحسومة تُحفظ في أرشيف مرحلي حتى تُصهر في الوحدات الجديدة.</span></div>
       <div><b>لا يتم حذفه</b><span>أي مفتاح قديم أو قاعدة IndexedDB أثناء النقل؛ الحذف لا يتم إلا بعد مطابقة نهائية.</span></div>
     </div>
