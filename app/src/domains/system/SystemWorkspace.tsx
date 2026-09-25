@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useState} from 'react';
 import {JsonStorageRepository} from '../../data/json-storage-repository';
+import {readActiveScope,writeActiveScope} from '../../data/scope-key';
 import type {Company,FiscalPeriod} from './company-context';
 import './system-workspace.css';
 
@@ -16,11 +17,25 @@ export function SystemWorkspace(){
   const [startDate,setStartDate]=useState('2026-01-01');
   const [endDate,setEndDate]=useState('2026-12-31');
   const [selectedCompany,setSelectedCompany]=useState('');
+  const [selectedPeriod,setSelectedPeriod]=useState('');
 
   const companyRepo=useMemo(()=>new JsonStorageRepository<Company & {id:string}>(window.localStorage,COMPANY_KEY),[]);
   const periodRepo=useMemo(()=>new JsonStorageRepository<FiscalPeriod & {id:string}>(window.localStorage,PERIOD_KEY),[]);
 
-  useEffect(()=>{void Promise.all([companyRepo.list(),periodRepo.list()]).then(([c,p])=>{setCompanies(c);setPeriods(p);if(c[0])setSelectedCompany((current)=>current||c[0].id);});},[companyRepo,periodRepo]);
+  useEffect(()=>{void Promise.all([companyRepo.list(),periodRepo.list()]).then(([c,p])=>{
+    setCompanies(c);setPeriods(p);
+    const active=readActiveScope(window.localStorage);
+    const companyId=active?.companyId&&c.some((x)=>x.id===active.companyId)?active.companyId:(c[0]?.id??'');
+    const companyPeriods=p.filter((x)=>x.companyId===companyId);
+    const periodId=active?.periodId&&companyPeriods.some((x)=>x.id===active.periodId)?active.periodId:(companyPeriods[0]?.id??'');
+    setSelectedCompany(companyId);setSelectedPeriod(periodId);
+    if(companyId)writeActiveScope(window.localStorage,{companyId,periodId:periodId||undefined});
+  });},[companyRepo,periodRepo]);
+
+  function activate(companyId:string,periodId?:string){
+    setSelectedCompany(companyId);setSelectedPeriod(periodId??'');
+    writeActiveScope(window.localStorage,companyId?{companyId,periodId}:null);
+  }
 
   async function addCompany(){
     if(!name.trim())return;
@@ -28,7 +43,7 @@ export function SystemWorkspace(){
     await companyRepo.put(company);
     const next=await companyRepo.list();
     setCompanies(next);
-    setSelectedCompany(company.id);
+    activate(company.id);
     setName('');
   }
 
@@ -37,6 +52,7 @@ export function SystemWorkspace(){
     const period:FiscalPeriod={id:crypto.randomUUID(),companyId:selectedCompany,startDate,endDate,label:periodLabel.trim()};
     await periodRepo.put(period);
     setPeriods(await periodRepo.list());
+    activate(selectedCompany,period.id);
   }
 
   const selected=companies.find((item)=>item.id===selectedCompany)??null;
@@ -51,7 +67,8 @@ export function SystemWorkspace(){
         <label>الدولة<input value={country} onChange={(e)=>setCountry(e.target.value)} placeholder="SA"/></label>
         <label>العملة<input value={currency} onChange={(e)=>setCurrency(e.target.value)} placeholder="SAR"/></label>
         <button onClick={()=>void addCompany()}>إضافة شركة</button>
-        <label>الشركة النشطة<select value={selectedCompany} onChange={(e)=>setSelectedCompany(e.target.value)}><option value="">اختر</option>{companies.map((c)=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
+        <label>الشركة النشطة<select value={selectedCompany} onChange={(e)=>{const companyId=e.target.value;const first=periods.find((p)=>p.companyId===companyId);activate(companyId,first?.id);}}><option value="">اختر</option>{companies.map((c)=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
+        <label>الفترة النشطة<select value={selectedPeriod} onChange={(e)=>activate(selectedCompany,e.target.value||undefined)} disabled={!selectedCompany}><option value="">كل الفترات</option>{companyPeriods.map((p)=><option key={p.id} value={p.id}>{p.label}</option>)}</select></label>
       </section>
 
       <section className="sk-surface system-form">
@@ -66,7 +83,7 @@ export function SystemWorkspace(){
     <section className="sk-surface system-summary">
       <span className="eyebrow">النطاق النشط</span>
       <h3>{selected?.name??'لم يتم اختيار شركة'}</h3>
-      <p>{scopeText}</p>
+      <p>{scopeText}{selectedPeriod?' · '+(companyPeriods.find((p)=>p.id===selectedPeriod)?.label??''):''}</p>
       <div className="period-chips">{companyPeriods.map((period)=><span key={period.id}>{period.label} · {period.startDate} → {period.endDate}</span>)}</div>
     </section>
   </section>;
