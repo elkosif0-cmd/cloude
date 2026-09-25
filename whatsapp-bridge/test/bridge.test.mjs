@@ -115,7 +115,7 @@ test('auth is saved after the reply', async () => {
   const st = instance.ctx.storage.map;
   assert.ok(st.get('auth:chunks') >= 1);
   const saved = JSON.parse(st.get('auth:0'));
-  assert.ok(Object.keys(saved.auth.keys.session).length >= 1);
+  assert.ok(Object.keys(saved.auth.files || {}).length >= 1);
 });
 
 test('/send-bundle sends text then stored CV in one call', async () => {
@@ -172,7 +172,10 @@ test('a retry after a partial failure sends only what is missing', async () => {
   const port = files.address().port;
   const body = {
     to: '201044444444', message: 'partial', idempotencyKey: 'job-2',
-    attachments: [{ fileUrl: `http://127.0.0.1:${port}/ok.pdf`, filename: 'a.pdf' }, { fileUrl: `http://127.0.0.1:${port}/missing.pdf`, filename: 'b.pdf' }],
+    attachments: [
+      { fileUrl: `http://127.0.0.1:${port}/ok.pdf`, filename: 'a.pdf' },
+      { fileUrl: `http://127.0.0.1:${port}/ok.pdf`, filename: 'fail.pdf' }
+    ],
   };
   const first = await call('/send-bundle', { body });
   assert.equal(first.status, 502);
@@ -182,7 +185,7 @@ test('a retry after a partial failure sends only what is missing', async () => {
   assert.equal(sent().length, 2);
 
   resetSent();
-  body.attachments[1].fileUrl = `http://127.0.0.1:${port}/ok.pdf`;
+  body.attachments[1].filename = 'b.pdf';
   const retry = await call('/send-bundle', { body });
   assert.equal(retry.status, 200);
   assert.equal(retry.body.resumed, true);
@@ -236,7 +239,11 @@ test('dispatcher queues a paced batch with idempotency keys, consumer delivers i
 
   resetSent();
   const acked = [];
-  const deliver = (m) => consumer.queue({ messages: [{ body: m.body, attempts: 1, ack: () => acked.push(m.body.to), retry: () => {} }] }, { BRIDGE: bridgeBinding, BRIDGE_KEY: KEY });
+  const dispatchBinding = { fetch: (req) => dispatch.fetch(req, denv) };
+  const deliver = (m) => consumer.queue(
+    { messages: [{ body: m.body, attempts: 1, ack: () => acked.push(m.body.to), retry: () => {} }] },
+    { DISPATCH: dispatchBinding }
+  );
   for (const m of queued) await deliver(m);
   await deliver(queued[0]); // a redelivery must not send again
   assert.equal(sent().length, 4);
