@@ -10,6 +10,7 @@ import {buildStockPositions,type StockMovement} from '../stock/inventory-engine'
 import {rowsToCsv,safeExportName,type ExportRow} from './export-engine';
 import {ScenarioPanel} from './ScenarioPanel';
 import {MatchingReconPanel} from './MatchingReconPanel';
+import {WorkspaceSectionNav,WorkspaceSectionPage} from '../../shell/WorkspaceSectionNav';
 import './reports-workspace.css';
 
 function downloadText(name:string,content:string,type:string){
@@ -30,6 +31,7 @@ export function ReportsWorkspace(){
   const [suppliers,setSuppliers]=useState<Supplier[]>([]);
   const [items,setItems]=useState<CatalogItem[]>([]);
   const scope=useMemo(()=>readActiveScope(window.localStorage),[]);
+  const [section,setSection]=useState('overview');
 
   const repoFor=<T extends {id:string},>(base:string)=>new JsonStorageRepository<T>(window.localStorage,makeScopedKey(base,scope));
 
@@ -68,7 +70,13 @@ export function ReportsWorkspace(){
   }
 
   return <section className="reports-workspace">
-    <div className="reports-kpis">
+    <WorkspaceSectionNav active={section} onChange={setSection} items={[
+      {id:'overview',label:'لوحة التقارير'},
+      {id:'scenarios',label:'السيناريوهات'},
+      {id:'matching',label:'المطابقة الذكية'},
+      {id:'exports',label:'التصدير'},
+    ]}/>
+    <WorkspaceSectionPage id="overview" active={section}><div className="reports-kpis">
       <article className="sk-surface"><span>قيود فعلية</span><strong>{journals.length}</strong></article>
       <article className="sk-surface"><span>إجمالي المدين</span><strong className="sk-number">{tb.totals.debit.toLocaleString('en-US')}</strong></article>
       <article className="sk-surface"><span>وحدات مخزون موجبة</span><strong className="sk-number">{positiveStock.toLocaleString('en-US')}</strong></article>
@@ -79,12 +87,12 @@ export function ReportsWorkspace(){
       <span className="eyebrow">Executive Analytics</span><h3>تقارير من نفس البيانات الأساسية</h3>
       <p>لا توجد قاعدة تقارير منفصلة. هذه الشاشة تقرأ القيود وحركات المخزون والذمم والبيانات الرئيسية نفسها التي تستخدمها الوحدات التشغيلية.</p>
       <div className="reports-status"><div><b>ميزان المراجعة</b><span>{tb.balanced?'متزن':'غير متزن'}</span></div><div><b>عدد حسابات الأستاذ</b><span>{tb.rows.length}</span></div><div><b>عدد أصناف المخزون</b><span>{stock.length}</span></div></div>
-    </section>
+    </section></WorkspaceSectionPage>
 
-    <ScenarioPanel/>
-    <MatchingReconPanel/>
+    <WorkspaceSectionPage id="scenarios" active={section}><ScenarioPanel/></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="matching" active={section}><MatchingReconPanel/></WorkspaceSectionPage>
 
-    <section className="sk-surface reports-export">
+    <WorkspaceSectionPage id="exports" active={section}><section className="sk-surface reports-export">
       <span className="eyebrow">Export Center</span><h3>تصدير CSV متوافق مع Excel + نسخة احتياطية</h3>
       <div className="reports-export__grid">
         <button onClick={()=>csv('trial-balance',tb.rows.map(row=>({...row})))}>ميزان المراجعة</button>
@@ -95,6 +103,6 @@ export function ReportsWorkspace(){
         <button onClick={()=>csv('catalog-items',items.map(row=>({...row})))}>الأصناف</button>
         <button className="secondary" onClick={exportBackup}>نسخة JSON كاملة للنطاق</button>
       </div>
-    </section>
+    </section></WorkspaceSectionPage>
   </section>;
 }
