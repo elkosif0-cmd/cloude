@@ -15,6 +15,8 @@ export const coreCapabilities: CapabilityDefinition[] = [
   { id:'stock.movements', label:'حركات المخزون', route:'/stock/movements', domain:'stock', decision:'REBUILD' },
   { id:'stock.yield', label:'اقتصاديات العائد والهدر', route:'/stock/yield', domain:'stock', decision:'MERGE' },
   { id:'stock.traceability', label:'التتبع والصلاحية والتبريد', route:'/stock/traceability', domain:'stock', decision:'REBUILD' },
+  { id:'stock.blending', label:'خلطات اللحوم', route:'/stock/blending', domain:'stock', decision:'MERGE' },
+  { id:'stock.culinary', label:'دليل الشيف', route:'/stock/culinary', domain:'stock', decision:'MERGE' },
 
   { id:'procurement.orders', label:'أوامر الشراء', route:'/procurement/orders', domain:'procurement', decision:'REBUILD' },
   { id:'procurement.receipts', label:'الاستلام ومطابقة الكميات', route:'/procurement/receipts', domain:'procurement', decision:'REBUILD' },
