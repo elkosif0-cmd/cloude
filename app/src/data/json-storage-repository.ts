@@ -1,4 +1,5 @@
 import type {EntityRecord, Repository} from './repository';
+import {recordRepositoryChange} from './change-log';
 
 export type StorageLike={
   getItem:(key:string)=>string|null;
@@ -38,9 +39,11 @@ export class JsonStorageRepository<T extends EntityRecord> implements Repository
   async put(record:T){
     const rows=this.readEnvelope().records;
     const index=rows.findIndex((item)=>item.id===record.id);
+    const action=index>=0?'UPDATE':'CREATE';
     if(index>=0)rows[index]=structuredClone(record);
     else rows.push(structuredClone(record));
     this.write(rows);
+    recordRepositoryChange(this.storage,{key:this.key,action,entityId:record.id});
     return structuredClone(record);
   }
 
@@ -50,12 +53,20 @@ export class JsonStorageRepository<T extends EntityRecord> implements Repository
     for(const record of records)map.set(record.id,structuredClone(record));
     const next=[...map.values()];
     this.write(next);
+    recordRepositoryChange(this.storage,{key:this.key,action:'BATCH_PUT',count:records.length});
     return structuredClone(records);
   }
 
   async remove(id:string){
-    this.write(this.readEnvelope().records.filter((item)=>item.id!==id));
+    const rows=this.readEnvelope().records;
+    const existed=rows.some((item)=>item.id===id);
+    this.write(rows.filter((item)=>item.id!==id));
+    if(existed)recordRepositoryChange(this.storage,{key:this.key,action:'REMOVE',entityId:id});
   }
 
-  async clear(){this.storage.removeItem(this.key);}
+  async clear(){
+    const count=this.readEnvelope().records.length;
+    this.storage.removeItem(this.key);
+    if(count>0)recordRepositoryChange(this.storage,{key:this.key,action:'CLEAR',count});
+  }
 }
