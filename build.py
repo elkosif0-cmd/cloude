@@ -19,8 +19,8 @@ text=re.sub(r'<meta\s+name=["\']apple-mobile-web-app-title["\'][^>]*>', '<meta n
 
 # The S.kosif screens live in ui/ and ship as one stylesheet and one script.
 # Order matters: shell.js provides the shared helpers the screens use.
-UI_CSS=["skosif.css","offers.css","supply.css","smartmatch.css","meatops.css","kernel.css","enterprise.css","reports.css","erp-plus.css","operations.css","capabilities-v2.css"]
-UI_JS=["shell.js","jev.js","offers.js","inventory.js","supply.js","meatops.js","smartmatch.js","pricing-core.js","kernel.js","tools.js","enterprise.js","reports.js","erp-plus.js","operations.js","capabilities-v2.js","audit-bridge.js"]
+UI_CSS=["skosif.css","offers.css","supply.css","smartmatch.css","meatops.css","kernel.css","enterprise.css","reports.css","erp-plus.css","operations.css","capabilities-v2.css","fusion.css"]
+UI_JS=["shell.js","jev.js","offers.js","inventory.js","supply.js","meatops.js","smartmatch.js","pricing-core.js","kernel.js","tools.js","enterprise.js","reports.js","erp-plus.js","operations.js","capabilities-v2.js","audit-bridge.js","fusion-shell.js"]
 bundle_css="\n".join(f"/* ---- ui/{n} ---- */\n"+Path("ui",n).read_text(encoding="utf-8") for n in UI_CSS)
 # Each screen is isolated: an error while one module loads is logged and
 # the modules after it still load (one bad module must not blank the app).
