@@ -122,6 +122,34 @@ async function startSocket() {
   try { return await starting; } finally { starting = null; }
 }
 
+async function requestPhonePairingCode(phone) {
+  const digits = String(phone || "").replace(/\D/g, "");
+  if (digits.length < 8 || digits.length > 15) {
+    const e = new Error("invalid_phone");
+    e.status = 400;
+    throw e;
+  }
+  await startSocket();
+  if (connection === "open") {
+    const e = new Error("already_linked");
+    e.status = 409;
+    throw e;
+  }
+  const end = Date.now() + 10000;
+  while (Date.now() < end) {
+    if (connection === "open") {
+      const e = new Error("already_linked");
+      e.status = 409;
+      throw e;
+    }
+    if (qr || connection === "qr") break;
+    await new Promise(r => setTimeout(r, 200));
+  }
+  if (!sock) throw new Error("socket_not_ready");
+  const code = await sock.requestPairingCode(digits);
+  return String(code || "").replace(/\D/g, "");
+}
+
 async function waitForOpen(timeoutMs = 20000) {
   await startSocket();
   if (connection === "open") return;
@@ -231,6 +259,12 @@ const server = http.createServer(async (req, res) => {
       const end = Date.now() + 5000;
       while (Date.now() < end && connection === "connecting") await new Promise(r => setTimeout(r, 100));
       return json(res, 200, { restored, version, connection, qr, me });
+    }
+
+    if (url.pathname === "/pair-code" && req.method === "POST") {
+      const body = JSON.parse((await readBody(req)).toString("utf8"));
+      const code = await requestPhonePairingCode(body.phone);
+      return json(res, 200, { ok: true, code, connection });
     }
 
     if (url.pathname === "/send" && req.method === "POST") {
