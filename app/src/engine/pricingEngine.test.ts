@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import {
   roundPrice,
   computeWasteFactor,
@@ -260,3 +261,12 @@ export function runPricingEngineTests(): { allPassed: boolean; results: TestResu
   const allPassed = results.every((r) => r.passed);
   return { allPassed, results };
 }
+
+describe('pricingEngine regression test suite', () => {
+  const { results } = runPricingEngineTests();
+  for (const r of results) {
+    it(r.title, () => {
+      expect(r.passed, `Expected ${r.expected}, got ${r.actual}`).toBe(true);
+    });
+  }
+});

@@ -154,7 +154,7 @@
     }
   };
 
-  // 5. رادار الصلاحية FIFO (Freshness & Inventory Service)
+  // 5. رادار الصلاحية FIFO وتخطيط المخزون (Freshness & Inventory Service)
   const Inventory = {
     evaluateFreshness(slaughterDateStr, storageType="chilled"){
       const slDate=new Date(slaughterDateStr);
@@ -176,6 +176,37 @@
         maxDays,
         risk
       };
+    },
+    evaluateExpiry(expiryDateStr){
+      const today=new Date(); today.setHours(0,0,0,0);
+      const exp=new Date(expiryDateStr); exp.setHours(0,0,0,0);
+      const diffDays=isNaN(exp.getTime())?0:Math.ceil((exp.getTime()-today.getTime())/(1000*60*60*24));
+      let status="good", label="طازج وصالح", action="بيع روتيني طبيعي";
+      if(diffDays<0){ status="bad"; label="منتهي الصلاحية"; action="استبعاد وإتلاف فوري"; }
+      else if(diffDays<=1){ status="bad"; label="حرج جداً (ينتهي اليوم/غداً)"; action="أولوية بيع قصوى، تتبيل، أو تجميد فوري"; }
+      else if(diffDays<=3){ status="warn"; label="قريب الانتهاء (2-3 أيام)"; action="تطبيق مبدأ FIFO وعرض ترويجي"; }
+      return {diffDays,status,label,action};
+    },
+    calculateReorder({ stock=0, daily=0, lead=2, safety=2, cycle=7 }={}){
+      const st=Math.max(0,Number(stock)||0);
+      const d=Math.max(0,Number(daily)||0);
+      const l=Math.max(0,Number(lead)||0);
+      const sf=Math.max(0,Number(safety)||0);
+      const cy=Math.max(0,Number(cycle)||0);
+      if(d<=0)return {error:"أدخل متوسط بيع يومي أكبر من صفر."};
+      const cover=st/d;
+      const reorderPoint=d*(l+sf);
+      const targetStock=d*(l+sf+cy);
+      const suggested=Math.max(0,targetStock-st);
+      const status=st<=reorderPoint?"إعادة طلب عاجلة":cover<=l+sf+Math.max(1,cy*.35)?"إعادة طلب قريبة":"المخزون آمن حالياً";
+      return {
+        stock:st, daily:d, lead:l, safety:sf, cycle:cy,
+        cover:Math.round(cover*10)/10,
+        reorderPoint:Math.round(reorderPoint*100)/100,
+        targetStock:Math.round(targetStock*100)/100,
+        suggested:Math.round(suggested*100)/100,
+        status
+      };
     }
   };
 
@@ -185,6 +216,45 @@
       const live=Number(liveWeight)||0;
       const car=Number(carcassWeight)||0;
       return live>0?(car/live)*100:0;
+    },
+    calculateBlend({ leanKg=0, fatKg=0, leanCost=0, fatCost=0, spicesCost=0, pkgCost=0, shrinkPct=0, pieceGrams=150, marginPct=25 }={}){
+      const lKg=Math.max(0,Number(leanKg)||0);
+      const fKg=Math.max(0,Number(fatKg)||0);
+      const lCost=Math.max(0,Number(leanCost)||0);
+      const fCost=Math.max(0,Number(fatCost)||0);
+      const sCost=Math.max(0,Number(spicesCost)||0);
+      const pCost=Math.max(0,Number(pkgCost)||0);
+      const shrink=Math.max(0,Math.min(100,Number(shrinkPct)||0));
+      const pGrams=Math.max(1,Number(pieceGrams)||150);
+      const margin=Math.min(90,Math.max(5,Number(marginPct)||25))/100;
+
+      const rawWeight=lKg+fKg;
+      const netYield=rawWeight*(1-shrink/100);
+      const totalCost=(lKg*lCost)+(fKg*fCost)+sCost+pCost;
+      const costPerKg=netYield>0?totalCost/netYield:0;
+      const pieces=pGrams>0?Math.floor((netYield*1000)/pGrams):0;
+      const costPerPiece=pieces>0?totalCost/pieces:0;
+      const pricePerKg=costPerKg/(1-margin);
+      const pricePerPiece=costPerPiece/(1-margin);
+      const totalRevenue=pieces*pricePerPiece;
+      const totalProfit=totalRevenue-totalCost;
+      const leanPct=rawWeight>0?(lKg/rawWeight)*100:80;
+      const fatPct=rawWeight>0?(fKg/rawWeight)*100:20;
+
+      return {
+        rawWeight:Math.round(rawWeight*100)/100,
+        netYield:Math.round(netYield*100)/100,
+        totalCost:Math.round(totalCost*100)/100,
+        costPerKg:Math.round(costPerKg*100)/100,
+        pieces,
+        costPerPiece:Math.round(costPerPiece*100)/100,
+        pricePerKg:Math.round(pricePerKg*100)/100,
+        pricePerPiece:Math.round(pricePerPiece*100)/100,
+        totalRevenue:Math.round(totalRevenue*100)/100,
+        totalProfit:Math.round(totalProfit*100)/100,
+        leanPct:Math.round(leanPct*10)/10,
+        fatPct:Math.round(fatPct*10)/10
+      };
     }
   };
 

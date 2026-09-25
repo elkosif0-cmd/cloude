@@ -61,7 +61,7 @@ body.sk-command-visible{overflow:hidden!important}
 @media(max-width:760px){
   .sk-fusion-nav-head{padding-inline:12px}.sk-fusion-nav-head small{display:none}
   .sk-command-key{display:none}.sk-command-layer{padding:calc(62px + env(safe-area-inset-top)) 8px calc(8px + env(safe-area-inset-bottom));place-items:end center}.sk-command-panel{width:100%;max-height:82dvh;border-radius:20px 20px 0 0}.sk-command-foot{display:none}
-  .sk-fusion-command-head{align-items:stretch;flex-direction:column;padding:18px}.sk-fusion-command-head .sk-primary{width:100%}
+  .sk-fusion-command-head{align-items:stretch;flex-direction:column;padding:18px}.sk-fusion-command-head .sk-primary, .sk-fusion-command-head [data-command]{width:100%}
   .sk-fusion-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.sk-fusion-metrics article{padding:12px}.sk-fusion-metrics b{font-size:21px}
   .sk-fusion-command-grid>section{padding:14px}.sk-fusion-actions{grid-template-columns:1fr}
 }

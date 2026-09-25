@@ -179,6 +179,103 @@ assert.strictEqual(splitRes.cashChange, 50);
 assert.strictEqual(splitRes.isFullySettled, true);
 console.log("✓ GOLD-POS-01: حسابات السداد المتعدد والفكة المتبقية للعميل صحيحة بدقة");
 
+// 7. اختبار خلط اللحوم وحساب نسب الدسم (Meat Blending & Fat Balancing)
+const calculateBlend = ({ leanKg=0, fatKg=0, leanCost=0, fatCost=0, spicesCost=0, pkgCost=0, shrinkPct=0, pieceGrams=150, marginPct=25 }={}) => {
+  const lKg=Math.max(0,Number(leanKg)||0);
+  const fKg=Math.max(0,Number(fatKg)||0);
+  const lCost=Math.max(0,Number(leanCost)||0);
+  const fCost=Math.max(0,Number(fatCost)||0);
+  const sCost=Math.max(0,Number(spicesCost)||0);
+  const pCost=Math.max(0,Number(pkgCost)||0);
+  const shrink=Math.max(0,Math.min(100,Number(shrinkPct)||0));
+  const pGrams=Math.max(1,Number(pieceGrams)||150);
+  const margin=Math.min(90,Math.max(5,Number(marginPct)||25))/100;
+
+  const rawWeight=lKg+fKg;
+  const netYield=rawWeight*(1-shrink/100);
+  const totalCost=(lKg*lCost)+(fKg*fCost)+sCost+pCost;
+  const costPerKg=netYield>0?totalCost/netYield:0;
+  const pieces=pGrams>0?Math.floor((netYield*1000)/pGrams):0;
+  const costPerPiece=pieces>0?totalCost/pieces:0;
+  const pricePerKg=costPerKg/(1-margin);
+  const pricePerPiece=costPerPiece/(1-margin);
+  const totalRevenue=pieces*pricePerPiece;
+  const totalProfit=totalRevenue-totalCost;
+  const leanPct=rawWeight>0?(lKg/rawWeight)*100:80;
+  const fatPct=rawWeight>0?(fKg/rawWeight)*100:20;
+
+  return {
+    rawWeight:Math.round(rawWeight*100)/100,
+    netYield:Math.round(netYield*100)/100,
+    totalCost:Math.round(totalCost*100)/100,
+    costPerKg:Math.round(costPerKg*100)/100,
+    pieces,
+    costPerPiece:Math.round(costPerPiece*100)/100,
+    pricePerKg:Math.round(pricePerKg*100)/100,
+    pricePerPiece:Math.round(pricePerPiece*100)/100,
+    totalRevenue:Math.round(totalRevenue*100)/100,
+    totalProfit:Math.round(totalProfit*100)/100,
+    leanPct:Math.round(leanPct*10)/10,
+    fatPct:Math.round(fatPct*10)/10
+  };
+};
+
+const blendRes = calculateBlend({
+  leanKg: 80,
+  fatKg: 20,
+  leanCost: 45,
+  fatCost: 10,
+  spicesCost: 50,
+  pkgCost: 50,
+  shrinkPct: 5,
+  pieceGrams: 150,
+  marginPct: 20
+});
+
+assert.strictEqual(blendRes.rawWeight, 100);
+assert.strictEqual(blendRes.netYield, 95);
+assert.strictEqual(blendRes.totalCost, 3900);
+assert.strictEqual(blendRes.leanPct, 80);
+assert.strictEqual(blendRes.fatPct, 20);
+assert.strictEqual(blendRes.pieces, 633);
+assert.ok(Math.abs(blendRes.costPerKg - 41.05) <= 0.02, `Expected 41.05, got ${blendRes.costPerKg}`);
+assert.ok(Math.abs(blendRes.pricePerKg - 51.32) <= 0.02, `Expected 51.32, got ${blendRes.pricePerKg}`);
+console.log("✓ GOLD-BLD-01: خلط اللحوم وتحديد نسب الدسم والتسعير (Meat Blending & Fat Balancing) ناجح تماماً");
+
+// 8. اختبار رادار الصلاحية وتخطيط المخزون (Inventory Reorder & Freshness Evaluation)
+const calculateReorder = ({ stock=0, daily=0, lead=2, safety=2, cycle=7 }={}) => {
+  const st=Math.max(0,Number(stock)||0);
+  const d=Math.max(0,Number(daily)||0);
+  const l=Math.max(0,Number(lead)||0);
+  const sf=Math.max(0,Number(safety)||0);
+  const cy=Math.max(0,Number(cycle)||0);
+  if(d<=0)return {error:"أدخل متوسط بيع يومي أكبر من صفر."};
+  const cover=st/d;
+  const reorderPoint=d*(l+sf);
+  const targetStock=d*(l+sf+cy);
+  const suggested=Math.max(0,targetStock-st);
+  const status=st<=reorderPoint?"إعادة طلب عاجلة":cover<=l+sf+Math.max(1,cy*.35)?"إعادة طلب قريبة":"المخزون آمن حالياً";
+  return {
+    stock:st, daily:d, lead:l, safety:sf, cycle:cy,
+    cover:Math.round(cover*10)/10,
+    reorderPoint:Math.round(reorderPoint*100)/100,
+    targetStock:Math.round(targetStock*100)/100,
+    suggested:Math.round(suggested*100)/100,
+    status
+  };
+};
+
+const invNormal = calculateReorder({ stock: 50, daily: 10, lead: 2, safety: 2, cycle: 7 });
+assert.strictEqual(invNormal.cover, 5.0);
+assert.strictEqual(invNormal.reorderPoint, 40);
+assert.strictEqual(invNormal.targetStock, 110);
+assert.strictEqual(invNormal.suggested, 60);
+
+const invUrgent = calculateReorder({ stock: 30, daily: 10, lead: 2, safety: 2, cycle: 7 });
+assert.strictEqual(invUrgent.status, "إعادة طلب عاجلة");
+assert.strictEqual(invUrgent.suggested, 80);
+console.log("✓ GOLD-INV-01: رادار الصلاحية وإعادة طلب المخزون (Inventory Reorder & Freshness Evaluation) ناجح تماماً");
+
 console.log("\n=======================================================");
 console.log("✅ كـافـة اختبارات العقد السلوكي (Behavioral Contract Tests) اجتازت بنجاح 100%!");
 console.log("=======================================================\n");

@@ -433,19 +433,33 @@ const BLEND_PRESETS=[
 let blendState={...BLEND_PRESETS[0]};
 
 function blendingHTML(){
-  const rawWeight=blendState.leanKg+blendState.fatKg;
-  const netYield=rawWeight*(1-blendState.shrink/100);
-  const totalCost=(blendState.leanKg*blendState.leanCost)+(blendState.fatKg*blendState.fatCost)+blendState.spicesCost+blendState.pkgCost;
-  const costPerKg=netYield>0?totalCost/netYield:0;
-  const pieces=blendState.pieceGrams>0?Math.floor((netYield*1000)/blendState.pieceGrams):0;
-  const costPerPiece=pieces>0?totalCost/pieces:0;
-  const targetMargin=Math.min(90,Math.max(5,blendState.margin))/100;
-  const pricePerKg=costPerKg/(1-targetMargin);
-  const pricePerPiece=costPerPiece/(1-targetMargin);
-  const totalRevenue=pieces*pricePerPiece;
-  const totalProfit=totalRevenue-totalCost;
-  const leanPct=rawWeight>0?(blendState.leanKg/rawWeight)*100:80;
-  const fatPct=rawWeight>0?(blendState.fatKg/rawWeight)*100:20;
+  const calc=(window.SKServices?.meatops?.calculateBlend?.({
+    leanKg:blendState.leanKg,
+    fatKg:blendState.fatKg,
+    leanCost:blendState.leanCost,
+    fatCost:blendState.fatCost,
+    spicesCost:blendState.spicesCost,
+    pkgCost:blendState.pkgCost,
+    shrinkPct:blendState.shrink,
+    pieceGrams:blendState.pieceGrams,
+    marginPct:blendState.margin
+  }))||(()=>{
+    const rawWeight=blendState.leanKg+blendState.fatKg;
+    const netYield=rawWeight*(1-blendState.shrink/100);
+    const totalCost=(blendState.leanKg*blendState.leanCost)+(blendState.fatKg*blendState.fatCost)+blendState.spicesCost+blendState.pkgCost;
+    const costPerKg=netYield>0?totalCost/netYield:0;
+    const pieces=blendState.pieceGrams>0?Math.floor((netYield*1000)/blendState.pieceGrams):0;
+    const costPerPiece=pieces>0?totalCost/pieces:0;
+    const targetMargin=Math.min(90,Math.max(5,blendState.margin))/100;
+    const pricePerKg=costPerKg/(1-targetMargin);
+    const pricePerPiece=costPerPiece/(1-targetMargin);
+    const totalRevenue=pieces*pricePerPiece;
+    const totalProfit=totalRevenue-totalCost;
+    const leanPct=rawWeight>0?(blendState.leanKg/rawWeight)*100:80;
+    const fatPct=rawWeight>0?(blendState.fatKg/rawWeight)*100:20;
+    return {rawWeight,netYield,totalCost,costPerKg,pieces,costPerPiece,pricePerKg,pricePerPiece,totalRevenue,totalProfit,leanPct,fatPct};
+  })();
+  const {rawWeight,netYield,totalCost,costPerKg,pieces,costPerPiece,pricePerKg,pricePerPiece,totalRevenue,totalProfit,leanPct,fatPct}=calc;
 
   return [
     '<div class="sk-chips" style="margin-bottom:14px;">',

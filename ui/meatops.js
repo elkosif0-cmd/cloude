@@ -27,7 +27,7 @@ const CARCASS_PRESETS=[
 let cuts=[...CARCASS_PRESETS[0].cuts];
 const AR_KEY="skosif_ar_paste";
 let arText=(()=>{try{return localStorage.getItem(AR_KEY)||""}catch{return ""}})();
-function dressing(live,carcass){return live>0?carcass/live*100:0}
+function dressing(live,carcass){return (window.SKServices?.meatops?.dressingPercentage(live,carcass)) ?? (live>0?carcass/live*100:0)}
 function allocate(carcassKg,totalCost,rows){
   const totalYield=rows.reduce((s,x)=>s+Math.max(0,x.yield),0)||1;
   return rows.map(x=>{
