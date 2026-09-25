@@ -6,7 +6,7 @@ import{bootstrapDiagnostics}from'../data/bootstrap';
 import{exportLocalSnapshot,migrateIndexedDb,migratePrivateCatalog,repos}from'../data/repositories';
 import{cashSummary}from'../services/finance';
 import{inventoryRows}from'../services/inventory';
-import{useAppRefresh}from'../hooks/useRefresh';
+import{useAppRefresh}from'../hooks/useRefresh';\nimport{AuditWorkspaceView}from'./AuditWorkspaceView';
 
 const API='https://aghnam-jev-api.kosif199022.workers.dev';
 const money=(v:unknown)=>new Intl.NumberFormat('ar-SA-u-nu-latn',{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(v)||0)+' ر.س';
@@ -36,24 +36,7 @@ export function IntelligenceView(){
 }
 function Simulation({avg}:{avg:number}){const[cost,setCost]=useState(10),[price,setPrice]=useState(0);const next=1-((1-avg)*(1+cost/100))/Math.max(.01,1+price/100);return <Card title="محاكاة قبل القرار" sub="حساب محلي؛ لا ينفذ أي تغيير"><div className="z-form-grid"><Field label="تغير التكلفة ٪"><Input type="number" value={cost} onChange={e=>setCost(Number(e.target.value))}/></Field><Field label="تغير السعر ٪"><Input type="number" value={price} onChange={e=>setPrice(Number(e.target.value))}/></Field></div><div className="z-kpis" style={{marginTop:14}}><KPI label="مؤشر الهامش الحالي" value={(avg*100).toFixed(1)+'٪'}/><KPI label="بعد السيناريو" value={(next*100).toFixed(1)+'٪'} tone={next<0?'bad':next<avg?'warn':'good'}/></div><Notice tone="info">هذه محاكاة تقريبية على المتوسط وليست بديلاً عن إعادة تسعير كل صنف بمحرك التسعير القطعي.</Notice></Card>}
 
-export function AuditView(){
- const[tab,setTab]=useState('workspace'),orders=repos.orders(),finance=repos.finance(),audit=repos.audit(),raws=repos.raws(),boxes=repos.boxes();
- const sales=orders.reduce((a,o)=>a+Number(o.totalAmount||0),0),payments=orders.reduce((a,o)=>a+Number(o.paidAmount||0),0),due=sales-payments;
- const tests=[
-  {id:'tb',title:'اتساق بيانات المصدر',status:(orders.length||raws.length||boxes.length)?'ready':'empty',note:'فحص وجود مصادر فعلية قبل أي تحليل.'},
-  {id:'receivables',title:'تسوية المبيعات والتحصيل',status:Math.abs((sales-payments)-due)<.01?'ready':'warn',note:'الإجمالي − المسدد = المتبقي.'},
-  {id:'audit',title:'قابلية التتبع',status:audit.length?'ready':'empty',note:'وجود سجل تغييرات للأحداث المهمة.'},
-  {id:'finance',title:'مصادر التدفق',status:finance.flows.length?'ready':'empty',note:'الحركات المالية المسجلة مع مرجع/حساب.'}
- ];
- return <div className="z-page"><PageHeader eyebrow="ACCOUNTING & AUDIT" title="المحاسبة والمراجعة" description="واجهة مراجعة جديدة لا تضمّن شاشات Legacy. القدرات المتخصصة تُنقل تدريجيًا إلى خدمات وواجهات جديدة قبل حذف المصدر القديم."/>
- <Tabs value={tab} onChange={setTab} items={[{id:'workspace',label:'مساحة المراجعة'},{id:'evidence',label:'الأدلة والمصادر'},{id:'tests',label:'الاختبارات'},{id:'coverage',label:'تغطية النقل'}]}/>
- {tab==='workspace'&&<div className="z-grid"><Card className="z-col-7" title="ملخص قابل للمراجعة"><div className="z-kpis"><KPI label="قيمة الطلبات" value={money(sales)}/><KPI label="المسدد" value={money(payments)}/><KPI label="المتبقي" value={money(due)} tone={due?'warn':'good'}/><KPI label="سجل التغييرات" value={audit.length}/></div><Notice tone="info">هذه الشاشة لا تنشئ ميزان مراجعة افتراضيًا. أي قيد أو تقرير مراجعة يجب أن يرتبط بمصدر مسجل ويمكن تتبعه.</Notice></Card><Card className="z-col-5" title="حالة دورة المراجعة"><div className="z-metric-list">{['التخطيط','المستندات والأدلة','القضايا','المراجعة','التقرير'].map((x,i)=><div className="z-metric-row" key={x}><span>{x}</span><Badge tone={i===0?'info':'neutral'}>{i===0?'جاهز للبدء':'ينتظر نقل القدرة'}</Badge></div>)}</div></Card></div>}
- {tab==='evidence'&&<Card title="مصادر داخل S.kosif"><Table><thead><tr><th>المصدر</th><th>السجلات</th><th>الاستخدام</th><th>الحالة</th></tr></thead><tbody><tr><td>الطلبات</td><td>{orders.length}</td><td>المبيعات والتحصيل</td><td><Badge tone={orders.length?'good':'neutral'}>{orders.length?'متاح':'فارغ'}</Badge></td></tr><tr><td>حركات مالية</td><td>{finance.flows.length}</td><td>التدفق والمصروفات</td><td><Badge tone={finance.flows.length?'good':'neutral'}>{finance.flows.length?'متاح':'فارغ'}</Badge></td></tr><tr><td>الأصناف</td><td>{raws.length+boxes.length}</td><td>التكلفة والهوامش</td><td><Badge tone={raws.length+boxes.length?'good':'neutral'}>{raws.length+boxes.length?'متاح':'فارغ'}</Badge></td></tr><tr><td>سجل التدقيق</td><td>{audit.length}</td><td>التغييرات</td><td><Badge tone={audit.length?'good':'neutral'}>{audit.length?'متاح':'فارغ'}</Badge></td></tr></tbody></Table></Card>}
- {tab==='tests'&&<Card title="اختبارات أولية"><div className="z-attention">{tests.map(t=><div className="z-attention-item" key={t.id}><div><b>{t.title}</b><p>{t.note}</p></div><Badge tone={t.status==='ready'?'good':t.status==='warn'?'warn':'neutral'}>{t.status==='ready'?'جاهز':t.status==='warn'?'راجع':'لا بيانات'}</Badge></div>)}</div></Card>}
- {tab==='coverage'&&<Card title="نقل قدرات Audit Studio"><Notice tone="warn">محركات Benford والعينات واختبارات القيود ومجلس المراجعين ومعمل المعايير ما زالت في مصدر Legacy/Vendored ولا تعتبر منقولة بعد. لذلك Zero Legacy Gate غير مفتوح، ولن نحذفها أو نعلن 100٪ قبل إعادة بنائها واختبارها.</Notice></Card>}</div>
-}
-
-const ROLE_PERMS:any={
+export function AuditView(){return <AuditWorkspaceView/>}\n\nconst ROLE_PERMS:any={
  owner:['view','create','edit','delete','approve','export','administer'],partner:['view','create','edit','approve','export'],manager:['view','create','edit','approve','export'],senior:['view','create','edit','export'],viewer:['view']
 };
 export function SystemView(){
