@@ -63,7 +63,7 @@ jobs:
 
       - name: Test reconstructed application contracts
         working-directory: app
-        run: npx vitest run src/rebuild/core/capabilities.test.ts src/rebuild/services/specialist.test.ts
+        run: npx vitest run src/rebuild/core/capabilities.test.ts src/rebuild/services/specialist.test.ts src/rebuild/services/operations.test.ts
 
       - name: Build reconstructed application
         working-directory: app
@@ -110,7 +110,8 @@ jobs:
           bundle="\n".join(p.read_text(encoding="utf-8",errors="ignore") for p in assets if p.suffix==".js")
           for marker in [
               "مركز القيادة","المبيعات والعملاء","المخزون والإنتاج","المركز المالي",
-              "الكتالوج والتسعير","مركز Jev الذكي","المحاسبة والمراجعة","النظام والتكاملات"
+              "الكتالوج والتسعير","مركز Jev الذكي","المحاسبة والمراجعة","النظام والتكاملات",
+              "أوامر الشراء","كفاءة القصاب","اشتراكات اللحوم","ماسح الباركود","دليل الشيف","اقتصاديات الذبيحة"
           ]:
               assert marker in bundle, marker
           assert "SKIP_WAITING" in sw
