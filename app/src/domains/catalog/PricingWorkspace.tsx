@@ -3,6 +3,7 @@ import {calculatePricing} from './pricing-engine';
 import {ItemsPanel} from './ItemsPanel';
 import {OffersPanel} from './OffersPanel';
 import {LabelScannerPanel} from './LabelScannerPanel';
+import {BoxBuilderPanel} from './BoxBuilderPanel';
 import './pricing-workspace.css';
 
 export function PricingWorkspace(){
@@ -22,6 +23,7 @@ export function PricingWorkspace(){
     <ItemsPanel/>
     <OffersPanel/>
     <LabelScannerPanel/>
+    <BoxBuilderPanel/>
     <div className="pricing-grid">
       <section className="sk-surface pricing-form">
         <span className="eyebrow">Costing + Pricing</span><h3>حاسبة التكلفة والتسعير</h3>
