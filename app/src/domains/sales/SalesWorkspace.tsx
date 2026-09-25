@@ -14,6 +14,7 @@ import {CateringPanel} from './CateringPanel';
 import {CustomerIntelligencePanel} from './CustomerIntelligencePanel';
 import {CreditPanel} from './CreditPanel';
 import {SubscriptionsPanel} from './SubscriptionsPanel';
+import {WorkspaceSectionNav,WorkspaceSectionPage} from '../../shell/WorkspaceSectionNav';
 import './sales-workspace.css';
 
 export function SalesWorkspace(){
@@ -34,6 +35,7 @@ export function SalesWorkspace(){
   const [revenueAccount,setRevenueAccount]=useState('account-4000');
   const [vatAccount,setVatAccount]=useState('account-2105');
   const [message,setMessage]=useState('');
+  const [section,setSection]=useState('orders');
 
   const customerRepo=useMemo(()=>new JsonStorageRepository<Customer>(window.localStorage,makeScopedKey('sales.customers',scope)),[scope]);
   const itemRepo=useMemo(()=>new JsonStorageRepository<CatalogItem>(window.localStorage,makeScopedKey('catalog.items',scope)),[scope]);
@@ -120,16 +122,23 @@ export function SalesWorkspace(){
   }
 
   return <section className="sales-workspace">
-    <div className="sales-kpis">
+    <WorkspaceSectionNav active={section} onChange={setSection} items={[
+      {id:'orders',label:'الطلبات',badge:orders.length},
+      {id:'customers',label:'العملاء',badge:customers.length},
+      {id:'credit',label:'الائتمان والاشتراكات'},
+      {id:'invoices',label:'الفواتير'},
+      {id:'catering',label:'المناسبات'},
+    ]}/>
+    <WorkspaceSectionPage id="orders" active={section}><div className="sales-kpis">
       <article className="sk-surface"><span>قبل الخصم</span><strong className="sk-number">{totals.subtotal.toLocaleString('en-US')}</strong></article>
       <article className="sk-surface"><span>الضريبة</span><strong className="sk-number">{totals.vat.toLocaleString('en-US')}</strong></article>
       <article className="sk-surface"><span>الإجمالي</span><strong className="sk-number">{totals.total.toLocaleString('en-US')}</strong></article>
       <article className="sk-surface"><span>مستندات مرحّلة</span><strong className="sk-number">{orders.filter(x=>x.status==='POSTED').length}</strong></article>
-    </div>
+    </div></WorkspaceSectionPage>
 
-    <CustomersPanel onChanged={()=>{void customerRepo.list().then(setCustomers);}}/>
+    <WorkspaceSectionPage id="customers" active={section}><CustomersPanel onChanged={()=>{void customerRepo.list().then(setCustomers);}}/></WorkspaceSectionPage>
 
-    <div className="sales-grid">
+    <WorkspaceSectionPage id="orders" active={section}><div className="sales-grid">
       <section className="sk-surface sales-form">
         <span className="eyebrow">Sales Order</span><h3>أمر بيع قابل للترحيل</h3>
         <label>العميل<select value={customerId} onChange={(e)=>setCustomerId(e.target.value)}><option value="">اختر العميل</option>{customers.map(c=><option key={c.id} value={c.id}>{c.code} — {c.name}</option>)}</select></label>
@@ -156,17 +165,17 @@ export function SalesWorkspace(){
         <div className="sales-table"><table><thead><tr><th>الصنف</th><th>الكمية</th><th>السعر</th><th>الخصم</th></tr></thead><tbody>{lines.map((line,index)=><tr key={line.itemId+'-'+index}><td>{items.find(i=>i.id===line.itemId)?.name??line.itemId}</td><td className="sk-number">{line.quantity}</td><td className="sk-number">{line.unitPrice}</td><td className="sk-number">{line.discount??0}</td></tr>)}</tbody></table></div>}
         {lines.length>0?<button className="secondary" onClick={()=>setLines([])}>مسح الطلب الحالي</button>:null}
       </section>
-    </div>
+    </div></WorkspaceSectionPage>
 
-    <CreditPanel/>
-    <SubscriptionsPanel/>
-    <TaxInvoicePanel orders={orders} customers={customers} items={items}/>
-    <CateringPanel/>
-    <CustomerIntelligencePanel/>
+    <WorkspaceSectionPage id="credit" active={section}><CreditPanel/>
+    <SubscriptionsPanel/></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="invoices" active={section}><TaxInvoicePanel orders={orders} customers={customers} items={items}/></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="catering" active={section}><CateringPanel/></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="customers" active={section}><CustomerIntelligencePanel/></WorkspaceSectionPage>
 
-    <section className="sales-orders sk-surface">
+    <WorkspaceSectionPage id="orders" active={section}><section className="sales-orders sk-surface">
       <div className="sales-customers__head"><div><span className="eyebrow">Sales Register</span><h3>سجل أوامر البيع</h3></div><strong>{orders.length}</strong></div>
       {orders.length===0?<p className="sales-empty">لا توجد أوامر محفوظة.</p>:<div className="sales-table"><table><thead><tr><th>الرقم</th><th>العميل</th><th>الحالة</th><th>الإجمالي</th><th></th></tr></thead><tbody>{orders.map(order=><tr key={order.id}><td>{order.number}</td><td>{customers.find(c=>c.id===order.customerId)?.name??order.customerId}</td><td>{order.status}</td><td className="sk-number">{calculateSalesTotals(order.lines).total.toLocaleString('en-US')}</td><td>{order.status==='DRAFT'?<button onClick={()=>void postDocument(order)}>ترحيل</button>:'—'}</td></tr>)}</tbody></table></div>}
-    </section>
+    </section></WorkspaceSectionPage>
   </section>;
 }
