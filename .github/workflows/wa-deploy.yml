@@ -1,16 +1,17 @@
 name: KOSIF WhatsApp Bridge Deploy
 
 on:
-  issues:
-    types: [opened]
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/wa-deploy.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
-  issues: write
 
 jobs:
   deploy:
-    if: github.event.issue.title == '[WA-DEPLOY]'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout bridge branch
@@ -34,21 +35,9 @@ jobs:
           set -euo pipefail
           TOKEN="${CLOUDFLARE_API_TOKEN:-${CF_API_TOKEN:-${CLOUDFLARE_TOKEN:-}}}"
           if [ -z "$TOKEN" ]; then
-            echo "No Cloudflare API token secret is available." >&2
+            echo "No Cloudflare API token secret is configured." >&2
             exit 42
           fi
           export CLOUDFLARE_API_TOKEN="$TOKEN"
           npm install
           npx wrangler deploy
-
-      - name: Mark deployed
-        if: success()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh issue comment "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --body "WA_DEPLOY_OK"
-
-      - name: Mark deploy failed
-        if: failure()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh issue comment "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --body "WA_DEPLOY_FAILED"
