@@ -105,6 +105,20 @@ export class WaBridge extends Container<Env> {
     await this.call('/connect', { method: 'POST' });
     return this.status();
   }
+  async pairingCode(phone: string): Promise<{ code: string; connection: string }> {
+    await this.ready();
+    const res = await this.call('/pair-code', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ phone }),
+    });
+    const text = await res.text();
+    let body: { code?: string; connection?: string; error?: string } = {};
+    try { body = JSON.parse(text); } catch {}
+    if (!res.ok || !body.code) throw new HttpError(res.status || 500, body.error || text || 'pairing code failed');
+    this.syncSoon();
+    return { code: body.code, connection: body.connection || 'pairing' };
+  }
   // Sends text and files to one recipient in a single container call with one auth sync afterwards.
   // With an idempotency key, a repeat returns the saved result and a retry after a partial failure
   // sends only the items that did not go out.
@@ -260,6 +274,13 @@ async function route(req: Request, env: Env): Promise<Response> {
   if (path === '/status' && req.method === 'GET') {
     const st = await wa.status();
     return json({ linked: isLinked(st), connection: st.connection, me: st.me });
+  }
+  if (path === '/pair/code' && req.method === 'POST') {
+    const body = await readJson<{ phone?: string }>(req);
+    const phone = String(body.phone || '').replace(/\D/g, '');
+    if (phone.length < 8 || phone.length > 15) return json({ error: '"phone" must be 8-15 digits including country code' }, 400);
+    const result = await wa.pairingCode(phone);
+    return json({ linked: false, connection: result.connection, code: result.code });
   }
   if (path === '/send-bundle' && req.method === 'POST') {
     const body = await readJson<{ to?: string; message?: string; attachments?: unknown; idempotencyKey?: string }>(req);
