@@ -5,6 +5,7 @@ import {buildStockPositions,type StockMovement,type StockMovementType} from './i
 import {YieldPanel} from './YieldPanel';
 import {TraceabilityPanel} from './TraceabilityPanel';
 import {MeatOperationsPanel} from './MeatOperationsPanel';
+import {ProductionToolsPanel} from './ProductionToolsPanel';
 import './stock-workspace.css';
 
 const STORAGE_BASE='stock.movements';
@@ -67,5 +68,6 @@ export function StockWorkspace(){
     <YieldPanel/>
     <TraceabilityPanel/>
     <MeatOperationsPanel/>
+    <ProductionToolsPanel/>
   </section>;
 }
