@@ -439,10 +439,10 @@ function mapSubscriptions(dataset:LegacyDataset,customers:any[]){
       phone,
       planCode:text(row?.plan)||'custom',
       planName:text(row?.planName)||'اشتراك لحوم',
-      cycle:text(row?.cycle)||'شهري',
+      cycle:text(row?.cycle).includes('أسبوع')?'WEEKLY':text(row?.cycle).includes('شهر')?'MONTHLY':'CUSTOM',
       price:numeric(row?.price),
       address:text(row?.addr)||undefined,
-      status:text(row?.status)==='inactive'?'INACTIVE':'ACTIVE',
+      status:text(row?.status)==='inactive'?'PAUSED':'ACTIVE',
       legacySource:'skosif_ops_subscriptions',
     };
   });
