@@ -122,7 +122,7 @@ export function SalesWorkspace(){
       <article className="sk-surface"><span>مستندات مرحّلة</span><strong className="sk-number">{orders.filter(x=>x.status==='POSTED').length}</strong></article>
     </div>
 
-    <CustomersPanel/>
+    <CustomersPanel onChanged={()=>{void customerRepo.list().then(setCustomers);}}/>
 
     <div className="sales-grid">
       <section className="sk-surface sales-form">
