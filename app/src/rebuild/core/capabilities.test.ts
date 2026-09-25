@@ -1,0 +1,2 @@
+import{describe,it,expect}from'vitest';import{CAPABILITIES}from'./capabilities';
+describe('capability registry',()=>{it('has unique ids',()=>{expect(new Set(CAPABILITIES.map(x=>x.id)).size).toBe(CAPABILITIES.length)});it('maps every capability to a valid route and actions',()=>{const routes=new Set(['command','sales','inventory','finance','catalog','intelligence','audit','system']);for(const c of CAPABILITIES){expect(routes.has(c.route)).toBe(true);expect(c.actions.length).toBeGreaterThan(0);expect(c.title.trim()).not.toBe('')}})});
