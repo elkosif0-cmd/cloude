@@ -1,0 +1,23 @@
+name: KOSIF WhatsApp Dispatch Digest
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  digest:
+    if: github.event.issue.title == '[WA-DISPATCH-DIGEST]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish token digest
+        env:
+          TOKEN: ${{ secrets.WA_DISPATCH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test -n "$TOKEN"
+          DIGEST=$(printf '%s' "$TOKEN" | sha256sum | awk '{print $1}')
+          gh issue comment "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --body "DISPATCH_SHA256=$DIGEST"
