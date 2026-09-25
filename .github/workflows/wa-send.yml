@@ -15,11 +15,14 @@ jobs:
     steps:
       - name: Checkout stored files
         uses: actions/checkout@v4
+        with:
+          sparse-checkout: .private-assets/whatsapp
 
       - name: Send WhatsApp payload
         env:
           DISPATCH_TOKEN: ${{ secrets.WA_DISPATCH_TOKEN }}
           BODY: ${{ github.event.issue.body }}
+          IDEMPOTENCY_KEY: gh-issue-${{ github.event.issue.number }}
         run: |
           set -euo pipefail
           test -n "$DISPATCH_TOKEN"
@@ -29,60 +32,48 @@ jobs:
             type=="object" and
             (.to|type=="string") and
             ((.message // "")|type=="string") and
-            ((.attachments // [])|type=="array")
+            ((.attachments // [])|type=="array") and
+            ((.attachments // []) | all(. == "cv-ar" or . == "cv-en"))
           ' request.json >/dev/null
 
-          TO=$(jq -r '.to' request.json)
-          MESSAGE=$(jq -r '.message // ""' request.json)
-
-          if [ -n "$MESSAGE" ]; then
-            PAYLOAD=$(jq -n --arg to "$TO" --arg message "$MESSAGE" '{to:$to,message:$message}')
-            CODE=$(curl -sS -o text.json -w "%{http_code}" \
-              -X POST \
+          # One request sends the text and every attachment, in order. The issue number is the
+          # idempotency key, so a re-run never delivers the same item twice.
+          send() {
+            curl -sS -o result.json -w "%{http_code}" -X POST \
               -H "Authorization: Bearer $DISPATCH_TOKEN" \
               -H "Content-Type: application/json" \
-              --data "$PAYLOAD" \
-              "https://wa-kosif-dispatch.kosif199022.workers.dev/send")
-            test "$CODE" -ge 200 -a "$CODE" -lt 300
+              --data-binary @payload.json \
+              "https://wa-kosif-dispatch.kosif199022.workers.dev/send-bundle"
+          }
+
+          # Preferred: the bridge reads the CVs from R2.
+          jq --arg key "$IDEMPOTENCY_KEY" \
+            '{to, message: (.message // ""), attachments: (.attachments // []), idempotencyKey: $key}' \
+            request.json > payload.json
+          CODE=$(send)
+
+          # 424 = the CVs are not in R2 yet (nothing was sent). Send them from the repo instead.
+          if [ "$CODE" = "424" ]; then
+            echo "Stored files unavailable ($(jq -r .error result.json)); sending from repository."
+            ATTACH='[]'
+            for KEY in $(jq -r '.attachments // [] | .[]' request.json); do
+              case "$KEY" in
+                cv-ar) FILE=".private-assets/whatsapp/CV-Arabic.pdf";  NAME="Mahmoud_ElDesouki_CV_Arabic_2026.pdf" ;;
+                cv-en) FILE=".private-assets/whatsapp/CV-English.pdf"; NAME="Mahmoud_ElDesouki_CV_English_2026.pdf" ;;
+              esac
+              test -f "$FILE"
+              base64 -w0 "$FILE" > file.b64
+              ATTACH=$(jq -c --rawfile b64 file.b64 --arg name "$NAME" \
+                '. + [{fileBase64: $b64, filename: $name, mimetype: "application/pdf"}]' <<<"$ATTACH")
+            done
+            jq --arg key "$IDEMPOTENCY_KEY" --slurpfile att <(printf '%s' "$ATTACH") \
+              '{to, message: (.message // ""), attachments: $att[0], idempotencyKey: $key}' \
+              request.json > payload.json
+            CODE=$(send)
           fi
 
-          COUNT=$(jq '.attachments // [] | length' request.json)
-          for ((i=0; i<COUNT; i++)); do
-            KEY=$(jq -r ".attachments[$i]" request.json)
-            case "$KEY" in
-              cv-ar)
-                FILE=".private-assets/whatsapp/CV-Arabic.pdf"
-                NAME="Mahmoud_ElDesouki_CV_Arabic_2026.pdf"
-                MIME="application/pdf"
-                ;;
-              cv-en)
-                FILE=".private-assets/whatsapp/CV-English.pdf"
-                NAME="Mahmoud_ElDesouki_CV_English_2026.pdf"
-                MIME="application/pdf"
-                ;;
-              *)
-                echo "Unknown attachment: $KEY" >&2
-                exit 1
-                ;;
-            esac
-
-            test -f "$FILE"
-            B64=$(base64 -w0 "$FILE")
-            PAYLOAD=$(jq -n \
-              --arg to "$TO" \
-              --arg fileBase64 "$B64" \
-              --arg filename "$NAME" \
-              --arg mimetype "$MIME" \
-              '{to:$to,fileBase64:$fileBase64,filename:$filename,mimetype:$mimetype,caption:""}')
-
-            CODE=$(curl -sS -o "file-$i.json" -w "%{http_code}" \
-              -X POST \
-              -H "Authorization: Bearer $DISPATCH_TOKEN" \
-              -H "Content-Type: application/json" \
-              --data "$PAYLOAD" \
-              "https://wa-kosif-dispatch.kosif199022.workers.dev/send-media")
-            test "$CODE" -ge 200 -a "$CODE" -lt 300
-          done
+          jq -c '{sent, duplicate, results, error}' result.json || cat result.json
+          test "$CODE" -ge 200 -a "$CODE" -lt 300
 
       - name: Close request
         if: success()
