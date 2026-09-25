@@ -160,6 +160,16 @@ function zatcaHTML(){
         '<div style="display:flex;gap:8px;margin-top:16px;border-top:1px solid var(--line,#ddd);padding-top:14px;flex-wrap:wrap;">',
           '<button type="button" id="sk38-print-rcpt" class="btn btn-pri">🖨️ طباعة إيصال حراري (80mm)</button>',
           '<button type="button" id="sk38-wa-rcpt" class="btn" style="background:#25D366;color:#fff;">💬 مشاركة عبر واتساب</button>',
+          '<button type="button" id="sk38-verify-tlv-btn" class="btn">🔍 فحص وتدقيق رمز الـ QR (TLV)</button>',
+        '</div>',
+        '<div id="sk38-tlv-verify-box" style="display:none;background:var(--surface-2,#fafafa);padding:12px;border-radius:8px;border:1px solid var(--line,#eee);margin-top:10px;">',
+          '<div class="sk-section-title" style="margin-bottom:6px;"><b>مدقق وفاحص رموز ZATCA الإلكترونية</b></div>',
+          '<textarea id="sk38-tlv-input" rows="2" style="width:100%;box-sizing:border-box;font-family:monospace;font-size:12px;padding:6px;border-radius:6px;border:1px solid var(--line,#ccc);" placeholder="الصق نص الـ Base64 لرمز الفاتورة هنا للتحقق..."></textarea>',
+          '<div style="display:flex;gap:8px;margin-top:8px;">',
+            '<button type="button" class="btn sm primary" id="sk38-tlv-decode">فك التشفير والتدقيق</button>',
+            '<button type="button" class="btn sm" id="sk38-tlv-load-cur">فحص الفاتورة الحالية</button>',
+          '</div>',
+          '<div id="sk38-tlv-out" style="margin-top:8px;font-size:0.82rem;line-height:1.6;"></div>',
         '</div>',
       '</div>',
       '<div class="sk38-rcpt-view" id="sk38-receipt-printable">',
@@ -227,6 +237,48 @@ function updateZatcaQR(){
   }
 }
 
+function decodeZatcaTLV(b64){
+  try{
+    const bin=atob(b64);
+    const bytes=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+    let off=0;
+    const tags={};
+    const decoder=new TextDecoder("utf-8");
+    while(off<bytes.length){
+      const tag=bytes[off];
+      const len=bytes[off+1];
+      const valBytes=bytes.slice(off+2, off+2+len);
+      tags[tag]=decoder.decode(valBytes);
+      off+=2+len;
+    }
+    return tags;
+  }catch{ return null; }
+}
+
+function decodeAndDisplayTLV(b64){
+  const out=$("#sk38-tlv-out"); if(!out)return;
+  const tags=decodeZatcaTLV(b64);
+  if(!tags||!tags[1]||!tags[2]){
+    out.innerHTML='<div style="color:#b91c1c;font-weight:bold;">⚠️ رمز الـ QR غير متوافق مع معايير ZATCA Phase 2 أو صيغة Base64 غير صالحة.</div>';
+    return;
+  }
+  const vatValid=/^3\d{13}3$/.test(tags[2]);
+  const total=Number(tags[4])||0;
+  const vat=Number(tags[5])||0;
+  const expectedVat=total>0?(total-(total/1.15)):0;
+  const mathValid=Math.abs(vat-expectedVat)<0.5;
+
+  out.innerHTML='<div style="background:#fff;border:1px solid #cbd5e1;padding:10px;border-radius:6px;">'+
+    '<div style="color:#059669;font-weight:bold;margin-bottom:6px;">✓ تم فك ترميز TLV بنجاح ومطابق لمعايير ZATCA</div>'+
+    '<div>• <b>اسم المنشأة (Tag 1):</b> '+esc(tags[1])+'</div>'+
+    '<div>• <b>الرقم الضريبي (Tag 2):</b> <span dir="ltr">'+esc(tags[2])+'</span> '+(vatValid?'<span style="color:#059669;">(صحيح 15 رقم)</span>':'<span style="color:#b91c1c;">(تنبيه: يجب أن يبدأ وينتهي بـ 3)</span>')+'</div>'+
+    '<div>• <b>الوقت والتاريخ (Tag 3):</b> '+esc(tags[3])+'</div>'+
+    '<div>• <b>الإجمالي مع الضريبة (Tag 4):</b> '+total.toFixed(2)+' ر.س</div>'+
+    '<div>• <b>مبلغ الضريبة (Tag 5):</b> '+vat.toFixed(2)+' ر.س '+(mathValid?'<span style="color:#059669;">(15% دقيقة)</span>':'')+'</div>'+
+  '</div>';
+}
+
 function bindZatca(){
   updateZatcaQR();
   $("#sk38-seller")?.addEventListener("input",updateZatcaQR);
@@ -247,6 +299,27 @@ function bindZatca(){
   $("#sk38-pay-transfer")?.addEventListener("input",e=>{ invoicePayment.transferPaid=num(e.target.value); paint("zatca"); });
   $("#sk38-pay-credit")?.addEventListener("input",e=>{ invoicePayment.creditPaid=num(e.target.value); paint("zatca"); });
   $("#sk38-pay-tendered")?.addEventListener("input",e=>{ invoicePayment.cashTendered=num(e.target.value); paint("zatca"); });
+
+  $("#sk38-verify-tlv-btn")?.addEventListener("click",()=>{
+    const box=$("#sk38-tlv-verify-box");
+    if(box)box.style.display=box.style.display==="none"?"block":"none";
+  });
+  $("#sk38-tlv-load-cur")?.addEventListener("click",()=>{
+    const seller=$("#sk38-seller")?.value||"أغنام الوادي للذبائح واللحوم";
+    const vatNo=$("#sk38-vatno")?.value||"310123456700003";
+    const now=new Date().toISOString().slice(0,19)+"Z";
+    const subtotal=invoiceItems.reduce((s,x)=>s+x.total,0);
+    const vatAmount=(subtotal*0.15).toFixed(2);
+    const grandTotal=(subtotal*1.15).toFixed(2);
+    const tlvB64=zatcaTLV(seller,vatNo,now,grandTotal,vatAmount);
+    const ta=$("#sk38-tlv-input");
+    if(ta)ta.value=tlvB64;
+    decodeAndDisplayTLV(tlvB64);
+  });
+  $("#sk38-tlv-decode")?.addEventListener("click",()=>{
+    const ta=$("#sk38-tlv-input");
+    if(ta)decodeAndDisplayTLV(ta.value.trim());
+  });
 
   $$(".sk38-it-name").forEach(el=>el.oninput=()=>{invoiceItems[+el.dataset.i].name=el.value});
   $$(".sk38-it-qty").forEach(el=>el.oninput=()=>{

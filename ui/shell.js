@@ -365,6 +365,15 @@ function boot(){
   const c=core();
   if(c){c.onView("settings",settingsCard);c.onView("customers",customerCards);c.onView("dash",dashHero)}
   addEventListener("resize",()=>{if(innerWidth>760)$("#rail")?.classList.remove("open")});
+  addEventListener("keydown",e=>{
+    if(e.target&&["INPUT","TEXTAREA","SELECT"].includes(e.target.tagName))return;
+    if(e.key==="F2"){ e.preventDefault(); core()?.go?.("zatca"); toast("F2: فاتورة ZATCA 🧾"); }
+    else if(e.key==="F3"){ e.preventDefault(); core()?.go?.("labels"); toast("F3: ملصقات الموازين 🏷️"); }
+    else if(e.key==="F4"){ e.preventDefault(); core()?.go?.("scanner"); toast("F4: قارئ الباركود 📷"); }
+    else if(e.key==="F8"){ e.preventDefault(); core()?.go?.("operations"); toast("F8: المناسبات والشواء 🍖"); }
+    else if(e.key==="F9"){ e.preventDefault(); core()?.go?.("inventory"); toast("F9: المخزون والصلاحية 📦"); }
+    else if(e.key==="Escape"){ $("#rail")?.classList.remove("open"); }
+  });
   updates();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();

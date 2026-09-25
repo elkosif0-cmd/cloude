@@ -9,4 +9,10 @@
 .sk37-neg{color:#dc2626;font-weight:900}
 .sk37-bad{margin-top:8px;padding:10px;border-radius:10px;background:color-mix(in srgb,#dc2626 10%,var(--surface));color:#dc2626;font-size:13px}
 #sk37-result,#sk37-ar-result{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.sk37-map-wrap{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0;text-align:center}
+.sk37-map-svg{max-width:100%;height:auto;max-height:160px;margin:0 auto;display:block}
+.sk37-cut-part{cursor:pointer;transition:all .2s ease;fill:var(--surface-2);stroke:var(--line);stroke-width:1.5}
+.sk37-cut-part:hover{fill:color-mix(in srgb,var(--brand,#8a5a2b) 25%,var(--surface));stroke:var(--brand,#8a5a2b)}
+.sk37-cut-part.active{fill:color-mix(in srgb,var(--brand,#8a5a2b) 45%,var(--surface));stroke:var(--brand,#8a5a2b);stroke-width:2.5}
 @media(max-width:760px){.sk37-cut{grid-template-columns:1fr 80px}.sk37-cut input:nth-child(3){grid-column:1}.sk37-kpis{grid-template-columns:1fr 1fr}.sk37-ta{font-size:16px}}
+

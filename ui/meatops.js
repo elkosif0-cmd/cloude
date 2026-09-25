@@ -5,10 +5,26 @@ const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelecto
 const num=v=>Number(String(v??"").replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[٬,\s]/g,"").replace("٫","."))||0;
 const money=v=>new Intl.NumberFormat("ar-SA-u-nu-latn",{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(v)||0)+" ر.س";
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-let cuts=[
-  {name:"فخذ",yield:28,price:0},{name:"كتف",yield:22,price:0},{name:"ريش",yield:18,price:0},
-  {name:"مفروم/تشفيه",yield:20,price:0},{name:"أحشاء ومنتجات جانبية",yield:12,price:0}
+const CARCASS_PRESETS=[
+  {name:"خروف نعيمي بلدي فاخر",live:48,carcass:24,cost:1450,target:25,cuts:[
+    {name:"فخذ نعيمي كامل",yield:28,price:80},{name:"كتف نعيمي طازج",yield:22,price:75},{name:"ريش كستليتة",yield:18,price:95},
+    {name:"مفروم/رقبة وتشفيه",yield:20,price:65},{name:"أحشاء وكبده ورأس",yield:12,price:50}
+  ]},
+  {name:"خروف حري حجازي",live:38,carcass:19.5,cost:1250,target:25,cuts:[
+    {name:"فخذ حري",yield:27,price:82},{name:"كتف حري",yield:23,price:76},{name:"ريش حري",yield:19,price:98},
+    {name:"مفروم وتشفية",yield:19,price:65},{name:"أحشاء ومعاليق",yield:12,price:45}
+  ]},
+  {name:"تيس بلدي عارضي",live:26,carcass:13.5,cost:950,target:28,cuts:[
+    {name:"فخذ تيس",yield:29,price:90},{name:"كتف تيس",yield:23,price:85},{name:"أضلاع وجنب",yield:18,price:95},
+    {name:"تشفية ورقبة",yield:18,price:70},{name:"سقط ورأس",yield:12,price:40}
+  ]},
+  {name:"عجل بلدي تسمين",live:380,carcass:215,cost:8800,target:30,cuts:[
+    {name:"أفخاذ وتوب سايد",yield:32,price:68},{name:"كتف وموزات",yield:24,price:62},{name:"ريب آي وتندرلوين",yield:16,price:115},
+    {name:"صدر وبريسكت ومفروم",yield:18,price:54},{name:"عظم ودهن وأحشاء",yield:10,price:25}
+  ]}
 ];
+
+let cuts=[...CARCASS_PRESETS[0].cuts];
 const AR_KEY="skosif_ar_paste";
 let arText=(()=>{try{return localStorage.getItem(AR_KEY)||""}catch{return ""}})();
 function dressing(live,carcass){return live>0?carcass/live*100:0}
@@ -32,10 +48,23 @@ function aging(rows){
   rows.forEach(r=>{if(!r.outstanding)return;const d=new Date(r.date);if(Number.isNaN(d.getTime()))return;const age=Math.max(0,Math.floor((today-d)/86400000));out.total+=r.outstanding;if(age===0)out.current+=r.outstanding;else if(age<=30)out.d1+=r.outstanding;else if(age<=60)out.d31+=r.outstanding;else if(age<=90)out.d61+=r.outstanding;else out.d90+=r.outstanding});return out;
 }
 function carcassHTML(){
-  return '<div class="sk-grid2">'+field("sk37-live","الوزن الحي كجم",50)+field("sk37-carcass","وزن الذبيحة كجم",30)+field("sk37-cost","إجمالي تكلفة الذبيحة",1200)+field("sk37-target","هامش مستهدف %",25)+'</div>'+
-  '<div class="sk-section-title"><b>القطعيات ونسب العائد</b><span>المجموع لا يلزم أن يكون 100٪؛ التوزيع يطبع نسب العائد تلقائيًا</span></div>'+
+  return '<div class="sk-chips" style="margin-bottom:12px;">'+
+    CARCASS_PRESETS.map((p,i)=>'<button type="button" class="chip sk37-preset" data-p="'+i+'">'+esc(p.name)+'</button>').join("")+
+  '</div>'+
+  '<div class="sk-grid2">'+field("sk37-live","الوزن الحي كجم",48)+field("sk37-carcass","وزن الذبيحة كجم",24)+field("sk37-cost","إجمالي تكلفة الذبيحة",1450)+field("sk37-target","هامش مستهدف %",25)+'</div>'+
+  '<div class="sk37-map-wrap">'+
+    '<div style="font-size:0.85rem;font-weight:bold;margin-bottom:8px;color:var(--ink-2,#6b5c4e);">مخطط تفكيك قطعيات الذبيحة التفاعلي (اضغط على أي قطعية لتحديدها)</div>'+
+    '<svg viewBox="0 0 450 140" class="sk37-map-svg" xmlns="http://www.w3.org/2000/svg">'+
+      '<g class="sk37-cut-part" data-part="رقبة"><path d="M40 30 C 50 20, 80 20, 95 35 L 85 75 L 35 65 Z"/><text x="65" y="52" font-size="10" text-anchor="middle" font-weight="bold">الرقبة</text></g>'+
+      '<g class="sk37-cut-part" data-part="كتف"><path d="M95 35 C 120 30, 150 30, 160 50 L 150 100 L 85 75 Z"/><text x="122" y="65" font-size="11" text-anchor="middle" font-weight="bold">الكتف</text></g>'+
+      '<g class="sk37-cut-part" data-part="ريش"><path d="M160 35 L 260 35 L 255 80 L 155 80 Z"/><text x="207" y="58" font-size="11" text-anchor="middle" font-weight="bold">الريش والظهر</text></g>'+
+      '<g class="sk37-cut-part" data-part="فخذ"><path d="M260 35 C 300 25, 360 40, 370 70 L 330 115 L 255 80 Z"/><text x="310" y="70" font-size="12" text-anchor="middle" font-weight="bold">الفخذ</text></g>'+
+      '<g class="sk37-cut-part" data-part="مفروم/رقبة وتشفيه"><path d="M140 80 L 255 80 L 250 120 L 130 115 Z"/><text x="190" y="102" font-size="10" text-anchor="middle" font-weight="bold">الصدر والبطن</text></g>'+
+    '</svg>'+
+  '</div>'+
+  '<div class="sk-section-title"><b>القطعيات ونسب العائد (Carcass Yield)</b><span>المجموع لا يلزم أن يكون 100٪؛ التوزيع يطبع نسب العائد تلقائيًا</span></div>'+
   '<div id="sk37-cuts">'+cuts.map((x,i)=>'<div class="sk37-cut"><input data-n="'+i+'" value="'+esc(x.name)+'"><input type="number" step=".1" data-y="'+i+'" value="'+x.yield+'"><input type="number" step=".01" data-p="'+i+'" value="'+x.price+'" placeholder="سعر بيع/كجم"><button data-d="'+i+'">×</button></div>').join("")+'</div>'+
-  '<div class="sk-actions"><button id="sk37-add" class="sk-secondary">+ قطعة</button><button id="sk37-run" class="sk-primary">احسب الاقتصاديات</button></div><div id="sk37-result"></div>';
+  '<div class="sk-actions"><button id="sk37-add" class="sk-secondary">+ قطعة</button><button id="sk37-run" class="sk-primary">احسب الاقتصاديات</button><button id="sk37-print" class="sk-secondary">📋 أمر تشغيل التشفية</button></div><div id="sk37-result"></div>';
 }
 function arHTML(){
   return '<p class="sk37-note">الصق: العميل، التاريخ، إجمالي الفاتورة، المدفوع. سيحسب الرصيد = الفاتورة − المدفوع ثم يوزعه على أعمار الذمم.</p>'+
@@ -44,12 +73,56 @@ function arHTML(){
 }
 function field(id,l,v){return '<label class="sk-field"><span>'+l+'</span><input id="'+id+'" type="number" step=".01" value="'+v+'"></label>'}
 function bind(){
+  $$(".sk37-preset").forEach(b=>{
+    b.onclick=()=>{
+      const p=CARCASS_PRESETS[+b.dataset.p];
+      if(!p)return;
+      $("#sk37-live").value=p.live;
+      $("#sk37-carcass").value=p.carcass;
+      $("#sk37-cost").value=p.cost;
+      $("#sk37-target").value=p.target;
+      cuts=p.cuts.map(c=>({...c}));
+      paintCarcass();
+      runCarcass();
+    };
+  });
+  $$(".sk37-cut-part").forEach(g=>{
+    g.onclick=()=>{
+      const part=g.dataset.part;
+      $$(".sk37-cut-part").forEach(x=>x.classList.toggle("active",x===g));
+      const idx=cuts.findIndex(c=>c.name.includes(part));
+      if(idx>=0){
+        const inp=$$("[data-n]")[idx];
+        if(inp){ inp.focus(); inp.style.outline="2px solid var(--brand,#8a5a2b)"; setTimeout(()=>inp.style.outline="",1200); }
+      }
+    };
+  });
   $$("[data-n]").forEach(x=>x.oninput=()=>cuts[+x.dataset.n].name=x.value);
   $$("[data-y]").forEach(x=>x.oninput=()=>cuts[+x.dataset.y].yield=num(x.value));
   $$("[data-p]").forEach(x=>x.oninput=()=>cuts[+x.dataset.p].price=num(x.value));
   $$("[data-d]").forEach(x=>x.onclick=()=>{cuts.splice(+x.dataset.d,1);paintCarcass()});
   $("#sk37-add")?.addEventListener("click",()=>{cuts.push({name:"قطعة جديدة",yield:0,price:0});paintCarcass()});
   $("#sk37-run")?.addEventListener("click",runCarcass);
+  $("#sk37-print")?.addEventListener("click",()=>{
+    const live=num($("#sk37-live")?.value)||48,car=num($("#sk37-carcass")?.value)||24,cost=num($("#sk37-cost")?.value)||1450;
+    const rows=allocate(car,cost,cuts);
+    const w=window.open("","_blank","width=600,height=750");
+    if(!w)return alert("يرجى السماح بالنوافذ المنبثقة لطباعة أمر التشفية");
+    w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><title>أمر تشغيل وتشفية الذبيحة</title>'+
+      '<style>body{font-family:system-ui,sans-serif;padding:24px;line-height:1.5;color:#111;}'+
+      'h2{margin:0 0 6px;color:#8a5a2b;}table{width:100%;border-collapse:collapse;margin:16px 0;}'+
+      'th,td{border:1px solid #ccc;padding:8px 10px;text-align:right;}th{background:#f8fafc;}'+
+      '.box{background:#fbf5ea;border:1px solid #e2d8cc;padding:12px;border-radius:8px;margin:12px 0;}'+
+      '</style></head><body>'+
+      '<h2>أمر تشغيل وتشفية ذبيحة — قسم الجزارة</h2>'+
+      '<div class="box"><b>الوزن الحي:</b> '+live+' كجم | <b>وزن الذبيحة المعلقة:</b> '+car+' كجم | <b>نسبة التصافي:</b> '+dressing(live,car).toFixed(1)+'% | <b>التاريخ:</b> '+new Date().toLocaleDateString("ar-SA")+'</div>'+
+      '<table><thead><tr><th>القطعية</th><th>نسبة العائد %</th><th>الوزن المقدر</th><th>تكلفة الكيلو</th><th>سعر البيع المقترح</th></tr></thead><tbody>'+
+      rows.map(r=>'<tr><td><b>'+esc(r.name)+'</b></td><td>'+r.yield.toFixed(1)+'%</td><td>'+r.kg.toFixed(2)+' كجم</td><td>'+money(r.costKg)+'</td><td>'+money(r.price)+'</td></tr>').join("")+
+      '</tbody></table>'+
+      '<div style="font-size:12px;color:#666;margin-top:20px;">تعليمات التشفية: الالتزام بخطوط العضلات الطبيعية، فصل العظم بدقة دون هدر، وتبريد القطعيات فوراً عند 2° مئوية.</div>'+
+      '<script>window.onload=()=>{window.print();}<\/script></body></html>');
+    w.document.close();
+  });
   $("#sk37-ar-run")?.addEventListener("click",()=>{arText=$("#sk37-ar").value;try{localStorage.setItem(AR_KEY,arText)}catch{}runAR()});
 }
 function runCarcass(){
