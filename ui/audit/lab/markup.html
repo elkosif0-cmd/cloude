@@ -1,0 +1,62 @@
+<main class="shell">
+    <header class="top">
+      <div class="brand"><div class="mark">K</div><div><div class="eyebrow">KOSIF · RESEARCH INTELLIGENCE</div><h1>مختبر ذكاء المراجعة</h1><p class="sub">تحويل حزمة التقارير المالية والمراجعة العالمية إلى قرارات تشغيلية قابلة للتتبع.</p></div></div>
+      <a class="back" href="./">العودة إلى KOSIF</a>
+    </header>
+
+    <section class="hero">
+      <article class="card hero-copy">
+        <div class="eyebrow">GLOBAL FINANCIAL & AUDIT RESEARCH BUNDLE</div>
+        <h2>من تقارير منشورة إلى محرك مراجعة قابل للتفسير.</h2>
+        <p>هذه الصفحة التجريبية توصل الأنماط المتكررة في الحزمة بمحرك KOSIF الحتمي: أهمية الأداء، نطاق الاختبار، البنود المفحوصة 100%، إسقاط التحريفات، ترشيح المسائل الرئيسية، نطاق مراجعة المجموعة، ودورة علاج نقاط الرقابة.</p>
+        <div class="note">السياسات الرقمية هنا أدوات تخطيط داخلية شفافة وقابلة لتعديل المراجع. لا تدّعي أن ISA 530 أو أي معيار يفرض معادلة واحدة أو نسب نطاق ثابتة.</div>
+      </article>
+      <aside class="card">
+        <h3>الإشارات البحثية المستخدمة</h3><div class="source-list">
+          <div class="source-pill">Performance materiality → extent / sample size</div>
+          <div class="source-pill">Risk + controls + aggregation risk → audit scope</div>
+          <div class="source-pill">KAM → significance → response → results</div>
+          <div class="source-pill">Group audit → components + coverage + supervision</div>
+          <div class="source-pill">ICFR → design → operating effectiveness → sustainability</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="grid">
+      <article class="card span-8">
+        <h3>01 · مخطط المعاينة البحثي</h3><div class="hint">يشغّل 5,000 حساب تجريبي، يحسب الأهمية، يعزل البنود ذات الأهمية الفردية للفحص 100%، ثم يحدد امتداد العينة المتبقية وفق عوامل المخاطر والضوابط.</div>
+        <div class="controls">
+          <label class="field"><span>مخاطر التحريف</span><select id="risk"><option value="low">منخفضة</option><option value="medium" selected>متوسطة</option><option value="high">مرتفعة</option></select></label>
+          <label class="field"><span>فعالية الضوابط</span><select id="controls"><option value="strong">قوية</option><option value="moderate" selected>متوسطة</option><option value="weak">ضعيفة</option><option value="none">لا اعتماد</option></select></label>
+          <label class="field"><span>مخاطر التجميع</span><select id="aggregation"><option value="low">منخفضة</option><option value="medium" selected>متوسطة</option><option value="high">مرتفعة</option></select></label>
+          <label class="field"><span>طريقة الاختيار</span><select id="method"><option value="mus" selected>MUS</option><option value="risk">موجهة بالمخاطر</option><option value="systematic">منتظمة</option><option value="random">عشوائية</option></select></label>
+          <label class="field"><span>التحريف المتوقع (ريال)</span><input id="expected" value="25000" inputmode="decimal"></label>
+          <label class="field"><span>حد أقصى للعينة المتبقية</span><input id="maxSample" type="number" min="20" max="1000" value="500"></label>
+        </div>
+        <div class="actions"><button id="runPlan">إعادة بناء الخطة</button><button class="secondary" id="simulateErrors">محاكاة 5 تحريفات واختبار الإسقاط</button></div>
+        <div class="metrics" id="sampleMetrics"></div>
+        <div class="table-wrap"><table><thead><tr><th>المؤشر</th><th>النتيجة</th><th>المعنى المهني</th></tr></thead><tbody id="sampleTable"></tbody></table></div>
+      </article>
+
+      <aside class="card span-4">
+        <h3>02 · إسقاط التحريفات</h3><div class="hint">يفصل الأخطاء المعروفة في طبقة 100% عن تحريفات العينة المتبقية، ثم يعرض إسقاطًا نسبيًا واضحًا للمراجعة البشرية.</div>
+        <div id="projectionBox" class="list"><div class="item"><strong>لم تُشغّل المحاكاة بعد</strong><small>اضغط «محاكاة 5 تحريفات» لرؤية تقييم تجريبي.</small></div></div>
+      </aside>
+
+      <article class="card span-6">
+        <h3>03 · مرشح المسائل الرئيسية KAM</h3><div class="hint">يرتب المسائل التي أثرت في المخاطر، الحكم، الموارد أو الأدلة؛ ويعرضها كمرشحات فقط، وليس قرارًا آليًا بإدراج KAM.</div>
+        <div id="kamList" class="list"></div>
+      </article>
+
+      <article class="card span-6">
+        <h3>04 · نطاق مراجعة المجموعة</h3><div class="hint">نموذج توضيحي: Full scope / Specific line items / Targeted risk assessment مع قياس تغطية الإيرادات والأصول.</div>
+        <div class="metrics" id="groupMetrics"></div><div class="table-wrap"><table><thead><tr><th>المكون</th><th>المخاطر</th><th>الإيراد</th><th>النطاق</th></tr></thead><tbody id="groupTable"></tbody></table></div>
+      </article>
+
+      <article class="card span-12">
+        <h3>05 · دورة علاج نقاط الرقابة</h3><div class="hint">تمنع إغلاق ضعف رقابي لمجرد تنفيذ الإجراء؛ يلزم إثبات التصميم والتنفيذ والفعالية التشغيلية ثم الاستدامة.</div>
+        <div class="metrics" id="controlMetrics"></div><div id="controlList" class="list"></div>
+      </article>
+    </section>
+    <footer class="footer">KOSIF Research Intelligence Lab · القرار المهني النهائي والاعتماد يظلان للمراجع البشري.</footer>
+  </main>

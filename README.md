@@ -24,3 +24,15 @@ S.kosif is the production application shell for the encrypted business dataset a
   `kernel.js`, `tools.js`, `enterprise.js`, `reports.js`, `erp-plus.js`. ERP+ extends the existing inventory, cash, supplier, report, Jev and settings screens without adding floating controls. Each screen is a normal menu entry; there are no floating
   buttons, docks or overlay hubs.
 - Themes: the base theme system plus six full-scene visual presets (nature, playful farm, science magazine, heritage, night valley and pastel), chosen in Settings.
+
+## Accounting & audit
+
+`ui/audit/` is generated from `kosif199022-jpg/kosif-audit-studio` by
+`python3 tools/vendor_audit.py /path/to/kosif-audit-studio` (do not edit it by
+hand). It holds three apps that open as S.kosif screens under «المحاسبة
+والمراجعة», each inside its own Shadow DOM and loaded only on first use:
+the v5 audit workspace (six screens), the analysis studio (Benford, sampling,
+journal tests, agent, voice) and the standards research lab.
+`ui/audit-bridge.js` registers the screens and builds a trial balance from the
+app's sales, supplier shipments, expenses and credit customers for the
+studio's intake (the user reviews the mapping before importing).

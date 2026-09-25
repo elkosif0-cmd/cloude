@@ -234,3 +234,8 @@ html[data-sk-theme="heritage"] .sk-hero-date{background:#f9e9cf;border-color:#e3
 .sk-ql-btn span{line-height:1.3}
 @media(max-width:600px){.sk-quick-launch{grid-template-columns:repeat(2,1fr)}}
 
+
+/* المحاسبة والمراجعة */
+.kx-audit-frame{min-width:0}
+.kx-tb .kx-tb-period{min-height:40px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--ink);padding:0 10px;font:inherit}
+.kx-tb{margin-bottom:14px}

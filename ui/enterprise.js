@@ -745,7 +745,6 @@ window.SK.view("blending",{
   title:"خلطات ومصنعات اللحوم",
   sub:"تسعير وتصنيع البرجر والكفتة والسجق والشاورما وحساب نسبة الهبر إلى الشحم",
   emoji:"🍔",
-  adv:true,
   render(node){ roots.blending=node; paint("blending"); }
 });
 
@@ -760,7 +759,6 @@ window.SK.view("traceability",{
   title:"تتبع الشحنات وسلسلة التبريد",
   sub:"سجل دفعات الذبائح والشهادات البيطرية ومراقبة درجات حرارة الثلاجات HACCP",
   emoji:"🥩",
-  adv:true,
   render(node){ roots.traceability=node; paint("traceability"); }
 });
 
@@ -782,7 +780,6 @@ window.SK.view("b2bcredit",{
   title:"ائتمان المطاعم وكشف الحساب",
   sub:"سقف التسهيلات الائتمانية وفترات السداد وكشوفات الحساب عبر واتساب",
   emoji:"🤝",
-  adv:true,
   render(node){ roots.b2bcredit=node; paint("b2bcredit"); }
 });
 

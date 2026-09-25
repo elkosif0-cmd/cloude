@@ -88,5 +88,12 @@ jobs:
                          "normalizeArabic","similarity","redact","SKIP_WAITING","data-sk-theme","zatcaTLV","code128SVG","SKosifEnterpriseV38","SKosifReports","SKosifERPPlus","SKosifOperations"]:
               assert marker in js, marker
           assert "SKIP_WAITING" in sw and "skosif.js" in sw
+          # accounting & audit: three vendored apps, loaded on first use from dist/audit
+          for f in ["audit/mount.js","audit/app.css","audit/markup.html","audit/classic/mount.js","audit/lab/mount.js"]:
+              assert Path("dist",f).exists(), f
+          for view in ["auditdesk","auditdocs","auditissues","auditcouncil","auditfin","auditreport","auditanalytics","auditlab"]:
+              assert '"'+view+'"' in js and "'"+view+"'" in app, "audit screen missing: "+view
+          audit_js="\n".join(p.read_text(encoding="utf-8") for p in Path("dist/audit").rglob("*.js"))
+          assert "document.querySelector(" not in audit_js, "audit studio must query its own shadow root"
           print("S.kosif validation: OK")
           PY
