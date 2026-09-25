@@ -129,25 +129,52 @@ async function requestPhonePairingCode(phone) {
     e.status = 400;
     throw e;
   }
-  await startSocket();
-  if (connection === "open") {
+
+  // A phone-code request is an explicit relink. Start from fresh unregistered
+  // credentials so stale QR/session state cannot make the pairing socket close.
+  try { if (sock) sock.end?.(new Error("relink")); } catch {}
+  sock = null;
+  connection = "idle";
+  qr = null;
+  me = null;
+  await resetAuthDir();
+
+  const s = await startSocket();
+  if (s.authState?.creds?.registered) {
     const e = new Error("already_linked");
     e.status = 409;
     throw e;
   }
-  const end = Date.now() + 10000;
-  while (Date.now() < end) {
-    if (connection === "open") {
-      const e = new Error("already_linked");
-      e.status = 409;
-      throw e;
-    }
-    if (qr || connection === "qr") break;
-    await new Promise(r => setTimeout(r, 200));
-  }
-  if (!sock) throw new Error("socket_not_ready");
-  const code = await sock.requestPairingCode(digits);
-  return String(code || "");
+
+  return await new Promise((resolve, reject) => {
+    let done = false;
+    const finish = (fn, value) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      try { s.ev.off?.("connection.update", onUpdate); } catch {}
+      fn(value);
+    };
+    const request = async () => {
+      try {
+        const code = await s.requestPairingCode(digits);
+        finish(resolve, String(code || ""));
+      } catch (e) {
+        finish(reject, e);
+      }
+    };
+    const onUpdate = (u) => {
+      if (u?.qr) request();
+      else if (u?.connection === "open") {
+        const e = new Error("already_linked");
+        e.status = 409;
+        finish(reject, e);
+      }
+    };
+    const timer = setTimeout(() => finish(reject, new Error("pairing_code_timeout")), 20000);
+    s.ev.on("connection.update", onUpdate);
+    if (qr || connection === "qr") request();
+  });
 }
 
 async function waitForOpen(timeoutMs = 20000) {
