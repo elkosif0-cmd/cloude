@@ -10,8 +10,8 @@
   --k32-line-subtle: var(--surface-3);
   --k32-wine: var(--brand);
   --k32-wine-soft: var(--brand-soft);
-  --k32-green: #2f7a52;
-  --k32-green-light: color-mix(in srgb, #2f7a52 12%, var(--surface));
+  --k32-green: var(--sk-ok);
+  --k32-green-light: color-mix(in srgb, var(--sk-ok) 12%, var(--surface));
   --k32-gold: var(--brand-2);
   --k32-gold-soft: color-mix(in srgb, var(--brand-2) 12%, var(--surface));
   --k32-shadow-sm: 0 2px 8px rgba(30, 32, 29, 0.04);
@@ -24,7 +24,7 @@
   -webkit-font-smoothing: antialiased;
 }
 html[data-theme="dark"] .k32 {
-  --k32-green: #4e8e6a;
+  --k32-green: var(--sk-ok);
   --k32-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
   --k32-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
   --k32-shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.45);
@@ -43,7 +43,7 @@ html[data-theme="dark"] .k32 {
   padding: 28px 24px 22px;
   border-radius: var(--k32-radius-lg);
   color: #FFFFFF;
-  background: linear-gradient(135deg, #1C3B2C 0%, #13271D 50%, #0E1A14 100%);
+  background: linear-gradient(135deg, var(--sk-ok) 0%, var(--sk-ink) 50%, var(--sk-ink) 100%);
   box-shadow: var(--k32-shadow-md);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -75,7 +75,7 @@ html[data-theme="dark"] .k32 {
   letter-spacing: 0.15em;
   text-transform: uppercase;
   font-weight: 700;
-  color: #E2D9C8;
+  color: var(--sk-warn);
   background: rgba(255, 255, 255, 0.1);
   padding: 4px 12px;
   border-radius: 999px;
@@ -142,7 +142,7 @@ html[data-theme="dark"] .k32 {
 .k32-hero p {
   margin: 0;
   font-size: 14px;
-  color: #D3DDD7;
+  color: var(--sk-line-2);
   max-width: 620px;
   line-height: 1.6;
 }
@@ -161,7 +161,7 @@ html[data-theme="dark"] .k32 {
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: #FAF8F5;
+  color: var(--sk-warn-soft);
   background: rgba(0, 0, 0, 0.25);
   padding: 4px 10px;
   border-radius: 6px;
@@ -363,9 +363,9 @@ html[data-theme="dark"] .k32 {
 
 @media (prefers-color-scheme: dark) {
   .k32-cat-chip.on {
-    background: #FFFFFF;
+    background: var(--sk-surface);
     border-color: #FFFFFF;
-    color: #141312;
+    color: var(--sk-ink);
   }
 }
 
@@ -448,7 +448,7 @@ html[data-theme="dark"] .k32 {
   width: 46px;
   height: 26px;
   border-radius: 999px;
-  background: #D8D2C5;
+  background: var(--sk-warn);
   position: relative;
   transition: background 0.2s ease;
 }
@@ -461,7 +461,7 @@ html[data-theme="dark"] .k32 {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #FFFFFF;
+  background: var(--sk-surface);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   transition: transform 0.2s ease;
 }
@@ -597,7 +597,7 @@ html[data-theme="dark"] .k32 {
   display: grid;
   place-items: center;
   font-size: 52px;
-  background: linear-gradient(145deg, #F9F5EC, #ECE3D0);
+  background: linear-gradient(145deg, var(--sk-warn-soft), var(--sk-warn-soft));
   border: 1px solid var(--k32-line-subtle);
   overflow: hidden;
   user-select: none;
@@ -610,7 +610,7 @@ html[data-theme="dark"] .k32 {
 
 @media (prefers-color-scheme: dark) {
   .k32-img {
-    background: linear-gradient(145deg, #2A2621, #1C1A17);
+    background: linear-gradient(145deg, var(--sk-ink), var(--sk-ink));
   }
 }
 
@@ -708,11 +708,11 @@ html[data-theme="dark"] .k32 {
   gap: 4px;
 }
 
-.k32-ex { background: #DCFAE6; color: #067647; }
-.k32-good { background: #E8F3EC; color: #1F4D3A; }
-.k32-low { background: #FEF0C7; color: #93370D; }
-.k32-loss { background: #FEE4E2; color: #B42318; }
-.k32-na { background: #EEF0F3; color: #475467; }
+.k32-ex { background: var(--sk-ok-soft); color: var(--sk-ok); }
+.k32-good { background: var(--sk-ok-soft); color: var(--sk-ok); }
+.k32-low { background: var(--sk-warn-soft); color: var(--sk-warn); }
+.k32-loss { background: var(--sk-bad-soft); color: var(--sk-bad); }
+.k32-na { background: var(--sk-info-soft); color: var(--sk-info); }
 
 /* قسم التسعير مستوحى مباشرة من Eataly */
 .k32-price {
@@ -787,8 +787,8 @@ html[data-theme="dark"] .k32 {
 }
 
 .k32-btn:hover {
-  background: #1B3B2B;
-  border-color: #1B3B2B;
+  background: var(--sk-ok);
+  border-color: var(--sk-ok);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(36, 76, 55, 0.25);
 }
@@ -799,8 +799,8 @@ html[data-theme="dark"] .k32 {
 }
 
 .k32-btn.has-offer:hover {
-  background: #8F2222;
-  border-color: #8F2222;
+  background: var(--sk-bad);
+  border-color: var(--sk-bad);
   box-shadow: 0 4px 12px rgba(168, 42, 42, 0.25);
 }
 
@@ -947,7 +947,7 @@ html[data-theme="dark"] .k32 {
 }
 
 .k32-cart-btn:hover {
-  background: #1B3B2B;
+  background: var(--sk-ok);
   transform: translateY(-1px);
 }
 
@@ -1017,13 +1017,13 @@ html[data-theme="dark"] .k32 {
 
 .k32-cart-summary span {
   font-size: 11px;
-  color: #D3DDD7;
+  color: var(--sk-line-2);
 }
 
 .k32-cart-open-btn {
   border: 0;
-  background: #FFFFFF;
-  color: #1E201D;
+  background: var(--sk-surface);
+  color: var(--sk-ink);
   border-radius: 999px;
   padding: 8px 18px;
   font: inherit;
@@ -1139,10 +1139,15 @@ html[data-theme="dark"] .k32 {
 
 
 /* تراث الوادي: رأس العروض على الرَّق مع رسم الوادي */
-:root:not([data-theme="dark"]) .k32-hero{background:linear-gradient(to left,#faf1e4 42%,rgba(250,241,228,0) 70%),url(./art/hero.webp) left bottom/auto 100% no-repeat,#faf1e4;border:1px solid var(--line);color:var(--ink)}
+:root:not([data-theme="dark"]) .k32-hero{background:linear-gradient(to left,var(--sk-warn-soft) 42%,rgba(250,241,228,0) 70%),url(./art/hero.webp) left bottom/auto 100% no-repeat,var(--sk-warn-soft);border:1px solid var(--line);color:var(--ink)}
 :root:not([data-theme="dark"]) .k32-hero::before{display:none}
 :root:not([data-theme="dark"]) .k32-hero h3{color:var(--ink);font-family:"Aref Ruqaa","Amiri",serif}
 :root:not([data-theme="dark"]) .k32-hero p{color:var(--ink-2)}
 :root:not([data-theme="dark"]) .k32-hero-brand{color:var(--ink-2);background:rgba(255,255,255,.6);border-color:var(--line)}
 :root:not([data-theme="dark"]) .k32-hero-meta>*{color:var(--ink-2);background:rgba(255,255,255,.7);border-color:var(--line)}
 :root:not([data-theme="dark"]) .k32-hero-actions button{color:var(--ink);background:rgba(255,255,255,.75);border-color:var(--line)}
+
+/* unified icon set inside the catalogue (replaces emoji marks) */
+.k32-img>span[aria-hidden] svg,.k32-img>span[aria-hidden] img,.k32-cart-item-icon svg{width:44px;height:44px;color:var(--sk-brand)}
+.k32-cart-item-icon svg{width:26px;height:26px}
+[data-k32-cols] svg{display:block}

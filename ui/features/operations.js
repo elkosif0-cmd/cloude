@@ -115,10 +115,10 @@ function bbqHTML(){
       '<div class="sk-quote-header"><div><b>معاينة عرض السعر للعميل</b><br><small>جاهز للإرسال على واتساب أو الطباعة المباشرة</small></div>'+
       '<span class="sk-ops-badge good">شامل ضريبة 15٪</span></div>'+
       '<div style="line-height:1.8;font-size:0.9rem;">'+
-        '<div>🥩 <b>اللحم الصافي:</b> '+c.totalRawKg.toFixed(1)+' كجم غنم نعيمي بلدي طازج ذبح اليوم.</div>'+
-        '<div>🔥 <b>الأصناف المقترحة:</b> أوصال متبلة (30%) + كباب طازج مشوي (30%) + ريش فاخرة (25%) + برجر نعيمي (15%).</div>'+
-        '<div>🧂 <b>التحضير:</b> '+(f.marinated?'تتبيل خاص بخلطة أعشاب وزيت زيتون بكر':'تقطيع جاهز للشواء دون تتبيل')+'.</div>'+
-        '<div>📦 <b>المستلزمات:</b> '+(f.toolsPack?'تشمل أسياخ ستانلس، فحم سنديان طبيعي، وصواني تقديم':'اللحوم فقط')+'.</div>'+
+        '<div><b>اللحم الصافي:</b> '+c.totalRawKg.toFixed(1)+' كجم غنم نعيمي بلدي طازج ذبح اليوم.</div>'+
+        '<div><b>الأصناف المقترحة:</b> أوصال متبلة (30%) + كباب طازج مشوي (30%) + ريش فاخرة (25%) + برجر نعيمي (15%).</div>'+
+        '<div><b>التحضير:</b> '+(f.marinated?'تتبيل خاص بخلطة أعشاب وزيت زيتون بكر':'تقطيع جاهز للشواء دون تتبيل')+'.</div>'+
+        '<div><b>المستلزمات:</b> '+(f.toolsPack?'تشمل أسياخ ستانلس، فحم سنديان طبيعي، وصواني تقديم':'اللحوم فقط')+'.</div>'+
         '<div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--line,#e2d8cc);font-weight:bold;color:var(--brand,#8a5a2b);">'+
           'المجموع الإجمالي: '+money(c.finalPrice)+' (معدل الشخص: '+money(c.pricePerGuest)+')'+
         '</div>'+
@@ -333,7 +333,7 @@ function butcherHTML(){
         const yieldPct=s.hangingKg>0?(s.primeKg/s.hangingKg)*100:0;
         const isGreat=yieldPct>=65;
         const isGood=yieldPct>=60&&yieldPct<65;
-        const stars=isGreat?'★★★★★':isGood?'★★★★☆':'★★★☆☆';
+        const stars=isGreat?'★★★★':isGood?'★★★☆':'★★☆☆';
         return '<tr><td><b>'+esc(s.carcassTag)+'</b></td><td>'+esc(s.butcher)+'</td><td>'+s.hangingKg.toFixed(1)+' كجم</td>'+
           '<td style="font-weight:bold;color:#047857;">'+s.primeKg.toFixed(1)+' كجم</td><td>'+s.boneKg.toFixed(1)+' كجم</td><td>'+s.fatKg.toFixed(1)+' كجم</td>'+
           '<td style="color:'+(s.wasteKg>1?'#b91c1c':'inherit')+';">'+s.wasteKg.toFixed(1)+' كجم</td>'+
@@ -408,19 +408,19 @@ function subsHTML(){
 
     '<div class="sk-sub-grid">'+
       '<div class="sk-sub-card popular">'+
-        '<div><h4 style="margin:0 0 6px;">🥩 بوكس العائلة الشهري الفاخر</h4>'+
+        '<div><h4 style="margin:0 0 6px;">بوكس العائلة الشهري الفاخر</h4>'+
         '<p style="font-size:0.85rem;color:var(--ink-2,#666);margin:0 0 10px;">نصف ذبيحة نعيمي مقطعة ثلاجة + 2 كجم مفروم بلدي + 1 كجم كباب جاهز.</p>'+
         '<b style="font-size:1.2rem;color:var(--brand,#8a5a2b);">850 ر.س <small style="font-size:0.8rem;color:var(--ink-3,#888);">/ شهرياً</small></b></div>'+
         '<button type="button" class="btn sm" style="margin-top:12px;" data-sub-quick="family">طلب اشتراك جديد</button>'+
       '</div>'+
       '<div class="sk-sub-card">'+
-        '<div><h4 style="margin:0 0 6px;">🔥 بوكس الشواء الأسبوعي</h4>'+
+        '<div><h4 style="margin:0 0 6px;">بوكس الشواء الأسبوعي</h4>'+
         '<p style="font-size:0.85rem;color:var(--ink-2,#666);margin:0 0 10px;">1.5 كجم ريش نعيمي + 1.5 كجم أوصال متبلة + 1 كجم برجر بلدي فاخر.</p>'+
         '<b style="font-size:1.2rem;color:var(--brand,#8a5a2b);">240 ر.س <small style="font-size:0.8rem;color:var(--ink-3,#888);">/ أسبوعياً</small></b></div>'+
         '<button type="button" class="btn sm" style="margin-top:12px;" data-sub-quick="bbq">طلب اشتراك جديد</button>'+
       '</div>'+
       '<div class="sk-sub-card">'+
-        '<div><h4 style="margin:0 0 6px;">🥗 بوكس الصحة والكيتو</h4>'+
+        '<div><h4 style="margin:0 0 6px;">بوكس الصحة والكيتو</h4>'+
         '<p style="font-size:0.85rem;color:var(--ink-2,#666);margin:0 0 10px;">3 كجم ستيك وموزات عجل بلدي خالي تماماً من الشحم ومقطع بأعلى جودة.</p>'+
         '<b style="font-size:1.2rem;color:var(--brand,#8a5a2b);">290 ر.س <small style="font-size:0.8rem;color:var(--ink-3,#888);">/ أسبوعياً</small></b></div>'+
         '<button type="button" class="btn sm" style="margin-top:12px;" data-sub-quick="keto">طلب اشتراك جديد</button>'+
@@ -628,7 +628,7 @@ function agingHTML(){
             '</div>'+
           '</div>'+
           '<div class="sk-aging-meter" title="نسبة الإنجاز '+c.progress+'%"><div class="sk-aging-meter-fill" style="width:'+c.progress+'%;"></div></div>'+
-          '<div class="sk-aging-flavor">🥩 مرحلة النكهة: <b>'+esc(c.flavorStage)+'</b></div>'+
+          '<div class="sk-aging-flavor">مرحلة النكهة: <b>'+esc(c.flavorStage)+'</b></div>'+
           '<dl class="sk-aging-stats">'+
             '<div><dt>الوزن الأولي:</dt><dd>'+c.rawKg.toFixed(2)+' كجم</dd></div>'+
             '<div><dt>الفاقد التقديري (رطوبة + تشفية):</dt><dd class="bad">-'+c.totalLossPct.toFixed(1)+'%</dd></div>'+
@@ -638,8 +638,8 @@ function agingHTML(){
             '<div><dt>الربح المتوقع للقطعة:</dt><dd class="good">'+money(c.netProfitTotal)+'</dd></div>'+
           '</dl>'+
           '<div class="sk-actions" style="margin-top:auto;">'+
-            '<button type="button" class="btn sm" data-ag-print="'+idx+'">🏷️ طباعة ملصق التعتيق</button>'+
-            (p.status!=='done'?'<button type="button" class="btn sm primary" data-ag-finish="'+idx+'">🔪 إنهاء وتجهيز للبيع</button>':'')+
+            '<button type="button" class="btn sm" data-ag-print="'+idx+'">طباعة ملصق التعتيق</button>'+
+            (p.status!=='done'?'<button type="button" class="btn sm primary" data-ag-finish="'+idx+'">إنهاء وتجهيز للبيع</button>':'')+
             '<button type="button" class="btn sm" data-ag-del="'+idx+'" style="color:#b91c1c;">حذف</button>'+
           '</div>'+
         '</article>';
@@ -696,7 +696,7 @@ function bindAging(content){
         '</table>'+
         '<div style="font-size:12px;color:#666;margin-top:12px;">تحفظ في حرارة 1° إلى 2.5° مئوية ورطوبة 75-80٪</div>'+
         '<script>window.onload=()=>{window.print();}<\/script></body></html>');
-      w.document.close();
+      w.document.close();SK.brandPrint(w);
     };
   });
 
@@ -744,9 +744,9 @@ function bindAging(content){
    ========================================================================== */
 function storageHubNav(activeId){
   const tabs=[
-    {id:"inventory",icon:"📦",title:"رادار الصلاحية والمخزون FIFO (F9)"},
-    {id:"operations",icon:"🥩",title:"غرف التعتيق ومناسبات الشواء (F8)"},
-    {id:"traceability",icon:"🌡️",title:"مراقبة سلسلة التبريد HACCP"}
+    {id:"inventory",icon:"",title:"رادار الصلاحية والمخزون FIFO (F9)"},
+    {id:"operations",icon:"",title:"غرف التعتيق ومناسبات الشواء (F8)"},
+    {id:"traceability",icon:"",title:"مراقبة سلسلة التبريد HACCP"}
   ];
   return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-storage-go="'+t.id+'"><span>'+t.icon+'</span><span>'+t.title+'</span></button>').join("")+'</div>';
 }
@@ -757,11 +757,11 @@ function paintOps(){
 
   r.innerHTML=storageHubNav("operations")+'<div class="sk-ops-wrap">'+
     '<div class="sk-ops-nav" role="tablist">'+
-      '<button type="button" role="tab" aria-selected="'+(opsTab==="bbq")+'" class="'+(opsTab==="bbq"?'active':'')+'" data-tab="bbq">🍖 حاسبة الشواء والمناسبات</button>'+
-      '<button type="button" role="tab" aria-selected="'+(opsTab==="po")+'" class="'+(opsTab==="po"?'active':'')+'" data-tab="po">📋 أوامر الشراء واستلام الذبائح</button>'+
-      '<button type="button" role="tab" aria-selected="'+(opsTab==="butcher")+'" class="'+(opsTab==="butcher"?'active':'')+'" data-tab="butcher">🔪 كفاءة التشفية والقصابين</button>'+
-      '<button type="button" role="tab" aria-selected="'+(opsTab==="subs")+'" class="'+(opsTab==="subs"?'active':'')+'" data-tab="subs">📦 باقات واشتراكات اللحوم</button>'+
-      '<button type="button" role="tab" aria-selected="'+(opsTab==="aging")+'" class="'+(opsTab==="aging"?'active':'')+'" data-tab="aging">🥩 غرفة التعتيق (Dry Aging)</button>'+
+      '<button type="button" role="tab" aria-selected="'+(opsTab==="bbq")+'" class="'+(opsTab==="bbq"?'active':'')+'" data-tab="bbq">حاسبة الشواء والمناسبات</button>'+
+      '<button type="button" role="tab" aria-selected="'+(opsTab==="po")+'" class="'+(opsTab==="po"?'active':'')+'" data-tab="po">أوامر الشراء واستلام الذبائح</button>'+
+      '<button type="button" role="tab" aria-selected="'+(opsTab==="butcher")+'" class="'+(opsTab==="butcher"?'active':'')+'" data-tab="butcher">كفاءة التشفية والقصابين</button>'+
+      '<button type="button" role="tab" aria-selected="'+(opsTab==="subs")+'" class="'+(opsTab==="subs"?'active':'')+'" data-tab="subs">باقات واشتراكات اللحوم</button>'+
+      '<button type="button" role="tab" aria-selected="'+(opsTab==="aging")+'" class="'+(opsTab==="aging"?'active':'')+'" data-tab="aging">غرفة التعتيق (Dry Aging)</button>'+
     '</div>'+
     '<div id="sk-ops-tab-content"></div>'+
   '</div>';
@@ -797,7 +797,7 @@ function paintOps(){
 window.SK.view("operations",{
   title:"المناسبات والتشغيل",
   sub:"حاسبة الشواء والمناسبات، أوامر الشراء وفحص الاستلام، كفاءة التشفية، اشتراكات اللحوم، وغرفة التعتيق",
-  emoji:"🍖",
+  emoji:"",
   render(node){
     roots.ops=node;
     paintOps();

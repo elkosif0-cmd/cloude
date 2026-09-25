@@ -45,10 +45,10 @@
   background: var(--surface-3, #eee);
   margin: 12px 0 6px;
 }
-.sk-pl-bar-cogs { background: #b91c1c; }
-.sk-pl-bar-waste { background: #d97706; }
-.sk-pl-bar-opex { background: #4f46e5; }
-.sk-pl-bar-profit { background: #059669; }
+.sk-pl-bar-cogs { background: var(--sk-bad); }
+.sk-pl-bar-waste { background: var(--sk-warn); }
+.sk-pl-bar-opex { background: var(--sk-brand); }
+.sk-pl-bar-profit { background: var(--sk-ok); }
 
 .sk-pl-legend {
   display: flex;
@@ -80,14 +80,14 @@
   font-weight: 700;
 }
 .sk-leak-tag.high {
-  background: #fee2e2;
-  color: #991b1b;
-  border: 1px solid #fca5a5;
+  background: var(--sk-bad-soft);
+  color: var(--sk-bad);
+  border: 1px solid color-mix(in srgb,var(--sk-bad) 35%,var(--sk-line));
 }
 .sk-leak-tag.normal {
-  background: #ecfdf5;
-  color: #065f46;
-  border: 1px solid #a7f3d0;
+  background: var(--sk-ok-soft);
+  color: var(--sk-ok);
+  border: 1px solid color-mix(in srgb,var(--sk-ok) 35%,var(--sk-line));
 }
 
 /* Customer Churn Radar Card */
@@ -111,15 +111,15 @@
   padding: 2px 8px;
   border-radius: 10px;
 }
-.sk-churn-status.danger { background: #fee2e2; color: #991b1b; }
-.sk-churn-status.warn { background: #fef3c7; color: #92400e; }
-.sk-churn-status.active { background: #ecfdf5; color: #065f46; }
+.sk-churn-status.danger { background: var(--sk-bad-soft); color: var(--sk-bad); }
+.sk-churn-status.warn { background: var(--sk-warn-soft); color: var(--sk-warn); }
+.sk-churn-status.active { background: var(--sk-ok-soft); color: var(--sk-ok); }
 
 /* Executive Report Printable Styling */
 .sk-exec-sheet {
-  background: #fff !important;
+  background: var(--sk-surface) !important;
   color: #000 !important;
-  border: 1px solid #ddd;
+  border: 1px solid var(--sk-line);
   border-radius: 8px;
   padding: 24px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.06);
@@ -131,23 +131,23 @@
   justify-content: space-between;
   align-items: flex-start;
   padding-bottom: 14px;
-  border-bottom: 2px solid #2b1a0f;
+  border-bottom: 2px solid var(--sk-brand);
   margin-bottom: 16px;
 }
 .sk-exec-title h2 {
   margin: 0 0 4px;
   font-size: 1.3rem;
-  color: #2b1a0f;
+  color: var(--sk-brand);
 }
 .sk-exec-title p {
   margin: 0;
   font-size: 0.85rem;
-  color: #666;
+  color: var(--sk-ink-2);
 }
 .sk-exec-meta {
   text-align: left;
   font-size: 0.82rem;
-  color: #444;
+  color: var(--sk-ink);
 }
 
 /* Visual Charts and Trends */

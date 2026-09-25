@@ -129,3 +129,14 @@
   --sk-font:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;--sk-font-display:"Aref Ruqaa","Amiri",serif;
   --sk-shadow-1:0 1px 0 rgba(0,0,0,.04);--sk-r:8px;--sk-r-l:10px;
 }
+
+/* printing always uses the light heritage palette, whatever theme is on screen */
+@media print{
+  :root,:root[data-theme="dark"],:root[data-look]{
+    --sk-bg:#ffffff;--sk-surface:#ffffff;--sk-surface-2:#faf5ec;--sk-surface-3:#f3ead9;--sk-line:#e3d3b8;--sk-line-2:#d6c2a0;
+    --sk-ink:#2b1a0f;--sk-ink-2:#5b4330;--sk-ink-3:#7d6650;--sk-brand:#8a5a2b;--sk-brand-2:#b8864e;--sk-brand-soft:#f3dfbd;--sk-on-brand:#ffffff;
+    --sk-ok:#2f7a45;--sk-ok-soft:#e5f1e3;--sk-warn:#9a5b06;--sk-warn-soft:#f8ead0;--sk-bad:#a8322a;--sk-bad-soft:#f7e0da;--sk-info:#2d6a7a;--sk-info-soft:#e1eeef;
+    --sk-font:"Amiri","Noto Naskh Arabic",serif;--sk-font-display:"Aref Ruqaa","Amiri",serif;color-scheme:light;
+  }
+  body{background:#fff!important}
+}

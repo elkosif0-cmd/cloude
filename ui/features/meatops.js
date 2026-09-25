@@ -65,7 +65,7 @@ function carcassHTML(){
   '</div>'+
   '<div class="sk-section-title"><b>القطعيات ونسب العائد (Carcass Yield)</b><span>المجموع لا يلزم أن يكون 100٪؛ التوزيع يطبع نسب العائد تلقائيًا</span></div>'+
   '<div id="sk37-cuts">'+cuts.map((x,i)=>'<div class="sk37-cut"><input data-n="'+i+'" value="'+esc(x.name)+'"><input type="number" step=".1" data-y="'+i+'" value="'+x.yield+'"><input type="number" step=".01" data-p="'+i+'" value="'+x.price+'" placeholder="سعر بيع/كجم"><button data-d="'+i+'">×</button></div>').join("")+'</div>'+
-  '<div class="sk-actions"><button id="sk37-add" class="sk-secondary">+ قطعة</button><button id="sk37-run" class="sk-primary">احسب الاقتصاديات</button><button id="sk37-print" class="sk-secondary">📋 أمر تشغيل التشفية</button></div><div id="sk37-result"></div>';
+  '<div class="sk-actions"><button id="sk37-add" class="sk-secondary">+ قطعة</button><button id="sk37-run" class="sk-primary">احسب الاقتصاديات</button><button id="sk37-print" class="sk-secondary">أمر تشغيل التشفية</button></div><div id="sk37-result"></div>';
 }
 function arHTML(){
   return '<p class="sk37-note">الصق: العميل، التاريخ، إجمالي الفاتورة، المدفوع. سيحسب الرصيد = الفاتورة − المدفوع ثم يوزعه على أعمار الذمم.</p>'+
@@ -120,7 +120,7 @@ function bind(){
       '</tbody></table>'+
       '<div style="font-size:12px;color:#666;margin-top:20px;">تعليمات التشفية: الالتزام بخطوط العضلات الطبيعية، فصل العظم بدقة دون هدر، وتبريد القطعيات فوراً عند 2° مئوية.</div>'+
       '<script>window.onload=()=>{window.print();}<\/script></body></html>');
-    w.document.close();
+    w.document.close();SK.brandPrint(w);
   });
   $("#sk37-ar-run")?.addEventListener("click",()=>{arText=$("#sk37-ar").value;try{localStorage.setItem(AR_KEY,arText)}catch{}runAR()});
 }
@@ -140,8 +140,8 @@ function runAR(){
 const roots={};
 function butcheryHubNav(activeId){
   const tabs=[
-    {id:"carcass",icon:"🥩",title:"تفكيك وتصافي الذبيحة وعائد القطعيات"},
-    {id:"blending",icon:"🍔",title:"خلط وفرم اللحوم ونسب الدهن (Lean/Fat)"}
+    {id:"carcass",icon:"",title:"تفكيك وتصافي الذبيحة وعائد القطعيات"},
+    {id:"blending",icon:"",title:"خلط وفرم اللحوم ونسب الدهن (Lean/Fat)"}
   ];
   return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-butchery-go="'+t.id+'"><span>'+t.icon+'</span><span>'+t.title+'</span></button>').join("")+'</div>';
 }
@@ -154,7 +154,7 @@ function paintCarcass(){
 function paintAR(){const r=roots.ar;if(!r||!r.isConnected)return;r.innerHTML=arHTML();bind();if(arText.trim())runAR()}
 window.SK.view("receivables",{title:"الذمم والتحصيل",sub:"أعمار الذمم: الرصيد المتبقي لكل عميل موزعاً على فترات التأخير",emoji:"⏳",
   render(node){roots.ar=node;paintAR()}});
-window.SK.view("carcass",{title:"اقتصاديات الذبيحة",sub:"من الوزن الحي إلى القطعيات: التصافي وتوزيع التكلفة والهامش لكل قطعة",emoji:"🐑",adv:true,
+window.SK.view("carcass",{title:"اقتصاديات الذبيحة",sub:"من الوزن الحي إلى القطعيات: التصافي وتوزيع التكلفة والهامش لكل قطعة",emoji:"",adv:true,
   render(node){roots.carcass=node;paintCarcass()}});
 window.SKosifMeatOps=Object.freeze({dressing,allocate,aging});
 })();

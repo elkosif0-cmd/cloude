@@ -58,16 +58,12 @@
     };
   }
 
+  /* category mark from the unified icon set (brand ram for lamb and mutton) */
   const ICON=(it)=>{
-    if(it.kind==="box")return "📦";
+    if(it.kind==="box")return SK.icons.builder;
     const t=(it.cat+" "+it.name).toLowerCase();
-    if(/بقر|عجل/.test(t))return "🐄";
-    if(/ماعز|تيس|عارضي/.test(t))return "🐐";
-    if(/حاشي|جمل|قعود/.test(t))return "🐪";
-    if(/دجاج|طيور|دواجن/.test(t))return "🐔";
-    if(/شحم|دهن/.test(t))return "🧈";
-    if(/كبد|معلاق|كوارع|مقادم|فشة/.test(t))return "🍖";
-    return "🐑";
+    if(/بقر|عجل|ماعز|تيس|عارضي|حاشي|جمل|قعود|دجاج|طيور|دواجن|شحم|دهن|كبد|معلاق|كوارع|مقادم|فشة/.test(t))return SK.icons.carcass;
+    return '<img src="./art/ram.svg" alt="" width="28" height="28" style="border-radius:8px">';
   };
 
   /* أصل وسلالة المنتج بأسلوب Eataly Gourmet */
@@ -242,11 +238,11 @@
     const notes=ui.custNotes.trim();
 
     const msg=[
-      "🌿 *عرض سعر وطلبية — "+BIZ+"*",
-      "✨ *Gourmet Order Quotation*",
+      "*عرض سعر وطلبية — "+BIZ+"*",
+      "*Gourmet Order Quotation*",
       "─────────────────",
-      "👤 *العميل:* "+custName,
-      "📅 *التاريخ:* "+new Date().toLocaleDateString("ar-SA-u-nu-latn"),
+      "*العميل:* "+custName,
+      "*التاريخ:* "+new Date().toLocaleDateString("ar-SA-u-nu-latn"),
       ""
     ];
 
@@ -335,10 +331,10 @@
       '</div>'+
       '<div class="k32-card-actions">'+
         '<button class="k32-cart-btn" type="button" data-k32-add="'+esc(it.id)+'">'+
-          (inCartQty>0?'<span>🛒 بالطلب ('+inCartQty+') +</span>':'<span>🛒 أضف للطلب</span>')+
+          (inCartQty>0?'<span>بالطلب ('+inCartQty+') +</span>':'<span>أضف للطلب</span>')+
         '</button>'+
         '<button class="k32-opt-btn'+(hasOffer?' has-offer':'')+'" type="button" data-k32-offer="'+esc(it.id)+'" title="تعديل نسبة الخصم">'+
-          '🏷️'+
+          ''+
         '</button>'+
       '</div>'+
     '</article>';
@@ -441,7 +437,7 @@
       '<div class="k32-drawer">'+
         '<div class="k32-modal-head">'+
           '<div>'+
-            '<h4>🛒 سلة طلبيات وعروض الأسعار</h4>'+
+            '<h4>سلة طلبيات وعروض الأسعار</h4>'+
             '<small style="color:var(--k32-mute)">'+totalItems+' منتجات مختارة للعميل</small>'+
           '</div>'+
           '<button type="button" class="k32-modal-close" id="k32-drawer-x">✕</button>'+
@@ -485,11 +481,11 @@
             '</div>'+
 
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px">'+
-              '<button type="button" id="k32-send-quotation" style="border:0;background:#25D366;color:#FFFFFF;border-radius:12px;padding:12px;font:inherit;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">'+
-                '<span>📲 إرسال بالواتساب</span>'+
+              '<button type="button" id="k32-send-quotation" style="border:0;background:var(--sk-ok);color:#FFFFFF;border-radius:12px;padding:12px;font:inherit;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">'+
+                '<span>إرسال بالواتساب</span>'+
               '</button>'+
               '<button type="button" id="k32-copy-quotation" style="border:1px solid var(--k32-line);background:var(--k32-card-subtle);color:inherit;border-radius:12px;padding:12px;font:inherit;font-weight:700;font-size:13px;cursor:pointer">'+
-                '📋 نسخ عرض السعر'+
+                'نسخ عرض السعر'+
               '</button>'+
             '</div>'+
 
@@ -498,7 +494,7 @@
               '<button type="button" id="k32-drawer-close-btn" style="border:1px solid var(--k32-line);background:var(--k32-card-subtle);border-radius:8px;padding:6px 14px;font:inherit;font-size:12.5px;cursor:pointer;color:inherit">متابعة التصفح</button>'+
             '</div>'+
           '</div>'
-          : '<div class="sk-empty" style="padding:40px 10px">السلة فارغة حالياً.<br>اضغط زر «🛒 أضف للطلب» بجانب أي منتج لإضافته لعرض السعر.</div>'
+          : '<div class="sk-empty" style="padding:40px 10px">السلة فارغة حالياً.<br>اضغط زر «أضف للطلب» بجانب أي منتج لإضافته لعرض السعر.</div>'
         )+
       '</div>'+
     '</div>';
@@ -518,10 +514,10 @@
           '<div class="k32-hero-brand"><span>'+esc(BIZ)+'</span></div>'+
           '<div class="k32-hero-actions">'+
             '<button type="button" class="k32-share" id="k32-share"'+(nOffers?'':' disabled')+'>'+
-              '<span>📤 عروض الشهر ('+nOffers+')</span>'+
+              '<span>عروض الشهر ('+nOffers+')</span>'+
             '</button>'+
             '<button type="button" class="k32-export-btn" id="k32-export-csv" title="تصدير الكتالوج بصيغة Excel / CSV">'+
-              '<span>📊 تصدير Excel</span>'+
+              '<span>تصدير Excel</span>'+
             '</button>'+
           '</div>'+
         '</div>'+
@@ -540,7 +536,7 @@
       (totalItems>0
         ? '<div class="k32-cart-bar">'+
             '<div class="k32-cart-bar-info">'+
-              '<div class="k32-cart-badge">🛒 '+totalItems+'</div>'+
+              '<div class="k32-cart-badge">'+totalItems+'</div>'+
               '<div class="k32-cart-summary">'+
                 '<b>'+sar(netTotal)+' ر.س</b>'+
                 '<span>طلب العميل '+(totalSavings>0?'(وفر '+sar(totalSavings)+' ر.س)':'')+'</span>'+
@@ -554,16 +550,16 @@
       '<div class="k32-search-row">'+
         '<label class="k32-search">'+
           '<input id="k32-q" type="search" placeholder="ابحث بالاسم، السلالة، أو التصنيف (مثل: نعيمي، بوكس، حري)..." value="'+esc(ui.q)+'">'+
-          '<span class="k32-search-icon">🔍</span>'+
+          '<span class="k32-search-icon"></span>'+
         '</label>'+
       '</div>'+
 
       /* Quick Category Filter Pills (Eataly Navigation Style) */
       '<nav class="k32-cat-nav" aria-label="أقسام الكتالوج">'+
         '<button type="button" class="k32-cat-chip'+(!ui.cat&&!ui.offersOnly&&ui.kind==="all"&&!ui.budget?' on':'')+'" data-k32-quick="all">جميع المختارات</button>'+
-        '<button type="button" class="k32-cat-chip'+(ui.offersOnly?' on':'')+'" data-k32-quick="offers" style="color:var(--k32-wine)">🔥 عروض الشهر</button>'+
-        '<button type="button" class="k32-cat-chip'+(ui.kind==="box"?' on':'')+'" data-k32-quick="box">📦 البوكسات العائلية</button>'+
-        '<button type="button" class="k32-cat-chip'+(ui.kind==="raw"&&!ui.cat?' on':'')+'" data-k32-quick="raw">🥩 الأصناف والذبائح</button>'+
+        '<button type="button" class="k32-cat-chip'+(ui.offersOnly?' on':'')+'" data-k32-quick="offers" style="color:var(--k32-wine)">عروض الشهر</button>'+
+        '<button type="button" class="k32-cat-chip'+(ui.kind==="box"?' on':'')+'" data-k32-quick="box">البوكسات العائلية</button>'+
+        '<button type="button" class="k32-cat-chip'+(ui.kind==="raw"&&!ui.cat?' on':'')+'" data-k32-quick="raw">الأصناف والذبائح</button>'+
         cats.slice(0,5).map(c=>'<button type="button" class="k32-cat-chip'+(ui.cat===c?' on':'')+'" data-k32-quick-cat="'+esc(c)+'">'+esc(c)+'</button>').join("")+
       '</nav>'+
 
@@ -574,15 +570,15 @@
             '<span>⇅ ترتيب</span>'+
           '</button>'+
           '<button type="button" data-k32-sheet="filter" class="k32-btn-toggle '+(ui.sheet==="filter"||filtered?'on':'')+'">'+
-            '<span>⚲ تصفية</span>'+
+            '<span>تصفية</span>'+
             (filtered?'<span class="badge-dot"></span>':'')+
           '</button>'+
         '</div>'+
         '<div class="k32-grid-layout-selector">'+
           '<span style="font-size:12px;color:var(--k32-mute)">عرض:</span>'+
-          '<button type="button" class="k32-layout-btn '+(ui.cols===2?'on':'')+'" data-k32-cols="2" title="عمودين">⚏</button>'+
-          '<button type="button" class="k32-layout-btn '+(ui.cols===3?'on':'')+'" data-k32-cols="3" title="3 أعمدة">☰</button>'+
-          '<button type="button" class="k32-layout-btn '+(ui.cols===4?'on':'')+'" data-k32-cols="4" title="4 أعمدة">▦</button>'+
+          '<button type="button" class="k32-layout-btn '+(ui.cols===2?'on':'')+'" data-k32-cols="2" title="عمودين" aria-label="عمودين"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="8" height="16" rx="1.5"/><rect x="13" y="4" width="8" height="16" rx="1.5"/></svg></button>'+
+          '<button type="button" class="k32-layout-btn '+(ui.cols===3?'on':'')+'" data-k32-cols="3" title="3 أعمدة" aria-label="3 أعمدة"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="5.5" height="16" rx="1.2"/><rect x="9.25" y="4" width="5.5" height="16" rx="1.2"/><rect x="16.5" y="4" width="5.5" height="16" rx="1.2"/></svg></button>'+
+          '<button type="button" class="k32-layout-btn '+(ui.cols===4?'on':'')+'" data-k32-cols="4" title="4 أعمدة" aria-label="4 أعمدة"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg></button>'+
         '</div>'+
       '</div>'+
 
@@ -650,8 +646,8 @@
     }
 
     const lines=[
-      "🌿 *قائمة عروض ومختارات "+BIZ+"*",
-      "✨ *Gourmet Monthly Selections*",
+      "*قائمة عروض ومختارات "+BIZ+"*",
+      "*Gourmet Monthly Selections*",
       "─────────────────",
       ""
     ];
@@ -864,7 +860,7 @@
     }
   }
 
-  window.SK.view("offers",{title:"العروض والكتالوج",sub:"عروض الأسعار وسلة الطلب ومشاركتها مع العملاء — من أسعار محرك التسعير مباشرة",emoji:"🏷️",
+  window.SK.view("offers",{title:"العروض والكتالوج",sub:"عروض الأسعار وسلة الطلب ومشاركتها مع العملاء — من أسعار محرك التسعير مباشرة",emoji:"",
     render(node){root=node;render()}});
   window.SKosifCatalog=Object.freeze({addToCart,exportCatalogCSV,getCartTotals});
 })();

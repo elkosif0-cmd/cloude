@@ -51,7 +51,7 @@ function html(){
   const expWarn=expList.filter(x=>expAnalysis(x).status==="warn").length;
 
   return '<div class="sk-ops-nav" style="margin-bottom:12px;" role="tablist">'+
-    '<button type="button" class="'+(invTab==='reorder'?'active':'')+'" id="sk-inv-tab-reorder">📦 تخطيط إعادة الطلب وتغطية المخزون</button>'+
+    '<button type="button" class="'+(invTab==='reorder'?'active':'')+'" id="sk-inv-tab-reorder">تخطيط إعادة الطلب وتغطية المخزون</button>'+
     '<button type="button" class="'+(invTab==='expiry'?'active':'')+'" id="sk-inv-tab-expiry">⏳ رادار الصلاحية واللحوم المبردة ('+(expUrgent+expWarn)+' تنبيه)</button>'+
   '</div>'+
   (invTab==="reorder" ? [
@@ -93,7 +93,7 @@ function html(){
     '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>رقم الدفعة</th><th>الصنف</th><th>طريقة الحفظ</th><th>الكمية</th><th>تاريخ الانتهاء</th><th>المتبقي</th><th>الإجراء المقترح</th><th></th></tr></thead><tbody>',
       expList.map((x,i)=>{
         const an=expAnalysis(x);
-        return '<tr><td><b>'+esc(x.id)+'</b></td><td>'+esc(x.item)+'</td><td>'+esc(x.storage)+'</td><td>'+num(x.stockKg).toFixed(1)+' كجم</td><td>'+esc(x.dateExp)+'</td><td><span class="sk-pill '+an.status+'">'+(an.diffDays<0?'منتهي':an.diffDays+' يوم')+'</span></td><td><small>'+esc(an.action)+'</small></td><td><button type="button" class="linkish" data-exp-del="'+i+'" style="color:#b91c1c;">حذف</button></td></tr>';
+        return '<tr><td><b>'+esc(x.id)+'</b></td><td>'+esc(x.item)+'</td><td>'+esc(x.storage)+'</td><td>'+num(x.stockKg).toFixed(1)+' كجم</td><td>'+esc(x.dateExp)+'</td><td><span class="sk-pill '+an.status+'">'+(an.diffDays<0?'منتهي':an.diffDays+' يوم')+'</span></td><td><small>'+esc(an.action)+'</small></td><td><button type="button" class="linkish" data-exp-del="'+i+'" style="color:var(--sk-bad);">حذف</button></td></tr>';
       }).join(""),
     '</tbody></table></div>',
     '</div></section>'
@@ -114,9 +114,9 @@ function out(r){
 function grab(){$$("[data-inv]",root).forEach(i=>form[i.dataset.inv]=i.value)}
 function storageHubNav(activeId){
   const tabs=[
-    {id:"inventory",icon:"📦",title:"رادار الصلاحية والمخزون FIFO (F9)"},
-    {id:"operations",icon:"🥩",title:"غرف التعتيق ومناسبات الشواء (F8)"},
-    {id:"traceability",icon:"🌡️",title:"مراقبة سلسلة التبريد HACCP"}
+    {id:"inventory",icon:"",title:"رادار الصلاحية والمخزون FIFO (F9)"},
+    {id:"operations",icon:"",title:"غرف التعتيق ومناسبات الشواء (F8)"},
+    {id:"traceability",icon:"",title:"مراقبة سلسلة التبريد HACCP"}
   ];
   return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-storage-go="'+t.id+'"><span>'+t.icon+'</span><span>'+t.title+'</span></button>').join("")+'</div>';
 }
@@ -176,5 +176,5 @@ function paint(){
     });
   }
 }
-window.SK.view("inventory",{title:"المخزون",sub:"أيام التغطية ونقطة إعادة الطلب والكمية المقترحة ورادار الصلاحية",emoji:"📦",render(node){root=node;paint()}});
+window.SK.view("inventory",{title:"المخزون",sub:"أيام التغطية ونقطة إعادة الطلب والكمية المقترحة ورادار الصلاحية",emoji:"",render(node){root=node;paint()}});
 })();

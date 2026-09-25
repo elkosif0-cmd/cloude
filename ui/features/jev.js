@@ -104,7 +104,7 @@ async function run(){
   }catch(e){st.status="!"+(e.message||String(e))}
   finally{st.busy=false;paint()}
 }
-window.SK.view("jev",{title:"Jev للقرار",sub:"اسأل نعم/لا، أو اختر بين بدائل، أو قيّم — مع سجل لقراراتك",emoji:"💡",
+window.SK.view("jev",{title:"Jev للقرار",sub:"اسأل نعم/لا، أو اختر بين بدائل، أو قيّم — مع سجل لقراراتك",emoji:"",
   render(node){
     root=node;
     const draft=load(DRAFT_KEY,null);

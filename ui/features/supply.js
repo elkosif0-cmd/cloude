@@ -125,7 +125,7 @@
           '<label class="sk-field"><span>السعر</span><select id="sk31-vat"><option value="1">شامل الضريبة</option><option value="0">غير شامل الضريبة</option></select></label>',
           field("sk31-agreed","الهدر المتفق عليه ٪","number","8",'step="0.1" min="0" max="100"'),
           field("sk31-actual","الهدر المقاس فعلياً ٪","number","0",'step="0.1" min="0" max="100"'),
-          '<label class="sk-field"><span>تقييم الجودة</span><select id="sk31-q">'+[5,4,3,2,1].map(n=>'<option value="'+n+'">'+"★".repeat(n)+'</option>').join("")+'</select></label>',
+          '<label class="sk-field"><span>تقييم الجودة</span><select id="sk31-q">'+[5,4,3,2,1].map(n=>'<option value="'+n+'">'+"".repeat(n)+'</option>').join("")+'</select></label>',
           field("sk31-note","ملاحظات الاستلام","text","اختياري"),
         '</div>',
         '<div id="sk31-err" class="sk-error"></div>',
@@ -146,7 +146,7 @@
           return '<div class="sk31-card"><div class="sk31-row"><b>'+esc(it.itemName)+' <small>('+esc(it.unit)+')</small></b>'+
             (c?'<small>افتراض الكتالوج: هدر '+pct(c.waste)+' ← '+money(c.usableCost)+' للكيلو الصافي</small>':'<small>'+(it.unit==="كجم"?'غير مرتبط بصنف في الكتالوج':'الكتالوج بسعر الكيلو فلا تُقارن هذه الوحدة')+'</small>')+'</div>'+
             '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>المورد</th><th>الكمية</th><th>الهدر الفعلي</th><th>تكلفة الوحدة الصافية</th><th>آخر شحنة</th><th></th></tr></thead><tbody>'+
-            it.sups.map((s,i)=>'<tr><td>'+(i===0?'🥇 ':'')+esc(s.name)+'</td><td>'+qfmt(s.qty,it.unit)+'</td><td>'+pct(s.actual)+'</td><td>'+money(s.effCost)+'</td><td>'+esc(s.last||"")+'</td><td><button class="sk-secondary sk31-po" type="button" data-sup="'+esc(s.name)+'" data-item="'+esc(it.itemName)+'" data-unit="'+esc(it.unit)+'">أمر توريد</button></td></tr>').join("")+
+            it.sups.map((s,i)=>'<tr><td>'+(i===0?'':'')+esc(s.name)+'</td><td>'+qfmt(s.qty,it.unit)+'</td><td>'+pct(s.actual)+'</td><td>'+money(s.effCost)+'</td><td>'+esc(s.last||"")+'</td><td><button class="sk-secondary sk31-po" type="button" data-sup="'+esc(s.name)+'" data-item="'+esc(it.itemName)+'" data-unit="'+esc(it.unit)+'">أمر توريد</button></td></tr>').join("")+
             '</tbody></table></div>'+
             (c&&best&&Math.abs(gap)>=0.01?'<p class="'+(gap>0?'sk-warning':'sk-success')+'">'+(gap>0
               ?'أفضل تكلفة فعلية أعلى من افتراض الكتالوج بـ '+money(gap)+' للكيلو — راجع نسبة الهدر أو سعر الشراء في الكتالوج.'
@@ -157,7 +157,7 @@
       rows.length?[
         '<h4 class="sk31-h">سجل الشحنات</h4>',
         '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>التاريخ</th><th>المورد</th><th>الصنف</th><th>الكمية</th><th>صافي الشحنة</th><th>هدر فعلي / متفق</th><th>الحالة</th><th></th></tr></thead><tbody>',
-        rows.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(r=>'<tr><td>'+esc(r.date)+'</td><td>'+esc(r.supplier)+'</td><td>'+esc(r.itemName)+'</td><td>'+qfmt(r.qty,r.unit)+'</td><td>'+money(r.totalNet)+'</td><td>'+pct(r.actual)+' / '+pct(r.agreed)+'</td><td><span class="sk31-risk sk31-'+(r.status==="compliant"?"low":r.status==="minor"?"moderate":"critical")+'">'+statusAr[r.status]+'</span></td><td><button class="sk31-del" type="button" data-id="'+esc(r.id)+'" aria-label="حذف">🗑</button></td></tr>').join(""),
+        rows.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(r=>'<tr><td>'+esc(r.date)+'</td><td>'+esc(r.supplier)+'</td><td>'+esc(r.itemName)+'</td><td>'+qfmt(r.qty,r.unit)+'</td><td>'+money(r.totalNet)+'</td><td>'+pct(r.actual)+' / '+pct(r.agreed)+'</td><td><span class="sk31-risk sk31-'+(r.status==="compliant"?"low":r.status==="minor"?"moderate":"critical")+'">'+statusAr[r.status]+'</span></td><td><button class="sk31-del" type="button" data-id="'+esc(r.id)+'" aria-label="حذف"></button></td></tr>').join(""),
         '</tbody></table></div>',
         '<div class="sk-actions"><button id="sk31-csv" class="sk-secondary" type="button">تصدير الشحنات CSV</button></div>'
       ].join(""):''
@@ -341,9 +341,9 @@
     if(tab==="suppliers"){body.innerHTML=suppliersHTML();bindSuppliers();}
     if(tab==="cash"){body.innerHTML='<div class="sk-empty">جارٍ حساب التدفق النقدي…</div>';const html=await cashHTML();if(body.isConnected){body.innerHTML=html;bindCash();}}
   }
-  window.SK.view("suppliers",{title:"الموردون والمشتريات",sub:"شحنات الموردين والهدر الفعلي وتقييم الموردين وأوامر الشراء",emoji:"🚚",
+  window.SK.view("suppliers",{title:"الموردون والمشتريات",sub:"شحنات الموردين والهدر الفعلي وتقييم الموردين وأوامر الشراء",emoji:"",
     render(node){roots.suppliers=node;render("suppliers")}});
-  window.SK.view("cash",{title:"التدفق النقدي",sub:"المبيعات مقابل المشتريات والمصروفات شهرياً، مع توقع موسمي",emoji:"💵",
+  window.SK.view("cash",{title:"التدفق النقدي",sub:"المبيعات مقابل المشتريات والمصروفات شهرياً، مع توقع موسمي",emoji:"",
     render(node){roots.cash=node;render("cash")}});
   window.SKosifSupply=Object.freeze({calc:{batchCalc,supplierStats,itemComparison}});
 })();

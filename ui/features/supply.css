@@ -6,12 +6,12 @@
 .sk31-row small,.sk31-sub{color:var(--ink-3,#8a93a8);font-size:11px}
 .sk31-sub{display:block;margin-top:2px}
 .sk31-h{margin:18px 0 6px;font-size:14px}
-.sk31-bad{color:#b42318}
+.sk31-bad{color:var(--sk-bad)}
 .sk31-tier,.sk31-risk{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
-.sk31-tAp{background:#dcfae6;color:#067647}.sk31-tA{background:#e6f4ea;color:#067647}.sk31-tB{background:#eef4ff;color:#3538cd}
-.sk31-tC{background:#fef0c7;color:#93370d}.sk31-tD{background:#fee4e2;color:#b42318}
-.sk31-low{background:#dcfae6;color:#067647}.sk31-moderate{background:#fef0c7;color:#93370d}
-.sk31-high{background:#fddcab;color:#93370d}.sk31-critical{background:#fee4e2;color:#b42318}
+.sk31-tAp{background:var(--sk-ok-soft);color:var(--sk-ok)}.sk31-tA{background:var(--sk-ok-soft);color:var(--sk-ok)}.sk31-tB{background:var(--sk-info-soft);color:var(--sk-brand)}
+.sk31-tC{background:var(--sk-warn-soft);color:var(--sk-warn)}.sk31-tD{background:var(--sk-bad-soft);color:var(--sk-bad)}
+.sk31-low{background:var(--sk-ok-soft);color:var(--sk-ok)}.sk31-moderate{background:var(--sk-warn-soft);color:var(--sk-warn)}
+.sk31-high{background:var(--sk-warn);color:var(--sk-warn)}.sk31-critical{background:var(--sk-bad-soft);color:var(--sk-bad)}
 .sk31-del{border:0;background:transparent;font-size:16px;cursor:pointer;padding:4px}
 .sk31-po{padding:5px 10px;font-size:12px}
 .sk31-chart{display:flex;align-items:flex-end;gap:8px;height:170px;margin:14px 0 4px;padding:10px;border:1px solid var(--line,#e4e7ec);border-radius:14px;background:var(--surface-2,#f8fafc);overflow-x:auto}
@@ -19,7 +19,7 @@
 .sk31-col small{font-size:10px;color:var(--ink-3,#8a93a8);margin-top:4px;white-space:nowrap}
 .sk31-bars{flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center;gap:3px}
 .sk31-bars i{display:block;width:40%;max-width:22px;min-height:2px;border-radius:5px 5px 0 0}
-i.sk31-in{background:#12b76a}i.sk31-out{background:#f04438}
+i.sk31-in{background:var(--sk-ok)}i.sk31-out{background:var(--sk-bad)}
 .sk31-legend{display:flex;gap:14px;font-size:12px;margin-bottom:8px}
 .sk31-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-left:5px;vertical-align:middle}
 @media (max-width:640px){.sk31-chart{height:140px}.sk31-col{flex-basis:34px}}

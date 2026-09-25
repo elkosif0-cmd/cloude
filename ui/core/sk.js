@@ -137,10 +137,45 @@ function idleCheck(){const m=num(load(LOCK_KEY,0));if(m>0&&Date.now()-last>m*600
 setInterval(idleCheck,30000);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")idleCheck()});
 
+/* ---------- one letterhead for every printed document ----------
+   Feature modules build their print window as before and then call SK.brandPrint(w):
+   their ad-hoc <style> blocks are replaced by the heritage print style and the
+   letterhead (emblem, business name, VAT/CR numbers from «الإعدادات») is added on top. */
+function org(){try{return(JSON.parse(localStorage.getItem("aghnam-pricing-v3")||"{}").settings)||{}}catch{return{}}}
+const PRINT_CSS='@page{size:A4;margin:12mm}*{box-sizing:border-box}body{margin:0;padding:0 4mm;font-family:"Amiri","Noto Naskh Arabic",Tahoma,serif;color:#2b1a0f;background:#fff;font-size:13.5px;line-height:1.7;direction:rtl}'+
+ 'h1,h2,h3{font-family:"Aref Ruqaa","Amiri",serif;color:#5b3519;margin:.3em 0}h1{font-size:22px}h2{font-size:18px}h3{font-size:15px}'+
+ 'table{width:100%;border-collapse:collapse;margin:10px 0}th,td{padding:6px 8px;border-bottom:1px solid #e3d3b8;text-align:right;vertical-align:top}th{background:#f6eddd;color:#5b4330;font-weight:700}'+
+ 'b,strong{color:#2b1a0f}small,.muted{color:#8c735a}hr{border:0;border-top:1px solid #e3d3b8}'+
+ '.skp-orn{height:14px;margin:0 0 6px;background-repeat:repeat-x;background-position:center;border-top:1px solid #8a5a2b;border-bottom:1px solid #8a5a2b;padding:1px 0}'+
+ '.skp-head{display:flex;align-items:center;gap:14px;padding:6px 0 12px;margin-bottom:14px;border-bottom:3px double #8a5a2b}'+
+ '.skp-head img{width:62px;height:62px;padding:4px;border:2px solid #8a5a2b;border-radius:50%;background:#fbf5ea}.skp-org{flex:1}.skp-org b{display:block;font-family:"Aref Ruqaa","Amiri",serif;font-size:22px;color:#5b3519}'+
+ '.skp-org span{display:block;font-size:11.5px;color:#8c735a}.skp-meta{text-align:left;font-size:11.5px;color:#8c735a}.skp-meta b{display:block;font-size:14px;color:#2b1a0f}'+
+ '.skp-foot{margin-top:18px;padding-top:8px;border-top:1px solid #e3d3b8;font-size:10.5px;color:#8c735a;text-align:center}'+
+ '.r{display:flex;justify-content:space-between;border-bottom:1px solid #e3d3b8;padding:8px 2px}.t{font-weight:700;border-top:2px solid #8a5a2b}'+
+ '@media print{.no-print{display:none}}';
+function letterhead(title){
+  const o=org(),base=location.href.replace(/[^/]*$/,"");
+  const ids=[o.vatNo?"الرقم الضريبي "+esc(o.vatNo):"",o.crNo?"السجل التجاري "+esc(o.crNo):"",o.phone?esc(o.phone):"",o.addr?esc(o.addr):""].filter(Boolean).join(" · ");
+  return '<div class="skp-orn" style="background-image:url('+base+'art/ornament.svg)"></div><header class="skp-head"><img src="'+base+'art/ram.svg" alt=""><div class="skp-org"><b>'+esc(o.biz||"أغنام الوادي")+'</b>'+(ids?'<span>'+ids+'</span>':'')+'</div>'+
+    '<div class="skp-meta"><b>'+esc(title||"")+'</b>'+esc(new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"}))+'</div></header>';
+}
+function brandPrint(w,title){
+  try{
+    const d=w.document;if(!d||!d.body)return;
+    d.querySelectorAll("style").forEach(x=>x.remove());
+    const st=d.createElement("style");st.textContent=PRINT_CSS;(d.head||d.documentElement).appendChild(st);
+    const f=d.createElement("link");f.rel="stylesheet";f.href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@700&display=swap";(d.head||d.documentElement).appendChild(f);
+    d.documentElement.setAttribute("dir","rtl");
+    if(title&&!d.title)d.title=title;
+    d.body.insertAdjacentHTML("afterbegin",letterhead(title||d.title));
+    const o=org();d.body.insertAdjacentHTML("beforeend",'<footer class="skp-foot">'+esc(o.biz||"أغنام الوادي")+' · صدر من S.kosif'+(o.preparer?' · أعدّه: '+esc(o.preparer):'')+'</footer>');
+  }catch(e){report(e,"print")}
+}
+
 function askJev(opts){save("skosif_jev_draft",opts||{});if(core())core().go("jev")}
 
 window.SK={$,$$,esc,num,load,save,money,pct,toast,view,redact,askJev,icon,icons:ICONS,download,
-  confirm:confirmDialog,notify,
+  confirm:confirmDialog,notify,brandPrint,org,
   csv:Object.freeze({cell:safeCell,build:csv,download:downloadCsv}),
   lock:Object.freeze({now:lockNow,key:LOCK_KEY,touch:()=>{last=Date.now()}}),
   _flush:flush,version:"2.0"};

@@ -145,3 +145,4 @@ p{margin:0}
 .kx-tb{margin-bottom:14px}
 
 @media print{.sk-actions{display:none!important}}
+.sk-hub-btn svg{width:16px;height:16px;flex:none;color:currentColor}

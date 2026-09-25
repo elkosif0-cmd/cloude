@@ -239,7 +239,7 @@ function settingsHook(node){
   node.insertAdjacentHTML("beforeend",'<section class="card" id="skv2-settings-shortcut"><div class="card-h"><div><h3>Capabilities v2</h3><p>إدارة الصلاحيات والمزامنة المركزية وسجل النزاهة.</p></div><button type="button" class="btn sm" id="skv2-settings-open">فتح مركز القدرات</button></div></section>');
   $("#skv2-settings-open",node).onclick=()=>Core.go("capabilitiesv2");
 }
-SK.view("capabilitiesv2",{title:"مركز القدرات v2",sub:"RBAC، Workspace revisions، D1، Cloudflare Access، النزاهة ومزودات الذكاء",emoji:"🛡️",adv:true,render(node){root=node;paint();if(cfg().apiBase)testRemote()}});
+SK.view("capabilitiesv2",{title:"مركز القدرات v2",sub:"RBAC، Workspace revisions، D1، Cloudflare Access، النزاهة ومزودات الذكاء",emoji:"",adv:true,render(node){root=node;paint();if(cfg().apiBase)testRemote()}});
 Core.onView("settings",settingsHook);
 window.SKosifCapabilitiesV2=Object.freeze({
   permissions:PERMISSIONS,

@@ -7,9 +7,9 @@
 .sk34-help span{display:block;font-size:12.5px;line-height:1.7;color:var(--ink-3);margin-top:3px}
 .sk34-list{display:grid;gap:8px;margin-top:12px}
 .sk34-match{display:grid;grid-template-columns:1fr 28px 1fr 72px 210px;align-items:center;gap:8px;padding:11px;border:1px solid var(--line);border-radius:13px;background:var(--surface)}
-.sk34-match.high{border-inline-start:4px solid #16a34a}
-.sk34-match.mid{border-inline-start:4px solid #f59e0b}
-.sk34-match.low{border-inline-start:4px solid #ef4444}
+.sk34-match.high{border-inline-start:4px solid var(--sk-ok)}
+.sk34-match.mid{border-inline-start:4px solid var(--sk-warn)}
+.sk34-match.low{border-inline-start:4px solid var(--sk-bad)}
 .sk34-original small,.sk34-target small{display:block;font-size:11px;color:var(--ink-3)}
 .sk34-original b,.sk34-target b{display:block;font-size:14px;margin-top:2px;color:var(--ink)}
 .sk34-original span,.sk34-target span{display:block;font-size:11.5px;color:var(--ink-3);margin-top:2px}
@@ -25,13 +25,13 @@
 .sk34-abc b{display:block;font-size:18px;color:var(--ink)}
 .sk34-abc span{display:block;font-size:12px;color:var(--ink-3);margin-top:2px}
 .sk34-class{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;font-weight:900}
-.sk34-class.cA{background:color-mix(in srgb,#16a34a 14%,var(--surface));color:#16a34a}
-.sk34-class.cB{background:color-mix(in srgb,#2563eb 14%,var(--surface));color:#2563eb}
+.sk34-class.cA{background:color-mix(in srgb,var(--sk-ok) 14%,var(--surface));color:var(--sk-ok)}
+.sk34-class.cB{background:color-mix(in srgb,var(--sk-info) 14%,var(--surface));color:var(--sk-info)}
 .sk34-class.cC{background:var(--surface-3);color:var(--ink-2)}
 .sk34-alias{margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:10px}
 .sk34-alias summary{font-size:13px;font-weight:900;cursor:pointer;color:var(--ink)}
 .sk34-alias p{display:grid;grid-template-columns:1fr 1fr 30px;gap:6px;align-items:center;margin:6px 0;padding:7px;background:var(--surface-2);border-radius:8px;font-size:12.5px}
-.sk34-alias p button{border:0;background:transparent;color:#dc2626;font-size:18px;cursor:pointer}
+.sk34-alias p button{border:0;background:transparent;color:var(--sk-bad);font-size:18px;cursor:pointer}
 .sk34-footer{margin-bottom:10px}
 @media(max-width:760px){
   .sk34-grid{grid-template-columns:1fr}

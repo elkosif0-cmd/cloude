@@ -43,6 +43,6 @@
   }
   let root=null;
   function render(){if(!root||!root.isConnected)return;if(!core()){root.innerHTML='<div class="sk-empty">نواة التسعير غير محمّلة.</div>';return}root.innerHTML=html();bind()}
-  window.SK.view("kernel",{title:"نواة التسعير الصارمة",sub:"مختبر سعر بالحسابات القطعية: الضريبة والهدر والهامش والتقريب الآمن، مع اختبارات النواة",emoji:"⚙️",adv:true,
+  window.SK.view("kernel",{title:"نواة التسعير الصارمة",sub:"مختبر سعر بالحسابات القطعية: الضريبة والهدر والهامش والتقريب الآمن، مع اختبارات النواة",emoji:"",adv:true,
     render(node){root=node;render()}});
 })();

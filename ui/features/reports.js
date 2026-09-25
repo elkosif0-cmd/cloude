@@ -72,10 +72,10 @@ function plHTML(){
         '<div class="sk-pl-bar-profit" style="width:'+profitPct+'%;" title="صافي الربح: '+profitPct.toFixed(1)+'%"></div>',
       '</div>',
       '<div class="sk-pl-legend">',
-        '<span><i style="background:#b91c1c;"></i> المشتريات (COGS): '+cogsPct.toFixed(1)+'%</span>',
-        '<span><i style="background:#d97706;"></i> تكلفة الهدر والعظم: '+wastePct.toFixed(1)+'%</span>',
-        '<span><i style="background:#4f46e5;"></i> المصاريف التشغيلية: '+opexPct.toFixed(1)+'%</span>',
-        '<span><i style="background:#059669;"></i> صافي الربح التشغيلي: '+netMargin.toFixed(1)+'%</span>',
+        '<span><i style="background:var(--sk-bad);"></i> المشتريات (COGS): '+cogsPct.toFixed(1)+'%</span>',
+        '<span><i style="background:var(--sk-warn);"></i> تكلفة الهدر والعظم: '+wastePct.toFixed(1)+'%</span>',
+        '<span><i style="background:var(--sk-brand);"></i> المصاريف التشغيلية: '+opexPct.toFixed(1)+'%</span>',
+        '<span><i style="background:var(--sk-ok);"></i> صافي الربح التشغيلي: '+netMargin.toFixed(1)+'%</span>',
       '</div>',
 
       '<div class="sk-kpis">',
@@ -100,8 +100,8 @@ function plHTML(){
       '</div>',
 
       '<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">',
-        '<button type="button" id="sk-pl-wa" class="btn" style="background:#25D366;color:#fff;">💬 إرسال ملخص الأرباح والخسائر عبر واتساب</button>',
-        '<button type="button" id="sk-pl-export" class="btn">📊 تصدير قائمة الدخل (CSV)</button>',
+        '<button type="button" id="sk-pl-wa" class="btn" style="background:var(--sk-ok);color:#fff;">إرسال ملخص الأرباح والخسائر عبر واتساب</button>',
+        '<button type="button" id="sk-pl-export" class="btn">تصدير قائمة الدخل (CSV)</button>',
       '</div>',
     '</div>'
   ].join("");
@@ -176,7 +176,7 @@ function yieldHTML(){
     const lossKg=(r.dressedKg*(diffPct/100));
     const lossSAR=lossKg*r.costKg;
     totalLossSAR+=lossSAR;
-    const score=diffPct<=1?"⭐⭐⭐⭐⭐":(diffPct<=3?"⭐⭐⭐":"⚠️ بحاجة تدريب");
+    const score=diffPct<=1?"⭐⭐⭐⭐":(diffPct<=3?"⭐⭐":"بحاجة تدريب");
     return { ...r, diffPct, lossKg, lossSAR, score };
   });
 
@@ -209,8 +209,8 @@ function yieldHTML(){
       '</div>',
 
       '<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">',
-        '<button type="button" id="sk-yield-wa" class="btn" style="background:#25D366;color:#fff;">💬 إرسال تقرير فاقد الهدر لفريق التقطيع</button>',
-        '<button type="button" id="sk-yield-export" class="btn">📊 تصدير تدقيق الهدر (CSV)</button>',
+        '<button type="button" id="sk-yield-wa" class="btn" style="background:#25D366;color:#fff;">إرسال تقرير فاقد الهدر لفريق التقطيع</button>',
+        '<button type="button" id="sk-yield-export" class="btn">تصدير تدقيق الهدر (CSV)</button>',
       '</div>',
     '</div>'
   ].join("");
@@ -282,8 +282,8 @@ function vatHTML(){
       '</div>',
 
       '<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">',
-        '<button type="button" id="sk-vat-wa" class="btn" style="background:#25D366;color:#fff;">💬 إرسال مسودة الإقرار للمحاسب القانوني</button>',
-        '<button type="button" id="sk-vat-export" class="btn">📊 تصدير جدول الإقرار (CSV)</button>',
+        '<button type="button" id="sk-vat-wa" class="btn" style="background:#25D366;color:#fff;">إرسال مسودة الإقرار للمحاسب القانوني</button>',
+        '<button type="button" id="sk-vat-export" class="btn">تصدير جدول الإقرار (CSV)</button>',
       '</div>',
     '</div>'
   ].join("");
@@ -348,7 +348,7 @@ function churnHTML(){
         list.filter(c=>c.status!=="active").map((c,idx)=>'<div class="sk-churn-card"><div><b style="font-size:1.02rem;">'+esc(c.name)+'</b>'+
           '<div style="font-size:0.8rem;color:var(--ink-2,#666);margin-top:2px;">إجمالي المشتريات: <b>'+money(c.totalSpent)+'</b> | الطلبات: <b>'+c.orders+'</b></div></div>'+
           '<div style="display:flex;gap:10px;align-items:center;"><span class="sk-churn-status '+c.status+'">'+(c.status==="danger"?"منقطع منذ ":"متوقف منذ ")+c.lastOrderDays+' يوم</span>'+
-          (c.phone?'<button type="button" class="btn sk-churn-reactivate" data-p="'+esc(c.phone)+'" data-n="'+esc(c.name)+'" style="background:#25D366;color:#fff;font-size:0.8rem;padding:5px 10px;">💬 رسالة تنشيط</button>':'')+
+          (c.phone?'<button type="button" class="btn sk-churn-reactivate" data-p="'+esc(c.phone)+'" data-n="'+esc(c.name)+'" style="background:#25D366;color:#fff;font-size:0.8rem;padding:5px 10px;">رسالة تنشيط</button>':'')+
           '</div></div>').join("")||'<div class="sk-empty">لا يوجد عملاء متوقفون حالياً.</div>',
       '</div>',
     '</div>'
@@ -390,8 +390,8 @@ function eodHTML(){
         (d.lines?'':'<div class="sk-note">لا توجد مبيعات مسجلة بتاريخ اليوم. تُحتسب الأرقام من المبيعات المستوردة أو المسجلة يدوياً.</div>'),
       '</div>',
       '<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">',
-        '<button type="button" id="sk-eod-wa" class="btn" style="background:#25D366;color:#fff;">💬 إرسال الملخص عبر واتساب</button>',
-        '<button type="button" id="sk-eod-print" class="btn btn-pri">🖨️ طباعة الملخص</button>',
+        '<button type="button" id="sk-eod-wa" class="btn" style="background:#25D366;color:#fff;">إرسال الملخص عبر واتساب</button>',
+        '<button type="button" id="sk-eod-print" class="btn btn-pri">طباعة الملخص</button>',
       '</div>',
     '</div>'
   ].join("");
@@ -469,12 +469,12 @@ function bindTrends(){}
 function renderNav(){
   return [
     '<nav class="sk-rep-nav">',
-      '<button type="button" class="'+(repTab==='pl'?'active':'')+'" data-t="pl">📊 قائمة الدخل وصافي الربح</button>',
-      '<button type="button" class="'+(repTab==='yield'?'active':'')+'" data-t="yield">🥩 تدقيق الهدر والتسرب المالي</button>',
-      '<button type="button" class="'+(repTab==='vat'?'active':'')+'" data-t="vat">🧾 مسودة الإقرار الضريبي ZATCA</button>',
-      '<button type="button" class="'+(repTab==='churn'?'active':'')+'" data-t="churn">👥 رادار العملاء المنقطعين</button>',
-      '<button type="button" class="'+(repTab==='trends'?'active':'')+'" data-t="trends">📈 التحليلات البصرية والرسوم</button>',
-      '<button type="button" class="'+(repTab==='eod'?'active':'')+'" data-t="eod">📲 ملخص نهاية اليوم التنفيذي</button>',
+      '<button type="button" class="'+(repTab==='pl'?'active':'')+'" data-t="pl">قائمة الدخل وصافي الربح</button>',
+      '<button type="button" class="'+(repTab==='yield'?'active':'')+'" data-t="yield">تدقيق الهدر والتسرب المالي</button>',
+      '<button type="button" class="'+(repTab==='vat'?'active':'')+'" data-t="vat">مسودة الإقرار الضريبي ZATCA</button>',
+      '<button type="button" class="'+(repTab==='churn'?'active':'')+'" data-t="churn">رادار العملاء المنقطعين</button>',
+      '<button type="button" class="'+(repTab==='trends'?'active':'')+'" data-t="trends">التحليلات البصرية والرسوم</button>',
+      '<button type="button" class="'+(repTab==='eod'?'active':'')+'" data-t="eod">ملخص نهاية اليوم التنفيذي</button>',
     '</nav>'
   ].join("");
 }
@@ -491,9 +491,9 @@ function renderContent(){
 
 function financeHubNav(activeId){
   const tabs=[
-    {id:"execreports",icon:"📊",title:"التقارير التنفيذية والرسوم البيانية"},
-    {id:"b2bcredit",icon:"🤝",title:"ائتمان المطاعم وكشوف الحساب"},
-    {id:"suppliers",icon:"🚛",title:"سجل وتقييم الموردين"}
+    {id:"execreports",icon:"",title:"التقارير التنفيذية والرسوم البيانية"},
+    {id:"b2bcredit",icon:"",title:"ائتمان المطاعم وكشوف الحساب"},
+    {id:"suppliers",icon:"",title:"سجل وتقييم الموردين"}
   ];
   return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-finance-go="'+t.id+'"><span>'+t.icon+'</span><span>'+t.title+'</span></button>').join("")+'</div>';
 }
@@ -530,7 +530,7 @@ function bindAll(){
 window.SK.view("execreports",{
   title:"التقارير التنفيذية والمالية",
   sub:"قائمة الدخل التشغيلية، تدقيق الهدر، الإقرار الضريبي ZATCA، ورادار العملاء",
-  emoji:"📊",
+  emoji:"",
   render(node){
     roots.reports=node;
     paintReports();

@@ -54,3 +54,14 @@ Legacy variable names used by the core views (`--ground`, `--surface`, `--ink`, 
 | Heritage sheep / landscape / hero | `ui/art/*.webp` | earlier heritage design | unchanged («تراث الوادي» stays default) |
 
 Jev chose this work item first (brand assets 0.84 over print templates 0.15) and approved publishing (0.87).
+
+## Identity rules (unification pass)
+
+| Area | Rule |
+|---|---|
+| Colour | Feature screens use semantic tokens only (`--sk-ok/bad/warn/info/brand/violet/ink/surface/line…`). A hex value is allowed only as a `var()` fallback, inside a print window, or as pure black/white. 173 hard-coded colours were migrated. |
+| Icons | One SVG icon set (`SK.icon(id)` / `SK.icons`) for navigation, hub tabs, buttons and cards; sheep items use the ram emblem. Emoji are not used in headings, buttons or tabs (151 removed); they remain only in toasts and WhatsApp message text, where they are content. |
+| Print | Every print window calls `SK.brandPrint(w, title)`: it replaces the window's own styles with one heritage print sheet, adds the ornament strip (`ui/art/ornament.svg`, recreated from a Canva letterhead render), the emblem medallion, business name, VAT / CR numbers from pricing settings, date, a double rule and a footer. `@media print` forces the light heritage tokens under any theme. |
+| Guidelines | Brand-guidelines deck in Canva (design `DAHWPRxTgOM`). |
+
+Jev consistency score after the pass: 2.55 / 3 (0.56 «fully unified»). Remaining exception: the core view templates inside the payload (phase 11 of the rebuild plan).

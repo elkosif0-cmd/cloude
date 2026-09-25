@@ -132,8 +132,8 @@ function paint(id){
   if(id==="sensitivity"){r.innerHTML='<section class="card"><div class="card-b sk-stack">'+decisionHTML()+'</div></section>';bindDecision()}
   if(id==="excelrecon"){r.innerHTML='<section class="card"><div class="card-b sk-stack">'+excelHTML()+'</div></section>';bindExcel()}
 }
-window.SK.view("sensitivity",{title:"مختبر الحساسية",sub:"الربح الشهري ونقطة التعادل تحت صدمات السعر والتكلفة والحجم، مع مصفوفة حساسية",emoji:"📊",adv:true,
+window.SK.view("sensitivity",{title:"مختبر الحساسية",sub:"الربح الشهري ونقطة التعادل تحت صدمات السعر والتكلفة والحجم، مع مصفوفة حساسية",emoji:"",adv:true,
   render(node){roots.sensitivity=node;paint("sensitivity")}});
-window.SK.view("excelrecon",{title:"مطابقة الإكسل",sub:"الصق تكاليف وأسعار ملف الإكسل لمقارنتها بالتكلفة الحقيقية وتشخيص سبب الفرق",emoji:"🧾",adv:true,
+window.SK.view("excelrecon",{title:"مطابقة الإكسل",sub:"الصق تكاليف وأسعار ملف الإكسل لمقارنتها بالتكلفة الحقيقية وتشخيص سبب الفرق",emoji:"",adv:true,
   render(node){roots.excelrecon=node;paint("excelrecon")}});
 })();
