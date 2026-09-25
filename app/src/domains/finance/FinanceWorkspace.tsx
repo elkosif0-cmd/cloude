@@ -1,10 +1,11 @@
 import {useEffect,useMemo,useState} from 'react';
 import {JsonStorageRepository} from '../../data/json-storage-repository';
+import {makeScopedKey,readActiveScope} from '../../data/scope-key';
 import {buildGeneralLedger,buildTrialBalance,validateJournalEntry,type JournalEntry} from './ledger-engine';
 import {ReceivablesPanel} from './ReceivablesPanel';
 import './finance-workspace.css';
 
-const STORAGE_KEY='skosif.v1.finance.journals';
+const STORAGE_BASE='finance.journals';
 
 export function FinanceWorkspace(){
   const [entries,setEntries]=useState<JournalEntry[]>([]);
@@ -15,7 +16,8 @@ export function FinanceWorkspace(){
   const [date,setDate]=useState(new Date().toISOString().slice(0,10));
   const [message,setMessage]=useState('');
 
-  const repo=useMemo(()=>new JsonStorageRepository<JournalEntry & {id:string}>(window.localStorage,STORAGE_KEY),[]);
+  const storageKey=useMemo(()=>makeScopedKey(STORAGE_BASE,readActiveScope(window.localStorage)),[]);
+  const repo=useMemo(()=>new JsonStorageRepository<JournalEntry & {id:string}>(window.localStorage,storageKey),[storageKey]);
 
   useEffect(()=>{void repo.list().then(setEntries);},[repo]);
 
