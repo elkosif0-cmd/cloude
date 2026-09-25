@@ -10,6 +10,7 @@ export const coreCapabilities: CapabilityDefinition[] = [
   { id:'sales.margin', label:'هامش الربح', route:'/sales/margin', domain:'sales', decision:'MERGE' },
   { id:'sales.posting', label:'ترحيل المبيعات', route:'/sales/posting', domain:'sales', decision:'REBUILD' },
   { id:'sales.tax-invoice', label:'الفاتورة الضريبية والمدفوعات', route:'/sales/tax-invoice', domain:'sales', decision:'REBUILD' },
+  { id:'sales.catering', label:'المناسبات وعروض الأسعار', route:'/sales/catering', domain:'sales', decision:'MERGE' },
 
   { id:'stock.inventory', label:'المخزون', route:'/stock/inventory', domain:'stock', decision:'MERGE' },
   { id:'stock.movements', label:'حركات المخزون', route:'/stock/movements', domain:'stock', decision:'REBUILD' },
