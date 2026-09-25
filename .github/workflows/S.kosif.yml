@@ -76,7 +76,7 @@ jobs:
 
       - name: Test reconstructed application contracts
         working-directory: app
-        run: npx vitest run src/rebuild/core/capabilities.test.ts src/rebuild/services/specialist.test.ts src/rebuild/services/operations.test.ts src/rebuild/services/audit.test.ts
+        run: npx vitest run src/rebuild/core/capabilities.test.ts src/rebuild/services/specialist.test.ts src/rebuild/services/operations.test.ts src/rebuild/services/audit.test.ts src/rebuild/services/auditAdvanced.test.ts
 
       - name: Build reconstructed application
         working-directory: app
@@ -125,7 +125,8 @@ jobs:
               "مركز القيادة","المبيعات والعملاء","المخزون والإنتاج","المركز المالي",
               "الكتالوج والتسعير","مركز Jev الذكي","المحاسبة والمراجعة","النظام والتكاملات",
               "أوامر الشراء","كفاءة القصاب","اشتراكات اللحوم","ماسح الباركود","دليل الشيف","اقتصاديات الذبيحة",
-              "الأهمية النسبية","اختبارات القيود","Benford","مجلس المراجعين","مختبر المعايير"
+              "الأهمية النسبية","اختبارات القيود","Benford","مجلس المراجعين","مختبر المعايير",
+              "طلبات الأدلة","Document Intelligence Gateway","الإكمال والتقرير","طباعة / PDF"
           ]:
               assert marker in bundle, marker
           assert "SKIP_WAITING" in sw
