@@ -10,6 +10,7 @@ import {buildSalesPosting,type SalesDocument} from './sales-posting-engine';
 import type {Customer} from './customers-engine';
 import {CustomersPanel} from './CustomersPanel';
 import {TaxInvoicePanel} from './TaxInvoicePanel';
+import {CreditPanel} from './CreditPanel';
 import './sales-workspace.css';
 
 export function SalesWorkspace(){
@@ -154,6 +155,7 @@ export function SalesWorkspace(){
       </section>
     </div>
 
+    <CreditPanel/>
     <TaxInvoicePanel orders={orders} customers={customers} items={items}/>
 
     <section className="sales-orders sk-surface">
