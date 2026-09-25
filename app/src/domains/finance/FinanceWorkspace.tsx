@@ -4,6 +4,7 @@ import {makeScopedKey,readActiveScope} from '../../data/scope-key';
 import {buildGeneralLedger,buildTrialBalance,validateJournalEntry,type JournalEntry} from './ledger-engine';
 import {AccountsPanel} from './AccountsPanel';
 import {ReceivablesPanel} from './ReceivablesPanel';
+import {PayablesPanel} from './PayablesPanel';
 import './finance-workspace.css';
 
 const STORAGE_BASE='finance.journals';
@@ -88,6 +89,6 @@ export function FinanceWorkspace(){
           </tbody></table></div>}
       </section>
     </div>
-    <ReceivablesPanel/>
+    <div className="finance-subledgers"><ReceivablesPanel/><PayablesPanel/></div>
   </section>;
 }
