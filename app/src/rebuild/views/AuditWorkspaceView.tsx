@@ -1,12 +1,14 @@
 import React,{useMemo,useState}from'react';
 import{Badge,Button,Card,Empty,Field,Input,KPI,Notice,PageHeader,Select,Table,Tabs,Textarea}from'../components/ui';
 import{analyzeJournal,auditReadiness,benford,calculateMateriality,deterministicSample,legacyAuditSummary,loadAuditWorkspace,parseDelimited,runCouncil,saveAuditWorkspace,searchStandards,sha256File,type AuditWorkspace}from'../services/audit';
+import{loadAdvancedAudit}from'../services/auditAdvanced';
+import{CompletionReportPanel,DocumentGatewayPanel,EvidenceRequestsPanel}from'./AuditAdvancedPanels';
 
 const fmt=(v:number)=>new Intl.NumberFormat('ar-SA-u-nu-latn',{maximumFractionDigits:2}).format(v);
 const nowDate=()=>new Date().toISOString().slice(0,10);
 
 export function AuditWorkspaceView(){
- const[state,setState]=useState<AuditWorkspace>(()=>loadAuditWorkspace()),[tab,setTab]=useState('overview'),[msg,setMsg]=useState('');
+ const[state,setState]=useState<AuditWorkspace>(()=>loadAuditWorkspace()),[advanced,setAdvanced]=useState(()=>loadAdvancedAudit()),[tab,setTab]=useState('overview'),[msg,setMsg]=useState('');
  const[mat,setMat]=useState<any>({benchmark:'revenue',amount:'',risk:'medium',performanceRate:.7,trivialRate:.05});
  const[issue,setIssue]=useState<any>(null),[adjustment,setAdjustment]=useState<any>(null),[standardQ,setStandardQ]=useState(''),[sampleSize,setSampleSize]=useState(20);
  const legacy=useMemo(()=>legacyAuditSummary(),[]),ready=auditReadiness(state),openIssues=state.issues.filter(x=>x.status==='open'),standards=searchStandards(standardQ);
@@ -38,7 +40,8 @@ export function AuditWorkspaceView(){
  <Tabs value={tab} onChange={setTab} items={[
   {id:'overview',label:'الآن'},{id:'evidence',label:'الأدلة',count:state.evidence.length},{id:'materiality',label:'الأهمية النسبية'},
   {id:'analytics',label:'تحليلات القيود',count:state.journalAnalysis?.flagged||0},{id:'issues',label:'القضايا',count:openIssues.length},
-  {id:'adjustments',label:'التسويات',count:state.adjustments.length},{id:'council',label:'المجلس',count:state.councilRounds.length},{id:'standards',label:'المعايير'}
+  {id:'requests',label:'طلبات الأدلة',count:advanced.requests.filter(x=>!['closed','unavailable'].includes(x.status)).length},
+  {id:'adjustments',label:'التسويات',count:state.adjustments.length},{id:'council',label:'المجلس',count:state.councilRounds.length},{id:'standards',label:'المعايير'},{id:'report',label:'الإكمال والتقرير',count:advanced.reports.length}
  ]}/>
 
  {tab==='overview'&&<div className="z-grid"><Card className="z-col-7" title="بيانات الارتباط"><div className="z-form-grid cols-3"><Field label="المنشأة"><Input value={state.entity} onChange={e=>save({...state,entity:e.target.value})}/></Field><Field label="الفترة"><Input value={state.period} onChange={e=>save({...state,period:e.target.value})}/></Field><Field label="نوع المهمة"><Select value={state.engagementType} onChange={e=>save({...state,engagementType:e.target.value as any})}><option value="audit">مراجعة</option><option value="review">فحص محدود</option><option value="analysis">تحليل</option></Select></Field></div><div className="z-metric-list" style={{marginTop:14}}><div className="z-metric-row"><span>آخر تحديث</span><b>{new Date(state.updatedAt).toLocaleString('ar-SA-u-nu-latn')}</b></div><div className="z-metric-row"><span>ملف Legacy الأصلي</span><Badge tone={legacy.exists?'good':'neutral'}>{legacy.exists?'محفوظ ومقروء':'غير موجود'}</Badge></div><div className="z-metric-row"><span>تم ترحيل metadata</span><Badge tone={state.migratedFromLegacy?'good':'info'}>{state.migratedFromLegacy?'نعم':'ملف جديد'}</Badge></div></div></Card><Card className="z-col-5" title="بوابات الإكمال"><div className="z-attention">{[
@@ -46,6 +49,10 @@ export function AuditWorkspaceView(){
  ].map(([x,ok])=><div className="z-attention-item" key={String(x)}><b>{x as string}</b><Badge tone={ok?'good':'warn'}>{ok?'مكتمل':'مطلوب'}</Badge></div>)}</div></Card></div>}
 
  {tab==='evidence'&&<div className="z-grid"><Card className="z-col-5" title="إضافة مصدر" sub="تُحفظ metadata والبصمة SHA-256؛ ملف CSV يُستخدم محليًا لتحليل القيود."><label className="z-btn z-btn-primary" style={{cursor:'pointer'}}>اختيار ملفات<input hidden multiple type="file" accept=".csv,.txt,.pdf,.xlsx,.xls,.json,.doc,.docx,image/*" onChange={e=>addFiles(e.target.files)}/></label><Notice tone="info">لا يتم إرسال محتوى الملف إلى Jev تلقائيًا. التحليلات أدناه محلية deterministic.</Notice></Card><Card className="z-col-7" title="سجل الأدلة">{state.evidence.length?<Table><thead><tr><th>المصدر</th><th>النوع</th><th>الحجم</th><th>البصمة</th><th>الحالة</th></tr></thead><tbody>{state.evidence.map(x=><tr key={x.id}><td><b>{x.name}</b><div className="z-muted">{new Date(x.addedAt).toLocaleDateString('ar-SA-u-nu-latn')}</div></td><td>{x.type||'—'}</td><td>{fmt(x.size/1024)} KB</td><td className="z-mono" title={x.sha256}>{x.sha256?x.sha256.slice(0,12)+'…':'—'}</td><td><Badge tone="good">{x.status}</Badge></td></tr>)}</tbody></Table>:<Empty title="لا توجد أدلة" text="ابدأ بمصدر حقيقي؛ لا توجد بيانات تجريبية."/>}</Card></div>}
+
+ {tab==='evidence'&&<DocumentGatewayPanel advanced={advanced} onAdvanced={setAdvanced}/>}
+ {tab==='requests'&&<EvidenceRequestsPanel advanced={advanced} onAdvanced={setAdvanced}/>}
+ {tab==='report'&&<CompletionReportPanel workspace={state} advanced={advanced} onAdvanced={setAdvanced}/>}
 
  {tab==='materiality'&&<div className="z-grid"><Card className="z-col-6" title="حساب الأهمية النسبية"><div className="z-form-grid cols-3"><Field label="الأساس"><Select value={mat.benchmark} onChange={e=>setMat({...mat,benchmark:e.target.value})}><option value="revenue">الإيرادات</option><option value="profit">الربح قبل الضريبة</option><option value="assets">الأصول</option><option value="equity">حقوق الملكية</option><option value="expenses">المصروفات</option></Select></Field><Field label="قيمة الأساس"><Input type="number" value={mat.amount} onChange={e=>setMat({...mat,amount:e.target.value})}/></Field><Field label="مخاطر الارتباط"><Select value={mat.risk} onChange={e=>setMat({...mat,risk:e.target.value})}><option value="low">منخفضة</option><option value="medium">متوسطة</option><option value="high">مرتفعة</option></Select></Field><Field label="Performance rate"><Input type="number" min=".3" max=".95" step=".05" value={mat.performanceRate} onChange={e=>setMat({...mat,performanceRate:e.target.value})}/></Field><Field label="Trivial rate"><Input type="number" min=".01" max=".1" step=".01" value={mat.trivialRate} onChange={e=>setMat({...mat,trivialRate:e.target.value})}/></Field></div><div className="z-form-actions"><Button variant="primary" onClick={saveMateriality}>حساب وحفظ</Button></div></Card><Card className="z-col-6" title="النتيجة">{state.materiality?<div className="z-kpis"><KPI label="Overall" value={fmt(state.materiality.overall)}/><KPI label="Performance" value={fmt(state.materiality.performance)}/><KPI label="Trivial" value={fmt(state.materiality.trivial)}/><KPI label="المعدل" value={(state.materiality.rate*100).toFixed(2)+'٪'}/></div>:<Empty title="لم تُحسب الأهمية النسبية بعد"/>}<Notice tone="info">القيم المبدئية إرشادية ويجب توثيق الحكم المهني والتعديل عند الحاجة.</Notice></Card></div>}
 
