@@ -28,3 +28,32 @@ jobs:
             ENC=$(printf '%s' "$QR" | base64 -w0)
             gh issue comment "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --body "PAIR_QR_B64=$ENC"
           fi
+
+  paircode:
+    if: github.event.issue.title == '[PAIRCODE]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request phone pairing code
+        env:
+          DISPATCH_TOKEN: ${{ secrets.WA_DISPATCH_TOKEN }}
+          BODY: ${{ github.event.issue.body }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$BODY" > body.json
+          PHONE=$(jq -r '.phone // empty' body.json)
+          test -n "$PHONE"
+          HTTP=$(curl -sS -o result.json -w "%{http_code}" -X POST \
+            -H "Authorization: Bearer $DISPATCH_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data "$(jq -nc --arg phone "$PHONE" '{phone:$phone}')" \
+            "https://wa-kosif-dispatch.kosif199022.workers.dev/pair/code")
+          if [ "$HTTP" -ge 200 ] && [ "$HTTP" -lt 300 ]; then
+            CODE=$(jq -r '.code // empty' result.json)
+            test -n "$CODE"
+            gh issue comment "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --body "PAIR_CODE=$CODE"
+          else
+            ERR=$(jq -r '.error // "pairing failed"' result.json)
+            gh issue comment "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --body "PAIR_ERROR=$ERR"
+            exit 1
+          fi
