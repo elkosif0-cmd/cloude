@@ -14,7 +14,7 @@ const TYPE_LABELS: Record<AccountType,string> = {
   other:'أخرى',
 };
 
-export function AccountsPanel(){
+export function AccountsPanel({onChanged}:{onChanged?:()=>void}){
   const [accounts,setAccounts]=useState<Account[]>([]);
   const [code,setCode]=useState('');
   const [name,setName]=useState('');
@@ -44,6 +44,7 @@ export function AccountsPanel(){
 
     await repo.put(account);
     setAccounts(await repo.list());
+    onChanged?.();
     setCode('');
     setName('');
     setParentId('');
