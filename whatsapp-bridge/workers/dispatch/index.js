@@ -159,6 +159,11 @@ export default {
     if (!(await authorized(req, env))) return json({ error: 'unauthorized' }, 401);
     if (url.pathname === '/pair/qr' && req.method === 'GET') return relay(await bridge(env, '/pair/qr'));
     if (url.pathname === '/status' && req.method === 'GET') return relay(await bridge(env, '/status'));
+    if (url.pathname === '/pair/code' && req.method === 'POST') {
+      let body;
+      try { body = await req.json(); } catch { return json({ error: 'invalid JSON' }, 400); }
+      return relay(await bridge(env, '/pair/code', { method: 'POST', body: JSON.stringify({ phone: body.phone }) }));
+    }
 
     const batch = url.pathname.match(/^\/batch\/([^/]+)$/);
     if (batch && req.method === 'GET') return batchStatus(env, batch[1], Number(url.searchParams.get('count')));
