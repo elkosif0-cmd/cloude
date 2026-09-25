@@ -1,6 +1,7 @@
 import {useEffect,useMemo,useState} from 'react';
 import {JsonStorageRepository} from '../../data/json-storage-repository';
 import {buildGeneralLedger,buildTrialBalance,validateJournalEntry,type JournalEntry} from './ledger-engine';
+import {ReceivablesPanel} from './ReceivablesPanel';
 import './finance-workspace.css';
 
 const STORAGE_KEY='skosif.v1.finance.journals';
@@ -82,5 +83,6 @@ export function FinanceWorkspace(){
           </tbody></table></div>}
       </section>
     </div>
+    <ReceivablesPanel/>
   </section>;
 }
