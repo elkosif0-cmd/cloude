@@ -1,6 +1,7 @@
 import {useMemo,useState} from 'react';
 import {calculatePricing} from './pricing-engine';
 import {ItemsPanel} from './ItemsPanel';
+import {OffersPanel} from './OffersPanel';
 import './pricing-workspace.css';
 
 export function PricingWorkspace(){
@@ -18,6 +19,7 @@ export function PricingWorkspace(){
 
   return <section className="pricing-workspace">
     <ItemsPanel/>
+    <OffersPanel/>
     <div className="pricing-grid">
       <section className="sk-surface pricing-form">
         <span className="eyebrow">Costing + Pricing</span><h3>حاسبة التكلفة والتسعير</h3>
