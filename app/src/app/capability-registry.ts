@@ -41,6 +41,7 @@ export const coreCapabilities: CapabilityDefinition[] = [
   { id:'audit.sampling', label:'العينات', route:'/audit/sampling', domain:'audit', decision:'MERGE' },
   { id:'audit.pbc', label:'طلبات PBC', route:'/audit/pbc', domain:'audit', decision:'MERGE' },
   { id:'audit.issues', label:'ملاحظات المراجعة', route:'/audit/issues', domain:'audit', decision:'MERGE' },
+  { id:'audit.reviewer-council', label:'مجلس المراجعين', route:'/audit/reviewer-council', domain:'audit', decision:'MERGE' },
   { id:'audit.evidence', label:'أدلة المراجعة', route:'/audit/evidence', domain:'audit', decision:'REBUILD' },
   { id:'audit.workpapers', label:'أوراق العمل', route:'/audit/workpapers', domain:'audit', decision:'REBUILD' },
   { id:'audit.standards', label:'مكتبة المعايير', route:'/audit/standards', domain:'audit', decision:'REBUILD' },
