@@ -1,11 +1,9 @@
 {
   "name": "whatsapp-bridge-container",
-  "scripts": {
-    "start": "node server.mjs"
-  },
+  "scripts": { "start": "node server.mjs" },
   "dependencies": {
-    "baileys": "7.0.0-rc14",
-    "pino": "^9.14.0"
+    "@whiskeysockets/baileys": "latest",
+    "pino": "^9.0.0"
   },
   "private": true,
   "type": "module"
