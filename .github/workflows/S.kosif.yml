@@ -61,9 +61,22 @@ jobs:
         working-directory: app
         run: npx tsc -p tsconfig.rebuild.json --noEmit
 
+      - name: Enforce reconstructed source boundaries
+        working-directory: app
+        run: |
+          if grep -R -n -E '(alert|prompt|confirm)\(' src/rebuild --include='*.ts' --include='*.tsx'; then
+            echo "Blocking browser dialog found in reconstructed source"; exit 1
+          fi
+          if grep -R -n -E 'ينتظر نقل القدرة|Zero Legacy Gate غير مفتوح' src/rebuild --include='*.ts' --include='*.tsx'; then
+            echo "Unported capability marker found in reconstructed source"; exit 1
+          fi
+          if grep -R -n -E "from[[:space:]]*['\"][.]{1,2}/.*ui/" src/rebuild --include='*.ts' --include='*.tsx'; then
+            echo "Legacy UI import found in reconstructed source"; exit 1
+          fi
+
       - name: Test reconstructed application contracts
         working-directory: app
-        run: npx vitest run src/rebuild/core/capabilities.test.ts src/rebuild/services/specialist.test.ts src/rebuild/services/operations.test.ts
+        run: npx vitest run src/rebuild/core/capabilities.test.ts src/rebuild/services/specialist.test.ts src/rebuild/services/operations.test.ts src/rebuild/services/audit.test.ts
 
       - name: Build reconstructed application
         working-directory: app
@@ -111,7 +124,8 @@ jobs:
           for marker in [
               "مركز القيادة","المبيعات والعملاء","المخزون والإنتاج","المركز المالي",
               "الكتالوج والتسعير","مركز Jev الذكي","المحاسبة والمراجعة","النظام والتكاملات",
-              "أوامر الشراء","كفاءة القصاب","اشتراكات اللحوم","ماسح الباركود","دليل الشيف","اقتصاديات الذبيحة"
+              "أوامر الشراء","كفاءة القصاب","اشتراكات اللحوم","ماسح الباركود","دليل الشيف","اقتصاديات الذبيحة",
+              "الأهمية النسبية","اختبارات القيود","Benford","مجلس المراجعين","مختبر المعايير"
           ]:
               assert marker in bundle, marker
           assert "SKIP_WAITING" in sw
