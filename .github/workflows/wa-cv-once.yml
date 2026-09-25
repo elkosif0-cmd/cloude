@@ -13,23 +13,6 @@ jobs:
     if: github.event.issue.title == '[WA-CV-ONCE]'
     runs-on: ubuntu-latest
     steps:
-      - name: Send exact message
-        env:
-          DISPATCH_TOKEN: ${{ secrets.WA_DISPATCH_TOKEN }}
-        run: |
-          set -euo pipefail
-          PAYLOAD=$(jq -n \
-            --arg to "201023082293" \
-            --arg message " السلام عليكم ازي حضرتك عامل ايه انا محاسب بشتغل في جدة بدور على شغل ياريت لو قدامك اي فرصة شغل لي لاني شغلي حاليا متعب جدا في مؤسسة صغيره " \
-            '{to:$to,message:$message}')
-          CODE=$(curl -sS -o text.json -w "%{http_code}" -X POST \
-            -H "Authorization: Bearer $DISPATCH_TOKEN" \
-            -H "Content-Type: application/json" \
-            --data "$PAYLOAD" \
-            "https://wa-kosif-dispatch.kosif199022.workers.dev/send")
-          cat text.json
-          test "$CODE" -ge 200 -a "$CODE" -lt 300
-
       - name: Send Arabic CV
         env:
           DISPATCH_TOKEN: ${{ secrets.WA_DISPATCH_TOKEN }}
