@@ -1,5 +1,5 @@
 from pathlib import Path
-import base64, gzip, hashlib, re, shutil
+import base64, gzip, hashlib, json, re, shutil
 import private_blocks
 
 out=Path("dist")
@@ -17,14 +17,25 @@ text=html.decode("utf-8")
 text=re.sub(r"<title>[^<]*</title>","<title>S.kosif</title>",text,count=1,flags=re.I)
 text=re.sub(r'<meta\s+name=["\']apple-mobile-web-app-title["\'][^>]*>', '<meta name="apple-mobile-web-app-title" content="S.kosif">', text, count=1, flags=re.I)
 
-# The S.kosif screens live in ui/ and ship as one stylesheet and one script.
-# Order matters: shell.js provides the shared helpers the screens use.
-UI_CSS=["skosif.css","offers.css","supply.css","smartmatch.css","meatops.css","kernel.css","enterprise.css","reports.css","erp-plus.css","operations.css","capabilities-v2.css"]
-UI_JS=["shell.js","jev.js","offers.js","inventory.js","supply.js","meatops.js","smartmatch.js","pricing-core.js","kernel.js","tools.js","enterprise.js","reports.js","erp-plus.js","operations.js","capabilities-v2.js","audit-bridge.js"]
+# The UI ships as one stylesheet and one script, in layer order:
+#   design system (ui/ds) → core services (ui/core) → components → layout → features.
+# ui/core/capabilities.json is the single list of screens; it is inlined for the registry.
+UI_CSS=["ds/tokens.css","ds/components.css","ds/elements.css","ds/shell.css",
+        "features/offers.css","features/supply.css","features/smartmatch.css","features/meatops.css","features/kernel.css",
+        "features/enterprise.css","features/reports.css","features/erp-plus.css","features/operations.css","features/capabilities-v2.css"]
+UI_JS=["core/sk.js","core/bus.js","core/errors.js","core/store.js","core/registry.js","core/perm.js","core/audit.js",
+       "components/states.js","layouts/shell.js","components/palette.js","features/command-center.js",
+       "features/jev.js","features/offers.js","features/inventory.js","features/supply.js","features/meatops.js","features/smartmatch.js",
+       "features/pricing-core.js","features/kernel.js","features/tools.js","features/enterprise.js","features/reports.js",
+       "features/erp-plus.js","features/operations.js","features/capabilities-v2.js","features/audit-bridge.js"]
+listed={"ui/"+n for n in UI_CSS+UI_JS}
+stray=[str(f) for f in Path("ui").glob("*.*") if f.suffix in (".js",".css")]
+stray+=[str(f) for d in ("core","ds","components","layouts","features") for f in Path("ui",d).glob("*.*") if f.suffix in (".js",".css") and str(f) not in listed]
+if stray: raise SystemExit("UI files not wired into the build (add them to UI_CSS/UI_JS or delete them): "+", ".join(sorted(stray)))
+caps=json.loads(Path("ui/core/capabilities.json").read_text(encoding="utf-8"))
 bundle_css="\n".join(f"/* ---- ui/{n} ---- */\n"+Path("ui",n).read_text(encoding="utf-8") for n in UI_CSS)
-# Each screen is isolated: an error while one module loads is logged and
-# the modules after it still load (one bad module must not blank the app).
-bundle_js="\n".join(f"/* ---- ui/{n} ---- */\ntry{{\n"+Path("ui",n).read_text(encoding="utf-8")+f"\n}}catch(e){{console.error('S.kosif module ui/{n} failed to load',e)}}" for n in UI_JS)
+# Each module is isolated: an error while one loads is logged and the modules after it still load.
+bundle_js="window.__SK_CAPS__="+json.dumps(caps,ensure_ascii=False,separators=(",",":"))+";\n"+"\n".join(f"/* ---- ui/{n} ---- */\ntry{{\n"+Path("ui",n).read_text(encoding="utf-8")+f"\n}}catch(e){{console.error('S.kosif module ui/{n} failed to load',e)}}" for n in UI_JS)
 tag=hashlib.sha256((bundle_css+bundle_js).encode()).hexdigest()[:10]
 text=text.replace("</head>",f'<link rel="stylesheet" href="./skosif.css?v={tag}"></head>',1)
 head,sep,tail=text.rpartition("</body>")

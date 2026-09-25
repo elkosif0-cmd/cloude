@@ -1,27 +1,16 @@
-# منظومة أغنام الوادي v19.10 — JEV Green Hybrid
+# S.kosif — tested calculation engines
 
-منظومة متكاملة لهندسة وتسعير اللحوم والذبائح، إدارة البوكسات، ذكاء المبيعات والعملاء، وحوكمة الأسعار.
+This folder holds only the strict TypeScript engines and their tests. The UI lives in `../ui`
+(see `../docs/rebuild/REBUILD_PLAN.md`); the browser mirror of the pricing core is
+`../ui/features/pricing-core.js`.
 
-## طريقة التشغيل محلياً (Run Locally)
-
-```bash
-# 1. تثبيت الحزم البرمجية
-npm install
-
-# 2. تشغيل السيرفر التطويري
-npm run dev
-```
-
-- افتح المتصفح على: `http://localhost:3000`
-- دعم الوضعين الفاتح والداكن، وتصميم مخصص للغة العربية (RTL) بخط Cairo.
-
-## الاختبارات والبناء
+| Engine | Source | Tests |
+|---|---|---|
+| Pricing core (usable unit cost, rounding policy, box pricing, circular dependency) | `src/engine/corePricing` | `pricing.test.ts` |
+| Meat operations (carcass cost allocation, dressing %, receivables aging) | `src/engine/meatOps` | `ops.test.ts` |
 
 ```bash
-npm test          # اختبارات محرك التسعير
-npm run lint      # فحص TypeScript
-npm run build     # بناء النسخة في dist/
+npm ci
+npx tsc -p tsconfig.pricing-core.json --noEmit && npx vitest run src/engine/corePricing/pricing.test.ts
+npx tsc -p tsconfig.meatops.json --noEmit && npx vitest run src/engine/meatOps/ops.test.ts
 ```
-
-> لا ترفع ملفات البيانات الحية (`data/`) إلى هذا المستودع — هو مستودع عام.
-> بيانات `src/data/seedData.ts` تجريبية؛ أرقام الهواتف والسجلات فيها وهمية.

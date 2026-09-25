@@ -14,16 +14,28 @@ S.kosif is the production application shell for the encrypted business dataset a
 
 ## Layout
 
-- `payload/` — the core app (one HTML file, gzip + base64 parts). Edit it with
-  `python3 tools/payload.py decode core.html` → edit → `python3 tools/payload.py encode core.html`.
-  The core owns the side menu (daily work / advanced tools), the view registry
-  (`SKosifCore.registerView`) and a read-only data bridge (`SKosifCore.catalog()`).
-- `ui/` — the S.kosif screens, bundled by `build.py` into `skosif.js` and `skosif.css`:
-  `shell.js` (shared helpers, themes, auto-lock, updates), `jev.js`, `offers.js`,
-  `inventory.js`, `supply.js`, `meatops.js`, `smartmatch.js`, `pricing-core.js`,
-  `kernel.js`, `tools.js`, `enterprise.js`, `reports.js`, `erp-plus.js`, `operations.js`, and `capabilities-v2.js`. ERP+ extends the existing inventory, cash, supplier, report, Jev and settings screens; Capabilities v2 adds RBAC, workspace revisioning, integrity checks and optional D1 synchronization without floating controls. Each screen is a normal menu entry; there are no floating
-  buttons, docks or overlay hubs.
-- Themes: one theme system for the whole app (default «تراث الوادي» plus ten others), chosen in Settings.
+"Keep the brain, keep the data, rebuild the body" — see `docs/rebuild/` for the audit, the
+capability inventory, the new information architecture and the rebuild plan.
+
+- `payload/` — the brain: engine, state, IndexedDB, core screens and their actions (one HTML
+  file, gzip + base64). Edit with `python3 tools/payload.py decode core.html` → edit →
+  `python3 tools/payload.py encode core.html`. It holds no stylesheets and no shell layers; it
+  exposes `window.SKosifCore` (view registry, read-only catalog, signals, exceptions, actions).
+- `ui/core/capabilities.json` — the single list of screens (group, tier, roles, data). The
+  menu, the command palette, permissions and `docs/rebuild/*CAPABILITY*.md`
+  (`python3 tools/capability_docs.py`) are generated from it.
+- `ui/ds/` — the design system «تراث الوادي»: `tokens.css` (light/dark, spacing, type),
+  `components.css`, `elements.css`, `shell.css`.
+- `ui/core/` — services: `sk.js` helpers, `bus.js` events, `errors.js` central error handling,
+  `store.js` full backup with dry-run restore and rollback, `registry.js`, `perm.js`
+  (role → capability → action), `audit.js` audit trail.
+- `ui/layouts/shell.js` — rail/drawer, topbar, appearance, no-permission gate, update notice.
+- `ui/components/` — `palette.js` (Ctrl+K / ⌘K / `/`), `states.js` (loading, empty, error,
+  offline, no-permission, partial, success; inline validation).
+- `ui/features/` — Command Center and every screen module (offers, inventory, supply, meat ops,
+  matching, pricing core, kernel, tools, enterprise, reports, ERP+, operations, capabilities v2,
+  Jev, audit bridge). `build.py` refuses UI files that are not wired into the bundle.
+- `app/` — the strict TypeScript engines and their tests (run in CI).
 
 ## Accounting & audit
 
@@ -33,7 +45,7 @@ hand). It holds three apps that open as S.kosif screens under «المحاسبة
 والمراجعة», each inside its own Shadow DOM and loaded only on first use:
 the v5 audit workspace (six screens), the analysis studio (Benford, sampling,
 journal tests, agent, voice) and the standards research lab.
-`ui/audit-bridge.js` registers the screens and builds a trial balance from the
+`ui/features/audit-bridge.js` registers the screens and builds a trial balance from the
 app's sales, supplier shipments, expenses and credit customers for the
 studio's intake (the user reviews the mapping before importing).
 ## Capabilities v2
