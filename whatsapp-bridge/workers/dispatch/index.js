@@ -96,6 +96,16 @@ export default {
   async fetch(req, env) {
     const url = new URL(req.url);
     if (url.pathname === '/') return new Response('KOSIF WhatsApp dispatcher online\n');
+
+    // Private service-binding entry point used only by the queue consumer.
+    if (url.hostname === 'wa-kosif-dispatch.internal' && url.pathname === '/internal-bundle' && req.method === 'POST') {
+      let body;
+      try { body = await req.json(); } catch { return json({ error: 'invalid JSON' }, 400); }
+      const to = normalizePhone(body.to);
+      if (!to) return json({ error: 'to is required' }, 400);
+      return relay(await bridge(env, '/send-bundle', { method: 'POST', body: JSON.stringify({ ...body, to }) }));
+    }
+
     if (!(await authorized(req, env))) return json({ error: 'unauthorized' }, 401);
 
     const batch = url.pathname.match(/^\/batch\/([^/]+)$/);
