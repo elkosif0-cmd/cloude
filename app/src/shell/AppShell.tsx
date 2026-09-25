@@ -1,4 +1,4 @@
-import {useState,type PropsWithChildren} from 'react';
+import {useEffect,useState,type PropsWithChildren} from 'react';
 import {THEMES} from '../design/themes';
 import type {ThemeId} from '../design/theme-contract';
 import {useTheme} from '../design/ThemeProvider';
@@ -13,6 +13,8 @@ import {PricingWorkspace} from '../domains/catalog/PricingWorkspace';
 import {IntelligenceWorkspace} from '../domains/intelligence/IntelligenceWorkspace';
 import {ReportsWorkspace} from '../domains/reports/ReportsWorkspace';
 import {SystemWorkspace} from '../domains/system/SystemWorkspace';
+import {GlobalSearch} from '../search/GlobalSearch';
+import type {SearchDomain} from '../search/search-engine';
 import './shell.css';
 
 const nav:{id:string;label:string;short:string;domain:ProductDomain}[]=[
@@ -51,14 +53,30 @@ function NavGlyph({id}:{id:string}){
 export function AppShell({children}:PropsWithChildren){
   const [active,setActive]=useState('home');
   const [moreOpen,setMoreOpen]=useState(false);
+  const [searchOpen,setSearchOpen]=useState(false);
   const {theme,setTheme}=useTheme();
   const current=nav.find((item)=>item.id===active)??nav[0];
   const hiddenActive=!mobilePrimary.includes(active);
+
+  useEffect(()=>{
+    const handler=(event:KeyboardEvent)=>{
+      if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'){
+        event.preventDefault();setSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown',handler);
+    return()=>window.removeEventListener('keydown',handler);
+  },[]);
 
   function go(id:string){
     setActive(id);
     setMoreOpen(false);
     window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function navigateFromSearch(domain:SearchDomain){
+    const item=nav.find(row=>row.domain===domain);
+    if(item)go(item.id);
   }
 
   function renderWorkspace(){
@@ -88,7 +106,7 @@ export function AppShell({children}:PropsWithChildren){
     <section className="app-workspace">
       <header className="app-topbar">
         <div className="topbar-title"><span className="topbar-icon"><NavGlyph id={current.id}/></span><div><small>S.kosif · مساحة العمل الموحدة</small><h2>{current.label}</h2></div></div>
-        <div className="topbar-actions"><span className="live-dot"><i/>بيانات فعلية</span><button className="theme-quick" onClick={()=>setTheme(theme==='midnight-intelligence'?'aghnam-executive-light':'midnight-intelligence')} aria-label="تبديل الوضع">◐</button></div>
+        <div className="topbar-actions"><button className="search-trigger" onClick={()=>setSearchOpen(true)} aria-label="بحث موحد">⌕<span>بحث</span><kbd>⌘K</kbd></button><span className="live-dot"><i/>بيانات فعلية</span><button className="theme-quick" onClick={()=>setTheme(theme==='midnight-intelligence'?'aghnam-executive-light':'midnight-intelligence')} aria-label="تبديل الوضع">◐</button></div>
       </header>
       <main className="workspace-stage">{renderWorkspace()}</main>
     </section>
@@ -100,6 +118,8 @@ export function AppShell({children}:PropsWithChildren){
       })}
       <button data-active={hiddenActive||moreOpen} onClick={()=>setMoreOpen(open=>!open)}><NavGlyph id="more"/><span>المزيد</span></button>
     </nav>
+
+    <GlobalSearch open={searchOpen} onClose={()=>setSearchOpen(false)} onNavigate={navigateFromSearch}/>
 
     {moreOpen?<div className="mobile-sheet-backdrop" onClick={()=>setMoreOpen(false)}>
       <section className="mobile-sheet" onClick={(e)=>e.stopPropagation()}>
