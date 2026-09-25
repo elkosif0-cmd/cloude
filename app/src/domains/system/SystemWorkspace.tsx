@@ -4,6 +4,7 @@ import {readActiveScope,writeActiveScope} from '../../data/scope-key';
 import type {Company,FiscalPeriod} from './company-context';
 import {AccessPanel} from './AccessPanel';
 import {GovernancePanel} from './GovernancePanel';
+import {LegacyMigrationPanel} from './LegacyMigrationPanel';
 import './system-workspace.css';
 
 const COMPANY_KEY='skosif.v1.system.companies';
@@ -90,6 +91,7 @@ export function SystemWorkspace(){
     </section>
 
     <AccessPanel/>
+    <LegacyMigrationPanel/>
     <GovernancePanel/>
   </section>;
 }
