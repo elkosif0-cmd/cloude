@@ -1,0 +1,33 @@
+export type CapabilityClass='CORE'|'ADVANCED'|'INTELLIGENCE'|'MANAGEMENT'|'UTILITIES'|'ADMIN';
+export type CapabilityGroup='command'|'sales'|'inventory'|'finance'|'catalog'|'intelligence'|'audit'|'system';
+export interface CapabilityDef{ id:string; title:string; description:string; group:CapabilityGroup; class:CapabilityClass; keywords:string[]; actions:string[]; route:string; }
+export const CAPABILITIES:CapabilityDef[]=[
+{id:'command.attention',title:'مركز القيادة',description:'الأولويات والتنبيهات والعمليات الأخيرة',group:'command',class:'CORE',keywords:['اليوم','تنبيهات','لوحة'],actions:['view'],route:'command'},
+{id:'sales.orders',title:'الطلبات',description:'إنشاء ومراجعة الطلبات وحالة التحصيل',group:'sales',class:'CORE',keywords:['طلب','فاتورة','تحصيل'],actions:['view','create','edit'],route:'sales'},
+{id:'sales.customers',title:'العملاء',description:'قاعدة العملاء والبحث وسجل الشراء',group:'sales',class:'CORE',keywords:['عميل','جوال','مدينة'],actions:['view','create','edit','export'],route:'sales'},
+{id:'sales.invoice',title:'الفوترة وPOS',description:'فاتورة مبسطة ZATCA ودفع نقدي/بطاقة/مقسم/آجل مع توليد وفحص TLV',group:'sales',class:'CORE',keywords:['zatca','pos','فاتورة','دفع','tlv','qr'],actions:['view','create','print','verify'],route:'sales'},
+{id:'inventory.stock',title:'المخزون',description:'الرصيد الحالي والحركات وحدود إعادة الطلب',group:'inventory',class:'CORE',keywords:['مخزون','رصيد','وارد','صادر'],actions:['view','create','edit'],route:'inventory'},
+{id:'inventory.count',title:'الجرد الفعلي',description:'جلسات الجرد والفروقات والتسويات',group:'inventory',class:'CORE',keywords:['جرد','فرق'],actions:['view','create','approve'],route:'inventory'},
+{id:'inventory.expiry',title:'الصلاحية وFIFO',description:'دفعات اللحوم وتواريخ الانتهاء وأولوية التصريف',group:'inventory',class:'CORE',keywords:['صلاحية','fifo','دفعات'],actions:['view','create'],route:'inventory'},
+{id:'procurement.suppliers',title:'الموردون والاستلام',description:'الشحنات والهدر الفعلي والمقارنة وأوامر الشراء',group:'inventory',class:'CORE',keywords:['مورد','شراء','استلام','هدر'],actions:['view','create','export'],route:'inventory'},
+{id:'production.blending',title:'التصنيع والخلطات',description:'خلطات اللحوم وأوامر تشغيل الباتش',group:'inventory',class:'ADVANCED',keywords:['برجر','مفروم','باتش','خلطة'],actions:['view','create','print'],route:'inventory'},
+{id:'production.aging',title:'غرفة التعتيق',description:'Dry Aging وتتبع القطع والوزن والعائد',group:'inventory',class:'ADVANCED',keywords:['تعتيق','dry aging'],actions:['view','create','finish'],route:'inventory'},
+{id:'production.carcass',title:'اقتصاديات الذبيحة',description:'التصافي وتوزيع التكلفة والهامش وسعر الهدف للقطعيات',group:'inventory',class:'ADVANCED',keywords:['ذبيحة','carcass','تصافي','yield','قطعيات'],actions:['view','calculate','print'],route:'inventory'},
+{id:'finance.cash',title:'التدفق النقدي',description:'مقبوضات ومدفوعات وصافي التدفق',group:'finance',class:'CORE',keywords:['نقدي','سيولة','مقبوضات','مدفوعات'],actions:['view','create','export'],route:'finance'},
+{id:'finance.income',title:'قائمة الدخل',description:'مبيعات الشهر وتكلفة المواد والمصاريف الأخرى',group:'finance',class:'CORE',keywords:['قائمة الدخل','ربح','خسارة','cogs'],actions:['view','create','print'],route:'finance'},
+{id:'finance.receivables',title:'الذمم والتحصيل',description:'الأرصدة وأعمار الذمم',group:'finance',class:'CORE',keywords:['ذمم','تحصيل','أعمار'],actions:['view','create'],route:'finance'},
+{id:'finance.payables',title:'ذمم الموردين',description:'المستحقات والمواعيد والسداد',group:'finance',class:'CORE',keywords:['موردين','مستحقات'],actions:['view','create'],route:'finance'},
+{id:'catalog.items',title:'الأصناف والمواد',description:'المواد الخام والبوكسات وأسعار الشراء والبيع',group:'catalog',class:'CORE',keywords:['صنف','مادة','بوكس','كتالوج'],actions:['view','create','edit'],route:'catalog'},
+{id:'pricing.engine',title:'محرك التسعير',description:'الضريبة والهدر والهامش والتقريب وسعر الهدف',group:'catalog',class:'CORE',keywords:['سعر','هامش','هدر','ضريبة'],actions:['view','calculate'],route:'catalog'},
+{id:'pricing.approval',title:'اعتماد الأسعار',description:'صانع/مراجع وسجل قرار السعر',group:'catalog',class:'MANAGEMENT',keywords:['اعتماد','مذكرة'],actions:['view','approve'],route:'catalog'},
+{id:'intelligence.jev',title:'Jev للقرار',description:'سؤال ومراقبة ومحاكاة وتوصيات قابلة للمراجعة',group:'intelligence',class:'INTELLIGENCE',keywords:['jev','ذكاء','قرار','محاكاة'],actions:['view','ask'],route:'intelligence'},
+{id:'intelligence.match',title:'مطابقة المنتجات',description:'مطابقة وصف المبيعات بالكتالوج',group:'intelligence',class:'ADVANCED',keywords:['مطابقة','mapping','fuzzy'],actions:['view','review'],route:'intelligence'},
+{id:'intelligence.risk',title:'الحساسية والمخاطر',description:'صدمات التكلفة وهامش الربحية',group:'intelligence',class:'ADVANCED',keywords:['حساسية','مخاطر'],actions:['view','simulate'],route:'intelligence'},
+{id:'audit.workspace',title:'مساحة المراجعة',description:'التخطيط والأدلة والقضايا والتقارير',group:'audit',class:'ADVANCED',keywords:['مراجعة','audit','evidence'],actions:['view','create'],route:'audit'},
+{id:'audit.analytics',title:'تحليلات المراجعة',description:'Benford والعينات واختبارات القيود',group:'audit',class:'ADVANCED',keywords:['benford','sampling','قيود'],actions:['view','run'],route:'audit'},
+{id:'audit.standards',title:'مختبر المعايير',description:'البحث في المعايير والسياسات',group:'audit',class:'ADVANCED',keywords:['ifrs','ias','معايير'],actions:['view','search'],route:'audit'},
+{id:'system.permissions',title:'الأدوار والصلاحيات',description:'User → Role → Capability → Action',group:'system',class:'ADMIN',keywords:['صلاحيات','role','rbac'],actions:['view','administer'],route:'system'},
+{id:'system.sync',title:'المزامنة المركزية',description:'Workspace revisions وD1 وIntegrity',group:'system',class:'ADMIN',keywords:['d1','sync','workspace'],actions:['view','sync'],route:'system'},
+{id:'system.data',title:'مركز البيانات',description:'استيراد وتصدير ونسخ احتياطي وتشخيص migration',group:'system',class:'ADMIN',keywords:['استيراد','تصدير','backup'],actions:['view','import','export'],route:'system'},
+];
+export const capabilityById=(id:string)=>CAPABILITIES.find(c=>c.id===id);
