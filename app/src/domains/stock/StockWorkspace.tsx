@@ -1,9 +1,10 @@
 import {useEffect,useMemo,useState} from 'react';
 import {JsonStorageRepository} from '../../data/json-storage-repository';
+import {makeScopedKey,readActiveScope} from '../../data/scope-key';
 import {buildStockPositions,type StockMovement,type StockMovementType} from './inventory-engine';
 import './stock-workspace.css';
 
-const STORAGE_KEY='skosif.v1.stock.movements';
+const STORAGE_BASE='stock.movements';
 
 export function StockWorkspace(){
   const [movements,setMovements]=useState<StockMovement[]>([]);
@@ -13,7 +14,8 @@ export function StockWorkspace(){
   const [unitCost,setUnitCost]=useState('');
   const [message,setMessage]=useState('');
 
-  const repo=useMemo(()=>new JsonStorageRepository<StockMovement & {id:string}>(window.localStorage,STORAGE_KEY),[]);
+  const storageKey=useMemo(()=>makeScopedKey(STORAGE_BASE,readActiveScope(window.localStorage)),[]);
+  const repo=useMemo(()=>new JsonStorageRepository<StockMovement & {id:string}>(window.localStorage,storageKey),[storageKey]);
   useEffect(()=>{void repo.list().then(setMovements);},[repo]);
   const positions=useMemo(()=>buildStockPositions(movements),[movements]);
 
