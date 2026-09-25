@@ -29,7 +29,7 @@ export function ReportsWorkspace(){
   const [items,setItems]=useState<CatalogItem[]>([]);
   const scope=useMemo(()=>readActiveScope(window.localStorage),[]);
 
-  const repoFor=<T extends {id:string}>(base:string)=>new JsonStorageRepository<T>(window.localStorage,makeScopedKey(base,scope));
+  const repoFor=<T extends {id:string},>(base:string)=>new JsonStorageRepository<T>(window.localStorage,makeScopedKey(base,scope));
 
   useEffect(()=>{
     const journalRepo=repoFor<JournalEntry & {id:string}>('finance.journals');
