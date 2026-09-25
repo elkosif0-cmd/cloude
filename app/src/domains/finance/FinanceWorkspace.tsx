@@ -5,6 +5,7 @@ import {buildGeneralLedger,buildTrialBalance,validateJournalEntry,type JournalEn
 import {AccountsPanel} from './AccountsPanel';
 import {ReceivablesPanel} from './ReceivablesPanel';
 import {PayablesPanel} from './PayablesPanel';
+import {TrialBalanceImportPanel} from './TrialBalanceImportPanel';
 import './finance-workspace.css';
 
 const STORAGE_BASE='finance.journals';
@@ -68,6 +69,7 @@ export function FinanceWorkspace(){
     </div>
 
     <AccountsPanel/>
+    <TrialBalanceImportPanel/>
 
     <div className="finance-grid">
       <section className="sk-surface finance-entry-form">
