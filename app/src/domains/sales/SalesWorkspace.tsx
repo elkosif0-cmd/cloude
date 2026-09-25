@@ -11,6 +11,7 @@ import type {Customer} from './customers-engine';
 import {CustomersPanel} from './CustomersPanel';
 import {TaxInvoicePanel} from './TaxInvoicePanel';
 import {CreditPanel} from './CreditPanel';
+import {SubscriptionsPanel} from './SubscriptionsPanel';
 import './sales-workspace.css';
 
 export function SalesWorkspace(){
@@ -156,6 +157,7 @@ export function SalesWorkspace(){
     </div>
 
     <CreditPanel/>
+    <SubscriptionsPanel/>
     <TaxInvoicePanel orders={orders} customers={customers} items={items}/>
 
     <section className="sales-orders sk-surface">
