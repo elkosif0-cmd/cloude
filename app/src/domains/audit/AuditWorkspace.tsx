@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useState} from 'react';
 import {JsonStorageRepository} from '../../data/json-storage-repository';
+import {makeScopedKey,readActiveScope} from '../../data/scope-key';
 import type {JournalEntry} from '../finance/ledger-engine';
 import {analyzeJournals} from './journal-analytics';
 import {calculateMateriality} from './materiality-engine';
@@ -7,7 +8,7 @@ import {PbcPanel} from './PbcPanel';
 import {SamplingPanel} from './SamplingPanel';
 import './audit-workspace.css';
 
-const JOURNAL_STORAGE_KEY='skosif.v1.finance.journals';
+const JOURNAL_STORAGE_BASE='finance.journals';
 
 export function AuditWorkspace(){
   const [entries,setEntries]=useState<JournalEntry[]>([]);
@@ -16,7 +17,8 @@ export function AuditWorkspace(){
   const [performanceRate,setPerformanceRate]=useState('0.75');
   const [trivialRate,setTrivialRate]=useState('0.05');
 
-  const repo=useMemo(()=>new JsonStorageRepository<JournalEntry & {id:string}>(window.localStorage,JOURNAL_STORAGE_KEY),[]);
+  const journalStorageKey=useMemo(()=>makeScopedKey(JOURNAL_STORAGE_BASE,readActiveScope(window.localStorage)),[]);
+  const repo=useMemo(()=>new JsonStorageRepository<JournalEntry & {id:string}>(window.localStorage,journalStorageKey),[journalStorageKey]);
   useEffect(()=>{void repo.list().then(setEntries);},[repo]);
 
   const materiality=useMemo(()=>calculateMateriality({
