@@ -2,13 +2,15 @@
 
 Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do not edit by hand.
 
-Total capabilities: **60** (screens). Cross-cutting capabilities are listed after the table.
+Total capabilities: **62** (screens). Cross-cutting capabilities are listed after the table.
 
 | ID | Capability | Module | Current Location | Data Used | Dependencies | Status | Keep/Remove/Merge/Rebuild |
 |---|---|---|---|---|---|---|---|
 | `dash` | مركز القيادة | core+ui/features/command-center.js | مركز القيادة › يومي | `aghnam-pricing-v3`, `IDB aghnam-app-v7` | SKosifCore, Engine, IndexedDB | Working | Rebuild |
 | `decision` | مركز القرار | core (v19.5 + v20.2) | مركز القيادة › يومي | `aghnam-pricing-v3`, `IDB aghnam-app-v7` | SKosifCore, Engine, IndexedDB | Working | Keep |
 | `tasks` | المهام | ui/features/workspace.js | مركز القيادة › يومي | `skosif_tasks_v1` | SKosifCore | Working | Rebuild |
+| `notifications` | مركز الإشعارات | ui/features/notifications.js + ui/layouts/topbar.js (الجرس) | مركز القيادة › يومي | `skosif_notify_v1`, `skosif_tasks_v1`, `skosif_risks_v1`, `skosif_audit_trail` | SKosifCore | Working | Rebuild |
+| `risks` | المخاطر والملاحظات | ui/features/risks.js + ui/components/charts.js | مركز القيادة › يومي | `skosif_risks_v1` | SKosifCore | Working | Rebuild |
 | `commerce` | الطلبات والتحصيل | core | المبيعات والعملاء › يومي | `IDB orders`, `IDB order_items`, `IDB payments`, `IDB ops_orders` | SKosifCore, Engine, IndexedDB | Working | Keep |
 | `customers` | العملاء | core | المبيعات والعملاء › يومي | `IDB customers`, `IDB sales_lines`, `IDB imports` | SKosifCore, Engine, IndexedDB | Working | Keep |
 | `followup` | متابعة العملاء | ui/features/followup.js | المبيعات والعملاء › يومي | `skosif_followup_v1`, `IDB customers` | SKosifCore, IndexedDB | Working | Rebuild |

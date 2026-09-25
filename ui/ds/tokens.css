@@ -41,6 +41,10 @@
   --sk-ease:cubic-bezier(.2,.8,.2,1);--sk-t:160ms;
   /* layout */
   --sk-rail-w:272px;--sk-topbar-h:60px;
+  /* risk heatmap scale (low → critical) and brand gradients (KOSIF Luxe sets its own) */
+  --sk-heat-1:#d8ecd2;--sk-heat-2:#f3e2a6;--sk-heat-3:#efc08f;--sk-heat-4:#e79a8e;
+  --sk-grad-brand:linear-gradient(135deg,var(--sk-brand-2),var(--sk-brand));--sk-grad-rail:var(--sk-rail);
+  --sk-font-latin:var(--sk-font);
   color-scheme:light;
 }
 
@@ -130,36 +134,49 @@
   --sk-shadow-1:0 1px 0 rgba(0,0,0,.04);--sk-r:8px;--sk-r-l:10px;
 }
 
-/* «KOSIF» — the adopted product identity (Canva KOSIF mockups): navy rail, clean white cards,
-   KOSIF blue with cloud cyan, soft status pills, rings for progress. Default look. */
+/* «KOSIF Luxe» — the adopted product identity, drawn from the approved KOSIF mockups:
+   deep navy rail, KOSIF blue with cloud cyan, white cards on a cool paper ground, soft status
+   pills, progress rings, and IBM Plex Sans Arabic (chosen with Jev, p=0.99) with tabular figures.
+   Default look. */
 :root[data-look="kosif"]{
-  --sk-bg:#f3f6fb;--sk-surface:#ffffff;--sk-surface-2:#f7f9fc;--sk-surface-3:#eef2f8;--sk-line:#e5eaf2;--sk-line-2:#d5dde9;
-  --sk-ink:#0f1f35;--sk-ink-2:#45566e;--sk-ink-3:#7a8aa2;
-  --sk-brand:#1668e3;--sk-brand-2:#1fb6e0;--sk-brand-soft:#e8f1fe;--sk-on-brand:#ffffff;
-  --sk-ok:#138a4b;--sk-ok-soft:#e5f6ec;--sk-ok-mark:#22b35e;
-  --sk-warn:#b45f06;--sk-warn-soft:#fff3dc;--sk-warn-mark:#f5a524;
-  --sk-bad:#d0342c;--sk-bad-soft:#fdecea;--sk-bad-mark:#ef4444;--sk-bad-row:#fff6f5;
+  --sk-bg:#f3f6fa;--sk-surface:#ffffff;--sk-surface-2:#f7f9fc;--sk-surface-3:#edf2f8;--sk-line:#e4eaf2;--sk-line-2:#d3dce8;
+  --sk-ink:#0b1c33;--sk-ink-2:#44566f;--sk-ink-3:#8292a8;
+  --sk-brand:#1668e3;--sk-brand-2:#22b8e6;--sk-brand-soft:#e8f1fe;--sk-on-brand:#ffffff;
+  --sk-ok:#12884a;--sk-ok-soft:#e4f6eb;--sk-ok-mark:#22b35e;
+  --sk-warn:#b86204;--sk-warn-soft:#fff2dc;--sk-warn-mark:#f5a524;
+  --sk-bad:#d3322a;--sk-bad-soft:#fdebea;--sk-bad-mark:#ef4444;--sk-bad-row:#fff7f6;
   --sk-info:#1668e3;--sk-info-soft:#e8f1fe;--sk-info-mark:#3b82f6;
   --sk-violet:#6b5bd6;--sk-violet-soft:#efedfd;--sk-violet-line:#d9d4f7;
-  --sk-rail:#0c2340;--sk-rail-2:rgba(255,255,255,.06);--sk-rail-ink:#e9f1fb;--sk-rail-mute:#8ea4c1;--sk-rail-active:rgba(56,189,248,.16);
-  --sk-grid:#edf1f7;--sk-axis:#d3dbe7;--sk-s1:#1fb6e0;--sk-s2:#1668e3;--sk-s3:#22b35e;--sk-focus:#1668e3;
-  --sk-font:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;--sk-font-display:"IBM Plex Sans Arabic","Segoe UI",sans-serif;
-  --sk-r-s:10px;--sk-r:12px;--sk-r-l:16px;
-  --sk-shadow-1:0 1px 2px rgba(15,31,53,.04),0 8px 24px -18px rgba(15,31,53,.28);
-  --sk-shadow-2:0 16px 36px -18px rgba(15,31,53,.3);
-  --sk-shadow-3:0 30px 70px -24px rgba(12,35,64,.45);
+  --sk-rail:#0b1f3a;--sk-rail-2:rgba(255,255,255,.06);--sk-rail-ink:#e8f0fa;--sk-rail-mute:#8aa0bd;--sk-rail-active:rgba(34,184,230,.14);
+  --sk-grid:#edf1f7;--sk-axis:#d3dbe7;--sk-s1:#22b8e6;--sk-s2:#1668e3;--sk-s3:#22b35e;--sk-focus:#1668e3;
+  --sk-font:"IBM Plex Sans Arabic",-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,sans-serif;
+  --sk-font-display:"IBM Plex Sans Arabic",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --sk-font-latin:"Montserrat","IBM Plex Sans Arabic",-apple-system,"Segoe UI",sans-serif;
+  --sk-fs-xs:12px;--sk-fs-s:13.5px;--sk-fs:14.5px;--sk-fs-l:17px;--sk-fs-xl:22px;--sk-fs-2xl:28px;
+  --sk-r-s:10px;--sk-r:12px;--sk-r-l:18px;
+  --sk-shadow-1:0 1px 2px rgba(11,28,51,.04),0 12px 32px -24px rgba(11,28,51,.38);
+  --sk-shadow-2:0 18px 40px -22px rgba(11,28,51,.34);
+  --sk-shadow-3:0 32px 80px -28px rgba(11,31,58,.5);
+  --sk-topbar-h:68px;
+  /* luxe extras: gradients and the risk heatmap scale */
+  --sk-grad-brand:linear-gradient(135deg,#22b8e6 0%,#1668e3 55%,#0b1f3a 100%);
+  --sk-grad-rail:linear-gradient(180deg,#0b1f3a 0%,#0d2848 55%,#0a2140 100%);
+  --sk-heat-1:#bfe9cf;--sk-heat-2:#f8e38b;--sk-heat-3:#f8b27e;--sk-heat-4:#f27f7f;
 }
 :root[data-look="kosif"][data-theme="dark"]{
-  --sk-bg:#0a1628;--sk-surface:#10213a;--sk-surface-2:#132846;--sk-surface-3:#1a3254;--sk-line:#1f3a5f;--sk-line-2:#2a4a74;
+  --sk-bg:#081427;--sk-surface:#0f2039;--sk-surface-2:#122745;--sk-surface-3:#193153;--sk-line:#1e385c;--sk-line-2:#29496f;
   --sk-ink:#e9f1fb;--sk-ink-2:#b3c4da;--sk-ink-3:#8499b6;
   --sk-brand:#4a93ff;--sk-brand-2:#3fd0f0;--sk-brand-soft:#15325a;--sk-on-brand:#06101f;
   --sk-ok:#5fd394;--sk-ok-soft:#0f2e22;--sk-warn:#f7bd57;--sk-warn-soft:#33260c;--sk-bad:#ff8a80;--sk-bad-soft:#3a1618;--sk-bad-row:#2a1418;
   --sk-info:#7cb4ff;--sk-info-soft:#132e52;
-  --sk-rail:#071427;--sk-rail-active:rgba(63,208,240,.16);
+  --sk-rail:#061226;--sk-rail-active:rgba(63,208,240,.16);
   --sk-grid:#1a3254;--sk-axis:#2a4a74;--sk-focus:#4a93ff;
   --sk-violet:#b3a8ff;--sk-violet-soft:#241f4a;--sk-violet-line:#3a3470;
+  --sk-grad-rail:linear-gradient(180deg,#061226,#08182f);
+  --sk-heat-1:#1f5a3b;--sk-heat-2:#6b5a17;--sk-heat-3:#7a4219;--sk-heat-4:#7f2626;
   --sk-shadow-1:0 1px 0 rgba(255,255,255,.03) inset,0 10px 26px -16px rgba(0,0,0,.7);--sk-shadow-2:0 16px 36px -16px rgba(0,0,0,.7);--sk-shadow-3:0 30px 70px -20px rgba(0,0,0,.8);
 }
+:root[data-look="kosif"] body{font-feature-settings:"tnum" 1,"lnum" 1}
 
 /* printing always uses the light heritage palette, whatever theme is on screen */
 @media print{

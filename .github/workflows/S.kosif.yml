@@ -127,6 +127,13 @@ jobs:
           assert mf.get("orientation")!="portrait" and mf.get("shortcuts") and "window-controls-overlay" in mf.get("display_override",[]), "manifest must serve laptop and iPhone"
           assert all(s["url"].startswith("./?") for s in mf["shortcuts"]), "manifest shortcuts must be deep links"
           assert ":root[data-look=\"kosif\"] .skb" not in css, "the phone tab bar must work in every theme"
+          # KOSIF Luxe: shared components, new screens, report pack, letterhead, sign-in page
+          for marker in ["SKosifTopbar","SKCharts","SKosifTable","SKosifNotify","SKosifReportPack","SKosifMetrics","skp-band","counter(pages)"]:
+              assert marker in js, "luxe marker missing: "+marker
+          for marker in ["--sk-heat-1",".sk-ph",".skk4",".sktb-bar",".skhm-cell",".sksev"]:
+              assert marker in css, "luxe style missing: "+marker
+          assert "Smarter Audit. Greater Trust." in unlock, "sign-in page lost the KOSIF claim"
+          assert all(c.get("en") for c in caps), "every screen needs its English name (en)"
           # accounting & audit: three vendored apps, loaded on first use from dist/audit
           for f in ["audit/mount.js","audit/app.css","audit/markup.html","audit/classic/mount.js","audit/lab/mount.js"]:
               assert Path("dist",f).exists(), f

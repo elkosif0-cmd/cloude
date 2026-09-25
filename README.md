@@ -1,6 +1,10 @@
-# S.kosif — Fusion Operations & Decision OS
+# S.kosif — KOSIF · مراجعة أذكى، ثقة أكبر
 
-S.kosif is the production application shell for the encrypted business dataset and the unified operations, pricing, customer, reporting, governance and Jev decision modules.
+S.kosif (brand: **KOSIF**) is the production application shell for the encrypted business dataset and the
+unified operations, pricing, customer, finance, audit & compliance, reporting, governance and Jev decision
+modules — one offline-first app with the same data on the iPhone and the laptop, in the **KOSIF Luxe**
+design (`docs/design/KOSIF-LUXE.md`, mockups in `docs/design/mockups/`). Roadmap and the Jev-scored value of
+every next idea: `docs/ROADMAP-ar.md`.
 
 - Production source branch: `main`
 - Build command: `python3 build.py`
@@ -42,6 +46,26 @@ capability inventory, the new information architecture and the rebuild plan.
 - Navigation: 10 domains (مركز القيادة · المبيعات والعملاء · المخزون والإنتاج · المشتريات والموردون · المالية
   والمحاسبة · الكتالوج والتسعير · Jev والذكاء · التقارير والتحليلات · المراجعة والتأكيد · النظام والتكاملات),
   each screen daily or advanced; `docs/rebuild/CAPABILITY_COVERAGE_ALL_VERSIONS.md` lists every capability of every past version.
+
+## KOSIF Luxe
+
+The approved KOSIF mockups as shared components (Jev chose the typeface and the phone tab bar; the sky
+artwork was generated in Canva and redrawn as vector art):
+
+- `ui/ds/tokens.css` (KOSIF look) + `ui/ds/luxe.css` — palette, IBM Plex Sans Arabic with tabular figures,
+  top bar, page head, menus, notification rows, charts, heatmap, donut, KPI tiles with rings, table toolbar,
+  status/severity pills, and the luxe finish of rail, cards, buttons and tables.
+- `ui/layouts/topbar.js` (`SKosifTopbar`) — company ▾ · period ▾ (the ledger's active company/period) ·
+  search ⌘K · bell with unread count · user name/title/avatar menu; page head with icon, title, English
+  name (`en` in the registry) and the screen's actions.
+- `ui/components/charts.js` (`SKCharts`) — grouped bars + line with tooltips, rings, 3×3 risk heatmap,
+  donut, progress lists, sparklines; drawn only from the numbers passed in.
+- `ui/components/table.js` (`SKosifTable`) — upgrades every data table in place: search, sortable headers,
+  column picker, CSV export, pagination, ▲/▼ on change columns (opt out: `data-sk-plain`).
+- Screens: Command Center (`command-center.js`, also `SKosifMetrics`), notification centre
+  (`notifications.js`, `SKosifNotify`), risks & findings register (`risks.js`), executive report pack
+  (`report-pack.js`, first tab of التقارير التنفيذية), the KOSIF print letterhead (`SK.brandPrint`) and the
+  sign-in page (`unlock.html`).
 
 ## iPhone & laptop
 

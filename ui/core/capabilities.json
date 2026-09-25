@@ -103,6 +103,8 @@
     "settings",
     "devices",
     "tasks",
+    "risks",
+    "notifications",
     "ledger",
     "purchasing",
     "companies",
@@ -137,6 +139,8 @@
     "settings",
     "devices",
     "tasks",
+    "risks",
+    "notifications",
     "purchasing"
    ],
    "actions": [
@@ -168,6 +172,8 @@
     "settings",
     "devices",
     "tasks",
+    "risks",
+    "notifications",
     "followup",
     "council",
     "exports"
@@ -192,7 +198,9 @@
     "operations",
     "settings",
     "devices",
-    "tasks"
+    "tasks",
+    "risks",
+    "notifications"
    ],
    "actions": [
     "view"
@@ -214,7 +222,8 @@
    "legacy": "لوحة العمل + بطل v23 + نبض v21 + بطل shell.js",
    "decision": "Rebuild",
    "kw": "الرئيسية لوحة العمل home",
-   "adv": false
+   "adv": false,
+   "en": "Command Center"
   },
   {
    "id": "decision",
@@ -230,7 +239,8 @@
    "legacy": "مركز القرار",
    "decision": "Keep",
    "kw": "تنبيهات استثناءات أولوية",
-   "adv": false
+   "adv": false,
+   "en": "Decision Center"
   },
   {
    "id": "tasks",
@@ -245,7 +255,43 @@
    "decision": "Rebuild",
    "kw": "مهمة تذكير متابعة",
    "group": "home",
-   "adv": false
+   "adv": false,
+   "en": "Tasks"
+  },
+  {
+   "id": "notifications",
+   "label": "مركز الإشعارات",
+   "sub": "ما يحتاج انتباهك: القرارات والمهام والمخاطر والاستلامات والنظام",
+   "group": "home",
+   "tier": "CORE",
+   "module": "ui/features/notifications.js + ui/layouts/topbar.js (الجرس)",
+   "data": [
+    "skosif_notify_v1",
+    "skosif_tasks_v1",
+    "skosif_risks_v1",
+    "skosif_audit_trail"
+   ],
+   "legacy": "جديد — شاشة الإشعارات في تصميم KOSIF",
+   "decision": "Rebuild",
+   "kw": "إشعارات تنبيهات جرس غير مقروءة notifications alerts bell",
+   "adv": false,
+   "en": "Notifications"
+  },
+  {
+   "id": "risks",
+   "label": "المخاطر والملاحظات",
+   "sub": "سجل المخاطر بالاحتمالية والأثر وخريطة حرارية، وملاحظات المراجعة حتى الحل",
+   "group": "home",
+   "tier": "MANAGEMENT",
+   "module": "ui/features/risks.js + ui/components/charts.js",
+   "data": [
+    "skosif_risks_v1"
+   ],
+   "legacy": "جديد — شاشة المخاطر والملاحظات في تصميم KOSIF (خريطة المخاطر، توزيع الفئات، أحدث الملاحظات)",
+   "decision": "Rebuild",
+   "kw": "مخاطر خطر ملاحظات خريطة حرارية احتمالية أثر risk register findings heatmap AF",
+   "adv": false,
+   "en": "Risks & Findings"
   },
   {
    "id": "commerce",
@@ -263,7 +309,8 @@
    "legacy": "الطلبات والتحصيل",
    "decision": "Keep",
    "kw": "طلب فاتورة تحصيل تابي",
-   "adv": false
+   "adv": false,
+   "en": "Orders & Collections"
   },
   {
    "id": "customers",
@@ -280,7 +327,8 @@
    "legacy": "السوق والعملاء",
    "decision": "Keep",
    "kw": "عميل جوال مبيعات استيراد",
-   "adv": false
+   "adv": false,
+   "en": "Customers"
   },
   {
    "id": "followup",
@@ -296,7 +344,8 @@
    "decision": "Rebuild",
    "kw": "crm متابعة اتصال واتساب عميل",
    "group": "sales",
-   "adv": false
+   "adv": false,
+   "en": "Customer Follow-up"
   },
   {
    "id": "offers",
@@ -313,7 +362,8 @@
    "legacy": "العروض والكتالوج",
    "decision": "Keep",
    "kw": "عرض سعر كتالوج واتساب سلة",
-   "adv": false
+   "adv": false,
+   "en": "Offers & Catalog"
   },
   {
    "id": "zatca",
@@ -328,7 +378,8 @@
    "legacy": "الفاتورة الضريبية",
    "decision": "Keep",
    "kw": "زاتكا ضريبة فاتورة qr كاشير",
-   "adv": false
+   "adv": false,
+   "en": "POS & Tax Invoice"
   },
   {
    "id": "b2bcredit",
@@ -343,7 +394,8 @@
    "legacy": "ائتمان المطاعم",
    "decision": "Keep",
    "kw": "آجل مطعم دين ائتمان",
-   "adv": false
+   "adv": false,
+   "en": "Restaurant Credit"
   },
   {
    "id": "operations",
@@ -362,7 +414,8 @@
    "legacy": "المناسبات والتشغيل",
    "decision": "Keep",
    "kw": "مناسبة شواء اشتراك وردية تعتيق",
-   "adv": false
+   "adv": false,
+   "en": "Events & Operations"
   },
   {
    "id": "salesintel",
@@ -377,7 +430,8 @@
    "legacy": "ذكاء المبيعات",
    "decision": "Keep",
    "kw": "مبيعات اتجاه باريتو",
-   "adv": true
+   "adv": true,
+   "en": "Sales Intelligence"
   },
   {
    "id": "intelligence",
@@ -393,7 +447,8 @@
    "legacy": "ذكاء العملاء",
    "decision": "Keep",
    "kw": "شرائح احتفاظ",
-   "adv": true
+   "adv": true,
+   "en": "Customer & Demand Intelligence"
   },
   {
    "id": "economics",
@@ -409,7 +464,8 @@
    "legacy": "اقتصاديات الطلب",
    "decision": "Keep",
    "kw": "شحن عمولة",
-   "adv": true
+   "adv": true,
+   "en": "Order Economics"
   },
   {
    "id": "inventory",
@@ -426,7 +482,8 @@
    "legacy": "المخزون",
    "decision": "Keep",
    "kw": "مخزون رصيد صلاحية",
-   "adv": false
+   "adv": false,
+   "en": "Inventory"
   },
   {
    "id": "traceability",
@@ -442,7 +499,8 @@
    "legacy": "التتبع والتبريد",
    "decision": "Keep",
    "kw": "تتبع تبريد حرارة دفعة",
-   "adv": false
+   "adv": false,
+   "en": "Traceability & Cold Chain"
   },
   {
    "id": "blending",
@@ -455,7 +513,8 @@
    "legacy": "خلطات اللحوم",
    "decision": "Keep",
    "kw": "خلطة مفروم برجر إنتاج",
-   "adv": false
+   "adv": false,
+   "en": "Meat Blends"
   },
   {
    "id": "culinary",
@@ -468,7 +527,8 @@
    "legacy": "دليل الشيف",
    "decision": "Keep",
    "kw": "طبخ قطعية",
-   "adv": false
+   "adv": false,
+   "en": "Chef's Guide"
   },
   {
    "id": "carcass",
@@ -481,7 +541,8 @@
    "legacy": "اقتصاديات الذبيحة",
    "decision": "Keep",
    "kw": "ذبيحة تصافي",
-   "adv": true
+   "adv": true,
+   "en": "Carcass Economics"
   },
   {
    "id": "yieldlab",
@@ -496,7 +557,8 @@
    "legacy": "مختبر الجزارة",
    "decision": "Keep",
    "kw": "تجربة تشافي هدر",
-   "adv": true
+   "adv": true,
+   "en": "Butchery Yield Lab"
   },
   {
    "id": "nrv",
@@ -511,7 +573,8 @@
    "legacy": "تفكيك الذبيحة",
    "decision": "Keep",
    "kw": "ذبيحة توزيع",
-   "adv": true
+   "adv": true,
+   "en": "Carcass Split (NRV)"
   },
   {
    "id": "suppliers",
@@ -527,7 +590,8 @@
    "legacy": "الموردون",
    "decision": "Keep",
    "kw": "مورد شراء دفعة",
-   "adv": false
+   "adv": false,
+   "en": "Suppliers & Purchasing"
   },
   {
    "id": "purchasing",
@@ -542,7 +606,8 @@
    "decision": "Rebuild",
    "kw": "شراء أمر استلام فحص مورد سعر",
    "group": "procurement",
-   "adv": false
+   "adv": false,
+   "en": "Purchase Orders & Receiving"
   },
   {
    "id": "cash",
@@ -558,7 +623,8 @@
    "legacy": "التدفق النقدي",
    "decision": "Keep",
    "kw": "نقد مصروف تدفق",
-   "adv": false
+   "adv": false,
+   "en": "Cash Flow"
   },
   {
    "id": "receivables",
@@ -573,7 +639,8 @@
    "legacy": "الذمم",
    "decision": "Keep",
    "kw": "ذمم دين تحصيل",
-   "adv": false
+   "adv": false,
+   "en": "Receivables & Collection"
   },
   {
    "id": "ledger",
@@ -588,7 +655,8 @@
    "decision": "Rebuild",
    "kw": "قيد حساب أستاذ ميزان مراجعة محاسبة",
    "group": "finance",
-   "adv": false
+   "adv": false,
+   "en": "General Ledger"
   },
   {
    "id": "finance",
@@ -603,7 +671,8 @@
    "legacy": "الهندسة المالية",
    "decision": "Keep",
    "kw": "تعادل حساسية",
-   "adv": true
+   "adv": true,
+   "en": "Financial Engineering"
   },
   {
    "id": "catalog",
@@ -618,7 +687,8 @@
    "legacy": "سجل الأسعار",
    "decision": "Keep",
    "kw": "سعر صنف قائمة",
-   "adv": false
+   "adv": false,
+   "en": "Items & Prices"
   },
   {
    "id": "builder",
@@ -633,7 +703,8 @@
    "legacy": "مركب البوكسات",
    "decision": "Keep",
    "kw": "بوكس مكونات",
-   "adv": false
+   "adv": false,
+   "en": "Box Builder"
   },
   {
    "id": "sim",
@@ -648,7 +719,8 @@
    "legacy": "محاكي التسعير",
    "decision": "Keep",
    "kw": "حاسبة هامش محاكي",
-   "adv": false
+   "adv": false,
+   "en": "Quick Pricing"
   },
   {
    "id": "memo",
@@ -663,7 +735,8 @@
    "legacy": "مذكرة الاعتماد",
    "decision": "Keep",
    "kw": "اعتماد مذكرة موافقة",
-   "adv": false
+   "adv": false,
+   "en": "Price Approvals"
   },
   {
    "id": "labels",
@@ -676,7 +749,8 @@
    "legacy": "ملصقات الموازين",
    "decision": "Keep",
    "kw": "ملصق باركود ميزان",
-   "adv": false
+   "adv": false,
+   "en": "Scale Labels"
   },
   {
    "id": "scanner",
@@ -691,7 +765,8 @@
    "legacy": "ماسح الباركود",
    "decision": "Keep",
    "kw": "باركود كاميرا",
-   "adv": false
+   "adv": false,
+   "en": "Barcode Scanner"
   },
   {
    "id": "kernel",
@@ -704,7 +779,8 @@
    "legacy": "نواة التسعير",
    "decision": "Keep",
    "kw": "محرك تقريب",
-   "adv": true
+   "adv": true,
+   "en": "Strict Pricing Kernel"
   },
   {
    "id": "costs",
@@ -719,7 +795,8 @@
    "legacy": "مركز التكاليف",
    "decision": "Keep",
    "kw": "تكلفة هدر مصروف",
-   "adv": true
+   "adv": true,
+   "en": "Costs & Expenses"
   },
   {
    "id": "analyzer",
@@ -734,7 +811,8 @@
    "legacy": "تحليل مكونات البوكس",
    "decision": "Keep",
    "kw": "مكونات دائرة",
-   "adv": true
+   "adv": true,
+   "en": "Box Analyzer"
   },
   {
    "id": "compare",
@@ -749,7 +827,8 @@
    "legacy": "استوديو المقارنة",
    "decision": "Keep",
    "kw": "مقارنة",
-   "adv": true
+   "adv": true,
+   "en": "Comparative Analysis"
   },
   {
    "id": "jev",
@@ -766,7 +845,8 @@
    "legacy": "Jev للقرار",
    "decision": "Keep",
    "kw": "ذكاء مساعد ai",
-   "adv": false
+   "adv": false,
+   "en": "Jev Decisions"
   },
   {
    "id": "council",
@@ -781,7 +861,8 @@
    "decision": "Rebuild",
    "kw": "تصويت مجلس قرار",
    "group": "intelligence",
-   "adv": false
+   "adv": false,
+   "en": "Decision Council"
   },
   {
    "id": "risklab",
@@ -796,7 +877,8 @@
    "legacy": "المخاطر",
    "decision": "Keep",
    "kw": "مخاطر مونت كارلو",
-   "adv": true
+   "adv": true,
+   "en": "Risk & Profit Bridge"
   },
   {
    "id": "sensitivity",
@@ -811,7 +893,8 @@
    "legacy": "مختبر الحساسية",
    "decision": "Keep",
    "kw": "حساسية سيناريو",
-   "adv": true
+   "adv": true,
+   "en": "Sensitivity Lab"
   },
   {
    "id": "execreports",
@@ -829,7 +912,8 @@
    "legacy": "التقارير التنفيذية",
    "decision": "Keep",
    "kw": "تقرير دخل ضريبة",
-   "adv": false
+   "adv": false,
+   "en": "Executive Reports"
   },
   {
    "id": "reports",
@@ -845,7 +929,8 @@
    "legacy": "مركز التقارير",
    "decision": "Keep",
    "kw": "طباعة تقرير pdf",
-   "adv": false
+   "adv": false,
+   "en": "Print Center"
   },
   {
    "id": "archive",
@@ -861,7 +946,8 @@
    "legacy": "الأرشيف",
    "decision": "Keep",
    "kw": "أرشيف سجل نسخة",
-   "adv": false
+   "adv": false,
+   "en": "Archive & Changes"
   },
   {
    "id": "exports",
@@ -876,7 +962,8 @@
    "decision": "Rebuild",
    "kw": "تصدير csv excel نسخة",
    "group": "reports",
-   "adv": false
+   "adv": false,
+   "en": "Export Center"
   },
   {
    "id": "smartmatch",
@@ -891,7 +978,8 @@
    "legacy": "مطابقة المبيعات",
    "decision": "Keep",
    "kw": "مطابقة وصف",
-   "adv": true
+   "adv": true,
+   "en": "Sales Matching"
   },
   {
    "id": "excelrecon",
@@ -904,7 +992,8 @@
    "legacy": "مطابقة الإكسل",
    "decision": "Keep",
    "kw": "إكسل فروقات",
-   "adv": true
+   "adv": true,
+   "en": "Excel Reconciliation"
   },
   {
    "id": "auditdesk",
@@ -919,7 +1008,8 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "مراجعة تدقيق",
-   "adv": true
+   "adv": true,
+   "en": "Audit Desk"
   },
   {
    "id": "auditdocs",
@@ -937,7 +1027,8 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "دليل مستند ميزان",
-   "adv": true
+   "adv": true,
+   "en": "Documents & Evidence"
   },
   {
    "id": "auditissues",
@@ -952,7 +1043,8 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "ملاحظة قضية",
-   "adv": true
+   "adv": true,
+   "en": "Findings & Issues"
   },
   {
    "id": "auditcouncil",
@@ -967,7 +1059,8 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "مجلس",
-   "adv": true
+   "adv": true,
+   "en": "Reviewers' Council"
   },
   {
    "id": "auditfin",
@@ -982,7 +1075,8 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "قيد قائمة مالية",
-   "adv": true
+   "adv": true,
+   "en": "Statements & Entries"
   },
   {
    "id": "auditreport",
@@ -997,7 +1091,8 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "تقرير مراجع",
-   "adv": true
+   "adv": true,
+   "en": "Reports & Issuance"
   },
   {
    "id": "auditanalytics",
@@ -1012,7 +1107,8 @@
    "legacy": "KOSIF Audit Studio (classic)",
    "decision": "Keep",
    "kw": "بنفورد عينة",
-   "adv": true
+   "adv": true,
+   "en": "Financial Analytics & Risk"
   },
   {
    "id": "auditlab",
@@ -1027,7 +1123,8 @@
    "legacy": "KOSIF Audit Studio (lab)",
    "decision": "Keep",
    "kw": "معايير مختبر",
-   "adv": true
+   "adv": true,
+   "en": "Standards Lab"
   },
   {
    "id": "settings",
@@ -1043,7 +1140,8 @@
    "legacy": "الإعدادات",
    "decision": "Keep",
    "kw": "إعداد نسخة احتياطية مظهر",
-   "adv": false
+   "adv": false,
+   "en": "Settings & Appearance"
   },
   {
    "id": "devices",
@@ -1060,7 +1158,8 @@
    "legacy": "جديد — تعليمات التثبيت (INSTALL-iPHONE-ar.txt) + نسخة v27 للابتوب وv28–v30 للآيفون",
    "decision": "Rebuild",
    "kw": "آيفون ايفون iphone لابتوب laptop ماك mac ويندوز تثبيت نقل مزامنة airdrop اختصارات لوحة مفاتيح شريط سفلي devices sync",
-   "adv": false
+   "adv": false,
+   "en": "Devices & Sync"
   },
   {
    "id": "companies",
@@ -1075,7 +1174,8 @@
    "decision": "Rebuild",
    "kw": "شركة فترة سنة مالية",
    "group": "system",
-   "adv": true
+   "adv": true,
+   "en": "Companies & Periods"
   },
   {
    "id": "health",
@@ -1091,7 +1191,8 @@
    "legacy": "الصحة والاستثناءات",
    "decision": "Keep",
    "kw": "تشخيص أخطاء",
-   "adv": true
+   "adv": true,
+   "en": "Health & Diagnostics"
   },
   {
    "id": "governance",
@@ -1107,7 +1208,8 @@
    "legacy": "الحوكمة",
    "decision": "Keep",
    "kw": "حوكمة تدقيق سجل",
-   "adv": true
+   "adv": true,
+   "en": "Governance & Readiness"
   },
   {
    "id": "capabilitiesv2",
@@ -1123,7 +1225,8 @@
    "legacy": "Capabilities v2",
    "decision": "Keep",
    "kw": "صلاحيات دور سحابة",
-   "adv": true
+   "adv": true,
+   "en": "Permissions & Workspaces"
   }
  ]
 }

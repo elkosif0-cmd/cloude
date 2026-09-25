@@ -49,7 +49,7 @@ function resolved(){return DARK.has(lookNow())?"dark":"light"}
 function fonts(look){
   if(look.startsWith("heritage")||document.getElementById("sk-font-plex"))return;
   const l=document.createElement("link");l.id="sk-font-plex";l.rel="stylesheet";
-  l.href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap";document.head.appendChild(l);
+  l.href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap";document.head.appendChild(l);
 }
 function applyPrefs(){
   const de=document.documentElement,look=lookNow(),mode=resolved(),p=prefs();
@@ -112,11 +112,12 @@ function paintTop(){
 }
 /* phones: bottom tab bar — in the page flow (sticky), never over content. Four screens the user
    picks in «الأجهزة والمزامنة» (prefs.tabs), then «المزيد» opens the drawer. */
-const TABS=["dash","commerce","tasks","inventory"];
+/* default four chosen with Jev (hybrid: daily selling + the new risk screen, p=0.75); notifications live on the bell */
+const TABS=["dash","commerce","tasks","risks"];
 const SHORT={dash:"الرئيسية",commerce:"الطلبات",tasks:"المهام",inventory:"المخزون",zatca:"الفاتورة",customers:"العملاء",followup:"المتابعة",offers:"العروض",
   catalog:"الأسعار",sim:"التسعير",purchasing:"الشراء",suppliers:"الموردون",cash:"النقد",receivables:"الذمم",ledger:"الدفاتر",jev:"Jev",council:"المجلس",
   execreports:"التقارير",scanner:"الماسح",labels:"الملصقات",operations:"المناسبات",b2bcredit:"الائتمان",traceability:"التبريد",decision:"القرار",
-  reports:"الطباعة",exports:"التصدير",settings:"الإعدادات",devices:"الأجهزة",memo:"الاعتماد",builder:"البوكسات"};
+  reports:"الطباعة",exports:"التصدير",settings:"الإعدادات",devices:"الأجهزة",memo:"الاعتماد",builder:"البوكسات",risks:"المخاطر",notifications:"الإشعارات"};
 const TAB_MAX=4;
 function tabIds(){const p=prefs().tabs;return(Array.isArray(p)&&p.length?p:TABS).filter(id=>SK.caps.get(id)).slice(0,TAB_MAX)}
 function setTabs(ids){const p=prefs();p.tabs=(ids||[]).filter(id=>SK.caps.get(id)).slice(0,TAB_MAX);if(!p.tabs.length)delete p.tabs;save(PREF_KEY,p);paintTabs()}
@@ -152,7 +153,7 @@ function titlebar(){
   if(!bar){bar=document.createElement("div");bar.id="sk-wco";bar.className="sk-wco";bar.innerHTML='<div class="sk-wco-in"><b>KOSIF</b><span id="sk-wco-t"></span></div>';document.body.prepend(bar)}
   const c=core(),cap=c&&SK.caps.get(c.view()),t=$("#sk-wco-t");if(t)t.textContent=cap?cap.label:"";
 }
-function paint(){paintNav();paintTop();paintTabs();railToggle();titlebar()}
+function paint(){paintNav();paintTop();paintTabs();railToggle();titlebar();if(window.SKosifTopbar)SKosifTopbar.paint()}
 
 /* ---------- permission gate: a screen outside the role shows the no-permission state ---------- */
 function gate(){

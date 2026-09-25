@@ -9,6 +9,8 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | لوحة العمل + بطل v23 + نبض v21 + بطل shell.js | `dash` | مركز القيادة › مركز القيادة | CORE | admin, accountant, warehouse, sales, viewer |
 | مركز القرار | `decision` | مركز القيادة › مركز القرار | INTELLIGENCE | admin, accountant, sales |
 | مهام منصة V40 + مهام CRM V8.2 | `tasks` | مركز القيادة › المهام | MANAGEMENT | admin, accountant, warehouse, sales, viewer |
+| جديد — شاشة الإشعارات في تصميم KOSIF | `notifications` | مركز القيادة › مركز الإشعارات | CORE | admin, accountant, warehouse, sales, viewer |
+| جديد — شاشة المخاطر والملاحظات في تصميم KOSIF (خريطة المخاطر، توزيع الفئات، أحدث الملاحظات) | `risks` | مركز القيادة › المخاطر والملاحظات | MANAGEMENT | admin, accountant, warehouse, sales, viewer |
 | الطلبات والتحصيل | `commerce` | المبيعات والعملاء › الطلبات والتحصيل | CORE | admin, accountant, sales |
 | السوق والعملاء | `customers` | المبيعات والعملاء › العملاء | CORE | admin, accountant, sales |
 | متابعة العملاء الاحترافية V8.2 (وحدة v25 crm) | `followup` | المبيعات والعملاء › متابعة العملاء | CORE | admin, accountant, sales |
@@ -69,11 +71,11 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 
 ## By tier
 
-- **CORE** — العمل اليومي الأساسي (15): `dash`, `commerce`, `customers`, `followup`, `offers`, `zatca`, `inventory`, `suppliers`, `purchasing`, `cash`, `receivables`, `ledger`, `catalog`, `builder`, `sim`
-- **MANAGEMENT** — الإدارة والمتابعة (7): `tasks`, `b2bcredit`, `operations`, `traceability`, `memo`, `execreports`, `archive`
+- **CORE** — العمل اليومي الأساسي (16): `dash`, `notifications`, `commerce`, `customers`, `followup`, `offers`, `zatca`, `inventory`, `suppliers`, `purchasing`, `cash`, `receivables`, `ledger`, `catalog`, `builder`, `sim`
+- **MANAGEMENT** — الإدارة والمتابعة (8): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `memo`, `execreports`, `archive`
 - **INTELLIGENCE** — التحليل والذكاء (7): `decision`, `salesintel`, `intelligence`, `economics`, `compare`, `jev`, `council`
 - **ADVANCED** — الهندسة المتقدمة (17): `carcass`, `yieldlab`, `nrv`, `finance`, `kernel`, `costs`, `analyzer`, `risklab`, `sensitivity`, `auditdesk`, `auditdocs`, `auditissues`, `auditcouncil`, `auditfin`, `auditreport`, `auditanalytics`, `auditlab`
 - **UTILITIES** — أدوات مساعدة (9): `blending`, `culinary`, `labels`, `scanner`, `reports`, `exports`, `smartmatch`, `excelrecon`, `devices`
 - **ADMIN** — النظام والإدارة (5): `settings`, `companies`, `health`, `governance`, `capabilitiesv2`
 
-Coverage gate: 60 screens in 10 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
+Coverage gate: 62 screens in 10 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.

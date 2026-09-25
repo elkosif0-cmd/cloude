@@ -84,7 +84,9 @@ const ICONS={
   phone:SV('<rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/>'),
   laptop:SV('<rect x="4" y="4" width="16" height="11" rx="1.5"/><path d="M2 19h20"/>'),
   share:SV('<path d="M12 3v13M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>'),
-  keyboard:SV('<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>')
+  keyboard:SV('<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>'),
+  risks:SV('<path d="M12 3 2.5 20h19z"/><path d="M12 10v4M12 17h.01"/>'),
+  notifications:SV('<path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/>')
 };
 const icon=id=>ICONS[id]||(core()&&core().navIcon(id))||ICONS.action;
 
@@ -159,27 +161,39 @@ const PRINT_CSS='@page{size:A4;margin:12mm}*{box-sizing:border-box}body{margin:0
  '.r{display:flex;justify-content:space-between;border-bottom:1px solid #e3d3b8;padding:8px 2px}.t{font-weight:700;border-top:2px solid #8a5a2b}'+
  '@media print{.no-print{display:none}}';
 /* the KOSIF identity (default look): same letterhead, navy/blue palette, a gradient rule instead of the ornament */
-const PRINT_KOSIF='body{font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;color:#0f1f35;font-size:12.5px}h1,h2,h3,.skp-org b{font-family:"IBM Plex Sans Arabic","Segoe UI",sans-serif;color:#0c2340;font-weight:800}'+
- 'th,td,hr,.r,.skp-foot{border-color:#e5eaf2}th{background:#f3f6fb;color:#45566e}small,.muted,.skp-org span,.skp-meta,.skp-foot{color:#7a8aa2}b,strong,.skp-meta b{color:#0f1f35}.t{border-top-color:#1668e3}'+
- '.skp-orn{height:6px;padding:0;border:0;border-radius:3px;background:linear-gradient(90deg,#1fb6e0,#1668e3 60%,#0c2340)!important}'+
- '.skp-head{border-bottom:2px solid #1668e3}.skp-head img{border-color:#1668e3;background:#f3f6fb}';
+/* the KOSIF Luxe letterhead (default look): navy band with the cloud mark and wordmark, document
+   title and date on the band, identity numbers under it, navy table heads, numbered pages */
+const PRINT_KOSIF='@page{size:A4;margin:14mm 12mm 16mm;@bottom-center{content:"صفحة " counter(page) " من " counter(pages);font:9.5px "IBM Plex Sans Arabic",sans-serif;color:#8292a8}}'+
+ '*{-webkit-print-color-adjust:exact;print-color-adjust:exact}body{padding:0;font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;color:#0b1c33;font-size:12.5px;line-height:1.65}'+
+ 'h1,h2,h3{font-family:"IBM Plex Sans Arabic","Segoe UI",sans-serif;color:#0b1f3a;font-weight:700}h2{font-size:16px;margin:18px 0 8px;padding-inline-start:10px;border-inline-start:4px solid #1668e3}'+
+ 'table{border:1px solid #e4eaf2;border-radius:10px;overflow:hidden;border-collapse:separate;border-spacing:0}th,td{border-bottom:1px solid #edf1f7;padding:7px 9px}th{background:#0b1f3a!important;color:#fff;font-weight:600;font-size:11.5px}'+
+ 'tr:nth-child(even) td{background:#f8fafd}hr,.r,.skp-foot{border-color:#e4eaf2}small,.muted{color:#8292a8}b,strong{color:#0b1c33}.t{border-top-color:#1668e3}'+
+ '.skp-lux{margin:0 0 16px}.skp-band{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;background:linear-gradient(120deg,#0b1f3a 0%,#123a6b 60%,#1668e3 100%)!important;color:#fff}'+
+ '.skp-band img{width:58px;height:40px;filter:brightness(0) invert(1)}.skp-mark{flex:1}.skp-mark b{display:block;font:800 24px/1 Montserrat,"Segoe UI",sans-serif;letter-spacing:.06em;color:#fff}'+
+ '.skp-mark span{display:block;margin-top:4px;font-size:12px;color:#cfe0f5}.skp-doc{text-align:left}.skp-doc b{display:block;font-size:15px;color:#fff}.skp-doc span{font-size:11px;color:#cfe0f5}'+
+ '.skp-ids{display:flex;flex-wrap:wrap;gap:4px 14px;padding:8px 6px 0;font-size:10.5px;color:#8292a8}.skp-foot{margin-top:22px;padding-top:8px;border-top:1px solid #e4eaf2;font-size:10px;color:#8292a8;text-align:center}';
 const kosifLook=()=>document.documentElement.getAttribute("data-look")==="kosif";
+/* the preparer: the name set in the user menu (skosif_profile_v1), else الإعدادات */
+function preparer(){try{const p=JSON.parse(localStorage.getItem("skosif_profile_v1")||"{}");if(p&&p.name)return p.name+(p.title?" — "+p.title:"")}catch{}return org().preparer||""}
 function letterhead(title){
-  const o=org(),base=location.href.replace(/[^/]*$/,"");
-  const ids=[o.vatNo?"الرقم الضريبي "+esc(o.vatNo):"",o.crNo?"السجل التجاري "+esc(o.crNo):"",o.phone?esc(o.phone):"",o.addr?esc(o.addr):""].filter(Boolean).join(" · ");
-  return '<div class="skp-orn" style="background-image:url('+base+'art/ornament.svg)"></div><header class="skp-head"><img src="'+base+'art/ram.svg" alt=""><div class="skp-org"><b>'+esc(o.biz||"أغنام الوادي")+'</b>'+(ids?'<span>'+ids+'</span>':'')+'</div>'+
-    '<div class="skp-meta"><b>'+esc(title||"")+'</b>'+esc(new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"}))+'</div></header>';
+  const o=org(),base=location.href.replace(/[^/?#]*([?#].*)?$/,"");
+  const ids=[o.vatNo?"الرقم الضريبي "+esc(o.vatNo):"",o.crNo?"السجل التجاري "+esc(o.crNo):"",o.phone?esc(o.phone):"",o.addr?esc(o.addr):""].filter(Boolean);
+  const date=esc(new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"}));
+  if(kosifLook())return '<header class="skp-lux"><div class="skp-band"><img src="'+base+'art/kosif-cloud.svg" alt=""><div class="skp-mark"><b>KOSIF</b><span>'+esc(o.biz||"أغنام الوادي")+'</span></div>'+
+    '<div class="skp-doc"><b>'+esc(title||"")+'</b><span>'+date+'</span></div></div>'+(ids.length?'<div class="skp-ids">'+ids.map(x=>'<span>'+x+'</span>').join("")+'</div>':'')+'</header>';
+  return '<div class="skp-orn" style="background-image:url('+base+'art/ornament.svg)"></div><header class="skp-head"><img src="'+base+'art/ram.svg" alt=""><div class="skp-org"><b>'+esc(o.biz||"أغنام الوادي")+'</b>'+(ids.length?'<span>'+ids.join(" · ")+'</span>':'')+'</div>'+
+    '<div class="skp-meta"><b>'+esc(title||"")+'</b>'+date+'</div></header>';
 }
 function brandPrint(w,title){
   try{
     const d=w.document;if(!d||!d.body)return;
     d.querySelectorAll("style").forEach(x=>x.remove());
-    const st=d.createElement("style");st.textContent=PRINT_CSS+(kosifLook()?PRINT_KOSIF:"");(d.head||d.documentElement).appendChild(st);
-    const f=d.createElement("link");f.rel="stylesheet";f.href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap";(d.head||d.documentElement).appendChild(f);
+    const st=d.createElement("style");st.id="sk-print-brand";st.textContent=PRINT_CSS+(kosifLook()?PRINT_KOSIF:"");(d.head||d.documentElement).appendChild(st);
+    const f=d.createElement("link");f.rel="stylesheet";f.href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Montserrat:wght@800&display=swap";(d.head||d.documentElement).appendChild(f);
     d.documentElement.setAttribute("dir","rtl");
     if(title&&!d.title)d.title=title;
     d.body.insertAdjacentHTML("afterbegin",letterhead(title||d.title));
-    const o=org();d.body.insertAdjacentHTML("beforeend",'<footer class="skp-foot">'+esc(o.biz||"أغنام الوادي")+' · صدر من '+(kosifLook()?'KOSIF':'S.kosif')+(o.preparer?' · أعدّه: '+esc(o.preparer):'')+'</footer>');
+    const o=org(),pr=preparer();d.body.insertAdjacentHTML("beforeend",'<footer class="skp-foot">'+esc(o.biz||"أغنام الوادي")+' · صدر من '+(kosifLook()?'KOSIF — Smarter Audit. Greater Trust.':'S.kosif')+(pr?' · أعدّه: '+esc(pr):'')+'</footer>');
   }catch(e){report(e,"print")}
 }
 

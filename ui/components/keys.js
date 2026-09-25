@@ -12,7 +12,7 @@ const core=()=>window.SKosifCore;
 const GO=[["KeyH","dash","مركز القيادة"],["KeyO","commerce","الطلبات والتحصيل"],["KeyC","customers","العملاء"],["KeyF","followup","متابعة العملاء"],
   ["KeyZ","zatca","الفاتورة الضريبية"],["KeyI","inventory","المخزون"],["KeyP","purchasing","أوامر الشراء"],["KeyA","catalog","الأصناف والأسعار"],
   ["KeyL","ledger","الدفاتر المحاسبية"],["KeyR","execreports","التقارير التنفيذية"],["KeyJ","jev","Jev للقرار"],["KeyT","tasks","المهام"],
-  ["KeyD","devices","الأجهزة والمزامنة"],["KeyS","settings","الإعدادات"]];
+  ["KeyN","notifications","مركز الإشعارات"],["KeyM","risks","المخاطر والملاحظات"],["KeyD","devices","الأجهزة والمزامنة"],["KeyS","settings","الإعدادات"]];
 const letter=code=>code.replace(/^Key/,"");
 const DIGITS=["Digit1","Digit2","Digit3","Digit4","Digit5","Digit6","Digit7","Digit8","Digit9","Digit0"];
 

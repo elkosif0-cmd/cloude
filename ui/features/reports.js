@@ -10,7 +10,7 @@
 
 const {$,$$,esc,num,load,save,money,pct,toast,csv}=window.SK;
 const roots={};
-let repTab="pl"; // pl | yield | vat | churn | eod
+let repTab="pack"; // pack | pl | yield | vat | churn | trends | eod — «pack» is ui/features/report-pack.js
 
 /* State for P&L model */
 const PL_KEY="skosif_rep_pl";
@@ -469,6 +469,7 @@ function bindTrends(){}
 function renderNav(){
   return [
     '<nav class="sk-rep-nav">',
+      (window.SKosifReportPack?'<button type="button" class="'+(repTab==='pack'?'active':'')+'" data-t="pack">الحزمة التنفيذية</button>':''),
       '<button type="button" class="'+(repTab==='pl'?'active':'')+'" data-t="pl">قائمة الدخل وصافي الربح</button>',
       '<button type="button" class="'+(repTab==='yield'?'active':'')+'" data-t="yield">تدقيق الهدر والتسرب المالي</button>',
       '<button type="button" class="'+(repTab==='vat'?'active':'')+'" data-t="vat">مسودة الإقرار الضريبي ZATCA</button>',
@@ -480,6 +481,7 @@ function renderNav(){
 }
 
 function renderContent(){
+  if(repTab==="pack"){if(window.SKosifReportPack)return SKosifReportPack.html();repTab="pl"}
   if(repTab==="pl") return plHTML();
   if(repTab==="yield") return yieldHTML();
   if(repTab==="vat") return vatHTML();
@@ -519,6 +521,7 @@ function bindAll(){
       paintReports();
     };
   });
+  if(repTab==="pack"&&window.SKosifReportPack) SKosifReportPack.bind($("#sk-rep-body"));
   if(repTab==="pl") bindPL();
   if(repTab==="yield") bindYield();
   if(repTab==="vat") bindVAT();
