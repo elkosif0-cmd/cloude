@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - rebuild/grand-fusion-clean-slate-20260925
+      - rebuild/grand-fusion-complete-sol-20260925
   pull_request:
     branches:
       - main
