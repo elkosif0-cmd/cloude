@@ -7,7 +7,8 @@ import{exportLocalSnapshot,migrateIndexedDb,migratePrivateCatalog,repos}from'../
 import{cashSummary}from'../services/finance';
 import{inventoryRows}from'../services/inventory';
 import{parseBackup,restoreBackup,type BackupEnvelope}from'../services/backup';
-import{useAppRefresh}from'../hooks/useRefresh';\nimport{AuditWorkspaceView}from'./AuditWorkspaceView';
+import{useAppRefresh}from'../hooks/useRefresh';
+import{AuditWorkspaceView}from'./AuditWorkspaceView';
 
 const API='https://aghnam-jev-api.kosif199022.workers.dev';
 const money=(v:unknown)=>new Intl.NumberFormat('ar-SA-u-nu-latn',{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(v)||0)+' ر.س';
@@ -37,7 +38,9 @@ export function IntelligenceView(){
 }
 function Simulation({avg}:{avg:number}){const[cost,setCost]=useState(10),[price,setPrice]=useState(0);const next=1-((1-avg)*(1+cost/100))/Math.max(.01,1+price/100);return <Card title="محاكاة قبل القرار" sub="حساب محلي؛ لا ينفذ أي تغيير"><div className="z-form-grid"><Field label="تغير التكلفة ٪"><Input type="number" value={cost} onChange={e=>setCost(Number(e.target.value))}/></Field><Field label="تغير السعر ٪"><Input type="number" value={price} onChange={e=>setPrice(Number(e.target.value))}/></Field></div><div className="z-kpis" style={{marginTop:14}}><KPI label="مؤشر الهامش الحالي" value={(avg*100).toFixed(1)+'٪'}/><KPI label="بعد السيناريو" value={(next*100).toFixed(1)+'٪'} tone={next<0?'bad':next<avg?'warn':'good'}/></div><Notice tone="info">هذه محاكاة تقريبية على المتوسط وليست بديلاً عن إعادة تسعير كل صنف بمحرك التسعير القطعي.</Notice></Card>}
 
-export function AuditView(){return <AuditWorkspaceView/>}\n\nconst ROLE_PERMS:any={
+export function AuditView(){return <AuditWorkspaceView/>}
+
+const ROLE_PERMS:any={
  owner:['view','create','edit','delete','approve','export','administer'],partner:['view','create','edit','approve','export'],manager:['view','create','edit','approve','export'],senior:['view','create','edit','export'],viewer:['view']
 };
 export function SystemView(){
