@@ -13,6 +13,5128 @@ window.SKEngines = (function() {
 		return target;
 	};
 	//#endregion
+	//#region app/src/engine/fusion/reports/money-engine.ts
+	var money_engine_exports = /* @__PURE__ */ __exportAll({
+		abs: () => abs,
+		applyRate: () => applyRate,
+		fingerprint: () => fingerprint,
+		formatMinor: () => formatMinor,
+		fromMajor: () => fromMajor,
+		normalizeDigits: () => normalizeDigits,
+		parseMinor: () => parseMinor,
+		pct: () => pct$1,
+		ratio: () => ratio,
+		sum: () => sum,
+		toMajor: () => toMajor
+	});
+	var AR = "٠١٢٣٤٥٦٧٨٩";
+	var FA = "۰۱۲۳۴۵۶۷۸۹";
+	function normalizeDigits(input) {
+		return Array.from(String(input ?? "")).map((ch) => {
+			const a = AR.indexOf(ch);
+			if (a >= 0) return String(a);
+			const f = FA.indexOf(ch);
+			return f >= 0 ? String(f) : ch;
+		}).join("");
+	}
+	/** "1,234.50" · "(500)" · "١٬٢٣٤٫٥" · "500-" · "-12" · "SAR 90" → integer halalas; null when not a number. */
+	function parseMinor(input) {
+		if (typeof input === "number") return Number.isFinite(input) ? Math.round(input * 100) : null;
+		let text = normalizeDigits(input).trim();
+		if (!text || text === "-" || text === "—") return 0;
+		let negative = false;
+		if (/^\(.*\)$/.test(text)) {
+			negative = true;
+			text = text.slice(1, -1);
+		}
+		text = text.replace(/٫/g, ".").replace(/[٬،,_\s]/g, "").replace(/ر\.?س|SAR|ريال/gi, "").replace(/[^\d.+-]/g, "");
+		if (text.endsWith("-")) {
+			negative = !negative;
+			text = text.slice(0, -1);
+		}
+		if (text.startsWith("-")) {
+			negative = !negative;
+			text = text.slice(1);
+		}
+		if (text.startsWith("+")) text = text.slice(1);
+		if (!/^\d+(?:\.\d*)?$/.test(text) && !/^\.\d+$/.test(text)) return null;
+		const [integer = "0", fraction = ""] = text.split(".");
+		let minor = Number(integer || "0") * 100 + Number((fraction + "00").slice(0, 2));
+		if (fraction.length > 2 && Number(fraction[2]) >= 5) minor += 1;
+		if (!Number.isSafeInteger(minor)) return null;
+		return negative ? -minor : minor;
+	}
+	var fromMajor = (major) => Math.round((Number(major) || 0) * 100);
+	var toMajor = (minor) => minor / 100;
+	var abs = (m) => m < 0 ? -m : m;
+	var sum = (items) => items.reduce((a, b) => a + b, 0);
+	/** rate is a fraction (0.15 = 15%); result rounded half away from zero to a halala. */
+	function applyRate(m, rate) {
+		const v = m * rate;
+		return v < 0 ? -Math.round(-v) : Math.round(v);
+	}
+	/** percentage (numerator / denominator × 100), rounded; null when the denominator is zero. */
+	function pct$1(numerator, denominator, digits = 1) {
+		if (!denominator) return null;
+		const f = 10 ** digits;
+		return Math.round(numerator / denominator * 100 * f) / f;
+	}
+	function ratio(numerator, denominator, digits = 2) {
+		if (!denominator) return null;
+		const f = 10 ** digits;
+		return Math.round(numerator / denominator * f) / f;
+	}
+	/** 1234567 → "12,345.67"; negatives in parentheses (accounting style) unless parens:false. */
+	function formatMinor(m, opts = {}) {
+		const decimals = opts.decimals ?? 2;
+		const neg = m < 0;
+		let a = abs(m);
+		if (decimals === 0) a = Math.round(a / 100) * 100;
+		const int = Math.floor(a / 100).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+		const body = decimals === 2 ? int + "." + String(a % 100).padStart(2, "0") : int;
+		const withCur = opts.currency ? body + " " + opts.currency : body;
+		if (!neg) return withCur;
+		return opts.parens === false ? "−" + withCur : "(" + withCur + ")";
+	}
+	/** FNV-1a over a stable JSON of the value — a short reproducibility fingerprint (Moon textHash). */
+	function fingerprint(value) {
+		const stable = (v) => {
+			if (v === null || v === void 0) return "null";
+			if (Array.isArray(v)) return "[" + v.map(stable).join(",") + "]";
+			if (typeof v === "object") return "{" + Object.keys(v).sort().map((k) => JSON.stringify(k) + ":" + stable(v[k])).join(",") + "}";
+			return JSON.stringify(v);
+		};
+		let h = 2166136261;
+		for (const ch of stable(value)) {
+			h ^= ch.codePointAt(0);
+			h = Math.imul(h, 16777619);
+		}
+		return (h >>> 0).toString(16).padStart(8, "0");
+	}
+	//#endregion
+	//#region app/src/engine/fusion/reports/tb-import-engine.ts
+	var tb_import_engine_exports = /* @__PURE__ */ __exportAll({
+		NATURE: () => NATURE,
+		SAMPLE_TB_CSV: () => SAMPLE_TB_CSV,
+		TYPE_LABELS: () => TYPE_LABELS,
+		classifyAccount: () => classifyAccount,
+		detectDelimiter: () => detectDelimiter,
+		fromRows: () => fromRows,
+		largestBalances: () => largestBalances,
+		norm: () => norm,
+		parseTrialBalance: () => parseTrialBalance,
+		splitLine: () => splitLine
+	});
+	var TYPE_LABELS = {
+		asset: "أصول",
+		liability: "التزامات",
+		equity: "حقوق ملكية",
+		revenue: "إيرادات",
+		expense: "مصروفات",
+		suspense: "غير مصنّف"
+	};
+	var NATURE = {
+		asset: "debit",
+		liability: "credit",
+		equity: "credit",
+		revenue: "credit",
+		expense: "debit",
+		suspense: "debit"
+	};
+	var CODE_PREFIX = {
+		1: "asset",
+		2: "liability",
+		3: "equity",
+		4: "revenue",
+		5: "expense",
+		6: "expense",
+		7: "expense",
+		8: "expense"
+	};
+	var norm = (s) => normalizeDigits(s).toLowerCase().replace(/[ً-ٰٟ]/g, "").replace(/[أإآٱ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/ـ/g, "").replace(/\s+/g, " ").trim();
+	var NAME_HINTS = [
+		{
+			type: "asset",
+			words: [
+				"مدخلات",
+				"ضريبه مدفوعه",
+				"ضريبه المدخلات",
+				"input vat"
+			]
+		},
+		{
+			type: "equity",
+			words: [
+				"راس المال",
+				"راسمال",
+				"احتياطي",
+				"ارباح مبقاه",
+				"ارباح مدوره",
+				"خسائر متراكمه",
+				"حقوق الملكيه",
+				"جاري الشريك",
+				"جاري الشركاء",
+				"مسحوبات",
+				"capital",
+				"reserve",
+				"retained",
+				"equity",
+				"drawings"
+			]
+		},
+		{
+			type: "revenue",
+			words: [
+				"ايراد",
+				"مبيعات",
+				"دخل",
+				"عموله مكتسبه",
+				"revenue",
+				"sales",
+				"income"
+			]
+		},
+		{
+			type: "expense",
+			words: [
+				"مصروف",
+				"مصاريف",
+				"تكلفه",
+				"رواتب",
+				"اجور",
+				"ايجار",
+				"اهلاك",
+				"استهلاك",
+				"مشتريات",
+				"زكاه الفتره",
+				"expense",
+				"cost",
+				"salary",
+				"rent",
+				"depreciation",
+				"purchase"
+			]
+		},
+		{
+			type: "liability",
+			words: [
+				"دائن",
+				"دائنه",
+				"موردين",
+				"موردون",
+				"قرض",
+				"التزام",
+				"مستحق",
+				"مخصص",
+				"زكاه مستحقه",
+				"ضريبه مستحقه",
+				"نهايه الخدمه",
+				"payable",
+				"loan",
+				"liability",
+				"accrued",
+				"provision"
+			]
+		},
+		{
+			type: "asset",
+			words: [
+				"نقد",
+				"صندوق",
+				"بنك",
+				"مدين",
+				"مدينه",
+				"عملاء",
+				"مخزون",
+				"بضاعه",
+				"اصل",
+				"اصول",
+				"عهده",
+				"مقدم",
+				"استثمار",
+				"مباني",
+				"معدات",
+				"سيارات",
+				"اثاث",
+				"cash",
+				"bank",
+				"receivable",
+				"inventory",
+				"asset",
+				"prepaid"
+			]
+		}
+	];
+	function classifyAccount(code, name) {
+		const digits = normalizeDigits(code).replace(/\D/g, "");
+		if (digits && CODE_PREFIX[digits[0]]) return {
+			type: CODE_PREFIX[digits[0]],
+			basis: "code"
+		};
+		const hay = norm(name);
+		for (const h of NAME_HINTS) if (h.words.some((w) => hay.includes(w))) return {
+			type: h.type,
+			basis: "name"
+		};
+		return {
+			type: "suspense",
+			basis: "none"
+		};
+	}
+	var HEADERS = {
+		code: [
+			"code",
+			"account",
+			"accountcode",
+			"acct",
+			"accountno",
+			"رقم",
+			"الرقم",
+			"كود",
+			"الكود",
+			"رقمالحساب",
+			"رمزالحساب",
+			"الحساب"
+		],
+		name: [
+			"name",
+			"accountname",
+			"description",
+			"اسم",
+			"الاسم",
+			"اسمالحساب",
+			"البيان",
+			"الوصف"
+		],
+		debit: [
+			"debit",
+			"dr",
+			"مدين",
+			"المدين",
+			"مدينه",
+			"رصيدمدين"
+		],
+		credit: [
+			"credit",
+			"cr",
+			"دائن",
+			"الدائن",
+			"دائنه",
+			"رصيددائن"
+		],
+		balance: [
+			"balance",
+			"net",
+			"current",
+			"currentbalance",
+			"رصيد",
+			"الرصيد",
+			"صافي",
+			"الرصيدالحالي",
+			"السنهالحاليه",
+			"الحالي"
+		],
+		prior: [
+			"prior",
+			"previous",
+			"prioryear",
+			"comparative",
+			"السابق",
+			"الرصيدالسابق",
+			"السنهالسابقه",
+			"المقارن",
+			"العامالسابق"
+		],
+		priorDebit: [
+			"priordebit",
+			"priordr",
+			"مدينسابق",
+			"المدينالسابق",
+			"مدينالسنهالسابقه"
+		],
+		priorCredit: [
+			"priorcredit",
+			"priorcr",
+			"دائنسابق",
+			"الدائنالسابق",
+			"دائنالسنهالسابقه"
+		]
+	};
+	function headerKey(cell) {
+		const k = norm(cell).replace(/[\s_\-.()]/g, "");
+		for (const [field, aliases] of Object.entries(HEADERS)) if (aliases.includes(k)) return field;
+		return null;
+	}
+	function splitLine(line, delimiter) {
+		const cells = [];
+		let cur = "";
+		let quoted = false;
+		for (let i = 0; i < line.length; i++) {
+			const ch = line[i];
+			if (ch === "\"") {
+				if (quoted && line[i + 1] === "\"") {
+					cur += "\"";
+					i++;
+				} else quoted = !quoted;
+			} else if (ch === delimiter && !quoted) {
+				cells.push(cur);
+				cur = "";
+			} else cur += ch;
+		}
+		cells.push(cur);
+		return cells.map((c) => c.trim());
+	}
+	function detectDelimiter(text) {
+		const lines = String(text).split(/\r?\n/).filter((l) => l.trim()).slice(0, 12);
+		let best = ",";
+		let bestScore = -1;
+		for (const d of [
+			"	",
+			",",
+			";",
+			"|"
+		]) {
+			const counts = lines.map((l) => splitLine(l, d).length);
+			if (!counts.length || counts[0] < 2) continue;
+			const score = counts.filter((c) => c === counts[0]).length * 10 + counts[0];
+			if (score > bestScore) {
+				bestScore = score;
+				best = d;
+			}
+		}
+		return best;
+	}
+	function makeRow(line, code, name, debit, credit, prior, override) {
+		if (debit < 0) {
+			credit += -debit;
+			debit = 0;
+		}
+		if (credit < 0) {
+			debit += -credit;
+			credit = 0;
+		}
+		const cls = override ? {
+			type: override,
+			basis: "manual"
+		} : classifyAccount(code, name);
+		const balance = debit - credit;
+		return {
+			line,
+			code,
+			name,
+			type: cls.type,
+			classifiedBy: cls.basis,
+			debit,
+			credit,
+			balance,
+			net: NATURE[cls.type] === "debit" ? balance : -balance,
+			prior
+		};
+	}
+	function finish(rows, errors, columns, delimiter) {
+		const debit = rows.reduce((a, r) => a + r.debit, 0), credit = rows.reduce((a, r) => a + r.credit, 0);
+		const hasPrior = rows.some((r) => r.prior !== null);
+		const priorDifference = hasPrior ? rows.reduce((a, r) => a + (r.prior ?? 0), 0) : null;
+		return {
+			ok: rows.length > 0,
+			rows,
+			errors,
+			totals: {
+				debit,
+				credit
+			},
+			difference: debit - credit,
+			balanced: debit === credit,
+			hasPrior,
+			priorDifference,
+			unclassified: rows.filter((r) => r.type === "suspense").length,
+			columns,
+			delimiter
+		};
+	}
+	/** Parse tabular text into a trial balance. overrides: {accountCode: type} from the user's mapping review. */
+	function parseTrialBalance(text, opts = {}) {
+		const source = String(text ?? "").replace(/^﻿/, "");
+		const lines = source.split(/\r?\n/).filter((l) => l.trim());
+		if (!lines.length) return finish([], [{
+			line: 0,
+			code: "EMPTY_INPUT",
+			message: "لا توجد بيانات للاستيراد"
+		}], {}, ",");
+		const delimiter = opts.delimiter || detectDelimiter(source);
+		const head = splitLine(lines[0], delimiter), columns = {};
+		head.forEach((cell, i) => {
+			const f = headerKey(cell);
+			if (f && columns[f] === void 0) columns[f] = i;
+		});
+		const hasHeader = Object.keys(columns).length >= 2;
+		if (!hasHeader) Object.assign(columns, {
+			code: 0,
+			name: 1,
+			debit: 2,
+			credit: 3
+		});
+		const errors = [], rows = [], seen = /* @__PURE__ */ new Map();
+		(hasHeader ? lines.slice(1) : lines).forEach((raw, i) => {
+			const lineNo = i + (hasHeader ? 2 : 1), cells = splitLine(raw, delimiter);
+			const code = String(cells[columns.code] ?? "").trim(), name = String(cells[columns.name] ?? "").trim() || code;
+			if (!code && !name) return;
+			if ([code, name].some((v) => /^(الاجمالي|الإجمالي|المجموع|total|totals)$/i.test(v))) return;
+			const cell = (k) => columns[k] !== void 0 ? parseMinor(cells[columns[k]]) : 0;
+			let debit = cell("debit"), credit = cell("credit");
+			if (columns.debit === void 0 && columns.credit === void 0 && columns.balance !== void 0) {
+				const net = cell("balance");
+				if (net !== null) {
+					debit = net >= 0 ? net : 0;
+					credit = net < 0 ? -net : 0;
+				} else debit = null;
+			}
+			if (debit === null || credit === null) {
+				errors.push({
+					line: lineNo,
+					code: "AMOUNT_NOT_NUMERIC",
+					message: `مبلغ غير صالح في السطر ${lineNo}`
+				});
+				return;
+			}
+			let prior = null;
+			if (columns.priorDebit !== void 0 || columns.priorCredit !== void 0) prior = (cell("priorDebit") ?? 0) - (cell("priorCredit") ?? 0);
+			else if (columns.prior !== void 0) prior = cell("prior");
+			if (seen.has(code) && code) errors.push({
+				line: lineNo,
+				code: "DUPLICATE_ACCOUNT",
+				message: `الحساب ${code} مكرر (السطر ${seen.get(code)} والسطر ${lineNo})`
+			});
+			else seen.set(code, lineNo);
+			rows.push(makeRow(lineNo, code, name, debit, credit, prior, opts.overrides?.[code]));
+		});
+		return finish(rows, errors, columns, delimiter);
+	}
+	/** Build a trial balance from rows the app already has (the ledger engine, the audit bridge). */
+	function fromRows(input, opts = {}) {
+		const m = (v) => opts.majorUnits === false ? Math.round(Number(v) || 0) : Math.round((Number(v) || 0) * 100);
+		return finish(input.map((r, i) => makeRow(i + 1, String(r.code), String(r.name || r.code), m(r.debit), m(r.credit), r.prior == null ? null : m(r.prior), opts.overrides?.[String(r.code)])), [], {}, "");
+	}
+	/** Largest balances by absolute value — the natural population head for sampling. */
+	function largestBalances(tb, limit = 10) {
+		return [...tb.rows].sort((a, b) => Math.abs(b.balance) - Math.abs(a.balance) || a.code.localeCompare(b.code, "en")).slice(0, limit);
+	}
+	/** A balanced two-year sample (SAR) for the demo button and the tests: a small trading company. */
+	var SAMPLE_TB_CSV = [
+		"رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة",
+		"1101,النقد لدى البنك,150000,,100000",
+		"1121,ذمم مدينة - عملاء,80000,,60000",
+		"1141,مخزون بضاعة,50000,,40000",
+		"1501,معدات وآلات,200000,,180000",
+		"1509,مجمع إهلاك المعدات,,60000,-40000",
+		"2101,موردون,,70000,-50000",
+		"2105,زكاة مستحقة,,5000,-4000",
+		"2201,قرض طويل الأجل,,100000,-120000",
+		"2301,مخصص مكافأة نهاية الخدمة,,15000,-12000",
+		"3101,رأس المال,,100000,-100000",
+		"3301,أرباح مبقاة,,43000,-2000",
+		"4101,المبيعات,,500000,-400000",
+		"5101,تكلفة المبيعات,300000,,250000",
+		"6101,رواتب وأجور إدارية,80000,,70000",
+		"6201,مصروف إهلاك,20000,,15000",
+		"7101,تكاليف تمويل,8000,,9000",
+		"8101,مصروف الزكاة,5000,,4000"
+	].join("\n");
+	//#endregion
+	//#region app/src/engine/fusion/audit/codex-engine.ts
+	var codex_engine_exports = /* @__PURE__ */ __exportAll({
+		REGISTRY_DATE: () => REGISTRY_DATE,
+		STANDARD: () => STANDARD,
+		STANDARDS: () => STANDARDS,
+		frameworkApplicability: () => frameworkApplicability,
+		normalizeCode: () => normalizeCode$1,
+		relationOf: () => relationOf,
+		searchCodex: () => searchCodex,
+		standardsFor: () => standardsFor
+	});
+	var REGISTRY_DATE = "2026-09-25";
+	var IFRS = (slug) => "https://www.ifrs.org/issued-standards/list-of-standards/" + slug + "/";
+	var IAASB = "https://www.iaasb.org/standards-pronouncements";
+	var STANDARDS = [
+		{
+			code: "IAS 1",
+			family: "IAS",
+			titleAr: "عرض القوائم المالية",
+			titleEn: "Presentation of Financial Statements",
+			purpose: "يحدد أساس عرض القوائم ذات الغرض العام ومكوناتها والحد الأدنى من البنود وتصنيف المتداول وغير المتداول.",
+			requirements: [
+				"مجموعة كاملة من القوائم مع أرقام مقارنة",
+				"التمييز بين المتداول وغير المتداول",
+				"عدم المقاصة بين الأصول والالتزامات إلا بنص",
+				"الإفصاح عن السياسات المحاسبية ذات الأهمية النسبية والأحكام"
+			],
+			disclosures: [
+				"السياسات المحاسبية ذات الأهمية النسبية",
+				"مصادر عدم التأكد من التقديرات",
+				"إدارة رأس المال"
+			],
+			audit: [
+				"مطابقة القوائم مع ميزان المراجعة",
+				"فحص التصنيف والمقاصة",
+				"اكتمال الإفصاحات (ISA 700)"
+			],
+			sme: "الأقسام 3–6 و8",
+			effective: "2009 (المعدل)",
+			latest: "يحل محله IFRS 18 للفترات التي تبدأ في 1 يناير 2027 أو بعده",
+			status: "replaced",
+			replacedBy: "IFRS 18",
+			org: "IFRS Foundation",
+			url: IFRS("ias-1-presentation-of-financial-statements")
+		},
+		{
+			code: "IFRS 18",
+			family: "IFRS",
+			titleAr: "العرض والإفصاح في القوائم المالية",
+			titleEn: "Presentation and Disclosure in Financial Statements",
+			purpose: "يحل محل IAS 1: قائمة ربح أو خسارة بفئات محددة ومجموعين إلزاميين، وإفصاح عن مقاييس الأداء المحددة من الإدارة، وتجميع وتفصيل أفضل.",
+			requirements: [
+				"تصنيف الإيرادات والمصروفات في فئات: التشغيل، الاستثمار، التمويل، الضرائب/الزكاة، العمليات المتوقفة",
+				"عرض الربح التشغيلي والربح قبل التمويل والضرائب",
+				"الإفصاح عن مقاييس الأداء المحددة من الإدارة (MPMs) ومطابقتها",
+				"مبادئ التجميع والتفصيل وتسمية البنود"
+			],
+			disclosures: ["مطابقة كل مقياس أداء للإدارة مع أقرب مجموع في IFRS", "تحليل المصروفات التشغيلية حسب الطبيعة عند عرضها حسب الوظيفة"],
+			audit: [
+				"فحص تصنيف كل بند في فئته",
+				"إعادة احتساب المجاميع الإلزامية",
+				"تقييم أثر التطبيق الأول والإفصاح المسبق عنه"
+			],
+			effective: "1 يناير 2027 (يسمح بالتطبيق المبكر)",
+			latest: "اعتمدته SOCPA في 26-12-2024 مع نقل إفصاحاتها الإضافية من IAS 1؛ والشركات المدرجة تفصح عن تقييم أولي لأثره للفترات من 1 أبريل 2026",
+			status: "upcoming",
+			org: "IFRS Foundation",
+			url: IFRS("ifrs-18-presentation-and-disclosure-in-financial-statements")
+		},
+		{
+			code: "IAS 7",
+			family: "IAS",
+			titleAr: "قائمة التدفقات النقدية",
+			titleEn: "Statement of Cash Flows",
+			purpose: "عرض التدفقات النقدية مصنفة إلى تشغيلية واستثمارية وتمويلية وتعريف النقد وما في حكمه.",
+			requirements: [
+				"الطريقة المباشرة أو غير المباشرة للتشغيل",
+				"النقد وما في حكمه: استثمارات قصيرة شديدة السيولة (عادة ≤ 3 أشهر)",
+				"الإفصاح عن ترتيبات تمويل الموردين (تعديل 2023)"
+			],
+			disclosures: [
+				"مطابقة النقد في القائمة مع المركز المالي",
+				"المعاملات غير النقدية",
+				"التغيرات في الالتزامات الناشئة عن التمويل"
+			],
+			audit: ["إعادة اشتقاق القائمة من حركة المركز المالي", "مطابقة الأرصدة البنكية مع المصادقات (ISA 505)"],
+			sme: "القسم 7",
+			effective: "1994 (معدل)",
+			latest: "تعديلات ترتيبات تمويل الموردين 2024؛ تعديلات تبعية من IFRS 18 في 2027",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ias-7-statement-of-cash-flows")
+		},
+		{
+			code: "IAS 8",
+			family: "IAS",
+			titleAr: "السياسات المحاسبية والتغيرات في التقديرات والأخطاء",
+			titleEn: "Accounting Policies, Changes in Accounting Estimates and Errors",
+			purpose: "اختيار السياسات وتغييرها، ومعالجة تغير التقدير بأثر مستقبلي، وتصحيح أخطاء الفترات السابقة بأثر رجعي.",
+			requirements: [
+				"تصحيح الأخطاء الجوهرية بأثر رجعي وتعديل المقارنة",
+				"تغير التقدير بأثر مستقبلي",
+				"الثبات في تطبيق السياسات"
+			],
+			disclosures: ["طبيعة الخطأ وأثره على كل بند", "المعايير الصادرة غير السارية وأثرها المتوقع"],
+			audit: ["مقارنة أرصدة الافتتاح مع إقفال السنة السابقة (ISA 510)", "فحص قيود التسوية ذات الأثر الرجعي"],
+			sme: "القسم 10",
+			effective: "2005 (معدل)",
+			latest: "يعاد تسميته «أساس إعداد القوائم المالية» مع IFRS 18 في 2027",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ias-8-accounting-policies-changes-in-accounting-estimates-and-errors")
+		},
+		{
+			code: "IAS 10",
+			family: "IAS",
+			titleAr: "الأحداث بعد فترة التقرير",
+			titleEn: "Events after the Reporting Period",
+			purpose: "التمييز بين الأحداث المعدِّلة وغير المعدِّلة بعد تاريخ التقرير وحتى اعتماد القوائم.",
+			requirements: [
+				"تعديل القوائم بالأحداث المعدلة",
+				"الإفصاح عن الأحداث غير المعدلة الجوهرية",
+				"لا تعرض التوزيعات المعلنة بعد التاريخ كالتزام"
+			],
+			disclosures: ["تاريخ اعتماد القوائم ومن اعتمدها", "طبيعة الأحداث غير المعدلة وأثرها المالي"],
+			audit: ["فحص الأحداث اللاحقة (ISA 560)", "قراءة محاضر الاجتماعات والتحصيلات والمدفوعات اللاحقة"],
+			sme: "القسم 32",
+			effective: "2005",
+			latest: "دون تعديلات جوهرية حديثة",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ias-10-events-after-the-reporting-period")
+		},
+		{
+			code: "IAS 2",
+			family: "IAS",
+			titleAr: "المخزون",
+			titleEn: "Inventories",
+			purpose: "قياس المخزون بالتكلفة أو صافي القيمة القابلة للتحقق أيهما أقل وتحديد التكلفة.",
+			requirements: [
+				"التكلفة تشمل الشراء والتحويل والتكاليف المباشرة الأخرى",
+				"الوارد أولاً صادر أولاً أو المتوسط المرجح (لا يسمح بالوارد أخيراً)",
+				"التخفيض إلى صافي القيمة القابلة للتحقق"
+			],
+			disclosures: [
+				"السياسة وطريقة التكلفة",
+				"المبالغ المخفضة وعكسها",
+				"المخزون المرهون"
+			],
+			audit: [
+				"حضور الجرد (ISA 501)",
+				"اختبار صافي القيمة القابلة للتحقق بالمبيعات اللاحقة",
+				"فحص القطع في نهاية السنة"
+			],
+			sme: "القسم 13",
+			effective: "2005",
+			latest: "دون تعديلات جوهرية حديثة",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ias-2-inventories")
+		},
+		{
+			code: "IAS 16",
+			family: "IAS",
+			titleAr: "الممتلكات والآلات والمعدات",
+			titleEn: "Property, Plant and Equipment",
+			purpose: "الاعتراف بالأصول الثابتة وقياسها بالتكلفة أو إعادة التقييم واستهلاكها على العمر الإنتاجي.",
+			requirements: [
+				"الاعتراف الأولي بالتكلفة",
+				"نموذج التكلفة أو إعادة التقييم لكل فئة",
+				"الاستهلاك المنتظم ومراجعة العمر والقيمة المتبقية سنوياً",
+				"الفصل بين الإنفاق الرأسمالي والإيرادي"
+			],
+			disclosures: [
+				"جدول الحركة لكل فئة (التكلفة، الإضافات، الاستبعادات، الاستهلاك)",
+				"طرق الاستهلاك والأعمار",
+				"الأصول المرهونة والالتزامات الرأسمالية"
+			],
+			audit: [
+				"مطابقة سجل الأصول مع الأستاذ",
+				"فحص الإضافات بالفواتير والملكية",
+				"إعادة احتساب الاستهلاك",
+				"المعاينة الفعلية لعينة"
+			],
+			sme: "القسم 17",
+			effective: "2005",
+			latest: "تعديل المتحصلات قبل الاستخدام المقصود (2022)",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ias-16-property-plant-and-equipment")
+		},
+		{
+			code: "IAS 36",
+			family: "IAS",
+			titleAr: "الانخفاض في قيمة الأصول",
+			titleEn: "Impairment of Assets",
+			purpose: "ضمان ألا تزيد القيمة الدفترية للأصول عن قيمتها القابلة للاسترداد.",
+			requirements: [
+				"تقييم مؤشرات الانخفاض في كل تاريخ تقرير",
+				"اختبار سنوي للشهرة والأصول غير الملموسة غير محددة العمر",
+				"القيمة القابلة للاسترداد = الأعلى من القيمة العادلة ناقصاً تكاليف البيع وقيمة الاستخدام"
+			],
+			disclosures: ["خسائر الانخفاض وعكسها", "الافتراضات الرئيسية لقيمة الاستخدام"],
+			audit: ["تقييم افتراضات الإدارة (ISA 540)", "تحليل الحساسية"],
+			sme: "القسم 27",
+			effective: "2004",
+			latest: "دون تعديلات جوهرية حديثة",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ias-36-impairment-of-assets")
+		},
+		{
+			code: "IAS 38",
+			family: "IAS",
+			titleAr: "الأصول غير الملموسة",
+			titleEn: "Intangible Assets",
+			purpose: "الاعتراف بالأصول غير الملموسة وقياسها وإطفاؤها.",
+			requirements: [
+				"قابلية التحديد والسيطرة والمنافع المستقبلية",
+				"مصروفات البحث تُحمّل؛ التطوير يُرسمل بشروط",
+				"الإطفاء على العمر المحدد"
+			],
+			disclosures: ["جدول الحركة", "الأعمار وطرق الإطفاء"],
+			audit: ["فحص شروط الرسملة", "إعادة احتساب الإطفاء"],
+			sme: "القسم 18",
+			effective: "2004",
+			latest: "دون تعديلات جوهرية حديثة",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ias-38-intangible-assets")
+		},
+		{
+			code: "IAS 40",
+			family: "IAS",
+			titleAr: "العقارات الاستثمارية",
+			titleEn: "Investment Property",
+			purpose: "العقارات المحتفظ بها للإيجار أو لزيادة رأس المال: نموذج القيمة العادلة أو التكلفة.",
+			requirements: ["اختيار نموذج واحد لكل العقارات الاستثمارية", "في المملكة: الاعتماد على مقيّم مستقل مؤهل عند القيمة العادلة"],
+			disclosures: ["النموذج المستخدم", "القيمة العادلة وطريقة تحديدها"],
+			audit: ["تقييم عمل المقيّم (ISA 500/620)"],
+			sme: "القسم 16",
+			effective: "2005",
+			latest: "دون تعديلات جوهرية حديثة",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ias-40-investment-property")
+		},
+		{
+			code: "IAS 41",
+			family: "IAS",
+			titleAr: "الزراعة",
+			titleEn: "Agriculture",
+			purpose: "قياس الأصول الحيوية والمنتجات الزراعية عند الحصاد بالقيمة العادلة ناقصاً تكاليف البيع.",
+			requirements: ["القياس بالقيمة العادلة ناقصاً تكاليف البيع ما لم يتعذر", "النباتات المثمرة ضمن IAS 16"],
+			disclosures: ["التسوية بين أول وآخر الفترة", "وصف كل مجموعة أصول حيوية"],
+			audit: ["جرد القطيع أو المحصول", "تقييم أساس القيمة العادلة"],
+			sme: "القسم 34",
+			effective: "2003",
+			latest: "دون تعديلات جوهرية حديثة",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ias-41-agriculture")
+		},
+		{
+			code: "IAS 28",
+			family: "IAS",
+			titleAr: "الاستثمارات في الشركات الزميلة والمشاريع المشتركة",
+			titleEn: "Investments in Associates and Joint Ventures",
+			purpose: "المحاسبة عن الاستثمارات ذات التأثير الهام بطريقة حقوق الملكية.",
+			requirements: ["طريقة حقوق الملكية", "فحص الانخفاض كاستثمار واحد"],
+			disclosures: ["الحصة في النتائج", "المعلومات المالية الملخصة"],
+			audit: ["الحصول على قوائم الزميلة المراجعة"],
+			sme: "القسم 14",
+			effective: "2013",
+			latest: "دون تعديلات جوهرية حديثة",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ias-28-investments-in-associates-and-joint-ventures")
+		},
+		{
+			code: "IFRS 15",
+			family: "IFRS",
+			titleAr: "الإيراد من العقود مع العملاء",
+			titleEn: "Revenue from Contracts with Customers",
+			purpose: "نموذج الخطوات الخمس للاعتراف بالإيراد عند (أو كلما) انتقلت السيطرة على السلعة أو الخدمة للعميل.",
+			requirements: [
+				"تحديد العقد والتزامات الأداء",
+				"تحديد سعر المعاملة وتوزيعه",
+				"الاعتراف عند الوفاء بالتزام الأداء",
+				"أصول العقود ومطلوبات العقود (الدفعات المقدمة)"
+			],
+			disclosures: [
+				"تفصيل الإيراد",
+				"أرصدة العقود",
+				"التزامات الأداء المتبقية"
+			],
+			audit: [
+				"خطر الغش المفترض في الإيراد (ISA 240)",
+				"فحص القطع قبل وبعد نهاية السنة",
+				"مطابقة الإيراد مع إقرارات ضريبة القيمة المضافة",
+				"فحص عينة فواتير وعقود"
+			],
+			sme: "القسم 23",
+			effective: "2018",
+			latest: "دون تعديلات جوهرية حديثة",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ifrs-15-revenue-from-contracts-with-customers")
+		},
+		{
+			code: "IFRS 9",
+			family: "IFRS",
+			titleAr: "الأدوات المالية",
+			titleEn: "Financial Instruments",
+			purpose: "تصنيف الأصول والالتزامات المالية وقياسها، ونموذج الخسائر الائتمانية المتوقعة، ومحاسبة التحوط.",
+			requirements: [
+				"التصنيف: التكلفة المطفأة، القيمة العادلة من خلال الدخل الشامل، أو من خلال الربح والخسارة",
+				"الخسائر الائتمانية المتوقعة للذمم (النهج المبسط ومصفوفة المخصص)",
+				"إلغاء الاعتراف"
+			],
+			disclosures: ["مخاطر الائتمان والسيولة والسوق (IFRS 7)", "حركة مخصص الخسائر الائتمانية"],
+			audit: [
+				"المصادقات (ISA 505)",
+				"فحص أعمار الذمم والتحصيل اللاحق",
+				"تقييم نموذج الخسائر المتوقعة (ISA 540)"
+			],
+			sme: "القسمان 11 و12",
+			effective: "2018",
+			latest: "تعديلات تصنيف الأدوات المالية وقياسها (سارية 1 يناير 2026)",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ifrs-9-financial-instruments")
+		},
+		{
+			code: "IFRS 7",
+			family: "IFRS",
+			titleAr: "الأدوات المالية: الإفصاحات",
+			titleEn: "Financial Instruments: Disclosures",
+			purpose: "الإفصاح عن أهمية الأدوات المالية وطبيعة المخاطر الناشئة عنها وإدارتها.",
+			requirements: ["مخاطر الائتمان والسيولة (تحليل الاستحقاقات) والسوق"],
+			disclosures: ["جدول استحقاق الالتزامات المالية", "تركز مخاطر الائتمان"],
+			audit: ["مطابقة الإفصاح مع العقود والجداول"],
+			sme: "القسمان 11 و12",
+			effective: "2007",
+			latest: "تعديلات 2026 المرافقة لتعديلات IFRS 9",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ifrs-7-financial-instruments-disclosures")
+		},
+		{
+			code: "IAS 32",
+			family: "IAS",
+			titleAr: "الأدوات المالية: العرض",
+			titleEn: "Financial Instruments: Presentation",
+			purpose: "التمييز بين الالتزام وحقوق الملكية وقواعد المقاصة.",
+			requirements: ["لا مقاصة إلا بحق قانوني ونية التسوية بالصافي"],
+			disclosures: ["رأس المال والأسهم"],
+			audit: ["مراجعة عقد التأسيس والسجل التجاري"],
+			sme: "القسم 22",
+			effective: "2005",
+			latest: "دون تعديلات جوهرية حديثة",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ias-32-financial-instruments-presentation")
+		},
+		{
+			code: "IFRS 16",
+			family: "IFRS",
+			titleAr: "عقود الإيجار",
+			titleEn: "Leases",
+			purpose: "اعتراف المستأجر بأصل حق استخدام والتزام إيجار لجميع العقود تقريباً.",
+			requirements: [
+				"قياس الالتزام بالقيمة الحالية للدفعات",
+				"استهلاك حق الاستخدام وفائدة الالتزام",
+				"إعفاء العقود قصيرة الأجل ومنخفضة القيمة"
+			],
+			disclosures: ["حركة حق الاستخدام والالتزام", "تحليل استحقاق التزامات الإيجار"],
+			audit: ["حصر عقود الإيجار (ومنها المقار والمستودعات)", "إعادة احتساب القيمة الحالية ومعدل الخصم"],
+			sme: "القسم 20 (الإصدار الثالث يتبنى نموذج IFRS 16 من 2027)",
+			effective: "2019",
+			latest: "تعديل التزام الإيجار في البيع وإعادة الاستئجار (2024)",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ifrs-16-leases")
+		},
+		{
+			code: "IAS 19",
+			family: "IAS",
+			titleAr: "منافع الموظفين",
+			titleEn: "Employee Benefits",
+			purpose: "المحاسبة عن منافع الموظفين ومنها مكافأة نهاية الخدمة كخطة منافع محددة.",
+			requirements: ["قياس التزام نهاية الخدمة بطريقة وحدة الائتمان المتوقعة (تقييم اكتواري)", "الأرباح والخسائر الاكتوارية في الدخل الشامل الآخر"],
+			disclosures: ["حركة الالتزام", "الافتراضات الاكتوارية والحساسية"],
+			audit: ["مطابقة بيانات الموظفين مع الرواتب", "تقييم عمل الخبير الاكتواري (ISA 620)"],
+			sme: "القسم 28 (يسمح بتبسيط عند الجهد أو التكلفة غير المبررة)",
+			effective: "2013 (معدل)",
+			latest: "دون تعديلات جوهرية حديثة",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ias-19-employee-benefits")
+		},
+		{
+			code: "IAS 37",
+			family: "IAS",
+			titleAr: "المخصصات والالتزامات والأصول المحتملة",
+			titleEn: "Provisions, Contingent Liabilities and Contingent Assets",
+			purpose: "الاعتراف بالمخصص عند وجود التزام حالي محتمل التدفق وقابل للتقدير الموثوق.",
+			requirements: [
+				"التزام قانوني أو ضمني ناشئ عن حدث سابق",
+				"أفضل تقدير في تاريخ التقرير",
+				"الإفصاح عن الالتزامات المحتملة دون اعتراف"
+			],
+			disclosures: ["حركة كل فئة مخصصات", "طبيعة الالتزامات المحتملة"],
+			audit: [
+				"خطابات المحامين",
+				"فحص الاستخدام اللاحق للمخصص",
+				"تقييم التحيز في التقديرات (ISA 540)"
+			],
+			sme: "القسم 21",
+			effective: "1999",
+			latest: "دون تعديلات جوهرية حديثة",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ias-37-provisions-contingent-liabilities-and-contingent-assets")
+		},
+		{
+			code: "IAS 12",
+			family: "IAS",
+			titleAr: "ضرائب الدخل",
+			titleEn: "Income Taxes",
+			purpose: "الضريبة الحالية والمؤجلة على الأرباح (للحصص الأجنبية الخاضعة لضريبة الدخل).",
+			requirements: ["الضريبة المؤجلة على الفروق المؤقتة"],
+			disclosures: ["مطابقة المصروف مع الربح المحاسبي"],
+			audit: ["مطابقة الإقرار والربط"],
+			sme: "القسم 29",
+			effective: "1998",
+			latest: "تعديل الركيزة الثانية (2023)",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ias-12-income-taxes")
+		},
+		{
+			code: "IAS 21",
+			family: "IAS",
+			titleAr: "آثار التغيرات في أسعار صرف العملات الأجنبية",
+			titleEn: "The Effects of Changes in Foreign Exchange Rates",
+			purpose: "ترجمة المعاملات والأرصدة بالعملات الأجنبية.",
+			requirements: ["البنود النقدية بسعر الإقفال", "فروق الصرف في الربح أو الخسارة"],
+			disclosures: ["فروق الصرف المعترف بها"],
+			audit: ["إعادة احتساب الترجمة بأسعار الإقفال"],
+			sme: "القسم 30",
+			effective: "2005",
+			latest: "تعديل انعدام قابلية التبادل (ساري 2025)",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ias-21-the-effects-of-changes-in-foreign-exchange-rates")
+		},
+		{
+			code: "IAS 23",
+			family: "IAS",
+			titleAr: "تكاليف الاقتراض",
+			titleEn: "Borrowing Costs",
+			purpose: "رسملة تكاليف الاقتراض المنسوبة مباشرة إلى أصل مؤهل.",
+			requirements: ["الرسملة إلزامية للأصل المؤهل", "بقية تكاليف الاقتراض مصروف"],
+			disclosures: ["المبلغ المرسمل ومعدل الرسملة"],
+			audit: ["مطابقة تكلفة التمويل مع عقود القروض"],
+			sme: "القسم 25 (مصروف دائماً)",
+			effective: "2009",
+			latest: "دون تعديلات جوهرية حديثة",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ias-23-borrowing-costs")
+		},
+		{
+			code: "IAS 24",
+			family: "IAS",
+			titleAr: "الإفصاح عن الأطراف ذات العلاقة",
+			titleEn: "Related Party Disclosures",
+			purpose: "الإفصاح عن العلاقات والمعاملات والأرصدة مع الأطراف ذات العلاقة وتعويضات الإدارة العليا.",
+			requirements: ["تحديد الأطراف ذات العلاقة", "الإفصاح عن المعاملات والأرصدة وشروطها"],
+			disclosures: ["طبيعة العلاقة والمعاملات والأرصدة", "تعويضات كبار التنفيذيين"],
+			audit: ["قائمة الأطراف من الإدارة (ISA 550)", "فحص المعاملات غير الاعتيادية"],
+			sme: "القسم 33",
+			effective: "2011 (معدل)",
+			latest: "دون تعديلات جوهرية حديثة",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ias-24-related-party-disclosures")
+		},
+		{
+			code: "IFRS 13",
+			family: "IFRS",
+			titleAr: "قياس القيمة العادلة",
+			titleEn: "Fair Value Measurement",
+			purpose: "إطار واحد لقياس القيمة العادلة وتسلسلها الهرمي.",
+			requirements: ["المستويات 1–3", "أعلى وأفضل استخدام للأصول غير المالية"],
+			disclosures: ["المستوى الهرمي وأساليب التقييم"],
+			audit: ["تقييم المدخلات غير القابلة للملاحظة"],
+			sme: "القسم 2 (مفاهيم القيمة العادلة)",
+			effective: "2013",
+			latest: "دون تعديلات جوهرية حديثة",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: IFRS("ifrs-13-fair-value-measurement")
+		},
+		{
+			code: "IFRS 19",
+			family: "IFRS",
+			titleAr: "الشركات التابعة غير الخاضعة للمساءلة العامة: الإفصاحات",
+			titleEn: "Subsidiaries without Public Accountability: Disclosures",
+			purpose: "إفصاحات مخفضة للتابعة غير الخاضعة للمساءلة العامة التي تطبق IFRS الكاملة وأمها تعد قوائم موحدة متاحة.",
+			requirements: ["اختياري بشروط الأهلية"],
+			disclosures: ["إفصاحات مخفضة بدلاً من متطلبات المعايير الأخرى"],
+			audit: ["التحقق من شروط الأهلية"],
+			effective: "1 يناير 2027",
+			latest: "تعديلات أغسطس 2025 لاستكمال المعايير اللاحقة",
+			status: "upcoming",
+			org: "IFRS Foundation",
+			url: IFRS("ifrs-19-subsidiaries-without-public-accountability-disclosures")
+		},
+		{
+			code: "IFRS for SMEs",
+			family: "IFRS",
+			titleAr: "المعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم",
+			titleEn: "IFRS for SMEs Accounting Standard",
+			purpose: "إطار مبسط للمنشآت غير الخاضعة للمساءلة العامة، معتمد في المملكة لجميع هذه المنشآت بصرف النظر عن حجمها أو شكلها القانوني.",
+			requirements: [
+				"لا يجوز للمنشأة الخاضعة للمساءلة العامة وصف قوائمها بالامتثال له",
+				"لا يجوز المزج بينه وبين IFRS الكاملة",
+				"يجوز للمنشأة غير الخاضعة للمساءلة اختيار IFRS الكاملة ثم لا تعود إلا بتغير جوهري في وضعها",
+				"إعفاء «الجهد أو التكلفة غير المبررين» مع الإفصاح عن سببه"
+			],
+			disclosures: ["بيان صريح وغير متحفظ بالامتثال", "أسباب استخدام إعفاء الجهد أو التكلفة غير المبررين"],
+			audit: ["التحقق من أهلية المنشأة للإطار (القسم 1)", "فحص الإفصاحات المطلوبة (القسم 8)"],
+			effective: "الإصدار الثالث: 1 يناير 2027 (إصدار 2015 حتى ذلك الحين)",
+			latest: "الإصدار الثالث فبراير 2025",
+			status: "effective",
+			org: "IFRS Foundation",
+			url: "https://www.ifrs.org/issued-standards/ifrs-for-smes/"
+		},
+		{
+			code: "لائحة الزكاة",
+			family: "SAUDI",
+			titleAr: "اللائحة التنفيذية لجباية الزكاة (1445هـ)",
+			titleEn: "Implementing Regulations for Zakat Collection 1445H",
+			purpose: "تحديد الوعاء الزكوي وحده الأدنى والأعلى وسعر 2.5% وإجراءات الإقرار والربط.",
+			requirements: [
+				"الوعاء: مصادر التمويل المضافة مطروحاً منها الحسميات (الأصول غير المتداولة وغيرها) مع حدين أدنى وأعلى",
+				"السعر 2.5% (على أساس السنة الهجرية ويعدل للسنة الميلادية)",
+				"تقديم الإقرار خلال 120 يوماً من نهاية السنة"
+			],
+			disclosures: ["حركة مخصص الزكاة", "موقف الربوط الزكوية"],
+			audit: ["مطابقة المخصص مع الإقرار", "فحص الربوط والاعتراضات"],
+			effective: "السنوات المالية التي تبدأ في 1 يناير 2024 أو بعده",
+			latest: "القرار الوزاري 1007 بتاريخ 29-02-2024 (128 مادة)",
+			status: "effective",
+			org: "ZATCA",
+			url: "https://zatca.gov.sa/en/RulesRegulations/Taxes/Pages/ZakatRegulations.aspx"
+		},
+		{
+			code: "ZATCA VAT",
+			family: "SAUDI",
+			titleAr: "نظام ضريبة القيمة المضافة والفوترة الإلكترونية",
+			titleEn: "VAT Law and E-invoicing (FATOORA)",
+			purpose: "ضريبة 15% على التوريدات الخاضعة، واسترداد ضريبة المدخلات، والفوترة الإلكترونية ورمز QR.",
+			requirements: [
+				"الرقم الضريبي 15 خانة يبدأ وينتهي بالرقم 3",
+				"الفاتورة المبسطة تحمل رمز QR (اسم البائع، الرقم الضريبي، الوقت، الإجمالي، الضريبة)",
+				"الإقرار الشهري أو الربعي"
+			],
+			disclosures: ["رصيد الضريبة المستحقة أو المستردة"],
+			audit: ["مطابقة الإيراد مع الإقرارات", "فحص عينة فواتير ورموز QR"],
+			effective: "2018 (النسبة 15% منذ يوليو 2020)",
+			latest: "الموجات المتتابعة للمرحلة الثانية (الربط والتكامل)",
+			status: "effective",
+			org: "ZATCA",
+			url: "https://zatca.gov.sa"
+		},
+		{
+			code: "نظام الشركات",
+			family: "SAUDI",
+			titleAr: "نظام الشركات (1443هـ)",
+			titleEn: "Companies Law",
+			purpose: "أحكام رأس المال والاحتياطيات والقوائم المالية والمراجع والجمعيات.",
+			requirements: [
+				"الاحتياطي النظامي لم يعد إلزامياً بالنظام الجديد ما لم ينص عليه عقد التأسيس أو النظام الأساس",
+				"إعداد القوائم وفق المعايير المعتمدة من SOCPA",
+				"إيداع القوائم المراجعة"
+			],
+			disclosures: ["رأس المال وعدد الحصص أو الأسهم"],
+			audit: ["مراجعة السجل التجاري وعقد التأسيس وقرارات الشركاء"],
+			effective: "19 يناير 2023",
+			latest: "اللوائح التنفيذية لوزارة التجارة وهيئة السوق المالية",
+			status: "effective",
+			org: "وزارة التجارة",
+			url: "https://mc.gov.sa"
+		},
+		...[
+			[
+				"ISA 240",
+				"مسؤوليات المراجع المتعلقة بالغش",
+				"The Auditor’s Responsibilities Relating to Fraud",
+				"عدسة الغش في تقييم المخاطر: خطر مفترض في الإيراد وتجاوز الإدارة للضوابط وفحص قيود اليومية.",
+				"المعدل ساري للفترات التي تبدأ في 15 ديسمبر 2026 أو بعده",
+				"upcoming"
+			],
+			[
+				"ISA 315",
+				"تحديد مخاطر التحريف الجوهري وتقييمها",
+				"Identifying and Assessing the Risks of Material Misstatement",
+				"فهم المنشأة وبيئتها ورقابتها وتقييم المخاطر على مستوى القوائم والإقرارات.",
+				"المعدل 2019",
+				"effective"
+			],
+			[
+				"ISA 320",
+				"الأهمية النسبية في التخطيط والتنفيذ",
+				"Materiality in Planning and Performing an Audit",
+				"تحديد الأهمية النسبية العامة والتنفيذية وحد الأخطاء التافهة.",
+				"ساري",
+				"effective"
+			],
+			[
+				"ISA 330",
+				"استجابات المراجع للمخاطر المقيمة",
+				"The Auditor’s Responses to Assessed Risks",
+				"تصميم إجراءات أساسية واختبارات رقابة تستجيب لكل خطر مقيم.",
+				"ساري",
+				"effective"
+			],
+			[
+				"ISA 450",
+				"تقييم التحريفات المكتشفة",
+				"Evaluation of Misstatements Identified during the Audit",
+				"تجميع التحريفات غير المصححة ومقارنتها بالأهمية النسبية.",
+				"ساري",
+				"effective"
+			],
+			[
+				"ISA 500",
+				"أدلة المراجعة",
+				"Audit Evidence",
+				"كفاية الأدلة وملاءمتها وموثوقيتها.",
+				"ساري (مشروع تحديث قائم)",
+				"effective"
+			],
+			[
+				"ISA 501",
+				"أدلة المراجعة لبنود مختارة",
+				"Audit Evidence—Specific Considerations",
+				"حضور الجرد والتقاضي والمعلومات القطاعية.",
+				"ساري",
+				"effective"
+			],
+			[
+				"ISA 505",
+				"المصادقات الخارجية",
+				"External Confirmations",
+				"مصادقات البنوك والعملاء والموردين.",
+				"ساري",
+				"effective"
+			],
+			[
+				"ISA 510",
+				"الأرصدة الافتتاحية",
+				"Opening Balances",
+				"التحقق من أرصدة الافتتاح في الارتباط الأول.",
+				"ساري",
+				"effective"
+			],
+			[
+				"ISA 520",
+				"الإجراءات التحليلية",
+				"Analytical Procedures",
+				"التوقع المستقل ومقارنة الفروق بحد مقبول.",
+				"ساري",
+				"effective"
+			],
+			[
+				"ISA 530",
+				"العينات في المراجعة",
+				"Audit Sampling",
+				"تصميم العينة وتقييم نتائجها.",
+				"ساري",
+				"effective"
+			],
+			[
+				"ISA 540",
+				"مراجعة التقديرات المحاسبية",
+				"Auditing Accounting Estimates",
+				"تقييم الطرق والافتراضات والبيانات والتحيز في التقديرات.",
+				"المعدل 2018",
+				"effective"
+			],
+			[
+				"ISA 550",
+				"الأطراف ذات العلاقة",
+				"Related Parties",
+				"تحديد الأطراف والمعاملات وتقييم مخاطرها.",
+				"ساري",
+				"effective"
+			],
+			[
+				"ISA 560",
+				"الأحداث اللاحقة",
+				"Subsequent Events",
+				"فحص الأحداث حتى تاريخ تقرير المراجع.",
+				"ساري",
+				"effective"
+			],
+			[
+				"ISA 570",
+				"الاستمرارية",
+				"Going Concern",
+				"تقييم تقدير الإدارة للاستمرارية لمدة 12 شهراً على الأقل من تاريخ الاعتماد.",
+				"المعدل 2024 ساري للفترات التي تبدأ في 15 ديسمبر 2026 أو بعده",
+				"upcoming"
+			],
+			[
+				"ISA 620",
+				"استخدام عمل خبير المراجع",
+				"Using the Work of an Auditor’s Expert",
+				"تقييم كفاءة الخبير وموضوعيته وعمله.",
+				"ساري",
+				"effective"
+			],
+			[
+				"ISA 700",
+				"تكوين الرأي والتقرير",
+				"Forming an Opinion and Reporting",
+				"شكل تقرير المراجع ومكوناته.",
+				"ساري",
+				"effective"
+			],
+			[
+				"ISA 701",
+				"الأمور الرئيسية للمراجعة",
+				"Communicating Key Audit Matters",
+				"الإبلاغ عن الأمور الأكثر أهمية وكيف عولجت.",
+				"ساري",
+				"effective"
+			],
+			[
+				"ISA 705",
+				"التعديلات على الرأي",
+				"Modifications to the Opinion",
+				"الرأي المتحفظ والعكسي والامتناع حسب الجوهرية والانتشار.",
+				"ساري",
+				"effective"
+			]
+		].map(([code, ar, en, purpose, latest, status]) => ({
+			code,
+			family: "ISA",
+			titleAr: ar,
+			titleEn: en,
+			purpose,
+			requirements: [],
+			disclosures: [],
+			audit: [],
+			effective: "الإصدار المعتمد في المملكة",
+			latest,
+			status,
+			org: "IAASB",
+			url: code === "ISA 240" ? "https://www.iaasb.org/publications/isa-240-revised-auditor-s-responsibilities-relating-fraud-audit-financial-statements" : code === "ISA 570" ? "https://www.iaasb.org/publications/isa-570-revised-2024-going-concern" : code === "ISA 701" ? "https://www.iaasb.org/publications/international-standard-auditing-isa-701-new-communicating-key-audit-matters-independent-auditor-s-3" : IAASB
+		}))
+	];
+	var STANDARD = Object.fromEntries(STANDARDS.map((s) => [s.code, s]));
+	/** Normalize "ias16", "IAS-16", "معيار المحاسبة الدولي 16" → "IAS 16" when it is in the codex. */
+	function normalizeCode$1(input) {
+		const t = String(input || "").trim();
+		if (STANDARD[t]) return t;
+		const m = t.replace(/[–—-]/g, " ").match(/\b(IFRS|IAS|ISA)\s*(\d{1,3})\b/i);
+		if (m) {
+			const c = m[1].toUpperCase() + " " + Number(m[2]);
+			return STANDARD[c] ? c : null;
+		}
+		const a = t.match(/(?:المعيار الدولي للتقرير المالي|معيار المحاسبة الدولي|معيار المراجعة الدولي)\s*(?:رقم\s*)?\(?(\d{1,3})/);
+		if (a) {
+			const c = (t.includes("للتقرير") ? "IFRS" : t.includes("المراجعة") ? "ISA" : "IAS") + " " + Number(a[1]);
+			return STANDARD[c] ? c : null;
+		}
+		if (/زكا/.test(t)) return "لائحة الزكاة";
+		if (/قيمه المضافه|القيمة المضافة|vat/i.test(t)) return "ZATCA VAT";
+		return null;
+	}
+	var RELATION = {
+		cash: {
+			"IAS 7": "الحساب جزء من «النقد وما في حكمه» الذي تُطابق عليه قائمة التدفقات النقدية؛ الودائع الأطول من ثلاثة أشهر لا تدخل فيه.",
+			"ISA 505": "رصيد بنكي يؤكَّد بمصادقة مباشرة من البنك وتسوية بنكية في تاريخ الإقفال."
+		},
+		receivables: {
+			"IFRS 9": "ذمم تقاس بالتكلفة المطفأة ويُكوَّن لها مخصص خسائر ائتمانية متوقعة (النهج المبسط) من أعمار الديون والخبرة التاريخية.",
+			"IFRS 15": "الذمة تنشأ عند اكتساب الحق غير المشروط في المقابل؛ ما يسبق ذلك أصل عقد.",
+			"ISA 505": "تُؤكد عينة الأرصدة بمصادقات العملاء أو بالتحصيل اللاحق."
+		},
+		inventory: {
+			"IAS 2": "يقاس المخزون بالتكلفة أو صافي القيمة القابلة للتحقق أيهما أقل، وتحدد التكلفة بالوارد أولاً أو المتوسط المرجح.",
+			"ISA 501": "وجود المخزون يؤكد بحضور الجرد الفعلي أو إجراءات بديلة."
+		},
+		ppe: {
+			"IAS 16": "الحساب أصل ثابت يقاس بالتكلفة ناقصاً الاستهلاك المتراكم؛ يُراجع العمر الإنتاجي والقيمة المتبقية سنوياً، ويُفصل الرأسمالي عن الإيرادي.",
+			"IAS 36": "تُقيَّم مؤشرات الانخفاض في القيمة في تاريخ التقرير (تقادم، تعطل، انخفاض الاستخدام)."
+		},
+		rou: { "IFRS 16": "أصل حق استخدام مقابل التزام إيجار؛ يستهلك على مدة العقد أو العمر أيهما أقصر." },
+		intangibles: { "IAS 38": "يرسمل فقط ما يستوفي القابلية للتحديد والسيطرة والمنافع المستقبلية، ويطفأ على العمر المحدد." },
+		investments: {
+			"IFRS 9": "يصنف الاستثمار حسب نموذج الأعمال وخصائص التدفقات (تكلفة مطفأة أو قيمة عادلة).",
+			"IAS 28": "إن وُجد تأثير هام (20% فأكثر عادة) تطبق طريقة حقوق الملكية."
+		},
+		vatAsset: { "ZATCA VAT": "ضريبة مدخلات قابلة للاسترداد تُطابق مع الإقرارات وفواتير الموردين المستوفية للشروط." },
+		vatLiability: { "ZATCA VAT": "ضريبة مخرجات مستحقة تُطابق مع الإيراد الخاضع والإقرارات المقدمة." },
+		prepayments: { "IAS 1": "تعرض ضمن الموجودات المتداولة إذا كانت ستُستنفد خلال 12 شهراً." },
+		capital: {
+			"IAS 32": "حقوق ملكية بموجب عقد التأسيس والسجل التجاري؛ أي زيادة تتطلب قراراً نظامياً.",
+			"نظام الشركات": "يطابق رأس المال المسجل مع السجل التجاري وعقد التأسيس."
+		},
+		reserves: { "نظام الشركات": "الاحتياطي النظامي لم يعد إلزامياً بالنظام الجديد إلا إذا نص عليه عقد التأسيس؛ يُتحقق من سند كل تحويل." },
+		partners: { "IAS 24": "حساب جاري الشريك معاملة مع طرف ذي علاقة يُفصح عنها بطبيعتها وشروطها." },
+		retained: { "IAS 8": "رصيد الافتتاح يجب أن يساوي إقفال السنة السابقة؛ أي فرق يشير إلى تسوية بأثر رجعي تتطلب إفصاحاً." },
+		eosb: { "IAS 19": "مكافأة نهاية الخدمة خطة منافع محددة تقاس بالتقييم الاكتواري (أو بتبسيط مسموح في معيار المنشآت الصغيرة عند الجهد غير المبرر)." },
+		leaseNcl: { "IFRS 16": "التزام بالقيمة الحالية لدفعات الإيجار المتبقية؛ يُفصل الجزء المتداول." },
+		loansNcl: {
+			"IFRS 9": "قرض يقاس بالتكلفة المطفأة بمعدل الفائدة الفعلي؛ يُفصل الجزء المستحق خلال سنة.",
+			"IFRS 7": "يُفصح عن الاستحقاقات والضمانات والتعهدات."
+		},
+		loansCl: {
+			"IFRS 9": "التزام مالي بالتكلفة المطفأة؛ يُطابق مع كشوف البنك وعقد التمويل.",
+			"IFRS 7": "يدخل في تحليل مخاطر السيولة."
+		},
+		zakatPayable: {
+			"لائحة الزكاة": "مخصص الزكاة يُحسب على الوعاء الزكوي بسعر 2.5% ويطابق مع الإقرار والربوط.",
+			"IAS 37": "التزام حالي ناشئ عن السنة يُقاس بأفضل تقدير."
+		},
+		contractLiab: { "IFRS 15": "مقابل مستلم قبل الوفاء بالتزام الأداء؛ يُعترف به إيراداً عند نقل السيطرة." },
+		payables: { "IFRS 9": "التزام مالي بالتكلفة المطفأة؛ يُطابق مع كشوف الموردين ويُبحث عن الالتزامات غير المسجلة." },
+		accruals: { "IAS 37": "التزامات مستحقة عن سلع أو خدمات استلمت ولم تفوتر بعد." },
+		provisions: { "IAS 37": "يُعترف بالمخصص فقط لالتزام حالي محتمل التدفق وقابل للتقدير؛ وإلا يُفصح عنه كالتزام محتمل." },
+		revenue: {
+			"IFRS 15": "الإيراد يُعترف به عند نقل السيطرة على السلع أو الخدمات بالمبلغ المتوقع استحقاقه.",
+			"ISA 240": "يُفترض وجود خطر غش في الاعتراف بالإيراد ما لم يُدحض.",
+			"IFRS 18": "يعرض ضمن فئة التشغيل."
+		},
+		cogs: { "IAS 2": "تكلفة المخزون المباع تُحمل عند الاعتراف بالإيراد المقابل؛ وتُحمل التخفيضات إلى صافي القيمة القابلة للتحقق." },
+		depreciation: { "IAS 16": "مصروف الاستهلاك يجب أن يتسق مع تكلفة الأصول وأعمارها وطريقة الاستهلاك المعتمدة." },
+		impairment: {
+			"IFRS 9": "حركة مخصص الخسائر الائتمانية المتوقعة تُعرض في الربح أو الخسارة.",
+			"IAS 36": "خسائر الانخفاض في الأصول غير المالية."
+		},
+		financeCost: {
+			"IFRS 18": "تعرض ضمن فئة التمويل بعد «الربح قبل التمويل والضرائب».",
+			"IFRS 9": "تكلفة الاقتراض بمعدل الفائدة الفعلي.",
+			"IFRS 16": "فائدة التزامات الإيجار."
+		},
+		investIncome: { "IFRS 18": "عوائد الاستثمارات والودائع تعرض ضمن فئة الاستثمار." },
+		otherIncome: { "IFRS 18": "تبقى في فئة التشغيل ما لم تكن من الاستثمار أو التمويل." },
+		zakatExpense: {
+			"لائحة الزكاة": "مصروف زكاة السنة يطابق مع مخصص الزكاة والإقرار.",
+			"IAS 12": "ينطبق على ضريبة الدخل للحصص غير السعودية/الخليجية."
+		},
+		selling: { "IFRS 18": "مصروف تشغيلي؛ عند العرض حسب الوظيفة يُفصح عن التحليل حسب الطبيعة." },
+		admin: { "IFRS 18": "مصروف تشغيلي؛ عند العرض حسب الوظيفة يُفصح عن التحليل حسب الطبيعة." }
+	};
+	function relationOf(code, lineKey) {
+		const s = STANDARD[code];
+		return (lineKey ? RELATION[lineKey]?.[code] : void 0) ?? (s ? s.purpose : "");
+	}
+	function frameworkApplicability(i) {
+		if (!!i.listedOrIssuing || !!i.fiduciaryForBroadGroup && !i.incidentalDepositsOnly) return {
+			framework: "IFRS",
+			label: "المعايير الدولية للتقرير المالي المعتمدة في المملكة (الكاملة)",
+			mandatory: true,
+			reason: i.listedOrIssuing ? "أدوات المنشأة متداولة أو في طور الإدراج، فهي خاضعة للمساءلة العامة." : "تحتفظ بأصول بصفة ائتمانية لمجموعة عريضة من الغير كنشاط رئيس (بنك، تأمين، صندوق استثمار)، فهي خاضعة للمساءلة العامة.",
+			cite: ["IFRS for SMEs 1.3", "إرشادات SOCPA — القسم 1"]
+		};
+		if (i.electedFullIfrs) return {
+			framework: "IFRS",
+			label: "المعايير الدولية الكاملة (اختيار المنشأة)",
+			mandatory: false,
+			reason: "غير خاضعة للمساءلة العامة واختارت المعايير الكاملة؛ عليها تطبيقها كلها وعدم العودة لمعيار المنشآت الصغيرة إلا بتغير جوهري في وضعها.",
+			cite: ["قرار لجنة معايير المحاسبة في SOCPA", "إرشادات SOCPA — القسم 1 (2/1)"]
+		};
+		return {
+			framework: "SME",
+			label: "المعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم المعتمد في المملكة",
+			mandatory: false,
+			reason: "غير خاضعة للمساءلة العامة" + (i.incidentalDepositsOnly ? "؛ الاحتفاظ بأموال العملاء عرضي وليس نشاطاً رئيساً" : "") + "، والمعيار معتمد لجميع هذه المنشآت بصرف النظر عن حجمها أو شكلها القانوني.",
+			cite: ["IFRS for SMEs 1.2–1.4", "إرشادات SOCPA — القسم 1"]
+		};
+	}
+	/** Standards cited for an account, with the relation text and the SME section when that framework applies. */
+	function standardsFor(codes, lineKey, framework = "IFRS") {
+		return codes.map((code) => STANDARD[code] ? code : normalizeCode$1(code) ?? code).filter((c, i, a) => a.indexOf(c) === i).map((code) => {
+			const s = STANDARD[code];
+			return {
+				code,
+				known: !!s,
+				title: s?.titleAr ?? code,
+				relation: relationOf(code, lineKey),
+				sme: framework === "SME" ? s?.sme ?? null : null,
+				status: s?.status ?? null,
+				url: s?.url ?? null,
+				org: s?.org ?? null
+			};
+		});
+	}
+	function searchCodex(query, list = STANDARDS) {
+		const q = String(query || "").trim().toLowerCase();
+		if (!q) return list;
+		const code = normalizeCode$1(query);
+		return list.filter((s) => s.code === code || [
+			s.code,
+			s.titleAr,
+			s.titleEn,
+			s.purpose,
+			...s.requirements
+		].join(" ").toLowerCase().includes(q));
+	}
+	//#endregion
+	//#region app/src/engine/fusion/reports/statements-engine.ts
+	var statements_engine_exports = /* @__PURE__ */ __exportAll({
+		LINE: () => LINE,
+		LINES: () => LINES,
+		buildStatements: () => buildStatements,
+		lineFor: () => lineFor
+	});
+	var LINES = [
+		{
+			key: "rou",
+			ar: "موجودات حق الاستخدام",
+			en: "Right-of-use assets",
+			statement: "sfp",
+			section: "nca",
+			types: ["asset"],
+			kws: [
+				"حق استخدام",
+				"حق الاستخدام",
+				"حق انتفاع",
+				"right of use",
+				"right-of-use"
+			],
+			prefixes: [],
+			standards: ["IFRS 16"],
+			assertions: [
+				"الوجود",
+				"التقييم",
+				"الحقوق"
+			],
+			cf: "investing"
+		},
+		{
+			key: "intangibles",
+			ar: "موجودات غير ملموسة",
+			en: "Intangible assets",
+			statement: "sfp",
+			section: "nca",
+			types: ["asset"],
+			kws: [
+				"غير ملموس",
+				"برامج",
+				"تراخيص",
+				"ترخيص",
+				"شهره",
+				"intangible",
+				"software",
+				"goodwill"
+			],
+			prefixes: [],
+			standards: ["IAS 38", "IAS 36"],
+			assertions: ["الوجود", "التقييم"],
+			cf: "investing"
+		},
+		{
+			key: "biological",
+			ar: "موجودات حيوية",
+			en: "Biological assets",
+			statement: "sfp",
+			section: "nca",
+			types: ["asset"],
+			kws: [
+				"موجودات حيويه",
+				"اصول حيويه",
+				"قطيع",
+				"مواشي منتجه",
+				"biological"
+			],
+			prefixes: [],
+			standards: ["IAS 41"],
+			assertions: ["الوجود", "التقييم"],
+			cf: "investing"
+		},
+		{
+			key: "investments",
+			ar: "استثمارات طويلة الأجل",
+			en: "Long-term investments",
+			statement: "sfp",
+			section: "nca",
+			types: ["asset"],
+			kws: [
+				"استثمار",
+				"شركه زميله",
+				"مشروع مشترك",
+				"investment"
+			],
+			prefixes: [],
+			standards: ["IFRS 9", "IAS 28"],
+			assertions: ["الوجود", "التقييم"],
+			cf: "investing"
+		},
+		{
+			key: "ppe",
+			ar: "ممتلكات وآلات ومعدات",
+			en: "Property, plant and equipment",
+			statement: "sfp",
+			section: "nca",
+			types: ["asset"],
+			kws: [
+				"مباني",
+				"مبان",
+				"معدات",
+				"الات",
+				"اثاث",
+				"سيارات",
+				"مركبات",
+				"اراضي",
+				"ارض",
+				"تجهيزات",
+				"تحسينات",
+				"اصول ثابته",
+				"ممتلكات",
+				"اهلاك متراكم",
+				"مجمع اهلاك",
+				"مجمع الاهلاك",
+				"ppe",
+				"equipment",
+				"vehicles",
+				"building"
+			],
+			prefixes: ["15", "16"],
+			standards: ["IAS 16", "IAS 36"],
+			assertions: [
+				"الوجود",
+				"التقييم",
+				"الحقوق",
+				"العرض"
+			],
+			cf: "investing"
+		},
+		{
+			key: "otherNca",
+			ar: "موجودات غير متداولة أخرى",
+			en: "Other non-current assets",
+			statement: "sfp",
+			section: "nca",
+			types: ["asset"],
+			kws: ["طويل الاجل"],
+			prefixes: [
+				"13",
+				"14",
+				"17",
+				"18",
+				"19"
+			],
+			standards: ["IAS 1"],
+			assertions: ["الوجود", "التقييم"],
+			cf: "investing"
+		},
+		{
+			key: "inventory",
+			ar: "المخزون",
+			en: "Inventories",
+			statement: "sfp",
+			section: "ca",
+			types: ["asset"],
+			kws: [
+				"مخزون",
+				"بضاعه",
+				"مواد خام",
+				"تحت التشغيل",
+				"مواد تغليف",
+				"inventory",
+				"stock"
+			],
+			prefixes: ["114", "115"],
+			standards: ["IAS 2", "ISA 501"],
+			assertions: [
+				"الوجود",
+				"الاكتمال",
+				"التقييم",
+				"الحقوق"
+			],
+			cf: "wc"
+		},
+		{
+			key: "receivables",
+			ar: "ذمم مدينة تجارية",
+			en: "Trade receivables",
+			statement: "sfp",
+			section: "ca",
+			types: ["asset"],
+			kws: [
+				"ذمم مدينه",
+				"مدينون",
+				"مدينين",
+				"عملاء",
+				"عميل",
+				"اوراق قبض",
+				"خسائر ائتمانيه متوقعه",
+				"receivable"
+			],
+			prefixes: ["112", "113"],
+			standards: [
+				"IFRS 9",
+				"IFRS 15",
+				"ISA 505"
+			],
+			assertions: [
+				"الوجود",
+				"التقييم",
+				"القطع",
+				"الحقوق"
+			],
+			cf: "wc"
+		},
+		{
+			key: "vatAsset",
+			ar: "ضريبة قيمة مضافة مستردة",
+			en: "VAT receivable",
+			statement: "sfp",
+			section: "ca",
+			types: ["asset"],
+			kws: [
+				"مدخلات",
+				"ضريبه المدخلات",
+				"ضريبه مدفوعه",
+				"input vat"
+			],
+			prefixes: [],
+			standards: ["ZATCA VAT"],
+			assertions: ["الوجود", "الدقه"],
+			cf: "wc"
+		},
+		{
+			key: "prepayments",
+			ar: "مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى",
+			en: "Prepayments and other receivables",
+			statement: "sfp",
+			section: "ca",
+			types: ["asset"],
+			kws: [
+				"مقدم",
+				"مدفوعه مقدما",
+				"سلف",
+				"عهد",
+				"تامينات مسترده",
+				"prepaid",
+				"advance",
+				"deposit"
+			],
+			prefixes: [
+				"116",
+				"117",
+				"118",
+				"119"
+			],
+			standards: ["IAS 1", "IFRS 9"],
+			assertions: ["الوجود", "القطع"],
+			cf: "wc"
+		},
+		{
+			key: "cash",
+			ar: "النقد وما في حكمه",
+			en: "Cash and cash equivalents",
+			statement: "sfp",
+			section: "ca",
+			types: ["asset"],
+			kws: [
+				"نقد",
+				"نقديه",
+				"صندوق",
+				"بنك",
+				"مصرف",
+				"cash",
+				"bank"
+			],
+			prefixes: [
+				"111",
+				"101",
+				"102"
+			],
+			standards: ["IAS 7", "ISA 505"],
+			assertions: [
+				"الوجود",
+				"الحقوق",
+				"العرض"
+			],
+			cf: "cash"
+		},
+		{
+			key: "otherCa",
+			ar: "موجودات متداولة أخرى",
+			en: "Other current assets",
+			statement: "sfp",
+			section: "ca",
+			types: ["asset"],
+			kws: [],
+			prefixes: ["11", "12"],
+			standards: ["IAS 1"],
+			assertions: ["الوجود"],
+			cf: "wc"
+		},
+		{
+			key: "capital",
+			ar: "رأس المال",
+			en: "Share capital",
+			statement: "sfp",
+			section: "eq",
+			types: ["equity"],
+			kws: [
+				"راس المال",
+				"راسمال",
+				"capital"
+			],
+			prefixes: ["301", "31"],
+			standards: ["IAS 1", "IAS 32"],
+			assertions: ["الوجود", "العرض"],
+			cf: "financing"
+		},
+		{
+			key: "reserves",
+			ar: "الاحتياطيات",
+			en: "Reserves",
+			statement: "sfp",
+			section: "eq",
+			types: ["equity"],
+			kws: ["احتياطي", "reserve"],
+			prefixes: [
+				"302",
+				"303",
+				"32"
+			],
+			standards: ["IAS 1", "نظام الشركات"],
+			assertions: ["العرض"],
+			cf: "equity"
+		},
+		{
+			key: "partners",
+			ar: "جاري الشركاء",
+			en: "Partners' current accounts",
+			statement: "sfp",
+			section: "eq",
+			types: ["equity"],
+			kws: [
+				"جاري الشريك",
+				"جاري الشركاء",
+				"جاري المالك",
+				"مسحوبات",
+				"drawings"
+			],
+			prefixes: [],
+			standards: ["IAS 1", "IAS 24"],
+			assertions: ["الاكتمال", "العرض"],
+			cf: "financing"
+		},
+		{
+			key: "retained",
+			ar: "الأرباح المبقاة",
+			en: "Retained earnings",
+			statement: "sfp",
+			section: "eq",
+			types: ["equity"],
+			kws: [
+				"ارباح مبقاه",
+				"ارباح مدوره",
+				"خسائر متراكمه",
+				"ارباح محتجزه",
+				"retained"
+			],
+			prefixes: [
+				"30",
+				"33",
+				"34"
+			],
+			standards: ["IAS 1"],
+			assertions: ["العرض"],
+			cf: "retained"
+		},
+		{
+			key: "eosb",
+			ar: "التزامات منافع الموظفين (نهاية الخدمة)",
+			en: "Employee end-of-service benefits",
+			statement: "sfp",
+			section: "ncl",
+			types: ["liability"],
+			kws: [
+				"نهايه الخدمه",
+				"مكافاه نهايه",
+				"end of service",
+				"eosb"
+			],
+			prefixes: [],
+			standards: ["IAS 19"],
+			assertions: ["الاكتمال", "التقييم"],
+			cf: "noncash"
+		},
+		{
+			key: "leaseNcl",
+			ar: "التزامات عقود الإيجار",
+			en: "Lease liabilities",
+			statement: "sfp",
+			section: "ncl",
+			types: ["liability"],
+			kws: [
+				"التزام ايجار",
+				"التزامات ايجار",
+				"التزامات عقود الايجار",
+				"lease liabilit"
+			],
+			prefixes: [],
+			standards: ["IFRS 16"],
+			assertions: ["الاكتمال", "التقييم"],
+			cf: "financing"
+		},
+		{
+			key: "loansNcl",
+			ar: "قروض طويلة الأجل",
+			en: "Long-term borrowings",
+			statement: "sfp",
+			section: "ncl",
+			types: ["liability"],
+			kws: [
+				"قرض طويل",
+				"قروض طويله",
+				"تمويل طويل",
+				"long-term loan",
+				"long term loan"
+			],
+			prefixes: [
+				"22",
+				"23",
+				"24"
+			],
+			standards: ["IFRS 9", "IFRS 7"],
+			assertions: [
+				"الاكتمال",
+				"الالتزامات",
+				"العرض"
+			],
+			cf: "financing"
+		},
+		{
+			key: "zakatPayable",
+			ar: "زكاة مستحقة",
+			en: "Zakat payable",
+			statement: "sfp",
+			section: "cl",
+			types: ["liability"],
+			kws: [
+				"زكاه مستحقه",
+				"مخصص الزكاه",
+				"مخصص زكاه",
+				"zakat payable",
+				"zakat provision"
+			],
+			prefixes: [],
+			standards: ["لائحة الزكاة", "IAS 37"],
+			assertions: ["الاكتمال", "التقييم"],
+			cf: "zakatPayable"
+		},
+		{
+			key: "vatLiability",
+			ar: "ضريبة قيمة مضافة مستحقة",
+			en: "VAT payable",
+			statement: "sfp",
+			section: "cl",
+			types: ["liability"],
+			kws: [
+				"ضريبه القيمه المضافه",
+				"ضريبه المخرجات",
+				"مخرجات",
+				"vat"
+			],
+			prefixes: [],
+			standards: ["ZATCA VAT"],
+			assertions: ["الاكتمال", "الدقه"],
+			cf: "wc"
+		},
+		{
+			key: "loansCl",
+			ar: "قروض قصيرة الأجل والجزء المتداول",
+			en: "Short-term borrowings",
+			statement: "sfp",
+			section: "cl",
+			types: ["liability"],
+			kws: [
+				"قرض",
+				"قروض",
+				"تسهيلات",
+				"مرابحه",
+				"تورق",
+				"loan",
+				"borrowing",
+				"overdraft"
+			],
+			prefixes: [],
+			standards: ["IFRS 9", "IFRS 7"],
+			assertions: ["الاكتمال", "الالتزامات"],
+			cf: "financing"
+		},
+		{
+			key: "contractLiab",
+			ar: "مطلوبات عقود (دفعات مقدمة من عملاء)",
+			en: "Contract liabilities",
+			statement: "sfp",
+			section: "cl",
+			types: ["liability"],
+			kws: [
+				"دفعات مقدمه من عملاء",
+				"ايرادات مؤجله",
+				"ايراد مقدم",
+				"عربون",
+				"unearned",
+				"deferred revenue",
+				"customer advance"
+			],
+			prefixes: [],
+			standards: ["IFRS 15"],
+			assertions: ["الاكتمال", "القطع"],
+			cf: "wc"
+		},
+		{
+			key: "payables",
+			ar: "ذمم دائنة تجارية",
+			en: "Trade payables",
+			statement: "sfp",
+			section: "cl",
+			types: ["liability"],
+			kws: [
+				"ذمم دائنه",
+				"دائنون",
+				"موردين",
+				"موردون",
+				"اوراق دفع",
+				"payable",
+				"supplier"
+			],
+			prefixes: ["201", "211"],
+			standards: ["IFRS 9", "IAS 1"],
+			assertions: [
+				"الاكتمال",
+				"القطع",
+				"الالتزامات"
+			],
+			cf: "wc"
+		},
+		{
+			key: "accruals",
+			ar: "مصروفات مستحقة ومطلوبات أخرى",
+			en: "Accruals and other payables",
+			statement: "sfp",
+			section: "cl",
+			types: ["liability"],
+			kws: [
+				"مستحق",
+				"مستحقه",
+				"رواتب مستحقه",
+				"accrued",
+				"accrual"
+			],
+			prefixes: [
+				"202",
+				"203",
+				"204",
+				"212",
+				"213"
+			],
+			standards: ["IAS 37", "IAS 1"],
+			assertions: ["الاكتمال", "القطع"],
+			cf: "wc"
+		},
+		{
+			key: "provisions",
+			ar: "مخصصات",
+			en: "Provisions",
+			statement: "sfp",
+			section: "cl",
+			types: ["liability"],
+			kws: ["مخصص", "provision"],
+			prefixes: [],
+			standards: ["IAS 37"],
+			assertions: ["الاكتمال", "التقييم"],
+			cf: "noncash"
+		},
+		{
+			key: "otherCl",
+			ar: "مطلوبات متداولة أخرى",
+			en: "Other current liabilities",
+			statement: "sfp",
+			section: "cl",
+			types: ["liability"],
+			kws: [],
+			prefixes: ["20", "21"],
+			standards: ["IAS 1"],
+			assertions: ["الاكتمال"],
+			cf: "wc"
+		},
+		{
+			key: "revenue",
+			ar: "الإيرادات",
+			en: "Revenue",
+			statement: "pl",
+			section: "rev",
+			types: ["revenue"],
+			kws: [
+				"مبيعات",
+				"ايراد المبيعات",
+				"ايرادات النشاط",
+				"ايرادات العقود",
+				"sales",
+				"revenue"
+			],
+			prefixes: ["41", "40"],
+			standards: ["IFRS 15"],
+			assertions: [
+				"الحدوث",
+				"الاكتمال",
+				"الدقه",
+				"القطع"
+			],
+			cf: "none"
+		},
+		{
+			key: "investIncome",
+			ar: "إيرادات الاستثمار",
+			en: "Investment income",
+			statement: "pl",
+			section: "inv",
+			types: ["revenue"],
+			kws: [
+				"ايراد استثمار",
+				"ايرادات استثمار",
+				"عوائد ودائع",
+				"ارباح استثمار",
+				"توزيعات مستلمه",
+				"حصه في",
+				"investment income",
+				"dividend"
+			],
+			prefixes: ["47"],
+			standards: ["IFRS 18", "IFRS 9"],
+			assertions: ["الحدوث", "الدقه"],
+			cf: "none"
+		},
+		{
+			key: "otherIncome",
+			ar: "إيرادات تشغيلية أخرى",
+			en: "Other operating income",
+			statement: "pl",
+			section: "opinc",
+			types: ["revenue"],
+			kws: [
+				"ايرادات اخرى",
+				"ايراد اخر",
+				"ارباح بيع",
+				"other income"
+			],
+			prefixes: [
+				"42",
+				"43",
+				"44",
+				"45",
+				"46",
+				"48",
+				"49"
+			],
+			standards: ["IFRS 18"],
+			assertions: ["الحدوث", "التصنيف"],
+			cf: "none"
+		},
+		{
+			key: "zakatExpense",
+			ar: "الزكاة وضريبة الدخل",
+			en: "Zakat and income tax",
+			statement: "pl",
+			section: "zakat",
+			types: ["expense"],
+			kws: [
+				"زكاه",
+				"ضريبه الدخل",
+				"zakat",
+				"income tax"
+			],
+			prefixes: ["8"],
+			standards: ["لائحة الزكاة", "IAS 12"],
+			assertions: ["الاكتمال", "الدقه"],
+			cf: "none"
+		},
+		{
+			key: "financeCost",
+			ar: "تكاليف التمويل",
+			en: "Finance costs",
+			statement: "pl",
+			section: "fin",
+			types: ["expense"],
+			kws: [
+				"تكاليف تمويل",
+				"تكلفه تمويل",
+				"فوائد",
+				"عمولات مرابحه",
+				"تكلفه القرض",
+				"فائده ايجار",
+				"finance cost",
+				"interest"
+			],
+			prefixes: ["7"],
+			standards: [
+				"IFRS 18",
+				"IFRS 9",
+				"IFRS 16"
+			],
+			assertions: ["الاكتمال", "الدقه"],
+			cf: "none"
+		},
+		{
+			key: "cogs",
+			ar: "تكلفة الإيرادات",
+			en: "Cost of revenue",
+			statement: "pl",
+			section: "cogs",
+			types: ["expense"],
+			kws: [
+				"تكلفه المبيعات",
+				"تكلفه الايرادات",
+				"تكلفه البضاعه",
+				"مشتريات",
+				"تكلفه مباشره",
+				"cost of sales",
+				"cost of revenue",
+				"cogs",
+				"purchases"
+			],
+			prefixes: ["51", "50"],
+			standards: ["IAS 2"],
+			assertions: [
+				"الحدوث",
+				"الاكتمال",
+				"القطع"
+			],
+			cf: "none"
+		},
+		{
+			key: "depreciation",
+			ar: "الاستهلاك والإطفاء",
+			en: "Depreciation and amortisation",
+			statement: "pl",
+			section: "opex",
+			types: ["expense"],
+			kws: [
+				"اهلاك",
+				"استهلاك",
+				"اطفاء",
+				"depreciation",
+				"amortisation",
+				"amortization"
+			],
+			prefixes: [],
+			standards: [
+				"IAS 16",
+				"IAS 38",
+				"IFRS 16"
+			],
+			assertions: ["التقييم", "الدقه"],
+			cf: "none",
+			da: true
+		},
+		{
+			key: "impairment",
+			ar: "خسائر الانخفاض والخسائر الائتمانية المتوقعة",
+			en: "Impairment and expected credit losses",
+			statement: "pl",
+			section: "opex",
+			types: ["expense"],
+			kws: [
+				"انخفاض",
+				"خسائر ائتمانيه",
+				"ديون معدومه",
+				"ديون مشكوك",
+				"impairment",
+				"bad debt",
+				"credit loss"
+			],
+			prefixes: [],
+			standards: ["IFRS 9", "IAS 36"],
+			assertions: ["التقييم"],
+			cf: "none"
+		},
+		{
+			key: "selling",
+			ar: "مصروفات البيع والتوزيع",
+			en: "Selling and distribution expenses",
+			statement: "pl",
+			section: "opex",
+			types: ["expense"],
+			kws: [
+				"بيع",
+				"توزيع",
+				"تسويق",
+				"اعلان",
+				"دعايه",
+				"نقل",
+				"توصيل",
+				"شحن",
+				"عمولات بيع",
+				"selling",
+				"distribution",
+				"marketing",
+				"delivery"
+			],
+			prefixes: ["52"],
+			standards: ["IFRS 18"],
+			assertions: ["الحدوث", "التصنيف"],
+			cf: "none"
+		},
+		{
+			key: "admin",
+			ar: "المصروفات العمومية والإدارية",
+			en: "General and administrative expenses",
+			statement: "pl",
+			section: "opex",
+			types: ["expense"],
+			kws: [],
+			prefixes: [
+				"53",
+				"54",
+				"55",
+				"56",
+				"57",
+				"58",
+				"59",
+				"6"
+			],
+			standards: ["IFRS 18"],
+			assertions: ["الحدوث", "التصنيف"],
+			cf: "none"
+		}
+	];
+	var LINE = Object.fromEntries(LINES.map((l) => [l.key, l]));
+	var FALLBACK = {
+		asset: "otherCa",
+		liability: "otherCl",
+		equity: "retained",
+		revenue: "revenue",
+		expense: "admin",
+		suspense: null
+	};
+	/** The statement line of one account: user override, then name keywords, then code prefix, then its type. */
+	function lineFor(row, overrides = {}) {
+		if (overrides[row.code] && LINE[overrides[row.code]]) return {
+			key: overrides[row.code],
+			basis: "manual"
+		};
+		const name = norm(row.name), code = String(row.code || "").replace(/\D/g, "");
+		const candidates = LINES.filter((l) => l.types.includes(row.type));
+		const byName = candidates.find((l) => l.kws.some((k) => name.includes(norm(k))));
+		if (byName) return {
+			key: byName.key,
+			basis: "name"
+		};
+		const byCode = candidates.filter((l) => l.prefixes.some((p) => code.startsWith(p))).sort((a, b) => Math.max(...b.prefixes.filter((p) => code.startsWith(p)).map((p) => p.length)) - Math.max(...a.prefixes.filter((p) => code.startsWith(p)).map((p) => p.length)))[0];
+		if (byCode) return {
+			key: byCode.key,
+			basis: "code"
+		};
+		const fb = FALLBACK[row.type];
+		return fb ? {
+			key: fb,
+			basis: "type"
+		} : {
+			key: null,
+			basis: "none"
+		};
+	}
+	var present = (l, signed) => l.types.includes("asset") || l.types.includes("expense") ? signed : -signed;
+	function buildStatements(tb, overrides = {}) {
+		const hasPrior = tb.hasPrior;
+		const acc = /* @__PURE__ */ new Map();
+		const unmapped = [];
+		for (const r of tb.rows) {
+			const { key, basis } = lineFor(r, overrides);
+			if (!key) {
+				unmapped.push({
+					code: r.code,
+					name: r.name,
+					balance: r.balance
+				});
+				continue;
+			}
+			const d = LINE[key];
+			if (!acc.has(key)) acc.set(key, {
+				key,
+				ar: d.ar,
+				en: d.en,
+				section: d.section,
+				note: null,
+				current: 0,
+				prior: hasPrior ? 0 : null,
+				accounts: [],
+				standards: d.standards,
+				assertions: d.assertions
+			});
+			const L = acc.get(key), cur = present(d, r.balance), pr = r.prior === null ? null : present(d, r.prior);
+			L.current += cur;
+			if (hasPrior) L.prior = (L.prior ?? 0) + (pr ?? 0);
+			L.accounts.push({
+				code: r.code,
+				name: r.name,
+				current: cur,
+				prior: pr,
+				basis
+			});
+		}
+		const v = (k) => acc.get(k)?.current ?? 0, vp = (k) => hasPrior ? acc.get(k)?.prior ?? 0 : 0;
+		const sec = (s, prior = false) => LINES.filter((l) => l.section === s).reduce((a, l) => a + (prior ? vp(l.key) : v(l.key)), 0);
+		const P = (prior) => {
+			const g = (k) => prior ? vp(k) : v(k), sx = (s) => sec(s, prior);
+			const revenue = g("revenue"), cogs = g("cogs"), gross = revenue - cogs;
+			const opex = sx("opex"), otherInc = sx("opinc"), operating = gross - opex + otherInc;
+			const invest = sx("inv"), pbfz = operating + invest, finance = sx("fin"), pbz = pbfz - finance, zakat = sx("zakat");
+			return {
+				revenue,
+				cogs,
+				gross,
+				opex,
+				otherInc,
+				operating,
+				invest,
+				pbfz,
+				finance,
+				pbz,
+				zakat,
+				profit: pbz - zakat
+			};
+		};
+		const pc = P(false), pp = hasPrior ? P(true) : null;
+		const row = (key, ar, en, c, p, level = "line") => ({
+			key,
+			ar,
+			en,
+			current: c,
+			prior: p,
+			level
+		});
+		const lr = (k, sign = 1) => {
+			const d = LINE[k];
+			return row(k, d.ar, d.en, sign * v(k), hasPrior ? sign * vp(k) : null);
+		};
+		const pl = [
+			lr("revenue"),
+			lr("cogs", -1),
+			row("gross", "مجمل الربح", "Gross profit", pc.gross, pp?.gross ?? null, "subtotal"),
+			lr("selling", -1),
+			lr("admin", -1),
+			lr("depreciation", -1),
+			lr("impairment", -1),
+			lr("otherIncome"),
+			row("operating", "الربح التشغيلي", "Operating profit", pc.operating, pp?.operating ?? null, "subtotal"),
+			lr("investIncome"),
+			row("pbfz", "الربح قبل التمويل والزكاة", "Profit before financing and zakat", pc.pbfz, pp?.pbfz ?? null, "subtotal"),
+			lr("financeCost", -1),
+			row("pbz", "الربح قبل الزكاة", "Profit before zakat", pc.pbz, pp?.pbz ?? null, "subtotal"),
+			lr("zakatExpense", -1),
+			row("profit", "صافي ربح السنة", "Profit for the year", pc.profit, pp?.profit ?? null, "total")
+		].filter((r) => r.level !== "line" || r.current !== 0 || (r.prior ?? 0) !== 0);
+		const nca = sec("nca"), ca = sec("ca"), ncl = sec("ncl"), cl = sec("cl"), eqTb = sec("eq");
+		const ncaP = sec("nca", true), caP = sec("ca", true), nclP = sec("ncl", true), clP = sec("cl", true), eqTbP = sec("eq", true);
+		const eq = eqTb + pc.profit, eqP = hasPrior ? eqTbP + (pp?.profit ?? 0) : null;
+		const H = (key, ar, en) => ({
+			key,
+			ar,
+			en,
+			current: 0,
+			prior: null,
+			level: "heading"
+		});
+		const secRows = (s) => LINES.filter((l) => l.section === s).map((l) => lr(l.key)).filter((r) => r.current !== 0 || (r.prior ?? 0) !== 0);
+		const sfp = [
+			H("h-assets", "الموجودات", "Assets"),
+			H("h-nca", "الموجودات غير المتداولة", "Non-current assets"),
+			...secRows("nca"),
+			row("nca", "مجموع الموجودات غير المتداولة", "Total non-current assets", nca, hasPrior ? ncaP : null, "subtotal"),
+			H("h-ca", "الموجودات المتداولة", "Current assets"),
+			...secRows("ca"),
+			row("ca", "مجموع الموجودات المتداولة", "Total current assets", ca, hasPrior ? caP : null, "subtotal"),
+			row("assets", "مجموع الموجودات", "Total assets", nca + ca, hasPrior ? ncaP + caP : null, "total"),
+			H("h-eq", "حقوق الملكية والمطلوبات", "Equity and liabilities"),
+			H("h-equity", "حقوق الملكية", "Equity"),
+			...secRows("eq"),
+			row("resultYear", "صافي ربح السنة", "Profit for the year", pc.profit, pp?.profit ?? null),
+			row("equity", "مجموع حقوق الملكية", "Total equity", eq, eqP, "subtotal"),
+			H("h-ncl", "المطلوبات غير المتداولة", "Non-current liabilities"),
+			...secRows("ncl"),
+			row("ncl", "مجموع المطلوبات غير المتداولة", "Total non-current liabilities", ncl, hasPrior ? nclP : null, "subtotal"),
+			H("h-cl", "المطلوبات المتداولة", "Current liabilities"),
+			...secRows("cl"),
+			row("cl", "مجموع المطلوبات المتداولة", "Total current liabilities", cl, hasPrior ? clP : null, "subtotal"),
+			row("liabilities", "مجموع المطلوبات", "Total liabilities", ncl + cl, hasPrior ? nclP + clP : null, "subtotal"),
+			row("eqLiab", "مجموع حقوق الملكية والمطلوبات", "Total equity and liabilities", eq + ncl + cl, eqP === null ? null : eqP + nclP + clP, "total")
+		];
+		const difference = nca + ca - (eq + ncl + cl), priorDiff = hasPrior && eqP !== null ? ncaP + caP - (eqP + nclP + clP) : null;
+		const eqCol = (k) => [v(k), vp(k)];
+		const [capC, capP] = eqCol("capital"), [resC, resP] = eqCol("reserves"), [parC, parP] = eqCol("partners"), [retC, retP] = eqCol("retained");
+		const openRet = retP + (pp?.profit ?? 0), closeRet = retC + pc.profit;
+		const soce = {
+			columns: [
+				"رأس المال",
+				"الاحتياطيات",
+				"جاري الشركاء",
+				"الأرباح المبقاة",
+				"المجموع"
+			],
+			rows: hasPrior ? [
+				{
+					ar: "الرصيد في بداية السنة",
+					values: [
+						capP,
+						resP,
+						parP,
+						openRet,
+						capP + resP + parP + openRet
+					]
+				},
+				{
+					ar: "صافي ربح السنة",
+					values: [
+						0,
+						0,
+						0,
+						pc.profit,
+						pc.profit
+					]
+				},
+				{
+					ar: "زيادة رأس المال والاحتياطيات والحركة في جاري الشركاء",
+					values: [
+						capC - capP,
+						resC - resP,
+						parC - parP,
+						0,
+						capC - capP + resC - resP + parC - parP
+					]
+				},
+				{
+					ar: "توزيعات وتحويلات أخرى",
+					values: [
+						0,
+						0,
+						0,
+						closeRet - openRet - pc.profit,
+						closeRet - openRet - pc.profit
+					]
+				},
+				{
+					ar: "الرصيد في نهاية السنة",
+					values: [
+						capC,
+						resC,
+						parC,
+						closeRet,
+						capC + resC + parC + closeRet
+					]
+				}
+			] : [
+				{
+					ar: "الرصيد قبل نتيجة السنة",
+					values: [
+						capC,
+						resC,
+						parC,
+						retC,
+						capC + resC + parC + retC
+					]
+				},
+				{
+					ar: "صافي ربح السنة",
+					values: [
+						0,
+						0,
+						0,
+						pc.profit,
+						pc.profit
+					]
+				},
+				{
+					ar: "الرصيد في نهاية السنة",
+					values: [
+						capC,
+						resC,
+						parC,
+						closeRet,
+						capC + resC + parC + closeRet
+					]
+				}
+			]
+		};
+		let cf = null, cashTies = null, cfDifference = null;
+		if (hasPrior) {
+			const d = (k) => v(k) - vp(k);
+			const da = LINES.filter((l) => l.da).reduce((a, l) => a + v(l.key), 0);
+			const byRole = (role, sign) => LINES.filter((l) => l.statement === "sfp" && l.cf === role).map((l) => ({
+				l,
+				amt: sign * d(l.key)
+			})).filter((x) => x.amt !== 0);
+			const assetWc = byRole("wc", -1).filter((x) => x.l.types.includes("asset")), liabWc = byRole("wc", 1).filter((x) => x.l.types.includes("liability"));
+			const noncash = byRole("noncash", 1), zakatPaid = -(vp("zakatPayable") + pc.zakat - v("zakatPayable"));
+			const opRows = [
+				row("cf-pbz", "الربح قبل الزكاة", "Profit before zakat", pc.pbz, null),
+				...da ? [row("cf-da", "الاستهلاك والإطفاء", "Depreciation and amortisation", da, null)] : [],
+				...noncash.map((x) => row("cf-nc-" + x.l.key, "الحركة في " + x.l.ar, "Movement in " + x.l.en, x.amt, null)),
+				...assetWc.map((x) => row("cf-wc-" + x.l.key, (x.amt <= 0 ? "الزيادة في " : "النقص في ") + x.l.ar, "Change in " + x.l.en, x.amt, null)),
+				...liabWc.map((x) => row("cf-wc-" + x.l.key, (x.amt >= 0 ? "الزيادة في " : "النقص في ") + x.l.ar, "Change in " + x.l.en, x.amt, null)),
+				row("cf-zakat", "الزكاة المدفوعة", "Zakat paid", zakatPaid, null)
+			];
+			const op = opRows.reduce((a, r) => a + r.current, 0);
+			const inv = byRole("investing", -1).map((x) => row("cf-inv-" + x.l.key, (x.l.key === "ppe" ? "إضافات " : "الحركة في ") + x.l.ar, "Investment in " + x.l.en, x.amt - (x.l.key === "ppe" ? da : 0), null)).filter((r) => r.current !== 0);
+			if (da && !inv.some((r) => r.key === "cf-inv-ppe")) inv.push(row("cf-inv-ppe", "إضافات ممتلكات وآلات ومعدات", "Additions to PPE", -da, null));
+			const invT = inv.reduce((a, r) => a + r.current, 0);
+			const finRows = [...byRole("financing", 1).map((x) => row("cf-fin-" + x.l.key, "الحركة في " + x.l.ar, "Movement in " + x.l.en, x.amt, null)), ...byRole("equity", 1).map((x) => row("cf-fin-" + x.l.key, "الحركة في " + x.l.ar, "Movement in " + x.l.en, x.amt, null))];
+			const dividends = closeRet - openRet - pc.profit;
+			if (dividends) finRows.push(row("cf-fin-div", "توزيعات أرباح وتحويلات", "Dividends and transfers", dividends, null));
+			const finT = finRows.reduce((a, r) => a + r.current, 0);
+			const net = op + invT + finT, cashOpen = vp("cash"), cashClose = v("cash");
+			cfDifference = cashOpen + net - cashClose;
+			cashTies = cfDifference === 0;
+			cf = [
+				{
+					key: "h-op",
+					ar: "الأنشطة التشغيلية",
+					en: "Operating activities",
+					current: 0,
+					prior: null,
+					level: "heading"
+				},
+				...opRows,
+				row("cf-op", "صافي النقد من الأنشطة التشغيلية", "Net cash from operating activities", op, null, "subtotal"),
+				{
+					key: "h-inv",
+					ar: "الأنشطة الاستثمارية",
+					en: "Investing activities",
+					current: 0,
+					prior: null,
+					level: "heading"
+				},
+				...inv,
+				row("cf-inv", "صافي النقد من الأنشطة الاستثمارية", "Net cash from investing activities", invT, null, "subtotal"),
+				{
+					key: "h-fin",
+					ar: "الأنشطة التمويلية",
+					en: "Financing activities",
+					current: 0,
+					prior: null,
+					level: "heading"
+				},
+				...finRows,
+				row("cf-fin", "صافي النقد من الأنشطة التمويلية", "Net cash from financing activities", finT, null, "subtotal"),
+				row("cf-net", "صافي التغير في النقد", "Net change in cash", net, null, "subtotal"),
+				row("cf-open", "النقد في بداية السنة", "Cash at beginning of year", cashOpen, null),
+				row("cf-close", "النقد في نهاية السنة", "Cash at end of year", cashOpen + net, null, "total")
+			];
+		}
+		const notes = [
+			{
+				no: 1,
+				ar: "معلومات عن المنشأة",
+				en: "Corporate information",
+				kind: "policy"
+			},
+			{
+				no: 2,
+				ar: "أساس الإعداد",
+				en: "Basis of preparation",
+				kind: "policy"
+			},
+			{
+				no: 3,
+				ar: "السياسات المحاسبية الجوهرية",
+				en: "Material accounting policies",
+				kind: "policy"
+			},
+			{
+				no: 4,
+				ar: "الأحكام والتقديرات المحاسبية الهامة",
+				en: "Significant judgements and estimates",
+				kind: "policy"
+			}
+		];
+		let no = 5;
+		for (const s of [
+			"nca",
+			"ca",
+			"eq",
+			"ncl",
+			"cl",
+			"rev",
+			"cogs",
+			"opex",
+			"opinc",
+			"inv",
+			"fin",
+			"zakat"
+		]) for (const l of LINES.filter((x) => x.section === s)) {
+			const L = acc.get(l.key);
+			if (!L || L.current === 0 && (L.prior ?? 0) === 0) continue;
+			L.note = no;
+			notes.push({
+				no,
+				ar: l.ar,
+				en: l.en,
+				kind: "line",
+				lineKey: l.key
+			});
+			no++;
+		}
+		const noteOf = (k) => acc.get(k)?.note ?? null;
+		for (const r of [...pl, ...sfp]) if (LINE[r.key]) r.note = noteOf(r.key);
+		const keys = {};
+		const put = (k, c, p) => {
+			keys[k] = {
+				current: c,
+				prior: hasPrior ? p : null
+			};
+		};
+		[
+			"revenue",
+			"cogs",
+			"gross",
+			"opex",
+			"operating",
+			"pbfz",
+			"finance",
+			"pbz",
+			"zakat",
+			"profit"
+		].forEach((k) => put(k, pc[k], pp ? pp[k] : null));
+		put("nca", nca, ncaP);
+		put("ca", ca, caP);
+		put("assets", nca + ca, ncaP + caP);
+		put("ncl", ncl, nclP);
+		put("cl", cl, clP);
+		put("liabilities", ncl + cl, nclP + clP);
+		put("equity", eq, eqP);
+		for (const k of [
+			"cash",
+			"receivables",
+			"inventory",
+			"payables",
+			"ppe",
+			"loansCl",
+			"loansNcl",
+			"leaseNcl",
+			"depreciation",
+			"selling",
+			"admin"
+		]) put(k, v(k), vp(k));
+		if (cf) {
+			put("cfo", cf.find((r) => r.key === "cf-op").current, null);
+			put("capex", cf.filter((r) => r.key === "cf-inv-ppe" || r.key === "cf-inv-intangibles").reduce((a, r) => a + r.current, 0), null);
+		}
+		const mapped = tb.rows.length ? Math.round((tb.rows.length - unmapped.length) / tb.rows.length * 1e3) / 10 : 0;
+		return {
+			hasPrior,
+			lines: [...acc.values()],
+			unmapped,
+			pl,
+			sfp,
+			soce,
+			cf,
+			keys,
+			checks: {
+				balanced: difference === 0,
+				difference,
+				priorBalanced: priorDiff === null ? null : priorDiff === 0,
+				cashTies,
+				cfDifference,
+				mappedPct: mapped
+			},
+			notes
+		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/reports/analysis-engine.ts
+	var analysis_engine_exports = /* @__PURE__ */ __exportAll({
+		altmanZ: () => altmanZ,
+		beneishM: () => beneishM,
+		benford: () => benford,
+		commonSize: () => commonSize,
+		dupont: () => dupont,
+		freeCashFlow: () => freeCashFlow,
+		highlights: () => highlights,
+		horizontal: () => horizontal,
+		mdna: () => mdna,
+		ratios: () => ratios
+	});
+	var r2 = (n) => Math.round(n * 100) / 100;
+	var div = (a, b) => b ? a / b : null;
+	var pctOf = (a, b) => {
+		const x = div(a, b);
+		return x === null ? null : r2(x * 100);
+	};
+	var times = (a, b) => {
+		const x = div(a, b);
+		return x === null ? null : r2(x);
+	};
+	var days$1 = (a, b) => {
+		const x = div(a, b);
+		return x === null ? null : Math.round(x * 365);
+	};
+	function snap(fs, prior) {
+		if (prior && !fs.hasPrior) return null;
+		const k = (key) => {
+			const x = fs.keys[key];
+			return x ? prior ? x.prior ?? 0 : x.current : 0;
+		};
+		return {
+			revenue: k("revenue"),
+			cogs: k("cogs"),
+			gross: k("gross"),
+			operating: k("operating"),
+			pbz: k("pbz"),
+			finance: k("finance"),
+			profit: k("profit"),
+			assets: k("assets"),
+			ca: k("ca"),
+			cl: k("cl"),
+			cash: k("cash"),
+			inventory: k("inventory"),
+			receivables: k("receivables"),
+			payables: k("payables"),
+			equity: k("equity"),
+			debt: k("loansCl") + k("loansNcl") + k("leaseNcl"),
+			liabilities: k("liabilities"),
+			ppe: k("ppe")
+		};
+	}
+	/** Ratios of one year (s) — averages use the prior year when present (ROE, turnover). */
+	function ratiosOf(s, p, cfo, capex) {
+		const avg = (a, b) => b === void 0 ? a : (a + b) / 2;
+		const netDebt = s.debt - s.cash;
+		return {
+			current: times(s.ca, s.cl),
+			quick: times(s.ca - s.inventory, s.cl),
+			cashRatio: times(s.cash, s.cl),
+			grossMargin: pctOf(s.gross, s.revenue),
+			operatingMargin: pctOf(s.operating, s.revenue),
+			netMargin: pctOf(s.profit, s.revenue),
+			roa: pctOf(s.profit, avg(s.assets, p?.assets)),
+			roe: pctOf(s.profit, avg(s.equity, p?.equity)),
+			roce: pctOf(s.operating, avg(s.assets - s.cl, p ? p.assets - p.cl : void 0)),
+			dso: days$1(s.receivables, s.revenue),
+			dio: days$1(s.inventory, s.cogs),
+			dpo: days$1(s.payables, s.cogs),
+			assetTurnover: times(s.revenue, avg(s.assets, p?.assets)),
+			debtToEquity: times(s.debt, s.equity),
+			gearing: pctOf(netDebt, netDebt + s.equity),
+			liabilitiesToAssets: pctOf(s.liabilities, s.assets),
+			interestCover: s.finance ? times(s.operating, s.finance) : null,
+			cfoToProfit: cfo === null ? null : times(cfo, s.profit),
+			fcf: cfo === null ? null : cfo + (capex ?? 0),
+			cfoMargin: cfo === null ? null : pctOf(cfo, s.revenue)
+		};
+	}
+	var DEF = [
+		[
+			"current",
+			"liquidity",
+			"نسبة التداول",
+			"Current ratio",
+			"x",
+			"up",
+			"الموجودات المتداولة ÷ المطلوبات المتداولة"
+		],
+		[
+			"quick",
+			"liquidity",
+			"النسبة السريعة",
+			"Quick ratio",
+			"x",
+			"up",
+			"(المتداولة − المخزون) ÷ المطلوبات المتداولة"
+		],
+		[
+			"cashRatio",
+			"liquidity",
+			"نسبة النقدية",
+			"Cash ratio",
+			"x",
+			"up",
+			"النقد ÷ المطلوبات المتداولة"
+		],
+		[
+			"grossMargin",
+			"profitability",
+			"هامش مجمل الربح",
+			"Gross margin",
+			"%",
+			"up",
+			"مجمل الربح ÷ الإيرادات"
+		],
+		[
+			"operatingMargin",
+			"profitability",
+			"هامش الربح التشغيلي",
+			"Operating margin",
+			"%",
+			"up",
+			"الربح التشغيلي ÷ الإيرادات (IFRS 18)"
+		],
+		[
+			"netMargin",
+			"profitability",
+			"هامش صافي الربح",
+			"Net margin",
+			"%",
+			"up",
+			"صافي الربح ÷ الإيرادات"
+		],
+		[
+			"roa",
+			"profitability",
+			"العائد على الموجودات",
+			"Return on assets",
+			"%",
+			"up",
+			"صافي الربح ÷ متوسط الموجودات"
+		],
+		[
+			"roe",
+			"profitability",
+			"العائد على حقوق الملكية",
+			"Return on equity",
+			"%",
+			"up",
+			"صافي الربح ÷ متوسط حقوق الملكية"
+		],
+		[
+			"roce",
+			"profitability",
+			"العائد على رأس المال المستخدم",
+			"Return on capital employed",
+			"%",
+			"up",
+			"الربح التشغيلي ÷ متوسط (الموجودات − المطلوبات المتداولة)"
+		],
+		[
+			"dso",
+			"efficiency",
+			"أيام التحصيل",
+			"Days sales outstanding",
+			"days",
+			"down",
+			"الذمم المدينة ÷ الإيرادات × 365"
+		],
+		[
+			"dio",
+			"efficiency",
+			"أيام المخزون",
+			"Days inventory outstanding",
+			"days",
+			"down",
+			"المخزون ÷ تكلفة الإيرادات × 365"
+		],
+		[
+			"dpo",
+			"efficiency",
+			"أيام السداد للموردين",
+			"Days payables outstanding",
+			"days",
+			"up",
+			"الذمم الدائنة ÷ تكلفة الإيرادات × 365"
+		],
+		[
+			"ccc",
+			"efficiency",
+			"دورة التحويل النقدي",
+			"Cash conversion cycle",
+			"days",
+			"down",
+			"أيام التحصيل + أيام المخزون − أيام السداد"
+		],
+		[
+			"assetTurnover",
+			"efficiency",
+			"معدل دوران الموجودات",
+			"Asset turnover",
+			"x",
+			"up",
+			"الإيرادات ÷ متوسط الموجودات"
+		],
+		[
+			"debtToEquity",
+			"leverage",
+			"الديون إلى حقوق الملكية",
+			"Debt to equity",
+			"x",
+			"down",
+			"القروض والتزامات الإيجار ÷ حقوق الملكية"
+		],
+		[
+			"gearing",
+			"leverage",
+			"نسبة المديونية (Gearing)",
+			"Gearing",
+			"%",
+			"down",
+			"صافي الدين ÷ (صافي الدين + حقوق الملكية)"
+		],
+		[
+			"liabilitiesToAssets",
+			"leverage",
+			"المطلوبات إلى الموجودات",
+			"Liabilities to assets",
+			"%",
+			"down",
+			"مجموع المطلوبات ÷ مجموع الموجودات"
+		],
+		[
+			"interestCover",
+			"leverage",
+			"تغطية تكاليف التمويل",
+			"Interest cover",
+			"x",
+			"up",
+			"الربح التشغيلي ÷ تكاليف التمويل"
+		],
+		[
+			"cfoToProfit",
+			"cash",
+			"جودة الأرباح (التشغيلي ÷ الربح)",
+			"Cash conversion of profit",
+			"x",
+			"up",
+			"صافي النقد من التشغيل ÷ صافي الربح"
+		],
+		[
+			"cfoMargin",
+			"cash",
+			"هامش التدفق التشغيلي",
+			"Operating cash-flow margin",
+			"%",
+			"up",
+			"صافي النقد من التشغيل ÷ الإيرادات"
+		]
+	];
+	function ratios(fs) {
+		const s = snap(fs, false), p = snap(fs, true);
+		const cur = ratiosOf(s, p, fs.keys.cfo?.current ?? null, fs.keys.capex?.current ?? null);
+		const pri = p ? ratiosOf(p, null, null, null) : null;
+		const ccc = (x) => x && x.dso !== null && x.dio !== null && x.dpo !== null ? x.dso + x.dio - x.dpo : null;
+		return DEF.map(([key, group, ar, en, unit, better, formula]) => ({
+			key,
+			group,
+			ar,
+			en,
+			unit,
+			better,
+			formula,
+			current: key === "ccc" ? ccc(cur) : cur[key] ?? null,
+			prior: key === "ccc" ? ccc(pri) : pri ? pri[key] ?? null : null
+		}));
+	}
+	/** Free cash flow (Aramco-style KPI): operating cash flow + capital expenditure (negative). */
+	function freeCashFlow(fs) {
+		return fs.keys.cfo ? fs.keys.cfo.current + (fs.keys.capex?.current ?? 0) : null;
+	}
+	/** Common-size: P&L lines as % of revenue, position lines as % of total assets. */
+	function commonSize(fs) {
+		const rev = fs.keys.revenue, ta = fs.keys.assets;
+		const pc = (a, b) => b ? r2(a / b * 100) : null;
+		return {
+			pl: fs.pl.map((r) => ({
+				key: r.key,
+				ar: r.ar,
+				current: pc(r.current, rev.current),
+				prior: r.prior === null ? null : pc(r.prior, rev.prior)
+			})),
+			sfp: fs.sfp.filter((r) => r.level !== "heading").map((r) => ({
+				key: r.key,
+				ar: r.ar,
+				current: pc(r.current, ta.current),
+				prior: r.prior === null ? null : pc(r.prior, ta.prior)
+			}))
+		};
+	}
+	/** Horizontal: change and % change of every line against the prior year. */
+	function horizontal(fs) {
+		if (!fs.hasPrior) return [];
+		return [...fs.pl, ...fs.sfp].filter((r) => r.level !== "heading" && r.prior !== null).map((r) => ({
+			key: r.key,
+			ar: r.ar,
+			current: r.current,
+			prior: r.prior,
+			change: r.current - r.prior,
+			changePct: r.prior ? r2((r.current - r.prior) / Math.abs(r.prior) * 100) : null
+		}));
+	}
+	/** DuPont: ROE = net margin × asset turnover × equity multiplier (year-end balances). */
+	function dupont(fs) {
+		const k = fs.keys, one = (rev, profit, ta, eq) => {
+			const nm = div(profit, rev), at = div(rev, ta), em = div(ta, eq);
+			return {
+				netMargin: nm === null ? null : r2(nm * 100),
+				assetTurnover: at === null ? null : r2(at),
+				equityMultiplier: em === null ? null : r2(em),
+				roe: nm === null || at === null || em === null ? null : r2(nm * at * em * 100)
+			};
+		};
+		return {
+			current: one(k.revenue.current, k.profit.current, k.assets.current, k.equity.current),
+			prior: fs.hasPrior ? one(k.revenue.prior ?? 0, k.profit.prior ?? 0, k.assets.prior ?? 0, k.equity.prior ?? 0) : null
+		};
+	}
+	/** Altman Z″ (1995, non-manufacturing and emerging-market firms): 6.56·X1 + 3.26·X2 + 6.72·X3 + 1.05·X4. */
+	function altmanZ(fs) {
+		const k = fs.keys, ta = k.assets.current, tl = k.liabilities.current;
+		if (!ta) return null;
+		const retained = fs.lines.filter((l) => l.key === "retained").reduce((a, l) => a + l.current, 0) + k.profit.current;
+		const x1 = (k.ca.current - k.cl.current) / ta, x2 = retained / ta, x3 = k.operating.current / ta, x4 = tl ? k.equity.current / tl : 0;
+		const z = r2(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
+		return {
+			z,
+			zone: z > 2.6 ? "safe" : z >= 1.1 ? "grey" : "distress",
+			zoneAr: z > 2.6 ? "منطقة الأمان" : z >= 1.1 ? "المنطقة الرمادية" : "منطقة التعثر",
+			components: {
+				x1: r2(x1),
+				x2: r2(x2),
+				x3: r2(x3),
+				x4: r2(x4)
+			}
+		};
+	}
+	/** Beneish M-score (8 variables) — needs the prior year. M > −1.78 flags possible earnings manipulation. */
+	function beneishM(fs) {
+		if (!fs.hasPrior) return null;
+		const k = fs.keys, c = (x) => k[x]?.current ?? 0, p = (x) => k[x]?.prior ?? 0;
+		const q = (a, b) => b ? a / b : 1;
+		const sga = (f) => f("selling") + f("admin");
+		const dsri = q(q(c("receivables"), c("revenue")), q(p("receivables"), p("revenue")));
+		const gmi = q(q(p("gross"), p("revenue")), q(c("gross"), c("revenue")));
+		const aqi = q(1 - q(c("ca") + c("ppe"), c("assets")), 1 - q(p("ca") + p("ppe"), p("assets")));
+		const sgi = q(c("revenue"), p("revenue"));
+		const depi = q(q(p("depreciation"), p("depreciation") + p("ppe")), q(c("depreciation"), c("depreciation") + c("ppe")));
+		const sgai = q(q(sga(c), c("revenue")), q(sga(p), p("revenue")));
+		const lvgi = q(q(c("cl") + c("loansNcl") + c("leaseNcl"), c("assets")), q(p("cl") + p("loansNcl") + p("leaseNcl"), p("assets")));
+		const tata = fs.keys.cfo ? q(c("profit") - fs.keys.cfo.current, c("assets")) : 0;
+		const m = r2(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
+		const f = (x) => Math.round(x * 1e3) / 1e3;
+		return {
+			m,
+			flagged: m > -1.78,
+			components: {
+				dsri: f(dsri),
+				gmi: f(gmi),
+				aqi: f(aqi),
+				sgi: f(sgi),
+				depi: f(depi),
+				sgai: f(sgai),
+				lvgi: f(lvgi),
+				tata: f(tata)
+			}
+		};
+	}
+	/** Benford first digit with Nigrini's mean absolute deviation conformity bands. */
+	function benford(amounts) {
+		const firsts = amounts.map((a) => Math.abs(a)).filter((a) => a >= 1e3).map((a) => Number(String(a)[0]));
+		const n = firsts.length, counts = Array(10).fill(0);
+		firsts.forEach((d) => {
+			counts[d]++;
+		});
+		const digits = [
+			1,
+			2,
+			3,
+			4,
+			5,
+			6,
+			7,
+			8,
+			9
+		].map((d) => {
+			const expected = Math.log10(1 + 1 / d), actual = n ? counts[d] / n : 0;
+			return {
+				digit: d,
+				count: counts[d],
+				expected: Math.round(expected * 1e4) / 1e4,
+				actual: Math.round(actual * 1e4) / 1e4
+			};
+		});
+		const mad = n ? Math.round(digits.reduce((a, d) => a + Math.abs(d.actual - d.expected), 0) / 9 * 1e5) / 1e5 : null;
+		const conformity = mad === null ? "insufficient" : mad <= .006 ? "close" : mad <= .012 ? "acceptable" : mad <= .015 ? "marginal" : "nonconformity";
+		return {
+			n,
+			digits,
+			mad,
+			conformity,
+			conformityAr: {
+				insufficient: "بيانات غير كافية",
+				close: "مطابقة قريبة",
+				acceptable: "مطابقة مقبولة",
+				marginal: "مطابقة هامشية",
+				nonconformity: "عدم مطابقة"
+			}[conformity],
+			reliable: n >= 300
+		};
+	}
+	/** «The year at a glance» — the KPI strip that opens a global annual report. */
+	function highlights(fs) {
+		const k = fs.keys, rs = ratios(fs), by = (x) => rs.find((r) => r.key === x);
+		const money = (key, ar) => ({
+			key,
+			ar,
+			kind: "money",
+			current: k[key]?.current ?? 0,
+			prior: fs.hasPrior ? k[key]?.prior ?? 0 : null
+		});
+		const rat = (key) => {
+			const r = by(key);
+			return {
+				key,
+				ar: r.ar,
+				kind: r.unit,
+				current: r.current,
+				prior: r.prior
+			};
+		};
+		const fcf = freeCashFlow(fs);
+		return [
+			money("revenue", "الإيرادات"),
+			money("gross", "مجمل الربح"),
+			money("operating", "الربح التشغيلي"),
+			money("profit", "صافي الربح"),
+			...k.cfo ? [money("cfo", "النقد من التشغيل")] : [],
+			...fcf !== null ? [{
+				key: "fcf",
+				ar: "التدفق النقدي الحر",
+				kind: "money",
+				current: fcf,
+				prior: null
+			}] : [],
+			rat("gearing"),
+			rat("roe"),
+			rat("current")
+		].map((i) => ({
+			...i,
+			change: i.prior === null || i.current === null || !i.prior ? null : r2((i.current - i.prior) / Math.abs(i.prior) * 100)
+		}));
+	}
+	/** A deterministic management discussion: sentences generated from the numbers only. */
+	function mdna(fs, opts = {}) {
+		const cur = opts.currency ?? "ريال", k = fs.keys, rs = ratios(fs), by = (x) => rs.find((r) => r.key === x);
+		const m = (v) => Math.round(v / 100).toLocaleString("en-US") + " " + cur;
+		const ch = (key) => {
+			const x = k[key];
+			if (!x || x.prior === null || !x.prior) return null;
+			return r2((x.current - x.prior) / Math.abs(x.prior) * 100);
+		};
+		const dir = (v, up, down) => v === null ? "" : v >= 0 ? `${up} ${Math.abs(v)}%` : `${down} ${Math.abs(v)}%`;
+		const out = [];
+		const rev = ch("revenue"), prof = ch("profit");
+		out.push({
+			title: "الأداء",
+			body: [
+				`بلغت الإيرادات ${m(k.revenue.current)}${rev === null ? "" : "، " + dir(rev, "بنمو", "بانخفاض") + " عن السنة السابقة"}.`,
+				`هامش مجمل الربح ${by("grossMargin").current ?? "—"}%${by("grossMargin").prior !== null ? " مقابل " + by("grossMargin").prior + "%" : ""}، والهامش التشغيلي ${by("operatingMargin").current ?? "—"}%.`,
+				`صافي ربح السنة ${m(k.profit.current)}${prof === null ? "" : "، " + dir(prof, "بارتفاع", "بانخفاض")}؛ العائد على حقوق الملكية ${by("roe").current ?? "—"}%.`
+			]
+		});
+		const cash = [];
+		if (k.cfo) {
+			const q = by("cfoToProfit").current, fcf = freeCashFlow(fs);
+			cash.push(`ولّدت الأنشطة التشغيلية ${m(k.cfo.current)}${q !== null ? ` (${q} ضعف صافي الربح)` : ""}، والتدفق النقدي الحر ${fcf === null ? "—" : m(fcf)}.`);
+			if (q !== null && q < .8) cash.push("التدفق التشغيلي أقل بوضوح من الربح المحاسبي — تستحق جودة الأرباح وتحصيل الذمم متابعة.");
+		} else cash.push("لا تتوفر أرصدة السنة السابقة لاشتقاق قائمة التدفقات النقدية.");
+		cash.push(`نسبة التداول ${by("current").current ?? "—"} مرة، ودورة التحويل النقدي ${by("ccc").current ?? "—"} يوماً.`);
+		out.push({
+			title: "السيولة والتدفقات النقدية",
+			body: cash
+		});
+		const g = by("gearing").current, ic = by("interestCover").current;
+		out.push({
+			title: "هيكل التمويل",
+			body: [`نسبة المديونية (صافي الدين إلى رأس المال) ${g === null ? "—" : g + "%"}${g !== null && g <= 0 ? " — المنشأة في مركز نقدي صافٍ" : ""}.`, ic === null ? "لا توجد تكاليف تمويل مسجلة." : `يغطي الربح التشغيلي تكاليف التمويل ${ic} مرة.`]
+		});
+		const z = altmanZ(fs), b = beneishM(fs), risk = [];
+		if (z) risk.push(`مؤشر Altman Z″ = ${z.z} (${z.zoneAr}).`);
+		if (b) risk.push(`مؤشر Beneish M = ${b.m}${b.flagged ? " — أعلى من حد −1.78: يستدعي تعميق فحص الإيرادات والذمم والاستحقاقات (ISA 240)" : " — ضمن الحدود المعتادة"}.`);
+		for (const x of opts.risks ?? []) risk.push(x);
+		if (risk.length) out.push({
+			title: "المخاطر والمؤشرات",
+			body: risk
+		});
+		return out;
+	}
+	//#endregion
+	//#region app/src/engine/fusion/audit/tb-review-engine.ts
+	var tb_review_engine_exports = /* @__PURE__ */ __exportAll({
+		LINE_AUDIT: () => LINE_AUDIT,
+		adjustmentEffect: () => adjustmentEffect,
+		applyAdjustments: () => applyAdjustments,
+		complianceOf: () => complianceOf,
+		materiality: () => materiality,
+		reviewTrialBalance: () => reviewTrialBalance,
+		validateAdjustment: () => validateAdjustment
+	});
+	function materiality(fs, override) {
+		const pbz = fs.keys.pbz.current, rev = fs.keys.revenue.current, ta = fs.keys.assets.current;
+		const pick = pbz > 0 && rev > 0 && pbz >= rev * .02 ? {
+			benchmark: "pbz",
+			benchmarkAr: "الربح قبل الزكاة",
+			base: pbz,
+			rate: .05
+		} : rev > 0 ? {
+			benchmark: "revenue",
+			benchmarkAr: "الإيرادات",
+			base: rev,
+			rate: .01
+		} : {
+			benchmark: "assets",
+			benchmarkAr: "مجموع الموجودات",
+			base: Math.abs(ta),
+			rate: .01
+		};
+		const overall = override?.overall && override.overall > 0 ? override.overall : Math.max(100, Math.round(pick.base * pick.rate / 100) * 100);
+		return {
+			...pick,
+			overall,
+			performance: Math.round(overall * .75 / 100) * 100,
+			trivial: Math.round(overall * .05 / 100) * 100
+		};
+	}
+	var LINE_AUDIT = {
+		cash: {
+			fraud: true,
+			risk: "وجود الأرصدة وملكيتها واكتمال الحسابات البنكية",
+			procedures: [
+				"مصادقات بنكية مباشرة (ISA 505)",
+				"فحص التسويات البنكية والبنود المعلقة",
+				"قطع التحويلات بين الحسابات"
+			],
+			docs: [
+				["كشوف الحسابات البنكية لشهر الإقفال وما بعده", "إثبات الرصيد في تاريخ الإقفال"],
+				["التسويات البنكية في تاريخ الإقفال", "مطابقة الدفاتر مع البنك وتحليل البنود المعلقة"],
+				["نموذج مصادقة بنكية موقّع", "دليل خارجي مستقل (ISA 505)"]
+			]
+		},
+		receivables: {
+			estimate: true,
+			fraud: true,
+			risk: "الوجود والتقييم (الخسائر الائتمانية المتوقعة) والقطع",
+			procedures: [
+				"مصادقات العملاء لعينة",
+				"تحليل أعمار الديون",
+				"التحصيل اللاحق بعد الإقفال",
+				"تقييم مخصص الخسائر المتوقعة (IFRS 9)"
+			],
+			docs: [
+				["كشف أعمار الذمم المدينة في تاريخ الإقفال", "تقييم قابلية التحصيل والمخصص"],
+				["التحصيلات اللاحقة لأكبر العملاء", "إثبات الوجود والتقييم"],
+				["سياسة ومصفوفة مخصص الخسائر الائتمانية", "التحقق من IFRS 9"]
+			]
+		},
+		inventory: {
+			estimate: true,
+			risk: "الوجود والتقييم بالتكلفة أو صافي القيمة القابلة للتحقق",
+			procedures: [
+				"حضور الجرد (ISA 501)",
+				"اختبار التسعير وطريقة التكلفة",
+				"اختبار صافي القيمة القابلة للتحقق بالمبيعات اللاحقة",
+				"فحص الأصناف الراكدة"
+			],
+			docs: [
+				["قوائم الجرد الفعلي الموقعة في تاريخ الإقفال", "إثبات الوجود والكميات"],
+				["تقييم المخزون بالأصناف وطريقة التكلفة", "التحقق من IAS 2"],
+				["تقرير الأصناف الراكدة وبطيئة الحركة", "تقييم الانخفاض"]
+			]
+		},
+		ppe: {
+			estimate: true,
+			risk: "الوجود والملكية والاستهلاك والانخفاض",
+			procedures: [
+				"مطابقة سجل الأصول",
+				"فحص الإضافات بالمستندات",
+				"إعادة احتساب الاستهلاك",
+				"فحص الاستبعادات"
+			],
+			docs: [
+				["سجل الأصول الثابتة التفصيلي (التكلفة، الاستهلاك، الأعمار)", "مطابقة الأستاذ وإعادة احتساب الاستهلاك"],
+				["فواتير وعقود الإضافات الجوهرية", "إثبات التكلفة والملكية"],
+				["صكوك واستمارات ملكية الأصول الرئيسة", "إثبات الحقوق"]
+			]
+		},
+		rou: {
+			estimate: true,
+			risk: "اكتمال عقود الإيجار وقياسها",
+			procedures: ["حصر العقود", "إعادة احتساب القيمة الحالية"],
+			docs: [["عقود الإيجار السارية وجدول احتساب IFRS 16", "التحقق من القياس والاكتمال"]]
+		},
+		intangibles: {
+			estimate: true,
+			risk: "شروط الرسملة والإطفاء",
+			procedures: ["فحص الرسملة", "إعادة احتساب الإطفاء"],
+			docs: [["مستندات تكلفة الأصول غير الملموسة وأعمارها", "التحقق من IAS 38"]]
+		},
+		investments: {
+			estimate: true,
+			risk: "التصنيف والتقييم",
+			procedures: ["مصادقة المحافظ", "تقييم أساس القياس"],
+			docs: [["كشوف المحافظ أو القوائم المالية للمستثمر فيها", "إثبات الوجود والتقييم"]]
+		},
+		biological: {
+			estimate: true,
+			risk: "الوجود والقيمة العادلة",
+			procedures: ["جرد القطيع", "تقييم أساس القيمة العادلة"],
+			docs: [["سجل القطيع وجرده في تاريخ الإقفال", "إثبات الوجود"], ["أساس تقدير القيمة العادلة ناقصاً تكاليف البيع", "التحقق من IAS 41"]]
+		},
+		vatAsset: {
+			risk: "الدقة والقابلية للاسترداد",
+			procedures: ["مطابقة الإقرارات"],
+			docs: [["إقرارات ضريبة القيمة المضافة للسنة وسداداتها", "مطابقة الأرصدة مع الإقرارات"]]
+		},
+		vatLiability: {
+			risk: "الاكتمال والدقة",
+			procedures: ["مطابقة الإقرارات مع الإيراد"],
+			docs: [["إقرارات ضريبة القيمة المضافة للسنة وسداداتها", "مطابقة الأرصدة والإيراد الخاضع"]]
+		},
+		prepayments: {
+			risk: "الوجود والقطع",
+			procedures: ["فحص المستندات وتوزيع الفترات"],
+			docs: [["تحليل المصروفات المقدمة والسلف والعهد", "إثبات الوجود والفترة"]]
+		},
+		capital: {
+			risk: "الوجود والعرض",
+			procedures: ["مطابقة السجل التجاري وعقد التأسيس"],
+			docs: [["السجل التجاري وعقد التأسيس وتعديلاته", "مطابقة رأس المال والشركاء"]]
+		},
+		reserves: {
+			risk: "سند التحويلات",
+			procedures: ["فحص قرارات التحويل"],
+			docs: [["قرارات الشركاء أو الجمعية بالتحويل إلى الاحتياطيات", "سند الحركة"]]
+		},
+		partners: {
+			risk: "الاكتمال والإفصاح (طرف ذو علاقة)",
+			procedures: ["مصادقة الشركاء", "فحص الحركة"],
+			docs: [["كشف حركة جاري الشركاء ومصادقتهم عليه", "IAS 24 والاكتمال"]]
+		},
+		retained: {
+			risk: "مطابقة الافتتاح",
+			procedures: ["مقارنة الافتتاح مع القوائم المراجعة السابقة (ISA 510)"],
+			docs: [["القوائم المالية المراجعة للسنة السابقة", "مطابقة الأرصدة الافتتاحية"], ["قرارات توزيع الأرباح", "سند الحركة"]]
+		},
+		eosb: {
+			estimate: true,
+			risk: "الاكتمال والتقييم الاكتواري",
+			procedures: ["مطابقة بيانات الموظفين", "تقييم عمل الخبير الاكتواري"],
+			docs: [["كشف الموظفين بالرواتب وتواريخ التعيين", "إعادة احتساب الالتزام"], ["التقرير الاكتواري (أو احتساب الإدارة المبسط)", "التحقق من IAS 19"]]
+		},
+		leaseNcl: {
+			estimate: true,
+			risk: "الاكتمال والقياس",
+			procedures: ["إعادة احتساب الالتزام"],
+			docs: [["عقود الإيجار وجدول الاستهلاك والفائدة", "التحقق من IFRS 16"]]
+		},
+		loansNcl: {
+			risk: "الاكتمال والتصنيف والتعهدات",
+			procedures: ["مصادقة البنك", "فحص التعهدات والتصنيف"],
+			docs: [["عقود التمويل وجداول السداد", "التصنيف والفائدة والتعهدات"], ["مصادقة البنك على أرصدة التمويل", "دليل خارجي"]]
+		},
+		loansCl: {
+			risk: "الاكتمال والتصنيف",
+			procedures: ["مصادقة البنك"],
+			docs: [["عقود التمويل وكشوفها في تاريخ الإقفال", "إثبات الرصيد والشروط"]]
+		},
+		zakatPayable: {
+			estimate: true,
+			risk: "الاكتمال والدقة",
+			procedures: ["إعادة احتساب الوعاء الزكوي", "مطابقة الإقرار والربوط"],
+			docs: [["الإقرار الزكوي وإيصال السداد وشهادة الزكاة", "مطابقة المخصص"], ["الربوط والاعتراضات القائمة", "تقييم الالتزامات المحتملة"]]
+		},
+		contractLiab: {
+			risk: "القطع والاعتراف",
+			procedures: ["فحص العقود والدفعات المقدمة"],
+			docs: [["قائمة الدفعات المقدمة من العملاء مع العقود", "التحقق من IFRS 15"]]
+		},
+		payables: {
+			risk: "الاكتمال والقطع",
+			procedures: ["مطابقة كشوف الموردين", "البحث عن الالتزامات غير المسجلة"],
+			docs: [["كشوف حساب أكبر الموردين في تاريخ الإقفال", "مطابقة الأرصدة"], ["المدفوعات بعد الإقفال لأول شهرين", "البحث عن الالتزامات غير المسجلة"]]
+		},
+		accruals: {
+			estimate: true,
+			risk: "الاكتمال",
+			procedures: ["فحص المدفوعات اللاحقة"],
+			docs: [["تحليل المصروفات المستحقة وأساس احتسابها", "الاكتمال والقطع"]]
+		},
+		provisions: {
+			estimate: true,
+			risk: "الاعتراف والتقدير",
+			procedures: ["خطابات المحامين", "فحص الاستخدام اللاحق"],
+			docs: [["تحليل المخصصات وحركتها وأساس تقديرها", "التحقق من IAS 37"], ["خطاب المستشار القانوني بالقضايا القائمة", "الالتزامات المحتملة"]]
+		},
+		revenue: {
+			fraud: true,
+			risk: "الحدوث والقطع (خطر غش مفترض)",
+			procedures: [
+				"فحص عينة فواتير وعقود",
+				"اختبار القطع",
+				"مطابقة الإيراد مع إقرارات الضريبة",
+				"تحليل الإيراد الشهري"
+			],
+			docs: [
+				["تحليل الإيراد الشهري حسب النشاط أو العميل", "الإجراءات التحليلية (ISA 520)"],
+				["عينة فواتير المبيعات الإلكترونية مع رموز QR", "التحقق من الحدوث والدقة"],
+				["آخر وأول الفواتير حول تاريخ الإقفال", "اختبار القطع"]
+			]
+		},
+		cogs: {
+			risk: "الاكتمال والتطابق مع الإيراد",
+			procedures: ["تحليل هامش الربح", "مطابقة حركة المخزون"],
+			docs: [["تحليل تكلفة المبيعات وحركة المخزون", "التحقق من IAS 2"]]
+		},
+		depreciation: {
+			estimate: true,
+			risk: "الدقة",
+			procedures: ["إعادة الاحتساب"],
+			docs: [["جدول الاستهلاك للسنة", "إعادة الاحتساب"]]
+		},
+		impairment: {
+			estimate: true,
+			risk: "التقييم",
+			procedures: ["تقييم الأساس"],
+			docs: [["احتساب الخسائر الائتمانية أو الانخفاض", "تقييم التقدير (ISA 540)"]]
+		},
+		financeCost: {
+			risk: "الاكتمال والدقة",
+			procedures: ["إعادة احتساب الفائدة"],
+			docs: [["كشوف احتساب تكلفة التمويل", "مطابقة مع العقود"]]
+		},
+		zakatExpense: {
+			estimate: true,
+			risk: "الاكتمال",
+			procedures: ["مطابقة مع المخصص والإقرار"],
+			docs: [["احتساب الزكاة للسنة", "التحقق من اللائحة"]]
+		},
+		selling: {
+			risk: "الحدوث والتصنيف",
+			procedures: ["فحص عينة"],
+			docs: [["تحليل مصروفات البيع والتوزيع", "فحص الحدوث والتصنيف"]]
+		},
+		admin: {
+			risk: "الحدوث والتصنيف",
+			procedures: ["فحص عينة", "الرواتب مقابل التأمينات الاجتماعية"],
+			docs: [["مسير الرواتب ومطابقته مع التأمينات الاجتماعية (GOSI)", "اكتمال ودقة الرواتب"], ["تحليل المصروفات العمومية والإدارية", "فحص الحدوث"]]
+		},
+		investIncome: {
+			risk: "الحدوث",
+			procedures: ["مطابقة مع كشوف الاستثمار"],
+			docs: [["إشعارات العوائد والتوزيعات", "إثبات الحدوث"]]
+		},
+		otherIncome: {
+			risk: "الحدوث والتصنيف",
+			procedures: ["فحص طبيعة البنود"],
+			docs: [["تحليل الإيرادات الأخرى ومستنداتها", "التصنيف (IFRS 18)"]]
+		}
+	};
+	var GENERAL_DOCS = [["ميزان المراجعة النهائي موقعاً من الإدارة", "أساس القوائم وإقرار الإدارة بمسؤوليتها"], ["خطاب إقرارات الإدارة (ISA 580)", "إقرارات مكتوبة في تاريخ التقرير"]];
+	var ACCUM = /مجمع|متراكم|accumulated|مخصص اهلاك|مخصص استهلاك/;
+	var SUSPENSE = /معلق|تحت التسويه|وسيط|حساب مؤقت|suspense|clearing/;
+	var RELATED = /طرف ذو علاقه|اطراف ذات علاقه|شركه شقيقه|جاري المدير|جاري الشريك|جاري الشركاء|related part/;
+	var SALARIES = /رواتب|اجور|salar|wages/;
+	var money$22 = (m) => formatMinor(m, { decimals: 0 }) + " ر.س";
+	/** Run the whole deterministic review of a trial balance. */
+	function reviewTrialBalance(tb, opts = {}) {
+		const framework = opts.framework ?? "IFRS", fs = buildStatements(tb, opts.overrides ?? {});
+		const mat = materiality(fs, { overall: opts.materiality });
+		const findings = [], adjustments = [];
+		let seq = 0;
+		const add = (f) => {
+			const x = {
+				...f,
+				id: "F-" + String(++seq).padStart(2, "0"),
+				source: "engine"
+			};
+			findings.push(x);
+			return x;
+		};
+		const adj = (a) => {
+			adjustments.push({
+				...a,
+				id: "AJE-" + String(adjustments.length + 1).padStart(2, "0"),
+				source: "engine"
+			});
+		};
+		const kv = (k) => fs.keys[k]?.current ?? 0;
+		const accounts = tb.rows.map((r) => {
+			const { key, basis } = lineFor(r, opts.overrides ?? {});
+			const d = key ? LINE[key] : null;
+			const natural = NATURE[r.type] === "debit" ? r.balance : -r.balance;
+			const priorNat = r.prior === null ? null : NATURE[r.type] === "debit" ? r.prior : -r.prior;
+			const change = priorNat === null ? null : natural - priorNat;
+			return {
+				code: r.code,
+				name: r.name,
+				type: r.type,
+				lineKey: key,
+				lineAr: d?.ar ?? "غير مبوّب",
+				basis,
+				balance: r.balance,
+				natural,
+				prior: priorNat,
+				change,
+				changePct: change === null || !priorNat ? null : Math.round(change / Math.abs(priorNat) * 1e3) / 10,
+				standards: standardsFor(d ? [...d.standards, ...LINE_AUDIT[key]?.fraud ? ["ISA 240"] : []] : ["IAS 1"], key, framework),
+				assertions: d?.assertions ?? [],
+				findings: []
+			};
+		});
+		const acc = (code) => accounts.find((a) => a.code === code);
+		const tag = (f) => {
+			if (f.code) acc(f.code)?.findings.push(f.id);
+			return f;
+		};
+		if (!tb.balanced) {
+			const diff = tb.difference, ad = Math.abs(diff);
+			const omitted = tb.rows.find((r) => Math.abs(r.balance) === ad), wrongSide = tb.rows.find((r) => Math.abs(r.balance) * 2 === ad);
+			add({
+				severity: "high",
+				kind: "balance",
+				standard: "ISA 500",
+				title: "ميزان المراجعة غير متوازن",
+				detail: omitted ? `الفرق يساوي رصيد الحساب ${omitted.code} ${omitted.name} — احتمال حذف أو تكرار.` : wrongSide ? `الفرق ضعف رصيد الحساب ${wrongSide.code} ${wrongSide.name} — احتمال ترحيله في الجانب الخطأ.` : ad % 900 === 0 ? "الفرق يقبل القسمة على 9 — احتمال قلب أرقام (Transposition)." : "افحص الترحيل والإقفال.",
+				basis: `مدين ${money$22(tb.totals.debit)} − دائن ${money$22(tb.totals.credit)} = ${money$22(diff)}`,
+				action: "تصحيح الفرق قبل أي تحليل؛ لا تصدر قوائم من ميزان غير متوازن."
+			});
+		}
+		if (tb.hasPrior && tb.priorDifference) add({
+			severity: "medium",
+			kind: "balance",
+			standard: "ISA 510",
+			title: "أرصدة السنة السابقة غير متوازنة",
+			detail: "عمود المقارنة لا يتوازن فتتأثر المقارنات وقائمة التدفقات.",
+			basis: `الفرق ${money$22(tb.priorDifference)}`,
+			action: "مطابقة المقارنة مع القوائم المراجعة للسنة السابقة."
+		});
+		for (const e of tb.errors) add({
+			severity: e.code === "DUPLICATE_ACCOUNT" ? "medium" : "high",
+			kind: "balance",
+			standard: "ISA 500",
+			title: e.code === "DUPLICATE_ACCOUNT" ? "حساب مكرر في الميزان" : "مبلغ غير صالح",
+			detail: e.message,
+			basis: "السطر " + e.line,
+			action: "تصحيح الملف المصدر وإعادة الاستيراد."
+		});
+		for (const a of accounts) {
+			const n = norm(a.name), big = Math.abs(a.balance) >= mat.trivial;
+			if (a.type === "suspense" || !a.lineKey) tag(add({
+				severity: big ? "medium" : "low",
+				kind: "classification",
+				code: a.code,
+				account: a.name,
+				standard: "IAS 1",
+				title: "حساب غير مبوّب",
+				detail: "تعذر تحديد طبيعة الحساب من رقمه أو اسمه.",
+				basis: "الرصيد " + money$22(a.balance),
+				action: "حدد نوع الحساب وبنده في القوائم يدوياً."
+			}));
+			if (SUSPENSE.test(n) && a.balance !== 0) tag(add({
+				severity: Math.abs(a.balance) >= mat.performance ? "high" : "medium",
+				kind: "completeness",
+				code: a.code,
+				account: a.name,
+				standard: "IAS 1",
+				title: "حساب معلق/وسيط برصيد قائم",
+				detail: "الحسابات الوسيطة يجب أن تُصفّى قبل الإقفال وتوزع على بنودها.",
+				basis: "الرصيد " + money$22(a.balance),
+				action: "طلب تحليل الحساب وتصفيته بقيود تسوية."
+			}));
+			if (a.natural < 0 && big) {
+				if (a.lineKey === "ppe" && ACCUM.test(n)) continue;
+				if (a.lineKey === "cash") {
+					tag(add({
+						severity: "high",
+						kind: "classification",
+						code: a.code,
+						account: a.name,
+						lineKey: "cash",
+						standard: "IAS 7",
+						title: "رصيد بنكي دائن (سحب على المكشوف)",
+						detail: "الرصيد الدائن التزام تمويلي لا يُطرح من النقد إلا إذا كان جزءاً من إدارة النقد اليومية وتتقلب أرصدته.",
+						basis: "الرصيد " + money$22(a.balance),
+						action: "إعادة التبويب إلى القروض قصيرة الأجل."
+					}));
+					adj({
+						title: "إعادة تبويب السحب على المكشوف",
+						reason: `رصيد ${a.name} دائن ${money$22(-a.natural)}`,
+						standard: "IAS 7 / IAS 32",
+						estimate: false,
+						lines: [{
+							code: a.code,
+							name: a.name,
+							debit: -a.natural,
+							credit: 0
+						}, {
+							code: "RCL-OD",
+							name: "سحب على المكشوف — قروض قصيرة الأجل",
+							debit: 0,
+							credit: -a.natural,
+							type: "liability"
+						}]
+					});
+				} else if (a.lineKey === "receivables") {
+					tag(add({
+						severity: "medium",
+						kind: "classification",
+						code: a.code,
+						account: a.name,
+						lineKey: "receivables",
+						standard: "IFRS 15",
+						title: "ذمم مدينة برصيد دائن",
+						detail: "الرصيد الدائن لعميل هو دفعة مقدمة (مطلوبات عقد) ولا يُطرح من الذمم.",
+						basis: "الرصيد " + money$22(a.balance),
+						action: "إعادة التبويب إلى مطلوبات العقود."
+					}));
+					adj({
+						title: "إعادة تبويب الأرصدة الدائنة للعملاء",
+						reason: `رصيد ${a.name} دائن ${money$22(-a.natural)}`,
+						standard: "IFRS 15",
+						estimate: false,
+						lines: [{
+							code: a.code,
+							name: a.name,
+							debit: -a.natural,
+							credit: 0
+						}, {
+							code: "RCL-CL",
+							name: "التزامات عقود (دفعات مقدمة من عملاء)",
+							debit: 0,
+							credit: -a.natural,
+							type: "liability"
+						}]
+					});
+				} else if (a.lineKey === "payables") {
+					tag(add({
+						severity: "medium",
+						kind: "classification",
+						code: a.code,
+						account: a.name,
+						lineKey: "payables",
+						standard: "IAS 1",
+						title: "ذمم دائنة برصيد مدين",
+						detail: "الرصيد المدين لمورد دفعة مقدمة تعرض ضمن الموجودات المتداولة.",
+						basis: "الرصيد " + money$22(a.balance),
+						action: "إعادة التبويب إلى الدفعات المقدمة للموردين."
+					}));
+					adj({
+						title: "إعادة تبويب الأرصدة المدينة للموردين",
+						reason: `رصيد ${a.name} مدين ${money$22(-a.natural)}`,
+						standard: "IAS 1",
+						estimate: false,
+						lines: [{
+							code: "RCL-SA",
+							name: "دفعات مقدمة للموردين",
+							debit: -a.natural,
+							credit: 0,
+							type: "asset"
+						}, {
+							code: a.code,
+							name: a.name,
+							debit: 0,
+							credit: -a.natural
+						}]
+					});
+				} else if (a.type === "revenue") tag(add({
+					severity: "high",
+					kind: "measurement",
+					code: a.code,
+					account: a.name,
+					lineKey: a.lineKey ?? void 0,
+					standard: "IFRS 15",
+					title: "حساب إيراد برصيد مدين",
+					detail: "رصيد مدين في حساب إيراد يدل على مردودات أو قيود عكسية غير مصنفة أو خطأ ترحيل.",
+					basis: "الرصيد " + money$22(a.balance),
+					action: "تحليل الحركة وتبويب المردودات والخصومات."
+				}));
+				else if (a.type === "expense") tag(add({
+					severity: "medium",
+					kind: "measurement",
+					code: a.code,
+					account: a.name,
+					lineKey: a.lineKey ?? void 0,
+					standard: "IAS 1",
+					title: "حساب مصروف برصيد دائن",
+					detail: "رصيد دائن في مصروف قد يكون عكس استحقاق أو إيراداً مبوباً خطأ.",
+					basis: "الرصيد " + money$22(a.balance),
+					action: "تحليل الحركة وإعادة التبويب."
+				}));
+				else if (a.type === "asset") tag(add({
+					severity: "medium",
+					kind: "classification",
+					code: a.code,
+					account: a.name,
+					lineKey: a.lineKey ?? void 0,
+					standard: "IAS 1",
+					title: "أصل برصيد دائن",
+					detail: "رصيد عكس طبيعة الحساب.",
+					basis: "الرصيد " + money$22(a.balance),
+					action: "تحليل الحساب وتبويبه."
+				}));
+				else if (a.type === "liability") tag(add({
+					severity: "medium",
+					kind: "classification",
+					code: a.code,
+					account: a.name,
+					lineKey: a.lineKey ?? void 0,
+					standard: "IAS 1",
+					title: "التزام برصيد مدين",
+					detail: "رصيد عكس طبيعة الحساب.",
+					basis: "الرصيد " + money$22(a.balance),
+					action: "تحليل الحساب وتبويبه."
+				}));
+			}
+			if (a.lineKey === "ppe" && ACCUM.test(n) && a.balance > 0 && big) tag(add({
+				severity: "high",
+				kind: "measurement",
+				code: a.code,
+				account: a.name,
+				lineKey: "ppe",
+				standard: "IAS 16",
+				title: "مجمع استهلاك برصيد مدين",
+				detail: "مجمع الاستهلاك رصيده دائن بطبيعته.",
+				basis: "الرصيد " + money$22(a.balance),
+				action: "مراجعة قيود الاستبعاد والاستهلاك."
+			}));
+			if (RELATED.test(n) && a.balance !== 0) tag(add({
+				severity: "low",
+				kind: "disclosure",
+				code: a.code,
+				account: a.name,
+				lineKey: a.lineKey ?? void 0,
+				standard: "IAS 24",
+				title: "رصيد مع طرف ذي علاقة",
+				detail: "يتطلب إفصاحاً عن طبيعة العلاقة والمعاملات والأرصدة وشروطها.",
+				basis: "الرصيد " + money$22(a.balance),
+				action: "الحصول على قائمة الأطراف ذات العلاقة ومصادقة الرصيد (ISA 550)."
+			}));
+			if (Math.abs(a.balance) >= Math.max(mat.performance, 1e6) && Math.abs(a.balance) % 1e6 === 0 && a.lineKey && !["capital", "reserves"].includes(a.lineKey)) tag(add({
+				severity: "low",
+				kind: "fraud",
+				code: a.code,
+				account: a.name,
+				lineKey: a.lineKey,
+				standard: "ISA 240",
+				title: "رصيد مقرّب إلى عشرة آلاف",
+				detail: "الأرصدة المستديرة الكبيرة قد تدل على تقديرات أو قيود يدوية.",
+				basis: "الرصيد " + money$22(a.balance),
+				action: "طلب المستند المؤيد وتحليل القيود اليدوية."
+			}));
+		}
+		const pbz = kv("pbz"), zakatExp = kv("zakat"), zakatPay = fs.lines.find((l) => l.key === "zakatPayable")?.current ?? 0;
+		if (pbz > 0 && zakatExp === 0) {
+			const sources = kv("equity") + kv("ncl"), deductions = kv("nca"), base = Math.max(sources - deductions, pbz), est = Math.round(base * .025 / 100) * 100;
+			add({
+				severity: est >= mat.trivial ? "high" : "medium",
+				kind: "completeness",
+				lineKey: "zakatExpense",
+				standard: "لائحة الزكاة",
+				title: "لا يوجد مصروف زكاة رغم تحقق ربح",
+				detail: "الزكاة التزام عن السنة يجب قيده. التقدير الأولي على وعاء مبسط (حقوق الملكية + الالتزامات غير المتداولة − الموجودات غير المتداولة، وبحد أدنى الربح قبل الزكاة) بسعر 2.5%؛ الاحتساب النهائي من الإقرار مع مراعاة حدي الوعاء في اللائحة.",
+				basis: `وعاء تقديري ${money$22(base)} × 2.5% = ${money$22(est)}`,
+				action: "قيد مخصص الزكاة وطلب الإقرار الزكوي."
+			});
+			if (est > 0) adj({
+				title: "استحقاق زكاة السنة (تقديري)",
+				reason: "لا يوجد مصروف زكاة في الميزان",
+				standard: "لائحة الزكاة / IAS 37",
+				estimate: true,
+				lines: [{
+					code: "ADJ-ZE",
+					name: "مصروف الزكاة",
+					debit: est,
+					credit: 0,
+					type: "expense"
+				}, {
+					code: "ADJ-ZP",
+					name: "مخصص الزكاة المستحقة",
+					debit: 0,
+					credit: est,
+					type: "liability"
+				}]
+			});
+		} else if (zakatExp > 0 && zakatPay === 0) add({
+			severity: "low",
+			kind: "completeness",
+			lineKey: "zakatPayable",
+			standard: "لائحة الزكاة",
+			title: "مصروف زكاة دون مخصص قائم",
+			detail: "إن سُددت الزكاة قبل الإقفال فيلزم إيصال السداد، وإلا فيلزم قيد المخصص.",
+			basis: "مصروف الزكاة " + money$22(zakatExp),
+			action: "طلب إيصال السداد أو قيد المخصص."
+		});
+		const ppeNet = kv("ppe");
+		if (ppeNet > 0 && kv("depreciation") === 0) add({
+			severity: ppeNet >= mat.overall ? "high" : "medium",
+			kind: "completeness",
+			lineKey: "ppe",
+			standard: "IAS 16",
+			title: "أصول ثابتة دون مصروف استهلاك",
+			detail: "يجب استهلاك الأصول على أعمارها الإنتاجية؛ غياب المصروف يضخم الربح والأصول.",
+			basis: "صافي الأصول الثابتة " + money$22(ppeNet),
+			action: "طلب سجل الأصول واحتساب استهلاك السنة ثم قيده."
+		});
+		if (ppeNet < 0) add({
+			severity: "high",
+			kind: "measurement",
+			lineKey: "ppe",
+			standard: "IAS 16",
+			title: "مجمع الاستهلاك يتجاوز التكلفة",
+			detail: "صافي القيمة الدفترية سالب.",
+			basis: "الصافي " + money$22(ppeNet),
+			action: "مراجعة سجل الأصول والاستبعادات."
+		});
+		const salaries = accounts.filter((a) => a.type === "expense" && SALARIES.test(norm(a.name))).reduce((s, a) => s + a.natural, 0);
+		if (salaries > 0 && !fs.lines.some((l) => l.key === "eosb" && l.current !== 0)) add({
+			severity: salaries >= mat.overall ? "high" : "medium",
+			kind: "completeness",
+			lineKey: "eosb",
+			standard: "IAS 19",
+			title: "رواتب دون التزام مكافأة نهاية الخدمة",
+			detail: "نظام العمل يوجب مكافأة نهاية الخدمة؛ الالتزام يقاس وفق IAS 19 (أو بالتبسيط المسموح في معيار المنشآت الصغيرة).",
+			basis: "الرواتب " + money$22(salaries),
+			action: "طلب كشف الموظفين واحتساب الالتزام."
+		});
+		const loans = kv("loansCl") + kv("loansNcl");
+		if (loans > 0 && kv("finance") === 0) add({
+			severity: "medium",
+			kind: "completeness",
+			lineKey: "loansNcl",
+			standard: "IFRS 9",
+			title: "قروض دون تكلفة تمويل",
+			detail: "إما أن التمويل بلا تكلفة (يلزم دليل)، أو رُسملت (IAS 23)، أو لم تُقيد.",
+			basis: "القروض " + money$22(loans),
+			action: "طلب عقود التمويل وكشوف احتساب الفائدة."
+		});
+		const rec = kv("receivables");
+		if (rec >= mat.performance && !fs.lines.some((l) => l.key === "impairment" && l.current !== 0) && !accounts.some((a) => a.lineKey === "receivables" && /خسائر|مخصص|مشكوك/.test(norm(a.name)))) add({
+			severity: "medium",
+			kind: "measurement",
+			lineKey: "receivables",
+			standard: "IFRS 9",
+			title: "ذمم مدينة دون مخصص خسائر ائتمانية متوقعة",
+			detail: "المعيار يوجب تقدير الخسائر الائتمانية المتوقعة ولو كانت صغيرة.",
+			basis: "الذمم " + money$22(rec),
+			action: "طلب أعمار الديون ومصفوفة المخصص."
+		});
+		if (kv("inventory") > 0 && kv("cogs") === 0) add({
+			severity: "medium",
+			kind: "completeness",
+			lineKey: "cogs",
+			standard: "IAS 2",
+			title: "مخزون دون تكلفة مبيعات",
+			detail: "وجود مخزون ومبيعات دون تكلفة مبيعات يدل على جرد دوري لم يُقفل.",
+			basis: "المخزون " + money$22(kv("inventory")),
+			action: "طلب حركة المخزون وقيد تكلفة المبيعات."
+		});
+		const vatA = fs.lines.find((l) => l.key === "vatAsset")?.current ?? 0, vatL = fs.lines.find((l) => l.key === "vatLiability")?.current ?? 0;
+		if (kv("revenue") > 0 && vatA === 0 && vatL === 0) add({
+			severity: "low",
+			kind: "completeness",
+			lineKey: "revenue",
+			standard: "ZATCA VAT",
+			title: "لا توجد أرصدة ضريبة قيمة مضافة",
+			detail: "منشأة ذات إيراد دون أرصدة ضريبة؛ تحقق من التسجيل والإقرارات أو من إقفال الأرصدة.",
+			basis: "الإيراد " + money$22(kv("revenue")),
+			action: "طلب شهادة التسجيل والإقرارات."
+		});
+		if (vatA > 0 && vatL > 0) {
+			const off = Math.min(vatA, vatL);
+			add({
+				severity: "low",
+				kind: "classification",
+				lineKey: "vatLiability",
+				standard: "IAS 32",
+				title: "ضريبة مدخلات ومخرجات قائمتان معاً",
+				detail: "تُعرض بالصافي لأنها تُسوّى في إقرار واحد مع الهيئة.",
+				basis: `مدخلات ${money$22(vatA)} · مخرجات ${money$22(vatL)}`,
+				action: "مقاصة الرصيدين حتى الأقل منهما."
+			});
+			const aIn = accounts.find((a) => a.lineKey === "vatAsset" && a.natural > 0), aOut = accounts.find((a) => a.lineKey === "vatLiability" && a.natural > 0);
+			if (aIn && aOut) adj({
+				title: "مقاصة ضريبة القيمة المضافة",
+				reason: "تسوية في إقرار واحد",
+				standard: "IAS 32",
+				estimate: false,
+				lines: [{
+					code: aOut.code,
+					name: aOut.name,
+					debit: Math.min(off, aOut.natural),
+					credit: 0
+				}, {
+					code: aIn.code,
+					name: aIn.name,
+					debit: 0,
+					credit: Math.min(off, aOut.natural)
+				}]
+			});
+		}
+		if (fs.hasPrior) {
+			for (const l of fs.lines) {
+				if (l.prior === null) continue;
+				const ch = l.current - l.prior, pc = l.prior ? Math.abs(ch / l.prior) * 100 : l.current ? 100 : 0;
+				if (Math.abs(ch) >= mat.performance && pc >= 20) add({
+					severity: Math.abs(ch) >= mat.overall * 2 ? "medium" : "low",
+					kind: "analytical",
+					lineKey: l.key,
+					standard: "ISA 520",
+					title: `تغير جوهري في ${l.ar}`,
+					detail: "التغير يتجاوز الأهمية التنفيذية و20%؛ يلزم تفسير من الإدارة مؤيد بأدلة.",
+					basis: `${money$22(l.prior)} ← ${money$22(l.current)} (${ch >= 0 ? "+" : "−"}${Math.round(pc)}%)`,
+					action: "الحصول على تفسير الإدارة وتأييده."
+				});
+			}
+			const gm = (c) => {
+				const r = c ? kv("revenue") : fs.keys.revenue.prior ?? 0, g = c ? kv("gross") : fs.keys.gross.prior ?? 0;
+				return r ? g / r * 100 : null;
+			};
+			const g1 = gm(true), g0 = gm(false);
+			if (g1 !== null && g0 !== null && Math.abs(g1 - g0) >= 5) add({
+				severity: "medium",
+				kind: "analytical",
+				lineKey: "cogs",
+				standard: "ISA 520",
+				title: "تغير هامش مجمل الربح",
+				detail: "تغير الهامش بخمس نقاط فأكثر قد يدل على أخطاء قطع أو تقييم مخزون أو تسعير.",
+				basis: `${Math.round(g0 * 10) / 10}% ← ${Math.round(g1 * 10) / 10}%`,
+				action: "تحليل الهامش شهرياً وفحص القطع وتقييم المخزون."
+			});
+			const b = beneishM(fs);
+			if (b?.flagged) add({
+				severity: "medium",
+				kind: "fraud",
+				lineKey: "revenue",
+				standard: "ISA 240",
+				title: "مؤشر Beneish يتجاوز الحد",
+				detail: "نمط المؤشرات يشبه الشركات التي تلاعبت بأرباحها؛ ليس دليلاً بذاته.",
+				basis: "M = " + b.m + " > −1.78",
+				action: "توسيع فحص الإيراد والذمم والاستحقاقات وقيود اليومية."
+			});
+			if (fs.checks.cashTies === false) add({
+				severity: "low",
+				kind: "classification",
+				standard: "IAS 7",
+				title: "قائمة التدفقات لا تطابق حركة النقد",
+				detail: "بعض الحسابات غير مبوبة أو مبوبة في بند غير مناسب.",
+				basis: "الفرق " + money$22(fs.checks.cfDifference ?? 0),
+				action: "مراجعة تبويب الحسابات."
+			});
+		}
+		if (kv("equity") < 0) add({
+			severity: "high",
+			kind: "going-concern",
+			standard: "ISA 570",
+			title: "حقوق ملكية سالبة",
+			detail: "مؤشر جوهري على عدم التأكد بشأن الاستمرارية؛ قد تنطبق أحكام نظام الشركات عند بلوغ الخسائر نصف رأس المال.",
+			basis: "حقوق الملكية " + money$22(kv("equity")),
+			action: "تقييم خطط الإدارة والدعم المالي والإفصاح."
+		});
+		else if (kv("cl") > 0 && kv("ca") < kv("cl")) add({
+			severity: "medium",
+			kind: "going-concern",
+			standard: "ISA 570",
+			title: "المطلوبات المتداولة تتجاوز الموجودات المتداولة",
+			detail: "عجز رأس المال العامل مؤشر على مخاطر السيولة.",
+			basis: `${money$22(kv("ca"))} مقابل ${money$22(kv("cl"))}`,
+			action: "الحصول على التدفقات النقدية المتوقعة لـ12 شهراً."
+		});
+		for (const f of opts.extraFindings ?? []) {
+			findings.push(f);
+			if (f.code) acc(f.code)?.findings.push(f.id);
+		}
+		const risks = fs.lines.filter((l) => l.current !== 0 || (l.prior ?? 0) !== 0).map((l) => {
+			const la = LINE_AUDIT[l.key] ?? {
+				risk: "التحقق من الرصيد",
+				procedures: ["فحص عينة"],
+				docs: []
+			};
+			const amount = l.current, size = Math.min(35, Math.round(35 * Math.abs(amount) / Math.max(1, mat.overall * 3)));
+			const pc = l.prior ? Math.abs((l.current - l.prior) / l.prior) * 100 : null;
+			const ev = opts.evidence?.[l.key] ?? "none";
+			const parts = {
+				size,
+				estimate: la.estimate ? 15 : 4,
+				change: pc === null ? 8 : Math.min(15, Math.round(pc / 4)),
+				evidence: ev === "accepted" ? 0 : ev === "partial" ? 10 : 25,
+				nature: la.fraud ? 10 : 4
+			};
+			const hits = findings.filter((f) => f.lineKey === l.key || f.code && l.accounts.some((a) => a.code === f.code));
+			const bump = hits.some((f) => f.severity === "high") ? 10 : hits.some((f) => f.severity === "medium") ? 5 : 0;
+			const score = Math.min(100, parts.size + parts.estimate + parts.change + parts.evidence + parts.nature + bump);
+			const level = score >= 70 ? "عالٍ" : score >= 45 ? "متوسط" : "منخفض";
+			return {
+				lineKey: l.key,
+				ar: l.ar,
+				amount,
+				score,
+				level,
+				significant: score >= 70,
+				parts,
+				risk: la.risk,
+				procedures: la.procedures
+			};
+		}).sort((a, b) => b.score - a.score);
+		const requests = GENERAL_DOCS.map(([title, purpose], i) => ({
+			id: "PBC-G" + (i + 1),
+			title,
+			purpose,
+			accounts: [],
+			standard: "ISA 580",
+			priority: "عالية",
+			source: "engine"
+		}));
+		if (fs.hasPrior) requests.push({
+			id: "PBC-G3",
+			title: "القوائم المالية المراجعة للسنة السابقة",
+			purpose: "مطابقة الأرصدة الافتتاحية والمقارنة",
+			accounts: [],
+			standard: "ISA 510",
+			priority: "عالية",
+			source: "engine"
+		});
+		for (const r of risks) {
+			if (r.level === "منخفض" && Math.abs(r.amount) < mat.performance) continue;
+			const la = LINE_AUDIT[r.lineKey];
+			if (!la) continue;
+			const accs = fs.lines.find((l) => l.key === r.lineKey).accounts.map((a) => a.code);
+			la.docs.forEach(([title, purpose], i) => {
+				if (requests.some((q) => q.title === title)) return;
+				requests.push({
+					id: "PBC-" + r.lineKey + "-" + (i + 1),
+					title,
+					purpose,
+					lineKey: r.lineKey,
+					accounts: accs,
+					standard: LINE[r.lineKey]?.standards[0] ?? "ISA 500",
+					priority: r.level === "عالٍ" ? "عالية" : r.level === "متوسط" ? "متوسطة" : "منخفضة",
+					source: "engine"
+				});
+			});
+		}
+		const compliance = complianceOf(fs, findings, requests, opts.evidence ?? {});
+		const high = findings.filter((f) => f.severity === "high").length, medium = findings.filter((f) => f.severity === "medium").length, low = findings.length - high - medium;
+		const score = Math.min(100, Math.round(risks.slice(0, 5).reduce((s, r) => s + r.score, 0) / Math.max(1, Math.min(5, risks.length)) * .7 + Math.min(30, high * 10 + medium * 3)));
+		return {
+			materiality: mat,
+			fs,
+			accounts,
+			findings,
+			requests,
+			adjustments,
+			risks,
+			compliance,
+			summary: {
+				accounts: accounts.length,
+				flagged: accounts.filter((a) => a.findings.length).length,
+				high,
+				medium,
+				low,
+				significantRisks: risks.filter((r) => r.significant).length,
+				score
+			}
+		};
+	}
+	function complianceOf(fs, findings, requests, evidence = {}) {
+		const by = /* @__PURE__ */ new Map();
+		const touch = (code, line) => {
+			if (!by.has(code)) by.set(code, {
+				accounts: /* @__PURE__ */ new Set(),
+				amount: 0,
+				lines: /* @__PURE__ */ new Set()
+			});
+			const x = by.get(code);
+			if (line) {
+				x.lines.add(line.key);
+				x.amount += Math.abs(line.current);
+				line.accounts.forEach((a) => x.accounts.add(a.code + " " + a.name));
+			}
+		};
+		for (const l of fs.lines) for (const s of l.standards) if (STANDARD[s] && STANDARD[s].family !== "ISA") touch(s, l);
+		[
+			"IAS 1",
+			"IFRS 18",
+			"IAS 7",
+			"IAS 8",
+			"IAS 10"
+		].forEach((s) => touch(s));
+		for (const f of findings) if (STANDARD[f.standard] && STANDARD[f.standard].family !== "ISA") touch(f.standard);
+		const out = [];
+		for (const [code, x] of by) {
+			const s = STANDARD[code], fx = findings.filter((f) => f.standard === code || f.standard.startsWith(code + " ") || f.lineKey && x.lines.has(f.lineKey) && LINE[f.lineKey]?.standards[0] === code);
+			const open = requests.filter((r) => r.lineKey && x.lines.has(r.lineKey) || r.standard === code).filter((r) => !r.lineKey || evidence[r.lineKey] !== "accepted");
+			const status = fx.some((f) => f.severity === "high") ? "غير ممتثل" : fx.some((f) => f.severity === "medium") ? "ممتثل جزئياً" : open.length ? "يتطلب أدلة" : "ممتثل";
+			const parts = [
+				x.accounts.size ? `يحكم ${x.accounts.size} حساباً بمجموع ${formatMinor(x.amount, { decimals: 0 })} ر.س.` : "متطلب عرض وإفصاح عام على مستوى القوائم.",
+				s ? s.purpose : "",
+				fx.length ? "الملاحظات: " + fx.map((f) => f.title + " (" + f.basis + ")").join("؛ ") + "." : "لم تظهر ملاحظات من تحليل الأرقام.",
+				open.length ? "بانتظار أدلة: " + open.slice(0, 4).map((r) => r.title).join("، ") + (open.length > 4 ? " وغيرها" : "") + "." : "",
+				s?.status === "upcoming" ? "تنبيه تطبيق: " + s.latest + "." : ""
+			].filter(Boolean);
+			out.push({
+				code,
+				title: s?.titleAr ?? code,
+				status,
+				accounts: [...x.accounts],
+				amount: x.amount,
+				findings: fx.map((f) => f.id),
+				discussion: parts.join(" "),
+				url: s?.url ?? null
+			});
+		}
+		const rank = {
+			"غير ممتثل": 0,
+			"ممتثل جزئياً": 1,
+			"يتطلب أدلة": 2,
+			"ممتثل": 3
+		};
+		return out.sort((a, b) => rank[a.status] - rank[b.status] || b.amount - a.amount);
+	}
+	function validateAdjustment(a, tb) {
+		const debit = a.lines.reduce((s, l) => s + l.debit, 0), credit = a.lines.reduce((s, l) => s + l.credit, 0);
+		const codes = new Set(tb.rows.map((r) => r.code));
+		const unknown = a.lines.filter((l) => !codes.has(l.code)).map((l) => l.code + " " + l.name);
+		const bad = a.lines.filter((l) => l.debit < 0 || l.credit < 0 || l.debit > 0 && l.credit > 0 || !Number.isSafeInteger(l.debit) || !Number.isSafeInteger(l.credit));
+		return {
+			balanced: debit === credit && debit > 0,
+			debit,
+			credit,
+			difference: debit - credit,
+			newAccounts: unknown,
+			valid: debit === credit && debit > 0 && !bad.length && a.lines.length >= 2,
+			problems: bad.length ? ["مبالغ غير صالحة في " + bad.length + " سطر"] : []
+		};
+	}
+	/** The trial balance after the accepted adjustments (new accounts are appended and classified by name). */
+	function applyAdjustments(tb, adjs) {
+		const rows = tb.rows.map((r) => ({ ...r }));
+		let line = rows.length;
+		for (const a of adjs) {
+			if (!validateAdjustment(a, tb).valid) continue;
+			for (const l of a.lines) {
+				let r = rows.find((x) => x.code === l.code);
+				if (!r) {
+					const c = l.type ? {
+						type: l.type,
+						basis: "manual"
+					} : classifyAccount(/^\d/.test(l.code) ? l.code : "", l.name);
+					r = {
+						line: ++line,
+						code: l.code,
+						name: l.name,
+						type: c.type,
+						classifiedBy: c.basis,
+						debit: 0,
+						credit: 0,
+						balance: 0,
+						net: 0,
+						prior: tb.hasPrior ? 0 : null
+					};
+					rows.push(r);
+				}
+				const bal = r.balance + l.debit - l.credit;
+				r.debit = bal > 0 ? bal : 0;
+				r.credit = bal < 0 ? -bal : 0;
+				r.balance = bal;
+				r.net = NATURE[r.type] === "debit" ? bal : -bal;
+			}
+		}
+		const debit = rows.reduce((s, r) => s + r.debit, 0), credit = rows.reduce((s, r) => s + r.credit, 0);
+		return {
+			...tb,
+			rows,
+			totals: {
+				debit,
+				credit
+			},
+			difference: debit - credit,
+			balanced: debit === credit,
+			unclassified: rows.filter((r) => r.type === "suspense").length
+		};
+	}
+	/** Effect of adjustments on profit (credits to income / debits to expense). */
+	function adjustmentEffect(tb, adjs) {
+		const before = buildStatements(tb).keys, after = buildStatements(applyAdjustments(tb, adjs)).keys;
+		return {
+			profit: after.profit.current - before.profit.current,
+			assets: after.assets.current - before.assets.current,
+			equity: after.equity.current - before.equity.current
+		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/audit/ai-review-engine.ts
+	var ai_review_engine_exports = /* @__PURE__ */ __exportAll({
+		DEFAULT_MODEL: () => DEFAULT_MODEL,
+		FINAL_SCHEMA: () => FINAL_SCHEMA,
+		MAX_ROUNDS: () => 6,
+		PING_BODY: () => PING_BODY,
+		REVIEWERS: () => REVIEWERS,
+		ROUND_SCHEMA: () => ROUND_SCHEMA,
+		accountStandards: () => accountStandards,
+		addRound: () => addRound,
+		addUpload: () => addUpload,
+		buildFinalBody: () => buildFinalBody,
+		buildRoundBody: () => buildRoundBody,
+		deriveOpinion: () => deriveOpinion,
+		describeReview: () => describeReview,
+		evidenceFromSession: () => evidenceFromSession,
+		extractText: () => extractText,
+		friendlyError: () => friendlyError,
+		markUnavailable: () => markUnavailable,
+		mergedFindings: () => mergedFindings,
+		newSession: () => newSession,
+		normalizeFinal: () => normalizeFinal,
+		normalizeRound: () => normalizeRound,
+		outstanding: () => outstanding,
+		parseJsonLoose: () => parseJsonLoose,
+		pendingUploads: () => pendingUploads,
+		sessionState: () => sessionState,
+		systemPrompt: () => systemPrompt
+	});
+	var REVIEWERS = [
+		"المراجع الفني المحاسبي",
+		"مراجع الامتثال للمعايير والإفصاح",
+		"مدقق المخاطر والأدلة"
+	];
+	var DEFAULT_MODEL = "gemini-2.5-flash";
+	var S = (description) => ({
+		type: "STRING",
+		...description ? { description } : {}
+	});
+	var ARR = (items) => ({
+		type: "ARRAY",
+		items
+	});
+	var OBJ = (properties, required) => ({
+		type: "OBJECT",
+		properties,
+		required
+	});
+	var LINES_SCHEMA = ARR(OBJ({
+		accountCode: S("رقم الحساب من الميزان، أو NEW-… لحساب جديد"),
+		accountName: S(),
+		debit: S("مبلغ بالريال أو 0"),
+		credit: S("مبلغ بالريال أو 0")
+	}, [
+		"accountCode",
+		"accountName",
+		"debit",
+		"credit"
+	]));
+	var ADJ_SCHEMA = ARR(OBJ({
+		title: S(),
+		reason: S(),
+		standardCode: S(),
+		lines: LINES_SCHEMA
+	}, [
+		"title",
+		"reason",
+		"standardCode",
+		"lines"
+	]));
+	var ROUND_SCHEMA = OBJ({
+		status: {
+			type: "STRING",
+			enum: ["needs_docs", "complete"],
+			description: "needs_docs ما دامت هناك مستندات مطلوبة أو ملاحظات جوهرية معلقة"
+		},
+		executiveSummary: S(),
+		riskScore: {
+			type: "INTEGER",
+			description: "0-100"
+		},
+		boardOpinions: ARR(OBJ({
+			reviewer: {
+				type: "STRING",
+				enum: [...REVIEWERS]
+			},
+			opinion: S()
+		}, ["reviewer", "opinion"])),
+		accountStandards: ARR(OBJ({
+			accountCode: S(),
+			standards: ARR(S()),
+			note: S("علاقة المعيار بالحساب باختصار")
+		}, ["accountCode", "standards"])),
+		findings: ARR(OBJ({
+			accountCode: S(),
+			accountName: S(),
+			standardCode: S(),
+			issueType: {
+				type: "STRING",
+				enum: [
+					"تصنيف",
+					"قياس",
+					"إفصاح",
+					"اكتمال",
+					"تحليلي",
+					"غش",
+					"استمرارية",
+					"أخرى"
+				]
+			},
+			severity: {
+				type: "STRING",
+				enum: [
+					"جسيمة",
+					"عالية",
+					"متوسطة",
+					"منخفضة"
+				]
+			},
+			amount: S("المبلغ المتأثر بالريال إن وجد"),
+			comment: S(),
+			recommendation: S()
+		}, [
+			"accountName",
+			"standardCode",
+			"severity",
+			"comment",
+			"recommendation"
+		])),
+		requestedDocuments: ARR(OBJ({
+			id: S("REQ-n متسلسل ومحفوظ بين الجولات"),
+			title: S(),
+			purpose: S(),
+			relatedAccounts: ARR(S()),
+			standardCode: S(),
+			priority: {
+				type: "STRING",
+				enum: [
+					"عالية",
+					"متوسطة",
+					"منخفضة"
+				]
+			}
+		}, [
+			"id",
+			"title",
+			"purpose",
+			"priority"
+		])),
+		documentsReviewed: ARR(OBJ({
+			fileName: S(),
+			requestId: S(),
+			verdict: {
+				type: "STRING",
+				enum: [
+					"مقبول",
+					"غير كافٍ",
+					"مرفوض"
+				]
+			},
+			notes: S(),
+			extracted: OBJ({
+				documentDate: S("YYYY-MM-DD"),
+				amount: S(),
+				vatAmount: S(),
+				vatNumber: S(),
+				counterparty: S(),
+				reference: S()
+			}, [])
+		}, [
+			"fileName",
+			"verdict",
+			"notes"
+		])),
+		proposedAdjustments: ADJ_SCHEMA,
+		nextStepGuidance: S()
+	}, [
+		"status",
+		"executiveSummary",
+		"riskScore",
+		"boardOpinions",
+		"findings",
+		"requestedDocuments",
+		"nextStepGuidance"
+	]);
+	var FINAL_SCHEMA = OBJ({
+		overallOpinion: {
+			type: "STRING",
+			enum: [
+				"غير معدل",
+				"متحفظ",
+				"عكسي",
+				"امتناع عن إبداء الرأي"
+			]
+		},
+		headline: S(),
+		summary: S(),
+		keyAuditMatters: ARR(OBJ({
+			title: S(),
+			why: S("لماذا يعد أمراً رئيسياً"),
+			how: S("كيف عولج في المراجعة")
+		}, [
+			"title",
+			"why",
+			"how"
+		])),
+		complianceDiscussion: ARR(OBJ({
+			standardCode: S(),
+			status: {
+				type: "STRING",
+				enum: [
+					"ممتثل",
+					"ممتثل جزئياً",
+					"غير ممتثل",
+					"غير منطبق"
+				]
+			},
+			discussion: S()
+		}, [
+			"standardCode",
+			"status",
+			"discussion"
+		])),
+		adjustments: ADJ_SCHEMA,
+		managementLetter: ARR(OBJ({
+			title: S(),
+			observation: S(),
+			recommendation: S(),
+			priority: {
+				type: "STRING",
+				enum: [
+					"عالية",
+					"متوسطة",
+					"منخفضة"
+				]
+			}
+		}, [
+			"title",
+			"observation",
+			"recommendation",
+			"priority"
+		])),
+		limitations: ARR(S()),
+		closingStatement: S()
+	}, [
+		"overallOpinion",
+		"headline",
+		"summary",
+		"keyAuditMatters",
+		"complianceDiscussion",
+		"adjustments",
+		"managementLetter",
+		"closingStatement"
+	]);
+	var SEV = {
+		"جسيمة": "high",
+		"عالية": "high",
+		"متوسطة": "medium",
+		"منخفضة": "low",
+		high: "high",
+		medium: "medium",
+		low: "low"
+	};
+	var KIND = {
+		"تصنيف": "classification",
+		"قياس": "measurement",
+		"إفصاح": "disclosure",
+		"اكتمال": "completeness",
+		"تحليلي": "analytical",
+		"غش": "fraud",
+		"استمرارية": "going-concern"
+	};
+	var str = (v, max = 4e3) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, max);
+	var arr = (v) => Array.isArray(v) ? v : [];
+	function newSession(ctx, model = DEFAULT_MODEL, now = /* @__PURE__ */ new Date()) {
+		return {
+			id: "rv-" + now.getTime().toString(36),
+			ctx,
+			model,
+			createdAt: now.toISOString(),
+			rounds: [],
+			uploads: [],
+			unavailable: []
+		};
+	}
+	function systemPrompt(ctx) {
+		const fw = ctx.framework === "SME" ? "المعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم المعتمد في المملكة (SOCPA)" : "المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من الهيئة السعودية للمراجعين والمحاسبين (SOCPA)";
+		const codes = STANDARDS.map((s) => s.code).join("، ");
+		return [
+			"أنت «مجلس المراجعة» في تطبيق KOSIF: ثلاثة مراجعين مستقلين بصوت موحد:",
+			"- المراجع الفني المحاسبي: التبويب والقياس والعرض.",
+			"- مراجع الامتثال للمعايير والإفصاح: ملاءمة المعيار لكل حساب وكفاية الإفصاح والمستندات النظامية.",
+			"- مدقق المخاطر والأدلة: المخاطر الجوهرية (ISA 315/330) وكفاية الأدلة (ISA 500) ومؤشرات الغش (ISA 240) والاستمرارية (ISA 570).",
+			`المنشأة: ${ctx.company || "غير مسماة"} — النشاط: ${ctx.activity || "غير محدد"} — الفترة: ${ctx.period || "غير محددة"} — العملة: ${ctx.currency || "الريال السعودي"}.`,
+			`الإطار: ${fw}.`,
+			"قواعد ملزمة:",
+			`1) استخدم رموز المعايير كما هي من هذه القائمة فقط: ${codes}. لا تخترع معايير أو فقرات.`,
+			"2) في accountStandards أكّد أو صحّح المعايير المقترحة لكل حساب مؤثر، واذكر في note علاقة المعيار بالحساب في جملة.",
+			"3) الأرقام في الميزان ومخرجات المحرك الآلي صحيحة حسابياً؛ لا تُعد جمعها، وركز على الحكم المهني: التبويب والقياس والاكتمال والإفصاح.",
+			"4) اطلب المستندات بعناوين عملية قابلة للتوريد (مثل «كشف حساب بنكي في 31/12 مع التسوية البنكية»)، وأرقام الطلبات REQ-n متسلسلة ومحفوظة بين الجولات؛ لا تكرر طلباً قائماً.",
+			"5) عند مراجعة المستندات المرفوعة: اربط كل ملف بطلبه، وحكمك «مقبول» أو «غير كافٍ» (مع ما ينقص) أو «مرفوض» (مع السبب)، واستخرج التاريخ والمبلغ والضريبة والرقم الضريبي والطرف المقابل إن وجدت.",
+			"6) قيود التسوية المقترحة: متوازنة، مبالغها بالريال، وأرقام حساباتها من الميزان (أو NEW-… لحساب جديد مع اسمه)، ولكل قيد معياره وسببه. لا تقترح قيداً بلا أساس رقمي.",
+			"7) status = complete فقط إذا لم تبق مستندات مطلوبة ولا ملاحظات جوهرية معلقة؛ وإلا needs_docs.",
+			"8) اكتب بالعربية الفصحى المهنية الموجزة. لا تضع أي بيانات خارج مخطط JSON."
+		].join("\n");
+	}
+	var sar = (m) => formatMinor(m, { decimals: 0 });
+	/** The trial balance and the engine's review, compact enough for one prompt. */
+	function describeReview(tb, review) {
+		const rows = review.accounts.map((a) => [
+			a.code,
+			a.name,
+			TYPE_LABELS[a.type],
+			a.lineAr,
+			sar(a.natural),
+			a.prior === null ? "" : sar(a.prior),
+			a.standards.map((s) => s.code).join("+")
+		].join(" | "));
+		const m = review.materiality, k = review.fs.keys;
+		return [
+			"ميزان المراجعة (رقم | اسم | نوع | بند القوائم | الرصيد بطبيعته | السابق | المعايير المقترحة):",
+			...rows,
+			`التوازن: ${tb.balanced ? "متوازن" : "غير متوازن بفرق " + sar(tb.difference)}.`,
+			`الأهمية النسبية: ${sar(m.overall)} (${m.benchmarkAr} × ${m.rate * 100}%) — التنفيذية ${sar(m.performance)} — حد التفاهة ${sar(m.trivial)}.`,
+			`الإيرادات ${sar(k.revenue.current)} · الربح التشغيلي ${sar(k.operating.current)} · صافي الربح ${sar(k.profit.current)} · الموجودات ${sar(k.assets.current)} · حقوق الملكية ${sar(k.equity.current)}.`,
+			"ملاحظات المحرك الآلي (أكدها أو فندها):",
+			...review.findings.map((f) => `${f.id} [${f.severity}] ${f.title} — ${f.basis} — ${f.standard}`),
+			"قيود المحرك المقترحة:",
+			...review.adjustments.map((a) => `${a.id} ${a.title}: ` + a.lines.map((l) => `${l.code} ${l.name} م${sar(l.debit)} د${sar(l.credit)}`).join("؛ "))
+		].join("\n");
+	}
+	/** Outstanding requests: asked in any round, not yet accepted, not marked unavailable. */
+	function outstanding(s) {
+		const all = /* @__PURE__ */ new Map();
+		for (const r of s.rounds) for (const q of r.requests) all.set(q.id, q);
+		const accepted = new Set(s.rounds.flatMap((r) => r.reviewed.filter((d) => d.verdict === "مقبول").map((d) => d.requestId)));
+		return [...all.values()].filter((q) => !accepted.has(q.id) && !s.unavailable.includes(q.id));
+	}
+	/** Uploaded since the last round and therefore not reviewed yet. */
+	function pendingUploads(s) {
+		const next = s.rounds.length + 1;
+		return s.uploads.filter((u) => u.round === next);
+	}
+	function buildRoundBody(s, tb, review, opts = {}) {
+		const no = s.rounds.length + 1, parts = [];
+		parts.push({ text: `الجولة رقم ${no}.` });
+		parts.push({ text: describeReview(tb, review) });
+		if (s.rounds.length) {
+			const last = s.rounds[s.rounds.length - 1];
+			parts.push({ text: [
+				"ملخص الجولات السابقة:",
+				...s.rounds.map((r) => `الجولة ${r.no}: ${r.status} — ${r.summary.slice(0, 600)}`),
+				"الطلبات القائمة: " + (outstanding(s).map((q) => `${q.id} ${q.title}`).join("؛ ") || "لا شيء"),
+				"الطلبات التي أفادت الإدارة بعدم توفرها: " + (s.unavailable.join("، ") || "لا شيء"),
+				"ملاحظاتك السابقة: " + last.findings.map((f) => `${f.title} (${f.standard})`).join("؛ ")
+			].join("\n") });
+		}
+		const up = pendingUploads(s);
+		if (up.length) {
+			parts.push({ text: `المستندات المرفوعة في هذه الجولة (${up.length}):` });
+			for (const u of up) {
+				parts.push({ text: `— المستند «${u.fileName}» استجابة للطلب ${u.requestId} (${u.mimeType}, ${Math.round(u.size / 1024)} ك.ب):` });
+				if (u.data) parts.push({ inlineData: {
+					mimeType: u.mimeType,
+					data: u.data
+				} });
+				else if (u.text) parts.push({ text: u.text.slice(0, 6e4) });
+			}
+		}
+		parts.push({ text: no === 1 ? "راجع الميزان وأكد المعايير لكل حساب واكتشف الأخطاء واطلب المستندات اللازمة." : "راجع المستندات المرفوعة مقابل طلباتها، وحدّث الملاحظات، واطلب ما يلزم، أو أعلن اكتمال المراجعة." });
+		return {
+			systemInstruction: { parts: [{ text: systemPrompt(s.ctx) }] },
+			contents: [{
+				role: "user",
+				parts
+			}],
+			generationConfig: {
+				temperature: opts.temperature ?? .2,
+				responseMimeType: "application/json",
+				responseSchema: ROUND_SCHEMA
+			}
+		};
+	}
+	function extractText(api) {
+		const a = api;
+		const c = a?.candidates?.[0];
+		return {
+			text: (c?.content?.parts ?? []).map((p) => p.text ?? "").join(""),
+			finishReason: c?.finishReason ?? null,
+			blocked: !!a?.promptFeedback?.blockReason || c?.finishReason === "SAFETY"
+		};
+	}
+	function parseJsonLoose(text) {
+		const t = String(text || "").replace(/^\s*```(?:json)?/i, "").replace(/```\s*$/, "").trim();
+		try {
+			return JSON.parse(t);
+		} catch {}
+		const a = t.indexOf("{"), b = t.lastIndexOf("}");
+		if (a >= 0 && b > a) try {
+			return JSON.parse(t.slice(a, b + 1));
+		} catch {
+			return null;
+		}
+		return null;
+	}
+	function adjFrom(raw, i, round, tb, prefix) {
+		const r = raw ?? {};
+		const lines = arr(r.lines).map((l) => ({
+			code: str(l.accountCode, 40) || "NEW",
+			name: str(l.accountName, 200),
+			debit: Math.abs(parseMinor(l.debit) ?? 0),
+			credit: Math.abs(parseMinor(l.credit) ?? 0)
+		}));
+		const a = {
+			id: `${prefix}${round}-${i + 1}`,
+			title: str(r.title, 200) || "قيد تسوية",
+			reason: str(r.reason, 1e3),
+			standard: normalizeCode$1(str(r.standardCode, 60)) ?? str(r.standardCode, 60),
+			lines,
+			estimate: false,
+			source: "gemini",
+			round
+		};
+		const v = validateAdjustment(a, tb);
+		const problems = [...v.problems, ...v.balanced ? [] : [`القيد غير متوازن: مدين ${sar(v.debit)} ودائن ${sar(v.credit)}`]];
+		return {
+			...a,
+			valid: v.valid,
+			problems,
+			newAccounts: v.newAccounts
+		};
+	}
+	/** Normalize one Gemini round into the app's types; never trusts the model's arithmetic or codes. */
+	function normalizeRound(raw, s, tb, model, now = /* @__PURE__ */ new Date()) {
+		const r = raw ?? {}, no = s.rounds.length + 1, warnings = [];
+		const codes = new Set(tb.rows.map((x) => x.code));
+		const accountStandards = {};
+		for (const x of arr(r.accountStandards)) {
+			const code = str(x.accountCode, 40);
+			if (!code) continue;
+			if (!codes.has(code)) {
+				warnings.push(`تجاهل معايير لحساب غير موجود في الميزان: ${code}`);
+				continue;
+			}
+			const list = arr(x.standards).map((c) => str(c, 60)).filter(Boolean);
+			accountStandards[code] = {
+				standards: list.map((c) => normalizeCode$1(c)).filter((c) => !!c).filter((c, i, a) => a.indexOf(c) === i),
+				unknown: list.filter((c) => !normalizeCode$1(c)),
+				note: str(x.note, 600)
+			};
+		}
+		let fseq = 0;
+		const findings = arr(r.findings).slice(0, 30).map((f) => {
+			const code = str(f.accountCode, 40), std = str(f.standardCode, 60), amount = parseMinor(f.amount);
+			return {
+				id: `G${no}-${++fseq}`,
+				severity: SEV[str(f.severity, 20)] ?? "medium",
+				kind: KIND[str(f.issueType, 20)] ?? "measurement",
+				code: codes.has(code) ? code : void 0,
+				account: str(f.accountName, 200),
+				standard: normalizeCode$1(std) ?? (std || "IAS 1"),
+				title: str(f.comment, 160).split(/[.،؛]/)[0] || "ملاحظة",
+				detail: str(f.comment, 2e3),
+				basis: amount ? "المبلغ المتأثر " + sar(amount) + " ر.س" : "حكم مهني",
+				action: str(f.recommendation, 1e3),
+				source: "gemini",
+				round: no
+			};
+		});
+		const existing = /* @__PURE__ */ new Map();
+		s.rounds.forEach((x) => x.requests.forEach((q) => existing.set(q.id, q)));
+		let next = existing.size + 1;
+		const requests = [];
+		for (const q of arr(r.requestedDocuments).slice(0, 20)) {
+			const title = str(q.title, 300);
+			if (!title) continue;
+			let id = str(q.id, 20).toUpperCase().replace(/\s+/g, "");
+			const same = [...existing.values()].find((e) => e.title === title);
+			if (same) {
+				if (!requests.some((x) => x.id === same.id)) requests.push(same);
+				continue;
+			}
+			if (!/^REQ-\d+$/.test(id) || existing.has(id) || requests.some((x) => x.id === id)) id = "REQ-" + next;
+			next = Math.max(next, Number(id.slice(4)) + 1);
+			requests.push({
+				id,
+				title,
+				purpose: str(q.purpose, 600),
+				accounts: arr(q.relatedAccounts).map((c) => str(c, 40)).filter(Boolean),
+				standard: normalizeCode$1(str(q.standardCode, 60)) ?? "ISA 500",
+				priority: [
+					"عالية",
+					"متوسطة",
+					"منخفضة"
+				].find((p) => p === str(q.priority, 20)) ?? "متوسطة",
+				source: "gemini",
+				round: no
+			});
+		}
+		const up = pendingUploads(s);
+		const reviewed = arr(r.documentsReviewed).map((d) => {
+			const fileName = str(d.fileName, 300), match = up.find((u) => u.fileName === fileName) ?? up.find((u) => fileName && (u.fileName.includes(fileName) || fileName.includes(u.fileName)));
+			const verdict = [
+				"مقبول",
+				"غير كافٍ",
+				"مرفوض"
+			].find((v) => v === str(d.verdict, 20)) ?? "غير كافٍ";
+			const ex = d.extracted ?? {};
+			return {
+				requestId: match?.requestId ?? str(d.requestId, 20),
+				fileName: match?.fileName ?? fileName,
+				verdict,
+				notes: str(d.notes, 2e3),
+				extracted: Object.fromEntries(Object.entries(ex).map(([k, v]) => [k, str(v, 200)]).filter(([, v]) => v))
+			};
+		});
+		for (const u of up) if (!reviewed.some((d) => d.fileName === u.fileName)) warnings.push(`لم يعلّق المجلس على المستند «${u.fileName}»؛ سيبقى الطلب ${u.requestId} قائماً.`);
+		const adjustments = arr(r.proposedAdjustments).slice(0, 15).map((a, i) => adjFrom(a, i, no, tb, "G"));
+		for (const a of adjustments) if (!a.valid) warnings.push(`القيد «${a.title}» لم يُقبل آلياً: ${a.problems.join("، ") || "بيانات ناقصة"}.`);
+		let status = str(r.status, 20) === "complete" ? "complete" : "needs_docs";
+		const newAsks = requests.filter((q) => q.round === no);
+		if (status === "complete" && newAsks.length) {
+			status = "needs_docs";
+			warnings.push("أعلن المجلس الاكتمال مع طلب مستندات جديدة؛ اعتُبرت الجولة غير مكتملة.");
+		}
+		if (status === "needs_docs" && !requests.length && !outstanding({
+			...s,
+			rounds: [...s.rounds]
+		}).length) warnings.push("لا توجد طلبات قائمة؛ يمكن إصدار التقرير النهائي.");
+		const score = Number(r.riskScore);
+		return {
+			no,
+			at: now.toISOString(),
+			model,
+			status,
+			summary: str(r.executiveSummary, 4e3),
+			riskScore: Number.isFinite(score) ? Math.max(0, Math.min(100, Math.round(score))) : 50,
+			opinions: arr(r.boardOpinions).map((o) => ({
+				reviewer: str(o.reviewer, 80),
+				opinion: str(o.opinion, 2e3)
+			})).filter((o) => o.opinion),
+			accountStandards,
+			findings,
+			requests,
+			reviewed,
+			adjustments,
+			guidance: str(r.nextStepGuidance, 2e3),
+			warnings
+		};
+	}
+	function addRound(s, round) {
+		return {
+			...s,
+			rounds: [...s.rounds, round]
+		};
+	}
+	function addUpload(s, u) {
+		return {
+			...s,
+			uploads: [...s.uploads, {
+				...u,
+				round: s.rounds.length + 1
+			}]
+		};
+	}
+	function markUnavailable(s, requestId) {
+		return s.unavailable.includes(requestId) ? s : {
+			...s,
+			unavailable: [...s.unavailable, requestId]
+		};
+	}
+	function sessionState(s, maxRounds = 6) {
+		if (s.final) return {
+			state: "final",
+			label: "صدر التقرير النهائي"
+		};
+		if (!s.rounds.length) return {
+			state: "start",
+			label: "جاهز للجولة الأولى"
+		};
+		if (s.rounds[s.rounds.length - 1].status === "complete" && !outstanding(s).length) return {
+			state: "complete",
+			label: "اكتملت المراجعة — أصدر التقرير"
+		};
+		if (s.rounds.length >= maxRounds) return {
+			state: "limit",
+			label: `بلغت ${maxRounds} جولات — يصدر التقرير مع تسجيل القيود على النطاق`
+		};
+		if (pendingUploads(s).length) return {
+			state: "ready",
+			label: `${pendingUploads(s).length} مستند جاهز لجولة المراجعة ${s.rounds.length + 1}`
+		};
+		return {
+			state: "awaiting-docs",
+			label: `بانتظار ${outstanding(s).length} مستند`
+		};
+	}
+	/** Latest view: engine findings, then Gemini's by round, de-duplicated by account + standard + title. */
+	function mergedFindings(review, s) {
+		const out = [], key = (f) => (f.code ?? f.lineKey ?? "") + "|" + f.standard + "|" + f.title;
+		const seen = /* @__PURE__ */ new Set();
+		for (const f of [...review.findings, ...s.rounds.flatMap((r) => r.findings)]) {
+			const k = key(f);
+			if (seen.has(k)) continue;
+			seen.add(k);
+			out.push(f);
+		}
+		return out;
+	}
+	/** Standards per account after Gemini: its confirmed list replaces the engine's when present. */
+	function accountStandards(review, s) {
+		const out = Object.fromEntries(review.accounts.map((a) => [a.code, a.standards.map((x) => x.code)]));
+		for (const r of s.rounds) for (const [code, v] of Object.entries(r.accountStandards)) if (v.standards.length) out[code] = v.standards;
+		return out;
+	}
+	/** Evidence per statement line from the reviewed documents: accepted → 'accepted', insufficient → 'partial'. */
+	function evidenceFromSession(review, s) {
+		const reqs = /* @__PURE__ */ new Map();
+		s.rounds.forEach((r) => r.requests.forEach((q) => reqs.set(q.id, q)));
+		review.requests.forEach((q) => reqs.set(q.id, q));
+		const out = {};
+		for (const d of s.rounds.flatMap((r) => r.reviewed)) {
+			const q = reqs.get(d.requestId);
+			if (!q || d.verdict === "مرفوض") continue;
+			const lines = new Set([q.lineKey, ...review.accounts.filter((a) => q.accounts.includes(a.code)).map((a) => a.lineKey)].filter((k) => !!k));
+			for (const k of lines) if (d.verdict === "مقبول") out[k] = "accepted";
+			else if (!out[k]) out[k] = "partial";
+		}
+		return out;
+	}
+	function deriveOpinion(tb, review, s, accepted) {
+		const mat = review.materiality;
+		const uncorrected = [...review.adjustments, ...s.rounds.flatMap((r) => r.adjustments.filter((a) => a.valid))].filter((p) => !accepted.some((a) => a.id === p.id));
+		const eff = uncorrected.length ? adjustmentEffect(tb, uncorrected) : {
+			profit: 0,
+			assets: 0,
+			equity: 0
+		};
+		const misstatement = Math.max(Math.abs(eff.profit), Math.abs(eff.assets), Math.abs(eff.equity));
+		const highOpen = outstanding(s).filter((q) => q.priority === "عالية");
+		const unavailHigh = s.rounds.flatMap((r) => r.requests).filter((q, i, a) => a.findIndex((x) => x.id === q.id) === i && s.unavailable.includes(q.id) && q.priority === "عالية");
+		const ev = evidenceFromSession(review, s);
+		const sigUnevidenced = review.risks.filter((r) => r.significant && !ev[r.lineKey]).length;
+		const lineOf = (q) => q.lineKey ?? review.accounts.find((a) => q.accounts.includes(a.code))?.lineKey ?? null;
+		const blockedSig = new Set(unavailHigh.map(lineOf).filter((k) => k && review.risks.some((r) => r.lineKey === k && r.significant)));
+		const basis = [], material = misstatement > mat.overall, pervasive = misstatement > mat.overall * 5;
+		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar(misstatement)} ر.س مقابل أهمية نسبية ${sar(mat.overall)} ر.س (ISA 450).`);
+		if (unavailHigh.length) basis.push(`تعذر الحصول على ${unavailHigh.length} مستند عالي الأولوية: ` + unavailHigh.map((q) => q.title).join("، ") + ".");
+		const scopePervasive = unavailHigh.length >= 3 || blockedSig.size >= 3;
+		if (sigUnevidenced) basis.push(`${sigUnevidenced} خطر جوهري دون دليل مقبول بعد؛ يستكمل قبل التوقيع (ISA 330).`);
+		const goingConcern = review.findings.some((f) => f.kind === "going-concern" && f.severity === "high");
+		let opinion = "unmodified", isa = "ISA 700";
+		if (scopePervasive) {
+			opinion = "disclaimer";
+			isa = "ISA 705.9";
+		} else if (material && pervasive) {
+			opinion = "adverse";
+			isa = "ISA 705.8";
+		} else if (material || unavailHigh.length) {
+			opinion = "qualified";
+			isa = "ISA 705.7";
+		}
+		const ar = {
+			unmodified: "رأي غير معدل",
+			qualified: "رأي متحفظ",
+			adverse: "رأي عكسي",
+			disclaimer: "امتناع عن إبداء الرأي"
+		}[opinion];
+		if (!basis.length) basis.push("لا توجد تحريفات جوهرية غير مصححة ولا قيود على النطاق في حدود الأدلة المستلمة.");
+		if (highOpen.length && opinion === "unmodified") basis.push(`تنبيه: ${highOpen.length} طلب عالي الأولوية لم يُستوفَ بعد؛ الرأي مشروط باستيفائه قبل التوقيع.`);
+		return {
+			opinion,
+			ar,
+			isa,
+			basis,
+			misstatement,
+			goingConcern,
+			requiresPartner: true
+		};
+	}
+	function buildFinalBody(s, tb, review, derived) {
+		const parts = [
+			{ text: describeReview(tb, review) },
+			{ text: [
+				"سجل الجولات:",
+				...s.rounds.map((r) => `الجولة ${r.no} (${r.status}): ${r.summary.slice(0, 800)}`),
+				"المستندات المقبولة: " + (s.rounds.flatMap((r) => r.reviewed.filter((d) => d.verdict === "مقبول").map((d) => d.requestId + " " + d.fileName)).join("؛ ") || "لا شيء"),
+				"غير المتوفرة: " + (s.unavailable.join("، ") || "لا شيء"),
+				"ملاحظات المجلس: " + s.rounds.flatMap((r) => r.findings).map((f) => `${f.title} (${f.standard}, ${f.severity})`).join("؛ "),
+				`الرأي المشتق آلياً وفق ISA 705: ${derived.ar} — ${derived.basis.join(" ")}`
+			].join("\n") },
+			{ text: "أصدر التقرير النهائي: الملخص، الأمور الرئيسية للمراجعة (ISA 701)، مناقشة الامتثال لكل معيار مؤثر، قيود التسوية النهائية المقترحة، خطاب الإدارة، والقيود على النطاق. اتسق مع الرأي المشتق ما لم تذكر سبباً مهنياً للاختلاف." }
+		];
+		return {
+			systemInstruction: { parts: [{ text: systemPrompt(s.ctx) }] },
+			contents: [{
+				role: "user",
+				parts
+			}],
+			generationConfig: {
+				temperature: .2,
+				responseMimeType: "application/json",
+				responseSchema: FINAL_SCHEMA
+			}
+		};
+	}
+	function normalizeFinal(raw, s, tb, now = /* @__PURE__ */ new Date()) {
+		const r = raw ?? {};
+		return {
+			at: now.toISOString(),
+			aiOpinion: str(r.overallOpinion, 40),
+			headline: str(r.headline, 300),
+			summary: str(r.summary, 6e3),
+			kams: arr(r.keyAuditMatters).map((k) => ({
+				title: str(k.title, 200),
+				why: str(k.why, 2e3),
+				how: str(k.how, 2e3)
+			})).filter((k) => k.title),
+			compliance: arr(r.complianceDiscussion).map((c) => ({
+				standardCode: normalizeCode$1(str(c.standardCode, 60)) ?? str(c.standardCode, 60),
+				status: str(c.status, 30),
+				discussion: str(c.discussion, 3e3)
+			})).filter((c) => c.standardCode),
+			adjustments: arr(r.adjustments).slice(0, 20).map((a, i) => adjFrom(a, i, s.rounds.length + 1, tb, "F")),
+			letter: arr(r.managementLetter).map((m) => ({
+				title: str(m.title, 200),
+				observation: str(m.observation, 2e3),
+				recommendation: str(m.recommendation, 2e3),
+				priority: str(m.priority, 20)
+			})).filter((m) => m.title),
+			limitations: arr(r.limitations).map((x) => str(x, 600)).filter(Boolean),
+			closing: str(r.closingStatement, 2e3)
+		};
+	}
+	/** Test call body for the key check. */
+	var PING_BODY = {
+		contents: [{
+			role: "user",
+			parts: [{ text: "أجب بكلمة واحدة فقط: جاهز" }]
+		}],
+		generationConfig: { temperature: 0 }
+	};
+	function friendlyError(status, message = "") {
+		if (status === 400 && /api key not valid|API_KEY_INVALID/i.test(message)) return "مفتاح API غير صالح — تحقق منه.";
+		if (status === 400) return "رفض الطلب (400): " + (message || "صيغة غير مقبولة") + ".";
+		if (status === 403) return "المفتاح مرفوض أو غير مصرح له بهذا النموذج (403).";
+		if (status === 404) return "النموذج غير متاح لهذا المفتاح (404) — اختر نموذجاً آخر من القائمة.";
+		if (status === 413) return "حجم المستندات أكبر من المسموح في طلب واحد — ارفعها على جولات.";
+		if (status === 429) return "تجاوزت حصة الاستخدام (429) — انتظر قليلاً أو اختر نموذجاً أخف.";
+		if (status >= 500) return "خطأ مؤقت من خدمات Google (" + status + ") — أعد المحاولة.";
+		if (status === 0) return "تعذر الاتصال — تحقق من الشبكة أو من مانع يحجب generativelanguage.googleapis.com.";
+		return "خطأ " + status + (message ? ": " + message : "");
+	}
+	//#endregion
+	//#region app/src/engine/fusion/audit/document-check-engine.ts
+	var document_check_engine_exports = /* @__PURE__ */ __exportAll({
+		checkDocument: () => checkDocument,
+		decodeZatcaQr: () => decodeZatcaQr,
+		encodeZatcaQr: () => encodeZatcaQr,
+		findDuplicates: () => findDuplicates,
+		validVatNumber: () => validVatNumber
+	});
+	function b64bytes(b64) {
+		const clean = String(b64 || "").replace(/[\s-]/g, (c) => c === "-" ? "+" : "").replace(/_/g, "/");
+		const bin = atob(clean);
+		return Uint8Array.from(bin, (c) => c.charCodeAt(0));
+	}
+	/** Decode the TLV payload of a ZATCA QR code (phase 1 tags 1–5; later tags are listed but not interpreted). */
+	function decodeZatcaQr(b64) {
+		let bytes;
+		try {
+			bytes = b64bytes(b64);
+		} catch {
+			return null;
+		}
+		const dec = new TextDecoder(), out = {}, tags = [];
+		for (let i = 0; i + 2 <= bytes.length;) {
+			const tag = bytes[i], len = bytes[i + 1];
+			if (!tag || i + 2 + len > bytes.length) return null;
+			out[tag] = dec.decode(bytes.slice(i + 2, i + 2 + len));
+			tags.push(tag);
+			i += 2 + len;
+		}
+		if (!out[1] || !out[2]) return null;
+		return {
+			seller: out[1],
+			vatNumber: out[2],
+			timestamp: out[3] ?? "",
+			total: out[4] ? parseMinor(out[4]) : null,
+			vat: out[5] ? parseMinor(out[5]) : null,
+			tags
+		};
+	}
+	/** Encode (for tests and for printing a QR on the app's own invoices). */
+	function encodeZatcaQr(f) {
+		const enc = new TextEncoder(), parts = [];
+		[
+			f.seller,
+			f.vatNumber,
+			f.timestamp,
+			f.total,
+			f.vat
+		].forEach((v, i) => {
+			const b = enc.encode(v);
+			parts.push(i + 1, b.length, ...b);
+		});
+		return btoa(String.fromCharCode(...parts));
+	}
+	function validVatNumber(v) {
+		return /^3\d{13}3$/.test(String(v || "").replace(/\s/g, ""));
+	}
+	var m = (v) => typeof v === "number" ? v : v === void 0 || v === "" ? null : parseMinor(v);
+	function checkDocument(d, opts = {}) {
+		const issues = [], rate = opts.rate ?? .15;
+		let total = m(d.amount), vat = m(d.vatAmount), vatNo = d.vatNumber ?? "";
+		const qr = d.qr ? decodeZatcaQr(d.qr) : null;
+		if (d.qr && !qr) issues.push({
+			code: "QR_INVALID",
+			severity: "high",
+			message: "رمز QR لا يطابق صيغة هيئة الزكاة والضريبة والجمارك (TLV)."
+		});
+		if (qr) {
+			if (vatNo && qr.vatNumber !== vatNo) issues.push({
+				code: "QR_MISMATCH",
+				severity: "high",
+				message: `الرقم الضريبي في الرمز ${qr.vatNumber} يخالف المطبوع ${vatNo}.`
+			});
+			if (total !== null && qr.total !== null && Math.abs(qr.total - total) > 100) issues.push({
+				code: "QR_MISMATCH",
+				severity: "high",
+				message: "إجمالي الفاتورة في الرمز يخالف المطبوع."
+			});
+			vatNo = vatNo || qr.vatNumber;
+			total = total ?? qr.total;
+			vat = vat ?? qr.vat;
+		}
+		if (vatNo && !validVatNumber(vatNo)) issues.push({
+			code: "VAT_NUMBER",
+			severity: "medium",
+			message: `الرقم الضريبي ${vatNo} غير صحيح الصيغة (15 خانة تبدأ وتنتهي بـ3).`
+		});
+		if (total !== null && vat !== null && vat > 0) {
+			const expected = Math.round(total * rate / (1 + rate));
+			if (Math.abs(expected - vat) > 100) issues.push({
+				code: "VAT_MATH",
+				severity: "medium",
+				message: `الضريبة ${(vat / 100).toFixed(2)} لا تساوي 15/115 من الإجمالي (${(expected / 100).toFixed(2)}).`
+			});
+		}
+		const date = (d.documentDate || qr?.timestamp || "").slice(0, 10);
+		if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+			if (opts.today && date > opts.today) issues.push({
+				code: "FUTURE",
+				severity: "high",
+				message: "تاريخ المستند لاحق لتاريخ اليوم."
+			});
+			else if (opts.periodEnd && date > opts.periodEnd) issues.push({
+				code: "SUBSEQUENT",
+				severity: "low",
+				message: "مستند بعد نهاية الفترة — يُفحص كحدث لاحق أو لاختبار القطع (ISA 560)."
+			});
+			if (opts.periodStart && date < opts.periodStart) issues.push({
+				code: "OUT_OF_PERIOD",
+				severity: "medium",
+				message: "مستند قبل بداية الفترة المراجعة."
+			});
+		} else if (!d.documentDate && !qr) issues.push({
+			code: "MISSING",
+			severity: "low",
+			message: "لم يُستخرج تاريخ المستند."
+		});
+		return {
+			issues,
+			qr,
+			verdict: issues.some((i) => i.severity === "high") ? "مرفوض" : issues.some((i) => i.severity === "medium") ? "يحتاج مراجعة" : "سليم"
+		};
+	}
+	/** Same counterparty or VAT number, same reference or same amount and date → possible duplicate. */
+	function findDuplicates(docs) {
+		const out = [];
+		const who = (d) => (d.vatNumber || d.counterparty || "").replace(/\s/g, "");
+		for (let i = 0; i < docs.length; i++) for (let j = i + 1; j < docs.length; j++) {
+			const a = docs[i], b = docs[j];
+			if (!who(a) || who(a) !== who(b)) continue;
+			const sameRef = !!a.reference && a.reference === b.reference, sameAmt = m(a.amount) !== null && m(a.amount) === m(b.amount) && (a.documentDate ?? "") === (b.documentDate ?? "");
+			if (sameRef || sameAmt) out.push([i, j]);
+		}
+		return out;
+	}
+	//#endregion
 	//#region app/src/engine/fusion/audit/evidence-engine.ts
 	var evidence_engine_exports = /* @__PURE__ */ __exportAll({
 		createEvidenceRecord: () => createEvidenceRecord,
@@ -346,6 +5468,139 @@ window.SKEngines = (function() {
 			...record.tags,
 			record.notes ?? ""
 		].join(" ").toLowerCase().includes(q));
+	}
+	//#endregion
+	//#region app/src/engine/fusion/audit/standards-update-engine.ts
+	var standards_update_engine_exports = /* @__PURE__ */ __exportAll({
+		OFFICIAL_SOURCES: () => OFFICIAL_SOURCES,
+		applyApproved: () => applyApproved,
+		buildUpdateCheckBody: () => buildUpdateCheckBody,
+		isOfficial: () => isOfficial,
+		parseUpdateResponse: () => parseUpdateResponse
+	});
+	var OFFICIAL_SOURCES = [
+		{
+			org: "IFRS Foundation",
+			domain: "ifrs.org",
+			url: "https://www.ifrs.org/issued-standards/",
+			covers: "IFRS / IAS / IFRS for SMEs"
+		},
+		{
+			org: "IAASB",
+			domain: "iaasb.org",
+			url: "https://www.iaasb.org/standards-pronouncements",
+			covers: "ISA / ISQM"
+		},
+		{
+			org: "SOCPA",
+			domain: "socpa.org.sa",
+			url: "https://socpa.org.sa",
+			covers: "اعتماد المعايير في المملكة"
+		},
+		{
+			org: "ZATCA",
+			domain: "zatca.gov.sa",
+			url: "https://zatca.gov.sa",
+			covers: "الزكاة وضريبة القيمة المضافة والفوترة"
+		},
+		{
+			org: "وزارة التجارة",
+			domain: "mc.gov.sa",
+			url: "https://mc.gov.sa",
+			covers: "نظام الشركات"
+		},
+		{
+			org: "هيئة السوق المالية",
+			domain: "cma.org.sa",
+			url: "https://cma.org.sa",
+			covers: "متطلبات الشركات المدرجة"
+		},
+		{
+			org: "IESBA",
+			domain: "ethicsboard.org",
+			url: "https://www.ethicsboard.org",
+			covers: "قواعد السلوك المهني"
+		}
+	];
+	var isOfficial = (url) => {
+		try {
+			const h = new URL(url).hostname.toLowerCase();
+			return OFFICIAL_SOURCES.some((s) => h === s.domain || h.endsWith("." + s.domain));
+		} catch {
+			return false;
+		}
+	};
+	function buildUpdateCheckBody(codes, today) {
+		const list = codes.map((c) => STANDARD[c]).filter((s) => !!s).map((s) => `${s.code} — ${s.titleEn} — آخر ما لدينا: ${s.latest} — السريان: ${s.effective}`);
+		return {
+			contents: [{
+				role: "user",
+				parts: [{ text: [
+					`تاريخ اليوم ${today}. تحقق من المصادر الرسمية فقط (${OFFICIAL_SOURCES.map((s) => s.domain).join("، ")}) عن أي معيار جديد أو تعديل أو قرار اعتماد في المملكة العربية السعودية أو تغيير في تاريخ السريان للمعايير التالية منذ 2024:`,
+					...list,
+					"أعد JSON فقط بالشكل: {\"updates\":[{\"code\":\"رمز المعيار\",\"change\":\"وصف التغيير بالعربية\",\"effective\":\"تاريخ السريان\",\"kind\":\"new|amendment|endorsement|effective-date|other\",\"sources\":[\"رابط رسمي\"]}]}.",
+					"لا تذكر شيئاً بلا مصدر رسمي. إن لم تجد جديداً فأعد {\"updates\":[]}."
+				].join("\n") }]
+			}],
+			tools: [{ google_search: {} }],
+			generationConfig: { temperature: 0 }
+		};
+	}
+	/** Keep updates backed by an official source: either cited in the JSON or in the grounding metadata. */
+	function parseUpdateResponse(api, checkedAt) {
+		const officialChunks = (api?.candidates?.[0]?.groundingMetadata?.groundingChunks ?? []).map((c) => ({
+			title: String(c.web?.title ?? ""),
+			url: String(c.web?.uri ?? "")
+		})).filter((c) => c.url).filter((c) => isOfficial(c.url) || OFFICIAL_SOURCES.some((s) => c.title.toLowerCase().includes(s.domain)));
+		const raw = parseJsonLoose(extractText(api).text);
+		const items = [];
+		let dropped = 0;
+		for (const u of raw?.updates ?? []) {
+			const code = normalizeCode$1(String(u.code ?? "")) ?? String(u.code ?? "").trim();
+			const cited = (Array.isArray(u.sources) ? u.sources : []).map(String).filter(isOfficial).map((url) => ({
+				title: new URL(url).hostname,
+				url
+			}));
+			const sources = cited.length ? cited : officialChunks;
+			if (!code || !String(u.change ?? "").trim() || !sources.length) {
+				dropped++;
+				continue;
+			}
+			const kind = [
+				"new",
+				"amendment",
+				"endorsement",
+				"effective-date"
+			].find((k) => k === u.kind) ?? "other";
+			items.push({
+				code,
+				change: String(u.change).trim().slice(0, 800),
+				effective: String(u.effective ?? "").trim().slice(0, 80),
+				kind,
+				sources: sources.slice(0, 4),
+				official: cited.length > 0,
+				status: "pending",
+				checkedAt
+			});
+		}
+		return {
+			items,
+			dropped,
+			sources: officialChunks
+		};
+	}
+	/** Apply approved updates: the record keeps its facts and gains the approved change as its latest note. */
+	function applyApproved(list, updates) {
+		return list.map((s) => {
+			const mine = updates.filter((u) => u.code === s.code && u.status === "approved");
+			if (!mine.length) return s;
+			const last = mine[mine.length - 1];
+			return {
+				...s,
+				latest: last.change + (last.effective ? " (السريان: " + last.effective + ")" : "") + " — تحقق " + last.checkedAt.slice(0, 10),
+				url: last.sources[0]?.url ?? s.url
+			};
+		});
 	}
 	//#endregion
 	//#region app/src/engine/fusion/audit/workpapers-engine.ts
@@ -2447,6 +7702,9 @@ window.SKEngines = (function() {
 	//#endregion
 	return {
 		audit: {
+			aiReview: ai_review_engine_exports,
+			codex: codex_engine_exports,
+			documentCheck: document_check_engine_exports,
 			evidence: evidence_engine_exports,
 			issues: issues_engine_exports,
 			materiality: materiality_engine_exports,
@@ -2456,6 +7714,8 @@ window.SKEngines = (function() {
 			reviewerCouncil: reviewer_council_engine_exports,
 			sampling: sampling_engine_exports,
 			standards: standards_engine_exports,
+			standardsUpdate: standards_update_engine_exports,
+			tbReview: tb_review_engine_exports,
 			workpapers: workpapers_engine_exports
 		},
 		catalog: {
@@ -2485,10 +7745,14 @@ window.SKEngines = (function() {
 			suppliers: suppliers_engine_exports
 		},
 		reports: {
+			analysis: analysis_engine_exports,
 			excelRecon: excel_recon_engine_exports,
 			export: export_engine_exports,
+			money: money_engine_exports,
 			scenario: scenario_engine_exports,
-			smartMatch: smart_match_engine_exports
+			smartMatch: smart_match_engine_exports,
+			statements: statements_engine_exports,
+			tbImport: tb_import_engine_exports
 		},
 		sales: {
 			catering: catering_engine_exports,
