@@ -27,6 +27,7 @@ export type MigrationReport={
   agingPieces:number;
   subscriptions:number;
   productAliases:number;
+  cateringQuotes:number;
   legacyCommerceRows:number;
   warnings:string[];
 };
@@ -154,6 +155,7 @@ export function inspectLegacyDataset(dataset:LegacyDataset):MigrationReport{
   const agingPieces=parseJson<any[]>(dataset.local['skosif_ops_aging_chamber'],[]);
   const subscriptions=parseJson<any[]>(dataset.local['skosif_ops_subscriptions'],[]);
   const productAliases=parseJson<Record<string,string>>(dataset.local['skosif_v34_product_aliases'],{});
+  const bbq=parseJson<any>(dataset.local['skosif_ops_bbq'],null);
   const raws=Array.isArray(pricing?.raws)?pricing.raws:[];
   const idbRows=Object.values(dataset.idb).reduce((sum,rows)=>sum+(Array.isArray(rows)?rows.length:0),0);
   const customerRows=[
@@ -182,6 +184,7 @@ export function inspectLegacyDataset(dataset:LegacyDataset):MigrationReport{
     agingPieces:agingPieces.length,
     subscriptions:subscriptions.length,
     productAliases:Object.keys(productAliases).length,
+    cateringQuotes:bbq&&typeof bbq==='object'&&Object.keys(bbq).length?1:0,
     legacyCommerceRows:['orders','order_items','payments','sales_lines','sales_descriptions','ops_orders'].reduce((sum,key)=>sum+(dataset.idb[key]?.length??0),0),
     warnings:[],
   };
@@ -466,6 +469,33 @@ function mergeObject(storage:StorageLike,key:string,value:Record<string,string>)
   storage.setItem(key,JSON.stringify({...current,...value}));
 }
 
+function mapCatering(dataset:LegacyDataset,customers:any[]){
+  const row=parseJson<any>(dataset.local['skosif_ops_bbq'],null);
+  if(!row||typeof row!=='object'||!Object.keys(row).length)return [];
+  const customer=customers.find(c=>c.phone&&c.phone===text(row.clientPhone))||customers.find(c=>c.name===text(row.clientName));
+  const profile=['bbq','family','formal','keto'].includes(text(row.profile))?text(row.profile):'custom';
+  return [{
+    id:'legacy-catering-'+stableId('quote',row.title||row.clientName||'bbq',0),
+    title:text(row.title)||'عرض مناسبة قديم',
+    customerId:customer?.id,
+    customerName:text(row.clientName)||undefined,
+    customerPhone:text(row.clientPhone)||undefined,
+    guests:numeric(row.guests)||1,
+    profile,
+    gramsPerGuest:profile==='custom'?numeric(row.gramsPerGuest)||350:undefined,
+    meatCostPerKg:numeric(row.meatCostKg),
+    marginPercent:numeric(row.marginPct)||35,
+    vatRate:numeric(row.vatRate)||0.15,
+    marinated:Boolean(row.marinated),
+    marinationCostPerKg:numeric(row.marinationCostPerKg)||6,
+    toolsPack:Boolean(row.toolsPack),
+    toolsCostPerGuest:numeric(row.toolsCostPerGuest)||4,
+    notes:text(row.notes)||undefined,
+    createdAt:text(row.createdAt)||new Date().toISOString(),
+    legacySource:'skosif_ops_bbq',
+  }];
+}
+
 function mapLegacyCommerce(dataset:LegacyDataset){
   const stores=['orders','order_items','payments','sales_lines','sales_descriptions','ops_orders','imports','import_errors','pricing_snapshots'];
   const records:any[]=[];
@@ -510,6 +540,7 @@ export async function applyLegacyMigration(storage:StorageLike,dataset:LegacyDat
   const agingPieces=mapAgingPieces(dataset);
   const subscriptions=mapSubscriptions(dataset,customers);
   const productAliases=mapProductAliases(dataset,items);
+  const cateringQuotes=mapCatering(dataset,customers);
   const commerce=mapLegacyCommerce(dataset);
 
   mergeEnvelope(storage,makeScopedKey('catalog.items',scope),items);
@@ -526,6 +557,7 @@ export async function applyLegacyMigration(storage:StorageLike,dataset:LegacyDat
   mergeEnvelope(storage,makeScopedKey('stock.aging-pieces',scope),agingPieces);
   mergeEnvelope(storage,makeScopedKey('sales.subscriptions',scope),subscriptions);
   mergeObject(storage,makeScopedKey('reports.product-aliases',scope),productAliases);
+  mergeEnvelope(storage,makeScopedKey('sales.catering-quotes',scope),cateringQuotes);
   mergeEnvelope(storage,makeScopedKey('legacy.commerce',scope),commerce);
 
   await archiveLegacyDataset(dataset);
