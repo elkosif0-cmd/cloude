@@ -5,7 +5,7 @@
   "compatibility_date": "2026-09-24",
   "workers_dev": true,
   "observability": { "enabled": true },
-  "vars": { "API_KEY_SHA256": "fca39e71b2c9c76fa3eb88bba863e6e31851234231391e5bd323d3115f1a794a" },
+  "vars": { "API_KEY_SHA256": "5e232ccf2246c42bb5b8629f449fa992b92ad26e7160f6cbf6055f54858bc82a" },
   "containers": [
     {
       "class_name": "WaBridge",
