@@ -133,7 +133,14 @@ p{margin:0}
 }
 
 /* accounting & audit frame */
-.kx-audit-frame{min-width:0}
+.kx-audit-frame{min-width:0;border-radius:var(--sk-r-l);overflow:hidden}
+.kx-audit-host .topbar{display:none}
+/* operational hub bar inside a screen (tabs between related tools) */
+.sk-hub-nav{display:flex;gap:6px;overflow-x:auto;padding:4px;border-radius:var(--sk-r);background:var(--sk-surface-3);margin-bottom:14px;scrollbar-width:none}
+.sk-hub-btn{flex:1;min-height:40px;border:0;border-radius:10px;background:transparent;color:var(--sk-ink-2);font:inherit;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.sk-hub-btn:hover{color:var(--sk-ink)}
+.sk-hub-btn.active{background:var(--sk-surface);color:var(--sk-brand);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+@media(max-width:640px){.sk-hub-btn{flex:0 0 auto;padding:0 10px}}
 .kx-tb .kx-tb-period{min-height:40px;border:1px solid var(--sk-line);border-radius:10px;background:var(--sk-surface-2);color:var(--sk-ink);padding:0 10px;font:inherit}
 .kx-tb{margin-bottom:14px}
 

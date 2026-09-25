@@ -21,13 +21,34 @@ function app(key){
   const host=document.createElement("div");host.className="kx-audit-host";frame.appendChild(host);
   return state[key]={frame,host,api:null,loading:null,want:"overview"};
 }
-function open(key,node,view){
+function auditHubNav(activeId){
+  const nav=document.createElement("div");
+  nav.className="sk-hub-nav";
+  nav.innerHTML=SCREENS.map(s=>'<button type="button" class="sk-hub-btn '+(s[0]===activeId?'active':'')+'" data-audit-go="'+s[0]+'"><span>'+s[5]+'</span><span>'+s[3]+'</span></button>').join("");
+  nav.querySelectorAll("[data-audit-go]").forEach(b=>{
+    b.onclick=()=>window.SKosifCore?.go(b.dataset.auditGo);
+  });
+  return nav;
+}
+function open(key,node,view,screenId){
   const a=app(key);a.want=view;
-  if(key==="studio"&&view==="documents")node.replaceChildren(tbPanel(),a.frame);else node.replaceChildren(a.frame);
+  const nav=auditHubNav(screenId);
+  if(key==="studio"&&view==="documents")node.replaceChildren(nav,tbPanel(),a.frame);
+  else node.replaceChildren(nav,a.frame);
   if(a.api){a.api.setView(view);return}
   if(a.loading)return;
   const wait=document.createElement("div");wait.className="sk-empty kx-wait";wait.textContent="جارٍ تحميل "+APPS[key].label+"…";a.frame.before(wait);
-  a.loading=import(APPS[key].path).then(m=>m.mount(a.host,a.want)).then(api=>{a.api=api;api.setView(a.want);wait.remove()})
+  a.loading=import(APPS[key].path).then(m=>m.mount(a.host,a.want)).then(api=>{
+    a.api=api;api.setView(a.want);wait.remove();
+    try{
+      const sRoot=a.host.shadowRoot;
+      if(sRoot&&!sRoot.getElementById("sk-audit-unify")){
+        const style=document.createElement("style");style.id="sk-audit-unify";
+        style.textContent=".topbar,#topbar,.shell-header,.kx-topbar{display:none!important;}.shell,.kx-shell{padding-top:0!important;margin-top:0!important;}";
+        sRoot.appendChild(style);
+      }
+    }catch{}
+  })
     .catch(e=>{console.error("S.kosif "+key,e);wait.textContent="تعذر تحميل "+APPS[key].label+". تحقق من الاتصال وأعد المحاولة.";a.loading=null});
 }
 /* ---------- ميزان مراجعة من دفاتر S.kosif ----------
@@ -108,5 +129,5 @@ const SCREENS=[
   ["auditanalytics","classic","overview","التحليل المالي والمخاطر","بنفورد، المعاينة، اختبار القيود، النسب، الأهمية النسبية، الوكيل والمساعد الصوتي","🔬",SV('<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/>')],
   ["auditlab","lab","overview","مختبر المعايير والأبحاث","مصادر IFRS وISA وSOCPA وسريانها، وأسئلة البحث المهني","📚",SV('<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5V21h16"/>')]
 ];
-SCREENS.forEach(([id,key,view,title,sub,emoji,icon])=>window.SK.view(id,{title,sub,emoji,adv:true,icon,render(node){open(key,node,view)}}));
+SCREENS.forEach(([id,key,view,title,sub,emoji,icon])=>window.SK.view(id,{title,sub,emoji,adv:true,icon,render(node){open(key,node,view,id)}}));
 })();

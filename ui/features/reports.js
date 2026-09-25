@@ -489,9 +489,18 @@ function renderContent(){
   return plHTML();
 }
 
+function financeHubNav(activeId){
+  const tabs=[
+    {id:"execreports",icon:"📊",title:"التقارير التنفيذية والرسوم البيانية"},
+    {id:"b2bcredit",icon:"🤝",title:"ائتمان المطاعم وكشوف الحساب"},
+    {id:"suppliers",icon:"🚛",title:"سجل وتقييم الموردين"}
+  ];
+  return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-finance-go="'+t.id+'"><span>'+t.icon+'</span><span>'+t.title+'</span></button>').join("")+'</div>';
+}
+
 function paintReports(){
   const r=roots.reports; if(!r||!r.isConnected)return;
-  r.innerHTML=[
+  r.innerHTML=financeHubNav("execreports")+[
     '<section class="card">',
       '<div class="card-b sk-reports-wrap">',
         renderNav(),
@@ -499,6 +508,7 @@ function paintReports(){
       '</div>',
     '</section>'
   ].join("");
+  $$("[data-finance-go]",r).forEach(b=>b.onclick=()=>window.SKosifCore?.go(b.dataset.financeGo));
   bindAll();
 }
 

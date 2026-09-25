@@ -44,7 +44,7 @@ function build(){
   wrap.innerHTML='<div class="skp-backdrop" data-close></div><div class="skp" role="dialog" aria-modal="true" aria-label="بحث وانتقال سريع">'+
     '<div class="skp-head">'+SK.icons.search+'<input type="text" id="skp-inp" autocomplete="off" enterkeyhint="go" placeholder="ابحث أو انتقل… شاشة، صنف، عميل، إجراء، أو =12*4" aria-label="بحث" aria-controls="skp-list"><kbd>Esc</kbd></div>'+
     '<div class="skp-list" id="skp-list" role="listbox"></div>'+
-    '<div class="skp-foot"><span><kbd>↑↓</kbd> تنقّل</span><span><kbd>Enter</kbd> فتح</span><span><kbd>Ctrl</kbd>+<kbd>P</kbd> تثبيت صنف</span><span><kbd>=</kbd> حاسبة</span><span><kbd>Ctrl</kbd>+<kbd>S</kbd> نسخة كاملة</span></div></div>';
+    '<div class="skp-foot"><span><kbd>↑↓</kbd> تنقّل</span><span><kbd>Enter</kbd> فتح</span><span><kbd>Ctrl</kbd>+<kbd>P</kbd> تثبيت صنف</span><span><kbd>=</kbd> حاسبة</span><span><kbd>Ctrl</kbd>+<kbd>S</kbd> نسخة كاملة</span><span><kbd>F2</kbd> فاتورة · <kbd>F9</kbd> مخزون</span></div></div>';
   document.body.appendChild(wrap);
   inp=$("#skp-inp",wrap);list=$("#skp-list",wrap);
   inp.addEventListener("input",()=>fill(inp.value));
@@ -106,6 +106,9 @@ document.addEventListener("keydown",e=>{
   if((e.ctrlKey||e.metaKey)&&k==="k"){e.preventDefault();e.stopPropagation();isOpen()?close():open();return}
   if((e.ctrlKey||e.metaKey)&&k==="s"){e.preventDefault();SK.store.backup().catch(err=>SK.errors.report(err,"backup"));return}
   if(!typing&&!isOpen()&&e.key==="/"&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();open()}
+  /* counter shortcuts: F2 invoice · F3 scale labels · F4 barcode · F8 events · F9 inventory */
+  const F={F2:"zatca",F3:"labels",F4:"scanner",F8:"operations",F9:"inventory"}[e.key];
+  if(F&&!typing&&!isOpen()&&SK.perm.can(F)&&SK.caps.get(F)){e.preventDefault();go(F)}
 },true);
 document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("[data-sk-palette]")){e.preventDefault();open()}});
 window.SKosifCommand=Object.freeze({open,close,isOpen});

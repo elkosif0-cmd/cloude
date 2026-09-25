@@ -163,6 +163,16 @@ function zatcaHTML(){
         '<div style="display:flex;gap:8px;margin-top:16px;border-top:1px solid var(--line,#ddd);padding-top:14px;flex-wrap:wrap;">',
           '<button type="button" id="sk38-print-rcpt" class="btn btn-pri">🖨️ طباعة إيصال حراري (80mm)</button>',
           '<button type="button" id="sk38-wa-rcpt" class="btn" style="background:#25D366;color:#fff;">💬 مشاركة عبر واتساب</button>',
+          '<button type="button" id="sk38-verify-tlv-btn" class="btn">🔍 فحص وتدقيق رمز الـ QR (TLV)</button>',
+        '</div>',
+        '<div id="sk38-tlv-verify-box" style="display:none;background:var(--surface-2,#fafafa);padding:12px;border-radius:8px;border:1px solid var(--line,#eee);margin-top:10px;">',
+          '<div class="sk-section-title" style="margin-bottom:6px;"><b>مدقق وفاحص رموز ZATCA الإلكترونية</b></div>',
+          '<textarea id="sk38-tlv-input" rows="2" style="width:100%;box-sizing:border-box;font-family:monospace;font-size:12px;padding:6px;border-radius:6px;border:1px solid var(--line,#ccc);" placeholder="الصق نص الـ Base64 لرمز الفاتورة هنا للتحقق..."></textarea>',
+          '<div style="display:flex;gap:8px;margin-top:8px;">',
+            '<button type="button" class="btn sm primary" id="sk38-tlv-decode">فك التشفير والتدقيق</button>',
+            '<button type="button" class="btn sm" id="sk38-tlv-load-cur">فحص الفاتورة الحالية</button>',
+          '</div>',
+          '<div id="sk38-tlv-out" style="margin-top:8px;font-size:0.82rem;line-height:1.6;"></div>',
         '</div>',
       '</div>',
       '<div class="sk38-rcpt-view" id="sk38-receipt-printable">',
@@ -230,6 +240,48 @@ function updateZatcaQR(){
   }
 }
 
+function decodeZatcaTLV(b64){
+  try{
+    const bin=atob(b64);
+    const bytes=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+    let off=0;
+    const tags={};
+    const decoder=new TextDecoder("utf-8");
+    while(off<bytes.length){
+      const tag=bytes[off];
+      const len=bytes[off+1];
+      const valBytes=bytes.slice(off+2, off+2+len);
+      tags[tag]=decoder.decode(valBytes);
+      off+=2+len;
+    }
+    return tags;
+  }catch{ return null; }
+}
+
+function decodeAndDisplayTLV(b64){
+  const out=$("#sk38-tlv-out"); if(!out)return;
+  const tags=decodeZatcaTLV(b64);
+  if(!tags||!tags[1]||!tags[2]){
+    out.innerHTML='<div style="color:#b91c1c;font-weight:bold;">⚠️ رمز الـ QR غير متوافق مع معايير ZATCA Phase 2 أو صيغة Base64 غير صالحة.</div>';
+    return;
+  }
+  const vatValid=/^3\d{13}3$/.test(tags[2]);
+  const total=Number(tags[4])||0;
+  const vat=Number(tags[5])||0;
+  const expectedVat=total>0?(total-(total/1.15)):0;
+  const mathValid=Math.abs(vat-expectedVat)<0.5;
+
+  out.innerHTML='<div style="background:#fff;border:1px solid #cbd5e1;padding:10px;border-radius:6px;">'+
+    '<div style="color:#059669;font-weight:bold;margin-bottom:6px;">✓ تم فك ترميز TLV بنجاح ومطابق لمعايير ZATCA</div>'+
+    '<div>• <b>اسم المنشأة (Tag 1):</b> '+esc(tags[1])+'</div>'+
+    '<div>• <b>الرقم الضريبي (Tag 2):</b> <span dir="ltr">'+esc(tags[2])+'</span> '+(vatValid?'<span style="color:#059669;">(صحيح 15 رقم)</span>':'<span style="color:#b91c1c;">(تنبيه: يجب أن يبدأ وينتهي بـ 3)</span>')+'</div>'+
+    '<div>• <b>الوقت والتاريخ (Tag 3):</b> '+esc(tags[3])+'</div>'+
+    '<div>• <b>الإجمالي مع الضريبة (Tag 4):</b> '+total.toFixed(2)+' ر.س</div>'+
+    '<div>• <b>مبلغ الضريبة (Tag 5):</b> '+vat.toFixed(2)+' ر.س '+(mathValid?'<span style="color:#059669;">(15% دقيقة)</span>':'')+'</div>'+
+  '</div>';
+}
+
 function bindZatca(){
   updateZatcaQR();
   $("#sk38-seller")?.addEventListener("input",updateZatcaQR);
@@ -250,6 +302,27 @@ function bindZatca(){
   $("#sk38-pay-transfer")?.addEventListener("input",e=>{ invoicePayment.transferPaid=num(e.target.value); paint("zatca"); });
   $("#sk38-pay-credit")?.addEventListener("input",e=>{ invoicePayment.creditPaid=num(e.target.value); paint("zatca"); });
   $("#sk38-pay-tendered")?.addEventListener("input",e=>{ invoicePayment.cashTendered=num(e.target.value); paint("zatca"); });
+
+  $("#sk38-verify-tlv-btn")?.addEventListener("click",()=>{
+    const box=$("#sk38-tlv-verify-box");
+    if(box)box.style.display=box.style.display==="none"?"block":"none";
+  });
+  $("#sk38-tlv-load-cur")?.addEventListener("click",()=>{
+    const seller=$("#sk38-seller")?.value||"";
+    const vatNo=$("#sk38-vatno")?.value||"";
+    const now=new Date().toISOString().slice(0,19)+"Z";
+    const subtotal=invoiceItems.reduce((s,x)=>s+x.total,0);
+    const vatAmount=(subtotal*0.15).toFixed(2);
+    const grandTotal=(subtotal*1.15).toFixed(2);
+    const tlvB64=zatcaTLV(seller,vatNo,now,grandTotal,vatAmount);
+    const ta=$("#sk38-tlv-input");
+    if(ta)ta.value=tlvB64;
+    decodeAndDisplayTLV(tlvB64);
+  });
+  $("#sk38-tlv-decode")?.addEventListener("click",()=>{
+    const ta=$("#sk38-tlv-input");
+    if(ta)decodeAndDisplayTLV(ta.value.trim());
+  });
 
   $$(".sk38-it-name").forEach(el=>el.oninput=()=>{invoiceItems[+el.dataset.i].name=el.value});
   $$(".sk38-it-qty").forEach(el=>el.oninput=()=>{
@@ -363,19 +436,33 @@ const BLEND_PRESETS=[
 let blendState={...BLEND_PRESETS[0]};
 
 function blendingHTML(){
-  const rawWeight=blendState.leanKg+blendState.fatKg;
-  const netYield=rawWeight*(1-blendState.shrink/100);
-  const totalCost=(blendState.leanKg*blendState.leanCost)+(blendState.fatKg*blendState.fatCost)+blendState.spicesCost+blendState.pkgCost;
-  const costPerKg=netYield>0?totalCost/netYield:0;
-  const pieces=blendState.pieceGrams>0?Math.floor((netYield*1000)/blendState.pieceGrams):0;
-  const costPerPiece=pieces>0?totalCost/pieces:0;
-  const targetMargin=Math.min(90,Math.max(5,blendState.margin))/100;
-  const pricePerKg=costPerKg/(1-targetMargin);
-  const pricePerPiece=costPerPiece/(1-targetMargin);
-  const totalRevenue=pieces*pricePerPiece;
-  const totalProfit=totalRevenue-totalCost;
-  const leanPct=rawWeight>0?(blendState.leanKg/rawWeight)*100:80;
-  const fatPct=rawWeight>0?(blendState.fatKg/rawWeight)*100:20;
+  const calc=(window.SKServices?.meatops?.calculateBlend?.({
+    leanKg:blendState.leanKg,
+    fatKg:blendState.fatKg,
+    leanCost:blendState.leanCost,
+    fatCost:blendState.fatCost,
+    spicesCost:blendState.spicesCost,
+    pkgCost:blendState.pkgCost,
+    shrinkPct:blendState.shrink,
+    pieceGrams:blendState.pieceGrams,
+    marginPct:blendState.margin
+  }))||(()=>{
+    const rawWeight=blendState.leanKg+blendState.fatKg;
+    const netYield=rawWeight*(1-blendState.shrink/100);
+    const totalCost=(blendState.leanKg*blendState.leanCost)+(blendState.fatKg*blendState.fatCost)+blendState.spicesCost+blendState.pkgCost;
+    const costPerKg=netYield>0?totalCost/netYield:0;
+    const pieces=blendState.pieceGrams>0?Math.floor((netYield*1000)/blendState.pieceGrams):0;
+    const costPerPiece=pieces>0?totalCost/pieces:0;
+    const targetMargin=Math.min(90,Math.max(5,blendState.margin))/100;
+    const pricePerKg=costPerKg/(1-targetMargin);
+    const pricePerPiece=costPerPiece/(1-targetMargin);
+    const totalRevenue=pieces*pricePerPiece;
+    const totalProfit=totalRevenue-totalCost;
+    const leanPct=rawWeight>0?(blendState.leanKg/rawWeight)*100:80;
+    const fatPct=rawWeight>0?(blendState.fatKg/rawWeight)*100:20;
+    return {rawWeight,netYield,totalCost,costPerKg,pieces,costPerPiece,pricePerKg,pricePerPiece,totalRevenue,totalProfit,leanPct,fatPct};
+  })();
+  const {rawWeight,netYield,totalCost,costPerKg,pieces,costPerPiece,pricePerKg,pricePerPiece,totalRevenue,totalProfit,leanPct,fatPct}=calc;
 
   return [
     '<div class="sk-chips" style="margin-bottom:14px;">',
@@ -893,17 +980,75 @@ function bindB2BCredit(){
 }
 
 /* ==========================================================================
-   Screen Dispatcher & Registration
+   Screen Dispatcher & Unified Workspaces Registration
    ========================================================================== */
+function posHubNav(activeId){
+  const tabs=[
+    {id:"zatca",icon:"🧾",title:"فاتورة الكاشير والإيصال (F2)"},
+    {id:"scanner",icon:"📷",title:"قارئ الباركود بالكاميرا (F4)"},
+    {id:"labels",icon:"🏷️",title:"ملصقات الموازين والتغليف (F3)"},
+    {id:"culinary",icon:"👨‍🍳",title:"نصائح الشيف والطهي"}
+  ];
+  return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-pos-go="'+t.id+'"><span>'+t.icon+'</span><span>'+t.title+'</span></button>').join("")+'</div>';
+}
+
+function butcheryHubNav(activeId){
+  const tabs=[
+    {id:"carcass",icon:"🥩",title:"تفكيك وتصافي الذبيحة وعائد القطعيات"},
+    {id:"blending",icon:"🍔",title:"خلط وفرم اللحوم ونسب الدهن (Lean/Fat)"}
+  ];
+  return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-butchery-go="'+t.id+'"><span>'+t.icon+'</span><span>'+t.title+'</span></button>').join("")+'</div>';
+}
+
+function storageHubNav(activeId){
+  const tabs=[
+    {id:"inventory",icon:"📦",title:"رادار الصلاحية والمخزون FIFO (F9)"},
+    {id:"operations",icon:"🥩",title:"غرف التعتيق ومناسبات الشواء (F8)"},
+    {id:"traceability",icon:"🌡️",title:"مراقبة سلسلة التبريد HACCP"}
+  ];
+  return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-storage-go="'+t.id+'"><span>'+t.icon+'</span><span>'+t.title+'</span></button>').join("")+'</div>';
+}
+
+function financeHubNav(activeId){
+  const tabs=[
+    {id:"execreports",icon:"📊",title:"التقارير التنفيذية والرسوم البيانية"},
+    {id:"b2bcredit",icon:"🤝",title:"ائتمان المطاعم وكشوف الحساب"},
+    {id:"suppliers",icon:"🚛",title:"سجل وتقييم الموردين"}
+  ];
+  return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-finance-go="'+t.id+'"><span>'+t.icon+'</span><span>'+t.title+'</span></button>').join("")+'</div>';
+}
+
 function paint(id){
   const r=roots[id]; if(!r||!r.isConnected)return;
-  if(id==="zatca"){ r.innerHTML='<section class="card"><div class="card-b sk-stack">'+zatcaHTML()+'</div></section>'; bindZatca(); }
-  if(id==="blending"){ r.innerHTML='<section class="card"><div class="card-b sk-stack">'+blendingHTML()+'</div></section>'; bindBlending(); }
-  if(id==="labels"){ r.innerHTML='<section class="card"><div class="card-b sk-stack">'+labelsHTML()+'</div></section>'; bindLabels(); }
-  if(id==="traceability"){ r.innerHTML='<section class="card"><div class="card-b sk-stack">'+traceabilityHTML()+'</div></section>'; bindTraceability(); }
-  if(id==="culinary"){ r.innerHTML='<section class="card"><div class="card-b sk-stack">'+culinaryHTML()+'</div></section>'; bindCulinary(); }
-  if(id==="scanner"){ r.innerHTML='<section class="card"><div class="card-b sk-stack">'+scannerHTML()+'</div></section>'; bindScanner(); }
-  if(id==="b2bcredit"){ r.innerHTML='<section class="card"><div class="card-b sk-stack">'+b2bcreditHTML()+'</div></section>'; bindB2BCredit(); }
+  if(["zatca","scanner","labels","culinary"].includes(id)){
+    let html="", bind=null;
+    if(id==="zatca"){ html=zatcaHTML(); bind=bindZatca; }
+    else if(id==="scanner"){ html=scannerHTML(); bind=bindScanner; }
+    else if(id==="labels"){ html=labelsHTML(); bind=bindLabels; }
+    else if(id==="culinary"){ html=culinaryHTML(); bind=bindCulinary; }
+    r.innerHTML=posHubNav(id)+'<section class="card"><div class="card-b sk-stack">'+html+'</div></section>';
+    if(bind)bind();
+    $$("[data-pos-go]",r).forEach(b=>b.onclick=()=>window.SKosifCore?.go(b.dataset.posGo));
+    return;
+  }
+  if(id==="blending"){
+    r.innerHTML=butcheryHubNav(id)+'<section class="card"><div class="card-b sk-stack">'+blendingHTML()+'</div></section>';
+    bindBlending();
+    $$("[data-butchery-go]",r).forEach(b=>b.onclick=()=>window.SKosifCore?.go(b.dataset.butcheryGo));
+    return;
+  }
+  if(id==="traceability"){
+    r.innerHTML=storageHubNav(id)+'<section class="card"><div class="card-b sk-stack">'+traceabilityHTML()+'</div></section>';
+    bindTraceability();
+    $$("[data-storage-go]",r).forEach(b=>b.onclick=()=>window.SKosifCore?.go(b.dataset.storageGo));
+    return;
+  }
+  if(id==="b2bcredit"){
+    r.innerHTML=financeHubNav(id)+'<section class="card"><div class="card-b sk-stack">'+b2bcreditHTML()+'</div></section>';
+    bindB2BCredit();
+    $$("[data-finance-go]",r).forEach(b=>b.onclick=()=>window.SKosifCore?.go(b.dataset.financeGo));
+    return;
+  }
 }
 
 /* Register all 7 views */

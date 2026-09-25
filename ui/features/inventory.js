@@ -12,6 +12,9 @@ let invTab="reorder"; // reorder | expiry
 const defaultExpiry=[];
 
 function expAnalysis(b){
+  if(window.SKServices?.inventory?.evaluateExpiry){
+    return window.SKServices.inventory.evaluateExpiry(b.dateExp);
+  }
   const today=new Date();
   today.setHours(0,0,0,0);
   const exp=new Date(b.dateExp);
@@ -25,6 +28,11 @@ function expAnalysis(b){
 }
 
 function analyse(f){
+  if(window.SKServices?.inventory?.calculateReorder){
+    const res=window.SKServices.inventory.calculateReorder(f);
+    if(res.error)return res;
+    return {...res,item:(f.item||"").trim()||"الصنف",ts:new Date().toISOString()};
+  }
   const stock=num(f.stock),daily=num(f.daily),lead=num(f.lead),safety=num(f.safety),cycle=num(f.cycle);
   if(daily<=0)return {error:"أدخل متوسط بيع يومي أكبر من صفر."};
   if([stock,lead,safety,cycle].some(x=>x<0))return {error:"القيم لا يمكن أن تكون سالبة."};
@@ -104,9 +112,18 @@ function out(r){
   $("#inv-po",root).onclick=()=>window.SKosifCore.go("suppliers");
 }
 function grab(){$$("[data-inv]",root).forEach(i=>form[i.dataset.inv]=i.value)}
+function storageHubNav(activeId){
+  const tabs=[
+    {id:"inventory",icon:"📦",title:"رادار الصلاحية والمخزون FIFO (F9)"},
+    {id:"operations",icon:"🥩",title:"غرف التعتيق ومناسبات الشواء (F8)"},
+    {id:"traceability",icon:"🌡️",title:"مراقبة سلسلة التبريد HACCP"}
+  ];
+  return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-storage-go="'+t.id+'"><span>'+t.icon+'</span><span>'+t.title+'</span></button>').join("")+'</div>';
+}
 function paint(){
   if(!root||!root.isConnected)return;
-  root.innerHTML=html();
+  root.innerHTML=storageHubNav("inventory")+html();
+  $$("[data-storage-go]",root).forEach(b=>b.onclick=()=>window.SKosifCore?.go(b.dataset.storageGo));
   $("#sk-inv-tab-reorder",root)?.addEventListener("click",()=>{ invTab="reorder"; paint(); });
   $("#sk-inv-tab-expiry",root)?.addEventListener("click",()=>{ invTab="expiry"; paint(); });
 
