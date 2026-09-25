@@ -1,45 +1,103 @@
-import {loadRawItems,loadBoxItems,loadExpenses,loadSettings,loadAuditLogs,saveRawItems,saveBoxItems,saveExpenses} from '../../storage/localStorage';
 import type {RawItem,BoxItem,ExpenseItem} from '../../types/pricing';
+import type {AppSettings} from '../../types/settings';
 import type {Customer,Order} from '../../types/commerce';
+import type {AuditLogEntry} from '../../types/audit';
 import {privateCatalog} from './bootstrap';
 import {appEvents} from '../core/events';
-const read=<T>(k:string,d:T):T=>{try{const v=JSON.parse(localStorage.getItem(k)||'null');return(v??d)as T}catch{return d}};
+
+const read=<T>(k:string,d:T):T=>{try{const raw=localStorage.getItem(k);if(raw===null)return d;const v=JSON.parse(raw);return(v??d)as T}catch{return d}};
+const has=(k:string)=>{try{return localStorage.getItem(k)!==null}catch{return false}};
 const write=(k:string,v:unknown)=>localStorage.setItem(k,JSON.stringify(v));
-export interface InventoryState{stock:Record<string,number>;reorder:Record<string,number>;moves:any[];counts:any[]}
-export const repos={
- settings:()=>loadSettings(),
- raws:()=>loadRawItems(),
- boxes:()=>loadBoxItems(),
- expenses:()=>loadExpenses(),
- audit:()=>loadAuditLogs(),
- customers:()=>read<Customer[]>('aghn_customers_v19',[]),
- orders:()=>read<Order[]>('aghn_orders_v19',[]),
- inventory:()=>read<InventoryState>('skosif_erp_inventory_v1',{stock:{},reorder:{},moves:[],counts:[]}),
- expiry:()=>read<any[]>('skosif_inv_expiry_batches',[]),
- supplierBatches:()=>read<any[]>('skosif_v31_supplier_batches',[]),
- finance:()=>read<{flows:any[]}>('skosif_erp_finance_v1',{flows:[]}),
- incomeStatements:()=>read<any[]>('skosif_income_statements_v1',[]),
- payables:()=>read<{rows:any[]}>('skosif_erp_payables_v1',{rows:[]}),
- jevLog:()=>read<any[]>('aghnam_v29_jev_log',[]),
- migration:()=>read<any>('skosif_rebuild_migration_v1',null),
- saveInventory(v:InventoryState){write('skosif_erp_inventory_v1',v);appEvents.emit('inventory.changed')},
- saveFinance(v:{flows:any[]}){write('skosif_erp_finance_v1',v);appEvents.emit('finance.changed')},
- saveIncomeStatements(v:any[]){write('skosif_income_statements_v1',v);appEvents.emit('income_statement.saved')},
- saveCustomers(v:Customer[]){write('aghn_customers_v19',v);appEvents.emit('customer.changed')},
- saveOrders(v:Order[]){write('aghn_orders_v19',v);appEvents.emit('order.changed')},
+
+const KEYS={
+ settings:'aghn_settings_v19',raws:'aghn_raws_v19',boxes:'aghn_boxes_v19',expenses:'aghn_expenses_v19',
+ audit:'aghn_audit_v19',customers:'aghn_customers_v19',orders:'aghn_orders_v19',
+ inventory:'skosif_erp_inventory_v1',expiry:'skosif_inv_expiry_batches',supplierBatches:'skosif_v31_supplier_batches',
+ finance:'skosif_erp_finance_v1',income:'skosif_income_statements_v1',payables:'skosif_erp_payables_v1',
+ jev:'aghnam_v29_jev_log',migration:'skosif_rebuild_migration_v1'
+} as const;
+
+const DEFAULT_SETTINGS:AppSettings={
+ companyName:'S.kosif',logoUrl:'',vatNumber:'',commercialRegister:'',phone:'',address:'',reportPreparerName:'',
+ defaultVatRate:.15,targetProfitMargin:.20,excellentThreshold:.25,goodThreshold:.15,wasteMethod:'yield',
+ marginBasis:'net',costDisplayMethod:'net',roundingMethod:'twoDecimals',purchaseVatReviewActive:true,
+ suppliers:[],currencies:[{code:'SAR',nameAr:'ريال سعودي',rateToSar:1,symbol:'ر.س'}],activeCurrencyCode:'SAR'
 };
+
+function catalogCollection<T>(key:string,privateRows:unknown[]):T[]{
+ if(has(key))return read<T[]>(key,[]);
+ return Array.isArray(privateRows)?privateRows as T[]:[];
+}
+export interface InventoryState{stock:Record<string,number>;reorder:Record<string,number>;moves:any[];counts:any[]}
+
+export const repos={
+ settings:()=>read<AppSettings>(KEYS.settings,DEFAULT_SETTINGS),
+ raws:()=>catalogCollection<RawItem>(KEYS.raws,privateCatalog().raws),
+ boxes:()=>catalogCollection<BoxItem>(KEYS.boxes,privateCatalog().boxes),
+ expenses:()=>catalogCollection<ExpenseItem>(KEYS.expenses,privateCatalog().expenses),
+ audit:()=>read<AuditLogEntry[]>(KEYS.audit,[]),
+ customers:()=>read<Customer[]>(KEYS.customers,[]),
+ orders:()=>read<Order[]>(KEYS.orders,[]),
+ inventory:()=>read<InventoryState>(KEYS.inventory,{stock:{},reorder:{},moves:[],counts:[]}),
+ expiry:()=>read<any[]>(KEYS.expiry,[]),
+ supplierBatches:()=>read<any[]>(KEYS.supplierBatches,[]),
+ finance:()=>read<{flows:any[]}>(KEYS.finance,{flows:[]}),
+ incomeStatements:()=>read<any[]>(KEYS.income,[]),
+ payables:()=>read<{rows:any[]}>(KEYS.payables,{rows:[]}),
+ jevLog:()=>read<any[]>(KEYS.jev,[]),
+ migration:()=>read<any>(KEYS.migration,null),
+ saveSettings(v:AppSettings){write(KEYS.settings,v);appEvents.emit('settings.changed')},
+ saveRaws(v:RawItem[]){write(KEYS.raws,v);appEvents.emit('catalog.changed',{kind:'raw'})},
+ saveBoxes(v:BoxItem[]){write(KEYS.boxes,v);appEvents.emit('catalog.changed',{kind:'box'})},
+ saveExpenses(v:ExpenseItem[]){write(KEYS.expenses,v);appEvents.emit('expense.changed')},
+ saveInventory(v:InventoryState){write(KEYS.inventory,v);appEvents.emit('inventory.changed')},
+ saveExpiry(v:any[]){write(KEYS.expiry,v);appEvents.emit('inventory.expiry.changed')},
+ saveSupplierBatches(v:any[]){write(KEYS.supplierBatches,v);appEvents.emit('supplier.batch.changed')},
+ saveFinance(v:{flows:any[]}){write(KEYS.finance,v);appEvents.emit('finance.changed')},
+ saveIncomeStatements(v:any[]){write(KEYS.income,v);appEvents.emit('income_statement.saved')},
+ savePayables(v:{rows:any[]}){write(KEYS.payables,v);appEvents.emit('payables.changed')},
+ saveCustomers(v:Customer[]){write(KEYS.customers,v);appEvents.emit('customer.changed')},
+ saveOrders(v:Order[]){write(KEYS.orders,v);appEvents.emit('order.changed')},
+ saveAudit(v:AuditLogEntry[]){write(KEYS.audit,v);appEvents.emit('audit.changed')},
+};
+
+export function appendAudit(entry:Omit<AuditLogEntry,'id'|'timestamp'>){
+ const row:AuditLogEntry={...entry,id:'audit-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6),timestamp:new Date().toISOString()};
+ repos.saveAudit([row,...repos.audit()].slice(0,2000));return row;
+}
+
 export function migratePrivateCatalog():{changed:boolean;counts:Record<string,number>;warnings:string[]}{
  const p=privateCatalog(),warnings:string[]=[];let changed=false;
- const currentR=loadRawItems(),currentB=loadBoxItems(),currentE=loadExpenses();
- // The private block can contain a historical shape. Only import when canonical user collections are empty;
- // otherwise it is preserved as encrypted bootstrap evidence and never overwrites user edits.
- if(!currentR.length&&p.raws.length){try{saveRawItems(p.raws as RawItem[]);changed=true}catch{warnings.push('تعذر تحويل المواد الخام الخاصة تلقائياً')}} 
- if(!currentB.length&&p.boxes.length){try{saveBoxItems(p.boxes as BoxItem[]);changed=true}catch{warnings.push('تعذر تحويل البوكسات الخاصة تلقائياً')}}
- if(!currentE.length&&p.expenses.length){try{saveExpenses(p.expenses as ExpenseItem[]);changed=true}catch{warnings.push('تعذر تحويل المصروفات الخاصة تلقائياً')}}
- const manifest={version:1,at:new Date().toISOString(),changed,counts:{privateRaws:p.raws.length,privateBoxes:p.boxes.length,privateExpenses:p.expenses.length,canonicalRaws:loadRawItems().length,canonicalBoxes:loadBoxItems().length,canonicalExpenses:loadExpenses().length},warnings};
- write('skosif_rebuild_migration_v1',manifest);return manifest;
+ // Private bootstrap is imported only if the user has never written that canonical collection.
+ if(!has(KEYS.raws)&&p.raws.length){write(KEYS.raws,p.raws);changed=true}
+ if(!has(KEYS.boxes)&&p.boxes.length){write(KEYS.boxes,p.boxes);changed=true}
+ if(!has(KEYS.expenses)&&p.expenses.length){write(KEYS.expenses,p.expenses);changed=true}
+ const manifest={version:1,at:new Date().toISOString(),changed,counts:{privateRaws:p.raws.length,privateBoxes:p.boxes.length,privateExpenses:p.expenses.length,canonicalRaws:repos.raws().length,canonicalBoxes:repos.boxes().length,canonicalExpenses:repos.expenses().length},warnings};
+ write(KEYS.migration,manifest);return manifest;
 }
+
 export async function readIdbStore(dbNames:string[],store:string):Promise<any[]>{
- for(const name of dbNames){const result=await new Promise<any[]|null>(resolve=>{let req:IDBOpenDBRequest;try{req=indexedDB.open(name)}catch{return resolve(null)};let upgraded=false;req.onupgradeneeded=e=>{upgraded=true;try{(e.target as IDBOpenDBRequest).transaction?.abort()}catch{}};req.onerror=()=>resolve(null);req.onsuccess=()=>{const db=req.result;if(upgraded||!db.objectStoreNames.contains(store)){db.close();return resolve(null)};const g=db.transaction(store,'readonly').objectStore(store).getAll();g.onsuccess=()=>{const v=g.result||[];db.close();resolve(v)};g.onerror=()=>{db.close();resolve(null)}}});if(result)return result}
+ for(const name of dbNames){
+  const result=await new Promise<any[]|null>(resolve=>{let req:IDBOpenDBRequest;try{req=indexedDB.open(name)}catch{return resolve(null)}
+   let upgraded=false;req.onupgradeneeded=e=>{upgraded=true;try{(e.target as IDBOpenDBRequest).transaction?.abort()}catch{}};
+   req.onerror=()=>resolve(null);req.onsuccess=()=>{const db=req.result;if(upgraded||!db.objectStoreNames.contains(store)){db.close();return resolve(null)}
+    const g=db.transaction(store,'readonly').objectStore(store).getAll();g.onsuccess=()=>{const v=g.result||[];db.close();resolve(v)};g.onerror=()=>{db.close();resolve(null)}}});
+  if(result)return result;
+ }
  return[];
+}
+
+export async function migrateIndexedDb():Promise<{customers:number;salesLines:number;orders:number;warnings:string[]}>{
+ const dbNames=['AghnamAlWadiDB_v19','aghnam-app-v7'],warnings:string[]=[];
+ const customers=await readIdbStore(dbNames,'customers'),orders=await readIdbStore(dbNames,'orders'),sales=await readIdbStore(dbNames,'sales_lines');
+ if(!has(KEYS.customers)&&customers.length){repos.saveCustomers(customers as Customer[])}
+ if(!has(KEYS.orders)&&orders.length){repos.saveOrders(orders as Order[])}
+ if(!sales.length)warnings.push('لا توجد أسطر مبيعات في قواعد IndexedDB المعروفة.');
+ const prior=repos.migration()||{};write(KEYS.migration,{...prior,indexedDb:{at:new Date().toISOString(),customers:customers.length,orders:orders.length,salesLines:sales.length,warnings}});
+ return{customers:customers.length,salesLines:sales.length,orders:orders.length,warnings};
+}
+
+export function exportLocalSnapshot(){
+ const data:Record<string,unknown>={};for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(!key)continue;if(key.startsWith('aghn')||key.startsWith('skosif')||key.startsWith('s_kosif')){try{data[key]=JSON.parse(localStorage.getItem(key)||'null')}catch{data[key]=localStorage.getItem(key)}}}
+ return{app:'S.kosif',schema:'zero-ui-rebuild-v1',exportedAt:new Date().toISOString(),data};
 }
