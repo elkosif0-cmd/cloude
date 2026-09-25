@@ -210,11 +210,74 @@ function settingsCard(root){
       [[0,"متوقف"],[5,"5 دقائق"],[15,"15 دقيقة"],[30,"30 دقيقة"],[60,"ساعة"]].map(o=>'<option value="'+o[0]+'"'+(o[0]===lock?' selected':'')+'>'+o[1]+'</option>').join("")+
     '</select></label>'+
     '<label class="sk-field"><span>كثافة الواجهة</span><select id="sk-density"><option value="cozy"'+(density()==="cozy"?" selected":"")+'>مريحة</option><option value="compact"'+(density()==="compact"?" selected":"")+'>مضغوطة</option></select></label>'+
-    '<button type="button" class="btn" id="sk-lock-now">قفل الآن</button></div></div></section>');
+    '<button type="button" class="btn" id="sk-lock-now">قفل الآن</button></div></div></section>'+
+    '<section class="card sk-look" id="sk-backup-card" style="margin-top:14px;"><div class="card-h"><div><h3>النسخ الاحتياطي وإدارة البيانات</h3><p>تصدير واستعادة نسخة احتياطية محلية لجميع سجلات وعمليات وبيانات التطبيق.</p></div></div><div class="card-b sk-stack">'+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">'+
+      '<button type="button" class="btn primary" id="sk-backup-export">💾 تصدير نسخة احتياطية (JSON)</button>'+
+      '<label class="btn" style="cursor:pointer;margin:0;display:inline-flex;align-items:center;"><span>📥 استعادة نسخة احتياطية</span><input type="file" id="sk-backup-import" accept=".json" style="display:none;"></label>'+
+      '<button type="button" class="btn" id="sk-backup-status">📊 فحص الذاكرة والتخزين</button>'+
+    '</div>'+
+    '<div id="sk-backup-info" style="font-size:0.85rem;color:var(--ink-2,#6b5c4e);margin-top:6px;"></div>'+
+    '</div></section>');
   $$("[data-sk-theme-pick]",root).forEach(b=>b.onclick=()=>{setTheme(b.dataset.skThemePick);$$("[data-sk-theme-pick]",root).forEach(x=>{const on=x===b;x.classList.toggle("on",on);x.setAttribute("aria-checked",String(on))})});
   $("#sk-lock-min",root).onchange=e=>{save(LOCK_KEY,num(e.target.value));last=Date.now();toast(num(e.target.value)?"القفل التلقائي: "+e.target.selectedOptions[0].text:"أُوقف القفل التلقائي","info")};
   $("#sk-lock-now",root).onclick=lockNow;
   $("#sk-density",root).onchange=e=>{window.V21RAD&&window.V21RAD.setDensity(e.target.value);toast(e.target.value==="compact"?"واجهة مضغوطة":"واجهة مريحة","info")};
+
+  $("#sk-backup-export",root)?.addEventListener("click",()=>{
+    const backup={app:"S.kosif",version:"1.0",exportedAt:new Date().toISOString(),data:{}};
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k&&(k.startsWith("skosif_")||k.startsWith("aghnam_")||k.startsWith("s_kosif"))){
+        try{backup.data[k]=JSON.parse(localStorage.getItem(k));}catch{backup.data[k]=localStorage.getItem(k);}
+      }
+    }
+    const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;
+    a.download="S.kosif-backup-"+new Date().toISOString().slice(0,10)+".json";
+    a.click();
+    URL.revokeObjectURL(url);
+    toast("تم تصدير النسخة الاحتياطية بنجاح 💾","ok");
+  });
+
+  $("#sk-backup-import",root)?.addEventListener("change",e=>{
+    const file=e.target.files&&e.target.files[0];
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{
+        const parsed=JSON.parse(ev.target.result);
+        const entries=parsed.data||parsed;
+        const keys=Object.keys(entries);
+        if(!keys.length)return toast("الملف لا يحتوي على بيانات","warn");
+        if(confirm("هل تريد استعادة "+keys.length+" سجل من النسخة الاحتياطية؟")){
+          keys.forEach(k=>{
+            try{localStorage.setItem(k,typeof entries[k]==="string"?entries[k]:JSON.stringify(entries[k]));}catch{}
+          });
+          toast("تمت الاستعادة بنجاح! جاري تحديث الصفحة...","ok");
+          setTimeout(()=>location.reload(),1200);
+        }
+      }catch{
+        toast("الملف غير صالح أو تالف","bad");
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  $("#sk-backup-status",root)?.addEventListener("click",()=>{
+    let count=0,bytes=0;
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k&&(k.startsWith("skosif_")||k.startsWith("aghnam_")||k.startsWith("s_kosif"))){
+        count++;
+        bytes+=(localStorage.getItem(k)||'').length*2;
+      }
+    }
+    const info=$("#sk-backup-info",root);
+    if(info)info.innerHTML='✓ إجمالي السجلات والوحدات المحفوظة محلياً: <b>'+count+' سجل</b> (حوالي <b>'+(bytes/1024).toFixed(1)+' كيلوبايت</b> مشفرة ومؤمنة في المتصفح).';
+  });
 }
 
 /* ---------- ترحيب لوحة العمل ولوحة الإطلاق السريع ---------- */

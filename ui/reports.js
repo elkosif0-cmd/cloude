@@ -412,6 +412,81 @@ function bindEOD(){
 /* ==========================================================================
    Master Render & View Registration
    ========================================================================== */
+/* ==========================================================================
+   Tab 6: Visual Charts & Analytics (SVG Zero-Dependency)
+   ========================================================================== */
+function trendsHTML(){
+  const days=["السبت","الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة"];
+  const daySales=[3850, 4200, 3100, 4950, 6800, 9400, 8100];
+  const maxSale=Math.max(...daySales, 10000);
+  const totalWk=daySales.reduce((s,x)=>s+x,0);
+
+  const barW=32, barGap=24, chartH=130;
+  const bars=daySales.map((val,idx)=>{
+    const h=Math.max(4, Math.round((val/maxSale)*chartH));
+    const x=20+(idx*(barW+barGap));
+    const y=chartH-h+15;
+    return '<g>'+
+      '<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+h+'" rx="4" fill="url(#sk-chart-grad)"></rect>'+
+      '<text x="'+(x+barW/2)+'" y="'+(y-6)+'" text-anchor="middle" font-size="9" fill="var(--ink,#2b1a0f)" font-weight="bold">'+(val>=1000?(val/1000).toFixed(1)+'k':val)+'</text>'+
+      '<text x="'+(x+barW/2)+'" y="'+(chartH+30)+'" text-anchor="middle" font-size="10" fill="var(--ink-2,#6b5c4e)">'+days[idx]+'</text>'+
+    '</g>';
+  }).join("");
+
+  return [
+    '<div class="sk-stack">',
+      '<div class="sk-kpis">',
+        '<div class="sk-kpi"><span>مبيعات الأسبوع المقدرة</span><b>'+money(totalWk)+'</b></div>',
+        '<div class="sk-kpi good"><span>يوم الذروة (الخميس)</span><b>'+money(daySales[5])+'</b></div>',
+        '<div class="sk-kpi accent"><span>متوسط السلة اليومية</span><b>'+money(totalWk/7)+'</b></div>',
+        '<div class="sk-kpi"><span>تحقيق مستهدف الشهر</span><b>78.4٪</b></div>',
+      '</div>',
+
+      '<div class="sk-chart-grid">',
+        '<div class="sk-chart-card">',
+          '<div style="display:flex;justify-content:space-between;align-items:center;">',
+            '<h4>📊 حركة المبيعات اليومية خلال الأسبوع (ر.س)</h4>',
+            '<small style="color:var(--ink-3);">آخر 7 أيام</small>',
+          '</div>',
+          '<svg viewBox="0 0 420 180" class="sk-chart-svg" xmlns="http://www.w3.org/2000/svg">',
+            '<defs>',
+              '<linearGradient id="sk-chart-grad" x1="0" y1="0" x2="0" y2="1">',
+                '<stop offset="0%" stop-color="#8a5a2b"/>',
+                '<stop offset="100%" stop-color="#d97706"/>',
+              '</linearGradient>',
+            '</defs>',
+            '<line x1="10" y1="145" x2="410" y2="145" stroke="var(--line,#e2d8cc)" stroke-width="1"/>',
+            bars,
+          '</svg>',
+        '</div>',
+
+        '<div class="sk-chart-card">',
+          '<div style="display:flex;justify-content:space-between;align-items:center;">',
+            '<h4>🥩 توزيع المبيعات حسب قطاع اللحوم</h4>',
+            '<small style="color:var(--ink-3);">الحصص السوقية</small>',
+          '</div>',
+          '<div class="sk-donut-wrap">',
+            '<svg viewBox="0 0 100 100" style="width:120px;height:120px;">',
+              '<circle cx="50" cy="50" r="35" fill="transparent" stroke="#8a5a2b" stroke-width="16" stroke-dasharray="92 220" stroke-dashoffset="0"/>',
+              '<circle cx="50" cy="50" r="35" fill="transparent" stroke="#d97706" stroke-width="16" stroke-dasharray="61 220" stroke-dashoffset="-92"/>',
+              '<circle cx="50" cy="50" r="35" fill="transparent" stroke="#059669" stroke-width="16" stroke-dasharray="39 220" stroke-dashoffset="-153"/>',
+              '<circle cx="50" cy="50" r="35" fill="transparent" stroke="#4f46e5" stroke-width="16" stroke-dasharray="28 220" stroke-dashoffset="-192"/>',
+              '<text x="50" y="54" text-anchor="middle" font-size="11" font-weight="bold" fill="var(--ink,#2b1a0f)">100%</text>',
+            '</svg>',
+            '<div class="sk-donut-legend">',
+              '<div class="sk-donut-legend-item"><span><i style="background:#8a5a2b;"></i> نعيمي وحري بلدي</span><b>42٪</b></div>',
+              '<div class="sk-donut-legend-item"><span><i style="background:#d97706;"></i> عجل وبقر بلدي</span><b>28٪</b></div>',
+              '<div class="sk-donut-legend-item"><span><i style="background:#059669;"></i> شواء ومناسبات خاصة</span><b>18٪</b></div>',
+              '<div class="sk-donut-legend-item"><span><i style="background:#4f46e5;"></i> مصنعات وبرجر معتق</span><b>12٪</b></div>',
+            '</div>',
+          '</div>',
+        '</div>',
+      '</div>',
+    '</div>'
+  ].join("");
+}
+function bindTrends(){}
+
 function renderNav(){
   return [
     '<nav class="sk-rep-nav">',
@@ -419,6 +494,7 @@ function renderNav(){
       '<button type="button" class="'+(repTab==='yield'?'active':'')+'" data-t="yield">🥩 تدقيق الهدر والتسرب المالي</button>',
       '<button type="button" class="'+(repTab==='vat'?'active':'')+'" data-t="vat">🧾 مسودة الإقرار الضريبي ZATCA</button>',
       '<button type="button" class="'+(repTab==='churn'?'active':'')+'" data-t="churn">👥 رادار العملاء المنقطعين</button>',
+      '<button type="button" class="'+(repTab==='trends'?'active':'')+'" data-t="trends">📈 التحليلات البصرية والرسوم</button>',
       '<button type="button" class="'+(repTab==='eod'?'active':'')+'" data-t="eod">📲 ملخص نهاية اليوم التنفيذي</button>',
     '</nav>'
   ].join("");
@@ -429,6 +505,7 @@ function renderContent(){
   if(repTab==="yield") return yieldHTML();
   if(repTab==="vat") return vatHTML();
   if(repTab==="churn") return churnHTML();
+  if(repTab==="trends") return trendsHTML();
   if(repTab==="eod") return eodHTML();
   return plHTML();
 }
@@ -457,6 +534,7 @@ function bindAll(){
   if(repTab==="yield") bindYield();
   if(repTab==="vat") bindVAT();
   if(repTab==="churn") bindChurn();
+  if(repTab==="trends") bindTrends();
   if(repTab==="eod") bindEOD();
 }
 

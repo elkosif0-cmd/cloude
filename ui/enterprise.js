@@ -51,10 +51,15 @@ function zatcaTLV(seller, vatNo, timestamp, total, vat){
   return btoa(bin);
 }
 
-let invoiceItems=[
-  {name:"خروف نعيمي كامل مذبوح ومقطع",qty:1,price:1450,total:1450},
-  {name:"ريب آي عجل بلدي فاخر (كجم)",qty:2.5,price:95,total:237.5}
-];
+let invoicePayment={
+  method:"all_card", // all_card | all_cash | split | credit
+  cashPaid:0,
+  cardPaid:0,
+  cardRef:"",
+  transferPaid:0,
+  creditPaid:0,
+  cashTendered:0
+};
 
 function zatcaHTML(){
   const seller="أغنام الوادي للذبائح واللحوم";
@@ -64,6 +69,30 @@ function zatcaHTML(){
   const subtotal=invoiceItems.reduce((s,x)=>s+x.total,0);
   const vatAmount=subtotal*0.15;
   const grandTotal=subtotal+vatAmount;
+
+  if(invoicePayment.method==="all_card"){
+    invoicePayment.cardPaid=grandTotal;
+    invoicePayment.cashPaid=0;
+    invoicePayment.transferPaid=0;
+    invoicePayment.creditPaid=0;
+  } else if(invoicePayment.method==="all_cash"){
+    invoicePayment.cashPaid=grandTotal;
+    invoicePayment.cardPaid=0;
+    invoicePayment.transferPaid=0;
+    invoicePayment.creditPaid=0;
+  } else if(invoicePayment.method==="credit"){
+    invoicePayment.creditPaid=grandTotal;
+    invoicePayment.cashPaid=0;
+    invoicePayment.cardPaid=0;
+    invoicePayment.transferPaid=0;
+  }
+  const totalPaid=invoicePayment.cashPaid+invoicePayment.cardPaid+invoicePayment.transferPaid+invoicePayment.creditPaid;
+  const changeDue=invoicePayment.cashTendered>invoicePayment.cashPaid?(invoicePayment.cashTendered-invoicePayment.cashPaid):0;
+  const remainingDue=Math.max(0,grandTotal-totalPaid);
+  const payMethodLabel=invoicePayment.method==="all_card"?"مدى / بطاقة مصرفية":
+                       invoicePayment.method==="all_cash"?"نقدي كامل":
+                       invoicePayment.method==="credit"?"حساب ائتماني / آجل":
+                       "دفع مقسم (Split)";
 
   return [
     '<div class="sk38-rcpt-preview-wrap">',
@@ -90,6 +119,44 @@ function zatcaHTML(){
           '<button type="button" id="sk38-add-item" class="btn" style="padding:6px 12px;font-size:0.85rem;">+ بند جديد</button>',
           '<button type="button" id="sk38-cart-import" class="btn" style="padding:6px 12px;font-size:0.85rem;">🛒 استيراد من سلة الطلبيات</button>',
         '</div>',
+
+        '<div class="sk-section-title" style="margin:14px 0 8px;"><b>سداد الفاتورة وطريقة الدفع (POS)</b></div>',
+        '<div class="sk-chips" style="margin-bottom:10px;">',
+          '<button type="button" class="chip sk38-pay-m '+(invoicePayment.method==='all_card'?'active':'')+'" data-m="all_card">💳 مدى / بطاقة</button>',
+          '<button type="button" class="chip sk38-pay-m '+(invoicePayment.method==='all_cash'?'active':'')+'" data-m="all_cash">💵 نقدي كامل</button>',
+          '<button type="button" class="chip sk38-pay-m '+(invoicePayment.method==='split'?'active':'')+'" data-m="split">⚖️ دفع مقسم (Split)</button>',
+          '<button type="button" class="chip sk38-pay-m '+(invoicePayment.method==='credit'?'active':'')+'" data-m="credit">📑 آجل / ائتمان</button>',
+        '</div>',
+
+        (invoicePayment.method==='split'?[
+          '<div style="background:var(--surface-2,#fafafa);padding:12px;border-radius:8px;border:1px solid var(--line,#eee);margin-bottom:10px;">',
+            '<div class="sk-grid2">',
+              '<label class="sk-field"><span>المدفوع مدى / بطاقة (ر.س)</span><input id="sk38-pay-card" type="number" step="1" value="'+invoicePayment.cardPaid+'"></label>',
+              '<label class="sk-field"><span>مرجع العملية البنكية (Auth Ref)</span><input id="sk38-pay-cardref" type="text" placeholder="مثال: 948271" value="'+esc(invoicePayment.cardRef)+'"></label>',
+            '</div>',
+            '<div class="sk-grid2" style="margin-top:8px;">',
+              '<label class="sk-field"><span>المدفوع نقداً (ر.س)</span><input id="sk38-pay-cash" type="number" step="1" value="'+invoicePayment.cashPaid+'"></label>',
+              '<label class="sk-field"><span>المبلغ المستلم نقداً (لحساب الفكة)</span><input id="sk38-pay-tendered" type="number" step="1" value="'+invoicePayment.cashTendered+'"></label>',
+            '</div>',
+            '<div class="sk-grid2" style="margin-top:8px;">',
+              '<label class="sk-field"><span>المدفوع تحويل بنكي (ر.س)</span><input id="sk38-pay-transfer" type="number" step="1" value="'+invoicePayment.transferPaid+'"></label>',
+              '<label class="sk-field"><span>المسجل على الحساب الآجل (ر.س)</span><input id="sk38-pay-credit" type="number" step="1" value="'+invoicePayment.creditPaid+'"></label>',
+            '</div>',
+            '<div style="display:flex;justify-content:space-between;margin-top:10px;font-size:0.85rem;padding-top:6px;border-top:1px dashed var(--line,#ddd);">',
+              '<span>المسدد: <b>'+totalPaid.toFixed(2)+' ر.س</b></span>',
+              (changeDue>0?'<span style="color:#059669;">الفكة المرجعة: <b>'+changeDue.toFixed(2)+' ر.س</b></span>':''),
+              (remainingDue>0.05?'<span style="color:#b91c1c;">المتبقي بذمة العميل: <b>'+remainingDue.toFixed(2)+' ر.س</b></span>':'<span style="color:#059669;">✓ مسدد بالكامل</span>'),
+            '</div>',
+          '</div>'
+        ].join(''):invoicePayment.method==='all_cash'?[
+          '<div style="background:var(--surface-2,#fafafa);padding:10px;border-radius:8px;border:1px solid var(--line,#eee);margin-bottom:10px;">',
+            '<div class="sk-grid2">',
+              '<label class="sk-field"><span>المبلغ المستلم من العميل</span><input id="sk38-pay-tendered" type="number" step="5" value="'+(invoicePayment.cashTendered||grandTotal)+'"></label>',
+              '<div style="display:flex;flex-direction:column;justify-content:center;"><span>المتبقي للعميل (فكة):</span><b style="font-size:1.1rem;color:#059669;">'+changeDue.toFixed(2)+' ر.س</b></div>',
+            '</div>',
+          '</div>'
+        ].join(''):''),
+
         '<div style="display:flex;gap:8px;margin-top:16px;border-top:1px solid var(--line,#ddd);padding-top:14px;flex-wrap:wrap;">',
           '<button type="button" id="sk38-print-rcpt" class="btn btn-pri">🖨️ طباعة إيصال حراري (80mm)</button>',
           '<button type="button" id="sk38-wa-rcpt" class="btn" style="background:#25D366;color:#fff;">💬 مشاركة عبر واتساب</button>',
@@ -107,7 +174,7 @@ function zatcaHTML(){
           '<div><span>رقم الفاتورة:</span><b>'+invNo+'</b></div>',
           '<div><span>التاريخ والوقت:</span><b>'+now.toLocaleString("ar-SA")+'</b></div>',
           '<div><span>العميل:</span><b>'+esc($("#sk38-cust")?.value||"مطعم الضيافة")+'</b></div>',
-          '<div><span>طريقة الدفع:</span><b>نقدي / مدى</b></div>',
+          '<div><span>طريقة الدفع:</span><b>'+esc(payMethodLabel)+'</b></div>',
         '</div>',
         '<table class="sk38-rcpt-table">',
           '<thead><tr><th>الصنف</th><th style="text-align:center;">الكمية</th><th style="text-align:center;">السعر</th><th style="text-align:left;">الإجمالي</th></tr></thead>',
@@ -119,6 +186,14 @@ function zatcaHTML(){
           '<div><span>المجموع الخاضع للضريبة:</span><b>'+subtotal.toFixed(2)+' ر.س</b></div>',
           '<div><span>ضريبة القيمة المضافة (15٪):</span><b>'+vatAmount.toFixed(2)+' ر.س</b></div>',
           '<div class="sk38-rcpt-grand"><span>الإجمالي المستحق:</span><b>'+grandTotal.toFixed(2)+' ر.س</b></div>',
+        '</div>',
+        '<div class="sk38-rcpt-payments">'+
+          (invoicePayment.cardPaid>0?'<div><span>مدى / شبكة:</span><b>'+invoicePayment.cardPaid.toFixed(2)+' ر.س '+(invoicePayment.cardRef?'(مرجع: '+invoicePayment.cardRef+')':'')+'</b></div>':'')+
+          (invoicePayment.cashPaid>0?'<div><span>نقداً:</span><b>'+invoicePayment.cashPaid.toFixed(2)+' ر.س '+(invoicePayment.cashTendered>0?'(المستلم: '+invoicePayment.cashTendered.toFixed(2)+')':'')+'</b></div>':'')+
+          (changeDue>0?'<div><span>المتبقي للعميل (فكة):</span><b style="color:#059669;">'+changeDue.toFixed(2)+' ر.س</b></div>':'')+
+          (invoicePayment.transferPaid>0?'<div><span>تحويل بنكي:</span><b>'+invoicePayment.transferPaid.toFixed(2)+' ر.س</b></div>':'')+
+          (invoicePayment.creditPaid>0?'<div><span>حساب آجل:</span><b>'+invoicePayment.creditPaid.toFixed(2)+' ر.س</b></div>':'')+
+          (remainingDue>0.05?'<div style="font-weight:bold;color:#b91c1c;"><span>المتبقي بذمة العميل:</span><b>'+remainingDue.toFixed(2)+' ر.س</b></div>':'')+
         '</div>',
         '<div class="sk38-rcpt-qr">',
           '<div class="sk38-rcpt-qr-box" id="sk38-qrcode-box"></div>',
@@ -160,6 +235,19 @@ function bindZatca(){
     invoiceItems.push({name:"بند جديد",qty:1,price:100,total:100});
     paint("zatca");
   });
+  $$(".sk38-pay-m").forEach(b=>{
+    b.onclick=()=>{
+      invoicePayment.method=b.dataset.m;
+      paint("zatca");
+    };
+  });
+  $("#sk38-pay-cash")?.addEventListener("input",e=>{ invoicePayment.cashPaid=num(e.target.value); paint("zatca"); });
+  $("#sk38-pay-card")?.addEventListener("input",e=>{ invoicePayment.cardPaid=num(e.target.value); paint("zatca"); });
+  $("#sk38-pay-cardref")?.addEventListener("input",e=>{ invoicePayment.cardRef=e.target.value; });
+  $("#sk38-pay-transfer")?.addEventListener("input",e=>{ invoicePayment.transferPaid=num(e.target.value); paint("zatca"); });
+  $("#sk38-pay-credit")?.addEventListener("input",e=>{ invoicePayment.creditPaid=num(e.target.value); paint("zatca"); });
+  $("#sk38-pay-tendered")?.addEventListener("input",e=>{ invoicePayment.cashTendered=num(e.target.value); paint("zatca"); });
+
   $$(".sk38-it-name").forEach(el=>el.oninput=()=>{invoiceItems[+el.dataset.i].name=el.value});
   $$(".sk38-it-qty").forEach(el=>el.oninput=()=>{
     const idx=+el.dataset.i; invoiceItems[idx].qty=num(el.value);
@@ -200,6 +288,10 @@ function bindZatca(){
     const cust=$("#sk38-cust")?.value||"العميل الكريم";
     const subtotal=invoiceItems.reduce((s,x)=>s+x.total,0);
     const grandTotal=subtotal*1.15;
+    const changeDue=invoicePayment.cashTendered>invoicePayment.cashPaid?(invoicePayment.cashTendered-invoicePayment.cashPaid):0;
+    const totalPaid=invoicePayment.cashPaid+invoicePayment.cardPaid+invoicePayment.transferPaid+invoicePayment.creditPaid;
+    const remainingDue=Math.max(0,grandTotal-totalPaid);
+
     let msg="*🧾 فاتورة ضريبية مبسطة — "+seller+"*\n";
     msg+="العميل: "+cust+"\nالتاريخ: "+new Date().toLocaleDateString("ar-SA")+"\n";
     msg+="--------------------------------\n";
@@ -208,6 +300,13 @@ function bindZatca(){
     msg+="*المجموع الخاضع للضريبة:* "+subtotal.toFixed(2)+" ر.س\n";
     msg+="*ضريبة القيمة المضافة (15٪):* "+(subtotal*0.15).toFixed(2)+" ر.س\n";
     msg+="*الإجمالي المستحق:* "+grandTotal.toFixed(2)+" ر.س\n";
+    msg+="--------------------------------\n";
+    if(invoicePayment.cardPaid>0)msg+="• سداد مدى / شبكة: "+invoicePayment.cardPaid.toFixed(2)+" ر.س\n";
+    if(invoicePayment.cashPaid>0)msg+="• سداد نقدي: "+invoicePayment.cashPaid.toFixed(2)+" ر.س\n";
+    if(changeDue>0)msg+="• الفكة المرجعة: "+changeDue.toFixed(2)+" ر.س\n";
+    if(invoicePayment.transferPaid>0)msg+="• تحويل بنكي: "+invoicePayment.transferPaid.toFixed(2)+" ر.س\n";
+    if(invoicePayment.creditPaid>0)msg+="• حساب آجل: "+invoicePayment.creditPaid.toFixed(2)+" ر.س\n";
+    if(remainingDue>0.05)msg+="• المتبقي بذمة العميل: "+remainingDue.toFixed(2)+" ر.س\n";
     msg+="رقم الفاتورة: "+($("#sk38-invno")?.value||"")+"\n\nشكراً لتعاملكم معنا!";
     window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
   });
@@ -326,7 +425,8 @@ function blendingHTML(){
       '<div class="sk-kpi accent"><span>سعر بيع الحبة المقترح</span><b>'+money(pricePerPiece)+'</b></div>',
       '<div class="sk-kpi good"><span>الربح الإجمالي المتوقع</span><b>'+money(totalProfit)+'</b></div>',
     '</div>',
-    '<div style="margin-top:14px;">',
+    '<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">',
+      '<button type="button" id="sk38-batch-order" class="btn btn-pri">📋 طباعة أمر تشغيل باتش تحضير (Work Order)</button>',
       '<button type="button" id="sk38-wa-blend" class="btn" style="background:#25D366;color:#fff;">💬 مشاركة بطاقة تسعير الخلطة عبر واتساب</button>',
     '</div>'
   ].join("");
@@ -353,6 +453,41 @@ function bindBlending(){
   };
   ["sk38-b-leankg","sk38-b-leancost","sk38-b-fatkg","sk38-b-fatcost","sk38-b-spices","sk38-b-pkg","sk38-b-shrink","sk38-b-margin","sk38-b-piece"].forEach(id=>{
     $("#"+id)?.addEventListener("input",reCalc);
+  });
+  $("#sk38-batch-order")?.addEventListener("click",()=>{
+    const batchNo="BATCH-"+new Date().toISOString().slice(0,10).replace(/-/g,"")+"-"+Math.floor(10+Math.random()*90);
+    const rawWeight=blendState.leanKg+blendState.fatKg;
+    const netYield=rawWeight*(1-blendState.shrink/100);
+    const pieces=blendState.pieceGrams>0?Math.floor((netYield*1000)/blendState.pieceGrams):0;
+    const w=window.open("","_blank","width=600,height=750");
+    if(!w)return toast("يرجى السماح بالنوافذ المنبثقة لطباعة أمر التشغيل");
+    w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><title>أمر تشغيل باتش تحضير - '+batchNo+'</title>'+
+      '<style>body{font-family:system-ui,sans-serif;padding:24px;line-height:1.5;color:#111;}'+
+      'h2{margin:0 0 6px;color:#1e3a8a;}table{width:100%;border-collapse:collapse;margin:16px 0;}'+
+      'th,td{border:1px solid #ccc;padding:8px 10px;text-align:right;}th{background:#f1f5f9;}'+
+      '.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;}'+
+      '.box{background:#f8fafc;padding:12px;border:1px solid #cbd5e1;border-radius:6px;}'+
+      '.sign{display:flex;justify-content:space-between;margin-top:40px;border-top:1px solid #999;padding-top:10px;}'+
+      '</style></head><body>'+
+      '<div style="text-align:center;border-bottom:2px solid #1e3a8a;padding-bottom:10px;margin-bottom:16px;">'+
+      '<h2>أمر تشغيل وتحضير دفعة مصنعات لحوم</h2>'+
+      '<div>أغنام الوادي للذبائح واللحوم — قسم التصنيع والتجهيز</div>'+
+      '<b>رقم الباتش: '+batchNo+' | تاريخ التشغيل: '+new Date().toLocaleDateString("ar-SA")+'</b>'+
+      '</div>'+
+      '<div class="grid">'+
+      '<div class="box"><b>اسم الخلطة:</b> '+esc(blendState.name)+'<br><b>وزن القطعة / القرص:</b> '+blendState.pieceGrams+' جرام</div>'+
+      '<div class="box"><b>الكمية المستهدفة:</b> '+pieces+' حبة<br><b>الوزن الصافي المتوقع:</b> '+netYield.toFixed(2)+' كجم</div>'+
+      '</div>'+
+      '<table><thead><tr><th>المكون</th><th>القطعية المحددة</th><th>الوزن المطلوب</th><th>الملاحظات التشغيلية</th></tr></thead><tbody>'+
+      '<tr><td>لحم هبر (Lean)</td><td>'+esc(blendState.leanCut)+'</td><td><b>'+blendState.leanKg+' كجم</b></td><td>درجة حرارة اللحم 0-2° م عند الفرم</td></tr>'+
+      '<tr><td>شحم / دهن (Fat)</td><td>'+esc(blendState.fatCut)+'</td><td><b>'+blendState.fatKg+' كجم</b></td><td>فرم متجانس على قرص 4.5 مم</td></tr>'+
+      '<tr><td>خلطة البهارات والتوابل</td><td>توابل مصنعات خاصة</td><td>موزونة مسبقاً</td><td>تخلط ببطء لمنع ارتفاع الحرارة</td></tr>'+
+      '<tr><td>التعبئة والتغليف</td><td>أطباق فاكيوم مسحوبة الهواء</td><td>'+pieces+' عبوة</td><td>وضع ملصق البيانات وتاريخ الصلاحية</td></tr>'+
+      '</tbody></table>'+
+      '<div class="box"><b>تعليمات ضبط الجودة وسلامة الغذاء:</b> التأكد من نظافة المفرمة وتعقيمها، فحص درجة حرارة العجينة ألا تتعدى 4° مئوية، وأخذ عينة اختبار طهي قبل التعبئة الكاملة.</div>'+
+      '<div class="sign"><div>مسؤول التحضير: ........................</div><div>مشرف الجودة: ........................</div></div>'+
+      '<script>window.onload=()=>{window.print();}<\/script></body></html>');
+    w.document.close();
   });
   $("#sk38-wa-blend")?.addEventListener("click",()=>{
     const rawWeight=blendState.leanKg+blendState.fatKg;
@@ -536,15 +671,20 @@ function culinaryHTML(){
       '<button type="button" class="chip sk38-cul-tab '+(culFilter==='minced'?'active':'')+'" data-c="minced">🥙 مفروم وكباب فاخر</button>',
     '</div>',
     '<div class="sk38-culinary-grid">',
-      filtered.map(c=>'<div class="sk38-culinary-card">'+
+      filtered.map((c,idx)=>{
+        const originalIdx=CULINARY_CUTS.indexOf(c);
+        return '<div class="sk38-culinary-card">'+
         '<div>'+
           '<span class="sk38-culinary-tag">'+(c.cat==='bbq'?'تدخين وشواء':(c.cat==='steak'?'ستيك فاخر':(c.cat==='traditional'?'طبخ شعبي وفرن':'مفروم مميز')))+'</span>'+
           '<h4 class="sk38-culinary-title">'+esc(c.name)+'</h4>'+
           '<div class="sk38-culinary-stats"><span>الطراوة: '+"⭐".repeat(c.tenderness)+'</span><span>الترخيم: '+"🥩".repeat(c.marbling)+'</span></div>'+
           '<p class="sk38-culinary-desc"><b>الحرارة:</b> '+esc(c.temp)+'<br><b>الاستخدام:</b> '+esc(c.bestFor)+'<br><i style="color:var(--brand,#8b2500);font-size:0.8rem;display:block;margin-top:4px;">💡 '+esc(c.tips)+'</i></p>'+
         '</div>'+
-        '<button type="button" class="btn btn-pri sk38-cul-add" data-name="'+esc(c.name)+'" style="width:100%;font-size:0.8rem;padding:7px;margin-top:8px;">🛒 أضف للطلبية</button>'+
-      '</div>').join(""),
+        '<div style="display:flex;gap:6px;margin-top:8px;">'+
+          '<button type="button" class="btn btn-pri sk38-cul-add" data-name="'+esc(c.name)+'" style="flex:1;font-size:0.8rem;padding:7px;">🛒 أضف للطلبية</button>'+
+          '<button type="button" class="btn sk38-cul-card" data-idx="'+originalIdx+'" style="font-size:0.8rem;padding:7px;" title="بطاقة إرشادات الشيف للطهي">📋 بطاقة الطهي</button>'+
+        '</div>'+
+      '</div>';}).join(""),
     '</div>'
   ].join("");
 }
@@ -562,6 +702,34 @@ function bindCulinary(){
       save("skosif_v32_cart",cart);
       beep(740,0.1);
       toast("تمت إضافة "+name+" إلى سلة الطلبيات 🛒");
+    };
+  });
+  $$(".sk38-cul-card").forEach(b=>{
+    b.onclick=()=>{
+      const c=CULINARY_CUTS[+b.dataset.idx];
+      if(!c)return;
+      const w=window.open("","_blank","width=500,height=600");
+      if(!w)return toast("يرجى السماح بالنوافذ المنبثقة لطباعة بطاقة الطهي");
+      w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><title>بطاقة إرشادات الشيف - '+esc(c.name)+'</title>'+
+        '<style>body{font-family:system-ui,sans-serif;padding:20px;text-align:center;border:2px dashed #8a5a2b;margin:10px;border-radius:12px;color:#2b1a0f;}'+
+        'h2{margin:6px 0;color:#8a5a2b;}table{width:100%;margin:14px 0;border-collapse:collapse;}td{padding:6px;border-bottom:1px solid #eee;text-align:right;}'+
+        'b{color:#111;}.temp-box{background:#fef3c7;padding:8px;border-radius:8px;margin:10px 0;border:1px solid #fde68a;font-weight:bold;}'+
+        '</style></head><body>'+
+        '<div style="font-size:12px;color:#8a5a2b;font-weight:bold;">مختارات الذواقة — أغنام الوادي</div>'+
+        '<h2>'+esc(c.name)+'</h2>'+
+        '<div class="temp-box">🔥 درجة حرارة الطهي المستهدفة: '+esc(c.temp)+'</div>'+
+        '<table>'+
+        '<tr><td>طريقة الطهي المثالية:</td><td><b>'+esc(c.bestFor)+'</b></td></tr>'+
+        '<tr><td>مدة الطهي المقترحة:</td><td><b>'+esc(c.time)+'</b></td></tr>'+
+        '<tr><td>مستوى الطراوة والترخيم:</td><td>'+"⭐".repeat(c.tenderness)+' (ترخيم '+"🥩".repeat(c.marbling)+')</td></tr>'+
+        '</table>'+
+        '<div style="background:#fbf5ea;padding:10px;border-radius:8px;text-align:right;font-size:13px;line-height:1.5;">'+
+        '<b>💡 سر تحضير الشيف:</b> '+esc(c.tips)+'<br><br>'+
+        '<b>⚠️ قاعدة ذهبية:</b> اترك اللحم يرتاح بعد خروجه من الشواية أو الفرن مدة 5 إلى 10 دقائق قبل التقطيع لتحافظ القطعة على كامل عصارتها وطراوتها.'+
+        '</div>'+
+        '<div style="font-size:11px;color:#888;margin-top:14px;">بالهناء والعافية | أغنام الوادي للذبائح واللحوم الفاخرة</div>'+
+        '<script>window.onload=()=>{window.print();}<\/script></body></html>');
+      w.document.close();
     };
   });
 }

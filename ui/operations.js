@@ -518,6 +518,231 @@ function bindSubs(root){
 }
 
 /* ==========================================================================
+   Tab 5: Meat Aging & Maturation Chamber (غرفة تعتيق اللحوم الجافة والرطبة)
+   ========================================================================== */
+const AGING_KEY="skosif_ops_aging_chamber";
+const defaultAgingPieces=[
+  {id:"AG-101",tag:"ريـب آي واغـيو أسترالي MB7+",cut:"ريب آي بعظمه",breed:"واغيو أسترالي MB7+",type:"dry",entryDate:"2026-09-01",targetDays:35,rawKg:14.5,rawCostKg:135,temp:1.8,humidity:78,margin:40,status:"active"},
+  {id:"AG-102",tag:"ستريب لـوين بـلاك أنجوس فاخر",cut:"ستريب لوين كامل",breed:"بلاك أنجوس كندي",type:"dry",entryDate:"2026-09-10",targetDays:30,rawKg:11.2,rawCostKg:98,temp:1.6,humidity:76,margin:38,status:"active"}
+];
+
+function agingCalc(p){
+  const now=new Date();
+  const entry=new Date(p.entryDate||now);
+  const diffTime=now.getTime()-entry.getTime();
+  const daysElapsed=Math.max(0,Math.floor(diffTime/(1000*60*60*24)));
+  const targetDays=Math.max(1,num(p.targetDays)||30);
+  const progress=Math.min(100,Math.round((daysElapsed/targetDays)*100));
+
+  let moisturePct=0, trimPct=0;
+  if(p.type==="dry"){
+    moisturePct=Math.min(26,4+(daysElapsed*0.35));
+    trimPct=Math.min(15,8+(daysElapsed*0.15));
+  } else if(p.type==="umai"){
+    moisturePct=Math.min(20,3+(daysElapsed*0.28));
+    trimPct=Math.min(10,5+(daysElapsed*0.10));
+  } else {
+    moisturePct=Math.min(5,1+(daysElapsed*0.06));
+    trimPct=Math.min(4,1+(daysElapsed*0.04));
+  }
+  const totalLossPct=moisturePct+trimPct;
+  const rawKg=Math.max(0.1,num(p.rawKg));
+  const usableKg=Math.max(0.05,rawKg*(1-(totalLossPct/100)));
+  const totalRawCost=rawKg*num(p.rawCostKg);
+  const realCostPerKg=totalRawCost/usableKg;
+  const margin=Math.min(85,Math.max(5,num(p.margin)||35));
+  const suggestedPriceKg=realCostPerKg/(1-(margin/100));
+  const totalSalesTarget=usableKg*suggestedPriceKg;
+  const netProfitTotal=totalSalesTarget-totalRawCost;
+
+  let flavorStage="طراوة أولية وخفيفة";
+  if(daysElapsed>=45)flavorStage="نكهة أومامي فائقة ومكسرات (Ultra Dry-Aged)";
+  else if(daysElapsed>=28)flavorStage="ذروة التوازن والتركيز النكهي (Peak Umami)";
+  else if(daysElapsed>=14)flavorStage="طراوة متطورة ونضج أنسجة مثالي (Prime Tender)";
+
+  return {daysElapsed,targetDays,progress,moisturePct,trimPct,totalLossPct,rawKg,usableKg,totalRawCost,realCostPerKg,suggestedPriceKg,totalSalesTarget,netProfitTotal,flavorStage};
+}
+
+function agingHTML(){
+  const pieces=load(AGING_KEY,defaultAgingPieces);
+  const activeCount=pieces.filter(p=>p.status==="active").length;
+  const totalRaw=pieces.reduce((s,p)=>s+num(p.rawKg),0);
+
+  return '<div class="card"><div class="card-h"><div><h3>غرفة تعتيق اللحوم الجافة والرطبة (Dry & Wet Aging Chamber)</h3>'+
+    '<p>تتبع فترات التعتيق، انكماش الرطوبة، فاقد التشفية الخارجي (Pellicle Loss)، وحساب تكلفة وسعر البيع الحقيقي للستيك الفاخر.</p></div>'+
+    '<div class="sk-actions"><button type="button" class="btn sm primary" id="aging-new-btn">+ إدخال قطعة جديدة للتعتيق</button><button type="button" class="btn sm" id="aging-wa-btn">تقرير الغرفة (واتساب)</button></div></div>'+
+    '<div class="card-b sk-stack">'+
+    '<div class="sk-kpis">'+
+      '<div class="sk-kpi"><span>إجمالي القطع في الغرفة</span><b>'+pieces.length+' قطعة</b></div>'+
+      '<div class="sk-kpi good"><span>قيد التعتيق النشط</span><b>'+activeCount+'</b></div>'+
+      '<div class="sk-kpi"><span>إجمالي الوزن المدخل</span><b>'+totalRaw.toFixed(1)+' كجم</b></div>'+
+      '<div class="sk-kpi accent"><span>حرارة / رطوبة الغرفة المثالية</span><b>1.5°م / 78٪</b></div>'+
+    '</div>'+
+
+    '<div id="aging-form-box" style="display:none;background:var(--surface-2,#fbf5ea);border:1px solid var(--line,#e2d8cc);border-radius:12px;padding:16px;">'+
+      '<div class="sk-section-title" style="margin-bottom:12px;"><b>تسجيل قطعة لحم جديدة في غرفة التعتيق</b></div>'+
+      '<div class="sk-grid2">'+
+        '<label class="sk-field"><span>رمز القطعة (Tag ID)</span><input id="ag-id" type="text" value="AG-'+Math.floor(100+Math.random()*900)+'"></label>'+
+        '<label class="sk-field"><span>وصف وسلالة اللحم</span><input id="ag-tag" type="text" placeholder="مثال: ريب آي واغيو أسترالي MB7+"></label>'+
+        '<label class="sk-field"><span>نوع القطعية</span><select id="ag-cut">'+
+          '<option value="ريب آي بعظمه">ريب آي كتل بعظمه (Ribeye On Bone)</option>'+
+          '<option value="تندرلوين كامل">تندرلوين فيليه كامل (Whole Tenderloin)</option>'+
+          '<option value="ستريب لوين">ستريب لوين كامل (Whole Striploin)</option>'+
+          '<option value="توماهوك ستيك">توماهوك فاخر (Tomahawk Primal)</option>'+
+          '<option value="تي بون / شورت لوين">شورت لوين تي بون (T-Bone / Short Loin)</option>'+
+          '<option value="بريسكت بلدي">بريسكت عجل بلدي (Brisket Primal)</option>'+
+        '</select></label>'+
+        '<label class="sk-field"><span>طريقة التعتيق</span><select id="ag-type">'+
+          '<option value="dry">تعتيق جاف تقليدي بالغرفة (Dry-Aged Open Chamber)</option>'+
+          '<option value="umai">تعتيق جاف بأكياس نفاذية (UMAi Dry Membrane)</option>'+
+          '<option value="wet">تعتيق رطب تفريغ هوائي (Wet-Aged Vacuum)</option>'+
+        '</select></label>'+
+      '</div>'+
+      '<div class="sk-grid2">'+
+        '<label class="sk-field"><span>الوزن الأولي عند الدخول (كجم)</span><input id="ag-raw-kg" type="number" step="0.1" value="12.0"></label>'+
+        '<label class="sk-field"><span>سعر تكلفة الشراء للكيلو (ر.س)</span><input id="ag-cost-kg" type="number" step="1" value="95"></label>'+
+        '<label class="sk-field"><span>تاريخ الدخول للغرفة</span><input id="ag-date" type="date" value="'+new Date().toISOString().slice(0,10)+'"></label>'+
+        '<label class="sk-field"><span>فترة التعتيق المستهدفة (أيام)</span><select id="ag-days">'+
+          '<option value="21">21 يوم (طراوة سريعة)</option>'+
+          '<option value="30" selected>30 يوم (المعيار الذهبي للستيك)</option>'+
+          '<option value="45">45 يوم (أومامي عالي ونكهة مكسرات)</option>'+
+          '<option value="60">60 يوم (تعتيق عميق للذواقة)</option>'+
+        '</select></label>'+
+      '</div>'+
+      '<div style="display:flex;gap:8px;margin-top:12px;">'+
+        '<button type="button" class="btn primary" id="ag-save-btn">حفظ وتسكين في الغرفة</button>'+
+        '<button type="button" class="btn" id="ag-cancel-btn">إلغاء</button>'+
+      '</div>'+
+    '</div>'+
+
+    '<div class="sk-aging-grid">'+
+      pieces.map((p,idx)=>{
+        const c=agingCalc(p);
+        const isDone=c.daysElapsed>=c.targetDays;
+        return '<article class="sk-aging-card">'+
+          '<div class="sk-aging-header">'+
+            '<div>'+
+              '<span class="sk-ops-badge '+(p.status==='done'?'good':isDone?'good':'warn')+'">'+(p.status==='done'?'✓ تم التقطيع والبيع':isDone?'✓ مكتمل وجاهز للتقطيع':'⏳ جارِ التعتيق')+'</span>'+
+              '<h4>'+esc(p.tag)+'</h4>'+
+              '<small style="color:var(--ink-3);">رمز: '+esc(p.id)+' | طريقة: '+(p.type==='dry'?'تعتيق جاف':p.type==='umai'?'أكياس UMAi':'تعتيق رطب')+'</small>'+
+            '</div>'+
+            '<div style="text-align:left;">'+
+              '<b style="font-size:1.15rem;color:var(--brand,#8a5a2b);">'+c.daysElapsed+' / '+c.targetDays+'</b><br><small style="color:var(--ink-3);">يوم تعتيق</small>'+
+            '</div>'+
+          '</div>'+
+          '<div class="sk-aging-meter" title="نسبة الإنجاز '+c.progress+'%"><div class="sk-aging-meter-fill" style="width:'+c.progress+'%;"></div></div>'+
+          '<div class="sk-aging-flavor">🥩 مرحلة النكهة: <b>'+esc(c.flavorStage)+'</b></div>'+
+          '<dl class="sk-aging-stats">'+
+            '<div><dt>الوزن الأولي:</dt><dd>'+c.rawKg.toFixed(2)+' كجم</dd></div>'+
+            '<div><dt>الفاقد التقديري (رطوبة + تشفية):</dt><dd class="bad">-'+c.totalLossPct.toFixed(1)+'%</dd></div>'+
+            '<div><dt>الوزن الصافي القابل للبيع:</dt><dd style="color:#059669;">'+c.usableKg.toFixed(2)+' كجم</dd></div>'+
+            '<div><dt>التكلفة الفعلية للكيلو الصافي:</dt><dd>'+money(c.realCostPerKg)+'</dd></div>'+
+            '<div><dt>سعر البيع المقترح للكيلو:</dt><dd style="font-size:1rem;color:var(--brand,#8a5a2b);">'+money(c.suggestedPriceKg)+'</dd></div>'+
+            '<div><dt>الربح المتوقع للقطعة:</dt><dd class="good">'+money(c.netProfitTotal)+'</dd></div>'+
+          '</dl>'+
+          '<div class="sk-actions" style="margin-top:auto;">'+
+            '<button type="button" class="btn sm" data-ag-print="'+idx+'">🏷️ طباعة ملصق التعتيق</button>'+
+            (p.status!=='done'?'<button type="button" class="btn sm primary" data-ag-finish="'+idx+'">🔪 إنهاء وتجهيز للبيع</button>':'')+
+            '<button type="button" class="btn sm" data-ag-del="'+idx+'" style="color:#b91c1c;">حذف</button>'+
+          '</div>'+
+        '</article>';
+      }).join("")+
+    '</div>'+
+  '</div></div>';
+}
+
+function bindAging(content){
+  const box=$("#aging-form-box",content);
+  $("#aging-new-btn",content)?.addEventListener("click",()=>{
+    if(box)box.style.display=box.style.display==="none"?"block":"none";
+  });
+  $("#ag-cancel-btn",content)?.addEventListener("click",()=>{
+    if(box)box.style.display="none";
+  });
+  $("#ag-save-btn",content)?.addEventListener("click",()=>{
+    const id=($("#ag-id")?.value||"AG-"+Math.floor(100+Math.random()*900)).trim();
+    const tag=($("#ag-tag")?.value||"قطعة معتقة خاصة").trim();
+    const cut=$("#ag-cut")?.value||"ريب آي بعظمه";
+    const type=$("#ag-type")?.value||"dry";
+    const rawKg=num($("#ag-raw-kg")?.value)||10;
+    const rawCostKg=num($("#ag-cost-kg")?.value)||90;
+    const entryDate=$("#ag-date")?.value||new Date().toISOString().slice(0,10);
+    const targetDays=num($("#ag-days")?.value)||30;
+
+    const list=load(AGING_KEY,defaultAgingPieces);
+    list.unshift({id,tag,cut,breed:"بلدي / أنجوس",type,rawKg,rawCostKg,entryDate,targetDays,temp:1.5,humidity:78,margin:38,status:"active"});
+    save(AGING_KEY,list);
+    paintOps();
+    toast("تم تسكين القطعة "+id+" في غرفة التعتيق بنجاح 🥩","ok");
+  });
+
+  $$("[data-ag-print]",content).forEach(b=>{
+    b.onclick=()=>{
+      const p=load(AGING_KEY,defaultAgingPieces)[+b.dataset.agPrint];
+      if(!p)return;
+      const c=agingCalc(p);
+      const w=window.open("","_blank","width=450,height=550");
+      if(!w)return toast("يرجى السماح بالنوافذ المنبثقة لطباعة الملصق");
+      w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><title>ملصق تعتيق - '+esc(p.id)+'</title>'+
+        '<style>body{font-family:system-ui,sans-serif;padding:20px;text-align:center;border:2px dashed #333;margin:10px;border-radius:12px;}'+
+        'h2{margin:6px 0;color:#8a5a2b;}table{width:100%;margin:14px 0;border-collapse:collapse;}td{padding:6px;border-bottom:1px solid #eee;text-align:right;}'+
+        'b{color:#111;}.tag{display:inline-block;padding:4px 10px;background:#eee;border-radius:6px;font-size:12px;margin-bottom:8px;}</style></head><body>'+
+        '<div class="tag">غرفة التعتيق الفاخرة — S.kosif</div>'+
+        '<h2>'+esc(p.tag)+'</h2>'+
+        '<div>رمز القطعة: <b>'+esc(p.id)+'</b></div>'+
+        '<table>'+
+        '<tr><td>تاريخ الدخول:</td><td><b>'+esc(p.entryDate)+'</b></td></tr>'+
+        '<tr><td>مدة التعتيق:</td><td><b>'+c.targetDays+' يوم</b> ('+(p.type==='dry'?'تعتيق جاف':'تعتيق رطب')+')</td></tr>'+
+        '<tr><td>الوزن المبدئي:</td><td><b>'+c.rawKg.toFixed(2)+' كجم</b></td></tr>'+
+        '<tr><td>الوزن الصافي المتوقع:</td><td><b>'+c.usableKg.toFixed(2)+' كجم</b></td></tr>'+
+        '<tr><td>سعر الكيلو المقترح:</td><td><b>'+money(c.suggestedPriceKg)+'</b></td></tr>'+
+        '</table>'+
+        '<div style="font-size:12px;color:#666;margin-top:12px;">تحفظ في حرارة 1° إلى 2.5° مئوية ورطوبة 75-80٪</div>'+
+        '<script>window.onload=()=>{window.print();}<\/script></body></html>');
+      w.document.close();
+    };
+  });
+
+  $$("[data-ag-finish]",content).forEach(b=>{
+    b.onclick=()=>{
+      const list=load(AGING_KEY,defaultAgingPieces);
+      const idx=+b.dataset.agFinish;
+      if(!list[idx])return;
+      const actualUsable=prompt("أدخل الوزن الصافي الفعلي بعد التشفية وإزالة القشرة (كجم):",agingCalc(list[idx]).usableKg.toFixed(2));
+      if(actualUsable===null)return;
+      list[idx].status="done";
+      list[idx].finalUsableKg=num(actualUsable);
+      list[idx].finishDate=new Date().toISOString().slice(0,10);
+      save(AGING_KEY,list);
+      paintOps();
+      toast("تم إنهاء التعتيق ونقل القطعة للمبيعات بنجاح","ok");
+    };
+  });
+
+  $$("[data-ag-del]",content).forEach(b=>{
+    b.onclick=()=>{
+      if(!confirm("هل أنت متأكد من حذف هذه القطعة من سجل الغرفة؟"))return;
+      const list=load(AGING_KEY,defaultAgingPieces);
+      list.splice(+b.dataset.agDel,1);
+      save(AGING_KEY,list);
+      paintOps();
+      toast("تم حذف القطعة من السجل");
+    };
+  });
+
+  $("#aging-wa-btn",content)?.addEventListener("click",()=>{
+    const pieces=load(AGING_KEY,defaultAgingPieces);
+    let msg="*🥩 تقرير غرفة تعتيق اللحوم — S.kosif*\nالتاريخ: "+new Date().toLocaleDateString("ar-SA")+"\n--------------------------------\n";
+    pieces.forEach(p=>{
+      const c=agingCalc(p);
+      msg+="• *"+p.tag+"* ("+p.id+")\n   - الأيام: "+c.daysElapsed+"/"+c.targetDays+" يوم ("+(c.progress)+"%)\n   - الوزن الصافي المقدر: "+c.usableKg.toFixed(2)+" كجم\n   - سعر البيع المقترح: "+c.suggestedPriceKg.toFixed(0)+" ر.س/كجم\n";
+    });
+    msg+="--------------------------------\nغرفة التبريد: 1.5°م | الرطوبة: 78٪\nجودة وسلامة اللحوم مطابقة للمواصفات.";
+    window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
+  });
+}
+
+/* ==========================================================================
    Master Render & Tab Switcher
    ========================================================================== */
 function paintOps(){
@@ -530,6 +755,7 @@ function paintOps(){
       '<button type="button" role="tab" aria-selected="'+(opsTab==="po")+'" class="'+(opsTab==="po"?'active':'')+'" data-tab="po">📋 أوامر الشراء واستلام الذبائح</button>'+
       '<button type="button" role="tab" aria-selected="'+(opsTab==="butcher")+'" class="'+(opsTab==="butcher"?'active':'')+'" data-tab="butcher">🔪 كفاءة التشفية والقصابين</button>'+
       '<button type="button" role="tab" aria-selected="'+(opsTab==="subs")+'" class="'+(opsTab==="subs"?'active':'')+'" data-tab="subs">📦 باقات واشتراكات اللحوم</button>'+
+      '<button type="button" role="tab" aria-selected="'+(opsTab==="aging")+'" class="'+(opsTab==="aging"?'active':'')+'" data-tab="aging">🥩 غرفة التعتيق (Dry Aging)</button>'+
     '</div>'+
     '<div id="sk-ops-tab-content"></div>'+
   '</div>';
@@ -554,12 +780,15 @@ function paintOps(){
   } else if(opsTab==="subs"){
     content.innerHTML=subsHTML();
     bindSubs(content);
+  } else if(opsTab==="aging"){
+    content.innerHTML=agingHTML();
+    bindAging(content);
   }
 }
 
 window.SK.view("operations",{
   title:"المناسبات والتشغيل",
-  sub:"حاسبة الشواء والمناسبات، أوامر الشراء وفحص الاستلام، كفاءة التشفية، واشتراكات اللحوم",
+  sub:"حاسبة الشواء والمناسبات، أوامر الشراء وفحص الاستلام، كفاءة التشفية، اشتراكات اللحوم، وغرفة التعتيق",
   emoji:"🍖",
   render(node){
     roots.ops=node;
@@ -569,9 +798,11 @@ window.SK.view("operations",{
 
 window.SKosifOperations=Object.freeze({
   bbqCalc,
+  agingCalc,
   getPOs:()=>load(PO_KEY,defaultPOs),
   getShifts:()=>load(BUTCHER_KEY,defaultShifts),
-  getSubs:()=>load(SUBS_KEY,defaultSubs)
+  getSubs:()=>load(SUBS_KEY,defaultSubs),
+  getAging:()=>load(AGING_KEY,defaultAgingPieces)
 });
 
 })();

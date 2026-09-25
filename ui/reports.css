@@ -150,6 +150,62 @@
   color: #444;
 }
 
+/* Visual Charts and Trends */
+.sk-chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+.sk-chart-card {
+  background: var(--surface, #fff);
+  border: 1px solid var(--line, #e2d8cc);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sk-chart-card h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--ink, #2b1a0f);
+}
+.sk-chart-svg {
+  width: 100%;
+  height: auto;
+  max-height: 220px;
+}
+.sk-donut-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.sk-donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+  flex: 1;
+}
+.sk-donut-legend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sk-donut-legend-item span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.sk-donut-legend-item i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
 @media print {
   body * { visibility: hidden !important; }
   .sk-print-report, .sk-print-report * { visibility: visible !important; }
