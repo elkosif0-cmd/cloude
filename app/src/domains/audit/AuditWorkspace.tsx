@@ -4,6 +4,7 @@ import type {JournalEntry} from '../finance/ledger-engine';
 import {analyzeJournals} from './journal-analytics';
 import {calculateMateriality} from './materiality-engine';
 import {PbcPanel} from './PbcPanel';
+import {SamplingPanel} from './SamplingPanel';
 import './audit-workspace.css';
 
 const JOURNAL_STORAGE_KEY='skosif.v1.finance.journals';
@@ -58,5 +59,6 @@ export function AuditWorkspace(){
       </section>
     </div>
     <PbcPanel/>
+    <SamplingPanel/>
   </section>;
 }
