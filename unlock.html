@@ -34,6 +34,9 @@ button.submit:disabled{opacity:.65;cursor:default}
 .badge{display:inline-flex;gap:7px;align-items:center;margin-top:18px;padding:8px 14px;border-radius:999px;background:#e8f1fe;color:#1668e3;font-size:12px;font-weight:600}
 .badge svg{width:15px;height:15px}
 .slogan{margin-top:14px;font-size:12px;color:#7a8aa2}
+/* installed laptop window without a title bar: keep a strip to drag the window by */
+@media (display-mode: window-controls-overlay){body::before{content:"";position:fixed;top:0;left:0;right:0;height:env(titlebar-area-height,33px);-webkit-app-region:drag;app-region:drag}}
+body{padding:max(24px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
 </style>
 </head>
 <body>

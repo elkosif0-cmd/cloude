@@ -49,6 +49,23 @@ function kpi(x){
   return '<div class="skc-kpi '+x.c+(ring?' ring':'')+'"><span>'+esc(x.l)+'</span><b>'+esc(x.v)+'</b>'+
     (ring?'<span class="rg" style="--p:'+Math.round(x.p)+'" role="img" aria-label="'+Math.round(x.p)+'٪ '+esc(x.pl||"")+'"><i>'+Math.round(x.p)+'%</i></span>':'')+'</div>';
 }
+/* how to reach anything, in the words of this device */
+function reach(){
+  const d=SK.device;if(!d||d.os==="ios")return "للوصول لأي شيء: زر البحث أعلى الشاشة.";
+  return 'للوصول لأي شيء: <kbd>'+esc(d.mod)+'</kbd>+<kbd>K</kbd> · كل الاختصارات: <kbd>?</kbd>';
+}
+/* one quiet invitation to install the app on this device (hidden for 14 days after «لاحقاً») */
+const NUDGE="sk-device-nudge";
+function nudge(){
+  const d=SK.device;if(!d)return "";
+  const m=d.installMode();if(!["ios","prompt","mac-safari"].includes(m))return "";
+  try{if(Date.now()-Number(localStorage.getItem(NUDGE)||0)<14*864e5)return ""}catch{}
+  const phone=m==="ios";
+  return '<div class="skc-install" role="note">'+SK.icon(phone?"phone":"laptop")+'<div class="tx"><b>ثبّت KOSIF على '+esc(d.label())+'</b><small>'+
+    (phone?"يفتح بملء الشاشة من الشاشة الرئيسية، يعمل دون اتصال، ويحمي بياناتك من الحذف التلقائي الذي يطبّقه Safari على المواقع.":
+      "نافذة مستقلة في Dock أو قائمة ابدأ، اختصارات لوحة المفاتيح كاملة، ويعمل دون اتصال.")+
+    '</small></div><div class="sk-actions"><button type="button" class="btn primary sm" data-nudge="install">'+(m==="prompt"?"تثبيت الآن":"كيف أثبّته؟")+'</button><button type="button" class="btn sm" data-nudge="later">لاحقاً</button></div></div>';
+}
 function render(root){
   if(!root||!core())return;
   const old=root.querySelector(":scope > .skc");if(old)old.remove();
@@ -58,8 +75,9 @@ function render(root){
   const hijri=now.toLocaleDateString("ar-SA-u-ca-islamic-umalqura-nu-latn",{day:"numeric",month:"long",year:"numeric"});
   const k=kpis(),launch=LAUNCH.filter(([id])=>SK.perm.can(id)&&SK.caps.get(id));
   const html='<section class="skc" aria-label="مركز القيادة">'+
-    '<div class="skc-hero"><div><h2>'+greeting()+' — '+esc(biz)+'</h2><p>ابدأ بما يحتاج قراراً، ثم تابع يومك من الأزرار السريعة. للوصول لأي شيء: <kbd>Ctrl</kbd>+<kbd>K</kbd></p></div>'+
+    '<div class="skc-hero"><div><h2>'+greeting()+' — '+esc(biz)+'</h2><p>ابدأ بما يحتاج قراراً، ثم تابع يومك من الأزرار السريعة. '+reach()+'</p></div>'+
       '<div class="skc-date"><b>'+esc(day)+'</b><span>'+esc(greg)+'</span><small class="hint">'+esc(hijri)+'</small></div></div>'+
+    nudge()+
     '<div class="skc-grid">'+
       '<div class="skc-card"><h3>ما يحتاج قراراً الآن<small>من قواعد التطبيق وبياناتك</small></h3>'+inbox()+'</div>'+
       '<div class="skc-card"><h3>مؤشرات اليوم<small>من السجلات المحفوظة فقط</small></h3><div class="skc-kpis">'+k.map(kpi).join("")+'</div></div>'+
@@ -67,7 +85,10 @@ function render(root){
     (launch.length?'<div class="skc-card"><h3>ابدأ عملاً</h3><div class="skc-launch">'+launch.map(([id,l])=>'<button type="button" data-go="'+id+'">'+SK.icon(id)+'<span>'+esc(l)+'</span></button>').join("")+'</div></div>':'')+
   '</section>';
   root.insertAdjacentHTML("afterbegin",html);
-  root.querySelector(":scope > .skc").addEventListener("click",e=>{const b=e.target.closest("[data-go]");if(b)core().go(b.dataset.go)});
+  root.querySelector(":scope > .skc").addEventListener("click",e=>{
+    const n=e.target.closest("[data-nudge]");
+    if(n){const card=n.closest(".skc-install");if(n.dataset.nudge==="later"){try{localStorage.setItem(NUDGE,String(Date.now()))}catch{}card.remove()}else SK.device.install().then(ok=>{if(ok)card.remove()});return}
+    const b=e.target.closest("[data-go]");if(b)core().go(b.dataset.go)});
 }
 function boot(){const c=core();if(c)c.onView("dash",render)}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();

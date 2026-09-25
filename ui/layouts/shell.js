@@ -1,8 +1,10 @@
 /* S.kosif layout — the app shell (window.SKosifShell).
    Paints the rail from the capability registry (one source of truth), filtered by role and by
    the daily/advanced switch; keeps the topbar title, breadcrumb and search in sync; owns the
-   appearance preferences, the phone drawer, the offline notice, the update notice and the
-   no-permission state. The core calls SKosifShell.paint() after every chrome paint. */
+   appearance preferences, the phone drawer (with an edge swipe) and its bottom tab bar (the user
+   picks its screens), the laptop's compact rail, the installed-window title bar, the offline
+   notice, the update notice and the no-permission state. The core calls SKosifShell.paint()
+   after every chrome paint. */
 (()=>{
 "use strict";
 const {$,$$,esc,load,save}=SK;
@@ -24,7 +26,7 @@ const LOOKS=[
   ["auto","حسب الجهاز","KOSIF نهاراً وKOSIF الليلي ليلاً",["#f3f6fb","#1668e3","#0a1628","#3fd0f0"]]];
 const DARK=new Set(["kosif-night","heritage-night","midnight"]);
 const NIGHT={kosif:"kosif-night",heritage:"heritage-night"};
-function prefs(){return Object.assign({look:"kosif",density:"cozy",lastLight:"kosif"},load(PREF_KEY,{}))}
+function prefs(){return Object.assign({look:"kosif",density:"cozy",lastLight:"kosif",rail:"full"},load(PREF_KEY,{}))}
 function migrate(){
   const p=load(PREF_KEY,null);
   /* v2: the KOSIF identity replaces «تراث الوادي» as the default; a deliberately chosen other theme is kept */
@@ -53,6 +55,7 @@ function applyPrefs(){
   const de=document.documentElement,look=lookNow(),mode=resolved(),p=prefs();
   de.setAttribute("data-look",look.replace(/-night$/,""));
   de.setAttribute("data-theme",mode);de.setAttribute("data-density",p.density==="compact"?"compact":"cozy");
+  de.setAttribute("data-rail",p.rail==="mini"?"mini":"full");
   fonts(look);
   try{localStorage.setItem("aghnam-v12-theme",mode)}catch{}
   const bar=getComputedStyle(de).getPropertyValue("--sk-rail").trim()||(mode==="dark"?"#1b140e":"#efe2cc");
@@ -70,7 +73,7 @@ migrate();applyPrefs();
 function navButton(c,cur){
   const icon=SK.icons[c.id]||(core()&&core().navIcon(c.id))||SK.icons.action;
   const badge=core()?core().navBadge(c.id):"";
-  return '<button type="button" class="nav-btn" data-act="nav" data-v="'+c.id+'"'+(c.id===cur?' aria-current="page"':'')+'>'+icon+'<span>'+esc(c.label)+'</span>'+(badge||"")+'</button>';
+  return '<button type="button" class="nav-btn" data-act="nav" data-v="'+c.id+'" title="'+esc(c.label)+'"'+(c.id===cur?' aria-current="page"':'')+'>'+icon+'<span>'+esc(c.label)+'</span>'+(badge||"")+'</button>';
 }
 let lastSig="";
 function paintNav(){
@@ -107,8 +110,17 @@ function paintTop(){
   document.title=(cap?cap.label:(t&&t.textContent)||"")+" · S.kosif";
   const rail=$("#rail");document.body.classList.toggle("skn-locked",!!(rail&&rail.classList.contains("open"))&&innerWidth<=900);
 }
-/* phones: bottom tab bar (KOSIF design) — in the page flow (sticky), never over content */
-const TABS=[["dash","الرئيسية"],["commerce","الطلبات"],["tasks","المهام"],["inventory","المخزون"]];
+/* phones: bottom tab bar — in the page flow (sticky), never over content. Four screens the user
+   picks in «الأجهزة والمزامنة» (prefs.tabs), then «المزيد» opens the drawer. */
+const TABS=["dash","commerce","tasks","inventory"];
+const SHORT={dash:"الرئيسية",commerce:"الطلبات",tasks:"المهام",inventory:"المخزون",zatca:"الفاتورة",customers:"العملاء",followup:"المتابعة",offers:"العروض",
+  catalog:"الأسعار",sim:"التسعير",purchasing:"الشراء",suppliers:"الموردون",cash:"النقد",receivables:"الذمم",ledger:"الدفاتر",jev:"Jev",council:"المجلس",
+  execreports:"التقارير",scanner:"الماسح",labels:"الملصقات",operations:"المناسبات",b2bcredit:"الائتمان",traceability:"التبريد",decision:"القرار",
+  reports:"الطباعة",exports:"التصدير",settings:"الإعدادات",devices:"الأجهزة",memo:"الاعتماد",builder:"البوكسات"};
+const TAB_MAX=4;
+function tabIds(){const p=prefs().tabs;return(Array.isArray(p)&&p.length?p:TABS).filter(id=>SK.caps.get(id)).slice(0,TAB_MAX)}
+function setTabs(ids){const p=prefs();p.tabs=(ids||[]).filter(id=>SK.caps.get(id)).slice(0,TAB_MAX);if(!p.tabs.length)delete p.tabs;save(PREF_KEY,p);paintTabs()}
+const tabLabel=id=>SHORT[id]||(SK.caps.get(id)||{}).label||id;
 function paintTabs(){
   const c=core(),host=$(".maincol");if(!c||!host)return;
   let bar=$("#skb");
@@ -116,12 +128,31 @@ function paintTabs(){
     bar=document.createElement("nav");bar.id="skb";bar.className="skb";bar.setAttribute("aria-label","تنقل سريع");host.appendChild(bar);
     bar.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.more)c.act("rail-open");else c.go(b.dataset.v)});
   }
-  const cur=c.view(),cap=SK.caps.get(cur),tabs=TABS.filter(([id])=>SK.caps.get(id)&&SK.perm.can(id));
+  const cur=c.view(),cap=SK.caps.get(cur),tabs=tabIds().filter(id=>SK.perm.can(id)).map(id=>[id,tabLabel(id)]);
   const html=tabs.map(([id,l])=>'<button type="button" data-v="'+id+'"'+(id===cur?' aria-current="page"':'')+'>'+(SK.icons[id]||c.navIcon(id)||"")+(c.navBadge(id)||"")+'<span>'+esc(l)+'</span></button>').join("")+
-    '<button type="button" data-more="1"'+(tabs.some(([id])=>id===cur)?'':' aria-current="page"')+'><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg><span>'+(cap&&!tabs.some(([id])=>id===cur)?esc(cap.label):"المزيد")+'</span></button>';
+    '<button type="button" data-more="1"'+(tabs.some(([id])=>id===cur)?'':' aria-current="page"')+'><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg><span>'+(cap&&!tabs.some(([id])=>id===cur)?esc(tabLabel(cur)):"المزيد")+'</span></button>';
   if(bar.innerHTML!==html)bar.innerHTML=html;
 }
-function paint(){paintNav();paintTop();paintTabs()}
+/* laptops: the rail folds to an icon column (Ctrl/⌘+B or the button under the brand) */
+function railToggle(){
+  const rail=$("#rail");if(!rail||$("#sk-rail-mini",rail))return;
+  const b=document.createElement("button");b.type="button";b.id="sk-rail-mini";b.className="sk-rail-mini";
+  b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/><path d="m10 10-2 2 2 2"/></svg><span>طيّ القائمة</span>';
+  b.addEventListener("click",()=>toggleRail());
+  const brand=$(".brand",rail);(brand||rail.firstChild).after(b);
+  syncRailBtn();
+}
+function syncRailBtn(){const b=$("#sk-rail-mini"),mini=prefs().rail==="mini";if(!b)return;
+  const t=(mini?"توسيع القائمة":"طيّ القائمة")+(SK.device?" ("+SK.device.keyHint("B")+")":"");b.title=t;b.setAttribute("aria-label",t);b.setAttribute("aria-pressed",String(mini));$("span",b).textContent=mini?"توسيع القائمة":"طيّ القائمة"}
+function toggleRail(force){const mini=typeof force==="boolean"?force:prefs().rail!=="mini";setPref("rail",mini?"mini":"full");syncRailBtn();SK.toast(mini?"قائمة مطويّة — الأيقونات فقط":"قائمة كاملة","info")}
+/* installed on a laptop with the title bar hidden (Window Controls Overlay): a draggable strip */
+function titlebar(){
+  const on=document.documentElement.getAttribute("data-display")==="window-controls-overlay";let bar=$("#sk-wco");
+  if(!on){if(bar)bar.remove();return}
+  if(!bar){bar=document.createElement("div");bar.id="sk-wco";bar.className="sk-wco";bar.innerHTML='<div class="sk-wco-in"><b>KOSIF</b><span id="sk-wco-t"></span></div>';document.body.prepend(bar)}
+  const c=core(),cap=c&&SK.caps.get(c.view()),t=$("#sk-wco-t");if(t)t.textContent=cap?cap.label:"";
+}
+function paint(){paintNav();paintTop();paintTabs();railToggle();titlebar()}
 
 /* ---------- permission gate: a screen outside the role shows the no-permission state ---------- */
 function gate(){
@@ -209,6 +240,29 @@ function settingsCards(root){
 }
 function usageText(){const u=SK.store.usage();return "على هذا الجهاز: "+u.keys+" مفتاح بيانات (~"+(u.bytes/1024).toFixed(0)+" ك.ب) + قاعدة بيانات العملاء والمبيعات."}
 
+/* ---------- phones: swipe in from the rail's edge to open the drawer, swipe back to close ---------- */
+function swipe(){
+  let x0=null,y0=0,mode="";
+  const narrow=()=>innerWidth<=900,rtl=()=>document.documentElement.dir!=="ltr";
+  addEventListener("touchstart",e=>{
+    if(!narrow()||e.touches.length!==1)return;const t=e.touches[0],r=$("#rail"),open=!!(r&&r.classList.contains("open"));
+    const fromEdge=rtl()?t.clientX>innerWidth-24:t.clientX<24;
+    mode=open?"close":fromEdge&&!document.querySelector("#pr-modal .modal,.skp-wrap.open,.skd-wrap")?"open":"";
+    if(mode){x0=t.clientX;y0=t.clientY}else x0=null;
+  },{passive:true});
+  addEventListener("touchend",e=>{
+    if(x0==null)return;const t=e.changedTouches[0],dx=(t.clientX-x0)*(rtl()?-1:1),dy=Math.abs(t.clientY-y0);x0=null;
+    if(dy>60)return;const c=core();if(!c)return;
+    if(mode==="open"&&dx>50)c.act("rail-open");else if(mode==="close"&&dx<-60)c.act("rail-close");
+  },{passive:true});
+}
+/* keyboard hints follow the device: ⌘K on a Mac, Ctrl K on Windows, nothing on an iPhone */
+function hints(){
+  const k=$(".skt-search kbd"),d=SK.device;if(!k||!d)return;
+  if(d.os==="ios"){k.remove();return}
+  k.textContent=d.mod+" K";const b=k.closest(".skt-search");if(b)b.setAttribute("aria-label","بحث وانتقال سريع ("+d.keyHint("K")+")");
+}
+
 /* ---------- phones: customer cards instead of a wide table ---------- */
 function customerCards(root){
   if(!root||!matchMedia("(max-width:760px)").matches)return;
@@ -221,7 +275,8 @@ function customerCards(root){
     '<div class="sk-cc-actions">'+(c[7]?c[7].innerHTML:"")+'</div></article>'}).join("");
 }
 
-window.SKosifShell=Object.freeze({paint,toggleAppearance,setAppearance,setLook,looks:()=>LOOKS.map(x=>({id:x[0],name:x[1]})),prefs,resolved});
+window.SKosifShell=Object.freeze({paint,toggleAppearance,setAppearance,setLook,looks:()=>LOOKS.map(x=>({id:x[0],name:x[1]})),prefs,resolved,
+  toggleRail,tabs:tabIds,setTabs,tabLabel,defaultTabs:()=>TABS.slice(),tabMax:TAB_MAX});
 
 function boot(){
   const c=core();
@@ -234,6 +289,8 @@ function boot(){
   addEventListener("sk:render",()=>{gate();domainTabs()});
   addEventListener("resize",()=>{if(innerWidth>900){const r=$("#rail");if(r&&r.classList.contains("open")&&c)c.act("rail-close")}},{passive:true});
   addEventListener("online",offline);addEventListener("offline",offline);offline();
+  SK.bus.on("device",()=>titlebar());
+  swipe();hints();
   SK.bus.on("role",()=>{lastSig="";paint()});
   paint();gate();updates();
   Object.freeze(window.SK);

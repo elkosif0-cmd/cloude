@@ -61,6 +61,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | KOSIF Audit Studio (classic) | `auditanalytics` | المراجعة والتأكيد › التحليل المالي والمخاطر (advanced) | ADVANCED | admin, accountant |
 | KOSIF Audit Studio (lab) | `auditlab` | المراجعة والتأكيد › مختبر المعايير (advanced) | ADVANCED | admin, accountant |
 | الإعدادات | `settings` | النظام والتكاملات › الإعدادات والمظهر | ADMIN | admin, accountant, warehouse, sales, viewer |
+| جديد — تعليمات التثبيت (INSTALL-iPHONE-ar.txt) + نسخة v27 للابتوب وv28–v30 للآيفون | `devices` | النظام والتكاملات › الأجهزة والمزامنة | UTILITIES | admin, accountant, warehouse, sales, viewer |
 | Grand Fusion system.companies | `companies` | النظام والتكاملات › الشركات والفترات (advanced) | ADMIN | admin, accountant |
 | الصحة والاستثناءات | `health` | النظام والتكاملات › الصحة والتشخيص (advanced) | ADMIN | admin |
 | الحوكمة | `governance` | النظام والتكاملات › الحوكمة والجاهزية (advanced) | ADMIN | admin |
@@ -72,7 +73,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 - **MANAGEMENT** — الإدارة والمتابعة (7): `tasks`, `b2bcredit`, `operations`, `traceability`, `memo`, `execreports`, `archive`
 - **INTELLIGENCE** — التحليل والذكاء (7): `decision`, `salesintel`, `intelligence`, `economics`, `compare`, `jev`, `council`
 - **ADVANCED** — الهندسة المتقدمة (17): `carcass`, `yieldlab`, `nrv`, `finance`, `kernel`, `costs`, `analyzer`, `risklab`, `sensitivity`, `auditdesk`, `auditdocs`, `auditissues`, `auditcouncil`, `auditfin`, `auditreport`, `auditanalytics`, `auditlab`
-- **UTILITIES** — أدوات مساعدة (8): `blending`, `culinary`, `labels`, `scanner`, `reports`, `exports`, `smartmatch`, `excelrecon`
+- **UTILITIES** — أدوات مساعدة (9): `blending`, `culinary`, `labels`, `scanner`, `reports`, `exports`, `smartmatch`, `excelrecon`, `devices`
 - **ADMIN** — النظام والإدارة (5): `settings`, `companies`, `health`, `governance`, `capabilitiesv2`
 
-Coverage gate: 59 screens in 10 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
+Coverage gate: 60 screens in 10 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.

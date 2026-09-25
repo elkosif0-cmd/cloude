@@ -2,7 +2,7 @@
 
 Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do not edit by hand.
 
-Total capabilities: **59** (screens). Cross-cutting capabilities are listed after the table.
+Total capabilities: **60** (screens). Cross-cutting capabilities are listed after the table.
 
 | ID | Capability | Module | Current Location | Data Used | Dependencies | Status | Keep/Remove/Merge/Rebuild |
 |---|---|---|---|---|---|---|---|
@@ -61,6 +61,7 @@ Total capabilities: **59** (screens). Cross-cutting capabilities are listed afte
 | `auditanalytics` | التحليل المالي والمخاطر | ui/audit/classic | المراجعة والتأكيد › متقدم | `audit classic storage` | SKosifCore | Working | Keep |
 | `auditlab` | مختبر المعايير | ui/audit/lab | المراجعة والتأكيد › متقدم | `audit lab storage` | SKosifCore | Working | Keep |
 | `settings` | الإعدادات والمظهر | core + ui/shell.js | النظام والتكاملات › يومي | `aghnam-pricing-v3`, `skosif_prefs` | SKosifCore, Engine | Working | Keep |
+| `devices` | الأجهزة والمزامنة | ui/features/devices.js + ui/core/device.js + ui/components/keys.js | النظام والتكاملات › يومي | `skosif_prefs`, `sk-device-log`, `IDB aghnam-app-v7` | SKosifCore, IndexedDB | Working | Rebuild |
 | `companies` | الشركات والفترات | ui/features/workspace.js + SKEngines.system | النظام والتكاملات › متقدم | `skosif_companies_v1` | SKosifCore | Working | Rebuild |
 | `health` | الصحة والتشخيص | core (v19.8) + ui/jev.js | النظام والتكاملات › متقدم | `aghnam-v17-runtime-errors`, `skosif_error_log` | SKosifCore, Engine | Working | Keep |
 | `governance` | الحوكمة والجاهزية | core (v18/v19) + ui/core/audit.js | النظام والتكاملات › متقدم | `aghnam-pricing-v3`, `skosif_audit_trail` | SKosifCore, Engine | Working | Keep |

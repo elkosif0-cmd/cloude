@@ -101,6 +101,7 @@
     "finance",
     "economics",
     "settings",
+    "devices",
     "tasks",
     "ledger",
     "purchasing",
@@ -134,6 +135,7 @@
     "yieldlab",
     "operations",
     "settings",
+    "devices",
     "tasks",
     "purchasing"
    ],
@@ -164,6 +166,7 @@
     "labels",
     "scanner",
     "settings",
+    "devices",
     "tasks",
     "followup",
     "council",
@@ -188,6 +191,7 @@
     "cash",
     "operations",
     "settings",
+    "devices",
     "tasks"
    ],
    "actions": [
@@ -1039,6 +1043,23 @@
    "legacy": "الإعدادات",
    "decision": "Keep",
    "kw": "إعداد نسخة احتياطية مظهر",
+   "adv": false
+  },
+  {
+   "id": "devices",
+   "label": "الأجهزة والمزامنة",
+   "sub": "نسخة الآيفون ونسخة اللابتوب: التثبيت، النقل المشفر بين الأجهزة، شريط الجوال واختصارات لوحة المفاتيح",
+   "group": "system",
+   "tier": "UTILITIES",
+   "module": "ui/features/devices.js + ui/core/device.js + ui/components/keys.js",
+   "data": [
+    "skosif_prefs",
+    "sk-device-log",
+    "IDB aghnam-app-v7"
+   ],
+   "legacy": "جديد — تعليمات التثبيت (INSTALL-iPHONE-ar.txt) + نسخة v27 للابتوب وv28–v30 للآيفون",
+   "decision": "Rebuild",
+   "kw": "آيفون ايفون iphone لابتوب laptop ماك mac ويندوز تثبيت نقل مزامنة airdrop اختصارات لوحة مفاتيح شريط سفلي devices sync",
    "adv": false
   },
   {

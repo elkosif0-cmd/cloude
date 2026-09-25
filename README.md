@@ -43,6 +43,25 @@ capability inventory, the new information architecture and the rebuild plan.
   والمحاسبة · الكتالوج والتسعير · Jev والذكاء · التقارير والتحليلات · المراجعة والتأكيد · النظام والتكاملات),
   each screen daily or advanced; `docs/rebuild/CAPABILITY_COVERAGE_ALL_VERSIONS.md` lists every capability of every past version.
 
+## iPhone & laptop
+
+One app, one dataset, two form factors — see `docs/ROADMAP-ar.md` for what shipped and the idea backlog.
+
+- `ui/core/device.js` (`SK.device`) — platform (iOS, iPadOS, macOS, Windows, Android), form factor,
+  installed or in the browser; marks `<html data-device data-os data-standalone data-display>`; keeps the
+  laptop install prompt and shows the iPhone «Add to Home Screen» steps; wraps the share sheet; opens deep
+  links `?go=<screen>` / `?do=sale|search|item|keys` (manifest shortcuts, the iOS Shortcuts app, bookmarks).
+- `ui/components/keys.js` (`SKosifKeys`) — laptop keyboard: `?` sheet, `Ctrl/⌘+B` compact rail,
+  `Alt+1…0` domains, `[` `]` sibling screens, `G` + letter; matched by `KeyboardEvent.code` so an Arabic
+  layout works too.
+- `ui/layouts/shell.js` — the phone bottom tab bar in every theme with user-chosen screens, edge swipe for
+  the drawer, the compact rail, and a title strip for an installed window without a title bar.
+- `ui/features/devices.js` — the «الأجهزة والمزامنة» screen: device status, the encrypted iPhone ⇄ laptop
+  transfer (`skosif-transfer`: the full `SK.store.data()` backup, gzip, AES-GCM 256, PBKDF2-SHA-256 from a
+  one-time transfer code; imported through the same dry-run + rollback restore), tab bar picker, shortcuts
+  and quick links.
+- Install guides shipped with the build: `INSTALL-iPHONE-ar.txt`, `INSTALL-LAPTOP-ar.txt`.
+
 ## Accounting & audit
 
 `ui/audit/` is generated from `kosif199022-jpg/kosif-audit-studio` by

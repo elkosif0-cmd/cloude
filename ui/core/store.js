@@ -1,7 +1,8 @@
 /* S.kosif core — data adapters and full backup (SK.store).
    One backup for the whole app: every app localStorage key + every IndexedDB store of
    aghnam-app-v7. Restore is two-step: a dry run returns a preview without writing;
-   applying it first keeps a pre-restore snapshot so rollback() can undo it. */
+   applying it first keeps a pre-restore snapshot so rollback() can undo it. data() returns the
+   same backup object without downloading it (the encrypted iPhone ⇄ laptop transfer uses it). */
 (()=>{
 "use strict";
 const DB="aghnam-app-v7",PREFIX=/^(aghnam|skosif|kosif|s_kosif)/,FORMAT="skosif-backup",VERSION=2;
@@ -98,5 +99,5 @@ async function rollback(){
 function downloadSnapshot(){if(snapshot)SK.download("S.kosif-before-restore-"+snapshot.createdAt.slice(0,19).replace(/:/g,"")+".json",new Blob([JSON.stringify(snapshot)],{type:"application/json"}))}
 function usage(){let bytes=0;const keys=appKeys();keys.forEach(k=>{bytes+=(localStorage.getItem(k)||"").length*2});return{keys:keys.length,bytes}}
 
-SK.store=Object.freeze({keys:appKeys,idbAll,backup,preview,restore,rollback,hasSnapshot:()=>!!snapshot,downloadSnapshot,usage});
+SK.store=Object.freeze({keys:appKeys,idbAll,data:collect,backup,preview,restore,rollback,hasSnapshot:()=>!!snapshot,downloadSnapshot,usage});
 })();

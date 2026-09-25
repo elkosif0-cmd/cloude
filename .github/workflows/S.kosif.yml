@@ -117,6 +117,16 @@ jobs:
           for marker in ["CREATE TABLE IF NOT EXISTS tenants","tenant_members","workspaces","workspace_revisions","audit_log","archived_workspace_is_read_only"]:
               assert marker in cap_schema, marker
           assert "SKIP_WAITING" in sw and "skosif.js" in sw
+          # iPhone & laptop: device core, keyboard, encrypted transfer, install guides, manifest shortcuts
+          for marker in ["SK.device=","beforeinstallprompt","SKosifKeys","skosif-transfer","AES-GCM","toggleRail","setTabs"]:
+              assert marker in js, "device marker missing: "+marker
+          assert 'SK.view("devices"' in js, "devices screen missing"
+          for f in ["INSTALL-iPHONE-ar.txt","INSTALL-LAPTOP-ar.txt"]:
+              assert Path("dist",f).exists(), f
+          mf=json.loads(manifest)
+          assert mf.get("orientation")!="portrait" and mf.get("shortcuts") and "window-controls-overlay" in mf.get("display_override",[]), "manifest must serve laptop and iPhone"
+          assert all(s["url"].startswith("./?") for s in mf["shortcuts"]), "manifest shortcuts must be deep links"
+          assert ":root[data-look=\"kosif\"] .skb" not in css, "the phone tab bar must work in every theme"
           # accounting & audit: three vendored apps, loaded on first use from dist/audit
           for f in ["audit/mount.js","audit/app.css","audit/markup.html","audit/classic/mount.js","audit/lab/mount.js"]:
               assert Path("dist",f).exists(), f

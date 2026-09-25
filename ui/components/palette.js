@@ -31,7 +31,11 @@ const ACTIONS=[
   {id:"task",t:"مهمة جديدة",s:"بتاريخ استحقاق وأولوية",ic:"memo",run:()=>go("tasks"),perm:["tasks","view"]},
   {id:"journal",t:"قيد محاسبي جديد",s:"الدفاتر المحاسبية",ic:"finance",run:()=>go("ledger"),perm:["ledger","create"]},
   {id:"adv",t:"إظهار/إخفاء الأدوات المتقدمة",s:"التحليل والهندسة والمطابقة والمحاسبة",ic:"sensitivity",run:()=>core()&&core().setMode(core().mode()==="advanced"?"standard":"advanced")},
-  {id:"lock",t:"قفل التطبيق الآن",s:"يتطلب كلمة المرور لفتحه",ic:"lock",run:()=>SK.lock.now()}
+  {id:"lock",t:"قفل التطبيق الآن",s:"يتطلب كلمة المرور لفتحه",ic:"lock",run:()=>SK.lock.now()},
+  {id:"keys",t:"اختصارات لوحة المفاتيح",s:"للابتوب: التنقل بالمجالات والحروف · ?",ic:"calc",run:()=>window.SKosifKeys&&SKosifKeys.help()},
+  {id:"rail",t:"طيّ القائمة الجانبية / توسيعها",s:"أيقونات فقط لمساحة عمل أوسع على اللابتوب",ic:"dash",run:()=>SKosifShell.toggleRail()},
+  {id:"install",t:"تثبيت KOSIF كتطبيق على هذا الجهاز",s:"الشاشة الرئيسية للآيفون أو Dock/قائمة ابدأ للابتوب",ic:"action",run:()=>SK.device&&SK.device.install()},
+  {id:"transfer",t:"نقل البيانات بين الآيفون واللابتوب",s:"حزمة مشفرة عبر AirDrop أو واتساب أو الملفات",ic:"devices",run:()=>go("devices"),perm:["devices","view"]}
 ];
 function allowed(a){return !a.perm||SK.perm.can(a.perm[0],a.perm[1])}
 function items(){
@@ -43,11 +47,12 @@ function remember(ref){save(REC_KEY,[ref,...recents().filter(r=>JSON.stringify(r
 
 let wrap,inp,list,rows=[],sel=0,q="";
 function build(){
+  const M=SK.device?SK.device.mod:"Ctrl";
   wrap=document.createElement("div");wrap.className="skp-wrap";wrap.id="sk-palette";
   wrap.innerHTML='<div class="skp-backdrop" data-close></div><div class="skp" role="dialog" aria-modal="true" aria-label="بحث وانتقال سريع">'+
     '<div class="skp-head">'+SK.icons.search+'<input type="text" id="skp-inp" autocomplete="off" enterkeyhint="go" placeholder="ابحث أو انتقل… شاشة، صنف، عميل، إجراء، أو =12*4" aria-label="بحث" aria-controls="skp-list"><kbd>Esc</kbd></div>'+
     '<div class="skp-list" id="skp-list" role="listbox"></div>'+
-    '<div class="skp-foot"><span><kbd>↑↓</kbd> تنقّل</span><span><kbd>Enter</kbd> فتح</span><span><kbd>Ctrl</kbd>+<kbd>P</kbd> تثبيت صنف</span><span><kbd>=</kbd> حاسبة</span><span><kbd>Ctrl</kbd>+<kbd>S</kbd> نسخة كاملة</span><span><kbd>F2</kbd> فاتورة · <kbd>F9</kbd> مخزون</span></div></div>';
+    '<div class="skp-foot"><span><kbd>↑↓</kbd> تنقّل</span><span><kbd>Enter</kbd> فتح</span><span><kbd>'+M+'</kbd>+<kbd>P</kbd> تثبيت صنف</span><span><kbd>=</kbd> حاسبة</span><span><kbd>'+M+'</kbd>+<kbd>S</kbd> نسخة كاملة</span><span><kbd>F2</kbd> فاتورة · <kbd>F9</kbd> مخزون</span><span><kbd>?</kbd> كل الاختصارات</span></div></div>';
   document.body.appendChild(wrap);
   inp=$("#skp-inp",wrap);list=$("#skp-list",wrap);
   inp.addEventListener("input",()=>fill(inp.value));
@@ -56,7 +61,7 @@ function build(){
     else if(e.key==="ArrowUp"){e.preventDefault();sel=Math.max(0,sel-1);paint(true)}
     else if(e.key==="Enter"){e.preventDefault();run()}
     else if(e.key==="Escape"){e.preventDefault();close()}
-    else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="p"){e.preventDefault();togglePin()}
+    else if((e.ctrlKey||e.metaKey)&&(e.key.toLowerCase()==="p"||e.code==="KeyP")){e.preventDefault();togglePin()}
   });
   list.addEventListener("click",e=>{const b=e.target.closest(".skp-i");if(!b)return;sel=+b.dataset.i;run()});
   wrap.addEventListener("click",e=>{if(e.target.hasAttribute("data-close"))close()});
@@ -106,9 +111,10 @@ const isOpen=()=>!!(wrap&&wrap.classList.contains("open"));
 document.addEventListener("keydown",e=>{
   const k=String(e.key||"").toLowerCase(),t=e.target;
   const typing=t&&(t.isContentEditable||/^(input|textarea|select)$/i.test(t.tagName));
-  if((e.ctrlKey||e.metaKey)&&k==="k"){e.preventDefault();e.stopPropagation();isOpen()?close():open();return}
-  if((e.ctrlKey||e.metaKey)&&k==="s"){e.preventDefault();SK.store.backup().catch(err=>SK.errors.report(err,"backup"));return}
-  if(!typing&&!isOpen()&&e.key==="/"&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();open()}
+  /* e.code keeps the shortcuts on the same keys with an Arabic keyboard layout */
+  if((e.ctrlKey||e.metaKey)&&(k==="k"||e.code==="KeyK")){e.preventDefault();e.stopPropagation();isOpen()?close():open();return}
+  if((e.ctrlKey||e.metaKey)&&(k==="s"||e.code==="KeyS")){e.preventDefault();SK.store.backup().catch(err=>SK.errors.report(err,"backup"));return}
+  if(!typing&&!isOpen()&&(e.key==="/"||e.code==="Slash"&&!e.shiftKey)&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();open()}
   /* counter shortcuts: F2 invoice · F3 scale labels · F4 barcode · F8 events · F9 inventory */
   const F={F2:"zatca",F3:"labels",F4:"scanner",F8:"operations",F9:"inventory"}[e.key];
   if(F&&!typing&&!isOpen()&&SK.perm.can(F)&&SK.caps.get(F)){e.preventDefault();go(F)}
