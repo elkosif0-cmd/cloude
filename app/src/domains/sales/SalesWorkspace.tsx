@@ -9,6 +9,7 @@ import {calculateSalesTotals,type SalesLine} from './sales-engine';
 import {buildSalesPosting,type SalesDocument} from './sales-posting-engine';
 import type {Customer} from './customers-engine';
 import {CustomersPanel} from './CustomersPanel';
+import {TaxInvoicePanel} from './TaxInvoicePanel';
 import './sales-workspace.css';
 
 export function SalesWorkspace(){
@@ -152,6 +153,8 @@ export function SalesWorkspace(){
         {lines.length>0?<button className="secondary" onClick={()=>setLines([])}>مسح الطلب الحالي</button>:null}
       </section>
     </div>
+
+    <TaxInvoicePanel orders={orders} customers={customers} items={items}/>
 
     <section className="sales-orders sk-surface">
       <div className="sales-customers__head"><div><span className="eyebrow">Sales Register</span><h3>سجل أوامر البيع</h3></div><strong>{orders.length}</strong></div>
