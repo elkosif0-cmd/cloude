@@ -20,8 +20,8 @@ const SUBS_KEY="skosif_ops_subscriptions";
 /* Default BBQ Form */
 const defaultBBQ={
   title:"شواء عائلي خاص",
-  clientName:"أبو عبد العزيز",
-  clientPhone:"0501234567",
+  clientName:"",
+  clientPhone:"",
   guests:25,
   profile:"bbq", // bbq (450g) | family (350g) | formal (500g) | keto (300g)
   meatCostKg:48,
@@ -37,25 +37,14 @@ const defaultBBQ={
   }
 };
 
-/* Default Subscriptions */
-const defaultSubs=[
-  {id:"SUB-101",name:"فهد المنصور",phone:"0501112233",plan:"family",planName:"بوكس العائلة الشهري",cycle:"شهري",price:850,addr:"الرياض - النرجس",status:"active"},
-  {id:"SUB-102",name:"خالد السبيعي",phone:"0554443322",plan:"bbq",planName:"بوكس الشواء الأسبوعي",cycle:"أسبوعي",price:240,addr:"الرياض - حطين",status:"active"},
-  {id:"SUB-103",name:"د. طارق العمر",phone:"0567778899",plan:"keto",planName:"بوكس الصحة والكيتو",cycle:"أسبوعي",price:290,addr:"الرياض - الياسمين",status:"active"}
-];
+/* السجلات تبدأ فارغة: لا مشتركين أو ورديات أو أوامر شراء لم يسجلها المستخدم */
+const defaultSubs=[];
 
 /* Default Butcher Shifts */
-const defaultShifts=[
-  {id:"SH-01",butcher:"أبو فهد النعيمي",carcassTag:"TAG-8821",hangingKg:22.5,primeKg:14.8,boneKg:4.2,fatKg:2.8,wasteKg:0.7,date:"2026-09-24"},
-  {id:"SH-02",butcher:"معلم أحمد القصاب",carcassTag:"TAG-8822",hangingKg:20.0,primeKg:13.2,boneKg:3.8,fatKg:2.4,wasteKg:0.6,date:"2026-09-24"},
-  {id:"SH-03",butcher:"سراج الدين",carcassTag:"TAG-8823",hangingKg:24.0,primeKg:14.1,boneKg:5.1,fatKg:3.3,wasteKg:1.5,date:"2026-09-23"}
-];
+const defaultShifts=[];
 
 /* Default PO History */
-const defaultPOs=[
-  {id:"PO-4091",supplier:"مسلخ الرياض الموحد",breed:"نعيمي بلدي",heads:15,invoicedKg:285,actualKg:278.5,discrepancyKg:6.5,temp:2.8,status:"ok",date:"2026-09-24"},
-  {id:"PO-4090",supplier:"مزارع القصيم النموذجية",breed:"حري طازج",heads:20,invoicedKg:360,actualKg:347.0,discrepancyKg:13.0,temp:3.2,status:"warn",date:"2026-09-22"}
-];
+const defaultPOs=[];
 
 /* ==========================================================================
    Tab 1: Catering & BBQ Party Engine
@@ -234,7 +223,7 @@ function poHTML(){
       '<button type="button" class="btn sm primary" id="po-send-wa">إرسال أمر الشراء الآن</button></div>'+
       '<div class="card-b sk-grid2">'+
         '<label class="sk-field"><span>المورد</span><input id="new-po-supp" type="text" value="مسلخ الرياض الموحد"></label>'+
-        '<label class="sk-field"><span>جوال المورد</span><input id="new-po-phone" type="text" dir="ltr" value="0500000011"></label>'+
+        '<label class="sk-field"><span>جوال المورد</span><input id="new-po-phone" type="text" dir="ltr" placeholder="05xxxxxxxx"></label>'+
         '<label class="sk-field"><span>نوع الذبائح</span><input id="new-po-breed" type="text" value="نعيمي بلدي طازج"></label>'+
         '<label class="sk-field"><span>عدد الرؤوس والوزن المستهدف</span><input id="new-po-heads" type="text" value="15 رأس (وزن 18-20 كجم)"></label>'+
       '</div>'+
@@ -458,7 +447,7 @@ function bindSubs(root){
       const plan=b.dataset.subQuick;
       const name=prompt("اسم العميل:","سعد القحطاني");
       if(!name)return;
-      const phone=prompt("رقم جوال العميل:","0551122334");
+      const phone=prompt("رقم جوال العميل:","");
       const addr=prompt("عنوان التوصيل:","الرياض - حطين");
 
       let pName="بوكس العائلة الشهري",price=850,cycle="شهري";
@@ -507,7 +496,7 @@ function bindSubs(root){
   if(addBtn)addBtn.onclick=()=>{
     const name=prompt("اسم العميل:","مشترك جديد");
     if(!name)return;
-    const phone=prompt("رقم الجوال:","0500000000");
+    const phone=prompt("رقم الجوال:","");
     const pName=prompt("اسم الباقة (مثلاً: بوكس العائلة):","بوكس العائلة الفاخر");
     const price=num(prompt("القيمة بالريال:","650"));
     const list=load(SUBS_KEY,defaultSubs);

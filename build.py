@@ -22,7 +22,9 @@ text=re.sub(r'<meta\s+name=["\']apple-mobile-web-app-title["\'][^>]*>', '<meta n
 UI_CSS=["skosif.css","offers.css","supply.css","smartmatch.css","meatops.css","kernel.css","enterprise.css","reports.css","erp-plus.css","operations.css"]
 UI_JS=["shell.js","jev.js","offers.js","inventory.js","supply.js","meatops.js","smartmatch.js","pricing-core.js","kernel.js","tools.js","enterprise.js","reports.js","erp-plus.js","operations.js"]
 bundle_css="\n".join(f"/* ---- ui/{n} ---- */\n"+Path("ui",n).read_text(encoding="utf-8") for n in UI_CSS)
-bundle_js="\n".join(f"/* ---- ui/{n} ---- */\n"+Path("ui",n).read_text(encoding="utf-8") for n in UI_JS)
+# Each screen is isolated: an error while one module loads is logged and
+# the modules after it still load (one bad module must not blank the app).
+bundle_js="\n".join(f"/* ---- ui/{n} ---- */\ntry{{\n"+Path("ui",n).read_text(encoding="utf-8")+f"\n}}catch(e){{console.error('S.kosif module ui/{n} failed to load',e)}}" for n in UI_JS)
 tag=hashlib.sha256((bundle_css+bundle_js).encode()).hexdigest()[:10]
 text=text.replace("</head>",f'<link rel="stylesheet" href="./skosif.css?v={tag}"></head>',1)
 head,sep,tail=text.rpartition("</body>")

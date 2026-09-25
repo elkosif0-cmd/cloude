@@ -14,33 +14,38 @@ let repTab="pl"; // pl | yield | vat | churn | eod
 
 /* State for P&L model */
 const PL_KEY="skosif_rep_pl";
+/* قائمة الدخل تبدأ فارغة: يدخل المستخدم أرقام شهره */
 const defaultPL={
-  revenue: 145000,
-  cogs: 92000,
-  wasteLoss: 6800,
-  salaries: 18000,
-  rent: 9000,
-  utilities: 4200,
-  logistics: 3500,
-  packaging: 2800,
-  otherOpex: 1500
+  revenue:0,
+  cogs:0,
+  wasteLoss:0,
+  salaries:0,
+  rent:0,
+  utilities:0,
+  logistics:0,
+  packaging:0,
+  otherOpex:0
 };
 
 /* State for Yield Audit */
-const YIELD_DATA=[
-  {name:"خروف نعيمي بلدي (35 كجم)",carcasses:40,dressedKg:1400,stdWaste:18,actWaste:22.5,costKg:44},
-  {name:"خروف حري طازج (30 كجم)",carcasses:35,dressedKg:1050,stdWaste:17,actWaste:19.0,costKg:46},
-  {name:"عجل بلدي فاخر (220 كجم)",carcasses:8,dressedKg:1760,stdWaste:24,actWaste:25.8,costKg:38},
-  {name:"تيس عارضي بلدي (18 كجم)",carcasses:25,dressedKg:450,stdWaste:19,actWaste:20.2,costKg:52}
-];
+/* تسرب الهدر من شحنات الموردين المسجلة فعلاً (الهدر المتفق عليه مقابل المقاس) */
+function yieldData(){
+  let rows=[];try{rows=JSON.parse(localStorage.getItem("skosif_v31_supplier_batches"))||[]}catch{}
+  const by={};
+  rows.forEach(r=>{const k=r.itemName||"صنف";const g=by[k]||(by[k]={name:k,carcasses:0,dressedKg:0,w:0,std:0,act:0,cost:0});const q=Number(r.qty)||0;g.carcasses+=1;g.dressedKg+=q;g.w+=q;g.std+=(Number(r.agreedWaste)||0)*q;g.act+=(Number(r.actualWaste)||0)*q;g.cost+=((Number(r.priceGross)||0)/(r.vatIncl?1.15:1))*q});
+  return Object.values(by).map(g=>({name:g.name,carcasses:g.carcasses,dressedKg:g.dressedKg,stdWaste:g.w?g.std/g.w:0,actWaste:g.w?g.act/g.w:0,costKg:g.w?g.cost/g.w:0}));
+}
 
-/* Customers for Churn Radar */
-const CHURN_CUSTOMERS=[
-  {name:"مطعم قصر النخيل للمندي",phone:"0501112233",lastOrderDays:34,totalSpent:78500,status:"danger",favorite:"فخذ وكتف نعيمي بالعظم"},
-  {name:"كافيه وبرجر جريل زون",phone:"0554445566",lastOrderDays:22,totalSpent:42000,status:"warn",favorite:"برجر واغيو ومفروم رقبة"},
-  {name:"فندق مدارات الشرقية",phone:"0567778899",lastOrderDays:41,totalSpent:115000,status:"danger",favorite:"ريب آي وشورت ريبس"},
-  {name:"سلسلة شاورما السحاب",phone:"0542223344",lastOrderDays:6,totalSpent:63000,status:"active",favorite:"شاورما لحم عجل متبل"}
-];
+/* بيانات فعلية من قاعدة التطبيق (العملاء وأسطر المبيعات) — لا أرقام ثابتة */
+const REAL={loaded:false,loading:false,customers:[],lines:[]};
+function idbAll(store){return new Promise(res=>{let q;try{q=indexedDB.open("aghnam-app-v7")}catch{return res([])}q.onerror=()=>res([]);q.onsuccess=()=>{const db=q.result;if(!db.objectStoreNames.contains(store)){db.close();return res([])}const g=db.transaction(store,"readonly").objectStore(store).getAll();g.onsuccess=()=>{db.close();res(g.result||[])};g.onerror=()=>{db.close();res([])}}})}
+function loadReal(){if(REAL.loaded||REAL.loading)return;REAL.loading=true;Promise.all([idbAll("customers"),idbAll("sales_lines")]).then(([c,l])=>{REAL.customers=c;REAL.lines=l;REAL.loaded=true;REAL.loading=false;if(roots.reports&&roots.reports.isConnected)paintReports()})}
+const lineAmt=l=>Number(l.amountHalalas)?Number(l.amountHalalas)/100:(Number(l.amount)||0);
+const daysSince=d=>{const t=Date.parse(d);return Number.isFinite(t)?Math.floor((Date.now()-t)/86400000):null};
+function churnList(){
+  return REAL.customers.filter(c=>c.lastPurchase).map(c=>{const days=daysSince(c.lastPurchase);return {name:c.name||c.phone||"عميل",phone:c.phone||"",lastOrderDays:days,totalSpent:Number(c.summarySales)||0,orders:Number(c.summaryOrders)||0,status:days>30?"danger":days>14?"warn":"active"}})
+    .filter(c=>c.lastOrderDays!=null).sort((a,b)=>(b.status==="danger")-(a.status==="danger")||b.totalSpent-a.totalSpent).slice(0,40);
+}
 
 /* ==========================================================================
    Tab 1: Operational P&L HTML & Logic
@@ -166,7 +171,7 @@ function bindPL(){
    ========================================================================== */
 function yieldHTML(){
   let totalLossSAR=0;
-  const rows=YIELD_DATA.map(r=>{
+  const rows=yieldData().map(r=>{
     const diffPct=Math.max(0,r.actWaste-r.stdWaste);
     const lossKg=(r.dressedKg*(diffPct/100));
     const lossSAR=lossKg*r.costKg;
@@ -180,9 +185,9 @@ function yieldHTML(){
       '<div class="sk-kpis">',
         '<div class="sk-kpi bad"><span>إجمالي التسرب المالي للهدر</span><b>'+money(totalLossSAR)+'</b></div>',
         '<div class="sk-kpi"><span>إجمالي وزن الذبائح المشغلة</span><b>'+rows.reduce((s,x)=>s+x.dressedKg,0)+' كجم</b></div>',
-        '<div class="sk-kpi"><span>عدد الذبائح المدققة</span><b>'+rows.reduce((s,x)=>s+x.carcasses,0)+' ذبيحة</b></div>',
-        '<div class="sk-kpi accent"><span>الفرصة الربحية المستردة</span><b>'+money(totalLossSAR*0.75)+'</b></div>',
+        '<div class="sk-kpi"><span>الشحنات المدققة</span><b>'+rows.reduce((s,x)=>s+x.carcasses,0)+'</b></div>',
       '</div>',
+      (rows.length?'':'<div class="sk-note">لا توجد شحنات مسجلة بعد. سجّل شحنات الموردين مع الهدر المتفق عليه والمقاس فعلياً في «الموردون والمشتريات» ليظهر التسرب هنا.</div>'),
 
       '<div class="sk-section-title" style="margin:14px 0 8px;"><b>مقارنة الهدر المخطط مقابل المسجل فعلياً في صالة التقطيع</b></div>',
       '<div class="sk-table-wrap">',
@@ -217,7 +222,7 @@ function bindYield(){
     let msg="*🥩 تقرير تدقيق الهدر والتسرب المالي — صالة التقطيع*\\n";
     msg+="التاريخ: "+new Date().toLocaleDateString("ar-SA")+"\\n";
     msg+="--------------------------------\\n";
-    YIELD_DATA.forEach(r=>{
+    yieldData().forEach(r=>{
       const diffPct=Math.max(0,r.actWaste-r.stdWaste);
       const lossKg=(r.dressedKg*(diffPct/100));
       const lossSAR=lossKg*r.costKg;
@@ -231,7 +236,7 @@ function bindYield(){
 
   $("#sk-yield-export")?.addEventListener("click",()=>{
     const headers=["نوع الذبيحة","الرؤوس","الوزن كجم","الهدر المتوقع","الهدر الفعلي","الفاقد كجم","الخسارة بالريال"];
-    const rows=YIELD_DATA.map(r=>{
+    const rows=yieldData().map(r=>{
       const diffPct=Math.max(0,r.actWaste-r.stdWaste);
       const lossKg=(r.dressedKg*(diffPct/100));
       const lossSAR=lossKg*r.costKg;
@@ -325,35 +330,26 @@ function bindVAT(){
    Tab 4: Customer Churn Radar & Basket Analysis HTML & Logic
    ========================================================================== */
 function churnHTML(){
-  const dangerCount=CHURN_CUSTOMERS.filter(x=>x.status==="danger").length;
-  const warnCount=CHURN_CUSTOMERS.filter(x=>x.status==="warn").length;
-
+  if(!REAL.loaded){loadReal();return '<div class="sk-empty">جارٍ قراءة بيانات العملاء…</div>'}
+  const list=churnList();
+  if(!list.length)return '<div class="sk-empty">لا توجد بيانات عملاء بمشتريات مؤرخة بعد. استورد بيانات السوق والمبيعات من «السوق والعملاء».</div>';
+  const danger=list.filter(x=>x.status==="danger"),warn=list.filter(x=>x.status==="warn");
+  const orders=REAL.customers.reduce((a,c)=>a+(Number(c.summaryOrders)||0),0),sales=REAL.customers.reduce((a,c)=>a+(Number(c.summarySales)||0),0);
   return [
     '<div class="sk-stack">',
       '<div class="sk-kpis">',
-        '<div class="sk-kpi bad"><span>عملاء في خطر الانقطاع (>30 يوم)</span><b>'+dangerCount+' منشأة</b></div>',
-        '<div class="sk-kpi warn"><span>عملاء معرّضون للانقطاع (15-30 يوم)</span><b>'+warnCount+' منشأة</b></div>',
-        '<div class="sk-kpi"><span>متوسط قيمة الفاتورة للطلب (AOV)</span><b>1,850 ر.س</b></div>',
-        '<div class="sk-kpi good"><span>معدل دوران وتكرار الشراء</span><b>3.2 طلب/شهر</b></div>',
+        '<div class="sk-kpi bad"><span>منقطعون (أكثر من 30 يوماً)</span><b>'+danger.length+'</b></div>',
+        '<div class="sk-kpi warn"><span>معرّضون للانقطاع (15-30 يوماً)</span><b>'+warn.length+'</b></div>',
+        '<div class="sk-kpi"><span>متوسط قيمة الطلب</span><b>'+(orders?money(sales/orders):'—')+'</b></div>',
+        '<div class="sk-kpi"><span>عملاء بمشتريات مسجلة</span><b>'+REAL.customers.length+'</b></div>',
       '</div>',
-
-      '<div class="sk-section-title" style="margin:14px 0 8px;"><b>رادار العملاء المنقطعين وإجراءات إعادة التنشيط السريعة</b></div>',
+      '<div class="sk-section-title" style="margin:14px 0 8px;"><b>العملاء الأعلى قيمة المتوقفون عن الشراء</b></div>',
       '<div>',
-        CHURN_CUSTOMERS.map((c,idx)=>{
-          const badge=c.status==="danger"?'<span class="sk-churn-status danger">منقطع منذ '+c.lastOrderDays+' يوم</span>':
-                     (c.status==="warn"?'<span class="sk-churn-status warn">متوقف منذ '+c.lastOrderDays+' يوم</span>':
-                     '<span class="sk-churn-status active">نشط (قبل '+c.lastOrderDays+' أيام)</span>');
-          return '<div class="sk-churn-card">'+
-            '<div>'+
-              '<b style="font-size:1.02rem;">'+esc(c.name)+'</b>'+
-              '<div style="font-size:0.8rem;color:var(--ink-2,#666);margin-top:2px;">إجمالي المشتريات التاريخية: <b>'+money(c.totalSpent)+'</b> | الصنف المفضل: <code>'+esc(c.favorite)+'</code></div>'+
-            '</div>'+
-            '<div style="display:flex;gap:10px;align-items:center;">'+
-              badge+
-              '<button type="button" class="btn sk-churn-reactivate" data-i="'+idx+'" style="background:#25D366;color:#fff;font-size:0.8rem;padding:5px 10px;">💬 إرسال عرض تنشيط</button>'+
-            '</div>'+
-          '</div>';
-        }).join(""),
+        list.filter(c=>c.status!=="active").map((c,idx)=>'<div class="sk-churn-card"><div><b style="font-size:1.02rem;">'+esc(c.name)+'</b>'+
+          '<div style="font-size:0.8rem;color:var(--ink-2,#666);margin-top:2px;">إجمالي المشتريات: <b>'+money(c.totalSpent)+'</b> | الطلبات: <b>'+c.orders+'</b></div></div>'+
+          '<div style="display:flex;gap:10px;align-items:center;"><span class="sk-churn-status '+c.status+'">'+(c.status==="danger"?"منقطع منذ ":"متوقف منذ ")+c.lastOrderDays+' يوم</span>'+
+          (c.phone?'<button type="button" class="btn sk-churn-reactivate" data-p="'+esc(c.phone)+'" data-n="'+esc(c.name)+'" style="background:#25D366;color:#fff;font-size:0.8rem;padding:5px 10px;">💬 رسالة تنشيط</button>':'')+
+          '</div></div>').join("")||'<div class="sk-empty">لا يوجد عملاء متوقفون حالياً.</div>',
       '</div>',
     '</div>'
   ].join("");
@@ -362,66 +358,40 @@ function churnHTML(){
 function bindChurn(){
   $$(".sk-churn-reactivate").forEach(b=>{
     b.onclick=()=>{
-      const c=CHURN_CUSTOMERS[+b.dataset.i];
-      let msg="مرحباً بالسادة في *"+c.name+"*،\\n";
-      msg+="اشتقنا لتعاملكم الراقي معنا في *أغنام الوادي*! يسعدنا تقديم خصم خاص 10% على طلبيتكم القادمة من صنفكم المفضل: ("+c.favorite+").\\n\\nتواصل معنا لتجهيز طلبكم وتوصيله مبرداً كالمعتاد! 🐑✨";
-      window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
+      const biz=(document.getElementById("biz-name")||{}).textContent||"S.kosif";
+      const msg="مرحباً "+b.dataset.n+"،\nاشتقنا لتعاملكم مع *"+biz.trim()+"*. يسعدنا خدمتكم في طلبكم القادم — تواصلوا معنا بالرد على هذه الرسالة.";
+      const phone=String(b.dataset.p).replace(/\D/g,"").replace(/^0/,"966");
+      window.open("https://wa.me/"+phone+"?text="+encodeURIComponent(msg),"_blank","noopener");
     };
   });
 }
 
-/* ==========================================================================
-   Tab 5: Daily Executive Summary (EOD) HTML & Logic
-   ========================================================================== */
+function eodToday(){
+  const today=new Date().toISOString().slice(0,10),lines=REAL.lines.filter(l=>String(l.date||"").slice(0,10)===today);
+  const total=lines.reduce((a,l)=>a+lineAmt(l),0),cust=new Set(lines.map(l=>l.customerId).filter(Boolean)).size,orders=new Set(lines.map(l=>l.ref||l.externalOrderId).filter(Boolean)).size;
+  let cold=[];try{cold=JSON.parse(localStorage.getItem("skosif_v38_coldchain"))||[]}catch{}
+  const coldToday=cold.filter(c=>String(c.time||"").slice(0,10)===today),breaks=coldToday.filter(c=>Number(c.temp)>4).length;
+  return {today,total,cust,orders,lines:lines.length,coldToday,breaks};
+}
 function eodHTML(){
-  const now=new Date();
-  const dateStr=now.toLocaleDateString("ar-SA");
-  const timeStr=now.toLocaleTimeString("ar-SA");
-
+  if(!REAL.loaded){loadReal();return '<div class="sk-empty">جارٍ قراءة مبيعات اليوم…</div>'}
+  const d=eodToday(),biz=((document.getElementById("biz-name")||{}).textContent||"S.kosif").trim(),now=new Date();
   return [
     '<div class="sk-stack">',
       '<div class="sk-exec-sheet" id="sk-exec-sheet-printable">',
-        '<div class="sk-exec-header">',
-          '<div class="sk-exec-title">',
-            '<h2>أغنام الوادي • ملخص الإدارة التنفيذية اليومي (EOD)</h2>',
-            '<p>تقرير ختام اليوم التشغيلي ومؤشرات الأداء الرئيسية والسيولة</p>',
-          '</div>',
-          '<div class="sk-exec-meta">',
-            '<div><b>التاريخ:</b> '+dateStr+'</div>',
-            '<div><b>التوقيت:</b> '+timeStr+'</div>',
-            '<div><b>الفرع:</b> المركز الرئيسي - الرياض</div>',
-          '</div>',
-        '</div>',
-
+        '<div class="sk-exec-header"><div class="sk-exec-title"><h2>'+esc(biz)+' • ملخص نهاية اليوم</h2><p>من المبيعات وقراءات التبريد المسجلة في التطبيق</p></div>',
+          '<div class="sk-exec-meta"><div><b>التاريخ:</b> '+now.toLocaleDateString("ar-SA-u-nu-latn")+'</div><div><b>التوقيت:</b> '+now.toLocaleTimeString("ar-SA-u-nu-latn")+'</div></div></div>',
         '<div class="sk-kpis" style="margin-bottom:16px;">',
-          '<div class="sk-kpi"><span>إجمالي مبيعات اليوم</span><b>14,850 ر.س</b></div>',
-          '<div class="sk-kpi good"><span>المحصل نقداً ومدى</span><b>11,200 ر.س</b></div>',
-          '<div class="sk-kpi accent"><span>المبيعات الآجلة (ذمم)</span><b>3,650 ر.س</b></div>',
-          '<div class="sk-kpi"><span>عدد الذبائح المصروفة</span><b>18 ذبيحة</b></div>',
+          '<div class="sk-kpi"><span>مبيعات اليوم المسجلة</span><b>'+money(d.total)+'</b></div>',
+          '<div class="sk-kpi"><span>الطلبات</span><b>'+d.orders+'</b></div>',
+          '<div class="sk-kpi"><span>العملاء</span><b>'+d.cust+'</b></div>',
+          '<div class="sk-kpi '+(d.breaks?'bad':'')+'"><span>قراءات التبريد اليوم</span><b>'+d.coldToday.length+(d.breaks?' ('+d.breaks+' تجاوز)':'')+'</b></div>',
         '</div>',
-
-        '<div class="sk-table-wrap" style="margin-bottom:14px;">',
-          '<table class="sk-table">',
-            '<thead><tr><th>المحور التشغيلي</th><th>الإنجاز اليومي</th><th>الحالة والملاحظات</th></tr></thead>',
-            '<tbody>',
-              '<tr><td><b>مبيعات الكاشير والكتالوج</b></td><td>14,850 ر.س (شامل الضريبة 1,936.95 ر.س)</td><td>🟢 تجاوز الهدف اليومي بـ 8%</td></tr>',
-              '<tr><td><b>صالة التقطيع والتشفية</b></td><td>18 ذبيحة (متوسط هدر 18.4%)</td><td>🟢 مطابق للنسب المعيارية</td></tr>',
-              '<tr><td><b>سلسلة التبريد وسلامة الغذاء</b></td><td>متوسط درجات الحرارة 1.8°م إلى 2.2°م</td><td>🟢 سلسلة تبريد سليمة 100%</td></tr>',
-              '<tr><td><b>التحصيلات والذمم المستردة</b></td><td>تم تحصيل 5,200 ر.س من مطعم السرايا</td><td>🟢 انخفاض الديون المعلقة</td></tr>',
-            '</tbody>',
-          '</table>',
-        '</div>',
-
-        '<div style="background:#f9f9f9;padding:12px;border-radius:6px;border:1px solid #eee;font-size:0.85rem;color:#444;">',
-          '<b>توصيات الإدارة التنفيذية للغد:</b><br>',
-          '1. زيادة التجهيز المسبق لقطعيات الشورت ريبس والبريسكت لتلبية حجوزات مطاعم الويكند.<br>',
-          '2. متابعة رصيد العميل "مطعم قصر النخيل" وتفعيل عرض إعادة التنشيط.',
-        '</div>',
+        (d.lines?'':'<div class="sk-note">لا توجد مبيعات مسجلة بتاريخ اليوم. تُحتسب الأرقام من المبيعات المستوردة أو المسجلة يدوياً.</div>'),
       '</div>',
-
       '<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">',
-        '<button type="button" id="sk-eod-wa" class="btn" style="background:#25D366;color:#fff;">💬 إرسال التقرير اليومي لمالك المنشأة عبر واتساب</button>',
-        '<button type="button" id="sk-eod-print" class="btn btn-pri">🖨️ طباعة التقرير التنفيذي الرسمي (A4)</button>',
+        '<button type="button" id="sk-eod-wa" class="btn" style="background:#25D366;color:#fff;">💬 إرسال الملخص عبر واتساب</button>',
+        '<button type="button" id="sk-eod-print" class="btn btn-pri">🖨️ طباعة الملخص</button>',
       '</div>',
     '</div>'
   ].join("");
@@ -429,25 +399,13 @@ function eodHTML(){
 
 function bindEOD(){
   $("#sk-eod-wa")?.addEventListener("click",()=>{
-    let msg="*📋 ملخص الإدارة التنفيذية اليومي (EOD) — أغنام الوادي*\\n";
-    msg+="التاريخ: "+new Date().toLocaleDateString("ar-SA")+"\\n";
-    msg+="--------------------------------\\n";
-    msg+="💰 *إجمالي مبيعات اليوم:* 14,850 ر.س\\n";
-    msg+="💵 *السيولة المحصلة (كاش/مدى):* 11,200 ر.س\\n";
-    msg+="⏳ *المبيعات الآجلة (ذمم جديدة):* 3,650 ر.س\\n";
-    msg+="🐑 *عدد الذبائح المصروفة:* 18 رأس\\n";
-    msg+="❄️ *حالة سلسلة التبريد:* سليمة ومطابقة (2.0°م)\\n";
-    msg+="--------------------------------\\n";
-    msg+="تم إقفال اليوم التشغيلي بنجاح والحمد لله.";
-    window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
+    const d=eodToday(),biz=((document.getElementById("biz-name")||{}).textContent||"S.kosif").trim();
+    const msg=["*ملخص نهاية اليوم — "+biz+"*","التاريخ: "+new Date().toLocaleDateString("ar-SA-u-nu-latn"),"مبيعات اليوم المسجلة: "+money(d.total),"الطلبات: "+d.orders+" | العملاء: "+d.cust,"قراءات التبريد: "+d.coldToday.length+(d.breaks?" (تجاوز: "+d.breaks+")":"")].join("\n");
+    window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank","noopener");
   });
-
   $("#sk-eod-print")?.addEventListener("click",()=>{
-    const sheet=$("#sk-exec-sheet-printable");
-    if(!sheet)return;
-    sheet.classList.add("sk-print-report");
-    window.print();
-    setTimeout(()=>sheet.classList.remove("sk-print-report"),1000);
+    const sheet=$("#sk-exec-sheet-printable");if(!sheet)return;
+    sheet.classList.add("sk-print-report");window.print();setTimeout(()=>sheet.classList.remove("sk-print-report"),1000);
   });
 }
 
@@ -502,7 +460,7 @@ function bindAll(){
   if(repTab==="eod") bindEOD();
 }
 
-window.SK.view("reports",{
+window.SK.view("execreports",{
   title:"التقارير التنفيذية والمالية",
   sub:"قائمة الدخل التشغيلية، تدقيق الهدر، الإقرار الضريبي ZATCA، ورادار العملاء",
   emoji:"📊",
@@ -514,7 +472,7 @@ window.SK.view("reports",{
 
 window.SKosifReports=Object.freeze({
   getPL:()=>load(PL_KEY,defaultPL),
-  getYieldData:()=>YIELD_DATA
+  getYieldData:yieldData
 });
 
 })();

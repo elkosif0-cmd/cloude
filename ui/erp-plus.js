@@ -17,7 +17,7 @@ const add=(root,id,html,pos="afterbegin")=>{if(!root||root.querySelector("#"+id)
 const id=p=>p+"-"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const csv=(name,h,r)=>window.SK?.csv?.download?.(name,h,r);
 
-const KINV="skosif_erp_inventory_v1", KFIN="skosif_erp_finance_v1", KAP="skosif_erp_payables_v1", KIS="skosif_income_statements_v1", KSC="skosif_scene_theme", KROLE="skosif_role_mode";
+const KINV="skosif_erp_inventory_v1", KFIN="skosif_erp_finance_v1", KAP="skosif_erp_payables_v1", KIS="skosif_income_statements_v1", KROLE="skosif_role_mode";
 
 function inv(){
   const s=L(KINV,{stock:{},reorder:{},moves:[],counts:[]}), old=L("aghnam_v29_inventory",[]), its=items();
@@ -91,16 +91,16 @@ function jevView(root){
   function sim(){const cp=N($("#sc",b).value)/100,pp=N($("#sp",b).value)/100,nm=1-((1-avg)*(1+cp))/Math.max(.01,1+pp);$("#sm",b).textContent=(nm*100).toFixed(1)+"٪";return nm}$("#sc",b).oninput=sim;$("#sp",b).oninput=sim;$("#sa",b).onclick=()=>put("حلل سيناريو تغير التكلفة "+($("#sc",b).value||0)+"٪ وتغير السعر "+($("#sp",b).value||0)+"٪؛ الهامش التقريبي "+(sim()*100).toFixed(1)+"٪. ما أفضل قرار؟");sim();
 }
 
-const SC=[["nature","وادي الطبيعة","أخضر طبيعي وسماء"],["farm","المزرعة المرِحة","ألوان زاهية وقصصية"],["science","الموسوعة العلمية","ورق ومخطوطات بحثية"],["heritage","تراث وأصالة","رملي وبني وذهبي"],["night","ليل الوادي","كحلي داكن"],["pastel","الوادي الباستيل","ألوان فاتحة ناعمة"]];
 const ROLES={admin:["مدير النظام",null],accountant:["المحاسب",["dash","catalog","commerce","customers","inventory","suppliers","cash","receivables","reports","jev","sensitivity","kernel","excelrecon","zatca","b2bcredit","settings"]],warehouse:["المخزن",["dash","catalog","inventory","suppliers","blending","labels","traceability","scanner","culinary","settings"]],sales:["المبيعات",["dash","catalog","commerce","customers","offers","cash","receivables","jev","zatca","b2bcredit","settings"]],viewer:["مشاهدة فقط",["dash","catalog","reports","inventory","cash","settings"]]};
-function applyScene(){document.documentElement.dataset.skScene=L(KSC,"heritage")}
-function applyRole(){const r=ROLES[L(KROLE,"admin")]||ROLES.admin;$$("[data-v]").forEach(b=>{const v=b.dataset.v;if(v)b.hidden=!!r[1]&&!r[1].includes(v)})}
+function applyRole(){const r=ROLES[L(KROLE,"admin")]||ROLES.admin;$$("#nav [data-v]").forEach(b=>{const v=b.dataset.v;if(v)b.hidden=!!r[1]&&!r[1].includes(v)})}
 function settingsView(root){
-  const scene=L(KSC,"heritage"),role=L(KROLE,"admin"),html='<section class="card skx" id="skx-settings"><div class="card-h"><div><h3>ثيمات المشهد والتخصيص</h3><p>ستة اتجاهات بصرية كاملة، مع حفظ الاختيار تلقائياً.</p></div></div><div class="card-b skx-stack"><div class="skx-scenes">'+SC.map(x=>'<button data-sc="'+x[0]+'" class="'+(scene===x[0]?'active':'')+'"><i></i><b>'+x[1]+'</b><span>'+x[2]+'</span></button>').join("")+'</div><div class="skx-panel"><div class="skx-title"><b>وضع المستخدم والصلاحيات</b><span>تخصيص واجهة حسب الدور؛ الحماية متعددة المستخدمين تحتاج تسجيل دخول مركزي.</span></div><div class="skx-role">'+Object.entries(ROLES).map(([k,v])=>'<button data-role="'+k+'" class="'+(role===k?'active':'')+'">'+E(v[0])+'</button>').join("")+'</div></div></div></section>';
-  if(!add(root,"skx-settings",html,"beforeend"))return;const b=$("#skx-settings",root);$$("[data-sc]",b).forEach(x=>x.onclick=()=>{S(KSC,x.dataset.sc);applyScene();$$("[data-sc]",b).forEach(y=>y.classList.toggle("active",y===x));toast("تم حفظ ثيم المشهد","ok")});$$("[data-role]",b).forEach(x=>x.onclick=()=>{S(KROLE,x.dataset.role);applyRole();$$("[data-role]",b).forEach(y=>y.classList.toggle("active",y===x));toast("تم تطبيق وضع المستخدم","ok")});
+  const role=L(KROLE,"admin"),html='<section class="card skx" id="skx-settings"><div class="card-h"><div><h3>وضع المستخدم والصلاحيات</h3><p>يحدد الشاشات الظاهرة في القائمة لكل دور.</p></div></div><div class="card-b skx-stack"><div class="skx-panel"><div class="skx-title"><b>وضع المستخدم والصلاحيات</b><span>تخصيص واجهة حسب الدور؛ الحماية متعددة المستخدمين تحتاج تسجيل دخول مركزي.</span></div><div class="skx-role">'+Object.entries(ROLES).map(([k,v])=>'<button data-role="'+k+'" class="'+(role===k?'active':'')+'">'+E(v[0])+'</button>').join("")+'</div></div></div></section>';
+  if(!add(root,"skx-settings",html,"beforeend"))return;const b=$("#skx-settings",root);$$("[data-role]",b).forEach(x=>x.onclick=()=>{S(KROLE,x.dataset.role);applyRole();$$("[data-role]",b).forEach(y=>y.classList.toggle("active",y===x));toast("تم تطبيق وضع المستخدم","ok")});
 }
-applyScene();applyRole();new MutationObserver(applyRole).observe(document.documentElement,{subtree:true,childList:true});
+applyRole();
+/* الأدوار تخفي أزرار القائمة فقط؛ نراقب القائمة وحدها لا الصفحة كلها */
+{const nav=document.getElementById("nav");if(nav)new MutationObserver(applyRole).observe(nav,{childList:true,subtree:true})}
 const hook=(v,f)=>{try{window.SKosifCore?.onView?.(v,f)}catch(e){console.warn("ERP+ hook",v,e)}};
 hook("inventory",inventoryView);hook("cash",cashView);hook("suppliers",suppliersView);hook("reports",reportsView);hook("jev",jevView);hook("settings",settingsView);
-window.SKosifERPPlus=Object.freeze({inventory:inv,finance:fin,payables:aps,statements:sts,applyScene,applyRole});
+window.SKosifERPPlus=Object.freeze({inventory:inv,finance:fin,payables:aps,statements:sts,applyRole});
 })();

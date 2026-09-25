@@ -38,7 +38,7 @@ const ICONS={
   culinary:SV('<path d="M6 13.8V4a2 2 0 0 1 4 0v9.8a3.5 3.5 0 1 1-4 0z"/>'),
   scanner:SV('<path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/>'),
   b2bcredit:SV('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>'),
-  reports:SV('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>'),
+  execreports:SV('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>'),
   operations:SV('<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>')
 };
 
@@ -46,7 +46,7 @@ const ICONS={
 const pending=[];
 function view(id,def){
   const d={...def,icon:def.icon||ICONS[id]||""};
-  if(core()&&core().registerView)core().registerView(id,d);else pending.push([id,d]);
+  if(core()&&core().registerView){try{core().registerView(id,d)}catch(e){console.error("S.kosif screen "+id+" not registered",e)}}else pending.push([id,d]);
 }
 function flush(){while(pending.length&&core()){const [id,d]=pending.shift();core().registerView(id,d)}}
 
@@ -218,6 +218,15 @@ function settingsCard(root){
 }
 
 /* ---------- ترحيب لوحة العمل ولوحة الإطلاق السريع ---------- */
+/* مؤشرات من سجلات فعلية فقط؛ لا تُعرض قيمة لم تُسجَّل */
+function pulseItems(){
+  const cold=load("skosif_v38_coldchain",[]),last=Array.isArray(cold)&&cold[0];
+  const coldTxt=last?('آخر قراءة تبريد: <b>'+esc(last.temp)+'°م</b> — '+esc(last.loc||"")+(Number(last.temp)>4?' ⚠️':'')):'التبريد: <b>لا قراءات مسجلة</b>';
+  const ledger=load("skosif_v38_ledger",[]),open=Array.isArray(ledger)?ledger.length:0;
+  return '<div class="sk-pulse-item"><span class="sk-pulse-dot"></span><b>حالة النظام:</b> <span>جاهز ومشفر محلياً</span></div>'+
+    '<div class="sk-pulse-item"><span>'+coldTxt+'</span></div>'+
+    '<div class="sk-pulse-item"><span>سجل الائتمان: <b>'+open+'</b> حركة</span></div>';
+}
 function dashHero(root){
   if(!root||root.querySelector("#sk-hero"))return;
   const biz=(($("#biz-name")||{}).textContent||"").trim()||"S.kosif",now=new Date();
@@ -226,15 +235,13 @@ function dashHero(root){
   const hijri=now.toLocaleDateString("ar-SA-u-ca-islamic-umalqura-nu-latn",{day:"numeric",month:"long",year:"numeric"});
   root.insertAdjacentHTML("afterbegin",'<section class="sk-hero" id="sk-hero"><div class="sk-hero-txt"><h2>مرحباً بك في '+esc(biz)+'</h2><p>منصة العمليات والتسعير والمناسبات وإدارة الملحمة في مكان واحد…</p></div>'+
     '<div class="sk-hero-date"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14h2M12 14h2M16 14h.01M8 17h2M12 17h2"/></svg><div><b>'+esc(day)+'</b><span>'+esc(greg)+'</span><small>'+esc(hijri)+'</small></div></div></section>'+
-    '<div class="sk-ops-pulse" id="sk-pulse"><div class="sk-pulse-item"><span class="sk-pulse-dot"></span><b>حالة النظام:</b> <span>جاهز ومشفر محلياً</span></div>'+
-    '<div class="sk-pulse-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <span>التبريد HACCP: <b>2.4°C (مثالية)</b></span></div>'+
-    '<div class="sk-pulse-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg> <span>الفوترة ZATCA: <b>متوافقة بالكامل</b></span></div></div>'+
+    '<div class="sk-ops-pulse" id="sk-pulse">'+pulseItems()+'</div>'+
     '<div class="sk-quick-launch" id="sk-quick-launch">'+
       '<button type="button" class="sk-ql-btn" data-go="zatca">'+(ICONS.zatca||'')+'<span>فاتورة سريعة<br><small style="color:var(--ink-3);">ZATCA حرارية</small></span></button>'+
       '<button type="button" class="sk-ql-btn" data-go="labels">'+(ICONS.labels||'')+'<span>ملصق ميزان<br><small style="color:var(--ink-3);">باركود 60×40</small></span></button>'+
       '<button type="button" class="sk-ql-btn" data-go="operations">'+(ICONS.operations||'')+'<span>حاسبة الشواء<br><small style="color:var(--ink-3);">عروض المناسبات</small></span></button>'+
       '<button type="button" class="sk-ql-btn" data-go="blending">'+(ICONS.blending||'')+'<span>خلط اللحوم<br><small style="color:var(--ink-3);">نسب البرجر والمفروم</small></span></button>'+
-      '<button type="button" class="sk-ql-btn" data-go="reports">'+(ICONS.reports||'')+'<span>التقارير اليومية<br><small style="color:var(--ink-3);">EOD والأرباح</small></span></button>'+
+      '<button type="button" class="sk-ql-btn" data-go="execreports">'+(ICONS.execreports||'')+'<span>التقارير اليومية<br><small style="color:var(--ink-3);">EOD والأرباح</small></span></button>'+
       '<button type="button" class="sk-ql-btn" data-go="scanner">'+(ICONS.scanner||'')+'<span>مسح باركود<br><small style="color:var(--ink-3);">كاميرا الجوال</small></span></button>'+
       '<button type="button" class="sk-ql-btn" data-go="carcass">'+(ICONS.carcass||'')+'<span>اقتصاديات الذبيحة<br><small style="color:var(--ink-3);">تفكيك وتصافي</small></span></button>'+
       '<button type="button" class="sk-ql-btn" data-go="traceability">'+(ICONS.traceability||'')+'<span>سلسلة التبريد<br><small style="color:var(--ink-3);">HACCP والثلاجات</small></span></button>'+
