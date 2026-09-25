@@ -49,6 +49,8 @@ export const coreCapabilities: CapabilityDefinition[] = [
   { id:'intelligence.council', label:'مجلس الذكاء', route:'/intelligence/council', domain:'intelligence', decision:'REBUILD' },
 
   { id:'reports.executive', label:'التحليلات التنفيذية', route:'/reports/executive', domain:'reports', decision:'REBUILD' },
+  { id:'reports.smart-match', label:'مطابقة المبيعات الذكية', route:'/reports/smart-match', domain:'reports', decision:'MERGE' },
+  { id:'reports.excel-recon', label:'مطابقة الإكسل', route:'/reports/excel-recon', domain:'reports', decision:'MERGE' },
   { id:'reports.exports', label:'التقارير والتصدير', route:'/reports/exports', domain:'reports', decision:'MERGE' },
 
   { id:'system.companies', label:'الشركات والفترات', route:'/system/companies', domain:'system', decision:'REBUILD' },
