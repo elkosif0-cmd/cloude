@@ -15,5 +15,5 @@ export function rowsToCsv(rows:ExportRow[],columns?:string[]){
 }
 
 export function safeExportName(name:string){
-  return name.trim().replace(/[\\/:*?"<>|]+/g,'-').replace(/\s+/g,'-')||'export';
+  return name.trim().replace(/[\\/:*?"<>|]+/g,'-').replace(/\s+/g,'-').replace(/-+/g,'-')||'export';
 }
