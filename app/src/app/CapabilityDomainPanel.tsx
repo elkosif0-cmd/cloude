@@ -1,5 +1,6 @@
 import {coreCapabilities} from './capability-registry';
 import type {ProductDomain} from './capability-types';
+import './capability-domain.css';
 
 const decisionLabel={
   KEEP_LOGIC:'منطق مثبت',
