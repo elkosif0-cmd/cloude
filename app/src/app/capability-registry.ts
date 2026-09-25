@@ -17,11 +17,13 @@ export const coreCapabilities: CapabilityDefinition[] = [
   { id:'stock.traceability', label:'التتبع والصلاحية والتبريد', route:'/stock/traceability', domain:'stock', decision:'REBUILD' },
   { id:'stock.blending', label:'خلطات اللحوم', route:'/stock/blending', domain:'stock', decision:'MERGE' },
   { id:'stock.culinary', label:'دليل الشيف', route:'/stock/culinary', domain:'stock', decision:'MERGE' },
+  { id:'stock.nrv', label:'تفكيك الذبيحة NRV', route:'/stock/nrv', domain:'stock', decision:'MERGE' },
 
   { id:'procurement.orders', label:'أوامر الشراء', route:'/procurement/orders', domain:'procurement', decision:'REBUILD' },
   { id:'procurement.receipts', label:'الاستلام ومطابقة الكميات', route:'/procurement/receipts', domain:'procurement', decision:'REBUILD' },
   { id:'procurement.suppliers', label:'الموردون', route:'/procurement/suppliers', domain:'procurement', decision:'MERGE' },
   { id:'procurement.posting', label:'ترحيل الاستلام', route:'/procurement/posting', domain:'procurement', decision:'REBUILD' },
+  { id:'procurement.receiving-inspection', label:'تدقيق الاستلام', route:'/procurement/receiving-inspection', domain:'procurement', decision:'MERGE' },
 
   { id:'finance.accounts', label:'دليل الحسابات', route:'/finance/accounts', domain:'finance', decision:'REBUILD' },
   { id:'finance.journals', label:'القيود اليومية', route:'/finance/journals', domain:'finance', decision:'REBUILD' },
