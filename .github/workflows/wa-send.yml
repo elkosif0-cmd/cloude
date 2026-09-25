@@ -13,37 +13,85 @@ jobs:
     if: startsWith(github.event.issue.title, '[WA]')
     runs-on: ubuntu-latest
     steps:
-      - name: Validate and send WhatsApp message
+      - name: Checkout stored files
+        uses: actions/checkout@v4
+
+      - name: Send WhatsApp payload
         env:
           DISPATCH_TOKEN: ${{ secrets.WA_DISPATCH_TOKEN }}
           BODY: ${{ github.event.issue.body }}
         run: |
           set -euo pipefail
           test -n "$DISPATCH_TOKEN"
-          printf '%s' "$BODY" | jq -e 'type=="object" and (.to|type=="string") and (.message|type=="string") and (.message|length>0)' >/dev/null
-          CODE=$(curl -sS -o response.json -w "%{http_code}" \
-            -X POST \
-            -H "Authorization: Bearer $DISPATCH_TOKEN" \
-            -H "Content-Type: application/json" \
-            --data "$BODY" \
-            "https://wa-kosif-dispatch.kosif199022.workers.dev/send")
-          cat response.json
-          if [ "$CODE" -lt 200 ] || [ "$CODE" -ge 300 ]; then
-            echo "Dispatcher returned HTTP $CODE" >&2
-            exit 1
+          printf '%s' "$BODY" > request.json
+
+          jq -e '
+            type=="object" and
+            (.to|type=="string") and
+            ((.message // "")|type=="string") and
+            ((.attachments // [])|type=="array")
+          ' request.json >/dev/null
+
+          TO=$(jq -r '.to' request.json)
+          MESSAGE=$(jq -r '.message // ""' request.json)
+
+          if [ -n "$MESSAGE" ]; then
+            PAYLOAD=$(jq -n --arg to "$TO" --arg message "$MESSAGE" '{to:$to,message:$message}')
+            CODE=$(curl -sS -o text.json -w "%{http_code}" \
+              -X POST \
+              -H "Authorization: Bearer $DISPATCH_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data "$PAYLOAD" \
+              "https://wa-kosif-dispatch.kosif199022.workers.dev/send")
+            test "$CODE" -ge 200 -a "$CODE" -lt 300
           fi
 
-      - name: Mark sent
+          COUNT=$(jq '.attachments // [] | length' request.json)
+          for ((i=0; i<COUNT; i++)); do
+            KEY=$(jq -r ".attachments[$i]" request.json)
+            case "$KEY" in
+              cv-ar)
+                FILE=".private-assets/whatsapp/CV-Arabic.pdf"
+                NAME="Mahmoud_ElDesouki_CV_Arabic_2026.pdf"
+                MIME="application/pdf"
+                ;;
+              cv-en)
+                FILE=".private-assets/whatsapp/CV-English.pdf"
+                NAME="Mahmoud_ElDesouki_CV_English_2026.pdf"
+                MIME="application/pdf"
+                ;;
+              *)
+                echo "Unknown attachment: $KEY" >&2
+                exit 1
+                ;;
+            esac
+
+            test -f "$FILE"
+            B64=$(base64 -w0 "$FILE")
+            PAYLOAD=$(jq -n \
+              --arg to "$TO" \
+              --arg fileBase64 "$B64" \
+              --arg filename "$NAME" \
+              --arg mimetype "$MIME" \
+              '{to:$to,fileBase64:$fileBase64,filename:$filename,mimetype:$mimetype,caption:""}')
+
+            CODE=$(curl -sS -o "file-$i.json" -w "%{http_code}" \
+              -X POST \
+              -H "Authorization: Bearer $DISPATCH_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data "$PAYLOAD" \
+              "https://wa-kosif-dispatch.kosif199022.workers.dev/send-media")
+            test "$CODE" -ge 200 -a "$CODE" -lt 300
+          done
+
+      - name: Close request
         if: success()
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          gh issue comment "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --body "✅ WhatsApp message sent."
-          gh issue close "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --reason completed
+        run: gh issue close "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --reason completed
 
       - name: Mark failed
         if: failure()
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          gh issue comment "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --body "❌ WhatsApp send failed. Check the Actions run."
+        run: gh issue comment "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --body "❌ WhatsApp send failed. Check the Actions run."
