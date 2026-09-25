@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useState} from 'react';
 import {JsonStorageRepository} from '../../data/json-storage-repository';
+import {makeScopedKey,readActiveScope} from '../../data/scope-key';
 import {buildTrialBalance,type JournalEntry} from '../finance/ledger-engine';
 import {buildStockPositions,type StockMovement} from '../stock/inventory-engine';
 import './reports-workspace.css';
@@ -7,8 +8,11 @@ import './reports-workspace.css';
 export function ReportsWorkspace(){
   const [journals,setJournals]=useState<JournalEntry[]>([]);
   const [movements,setMovements]=useState<StockMovement[]>([]);
-  const journalRepo=useMemo(()=>new JsonStorageRepository<JournalEntry & {id:string}>(window.localStorage,'skosif.v1.finance.journals'),[]);
-  const stockRepo=useMemo(()=>new JsonStorageRepository<StockMovement & {id:string}>(window.localStorage,'skosif.v1.stock.movements'),[]);
+  const scope=useMemo(()=>readActiveScope(window.localStorage),[]);
+  const journalKey=useMemo(()=>makeScopedKey('finance.journals',scope),[scope]);
+  const stockKey=useMemo(()=>makeScopedKey('stock.movements',scope),[scope]);
+  const journalRepo=useMemo(()=>new JsonStorageRepository<JournalEntry & {id:string}>(window.localStorage,journalKey),[journalKey]);
+  const stockRepo=useMemo(()=>new JsonStorageRepository<StockMovement & {id:string}>(window.localStorage,stockKey),[stockKey]);
 
   useEffect(()=>{void Promise.all([journalRepo.list(),stockRepo.list()]).then(([j,s])=>{setJournals(j);setMovements(s);});},[journalRepo,stockRepo]);
 
