@@ -21,6 +21,6 @@ S.kosif is the production application shell for the encrypted business dataset a
 - `ui/` — the S.kosif screens, bundled by `build.py` into `skosif.js` and `skosif.css`:
   `shell.js` (shared helpers, themes, auto-lock, updates), `jev.js`, `offers.js`,
   `inventory.js`, `supply.js`, `meatops.js`, `smartmatch.js`, `pricing-core.js`,
-  `kernel.js`, `tools.js`. Each screen is a normal menu entry; there are no floating
+  `kernel.js`, `tools.js`, `enterprise.js`, `reports.js`, `erp-plus.js`. ERP+ extends the existing inventory, cash, supplier, report, Jev and settings screens without adding floating controls. Each screen is a normal menu entry; there are no floating
   buttons, docks or overlay hubs.
-- Themes: one set of ten themes for the whole app, chosen in Settings.
+- Themes: the base theme system plus six full-scene visual presets (nature, playful farm, science magazine, heritage, night valley and pastel), chosen in Settings.
