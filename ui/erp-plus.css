@@ -9,5 +9,3 @@
 .skx-alerts{display:grid;gap:7px}.skx-alert{display:grid;text-align:right;gap:2px;padding:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;cursor:pointer}.skx-alert small{color:var(--brand);font-weight:700}.skx-sim{display:grid;gap:8px}.skx-sim>b{font-size:27px;color:var(--brand)}
 .skx-role{display:flex;gap:7px;flex-wrap:wrap}.skx-role button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 12px;cursor:pointer}.skx-role button.active{background:var(--brand);color:#fff;border-color:var(--brand)}
 
-@media(max-width:900px){.skx-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.skx-grid2{grid-template-columns:1fr}.skx-line{grid-template-columns:1fr 95px 90px 32px}}
-@media(max-width:560px){.skx-kpis{grid-template-columns:1fr 1fr}.skx-form{grid-template-columns:1fr 1fr}.skx-line{grid-template-columns:1fr 88px}.skx-line>span{grid-column:1}.skx-line>.skx-x{grid-column:2;grid-row:2}.skx-title{align-items:flex-start;flex-direction:column}.skx-table{font-size:11px}}

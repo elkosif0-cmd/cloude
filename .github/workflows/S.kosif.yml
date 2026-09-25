@@ -37,6 +37,7 @@ jobs:
           python3 -m py_compile build.py private_blocks.py tools/payload.py
           for f in ui/*.js; do node --check "$f"; done
           node --check sw.js
+          node --check capabilities-v2/worker.js
 
       - name: Test strict pricing kernel
         working-directory: app
@@ -85,8 +86,15 @@ jobs:
                        "zatca","blending","labels","traceability","culinary","scanner","b2bcredit","execreports","operations"]:
               assert f'view("{view}"' in js, "screen missing: "+view
           for marker in ["calculateUsableUnitCost","applyRoundingPolicy","calculateBoxPricing","hasCircularDependency","nrvAllocate","yieldTrial","selfTest",
-                         "normalizeArabic","similarity","redact","SKIP_WAITING","data-sk-theme","zatcaTLV","code128SVG","SKosifEnterpriseV38","SKosifReports","SKosifERPPlus","SKosifOperations"]:
+                         "normalizeArabic","similarity","redact","SKIP_WAITING","data-sk-theme","zatcaTLV","code128SVG","SKosifEnterpriseV38","SKosifReports","SKosifERPPlus","SKosifOperations","SKosifCapabilitiesV2"]:
               assert marker in js, marker
+          assert 'SK.view("capabilitiesv2"' in js, "Capabilities v2 screen missing"
+          cap_worker=Path("capabilities-v2/worker.js").read_text(encoding="utf-8")
+          cap_schema=Path("capabilities-v2/schema.sql").read_text(encoding="utf-8")
+          for marker in ["ROLE_PERMISSIONS","authorizeRole","normalizeWorkspaceState","verifyCloudflareAccessSubject","workspace_revision_conflict","integrityStatus"]:
+              assert marker in cap_worker, marker
+          for marker in ["CREATE TABLE IF NOT EXISTS tenants","tenant_members","workspaces","workspace_revisions","audit_log","archived_workspace_is_read_only"]:
+              assert marker in cap_schema, marker
           assert "SKIP_WAITING" in sw and "skosif.js" in sw
           # accounting & audit: three vendored apps, loaded on first use from dist/audit
           for f in ["audit/mount.js","audit/app.css","audit/markup.html","audit/classic/mount.js","audit/lab/mount.js"]:

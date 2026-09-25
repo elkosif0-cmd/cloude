@@ -132,14 +132,14 @@ function bindPL(){
     const totalOpex=pl.salaries+pl.rent+pl.utilities+pl.logistics+pl.packaging+pl.otherOpex;
     const grossProfit=pl.revenue-pl.cogs-pl.wasteLoss;
     const netProfit=grossProfit-totalOpex;
-    let msg="*📊 تقرير قائمة الدخل والأرباح التشغيلية — أغنام الوادي*\\n";
-    msg+="المبيعات: "+money(pl.revenue)+"\\n";
-    msg+="تكلفة المشتريات (COGS): "+money(pl.cogs)+"\\n";
-    msg+="تكلفة الهدر والعظم: "+money(pl.wasteLoss)+"\\n";
-    msg+="إجمالي المصاريف التشغيلية: "+money(totalOpex)+"\\n";
-    msg+="--------------------------------\\n";
-    msg+="*مجمل الربح:* "+money(grossProfit)+" ("+((grossProfit/pl.revenue)*100).toFixed(1)+"%)\\n";
-    msg+="*صافي الربح التشغيلي:* "+money(netProfit)+" ("+((netProfit/pl.revenue)*100).toFixed(1)+"%)\\n";
+    let msg="*📊 تقرير قائمة الدخل والأرباح التشغيلية — أغنام الوادي*\n";
+    msg+="المبيعات: "+money(pl.revenue)+"\n";
+    msg+="تكلفة المشتريات (COGS): "+money(pl.cogs)+"\n";
+    msg+="تكلفة الهدر والعظم: "+money(pl.wasteLoss)+"\n";
+    msg+="إجمالي المصاريف التشغيلية: "+money(totalOpex)+"\n";
+    msg+="--------------------------------\n";
+    msg+="*مجمل الربح:* "+money(grossProfit)+" ("+((grossProfit/pl.revenue)*100).toFixed(1)+"%)\n";
+    msg+="*صافي الربح التشغيلي:* "+money(netProfit)+" ("+((netProfit/pl.revenue)*100).toFixed(1)+"%)\n";
     window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
   });
 
@@ -219,18 +219,18 @@ function yieldHTML(){
 function bindYield(){
   $("#sk-yield-wa")?.addEventListener("click",()=>{
     let totalLossSAR=0;
-    let msg="*🥩 تقرير تدقيق الهدر والتسرب المالي — صالة التقطيع*\\n";
-    msg+="التاريخ: "+new Date().toLocaleDateString("ar-SA")+"\\n";
-    msg+="--------------------------------\\n";
+    let msg="*🥩 تقرير تدقيق الهدر والتسرب المالي — صالة التقطيع*\n";
+    msg+="التاريخ: "+new Date().toLocaleDateString("ar-SA")+"\n";
+    msg+="--------------------------------\n";
     yieldData().forEach(r=>{
       const diffPct=Math.max(0,r.actWaste-r.stdWaste);
       const lossKg=(r.dressedKg*(diffPct/100));
       const lossSAR=lossKg*r.costKg;
       totalLossSAR+=lossSAR;
-      msg+="• "+r.name+": هدر فعلي "+r.actWaste+"% (المخطط "+r.stdWaste+"%) | فاقد: "+lossKg.toFixed(1)+" كجم ("+money(lossSAR)+")\\n";
+      msg+="• "+r.name+": هدر فعلي "+r.actWaste+"% (المخطط "+r.stdWaste+"%) | فاقد: "+lossKg.toFixed(1)+" كجم ("+money(lossSAR)+")\n";
     });
-    msg+="--------------------------------\\n";
-    msg+="*إجمالي التسرب المالي للهدر:* "+money(totalLossSAR)+"\\nيرجى مراجعة مهارات التشفية وفصل العظم بدقة لتفادي هذه الفروقات.";
+    msg+="--------------------------------\n";
+    msg+="*إجمالي التسرب المالي للهدر:* "+money(totalLossSAR)+"\nيرجى مراجعة مهارات التشفية وفصل العظم بدقة لتفادي هذه الفروقات.";
     window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
   });
 
@@ -297,15 +297,15 @@ function bindVAT(){
     const taxablePurchases=pl.cogs+pl.packaging;
     const inputVAT=taxablePurchases*0.15;
     const netVAT=outputVAT-inputVAT;
-    let msg="*🧾 مسودة الإقرار الضريبي — أغنام الوادي (ZATCA)*\\n";
-    msg+="الفترة الضريبية: الربع الحالي 2026\\n";
-    msg+="--------------------------------\\n";
-    msg+="المبيعات الخاضعة للضريبة: "+money(taxableSales)+"\\n";
-    msg+="ضريبة المبيعات (المخرجات 15%): "+money(outputVAT)+"\\n";
-    msg+="المشتريات الخاضعة للضريبة: "+money(taxablePurchases)+"\\n";
-    msg+="ضريبة المشتريات (المدخلات 15%): "+money(inputVAT)+"\\n";
-    msg+="--------------------------------\\n";
-    msg+="*صافي الضريبة الواجبة السداد للهيئة:* "+money(netVAT)+"\\nيرجى مراجعة الفواتير واعتماد التقديم في بوابة زكاة وفاتورة.";
+    let msg="*🧾 مسودة الإقرار الضريبي — أغنام الوادي (ZATCA)*\n";
+    msg+="الفترة الضريبية: الربع الحالي 2026\n";
+    msg+="--------------------------------\n";
+    msg+="المبيعات الخاضعة للضريبة: "+money(taxableSales)+"\n";
+    msg+="ضريبة المبيعات (المخرجات 15%): "+money(outputVAT)+"\n";
+    msg+="المشتريات الخاضعة للضريبة: "+money(taxablePurchases)+"\n";
+    msg+="ضريبة المشتريات (المدخلات 15%): "+money(inputVAT)+"\n";
+    msg+="--------------------------------\n";
+    msg+="*صافي الضريبة الواجبة السداد للهيئة:* "+money(netVAT)+"\nيرجى مراجعة الفواتير واعتماد التقديم في بوابة زكاة وفاتورة.";
     window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
   });
 

@@ -21,9 +21,9 @@ S.kosif is the production application shell for the encrypted business dataset a
 - `ui/` — the S.kosif screens, bundled by `build.py` into `skosif.js` and `skosif.css`:
   `shell.js` (shared helpers, themes, auto-lock, updates), `jev.js`, `offers.js`,
   `inventory.js`, `supply.js`, `meatops.js`, `smartmatch.js`, `pricing-core.js`,
-  `kernel.js`, `tools.js`, `enterprise.js`, `reports.js`, `erp-plus.js`. ERP+ extends the existing inventory, cash, supplier, report, Jev and settings screens without adding floating controls. Each screen is a normal menu entry; there are no floating
+  `kernel.js`, `tools.js`, `enterprise.js`, `reports.js`, `erp-plus.js`, `operations.js`, and `capabilities-v2.js`. ERP+ extends the existing inventory, cash, supplier, report, Jev and settings screens; Capabilities v2 adds RBAC, workspace revisioning, integrity checks and optional D1 synchronization without floating controls. Each screen is a normal menu entry; there are no floating
   buttons, docks or overlay hubs.
-- Themes: the base theme system plus six full-scene visual presets (nature, playful farm, science magazine, heritage, night valley and pastel), chosen in Settings.
+- Themes: one theme system for the whole app (default «تراث الوادي» plus ten others), chosen in Settings.
 
 ## Accounting & audit
 
@@ -36,3 +36,6 @@ journal tests, agent, voice) and the standards research lab.
 `ui/audit-bridge.js` registers the screens and builds a trial balance from the
 app's sales, supplier shipments, expenses and credit customers for the
 studio's intake (the user reviews the mapping before importing).
+## Capabilities v2
+
+The port from `kosif-stable-capabilities-v2` is implemented in `capabilities-v2/worker.js`, with its D1 schema in `capabilities-v2/schema.sql`. The in-app center uses a privacy-minimized local fallback until a protected Worker URL is configured. When connected, Cloudflare Access, tenant isolation, server RBAC, optimistic workspace revisions and the append-only integrity chain are enforced by the Worker.
