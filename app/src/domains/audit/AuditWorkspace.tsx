@@ -6,6 +6,7 @@ import {analyzeJournals} from './journal-analytics';
 import {calculateMateriality} from './materiality-engine';
 import {PbcPanel} from './PbcPanel';
 import {SamplingPanel} from './SamplingPanel';
+import {IssuesPanel} from './IssuesPanel';
 import './audit-workspace.css';
 
 const JOURNAL_STORAGE_BASE='finance.journals';
@@ -62,5 +63,6 @@ export function AuditWorkspace(){
     </div>
     <PbcPanel/>
     <SamplingPanel/>
+    <IssuesPanel/>
   </section>;
 }
