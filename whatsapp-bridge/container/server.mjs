@@ -17,6 +17,8 @@ let connection = "idle";
 let qr = null;
 let me = null;
 let starting = null;
+let pairingCache = { phone: "", code: "", at: 0 };
+const PAIRING_CACHE_MS = 60_000;
 
 const json = (res, status, body) => {
   const data = Buffer.from(JSON.stringify(body));
@@ -109,9 +111,12 @@ async function startSocket() {
         qr = null;
         me = s.user || null;
         connection = "open";
+        pairingCache = { phone: "", code: "", at: 0 };
+        logger.warn({ event: "wa_open" }, "WhatsApp linked");
       }
       if (u.connection === "close") {
         const code = u.lastDisconnect?.error?.output?.statusCode;
+        logger.warn({ event: "wa_close", statusCode: code || null, error: String(u.lastDisconnect?.error?.message || "") }, "WhatsApp connection closed");
         connection = code === DisconnectReason.loggedOut ? "logged_out" : "closed";
         if (code === DisconnectReason.loggedOut) me = null;
         sock = null;
@@ -129,6 +134,16 @@ async function requestPhonePairingCode(phone) {
     e.status = 400;
     throw e;
   }
+
+  // Collapse duplicate requests for the same phone. Two GitHub workflows used to
+  // hit this endpoint at nearly the same time; the second reset invalidated the
+  // first code before the user could enter it.
+  if (
+    pairingCache.phone === digits &&
+    pairingCache.code &&
+    Date.now() - pairingCache.at < PAIRING_CACHE_MS &&
+    connection !== "open"
+  ) return pairingCache.code;
 
   // A phone-code request is an explicit relink. Start from fresh unregistered
   // credentials so stale QR/session state cannot make the pairing socket close.
@@ -157,8 +172,9 @@ async function requestPhonePairingCode(phone) {
     };
     const request = async () => {
       try {
-        const code = await s.requestPairingCode(digits);
-        finish(resolve, String(code || ""));
+        const code = String(await s.requestPairingCode(digits) || "");
+        pairingCache = { phone: digits, code, at: Date.now() };
+        finish(resolve, code);
       } catch (e) {
         finish(reject, e);
       }
