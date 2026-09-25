@@ -2,6 +2,7 @@ import {useEffect,useMemo,useState} from 'react';
 import {JsonStorageRepository} from '../../data/json-storage-repository';
 import {makeScopedKey,readActiveScope} from '../../data/scope-key';
 import {buildStockPositions,type StockMovement,type StockMovementType} from './inventory-engine';
+import {YieldPanel} from './YieldPanel';
 import './stock-workspace.css';
 
 const STORAGE_BASE='stock.movements';
@@ -61,5 +62,6 @@ export function StockWorkspace(){
         {positions.length===0?<p className="stock-empty">لا توجد حركات فعلية حتى الآن.</p>:<div className="stock-table-wrap"><table><thead><tr><th>الصنف</th><th>وارد</th><th>صادر</th><th>الرصيد</th><th>قيمة التكلفة المعروفة</th></tr></thead><tbody>{positions.map((row)=><tr key={row.itemId}><td>{row.itemId}</td><td>{row.inbound}</td><td>{row.outbound}</td><td data-negative={row.quantity<0}>{row.quantity}</td><td>{row.valueAtKnownCost.toLocaleString('en-US')}</td></tr>)}</tbody></table></div>}
       </section>
     </div>
+    <YieldPanel/>
   </section>;
 }
