@@ -61,6 +61,10 @@ jobs:
         working-directory: app
         run: npx tsc -p tsconfig.rebuild.json --noEmit
 
+      - name: Test reconstructed application contracts
+        working-directory: app
+        run: npx vitest run src/rebuild/core/capabilities.test.ts src/rebuild/services/specialist.test.ts
+
       - name: Build reconstructed application
         working-directory: app
         run: npm run build
