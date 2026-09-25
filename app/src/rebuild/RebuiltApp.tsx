@@ -4,7 +4,8 @@ import{CommandView,CatalogView,SalesView}from'./views/DailyViews';
 import{InventoryView,FinanceView}from'./views/OperationsFinanceViews';
 import{IntelligenceView,AuditView,SystemView}from'./views/AdvancedViews';
 import{migratePrivateCatalog,migrateIndexedDb}from'./data/repositories';
-import{AppErrorBoundary}from'./components/ErrorBoundary';\nimport'./styles.css';
+import{AppErrorBoundary}from'./components/ErrorBoundary';
+import'./styles.css';
 
 function routeFromHash():RouteId{
  const v=location.hash.replace(/^#/,'') as RouteId;
@@ -24,5 +25,5 @@ export default function RebuiltApp(){
   {route==='intelligence'&&<IntelligenceView/>}
   {route==='audit'&&<AuditView/>}
   {route==='system'&&<SystemView/>}
- </AppShell>
+ </AppShell></AppErrorBoundary>
 }
