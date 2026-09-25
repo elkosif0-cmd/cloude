@@ -3,7 +3,7 @@ import {JsonStorageRepository} from '../../data/json-storage-repository';
 import {makeScopedKey,readActiveScope} from '../../data/scope-key';
 import {createCustomer,inspectCustomers,type Customer} from './customers-engine';
 
-export function CustomersPanel(){
+export function CustomersPanel({onChanged}:{onChanged?:()=>void}){
   const [customers,setCustomers]=useState<Customer[]>([]);
   const [code,setCode]=useState('');
   const [name,setName]=useState('');
@@ -25,6 +25,7 @@ export function CustomersPanel(){
     }
     await repo.put(customer);
     setCustomers(await repo.list());
+    onChanged?.();
     setCode('');setName('');setPhone('');setEmail('');setCity('');
     setMessage('تم حفظ العميل.');
   }
