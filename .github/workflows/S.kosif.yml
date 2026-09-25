@@ -34,7 +34,9 @@ jobs:
 
       - name: Validate source syntax
         run: |
-          python3 -m py_compile build.py private_blocks.py tools/payload.py
+          python3 -m py_compile build.py private_blocks.py tools/payload.py tools/verify_reconstruction.py
+          python3 tools/verify_reconstruction.py
+          node tests/contract_tests.mjs
           for f in ui/*.js; do node --check "$f"; done
           node --check sw.js
           node --check capabilities-v2/worker.js
@@ -88,6 +90,11 @@ jobs:
           for marker in ["calculateUsableUnitCost","applyRoundingPolicy","calculateBoxPricing","hasCircularDependency","nrvAllocate","yieldTrial","selfTest",
                          "normalizeArabic","similarity","redact","SKIP_WAITING","data-sk-theme","zatcaTLV","code128SVG","SKosifEnterpriseV38","SKosifReports","SKosifERPPlus","SKosifOperations","SKosifCapabilitiesV2"]:
               assert marker in js, marker
+          assert "SKServices" in js, "application services layer missing"
+          for marker in ["SKosifFusion","fusion-v1","sk-command-layer","sk-fusion-command"]:
+              assert marker in js, marker
+          assert "/* ---- ui/fusion.css ---- */" in css and ".sk-fusion-nav-section" in css, "fusion css missing"
+          assert "/* ---- ui/fusion-shell.js ---- */" in js, "fusion shell build order missing"
           assert 'SK.view("capabilitiesv2"' in js, "Capabilities v2 screen missing"
           cap_worker=Path("capabilities-v2/worker.js").read_text(encoding="utf-8")
           cap_schema=Path("capabilities-v2/schema.sql").read_text(encoding="utf-8")

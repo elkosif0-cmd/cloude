@@ -219,5 +219,5 @@
     storage:Storage
   });
 
-  if(window.SK) window.SK.services=window.SKServices;
+  // window.SK is intentionally frozen by the shell; consumers use window.SKServices directly.
 })();
