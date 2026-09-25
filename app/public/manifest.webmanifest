@@ -1,0 +1,11 @@
+{
+  "name": "S.kosif Grand Fusion",
+  "short_name": "S.kosif",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f8fc",
+  "theme_color": "#1f2440",
+  "lang": "ar",
+  "dir": "rtl",
+  "description": "مساحة عمل موحدة للتشغيل والمالية والمراجعة والذكاء."
+}
