@@ -9,6 +9,7 @@ import {matchReceipt} from './procurement-engine';
 import {buildReceiptPosting,type GoodsReceiptDocument,type PurchaseDocumentLine,type PurchaseOrderDocument} from './procurement-posting-engine';
 import type {Supplier} from './suppliers-engine';
 import {SuppliersPanel} from './SuppliersPanel';
+import {ReceivingInspectionPanel} from './ReceivingInspectionPanel';
 import './procurement-workspace.css';
 
 export function ProcurementWorkspace(){
@@ -127,6 +128,7 @@ export function ProcurementWorkspace(){
     </div>
 
     <SuppliersPanel onChanged={()=>{void supplierRepo.list().then(setSuppliers);}}/>
+    <ReceivingInspectionPanel/>
 
     <div className="procurement-grid">
       <section className="sk-surface procurement-form">
