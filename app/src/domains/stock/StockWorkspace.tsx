@@ -7,6 +7,7 @@ import {TraceabilityPanel} from './TraceabilityPanel';
 import {MeatOperationsPanel} from './MeatOperationsPanel';
 import {ProductionToolsPanel} from './ProductionToolsPanel';
 import {NrvPanel} from './NrvPanel';
+import {WorkspaceSectionNav,WorkspaceSectionPage} from '../../shell/WorkspaceSectionNav';
 import './stock-workspace.css';
 
 const STORAGE_BASE='stock.movements';
@@ -18,6 +19,7 @@ export function StockWorkspace(){
   const [quantity,setQuantity]=useState('');
   const [unitCost,setUnitCost]=useState('');
   const [message,setMessage]=useState('');
+  const [section,setSection]=useState('inventory');
 
   const storageKey=useMemo(()=>makeScopedKey(STORAGE_BASE,readActiveScope(window.localStorage)),[]);
   const repo=useMemo(()=>new JsonStorageRepository<StockMovement & {id:string}>(window.localStorage,storageKey),[storageKey]);
@@ -45,7 +47,13 @@ export function StockWorkspace(){
   }
 
   return <section className="stock-workspace">
-    <div className="stock-kpis">
+    <WorkspaceSectionNav active={section} onChange={setSection} items={[
+      {id:'inventory',label:'المخزون',badge:positions.length},
+      {id:'yield',label:'العائد وNRV'},
+      {id:'traceability',label:'التتبع والتبريد'},
+      {id:'production',label:'الإنتاج والتشفية'},
+    ]}/>
+    <WorkspaceSectionPage id="inventory" active={section}><div className="stock-kpis">
       <article className="sk-surface"><span>عدد الأصناف</span><strong className="sk-number">{positions.length}</strong></article>
       <article className="sk-surface"><span>إجمالي الوحدات المتاحة</span><strong className="sk-number">{positions.reduce((s,x)=>s+x.quantity,0).toLocaleString('en-US')}</strong></article>
       <article className="sk-surface"><span>أرصدة سالبة</span><strong className="sk-number">{positions.filter((x)=>x.quantity<0).length}</strong></article>
@@ -65,11 +73,9 @@ export function StockWorkspace(){
         <span className="eyebrow">الأرصدة</span><h3>المخزون حسب الصنف</h3>
         {positions.length===0?<p className="stock-empty">لا توجد حركات فعلية حتى الآن.</p>:<div className="stock-table-wrap"><table><thead><tr><th>الصنف</th><th>وارد</th><th>صادر</th><th>الرصيد</th><th>قيمة التكلفة المعروفة</th></tr></thead><tbody>{positions.map((row)=><tr key={row.itemId}><td>{row.itemId}</td><td>{row.inbound}</td><td>{row.outbound}</td><td data-negative={row.quantity<0}>{row.quantity}</td><td>{row.valueAtKnownCost.toLocaleString('en-US')}</td></tr>)}</tbody></table></div>}
       </section>
-    </div>
-    <YieldPanel/>
-    <TraceabilityPanel/>
-    <MeatOperationsPanel/>
-    <ProductionToolsPanel/>
-    <NrvPanel/>
+    </div></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="yield" active={section}><YieldPanel/><NrvPanel/></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="traceability" active={section}><TraceabilityPanel/></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="production" active={section}><MeatOperationsPanel/><ProductionToolsPanel/></WorkspaceSectionPage>
   </section>;
 }
