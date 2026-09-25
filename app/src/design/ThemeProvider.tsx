@@ -2,10 +2,19 @@ import {createContext,useContext,useEffect,useMemo,useState,type PropsWithChildr
 import {THEMES} from './themes';
 import type {ThemeId} from './theme-contract';
 
-const ThemeContext=createContext<{theme:ThemeId;setTheme:(id:ThemeId)=>void}>({theme:'aghnam-executive-light',setTheme:()=>{}});
+const THEME_KEY='skosif.v1.ui.theme';
+const DEFAULT_THEME:ThemeId='aghnam-executive-light';
+
+function initialTheme():ThemeId{
+  if(typeof window==='undefined')return DEFAULT_THEME;
+  const saved=window.localStorage.getItem(THEME_KEY);
+  return saved && saved in THEMES ? saved as ThemeId : DEFAULT_THEME;
+}
+
+const ThemeContext=createContext<{theme:ThemeId;setTheme:(id:ThemeId)=>void}>({theme:DEFAULT_THEME,setTheme:()=>{}});
 
 export function ThemeProvider({children}:PropsWithChildren){
-  const [theme,setTheme]=useState<ThemeId>('aghnam-executive-light');
+  const [theme,setTheme]=useState<ThemeId>(initialTheme);
   useEffect(()=>{
     const t=THEMES[theme];
     const root=document.documentElement;
@@ -24,6 +33,7 @@ export function ThemeProvider({children}:PropsWithChildren){
     root.style.setProperty('--shadow-card',t.shadow.card);
     root.style.setProperty('--motion-duration',t.motion.duration);
     root.style.setProperty('--motion-easing',t.motion.easing);
+    window.localStorage.setItem(THEME_KEY,theme);
   },[theme]);
   const value=useMemo(()=>({theme,setTheme}),[theme]);
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
