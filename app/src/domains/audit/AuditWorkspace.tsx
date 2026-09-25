@@ -8,6 +8,7 @@ import {PbcPanel} from './PbcPanel';
 import {SamplingPanel} from './SamplingPanel';
 import {IssuesPanel} from './IssuesPanel';
 import {PlanningPanel} from './PlanningPanel';
+import {EvidencePanel} from './EvidencePanel';
 import './audit-workspace.css';
 
 const JOURNAL_STORAGE_BASE='finance.journals';
@@ -64,6 +65,7 @@ export function AuditWorkspace(){
     </div>
     <PlanningPanel/>
     <PbcPanel/>
+    <EvidencePanel/>
     <SamplingPanel/>
     <IssuesPanel/>
   </section>;
