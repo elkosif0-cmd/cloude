@@ -1,6 +1,6 @@
 import type {RawItem,BoxItem,ExpenseItem} from '../../types/pricing';
 import type {AppSettings} from '../../types/settings';
-import type {Customer,Order} from '../../types/commerce';
+import type {Customer,Order,SalesLine,OrderItem,Payment,SalesDescription} from '../../types/commerce';
 import type {AuditLogEntry} from '../../types/audit';
 import {privateCatalog} from './bootstrap';
 import {appEvents} from '../core/events';
@@ -11,7 +11,7 @@ const write=(k:string,v:unknown)=>localStorage.setItem(k,JSON.stringify(v));
 
 const KEYS={
  settings:'aghn_settings_v19',raws:'aghn_raws_v19',boxes:'aghn_boxes_v19',expenses:'aghn_expenses_v19',
- audit:'aghn_audit_v19',customers:'aghn_customers_v19',orders:'aghn_orders_v19',
+ audit:'aghn_audit_v19',customers:'aghn_customers_v19',orders:'aghn_orders_v19',\n salesLines:'skosif_rebuild_sales_lines_v1',salesDescriptions:'skosif_rebuild_sales_descriptions_v1',orderItems:'skosif_rebuild_order_items_v1',payments:'skosif_rebuild_payments_v1',
  inventory:'skosif_erp_inventory_v1',expiry:'skosif_inv_expiry_batches',supplierBatches:'skosif_v31_supplier_batches',
  finance:'skosif_erp_finance_v1',income:'skosif_income_statements_v1',payables:'skosif_erp_payables_v1',
  jev:'aghnam_v29_jev_log',migration:'skosif_rebuild_migration_v1',
@@ -40,7 +40,7 @@ export const repos={
  expenses:()=>catalogCollection<ExpenseItem>(KEYS.expenses,privateCatalog().expenses),
  audit:()=>read<AuditLogEntry[]>(KEYS.audit,[]),
  customers:()=>read<Customer[]>(KEYS.customers,[]),
- orders:()=>read<Order[]>(KEYS.orders,[]),
+ orders:()=>read<Order[]>(KEYS.orders,[]),\n salesLines:()=>read<SalesLine[]>(KEYS.salesLines,[]),\n salesDescriptions:()=>read<SalesDescription[]>(KEYS.salesDescriptions,[]),\n orderItems:()=>read<OrderItem[]>(KEYS.orderItems,[]),\n payments:()=>read<Payment[]>(KEYS.payments,[]),
  inventory:()=>read<InventoryState>(KEYS.inventory,{stock:{},reorder:{},moves:[],counts:[]}),
  expiry:()=>read<any[]>(KEYS.expiry,[]),
  supplierBatches:()=>read<any[]>(KEYS.supplierBatches,[]),
@@ -68,7 +68,7 @@ export const repos={
  saveIncomeStatements(v:any[]){write(KEYS.income,v);appEvents.emit('income_statement.saved')},
  savePayables(v:{rows:any[]}){write(KEYS.payables,v);appEvents.emit('payables.changed')},
  saveCustomers(v:Customer[]){write(KEYS.customers,v);appEvents.emit('customer.changed')},
- saveOrders(v:Order[]){write(KEYS.orders,v);appEvents.emit('order.changed')},
+ saveOrders(v:Order[]){write(KEYS.orders,v);appEvents.emit('order.changed')},\n saveSalesLines(v:SalesLine[]){write(KEYS.salesLines,v);appEvents.emit('sales.changed')},\n saveSalesDescriptions(v:SalesDescription[]){write(KEYS.salesDescriptions,v);appEvents.emit('sales.changed')},\n saveOrderItems(v:OrderItem[]){write(KEYS.orderItems,v);appEvents.emit('order.changed')},\n savePayments(v:Payment[]){write(KEYS.payments,v);appEvents.emit('payment.changed')},
  saveAudit(v:AuditLogEntry[]){write(KEYS.audit,v);appEvents.emit('audit.changed')},
  saveTraceBatches(v:any[]){write(KEYS.trace,v);appEvents.emit('trace.changed')},
  saveColdChain(v:any[]){write(KEYS.cold,v);appEvents.emit('cold.changed')},
@@ -106,17 +106,25 @@ export async function readIdbStore(dbNames:string[],store:string):Promise<any[]>
  return[];
 }
 
-export async function migrateIndexedDb():Promise<{customers:number;salesLines:number;orders:number;warnings:string[]}>{
+export async function migrateIndexedDb():Promise<{customers:number;salesLines:number;salesDescriptions:number;orders:number;orderItems:number;payments:number;warnings:string[]}>{
  const dbNames=['AghnamAlWadiDB_v19','aghnam-app-v7'],warnings:string[]=[];
- const customers=await readIdbStore(dbNames,'customers'),orders=await readIdbStore(dbNames,'orders'),sales=await readIdbStore(dbNames,'sales_lines');
- if(!has(KEYS.customers)&&customers.length){repos.saveCustomers(customers as Customer[])}
- if(!has(KEYS.orders)&&orders.length){repos.saveOrders(orders as Order[])}
+ const [customers,orders,sales,salesDescriptions,orderItems,payments]=await Promise.all([
+  readIdbStore(dbNames,'customers'),readIdbStore(dbNames,'orders'),readIdbStore(dbNames,'sales_lines'),
+  readIdbStore(dbNames,'sales_descriptions'),readIdbStore(dbNames,'order_items'),readIdbStore(dbNames,'payments')
+ ]);
+ if(!has(KEYS.customers)&&customers.length)repos.saveCustomers(customers as Customer[]);
+ if(!has(KEYS.orders)&&orders.length)repos.saveOrders(orders as Order[]);
+ if(!has(KEYS.salesLines)&&sales.length)repos.saveSalesLines(sales as SalesLine[]);
+ if(!has(KEYS.salesDescriptions)&&salesDescriptions.length)repos.saveSalesDescriptions(salesDescriptions as SalesDescription[]);
+ if(!has(KEYS.orderItems)&&orderItems.length)repos.saveOrderItems(orderItems as OrderItem[]);
+ if(!has(KEYS.payments)&&payments.length)repos.savePayments(payments as Payment[]);
  if(!sales.length)warnings.push('لا توجد أسطر مبيعات في قواعد IndexedDB المعروفة.');
- const prior=repos.migration()||{};write(KEYS.migration,{...prior,indexedDb:{at:new Date().toISOString(),customers:customers.length,orders:orders.length,salesLines:sales.length,warnings}});
- return{customers:customers.length,salesLines:sales.length,orders:orders.length,warnings};
+ const counts={customers:customers.length,salesLines:sales.length,salesDescriptions:salesDescriptions.length,orders:orders.length,orderItems:orderItems.length,payments:payments.length};
+ const prior=repos.migration()||{};write(KEYS.migration,{...prior,indexedDb:{at:new Date().toISOString(),...counts,warnings}});
+ return{...counts,warnings};
 }
 
 export function exportLocalSnapshot(){
- const data:Record<string,unknown>={};for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(!key)continue;if(key.startsWith('aghn')||key.startsWith('skosif')||key.startsWith('s_kosif')){try{data[key]=JSON.parse(localStorage.getItem(key)||'null')}catch{data[key]=localStorage.getItem(key)}}}
+ const data:Record<string,unknown>={};for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(!key)continue;if(key.startsWith('aghn')||key.startsWith('skosif')||key.startsWith('s_kosif')||key.startsWith('kosif')){try{data[key]=JSON.parse(localStorage.getItem(key)||'null')}catch{data[key]=localStorage.getItem(key)}}}
  return{app:'S.kosif',schema:'zero-ui-rebuild-v1',exportedAt:new Date().toISOString(),data};
 }
