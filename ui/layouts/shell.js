@@ -11,26 +11,30 @@ const PREF_KEY="skosif_prefs";
 const ADV_NOTE="الأدوات المتقدمة ظاهرة داخل كل مجال — أخفها من «التشغيل اليومي».";
 
 /* ---------- preferences: theme (look) + density ----------
-   look: heritage (default) | heritage-night | executive | audit | midnight | notebook | auto (heritage by day / night by device) */
+   look: kosif (default, the adopted KOSIF identity) | kosif-night | heritage | heritage-night | executive | audit | midnight | notebook | auto */
 const LOOKS=[
+  ["kosif","KOSIF","الهوية المعتمدة: شريط كحلي وأزرق KOSIF وبطاقات بيضاء وحلقات تقدّم",["#f3f6fb","#0c2340","#1668e3","#1fb6e0"]],
+  ["kosif-night","KOSIF الليلي","نفس الهوية بإضاءة ليلية",["#0a1628","#071427","#4a93ff","#3fd0f0"]],
   ["heritage","تراث الوادي","الهوية الافتراضية: رَقّ وحبر بني ورسوم الوادي",["#f4ead8","#8a5a2b","#efe2cc","#2b1a0f"]],
   ["heritage-night","ليل الوادي","نفس الهوية بإضاءة ليلية",["#16110c","#d09a5e","#201811","#f4ead8"]],
   ["executive","التنفيذي","مساحة فاتحة، بنفسجي وأزرق، أرقام قوية",["#f5f6fb","#5b4ee6","#3d7bf5","#1d2340"]],
   ["audit","المراجعة الاحترافية","كثيف ورصين للجداول والأدلة",["#f3f4f6","#1f3b68","#172235","#161b26"]],
   ["midnight","ليل التحليل","داكن للوحات والجلسات الطويلة",["#0d1117","#7c8cff","#4fd1c5","#e8edf5"]],
   ["notebook","الدفتر","ورق مسطّر وعناوين بخط اليد",["#f7f3e8","#2c5aa0","#c0392b","#23252b"]],
-  ["auto","حسب الجهاز","تراث الوادي نهاراً وليل الوادي ليلاً",["#f4ead8","#8a5a2b","#16110c","#d09a5e"]]];
-const DARK=new Set(["heritage-night","midnight"]);
-function prefs(){return Object.assign({look:"heritage",density:"cozy",lastLight:"heritage"},load(PREF_KEY,{}))}
+  ["auto","حسب الجهاز","KOSIF نهاراً وKOSIF الليلي ليلاً",["#f3f6fb","#1668e3","#0a1628","#3fd0f0"]]];
+const DARK=new Set(["kosif-night","heritage-night","midnight"]);
+const NIGHT={kosif:"kosif-night",heritage:"heritage-night"};
+function prefs(){return Object.assign({look:"kosif",density:"cozy",lastLight:"kosif"},load(PREF_KEY,{}))}
 function migrate(){
   const p=load(PREF_KEY,null);
-  if(p&&p.migrated&&p.look)return;
-  const out=Object.assign({look:"heritage",density:"cozy",migrated:1},p||{});
+  /* v2: the KOSIF identity replaces «تراث الوادي» as the default; a deliberately chosen other theme is kept */
+  if(p&&p.migrated&&p.look){if(!p.kosif){if(p.look==="heritage")p.look="kosif";else if(p.look==="heritage-night")p.look="kosif-night";if(p.lastLight==="heritage")p.lastLight="kosif";p.kosif=1;save(PREF_KEY,p)}return}
+  const out=Object.assign({look:"kosif",density:"cozy",migrated:1,kosif:1},p||{});
   try{
-    if(!out.look||out.appearance){out.look=out.appearance==="dark"?"heritage-night":out.appearance==="auto"?"auto":"heritage";delete out.appearance}
+    if(!out.look||out.appearance){out.look=out.appearance==="dark"?"kosif-night":out.appearance==="auto"?"auto":"kosif";delete out.appearance}
     if(!p){
       const oldTheme=load("skosif_theme",""),dark=["royal","notte","cyber"].includes(oldTheme),v12=localStorage.getItem("aghnam-v12-theme");
-      out.look=dark||(!oldTheme&&v12==="dark")?"heritage-night":"heritage";
+      out.look=dark||(!oldTheme&&v12==="dark")?"kosif-night":"kosif";
       if(localStorage.getItem("aghnam-v21-density")==="compact")out.density="compact";
     }
     ["skosif_theme","skosif_theme_dark","skosif_theme_light","aghnam-v21-accent","aghnam-v21-density","aghnam-v21-tour","aghnam-v21-whatsnew","aghnam-v21-ux-v1","aghnam-v203-magic-v1"].forEach(k=>localStorage.removeItem(k));
@@ -38,7 +42,7 @@ function migrate(){
   save(PREF_KEY,out);
 }
 const mq=matchMedia("(prefers-color-scheme: dark)");
-function lookNow(){const l=prefs().look;return l==="auto"?(mq.matches?"heritage-night":"heritage"):(LOOKS.some(x=>x[0]===l)?l:"heritage")}
+function lookNow(){const l=prefs().look;return l==="auto"?(mq.matches?"kosif-night":"kosif"):(LOOKS.some(x=>x[0]===l)?l:"kosif")}
 function resolved(){return DARK.has(lookNow())?"dark":"light"}
 function fonts(look){
   if(look.startsWith("heritage")||document.getElementById("sk-font-plex"))return;
@@ -47,7 +51,7 @@ function fonts(look){
 }
 function applyPrefs(){
   const de=document.documentElement,look=lookNow(),mode=resolved(),p=prefs();
-  de.setAttribute("data-look",look==="heritage-night"?"heritage":look);
+  de.setAttribute("data-look",look.replace(/-night$/,""));
   de.setAttribute("data-theme",mode);de.setAttribute("data-density",p.density==="compact"?"compact":"cozy");
   fonts(look);
   try{localStorage.setItem("aghnam-v12-theme",mode)}catch{}
@@ -55,10 +59,10 @@ function applyPrefs(){
   $$('meta[name="theme-color"]').forEach(m=>m.setAttribute("content",bar));
 }
 function setPref(k,v){const p=prefs();p[k]=v;save(PREF_KEY,p);applyPrefs()}
-function setLook(l){const p=prefs();if(!LOOKS.some(x=>x[0]===l))l="heritage";p.look=l;if(!DARK.has(l)&&l!=="auto")p.lastLight=l;save(PREF_KEY,p);applyPrefs();SK.toast("المظهر: "+LOOKS.find(x=>x[0]===l)[1],"info")}
+function setLook(l){const p=prefs();if(!LOOKS.some(x=>x[0]===l))l="kosif";p.look=l;if(!DARK.has(l)&&l!=="auto")p.lastLight=l;save(PREF_KEY,p);applyPrefs();SK.toast("المظهر: "+LOOKS.find(x=>x[0]===l)[1],"info")}
 /* the topbar moon button: light look ↔ its night counterpart */
-function toggleAppearance(){const cur=lookNow(),p=prefs();if(DARK.has(cur))setLook(p.lastLight||"heritage");else setLook(cur==="heritage"?"heritage-night":"midnight")}
-const setAppearance=a=>setLook(a==="dark"?"heritage-night":a==="auto"?"auto":"heritage");
+function toggleAppearance(){const cur=lookNow(),p=prefs();if(DARK.has(cur))setLook(p.lastLight||"kosif");else setLook(NIGHT[cur]||"midnight")}
+const setAppearance=a=>setLook(a==="dark"?"kosif-night":a==="auto"?"auto":"kosif");
 mq.addEventListener&&mq.addEventListener("change",()=>{if(prefs().look==="auto")applyPrefs()});
 migrate();applyPrefs();
 
@@ -103,7 +107,21 @@ function paintTop(){
   document.title=(cap?cap.label:(t&&t.textContent)||"")+" · S.kosif";
   const rail=$("#rail");document.body.classList.toggle("skn-locked",!!(rail&&rail.classList.contains("open"))&&innerWidth<=900);
 }
-function paint(){paintNav();paintTop()}
+/* phones: bottom tab bar (KOSIF design) — in the page flow (sticky), never over content */
+const TABS=[["dash","الرئيسية"],["commerce","الطلبات"],["tasks","المهام"],["inventory","المخزون"]];
+function paintTabs(){
+  const c=core(),host=$(".maincol");if(!c||!host)return;
+  let bar=$("#skb");
+  if(!bar){
+    bar=document.createElement("nav");bar.id="skb";bar.className="skb";bar.setAttribute("aria-label","تنقل سريع");host.appendChild(bar);
+    bar.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.more)c.act("rail-open");else c.go(b.dataset.v)});
+  }
+  const cur=c.view(),cap=SK.caps.get(cur),tabs=TABS.filter(([id])=>SK.caps.get(id)&&SK.perm.can(id));
+  const html=tabs.map(([id,l])=>'<button type="button" data-v="'+id+'"'+(id===cur?' aria-current="page"':'')+'>'+(SK.icons[id]||c.navIcon(id)||"")+(c.navBadge(id)||"")+'<span>'+esc(l)+'</span></button>').join("")+
+    '<button type="button" data-more="1"'+(tabs.some(([id])=>id===cur)?'':' aria-current="page"')+'><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg><span>'+(cap&&!tabs.some(([id])=>id===cur)?esc(cap.label):"المزيد")+'</span></button>';
+  if(bar.innerHTML!==html)bar.innerHTML=html;
+}
+function paint(){paintNav();paintTop();paintTabs()}
 
 /* ---------- permission gate: a screen outside the role shows the no-permission state ---------- */
 function gate(){

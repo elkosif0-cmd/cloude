@@ -3,47 +3,50 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#efe2cc">
-<title>S.kosif — دخول آمن</title>
-<link rel="icon" type="image/svg+xml" href="./art/ram.svg">
+<meta name="theme-color" content="#0c2340">
+<title>KOSIF — دخول آمن</title>
+<link rel="icon" type="image/svg+xml" href="./art/kosif-cloud.svg">
 <link rel="icon" type="image/png" href="./icon-192.png">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Outfit:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap');
 *{box-sizing:border-box}
-html,body{margin:0;min-height:100%;font-family:'Outfit',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Naskh Arabic",sans-serif;background:#f4ead8;color:#2b1a0f;-webkit-font-smoothing:antialiased}
-body{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at top,#fbf3e4 0%,#f4ead8 60%,#efe0c4 100%)}
-.card{width:min(460px,100%);background:#fbf5ea;border:1px solid #e3d3b8;border-radius:28px;padding:36px 28px;box-shadow:0 24px 70px rgba(30,32,29,.09);text-align:center;position:relative;overflow:hidden}
-.card::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#8a5a2b,#b8864e,#8a5a2b)}
-.logo-wrap{position:relative;display:inline-block;margin-bottom:6px}
-.logo{width:88px;height:88px;border-radius:24px;object-fit:cover;box-shadow:0 12px 32px rgba(36,76,55,.18);border:2px solid #FAF8F5}
-.brand-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#8c735a;margin-top:10px}
-h1{font-family:'Amiri',"Noto Naskh Arabic",serif;font-size:32px;margin:4px 0 6px;color:#1E201D;letter-spacing:-0.01em}
-.sub{font-size:14px;color:#5E645A;line-height:1.75;margin:0 0 24px}
+html,body{margin:0;min-height:100%;font-family:'IBM Plex Sans Arabic',-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,sans-serif;color:#0f1f35;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at top,#16406e 0%,#0c2340 55%,#071427 100%)}
+.card{width:min(440px,100%);background:#fff;border:1px solid #e5eaf2;border-radius:24px;padding:36px 28px 28px;box-shadow:0 30px 80px -20px rgba(0,0,0,.5);text-align:center;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#1fb6e0,#1668e3 60%,#0c2340)}
+.logo-wrap{position:relative;display:inline-flex;flex-direction:column;align-items:center;margin-bottom:6px}
+.logo{width:96px;height:64px;object-fit:contain}
+.brand-tag{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.06em;color:#7a8aa2;margin-top:6px}
+h1{font-family:"Segoe UI",system-ui,sans-serif;font-weight:800;font-size:34px;margin:2px 0 6px;color:#0c2340;letter-spacing:.01em}
+.sub{font-size:14px;color:#45566e;line-height:1.75;margin:0 0 22px}
 .field{position:relative}
-.field input{width:100%;height:54px;border:1px solid #e3d3b8;border-radius:16px;padding:0 18px 0 54px;font-size:16.5px;outline:none;background:#f4ead8;color:#2b1a0f;transition:all .2s ease}
+.field input{width:100%;height:52px;border:1px solid #d5dde9;border-radius:14px;padding:0 18px 0 54px;font:inherit;font-size:16.5px;outline:none;background:#f7f9fc;color:#0f1f35;transition:all .2s ease}
 [dir="rtl"] .field input{padding:0 54px 0 18px}
-.field input:focus{border-color:#8a5a2b;background:#fbf5ea;box-shadow:0 0 0 4px rgba(138,90,43,.14)}
-.eye{position:absolute;inset-inline-end:10px;top:7px;width:40px;height:40px;border:0;background:transparent;font-size:18px;color:#767B73;cursor:pointer;display:grid;place-items:center}
-button.submit{width:100%;height:52px;border:0;border-radius:16px;margin-top:16px;background:#8a5a2b;color:#FFFFFF;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(138,90,43,.28);transition:all .2s ease}
-button.submit:hover:not(:disabled){background:#6f4721;transform:translateY(-1px);box-shadow:0 8px 24px rgba(138,90,43,.34)}
+.field input:focus{border-color:#1668e3;background:#fff;box-shadow:0 0 0 4px rgba(22,104,227,.14)}
+.eye{position:absolute;inset-inline-end:8px;top:6px;width:40px;height:40px;border:0;background:transparent;color:#7a8aa2;cursor:pointer;display:grid;place-items:center}
+.eye svg{width:20px;height:20px}
+button.submit{width:100%;height:52px;border:0;border-radius:14px;margin-top:16px;background:#1668e3;color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 10px 24px -10px rgba(22,104,227,.7);transition:all .2s ease}
+button.submit:hover:not(:disabled){background:#0f57c4;transform:translateY(-1px)}
 button.submit:disabled{opacity:.65;cursor:default}
-.msg{min-height:24px;margin:12px 0 0;font-size:13.5px;color:#A82A2A;font-weight:600}
-.progress{font-size:13px;color:#767B73;margin-top:8px}
-.badge{display:inline-flex;gap:7px;align-items:center;margin-top:20px;padding:8px 14px;border-radius:999px;background:#f3dfbd;color:#6f4721;font-size:12px;font-weight:600}
+.msg{min-height:24px;margin:12px 0 0;font-size:13.5px;color:#d0342c;font-weight:600}
+.progress{font-size:13px;color:#7a8aa2;margin-top:8px}
+.badge{display:inline-flex;gap:7px;align-items:center;margin-top:18px;padding:8px 14px;border-radius:999px;background:#e8f1fe;color:#1668e3;font-size:12px;font-weight:600}
+.badge svg{width:15px;height:15px}
+.slogan{margin-top:14px;font-size:12px;color:#7a8aa2}
 </style>
 </head>
 <body>
 <main class="card">
-<div class="logo-wrap"><img class="logo" src="./art/ram.svg" alt="أغنام الوادي"><br><span class="brand-tag">أغنام الوادي · S.kosif</span></div>
-<h1>S.kosif</h1>
+<div class="logo-wrap"><img class="logo" src="./art/kosif-cloud.svg" alt="KOSIF"><span class="brand-tag">أغنام الوادي · S.kosif</span></div>
+<h1>KOSIF</h1>
 <p class="sub">منصة العمليات والتسعير والمختارات الفاخرة. أدخل كلمة المرور المشفرة لفتح التطبيق.</p>
 <form id="f">
-<div class="field"><input id="p" type="password" autocomplete="current-password" placeholder="كلمة المرور الآمنة" required autofocus><button class="eye" id="eye" type="button" aria-label="إظهار كلمة المرور">◉</button></div>
+<div class="field"><input id="p" type="password" autocomplete="current-password" placeholder="كلمة المرور الآمنة" required autofocus><button class="eye" id="eye" type="button" aria-label="إظهار كلمة المرور"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
 <button class="submit" id="go" type="submit">دخول آمن للمنصة</button>
 </form>
 <div class="msg" id="msg"></div><div class="progress" id="progress"></div>
-<div class="badge">🔐 تشفير متقدم بنظام ChaCha20 و PBKDF2</div>
+<div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>تشفير متقدم بنظام ChaCha20 و PBKDF2</div><div class="slogan">مراجعة أذكى. ثقة أكبر.</div>
 </main>
 <script>
 const $=id=>document.getElementById(id);

@@ -1,10 +1,12 @@
-# DESIGN SYSTEM — «تراث الوادي» + five themes
+# DESIGN SYSTEM — «KOSIF» (default) + six themes
 
-One design system, one token architecture, six complete themes chosen in Settings (and the moon button toggles a theme with its night counterpart):
+One design system, one token architecture, eight complete themes chosen in Settings (and the moon button toggles a theme with its night counterpart):
 
 | Theme | `html[data-look]` | Mode | Character |
 |---|---|---|---|
-| تراث الوادي (default) | `heritage` | light | parchment, brown ink, valley art, Amiri / Aref Ruqaa |
+| KOSIF (default) | `kosif` | light | the adopted product identity from the Canva KOSIF mockups: navy rail with the cloud mark and a sky card, white cards with soft shadows, KOSIF blue `#1668e3` + cloud cyan `#1fb6e0`, pill tabs, status pills, progress rings, bottom tab bar on phones, IBM Plex Sans Arabic |
+| KOSIF الليلي | `kosif` + `data-theme=dark` | dark | same identity at night |
+| تراث الوادي | `heritage` | light | parchment, brown ink, valley art, Amiri / Aref Ruqaa |
 | ليل الوادي | `heritage` + `data-theme=dark` | dark | same identity at night |
 | التنفيذي | `executive` | light | bright workspace, purple/blue accents, strong KPIs (from the Aghnam sales-dashboard reference) |
 | المراجعة الاحترافية | `audit` | light | dense tables, navy rail, small radii |
@@ -65,3 +67,19 @@ Jev chose this work item first (brand assets 0.84 over print templates 0.15) and
 | Guidelines | Brand-guidelines deck in Canva (design `DAHWPRxTgOM`). |
 
 Jev consistency score after the pass: 2.55 / 3 (0.56 «fully unified»). Remaining exception: the core view templates inside the payload (phase 11 of the rebuild plan).
+
+## KOSIF identity (adopted design)
+
+Source: the KOSIF app mockups in Canva (dashboard, trial balance, PBC, risks, mobile). Recreated as tokens and CSS, not images.
+
+| Element | Implementation |
+|---|---|
+| Cloud mark | `ui/art/kosif-cloud.svg` (rail, lock screen, favicon); app icon `ui/art/kosif-icon.svg` → `icon-192/512`, `apple-touch-icon` |
+| Rail | navy gradient `#0c2340`, «KOSIF» wordmark + business name + "Audit. Assure. Comply.", active item with cyan edge, sky card «مراجعة أذكى. ثقة أكبر.» (`ui/art/kosif-sky.svg`) |
+| Tabs | domain bar and period filters as pills; active = filled KOSIF blue |
+| KPI | white tiles; a share (e.g. box margin vs. target) is drawn as a progress ring |
+| Phones | sticky bottom tab bar: الرئيسية · الطلبات · المهام · المخزون · المزيد (opens the drawer) |
+| Lock screen | navy background, white card, cloud mark, blue button |
+| Print | same letterhead, KOSIF palette (gradient rule, blue double line); business emblem kept for invoices |
+
+Existing users whose theme was the old default («تراث الوادي») move to KOSIF once; any other theme they picked is kept.

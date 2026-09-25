@@ -12,7 +12,9 @@ const fmt=v=>new Intl.NumberFormat("ar-SA-u-nu-latn",{maximumFractionDigits:1}).
 function greeting(){const h=new Date().getHours();return h<12?"صباح الخير":h<18?"مساء الخير":"مساء النور"}
 function kpis(){
   const out=[],st=core().stats();
-  if(st.boxes)out.push({l:"متوسط هامش البوكسات",v:isFinite(st.avgMargin)?fmt(st.avgMargin*100)+"٪":"—",c:isFinite(st.avgMargin)&&st.avgMargin*100<st.target?"warn":"ok"});
+  const tgt=st.target>1?st.target:st.target*100; /* target may be stored as 25 or 0.25 */
+  if(st.boxes)out.push({l:"متوسط هامش البوكسات",v:isFinite(st.avgMargin)?fmt(st.avgMargin*100)+"٪":"—",c:isFinite(st.avgMargin)&&st.avgMargin*100<tgt?"warn":"ok",
+    p:isFinite(st.avgMargin)&&tgt>0?Math.max(0,Math.min(100,st.avgMargin*100/tgt*100)):null,pl:"من هدف "+fmt(tgt)+"٪"});
   out.push({l:"أصناف تُباع بخسارة",v:fmt(st.loss),c:st.loss?"bad":"ok"});
   out.push({l:"تحت الهامش المستهدف",v:fmt(st.below),c:st.below?"warn":""});
   if(st.pendingMemos||st.memoItems)out.push({l:"اعتمادات معلّقة",v:fmt(st.pendingMemos+(st.memoItems?1:0)),c:"warn"});
@@ -41,6 +43,12 @@ function inbox(){
   if(!list.length)return '<div class="skc-ok">'+SK.icons.check+'<span>لا شيء يحتاج قراراً الآن — كل المؤشرات ضمن الحدود.</span></div>';
   return '<div class="skc-list">'+list.slice(0,8).map(x=>'<button type="button" class="skc-row" data-go="'+esc(x.view||"decision")+'"><span class="sev '+esc(x.sev||"info")+'"></span><span class="tx"><b>'+esc(x.title||"")+'</b><small>'+esc(x.detail||"")+'</small></span><span class="go">فتح ›</span></button>').join("")+'</div>';
 }
+/* a KPI tile; with a share (p, 0–100) it carries a progress ring, as in the KOSIF design */
+function kpi(x){
+  const ring=x.p!=null&&isFinite(x.p);
+  return '<div class="skc-kpi '+x.c+(ring?' ring':'')+'"><span>'+esc(x.l)+'</span><b>'+esc(x.v)+'</b>'+
+    (ring?'<span class="rg" style="--p:'+Math.round(x.p)+'" role="img" aria-label="'+Math.round(x.p)+'٪ '+esc(x.pl||"")+'"><i>'+Math.round(x.p)+'%</i></span>':'')+'</div>';
+}
 function render(root){
   if(!root||!core())return;
   const old=root.querySelector(":scope > .skc");if(old)old.remove();
@@ -54,7 +62,7 @@ function render(root){
       '<div class="skc-date"><b>'+esc(day)+'</b><span>'+esc(greg)+'</span><small class="hint">'+esc(hijri)+'</small></div></div>'+
     '<div class="skc-grid">'+
       '<div class="skc-card"><h3>ما يحتاج قراراً الآن<small>من قواعد التطبيق وبياناتك</small></h3>'+inbox()+'</div>'+
-      '<div class="skc-card"><h3>مؤشرات اليوم<small>من السجلات المحفوظة فقط</small></h3><div class="skc-kpis">'+k.map(x=>'<div class="skc-kpi '+x.c+'"><span>'+esc(x.l)+'</span><b>'+esc(x.v)+'</b></div>').join("")+'</div></div>'+
+      '<div class="skc-card"><h3>مؤشرات اليوم<small>من السجلات المحفوظة فقط</small></h3><div class="skc-kpis">'+k.map(kpi).join("")+'</div></div>'+
     '</div>'+
     (launch.length?'<div class="skc-card"><h3>ابدأ عملاً</h3><div class="skc-launch">'+launch.map(([id,l])=>'<button type="button" data-go="'+id+'">'+SK.icon(id)+'<span>'+esc(l)+'</span></button>').join("")+'</div></div>':'')+
   '</section>';
