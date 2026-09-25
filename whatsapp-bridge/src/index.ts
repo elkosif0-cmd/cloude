@@ -116,7 +116,8 @@ export class WaBridge extends Container<Env> {
     }
     const kept = (prior?.results ?? []).filter((r) => r.ok);
     const done = new Set(kept.map((r) => r.index));
-    const pending = items.map((it, index) => ({ ...it, index })).filter((it) => !done.has(it.index));
+    const pending = items.map((item, index) => ({ item, index })).filter((x) => !done.has(x.index));
+    if (!pending.length) return { status: 200, body: { sent: true, duplicate: true, to: prior?.to ?? to, results: kept } };
     if (key) await this.putJob(key, { state: 'running', to, total: items.length, results: kept, at: Date.now() });
 
     let status = 500;
@@ -126,7 +127,7 @@ export class WaBridge extends Container<Env> {
       const res = await this.call('/send-bundle', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ to, items: pending }),
+        body: JSON.stringify({ to, items: pending.map((x) => x.item) }),
       });
       status = res.status;
       const text = await res.text();
@@ -135,7 +136,8 @@ export class WaBridge extends Container<Env> {
     } catch (e) {
       body = { error: String((e as Error)?.message || e) };
     }
-    const results = [...kept, ...(body.results ?? [])].sort((a, b) => a.index - b.index);
+    const mapped = (body.results ?? []).map((r) => ({ ...r, index: pending[r.index]?.index ?? r.index }));
+    const results = [...kept, ...mapped].sort((a, b) => a.index - b.index);
     const sent = results.filter((r) => r.ok).length === items.length;
     if (sent) status = 200;
     if (key) {
