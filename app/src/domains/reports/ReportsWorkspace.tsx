@@ -8,6 +8,7 @@ import type {Supplier} from '../procurement/suppliers-engine';
 import type {Customer} from '../sales/customers-engine';
 import {buildStockPositions,type StockMovement} from '../stock/inventory-engine';
 import {rowsToCsv,safeExportName,type ExportRow} from './export-engine';
+import {ScenarioPanel} from './ScenarioPanel';
 import './reports-workspace.css';
 
 function downloadText(name:string,content:string,type:string){
@@ -78,6 +79,8 @@ export function ReportsWorkspace(){
       <p>لا توجد قاعدة تقارير منفصلة. هذه الشاشة تقرأ القيود وحركات المخزون والذمم والبيانات الرئيسية نفسها التي تستخدمها الوحدات التشغيلية.</p>
       <div className="reports-status"><div><b>ميزان المراجعة</b><span>{tb.balanced?'متزن':'غير متزن'}</span></div><div><b>عدد حسابات الأستاذ</b><span>{tb.rows.length}</span></div><div><b>عدد أصناف المخزون</b><span>{stock.length}</span></div></div>
     </section>
+
+    <ScenarioPanel/>
 
     <section className="sk-surface reports-export">
       <span className="eyebrow">Export Center</span><h3>تصدير CSV متوافق مع Excel + نسخة احتياطية</h3>
