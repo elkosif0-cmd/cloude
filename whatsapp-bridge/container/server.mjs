@@ -192,6 +192,33 @@ http.createServer(async (req, res) => {
       const sent = await sock.sendMessage(jid, payload);
       return send(res, 200, { sent: true, to: jid, id: sent?.key?.id, filename: body.filename || null });
     }
+    if (path === '/send-bundle' && req.method === 'POST') {
+      // One recipient lookup, files fetched in parallel, items sent in order.
+      // Stops at the first failed item so the caller knows exactly what went out.
+      const body = JSON.parse(await readBody(req));
+      const items = Array.isArray(body.items) ? body.items : [];
+      if (!body.to || !items.length) return send(res, 400, { error: 'to and items are required' });
+      const jid = await recipient(body.to);
+      const media = await Promise.all(items.map((it) => (it.kind === 'media' ? mediaBytes(it).catch((e) => e) : null)));
+      const results = [];
+      for (let i = 0; i < items.length; i++) {
+        const it = items[i];
+        try {
+          if (media[i] instanceof Error) throw media[i];
+          const payload = it.kind === 'media'
+            ? mediaMessage(media[i].data, it.mimetype || media[i].detectedMime, it.filename, it.caption || '')
+            : { text: String(it.message ?? '').trim() };
+          if (payload.text === '') throw new Error('message is required');
+          const sent = await sock.sendMessage(jid, payload);
+          results.push({ index: it.index ?? i, ok: true, id: sent?.key?.id ?? null });
+        } catch (e) {
+          results.push({ index: it.index ?? i, ok: false, error: String(e?.message || e) });
+          break;
+        }
+      }
+      const ok = results.length === items.length && results.every((r) => r.ok);
+      return send(res, ok ? 200 : 502, { sent: ok, to: jid, results });
+    }
     if (path === '/logout' && req.method === 'POST') {
       await sock?.logout().catch(() => {});
       sock = null;

@@ -14,6 +14,7 @@
       "max_instances": 1
     }
   ],
+  "r2_buckets": [{ "binding": "FILES", "bucket_name": "wa-kosif-files" }],
   "durable_objects": {
     "bindings": [{ "name": "WA", "class_name": "WaBridge" }]
   },
