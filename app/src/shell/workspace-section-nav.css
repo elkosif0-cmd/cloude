@@ -1,0 +1,60 @@
+.workspace-section-nav{
+  position:sticky;
+  top:78px;
+  z-index:9;
+  margin:0 0 14px;
+  padding:5px;
+  border:1px solid color-mix(in srgb,var(--text) 8%,transparent);
+  border-radius:16px;
+  background:color-mix(in srgb,var(--surface) 90%,transparent);
+  backdrop-filter:blur(18px) saturate(1.2);
+  box-shadow:0 10px 28px color-mix(in srgb,var(--text) 5%,transparent)
+}
+.workspace-section-nav__scroll{
+  display:flex;
+  gap:5px;
+  overflow-x:auto;
+  overscroll-behavior-inline:contain;
+  scrollbar-width:none;
+  scroll-snap-type:x proximity
+}
+.workspace-section-nav__scroll::-webkit-scrollbar{display:none}
+.workspace-section-nav button{
+  flex:0 0 auto;
+  min-height:39px;
+  border:0;
+  border-radius:12px;
+  padding:8px 12px;
+  background:transparent;
+  color:var(--muted);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  scroll-snap-align:start;
+  transition:background 140ms ease,color 140ms ease,transform 140ms ease
+}
+.workspace-section-nav button:hover{background:color-mix(in srgb,var(--accent) 6%,transparent);color:var(--text)}
+.workspace-section-nav button[data-active=true]{
+  background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 94%,white),var(--accent-2));
+  color:#fff;
+  box-shadow:0 8px 18px color-mix(in srgb,var(--accent) 20%,transparent)
+}
+.workspace-section-nav button b{
+  min-width:20px;height:20px;padding:0 5px;border-radius:999px;
+  display:grid;place-items:center;font-size:10px;
+  background:color-mix(in srgb,currentColor 12%,transparent)
+}
+.workspace-section-page[data-active=false]{display:none!important}
+.workspace-section-page[data-active=true]{animation:workspaceSectionIn 150ms ease-out}
+@keyframes workspaceSectionIn{from{opacity:.35;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media(max-width:760px){
+  .workspace-section-nav{
+    top:64px;
+    margin-inline:-2px;
+    border-radius:15px;
+    padding:4px
+  }
+  .workspace-section-nav button{min-height:42px;padding:8px 11px;font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){.workspace-section-page[data-active=true]{animation:none}}
