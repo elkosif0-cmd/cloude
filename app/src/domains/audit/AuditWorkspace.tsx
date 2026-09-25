@@ -9,6 +9,9 @@ import {SamplingPanel} from './SamplingPanel';
 import {IssuesPanel} from './IssuesPanel';
 import {PlanningPanel} from './PlanningPanel';
 import {EvidencePanel} from './EvidencePanel';
+import {StandardsPanel} from './StandardsPanel';
+import {WorkpapersPanel} from './WorkpapersPanel';
+import {ReportPanel} from './ReportPanel';
 import './audit-workspace.css';
 
 const JOURNAL_STORAGE_BASE='finance.journals';
@@ -68,5 +71,8 @@ export function AuditWorkspace(){
     <EvidencePanel/>
     <SamplingPanel/>
     <IssuesPanel/>
+    <WorkpapersPanel/>
+    <StandardsPanel/>
+    <ReportPanel/>
   </section>;
 }
