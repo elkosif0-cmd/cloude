@@ -97,10 +97,10 @@ function jevView(root){
 
 const ROLES={
   admin:["مدير النظام",null],
-  accountant:["المحاسب",["dash","catalog","commerce","customers","inventory","suppliers","cash","receivables","reports","jev","sensitivity","kernel","excelrecon","zatca","b2bcredit","carcass","operations","settings"]],
+  accountant:["المحاسب",["dash","catalog","commerce","customers","offers","inventory","suppliers","cash","receivables","reports","execreports","jev","sensitivity","kernel","smartmatch","excelrecon","zatca","b2bcredit","carcass","operations","settings"]],
   warehouse:["المخزن",["dash","catalog","inventory","suppliers","blending","labels","traceability","scanner","culinary","carcass","operations","settings"]],
-  sales:["المبيعات",["dash","catalog","commerce","customers","offers","cash","receivables","jev","zatca","b2bcredit","operations","settings"]],
-  viewer:["مشاهدة فقط",["dash","catalog","reports","inventory","cash","operations","settings"]]
+  sales:["المبيعات",["dash","catalog","commerce","customers","offers","smartmatch","cash","receivables","reports","execreports","jev","zatca","b2bcredit","operations","settings"]],
+  viewer:["مشاهدة فقط",["dash","catalog","offers","reports","execreports","inventory","cash","operations","settings"]]
 };
 function applyRole(){const r=ROLES[L(KROLE,"admin")]||ROLES.admin;$$("#nav [data-v]").forEach(b=>{const v=b.dataset.v;if(v)b.hidden=!!r[1]&&!r[1].includes(v)})}
 function settingsView(root){
