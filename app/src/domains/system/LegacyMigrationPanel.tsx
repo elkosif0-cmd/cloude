@@ -13,6 +13,10 @@ function Summary({report}:{report:MigrationReport}){
     ['خطط إعادة طلب',report.reorderPlans],
     ['عروض',report.offers],
     ['ائتمان B2B',report.b2bCredits],
+    ['دفعات تتبع',report.traceabilityBatches],
+    ['قراءات تبريد',report.coldChainEvents],
+    ['دفعات صلاحية',report.expiryBatches],
+    ['قرارات Jev',report.jevDecisions],
     ['سجلات تجارة قديمة',report.legacyCommerceRows],
   ] as const;
   return <div className="legacy-migration__summary">{rows.map(([label,value])=><article key={label}><span>{label}</span><strong className="sk-number">{value}</strong></article>)}</div>;
@@ -81,7 +85,7 @@ export function LegacyMigrationPanel(){
     {message?<p className="system-message">{message}</p>:null}
 
     <div className="legacy-migration__rules">
-      <div><b>يُنقل مباشرة</b><span>الكتالوج، العملاء، الموردون، العروض، شحنات الموردين، تخطيط إعادة الطلب، ائتمان B2B.</span></div>
+      <div><b>يُنقل مباشرة</b><span>الكتالوج، العملاء، الموردون، العروض، شحنات الموردين، تخطيط إعادة الطلب، ائتمان B2B، دفعات التتبع والصلاحية، سجل التبريد، وسجل قرارات Jev.</span></div>
       <div><b>يُحفظ دون فقد</b><span>الطلبات، المدفوعات، سطور المبيعات، الواردات والبيانات غير المحسومة تُحفظ في أرشيف مرحلي حتى تُصهر في الوحدات الجديدة.</span></div>
       <div><b>لا يتم حذفه</b><span>أي مفتاح قديم أو قاعدة IndexedDB أثناء النقل؛ الحذف لا يتم إلا بعد مطابقة نهائية.</span></div>
     </div>
