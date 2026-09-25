@@ -1,0 +1,2 @@
+export type ThemeId = 'aghnam-executive-light' | 'audit-professional' | 'midnight-intelligence' | 'desert-gold' | 'handwritten-notebook';
+export type ThemeDefinition = { id:ThemeId; label:string; typography:{ui:string;display:string;numeric:string}; color:{background:string;surface:string;text:string;muted:string;accent:string;accent2:string}; radius:{card:string;control:string}; shadow:{card:string;raised:string}; spacing:{density:'comfortable'|'compact';unit:string}; motion:{duration:string;easing:string}; };
