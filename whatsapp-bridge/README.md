@@ -34,10 +34,12 @@ ChatGPT / Claude ──HTTPS + كلمة سر──► Worker (wa-kosif)
    - **Build command**: `npm ci`
    - **Deploy command**: `npx wrangler deploy`
    - **Branch**: الفرع اللي فيه الكود.
-3. بعد أول نشر، روح للـ Worker `wa-kosif` ← Settings ← Variables and Secrets ← أضف **Secret** اسمه `API_KEY`، وقيمته كلمة سر طويلة وعشوائية.
+3. كلمة السر (`API_KEY`) مش محفوظة في أي مكان. اللي محفوظ في `wrangler.jsonc` هو بصمتها SHA-256 بس (`API_KEY_SHA256`). علشان تغيّرها: `printf %s 'NEW_KEY' | sha256sum` وحط الناتج مكان القيمة القديمة وانشر تاني.
 4. افتح `https://wa-kosif.<subdomain>.workers.dev/pair?key=API_KEY`. أول تشغيل ممكن ياخد دقيقة أو أكتر. امسح الـ QR من: واتساب ← الإعدادات ← الأجهزة المرتبطة ← ربط جهاز.
 
-أو من جهازك (محتاج Docker): `npm ci && npx wrangler deploy && npx wrangler secret put API_KEY`
+أو من جهازك (محتاج Docker): `npm ci && npx wrangler deploy`
+
+النشر الحالي شغال من workflow `deploy-whatsapp-bridge.yml` في repo `kosif-audit-studio`، لأن `CLOUDFLARE_API_TOKEN` محفوظ هناك.
 
 ## ربطه بـ ChatGPT
 

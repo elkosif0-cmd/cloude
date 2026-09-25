@@ -5,7 +5,7 @@ import { Container, getContainer } from '@cloudflare/containers';
 
 interface Env {
   WA: DurableObjectNamespace<WaBridge>;
-  API_KEY: string;
+  API_KEY_SHA256: string; // hex SHA-256 of the API key; the key itself is never stored
 }
 
 const CHUNK = 1_000_000; // DO values are capped at 2 MB; the state can outgrow that
@@ -109,9 +109,12 @@ function safeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-function authorized(req: Request, url: URL, env: Env): boolean {
-  const header = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '') ?? '';
-  return safeEqual(header || url.searchParams.get('key') || '', env.API_KEY ?? '');
+async function authorized(req: Request, url: URL, env: Env): Promise<boolean> {
+  const key = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '') || url.searchParams.get('key') || '';
+  if (!key) return false;
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(key));
+  const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  return safeEqual(hex, (env.API_KEY_SHA256 ?? '').toLowerCase());
 }
 
 const isLinked = (st: Status) => st.connection === 'open' || (!!st.me && st.connection !== 'qr' && st.connection !== 'logged_out');
@@ -123,7 +126,7 @@ export default {
 
     if (path === '/') return new Response('WhatsApp bridge is online.\n');
     if (path === '/openapi.json') return json(openapi(url.origin));
-    if (!authorized(req, url, env)) return json({ error: 'unauthorized' }, 401);
+    if (!(await authorized(req, url, env))) return json({ error: 'unauthorized' }, 401);
 
     const wa = getContainer(env.WA, INSTANCE);
 
