@@ -1,4 +1,5 @@
 import type {JournalEntry} from '../finance/ledger-engine';
+import type {PayableInvoice} from '../finance/payables-engine';
 import type {StockMovement} from '../stock/inventory-engine';
 
 export type PurchaseDocumentLine={
@@ -12,6 +13,7 @@ export type PurchaseOrderDocument={
   id:string;
   number:string;
   date:string;
+  dueDate:string;
   supplierId:string;
   lines:PurchaseDocumentLine[];
   status:'DRAFT'|'OPEN'|'CLOSED'|'VOID';
@@ -34,6 +36,7 @@ export type ProcurementPostingAccounts={
 
 export type ReceiptPostingBundle={
   journal:JournalEntry;
+  payable:PayableInvoice;
   stockMovements:StockMovement[];
   taxable:number;
   vat:number;
@@ -86,5 +89,14 @@ export function buildReceiptPosting(order:PurchaseOrderDocument,receipt:GoodsRec
     ],
   };
 
-  return {journal,stockMovements,taxable,vat,total};
+  const payable:PayableInvoice={
+    id:'purchase-ap-'+receipt.id,
+    supplierId:order.supplierId,
+    invoiceDate:receipt.date,
+    dueDate:order.dueDate,
+    amount:total,
+    paid:0,
+  };
+
+  return {journal,payable,stockMovements,taxable,vat,total};
 }
