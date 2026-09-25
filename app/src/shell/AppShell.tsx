@@ -4,6 +4,7 @@ import type {ThemeId} from '../design/theme-contract';
 import {useTheme} from '../design/ThemeProvider';
 import {CapabilityDomainPanel} from '../app/CapabilityDomainPanel';
 import type {ProductDomain} from '../app/capability-types';
+import {FinanceWorkspace} from '../domains/finance/FinanceWorkspace';
 import './shell.css';
 
 const nav:{id:string;label:string;domain:ProductDomain}[]=[
@@ -24,6 +25,12 @@ export function AppShell({children}:PropsWithChildren){
   const {theme,setTheme}=useTheme();
   const current=nav.find((item)=>item.id===active)??nav[0];
 
+  function renderWorkspace(){
+    if(current.domain==='home')return children;
+    if(current.domain==='finance')return <FinanceWorkspace/>;
+    return <CapabilityDomainPanel domain={current.domain}/>;
+  }
+
   return <div className="app-shell">
     <aside className="app-rail sk-surface">
       <div className="brand-block"><strong>S.kosif</strong><span>Grand Fusion</span></div>
@@ -32,7 +39,7 @@ export function AppShell({children}:PropsWithChildren){
     </aside>
     <section className="app-workspace">
       <header className="app-topbar"><div><small>مساحة العمل الموحدة</small><h2>{current.label}</h2></div><div className="status-pill">Clean Slate · v1</div></header>
-      {current.domain==='home'?children:<CapabilityDomainPanel domain={current.domain}/>}
+      {renderWorkspace()}
     </section>
   </div>;
 }
