@@ -1,236 +1,265 @@
-// WhatsApp link held by Baileys. Auth format is preserved exactly for the Durable Object.
-import http from 'node:http';
-import pino from 'pino';
-import makeWASocket, {
-  BufferJSON,
-  DisconnectReason,
-  fetchLatestBaileysVersion,
-  initAuthCreds,
-  proto,
-} from 'baileys';
+import http from "node:http";
+import fs from "node:fs/promises";
+import path from "node:path";
+import pino from "pino";
+import makeWASocket, { useMultiFileAuthState, DisconnectReason } from "@whiskeysockets/baileys";
 
-const PORT = 8080;
+const PORT = Number(process.env.PORT || 8080);
+const AUTH_DIR = "/tmp/wa-auth";
 const MAX_MEDIA_BYTES = 25 * 1024 * 1024;
-const logger = pino({ level: process.env.LOG_LEVEL || 'warn' });
+const logger = pino({ level: process.env.LOG_LEVEL || "warn" });
 
-let auth = null;
+let restored = false;
 let version = 0;
 let sock = null;
-let connection = 'idle';
+let saveCreds = null;
+let connection = "idle";
 let qr = null;
+let me = null;
+let starting = null;
 
-const bump = () => { version++; };
+const json = (res, status, body) => {
+  const data = Buffer.from(JSON.stringify(body));
+  res.writeHead(status, {"content-type":"application/json; charset=utf-8","content-length":String(data.length)});
+  res.end(data);
+};
 
-function authState() {
-  return {
-    creds: auth.creds,
-    keys: {
-      get: async (type, ids) => {
-        const out = {};
-        for (const id of ids) {
-          let value = auth.keys[type]?.[id];
-          if (type === 'app-state-sync-key' && value) value = proto.Message.AppStateSyncKeyData.fromObject(value);
-          out[id] = value;
-        }
-        return out;
-      },
-      set: async (data) => {
-        for (const type in data) {
-          auth.keys[type] ??= {};
-          for (const id in data[type]) {
-            const value = data[type][id];
-            if (value) auth.keys[type][id] = value;
-            else delete auth.keys[type][id];
-          }
-        }
-        bump();
-      },
-    },
-  };
-}
-
-async function connect() {
-  connection = 'connecting';
-  const { version: waVersion } = await fetchLatestBaileysVersion().catch(() => ({}));
-  sock = makeWASocket({
-    auth: authState(),
-    logger,
-    ...(waVersion ? { version: waVersion } : {}),
-    browser: ['Kosif Bridge', 'Chrome', '2.0'],
-    markOnlineOnConnect: false,
-    syncFullHistory: false,
-  });
-  sock.ev.on('creds.update', (update) => {
-    Object.assign(auth.creds, update);
-    bump();
-  });
-  sock.ev.on('connection.update', (u) => {
-    if (u.qr) { qr = u.qr; connection = 'qr'; }
-    if (u.connection === 'open') { qr = null; connection = 'open'; }
-    if (u.connection === 'close') {
-      const code = u.lastDisconnect?.error?.output?.statusCode;
-      sock = null;
-      if (code === DisconnectReason.loggedOut) {
-        connection = 'logged_out';
-        auth = { creds: initAuthCreds(), keys: {} };
-        bump();
-        return;
-      }
-      connection = 'closed';
-      setTimeout(() => connect().catch((e) => logger.error(e)), code === DisconnectReason.restartRequired ? 0 : 3000);
-    }
-  });
-}
-
-function waitOpen(ms) {
-  return new Promise((resolve, reject) => {
-    const t0 = Date.now();
-    const tick = () => {
-      if (connection === 'open') return resolve();
-      if (connection === 'logged_out' || connection === 'qr') return reject(new Error('not linked: open /pair and scan the QR'));
-      if (Date.now() - t0 > ms) return reject(new Error('timed out connecting to WhatsApp'));
-      setTimeout(tick, 250);
-    };
-    tick();
-  });
-}
-
-function toJid(to) {
-  let d = String(to ?? '').replace(/\D/g, '');
-  if (d.length === 11 && d.startsWith('01')) d = '20' + d.slice(1);
-  if (d.length < 10 || d.length > 15) throw new Error('invalid phone number');
-  return `${d}@s.whatsapp.net`;
-}
-
-const readBody = async (req) => {
-  let b = '';
+async function readBody(req, limit = 40 * 1024 * 1024) {
+  const chunks = [];
+  let size = 0;
   for await (const c of req) {
-    b += c;
-    if (b.length > 40 * 1024 * 1024) throw new Error('payload too large');
+    size += c.length;
+    if (size > limit) throw new Error("payload_too_large");
+    chunks.push(c);
   }
-  return b;
-};
-
-const send = (res, status, body, type = 'application/json') => {
-  res.writeHead(status, { 'content-type': type });
-  res.end(typeof body === 'string' ? body : JSON.stringify(body));
-};
-
-async function recipient(to) {
-  const jid = toJid(to);
-  if (!sock && connection !== 'connecting') await connect();
-  await waitOpen(45000);
-  const [check] = await sock.onWhatsApp(jid);
-  if (!check?.exists) {
-    const e = new Error('this number is not on WhatsApp');
-    e.status = 404;
-    throw e;
-  }
-  return check.jid;
+  return Buffer.concat(chunks);
 }
 
-async function mediaBytes(body) {
-  if (body.fileBase64) {
-    const data = Buffer.from(String(body.fileBase64), 'base64');
-    if (data.length > MAX_MEDIA_BYTES) throw new Error('file too large');
-    return { data, detectedMime: '' };
+async function resetAuthDir() {
+  await fs.rm(AUTH_DIR, { recursive: true, force: true });
+  await fs.mkdir(AUTH_DIR, { recursive: true });
+}
+
+async function restoreSnapshot(snapshot) {
+  await resetAuthDir();
+  const files = snapshot?.files && typeof snapshot.files === "object" ? snapshot.files : {};
+  for (const [name, b64] of Object.entries(files)) {
+    if (!/^[A-Za-z0-9._-]+$/.test(name)) continue;
+    await fs.writeFile(path.join(AUTH_DIR, name), Buffer.from(String(b64), "base64"));
   }
-  if (!body.fileUrl) throw new Error('fileUrl or fileBase64 is required');
-  const r = await fetch(String(body.fileUrl), { redirect: 'follow' });
-  if (!r.ok) throw new Error('file download failed');
-  const len = Number(r.headers.get('content-length') || 0);
-  if (len && len > MAX_MEDIA_BYTES) throw new Error('file too large');
+  restored = true;
+}
+
+async function snapshotAuth() {
+  await fs.mkdir(AUTH_DIR, { recursive: true });
+  const names = await fs.readdir(AUTH_DIR);
+  const files = {};
+  for (const name of names) {
+    const st = await fs.stat(path.join(AUTH_DIR, name));
+    if (!st.isFile()) continue;
+    files[name] = (await fs.readFile(path.join(AUTH_DIR, name))).toString("base64");
+  }
+  return { files };
+}
+
+function normalizeToJid(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  if (digits.length < 8 || digits.length > 15) throw new Error("invalid_phone");
+  return digits + "@s.whatsapp.net";
+}
+
+async function startSocket() {
+  if (sock && connection === "open") return sock;
+  if (starting) return starting;
+  starting = (async () => {
+    await fs.mkdir(AUTH_DIR, { recursive: true });
+    const auth = await useMultiFileAuthState(AUTH_DIR);
+    saveCreds = auth.saveCreds;
+    const s = makeWASocket({
+      auth: auth.state,
+      logger,
+      printQRInTerminal: false,
+      browser: ["KOSIF", "Chrome", "2.0.0"],
+      markOnlineOnConnect: false,
+      syncFullHistory: false
+    });
+    sock = s;
+    connection = "connecting";
+    s.ev.on("creds.update", async () => {
+      await saveCreds();
+      version += 1;
+    });
+    s.ev.on("connection.update", (u) => {
+      if (u.qr) { qr = u.qr; connection = "qr"; }
+      if (u.connection) connection = u.connection;
+      if (u.connection === "open") {
+        qr = null;
+        me = s.user || null;
+        connection = "open";
+      }
+      if (u.connection === "close") {
+        const code = u.lastDisconnect?.error?.output?.statusCode;
+        connection = code === DisconnectReason.loggedOut ? "logged_out" : "closed";
+        if (code === DisconnectReason.loggedOut) me = null;
+        sock = null;
+      }
+    });
+    return s;
+  })();
+  try { return await starting; } finally { starting = null; }
+}
+
+async function waitForOpen(timeoutMs = 20000) {
+  await startSocket();
+  if (connection === "open") return;
+  const end = Date.now() + timeoutMs;
+  while (Date.now() < end) {
+    if (connection === "open") return;
+    if (connection === "logged_out" || connection === "qr") break;
+    await new Promise(r => setTimeout(r, 250));
+  }
+  throw new Error("whatsapp_not_connected");
+}
+
+async function downloadMedia(url) {
+  const r = await fetch(url, { redirect: "follow" });
+  if (!r.ok) throw new Error("file_download_failed");
+  const len = Number(r.headers.get("content-length") || 0);
+  if (len && len > MAX_MEDIA_BYTES) throw new Error("file_too_large");
   const ab = await r.arrayBuffer();
-  if (ab.byteLength > MAX_MEDIA_BYTES) throw new Error('file too large');
-  return { data: Buffer.from(ab), detectedMime: r.headers.get('content-type') || '' };
+  if (ab.byteLength > MAX_MEDIA_BYTES) throw new Error("file_too_large");
+  return { data: Buffer.from(ab), contentType: r.headers.get("content-type") || "" };
 }
 
-function mediaMessage(data, mimetype, filename, caption) {
-  const mt = String(mimetype || 'application/octet-stream').toLowerCase();
-  if (mt.startsWith('image/')) return { image: data, mimetype: mt, caption: caption || undefined };
-  if (mt.startsWith('video/')) return { video: data, mimetype: mt, caption: caption || undefined };
-  if (mt.startsWith('audio/')) return { audio: data, mimetype: mt, ptt: false };
-  return { document: data, mimetype: mt, fileName: filename || 'file', caption: caption || undefined };
+function messageForMedia(data, mimetype, filename, caption) {
+  const type = String(mimetype || "").toLowerCase();
+  if (type.startsWith("image/")) return { image: data, mimetype: type, caption: caption || undefined };
+  if (type.startsWith("video/")) return { video: data, mimetype: type, caption: caption || undefined };
+  if (type.startsWith("audio/")) return { audio: data, mimetype: type || "audio/mpeg", ptt: false };
+  return { document: data, mimetype: type || "application/octet-stream", fileName: filename || "file", caption: caption || undefined };
 }
 
-http.createServer(async (req, res) => {
-  try {
-    const path = new URL(req.url, 'http://x').pathname;
-    if (path === '/status') {
-      return send(res, 200, { restored: !!auth, connection, qr, version, me: auth?.creds?.me ?? null });
-    }
-    if (path === '/restore' && req.method === 'POST') {
-      if (!auth) {
-        const body = await readBody(req);
-        auth = body ? JSON.parse(body, BufferJSON.reviver) : { creds: initAuthCreds(), keys: {} };
-        auth.keys ??= {};
-        await connect();
-      }
-      return send(res, 200, { ok: true });
-    }
-    if (!auth) return send(res, 409, { error: 'not restored' });
-    if (path === '/state') {
-      return send(res, 200, JSON.stringify({ version, auth }, BufferJSON.replacer));
-    }
-    if (path === '/connect' && req.method === 'POST') {
-      if (!sock && connection !== 'connecting') await connect();
-      return send(res, 200, { connection });
-    }
-    if (path === '/send' && req.method === 'POST') {
-      const { to, message } = JSON.parse(await readBody(req));
-      if (!message?.trim()) return send(res, 400, { error: 'message is required' });
-      const jid = await recipient(to);
-      const sent = await sock.sendMessage(jid, { text: message.trim() });
-      return send(res, 200, { sent: true, to: jid, id: sent?.key?.id });
-    }
-    if (path === '/send-media' && req.method === 'POST') {
-      const body = JSON.parse(await readBody(req));
-      if (!body.to) return send(res, 400, { error: 'to is required' });
-      const jid = await recipient(body.to);
-      const { data, detectedMime } = await mediaBytes(body);
-      const payload = mediaMessage(data, body.mimetype || detectedMime, body.filename, body.caption || body.message || '');
-      const sent = await sock.sendMessage(jid, payload);
-      return send(res, 200, { sent: true, to: jid, id: sent?.key?.id, filename: body.filename || null });
-    }
-    if (path === '/send-bundle' && req.method === 'POST') {
-      // One recipient lookup, files fetched in parallel, items sent in order.
-      // Stops at the first failed item so the caller knows exactly what went out.
-      const body = JSON.parse(await readBody(req));
-      const items = Array.isArray(body.items) ? body.items : [];
-      if (!body.to || !items.length) return send(res, 400, { error: 'to and items are required' });
-      const jid = await recipient(body.to);
-      const media = await Promise.all(items.map((it) => (it.kind === 'media' ? mediaBytes(it).catch((e) => e) : null)));
-      const results = [];
-      for (let i = 0; i < items.length; i++) {
-        const it = items[i];
-        try {
-          if (media[i] instanceof Error) throw media[i];
-          const payload = it.kind === 'media'
-            ? mediaMessage(media[i].data, it.mimetype || media[i].detectedMime, it.filename, it.caption || '')
-            : { text: String(it.message ?? '').trim() };
-          if (payload.text === '') throw new Error('message is required');
-          const sent = await sock.sendMessage(jid, payload);
-          results.push({ index: it.index ?? i, ok: true, id: sent?.key?.id ?? null });
-        } catch (e) {
-          results.push({ index: it.index ?? i, ok: false, error: String(e?.message || e) });
-          break;
-        }
-      }
-      const ok = results.length === items.length && results.every((r) => r.ok);
-      return send(res, ok ? 200 : 502, { sent: ok, to: jid, results });
-    }
-    if (path === '/logout' && req.method === 'POST') {
-      await sock?.logout().catch(() => {});
-      sock = null;
-      auth = { creds: initAuthCreds(), keys: {} };
-      connection = 'logged_out';
-      bump();
-      return send(res, 200, { ok: true });
-    }
-    send(res, 404, { error: 'not found' });
-  } catch (e) {
-    const message = String(e?.message || e);
-    const status = Number(e?.status || (message.includes('too large') ? 413 : 500));
-    send(res, status, { error: message });
+async function sendText(to, message) {
+  await waitForOpen();
+  const jid = normalizeToJid(to);
+  return sock.sendMessage(jid, { text: String(message || "") });
+}
+
+async function prepareMedia(body) {
+  let data, detectedType = "";
+  if (body.fileBase64) {
+    data = Buffer.from(String(body.fileBase64), "base64");
+    if (data.length > MAX_MEDIA_BYTES) throw new Error("file_too_large");
+  } else if (body.fileUrl) {
+    const d = await downloadMedia(String(body.fileUrl));
+    data = d.data;
+    detectedType = d.contentType;
+  } else {
+    throw new Error("file_required");
   }
-}).listen(PORT, () => logger.warn(`listening on ${PORT}`));
+  return messageForMedia(data, body.mimetype || detectedType, body.filename, body.caption || body.message || "");
+}
+
+async function sendMedia(body) {
+  await waitForOpen();
+  const jid = normalizeToJid(body.to);
+  return sock.sendMessage(jid, await prepareMedia(body));
+}
+
+async function sendBundle(to, items) {
+  await waitForOpen();
+  const jid = normalizeToJid(to);
+  if (!Array.isArray(items) || !items.length || items.length > 10) throw new Error("invalid_bundle");
+
+  // Resolve every attachment before the first WhatsApp send, so missing/bad media
+  // cannot cause a partial bundle before delivery starts.
+  const prepared = await Promise.all(items.map(async (item) => {
+    if (item?.kind === "text") {
+      const text = String(item.message || "").trim();
+      if (!text) throw new Error("empty_text_item");
+      return { text };
+    }
+    if (item?.kind === "media") return prepareMedia(item);
+    throw new Error("invalid_bundle_item");
+  }));
+
+  const results = [];
+  for (let index = 0; index < prepared.length; index++) {
+    try {
+      const sent = await sock.sendMessage(jid, prepared[index]);
+      results.push({ index, ok: true, id: sent?.key?.id || null });
+    } catch (e) {
+      results.push({ index, ok: false, error: String(e?.message || e) });
+      return { sent: false, to: jid, results };
+    }
+  }
+  return { sent: true, to: jid, results };
+}
+
+const server = http.createServer(async (req, res) => {
+  try {
+    const url = new URL(req.url, "http://container");
+
+    if (url.pathname === "/status" && req.method === "GET") {
+      return json(res, 200, { restored, version, connection, qr, me });
+    }
+
+    if (url.pathname === "/restore" && req.method === "POST") {
+      const raw = (await readBody(req)).toString("utf8").trim();
+      if (raw) await restoreSnapshot(JSON.parse(raw));
+      else { await resetAuthDir(); restored = true; }
+      sock = null; connection = "idle"; qr = null; me = null;
+      return json(res, 200, { ok: true, restored });
+    }
+
+    if (url.pathname === "/state" && req.method === "GET") {
+      return json(res, 200, { version, auth: await snapshotAuth() });
+    }
+
+    if (url.pathname === "/connect" && req.method === "POST") {
+      await startSocket();
+      const end = Date.now() + 5000;
+      while (Date.now() < end && connection === "connecting") await new Promise(r => setTimeout(r, 100));
+      return json(res, 200, { restored, version, connection, qr, me });
+    }
+
+    if (url.pathname === "/send" && req.method === "POST") {
+      const body = JSON.parse((await readBody(req)).toString("utf8"));
+      if (!body.to || !String(body.message || "").trim()) return json(res, 400, { error: "to_and_message_required" });
+      const result = await sendText(body.to, body.message);
+      return json(res, 200, { ok: true, id: result?.key?.id || null });
+    }
+
+    if (url.pathname === "/send-media" && req.method === "POST") {
+      const body = JSON.parse((await readBody(req)).toString("utf8"));
+      if (!body.to) return json(res, 400, { error: "to_required" });
+      const result = await sendMedia(body);
+      return json(res, 200, { ok: true, id: result?.key?.id || null });
+    }
+
+    if (url.pathname === "/send-bundle" && req.method === "POST") {
+      const body = JSON.parse((await readBody(req)).toString("utf8"));
+      if (!body.to || !Array.isArray(body.items)) return json(res, 400, { error: "to_and_items_required" });
+      const result = await sendBundle(body.to, body.items);
+      return json(res, result.sent ? 200 : 502, result);
+    }
+
+    if (url.pathname === "/logout" && req.method === "POST") {
+      try { if (sock) await sock.logout(); } catch {}
+      sock = null; connection = "logged_out"; qr = null; me = null;
+      await resetAuthDir();
+      restored = true;
+      version += 1;
+      return json(res, 200, { ok: true });
+    }
+
+    return json(res, 404, { error: "not_found" });
+  } catch (e) {
+    logger.error({ err: e }, "request failed");
+    const msg = String(e?.message || e);
+    const status = msg === "payload_too_large" || msg === "file_too_large" ? 413 : 500;
+    return json(res, status, { error: msg });
+  }
+});
+
+server.listen(PORT, "0.0.0.0", () => logger.info({ port: PORT }, "KOSIF WhatsApp container v2 listening"));
