@@ -21,6 +21,10 @@ S.kosif is the production application shell for the encrypted business dataset a
 - `ui/` — the S.kosif screens, bundled by `build.py` into `skosif.js` and `skosif.css`:
   `shell.js` (shared helpers, themes, auto-lock, updates), `jev.js`, `offers.js`,
   `inventory.js`, `supply.js`, `meatops.js`, `smartmatch.js`, `pricing-core.js`,
-  `kernel.js`, `tools.js`, `enterprise.js`, `reports.js`, `erp-plus.js`. ERP+ extends the existing inventory, cash, supplier, report, Jev and settings screens without adding floating controls. Each screen is a normal menu entry; there are no floating
+  `kernel.js`, `tools.js`, `enterprise.js`, `reports.js`, `erp-plus.js`, `operations.js`, and `capabilities-v2.js`. ERP+ extends the existing inventory, cash, supplier, report, Jev and settings screens; Capabilities v2 adds RBAC, workspace revisioning, integrity checks and optional D1 synchronization without floating controls. Each screen is a normal menu entry; there are no floating
   buttons, docks or overlay hubs.
 - Themes: the base theme system plus six full-scene visual presets (nature, playful farm, science magazine, heritage, night valley and pastel), chosen in Settings.
+
+## Capabilities v2
+
+The source port from `kosif-stable-capabilities-v2` lives in `capabilities-v2/worker.js` with its D1 schema in `capabilities-v2/schema.sql`. The browser center works in a privacy-minimized local fallback until a protected Worker URL is configured. Cloudflare Access, D1 tenant isolation, server RBAC, optimistic workspace revisions and the append-only hash chain are enforced by the Worker when connected.
