@@ -12,7 +12,7 @@ function routeFromHash():RouteId{
 }
 export default function RebuiltApp(){
  const[route,setRoute]=useState<RouteId>(routeFromHash);
- useEffect(()=>{migratePrivateCatalog()},[]);
+ useEffect(()=>{migratePrivateCatalog();if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{})},[]);
  useEffect(()=>{const fn=()=>setRoute(routeFromHash());addEventListener('hashchange',fn);return()=>removeEventListener('hashchange',fn)},[]);
  const go=(r:RouteId)=>{location.hash=r;setRoute(r);window.scrollTo({top:0,behavior:'smooth'})};
  return <AppShell route={route} onRoute={go}>
