@@ -8,6 +8,7 @@ import {ReceivablesPanel} from './ReceivablesPanel';
 import {PayablesPanel} from './PayablesPanel';
 import {TrialBalanceImportPanel} from './TrialBalanceImportPanel';
 import {ReconciliationPanel} from './ReconciliationPanel';
+import {CashFlowPanel} from './CashFlowPanel';
 import './finance-workspace.css';
 
 const STORAGE_BASE='finance.journals';
@@ -98,5 +99,6 @@ export function FinanceWorkspace(){
     </div>
     <div className="finance-subledgers"><ReceivablesPanel/><PayablesPanel/></div>
     <ReconciliationPanel/>
+    <CashFlowPanel/>
   </section>;
 }
