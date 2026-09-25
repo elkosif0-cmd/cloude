@@ -2,6 +2,7 @@ import {useEffect,useMemo,useState} from 'react';
 import {JsonStorageRepository} from '../../data/json-storage-repository';
 import {makeScopedKey,readActiveScope} from '../../data/scope-key';
 import {buildGeneralLedger,buildTrialBalance,validateJournalEntry,type JournalEntry} from './ledger-engine';
+import type {Account} from './accounts-engine';
 import {AccountsPanel} from './AccountsPanel';
 import {ReceivablesPanel} from './ReceivablesPanel';
 import {PayablesPanel} from './PayablesPanel';
@@ -13,6 +14,7 @@ const STORAGE_BASE='finance.journals';
 
 export function FinanceWorkspace(){
   const [entries,setEntries]=useState<JournalEntry[]>([]);
+  const [accounts,setAccounts]=useState<Account[]>([]);
   const [debitAccount,setDebitAccount]=useState('');
   const [creditAccount,setCreditAccount]=useState('');
   const [amount,setAmount]=useState('');
@@ -22,8 +24,10 @@ export function FinanceWorkspace(){
 
   const storageKey=useMemo(()=>makeScopedKey(STORAGE_BASE,readActiveScope(window.localStorage)),[]);
   const repo=useMemo(()=>new JsonStorageRepository<JournalEntry & {id:string}>(window.localStorage,storageKey),[storageKey]);
+  const accountKey=useMemo(()=>makeScopedKey('finance.accounts',readActiveScope(window.localStorage)),[]);
+  const accountRepo=useMemo(()=>new JsonStorageRepository<Account>(window.localStorage,accountKey),[accountKey]);
 
-  useEffect(()=>{void repo.list().then(setEntries);},[repo]);
+  useEffect(()=>{void Promise.all([repo.list(),accountRepo.list()]).then(([j,a])=>{setEntries(j);setAccounts(a);});},[repo,accountRepo]);
 
   const ledger=useMemo(()=>buildGeneralLedger(entries),[entries]);
   const trialBalance=useMemo(()=>buildTrialBalance(entries),[entries]);
@@ -69,7 +73,7 @@ export function FinanceWorkspace(){
       <article className="sk-surface"><span>حالة الميزان</span><strong>{trialBalance.balanced?'متزن':'غير متزن'}</strong></article>
     </div>
 
-    <AccountsPanel/>
+    <AccountsPanel onChanged={()=>{void accountRepo.list().then(setAccounts);}}/>
     <TrialBalanceImportPanel/>
 
     <div className="finance-grid">
@@ -77,8 +81,8 @@ export function FinanceWorkspace(){
         <div><span className="eyebrow">قيد مزدوج حقيقي</span><h3>إضافة قيد يومية</h3></div>
         <label>التاريخ<input type="date" value={date} onChange={(e)=>setDate(e.target.value)}/></label>
         <label>المرجع<input value={reference} onChange={(e)=>setReference(e.target.value)} placeholder="مثال: INV-1001"/></label>
-        <label>الحساب المدين<input value={debitAccount} onChange={(e)=>setDebitAccount(e.target.value)} placeholder="account-1100"/></label>
-        <label>الحساب الدائن<input value={creditAccount} onChange={(e)=>setCreditAccount(e.target.value)} placeholder="account-4000"/></label>
+        <label>الحساب المدين<select value={debitAccount} onChange={(e)=>setDebitAccount(e.target.value)}><option value="">اختر حسابًا</option>{accounts.filter(a=>a.active).map(a=><option key={a.id} value={a.id}>{a.code} — {a.name}</option>)}</select></label>
+        <label>الحساب الدائن<select value={creditAccount} onChange={(e)=>setCreditAccount(e.target.value)}><option value="">اختر حسابًا</option>{accounts.filter(a=>a.active).map(a=><option key={a.id} value={a.id}>{a.code} — {a.name}</option>)}</select></label>
         <label>المبلغ<input inputMode="decimal" value={amount} onChange={(e)=>setAmount(e.target.value)} placeholder="0.00"/></label>
         <button onClick={()=>void addEntry()}>حفظ القيد</button>
         {message?<p className="finance-message">{message}</p>:null}
