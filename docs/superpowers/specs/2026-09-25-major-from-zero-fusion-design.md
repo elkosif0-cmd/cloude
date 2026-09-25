@@ -1,18 +1,23 @@
 # S.kosif Major From-Zero Fusion — Design Contract
 
 Date: 2026-09-25
-Branch: `rebuild/major-from-zero-20260925`
+Design branch: `rebuild/major-from-zero-20260925`
+Execution branch: a new clean-slate successor branch created only after this written design and its implementation plan are approved.
 Production project after cutover: Cloudflare Pages `s-kosif`
 Production URL after cutover: `https://s-kosif.pages.dev`
 Latest safety snapshot before this refoundation: `backup/pre-grand-fusion-20260925-1358`
 
-## 1. Product decision
+## 1. Product decision — true clean slate
 
-The currently published S.kosif application is **not** the visual or architectural baseline. The product will be re-founded from zero.
+The currently published S.kosif application is **not** the visual, architectural, routing, component, or build baseline. The product will be re-founded from zero.
 
-Git history and backup branches remain intact for recovery and source mining, but the current UI, shell, route structure, generated bundles, and legacy presentation layers are not inherited by default.
+The execution branch must begin as a **clean application root**. Existing S.kosif application files, legacy UI trees, runtime presentation bundles, old shells, old routes, old component hierarchies, and old screen implementations are not inherited into the new application merely because they exist in Git.
+
+Git history and backup branches remain intact for recovery and source mining. They are reference archives, not implementation dependencies.
 
 The goal is not to stack applications together. The goal is to extract the best proven capabilities, data models, controls, calculations, workflows, and interaction ideas from the source products, then rebuild them as one coherent product.
+
+No existing S.kosif screen is assumed to survive. Every retained capability must earn its place through the capability acceptance rule below.
 
 ## 2. Four source products / snapshots to mine
 
@@ -25,16 +30,19 @@ The new product may extract only proven value from these four source inputs:
 
 Nothing is copied merely because it exists. Every migrated capability must justify its business value, data value, control value, or user-flow value.
 
-## 3. What is discarded
+## 3. What is discarded from the execution branch
 
-The new foundation must not inherit:
+The new clean-slate application must not inherit:
 
 - Existing page layouts, sidebars, headers, bottom bars, floating controls, modals, card systems, dashboards, navigation hierarchy, or visual tokens as implementation dependencies.
 - `skosif.js` / `skosif.css` as runtime presentation bundles.
+- Existing S.kosif route trees, screen registrations, old feature folders, old UI registries, or generated presentation artifacts.
 - Nested-app shells, iframe-style embedding, redirects to side applications, duplicated navigation, or multiple competing design systems.
 - Dead features, fabricated demo data presented as real data, duplicated calculators, duplicate reports, duplicate settings, or modules without a clear product owner/use case.
 - Legacy compatibility code whose only purpose is to preserve obsolete presentation behavior.
 - A feature merely because it appears in a capability list or because its screen renders.
+
+Existing repositories/branches remain available only for read-only extraction and comparison until an explicitly approved migration step copies/reimplements proven logic.
 
 ## 4. Capability acceptance rule
 
@@ -64,7 +72,7 @@ Only these classes of assets may survive, after review:
 - Security, permissions, audit trail, integrity, backup/restore, Cloudflare integration, and tested service contracts.
 - Useful tests and fixtures that validate retained business behavior rather than old UI behavior.
 
-Preserved logic must be wrapped behind new typed services/repositories instead of imported through old screens.
+Preserved logic must be reimplemented or wrapped behind new typed services/repositories. It must not be imported through old screens or old presentation bundles.
 
 ## 6. New product architecture
 
@@ -109,7 +117,7 @@ Theme tokens cover typography, color, elevation, radii, borders, surfaces, chart
 
 ## 8. Data migration rule
 
-The rebuild is destructive only to the **presentation/application layer**, not to recoverable user data.
+The rebuild is destructive only to the **application/presentation layer in the clean execution branch**, not to recoverable user data or Git history.
 
 Before production cutover:
 
@@ -126,7 +134,7 @@ The new product keeps one authentication/session model. Where device-session per
 
 ## 10. Build and release rule
 
-Development occurs on `rebuild/major-from-zero-20260925` or successor integration branches. `main` is not the development scratchpad.
+Development occurs on a clean-slate execution branch created after approval of this spec and its implementation plan. `main` is not the development scratchpad.
 
 Cloudflare Pages project remains `s-kosif`. The public URL remains `https://s-kosif.pages.dev` after final cutover.
 
@@ -150,10 +158,10 @@ No production merge until the new app passes:
 Catalog capabilities, data contracts, tests, integrations, dependencies, and real usage across all four source products/snapshots. Mark each KEEP-LOGIC / MERGE / REBUILD / DROP.
 
 ### Phase B — Empty foundation
-Create a new application root and design system with no imports from old UI trees. Establish app shell, capability registry, router, permissions boundary, repositories, telemetry/error boundary, theme engine, and test harness.
+Create a brand-new application root with no inherited production UI tree. Establish the new design system, app shell, capability registry, router, permissions boundary, repositories, telemetry/error boundary, theme engine, and test harness.
 
 ### Phase C — Domain fusion
-Port approved capabilities domain by domain through new services and screens. Prefer one canonical implementation for duplicated behavior.
+Port approved capabilities domain by domain through new services and new screens. Prefer one canonical implementation for duplicated behavior.
 
 ### Phase D — Data migration
 Implement read-only discovery first, then explicit migrations with rollback.
@@ -162,10 +170,11 @@ Implement read-only discovery first, then explicit migrations with rollback.
 Apply the Aghnam-inspired default visual system, all five themes, responsive RTL behavior, motion, charts, command palette, accessibility, and print/report treatment.
 
 ### Phase F — Cutover
-Preview QA, compare against the capability matrix, back up production data, merge to `main`, let the connected Cloudflare Pages project publish to the same `s-kosif.pages.dev` URL, and verify production.
+Preview QA, compare against the capability matrix, back up production data again, merge the clean-slate product to `main`, let the connected Cloudflare Pages project publish to the same `s-kosif.pages.dev` URL, and verify production.
 
 ## 12. Non-negotiable acceptance criteria
 
+- The execution branch starts from a clean application root, not from an inherited S.kosif UI implementation.
 - No `skosif.js` or other legacy presentation bundle required by production.
 - No iframe / nested-app user experience.
 - No duplicate sidebars, headers, floating docks, or overlapping navigation systems.
