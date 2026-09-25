@@ -11,7 +11,11 @@ const Q=v=>new Intl.NumberFormat("ar-SA-u-nu-latn",{maximumFractionDigits:3}).fo
 const D=()=>new Date().toISOString().slice(0,10), MON=()=>new Date().toISOString().slice(0,7);
 const toast=(m,t)=>window.SK?.toast?window.SK.toast(m,t):console.info(m);
 const cat=()=>{try{return window.SKosifCore?.catalog?.()||{items:[]}}catch{return {items:[]}}};
-const items=()=>((cat().items)||[]).filter(x=>x&&x.status!=="archived").sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"ar"));
+const items=()=>{
+  let list=(cat().items)||[];
+  if(!list.length){try{list=(window.SKosifCore?.raws?.()||[]).map(r=>({id:r.id||r.name,name:r.name,cost:r.cost,price:r.price}))}catch{}}
+  return list.filter(x=>x&&x.status!=="archived").sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"ar"));
+};
 const cost=i=>{for(const k of ["cost","unitCost","usableCost","netCost","cogs","currentCost","purchaseCost"]){const v=N(i?.[k]);if(v>0)return v}const p=N(i?.price),m=N(i?.margin);return p>0&&m>-1&&m<1?p*(1-m):0};
 const add=(root,id,html,pos="afterbegin")=>{if(!root||root.querySelector("#"+id))return false;root.insertAdjacentHTML(pos,html);return true};
 const id=p=>p+"-"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
@@ -92,7 +96,13 @@ function jevView(root){
 }
 
 const SC=[["nature","وادي الطبيعة","أخضر طبيعي وسماء"],["farm","المزرعة المرِحة","ألوان زاهية وقصصية"],["science","الموسوعة العلمية","ورق ومخطوطات بحثية"],["heritage","تراث وأصالة","رملي وبني وذهبي"],["night","ليل الوادي","كحلي داكن"],["pastel","الوادي الباستيل","ألوان فاتحة ناعمة"]];
-const ROLES={admin:["مدير النظام",null],accountant:["المحاسب",["dash","catalog","commerce","customers","inventory","suppliers","cash","receivables","reports","jev","sensitivity","kernel","excelrecon","zatca","b2bcredit","settings"]],warehouse:["المخزن",["dash","catalog","inventory","suppliers","blending","labels","traceability","scanner","culinary","settings"]],sales:["المبيعات",["dash","catalog","commerce","customers","offers","cash","receivables","jev","zatca","b2bcredit","settings"]],viewer:["مشاهدة فقط",["dash","catalog","reports","inventory","cash","settings"]]};
+const ROLES={
+  admin:["مدير النظام",null],
+  accountant:["المحاسب",["dash","catalog","commerce","customers","inventory","suppliers","cash","receivables","reports","jev","sensitivity","kernel","excelrecon","zatca","b2bcredit","carcass","operations","settings"]],
+  warehouse:["المخزن",["dash","catalog","inventory","suppliers","blending","labels","traceability","scanner","culinary","carcass","operations","settings"]],
+  sales:["المبيعات",["dash","catalog","commerce","customers","offers","cash","receivables","jev","zatca","b2bcredit","operations","settings"]],
+  viewer:["مشاهدة فقط",["dash","catalog","reports","inventory","cash","operations","settings"]]
+};
 function applyScene(){document.documentElement.dataset.skScene=L(KSC,"heritage")}
 function applyRole(){const r=ROLES[L(KROLE,"admin")]||ROLES.admin;$$("[data-v]").forEach(b=>{const v=b.dataset.v;if(v)b.hidden=!!r[1]&&!r[1].includes(v)})}
 function settingsView(root){

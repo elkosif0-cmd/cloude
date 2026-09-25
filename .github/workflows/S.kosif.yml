@@ -82,10 +82,10 @@ jobs:
               assert marker in app, marker
           # every screen is registered in the one bundle
           for view in ["offers","inventory","suppliers","cash","receivables","jev","sensitivity","kernel","carcass","smartmatch","excelrecon",
-                       "zatca","blending","labels","traceability","culinary","scanner","b2bcredit","reports"]:
+                       "zatca","blending","labels","traceability","culinary","scanner","b2bcredit","reports","operations"]:
               assert f'view("{view}"' in js, "screen missing: "+view
           for marker in ["calculateUsableUnitCost","applyRoundingPolicy","calculateBoxPricing","hasCircularDependency","nrvAllocate","yieldTrial","selfTest",
-                         "normalizeArabic","similarity","redact","SKIP_WAITING","data-sk-theme","zatcaTLV","code128SVG","SKosifEnterpriseV38","SKosifReports","SKosifERPPlus"]:
+                         "normalizeArabic","similarity","redact","SKIP_WAITING","data-sk-theme","zatcaTLV","code128SVG","SKosifEnterpriseV38","SKosifReports","SKosifERPPlus","SKosifOperations"]:
               assert marker in js, marker
           assert "data-sk-scene" in css and "skx-scenes" in css
           assert "SKIP_WAITING" in sw and "skosif.js" in sw
