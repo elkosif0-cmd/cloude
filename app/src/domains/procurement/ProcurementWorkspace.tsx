@@ -1,5 +1,6 @@
 import {useMemo,useState} from 'react';
 import {matchReceipt,purchaseOrderValue,type GoodsReceiptLine,type PurchaseOrderLine} from './procurement-engine';
+import {SuppliersPanel} from './SuppliersPanel';
 import './procurement-workspace.css';
 
 export function ProcurementWorkspace(){
@@ -35,6 +36,7 @@ export function ProcurementWorkspace(){
       <article className="sk-surface"><span>سطور الاستلام</span><strong>{receipts.length}</strong></article>
       <article className="sk-surface"><span>فروقات الاستلام</span><strong>{matches.filter((x)=>x.status!=='MATCH').length}</strong></article>
     </div>
+    <SuppliersPanel/>
     <div className="procurement-grid">
       <section className="sk-surface procurement-form">
         <span className="eyebrow">Purchase + Receiving</span><h3>أمر شراء واستلام</h3>
