@@ -2,7 +2,7 @@ import http from "node:http";
 import fs from "node:fs/promises";
 import path from "node:path";
 import pino from "pino";
-import makeWASocket, { useMultiFileAuthState, DisconnectReason, Browsers } from "@whiskeysockets/baileys";
+import makeWASocket, { useMultiFileAuthState, DisconnectReason, Browsers, fetchLatestWaWebVersion } from "@whiskeysockets/baileys";
 
 const PORT = Number(process.env.PORT || 8080);
 const AUTH_DIR = "/tmp/wa-auth";
@@ -90,7 +90,9 @@ async function startSocket() {
     await fs.mkdir(AUTH_DIR, { recursive: true });
     const auth = await useMultiFileAuthState(AUTH_DIR);
     saveCreds = auth.saveCreds;
+    const liveVersion = await fetchLatestWaWebVersion();
     const s = makeWASocket({
+      version: liveVersion.version,
       auth: auth.state,
       logger,
       printQRInTerminal: false,
@@ -120,6 +122,9 @@ async function startSocket() {
         connection = code === DisconnectReason.loggedOut ? "logged_out" : "closed";
         if (code === DisconnectReason.loggedOut) me = null;
         sock = null;
+        if (code !== DisconnectReason.loggedOut) {
+          setTimeout(() => startSocket().catch((e) => logger.error({ err: e }, "WhatsApp reconnect failed")), 750);
+        }
       }
     });
     return s;
