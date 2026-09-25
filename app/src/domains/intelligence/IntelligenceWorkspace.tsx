@@ -1,5 +1,6 @@
 import {useMemo,useState} from 'react';
 import {resolveCouncil,type CouncilVote} from './council-engine';
+import {JevPanel} from './JevPanel';
 import './intelligence-workspace.css';
 
 export function IntelligenceWorkspace(){
@@ -16,6 +17,7 @@ export function IntelligenceWorkspace(){
   }
 
   return <section className="intelligence-workspace">
+    <JevPanel/>
     <div className="intelligence-grid">
       <section className="sk-surface intelligence-form">
         <span className="eyebrow">Decision Council</span><h3>مصفوفة الإجماع</h3>
