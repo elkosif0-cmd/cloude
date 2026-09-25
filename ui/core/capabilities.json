@@ -110,7 +110,9 @@
     "companies",
     "exports",
     "council",
-    "followup"
+    "followup",
+    "tbreview",
+    "codex"
    ],
    "actions": [
     "view",
@@ -200,7 +202,8 @@
     "devices",
     "tasks",
     "risks",
-    "notifications"
+    "notifications",
+    "codex"
    ],
    "actions": [
     "view"
@@ -994,6 +997,40 @@
    "kw": "إكسل فروقات",
    "adv": true,
    "en": "Excel Reconciliation"
+  },
+  {
+   "id": "tbreview",
+   "label": "مراجعة ميزان المراجعة",
+   "sub": "استلام الميزان، المعايير بجوار كل حساب، جولات Gemini والمستندات، قيود التسوية، الامتثال، والقوائم والتقارير",
+   "group": "audit",
+   "tier": "CORE",
+   "module": "ui/features/tb-review.js + ui/core/ai.js + ui/components/xlsx.js + SKEngines.audit.{tbReview,aiReview,documentCheck} + SKEngines.reports.{tbImport,statements,analysis}",
+   "data": [
+    "skosif_tbreview_v1",
+    "IDB skosif-tbreview-docs",
+    "skosif_ai_keys (الجهاز فقط)"
+   ],
+   "legacy": "جديد — دمج smart-trial-balance-review (مجلس Gemini والجولات) و kosif-audit-pro (القوائم والتحليل) و Moon (المخاطر والرأي) و SEE (التصنيف والجاهزية)",
+   "decision": "Rebuild",
+   "kw": "ميزان مراجعة مراجعة حسابات معايير جيمناي gemini مستندات قيود تسوية امتثال قوائم مالية trial balance audit",
+   "adv": false,
+   "en": "Trial Balance Review"
+  },
+  {
+   "id": "codex",
+   "label": "المدونة المحاسبية والمعايير",
+   "sub": "المعايير بمتطلباتها وإجراءات مراجعتها ومصادرها الرسمية، وتحديثها من الجهات المصدرة باعتمادك",
+   "group": "audit",
+   "tier": "MANAGEMENT",
+   "module": "ui/features/codex.js + SKEngines.audit.{codex,standardsUpdate}",
+   "data": [
+    "skosif_codex_updates_v1"
+   ],
+   "legacy": "جديد — يحل محل قاعدة معايير smart-trial-balance-review ويكمّل مختبر المعايير",
+   "decision": "Rebuild",
+   "kw": "معايير مدونة IFRS IAS ISA SOCPA زكاة تحديث مصادر رسمية standards codex",
+   "adv": false,
+   "en": "Accounting Codex"
   },
   {
    "id": "auditdesk",

@@ -22,6 +22,9 @@ describe('trial balance import', () => {
     expect(classifyAccount('', 'إيرادات أخرى').type).toBe('revenue');
     expect(classifyAccount('', 'رأس المال')).toEqual({ type: 'equity', basis: 'name' });
     expect(classifyAccount('', 'حساب معلق')).toEqual({ type: 'suspense', basis: 'none' });
+    expect(classifyAccount('', 'مخصص خسائر ائتمانية متوقعة').type).toBe('asset');
+    expect(classifyAccount('', 'مجمع إهلاك السيارات').type).toBe('asset');
+    expect(classifyAccount('', 'مصروف خسائر ائتمانية متوقعة').type).toBe('expense');
   });
   it('reports out-of-balance, bad amounts, duplicates and skips total rows', () => {
     const tb = parseTrialBalance('code\tname\tdebit\tcredit\n1\tنقد\t100\t\n1\tنقد مكرر\t5\t\n2\tموردون\t\tx\n4\tمبيعات\t\t90\nالإجمالي\t\t105\t90');

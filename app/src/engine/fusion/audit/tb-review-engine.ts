@@ -82,6 +82,8 @@ const ACCUM = /مجمع|متراكم|accumulated|مخصص اهلاك|مخصص ا
 const SUSPENSE = /معلق|تحت التسويه|وسيط|حساب مؤقت|suspense|clearing/;
 const RELATED = /طرف ذو علاقه|اطراف ذات علاقه|شركه شقيقه|جاري المدير|جاري الشريك|جاري الشركاء|related part/;
 const SALARIES = /رواتب|اجور|salar|wages/;
+/* estimates and accruals — where a round balance suggests a guess rather than a calculation */
+const ROUND_PRONE = new Set(['provisions', 'accruals', 'zakatPayable', 'zakatExpense', 'eosb', 'impairment', 'depreciation', 'otherIncome', 'contractLiab']);
 
 export type AccountReview = { code: string; name: string; type: TbRow['type']; lineKey: string | null; lineAr: string; basis: string;
   balance: Minor; natural: Minor; prior: Minor | null; change: Minor | null; changePct: number | null;
@@ -160,8 +162,8 @@ export function reviewTrialBalance(tb: TrialBalance, opts: ReviewOptions = {}): 
     }
     if (a.lineKey === 'ppe' && ACCUM.test(n) && a.balance > 0 && big) tag(add({ severity: 'high', kind: 'measurement', code: a.code, account: a.name, lineKey: 'ppe', standard: 'IAS 16', title: 'مجمع استهلاك برصيد مدين', detail: 'مجمع الاستهلاك رصيده دائن بطبيعته.', basis: 'الرصيد ' + money(a.balance), action: 'مراجعة قيود الاستبعاد والاستهلاك.' }));
     if (RELATED.test(n) && a.balance !== 0) tag(add({ severity: 'low', kind: 'disclosure', code: a.code, account: a.name, lineKey: a.lineKey ?? undefined, standard: 'IAS 24', title: 'رصيد مع طرف ذي علاقة', detail: 'يتطلب إفصاحاً عن طبيعة العلاقة والمعاملات والأرصدة وشروطها.', basis: 'الرصيد ' + money(a.balance), action: 'الحصول على قائمة الأطراف ذات العلاقة ومصادقة الرصيد (ISA 550).' }));
-    if (Math.abs(a.balance) >= Math.max(mat.performance, 1000000) && Math.abs(a.balance) % 1000000 === 0 && a.lineKey && !['capital', 'reserves'].includes(a.lineKey))
-      tag(add({ severity: 'low', kind: 'fraud', code: a.code, account: a.name, lineKey: a.lineKey, standard: 'ISA 240', title: 'رصيد مقرّب إلى عشرة آلاف', detail: 'الأرصدة المستديرة الكبيرة قد تدل على تقديرات أو قيود يدوية.', basis: 'الرصيد ' + money(a.balance), action: 'طلب المستند المؤيد وتحليل القيود اليدوية.' }));
+    if (Math.abs(a.balance) >= Math.max(mat.performance, 1000000) && Math.abs(a.balance) % 1000000 === 0 && a.lineKey && ROUND_PRONE.has(a.lineKey))
+      tag(add({ severity: 'low', kind: 'fraud', code: a.code, account: a.name, lineKey: a.lineKey, standard: 'ISA 240', title: 'تقدير برصيد مقرّب', detail: 'رصيد تقديري أو استحقاق بمضاعفات عشرة آلاف قد يدل على تقدير غير محسوب أو قيد يدوي.', basis: 'الرصيد ' + money(a.balance), action: 'طلب المستند المؤيد وتحليل القيود اليدوية.' }));
   }
 
   /* missing expected accounts */
@@ -195,11 +197,19 @@ export function reviewTrialBalance(tb: TrialBalance, opts: ReviewOptions = {}): 
 
   /* analytics (ISA 520) */
   if (fs.hasPrior) {
+    /* an expectation per line (ISA 520): activity-driven lines move with revenue, the rest stay flat;
+       only a deviation from the expectation beyond performance materiality and 20% is a finding */
+    const rev0 = fs.keys.revenue.prior ?? 0, g = rev0 > 0 ? kv('revenue') / rev0 - 1 : 0;
+    const ACTIVITY = new Set(['cogs', 'selling', 'admin', 'depreciation', 'receivables', 'inventory', 'payables', 'accruals', 'vatAsset', 'vatLiability', 'contractLiab', 'otherIncome']);
+    const SKIP = new Set(['revenue', 'retained', 'cash', 'zakatExpense', 'zakatPayable']);
     for (const l of fs.lines) {
-      if (l.prior === null) continue;
-      const ch = l.current - l.prior, pc = l.prior ? Math.abs(ch / l.prior) * 100 : l.current ? 100 : 0;
-      if (Math.abs(ch) >= mat.performance && pc >= 20)
-        add({ severity: Math.abs(ch) >= mat.overall * 2 ? 'medium' : 'low', kind: 'analytical', lineKey: l.key, standard: 'ISA 520', title: `تغير جوهري في ${l.ar}`, detail: 'التغير يتجاوز الأهمية التنفيذية و20%؛ يلزم تفسير من الإدارة مؤيد بأدلة.', basis: `${money(l.prior)} ← ${money(l.current)} (${ch >= 0 ? '+' : '−'}${Math.round(pc)}%)`, action: 'الحصول على تفسير الإدارة وتأييده.' });
+      if (l.prior === null || SKIP.has(l.key)) continue;
+      const expected = ACTIVITY.has(l.key) ? Math.round(l.prior * (1 + g)) : l.prior, dev = l.current - expected;
+      const rel = expected ? Math.abs(dev / expected) : l.current ? 1 : 0;
+      if (Math.abs(dev) >= mat.performance && rel >= 0.2)
+        add({ severity: Math.abs(dev) >= mat.overall * 2 ? 'medium' : 'low', kind: 'analytical', lineKey: l.key, standard: 'ISA 520', title: `تغير غير متوقع في ${l.ar}`,
+          detail: ACTIVITY.has(l.key) ? `المتوقع أن يتحرك البند مع نمو الإيرادات (${Math.round(g * 1000) / 10}%)؛ الفرق عن التوقع يتطلب تفسيراً مؤيداً بأدلة.` : 'المتوقع ثبات البند ما لم تقع معاملات جوهرية؛ الحركة تتطلب تفسيراً ومستندات.',
+          basis: `السابق ${money(l.prior)} · المتوقع ${money(expected)} · الفعلي ${money(l.current)} (فرق ${money(dev)})`, action: 'الحصول على تفسير الإدارة وتأييده بالمستندات.' });
     }
     const gm = (c: boolean) => { const r = c ? kv('revenue') : fs.keys.revenue.prior ?? 0, g = c ? kv('gross') : fs.keys.gross.prior ?? 0; return r ? (g / r) * 100 : null; };
     const g1 = gm(true), g0 = gm(false);

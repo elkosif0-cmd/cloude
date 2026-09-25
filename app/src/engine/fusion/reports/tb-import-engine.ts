@@ -42,10 +42,14 @@ const NAME_HINTS: { type: AccountType; words: string[] }[] = [
   { type: 'asset', words: ['نقد', 'صندوق', 'بنك', 'مدين', 'مدينه', 'عملاء', 'مخزون', 'بضاعه', 'اصل', 'اصول', 'عهده', 'مقدم', 'استثمار', 'مباني', 'معدات', 'سيارات', 'اثاث', 'cash', 'bank', 'receivable', 'inventory', 'asset', 'prepaid'] },
 ];
 
+const CONTRA = ['خسائر ائتمانيه', 'ديون مشكوك', 'مجمع اهلاك', 'مجمع الاهلاك', 'مجمع استهلاك', 'اهلاك متراكم', 'استهلاك متراكم', 'accumulated depreciation', 'allowance for'];
+
 export function classifyAccount(code: string, name: string): { type: AccountType; basis: TbRow['classifiedBy'] } {
   const digits = normalizeDigits(code).replace(/\D/g, '');
   if (digits && CODE_PREFIX[digits[0]]) return { type: CODE_PREFIX[digits[0]], basis: 'code' };
   const hay = norm(name);
+  /* contra-asset accounts carry a credit balance but belong to assets (receivables, PPE) */
+  if (CONTRA.some((w) => hay.includes(w)) && !/مصروف|مصاريف|expense/.test(hay)) return { type: 'asset', basis: 'name' };
   for (const h of NAME_HINTS) if (h.words.some((w) => hay.includes(w))) return { type: h.type, basis: 'name' };
   return { type: 'suspense', basis: 'none' };
 }

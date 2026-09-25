@@ -265,6 +265,17 @@ window.SKEngines = (function() {
 			]
 		}
 	];
+	var CONTRA = [
+		"خسائر ائتمانيه",
+		"ديون مشكوك",
+		"مجمع اهلاك",
+		"مجمع الاهلاك",
+		"مجمع استهلاك",
+		"اهلاك متراكم",
+		"استهلاك متراكم",
+		"accumulated depreciation",
+		"allowance for"
+	];
 	function classifyAccount(code, name) {
 		const digits = normalizeDigits(code).replace(/\D/g, "");
 		if (digits && CODE_PREFIX[digits[0]]) return {
@@ -272,6 +283,10 @@ window.SKEngines = (function() {
 			basis: "code"
 		};
 		const hay = norm(name);
+		if (CONTRA.some((w) => hay.includes(w)) && !/مصروف|مصاريف|expense/.test(hay)) return {
+			type: "asset",
+			basis: "name"
+		};
 		for (const h of NAME_HINTS) if (h.words.some((w) => hay.includes(w))) return {
 			type: h.type,
 			basis: "name"
@@ -3517,6 +3532,17 @@ window.SKEngines = (function() {
 	var SUSPENSE = /معلق|تحت التسويه|وسيط|حساب مؤقت|suspense|clearing/;
 	var RELATED = /طرف ذو علاقه|اطراف ذات علاقه|شركه شقيقه|جاري المدير|جاري الشريك|جاري الشركاء|related part/;
 	var SALARIES = /رواتب|اجور|salar|wages/;
+	var ROUND_PRONE = /* @__PURE__ */ new Set([
+		"provisions",
+		"accruals",
+		"zakatPayable",
+		"zakatExpense",
+		"eosb",
+		"impairment",
+		"depreciation",
+		"otherIncome",
+		"contractLiab"
+	]);
 	var money$22 = (m) => formatMinor(m, { decimals: 0 }) + " ر.س";
 	/** Run the whole deterministic review of a trial balance. */
 	function reviewTrialBalance(tb, opts = {}) {
@@ -3792,15 +3818,15 @@ window.SKEngines = (function() {
 				basis: "الرصيد " + money$22(a.balance),
 				action: "الحصول على قائمة الأطراف ذات العلاقة ومصادقة الرصيد (ISA 550)."
 			}));
-			if (Math.abs(a.balance) >= Math.max(mat.performance, 1e6) && Math.abs(a.balance) % 1e6 === 0 && a.lineKey && !["capital", "reserves"].includes(a.lineKey)) tag(add({
+			if (Math.abs(a.balance) >= Math.max(mat.performance, 1e6) && Math.abs(a.balance) % 1e6 === 0 && a.lineKey && ROUND_PRONE.has(a.lineKey)) tag(add({
 				severity: "low",
 				kind: "fraud",
 				code: a.code,
 				account: a.name,
 				lineKey: a.lineKey,
 				standard: "ISA 240",
-				title: "رصيد مقرّب إلى عشرة آلاف",
-				detail: "الأرصدة المستديرة الكبيرة قد تدل على تقديرات أو قيود يدوية.",
+				title: "تقدير برصيد مقرّب",
+				detail: "رصيد تقديري أو استحقاق بمضاعفات عشرة آلاف قد يدل على تقدير غير محسوب أو قيد يدوي.",
 				basis: "الرصيد " + money$22(a.balance),
 				action: "طلب المستند المؤيد وتحليل القيود اليدوية."
 			}));
@@ -3954,18 +3980,41 @@ window.SKEngines = (function() {
 			});
 		}
 		if (fs.hasPrior) {
+			const rev0 = fs.keys.revenue.prior ?? 0, g = rev0 > 0 ? kv("revenue") / rev0 - 1 : 0;
+			const ACTIVITY = /* @__PURE__ */ new Set([
+				"cogs",
+				"selling",
+				"admin",
+				"depreciation",
+				"receivables",
+				"inventory",
+				"payables",
+				"accruals",
+				"vatAsset",
+				"vatLiability",
+				"contractLiab",
+				"otherIncome"
+			]);
+			const SKIP = /* @__PURE__ */ new Set([
+				"revenue",
+				"retained",
+				"cash",
+				"zakatExpense",
+				"zakatPayable"
+			]);
 			for (const l of fs.lines) {
-				if (l.prior === null) continue;
-				const ch = l.current - l.prior, pc = l.prior ? Math.abs(ch / l.prior) * 100 : l.current ? 100 : 0;
-				if (Math.abs(ch) >= mat.performance && pc >= 20) add({
-					severity: Math.abs(ch) >= mat.overall * 2 ? "medium" : "low",
+				if (l.prior === null || SKIP.has(l.key)) continue;
+				const expected = ACTIVITY.has(l.key) ? Math.round(l.prior * (1 + g)) : l.prior, dev = l.current - expected;
+				const rel = expected ? Math.abs(dev / expected) : l.current ? 1 : 0;
+				if (Math.abs(dev) >= mat.performance && rel >= .2) add({
+					severity: Math.abs(dev) >= mat.overall * 2 ? "medium" : "low",
 					kind: "analytical",
 					lineKey: l.key,
 					standard: "ISA 520",
-					title: `تغير جوهري في ${l.ar}`,
-					detail: "التغير يتجاوز الأهمية التنفيذية و20%؛ يلزم تفسير من الإدارة مؤيد بأدلة.",
-					basis: `${money$22(l.prior)} ← ${money$22(l.current)} (${ch >= 0 ? "+" : "−"}${Math.round(pc)}%)`,
-					action: "الحصول على تفسير الإدارة وتأييده."
+					title: `تغير غير متوقع في ${l.ar}`,
+					detail: ACTIVITY.has(l.key) ? `المتوقع أن يتحرك البند مع نمو الإيرادات (${Math.round(g * 1e3) / 10}%)؛ الفرق عن التوقع يتطلب تفسيراً مؤيداً بأدلة.` : "المتوقع ثبات البند ما لم تقع معاملات جوهرية؛ الحركة تتطلب تفسيراً ومستندات.",
+					basis: `السابق ${money$22(l.prior)} · المتوقع ${money$22(expected)} · الفعلي ${money$22(l.current)} (فرق ${money$22(dev)})`,
+					action: "الحصول على تفسير الإدارة وتأييده بالمستندات."
 				});
 			}
 			const gm = (c) => {

@@ -6,7 +6,7 @@
 (()=>{
 "use strict";
 const DB="aghnam-app-v7",PREFIX=/^(aghnam|skosif|kosif|s_kosif)/,FORMAT="skosif-backup",VERSION=2;
-const SKIP=new Set(["skosif_error_log"]);
+const SKIP=new Set(["skosif_error_log","skosif_ai_keys"]);/* the Gemini key never leaves this device */
 let snapshot=null;
 
 function appKeys(){const out=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&PREFIX.test(k)&&!SKIP.has(k))out.push(k)}return out.sort()}

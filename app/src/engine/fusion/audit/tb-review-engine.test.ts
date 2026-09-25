@@ -68,6 +68,14 @@ describe('trial balance review', () => {
     expect(adjustmentEffect(bad, r.adjustments).profit).toBe(-zakat);
     expect(validateAdjustment({ ...r.adjustments[0], lines: [{ code: '1101', name: 'x', debit: 100, credit: 0 }, { code: '2101', name: 'y', debit: 0, credit: 90 }] }, bad).balanced).toBe(false);
   });
+  it('compares each line with an expectation (ISA 520) instead of flagging growth', () => {
+    const r = reviewTrialBalance(sample);
+    expect(r.findings.filter((f) => f.kind === 'analytical')).toHaveLength(0);
+    const jump = parseTrialBalance(SAMPLE_TB_CSV.replace('6101,رواتب وأجور إدارية,80000,,70000', '6101,رواتب وأجور إدارية,130000,,70000').replace('4101,المبيعات,,500000,-400000', '4101,المبيعات,,550000,-400000'));
+    const f = reviewTrialBalance(jump).findings.find((x) => x.kind === 'analytical' && x.lineKey === 'admin')!;
+    expect(f.basis).toContain('المتوقع 96,250');
+    expect(f.detail).toContain('37.5%');
+  });
   it('raises the risk of lines with findings and no evidence', () => {
     const r = reviewTrialBalance(sample), again = reviewTrialBalance(sample, { evidence: { revenue: 'accepted' } });
     const rev = (x: typeof r) => x.risks.find((k) => k.lineKey === 'revenue')!;

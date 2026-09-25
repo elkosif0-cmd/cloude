@@ -2,7 +2,7 @@
 
 Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do not edit by hand.
 
-Total capabilities: **62** (screens). Cross-cutting capabilities are listed after the table.
+Total capabilities: **64** (screens). Cross-cutting capabilities are listed after the table.
 
 | ID | Capability | Module | Current Location | Data Used | Dependencies | Status | Keep/Remove/Merge/Rebuild |
 |---|---|---|---|---|---|---|---|
@@ -54,6 +54,8 @@ Total capabilities: **62** (screens). Cross-cutting capabilities are listed afte
 | `exports` | مركز التصدير | ui/features/workspace.js | التقارير والتحليلات › يومي | `كل المفاتيح` | SKosifCore | Working | Rebuild |
 | `smartmatch` | مطابقة المبيعات | ui/smartmatch.js | التقارير والتحليلات › متقدم | `skosif_v34_product_aliases` | SKosifCore | Working | Keep |
 | `excelrecon` | مطابقة الإكسل | ui/tools.js | التقارير والتحليلات › متقدم | — | SKosifCore | Working | Keep |
+| `tbreview` | مراجعة ميزان المراجعة | ui/features/tb-review.js + ui/core/ai.js + ui/components/xlsx.js + SKEngines.audit.{tbReview,aiReview,documentCheck} + SKEngines.reports.{tbImport,statements,analysis} | المراجعة والتأكيد › يومي | `skosif_tbreview_v1`, `IDB skosif-tbreview-docs`, `skosif_ai_keys (الجهاز فقط)` | SKosifCore, IndexedDB | Working | Rebuild |
+| `codex` | المدونة المحاسبية والمعايير | ui/features/codex.js + SKEngines.audit.{codex,standardsUpdate} | المراجعة والتأكيد › يومي | `skosif_codex_updates_v1` | SKosifCore | Working | Rebuild |
 | `auditdesk` | مركز المراجعة | ui/audit (v5) | المراجعة والتأكيد › متقدم | `audit studio IDB` | SKosifCore | Working | Keep |
 | `auditdocs` | المستندات والأدلة | ui/audit (v5) + ui/audit-bridge.js | المراجعة والتأكيد › متقدم | `IDB sales_lines`, `skosif_v31_supplier_batches`, `skosif_erp_finance_v1`, `skosif_v38_ledger` | SKosifCore, IndexedDB | Working | Keep |
 | `auditissues` | الملاحظات والقضايا | ui/audit (v5) | المراجعة والتأكيد › متقدم | `audit studio IDB` | SKosifCore | Working | Keep |

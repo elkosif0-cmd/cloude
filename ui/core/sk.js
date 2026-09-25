@@ -86,7 +86,9 @@ const ICONS={
   share:SV('<path d="M12 3v13M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>'),
   keyboard:SV('<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>'),
   risks:SV('<path d="M12 3 2.5 20h19z"/><path d="M12 10v4M12 17h.01"/>'),
-  notifications:SV('<path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/>')
+  notifications:SV('<path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/>'),
+  tbreview:SV('<path d="M12 3v18M5 21h14"/><path d="M4 7h16"/><path d="m7 7-3 6a3 3 0 0 0 6 0zM17 7l-3 6a3 3 0 0 0 6 0z"/>'),
+  codex:SV('<path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 21.5V4.5M8 7h8M8 11h6"/>')
 };
 const icon=id=>ICONS[id]||(core()&&core().navIcon(id))||ICONS.action;
 
