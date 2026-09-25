@@ -197,3 +197,9 @@ export default {
     return relay(await bridge(env, '/send-media', { method: 'POST', body: JSON.stringify({ to: out.to, ...bundle.attachments[0], idempotencyKey: out.idempotencyKey }) }));
   },
 };
+
+
+export class WaBridge {
+  constructor(ctx, env) { this.ctx = ctx; this.env = env; }
+  async fetch() { return new Response("unused", { status: 404 }); }
+}
