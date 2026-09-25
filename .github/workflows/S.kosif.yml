@@ -3,13 +3,15 @@ name: S.kosif
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: s-kosif-main
+  group: s-kosif-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -83,8 +85,9 @@ jobs:
                        "zatca","blending","labels","traceability","culinary","scanner","b2bcredit","reports"]:
               assert f'view("{view}"' in js, "screen missing: "+view
           for marker in ["calculateUsableUnitCost","applyRoundingPolicy","calculateBoxPricing","hasCircularDependency","nrvAllocate","yieldTrial","selfTest",
-                         "normalizeArabic","similarity","redact","SKIP_WAITING","data-sk-theme","zatcaTLV","code128SVG","SKosifEnterpriseV38","SKosifReports"]:
+                         "normalizeArabic","similarity","redact","SKIP_WAITING","data-sk-theme","zatcaTLV","code128SVG","SKosifEnterpriseV38","SKosifReports","SKosifERPPlus"]:
               assert marker in js, marker
+          assert "data-sk-scene" in css and "skx-scenes" in css
           assert "SKIP_WAITING" in sw and "skosif.js" in sw
           print("S.kosif validation: OK")
           PY
