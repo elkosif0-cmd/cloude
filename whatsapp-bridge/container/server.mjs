@@ -147,7 +147,7 @@ async function requestPhonePairingCode(phone) {
   }
   if (!sock) throw new Error("socket_not_ready");
   const code = await sock.requestPairingCode(digits);
-  return String(code || "").replace(/\D/g, "");
+  return String(code || "");
 }
 
 async function waitForOpen(timeoutMs = 20000) {
