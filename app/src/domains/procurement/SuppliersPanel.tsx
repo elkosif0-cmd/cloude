@@ -3,7 +3,7 @@ import {JsonStorageRepository} from '../../data/json-storage-repository';
 import {makeScopedKey,readActiveScope} from '../../data/scope-key';
 import {createSupplier,inspectSuppliers,type Supplier} from './suppliers-engine';
 
-export function SuppliersPanel(){
+export function SuppliersPanel({onChanged}:{onChanged?:()=>void}){
   const [suppliers,setSuppliers]=useState<Supplier[]>([]);
   const [code,setCode]=useState('');
   const [name,setName]=useState('');
@@ -25,6 +25,7 @@ export function SuppliersPanel(){
     }
     await repo.put(supplier);
     setSuppliers(await repo.list());
+    onChanged?.();
     setCode('');setName('');setTaxNumber('');setPhone('');setEmail('');
     setMessage('تم حفظ المورد.');
   }
