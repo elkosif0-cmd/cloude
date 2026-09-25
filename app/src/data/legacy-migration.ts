@@ -19,6 +19,10 @@ export type MigrationReport={
   reorderPlans:number;
   offers:number;
   b2bCredits:number;
+  traceabilityBatches:number;
+  coldChainEvents:number;
+  expiryBatches:number;
+  jevDecisions:number;
   legacyCommerceRows:number;
   warnings:string[];
 };
@@ -138,6 +142,10 @@ export function inspectLegacyDataset(dataset:LegacyDataset):MigrationReport{
   const offers=parseJson<Record<string,unknown>>(dataset.local['skosif_v32_offers'],{});
   const b2b=parseJson<any[]>(dataset.local['skosif_v38_ledger'],[]);
   const pricing=parseJson<any>(dataset.local['aghnam-pricing-v3'],{});
+  const traceability=parseJson<any[]>(dataset.local['skosif_v38_batches'],[]);
+  const coldChain=parseJson<any[]>(dataset.local['skosif_v38_coldchain'],[]);
+  const expiry=parseJson<any[]>(dataset.local['skosif_inv_expiry_batches'],[]);
+  const jevLog=parseJson<any[]>(dataset.local['aghnam_v29_jev_log'],[]);
   const raws=Array.isArray(pricing?.raws)?pricing.raws:[];
   const idbRows=Object.values(dataset.idb).reduce((sum,rows)=>sum+(Array.isArray(rows)?rows.length:0),0);
   const customerRows=[
@@ -158,6 +166,10 @@ export function inspectLegacyDataset(dataset:LegacyDataset):MigrationReport{
     reorderPlans:reorderPlans.length,
     offers:Object.keys(offers).length,
     b2bCredits:b2b.length,
+    traceabilityBatches:traceability.length,
+    coldChainEvents:coldChain.length,
+    expiryBatches:expiry.length,
+    jevDecisions:jevLog.length,
     legacyCommerceRows:['orders','order_items','payments','sales_lines','sales_descriptions','ops_orders'].reduce((sum,key)=>sum+(dataset.idb[key]?.length??0),0),
     warnings:[],
   };
@@ -288,6 +300,87 @@ function mapReorderPlans(dataset:LegacyDataset){
   }));
 }
 
+function storageMode(value:unknown){
+  const v=text(value).toLowerCase();
+  if(v.includes('مجمد')||v.includes('frozen'))return 'frozen';
+  if(v.includes('فاكيوم')||v.includes('vacuum'))return 'vacuum';
+  return 'chilled';
+}
+
+function mapTraceability(dataset:LegacyDataset,items:any[],suppliers:any[]){
+  const enterprise=parseJson<any[]>(dataset.local['skosif_v38_batches'],[]);
+  const expiry=parseJson<any[]>(dataset.local['skosif_inv_expiry_batches'],[]);
+  const rows:any[]=[];
+
+  enterprise.forEach((row,index)=>{
+    const item=items.find(i=>i.name===text(row?.item||row?.breed)||i.sku===text(row?.itemId));
+    const supplier=suppliers.find(s=>s.name===text(row?.supplier));
+    const received=text(row?.receivedDate||row?.date)||new Date().toISOString().slice(0,10);
+    const expiryDate=text(row?.expiryDate||row?.dateExp)||received;
+    rows.push({
+      id:text(row?.id)||stableId('trace',row?.lot||row?.cert||index,index),
+      lotCode:text(row?.lot||row?.id)||('LEGACY-LOT-'+(index+1)),
+      itemId:item?.id||stableId('legacy-item',row?.item||row?.breed,index),
+      supplierId:supplier?.id,
+      origin:text(row?.origin||row?.breed||row?.slaughterhouse)||undefined,
+      receivedDate:received,
+      slaughterDate:text(row?.slaughterDate||row?.date)||undefined,
+      expiryDate,
+      storageMode:storageMode(row?.storage),
+      quantity:numeric(row?.quantity||row?.count||row?.stockKg),
+      unit:text(row?.unit)||(row?.count?'head':'kg'),
+      legacySource:'skosif_v38_batches',
+    });
+  });
+
+  expiry.forEach((row,index)=>{
+    const item=items.find(i=>i.name===text(row?.item)||i.sku===text(row?.itemId));
+    rows.push({
+      id:'expiry-'+(text(row?.id)||String(index+1)),
+      lotCode:text(row?.id)||('EXP-'+(index+1)),
+      itemId:item?.id||stableId('legacy-item',row?.item,index),
+      origin:undefined,
+      receivedDate:text(row?.datePrep)||new Date().toISOString().slice(0,10),
+      slaughterDate:text(row?.datePrep)||undefined,
+      expiryDate:text(row?.dateExp)||text(row?.datePrep)||new Date().toISOString().slice(0,10),
+      storageMode:storageMode(row?.storage),
+      quantity:numeric(row?.stockKg),
+      unit:'kg',
+      legacySource:'skosif_inv_expiry_batches',
+    });
+  });
+  return rows;
+}
+
+function mapColdChain(dataset:LegacyDataset,traceability:any[]){
+  const logs=parseJson<any[]>(dataset.local['skosif_v38_coldchain'],[]);
+  return logs.map((row,index)=>{
+    const batch=traceability.find(b=>b.lotCode===text(row?.lotCode||row?.batchId));
+    return {
+      id:text(row?.id)||stableId('temp',row?.time||index,index),
+      batchId:batch?.id||text(row?.batchId)||traceability[0]?.id||'legacy-unassigned',
+      recordedAt:text(row?.recordedAt||row?.time)||new Date().toISOString(),
+      celsius:numeric(row?.celsius??row?.temp),
+      humidity:numeric(row?.humidity),
+      location:text(row?.loc||row?.location)||undefined,
+      inspector:text(row?.inspector)||undefined,
+      legacySource:'skosif_v38_coldchain',
+    };
+  });
+}
+
+function mapJevDecisions(dataset:LegacyDataset){
+  const log=parseJson<any[]>(dataset.local['aghnam_v29_jev_log'],[]);
+  return log.map((row,index)=>({
+    id:text(row?.id)||stableId('jev',row?.at||index,index),
+    at:text(row?.at)||new Date().toISOString(),
+    type:['noul','choice','score'].includes(text(row?.type))?text(row?.type):'choice',
+    question:text(row?.question)||'Legacy Jev decision',
+    result:row?.result??{summary:text(row?.summary),source:text(row?.source||'Jev')},
+    legacySource:'aghnam_v29_jev_log',
+  }));
+}
+
 function mapLegacyCommerce(dataset:LegacyDataset){
   const stores=['orders','order_items','payments','sales_lines','sales_descriptions','ops_orders','imports','import_errors','pricing_snapshots'];
   const records:any[]=[];
@@ -325,6 +418,9 @@ export async function applyLegacyMigration(storage:StorageLike,dataset:LegacyDat
   const credits=mapB2BCredit(dataset,customers);
   const offers=mapOffers(dataset,items);
   const reorderPlans=mapReorderPlans(dataset);
+  const traceability=mapTraceability(dataset,items,suppliers);
+  const coldChain=mapColdChain(dataset,traceability);
+  const jevDecisions=mapJevDecisions(dataset);
   const commerce=mapLegacyCommerce(dataset);
 
   mergeEnvelope(storage,makeScopedKey('catalog.items',scope),items);
@@ -334,6 +430,9 @@ export async function applyLegacyMigration(storage:StorageLike,dataset:LegacyDat
   mergeEnvelope(storage,makeScopedKey('sales.credit-ledger',scope),credits);
   mergeEnvelope(storage,makeScopedKey('catalog.offers',scope),offers);
   mergeEnvelope(storage,makeScopedKey('stock.reorder-plans',scope),reorderPlans);
+  mergeEnvelope(storage,makeScopedKey('stock.traceability-batches',scope),traceability);
+  mergeEnvelope(storage,makeScopedKey('stock.temperature-events',scope),coldChain);
+  mergeEnvelope(storage,makeScopedKey('intelligence.jev-decisions',scope),jevDecisions);
   mergeEnvelope(storage,makeScopedKey('legacy.commerce',scope),commerce);
 
   await archiveLegacyDataset(dataset);
