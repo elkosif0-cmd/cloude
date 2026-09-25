@@ -1,8 +1,9 @@
 import {useEffect,useMemo,useState} from 'react';
 import {JsonStorageRepository} from '../../data/json-storage-repository';
+import {makeScopedKey,readActiveScope} from '../../data/scope-key';
 import {derivePbcStatus,pbcCompletionPercent,type PbcRequest} from './pbc-engine';
 
-const STORAGE_KEY='skosif.v1.audit.pbc';
+const STORAGE_BASE='audit.pbc';
 
 export function PbcPanel(){
   const [requests,setRequests]=useState<PbcRequest[]>([]);
@@ -10,7 +11,8 @@ export function PbcPanel(){
   const [required,setRequired]=useState('1');
   const [received,setReceived]=useState('0');
   const [round,setRound]=useState('1');
-  const repo=useMemo(()=>new JsonStorageRepository<PbcRequest & {id:string}>(window.localStorage,STORAGE_KEY),[]);
+  const storageKey=useMemo(()=>makeScopedKey(STORAGE_BASE,readActiveScope(window.localStorage)),[]);
+  const repo=useMemo(()=>new JsonStorageRepository<PbcRequest & {id:string}>(window.localStorage,storageKey),[storageKey]);
   useEffect(()=>{void repo.list().then(setRequests);},[repo]);
   const completion=pbcCompletionPercent(requests);
 
