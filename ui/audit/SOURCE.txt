@@ -1,2 +1,0 @@
-Vendored from kosif199022-jpg/kosif-audit-studio by tools/vendor_audit.py.
-Edit upstream and re-run the tool; files here are generated.
