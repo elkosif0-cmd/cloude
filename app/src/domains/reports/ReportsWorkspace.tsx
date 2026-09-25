@@ -9,6 +9,7 @@ import type {Customer} from '../sales/customers-engine';
 import {buildStockPositions,type StockMovement} from '../stock/inventory-engine';
 import {rowsToCsv,safeExportName,type ExportRow} from './export-engine';
 import {ScenarioPanel} from './ScenarioPanel';
+import {MatchingReconPanel} from './MatchingReconPanel';
 import './reports-workspace.css';
 
 function downloadText(name:string,content:string,type:string){
@@ -81,6 +82,7 @@ export function ReportsWorkspace(){
     </section>
 
     <ScenarioPanel/>
+    <MatchingReconPanel/>
 
     <section className="sk-surface reports-export">
       <span className="eyebrow">Export Center</span><h3>تصدير CSV متوافق مع Excel + نسخة احتياطية</h3>
