@@ -13,6 +13,7 @@ import {StandardsPanel} from './StandardsPanel';
 import {WorkpapersPanel} from './WorkpapersPanel';
 import {ReportPanel} from './ReportPanel';
 import {ReviewerCouncilPanel} from './ReviewerCouncilPanel';
+import {WorkspaceSectionNav,WorkspaceSectionPage} from '../../shell/WorkspaceSectionNav';
 import './audit-workspace.css';
 
 const JOURNAL_STORAGE_BASE='finance.journals';
@@ -23,6 +24,7 @@ export function AuditWorkspace(){
   const [rate,setRate]=useState('0.01');
   const [performanceRate,setPerformanceRate]=useState('0.75');
   const [trivialRate,setTrivialRate]=useState('0.05');
+  const [section,setSection]=useState('overview');
 
   const journalStorageKey=useMemo(()=>makeScopedKey(JOURNAL_STORAGE_BASE,readActiveScope(window.localStorage)),[]);
   const repo=useMemo(()=>new JsonStorageRepository<JournalEntry & {id:string}>(window.localStorage,journalStorageKey),[journalStorageKey]);
@@ -43,7 +45,16 @@ export function AuditWorkspace(){
   }),[entries,materiality]);
 
   return <section className="audit-workspace">
-    <div className="audit-kpis">
+    <WorkspaceSectionNav active={section} onChange={setSection} items={[
+      {id:'overview',label:'نظرة عامة',badge:findings.length},
+      {id:'planning',label:'التخطيط'},
+      {id:'evidence',label:'الأدلة وPBC'},
+      {id:'testing',label:'الاختبارات'},
+      {id:'council',label:'مجلس المراجعين'},
+      {id:'workpapers',label:'أوراق العمل والمعايير'},
+      {id:'report',label:'التقرير'},
+    ]}/>
+    <WorkspaceSectionPage id="overview" active={section}><div className="audit-kpis">
       <article className="sk-surface"><span>قيود المصدر</span><strong className="sk-number">{entries.length}</strong><small>من نفس دفتر المالية</small></article>
       <article className="sk-surface"><span>الأهمية النسبية</span><strong className="sk-number">{materiality.overall.toLocaleString('en-US')}</strong><small>محسوبة لحظيًا</small></article>
       <article className="sk-surface"><span>Performance</span><strong className="sk-number">{materiality.performance.toLocaleString('en-US')}</strong><small>حد التنفيذ</small></article>
@@ -66,15 +77,12 @@ export function AuditWorkspace(){
           findings.length===0?<p className="audit-empty">لا توجد علامات مخاطر وفق الحدود الحالية.</p>:
           <div className="audit-list">{findings.map((item,index)=><article key={item.entryId+'-'+item.code+'-'+index}><div><strong>{item.entryId}</strong><small>{item.code}</small></div><span>{item.detail}</span><b className="sk-number">{item.score}</b></article>)}</div>}
       </section>
-    </div>
-    <PlanningPanel/>
-    <PbcPanel/>
-    <EvidencePanel/>
-    <SamplingPanel/>
-    <IssuesPanel/>
-    <ReviewerCouncilPanel/>
-    <WorkpapersPanel/>
-    <StandardsPanel/>
-    <ReportPanel/>
+    </div></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="planning" active={section}><PlanningPanel/></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="evidence" active={section}><PbcPanel/><EvidencePanel/></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="testing" active={section}><SamplingPanel/><IssuesPanel/></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="council" active={section}><ReviewerCouncilPanel/></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="workpapers" active={section}><WorkpapersPanel/><StandardsPanel/></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="report" active={section}><ReportPanel/></WorkspaceSectionPage>
   </section>;
 }
