@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useState} from 'react';
 import {JsonStorageRepository} from '../../data/json-storage-repository';
+import {makeScopedKey,readActiveScope} from '../../data/scope-key';
 import {buildTrialBalance,type JournalEntry} from '../finance/ledger-engine';
 import {buildStockPositions,type StockMovement} from '../stock/inventory-engine';
 import {pbcCompletionPercent,type PbcRequest} from '../audit/pbc-engine';
@@ -12,9 +13,10 @@ export function CommandCenter(){
   const [companies,setCompanies]=useState<Company[]>([]);
 
   useEffect(()=>{
-    const journalRepo=new JsonStorageRepository<JournalEntry & {id:string}>(window.localStorage,'skosif.v1.finance.journals');
-    const stockRepo=new JsonStorageRepository<StockMovement & {id:string}>(window.localStorage,'skosif.v1.stock.movements');
-    const pbcRepo=new JsonStorageRepository<PbcRequest & {id:string}>(window.localStorage,'skosif.v1.audit.pbc');
+    const scope=readActiveScope(window.localStorage);
+    const journalRepo=new JsonStorageRepository<JournalEntry & {id:string}>(window.localStorage,makeScopedKey('finance.journals',scope));
+    const stockRepo=new JsonStorageRepository<StockMovement & {id:string}>(window.localStorage,makeScopedKey('stock.movements',scope));
+    const pbcRepo=new JsonStorageRepository<PbcRequest & {id:string}>(window.localStorage,makeScopedKey('audit.pbc',scope));
     const companyRepo=new JsonStorageRepository<Company & {id:string}>(window.localStorage,'skosif.v1.system.companies');
     void Promise.all([journalRepo.list(),stockRepo.list(),pbcRepo.list(),companyRepo.list()]).then(([j,s,p,c])=>{setJournals(j);setMovements(s);setPbc(p);setCompanies(c);});
   },[]);
