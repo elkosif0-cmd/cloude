@@ -261,11 +261,12 @@ function mapB2BCredit(dataset:LegacyDataset,customers:any[]){
     const customer=customers.find(c=>c.phone&&c.phone===text(row?.phone))||customers.find(c=>c.name===text(row?.name));
     return {
       id:text(row?.id)||stableId('credit',row?.name,index),
-      customerId:customer?.id,
+      customerId:customer?.id||stableId('customer',row?.phone||row?.name,index),
       customerName:text(row?.name),
       limit:numeric(row?.limit),
       balance:numeric(row?.balance),
       terms:text(row?.terms),
+      status:'ACTIVE',
       movements:Array.isArray(row?.moves)?row.moves:[],
       legacySource:'skosif_v38_ledger',
     };
