@@ -126,7 +126,7 @@ export function ProcurementWorkspace(){
       <article className="sk-surface"><span>فروقات الاستلام الحالي</span><strong>{matches.filter(x=>x.status!=='MATCH').length}</strong></article>
     </div>
 
-    <SuppliersPanel/>
+    <SuppliersPanel onChanged={()=>{void supplierRepo.list().then(setSuppliers);}}/>
 
     <div className="procurement-grid">
       <section className="sk-surface procurement-form">
