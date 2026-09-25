@@ -2,6 +2,7 @@ import {useState,type PropsWithChildren} from 'react';
 import {THEMES} from '../design/themes';
 import type {ThemeId} from '../design/theme-contract';
 import {useTheme} from '../design/ThemeProvider';
+import './shell.css';
 
 const nav=[
   ['home','مركز القيادة'],['sales','المبيعات والعملاء'],['stock','المخزون والإنتاج'],['buy','المشتريات والموردون'],['finance','المالية والمحاسبة'],['audit','المراجعة والتأكيد'],['catalog','الكتالوج والتسعير'],['ai','Jev والذكاء'],['reports','التقارير والتحليلات'],['admin','النظام والتكاملات']
