@@ -1,5 +1,5 @@
 from pathlib import Path
-import base64, gzip, hashlib, re, shutil
+import base64, gzip, hashlib, re, shutil, os
 import private_blocks
 
 ROOT=Path(__file__).resolve().parent
@@ -57,8 +57,12 @@ for name in ["manifest.webmanifest","INSTALL-iPHONE-ar.txt","_headers","sw.js"]:
     (OUT/name).write_bytes((ROOT/name).read_bytes())
 
 shutil.copytree(ROOT/"secure",OUT/"secure",dirs_exist_ok=True)
-if private:
+if private and (os.environ.get("KOSIF_UNLOCK_PASSWORD") or os.environ.get("AGHNAM_UNLOCK_PASSWORD")):
     private_blocks.encrypt(private,ROOT/"secure",OUT/"secure")
+elif private:
+    # Preview branches intentionally omit private business blocks when no build secret is available.
+    # The public encrypted seed remains untouched; no private plaintext is emitted.
+    print("Preview build: private catalog omitted because no unlock build secret is configured")
 
 digest=hashlib.sha256()
 for f in sorted(OUT.rglob("*")):
