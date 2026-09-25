@@ -44,6 +44,8 @@ export const coreCapabilities: CapabilityDefinition[] = [
   { id:'catalog.items', label:'الأصناف والكتالوج', route:'/catalog/items', domain:'catalog', decision:'MERGE' },
   { id:'catalog.pricing', label:'التكلفة والتسعير', route:'/catalog/pricing', domain:'catalog', decision:'MERGE' },
   { id:'catalog.offers', label:'العروض واعتماد الأسعار', route:'/catalog/offers', domain:'catalog', decision:'REBUILD' },
+  { id:'catalog.labels', label:'ملصقات الموازين', route:'/catalog/labels', domain:'catalog', decision:'MERGE' },
+  { id:'catalog.scanner', label:'ماسح الباركود', route:'/catalog/scanner', domain:'catalog', decision:'MERGE' },
 
   { id:'intelligence.jev', label:'Jev', route:'/intelligence/jev', domain:'intelligence', decision:'MERGE' },
   { id:'intelligence.council', label:'مجلس الذكاء', route:'/intelligence/council', domain:'intelligence', decision:'REBUILD' },
