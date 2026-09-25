@@ -3,46 +3,38 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111827">
+<meta name="theme-color" content="#0d1b17">
 <title>S.kosif — دخول آمن</title>
 <link rel="icon" href="./icon-192.png">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Outfit:wght@400;600;700;800&display=swap');
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;font-family:'Outfit',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Naskh Arabic",sans-serif;background:#FAF8F5;color:#1E201D;-webkit-font-smoothing:antialiased}
-body{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at top,#F4EFE6 0%,#FAF8F5 60%,#ECE5D8 100%)}
-.card{width:min(460px,100%);background:#FFFFFF;border:1px solid #E8E3D8;border-radius:28px;padding:36px 28px;box-shadow:0 24px 70px rgba(30,32,29,.09);text-align:center;position:relative;overflow:hidden}
-.card::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#A82A2A,#C28B28,#244C37)}
-.logo-wrap{position:relative;display:inline-block;margin-bottom:6px}
-.logo{width:88px;height:88px;border-radius:24px;object-fit:cover;box-shadow:0 12px 32px rgba(36,76,55,.18);border:2px solid #FAF8F5}
-.brand-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#82877E;margin-top:10px}
-h1{font-family:'Amiri',"Noto Naskh Arabic",serif;font-size:32px;margin:4px 0 6px;color:#1E201D;letter-spacing:-0.01em}
-.sub{font-size:14px;color:#5E645A;line-height:1.75;margin:0 0 24px}
-.field{position:relative}
-.field input{width:100%;height:54px;border:1px solid #E0DAD0;border-radius:16px;padding:0 18px 0 54px;font-size:16.5px;outline:none;background:#FAF8F5;color:#1E201D;transition:all .2s ease}
-[dir="rtl"] .field input{padding:0 54px 0 18px}
-.field input:focus{border-color:#244C37;background:#FFFFFF;box-shadow:0 0 0 4px rgba(36,76,55,.12)}
-.eye{position:absolute;inset-inline-end:10px;top:7px;width:40px;height:40px;border:0;background:transparent;font-size:18px;color:#767B73;cursor:pointer;display:grid;place-items:center}
-button.submit{width:100%;height:52px;border:0;border-radius:16px;margin-top:16px;background:#244C37;color:#FFFFFF;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(36,76,55,.24);transition:all .2s ease}
-button.submit:hover:not(:disabled){background:#1B3B2B;transform:translateY(-1px);box-shadow:0 8px 24px rgba(36,76,55,.32)}
-button.submit:disabled{opacity:.65;cursor:default}
-.msg{min-height:24px;margin:12px 0 0;font-size:13.5px;color:#A82A2A;font-weight:600}
-.progress{font-size:13px;color:#767B73;margin-top:8px}
-.badge{display:inline-flex;gap:7px;align-items:center;margin-top:20px;padding:8px 14px;border-radius:999px;background:#EBF4EF;color:#244C37;font-size:12px;font-weight:600}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:"Cairo",system-ui,sans-serif}body{min-height:100vh;background:#07120f;color:#eef7f3;display:grid;place-items:center;padding:max(22px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(22px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));overflow-x:hidden}
+.bg{position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 75% 18%,rgba(49,122,102,.24),transparent 34%),radial-gradient(circle at 18% 80%,rgba(54,89,215,.16),transparent 34%),linear-gradient(145deg,#07120f,#0b1915 55%,#081411)}
+.grid{position:fixed;inset:0;opacity:.12;background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(to bottom,black,transparent 82%)}
+.gate{position:relative;width:min(980px,100%);display:grid;grid-template-columns:1.05fr .95fr;border:1px solid #24443a;background:rgba(13,29,24,.86);backdrop-filter:blur(22px);border-radius:28px;overflow:hidden;box-shadow:0 35px 100px rgba(0,0,0,.38)}
+.intro{padding:48px;display:flex;flex-direction:column;justify-content:space-between;min-height:520px;border-inline-end:1px solid #24443a}.brand{display:flex;align-items:center;gap:13px}.mark{width:48px;height:48px;border-radius:15px;background:#63c2a8;color:#092019;display:grid;place-items:center;font-weight:900;font-size:19px}.brand strong{font-size:17px}.brand small{display:block;color:#829c92;font-size:10px;margin-top:2px;letter-spacing:.07em}.intro h1{font-size:42px;line-height:1.3;margin:0 0 10px;letter-spacing:-.03em}.intro p{color:#a8bbb4;font-size:14px;line-height:1.9;max-width:500px;margin:0}.principles{display:grid;gap:8px;margin-top:30px}.principles div{display:flex;gap:9px;align-items:center;color:#9fb5ad;font-size:11px}.dot{width:7px;height:7px;border-radius:50%;background:#63c2a8;box-shadow:0 0 0 5px rgba(99,194,168,.08)}
+.auth{background:rgba(9,22,18,.56);padding:46px 40px;display:flex;flex-direction:column;justify-content:center}.auth .eyebrow{color:#63c2a8;font-size:10px;font-weight:900;letter-spacing:.1em}.auth h2{font-size:24px;margin:6px 0 5px}.auth>p{font-size:11px;color:#839b91;line-height:1.8;margin:0 0 24px}.field{position:relative}.field input{width:100%;height:54px;border:1px solid #29493f;border-radius:14px;background:#0c1d17;color:#eef7f3;padding:0 16px 0 54px;font-size:15px;outline:none;transition:.18s}.field input:focus{border-color:#63c2a8;box-shadow:0 0 0 4px rgba(99,194,168,.11)}[dir=rtl] .field input{padding:0 54px 0 16px}.eye{position:absolute;inset-inline-end:7px;top:7px;width:40px;height:40px;border:0;border-radius:10px;background:transparent;color:#8aa298;cursor:pointer;font-size:15px}.eye:hover{background:#122921}.submit{width:100%;height:52px;margin-top:12px;border:0;border-radius:14px;background:#63c2a8;color:#092019;font-size:14px;font-weight:900;cursor:pointer;box-shadow:0 10px 26px rgba(99,194,168,.15)}.submit:hover:not(:disabled){background:#7ad0b8}.submit:disabled{opacity:.58;cursor:wait}.msg{min-height:22px;margin-top:10px;color:#ff9aa7;font-size:11px;font-weight:700}.progress{min-height:20px;color:#8ca69b;font-size:10px}.secure{margin-top:20px;padding-top:15px;border-top:1px solid #213c33;display:flex;align-items:center;justify-content:space-between;gap:12px;color:#769187;font-size:9px}.secure b{color:#9eb6ad;font-weight:700}
+@media(max-width:760px){body{place-items:stretch center;padding-top:max(14px,env(safe-area-inset-top))}.gate{grid-template-columns:1fr;border-radius:22px}.intro{min-height:0;padding:25px 22px;border-inline-end:0;border-bottom:1px solid #24443a}.intro h1{font-size:27px;margin-top:28px}.intro p{font-size:11px}.principles{display:none}.auth{padding:26px 22px 30px}.brand .mark{width:42px;height:42px}.auth h2{font-size:20px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
-<main class="card">
-<div class="logo-wrap"><img class="logo" src="./apple-touch-icon.png" alt="S.kosif"><br><span class="brand-tag">Gourmet Fusion OS</span></div>
-<h1>S.kosif</h1>
-<p class="sub">منصة العمليات والتسعير والمختارات الفاخرة. أدخل كلمة المرور المشفرة لفتح التطبيق.</p>
-<form id="f">
-<div class="field"><input id="p" type="password" autocomplete="current-password" placeholder="كلمة المرور الآمنة" required autofocus><button class="eye" id="eye" type="button" aria-label="إظهار كلمة المرور">◉</button></div>
-<button class="submit" id="go" type="submit">دخول آمن للمنصة</button>
-</form>
-<div class="msg" id="msg"></div><div class="progress" id="progress"></div>
-<div class="badge">🔐 تشفير متقدم بنظام ChaCha20 و PBKDF2</div>
+<div class="bg"></div><div class="grid"></div>
+<main class="gate">
+<section class="intro">
+  <div class="brand"><div class="mark">S</div><div><strong>S.kosif</strong><small>OPERATIONS & DECISION OS</small></div></div>
+  <div><h1>بياناتك أولًا.<br>ثم يبدأ العمل.</h1><p>بوابة واحدة تفتح البيانات المشفرة محليًا قبل تشغيل التطبيق. لا يتم إرسال كلمة المرور أو الكتالوج الخاص إلى الواجهة العامة.</p>
+  <div class="principles"><div><span class="dot"></span>فك التشفير داخل جهازك</div><div><span class="dot"></span>التحقق من سلامة البيانات قبل الفتح</div><div><span class="dot"></span>تشغيل Jev عبر جلسة خادمية منفصلة</div></div></div>
+</section>
+<section class="auth">
+ <span class="eyebrow">SECURE ACCESS</span><h2>فتح S.kosif</h2><p>أدخل مفتاح الوصول لفتح البيانات وتشغيل مساحة العمل الجديدة.</p>
+ <form id="f"><div class="field"><input id="p" type="password" autocomplete="current-password" placeholder="مفتاح الوصول" required autofocus><button class="eye" id="eye" type="button" aria-label="إظهار كلمة المرور">◉</button></div><button class="submit" id="go" type="submit">فتح مساحة العمل</button></form>
+ <div class="msg" id="msg"></div><div class="progress" id="progress"></div>
+ <div class="secure"><span>PBKDF2 · ChaCha20 · HMAC-SHA256</span><b>Protected bootstrap</b></div>
+</section>
 </main>
 <script>
 const $=id=>document.getElementById(id);
