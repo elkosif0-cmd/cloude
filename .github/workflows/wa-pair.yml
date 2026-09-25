@@ -1,0 +1,30 @@
+name: KOSIF WhatsApp Pair Helper
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  pair:
+    if: github.event.issue.title == '[PAIR]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch pairing QR
+        env:
+          DISPATCH_TOKEN: ${{ secrets.WA_DISPATCH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl -sS -H "Authorization: Bearer $DISPATCH_TOKEN" \
+            "https://wa-kosif-dispatch.kosif199022.workers.dev/pair/qr" > pair.json
+          if jq -e '.linked == true' pair.json >/dev/null; then
+            gh issue comment "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --body "PAIR_LINKED"
+          else
+            QR=$(jq -r '.qr // empty' pair.json)
+            test -n "$QR"
+            ENC=$(printf '%s' "$QR" | base64 -w0)
+            gh issue comment "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --body "PAIR_QR_B64=$ENC"
+          fi
