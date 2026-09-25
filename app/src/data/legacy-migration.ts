@@ -264,7 +264,7 @@ function mapOffers(dataset:LegacyDataset,items:any[]){
   const offers=parseJson<Record<string,unknown>>(dataset.local['skosif_v32_offers'],{});
   return Object.entries(offers).map(([legacyItemId,discount],index)=>{
     const item=items.find(i=>i.sku===legacyItemId||i.id===legacyItemId);
-    return {id:'offer-'+(item?.id||stableId('legacy',legacyItemId,index)),itemId:item?.id,legacyItemId,discountRate:numeric(discount),active:numeric(discount)>0,legacySource:'skosif_v32_offers'};
+    return {id:'offer-'+(item?.id||stableId('legacy',legacyItemId,index)),itemId:item?.id??legacyItemId,discountRate:numeric(discount),startDate:'',endDate:'',status:'DRAFT',note:'Imported from legacy offers; review dates before approval.',legacyItemId,legacySource:'skosif_v32_offers'};
   });
 }
 
@@ -332,7 +332,7 @@ export async function applyLegacyMigration(storage:StorageLike,dataset:LegacyDat
   mergeEnvelope(storage,makeScopedKey('procurement.suppliers',scope),suppliers);
   mergeEnvelope(storage,makeScopedKey('procurement.supplier-batches',scope),batches);
   mergeEnvelope(storage,makeScopedKey('sales.credit-ledger',scope),credits);
-  mergeEnvelope(storage,makeScopedKey('sales.offers',scope),offers);
+  mergeEnvelope(storage,makeScopedKey('catalog.offers',scope),offers);
   mergeEnvelope(storage,makeScopedKey('stock.reorder-plans',scope),reorderPlans);
   mergeEnvelope(storage,makeScopedKey('legacy.commerce',scope),commerce);
 
