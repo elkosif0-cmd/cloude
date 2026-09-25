@@ -30,6 +30,6 @@ jobs:
         working-directory: app
         run: npm install
 
-      - name: Run AppRoot RED/GREEN test
+      - name: Typecheck, test and build clean application
         working-directory: app
-        run: npm test -- AppRoot.test.tsx
+        run: npm run build
