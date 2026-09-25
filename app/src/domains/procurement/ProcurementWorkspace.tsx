@@ -3,6 +3,7 @@ import {JsonStorageRepository} from '../../data/json-storage-repository';
 import {makeScopedKey,readActiveScope} from '../../data/scope-key';
 import type {CatalogItem} from '../catalog/items-engine';
 import type {JournalEntry} from '../finance/ledger-engine';
+import type {PayableInvoice} from '../finance/payables-engine';
 import type {StockMovement} from '../stock/inventory-engine';
 import {matchReceipt} from './procurement-engine';
 import {buildReceiptPosting,type GoodsReceiptDocument,type PurchaseDocumentLine,type PurchaseOrderDocument} from './procurement-posting-engine';
@@ -20,6 +21,7 @@ export function ProcurementWorkspace(){
   const [receiptLines,setReceiptLines]=useState<Array<{itemId:string;quantity:number}>>([]);
   const [supplierId,setSupplierId]=useState('');
   const [orderNumber,setOrderNumber]=useState('');
+  const [dueDate,setDueDate]=useState(new Date().toISOString().slice(0,10));
   const [selectedOrderId,setSelectedOrderId]=useState('');
   const [itemId,setItemId]=useState('');
   const [orderedQty,setOrderedQty]=useState('');
@@ -38,6 +40,7 @@ export function ProcurementWorkspace(){
   const receiptRepo=useMemo(()=>new JsonStorageRepository<GoodsReceiptDocument>(window.localStorage,makeScopedKey('procurement.receipts',scope)),[scope]);
   const journalRepo=useMemo(()=>new JsonStorageRepository<JournalEntry & {id:string}>(window.localStorage,makeScopedKey('finance.journals',scope)),[scope]);
   const stockRepo=useMemo(()=>new JsonStorageRepository<StockMovement & {id:string}>(window.localStorage,makeScopedKey('stock.movements',scope)),[scope]);
+  const payableRepo=useMemo(()=>new JsonStorageRepository<PayableInvoice & {id:string}>(window.localStorage,makeScopedKey('finance.payables',scope)),[scope]);
 
   useEffect(()=>{void Promise.all([supplierRepo.list(),itemRepo.list(),orderRepo.list(),receiptRepo.list()]).then(([s,i,o,r])=>{setSuppliers(s);setItems(i);setOrders(o);setReceipts(r);});},[supplierRepo,itemRepo,orderRepo,receiptRepo]);
 
@@ -70,6 +73,7 @@ export function ProcurementWorkspace(){
       id:crypto.randomUUID(),
       number:orderNumber.trim()||('PO-'+Date.now()),
       date:new Date().toISOString().slice(0,10),
+      dueDate,
       supplierId,
       lines:orderLines,
       status:'OPEN',
@@ -107,6 +111,7 @@ export function ProcurementWorkspace(){
     });
     await journalRepo.put(bundle.journal);
     await stockRepo.putMany(bundle.stockMovements);
+    await payableRepo.put(bundle.payable);
     await receiptRepo.put({...receipt,status:'POSTED'});
     setReceipts(await receiptRepo.list());
     setReceiptLines([]);
@@ -128,6 +133,7 @@ export function ProcurementWorkspace(){
         <span className="eyebrow">Purchase Order</span><h3>إنشاء أمر شراء</h3>
         <label>المورد<select value={supplierId} onChange={(e)=>setSupplierId(e.target.value)}><option value="">اختر المورد</option>{suppliers.map(s=><option key={s.id} value={s.id}>{s.code} — {s.name}</option>)}</select></label>
         <label>رقم الأمر<input value={orderNumber} onChange={(e)=>setOrderNumber(e.target.value)} placeholder="يولد تلقائيًا"/></label>
+        <label>تاريخ الاستحقاق<input type="date" value={dueDate} onChange={(e)=>setDueDate(e.target.value)}/></label>
         <label>الصنف<select value={itemId} onChange={(e)=>selectOrderItem(e.target.value)}><option value="">اختر الصنف</option>{items.map(i=><option key={i.id} value={i.id}>{i.sku} — {i.name}</option>)}</select></label>
         <label>الكمية المطلوبة<input inputMode="decimal" value={orderedQty} onChange={(e)=>setOrderedQty(e.target.value)}/></label>
         <label>تكلفة الوحدة بدون الضريبة<input inputMode="decimal" value={unitCost} onChange={(e)=>setUnitCost(e.target.value)}/></label>
