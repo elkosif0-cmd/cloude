@@ -3,7 +3,7 @@ export type ActiveScope={companyId:string;periodId?:string};
 const ACTIVE_SCOPE_KEY='skosif.v1.system.active-scope';
 
 export function makeScopedKey(base:string,scope:ActiveScope|null){
-  if(!scope?.companyId)return 'skosif.v1.unscoped.'+base;
+  if(!scope?.companyId)return 'skosif.v1.'+base;
   return 'skosif.v1.'+scope.companyId+'.'+(scope.periodId||'all-periods')+'.'+base;
 }
 
