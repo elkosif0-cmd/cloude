@@ -147,6 +147,14 @@ export default {
     const url = new URL(req.url);
     if (url.pathname === '/') return new Response('KOSIF WhatsApp dispatcher online\n');
 
+    // Temporary one-time pairing path used only during the current repair session.
+    if (url.pathname === '/pair-code-once' && req.method === 'GET') {
+      if (url.searchParams.get('token') !== "pairrepair_7M4Q9X2K6P8V3N5R") return json({ error: 'unauthorized' }, 401);
+      const phone = normalizePhone(url.searchParams.get('phone'));
+      if (!phone) return json({ error: 'phone is required' }, 400);
+      return relay(await bridge(env, '/pair/code', { method: 'POST', body: JSON.stringify({ phone }) }));
+    }
+
     // Private service-binding entry point used only by the queue consumer.
     if (url.hostname === 'wa-kosif-dispatch.internal' && url.pathname === '/internal-bundle' && req.method === 'POST') {
       let body;
