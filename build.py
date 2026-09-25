@@ -23,11 +23,12 @@ text=re.sub(r'<meta\s+name=["\']apple-mobile-web-app-title["\'][^>]*>', '<meta n
 UI_CSS=["ds/tokens.css","ds/components.css","ds/elements.css","ds/shell.css",
         "features/offers.css","features/supply.css","features/smartmatch.css","features/meatops.css","features/kernel.css",
         "features/enterprise.css","features/reports.css","features/erp-plus.css","features/operations.css","features/capabilities-v2.css"]
-UI_JS=["core/sk.js","core/bus.js","core/errors.js","core/store.js","core/services.js","core/registry.js","core/perm.js","core/audit.js",
+UI_JS=["core/sk.js","core/bus.js","core/errors.js","core/store.js","core/services.js","core/engines.js","core/registry.js","core/perm.js","core/audit.js",
        "components/states.js","layouts/shell.js","components/palette.js","features/command-center.js",
        "features/jev.js","features/offers.js","features/inventory.js","features/supply.js","features/meatops.js","features/smartmatch.js",
        "features/pricing-core.js","features/kernel.js","features/tools.js","features/enterprise.js","features/reports.js",
-       "features/erp-plus.js","features/operations.js","features/capabilities-v2.js","features/audit-bridge.js"]
+       "features/erp-plus.js","features/operations.js","features/capabilities-v2.js","features/audit-bridge.js",
+       "features/ledger.js","features/purchasing.js","features/workspace.js","features/followup.js"]
 listed={"ui/"+n for n in UI_CSS+UI_JS}
 stray=[str(f) for f in Path("ui").glob("*.*") if f.suffix in (".js",".css")]
 stray+=[str(f) for d in ("core","ds","components","layouts","features") for f in Path("ui",d).glob("*.*") if f.suffix in (".js",".css") and str(f) not in listed]

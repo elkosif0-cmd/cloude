@@ -25,7 +25,7 @@ def inventory():
             "|---|---|---|---|---|---|---|---|"]
     for c in caps:
         g = groups[c["group"]]
-        loc = ("القائمة الأساسية" if g["primary"] else "الأدوات المتقدمة") + " › " + g["label"]
+        loc = g["label"] + (" › متقدم" if c.get("adv") else " › يومي")
         deps = "SKosifCore" + (", Engine" if c["module"].startswith("core") else "") + (", IndexedDB" if any(d.startswith("IDB") for d in c["data"]) else "")
         rows.append(f"| `{c['id']}` | {c['label']} | {c['module']} | {loc} | {', '.join('`'+d+'`' for d in c['data']) or '—'} | {deps} | Working | {c['decision']} |")
     rows += ["", "## Cross-cutting capabilities", "",
@@ -54,13 +54,13 @@ def cap_map():
             "| Old name / location | New ID | New location | Tier | Roles |", "|---|---|---|---|---|"]
     for c in caps:
         g = groups[c["group"]]
-        rows.append(f"| {c['legacy']} | `{c['id']}` | {'Primary' if g['primary'] else 'Advanced'} › {g['label']} › {c['label']} | {c['tier']} | {roles_for(c['id'])} |")
+        rows.append(f"| {c['legacy']} | `{c['id']}` | {g['label']} › {c['label']}{' (advanced)' if c.get('adv') else ''} | {c['tier']} | {roles_for(c['id'])} |")
     rows += ["", "## By tier", ""]
     for t, label in CAPS["tiers"].items():
         ids = [c for c in caps if c["tier"] == t]
         rows.append(f"- **{t}** — {label} ({len(ids)}): " + ", ".join(f"`{c['id']}`" for c in ids))
     covered = len(caps)
-    rows += ["", f"Coverage gate: {covered}/{covered} legacy screens mapped (100%)."]
+    rows += ["", f"Coverage gate: {covered} screens in {len(groups)} domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version."]
     return "\n".join(rows) + "\n"
 
 

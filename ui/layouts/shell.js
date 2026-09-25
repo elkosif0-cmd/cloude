@@ -8,34 +8,58 @@
 const {$,$$,esc,load,save}=SK;
 const core=()=>window.SKosifCore;
 const PREF_KEY="skosif_prefs";
-const ADV_NOTE="تحليل وهندسة ومطابقة ومحاسبة — تظهر مع «أدوات متقدمة».";
+const ADV_NOTE="الأدوات المتقدمة ظاهرة داخل كل مجال — أخفها من «التشغيل اليومي».";
 
-/* ---------- preferences: appearance (light | dark | auto) + density ---------- */
-function prefs(){return Object.assign({appearance:"light",density:"cozy"},load(PREF_KEY,{}))}
+/* ---------- preferences: theme (look) + density ----------
+   look: heritage (default) | heritage-night | executive | audit | midnight | notebook | auto (heritage by day / night by device) */
+const LOOKS=[
+  ["heritage","تراث الوادي","الهوية الافتراضية: رَقّ وحبر بني ورسوم الوادي",["#f4ead8","#8a5a2b","#efe2cc","#2b1a0f"]],
+  ["heritage-night","ليل الوادي","نفس الهوية بإضاءة ليلية",["#16110c","#d09a5e","#201811","#f4ead8"]],
+  ["executive","التنفيذي","مساحة فاتحة، بنفسجي وأزرق، أرقام قوية",["#f5f6fb","#5b4ee6","#3d7bf5","#1d2340"]],
+  ["audit","المراجعة الاحترافية","كثيف ورصين للجداول والأدلة",["#f3f4f6","#1f3b68","#172235","#161b26"]],
+  ["midnight","ليل التحليل","داكن للوحات والجلسات الطويلة",["#0d1117","#7c8cff","#4fd1c5","#e8edf5"]],
+  ["notebook","الدفتر","ورق مسطّر وعناوين بخط اليد",["#f7f3e8","#2c5aa0","#c0392b","#23252b"]],
+  ["auto","حسب الجهاز","تراث الوادي نهاراً وليل الوادي ليلاً",["#f4ead8","#8a5a2b","#16110c","#d09a5e"]]];
+const DARK=new Set(["heritage-night","midnight"]);
+function prefs(){return Object.assign({look:"heritage",density:"cozy",lastLight:"heritage"},load(PREF_KEY,{}))}
 function migrate(){
-  const p=load(PREF_KEY,null);if(p&&p.migrated)return;
-  const out={appearance:"light",density:"cozy",migrated:1};
+  const p=load(PREF_KEY,null);
+  if(p&&p.migrated&&p.look)return;
+  const out=Object.assign({look:"heritage",density:"cozy",migrated:1},p||{});
   try{
-    const oldTheme=load("skosif_theme",""),dark=["royal","notte","cyber"].includes(oldTheme);
-    const v12=localStorage.getItem("aghnam-v12-theme");
-    out.appearance=dark||(!oldTheme&&v12==="dark")?"dark":"light";
-    if(localStorage.getItem("aghnam-v21-density")==="compact")out.density="compact";
+    if(!out.look||out.appearance){out.look=out.appearance==="dark"?"heritage-night":out.appearance==="auto"?"auto":"heritage";delete out.appearance}
+    if(!p){
+      const oldTheme=load("skosif_theme",""),dark=["royal","notte","cyber"].includes(oldTheme),v12=localStorage.getItem("aghnam-v12-theme");
+      out.look=dark||(!oldTheme&&v12==="dark")?"heritage-night":"heritage";
+      if(localStorage.getItem("aghnam-v21-density")==="compact")out.density="compact";
+    }
     ["skosif_theme","skosif_theme_dark","skosif_theme_light","aghnam-v21-accent","aghnam-v21-density","aghnam-v21-tour","aghnam-v21-whatsnew","aghnam-v21-ux-v1","aghnam-v203-magic-v1"].forEach(k=>localStorage.removeItem(k));
   }catch{}
-  save(PREF_KEY,Object.assign({},p||{},out));
+  save(PREF_KEY,out);
 }
 const mq=matchMedia("(prefers-color-scheme: dark)");
-function resolved(){const a=prefs().appearance;return a==="auto"?(mq.matches?"dark":"light"):a}
+function lookNow(){const l=prefs().look;return l==="auto"?(mq.matches?"heritage-night":"heritage"):(LOOKS.some(x=>x[0]===l)?l:"heritage")}
+function resolved(){return DARK.has(lookNow())?"dark":"light"}
+function fonts(look){
+  if(look.startsWith("heritage")||document.getElementById("sk-font-plex"))return;
+  const l=document.createElement("link");l.id="sk-font-plex";l.rel="stylesheet";
+  l.href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap";document.head.appendChild(l);
+}
 function applyPrefs(){
-  const de=document.documentElement,mode=resolved(),p=prefs();
+  const de=document.documentElement,look=lookNow(),mode=resolved(),p=prefs();
+  de.setAttribute("data-look",look==="heritage-night"?"heritage":look);
   de.setAttribute("data-theme",mode);de.setAttribute("data-density",p.density==="compact"?"compact":"cozy");
+  fonts(look);
   try{localStorage.setItem("aghnam-v12-theme",mode)}catch{}
-  $$('meta[name="theme-color"]').forEach(m=>m.setAttribute("content",mode==="dark"?"#1b140e":"#efe2cc"));
+  const bar=getComputedStyle(de).getPropertyValue("--sk-rail").trim()||(mode==="dark"?"#1b140e":"#efe2cc");
+  $$('meta[name="theme-color"]').forEach(m=>m.setAttribute("content",bar));
 }
 function setPref(k,v){const p=prefs();p[k]=v;save(PREF_KEY,p);applyPrefs()}
-function setAppearance(a){setPref("appearance",["light","dark","auto"].includes(a)?a:"light");SK.toast({light:"المظهر: نهاري",dark:"المظهر: ليلي",auto:"المظهر: حسب الجهاز"}[prefs().appearance],"info")}
-function toggleAppearance(){setAppearance(resolved()==="dark"?"light":"dark")}
-mq.addEventListener&&mq.addEventListener("change",()=>{if(prefs().appearance==="auto")applyPrefs()});
+function setLook(l){const p=prefs();if(!LOOKS.some(x=>x[0]===l))l="heritage";p.look=l;if(!DARK.has(l)&&l!=="auto")p.lastLight=l;save(PREF_KEY,p);applyPrefs();SK.toast("المظهر: "+LOOKS.find(x=>x[0]===l)[1],"info")}
+/* the topbar moon button: light look ↔ its night counterpart */
+function toggleAppearance(){const cur=lookNow(),p=prefs();if(DARK.has(cur))setLook(p.lastLight||"heritage");else setLook(cur==="heritage"?"heritage-night":"midnight")}
+const setAppearance=a=>setLook(a==="dark"?"heritage-night":a==="auto"?"auto":"heritage");
+mq.addEventListener&&mq.addEventListener("change",()=>{if(prefs().look==="auto")applyPrefs()});
 migrate();applyPrefs();
 
 /* ---------- rail ---------- */
@@ -48,22 +72,33 @@ let lastSig="";
 function paintNav(){
   const nav=$("#nav");if(!nav||!core())return;
   const adv=core().mode()==="advanced",cur=core().view();
-  let html="",firstAdv=true;
+  let html="";
   SK.caps.groups().forEach(g=>{
-    if(!g.primary&&!adv)return;
-    const items=SK.caps.inGroup(g.id).filter(c=>SK.perm.can(c.id));
+    const items=SK.caps.inGroup(g.id).filter(c=>(adv||c.primary||c.id===cur)&&SK.perm.can(c.id));
     if(!items.length)return;
-    html+='<div class="skn-group" role="group" aria-label="'+esc(g.label)+'"><div class="nav-group"><span>'+esc(g.label)+'</span>'+(g.primary?'':'<span class="pro">متقدم</span>')+'</div>';
-    if(!g.primary&&firstAdv){html+='<p class="skn-note">'+ADV_NOTE+'</p>';firstAdv=false}
-    html+=items.map(c=>navButton(c,cur)).join("")+'</div>';
+    html+='<div class="skn-group" role="group" aria-label="'+esc(g.label)+'"><div class="nav-group"><span>'+esc(g.label)+'</span></div>'+
+      items.map(c=>navButton(c,cur)).join("")+'</div>';
   });
+  if(adv)html+='<p class="skn-note">'+ADV_NOTE+'</p>';
   if(html!==lastSig||!nav.querySelector(".skn-group")){nav.innerHTML=html;lastSig=html}
+}
+/* domain tab bar on top of every screen: sibling screens of the same domain */
+function domainTabs(){
+  const c=core();if(!c)return;const v=$("#view");if(!v)return;
+  const old=v.querySelector(":scope > .skn-domain");
+  const id=c.view(),cap=SK.caps.get(id);
+  const adv=c.mode()==="advanced";
+  const sibs=cap?SK.caps.siblings(id).filter(x=>(adv||x.primary||x.id===id)&&SK.perm.can(x.id)):[];
+  if(sibs.length<2){if(old)old.remove();return}
+  const html='<nav class="skn-domain" aria-label="'+esc(cap.groupLabel)+'">'+sibs.map(x=>'<button type="button" data-act="nav" data-v="'+x.id+'"'+(x.id===id?' aria-current="page"':'')+'>'+(SK.icons[x.id]||c.navIcon(x.id)||"")+'<span>'+esc(x.label)+'</span>'+(x.primary?'':'<i>متقدم</i>')+'</button>').join("")+'</nav>';
+  if(old){if(old.outerHTML!==html)old.outerHTML=html}else v.insertAdjacentHTML("afterbegin",html);
+  const on=v.querySelector(".skn-domain [aria-current]");if(on&&on.scrollIntoView)on.scrollIntoView({block:"nearest",inline:"nearest"});
 }
 function paintTop(){
   const c=core();if(!c)return;
   const cap=SK.caps.get(c.view());
   const t=$("#pg-title"),cr=$("#pg-crumb");
-  if(cap){if(t&&t.textContent!==cap.label)t.textContent=cap.label;if(cr)cr.textContent=(cap.primary?"":"أدوات متقدمة · ")+cap.groupLabel}
+  if(cap){if(t&&t.textContent!==cap.label)t.textContent=cap.label;if(cr)cr.textContent=cap.groupLabel+(cap.primary?"":" · متقدم")}
   else if(cr)cr.textContent="";
   document.title=(cap?cap.label:(t&&t.textContent)||"")+" · S.kosif";
   const rail=$("#rail");document.body.classList.toggle("skn-locked",!!(rail&&rail.classList.contains("open"))&&innerWidth<=900);
@@ -109,9 +144,9 @@ function settingsCards(root){
   const p=prefs(),lock=SK.num(load(SK.lock.key,0)),role=SK.perm.role(),isAdmin=role==="admin";
   const seg=(name,cur,opts)=>'<div class="sk-seg" role="group" data-pref="'+name+'">'+opts.map(([v,l])=>'<button type="button" data-v="'+v+'" aria-pressed="'+(v===cur)+'">'+l+'</button>').join("")+'</div>';
   const html=
-  '<section class="card" id="skx-prefs"><div class="card-h"><div><h3>المظهر والأمان</h3><p>نظام تصميم واحد «تراث الوادي» بوضعين، والقفل التلقائي لهذا الجهاز.</p></div></div><div class="card-b sk-stack">'+
-    '<div class="sk-grid-2"><div class="sk-field"><span>المظهر</span>'+seg("appearance",p.appearance,[["light","نهاري"],["dark","ليلي"],["auto","حسب الجهاز"]])+'</div>'+
-    '<div class="sk-field"><span>كثافة الواجهة</span>'+seg("density",p.density,[["cozy","مريحة"],["compact","مضغوطة"]])+'</div></div>'+
+  '<section class="card" id="skx-prefs"><div class="card-h"><div><h3>المظهر والأمان</h3><p>نظام تصميم واحد بستة ثيمات كاملة، والقفل التلقائي لهذا الجهاز.</p></div></div><div class="card-b sk-stack">'+
+    '<div class="sk-field"><span>الثيم — يغيّر شكل التطبيق كله دون أي تغيير في البيانات</span><div class="skx-themes" id="skx-themes">'+LOOKS.map(([id,name,desc,c])=>'<button type="button" class="skx-theme" data-look="'+id+'" aria-pressed="'+(p.look===id)+'"><span class="sw">'+c.map(x=>'<i style="background:'+x+'"></i>').join("")+'</span><b>'+esc(name)+'</b><small>'+esc(desc)+'</small></button>').join("")+'</div></div>'+
+    '<div class="sk-field"><span>كثافة الواجهة</span>'+seg("density",p.density,[["cozy","مريحة"],["compact","مضغوطة"]])+'</div>'+
     '<div class="sk-actions"><label class="sk-field" style="flex:1;min-width:200px"><span>القفل التلقائي بعد عدم النشاط</span><select id="skx-lock">'+
       [[0,"متوقف"],[5,"5 دقائق"],[15,"15 دقيقة"],[30,"30 دقيقة"],[60,"ساعة"]].map(o=>'<option value="'+o[0]+'"'+(o[0]===lock?' selected':'')+'>'+o[1]+'</option>').join("")+
     '</select></label><button type="button" class="btn sk-end" id="skx-lock-now">قفل الآن</button></div></div></section>'+
@@ -125,8 +160,9 @@ function settingsCards(root){
     '<div id="skx-bk-out" class="hint">'+usageText()+'</div></div></section>';
   root.insertAdjacentHTML("afterbegin",html);
   $$("[data-pref]",root).forEach(g=>g.addEventListener("click",e=>{const b=e.target.closest("button[data-v]");if(!b)return;
-    const k=g.dataset.pref;if(k==="appearance")setAppearance(b.dataset.v);else{setPref(k,b.dataset.v);SK.toast(b.dataset.v==="compact"?"واجهة مضغوطة":"واجهة مريحة","info")}
+    setPref(g.dataset.pref,b.dataset.v);SK.toast(b.dataset.v==="compact"?"واجهة مضغوطة":"واجهة مريحة","info");
     $$("button",g).forEach(x=>x.setAttribute("aria-pressed",String(x===b)))}));
+  $("#skx-themes",root).addEventListener("click",e=>{const b=e.target.closest("[data-look]");if(!b)return;setLook(b.dataset.look);$$("[data-look]",root).forEach(x=>x.setAttribute("aria-pressed",String(x===b)))});
   $("#skx-lock",root).onchange=e=>{save(SK.lock.key,SK.num(e.target.value));SK.lock.touch();SK.toast(SK.num(e.target.value)?"القفل التلقائي: "+e.target.selectedOptions[0].text:"أُوقف القفل التلقائي","info")};
   $("#skx-lock-now",root).onclick=()=>SK.lock.now();
   $("#skx-roles",root).addEventListener("click",e=>{const b=e.target.closest("button[data-role]");if(!b||b.disabled)return;
@@ -167,7 +203,7 @@ function customerCards(root){
     '<div class="sk-cc-actions">'+(c[7]?c[7].innerHTML:"")+'</div></article>'}).join("");
 }
 
-window.SKosifShell=Object.freeze({paint,toggleAppearance,setAppearance,prefs,resolved});
+window.SKosifShell=Object.freeze({paint,toggleAppearance,setAppearance,setLook,looks:()=>LOOKS.map(x=>({id:x[0],name:x[1]})),prefs,resolved});
 
 function boot(){
   const c=core();
@@ -177,7 +213,7 @@ function boot(){
     c.onView("settings",settingsCards);
     c.onView("customers",customerCards);
   }
-  addEventListener("sk:render",gate);
+  addEventListener("sk:render",()=>{gate();domainTabs()});
   addEventListener("resize",()=>{if(innerWidth>900){const r=$("#rail");if(r&&r.classList.contains("open")&&c)c.act("rail-close")}},{passive:true});
   addEventListener("online",offline);addEventListener("offline",offline);offline();
   SK.bus.on("role",()=>{lastSig="";paint()});

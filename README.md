@@ -35,7 +35,13 @@ capability inventory, the new information architecture and the rebuild plan.
 - `ui/features/` — Command Center and every screen module (offers, inventory, supply, meat ops,
   matching, pricing core, kernel, tools, enterprise, reports, ERP+, operations, capabilities v2,
   Jev, audit bridge). `build.py` refuses UI files that are not wired into the bundle.
+- `app/src/engine/fusion/` — tested engines for finance, procurement, sales, stock, audit and intelligence
+  (from the Grand Fusion branch); `node tools/build_engines.mjs` compiles them to `ui/core/engines.js`
+  (`window.SKEngines`), and CI checks the compiled file is current.
 - `app/` — the strict TypeScript engines and their tests (run in CI).
+- Navigation: 10 domains (مركز القيادة · المبيعات والعملاء · المخزون والإنتاج · المشتريات والموردون · المالية
+  والمحاسبة · الكتالوج والتسعير · Jev والذكاء · التقارير والتحليلات · المراجعة والتأكيد · النظام والتكاملات),
+  each screen daily or advanced; `docs/rebuild/CAPABILITY_COVERAGE_ALL_VERSIONS.md` lists every capability of every past version.
 
 ## Accounting & audit
 

@@ -33,7 +33,8 @@ app/src/engine unit tests (vitest) for the pricing and meat-ops engines
 | 7 | Move features to `ui/features/`; delete `app/` React UI and theme generator | ✅ |
 | 8 | Remove fabricated sample data; replace `alert/confirm` | ✅ |
 | 9 | QA: 52 screens × desktop/mobile, journeys, console gate; deploy | ✅ on release |
-| 10 | Next: rewrite core view templates (HTML strings inside the payload) screen by screen onto `ui/ds` components | planned — the brain and its view templates live in the same IIFE; each view moves out only with a golden test of its numbers |
+| 10 | Capability review of every version + 10-domain navigation + domain tab bar + restored/added capabilities (ledger, purchasing, follow-up CRM, tasks, companies, council, exports) on tested fusion engines + six themes — see CAPABILITY_COVERAGE_ALL_VERSIONS.md | ✅ |
+| 11 | Next: rewrite core view templates (HTML strings inside the payload) screen by screen onto `ui/ds` components | planned — the brain and its view templates live in the same IIFE; each view moves out only with a golden test of its numbers |
 
 ## Validation gates (CI)
 

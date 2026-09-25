@@ -26,7 +26,10 @@ const ACTIONS=[
   {id:"backup",t:"نسخة كاملة للتطبيق",s:"كل البيانات في ملف واحد · Ctrl+S",ic:"archive",run:()=>SK.store.backup().catch(e=>SK.errors.report(e,"backup")),perm:["settings","export"]},
   {id:"csv",t:"تصدير الأسعار (CSV)",s:"كل جداول التسعير",ic:"excelrecon",run:act("csv-all"),perm:["catalog","export"]},
   {id:"jev",t:"اسأل Jev",s:"قرار منظم من بيانات مجمعة",ic:"jev",run:()=>go("jev"),perm:["jev","view"]},
-  {id:"theme",t:"تبديل المظهر نهاري/ليلي",s:"نظام تصميم واحد بوضعين",ic:"settings",run:()=>SKosifShell.toggleAppearance()},
+  {id:"theme",t:"تبديل المظهر نهاري/ليلي",s:"الثيم الحالي ↔ نسخته الليلية",ic:"settings",run:()=>SKosifShell.toggleAppearance()},
+  {id:"looks",t:"اختيار الثيم",s:"تراث الوادي · التنفيذي · المراجعة · ليل التحليل · الدفتر",ic:"settings",run:()=>go("settings")},
+  {id:"task",t:"مهمة جديدة",s:"بتاريخ استحقاق وأولوية",ic:"memo",run:()=>go("tasks"),perm:["tasks","view"]},
+  {id:"journal",t:"قيد محاسبي جديد",s:"الدفاتر المحاسبية",ic:"finance",run:()=>go("ledger"),perm:["ledger","create"]},
   {id:"adv",t:"إظهار/إخفاء الأدوات المتقدمة",s:"التحليل والهندسة والمطابقة والمحاسبة",ic:"sensitivity",run:()=>core()&&core().setMode(core().mode()==="advanced"?"standard":"advanced")},
   {id:"lock",t:"قفل التطبيق الآن",s:"يتطلب كلمة المرور لفتحه",ic:"lock",run:()=>SK.lock.now()}
 ];

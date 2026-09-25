@@ -20,7 +20,7 @@ function report(e,where,opts={}){
 /* wrap a function so a failure is reported instead of breaking the screen */
 function guard(fn,where){return function(...a){try{const r=fn.apply(this,a);if(r&&typeof r.catch==="function")return r.catch(e=>{report(e,where)});return r}catch(e){report(e,where)}}}
 addEventListener("error",e=>{
-  if(e.target&&e.target!==window&&(e.target.src||e.target.href)){report(new Error("تعذر تحميل "+(e.target.src||e.target.href)),"asset",{silent:true});return}
+  if(e.target&&e.target!==window&&(e.target.src||e.target.href)){if(/fonts\.(googleapis|gstatic)\.com/.test(e.target.src||e.target.href))return;report(new Error("تعذر تحميل "+(e.target.src||e.target.href)),"asset",{silent:true});return}
   /* ignore cross-origin "Script error." noise; everything else is reported */
   if(e.message==="Script error.")return;
   report(e.error||e.message,"window");

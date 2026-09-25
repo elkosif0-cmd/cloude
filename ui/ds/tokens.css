@@ -87,3 +87,45 @@
 }
 
 @media (prefers-reduced-motion:reduce){:root{--sk-t:0ms}}
+
+/* ================= themes =================
+   html[data-look] picks a complete visual language; html[data-theme] (light|dark) follows it.
+   heritage = «تراث الوادي» (default) · heritage-night = «ليل الوادي» (the dark block above)
+   executive = «التنفيذي» · audit = «المراجعة الاحترافية» · midnight = «ليل التحليل» · notebook = «الدفتر» */
+:root[data-look="executive"]{
+  --sk-bg:#f5f6fb;--sk-surface:#ffffff;--sk-surface-2:#f7f8fd;--sk-surface-3:#eef0f8;--sk-line:#e6e8f2;--sk-line-2:#d7dbea;
+  --sk-ink:#1d2340;--sk-ink-2:#4b5270;--sk-ink-3:#7c829c;
+  --sk-brand:#5b4ee6;--sk-brand-2:#3d7bf5;--sk-brand-soft:#ecebff;--sk-on-brand:#ffffff;
+  --sk-rail:#ffffff;--sk-rail-2:rgba(91,78,230,.07);--sk-rail-ink:#1d2340;--sk-rail-mute:#7c829c;--sk-rail-active:#ecebff;
+  --sk-grid:#eceef6;--sk-axis:#cfd4e6;--sk-s1:#7c829c;--sk-s2:#5b4ee6;--sk-s3:#1fa971;--sk-focus:#5b4ee6;
+  --sk-font:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;--sk-font-display:"IBM Plex Sans Arabic","Segoe UI",sans-serif;
+  --sk-shadow-1:0 10px 30px -18px rgba(61,70,160,.35);--sk-shadow-2:0 18px 40px -18px rgba(61,70,160,.4);
+  --sk-r:14px;--sk-r-l:20px;
+}
+:root[data-look="audit"]{
+  --sk-bg:#f3f4f6;--sk-surface:#ffffff;--sk-surface-2:#f8f9fb;--sk-surface-3:#eceef2;--sk-line:#dde1e7;--sk-line-2:#c9ced6;
+  --sk-ink:#161b26;--sk-ink-2:#3d4554;--sk-ink-3:#6b7384;
+  --sk-brand:#1f3b68;--sk-brand-2:#2f5d9e;--sk-brand-soft:#e3eaf5;--sk-on-brand:#ffffff;
+  --sk-rail:#172235;--sk-rail-2:rgba(255,255,255,.07);--sk-rail-ink:#e7ecf4;--sk-rail-mute:#94a0b4;--sk-rail-active:rgba(255,255,255,.12);
+  --sk-grid:#e6e9ee;--sk-axis:#c3c9d3;--sk-s1:#6b7384;--sk-s2:#1f3b68;--sk-s3:#2f7a45;--sk-focus:#2f5d9e;
+  --sk-font:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;--sk-font-display:"IBM Plex Sans Arabic","Segoe UI",sans-serif;
+  --sk-fs:14px;--sk-r-s:4px;--sk-r:6px;--sk-r-l:8px;
+  --sk-shadow-1:0 1px 2px rgba(16,24,40,.06);--sk-shadow-2:0 6px 16px -8px rgba(16,24,40,.2);
+}
+:root[data-look="midnight"]{
+  --sk-bg:#0d1117;--sk-surface:#151b24;--sk-surface-2:#1a2230;--sk-surface-3:#212b3b;--sk-line:#273244;--sk-line-2:#344157;
+  --sk-ink:#e8edf5;--sk-ink-2:#b4bfd0;--sk-ink-3:#8190a6;
+  --sk-brand:#7c8cff;--sk-brand-2:#4fd1c5;--sk-brand-soft:#1f2748;--sk-on-brand:#0d1117;
+  --sk-rail:#10151d;--sk-rail-2:rgba(124,140,255,.1);--sk-rail-ink:#e8edf5;--sk-rail-mute:#8190a6;--sk-rail-active:#1f2748;
+  --sk-grid:#212b3b;--sk-axis:#344157;--sk-s1:#8190a6;--sk-s2:#7c8cff;--sk-s3:#4fd1c5;--sk-focus:#7c8cff;
+  --sk-font:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;--sk-font-display:"IBM Plex Sans Arabic","Segoe UI",sans-serif;
+}
+:root[data-look="notebook"]{
+  --sk-bg:#f7f3e8;--sk-surface:#fffdf6;--sk-surface-2:#fbf7ec;--sk-surface-3:#f1ead7;--sk-line:#e4dcc5;--sk-line-2:#d3c8a8;
+  --sk-ink:#23252b;--sk-ink-2:#4a4d57;--sk-ink-3:#7a7d86;
+  --sk-brand:#2c5aa0;--sk-brand-2:#c0392b;--sk-brand-soft:#e4ecf8;--sk-on-brand:#ffffff;
+  --sk-rail:#fbf7ec;--sk-rail-2:rgba(44,90,160,.07);--sk-rail-ink:#23252b;--sk-rail-mute:#7a7d86;--sk-rail-active:#e4ecf8;
+  --sk-focus:#2c5aa0;--sk-s2:#2c5aa0;
+  --sk-font:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;--sk-font-display:"Aref Ruqaa","Amiri",serif;
+  --sk-shadow-1:0 1px 0 rgba(0,0,0,.04);--sk-r:8px;--sk-r-l:10px;
+}

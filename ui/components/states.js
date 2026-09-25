@@ -28,5 +28,9 @@ function validate(root){
   });
   return ok;
 }
-SK.ui=Object.freeze({state:Object.freeze(T),validate});
+/* tab bar used by domain workspaces: [[id,label,count?]] */
+function tabs(list,cur,name){return '<nav class="sk-hub-nav" role="tablist" data-sk-tabs="'+SK.esc(name||"tab")+'">'+list.map(([id,label,n])=>'<button type="button" role="tab" class="sk-hub-btn'+(id===cur?' active':'')+'" aria-selected="'+(id===cur)+'" data-tab="'+SK.esc(id)+'">'+SK.esc(label)+(n!=null?' <span class="sk-pill">'+SK.esc(n)+'</span>':'')+'</button>').join("")+'</nav>'}
+/* small uid for records created on this device */
+const uid=p=>(p||"id")+"-"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+SK.ui=Object.freeze({state:Object.freeze(T),validate,tabs,uid});
 })();

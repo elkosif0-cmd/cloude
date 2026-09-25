@@ -6,7 +6,7 @@
 "use strict";
 const {esc,load}=SK;
 const core=()=>window.SKosifCore;
-const LAUNCH=[["zatca","فاتورة جديدة"],["offers","عرض سعر"],["catalog","الأسعار"],["customers","العملاء"],["inventory","المخزون"],["cash","التدفق النقدي"],["receivables","الذمم"],["jev","اسأل Jev"]];
+const LAUNCH=[["zatca","فاتورة جديدة"],["offers","عرض سعر"],["followup","متابعة العملاء"],["purchasing","أمر شراء"],["catalog","الأسعار"],["inventory","المخزون"],["ledger","قيد محاسبي"],["tasks","المهام"]];
 const fmt=v=>new Intl.NumberFormat("ar-SA-u-nu-latn",{maximumFractionDigits:1}).format(v);
 
 function greeting(){const h=new Date().getHours();return h<12?"صباح الخير":h<18?"مساء الخير":"مساء النور"}
@@ -22,8 +22,22 @@ function kpis(){
   if(ledger&&typeof ledger==="object"){const cs=Array.isArray(ledger)?ledger:(ledger.customers||[]);const open=cs.reduce((a,c)=>a+(Number(c.balance)||0),0);if(cs.length)out.push({l:"أرصدة ائتمان المطاعم",v:SK.money(open),c:open>0?"warn":""})}
   return out;
 }
+/* operational follow-ups recorded in the app (tasks, call list, purchase receipts to review) */
+function ownItems(){
+  const out=[],t=new Date().toISOString().slice(0,10);
+  const tasks=(load("skosif_tasks_v1",[])||[]).filter(x=>!x.done);
+  const over=tasks.filter(x=>x.due&&x.due<t).length,due=tasks.filter(x=>x.due===t).length;
+  if(over)out.push({sev:"critical",title:"مهام متأخرة",detail:over+" مهمة تجاوزت تاريخ الاستحقاق.",view:"tasks"});
+  if(due)out.push({sev:"warn",title:"مهام مستحقة اليوم",detail:due+" مهمة.",view:"tasks"});
+  const q=((load("skosif_followup_v1",{})||{}).queue||[]).filter(x=>!x.done).length;
+  if(q)out.push({sev:"info",title:"أرقام بانتظار الاتصال",detail:q+" رقماً في قائمة متابعة العملاء.",view:"followup"});
+  const rec=((load("skosif_purchasing_v1",{})||{}).receipts||[]).filter(r=>r.inspection&&r.inspection.overallStatus==="REVIEW"&&!r.reviewed).length;
+  if(rec)out.push({sev:"warn",title:"استلامات تحتاج مراجعة",detail:rec+" استلام بفرق وزن أو حرارة خارج الحد.",view:"purchasing"});
+  return out;
+}
 function inbox(){
-  const list=core().exceptions()||[];
+  const rank={critical:0,warn:1,info:2};
+  const list=[...(core().exceptions()||[]),...ownItems()].sort((a,b)=>rank[a.sev]-rank[b.sev]);
   if(!list.length)return '<div class="skc-ok">'+SK.icons.check+'<span>لا شيء يحتاج قراراً الآن — كل المؤشرات ضمن الحدود.</span></div>';
   return '<div class="skc-list">'+list.slice(0,8).map(x=>'<button type="button" class="skc-row" data-go="'+esc(x.view||"decision")+'"><span class="sev '+esc(x.sev||"info")+'"></span><span class="tx"><b>'+esc(x.title||"")+'</b><small>'+esc(x.detail||"")+'</small></span><span class="go">فتح ›</span></button>').join("")+'</div>';
 }

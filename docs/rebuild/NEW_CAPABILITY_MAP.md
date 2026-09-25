@@ -6,66 +6,73 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 
 | Old name / location | New ID | New location | Tier | Roles |
 |---|---|---|---|---|
-| لوحة العمل + بطل v23 + نبض v21 + بطل shell.js | `dash` | Primary › اليوم › مركز القيادة | CORE | admin, accountant, warehouse, sales, viewer |
-| مركز القرار | `decision` | Primary › اليوم › مركز القرار | INTELLIGENCE | admin, accountant, sales |
-| Jev للقرار | `jev` | Primary › اليوم › Jev للقرار | INTELLIGENCE | admin, accountant, sales |
-| الطلبات والتحصيل | `commerce` | Primary › البيع والعملاء › الطلبات والتحصيل | CORE | admin, accountant, sales |
-| السوق والعملاء | `customers` | Primary › البيع والعملاء › العملاء | CORE | admin, accountant, sales |
-| العروض والكتالوج | `offers` | Primary › البيع والعملاء › العروض والكتالوج | CORE | admin, accountant, sales, viewer |
-| الفاتورة الضريبية | `zatca` | Primary › البيع والعملاء › نقطة البيع والفاتورة الضريبية | CORE | admin, accountant, sales |
-| ائتمان المطاعم | `b2bcredit` | Primary › البيع والعملاء › ائتمان المطاعم | MANAGEMENT | admin, accountant, sales |
-| المناسبات والتشغيل | `operations` | Primary › البيع والعملاء › المناسبات والتشغيل | MANAGEMENT | admin, accountant, warehouse, sales, viewer |
-| سجل الأسعار | `catalog` | Primary › الأصناف والأسعار › الأصناف والأسعار | CORE | admin, accountant, warehouse, sales, viewer |
-| مركب البوكسات | `builder` | Primary › الأصناف والأسعار › البوكسات | CORE | admin |
-| محاكي التسعير | `sim` | Primary › الأصناف والأسعار › التسعير السريع | CORE | admin |
-| مذكرة الاعتماد | `memo` | Primary › الأصناف والأسعار › اعتماد الأسعار | MANAGEMENT | admin |
-| ملصقات الموازين | `labels` | Primary › الأصناف والأسعار › ملصقات الموازين | UTILITIES | admin, warehouse, sales |
-| ماسح الباركود | `scanner` | Primary › الأصناف والأسعار › ماسح الباركود | UTILITIES | admin, warehouse, sales |
-| المخزون | `inventory` | Primary › المخزون والتجهيز › المخزون | CORE | admin, accountant, warehouse, viewer |
-| الموردون | `suppliers` | Primary › المخزون والتجهيز › الموردون والمشتريات | CORE | admin, accountant, warehouse |
-| التتبع والتبريد | `traceability` | Primary › المخزون والتجهيز › التتبع والتبريد | MANAGEMENT | admin, warehouse |
-| خلطات اللحوم | `blending` | Primary › المخزون والتجهيز › خلطات اللحوم | UTILITIES | admin, warehouse |
-| دليل الشيف | `culinary` | Primary › المخزون والتجهيز › دليل الشيف | UTILITIES | admin, warehouse |
-| التدفق النقدي | `cash` | Primary › المال والتقارير › التدفق النقدي | CORE | admin, accountant, sales, viewer |
-| الذمم | `receivables` | Primary › المال والتقارير › الذمم والتحصيل | CORE | admin, accountant, sales |
-| التقارير التنفيذية | `execreports` | Primary › المال والتقارير › التقارير التنفيذية | MANAGEMENT | admin, accountant, sales, viewer |
-| مركز التقارير | `reports` | Primary › المال والتقارير › مركز الطباعة | UTILITIES | admin, accountant, sales, viewer |
-| الأرشيف | `archive` | Primary › المال والتقارير › الأرشيف والتغييرات | MANAGEMENT | admin, accountant |
-| ذكاء المبيعات | `salesintel` | Advanced › التحليل › ذكاء المبيعات | INTELLIGENCE | admin |
-| اقتصاديات الطلب | `economics` | Advanced › التحليل › اقتصاديات الطلب | INTELLIGENCE | admin, accountant |
-| ذكاء العملاء | `intelligence` | Advanced › التحليل › ذكاء العملاء والطلب | INTELLIGENCE | admin |
-| الهندسة المالية | `finance` | Advanced › التحليل › الهندسة المالية | ADVANCED | admin, accountant |
-| المخاطر | `risklab` | Advanced › التحليل › المخاطر وجسر الربحية | ADVANCED | admin |
-| مختبر الحساسية | `sensitivity` | Advanced › التحليل › مختبر الحساسية | ADVANCED | admin, accountant |
-| استوديو المقارنة | `compare` | Advanced › التحليل › المقارنة التحليلية | INTELLIGENCE | admin |
-| نواة التسعير | `kernel` | Advanced › هندسة التسعير › نواة التسعير الصارمة | ADVANCED | admin, accountant |
-| مركز التكاليف | `costs` | Advanced › هندسة التسعير › التكاليف والمصروفات | ADVANCED | admin |
-| تحليل مكونات البوكس | `analyzer` | Advanced › هندسة التسعير › تحليل البوكس | ADVANCED | admin |
-| مختبر الجزارة | `yieldlab` | Advanced › الذبيحة والجزارة › مختبر الجزارة | ADVANCED | admin, warehouse |
-| تفكيك الذبيحة | `nrv` | Advanced › الذبيحة والجزارة › تفكيك الذبيحة NRV | ADVANCED | admin |
-| اقتصاديات الذبيحة | `carcass` | Advanced › الذبيحة والجزارة › اقتصاديات الذبيحة | ADVANCED | admin, accountant, warehouse |
-| مطابقة المبيعات | `smartmatch` | Advanced › المطابقة › مطابقة المبيعات | UTILITIES | admin, accountant, sales |
-| مطابقة الإكسل | `excelrecon` | Advanced › المطابقة › مطابقة الإكسل | UTILITIES | admin, accountant |
-| KOSIF Audit Studio | `auditdesk` | Advanced › المحاسبة والمراجعة › مركز المراجعة | ADVANCED | admin, accountant |
-| KOSIF Audit Studio | `auditdocs` | Advanced › المحاسبة والمراجعة › المستندات والأدلة | ADVANCED | admin, accountant |
-| KOSIF Audit Studio | `auditissues` | Advanced › المحاسبة والمراجعة › الملاحظات والقضايا | ADVANCED | admin, accountant |
-| KOSIF Audit Studio | `auditcouncil` | Advanced › المحاسبة والمراجعة › مجلس المراجعين | ADVANCED | admin, accountant |
-| KOSIF Audit Studio | `auditfin` | Advanced › المحاسبة والمراجعة › القوائم والقيود | ADVANCED | admin, accountant |
-| KOSIF Audit Studio | `auditreport` | Advanced › المحاسبة والمراجعة › التقارير والإصدار | ADVANCED | admin, accountant |
-| KOSIF Audit Studio (classic) | `auditanalytics` | Advanced › المحاسبة والمراجعة › التحليل المالي والمخاطر | ADVANCED | admin, accountant |
-| KOSIF Audit Studio (lab) | `auditlab` | Advanced › المحاسبة والمراجعة › مختبر المعايير | ADVANCED | admin, accountant |
-| الصحة والاستثناءات | `health` | Advanced › النظام › الصحة والتشخيص | ADMIN | admin |
-| الحوكمة | `governance` | Advanced › النظام › الحوكمة والجاهزية | ADMIN | admin |
-| Capabilities v2 | `capabilitiesv2` | Advanced › النظام › الصلاحيات ومساحات العمل | ADMIN | admin |
-| الإعدادات | `settings` | Advanced › النظام › الإعدادات والمظهر | ADMIN | admin, accountant, warehouse, sales, viewer |
+| لوحة العمل + بطل v23 + نبض v21 + بطل shell.js | `dash` | مركز القيادة › مركز القيادة | CORE | admin, accountant, warehouse, sales, viewer |
+| مركز القرار | `decision` | مركز القيادة › مركز القرار | INTELLIGENCE | admin, accountant, sales |
+| مهام منصة V40 + مهام CRM V8.2 | `tasks` | مركز القيادة › المهام | MANAGEMENT | admin, accountant, warehouse, sales, viewer |
+| الطلبات والتحصيل | `commerce` | المبيعات والعملاء › الطلبات والتحصيل | CORE | admin, accountant, sales |
+| السوق والعملاء | `customers` | المبيعات والعملاء › العملاء | CORE | admin, accountant, sales |
+| متابعة العملاء الاحترافية V8.2 (وحدة v25 crm) | `followup` | المبيعات والعملاء › متابعة العملاء | CORE | admin, accountant, sales |
+| العروض والكتالوج | `offers` | المبيعات والعملاء › العروض والكتالوج | CORE | admin, accountant, sales, viewer |
+| الفاتورة الضريبية | `zatca` | المبيعات والعملاء › نقطة البيع والفاتورة الضريبية | CORE | admin, accountant, sales |
+| ائتمان المطاعم | `b2bcredit` | المبيعات والعملاء › ائتمان المطاعم | MANAGEMENT | admin, accountant, sales |
+| المناسبات والتشغيل | `operations` | المبيعات والعملاء › المناسبات والتشغيل | MANAGEMENT | admin, accountant, warehouse, sales, viewer |
+| ذكاء المبيعات | `salesintel` | المبيعات والعملاء › ذكاء المبيعات (advanced) | INTELLIGENCE | admin |
+| ذكاء العملاء | `intelligence` | المبيعات والعملاء › ذكاء العملاء والطلب (advanced) | INTELLIGENCE | admin |
+| اقتصاديات الطلب | `economics` | المبيعات والعملاء › اقتصاديات الطلب (advanced) | INTELLIGENCE | admin, accountant |
+| المخزون | `inventory` | المخزون والإنتاج › المخزون | CORE | admin, accountant, warehouse, viewer |
+| التتبع والتبريد | `traceability` | المخزون والإنتاج › التتبع والتبريد | MANAGEMENT | admin, warehouse |
+| خلطات اللحوم | `blending` | المخزون والإنتاج › خلطات اللحوم | UTILITIES | admin, warehouse |
+| دليل الشيف | `culinary` | المخزون والإنتاج › دليل الشيف | UTILITIES | admin, warehouse |
+| اقتصاديات الذبيحة | `carcass` | المخزون والإنتاج › اقتصاديات الذبيحة (advanced) | ADVANCED | admin, accountant, warehouse |
+| مختبر الجزارة | `yieldlab` | المخزون والإنتاج › مختبر الجزارة (advanced) | ADVANCED | admin, warehouse |
+| تفكيك الذبيحة | `nrv` | المخزون والإنتاج › تفكيك الذبيحة NRV (advanced) | ADVANCED | admin |
+| الموردون | `suppliers` | المشتريات والموردون › الموردون والمشتريات | CORE | admin, accountant, warehouse |
+| Grand Fusion procurement + أسعار الموردين V40 | `purchasing` | المشتريات والموردون › أوامر الشراء والاستلام | CORE | admin, accountant, warehouse |
+| التدفق النقدي | `cash` | المالية والمحاسبة › التدفق النقدي | CORE | admin, accountant, sales, viewer |
+| الذمم | `receivables` | المالية والمحاسبة › الذمم والتحصيل | CORE | admin, accountant, sales |
+| Grand Fusion finance (accounts, journals, GL, TB, reconciliation) | `ledger` | المالية والمحاسبة › الدفاتر المحاسبية | CORE | admin, accountant |
+| الهندسة المالية | `finance` | المالية والمحاسبة › الهندسة المالية (advanced) | ADVANCED | admin, accountant |
+| سجل الأسعار | `catalog` | الكتالوج والتسعير › الأصناف والأسعار | CORE | admin, accountant, warehouse, sales, viewer |
+| مركب البوكسات | `builder` | الكتالوج والتسعير › البوكسات | CORE | admin |
+| محاكي التسعير | `sim` | الكتالوج والتسعير › التسعير السريع | CORE | admin |
+| مذكرة الاعتماد | `memo` | الكتالوج والتسعير › اعتماد الأسعار | MANAGEMENT | admin |
+| ملصقات الموازين | `labels` | الكتالوج والتسعير › ملصقات الموازين | UTILITIES | admin, warehouse, sales |
+| ماسح الباركود | `scanner` | الكتالوج والتسعير › ماسح الباركود | UTILITIES | admin, warehouse, sales |
+| نواة التسعير | `kernel` | الكتالوج والتسعير › نواة التسعير الصارمة (advanced) | ADVANCED | admin, accountant |
+| مركز التكاليف | `costs` | الكتالوج والتسعير › التكاليف والمصروفات (advanced) | ADVANCED | admin |
+| تحليل مكونات البوكس | `analyzer` | الكتالوج والتسعير › تحليل البوكس (advanced) | ADVANCED | admin |
+| استوديو المقارنة | `compare` | الكتالوج والتسعير › المقارنة التحليلية (advanced) | INTELLIGENCE | admin |
+| Jev للقرار | `jev` | Jev والذكاء › Jev للقرار | INTELLIGENCE | admin, accountant, sales |
+| Grand Fusion intelligence.council | `council` | Jev والذكاء › مجلس القرار | INTELLIGENCE | admin, accountant, sales |
+| المخاطر | `risklab` | Jev والذكاء › المخاطر وجسر الربحية (advanced) | ADVANCED | admin |
+| مختبر الحساسية | `sensitivity` | Jev والذكاء › مختبر الحساسية (advanced) | ADVANCED | admin, accountant |
+| التقارير التنفيذية | `execreports` | التقارير والتحليلات › التقارير التنفيذية | MANAGEMENT | admin, accountant, sales, viewer |
+| مركز التقارير | `reports` | التقارير والتحليلات › مركز الطباعة | UTILITIES | admin, accountant, sales, viewer |
+| الأرشيف | `archive` | التقارير والتحليلات › الأرشيف والتغييرات | MANAGEMENT | admin, accountant |
+| Grand Fusion reports.exports | `exports` | التقارير والتحليلات › مركز التصدير | UTILITIES | admin, accountant, sales |
+| مطابقة المبيعات | `smartmatch` | التقارير والتحليلات › مطابقة المبيعات (advanced) | UTILITIES | admin, accountant, sales |
+| مطابقة الإكسل | `excelrecon` | التقارير والتحليلات › مطابقة الإكسل (advanced) | UTILITIES | admin, accountant |
+| KOSIF Audit Studio | `auditdesk` | المراجعة والتأكيد › مركز المراجعة (advanced) | ADVANCED | admin, accountant |
+| KOSIF Audit Studio | `auditdocs` | المراجعة والتأكيد › المستندات والأدلة (advanced) | ADVANCED | admin, accountant |
+| KOSIF Audit Studio | `auditissues` | المراجعة والتأكيد › الملاحظات والقضايا (advanced) | ADVANCED | admin, accountant |
+| KOSIF Audit Studio | `auditcouncil` | المراجعة والتأكيد › مجلس المراجعين (advanced) | ADVANCED | admin, accountant |
+| KOSIF Audit Studio | `auditfin` | المراجعة والتأكيد › القوائم والقيود (advanced) | ADVANCED | admin, accountant |
+| KOSIF Audit Studio | `auditreport` | المراجعة والتأكيد › التقارير والإصدار (advanced) | ADVANCED | admin, accountant |
+| KOSIF Audit Studio (classic) | `auditanalytics` | المراجعة والتأكيد › التحليل المالي والمخاطر (advanced) | ADVANCED | admin, accountant |
+| KOSIF Audit Studio (lab) | `auditlab` | المراجعة والتأكيد › مختبر المعايير (advanced) | ADVANCED | admin, accountant |
+| الإعدادات | `settings` | النظام والتكاملات › الإعدادات والمظهر | ADMIN | admin, accountant, warehouse, sales, viewer |
+| Grand Fusion system.companies | `companies` | النظام والتكاملات › الشركات والفترات (advanced) | ADMIN | admin, accountant |
+| الصحة والاستثناءات | `health` | النظام والتكاملات › الصحة والتشخيص (advanced) | ADMIN | admin |
+| الحوكمة | `governance` | النظام والتكاملات › الحوكمة والجاهزية (advanced) | ADMIN | admin |
+| Capabilities v2 | `capabilitiesv2` | النظام والتكاملات › الصلاحيات ومساحات العمل (advanced) | ADMIN | admin |
 
 ## By tier
 
-- **CORE** — العمل اليومي الأساسي (12): `dash`, `commerce`, `customers`, `offers`, `zatca`, `catalog`, `builder`, `sim`, `inventory`, `suppliers`, `cash`, `receivables`
-- **MANAGEMENT** — الإدارة والمتابعة (6): `b2bcredit`, `operations`, `memo`, `traceability`, `execreports`, `archive`
-- **INTELLIGENCE** — التحليل والذكاء (6): `decision`, `jev`, `salesintel`, `economics`, `intelligence`, `compare`
-- **ADVANCED** — الهندسة المتقدمة (17): `finance`, `risklab`, `sensitivity`, `kernel`, `costs`, `analyzer`, `yieldlab`, `nrv`, `carcass`, `auditdesk`, `auditdocs`, `auditissues`, `auditcouncil`, `auditfin`, `auditreport`, `auditanalytics`, `auditlab`
-- **UTILITIES** — أدوات مساعدة (7): `labels`, `scanner`, `blending`, `culinary`, `reports`, `smartmatch`, `excelrecon`
-- **ADMIN** — النظام والإدارة (4): `health`, `governance`, `capabilitiesv2`, `settings`
+- **CORE** — العمل اليومي الأساسي (15): `dash`, `commerce`, `customers`, `followup`, `offers`, `zatca`, `inventory`, `suppliers`, `purchasing`, `cash`, `receivables`, `ledger`, `catalog`, `builder`, `sim`
+- **MANAGEMENT** — الإدارة والمتابعة (7): `tasks`, `b2bcredit`, `operations`, `traceability`, `memo`, `execreports`, `archive`
+- **INTELLIGENCE** — التحليل والذكاء (7): `decision`, `salesintel`, `intelligence`, `economics`, `compare`, `jev`, `council`
+- **ADVANCED** — الهندسة المتقدمة (17): `carcass`, `yieldlab`, `nrv`, `finance`, `kernel`, `costs`, `analyzer`, `risklab`, `sensitivity`, `auditdesk`, `auditdocs`, `auditissues`, `auditcouncil`, `auditfin`, `auditreport`, `auditanalytics`, `auditlab`
+- **UTILITIES** — أدوات مساعدة (8): `blending`, `culinary`, `labels`, `scanner`, `reports`, `exports`, `smartmatch`, `excelrecon`
+- **ADMIN** — النظام والإدارة (5): `settings`, `companies`, `health`, `governance`, `capabilitiesv2`
 
-Coverage gate: 52/52 legacy screens mapped (100%).
+Coverage gate: 59 screens in 10 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.

@@ -1,6 +1,17 @@
-# DESIGN SYSTEM — «تراث الوادي»
+# DESIGN SYSTEM — «تراث الوادي» + five themes
 
-One design system, two modes (light default, dark), plus `auto` (follows the device). Files:
+One design system, one token architecture, six complete themes chosen in Settings (and the moon button toggles a theme with its night counterpart):
+
+| Theme | `html[data-look]` | Mode | Character |
+|---|---|---|---|
+| تراث الوادي (default) | `heritage` | light | parchment, brown ink, valley art, Amiri / Aref Ruqaa |
+| ليل الوادي | `heritage` + `data-theme=dark` | dark | same identity at night |
+| التنفيذي | `executive` | light | bright workspace, purple/blue accents, strong KPIs (from the Aghnam sales-dashboard reference) |
+| المراجعة الاحترافية | `audit` | light | dense tables, navy rail, small radii |
+| ليل التحليل | `midnight` | dark | dashboards and long sessions |
+| الدفتر | `notebook` | light | ruled paper, handwritten headings, legible body font |
+
+A theme changes tokens only (colour, type, radii, elevation, density); data, navigation and permissions never change. Files:
 
 - `ui/ds/tokens.css` — all tokens. Nothing else defines a colour.
 - `ui/ds/components.css` — components (cards, buttons, fields, tables, badges, banners, modals, toasts, charts, print).

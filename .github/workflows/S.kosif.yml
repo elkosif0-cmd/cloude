@@ -52,6 +52,13 @@ jobs:
           npx tsc -p tsconfig.meatops.json --noEmit
           npx vitest run src/engine/meatOps/ops.test.ts
 
+      - name: Test fusion engines (finance, procurement, sales, stock, audit, intelligence)
+        working-directory: app
+        run: |
+          npx tsc -p tsconfig.fusion.json --noEmit
+          npx vitest run src/engine/fusion
+          node ../tools/build_engines.mjs --check
+
       - name: Capability docs are in sync with the registry
         run: python3 tools/capability_docs.py --check
 

@@ -217,3 +217,42 @@ body.skn-locked{overflow:hidden}
 :root[data-density="compact"] .card-b{padding:6px 16px 12px}
 :root[data-density="compact"] .t td,:root[data-density="compact"] .sk-table td{padding-block:5px}
 :root[data-density="compact"] .nav-btn{min-height:34px}
+
+/* ---------- domain tab bar (screens of the same domain) ---------- */
+.skn-domain{display:flex;gap:6px;overflow-x:auto;padding:4px;margin:0 0 var(--sk-2);border:1px solid var(--sk-line);border-radius:var(--sk-r-l);background:var(--sk-surface);box-shadow:var(--sk-shadow-1);scrollbar-width:none}
+.skn-domain::-webkit-scrollbar{display:none}
+.skn-domain button{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:0 12px;border:0;border-radius:var(--sk-r);background:transparent;color:var(--sk-ink-2);font:inherit;font-size:var(--sk-fs-s);font-weight:700;cursor:pointer;white-space:nowrap}
+.skn-domain button svg{width:16px;height:16px;color:var(--sk-brand)}
+.skn-domain button:hover{background:var(--sk-surface-2);color:var(--sk-ink)}
+.skn-domain button[aria-current="page"]{background:var(--sk-brand);color:var(--sk-on-brand)}
+.skn-domain button[aria-current="page"] svg{color:var(--sk-on-brand)}
+.skn-domain button i{font-style:normal;font-size:10.5px;padding:0 6px;border-radius:var(--sk-r-pill);background:var(--sk-surface-3);color:var(--sk-ink-3)}
+
+/* ---------- theme-specific shell touches ---------- */
+:root[data-look]:not([data-look="heritage"]) .rail{background-image:none;padding-bottom:var(--sk-5)}
+:root[data-look]:not([data-look="heritage"]) .rail .brand::before{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--sk-brand),var(--sk-brand-2));-webkit-mask-image:none;mask-image:none}
+:root[data-look]:not([data-look="heritage"]) .rail #biz-name{font:700 22px/1.3 var(--sk-font-display)}
+:root[data-look]:not([data-look="heritage"]) body{background:var(--sk-bg)}
+:root[data-look]:not([data-look="heritage"]) .skc-hero{background:var(--sk-surface)}
+:root[data-look]:not([data-look="heritage"]) .skc-hero::before{display:none}
+:root[data-look="executive"] .nav-btn[aria-current="page"]{background:linear-gradient(135deg,var(--sk-brand),var(--sk-brand-2));color:#fff;box-shadow:0 10px 24px -12px var(--sk-brand)}
+:root[data-look="executive"] .nav-btn[aria-current="page"] svg{color:#fff}
+:root[data-look="executive"] .skc-hero{background:linear-gradient(120deg,#ffffff 55%,#ecebff)}
+:root[data-look="executive"] .sk-kpi b,:root[data-look="executive"] .skc-kpi b{font-size:24px}
+:root[data-look="audit"] .nav-btn[aria-current="page"]{background:var(--sk-rail-active);color:#fff;box-shadow:inset 3px 0 0 var(--sk-brand-2)}
+:root[data-look="audit"] .nav-btn svg{color:#9fb2cf}
+:root[data-look="audit"] .rail .brand{border-color:rgba(255,255,255,.08)}
+:root[data-look="audit"] .rail #biz-name{color:#fff}
+:root[data-look="audit"] .sk-table th,:root[data-look="audit"] .t th{text-transform:none;letter-spacing:0}
+:root[data-look="audit"] .sk-table td,:root[data-look="audit"] .t td{padding-block:6px}
+:root[data-look="notebook"] body{background:repeating-linear-gradient(0deg,transparent 0 31px,rgba(44,90,160,.08) 31px 32px),var(--sk-bg)}
+:root[data-look="notebook"] .card,:root[data-look="notebook"] .skc-card{border-inline-start:3px solid rgba(192,57,43,.35)}
+:root[data-look="notebook"] h2,:root[data-look="notebook"] h3{color:var(--sk-brand)}
+
+/* theme picker in Settings */
+.skx-themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:var(--sk-2)}
+.skx-theme{display:flex;flex-direction:column;gap:6px;padding:var(--sk-2);border:1.5px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface);color:var(--sk-ink);font:inherit;text-align:start;cursor:pointer}
+.skx-theme[aria-pressed="true"]{border-color:var(--sk-brand);box-shadow:0 0 0 3px color-mix(in srgb,var(--sk-brand) 20%,transparent)}
+.skx-theme .sw{display:flex;gap:3px;height:28px;border-radius:6px;overflow:hidden}
+.skx-theme .sw i{flex:1}
+.skx-theme b{font-size:var(--sk-fs-s)}.skx-theme small{font-size:11.5px;color:var(--sk-ink-3)}
