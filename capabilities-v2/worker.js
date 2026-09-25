@@ -1,0 +1,420 @@
+/* S.kosif Capabilities v2 — port of kosif-stable-capabilities-v2 governance/runtime capabilities.
+   Server capabilities: Cloudflare Access verification, RBAC, multi-tenant workspace revisions,
+   optimistic concurrency, append-only integrity chain, provider registry and secure headers. */
+
+const providerDefinitions = [
+  { id: "kosif-local", name: "KOSIF المحلي", execution: "browser", providerType: "deterministic", model: "SKOSIF-CAP-V2" },
+  { id: "jev", name: "Jev", execution: "server", providerType: "decision", keyName: "JEV_SERVICE", modelName: "JEV_MODEL" },
+  { id: "gemini", name: "Gemini", execution: "server", providerType: "llm", keyName: "GEMINI_API_KEY", modelName: "GEMINI_MODEL" },
+  { id: "openai", name: "OpenAI", execution: "server", providerType: "llm", keyName: "OPENAI_API_KEY", modelName: "OPENAI_MODEL" },
+  { id: "claude", name: "Claude", execution: "server", providerType: "llm", keyName: "ANTHROPIC_API_KEY", modelName: "ANTHROPIC_MODEL" },
+];
+
+const GENESIS_HASH = "0".repeat(64);
+const CANONICAL_VERSION = "SKOSIF-C14N-v2";
+const WORKSPACE_MAX_BYTES = 131_072;
+const ACCESS_ASSERTION_MAX_BYTES = 16_384;
+const AUTH_HEADER = "oai-authenticated-user-email";
+const ACCESS_ASSERTION_HEADER = "cf-access-jwt-assertion";
+
+const WORKSPACE_ALLOWED_KEYS = Object.freeze([
+  "version","company","period","ui","theme","layout","preferences","inventorySummary",
+  "financeSummary","reporting","approvals","notes","alerts","jev","sourceRefs"
+]);
+const WORKSPACE_FORBIDDEN_KEYS = new Set([
+  "customers","customerPhones","phones","emails","orders","rawTransactions","bankDetails",
+  "attachments","fileBytes","evidenceBytes","apiKey","apiKeys","secret","secrets","password",
+  "token","tokens","accessToken","refreshToken","cardNumbers","iban","ibans"
+]);
+
+export const ROLE_PERMISSIONS = Object.freeze({
+  owner: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","integrity:read"]),
+  partner: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","integrity:read"]),
+  manager: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","integrity:read"]),
+  senior: Object.freeze(["providers:read","session:read","workspace:list","workspace:read","workspace:write","integrity:read"]),
+  viewer: Object.freeze(["providers:read","session:read","workspace:list","workspace:read","integrity:read"]),
+});
+
+export function authorizeRole(role, permission) {
+  return Boolean(ROLE_PERMISSIONS[role]?.includes(permission));
+}
+
+function jsonResponse(body, status = 200, extraHeaders = {}) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-store, max-age=0",
+      "x-content-type-options": "nosniff",
+      "referrer-policy": "no-referrer",
+      "permissions-policy": "camera=(), geolocation=(), microphone=(self)",
+      ...extraHeaders,
+    },
+  });
+}
+
+function corsHeaders(request, env) {
+  const allowed = String(env?.ALLOWED_ORIGINS || "").split(",").map(x => x.trim()).filter(Boolean);
+  const origin = request.headers.get("origin") || "";
+  if (!origin || !allowed.includes(origin)) return {};
+  return {
+    "access-control-allow-origin": origin,
+    "access-control-allow-credentials": "true",
+    "access-control-allow-headers": "content-type, authorization, cf-access-jwt-assertion",
+    "access-control-allow-methods": "GET, POST, PUT, OPTIONS",
+    "vary": "Origin",
+  };
+}
+
+function canonicalize(value) {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === "object") {
+    const output = {};
+    for (const key of Object.keys(value).sort()) if (value[key] !== undefined) output[key] = canonicalize(value[key]);
+    return output;
+  }
+  return typeof value === "string" ? value.normalize("NFC") : value;
+}
+function canonicalJSON(value) { return JSON.stringify(canonicalize(value)); }
+
+function findForbiddenWorkspaceKey(value, path = []) {
+  if (!value || typeof value !== "object") return null;
+  if (Array.isArray(value)) {
+    for (let index = 0; index < value.length; index += 1) {
+      const found = findForbiddenWorkspaceKey(value[index], [...path, String(index)]);
+      if (found) return found;
+    }
+    return null;
+  }
+  for (const [key, nested] of Object.entries(value)) {
+    if (WORKSPACE_FORBIDDEN_KEYS.has(key)) return [...path, key].join(".");
+    const found = findForbiddenWorkspaceKey(nested, [...path, key]);
+    if (found) return found;
+  }
+  return null;
+}
+
+export function normalizeWorkspaceState(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return { error: "invalid_workspace_state" };
+  const forbidden = findForbiddenWorkspaceKey(value);
+  if (forbidden) return { error: "forbidden_workspace_key", key: forbidden };
+  const retained = {};
+  for (const key of WORKSPACE_ALLOWED_KEYS) if (value[key] !== undefined) retained[key] = value[key];
+  const stateJson = canonicalJSON(retained);
+  const byteLength = new TextEncoder().encode(stateJson).byteLength;
+  if (byteLength > WORKSPACE_MAX_BYTES) return { error: "workspace_too_large", byteLength };
+  return { state: JSON.parse(stateJson), stateJson, byteLength };
+}
+
+async function sha256(value) {
+  const bytes = new TextEncoder().encode(String(value));
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, "0")).join("");
+}
+async function stableId(prefix, value) {
+  return `${prefix}_${(await sha256(`${CANONICAL_VERSION}:${canonicalJSON(value)}`)).slice(0,26)}`;
+}
+
+function normalizeSitesSubject(request) {
+  const raw = request.headers.get(AUTH_HEADER);
+  if (!raw) return null;
+  const subject = raw.trim().toLowerCase();
+  return subject && subject.length <= 320 ? subject : null;
+}
+function normalizeAccessConfig(env) {
+  const audience = String(env?.POLICY_AUD || "").trim();
+  const rawTeamDomain = String(env?.TEAM_DOMAIN || "").trim();
+  if (!audience || audience.length > 256 || !/^[A-Za-z0-9._:-]+$/.test(audience)) return null;
+  if (!rawTeamDomain || rawTeamDomain.length > 253) return null;
+  try {
+    const url = new URL(rawTeamDomain);
+    const hostname = url.hostname.toLowerCase();
+    if (url.protocol !== "https:" || url.username || url.password || url.port || url.pathname !== "/" || url.search || url.hash) return null;
+    if (!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.cloudflareaccess\.com$/.test(hostname)) return null;
+    return { audience, teamDomain: `https://${hostname}` };
+  } catch { return null; }
+}
+function decodeBase64Url(segment) {
+  if (!segment || segment.length > ACCESS_ASSERTION_MAX_BYTES || !/^[A-Za-z0-9_-]+$/.test(segment)) throw new Error("invalid_jwt_segment");
+  const normalized = segment.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
+  const binary = atob(padded);
+  return Uint8Array.from(binary, c => c.charCodeAt(0));
+}
+function decodeJwtJson(segment) { return JSON.parse(new TextDecoder().decode(decodeBase64Url(segment))); }
+function validAccessEmail(value) {
+  if (typeof value !== "string") return null;
+  const email = value.trim().toLowerCase();
+  if (!email || email.length > 320 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return null;
+  return email;
+}
+
+export async function verifyCloudflareAccessSubject(request, env, options = {}) {
+  const config = normalizeAccessConfig(env);
+  const assertion = request.headers.get(ACCESS_ASSERTION_HEADER);
+  if (!config || !assertion || assertion.length > ACCESS_ASSERTION_MAX_BYTES) return null;
+  const parts = assertion.split(".");
+  if (parts.length !== 3 || parts.some(part => !part)) return null;
+  try {
+    const header = decodeJwtJson(parts[0]);
+    const payload = decodeJwtJson(parts[1]);
+    if (!header || typeof header !== "object" || Array.isArray(header)) return null;
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) return null;
+    if (header.alg !== "RS256" || typeof header.kid !== "string" || !header.kid || header.kid.length > 256) return null;
+    if (payload.iss !== config.teamDomain) return null;
+    const audiences = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
+    if (!audiences.includes(config.audience)) return null;
+    const nowSeconds = Number.isFinite(options.nowSeconds) ? options.nowSeconds : Math.floor(Date.now()/1000);
+    if (!Number.isFinite(payload.exp) || payload.exp <= nowSeconds) return null;
+    if (payload.nbf !== undefined && (!Number.isFinite(payload.nbf) || payload.nbf > nowSeconds)) return null;
+    if (payload.iat !== undefined && (!Number.isFinite(payload.iat) || payload.iat > nowSeconds + 60)) return null;
+    const email = validAccessEmail(payload.email);
+    if (!email) return null;
+
+    const fetchImpl = options.fetchImpl || fetch;
+    const cryptoImpl = options.cryptoImpl || crypto;
+    const response = await fetchImpl(`${config.teamDomain}/cdn-cgi/access/certs`, { headers: { accept:"application/json" } });
+    if (!response?.ok) return null;
+    const keySet = await response.json();
+    const keys = Array.isArray(keySet?.keys) ? keySet.keys : [];
+    if (!keys.length || keys.length > 32) return null;
+    const jwk = keys.find(candidate => candidate?.kid === header.kid);
+    if (!jwk || jwk.kty !== "RSA" || !jwk.n || !jwk.e) return null;
+    if (jwk.alg && jwk.alg !== "RS256") return null;
+    if (jwk.use && jwk.use !== "sig") return null;
+    const publicKey = await cryptoImpl.subtle.importKey("jwk", jwk, {name:"RSASSA-PKCS1-v1_5",hash:"SHA-256"}, false, ["verify"]);
+    const valid = await cryptoImpl.subtle.verify("RSASSA-PKCS1-v1_5", publicKey, decodeBase64Url(parts[2]), new TextEncoder().encode(`${parts[0]}.${parts[1]}`));
+    return valid ? email : null;
+  } catch { return null; }
+}
+
+async function authenticatedSubject(request, env) {
+  return normalizeSitesSubject(request) || await verifyCloudflareAccessSubject(request, env);
+}
+async function tenantIdFor(subject) {
+  return `ten_${(await sha256(`SKOSIF-TENANT-v2:${subject}`)).slice(0,26)}`;
+}
+function requireDatabase(env) {
+  if (!env?.DB?.prepare || !env?.DB?.batch) throw new Error("database_unavailable");
+  return env.DB;
+}
+async function ensureTenant(db, tenantId, subject, at) {
+  await db.batch([
+    db.prepare("INSERT OR IGNORE INTO tenants (id,name,created_at) VALUES (?1,?2,?3)").bind(tenantId,"مساحة S.kosif",at),
+    db.prepare("INSERT OR IGNORE INTO tenant_members (tenant_id,subject,role,created_at) VALUES (?1,?2,'owner',?3)").bind(tenantId,subject,at),
+  ]);
+}
+async function memberRole(db, tenantId, subject) {
+  const row = await db.prepare("SELECT role FROM tenant_members WHERE tenant_id=?1 AND subject=?2").bind(tenantId,subject).first();
+  return row?.role || null;
+}
+
+function providerRegistry(env) {
+  const checkedAt = new Date().toISOString();
+  return {
+    schemaVersion:2,
+    policyVersion:"SKOSIF-SUMMARY-ONLY-v2",
+    checkedAt,
+    providers: providerDefinitions.map(provider => {
+      if (provider.id === "kosif-local") return {...provider,status:"ready",configured:true,canRun:true,dataPolicy:"local-only",lastCheckedAt:checkedAt};
+      if (provider.id === "jev") {
+        const configured = Boolean(env?.JEV_SERVICE || env?.JEV_MODEL);
+        return {id:provider.id,name:provider.name,execution:"server",providerType:"decision",status:configured?"configured":"unconfigured",configured,canRun:configured,model:env?.JEV_MODEL||null,dataPolicy:"summary-only",lastCheckedAt:checkedAt};
+      }
+      const configured = Boolean(env?.[provider.keyName] && env?.[provider.modelName]);
+      return {id:provider.id,name:provider.name,execution:provider.execution,providerType:provider.providerType,status:configured?"configured":"unconfigured",configured,canRun:false,model:configured?String(env[provider.modelName]).slice(0,120):null,dataPolicy:"summary-only",lastCheckedAt:checkedAt};
+    }),
+    limitation:"LLM execution stays disabled here until a separately authenticated and rate-limited execution route is configured.",
+  };
+}
+
+function validateWorkspaceInput(input) {
+  const name = String(input?.name || input?.client_name_ar || "").trim();
+  const businessYear = Number(input?.business_year ?? input?.fiscal_year ?? new Date().getFullYear());
+  const currency = String(input?.currency || "SAR").toUpperCase();
+  const schemaVersion = String(input?.schema_version || input?.ruleset_version || "skosif-v2").trim();
+  const effectiveAt = String(input?.effective_at || new Date().toISOString());
+  if (name.length < 2 || name.length > 200) return {error:"invalid_name"};
+  if (!Number.isInteger(businessYear) || businessYear < 2000 || businessYear > 2200) return {error:"invalid_business_year"};
+  if (!/^[A-Z]{3}$/.test(currency)) return {error:"invalid_currency"};
+  if (!/^[A-Za-z0-9._-]{3,80}$/.test(schemaVersion)) return {error:"invalid_schema_version"};
+  if (!Number.isFinite(Date.parse(effectiveAt))) return {error:"invalid_effective_at"};
+  return {name,businessYear,currency,schemaVersion,effectiveAt:new Date(effectiveAt).toISOString()};
+}
+
+async function appendLogValues({workspaceId,actor,action,payload,at,prevHash=GENESIS_HASH}) {
+  const canonicalPayload={workspace_id:workspaceId,actor,action,payload,at};
+  const entryHash=await sha256(`${prevHash}${canonicalJSON(canonicalPayload)}`);
+  return {payloadJson:canonicalJSON(payload),prevHash,entryHash};
+}
+async function workspaceForTenant(db,id,tenantId) {
+  return db.prepare("SELECT id,tenant_id,name,business_year,currency,status,schema_version,created_by,created_at,archived_at FROM workspaces WHERE id=?1 AND tenant_id=?2").bind(id,tenantId).first();
+}
+async function latestRevision(db,id,tenantId) {
+  return db.prepare("SELECT revision,state_json,state_hash,saved_by,saved_at FROM workspace_revisions WHERE workspace_id=?1 AND tenant_id=?2 ORDER BY revision DESC LIMIT 1").bind(id,tenantId).first();
+}
+function revisionResponse(row) {
+  if (!row) return {revision:0,state:null,state_hash:null,saved_by:null,saved_at:null};
+  return {revision:Number(row.revision),state:JSON.parse(row.state_json),state_hash:row.state_hash,saved_by:row.saved_by,saved_at:row.saved_at};
+}
+
+async function session(env, auth) {
+  const db=requireDatabase(env),at=new Date().toISOString();
+  await ensureTenant(db,auth.tenantId,auth.subject,at);
+  const role=await memberRole(db,auth.tenantId,auth.subject);
+  if (!authorizeRole(role,"session:read")) return jsonResponse({error:"permission_denied"},403);
+  return jsonResponse({session:{subject:auth.subject,tenant_id:auth.tenantId,role,capabilities:[...(ROLE_PERMISSIONS[role]||[])]}});
+}
+async function listWorkspaces(env,auth) {
+  const db=requireDatabase(env);
+  await ensureTenant(db,auth.tenantId,auth.subject,new Date().toISOString());
+  const role=await memberRole(db,auth.tenantId,auth.subject);
+  if (!authorizeRole(role,"workspace:list")) return jsonResponse({error:"permission_denied"},403);
+  const r=await db.prepare("SELECT id,tenant_id,name,business_year,currency,status,schema_version,created_by,created_at,archived_at FROM workspaces WHERE tenant_id=?1 ORDER BY created_at DESC,id DESC LIMIT 100").bind(auth.tenantId).all();
+  return jsonResponse({workspaces:r.results||[]});
+}
+async function createWorkspace(request,env,auth) {
+  const contentLength=Number(request.headers.get("content-length")||"0");
+  if (contentLength>32768) return jsonResponse({error:"payload_too_large"},413);
+  let input; try{input=await request.json()}catch{return jsonResponse({error:"invalid_json"},400)}
+  const v=validateWorkspaceInput(input); if(v.error)return jsonResponse({error:v.error},422);
+  const db=requireDatabase(env); await ensureTenant(db,auth.tenantId,auth.subject,v.effectiveAt);
+  const role=await memberRole(db,auth.tenantId,auth.subject);
+  if(!authorizeRole(role,"workspace:create"))return jsonResponse({error:"permission_denied"},403);
+  const id=await stableId("wsp",{tenantId:auth.tenantId,name:v.name,businessYear:v.businessYear,schemaVersion:v.schemaVersion,effectiveAt:v.effectiveAt});
+  const existing=await workspaceForTenant(db,id,auth.tenantId); if(existing)return jsonResponse({workspace:existing,idempotent:true});
+  const log=await appendLogValues({workspaceId:id,actor:auth.subject,action:"workspace.created",payload:{schema_version:v.schemaVersion},at:v.effectiveAt});
+  await db.batch([
+    db.prepare("INSERT INTO workspaces (id,tenant_id,name,business_year,currency,status,schema_version,created_by,created_at) VALUES (?1,?2,?3,?4,?5,'active',?6,?7,?8)").bind(id,auth.tenantId,v.name,v.businessYear,v.currency,v.schemaVersion,auth.subject,v.effectiveAt),
+    db.prepare("INSERT INTO audit_log (workspace_id,actor,action,payload_json,at,canonical_version,prev_hash,entry_hash) VALUES (?1,?2,'workspace.created',?3,?4,?5,?6,?7)").bind(id,auth.subject,log.payloadJson,v.effectiveAt,CANONICAL_VERSION,log.prevHash,log.entryHash),
+  ]);
+  return jsonResponse({workspace:await workspaceForTenant(db,id,auth.tenantId),idempotent:false},201);
+}
+async function getWorkspaceMeta(env,auth,id) {
+  const row=await workspaceForTenant(requireDatabase(env),id,auth.tenantId);
+  return row?jsonResponse({workspace:row}):jsonResponse({error:"not_found"},404);
+}
+async function getWorkspaceState(env,auth,id) {
+  const db=requireDatabase(env);
+  if(!await workspaceForTenant(db,id,auth.tenantId))return jsonResponse({error:"not_found"},404);
+  return jsonResponse({workspace:revisionResponse(await latestRevision(db,id,auth.tenantId))});
+}
+async function saveWorkspaceState(request,env,auth,id) {
+  const len=Number(request.headers.get("content-length")||"0"); if(len>196608)return jsonResponse({error:"payload_too_large"},413);
+  let input;try{input=await request.json()}catch{return jsonResponse({error:"invalid_json"},400)}
+  if(!Number.isInteger(input?.base_revision)||input.base_revision<0)return jsonResponse({error:"invalid_base_revision"},422);
+  const normalized=normalizeWorkspaceState(input.state);
+  if(normalized.error==="workspace_too_large")return jsonResponse({error:normalized.error,byte_length:normalized.byteLength},413);
+  if(normalized.error)return jsonResponse({error:normalized.error,key:normalized.key||null},422);
+  const db=requireDatabase(env),meta=await workspaceForTenant(db,id,auth.tenantId);
+  if(!meta)return jsonResponse({error:"not_found"},404);
+  if(meta.archived_at)return jsonResponse({error:"workspace_archived"},409);
+  const current=await latestRevision(db,id,auth.tenantId),currentRevision=Number(current?.revision||0);
+  if(currentRevision!==input.base_revision)return jsonResponse({error:"workspace_revision_conflict",current_revision:currentRevision},409);
+  const revision=currentRevision+1,savedAt=new Date().toISOString(),stateHash=await sha256(normalized.stateJson);
+  const head=await db.prepare("SELECT entry_hash FROM audit_log WHERE workspace_id=?1 ORDER BY seq DESC LIMIT 1").bind(id).first();
+  const log=await appendLogValues({workspaceId:id,actor:auth.subject,action:"workspace.saved",payload:{revision,state_hash:stateHash},at:savedAt,prevHash:head?.entry_hash||GENESIS_HASH});
+  try{
+    await db.batch([
+      db.prepare("INSERT INTO workspace_revisions (workspace_id,tenant_id,revision,state_json,state_hash,saved_by,saved_at) VALUES (?1,?2,?3,?4,?5,?6,?7)").bind(id,auth.tenantId,revision,normalized.stateJson,stateHash,auth.subject,savedAt),
+      db.prepare("INSERT INTO audit_log (workspace_id,actor,action,payload_json,at,canonical_version,prev_hash,entry_hash) VALUES (?1,?2,'workspace.saved',?3,?4,?5,?6,?7)").bind(id,auth.subject,log.payloadJson,savedAt,CANONICAL_VERSION,log.prevHash,log.entryHash),
+    ]);
+  }catch(error){
+    const refreshed=await latestRevision(db,id,auth.tenantId),rr=Number(refreshed?.revision||0);
+    if(rr!==input.base_revision)return jsonResponse({error:"workspace_revision_conflict",current_revision:rr},409);
+    if(String(error?.message||"").includes("archived_workspace_is_read_only"))return jsonResponse({error:"workspace_archived"},409);
+    throw error;
+  }
+  return jsonResponse({workspace:{revision,state:normalized.state,state_hash:stateHash,saved_by:auth.subject,saved_at:savedAt}},201);
+}
+async function archiveWorkspace(request,env,auth,id) {
+  const db=requireDatabase(env),meta=await workspaceForTenant(db,id,auth.tenantId);
+  if(!meta)return jsonResponse({error:"not_found"},404);
+  if(meta.archived_at)return jsonResponse({workspace:meta,idempotent:true});
+  let body;try{body=await request.json()}catch{return jsonResponse({error:"invalid_json"},400)}
+  const rationale=String(body?.rationale_ar||body?.rationale||"").trim(), atRaw=String(body?.effective_at||new Date().toISOString());
+  if(rationale.length<10||!Number.isFinite(Date.parse(atRaw)))return jsonResponse({error:"archive_rationale_and_effective_at_required"},422);
+  const at=new Date(atRaw).toISOString(),head=await db.prepare("SELECT entry_hash FROM audit_log WHERE workspace_id=?1 ORDER BY seq DESC LIMIT 1").bind(id).first();
+  const log=await appendLogValues({workspaceId:id,actor:auth.subject,action:"workspace.archived",payload:{rationale_ar:rationale},at,prevHash:head?.entry_hash||GENESIS_HASH});
+  await db.batch([
+    db.prepare("UPDATE workspaces SET status='archived',archived_at=?1 WHERE id=?2 AND tenant_id=?3 AND archived_at IS NULL").bind(at,id,auth.tenantId),
+    db.prepare("INSERT INTO audit_log (workspace_id,actor,action,payload_json,at,canonical_version,prev_hash,entry_hash) VALUES (?1,?2,'workspace.archived',?3,?4,?5,?6,?7)").bind(id,auth.subject,log.payloadJson,at,CANONICAL_VERSION,log.prevHash,log.entryHash),
+  ]);
+  return jsonResponse({workspace:await workspaceForTenant(db,id,auth.tenantId),idempotent:false});
+}
+async function integrityStatus(env,auth,id) {
+  const db=requireDatabase(env);
+  if(!await workspaceForTenant(db,id,auth.tenantId))return jsonResponse({error:"not_found"},404);
+  const r=await db.prepare("SELECT seq,actor,action,payload_json,at,prev_hash,entry_hash FROM audit_log WHERE workspace_id=?1 ORDER BY seq ASC").bind(id).all();
+  let prevHash=GENESIS_HASH;
+  for(const row of r.results||[]){
+    const expected=await sha256(`${prevHash}${canonicalJSON({workspace_id:id,actor:row.actor,action:row.action,payload:JSON.parse(row.payload_json),at:row.at})}`);
+    if(row.prev_hash!==prevHash||row.entry_hash!==expected)return jsonResponse({valid:false,broken_seq:row.seq,head_hash:prevHash});
+    prevHash=row.entry_hash;
+  }
+  return jsonResponse({valid:true,broken_seq:null,entries:r.results?.length||0,head_hash:prevHash});
+}
+
+const routes = [
+  ["GET", /^\/api\/capabilities-v2\/providers$/, "providers:read", "providers"],
+  ["GET", /^\/api\/capabilities-v2\/session$/, "session:read", "session"],
+  ["GET", /^\/api\/capabilities-v2\/workspaces$/, "workspace:list", "list"],
+  ["POST", /^\/api\/capabilities-v2\/workspaces$/, "workspace:create", "create"],
+  ["GET", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})$/, "workspace:read", "meta"],
+  ["GET", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/state$/, "workspace:read", "state"],
+  ["PUT", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/state$/, "workspace:write", "save"],
+  ["POST", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/archive$/, "workspace:archive", "archive"],
+  ["GET", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/integrity$/, "integrity:read", "integrity"],
+];
+
+async function handleApi(request,env,url) {
+  if(request.method==="OPTIONS")return new Response(null,{status:204,headers:corsHeaders(request,env)});
+  const found=routes.find(([method,re])=>method===request.method&&re.test(url.pathname));
+  if(!found)return jsonResponse({error:"route_not_authorized"},403,corsHeaders(request,env));
+  const [method,re,permission,action]=found,subject=await authenticatedSubject(request,env);
+  if(!subject)return jsonResponse({error:"authentication_required"},401,corsHeaders(request,env));
+  const auth={subject,tenantId:await tenantIdFor(subject),permission},match=url.pathname.match(re);
+  try{
+    if(action==="providers"){
+      if(!authorizeRole("viewer",permission))return jsonResponse({error:"permission_denied"},403,corsHeaders(request,env));
+      return jsonResponse(providerRegistry(env),200,corsHeaders(request,env));
+    }
+    if(action==="session")return addCors(await session(env,auth),request,env);
+    const db=requireDatabase(env);await ensureTenant(db,auth.tenantId,auth.subject,new Date().toISOString());
+    const role=await memberRole(db,auth.tenantId,auth.subject);
+    if(!authorizeRole(role,permission))return jsonResponse({error:"permission_denied"},403,corsHeaders(request,env));
+    auth.role=role;
+    if(action==="list")return addCors(await listWorkspaces(env,auth),request,env);
+    if(action==="create")return addCors(await createWorkspace(request,env,auth),request,env);
+    if(action==="meta")return addCors(await getWorkspaceMeta(env,auth,match[1]),request,env);
+    if(action==="state")return addCors(await getWorkspaceState(env,auth,match[1]),request,env);
+    if(action==="save")return addCors(await saveWorkspaceState(request,env,auth,match[1]),request,env);
+    if(action==="archive")return addCors(await archiveWorkspace(request,env,auth,match[1]),request,env);
+    if(action==="integrity")return addCors(await integrityStatus(env,auth,match[1]),request,env);
+  }catch(error){
+    if(error?.message==="database_unavailable")return jsonResponse({error:"database_unavailable"},503,corsHeaders(request,env));
+    return jsonResponse({error:"request_failed"},500,corsHeaders(request,env));
+  }
+  return jsonResponse({error:"route_not_authorized"},403,corsHeaders(request,env));
+}
+function addCors(response,request,env){
+  const h=new Headers(response.headers);for(const [k,v] of Object.entries(corsHeaders(request,env)))h.set(k,v);
+  return new Response(response.body,{status:response.status,statusText:response.statusText,headers:h});
+}
+
+export default {
+  async fetch(request,env){
+    const url=new URL(request.url);
+    if(url.pathname.startsWith("/api/capabilities-v2/"))return handleApi(request,env,url);
+    if(env?.ASSETS?.fetch){
+      const response=await env.ASSETS.fetch(request);
+      const headers=new Headers(response.headers);
+      headers.set("x-content-type-options","nosniff");
+      headers.set("referrer-policy","strict-origin-when-cross-origin");
+      headers.set("permissions-policy","camera=(), geolocation=(), microphone=(self)");
+      headers.set("content-security-policy","default-src 'self'; img-src 'self' data: blob:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'");
+      return new Response(response.body,{status:response.status,statusText:response.statusText,headers});
+    }
+    return jsonResponse({service:"S.kosif Capabilities v2",status:"ready",api:"/api/capabilities-v2/session"});
+  }
+};
