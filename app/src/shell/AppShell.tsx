@@ -5,6 +5,7 @@ import {useTheme} from '../design/ThemeProvider';
 import {CapabilityDomainPanel} from '../app/CapabilityDomainPanel';
 import type {ProductDomain} from '../app/capability-types';
 import {FinanceWorkspace} from '../domains/finance/FinanceWorkspace';
+import {AuditWorkspace} from '../domains/audit/AuditWorkspace';
 import './shell.css';
 
 const nav:{id:string;label:string;domain:ProductDomain}[]=[
@@ -28,6 +29,7 @@ export function AppShell({children}:PropsWithChildren){
   function renderWorkspace(){
     if(current.domain==='home')return children;
     if(current.domain==='finance')return <FinanceWorkspace/>;
+    if(current.domain==='audit')return <AuditWorkspace/>;
     return <CapabilityDomainPanel domain={current.domain}/>;
   }
 
