@@ -35,7 +35,7 @@ jobs:
       - name: Validate source syntax
         run: |
           python3 -m py_compile build.py private_blocks.py tools/payload.py
-          for f in ui/*.js; do node --check "$f"; done
+          for f in ui/core/*.js ui/components/*.js ui/layouts/*.js ui/features/*.js; do node --check "$f"; done
           node --check sw.js
           node --check capabilities-v2/worker.js
 
