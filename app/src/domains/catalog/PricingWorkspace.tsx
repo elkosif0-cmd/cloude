@@ -4,6 +4,7 @@ import {ItemsPanel} from './ItemsPanel';
 import {OffersPanel} from './OffersPanel';
 import {LabelScannerPanel} from './LabelScannerPanel';
 import {BoxBuilderPanel} from './BoxBuilderPanel';
+import {WorkspaceSectionNav,WorkspaceSectionPage} from '../../shell/WorkspaceSectionNav';
 import './pricing-workspace.css';
 
 export function PricingWorkspace(){
@@ -11,6 +12,7 @@ export function PricingWorkspace(){
   const [selling,setSelling]=useState('');
   const [vat,setVat]=useState('15');
   const [waste,setWaste]=useState('0');
+  const [section,setSection]=useState('items');
 
   const result=useMemo(()=>calculatePricing({
     purchaseInclusiveVat:Number(purchase)||0,
@@ -20,11 +22,18 @@ export function PricingWorkspace(){
   }),[purchase,selling,vat,waste]);
 
   return <section className="pricing-workspace">
-    <ItemsPanel/>
-    <OffersPanel/>
-    <LabelScannerPanel/>
-    <BoxBuilderPanel/>
-    <div className="pricing-grid">
+    <WorkspaceSectionNav active={section} onChange={setSection} items={[
+      {id:'items',label:'الأصناف'},
+      {id:'pricing',label:'التكلفة والتسعير'},
+      {id:'offers',label:'العروض'},
+      {id:'labels',label:'الملصقات والماسح'},
+      {id:'boxes',label:'البوكسات'},
+    ]}/>
+    <WorkspaceSectionPage id="items" active={section}><ItemsPanel/></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="offers" active={section}><OffersPanel/></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="labels" active={section}><LabelScannerPanel/></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="boxes" active={section}><BoxBuilderPanel/></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="pricing" active={section}><div className="pricing-grid">
       <section className="sk-surface pricing-form">
         <span className="eyebrow">Costing + Pricing</span><h3>حاسبة التكلفة والتسعير</h3>
         <label>سعر الشراء شامل الضريبة<input inputMode="decimal" value={purchase} onChange={(e)=>setPurchase(e.target.value)}/></label>
@@ -38,6 +47,6 @@ export function PricingWorkspace(){
         <article className="sk-surface"><span>ربح شامل الضريبة</span><strong className="sk-number">{result.grossProfitInclusiveVat.toLocaleString('en-US')}</strong></article>
         <article className="sk-surface"><span>هامش الربح %</span><strong className="sk-number">{result.grossMarginPercentOnInclusiveSales.toLocaleString('en-US')}</strong></article>
       </section>
-    </div>
+    </div></WorkspaceSectionPage>
   </section>;
 }
