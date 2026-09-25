@@ -42,3 +42,15 @@ Legacy variable names used by the core views (`--ground`, `--surface`, `--ink`, 
 - Tables scroll inside their card on narrow screens (`.tbl-wrap`), never the page.
 - Focus ring `--sk-focus` on every interactive element; hit targets ≥ 40px on touch.
 - Contrast ≥ 4.5:1 for text in both modes.
+
+## Brand assets
+
+| Asset | File | Source | Decision |
+|---|---|---|---|
+| Emblem (ram head, spiral horn, brown on cream) | `ui/art/ram.svg` | generated in Canva (media `MAHWPfyXAcw`), recreated as vector so it stays sharp at every size | direction chosen by Jev (0.97 over monogram / engraved sheep / geometric S); Canva render scored 3.84/4, vector 3.79/4 |
+| PWA / home-screen icons 192, 512, apple-touch 180 | `payload/*.png.b64` | rendered from the emblem (full-bleed, maskable-safe) | — |
+| Favicon, lock-screen logo, rail logo in non-heritage themes | `ui/art/ram.svg` | — | — |
+| Dusk valley artwork (lavender sky, palms, flock) | `ui/art/valley-dusk.svg` | generated in Canva (media `MAHWPa7XzEk`), recreated as vector | Command Center banner in «التنفيذي» and «ليل التحليل» |
+| Heritage sheep / landscape / hero | `ui/art/*.webp` | earlier heritage design | unchanged («تراث الوادي» stays default) |
+
+Jev chose this work item first (brand assets 0.84 over print templates 0.15) and approved publishing (0.87).
