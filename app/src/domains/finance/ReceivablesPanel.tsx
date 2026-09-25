@@ -1,8 +1,9 @@
 import {useEffect,useMemo,useState} from 'react';
 import {JsonStorageRepository} from '../../data/json-storage-repository';
+import {makeScopedKey,readActiveScope} from '../../data/scope-key';
 import {ageReceivables,type ReceivableInvoice} from './receivables-engine';
 
-const STORAGE_KEY='skosif.v1.finance.receivables';
+const STORAGE_BASE='finance.receivables';
 
 export function ReceivablesPanel(){
   const [rows,setRows]=useState<ReceivableInvoice[]>([]);
@@ -11,7 +12,8 @@ export function ReceivablesPanel(){
   const [paid,setPaid]=useState('0');
   const [dueDate,setDueDate]=useState(new Date().toISOString().slice(0,10));
   const [message,setMessage]=useState('');
-  const repo=useMemo(()=>new JsonStorageRepository<ReceivableInvoice & {id:string}>(window.localStorage,STORAGE_KEY),[]);
+  const storageKey=useMemo(()=>makeScopedKey(STORAGE_BASE,readActiveScope(window.localStorage)),[]);
+  const repo=useMemo(()=>new JsonStorageRepository<ReceivableInvoice & {id:string}>(window.localStorage,storageKey),[storageKey]);
   useEffect(()=>{void repo.list().then(setRows);},[repo]);
   const aging=useMemo(()=>ageReceivables(rows,new Date().toISOString().slice(0,10)),[rows]);
 
