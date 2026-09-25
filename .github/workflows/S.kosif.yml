@@ -20,3 +20,16 @@ jobs:
 
       - name: Verify clean-slate legacy guard
         run: node --test scripts/check-no-legacy.test.mjs
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Install clean app dependencies
+        working-directory: app
+        run: npm install
+
+      - name: Run AppRoot RED/GREEN test
+        working-directory: app
+        run: npm test -- AppRoot.test.tsx
