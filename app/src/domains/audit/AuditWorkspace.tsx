@@ -3,6 +3,7 @@ import {JsonStorageRepository} from '../../data/json-storage-repository';
 import type {JournalEntry} from '../finance/ledger-engine';
 import {analyzeJournals} from './journal-analytics';
 import {calculateMateriality} from './materiality-engine';
+import {PbcPanel} from './PbcPanel';
 import './audit-workspace.css';
 
 const JOURNAL_STORAGE_KEY='skosif.v1.finance.journals';
@@ -56,5 +57,6 @@ export function AuditWorkspace(){
           <div className="audit-list">{findings.map((item,index)=><article key={item.entryId+'-'+item.code+'-'+index}><div><strong>{item.entryId}</strong><small>{item.code}</small></div><span>{item.detail}</span><b className="sk-number">{item.score}</b></article>)}</div>}
       </section>
     </div>
+    <PbcPanel/>
   </section>;
 }
