@@ -1,32 +1,30 @@
-export type AuditEvent={
-  id:string;
-  at:string;
-  action:string;
-  entity:string;
-  entityId?:string;
-  detail?:Record<string,string|number|boolean|null>;
-};
+import {CHANGE_LOG_KEY,readRepositoryChanges,recordRepositoryChange,type RepositoryChangeEvent} from '../data/change-log';
 
-const AUDIT_KEY='skosif.v1.system.audit-trail';
-const MAX_EVENTS=2000;
+export type AuditEvent=RepositoryChangeEvent;
 
 export function readAuditTrail(storage:{getItem:(key:string)=>string|null}):AuditEvent[]{
-  const raw=storage.getItem(AUDIT_KEY);
-  if(!raw)return [];
-  try{
-    const value=JSON.parse(raw);
-    return Array.isArray(value)?value:[];
-  }catch{return [];}
+  return readRepositoryChanges(storage);
 }
 
-export function recordAuditEvent(storage:{getItem:(key:string)=>string|null;setItem:(key:string,value:string)=>void},input:Omit<AuditEvent,'id'|'at'>){
+export function recordAuditEvent(
+  storage:{getItem:(key:string)=>string|null;setItem:(key:string,value:string)=>void},
+  input:{action:string;entity:string;entityId?:string;detail?:Record<string,string|number|boolean|null>}
+){
+  const event:AuditEvent={
+    id:crypto.randomUUID(),
+    at:new Date().toISOString(),
+    action:input.action as AuditEvent['action'],
+    entity:input.entity,
+    entityId:input.entityId,
+    detail:input.detail,
+  };
   const events=readAuditTrail(storage);
-  const event:AuditEvent={id:crypto.randomUUID(),at:new Date().toISOString(),...input};
-  const next=[event,...events].slice(0,MAX_EVENTS);
-  storage.setItem(AUDIT_KEY,JSON.stringify(next));
+  storage.setItem(CHANGE_LOG_KEY,JSON.stringify([event,...events].slice(0,2000)));
   return event;
 }
 
 export function clearAuditTrail(storage:{removeItem:(key:string)=>void}){
-  storage.removeItem(AUDIT_KEY);
+  storage.removeItem(CHANGE_LOG_KEY);
 }
+
+export {recordRepositoryChange};
