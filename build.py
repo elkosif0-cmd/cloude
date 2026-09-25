@@ -1,63 +1,84 @@
 from pathlib import Path
-import base64, gzip, hashlib, re, shutil
+import base64, gzip, hashlib, re, shutil, os
 import private_blocks
 
-out=Path("dist")
-if out.exists(): shutil.rmtree(out)
-out.mkdir()
+ROOT=Path(__file__).resolve().parent
+APP_DIST=ROOT/"app"/"dist"
+OUT=ROOT/"dist"
 
-parts=sorted(Path("payload").glob("index.html.gz.b64.part*"))
-if not parts: raise SystemExit("No safe app payload parts found")
+if not APP_DIST.exists() or not (APP_DIST/"index.html").exists():
+    raise SystemExit("New React build missing: run cd app && npm run build before build.py")
+
+parts=sorted((ROOT/"payload").glob("index.html.gz.b64.part*"))
+if not parts:
+    raise SystemExit("Legacy data bootstrap payload missing")
 payload="".join(p.read_text(encoding="utf-8").strip() for p in parts)
-html=gzip.decompress(base64.b64decode(payload))
-if b'const SEED_B64 = "";' not in html: raise SystemExit("Safe app marker missing")
-text=html.decode("utf-8")
+legacy_html=gzip.decompress(base64.b64decode(payload)).decode("utf-8")
+if 'const SEED_B64 = "";' not in legacy_html:
+    raise SystemExit("Encrypted seed bootstrap marker missing from legacy data source")
+_, private = private_blocks.extract(legacy_html)
 
-# Product branding: keep business data intact, rename only the application shell.
-text=re.sub(r"<title>[^<]*</title>","<title>S.kosif</title>",text,count=1,flags=re.I)
-text=re.sub(r'<meta\s+name=["\']apple-mobile-web-app-title["\'][^>]*>', '<meta name="apple-mobile-web-app-title" content="S.kosif">', text, count=1, flags=re.I)
+if OUT.exists():
+    shutil.rmtree(OUT)
+shutil.copytree(APP_DIST,OUT)
 
-# The S.kosif screens live in ui/ and ship as one stylesheet and one script.
-# Order matters: shell.js provides the shared helpers the screens use.
-UI_CSS=["skosif.css","offers.css","supply.css","smartmatch.css","meatops.css","kernel.css","enterprise.css","reports.css","erp-plus.css","operations.css","capabilities-v2.css","fusion.css"]
-UI_JS=["shell.js","services.js","jev.js","offers.js","inventory.js","supply.js","meatops.js","smartmatch.js","pricing-core.js","kernel.js","tools.js","enterprise.js","reports.js","erp-plus.js","operations.js","capabilities-v2.js","audit-bridge.js","fusion-shell.js"]
-bundle_css="\n".join(f"/* ---- ui/{n} ---- */\n"+Path("ui",n).read_text(encoding="utf-8") for n in UI_CSS)
-# Each screen is isolated: an error while one module loads is logged and
-# the modules after it still load (one bad module must not blank the app).
-bundle_js="\n".join(f"/* ---- ui/{n} ---- */\ntry{{\n"+Path("ui",n).read_text(encoding="utf-8")+f"\n}}catch(e){{console.error('S.kosif module ui/{n} failed to load',e)}}" for n in UI_JS)
-tag=hashlib.sha256((bundle_css+bundle_js).encode()).hexdigest()[:10]
-text=text.replace("</head>",f'<link rel="stylesheet" href="./skosif.css?v={tag}"></head>',1)
-head,sep,tail=text.rpartition("</body>")
-if not sep: raise SystemExit("Final body close missing")
-text=head+f'<script src="./skosif.js?v={tag}" defer></script></body>'+tail
+app=(OUT/"index.html").read_text(encoding="utf-8")
+app=re.sub(r'<script>\s*const SEED_B64\s*=\s*"";[\s\S]*?EXCEL_REF[\s\S]*?</script>\s*','',app,count=1)
+app=re.sub(r'<script\s+type="application/json"\s+id="v25-modules">[\s\S]*?</script>\s*','',app,count=1)
+bootstrap='''<script>
+const SEED_B64 = "";
+/*AGHNAM_PRIVATE:catalog*/const SEED_RAWS=[],SEED_BOXES=[],SEED_EXPS=[],EXCEL_REF={raws:{},boxes:{}};
+window.__SKOSIF_BOOTSTRAP__={seedB64:SEED_B64,raws:SEED_RAWS,boxes:SEED_BOXES,expenses:SEED_EXPS,excelRef:EXCEL_REF};
+</script>
+<script type="application/json" id="v25-modules">{"__aghnam_private":"modules"}</script>
+'''
+if "<body" not in app:
+    raise SystemExit("New app body marker missing")
+body_end=app.find(">",app.find("<body"))+1
+app=app[:body_end]+bootstrap+app[body_end:]
 
-text,private=private_blocks.extract(text)
-(out/"app-safe.html").write_text(text,encoding="utf-8")
-(out/"index.html").write_bytes(Path("unlock.html").read_bytes())
+catalog_placeholder=("/*AGHNAM_PRIVATE:catalog*/const SEED_RAWS=[],SEED_BOXES=[],SEED_EXPS=[],"
+                     "EXCEL_REF={raws:{},boxes:{}};")
+if 'const SEED_B64 = "";' not in app:
+    raise SystemExit("New app seed marker missing after injection")
+if catalog_placeholder not in app:
+    raise SystemExit("New app private catalog placeholder missing")
+if '{"__aghnam_private":"modules"}' not in app:
+    raise SystemExit("New app private modules placeholder missing")
+
+(OUT/"app-safe.html").write_text(app,encoding="utf-8")
+(OUT/"index.html").write_bytes((ROOT/"unlock.html").read_bytes())
 
 for name in ["icon-192.png","icon-512.png","apple-touch-icon.png"]:
-    src=Path("payload")/(name+".b64")
-    (out/name).write_bytes(base64.b64decode(src.read_text(encoding="utf-8").strip()))
+    src=ROOT/"payload"/(name+".b64")
+    (OUT/name).write_bytes(base64.b64decode(src.read_text(encoding="utf-8").strip()))
 
-for name in ["sw.js","manifest.webmanifest","INSTALL-iPHONE-ar.txt","_headers"]:
-    (out/name).write_bytes(Path(name).read_bytes())
-(out/"skosif.css").write_text(bundle_css,encoding="utf-8")
-(out/"skosif.js").write_text(bundle_js,encoding="utf-8")
-shutil.copytree("ui/art",out/"art")
-# The audit studio stays as ES modules (loaded on first use), outside the bundle.
-shutil.copytree("ui/audit",out/"audit")
+for name in ["manifest.webmanifest","INSTALL-iPHONE-ar.txt","_headers","sw.js"]:
+    (OUT/name).write_bytes((ROOT/name).read_bytes())
 
-shutil.copytree("secure",out/"secure")
-if private: private_blocks.encrypt(private,Path("secure"),out/"secure")
+shutil.copytree(ROOT/"secure",OUT/"secure",dirs_exist_ok=True)
+if private and (os.environ.get("KOSIF_UNLOCK_PASSWORD") or os.environ.get("AGHNAM_UNLOCK_PASSWORD")):
+    private_blocks.encrypt(private,ROOT/"secure",OUT/"secure")
+elif private:
+    # Preview branches intentionally omit private business blocks when no build secret is available.
+    # The public encrypted seed remains untouched; no private plaintext is emitted.
+    print("Preview build: private catalog omitted because no unlock build secret is configured")
 
-# Name the service-worker cache after the build contents so every release
-# replaces the copy cached on installed phones.
 digest=hashlib.sha256()
-for f in sorted(out.rglob("*")):
+for f in sorted(OUT.rglob("*")):
     if f.is_file() and f.name!="sw.js":
-        digest.update(str(f.relative_to(out)).encode()); digest.update(f.read_bytes())
-sw=(out/"sw.js").read_text(encoding="utf-8")
-sw,n=re.subn(r"const CACHE='[^']*';",f"const CACHE='skosif-{digest.hexdigest()[:12]}';",sw,count=1)
-if n!=1: raise SystemExit("sw.js CACHE marker missing")
-(out/"sw.js").write_text(sw,encoding="utf-8")
-print("Built S.kosif:",len(list(out.rglob("*"))),"entries")
+        digest.update(str(f.relative_to(OUT)).encode())
+        digest.update(f.read_bytes())
+sw=(OUT/"sw.js").read_text(encoding="utf-8")
+sw,n=re.subn(r"const CACHE='[^']*';",f"const CACHE='skosif-zero-{digest.hexdigest()[:12]}';",sw,count=1)
+if n!=1:
+    raise SystemExit("sw.js CACHE marker missing")
+(OUT/"sw.js").write_text(sw,encoding="utf-8")
+
+built=(OUT/"app-safe.html").read_text(encoding="utf-8")
+for forbidden in ["skosif.js","skosif.css","SKosifCore.registerView","v29-fab","sk33-dock","Product360Modal"]:
+    if forbidden in built:
+        raise SystemExit("Legacy presentation marker leaked into new app: "+forbidden)
+if not list((OUT/"assets").glob("*.js")):
+    raise SystemExit("Vite JS bundle missing")
+print("Built zero-legacy S.kosif:",len(list(OUT.rglob("*"))),"entries; private blocks:",len(private))
