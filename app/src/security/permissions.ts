@@ -1,7 +1,7 @@
 export type RoleId='admin'|'accountant'|'operations'|'sales'|'viewer';
 export type Action='view'|'create'|'edit'|'approve'|'export'|'import';
 
-const roleActions:Record<RoleId,Action[]>={
+export const ROLE_ACTIONS:Readonly<Record<RoleId,readonly Action[]>>={
   admin:['view','create','edit','approve','export','import'],
   accountant:['view','create','edit','approve','export','import'],
   operations:['view','create','edit'],
@@ -11,5 +11,9 @@ const roleActions:Record<RoleId,Action[]>={
 
 export function can(role:RoleId|undefined,action:Action){
   if(!role)return false;
-  return roleActions[role]?.includes(action)??false;
+  return ROLE_ACTIONS[role]?.includes(action)??false;
+}
+
+export function actionsForRole(role:RoleId){
+  return [...ROLE_ACTIONS[role]];
 }
