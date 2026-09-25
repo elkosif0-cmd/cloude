@@ -2,7 +2,7 @@ import http from "node:http";
 import fs from "node:fs/promises";
 import path from "node:path";
 import pino from "pino";
-import makeWASocket, { useMultiFileAuthState, DisconnectReason } from "@whiskeysockets/baileys";
+import makeWASocket, { useMultiFileAuthState, DisconnectReason, Browsers } from "@whiskeysockets/baileys";
 
 const PORT = Number(process.env.PORT || 8080);
 const AUTH_DIR = "/tmp/wa-auth";
@@ -92,7 +92,7 @@ async function startSocket() {
       auth: auth.state,
       logger,
       printQRInTerminal: false,
-      browser: ["KOSIF", "Chrome", "2.0.0"],
+      browser: Browsers.macOS("Desktop"),
       markOnlineOnConnect: false,
       syncFullHistory: false
     });
