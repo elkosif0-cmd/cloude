@@ -26,6 +26,7 @@ export type MigrationReport={
   butcherShifts:number;
   agingPieces:number;
   subscriptions:number;
+  productAliases:number;
   legacyCommerceRows:number;
   warnings:string[];
 };
@@ -152,6 +153,7 @@ export function inspectLegacyDataset(dataset:LegacyDataset):MigrationReport{
   const butcherShifts=parseJson<any[]>(dataset.local['skosif_ops_butcher_shifts'],[]);
   const agingPieces=parseJson<any[]>(dataset.local['skosif_ops_aging_chamber'],[]);
   const subscriptions=parseJson<any[]>(dataset.local['skosif_ops_subscriptions'],[]);
+  const productAliases=parseJson<Record<string,string>>(dataset.local['skosif_v34_product_aliases'],{});
   const raws=Array.isArray(pricing?.raws)?pricing.raws:[];
   const idbRows=Object.values(dataset.idb).reduce((sum,rows)=>sum+(Array.isArray(rows)?rows.length:0),0);
   const customerRows=[
@@ -179,6 +181,7 @@ export function inspectLegacyDataset(dataset:LegacyDataset):MigrationReport{
     butcherShifts:butcherShifts.length,
     agingPieces:agingPieces.length,
     subscriptions:subscriptions.length,
+    productAliases:Object.keys(productAliases).length,
     legacyCommerceRows:['orders','order_items','payments','sales_lines','sales_descriptions','ops_orders'].reduce((sum,key)=>sum+(dataset.idb[key]?.length??0),0),
     warnings:[],
   };
@@ -448,6 +451,21 @@ function mapSubscriptions(dataset:LegacyDataset,customers:any[]){
   });
 }
 
+function mapProductAliases(dataset:LegacyDataset,items:any[]){
+  const aliases=parseJson<Record<string,string>>(dataset.local['skosif_v34_product_aliases'],{});
+  const out:Record<string,string>={};
+  for(const [name,legacyId] of Object.entries(aliases)){
+    const item=items.find(row=>row.id===legacyId||row.sku===legacyId||row.legacy?.sourceId===legacyId);
+    if(item)out[name]=item.id;
+  }
+  return out;
+}
+
+function mergeObject(storage:StorageLike,key:string,value:Record<string,string>){
+  const current=parseJson<Record<string,string>>(storage.getItem(key)??undefined,{});
+  storage.setItem(key,JSON.stringify({...current,...value}));
+}
+
 function mapLegacyCommerce(dataset:LegacyDataset){
   const stores=['orders','order_items','payments','sales_lines','sales_descriptions','ops_orders','imports','import_errors','pricing_snapshots'];
   const records:any[]=[];
@@ -491,6 +509,7 @@ export async function applyLegacyMigration(storage:StorageLike,dataset:LegacyDat
   const butcherShifts=mapButcherShifts(dataset);
   const agingPieces=mapAgingPieces(dataset);
   const subscriptions=mapSubscriptions(dataset,customers);
+  const productAliases=mapProductAliases(dataset,items);
   const commerce=mapLegacyCommerce(dataset);
 
   mergeEnvelope(storage,makeScopedKey('catalog.items',scope),items);
@@ -506,6 +525,7 @@ export async function applyLegacyMigration(storage:StorageLike,dataset:LegacyDat
   mergeEnvelope(storage,makeScopedKey('stock.butcher-shifts',scope),butcherShifts);
   mergeEnvelope(storage,makeScopedKey('stock.aging-pieces',scope),agingPieces);
   mergeEnvelope(storage,makeScopedKey('sales.subscriptions',scope),subscriptions);
+  mergeObject(storage,makeScopedKey('reports.product-aliases',scope),productAliases);
   mergeEnvelope(storage,makeScopedKey('legacy.commerce',scope),commerce);
 
   await archiveLegacyDataset(dataset);
