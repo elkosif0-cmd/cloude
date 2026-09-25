@@ -9,6 +9,7 @@ import {PayablesPanel} from './PayablesPanel';
 import {TrialBalanceImportPanel} from './TrialBalanceImportPanel';
 import {ReconciliationPanel} from './ReconciliationPanel';
 import {CashFlowPanel} from './CashFlowPanel';
+import {WorkspaceSectionNav,WorkspaceSectionPage} from '../../shell/WorkspaceSectionNav';
 import './finance-workspace.css';
 
 const STORAGE_BASE='finance.journals';
@@ -22,6 +23,7 @@ export function FinanceWorkspace(){
   const [reference,setReference]=useState('');
   const [date,setDate]=useState(new Date().toISOString().slice(0,10));
   const [message,setMessage]=useState('');
+  const [section,setSection]=useState('ledger');
 
   const storageKey=useMemo(()=>makeScopedKey(STORAGE_BASE,readActiveScope(window.localStorage)),[]);
   const repo=useMemo(()=>new JsonStorageRepository<JournalEntry & {id:string}>(window.localStorage,storageKey),[storageKey]);
@@ -67,15 +69,20 @@ export function FinanceWorkspace(){
   }
 
   return <section className="finance-workspace">
-    <div className="finance-kpis">
+    <WorkspaceSectionNav active={section} onChange={setSection} items={[
+      {id:'ledger',label:'القيود والأستاذ',badge:entries.length},
+      {id:'accounts',label:'دليل الحسابات',badge:accounts.length},
+      {id:'tb',label:'ميزان المراجعة'},
+      {id:'subledgers',label:'الذمم'},
+      {id:'recon',label:'المطابقات'},
+      {id:'cashflow',label:'التدفق النقدي'},
+    ]}/>
+    <WorkspaceSectionPage id="ledger" active={section}><div className="finance-kpis">
       <article className="sk-surface"><span>عدد القيود</span><strong className="sk-number">{entries.length}</strong></article>
       <article className="sk-surface"><span>إجمالي المدين</span><strong className="sk-number">{trialBalance.totals.debit.toLocaleString('en-US')}</strong></article>
       <article className="sk-surface"><span>إجمالي الدائن</span><strong className="sk-number">{trialBalance.totals.credit.toLocaleString('en-US')}</strong></article>
       <article className="sk-surface"><span>حالة الميزان</span><strong>{trialBalance.balanced?'متزن':'غير متزن'}</strong></article>
     </div>
-
-    <AccountsPanel onChanged={()=>{void accountRepo.list().then(setAccounts);}}/>
-    <TrialBalanceImportPanel/>
 
     <div className="finance-grid">
       <section className="sk-surface finance-entry-form">
@@ -96,9 +103,11 @@ export function FinanceWorkspace(){
             {ledger.map((row)=><tr key={row.accountId}><td>{row.accountId}</td><td className="sk-number">{row.debit.toLocaleString('en-US')}</td><td className="sk-number">{row.credit.toLocaleString('en-US')}</td><td className="sk-number">{row.balance.toLocaleString('en-US')}</td></tr>)}
           </tbody></table></div>}
       </section>
-    </div>
-    <div className="finance-subledgers"><ReceivablesPanel/><PayablesPanel/></div>
-    <ReconciliationPanel/>
-    <CashFlowPanel/>
+    </div></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="accounts" active={section}><AccountsPanel onChanged={()=>{void accountRepo.list().then(setAccounts);}}/></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="tb" active={section}><TrialBalanceImportPanel/></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="subledgers" active={section}><div className="finance-subledgers"><ReceivablesPanel/><PayablesPanel/></div></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="recon" active={section}><ReconciliationPanel/></WorkspaceSectionPage>
+    <WorkspaceSectionPage id="cashflow" active={section}><CashFlowPanel/></WorkspaceSectionPage>
   </section>;
 }
