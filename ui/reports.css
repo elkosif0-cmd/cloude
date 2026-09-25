@@ -1,0 +1,166 @@
+/* S.kosif — أنماط التقارير التنفيذية والمالية والتشغيلية */
+
+.sk-reports-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Nav Sub-tabs */
+.sk-rep-nav {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+.sk-rep-nav button {
+  white-space: nowrap;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--line, #e2d8cc);
+  background: var(--surface, #fff);
+  color: var(--ink, #2b1a0f);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sk-rep-nav button:hover {
+  background: var(--surface-2, #fbf5ea);
+  border-color: var(--brand, #8a5a2b);
+}
+.sk-rep-nav button.active {
+  background: var(--brand, #8a5a2b);
+  color: #fff;
+  border-color: var(--brand, #8a5a2b);
+  box-shadow: 0 3px 10px rgba(138, 90, 43, 0.25);
+}
+
+/* P&L Distribution Meter */
+.sk-pl-meter {
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  background: var(--surface-3, #eee);
+  margin: 12px 0 6px;
+}
+.sk-pl-bar-cogs { background: #b91c1c; }
+.sk-pl-bar-waste { background: #d97706; }
+.sk-pl-bar-opex { background: #4f46e5; }
+.sk-pl-bar-profit { background: #059669; }
+
+.sk-pl-legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+  margin-bottom: 12px;
+}
+.sk-pl-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.sk-pl-legend i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+/* Leakage Warning Badge */
+.sk-leak-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.sk-leak-tag.high {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+.sk-leak-tag.normal {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+/* Customer Churn Radar Card */
+.sk-churn-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--surface-2, #fafafa);
+  border: 1px solid var(--line, #eee);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  transition: transform 0.15s ease;
+}
+.sk-churn-card:hover {
+  transform: translateX(-3px);
+}
+.sk-churn-status {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.sk-churn-status.danger { background: #fee2e2; color: #991b1b; }
+.sk-churn-status.warn { background: #fef3c7; color: #92400e; }
+.sk-churn-status.active { background: #ecfdf5; color: #065f46; }
+
+/* Executive Report Printable Styling */
+.sk-exec-sheet {
+  background: #fff !important;
+  color: #000 !important;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  margin: 10px 0;
+}
+.sk-exec-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 14px;
+  border-bottom: 2px solid #2b1a0f;
+  margin-bottom: 16px;
+}
+.sk-exec-title h2 {
+  margin: 0 0 4px;
+  font-size: 1.3rem;
+  color: #2b1a0f;
+}
+.sk-exec-title p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #666;
+}
+.sk-exec-meta {
+  text-align: left;
+  font-size: 0.82rem;
+  color: #444;
+}
+
+@media print {
+  body * { visibility: hidden !important; }
+  .sk-print-report, .sk-print-report * { visibility: visible !important; }
+  .sk-print-report {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
