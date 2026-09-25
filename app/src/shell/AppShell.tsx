@@ -10,6 +10,7 @@ import {SalesWorkspace} from '../domains/sales/SalesWorkspace';
 import {StockWorkspace} from '../domains/stock/StockWorkspace';
 import {ProcurementWorkspace} from '../domains/procurement/ProcurementWorkspace';
 import {PricingWorkspace} from '../domains/catalog/PricingWorkspace';
+import {IntelligenceWorkspace} from '../domains/intelligence/IntelligenceWorkspace';
 import {ReportsWorkspace} from '../domains/reports/ReportsWorkspace';
 import {SystemWorkspace} from '../domains/system/SystemWorkspace';
 import './shell.css';
@@ -40,6 +41,7 @@ export function AppShell({children}:PropsWithChildren){
     if(current.domain==='finance')return <FinanceWorkspace/>;
     if(current.domain==='audit')return <AuditWorkspace/>;
     if(current.domain==='catalog')return <PricingWorkspace/>;
+    if(current.domain==='intelligence')return <IntelligenceWorkspace/>;
     if(current.domain==='reports')return <ReportsWorkspace/>;
     if(current.domain==='system')return <SystemWorkspace/>;
     return <CapabilityDomainPanel domain={current.domain}/>;
