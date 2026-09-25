@@ -2,6 +2,7 @@ import {useEffect,useMemo,useState} from 'react';
 import {JsonStorageRepository} from '../../data/json-storage-repository';
 import {makeScopedKey,readActiveScope} from '../../data/scope-key';
 import {buildGeneralLedger,buildTrialBalance,validateJournalEntry,type JournalEntry} from './ledger-engine';
+import {AccountsPanel} from './AccountsPanel';
 import {ReceivablesPanel} from './ReceivablesPanel';
 import './finance-workspace.css';
 
@@ -65,13 +66,15 @@ export function FinanceWorkspace(){
       <article className="sk-surface"><span>حالة الميزان</span><strong>{trialBalance.balanced?'متزن':'غير متزن'}</strong></article>
     </div>
 
+    <AccountsPanel/>
+
     <div className="finance-grid">
       <section className="sk-surface finance-entry-form">
         <div><span className="eyebrow">قيد مزدوج حقيقي</span><h3>إضافة قيد يومية</h3></div>
         <label>التاريخ<input type="date" value={date} onChange={(e)=>setDate(e.target.value)}/></label>
         <label>المرجع<input value={reference} onChange={(e)=>setReference(e.target.value)} placeholder="مثال: INV-1001"/></label>
-        <label>الحساب المدين<input value={debitAccount} onChange={(e)=>setDebitAccount(e.target.value)} placeholder="1100-cash"/></label>
-        <label>الحساب الدائن<input value={creditAccount} onChange={(e)=>setCreditAccount(e.target.value)} placeholder="4000-sales"/></label>
+        <label>الحساب المدين<input value={debitAccount} onChange={(e)=>setDebitAccount(e.target.value)} placeholder="account-1100"/></label>
+        <label>الحساب الدائن<input value={creditAccount} onChange={(e)=>setCreditAccount(e.target.value)} placeholder="account-4000"/></label>
         <label>المبلغ<input inputMode="decimal" value={amount} onChange={(e)=>setAmount(e.target.value)} placeholder="0.00"/></label>
         <button onClick={()=>void addEntry()}>حفظ القيد</button>
         {message?<p className="finance-message">{message}</p>:null}
