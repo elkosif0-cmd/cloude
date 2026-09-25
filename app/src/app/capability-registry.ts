@@ -8,19 +8,23 @@ export const coreCapabilities: CapabilityDefinition[] = [
   { id:'sales.orders', label:'الطلبات والمبيعات', route:'/sales/orders', domain:'sales', decision:'REBUILD' },
   { id:'sales.customers', label:'العملاء', route:'/sales/customers', domain:'sales', decision:'MERGE' },
   { id:'sales.margin', label:'هامش الربح', route:'/sales/margin', domain:'sales', decision:'MERGE' },
+  { id:'sales.posting', label:'ترحيل المبيعات', route:'/sales/posting', domain:'sales', decision:'REBUILD' },
 
   { id:'stock.inventory', label:'المخزون', route:'/stock/inventory', domain:'stock', decision:'MERGE' },
   { id:'stock.movements', label:'حركات المخزون', route:'/stock/movements', domain:'stock', decision:'REBUILD' },
+  { id:'stock.yield', label:'اقتصاديات العائد والهدر', route:'/stock/yield', domain:'stock', decision:'MERGE' },
 
   { id:'procurement.orders', label:'أوامر الشراء', route:'/procurement/orders', domain:'procurement', decision:'REBUILD' },
   { id:'procurement.receipts', label:'الاستلام ومطابقة الكميات', route:'/procurement/receipts', domain:'procurement', decision:'REBUILD' },
   { id:'procurement.suppliers', label:'الموردون', route:'/procurement/suppliers', domain:'procurement', decision:'MERGE' },
+  { id:'procurement.posting', label:'ترحيل الاستلام', route:'/procurement/posting', domain:'procurement', decision:'REBUILD' },
 
   { id:'finance.accounts', label:'دليل الحسابات', route:'/finance/accounts', domain:'finance', decision:'REBUILD' },
   { id:'finance.journals', label:'القيود اليومية', route:'/finance/journals', domain:'finance', decision:'REBUILD' },
   { id:'finance.general-ledger', label:'الأستاذ العام', route:'/finance/general-ledger', domain:'finance', decision:'REBUILD' },
   { id:'finance.trial-balance', label:'ميزان المراجعة', route:'/finance/trial-balance', domain:'finance', decision:'REBUILD' },
   { id:'finance.receivables', label:'الذمم المدينة', route:'/finance/receivables', domain:'finance', decision:'MERGE' },
+  { id:'finance.payables', label:'الذمم الدائنة', route:'/finance/payables', domain:'finance', decision:'MERGE' },
 
   { id:'audit.planning', label:'تخطيط المراجعة', route:'/audit/planning', domain:'audit', decision:'REBUILD' },
   { id:'audit.journal-analytics', label:'تحليل القيود', route:'/audit/journal-analytics', domain:'audit', decision:'MERGE' },
