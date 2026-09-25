@@ -4,6 +4,10 @@
 const MAX_RECIPIENTS = 30;
 const MAX_QUEUE_DELAY_S = 12 * 60 * 60; // Cloudflare Queues limit per message
 const MAX_QUEUED_INLINE_BYTES = 96 * 1024; // queue messages are capped at 128 KB
+const STORED = {
+  'cv-ar': { key: 'cv/CV-Arabic.pdf', filename: 'Mahmoud_ElDesouki_CV_Arabic_2026.pdf', mimetype: 'application/pdf' },
+  'cv-en': { key: 'cv/CV-English.pdf', filename: 'Mahmoud_ElDesouki_CV_English_2026.pdf', mimetype: 'application/pdf' },
+};
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json; charset=utf-8' } });
@@ -37,6 +41,52 @@ function bridge(env, path, init = {}) {
 }
 async function relay(r) {
   return new Response(await r.text(), { status: r.status, headers: { 'content-type': 'application/json; charset=utf-8' } });
+}
+function b64(buf) {
+  const bytes = new Uint8Array(buf);
+  let out = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) out += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(out);
+}
+async function materializeAttachment(env, raw) {
+  const a = typeof raw === 'string' ? { stored: raw } : (raw || {});
+  const known = a.stored ? STORED[a.stored] : undefined;
+  if (a.stored && !known) throw new Error('unknown stored file: ' + a.stored);
+  const r2Key = known?.key || a.r2Key;
+  const out = { fileUrl: a.fileUrl, fileBase64: a.fileBase64, filename: a.filename || known?.filename || (r2Key ? r2Key.split('/').pop() : undefined), mimetype: a.mimetype || known?.mimetype, caption: a.caption || '' };
+  if (r2Key) {
+    if (!env.FILES) throw new Error('R2 binding FILES is missing');
+    const obj = await env.FILES.get(r2Key);
+    if (!obj) throw new Error('stored file not found: ' + r2Key);
+    out.fileBase64 = b64(await obj.arrayBuffer());
+    out.fileUrl = undefined;
+    out.mimetype ||= obj.httpMetadata?.contentType || 'application/octet-stream';
+  }
+  if (!out.fileUrl && !out.fileBase64) throw new Error('attachment has no file');
+  return out;
+}
+async function sendBundleCompat(env, body) {
+  const results = [];
+  let idx = 0;
+  if (String(body.message || '').trim()) {
+    const r = await bridge(env, '/send', { method: 'POST', body: JSON.stringify({ to: body.to, message: String(body.message).trim(), idempotencyKey: body.idempotencyKey ? body.idempotencyKey + '-text' : undefined }) });
+    const t = await r.text();
+    let j = {}; try { j = JSON.parse(t); } catch {}
+    results.push({ index: idx++, ok: r.ok, id: j.id ?? null, ...(r.ok ? {} : { error: j.error || t || 'text send failed' }) });
+    if (!r.ok) return json({ sent: false, to: body.to, results, error: results.at(-1).error }, r.status >= 400 ? r.status : 502);
+  }
+  const attachments = Array.isArray(body.attachments) ? body.attachments : [];
+  for (let i = 0; i < attachments.length; i++) {
+    let a;
+    try { a = await materializeAttachment(env, attachments[i]); }
+    catch (e) { results.push({ index: idx, ok: false, error: String(e?.message || e) }); return json({ sent: false, to: body.to, results, error: results.at(-1).error }, 424); }
+    const r = await bridge(env, '/send-media', { method: 'POST', body: JSON.stringify({ to: body.to, ...a, idempotencyKey: body.idempotencyKey ? body.idempotencyKey + '-a' + (i + 1) : undefined }) });
+    const t = await r.text();
+    let j = {}; try { j = JSON.parse(t); } catch {}
+    results.push({ index: idx++, ok: r.ok, id: j.id ?? null, ...(r.ok ? {} : { error: j.error || t || 'media send failed' }) });
+    if (!r.ok) return json({ sent: false, to: body.to, results, error: results.at(-1).error }, r.status >= 400 ? r.status : 502);
+  }
+  return json({ sent: true, to: body.to, results });
 }
 
 // One request shape for everything that gets queued: text first, then attachments.
@@ -103,10 +153,12 @@ export default {
       try { body = await req.json(); } catch { return json({ error: 'invalid JSON' }, 400); }
       const to = normalizePhone(body.to);
       if (!to) return json({ error: 'to is required' }, 400);
-      return relay(await bridge(env, '/send-bundle', { method: 'POST', body: JSON.stringify({ ...body, to }) }));
+      return sendBundleCompat(env, { ...body, to });
     }
 
     if (!(await authorized(req, env))) return json({ error: 'unauthorized' }, 401);
+    if (url.pathname === '/pair/qr' && req.method === 'GET') return relay(await bridge(env, '/pair/qr'));
+    if (url.pathname === '/status' && req.method === 'GET') return relay(await bridge(env, '/status'));
 
     const batch = url.pathname.match(/^\/batch\/([^/]+)$/);
     if (batch && req.method === 'GET') return batchStatus(env, batch[1], Number(url.searchParams.get('count')));
@@ -123,7 +175,7 @@ export default {
 
     const bundle = bundleOf(url.pathname, body);
     const out = { to: recipients[0], ...bundle, idempotencyKey: body.idempotencyKey };
-    if (url.pathname === '/send-bundle') return relay(await bridge(env, '/send-bundle', { method: 'POST', body: JSON.stringify(out) }));
+    if (url.pathname === '/send-bundle') return sendBundleCompat(env, out);
     // Keep the original single-send response shapes for existing callers.
     if (!bundle.attachments.length) {
       if (!bundle.message) return json({ error: 'message is required' }, 400);
