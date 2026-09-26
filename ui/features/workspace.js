@@ -101,7 +101,9 @@ async function exportsPaint(root){
   const counts=await Promise.all(SOURCES.map(async([,,f])=>{try{const r=await f();return Array.isArray(r)?r.length:0}catch{return 0}}));
   root.innerHTML='<section class="card"><div class="card-h"><div><h3>مركز التصدير</h3><p>كل جدول إلى CSV يفتح في Excel (محمي من حقن المعادلات)، أو نسخة كاملة JSON.</p></div><button type="button" class="btn primary" data-x="all">نسخة كاملة للتطبيق</button></div><div class="card-b">'+
     '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>البيانات</th><th>السجلات</th><th></th></tr></thead><tbody>'+
-    SOURCES.map(([id,label],i)=>'<tr><td>'+esc(label)+'</td><td class="n">'+counts[i]+'</td><td>'+(counts[i]?'<button type="button" class="btn sm" data-x="'+id+'">تصدير CSV</button>':'<span class="hint">لا بيانات</span>')+'</td></tr>').join("")+'</tbody></table></div></div></section>';
+    SOURCES.map(([id,label],i)=>'<tr><td>'+esc(label)+'</td><td class="n">'+counts[i]+'</td><td>'+(counts[i]?'<button type="button" class="btn sm" data-x="'+id+'">تصدير CSV</button>':'<span class="hint">لا بيانات</span>')+'</td></tr>').join("")+'</tbody></table></div></div></section>'+
+    (SK.templates?'<section class="card"><div class="card-h"><div><h3>قوالب الاستيراد</h3><p>قالب Excel لكل قسم: الأعمدة المطلوبة وصفّا مثال وورقة تعليمات. املأه ثم استورده — كل صف يُفحص قبل الحفظ ويُضاف دون حذف الموجود.</p></div></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>القسم</th><th>الأعمدة</th><th></th></tr></thead><tbody>'+
+      SK.templates.list().map(t=>'<tr><td>'+esc(t.label)+'</td><td><small>'+esc(t.columns.join("، "))+'</small></td><td style="white-space:nowrap"><button type="button" class="btn sm" data-tpl-dl="'+t.id+'">تحميل '+(t.format==="csv"?"CSV":"Excel")+'</button> <button type="button" class="btn sm primary" data-tpl-in="'+t.id+'">استيراد</button></td></tr>').join("")+'</tbody></table></div></div></section>':'');
 }
 function exportsBind(root){
   root.addEventListener("click",async e=>{const b=e.target.closest("[data-x]");if(!b)return;

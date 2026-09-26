@@ -23,6 +23,7 @@ const ACTIONS=[
   {id:"item",t:"إضافة صنف جديد",s:"صنف خام في سجل الأسعار",ic:"catalog",run:()=>{go("catalog");setTimeout(act("item-new",{source:"catalog"}),150)},perm:["catalog","create"]},
   {id:"box",t:"بناء بوكس جديد",s:"هندسة بوكس ومكوناته",ic:"builder",run:()=>{go("builder");setTimeout(act("bld-new"),150)},perm:["builder","create"]},
   {id:"search",t:"بحث في العملاء والطلبات",s:"جوال، رقم طلب، وصف مبيعات",ic:"customers",run:q=>core()&&core().search(q||""),perm:["customers","view"]},
+  {id:"templates",t:"قوالب الاستيراد",s:"قالب Excel لكل قسم تملؤه ثم تستورده",ic:"exports",run:()=>SK.templates&&SK.templates.panel(),perm:["exports","view"]},
   {id:"demo",t:"البيانات التجريبية",s:"املأ الأقسام الفارغة ببيانات شركة وهمية أو امسحها",ic:"archive",run:()=>SK.demo&&SK.demo.panel(),perm:["settings","view"]},
   {id:"backup",t:"نسخة كاملة للتطبيق",s:"كل البيانات في ملف واحد · Ctrl+S",ic:"archive",run:()=>SK.store.backup().catch(e=>SK.errors.report(e,"backup")),perm:["settings","export"]},
   {id:"csv",t:"تصدير الأسعار (CSV)",s:"كل جداول التسعير",ic:"excelrecon",run:act("csv-all"),perm:["catalog","export"]},

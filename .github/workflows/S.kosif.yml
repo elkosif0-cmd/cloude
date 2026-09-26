@@ -135,7 +135,7 @@ jobs:
           assert not lost, "capabilities lost (restore them or remove them from the baseline on purpose): "+", ".join(lost)
           assert not [c["id"] for c in caps if c["id"] not in base], "new capability: add it to docs/rebuild/CAPABILITY_BASELINE.txt"
           # demo data: marked, removable, never over real data
-          for marker in ["SK.demo=","skosif_demo_v1","dropDemo"]:
+          for marker in ["SK.demo=","skosif_demo_v1","dropDemo","SK.templates=","KOSIF-template-","function book(","SKosifSalesLab","function matrix("]:
               assert marker in js, "demo marker missing: "+marker
           # the AI audit council inside the engagement (research «مجلس المراجعة الذكي») and the fused audit hub
           for marker in ["SKosifCouncilUI","confidenceMatrix","stopRule","verifyOpinion","integrityChecks","mountStudio","formDialog"]:

@@ -97,7 +97,7 @@ async function fromBooks(){
 }
 /* open the engagement on a tab (and a studio page): used by the studio's own deep links and other screens */
 function openTab(t,view){if(t)tab=t;if(view)studioView=view;if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");else paint()}
-window.SKosifTBReview=Object.freeze({fromBooks,booksTB,open:openTab,studio:view=>openTab("studio",view)});
+window.SKosifTBReview=Object.freeze({fromBooks,booksTB,load:(text,label,ctx)=>loadTB(text,label,ctx),open:openTab,studio:view=>openTab("studio",view)});
 
 /* ---------- computation (memoized) ---------- */
 function compute(){
