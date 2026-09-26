@@ -66,6 +66,7 @@
    "caps": [
     "dash",
     "decision",
+    "productflow",
     "catalog",
     "commerce",
     "customers",
@@ -123,6 +124,7 @@
    "label": "المخزن",
    "caps": [
     "dash",
+    "productflow",
     "catalog",
     "inventory",
     "suppliers",
@@ -152,6 +154,7 @@
    "caps": [
     "dash",
     "decision",
+    "productflow",
     "catalog",
     "commerce",
     "customers",
@@ -187,6 +190,7 @@
    "label": "مشاهدة فقط",
    "caps": [
     "dash",
+    "productflow",
     "catalog",
     "offers",
     "reports",
@@ -863,6 +867,30 @@
    "en": "Financial Engineering"
   },
   {
+   "id": "productflow",
+   "label": "استوديو المنتج",
+   "sub": "خريطة مرئية تربط المنتج بالتكلفة وسعر البيع والمكونات والتحليل في مساحة واحدة",
+   "group": "catalog",
+   "hubLabel": "المنتج والتكلفة",
+   "tier": "CORE",
+   "module": "ui/features/product-flow.js",
+   "data": [
+    "aghnam-pricing-v3",
+    "skosif_product_flow_v1"
+   ],
+   "legacy": "واجهة موحدة بدل تشتت الأصناف والتكاليف والتسعير والبوكسات",
+   "decision": "Merge",
+   "kw": "منتج خريطة عقد اسهم تكلفة سعر بيع مكونات تصنيع هامش",
+   "adv": false,
+   "en": "Product Flow Studio",
+   "feeds": [
+    "catalog",
+    "builder",
+    "sim",
+    "memo"
+   ]
+  },
+  {
    "id": "catalog",
    "label": "الأصناف والأسعار",
    "sub": "البحث والتعديل المباشر وقوائم الأسعار",
@@ -886,14 +914,16 @@
     "offers",
     "zatca",
     "finance"
-   ]
+   ],
+   "hub": "productflow",
+   "hidden": true
   },
   {
    "id": "costs",
    "label": "التكاليف والمصروفات",
    "sub": "أسعار الشراء والضريبة والهدر",
    "group": "catalog",
-   "hub": "catalog",
+   "hub": "productflow",
    "tier": "ADVANCED",
    "module": "core",
    "data": [
@@ -907,7 +937,8 @@
    "feeds": [
     "catalog",
     "builder"
-   ]
+   ],
+   "hidden": true
   },
   {
    "id": "sim",
@@ -927,14 +958,16 @@
    "en": "Quick Pricing",
    "feeds": [
     "memo"
-   ]
+   ],
+   "hub": "productflow",
+   "hidden": true
   },
   {
    "id": "kernel",
    "label": "نواة التسعير الصارمة",
    "sub": "المحرك المختبر بالكسور والتقريب",
    "group": "catalog",
-   "hub": "sim",
+   "hub": "productflow",
    "tier": "ADVANCED",
    "module": "ui/kernel.js + ui/pricing-core.js",
    "data": [],
@@ -942,7 +975,8 @@
    "decision": "Keep",
    "kw": "محرك تقريب",
    "adv": true,
-   "en": "Strict Pricing Kernel"
+   "en": "Strict Pricing Kernel",
+   "hidden": true
   },
   {
    "id": "memo",
@@ -962,7 +996,9 @@
    "feeds": [
     "archive",
     "catalog"
-   ]
+   ],
+   "hub": "productflow",
+   "hidden": true
   },
   {
    "id": "builder",
@@ -985,14 +1021,16 @@
     "compare",
     "memo",
     "offers"
-   ]
+   ],
+   "hub": "productflow",
+   "hidden": true
   },
   {
    "id": "analyzer",
    "label": "تحليل البوكس",
    "sub": "تكوين التكلفة وأثر كل مكوّن",
    "group": "catalog",
-   "hub": "builder",
+   "hub": "productflow",
    "tier": "ADVANCED",
    "module": "core",
    "data": [
@@ -1002,14 +1040,15 @@
    "decision": "Keep",
    "kw": "مكونات دائرة",
    "adv": true,
-   "en": "Box Analyzer"
+   "en": "Box Analyzer",
+   "hidden": true
   },
   {
    "id": "compare",
    "label": "المقارنة التحليلية",
    "sub": "مقارنة بصرية للتكلفة والربح",
    "group": "catalog",
-   "hub": "builder",
+   "hub": "productflow",
    "tier": "INTELLIGENCE",
    "module": "core",
    "data": [
@@ -1019,7 +1058,8 @@
    "decision": "Keep",
    "kw": "مقارنة",
    "adv": true,
-   "en": "Comparative Analysis"
+   "en": "Comparative Analysis",
+   "hidden": true
   },
   {
    "id": "labels",
