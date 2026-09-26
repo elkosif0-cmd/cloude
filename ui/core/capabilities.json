@@ -1212,7 +1212,7 @@
    "sub": "ملف مراجعة واحد: استلام الميزان من الملف أو الدفاتر، المعايير بجوار كل حساب، جولات المراجعة ومجلس المراجعة الذكي ودرجات الثقة ونقاط الاعتماد، المستندات، التسويات، والقوائم والتقارير وخطاب الإدارة",
    "group": "audit",
    "tier": "CORE",
-   "module": "ui/features/tb-review.js + ui/features/report-docs.js + ui/core/ai.js + ui/components/xlsx.js + SKEngines.audit.{tbReview,aiReview,documentCheck,governance,fieldwork} + ui/features/tb-fieldwork.js + SKEngines.reports.{tbImport,statements,analysis,notes,peerBenchmarks}",
+   "module": "ui/features/tb-review.js + ui/features/report-docs.js + ui/features/integrated-report.js + ui/core/ai.js + ui/components/xlsx.js + SKEngines.audit.{tbReview,aiReview,aiProviders,documentCheck,governance,fieldwork} + ui/features/tb-fieldwork.js + SKEngines.reports.{tbImport,statements,analysis,notes,peerBenchmarks,narrative,globalCorpus}",
    "data": [
     "skosif_tbreview_v1",
     "IDB skosif-tbreview-docs",
@@ -1257,7 +1257,7 @@
    "group": "audit",
    "hub": "codex",
    "tier": "MANAGEMENT",
-   "module": "ui/features/audit-bench.js + SKEngines.audit.{globalBenchmarks,materiality} + SKEngines.reports.peerBenchmarks",
+   "module": "ui/features/audit-bench.js + SKEngines.audit.{globalBenchmarks,materiality} + SKEngines.reports.{peerBenchmarks,globalCorpus}",
    "data": [
     "لا بيانات محلية — مرجع ثابت من حزمة البحث العالمية"
    ],

@@ -32,6 +32,7 @@ describe('the corpus read from every page of the bundle', () => {
 describe('fact pack and number checks', () => {
   it('formats large figures the way the letters do and knows every allowed figure', () => {
     expect(compact(412_600_000, 'ر.س')).toBe('412.6 مليون ر.س');
+    expect(compact(-5_460_000, 'ر.س')).toBe('(5.5 مليون ر.س)');
     expect(pack.facts.find((f) => f.key === 'revenue')).toMatchObject({ value: 500000, prior: 400000, change: 25 });
     expect(verifyNumbers('بلغت الإيرادات 500,000 ر.س بارتفاع 25% عن 400,000', pack)).toEqual([]);
     expect(verifyNumbers('وبلغت الحصة السوقية 63.7% من 9,999,999', pack)).toEqual([63.7, 9999999]);

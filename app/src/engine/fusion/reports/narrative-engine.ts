@@ -44,11 +44,12 @@ const r1 = (x: number) => Math.round(x * 10) / 10;
 function money(m: Minor | null, cur: string) { return m === null ? '' : formatMinor(m, { decimals: 0 }) + ' ' + cur; }
 /** 412,600,000 → «412.6 مليون» (the way the bundle's letters write large figures). */
 export function compact(major: number, cur: string): string {
-  const a = Math.abs(major), s = major < 0 ? '−' : '';
-  if (a >= 1e9) return s + r1(a / 1e9) + ' مليار ' + cur;
-  if (a >= 1e6) return s + r1(a / 1e6) + ' مليون ' + cur;
-  if (a >= 1e3) return s + Math.round(a / 1e3).toLocaleString('en-US') + ' ألف ' + cur;
-  return s + Math.round(a).toLocaleString('en-US') + ' ' + cur;
+  /* negatives in parentheses, the accounting convention (a leading minus sign flips place in Arabic text) */
+  const a = Math.abs(major), w = (t: string) => (major < 0 ? '(' + t + ')' : t);
+  if (a >= 1e9) return w(r1(a / 1e9) + ' مليار ' + cur);
+  if (a >= 1e6) return w(r1(a / 1e6) + ' مليون ' + cur);
+  if (a >= 1e3) return w(Math.round(a / 1e3).toLocaleString('en-US') + ' ألف ' + cur);
+  return w(Math.round(a).toLocaleString('en-US') + ' ' + cur);
 }
 
 export function facts(i: NarrativeInput): FactPack {

@@ -12,13 +12,13 @@
 "use strict";
 const {esc}=SK;
 const G=()=>SKEngines.audit.globalBenchmarks,M=()=>SKEngines.audit.materiality;
-const TABS=[["kams","الأمور الرئيسية"],["mat","الأهمية النسبية"],["peers","النظراء"],["cos","المراجعون"],["src","المصادر"]];
+const TABS=[["corpus","الحزمة كاملة"],["kams","الأمور الرئيسية"],["mat","الأهمية النسبية"],["peers","النظراء"],["cos","المراجعون"],["src","المصادر"]];
 const CC={US:"الولايات المتحدة",UK:"المملكة المتحدة",CH:"سويسرا",DE:"ألمانيا",FR:"فرنسا",NL:"هولندا",JP:"اليابان",KR:"كوريا",TW:"تايوان",CN:"الصين",IN:"الهند",SA:"السعودية",AE:"الإمارات",CA:"كندا",AU:"أستراليا"};
 const nf=new Intl.NumberFormat("en",{maximumFractionDigits:2}),cf=new Intl.NumberFormat("en",{notation:"compact",maximumFractionDigits:2});
 const pct=v=>v==null?"—":nf.format(Math.round(v*1000)/10)+"%";
 const STD={PCAOB:"CAM · PCAOB",ISA:"KAM · ISA"};
 const ST={within:["ضمن الممارسة","ok"],above:["أعلى من الممارسة","warn"],below:["أدنى من الممارسة","warn"],"no-precedent":["لا سابقة مفصح عنها","info"]};
-let root=null,tab="kams",theme="",sector="",std="",q="",psec="",mat={benchmark:"pbz",amount:"",rate:5,perf:75,triv:5};
+let root=null,tab="corpus",theme="",sector="",std="",q="",psec="",mat={benchmark:"pbz",amount:"",rate:5,perf:75,triv:5};
 
 const page=p=>'<span class="ab-pg" title="صفحة في ملف الحزمة">ص '+nf.format(p)+'</span>';
 function tiles(){
@@ -101,6 +101,33 @@ function cosTab(){
     '</tbody></table></div></div></section>';
 }
 
+/* ---------- tab 0: the whole bundle, page by page (SKEngines.reports.globalCorpus) ---------- */
+let rep="aramco-2025";
+function corpusTab(){
+  const C=SKEngines.reports.globalCorpus,s=C.summary(),bp=C.blueprint(),N=s.reports;
+  const bar=(n,of)=>'<span class="ab-cv"><i style="width:'+Math.round(n/of*100)+'%"></i></span>';
+  const list=(title,sub,rows)=>'<section class="card"><div class="card-h"><div><h3>'+title+'</h3><p>'+sub+'</p></div></div><div class="card-b"><table class="ab-ct"><tbody>'+rows+'</tbody></table></div></section>';
+  const L=C.reportList(),st=C.reportStructure(rep),R=L.find(r=>r.id===rep);
+  return '<section class="card ab-hero"><div class="card-b"><div><span class="eyebrow">قراءة كاملة لكل صفحة</span><h3>'+nf.format(s.pages)+' صفحة · '+N+' تقريراً · '+s.sectionTypes+' نوعاً من الأقسام</h3>'+
+      '<p>صُنّفت كل صفحة من الحزمة ('+nf.format(s.pagesClassified)+' صفحة) إلى قسمها، وسُجّل أول ظهور لكل قسم في كل تقرير، وعُدّت أنماط الكتابة عبر التقارير كلها. هذه البنية والأنماط هي ما يتبعه المراجع الذكي في SQC حين يكتب التقرير السنوي المتكامل وتقرير المراجع، ويُقاس به التقرير قبل الإصدار.</p></div></div></section>'+
+    '<div class="ab-3">'+bp.map(p=>'<section class="card"><div class="card-h"><div><h3>'+esc(p.ar)+'</h3><p>بترتيب ظهورها الوسيط في التقارير</p></div></div><div class="card-b"><ol class="ab-bp">'+
+      p.sections.map(x=>'<li><span>'+esc(x.ar)+'</span>'+bar(x.reports,N)+'<small>'+x.reports+'/'+N+'</small></li>').join("")+'</ol></div></section>').join("")+'</div>'+
+    '<section class="card"><div class="card-h"><div><h3>بنية كل تقرير</h3><p>اختر تقريراً لترى أقسامه بالترتيب مع أول صفحة لكل قسم في الحزمة.</p></div>'+
+      '<select data-ab-rep aria-label="التقرير">'+L.map(r=>'<option value="'+r.id+'"'+(r.id===rep?' selected':'')+'>'+esc(r.company+" · "+r.fy)+'</option>').join("")+'</select></div>'+
+      '<div class="card-b"><p class="hint">'+(R?esc(R.company)+' — '+esc(R.fw)+' · '+esc(R.fy)+' · الصفحات '+nf.format(R.from)+'–'+nf.format(R.to)+' · '+R.sections+' قسماً':'')+'</p><ol class="ab-rs">'+st.map(x=>'<li><b>'+esc(x.ar)+'</b><small>ص '+nf.format(x.page)+'</small></li>').join("")+'</ol></div></section>'+
+    '<div class="ab-2">'+
+      list("إجراءات المراجعة تحت الأمور الرئيسية","كم تقريراً يصف كل إجراء في قسم الأمور الرئيسية",C.kamProcedures().slice(0,14).map(x=>'<tr><td><b>'+esc(x.ar)+'</b><small>'+esc(x.text)+'</small></td><td>'+bar(x.reports,N)+'</td><td class="n">'+x.reports+'</td></tr>').join(""))+
+      list("فئات المخاطر الرئيسية","عدد التقارير التي تذكر الفئة في صفحات المخاطر",C.riskCatalogue().slice(0,16).map(x=>'<tr><td><b>'+esc(x.ar)+'</b><small>'+esc(x.mitigation)+'</small></td><td>'+bar(x.reports,N)+'</td><td class="n">'+x.reports+'</td></tr>').join(""))+
+    '</div><div class="ab-2">'+
+      list("موضوعات رسائل الرئيس والرئيس التنفيذي","نسبة الرسائل التي تتناول الموضوع ("+C.LETTERS.reports+" تقريراً فيها رسالة)",C.letterTopics().map(x=>'<tr><td><b>'+esc(x.ar)+'</b></td><td>'+bar(x.reports,C.LETTERS.reports)+'</td><td class="n">'+x.share+'%</td></tr>').join(""))+
+      list("عناصر تقرير المراجع","من "+C.AUDITOR_REPORTS_FOUND+" تقريراً للمراجع وُجدت في الحزمة",C.auditorElements().map(x=>'<tr><td><b>'+esc(x.ar)+'</b></td><td>'+bar(x.reports,C.AUDITOR_REPORTS_FOUND)+'</td><td class="n">'+x.reports+'</td></tr>').join(""))+
+    '</div><div class="ab-2">'+
+      list("مقاييس الأداء البديلة","في صفحات المؤشرات وتقرير الإدارة",C.apms().map(x=>'<tr><td><b dir="ltr">'+esc(x.name)+'</b></td><td>'+bar(x.reports,N)+'</td><td class="n">'+x.reports+'</td></tr>').join(""))+
+      list("موضوعات تقارير لجان المراجعة","في التقارير التي تنشر تقرير اللجنة",C.committeeTopics().map(x=>'<tr><td><b>'+esc(x.ar)+'</b></td><td>'+bar(x.reports,9)+'</td><td class="n">'+x.reports+'</td></tr>').join(""))+
+    '</div>'+
+    '<section class="card"><div class="card-h"><div><h3>الصفحات النموذجية لكل قسم يكتبه المراجع الذكي</h3><p>النمط المستخلص والصفحات التي قُرئت منه.</p></div></div><div class="card-b ab-exm">'+
+      C.EXEMPLARS.map(e=>'<div><h4>'+esc(e.ar)+'</h4><ol>'+e.pattern.map(p=>'<li>'+esc(p)+'</li>').join("")+'</ol><p class="hint">'+e.sources.map(x=>esc(x.report)+' ص '+nf.format(x.page)+' — '+esc(x.note)).join(" · ")+'</p></div>').join("")+'</div></section>';
+}
 /* ---------- tab 5: the 30 official sources ---------- */
 function srcTab(){
   const K={filings:"إيداعات الشركات المدرجة",["audit-quality"]:"جودة المراجعة والتفتيش",standards:"المعايير والسلوك المهني"};
@@ -112,7 +139,7 @@ function srcTab(){
 function paint(){
   if(!root)return;
   root.innerHTML='<div class="ab">'+tiles()+'<div class="sk-seg ab-tabs" role="tablist">'+TABS.map(([k,l])=>'<button type="button" role="tab" data-ab-tab="'+k+'" aria-selected="'+(tab===k)+'" aria-pressed="'+(tab===k)+'">'+l+'</button>').join("")+'</div>'+
-    (tab==="mat"?matTab():tab==="peers"?peersTab():tab==="cos"?cosTab():tab==="src"?srcTab():kamsTab())+
+    (tab==="corpus"?corpusTab():tab==="mat"?matTab():tab==="peers"?peersTab():tab==="cos"?cosTab():tab==="src"?srcTab():kamsTab())+
     '<p class="hint ab-note">المصدر: '+esc(G().BUNDLE.file)+' — كل عنوان ورقم منقول من صفحته المذكورة. المحتوى استرشادي؛ القرار المهني للمراجع.</p></div>';
 }
 function paintMat(){const r=root&&root.querySelector("[data-ab-mres]");if(r)r.innerHTML=matResults()}
@@ -125,6 +152,7 @@ function bind(node){
   });
   node.addEventListener("change",e=>{
     if(e.target.matches("[data-ab-sector]")){sector=e.target.value;paint();return}
+    if(e.target.matches("[data-ab-rep]")){rep=e.target.value;paint();return}
     if(e.target.matches("select[data-ab-m]")){mat.benchmark=e.target.value;mat.rate=({pbz:5,revenue:1,assets:0.5})[mat.benchmark];const r=root.querySelector('[data-ab-m="rate"]');if(r)r.value=mat.rate;paintMat()}
   });
   node.addEventListener("input",e=>{if(e.target.matches("input[data-ab-m]")){mat[e.target.dataset.abM]=e.target.value;paintMat();return}

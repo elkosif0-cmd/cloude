@@ -5,6 +5,19 @@
 **SQC — Smart Quality Control** · منصة المراجعة والتأكيد المدعومة بالذكاء الاصطناعي (AI-Powered Audit & Assurance Platform).
 The app was previously named S.kosif / KOSIF; storage keys and file names keep the old prefix so existing data keeps loading.
 
+### AI audit and integrated reporting
+
+- **Any AI provider:** Google Gemini, OpenAI or Anthropic Claude with the user's own key (`audit/ai-providers-engine.ts`,
+  `ui/core/ai.js`) runs the review rounds, the reviewers' council, the final report and the report narrative.
+- **The whole research bundle, page by page:** all 12,506 pages of the global financial & audit research bundle are
+  classified into 54 section types; each of the 49 reports' structure and the patterns across them (KAM procedures,
+  principal-risk categories, letter topics, APMs, audit-committee topics, auditor-report elements) live in
+  `reports/global-corpus-engine.ts` and the «الحزمة كاملة» tab of the Global Audit Reference.
+- **Integrated annual report:** `reports/narrative-engine.ts` + `ui/features/integrated-report.js` write the report to
+  that structure — AI-drafted when a key is set, engine-drafted otherwise — check every figure in the prose against the
+  company's numbers, and score the report against the bundle. One click runs the whole engagement: round → final
+  report → integrated report. See `docs/research/GLOBAL_RESEARCH_BUNDLE_ar.md`.
+
 
 S.kosif (brand: **KOSIF**) is the production application shell for the encrypted business dataset and the
 unified operations, pricing, customer, finance, audit & compliance, reporting, governance and Jev decision

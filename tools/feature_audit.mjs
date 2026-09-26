@@ -48,6 +48,10 @@ ok('المنظومة الواحدة','أدوات التحليل بتبويبات
 ok('عدم ضياع القدرات','القدرات الـ66 كلها مسجلة',await p.evaluate(()=>SK.caps.all().length)===66);
 // ---------- global research bundle: audit benchmarks ----------
 await go('auditbench',1200);
+const CO=await p.evaluate(()=>{const c=SKEngines.reports.globalCorpus,s=c.summary();return{pages:s.pagesClassified,types:s.sectionTypes,bp:document.querySelectorAll('.ab-bp li').length,reps:document.querySelectorAll('[data-ab-rep] option').length,ex:c.EXEMPLARS.length}});
+ok('البحث العالمي','قراءة الحزمة كاملة: كل صفحة مصنفة وبنية كل تقرير',CO.pages>12400&&CO.types>=50&&CO.reps===49&&CO.bp>=30);
+ok('البحث العالمي','الصفحات النموذجية لكل قسم يكتبه المراجع الذكي',CO.ex>=8);
+await p.click('[data-ab-tab="kams"]');await p.waitForTimeout(500);
 const GB=await p.evaluate(()=>{const g=SKEngines.audit.globalBenchmarks,s=g.summary();return{reports:s.reports,kams:s.kams,mat:s.materiality,src:s.sources,hub:SK.caps.members('codex').map(x=>x.id).includes('auditbench'),themes:document.querySelectorAll('.ab-th').length,
   aramco:g.MATERIALITY.some(m=>m.report==='aramco-2025'&&m.currency==='SAR'),inTbr:!!window.SKosifAuditBench}});
 ok('البحث العالمي','المرجع العالمي للمراجعة صفحة في «المعايير والمدونة»',GB.hub);
@@ -82,6 +86,11 @@ await p.keyboard.press('Escape');
 // ---------- themes & identity ----------
 ok('الهوية والثيمات','خمسة ثيمات احترافية جديدة',['aurora','vivid','oasis','graphite','onyx'].every(x=>E.looks>=14));
 await p.evaluate(()=>SKosifShell.setLook('oasis'));await p.waitForTimeout(500);
+await go('tbreview',1800);await p.click('[data-tab="fs"]');await p.waitForTimeout(700);await p.click('[data-doc="integrated"]');await p.waitForTimeout(1500);
+const IR=await p.evaluate(()=>({cover:!!document.querySelector('.ir-cover'),secs:document.querySelectorAll('.ir-sec').length,q:!!document.querySelector('.ir-q'),bar:!!document.querySelector('.sqc-nb'),risks:document.querySelectorAll('.ir-rt tbody tr').length,
+  prov:window.SKosifAI&&SKosifAI.providers().map(x=>x.id).join(','),check:SKEngines.reports.narrative.verifyNumbers('412.6 مليون',{allowed:[412.6]}).length===0}));
+ok('التقرير المتكامل','التقرير السنوي المتكامل على بنية التقارير العالمية (غلاف، رسائل، مخاطر، جدوى، حوكمة، مراجع، قوائم، ملحق مطابقة)',IR.cover&&IR.secs>=15&&IR.q&&IR.bar&&IR.risks>=5);
+ok('التقرير المتكامل','الذكاء الاصطناعي من Gemini أو OpenAI أو Claude مع التحقق من كل رقم',IR.prov==='gemini,openai,anthropic'&&IR.check);
 ok('الهوية والثيمات','هوية SQC واحدة في كل الثيمات',await p.evaluate(()=>getComputedStyle(document.querySelector('.rail #app-name'),'::before').content.includes('SQC')));
 await p.evaluate(()=>SKosifShell.setLook('kosif'));
 ok('الهوية والثيمات','نظام خطوط موحد (أرقام بعرض ثابت)',await p.evaluate(()=>{const td=document.querySelector('td');return !td||getComputedStyle(td).fontVariantNumeric.includes('tabular')}));
