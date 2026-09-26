@@ -76,18 +76,55 @@ function navButton(c,cur){
   return '<button type="button" class="nav-btn" data-act="nav" data-v="'+c.id+'" title="'+esc(c.label)+'"'+(c.id===cur?' aria-current="page"':'')+'>'+icon+'<span>'+esc(c.label)+'</span>'+(badge||"")+'</button>';
 }
 let lastSig="";
+/* the menu: collapsible domains (icon · name · count), the current screen's domain always open,
+   and a filter box above it; open/closed state per device (skosif_nav_v1) */
+const NAV_KEY="skosif_nav_v1";
+const GICON={home:"dash",sales:"commerce",stock:"inventory",procurement:"purchasing",finance:"finance",catalog:"catalog",intelligence:"intelligence",reports:"reports",audit:"tbreview",system:"settings"};
+const CHEV='<svg class="skn-ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+const navState=()=>{const d=load(NAV_KEY,{})||{};return d.open&&typeof d.open==="object"?d.open:{}};
+function setNavOpen(g,v){const d=load(NAV_KEY,{})||{};d.open={...(d.open||{}),[g]:v};save(NAV_KEY,d)}
+let navQ="";
+const nq=s=>String(s||"").toLowerCase().replace(/[ً-ٰٟ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").trim();
 function paintNav(){
   const nav=$("#nav");if(!nav||!core())return;
-  const adv=core().mode()==="advanced",cur=core().view();
+  const adv=core().mode()==="advanced",cur=core().view(),open=navState();
   let html="";
   SK.caps.groups().forEach(g=>{
     const items=SK.caps.inGroup(g.id).filter(c=>(adv||c.primary||c.id===cur)&&SK.perm.can(c.id));
     if(!items.length)return;
-    html+='<div class="skn-group" role="group" aria-label="'+esc(g.label)+'"><div class="nav-group"><span>'+esc(g.label)+'</span></div>'+
+    const here=items.some(c=>c.id===cur),isOpen=here||(open[g.id]!==undefined?open[g.id]:g.id==="home");
+    html+='<div class="skn-group'+(isOpen?'':' closed')+(here?' here':'')+'" role="group" aria-label="'+esc(g.label)+'" data-g="'+g.id+'">'+
+      '<button type="button" class="nav-group skn-gh" data-g="'+g.id+'" aria-expanded="'+isOpen+'"><span class="skn-gi">'+(SK.icons[GICON[g.id]]||"")+'</span><span>'+esc(g.label)+'</span><i class="skn-gc">'+items.length+'</i>'+CHEV+'</button>'+
       items.map(c=>navButton(c,cur)).join("")+'</div>';
   });
   if(adv)html+='<p class="skn-note">'+ADV_NOTE+'</p>';
   if(html!==lastSig||!nav.querySelector(".skn-group")){nav.innerHTML=html;lastSig=html}
+  navSearch();filterNav();
+}
+function filterNav(){
+  const nav=$("#nav");if(!nav)return;const q=nq(navQ);
+  nav.classList.toggle("skn-searching",!!q);
+  $$(".skn-group",nav).forEach(g=>{
+    let any=false;
+    $$(".nav-btn",g).forEach(b=>{const c=SK.caps.get(b.dataset.v),hit=!q||nq((c&&c.label)+" "+(c&&c.kw)+" "+(c&&c.en)+" "+(c&&c.sub)).includes(q);b.classList.toggle("skn-miss",!hit);if(hit)any=true});
+    g.classList.toggle("skn-none",!!q&&!any);
+  });
+}
+function navSearch(){
+  const nav=$("#nav");if(!nav||$("#skn-q"))return;
+  const w=document.createElement("div");w.className="skn-search";
+  w.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg><input id="skn-q" type="search" autocomplete="off" placeholder="تصفية القائمة…" aria-label="تصفية شاشات القائمة">';
+  nav.before(w);
+  const inp=$("#skn-q",w);
+  inp.addEventListener("input",()=>{navQ=inp.value;filterNav()});
+  inp.addEventListener("keydown",e=>{
+    if(e.key==="Escape"){inp.value="";navQ="";filterNav();inp.blur()}
+    if(e.key==="Enter"){const b=$$(".nav-btn",nav).find(x=>!x.classList.contains("skn-miss"));if(b){core().go(b.dataset.v);inp.value="";navQ="";filterNav()}}
+  });
+  nav.addEventListener("click",e=>{
+    const h=e.target.closest(".skn-gh");if(!h||!nav.contains(h))return;
+    const g=h.closest(".skn-group"),closed=g.classList.toggle("closed");h.setAttribute("aria-expanded",String(!closed));setNavOpen(h.dataset.g,!closed);
+  });
 }
 /* domain tab bar on top of every screen: sibling screens of the same domain */
 function domainTabs(){
@@ -105,6 +142,7 @@ function paintTop(){
   const c=core();if(!c)return;
   const cap=SK.caps.get(c.view());
   const t=$("#pg-title"),cr=$("#pg-crumb");
+  document.documentElement.dataset.domain=cap?cap.group:"";
   if(cap){if(t&&t.textContent!==cap.label)t.textContent=cap.label;if(cr)cr.textContent=cap.groupLabel+(cap.primary?"":" · متقدم")}
   else if(cr)cr.textContent="";
   document.title=(cap?cap.label:(t&&t.textContent)||"")+" · S.kosif";

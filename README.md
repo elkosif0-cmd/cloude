@@ -97,6 +97,18 @@ journal tests, agent, voice) and the standards research lab.
 `ui/features/audit-bridge.js` registers the screens and builds a trial balance from the
 app's sales, supplier shipments, expenses and credit customers for the
 studio's intake (the user reviews the mapping before importing).
+## Trial balance review (Gemini) and the accounting codex
+
+«مراجعة ميزان المراجعة» (`ui/features/tb-review.js`) audits any company's trial balance: import
+(.xlsx / CSV / paste), standards badges beside every account with the standard sheet (relation to the
+account, requirements, audit procedures, IFRS for SMEs section, official source), the deterministic
+reviewer (`audit/tb-review-engine.ts`), Gemini review rounds with the user's own key — document
+requests, uploads, verdicts — until Gemini completes (`audit/ai-review-engine.ts`, `core/ai.js`),
+balanced proposed adjusting entries, standards-compliance discussion, and IFRS 18 statements,
+analysis and a derived ISA 705 opinion. «المدونة المحاسبية والمعايير» (`ui/features/codex.js`) keeps
+the standards with their official sources and checks updates from the issuing bodies (applied only
+after approval). Where every repository and file went: `docs/FUSION_ALL_REPOS_ar.md`.
+
 ## Capabilities v2
 
 The port from `kosif-stable-capabilities-v2` is implemented in `capabilities-v2/worker.js`, with its D1 schema in `capabilities-v2/schema.sql`. The in-app center uses a privacy-minimized local fallback until a protected Worker URL is configured. When connected, Cloudflare Access, tenant isolation, server RBAC, optimistic workspace revisions and the append-only integrity chain are enforced by the Worker.
