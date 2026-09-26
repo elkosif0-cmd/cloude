@@ -17,7 +17,7 @@ const KEY="skosif_tbreview_v1",MAX_FILE=15*1024*1024,MAX_ROUND=18*1024*1024;
 const E=()=>window.SKEngines,RV=()=>E().audit.tbReview,AI=()=>E().audit.aiReview,DC=()=>E().audit.documentCheck,CX=()=>E().audit.codex,PG=()=>E().audit.programme,DS=()=>E().audit.disclosures;
 const TI=()=>E().reports.tbImport,FS=()=>E().reports.statements,AN=()=>E().reports.analysis,MN=()=>E().reports.money;
 const TABS=[["tb","الميزان والمعايير"],["ai","جولات المراجعة"],["conf","الثقة والمجلس"],["docs","المستندات"],["adj","التسويات والامتثال"],["fs","القوائم والتقارير"]];
-const CU=()=>window.SKosifCouncilUI;
+const CU=()=>window.SKosifCouncilUI,AP=()=>window.SKosifAuditPractice;
 let root=null,tab="tb",filter="all",busy="",abort=null,cache=null,setup=false,fsAfter=true,doc="issue",confHTML={sig:"",h:""},confSeq=0;
 
 /* ---------- state ---------- */
@@ -101,12 +101,15 @@ window.SKosifTBReview=Object.freeze({fromBooks,booksTB,rows:()=>{const c=compute
 /* ---------- computation (memoized) ---------- */
 function compute(){
   const d=st();CUR=egypt(d)?"ج.م":"ر.س";if(!d.tbText)return null;
-  const sig=JSON.stringify([MN().fingerprint(d.tbText),d.overrides,d.ctx,d.materiality,d.session&&d.session.rounds.length,d.session&&d.session.unavailable,d.accepted,d.rejected,!!(d.session&&d.session.final),d.ecl,d.confirm]);
+  const sig=JSON.stringify([MN().fingerprint(d.tbText),d.overrides,d.ctx,d.materiality,d.session&&d.session.rounds.length,d.session&&d.session.unavailable,d.accepted,d.rejected,!!(d.session&&d.session.final),d.ecl,d.confirm,d.matPlanOn&&d.matPlan]);
   if(cache&&cache.sig===sig)return cache;
   const tb=TI().parseTrialBalance(d.tbText);
   const fw=egypt(d)?"EAS":d.ctx.framework,tax=egypt(d)?"income":"zakat";
   const opts={framework:fw,currency:CUR,overrides:d.overrides,materiality:d.materiality||undefined};
   let base=RV().reviewTrialBalance(tb,opts);
+  /* the materiality plan (ISA 320), once adopted, sets materiality and the performance and trivial rates of the whole review */
+  const k0=base.fs.keys,plan=d.matPlanOn&&E().audit.materiality.planMateriality?E().audit.materiality.planMateriality({pbt:k0.pbz.current,revenue:k0.revenue.current,assets:k0.assets.current,equity:k0.equity.current,...(d.matPlan||{})}):null;
+  if(plan){opts.materiality=d.materiality||plan.overall;opts.materialityRates={performanceRate:plan.performanceRate,trivialRate:plan.trivialRate};base=RV().reviewTrialBalance(tb,opts)}
   const s=d.session;
   if(s&&s.rounds.length){const ev=AI().evidenceFromSession(base,s);if(Object.keys(ev).length)base=RV().reviewTrialBalance(tb,{...opts,evidence:ev})}
   const gem=s?s.rounds.flatMap(r=>r.findings):[];
@@ -125,7 +128,7 @@ function compute(){
   const decided=pool.every(a=>d.accepted.includes(a.id)||d.rejected.includes(a.id));
   const programme=PG().auditProgramme({review:base,framework:fw,evidence,company:c.company,period:c.period,activity:c.activity,independenceConfirmed:cf.independence,partnerApproved:cf.partner,
     rounds:s?s.rounds.length:0,finalIssued:!!(s&&s.final),adjustmentsDecided:decided,disclosuresValid:disclosures.valid});
-  cache={sig,d,fw,tb,base,all,stdMap,notes,pool,accepted,adjusted,fsBefore,fsAfterAdj,derived,session:s,eclM,disclosures,programme,decided};
+  cache={sig,d,fw,tb,base,all,stdMap,notes,pool,accepted,adjusted,fsBefore,fsAfterAdj,derived,session:s,eclM,disclosures,programme,decided,plan};
   return cache;
 }
 const session=d=>d.session||AI().newSession(d.ctx,window.SKosifAI?SKosifAI.conf().model:AI().DEFAULT_MODEL);
@@ -187,9 +190,9 @@ function tbTab(c){
   return '<div class="skk4">'+
       tile("ledger","",'الحسابات',b.accounts.length,b.fs.checks.mappedPct+'% مبوبة في القوائم')+
       tile(c.tb.balanced?"check":"alert",c.tb.balanced?"ok":"bad",'التوازن',c.tb.balanced?'متوازن':'غير متوازن',c.tb.balanced?'مدين = دائن '+sar(c.tb.totals.debit):'الفرق '+sar(c.tb.difference))+
-      tile("calc","warn",'الأهمية النسبية',sar(m.overall),m.benchmarkAr+' × '+(m.rate*100)+'% · التنفيذية '+sar(m.performance))+
+      tile("calc","warn",'الأهمية النسبية',sar(m.overall),(c.plan?c.plan.benchmarkAr+' × '+Math.round(c.plan.rate*10000)/100:m.benchmarkAr+' × '+(m.rate*100))+'% · التنفيذية '+sar(m.performance))+
       tile("risks",b.summary.high?"bad":"ok",'الملاحظات',b.findings.length,b.summary.high+' عالية · '+b.summary.medium+' متوسطة')+
-    '</div>'+
+    '</div>'+(AP()?AP().planCard(c):'')+
     (topF.length?'<section class="card"><div class="card-h"><div><h3>أهم ما اكتشفته المراجعة</h3><p>المحرك الآلي'+(c.session&&c.session.rounds.length?' و Gemini':'')+' — كل ملاحظة بأساسها الرقمي ومعيارها.</p></div></div><div class="card-b tbr-flist">'+topF.map(fItem).join("")+'</div></section>':'')+
     '<section class="card"><div class="card-h"><div><h3>الحسابات ومعاييرها</h3><p>اضغط رقم المعيار بجوار الحساب لتعرف علاقته بالحساب ومتطلباته ومصدره الرسمي.</p></div><div class="sk-seg">'+[["all","الكل"],["flag","عليها ملاحظات"],["map","تحتاج تبويب"]].map(([v,l])=>'<button type="button" data-flt="'+v+'" aria-pressed="'+(filter===v)+'">'+l+'</button>').join("")+'</div></div>'+
     '<div class="card-b tbr-tw"><table class="sk-table tbr-t"><thead><tr><th>الرقم</th><th>الحساب</th><th>البند في القوائم</th><th>الرصيد</th><th>السابق</th><th>التغير</th><th>المعايير</th><th>ملاحظات</th></tr></thead><tbody>'+rows.map(row).join("")+'</tbody></table></div></section>';
@@ -301,7 +304,7 @@ function adjTab(c){
       '<div class="skk4-t"><span class="chip '+(Math.abs(un.profit)>m.overall?"bad":"warn")+'">'+SK.icon("alert")+'</span><span class="tx"><span>تحريفات غير مصححة</span><b>'+sar(Math.abs(un.profit))+'</b><small>مقابل أهمية نسبية '+sar(m.overall)+' (ISA 450)</small></span></div>'+
       '<div class="skk4-t"><span class="chip '+(cnt("غير ممتثل")?"bad":"ok")+'">'+SK.icon("governance")+'</span><span class="tx"><span>الامتثال للمعايير</span><b>'+cnt("ممتثل")+' / '+comp.length+'</b><small>'+cnt("غير ممتثل")+' غير ممتثل · '+cnt("ممتثل جزئياً")+' جزئي · '+cnt("يتطلب أدلة")+' بانتظار أدلة</small></span></div>'+
     '</div>'+
-    eclCard(c)+
+    eclCard(c)+(AP()?AP().estCard(c):'')+
     '<section class="card"><div class="card-h"><div><h3>قيود التسوية المقترحة</h3><p>كل قيد متوازن ومتحقق من حساباته قبل عرضه؛ المعتمد منها يدخل في القوائم «بعد التسويات».</p></div><div class="sk-actions"><button type="button" class="btn sm" data-a="jev-adj"'+(c.pool.length>1?'':' disabled')+'>'+SK.icon("jev")+' أولوية القيود مع Jev</button><button type="button" class="btn sm" data-a="adj-csv">تصدير القيود</button></div></div><div class="card-b">'+(c.pool.map(card).join("")||'<p class="empty">لا قيود مقترحة — لم يظهر ما يستوجب التسوية من الأرقام.</p>')+'</div></section>'+
     '<section class="card"><div class="card-h"><div><h3>مناقشة الامتثال للمعايير</h3><p>لكل معيار: الحسابات التي يحكمها، الملاحظات، الأدلة المنتظرة، والحكم.</p></div></div><div class="card-b tbr-comp">'+
       comp.map(x=>'<div class="tbr-ci"><div class="tbr-ci-h"><button type="button" class="std-b '+famCls(x.code)+'" data-std="'+esc(x.code)+'">'+esc(x.code)+'</button><b>'+esc(x.title)+'</b><span class="sksev '+(x.status==="ممتثل"?"ok":x.status==="غير ممتثل"?"bad":x.status==="ممتثل جزئياً"?"warn":"info")+'">'+esc(x.status)+'</span></div><p>'+esc(x.discussion)+'</p></div>').join("")+
@@ -334,6 +337,8 @@ function stmt(rows,hasPrior,cls=""){
 function kamsOf(c){
   const f=c.session&&c.session.final;
   if(f&&f.kams.length)return f.kams;
+  /* the library of key audit matters distilled from the world's auditor's reports (audit-practice.js) */
+  const lib=AP()?AP().kams(c):[];if(lib.length)return lib;
   const ev=c.session?AI().evidenceFromSession(c.base,c.session):{};
   return c.base.risks.filter(r=>r.significant).slice(0,3).map(r=>({title:r.ar,
     why:'بلغ رصيد '+r.ar+' '+sar(r.amount)+'، وقُيّم خطره بدرجة '+r.score+' من 100 لأن '+r.risk+(r.parts.estimate>=15?' ويتضمن تقديرات محاسبية تتطلب حكماً مهنياً (ISA 540)':'')+'. لذلك عُدّ من الأمور ذات الأهمية القصوى في مراجعتنا.',
@@ -347,7 +352,15 @@ function reportParts(c){
 const DOCS=[["issue","الإصدار والاعتماد"],["statements","القوائم المالية"],["annual","التقرير السنوي (نموذج 10-K)"],["release","بيان النتائج"],["auditor","تقرير المراجع المستقل"],["analysis","التحليل المالي"]];
 let docStyled=false;
 function fmtDate(iso,eg){if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||""))return "";try{return new Date(iso+"T12:00:00").toLocaleDateString(eg?"ar-EG-u-nu-latn":"ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"})}catch{return iso}}
-function docX(c){return {c,fs:fsAfter?c.fsAfterAdj:c.fsBefore,cur:CUR,ctx:c.d.ctx,fw:c.fw,periodEnd:fmtDate(c.d.ctx.periodEnd,c.fw==="EAS"),kams:kamsOf(c).map(k=>({title:k.title,description:k.why,how:k.how})),opinion:c.derived}}
+const BENCH={pbz:"pbt",revenue:"revenue",assets:"assets"};
+function approachOf(c){
+  const m=c.base.materiality,p=c.plan,B=E().audit.materiality.PLAN_BENCHMARKS;
+  return {currency:CUR,materiality:p?{overall:m.overall,benchmarkAr:p.benchmarkAr,rate:p.rate,why:p.why,performance:m.performance,performanceRate:p.performanceRate,trivial:m.trivial}
+    :{overall:m.overall,benchmarkAr:m.benchmarkAr,rate:m.rate,why:(B[BENCH[m.benchmark]]||B.pbt).why,performance:m.performance,performanceRate:m.overall?Math.round(m.performance/m.overall*100)/100:0.75,trivial:m.trivial}};
+}
+function docX(c){return {c,fs:fsAfter?c.fsAfterAdj:c.fsBefore,cur:CUR,ctx:c.d.ctx,fw:c.fw,periodEnd:fmtDate(c.d.ctx.periodEnd,c.fw==="EAS"),
+  kams:kamsOf(c).map(k=>({title:k.title,description:k.why,how:k.how,observation:k.observation,refs:k.refs,trend:k.trend})),opinion:c.derived,
+  approach:approachOf(c),goingConcernSection:AP()?AP().gcSection(c):undefined}}
 function docView(c,kind){
   if(!docStyled&&window.SKosifReportDocs){const st=document.createElement("style");st.id="rd-css";st.textContent=SKosifReportDocs.CSS;document.head.appendChild(st);docStyled=true}
   const ctx=c.d.ctx;
@@ -401,9 +414,9 @@ function printLetter(c){
 }
 function fsIssue(c,p,fs,d,f,hl,GROUP){
   return ''+
-    programmeCard(c)+disclosuresCard(c)+
+    programmeCard(c)+disclosuresCard(c)+(AP()?AP().gcCard(c):'')+
     (f?'<section class="card"><div class="card-h"><div><h3>'+esc(f.headline||"ملخص التقرير")+'</h3><p>التقرير النهائي من Gemini · '+esc(f.at.slice(0,10))+'</p></div></div><div class="card-b"><p>'+esc(f.summary)+'</p>'+(f.limitations.length?'<h4>القيود على النطاق</h4><ul>'+f.limitations.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>':'')+'</div></section>':'')+
-    '<section class="card"><div class="card-h"><div><h3>الأمور الرئيسية للمراجعة (ISA 701)</h3></div></div><div class="card-b">'+(kamsOf(c).map(k=>'<div class="tbr-kam"><b>'+esc(k.title)+'</b><p><small>لماذا:</small> '+esc(k.why)+'</p><p><small>كيف عولج:</small> '+esc(k.how)+'</p></div>').join("")||'<p class="empty">لا مخاطر جوهرية مصنفة.</p>')+'</div></section>'+
+    (AP()&&!(f&&f.kams.length)?AP().kamCard(c):'<section class="card"><div class="card-h"><div><h3>الأمور الرئيسية للمراجعة (ISA 701)</h3></div></div><div class="card-b">'+(kamsOf(c).map(k=>'<div class="tbr-kam"><b>'+esc(k.title)+'</b><p><small>لماذا:</small> '+esc(k.why)+'</p><p><small>كيف عولج:</small> '+esc(k.how)+'</p></div>').join("")||'<p class="empty">لا مخاطر جوهرية مصنفة.</p>')+'</div></section>')+
     letterCard(c)+
   '';
 }
@@ -453,7 +466,7 @@ function printReport(c){
     '<h2>الرأي المشتق ('+esc(d.isa)+')</h2><p><b>'+esc(d.ar)+'</b></p>'+d.basis.map(x=>'<p>'+esc(x)+'</p>').join("")+(f?'<p>اقتراح Gemini: '+esc(f.aiOpinion)+'</p><p>'+esc(f.summary)+'</p>':'')+
     '<h2>برنامج المراجعة</h2><table><tr><th>المرحلة</th><th>الحالة</th><th>التفاصيل</th></tr>'+c.programme.map(x=>'<tr><td>'+esc(x.id+' '+x.title)+'</td><td>'+esc(x.status)+'</td><td>'+esc(x.detail)+'</td></tr>').join("")+'</table>'+
     '<p>جاهزية الإفصاحات: '+(c.disclosures.valid?'جاهزة للمراجعة البشرية':'غير مكتملة — '+c.disclosures.checks.filter(k=>k.status==="fail").map(k=>esc(k.label)).join("، "))+'</p>'+
-    '<h2>الأمور الرئيسية للمراجعة</h2>'+kamsOf(c).map(k=>'<p><b>'+esc(k.title)+'</b> — '+esc(k.why)+' '+esc(k.how)+'</p>').join("")+
+    '<h2>الأمور الرئيسية للمراجعة</h2>'+kamsOf(c).map(k=>'<p><b>'+esc(k.title)+'</b> — '+esc(k.why)+' '+esc(k.how)+(k.observation?' النتيجة: '+esc(k.observation):'')+'</p>').join("")+
     '<h2>القوائم المالية '+(fsAfter?'بعد التسويات المعتمدة':'قبل التسويات')+'</h2><h3>الربح أو الخسارة</h3>'+tbl(fs.pl,p.hp)+'<h3>المركز المالي</h3>'+tbl(fs.sfp,p.hp)+(fs.cf?'<h3>التدفقات النقدية</h3>'+tbl(fs.cf,false):'')+
     '<h2>قيود التسوية</h2>'+(c.pool.length?c.pool.map(a=>'<p><b>'+esc(a.id)+' '+esc(a.title)+'</b> ('+esc(a.standard)+') — '+(c.d.accepted.includes(a.id)?'معتمد':c.d.rejected.includes(a.id)?'مرفوض':'مقترح')+'</p><table><tr><th>الحساب</th><th>مدين</th><th>دائن</th></tr>'+a.lines.map(l=>'<tr><td>'+esc(l.code+' '+l.name)+'</td><td>'+(l.debit?m0(l.debit):'')+'</td><td>'+(l.credit?m0(l.credit):'')+'</td></tr>').join("")+'</table>').join(""):'<p>لا قيود.</p>')+
     '<h2>مناقشة الامتثال للمعايير</h2><table><tr><th>المعيار</th><th>الحكم</th><th>المناقشة</th></tr>'+c.all.compliance.map(x=>'<tr><td>'+esc(x.code+' '+x.title)+'</td><td>'+esc(x.status)+'</td><td>'+esc(x.discussion)+'</td></tr>').join("")+'</table>'+
@@ -538,6 +551,7 @@ function bind(node){
   window.SKosifAI&&SKosifAI.bindCard(node,()=>paint());
   node.addEventListener("click",async e=>{
     if(CU()&&e.target.closest("[data-cc]")){CU().onClick(e);return}
+    if(AP()&&AP().onClick(e))return;
     const sb=e.target.closest("[data-std]");
     if(sb){const c=compute(),code=sb.dataset.std,acc=sb.dataset.acc&&c?c.all.accounts.find(a=>a.code===sb.dataset.acc):null;
       const la=acc&&acc.lineKey?RV().LINE_AUDIT[acc.lineKey]:null;
@@ -589,6 +603,7 @@ function bind(node){
   });
   node.addEventListener("change",e=>{
     if(CU()&&e.target.closest("[data-ck],[data-rd],[data-jfile],[data-evk]")){CU().onChange(e);return}
+    if(AP()&&AP().onChange(e))return;
     const lr=e.target.closest("[data-lr]");if(lr){const d=st();d.letterResponses={...(d.letterResponses||{}),[lr.dataset.lr]:lr.value.trim()};put(d);toast("حُفظ رد الإدارة","ok");return}
     const f=e.target.closest("[data-tbfile]");if(f&&f.files[0]){loadFile(f.files[0]);f.value="";return}
     const u=e.target.closest("[data-up]");if(u&&u.files.length){upload(u.dataset.up,Array.from(u.files));u.value="";return}
@@ -615,5 +630,6 @@ function paint(){
     .catch(e=>{SK.errors&&SK.errors.report(e,"tbreview-council");const el=root.querySelector("[data-tbc-body]");if(el)el.innerHTML='<p class="empty">تعذر حساب درجات الثقة: '+esc(e.message)+'</p>'})}
 }
 CU()&&CU().init({st,put,compute,session,paint,docGet,docPut,docKey,getBusy:()=>busy,setBusy:v=>{busy=v;paint()},setAbort:a=>{abort=a}});
+AP()&&AP().init({st,put,compute,paint});
 SK.view("tbreview",{render(node){root=node;if(!node.dataset.bound){bind(node);node.dataset.bound="1"}paint()}});
 })();

@@ -46,15 +46,22 @@ function measures(ms,cur){
   return ms.map(mm=>'<div class="rd-m"><h5>'+esc(mm.ar)+'</h5><table class="rd-t sm">'+head(["البيان","المبلغ"],cur)+'<tbody>'+mm.rows.map(r=>'<tr><td>'+esc(r.ar)+'</td><td class="n">'+m0(r.amount)+'</td></tr>').join("")+
     '<tr class="tot"><td>'+esc(mm.ar)+'</td><td class="n">'+m0(mm.value)+'</td></tr></tbody></table><p class="rd-note">'+esc(mm.note)+'</p></div>').join("");
 }
+/* the zakat note in Aramco's layout: policy, the movement of the obligation, the status of assessments */
+function zakatNoteHTML(z,cur){
+  return '<h4>إيضاح — '+esc(z.title)+'</h4><p>'+esc(z.policy)+'</p><table class="rd-t sm">'+head(["حركة المخصص","المبلغ"],cur)+'<tbody>'+
+    z.rows.map((r,i)=>'<tr class="'+(i===z.rows.length-1?"tot":"")+'"><td>'+esc(r.ar)+'</td><td class="n">'+(r.amount===null?"—":m0(r.amount))+'</td></tr>').join("")+'</tbody></table><p class="rd-note">'+esc(z.assessments)+'</p>';
+}
 const item=(no,title,body,id)=>'<section class="rd-item" id="'+(id||"")+'"><h3><span>'+esc(no)+'</span>'+esc(title)+'</h3>'+body+'</section>';
 
 /* ---------- the auditor's report ---------- */
 function auditor(x){
   const a=R().auditorsReport({company:x.ctx.company,periodEnd:x.periodEnd,framework:x.fw,opinion:x.opinion.opinion,basis:x.opinion.basis,kams:x.kams,goingConcern:x.opinion.goingConcern,
-    firm:x.ctx.auditFirm,partner:x.ctx.auditPartner,licence:x.ctx.auditLicence,city:x.ctx.auditCity});
+    firm:x.ctx.auditFirm,partner:x.ctx.auditPartner,licence:x.ctx.auditLicence,city:x.ctx.auditCity,goingConcernSection:x.goingConcernSection,approach:x.approach});
   return '<article class="rd-doc rd-audit"><header class="rd-h"><small>'+(a.draft?'مسودة للمراجعة — لا تصدر قبل اعتماد الشريك':'')+'</small><h2>'+esc(a.title)+'</h2><p>'+esc(a.addressee)+'</p></header>'+
     a.sections.map(s=>'<section class="rd-sec"><h4>'+esc(s.title)+'</h4>'+s.paragraphs.map(p=>'<p>'+esc(p)+'</p>').join("")+
-      (s.kams?s.kams.map(k=>'<div class="rd-kam"><h5>'+esc(k.title)+'</h5><table class="rd-kt"><tr><th>وصف الأمر</th><td>'+esc(k.description)+'</td></tr><tr><th>كيف عالجنا الأمر في مراجعتنا</th><td>'+esc(k.how)+'</td></tr></table></div>').join(""):'')+'</section>').join("")+
+      (s.table?'<table class="rd-kt rd-appr">'+s.table.map(([k,v])=>'<tr><th>'+esc(k)+'</th><td>'+esc(v)+'</td></tr>').join("")+'</table>':'')+
+      (s.kams?s.kams.map(k=>'<div class="rd-kam"><h5>'+esc(k.title)+(k.trend==="new"?' <small class="rd-new">جديد</small>':'')+'</h5><table class="rd-kt"><tr><th>وصف الأمر</th><td>'+esc(k.description)+'</td></tr><tr><th>كيف عالجنا الأمر في مراجعتنا</th><td>'+esc(k.how)+'</td></tr>'+
+        (k.observation?'<tr><th>النتيجة</th><td>'+esc(k.observation)+'</td></tr>':'')+(k.refs&&k.refs.length?'<tr><th>مراجع</th><td>'+esc(k.refs.join(" · "))+'</td></tr>':'')+'</table></div>').join(""):'')+'</section>').join("")+
     '<footer class="rd-sign"><div><b>'+esc(a.signature.firm)+'</b><span>'+esc(a.signature.partner)+' — ترخيص رقم '+esc(a.signature.licence)+'</span></div><div><span>'+esc(a.signature.city)+'</span><span>'+esc(a.signature.date)+'</span></div></footer></article>';
 }
 
@@ -125,6 +132,7 @@ function annual(x){
         '<tr class="sub"><td>إجمالي التكلفة</td><td class="n">'+m0(ppe.gross)+'</td><td class="n">'+(ppe.grossPrior===null?"—":m0(ppe.grossPrior))+'</td></tr><tr><td>الاستهلاك المتراكم</td><td class="n">'+m0(ppe.accumulated)+'</td><td class="n">'+(ppe.accumulatedPrior===null?"—":m0(ppe.accumulatedPrior))+'</td></tr>'+
         '<tr class="tot"><td>صافي القيمة الدفترية</td><td class="n">'+m0(ppe.net)+'</td><td class="n">'+(ppe.netPrior===null?"—":m0(ppe.netPrior))+'</td></tr></tbody></table><p class="rd-note">مصروف الاستهلاك للسنة '+m0(ppe.depreciation)+'.</p>':'')+
       bsd.map(b=>'<h4>إيضاح '+(b.note||"")+' — '+esc(b.ar)+'</h4><table class="rd-t">'+head(["","السنة الحالية","السنة السابقة"],cur)+'<tbody>'+b.rows.map(r=>'<tr><td>'+esc(r.ar)+'</td><td class="n">'+m0(r.current)+'</td><td class="n">'+(r.prior===null?"—":m0(r.prior))+'</td></tr>').join("")+'<tr class="tot"><td>المجموع</td><td class="n">'+m0(b.total)+'</td><td class="n">'+(b.totalPrior===null?"—":m0(b.totalPrior))+'</td></tr></tbody></table>').join("")+
+      zakatNoteHTML(rv.zakatNote(fs,{jurisdiction:x.fw==="EAS"?"EG":"SA",assessments:x.ctx.zakatAssessments}),cur)+
       (debt?'<h4>إيضاح — القروض والتزامات الإيجار</h4><table class="rd-t">'+head(["","الاستحقاق","السنة الحالية","السنة السابقة"],cur)+'<tbody>'+debt.items.map(d=>'<tr><td>'+esc(d.ar)+'</td><td>'+esc(d.maturity)+'</td><td class="n">'+m0(d.current)+'</td><td class="n">'+(d.prior===null?"—":m0(d.prior))+'</td></tr>').join("")+'<tr class="tot"><td>المجموع</td><td></td><td class="n">'+m0(debt.total)+'</td><td></td></tr></tbody></table>':''),"it8")+
     '<section class="rd-item" id="itA">'+auditor(x)+'</section>'+
     item("البند 9أ","الضوابط والإجراءات",'<p>الإدارة مسؤولة عن تصميم الرقابة الداخلية على التقرير المالي وتشغيلها. أُبلغت الإدارة بـ'+hf.length+' ملاحظة عالية الأثر و'+c.all.summary.medium+' ملاحظة متوسطة خلال المراجعة (ISA 265)'+(hf.length?'، أبرزها: '+esc(hf.slice(0,4).map(f=>f.title).join("، ")):'')+'.</p>',"it9a")+
@@ -132,6 +140,7 @@ function annual(x){
   return h;
 }
 const CSS=`
+.rd-appr th{width:34%}.rd-new{font-size:10.5px;font-weight:600;color:#0b6b3a;background:#e6f4ec;border-radius:6px;padding:1px 6px;margin-inline-start:6px}
 .rd-fig{margin:14px 0 18px;padding:12px 14px;border:1px solid #e3e9f2;border-radius:10px;break-inside:avoid;page-break-inside:avoid}
 .rd-fig h5{margin:0 0 8px;font-size:12.5px;color:#0b2a5b}
 .rd-doc{font-family:"IBM Plex Sans Arabic",var(--sk-font,system-ui);color:#14233a;line-height:1.85;font-size:13.5px}

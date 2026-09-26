@@ -25,6 +25,10 @@ function booksHTML(){
   const tiles=[["النقدية والبنوك",cash==null?"—":M(cash)],["مستحق من العملاء",ar?M(ar.balance+ar.unassigned):"—",late?"bad":""],["منه متأخر أكثر من 60 يوماً",M(late),late?"bad":"ok"],
     ["مستحق للموردين",ap?M(ap.balance+ap.unassigned):"—"],["ضريبة "+(v?v.q.label:"الربع"),v?(v.settled?"أُقفلت":M(Math.abs(v.r.net))+(v.r.net>=0?" مستحقة":" مستردة")):"—",v&&!v.settled?"bad":"ok"],
     ["آخر مطابقة بنكية",last||"لم تُعتمد",last?"":"bad"],["الإقفال الشهري",A.length?done+" من "+A.length+" خطوات":"—",done===A.length?"ok":""],["الفترة مقفلة حتى",d.lockDate||"—"]];
+  /* the journal's audit trail and the revenue reconciliation (research: Reliance/Infosys edit log; e& revenue tie-out) */
+  const tr=l.trail?l.trail():null,rr=l.revenueRecon?l.revenueRecon():null;
+  if(tr&&tr.total)tiles.push(["سجل التعديلات",tr.ok?(tr.legacy?"سليم — "+tr.legacy+" سابق للتفعيل":"سليم — "+tr.sealed+" قيداً مختوماً"):"يحتاج مراجعة",tr.ok?"ok":"bad"]);
+  if(rr&&(rr.rows.length||rr.unposted.length))tiles.push(["مطابقة الإيرادات",rr.reconciled?"مطابقة":(rr.unposted.length?rr.unposted.length+" بيع غير مرحّل":"فرق "+M(rr.diff/100)),rr.reconciled?"ok":"bad"]);
   const top=ar?ar.rows.filter(r=>r.balance>0.004).slice(0,6):[];
   return '<section><h2>الدفاتر والإقفال</h2><div class="rp-k">'+tiles.map(([k,val,c])=>'<div><span>'+esc(k)+'</span><b class="'+(c||"")+'">'+esc(val)+'</b></div>').join("")+'</div>'+
     (top.length?'<table><tr><th>العميل</th><th>الرصيد</th><th>غير مستحق</th><th>1–60 يوماً</th><th>أكثر من 60</th></tr>'+top.map(r=>'<tr><td>'+esc(r.party)+'</td><td>'+M(r.balance)+'</td><td>'+M(r.aging.current)+'</td><td>'+M(r.aging["1-30"]+r.aging["31-60"])+'</td><td>'+M(r.aging["61-90"]+r.aging["90+"])+'</td></tr>').join("")+'</table>':'')+'</section>';

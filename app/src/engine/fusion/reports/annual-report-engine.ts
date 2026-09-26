@@ -159,13 +159,43 @@ export function resultsRelease(fs: FinancialStatements, company: string, period:
     ] };
 }
 
+/* ---------- «our audit approach» ---------- */
+export function approachSection(a: AuditApproach, kams: KeyMatter[] = []): ReportSection {
+  const cur = a.currency ?? 'ر.س', m = a.materiality, f = (v: Minor) => formatMinor(v, { decimals: 0 }) + ' ' + cur;
+  const pct = (x: number) => (Math.round(x * 10000) / 100).toString() + '%';
+  return { title: 'منهجنا في المراجعة', paragraphs: [
+    'صممنا مراجعتنا بتحديد الأهمية النسبية وتقييم مخاطر التحريف الجوهري في القوائم المالية، وأولينا عناية خاصة للمجالات التي اتخذت فيها الإدارة أحكاماً ذاتية، ومنها التقديرات المحاسبية المهمة، ولخطر تجاوز الإدارة لأدوات الرقابة الداخلية بما في ذلك تقييم وجود تحيز قد يمثل خطر تحريف جوهري بسبب الغش.',
+    ...(a.scope ? [a.scope] : []),
+    ...(kams.length ? ['تشمل الأمور الرئيسية للمراجعة: ' + kams.map((k) => k.title + (k.trend === 'new' ? ' (جديد هذا العام)' : '')).join('؛ ') + '.'] : [])],
+    table: [['الأهمية النسبية للقوائم المالية ككل', f(m.overall)], ['كيف حددناها', pct(m.rate) + ' من ' + m.benchmarkAr],
+      ['مبرر الأساس المستخدم', m.why], ['الأهمية النسبية التنفيذية', f(m.performance) + ' (' + pct(m.performanceRate) + ' من الأهمية النسبية)'],
+      ['حد إبلاغ المكلفين بالحوكمة بالتحريفات', f(m.trivial) + '، إضافة إلى أي تحريفات أقل تستوجب الإبلاغ لأسباب نوعية']] };
+}
+/* ---------- the zakat note (Aramco: policy, charge, movement of the obligation, assessments) ---------- */
+export function zakatNote(fs: FinancialStatements, o: { assessments?: string; jurisdiction?: 'SA' | 'EG' } = {}) {
+  const eg = o.jurisdiction === 'EG', pay = line(fs, 'zakatPayable'), exp = fs.keys.zakat.current;
+  const opening = pay ? pay.prior : null, closing = pay ? pay.current : 0;
+  const paid = opening === null ? null : opening + exp - closing;
+  return { title: eg ? 'ضريبة الدخل' : 'الزكاة',
+    policy: eg ? 'تُحتسب ضريبة الدخل الجارية على الربح الضريبي وفق قانون الضريبة على الدخل رقم 91 لسنة 2005 بسعر 22.5%، وتُثبت الضريبة المؤجلة على الفروق المؤقتة (معيار المحاسبة المصري 24).'
+      : 'تخضع المنشأة للزكاة وفق لائحة جباية الزكاة الصادرة عن هيئة الزكاة والضريبة والجمارك. تُحتسب الزكاة بسعر 2.5% (معدلاً بعدد أيام السنة الميلادية) على الوعاء الزكوي أو صافي الربح المعدل أيهما أعلى، ويُحمّل المخصص على قائمة الربح أو الخسارة. تُعالج الفروقات الناتجة عن الربوط النهائية في الفترة التي تصدر فيها.',
+    rows: [{ ar: 'الرصيد في بداية السنة', amount: opening }, { ar: 'المكوّن خلال السنة', amount: exp }, { ar: 'المسدد خلال السنة', amount: paid === null ? null : -paid }, { ar: 'الرصيد في نهاية السنة', amount: closing }],
+    assessments: o.assessments || (eg ? '[حالة الفحص الضريبي: السنوات التي تم فحصها والسنوات المفتوحة]' : '[حالة الربوط: السنوات التي صدر عنها ربط نهائي، والسنوات المقدم عنها إقرار ولم يصدر ربطها بعد، وأي اعتراضات قائمة]') };
+}
+
 /* ---------- the independent auditor's report (EY on Apple and Amazon; ISA 700/701/705) ---------- */
 /** Arabic "لـ" joined to a word: «ل» + «الشركة» → «للشركة», «ل» + «شركة» → «لشركة». */
 export const lam = (w: string) => w.startsWith('ال') ? 'لل' + w.slice(2) : 'ل' + w;
-export type KeyMatter = { title: string; description: string; how: string };
+export type KeyMatter = { title: string; description: string; how: string; /** «Key observations» / «Our results» */ observation?: string; refs?: string[]; trend?: 'new' | 'same' | null };
+/** «Our audit approach» (Aramco/PwC, Unilever/KPMG, AstraZeneca/PwC): materiality with its benchmark and rationale, the
+ *  reporting threshold agreed with those charged with governance, the scope, and the key audit matters at a glance. */
+export type AuditApproach = { materiality: { overall: Minor; benchmarkAr: string; rate: number; why: string; performance: Minor; performanceRate: number; trivial: Minor };
+  scope?: string; currency?: string };
+export type ReportSection = { title: string; paragraphs: string[]; kams?: KeyMatter[]; table?: [string, string][] };
 export type Opinion = 'unmodified' | 'qualified' | 'adverse' | 'disclaimer';
 export function auditorsReport(i: { company: string; periodEnd?: string; framework: 'IFRS' | 'SME' | 'EAS'; opinion: Opinion; basis: string[]; kams: KeyMatter[];
-  goingConcern?: boolean; firm?: string; partner?: string; licence?: string; city?: string; date?: string }) {
+  goingConcern?: boolean; firm?: string; partner?: string; licence?: string; city?: string; date?: string;
+  /** the going-concern section from goingConcernSection() (ISA 570 Revised 2024) */ goingConcernSection?: { title: string; paragraphs: string[] }; approach?: AuditApproach }) {
   const eg = i.framework === 'EAS', co = i.company || 'المنشأة', end = i.periodEnd || '[تاريخ نهاية الفترة]';
   const fw = eg ? 'معايير المحاسبة المصرية وفي ضوء القوانين واللوائح المصرية السارية'
     : i.framework === 'SME' ? 'المعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم المعتمد في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من الهيئة السعودية للمراجعين والمحاسبين'
@@ -181,11 +211,13 @@ export function auditorsReport(i: { company: string; periodEnd?: string; framewo
         : i.opinion === 'qualified' ? `وفي رأينا، باستثناء آثار الأمور الموضحة في قسم «أساس الرأي المتحفظ»، فإن القوائم المالية المرفقة تعرض بعدل، من جميع الجوانب الجوهرية، المركز المالي ${lam(co)} كما في ${end} وأداءها المالي وتدفقاتها النقدية وفقاً ${lam(fw)}.`
         : `وفي رأينا، بسبب أهمية الأمور الموضحة في قسم «أساس الرأي العكسي»، فإن القوائم المالية المرفقة لا تعرض بعدل المركز المالي ${lam(co)} كما في ${end} ولا أداءها المالي وتدفقاتها النقدية وفقاً ${lam(fw)}.`];
   const basisTitle = { unmodified: 'أساس الرأي', qualified: 'أساس الرأي المتحفظ', adverse: 'أساس الرأي العكسي', disclaimer: 'أساس الامتناع عن إبداء الرأي' }[i.opinion];
-  const sections = [
+  const sections: ReportSection[] = [
     { title, paragraphs: opinionText },
     { title: basisTitle, paragraphs: [...(i.opinion === 'unmodified' ? [] : i.basis),
       ...(i.opinion === 'disclaimer' ? [] : [`لقد قمنا بالمراجعة وفقاً ${lam(isa)}. ومسؤولياتنا بموجب تلك المعايير موضحة في قسم «مسؤوليات المراجع عن مراجعة القوائم المالية». ونحن مستقلون عن المنشأة وفقاً ${lam(ethics)}، وقد وفينا بمسؤولياتنا المسلكية الأخرى. ونعتقد أن أدلة المراجعة التي حصلنا عليها كافية ومناسبة لتوفير أساس لرأينا.`])] },
-    ...(i.goingConcern ? [{ title: 'عدم تأكد جوهري يتعلق بالاستمرارية', paragraphs: ['نلفت الانتباه إلى الإيضاح المتعلق بأساس الإعداد في القوائم المالية، الذي يبين أحداثاً وظروفاً تشير إلى وجود عدم تأكد جوهري قد يثير شكاً كبيراً في قدرة المنشأة على البقاء كمنشأة مستمرة. ولم يُعدَّل رأينا فيما يتعلق بهذا الأمر.'] }] : []),
+    ...(i.goingConcernSection && i.opinion !== 'disclaimer' ? [i.goingConcernSection]
+      : i.goingConcern ? [{ title: 'عدم تأكد جوهري يتعلق بالاستمرارية', paragraphs: ['نلفت الانتباه إلى الإيضاح المتعلق بأساس الإعداد في القوائم المالية، الذي يبين أحداثاً وظروفاً تشير إلى وجود عدم تأكد جوهري قد يثير شكاً كبيراً في قدرة المنشأة على البقاء كمنشأة مستمرة. ولم يُعدَّل رأينا فيما يتعلق بهذا الأمر.'] }] : []),
+    ...(i.approach && i.opinion !== 'disclaimer' ? [approachSection(i.approach, i.kams)] : []),
     ...(i.opinion !== 'disclaimer' && i.kams.length ? [{ title: 'الأمور الرئيسية للمراجعة', paragraphs: ['الأمور الرئيسية للمراجعة هي تلك الأمور التي كانت، بحسب حكمنا المهني، لها الأهمية القصوى عند مراجعتنا للقوائم المالية للفترة الحالية. وقد تناولنا هذه الأمور في سياق مراجعتنا للقوائم المالية ككل وعند تكوين رأينا فيها، ولا نبدي رأياً منفصلاً في هذه الأمور.'], kams: i.kams }] : []),
     { title: 'المعلومات الأخرى', paragraphs: ['الإدارة هي المسؤولة عن المعلومات الأخرى التي تشمل المعلومات الواردة في التقرير السنوي، بخلاف القوائم المالية وتقريرنا عنها. ولا يغطي رأينا في القوائم المالية المعلومات الأخرى، ولا نبدي أي شكل من أشكال الاستنتاج التأكيدي بشأنها.'] },
     { title: 'مسؤوليات الإدارة والمكلفين بالحوكمة عن القوائم المالية', paragraphs: [`الإدارة هي المسؤولة عن إعداد القوائم المالية وعرضها بعدل وفقاً ${lam(fw)}، وعن الرقابة الداخلية التي تراها ضرورية لتمكينها من إعداد قوائم مالية خالية من تحريف جوهري، سواء بسبب غش أو خطأ. وعند إعداد القوائم المالية فإن الإدارة هي المسؤولة عن تقييم قدرة المنشأة على البقاء كمنشأة مستمرة.`, 'والمكلفون بالحوكمة هم المسؤولون عن الإشراف على آلية التقرير المالي في المنشأة.'] },

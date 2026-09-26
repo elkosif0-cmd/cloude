@@ -26,13 +26,15 @@ export type Adjustment = { id: string; title: string; reason: string; standard: 
 export type Materiality = { benchmark: 'pbz' | 'revenue' | 'assets'; benchmarkAr: string; base: Minor; rate: number; overall: Minor; performance: Minor; trivial: Minor };
 
 /* ---------- 1. materiality ---------- */
-export function materiality(fs: FinancialStatements, override?: Partial<Pick<Materiality, 'overall'>>): Materiality {
+export function materiality(fs: FinancialStatements, override?: Partial<Pick<Materiality, 'overall'>> & { performanceRate?: number; trivialRate?: number }): Materiality {
   const pbz = fs.keys.pbz.current, rev = fs.keys.revenue.current, ta = fs.keys.assets.current;
   const pick = pbz > 0 && rev > 0 && pbz >= rev * 0.02 ? { benchmark: 'pbz' as const, benchmarkAr: 'الربح قبل الزكاة', base: pbz, rate: 0.05 }
     : rev > 0 ? { benchmark: 'revenue' as const, benchmarkAr: 'الإيرادات', base: rev, rate: 0.01 }
     : { benchmark: 'assets' as const, benchmarkAr: 'مجموع الموجودات', base: Math.abs(ta), rate: 0.01 };
   const overall = override?.overall && override.overall > 0 ? override.overall : Math.max(100, Math.round((pick.base * pick.rate) / 100) * 100);
-  return { ...pick, overall, performance: Math.round((overall * 0.75) / 100) * 100, trivial: Math.round((overall * 0.05) / 100) * 100 };
+  /* performance and trivial rates from the materiality plan (planMateriality): 50%–75% and up to 5% */
+  const pr = Math.min(0.75, Math.max(0.5, override?.performanceRate ?? 0.75)), tr = Math.min(0.05, Math.max(0.01, override?.trivialRate ?? 0.05));
+  return { ...pick, overall, performance: Math.round((overall * pr) / 100) * 100, trivial: Math.round((overall * tr) / 100) * 100 };
 }
 
 /* ---------- audit knowledge per statement line ---------- */
@@ -98,6 +100,7 @@ export type Review = { materiality: Materiality; fs: FinancialStatements; accoun
   summary: { accounts: number; flagged: number; high: number; medium: number; low: number; significantRisks: number; score: number } };
 
 export type ReviewOptions = { framework?: Framework; currency?: string; overrides?: Record<string, string>; materiality?: number;
+  /** performance and trivial rates from the materiality plan */ materialityRates?: { performanceRate?: number; trivialRate?: number };
   evidence?: Record<string, 'accepted' | 'partial' | 'none'>; extraFindings?: Finding[] };
 
 const money = (m: Minor) => formatMinor(m, { decimals: 0 }) + ' ر.س';
@@ -107,7 +110,7 @@ export function reviewTrialBalance(tb: TrialBalance, opts: ReviewOptions = {}): 
   const framework = opts.framework ?? 'IFRS', egypt = framework === 'EAS', cur = opts.currency ?? (egypt ? 'ج.م' : 'ر.س');
   const money = (m: Minor) => formatMinor(m, { decimals: 0 }) + ' ' + cur;
   const fs = buildStatements(tb, opts.overrides ?? {}, { tax: egypt ? 'income' : 'zakat' });
-  const mat = materiality(fs, { overall: opts.materiality });
+  const mat = materiality(fs, { overall: opts.materiality, ...(opts.materialityRates ?? {}) });
   const findings: Finding[] = [], adjustments: Adjustment[] = [];
   let seq = 0;
   const add = (f: Omit<Finding, 'id' | 'source'>) => { const x = { ...f, id: 'F-' + String(++seq).padStart(2, '0'), source: 'engine' as const }; findings.push(x); return x; };

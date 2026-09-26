@@ -72,6 +72,18 @@ ok('المرفقات: CRM','التسجيل اليومي وقائمة الاتص�
 const AG=await p.evaluate(()=>({api:!!window.SKosifAccountingGuidance,change:window.SKosifAccountingGuidance?.accountingChange({newInformationOrNewExperience:true})}));
 ok('المساعد التطبيقي','محرك يميز السياسة والتقدير والخطأ',AG.api&&AG.change?.treatment==='prospective');
 await go('codex',900);ok('المساعد التطبيقي','أدوات الإطار والاعتراف والعرض والإيضاح والتدفقات داخل المدونة',await has('.cdx-guide [data-ag-tab="framework"]')&&await has('.cdx-guide [data-ag-tab="recognition"]')&&await has('.cdx-guide [data-ag-tab="cashflow"]'));
+// ---------- global audit practice from the research bundle (~45 annual reports and auditor's reports) ----------
+await go('tbreview',1200);await p.click('[data-tab="tb"]');await p.waitForTimeout(800);
+ok('ممارسات المراجعة العالمية','خطة الأهمية النسبية: أساس معدّل وتنفيذية حسب الخطر وحد إبلاغ 5%',await has('.ap-card [data-ap-risk="controlDeficiencies"]')&&await txt('حد إبلاغ المكلفين بالحوكمة'));
+await p.click('[data-tab="fs"]');await p.waitForTimeout(1000);await p.click('[data-doc="issue"]');await p.waitForTimeout(1200);
+ok('ممارسات المراجعة العالمية','الاستمرارية: توقع نقدي 12 شهراً وسيناريوهات حادة واختبار عكسي',await p.evaluate(()=>document.querySelectorAll('.ap-gc tbody tr').length>=6&&!!document.querySelector('.ap-gc svg')));
+ok('ممارسات المراجعة العالمية','مكتبة الأمور الرئيسية للمراجعة (الأمر، الاستجابة، النتيجة، المراجع)',await p.evaluate(()=>document.querySelectorAll('.ap-kam [data-ap-kam]').length>0));
+await p.click('[data-doc="auditor"]');await p.waitForTimeout(1200);
+ok('ممارسات المراجعة العالمية','تقرير المراجع: منهجنا في المراجعة وقسم الاستمرارية',await p.evaluate(()=>{const h=[...document.querySelectorAll('.rd-audit .rd-sec h4')].map(x=>x.innerText);return h.includes('منهجنا في المراجعة')&&h.some(x=>/الاستمرارية/.test(x))}));
+await p.click('[data-doc="annual"]');await p.waitForTimeout(1200);ok('ممارسات المراجعة العالمية','إيضاح الزكاة بحركة المخصص وحالة الربوط',await txt('حركة المخصص'));
+const AP=await p.evaluate(()=>({est:typeof SKEngines.audit.estimatesReview.reviewEstimates,trail:!!window.SKosifLedger.trail&&!!SKosifLedger.trail(),rev:typeof SKosifLedger.revenueRecon,steps:SKosifClose.steps().map(s=>s.id)}));
+ok('ممارسات المراجعة العالمية','مراجعة التقديرات بأثر رجعي ومؤشر التحيز',AP.est==='function');
+ok('ممارسات المراجعة العالمية','سجل التعديلات المختوم في الدفاتر ومطابقة الإيرادات في الإقفال',AP.trail&&AP.rev==='function'&&AP.steps.includes('trail')&&AP.steps.includes('revenue'));
 // ---------- older rounds (1–33) ----------
 const O2=await p.evaluate(()=>({device:!!SK.device,keys:!!window.SKosifKeys,notify:!!window.SKosifNotify,pack:!!window.SKosifReportPack,metrics:!!window.SKosifMetrics,topbar:!!window.SKosifTopbar,
   codex:!!SKEngines.audit.codex,disc:!!SKEngines.audit.disclosures,rec:!!SKEngines.finance.reconciliation,prog:!!SKEngines.audit.programme,ecl:!!SKEngines.audit.tbReview.eclMatrix,
@@ -86,7 +98,7 @@ const B=await p.evaluate(()=>{const tabs=[...document.querySelectorAll('[data-sk
   eng:['reverseJournalEntry','isPeriodLocked'].every(k=>typeof SKEngines.finance.ledger[k]==='function')&&typeof SKEngines.sales.sales.splitVatInclusive==='function'&&typeof SKEngines.stock.inventory.weightedAverageCostsAsOf==='function',
   party:typeof SKEngines.finance.partyLedger.partyBalances==='function',vat:typeof SKEngines.finance.vatReturn.vatReturn==='function',bank:typeof SKEngines.finance.bankReconciliation.matchBankLines==='function',
   tpl:SK.templates.list().some(t=>t.id==='bank'),close:!!window.SKosifClose,alerts:!!(window.SKosifClose&&Array.isArray(SKosifClose.alerts()))}});
-ok('الدفاتر وآلية العمل','الإقفال الشهري بثماني خطوات حية',B.tabs.includes('close')&&await p.evaluate(()=>document.querySelectorAll('.skclose-steps li').length===8));
+ok('الدفاتر وآلية العمل','الإقفال الشهري بخطوات حية (مع سجل التعديلات ومطابقة الإيرادات)',B.tabs.includes('close')&&await p.evaluate(()=>document.querySelectorAll('.skclose-steps li').length>=8&&SKosifClose.steps().some(s=>s.id==='trail')));
 ok('الدفاتر وآلية العمل','تكلفة المبيعات والضريبة الشاملة والعكس بدل الحذف وإقفال الفترة',B.eng&&await p.evaluate(()=>!document.querySelector('[data-l="del-entry"]')));
 await p.click('[data-sk-tabs="ledger"] [data-tab="entries"]');await p.waitForTimeout(400);
 ok('الدفاتر وآلية العمل','عكس القيد وإقفال الدفاتر في شاشة القيود',await has('[data-l="rev-entry"]')&&await has('#lg-lock'));

@@ -3663,11 +3663,12 @@ window.SKEngines = (function() {
 			rate: .01
 		};
 		const overall = override?.overall && override.overall > 0 ? override.overall : Math.max(100, Math.round(pick.base * pick.rate / 100) * 100);
+		const pr = Math.min(.75, Math.max(.5, override?.performanceRate ?? .75)), tr = Math.min(.05, Math.max(.01, override?.trivialRate ?? .05));
 		return {
 			...pick,
 			overall,
-			performance: Math.round(overall * .75 / 100) * 100,
-			trivial: Math.round(overall * .05 / 100) * 100
+			performance: Math.round(overall * pr / 100) * 100,
+			trivial: Math.round(overall * tr / 100) * 100
 		};
 	}
 	var LINE_AUDIT = {
@@ -3925,7 +3926,10 @@ window.SKEngines = (function() {
 		const framework = opts.framework ?? "IFRS", egypt = framework === "EAS", cur = opts.currency ?? (egypt ? "ج.م" : "ر.س");
 		const money = (m) => formatMinor(m, { decimals: 0 }) + " " + cur;
 		const fs = buildStatements(tb, opts.overrides ?? {}, { tax: egypt ? "income" : "zakat" });
-		const mat = materiality(fs, { overall: opts.materiality });
+		const mat = materiality(fs, {
+			overall: opts.materiality,
+			...opts.materialityRates ?? {}
+		});
 		const findings = [], adjustments = [];
 		let seq = 0;
 		const add = (f) => {
@@ -7063,6 +7067,89 @@ window.SKEngines = (function() {
 		return out;
 	}
 	//#endregion
+	//#region app/src/engine/fusion/audit/estimates-review-engine.ts
+	var estimates_review_engine_exports = /* @__PURE__ */ __exportAll({
+		ESTIMATE_KINDS: () => ESTIMATE_KINDS,
+		reviewEstimates: () => reviewEstimates
+	});
+	/** The estimates a trial balance usually carries, with last year's balance as the estimate to test. */
+	var ESTIMATE_KINDS = [
+		{
+			key: "ecl",
+			label: "مخصص الخسائر الائتمانية المتوقعة",
+			outcome: "الديون المعدومة الفعلية من أرصدة السنة السابقة",
+			kws: /خسائر ائتماني|مشكوك|ديون معدوم|allowance|doubtful/i
+		},
+		{
+			key: "inventory",
+			label: "مخصص المخزون (التلف وبطء الحركة)",
+			outcome: "الشطب الفعلي للمخزون المخصص له",
+			kws: /مخصص.*مخزون|مخزون.*مخصص|تلف|بطيء|obsolete/i
+		},
+		{
+			key: "zakat",
+			label: "مخصص الزكاة",
+			outcome: "الزكاة المسددة أو الربط النهائي عن السنة السابقة",
+			kws: /زكاه|زكاة|zakat/i
+		},
+		{
+			key: "eosb",
+			label: "التزام نهاية الخدمة",
+			outcome: "المدفوع للمغادرين + الالتزام المعاد تقديره لهم",
+			kws: /نهايه الخدمه|نهاية الخدمة|end of service|eosb/i
+		},
+		{
+			key: "provisions",
+			label: "المخصصات الأخرى والقضايا",
+			outcome: "المبالغ المسددة أو المحكوم بها",
+			kws: /مخصص|provision/i
+		},
+		{
+			key: "accruals",
+			label: "المصروفات المستحقة والخصومات",
+			outcome: "المبالغ المفوترة أو المدفوعة فعلاً بعد نهاية السنة",
+			kws: /مستحق|accru|خصومات/i
+		}
+	];
+	function reviewEstimates(items, o) {
+		const rows = items.map((x) => {
+			if (x.outcome === null || !Number.isFinite(x.outcome)) return {
+				...x,
+				diff: 0,
+				pct: null,
+				direction: "pending",
+				significance: "pending"
+			};
+			const diff = x.outcome - x.priorEstimate, ad = Math.abs(diff);
+			const pct = x.priorEstimate ? Math.round(diff / Math.abs(x.priorEstimate) * 1e3) / 10 : null;
+			const direction = ad <= o.trivial || pct !== null && Math.abs(pct) <= 5 ? "accurate" : diff > 0 ? "under" : "over";
+			const significance = ad <= o.trivial ? "trivial" : ad < o.performance ? "below-performance" : ad < o.overall ? "above-performance" : "material";
+			return {
+				...x,
+				diff,
+				pct,
+				direction,
+				significance
+			};
+		});
+		const done = rows.filter((r) => r.direction !== "pending"), under = done.filter((r) => r.direction === "under"), over = done.filter((r) => r.direction === "over");
+		const net = done.reduce((s, r) => s + r.diff, 0);
+		const bias = under.length >= 2 && over.length === 0 || over.length >= 2 && under.length === 0 || Math.abs(net) >= o.performance;
+		const side = under.length > over.length ? "optimistic" : over.length > under.length ? "pessimistic" : "mixed";
+		const message = !done.length ? "أدخل النتيجة الفعلية لكل تقدير لإكمال المراجعة بأثر رجعي." : bias ? side === "optimistic" ? "تقديرات السنة السابقة جاءت أقل من الواقع في اتجاه واحد — مؤشر تحيز متفائل يرفع الربح؛ وسّع اختبار تقديرات السنة الحالية وقيّم خطر الغش (ISA 240)." : side === "pessimistic" ? "تقديرات السنة السابقة جاءت أعلى من الواقع في اتجاه واحد — مؤشر تحيز متحفظ قد يُستخدم لتسوية الأرباح بين السنوات؛ قيّم عكس المخصصات الزائدة." : "صافي فروقات التقديرات يتجاوز الأهمية التنفيذية؛ راجع منهجية التقدير قبل الاعتماد على تقديرات السنة الحالية." : "لا يظهر نمط تحيز: الفروقات ضمن الحدود أو متوازنة الاتجاه. يُوثق الاستنتاج في ملف المراجعة.";
+		return {
+			rows,
+			under: under.length,
+			over: over.length,
+			accurate: done.filter((r) => r.direction === "accurate").length,
+			pending: rows.length - done.length,
+			net,
+			bias,
+			side,
+			message
+		};
+	}
+	//#endregion
 	//#region app/src/engine/fusion/audit/evidence-engine.ts
 	var evidence_engine_exports = /* @__PURE__ */ __exportAll({
 		createEvidenceRecord: () => createEvidenceRecord,
@@ -7092,6 +7179,198 @@ window.SKEngines = (function() {
 		return {
 			...record,
 			status
+		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/audit/going-concern-engine.ts
+	var going_concern_engine_exports = /* @__PURE__ */ __exportAll({
+		DEFAULT_SCENARIOS: () => DEFAULT_SCENARIOS,
+		assessGoingConcern: () => assessGoingConcern,
+		baselineFromStatements: () => baselineFromStatements,
+		goingConcernSection: () => goingConcernSection,
+		reverseStress: () => reverseStress
+	});
+	var DEFAULT_SCENARIOS = [
+		{
+			key: "demand",
+			ar: "انخفاض الطلب",
+			risk: "تراجع السوق أو دخول منافسين",
+			revenuePct: -.2,
+			marginPts: 0,
+			dsoDelta: 0
+		},
+		{
+			key: "margin",
+			ar: "ضغط الهوامش وارتفاع التكاليف",
+			risk: "ارتفاع أسعار الشراء والتكاليف الثابتة",
+			revenuePct: 0,
+			marginPts: -.05,
+			dsoDelta: 0,
+			fixedPct: .1
+		},
+		{
+			key: "collections",
+			ar: "تأخر التحصيل",
+			risk: "تعثر العملاء وطول فترة الائتمان",
+			revenuePct: 0,
+			marginPts: 0,
+			dsoDelta: 15
+		},
+		{
+			key: "customer",
+			ar: "فقدان أكبر عميل",
+			risk: "تركز الإيرادات في عملاء قليلين",
+			revenuePct: -.15,
+			marginPts: 0,
+			dsoDelta: 0
+		},
+		{
+			key: "combined",
+			ar: "مخاطر مجتمعة (سيناريو عنقودي)",
+			risk: "تزامن تراجع الطلب وضغط الهوامش وتأخر التحصيل",
+			revenuePct: -.15,
+			marginPts: -.03,
+			dsoDelta: 10
+		}
+	];
+	/** The twelve-month baseline from the statements: revenue, margin and cash costs spread evenly, working-capital days
+	*  from the year-end balances, current borrowings repaid over the year, zakat paid in the fourth month (the return and
+	*  payment fall due 120 days after the year end). */
+	function baselineFromStatements(fs, o = {}) {
+		const v = (k) => fs.lines.find((l) => l.key === k)?.current ?? 0;
+		const rev = Math.abs(fs.keys.revenue.current), cogs = Math.abs(v("cogs"));
+		const opexCash = Math.abs(v("selling")) + Math.abs(v("admin"));
+		const capex = Math.abs(fs.cf?.find((r) => r.key === "cf-inv-ppe")?.current ?? 0);
+		const zakat = Math.abs(v("zakatPayable"));
+		return {
+			openingCash: v("cash"),
+			monthlyRevenue: Math.round(rev / 12),
+			grossMargin: rev ? Math.max(-1, Math.min(1, (rev - cogs) / rev)) : 0,
+			monthlyFixedCosts: Math.round(opexCash / 12),
+			dsoDays: rev ? Math.round(Math.abs(v("receivables")) / rev * 365) : 0,
+			dpoDays: cogs ? Math.round(Math.abs(v("payables")) / cogs * 365) : 0,
+			openingReceivables: Math.abs(v("receivables")),
+			openingPayables: Math.abs(v("payables")),
+			monthlyDebtService: Math.round(Math.abs(v("loansCl")) / 12),
+			monthlyCapex: Math.round(capex / 12),
+			zakatDue: zakat ? {
+				month: 4,
+				amount: zakat
+			} : void 0,
+			undrawnFacilities: o.undrawnFacilities ?? 0
+		};
+	}
+	function run(b, s, mit = []) {
+		const months = [];
+		let cash = b.openingCash, rec = b.openingReceivables, pay = b.openingPayables;
+		const margin = Math.max(-1, Math.min(1, b.grossMargin + s.marginPts)), dso = Math.max(0, b.dsoDays + s.dsoDelta);
+		for (let m = 1; m <= 12; m++) {
+			const revenue = Math.max(0, b.monthlyRevenue * (1 + s.revenuePct)), cogs = revenue * (1 - margin);
+			const recEnd = revenue * dso / 30, payEnd = cogs * b.dpoDays / 30;
+			const op = revenue - cogs - b.monthlyFixedCosts * (1 + (s.fixedPct ?? 0)) - (recEnd - rec) + (payEnd - pay);
+			rec = recEnd;
+			pay = payEnd;
+			cash += op - b.monthlyDebtService - b.monthlyCapex;
+			if (b.zakatDue && b.zakatDue.month === m) cash -= b.zakatDue.amount;
+			if (s.oneOff && s.oneOff.month === m) cash -= s.oneOff.amount;
+			for (const x of mit) if (x.feasible && m >= x.fromMonth) cash += x.monthly;
+			months.push({
+				m,
+				cash: Math.round(cash)
+			});
+		}
+		return { months };
+	}
+	function summarise(b, s, mit) {
+		const { months } = run(b, s);
+		const min = months.reduce((a, x) => x.cash < a.cash ? x : a, months[0]);
+		const short = months.find((x) => x.cash + b.undrawnFacilities < 0);
+		const path = {
+			key: s.key,
+			ar: s.ar,
+			risk: s.risk,
+			months,
+			minCash: min.cash,
+			minMonth: min.m,
+			headroom: min.cash + b.undrawnFacilities,
+			shortfallMonth: short ? short.m : null
+		};
+		if (mit.some((x) => x.feasible)) {
+			const mm = run(b, s, mit).months, mn = Math.min(...mm.map((x) => x.cash));
+			path.mitigated = {
+				minCash: mn,
+				headroom: mn + b.undrawnFacilities
+			};
+		}
+		return path;
+	}
+	/** Reverse stress test: the fall in revenue (0–100%) at which the lowest cash plus undrawn facilities reaches zero. */
+	function reverseStress(b) {
+		const head = (p) => Math.min(...run(b, {
+			key: "r",
+			ar: "",
+			risk: "",
+			revenuePct: -p,
+			marginPts: 0,
+			dsoDelta: 0
+		}).months.map((x) => x.cash)) + b.undrawnFacilities;
+		if (head(0) < 0) return 0;
+		if (head(1) >= 0) return null;
+		let lo = 0, hi = 1;
+		for (let i = 0; i < 40; i++) {
+			const mid = (lo + hi) / 2;
+			if (head(mid) >= 0) lo = mid;
+			else hi = mid;
+		}
+		return Math.round(lo * 1e3) / 10;
+	}
+	function assessGoingConcern(input) {
+		const b = input.baseline, mit = input.mitigations ?? [], scen = input.scenarios ?? DEFAULT_SCENARIOS;
+		const base = summarise(b, {
+			key: "base",
+			ar: "الحالة الأساسية",
+			risk: "استمرار أداء السنة المنتهية",
+			revenuePct: 0,
+			marginPts: 0,
+			dsoDelta: 0
+		}, mit);
+		const paths = scen.map((s) => summarise(b, s, mit));
+		const breakPoint = reverseStress(b);
+		const worst = paths.reduce((a, x) => x.headroom < a.headroom ? x : a, paths[0] ?? base);
+		const severeOk = paths.every((p) => p.headroom >= 0), mitigatedOk = paths.every((p) => p.headroom >= 0 || (p.mitigated?.headroom ?? -1) >= 0);
+		const high = (input.indicators ?? []).filter((x) => x.severity === "high").length;
+		const conclusion = base.headroom < 0 ? "material-uncertainty" : severeOk && !high ? "no-material-uncertainty" : mitigatedOk ? "close-call" : "material-uncertainty";
+		return {
+			base,
+			paths,
+			breakPoint,
+			worst,
+			conclusion,
+			ar: {
+				"no-material-uncertainty": "لا يوجد عدم تأكد جوهري — أساس الاستمرارية ملائم",
+				"close-call": "أساس الاستمرارية ملائم مع حكم مهم يستوجب الإفصاح (حالة قريبة)",
+				"material-uncertainty": "عدم تأكد جوهري محتمل يتعلق بالاستمرارية"
+			}[conclusion],
+			why: conclusion === "material-uncertainty" ? base.headroom < 0 ? "حتى في الحالة الأساسية ينفد النقد والتسهيلات خلال الاثني عشر شهراً القادمة (الشهر " + base.shortfallMonth + ")." : "سيناريو «" + worst.ar + "» يستنفد النقد والتسهيلات ولا تكفي الإجراءات المخففة المتاحة لتغطيته." : conclusion === "close-call" ? "بعض السيناريوهات الحادة تستنفد النقد لولا الإجراءات المخففة؛ يُفصح عن الحكم المهم وتقييم قابلية تنفيذ الإجراءات (IAS 1.122)." : "يبقى النقد والتسهيلات موجبة في كل السيناريوهات الحادة المعقولة خلال الاثني عشر شهراً.",
+			highIndicators: high
+		};
+	}
+	/** The auditor's report section on going concern (ISA 570 Revised 2024, as bp and AstraZeneca report it). */
+	function goingConcernSection(conclusion, o = {}) {
+		const note = o.note || "الإيضاح المتعلق بأساس الإعداد";
+		if (conclusion === "material-uncertainty") return {
+			title: "عدم تأكد جوهري يتعلق بالاستمرارية",
+			paragraphs: [`نلفت الانتباه إلى ${note} في القوائم المالية، الذي يبين أحداثاً وظروفاً تشير إلى وجود عدم تأكد جوهري قد يثير شكاً كبيراً في قدرة المنشأة على البقاء كمنشأة مستمرة. ولم يُعدَّل رأينا فيما يتعلق بهذا الأمر.`]
+		};
+		return {
+			title: "الاستنتاجات المتعلقة بالاستمرارية",
+			paragraphs: [
+				"عند مراجعتنا للقوائم المالية، استنتجنا أن استخدام الإدارة لأساس الاستمرارية المحاسبي في إعداد القوائم المالية ملائم.",
+				"وشمل تقييمنا لتقييم الإدارة لقدرة المنشأة على البقاء كمنشأة مستمرة: مطابقة توقعات التدفقات النقدية مع الموازنة المعتمدة، وتقييم دقة توقعات الإدارة في السنوات السابقة، وتقييم الافتراضات الرئيسية واتساقها مع اختبارات الانخفاض، ومراجعة السيولة والتسهيلات المتاحة وتواريخ استحقاقها، وتحليل سيناريوهات حادة لكنها معقولة واختبار الضغط العكسي، وتقييم قابلية تنفيذ الإجراءات المخففة، وتقييم الإفصاحات ذات الصلة.",
+				...conclusion === "close-call" ? [`ونلفت الانتباه إلى ${note} الذي يفصح عن الأحكام المهمة التي استخدمتها الإدارة في تقييم الاستمرارية والإجراءات المخففة المعتمد عليها.`] : [],
+				"واستناداً إلى العمل الذي قمنا به، لم نحدد عدم تأكد جوهري يتعلق بأحداث أو ظروف قد تثير، منفردة أو مجتمعة، شكاً كبيراً في قدرة المنشأة على البقاء كمنشأة مستمرة لفترة لا تقل عن اثني عشر شهراً من تاريخ اعتماد القوائم المالية.",
+				"ومع ذلك، ولأنه لا يمكن التنبؤ بجميع الأحداث أو الظروف المستقبلية، فإن هذا الاستنتاج ليس ضماناً لقدرة المنشأة على البقاء كمنشأة مستمرة."
+			]
 		};
 	}
 	//#endregion
@@ -7130,8 +7409,265 @@ window.SKEngines = (function() {
 		}[severity];
 	}
 	//#endregion
+	//#region app/src/engine/fusion/audit/kam-engine.ts
+	var kam_engine_exports = /* @__PURE__ */ __exportAll({
+		KAM_LIBRARY: () => KAM_LIBRARY,
+		removedKams: () => removedKams,
+		suggestKams: () => suggestKams
+	});
+	var pc$1 = (x) => (Math.round(x * 10) / 10).toString();
+	var share$1 = (x) => " (" + pc$1(x.pctAssets) + "% من مجموع الموجودات)";
+	var KAM_LIBRARY = [
+		{
+			key: "revenue",
+			lines: ["revenue"],
+			title: "إثبات الإيرادات والخصومات الممنوحة للعملاء",
+			estimate: true,
+			fraud: true,
+			standards: ["IFRS 15", "ISA 240"],
+			why: (x) => `بلغت الإيرادات ${x.money(x.amount)}. تفترض معايير المراجعة وجود مخاطر غش في إثبات الإيراد، ويتأثر الإيراد بالخصومات والحوافز والمرتجعات التي تُقدَّر عند البيع، وبحجم كبير من العمليات الصغيرة المسجلة من نظام المبيعات، وبخطر تسجيل مبيعات في غير فترتها قرب نهاية السنة. لذلك عددنا إثبات الإيرادات من الأمور ذات الأهمية القصوى.`,
+			response: [
+				"فهمنا دورة المبيعات والتحصيل وقيّمنا تصميم الضوابط وتطبيقها، بما فيها ضوابط نظام المبيعات",
+				"طابقنا إجمالي المبيعات في نظام المبيعات مع الإيرادات المسجلة في دفتر الأستاذ لكل شهر وحققنا في الفروق",
+				"حللنا اتجاه الإيرادات الشهرية ونسبة الخصومات إلى المبيعات لكل عميل وصنف وحققنا في الانحرافات غير المتوقعة",
+				"اختبرنا عينة من المبيعات بمطابقتها مع الفواتير وإثباتات التسليم والتحصيل",
+				"اختبرنا القطع بفحص المبيعات والمرتجعات والإشعارات الدائنة قبل نهاية السنة وبعدها",
+				"قارنّا مخصصات الخصومات في السنة السابقة بما دُفع فعلاً لتقييم دقة التقدير واحتمال التحيز",
+				"فحصنا القيود اليدوية المسجلة على حسابات الإيرادات ذات الخصائص غير المعتادة وطلبنا مستنداتها",
+				"قيّمنا كفاية الإفصاحات المتعلقة بالإيرادات"
+			]
+		},
+		{
+			key: "ecl",
+			lines: ["receivables"],
+			title: "الخسائر الائتمانية المتوقعة على الذمم المدينة التجارية",
+			estimate: true,
+			standards: [
+				"IFRS 9",
+				"IFRS 7",
+				"ISA 540"
+			],
+			why: (x) => `بلغ صافي الذمم المدينة التجارية ${x.money(x.amount)}${share$1(x)}. يتطلب قياس الخسائر الائتمانية المتوقعة وفق النهج المبسط حكماً في تقسيم الذمم حسب أعمارها وتحديد معدلات الخسارة التاريخية وتعديلها بمعلومات مستقبلية، وفي تقييم العملاء المتعثرين منفردين. لذلك عددناه من الأمور ذات الأهمية القصوى.`,
+			response: [
+				"اختبرنا دقة كشف أعمار الذمم بمطابقة عينة من الأرصدة مع الفواتير وتواريخها",
+				"قيّمنا منهجية مصفوفة المخصص ومعدلات الخسارة التاريخية والتعديلات المستقبلية المستخدمة",
+				"قيّمنا العملاء المتعثرين والمتأخرين منفردين، وفحصنا المتحصلات اللاحقة لنهاية السنة",
+				"قارنّا مخصص السنة السابقة بالديون المعدومة الفعلية خلال السنة لتقييم دقة التقدير",
+				"أرسلنا مصادقات مباشرة لعينة من أرصدة العملاء وطبقنا إجراءات بديلة لما لم يرد",
+				"قيّمنا إفصاحات مخاطر الائتمان"
+			]
+		},
+		{
+			key: "inventory",
+			lines: ["inventory"],
+			title: "وجود المخزون وتقييمه بالتكلفة أو صافي القيمة القابلة للتحقق",
+			estimate: true,
+			standards: ["IAS 2", "ISA 501"],
+			why: (x) => `بلغ المخزون ${x.money(x.amount)}${share$1(x)}. قد يكون جزء منه قابلاً للتلف أو بطيء الحركة، ويتطلب تحديد التكلفة (المتوسط المرجح) وصافي القيمة القابلة للتحقق حكماً، ويعتمد وجوده على دقة الجرد. لذلك عددناه من الأمور ذات الأهمية القصوى.`,
+			response: [
+				"حضرنا الجرد الفعلي في نهاية السنة واختبرنا عينات من السجلات إلى الموجود ومن الموجود إلى السجلات",
+				"طابقنا نتائج الجرد مع السجلات واختبرنا قيود فروقات الجرد",
+				"أعدنا احتساب تكلفة عينة من الأصناف بالمتوسط المرجح ومطابقتها مع فواتير الشراء",
+				"قارنّا التكلفة بأسعار البيع اللاحقة لنهاية السنة لتقييم صافي القيمة القابلة للتحقق",
+				"حللنا الأصناف بطيئة الحركة والقريبة من انتهاء الصلاحية وقيّمنا كفاية المخصص",
+				"قارنّا مخصص السنة السابقة بالشطب الفعلي خلال السنة",
+				"قيّمنا الإفصاح عن سياسة المخزون ومخصصه"
+			]
+		},
+		{
+			key: "impairment",
+			lines: ["intangibles", "investments"],
+			title: "قابلية استرداد الشهرة والأصول غير الملموسة والاستثمارات",
+			estimate: true,
+			standards: [
+				"IAS 36",
+				"IAS 38",
+				"ISA 540"
+			],
+			why: (x) => `بلغت القيمة الدفترية ${x.money(x.amount)}${share$1(x)}. يعتمد اختبار الانخفاض على تقديرات الإدارة للتدفقات النقدية المستقبلية ومعدل النمو طويل الأجل ومعدل الخصم، وتغير أي منها قد يغير النتيجة جوهرياً. لذلك عددناه من الأمور ذات الأهمية القصوى.`,
+			response: [
+				"قيّمنا تحديد الوحدات المولدة للنقد وتوزيع الشهرة عليها واختبرنا الدقة الحسابية لنموذج القيمة المستخدمة",
+				"طابقنا التدفقات المتوقعة مع الموازنات المعتمدة من مجلس الإدارة",
+				"قارنّا نتائج الفعلية بتوقعات الإدارة في السنوات السابقة لتقييم دقة التنبؤ",
+				"قارنّا معدل الخصم ومعدل النمو طويل الأجل بمدى مستقل مستمد من بيانات السوق",
+				"أعدنا تحليل الحساسية وحددنا التغير في الافتراضات الذي يلغي الفائض",
+				"قيّمنا الإفصاحات المطلوبة في IAS 36 بما فيها الحساسية"
+			]
+		},
+		{
+			key: "ppe",
+			lines: ["ppe", "rou"],
+			title: "القيمة الدفترية للممتلكات والمعدات وأعمارها الإنتاجية",
+			estimate: true,
+			standards: [
+				"IAS 16",
+				"IAS 36",
+				"IFRS 16"
+			],
+			why: (x) => `بلغ صافي الممتلكات والمعدات ${x.money(x.amount)}${share$1(x)}. يتطلب تحديد الأعمار الإنتاجية وتقييم مؤشرات الانخفاض حكماً، ويؤثر ذلك مباشرة في الاستهلاك والربح. لذلك عددناه من الأمور ذات الأهمية القصوى.`,
+			response: [
+				"اختبرنا الإضافات بمطابقتها مع الفواتير والعقود وتحققنا من استيفائها شروط الرسملة",
+				"أعدنا احتساب الاستهلاك وقيّمنا معقولية الأعمار الإنتاجية مقارنة بالاستخدام الفعلي",
+				"قيّمنا مؤشرات الانخفاض، وعند وجودها اختبرنا تقدير القيمة القابلة للاسترداد",
+				"فحصنا الاستبعادات وأرباحها وخسائرها ومطابقة السجل التفصيلي مع دفتر الأستاذ",
+				"قيّمنا إفصاحات الممتلكات والمعدات"
+			]
+		},
+		{
+			key: "provisions",
+			lines: ["provisions", "accruals"],
+			title: "المخصصات والالتزامات المحتملة والقضايا",
+			estimate: true,
+			standards: ["IAS 37", "ISA 501"],
+			why: (x) => `بلغت المخصصات والمستحقات ${x.money(x.amount)}${share$1(x)}. يتطلب تقدير احتمال خروج الموارد ومبلغه، وتقرير الإثبات أو الإفصاح عن التزام محتمل، حكماً مهماً من الإدارة. لذلك عددناه من الأمور ذات الأهمية القصوى.`,
+			response: [
+				"حصلنا على مصادقات مباشرة من المستشارين القانونيين عن القضايا والمطالبات القائمة",
+				"قرأنا محاضر مجلس الإدارة والمراسلات مع الجهات الرقابية لتحديد أي التزامات غير مسجلة",
+				"حللنا حركة المخصصات: الإضافات الجديدة والاستخدامات مقابل التسويات والمدفوعات الفعلية",
+				"قارنّا تقديرات السنة السابقة بما تمت تسويته فعلاً لتقييم دقة التقدير",
+				"قيّمنا إفصاحات الالتزامات المحتملة"
+			]
+		},
+		{
+			key: "zakat",
+			lines: ["zakatPayable", "zakatExpense"],
+			title: "الزكاة وضريبة الدخل والربوط غير المنتهية",
+			estimate: true,
+			standards: [
+				"لائحة الزكاة",
+				"IAS 12",
+				"IAS 37"
+			],
+			why: (x) => `بلغ ${x.ar} ${x.money(x.amount)}. يتطلب احتساب الوعاء الزكوي تفسير لائحة جباية الزكاة في البنود المضافة والمحسومة، وقد تبقى سنوات سابقة دون ربط نهائي من هيئة الزكاة والضريبة والجمارك بما يستلزم تقدير أي فروقات محتملة. لذلك عددناه من الأمور ذات الأهمية القصوى.`,
+			response: [
+				"أعدنا احتساب الوعاء الزكوي وفق اللائحة بمشاركة مختصين في الزكاة والضريبة",
+				"طابقنا المخصص مع الإقرارات المقدمة وسداد الزكاة",
+				"فحصنا مراسلات الهيئة والربوط الصادرة والاعتراضات القائمة",
+				"قارنّا مخصص السنوات السابقة بالربوط النهائية لتقييم دقة التقدير",
+				"قيّمنا الإفصاح عن حالة الربوط والسنوات المفتوحة"
+			]
+		},
+		{
+			key: "eosb",
+			lines: ["eosb"],
+			title: "التزام مكافأة نهاية الخدمة للموظفين",
+			estimate: true,
+			standards: ["IAS 19", "ISA 500"],
+			why: (x) => `بلغ التزام نهاية الخدمة ${x.money(x.amount)}${share$1(x)}. يعتمد قياسه على افتراضات اكتوارية (معدل الخصم وزيادة الرواتب ومعدل ترك الخدمة) وعلى اكتمال بيانات الموظفين. لذلك عددناه من الأمور ذات الأهمية القصوى.`,
+			response: [
+				"اختبرنا اكتمال بيانات الموظفين ودقتها بمطابقتها مع مسيرات الرواتب وعقود العمل",
+				"قيّمنا كفاءة الخبير الاكتواري وموضوعيته",
+				"قارنّا الافتراضات الرئيسية ببيانات السوق وبخبرة المنشأة الفعلية",
+				"أعدنا احتساب الالتزام لعينة من الموظفين وفق نظام العمل",
+				"قيّمنا إفصاحات منافع الموظفين والحساسية"
+			]
+		},
+		{
+			key: "biological",
+			lines: ["biological"],
+			title: "قياس الموجودات الحيوية بالقيمة العادلة ناقصاً تكاليف البيع",
+			estimate: true,
+			standards: ["IAS 41", "IFRS 13"],
+			why: (x) => `بلغت الموجودات الحيوية ${x.money(x.amount)}${share$1(x)}. يعتمد قياسها على أسعار السوق للأعمار والأوزان المماثلة وعلى تقدير تكاليف البيع والنفوق، ويتطلب التحقق من العدد والحالة. لذلك عددناه من الأمور ذات الأهمية القصوى.`,
+			response: [
+				"حضرنا العدّ الفعلي للقطيع وطابقنا الأعداد مع السجلات",
+				"قارنّا الأسعار المستخدمة بأسعار السوق الموثقة للأعمار والأوزان المماثلة",
+				"قيّمنا تقدير تكاليف البيع ومعدلات النفوق مقارنة بالخبرة الفعلية",
+				"قيّمنا إفصاحات IAS 41"
+			]
+		},
+		{
+			key: "loans",
+			lines: ["loansCl", "loansNcl"],
+			title: "التمويل والالتزام بتعهدات القروض وتصنيفها",
+			estimate: false,
+			standards: [
+				"IFRS 9",
+				"IAS 1",
+				"ISA 570"
+			],
+			why: (x) => `بلغ التمويل ${x.money(x.amount)}${share$1(x)}. قد يترتب على الإخلال بتعهدات القروض استحقاقها فوراً وتغيير تصنيفها إلى متداولة، وهو ما يؤثر في تقييم الاستمرارية. لذلك عددناه من الأمور ذات الأهمية القصوى.`,
+			response: [
+				"حصلنا على مصادقات مباشرة من البنوك بالأرصدة والتسهيلات والضمانات",
+				"أعدنا احتساب نسب تعهدات القروض في نهاية السنة وتحققنا من الالتزام بها",
+				"قيّمنا تصنيف القروض بين المتداولة وغير المتداولة وتحليل الاستحقاقات",
+				"ربطنا نتائج التمويل بتقييم الإدارة للاستمرارية",
+				"قيّمنا إفصاحات القروض ومخاطر السيولة"
+			]
+		},
+		{
+			key: "related",
+			lines: ["partners"],
+			title: "المعاملات والأرصدة مع الأطراف ذات العلاقة",
+			estimate: false,
+			standards: ["IAS 24", "نظام الشركات"],
+			why: (x) => `بلغت أرصدة الشركاء والأطراف ذات العلاقة ${x.money(x.amount)}${share$1(x)}. هذه المعاملات قد لا تتم بشروط السوق وتتطلب اعتمادات نظامية وإفصاحاً كاملاً. لذلك عددناها من الأمور ذات الأهمية القصوى.`,
+			response: [
+				"حصلنا على قائمة الأطراف ذات العلاقة وقارنّاها بالسجلات والمحاضر لتحديد أي معاملات غير مفصح عنها",
+				"حصلنا على مصادقات بالأرصدة القائمة في نهاية السنة",
+				"اختبرنا عينة من المعاملات ومستنداتها واعتماداتها",
+				"قيّمنا إفصاحات IAS 24"
+			]
+		}
+	];
+	/** Suggest key audit matters from the engine's line risks. `priorKeys` marks what is new versus last year's report. */
+	function suggestKams(input) {
+		const { fs, risks, materiality } = input, cur = input.currency ?? "ر.س";
+		const money = (m) => formatMinor(m, { decimals: 0 }) + " " + cur;
+		const assets = Math.abs(fs.keys.assets.current) || 1, revenue = Math.abs(fs.keys.revenue.current) || 1;
+		const out = [];
+		for (const t of KAM_LIBRARY) {
+			const rs = risks.filter((r) => t.lines.includes(r.lineKey));
+			const amount = t.lines.reduce((s, k) => s + Math.abs(fs.lines.find((l) => l.key === k)?.current ?? 0), 0);
+			if (!rs.length || amount === 0) continue;
+			const top = rs.reduce((a, b) => b.score > a.score ? b : a);
+			const score = Math.min(100, top.score + (amount >= materiality * 3 ? 10 : 0) + (t.estimate ? 5 : 0) + (t.fraud ? 8 : 0));
+			const x = {
+				ar: top.ar,
+				amount,
+				pctAssets: amount / assets * 100,
+				pctRevenue: amount / revenue * 100,
+				money,
+				framework: input.framework ?? "IFRS"
+			};
+			const ev = t.lines.map((k) => input.evidence?.[k]).find(Boolean);
+			const observation = ev === "accepted" ? "لم تسفر إجراءاتنا عن تحفظات، وحصلنا على أدلة كافية ومناسبة تؤيد ما سجلته الإدارة." : ev === "partial" ? "ما زالت بعض الأدلة المؤيدة قيد الاستكمال؛ تُحدَّث النتيجة قبل إصدار التقرير." : "النتيجة معلقة حتى استكمال الأدلة المطلوبة من المنشأة.";
+			const notes = t.lines.map((k) => fs.lines.find((l) => l.key === k)?.note).filter((n) => !!n);
+			out.push({
+				key: t.key,
+				title: t.title,
+				description: t.why(x),
+				how: "شملت إجراءاتنا: " + t.response.join("؛ ") + ".",
+				observation,
+				refs: [...t.standards, ...notes.map((n) => "إيضاح " + n)],
+				lineKeys: t.lines,
+				amount,
+				pctAssets: Math.round(x.pctAssets * 10) / 10,
+				score,
+				selected: false,
+				trend: input.priorKeys ? input.priorKeys.includes(t.key) ? "same" : "new" : null,
+				source: "library"
+			});
+		}
+		out.sort((a, b) => b.score - a.score);
+		const max = input.max ?? 3;
+		let n = 0;
+		for (const k of out) if (n < max && (k.score >= 70 || k.score >= 55 && k.amount >= materiality)) {
+			k.selected = true;
+			n++;
+		}
+		if (!n && out.length) out[0].selected = true;
+		return out.slice(0, 6);
+	}
+	/** Matters reported last year and not this year («no longer included because…», AstraZeneca). */
+	var removedKams = (priorKeys, current) => priorKeys.filter((k) => !current.some((c) => c.selected && c.key === k)).map((k) => KAM_LIBRARY.find((t) => t.key === k)?.title ?? k);
+	//#endregion
 	//#region app/src/engine/fusion/audit/materiality-engine.ts
-	var materiality_engine_exports = /* @__PURE__ */ __exportAll({ calculateMateriality: () => calculateMateriality });
+	var materiality_engine_exports = /* @__PURE__ */ __exportAll({
+		PLAN_BENCHMARKS: () => PLAN_BENCHMARKS,
+		calculateMateriality: () => calculateMateriality,
+		planMateriality: () => planMateriality
+	});
 	function money$25(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
@@ -7145,6 +7681,109 @@ window.SKEngines = (function() {
 			overall: money$25(overall),
 			performance: money$25(overall * performanceRate),
 			trivial: money$25(overall * trivialRate)
+		};
+	}
+	var PLAN_BENCHMARKS = {
+		pbt: {
+			ar: "الربح قبل الزكاة والضريبة المعدّل",
+			rate: .05,
+			min: .03,
+			max: .1,
+			why: "الربح قبل الزكاة والضريبة هو مؤشر الأداء الذي يركز عليه مستخدمو قوائم منشأة هادفة للربح، وهو المعيار المتعارف عليه لمثلها."
+		},
+		revenue: {
+			ar: "الإيرادات",
+			rate: .01,
+			min: .005,
+			max: .02,
+			why: "الربح متذبذب أو قريب من التعادل فلا يصلح أساساً مستقراً؛ الإيرادات تعكس حجم النشاط الذي يهم المستخدمين."
+		},
+		assets: {
+			ar: "مجموع الموجودات",
+			rate: .01,
+			min: .0025,
+			max: .02,
+			why: "غرض المنشأة الاحتفاظ بالاستثمارات أو الأصول لا تحقيق ربح تشغيلي، فالموجودات أنسب أساس."
+		},
+		equity: {
+			ar: "حقوق الملكية",
+			rate: .02,
+			min: .01,
+			max: .05,
+			why: "حقوق الملكية أساس مناسب حين يهتم المستخدمون بصافي الأصول أكثر من الربحية."
+		}
+	};
+	var nice = (v) => {
+		const a = Math.max(0, Math.floor(v));
+		if (a < 100) return a;
+		const p = Math.pow(10, Math.max(2, Math.floor(Math.log10(a)) - 2));
+		return Math.floor(a / p) * p;
+	};
+	function planMateriality(i) {
+		const addBacks = (i.addBacks ?? []).filter((x) => x && Number.isFinite(x.amount) && x.amount !== 0);
+		const normalised = i.pbt + addBacks.reduce((s, x) => s + x.amount, 0), rev = Math.abs(i.revenue);
+		const auto = i.holding ? "assets" : normalised > 0 && (rev === 0 || normalised >= rev * .02) ? "pbt" : rev > 0 ? "revenue" : "assets";
+		const benchmark = i.benchmark ?? auto, B = PLAN_BENCHMARKS[benchmark];
+		const base = Math.abs(benchmark === "pbt" ? normalised : benchmark === "revenue" ? i.revenue : benchmark === "assets" ? i.assets : i.equity);
+		const lo = i.holding && benchmark === "assets" ? .0025 : B.min, hi = i.risk?.publicInterest && benchmark === "pbt" ? .05 : B.max;
+		const def = i.holding && benchmark === "assets" ? .005 : B.rate;
+		const rate = Math.min(hi, Math.max(lo, i.rate ?? def));
+		const overall = nice(base * rate);
+		const r = i.risk ?? {}, factors = [];
+		if (r.firstYear) factors.push({
+			label: "أول سنة مراجعة — لا تاريخ للتحريفات يمكن الاستناد إليه",
+			effect: -.1
+		});
+		if (r.priorMisstatements === "few") factors.push({
+			label: "اكتُشفت تحريفات في سنوات سابقة",
+			effect: -.05
+		});
+		if (r.priorMisstatements === "many") factors.push({
+			label: "تحريفات متكررة أو كبيرة في سنوات سابقة",
+			effect: -.15
+		});
+		if (r.controlDeficiencies) factors.push({
+			label: "أوجه قصور مهمة في الرقابة الداخلية",
+			effect: -.1
+		});
+		if (r.managementCorrects === false) factors.push({
+			label: "الإدارة لم تصحح تحريفات أُبلغت بها",
+			effect: -.05
+		});
+		if (r.publicInterest) factors.push({
+			label: "منشأة ذات مصلحة عامة",
+			effect: -.05
+		});
+		const performanceRate = Math.round(Math.min(.75, Math.max(.5, .75 + factors.reduce((s, f) => s + f.effect, 0))) * 100) / 100;
+		const trivialRate = Math.min(.05, Math.max(.01, i.trivialRate ?? .05));
+		const crossCheck = [
+			["الإيرادات", i.revenue],
+			["الربح قبل الزكاة المعدّل", normalised],
+			["مجموع الموجودات", i.assets],
+			["حقوق الملكية", i.equity]
+		].filter(([, v]) => v !== 0).map(([ar, v]) => ({
+			ar,
+			amount: v,
+			pct: Math.round(overall / Math.abs(v) * 1e4) / 100
+		}));
+		const why = B.why + (benchmark === "pbt" && addBacks.length ? " عُدّل الربح بإضافة: " + addBacks.map((x) => x.label).join("، ") + " — بنود لا تمثل النشاط المستمر المعتاد." : "");
+		return {
+			benchmark,
+			benchmarkAr: B.ar,
+			reported: i.pbt,
+			base,
+			addBacks,
+			rate,
+			range: [lo, hi],
+			overall,
+			performanceRate,
+			performance: Math.round(overall * performanceRate / 100) * 100,
+			trivialRate,
+			trivial: Math.round(overall * trivialRate / 100) * 100,
+			factors,
+			crossCheck,
+			why,
+			auto: !i.benchmark
 		};
 	}
 	//#endregion
@@ -7441,6 +8080,104 @@ window.SKEngines = (function() {
 		return {
 			...report,
 			status: "FINAL"
+		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/audit/revenue-recon-engine.ts
+	var revenue_recon_engine_exports = /* @__PURE__ */ __exportAll({
+		netOfVat: () => netOfVat,
+		reconcileRevenue: () => reconcileRevenue
+	});
+	var netOfVat = (gross, rate = .15) => gross - Math.round(gross * rate / (1 + rate));
+	var month = (d) => String(d || "").slice(0, 7);
+	function reconcileRevenue(input) {
+		const rev = new Set(input.revenueAccounts), { start, end } = input, days = input.cutoffDays ?? 7;
+		const revOf = (e) => e.lines.reduce((s, l) => s + (rev.has(l.accountId) ? l.credit - l.debit : 0), 0);
+		const inP = (d) => d >= start && d <= end;
+		const sales = input.sales.filter((s) => s && s.id && inP(String(s.date).slice(0, 10)));
+		const bySource = /* @__PURE__ */ new Map();
+		for (const e of input.entries) if (e.sourceId && !e.reversedBy) bySource.set(e.sourceId, e);
+		const months = /* @__PURE__ */ new Map();
+		const row = (m) => {
+			if (!months.has(m)) months.set(m, {
+				month: m,
+				source: 0,
+				ledger: 0,
+				fromSales: 0,
+				other: 0
+			});
+			return months.get(m);
+		};
+		for (const s of sales) row(month(s.date)).source += netOfVat(s.gross, s.vatRate ?? .15);
+		const manual = [];
+		const byId = new Map(input.entries.map((e) => [e.id, e]));
+		for (const e of input.entries) {
+			const a = revOf(e);
+			if (!a || !inP(e.date)) continue;
+			const r = row(month(e.date));
+			r.ledger += a;
+			const orig = e.reversalOf ? byId.get(e.reversalOf) : void 0;
+			if (String(e.sourceId || "").startsWith("sale:") || String(orig?.sourceId || "").startsWith("sale:")) r.fromSales += a;
+			else {
+				r.other += a;
+				manual.push({
+					id: e.id,
+					date: e.date,
+					source: e.source || "يدوي",
+					memo: e.memo || "",
+					amount: a
+				});
+			}
+		}
+		const unposted = sales.filter((s) => !bySource.has("sale:" + s.id)).map((s) => ({
+			id: s.id,
+			date: String(s.date).slice(0, 10),
+			amount: netOfVat(s.gross, s.vatRate ?? .15)
+		}));
+		const reversedAfter = input.entries.filter((e) => e.reversalOf && e.date > end).map((e) => ({
+			e,
+			o: byId.get(e.reversalOf)
+		})).filter(({ o }) => o && inP(o.date) && revOf(o) !== 0).map(({ e, o }) => ({
+			id: o.id,
+			date: o.date,
+			reversedOn: e.date,
+			amount: revOf(o)
+		}));
+		const edge = /* @__PURE__ */ new Date(end + "T00:00:00Z");
+		edge.setUTCDate(edge.getUTCDate() - days + 1);
+		const windowStart = edge.toISOString().slice(0, 10);
+		const lastDays = sales.filter((s) => String(s.date).slice(0, 10) >= windowStart);
+		const rows = [...months.values()].sort((a, b) => a.month.localeCompare(b.month)).map((r) => ({
+			...r,
+			diff: r.ledger - r.source
+		}));
+		const tot = rows.reduce((t, r) => ({
+			source: t.source + r.source,
+			ledger: t.ledger + r.ledger,
+			other: t.other + r.other
+		}), {
+			source: 0,
+			ledger: 0,
+			other: 0
+		});
+		const tolerance = Math.max(100, sales.length);
+		return {
+			rows,
+			source: tot.source,
+			ledger: tot.ledger,
+			diff: tot.ledger - tot.source,
+			otherRevenue: tot.other,
+			unposted,
+			manual,
+			reversedAfter,
+			cutoff: {
+				from: windowStart,
+				to: end,
+				count: lastDays.length,
+				amount: lastDays.reduce((s, x) => s + netOfVat(x.gross, x.vatRate ?? .15), 0)
+			},
+			reconciled: Math.abs(tot.ledger - tot.other - tot.source) <= tolerance && unposted.length === 0,
+			tolerance
 		};
 	}
 	//#endregion
@@ -8335,6 +9072,265 @@ window.SKEngines = (function() {
 			financing: total("financing"),
 			unclassified: total("unclassified"),
 			netChange: money$20(activities.reduce((sum, a) => sum + a.amount, 0))
+		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/finance/journal-chain-engine.ts
+	var journal_chain_engine_exports = /* @__PURE__ */ __exportAll({
+		GENESIS: () => GENESIS,
+		canonical: () => canonical,
+		coversPeriod: () => coversPeriod,
+		externalInserts: () => externalInserts,
+		markLegacy: () => markLegacy,
+		sealLegacy: () => sealLegacy,
+		sealNew: () => sealNew,
+		sealOf: () => sealOf,
+		sha256: () => sha256,
+		verifyChain: () => verifyChain
+	});
+	var K = [
+		1116352408,
+		1899447441,
+		3049323471,
+		3921009573,
+		961987163,
+		1508970993,
+		2453635748,
+		2870763221,
+		3624381080,
+		310598401,
+		607225278,
+		1426881987,
+		1925078388,
+		2162078206,
+		2614888103,
+		3248222580,
+		3835390401,
+		4022224774,
+		264347078,
+		604807628,
+		770255983,
+		1249150122,
+		1555081692,
+		1996064986,
+		2554220882,
+		2821834349,
+		2952996808,
+		3210313671,
+		3336571891,
+		3584528711,
+		113926993,
+		338241895,
+		666307205,
+		773529912,
+		1294757372,
+		1396182291,
+		1695183700,
+		1986661051,
+		2177026350,
+		2456956037,
+		2730485921,
+		2820302411,
+		3259730800,
+		3345764771,
+		3516065817,
+		3600352804,
+		4094571909,
+		275423344,
+		430227734,
+		506948616,
+		659060556,
+		883997877,
+		958139571,
+		1322822218,
+		1537002063,
+		1747873779,
+		1955562222,
+		2024104815,
+		2227730452,
+		2361852424,
+		2428436474,
+		2756734187,
+		3204031479,
+		3329325298
+	];
+	function sha256(text) {
+		const bytes = new TextEncoder().encode(text), l = bytes.length, n = (l + 9 >> 6) + 1 << 6, m = new Uint8Array(n);
+		m.set(bytes);
+		m[l] = 128;
+		const bits = l * 8;
+		m[n - 4] = bits >>> 24 & 255;
+		m[n - 3] = bits >>> 16 & 255;
+		m[n - 2] = bits >>> 8 & 255;
+		m[n - 1] = bits & 255;
+		m[n - 5] = Math.floor(bits / 2 ** 32) & 255;
+		const h = [
+			1779033703,
+			3144134277,
+			1013904242,
+			2773480762,
+			1359893119,
+			2600822924,
+			528734635,
+			1541459225
+		], w = new Array(64);
+		const r = (x, s) => x >>> s | x << 32 - s;
+		for (let o = 0; o < n; o += 64) {
+			for (let i = 0; i < 16; i++) w[i] = m[o + 4 * i] << 24 | m[o + 4 * i + 1] << 16 | m[o + 4 * i + 2] << 8 | m[o + 4 * i + 3];
+			for (let i = 16; i < 64; i++) {
+				const s0 = r(w[i - 15], 7) ^ r(w[i - 15], 18) ^ w[i - 15] >>> 3, s1 = r(w[i - 2], 17) ^ r(w[i - 2], 19) ^ w[i - 2] >>> 10;
+				w[i] = w[i - 16] + s0 + w[i - 7] + s1 | 0;
+			}
+			let [a, b, c, d, e, f, g, hh] = h;
+			for (let i = 0; i < 64; i++) {
+				const t1 = hh + (r(e, 6) ^ r(e, 11) ^ r(e, 25)) + (e & f ^ ~e & g) + K[i] + w[i] | 0;
+				const t2 = (r(a, 2) ^ r(a, 13) ^ r(a, 22)) + (a & b ^ a & c ^ b & c) | 0;
+				hh = g;
+				g = f;
+				f = e;
+				e = d + t1 | 0;
+				d = c;
+				c = b;
+				b = a;
+				a = t1 + t2 | 0;
+			}
+			h[0] = h[0] + a | 0;
+			h[1] = h[1] + b | 0;
+			h[2] = h[2] + c | 0;
+			h[3] = h[3] + d | 0;
+			h[4] = h[4] + e | 0;
+			h[5] = h[5] + f | 0;
+			h[6] = h[6] + g | 0;
+			h[7] = h[7] + hh | 0;
+		}
+		return h.map((x) => (x >>> 0).toString(16).padStart(8, "0")).join("");
+	}
+	var GENESIS = "0".repeat(64);
+	/** Demo entries (the sample company) are cleared at will, so they never enter the chain. */
+	var outside = (e) => e.demo === true;
+	/** The content that must never change once posted («reversedBy» is added later by a reversal and is left out). */
+	function canonical(e) {
+		return JSON.stringify([
+			e.seq ?? 0,
+			e.sealedAt ?? "",
+			e.id,
+			e.date,
+			e.reference ?? "",
+			e.memo ?? "",
+			e.source ?? "",
+			e.sourceId ?? "",
+			e.party ?? "",
+			e.reversalOf ?? "",
+			e.lines.map((l) => [
+				l.accountId,
+				Math.round(l.debit * 100),
+				Math.round(l.credit * 100)
+			])
+		]);
+	}
+	var sealOf = (e, prev) => sha256(prev + "|" + canonical(e));
+	/** Seal every unsealed entry after the last sealed one, in posting order. Returns the count sealed. Mutates the entries. */
+	function sealNew(entries, now) {
+		let last, n = 0;
+		for (const e of entries) if (e.hash && !outside(e)) last = e;
+		let prev = last?.hash ?? GENESIS, seq = last?.seq ?? 0;
+		const from = last ? entries.indexOf(last) + 1 : entries.findIndex((e) => !e.legacy && !outside(e));
+		if (from < 0) return 0;
+		for (let i = from; i < entries.length; i++) {
+			const e = entries[i];
+			if (e.hash || e.legacy || outside(e)) continue;
+			e.seq = ++seq;
+			e.sealedAt = now;
+			e.prev = prev;
+			e.hash = sealOf(e, prev);
+			prev = e.hash;
+			n++;
+		}
+		return n;
+	}
+	/** Mark the entries posted before the chain existed as legacy (outside the chain), so sealing starts clean. */
+	function markLegacy(entries) {
+		let n = 0;
+		for (const e of entries) if (!e.hash && !e.legacy && !outside(e)) {
+			e.legacy = true;
+			n++;
+		}
+		return n;
+	}
+	/** Bring legacy entries into the chain once (they are sealed after the last sealed entry, with today's seal date). */
+	function sealLegacy(entries, now) {
+		const legacy = entries.filter((e) => e.legacy && !e.hash);
+		if (!legacy.length) return 0;
+		const rest = entries.filter((e) => !legacy.includes(e));
+		legacy.forEach((e) => {
+			delete e.legacy;
+		});
+		entries.length = 0;
+		entries.push(...rest, ...legacy);
+		return sealNew(entries, now);
+	}
+	function verifyChain(entries) {
+		const sealed = entries.filter((e) => e.hash && !outside(e)), issues = [];
+		let prev = GENESIS, seq = 0;
+		for (const e of sealed) {
+			if ((e.seq ?? 0) !== seq + 1) issues.push({
+				id: e.id,
+				seq: e.seq,
+				kind: "gap",
+				ar: "انقطاع في التسلسل بعد " + seq + " — قيد محذوف أو مُعاد ترتيبه"
+			});
+			if (e.prev !== prev) issues.push({
+				id: e.id,
+				seq: e.seq,
+				kind: "broken-link",
+				ar: "الختم لا يرتبط بالقيد السابق"
+			});
+			if (sealOf(e, e.prev ?? "") !== e.hash) issues.push({
+				id: e.id,
+				seq: e.seq,
+				kind: "edited",
+				ar: "محتوى القيد تغير بعد ترحيله"
+			});
+			prev = e.hash;
+			seq = e.seq ?? seq + 1;
+		}
+		const firstSealed = entries.findIndex((e) => e.hash && !outside(e));
+		if (firstSealed >= 0) entries.slice(firstSealed).forEach((e) => {
+			if (!e.hash && !e.legacy && !outside(e)) issues.push({
+				id: e.id,
+				kind: "unsealed",
+				ar: "قيد أُضيف دون ختم (خارج سجل التعديلات)"
+			});
+		});
+		const dates = sealed.map((e) => e.date).sort();
+		return {
+			ok: issues.length === 0,
+			issues,
+			sealed: sealed.length,
+			legacy: entries.filter((e) => e.legacy && !e.hash).length,
+			demo: entries.filter(outside).length,
+			total: entries.length,
+			head: sealed.length ? sealed[sealed.length - 1].hash : GENESIS,
+			firstDate: dates[0] ?? null,
+			lastDate: dates[dates.length - 1] ?? null,
+			sealedFrom: sealed.length ? sealed.map((e) => String(e.sealedAt ?? "")).sort()[0] ?? null : null,
+			reversals: entries.filter((e) => e.reversalOf && !outside(e)).length,
+			manual: entries.filter((e) => !outside(e) && (!e.source || e.source === "يدوي")).length
+		};
+	}
+	/** Entries found in storage without a seal after the chain began: they were not saved through the books (the books
+	*  seal on every save), so they are recorded as an integrity event before being sealed. */
+	function externalInserts(stored) {
+		const first = stored.findIndex((e) => e.hash && !outside(e));
+		return first < 0 ? [] : stored.slice(first).filter((e) => !e.hash && !e.legacy && !outside(e)).map((e) => e.id);
+	}
+	/** Does the trail cover a period? (Reliance/Infosys: «operated throughout the year for all relevant transactions»). */
+	function coversPeriod(entries, start, end) {
+		const inP = entries.filter((e) => e.date >= start && e.date <= end && !outside(e)), out = inP.filter((e) => !e.hash);
+		return {
+			entries: inP.length,
+			uncovered: out.length,
+			throughout: inP.length > 0 && out.length === 0
 		};
 	}
 	//#endregion
@@ -9239,6 +10235,7 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/reports/annual-report-engine.ts
 	var annual_report_engine_exports = /* @__PURE__ */ __exportAll({
+		approachSection: () => approachSection,
 		auditorsReport: () => auditorsReport,
 		balanceSheetDetails: () => balanceSheetDetails,
 		debtNote: () => debtNote,
@@ -9251,7 +10248,8 @@ window.SKEngines = (function() {
 		resultsRelease: () => resultsRelease,
 		resultsTable: () => resultsTable,
 		revenueByCategory: () => revenueByCategory,
-		taxProvision: () => taxProvision
+		taxProvision: () => taxProvision,
+		zakatNote: () => zakatNote
 	});
 	var pc = (a, b) => b ? Math.round((a - b) / Math.abs(b) * 1e3) / 10 : null;
 	var share = (a, b) => b ? Math.round(a / b * 1e3) / 10 : null;
@@ -9578,6 +10576,53 @@ window.SKEngines = (function() {
 			]
 		};
 	}
+	function approachSection(a, kams = []) {
+		const cur = a.currency ?? "ر.س", m = a.materiality, f = (v) => formatMinor(v, { decimals: 0 }) + " " + cur;
+		const pct = (x) => (Math.round(x * 1e4) / 100).toString() + "%";
+		return {
+			title: "منهجنا في المراجعة",
+			paragraphs: [
+				"صممنا مراجعتنا بتحديد الأهمية النسبية وتقييم مخاطر التحريف الجوهري في القوائم المالية، وأولينا عناية خاصة للمجالات التي اتخذت فيها الإدارة أحكاماً ذاتية، ومنها التقديرات المحاسبية المهمة، ولخطر تجاوز الإدارة لأدوات الرقابة الداخلية بما في ذلك تقييم وجود تحيز قد يمثل خطر تحريف جوهري بسبب الغش.",
+				...a.scope ? [a.scope] : [],
+				...kams.length ? ["تشمل الأمور الرئيسية للمراجعة: " + kams.map((k) => k.title + (k.trend === "new" ? " (جديد هذا العام)" : "")).join("؛ ") + "."] : []
+			],
+			table: [
+				["الأهمية النسبية للقوائم المالية ككل", f(m.overall)],
+				["كيف حددناها", pct(m.rate) + " من " + m.benchmarkAr],
+				["مبرر الأساس المستخدم", m.why],
+				["الأهمية النسبية التنفيذية", f(m.performance) + " (" + pct(m.performanceRate) + " من الأهمية النسبية)"],
+				["حد إبلاغ المكلفين بالحوكمة بالتحريفات", f(m.trivial) + "، إضافة إلى أي تحريفات أقل تستوجب الإبلاغ لأسباب نوعية"]
+			]
+		};
+	}
+	function zakatNote(fs, o = {}) {
+		const eg = o.jurisdiction === "EG", pay = line(fs, "zakatPayable"), exp = fs.keys.zakat.current;
+		const opening = pay ? pay.prior : null, closing = pay ? pay.current : 0;
+		const paid = opening === null ? null : opening + exp - closing;
+		return {
+			title: eg ? "ضريبة الدخل" : "الزكاة",
+			policy: eg ? "تُحتسب ضريبة الدخل الجارية على الربح الضريبي وفق قانون الضريبة على الدخل رقم 91 لسنة 2005 بسعر 22.5%، وتُثبت الضريبة المؤجلة على الفروق المؤقتة (معيار المحاسبة المصري 24)." : "تخضع المنشأة للزكاة وفق لائحة جباية الزكاة الصادرة عن هيئة الزكاة والضريبة والجمارك. تُحتسب الزكاة بسعر 2.5% (معدلاً بعدد أيام السنة الميلادية) على الوعاء الزكوي أو صافي الربح المعدل أيهما أعلى، ويُحمّل المخصص على قائمة الربح أو الخسارة. تُعالج الفروقات الناتجة عن الربوط النهائية في الفترة التي تصدر فيها.",
+			rows: [
+				{
+					ar: "الرصيد في بداية السنة",
+					amount: opening
+				},
+				{
+					ar: "المكوّن خلال السنة",
+					amount: exp
+				},
+				{
+					ar: "المسدد خلال السنة",
+					amount: paid === null ? null : -paid
+				},
+				{
+					ar: "الرصيد في نهاية السنة",
+					amount: closing
+				}
+			],
+			assessments: o.assessments || (eg ? "[حالة الفحص الضريبي: السنوات التي تم فحصها والسنوات المفتوحة]" : "[حالة الربوط: السنوات التي صدر عنها ربط نهائي، والسنوات المقدم عنها إقرار ولم يصدر ربطها بعد، وأي اعتراضات قائمة]")
+		};
+	}
 	/** Arabic "لـ" joined to a word: «ل» + «الشركة» → «للشركة», «ل» + «شركة» → «لشركة». */
 	var lam = (w) => w.startsWith("ال") ? "لل" + w.slice(2) : "ل" + w;
 	function auditorsReport(i) {
@@ -9608,10 +10653,11 @@ window.SKEngines = (function() {
 				title: basisTitle,
 				paragraphs: [...i.opinion === "unmodified" ? [] : i.basis, ...i.opinion === "disclaimer" ? [] : [`لقد قمنا بالمراجعة وفقاً ${lam(isa)}. ومسؤولياتنا بموجب تلك المعايير موضحة في قسم «مسؤوليات المراجع عن مراجعة القوائم المالية». ونحن مستقلون عن المنشأة وفقاً ${lam(ethics)}، وقد وفينا بمسؤولياتنا المسلكية الأخرى. ونعتقد أن أدلة المراجعة التي حصلنا عليها كافية ومناسبة لتوفير أساس لرأينا.`]]
 			},
-			...i.goingConcern ? [{
+			...i.goingConcernSection && i.opinion !== "disclaimer" ? [i.goingConcernSection] : i.goingConcern ? [{
 				title: "عدم تأكد جوهري يتعلق بالاستمرارية",
 				paragraphs: ["نلفت الانتباه إلى الإيضاح المتعلق بأساس الإعداد في القوائم المالية، الذي يبين أحداثاً وظروفاً تشير إلى وجود عدم تأكد جوهري قد يثير شكاً كبيراً في قدرة المنشأة على البقاء كمنشأة مستمرة. ولم يُعدَّل رأينا فيما يتعلق بهذا الأمر."]
 			}] : [],
+			...i.approach && i.opinion !== "disclaimer" ? [approachSection(i.approach, i.kams)] : [],
 			...i.opinion !== "disclaimer" && i.kams.length ? [{
 				title: "الأمور الرئيسية للمراجعة",
 				paragraphs: ["الأمور الرئيسية للمراجعة هي تلك الأمور التي كانت، بحسب حكمنا المهني، لها الأهمية القصوى عند مراجعتنا للقوائم المالية للفترة الحالية. وقد تناولنا هذه الأمور في سياق مراجعتنا للقوائم المالية ككل وعند تكوين رأينا فيها، ولا نبدي رأياً منفصلاً في هذه الأمور."],
@@ -11285,13 +12331,17 @@ window.SKEngines = (function() {
 			council: council_engine_exports$1,
 			disclosures: disclosures_engine_exports,
 			documentCheck: document_check_engine_exports,
+			estimatesReview: estimates_review_engine_exports,
 			evidence: evidence_engine_exports,
+			goingConcern: going_concern_engine_exports,
 			issues: issues_engine_exports,
+			kam: kam_engine_exports,
 			materiality: materiality_engine_exports,
 			pbc: pbc_engine_exports,
 			planning: planning_engine_exports,
 			programme: programme_engine_exports,
 			report: report_engine_exports,
+			revenueRecon: revenue_recon_engine_exports,
 			reviewerCouncil: reviewer_council_engine_exports,
 			sampling: sampling_engine_exports,
 			standards: standards_engine_exports,
@@ -11310,6 +12360,7 @@ window.SKEngines = (function() {
 			accounts: accounts_engine_exports,
 			bankReconciliation: bank_reconciliation_engine_exports,
 			cashFlow: cash_flow_engine_exports,
+			journalChain: journal_chain_engine_exports,
 			ledger: ledger_engine_exports,
 			partyLedger: party_ledger_engine_exports,
 			payables: payables_engine_exports,
