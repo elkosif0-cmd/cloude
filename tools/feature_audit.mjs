@@ -45,7 +45,9 @@ ok('المنظومة الواحدة','مسار العمل (يأتي من / يذ�
 await go('dash',1400);ok('المنظومة الواحدة','رحلة العمل في مركز القيادة',await p.evaluate(()=>document.querySelectorAll('.skjr li').length===5));
 await go('auditanalytics',3500);const A=await p.evaluate(()=>({tabs:document.querySelectorAll('.kx-views [data-kxv]').length,tools:document.querySelectorAll('.kx-views .kx-tool').length}));
 ok('المنظومة الواحدة','أدوات التحليل بتبويبات التطبيق وبثيمه (صفحاتها وصوتها وأوامرها)',A.tabs>=15&&A.tools===2);
-ok('عدم ضياع القدرات','القدرات الـ66 كلها مسجلة',await p.evaluate(()=>SK.caps.all().length)===66);
+ok('عدم ضياع القدرات','القدرات الـ67 كلها مسجلة',await p.evaluate(()=>SK.caps.all().length)===67);
+await go('helperdesk',900);ok('هيكل المنتج','الأدوات غير المرتبطة بالمراجعة مجمعة في «أدوات مساعدة للمحاسب»',await p.evaluate(()=>SK.caps.get('helperdesk')?.group==='helpers'&&document.querySelectorAll('.hd-node').length>=5&&SK.caps.groups().map(g=>g.id).join('|')==='home|audit|helpers|system'));
+await go('tbreview',1200);ok('هيكل المنتج','دورة المراجعة مرسومة كعقد وأسهم مع حلقة جولات الأدلة',await p.evaluate(()=>document.querySelectorAll('.tbr-flow-node').length===9&&!!document.querySelector('.tbr-flowloop')));
 // ---------- global research bundle: audit benchmarks ----------
 await go('auditbench',1200);
 const CO=await p.evaluate(()=>{const c=SKEngines.reports.globalCorpus,s=c.summary();return{pages:s.pagesClassified,types:s.sectionTypes,bp:document.querySelectorAll('.ab-bp li').length,reps:document.querySelectorAll('[data-ab-rep] option').length,ex:c.EXEMPLARS.length}});
