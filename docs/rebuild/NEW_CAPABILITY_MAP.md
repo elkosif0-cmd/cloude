@@ -56,7 +56,6 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | مطابقة الإكسل | `excelrecon` | التقارير والتحليلات › مطابقة الإكسل (advanced) | UTILITIES | admin, accountant |
 | جديد — دمج smart-trial-balance-review (مجلس Gemini والجولات) و kosif-audit-pro (القوائم والتحليل) و Moon (المخاطر والرأي) و SEE (التصنيف والجاهزية) | `tbreview` | المراجعة والتأكيد › مراجعة ميزان المراجعة | CORE | admin, accountant |
 | جديد — يحل محل قاعدة معايير smart-trial-balance-review ويكمّل مختبر المعايير | `codex` | المراجعة والتأكيد › المدونة المحاسبية والمعايير | MANAGEMENT | admin, accountant, viewer |
-| جديد — من فهرس حزمة البحث على Drive كما يخدمها kosif-stable (/research/financial-reports) | `finlibrary` | المراجعة والتأكيد › مركز التقارير المالية العالمية | INTELLIGENCE | admin, accountant, viewer |
 | KOSIF Audit Studio | `auditdesk` | المراجعة والتأكيد › مركز المراجعة (advanced) | ADVANCED | admin, accountant |
 | KOSIF Audit Studio | `auditdocs` | المراجعة والتأكيد › المستندات والأدلة (advanced) | ADVANCED | admin, accountant |
 | KOSIF Audit Studio | `auditissues` | المراجعة والتأكيد › الملاحظات والقضايا (advanced) | ADVANCED | admin, accountant |
@@ -76,9 +75,9 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 
 - **CORE** — العمل اليومي الأساسي (17): `dash`, `notifications`, `commerce`, `customers`, `followup`, `offers`, `zatca`, `inventory`, `suppliers`, `purchasing`, `cash`, `receivables`, `ledger`, `catalog`, `builder`, `sim`, `tbreview`
 - **MANAGEMENT** — الإدارة والمتابعة (9): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `memo`, `execreports`, `archive`, `codex`
-- **INTELLIGENCE** — التحليل والذكاء (8): `decision`, `salesintel`, `intelligence`, `economics`, `compare`, `jev`, `council`, `finlibrary`
+- **INTELLIGENCE** — التحليل والذكاء (7): `decision`, `salesintel`, `intelligence`, `economics`, `compare`, `jev`, `council`
 - **ADVANCED** — الهندسة المتقدمة (17): `carcass`, `yieldlab`, `nrv`, `finance`, `kernel`, `costs`, `analyzer`, `risklab`, `sensitivity`, `auditdesk`, `auditdocs`, `auditissues`, `auditcouncil`, `auditfin`, `auditreport`, `auditanalytics`, `auditlab`
 - **UTILITIES** — أدوات مساعدة (9): `blending`, `culinary`, `labels`, `scanner`, `reports`, `exports`, `smartmatch`, `excelrecon`, `devices`
 - **ADMIN** — النظام والإدارة (5): `settings`, `companies`, `health`, `governance`, `capabilitiesv2`
 
-Coverage gate: 65 screens in 10 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
+Coverage gate: 64 screens in 10 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.

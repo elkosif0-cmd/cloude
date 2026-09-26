@@ -17,7 +17,7 @@ const KEY="skosif_tbreview_v1",MAX_FILE=15*1024*1024,MAX_ROUND=18*1024*1024;
 const E=()=>window.SKEngines,RV=()=>E().audit.tbReview,AI=()=>E().audit.aiReview,DC=()=>E().audit.documentCheck,CX=()=>E().audit.codex,PG=()=>E().audit.programme,DS=()=>E().audit.disclosures;
 const TI=()=>E().reports.tbImport,FS=()=>E().reports.statements,AN=()=>E().reports.analysis,MN=()=>E().reports.money;
 const TABS=[["tb","الميزان والمعايير"],["ai","جولات المراجعة"],["docs","المستندات"],["adj","التسويات والامتثال"],["fs","القوائم والتقارير"]];
-let root=null,tab="tb",filter="all",busy="",abort=null,cache=null,setup=false,fsAfter=true;
+let root=null,tab="tb",filter="all",busy="",abort=null,cache=null,setup=false,fsAfter=true,doc="issue";
 
 /* ---------- state ---------- */
 const blank=()=>({ctx:{company:"",period:"",periodStart:"",periodEnd:"",activity:"",country:"SA",framework:"IFRS",currency:"الريال السعودي",legalForm:"",registeredOffice:"",principalPlace:""},fw:{},tbText:"",overrides:{},materiality:null,session:null,accepted:[],rejected:[],ecl:null,
@@ -255,12 +255,6 @@ function disclosuresCard(c){
     (r.sections.length?'<h4>الأقسام المتخصصة في معيار المنشآت الصغيرة</h4><ul class="tbr-ul">'+r.sections.map(x=>'<li>القسم '+esc(x.section)+' — '+esc(x.title)+': <b>'+(x.status==="applicable"?"ينطبق":"لا ينطبق")+'</b> ('+esc(x.rationale)+')</li>').join("")+'</ul>':'')+
   '</div></section>';
 }
-function benchmarkCard(c){
-  const L=E().reports.researchLibrary,f=c.session&&c.session.final;
-  const b=L.benchmarkReport({highlights:true,mdna:true,statements:true,notes:true,ratios:true,opinion:true,kams:true,cashFlow:!!c.fsAfterAdj.cf,comparatives:c.fsAfterAdj.hasPrior,managementLetter:!!(f&&f.letter.length)});
-  return '<section class="card"><div class="card-h"><div><h3>مقارنة بالتقارير السنوية العالمية</h3><p>يغطي تقريرك '+b.covered+' من '+b.total+' عنصراً تحملها تقارير Amazon وApple والمراعي ونستله وأرامكو.</p></div><button type="button" class="btn sm" data-a="lib">مركز التقارير المالية</button></div><div class="card-b"><div class="tbr-bench">'+
-    b.rows.map(x=>'<span class="'+(x.has?"on":"")+'" title="'+esc(x.seenIn)+'">'+(x.has?"✓ ":"○ ")+esc(x.ar)+'</span>').join("")+'</div></div></section>';
-}
 function stmt(rows,hasPrior,cls=""){
   return '<table class="sk-table tbr-fs '+cls+'" data-sk-plain><thead><tr><th></th><th>إيضاح</th><th>'+(hasPrior?'السنة الحالية':'المبلغ')+'</th>'+(hasPrior?'<th>السنة السابقة</th>':'')+'</tr></thead><tbody>'+
     rows.map(r=>r.level==="heading"?'<tr class="h"><td colspan="'+(hasPrior?4:3)+'">'+esc(r.ar)+'</td></tr>':'<tr class="'+r.level+'"><td>'+esc(r.ar)+'</td><td class="mono">'+(r.note||'')+'</td><td class="num">'+m0(r.current)+'</td>'+(hasPrior?'<td class="num">'+(r.prior===null?'':m0(r.prior))+'</td>':'')+'</tr>').join("")+'</tbody></table>';
@@ -268,27 +262,49 @@ function stmt(rows,hasPrior,cls=""){
 function kamsOf(c){
   const f=c.session&&c.session.final;
   if(f&&f.kams.length)return f.kams;
-  return c.base.risks.filter(r=>r.significant).slice(0,3).map(r=>({title:r.ar,why:'خطر جوهري ('+r.score+'/100): '+r.risk+'.',how:r.procedures.join('، ')+'.'}));
+  const ev=c.session?AI().evidenceFromSession(c.base,c.session):{};
+  return c.base.risks.filter(r=>r.significant).slice(0,3).map(r=>({title:r.ar,
+    why:'بلغ رصيد '+r.ar+' '+sar(r.amount)+'، وقُيّم خطره بدرجة '+r.score+' من 100 لأن '+r.risk+(r.parts.estimate>=15?' ويتضمن تقديرات محاسبية تتطلب حكماً مهنياً (ISA 540)':'')+'. لذلك عُدّ من الأمور ذات الأهمية القصوى في مراجعتنا.',
+    how:'شملت إجراءاتنا: '+r.procedures.join('؛ ')+'.'+(ev[r.lineKey]==="accepted"?' وحصلنا على المستندات المؤيدة وقيّمناها في جولات المراجعة.':ev[r.lineKey]==="partial"?' وما زالت بعض المستندات المؤيدة قيد الاستكمال.':'')}));
 }
 function reportParts(c){
   const fs=fsAfter?c.fsAfterAdj:c.fsBefore,hp=fs.hasPrior,rs=AN().ratios(fs),z=AN().altmanZ(fs),bm=AN().beneishM(fs),du=AN().dupont(fs).current,hl=AN().highlights(fs),md=AN().mdna(fs);
   const fmt=(v,u)=>v===null||v===undefined?'—':u==="%"?v+'%':u==="days"?v+' يوم':v+'×';
   return {fs,hp,rs,z,bm,du,hl,md,fmt};
 }
+const DOCS=[["issue","الإصدار والاعتماد"],["statements","القوائم المالية"],["annual","التقرير السنوي (نموذج 10-K)"],["release","بيان النتائج"],["auditor","تقرير المراجع المستقل"],["analysis","التحليل المالي"]];
+let docStyled=false;
+function fmtDate(iso,eg){if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||""))return "";try{return new Date(iso+"T12:00:00").toLocaleDateString(eg?"ar-EG-u-nu-latn":"ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"})}catch{return iso}}
+function docX(c){return {c,fs:fsAfter?c.fsAfterAdj:c.fsBefore,cur:CUR,ctx:c.d.ctx,fw:c.fw,periodEnd:fmtDate(c.d.ctx.periodEnd,c.fw==="EAS"),kams:kamsOf(c).map(k=>({title:k.title,description:k.why,how:k.how})),opinion:c.derived}}
+function docView(c,kind){
+  if(!docStyled&&window.SKosifReportDocs){const st=document.createElement("style");st.id="rd-css";st.textContent=SKosifReportDocs.CSS;document.head.appendChild(st);docStyled=true}
+  const ctx=c.d.ctx;
+  return (kind==="auditor"?'<section class="card"><div class="card-h"><div><h3>بيانات التوقيع</h3><p>تظهر في تقرير المراجع؛ الخانات الفارغة تبقى بين قوسين لتُستكمل.</p></div></div><div class="card-b"><div class="tbr-sig">'+
+    [["auditFirm","مكتب المراجعة"],["auditPartner","الشريك المسؤول"],["auditLicence","رقم الترخيص"],["auditCity","المدينة"]].map(([k,l])=>'<label class="sk-field"><span>'+l+'</span><input data-ctx="'+k+'" value="'+esc(ctx[k]||"")+'"></label>').join("")+
+    '</div><div class="sk-actions"><button type="button" class="btn sm primary" data-a="sig-save">حفظ</button></div></div></section>':'')+
+    '<div class="rd-paper">'+SKosifReportDocs[kind](docX(c))+'</div>';
+}
 function fsTab(c){
   const p=reportParts(c),fs=p.fs,d=c.derived,f=c.session&&c.session.final,GROUP={liquidity:"السيولة",profitability:"الربحية",efficiency:"الكفاءة",leverage:"الرفع المالي",cash:"التدفق النقدي"};
   const hl=p.hl.map(h=>'<div class="skk4-t"><span class="tx"><span>'+esc(h.ar)+'</span><b>'+(h.kind==="money"?sar(h.current):p.fmt(h.current,h.kind))+'</b><small>'+(h.change===null?(h.prior===null?'':'السابق '+(h.kind==="money"?sar(h.prior):p.fmt(h.prior,h.kind))):(h.change>=0?'▲ ':'▼ ')+Math.abs(h.change)+'% عن السابق')+'</small></span></div>').join("");
-  return '<section class="card tbr-op"><div class="card-b"><div class="tbr-op-h"><div><span class="eyebrow">رأي المراجع — مشتق وفق '+esc(d.isa)+'</span><h3>'+esc(d.ar)+'</h3>'+d.basis.map(x=>'<p>'+esc(x)+'</p>').join("")+(d.goingConcern?'<p class="tbr-warn">مؤشرات استمرارية تتطلب تقييماً وإفصاحاً (ISA 570).</p>':'')+'</div>'+
+  const docBar='<nav class="tbr-docs" aria-label="مستندات التقارير">'+DOCS.map(([k,l])=>'<button type="button" data-doc="'+k+'" aria-pressed="'+(doc===k)+'">'+esc(l)+'</button>').join("")+'</nav>';
+  const body=doc==="annual"||doc==="release"||doc==="auditor"?docView(c,doc):doc==="statements"?fsStatements(c,p,fs,d,f,hl,GROUP):doc==="analysis"?fsAnalysis(c,p,fs,d,f,hl,GROUP):fsIssue(c,p,fs,d,f,hl,GROUP);
+  return docBar+'<section class="card tbr-op"><div class="card-b"><div class="tbr-op-h"><div><span class="eyebrow">رأي المراجع — مشتق وفق '+esc(d.isa)+'</span><h3>'+esc(d.ar)+'</h3>'+d.basis.map(x=>'<p>'+esc(x)+'</p>').join("")+(d.goingConcern?'<p class="tbr-warn">مؤشرات استمرارية تتطلب تقييماً وإفصاحاً (ISA 570).</p>':'')+'</div>'+
       '<div class="tbr-op-s">'+(f?'<small>اقتراح Gemini</small><b>'+esc(f.aiOpinion||"—")+'</b>':'<small>لا يوجد تقرير Gemini نهائي</small>')+'<small class="hint">لا يصدر الرأي إلا باعتماد الشريك المسؤول.</small></div></div>'+
       '<div class="sk-actions"><div class="sk-seg" role="group"><button type="button" data-fsv="after" aria-pressed="'+fsAfter+'">بعد التسويات ('+c.accepted.length+')</button><button type="button" data-fsv="before" aria-pressed="'+!fsAfter+'">قبل التسويات</button></div>'+
-      '<button type="button" class="btn primary" data-a="print">طباعة التقرير الكامل</button><button type="button" class="btn" data-a="jev-op">'+SK.icon("jev")+' رأي ثانٍ من Jev</button><button type="button" class="btn" data-a="fs-csv">تصدير القوائم</button></div></div></section>'+
+      '<button type="button" class="btn primary" data-a="print">طباعة المستند</button><button type="button" class="btn" data-a="jev-op">'+SK.icon("jev")+' رأي ثانٍ من Jev</button><button type="button" class="btn" data-a="fs-csv">تصدير القوائم</button></div></div></section>'+
+    body;
+}
+function fsIssue(c,p,fs,d,f,hl,GROUP){
+  return ''+
     programmeCard(c)+disclosuresCard(c)+
     (f?'<section class="card"><div class="card-h"><div><h3>'+esc(f.headline||"ملخص التقرير")+'</h3><p>التقرير النهائي من Gemini · '+esc(f.at.slice(0,10))+'</p></div></div><div class="card-b"><p>'+esc(f.summary)+'</p>'+(f.limitations.length?'<h4>القيود على النطاق</h4><ul>'+f.limitations.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>':'')+'</div></section>':'')+
-    '<h3 class="tbr-sec">السنة في لمحة</h3><div class="skk4 tbr-hl">'+hl+'</div>'+
-    '<div class="tbr-2"><section class="card"><div class="card-h"><div><h3>قائمة الربح أو الخسارة</h3><p>عرض IFRS 18: التشغيل ← الاستثمار ← التمويل ← الزكاة</p></div></div><div class="card-b">'+stmt(fs.pl,p.hp)+'</div></section>'+
-      '<section class="card"><div class="card-h"><div><h3>قائمة المركز المالي</h3><p>'+(fs.checks.balanced?'متوازنة':'فرق '+sar(fs.checks.difference))+'</p></div></div><div class="card-b">'+stmt(fs.sfp,p.hp)+'</div></section></div>'+
-    '<section class="card"><div class="card-h"><div><h3>قائمة التغيرات في حقوق الملكية</h3></div></div><div class="card-b tbr-tw"><table class="sk-table tbr-fs" data-sk-plain><thead><tr><th></th>'+fs.soce.columns.map(x=>'<th>'+esc(x)+'</th>').join("")+'</tr></thead><tbody>'+fs.soce.rows.map((r,i)=>'<tr class="'+(i===fs.soce.rows.length-1?'total':'')+'"><td>'+esc(r.ar)+'</td>'+r.values.map(v=>'<td class="num">'+m0(v)+'</td>').join("")+'</tr>').join("")+'</tbody></table></div></section>'+
-    '<section class="card"><div class="card-h"><div><h3>قائمة التدفقات النقدية (الطريقة غير المباشرة)</h3><p>'+(fs.cf?(fs.checks.cashTies?'تطابق حركة النقد':'فرق '+sar(fs.checks.cfDifference)):'تتطلب أرصدة السنة السابقة')+'</p></div></div><div class="card-b">'+(fs.cf?stmt(fs.cf,false):'<p class="empty">أضف عمود السنة السابقة في الميزان لاشتقاق القائمة.</p>')+'</div></section>'+
+    '<section class="card"><div class="card-h"><div><h3>الأمور الرئيسية للمراجعة (ISA 701)</h3></div></div><div class="card-b">'+(kamsOf(c).map(k=>'<div class="tbr-kam"><b>'+esc(k.title)+'</b><p><small>لماذا:</small> '+esc(k.why)+'</p><p><small>كيف عولج:</small> '+esc(k.how)+'</p></div>').join("")||'<p class="empty">لا مخاطر جوهرية مصنفة.</p>')+'</div></section>'+
+    (f&&f.letter.length?'<section class="card"><div class="card-h"><div><h3>خطاب الإدارة</h3></div></div><div class="card-b">'+f.letter.map(x=>'<div class="tbr-kam"><b>'+esc(x.title)+' <span class="sksev '+(x.priority==="عالية"?"bad":x.priority==="متوسطة"?"warn":"info")+'">'+esc(x.priority)+'</span></b><p>'+esc(x.observation)+'</p><p><small>التوصية:</small> '+esc(x.recommendation)+'</p></div>').join("")+'</div></section>':'')+
+  '';
+}
+function fsAnalysis(c,p,fs,d,f,hl,GROUP){
+  return ''+
     '<section class="card"><div class="card-h"><div><h3>التحليل المالي</h3><p>النسب مع المقارنة، ومؤشرات Altman وBeneish وDuPont.</p></div></div><div class="card-b"><div class="tbr-an">'+
       (p.z?'<div><small>Altman Z″</small><b>'+p.z.z+'</b><span class="sksev '+(p.z.zone==="safe"?"ok":p.z.zone==="grey"?"warn":"bad")+'">'+esc(p.z.zoneAr)+'</span></div>':'')+
       (p.bm?'<div><small>Beneish M</small><b>'+p.bm.m+'</b><span class="sksev '+(p.bm.flagged?"bad":"ok")+'">'+(p.bm.flagged?'فوق الحد −1.78':'ضمن الحدود')+'</span></div>':'')+
@@ -296,12 +312,20 @@ function fsTab(c){
       '<table class="sk-table" data-sk-plain><thead><tr><th>المؤشر</th><th>الحالي</th>'+(p.hp?'<th>السابق</th>':'')+'<th>الصيغة</th></tr></thead><tbody>'+
       Object.entries(GROUP).map(([g,l])=>'<tr class="h"><td colspan="'+(p.hp?4:3)+'">'+l+'</td></tr>'+p.rs.filter(r=>r.group===g).map(r=>'<tr><td>'+esc(r.ar)+'</td><td class="num">'+p.fmt(r.current,r.unit)+'</td>'+(p.hp?'<td class="num">'+p.fmt(r.prior,r.unit)+'</td>':'')+'<td class="muted">'+esc(r.formula)+'</td></tr>').join("")).join("")+'</tbody></table></div></section>'+
     '<section class="card"><div class="card-h"><div><h3>تقرير الإدارة (MD&A)</h3><p>سرد مولّد من الأرقام فقط.</p></div></div><div class="card-b tbr-md">'+p.md.map(s=>'<h4>'+esc(s.title)+'</h4>'+s.body.map(x=>'<p>'+esc(x)+'</p>').join("")).join("")+'</div></section>'+
-    '<section class="card"><div class="card-h"><div><h3>الأمور الرئيسية للمراجعة (ISA 701)</h3></div></div><div class="card-b">'+(kamsOf(c).map(k=>'<div class="tbr-kam"><b>'+esc(k.title)+'</b><p><small>لماذا:</small> '+esc(k.why)+'</p><p><small>كيف عولج:</small> '+esc(k.how)+'</p></div>').join("")||'<p class="empty">لا مخاطر جوهرية مصنفة.</p>')+'</div></section>'+
-    (f&&f.letter.length?'<section class="card"><div class="card-h"><div><h3>خطاب الإدارة</h3></div></div><div class="card-b">'+f.letter.map(x=>'<div class="tbr-kam"><b>'+esc(x.title)+' <span class="sksev '+(x.priority==="عالية"?"bad":x.priority==="متوسطة"?"warn":"info")+'">'+esc(x.priority)+'</span></b><p>'+esc(x.observation)+'</p><p><small>التوصية:</small> '+esc(x.recommendation)+'</p></div>').join("")+'</div></section>':'')+
-    benchmarkCard(c)+
+  '';
+}
+function fsStatements(c,p,fs,d,f,hl,GROUP){
+  return ''+
+    '<h3 class="tbr-sec">السنة في لمحة</h3><div class="skk4 tbr-hl">'+hl+'</div>'+
+    '<div class="tbr-2"><section class="card"><div class="card-h"><div><h3>قائمة الربح أو الخسارة</h3><p>عرض IFRS 18: التشغيل ← الاستثمار ← التمويل ← الزكاة</p></div></div><div class="card-b">'+stmt(fs.pl,p.hp)+'</div></section>'+
+      '<section class="card"><div class="card-h"><div><h3>قائمة المركز المالي</h3><p>'+(fs.checks.balanced?'متوازنة':'فرق '+sar(fs.checks.difference))+'</p></div></div><div class="card-b">'+stmt(fs.sfp,p.hp)+'</div></section></div>'+
+    '<section class="card"><div class="card-h"><div><h3>قائمة التغيرات في حقوق الملكية</h3></div></div><div class="card-b tbr-tw"><table class="sk-table tbr-fs" data-sk-plain><thead><tr><th></th>'+fs.soce.columns.map(x=>'<th>'+esc(x)+'</th>').join("")+'</tr></thead><tbody>'+fs.soce.rows.map((r,i)=>'<tr class="'+(i===fs.soce.rows.length-1?'total':'')+'"><td>'+esc(r.ar)+'</td>'+r.values.map(v=>'<td class="num">'+m0(v)+'</td>').join("")+'</tr>').join("")+'</tbody></table></div></section>'+
+    '<section class="card"><div class="card-h"><div><h3>قائمة التدفقات النقدية (الطريقة غير المباشرة)</h3><p>'+(fs.cf?(fs.checks.cashTies?'تطابق حركة النقد':'فرق '+sar(fs.checks.cfDifference)):'تتطلب أرصدة السنة السابقة')+'</p></div></div><div class="card-b">'+(fs.cf?stmt(fs.cf,false):'<p class="empty">أضف عمود السنة السابقة في الميزان لاشتقاق القائمة.</p>')+'</div></section>'+
     '<section class="card"><div class="card-h"><div><h3>الإيضاحات</h3><p>إيضاح لكل بند بالحسابات التي كوّنته.</p></div></div><div class="card-b tbr-notes">'+fs.notes.map(n=>{const l=n.lineKey&&fs.lines.find(x=>x.key===n.lineKey);
       return '<details><summary><span class="mono">'+n.no+'</span> '+esc(n.ar)+(l?' — '+sar(l.current):'')+'</summary>'+(l?'<table class="sk-table" data-sk-plain><tbody>'+l.accounts.map(a=>'<tr><td class="mono">'+esc(a.code)+'</td><td>'+esc(a.name)+'</td><td class="num">'+m0(a.current)+'</td>'+(fs.hasPrior?'<td class="num">'+(a.prior===null?'':m0(a.prior))+'</td>':'')+'</tr>').join("")+'</tbody></table><p class="hint">المعايير: '+esc(l.standards.join("، "))+'</p>':'<p class="hint">'+esc(policyNote(n.no,c))+'</p>')+'</details>'}).join("")+'</div></section>';
+
 }
+
 function policyNote(no,c){
   const ctx=c.d.ctx;
   return no===1?(ctx.company||"المنشأة")+(ctx.activity?' — '+ctx.activity:'')+'. '+(ctx.period||''):
@@ -333,6 +357,15 @@ function printReport(c){
   SK.brandPrint(w,"تقرير مراجعة ميزان المراجعة");
   const s=w.document.createElement("style");s.textContent="table{width:100%;border-collapse:collapse;margin:6px 0 14px;font-size:11.5px}th,td{border:1px solid #dfe6ef;padding:4px 7px;text-align:right}th{background:#f3f6fa}td:nth-child(n+3){direction:ltr;text-align:left}h2{margin-top:18px}";w.document.head.appendChild(s);
   SK.audit&&SK.audit.log("report",{act:"tbreview-print"});
+  setTimeout(()=>{try{w.focus();w.print()}catch{}},700);
+}
+function printDoc(c,kind){
+  const w=window.open("","_blank");if(!w){toast("اسمح بالنوافذ المنبثقة للطباعة","warn");return}
+  const title={annual:"التقرير السنوي",release:"بيان النتائج",auditor:"تقرير المراجع المستقل"}[kind]+" — "+(c.d.ctx.company||"");
+  w.document.open();w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>'+esc(title)+'</title></head><body>'+SKosifReportDocs[kind](docX(c))+'</body></html>');w.document.close();
+  SK.brandPrint(w,title);
+  const st=w.document.createElement("style");st.textContent=SKosifReportDocs.CSS+"@page{size:A4;margin:16mm 14mm}body{background:#fff}";w.document.head.appendChild(st);
+  SK.audit&&SK.audit.log("report",{act:"tbreview-"+kind});
   setTimeout(()=>{try{w.focus();w.print()}catch{}},700);
 }
 const csvName=(c,x)=>(c.d.ctx.company||"مراجعة")+"-"+x+"-"+new Date().toISOString().slice(0,10)+".csv";
@@ -402,6 +435,7 @@ function bind(node){
         findings:acc?c.all.findings.filter(f=>f.code===acc.code):[],procedures:la?la.procedures:[],framework:c?c.fw:"IFRS"});return}
     const t=e.target.closest("[data-tab]");if(t){tab=t.dataset.tab;paint();return}
     const fl=e.target.closest("[data-flt]");if(fl){filter=fl.dataset.flt;paint();return}
+    const dc=e.target.closest("[data-doc]");if(dc){doc=dc.dataset.doc;paint();return}
     const fv=e.target.closest("[data-fsv]");if(fv){fsAfter=fv.dataset.fsv==="after";paint();return}
     const af=e.target.closest("[data-acc-f]");if(af){const c=compute(),a=c.all.accounts.find(x=>x.code===af.dataset.accF);const s=(c.stdMap[a.code]||[])[0];if(s)SKosifCodex.open(s,{account:{code:a.code,name:a.name,lineKey:a.lineKey,lineAr:a.lineAr,basis:a.basis,assertions:a.assertions},note:c.notes[a.code]||"",findings:c.all.findings.filter(f=>f.code===a.code),framework:c.fw});return}
     const ad=e.target.closest("[data-adj]");
@@ -423,8 +457,8 @@ function bind(node){
     if(a==="cancel"){abort&&abort.abort();return}
     if(a==="unavail"){const d=st(),s=session(d),id=b.dataset.id;d.session=s.unavailable.includes(id)?{...s,unavailable:s.unavailable.filter(x=>x!==id)}:AI().markUnavailable(s,id);put(d);paint();return}
     const c=compute();if(!c)return;
-    if(a==="print"){printReport(c);return}
-    if(a==="lib"){window.SKosifCore&&SKosifCore.go("finlibrary");return}
+    if(a==="print"){if(doc==="annual"||doc==="release"||doc==="auditor")printDoc(c,doc);else printReport(c);return}
+    if(a==="sig-save"){put(readCtx(st()));toast("حُفظت بيانات التوقيع","ok");paint();return}
     if(a==="ecl-save"){const d=st(),b=RV().DEFAULT_ECL_BUCKETS.map((x,i)=>{const ex=root.querySelector('[data-ecl-x="'+i+'"]'),rt=root.querySelector('[data-ecl-r="'+i+'"]');
         return {...x,exposure:Math.round((Number(ex&&ex.value)||0)*100),rateBps:Math.round((Number(rt&&rt.value)||0)*100)}});
       if(!b.some(x=>x.exposure>0)){toast("أدخل أرصدة كشف الأعمار أولاً","warn");return}

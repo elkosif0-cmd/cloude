@@ -108,8 +108,13 @@ balanced proposed adjusting entries, standards-compliance discussion, and IFRS 1
 analysis and a derived ISA 705 opinion. «المدونة المحاسبية والمعايير» (`ui/features/codex.js`) keeps
 the standards with their official sources and checks updates from the issuing bodies (applied only
 after approval). Companies in Egypt are reviewed under the Egyptian Accounting Standards (income tax,
-14% VAT, EGP). «مركز التقارير المالية العالمية» (`ui/features/finlibrary.js`) carries the index of the research
-bundle on Drive. Where every repository and file went: `docs/FUSION_ALL_REPOS_ar.md`.
+14% VAT, EGP). The «القوائم والتقارير» tab issues the documents in the form of Apple's and Amazon's
+annual reports: an annual report on the 10-K form (Items 1, 1A, 3, 7, 7A, 8, 9A; MD&A with net sales by
+category, products/services gross margin, operating expenses as % of net sales, zakat/tax provision,
+liquidity, management-defined measures with reconciliations, critical estimates; notes for revenue,
+PPE, balance-sheet details and debt), a results release, and the independent auditor's report with key
+audit matters in the «وصف الأمر / كيف عالجنا الأمر في مراجعتنا» form (`reports/annual-report-engine.ts`,
+`ui/features/report-docs.js`). Where every repository and file went: `docs/FUSION_ALL_REPOS_ar.md`.
 
 ## Capabilities v2
 

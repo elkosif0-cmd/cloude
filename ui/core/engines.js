@@ -3882,7 +3882,7 @@ window.SKEngines = (function() {
 		}
 	};
 	var GENERAL_DOCS = [["ميزان المراجعة النهائي موقعاً من الإدارة", "أساس القوائم وإقرار الإدارة بمسؤوليتها"], ["خطاب إقرارات الإدارة (ISA 580)", "إقرارات مكتوبة في تاريخ التقرير"]];
-	var ACCUM = /مجمع|متراكم|accumulated|مخصص اهلاك|مخصص استهلاك/;
+	var ACCUM$1 = /مجمع|متراكم|accumulated|مخصص اهلاك|مخصص استهلاك/;
 	var SUSPENSE = /معلق|تحت التسويه|وسيط|حساب مؤقت|suspense|clearing/;
 	var RELATED = /طرف ذو علاقه|اطراف ذات علاقه|شركه شقيقه|جاري المدير|جاري الشريك|جاري الشركاء|related part/;
 	var SALARIES = /رواتب|اجور|salar|wages/;
@@ -4006,7 +4006,7 @@ window.SKEngines = (function() {
 				action: "طلب تحليل الحساب وتصفيته بقيود تسوية."
 			}));
 			if (a.natural < 0 && big) {
-				if (a.lineKey === "ppe" && ACCUM.test(n)) continue;
+				if (a.lineKey === "ppe" && ACCUM$1.test(n)) continue;
 				if (a.lineKey === "cash") {
 					tag(add({
 						severity: "high",
@@ -4149,7 +4149,7 @@ window.SKEngines = (function() {
 					action: "تحليل الحساب وتبويبه."
 				}));
 			}
-			if (a.lineKey === "ppe" && ACCUM.test(n) && a.balance > 0 && big) tag(add({
+			if (a.lineKey === "ppe" && ACCUM$1.test(n) && a.balance > 0 && big) tag(add({
 				severity: "high",
 				kind: "measurement",
 				code: a.code,
@@ -7585,6 +7585,414 @@ window.SKEngines = (function() {
 		return issues;
 	}
 	//#endregion
+	//#region app/src/engine/fusion/reports/annual-report-engine.ts
+	var annual_report_engine_exports = /* @__PURE__ */ __exportAll({
+		auditorsReport: () => auditorsReport,
+		balanceSheetDetails: () => balanceSheetDetails,
+		debtNote: () => debtNote,
+		lam: () => lam,
+		liquidity: () => liquidity,
+		operatingExpenses: () => operatingExpenses,
+		performanceMeasures: () => performanceMeasures,
+		ppeNote: () => ppeNote,
+		productsServices: () => productsServices,
+		resultsRelease: () => resultsRelease,
+		resultsTable: () => resultsTable,
+		revenueByCategory: () => revenueByCategory,
+		taxProvision: () => taxProvision
+	});
+	var pc = (a, b) => b ? Math.round((a - b) / Math.abs(b) * 1e3) / 10 : null;
+	var share = (a, b) => b ? Math.round(a / b * 1e3) / 10 : null;
+	var line = (fs, k) => fs.lines.find((l) => l.key === k);
+	var cur = (fs, k) => line(fs, k)?.current ?? 0;
+	var pri = (fs, k) => fs.hasPrior ? line(fs, k)?.prior ?? 0 : null;
+	/** Net sales by category — each revenue account is a category, the smallest folded into «أخرى» beyond `max`. */
+	function revenueByCategory(fs, max = 8) {
+		const accs = (line(fs, "revenue")?.accounts ?? []).map((a) => ({
+			ar: a.name,
+			current: a.current,
+			prior: a.prior
+		})).sort((a, b) => b.current - a.current);
+		const head = accs.slice(0, max - (accs.length > max ? 1 : 0)), rest = accs.slice(head.length);
+		if (rest.length) head.push({
+			ar: "أخرى",
+			current: rest.reduce((s, a) => s + a.current, 0),
+			prior: fs.hasPrior ? rest.reduce((s, a) => s + (a.prior ?? 0), 0) : null
+		});
+		const total = cur(fs, "revenue"), totalPrior = pri(fs, "revenue");
+		const rows = head.map((a) => ({
+			...a,
+			change: pc(a.current, a.prior),
+			pctOfRevenue: share(a.current, total)
+		}));
+		rows.push({
+			ar: "إجمالي الإيرادات",
+			current: total,
+			prior: totalPrior,
+			change: pc(total, totalPrior),
+			pctOfRevenue: total ? 100 : null,
+			level: "total"
+		});
+		return rows;
+	}
+	var SERVICE = /خدم|اتعاب|استشار|صيان|اشتراك|عمول|تاجير|ايجار|تركيب|تدريب|نقل|service|fee|consult|subscription|rent|commission|maintenance/;
+	/** Products vs services (Apple's gross-margin table) — only when the accounts reveal both. */
+	function productsServices(fs) {
+		const rev = line(fs, "revenue")?.accounts ?? [], cogs = line(fs, "cogs")?.accounts ?? [];
+		const isSvc = (n) => SERVICE.test(norm(n));
+		const sum = (xs, p) => xs.reduce((s, a) => s + (p ? a.prior ?? 0 : a.current), 0);
+		const rs = rev.filter((a) => isSvc(a.name)), rp = rev.filter((a) => !isSvc(a.name)), cs = cogs.filter((a) => isSvc(a.name)), cp = cogs.filter((a) => !isSvc(a.name));
+		if (!rs.length || !rp.length) return null;
+		const seg = (r, c, ar) => {
+			const revenue = sum(r, false), cost = sum(c, false), revenueP = fs.hasPrior ? sum(r, true) : null, costP = fs.hasPrior ? sum(c, true) : null;
+			const margin = revenue - cost, marginP = revenueP === null ? null : revenueP - (costP ?? 0);
+			return {
+				ar,
+				revenue,
+				cost,
+				margin,
+				marginPct: share(margin, revenue),
+				revenuePrior: revenueP,
+				marginPrior: marginP,
+				marginPctPrior: marginP === null ? null : share(marginP, revenueP ?? 0)
+			};
+		};
+		return {
+			products: seg(rp, cp, "المنتجات"),
+			services: seg(rs, cs, "الخدمات"),
+			costSplit: cs.length > 0,
+			total: {
+				revenue: cur(fs, "revenue"),
+				margin: fs.keys.gross.current,
+				marginPct: share(fs.keys.gross.current, fs.keys.revenue.current),
+				marginPctPrior: fs.hasPrior ? share(fs.keys.gross.prior ?? 0, fs.keys.revenue.prior ?? 0) : null
+			}
+		};
+	}
+	/** Results of operations — Apple's statement lines with change and % of net sales. */
+	function resultsTable(fs) {
+		const k = fs.keys, rev = k.revenue.current, revP = k.revenue.prior;
+		const r = (ar, c, p, level = "line") => ({
+			ar,
+			current: c,
+			prior: p,
+			change: pc(c, p),
+			pctOfRevenue: share(c, rev),
+			pctOfRevenuePrior: p === null || !revP ? null : share(p, revP),
+			level
+		});
+		const P = (key) => fs.hasPrior ? k[key]?.prior ?? 0 : null;
+		return [
+			r("الإيرادات", rev, P("revenue")),
+			r("تكلفة الإيرادات", k.cogs.current, P("cogs")),
+			r("مجمل الربح", k.gross.current, P("gross"), "total"),
+			r("المصروفات التشغيلية", k.opex.current, P("opex")),
+			r("الربح التشغيلي", k.operating.current, P("operating"), "total"),
+			r("إيرادات الاستثمار وتكاليف التمويل (صافي)", k.pbz.current - k.operating.current, fs.hasPrior ? (k.pbz.prior ?? 0) - (k.operating.prior ?? 0) : null),
+			r("الربح قبل الزكاة/الضريبة", k.pbz.current, P("pbz"), "total"),
+			r("الزكاة/ضريبة الدخل", k.zakat.current, P("zakat")),
+			r("صافي الربح", k.profit.current, P("profit"), "total")
+		];
+	}
+	/** Operating expenses — amount, change, % of total net sales (Apple Item 7). */
+	function operatingExpenses(fs) {
+		const rev = fs.keys.revenue.current, revP = fs.keys.revenue.prior;
+		const rows = [
+			"selling",
+			"admin",
+			"depreciation",
+			"impairment"
+		].map((k) => ({
+			k,
+			l: line(fs, k)
+		})).filter((x) => x.l && (x.l.current || x.l.prior)).map(({ l }) => ({
+			ar: l.ar,
+			current: l.current,
+			prior: l.prior,
+			change: pc(l.current, l.prior),
+			pctOfRevenue: share(l.current, rev),
+			pctOfRevenuePrior: l.prior === null || !revP ? null : share(l.prior, revP)
+		}));
+		const tc = rows.reduce((s, r) => s + r.current, 0), tp = fs.hasPrior ? rows.reduce((s, r) => s + (r.prior ?? 0), 0) : null;
+		return [...rows, {
+			ar: "إجمالي المصروفات التشغيلية",
+			current: tc,
+			prior: tp,
+			change: pc(tc, tp),
+			pctOfRevenue: share(tc, rev),
+			pctOfRevenuePrior: tp === null || !revP ? null : share(tp, revP),
+			level: "total"
+		}];
+	}
+	/** Provision for zakat / income tax and the effective rate (Apple «Provision for Income Taxes»). */
+	function taxProvision(fs, jurisdiction = "SA") {
+		const pbz = fs.keys.pbz.current, exp = fs.keys.zakat.current, eff = share(exp, pbz);
+		const statutory = jurisdiction === "EG" ? 22.5 : null;
+		const atStatutory = statutory === null ? null : Math.round(pbz * statutory / 1e3) * 10;
+		return {
+			expense: exp,
+			pbz,
+			effectiveRate: eff,
+			effectiveRatePrior: fs.hasPrior ? share(fs.keys.zakat.prior ?? 0, fs.keys.pbz.prior ?? 0) : null,
+			statutory,
+			reconciliation: atStatutory === null ? [] : [
+				{
+					ar: "الضريبة بالسعر القانوني (22.5%)",
+					amount: atStatutory
+				},
+				{
+					ar: "أثر البنود غير الخاضعة وغير القابلة للخصم والفروق الأخرى",
+					amount: exp - atStatutory
+				},
+				{
+					ar: "مصروف ضريبة الدخل",
+					amount: exp
+				}
+			],
+			basis: jurisdiction === "EG" ? "ضريبة الدخل على الربح الضريبي (قانون 91 لسنة 2005)" : "الزكاة على الوعاء الزكوي بسعر 2.5% (لائحة 1445هـ) — ليست نسبة من الربح، فالمعدل الظاهر يعكس حجم الوعاء لا سعر الضريبة"
+		};
+	}
+	function performanceMeasures(fs) {
+		const out = [], cf = fs.cf, k = fs.keys;
+		const cfRow = (key) => cf?.find((r) => r.key === key)?.current ?? 0;
+		if (cf) {
+			const cfo = cfRow("cf-op"), capex = cfRow("cf-inv-ppe") + cfRow("cf-inv-intangibles"), fcf = cfo + capex;
+			out.push({
+				key: "fcf",
+				ar: "التدفق النقدي الحر",
+				rows: [{
+					ar: "صافي النقد من الأنشطة التشغيلية",
+					amount: cfo
+				}, {
+					ar: "شراء ممتلكات ومعدات وأصول غير ملموسة",
+					amount: capex
+				}],
+				value: fcf,
+				prior: null,
+				note: "مقياس تحدده الإدارة ولا يعرّفه IFRS؛ يقيس النقد المتاح بعد الاستثمار في الأصول. الأقرب في المعايير: صافي النقد من الأنشطة التشغيلية."
+			});
+			const leases = cfRow("cf-fin-leaseNcl");
+			if (leases < 0) out.push({
+				key: "fcfLeases",
+				ar: "التدفق النقدي الحر بعد سداد التزامات الإيجار",
+				rows: [{
+					ar: "التدفق النقدي الحر",
+					amount: fcf
+				}, {
+					ar: "صافي سداد التزامات عقود الإيجار",
+					amount: leases
+				}],
+				value: fcf + leases,
+				prior: null,
+				note: "على نهج أمازون: يقرّب النقد المتاح بعد مدفوعات الإيجار التي يعرضها IFRS 16 ضمن الأنشطة التمويلية."
+			});
+		}
+		const da = line(fs, "depreciation");
+		const e = (op, d) => op + d;
+		out.push({
+			key: "ebitda",
+			ar: "الربح قبل الفوائد والزكاة والاستهلاك (EBITDA)",
+			rows: [{
+				ar: "الربح التشغيلي",
+				amount: k.operating.current
+			}, {
+				ar: "الاستهلاك والإطفاء",
+				amount: da?.current ?? 0
+			}],
+			value: e(k.operating.current, da?.current ?? 0),
+			prior: fs.hasPrior ? e(k.operating.prior ?? 0, da?.prior ?? 0) : null,
+			note: "مقياس أداء تحدده الإدارة؛ يُطابق مع «الربح التشغيلي» — المجموع الإلزامي في IFRS 18 — ويُفصح عن سبب استخدامه."
+		});
+		return out;
+	}
+	var ACCUM = /مجمع|متراكم|accumulated/;
+	function ppeNote(fs) {
+		const accs = line(fs, "ppe")?.accounts ?? [];
+		if (!accs.length) return null;
+		const acc = accs.filter((a) => ACCUM.test(norm(a.name))), gross = accs.filter((a) => !ACCUM.test(norm(a.name)));
+		const s = (xs, p) => xs.reduce((t, a) => t + (p ? a.prior ?? 0 : a.current), 0);
+		return {
+			rows: gross.map((a) => ({
+				ar: a.name,
+				current: a.current,
+				prior: a.prior
+			})),
+			gross: s(gross, false),
+			grossPrior: fs.hasPrior ? s(gross, true) : null,
+			accumulated: s(acc, false),
+			accumulatedPrior: fs.hasPrior ? s(acc, true) : null,
+			net: s(accs, false),
+			netPrior: fs.hasPrior ? s(accs, true) : null,
+			depreciation: cur(fs, "depreciation")
+		};
+	}
+	/** «Other balance sheet details»: the composition of every position line made of two or more accounts. */
+	function balanceSheetDetails(fs) {
+		return fs.lines.filter((l) => [
+			"ca",
+			"cl",
+			"ncl"
+		].includes(l.section) && l.accounts.length >= 2 && l.key !== "cash").map((l) => ({
+			key: l.key,
+			ar: l.ar,
+			note: l.note,
+			rows: l.accounts.map((a) => ({
+				ar: a.name,
+				current: a.current,
+				prior: a.prior
+			})),
+			total: l.current,
+			totalPrior: l.prior
+		}));
+	}
+	function debtNote(fs) {
+		const items = [
+			"loansCl",
+			"loansNcl",
+			"leaseNcl"
+		].map((k) => ({
+			k,
+			l: line(fs, k)
+		})).filter((x) => x.l && (x.l.current || x.l.prior)).map(({ k, l }) => ({
+			ar: l.ar,
+			current: l.current,
+			prior: l.prior,
+			maturity: k === "loansCl" ? "خلال سنة" : "بعد سنة"
+		}));
+		const total = items.reduce((s, x) => s + x.current, 0);
+		return items.length ? {
+			items,
+			total,
+			netDebt: total - cur(fs, "cash"),
+			financeCost: fs.keys.finance.current
+		} : null;
+	}
+	function liquidity(fs) {
+		const k = fs.keys, cash = cur(fs, "cash"), debt = cur(fs, "loansCl") + cur(fs, "loansNcl") + cur(fs, "leaseNcl");
+		const wc = k.ca.current - k.cl.current, fcf = performanceMeasures(fs).find((m) => m.key === "fcf");
+		return {
+			cash,
+			cashPrior: pri(fs, "cash"),
+			debt,
+			netCash: cash - debt,
+			workingCapital: wc,
+			currentRatio: k.cl.current ? Math.round(k.ca.current / k.cl.current * 100) / 100 : null,
+			cfo: k.cfo?.current ?? null,
+			fcf: fcf ? fcf.value : null
+		};
+	}
+	function resultsRelease(fs, company, period, currency = "ر.س") {
+		const k = fs.keys, m = (v) => formatMinor(v, { decimals: 0 }) + " " + currency;
+		const grew = (key, ar, fem = false) => {
+			const c = k[key]?.current ?? 0, p = fs.hasPrior ? k[key]?.prior ?? null : null, ch = pc(c, p);
+			if (p === null || ch === null) return `بلغ ${ar} ${m(c)}.`;
+			return `${(ch >= 0 ? "ارتفع" : "انخفض") + (fem ? "ت" : "")} ${ar} ${Math.abs(ch)}% إلى ${m(c)}، مقارنة بـ ${m(p)} في السنة السابقة.`;
+		};
+		const measures = performanceMeasures(fs), fcf = measures.find((x) => x.key === "fcf");
+		const bullets = [
+			grew("revenue", "الإيرادات", true),
+			grew("operating", "الربح التشغيلي"),
+			grew("profit", "صافي الربح"),
+			...k.cfo ? [`بلغ صافي النقد من الأنشطة التشغيلية ${m(k.cfo.current)}.`] : [],
+			...fcf ? [`بلغ التدفق النقدي الحر ${m(fcf.value)}.`] : []
+		];
+		return {
+			headline: `${company || "المنشأة"} تعلن نتائج ${period || "السنة"}`,
+			bullets,
+			results: resultsTable(fs),
+			categories: revenueByCategory(fs),
+			measures,
+			supplemental: [
+				{
+					ar: "نمو الإيرادات على أساس سنوي",
+					value: pc(k.revenue.current, fs.hasPrior ? k.revenue.prior : null),
+					unit: "%"
+				},
+				{
+					ar: "هامش مجمل الربح",
+					value: share(k.gross.current, k.revenue.current),
+					unit: "%"
+				},
+				{
+					ar: "هامش الربح التشغيلي",
+					value: share(k.operating.current, k.revenue.current),
+					unit: "%"
+				},
+				{
+					ar: "هامش صافي الربح",
+					value: share(k.profit.current, k.revenue.current),
+					unit: "%"
+				}
+			]
+		};
+	}
+	/** Arabic "لـ" joined to a word: «ل» + «الشركة» → «للشركة», «ل» + «شركة» → «لشركة». */
+	var lam = (w) => w.startsWith("ال") ? "لل" + w.slice(2) : "ل" + w;
+	function auditorsReport(i) {
+		const eg = i.framework === "EAS", co = i.company || "المنشأة", end = i.periodEnd || "[تاريخ نهاية الفترة]";
+		const fw = eg ? "معايير المحاسبة المصرية وفي ضوء القوانين واللوائح المصرية السارية" : i.framework === "SME" ? "المعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم المعتمد في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من الهيئة السعودية للمراجعين والمحاسبين" : "المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من الهيئة السعودية للمراجعين والمحاسبين";
+		const isa = eg ? "معايير المراجعة المصرية" : "المعايير الدولية للمراجعة المعتمدة في المملكة العربية السعودية";
+		const ethics = eg ? "متطلبات السلوك المهني ذات الصلة في جمهورية مصر العربية" : "الميثاق الدولي لسلوك وآداب المهنة للمحاسبين المهنيين المعتمد في المملكة العربية السعودية";
+		const title = {
+			unmodified: "الرأي",
+			qualified: "الرأي المتحفظ",
+			adverse: "الرأي العكسي",
+			disclaimer: "الامتناع عن إبداء الرأي"
+		}[i.opinion];
+		const statements = `القوائم المالية ${lam(co)}، التي تشمل قائمة المركز المالي كما في ${end}، وقوائم الربح أو الخسارة والدخل الشامل الآخر والتغيرات في حقوق الملكية والتدفقات النقدية للسنة المنتهية في ذلك التاريخ، والإيضاحات المرفقة بما فيها ملخص السياسات المحاسبية الجوهرية`;
+		const opinionText = i.opinion === "disclaimer" ? [`كُلفنا بمراجعة ${statements}. نحن لا نبدي رأياً في القوائم المالية المرفقة، وبسبب أهمية الأمور الموضحة في قسم «أساس الامتناع عن إبداء الرأي» لم نتمكن من الحصول على ما يكفي من أدلة المراجعة المناسبة لتوفير أساس لرأي.`] : [`لقد راجعنا ${statements}.`, i.opinion === "unmodified" ? `وفي رأينا، فإن القوائم المالية المرفقة تعرض بعدل، من جميع الجوانب الجوهرية، المركز المالي ${lam(co)} كما في ${end} وأداءها المالي وتدفقاتها النقدية للسنة المنتهية في ذلك التاريخ وفقاً ${lam(fw)}.` : i.opinion === "qualified" ? `وفي رأينا، باستثناء آثار الأمور الموضحة في قسم «أساس الرأي المتحفظ»، فإن القوائم المالية المرفقة تعرض بعدل، من جميع الجوانب الجوهرية، المركز المالي ${lam(co)} كما في ${end} وأداءها المالي وتدفقاتها النقدية وفقاً ${lam(fw)}.` : `وفي رأينا، بسبب أهمية الأمور الموضحة في قسم «أساس الرأي العكسي»، فإن القوائم المالية المرفقة لا تعرض بعدل المركز المالي ${lam(co)} كما في ${end} ولا أداءها المالي وتدفقاتها النقدية وفقاً ${lam(fw)}.`];
+		const basisTitle = {
+			unmodified: "أساس الرأي",
+			qualified: "أساس الرأي المتحفظ",
+			adverse: "أساس الرأي العكسي",
+			disclaimer: "أساس الامتناع عن إبداء الرأي"
+		}[i.opinion];
+		const sections = [
+			{
+				title,
+				paragraphs: opinionText
+			},
+			{
+				title: basisTitle,
+				paragraphs: [...i.opinion === "unmodified" ? [] : i.basis, ...i.opinion === "disclaimer" ? [] : [`لقد قمنا بالمراجعة وفقاً ${lam(isa)}. ومسؤولياتنا بموجب تلك المعايير موضحة في قسم «مسؤوليات المراجع عن مراجعة القوائم المالية». ونحن مستقلون عن المنشأة وفقاً ${lam(ethics)}، وقد وفينا بمسؤولياتنا المسلكية الأخرى. ونعتقد أن أدلة المراجعة التي حصلنا عليها كافية ومناسبة لتوفير أساس لرأينا.`]]
+			},
+			...i.goingConcern ? [{
+				title: "عدم تأكد جوهري يتعلق بالاستمرارية",
+				paragraphs: ["نلفت الانتباه إلى الإيضاح المتعلق بأساس الإعداد في القوائم المالية، الذي يبين أحداثاً وظروفاً تشير إلى وجود عدم تأكد جوهري قد يثير شكاً كبيراً في قدرة المنشأة على البقاء كمنشأة مستمرة. ولم يُعدَّل رأينا فيما يتعلق بهذا الأمر."]
+			}] : [],
+			...i.opinion !== "disclaimer" && i.kams.length ? [{
+				title: "الأمور الرئيسية للمراجعة",
+				paragraphs: ["الأمور الرئيسية للمراجعة هي تلك الأمور التي كانت، بحسب حكمنا المهني، لها الأهمية القصوى عند مراجعتنا للقوائم المالية للفترة الحالية. وقد تناولنا هذه الأمور في سياق مراجعتنا للقوائم المالية ككل وعند تكوين رأينا فيها، ولا نبدي رأياً منفصلاً في هذه الأمور."],
+				kams: i.kams
+			}] : [],
+			{
+				title: "المعلومات الأخرى",
+				paragraphs: ["الإدارة هي المسؤولة عن المعلومات الأخرى التي تشمل المعلومات الواردة في التقرير السنوي، بخلاف القوائم المالية وتقريرنا عنها. ولا يغطي رأينا في القوائم المالية المعلومات الأخرى، ولا نبدي أي شكل من أشكال الاستنتاج التأكيدي بشأنها."]
+			},
+			{
+				title: "مسؤوليات الإدارة والمكلفين بالحوكمة عن القوائم المالية",
+				paragraphs: [`الإدارة هي المسؤولة عن إعداد القوائم المالية وعرضها بعدل وفقاً ${lam(fw)}، وعن الرقابة الداخلية التي تراها ضرورية لتمكينها من إعداد قوائم مالية خالية من تحريف جوهري، سواء بسبب غش أو خطأ. وعند إعداد القوائم المالية فإن الإدارة هي المسؤولة عن تقييم قدرة المنشأة على البقاء كمنشأة مستمرة.`, "والمكلفون بالحوكمة هم المسؤولون عن الإشراف على آلية التقرير المالي في المنشأة."]
+			},
+			{
+				title: "مسؤوليات المراجع عن مراجعة القوائم المالية",
+				paragraphs: ["تتمثل أهدافنا في الحصول على تأكيد معقول عما إذا كانت القوائم المالية ككل خالية من تحريف جوهري، سواء بسبب غش أو خطأ، وإصدار تقرير المراجع الذي يتضمن رأينا. والتأكيد المعقول هو مستوى عالٍ من التأكيد، إلا أنه ليس ضماناً على أن المراجعة التي تُنفذ وفقاً للمعايير ستكشف دائماً عن التحريف الجوهري عند وجوده.", "وكجزء من المراجعة، نمارس الحكم المهني ونحافظ على نزعة الشك المهني: نحدد مخاطر التحريف الجوهري ونقيّمها ونصمم إجراءات تستجيب لها، ونحصل على فهم للرقابة الداخلية ذات الصلة، ونقيّم مدى مناسبة السياسات المحاسبية ومعقولية التقديرات، ونستنتج مدى مناسبة استخدام الإدارة لأساس الاستمرارية، ونقيّم العرض العام للقوائم المالية وهيكلها ومحتواها."]
+			}
+		];
+		return {
+			title: "تقرير المراجع المستقل",
+			addressee: `إلى السادة المساهمين/الشركاء في ${co}`,
+			sections,
+			signature: {
+				firm: i.firm || "[اسم مكتب المراجعة]",
+				partner: i.partner || "[اسم الشريك]",
+				licence: i.licence || "[رقم الترخيص]",
+				city: i.city || (eg ? "القاهرة" : "الرياض"),
+				date: i.date || "[تاريخ التقرير]"
+			},
+			draft: true
+		};
+	}
+	//#endregion
 	//#region app/src/engine/fusion/reports/smart-match-engine.ts
 	var smart_match_engine_exports = /* @__PURE__ */ __exportAll({
 		bestCatalogMatch: () => bestCatalogMatch,
@@ -7763,248 +8171,6 @@ window.SKEngines = (function() {
 	function safeExportName(name) {
 		return name.trim().replace(/[\\/:*?"<>|]+/g, "-").replace(/\s+/g, "-").replace(/-+/g, "-") || "export";
 	}
-	//#endregion
-	//#region app/src/engine/fusion/reports/research-library-engine.ts
-	var research_library_engine_exports = /* @__PURE__ */ __exportAll({
-		AUDIT_QUALITY: () => AUDIT_QUALITY,
-		KIND_AR: () => KIND_AR,
-		REFERENCE_REPORTS: () => REFERENCE_REPORTS,
-		REPORT_ELEMENTS: () => REPORT_ELEMENTS,
-		SOURCES: () => SOURCES,
-		benchmarkReport: () => benchmarkReport
-	});
-	var B = (name, region, kind, url) => ({
-		name,
-		region,
-		kind,
-		url,
-		origin: "bundle"
-	});
-	var K = (name, region, kind, url) => ({
-		name,
-		region,
-		kind,
-		url,
-		origin: "kosif"
-	});
-	var SOURCES = [
-		B("SEC EDGAR", "الولايات المتحدة", "filings", "https://www.sec.gov/edgar/searchedgar/companysearch.html"),
-		B("SEC Financial Statement Data Sets", "الولايات المتحدة", "filings", "https://www.sec.gov/dera/data/financial-statement-data-sets.html"),
-		B("Companies House", "المملكة المتحدة", "filings", "https://find-and-update.company-information.service.gov.uk/"),
-		B("FCA National Storage Mechanism", "المملكة المتحدة", "filings", "https://data.fca.org.uk/#/nsm/nationalstoragemechanism"),
-		B("ESMA ESEF", "الاتحاد الأوروبي", "filings", "https://registers.esma.europa.eu/publication/"),
-		B("SEDAR+", "كندا", "filings", "https://www.sedarplus.ca/"),
-		B("ASIC Financial Reporting", "أستراليا", "filings", "https://asic.gov.au/for-business/financial-reporting/"),
-		B("PSE Edge", "الفلبين", "filings", "https://edge.pse.com.ph/"),
-		B("HKEXnews", "هونغ كونغ", "filings", "https://www.hkexnews.hk/"),
-		B("SGX Company Announcements", "سنغافورة", "filings", "https://www.sgx.com/securities/company-announcements"),
-		B("JSE SENS", "جنوب أفريقيا", "filings", "https://senspdf.jse.co.za/"),
-		B("Saudi Exchange Tadawul", "السعودية", "filings", "https://www.saudiexchange.sa/"),
-		B("ADX", "الإمارات", "filings", "https://www.adx.ae/"),
-		B("DFM", "الإمارات", "filings", "https://www.dfm.ae/"),
-		B("Euronext", "أوروبا", "filings", "https://live.euronext.com/en/products/equities/company-news"),
-		B("Japan EDINET", "اليابان", "filings", "https://disclosure2.edinet-fsa.go.jp/"),
-		B("Korea DART", "كوريا الجنوبية", "filings", "https://englishdart.fss.or.kr/"),
-		B("India MCA", "الهند", "filings", "https://www.mca.gov.in/"),
-		B("India SEBI", "الهند", "filings", "https://www.sebi.gov.in/"),
-		B("Brazil CVM", "البرازيل", "filings", "https://www.gov.br/cvm/pt-br"),
-		B("Deloitte Transparency Reports", "جودة المراجعة", "transparency", "https://www.deloitte.com/global/en/about/story/impact/transparency-reports.html"),
-		B("PwC Transparency Reports", "جودة المراجعة", "transparency", "https://www.pwc.com/gx/en/about/corporate-governance/transparency-report.html"),
-		B("EY Transparency Report", "جودة المراجعة", "transparency", "https://www.ey.com/en_gl/about-us/transparency-report"),
-		B("KPMG Transparency Reports", "جودة المراجعة", "transparency", "https://kpmg.com/xx/en/home/about/governance/transparency-reports.html"),
-		B("IAASB Publications", "المعايير", "standards", "https://www.iaasb.org/publications"),
-		B("IESBA Publications", "الأخلاقيات", "standards", "https://www.ethicsboard.org/publications"),
-		B("PCAOB Inspections", "الرقابة — الولايات المتحدة", "oversight", "https://pcaobus.org/oversight/inspections"),
-		B("FRC Reviews", "الرقابة — المملكة المتحدة", "oversight", "https://www.frc.org.uk/library/annual-reports-and-reviews/"),
-		B("IFIAR Inspection Findings", "الرقابة — عالمي", "oversight", "https://www.ifiar.org/activities/inspection-findings/"),
-		B("PCAOB Firm Reports", "الرقابة — الولايات المتحدة", "oversight", "https://pcaobus.org/oversight/inspections/firm-inspection-reports"),
-		K("هيئة السوق المالية (CMA)", "السعودية", "filings", "https://cma.org.sa"),
-		K("الهيئة السعودية للمراجعين والمحاسبين (SOCPA)", "السعودية", "standards", "https://socpa.org.sa"),
-		K("البورصة المصرية (EGX)", "مصر", "filings", "https://www.egx.com.eg"),
-		K("الهيئة العامة للرقابة المالية (FRA)", "مصر", "standards", "https://fra.gov.eg"),
-		K("IFRS Foundation — Issued standards", "المعايير", "standards", "https://www.ifrs.org/issued-standards/")
-	];
-	var KIND_AR = {
-		filings: "الإفصاح والأسواق",
-		transparency: "تقارير الشفافية",
-		oversight: "الرقابة على جودة المراجعة",
-		standards: "المعايير والأخلاقيات"
-	};
-	var REFERENCE_REPORTS = [
-		{
-			company: "Amazon",
-			year: "2023",
-			framework: "US GAAP (SEC)",
-			origin: "bundle",
-			highlight: "الإيرادات 575 مليار دولار · الدخل التشغيلي 36.9 مليار · التدفق النقدي الحر 35.5 مليار",
-			evidence: "التقرير السنوي 2023 · ص3 (فهرس الحزمة)",
-			learn: ["رسالة الإدارة تبدأ بالمؤشرات الثلاثة: الإيراد والربح التشغيلي والتدفق النقدي الحر", "تعريف التدفق النقدي الحر ومطابقته مع التدفق من التشغيل"]
-		},
-		{
-			company: "Amazon",
-			year: "2024",
-			framework: "US GAAP (SEC)",
-			origin: "bundle",
-			evidence: "فهرس الحزمة · ص1",
-			learn: ["المقارنة عبر السنوات لنفس المؤشرات بنفس التعريف"]
-		},
-		{
-			company: "Apple",
-			year: "2024",
-			framework: "US GAAP (SEC)",
-			origin: "bundle",
-			evidence: "فهرس الحزمة · ص1",
-			learn: ["نموذج 10-K: الأعمال، عوامل المخاطر، تحليل الإدارة، القوائم، الضوابط الداخلية"]
-		},
-		{
-			company: "Apple",
-			year: "2020",
-			framework: "US GAAP (SEC)",
-			origin: "bundle",
-			evidence: "فهرس الحزمة · ص1",
-			learn: ["مقارنة طولية مع 2024 لقياس الاتساق في العرض"]
-		},
-		{
-			company: "المراعي",
-			year: "2025",
-			framework: "IFRS المعتمدة في المملكة",
-			origin: "kosif",
-			evidence: "docs/research/GLOBAL_ANNUAL_REPORTS_ar.md",
-			learn: ["تقرير متكامل (سنوي + استدامة)", "«السنة في لمحة» قبل القوائم"]
-		},
-		{
-			company: "نستله",
-			year: "2025",
-			framework: "IFRS (IASB)",
-			origin: "kosif",
-			evidence: "docs/research/GLOBAL_ANNUAL_REPORTS_ar.md",
-			learn: ["السياسة المحاسبية داخل إيضاح البند نفسه", "إفصاح مسبق عن أثر IFRS 18"]
-		},
-		{
-			company: "أرامكو السعودية",
-			year: "2025",
-			framework: "IFRS المعتمدة في المملكة",
-			origin: "kosif",
-			evidence: "docs/research/GLOBAL_ANNUAL_REPORTS_ar.md",
-			learn: ["مؤشرات: التدفق النقدي الحر، نسبة المديونية، العائد على متوسط رأس المال المستخدم"]
-		}
-	];
-	var REPORT_ELEMENTS = [
-		{
-			key: "highlights",
-			ar: "السنة في لمحة: المؤشرات الرئيسية مع المقارنة",
-			seenIn: "Amazon · المراعي · أرامكو"
-		},
-		{
-			key: "mdna",
-			ar: "تقرير الإدارة وتحليلها (MD&A)",
-			seenIn: "Apple 10-K · Amazon"
-		},
-		{
-			key: "statements",
-			ar: "القوائم الأساسية بعرض IFRS 18",
-			seenIn: "نستله · المراعي"
-		},
-		{
-			key: "cashFlow",
-			ar: "قائمة التدفقات النقدية والتدفق النقدي الحر",
-			seenIn: "Amazon · أرامكو"
-		},
-		{
-			key: "comparatives",
-			ar: "أرقام المقارنة للسنة السابقة",
-			seenIn: "جميع التقارير"
-		},
-		{
-			key: "notes",
-			ar: "إيضاحات لكل بند مع السياسات والتقديرات",
-			seenIn: "نستله"
-		},
-		{
-			key: "ratios",
-			ar: "تحليل النسب والمؤشرات المالية",
-			seenIn: "أرامكو"
-		},
-		{
-			key: "opinion",
-			ar: "تقرير المراجع المستقل ورأيه",
-			seenIn: "جميع التقارير"
-		},
-		{
-			key: "kams",
-			ar: "الأمور الرئيسية للمراجعة (ISA 701)",
-			seenIn: "المراعي (KPMG)"
-		},
-		{
-			key: "managementLetter",
-			ar: "ملاحظات الرقابة الداخلية وخطاب الإدارة",
-			seenIn: "Apple (ICFR)"
-		},
-		{
-			key: "segments",
-			ar: "المعلومات القطاعية (IFRS 8)",
-			seenIn: "Amazon · Apple · نستله"
-		},
-		{
-			key: "sustainability",
-			ar: "الاستدامة والمناخ (IFRS S1/S2)",
-			seenIn: "المراعي (تقرير متكامل)"
-		},
-		{
-			key: "controls",
-			ar: "تقرير عن فعالية الرقابة الداخلية",
-			seenIn: "Apple · Amazon (SEC)"
-		}
-	];
-	function benchmarkReport(flags) {
-		const rows = REPORT_ELEMENTS.map((e) => ({
-			...e,
-			has: flags[e.key] === true
-		}));
-		return {
-			rows,
-			covered: rows.filter((r) => r.has).length,
-			total: rows.length,
-			gaps: rows.filter((r) => !r.has).map((r) => r.ar)
-		};
-	}
-	var AUDIT_QUALITY = [
-		{
-			theme: "التقديرات المحاسبية والقيمة العادلة (ومنها الخسائر الائتمانية المتوقعة)",
-			standard: "ISA 540",
-			safeguard: "حاسبة الخسائر الائتمانية بمصفوفة الأعمار، ومصادر عدم التأكد في جاهزية الإفصاح"
-		},
-		{
-			theme: "الاعتراف بالإيراد والقطع",
-			standard: "ISA 240 / IFRS 15",
-			safeguard: "خطر الغش المفترض في الإيراد، وطلب فواتير القطع حول نهاية السنة"
-		},
-		{
-			theme: "اختبار الضوابط الداخلية والاعتماد عليها",
-			standard: "ISA 330",
-			safeguard: "مرحلة «فهم المنشأة والرقابة» في برنامج المراجعة"
-		},
-		{
-			theme: "كفاية الأدلة ومستوى الشك المهني",
-			standard: "ISA 500",
-			safeguard: "لا يكتمل بند إلا بمستند مقبول من جولات المراجعة، ويتحقق المحرك من بيانات المستند"
-		},
-		{
-			theme: "مراجعة جودة الارتباط والاعتماد",
-			standard: "ISQM 1 / ISA 220",
-			safeguard: "الرأي مشتق آلياً ولا يصدر إلا باعتماد الشريك"
-		},
-		{
-			theme: "الاستمرارية",
-			standard: "ISA 570",
-			safeguard: "مؤشرات حقوق الملكية السالبة وعجز رأس المال العامل في المحرك"
-		},
-		{
-			theme: "تقييم التحريفات غير المصححة",
-			standard: "ISA 450",
-			safeguard: "أثر القيود غير المعتمدة مقابل الأهمية النسبية قبل الرأي"
-		}
-	];
 	//#endregion
 	//#region app/src/engine/fusion/reports/scenario-engine.ts
 	var scenario_engine_exports = /* @__PURE__ */ __exportAll({ runScenario: () => runScenario });
@@ -8889,10 +9055,10 @@ window.SKEngines = (function() {
 		},
 		reports: {
 			analysis: analysis_engine_exports,
+			annualReport: annual_report_engine_exports,
 			excelRecon: excel_recon_engine_exports,
 			export: export_engine_exports,
 			money: money_engine_exports,
-			researchLibrary: research_library_engine_exports,
 			scenario: scenario_engine_exports,
 			smartMatch: smart_match_engine_exports,
 			statements: statements_engine_exports,

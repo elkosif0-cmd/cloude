@@ -112,8 +112,7 @@
     "council",
     "followup",
     "tbreview",
-    "codex",
-    "finlibrary"
+    "codex"
    ],
    "actions": [
     "view",
@@ -204,8 +203,7 @@
     "tasks",
     "risks",
     "notifications",
-    "codex",
-    "finlibrary"
+    "codex"
    ],
    "actions": [
     "view"
@@ -1033,22 +1031,6 @@
    "kw": "معايير مدونة IFRS IAS ISA SOCPA زكاة تحديث مصادر رسمية standards codex",
    "adv": false,
    "en": "Accounting Codex"
-  },
-  {
-   "id": "finlibrary",
-   "label": "مركز التقارير المالية العالمية",
-   "sub": "مصادر الإفصاح الرسمية حول العالم، تقارير الشفافية وفحوص جودة المراجعة، التقارير السنوية المرجعية ومقارنة تقريرك بها",
-   "group": "audit",
-   "tier": "INTELLIGENCE",
-   "module": "ui/features/finlibrary.js + SKEngines.reports.researchLibrary",
-   "data": [
-    "skosif_tbreview_v1 (قراءة)"
-   ],
-   "legacy": "جديد — من فهرس حزمة البحث على Drive كما يخدمها kosif-stable (/research/financial-reports)",
-   "decision": "Rebuild",
-   "kw": "تقارير مالية عالمية مصادر EDGAR تداول شفافية PCAOB IFIAR amazon apple annual reports",
-   "adv": false,
-   "en": "Global Financial Reports"
   },
   {
    "id": "auditdesk",
