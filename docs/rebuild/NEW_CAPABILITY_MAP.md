@@ -38,14 +38,15 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | التدفق النقدي | `cash` | المالية والمحاسبة › التدفق النقدي | CORE | admin, accountant, sales, viewer |
 | الذمم | `receivables` | المالية والمحاسبة › الذمم والتحصيل | CORE | admin, accountant, sales |
 | الهندسة المالية | `finance` | المالية والمحاسبة › الهندسة المالية (advanced) | ADVANCED | admin, accountant |
-| سجل الأسعار | `catalog` | الكتالوج والتسعير › الأصناف والتكاليف › الأصناف والأسعار | CORE | admin, accountant, warehouse, sales, viewer |
-| مركز التكاليف | `costs` | الكتالوج والتسعير › الأصناف والتكاليف › التكاليف والمصروفات (advanced) | ADVANCED | admin |
-| محاكي التسعير | `sim` | الكتالوج والتسعير › محرك التسعير › التسعير السريع | CORE | admin |
-| نواة التسعير | `kernel` | الكتالوج والتسعير › محرك التسعير › نواة التسعير الصارمة (advanced) | ADVANCED | admin, accountant |
-| مذكرة الاعتماد | `memo` | الكتالوج والتسعير › اعتماد الأسعار | MANAGEMENT | admin |
-| مركب البوكسات | `builder` | الكتالوج والتسعير › البوكسات وتحليلها › البوكسات | CORE | admin |
-| تحليل مكونات البوكس | `analyzer` | الكتالوج والتسعير › البوكسات وتحليلها › تحليل البوكس (advanced) | ADVANCED | admin |
-| استوديو المقارنة | `compare` | الكتالوج والتسعير › البوكسات وتحليلها › المقارنة التحليلية (advanced) | INTELLIGENCE | admin |
+| واجهة موحدة بدل تشتت الأصناف والتكاليف والتسعير والبوكسات | `productflow` | الكتالوج والتسعير › المنتج والتكلفة › استوديو المنتج | CORE | admin, accountant, warehouse, sales, viewer |
+| سجل الأسعار | `catalog` | الكتالوج والتسعير › المنتج والتكلفة › الأصناف والأسعار | CORE | admin, accountant, warehouse, sales, viewer |
+| مركز التكاليف | `costs` | الكتالوج والتسعير › المنتج والتكلفة › التكاليف والمصروفات (advanced) | ADVANCED | admin |
+| محاكي التسعير | `sim` | الكتالوج والتسعير › المنتج والتكلفة › التسعير السريع | CORE | admin |
+| نواة التسعير | `kernel` | الكتالوج والتسعير › المنتج والتكلفة › نواة التسعير الصارمة (advanced) | ADVANCED | admin, accountant |
+| مذكرة الاعتماد | `memo` | الكتالوج والتسعير › المنتج والتكلفة › اعتماد الأسعار | MANAGEMENT | admin |
+| مركب البوكسات | `builder` | الكتالوج والتسعير › المنتج والتكلفة › البوكسات | CORE | admin |
+| تحليل مكونات البوكس | `analyzer` | الكتالوج والتسعير › المنتج والتكلفة › تحليل البوكس (advanced) | ADVANCED | admin |
+| استوديو المقارنة | `compare` | الكتالوج والتسعير › المنتج والتكلفة › المقارنة التحليلية (advanced) | INTELLIGENCE | admin |
 | ملصقات الموازين | `labels` | الكتالوج والتسعير › الملصقات والباركود › ملصقات الموازين | UTILITIES | admin, warehouse, sales |
 | ماسح الباركود | `scanner` | الكتالوج والتسعير › الملصقات والباركود › ماسح الباركود | UTILITIES | admin, warehouse, sales |
 | مطابقة المبيعات | `smartmatch` | الكتالوج والتسعير › المطابقة › مطابقة المبيعات (advanced) | UTILITIES | admin, accountant, sales |
@@ -96,10 +97,7 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | المالية والمحاسبة | التدفق النقدي | `cash` التدفق النقدي |
 | المالية والمحاسبة | الذمم والتحصيل | `receivables` الذمم والتحصيل |
 | المالية والمحاسبة | الهندسة المالية | `finance` الهندسة المالية |
-| الكتالوج والتسعير | الأصناف والتكاليف | `catalog` الأصناف والأسعار · `costs` التكاليف والمصروفات |
-| الكتالوج والتسعير | محرك التسعير | `sim` التسعير السريع · `kernel` نواة التسعير الصارمة |
-| الكتالوج والتسعير | اعتماد الأسعار | `memo` اعتماد الأسعار |
-| الكتالوج والتسعير | البوكسات وتحليلها | `builder` البوكسات · `analyzer` تحليل البوكس · `compare` المقارنة التحليلية |
+| الكتالوج والتسعير | المنتج والتكلفة | `productflow` استوديو المنتج · `catalog` الأصناف والأسعار · `costs` التكاليف والمصروفات · `sim` التسعير السريع · `kernel` نواة التسعير الصارمة · `memo` اعتماد الأسعار · `builder` البوكسات · `analyzer` تحليل البوكس · `compare` المقارنة التحليلية |
 | الكتالوج والتسعير | الملصقات والباركود | `labels` ملصقات الموازين · `scanner` ماسح الباركود |
 | الكتالوج والتسعير | المطابقة | `smartmatch` مطابقة المبيعات · `excelrecon` مطابقة الإكسل |
 | التقارير والتحليلات | التقارير التنفيذية | `execreports` التقارير التنفيذية |
@@ -111,15 +109,15 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | النظام والتكاملات | الشركات والفترات | `companies` الشركات والفترات |
 | النظام والتكاملات | الحوكمة والصلاحيات | `governance` الحوكمة والجاهزية · `health` الصحة والتشخيص · `capabilitiesv2` الصلاحيات ومساحات العمل |
 
-64 screens in 33 menu entries.
+65 screens in 30 menu entries.
 
 ## By tier
 
-- **CORE** — العمل اليومي الأساسي (17): `dash`, `notifications`, `commerce`, `zatca`, `customers`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `cash`, `receivables`, `catalog`, `sim`, `builder`, `tbreview`
+- **CORE** — العمل اليومي الأساسي (18): `dash`, `notifications`, `commerce`, `zatca`, `customers`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `cash`, `receivables`, `productflow`, `catalog`, `sim`, `builder`, `tbreview`
 - **MANAGEMENT** — الإدارة والمتابعة (9): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `memo`, `execreports`, `archive`, `codex`
 - **INTELLIGENCE** — التحليل والذكاء (7): `decision`, `jev`, `council`, `salesintel`, `intelligence`, `economics`, `compare`
 - **ADVANCED** — الهندسة المتقدمة (17): `risklab`, `sensitivity`, `carcass`, `yieldlab`, `nrv`, `finance`, `costs`, `kernel`, `analyzer`, `auditdesk`, `auditdocs`, `auditissues`, `auditcouncil`, `auditfin`, `auditreport`, `auditanalytics`, `auditlab`
 - **UTILITIES** — أدوات مساعدة (9): `blending`, `culinary`, `labels`, `scanner`, `smartmatch`, `excelrecon`, `reports`, `exports`, `devices`
 - **ADMIN** — النظام والإدارة (5): `settings`, `companies`, `governance`, `health`, `capabilitiesv2`
 
-Coverage gate: 64 screens in 9 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
+Coverage gate: 65 screens in 9 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.

@@ -2,7 +2,7 @@
 
 Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do not edit by hand.
 
-Total capabilities: **64** (screens). Cross-cutting capabilities are listed after the table.
+Total capabilities: **65** (screens). Cross-cutting capabilities are listed after the table.
 
 | ID | Capability | Module | Current Location | Data Used | Dependencies | Status | Keep/Remove/Merge/Rebuild |
 |---|---|---|---|---|---|---|---|
@@ -38,14 +38,15 @@ Total capabilities: **64** (screens). Cross-cutting capabilities are listed afte
 | `cash` | التدفق النقدي | ui/supply.js + ui/erp-plus.js | المالية والمحاسبة › يومي | `skosif_v31_monthly_opex`, `skosif_erp_finance_v1` | SKosifCore | Working | Keep |
 | `receivables` | الذمم والتحصيل | ui/meatops.js | المالية والمحاسبة › يومي | `skosif_ar_paste` | SKosifCore | Working | Keep |
 | `finance` | الهندسة المالية | core (v18) | المالية والمحاسبة › متقدم | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
-| `catalog` | الأصناف والأسعار | core | الكتالوج والتسعير › الأصناف والتكاليف › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
-| `costs` | التكاليف والمصروفات | core | الكتالوج والتسعير › الأصناف والتكاليف › متقدم | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
-| `sim` | التسعير السريع | core | الكتالوج والتسعير › محرك التسعير › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
-| `kernel` | نواة التسعير الصارمة | ui/kernel.js + ui/pricing-core.js | الكتالوج والتسعير › محرك التسعير › متقدم | — | SKosifCore | Working | Keep |
-| `memo` | اعتماد الأسعار | core | الكتالوج والتسعير › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
-| `builder` | البوكسات | core | الكتالوج والتسعير › البوكسات وتحليلها › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
-| `analyzer` | تحليل البوكس | core | الكتالوج والتسعير › البوكسات وتحليلها › متقدم | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
-| `compare` | المقارنة التحليلية | core | الكتالوج والتسعير › البوكسات وتحليلها › متقدم | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
+| `productflow` | استوديو المنتج | ui/features/product-flow.js | الكتالوج والتسعير › المنتج والتكلفة › يومي | `aghnam-pricing-v3`, `skosif_product_flow_v1` | SKosifCore | Working | Merge |
+| `catalog` | الأصناف والأسعار | core | الكتالوج والتسعير › المنتج والتكلفة › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
+| `costs` | التكاليف والمصروفات | core | الكتالوج والتسعير › المنتج والتكلفة › متقدم | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
+| `sim` | التسعير السريع | core | الكتالوج والتسعير › المنتج والتكلفة › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
+| `kernel` | نواة التسعير الصارمة | ui/kernel.js + ui/pricing-core.js | الكتالوج والتسعير › المنتج والتكلفة › متقدم | — | SKosifCore | Working | Keep |
+| `memo` | اعتماد الأسعار | core | الكتالوج والتسعير › المنتج والتكلفة › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
+| `builder` | البوكسات | core | الكتالوج والتسعير › المنتج والتكلفة › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
+| `analyzer` | تحليل البوكس | core | الكتالوج والتسعير › المنتج والتكلفة › متقدم | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
+| `compare` | المقارنة التحليلية | core | الكتالوج والتسعير › المنتج والتكلفة › متقدم | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
 | `labels` | ملصقات الموازين | ui/enterprise.js | الكتالوج والتسعير › الملصقات والباركود › يومي | — | SKosifCore | Working | Keep |
 | `scanner` | ماسح الباركود | ui/enterprise.js | الكتالوج والتسعير › الملصقات والباركود › يومي | `skosif_v32_cart` | SKosifCore | Working | Keep |
 | `smartmatch` | مطابقة المبيعات | ui/smartmatch.js | الكتالوج والتسعير › المطابقة › متقدم | `skosif_v34_product_aliases` | SKosifCore | Working | Keep |
