@@ -11,10 +11,10 @@
 "use strict";
 const {esc,load,save,toast}=SK;
 const KEY="skosif_codex_updates_v1";
-const X=()=>SKEngines.audit.codex,U=()=>SKEngines.audit.standardsUpdate;
+const X=()=>SKEngines.audit.codex,U=()=>SKEngines.audit.standardsUpdate,G=()=>window.SKosifAccountingGuidance;
 const FAM={IFRS:"معايير التقرير المالي",IAS:"معايير المحاسبة",ISA:"معايير المراجعة",SAUDI:"متطلبات سعودية",EAS:"معايير المحاسبة المصرية",EGYPT:"متطلبات مصرية"};
 const STATUS={effective:["ساري","ok"],upcoming:["سريان قادم","warn"],replaced:["يُستبدل","info"]};
-let root=null,q="",fam="all",busy=false;
+let root=null,q="",fam="all",busy=false,guideTab="framework",guideResult=null;
 const upd=()=>{const d=load(KEY,{})||{};return{checkedAt:d.checkedAt||"",items:Array.isArray(d.items)?d.items:[]}};
 const list=()=>U().applyApproved(X().STANDARDS,upd().items);
 const get=code=>list().find(s=>s.code===code)||null;
@@ -52,6 +52,84 @@ function open(code,ctx={}){
   document.body.appendChild(sheet);sheet.querySelector("[data-stdx-close]").focus();
 }
 
+
+const AG_TABS=[["framework","الإطار"],["recognition","الاعتراف"],["change","السياسة / التقدير / الخطأ"],["presentation","العرض"],["disclosure","الإيضاحات"],["cashflow","التدفقات"]];
+const agSel=(name,label,help,extra="")=>'<label class="cdx-guide-q"><span><b>'+esc(label)+'</b><small>'+esc(help||"")+'</small></span><select data-ag-f="'+name+'" '+extra+'><option value="">— اختر —</option><option value="yes">نعم</option><option value="no">لا</option></select></label>';
+const agNum=(name,label,help,ph="")=>'<label class="cdx-guide-q"><span><b>'+esc(label)+'</b><small>'+esc(help||"")+'</small></span><input data-ag-f="'+name+'" type="number" step="any" placeholder="'+esc(ph)+'"></label>';
+function guideForm(){
+  if(guideTab==="framework")return agSel("listed","هل أدوات المنشأة مدرجة أو في طور الإدراج؟","يشمل الأسهم أو أدوات الدين.")+
+    agSel("fiduciary","هل تحتفظ المنشأة بأصول لقطاع عريض من الغير كنشاط رئيس؟","مثل بنك أو تأمين أو صندوق استثمار.")+
+    agSel("incidental","هل الاحتفاظ بأموال الغير عرضي وليس النشاط الرئيس؟","مثل مقدمات مدارس أو عملاء في نشاط تشغيلي.")+
+    agSel("full","إذا لم تكن خاضعة للمساءلة العامة: هل اختارت Full IFRS؟","الاختيار يحتاج التزاماً متسقاً بالإطار الكامل.");
+  if(guideTab==="recognition")return '<label class="cdx-guide-q"><span><b>نوع البند</b><small>أصل أو التزام — المحرك يختبر التعريف والاعتراف.</small></span><select data-ag-f="kind"><option value="asset">أصل</option><option value="liability">التزام</option></select></label>'+
+    agSel("past","هل نشأ عن حدث سابق؟","شرط أساسي.")+agSel("measure","هل يمكن قياسه بدرجة موثوقة؟","القياس غير الموثوق يستلزم مراجعة.")+
+    agSel("control","هل تسيطر المنشأة على المورد؟","للأصل.")+agSel("benefit","هل المنافع المستقبلية محتملة؟","للأصل.")+
+    agSel("obligation","هل يوجد التزام حالي؟","للالتزام.")+agSel("legal","هل الالتزام قانوني أو ضمني؟","قد ينشأ الالتزام الضمني من ممارسة ثابتة أو تعهد محدد.")+
+    agSel("outflow","هل خروج الموارد محتمل؟","للالتزام.")+agSel("material","هل البند جوهري؟","الجوهري يحتاج توثيق حكمه وأساس قياسه.");
+  if(guideTab==="change")return agSel("priorinfo","هل كانت المعلومات الموثوقة متاحة عند إصدار الفترة السابقة؟","إذا نعم فقد يشير ذلك إلى خطأ فترة سابقة.")+
+    agSel("misuse","هل كان هناك فشل أو سوء استخدام لمعلومات موثوقة؟","خطأ حسابي، تطبيق خاطئ للسياسة، سهو أو تفسير خاطئ.")+
+    agSel("newinfo","هل التغيير بسبب معلومات أو خبرة جديدة؟","يميل إلى تغيير تقدير.")+
+    agSel("technique","هل تغير افتراض أو تقنية قياس؟","مثل عمر أصل أو مخصص أو طريقة تقدير.")+
+    agSel("rule","هل تغير مبدأ الاعتراف/القياس/العرض نفسه؟","يميل إلى تغيير سياسة.")+
+    agSel("required","هل التغيير مطلوب بمعيار جديد؟","راجع الأحكام الانتقالية.")+
+    agSel("transition","هل للمعيار أحكام انتقالية محددة؟","إذا نعم، تتقدم على القاعدة العامة.")+
+    agSel("voluntary","هل تغيير السياسة اختياري؟","يحتاج مبرراً للملاءمة والموثوقية.")+
+    agSel("material","هل الأثر جوهري؟","الأهمية النسبية تؤثر في طريقة التصحيح والإفصاح.");
+  if(guideTab==="presentation")return agSel("comparatives","هل توجد أرقام مقارنة؟","للفترة السابقة للمبالغ، والسرد عند الحاجة.")+
+    agSel("consistent","هل العرض ثابت عن الفترة السابقة؟","إن تغير، يلزم تفسير السبب وإعادة التصنيف.")+
+    agSel("reclass","إذا تغير العرض: هل شُرح سبب وأثر إعادة التصنيف؟","")+
+    agSel("current","هل طُبق متداول / غير متداول بوضوح؟","متى كان ذلك ملائماً لطبيعة المنشأة.")+
+    agSel("materialsep","هل البنود الجوهرية مفصولة؟","لا تخفِ بنداً جوهرياً داخل تجميع واسع.")+
+    agSel("offset","هل توجد مقاصة بلا أساس صريح؟","اختر «نعم» إذا توجد مقاصة غير مدعومة.")+
+    agSel("oci","هل توجد بنود دخل شامل آخر؟","مثل بعض فروق الترجمة أو التحوط أو إعادة التقييم.")+
+    agSel("ocipresent","إذا وجدت OCI: هل عُرضت بشكل صحيح؟","")+
+    agSel("equity","هل تمت تسوية مكونات حقوق الملكية من الافتتاح للإقفال؟","")+
+    agSel("xref","هل كل بند جوهري مرتبط بإيضاح؟","إشارة مرجعية من القائمة إلى الإيضاح.");
+  if(guideTab==="disclosure")return agSel("entity","هل معلومات المنشأة مكتملة؟","الاسم، الشكل القانوني، الدولة، العنوان والنشاط.")+
+    agSel("compliance","هل اعتمد شخص مسؤول بيان الالتزام بالإطار؟","التطبيق لا يعتمد بيان الالتزام تلقائياً.")+
+    agSel("measurement","هل أسس القياس موضحة؟","")+
+    agSel("policies","هل السياسات المحاسبية الجوهرية موضحة؟","")+
+    agSel("support","هل إيضاحات البنود تتبع ترتيب القوائم؟","")+
+    agSel("judgements","هل الأحكام المهنية مفصولة عن التقديرات؟","")+
+    agSel("uncertainty","هل مصادر عدم تأكد التقدير مفصح عنها؟","بما في ذلك طبيعة البند ومبلغه الدفتري والافتراضات الرئيسية.")+
+    agSel("unrecognized","هل روجعت البنود غير المعترف بها والارتباطات؟","مثل الالتزامات المحتملة والضمانات والارتباطات.");
+  return '<label class="cdx-guide-q"><span><b>الإطار</b><small>قواعد السعودية لمعيار المنشآت الصغيرة تُفعل عند SME.</small></span><select data-ag-f="framework"><option value="SME">IFRS for SMEs</option><option value="IFRS">Full IFRS</option></select></label>'+
+    agNum("zakat","الزكاة المدفوعة","إن وجدت في السعودية ضمن SME تظهر منفصلة بالتشغيلية.","0")+
+    agNum("months","مدة استحقاق معادل النقد بالأشهر","عادة 3 أشهر أو أقل مؤشر مهم.","3")+
+    agSel("overdraft","هل السحب على المكشوف واجب عند الطلب وجزء لا يتجزأ من إدارة النقد؟","")+
+    agSel("noncash","هل توجد معاملات غير نقدية؟","لا تدخل في التدفقات نفسها وتحتاج إفصاحاً.")+
+    agSel("financecost","هل طبيعة تكاليف التمويل موثقة؟","مهم للتصنيف والإفصاح.");
+}
+function agVal(name){
+  const el=root&&root.querySelector('[data-ag-f="'+name+'"]');if(!el)return undefined;
+  if(el.type==="number")return el.value===""?undefined:Number(el.value);
+  if(el.value==="yes")return true;if(el.value==="no")return false;return el.value||undefined;
+}
+function runGuide(){
+  let data;
+  if(guideTab==="framework")data=X().frameworkApplicability({listedOrIssuing:agVal("listed"),fiduciaryForBroadGroup:agVal("fiduciary"),incidentalDepositsOnly:agVal("incidental"),electedFullIfrs:agVal("full")});
+  else if(guideTab==="recognition")data=G().recognition({kind:agVal("kind")||"asset",pastEvent:agVal("past"),measurableReliably:agVal("measure"),controlledResource:agVal("control"),probableFutureBenefit:agVal("benefit"),presentObligation:agVal("obligation"),legalOrConstructiveObligation:agVal("legal"),probableOutflow:agVal("outflow"),material:agVal("material")});
+  else if(guideTab==="change")data=G().accountingChange({priorPeriodInformationWasAvailable:agVal("priorinfo"),failureOrMisuseOfReliableInformation:agVal("misuse"),newInformationOrNewExperience:agVal("newinfo"),changedMeasurementTechniqueOrAssumption:agVal("technique"),changedRecognitionMeasurementPresentationRule:agVal("rule"),requiredByNewStandard:agVal("required"),transitionSpecified:agVal("transition"),voluntaryPolicyChange:agVal("voluntary"),material:agVal("material")});
+  else if(guideTab==="presentation")data=G().presentation({hasComparatives:agVal("comparatives"),presentationConsistent:agVal("consistent"),reclassificationExplained:agVal("reclass"),currentNoncurrentApplied:agVal("current"),materialItemsSeparated:agVal("materialsep"),unsupportedOffsetting:agVal("offset"),ociExists:agVal("oci"),ociPresented:agVal("ocipresent"),equityOpeningToClosingReconciled:agVal("equity"),statementLinesCrossReferencedToNotes:agVal("xref")});
+  else if(guideTab==="disclosure")data=G().disclosures({entityInfo:agVal("entity"),complianceStatementHumanApproved:agVal("compliance"),measurementBases:agVal("measurement"),materialPolicies:agVal("policies"),statementSupportNotes:agVal("support"),judgementsSeparatedFromEstimates:agVal("judgements"),estimationUncertaintyDisclosed:agVal("uncertainty"),unrecognizedItemsReviewed:agVal("unrecognized")});
+  else data=G().cashFlow({framework:agVal("framework")||"SME",country:"SA",zakatPaid:agVal("zakat"),cashEquivalentsMaturityMonths:agVal("months"),overdraftRepayableOnDemandAndIntegralToCashManagement:agVal("overdraft"),nonCashTransactionsPresent:agVal("noncash"),financingCostNatureDocumented:agVal("financecost")});
+  guideResult={tab:guideTab,data};paint();
+}
+function guideResultHTML(){
+  if(!guideResult||guideResult.tab!==guideTab)return '<div class="cdx-guide-result"><h4>نتيجة التطبيق</h4><p class="hint">أجب عن الأسئلة ثم اضغط «حلّل». النتيجة قرار مساعد وليست اعتماداً مهنياً نهائياً.</p></div>';
+  const d=guideResult.data;
+  if(guideTab==="framework")return '<div class="cdx-guide-result"><div class="cdx-guide-verdict"><b>'+esc(d.label||d.framework)+'</b><small>'+esc(d.reason||"")+'</small></div><p class="hint">'+(d.mandatory?'الإطار إلزامي وفق الوقائع المدخلة.':'القرار يعتمد على اختيار المنشأة والوقائع؛ وثّق الأساس.')+'</p></div>';
+  let head="";
+  if(d.decision)head=({recognize:"يستوفي مؤشرات الاعتراف", "do-not-recognize":"لا يستوفي الاعتراف حالياً",review:"يحتاج حكماً مهنياً"}[d.decision]||d.decision);
+  if(d.category)head=({policy:"تغيير سياسة محاسبية",estimate:"تغيير تقدير محاسبي","prior-period-error":"خطأ فترة سابقة",review:"يلزم فصل الوقائع"}[d.category]||d.category)+' · '+({retrospective:"أثر رجعي",prospective:"أثر مستقبلي","transition-provisions":"أحكام انتقالية","current-period":"الفترة الحالية",review:"مراجعة"}[d.treatment]||d.treatment);
+  const rows=(d.checks||[]).map(x=>'<div class="cdx-guide-row '+x.status+'"><span class="cdx-guide-dot"></span><span><b>'+esc(x.label)+'</b><small>'+esc(x.detail||"")+'</small></span></div>').join("");
+  const disc=(d.disclosures||d.disclosure||[]).length?'<details><summary>الإفصاحات / التوثيق المطلوب</summary><ul>'+(d.disclosures||d.disclosure).map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul></details>':"";
+  return '<div class="cdx-guide-result">'+(head||d.reason?'<div class="cdx-guide-verdict">'+(head?'<b>'+esc(head)+'</b>':'')+(d.reason?'<small>'+esc(d.reason)+'</small>':'')+'</div>':'')+'<div class="cdx-guide-list">'+rows+'</div>'+disc+(d.order?'<p class="hint">ترتيب مقترح: '+esc(d.order.join(" ← "))+'</p>':'')+'<p class="hint">المراجعة البشرية مطلوبة قبل اعتماد المعالجة أو بيان الالتزام.</p></div>';
+}
+function guidanceCard(){
+  return '<section class="card cdx-guide"><div class="card-h"><div><h3>المساعد التطبيقي للمعايير</h3><p>حوّلنا أفكار الإرشادات التطبيقية إلى قرارات وفحوص عملية داخل التطبيق — بدون نسخ الكتب كأرشيف.</p><div class="sk-seg cdx-guide-tabs">'+AG_TABS.map(([k,l])=>'<button type="button" data-ag-tab="'+k+'" aria-pressed="'+(guideTab===k)+'">'+esc(l)+'</button>').join("")+'</div></div><button type="button" class="btn primary sm" data-ag-run>حلّل</button></div><div class="card-b cdx-guide-grid"><div class="cdx-guide-form">'+guideForm()+'</div>'+guideResultHTML()+'</div></section>';
+}
+
 /* ---------- the library screen ---------- */
 function cardOf(s){
   const st=STATUS[s.status]||["",""];
@@ -77,7 +155,7 @@ function paint(){
   root.innerHTML='<div class="skk4 cdx-k6">'+
       ['IFRS','IAS','ISA','SAUDI','EAS','EGYPT'].map((k,i)=>'<button type="button" class="skk4-t" data-fam="'+k+'"><span class="chip">'+SK.icon(["reports","ledger","check","governance","codex","zatca"][i])+'</span><span class="tx"><span>'+FAM[k]+'</span><b>'+counts.find(c=>c[0]===k)[1]+'</b><small>'+({ISA:"IAASB",SAUDI:"SOCPA · ZATCA · التجارة",EAS:"الهيئة العامة للرقابة المالية",EGYPT:"مصلحة الضرائب · قانون الشركات"}[k]||"IFRS Foundation")+'</small></span></button>').join("")+'</div>'+
     (up.length?'<section class="card cdx-up"><div class="card-b"><b>سريان قادم:</b> '+up.map(s=>'<button type="button" class="std-b '+famCls(s.family)+'" data-std="'+esc(s.code)+'">'+esc(s.code)+'</button> '+esc(s.effective)).join(" · ")+'</div></section>':'')+
-    updatesCard()+
+    guidanceCard()+updatesCard()+
     '<section class="card"><div class="card-h"><div><h3>المدونة المحاسبية</h3><p>'+hits.length+' من '+all.length+' معياراً ومتطلباً — اضغط أي بطاقة لتفاصيلها ومصدرها الرسمي.</p></div></div><div class="card-b">'+
       '<div class="cdx-bar"><input type="search" data-cx-q placeholder="ابحث برقم المعيار أو موضوعه: IFRS 16، المخزون، الزكاة…" value="'+esc(q)+'"><div class="sk-seg">'+[["all","الكل"],...Object.entries(FAM)].map(([k,l])=>'<button type="button" data-fam="'+k+'" aria-pressed="'+(fam===k)+'">'+esc(l)+'</button>').join("")+'</div></div>'+
       '<div class="cdx-grid">'+(hits.map(cardOf).join("")||'<p class="empty">لا نتائج.</p>')+'</div></div></section>';
@@ -96,6 +174,8 @@ async function check(){
 }
 function bind(node){
   node.addEventListener("click",e=>{
+    const gt=e.target.closest("[data-ag-tab]");if(gt){guideTab=gt.dataset.agTab;guideResult=null;paint();return}
+    if(e.target.closest("[data-ag-run]")){runGuide();return}
     const s=e.target.closest("[data-std]");if(s){open(s.dataset.std);return}
     const f=e.target.closest("[data-fam]");if(f){fam=fam===f.dataset.fam&&f.classList.contains("skk4-t")?"all":f.dataset.fam;paint();return}
     const b=e.target.closest("[data-cx]");if(!b)return;
