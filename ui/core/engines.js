@@ -5185,7 +5185,7 @@ window.SKEngines = (function() {
 			"8) اكتب بالعربية الفصحى المهنية الموجزة. لا تضع أي بيانات خارج مخطط JSON."
 		].join("\n");
 	}
-	var sar = (m) => formatMinor(m, { decimals: 0 });
+	var sar$1 = (m) => formatMinor(m, { decimals: 0 });
 	/** The trial balance and the engine's review, compact enough for one prompt. */
 	function describeReview(tb, review) {
 		const rows = review.accounts.map((a) => [
@@ -5193,21 +5193,21 @@ window.SKEngines = (function() {
 			a.name,
 			TYPE_LABELS[a.type],
 			a.lineAr,
-			sar(a.natural),
-			a.prior === null ? "" : sar(a.prior),
+			sar$1(a.natural),
+			a.prior === null ? "" : sar$1(a.prior),
 			a.standards.map((s) => s.code).join("+")
 		].join(" | "));
 		const m = review.materiality, k = review.fs.keys;
 		return [
 			"ميزان المراجعة (رقم | اسم | نوع | بند القوائم | الرصيد بطبيعته | السابق | المعايير المقترحة):",
 			...rows,
-			`التوازن: ${tb.balanced ? "متوازن" : "غير متوازن بفرق " + sar(tb.difference)}.`,
-			`الأهمية النسبية: ${sar(m.overall)} (${m.benchmarkAr} × ${m.rate * 100}%) — التنفيذية ${sar(m.performance)} — حد التفاهة ${sar(m.trivial)}.`,
-			`الإيرادات ${sar(k.revenue.current)} · الربح التشغيلي ${sar(k.operating.current)} · صافي الربح ${sar(k.profit.current)} · الموجودات ${sar(k.assets.current)} · حقوق الملكية ${sar(k.equity.current)}.`,
+			`التوازن: ${tb.balanced ? "متوازن" : "غير متوازن بفرق " + sar$1(tb.difference)}.`,
+			`الأهمية النسبية: ${sar$1(m.overall)} (${m.benchmarkAr} × ${m.rate * 100}%) — التنفيذية ${sar$1(m.performance)} — حد التفاهة ${sar$1(m.trivial)}.`,
+			`الإيرادات ${sar$1(k.revenue.current)} · الربح التشغيلي ${sar$1(k.operating.current)} · صافي الربح ${sar$1(k.profit.current)} · الموجودات ${sar$1(k.assets.current)} · حقوق الملكية ${sar$1(k.equity.current)}.`,
 			"ملاحظات المحرك الآلي (أكدها أو فندها):",
 			...review.findings.map((f) => `${f.id} [${f.severity}] ${f.title} — ${f.basis} — ${f.standard}`),
 			"قيود المحرك المقترحة:",
-			...review.adjustments.map((a) => `${a.id} ${a.title}: ` + a.lines.map((l) => `${l.code} ${l.name} م${sar(l.debit)} د${sar(l.credit)}`).join("؛ "))
+			...review.adjustments.map((a) => `${a.id} ${a.title}: ` + a.lines.map((l) => `${l.code} ${l.name} م${sar$1(l.debit)} د${sar$1(l.credit)}`).join("؛ "))
 		].join("\n");
 	}
 	/** Outstanding requests: asked in any round, not yet accepted, not marked unavailable. */
@@ -5304,7 +5304,7 @@ window.SKEngines = (function() {
 			round
 		};
 		const v = validateAdjustment(a, tb);
-		const problems = [...v.problems, ...v.balanced ? [] : [`القيد غير متوازن: مدين ${sar(v.debit)} ودائن ${sar(v.credit)}`]];
+		const problems = [...v.problems, ...v.balanced ? [] : [`القيد غير متوازن: مدين ${sar$1(v.debit)} ودائن ${sar$1(v.credit)}`]];
 		return {
 			...a,
 			valid: v.valid,
@@ -5350,7 +5350,7 @@ window.SKEngines = (function() {
 				standard: normalizeCode$1(std) ?? (std || "IAS 1"),
 				title: str(f.comment, 160).split(/[.،؛]/)[0] || "ملاحظة",
 				detail: str(f.comment, 2e3),
-				basis: amount ? "المبلغ المتأثر " + sar(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
+				basis: amount ? "المبلغ المتأثر " + sar$1(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
 				action: str(f.recommendation, 1e3),
 				source: "gemini",
 				round: no,
@@ -5558,7 +5558,7 @@ window.SKEngines = (function() {
 		const lineOf = (q) => q.lineKey ?? review.accounts.find((a) => q.accounts.includes(a.code))?.lineKey ?? null;
 		const blockedSig = new Set(unavailHigh.map(lineOf).filter((k) => k && review.risks.some((r) => r.lineKey === k && r.significant)));
 		const basis = [], material = misstatement > mat.overall, pervasive = misstatement > mat.overall * 5, cs = s.ctx.framework === "EAS" ? "ج.م" : "ر.س";
-		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar(misstatement)} ${cs} مقابل أهمية نسبية ${sar(mat.overall)} ${cs} (ISA 450).`);
+		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar$1(misstatement)} ${cs} مقابل أهمية نسبية ${sar$1(mat.overall)} ${cs} (ISA 450).`);
 		if (unavailHigh.length) basis.push(`تعذر الحصول على ${unavailHigh.length} مستند عالي الأولوية: ` + unavailHigh.map((q) => q.title).join("، ") + ".");
 		const scopePervasive = unavailHigh.length >= 3 || blockedSig.size >= 3;
 		if (sigUnevidenced) basis.push(`${sigUnevidenced} خطر جوهري دون دليل مقبول بعد؛ يستكمل قبل التوقيع (ISA 330).`);
@@ -7816,15 +7816,15 @@ window.SKEngines = (function() {
 		createCatalogItem: () => createCatalogItem,
 		inspectCatalog: () => inspectCatalog
 	});
-	function clean$1(v) {
+	function clean$2(v) {
 		return v.trim();
 	}
 	function createCatalogItem(input) {
-		const sku = clean$1(input.sku);
+		const sku = clean$2(input.sku);
 		return {
 			id: "item-" + sku.toLowerCase().replace(/[^a-z0-9_-]+/gi, "-"),
 			sku,
-			name: clean$1(input.name),
+			name: clean$2(input.name),
 			unit: input.unit,
 			vatRate: input.vatRate,
 			defaultCost: input.defaultCost,
@@ -8619,7 +8619,7 @@ window.SKEngines = (function() {
 		evaluateDecision: () => evaluateDecision,
 		validateDecision: () => validateDecision
 	});
-	function round$2(value) {
+	function round$3(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function evaluateDecision(decision) {
@@ -8637,8 +8637,8 @@ window.SKEngines = (function() {
 			return {
 				optionId: option.id,
 				label: option.label,
-				weightedScore: totalWeight === 0 ? 0 : round$2(weighted / totalWeight),
-				coveragePercent: totalWeight === 0 ? 0 : round$2(covered / totalWeight * 100)
+				weightedScore: totalWeight === 0 ? 0 : round$3(weighted / totalWeight),
+				coveragePercent: totalWeight === 0 ? 0 : round$3(covered / totalWeight * 100)
 			};
 		}).sort((a, b) => b.weightedScore - a.weightedScore || b.coveragePercent - a.coveragePercent || a.label.localeCompare(b.label, "ar"));
 	}
@@ -8768,14 +8768,14 @@ window.SKEngines = (function() {
 		inspectReceiving: () => inspectReceiving,
 		validateReceivingInspection: () => validateReceivingInspection
 	});
-	function round$1(value, digits = 2) {
+	function round$2(value, digits = 2) {
 		const factor = 10 ** digits;
 		return Math.round((value + Number.EPSILON) * factor) / factor;
 	}
 	function inspectReceiving(input) {
 		const invoiced = Math.max(0, input.invoicedKg);
-		const discrepancyKg = round$1(invoiced - Math.max(0, input.actualKg), 3);
-		const discrepancyPercent = invoiced === 0 ? 0 : round$1(Math.abs(discrepancyKg) / invoiced * 100);
+		const discrepancyKg = round$2(invoiced - Math.max(0, input.actualKg), 3);
+		const discrepancyPercent = invoiced === 0 ? 0 : round$2(Math.abs(discrepancyKg) / invoiced * 100);
 		const weightStatus = discrepancyPercent > Math.max(0, input.tolerancePercent) ? "REVIEW" : "OK";
 		const temperatureStatus = input.temperatureC === void 0 ? "NOT_RECORDED" : input.temperatureC > input.maxTemperatureC ? "REVIEW" : "OK";
 		return {
@@ -8802,18 +8802,18 @@ window.SKEngines = (function() {
 		createSupplier: () => createSupplier,
 		inspectSuppliers: () => inspectSuppliers
 	});
-	function clean(value) {
+	function clean$1(value) {
 		return value.trim();
 	}
 	function createSupplier(input) {
-		const code = clean(input.code);
+		const code = clean$1(input.code);
 		return {
 			id: "supplier-" + code.toLowerCase().replace(/[^a-z0-9_-]+/gi, "-"),
 			code,
-			name: clean(input.name),
-			taxNumber: clean(input.taxNumber ?? "") || void 0,
-			phone: clean(input.phone ?? "") || void 0,
-			email: clean(input.email ?? "").toLowerCase() || void 0,
+			name: clean$1(input.name),
+			taxNumber: clean$1(input.taxNumber ?? "") || void 0,
+			phone: clean$1(input.phone ?? "") || void 0,
+			email: clean$1(input.email ?? "").toLowerCase() || void 0,
 			active: true
 		};
 	}
@@ -9685,6 +9685,417 @@ window.SKEngines = (function() {
 		};
 	}
 	//#endregion
+	//#region app/src/engine/fusion/sales/sales-analytics-engine.ts
+	var sales_analytics_engine_exports = /* @__PURE__ */ __exportAll({
+		dailySeries: () => dailySeries,
+		describe: () => describe,
+		growthIdeas: () => growthIdeas,
+		invoiceStats: () => invoiceStats,
+		linearForecast: () => linearForecast,
+		momentum: () => momentum,
+		monthMatrix: () => monthMatrix,
+		monthlySeries: () => monthlySeries,
+		movingAverage: () => movingAverage,
+		pearson: () => pearson,
+		percentile: () => percentile,
+		salesLab: () => salesLab
+	});
+	var DAY = 864e5;
+	var isoDay = (t) => new Date(t).toISOString().slice(0, 10);
+	var dayT = (d) => Date.parse(d + "T00:00:00Z");
+	var round$1 = (v, p = 2) => {
+		const f = 10 ** p;
+		return Math.round(v * f) / f;
+	};
+	var valid = (l) => /^\d{4}-\d{2}-\d{2}/.test(l.date) && Number.isFinite(l.amount);
+	var clean = (lines) => lines.filter(valid).map((l) => ({
+		...l,
+		date: l.date.slice(0, 10),
+		qty: Number(l.qty) || 0
+	}));
+	/** daily totals from the first to the last sale day (or the given window), missing days as 0 */
+	function dailySeries(lines, opts = {}) {
+		const L = clean(lines);
+		if (!L.length) return {
+			labels: [],
+			values: []
+		};
+		const days = L.map((l) => l.date).sort();
+		const from = dayT(opts.from ?? days[0]), to = dayT(opts.to ?? days[days.length - 1]);
+		const map = /* @__PURE__ */ new Map();
+		L.forEach((l) => map.set(l.date, (map.get(l.date) ?? 0) + l.amount));
+		const labels = [], values = [];
+		for (let t = from; t <= to; t += DAY) {
+			const d = isoDay(t);
+			labels.push(d);
+			values.push(map.get(d) ?? 0);
+		}
+		return {
+			labels,
+			values
+		};
+	}
+	/** trailing moving average (null until the window is full) */
+	function movingAverage(values, window = 7) {
+		let sum = 0;
+		return values.map((v, i) => {
+			sum += v;
+			if (i >= window) sum -= values[i - window];
+			return i >= window - 1 ? Math.round(sum / window) : null;
+		});
+	}
+	/** revenue, invoice count and growth by calendar month */
+	function monthlySeries(lines) {
+		const m = /* @__PURE__ */ new Map();
+		clean(lines).forEach((l, i) => {
+			const k = l.date.slice(0, 7);
+			const x = m.get(k) ?? {
+				revenue: 0,
+				inv: /* @__PURE__ */ new Set()
+			};
+			x.revenue += l.amount;
+			x.inv.add(l.invoice || "line-" + i);
+			m.set(k, x);
+		});
+		const keys = [...m.keys()].sort();
+		return keys.map((k, i) => {
+			const x = m.get(k), prev = i ? m.get(keys[i - 1]).revenue : 0;
+			return {
+				month: k,
+				revenue: x.revenue,
+				invoices: x.inv.size,
+				growth: i && prev ? round$1((x.revenue - prev) / prev * 100, 1) : null
+			};
+		});
+	}
+	/** least-squares line through the last `basis` days, projected `horizon` days ahead with a two-sided band */
+	function linearForecast(values, horizon = 30, opts = {}) {
+		const basis = Math.min(values.length, opts.basis ?? 90), z = opts.z ?? 1.2816, y = values.slice(values.length - basis);
+		const n = y.length;
+		if (n < 7) return {
+			slope: 0,
+			intercept: 0,
+			residStd: 0,
+			forecast: [],
+			total: 0,
+			low: 0,
+			high: 0,
+			basis: n
+		};
+		const xm = (n - 1) / 2, ym = y.reduce((a, b) => a + b, 0) / n;
+		let sxy = 0, sxx = 0;
+		y.forEach((v, i) => {
+			sxy += (i - xm) * (v - ym);
+			sxx += (i - xm) ** 2;
+		});
+		const slope = sxx ? sxy / sxx : 0, intercept = ym - slope * xm;
+		const resid = y.map((v, i) => v - (intercept + slope * i)), residStd = Math.sqrt(resid.reduce((a, r) => a + r * r, 0) / Math.max(1, n - 2));
+		const forecast = Array.from({ length: horizon }, (_, k) => Math.max(0, Math.round(intercept + slope * (n + k))));
+		const total = forecast.reduce((a, b) => a + b, 0), spread = z * residStd * Math.sqrt(horizon);
+		return {
+			slope: round$1(slope),
+			intercept: round$1(intercept),
+			residStd: round$1(residStd),
+			forecast,
+			total,
+			low: Math.max(0, Math.round(total - spread)),
+			high: Math.round(total + spread),
+			basis: n
+		};
+	}
+	/** percentile with linear interpolation (p in 0..1) */
+	function percentile(sorted, p) {
+		if (!sorted.length) return 0;
+		const i = (sorted.length - 1) * p, lo = Math.floor(i), hi = Math.ceil(i);
+		return sorted[lo] + (sorted[hi] - sorted[lo]) * (i - lo);
+	}
+	/** descriptive statistics of a sample */
+	function describe(values) {
+		const x = values.filter(Number.isFinite), n = x.length;
+		if (!n) return {
+			n: 0,
+			mean: 0,
+			median: 0,
+			std: 0,
+			q1: 0,
+			q3: 0,
+			iqr: 0,
+			skew: 0,
+			cv: null,
+			min: 0,
+			max: 0
+		};
+		const s = [...x].sort((a, b) => a - b), mean = x.reduce((a, b) => a + b, 0) / n;
+		const std = n > 1 ? Math.sqrt(x.reduce((a, v) => a + (v - mean) ** 2, 0) / (n - 1)) : 0;
+		const skew = n > 2 && std ? n / ((n - 1) * (n - 2)) * x.reduce((a, v) => a + ((v - mean) / std) ** 3, 0) : 0;
+		const q1 = percentile(s, .25), q3 = percentile(s, .75);
+		return {
+			n,
+			mean: round$1(mean),
+			median: round$1(percentile(s, .5)),
+			std: round$1(std),
+			q1: round$1(q1),
+			q3: round$1(q3),
+			iqr: round$1(q3 - q1),
+			skew: round$1(skew, 3),
+			cv: mean ? round$1(std / mean, 3) : null,
+			min: s[0],
+			max: s[n - 1]
+		};
+	}
+	/** Pearson correlation of two equal-length samples (null when undefined) */
+	function pearson(a, b) {
+		const n = Math.min(a.length, b.length);
+		if (n < 3) return null;
+		const am = a.slice(0, n).reduce((s, v) => s + v, 0) / n, bm = b.slice(0, n).reduce((s, v) => s + v, 0) / n;
+		let sab = 0, saa = 0, sbb = 0;
+		for (let i = 0; i < n; i++) {
+			sab += (a[i] - am) * (b[i] - bm);
+			saa += (a[i] - am) ** 2;
+			sbb += (b[i] - bm) ** 2;
+		}
+		return saa && sbb ? round$1(sab / Math.sqrt(saa * sbb), 3) : null;
+	}
+	/** invoice totals: typical value, the big-deal threshold, a histogram and the price bands that make the revenue */
+	function invoiceStats(lines, bandEdges = [
+		0,
+		1e4,
+		3e4,
+		6e4,
+		1e5
+	]) {
+		const inv = /* @__PURE__ */ new Map();
+		clean(lines).forEach((l, i) => {
+			const k = l.invoice || "line-" + i;
+			inv.set(k, (inv.get(k) ?? 0) + l.amount);
+		});
+		const totals = [...inv.values()].filter((v) => v > 0).sort((a, b) => a - b), n = totals.length, revenue = totals.reduce((a, b) => a + b, 0);
+		const bands = bandEdges.map((from, i) => {
+			const to = bandEdges[i + 1] ?? Infinity, inB = totals.filter((v) => v >= from && v < to), rev = inB.reduce((a, b) => a + b, 0);
+			return {
+				from,
+				to: Number.isFinite(to) ? to : null,
+				count: inB.length,
+				revenue: rev,
+				share: revenue ? round$1(rev / revenue, 4) : 0
+			};
+		});
+		const bins = 10, lo = totals[0] ?? 0, hi = totals[n - 1] ?? 0, w = Math.max(1, Math.ceil((hi - lo) / bins));
+		const histogram = Array.from({ length: bins }, (_, i) => ({
+			from: lo + i * w,
+			to: lo + (i + 1) * w,
+			count: 0
+		}));
+		totals.forEach((v) => {
+			histogram[Math.min(9, Math.floor((v - lo) / w))].count++;
+		});
+		return {
+			count: n,
+			revenue,
+			mean: n ? Math.round(revenue / n) : 0,
+			median: Math.round(percentile(totals, .5)),
+			p90: Math.round(percentile(totals, .9)),
+			max: hi,
+			histogram,
+			bands
+		};
+	}
+	/** the momentum race: items whose last-window revenue rose or fell most against the window before */
+	function momentum(lines, asOf, opts = {}) {
+		const w = opts.window ?? 30, minBase = opts.minBase ?? 5e4, top = opts.top ?? 5, end = dayT(asOf);
+		const cur = /* @__PURE__ */ new Map(), prev = /* @__PURE__ */ new Map();
+		clean(lines).forEach((l) => {
+			const age = (end - dayT(l.date)) / DAY;
+			if (age >= 0 && age < w) cur.set(l.product, (cur.get(l.product) ?? 0) + l.amount);
+			else if (age >= w && age < 2 * w) prev.set(l.product, (prev.get(l.product) ?? 0) + l.amount);
+		});
+		const rows = [.../* @__PURE__ */ new Set([...cur.keys(), ...prev.keys()])].map((product) => {
+			const c = cur.get(product) ?? 0, p = prev.get(product) ?? 0;
+			return {
+				product,
+				prev: p,
+				cur: c,
+				change: p ? round$1((c - p) / p * 100, 1) : null,
+				delta: c - p
+			};
+		}).filter((r) => Math.max(r.prev, r.cur) >= minBase);
+		return {
+			risers: rows.filter((r) => r.delta > 0 && (r.change === null || r.change >= 10)).sort((a, b) => b.delta - a.delta).slice(0, top),
+			fallers: rows.filter((r) => r.delta < 0 && (r.change ?? 0) <= -10).sort((a, b) => a.delta - b.delta).slice(0, top)
+		};
+	}
+	/** month heatmap: the top items (or channels) by revenue × the last months */
+	function monthMatrix(lines, dim, opts = {}) {
+		const L = clean(lines), months = [...new Set(L.map((l) => l.date.slice(0, 7)))].sort().slice(-(opts.months ?? 12));
+		const key = (l) => (dim === "product" ? l.product : l.channel) || "غير محدد";
+		const totals = /* @__PURE__ */ new Map();
+		L.forEach((l) => totals.set(key(l), (totals.get(key(l)) ?? 0) + l.amount));
+		const rows = [...totals.entries()].sort((a, b) => b[1] - a[1]).slice(0, opts.top ?? 8).map(([k]) => k);
+		const values = rows.map((r) => months.map((m) => L.filter((l) => key(l) === r && l.date.startsWith(m)).reduce((a, l) => a + l.amount, 0)));
+		return {
+			rows,
+			cols: months,
+			values,
+			max: Math.max(0, ...values.flat())
+		};
+	}
+	/** the whole lab for one set of lines */
+	function salesLab(lines, asOf) {
+		const L = clean(lines).filter((l) => l.date <= asOf);
+		const daily = dailySeries(L, { to: L.length ? asOf : void 0 });
+		const ma7 = movingAverage(daily.values, 7);
+		const monthly = monthlySeries(L);
+		const fc = linearForecast(daily.values, 30);
+		const invoices = invoiceStats(L);
+		const race = momentum(L, asOf);
+		const desc = describe(daily.values.slice(-90));
+		const byItem = /* @__PURE__ */ new Map();
+		L.forEach((l) => byItem.set(l.product, (byItem.get(l.product) ?? 0) + l.amount));
+		const tot = [...byItem.values()].reduce((a, b) => a + b, 0), shares = [...byItem.values()].sort((a, b) => b - a).map((v) => tot ? v / tot : 0);
+		const top10Share = round$1(shares.slice(0, 10).reduce((a, b) => a + b, 0), 4), hhi = Math.round(shares.reduce((a, s) => a + (s * 100) ** 2, 0));
+		const qtyRevenue = pearson(L.map((l) => l.qty), L.map((l) => l.amount));
+		const wd = Array(7).fill(0);
+		daily.labels.forEach((d, i) => {
+			wd[(/* @__PURE__ */ new Date(d + "T00:00:00Z")).getUTCDay()] += daily.values[i];
+		});
+		const end = dayT(asOf), chan = /* @__PURE__ */ new Map();
+		L.forEach((l) => {
+			const age = (end - dayT(l.date)) / DAY, k = l.channel || "غير محدد", x = chan.get(k) ?? {
+				cur: 0,
+				prev: 0
+			};
+			if (age < 60) x.cur += l.amount;
+			else if (age < 120) x.prev += l.amount;
+			chan.set(k, x);
+		});
+		const customers = /* @__PURE__ */ new Map();
+		L.forEach((l, i) => {
+			if (!l.customerId) return;
+			const s = customers.get(l.customerId) ?? /* @__PURE__ */ new Set();
+			s.add(l.invoice || "line-" + i);
+			customers.set(l.customerId, s);
+		});
+		const repeatRate = customers.size ? round$1([...customers.values()].filter((s) => s.size > 1).length / customers.size, 3) : null;
+		const monthCv = describe(monthly.map((m) => m.revenue)).cv;
+		return {
+			asOf,
+			daily,
+			ma7,
+			monthly,
+			forecast: fc,
+			invoices,
+			momentum: race,
+			stats: {
+				daily: desc,
+				top10Share,
+				hhi,
+				qtyRevenue,
+				trendSlope: fc.slope,
+				repeatRate,
+				monthCv
+			},
+			weekdays: wd,
+			channels: [...chan.entries()].map(([name, x]) => ({
+				name,
+				cur: x.cur,
+				prev: x.prev,
+				growth: x.prev ? round$1((x.cur - x.prev) / x.prev * 100, 1) : null
+			})).sort((a, b) => b.cur - a.cur),
+			ideas: growthIdeas({
+				invoices,
+				weekdays: wd,
+				channels: [...chan.entries()].map(([name, x]) => ({
+					name,
+					growth: x.prev ? (x.cur - x.prev) / x.prev * 100 : null
+				})),
+				repeatRate,
+				top10Share,
+				monthly,
+				slope: fc.slope,
+				products: [...byItem.keys()]
+			})
+		};
+	}
+	var DAYS_AR = [
+		"الأحد",
+		"الاثنين",
+		"الثلاثاء",
+		"الأربعاء",
+		"الخميس",
+		"الجمعة",
+		"السبت"
+	];
+	var sar = (h) => Math.round(h / 100).toLocaleString("en-US");
+	/** rule-based growth ideas: each fires only when the numbers call for it, and says which number */
+	function growthIdeas(x) {
+		const out = [];
+		const avg = x.invoices.mean;
+		if (avg > 0 && avg < 3e4) {
+			const t = Math.max(1e4, Math.ceil(x.invoices.p90 * .8 / 5e3) * 5e3);
+			out.push({
+				id: "voucher",
+				title: "قسيمة الحظ بعد الفاتورة",
+				body: "كل فاتورة فوق " + sar(t) + " ر.س تدخل سحباً أسبوعياً — يرفع متوسط السلة ويحفّز العودة.",
+				metric: "متوسط الفاتورة " + sar(avg) + " ر.س"
+			});
+		}
+		if (x.repeatRate !== null && x.repeatRate < .45) out.push({
+			id: "subscription",
+			title: "اشتراك «بوكس الأسبوع»",
+			body: "صندوق أسبوعي بسعر ثابت يحوّل المشتري لمرة واحدة إلى دخل متكرر يمكن التخطيط له.",
+			metric: "نسبة العملاء المكررين " + Math.round(x.repeatRate * 100) + "٪"
+		});
+		const growing = x.channels.filter((c) => c.growth !== null && c.growth >= 15).sort((a, b) => (b.growth ?? 0) - (a.growth ?? 0))[0];
+		if (growing) out.push({
+			id: "referral",
+			title: "إحالة في قناة " + growing.name,
+			body: "القناة تنمو — حوّل أفضل عملائها إلى مسوّقين بكود إحالة شخصي بعمولة صغيرة.",
+			metric: "نمو " + Math.round(growing.growth ?? 0) + "٪ خلال 60 يوماً"
+		});
+		const tw = x.weekdays.reduce((a, b) => a + b, 0), avgD = tw / 7, weakest = x.weekdays.indexOf(Math.min(...x.weekdays));
+		if (tw > 0 && x.weekdays[weakest] < avgD * .8) out.push({
+			id: "slow-day",
+			title: "إنعاش يوم " + DAYS_AR[weakest],
+			body: "عرض خاص أو توصيل مجاني في أضعف أيام الأسبوع يوزّع الطلب ويخفف ضغط أيام الذروة.",
+			metric: "إيراد " + DAYS_AR[weakest] + " أقل من المتوسط بـ" + Math.round((1 - x.weekdays[weakest] / avgD) * 100) + "٪"
+		});
+		if (x.products.some((p) => /بوكس/.test(p))) out.push({
+			id: "pricing",
+			title: "تسعير نفسي للبوكسات",
+			body: "أسعار تنتهي بـ9 وثلاث درجات (اقتصادي، عائلي، فاخر) توجّه الاختيار نحو الوسط الأعلى هامشاً.",
+			metric: "بوكسات في الكتالوج"
+		});
+		const mc = x.monthly.length >= 4 ? describe(x.monthly.map((m) => m.revenue)) : null;
+		if (mc && (mc.cv ?? 0) > .2) {
+			const peaks = [...x.monthly].sort((a, b) => b.revenue - a.revenue).slice(0, 2).map((m) => m.month);
+			out.push({
+				id: "seasons",
+				title: "تقويم المواسم",
+				body: "جهّز المخزون والعروض قبل أشهر الذروة (" + peaks.join("، ") + ") واحجز أسعار الموردين مبكراً.",
+				metric: "تذبذب شهري " + Math.round((mc.cv ?? 0) * 100) + "٪"
+			});
+		}
+		if (x.top10Share > .7) out.push({
+			id: "concentration",
+			title: "إدارة مخاطر التركّز",
+			body: "عشرة أصناف تصنع معظم الإيراد — أمّن مورداً بديلاً لأعلاها وجرّب صنفين جديدين كل شهر.",
+			metric: "حصة أعلى 10 أصناف " + Math.round(x.top10Share * 100) + "٪"
+		});
+		if (x.slope < 0) out.push({
+			id: "slowdown",
+			title: "كسر موجة التباطؤ",
+			body: "الاتجاه اليومي هابط — حملة استعادة للعملاء الغائبين وعرض محدود المدة قبل نهاية الشهر.",
+			metric: "ميل الاتجاه " + sar(x.slope) + " ر.س/يوم"
+		});
+		else if (x.slope > 0) out.push({
+			id: "growth",
+			title: "ركوب موجة النمو",
+			body: "الاتجاه صاعد — ثبّت التوريد وارفع حدود المخزون للأصناف الصاعدة قبل أن تنفد.",
+			metric: "ميل الاتجاه +" + sar(x.slope) + " ر.س/يوم"
+		});
+		return out;
+	}
+	//#endregion
 	//#region app/src/engine/fusion/sales/sales-engine.ts
 	var sales_engine_exports = /* @__PURE__ */ __exportAll({
 		calculateSalesTotals: () => calculateSalesTotals,
@@ -10336,6 +10747,7 @@ window.SKEngines = (function() {
 			credit: credit_engine_exports,
 			customers: customers_engine_exports,
 			invoice: invoice_engine_exports,
+			salesAnalytics: sales_analytics_engine_exports,
 			sales: sales_engine_exports,
 			salesIntelligence: sales_intelligence_engine_exports,
 			salesPosting: sales_posting_engine_exports,

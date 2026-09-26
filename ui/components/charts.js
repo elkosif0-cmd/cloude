@@ -256,5 +256,13 @@ const PRINT_CSS=':root{--sk-c1:#1668e3;--sk-c2:#eb6834;--sk-c3:#1baf7a;--sk-c4:#
   '.skch svg{display:block;width:100%;height:auto;direction:ltr}.skch .grid line{stroke:#edf1f7;stroke-width:1}.skch .axis text,.skch .xl text{fill:#8292a8;font:500 11px sans-serif}.skch .line{fill:none;stroke-width:2}.skch .pt{stroke:#fff;stroke-width:2}.skch .area{opacity:.1}'+
   '.skch .endl,.skch .vl{fill:#44566f;font:700 11px sans-serif}.skch .wfc{stroke:#d3dce8}.skch .base{stroke:#d3dbe7}'+
   '.skhb{display:grid;gap:6px}.skhb-r{display:grid;grid-template-columns:34% 1fr auto;align-items:center;gap:10px;font-size:11.5px}.skhb-r .l small{display:block;color:#8292a8;font-size:10px}.skhb-r .t{height:12px;border-radius:4px;background:#edf2f8;overflow:hidden}.skhb-r .t i{display:block;height:100%;border-radius:4px 0 0 4px}.skhb-r b{direction:ltr}';
-window.SKCharts=Object.freeze({bars,line,hbars,waterfall,ring,donut,heatmap,progress,spark,compact,money,palette:PAL.slice(),levels:LV.slice(),export:exportFig,printCSS:PRINT_CSS});
+/* ---------- a rows × columns heatmap (e.g. items × months): intensity of the brand colour ---------- */
+function matrix(o){
+  const rows=o.rows||[],cols=o.cols||[],vals=o.values||[],mx=Math.max(0,...vals.flat().map(Number).filter(Number.isFinite));
+  if(!rows.length||!cols.length||!mx)return empty(o);
+  const f=o.fmt||compact;
+  return '<div class="skmx-wrap"><table class="skmx" data-sk-plain><thead><tr><th></th>'+cols.map(c=>'<th>'+esc(c)+'</th>').join("")+'</tr></thead><tbody>'+
+    rows.map((r,i)=>'<tr><th>'+esc(r)+'</th>'+cols.map((c,j)=>{const v=Number((vals[i]||[])[j])||0,a=v/mx;return '<td style="--a:'+(v?Math.max(.08,a).toFixed(2):0)+'" class="'+(a>.55?"hi":"")+'" title="'+esc(r+" · "+c+": "+f(v))+'">'+(v?esc(f(v)):"")+'</td>'}).join("")+'</tr>').join("")+'</tbody></table></div>';
+}
+window.SKCharts=Object.freeze({matrix,bars,line,hbars,waterfall,ring,donut,heatmap,progress,spark,compact,money,palette:PAL.slice(),levels:LV.slice(),export:exportFig,printCSS:PRINT_CSS});
 })();
