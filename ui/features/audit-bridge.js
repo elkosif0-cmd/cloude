@@ -14,6 +14,36 @@ const APPS={
   lab:{path:"./audit/lab/mount.js",label:"مختبر المعايير"}
 };
 const state={};
+/* ---------- one identity: the embedded tools take the chosen theme's colours, type and night mode ----------
+   custom properties cross the shadow boundary, so each tool's own variables are pointed at the app's tokens
+   (:host raises specificity over the tools' own !important rules); their private sidebars give way to the
+   app's own tabs above the frame. */
+const TOK=(m)=>":host .kx-body,:host .kx-body[data-theme]{"+Object.entries(m).map(([k,v])=>k+":var("+v+")!important").join(";")+"}";
+const BASE=":host .kx-body{background:transparent!important;color:var(--sk-ink)!important;font-family:var(--sk-font)!important;font-feature-settings:'tnum' 1}"+
+  ":host .kx-body h1,:host .kx-body h2,:host .kx-body h3{font-family:var(--sk-font-display)!important;color:var(--sk-ink)!important}"+
+  ":host .kx-body button,:host .kx-body input,:host .kx-body select,:host .kx-body textarea{font-family:inherit!important}";
+const THEME={
+  classic:TOK({"--bg":"--sk-bg","--surface":"--sk-surface","--surface-2":"--sk-surface-2","--surface-3":"--sk-surface-3","--text":"--sk-ink","--muted":"--sk-ink-3","--line":"--sk-line","--line-strong":"--sk-line-2",
+    "--primary":"--sk-brand","--primary-strong":"--sk-brand","--primary-soft":"--sk-brand-soft","--accent":"--sk-brand-2","--accent-soft":"--sk-info-soft","--danger":"--sk-bad","--danger-soft":"--sk-bad-soft",
+    "--warning":"--sk-warn","--warning-soft":"--sk-warn-soft","--success":"--sk-ok","--success-soft":"--sk-ok-soft","--info":"--sk-info","--info-soft":"--sk-info-soft","--critical":"--sk-bad","--shadow-sm":"--sk-shadow-1","--shadow-md":"--sk-shadow-2",
+    "--radius-sm":"--sk-r-s","--radius":"--sk-r","--radius-lg":"--sk-r-l","--font":"--sk-font"})+BASE+
+    ":host .sidebar,:host .sidebar-backdrop{display:none!important}:host .workspace{margin:0!important}:host .main-content{padding:8px 0 32px!important;max-width:none!important}",
+  studio:TOK({"--bg":"--sk-bg","--surface":"--sk-surface","--surface2":"--sk-surface-2","--line":"--sk-line","--text":"--sk-ink","--muted":"--sk-ink-3","--brand":"--sk-brand","--brand2":"--sk-brand-2",
+    "--green":"--sk-ok","--amber":"--sk-warn","--red":"--sk-bad","--blue":"--sk-info","--radius":"--sk-r-l","--kosif-ink":"--sk-ink","--kosif-purple":"--sk-brand","--kosif-purple-2":"--sk-brand-2","--kosif-cream":"--sk-bg","--kosif-line":"--sk-line","--kosif-gold":"--sk-warn-mark"})+BASE+
+    ":host .kx-body{background-image:none!important}:host .panel,:host .card{background:var(--sk-surface)!important;border-color:var(--sk-line)!important;color:var(--sk-ink)!important;box-shadow:var(--sk-shadow-1)!important}",
+  lab:TOK({"--bg":"--sk-bg","--panel":"--sk-surface","--panel2":"--sk-surface-2","--line":"--sk-line","--text":"--sk-ink","--muted":"--sk-ink-3","--accent":"--sk-brand","--good":"--sk-ok"})+BASE
+};
+/* the analytics tool's pages as the app's own tabs (its sidebar is hidden) */
+function viewsBar(a){
+  const root=a.host.shadowRoot;if(!root)return;const items=[...root.querySelectorAll("#mainNav .nav-item,.nav-list .nav-item")];if(!items.length)return;
+  let bar=a.frame.previousElementSibling;if(!bar||!bar.classList.contains("kx-views")){bar=document.createElement("nav");bar.className="kx-views sk-seg";bar.setAttribute("aria-label","صفحات التحليل");a.frame.before(bar)}
+  const cur=(items.find(x=>x.classList.contains("active"))||items[0]).dataset.view;
+  bar.innerHTML=items.map(x=>'<button type="button" data-kxv="'+x.dataset.view+'" aria-pressed="'+(x.dataset.view===cur)+'">'+(({"مركز القيادة":"نظرة عامة"})[(x.querySelector("span")||x).textContent.trim()]||(x.querySelector("span")||x).textContent.trim())+'</button>').join("");
+  bar.onclick=e=>{const b=e.target.closest("[data-kxv]");if(!b)return;const it=items.find(x=>x.dataset.view===b.dataset.kxv);if(it){it.click();bar.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)))}};
+}
+/* night mode follows the app */
+function syncTheme(){Object.values(state).forEach(a=>{const b=a.host.shadowRoot&&a.host.shadowRoot.querySelector(".kx-body");if(b)b.setAttribute("data-theme",document.documentElement.getAttribute("data-theme")==="dark"?"dark":"light")})}
+new MutationObserver(syncTheme).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme","data-look"]});
 /* ألوان التطبيق تُمرَّر عبر إطار أبٍ: المضيف نفسه يعيد تعريف --brand وغيرها داخل
    الـ Shadow DOM، فلو وُضعت عليه لأشار المتغير إلى نفسه وبطل */
 const FRAME_VARS="--kx-ground:var(--ground);--kx-surface:var(--surface);--kx-surface-2:var(--surface-2);--kx-line:var(--line);--kx-ink:var(--ink);--kx-ink-3:var(--ink-3);--kx-brand:var(--brand);--kx-brand-2:var(--brand-2);--kx-font:var(--font)";
@@ -27,16 +57,17 @@ function open(key,node,view,screenId){
   /* the domain strip above (shell) already lists every audit screen: no second hub menu here */
   const a=app(key);a.want=view;
   node.replaceChildren(a.frame);
-  if(a.api){a.api.setView(view);return}
+  if(a.api){a.api.setView(view);if(key==="classic"){feedAnalytics(a);viewsBar(a)}return}
   if(a.loading)return;
   const wait=document.createElement("div");wait.className="sk-empty kx-wait";wait.textContent="جارٍ تحميل "+APPS[key].label+"…";a.frame.before(wait);
   a.loading=import(APPS[key].path).then(m=>m.mount(a.host,a.want)).then(api=>{
     a.api=api;api.setView(a.want);wait.remove();
+    syncTheme();if(key==="classic"){setTimeout(()=>feedAnalytics(a),400);setTimeout(()=>viewsBar(a),300)}
     try{
       const sRoot=a.host.shadowRoot;
       if(sRoot&&!sRoot.getElementById("sk-audit-unify")){
         const style=document.createElement("style");style.id="sk-audit-unify";
-        style.textContent=".topbar,#topbar,.shell-header,.kx-topbar{display:none!important;}.shell,.kx-shell{padding-top:0!important;margin-top:0!important;}"+(key==="studio"?".shell>.hero{display:none!important;}":"");
+        style.textContent=".topbar,#topbar,.shell-header,.kx-topbar{display:none!important;}.shell,.kx-shell{padding-top:0!important;margin-top:0!important;}"+(key==="studio"?".shell>.hero{display:none!important;}":"")+THEME[key];
         sRoot.appendChild(style);
       }
     }catch{}
@@ -129,6 +160,15 @@ function sendTB(rows,label){
   const dt=new DataTransfer();dt.items.add(new File([tbCSV(rows)],"KOSIF-trial-balance-"+(label||"file")+".csv",{type:"text/csv"}));
   input.files=dt.files;input.dispatchEvent(new Event("change",{bubbles:true}));
   window.SK.toast("راجع ربط الأعمدة في نافذة الاستلام ثم اعتمد الاستيراد","info");return true;
+}
+/* the analytics tools take the engagement's own trial balance (once per version of it) — no second upload */
+let fedSig="";
+function feedAnalytics(a){
+  try{const t=window.SKosifTBReview&&SKosifTBReview.rows();if(!t||t.sig===fedSig)return;
+    const root=a.host.shadowRoot,input=root&&root.getElementById("fileInput");if(!input)return;
+    const dt=new DataTransfer();dt.items.add(new File([tbCSV(t.rows)],"KOSIF-engagement-tb.csv",{type:"text/csv"}));input.files=dt.files;input.dispatchEvent(new Event("change",{bubbles:true}));
+    fedSig=t.sig;window.SK.toast("استُلم ميزان ملف المراجعة («"+t.label+"») في أدوات التحليل","info");
+  }catch(e){console.error("S.kosif analytics feed",e)}
 }
 /* the audit studio lives inside «مركز المراجعة» (tab «الاستوديو المتقدم»): mount it in the engagement's own tab */
 function mountStudio(node,view){open("studio",node,view||"overview","auditdesk");if((view||"overview")==="documents")node.insertBefore(tbPanel(),node.firstChild)}
