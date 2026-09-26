@@ -13,7 +13,7 @@ describe('key audit matters drafted from line risks and the global precedents (I
     const sel = ks.filter((k) => k.selected);
     expect(sel.length).toBeGreaterThanOrEqual(1);
     expect(sel.length).toBeLessThanOrEqual(3);
-    expect(ks.every((k, i) => i === 0 || ks[i - 1].score >= k.score)).toBe(true);
+    expect(ks.every((k, i) => i === 0 || ks[i - 1].weight >= k.weight)).toBe(true);
     const k = ks[0];
     expect(k.description).toContain('ر.س');
     expect(k.description).toContain('% من مجموع الموجودات');

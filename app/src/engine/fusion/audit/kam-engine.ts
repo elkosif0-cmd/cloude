@@ -14,26 +14,32 @@ import { precedentsFor, THEMES, type KamRow, type Sector, type Theme } from './g
 
 export type KamRisk = { lineKey: string; ar: string; amount: Minor; score: number; significant: boolean; risk?: string; procedures?: string[]; parts?: { estimate?: number } };
 export type Kam = { key: string; title: string; description: string; how: string; observation: string; refs: string[]; lineKeys: string[];
-  amount: Minor; pctAssets: number; score: number; selected: boolean; trend: 'new' | 'same' | null; examples: KamRow[] };
+  amount: Minor; pctAssets: number; score: number; /** the ranking (risk + weight in the statements + sector practice) */ weight: number; selected: boolean; trend: 'new' | 'same' | null; examples: KamRow[] };
 
 const clean = (x: string) => x.replace(/[.،؛]\s*$/, '');
 /** The revenue theme carries the presumed risk of fraud (ISA 240.26), so it ranks above an equal line risk. */
 const FRAUD_THEMES = new Set<string>(['revenue-deductions', 'revenue-recognition']);
 
 export function suggestKams(input: { fs: FinancialStatements; risks: KamRisk[]; materiality: Minor; currency?: string; periodEnd?: string; sector?: Sector | '';
-  evidence?: Record<string, 'accepted' | 'partial' | 'none'>; priorKeys?: string[]; max?: number }): Kam[] {
+  evidence?: Record<string, 'accepted' | 'partial' | 'none'>; priorKeys?: string[]; max?: number;
+  /** how often auditors in the entity's sector reported each theme (0–1), from the bundle — lifts the matters practice reports most */ sectorPrior?: Partial<Record<string, number>> }): Kam[] {
   const { fs, materiality } = input, cur = input.currency ?? 'ر.س', money = (m: Minor) => formatMinor(m, { decimals: 0 }) + ' ' + cur;
   const assets = Math.abs(fs.keys.assets.current) || 1;
   const byKey = new Map<string, Kam>();
   for (const r of input.risks) {
     const line = fs.lines.find((l) => l.key === r.lineKey), amount = Math.abs(line?.current ?? r.amount ?? 0);
     if (!amount) continue;
-    const pr = precedentsFor(r.lineKey, { sector: input.sector, limit: 3 })[0] ?? null;
+    /* the theme of the line: the one auditors of the same sector report most, else the most reported overall */
+    const prs = precedentsFor(r.lineKey, { sector: input.sector, limit: 3 }), prior = input.sectorPrior ?? {};
+    const pr = [...prs].sort((a, b) => (prior[b.theme] ?? 0) - (prior[a.theme] ?? 0))[0] ?? null;
     const key: string = pr ? pr.theme : r.lineKey, estimate = (r.parts?.estimate ?? 0) >= 15;
     const score = Math.min(100, r.score + (amount >= materiality * 3 ? 10 : 0) + (estimate ? 5 : 0) + (FRAUD_THEMES.has(key) ? 8 : 0));
-    const prev = byKey.get(key);
-    if (prev && prev.score >= score) { if (!prev.lineKeys.includes(r.lineKey)) prev.lineKeys.push(r.lineKey); continue; }
     const pct = Math.round((amount / assets) * 1000) / 10;
+    /* the ranking: the line's risk, then its weight in the statements and how often the sector's auditors report the theme —
+       for a large entity every line's risk reaches the cap, and these decide (the replay on the bundle's companies measures it) */
+    const weight = Math.round(score + Math.min(30, pct * 0.6) + (prior[key] ?? 0) * 40);
+    const prev = byKey.get(key);
+    if (prev && prev.weight >= weight) { if (!prev.lineKeys.includes(r.lineKey)) prev.lineKeys.push(r.lineKey); continue; }
     const description = (pr ? pr.why + ' ' : '') + 'بلغ رصيد ' + r.ar + ' ' + money(amount) + (input.periodEnd ? ' كما في ' + input.periodEnd : '') + ' (' + pct + '% من مجموع الموجودات)'
       + (r.risk ? '، وتتركز مخاطره في ' + clean(r.risk) : '') + (estimate ? '، ويتضمن تقديرات محاسبية تتطلب حكماً مهنياً مهماً (ISA 540)' : '') + '. لذلك عُدّ من الأمور ذات الأهمية القصوى في مراجعتنا.';
     const steps = [...new Set([...(r.procedures ?? []), ...(pr ? pr.procedures : [])].map(clean))].slice(0, 6);
@@ -44,9 +50,9 @@ export function suggestKams(input: { fs: FinancialStatements; risks: KamRisk[]; 
       : 'النتيجة معلقة حتى استكمال الأدلة المطلوبة من المنشأة.';
     byKey.set(key, { key, title: pr ? THEMES[pr.theme as Theme].ar : r.ar, description, how, observation,
       refs: [...(line?.standards ?? []), ...(line?.note ? ['إيضاح ' + line.note] : [])], lineKeys: [...new Set([...(prev?.lineKeys ?? []), r.lineKey])],
-      amount, pctAssets: pct, score, selected: false, trend: input.priorKeys ? (input.priorKeys.includes(key) ? 'same' : 'new') : null, examples: pr ? pr.examples : [] });
+      amount, pctAssets: pct, score, weight, selected: false, trend: input.priorKeys ? (input.priorKeys.includes(key) ? 'same' : 'new') : null, examples: pr ? pr.examples : [] });
   }
-  const out = [...byKey.values()].sort((a, b) => b.score - a.score);
+  const out = [...byKey.values()].sort((a, b) => b.weight - a.weight || b.score - a.score);
   const max = input.max ?? 3;
   let n = 0;
   for (const k of out) if (n < max && (k.score >= 70 || (k.score >= 55 && k.amount >= materiality))) { k.selected = true; n++; }
