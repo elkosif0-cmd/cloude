@@ -79,7 +79,7 @@ let lastSig="";
 /* the menu: collapsible domains (icon · name · count), the current screen's domain always open,
    and a filter box above it; open/closed state per device (skosif_nav_v1) */
 const NAV_KEY="skosif_nav_v1";
-const GICON={home:"dash",sales:"commerce",stock:"inventory",procurement:"purchasing",finance:"finance",catalog:"catalog",intelligence:"intelligence",reports:"reports",audit:"tbreview",system:"settings"};
+const GICON={home:"dash",sales:"commerce",stock:"inventory",procurement:"purchasing",finance:"finance",catalog:"catalog",intelligence:"jev",reports:"execreports",audit:"tbreview",system:"settings"};
 const CHEV='<svg class="skn-ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
 const navState=()=>{const d=load(NAV_KEY,{})||{};return d.open&&typeof d.open==="object"?d.open:{}};
 function setNavOpen(g,v){const d=load(NAV_KEY,{})||{};d.open={...(d.open||{}),[g]:v};save(NAV_KEY,d)}

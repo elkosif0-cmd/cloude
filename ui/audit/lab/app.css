@@ -67,6 +67,27 @@ td{color:#eee7f5}
 .card{padding:16px}}
 /* S.kosif theme bridge */
 :host{display:block}
-/* the lab is designed dark end to end; it stays a dark panel inside the page */
-.kx-body{min-height:0!important;border-radius:18px;overflow:hidden;padding:4px 0;font-family:var(--kx-font,inherit)!important}
-.kx-body a.back{display:none!important}
+/* KOSIF identity: the lab takes the app's tokens (it was a dark purple panel) */
+.kx-body.kx-body{color-scheme:inherit;--bg:var(--sk-bg);--panel:var(--sk-surface);--panel2:var(--sk-surface-2);--line:var(--sk-line);--text:var(--sk-ink);--muted:var(--sk-ink-3);
+ --accent:var(--sk-brand);--good:var(--sk-ok);--warn:var(--sk-warn);--danger:var(--sk-bad);--shadow:var(--sk-shadow-1)}
+.kx-body{min-height:0!important;background:transparent!important;color:var(--sk-ink)!important;font-family:var(--sk-font)!important}
+.kx-body a.back,.kx-body .top{display:none!important}
+.kx-body .shell{padding:0!important;max-width:none!important}
+.kx-body .card{background:var(--sk-surface)!important;border-color:var(--sk-line)!important;box-shadow:var(--sk-shadow-1)!important;border-radius:var(--sk-r-l)!important}
+.kx-body .hero .hero-copy{background:var(--sk-grad-brand)!important;border:0!important;color:#fff}
+.kx-body .hero .hero-copy p{color:rgba(255,255,255,.88)!important}
+.kx-body .hero .hero-copy .eyebrow{display:none!important}
+.kx-body .hero .hero-copy .note{background:rgba(255,255,255,.12)!important;color:#fff!important;border-right-color:#cfeeff!important}
+.kx-body .source-pill{background:var(--sk-brand-soft)!important;border-color:color-mix(in srgb,var(--sk-brand) 22%,transparent)!important;color:var(--sk-ink-2)!important}
+.kx-body select,.kx-body input{background:var(--sk-surface)!important;color:var(--sk-ink)!important;border-color:var(--sk-line-2)!important}
+.kx-body button{background:var(--sk-brand)!important;color:var(--sk-on-brand)!important}
+.kx-body button.secondary,.kx-body .secondary{background:var(--sk-surface)!important;color:var(--sk-ink)!important;border:1px solid var(--sk-line-2)!important}
+.kx-body .metric,.kx-body .item{background:var(--sk-surface-2)!important;border-color:var(--sk-line)!important}
+.kx-body .status.good{background:var(--sk-ok-soft)!important}.kx-body .status.warn{background:var(--sk-warn-soft)!important}
+.kx-body .status.danger{background:var(--sk-bad-soft)!important}.kx-body .status.info{background:var(--sk-brand-soft)!important;color:var(--sk-brand)!important}
+.kx-body th{color:var(--sk-ink-2)!important;background:var(--sk-surface-2)!important}
+.kx-body td{color:var(--sk-ink)!important}
+.kx-body th,.kx-body td{border-bottom-color:var(--sk-line)!important}
+.kx-body .bar{background:var(--sk-surface-3)!important}
+.kx-body .bar>i{background:var(--sk-grad-brand)!important}
+.kx-body .note{background:var(--sk-brand-soft)!important;color:var(--sk-ink-2)!important;border-right-color:var(--sk-brand)!important}

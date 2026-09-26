@@ -972,7 +972,7 @@
    "id": "smartmatch",
    "label": "مطابقة المبيعات",
    "sub": "ربط أوصاف البيع بالأصناف",
-   "group": "reports",
+   "group": "catalog",
    "tier": "UTILITIES",
    "module": "ui/smartmatch.js",
    "data": [
@@ -988,7 +988,7 @@
    "id": "excelrecon",
    "label": "مطابقة الإكسل",
    "sub": "ملفك مقابل المعالجة المعتمدة",
-   "group": "reports",
+   "group": "catalog",
    "tier": "UTILITIES",
    "module": "ui/tools.js",
    "data": [],

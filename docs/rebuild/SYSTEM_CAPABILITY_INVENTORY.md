@@ -52,8 +52,8 @@ Total capabilities: **64** (screens). Cross-cutting capabilities are listed afte
 | `reports` | مركز الطباعة | core | التقارير والتحليلات › يومي | `aghnam-pricing-v3`, `aghnam-pricing-prints-v1` | SKosifCore, Engine | Working | Keep |
 | `archive` | الأرشيف والتغييرات | core | التقارير والتحليلات › يومي | `aghnam-pricing-v3`, `IDB pricing_snapshots` | SKosifCore, Engine, IndexedDB | Working | Keep |
 | `exports` | مركز التصدير | ui/features/workspace.js | التقارير والتحليلات › يومي | `كل المفاتيح` | SKosifCore | Working | Rebuild |
-| `smartmatch` | مطابقة المبيعات | ui/smartmatch.js | التقارير والتحليلات › متقدم | `skosif_v34_product_aliases` | SKosifCore | Working | Keep |
-| `excelrecon` | مطابقة الإكسل | ui/tools.js | التقارير والتحليلات › متقدم | — | SKosifCore | Working | Keep |
+| `smartmatch` | مطابقة المبيعات | ui/smartmatch.js | الكتالوج والتسعير › متقدم | `skosif_v34_product_aliases` | SKosifCore | Working | Keep |
+| `excelrecon` | مطابقة الإكسل | ui/tools.js | الكتالوج والتسعير › متقدم | — | SKosifCore | Working | Keep |
 | `tbreview` | مراجعة ميزان المراجعة | ui/features/tb-review.js + ui/core/ai.js + ui/components/xlsx.js + SKEngines.audit.{tbReview,aiReview,documentCheck} + SKEngines.reports.{tbImport,statements,analysis} | المراجعة والتأكيد › يومي | `skosif_tbreview_v1`, `IDB skosif-tbreview-docs`, `skosif_ai_keys (الجهاز فقط)` | SKosifCore, IndexedDB | Working | Rebuild |
 | `codex` | المدونة المحاسبية والمعايير | ui/features/codex.js + SKEngines.audit.{codex,standardsUpdate} | المراجعة والتأكيد › يومي | `skosif_codex_updates_v1` | SKosifCore | Working | Rebuild |
 | `auditdesk` | مركز المراجعة | ui/audit (v5) | المراجعة والتأكيد › متقدم | `audit studio IDB` | SKosifCore | Working | Keep |

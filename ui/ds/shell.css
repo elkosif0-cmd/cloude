@@ -446,9 +446,10 @@ body.skn-locked{overflow:hidden}
 :root[data-rail="mini"] .skn-search,:root[data-rail="mini"] .nav .skn-gh{display:none}
 :root[data-rail="mini"] .nav .skn-group.closed>.nav-btn{display:flex}
 @media (prefers-reduced-motion:reduce){.nav .skn-ch{transition:none}}
-/* pricing shortcuts in the page head belong to the trading screens only */
-:root[data-domain="audit"] #hdr .loss-alert,:root[data-domain="audit"] #hdr .mbadge,:root[data-domain="audit"] #hdr [data-act="pick-open"],:root[data-domain="audit"] #hdr [data-act="inspect-open"],
-:root[data-domain="system"] #hdr .loss-alert,:root[data-domain="system"] #hdr .mbadge,:root[data-domain="system"] #hdr [data-act="pick-open"],:root[data-domain="system"] #hdr [data-act="inspect-open"]{display:none}
+/* pricing shortcuts in the page head belong to the pricing screens (catalogue domain) only;
+   the below-cost alert stays on the trading domains and leaves audit and system */
+:root:not([data-domain="catalog"]) #hdr .mbadge,:root:not([data-domain="catalog"]) #hdr [data-act="pick-open"],:root:not([data-domain="catalog"]) #hdr [data-act="inspect-open"],
+:root[data-domain="audit"] #hdr .loss-alert,:root[data-domain="system"] #hdr .loss-alert,:root[data-domain="reports"] #hdr .loss-alert,:root[data-domain="intelligence"] #hdr .loss-alert{display:none}
 :root[data-look="kosif"] .nav .skn-gh{font-size:13px;color:#9db1cc;letter-spacing:0}
 :root[data-look="kosif"] .nav .skn-group.here>.skn-gh{color:#fff}
 :root[data-look="kosif"] .nav .skn-group.closed>.skn-gh:hover{color:#dbe6f4}

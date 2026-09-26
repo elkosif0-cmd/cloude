@@ -949,3 +949,16 @@ tbody tr:hover td{background:rgba(238,242,255,.42)!important}
 .kx-body .shell .hero.hero.hero{background:linear-gradient(125deg,var(--kx-brand) 0%,var(--kx-brand-2) 100%)!important;color:#fff!important;box-shadow:none!important}
 .kx-body button.primary,.kx-body .primary{background:var(--kx-brand)!important;border-color:var(--kx-brand)!important;color:#fff!important}
 .kx-body:not([data-workspace-view="overview"]) #kosif-operating-model{display:none!important}
+/* KOSIF identity: the studio's dark leftovers (strips, dialogs, inputs) take the app's tokens */
+.kx-body .gateway-strip,.kx-body .delta-cards div,.kx-body .document-preview-column,.kx-body .document-claim-column,.kx-body .workspace-overview-strip,.kx-body .journey,.kx-body .now-panel{background:var(--sk-surface-2)!important;border-color:var(--sk-line)!important;color:var(--sk-ink)!important}
+.kx-body .document-preview-surface{background:var(--sk-surface-3)!important}
+.kx-body .gateway-strip input,.kx-body .recipe-form input,.kx-body dialog select,.kx-body dialog input[type=file],.kx-body .issue-dialog input,.kx-body .issue-dialog select,.kx-body .issue-dialog textarea,.kx-body .lineage-search input,.kx-body .cash-flow-balances input,.kx-body .cash-movement-form input,.kx-body .cash-movement-form select,.kx-body .equity-component-form input,.kx-body .equity-movement-form input,.kx-body .equity-movement-form select,.kx-body .report-publication-toolbar select{background:var(--sk-surface)!important;color:var(--sk-ink)!important;border-color:var(--sk-line-2)!important}
+.kx-body .statement-lineage-dialog,.kx-body .trace-inspector-dialog{background:var(--sk-surface)!important;color:var(--sk-ink)!important;border-color:var(--sk-line)!important}
+.kx-body .statement-lineage-table thead{background:var(--sk-surface-2)!important}
+.kx-body .trace-inspector-shell pre{background:var(--sk-surface-2)!important;color:var(--sk-ink)!important;border-color:var(--sk-line)!important}
+.kx-body dialog::backdrop{background:rgba(11,31,58,.5)!important}
+.kx-body .specialist-grid article{border-color:var(--sk-line)!important;background:var(--sk-surface-2)!important}
+.kx-body .intent-card:not(.hero *){background:var(--sk-surface)!important;border-color:var(--sk-line)!important;color:var(--sk-ink)!important}
+.kx-body .report-panel:before,.kx-body .council-panel:before{background:var(--sk-grad-brand)!important}
+.kx-body .callout{border-inline-start-color:var(--sk-brand)!important;background:var(--sk-brand-soft)!important}
+.kx-body .dropzone,.kx-body .readiness{background:var(--sk-surface-2)!important;border-color:var(--sk-line-2)!important}

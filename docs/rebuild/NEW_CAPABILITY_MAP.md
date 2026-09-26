@@ -52,8 +52,8 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | مركز التقارير | `reports` | التقارير والتحليلات › مركز الطباعة | UTILITIES | admin, accountant, sales, viewer |
 | الأرشيف | `archive` | التقارير والتحليلات › الأرشيف والتغييرات | MANAGEMENT | admin, accountant |
 | Grand Fusion reports.exports | `exports` | التقارير والتحليلات › مركز التصدير | UTILITIES | admin, accountant, sales |
-| مطابقة المبيعات | `smartmatch` | التقارير والتحليلات › مطابقة المبيعات (advanced) | UTILITIES | admin, accountant, sales |
-| مطابقة الإكسل | `excelrecon` | التقارير والتحليلات › مطابقة الإكسل (advanced) | UTILITIES | admin, accountant |
+| مطابقة المبيعات | `smartmatch` | الكتالوج والتسعير › مطابقة المبيعات (advanced) | UTILITIES | admin, accountant, sales |
+| مطابقة الإكسل | `excelrecon` | الكتالوج والتسعير › مطابقة الإكسل (advanced) | UTILITIES | admin, accountant |
 | جديد — دمج smart-trial-balance-review (مجلس Gemini والجولات) و kosif-audit-pro (القوائم والتحليل) و Moon (المخاطر والرأي) و SEE (التصنيف والجاهزية) | `tbreview` | المراجعة والتأكيد › مراجعة ميزان المراجعة | CORE | admin, accountant |
 | جديد — يحل محل قاعدة معايير smart-trial-balance-review ويكمّل مختبر المعايير | `codex` | المراجعة والتأكيد › المدونة المحاسبية والمعايير | MANAGEMENT | admin, accountant, viewer |
 | KOSIF Audit Studio | `auditdesk` | المراجعة والتأكيد › مركز المراجعة (advanced) | ADVANCED | admin, accountant |

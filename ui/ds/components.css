@@ -663,6 +663,7 @@ table.t{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
 .v16-score b{font-size:28px}
 .v16-score span{font-size:10px;color:var(--ink-3);font-weight:800;margin-top:-25px}
 .v16-score-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;line-height:1.1}
+.v16-score .v16-score-inner span{margin-top:4px}
 .v16-segments{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 .v16-seg{border:1px solid var(--line);background:var(--surface-2);border-radius:14px;padding:10px}
 .v16-seg b{display:block;font-size:18px}

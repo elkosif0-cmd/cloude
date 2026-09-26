@@ -21,20 +21,11 @@ function app(key){
   const host=document.createElement("div");host.className="kx-audit-host";frame.appendChild(host);
   return state[key]={frame,host,api:null,loading:null,want:"overview"};
 }
-function auditHubNav(activeId){
-  const nav=document.createElement("div");
-  nav.className="sk-hub-nav";
-  nav.innerHTML=SCREENS.map(s=>'<button type="button" class="sk-hub-btn '+(s[0]===activeId?'active':'')+'" data-audit-go="'+s[0]+'"><span>'+s[5]+'</span><span>'+s[3]+'</span></button>').join("");
-  nav.querySelectorAll("[data-audit-go]").forEach(b=>{
-    b.onclick=()=>window.SKosifCore?.go(b.dataset.auditGo);
-  });
-  return nav;
-}
 function open(key,node,view,screenId){
+  /* the domain strip above (shell) already lists every audit screen: no second hub menu here */
   const a=app(key);a.want=view;
-  const nav=auditHubNav(screenId);
-  if(key==="studio"&&view==="documents")node.replaceChildren(nav,tbPanel(),a.frame);
-  else node.replaceChildren(nav,a.frame);
+  if(key==="studio"&&view==="documents")node.replaceChildren(tbPanel(),a.frame);
+  else node.replaceChildren(a.frame);
   if(a.api){a.api.setView(view);return}
   if(a.loading)return;
   const wait=document.createElement("div");wait.className="sk-empty kx-wait";wait.textContent="جارٍ تحميل "+APPS[key].label+"…";a.frame.before(wait);
@@ -129,5 +120,5 @@ const SCREENS=[
   ["auditanalytics","classic","overview","التحليل المالي والمخاطر","بنفورد، المعاينة، اختبار القيود، النسب، الأهمية النسبية، الوكيل والمساعد الصوتي","",SV('<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/>')],
   ["auditlab","lab","overview","مختبر المعايير والأبحاث","مصادر IFRS وISA وSOCPA وسريانها، وأسئلة البحث المهني","",SV('<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5V21h16"/>')]
 ];
-SCREENS.forEach(([id,key,view,title,sub,emoji,icon])=>window.SK.view(id,{title,sub,emoji,adv:true,icon,render(node){open(key,node,view,id)}}));
+SCREENS.forEach(([id,key,view,title,sub,emoji,icon])=>window.SK.view(id,{title,sub,emoji,adv:true,icon:window.SK.icons[id]||icon,render(node){open(key,node,view,id)}}));
 })();

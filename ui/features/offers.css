@@ -1151,3 +1151,14 @@ html[data-theme="dark"] .k32 {
 .k32-img>span[aria-hidden] svg,.k32-img>span[aria-hidden] img,.k32-cart-item-icon svg{width:44px;height:44px;color:var(--sk-brand)}
 .k32-cart-item-icon svg{width:26px;height:26px}
 [data-k32-cols] svg{display:block}
+
+/* KOSIF look: the catalogue takes KOSIF blue for its selection states and the KOSIF hero
+   (the sepia valley art stays with the heritage looks) */
+:root[data-look="kosif"] .k32{--k32-green:var(--sk-brand);--k32-green-light:var(--sk-brand-soft)}
+:root[data-look="kosif"] .k32-cat-chip.on{background:var(--sk-brand);border-color:var(--sk-brand);color:var(--sk-on-brand)}
+:root[data-look="kosif"]:not(#x) .k32-hero{background:radial-gradient(520px 260px at 10% 115%,rgba(34,184,230,.35),transparent 70%),var(--sk-grad-brand);border:0;color:#fff}
+:root[data-look="kosif"]:not(#x) .k32-hero::before{display:none}
+:root[data-look="kosif"]:not(#x) .k32-hero h3{color:#fff;font-family:var(--sk-font)}
+:root[data-look="kosif"]:not(#x) .k32-hero p{color:rgba(255,255,255,.86)}
+:root[data-look="kosif"]:not(#x) .k32-hero-brand,:root[data-look="kosif"]:not(#x) .k32-hero-meta>*,:root[data-look="kosif"]:not(#x) .k32-hero-actions button{color:#fff;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.24)}
+:root[data-look="kosif"]:not(#x) .k32-hero-meta>* *{color:inherit}
