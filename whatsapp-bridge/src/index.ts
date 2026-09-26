@@ -107,12 +107,6 @@ export class WaBridge extends Container<Env> {
   private lastSeq = 0;
   private lastReceiptSeq = 0;
   private syncing: Promise<void> = Promise.resolve();
-  private env: Env;
-
-  constructor(ctx: DurableObjectState, env: Env) {
-    super(ctx, env);
-    this.env = env;
-  }
 
   // ---- container plumbing -------------------------------------------------
 
