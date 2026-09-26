@@ -5,6 +5,7 @@ dash	مركز القيادة
 tasks	المهام
 notifications	مركز الإشعارات
 risks	المخاطر والملاحظات
+helperdesk	مركز الأدوات المساعدة
 decision	مركز القرار
 jev	Jev للقرار
 council	مجلس القرار
