@@ -358,3 +358,13 @@
 .tbr-studio-host{min-height:320px}
 .tbr-studio-host .kx-audit-frame{border-radius:var(--sk-r-l);overflow:hidden}
 @media (max-width:720px){.tbr-sv{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.tbr-sv button{flex:0 0 auto}}
+/* the studio's page for the same step, under the tab's own work: part of the file, not a second app */
+.tbr-adv{margin-top:var(--sk-4);padding-top:var(--sk-4);border-top:1px solid var(--sk-line)}
+.tbr-adv>header{margin:0 0 10px}
+.tbr-adv>header h3{margin:0 0 4px;font-family:var(--sk-font-display);font-size:var(--sk-fs-l);color:var(--sk-ink)}
+.tbr-adv>header p{margin:0;color:var(--sk-ink-3);font-size:var(--sk-fs-xs);line-height:1.6}
+.tbr-adv .tbr-studio-host{min-height:120px}
+.tbr-docai{margin:0 0 12px;padding:10px 12px;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface-2);font-size:var(--sk-fs-xs);color:var(--sk-ink-2);line-height:1.7}
+.tbr-docai p{margin:0}.tbr-docai b{color:var(--sk-ink)}
+.tbr-docai details{margin-top:6px}.tbr-docai summary{cursor:pointer;color:var(--sk-brand);font-weight:700}
+.tbr-docai .sk-field{flex:1;min-width:0}.tbr-docai input{width:100%;font-family:var(--sk-font-mono,monospace);font-size:var(--sk-fs-xs)}

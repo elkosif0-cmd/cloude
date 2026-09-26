@@ -62,17 +62,17 @@ function open(key,node,view,screenId){
   /* the domain strip above (shell) already lists every audit screen: no second hub menu here */
   const a=app(key);a.want=view;
   node.replaceChildren(a.frame);
-  if(a.api){a.api.setView(view);if(key==="classic"){feedAnalytics(a);viewsBar(a)}return}
+  if(a.api){a.api.setView(view);if(key==="classic"){feedAnalytics(a);viewsBar(a)}if(key==="studio")syncStudio(a);return}
   if(a.loading)return;
   const wait=document.createElement("div");wait.className="sk-empty kx-wait";wait.textContent="جارٍ تحميل "+APPS[key].label+"…";a.frame.before(wait);
   a.loading=import(APPS[key].path).then(m=>m.mount(a.host,a.want)).then(api=>{
-    a.api=api;api.setView(a.want);wait.remove();if(key==="studio")seedStudio(a);
+    a.api=api;if(key==="studio")recolorStudio(a.host.shadowRoot);api.setView(a.want);wait.remove();if(key==="studio")syncStudio(a);
     syncTheme();if(key==="classic"){setTimeout(()=>feedAnalytics(a),400);setTimeout(()=>viewsBar(a),300)}
     try{
       const sRoot=a.host.shadowRoot;
       if(sRoot&&!sRoot.getElementById("sk-audit-unify")){
         const style=document.createElement("style");style.id="sk-audit-unify";
-        style.textContent=".topbar,#topbar,.shell-header,.kx-topbar{display:none!important;}.shell,.kx-shell{padding-top:0!important;margin-top:0!important;}"+(key==="studio"?".shell>.hero{display:none!important;}":"")+THEME[key];
+        style.textContent=".topbar,#topbar,.shell-header,.kx-topbar{display:none!important;}.shell,.kx-shell{padding-top:0!important;margin-top:0!important;}"+(key==="studio"?".shell>.hero{display:none!important;}"+STUDIO_HIDE:"")+THEME[key];
         sRoot.appendChild(style);
       }
     }catch{}
@@ -113,39 +113,6 @@ async function buildTB(period){
 }
 const csvCell=v=>{let s=String(v??"");if(/^[=+\-@]/.test(s)&&isNaN(Number(s)))s="'"+s;return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
 const tbCSV=rows=>"﻿"+[["كود الحساب","اسم الحساب","مدين","دائن","التصنيف"],...rows.map(r=>[r[0],r[1],r[2].toFixed(2),r[3].toFixed(2),r[4]])].map(r=>r.map(csvCell).join(",")).join("\n")+"\n";
-function periods(){const now=new Date(),y=now.getFullYear(),m=String(now.getMonth()+1).padStart(2,"0"),pm=new Date(y,now.getMonth()-1,1);
-  return [[y+"-"+m,"الشهر الحالي"],[pm.getFullYear()+"-"+String(pm.getMonth()+1).padStart(2,"0"),"الشهر السابق"],[String(y),"السنة الحالية"],["all","كل الفترات"]]}
-let tbCard=null;
-function tbPanel(){
-  if(tbCard)return tbCard;
-  tbCard=document.createElement("section");tbCard.className="card kx-tb";
-  tbCard.innerHTML='<div class="card-h"><div><h3>ميزان مراجعة من دفاتر S.kosif</h3><p>من المبيعات وشحنات الموردين والمصروفات وذمم الآجل المسجلة في التطبيق، للفترة المختارة. النقدية رقم موازن محسوب.</p></div></div>'+
-    '<div class="card-b sk-stack"><div class="sk-actions"><select class="kx-tb-period">'+periods().map(([v,l])=>'<option value="'+v+'">'+l+' ('+(v==="all"?"الكل":v)+')</option>').join("")+'</select>'+
-    '<button type="button" class="btn kx-tb-build">إعداد الميزان</button><button type="button" class="btn primary kx-tb-send" disabled>إرسال لنافذة الاستلام</button><button type="button" class="btn kx-tb-csv" disabled>تنزيل CSV</button></div><div class="kx-tb-out"></div></div>';
-  let last=null;const $=s=>tbCard.querySelector(s);
-  $(".kx-tb-build").onclick=async()=>{
-    const period=$(".kx-tb-period").value,tb=await buildTB(period);last={period,...tb};
-    const out=$(".kx-tb-out");
-    if(!tb.rows.length){out.innerHTML='<div class="sk-note warn">لا توجد مبيعات أو مشتريات أو مصروفات مسجلة في هذه الفترة.</div>';$(".kx-tb-send").disabled=$(".kx-tb-csv").disabled=true;return}
-    const f=v=>v?v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}):"—",dr=tb.rows.reduce((a,r)=>a+r[2],0),cr=tb.rows.reduce((a,r)=>a+r[3],0);
-    out.innerHTML='<div class="sk-note">المصادر: '+tb.counts.lines+' سطر مبيعات، '+tb.counts.batches+' شحنة مورد، '+tb.counts.flows+' مدفوعات مسجلة.</div>'+
-      '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الكود</th><th>الحساب</th><th>مدين</th><th>دائن</th><th>التصنيف</th></tr></thead><tbody>'+
-      tb.rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1].replace(/[<>&]/g,"")+'</td><td>'+f(r[2])+'</td><td>'+f(r[3])+'</td><td>'+r[4]+'</td></tr>').join("")+
-      '<tr><td></td><td><b>الإجمالي</b></td><td><b>'+f(dr)+'</b></td><td><b>'+f(cr)+'</b></td><td>'+(Math.abs(dr-cr)<0.01?"متزن":"غير متزن")+'</td></tr></tbody></table></div>';
-    $(".kx-tb-send").disabled=$(".kx-tb-csv").disabled=false;
-  };
-  $(".kx-tb-csv").onclick=()=>{if(!last)return;const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([tbCSV(last.rows)],{type:"text/csv;charset=utf-8"}));a.download="S.kosif-trial-balance-"+last.period+".csv";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
-  $(".kx-tb-send").onclick=()=>{
-    const a=state.studio,root=a&&a.host.shadowRoot;if(!last||!root)return;
-    root.getElementById("openSpreadsheetIntake")?.click();
-    const input=root.getElementById("spreadsheetFile");if(!input)return window.SK.toast("نافذة الاستلام غير جاهزة بعد","err");
-    const dt=new DataTransfer();dt.items.add(new File([tbCSV(last.rows)],"S.kosif-trial-balance-"+last.period+".csv",{type:"text/csv"}));
-    input.files=dt.files;input.dispatchEvent(new Event("change",{bubbles:true}));
-    window.SK.toast("راجع ربط الأعمدة في نافذة الاستلام ثم اعتمد الاستيراد","info");
-  };
-  return tbCard;
-}
-
 const SV=p=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>';
 const SCREENS=[
   ["auditdesk","studio","overview","نظرة عامة","المرحلة الحالية والخطوة التالية ومؤشرات ملف المراجعة","",SV('<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>')],
@@ -157,15 +124,6 @@ const SCREENS=[
   ["auditanalytics","classic","overview","التحليل المالي والمخاطر","بنفورد، المعاينة، اختبار القيود، النسب، الأهمية النسبية، الوكيل والمساعد الصوتي","",SV('<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/>')],
   ["auditlab","lab","overview","مختبر المعايير والأبحاث","مصادر IFRS وISA وSOCPA وسريانها، وأسئلة البحث المهني","",SV('<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5V21h16"/>')]
 ];
-/* send a trial balance (rows [code,name,debit,credit,category] in major units) into the studio's intake */
-function sendTB(rows,label){
-  const a=state.studio,root=a&&a.host.shadowRoot;if(!root){window.SK.toast("افتح الاستوديو أولاً ثم أعد الإرسال","warn");return false}
-  root.getElementById("openSpreadsheetIntake")?.click();
-  const input=root.getElementById("spreadsheetFile");if(!input){window.SK.toast("نافذة الاستلام غير جاهزة بعد","err");return false}
-  const dt=new DataTransfer();dt.items.add(new File([tbCSV(rows)],"KOSIF-trial-balance-"+(label||"file")+".csv",{type:"text/csv"}));
-  input.files=dt.files;input.dispatchEvent(new Event("change",{bubbles:true}));
-  window.SK.toast("راجع ربط الأعمدة في نافذة الاستلام ثم اعتمد الاستيراد","info");return true;
-}
 /* the analytics tools take the engagement's own trial balance (once per version of it) — no second upload */
 let fedSig="";
 function feedAnalytics(a){
@@ -175,28 +133,95 @@ function feedAnalytics(a){
     fedSig=t.sig;window.SK.toast("استُلم ميزان ملف المراجعة («"+t.label+"») في أدوات التحليل","info");
   }catch(e){console.error("S.kosif analytics feed",e)}
 }
-/* on a device running the demo company an empty studio opens on its own sample engagement (5000 accounts) with a
-   council round, a proposed adjustment and a report draft, so every page shows how it works; never over real work */
-async function seedStudio(a){
-  try{
-    if(!(window.SK.demo&&SK.demo.active&&SK.demo.active()))return;
-    const st=await import("./audit/v5/continuous-store.js");
-    if(st.store.engagement.documents.length||st.store.analysis)return;
-    (await import("./audit/v5/continuous-documents.js")).loadDemo();
-    st.store.engagement.entity="نموذج استوديو المراجعة — 5000 حساب (بيانات تجريبية)";window.__skStudioDemo=true;
-    const root=a.host.shadowRoot,wait=ms=>new Promise(r=>setTimeout(r,ms));
-    for(const id of ["runCouncilButton","proposeAdjustmentButton","buildDraftButton"]){const b=root&&root.getElementById(id);if(b){b.click();await wait(700)}}
-    a.api.setView(a.want);
-  }catch(e){console.error("S.kosif studio demo",e)}
+/* ---------- the studio is part of the engagement file, not a second app ----------
+   It always works on the file's own trial balance and company (synced once per version of the file), its private
+   menu, intake buttons and server settings are hidden (the engagement's tabs, its trial-balance tab and the documents
+   tab's own status do those jobs), and its colours are rewritten to the app's tokens. Work the owner brings into the
+   studio by other means (its cloud session) is never overwritten. */
+const STUDIO_HIDE="#workspaceNavigation,.workspace-navigation,.gateway-strip,#remotePersistenceState,#demoButton,#openSpreadsheetIntake,.eyebrow{display:none!important}";
+const V5="./audit/v5/";
+async function renderStudio(){
+  const m=await Promise.all(["continuous-store","continuous-documents","continuous-council","continuous-issues","continuous-coverage","continuous-statements","continuous-statement-lineage","continuous-reporting",
+    "continuous-report-intake","continuous-cash-flow","continuous-equity","continuous-disclosures","continuous-completion","continuous-publication","continuous-trace-inspector","continuous-workspace-navigation","dashboard-suite"].map(n=>import(V5+n+".js")));
+  const [st,dc,co,is,cv,sm,sl,rp,ri,cf,eq,di,cp,pb,tr,wn,ds]=m;
+  ri.reconcileReportIntake();st.derive();rp.renderNow();dc.renderAnalysisMetrics();dc.renderDocuments();rp.renderRecipe();ri.renderReportIntake();co.renderCouncil();co.renderRequests();is.renderIssues();cv.renderCoverage();
+  rp.renderCandidates();rp.renderAdjustments();sm.renderStatements();sl.renderStatementLineage();cf.renderCashFlow();eq.renderEquity();di.renderDisclosures();rp.renderTrace();if(st.store.engagement.reports.length)rp.renderReport();
+  pb.renderPublication();tr.renderTraceInspector();cp.renderCompletion();wn.renderWorkspaceNavigation();ds.renderDashboardSuite();
 }
-/* the audit studio lives inside «مركز المراجعة» (tab «الاستوديو المتقدم»): mount it in the engagement's own tab */
-/* the studio's two starting points (its hidden welcome panel) from the engagement's tab */
-function studioAction(id){const r=state.studio&&state.studio.host.shadowRoot,el=r&&r.getElementById(id);if(el){el.click();return true}window.SK.toast("افتح الاستوديو أولاً","warn");return false}
-function mountStudio(node,view){open("studio",node,view||"overview","auditdesk");if((view||"overview")==="documents")node.insertBefore(tbPanel(),node.firstChild)}
+let syncSig="",syncing=null;
+/* the studio wants ISO codes: the file keeps the currency as the owner typed it */
+function isoCurrency(c,country){const v=String(c||"");return /EGP|مصر|جنيه/i.test(v)||(!v&&country==="EG")?"EGP":/AED|درهم|إمارات/i.test(v)?"AED":/USD|دولار/i.test(v)?"USD":/KWD|كويت/i.test(v)?"KWD":"SAR"}
+function hashId(v){let h=2166136261;for(const ch of String(v)){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0).toString(36).toUpperCase()}
+function yearEnd(p){const m=String(p||"").match(/(19|20)\d{2}/);return (m?m[0]:String(new Date().getFullYear()))+"-12-31"}
+function syncStudio(a){if(syncing)return syncing;syncing=doSync(a).finally(()=>{syncing=null});return syncing}
+async function doSync(a){
+  try{
+    const st=await import(V5+"continuous-store.js"),t=window.SKosifTBReview&&SKosifTBReview.rows(),demo=!!(window.SK.demo&&SK.demo.active&&SK.demo.active());
+    const own=String(st.store.engagement.id||"").startsWith("SK-")||window.__skStudioDemo,filled=st.store.engagement.documents.length||st.store.analysis;
+    if(filled&&!own)return;
+    const root=a.host.shadowRoot,wait=ms=>new Promise(r=>setTimeout(r,ms));
+    if(t){
+      if(t.sig===syncSig&&own)return;
+      const em=await import(V5+"engagement-machine.js"),docs=await import(V5+"continuous-documents.js"),c=t.ctx||{};
+      st.resetEngagement(em.createEngagement({id:"SK-ENG-"+hashId(t.sig||t.label),entity:t.label,period:yearEnd(c.period),jurisdiction:c.country==="EG"?"EG":"SA",framework:c.framework||"IFRS",engagementType:"audit",currency:isoCurrency(c.currency,c.country)}));
+      const csv=tbCSV(t.rows);
+      st.store.engagement.documents.push({id:"DOC-0001",name:"ميزان الملف — "+t.label+".csv",type:"trial-balance",mime:"text/csv",size:new TextEncoder().encode(csv).length,sha256:"ميزان الملف · "+hashId(csv),version:1,status:"classified",analysisStatus:"ميزان الملف",createdAt:new Date().toISOString()});
+      docs.loadTrialBalance(t.rows.map(r=>({code:r[0],name:r[1],debit:Number(r[2]).toFixed(2),credit:Number(r[3]).toFixed(2)})),t.label);
+      syncSig=t.sig;window.__skStudioDemo=false;await renderStudio();
+    }else if(demo&&!filled){
+      (await import(V5+"continuous-documents.js")).loadDemo();
+      st.store.engagement.entity="نموذج استوديو المراجعة — 5000 حساب (بيانات تجريبية)";window.__skStudioDemo=true;
+    }else return;
+    /* on the demo company every page shows how it works: a council round, a proposed entry and a report draft */
+    if(demo)for(const id of ["runCouncilButton","proposeAdjustmentButton","buildDraftButton"]){const b=root&&root.getElementById(id);if(b){b.click();await wait(600)}}
+    a.api.setView(a.want);
+  }catch(e){console.error("S.kosif studio sync",e)}
+}
+/* ---------- one palette: the studio's own colours (written for a dark stage) rewritten to the app's tokens ---------- */
+const RC={
+  border:{"#342741":"--sk-line","#ffffff0c":"--sk-line","#ffffff12":"--sk-line","#eef2f7":"--sk-line","#f1f5f9":"--sk-line","#e2e8f0":"--sk-line","#e0e7ff":"--sk-line","#ddd3df":"--sk-line","#ffffff05":"--sk-line",
+    "#34d399":"--sk-ok","#69a889":"--sk-ok","#fb7185":"--sk-bad","#fbbf24":"--sk-warn","#c98f4c":"--sk-warn","#60a5fa":"--sk-info","#a78bfa":"--sk-info","#6366f1":"--sk-brand","#4f46e5":"--sk-brand"},
+  color:{"#aaa1b4":"--sk-ink-3","#8f8798":"--sk-ink-3","#64748b":"--sk-ink-3","#94a3b8":"--sk-ink-3","#756d79":"--sk-ink-3","#b9b2c0":"--sk-ink-3","#c8c0d0":"--sk-ink-3",
+    "#f6f2fa":"--sk-ink","#1e293b":"--sk-ink","#334155":"--sk-ink","#4f46e5":"--sk-brand","#6366f1":"--sk-brand","#4338ca":"--sk-brand","#5eead4":"--sk-ok","#34d399":"--sk-ok",
+    "#fbbf24":"--sk-warn","#fb7185":"--sk-bad","#be123c":"--sk-bad","#a78bfa":"--sk-info","#60a5fa":"--sk-info"},
+  bg:{"#ffffff03":"--sk-surface","#ffffff04":"--sk-surface","#ffffff05":"--sk-surface","#100c16":"--sk-surface","#0f0b14":"--sk-surface","#17101e":"--sk-surface","#1a1322":"--sk-surface","#100c16e8":"--sk-surface","#fff":"--sk-surface","#ffffff":"--sk-surface",
+    "#f8fafc":"--sk-surface-2","#f1f5f9":"--sk-surface-2","#eef2ff":"--sk-surface-2","#f4effb":"--sk-surface-2","#fffdf8":"--sk-surface-2","#fffaf0":"--sk-surface-2","#fff8ee":"--sk-surface-2","#f1fff7":"--sk-ok-soft",
+    "#fff1f2":"--sk-bad-soft","#8b5cf61d":"--sk-brand-soft","#6366f1":"--sk-brand","#4f46e5":"--sk-brand","#a855f7":"--sk-brand-2"}
+};
+const HEX=/#[0-9a-fA-F]{3,8}\b|rgba\(255,\s*255,\s*255,\s*\.28\)/g;
+function recolorCSS(css){
+  return css.replace(/([^{}]+)\{([^{}]*)\}/g,(m,sel,body)=>{
+    const onBrand=/background[^;]*(#6366f1|#4f46e5|#4338ca|#a855f7|gradient|--brand|--kosif-purple)/i.test(body);
+    const out=body.replace(/([a-z-]+)\s*:\s*([^;]*)/gi,(d,prop,val)=>{
+      const kind=/background/i.test(prop)?"bg":/border|outline/i.test(prop)?"border":prop.toLowerCase()==="color"?"color":null;if(!kind)return d;
+      return prop+":"+val.replace(HEX,h=>{const k=h.toLowerCase().startsWith("rgba")?"--sk-line":(h.toLowerCase()==="#fff"||h.toLowerCase()==="#ffffff")&&kind==="color"?(onBrand?null:"--sk-ink"):RC[kind][h.toLowerCase()];return k?"var("+k+")":h});
+    });
+    return sel+"{"+out+"}";
+  });
+}
+function recolorStudio(root){try{const st=root&&root.querySelector("style");if(st&&!st.dataset.skRecolored){st.textContent=recolorCSS(st.textContent);st.dataset.skRecolored="1"}}catch(e){console.error("S.kosif studio colours",e)}}
+/* ---------- document analysis: a plain status in the documents tab, the server address only under «advanced» ---------- */
+const GW_KEY="kosif:v5:document-gateway",GW_DEFAULT="https://kosif-audit-realtime.kosif199022.workers.dev";
+function docAIHTML(){
+  const url=localStorage.getItem(GW_KEY)||GW_DEFAULT;
+  return '<div class="tbr-docai"><p><b>تحليل المستندات الذكي</b> — يُحفظ كل مستند ويُصنّف ويُربط بالأدلة على الجهاز. قراءة محتواه بالذكاء الاصطناعي تعمل حين يتصل خادم التحليل. <span class="sk-pill" data-docai-state>لم يُفحص</span></p>'+
+    '<details><summary>ربط خادم التحليل (متقدم)</summary><div class="sk-actions"><label class="sk-field"><span>عنوان الخادم</span><input data-docai-url dir="ltr" value="'+window.SK.esc(url)+'"></label><button type="button" class="btn sm" data-docai-test>فحص الاتصال</button></div></details></div>';
+}
+async function docAITest(btn){
+  const box=btn.closest(".tbr-docai"),pill=box&&box.querySelector("[data-docai-state]"),inp=box&&box.querySelector("[data-docai-url]");if(!pill||!inp)return;
+  const url=inp.value.trim().replace(/\/+$/,"");if(url)localStorage.setItem(GW_KEY,url);else localStorage.removeItem(GW_KEY);
+  pill.className="sk-pill";pill.textContent="يفحص…";
+  try{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),6000),r=await fetch((url||GW_DEFAULT)+"/health",{signal:ac.signal,headers:{Accept:"application/json"}});clearTimeout(t);
+    const j=r.ok?await r.json():null,ok=!!(j&&j.documentIntelligence&&j.documentIntelligence.configured);pill.className="sk-pill "+(ok?"good":"warn");pill.textContent=ok?"متصل":r.ok?"الخادم يعمل والمفتاح غير مهيأ":"غير متاح ("+r.status+")"}
+  catch{pill.className="sk-pill warn";pill.textContent="غير متصل — المستندات تُحفظ على الجهاز"}
+}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-docai-test]");if(b)docAITest(b)});
+/* the studio's pages are mounted by the engagement file (tb-review.js), each under the tab it belongs to */
+function mountStudio(node,view){open("studio",node,view||"overview","auditdesk")}
 /* the operational trial balance (sales, supplier batches, payments, credit) for the TB review */
-window.SKosifAuditBridge=Object.freeze({buildTB,mountStudio,sendTB,studioAction,STUDIO_VIEWS:SCREENS.filter(x=>x[1]==="studio").map(x=>({id:x[0],view:x[2],label:x[3],sub:x[4]}))});
-/* a studio page opened directly (search, deep link, old bookmark) opens the engagement's studio tab on that page */
+window.SKosifAuditBridge=Object.freeze({buildTB,mountStudio,docAIHTML,syncStudio:()=>state.studio&&state.studio.api?syncStudio(state.studio):null,STUDIO_VIEWS:SCREENS.filter(x=>x[1]==="studio").map(x=>({id:x[0],view:x[2],label:x[3],sub:x[4]}))});
+/* a studio page opened directly (search, deep link, old bookmark) opens the engagement file on the tab that holds it */
 SCREENS.forEach(([id,key,view,title,sub,emoji,icon])=>window.SK.view(id,{title,sub,emoji,adv:true,icon:window.SK.icons[id]||icon,render(node){
-  if(key==="studio"&&window.SKosifTBReview&&SKosifTBReview.studio){node.innerHTML='<div class="sk-empty kx-wait">يفتح «مركز المراجعة › الاستوديو المتقدم»…</div>';setTimeout(()=>SKosifTBReview.studio(view),0);return}
+  if(key==="studio"&&window.SKosifTBReview&&SKosifTBReview.studio){node.innerHTML='<div class="sk-empty kx-wait">يفتح «ملف المراجعة»…</div>';setTimeout(()=>SKosifTBReview.studio(view),0);return}
   open(key,node,view,id)}}));
 })();

@@ -16,9 +16,9 @@ const {esc,load,save,toast}=SK;
 const KEY="skosif_tbreview_v1",MAX_FILE=15*1024*1024,MAX_ROUND=18*1024*1024;
 const E=()=>window.SKEngines,RV=()=>E().audit.tbReview,AI=()=>E().audit.aiReview,DC=()=>E().audit.documentCheck,CX=()=>E().audit.codex,PG=()=>E().audit.programme,DS=()=>E().audit.disclosures;
 const TI=()=>E().reports.tbImport,FS=()=>E().reports.statements,AN=()=>E().reports.analysis,MN=()=>E().reports.money;
-const TABS=[["tb","الميزان والمعايير"],["ai","جولات المراجعة"],["conf","الثقة والمجلس"],["docs","المستندات"],["adj","التسويات والامتثال"],["fs","القوائم والتقارير"],["studio","الاستوديو المتقدم"]];
+const TABS=[["tb","الميزان والمعايير"],["ai","جولات المراجعة"],["conf","الثقة والمجلس"],["docs","المستندات"],["adj","التسويات والامتثال"],["fs","القوائم والتقارير"]];
 const CU=()=>window.SKosifCouncilUI;
-let root=null,tab="tb",filter="all",busy="",abort=null,cache=null,setup=false,fsAfter=true,doc="issue",confHTML={sig:"",h:""},confSeq=0,studioView="overview";
+let root=null,tab="tb",filter="all",busy="",abort=null,cache=null,setup=false,fsAfter=true,doc="issue",confHTML={sig:"",h:""},confSeq=0;
 
 /* ---------- state ---------- */
 const blank=()=>({ctx:{company:"",period:"",periodStart:"",periodEnd:"",activity:"",country:"SA",framework:"IFRS",currency:"الريال السعودي",legalForm:"",registeredOffice:"",principalPlace:""},fw:{},tbText:"",overrides:{},materiality:null,session:null,accepted:[],rejected:[],ecl:null,
@@ -95,8 +95,8 @@ async function fromBooks(){
   return ok;
 }
 /* open the engagement on a tab (and a studio page): used by the studio's own deep links and other screens */
-function openTab(t,view){if(t)tab=t;if(view)studioView=view;if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");else paint()}
-window.SKosifTBReview=Object.freeze({fromBooks,booksTB,rows:()=>{const c=compute();return c&&c.tb.ok?{rows:studioRows(c),sig:c.sig,label:c.d.ctx.company||"file"}:null},load:(text,label,ctx)=>loadTB(text,label,ctx),open:openTab,studio:view=>openTab("studio",view)});
+function openTab(t,view){if(t==="studio")t=Object.keys(ADV).find(k=>ADV[k]===view)||"docs";if(t)tab=t;if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");else paint()}
+window.SKosifTBReview=Object.freeze({fromBooks,booksTB,rows:()=>{const c=compute();return c&&c.tb.ok?{rows:studioRows(c),sig:c.sig,label:c.d.ctx.company||"file",ctx:{...c.d.ctx}}:null},load:(text,label,ctx)=>loadTB(text,label,ctx),open:openTab,studio:view=>openTab("studio",view)});
 
 /* ---------- computation (memoized) ---------- */
 function compute(){
@@ -237,15 +237,16 @@ function roundCard(r,c){
   '</div></section>';
 }
 
-/* ---------- tab: the audit studio inside the engagement ----------
-   KOSIF's audit studio (documents, issues, the reviewers' council, statements, report builder) works on this
-   same file: one click sends this engagement's trial balance to its intake. */
-function studioTab(c){
-  const views=window.SKosifAuditBridge?SKosifAuditBridge.STUDIO_VIEWS:[];
-  return '<section class="card tbr-studio"><div class="card-h"><div><h3>الاستوديو المتقدم</h3><p>أدوات استوديو KOSIF للمراجعة على هذا الملف نفسه — ليست تطبيقاً آخر: أرسل ميزان الملف إلى الاستوديو ثم تنقّل بين صفحاته.</p></div>'+
-    (c?'<div class="sk-actions"><button type="button" class="btn primary sm" data-a="studio-send"'+(c.tb.ok?'':' disabled')+'>إرسال ميزان الملف ('+c.tb.rows.length+' حساباً)</button></div>':'<div class="sk-actions"><button type="button" class="btn sm" data-tab="tb">استلام ميزان للملف</button></div>')+'</div>'+
-    '<div class="card-b"><div class="sk-actions tbr-sv-start"><button type="button" class="btn sm" data-a="studio-start" data-id="reviewDocumentCard">ابدأ من المستندات</button><button type="button" class="btn sm" data-a="studio-start" data-id="buildReportCard">ابدأ من المخرج (قائمة أو تقرير)</button></div><div class="sk-seg tbr-sv" role="group" aria-label="صفحات الاستوديو">'+views.map(v=>'<button type="button" data-sv="'+v.view+'" aria-pressed="'+(studioView===v.view)+'" title="'+esc(v.sub)+'">'+esc(v.label)+'</button>').join("")+'</div></div></section>'+
-    '<div class="tbr-studio-host" data-studio-host></div>';
+/* ---------- the audit studio's tools, inside the tab they belong to ----------
+   No separate studio and no second menu: each step of the engagement shows, under its own work, the studio page for
+   the same step (overview under the trial balance, council under the rounds, issues under confidence, documents under
+   documents, statements and entries under adjustments, the report builder under reports). The studio always works on
+   this file's own trial balance, synced automatically (audit-bridge.js). */
+const ADV={tb:"overview",ai:"council",conf:"issues",docs:"documents",adj:"financials",fs:"report"};
+function advHTML(t){
+  const v=(window.SKosifAuditBridge?SKosifAuditBridge.STUDIO_VIEWS:[]).find(x=>x.view===ADV[t]);if(!v)return "";
+  return '<section class="tbr-adv" aria-label="'+esc(v.label)+'"><header><h3>'+esc(v.label)+'</h3><p>'+esc(v.sub)+' — على ميزان هذا الملف نفسه، ويتحدّث معه تلقائياً.</p></header>'+
+    (t==="docs"?SKosifAuditBridge.docAIHTML():'')+'<div class="tbr-studio-host" data-studio-host></div></section>';
 }
 function studioRows(c){return c.tb.rows.map(r=>{const b=r.balance/100;return [r.code,r.name,b>0?b:0,b<0?-b:0,TI().TYPE_LABELS[r.type]||""]})}
 
@@ -546,7 +547,6 @@ function bind(node){
     const fl=e.target.closest("[data-flt]");if(fl){filter=fl.dataset.flt;paint();return}
     const dc=e.target.closest("[data-doc]");if(dc){doc=dc.dataset.doc;paint();return}
     const fv=e.target.closest("[data-fsv]");if(fv){fsAfter=fv.dataset.fsv==="after";paint();return}
-    const sv=e.target.closest("[data-sv]");if(sv){studioView=sv.dataset.sv;paint();return}
     const af=e.target.closest("[data-acc-f]");if(af){const c=compute(),a=c.all.accounts.find(x=>x.code===af.dataset.accF);const s=(c.stdMap[a.code]||[])[0];if(s)SKosifCodex.open(s,{account:{code:a.code,name:a.name,lineKey:a.lineKey,lineAr:a.lineAr,basis:a.basis,assertions:a.assertions},note:c.notes[a.code]||"",findings:c.all.findings.filter(f=>f.code===a.code),framework:c.fw});return}
     const ad=e.target.closest("[data-adj]");
     if(ad){const d=st(),id=ad.dataset.id;d.accepted=d.accepted.filter(x=>x!==id);d.rejected=d.rejected.filter(x=>x!==id);
@@ -570,8 +570,6 @@ function bind(node){
     const c=compute();if(!c)return;
     if(a==="print"){if(doc==="annual"||doc==="release"||doc==="auditor")printDoc(c,doc);else printReport(c);return}
     if(a==="letter-print"){printLetter(c);return}
-    if(a==="studio-start"){SKosifAuditBridge.studioAction(b.dataset.id);return}
-    if(a==="studio-send"){SKosifAuditBridge.sendTB(studioRows(c),(c.d.ctx.period||"file").replace(/\s+/g,"-"));return}
     if(a==="sig-save"){put(readCtx(st()));toast("حُفظت بيانات التوقيع","ok");paint();return}
     if(a==="ecl-save"){const d=st(),b=RV().DEFAULT_ECL_BUCKETS.map((x,i)=>{const ex=root.querySelector('[data-ecl-x="'+i+'"]'),rt=root.querySelector('[data-ecl-r="'+i+'"]');
         return {...x,exposure:Math.round((Number(ex&&ex.value)||0)*100),rateBps:Math.round((Number(rt&&rt.value)||0)*100)}});
@@ -605,14 +603,14 @@ function paint(){
   if(!window.SKEngines||!SKEngines.audit||!SKEngines.audit.tbReview){root.innerHTML='<p class="empty">محركات المراجعة غير محملة.</p>';return}
   let c=null;try{c=compute()}catch(e){SK.errors&&SK.errors.report(e,"tbreview");root.innerHTML=hero(null)+'<p class="empty">تعذر تحليل الميزان: '+esc(e.message)+'</p>'+setupHTML(st(),true);return}
   const y=window.scrollY;
-  if(!c&&tab==="studio"&&window.SKosifAuditBridge){root.innerHTML='<div class="tbr">'+hero(null)+studioTab(null)+'</div>';SKosifAuditBridge.mountStudio(root.querySelector("[data-studio-host]"),studioView);return}
   if(!c){root.innerHTML=hero(null)+setupHTML(st(),true)+(window.SKosifAI&&!SKosifAI.ready()?SKosifAI.cardHTML():'');return}
-  if(tab==="studio"&&!window.SKosifAuditBridge)tab="tb";
+  if(!ADV[tab]&&!TABS.some(x=>x[0]===tab))tab="tb";
   const conf=tab==="conf"&&CU();
-  const body=conf?'<div class="tbc" data-tbc-body aria-busy="true">'+(confHTML.sig===c.sig&&confHTML.h||'<p class="empty">يحسب درجات الثقة والفحوص…</p>')+'</div>':tab==="studio"?studioTab(c):tab==="ai"?aiTab(c):tab==="docs"?docsTab(c):tab==="adj"?adjTab(c):tab==="fs"?fsTab(c):tbTab(c);
-  root.innerHTML='<div class="tbr">'+hero(c)+(setup?setupHTML(c.d,false):'')+body+'</div>';
+  const body=conf?'<div class="tbc" data-tbc-body aria-busy="true">'+(confHTML.sig===c.sig&&confHTML.h||'<p class="empty">يحسب درجات الثقة والفحوص…</p>')+'</div>':tab==="ai"?aiTab(c):tab==="docs"?docsTab(c):tab==="adj"?adjTab(c):tab==="fs"?fsTab(c):tbTab(c);
+  const adv=window.SKosifAuditBridge&&ADV[tab]?advHTML(tab):"";
+  root.innerHTML='<div class="tbr">'+hero(c)+(setup?setupHTML(c.d,false):'')+body+adv+'</div>';
   window.scrollTo(0,y);
-  if(tab==="studio"){const h=root.querySelector("[data-studio-host]");if(h)SKosifAuditBridge.mountStudio(h,studioView)}
+  if(adv){const h=root.querySelector("[data-studio-host]");if(h)SKosifAuditBridge.mountStudio(h,ADV[tab])}
   if(conf){const seq=++confSeq;CU().confTab(c).then(h=>{if(seq!==confSeq||tab!=="conf"||!root)return;confHTML={sig:c.sig,h};const el=root.querySelector("[data-tbc-body]");if(el){el.innerHTML=h;el.removeAttribute("aria-busy");window.scrollTo(0,y)}})
     .catch(e=>{SK.errors&&SK.errors.report(e,"tbreview-council");const el=root.querySelector("[data-tbc-body]");if(el)el.innerHTML='<p class="empty">تعذر حساب درجات الثقة: '+esc(e.message)+'</p>'})}
 }
