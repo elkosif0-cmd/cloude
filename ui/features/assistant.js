@@ -98,7 +98,7 @@ const TOOLS=[
     run:({name})=>{let items=[];try{items=(core().catalog().items||[]).filter(i=>i.status!=="archived")}catch{}const it=pick(items,name,"name");if(!it)return{ok:false,text:"لم أجد صنفاً باسم «"+name+"»"};core().openItem(it.id);return{ok:true,text:"فُتح الصنف «"+it.name+"»"}}},
   {name:"set_appearance",d:"الوضع الفاتح أو الليلي أو حسب الجهاز",p:{mode:S("STRING","light | dark | auto",{enum:["light","dark","auto"]})},req:["mode"],run:({mode})=>{shell().setAppearance(mode);return{ok:true,text:mode==="dark"?"الوضع الليلي":mode==="auto"?"المظهر حسب الجهاز":"الوضع الفاتح"}}},
   {name:"set_theme",d:"اختيار ثيم كامل للتطبيق",p:{look:S("STRING","معرّف الثيم",{enum:["kosif","kosif-night","heritage","heritage-night","executive","audit","midnight","notebook","auto"]})},req:["look"],run:({look})=>{shell().setLook(look);return{ok:true,text:"الثيم: "+((shell().looks().find(l=>l.id===look)||{}).name||look)}}},
-  {name:"set_accent",d:"لون التمييز (الأزرار والروابط والتدرجات): اسم عربي مثل زمردي، ذهبي، ملكي، فيروزي، عنبري، قرمزي، فحمي، أخضر وطني، أزرق KOSIF، أو رمز hex، أو «افتراضي»",p:{color:S("STRING","اللون")},req:["color"],
+  {name:"set_accent",d:"لون التمييز (الأزرار والروابط والتدرجات): اسم عربي مثل زمردي، ذهبي، ملكي، فيروزي، عنبري، قرمزي، فحمي، أخضر وطني، أزرق SQC، أو رمز hex، أو «افتراضي»",p:{color:S("STRING","اللون")},req:["color"],
     run:({color})=>{const c=String(color||"").trim();if(/^#?[0-9a-f]{6}$/i.test(c)){shell().setPref("accent",c[0]==="#"?c:"#"+c);return{ok:true,text:"لون التمييز "+c}}
       if(/افتراض|الثيم|default/.test(norm(c))){shell().setPref("accent","");return{ok:true,text:"لون التمييز حسب الثيم"}}
       const a=pick(shell().accents().filter(x=>x.hex).map(x=>({...x})),c,"hex");if(!a)return{ok:false,text:"لون غير معروف: "+c};shell().setPref("accent",a.hex);return{ok:true,text:"لون التمييز: "+a.name}}},
@@ -142,7 +142,7 @@ async function runTool(name,args){
 }
 
 /* ---------- local understanding (no key needed) ---------- */
-const ACC_WORDS=[["زمرد","زمردي"],["اخضر وطني","أخضر وطني"],["اخضر","أخضر وطني"],["فيروز","فيروزي"],["ملكي","ملكي"],["بنفسج","ملكي"],["عنبر","عنبري"],["برتقال","عنبري"],["ذهب","ذهبي"],["قرمز","قرمزي"],["احمر","قرمزي"],["فحم","فحمي"],["رمادي","فحمي"],["ازرق","أزرق KOSIF"]];
+const ACC_WORDS=[["زمرد","زمردي"],["اخضر وطني","أخضر وطني"],["اخضر","أخضر وطني"],["فيروز","فيروزي"],["ملكي","ملكي"],["بنفسج","ملكي"],["عنبر","عنبري"],["برتقال","عنبري"],["ذهب","ذهبي"],["قرمز","قرمزي"],["احمر","قرمزي"],["فحم","فحمي"],["رمادي","فحمي"],["ازرق","أزرق SQC"]];
 function localPlan(text){
   const n=norm(text),plan=[];
   if(/^(مساعده|ساعدني|ماذا تستطيع|ايش تقدر|شو تقدر|help|اوامر|الاوامر)/.test(n))return[{help:true}];
@@ -182,7 +182,7 @@ function decl(){return TOOLS.map(t=>({name:t.name,description:t.d,parameters:{ty
 function system(){
   const c=core(),cap=SK.caps.get(c.view());
   const screens=SK.caps.all().filter(x=>SK.perm.can(x.id)).map(x=>x.id+": "+x.label+(x.hubLabel!==x.label?" ("+x.hubLabel+")":"")).join("\n");
-  return "أنت «مساعد KOSIF» داخل تطبيق KOSIF (S.kosif) لإدارة شركة تجارة لحوم ومواشي ومراجعة الحسابات بالمعايير (IFRS وSOCPA ومعايير المحاسبة المصرية). "+
+  return "أنت «مساعد SQC» داخل تطبيق SQC (SQC) لإدارة شركة تجارة لحوم ومواشي ومراجعة الحسابات بالمعايير (IFRS وSOCPA ومعايير المحاسبة المصرية). "+
     "تتحكم في التطبيق بالأدوات المتاحة: نفّذ الطلب بالأدوات مباشرة ولا تكتفِ بالشرح، ويمكنك استدعاء عدة أدوات بالتتابع لطلب مركب (مثل: افتح الشاشة ثم اضغط زراً ثم صدّر الجدول). "+
     "قبل الإجابة عن أي سؤال عن أرقام أو بيانات استدعِ read_screen أو app_summary، ولا تخترع أرقاماً أبداً. "+
     "لتعبئة نموذج أو الضغط على زر اقرأ الشاشة أولاً لتعرف أسماء الحقول والأزرار. الإجراءات الهادمة يؤكدها المستخدم بنفسه. "+
@@ -218,7 +218,7 @@ function md(t){return esc(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\n/g
 function paint(){
   if(!panel)return;const box=$(".ska-msgs",panel),h=hist();
   box.innerHTML=h.length?h.map(m=>m.role==="tool"?'<div class="ska-step '+(m.ok?"ok":"bad")+'"><i></i>'+esc(m.text)+'</div>':'<div class="ska-m '+(m.role==="user"?"me":"ai")+'">'+md(m.text)+'</div>').join(""):
-    '<div class="ska-hello"><b>أهلاً — أنا مساعد KOSIF</b><p>أنفّذ ما تطلبه في التطبيق مباشرة: أفتح الشاشات، أقرأ الأرقام، أصدّر وأطبع، أغيّر المظهر، وأضغط الأزرار عنك.</p></div>';
+    '<div class="ska-hello"><b>أهلاً — أنا مساعد SQC</b><p>أنفّذ ما تطلبه في التطبيق مباشرة: أفتح الشاشات، أقرأ الأرقام، أصدّر وأطبع، أغيّر المظهر، وأضغط الأزرار عنك.</p></div>';
   if(busy)box.insertAdjacentHTML("beforeend",'<div class="ska-m ai typing"><i></i><i></i><i></i></div>');
   $(".ska-sugg",panel).innerHTML=(h.length>6?[]:SUGG).map(s=>'<button type="button" data-s="'+esc(s)+'">'+esc(s)+'</button>').join("");
   const ai=window.SKosifAI&&SKosifAI.ready();$(".ska-status",panel).textContent=ai?"Gemini متصل · يفهم الطلبات الحرة":"أوامر مباشرة · أضف مفتاح Gemini للطلبات الحرة";$(".ska-status",panel).classList.toggle("on",!!ai);

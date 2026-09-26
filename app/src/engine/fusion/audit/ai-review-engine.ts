@@ -87,7 +87,7 @@ export function systemPrompt(ctx: ReviewContext): string {
     : ctx.framework === 'SME' ? 'المعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم المعتمد في المملكة (SOCPA)' : 'المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من الهيئة السعودية للمراجعين والمحاسبين (SOCPA)';
   const codes = STANDARDS.filter((s) => (egypt ? s.family !== 'SAUDI' && s.family !== 'IFRS' && s.family !== 'IAS' : s.family !== 'EAS' && s.family !== 'EGYPT') && s.status !== 'replaced').map((s) => s.code).join('، ');
   return [
-    'أنت «مجلس المراجعة» في تطبيق KOSIF: ثلاثة مراجعين مستقلين بصوت موحد:',
+    'أنت «مجلس المراجعة» في تطبيق SQC: ثلاثة مراجعين مستقلين بصوت موحد:',
     '- المراجع الفني المحاسبي: التبويب والقياس والعرض.',
     '- مراجع الامتثال للمعايير والإفصاح: ملاءمة المعيار لكل حساب وكفاية الإفصاح والمستندات النظامية.',
     '- مدقق المخاطر والأدلة: المخاطر الجوهرية (ISA 315/330) وكفاية الأدلة (ISA 500) ومؤشرات الغش (ISA 240) والاستمرارية (ISA 570).',
@@ -290,14 +290,20 @@ export function evidenceFromSession(review: Review, s: Session): Record<string, 
   return out;
 }
 
-export function deriveOpinion(tb: TrialBalance, review: Review, s: Session, accepted: Adjustment[]) {
+/* evidence per line: the council's accepted documents plus, when given, the working papers signed in the fieldwork tab */
+export function mergeEvidence(...maps: Record<string, 'accepted' | 'partial'>[]): Record<string, 'accepted' | 'partial'> {
+  const out: Record<string, 'accepted' | 'partial'> = {};
+  for (const m of maps) for (const [k, v] of Object.entries(m)) if (v === 'accepted' || !out[k]) out[k] = v;
+  return out;
+}
+export function deriveOpinion(tb: TrialBalance, review: Review, s: Session, accepted: Adjustment[], fieldEvidence: Record<string, 'accepted' | 'partial'> = {}) {
   const mat = review.materiality, proposed = [...review.adjustments, ...s.rounds.flatMap((r) => r.adjustments.filter((a) => a.valid))];
   const uncorrected = proposed.filter((p) => !accepted.some((a) => a.id === p.id));
   const eff = uncorrected.length ? adjustmentEffect(tb, uncorrected) : { profit: 0, assets: 0, equity: 0 };
   const misstatement = Math.max(Math.abs(eff.profit), Math.abs(eff.assets), Math.abs(eff.equity));
   const highOpen = outstanding(s).filter((q) => q.priority === 'عالية');
   const unavailHigh = s.rounds.flatMap((r) => r.requests).filter((q, i, a) => a.findIndex((x) => x.id === q.id) === i && s.unavailable.includes(q.id) && q.priority === 'عالية');
-  const ev = evidenceFromSession(review, s);
+  const ev = mergeEvidence(evidenceFromSession(review, s), fieldEvidence);
   const sigUnevidenced = review.risks.filter((r) => r.significant && !ev[r.lineKey]).length;
   const lineOf = (q: DocRequest) => q.lineKey ?? review.accounts.find((a) => q.accounts.includes(a.code))?.lineKey ?? null;
   const blockedSig = new Set(unavailHigh.map(lineOf).filter((k) => k && review.risks.some((r) => r.lineKey === k && r.significant)));

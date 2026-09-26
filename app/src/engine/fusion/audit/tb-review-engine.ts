@@ -81,6 +81,8 @@ export const LINE_AUDIT: Record<string, LineAudit> = {
 const GENERAL_DOCS: [string, string][] = [['ميزان المراجعة النهائي موقعاً من الإدارة', 'أساس القوائم وإقرار الإدارة بمسؤوليتها'], ['خطاب إقرارات الإدارة (ISA 580)', 'إقرارات مكتوبة في تاريخ التقرير']];
 
 const ACCUM = /مجمع|متراكم|accumulated|مخصص اهلاك|مخصص استهلاك/;
+/* the loss allowance is a contra-receivable: its credit balance is its nature, not a customer advance */
+const ALLOWANCE = /خسائر ائتمانيه|ديون مشكوك|اضمحلال|allowance|credit loss|impairment/;
 const SUSPENSE = /معلق|تحت التسويه|وسيط|حساب مؤقت|suspense|clearing/;
 const RELATED = /طرف ذو علاقه|اطراف ذات علاقه|شركه شقيقه|جاري المدير|جاري الشريك|جاري الشركاء|related part/;
 const SALARIES = /رواتب|اجور|salar|wages/;
@@ -147,6 +149,7 @@ export function reviewTrialBalance(tb: TrialBalance, opts: ReviewOptions = {}): 
     if (a.natural < 0 && big) {
       const accum = a.lineKey === 'ppe' && ACCUM.test(n);
       if (accum) continue;
+      if (a.lineKey === 'receivables' && ALLOWANCE.test(n)) continue;
       if (a.lineKey === 'cash') {
         tag(add({ severity: 'high', kind: 'classification', code: a.code, account: a.name, lineKey: 'cash', standard: 'IAS 7', title: 'رصيد بنكي دائن (سحب على المكشوف)', detail: 'الرصيد الدائن التزام تمويلي لا يُطرح من النقد إلا إذا كان جزءاً من إدارة النقد اليومية وتتقلب أرصدته.', basis: 'الرصيد ' + money(a.balance), action: 'إعادة التبويب إلى القروض قصيرة الأجل.' }));
         adj({ title: 'إعادة تبويب السحب على المكشوف', reason: `رصيد ${a.name} دائن ${money(-a.natural)}`, standard: 'IAS 7 / IAS 32', estimate: false,
@@ -246,7 +249,10 @@ export function reviewTrialBalance(tb: TrialBalance, opts: ReviewOptions = {}): 
     const bump = hits.some((f) => f.severity === 'high') ? 10 : hits.some((f) => f.severity === 'medium') ? 5 : 0;
     const score = Math.min(100, parts.size + parts.estimate + parts.change + parts.evidence + parts.nature + bump);
     const level: LineRisk['level'] = score >= 70 ? 'عالٍ' : score >= 45 ? 'متوسط' : 'منخفض';
-    return { lineKey: l.key, ar: l.ar, amount, score, level, significant: score >= 70, parts, risk: la.risk, procedures: la.procedures };
+    /* ISA 315.12(l): a significant risk sits at the upper end of the inherent-risk spectrum — size and missing evidence alone
+       do not make one; it needs a qualitative factor (estimation uncertainty, fraud, an engine finding, or an unusual movement) */
+    const qualitative = !!la.estimate || !!la.fraud || bump > 0 || (pc !== null && pc >= 25);
+    return { lineKey: l.key, ar: l.ar, amount, score, level, significant: score >= 70 && qualitative, parts, risk: la.risk, procedures: la.procedures };
   }).sort((a, b) => b.score - a.score);
 
   /* document requests */

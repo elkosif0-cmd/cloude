@@ -85,9 +85,9 @@ jobs:
           for f in ["skosif.js","skosif.css","sw.js","manifest.webmanifest","secure/crypto.json","secure/private.json"]:
               assert Path("dist",f).exists(), f
           assert "./skosif.css?v=" in app and "./skosif.js?v=" in app, "ui bundle not linked"
-          assert "<title>S.kosif</title>" in app
-          assert "S.kosif" in unlock
-          assert '"name":"S.kosif"' in manifest
+          assert "<title>SQC — Smart Quality Control</title>" in app
+          assert "SQC" in unlock and "sqc-logo.svg" in unlock
+          assert '"name":"SQC — Smart Quality Control"' in manifest
           assert "const SEED_B64 = \"\";" in app
           assert len(list(Path("dist/secure").glob("seed.enc.b64.part*"))) == 6
           assert "SEED_RAWS=[{" not in app, "price catalog left in plaintext"
@@ -140,7 +140,7 @@ jobs:
           assert not lost, "capabilities lost (restore them or remove them from the baseline on purpose): "+", ".join(lost)
           assert not [c["id"] for c in caps if c["id"] not in base], "new capability: add it to docs/rebuild/CAPABILITY_BASELINE.txt"
           # demo data: marked, removable, never over real data
-          for marker in ["SK.demo=","skosif_demo_v1","dropDemo","SK.templates=","KOSIF-template-","function book(","SKosifSalesLab","function matrix(","SK.flow=","skflow","SK.output=","skout-f","application/msword"]:
+          for marker in ["SK.demo=","skosif_demo_v1","dropDemo","SK.templates=","SQC-template-","function book(","SKosifSalesLab","function matrix(","SK.flow=","skflow","SK.output=","skout-f","application/msword"]:
               assert marker in js, "demo marker missing: "+marker
           # the work flow graph: every "feeds" target is a real capability
           for c in caps:
@@ -160,7 +160,7 @@ jobs:
               assert marker in js, "luxe marker missing: "+marker
           for marker in ["--sk-heat-1",".sk-ph",".skk4",".sktb-bar",".skhm-cell",".sksev"]:
               assert marker in css, "luxe style missing: "+marker
-          assert "Smarter Audit. Greater Trust." in unlock, "sign-in page lost the KOSIF claim"
+          assert "AI-Powered Audit &amp; Assurance Platform" in unlock, "sign-in page lost the SQC claim"
           # live assistant, theme studio, charts v2, tables v2 (Excel), print preview
           for marker in ["SKosifAssistant","functionDeclarations","accentTokens","waterfall","exportXlsx","rightToLeft","skp-bar","__skRealPrint"]:
               assert marker in js, "marker missing: "+marker

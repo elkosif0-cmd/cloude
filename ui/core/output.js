@@ -12,7 +12,7 @@ const {esc,toast}=SK;
 const realOpen=window.open.bind(window);
 let cur=null;
 const slug=t=>String(t||"document").replace(/[^\w؀-ۿ]+/g,"-").replace(/^-|-$/g,"").slice(0,40)||"document";
-const ascii=t=>"KOSIF-"+((String(t||"").match(/[A-Za-z0-9]+/g)||[]).join("-").slice(0,30)||(window.SKosifCore&&SKosifCore.view())||"document")+"-"+new Date().toISOString().slice(0,10);
+const ascii=t=>"SQC-"+((String(t||"").match(/[A-Za-z0-9]+/g)||[]).join("-").slice(0,30)||(window.SKosifCore&&SKosifCore.view())||"document")+"-"+new Date().toISOString().slice(0,10);
 const PAPER_CSS='@media screen{html{background:#dfe4ec!important}body{box-sizing:border-box;width:var(--skout-w,210mm);max-width:calc(100vw - 24px);min-height:var(--skout-h,297mm);margin:18px auto 40px!important;padding:14mm 12mm!important;background:#fff!important;box-shadow:0 14px 40px -12px rgba(11,31,58,.35);border-radius:4px}.skp-bar{display:none!important}}';
 function css(d){
   if(!d||!d.head&&!d.documentElement)return;const o=SK.print.options(),dims={A4:["210mm","297mm"],A5:["148mm","210mm"],A3:["297mm","420mm"],letter:["216mm","279mm"]}[o.paper]||["210mm","297mm"];

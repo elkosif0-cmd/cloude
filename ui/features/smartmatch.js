@@ -81,7 +81,7 @@
     if(!it)return;
     const a=aliases();a[r.normalized]=String(it.id);save(ALIAS_KEY,a);
     r.match=it;r.score=100;r.reason="تصحيح يدوي محفوظ";r.manual=true;
-    render();toast("تم حفظ المطابقة؛ سيستخدمها S.kosif تلقائيًا لاحقًا.");
+    render();toast("تم حفظ المطابقة؛ سيستخدمها SQC تلقائيًا لاحقًا.");
   }
   function pareto(){
     const by=new Map();
@@ -104,7 +104,7 @@
       '<div class="sk-actions"><button id="sk34-run" class="sk-primary" type="button">مطابقة ذكية</button><button id="sk34-sample" class="sk-secondary" type="button">نموذج</button></div></div>',
       '<div class="sk34-summary"><div class="sk-kpis">'+
         kpi("أسطر معالجة",rows.length)+kpi("مطابقة",matched.length,matched.length===rows.length&&rows.length?"good":"")+kpi("ثقة ≥ 80٪",high.length,rows.length&&high.length/rows.length>.7?"good":"")+kpi("تحتاج مراجعة",low.length,low.length?"warn":"good")+
-      '</div><div class="sk34-help"><b>كيف تتعلم المطابقة؟</b><span>إذا كان «ك لحم نعيمي» يقصد «نعيمي فاخر»، اختر الصنف الصحيح مرة واحدة. S.kosif يحفظ الربط على جهازك ويعطيه 100٪ لاحقًا.</span></div></div></div>',
+      '</div><div class="sk34-help"><b>كيف تتعلم المطابقة؟</b><span>إذا كان «ك لحم نعيمي» يقصد «نعيمي فاخر»، اختر الصنف الصحيح مرة واحدة. SQC يحفظ الربط على جهازك ويعطيه 100٪ لاحقًا.</span></div></div></div>',
       rows.length?'<div class="sk34-list">'+rows.map(r=>rowHTML(r,items)).join("")+'</div>':'<div class="sk-empty">لا توجد بيانات معالجة بعد.</div>',
       p.length?paretoHTML(p):"",
       aliasHTML(items),
@@ -115,7 +115,7 @@
   function rowHTML(r,items){
     const cls=r.score>=80?"high":r.score>=50?"mid":"low";
     return '<article class="sk34-match '+cls+'"><div class="sk34-original"><small>النص الأصلي</small><b>'+esc(r.raw)+'</b><span>'+r.qty+' وحدة · '+money(r.amount)+'</span></div>'+
-      '<div class="sk34-arrow">←</div><div class="sk34-target"><small>اقتراح S.kosif</small><b>'+(r.match?esc(r.match.name):"لا توجد مطابقة")+'</b><span>'+esc(r.reason)+'</span></div>'+
+      '<div class="sk34-arrow">←</div><div class="sk34-target"><small>اقتراح SQC</small><b>'+(r.match?esc(r.match.name):"لا توجد مطابقة")+'</b><span>'+esc(r.reason)+'</span></div>'+
       '<div class="sk34-score"><b>'+r.score+'٪</b><span>'+(r.manual?"محفوظ":"ثقة")+'</span></div>'+
       '<label class="sk34-override"><span>تصحيح يدوي</span><select data-sk34-row="'+esc(r.id)+'"><option value="">اختر الصنف…</option>'+items.map(x=>'<option value="'+esc(x.id)+'"'+(r.match&&String(r.match.id)===String(x.id)?' selected':'')+'>'+esc(x.name)+'</option>').join("")+'</select></label></article>';
   }
@@ -147,7 +147,7 @@
     $("#sk34-clear")?.addEventListener("click",()=>{input="";rows=[];render()});
     $("#sk34-export")?.addEventListener("click",()=>{
       const out=rows.map(r=>[r.raw,r.qty,r.amount,r.match?.name||"",r.score,r.reason,r.manual?"نعم":"لا"]);
-      window.SK.csv.download("S.kosif-sales-match.csv",["النص الأصلي","الكمية","المبلغ","الصنف المطابق","الثقة ٪","سبب المطابقة","تصحيح يدوي"],out);
+      window.SK.csv.download("SQC-sales-match.csv",["النص الأصلي","الكمية","المبلغ","الصنف المطابق","الثقة ٪","سبب المطابقة","تصحيح يدوي"],out);
     });
   }
   let root=null;

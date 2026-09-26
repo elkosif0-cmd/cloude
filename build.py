@@ -14,8 +14,12 @@ if b'const SEED_B64 = "";' not in html: raise SystemExit("Safe app marker missin
 text=html.decode("utf-8")
 
 # Product branding: keep business data intact, rename only the application shell.
-text=re.sub(r"<title>[^<]*</title>","<title>S.kosif</title>",text,count=1,flags=re.I)
-text=re.sub(r'<meta\s+name=["\']apple-mobile-web-app-title["\'][^>]*>', '<meta name="apple-mobile-web-app-title" content="S.kosif">', text, count=1, flags=re.I)
+text=re.sub(r"<title>[^<]*</title>","<title>SQC — Smart Quality Control</title>",text,count=1,flags=re.I)
+text=re.sub(r'<meta\s+name=["\']apple-mobile-web-app-title["\'][^>]*>', '<meta name="apple-mobile-web-app-title" content="SQC">', text, count=1, flags=re.I)
+# the rail brand: the SQC mark and name (the core markup is kept; only the brand block is replaced)
+text,nb=re.subn(r'<div class="brand-mark" aria-hidden="true">.*?</div>\s*<div><h1 id="app-name">[^<]*</h1>',
+  '<div class="brand-mark" aria-hidden="true"><img src="./art/sqc-icon.svg" alt="" width="24" height="24"></div>\n        <div><h1 id="app-name">SQC</h1>',text,count=1,flags=re.S)
+if nb!=1: raise SystemExit("Rail brand markup missing")
 
 # The UI ships as one stylesheet and one script, in layer order:
 #   design system (ui/ds) → core services (ui/core) → components → layout → features.
@@ -72,4 +76,4 @@ sw=(out/"sw.js").read_text(encoding="utf-8")
 sw,n=re.subn(r"const CACHE='[^']*';",f"const CACHE='skosif-{digest.hexdigest()[:12]}';",sw,count=1)
 if n!=1: raise SystemExit("sw.js CACHE marker missing")
 (out/"sw.js").write_text(sw,encoding="utf-8")
-print("Built S.kosif:",len(list(out.rglob("*"))),"entries")
+print("Built SQC:",len(list(out.rglob("*"))),"entries")

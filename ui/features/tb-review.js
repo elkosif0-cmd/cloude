@@ -102,16 +102,19 @@ window.SKosifTBReview=Object.freeze({fromBooks,booksTB,rows:()=>{const c=compute
 /* ---------- computation (memoized) ---------- */
 function compute(){
   const d=st();CUR=egypt(d)?"ج.م":"ر.س";if(!d.tbText)return null;
-  const sig=JSON.stringify([MN().fingerprint(d.tbText),d.overrides,d.ctx,d.materiality,d.session&&d.session.rounds.length,d.session&&d.session.unavailable,d.accepted,d.rejected,!!(d.session&&d.session.final),d.ecl,d.confirm]);
+  const sig=JSON.stringify([MN().fingerprint(d.tbText),d.overrides,d.ctx,d.materiality,d.session&&d.session.rounds.length,d.session&&d.session.unavailable,d.accepted,d.rejected,!!(d.session&&d.session.final),d.ecl,d.confirm,d.field&&d.field.so]);
   if(cache&&cache.sig===sig)return cache;
   const tb=TI().parseTrialBalance(d.tbText);
   const fw=egypt(d)?"EAS":d.ctx.framework,tax=egypt(d)?"income":"zakat";
   const opts={framework:fw,currency:CUR,overrides:d.overrides,materiality:d.materiality||undefined};
   let base=RV().reviewTrialBalance(tb,opts);
   const s=d.session;
-  if(s&&s.rounds.length){const ev=AI().evidenceFromSession(base,s);if(Object.keys(ev).length)base=RV().reviewTrialBalance(tb,{...opts,evidence:ev})}
+  /* evidence: the council's accepted documents and the working papers signed in the fieldwork tab (ISA 330) */
+  const FWE=E().audit.fieldwork,so=d.field&&d.field.so||{};
+  const fieldEv=FWE&&FWE.evidenceFromFieldwork&&Object.keys(so).length?FWE.evidenceFromFieldwork(FWE.workingPapers(base,{activity:d.ctx.activity||""}),so):{};
+  {const ev=AI().mergeEvidence(s&&s.rounds.length?AI().evidenceFromSession(base,s):{},fieldEv);if(Object.keys(ev).length)base=RV().reviewTrialBalance(tb,{...opts,evidence:ev})}
   const gem=s?s.rounds.flatMap(r=>r.findings):[];
-  const all=gem.length?RV().reviewTrialBalance(tb,{...opts,evidence:s?AI().evidenceFromSession(base,s):{},extraFindings:gem}):base;
+  const all=gem.length?RV().reviewTrialBalance(tb,{...opts,evidence:AI().mergeEvidence(s?AI().evidenceFromSession(base,s):{},fieldEv),extraFindings:gem}):base;
   const stdMap=s?AI().accountStandards(base,s):Object.fromEntries(base.accounts.map(a=>[a.code,a.standards.map(x=>x.code)]));
   const notes={};if(s)for(const r of s.rounds)for(const [code,v] of Object.entries(r.accountStandards))if(v.note)notes[code]=v.note;
   const eclM=d.ecl?RV().eclMatrix(d.ecl):null,eclA=eclM?RV().eclAdjustment(tb,eclM,fw):null;
@@ -119,8 +122,8 @@ function compute(){
   const accepted=pool.filter(a=>d.accepted.includes(a.id));
   const adjusted=accepted.length?RV().applyAdjustments(tb,accepted):tb;
   const fsBefore=base.fs,fsAfterAdj=accepted.length?FS().buildStatements(adjusted,d.overrides,{tax}):base.fs;
-  const derived=AI().deriveOpinion(tb,base,s||AI().newSession({...d.ctx,framework:fw}),accepted);
-  const evidence=s?AI().evidenceFromSession(base,s):{},c=d.ctx,cf=d.confirm;
+  const derived=AI().deriveOpinion(tb,base,s||AI().newSession({...d.ctx,framework:fw}),accepted,fieldEv);
+  const evidence=AI().mergeEvidence(s?AI().evidenceFromSession(base,s):{},fieldEv),c=d.ctx,cf=d.confirm;
   const disclosures=DS().disclosureReadiness({fs:fsAfterAdj,framework:fw,periodEnd:c.periodEnd,currency:CUR,confirm:{editionReviewed:cf.edition,complianceApproved:cf.compliance,unrecognizedReviewed:cf.unrecognized},
     entity:{legalName:c.company,legalForm:c.legalForm,country:egypt(d)?"مصر":"المملكة العربية السعودية",registeredOffice:c.registeredOffice,principalPlace:c.principalPlace,activities:c.activity}});
   const decided=pool.every(a=>d.accepted.includes(a.id)||d.rejected.includes(a.id));

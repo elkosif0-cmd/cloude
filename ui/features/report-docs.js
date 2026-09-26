@@ -30,9 +30,11 @@ function figures(fs,cur,o={}){
   const M=x=>(Number(x)||0)/100,nf=new Intl.NumberFormat("ar-SA-u-nu-latn",{maximumFractionDigits:0}),fmt=n=>nf.format(Math.round(n))+" "+cur;
   const zk=/ضريبة الدخل/.test(o.taxLabel||"")?"الضريبة":"الزكاة",W=o.width||720;
   const bridge=SKCharts.waterfall({title:"من الإيرادات إلى صافي الربح",width:W,height:270,fmt:SKCharts.compact,tools:o.tools,steps:[
-    {label:"الإيرادات",value:M(v("الإيرادات").current)},{label:"التكلفة",value:-M(v("تكلفة الإيرادات").current)},{label:"مجمل الربح",total:true},
-    {label:"التشغيل",value:-M(v("المصروفات التشغيلية").current)},{label:"الربح التشغيلي",total:true},
-    {label:"التمويل",value:M(v("إيرادات الاستثمار وتكاليف التمويل (صافي)").current)},{label:zk,value:-M(v("الزكاة/ضريبة الدخل").current)},{label:"صافي الربح",total:true}]});
+    /* each step is the difference of the statement's own subtotals, so the bars always land on the reported profit
+       (other operating income, the share of associates and investment income included) */
+    {label:"الإيرادات",value:M(v("الإيرادات").current)},{label:"التكلفة",value:M(v("مجمل الربح").current-v("الإيرادات").current)},{label:"مجمل الربح",total:true},
+    {label:"التشغيل (صافي)",value:M(v("الربح التشغيلي").current-v("مجمل الربح").current)},{label:"الربح التشغيلي",total:true},
+    {label:"الاستثمار والتمويل",value:M(v("صافي الربح").current+v("الزكاة/ضريبة الدخل").current-v("الربح التشغيلي").current)},{label:zk,value:-M(v("الزكاة/ضريبة الدخل").current)},{label:"صافي الربح",total:true}]});
   const cats=R().revenueByCategory(fs).filter(r=>r.level!=="total");
   const categories=cats.length>1?SKCharts.hbars({title:"الإيرادات حسب الفئة",fmt,tools:o.tools,valueLabel:"الإيراد ("+cur+")",rows:cats.map(r=>({label:r.ar,value:M(r.current),sub:r.pctOfRevenue!=null?r.pctOfRevenue+"% من الإيرادات":""}))}):"";
   const keys=["الإيرادات","مجمل الربح","الربح التشغيلي","صافي الربح"];
@@ -89,7 +91,7 @@ function annual(x){
   const shareTable=(rows)=>'<table class="rd-t">'+head(hp?["","السنة الحالية","السنة السابقة","التغير","% من الإيرادات","% السابقة"]:["","المبلغ","التغير","% من الإيرادات"],cur)+'<tbody>'+
     rows.map(r=>'<tr class="'+(r.level==="total"?"tot":"")+'"><td>'+esc(r.ar)+'</td><td class="n">'+m0(r.current)+'</td>'+(hp?'<td class="n">'+(r.prior===null?"—":m0(r.prior))+'</td>':'')+'<td class="n">'+chg(r.change)+'</td><td class="n">'+pct(r.pctOfRevenue)+'</td>'+(hp?'<td class="n">'+pct(r.pctOfRevenuePrior)+'</td>':'')+'</tr>').join("")+'</tbody></table>';
   let h='<article class="rd-doc rd-annual">'+
-    '<header class="rd-cover"><small>التقرير السنوي</small><h1>'+esc(ctx.company||"[اسم المنشأة]")+'</h1><p>'+esc(ctx.period||"[الفترة]")+'</p><p>'+esc({IFRS:"المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية",SME:"المعيار الدولي للتقرير المالي للمنشآت الصغيرة والمتوسطة (المملكة)",EAS:"معايير المحاسبة المصرية"}[x.fw])+' · العملة: '+esc(cur)+'</p><i>مسودة معدّة بـ KOSIF على نموذج التقرير السنوي (10-K) — للمراجعة قبل الإصدار</i></header>'+
+    '<header class="rd-cover"><small>التقرير السنوي</small><h1>'+esc(ctx.company||"[اسم المنشأة]")+'</h1><p>'+esc(ctx.period||"[الفترة]")+'</p><p>'+esc({IFRS:"المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية",SME:"المعيار الدولي للتقرير المالي للمنشآت الصغيرة والمتوسطة (المملكة)",EAS:"معايير المحاسبة المصرية"}[x.fw])+' · العملة: '+esc(cur)+'</p><i>مسودة معدّة بـ SQC على نموذج التقرير السنوي (10-K) — للمراجعة قبل الإصدار</i></header>'+
     '<nav class="rd-toc"><h4>المحتويات</h4><ol>'+toc.map(([n,t,id])=>'<li><a href="#'+id+'"><span>'+(n?'البند '+esc(n):'تقرير')+'</span>'+esc(t)+'</a></li>').join("")+'</ol></nav>'+
     '<h2 class="rd-part">الجزء الأول</h2>'+
     item("البند 1","النشاط",'<p>'+esc(ctx.company||"المنشأة")+(ctx.legalForm?' — '+esc(ctx.legalForm):'')+'، ومقرها '+esc(ctx.registeredOffice||ctx.principalPlace||"[المقر]")+'، تعمل في '+esc(ctx.activity||"[النشاط]")+'. تُعد قوائمها المالية وفق '+esc({IFRS:"المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية",SME:"المعيار الدولي للتقرير المالي للمنشآت الصغيرة والمتوسطة المعتمد في المملكة",EAS:"معايير المحاسبة المصرية"}[x.fw])+'.</p>'+

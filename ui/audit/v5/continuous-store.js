@@ -5,7 +5,7 @@ import { formatMoneyMinor } from '../engine.js';
 export const DEFAULT_GATEWAY = 'https://kosif-audit-realtime.kosif199022.workers.dev';
 export const GATEWAY_KEY = 'kosif:v5:document-gateway';
 export const store = {
-  engagement: createEngagement({ id:'ENG-V5-DEMO', entity:'ارتباط KOSIF V5', period:'2026-12-31', jurisdiction:'SA', framework:'IFRS', engagementType:'audit', currency:'SAR' }),
+  engagement: createEngagement({ id:'ENG-V5-DEMO', entity:'ارتباط SQC V5', period:'2026-12-31', jurisdiction:'SA', framework:'IFRS', engagementType:'audit', currency:'SAR' }),
   analysis: null,
   materiality: null,
   tbRisks: [],

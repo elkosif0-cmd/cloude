@@ -1308,9 +1308,9 @@ button:disabled{ cursor: not-allowed; opacity: .55; }
 .main-content{ max-width:none; padding:0; }
 .view{ animation:none; }
 .report-document{ box-shadow:none; border:0; }}
-/* S.kosif theme bridge */
+/* SQC theme bridge */
 :host{display:block}
-/* KOSIF identity: the analysis studio speaks the app's tokens in every look and mode */
+/* SQC identity: the analysis studio speaks the app's tokens in every look and mode */
 .kx-body.kx-body,.kx-body.kx-body[data-theme="dark"]{color-scheme:inherit;
  --bg:var(--sk-bg);--surface:var(--sk-surface);--surface-2:var(--sk-surface-2);--surface-3:var(--sk-surface-3);
  --text:var(--sk-ink);--muted:var(--sk-ink-3);--line:var(--sk-line);--line-strong:var(--sk-line-2);
@@ -1323,7 +1323,7 @@ button:disabled{ cursor: not-allowed; opacity: .55; }
 .kx-body{background:transparent!important;background-image:none!important;min-height:0!important;font-family:var(--sk-font)!important;border-radius:16px;overflow:hidden}
 .kx-body ::selection{background:var(--sk-brand-soft);color:var(--sk-ink)}
 .kx-body .skip-link,.kx-body .mobile-dock{display:none!important}
-/* its menu is the rail of the app: KOSIF navy, sky active pill, no second brand */
+/* its menu is the rail of the app: SQC navy, sky active pill, no second brand */
 .kx-body .sidebar{background:var(--sk-grad-rail)!important;color:var(--sk-rail-ink)!important;border-radius:var(--sk-r-l)}
 .kx-body .sidebar .brand{display:none!important}
 .kx-body .nav-group{color:var(--sk-rail-mute)!important}
@@ -1333,7 +1333,7 @@ button:disabled{ cursor: not-allowed; opacity: .55; }
 .kx-body .nav-item.active .nav-badge,.kx-body .nav-badge{background:rgba(255,255,255,.1)!important;color:var(--sk-rail-ink)!important}
 .kx-body .new-indicator{background:var(--sk-brand-2)!important}
 .kx-body .sidebar-status{border-top-color:rgba(255,255,255,.08)!important;color:var(--sk-rail-mute)!important}
-/* heroes and covers: the KOSIF gradient, white type, sky highlights */
+/* heroes and covers: the SQC gradient, white type, sky highlights */
 .kx-body .command-hero,.kx-body .hero-card,.kx-body .reference-hero,.kx-body .report-cover{background:var(--sk-grad-brand)!important;color:#fff!important}
 .kx-body .hero-copy h1 em{color:#cfeeff!important}
 .kx-body .hero-card .button.primary{background:#fff!important;color:var(--sk-brand)!important;border-color:#fff!important}

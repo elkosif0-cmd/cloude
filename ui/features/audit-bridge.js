@@ -77,7 +77,7 @@ function open(key,node,view,screenId){
       }
     }catch{}
   })
-    .catch(e=>{console.error("S.kosif "+key,e);wait.textContent="تعذر تحميل "+APPS[key].label+". تحقق من الاتصال وأعد المحاولة.";a.loading=null});
+    .catch(e=>{console.error("SQC "+key,e);wait.textContent="تعذر تحميل "+APPS[key].label+". تحقق من الاتصال وأعد المحاولة.";a.loading=null});
 }
 /* ---------- ميزان مراجعة من السجلات التشغيلية ----------
    يُبنى للفترة من سجلات التطبيق نفسها (المبيعات والموردون والمدفوعات والآجل) ويستعمله ملف المراجعة
@@ -129,9 +129,9 @@ let fedSig="";
 function feedAnalytics(a){
   try{const t=window.SKosifTBReview&&SKosifTBReview.rows();if(!t||t.sig===fedSig)return;
     const root=a.host.shadowRoot,input=root&&root.getElementById("fileInput");if(!input)return;
-    const dt=new DataTransfer();dt.items.add(new File([tbCSV(t.rows)],"KOSIF-engagement-tb.csv",{type:"text/csv"}));input.files=dt.files;input.dispatchEvent(new Event("change",{bubbles:true}));
+    const dt=new DataTransfer();dt.items.add(new File([tbCSV(t.rows)],"SQC-engagement-tb.csv",{type:"text/csv"}));input.files=dt.files;input.dispatchEvent(new Event("change",{bubbles:true}));
     fedSig=t.sig;window.SK.toast("استُلم ميزان ملف المراجعة («"+t.label+"») في أدوات التحليل","info");
-  }catch(e){console.error("S.kosif analytics feed",e)}
+  }catch(e){console.error("SQC analytics feed",e)}
 }
 /* ---------- the studio is part of the engagement file, not a second app ----------
    It always works on the file's own trial balance and company (synced once per version of the file), its private
@@ -175,7 +175,7 @@ async function doSync(a){
     /* on the demo company every page shows how it works: a council round, a proposed entry and a report draft */
     if(demo)for(const id of ["runCouncilButton","proposeAdjustmentButton","buildDraftButton"]){const b=root&&root.getElementById(id);if(b){b.click();await wait(600)}}
     a.api.setView(a.want);
-  }catch(e){console.error("S.kosif studio sync",e)}
+  }catch(e){console.error("SQC studio sync",e)}
 }
 /* ---------- one palette: the studio's own colours (written for a dark stage) rewritten to the app's tokens ---------- */
 const RC={
@@ -199,7 +199,7 @@ function recolorCSS(css){
     return sel+"{"+out+"}";
   });
 }
-function recolorStudio(root){try{const st=root&&root.querySelector("style");if(st&&!st.dataset.skRecolored){st.textContent=recolorCSS(st.textContent);st.dataset.skRecolored="1"}}catch(e){console.error("S.kosif studio colours",e)}}
+function recolorStudio(root){try{const st=root&&root.querySelector("style");if(st&&!st.dataset.skRecolored){st.textContent=recolorCSS(st.textContent);st.dataset.skRecolored="1"}}catch(e){console.error("SQC studio colours",e)}}
 /* ---------- document analysis: a plain status in the documents tab, the server address only under «advanced» ---------- */
 const GW_KEY="kosif:v5:document-gateway",GW_DEFAULT="https://kosif-audit-realtime.kosif199022.workers.dev";
 function docAIHTML(){

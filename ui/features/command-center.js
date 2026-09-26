@@ -135,7 +135,7 @@ function nudge(){
   const m=d.installMode();if(!["ios","prompt","mac-safari"].includes(m))return "";
   try{if(Date.now()-Number(localStorage.getItem(NUDGE)||0)<14*864e5)return ""}catch{}
   const phone=m==="ios";
-  return '<div class="skc-install" role="note">'+SK.icon(phone?"phone":"laptop")+'<div class="tx"><b>ثبّت KOSIF على '+esc(d.label())+'</b><small>'+
+  return '<div class="skc-install" role="note">'+SK.icon(phone?"phone":"laptop")+'<div class="tx"><b>ثبّت SQC على '+esc(d.label())+'</b><small>'+
     (phone?"يفتح بملء الشاشة من الشاشة الرئيسية، يعمل دون اتصال، ويحمي بياناتك من الحذف التلقائي الذي يطبّقه Safari على المواقع.":
       "نافذة مستقلة في Dock أو قائمة ابدأ، اختصارات لوحة المفاتيح كاملة، ويعمل دون اتصال.")+
     '</small></div><div class="sk-actions"><button type="button" class="btn primary sm" data-nudge="install">'+(m==="prompt"?"تثبيت الآن":"كيف أثبّته؟")+'</button><button type="button" class="btn sm" data-nudge="later">لاحقاً</button></div></div>';

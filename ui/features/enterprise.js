@@ -636,7 +636,7 @@ function labelsHTML(){
       '</div>',
       '<div style="flex:0 0 320px;">',
         '<div class="sk38-stk-view" id="sk38-sticker-printable">',
-          '<div class="sk38-stk-brand"><span>أغنام الوادي • S.kosif</span><span>ذبح حلال 100٪</span></div>',
+          '<div class="sk38-stk-brand"><span>أغنام الوادي • SQC</span><span>ذبح حلال 100٪</span></div>',
           '<div class="sk38-stk-name">'+esc(stickerState.name)+'</div>',
           '<div class="sk38-stk-grid">',
             '<div><span>الوزن الصافي</span><b>'+stickerState.weight.toFixed(3)+' كجم</b></div>',

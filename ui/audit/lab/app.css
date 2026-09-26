@@ -65,9 +65,9 @@ td{color:#eee7f5}
 .metrics{grid-template-columns:1fr 1fr}
 .hero-copy{padding:18px}
 .card{padding:16px}}
-/* S.kosif theme bridge */
+/* SQC theme bridge */
 :host{display:block}
-/* KOSIF identity: the lab takes the app's tokens (it was a dark purple panel) */
+/* SQC identity: the lab takes the app's tokens (it was a dark purple panel) */
 .kx-body.kx-body{color-scheme:inherit;--bg:var(--sk-bg);--panel:var(--sk-surface);--panel2:var(--sk-surface-2);--line:var(--sk-line);--text:var(--sk-ink);--muted:var(--sk-ink-3);
  --accent:var(--sk-brand);--good:var(--sk-ok);--warn:var(--sk-warn);--danger:var(--sk-bad);--shadow:var(--sk-shadow-1)}
 .kx-body{min-height:0!important;background:transparent!important;color:var(--sk-ink)!important;font-family:var(--sk-font)!important}

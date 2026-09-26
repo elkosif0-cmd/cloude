@@ -1,4 +1,10 @@
-# S.kosif — KOSIF · مراجعة أذكى، ثقة أكبر
+# SQC — Smart Quality Control
+
+![SQC — Smart Quality Control · AI-Powered Audit & Assurance Platform](ui/art/sqc-banner.jpg)
+
+**SQC — Smart Quality Control** · منصة المراجعة والتأكيد المدعومة بالذكاء الاصطناعي (AI-Powered Audit & Assurance Platform).
+The app was previously named S.kosif / KOSIF; storage keys and file names keep the old prefix so existing data keeps loading.
+
 
 S.kosif (brand: **KOSIF**) is the production application shell for the encrypted business dataset and the
 unified operations, pricing, customer, finance, audit & compliance, reporting, governance and Jev decision

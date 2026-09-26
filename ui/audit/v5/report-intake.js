@@ -1,4 +1,4 @@
-/** KOSIF V5 — report recipe requirements -> governed intake requests. */
+/** SQC V5 — report recipe requirements -> governed intake requests. */
 import { refreshEvidenceRequests } from './evidence-requests.js';
 const OPEN=new Set(['draft','requested','received','under-review','partial']);
 const NAME_HINTS={

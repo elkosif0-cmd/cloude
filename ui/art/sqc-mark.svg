@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 110" role="img" aria-label="SQC">
+  <defs>
+    <linearGradient id="s" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7cc4ff"/><stop offset=".55" stop-color="#2f8cff"/><stop offset="1" stop-color="#1557d6"/></linearGradient>
+    <linearGradient id="w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#cfd8e6"/></linearGradient>
+    <linearGradient id="a" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1f6fff"/><stop offset="1" stop-color="#6fc0ff"/></linearGradient>
+  </defs>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="19">
+    <path stroke="url(#s)" d="M84 20H40a17 17 0 0 0 0 34h24a17 17 0 0 1 0 34H14"/>
+    <path stroke="url(#w)" d="M150 20a34 34 0 1 0 0 68h6a34 34 0 0 0 0-68z" transform="translate(-6 0)"/>
+    <path stroke="url(#a)" d="M156 66l24 26"/>
+    <path stroke="url(#w)" d="M284 30a34 34 0 1 0 0 50" transform="translate(-6 0)"/>
+  </g>
+  <circle cx="276" cy="80" r="6" fill="#2f8cff"/>
+</svg>

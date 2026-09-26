@@ -1,5 +1,5 @@
 /* S.kosif layout — the KOSIF Luxe top bar and page header (window.SKosifTopbar).
-   Rebuilds the core's header into the approved KOSIF layout without touching the core's DOM
+   Rebuilds the core's header into the approved SQC layout without touching the core's DOM
    contract (#pg-title, #pg-sub, #hdr keep their ids; the core keeps writing them):
      top bar   : [☰] [KOSIF] [الشركة ▾] [الفترة ▾] [بحث ⌘K] … [🔔 n] [الاسم · الدور ◯]
      page head : [icon] العنوان / English name / الوصف          [إجراءات الشاشة]
@@ -16,6 +16,8 @@ const I={
   calendar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>',
   bell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>',
   chev:'<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>',
+  /* the SQC mark: the S in brand blue, Q and C in the current ink so it reads on light and dark bars */
+  sqc:'<svg class="sk-tb-sqc" viewBox="0 0 300 110" aria-hidden="true"><defs><linearGradient id="sktb-s" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7cc4ff"/><stop offset=".55" stop-color="#2f8cff"/><stop offset="1" stop-color="#1557d6"/></linearGradient></defs><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="19"><path stroke="url(#sktb-s)" d="M84 20H40a17 17 0 0 0 0 34h24a17 17 0 0 1 0 34H14"/><path stroke="currentColor" d="M144 20a34 34 0 1 0 0 68h6a34 34 0 0 0 0-68z"/><path stroke="#2f8cff" d="M156 66l24 26"/><path stroke="currentColor" d="M278 30a34 34 0 1 0 0 50"/></g><circle cx="276" cy="80" r="6" fill="#2f8cff"/></svg>',
   cloud:'<svg viewBox="0 0 96 64" aria-hidden="true"><defs><linearGradient id="sktb-kc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3fd0f0"/><stop offset="1" stop-color="#1668e3"/></linearGradient></defs><path d="M26 54h46a16 16 0 0 0 1.6-31.9A22 22 0 0 0 31.4 17 14.5 14.5 0 0 0 12 30.5 12 12 0 0 0 26 54z" fill="none" stroke="url(#sktb-kc)" stroke-width="6.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M40 54V43h16v11" fill="none" stroke="url(#sktb-kc)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 };
 
@@ -28,7 +30,7 @@ function ctx(){
   const c=cs.find(x=>x.id===a.companyId)||cs[0]||null,own=c?ps.filter(x=>x.companyId===c.id):[];
   return{d,cs,ps:own,c,p:own.find(x=>x.id===a.periodId)||null};
 }
-const biz=()=>((document.getElementById("biz-name")||{}).textContent||"").trim()||SK.org().biz||"S.kosif";
+const biz=()=>((document.getElementById("biz-name")||{}).textContent||"").trim()||SK.org().biz||"SQC";
 function setActive(patch){
   const d=load(CO,{})||{};d.companies=d.companies||[];d.periods=d.periods||[];d.active=Object.assign({},d.active||{},patch);
   Object.keys(d.active).forEach(k=>{if(d.active[k]==null)delete d.active[k]});
@@ -60,7 +62,7 @@ function build(){
   /* top bar */
   const menu=$(".menu-btn",bar),search=$(".skt-search",bar),grow=$(".grow",bar);
   const mk=(html)=>{const t=document.createElement("template");t.innerHTML=html.trim();return t.content.firstChild};
-  const brand=mk('<button type="button" class="sk-tb-brand" data-sktb="home" aria-label="KOSIF — مركز القيادة">'+I.cloud+'<b>KOSIF</b></button>');
+  const brand=mk('<button type="button" class="sk-tb-brand" data-sktb="home" aria-label="SQC — مركز القيادة">'+I.sqc+'<b>SQC</b></button>');
   const ctxBox=mk('<div class="sk-ctx" id="sk-ctx"><button type="button" class="sk-tb-btn" id="sk-tb-co" data-sktb="co" aria-haspopup="menu"><span class="ic">'+I.building+'</span><span class="tx"><b></b><small></small></span>'+I.chev+'</button>'+
     '<button type="button" class="sk-tb-btn sk-tb-pe" id="sk-tb-pe" data-sktb="pe" aria-haspopup="menu"><span class="ic">'+I.calendar+'</span><span class="tx"><b></b></span>'+I.chev+'</button></div>');
   const bell=mk('<button type="button" class="sk-tb-icon" id="sk-tb-bell" data-sktb="bell" aria-label="الإشعارات">'+I.bell+'<span class="dot" hidden></span></button>');

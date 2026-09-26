@@ -364,7 +364,7 @@ function churnHTML(){
 function bindChurn(){
   $$(".sk-churn-reactivate").forEach(b=>{
     b.onclick=()=>{
-      const biz=(document.getElementById("biz-name")||{}).textContent||"S.kosif";
+      const biz=(document.getElementById("biz-name")||{}).textContent||"SQC";
       const msg="مرحباً "+b.dataset.n+"،\nاشتقنا لتعاملكم مع *"+biz.trim()+"*. يسعدنا خدمتكم في طلبكم القادم — تواصلوا معنا بالرد على هذه الرسالة.";
       const phone=String(b.dataset.p).replace(/\D/g,"").replace(/^0/,"966");
       window.open("https://wa.me/"+phone+"?text="+encodeURIComponent(msg),"_blank","noopener");
@@ -381,7 +381,7 @@ function eodToday(){
 }
 function eodHTML(){
   if(!REAL.loaded){loadReal();return '<div class="sk-empty">جارٍ قراءة مبيعات اليوم…</div>'}
-  const d=eodToday(),biz=((document.getElementById("biz-name")||{}).textContent||"S.kosif").trim(),now=new Date();
+  const d=eodToday(),biz=((document.getElementById("biz-name")||{}).textContent||"SQC").trim(),now=new Date();
   return [
     '<div class="sk-stack">',
       '<div class="sk-exec-sheet" id="sk-exec-sheet-printable">',
@@ -405,7 +405,7 @@ function eodHTML(){
 
 function bindEOD(){
   $("#sk-eod-wa")?.addEventListener("click",()=>{
-    const d=eodToday(),biz=((document.getElementById("biz-name")||{}).textContent||"S.kosif").trim();
+    const d=eodToday(),biz=((document.getElementById("biz-name")||{}).textContent||"SQC").trim();
     const msg=["*ملخص نهاية اليوم — "+biz+"*","التاريخ: "+new Date().toLocaleDateString("ar-SA-u-nu-latn"),"مبيعات اليوم المسجلة: "+money(d.total),"الطلبات: "+d.orders+" | العملاء: "+d.cust,"قراءات التبريد: "+d.coldToday.length+(d.breaks?" (تجاوز: "+d.breaks+")":"")].join("\n");
     window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank","noopener");
   });

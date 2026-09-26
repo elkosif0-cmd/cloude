@@ -1,5 +1,5 @@
 /**
- * KOSIF V5 — Engagement state machine.
+ * SQC V5 — Engagement state machine.
  * Pure domain code: no DOM, storage, network, or AI calls.
  */
 

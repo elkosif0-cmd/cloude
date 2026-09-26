@@ -34,6 +34,12 @@ describe('trial balance review', () => {
     expect(r.accounts.find((a) => a.code === '4101')!.standards.map((s) => s.code)).toContain('ISA 240');
     expect(r.findings.filter((f) => f.severity === 'high')).toHaveLength(0);
   });
+  it('treats the expected credit loss allowance as a contra-receivable, not a customer advance', () => {
+    const t = parseTrialBalance(['code,name,debit,credit', '1101,البنك,50000,', '1121,عملاء,900000,', '1129,مخصص خسائر ائتمانية متوقعة,,40000', '3101,رأس المال,,910000'].join('\n'));
+    const r = reviewTrialBalance(t);
+    expect(r.findings.map((f) => f.title)).not.toContain('ذمم مدينة برصيد دائن');
+    expect(r.adjustments.map((a) => a.title)).not.toContain('إعادة تبويب الأرصدة الدائنة للعملاء');
+  });
   it('finds the errors of a problem trial balance and proposes balanced entries', () => {
     const r = reviewTrialBalance(bad);
     const titles = r.findings.map((f) => f.title);

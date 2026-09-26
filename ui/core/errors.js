@@ -12,7 +12,7 @@ function report(e,where,opts={}){
   const msg=text(e),now=Date.now();
   const entry={at:new Date(now).toISOString(),where:String(where||"app"),msg,stack:String(e&&e.stack||"").split("\n").slice(0,4).join("\n")};
   try{const l=list();l.unshift(entry);SK.save(KEY,l.slice(0,MAX))}catch{}
-  console.error("S.kosif",where,e);
+  console.error("SQC",where,e);
   if(!opts.silent&&(msg!==lastMsg||now-lastAt>4000)){lastMsg=msg;lastAt=now;SK.toast("تعذّر إكمال العملية — "+msg.slice(0,90),"err")}
   if(SK.bus)SK.bus.emit("error",entry);
   return entry;

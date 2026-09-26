@@ -13,6 +13,377 @@ window.SKEngines = (function() {
 		return target;
 	};
 	//#endregion
+	//#region app/src/engine/fusion/audit/ai-providers-engine.ts
+	var ai_providers_engine_exports = /* @__PURE__ */ __exportAll({
+		PROVIDERS: () => PROVIDERS,
+		buildRequest: () => buildRequest,
+		errorMessage: () => errorMessage,
+		friendlyError: () => friendlyError$1,
+		isProvider: () => isProvider,
+		modelsFrom: () => modelsFrom,
+		modelsRequest: () => modelsRequest,
+		toGeminiResponse: () => toGeminiResponse,
+		toJsonSchema: () => toJsonSchema
+	});
+	var PROVIDERS = {
+		gemini: {
+			id: "gemini",
+			ar: "Google Gemini",
+			base: "https://generativelanguage.googleapis.com/v1beta/",
+			keyHint: "AIza…",
+			keyPattern: /^[\w-]{20,}$/,
+			keyLink: "https://aistudio.google.com/app/apikey",
+			models: [
+				"gemini-2.5-flash",
+				"gemini-2.5-pro",
+				"gemini-2.5-flash-lite"
+			],
+			host: "generativelanguage.googleapis.com"
+		},
+		openai: {
+			id: "openai",
+			ar: "OpenAI",
+			base: "https://api.openai.com/v1/",
+			keyHint: "sk-…",
+			keyPattern: /^sk-[\w-]{20,}$/,
+			keyLink: "https://platform.openai.com/api-keys",
+			models: [
+				"gpt-5",
+				"gpt-5-mini",
+				"gpt-4.1"
+			],
+			host: "api.openai.com"
+		},
+		anthropic: {
+			id: "anthropic",
+			ar: "Anthropic Claude",
+			base: "https://api.anthropic.com/v1/",
+			keyHint: "sk-ant-…",
+			keyPattern: /^sk-ant-[\w-]{20,}$/,
+			keyLink: "https://platform.claude.com/settings/keys",
+			models: [
+				"claude-opus-5",
+				"claude-sonnet-5",
+				"claude-haiku-4-5"
+			],
+			host: "api.anthropic.com"
+		}
+	};
+	var isProvider = (x) => x === "gemini" || x === "openai" || x === "anthropic";
+	/** Gemini's OpenAPI subset (OBJECT, STRING …) → standard JSON Schema (object, string …). */
+	function toJsonSchema(s) {
+		if (!s) return { type: "object" };
+		const out = {};
+		if (s.type) out.type = String(s.type).toLowerCase();
+		if (s.description) out.description = s.description;
+		if (s.enum) out.enum = [...s.enum];
+		if (s.items) out.items = toJsonSchema(s.items);
+		if (s.properties) out.properties = Object.fromEntries(Object.entries(s.properties).map(([k, v]) => [k, toJsonSchema(v)]));
+		if (s.required) out.required = [...s.required];
+		return out;
+	}
+	var systemText = (b) => (b.systemInstruction?.parts ?? []).map((p) => p.text ?? "").filter(Boolean).join("\n\n");
+	function jsonInstruction(b) {
+		const g = b.generationConfig;
+		if (g?.responseMimeType !== "application/json") return "";
+		return "\n\nأجب بكائن JSON واحد صالح فقط، دون أي نص قبله أو بعده ودون علامات ```" + (g.responseSchema ? "، مطابق لهذا المخطط (JSON Schema):\n" + JSON.stringify(toJsonSchema(g.responseSchema)) : ".");
+	}
+	var fileName = (mime, i) => `document-${i + 1}.${mime === "application/pdf" ? "pdf" : mime.split("/")[1] || "bin"}`;
+	function callIds(contents) {
+		let n = 0;
+		return contents.map((c) => c.parts.map((p) => p.functionCall ? p.functionCall.id || `call_${++n}` : ""));
+	}
+	/** The HTTP request for one generate call (the key goes in the headers). */
+	function buildRequest(provider, body, model, key) {
+		const P = PROVIDERS[provider];
+		if (provider === "gemini") return {
+			url: `${P.base}models/${encodeURIComponent(model)}:generateContent`,
+			headers: {
+				"Content-Type": "application/json",
+				"x-goog-api-key": key
+			},
+			body
+		};
+		const sys = systemText(body) + jsonInstruction(body), ids = callIds(body.contents);
+		const decl = (body.tools ?? []).flatMap((t) => t.functionDeclarations ?? []);
+		const maxOut = body.generationConfig?.maxOutputTokens ?? 16e3;
+		if (provider === "openai") {
+			const messages = [];
+			if (sys) messages.push({
+				role: "system",
+				content: sys
+			});
+			body.contents.forEach((c, ci) => {
+				const calls = c.parts.map((p, pi) => ({
+					p,
+					id: ids[ci][pi]
+				})).filter((x) => x.p.functionCall);
+				if (c.role === "model") {
+					const text = c.parts.map((p) => p.text ?? "").join("");
+					messages.push({
+						role: "assistant",
+						content: text || null,
+						...calls.length ? { tool_calls: calls.map((x) => ({
+							id: x.id,
+							type: "function",
+							function: {
+								name: x.p.functionCall.name,
+								arguments: JSON.stringify(x.p.functionCall.args ?? {})
+							}
+						})) } : {}
+					});
+					return;
+				}
+				const prev = ci > 0 ? body.contents[ci - 1].parts.map((p, pi) => p.functionCall ? {
+					name: p.functionCall.name,
+					id: ids[ci - 1][pi]
+				} : null).filter((x) => !!x) : [];
+				c.parts.filter((p) => p.functionResponse).forEach((p, i) => messages.push({
+					role: "tool",
+					tool_call_id: p.functionResponse.id || prev.find((x) => x.name === p.functionResponse.name)?.id || prev[i]?.id || `call_${i + 1}`,
+					content: JSON.stringify(p.functionResponse.response ?? {})
+				}));
+				const content = c.parts.filter((p) => !p.functionResponse).map((p, i) => p.inlineData ? p.inlineData.mimeType.startsWith("image/") ? {
+					type: "image_url",
+					image_url: { url: `data:${p.inlineData.mimeType};base64,${p.inlineData.data}` }
+				} : {
+					type: "file",
+					file: {
+						filename: fileName(p.inlineData.mimeType, i),
+						file_data: `data:${p.inlineData.mimeType};base64,${p.inlineData.data}`
+					}
+				} : {
+					type: "text",
+					text: p.text ?? ""
+				}).filter((x) => x.type !== "text" || x.text);
+				if (content.length) messages.push({
+					role: "user",
+					content
+				});
+			});
+			const out = {
+				model,
+				messages,
+				max_completion_tokens: maxOut
+			};
+			if (body.generationConfig?.responseMimeType === "application/json" && !decl.length) out.response_format = { type: "json_object" };
+			if (decl.length) out.tools = decl.map((d) => ({
+				type: "function",
+				function: {
+					name: d.name,
+					description: d.description ?? "",
+					parameters: toJsonSchema(d.parameters)
+				}
+			}));
+			return {
+				url: `${P.base}chat/completions`,
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${key}`
+				},
+				body: out
+			};
+		}
+		const messages = [];
+		const push = (role, blocks) => {
+			if (!blocks.length) return;
+			const last = messages[messages.length - 1];
+			if (last && last.role === role) last.content.push(...blocks);
+			else messages.push({
+				role,
+				content: blocks
+			});
+		};
+		body.contents.forEach((c, ci) => {
+			if (c.role === "model") {
+				push("assistant", c.parts.map((p, pi) => p.functionCall ? {
+					type: "tool_use",
+					id: ids[ci][pi],
+					name: p.functionCall.name,
+					input: p.functionCall.args ?? {}
+				} : {
+					type: "text",
+					text: p.text ?? ""
+				}).filter((b) => b.type !== "text" || b.text));
+				return;
+			}
+			const prev = ci > 0 ? body.contents[ci - 1].parts.map((p, pi) => p.functionCall ? {
+				name: p.functionCall.name,
+				id: ids[ci - 1][pi]
+			} : null).filter((x) => !!x) : [];
+			let r = 0;
+			const blocks = c.parts.map((p) => {
+				if (p.functionResponse) {
+					const id = p.functionResponse.id || prev.find((x) => x.name === p.functionResponse.name)?.id || prev[r]?.id || `call_${r + 1}`;
+					r++;
+					return {
+						type: "tool_result",
+						tool_use_id: id,
+						content: JSON.stringify(p.functionResponse.response ?? {})
+					};
+				}
+				if (p.inlineData) return p.inlineData.mimeType === "application/pdf" ? {
+					type: "document",
+					source: {
+						type: "base64",
+						media_type: "application/pdf",
+						data: p.inlineData.data
+					}
+				} : p.inlineData.mimeType.startsWith("image/") ? {
+					type: "image",
+					source: {
+						type: "base64",
+						media_type: p.inlineData.mimeType,
+						data: p.inlineData.data
+					}
+				} : {
+					type: "text",
+					text: "[مرفق بصيغة غير مدعومة: " + p.inlineData.mimeType + "]"
+				};
+				return {
+					type: "text",
+					text: p.text ?? ""
+				};
+			}).filter((b) => b.type !== "text" || b.text);
+			push("user", [...blocks.filter((b) => b.type === "tool_result"), ...blocks.filter((b) => b.type !== "tool_result")]);
+		});
+		const out = {
+			model,
+			max_tokens: maxOut,
+			messages
+		};
+		if (sys) out.system = sys;
+		if (decl.length) out.tools = decl.map((d) => ({
+			name: d.name,
+			description: d.description ?? "",
+			input_schema: toJsonSchema(d.parameters ?? {
+				type: "OBJECT",
+				properties: {}
+			})
+		}));
+		const headers = {
+			"Content-Type": "application/json",
+			"x-api-key": key,
+			"anthropic-version": "2023-06-01",
+			"anthropic-dangerous-direct-browser-access": "true"
+		};
+		if (/^claude-(opus-5|fable-5)/.test(model)) {
+			headers["anthropic-beta"] = "server-side-fallback-2026-07-01";
+			out.fallbacks = "default";
+		}
+		return {
+			url: `${P.base}messages`,
+			headers,
+			body: out
+		};
+	}
+	/** The provider's answer → the Gemini answer shape every feature already reads. */
+	function toGeminiResponse(provider, api) {
+		if (provider === "gemini") return api;
+		const a = api ?? {};
+		if (provider === "openai") {
+			const ch = (a.choices ?? [])[0];
+			const m = ch?.message ?? {}, parts = [];
+			if (m.content) parts.push({ text: m.content });
+			for (const t of m.tool_calls ?? []) {
+				let args = {};
+				try {
+					args = JSON.parse(t.function.arguments || "{}");
+				} catch {}
+				parts.push({ functionCall: {
+					name: t.function.name,
+					args,
+					id: t.id
+				} });
+			}
+			const fr = m.refusal ? "SAFETY" : ch?.finish_reason === "length" ? "MAX_TOKENS" : ch?.finish_reason === "content_filter" ? "SAFETY" : "STOP";
+			const u = a.usage;
+			return {
+				candidates: [{
+					content: {
+						role: "model",
+						parts
+					},
+					finishReason: fr
+				}],
+				...u ? { usageMetadata: {
+					promptTokenCount: u.prompt_tokens ?? 0,
+					candidatesTokenCount: u.completion_tokens ?? 0
+				} } : {}
+			};
+		}
+		const blocks = a.content ?? [];
+		const parts = [];
+		for (const b of blocks) if (b.type === "text" && b.text) parts.push({ text: b.text });
+		else if (b.type === "tool_use" && b.name) parts.push({ functionCall: {
+			name: b.name,
+			args: b.input ?? {},
+			id: b.id
+		} });
+		const sr = a.stop_reason;
+		const fr = sr === "refusal" ? "SAFETY" : sr === "max_tokens" ? "MAX_TOKENS" : "STOP";
+		const u = a.usage;
+		return {
+			candidates: [{
+				content: {
+					role: "model",
+					parts
+				},
+				finishReason: fr
+			}],
+			...u ? { usageMetadata: {
+				promptTokenCount: u.input_tokens ?? 0,
+				candidatesTokenCount: u.output_tokens ?? 0
+			} } : {}
+		};
+	}
+	/** The provider's error body → its message. */
+	function errorMessage(api) {
+		const e = api?.error;
+		return typeof e === "string" ? e : e?.message ?? "";
+	}
+	/** Arabic error text for any provider. */
+	function friendlyError$1(provider, status, message = "") {
+		const P = PROVIDERS[provider];
+		if (status === 401 || status === 400 && /api key not valid|API_KEY_INVALID|invalid x-api-key|incorrect api key/i.test(message)) return `مفتاح ${P.ar} غير صالح — تحقق منه.`;
+		if (status === 400) return "رفض الطلب (400): " + (message || "صيغة غير مقبولة") + ".";
+		if (status === 403) return "المفتاح مرفوض أو غير مصرح له بهذا النموذج (403).";
+		if (status === 404) return "النموذج غير متاح لهذا المفتاح (404) — اختر نموذجاً آخر من القائمة.";
+		if (status === 413) return "حجم المستندات أكبر من المسموح في طلب واحد — ارفعها على جولات.";
+		if (status === 429) return "تجاوزت حصة الاستخدام أو حد المعدل (429) — انتظر قليلاً أو اختر نموذجاً أخف.";
+		if (status === 529 || status >= 500) return `خطأ مؤقت من خدمات ${P.ar} (${status}) — أعد المحاولة.`;
+		if (status === 0) return `تعذر الاتصال — تحقق من الشبكة أو من مانع يحجب ${P.host}.`;
+		return "خطأ " + status + (message ? ": " + message : "");
+	}
+	/** Model ids from each provider's list endpoint (GET …/models), filtered to text-generation models. */
+	function modelsFrom(provider, api) {
+		const a = api ?? {};
+		if (provider === "gemini") return (a.models ?? []).filter((m) => (m.supportedGenerationMethods ?? []).includes("generateContent")).map((m) => String(m.name ?? "").replace(/^models\//, "")).filter((n) => /^gemini/.test(n) && !/embedding|aqa|tts|image|live/.test(n)).sort((x, y) => y.localeCompare(x, "en"));
+		const ids = (a.data ?? []).map((m) => String(m.id ?? "")).filter(Boolean);
+		if (provider === "openai") return ids.filter((n) => /^(gpt-|o\d)/.test(n) && !/audio|realtime|transcribe|tts|image|search|embedding|instruct/.test(n)).sort((x, y) => y.localeCompare(x, "en"));
+		return ids.filter((n) => /^claude-/.test(n));
+	}
+	/** The URL (without key) that lists the models, and its headers. */
+	function modelsRequest(provider, key) {
+		const P = PROVIDERS[provider];
+		if (provider === "gemini") return {
+			url: `${P.base}models?pageSize=200`,
+			headers: { "x-goog-api-key": key }
+		};
+		if (provider === "openai") return {
+			url: `${P.base}models`,
+			headers: { Authorization: `Bearer ${key}` }
+		};
+		return {
+			url: `${P.base}models?limit=100`,
+			headers: {
+				"x-api-key": key,
+				"anthropic-version": "2023-06-01",
+				"anthropic-dangerous-direct-browser-access": "true"
+			}
+		};
+	}
+	//#endregion
 	//#region app/src/engine/fusion/reports/money-engine.ts
 	var money_engine_exports = /* @__PURE__ */ __exportAll({
 		abs: () => abs,
@@ -3906,6 +4277,7 @@ window.SKEngines = (function() {
 	};
 	var GENERAL_DOCS = [["ميزان المراجعة النهائي موقعاً من الإدارة", "أساس القوائم وإقرار الإدارة بمسؤوليتها"], ["خطاب إقرارات الإدارة (ISA 580)", "إقرارات مكتوبة في تاريخ التقرير"]];
 	var ACCUM$1 = /مجمع|متراكم|accumulated|مخصص اهلاك|مخصص استهلاك/;
+	var ALLOWANCE = /خسائر ائتمانيه|ديون مشكوك|اضمحلال|allowance|credit loss|impairment/;
 	var SUSPENSE = /معلق|تحت التسويه|وسيط|حساب مؤقت|suspense|clearing/;
 	var RELATED = /طرف ذو علاقه|اطراف ذات علاقه|شركه شقيقه|جاري المدير|جاري الشريك|جاري الشركاء|related part/;
 	var SALARIES = /رواتب|اجور|salar|wages/;
@@ -4030,6 +4402,7 @@ window.SKEngines = (function() {
 			}));
 			if (a.natural < 0 && big) {
 				if (a.lineKey === "ppe" && ACCUM$1.test(n)) continue;
+				if (a.lineKey === "receivables" && ALLOWANCE.test(n)) continue;
 				if (a.lineKey === "cash") {
 					tag(add({
 						severity: "high",
@@ -4518,13 +4891,14 @@ window.SKEngines = (function() {
 			const bump = hits.some((f) => f.severity === "high") ? 10 : hits.some((f) => f.severity === "medium") ? 5 : 0;
 			const score = Math.min(100, parts.size + parts.estimate + parts.change + parts.evidence + parts.nature + bump);
 			const level = score >= 70 ? "عالٍ" : score >= 45 ? "متوسط" : "منخفض";
+			const qualitative = !!la.estimate || !!la.fraud || bump > 0 || pc !== null && pc >= 25;
 			return {
 				lineKey: l.key,
 				ar: l.ar,
 				amount,
 				score,
 				level,
-				significant: score >= 70,
+				significant: score >= 70 && qualitative,
 				parts,
 				risk: la.risk,
 				procedures: la.procedures
@@ -4838,6 +5212,7 @@ window.SKEngines = (function() {
 		extractText: () => extractText,
 		friendlyError: () => friendlyError,
 		markUnavailable: () => markUnavailable,
+		mergeEvidence: () => mergeEvidence,
 		mergedFindings: () => mergedFindings,
 		newSession: () => newSession,
 		normalizeFinal: () => normalizeFinal,
@@ -5168,7 +5543,7 @@ window.SKEngines = (function() {
 		const fw = egypt ? "معايير المحاسبة المصرية الصادرة بقرارات وزير الاستثمار وتعديلاتها، وقانون الضريبة على الدخل 91 لسنة 2005 (22.5%)، وقانون الضريبة على القيمة المضافة 67 لسنة 2016 (14%)، وقانون الشركات 159 لسنة 1981؛ والمراجعة وفق معايير المراجعة المصرية المتسقة مع ISA" : ctx.framework === "SME" ? "المعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم المعتمد في المملكة (SOCPA)" : "المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من الهيئة السعودية للمراجعين والمحاسبين (SOCPA)";
 		const codes = STANDARDS.filter((s) => (egypt ? s.family !== "SAUDI" && s.family !== "IFRS" && s.family !== "IAS" : s.family !== "EAS" && s.family !== "EGYPT") && s.status !== "replaced").map((s) => s.code).join("، ");
 		return [
-			"أنت «مجلس المراجعة» في تطبيق KOSIF: ثلاثة مراجعين مستقلين بصوت موحد:",
+			"أنت «مجلس المراجعة» في تطبيق SQC: ثلاثة مراجعين مستقلين بصوت موحد:",
 			"- المراجع الفني المحاسبي: التبويب والقياس والعرض.",
 			"- مراجع الامتثال للمعايير والإفصاح: ملاءمة المعيار لكل حساب وكفاية الإفصاح والمستندات النظامية.",
 			"- مدقق المخاطر والأدلة: المخاطر الجوهرية (ISA 315/330) وكفاية الأدلة (ISA 500) ومؤشرات الغش (ISA 240) والاستمرارية (ISA 570).",
@@ -5542,7 +5917,12 @@ window.SKEngines = (function() {
 		}
 		return out;
 	}
-	function deriveOpinion(tb, review, s, accepted) {
+	function mergeEvidence(...maps) {
+		const out = {};
+		for (const m of maps) for (const [k, v] of Object.entries(m)) if (v === "accepted" || !out[k]) out[k] = v;
+		return out;
+	}
+	function deriveOpinion(tb, review, s, accepted, fieldEvidence = {}) {
 		const mat = review.materiality;
 		const uncorrected = [...review.adjustments, ...s.rounds.flatMap((r) => r.adjustments.filter((a) => a.valid))].filter((p) => !accepted.some((a) => a.id === p.id));
 		const eff = uncorrected.length ? adjustmentEffect(tb, uncorrected) : {
@@ -5553,7 +5933,7 @@ window.SKEngines = (function() {
 		const misstatement = Math.max(Math.abs(eff.profit), Math.abs(eff.assets), Math.abs(eff.equity));
 		const highOpen = outstanding(s).filter((q) => q.priority === "عالية");
 		const unavailHigh = s.rounds.flatMap((r) => r.requests).filter((q, i, a) => a.findIndex((x) => x.id === q.id) === i && s.unavailable.includes(q.id) && q.priority === "عالية");
-		const ev = evidenceFromSession(review, s);
+		const ev = mergeEvidence(evidenceFromSession(review, s), fieldEvidence);
 		const sigUnevidenced = review.risks.filter((r) => r.significant && !ev[r.lineKey]).length;
 		const lineOf = (q) => q.lineKey ?? review.accounts.find((a) => q.accounts.includes(a.code))?.lineKey ?? null;
 		const blockedSig = new Set(unavailHigh.map(lineOf).filter((k) => k && review.risks.some((r) => r.lineKey === k && r.significant)));
@@ -7960,6 +8340,7 @@ window.SKEngines = (function() {
 		HUMAN_CHECKS: () => HUMAN_CHECKS,
 		areaOf: () => areaOf,
 		completion: () => completion,
+		evidenceFromFieldwork: () => evidenceFromFieldwork,
 		leadSchedules: () => leadSchedules,
 		representationLetter: () => representationLetter,
 		riskMatrix: () => riskMatrix,
@@ -8231,6 +8612,18 @@ window.SKEngines = (function() {
 			pct: total ? Math.round(done / total * 100) : 0,
 			status
 		};
+	}
+	/** Evidence per line from the signed papers (ISA 330 / 500): reviewed → accepted, prepared → partial. Feeds the opinion and the programme. */
+	function evidenceFromFieldwork(papers, signoffs = {}) {
+		const out = {};
+		for (const w of papers) {
+			const st = wpStatus(w, signoffs[w.ref]).status;
+			if (st === "reviewed") for (const k of w.lines) out[k] = "accepted";
+			else if (st === "prepared") {
+				for (const k of w.lines) if (!out[k]) out[k] = "partial";
+			}
+		}
+		return out;
 	}
 	/** Returns the new sign-off or an error in Arabic: prepare needs every step and a conclusion; review needs a different person. */
 	function signOff(wp, s, role, name, now = /* @__PURE__ */ new Date()) {
@@ -9521,7 +9914,7 @@ window.SKEngines = (function() {
 			rects
 		};
 	}
-	function scaleLabelPrintHtml(label, brand = "S.kosif") {
+	function scaleLabelPrintHtml(label, brand = "SQC") {
 		const barcode = code128SvgData(label.barcode, 30);
 		const rects = barcode.rects.map((rect) => "<rect x=\"" + rect.x + "\" y=\"0\" width=\"" + rect.width + "\" height=\"" + barcode.height + "\" fill=\"#000\"/>").join("");
 		const svg = "<svg viewBox=\"0 0 " + barcode.width + " " + (barcode.height + 13) + "\" xmlns=\"http://www.w3.org/2000/svg\">" + rects + "<text x=\"" + barcode.width / 2 + "\" y=\"" + (barcode.height + 10) + "\" text-anchor=\"middle\" font-family=\"monospace\" font-size=\"9\">" + barcode.value + "</text></svg>";
@@ -13702,6 +14095,7 @@ window.SKEngines = (function() {
 	//#endregion
 	return {
 		audit: {
+			aiProviders: ai_providers_engine_exports,
 			aiReview: ai_review_engine_exports,
 			codex: codex_engine_exports,
 			confidence: confidence_engine_exports,

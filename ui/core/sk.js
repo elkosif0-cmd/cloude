@@ -210,7 +210,7 @@ const PRINT_KOSIF='@page{size:A4;margin:14mm 12mm 16mm;@bottom-center{content:"�
  'table{border:1px solid #e4eaf2;border-radius:10px;overflow:hidden;border-collapse:separate;border-spacing:0}th,td{border-bottom:1px solid #edf1f7;padding:7px 9px}th{background:#0b1f3a!important;color:#fff;font-weight:600;font-size:11.5px}'+
  'tr:nth-child(even) td{background:#f8fafd}hr,.r,.skp-foot{border-color:#e4eaf2}small,.muted{color:#8292a8}b,strong{color:#0b1c33}.t{border-top-color:#1668e3}'+
  '.skp-lux{margin:0 0 16px}.skp-band{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;background:linear-gradient(120deg,#0b1f3a 0%,#123a6b 60%,#1668e3 100%)!important;color:#fff}'+
- '.skp-band img{width:58px;height:40px;filter:brightness(0) invert(1)}.skp-mark{flex:1}.skp-mark b{display:block;font:800 24px/1 Montserrat,"Segoe UI",sans-serif;letter-spacing:.06em;color:#fff}'+
+ '.skp-band img{width:88px;height:32px}.skp-mark{flex:1}.skp-mark b{display:block;font:800 24px/1 Montserrat,"Segoe UI",sans-serif;letter-spacing:.06em;color:#fff}'+
  '.skp-mark span{display:block;margin-top:4px;font-size:12px;color:#cfe0f5}.skp-doc{text-align:left}.skp-doc b{display:block;font-size:15px;color:#fff}.skp-doc span{font-size:11px;color:#cfe0f5}'+
  '.skp-ids{display:flex;flex-wrap:wrap;gap:4px 14px;padding:8px 6px 0;font-size:10.5px;color:#8292a8}.skp-foot{margin-top:22px;padding-top:8px;border-top:1px solid #e4eaf2;font-size:10px;color:#8292a8;text-align:center}';
 /* one print identity: the KOSIF letterhead for every look except «تراث الوادي» and «الدفتر» */
@@ -221,7 +221,7 @@ function letterhead(title){
   const o=org(),base=location.href.replace(/[^/?#]*([?#].*)?$/,"");
   const ids=[o.vatNo?"الرقم الضريبي "+esc(o.vatNo):"",o.crNo?"السجل التجاري "+esc(o.crNo):"",o.phone?esc(o.phone):"",o.addr?esc(o.addr):""].filter(Boolean);
   const date=esc(new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"}));
-  if(kosifLook())return '<header class="skp-lux"><div class="skp-band"><img src="'+base+'art/kosif-cloud.svg" alt=""><div class="skp-mark"><b>KOSIF</b><span>'+esc(o.biz||"أغنام الوادي")+'</span></div>'+
+  if(kosifLook())return '<header class="skp-lux"><div class="skp-band"><img src="'+base+'art/sqc-mark.svg" alt=""><div class="skp-mark"><b>SQC</b><span>'+esc(o.biz||"أغنام الوادي")+'</span></div>'+
     '<div class="skp-doc"><b>'+esc(title||"")+'</b><span>'+date+'</span></div></div>'+(ids.length?'<div class="skp-ids">'+ids.map(x=>'<span>'+x+'</span>').join("")+'</div>':'')+'</header>';
   return '<div class="skp-orn" style="background-image:url('+base+'art/ornament.svg)"></div><header class="skp-head"><img src="'+base+'art/ram.svg" alt=""><div class="skp-org"><b>'+esc(o.biz||"أغنام الوادي")+'</b>'+(ids.length?'<span>'+ids.join(" · ")+'</span>':'')+'</div>'+
     '<div class="skp-meta"><b>'+esc(title||"")+'</b>'+date+'</div></header>';
@@ -275,7 +275,7 @@ function brandPrint(w,title){
     d.documentElement.setAttribute("dir","rtl");
     if(title&&!d.title)d.title=title;
     d.body.insertAdjacentHTML("afterbegin",letterhead(title||d.title));
-    const o=org(),pr=preparer();d.body.insertAdjacentHTML("beforeend",'<footer class="skp-foot">'+esc(o.biz||"أغنام الوادي")+' · صدر من '+(kosifLook()?'KOSIF — Smarter Audit. Greater Trust.':'S.kosif')+(pr?' · أعدّه: '+esc(pr):'')+'</footer>');
+    const o=org(),pr=preparer();d.body.insertAdjacentHTML("beforeend",'<footer class="skp-foot">'+esc(o.biz||"أغنام الوادي")+' · صدر من '+'SQC — Smart Quality Control · AI-Powered Audit &amp; Assurance'+(pr?' · أعدّه: '+esc(pr):'')+'</footer>');
     /* in the app's own preview (SK.output) the toolbar lives outside the page */
     if(w.__skEmbedded){if(window.SKCharts&&d.querySelector(".skch-fig,.skch,.skhb")){const cs=d.createElement("style");cs.id="sk-print-charts";cs.textContent=SKCharts.printCSS;(d.head||d.documentElement).appendChild(cs)}
       setTimeout(()=>SK.output&&SK.output.css(d),0);return}

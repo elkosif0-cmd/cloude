@@ -173,7 +173,7 @@ function bindBBQ(root){
 
     const msg=encodeURIComponent(
       "السلام عليكم ورحمة الله،\n"+
-      "عرض سعر باقة مناسبات وشواء — ملحمة S.kosif\n"+
+      "عرض سعر باقة مناسبات وشواء — ملحمة SQC\n"+
       "━━━━━━━━━━━━━━━━━━━\n"+
       "👤 العميل: "+f.clientName+"\n"+
       "🎉 المناسبة: "+f.title+"\n"+
@@ -260,7 +260,7 @@ function bindPO(root){
       "السلام عليكم ورحمة الله،\n"+
       "سعادة إدارة مبيعات: "+supp+"\n"+
       "نأمل اعتماد أمر التوريد رقم: "+poNum+"\n"+
-      "لحساب ملحمة ومطبخ S.kosif\n"+
+      "لحساب ملحمة ومطبخ SQC\n"+
       "━━━━━━━━━━━━━━━━━━━\n"+
       "🐑 الصنف المطلوب: "+breed+"\n"+
       "🔢 الكمية والمواصفات: "+heads+"\n"+
@@ -385,7 +385,7 @@ function bindButcher(root){
     const shifts=load(BUTCHER_KEY,defaultShifts);
     const headers=["رقم الذبيحة","القصاب","الوزن المعلق","اللحم الصافي","العظم","الشحم","الهدر","نسبة الصافي","التاريخ"];
     const rows=shifts.map(s=>[s.carcassTag,s.butcher,s.hangingKg,s.primeKg,s.boneKg,s.fatKg,s.wasteKg,((s.primeKg/s.hangingKg)*100).toFixed(1)+"%",s.date]);
-    csv.download("S.kosif-butcher-yield-"+new Date().toISOString().slice(0,10),headers,rows);
+    csv.download("SQC-butcher-yield-"+new Date().toISOString().slice(0,10),headers,rows);
   };
 }
 
@@ -487,7 +487,7 @@ function bindSubs(root){
         "مرحباً بك أستاذ "+sub.name+" 🌸\n"+
         "نود إبلاغك بأنه تم تجهيز بوكس اللحوم الدوري الخاص بك:\n"+
         "📦 "+sub.planName+" ("+sub.cycle+")\n"+
-        "تم تحضيره وتغليفه طازجاً بعناية في ملحمة ومطبخ S.kosif.\n"+
+        "تم تحضيره وتغليفه طازجاً بعناية في ملحمة ومطبخ SQC.\n"+
         "🚚 مندوب التوصيل في طريقه إليك اليوم.\n"+
         "📍 العنوان: "+sub.addr+"\n\n"+
         "نتمنى لك وجبة شهية وعافية دائمة!"
@@ -690,7 +690,7 @@ function bindAging(content){
         '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap"><style>body{font-family:"IBM Plex Sans Arabic",Tahoma,sans-serif;padding:20px;text-align:center;border:2px dashed #333;margin:10px;border-radius:12px;}'+
         'h2{margin:6px 0;color:#8a5a2b;}table{width:100%;margin:14px 0;border-collapse:collapse;}td{padding:6px;border-bottom:1px solid #eee;text-align:right;}'+
         'b{color:#111;}.tag{display:inline-block;padding:4px 10px;background:#eee;border-radius:6px;font-size:12px;margin-bottom:8px;}</style></head><body>'+
-        '<div class="tag">غرفة التعتيق الفاخرة — S.kosif</div>'+
+        '<div class="tag">غرفة التعتيق الفاخرة — SQC</div>'+
         '<h2>'+esc(p.tag)+'</h2>'+
         '<div>رمز القطعة: <b>'+esc(p.id)+'</b></div>'+
         '<table>'+
@@ -736,7 +736,7 @@ function bindAging(content){
 
   $("#aging-wa-btn",content)?.addEventListener("click",()=>{
     const pieces=load(AGING_KEY,defaultAgingPieces);
-    let msg="*🥩 تقرير غرفة تعتيق اللحوم — S.kosif*\nالتاريخ: "+new Date().toLocaleDateString("ar-SA")+"\n--------------------------------\n";
+    let msg="*🥩 تقرير غرفة تعتيق اللحوم — SQC*\nالتاريخ: "+new Date().toLocaleDateString("ar-SA")+"\n--------------------------------\n";
     pieces.forEach(p=>{
       const c=agingCalc(p);
       msg+="• *"+p.tag+"* ("+p.id+")\n   - الأيام: "+c.daysElapsed+"/"+c.targetDays+" يوم ("+(c.progress)+"%)\n   - الوزن الصافي المقدر: "+c.usableKg.toFixed(2)+" كجم\n   - سعر البيع المقترح: "+c.suggestedPriceKg.toFixed(0)+" ر.س/كجم\n";

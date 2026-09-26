@@ -1,4 +1,4 @@
-/** KOSIF V5 — strict, source-backed cash flow movement engine. */
+/** SQC V5 — strict, source-backed cash flow movement engine. */
 const SECTIONS=new Set(['operating','investing','financing']);
 const DIRECTIONS=new Set(['inflow','outflow']);
 const uniq=v=>[...new Set((v||[]).map(String).map(x=>x.trim()).filter(Boolean))];

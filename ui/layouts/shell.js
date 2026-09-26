@@ -15,8 +15,8 @@ const ADV_NOTE="الأدوات المتقدمة ظاهرة داخل كل مجا�
 /* ---------- preferences: theme (look) + density ----------
    look: kosif (default, the adopted KOSIF identity) | kosif-night | heritage | heritage-night | executive | audit | midnight | notebook | auto */
 const LOOKS=[
-  ["kosif","KOSIF","الهوية المعتمدة: شريط كحلي وأزرق KOSIF وبطاقات بيضاء وحلقات تقدّم",["#f3f6fb","#0c2340","#1668e3","#1fb6e0"]],
-  ["kosif-night","KOSIF الليلي","نفس الهوية بإضاءة ليلية",["#0a1628","#071427","#4a93ff","#3fd0f0"]],
+  ["kosif","SQC","الهوية المعتمدة: شريط كحلي وأزرق SQC وبطاقات بيضاء وحلقات تقدّم",["#f3f6fb","#0c2340","#1668e3","#1fb6e0"]],
+  ["kosif-night","SQC الليلي","نفس الهوية بإضاءة ليلية",["#0a1628","#071427","#4a93ff","#3fd0f0"]],
   ["heritage","تراث الوادي","الهوية الافتراضية: رَقّ وحبر بني ورسوم الوادي",["#f4ead8","#8a5a2b","#efe2cc","#2b1a0f"]],
   ["heritage-night","ليل الوادي","نفس الهوية بإضاءة ليلية",["#16110c","#d09a5e","#201811","#f4ead8"]],
   ["executive","التنفيذي","مساحة فاتحة، بنفسجي وأزرق، أرقام قوية",["#f5f6fb","#5b4ee6","#3d7bf5","#1d2340"]],
@@ -48,7 +48,7 @@ const FONTS=[
   ["naskh","نسخ Noto Naskh","Noto+Naskh+Arabic:wght@400;500;600;700",'"Noto Naskh Arabic"'],
   ["system","خط الجهاز","",'system-ui']];
 const FALLBACK=',-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,sans-serif';
-const ACCENTS=[["","حسب الثيم"],["#1668e3","أزرق KOSIF"],["#0f9d6c","زمردي"],["#006c35","أخضر وطني"],["#0e8a9a","فيروزي"],["#6b4ee6","ملكي"],["#c2410c","عنبري"],["#b8862b","ذهبي"],["#d0343f","قرمزي"],["#3b4a5e","فحمي"]];
+const ACCENTS=[["","حسب الثيم"],["#1668e3","أزرق SQC"],["#0f9d6c","زمردي"],["#006c35","أخضر وطني"],["#0e8a9a","فيروزي"],["#6b4ee6","ملكي"],["#c2410c","عنبري"],["#b8862b","ذهبي"],["#d0343f","قرمزي"],["#3b4a5e","فحمي"]];
 const hexRgb=h=>{const m=/^#?([0-9a-f]{6})$/i.exec(String(h||"").trim());if(!m)return null;const n=parseInt(m[1],16);return[n>>16&255,n>>8&255,n&255]};
 const rgbHex=c=>"#"+c.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,"0")).join("");
 const lum=c=>{const f=v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)};return .2126*f(c[0])+.7152*f(c[1])+.0722*f(c[2])};
@@ -222,7 +222,7 @@ function paintTop(){
   document.documentElement.dataset.domain=cap?cap.group:"";
   if(cap){if(t&&t.textContent!==cap.label)t.textContent=cap.label;if(cr)cr.textContent=SK.caps.path(cap.id)+(cap.primary?"":" · متقدم")}
   else if(cr)cr.textContent="";
-  document.title=(cap?cap.label:(t&&t.textContent)||"")+" · S.kosif";
+  document.title=(cap?cap.label:(t&&t.textContent)||"")+" · SQC";
   const rail=$("#rail");document.body.classList.toggle("skn-locked",!!(rail&&rail.classList.contains("open"))&&innerWidth<=900);
 }
 /* phones: bottom tab bar — in the page flow (sticky), never over content. Four screens the user
@@ -265,7 +265,7 @@ function toggleRail(force){const mini=typeof force==="boolean"?force:prefs().rai
 function titlebar(){
   const on=document.documentElement.getAttribute("data-display")==="window-controls-overlay";let bar=$("#sk-wco");
   if(!on){if(bar)bar.remove();return}
-  if(!bar){bar=document.createElement("div");bar.id="sk-wco";bar.className="sk-wco";bar.innerHTML='<div class="sk-wco-in"><b>KOSIF</b><span id="sk-wco-t"></span></div>';document.body.prepend(bar)}
+  if(!bar){bar=document.createElement("div");bar.id="sk-wco";bar.className="sk-wco";bar.innerHTML='<div class="sk-wco-in"><b>SQC</b><span id="sk-wco-t"></span></div>';document.body.prepend(bar)}
   const c=core(),cap=c&&SK.caps.get(c.view()),t=$("#sk-wco-t");if(t)t.textContent=cap?cap.label:"";
 }
 function paint(){paintNav();paintTop();paintTabs();railToggle();titlebar();if(window.SKosifTopbar)SKosifTopbar.paint()}
@@ -294,7 +294,7 @@ function updates(){
     const offer=w=>{
       if(!w||!hadController||$("#sk-update"))return;
       const bar=document.createElement("div");bar.id="sk-update";bar.className="sk-update";bar.setAttribute("role","status");
-      bar.innerHTML='<span>نسخة أحدث من S.kosif جاهزة.</span><button type="button" class="btn sm primary">تحديث الآن</button>';
+      bar.innerHTML='<span>نسخة أحدث من SQC جاهزة.</span><button type="button" class="btn sm primary">تحديث الآن</button>';
       bar.querySelector("button").onclick=()=>w.postMessage({type:"SKIP_WAITING"});
       ($(".maincol")||document.body).insertBefore(bar,$(".main"));
     };

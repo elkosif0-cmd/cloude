@@ -10,12 +10,12 @@
     section.innerHTML = `
       <div class="section-head">
         <div>
-          <p class="eyebrow">KOSIF OPERATING MODEL</p>
+          <p class="eyebrow">SQC OPERATING MODEL</p>
           <h2>مسار واحد من المستند إلى التقرير</h2>
         </div>
         <span class="badge">مراجعة بشرية نهائية</span>
       </div>
-      <p class="operating-lead">يجمع KOSIF البيانات المحاسبية والمستندات والأدلة في ملف واحد. كل مرحلة تنتج مخرجات قابلة للفحص، ولا تنتقل المرحلة التالية قبل استيفاء بوابتها.</p>
+      <p class="operating-lead">يجمع SQC البيانات المحاسبية والمستندات والأدلة في ملف واحد. كل مرحلة تنتج مخرجات قابلة للفحص، ولا تنتقل المرحلة التالية قبل استيفاء بوابتها.</p>
       <div class="operating-steps" role="list">
         <div role="listitem"><b>01</b><strong>استلام</strong><small>PDF، Excel، CSV، صور وكشوف بنكية</small></div>
         <div role="listitem"><b>02</b><strong>تحويل محاسبي</strong><small>حسابات، قيود، دفتر أستاذ وميزان مراجعة</small></div>

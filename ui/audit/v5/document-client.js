@@ -1,8 +1,8 @@
-/** Browser client for KOSIF server-side document intelligence. No OpenAI API key is accepted here. */
+/** Browser client for SQC server-side document intelligence. No OpenAI API key is accepted here. */
 const SESSION_KEY='kosif:v5:remote-engagement';
 function browserSession(){try{return typeof localStorage!=='undefined'?JSON.parse(localStorage.getItem(SESSION_KEY)||'null')||{}:{}}catch{return{}}}
 function browserEngagementToken(){return browserSession().accessToken||''}
-function authHeaders({engagementId='',accessToken='',callToken='',accept='application/json'}={}){const token=callToken||accessToken||browserEngagementToken(),headers={Accept:accept};if(engagementId)headers['X-KOSIF-Engagement']=engagementId;if(token)headers.Authorization=`Bearer ${token}`;return headers}
+function authHeaders({engagementId='',accessToken='',callToken='',accept='application/json'}={}){const token=callToken||accessToken||browserEngagementToken(),headers={Accept:accept};if(engagementId)headers['X-SQC-Engagement']=engagementId;if(token)headers.Authorization=`Bearer ${token}`;return headers}
 async function jsonOrError(response,message){const payload=await response.json().catch(()=>({error:'invalid_gateway_response'}));if(!response.ok){const error=new Error(payload.message||payload.error||`${message} (${response.status})`);error.status=response.status;error.body=payload;throw error}return payload}
 export function createDocumentIntelligenceClient({ baseUrl, fetchImpl = fetch, accessToken = '' } = {}) {
   const normalizedBase = String(baseUrl || '').trim().replace(/\/+$/, '');

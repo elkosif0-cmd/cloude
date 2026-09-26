@@ -1,4 +1,4 @@
-/** KOSIF V5 — authenticated optimistic-concurrency client for engagement persistence. */
+/** SQC V5 — authenticated optimistic-concurrency client for engagement persistence. */
 import { toWireState, fromWireState } from './state-codec.js';
 
 function cleanBase(baseUrl='') { return String(baseUrl).trim().replace(/\/$/, ''); }

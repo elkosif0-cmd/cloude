@@ -255,6 +255,15 @@ def build_app(sub, app):
     (dst / "markup.html").write_text(body.strip() + "\n", encoding="utf-8")
     (dst / "mount.js").write_text(mount_js(app), encoding="utf-8")
 
+BRAND_RE = re.compile(r"\bKOSIF\b(?!_)|\bS\.kosif\b")
+def rebrand(root):
+    """The product is SQC — Smart Quality Control: the studio's visible name follows it (storage keys and identifiers are
+    lower-case or joined with «_» and stay as they are, so saved work keeps loading)."""
+    for f in root.rglob("*"):
+        if f.suffix in (".js", ".html", ".css") and f.is_file():
+            t = f.read_text(encoding="utf-8"); u = BRAND_RE.sub("SQC", t)
+            if u != t: f.write_text(u, encoding="utf-8")
+
 def main():
     if not (SRC / "continuous-review.js").exists():
         raise SystemExit(f"not a kosif-audit-studio checkout: {SRC}")
@@ -262,6 +271,7 @@ def main():
         shutil.rmtree(OUT)
     for sub, app in APPS.items():
         build_app(sub, app)
+    rebrand(OUT)
     (OUT / "SOURCE.txt").write_text("Vendored from kosif199022-jpg/kosif-audit-studio by tools/vendor_audit.py.\n"
                                     "Edit upstream and re-run the tool; files here are generated.\n", encoding="utf-8")
     print("audit studio vendored:", sum(1 for _ in OUT.rglob("*")), "files")

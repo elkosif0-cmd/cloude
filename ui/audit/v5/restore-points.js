@@ -1,4 +1,4 @@
-/** KOSIF V5 — IndexedDB restore points inspired by the supplied dashboard safety layer. */
+/** SQC V5 — IndexedDB restore points inspired by the supplied dashboard safety layer. */
 const DB_NAME='kosif-v5-safety';const DB_VERSION=1;const STORE='restore-points';const MAX_POINTS=8;
 function openDb(){return new Promise((resolve,reject)=>{if(!globalThis.indexedDB)return reject(new Error('IndexedDB غير متاح في هذا المتصفح'));const req=indexedDB.open(DB_NAME,DB_VERSION);req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(STORE)){const s=db.createObjectStore(STORE,{keyPath:'id'});s.createIndex('createdAt','createdAt')}};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||new Error('تعذر فتح مخزن نقاط الاستعادة'))})}
 function requestResult(req){return new Promise((resolve,reject)=>{req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { parseTrialBalance, SAMPLE_TB_CSV } from '../reports/tb-import-engine';
 import { reviewTrialBalance, type Adjustment } from './tb-review-engine';
-import { areaOf, completion, HUMAN_CHECKS, leadSchedules, representationLetter, riskMatrix, sampleSize, signOff, workingPapers, wpStatus } from './fieldwork-engine';
+import { areaOf, completion, evidenceFromFieldwork, HUMAN_CHECKS, leadSchedules, representationLetter, riskMatrix, sampleSize, signOff, workingPapers, wpStatus } from './fieldwork-engine';
 
 const tb = parseTrialBalance(SAMPLE_TB_CSV);
 const review = reviewTrialBalance(tb);
@@ -65,6 +65,17 @@ describe('working papers (ISA 330 / 230)', () => {
     const r = signOff(w, s1, 'reviewer', 'خالد');
     expect(r.ok && wpStatus(w, r.value).status).toBe('reviewed');
     expect(signOff(w, {}, 'reviewer', 'خالد').ok).toBe(false);
+  });
+});
+
+describe('evidence from the signed papers', () => {
+  it('counts a reviewed paper as accepted evidence for its lines and a prepared one as partial', () => {
+    const wps = workingPapers(review);
+    const a = wps.find((w) => w.ref === 'A')!, b = wps.find((w) => w.ref === 'B')!;
+    const ev = evidenceFromFieldwork(wps, { A: { preparer: 'أ', reviewer: 'ب' }, B: { preparer: 'أ' } });
+    for (const k of a.lines) expect(ev[k]).toBe('accepted');
+    for (const k of b.lines) expect(ev[k]).toBe('partial');
+    expect(Object.keys(evidenceFromFieldwork(wps, {}))).toHaveLength(0);
   });
 });
 

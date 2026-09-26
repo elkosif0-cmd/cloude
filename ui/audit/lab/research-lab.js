@@ -89,7 +89,7 @@ function renderSample() {
     ['الأهمية الإجمالية', money(state.materiality.overall), 'تحدد سقف التقييم الإجمالي للارتباط.'],
     ['أهمية الأداء', money(state.materiality.performance), 'تستخدم في تحديد امتداد الاختبار وخطر التجميع.'],
     ['عتبة الفحص 100%', money(p.parameters.certaintyThresholdMinor), 'كل بند يساويها أو يتجاوزها يدخل طبقة certainty.'],
-    ['هدف تغطية المجتمع المتبقي', pct(p.metrics.targetResidualCoveragePct), 'سياسة KOSIF تتغير مع المخاطر والضوابط والتحريف المتوقع.'],
+    ['هدف تغطية المجتمع المتبقي', pct(p.metrics.targetResidualCoveragePct), 'سياسة SQC تتغير مع المخاطر والضوابط والتحريف المتوقع.'],
     ['التغطية الفعلية للمجتمع المتبقي', pct(p.metrics.residualCoveragePct), p.metrics.targetReached ? 'تم بلوغ هدف التغطية.' : 'لم يُبلغ الهدف بسبب سقف العينة؛ يتطلب قرارًا.'],
     ['قيمة البنود المختارة', money(p.metrics.selectedValueMinor), `${p.metrics.selectedCount.toLocaleString('ar-SA')} بندًا إجمالًا.`],
     ['حالة السقف', p.metrics.capApplied ? 'تم تطبيق الحد الأقصى' : 'لم يقيّد الخطة', p.metrics.capApplied ? 'راجع السقف أو وسّع الاختبار.' : 'امتداد الاختبار حقق سياسة الخطة الحالية.']

@@ -106,6 +106,16 @@ export function wpStatus(wp: WorkPaper, s: SignOff = {}) {
   const status = s.reviewer && s.preparer ? 'reviewed' : s.preparer ? 'prepared' : done ? 'in-progress' : 'not-started';
   return { done, total, pct: total ? Math.round((done / total) * 100) : 0, status: status as 'not-started' | 'in-progress' | 'prepared' | 'reviewed' };
 }
+/** Evidence per line from the signed papers (ISA 330 / 500): reviewed → accepted, prepared → partial. Feeds the opinion and the programme. */
+export function evidenceFromFieldwork(papers: WorkPaper[], signoffs: Record<string, SignOff> = {}): Record<string, 'accepted' | 'partial'> {
+  const out: Record<string, 'accepted' | 'partial'> = {};
+  for (const w of papers) {
+    const st = wpStatus(w, signoffs[w.ref]).status;
+    if (st === 'reviewed') for (const k of w.lines) out[k] = 'accepted';
+    else if (st === 'prepared') for (const k of w.lines) if (!out[k]) out[k] = 'partial';
+  }
+  return out;
+}
 /** Returns the new sign-off or an error in Arabic: prepare needs every step and a conclusion; review needs a different person. */
 export function signOff(wp: WorkPaper, s: SignOff, role: 'preparer' | 'reviewer', name: string, now = new Date()): { ok: true; value: SignOff } | { ok: false; error: string } {
   const who = name.trim();
