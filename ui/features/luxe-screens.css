@@ -77,3 +77,10 @@
 .skslab-ideas p{margin:0;font-size:var(--sk-fs-s);line-height:1.75;color:var(--sk-ink-2)}.skslab-ideas small{color:var(--sk-brand);font-weight:700}
 .skslab-ideas .linkish{justify-self:start}
 @media (max-width:900px){.skslab-2{grid-template-columns:1fr}.skslab-tabs{flex-wrap:nowrap;overflow-x:auto}.skslab-tabs button{flex:0 0 auto}}
+.skslab h4 select{margin-inline-start:8px;min-height:30px;border:1px solid var(--sk-line);border-radius:8px;background:var(--sk-surface);color:var(--sk-ink);font:inherit;font-size:12px}
+.skslab-pf{display:inline-flex;margin-inline-start:10px;vertical-align:middle}.skslab-pf button{min-height:30px;padding:0 10px;font-size:12px}
+.skslab .neg{color:var(--sk-bad)}
+.skslab-new input,.skslab-new select{width:100%;min-height:32px;border:1px solid var(--sk-line);border-radius:8px;background:var(--sk-surface-2);color:var(--sk-ink);font:inherit;font-size:12px;padding:0 6px}
+.skslab-tree details{margin-bottom:8px;border:1px solid var(--sk-line);border-radius:var(--sk-r);padding:6px 10px;background:var(--sk-surface)}
+.skslab-tree summary{cursor:pointer;padding:4px 0}.skslab-tree summary small{color:var(--sk-ink-3)}
+.fu-plan{margin:0;padding-inline-start:20px;display:grid;gap:6px;font-weight:600}

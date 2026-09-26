@@ -40,7 +40,8 @@ function sheet(){
   wrap.innerHTML=toolbar(SK.print.options())+'<iframe class="skout-f" title="المستند" data-skout="1"></iframe>';
   document.body.appendChild(wrap);document.documentElement.classList.add("skout-open");
   const f=wrap.querySelector("iframe"),w=f.contentWindow;
-  const patch=()=>{try{if(!w.__skRealPrint){const rp=w.print.bind(w);w.__skRealPrint=()=>{try{w.focus();rp()}catch{}}}w.print=()=>{};w.close=()=>close();w.__skEmbedded=true}catch{}};
+  const esc=e=>{if(e.key==="Escape"){e.preventDefault();close()}};
+  const patch=()=>{try{if(!w.__skRealPrint){const rp=w.print.bind(w);w.__skRealPrint=()=>{try{w.focus();rp()}catch{}}}w.print=()=>{};w.close=()=>close();w.__skEmbedded=true;if(w.document&&!w.document.__skEsc){w.document.__skEsc=1;w.document.addEventListener("keydown",esc,true)}}catch{}};
   patch();
   /* documents the core writes without the letterhead still get the paper and the options */
   let ticks=0;const t=setInterval(()=>{ticks++;try{patch();css(w.document);const title=w.document.title||(w.document.querySelector("h1")||{}).textContent||"مستند";wrap.querySelector(".skout-t").textContent=title}catch{}if(ticks>12)clearInterval(t)},250);
@@ -81,6 +82,8 @@ document.addEventListener("change",e=>{
 });
 document.addEventListener("input",e=>{if(cur&&e.target.dataset&&e.target.dataset.k==="wm"&&e.target.closest(".skout-bar")){SK.print.set("wm",e.target.value.slice(0,24));css(cur.w.document)}});
 document.addEventListener("keydown",e=>{if(cur&&e.key==="Escape"){e.preventDefault();close()}},true);
+/* moving to another screen closes the preview */
+addEventListener("sk:nav",()=>close());
 /* a blank window.open() (every print in the app) becomes the in-app preview */
 window.open=function(url,target,features){
   const u=url==null?"":String(url);

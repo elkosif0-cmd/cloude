@@ -178,3 +178,4 @@ jobs:
           (python3 -m http.server 8765 --directory dist >/dev/null 2>&1 &)
           sleep 2
           NODE_PATH=/tmp/pw/node_modules node tools/ui_smoke.mjs http://localhost:8765/app-safe.html
+          NODE_PATH=/tmp/pw/node_modules node tools/feature_audit.mjs http://localhost:8765/app-safe.html

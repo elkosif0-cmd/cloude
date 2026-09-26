@@ -9687,6 +9687,7 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/sales/sales-analytics-engine.ts
 	var sales_analytics_engine_exports = /* @__PURE__ */ __exportAll({
+		channelProducts: () => channelProducts,
 		dailySeries: () => dailySeries,
 		describe: () => describe,
 		growthIdeas: () => growthIdeas,
@@ -9698,6 +9699,8 @@ window.SKEngines = (function() {
 		movingAverage: () => movingAverage,
 		pearson: () => pearson,
 		percentile: () => percentile,
+		profitability: () => profitability,
+		resolveCost: () => resolveCost,
 		salesLab: () => salesLab
 	});
 	var DAY = 864e5;
@@ -10094,6 +10097,57 @@ window.SKEngines = (function() {
 			metric: "ميل الاتجاه +" + sar(x.slope) + " ر.س/يوم"
 		});
 		return out;
+	}
+	/** the cost per unit for a sale: the most specific rule valid on that date (its channel beats «all channels»; the
+	*  latest start wins), else the fallback (e.g. the catalogue's computed cost), else null */
+	function resolveCost(rules, product, channel, date, fallback) {
+		const ok = rules.filter((r) => r.product === product && (!r.channel || r.channel === channel) && (!r.from || r.from <= date) && (!r.to || r.to >= date));
+		ok.sort((a, b) => Number(!!b.channel) - Number(!!a.channel) || String(b.from ?? "").localeCompare(String(a.from ?? "")));
+		return ok.length ? ok[0].cost : fallback ?? null;
+	}
+	/** gross profit by product and by channel: revenue net of VAT against units × cost; lines without a cost are counted apart */
+	function profitability(lines, costOf, opts = {}) {
+		const vat = opts.vat ?? .15, by = (dim) => {
+			const m = /* @__PURE__ */ new Map();
+			clean(lines).forEach((l) => {
+				const k = (dim === "product" ? l.product : l.channel) || "غير محدد", r = m.get(k) ?? {
+					key: k,
+					revenue: 0,
+					cost: 0,
+					gross: 0,
+					margin: null,
+					qty: 0,
+					costed: 0,
+					lines: 0
+				};
+				const net = Math.round(l.amount / (1 + vat)), c = costOf(l);
+				r.lines++;
+				r.qty += l.qty;
+				if (c != null) {
+					r.revenue += net;
+					r.cost += Math.round(c * l.qty);
+					r.costed++;
+				}
+				m.set(k, r);
+			});
+			return [...m.values()].map((r) => ({
+				...r,
+				gross: r.revenue - r.cost,
+				margin: r.revenue ? round$1((r.revenue - r.cost) / r.revenue, 4) : null
+			})).sort((a, b) => b.gross - a.gross);
+		};
+		const products = by("product");
+		return {
+			products,
+			channels: by("channel"),
+			uncosted: products.filter((p) => !p.costed).map((p) => p.key),
+			losing: products.filter((p) => p.costed && p.gross < 0).map((p) => p.key),
+			weak: products.filter((p) => p.costed && p.margin != null && p.margin >= 0 && p.margin < .1).map((p) => p.key)
+		};
+	}
+	/** the products sold in one channel, by gross profit */
+	function channelProducts(lines, channel, costOf, opts = {}) {
+		return profitability(lines.filter((l) => (l.channel || "غير محدد") === channel), costOf, opts).products;
 	}
 	//#endregion
 	//#region app/src/engine/fusion/sales/sales-engine.ts

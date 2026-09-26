@@ -67,3 +67,24 @@ describe('sales lab (the attached dashboard, as an engine)', () => {
     expect(lab.monthly.length).toBe(2);
   });
 });
+
+import { resolveCost, profitability, channelProducts } from './sales-analytics-engine';
+describe('cost basis by period and channel, and gross profit', () => {
+  it('resolves the most specific valid rule, else the fallback', () => {
+    const rules = [{ product: 'نعيمي', cost: 4000 }, { product: 'نعيمي', channel: 'التطبيق', from: '2026-06-01', cost: 4500 }, { product: 'نعيمي', from: '2026-01-01', to: '2026-03-31', cost: 3800 }];
+    expect(resolveCost(rules, 'نعيمي', 'التطبيق', '2026-07-01')).toBe(4500);
+    expect(resolveCost(rules, 'نعيمي', 'المتجر', '2026-02-10')).toBe(3800);
+    expect(resolveCost(rules, 'نعيمي', 'المتجر', '2026-05-10')).toBe(4000);
+    expect(resolveCost(rules, 'حري', 'المتجر', '2026-05-10', 5000)).toBe(5000);
+    expect(resolveCost([], 'حري', undefined, '2026-05-10')).toBeNull();
+  });
+  it('ranks products and channels by gross profit and names losing, weak and uncosted items', () => {
+    const lines: SaleLine[] = [{ date: '2026-05-01', amount: 11500, qty: 2, product: 'a', channel: 'المتجر' }, { date: '2026-05-02', amount: 2300, qty: 1, product: 'b', channel: 'التطبيق' }, { date: '2026-05-03', amount: 1150, qty: 1, product: 'c', channel: 'المتجر' }, { date: '2026-05-03', amount: 999, qty: 1, product: 'z', channel: 'المتجر' }];
+    const cost: Record<string, number> = { a: 3000, b: 2500, c: 950 };
+    const p = profitability(lines, (l) => cost[l.product] ?? null);
+    expect(p.products.map((x) => [x.key, x.gross])).toEqual([['a', 4000], ['c', 50], ['z', 0], ['b', -500]]);
+    expect([p.losing, p.weak, p.uncosted]).toEqual([['b'], ['c'], ['z']]);
+    expect(p.channels.map((x) => x.key)).toEqual(['المتجر', 'التطبيق']);
+    expect(channelProducts(lines, 'التطبيق', (l) => cost[l.product] ?? null).map((x) => x.key)).toEqual(['b']);
+  });
+});

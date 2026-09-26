@@ -214,7 +214,7 @@ function aiTab(c){
   const rounds=s?s.rounds.slice().reverse():[];
   return (ready?'':SKosifAI.cardHTML()+'<p class="hint tbr-pad">بدون مفتاح تعمل المراجعة بالمحرك الآلي: المعايير والملاحظات والطلبات والقيود والقوائم متاحة في بقية التبويبات.</p>')+
     '<section class="card tbr-run"><div class="card-b"><div class="tbr-run-h"><div><b>'+esc(state.label)+'</b><small>'+(s?s.rounds.length+' جولة · '+AI().outstanding(s).length+' مستند مطلوب · '+AI().pendingUploads(s).length+' مرفوع للجولة القادمة':(size>1?'يعرض الميزان وسجل الأدلة المرقمة على '+(size-1)+' أعضاء بآراء مستقلة، ثم يقرر الرئيس — والقرار النهائي من درجات الثقة المحسوبة.':'يرسل الميزان ونتائج المحرك الآلي إلى Gemini ليراجعها بصفة مجلس من ثلاثة مراجعين.'))+'</small></div><div class="sk-actions">'+action+'</div></div>'+
-      (ready&&CU()?CU().aiControls(c):'')+
+      (CU()?CU().aiControls(c)+(ready?'':'<p class="hint">المجلس يحتاج مفتاح Gemini (أدناه)؛ بدونه تعمل المراجعة بالمحرك الآلي.</p>'):'')+
       (busy&&busy!=="council"?'<div class="tbr-busy"><i></i><span>'+(busy==="round"?'يراجع Gemini الميزان والمستندات — قد يستغرق دقيقة أو أكثر.':'يُعد Gemini التقرير النهائي…')+'</span></div>':'')+'</div></section>'+
     rounds.map(r=>roundCard(r,c)).join("")+
     (ready?'<details class="tbr-key"><summary>إعداد Gemini (المفتاح والنموذج)</summary>'+SKosifAI.cardHTML()+'</details>':'');

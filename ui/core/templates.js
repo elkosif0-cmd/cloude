@@ -117,6 +117,10 @@ const T=[
   second:["جرد غرفة التبريد","2026-10-01","عادية","المخزون"],
   importRows:rows=>{const P={"عالية":"high","منخفضة":"low"},capOf=l=>{const c=SK.caps.all().find(x=>K(x.label)===K(l)||x.id===l);return c?c.id:""};
     return append("skosif_tasks_v1",rows.map(r=>({id:uid("tk"),title:r.title,due:r.due||today(),priority:P[String(r.priority||"").trim()]||"normal",cap:capOf(r.cap),done:false,at:new Date().toISOString()})))}},
+{id:"costrules",label:"قواعد التكلفة حسب الفترة والقناة",caps:["salesintel"],format:"xlsx",note:"تكلفة الوحدة (كجم أو بوكس) لكل صنف، اختيارياً لقناة بيع محددة ولفترة سريان. تُستخدم في «ذكاء المبيعات › مختبر المبيعات › الربحية والقنوات».",
+  cols:[col("product","الصنف",{req:1,ex:"نعيمي طازج",hint:"كما يظهر في سطور المبيعات"}),col("channel","القناة",{ex:"",hint:"فارغ = كل القنوات"}),col("from","من تاريخ",{ex:"2026-01-01",type:"date"}),col("to","إلى تاريخ",{ex:"",type:"date"}),col("cost","التكلفة للوحدة",{req:1,ex:"48.5",type:"num"})],
+  second:["بوكس الشواء","التطبيق","2026-06-01","","168"],
+  importRows:rows=>{const list=load("skosif_cost_rules_v1",[]);rows.forEach(r=>list.push({id:uid("cr"),product:r.product,channel:r.channel||"",from:r.from||"",to:r.to||"",cost:r.cost,imported:true}));save("skosif_cost_rules_v1",list);return{added:rows.length,rejected:[]}}},
 {id:"risks",label:"سجل المخاطر",caps:["risks"],format:"xlsx",note:"الاحتمالية والأثر من 1 (منخفض) إلى 3 (مرتفع).",
   cols:[col("title","الخطر",{req:1,ex:"ارتفاع أسعار المواشي"}),col("category","الفئة",{ex:"المالية"}),col("likelihood","الاحتمالية",{req:1,ex:"3",type:"num"}),col("impact","الأثر",{req:1,ex:"2",type:"num"}),col("owner","المسؤول",{ex:"المشتريات"}),col("due","تاريخ المراجعة",{ex:"2026-10-15",type:"date"}),col("response","الاستجابة",{ex:"عقود توريد مسبقة"})],
   second:["انقطاع التبريد","التشغيلية","2","3","المستودع","2026-10-01","مولد احتياطي"],
