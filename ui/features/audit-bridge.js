@@ -77,6 +77,39 @@ async function buildTB(period){
 }
 const csvCell=v=>{let s=String(v??"");if(/^[=+\-@]/.test(s)&&isNaN(Number(s)))s="'"+s;return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
 const tbCSV=rows=>"﻿"+[["كود الحساب","اسم الحساب","مدين","دائن","التصنيف"],...rows.map(r=>[r[0],r[1],r[2].toFixed(2),r[3].toFixed(2),r[4]])].map(r=>r.map(csvCell).join(",")).join("\n")+"\n";
+function periods(){const now=new Date(),y=now.getFullYear(),m=String(now.getMonth()+1).padStart(2,"0"),pm=new Date(y,now.getMonth()-1,1);
+  return [[y+"-"+m,"الشهر الحالي"],[pm.getFullYear()+"-"+String(pm.getMonth()+1).padStart(2,"0"),"الشهر السابق"],[String(y),"السنة الحالية"],["all","كل الفترات"]]}
+let tbCard=null;
+function tbPanel(){
+  if(tbCard)return tbCard;
+  tbCard=document.createElement("section");tbCard.className="card kx-tb";
+  tbCard.innerHTML='<div class="card-h"><div><h3>ميزان مراجعة من دفاتر S.kosif</h3><p>من المبيعات وشحنات الموردين والمصروفات وذمم الآجل المسجلة في التطبيق، للفترة المختارة. النقدية رقم موازن محسوب.</p></div></div>'+
+    '<div class="card-b sk-stack"><div class="sk-actions"><select class="kx-tb-period">'+periods().map(([v,l])=>'<option value="'+v+'">'+l+' ('+(v==="all"?"الكل":v)+')</option>').join("")+'</select>'+
+    '<button type="button" class="btn kx-tb-build">إعداد الميزان</button><button type="button" class="btn primary kx-tb-send" disabled>إرسال لنافذة الاستلام</button><button type="button" class="btn kx-tb-csv" disabled>تنزيل CSV</button></div><div class="kx-tb-out"></div></div>';
+  let last=null;const $=s=>tbCard.querySelector(s);
+  $(".kx-tb-build").onclick=async()=>{
+    const period=$(".kx-tb-period").value,tb=await buildTB(period);last={period,...tb};
+    const out=$(".kx-tb-out");
+    if(!tb.rows.length){out.innerHTML='<div class="sk-note warn">لا توجد مبيعات أو مشتريات أو مصروفات مسجلة في هذه الفترة.</div>';$(".kx-tb-send").disabled=$(".kx-tb-csv").disabled=true;return}
+    const f=v=>v?v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}):"—",dr=tb.rows.reduce((a,r)=>a+r[2],0),cr=tb.rows.reduce((a,r)=>a+r[3],0);
+    out.innerHTML='<div class="sk-note">المصادر: '+tb.counts.lines+' سطر مبيعات، '+tb.counts.batches+' شحنة مورد، '+tb.counts.flows+' مدفوعات مسجلة.</div>'+
+      '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الكود</th><th>الحساب</th><th>مدين</th><th>دائن</th><th>التصنيف</th></tr></thead><tbody>'+
+      tb.rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1].replace(/[<>&]/g,"")+'</td><td>'+f(r[2])+'</td><td>'+f(r[3])+'</td><td>'+r[4]+'</td></tr>').join("")+
+      '<tr><td></td><td><b>الإجمالي</b></td><td><b>'+f(dr)+'</b></td><td><b>'+f(cr)+'</b></td><td>'+(Math.abs(dr-cr)<0.01?"متزن":"غير متزن")+'</td></tr></tbody></table></div>';
+    $(".kx-tb-send").disabled=$(".kx-tb-csv").disabled=false;
+  };
+  $(".kx-tb-csv").onclick=()=>{if(!last)return;const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([tbCSV(last.rows)],{type:"text/csv;charset=utf-8"}));a.download="S.kosif-trial-balance-"+last.period+".csv";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+  $(".kx-tb-send").onclick=()=>{
+    const a=state.studio,root=a&&a.host.shadowRoot;if(!last||!root)return;
+    root.getElementById("openSpreadsheetIntake")?.click();
+    const input=root.getElementById("spreadsheetFile");if(!input)return window.SK.toast("نافذة الاستلام غير جاهزة بعد","err");
+    const dt=new DataTransfer();dt.items.add(new File([tbCSV(last.rows)],"S.kosif-trial-balance-"+last.period+".csv",{type:"text/csv"}));
+    input.files=dt.files;input.dispatchEvent(new Event("change",{bubbles:true}));
+    window.SK.toast("راجع ربط الأعمدة في نافذة الاستلام ثم اعتمد الاستيراد","info");
+  };
+  return tbCard;
+}
+
 const SV=p=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>';
 const SCREENS=[
   ["auditdesk","studio","overview","نظرة عامة","المرحلة الحالية والخطوة التالية ومؤشرات ملف المراجعة","",SV('<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>')],
@@ -98,7 +131,7 @@ function sendTB(rows,label){
   window.SK.toast("راجع ربط الأعمدة في نافذة الاستلام ثم اعتمد الاستيراد","info");return true;
 }
 /* the audit studio lives inside «مركز المراجعة» (tab «الاستوديو المتقدم»): mount it in the engagement's own tab */
-function mountStudio(node,view){open("studio",node,view||"overview","auditdesk")}
+function mountStudio(node,view){open("studio",node,view||"overview","auditdesk");if((view||"overview")==="documents")node.insertBefore(tbPanel(),node.firstChild)}
 /* the operational trial balance (sales, supplier batches, payments, credit) for the TB review */
 window.SKosifAuditBridge=Object.freeze({buildTB,mountStudio,sendTB,STUDIO_VIEWS:SCREENS.filter(x=>x[1]==="studio").map(x=>({id:x[0],view:x[2],label:x[3],sub:x[4]}))});
 /* a studio page opened directly (search, deep link, old bookmark) opens the engagement's studio tab on that page */
