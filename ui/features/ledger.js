@@ -527,14 +527,16 @@ function partiesOf(d,kind,asOf){const acc=byCode(d,kind==="ap"?"2100":"1200");if
 function balanceOf(d,code,asOf){const id=byCode(d,code);if(!id)return null;const g=E().ledger.buildGeneralLedger(d.entries.filter(e=>String(e.date).slice(0,10)<=asOf)).find(x=>x.accountId===id);return g?g.balance:0}
 /* any screen can open a ledger tab: data-ledger-open="vat" */
 document.addEventListener("click",e=>{const b=e.target.closest("[data-ledger-open]");if(b){tab=b.dataset.ledgerOpen||"accounts";window.SKosifCore.go("ledger")}});
-/* a screen that edits its records in place keeps its entries in step with them: what is new is posted, what changed is
+/* a screen that edits its records in place keeps its entries in step with them (the record's entries are those whose sourceId is
+   the key itself or the key followed by «:»): what is new is posted, what changed is
    reversed (dated today) and posted again, what disappeared is reversed. The books keep their history and the edit log
    stays whole; dates inside a locked period are refused, never rewritten. */
 function syncSource(prefix,want){
   const d=db(),today=new Date().toISOString().slice(0,10),out={posted:0,reversed:0,blocked:[]};
   const sig=e=>JSON.stringify([String(e.date).slice(0,10),e.party||"",(e.lines||[]).map(l=>[l.accountId,r2(l.debit),r2(l.credit)])]);
   const wantBy=new Map((want||[]).map(w=>[w.sourceId,w]));
-  d.entries.filter(e=>!e.reversedBy&&!e.reversalOf&&String(e.sourceId||"").startsWith(prefix)).forEach(e=>{
+  const mine=sid=>sid===prefix||sid.startsWith(prefix+":");
+  d.entries.filter(e=>!e.reversedBy&&!e.reversalOf&&mine(String(e.sourceId||""))).forEach(e=>{
     const w=wantBy.get(e.sourceId);if(w&&sig(w)===sig(e)){wantBy.delete(e.sourceId);return}
     if(locked(d,today)||locked(d,String(e.date).slice(0,10))){out.blocked.push(e.sourceId);wantBy.delete(e.sourceId);return}
     const rv={...E().ledger.reverseJournalEntry(e,{id:SK.ui.uid("je"),date:today}),memo:"عكس بعد تعديل: "+(e.memo||e.reference||""),source:"عكس",reversalOf:e.id,...(e.party?{party:e.party}:{}),...(e.demo?{demo:true}:{})};

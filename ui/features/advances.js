@@ -31,7 +31,7 @@ function post(a,removed){
   const want=removed?[]:e.advanceEntries(a,acc).map(x=>a.demo?{...x,demo:true}:x);
   return l.sync("advance:"+a.id,want);
 }
-function postedCount(a){const l=L();if(!l)return 0;return l.entries().filter(e=>!e.reversedBy&&!e.reversalOf&&String(e.sourceId||"").startsWith("advance:"+a.id)).length}
+function postedCount(a){const l=L();if(!l)return 0;const k="advance:"+a.id;return l.entries().filter(e=>{const s=String(e.sourceId||"");return !e.reversedBy&&!e.reversalOf&&(s===k||s.startsWith(k+":"))}).length}
 function syncNote(r){if(!r)return"";const p=[];if(r.posted)p.push("رُحّل "+r.posted+" قيد");if(r.reversed)p.push("عُكس "+r.reversed+" قيد قديم");if(r.blocked.length)p.push(r.blocked.length+" داخل فترة مقفلة لم يُغيَّر");return p.length?" — "+p.join("، "):""}
 
 /* ---- parties typed before: employees from earlier advances, suppliers from purchasing, customers from the core ---- */

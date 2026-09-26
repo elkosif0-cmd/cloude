@@ -35,7 +35,39 @@ const BOXES=[["b1","بوكس النعيمي العائلي","بوكسات عائ
   ["b4","بوكس الشواء","بوكسات مشكلة",239,10,[["r5",2],["r11",1],["r12",1]],[["o4","تغليف وصحون",10,"incl"]]],
   ["b5","بوكس التوفير","بوكسات اقتصادية",179,8,[["r6",2],["r5",1.5]],[["o5","تغليف",6,"incl"]]]];
 const EXPS=[["e1","توصيل مبرد للعميل",15,"fixed","none"],["e2","صحون وتغليف مفرغ",10,"fixed","incl"],["e3","خلطة بهارات وتتبيل",6,"fixed","incl"],["e4","جل ثلجي للنقل",5,"fixed","incl"]];
-const PRODUCTS=[...RAWS.filter(r=>r[7]==="main").map(r=>({name:r[1],price:r[6],unit:"كجم",kg:[1,3]})),...BOXES.map(b=>({name:b[1],price:b[3],unit:"بوكس",kg:[1,2]}))];
+/* the full company: the 12 raws and 5 boxes above, then 8 species × 8 cuts, offal and processed lines (74 raws) and 9 more
+   boxes — 100 items. Prices come from each item's own cost with a markup that varies, so the catalogue has good, low and
+   loss-making lines for the controls to find. */
+const SPECIES=[["نعيمي","أغنام",52,"incl"],["حري","أغنام",64,"excl"],["سواكني","أغنام",58,"excl"],["نجدي","أغنام",60,"incl"],["تيس بلدي","ماعز",61,"incl"],["عجل","أبقار",44,"excl"],["حاشي","إبل",48,"incl"],["بربري","ماعز",55,"incl"]];
+const CUTS=[["فخذ",1.28,3],["كتف",1.18,3],["ريش",1.62,2],["موزات",1.32,4],["رقبة",.92,5],["مكعبات",1.22,2],["مقطع شواء",1.35,3],["نصف ذبيحة",1,7]];
+const MORE_RAWS=[["قلب غنم","مخلفات",22,"incl",0,32],["كلاوي غنم","مخلفات",20,"incl",0,29],["لسان عجل","مخلفات",34,"excl",0,48],["كرشة غنم منظفة","مخلفات",15,"incl",4,24],["رأس غنم منظف","مخلفات",25,"incl",6,38],["مخ غنم","مخلفات",30,"incl",0,27],
+  ["كفتة لحم","مصنعات",36,"incl",1,54],["كباب مشوي جاهز","مصنعات",42,"incl",0,62],["شاورما لحم متبلة","مصنعات",39,"incl",2,58],["برجر غنم","مصنعات",37,"incl",0,55]];
+const MORE_BOXES=[["بوكس الحاشي العائلي","بوكسات عائلية",12,[["حاشي — مكعبات",3],["حاشي — فخذ",1.5]],["تغليف وصحون",12]],
+  ["بوكس المشاوي الكبير","بوكسات مشكلة",14,[["نعيمي — ريش",1.5],["عجل — مقطع شواء",2],["كباب مشوي جاهز",1],["كفتة لحم",1]],["صندوق شواء",15]],
+  ["بوكس رمضان","بوكسات موسمية",16,[["نعيمي — فخذ",2],["عجل — مكعبات",2],["مفروم غنم",1],["شاورما لحم متبلة",1]],["تغليف فاخر",14]],
+  ["بوكس العزائم","بوكسات فاخرة",20,[["نجدي — نصف ذبيحة",6],["كبدة غنم",1]],["صواني تقديم",25]],
+  ["بوكس الأسبوع","بوكسات اشتراك",10,[["عجل — مكعبات",1.5],["مفروم بقري",1.5],["برجر بقري",1],["سجق عجل",1]],["تغليف مفرغ",8]],
+  ["بوكس البروتين الرياضي","بوكسات صحية",8,[["عجل — مكعبات",2],["حري — كتف",1],["برجر غنم",1]],["علب حافظة",9]],
+  ["بوكس المطاعم 10 كجم","بوكسات الجملة",0,[["عجل — مكعبات",5],["مفروم بقري",5]],["كرتون جملة",6]],
+  ["بوكس التيس البلدي","بوكسات عائلية",12,[["تيس بلدي — نصف ذبيحة",4],["مقادم غنم",1]],["تغليف وصحون",12]],
+  ["بوكس المندي","بوكسات مشكلة",12,[["حري — فخذ",2],["حري — كتف",2]],["صواني وورق",10]]];
+/* linked expenses: delivery on the delivered boxes, spices on the grill boxes, ice gel on the wholesale box */
+const EXP_LINKS={e1:["b8","b10","b11"],e3:["b4","b7","b14"],e4:["b12","b10"]};
+let CAT=null;
+function catalogData(){
+  if(CAT)return CAT;
+  const raws=RAWS.map(r=>r.slice());let n=RAWS.length;
+  SPECIES.forEach(([sp,cat,base,vat],i)=>CUTS.forEach(([cut,mult,w],j)=>{const buy=r2(base*mult),cost=(vat==="incl"?buy/1.15:buy)/(1-w/100);
+    raws.push(["r"+(++n),sp+" — "+cut,cat,buy,vat,w,Math.round(cost*1.15*(1.16+((i*8+j)%9)*.035)),"main"])}));
+  MORE_RAWS.forEach(([name,cat,buy,vat,w,price])=>raws.push(["r"+(++n),name,cat,buy,vat,w,price,"main"]));
+  const byName=new Map(raws.map(r=>[r[1],r])),unit=r=>(r[4]==="incl"?r[3]/1.15:r[3])/(1-(r[5]||0)/100);
+  const boxes=BOXES.map(b=>b.slice());let m=BOXES.length;
+  MORE_BOXES.forEach(([name,cat,dishes,comps,[oh,amt]],k)=>{const cs=comps.map(([nm,q])=>[(byName.get(nm)||[])[0],q]).filter(c=>c[0]);
+    const cost=cs.reduce((t,[id,q])=>t+unit(raws.find(r=>r[0]===id))*q,0)+amt/1.15,p=Math.ceil(cost*1.15*(1.24+(k%4)*.05));
+    m++;boxes.push(["b"+m,name,cat,p+((9-(p%10))+10)%10,dishes,cs,[["o"+m,oh,amt,"incl"]]])});
+  return CAT={raws,boxes};
+}
+function products(){const {raws,boxes}=catalogData();return[...raws.filter(r=>r[7]==="main").map(r=>({name:r[1],price:r[6],unit:"كجم"})),...boxes.map(b=>({name:b[1],price:b[3],unit:"بوكس"}))]}
 const FIRST=["عبدالله","محمد","فهد","خالد","سلمان","نورة","سارة","ريم","عبدالعزيز","تركي","ماجد","هند","لمى","فيصل","يوسف","منيرة","بندر","عمر"];
 const LAST=["الحربي","العتيبي","القحطاني","الشهري","الغامدي","الزهراني","المطيري","الدوسري","السبيعي","العنزي","الشمري","البقمي"];
 const CITIES=[["الرياض",["العليا","الملقا","النرجس","الياسمين"]],["جدة",["الروضة","السلامة","الحمراء"]],["الدمام",["الشاطئ","الفيصلية"]],["مكة المكرمة",["العزيزية","الشوقية"]],["الخبر",["العقربية"]],["المدينة المنورة",["قباء"]]];
@@ -61,16 +93,28 @@ const months=n=>Array.from({length:n},(_,i)=>{const d=new Date();d.setDate(12);d
 /* the whole demo dataset is generated once per call (deterministic) so the sections agree with each other */
 function build(){
   s0=20260926;
-  const customers=Array.from({length:36},(_,i)=>{const [city,ds]=pick(CITIES),p=phone(i);return{i,name:FIRST[i%FIRST.length]+" "+LAST[(i*5)%LAST.length],phone:p,city,district:pick(ds),source:pick(CHANNELS)}});
-  const orders=[];let n=1;
-  months(12).forEach((m,mi)=>{const count=16+mi+int(0,6);for(let k=0;k<count;k++){
+  /* 100 customers; the last five are the restaurants that buy wholesale on credit (the same phone numbers as their credit accounts) */
+  const NC=100,NR=RESTAURANTS.length;
+  const customers=Array.from({length:NC},(_,i)=>{const [city,ds]=pick(CITIES),p=phone(i),rest=i>=NC-NR;
+    return{i,name:rest?RESTAURANTS[i-(NC-NR)]:FIRST[i%FIRST.length]+" "+LAST[(i*5+Math.floor(i/36))%LAST.length],phone:p,city:rest?"الرياض":city,district:pick(ds),source:rest?"مبيعات الجملة":pick(CHANNELS)}});
+  const P=products(),kg=P.filter(p=>p.unit==="كجم"),retail=customers.slice(0,NC-NR),rest=customers.slice(NC-NR),orders=[];let n=1;
+  /* about 1,300 orders over twelve months, growing month by month; popular items sell most (a Pareto shape for ABC and RFM) */
+  months(12).forEach((m,mi)=>{const count=88+mi*3+int(0,16);for(let k=0;k<count;k++){
     const day=int(1,28),d=new Date(m.getFullYear(),m.getMonth(),day);if(d>new Date())continue;
-    const c=customers[Math.floor(Math.pow(rnd(),1.6)*customers.length)],items=Array.from({length:int(1,3)},()=>{const p=pick(PRODUCTS),q=p.unit==="كجم"?int(2,8):1;return{name:p.name,qty:q,unitPrice:p.price,amount:r2(q*p.price)}});
-    const subtotal=r2(items.reduce((a,x)=>a+x.amount,0)),shipping=c.source==="التطبيق"?25:0,total=r2(subtotal+shipping),canceled=rnd()<.03;
-    orders.push({n:n++,date:iso(d),c,items,subtotal,shipping,total,channel:c.source==="مبيعات الجملة"?"مبيعات الجملة":pick(CHANNELS.slice(0,3)),pay:pick(PAY),canceled,paid:rnd()<.86});
+    const wholesale=rnd()<.07,c=wholesale?pick(rest):retail[Math.floor(Math.pow(rnd(),1.6)*retail.length)];
+    const items=wholesale?Array.from({length:int(2,3)},()=>{const p=kg[Math.floor(Math.pow(rnd(),1.3)*kg.length)],q=int(10,35);return{name:p.name,qty:q,unitPrice:p.price,amount:r2(q*p.price)}})
+      :Array.from({length:int(1,4)},()=>{const p=P[Math.floor(Math.pow(rnd(),1.5)*P.length)],q=p.unit==="كجم"?int(1,6):int(1,2);return{name:p.name,qty:q,unitPrice:p.price,amount:r2(q*p.price)}});
+    const subtotal=r2(items.reduce((a,x)=>a+x.amount,0)),shipping=!wholesale&&c.source==="التطبيق"?25:0,total=r2(subtotal+shipping),canceled=rnd()<.03;
+    orders.push({n:n++,date:iso(d),c,items,subtotal,shipping,total,channel:wholesale||c.source==="مبيعات الجملة"?"مبيعات الجملة":pick(CHANNELS.slice(0,3)),pay:wholesale?"آجل":pick(PAY),canceled,paid:wholesale?rnd()<.72:rnd()<.86});
   }});
   return{customers,orders};
 }
+/* the demo company's suppliers, employees and their fixed monthly costs */
+const SUPPLIERS=[["مؤسسة المراعي الذهبية","نعيمي طازج",52,8,true],["شركة الحري للمواشي","حري طازج",64,6,false],["مزرعة الخرج للأبقار","عجل طازج",44,4,true],["مواشي السودان المتحدة","سواكني",58,5,false],
+  ["مزارع نجد الحديثة","نجدي — نصف ذبيحة",60,7,true],["إبل الشمال","حاشي — نصف ذبيحة",48,6,true],["مزرعة التيس البلدي","تيس بلدي",61,6,true],["مصنع الجودة للمصنعات","برجر بقري",33,0,true],
+  ["مسلخ الرياض المركزي","كبدة غنم",28,0,true],["مؤسسة البربري للمواشي","بربري — نصف ذبيحة",55,6,true]];
+const EMPLOYEES=[["سالم المطيري","جزار أول",5200],["خالد العنزي","جزار",4200],["منيرة الشهري","محاسبة",6500],["فهد الدوسري","كاشير",3800],["ياسر القحطاني","مندوب توصيل",3600],["ريم الحربي","خدمة عملاء",3900],["عمر الزهراني","أمين مستودع",4100],["بندر السبيعي","سائق مبرد",3700]];
+const PAYROLL=EMPLOYEES.reduce((t,e)=>t+e[2],0);
 
 /* ---------- the sections ---------- */
 const SECTIONS=[
@@ -86,13 +130,14 @@ const SECTIONS=[
   seed:async()=>{
     const st=load("aghnam-pricing-v3",null)||{v:8,settings:{vat:15,waste:"yield",base:"gross",show:"incl",target:25,excellent:25,good:15,round:"nine",biz:"شركة الوادي التجريبية للحوم",preparer:"فريق التسعير",logo:"",vatNo:"",crNo:"",phone:"",addr:"",vatReviewed:false,sv:4},
       memo:{ref:"APPR-"+Y+"-001",date:ago(0),reason:"",items:[],sign:{prepName:"فريق التسعير",prepNotes:"",finName:"",finNotes:"",decision:"approved",execName:"",execNotes:""}},memos:[],log:[],snaps:[],reps:{prefs:{},seq:0,log:[]},salesAliases:[],meta:{created:nowIso(),updated:0,source:"demo"}};
-    st.raws=RAWS.map(([id,name,cat,buy,vat,waste,price,kind],i)=>D({id,code:i+1,name,cat,buy,vat,waste,price,kind}));
-    st.boxes=BOXES.map(([id,name,cat,price,dishes,comps,ohs],i)=>D({id,code:i+1,name,cat,price,dishes,dishCost:0,comps:comps.map(([rid,q])=>({t:"raw",id:rid,q})),ohs:ohs.map(([oid,label,amt,vat])=>({id:oid,label,amt,vat}))}));
-    st.exps=EXPS.map(([id,name,amt,method,vat])=>D({id,name,amt,method,vat,links:[],note:""}));
-    st.seq=Object.assign({raw:26,box:27,exp:4,oh:4,memo:1,cat:0,ph:0,alias:0},st.seq||{},{raw:Math.max(26,RAWS.length),box:Math.max(27,BOXES.length),exp:Math.max(4,EXPS.length),oh:Math.max(4,BOXES.length)});
+    const {raws,boxes}=catalogData();
+    st.raws=raws.map(([id,name,cat,buy,vat,waste,price,kind],i)=>D({id,code:i+1,name,cat,buy,vat,waste,price,kind}));
+    st.boxes=boxes.map(([id,name,cat,price,dishes,comps,ohs],i)=>D({id,code:i+1,name,cat,price,dishes,dishCost:0,comps:comps.map(([rid,q])=>({t:"raw",id:rid,q})),ohs:ohs.map(([oid,label,amt,vat])=>({id:oid,label,amt,vat}))}));
+    st.exps=EXPS.map(([id,name,amt,method,vat])=>D({id,name,amt,method,vat,links:(EXP_LINKS[id]||[]).slice(),note:""}));
+    st.seq=Object.assign({raw:26,box:27,exp:4,oh:4,memo:1,cat:0,ph:0,alias:0},st.seq||{},{raw:Math.max(26,raws.length),box:Math.max(27,boxes.length),exp:Math.max(4,EXPS.length),oh:Math.max(4,boxes.length)});
     /* the demo sales descriptions linked to the catalogue (as «مركز ربط المنتجات» does), so margins and yields use real costs */
     st.salesAliases=dropDemo(st.salesAliases);let sa=(st.seq&&st.seq.alias)||0;
-    [...RAWS.map(r=>[r[1],r[0]]),...BOXES.map(b=>[b[1],b[0]])].forEach(([salesName,itemId])=>st.salesAliases.push(D({id:"sa"+(++sa),salesName,itemId,kind:"item",method:"demo",score:1,algorithmVersion:"matcher-v7",reviewedBy:"",reviewedAt:nowIso(),createdAt:nowIso(),updatedAt:nowIso()})));
+    [...raws.map(r=>[r[1],r[0]]),...boxes.map(b=>[b[1],b[0]])].forEach(([salesName,itemId])=>st.salesAliases.push(D({id:"sa"+(++sa),salesName,itemId,kind:"item",method:"demo",score:1,algorithmVersion:"matcher-v7",reviewedBy:"",reviewedAt:nowIso(),createdAt:nowIso(),updatedAt:nowIso()})));
     st.seq.alias=sa;
     if(!st.yt)st.yt={src:"r1",inKg:27.2,buy:52,vat:"incl",method:"zero",lines:[{name:"لحم صافي بعد التقطيع",kg:20.4,type:"main",val:0},{name:"عظم",kg:2.7,type:"by",val:7.5},{name:"مخرجات أخرى",kg:4.1,type:"waste",val:0}],apply:["r1"]};
     save("aghnam-pricing-v3",st)},
@@ -101,7 +146,7 @@ const SECTIONS=[
 {id:"sales",label:"العملاء والمبيعات والطلبات",caps:["customers","commerce","salesintel","intelligence","economics","followup","dash"],reload:true,
   empty:async()=>(await idbCount(["customers","sales_lines","orders"]))===0,
   seed:async()=>{
-    const {customers,orders}=build(),cust=new Map(),lines=[],items=[],ords=[],pays=[],desc=new Map();let li=1;
+    const {customers,orders}=build(),P=products(),cust=new Map(),lines=[],items=[],ords=[],pays=[],desc=new Map();let li=1;
     customers.forEach(c=>cust.set(c.i,D({id:"c:"+intl(c.phone),phone:intl(c.phone),name:c.name,nameKey:norm(c.name),email:"",city:c.city,district:c.district,address:"",country:"SA",source:c.source,sources:[c.source],summarySales:0,summaryOrders:0,firstPurchase:"",lastPurchase:"",updatedAt:nowIso()})));
     orders.forEach(o=>{
       const cu=cust.get(o.c.i),ref="DMO-"+String(o.n).padStart(5,"0"),oid="demo-o"+o.n;
@@ -110,7 +155,7 @@ const SECTIONS=[
       o.items.forEach((x,k)=>{
         items.push(D({id:oid+"-i"+k,orderId:oid,externalOrderId:ref,productName:x.name,descriptionOriginal:x.name,qty:x.qty,unitPrice:x.unitPrice,amount:x.amount}));
         if(o.canceled)return;
-        const nm=norm(x.name),did="d:demo-"+PRODUCTS.findIndex(p=>p.name===x.name);
+        const nm=norm(x.name),did="d:demo-"+P.findIndex(p=>p.name===x.name);
         lines.push(D({id:"demo-l"+li,source:o.channel,externalOrderId:ref,externalLineId:"",sourceExternal:o.channel+"|"+ref,customerId:cu.id,phone:cu.phone,date:o.date,ref,amount:x.amount,amountHalalas:Math.round(x.amount*100),qty:x.qty,descriptionId:did,descriptionOriginal:x.name,descriptionNormalized:nm,rawRowNo:li}));li++;
         let dd=desc.get(did);if(!dd){dd={id:did,original:x.name,normalized:nm,signature:[...new Set(nm.split(" "))].sort().join(" "),seenCount:0,qty:0,sales:0,cs:new Set(),firstSeen:"",lastSeen:""};desc.set(did,dd)}
         dd.seenCount++;dd.qty+=x.qty;dd.sales+=x.amount;dd.cs.add(cu.id);if(!dd.firstSeen||o.date<dd.firstSeen)dd.firstSeen=o.date;if(o.date>dd.lastSeen)dd.lastSeen=o.date;
@@ -125,7 +170,7 @@ const SECTIONS=[
       meta:[{key:"dataset",value:{demo:true,datasetVersion:"demo-1",srcLabel:{},cover:null,lastImportAt:nowIso()}}]});
     /* direct sales recorded in «تسجيل بيع» (the ledger posts them) */
     const man=arr("aghnam-v12-manual-sales");
-    if(!man.length)save("aghnam-v12-manual-sales",Array.from({length:10},(_,i)=>{const p=pick(PRODUCTS.slice(0,8)),q=int(2,6),c=customers[i*3%customers.length];
+    if(!man.length)save("aghnam-v12-manual-sales",Array.from({length:24},(_,i)=>{const p=pick(P.slice(0,24)),q=int(2,6),c=customers[i*3%customers.length];
       return D({id:"MAN-DEMO"+(i+1),date:ago(int(0,40)),customer:c.name,phone:c.phone,item:p.name,category:"بيع مباشر",amount:r2(p.price*q),qty:q,unitPrice:p.price,city:c.city,payment:pick(PAY),status:"مكتمل",createdAt:nowIso()})}));
   },
   clear:async()=>{await idbClearDemo(["customers","sales_lines","sales_descriptions","orders","order_items","payments","imports","meta"]);save("aghnam-v12-manual-sales",dropDemo(arr("aghnam-v12-manual-sales")))}},
@@ -133,14 +178,16 @@ const SECTIONS=[
 {id:"supply",label:"الموردون والتدفق النقدي",caps:["suppliers","cash"],
   empty:async()=>!arr("skosif_v31_supplier_batches").length,
   seed:async()=>{
-    const sup=[["مؤسسة المراعي الذهبية","نعيمي طازج",52,8],["شركة الحري للمواشي","حري طازج",64,6],["مزرعة الخرج للأبقار","عجل طازج",44,4]],b=[];
-    months(12).forEach((m,i)=>sup.forEach(([s,item,price,w],k)=>b.push(D({id:"demo-b"+i+"-"+k,date:iso(new Date(m.getFullYear(),m.getMonth(),4+k*7)),supplier:s,itemName:item,qty:int(180,320),priceGross:r2(price*between(.95,1.08)),vatIncl:k!==1,agreedWaste:w,actualWaste:r2(w+between(-1.5,3))}))));
+    const b=[];
+    /* the three main suppliers deliver twice a month, the others monthly — with the waste agreed and the waste found */
+    months(12).forEach((m,i)=>SUPPLIERS.forEach(([s,item,price,w,incl],k)=>{const times=k<3?2:1;for(let t=0;t<times;t++)
+      b.push(D({id:"demo-b"+i+"-"+k+"-"+t,date:iso(new Date(m.getFullYear(),m.getMonth(),3+k*2+t*13)),supplier:s,itemName:item,qty:int(k<3?160:40,k<3?320:140),priceGross:r2(price*between(.95,1.08)),vatIncl:incl,agreedWaste:w,actualWaste:r2(Math.max(0,w+between(-1.5,3)))}))}));
     save("skosif_v31_supplier_batches",b);
     if(load("skosif_v31_monthly_opex",null)==null){save("skosif_v31_monthly_opex",26500);const r=reg();r.opex=true;setReg(r)}
-    const f=load("skosif_erp_finance_v1",{flows:[]});if(!(f.flows||[]).length){f.flows=[];months(6).forEach((m,i)=>{const d=iso(new Date(m.getFullYear(),m.getMonth(),27));
-      [["payment","الرواتب","6100",18000],["payment","الإيجار","6200",6000],["payment","الكهرباء والمياه","6300",1900],["payment","الوقود والتوصيل","6300",2300],["receipt","تحصيل عملاء الآجل","1200",int(9000,14000)]]
+    const f=load("skosif_erp_finance_v1",{flows:[]});if(!(f.flows||[]).length){f.flows=[];months(12).forEach((m,i)=>{const d=iso(new Date(m.getFullYear(),m.getMonth(),27));
+      [["payment","الرواتب","6100",PAYROLL],["payment","الإيجار","6200",6000],["payment","الكهرباء والمياه","6300",1900],["payment","الوقود والتوصيل","6300",2300],["receipt","تحصيل عملاء الآجل","1200",int(9000,14000)]]
         .forEach(([type,category,account,amount],k)=>f.flows.push(D({id:"demo-fl"+i+"-"+k,date:d,type,category,account,amount,ref:"DMO-F"+i+k})))});save("skosif_erp_finance_v1",f)}
-    const ap=load("skosif_erp_payables_v1",{rows:[]});if(!(ap.rows||[]).length){ap.rows=sup.map(([s],k)=>D({id:"demo-ap"+k,supplier:s,ref:"INV-S"+(k+101),due:ago(-10+k*9),amount:int(12000,38000),paid:k===2}));save("skosif_erp_payables_v1",ap)}
+    const ap=load("skosif_erp_payables_v1",{rows:[]});if(!(ap.rows||[]).length){ap.rows=SUPPLIERS.map(([s],k)=>D({id:"demo-ap"+k,supplier:s,ref:"INV-S"+(k+101),due:ago(-10+k*5),amount:int(8000,38000),paid:k%3===2}));save("skosif_erp_payables_v1",ap)}
   },
   clear:async()=>{save("skosif_v31_supplier_batches",dropDemo(arr("skosif_v31_supplier_batches")));const r=reg();if(r.opex){localStorage.removeItem("skosif_v31_monthly_opex");delete r.opex;setReg(r)}
     const f=load("skosif_erp_finance_v1",null);if(f){f.flows=dropDemo(f.flows);save("skosif_erp_finance_v1",f)}const ap=load("skosif_erp_payables_v1",null);if(ap){ap.rows=dropDemo(ap.rows);save("skosif_erp_payables_v1",ap)}}},
@@ -149,25 +196,27 @@ const SECTIONS=[
   empty:async()=>!(load("skosif_purchasing_v1",{}).orders||[]).length,
   seed:async()=>{
     const P=E().procurement,d=Object.assign({orders:[],receipts:[],prices:[]},load("skosif_purchasing_v1",{}));
-    const L=[[["نعيمي طازج",240,45.2,"0.15"],["كبدة غنم",30,24,"0.15"]],[["حري طازج",180,64,"0"]],[["عجل طازج",260,38.3,"0.15"],["مفروم بقري",90,33,"0.15"]],[["سواكني",150,58,"0"]],[["تيس بلدي",120,53,"0.15"]]];
-    L.forEach((lines,i)=>{const date=ago(40-i*8),o=D({id:"demo-po"+i,number:"PO-"+String(9001+i),supplier:["مؤسسة المراعي الذهبية","شركة الحري للمواشي","مزرعة الخرج للأبقار","شركة الحري للمواشي","مؤسسة المراعي الذهبية"][i],date,dueDate:ago(33-i*8),
-      lines:lines.map(([item,qty,cost,vat])=>({item,qty,cost,vat})),status:i<3?"RECEIVED":"OPEN"});d.orders.push(o);
-      if(i<3){const got=o.lines.map(l=>({item:l.item,qty:i===1?l.qty-6:l.qty}));let variances=[],inspection={overallStatus:"PASS",temperatureStatus:"PASS",weightStatus:"PASS"};
+    /* an order every ten days over the year, rotating the suppliers; the old ones received (one short, one warm), the last four open */
+    for(let i=0;i<36;i++){const [sup,item,price,,incl]=SUPPLIERS[i%SUPPLIERS.length],age=355-i*10,date=ago(age),rate=incl?"0.15":"0",net=r2(incl?price/1.15:price);
+      const lines=[[item,int(60,260),net,rate]];if(i%3===0)lines.push(["كبدة غنم",int(10,40),24,"0.15"]);
+      const o=D({id:"demo-po"+i,number:"PO-"+String(9001+i),supplier:sup,date,dueDate:ago(age-7),lines:lines.map(([item,qty,cost,vat])=>({item,qty,cost,vat})),status:age>12?"RECEIVED":"OPEN"});d.orders.push(o);
+      if(age>12){const short=i%7===1,warm=i%11===2,got=o.lines.map(l=>({item:l.item,qty:short?l.qty-6:l.qty}));let variances=[],inspection={overallStatus:"PASS",temperatureStatus:"PASS",weightStatus:"PASS"};
         try{variances=P.procurement.matchReceipt(o.lines.map(l=>({itemId:l.item,orderedQty:l.qty,unitCost:l.cost})),got.map(l=>({itemId:l.item,receivedQty:l.qty})))}catch{}
-        try{const kg=o.lines.reduce((a,l)=>a+l.qty,0);inspection=P.receivingInspection.inspectReceiving({id:"demo-insp"+i,date,invoicedKg:kg,actualKg:i===1?kg-6:kg,maxTemperatureC:4,tolerancePercent:2,temperatureC:i===2?5.1:2.4})}catch{}
-        d.receipts.push(D({id:"demo-rc"+i,orderId:o.id,date:ago(38-i*8),lines:got,variances,inspection,temperature:i===2?5.1:2.4,notes:i===1?"نقص 6 كجم عن الفاتورة":"",status:"RECEIVED"}))}});
-    [["مؤسسة المراعي الذهبية","نعيمي طازج",45.2],["شركة الحري للمواشي","حري طازج",64],["مزرعة الخرج للأبقار","عجل طازج",38.3],["مؤسسة المراعي الذهبية","كبدة غنم",24]]
-      .forEach(([supplier,item,price],k)=>d.prices.push(D({id:"demo-pr"+k,supplier,item,price,unit:"كجم",from:Y+"-01-01",to:""})));
+        try{const kg=o.lines.reduce((a,l)=>a+l.qty,0);inspection=P.receivingInspection.inspectReceiving({id:"demo-insp"+i,date,invoicedKg:kg,actualKg:short?kg-6:kg,maxTemperatureC:4,tolerancePercent:2,temperatureC:warm?5.1:2.4})}catch{}
+        d.receipts.push(D({id:"demo-rc"+i,orderId:o.id,date:ago(age-2),lines:got,variances,inspection,temperature:warm?5.1:2.4,notes:short?"نقص 6 كجم عن الفاتورة":warm?"حرارة الشحنة أعلى من الحد":"",status:"RECEIVED"}))}}
+    SUPPLIERS.forEach(([supplier,item,price,,incl],k)=>d.prices.push(D({id:"demo-pr"+k,supplier,item,price:r2(incl?price/1.15:price),unit:"كجم",from:Y+"-01-01",to:""})));
     save("skosif_purchasing_v1",d)},
   clear:async()=>{const d=load("skosif_purchasing_v1",null);if(!d)return;["orders","receipts","prices"].forEach(k=>{d[k]=dropDemo(d[k])});save("skosif_purchasing_v1",d)}},
 
 {id:"stock",label:"المخزون والصلاحية والتتبع",caps:["inventory","traceability"],
   empty:async()=>!arr("aghnam_v29_inventory").length&&!arr("skosif_inv_expiry_batches").length&&!arr("skosif_v38_batches").length,
   seed:async()=>{
-    if(!arr("aghnam_v29_inventory").length)save("aghnam_v29_inventory",[["نعيمي طازج",120,34],["حري طازج",64,21],["عجل طازج",210,28],["مفروم بقري",38,19],["كبدة غنم",22,4],["سواكني",95,12]].map(([item,stock,daily])=>{
+    if(!arr("aghnam_v29_inventory").length)save("aghnam_v29_inventory",[["نعيمي طازج",120,34],["حري طازج",64,21],["عجل طازج",210,28],["مفروم بقري",38,19],["كبدة غنم",22,4],["سواكني",95,12],
+      ...products().filter(p=>p.unit==="كجم").slice(12,40).map((p,k)=>[p.name,int(4,90),int(2,14)])].map(([item,stock,daily])=>{
       const lead=2,safety=2,cycle=7,cover=stock/daily,rp=daily*(lead+safety),target=daily*(lead+safety+cycle),status=stock<=rp?"إعادة طلب عاجلة":cover<=lead+safety+Math.max(1,cycle*.35)?"إعادة طلب قريبة":"المخزون آمن حالياً";
       return D({item,stock,daily,lead,safety,cycle,cover:r2(cover),reorderPoint:r2(rp),targetStock:r2(target),suggested:r2(Math.max(0,target-stock)),status,ts:nowIso()})}));
-    if(!arr("skosif_inv_expiry_batches").length)save("skosif_inv_expiry_batches",[["نعيمي طازج","ثلاجة 1",42,3,2],["مفروم بقري","ثلاجة 2",18,1,1],["عجل طازج","غرفة التبريد",70,4,5],["كبدة غنم","ثلاجة 1",9,2,0],["برجر بقري","فريزر",60,20,60]]
+    if(!arr("skosif_inv_expiry_batches").length)save("skosif_inv_expiry_batches",[["نعيمي طازج","ثلاجة 1",42,3,2],["مفروم بقري","ثلاجة 2",18,1,1],["عجل طازج","غرفة التبريد",70,4,5],["كبدة غنم","ثلاجة 1",9,2,0],["برجر بقري","فريزر",60,20,60],
+      ["حري — فخذ","ثلاجة 2",26,2,3],["عجل — مكعبات","غرفة التبريد",48,1,4],["كفتة لحم","فريزر",22,8,40],["شاورما لحم متبلة","ثلاجة 1",14,1,1],["قلب غنم","ثلاجة 1",6,3,-1],["نعيمي — ريش","ثلاجة 2",18,2,2],["سجق عجل","فريزر",35,12,50]]
       .map(([item,storage,stockKg,prep,exp],k)=>D({id:"demo-ex"+k,item,storage,stockKg,datePrep:ago(prep),dateExp:ago(-exp)})));
     if(!arr("skosif_v38_batches").length)save("skosif_v38_batches",[["نعيمي — مزارع القصيم","مسلخ الرياض المركزي",24],["حري — مزارع الجوف","مسلخ الرياض المركزي",18],["عجل — مزرعة الخرج","مسلخ الخرج",6],["سواكني — مستورد","مسلخ جدة",30]]
       .map(([breed,slaughterhouse,count],k)=>D({id:"LOT-"+Y+"-0"+(901+k),breed,slaughterhouse,date:ago(3+k*5),cert:"VET-"+Y+"-"+(4401+k),count,status:"معتمد"})));
@@ -181,7 +230,7 @@ const SECTIONS=[
   seed:async()=>{
     if(!arr("skosif_v38_ledger").length)save("skosif_v38_ledger",RESTAURANTS.map((name,k)=>{const moves=[],limit=[40000,25000,60000,30000,20000][k];let bal=0;
       for(let j=8;j>=0;j--){const a=int(3000,9000);bal+=a;moves.push({at:new Date(Date.now()-j*6*DAY).toISOString(),type:"sale",amount:a});if(j%2===0){const p=int(2000,Math.min(bal,8000));bal-=p;moves.push({at:new Date(Date.now()-j*6*DAY+DAY).toISOString(),type:"payment",amount:p})}}
-      return D({id:"CUST-DEMO"+(k+1),name,phone:phone(60+k),limit,terms:["15","30","30","45","15"][k],balance:bal,moves:moves.reverse()})}));
+      return D({id:"CUST-DEMO"+(k+1),name,phone:phone(95+k),limit,terms:["15","30","30","45","15"][k],balance:bal,moves:moves.reverse()})}));
     if(!(localStorage.getItem("skosif_ar_paste")||"").trim()){localStorage.setItem("skosif_ar_paste","العميل,التاريخ,المبلغ,المسدد\n"+RESTAURANTS.map((n,k)=>[n,ago(10+k*22),int(12000,40000),int(2000,10000)].join(",")).join("\n"));const r=reg();r.ar=true;setReg(r)}
   },
   clear:async()=>{save("skosif_v38_ledger",dropDemo(arr("skosif_v38_ledger")));const r=reg();if(r.ar){localStorage.removeItem("skosif_ar_paste");delete r.ar;setReg(r)}}},
@@ -189,8 +238,9 @@ const SECTIONS=[
 {id:"followup",label:"متابعة العملاء",caps:["followup"],
   empty:async()=>!(load("skosif_followup_v1",{}).records||[]).length,
   seed:async()=>{const {customers}=build(),d=Object.assign({records:[],queue:[]},load("skosif_followup_v1",{}));
-    for(let i=0;i<28;i++){const c=customers[(i*7)%customers.length],day=ago(i%7);d.records.push(D({id:"demo-fu"+i,date:day,name:c.name,phone:c.phone,source:c.source,city:c.city,district:c.district,order:pick(PRODUCTS).name,payment:pick(PAY),deliveryDate:day,received:rnd()<.8,receiver:rnd()<.5?"العميل":"الحارس",notes:rnd()<.3?"يطلب التوصيل مساءً":"",at:nowIso()}))}
-    for(let i=0;i<6;i++)d.queue.push(D({id:"demo-q"+i,phone:customers[30-i].phone,note:["عميل لم يطلب منذ 45 يوماً","متابعة عرض بوكس الشواء","تأكيد موعد التوصيل","استطلاع رضا بعد الطلب","عرض اشتراك أسبوعي","تذكير بالدفعة الآجلة"][i],done:false}));
+    const P=products();for(let i=0;i<80;i++){const c=customers[(i*7)%customers.length],day=ago(i%14);d.records.push(D({id:"demo-fu"+i,date:day,name:c.name,phone:c.phone,source:c.source,city:c.city,district:c.district,order:pick(P).name,payment:pick(PAY),deliveryDate:day,received:rnd()<.8,receiver:rnd()<.5?"العميل":"الحارس",notes:rnd()<.3?"يطلب التوصيل مساءً":"",at:nowIso()}))}
+    const NOTES=["عميل لم يطلب منذ 45 يوماً","متابعة عرض بوكس الشواء","تأكيد موعد التوصيل","استطلاع رضا بعد الطلب","عرض اشتراك أسبوعي","تذكير بالدفعة الآجلة"];
+    for(let i=0;i<14;i++)d.queue.push(D({id:"demo-q"+i,phone:customers[60-i*3].phone,note:NOTES[i%NOTES.length],done:i>10}));
     save("skosif_followup_v1",d)},
   clear:async()=>{const d=load("skosif_followup_v1",null);if(!d)return;d.records=dropDemo(d.records);d.queue=dropDemo(d.queue);save("skosif_followup_v1",d)}},
 
