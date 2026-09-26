@@ -40,6 +40,13 @@ describe('trial balance review', () => {
     expect(r.findings.map((f) => f.title)).not.toContain('ذمم مدينة برصيد دائن');
     expect(r.adjustments.map((a) => a.title)).not.toContain('إعادة تبويب الأرصدة الدائنة للعملاء');
   });
+  it('keeps significant risks (and so the KAMs) once evidence is obtained — evidence lowers the residual score only', () => {
+    const before = reviewTrialBalance(sample);
+    const ev = Object.fromEntries(before.risks.map((r) => [r.lineKey, 'accepted' as const]));
+    const after = reviewTrialBalance(sample, { evidence: ev });
+    expect(after.risks.filter((r) => r.significant).map((r) => r.lineKey).sort()).toEqual(before.risks.filter((r) => r.significant).map((r) => r.lineKey).sort());
+    for (const r of after.risks) expect(r.score).toBeLessThanOrEqual(before.risks.find((x) => x.lineKey === r.lineKey)!.score);
+  });
   it('finds the errors of a problem trial balance and proposes balanced entries', () => {
     const r = reviewTrialBalance(bad);
     const titles = r.findings.map((f) => f.title);

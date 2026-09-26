@@ -252,7 +252,10 @@ export function reviewTrialBalance(tb: TrialBalance, opts: ReviewOptions = {}): 
     /* ISA 315.12(l): a significant risk sits at the upper end of the inherent-risk spectrum — size and missing evidence alone
        do not make one; it needs a qualitative factor (estimation uncertainty, fraud, an engine finding, or an unusual movement) */
     const qualitative = !!la.estimate || !!la.fraud || bump > 0 || (pc !== null && pc >= 25);
-    return { lineKey: l.key, ar: l.ar, amount, score, level, significant: score >= 70 && qualitative, parts, risk: la.risk, procedures: la.procedures };
+    /* significance is inherent (ISA 315.12(l), 701): assessed before evidence — evidence lowers the residual score and
+       answers the risk, it does not make a KAM or a significant risk disappear */
+    const inherent = Math.min(100, parts.size + parts.estimate + parts.change + 25 + parts.nature + bump);
+    return { lineKey: l.key, ar: l.ar, amount, score, level, significant: inherent >= 70 && qualitative, parts, risk: la.risk, procedures: la.procedures };
   }).sort((a, b) => b.score - a.score);
 
   /* document requests */

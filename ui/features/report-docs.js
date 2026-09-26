@@ -229,5 +229,5 @@ const CSS=`
 .rd-sign{display:flex;justify-content:space-between;gap:20px;margin-top:22px;padding-top:12px;border-top:1px solid #dfe6ef}.rd-sign div{display:grid;gap:2px}
 @media print{.rd-cover{page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}.rd-part,.rd-audit{page-break-before:always}.rd-item,.rd-t{page-break-inside:auto}.rd-t tr{page-break-inside:avoid}.rd-toc{page-break-after:always}}
 `;
-window.SKosifReportDocs=Object.freeze({annual,release,auditor,notes,committee,icfr,peers,figures,CSS});
+window.SKosifReportDocs=Object.freeze({annual,release,auditor,notes,committee,icfr,peers,figures,stmt,kv,CSS});
 })();

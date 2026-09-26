@@ -175,7 +175,7 @@ function localPlan(text){
   if(!plan.length&&findScreen(text)&&norm(text).split(" ").length<=4)plan.push(["go_to_screen",{screen:text}]);
   return plan;
 }
-const HELP="أستطيع التحكم في التطبيق كله. جرّب:\n• «افتح مراجعة الميزان» أو أي شاشة\n• «لخّص هذه الشاشة» · «ملخص الأعمال»\n• «ابحث عن 0555…»\n• «صدّر الجدول إلى Excel» · «اطبع»\n• «الوضع الليلي» · «لون زمردي» · «خط القاهرة» · «كبّر الخط» · «تباين عالٍ»\n• «أضف مهمة جرد المخزون غداً» · «مهامي»\n• «راجع ميزان الدفاتر»\n• «اضغط تحليل الميزان» · «اكتب شركة الأفق في المنشأة»\nبمفتاح Gemini (في مراجعة الميزان ← المراجع الذكي) أفهم الطلبات الحرة والمركبة وأجيب عن أسئلتك من أرقام الشاشة.";
+const HELP="أستطيع التحكم في التطبيق كله. جرّب:\n• «افتح مراجعة الميزان» أو أي شاشة\n• «لخّص هذه الشاشة» · «ملخص الأعمال»\n• «ابحث عن 0555…»\n• «صدّر الجدول إلى Excel» · «اطبع»\n• «الوضع الليلي» · «لون زمردي» · «خط القاهرة» · «كبّر الخط» · «تباين عالٍ»\n• «أضف مهمة جرد المخزون غداً» · «مهامي»\n• «راجع ميزان الدفاتر»\n• «اضغط تحليل الميزان» · «اكتب شركة الأفق في المنشأة»\nبمفتاح الذكاء الاصطناعي (Gemini أو OpenAI أو Claude) (في مراجعة الميزان ← المراجع الذكي) أفهم الطلبات الحرة والمركبة وأجيب عن أسئلتك من أرقام الشاشة.";
 
 /* ---------- Gemini: function calling over the same tools ---------- */
 function decl(){return TOOLS.map(t=>({name:t.name,description:t.d,parameters:{type:"OBJECT",properties:Object.fromEntries(Object.entries(t.p).map(([k,v])=>[k,{...v}])),...(t.req?{required:t.req}:{})}}))}
@@ -221,7 +221,7 @@ function paint(){
     '<div class="ska-hello"><b>أهلاً — أنا مساعد SQC</b><p>أنفّذ ما تطلبه في التطبيق مباشرة: أفتح الشاشات، أقرأ الأرقام، أصدّر وأطبع، أغيّر المظهر، وأضغط الأزرار عنك.</p></div>';
   if(busy)box.insertAdjacentHTML("beforeend",'<div class="ska-m ai typing"><i></i><i></i><i></i></div>');
   $(".ska-sugg",panel).innerHTML=(h.length>6?[]:SUGG).map(s=>'<button type="button" data-s="'+esc(s)+'">'+esc(s)+'</button>').join("");
-  const ai=window.SKosifAI&&SKosifAI.ready();$(".ska-status",panel).textContent=ai?"Gemini متصل · يفهم الطلبات الحرة":"أوامر مباشرة · أضف مفتاح Gemini للطلبات الحرة";$(".ska-status",panel).classList.toggle("on",!!ai);
+  const ai=window.SKosifAI&&SKosifAI.ready();$(".ska-status",panel).textContent=ai?"الذكاء الاصطناعي متصل · يفهم الطلبات الحرة":"أوامر مباشرة · أضف مفتاح الذكاء الاصطناعي (Gemini أو OpenAI أو Claude) للطلبات الحرة";$(".ska-status",panel).classList.toggle("on",!!ai);
   box.scrollTop=box.scrollHeight;
 }
 async function send(text){
@@ -234,10 +234,10 @@ async function send(text){
     const ai=window.SKosifAI&&SKosifAI.ready(),plan=localPlan(text);
     if(plan.length&&plan[0].help)reply=HELP;
     else if(ai){try{reply=await gemini(hist().filter(m=>m.role!=="tool").map(m=>({role:m.role==="user"?"user":"model",text:m.text})),step)}
-      catch(e){if(plan.length){for(const [n,a] of plan)step(n,await runTool(n,a));reply="نفّذت ذلك محلياً — تعذر الوصول إلى Gemini ("+e.message+")."}else reply="تعذر الوصول إلى Gemini: "+e.message}}
+      catch(e){if(plan.length){for(const [n,a] of plan)step(n,await runTool(n,a));reply="نفّذت ذلك محلياً — تعذر الوصول إلى مزود الذكاء الاصطناعي ("+e.message+")."}else reply="تعذر الوصول إلى مزود الذكاء الاصطناعي: "+e.message}}
     else if(plan.length){const results=[];for(const [n,a] of plan){const r=await runTool(n,a);step(n,r);results.push(r)}
       const info=plan.find(p=>["read_screen","app_summary","list_tasks","list_screens"].includes(p[0]));reply=info?results[plan.indexOf(info)].text:results.every(r=>r.ok)?"تم.":"لم يكتمل كل شيء — راجع الخطوات أعلاه."}
-    else reply="لم أفهم الطلب بدون Gemini. "+HELP.split("\n").slice(0,6).join("\n");
+    else reply="لم أفهم الطلب بدون ذكاء اصطناعي. "+HELP.split("\n").slice(0,6).join("\n");
   }finally{busy=false}
   push({role:"model",text:reply});paint();
   if(panel&&panel.dataset.speak==="1"&&"speechSynthesis" in window){try{const u=new SpeechSynthesisUtterance(reply.replace(/[•*]/g,""));u.lang="ar-SA";speechSynthesis.cancel();speechSynthesis.speak(u)}catch{}}

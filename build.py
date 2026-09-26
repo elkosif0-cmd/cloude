@@ -32,7 +32,7 @@ UI_JS=["core/sk.js","core/output.js","core/bus.js","core/errors.js","core/store.
        "features/jev.js","features/offers.js","features/inventory.js","features/supply.js","features/meatops.js","features/smartmatch.js",
        "features/pricing-core.js","features/kernel.js","features/tools.js","features/enterprise.js","features/reports.js","features/report-pack.js",
        "features/erp-plus.js","features/operations.js","features/capabilities-v2.js","features/audit-bridge.js",
-       "features/ledger.js","features/month-close.js","features/purchasing.js","features/workspace.js","features/followup.js","features/devices.js","features/notifications.js","features/risks.js","features/accounting-guidance.js","features/codex.js","features/audit-bench.js","features/report-docs.js","features/tb-council.js","features/tb-fieldwork.js","features/tb-review.js","features/sales-lab.js","features/assistant.js","features/product-flow.js"]
+       "features/ledger.js","features/month-close.js","features/purchasing.js","features/workspace.js","features/followup.js","features/devices.js","features/notifications.js","features/risks.js","features/accounting-guidance.js","features/codex.js","features/audit-bench.js","features/report-docs.js","features/integrated-report.js","features/tb-council.js","features/tb-fieldwork.js","features/tb-review.js","features/sales-lab.js","features/assistant.js","features/product-flow.js"]
 listed={"ui/"+n for n in UI_CSS+UI_JS}
 stray=[str(f) for f in Path("ui").glob("*.*") if f.suffix in (".js",".css")]
 stray+=[str(f) for d in ("core","ds","components","layouts","features") for f in Path("ui",d).glob("*.*") if f.suffix in (".js",".css") and str(f) not in listed]
