@@ -558,10 +558,13 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/audit/codex-engine.ts
 	var codex_engine_exports = /* @__PURE__ */ __exportAll({
+		EAS_TABLE: () => EAS_TABLE,
+		IFRS_TO_EAS: () => IFRS_TO_EAS,
 		REGISTRY_DATE: () => REGISTRY_DATE,
 		STANDARD: () => STANDARD,
 		STANDARDS: () => STANDARDS,
 		frameworkApplicability: () => frameworkApplicability,
+		inFramework: () => inFramework,
 		normalizeCode: () => normalizeCode$1,
 		relationOf: () => relationOf,
 		searchCodex: () => searchCodex,
@@ -1322,11 +1325,316 @@ window.SKEngines = (function() {
 			url: code === "ISA 240" ? "https://www.iaasb.org/publications/isa-240-revised-auditor-s-responsibilities-relating-fraud-audit-financial-statements" : code === "ISA 570" ? "https://www.iaasb.org/publications/isa-570-revised-2024-going-concern" : code === "ISA 701" ? "https://www.iaasb.org/publications/international-standard-auditing-isa-701-new-communicating-key-audit-matters-independent-auditor-s-3" : IAASB
 		}))
 	];
+	var FRA = "https://fra.gov.eg/%D9%85%D8%B9%D8%A7%D9%8A%D9%8A%D8%B1-%D8%A7%D9%84%D9%85%D8%AD%D8%A7%D8%B3%D8%A8%D8%A9%D9%88%D9%85%D8%B1%D8%A7%D9%82%D8%A8%D9%8A-%D8%A7%D9%84%D8%AD%D8%B3%D8%A7%D8%A8%D8%A7%D8%AA/";
+	var EAS_TABLE = [
+		[
+			1,
+			"عرض القوائم المالية",
+			"IAS 1"
+		],
+		[
+			2,
+			"المخزون",
+			"IAS 2"
+		],
+		[
+			4,
+			"قائمة التدفقات النقدية",
+			"IAS 7"
+		],
+		[
+			5,
+			"السياسات المحاسبية والتغيرات في التقديرات المحاسبية والأخطاء",
+			"IAS 8"
+		],
+		[
+			7,
+			"الأحداث التي تقع بعد الفترة المالية",
+			"IAS 10"
+		],
+		[
+			8,
+			"عقود الإنشاء",
+			"IAS 11",
+			"EAS 48"
+		],
+		[
+			10,
+			"الأصول الثابتة وإهلاكاتها",
+			"IAS 16"
+		],
+		[
+			11,
+			"الإيراد",
+			"IAS 18",
+			"EAS 48"
+		],
+		[
+			12,
+			"المنح الحكومية والإفصاح عن المساعدات الحكومية",
+			"IAS 20"
+		],
+		[
+			13,
+			"آثار التغيرات في أسعار صرف العملات الأجنبية",
+			"IAS 21"
+		],
+		[
+			14,
+			"تكلفة الاقتراض",
+			"IAS 23"
+		],
+		[
+			15,
+			"الإفصاح عن الأطراف ذوي العلاقة",
+			"IAS 24"
+		],
+		[
+			17,
+			"القوائم المالية المستقلة",
+			"IAS 27"
+		],
+		[
+			18,
+			"الاستثمارات في الشركات الشقيقة",
+			"IAS 28"
+		],
+		[
+			20,
+			"القواعد والمعايير المحاسبية المتعلقة بعمليات التأجير التمويلي",
+			"",
+			"EAS 49"
+		],
+		[
+			21,
+			"المحاسبة والتقرير عن نظم مزايا التقاعد",
+			"IAS 26"
+		],
+		[
+			22,
+			"نصيب السهم في الأرباح",
+			"IAS 33"
+		],
+		[
+			23,
+			"الأصول غير الملموسة",
+			"IAS 38"
+		],
+		[
+			24,
+			"ضرائب الدخل",
+			"IAS 12"
+		],
+		[
+			25,
+			"الأدوات المالية: العرض",
+			"IAS 32"
+		],
+		[
+			26,
+			"الأدوات المالية: الاعتراف والقياس (نطاق التحوط المتبقي)",
+			"IAS 39"
+		],
+		[
+			28,
+			"المخصصات والالتزامات المحتملة والأصول المحتملة",
+			"IAS 37"
+		],
+		[
+			29,
+			"تجميع الأعمال",
+			"IFRS 3"
+		],
+		[
+			30,
+			"القوائم المالية الدورية",
+			"IAS 34"
+		],
+		[
+			31,
+			"اضمحلال قيمة الأصول",
+			"IAS 36"
+		],
+		[
+			32,
+			"الأصول غير المتداولة المحتفظ بها لغرض البيع والعمليات غير المستمرة",
+			"IFRS 5"
+		],
+		[
+			34,
+			"الاستثمار العقاري",
+			"IAS 40"
+		],
+		[
+			35,
+			"الزراعة",
+			"IAS 41"
+		],
+		[
+			36,
+			"التنقيب عن وتقييم الموارد التعدينية",
+			"IFRS 6"
+		],
+		[
+			37,
+			"عقود التأمين (الإصدار السابق)",
+			"IFRS 4",
+			"EAS 50"
+		],
+		[
+			38,
+			"مزايا العاملين",
+			"IAS 19"
+		],
+		[
+			39,
+			"المدفوعات المبنية على أسهم",
+			"IFRS 2"
+		],
+		[
+			40,
+			"الأدوات المالية: الإفصاحات",
+			"IFRS 7"
+		],
+		[
+			41,
+			"القطاعات التشغيلية",
+			"IFRS 8"
+		],
+		[
+			42,
+			"القوائم المالية المجمعة",
+			"IFRS 10"
+		],
+		[
+			43,
+			"الترتيبات المشتركة",
+			"IFRS 11"
+		],
+		[
+			44,
+			"الإفصاح عن الحصص في المنشآت الأخرى",
+			"IFRS 12"
+		],
+		[
+			45,
+			"قياس القيمة العادلة",
+			"IFRS 13"
+		],
+		[
+			46,
+			"الأحكام الانتقالية لتطبيق معايير المحاسبة المصرية",
+			""
+		],
+		[
+			47,
+			"الأدوات المالية",
+			"IFRS 9"
+		],
+		[
+			48,
+			"الإيراد من العقود مع العملاء",
+			"IFRS 15"
+		],
+		[
+			49,
+			"عقود التأجير",
+			"IFRS 16"
+		],
+		[
+			50,
+			"عقود التأمين",
+			"IFRS 17"
+		],
+		[
+			51,
+			"القوائم المالية في اقتصاديات التضخم المفرط",
+			"IAS 29"
+		]
+	];
+	var IFRS_TO_EAS = Object.fromEntries(EAS_TABLE.filter(([, , i, r]) => i && !r).map(([n, , i]) => [i, "EAS " + n]));
+	var IFRS_BY = Object.fromEntries(STANDARDS.map((s) => [s.code, s]));
+	STANDARDS.push(...EAS_TABLE.map(([n, title, ifrs, by]) => {
+		const twin = ifrs ? IFRS_BY[ifrs] : void 0;
+		return {
+			code: "EAS " + n,
+			family: "EAS",
+			titleAr: "معيار المحاسبة المصري رقم (" + n + ") — " + title,
+			titleEn: ifrs ? "Egyptian Accounting Standard " + n + " (≈ " + ifrs + ")" : "Egyptian Accounting Standard " + n,
+			purpose: twin ? twin.purpose + (by ? "" : " (مقابل " + ifrs + "، مع اختلافات محدودة في بعض المعالجات والإفصاحات)") : title + ".",
+			requirements: twin?.requirements ?? [],
+			disclosures: twin?.disclosures ?? [],
+			audit: twin?.audit ?? [],
+			effective: "حسب قرارات وزير الاستثمار وتعديلاتها",
+			latest: by ? "حل محله " + by : "راجع آخر قرارات الهيئة العامة للرقابة المالية",
+			status: by ? "replaced" : "effective",
+			replacedBy: by,
+			org: "FRA مصر",
+			url: FRA,
+			ifrs: ifrs || void 0
+		};
+	}));
+	STANDARDS.push({
+		code: "ضريبة الدخل (مصر)",
+		family: "EGYPT",
+		titleAr: "قانون الضريبة على الدخل رقم 91 لسنة 2005 وتعديلاته",
+		titleEn: "Egyptian Income Tax Law 91/2005",
+		purpose: "ضريبة على صافي الربح الضريبي للأشخاص الاعتبارية بسعر 22.5% (مع أسعار خاصة لبعض الأنشطة)، والضريبة المؤجلة وفق معيار المحاسبة المصري 24.",
+		requirements: [
+			"الإقرار الضريبي السنوي",
+			"تسوية الربح المحاسبي بالربح الضريبي",
+			"الخصم والإضافة تحت حساب الضريبة"
+		],
+		disclosures: ["مطابقة مصروف الضريبة مع الربح المحاسبي", "الضريبة المؤجلة"],
+		audit: ["مطابقة المخصص مع الإقرار", "فحص الفحوص الضريبية والنزاعات"],
+		effective: "ساري",
+		latest: "تعديلات متتالية؛ راجع مصلحة الضرائب المصرية",
+		status: "effective",
+		org: "مصلحة الضرائب المصرية",
+		url: "https://www.eta.gov.eg"
+	}, {
+		code: "ضريبة القيمة المضافة (مصر)",
+		family: "EGYPT",
+		titleAr: "قانون الضريبة على القيمة المضافة رقم 67 لسنة 2016",
+		titleEn: "Egyptian VAT Law 67/2016",
+		purpose: "ضريبة 14% على السلع والخدمات بوجه عام، مع الفاتورة والإيصال الإلكتروني والتسجيل برقم ضريبي من 9 أرقام.",
+		requirements: [
+			"الإقرار الشهري",
+			"الفاتورة الإلكترونية",
+			"خصم ضريبة المدخلات بشروطها"
+		],
+		disclosures: ["الرصيد المستحق أو المستحق رده"],
+		audit: ["مطابقة الإيراد مع الإقرارات والفواتير الإلكترونية"],
+		effective: "سبتمبر 2016",
+		latest: "منظومة الفاتورة والإيصال الإلكتروني",
+		status: "effective",
+		org: "مصلحة الضرائب المصرية",
+		url: "https://www.eta.gov.eg"
+	}, {
+		code: "قانون الشركات (مصر)",
+		family: "EGYPT",
+		titleAr: "قانون الشركات رقم 159 لسنة 1981 ولائحته التنفيذية",
+		titleEn: "Egyptian Companies Law 159/1981",
+		purpose: "أحكام رأس المال والاحتياطي القانوني (5% من الأرباح حتى نصف رأس المال) والقوائم المالية والجمعيات.",
+		requirements: ["تجنيب الاحتياطي القانوني", "اعتماد القوائم من الجمعية العامة"],
+		disclosures: ["رأس المال والاحتياطيات"],
+		audit: ["مراجعة السجل التجاري والنظام الأساسي ومحاضر الجمعية"],
+		effective: "ساري",
+		latest: "تعديلات متتالية",
+		status: "effective",
+		org: "FRA مصر",
+		url: "https://fra.gov.eg"
+	});
 	var STANDARD = Object.fromEntries(STANDARDS.map((s) => [s.code, s]));
 	/** Normalize "ias16", "IAS-16", "معيار المحاسبة الدولي 16" → "IAS 16" when it is in the codex. */
 	function normalizeCode$1(input) {
 		const t = String(input || "").trim();
 		if (STANDARD[t]) return t;
+		const e = t.replace(/[–—-]/g, " ").match(/\bEAS\s*(\d{1,2})\b/i) ?? t.match(/معيار المحاسبة المصري\s*(?:رقم\s*)?\(?(\d{1,2})/);
+		if (e) {
+			const c = "EAS " + Number(e[1]);
+			return STANDARD[c] ? c : null;
+		}
 		const m = t.replace(/[–—-]/g, " ").match(/\b(IFRS|IAS|ISA)\s*(\d{1,3})\b/i);
 		if (m) {
 			const c = m[1].toUpperCase() + " " + Number(m[2]);
@@ -1337,6 +1645,7 @@ window.SKEngines = (function() {
 			const c = (t.includes("للتقرير") ? "IFRS" : t.includes("المراجعة") ? "ISA" : "IAS") + " " + Number(a[1]);
 			return STANDARD[c] ? c : null;
 		}
+		if (/ضريبه الدخل \(مصر\)|ضريبة الدخل \(مصر\)/.test(t)) return "ضريبة الدخل (مصر)";
 		if (/زكا/.test(t)) return "لائحة الزكاة";
 		if (/قيمه المضافه|القيمة المضافة|vat/i.test(t)) return "ZATCA VAT";
 		return null;
@@ -1365,14 +1674,23 @@ window.SKEngines = (function() {
 			"IFRS 9": "يصنف الاستثمار حسب نموذج الأعمال وخصائص التدفقات (تكلفة مطفأة أو قيمة عادلة).",
 			"IAS 28": "إن وُجد تأثير هام (20% فأكثر عادة) تطبق طريقة حقوق الملكية."
 		},
-		vatAsset: { "ZATCA VAT": "ضريبة مدخلات قابلة للاسترداد تُطابق مع الإقرارات وفواتير الموردين المستوفية للشروط." },
-		vatLiability: { "ZATCA VAT": "ضريبة مخرجات مستحقة تُطابق مع الإيراد الخاضع والإقرارات المقدمة." },
+		vatAsset: {
+			"ضريبة القيمة المضافة (مصر)": "ضريبة مدخلات قابلة للخصم (14%) تطابق مع الإقرارات الشهرية والفواتير الإلكترونية.",
+			"ZATCA VAT": "ضريبة مدخلات قابلة للاسترداد تُطابق مع الإقرارات وفواتير الموردين المستوفية للشروط."
+		},
+		vatLiability: {
+			"ضريبة القيمة المضافة (مصر)": "ضريبة مخرجات مستحقة (14%) تطابق مع المبيعات الخاضعة والإقرارات الشهرية.",
+			"ZATCA VAT": "ضريبة مخرجات مستحقة تُطابق مع الإيراد الخاضع والإقرارات المقدمة."
+		},
 		prepayments: { "IAS 1": "تعرض ضمن الموجودات المتداولة إذا كانت ستُستنفد خلال 12 شهراً." },
 		capital: {
 			"IAS 32": "حقوق ملكية بموجب عقد التأسيس والسجل التجاري؛ أي زيادة تتطلب قراراً نظامياً.",
 			"نظام الشركات": "يطابق رأس المال المسجل مع السجل التجاري وعقد التأسيس."
 		},
-		reserves: { "نظام الشركات": "الاحتياطي النظامي لم يعد إلزامياً بالنظام الجديد إلا إذا نص عليه عقد التأسيس؛ يُتحقق من سند كل تحويل." },
+		reserves: {
+			"قانون الشركات (مصر)": "الاحتياطي القانوني يُجنب بنسبة 5% من صافي الربح حتى يبلغ نصف رأس المال (قانون 159 لسنة 1981).",
+			"نظام الشركات": "الاحتياطي النظامي لم يعد إلزامياً بالنظام الجديد إلا إذا نص عليه عقد التأسيس؛ يُتحقق من سند كل تحويل."
+		},
 		partners: { "IAS 24": "حساب جاري الشريك معاملة مع طرف ذي علاقة يُفصح عنها بطبيعتها وشروطها." },
 		retained: { "IAS 8": "رصيد الافتتاح يجب أن يساوي إقفال السنة السابقة؛ أي فرق يشير إلى تسوية بأثر رجعي تتطلب إفصاحاً." },
 		eosb: { "IAS 19": "مكافأة نهاية الخدمة خطة منافع محددة تقاس بالتقييم الاكتواري (أو بتبسيط مسموح في معيار المنشآت الصغيرة عند الجهد غير المبرر)." },
@@ -1386,6 +1704,7 @@ window.SKEngines = (function() {
 			"IFRS 7": "يدخل في تحليل مخاطر السيولة."
 		},
 		zakatPayable: {
+			"ضريبة الدخل (مصر)": "ضريبة الدخل المستحقة عن السنة بعد خصم الدفعات المقدمة والخصم تحت حساب الضريبة؛ تطابق مع الإقرار والفحوص الضريبية.",
 			"لائحة الزكاة": "مخصص الزكاة يُحسب على الوعاء الزكوي بسعر 2.5% ويطابق مع الإقرار والربوط.",
 			"IAS 37": "التزام حالي ناشئ عن السنة يُقاس بأفضل تقدير."
 		},
@@ -1412,6 +1731,7 @@ window.SKEngines = (function() {
 		investIncome: { "IFRS 18": "عوائد الاستثمارات والودائع تعرض ضمن فئة الاستثمار." },
 		otherIncome: { "IFRS 18": "تبقى في فئة التشغيل ما لم تكن من الاستثمار أو التمويل." },
 		zakatExpense: {
+			"ضريبة الدخل (مصر)": "مصروف ضريبة الدخل الجارية (22.5% من الربح الضريبي) والمؤجلة؛ يطابق مع الإقرار ومع تسوية الربح المحاسبي بالضريبي.",
 			"لائحة الزكاة": "مصروف زكاة السنة يطابق مع مخصص الزكاة والإقرار.",
 			"IAS 12": "ينطبق على ضريبة الدخل للحصص غير السعودية/الخليجية."
 		},
@@ -1420,7 +1740,8 @@ window.SKEngines = (function() {
 	};
 	function relationOf(code, lineKey) {
 		const s = STANDARD[code];
-		return (lineKey ? RELATION[lineKey]?.[code] : void 0) ?? (s ? s.purpose : "");
+		const twin = s?.ifrs && !s.replacedBy ? s.ifrs : null;
+		return (lineKey ? RELATION[lineKey]?.[code] ?? (twin ? RELATION[lineKey]?.[twin] : void 0) : void 0) ?? (s ? s.purpose : "");
 	}
 	function frameworkApplicability(i) {
 		if (!!i.listedOrIssuing || !!i.fiduciaryForBroadGroup && !i.incidentalDepositsOnly) return {
@@ -1445,9 +1766,20 @@ window.SKEngines = (function() {
 			cite: ["IFRS for SMEs 1.2–1.4", "إرشادات SOCPA — القسم 1"]
 		};
 	}
+	/** A code in the terms of the framework: IFRS/IAS → EAS and Saudi requirements → Egyptian ones under EAS. */
+	var EGYPT_OF = {
+		"لائحة الزكاة": "ضريبة الدخل (مصر)",
+		"ZATCA VAT": "ضريبة القيمة المضافة (مصر)",
+		"نظام الشركات": "قانون الشركات (مصر)",
+		"IFRS 18": "EAS 1"
+	};
+	function inFramework(code, framework = "IFRS") {
+		if (framework !== "EAS") return code;
+		return EGYPT_OF[code] ?? IFRS_TO_EAS[code] ?? code;
+	}
 	/** Standards cited for an account, with the relation text and the SME section when that framework applies. */
 	function standardsFor(codes, lineKey, framework = "IFRS") {
-		return codes.map((code) => STANDARD[code] ? code : normalizeCode$1(code) ?? code).filter((c, i, a) => a.indexOf(c) === i).map((code) => {
+		return codes.map((code) => STANDARD[code] ? code : normalizeCode$1(code) ?? code).map((c) => inFramework(c, framework)).filter((c, i, a) => a.indexOf(c) === i).map((code) => {
 			const s = STANDARD[code];
 			return {
 				code,
@@ -1916,8 +2248,11 @@ window.SKEngines = (function() {
 				"زكاه مستحقه",
 				"مخصص الزكاه",
 				"مخصص زكاه",
+				"ضريبه الدخل المستحقه",
+				"ضرائب الدخل المستحقه",
 				"zakat payable",
-				"zakat provision"
+				"zakat provision",
+				"income tax payable"
 			],
 			prefixes: [],
 			standards: ["لائحة الزكاة", "IAS 37"],
@@ -2338,7 +2673,22 @@ window.SKEngines = (function() {
 		};
 	}
 	var present = (l, signed) => l.types.includes("asset") || l.types.includes("expense") ? signed : -signed;
-	function buildStatements(tb, overrides = {}) {
+	var TAX_WORDS = {
+		zakat: {
+			before: "الربح قبل التمويل والزكاة",
+			pbz: "الربح قبل الزكاة",
+			payable: "زكاة مستحقة",
+			paid: "الزكاة المدفوعة"
+		},
+		income: {
+			before: "الربح قبل التمويل وضريبة الدخل",
+			pbz: "الربح قبل ضريبة الدخل",
+			payable: "ضريبة دخل مستحقة",
+			paid: "ضريبة الدخل المدفوعة"
+		}
+	};
+	function buildStatements(tb, overrides = {}, opts = {}) {
+		const TW = TAX_WORDS[opts.tax ?? "zakat"];
 		const hasPrior = tb.hasPrior;
 		const acc = /* @__PURE__ */ new Map();
 		const unmapped = [];
@@ -2409,7 +2759,7 @@ window.SKEngines = (function() {
 		});
 		const lr = (k, sign = 1) => {
 			const d = LINE[k];
-			return row(k, d.ar, d.en, sign * v(k), hasPrior ? sign * vp(k) : null);
+			return row(k, k === "zakatPayable" ? TW.payable : d.ar, d.en, sign * v(k), hasPrior ? sign * vp(k) : null);
 		};
 		const pl = [
 			lr("revenue"),
@@ -2422,9 +2772,9 @@ window.SKEngines = (function() {
 			lr("otherIncome"),
 			row("operating", "الربح التشغيلي", "Operating profit", pc.operating, pp?.operating ?? null, "subtotal"),
 			lr("investIncome"),
-			row("pbfz", "الربح قبل التمويل والزكاة", "Profit before financing and zakat", pc.pbfz, pp?.pbfz ?? null, "subtotal"),
+			row("pbfz", TW.before, "Profit before financing and zakat", pc.pbfz, pp?.pbfz ?? null, "subtotal"),
 			lr("financeCost", -1),
-			row("pbz", "الربح قبل الزكاة", "Profit before zakat", pc.pbz, pp?.pbz ?? null, "subtotal"),
+			row("pbz", TW.pbz, "Profit before zakat", pc.pbz, pp?.pbz ?? null, "subtotal"),
 			lr("zakatExpense", -1),
 			row("profit", "صافي ربح السنة", "Profit for the year", pc.profit, pp?.profit ?? null, "total")
 		].filter((r) => r.level !== "line" || r.current !== 0 || (r.prior ?? 0) !== 0);
@@ -2570,12 +2920,12 @@ window.SKEngines = (function() {
 			const assetWc = byRole("wc", -1).filter((x) => x.l.types.includes("asset")), liabWc = byRole("wc", 1).filter((x) => x.l.types.includes("liability"));
 			const noncash = byRole("noncash", 1), zakatPaid = -(vp("zakatPayable") + pc.zakat - v("zakatPayable"));
 			const opRows = [
-				row("cf-pbz", "الربح قبل الزكاة", "Profit before zakat", pc.pbz, null),
+				row("cf-pbz", TW.pbz, "Profit before zakat", pc.pbz, null),
 				...da ? [row("cf-da", "الاستهلاك والإطفاء", "Depreciation and amortisation", da, null)] : [],
 				...noncash.map((x) => row("cf-nc-" + x.l.key, "الحركة في " + x.l.ar, "Movement in " + x.l.en, x.amt, null)),
 				...assetWc.map((x) => row("cf-wc-" + x.l.key, (x.amt <= 0 ? "الزيادة في " : "النقص في ") + x.l.ar, "Change in " + x.l.en, x.amt, null)),
 				...liabWc.map((x) => row("cf-wc-" + x.l.key, (x.amt >= 0 ? "الزيادة في " : "النقص في ") + x.l.ar, "Change in " + x.l.en, x.amt, null)),
-				row("cf-zakat", "الزكاة المدفوعة", "Zakat paid", zakatPaid, null)
+				row("cf-zakat", TW.paid, "Zakat paid", zakatPaid, null)
 			];
 			const op = opRows.reduce((a, r) => a + r.current, 0);
 			const inv = byRole("investing", -1).map((x) => row("cf-inv-" + x.l.key, (x.l.key === "ppe" ? "إضافات " : "الحركة في ") + x.l.ar, "Investment in " + x.l.en, x.amt - (x.l.key === "ppe" ? da : 0), null)).filter((r) => r.current !== 0);
@@ -3259,10 +3609,14 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/audit/tb-review-engine.ts
 	var tb_review_engine_exports = /* @__PURE__ */ __exportAll({
+		DEFAULT_ECL_BUCKETS: () => DEFAULT_ECL_BUCKETS,
 		LINE_AUDIT: () => LINE_AUDIT,
 		adjustmentEffect: () => adjustmentEffect,
 		applyAdjustments: () => applyAdjustments,
 		complianceOf: () => complianceOf,
+		eclAdjustment: () => eclAdjustment,
+		eclMatrix: () => eclMatrix,
+		existingAllowance: () => existingAllowance,
 		materiality: () => materiality,
 		reviewTrialBalance: () => reviewTrialBalance,
 		validateAdjustment: () => validateAdjustment
@@ -3543,10 +3897,11 @@ window.SKEngines = (function() {
 		"otherIncome",
 		"contractLiab"
 	]);
-	var money$22 = (m) => formatMinor(m, { decimals: 0 }) + " ر.س";
 	/** Run the whole deterministic review of a trial balance. */
 	function reviewTrialBalance(tb, opts = {}) {
-		const framework = opts.framework ?? "IFRS", fs = buildStatements(tb, opts.overrides ?? {});
+		const framework = opts.framework ?? "IFRS", egypt = framework === "EAS", cur = opts.currency ?? (egypt ? "ج.م" : "ر.س");
+		const money = (m) => formatMinor(m, { decimals: 0 }) + " " + cur;
+		const fs = buildStatements(tb, opts.overrides ?? {}, { tax: egypt ? "income" : "zakat" });
 		const mat = materiality(fs, { overall: opts.materiality });
 		const findings = [], adjustments = [];
 		let seq = 0;
@@ -3604,7 +3959,7 @@ window.SKEngines = (function() {
 				standard: "ISA 500",
 				title: "ميزان المراجعة غير متوازن",
 				detail: omitted ? `الفرق يساوي رصيد الحساب ${omitted.code} ${omitted.name} — احتمال حذف أو تكرار.` : wrongSide ? `الفرق ضعف رصيد الحساب ${wrongSide.code} ${wrongSide.name} — احتمال ترحيله في الجانب الخطأ.` : ad % 900 === 0 ? "الفرق يقبل القسمة على 9 — احتمال قلب أرقام (Transposition)." : "افحص الترحيل والإقفال.",
-				basis: `مدين ${money$22(tb.totals.debit)} − دائن ${money$22(tb.totals.credit)} = ${money$22(diff)}`,
+				basis: `مدين ${money(tb.totals.debit)} − دائن ${money(tb.totals.credit)} = ${money(diff)}`,
 				action: "تصحيح الفرق قبل أي تحليل؛ لا تصدر قوائم من ميزان غير متوازن."
 			});
 		}
@@ -3614,7 +3969,7 @@ window.SKEngines = (function() {
 			standard: "ISA 510",
 			title: "أرصدة السنة السابقة غير متوازنة",
 			detail: "عمود المقارنة لا يتوازن فتتأثر المقارنات وقائمة التدفقات.",
-			basis: `الفرق ${money$22(tb.priorDifference)}`,
+			basis: `الفرق ${money(tb.priorDifference)}`,
 			action: "مطابقة المقارنة مع القوائم المراجعة للسنة السابقة."
 		});
 		for (const e of tb.errors) add({
@@ -3636,7 +3991,7 @@ window.SKEngines = (function() {
 				standard: "IAS 1",
 				title: "حساب غير مبوّب",
 				detail: "تعذر تحديد طبيعة الحساب من رقمه أو اسمه.",
-				basis: "الرصيد " + money$22(a.balance),
+				basis: "الرصيد " + money(a.balance),
 				action: "حدد نوع الحساب وبنده في القوائم يدوياً."
 			}));
 			if (SUSPENSE.test(n) && a.balance !== 0) tag(add({
@@ -3647,7 +4002,7 @@ window.SKEngines = (function() {
 				standard: "IAS 1",
 				title: "حساب معلق/وسيط برصيد قائم",
 				detail: "الحسابات الوسيطة يجب أن تُصفّى قبل الإقفال وتوزع على بنودها.",
-				basis: "الرصيد " + money$22(a.balance),
+				basis: "الرصيد " + money(a.balance),
 				action: "طلب تحليل الحساب وتصفيته بقيود تسوية."
 			}));
 			if (a.natural < 0 && big) {
@@ -3662,12 +4017,12 @@ window.SKEngines = (function() {
 						standard: "IAS 7",
 						title: "رصيد بنكي دائن (سحب على المكشوف)",
 						detail: "الرصيد الدائن التزام تمويلي لا يُطرح من النقد إلا إذا كان جزءاً من إدارة النقد اليومية وتتقلب أرصدته.",
-						basis: "الرصيد " + money$22(a.balance),
+						basis: "الرصيد " + money(a.balance),
 						action: "إعادة التبويب إلى القروض قصيرة الأجل."
 					}));
 					adj({
 						title: "إعادة تبويب السحب على المكشوف",
-						reason: `رصيد ${a.name} دائن ${money$22(-a.natural)}`,
+						reason: `رصيد ${a.name} دائن ${money(-a.natural)}`,
 						standard: "IAS 7 / IAS 32",
 						estimate: false,
 						lines: [{
@@ -3693,12 +4048,12 @@ window.SKEngines = (function() {
 						standard: "IFRS 15",
 						title: "ذمم مدينة برصيد دائن",
 						detail: "الرصيد الدائن لعميل هو دفعة مقدمة (مطلوبات عقد) ولا يُطرح من الذمم.",
-						basis: "الرصيد " + money$22(a.balance),
+						basis: "الرصيد " + money(a.balance),
 						action: "إعادة التبويب إلى مطلوبات العقود."
 					}));
 					adj({
 						title: "إعادة تبويب الأرصدة الدائنة للعملاء",
-						reason: `رصيد ${a.name} دائن ${money$22(-a.natural)}`,
+						reason: `رصيد ${a.name} دائن ${money(-a.natural)}`,
 						standard: "IFRS 15",
 						estimate: false,
 						lines: [{
@@ -3724,12 +4079,12 @@ window.SKEngines = (function() {
 						standard: "IAS 1",
 						title: "ذمم دائنة برصيد مدين",
 						detail: "الرصيد المدين لمورد دفعة مقدمة تعرض ضمن الموجودات المتداولة.",
-						basis: "الرصيد " + money$22(a.balance),
+						basis: "الرصيد " + money(a.balance),
 						action: "إعادة التبويب إلى الدفعات المقدمة للموردين."
 					}));
 					adj({
 						title: "إعادة تبويب الأرصدة المدينة للموردين",
-						reason: `رصيد ${a.name} مدين ${money$22(-a.natural)}`,
+						reason: `رصيد ${a.name} مدين ${money(-a.natural)}`,
 						standard: "IAS 1",
 						estimate: false,
 						lines: [{
@@ -3754,7 +4109,7 @@ window.SKEngines = (function() {
 					standard: "IFRS 15",
 					title: "حساب إيراد برصيد مدين",
 					detail: "رصيد مدين في حساب إيراد يدل على مردودات أو قيود عكسية غير مصنفة أو خطأ ترحيل.",
-					basis: "الرصيد " + money$22(a.balance),
+					basis: "الرصيد " + money(a.balance),
 					action: "تحليل الحركة وتبويب المردودات والخصومات."
 				}));
 				else if (a.type === "expense") tag(add({
@@ -3766,7 +4121,7 @@ window.SKEngines = (function() {
 					standard: "IAS 1",
 					title: "حساب مصروف برصيد دائن",
 					detail: "رصيد دائن في مصروف قد يكون عكس استحقاق أو إيراداً مبوباً خطأ.",
-					basis: "الرصيد " + money$22(a.balance),
+					basis: "الرصيد " + money(a.balance),
 					action: "تحليل الحركة وإعادة التبويب."
 				}));
 				else if (a.type === "asset") tag(add({
@@ -3778,7 +4133,7 @@ window.SKEngines = (function() {
 					standard: "IAS 1",
 					title: "أصل برصيد دائن",
 					detail: "رصيد عكس طبيعة الحساب.",
-					basis: "الرصيد " + money$22(a.balance),
+					basis: "الرصيد " + money(a.balance),
 					action: "تحليل الحساب وتبويبه."
 				}));
 				else if (a.type === "liability") tag(add({
@@ -3790,7 +4145,7 @@ window.SKEngines = (function() {
 					standard: "IAS 1",
 					title: "التزام برصيد مدين",
 					detail: "رصيد عكس طبيعة الحساب.",
-					basis: "الرصيد " + money$22(a.balance),
+					basis: "الرصيد " + money(a.balance),
 					action: "تحليل الحساب وتبويبه."
 				}));
 			}
@@ -3803,7 +4158,7 @@ window.SKEngines = (function() {
 				standard: "IAS 16",
 				title: "مجمع استهلاك برصيد مدين",
 				detail: "مجمع الاستهلاك رصيده دائن بطبيعته.",
-				basis: "الرصيد " + money$22(a.balance),
+				basis: "الرصيد " + money(a.balance),
 				action: "مراجعة قيود الاستبعاد والاستهلاك."
 			}));
 			if (RELATED.test(n) && a.balance !== 0) tag(add({
@@ -3815,7 +4170,7 @@ window.SKEngines = (function() {
 				standard: "IAS 24",
 				title: "رصيد مع طرف ذي علاقة",
 				detail: "يتطلب إفصاحاً عن طبيعة العلاقة والمعاملات والأرصدة وشروطها.",
-				basis: "الرصيد " + money$22(a.balance),
+				basis: "الرصيد " + money(a.balance),
 				action: "الحصول على قائمة الأطراف ذات العلاقة ومصادقة الرصيد (ISA 550)."
 			}));
 			if (Math.abs(a.balance) >= Math.max(mat.performance, 1e6) && Math.abs(a.balance) % 1e6 === 0 && a.lineKey && ROUND_PRONE.has(a.lineKey)) tag(add({
@@ -3827,12 +4182,53 @@ window.SKEngines = (function() {
 				standard: "ISA 240",
 				title: "تقدير برصيد مقرّب",
 				detail: "رصيد تقديري أو استحقاق بمضاعفات عشرة آلاف قد يدل على تقدير غير محسوب أو قيد يدوي.",
-				basis: "الرصيد " + money$22(a.balance),
+				basis: "الرصيد " + money(a.balance),
 				action: "طلب المستند المؤيد وتحليل القيود اليدوية."
 			}));
 		}
 		const pbz = kv("pbz"), zakatExp = kv("zakat"), zakatPay = fs.lines.find((l) => l.key === "zakatPayable")?.current ?? 0;
-		if (pbz > 0 && zakatExp === 0) {
+		if (egypt && pbz > 0 && zakatExp === 0) {
+			const est = Math.round(pbz * .225 / 100) * 100;
+			add({
+				severity: est >= mat.trivial ? "high" : "medium",
+				kind: "completeness",
+				lineKey: "zakatExpense",
+				standard: "EAS 24",
+				title: "لا يوجد مصروف ضريبة دخل رغم تحقق ربح",
+				detail: "ضريبة الدخل الجارية التزام عن السنة (قانون 91 لسنة 2005، 22.5%). التقدير الأولي على الربح المحاسبي قبل الضريبة؛ الاحتساب النهائي من الإقرار بعد تسوية الربح الضريبي والضريبة المؤجلة.",
+				basis: `الربح قبل الضريبة ${money(pbz)} × 22.5% = ${money(est)}`,
+				action: "قيد ضريبة الدخل المستحقة وطلب الإقرار الضريبي وتسوية الربح الضريبي."
+			});
+			if (est > 0) adj({
+				title: "استحقاق ضريبة الدخل عن السنة (تقديري)",
+				reason: "لا يوجد مصروف ضريبة دخل في الميزان",
+				standard: "EAS 24",
+				estimate: true,
+				lines: [{
+					code: "ADJ-TE",
+					name: "مصروف ضريبة الدخل",
+					debit: est,
+					credit: 0,
+					type: "expense"
+				}, {
+					code: "ADJ-TP",
+					name: "ضريبة الدخل المستحقة",
+					debit: 0,
+					credit: est,
+					type: "liability"
+				}]
+			});
+		} else if (egypt && zakatExp > 0 && zakatPay === 0) add({
+			severity: "low",
+			kind: "completeness",
+			lineKey: "zakatPayable",
+			standard: "ضريبة الدخل (مصر)",
+			title: "مصروف ضريبة دخل دون التزام قائم",
+			detail: "إن سُددت الضريبة أو خُصمت تحت الحساب فيلزم الدليل، وإلا فيلزم قيد الالتزام.",
+			basis: "مصروف الضريبة " + money(zakatExp),
+			action: "طلب الإقرار وإيصالات السداد ونماذج الخصم تحت الحساب."
+		});
+		else if (pbz > 0 && zakatExp === 0) {
 			const sources = kv("equity") + kv("ncl"), deductions = kv("nca"), base = Math.max(sources - deductions, pbz), est = Math.round(base * .025 / 100) * 100;
 			add({
 				severity: est >= mat.trivial ? "high" : "medium",
@@ -3841,7 +4237,7 @@ window.SKEngines = (function() {
 				standard: "لائحة الزكاة",
 				title: "لا يوجد مصروف زكاة رغم تحقق ربح",
 				detail: "الزكاة التزام عن السنة يجب قيده. التقدير الأولي على وعاء مبسط (حقوق الملكية + الالتزامات غير المتداولة − الموجودات غير المتداولة، وبحد أدنى الربح قبل الزكاة) بسعر 2.5%؛ الاحتساب النهائي من الإقرار مع مراعاة حدي الوعاء في اللائحة.",
-				basis: `وعاء تقديري ${money$22(base)} × 2.5% = ${money$22(est)}`,
+				basis: `وعاء تقديري ${money(base)} × 2.5% = ${money(est)}`,
 				action: "قيد مخصص الزكاة وطلب الإقرار الزكوي."
 			});
 			if (est > 0) adj({
@@ -3870,7 +4266,7 @@ window.SKEngines = (function() {
 			standard: "لائحة الزكاة",
 			title: "مصروف زكاة دون مخصص قائم",
 			detail: "إن سُددت الزكاة قبل الإقفال فيلزم إيصال السداد، وإلا فيلزم قيد المخصص.",
-			basis: "مصروف الزكاة " + money$22(zakatExp),
+			basis: "مصروف الزكاة " + money(zakatExp),
 			action: "طلب إيصال السداد أو قيد المخصص."
 		});
 		const ppeNet = kv("ppe");
@@ -3881,7 +4277,7 @@ window.SKEngines = (function() {
 			standard: "IAS 16",
 			title: "أصول ثابتة دون مصروف استهلاك",
 			detail: "يجب استهلاك الأصول على أعمارها الإنتاجية؛ غياب المصروف يضخم الربح والأصول.",
-			basis: "صافي الأصول الثابتة " + money$22(ppeNet),
+			basis: "صافي الأصول الثابتة " + money(ppeNet),
 			action: "طلب سجل الأصول واحتساب استهلاك السنة ثم قيده."
 		});
 		if (ppeNet < 0) add({
@@ -3891,18 +4287,18 @@ window.SKEngines = (function() {
 			standard: "IAS 16",
 			title: "مجمع الاستهلاك يتجاوز التكلفة",
 			detail: "صافي القيمة الدفترية سالب.",
-			basis: "الصافي " + money$22(ppeNet),
+			basis: "الصافي " + money(ppeNet),
 			action: "مراجعة سجل الأصول والاستبعادات."
 		});
 		const salaries = accounts.filter((a) => a.type === "expense" && SALARIES.test(norm(a.name))).reduce((s, a) => s + a.natural, 0);
-		if (salaries > 0 && !fs.lines.some((l) => l.key === "eosb" && l.current !== 0)) add({
+		if (!egypt && salaries > 0 && !fs.lines.some((l) => l.key === "eosb" && l.current !== 0)) add({
 			severity: salaries >= mat.overall ? "high" : "medium",
 			kind: "completeness",
 			lineKey: "eosb",
 			standard: "IAS 19",
 			title: "رواتب دون التزام مكافأة نهاية الخدمة",
 			detail: "نظام العمل يوجب مكافأة نهاية الخدمة؛ الالتزام يقاس وفق IAS 19 (أو بالتبسيط المسموح في معيار المنشآت الصغيرة).",
-			basis: "الرواتب " + money$22(salaries),
+			basis: "الرواتب " + money(salaries),
 			action: "طلب كشف الموظفين واحتساب الالتزام."
 		});
 		const loans = kv("loansCl") + kv("loansNcl");
@@ -3913,7 +4309,7 @@ window.SKEngines = (function() {
 			standard: "IFRS 9",
 			title: "قروض دون تكلفة تمويل",
 			detail: "إما أن التمويل بلا تكلفة (يلزم دليل)، أو رُسملت (IAS 23)، أو لم تُقيد.",
-			basis: "القروض " + money$22(loans),
+			basis: "القروض " + money(loans),
 			action: "طلب عقود التمويل وكشوف احتساب الفائدة."
 		});
 		const rec = kv("receivables");
@@ -3924,7 +4320,7 @@ window.SKEngines = (function() {
 			standard: "IFRS 9",
 			title: "ذمم مدينة دون مخصص خسائر ائتمانية متوقعة",
 			detail: "المعيار يوجب تقدير الخسائر الائتمانية المتوقعة ولو كانت صغيرة.",
-			basis: "الذمم " + money$22(rec),
+			basis: "الذمم " + money(rec),
 			action: "طلب أعمار الديون ومصفوفة المخصص."
 		});
 		if (kv("inventory") > 0 && kv("cogs") === 0) add({
@@ -3934,7 +4330,7 @@ window.SKEngines = (function() {
 			standard: "IAS 2",
 			title: "مخزون دون تكلفة مبيعات",
 			detail: "وجود مخزون ومبيعات دون تكلفة مبيعات يدل على جرد دوري لم يُقفل.",
-			basis: "المخزون " + money$22(kv("inventory")),
+			basis: "المخزون " + money(kv("inventory")),
 			action: "طلب حركة المخزون وقيد تكلفة المبيعات."
 		});
 		const vatA = fs.lines.find((l) => l.key === "vatAsset")?.current ?? 0, vatL = fs.lines.find((l) => l.key === "vatLiability")?.current ?? 0;
@@ -3945,7 +4341,7 @@ window.SKEngines = (function() {
 			standard: "ZATCA VAT",
 			title: "لا توجد أرصدة ضريبة قيمة مضافة",
 			detail: "منشأة ذات إيراد دون أرصدة ضريبة؛ تحقق من التسجيل والإقرارات أو من إقفال الأرصدة.",
-			basis: "الإيراد " + money$22(kv("revenue")),
+			basis: "الإيراد " + money(kv("revenue")),
 			action: "طلب شهادة التسجيل والإقرارات."
 		});
 		if (vatA > 0 && vatL > 0) {
@@ -3957,7 +4353,7 @@ window.SKEngines = (function() {
 				standard: "IAS 32",
 				title: "ضريبة مدخلات ومخرجات قائمتان معاً",
 				detail: "تُعرض بالصافي لأنها تُسوّى في إقرار واحد مع الهيئة.",
-				basis: `مدخلات ${money$22(vatA)} · مخرجات ${money$22(vatL)}`,
+				basis: `مدخلات ${money(vatA)} · مخرجات ${money(vatL)}`,
 				action: "مقاصة الرصيدين حتى الأقل منهما."
 			});
 			const aIn = accounts.find((a) => a.lineKey === "vatAsset" && a.natural > 0), aOut = accounts.find((a) => a.lineKey === "vatLiability" && a.natural > 0);
@@ -4013,7 +4409,7 @@ window.SKEngines = (function() {
 					standard: "ISA 520",
 					title: `تغير غير متوقع في ${l.ar}`,
 					detail: ACTIVITY.has(l.key) ? `المتوقع أن يتحرك البند مع نمو الإيرادات (${Math.round(g * 1e3) / 10}%)؛ الفرق عن التوقع يتطلب تفسيراً مؤيداً بأدلة.` : "المتوقع ثبات البند ما لم تقع معاملات جوهرية؛ الحركة تتطلب تفسيراً ومستندات.",
-					basis: `السابق ${money$22(l.prior)} · المتوقع ${money$22(expected)} · الفعلي ${money$22(l.current)} (فرق ${money$22(dev)})`,
+					basis: `السابق ${money(l.prior)} · المتوقع ${money(expected)} · الفعلي ${money(l.current)} (فرق ${money(dev)})`,
 					action: "الحصول على تفسير الإدارة وتأييده بالمستندات."
 				});
 			}
@@ -4049,7 +4445,7 @@ window.SKEngines = (function() {
 				standard: "IAS 7",
 				title: "قائمة التدفقات لا تطابق حركة النقد",
 				detail: "بعض الحسابات غير مبوبة أو مبوبة في بند غير مناسب.",
-				basis: "الفرق " + money$22(fs.checks.cfDifference ?? 0),
+				basis: "الفرق " + money(fs.checks.cfDifference ?? 0),
 				action: "مراجعة تبويب الحسابات."
 			});
 		}
@@ -4059,7 +4455,7 @@ window.SKEngines = (function() {
 			standard: "ISA 570",
 			title: "حقوق ملكية سالبة",
 			detail: "مؤشر جوهري على عدم التأكد بشأن الاستمرارية؛ قد تنطبق أحكام نظام الشركات عند بلوغ الخسائر نصف رأس المال.",
-			basis: "حقوق الملكية " + money$22(kv("equity")),
+			basis: "حقوق الملكية " + money(kv("equity")),
 			action: "تقييم خطط الإدارة والدعم المالي والإفصاح."
 		});
 		else if (kv("cl") > 0 && kv("ca") < kv("cl")) add({
@@ -4068,9 +4464,13 @@ window.SKEngines = (function() {
 			standard: "ISA 570",
 			title: "المطلوبات المتداولة تتجاوز الموجودات المتداولة",
 			detail: "عجز رأس المال العامل مؤشر على مخاطر السيولة.",
-			basis: `${money$22(kv("ca"))} مقابل ${money$22(kv("cl"))}`,
+			basis: `${money(kv("ca"))} مقابل ${money(kv("cl"))}`,
 			action: "الحصول على التدفقات النقدية المتوقعة لـ12 شهراً."
 		});
+		if (egypt) {
+			for (const f of findings) f.standard = inFramework(f.standard, framework);
+			for (const a of adjustments) a.standard = a.standard.split(" / ").map((x) => inFramework(x, framework)).join(" / ");
+		}
 		for (const f of opts.extraFindings ?? []) {
 			findings.push(f);
 			if (f.code) acc(f.code)?.findings.push(f.id);
@@ -4138,13 +4538,13 @@ window.SKEngines = (function() {
 					purpose,
 					lineKey: r.lineKey,
 					accounts: accs,
-					standard: LINE[r.lineKey]?.standards[0] ?? "ISA 500",
+					standard: inFramework(LINE[r.lineKey]?.standards[0] ?? "ISA 500", framework),
 					priority: r.level === "عالٍ" ? "عالية" : r.level === "متوسط" ? "متوسطة" : "منخفضة",
 					source: "engine"
 				});
 			});
 		}
-		const compliance = complianceOf(fs, findings, requests, opts.evidence ?? {});
+		const compliance = complianceOf(fs, findings, requests, opts.evidence ?? {}, framework, cur);
 		const high = findings.filter((f) => f.severity === "high").length, medium = findings.filter((f) => f.severity === "medium").length, low = findings.length - high - medium;
 		const score = Math.min(100, Math.round(risks.slice(0, 5).reduce((s, r) => s + r.score, 0) / Math.max(1, Math.min(5, risks.length)) * .7 + Math.min(30, high * 10 + medium * 3)));
 		return {
@@ -4167,7 +4567,8 @@ window.SKEngines = (function() {
 			}
 		};
 	}
-	function complianceOf(fs, findings, requests, evidence = {}) {
+	function complianceOf(fs, findings, requests, evidence = {}, framework = "IFRS", cur = "ر.س") {
+		const F = (c) => inFramework(c, framework);
 		const by = /* @__PURE__ */ new Map();
 		const touch = (code, line) => {
 			if (!by.has(code)) by.set(code, {
@@ -4182,22 +4583,30 @@ window.SKEngines = (function() {
 				line.accounts.forEach((a) => x.accounts.add(a.code + " " + a.name));
 			}
 		};
-		for (const l of fs.lines) for (const s of l.standards) if (STANDARD[s] && STANDARD[s].family !== "ISA") touch(s, l);
-		[
+		for (const l of fs.lines) for (const s0 of l.standards) {
+			const s = F(s0);
+			if (STANDARD[s] && STANDARD[s].family !== "ISA") touch(s, l);
+		}
+		(framework === "EAS" ? [
+			"EAS 1",
+			"EAS 4",
+			"EAS 5",
+			"EAS 7"
+		] : [
 			"IAS 1",
 			"IFRS 18",
 			"IAS 7",
 			"IAS 8",
 			"IAS 10"
-		].forEach((s) => touch(s));
+		]).forEach((s) => touch(s));
 		for (const f of findings) if (STANDARD[f.standard] && STANDARD[f.standard].family !== "ISA") touch(f.standard);
 		const out = [];
 		for (const [code, x] of by) {
-			const s = STANDARD[code], fx = findings.filter((f) => f.standard === code || f.standard.startsWith(code + " ") || f.lineKey && x.lines.has(f.lineKey) && LINE[f.lineKey]?.standards[0] === code);
+			const s = STANDARD[code], fx = findings.filter((f) => f.standard === code || f.standard.startsWith(code + " ") || f.lineKey && x.lines.has(f.lineKey) && F(LINE[f.lineKey]?.standards[0] ?? "") === code);
 			const open = requests.filter((r) => r.lineKey && x.lines.has(r.lineKey) || r.standard === code).filter((r) => !r.lineKey || evidence[r.lineKey] !== "accepted");
 			const status = fx.some((f) => f.severity === "high") ? "غير ممتثل" : fx.some((f) => f.severity === "medium") ? "ممتثل جزئياً" : open.length ? "يتطلب أدلة" : "ممتثل";
 			const parts = [
-				x.accounts.size ? `يحكم ${x.accounts.size} حساباً بمجموع ${formatMinor(x.amount, { decimals: 0 })} ر.س.` : "متطلب عرض وإفصاح عام على مستوى القوائم.",
+				x.accounts.size ? `يحكم ${x.accounts.size} حساباً بمجموع ${formatMinor(x.amount, { decimals: 0 })} ${cur}.` : "متطلب عرض وإفصاح عام على مستوى القوائم.",
 				s ? s.purpose : "",
 				fx.length ? "الملاحظات: " + fx.map((f) => f.title + " (" + f.basis + ")").join("؛ ") + "." : "لم تظهر ملاحظات من تحليل الأرقام.",
 				open.length ? "بانتظار أدلة: " + open.slice(0, 4).map((r) => r.title).join("، ") + (open.length > 4 ? " وغيرها" : "") + "." : "",
@@ -4291,6 +4700,99 @@ window.SKEngines = (function() {
 			profit: after.profit.current - before.profit.current,
 			assets: after.assets.current - before.assets.current,
 			equity: after.equity.current - before.equity.current
+		};
+	}
+	var DEFAULT_ECL_BUCKETS = [
+		{
+			label: "غير مستحقة",
+			exposure: 0,
+			rateBps: 100
+		},
+		{
+			label: "1–30 يوماً",
+			exposure: 0,
+			rateBps: 300
+		},
+		{
+			label: "31–90 يوماً",
+			exposure: 0,
+			rateBps: 800
+		},
+		{
+			label: "91–180 يوماً",
+			exposure: 0,
+			rateBps: 2e3
+		},
+		{
+			label: "181–365 يوماً",
+			exposure: 0,
+			rateBps: 5e3
+		},
+		{
+			label: "أكثر من سنة",
+			exposure: 0,
+			rateBps: 1e4
+		}
+	];
+	function eclMatrix(buckets) {
+		const rows = buckets.map((b) => {
+			const exposure = Math.max(0, Math.round(Number(b.exposure) || 0)), rateBps = Math.max(0, Math.min(1e4, Math.round(Number(b.rateBps) || 0)));
+			return {
+				label: b.label,
+				exposure,
+				rateBps,
+				loss: Math.round(exposure * rateBps / 1e4)
+			};
+		});
+		const exposure = rows.reduce((a, r) => a + r.exposure, 0), loss = rows.reduce((a, r) => a + r.loss, 0);
+		return {
+			rows,
+			exposure,
+			loss,
+			weightedBps: exposure ? Math.round(loss * 1e4 / exposure) : 0
+		};
+	}
+	/** The allowance already booked: credit balances of the receivables line's allowance accounts. */
+	function existingAllowance(tb) {
+		return tb.rows.filter((r) => lineFor(r).key === "receivables" && /خسائر|مخصص|مشكوك|allowance/.test(norm(r.name))).reduce((a, r) => a + Math.max(0, -r.balance), 0);
+	}
+	/** The entry that brings the allowance to the matrix result (up or down); null when nothing changes. */
+	function eclAdjustment(tb, matrix, framework = "IFRS") {
+		const diff = matrix.loss - existingAllowance(tb);
+		if (!diff) return null;
+		const amt = Math.abs(diff), up = diff > 0, std = inFramework("IFRS 9", framework);
+		return {
+			id: "AJE-ECL",
+			title: up ? "تكوين مخصص الخسائر الائتمانية المتوقعة" : "رد جزء من مخصص الخسائر الائتمانية المتوقعة",
+			source: "engine",
+			estimate: true,
+			standard: std,
+			reason: `مصفوفة أعمار الذمم: تعرض ${formatMinor(matrix.exposure, { decimals: 0 })} × معدل مرجح ${matrix.weightedBps / 100}% = ${formatMinor(matrix.loss, { decimals: 0 })}؛ الرصيد القائم ${formatMinor(existingAllowance(tb), { decimals: 0 })}`,
+			lines: up ? [{
+				code: "ADJ-ECLE",
+				name: "مصروف خسائر ائتمانية متوقعة",
+				debit: amt,
+				credit: 0,
+				type: "expense"
+			}, {
+				code: "ADJ-ECLA",
+				name: "مخصص خسائر ائتمانية متوقعة",
+				debit: 0,
+				credit: amt,
+				type: "asset"
+			}] : [{
+				code: "ADJ-ECLA",
+				name: "مخصص خسائر ائتمانية متوقعة",
+				debit: amt,
+				credit: 0,
+				type: "asset"
+			}, {
+				code: "ADJ-ECLE",
+				name: "مصروف خسائر ائتمانية متوقعة",
+				debit: 0,
+				credit: amt,
+				type: "expense"
+			}]
 		};
 	}
 	//#endregion
@@ -4580,14 +5082,15 @@ window.SKEngines = (function() {
 		};
 	}
 	function systemPrompt(ctx) {
-		const fw = ctx.framework === "SME" ? "المعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم المعتمد في المملكة (SOCPA)" : "المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من الهيئة السعودية للمراجعين والمحاسبين (SOCPA)";
-		const codes = STANDARDS.map((s) => s.code).join("، ");
+		const egypt = ctx.framework === "EAS";
+		const fw = egypt ? "معايير المحاسبة المصرية الصادرة بقرارات وزير الاستثمار وتعديلاتها، وقانون الضريبة على الدخل 91 لسنة 2005 (22.5%)، وقانون الضريبة على القيمة المضافة 67 لسنة 2016 (14%)، وقانون الشركات 159 لسنة 1981؛ والمراجعة وفق معايير المراجعة المصرية المتسقة مع ISA" : ctx.framework === "SME" ? "المعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم المعتمد في المملكة (SOCPA)" : "المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من الهيئة السعودية للمراجعين والمحاسبين (SOCPA)";
+		const codes = STANDARDS.filter((s) => (egypt ? s.family !== "SAUDI" && s.family !== "IFRS" && s.family !== "IAS" : s.family !== "EAS" && s.family !== "EGYPT") && s.status !== "replaced").map((s) => s.code).join("، ");
 		return [
 			"أنت «مجلس المراجعة» في تطبيق KOSIF: ثلاثة مراجعين مستقلين بصوت موحد:",
 			"- المراجع الفني المحاسبي: التبويب والقياس والعرض.",
 			"- مراجع الامتثال للمعايير والإفصاح: ملاءمة المعيار لكل حساب وكفاية الإفصاح والمستندات النظامية.",
 			"- مدقق المخاطر والأدلة: المخاطر الجوهرية (ISA 315/330) وكفاية الأدلة (ISA 500) ومؤشرات الغش (ISA 240) والاستمرارية (ISA 570).",
-			`المنشأة: ${ctx.company || "غير مسماة"} — النشاط: ${ctx.activity || "غير محدد"} — الفترة: ${ctx.period || "غير محددة"} — العملة: ${ctx.currency || "الريال السعودي"}.`,
+			`المنشأة: ${ctx.company || "غير مسماة"} — النشاط: ${ctx.activity || "غير محدد"} — الفترة: ${ctx.period || "غير محددة"} — العملة: ${ctx.currency || (egypt ? "الجنيه المصري" : "الريال السعودي")}.`,
 			`الإطار: ${fw}.`,
 			"قواعد ملزمة:",
 			`1) استخدم رموز المعايير كما هي من هذه القائمة فقط: ${codes}. لا تخترع معايير أو فقرات.`,
@@ -4757,7 +5260,7 @@ window.SKEngines = (function() {
 				standard: normalizeCode$1(std) ?? (std || "IAS 1"),
 				title: str(f.comment, 160).split(/[.،؛]/)[0] || "ملاحظة",
 				detail: str(f.comment, 2e3),
-				basis: amount ? "المبلغ المتأثر " + sar(amount) + " ر.س" : "حكم مهني",
+				basis: amount ? "المبلغ المتأثر " + sar(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
 				action: str(f.recommendation, 1e3),
 				source: "gemini",
 				round: no
@@ -4939,8 +5442,8 @@ window.SKEngines = (function() {
 		const sigUnevidenced = review.risks.filter((r) => r.significant && !ev[r.lineKey]).length;
 		const lineOf = (q) => q.lineKey ?? review.accounts.find((a) => q.accounts.includes(a.code))?.lineKey ?? null;
 		const blockedSig = new Set(unavailHigh.map(lineOf).filter((k) => k && review.risks.some((r) => r.lineKey === k && r.significant)));
-		const basis = [], material = misstatement > mat.overall, pervasive = misstatement > mat.overall * 5;
-		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar(misstatement)} ر.س مقابل أهمية نسبية ${sar(mat.overall)} ر.س (ISA 450).`);
+		const basis = [], material = misstatement > mat.overall, pervasive = misstatement > mat.overall * 5, cs = s.ctx.framework === "EAS" ? "ج.م" : "ر.س";
+		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar(misstatement)} ${cs} مقابل أهمية نسبية ${sar(mat.overall)} ${cs} (ISA 450).`);
 		if (unavailHigh.length) basis.push(`تعذر الحصول على ${unavailHigh.length} مستند عالي الأولوية: ` + unavailHigh.map((q) => q.title).join("، ") + ".");
 		const scopePervasive = unavailHigh.length >= 3 || blockedSig.size >= 3;
 		if (sigUnevidenced) basis.push(`${sigUnevidenced} خطر جوهري دون دليل مقبول بعد؛ يستكمل قبل التوقيع (ISA 330).`);
@@ -5048,6 +5551,170 @@ window.SKEngines = (function() {
 		return "خطأ " + status + (message ? ": " + message : "");
 	}
 	//#endregion
+	//#region app/src/engine/fusion/audit/disclosures-engine.ts
+	var disclosures_engine_exports = /* @__PURE__ */ __exportAll({
+		SME_SECTIONS: () => SME_SECTIONS,
+		disclosureReadiness: () => disclosureReadiness
+	});
+	var ESTIMATE_LINES = {
+		receivables: {
+			nature: "الخسائر الائتمانية المتوقعة للذمم",
+			assumptions: ["معدلات التعثر التاريخية حسب الأعمار", "العوامل الاقتصادية المستقبلية"]
+		},
+		inventory: {
+			nature: "صافي القيمة القابلة للتحقق للمخزون",
+			assumptions: [
+				"أسعار البيع المتوقعة",
+				"تكاليف الإكمال والبيع",
+				"الأصناف الراكدة"
+			]
+		},
+		ppe: {
+			nature: "الأعمار الإنتاجية والقيم المتبقية ومؤشرات الانخفاض",
+			assumptions: ["الأعمار الإنتاجية لكل فئة", "القيم المتبقية"]
+		},
+		rou: {
+			nature: "مدة الإيجار ومعدل الخصم",
+			assumptions: ["خيارات التمديد والإنهاء", "معدل الاقتراض الإضافي"]
+		},
+		eosb: {
+			nature: "التزام منافع نهاية الخدمة",
+			assumptions: [
+				"معدل الخصم",
+				"معدل زيادة الرواتب",
+				"معدل دوران الموظفين"
+			]
+		},
+		provisions: {
+			nature: "المخصصات والالتزامات المحتملة",
+			assumptions: ["احتمال التدفق الخارج", "أفضل تقدير للمبلغ"]
+		},
+		zakatPayable: {
+			nature: "الزكاة أو ضريبة الدخل المستحقة",
+			assumptions: ["الوعاء أو الربح الضريبي", "نتيجة الربوط أو الفحوص المفتوحة"]
+		},
+		investments: {
+			nature: "القيمة العادلة للاستثمارات",
+			assumptions: ["مدخلات التقييم (المستوى 2 و3)"]
+		},
+		biological: {
+			nature: "القيمة العادلة للأصول الحيوية",
+			assumptions: ["أسعار السوق", "تكاليف البيع"]
+		}
+	};
+	var SME_SECTIONS = {
+		12: {
+			title: "الأدوات المالية الأخرى (المشتقات والتحوط)",
+			applies: () => false,
+			why: ["", "لا توجد مشتقات أو أدوات تحوط في الميزان"]
+		},
+		15: {
+			title: "الاستثمارات في المشروعات المشتركة",
+			applies: (fs) => fs.lines.some((l) => l.key === "investments" && l.accounts.some((a) => /مشروع مشترك|joint/.test(norm(a.name)))),
+			why: ["توجد حصص في مشروعات مشتركة", "لا توجد مشروعات مشتركة في الميزان"]
+		},
+		16: {
+			title: "العقارات الاستثمارية",
+			applies: (fs) => fs.lines.some((l) => l.accounts.some((a) => /عقار(ات)? استثماري|investment propert/.test(norm(a.name)))),
+			why: ["توجد عقارات استثمارية", "لا توجد عقارات محتفظ بها للإيجار أو لزيادة القيمة"]
+		},
+		26: {
+			title: "المدفوعات المبنية على الأسهم",
+			applies: (fs) => fs.lines.some((l) => l.accounts.some((a) => /خيارات اسهم|مدفوعات مبنيه على اسهم|share-based/.test(norm(a.name)))),
+			why: ["توجد مدفوعات مبنية على أسهم", "لا توجد خطط مدفوعات مبنية على أسهم"]
+		},
+		28: {
+			title: "منافع الموظفين",
+			applies: (fs) => fs.lines.some((l) => l.key === "eosb" && l.current !== 0) || fs.lines.some((l) => l.accounts.some((a) => /رواتب|اجور|salar/.test(norm(a.name)))),
+			why: ["توجد رواتب والتزامات منافع موظفين", "لا توجد رواتب أو منافع موظفين"]
+		},
+		34: {
+			title: "الأنشطة المتخصصة (الزراعة والتعدين وامتياز الخدمات)",
+			applies: (fs) => fs.lines.some((l) => l.key === "biological" && l.current !== 0),
+			why: ["توجد أصول حيوية أو نشاط زراعي", "لا توجد أنشطة متخصصة"]
+		}
+	};
+	function disclosureReadiness(input) {
+		const { fs, entity, framework } = input, c = input.confirm ?? {}, cur = input.currency ?? "ر.س", checks = [];
+		const ck = (id, label, ok, severity = "blocker", detail = "", human = false) => checks.push({
+			id,
+			label,
+			status: ok ? "pass" : "fail",
+			severity,
+			detail,
+			human
+		});
+		const present = (v) => !!(v && v.trim());
+		[
+			["legalName", "الاسم القانوني للمنشأة"],
+			["legalForm", "الشكل القانوني"],
+			["country", "دولة التأسيس"],
+			["registeredOffice", "المكتب المسجل"],
+			["principalPlace", "المقر الرئيسي للنشاط"],
+			["activities", "طبيعة المنشأة وأنشطتها الرئيسية"]
+		].forEach(([k, l]) => ck("entity." + k, l, present(entity[k]), "blocker", present(entity[k]) ? "" : "أكمل الحقل في «بيانات المراجعة»."));
+		ck("framework.periodEnd", "تحديد نهاية الفترة", /^\d{4}-\d{2}-\d{2}$/.test(input.periodEnd ?? ""), "blocker", "حدد تاريخ نهاية الفترة.");
+		ck("framework.editionReviewed", "مراجعة الإصدار الساري للإطار", !!c.editionReviewed, "blocker", "تأكد من آخر إصدار معتمد (المدونة المحاسبية ← تحديث المعايير).", true);
+		ck("compliance.humanApproved", "اعتماد بشري لبيان الالتزام بالإطار", !!c.complianceApproved, "blocker", "التطبيق يقترح صياغة البيان ولا يعتمده.", true);
+		ck("measurement-bases", "أسس القياس", true, "blocker", "التكلفة التاريخية ما لم يُذكر غير ذلك (الإيضاح 2).");
+		ck("material-policies", "السياسات المحاسبية ذات الأهمية", true, "blocker", "الإيضاح 3 مولّد من البنود القائمة.");
+		ck("note-order", "ترتيب الإيضاحات", true, "warning", "الالتزام ← أسس القياس ← السياسات ← إيضاحات البنود ← الإفصاحات الأخرى.");
+		const orphan = fs.lines.filter((l) => (l.current !== 0 || (l.prior ?? 0) !== 0) && l.note === null).map((l) => l.ar);
+		ck("notes.cross-references", "الربط المتبادل بين القوائم والإيضاحات", orphan.length === 0, "blocker", orphan.length ? "بنود بلا إيضاح: " + orphan.join("، ") : "كل بند مرتبط بإيضاحه.");
+		ck("unrecognized-items", "مراجعة البنود غير المعترف بها (الالتزامات المحتملة والارتباطات)", !!c.unrecognizedReviewed, "warning", "أكد مراجعة القضايا والضمانات والارتباطات الرأسمالية.", true);
+		const judgements = [
+			"اختيار الإطار المحاسبي وأساس الإعداد",
+			"توقيت الاعتراف بالإيراد",
+			"تقييم الاستمرارية"
+		];
+		const uncertainties = fs.lines.filter((l) => ESTIMATE_LINES[l.key] && l.current !== 0).map((l) => ({
+			line: l.key,
+			nature: ESTIMATE_LINES[l.key].nature,
+			carrying: l.current,
+			assumptions: ESTIMATE_LINES[l.key].assumptions,
+			affected: l.ar
+		}));
+		ck("judgments.separate", "فصل الأحكام المهنية عن التقديرات", true, "warning", judgements.length + " أحكام و" + uncertainties.length + " تقديرات في إيضاحين منفصلين.");
+		ck("estimation-uncertainty", "مصادر عدم التأكد في التقديرات", uncertainties.length > 0, "blocker", uncertainties.length ? uncertainties.map((u) => u.nature + " (" + formatMinor(u.carrying, { decimals: 0 }) + " " + cur + ")").join("؛ ") : "لا بنود تقديرية ظاهرة؛ أكد ذلك.");
+		const sections = framework === "SME" ? Object.entries(SME_SECTIONS).map(([n, s]) => {
+			const a = s.applies(fs);
+			return {
+				section: n,
+				title: s.title,
+				status: a ? "applicable" : "not-applicable",
+				rationale: a ? s.why[0] : s.why[1]
+			};
+		}) : [];
+		if (framework === "SME") ck("section-applicability", "توثيق انطباق الأقسام المتخصصة (12، 15، 16، 26، 28، 34)", true, "warning", sections.map((x) => "القسم " + x.section + ": " + (x.status === "applicable" ? "ينطبق" : "لا ينطبق")).join(" · "));
+		const blockers = checks.filter((x) => x.status === "fail" && x.severity === "blocker"), warnings = checks.filter((x) => x.status === "fail" && x.severity === "warning");
+		return {
+			checks,
+			judgements,
+			uncertainties,
+			sections,
+			valid: blockers.length === 0,
+			summary: {
+				passed: checks.filter((x) => x.status === "pass").length,
+				blockers: blockers.length,
+				warnings: warnings.length,
+				total: checks.length
+			},
+			outline: [
+				"بيان الالتزام بالإطار الساري",
+				"أسس القياس",
+				"السياسات المحاسبية ذات الأهمية",
+				"إيضاحات البنود والربط بالقوائم",
+				"الأحكام المهنية",
+				"التقديرات ومصادر عدم التأكد",
+				"الإفصاحات الأخرى والمتطلبات المتخصصة"
+			],
+			governance: {
+				humanReviewRequired: true,
+				complianceStatementAutoApproved: false
+			}
+		};
+	}
+	//#endregion
 	//#region app/src/engine/fusion/audit/document-check-engine.ts
 	var document_check_engine_exports = /* @__PURE__ */ __exportAll({
 		checkDocument: () => checkDocument,
@@ -5102,15 +5769,17 @@ window.SKEngines = (function() {
 		});
 		return btoa(String.fromCharCode(...parts));
 	}
-	function validVatNumber(v) {
-		return /^3\d{13}3$/.test(String(v || "").replace(/\s/g, ""));
+	/** Saudi VAT number: 15 digits starting and ending with 3; Egyptian tax registration number: 9 digits. */
+	function validVatNumber(v, jurisdiction = "SA") {
+		const x = String(v || "").replace(/[\s-]/g, "");
+		return jurisdiction === "EG" ? /^\d{9}$/.test(x) : /^3\d{13}3$/.test(x);
 	}
 	var m = (v) => typeof v === "number" ? v : v === void 0 || v === "" ? null : parseMinor(v);
 	function checkDocument(d, opts = {}) {
-		const issues = [], rate = opts.rate ?? .15;
+		const eg = opts.jurisdiction === "EG", issues = [], rate = opts.rate ?? (eg ? .14 : .15);
 		let total = m(d.amount), vat = m(d.vatAmount), vatNo = d.vatNumber ?? "";
-		const qr = d.qr ? decodeZatcaQr(d.qr) : null;
-		if (d.qr && !qr) issues.push({
+		const qr = d.qr && !eg ? decodeZatcaQr(d.qr) : null;
+		if (d.qr && !eg && !qr) issues.push({
 			code: "QR_INVALID",
 			severity: "high",
 			message: "رمز QR لا يطابق صيغة هيئة الزكاة والضريبة والجمارك (TLV)."
@@ -5130,17 +5799,17 @@ window.SKEngines = (function() {
 			total = total ?? qr.total;
 			vat = vat ?? qr.vat;
 		}
-		if (vatNo && !validVatNumber(vatNo)) issues.push({
+		if (vatNo && !validVatNumber(vatNo, eg ? "EG" : "SA")) issues.push({
 			code: "VAT_NUMBER",
 			severity: "medium",
-			message: `الرقم الضريبي ${vatNo} غير صحيح الصيغة (15 خانة تبدأ وتنتهي بـ3).`
+			message: eg ? `رقم التسجيل الضريبي ${vatNo} غير صحيح الصيغة (9 أرقام).` : `الرقم الضريبي ${vatNo} غير صحيح الصيغة (15 خانة تبدأ وتنتهي بـ3).`
 		});
 		if (total !== null && vat !== null && vat > 0) {
 			const expected = Math.round(total * rate / (1 + rate));
 			if (Math.abs(expected - vat) > 100) issues.push({
 				code: "VAT_MATH",
 				severity: "medium",
-				message: `الضريبة ${(vat / 100).toFixed(2)} لا تساوي 15/115 من الإجمالي (${(expected / 100).toFixed(2)}).`
+				message: `الضريبة ${(vat / 100).toFixed(2)} لا تساوي ${eg ? "14/114" : "15/115"} من الإجمالي (${(expected / 100).toFixed(2)}).`
 			});
 		}
 		const date = (d.documentDate || qr?.timestamp || "").slice(0, 10);
@@ -5331,6 +6000,187 @@ window.SKEngines = (function() {
 			issues
 		};
 	}
+	//#endregion
+	//#region app/src/engine/fusion/audit/programme-engine.ts
+	var programme_engine_exports = /* @__PURE__ */ __exportAll({
+		auditProgramme: () => auditProgramme,
+		programmeProgress: () => programmeProgress
+	});
+	var BLUEPRINT = [
+		{
+			id: "R01",
+			title: "القبول والتخطيط والاستقلال",
+			focus: "حدود التكليف، الاستقلال، مصدر البيانات وخطة الجودة",
+			standards: [
+				"ISQM 1",
+				"ISA 210",
+				"ISA 220"
+			]
+		},
+		{
+			id: "R02",
+			title: "فهم المنشأة والرقابة الداخلية",
+			focus: "النشاط والإطار والأنظمة والضوابط",
+			standards: ["ISA 315"]
+		},
+		{
+			id: "R03",
+			title: "تقييم المخاطر والغش",
+			focus: "مخاطر التحريف الجوهري والغش والأطراف ذات العلاقة",
+			standards: [
+				"ISA 240",
+				"ISA 315",
+				"ISA 550"
+			]
+		},
+		{
+			id: "R04",
+			title: "الأهمية النسبية والعينات",
+			focus: "مقياس الأهمية والأداء والعينات",
+			standards: ["ISA 320", "ISA 530"]
+		},
+		{
+			id: "R05",
+			title: "الإيرادات والعملاء والعقود",
+			focus: "الاعتراف بالإيراد والقطع والذمم وخسائر الائتمان",
+			standards: [
+				"IFRS 15",
+				"IFRS 9",
+				"ISA 505"
+			],
+			lines: [
+				"revenue",
+				"receivables",
+				"contractLiab"
+			]
+		},
+		{
+			id: "R06",
+			title: "المخزون والتكلفة والموردون",
+			focus: "الجرد والتكلفة وصافي القيمة القابلة للتحقق والالتزامات",
+			standards: ["IAS 2", "ISA 501"],
+			lines: [
+				"inventory",
+				"cogs",
+				"payables",
+				"accruals"
+			]
+		},
+		{
+			id: "R07",
+			title: "الأصول والإيجارات والانخفاض",
+			focus: "الوجود والملكية والاستهلاك وحق الاستخدام",
+			standards: [
+				"IAS 16",
+				"IAS 36",
+				"IFRS 16"
+			],
+			lines: [
+				"ppe",
+				"rou",
+				"intangibles",
+				"leaseNcl",
+				"depreciation"
+			]
+		},
+		{
+			id: "R08",
+			title: "الأدوات المالية والعملات والضرائب",
+			focus: "القروض والاستثمارات والزكاة أو الضريبة والقيمة المضافة",
+			standards: [
+				"IFRS 9",
+				"IAS 12",
+				"IAS 21"
+			],
+			lines: [
+				"loansCl",
+				"loansNcl",
+				"investments",
+				"zakatPayable",
+				"zakatExpense",
+				"vatAsset",
+				"vatLiability",
+				"financeCost",
+				"cash"
+			]
+		},
+		{
+			id: "R09",
+			title: "العرض والإفصاحات والاستمرارية",
+			focus: "الإيضاحات والأحكام والتقديرات والأحداث اللاحقة والاستمرارية",
+			standards: [
+				"IAS 1",
+				"IAS 10",
+				"ISA 560",
+				"ISA 570"
+			]
+		},
+		{
+			id: "R10",
+			title: "الإكمال ومراجعة الجودة والتقرير",
+			focus: "تجميع التحريفات والإقرارات ومسودة التقرير والاعتماد",
+			standards: [
+				"ISA 450",
+				"ISA 580",
+				"ISA 700"
+			]
+		}
+	];
+	function auditProgramme(i) {
+		const r = i.review, present = new Set(r.fs.lines.filter((l) => l.current !== 0 || (l.prior ?? 0) !== 0).map((l) => l.key));
+		const gc = r.findings.some((f) => f.kind === "going-concern" && f.severity === "high");
+		return BLUEPRINT.map((b) => {
+			const standards = b.standards.map((s) => inFramework(s, i.framework)).filter((s, k, a) => a.indexOf(s) === k);
+			let status = "لم يبدأ", detail = "";
+			if (b.lines) {
+				const mine = b.lines.filter((k) => present.has(k));
+				if (!mine.length) {
+					status = "غير منطبق";
+					detail = "لا أرصدة لهذه البنود في الميزان.";
+				} else {
+					const acc = mine.filter((k) => i.evidence[k] === "accepted"), part = mine.filter((k) => i.evidence[k] === "partial");
+					const open = r.findings.filter((f) => f.severity === "high" && f.lineKey && mine.includes(f.lineKey));
+					status = acc.length === mine.length && !open.length ? "منجز" : acc.length || part.length || (i.rounds ?? 0) > 0 ? "قيد التنفيذ" : "لم يبدأ";
+					detail = `${acc.length} من ${mine.length} بنود بأدلة مقبولة` + (open.length ? ` · ${open.length} ملاحظة عالية مفتوحة` : "");
+				}
+			} else if (b.id === "R01") {
+				const ok = !!(i.company && i.period);
+				status = ok && i.independenceConfirmed ? "منجز" : ok ? "قيد التنفيذ" : "لم يبدأ";
+				detail = !ok ? "أدخل اسم المنشأة والفترة." : i.independenceConfirmed ? "التكليف والاستقلال مؤكدان." : "بانتظار تأكيد الاستقلال (ISA 220).";
+			} else if (b.id === "R02") {
+				status = i.activity ? "منجز" : "قيد التنفيذ";
+				detail = i.activity ? "النشاط والإطار محددان." : "أدخل نشاط المنشأة.";
+			} else if (b.id === "R03") {
+				status = "منجز";
+				detail = `${r.risks.filter((x) => x.significant).length} خطر جوهري · خطر الغش المفترض في الإيراد مسجل.`;
+			} else if (b.id === "R04") {
+				status = "منجز";
+				detail = `الأهمية النسبية على ${r.materiality.benchmarkAr} بنسبة ${r.materiality.rate * 100}%.`;
+			} else if (b.id === "R09") {
+				status = i.disclosuresValid && !gc ? "منجز" : "قيد التنفيذ";
+				detail = (i.disclosuresValid ? "جاهزية الإفصاحات مكتملة" : "جاهزية الإفصاحات غير مكتملة") + (gc ? " · مؤشرات استمرارية مفتوحة" : "");
+			} else if (b.id === "R10") {
+				status = i.finalIssued && i.adjustmentsDecided && i.partnerApproved ? "منجز" : i.finalIssued || i.adjustmentsDecided ? "قيد التنفيذ" : "لم يبدأ";
+				detail = [
+					i.adjustmentsDecided ? "القيود محسومة" : "قيود تنتظر القرار",
+					i.finalIssued ? "التقرير النهائي صادر" : "التقرير النهائي لم يصدر",
+					i.partnerApproved ? "اعتمد الشريك" : "بانتظار اعتماد الشريك"
+				].join(" · ");
+			}
+			return {
+				id: b.id,
+				title: b.title,
+				focus: b.focus,
+				standards,
+				status,
+				detail
+			};
+		});
+	}
+	var programmeProgress = (stages) => {
+		const app = stages.filter((s) => s.status !== "غير منطبق");
+		return app.length ? Math.round(app.filter((s) => s.status === "منجز").length / app.length * 100) : 0;
+	};
 	//#endregion
 	//#region app/src/engine/fusion/audit/report-engine.ts
 	var report_engine_exports = /* @__PURE__ */ __exportAll({
@@ -6914,6 +7764,248 @@ window.SKEngines = (function() {
 		return name.trim().replace(/[\\/:*?"<>|]+/g, "-").replace(/\s+/g, "-").replace(/-+/g, "-") || "export";
 	}
 	//#endregion
+	//#region app/src/engine/fusion/reports/research-library-engine.ts
+	var research_library_engine_exports = /* @__PURE__ */ __exportAll({
+		AUDIT_QUALITY: () => AUDIT_QUALITY,
+		KIND_AR: () => KIND_AR,
+		REFERENCE_REPORTS: () => REFERENCE_REPORTS,
+		REPORT_ELEMENTS: () => REPORT_ELEMENTS,
+		SOURCES: () => SOURCES,
+		benchmarkReport: () => benchmarkReport
+	});
+	var B = (name, region, kind, url) => ({
+		name,
+		region,
+		kind,
+		url,
+		origin: "bundle"
+	});
+	var K = (name, region, kind, url) => ({
+		name,
+		region,
+		kind,
+		url,
+		origin: "kosif"
+	});
+	var SOURCES = [
+		B("SEC EDGAR", "الولايات المتحدة", "filings", "https://www.sec.gov/edgar/searchedgar/companysearch.html"),
+		B("SEC Financial Statement Data Sets", "الولايات المتحدة", "filings", "https://www.sec.gov/dera/data/financial-statement-data-sets.html"),
+		B("Companies House", "المملكة المتحدة", "filings", "https://find-and-update.company-information.service.gov.uk/"),
+		B("FCA National Storage Mechanism", "المملكة المتحدة", "filings", "https://data.fca.org.uk/#/nsm/nationalstoragemechanism"),
+		B("ESMA ESEF", "الاتحاد الأوروبي", "filings", "https://registers.esma.europa.eu/publication/"),
+		B("SEDAR+", "كندا", "filings", "https://www.sedarplus.ca/"),
+		B("ASIC Financial Reporting", "أستراليا", "filings", "https://asic.gov.au/for-business/financial-reporting/"),
+		B("PSE Edge", "الفلبين", "filings", "https://edge.pse.com.ph/"),
+		B("HKEXnews", "هونغ كونغ", "filings", "https://www.hkexnews.hk/"),
+		B("SGX Company Announcements", "سنغافورة", "filings", "https://www.sgx.com/securities/company-announcements"),
+		B("JSE SENS", "جنوب أفريقيا", "filings", "https://senspdf.jse.co.za/"),
+		B("Saudi Exchange Tadawul", "السعودية", "filings", "https://www.saudiexchange.sa/"),
+		B("ADX", "الإمارات", "filings", "https://www.adx.ae/"),
+		B("DFM", "الإمارات", "filings", "https://www.dfm.ae/"),
+		B("Euronext", "أوروبا", "filings", "https://live.euronext.com/en/products/equities/company-news"),
+		B("Japan EDINET", "اليابان", "filings", "https://disclosure2.edinet-fsa.go.jp/"),
+		B("Korea DART", "كوريا الجنوبية", "filings", "https://englishdart.fss.or.kr/"),
+		B("India MCA", "الهند", "filings", "https://www.mca.gov.in/"),
+		B("India SEBI", "الهند", "filings", "https://www.sebi.gov.in/"),
+		B("Brazil CVM", "البرازيل", "filings", "https://www.gov.br/cvm/pt-br"),
+		B("Deloitte Transparency Reports", "جودة المراجعة", "transparency", "https://www.deloitte.com/global/en/about/story/impact/transparency-reports.html"),
+		B("PwC Transparency Reports", "جودة المراجعة", "transparency", "https://www.pwc.com/gx/en/about/corporate-governance/transparency-report.html"),
+		B("EY Transparency Report", "جودة المراجعة", "transparency", "https://www.ey.com/en_gl/about-us/transparency-report"),
+		B("KPMG Transparency Reports", "جودة المراجعة", "transparency", "https://kpmg.com/xx/en/home/about/governance/transparency-reports.html"),
+		B("IAASB Publications", "المعايير", "standards", "https://www.iaasb.org/publications"),
+		B("IESBA Publications", "الأخلاقيات", "standards", "https://www.ethicsboard.org/publications"),
+		B("PCAOB Inspections", "الرقابة — الولايات المتحدة", "oversight", "https://pcaobus.org/oversight/inspections"),
+		B("FRC Reviews", "الرقابة — المملكة المتحدة", "oversight", "https://www.frc.org.uk/library/annual-reports-and-reviews/"),
+		B("IFIAR Inspection Findings", "الرقابة — عالمي", "oversight", "https://www.ifiar.org/activities/inspection-findings/"),
+		B("PCAOB Firm Reports", "الرقابة — الولايات المتحدة", "oversight", "https://pcaobus.org/oversight/inspections/firm-inspection-reports"),
+		K("هيئة السوق المالية (CMA)", "السعودية", "filings", "https://cma.org.sa"),
+		K("الهيئة السعودية للمراجعين والمحاسبين (SOCPA)", "السعودية", "standards", "https://socpa.org.sa"),
+		K("البورصة المصرية (EGX)", "مصر", "filings", "https://www.egx.com.eg"),
+		K("الهيئة العامة للرقابة المالية (FRA)", "مصر", "standards", "https://fra.gov.eg"),
+		K("IFRS Foundation — Issued standards", "المعايير", "standards", "https://www.ifrs.org/issued-standards/")
+	];
+	var KIND_AR = {
+		filings: "الإفصاح والأسواق",
+		transparency: "تقارير الشفافية",
+		oversight: "الرقابة على جودة المراجعة",
+		standards: "المعايير والأخلاقيات"
+	};
+	var REFERENCE_REPORTS = [
+		{
+			company: "Amazon",
+			year: "2023",
+			framework: "US GAAP (SEC)",
+			origin: "bundle",
+			highlight: "الإيرادات 575 مليار دولار · الدخل التشغيلي 36.9 مليار · التدفق النقدي الحر 35.5 مليار",
+			evidence: "التقرير السنوي 2023 · ص3 (فهرس الحزمة)",
+			learn: ["رسالة الإدارة تبدأ بالمؤشرات الثلاثة: الإيراد والربح التشغيلي والتدفق النقدي الحر", "تعريف التدفق النقدي الحر ومطابقته مع التدفق من التشغيل"]
+		},
+		{
+			company: "Amazon",
+			year: "2024",
+			framework: "US GAAP (SEC)",
+			origin: "bundle",
+			evidence: "فهرس الحزمة · ص1",
+			learn: ["المقارنة عبر السنوات لنفس المؤشرات بنفس التعريف"]
+		},
+		{
+			company: "Apple",
+			year: "2024",
+			framework: "US GAAP (SEC)",
+			origin: "bundle",
+			evidence: "فهرس الحزمة · ص1",
+			learn: ["نموذج 10-K: الأعمال، عوامل المخاطر، تحليل الإدارة، القوائم، الضوابط الداخلية"]
+		},
+		{
+			company: "Apple",
+			year: "2020",
+			framework: "US GAAP (SEC)",
+			origin: "bundle",
+			evidence: "فهرس الحزمة · ص1",
+			learn: ["مقارنة طولية مع 2024 لقياس الاتساق في العرض"]
+		},
+		{
+			company: "المراعي",
+			year: "2025",
+			framework: "IFRS المعتمدة في المملكة",
+			origin: "kosif",
+			evidence: "docs/research/GLOBAL_ANNUAL_REPORTS_ar.md",
+			learn: ["تقرير متكامل (سنوي + استدامة)", "«السنة في لمحة» قبل القوائم"]
+		},
+		{
+			company: "نستله",
+			year: "2025",
+			framework: "IFRS (IASB)",
+			origin: "kosif",
+			evidence: "docs/research/GLOBAL_ANNUAL_REPORTS_ar.md",
+			learn: ["السياسة المحاسبية داخل إيضاح البند نفسه", "إفصاح مسبق عن أثر IFRS 18"]
+		},
+		{
+			company: "أرامكو السعودية",
+			year: "2025",
+			framework: "IFRS المعتمدة في المملكة",
+			origin: "kosif",
+			evidence: "docs/research/GLOBAL_ANNUAL_REPORTS_ar.md",
+			learn: ["مؤشرات: التدفق النقدي الحر، نسبة المديونية، العائد على متوسط رأس المال المستخدم"]
+		}
+	];
+	var REPORT_ELEMENTS = [
+		{
+			key: "highlights",
+			ar: "السنة في لمحة: المؤشرات الرئيسية مع المقارنة",
+			seenIn: "Amazon · المراعي · أرامكو"
+		},
+		{
+			key: "mdna",
+			ar: "تقرير الإدارة وتحليلها (MD&A)",
+			seenIn: "Apple 10-K · Amazon"
+		},
+		{
+			key: "statements",
+			ar: "القوائم الأساسية بعرض IFRS 18",
+			seenIn: "نستله · المراعي"
+		},
+		{
+			key: "cashFlow",
+			ar: "قائمة التدفقات النقدية والتدفق النقدي الحر",
+			seenIn: "Amazon · أرامكو"
+		},
+		{
+			key: "comparatives",
+			ar: "أرقام المقارنة للسنة السابقة",
+			seenIn: "جميع التقارير"
+		},
+		{
+			key: "notes",
+			ar: "إيضاحات لكل بند مع السياسات والتقديرات",
+			seenIn: "نستله"
+		},
+		{
+			key: "ratios",
+			ar: "تحليل النسب والمؤشرات المالية",
+			seenIn: "أرامكو"
+		},
+		{
+			key: "opinion",
+			ar: "تقرير المراجع المستقل ورأيه",
+			seenIn: "جميع التقارير"
+		},
+		{
+			key: "kams",
+			ar: "الأمور الرئيسية للمراجعة (ISA 701)",
+			seenIn: "المراعي (KPMG)"
+		},
+		{
+			key: "managementLetter",
+			ar: "ملاحظات الرقابة الداخلية وخطاب الإدارة",
+			seenIn: "Apple (ICFR)"
+		},
+		{
+			key: "segments",
+			ar: "المعلومات القطاعية (IFRS 8)",
+			seenIn: "Amazon · Apple · نستله"
+		},
+		{
+			key: "sustainability",
+			ar: "الاستدامة والمناخ (IFRS S1/S2)",
+			seenIn: "المراعي (تقرير متكامل)"
+		},
+		{
+			key: "controls",
+			ar: "تقرير عن فعالية الرقابة الداخلية",
+			seenIn: "Apple · Amazon (SEC)"
+		}
+	];
+	function benchmarkReport(flags) {
+		const rows = REPORT_ELEMENTS.map((e) => ({
+			...e,
+			has: flags[e.key] === true
+		}));
+		return {
+			rows,
+			covered: rows.filter((r) => r.has).length,
+			total: rows.length,
+			gaps: rows.filter((r) => !r.has).map((r) => r.ar)
+		};
+	}
+	var AUDIT_QUALITY = [
+		{
+			theme: "التقديرات المحاسبية والقيمة العادلة (ومنها الخسائر الائتمانية المتوقعة)",
+			standard: "ISA 540",
+			safeguard: "حاسبة الخسائر الائتمانية بمصفوفة الأعمار، ومصادر عدم التأكد في جاهزية الإفصاح"
+		},
+		{
+			theme: "الاعتراف بالإيراد والقطع",
+			standard: "ISA 240 / IFRS 15",
+			safeguard: "خطر الغش المفترض في الإيراد، وطلب فواتير القطع حول نهاية السنة"
+		},
+		{
+			theme: "اختبار الضوابط الداخلية والاعتماد عليها",
+			standard: "ISA 330",
+			safeguard: "مرحلة «فهم المنشأة والرقابة» في برنامج المراجعة"
+		},
+		{
+			theme: "كفاية الأدلة ومستوى الشك المهني",
+			standard: "ISA 500",
+			safeguard: "لا يكتمل بند إلا بمستند مقبول من جولات المراجعة، ويتحقق المحرك من بيانات المستند"
+		},
+		{
+			theme: "مراجعة جودة الارتباط والاعتماد",
+			standard: "ISQM 1 / ISA 220",
+			safeguard: "الرأي مشتق آلياً ولا يصدر إلا باعتماد الشريك"
+		},
+		{
+			theme: "الاستمرارية",
+			standard: "ISA 570",
+			safeguard: "مؤشرات حقوق الملكية السالبة وعجز رأس المال العامل في المحرك"
+		},
+		{
+			theme: "تقييم التحريفات غير المصححة",
+			standard: "ISA 450",
+			safeguard: "أثر القيود غير المعتمدة مقابل الأهمية النسبية قبل الرأي"
+		}
+	];
+	//#endregion
 	//#region app/src/engine/fusion/reports/scenario-engine.ts
 	var scenario_engine_exports = /* @__PURE__ */ __exportAll({ runScenario: () => runScenario });
 	function money$10(value) {
@@ -7753,12 +8845,14 @@ window.SKEngines = (function() {
 		audit: {
 			aiReview: ai_review_engine_exports,
 			codex: codex_engine_exports,
+			disclosures: disclosures_engine_exports,
 			documentCheck: document_check_engine_exports,
 			evidence: evidence_engine_exports,
 			issues: issues_engine_exports,
 			materiality: materiality_engine_exports,
 			pbc: pbc_engine_exports,
 			planning: planning_engine_exports,
+			programme: programme_engine_exports,
 			report: report_engine_exports,
 			reviewerCouncil: reviewer_council_engine_exports,
 			sampling: sampling_engine_exports,
@@ -7798,6 +8892,7 @@ window.SKEngines = (function() {
 			excelRecon: excel_recon_engine_exports,
 			export: export_engine_exports,
 			money: money_engine_exports,
+			researchLibrary: research_library_engine_exports,
 			scenario: scenario_engine_exports,
 			smartMatch: smart_match_engine_exports,
 			statements: statements_engine_exports,

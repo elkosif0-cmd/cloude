@@ -35,27 +35,31 @@ export function encodeZatcaQr(f: { seller: string; vatNumber: string; timestamp:
   return btoa(String.fromCharCode(...parts));
 }
 
-export function validVatNumber(v: string): boolean { return /^3\d{13}3$/.test(String(v || '').replace(/\s/g, '')); }
+/** Saudi VAT number: 15 digits starting and ending with 3; Egyptian tax registration number: 9 digits. */
+export function validVatNumber(v: string, jurisdiction: 'SA' | 'EG' = 'SA'): boolean {
+  const x = String(v || '').replace(/[\s-]/g, '');
+  return jurisdiction === 'EG' ? /^\d{9}$/.test(x) : /^3\d{13}3$/.test(x);
+}
 
 export type DocFields = { fileName?: string; reference?: string; counterparty?: string; vatNumber?: string; documentDate?: string; amount?: string | Minor; vatAmount?: string | Minor; qr?: string };
 export type DocIssue = { code: 'QR_INVALID' | 'QR_MISMATCH' | 'VAT_NUMBER' | 'VAT_MATH' | 'OUT_OF_PERIOD' | 'SUBSEQUENT' | 'FUTURE' | 'DUPLICATE' | 'MISSING'; severity: 'high' | 'medium' | 'low'; message: string };
 
 const m = (v: string | Minor | undefined) => (typeof v === 'number' ? v : v === undefined || v === '' ? null : parseMinor(v));
 
-export function checkDocument(d: DocFields, opts: { periodStart?: string; periodEnd?: string; today?: string; rate?: number } = {}): { issues: DocIssue[]; qr: ZatcaQr | null; verdict: 'سليم' | 'يحتاج مراجعة' | 'مرفوض' } {
-  const issues: DocIssue[] = [], rate = opts.rate ?? 0.15;
+export function checkDocument(d: DocFields, opts: { periodStart?: string; periodEnd?: string; today?: string; rate?: number; jurisdiction?: 'SA' | 'EG' } = {}): { issues: DocIssue[]; qr: ZatcaQr | null; verdict: 'سليم' | 'يحتاج مراجعة' | 'مرفوض' } {
+  const eg = opts.jurisdiction === 'EG', issues: DocIssue[] = [], rate = opts.rate ?? (eg ? 0.14 : 0.15);
   let total = m(d.amount), vat = m(d.vatAmount), vatNo = d.vatNumber ?? '';
-  const qr = d.qr ? decodeZatcaQr(d.qr) : null;
-  if (d.qr && !qr) issues.push({ code: 'QR_INVALID', severity: 'high', message: 'رمز QR لا يطابق صيغة هيئة الزكاة والضريبة والجمارك (TLV).' });
+  const qr = d.qr && !eg ? decodeZatcaQr(d.qr) : null;
+  if (d.qr && !eg && !qr) issues.push({ code: 'QR_INVALID', severity: 'high', message: 'رمز QR لا يطابق صيغة هيئة الزكاة والضريبة والجمارك (TLV).' });
   if (qr) {
     if (vatNo && qr.vatNumber !== vatNo) issues.push({ code: 'QR_MISMATCH', severity: 'high', message: `الرقم الضريبي في الرمز ${qr.vatNumber} يخالف المطبوع ${vatNo}.` });
     if (total !== null && qr.total !== null && Math.abs(qr.total - total) > 100) issues.push({ code: 'QR_MISMATCH', severity: 'high', message: 'إجمالي الفاتورة في الرمز يخالف المطبوع.' });
     vatNo = vatNo || qr.vatNumber; total = total ?? qr.total; vat = vat ?? qr.vat;
   }
-  if (vatNo && !validVatNumber(vatNo)) issues.push({ code: 'VAT_NUMBER', severity: 'medium', message: `الرقم الضريبي ${vatNo} غير صحيح الصيغة (15 خانة تبدأ وتنتهي بـ3).` });
+  if (vatNo && !validVatNumber(vatNo, eg ? 'EG' : 'SA')) issues.push({ code: 'VAT_NUMBER', severity: 'medium', message: eg ? `رقم التسجيل الضريبي ${vatNo} غير صحيح الصيغة (9 أرقام).` : `الرقم الضريبي ${vatNo} غير صحيح الصيغة (15 خانة تبدأ وتنتهي بـ3).` });
   if (total !== null && vat !== null && vat > 0) {
     const expected = Math.round((total * rate) / (1 + rate));
-    if (Math.abs(expected - vat) > 100) issues.push({ code: 'VAT_MATH', severity: 'medium', message: `الضريبة ${(vat / 100).toFixed(2)} لا تساوي 15/115 من الإجمالي (${(expected / 100).toFixed(2)}).` });
+    if (Math.abs(expected - vat) > 100) issues.push({ code: 'VAT_MATH', severity: 'medium', message: `الضريبة ${(vat / 100).toFixed(2)} لا تساوي ${eg ? '14/114' : '15/115'} من الإجمالي (${(expected / 100).toFixed(2)}).` });
   }
   const date = (d.documentDate || qr?.timestamp || '').slice(0, 10);
   if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {

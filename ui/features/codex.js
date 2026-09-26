@@ -12,7 +12,7 @@
 const {esc,load,save,toast}=SK;
 const KEY="skosif_codex_updates_v1";
 const X=()=>SKEngines.audit.codex,U=()=>SKEngines.audit.standardsUpdate;
-const FAM={IFRS:"معايير التقرير المالي",IAS:"معايير المحاسبة",ISA:"معايير المراجعة",SAUDI:"متطلبات سعودية"};
+const FAM={IFRS:"معايير التقرير المالي",IAS:"معايير المحاسبة",ISA:"معايير المراجعة",SAUDI:"متطلبات سعودية",EAS:"معايير المحاسبة المصرية",EGYPT:"متطلبات مصرية"};
 const STATUS={effective:["ساري","ok"],upcoming:["سريان قادم","warn"],replaced:["يُستبدل","info"]};
 let root=null,q="",fam="all",busy=false;
 const upd=()=>{const d=load(KEY,{})||{};return{checkedAt:d.checkedAt||"",items:Array.isArray(d.items)?d.items:[]}};
@@ -36,7 +36,7 @@ function open(code,ctx={}){
   sheet.innerHTML='<aside class="stdx" role="dialog" aria-modal="true" aria-labelledby="stdx-t">'+
     '<header><span class="std-b big '+famCls(s&&s.family)+'">'+esc(code)+'</span><div><h3 id="stdx-t">'+esc(s?s.titleAr:code)+'</h3><p>'+esc(s?s.titleEn:"معيار غير موجود في السجل")+'</p></div>'+
       '<button type="button" class="btn sm" data-stdx-close aria-label="إغلاق">إغلاق</button></header><div class="stdx-b">'+
-    (s?'<div class="stdx-meta"><span class="sksev '+st[1]+'">'+esc(st[0])+'</span><span>'+esc(s.org)+'</span><span>السريان: '+esc(s.effective)+'</span></div>':'')+
+    (s?'<div class="stdx-meta"><span class="sksev '+st[1]+'">'+esc(st[0])+'</span><span>'+esc(s.org)+'</span><span>السريان: '+esc(s.effective)+'</span>'+(s.ifrs?'<button type="button" class="std-b" data-stdx-go="'+esc(s.ifrs)+'">≈ '+esc(s.ifrs)+'</button>':'')+'</div>':'')+
     (a?'<section class="stdx-rel"><h4>علاقته بالحساب '+esc(a.code)+' — '+esc(a.name)+'</h4><p>'+esc(rel)+'</p>'+
       (ctx.note?'<p class="stdx-ai"><b>ملاحظة المراجع الذكي:</b> '+esc(ctx.note)+'</p>':'')+
       '<p class="hint">البند في القوائم: '+esc(a.lineAr||"—")+(why?' · اقتُرح المعيار من '+esc(why):'')+(a.assertions&&a.assertions.length?' · الإقرارات: '+esc(a.assertions.join("، ")):'')+'</p></section>':'')+
@@ -47,7 +47,7 @@ function open(code,ctx={}){
       (pending.length?'<p class="stdx-ai">'+pending.length+' تحديث من المصادر الرسمية بانتظار اعتمادك في شاشة المدونة المحاسبية.</p>':'')+
       '<a class="btn sm primary" href="'+esc(s.url)+'" target="_blank" rel="noopener">المصدر الرسمي ('+esc(s.org)+')</a>':'')+
     '</div></aside>';
-  sheet.addEventListener("click",e=>{if(e.target===sheet||e.target.closest("[data-stdx-close]"))close()});
+  sheet.addEventListener("click",e=>{if(e.target===sheet||e.target.closest("[data-stdx-close]")){close();return}const g=e.target.closest("[data-stdx-go]");if(g&&get(g.dataset.stdxGo))open(g.dataset.stdxGo,ctx)});
   document.addEventListener("keydown",onKey,true);
   document.body.appendChild(sheet);sheet.querySelector("[data-stdx-close]").focus();
 }
@@ -74,8 +74,8 @@ function paint(){
   const all=list(),hits=X().searchCodex(q,all).filter(s=>fam==="all"||s.family===fam);
   const counts=Object.keys(FAM).map(k=>[k,all.filter(s=>s.family===k).length]);
   const up=all.filter(s=>s.status==="upcoming");
-  root.innerHTML='<div class="skk4">'+
-      ['IFRS','IAS','ISA','SAUDI'].map((k,i)=>'<button type="button" class="skk4-t" data-fam="'+k+'"><span class="chip">'+SK.icon(["reports","ledger","check","governance"][i])+'</span><span class="tx"><span>'+FAM[k]+'</span><b>'+counts.find(c=>c[0]===k)[1]+'</b><small>'+(k==="ISA"?"IAASB":k==="SAUDI"?"SOCPA · ZATCA · التجارة":"IFRS Foundation")+'</small></span></button>').join("")+'</div>'+
+  root.innerHTML='<div class="skk4 cdx-k6">'+
+      ['IFRS','IAS','ISA','SAUDI','EAS','EGYPT'].map((k,i)=>'<button type="button" class="skk4-t" data-fam="'+k+'"><span class="chip">'+SK.icon(["reports","ledger","check","governance","codex","zatca"][i])+'</span><span class="tx"><span>'+FAM[k]+'</span><b>'+counts.find(c=>c[0]===k)[1]+'</b><small>'+({ISA:"IAASB",SAUDI:"SOCPA · ZATCA · التجارة",EAS:"الهيئة العامة للرقابة المالية",EGYPT:"مصلحة الضرائب · قانون الشركات"}[k]||"IFRS Foundation")+'</small></span></button>').join("")+'</div>'+
     (up.length?'<section class="card cdx-up"><div class="card-b"><b>سريان قادم:</b> '+up.map(s=>'<button type="button" class="std-b '+famCls(s.family)+'" data-std="'+esc(s.code)+'">'+esc(s.code)+'</button> '+esc(s.effective)).join(" · ")+'</div></section>':'')+
     updatesCard()+
     '<section class="card"><div class="card-h"><div><h3>المدونة المحاسبية</h3><p>'+hits.length+' من '+all.length+' معياراً ومتطلباً — اضغط أي بطاقة لتفاصيلها ومصدرها الرسمي.</p></div></div><div class="card-b">'+

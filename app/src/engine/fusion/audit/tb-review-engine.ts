@@ -13,7 +13,7 @@ import { formatMinor, type Minor } from '../reports/money-engine';
 import { classifyAccount, NATURE, norm, type TbRow, type TrialBalance } from '../reports/tb-import-engine';
 import { buildStatements, LINE, lineFor, type FinancialStatements } from '../reports/statements-engine';
 import { beneishM } from '../reports/analysis-engine';
-import { standardsFor, STANDARD } from './codex-engine';
+import { inFramework, standardsFor, STANDARD, type Framework } from './codex-engine';
 
 export type Severity = 'high' | 'medium' | 'low';
 export type Finding = { id: string; severity: Severity; kind: 'balance' | 'classification' | 'measurement' | 'disclosure' | 'completeness' | 'analytical' | 'fraud' | 'going-concern';
@@ -95,14 +95,16 @@ export type Review = { materiality: Materiality; fs: FinancialStatements; accoun
   adjustments: Adjustment[]; risks: LineRisk[]; compliance: ComplianceItem[];
   summary: { accounts: number; flagged: number; high: number; medium: number; low: number; significantRisks: number; score: number } };
 
-export type ReviewOptions = { framework?: 'IFRS' | 'SME'; overrides?: Record<string, string>; materiality?: number;
+export type ReviewOptions = { framework?: Framework; currency?: string; overrides?: Record<string, string>; materiality?: number;
   evidence?: Record<string, 'accepted' | 'partial' | 'none'>; extraFindings?: Finding[] };
 
 const money = (m: Minor) => formatMinor(m, { decimals: 0 }) + ' ر.س';
 
 /** Run the whole deterministic review of a trial balance. */
 export function reviewTrialBalance(tb: TrialBalance, opts: ReviewOptions = {}): Review {
-  const framework = opts.framework ?? 'IFRS', fs = buildStatements(tb, opts.overrides ?? {});
+  const framework = opts.framework ?? 'IFRS', egypt = framework === 'EAS', cur = opts.currency ?? (egypt ? 'ج.م' : 'ر.س');
+  const money = (m: Minor) => formatMinor(m, { decimals: 0 }) + ' ' + cur;
+  const fs = buildStatements(tb, opts.overrides ?? {}, { tax: egypt ? 'income' : 'zakat' });
   const mat = materiality(fs, { overall: opts.materiality });
   const findings: Finding[] = [], adjustments: Adjustment[] = [];
   let seq = 0;
@@ -168,7 +170,13 @@ export function reviewTrialBalance(tb: TrialBalance, opts: ReviewOptions = {}): 
 
   /* missing expected accounts */
   const pbz = kv('pbz'), zakatExp = kv('zakat'), zakatPay = fs.lines.find((l) => l.key === 'zakatPayable')?.current ?? 0;
-  if (pbz > 0 && zakatExp === 0) {
+  if (egypt && pbz > 0 && zakatExp === 0) {
+    const est = Math.round((pbz * 0.225) / 100) * 100;
+    add({ severity: est >= mat.trivial ? 'high' : 'medium', kind: 'completeness', lineKey: 'zakatExpense', standard: 'EAS 24', title: 'لا يوجد مصروف ضريبة دخل رغم تحقق ربح', detail: 'ضريبة الدخل الجارية التزام عن السنة (قانون 91 لسنة 2005، 22.5%). التقدير الأولي على الربح المحاسبي قبل الضريبة؛ الاحتساب النهائي من الإقرار بعد تسوية الربح الضريبي والضريبة المؤجلة.', basis: `الربح قبل الضريبة ${money(pbz)} × 22.5% = ${money(est)}`, action: 'قيد ضريبة الدخل المستحقة وطلب الإقرار الضريبي وتسوية الربح الضريبي.' });
+    if (est > 0) adj({ title: 'استحقاق ضريبة الدخل عن السنة (تقديري)', reason: 'لا يوجد مصروف ضريبة دخل في الميزان', standard: 'EAS 24', estimate: true,
+      lines: [{ code: 'ADJ-TE', name: 'مصروف ضريبة الدخل', debit: est, credit: 0, type: 'expense' }, { code: 'ADJ-TP', name: 'ضريبة الدخل المستحقة', debit: 0, credit: est, type: 'liability' }] });
+  } else if (egypt && zakatExp > 0 && zakatPay === 0) add({ severity: 'low', kind: 'completeness', lineKey: 'zakatPayable', standard: 'ضريبة الدخل (مصر)', title: 'مصروف ضريبة دخل دون التزام قائم', detail: 'إن سُددت الضريبة أو خُصمت تحت الحساب فيلزم الدليل، وإلا فيلزم قيد الالتزام.', basis: 'مصروف الضريبة ' + money(zakatExp), action: 'طلب الإقرار وإيصالات السداد ونماذج الخصم تحت الحساب.' });
+  else if (pbz > 0 && zakatExp === 0) {
     const sources = kv('equity') + kv('ncl'), deductions = kv('nca'), base = Math.max(sources - deductions, pbz), est = Math.round((base * 0.025) / 100) * 100;
     add({ severity: est >= mat.trivial ? 'high' : 'medium', kind: 'completeness', lineKey: 'zakatExpense', standard: 'لائحة الزكاة', title: 'لا يوجد مصروف زكاة رغم تحقق ربح', detail: 'الزكاة التزام عن السنة يجب قيده. التقدير الأولي على وعاء مبسط (حقوق الملكية + الالتزامات غير المتداولة − الموجودات غير المتداولة، وبحد أدنى الربح قبل الزكاة) بسعر 2.5%؛ الاحتساب النهائي من الإقرار مع مراعاة حدي الوعاء في اللائحة.', basis: `وعاء تقديري ${money(base)} × 2.5% = ${money(est)}`, action: 'قيد مخصص الزكاة وطلب الإقرار الزكوي.' });
     if (est > 0) adj({ title: 'استحقاق زكاة السنة (تقديري)', reason: 'لا يوجد مصروف زكاة في الميزان', standard: 'لائحة الزكاة / IAS 37', estimate: true,
@@ -178,7 +186,7 @@ export function reviewTrialBalance(tb: TrialBalance, opts: ReviewOptions = {}): 
   if (ppeNet > 0 && kv('depreciation') === 0) add({ severity: ppeNet >= mat.overall ? 'high' : 'medium', kind: 'completeness', lineKey: 'ppe', standard: 'IAS 16', title: 'أصول ثابتة دون مصروف استهلاك', detail: 'يجب استهلاك الأصول على أعمارها الإنتاجية؛ غياب المصروف يضخم الربح والأصول.', basis: 'صافي الأصول الثابتة ' + money(ppeNet), action: 'طلب سجل الأصول واحتساب استهلاك السنة ثم قيده.' });
   if (ppeNet < 0) add({ severity: 'high', kind: 'measurement', lineKey: 'ppe', standard: 'IAS 16', title: 'مجمع الاستهلاك يتجاوز التكلفة', detail: 'صافي القيمة الدفترية سالب.', basis: 'الصافي ' + money(ppeNet), action: 'مراجعة سجل الأصول والاستبعادات.' });
   const salaries = accounts.filter((a) => a.type === 'expense' && SALARIES.test(norm(a.name))).reduce((s, a) => s + a.natural, 0);
-  if (salaries > 0 && !fs.lines.some((l) => l.key === 'eosb' && l.current !== 0)) add({ severity: salaries >= mat.overall ? 'high' : 'medium', kind: 'completeness', lineKey: 'eosb', standard: 'IAS 19', title: 'رواتب دون التزام مكافأة نهاية الخدمة', detail: 'نظام العمل يوجب مكافأة نهاية الخدمة؛ الالتزام يقاس وفق IAS 19 (أو بالتبسيط المسموح في معيار المنشآت الصغيرة).', basis: 'الرواتب ' + money(salaries), action: 'طلب كشف الموظفين واحتساب الالتزام.' });
+  if (!egypt && salaries > 0 && !fs.lines.some((l) => l.key === 'eosb' && l.current !== 0)) add({ severity: salaries >= mat.overall ? 'high' : 'medium', kind: 'completeness', lineKey: 'eosb', standard: 'IAS 19', title: 'رواتب دون التزام مكافأة نهاية الخدمة', detail: 'نظام العمل يوجب مكافأة نهاية الخدمة؛ الالتزام يقاس وفق IAS 19 (أو بالتبسيط المسموح في معيار المنشآت الصغيرة).', basis: 'الرواتب ' + money(salaries), action: 'طلب كشف الموظفين واحتساب الالتزام.' });
   const loans = kv('loansCl') + kv('loansNcl');
   if (loans > 0 && kv('finance') === 0) add({ severity: 'medium', kind: 'completeness', lineKey: 'loansNcl', standard: 'IFRS 9', title: 'قروض دون تكلفة تمويل', detail: 'إما أن التمويل بلا تكلفة (يلزم دليل)، أو رُسملت (IAS 23)، أو لم تُقيد.', basis: 'القروض ' + money(loans), action: 'طلب عقود التمويل وكشوف احتساب الفائدة.' });
   const rec = kv('receivables');
@@ -222,6 +230,7 @@ export function reviewTrialBalance(tb: TrialBalance, opts: ReviewOptions = {}): 
   if (kv('equity') < 0) add({ severity: 'high', kind: 'going-concern', standard: 'ISA 570', title: 'حقوق ملكية سالبة', detail: 'مؤشر جوهري على عدم التأكد بشأن الاستمرارية؛ قد تنطبق أحكام نظام الشركات عند بلوغ الخسائر نصف رأس المال.', basis: 'حقوق الملكية ' + money(kv('equity')), action: 'تقييم خطط الإدارة والدعم المالي والإفصاح.' });
   else if (kv('cl') > 0 && kv('ca') < kv('cl')) add({ severity: 'medium', kind: 'going-concern', standard: 'ISA 570', title: 'المطلوبات المتداولة تتجاوز الموجودات المتداولة', detail: 'عجز رأس المال العامل مؤشر على مخاطر السيولة.', basis: `${money(kv('ca'))} مقابل ${money(kv('cl'))}`, action: 'الحصول على التدفقات النقدية المتوقعة لـ12 شهراً.' });
 
+  if (egypt) { for (const f of findings) f.standard = inFramework(f.standard, framework); for (const a of adjustments) a.standard = a.standard.split(' / ').map((x) => inFramework(x, framework)).join(' / '); }
   for (const f of opts.extraFindings ?? []) { findings.push(f); if (f.code) acc(f.code)?.findings.push(f.id); }
 
   /* risk per line */
@@ -246,10 +255,10 @@ export function reviewTrialBalance(tb: TrialBalance, opts: ReviewOptions = {}): 
     const la = LINE_AUDIT[r.lineKey]; if (!la) continue;
     const accs = fs.lines.find((l) => l.key === r.lineKey)!.accounts.map((a) => a.code);
     la.docs.forEach(([title, purpose], i) => { if (requests.some((q) => q.title === title)) return;
-      requests.push({ id: 'PBC-' + r.lineKey + '-' + (i + 1), title, purpose, lineKey: r.lineKey, accounts: accs, standard: LINE[r.lineKey]?.standards[0] ?? 'ISA 500', priority: r.level === 'عالٍ' ? 'عالية' : r.level === 'متوسط' ? 'متوسطة' : 'منخفضة', source: 'engine' }); });
+      requests.push({ id: 'PBC-' + r.lineKey + '-' + (i + 1), title, purpose, lineKey: r.lineKey, accounts: accs, standard: inFramework(LINE[r.lineKey]?.standards[0] ?? 'ISA 500', framework), priority: r.level === 'عالٍ' ? 'عالية' : r.level === 'متوسط' ? 'متوسطة' : 'منخفضة', source: 'engine' }); });
   }
 
-  const compliance = complianceOf(fs, findings, requests, opts.evidence ?? {});
+  const compliance = complianceOf(fs, findings, requests, opts.evidence ?? {}, framework, cur);
   const high = findings.filter((f) => f.severity === 'high').length, medium = findings.filter((f) => f.severity === 'medium').length, low = findings.length - high - medium;
   const score = Math.min(100, Math.round(risks.slice(0, 5).reduce((s, r) => s + r.score, 0) / Math.max(1, Math.min(5, risks.length)) * 0.7 + Math.min(30, high * 10 + medium * 3)));
   return { materiality: mat, fs, accounts, findings, requests, adjustments, risks, compliance,
@@ -257,22 +266,23 @@ export function reviewTrialBalance(tb: TrialBalance, opts: ReviewOptions = {}): 
 }
 
 /* ---------- 7. standards compliance discussion ---------- */
-export function complianceOf(fs: FinancialStatements, findings: Finding[], requests: DocRequest[], evidence: Record<string, string> = {}): ComplianceItem[] {
+export function complianceOf(fs: FinancialStatements, findings: Finding[], requests: DocRequest[], evidence: Record<string, string> = {}, framework: Framework = 'IFRS', cur = 'ر.س'): ComplianceItem[] {
+  const F = (c: string) => inFramework(c, framework);
   const by = new Map<string, { accounts: Set<string>; amount: Minor; lines: Set<string> }>();
   const touch = (code: string, line?: { key: string; current: Minor; accounts: { code: string; name: string }[] }) => {
     if (!by.has(code)) by.set(code, { accounts: new Set(), amount: 0, lines: new Set() });
     const x = by.get(code)!; if (line) { x.lines.add(line.key); x.amount += Math.abs(line.current); line.accounts.forEach((a) => x.accounts.add(a.code + ' ' + a.name)); }
   };
-  for (const l of fs.lines) for (const s of l.standards) if (STANDARD[s] && STANDARD[s].family !== 'ISA') touch(s, l);
-  ['IAS 1', 'IFRS 18', 'IAS 7', 'IAS 8', 'IAS 10'].forEach((s) => touch(s));
+  for (const l of fs.lines) for (const s0 of l.standards) { const s = F(s0); if (STANDARD[s] && STANDARD[s].family !== 'ISA') touch(s, l); }
+  (framework === 'EAS' ? ['EAS 1', 'EAS 4', 'EAS 5', 'EAS 7'] : ['IAS 1', 'IFRS 18', 'IAS 7', 'IAS 8', 'IAS 10']).forEach((s) => touch(s));
   for (const f of findings) if (STANDARD[f.standard] && STANDARD[f.standard].family !== 'ISA') touch(f.standard);
   const out: ComplianceItem[] = [];
   for (const [code, x] of by) {
-    const s = STANDARD[code], fx = findings.filter((f) => f.standard === code || f.standard.startsWith(code + ' ') || (f.lineKey && x.lines.has(f.lineKey) && LINE[f.lineKey]?.standards[0] === code));
+    const s = STANDARD[code], fx = findings.filter((f) => f.standard === code || f.standard.startsWith(code + ' ') || (f.lineKey && x.lines.has(f.lineKey) && F(LINE[f.lineKey]?.standards[0] ?? '') === code));
     const open = requests.filter((r) => (r.lineKey && x.lines.has(r.lineKey)) || r.standard === code).filter((r) => !r.lineKey || evidence[r.lineKey] !== 'accepted');
     const status: ComplianceItem['status'] = fx.some((f) => f.severity === 'high') ? 'غير ممتثل' : fx.some((f) => f.severity === 'medium') ? 'ممتثل جزئياً' : open.length ? 'يتطلب أدلة' : 'ممتثل';
     const parts = [
-      x.accounts.size ? `يحكم ${x.accounts.size} حساباً بمجموع ${formatMinor(x.amount, { decimals: 0 })} ر.س.` : 'متطلب عرض وإفصاح عام على مستوى القوائم.',
+      x.accounts.size ? `يحكم ${x.accounts.size} حساباً بمجموع ${formatMinor(x.amount, { decimals: 0 })} ${cur}.` : 'متطلب عرض وإفصاح عام على مستوى القوائم.',
       s ? s.purpose : '',
       fx.length ? 'الملاحظات: ' + fx.map((f) => f.title + ' (' + f.basis + ')').join('؛ ') + '.' : 'لم تظهر ملاحظات من تحليل الأرقام.',
       open.length ? 'بانتظار أدلة: ' + open.slice(0, 4).map((r) => r.title).join('، ') + (open.length > 4 ? ' وغيرها' : '') + '.' : '',
@@ -315,4 +325,33 @@ export function applyAdjustments(tb: TrialBalance, adjs: Adjustment[]): TrialBal
 export function adjustmentEffect(tb: TrialBalance, adjs: Adjustment[]) {
   const before = buildStatements(tb).keys, after = buildStatements(applyAdjustments(tb, adjs)).keys;
   return { profit: after.profit.current - before.profit.current, assets: after.assets.current - before.assets.current, equity: after.equity.current - before.equity.current };
+}
+
+/* ---------- expected credit losses (IFRS 9 / EAS 47 simplified approach), from Aurora's matrix ---------- */
+export type EclBucket = { label: string; exposure: Minor; rateBps: number };
+export const DEFAULT_ECL_BUCKETS: EclBucket[] = [
+  { label: 'غير مستحقة', exposure: 0, rateBps: 100 }, { label: '1–30 يوماً', exposure: 0, rateBps: 300 }, { label: '31–90 يوماً', exposure: 0, rateBps: 800 },
+  { label: '91–180 يوماً', exposure: 0, rateBps: 2000 }, { label: '181–365 يوماً', exposure: 0, rateBps: 5000 }, { label: 'أكثر من سنة', exposure: 0, rateBps: 10000 },
+];
+export function eclMatrix(buckets: EclBucket[]) {
+  const rows = buckets.map((b) => {
+    const exposure = Math.max(0, Math.round(Number(b.exposure) || 0)), rateBps = Math.max(0, Math.min(10000, Math.round(Number(b.rateBps) || 0)));
+    return { label: b.label, exposure, rateBps, loss: Math.round((exposure * rateBps) / 10000) };
+  });
+  const exposure = rows.reduce((a, r) => a + r.exposure, 0), loss = rows.reduce((a, r) => a + r.loss, 0);
+  return { rows, exposure, loss, weightedBps: exposure ? Math.round((loss * 10000) / exposure) : 0 };
+}
+/** The allowance already booked: credit balances of the receivables line's allowance accounts. */
+export function existingAllowance(tb: TrialBalance): Minor {
+  return tb.rows.filter((r) => lineFor(r).key === 'receivables' && /خسائر|مخصص|مشكوك|allowance/.test(norm(r.name))).reduce((a, r) => a + Math.max(0, -r.balance), 0);
+}
+/** The entry that brings the allowance to the matrix result (up or down); null when nothing changes. */
+export function eclAdjustment(tb: TrialBalance, matrix: ReturnType<typeof eclMatrix>, framework: Framework = 'IFRS'): Adjustment | null {
+  const diff = matrix.loss - existingAllowance(tb);
+  if (!diff) return null;
+  const amt = Math.abs(diff), up = diff > 0, std = inFramework('IFRS 9', framework);
+  return { id: 'AJE-ECL', title: up ? 'تكوين مخصص الخسائر الائتمانية المتوقعة' : 'رد جزء من مخصص الخسائر الائتمانية المتوقعة', source: 'engine', estimate: true, standard: std,
+    reason: `مصفوفة أعمار الذمم: تعرض ${formatMinor(matrix.exposure, { decimals: 0 })} × معدل مرجح ${matrix.weightedBps / 100}% = ${formatMinor(matrix.loss, { decimals: 0 })}؛ الرصيد القائم ${formatMinor(existingAllowance(tb), { decimals: 0 })}`,
+    lines: up ? [{ code: 'ADJ-ECLE', name: 'مصروف خسائر ائتمانية متوقعة', debit: amt, credit: 0, type: 'expense' }, { code: 'ADJ-ECLA', name: 'مخصص خسائر ائتمانية متوقعة', debit: 0, credit: amt, type: 'asset' }]
+      : [{ code: 'ADJ-ECLA', name: 'مخصص خسائر ائتمانية متوقعة', debit: amt, credit: 0, type: 'asset' }, { code: 'ADJ-ECLE', name: 'مصروف خسائر ائتمانية متوقعة', debit: 0, credit: amt, type: 'expense' }] };
 }

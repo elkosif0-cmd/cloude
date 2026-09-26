@@ -45,7 +45,7 @@ export const LINES: LineDef[] = [
   { key: 'leaseNcl', ar: 'التزامات عقود الإيجار', en: 'Lease liabilities', statement: 'sfp', section: 'ncl', types: ['liability'], kws: ['التزام ايجار', 'التزامات ايجار', 'التزامات عقود الايجار', 'lease liabilit'], prefixes: [], standards: ['IFRS 16'], assertions: ['الاكتمال', 'التقييم'], cf: 'financing' },
   { key: 'loansNcl', ar: 'قروض طويلة الأجل', en: 'Long-term borrowings', statement: 'sfp', section: 'ncl', types: ['liability'], kws: ['قرض طويل', 'قروض طويله', 'تمويل طويل', 'long-term loan', 'long term loan'], prefixes: ['22', '23', '24'], standards: ['IFRS 9', 'IFRS 7'], assertions: ['الاكتمال', 'الالتزامات', 'العرض'], cf: 'financing' },
   /* ---- current liabilities ---- */
-  { key: 'zakatPayable', ar: 'زكاة مستحقة', en: 'Zakat payable', statement: 'sfp', section: 'cl', types: ['liability'], kws: ['زكاه مستحقه', 'مخصص الزكاه', 'مخصص زكاه', 'zakat payable', 'zakat provision'], prefixes: [], standards: ['لائحة الزكاة', 'IAS 37'], assertions: ['الاكتمال', 'التقييم'], cf: 'zakatPayable' },
+  { key: 'zakatPayable', ar: 'زكاة مستحقة', en: 'Zakat payable', statement: 'sfp', section: 'cl', types: ['liability'], kws: ['زكاه مستحقه', 'مخصص الزكاه', 'مخصص زكاه', 'ضريبه الدخل المستحقه', 'ضرائب الدخل المستحقه', 'zakat payable', 'zakat provision', 'income tax payable'], prefixes: [], standards: ['لائحة الزكاة', 'IAS 37'], assertions: ['الاكتمال', 'التقييم'], cf: 'zakatPayable' },
   { key: 'vatLiability', ar: 'ضريبة قيمة مضافة مستحقة', en: 'VAT payable', statement: 'sfp', section: 'cl', types: ['liability'], kws: ['ضريبه القيمه المضافه', 'ضريبه المخرجات', 'مخرجات', 'vat'], prefixes: [], standards: ['ZATCA VAT'], assertions: ['الاكتمال', 'الدقه'], cf: 'wc' },
   { key: 'loansCl', ar: 'قروض قصيرة الأجل والجزء المتداول', en: 'Short-term borrowings', statement: 'sfp', section: 'cl', types: ['liability'], kws: ['قرض', 'قروض', 'تسهيلات', 'مرابحه', 'تورق', 'loan', 'borrowing', 'overdraft'], prefixes: [], standards: ['IFRS 9', 'IFRS 7'], assertions: ['الاكتمال', 'الالتزامات'], cf: 'financing' },
   { key: 'contractLiab', ar: 'مطلوبات عقود (دفعات مقدمة من عملاء)', en: 'Contract liabilities', statement: 'sfp', section: 'cl', types: ['liability'], kws: ['دفعات مقدمه من عملاء', 'ايرادات مؤجله', 'ايراد مقدم', 'عربون', 'unearned', 'deferred revenue', 'customer advance'], prefixes: [], standards: ['IFRS 15'], assertions: ['الاكتمال', 'القطع'], cf: 'wc' },
@@ -95,7 +95,11 @@ export type FinancialStatements = {
 /* value in the line's natural presentation: assets & expenses debit-positive, the rest credit-positive */
 const present = (l: LineDef, signed: Minor) => (l.types.includes('asset') || l.types.includes('expense') ? signed : -signed);
 
-export function buildStatements(tb: TrialBalance, overrides: Record<string, string> = {}): FinancialStatements {
+/* Saudi entities pay zakat; Egyptian (and most other) entities pay income tax — the labels follow */
+const TAX_WORDS = { zakat: { before: 'الربح قبل التمويل والزكاة', pbz: 'الربح قبل الزكاة', payable: 'زكاة مستحقة', paid: 'الزكاة المدفوعة' },
+  income: { before: 'الربح قبل التمويل وضريبة الدخل', pbz: 'الربح قبل ضريبة الدخل', payable: 'ضريبة دخل مستحقة', paid: 'ضريبة الدخل المدفوعة' } };
+export function buildStatements(tb: TrialBalance, overrides: Record<string, string> = {}, opts: { tax?: 'zakat' | 'income' } = {}): FinancialStatements {
+  const TW = TAX_WORDS[opts.tax ?? 'zakat'];
   const hasPrior = tb.hasPrior;
   const acc = new Map<string, FsLine>(); const unmapped: FinancialStatements['unmapped'] = [];
   for (const r of tb.rows) {
@@ -119,13 +123,13 @@ export function buildStatements(tb: TrialBalance, overrides: Record<string, stri
   };
   const pc = P(false), pp = hasPrior ? P(true) : null;
   const row = (key: string, ar: string, en: string, c: Minor, p: Minor | null, level: Row['level'] = 'line'): Row => ({ key, ar, en, current: c, prior: p, level });
-  const lr = (k: string, sign = 1) => { const d = LINE[k]; return row(k, d.ar, d.en, sign * v(k), hasPrior ? sign * vp(k) : null); };
+  const lr = (k: string, sign = 1) => { const d = LINE[k]; return row(k, k === 'zakatPayable' ? TW.payable : d.ar, d.en, sign * v(k), hasPrior ? sign * vp(k) : null); };
   const pl: Row[] = [
     lr('revenue'), lr('cogs', -1), row('gross', 'مجمل الربح', 'Gross profit', pc.gross, pp?.gross ?? null, 'subtotal'),
     lr('selling', -1), lr('admin', -1), lr('depreciation', -1), lr('impairment', -1), lr('otherIncome'),
     row('operating', 'الربح التشغيلي', 'Operating profit', pc.operating, pp?.operating ?? null, 'subtotal'),
-    lr('investIncome'), row('pbfz', 'الربح قبل التمويل والزكاة', 'Profit before financing and zakat', pc.pbfz, pp?.pbfz ?? null, 'subtotal'),
-    lr('financeCost', -1), row('pbz', 'الربح قبل الزكاة', 'Profit before zakat', pc.pbz, pp?.pbz ?? null, 'subtotal'),
+    lr('investIncome'), row('pbfz', TW.before, 'Profit before financing and zakat', pc.pbfz, pp?.pbfz ?? null, 'subtotal'),
+    lr('financeCost', -1), row('pbz', TW.pbz, 'Profit before zakat', pc.pbz, pp?.pbz ?? null, 'subtotal'),
     lr('zakatExpense', -1), row('profit', 'صافي ربح السنة', 'Profit for the year', pc.profit, pp?.profit ?? null, 'total'),
   ].filter((r) => r.level !== 'line' || r.current !== 0 || (r.prior ?? 0) !== 0);
   /* financial position (equity includes the result for the year: P&L accounts are open in a pre-closing trial balance) */
@@ -177,12 +181,12 @@ export function buildStatements(tb: TrialBalance, overrides: Record<string, stri
     const assetWc = byRole('wc', -1).filter((x) => x.l.types.includes('asset')), liabWc = byRole('wc', 1).filter((x) => x.l.types.includes('liability'));
     const noncash = byRole('noncash', 1), zakatPaid = -(vp('zakatPayable') + pc.zakat - v('zakatPayable'));
     const opRows: Row[] = [
-      row('cf-pbz', 'الربح قبل الزكاة', 'Profit before zakat', pc.pbz, null),
+      row('cf-pbz', TW.pbz, 'Profit before zakat', pc.pbz, null),
       ...(da ? [row('cf-da', 'الاستهلاك والإطفاء', 'Depreciation and amortisation', da, null)] : []),
       ...noncash.map((x) => row('cf-nc-' + x.l.key, 'الحركة في ' + x.l.ar, 'Movement in ' + x.l.en, x.amt, null)),
       ...assetWc.map((x) => row('cf-wc-' + x.l.key, (x.amt <= 0 ? 'الزيادة في ' : 'النقص في ') + x.l.ar, 'Change in ' + x.l.en, x.amt, null)),
       ...liabWc.map((x) => row('cf-wc-' + x.l.key, (x.amt >= 0 ? 'الزيادة في ' : 'النقص في ') + x.l.ar, 'Change in ' + x.l.en, x.amt, null)),
-      row('cf-zakat', 'الزكاة المدفوعة', 'Zakat paid', zakatPaid, null),
+      row('cf-zakat', TW.paid, 'Zakat paid', zakatPaid, null),
     ];
     const op = opRows.reduce((a, r) => a + r.current, 0);
     const inv = byRole('investing', -1).map((x) => row('cf-inv-' + x.l.key, (x.l.key === 'ppe' ? 'إضافات ' : 'الحركة في ') + x.l.ar, 'Investment in ' + x.l.en, x.amt - (x.l.key === 'ppe' ? da : 0), null)).filter((r) => r.current !== 0);

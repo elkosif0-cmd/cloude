@@ -14,7 +14,7 @@
    Schemas and board roles from smart-trial-balance-review (js/gemini.js, js/board.js). */
 import { formatMinor, parseMinor, type Minor } from '../reports/money-engine';
 import { TYPE_LABELS, type TrialBalance } from '../reports/tb-import-engine';
-import { normalizeCode, STANDARDS } from './codex-engine';
+import { normalizeCode, STANDARDS, type Framework } from './codex-engine';
 import { adjustmentEffect, validateAdjustment, type Adjustment, type DocRequest, type Finding, type Review, type Severity } from './tb-review-engine';
 
 export const REVIEWERS = ['المراجع الفني المحاسبي', 'مراجع الامتثال للمعايير والإفصاح', 'مدقق المخاطر والأدلة'] as const;
@@ -51,7 +51,7 @@ export const FINAL_SCHEMA = OBJ({
   limitations: ARR(S()), closingStatement: S(),
 }, ['overallOpinion', 'headline', 'summary', 'keyAuditMatters', 'complianceDiscussion', 'adjustments', 'managementLetter', 'closingStatement']);
 
-export type ReviewContext = { company: string; period: string; periodEnd?: string; framework: 'IFRS' | 'SME'; currency?: string; activity?: string };
+export type ReviewContext = { company: string; period: string; periodEnd?: string; framework: Framework; currency?: string; activity?: string };
 export type Upload = { requestId: string; fileName: string; mimeType: string; size: number; round: number; data?: string; text?: string };
 export type ReviewedDoc = { requestId: string; fileName: string; verdict: 'مقبول' | 'غير كافٍ' | 'مرفوض'; notes: string; extracted: Record<string, string> };
 export type AiAdjustment = Adjustment & { valid: boolean; problems: string[]; newAccounts: string[] };
@@ -74,14 +74,16 @@ export function newSession(ctx: ReviewContext, model = DEFAULT_MODEL, now = new 
 
 /* ---------- prompts ---------- */
 export function systemPrompt(ctx: ReviewContext): string {
-  const fw = ctx.framework === 'SME' ? 'المعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم المعتمد في المملكة (SOCPA)' : 'المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من الهيئة السعودية للمراجعين والمحاسبين (SOCPA)';
-  const codes = STANDARDS.map((s) => s.code).join('، ');
+  const egypt = ctx.framework === 'EAS';
+  const fw = egypt ? 'معايير المحاسبة المصرية الصادرة بقرارات وزير الاستثمار وتعديلاتها، وقانون الضريبة على الدخل 91 لسنة 2005 (22.5%)، وقانون الضريبة على القيمة المضافة 67 لسنة 2016 (14%)، وقانون الشركات 159 لسنة 1981؛ والمراجعة وفق معايير المراجعة المصرية المتسقة مع ISA'
+    : ctx.framework === 'SME' ? 'المعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم المعتمد في المملكة (SOCPA)' : 'المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من الهيئة السعودية للمراجعين والمحاسبين (SOCPA)';
+  const codes = STANDARDS.filter((s) => (egypt ? s.family !== 'SAUDI' && s.family !== 'IFRS' && s.family !== 'IAS' : s.family !== 'EAS' && s.family !== 'EGYPT') && s.status !== 'replaced').map((s) => s.code).join('، ');
   return [
     'أنت «مجلس المراجعة» في تطبيق KOSIF: ثلاثة مراجعين مستقلين بصوت موحد:',
     '- المراجع الفني المحاسبي: التبويب والقياس والعرض.',
     '- مراجع الامتثال للمعايير والإفصاح: ملاءمة المعيار لكل حساب وكفاية الإفصاح والمستندات النظامية.',
     '- مدقق المخاطر والأدلة: المخاطر الجوهرية (ISA 315/330) وكفاية الأدلة (ISA 500) ومؤشرات الغش (ISA 240) والاستمرارية (ISA 570).',
-    `المنشأة: ${ctx.company || 'غير مسماة'} — النشاط: ${ctx.activity || 'غير محدد'} — الفترة: ${ctx.period || 'غير محددة'} — العملة: ${ctx.currency || 'الريال السعودي'}.`,
+    `المنشأة: ${ctx.company || 'غير مسماة'} — النشاط: ${ctx.activity || 'غير محدد'} — الفترة: ${ctx.period || 'غير محددة'} — العملة: ${ctx.currency || (egypt ? 'الجنيه المصري' : 'الريال السعودي')}.`,
     `الإطار: ${fw}.`,
     'قواعد ملزمة:',
     `1) استخدم رموز المعايير كما هي من هذه القائمة فقط: ${codes}. لا تخترع معايير أو فقرات.`,
@@ -192,7 +194,7 @@ export function normalizeRound(raw: unknown, s: Session, tb: TrialBalance, model
     const code = str(f.accountCode, 40), std = str(f.standardCode, 60), amount = parseMinor(f.amount);
     return { id: `G${no}-${++fseq}`, severity: SEV[str(f.severity, 20)] ?? 'medium', kind: KIND[str(f.issueType, 20)] ?? 'measurement',
       code: codes.has(code) ? code : undefined, account: str(f.accountName, 200), standard: normalizeCode(std) ?? (std || 'IAS 1'),
-      title: str(f.comment, 160).split(/[.،؛]/)[0] || 'ملاحظة', detail: str(f.comment, 2000), basis: amount ? 'المبلغ المتأثر ' + sar(amount) + ' ر.س' : 'حكم مهني',
+      title: str(f.comment, 160).split(/[.،؛]/)[0] || 'ملاحظة', detail: str(f.comment, 2000), basis: amount ? 'المبلغ المتأثر ' + sar(amount) + (s.ctx.framework === 'EAS' ? ' ج.م' : ' ر.س') : 'حكم مهني',
       action: str(f.recommendation, 1000), source: 'gemini' as const, round: no };
   });
   const existing = new Map<string, DocRequest>(); s.rounds.forEach((x) => x.requests.forEach((q) => existing.set(q.id, q)));
@@ -281,8 +283,8 @@ export function deriveOpinion(tb: TrialBalance, review: Review, s: Session, acce
   const sigUnevidenced = review.risks.filter((r) => r.significant && !ev[r.lineKey]).length;
   const lineOf = (q: DocRequest) => q.lineKey ?? review.accounts.find((a) => q.accounts.includes(a.code))?.lineKey ?? null;
   const blockedSig = new Set(unavailHigh.map(lineOf).filter((k) => k && review.risks.some((r) => r.lineKey === k && r.significant)));
-  const basis: string[] = [], material = misstatement > mat.overall, pervasive = misstatement > mat.overall * 5;
-  if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar(misstatement)} ر.س مقابل أهمية نسبية ${sar(mat.overall)} ر.س (ISA 450).`);
+  const basis: string[] = [], material = misstatement > mat.overall, pervasive = misstatement > mat.overall * 5, cs = s.ctx.framework === 'EAS' ? 'ج.م' : 'ر.س';
+  if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar(misstatement)} ${cs} مقابل أهمية نسبية ${sar(mat.overall)} ${cs} (ISA 450).`);
   if (unavailHigh.length) basis.push(`تعذر الحصول على ${unavailHigh.length} مستند عالي الأولوية: ` + unavailHigh.map((q) => q.title).join('، ') + '.');
   const scopePervasive = unavailHigh.length >= 3 || blockedSig.size >= 3;
   if (sigUnevidenced) basis.push(`${sigUnevidenced} خطر جوهري دون دليل مقبول بعد؛ يستكمل قبل التوقيع (ISA 330).`);

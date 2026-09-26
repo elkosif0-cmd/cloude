@@ -14,20 +14,23 @@
 "use strict";
 const {esc,load,save,toast}=SK;
 const KEY="skosif_tbreview_v1",MAX_FILE=15*1024*1024,MAX_ROUND=18*1024*1024;
-const E=()=>window.SKEngines,RV=()=>E().audit.tbReview,AI=()=>E().audit.aiReview,DC=()=>E().audit.documentCheck,CX=()=>E().audit.codex;
+const E=()=>window.SKEngines,RV=()=>E().audit.tbReview,AI=()=>E().audit.aiReview,DC=()=>E().audit.documentCheck,CX=()=>E().audit.codex,PG=()=>E().audit.programme,DS=()=>E().audit.disclosures;
 const TI=()=>E().reports.tbImport,FS=()=>E().reports.statements,AN=()=>E().reports.analysis,MN=()=>E().reports.money;
 const TABS=[["tb","الميزان والمعايير"],["ai","جولات المراجعة"],["docs","المستندات"],["adj","التسويات والامتثال"],["fs","القوائم والتقارير"]];
 let root=null,tab="tb",filter="all",busy="",abort=null,cache=null,setup=false,fsAfter=true;
 
 /* ---------- state ---------- */
-const blank=()=>({ctx:{company:"",period:"",periodStart:"",periodEnd:"",activity:"",framework:"IFRS",currency:"الريال السعودي"},fw:{},tbText:"",overrides:{},materiality:null,session:null,accepted:[],rejected:[]});
-const st=()=>{const d=load(KEY,null);return d&&typeof d==="object"?{...blank(),...d,ctx:{...blank().ctx,...(d.ctx||{})}}:blank()};
+const blank=()=>({ctx:{company:"",period:"",periodStart:"",periodEnd:"",activity:"",country:"SA",framework:"IFRS",currency:"الريال السعودي",legalForm:"",registeredOffice:"",principalPlace:""},fw:{},tbText:"",overrides:{},materiality:null,session:null,accepted:[],rejected:[],ecl:null,
+  confirm:{independence:false,edition:false,compliance:false,unrecognized:false,partner:false}});
+const st=()=>{const d=load(KEY,null);return d&&typeof d==="object"?{...blank(),...d,ctx:{...blank().ctx,...(d.ctx||{})},confirm:{...blank().confirm,...(d.confirm||{})}}:blank()};
+let CUR="ر.س";const egypt=d=>d.ctx.country==="EG"||d.ctx.framework==="EAS";
 const put=d=>{try{save(KEY,d)}catch{toast("مساحة التخزين لا تكفي — صدّر التقرير ثم ابدأ مراجعة جديدة","bad")}cache=null};
 const m0=v=>MN().formatMinor(v||0,{decimals:0});
-const sar=v=>m0(v)+" ر.س";
+const sar=v=>m0(v)+" "+CUR;
 const sevCls=s=>s==="high"?"bad":s==="medium"?"warn":"info";
 const SEV_AR={high:"عالية",medium:"متوسطة",low:"منخفضة"};
 const famCls=code=>{const s=CX().STANDARD[code];return "std-"+String(s?s.family:"x").toLowerCase()};
+const FW_LABEL={IFRS:"IFRS المعتمدة في المملكة",SME:"معيار المنشآت الصغيرة والمتوسطة (المملكة)",EAS:"معايير المحاسبة المصرية"};
 
 /* ---------- documents (IndexedDB) ---------- */
 function idb(){return new Promise((res,rej)=>{if(!("indexedDB" in window))return rej(new Error("المتصفح لا يدعم التخزين المحلي للمستندات"));const r=indexedDB.open("skosif-tbreview-docs",1);r.onupgradeneeded=()=>r.result.createObjectStore("docs");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
@@ -41,11 +44,12 @@ const mimeOf=f=>f.type||(/\.pdf$/i.test(f.name)?"application/pdf":/\.png$/i.test
 
 /* ---------- computation (memoized) ---------- */
 function compute(){
-  const d=st();if(!d.tbText)return null;
-  const sig=JSON.stringify([MN().fingerprint(d.tbText),d.overrides,d.ctx.framework,d.materiality,d.session&&d.session.rounds.length,d.session&&d.session.unavailable,d.accepted,d.rejected,!!(d.session&&d.session.final)]);
+  const d=st();CUR=egypt(d)?"ج.م":"ر.س";if(!d.tbText)return null;
+  const sig=JSON.stringify([MN().fingerprint(d.tbText),d.overrides,d.ctx,d.materiality,d.session&&d.session.rounds.length,d.session&&d.session.unavailable,d.accepted,d.rejected,!!(d.session&&d.session.final),d.ecl,d.confirm]);
   if(cache&&cache.sig===sig)return cache;
   const tb=TI().parseTrialBalance(d.tbText);
-  const opts={framework:d.ctx.framework,overrides:d.overrides,materiality:d.materiality||undefined};
+  const fw=egypt(d)?"EAS":d.ctx.framework,tax=egypt(d)?"income":"zakat";
+  const opts={framework:fw,currency:CUR,overrides:d.overrides,materiality:d.materiality||undefined};
   let base=RV().reviewTrialBalance(tb,opts);
   const s=d.session;
   if(s&&s.rounds.length){const ev=AI().evidenceFromSession(base,s);if(Object.keys(ev).length)base=RV().reviewTrialBalance(tb,{...opts,evidence:ev})}
@@ -53,12 +57,19 @@ function compute(){
   const all=gem.length?RV().reviewTrialBalance(tb,{...opts,evidence:s?AI().evidenceFromSession(base,s):{},extraFindings:gem}):base;
   const stdMap=s?AI().accountStandards(base,s):Object.fromEntries(base.accounts.map(a=>[a.code,a.standards.map(x=>x.code)]));
   const notes={};if(s)for(const r of s.rounds)for(const [code,v] of Object.entries(r.accountStandards))if(v.note)notes[code]=v.note;
-  const pool=[...base.adjustments,...(s?s.rounds.flatMap(r=>r.adjustments.filter(a=>a.valid)):[]),...(s&&s.final?s.final.adjustments.filter(a=>a.valid):[])];
+  const eclM=d.ecl?RV().eclMatrix(d.ecl):null,eclA=eclM?RV().eclAdjustment(tb,eclM,fw):null;
+  const pool=[...base.adjustments,...(eclA?[eclA]:[]),...(s?s.rounds.flatMap(r=>r.adjustments.filter(a=>a.valid)):[]),...(s&&s.final?s.final.adjustments.filter(a=>a.valid):[])];
   const accepted=pool.filter(a=>d.accepted.includes(a.id));
   const adjusted=accepted.length?RV().applyAdjustments(tb,accepted):tb;
-  const fsBefore=base.fs,fsAfterAdj=accepted.length?FS().buildStatements(adjusted,d.overrides):base.fs;
-  const derived=AI().deriveOpinion(tb,base,s||AI().newSession(d.ctx),accepted);
-  cache={sig,d,tb,base,all,stdMap,notes,pool,accepted,adjusted,fsBefore,fsAfterAdj,derived,session:s};
+  const fsBefore=base.fs,fsAfterAdj=accepted.length?FS().buildStatements(adjusted,d.overrides,{tax}):base.fs;
+  const derived=AI().deriveOpinion(tb,base,s||AI().newSession({...d.ctx,framework:fw}),accepted);
+  const evidence=s?AI().evidenceFromSession(base,s):{},c=d.ctx,cf=d.confirm;
+  const disclosures=DS().disclosureReadiness({fs:fsAfterAdj,framework:fw,periodEnd:c.periodEnd,currency:CUR,confirm:{editionReviewed:cf.edition,complianceApproved:cf.compliance,unrecognizedReviewed:cf.unrecognized},
+    entity:{legalName:c.company,legalForm:c.legalForm,country:egypt(d)?"مصر":"المملكة العربية السعودية",registeredOffice:c.registeredOffice,principalPlace:c.principalPlace,activities:c.activity}});
+  const decided=pool.every(a=>d.accepted.includes(a.id)||d.rejected.includes(a.id));
+  const programme=PG().auditProgramme({review:base,framework:fw,evidence,company:c.company,period:c.period,activity:c.activity,independenceConfirmed:cf.independence,partnerApproved:cf.partner,
+    rounds:s?s.rounds.length:0,finalIssued:!!(s&&s.final),adjustmentsDecided:decided,disclosuresValid:disclosures.valid});
+  cache={sig,d,fw,tb,base,all,stdMap,notes,pool,accepted,adjusted,fsBefore,fsAfterAdj,derived,session:s,eclM,disclosures,programme,decided};
   return cache;
 }
 const session=d=>d.session||AI().newSession(d.ctx,window.SKosifAI?SKosifAI.conf().model:AI().DEFAULT_MODEL);
@@ -72,7 +83,7 @@ function stepper(c){
 }
 function hero(c){
   const d=c?c.d:st(),ctx=d.ctx,s=c&&c.session,state=s?AI().sessionState(s):{label:c?"الميزان جاهز — ابدأ جولة Gemini أو تابع بالمحرك الآلي":"ابدأ باستلام ميزان المراجعة"};
-  return '<section class="tbr-hero"><div class="tx"><span class="eyebrow">مراجعة الحسابات بالمعايير</span><h2>'+esc(ctx.company||"منشأة جديدة")+'</h2><p>'+esc([ctx.period,ctx.framework==="SME"?"معيار المنشآت الصغيرة والمتوسطة":"IFRS المعتمدة في المملكة",ctx.activity].filter(Boolean).join(" · "))+'</p>'+
+  return '<section class="tbr-hero"><div class="tx"><span class="eyebrow">مراجعة الحسابات بالمعايير</span><h2>'+esc(ctx.company||"منشأة جديدة")+'</h2><p>'+esc([ctx.period,FW_LABEL[egypt(d)?"EAS":ctx.framework],ctx.activity].filter(Boolean).join(" · "))+'</p>'+
     '<p class="tbr-state">'+esc(state.label)+'</p></div><div class="sk-actions">'+(c?'<button type="button" class="btn sm" data-a="setup">بيانات المراجعة</button><button type="button" class="btn sm" data-a="reset">مراجعة جديدة</button>':'')+'</div></section>'+stepper(c)+
     (c?'<div class="tbr-tabs" role="tablist">'+TABS.map(([k,l])=>'<button type="button" role="tab" data-tab="'+k+'" aria-selected="'+(tab===k)+'">'+esc(l)+badge(c,k)+'</button>').join("")+'</div>':'');
 }
@@ -83,13 +94,18 @@ function badge(c,k){
 
 /* ---------- setup (company, period, framework, trial balance) ---------- */
 function setupHTML(d,withTb){
-  const c=d.ctx,fw=d.fw||{},app=CX().frameworkApplicability(fw);
+  const c=d.ctx,fw=d.fw||{},app=CX().frameworkApplicability(fw),eg=egypt(d);
   const q=(k,l)=>'<label class="checkline"><input type="checkbox" data-fw="'+k+'"'+(fw[k]?' checked':'')+'> '+esc(l)+'</label>';
   return '<section class="card"><div class="card-h"><div><h3>'+(withTb?"استلام ميزان المراجعة":"بيانات المراجعة")+'</h3><p>اطلب من الشركة ميزان المراجعة (Excel أو CSV) بأعمدة: رقم الحساب، اسم الحساب، مدين، دائن — ويفضّل عمود السنة السابقة للمقارنة وقائمة التدفقات.</p></div></div><div class="card-b">'+
+    '<div class="sk-grid2"><label class="sk-field"><span>بلد المنشأة</span><select data-ctx="country"><option value="SA"'+(eg?'':' selected')+'>المملكة العربية السعودية — IFRS المعتمدة / SOCPA</option><option value="EG"'+(eg?' selected':'')+'>جمهورية مصر العربية — معايير المحاسبة المصرية</option></select></label>'+
+      '<label class="sk-field"><span>الشكل القانوني</span><input data-ctx="legalForm" value="'+esc(c.legalForm)+'" placeholder="ذات مسؤولية محدودة، مساهمة…"></label></div>'+
     '<div class="sk-grid2"><label class="sk-field"><span>المنشأة</span><input data-ctx="company" value="'+esc(c.company)+'" placeholder="اسم الشركة"></label><label class="sk-field"><span>النشاط</span><input data-ctx="activity" value="'+esc(c.activity)+'" placeholder="تجارة، مقاولات، خدمات…"></label></div>'+
     '<div class="sk-grid2"><label class="sk-field"><span>الفترة</span><input data-ctx="period" value="'+esc(c.period)+'" placeholder="السنة المنتهية في 31 ديسمبر 2025"></label><div class="sk-grid2"><label class="sk-field"><span>من</span><input type="date" data-ctx="periodStart" value="'+esc(c.periodStart)+'"></label><label class="sk-field"><span>إلى</span><input type="date" data-ctx="periodEnd" value="'+esc(c.periodEnd)+'"></label></div></div>'+
+    '<div class="sk-grid2"><label class="sk-field"><span>المكتب المسجل</span><input data-ctx="registeredOffice" value="'+esc(c.registeredOffice)+'" placeholder="المدينة والعنوان"></label><label class="sk-field"><span>المقر الرئيسي للنشاط</span><input data-ctx="principalPlace" value="'+esc(c.principalPlace)+'"></label></div>'+
+    (eg?'<div class="tbr-fw"><div><h4>الإطار المحاسبي</h4><p class="hint">معايير المحاسبة المصرية الصادرة بقرارات وزير الاستثمار وتعديلاتها، وقانون الضريبة على الدخل 91 لسنة 2005 (22.5%)، وقانون الضريبة على القيمة المضافة 67 لسنة 2016 (14%)، وقانون الشركات 159 لسنة 1981. العملة: الجنيه المصري.</p></div>'+
+      '<div class="tbr-fw-r"><b>معايير المحاسبة المصرية</b><p>تظهر أرقام المعايير المصرية بجوار الحسابات مع ما يقابلها في IFRS، وتُعامل ضريبة الدخل بدلاً من الزكاة.</p><small>الهيئة العامة للرقابة المالية · مصلحة الضرائب المصرية</small></div></div>':
     '<div class="tbr-fw"><div><h4>الإطار المحاسبي (إرشادات SOCPA — القسم 1)</h4>'+q("listedOrIssuing","أسهم أو أدوات دين متداولة أو في طور الإدراج")+q("fiduciaryForBroadGroup","تحتفظ بأموال مجموعة عريضة من الغير كنشاط رئيس (بنك، تأمين، صندوق)")+q("incidentalDepositsOnly","الاحتفاظ بأموال العملاء عرضي (مدارس، وكالات سفر)")+q("electedFullIfrs","غير خاضعة للمساءلة واختارت المعايير الكاملة")+'</div>'+
-      '<div class="tbr-fw-r"><b>'+esc(app.label)+'</b><p>'+esc(app.reason)+'</p><small>'+esc(app.cite.join(" · "))+'</small></div></div>'+
+      '<div class="tbr-fw-r"><b>'+esc(app.label)+'</b><p>'+esc(app.reason)+'</p><small>'+esc(app.cite.join(" · "))+'</small></div></div>')+
     (withTb?'<div class="tbr-in"><label class="btn primary" style="cursor:pointer">'+SK.icon("excelrecon")+' رفع ملف الميزان<input type="file" data-tbfile accept=".xlsx,.csv,.tsv,.txt,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></label><button type="button" class="btn" data-a="sample">ميزان تجريبي</button><span class="hint">أو الصق الميزان من Excel:</span></div>'+
       '<textarea data-tbtext rows="7" dir="ltr" placeholder="رقم الحساب\tاسم الحساب\tمدين\tدائن\tالسنة السابقة">'+esc(d.tbText)+'</textarea><div class="sk-actions"><button type="button" class="btn primary" data-a="analyze">تحليل الميزان</button></div>':
       '<div class="sk-actions"><button type="button" class="btn primary" data-a="setup-done">تم</button><label class="sk-field tbr-mat"><span>الأهمية النسبية (ريال) — فارغ = تلقائي</span><input type="number" min="0" step="100" data-mat value="'+(d.materiality?d.materiality/100:"")+'"></label></div>')+
@@ -146,7 +162,7 @@ function aiTab(c){
 }
 function roundCard(r,c){
   const today=new Date().toISOString().slice(0,10),ctx=c.d.ctx;
-  const docRow=x=>{const chk=DC().checkDocument({...x.extracted,amount:x.extracted.amount,vatAmount:x.extracted.vatAmount,fileName:x.fileName},{periodStart:ctx.periodStart||undefined,periodEnd:ctx.periodEnd||undefined,today});
+  const docRow=x=>{const chk=DC().checkDocument({...x.extracted,amount:x.extracted.amount,vatAmount:x.extracted.vatAmount,fileName:x.fileName},{periodStart:ctx.periodStart||undefined,periodEnd:ctx.periodEnd||undefined,today,jurisdiction:egypt(c.d)?"EG":"SA"});
     return '<tr><td>'+esc(x.fileName)+'</td><td class="mono">'+esc(x.requestId)+'</td><td><span class="sksev '+(x.verdict==="مقبول"?"ok":x.verdict==="مرفوض"?"bad":"warn")+'">'+esc(x.verdict)+'</span></td><td>'+esc(x.notes)+
       (Object.keys(x.extracted).length?'<small class="tbr-sub">'+Object.entries(x.extracted).map(([k,v])=>esc(k)+': '+esc(v)).join(" · ")+'</small>':'')+'</td><td>'+(chk.issues.length?'<span class="sksev '+(chk.verdict==="مرفوض"?"bad":"warn")+'" title="'+esc(chk.issues.map(i=>i.message).join("\n"))+'">تحقق آلي: '+esc(chk.verdict)+'</span>':Object.keys(x.extracted).length?'<span class="sksev ok">تحقق آلي: سليم</span>':'—')+'</td></tr>'};
   return '<section class="card tbr-round"><div class="card-h"><div><h3>الجولة '+r.no+' <span class="sksev '+(r.status==="complete"?"ok":"warn")+'">'+(r.status==="complete"?"اكتملت":"تطلب مستندات")+'</span></h3><p>'+esc(r.model)+' · '+esc(new Date(r.at).toLocaleString("ar-SA-u-ca-gregory-nu-latn",{dateStyle:"medium",timeStyle:"short"}))+'</p></div>'+SKCharts.ring(r.riskScore,{cls:r.riskScore>=70?"bad":r.riskScore>=45?"warn":"ok",size:54})+'</div><div class="card-b">'+
@@ -187,6 +203,16 @@ function docsTab(c){
 }
 
 /* ---------- tab 4: adjustments and compliance ---------- */
+function eclCard(c){
+  const rec=c.base.fs.lines.find(l=>l.key==="receivables");if(!rec||!rec.current)return "";
+  const b=c.d.ecl||RV().DEFAULT_ECL_BUCKETS.map(x=>({...x})),m=RV().eclMatrix(b),ex=RV().existingAllowance(c.tb),gross=rec.current+ex;
+  return '<section class="card"><div class="card-h"><div><h3>الخسائر الائتمانية المتوقعة — '+esc(CX().inFramework("IFRS 9",c.fw))+'</h3><p>مصفوفة أعمار الذمم (النهج المبسط): أدخل رصيد كل فئة من كشف الأعمار ومعدل خسارتها، فيُنشأ القيد الذي يوصل المخصص إلى النتيجة. إجمالي الذمم '+sar(gross)+' · المخصص القائم '+sar(ex)+'.</p></div></div><div class="card-b tbr-tw">'+
+    '<table class="sk-table tbr-ecl" data-sk-plain><thead><tr><th>فئة العمر</th><th>الرصيد</th><th>معدل الخسارة %</th><th>الخسارة المتوقعة</th></tr></thead><tbody>'+
+    m.rows.map((r,i)=>'<tr><td>'+esc(r.label)+'</td><td><input type="number" min="0" step="1" inputmode="decimal" data-ecl-x="'+i+'" value="'+(r.exposure?r.exposure/100:"")+'" aria-label="رصيد '+esc(r.label)+'"></td><td><input type="number" min="0" max="100" step="0.1" inputmode="decimal" data-ecl-r="'+i+'" value="'+r.rateBps/100+'" aria-label="معدل '+esc(r.label)+'"></td><td class="num">'+m0(r.loss)+'</td></tr>').join("")+
+    '<tr class="tot"><td>المجموع</td><td class="num">'+m0(m.exposure)+'</td><td class="num">'+(m.weightedBps/100)+'%</td><td class="num">'+m0(m.loss)+'</td></tr></tbody></table>'+
+    (m.exposure&&m.exposure!==gross?'<p class="tbr-warn">مجموع كشف الأعمار '+sar(m.exposure)+' لا يطابق إجمالي الذمم في الميزان '+sar(gross)+' — طابق الكشف قبل اعتماد القيد.</p>':'')+
+    '<div class="sk-actions"><button type="button" class="btn primary sm" data-a="ecl-save">احتساب وإنشاء القيد</button>'+(c.d.ecl?'<button type="button" class="btn sm" data-a="ecl-clear">إزالة الحاسبة</button>':'')+'</div></div></section>';
+}
 function adjTab(c){
   const d=c.d,m=c.base.materiality,uncorr=c.pool.filter(a=>!d.accepted.includes(a.id));
   const eff=c.accepted.length?RV().adjustmentEffect(c.tb,c.accepted):{profit:0,assets:0,equity:0};
@@ -203,6 +229,7 @@ function adjTab(c){
       '<div class="skk4-t"><span class="chip '+(Math.abs(un.profit)>m.overall?"bad":"warn")+'">'+SK.icon("alert")+'</span><span class="tx"><span>تحريفات غير مصححة</span><b>'+sar(Math.abs(un.profit))+'</b><small>مقابل أهمية نسبية '+sar(m.overall)+' (ISA 450)</small></span></div>'+
       '<div class="skk4-t"><span class="chip '+(cnt("غير ممتثل")?"bad":"ok")+'">'+SK.icon("governance")+'</span><span class="tx"><span>الامتثال للمعايير</span><b>'+cnt("ممتثل")+' / '+comp.length+'</b><small>'+cnt("غير ممتثل")+' غير ممتثل · '+cnt("ممتثل جزئياً")+' جزئي · '+cnt("يتطلب أدلة")+' بانتظار أدلة</small></span></div>'+
     '</div>'+
+    eclCard(c)+
     '<section class="card"><div class="card-h"><div><h3>قيود التسوية المقترحة</h3><p>كل قيد متوازن ومتحقق من حساباته قبل عرضه؛ المعتمد منها يدخل في القوائم «بعد التسويات».</p></div><div class="sk-actions"><button type="button" class="btn sm" data-a="jev-adj"'+(c.pool.length>1?'':' disabled')+'>'+SK.icon("jev")+' أولوية القيود مع Jev</button><button type="button" class="btn sm" data-a="adj-csv">تصدير القيود</button></div></div><div class="card-b">'+(c.pool.map(card).join("")||'<p class="empty">لا قيود مقترحة — لم يظهر ما يستوجب التسوية من الأرقام.</p>')+'</div></section>'+
     '<section class="card"><div class="card-h"><div><h3>مناقشة الامتثال للمعايير</h3><p>لكل معيار: الحسابات التي يحكمها، الملاحظات، الأدلة المنتظرة، والحكم.</p></div></div><div class="card-b tbr-comp">'+
       comp.map(x=>'<div class="tbr-ci"><div class="tbr-ci-h"><button type="button" class="std-b '+famCls(x.code)+'" data-std="'+esc(x.code)+'">'+esc(x.code)+'</button><b>'+esc(x.title)+'</b><span class="sksev '+(x.status==="ممتثل"?"ok":x.status==="غير ممتثل"?"bad":x.status==="ممتثل جزئياً"?"warn":"info")+'">'+esc(x.status)+'</span></div><p>'+esc(x.discussion)+'</p></div>').join("")+
@@ -211,6 +238,29 @@ function adjTab(c){
 }
 
 /* ---------- tab 5: statements and reports ---------- */
+const STG={"منجز":"ok","قيد التنفيذ":"warn","لم يبدأ":"info","غير منطبق":""};
+function programmeCard(c){
+  const p=c.programme,pct=PG().programmeProgress(p),cf=c.d.confirm;
+  return '<section class="card"><div class="card-h"><div><h3>برنامج المراجعة — عشر مراحل</h3><p>حالة كل مرحلة من بيانات المراجعة نفسها: الأدلة المقبولة والقيود المحسومة والإفصاحات والاعتمادات.</p></div>'+SKCharts.ring(pct,{cls:pct>=80?"ok":pct>=40?"warn":"bad",size:58})+'</div><div class="card-b"><ol class="tbr-prog">'+
+    p.map(x=>'<li class="'+(STG[x.status]||"na")+'"><span class="mono">'+esc(x.id)+'</span><div><b>'+esc(x.title)+'</b><small>'+esc(x.detail)+'</small><small class="tbr-sub">'+x.standards.map(z=>'<button type="button" class="std-b '+famCls(z)+'" data-std="'+esc(z)+'">'+esc(z)+'</button>').join(" ")+'</small></div><span class="sksev '+(STG[x.status]||"")+'">'+esc(x.status)+'</span></li>').join("")+'</ol>'+
+    '<div class="tbr-conf"><label class="checkline"><input type="checkbox" data-conf="independence"'+(cf.independence?' checked':'')+'><span><b>أؤكد استقلال فريق المراجعة وقبول التكليف</b><small>ISA 220 · ISQM 1 — شرط لإنجاز R01</small></span></label>'+
+    '<label class="checkline"><input type="checkbox" data-conf="partner"'+(cf.partner?' checked':'')+'><span><b>اعتماد الشريك المسؤول</b><small>لا يصدر الرأي دون هذا الاعتماد — شرط لإنجاز R10</small></span></label></div></div></section>';
+}
+function disclosuresCard(c){
+  const r=c.disclosures,cf=c.d.confirm,HUM={"framework.editionReviewed":"edition","compliance.humanApproved":"compliance","unrecognized-items":"unrecognized"};
+  return '<section class="card"><div class="card-h"><div><h3>جاهزية الإفصاحات</h3><p>'+(r.valid?'جاهزة للمراجعة البشرية':'تنقصها '+r.summary.blockers+' متطلبات أساسية')+' · '+r.summary.passed+' من '+r.summary.total+' مستوفاة'+(r.summary.warnings?' · '+r.summary.warnings+' تنبيه':'')+'.</p></div><span class="sksev '+(r.valid?"ok":"bad")+'">'+(r.valid?"جاهزة":"غير مكتملة")+'</span></div><div class="card-b tbr-dsc">'+
+    r.checks.map(k=>'<div class="tbr-dc '+k.status+'"><i>'+(k.status==="pass"?"✓":"!")+'</i><div><b>'+esc(k.label)+'</b>'+(k.detail?'<small>'+esc(k.detail)+'</small>':'')+'</div>'+
+      (HUM[k.id]?'<label class="tbr-dc-h"><input type="checkbox" data-conf="'+HUM[k.id]+'"'+(cf[HUM[k.id]]?' checked':'')+'> اعتماد بشري</label>':'<span class="sksev '+(k.status==="pass"?"ok":k.severity==="blocker"?"bad":"warn")+'">'+(k.status==="pass"?"مستوفى":k.severity==="blocker"?"أساسي":"تنبيه")+'</span>')+'</div>').join("")+
+    (r.uncertainties.length?'<h4>مصادر عدم التأكد في التقديرات</h4><ul class="tbr-ul">'+r.uncertainties.map(u=>'<li><b>'+esc(u.nature)+'</b> — '+esc(u.affected)+' '+sar(u.carrying)+' · الافتراضات: '+esc(u.assumptions.join("، "))+'</li>').join("")+'</ul>':'')+
+    (r.sections.length?'<h4>الأقسام المتخصصة في معيار المنشآت الصغيرة</h4><ul class="tbr-ul">'+r.sections.map(x=>'<li>القسم '+esc(x.section)+' — '+esc(x.title)+': <b>'+(x.status==="applicable"?"ينطبق":"لا ينطبق")+'</b> ('+esc(x.rationale)+')</li>').join("")+'</ul>':'')+
+  '</div></section>';
+}
+function benchmarkCard(c){
+  const L=E().reports.researchLibrary,f=c.session&&c.session.final;
+  const b=L.benchmarkReport({highlights:true,mdna:true,statements:true,notes:true,ratios:true,opinion:true,kams:true,cashFlow:!!c.fsAfterAdj.cf,comparatives:c.fsAfterAdj.hasPrior,managementLetter:!!(f&&f.letter.length)});
+  return '<section class="card"><div class="card-h"><div><h3>مقارنة بالتقارير السنوية العالمية</h3><p>يغطي تقريرك '+b.covered+' من '+b.total+' عنصراً تحملها تقارير Amazon وApple والمراعي ونستله وأرامكو.</p></div><button type="button" class="btn sm" data-a="lib">مركز التقارير المالية</button></div><div class="card-b"><div class="tbr-bench">'+
+    b.rows.map(x=>'<span class="'+(x.has?"on":"")+'" title="'+esc(x.seenIn)+'">'+(x.has?"✓ ":"○ ")+esc(x.ar)+'</span>').join("")+'</div></div></section>';
+}
 function stmt(rows,hasPrior,cls=""){
   return '<table class="sk-table tbr-fs '+cls+'" data-sk-plain><thead><tr><th></th><th>إيضاح</th><th>'+(hasPrior?'السنة الحالية':'المبلغ')+'</th>'+(hasPrior?'<th>السنة السابقة</th>':'')+'</tr></thead><tbody>'+
     rows.map(r=>r.level==="heading"?'<tr class="h"><td colspan="'+(hasPrior?4:3)+'">'+esc(r.ar)+'</td></tr>':'<tr class="'+r.level+'"><td>'+esc(r.ar)+'</td><td class="mono">'+(r.note||'')+'</td><td class="num">'+m0(r.current)+'</td>'+(hasPrior?'<td class="num">'+(r.prior===null?'':m0(r.prior))+'</td>':'')+'</tr>').join("")+'</tbody></table>';
@@ -232,6 +282,7 @@ function fsTab(c){
       '<div class="tbr-op-s">'+(f?'<small>اقتراح Gemini</small><b>'+esc(f.aiOpinion||"—")+'</b>':'<small>لا يوجد تقرير Gemini نهائي</small>')+'<small class="hint">لا يصدر الرأي إلا باعتماد الشريك المسؤول.</small></div></div>'+
       '<div class="sk-actions"><div class="sk-seg" role="group"><button type="button" data-fsv="after" aria-pressed="'+fsAfter+'">بعد التسويات ('+c.accepted.length+')</button><button type="button" data-fsv="before" aria-pressed="'+!fsAfter+'">قبل التسويات</button></div>'+
       '<button type="button" class="btn primary" data-a="print">طباعة التقرير الكامل</button><button type="button" class="btn" data-a="jev-op">'+SK.icon("jev")+' رأي ثانٍ من Jev</button><button type="button" class="btn" data-a="fs-csv">تصدير القوائم</button></div></div></section>'+
+    programmeCard(c)+disclosuresCard(c)+
     (f?'<section class="card"><div class="card-h"><div><h3>'+esc(f.headline||"ملخص التقرير")+'</h3><p>التقرير النهائي من Gemini · '+esc(f.at.slice(0,10))+'</p></div></div><div class="card-b"><p>'+esc(f.summary)+'</p>'+(f.limitations.length?'<h4>القيود على النطاق</h4><ul>'+f.limitations.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>':'')+'</div></section>':'')+
     '<h3 class="tbr-sec">السنة في لمحة</h3><div class="skk4 tbr-hl">'+hl+'</div>'+
     '<div class="tbr-2"><section class="card"><div class="card-h"><div><h3>قائمة الربح أو الخسارة</h3><p>عرض IFRS 18: التشغيل ← الاستثمار ← التمويل ← الزكاة</p></div></div><div class="card-b">'+stmt(fs.pl,p.hp)+'</div></section>'+
@@ -247,13 +298,16 @@ function fsTab(c){
     '<section class="card"><div class="card-h"><div><h3>تقرير الإدارة (MD&A)</h3><p>سرد مولّد من الأرقام فقط.</p></div></div><div class="card-b tbr-md">'+p.md.map(s=>'<h4>'+esc(s.title)+'</h4>'+s.body.map(x=>'<p>'+esc(x)+'</p>').join("")).join("")+'</div></section>'+
     '<section class="card"><div class="card-h"><div><h3>الأمور الرئيسية للمراجعة (ISA 701)</h3></div></div><div class="card-b">'+(kamsOf(c).map(k=>'<div class="tbr-kam"><b>'+esc(k.title)+'</b><p><small>لماذا:</small> '+esc(k.why)+'</p><p><small>كيف عولج:</small> '+esc(k.how)+'</p></div>').join("")||'<p class="empty">لا مخاطر جوهرية مصنفة.</p>')+'</div></section>'+
     (f&&f.letter.length?'<section class="card"><div class="card-h"><div><h3>خطاب الإدارة</h3></div></div><div class="card-b">'+f.letter.map(x=>'<div class="tbr-kam"><b>'+esc(x.title)+' <span class="sksev '+(x.priority==="عالية"?"bad":x.priority==="متوسطة"?"warn":"info")+'">'+esc(x.priority)+'</span></b><p>'+esc(x.observation)+'</p><p><small>التوصية:</small> '+esc(x.recommendation)+'</p></div>').join("")+'</div></section>':'')+
+    benchmarkCard(c)+
     '<section class="card"><div class="card-h"><div><h3>الإيضاحات</h3><p>إيضاح لكل بند بالحسابات التي كوّنته.</p></div></div><div class="card-b tbr-notes">'+fs.notes.map(n=>{const l=n.lineKey&&fs.lines.find(x=>x.key===n.lineKey);
       return '<details><summary><span class="mono">'+n.no+'</span> '+esc(n.ar)+(l?' — '+sar(l.current):'')+'</summary>'+(l?'<table class="sk-table" data-sk-plain><tbody>'+l.accounts.map(a=>'<tr><td class="mono">'+esc(a.code)+'</td><td>'+esc(a.name)+'</td><td class="num">'+m0(a.current)+'</td>'+(fs.hasPrior?'<td class="num">'+(a.prior===null?'':m0(a.prior))+'</td>':'')+'</tr>').join("")+'</tbody></table><p class="hint">المعايير: '+esc(l.standards.join("، "))+'</p>':'<p class="hint">'+esc(policyNote(n.no,c))+'</p>')+'</details>'}).join("")+'</div></section>';
 }
 function policyNote(no,c){
   const ctx=c.d.ctx;
   return no===1?(ctx.company||"المنشأة")+(ctx.activity?' — '+ctx.activity:'')+'. '+(ctx.period||''):
+    no===2&&egypt(c.d)?'أُعدت القوائم وفق معايير المحاسبة المصرية الصادرة بقرارات وزير الاستثمار وتعديلاتها وفي ضوء القوانين واللوائح المصرية السارية، على أساس التكلفة التاريخية ما لم يُذكر خلاف ذلك، وبالجنيه المصري.':
     no===2?'أُعدت القوائم وفق '+(ctx.framework==="SME"?'المعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم':'المعايير الدولية للتقرير المالي')+' المعتمدة في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من SOCPA، على أساس التكلفة التاريخية ما لم يُذكر خلاف ذلك، وبالريال السعودي.':
+    no===3&&egypt(c.d)?'الإيراد عند انتقال السيطرة (معيار 48)؛ المخزون بالتكلفة أو صافي القيمة البيعية (معيار 2)؛ الأصول الثابتة بالتكلفة ناقصاً الإهلاك (معيار 10)؛ عقود التأجير (معيار 49)؛ ضريبة الدخل الجارية والمؤجلة (معيار 24)؛ الأدوات المالية وخسائر الائتمان المتوقعة (معيار 47).':
     no===3?'الإيراد عند انتقال السيطرة (IFRS 15)؛ المخزون بالتكلفة أو صافي القيمة القابلة للتحقق (IAS 2)؛ الممتلكات بالتكلفة ناقصاً الاستهلاك (IAS 16)؛ الإيجارات (IFRS 16)؛ مكافأة نهاية الخدمة (IAS 19)؛ الزكاة وفق لائحة 1445هـ؛ الأدوات المالية بالتكلفة المطفأة مع خسائر ائتمانية متوقعة (IFRS 9).':
     'التقديرات الهامة: الخسائر الائتمانية المتوقعة، صافي القيمة القابلة للتحقق للمخزون، الأعمار الإنتاجية، مخصص الزكاة، التزام نهاية الخدمة.';
 }
@@ -263,8 +317,10 @@ function printReport(c){
   const w=window.open("","_blank");if(!w){toast("اسمح بالنوافذ المنبثقة لطباعة التقرير","warn");return}
   const p=reportParts(c),fs=p.fs,d=c.derived,ctx=c.d.ctx,f=c.session&&c.session.final;
   const tbl=(rows,hp)=>'<table><tr><th></th><th>إيضاح</th><th>'+(hp?'الحالية':'المبلغ')+'</th>'+(hp?'<th>السابقة</th>':'')+'</tr>'+rows.map(r=>r.level==="heading"?'<tr><td colspan="4"><b>'+esc(r.ar)+'</b></td></tr>':'<tr'+(r.level!=="line"?' style="font-weight:700"':'')+'><td>'+esc(r.ar)+'</td><td>'+(r.note||'')+'</td><td>'+m0(r.current)+'</td>'+(hp?'<td>'+(r.prior===null?'':m0(r.prior))+'</td>':'')+'</tr>').join("")+'</table>';
-  let b='<h1>تقرير مراجعة ميزان المراجعة</h1><p><b>'+esc(ctx.company||"")+'</b> — '+esc(ctx.period||"")+' — '+(ctx.framework==="SME"?'معيار المنشآت الصغيرة والمتوسطة':'IFRS المعتمدة في المملكة')+'</p>'+
+  let b='<h1>تقرير مراجعة ميزان المراجعة</h1><p><b>'+esc(ctx.company||"")+'</b> — '+esc(ctx.period||"")+' — '+esc(FW_LABEL[c.fw])+'</p>'+
     '<h2>الرأي المشتق ('+esc(d.isa)+')</h2><p><b>'+esc(d.ar)+'</b></p>'+d.basis.map(x=>'<p>'+esc(x)+'</p>').join("")+(f?'<p>اقتراح Gemini: '+esc(f.aiOpinion)+'</p><p>'+esc(f.summary)+'</p>':'')+
+    '<h2>برنامج المراجعة</h2><table><tr><th>المرحلة</th><th>الحالة</th><th>التفاصيل</th></tr>'+c.programme.map(x=>'<tr><td>'+esc(x.id+' '+x.title)+'</td><td>'+esc(x.status)+'</td><td>'+esc(x.detail)+'</td></tr>').join("")+'</table>'+
+    '<p>جاهزية الإفصاحات: '+(c.disclosures.valid?'جاهزة للمراجعة البشرية':'غير مكتملة — '+c.disclosures.checks.filter(k=>k.status==="fail").map(k=>esc(k.label)).join("، "))+'</p>'+
     '<h2>الأمور الرئيسية للمراجعة</h2>'+kamsOf(c).map(k=>'<p><b>'+esc(k.title)+'</b> — '+esc(k.why)+' '+esc(k.how)+'</p>').join("")+
     '<h2>القوائم المالية '+(fsAfter?'بعد التسويات المعتمدة':'قبل التسويات')+'</h2><h3>الربح أو الخسارة</h3>'+tbl(fs.pl,p.hp)+'<h3>المركز المالي</h3>'+tbl(fs.sfp,p.hp)+(fs.cf?'<h3>التدفقات النقدية</h3>'+tbl(fs.cf,false):'')+
     '<h2>قيود التسوية</h2>'+(c.pool.length?c.pool.map(a=>'<p><b>'+esc(a.id)+' '+esc(a.title)+'</b> ('+esc(a.standard)+') — '+(c.d.accepted.includes(a.id)?'معتمد':c.d.rejected.includes(a.id)?'مرفوض':'مقترح')+'</p><table><tr><th>الحساب</th><th>مدين</th><th>دائن</th></tr>'+a.lines.map(l=>'<tr><td>'+esc(l.code+' '+l.name)+'</td><td>'+(l.debit?m0(l.debit):'')+'</td><td>'+(l.credit?m0(l.credit):'')+'</td></tr>').join("")+'</table>').join(""):'<p>لا قيود.</p>')+
@@ -291,7 +347,7 @@ async function loadFile(file){
     toast(tb.ok?"قُرئ "+tb.rows.length+" حساباً"+(tb.balanced?" — الميزان متوازن":" — الميزان غير متوازن"):"لم أتعرف على أعمدة الميزان",tb.ok?"ok":"bad");
   }catch(e){toast(e.message,"bad")}
 }
-function readCtx(d){root.querySelectorAll("[data-ctx]").forEach(i=>{d.ctx[i.dataset.ctx]=i.value.trim()});return d}
+function readCtx(d){root.querySelectorAll("[data-ctx]").forEach(i=>{d.ctx[i.dataset.ctx]=i.value.trim()});d.ctx.framework=d.ctx.country==="EG"?"EAS":CX().frameworkApplicability(d.fw||{}).framework;d.ctx.currency=d.ctx.country==="EG"?"الجنيه المصري":"الريال السعودي";return d}
 async function upload(reqId,files){
   let d=st(),s=session(d);const pend=AI().pendingUploads(s).reduce((a,u)=>a+u.size,0);let added=0,total=pend;
   for(const f of files){
@@ -343,11 +399,11 @@ function bind(node){
     if(sb){const c=compute(),code=sb.dataset.std,acc=sb.dataset.acc&&c?c.all.accounts.find(a=>a.code===sb.dataset.acc):null;
       const la=acc&&acc.lineKey?RV().LINE_AUDIT[acc.lineKey]:null;
       SKosifCodex.open(code,{account:acc?{code:acc.code,name:acc.name,lineKey:acc.lineKey,lineAr:acc.lineAr,basis:acc.basis,assertions:acc.assertions}:null,note:acc&&c.notes[acc.code]||"",
-        findings:acc?c.all.findings.filter(f=>f.code===acc.code):[],procedures:la?la.procedures:[],framework:c?c.d.ctx.framework:"IFRS"});return}
+        findings:acc?c.all.findings.filter(f=>f.code===acc.code):[],procedures:la?la.procedures:[],framework:c?c.fw:"IFRS"});return}
     const t=e.target.closest("[data-tab]");if(t){tab=t.dataset.tab;paint();return}
     const fl=e.target.closest("[data-flt]");if(fl){filter=fl.dataset.flt;paint();return}
     const fv=e.target.closest("[data-fsv]");if(fv){fsAfter=fv.dataset.fsv==="after";paint();return}
-    const af=e.target.closest("[data-acc-f]");if(af){const c=compute(),a=c.all.accounts.find(x=>x.code===af.dataset.accF);const s=(c.stdMap[a.code]||[])[0];if(s)SKosifCodex.open(s,{account:{code:a.code,name:a.name,lineKey:a.lineKey,lineAr:a.lineAr,basis:a.basis,assertions:a.assertions},note:c.notes[a.code]||"",findings:c.all.findings.filter(f=>f.code===a.code),framework:c.d.ctx.framework});return}
+    const af=e.target.closest("[data-acc-f]");if(af){const c=compute(),a=c.all.accounts.find(x=>x.code===af.dataset.accF);const s=(c.stdMap[a.code]||[])[0];if(s)SKosifCodex.open(s,{account:{code:a.code,name:a.name,lineKey:a.lineKey,lineAr:a.lineAr,basis:a.basis,assertions:a.assertions},note:c.notes[a.code]||"",findings:c.all.findings.filter(f=>f.code===a.code),framework:c.fw});return}
     const ad=e.target.closest("[data-adj]");
     if(ad){const d=st(),id=ad.dataset.id;d.accepted=d.accepted.filter(x=>x!==id);d.rejected=d.rejected.filter(x=>x!==id);
       if(ad.dataset.adj==="accept"&&!ad.classList.contains("primary"))d.accepted.push(id);else if(ad.dataset.adj==="reject"&&ad.textContent!=="مرفوض")d.rejected.push(id);
@@ -368,6 +424,12 @@ function bind(node){
     if(a==="unavail"){const d=st(),s=session(d),id=b.dataset.id;d.session=s.unavailable.includes(id)?{...s,unavailable:s.unavailable.filter(x=>x!==id)}:AI().markUnavailable(s,id);put(d);paint();return}
     const c=compute();if(!c)return;
     if(a==="print"){printReport(c);return}
+    if(a==="lib"){window.SKosifCore&&SKosifCore.go("finlibrary");return}
+    if(a==="ecl-save"){const d=st(),b=RV().DEFAULT_ECL_BUCKETS.map((x,i)=>{const ex=root.querySelector('[data-ecl-x="'+i+'"]'),rt=root.querySelector('[data-ecl-r="'+i+'"]');
+        return {...x,exposure:Math.round((Number(ex&&ex.value)||0)*100),rateBps:Math.round((Number(rt&&rt.value)||0)*100)}});
+      if(!b.some(x=>x.exposure>0)){toast("أدخل أرصدة كشف الأعمار أولاً","warn");return}
+      d.ecl=b;put(d);toast("أُنشئ قيد الخسائر الائتمانية المتوقعة — اعتمده من القائمة","ok");paint();return}
+    if(a==="ecl-clear"){const d=st();d.ecl=null;d.accepted=d.accepted.filter(x=>x!=="AJE-ECL");d.rejected=d.rejected.filter(x=>x!=="AJE-ECL");put(d);paint();return}
     /* Jev: aggregated numbers only (no company or account holder names), redacted again by the Jev screen */
     const facts=()=>{const k=c.base.fs.keys,m=c.base.materiality;return ["مراجعة ميزان مراجعة: "+c.base.accounts.length+" حساباً","الإيرادات "+m0(k.revenue.current)+" · صافي الربح "+m0(k.profit.current)+" · الموجودات "+m0(k.assets.current),
       "الأهمية النسبية "+m0(m.overall)+" · ملاحظات عالية "+c.all.summary.high+" · متوسطة "+c.all.summary.medium,"الرأي المشتق: "+c.derived.ar+" — "+c.derived.basis.join(" ")].join("\n")};
@@ -383,7 +445,9 @@ function bind(node){
     const f=e.target.closest("[data-tbfile]");if(f&&f.files[0]){loadFile(f.files[0]);f.value="";return}
     const u=e.target.closest("[data-up]");if(u&&u.files.length){upload(u.dataset.up,Array.from(u.files));u.value="";return}
     const o=e.target.closest("[data-ov]");if(o){const d=st();if(o.value)d.overrides[o.dataset.ov]=o.value;else delete d.overrides[o.dataset.ov];put(d);paint();return}
-    const w=e.target.closest("[data-fw]");if(w){const d=readCtx(st());d.fw={...d.fw,[w.dataset.fw]:w.checked};d.ctx.framework=CX().frameworkApplicability(d.fw).framework;put(d);paint();return}
+    const cf=e.target.closest("[data-conf]");if(cf){const d=st();d.confirm={...d.confirm,[cf.dataset.conf]:cf.checked};put(d);paint();return}
+    const co=e.target.closest('[data-ctx="country"]');if(co){put(readCtx(st()));paint();return}
+    const w=e.target.closest("[data-fw]");if(w){const d=readCtx(st());d.fw={...d.fw,[w.dataset.fw]:w.checked};d.ctx.framework=d.ctx.country==="EG"?"EAS":CX().frameworkApplicability(d.fw).framework;put(d);paint();return}
   });
 }
 function paint(){

@@ -107,7 +107,9 @@ requests, uploads, verdicts — until Gemini completes (`audit/ai-review-engine.
 balanced proposed adjusting entries, standards-compliance discussion, and IFRS 18 statements,
 analysis and a derived ISA 705 opinion. «المدونة المحاسبية والمعايير» (`ui/features/codex.js`) keeps
 the standards with their official sources and checks updates from the issuing bodies (applied only
-after approval). Where every repository and file went: `docs/FUSION_ALL_REPOS_ar.md`.
+after approval). Companies in Egypt are reviewed under the Egyptian Accounting Standards (income tax,
+14% VAT, EGP). «مركز التقارير المالية العالمية» (`ui/features/finlibrary.js`) carries the index of the research
+bundle on Drive. Where every repository and file went: `docs/FUSION_ALL_REPOS_ar.md`.
 
 ## Capabilities v2
 

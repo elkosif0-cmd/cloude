@@ -8,13 +8,14 @@
    A record is facts with a source; `registryDate` is when this registry was compiled, and an update
    found later (see standards-update) is applied only after the user approves it. */
 
-export type Family = 'IFRS' | 'IAS' | 'ISA' | 'SAUDI';
+export type Family = 'IFRS' | 'IAS' | 'ISA' | 'SAUDI' | 'EAS' | 'EGYPT';
+export type Framework = 'IFRS' | 'SME' | 'EAS';
 export type StdStatus = 'effective' | 'upcoming' | 'replaced';
 export type StandardDoc = {
   code: string; family: Family; titleAr: string; titleEn: string; purpose: string;
   requirements: string[]; disclosures: string[]; audit: string[];
   sme?: string; effective: string; latest: string; status: StdStatus; replacedBy?: string;
-  org: 'IFRS Foundation' | 'IAASB' | 'SOCPA' | 'ZATCA' | 'وزارة التجارة'; url: string;
+  org: 'IFRS Foundation' | 'IAASB' | 'SOCPA' | 'ZATCA' | 'وزارة التجارة' | 'FRA مصر' | 'مصلحة الضرائب المصرية'; url: string; ifrs?: string;
 };
 
 export const REGISTRY_DATE = '2026-09-25';
@@ -203,16 +204,67 @@ export const STANDARDS: StandardDoc[] = [
       : code === 'ISA 701' ? 'https://www.iaasb.org/publications/international-standard-auditing-isa-701-new-communicating-key-audit-matters-independent-auditor-s-3' : IAASB })),
 ];
 
+/* ---------- Egyptian Accounting Standards (EAS), for companies audited in Egypt ----------
+   Numbers and titles as issued by the Minister of Investment's decrees (FRA); each maps to its IFRS
+   counterpart, whose requirements and audit focus the codex reuses. Numbers 3, 6, 9, 16, 19, 27, 33
+   were never issued; 8 and 11 were replaced by 48, 20 by 49, 37 by 50. */
+const FRA = 'https://fra.gov.eg/%D9%85%D8%B9%D8%A7%D9%8A%D9%8A%D8%B1-%D8%A7%D9%84%D9%85%D8%AD%D8%A7%D8%B3%D8%A8%D8%A9%D9%88%D9%85%D8%B1%D8%A7%D9%82%D8%A8%D9%8A-%D8%A7%D9%84%D8%AD%D8%B3%D8%A7%D8%A8%D8%A7%D8%AA/';
+export const EAS_TABLE: [number, string, string, string?][] = [
+  [1, 'عرض القوائم المالية', 'IAS 1'], [2, 'المخزون', 'IAS 2'], [4, 'قائمة التدفقات النقدية', 'IAS 7'],
+  [5, 'السياسات المحاسبية والتغيرات في التقديرات المحاسبية والأخطاء', 'IAS 8'], [7, 'الأحداث التي تقع بعد الفترة المالية', 'IAS 10'],
+  [8, 'عقود الإنشاء', 'IAS 11', 'EAS 48'], [10, 'الأصول الثابتة وإهلاكاتها', 'IAS 16'], [11, 'الإيراد', 'IAS 18', 'EAS 48'],
+  [12, 'المنح الحكومية والإفصاح عن المساعدات الحكومية', 'IAS 20'], [13, 'آثار التغيرات في أسعار صرف العملات الأجنبية', 'IAS 21'],
+  [14, 'تكلفة الاقتراض', 'IAS 23'], [15, 'الإفصاح عن الأطراف ذوي العلاقة', 'IAS 24'], [17, 'القوائم المالية المستقلة', 'IAS 27'],
+  [18, 'الاستثمارات في الشركات الشقيقة', 'IAS 28'], [20, 'القواعد والمعايير المحاسبية المتعلقة بعمليات التأجير التمويلي', '', 'EAS 49'],
+  [21, 'المحاسبة والتقرير عن نظم مزايا التقاعد', 'IAS 26'], [22, 'نصيب السهم في الأرباح', 'IAS 33'], [23, 'الأصول غير الملموسة', 'IAS 38'],
+  [24, 'ضرائب الدخل', 'IAS 12'], [25, 'الأدوات المالية: العرض', 'IAS 32'], [26, 'الأدوات المالية: الاعتراف والقياس (نطاق التحوط المتبقي)', 'IAS 39'],
+  [28, 'المخصصات والالتزامات المحتملة والأصول المحتملة', 'IAS 37'], [29, 'تجميع الأعمال', 'IFRS 3'], [30, 'القوائم المالية الدورية', 'IAS 34'],
+  [31, 'اضمحلال قيمة الأصول', 'IAS 36'], [32, 'الأصول غير المتداولة المحتفظ بها لغرض البيع والعمليات غير المستمرة', 'IFRS 5'],
+  [34, 'الاستثمار العقاري', 'IAS 40'], [35, 'الزراعة', 'IAS 41'], [36, 'التنقيب عن وتقييم الموارد التعدينية', 'IFRS 6'],
+  [37, 'عقود التأمين (الإصدار السابق)', 'IFRS 4', 'EAS 50'], [38, 'مزايا العاملين', 'IAS 19'], [39, 'المدفوعات المبنية على أسهم', 'IFRS 2'],
+  [40, 'الأدوات المالية: الإفصاحات', 'IFRS 7'], [41, 'القطاعات التشغيلية', 'IFRS 8'], [42, 'القوائم المالية المجمعة', 'IFRS 10'],
+  [43, 'الترتيبات المشتركة', 'IFRS 11'], [44, 'الإفصاح عن الحصص في المنشآت الأخرى', 'IFRS 12'], [45, 'قياس القيمة العادلة', 'IFRS 13'],
+  [46, 'الأحكام الانتقالية لتطبيق معايير المحاسبة المصرية', ''], [47, 'الأدوات المالية', 'IFRS 9'], [48, 'الإيراد من العقود مع العملاء', 'IFRS 15'],
+  [49, 'عقود التأجير', 'IFRS 16'], [50, 'عقود التأمين', 'IFRS 17'], [51, 'القوائم المالية في اقتصاديات التضخم المفرط', 'IAS 29'],
+];
+export const IFRS_TO_EAS: Record<string, string> = Object.fromEntries(EAS_TABLE.filter(([, , i, r]) => i && !r).map(([n, , i]) => [i as string, 'EAS ' + n]));
+const IFRS_BY = Object.fromEntries(STANDARDS.map((s) => [s.code, s]));
+STANDARDS.push(...EAS_TABLE.map(([n, title, ifrs, by]): StandardDoc => {
+  const twin = ifrs ? IFRS_BY[ifrs] : undefined;
+  return { code: 'EAS ' + n, family: 'EAS', titleAr: 'معيار المحاسبة المصري رقم (' + n + ') — ' + title, titleEn: ifrs ? 'Egyptian Accounting Standard ' + n + ' (≈ ' + ifrs + ')' : 'Egyptian Accounting Standard ' + n,
+    purpose: twin ? twin.purpose + (by ? '' : ' (مقابل ' + ifrs + '، مع اختلافات محدودة في بعض المعالجات والإفصاحات)') : title + '.',
+    requirements: twin?.requirements ?? [], disclosures: twin?.disclosures ?? [], audit: twin?.audit ?? [],
+    effective: 'حسب قرارات وزير الاستثمار وتعديلاتها', latest: by ? 'حل محله ' + by : 'راجع آخر قرارات الهيئة العامة للرقابة المالية', status: by ? 'replaced' : 'effective', replacedBy: by,
+    org: 'FRA مصر', url: FRA, ifrs: ifrs || undefined };
+}));
+STANDARDS.push(
+  { code: 'ضريبة الدخل (مصر)', family: 'EGYPT', titleAr: 'قانون الضريبة على الدخل رقم 91 لسنة 2005 وتعديلاته', titleEn: 'Egyptian Income Tax Law 91/2005',
+    purpose: 'ضريبة على صافي الربح الضريبي للأشخاص الاعتبارية بسعر 22.5% (مع أسعار خاصة لبعض الأنشطة)، والضريبة المؤجلة وفق معيار المحاسبة المصري 24.',
+    requirements: ['الإقرار الضريبي السنوي', 'تسوية الربح المحاسبي بالربح الضريبي', 'الخصم والإضافة تحت حساب الضريبة'], disclosures: ['مطابقة مصروف الضريبة مع الربح المحاسبي', 'الضريبة المؤجلة'],
+    audit: ['مطابقة المخصص مع الإقرار', 'فحص الفحوص الضريبية والنزاعات'], effective: 'ساري', latest: 'تعديلات متتالية؛ راجع مصلحة الضرائب المصرية', status: 'effective', org: 'مصلحة الضرائب المصرية', url: 'https://www.eta.gov.eg' },
+  { code: 'ضريبة القيمة المضافة (مصر)', family: 'EGYPT', titleAr: 'قانون الضريبة على القيمة المضافة رقم 67 لسنة 2016', titleEn: 'Egyptian VAT Law 67/2016',
+    purpose: 'ضريبة 14% على السلع والخدمات بوجه عام، مع الفاتورة والإيصال الإلكتروني والتسجيل برقم ضريبي من 9 أرقام.',
+    requirements: ['الإقرار الشهري', 'الفاتورة الإلكترونية', 'خصم ضريبة المدخلات بشروطها'], disclosures: ['الرصيد المستحق أو المستحق رده'], audit: ['مطابقة الإيراد مع الإقرارات والفواتير الإلكترونية'],
+    effective: 'سبتمبر 2016', latest: 'منظومة الفاتورة والإيصال الإلكتروني', status: 'effective', org: 'مصلحة الضرائب المصرية', url: 'https://www.eta.gov.eg' },
+  { code: 'قانون الشركات (مصر)', family: 'EGYPT', titleAr: 'قانون الشركات رقم 159 لسنة 1981 ولائحته التنفيذية', titleEn: 'Egyptian Companies Law 159/1981',
+    purpose: 'أحكام رأس المال والاحتياطي القانوني (5% من الأرباح حتى نصف رأس المال) والقوائم المالية والجمعيات.',
+    requirements: ['تجنيب الاحتياطي القانوني', 'اعتماد القوائم من الجمعية العامة'], disclosures: ['رأس المال والاحتياطيات'], audit: ['مراجعة السجل التجاري والنظام الأساسي ومحاضر الجمعية'],
+    effective: 'ساري', latest: 'تعديلات متتالية', status: 'effective', org: 'FRA مصر', url: 'https://fra.gov.eg' },
+);
+
 export const STANDARD: Record<string, StandardDoc> = Object.fromEntries(STANDARDS.map((s) => [s.code, s]));
 
 /** Normalize "ias16", "IAS-16", "معيار المحاسبة الدولي 16" → "IAS 16" when it is in the codex. */
 export function normalizeCode(input: string): string | null {
   const t = String(input || '').trim();
   if (STANDARD[t]) return t;
+  const e = t.replace(/[–—-]/g, ' ').match(/\bEAS\s*(\d{1,2})\b/i) ?? t.match(/معيار المحاسبة المصري\s*(?:رقم\s*)?\(?(\d{1,2})/);
+  if (e) { const c = 'EAS ' + Number(e[1]); return STANDARD[c] ? c : null; }
   const m = t.replace(/[–—-]/g, ' ').match(/\b(IFRS|IAS|ISA)\s*(\d{1,3})\b/i);
   if (m) { const c = m[1].toUpperCase() + ' ' + Number(m[2]); return STANDARD[c] ? c : null; }
   const a = t.match(/(?:المعيار الدولي للتقرير المالي|معيار المحاسبة الدولي|معيار المراجعة الدولي)\s*(?:رقم\s*)?\(?(\d{1,3})/);
   if (a) { const fam = t.includes('للتقرير') ? 'IFRS' : t.includes('المراجعة') ? 'ISA' : 'IAS'; const c = fam + ' ' + Number(a[1]); return STANDARD[c] ? c : null; }
+  if (/ضريبه الدخل \(مصر\)|ضريبة الدخل \(مصر\)/.test(t)) return 'ضريبة الدخل (مصر)';
   if (/زكا/.test(t)) return 'لائحة الزكاة';
   if (/قيمه المضافه|القيمة المضافة|vat/i.test(t)) return 'ZATCA VAT';
   return null;
@@ -228,18 +280,18 @@ const RELATION: Record<string, Record<string, string>> = {
   rou: { 'IFRS 16': 'أصل حق استخدام مقابل التزام إيجار؛ يستهلك على مدة العقد أو العمر أيهما أقصر.' },
   intangibles: { 'IAS 38': 'يرسمل فقط ما يستوفي القابلية للتحديد والسيطرة والمنافع المستقبلية، ويطفأ على العمر المحدد.' },
   investments: { 'IFRS 9': 'يصنف الاستثمار حسب نموذج الأعمال وخصائص التدفقات (تكلفة مطفأة أو قيمة عادلة).', 'IAS 28': 'إن وُجد تأثير هام (20% فأكثر عادة) تطبق طريقة حقوق الملكية.' },
-  vatAsset: { 'ZATCA VAT': 'ضريبة مدخلات قابلة للاسترداد تُطابق مع الإقرارات وفواتير الموردين المستوفية للشروط.' },
-  vatLiability: { 'ZATCA VAT': 'ضريبة مخرجات مستحقة تُطابق مع الإيراد الخاضع والإقرارات المقدمة.' },
+  vatAsset: { 'ضريبة القيمة المضافة (مصر)': 'ضريبة مدخلات قابلة للخصم (14%) تطابق مع الإقرارات الشهرية والفواتير الإلكترونية.', 'ZATCA VAT': 'ضريبة مدخلات قابلة للاسترداد تُطابق مع الإقرارات وفواتير الموردين المستوفية للشروط.' },
+  vatLiability: { 'ضريبة القيمة المضافة (مصر)': 'ضريبة مخرجات مستحقة (14%) تطابق مع المبيعات الخاضعة والإقرارات الشهرية.', 'ZATCA VAT': 'ضريبة مخرجات مستحقة تُطابق مع الإيراد الخاضع والإقرارات المقدمة.' },
   prepayments: { 'IAS 1': 'تعرض ضمن الموجودات المتداولة إذا كانت ستُستنفد خلال 12 شهراً.' },
   capital: { 'IAS 32': 'حقوق ملكية بموجب عقد التأسيس والسجل التجاري؛ أي زيادة تتطلب قراراً نظامياً.', 'نظام الشركات': 'يطابق رأس المال المسجل مع السجل التجاري وعقد التأسيس.' },
-  reserves: { 'نظام الشركات': 'الاحتياطي النظامي لم يعد إلزامياً بالنظام الجديد إلا إذا نص عليه عقد التأسيس؛ يُتحقق من سند كل تحويل.' },
+  reserves: { 'قانون الشركات (مصر)': 'الاحتياطي القانوني يُجنب بنسبة 5% من صافي الربح حتى يبلغ نصف رأس المال (قانون 159 لسنة 1981).', 'نظام الشركات': 'الاحتياطي النظامي لم يعد إلزامياً بالنظام الجديد إلا إذا نص عليه عقد التأسيس؛ يُتحقق من سند كل تحويل.' },
   partners: { 'IAS 24': 'حساب جاري الشريك معاملة مع طرف ذي علاقة يُفصح عنها بطبيعتها وشروطها.' },
   retained: { 'IAS 8': 'رصيد الافتتاح يجب أن يساوي إقفال السنة السابقة؛ أي فرق يشير إلى تسوية بأثر رجعي تتطلب إفصاحاً.' },
   eosb: { 'IAS 19': 'مكافأة نهاية الخدمة خطة منافع محددة تقاس بالتقييم الاكتواري (أو بتبسيط مسموح في معيار المنشآت الصغيرة عند الجهد غير المبرر).' },
   leaseNcl: { 'IFRS 16': 'التزام بالقيمة الحالية لدفعات الإيجار المتبقية؛ يُفصل الجزء المتداول.' },
   loansNcl: { 'IFRS 9': 'قرض يقاس بالتكلفة المطفأة بمعدل الفائدة الفعلي؛ يُفصل الجزء المستحق خلال سنة.', 'IFRS 7': 'يُفصح عن الاستحقاقات والضمانات والتعهدات.' },
   loansCl: { 'IFRS 9': 'التزام مالي بالتكلفة المطفأة؛ يُطابق مع كشوف البنك وعقد التمويل.', 'IFRS 7': 'يدخل في تحليل مخاطر السيولة.' },
-  zakatPayable: { 'لائحة الزكاة': 'مخصص الزكاة يُحسب على الوعاء الزكوي بسعر 2.5% ويطابق مع الإقرار والربوط.', 'IAS 37': 'التزام حالي ناشئ عن السنة يُقاس بأفضل تقدير.' },
+  zakatPayable: { 'ضريبة الدخل (مصر)': 'ضريبة الدخل المستحقة عن السنة بعد خصم الدفعات المقدمة والخصم تحت حساب الضريبة؛ تطابق مع الإقرار والفحوص الضريبية.', 'لائحة الزكاة': 'مخصص الزكاة يُحسب على الوعاء الزكوي بسعر 2.5% ويطابق مع الإقرار والربوط.', 'IAS 37': 'التزام حالي ناشئ عن السنة يُقاس بأفضل تقدير.' },
   contractLiab: { 'IFRS 15': 'مقابل مستلم قبل الوفاء بالتزام الأداء؛ يُعترف به إيراداً عند نقل السيطرة.' },
   payables: { 'IFRS 9': 'التزام مالي بالتكلفة المطفأة؛ يُطابق مع كشوف الموردين ويُبحث عن الالتزامات غير المسجلة.' },
   accruals: { 'IAS 37': 'التزامات مستحقة عن سلع أو خدمات استلمت ولم تفوتر بعد.' },
@@ -251,14 +303,15 @@ const RELATION: Record<string, Record<string, string>> = {
   financeCost: { 'IFRS 18': 'تعرض ضمن فئة التمويل بعد «الربح قبل التمويل والضرائب».', 'IFRS 9': 'تكلفة الاقتراض بمعدل الفائدة الفعلي.', 'IFRS 16': 'فائدة التزامات الإيجار.' },
   investIncome: { 'IFRS 18': 'عوائد الاستثمارات والودائع تعرض ضمن فئة الاستثمار.' },
   otherIncome: { 'IFRS 18': 'تبقى في فئة التشغيل ما لم تكن من الاستثمار أو التمويل.' },
-  zakatExpense: { 'لائحة الزكاة': 'مصروف زكاة السنة يطابق مع مخصص الزكاة والإقرار.', 'IAS 12': 'ينطبق على ضريبة الدخل للحصص غير السعودية/الخليجية.' },
+  zakatExpense: { 'ضريبة الدخل (مصر)': 'مصروف ضريبة الدخل الجارية (22.5% من الربح الضريبي) والمؤجلة؛ يطابق مع الإقرار ومع تسوية الربح المحاسبي بالضريبي.', 'لائحة الزكاة': 'مصروف زكاة السنة يطابق مع مخصص الزكاة والإقرار.', 'IAS 12': 'ينطبق على ضريبة الدخل للحصص غير السعودية/الخليجية.' },
   selling: { 'IFRS 18': 'مصروف تشغيلي؛ عند العرض حسب الوظيفة يُفصح عن التحليل حسب الطبيعة.' },
   admin: { 'IFRS 18': 'مصروف تشغيلي؛ عند العرض حسب الوظيفة يُفصح عن التحليل حسب الطبيعة.' },
 };
 
 export function relationOf(code: string, lineKey: string | null): string {
   const s = STANDARD[code];
-  const specific = lineKey ? RELATION[lineKey]?.[code] : undefined;
+  const twin = s?.ifrs && !s.replacedBy ? s.ifrs : null;
+  const specific = lineKey ? RELATION[lineKey]?.[code] ?? (twin ? RELATION[lineKey]?.[twin] : undefined) : undefined;
   return specific ?? (s ? s.purpose : '');
 }
 
@@ -282,9 +335,16 @@ export function frameworkApplicability(i: FrameworkInput) {
     cite: ['IFRS for SMEs 1.2–1.4', 'إرشادات SOCPA — القسم 1'] };
 }
 
+/** A code in the terms of the framework: IFRS/IAS → EAS and Saudi requirements → Egyptian ones under EAS. */
+const EGYPT_OF: Record<string, string> = { 'لائحة الزكاة': 'ضريبة الدخل (مصر)', 'ZATCA VAT': 'ضريبة القيمة المضافة (مصر)', 'نظام الشركات': 'قانون الشركات (مصر)', 'IFRS 18': 'EAS 1' };
+export function inFramework(code: string, framework: Framework = 'IFRS'): string {
+  if (framework !== 'EAS') return code;
+  return EGYPT_OF[code] ?? IFRS_TO_EAS[code] ?? code;
+}
+
 /** Standards cited for an account, with the relation text and the SME section when that framework applies. */
-export function standardsFor(codes: string[], lineKey: string | null, framework: 'IFRS' | 'SME' = 'IFRS') {
-  return codes.map((code) => STANDARD[code] ? code : normalizeCode(code) ?? code).filter((c, i, a) => a.indexOf(c) === i).map((code) => {
+export function standardsFor(codes: string[], lineKey: string | null, framework: Framework = 'IFRS') {
+  return codes.map((code) => STANDARD[code] ? code : normalizeCode(code) ?? code).map((c) => inFramework(c, framework)).filter((c, i, a) => a.indexOf(c) === i).map((code) => {
     const s = STANDARD[code];
     return { code, known: !!s, title: s?.titleAr ?? code, relation: relationOf(code, lineKey), sme: framework === 'SME' ? s?.sme ?? null : null,
       status: s?.status ?? null, url: s?.url ?? null, org: s?.org ?? null };
