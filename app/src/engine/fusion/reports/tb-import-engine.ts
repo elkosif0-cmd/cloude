@@ -154,6 +154,25 @@ export function largestBalances(tb: TrialBalance, limit = 10): TbRow[] {
   return [...tb.rows].sort((a, b) => Math.abs(b.balance) - Math.abs(a.balance) || a.code.localeCompare(b.code, 'en')).slice(0, limit);
 }
 
+/** A balance kept by the app's own books (ledger or operational records), in major units:
+ *  positive = debit balance, negative = credit balance; `prior` the same for the comparative year. */
+export type BookBalance = { code: string; name: string; balance: number; prior?: number | null };
+
+const csvCell = (v: string): string => (/[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v);
+const amt = (v: number): string => (Math.round(v * 100) / 100).toFixed(2).replace(/\.00$/, '');
+
+/** The app's books as a trial-balance CSV the review reads (رقم الحساب، اسم الحساب، مدين، دائن، السنة السابقة):
+ *  debit balances in مدين, credit balances in دائن, the comparative as one signed column. Zero lines are
+ *  dropped; the prior column appears only when a comparative exists. */
+export function booksToCsv(rows: BookBalance[]): string {
+  const withPrior = rows.some((r) => r.prior !== null && r.prior !== undefined);
+  const lines = rows
+    .filter((r) => Math.abs(r.balance) >= 0.005 || (withPrior && Math.abs(r.prior || 0) >= 0.005))
+    .sort((a, b) => a.code.localeCompare(b.code, 'en'))
+    .map((r) => [csvCell(r.code), csvCell(r.name), r.balance > 0 ? amt(r.balance) : '', r.balance < 0 ? amt(-r.balance) : '', ...(withPrior ? [amt(r.prior || 0)] : [])].join(','));
+  return [['رقم الحساب', 'اسم الحساب', 'مدين', 'دائن', ...(withPrior ? ['السنة السابقة'] : [])].join(','), ...lines].join('\n');
+}
+
 /** A balanced two-year sample (SAR) for the demo button and the tests: a small trading company. */
 export const SAMPLE_TB_CSV = [
   'رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة',

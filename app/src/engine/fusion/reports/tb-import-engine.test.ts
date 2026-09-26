@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { classifyAccount, detectDelimiter, fromRows, largestBalances, parseTrialBalance, SAMPLE_TB_CSV } from './tb-import-engine';
+import { booksToCsv, classifyAccount, detectDelimiter, fromRows, largestBalances, parseTrialBalance, SAMPLE_TB_CSV } from './tb-import-engine';
 
 describe('trial balance import', () => {
   it('reads the sample with Arabic headers and a prior-year column', () => {
@@ -45,5 +45,23 @@ describe('trial balance import', () => {
     expect(tb.rows[2].debit).toBe(50);
     expect(detectDelimiter('a,b,c\n1,2,3')).toBe(',');
     expect(largestBalances(parseTrialBalance(SAMPLE_TB_CSV), 2).map((r) => r.code)).toEqual(['4101', '5101']);
+  });
+  it('turns the app\'s own books into a trial balance the review reads', () => {
+    const csv = booksToCsv([
+      { code: '4000', name: 'إيرادات المبيعات', balance: -1500.5, prior: -900 },
+      { code: '1100', name: 'النقدية والبنوك', balance: 1200.5, prior: 700 },
+      { code: '5000', name: 'تكلفة المبيعات, لحوم', balance: 300, prior: 200 },
+      { code: '6300', name: 'مصروفات أخرى', balance: 0, prior: 0 },
+    ]);
+    const lines = csv.split('\n');
+    expect(lines[0]).toBe('رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة');
+    expect(lines[1]).toBe('1100,النقدية والبنوك,1200.50,,700');
+    expect(lines[2]).toBe('4000,إيرادات المبيعات,,1500.50,-900');
+    expect(lines[3]).toBe('5000,"تكلفة المبيعات, لحوم",300,,200');
+    expect(lines).toHaveLength(4);
+    const tb = parseTrialBalance(csv);
+    expect(tb.ok && tb.balanced && tb.hasPrior).toBe(true);
+    expect(tb.rows.find((r) => r.code === '4000')?.type).toBe('revenue');
+    expect(booksToCsv([{ code: '1100', name: 'نقد', balance: 5 }, { code: '3000', name: 'رأس المال', balance: -5 }]).split('\n')[0]).toBe('رقم الحساب,اسم الحساب,مدين,دائن');
   });
 });

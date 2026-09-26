@@ -43,9 +43,11 @@ capability inventory, the new information architecture and the rebuild plan.
   (from the Grand Fusion branch); `node tools/build_engines.mjs` compiles them to `ui/core/engines.js`
   (`window.SKEngines`), and CI checks the compiled file is current.
 - `app/` — the strict TypeScript engines and their tests (run in CI).
-- Navigation: 10 domains (مركز القيادة · المبيعات والعملاء · المخزون والإنتاج · المشتريات والموردون · المالية
-  والمحاسبة · الكتالوج والتسعير · Jev والذكاء · التقارير والتحليلات · المراجعة والتأكيد · النظام والتكاملات),
-  each screen daily or advanced; `docs/rebuild/CAPABILITY_COVERAGE_ALL_VERSIONS.md` lists every capability of every past version.
+- Navigation: 9 domains (مركز القيادة · القرار والذكاء · المبيعات والعملاء · المخزون والمشتريات · المالية
+  والمحاسبة · الكتالوج والتسعير · التقارير والتحليلات · المراجعة والتأكيد · النظام والتكاملات). Related screens
+  form a hub (`"hub"`/`"hubLabel"` in `ui/core/capabilities.json`): one menu entry — 64 screens in 35 entries —
+  whose pages open as tabs on top of each other (العملاء · المتابعة · الائتمان), each keeping its own id,
+  permission and deep link. Each screen is daily or advanced; `docs/rebuild/CAPABILITY_COVERAGE_ALL_VERSIONS.md` lists every capability of every past version.
 
 ## KOSIF Luxe
 
@@ -76,7 +78,7 @@ One app, one dataset, two form factors — see `docs/ROADMAP-ar.md` for what shi
   laptop install prompt and shows the iPhone «Add to Home Screen» steps; wraps the share sheet; opens deep
   links `?go=<screen>` / `?do=sale|search|item|keys` (manifest shortcuts, the iOS Shortcuts app, bookmarks).
 - `ui/components/keys.js` (`SKosifKeys`) — laptop keyboard: `?` sheet, `Ctrl/⌘+B` compact rail,
-  `Alt+1…0` domains, `[` `]` sibling screens, `G` + letter; matched by `KeyboardEvent.code` so an Arabic
+  `Alt+1…9` domains, `[` `]` the pages of the hub (or the hubs of the domain), `G` + letter; matched by `KeyboardEvent.code` so an Arabic
   layout works too.
 - `ui/layouts/shell.js` — the phone bottom tab bar in every theme with user-chosen screens, edge swipe for
   the drawer, the compact rail, and a title strip for an installed window without a title bar.

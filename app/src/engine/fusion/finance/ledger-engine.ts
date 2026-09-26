@@ -117,3 +117,47 @@ export function buildTrialBalance(entries: JournalEntry[]): TrialBalance {
     balanced: Math.abs(totals.debit - totals.credit) <= MONEY_TOLERANCE,
   };
 }
+
+export type LedgerAccountType = 'asset' | 'liability' | 'equity' | 'revenue' | 'expense' | 'other';
+export type PeriodTrialBalance = TrialBalance & {
+  /** result of the periods before the start, carried into retained earnings (positive = accumulated loss) */
+  carried: number;
+};
+
+const isResult = (t: LedgerAccountType | undefined) => t === 'revenue' || t === 'expense';
+
+/**
+ * The trial balance of a reporting period as an auditor reads it: balance-sheet accounts cumulative to the
+ * period end (opening balances included), revenue and expense accounts for the period only, and the net
+ * result of the earlier periods carried into retained earnings — so the balance stays balanced.
+ */
+export function periodTrialBalance(
+  entries: JournalEntry[],
+  typeOf: (accountId: string) => LedgerAccountType | undefined,
+  period: { start: string; end: string },
+  retainedEarningsId: string,
+): PeriodTrialBalance {
+  const upToEnd = entries.filter((e) => e.date <= period.end);
+  const before = upToEnd.filter((e) => e.date < period.start);
+  const rows = buildGeneralLedger(upToEnd)
+    .map((row) => {
+      if (!isResult(typeOf(row.accountId))) return row;
+      const inPeriod = buildGeneralLedger(upToEnd.filter((e) => e.date >= period.start)).find((r) => r.accountId === row.accountId);
+      return inPeriod ?? { accountId: row.accountId, debit: 0, credit: 0, balance: 0 };
+    })
+    .filter((row) => row.debit || row.credit);
+  const carried = money(
+    buildGeneralLedger(before)
+      .filter((r) => isResult(typeOf(r.accountId)))
+      .reduce((sum, r) => sum + r.balance, 0),
+  );
+  if (Math.abs(carried) > MONEY_TOLERANCE) {
+    const re = rows.find((r) => r.accountId === retainedEarningsId);
+    const add = carried > 0 ? { debit: carried, credit: 0 } : { debit: 0, credit: -carried };
+    if (re) Object.assign(re, { debit: money(re.debit + add.debit), credit: money(re.credit + add.credit), balance: money(re.balance + carried) });
+    else rows.push({ accountId: retainedEarningsId, ...add, balance: carried });
+  }
+  rows.sort((a, b) => a.accountId.localeCompare(b.accountId));
+  const totals = rows.reduce((sum, row) => ({ debit: money(sum.debit + row.debit), credit: money(sum.credit + row.credit) }), { debit: 0, credit: 0 });
+  return { rows, totals, balanced: Math.abs(totals.debit - totals.credit) <= MONEY_TOLERANCE, carried };
+}

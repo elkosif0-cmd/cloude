@@ -71,13 +71,13 @@ function fill(v){
   const c=q.startsWith("=")?calc(q):null;
   if(c!=null){rows=[{g:"حاسبة",ic:"calc",t:"النتيجة: "+c,s:"Enter لنسخ النتيجة",run:()=>{navigator.clipboard&&navigator.clipboard.writeText(String(c)).then(()=>SK.toast("نُسخت: "+c,"ok"),()=>{})}}];sel=0;paint();return}
   const nq=norm(q),screens=[],acts=[],its=[];
-  SK.caps.all().forEach(cap=>{if(!SK.perm.can(cap.id))return;const s=nq?score(nq,cap.label+" "+cap.sub+" "+cap.kw+" "+cap.groupLabel):0;if(!nq||s>0)screens.push({g:"الشاشات",ic:cap.id,t:cap.label,s:(cap.primary?"":"متقدم · ")+cap.groupLabel,sc:s,ref:{t:"v",id:cap.id},run:()=>go(cap.id)})});
+  SK.caps.all().forEach(cap=>{if(!SK.perm.can(cap.id))return;const s=nq?score(nq,cap.label+" "+cap.sub+" "+cap.kw+" "+cap.groupLabel+" "+cap.hubLabel):0;if(!nq||s>0)screens.push({g:"الشاشات",ic:cap.id,t:cap.label,s:(cap.primary?"":"متقدم · ")+SK.caps.path(cap.id),sc:s,ref:{t:"v",id:cap.id},run:()=>go(cap.id)})});
   ACTIONS.filter(allowed).forEach(a=>{const s=nq?score(nq,a.t+" "+a.s):0;if(!nq||s>0)acts.push({g:"إجراءات",ic:a.ic,t:a.t,s:a.s,sc:s,ref:{t:"a",id:a.id},run:()=>a.run(q)})});
   if(nq.length>=2&&SK.perm.can("catalog")){const P=pins();items().forEach(it=>{const s=score(nq,it.name);if(s>0)its.push({g:"الأصناف",ic:"item",t:it.name+(P.includes(it.id)?" ★":""),s:it.sub,sc:s+(P.includes(it.id)?20:0),pin:it.id,ref:{t:"i",id:it.id,name:it.name},run:()=>core().openItem(it.id)})})}
   if(!nq){
     const P=pins(),all=items();
     const pinned=P.map(id=>all.find(x=>x.id===id)).filter(Boolean).map(it=>({g:"المثبّتة",ic:"item",t:it.name+" ★",s:it.sub,pin:it.id,ref:{t:"i",id:it.id,name:it.name},run:()=>core().openItem(it.id)}));
-    const rec=recents().map(r=>r.t==="v"&&SK.caps.get(r.id)&&SK.perm.can(r.id)?{g:"الأخيرة",ic:r.id,t:SK.caps.get(r.id).label,s:SK.caps.get(r.id).groupLabel,ref:r,run:()=>go(r.id)}:
+    const rec=recents().map(r=>r.t==="v"&&SK.caps.get(r.id)&&SK.perm.can(r.id)?{g:"الأخيرة",ic:r.id,t:SK.caps.get(r.id).label,s:SK.caps.path(r.id),ref:r,run:()=>go(r.id)}:
       r.t==="a"?(a=>a&&allowed(a)?{g:"الأخيرة",ic:a.ic,t:a.t,s:a.s,ref:r,run:()=>a.run("")}:null)(ACTIONS.find(x=>x.id===r.id)):
       r.t==="i"?{g:"الأخيرة",ic:"item",t:r.name,s:"صنف",ref:r,run:()=>core().openItem(r.id)}:null).filter(Boolean);
     rows=[...pinned,...rec,...acts.slice(0,6),...screens.filter(s=>SK.caps.get(s.ref.id).primary).slice(0,8)];

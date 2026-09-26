@@ -134,6 +134,12 @@ jobs:
               assert marker in css, "luxe style missing: "+marker
           assert "Smarter Audit. Greater Trust." in unlock, "sign-in page lost the KOSIF claim"
           assert all(c.get("en") for c in caps), "every screen needs its English name (en)"
+          # hubs: a page names a parent in its own domain; parents are menu entries with a hub label
+          byid={c["id"]:c for c in caps}
+          for c in caps:
+              if c.get("hub"):
+                  h=byid.get(c["hub"]); assert h and not h.get("hub") and h["group"]==c["group"], "bad hub for "+c["id"]
+                  assert h.get("hubLabel"), "hub without hubLabel: "+h["id"]
           # accounting & audit: three vendored apps, loaded on first use from dist/audit
           for f in ["audit/mount.js","audit/app.css","audit/markup.html","audit/classic/mount.js","audit/lab/mount.js"]:
               assert Path("dist",f).exists(), f

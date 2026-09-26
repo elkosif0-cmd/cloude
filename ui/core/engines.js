@@ -117,6 +117,7 @@ window.SKEngines = (function() {
 		NATURE: () => NATURE,
 		SAMPLE_TB_CSV: () => SAMPLE_TB_CSV,
 		TYPE_LABELS: () => TYPE_LABELS,
+		booksToCsv: () => booksToCsv,
 		classifyAccount: () => classifyAccount,
 		detectDelimiter: () => detectDelimiter,
 		fromRows: () => fromRows,
@@ -533,6 +534,28 @@ window.SKEngines = (function() {
 	/** Largest balances by absolute value — the natural population head for sampling. */
 	function largestBalances(tb, limit = 10) {
 		return [...tb.rows].sort((a, b) => Math.abs(b.balance) - Math.abs(a.balance) || a.code.localeCompare(b.code, "en")).slice(0, limit);
+	}
+	var csvCell = (v) => /[",\n]/.test(v) ? "\"" + v.replace(/"/g, "\"\"") + "\"" : v;
+	var amt = (v) => (Math.round(v * 100) / 100).toFixed(2).replace(/\.00$/, "");
+	/** The app's books as a trial-balance CSV the review reads (رقم الحساب، اسم الحساب، مدين، دائن، السنة السابقة):
+	*  debit balances in مدين, credit balances in دائن, the comparative as one signed column. Zero lines are
+	*  dropped; the prior column appears only when a comparative exists. */
+	function booksToCsv(rows) {
+		const withPrior = rows.some((r) => r.prior !== null && r.prior !== void 0);
+		const lines = rows.filter((r) => Math.abs(r.balance) >= .005 || withPrior && Math.abs(r.prior || 0) >= .005).sort((a, b) => a.code.localeCompare(b.code, "en")).map((r) => [
+			csvCell(r.code),
+			csvCell(r.name),
+			r.balance > 0 ? amt(r.balance) : "",
+			r.balance < 0 ? amt(-r.balance) : "",
+			...withPrior ? [amt(r.prior || 0)] : []
+		].join(","));
+		return [[
+			"رقم الحساب",
+			"اسم الحساب",
+			"مدين",
+			"دائن",
+			...withPrior ? ["السنة السابقة"] : []
+		].join(","), ...lines].join("\n");
 	}
 	/** A balanced two-year sample (SAR) for the demo button and the tests: a small trading company. */
 	var SAMPLE_TB_CSV = [
@@ -7033,6 +7056,7 @@ window.SKEngines = (function() {
 	var ledger_engine_exports = /* @__PURE__ */ __exportAll({
 		buildGeneralLedger: () => buildGeneralLedger,
 		buildTrialBalance: () => buildTrialBalance,
+		periodTrialBalance: () => periodTrialBalance,
 		validateJournalEntry: () => validateJournalEntry
 	});
 	var MONEY_TOLERANCE = .005;
@@ -7096,6 +7120,60 @@ window.SKEngines = (function() {
 			rows,
 			totals,
 			balanced: Math.abs(totals.debit - totals.credit) <= MONEY_TOLERANCE
+		};
+	}
+	var isResult = (t) => t === "revenue" || t === "expense";
+	/**
+	* The trial balance of a reporting period as an auditor reads it: balance-sheet accounts cumulative to the
+	* period end (opening balances included), revenue and expense accounts for the period only, and the net
+	* result of the earlier periods carried into retained earnings — so the balance stays balanced.
+	*/
+	function periodTrialBalance(entries, typeOf, period, retainedEarningsId) {
+		const upToEnd = entries.filter((e) => e.date <= period.end);
+		const before = upToEnd.filter((e) => e.date < period.start);
+		const rows = buildGeneralLedger(upToEnd).map((row) => {
+			if (!isResult(typeOf(row.accountId))) return row;
+			return buildGeneralLedger(upToEnd.filter((e) => e.date >= period.start)).find((r) => r.accountId === row.accountId) ?? {
+				accountId: row.accountId,
+				debit: 0,
+				credit: 0,
+				balance: 0
+			};
+		}).filter((row) => row.debit || row.credit);
+		const carried = money$16(buildGeneralLedger(before).filter((r) => isResult(typeOf(r.accountId))).reduce((sum, r) => sum + r.balance, 0));
+		if (Math.abs(carried) > MONEY_TOLERANCE) {
+			const re = rows.find((r) => r.accountId === retainedEarningsId);
+			const add = carried > 0 ? {
+				debit: carried,
+				credit: 0
+			} : {
+				debit: 0,
+				credit: -carried
+			};
+			if (re) Object.assign(re, {
+				debit: money$16(re.debit + add.debit),
+				credit: money$16(re.credit + add.credit),
+				balance: money$16(re.balance + carried)
+			});
+			else rows.push({
+				accountId: retainedEarningsId,
+				...add,
+				balance: carried
+			});
+		}
+		rows.sort((a, b) => a.accountId.localeCompare(b.accountId));
+		const totals = rows.reduce((sum, row) => ({
+			debit: money$16(sum.debit + row.debit),
+			credit: money$16(sum.credit + row.credit)
+		}), {
+			debit: 0,
+			credit: 0
+		});
+		return {
+			rows,
+			totals,
+			balanced: Math.abs(totals.debit - totals.credit) <= MONEY_TOLERANCE,
+			carried
 		};
 	}
 	//#endregion

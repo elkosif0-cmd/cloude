@@ -23,17 +23,17 @@ function go(id){if(!can(id))return false;core().go(id);return true}
 /* the first screen of the n-th domain the role can open (daily screens first) */
 function domain(n){
   const g=SK.caps.groups()[n];if(!g)return false;
-  const list=SK.caps.inGroup(g.id).filter(c=>SK.perm.can(c.id));
+  const list=SK.caps.hubsInGroup(g.id).flatMap(h=>SK.caps.members(h.id)).filter(c=>SK.perm.can(c.id));
   const pick=list.find(c=>c.primary)||list[0];
   if(pick){core().go(pick.id);return true}
   return false;
 }
-/* [ and ]: walk the domain tab bar of the current screen */
+/* [ and ]: walk the tab bar of the current screen (the pages of its hub, or the hubs of its domain) */
 function sibling(step){
-  const c=core(),id=c.view(),adv=c.mode()==="advanced";
-  const sibs=SK.caps.siblings(id).filter(x=>(adv||x.primary||x.id===id)&&SK.perm.can(x.id));
-  const i=sibs.findIndex(x=>x.id===id);if(i<0||sibs.length<2)return false;
-  c.go(sibs[(i+step+sibs.length)%sibs.length].id);return true;
+  const c=core(),id=c.view();
+  const items=window.SKosifShell&&SKosifShell.stripItems?SKosifShell.stripItems(id).items:[];
+  const i=items.findIndex(x=>x.on);if(i<0||items.length<2)return false;
+  c.go(items[(i+step+items.length)%items.length].go);return true;
 }
 
 /* ---------- the help sheet ---------- */

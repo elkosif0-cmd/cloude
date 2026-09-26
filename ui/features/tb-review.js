@@ -42,6 +42,58 @@ const readAs=(file,how)=>new Promise((res,rej)=>{const r=new FileReader();r.onlo
 const isText=f=>/^text\/|csv|json|xml/.test(f.type)||/\.(csv|txt|tsv|json|xml)$/i.test(f.name);
 const mimeOf=f=>f.type||(/\.pdf$/i.test(f.name)?"application/pdf":/\.png$/i.test(f.name)?"image/png":/\.jpe?g$/i.test(f.name)?"image/jpeg":"application/octet-stream");
 
+/* ---------- the app's own books → a trial balance for review ----------
+   the double-entry ledger («الدفاتر المحاسبية») for the active period, with the same dates a year earlier as
+   the comparative; without journal entries, the operational records (sales, supplier batches, payments,
+   credit) through the audit bridge. The active company and period fill the review's details. */
+function activeCo(){const d=load("skosif_companies_v1",{})||{},a=d.active||{};return{co:(d.companies||[]).find(x=>x.id===a.companyId)||null,p:(d.periods||[]).find(x=>x.id===a.periodId)||null}}
+const yearBack=iso=>{const x=new Date(iso+"T00:00:00Z");x.setUTCFullYear(x.getUTCFullYear()-1);return x.toISOString().slice(0,10)};
+async function booksTB(){
+  const {co,p}=activeCo(),L=window.SKosifLedger,LE=E().finance&&E().finance.ledger;
+  const inP=(e,a,b)=>(!a||e.date>=a)&&(!b||e.date<=b);
+  let rows=[],source="";
+  if(L&&LE&&L.entries().length){
+    /* balance-sheet accounts to the period end, results for the period, earlier results in retained earnings */
+    const acc=L.accounts(),re=acc.find(a=>a.code==="3100")||acc.find(a=>/مبق|محتجز/.test(a.name));
+    const reId=re?re.id:"__re__",info=id=>acc.find(a=>a.id===id)||(id==="__re__"?{code:"3199",name:"أرباح مبقاة (نتائج سنوات سابقة)"}:{code:id,name:id});
+    const typeOf=id=>(acc.find(a=>a.id===id)||{}).type;
+    const ptb=(a,b)=>LE.periodTrialBalance(L.entries(),typeOf,{start:a,end:b},reId);
+    const cur=p?ptb(p.startDate,p.endDate):LE.buildTrialBalance(L.entries());
+    let prior=null;
+    if(p){const pt=ptb(yearBack(p.startDate),yearBack(p.endDate));if(pt.rows.length)prior=Object.fromEntries(pt.rows.map(r=>[r.accountId,r.balance]))}
+    const ids=[...new Set([...cur.rows.map(r=>r.accountId),...Object.keys(prior||{})])];
+    rows=ids.map(id=>{const a=info(id),r=cur.rows.find(x=>x.accountId===id);return{code:String(a.code),name:String(a.name),balance:r?r.balance:0,prior:prior?(prior[id]||0):null}});
+    source="الدفاتر المحاسبية";
+  }else if(window.SKosifAuditBridge){
+    const key=p?String(p.endDate||"").slice(0,4):String(new Date().getFullYear());
+    const tb=await SKosifAuditBridge.buildTB(key||"all");
+    rows=tb.rows.map(r=>({code:r[0],name:r[1],balance:r[2]-r[3]}));
+    source="السجلات التشغيلية (المبيعات والمشتريات والمصروفات والآجل)";
+  }
+  if(!rows.length)return null;
+  const end=p&&p.endDate,eg=co&&co.country==="EG";
+  return{text:TI().booksToCsv(rows),source,rows:rows.length,ctx:{company:co?co.name:"",period:p?p.label:"",periodStart:p?p.startDate:"",periodEnd:end||"",country:eg?"EG":"SA"}};
+}
+/* load a trial balance into the review (replaces the current one after confirmation) */
+async function loadTB(text,label,ctx){
+  const tb=TI().parseTrialBalance(text);if(!tb.ok){toast("لم أتعرف على أعمدة الميزان","bad");return false}
+  const d=st();
+  if(d.tbText&&d.session&&d.session.rounds&&d.session.rounds.length&&!await SK.confirm("توجد مراجعة جارية بجولات Gemini — استبدالها بميزان «"+label+"»؟",{danger:true,ok:"استبدال"}))return false;
+  Object.entries(ctx||{}).forEach(([k,v])=>{if(v)d.ctx[k]=v});
+  d.tbText=text;d.session=null;d.accepted=[];d.rejected=[];d.overrides={};put(d);await docClear();tab="tb";setup=false;
+  SK.audit&&SK.audit.log("tbreview",{act:"import",source:label,accounts:tb.rows.length,balanced:tb.balanced});
+  toast("استُلم ميزان "+label+": "+tb.rows.length+" حساباً"+(tb.balanced?"، متزن":" — غير متزن، راجع الفرق"),tb.balanced?"ok":"warn");
+  return true;
+}
+async function fromBooks(){
+  const b=await booksTB();
+  if(!b){toast("لا توجد قيود في الدفاتر المحاسبية ولا مبيعات أو مشتريات مسجلة للفترة","warn");return false}
+  const ok=await loadTB(b.text,b.source,b.ctx);
+  if(ok){if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");else paint()}
+  return ok;
+}
+window.SKosifTBReview=Object.freeze({fromBooks,booksTB});
+
 /* ---------- computation (memoized) ---------- */
 function compute(){
   const d=st();CUR=egypt(d)?"ج.م":"ر.س";if(!d.tbText)return null;
@@ -106,7 +158,7 @@ function setupHTML(d,withTb){
       '<div class="tbr-fw-r"><b>معايير المحاسبة المصرية</b><p>تظهر أرقام المعايير المصرية بجوار الحسابات مع ما يقابلها في IFRS، وتُعامل ضريبة الدخل بدلاً من الزكاة.</p><small>الهيئة العامة للرقابة المالية · مصلحة الضرائب المصرية</small></div></div>':
     '<div class="tbr-fw"><div><h4>الإطار المحاسبي (إرشادات SOCPA — القسم 1)</h4>'+q("listedOrIssuing","أسهم أو أدوات دين متداولة أو في طور الإدراج")+q("fiduciaryForBroadGroup","تحتفظ بأموال مجموعة عريضة من الغير كنشاط رئيس (بنك، تأمين، صندوق)")+q("incidentalDepositsOnly","الاحتفاظ بأموال العملاء عرضي (مدارس، وكالات سفر)")+q("electedFullIfrs","غير خاضعة للمساءلة واختارت المعايير الكاملة")+'</div>'+
       '<div class="tbr-fw-r"><b>'+esc(app.label)+'</b><p>'+esc(app.reason)+'</p><small>'+esc(app.cite.join(" · "))+'</small></div></div>')+
-    (withTb?'<div class="tbr-in"><label class="btn primary" style="cursor:pointer">'+SK.icon("excelrecon")+' رفع ملف الميزان<input type="file" data-tbfile accept=".xlsx,.csv,.tsv,.txt,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></label><button type="button" class="btn" data-a="sample">ميزان تجريبي</button><span class="hint">أو الصق الميزان من Excel:</span></div>'+
+    (withTb?'<div class="tbr-in"><label class="btn primary" style="cursor:pointer">'+SK.icon("excelrecon")+' رفع ملف الميزان<input type="file" data-tbfile accept=".xlsx,.csv,.tsv,.txt,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></label><button type="button" class="btn" data-a="books" title="ميزان الشركة النشطة من الدفاتر المحاسبية أو السجلات التشغيلية">'+SK.icon("ledger")+' من دفاتر التطبيق</button><button type="button" class="btn" data-a="sample">ميزان تجريبي</button><span class="hint">أو الصق الميزان من Excel:</span></div>'+
       '<textarea data-tbtext rows="7" dir="ltr" placeholder="رقم الحساب\tاسم الحساب\tمدين\tدائن\tالسنة السابقة">'+esc(d.tbText)+'</textarea><div class="sk-actions"><button type="button" class="btn primary" data-a="analyze">تحليل الميزان</button></div>':
       '<div class="sk-actions"><button type="button" class="btn primary" data-a="setup-done">تم</button><label class="sk-field tbr-mat"><span>الأهمية النسبية (ريال) — فارغ = تلقائي</span><input type="number" min="0" step="100" data-mat value="'+(d.materiality?d.materiality/100:"")+'"></label></div>')+
   '</div></section>';
@@ -444,6 +496,7 @@ function bind(node){
       put(d);paint();return}
     const b=e.target.closest("[data-a]");if(!b)return;
     const a=b.dataset.a;
+    if(a==="books"){await fromBooks();return}
     if(a==="sample"){const ta=root.querySelector("[data-tbtext]");if(ta)ta.value=TI().SAMPLE_TB_CSV;const co=root.querySelector('[data-ctx="company"]');if(co&&!co.value)co.value="شركة تجريبية للتجارة";const pe=root.querySelector('[data-ctx="period"]');if(pe&&!pe.value)pe.value="السنة المنتهية في 31 ديسمبر 2025";return}
     if(a==="analyze"){const d=readCtx(st()),text=String((root.querySelector("[data-tbtext]")||{}).value||"").trim();if(!text){toast("ارفع ملف الميزان أو الصقه أولاً","warn");return}
       const tb=TI().parseTrialBalance(text);if(!tb.ok){toast("لم أتعرف على أعمدة الميزان — تأكد من وجود رقم الحساب والمدين والدائن","bad");return}

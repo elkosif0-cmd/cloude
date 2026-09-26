@@ -45,6 +45,10 @@
 .nav-btn .badge{margin-inline-start:auto;min-width:22px;padding:0 7px;border-radius:var(--sk-r-pill);background:var(--sk-brand);color:var(--sk-on-brand);font-size:11px;font-weight:700;line-height:20px;text-align:center}
 .nav-btn .badge.red{background:var(--sk-bad-mark);color:#fff}
 .nav-btn .badge.blue{background:var(--sk-violet);color:#fff}
+/* a hub entry shows how many pages it holds (its pages open as tabs) */
+.nav-btn .skn-hubn{margin-inline-start:auto;min-width:20px;padding:0 6px;border-radius:var(--sk-r-pill);background:var(--sk-rail-2);color:var(--sk-rail-mute);font-style:normal;font-size:10.5px;font-weight:700;line-height:18px;text-align:center}
+.nav-btn[aria-current="page"] .skn-hubn{color:inherit;opacity:.8}
+:root[data-rail="mini"] .nav-btn .skn-hubn{display:none}
 
 .status-card{margin-top:var(--sk-3);display:grid;gap:6px;padding:var(--sk-3);border:1px solid var(--sk-line);border-radius:var(--sk-r-l);background:var(--sk-surface);font-size:var(--sk-fs-s);color:var(--sk-ink);flex-shrink:0}
 .status-card .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;color:var(--sk-ink-2)}
@@ -228,6 +232,9 @@ body.skn-locked{overflow:hidden}
 .skn-domain button[aria-current="page"]{background:var(--sk-brand);color:var(--sk-on-brand)}
 .skn-domain button[aria-current="page"] svg{color:var(--sk-on-brand)}
 .skn-domain button i{font-style:normal;font-size:10.5px;padding:0 6px;border-radius:var(--sk-r-pill);background:var(--sk-surface-3);color:var(--sk-ink-3)}
+/* the pages of a hub: the hub's name, then its pages */
+.skn-hubtabs .skn-hubt{flex:none;display:inline-flex;align-items:center;gap:6px;padding:0 10px 0 12px;margin-inline-end:2px;border-inline-end:1px solid var(--sk-line-2);color:var(--sk-ink-3);font-size:12px;font-weight:800;white-space:nowrap}
+@media (max-width:720px){.skn-hubtabs .skn-hubt{display:none}}
 
 /* ---------- theme-specific shell touches ---------- */
 :root[data-look]:not([data-look="heritage"]) .rail{background-image:none;padding-bottom:var(--sk-5)}

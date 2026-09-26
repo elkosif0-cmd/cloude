@@ -70,16 +70,24 @@ mq.addEventListener&&mq.addEventListener("change",()=>{if(prefs().look==="auto")
 migrate();applyPrefs();
 
 /* ---------- rail ---------- */
-function navButton(c,cur){
+/* one entry per hub: it opens the first page the role may see, and stays current on every page of the hub */
+function navButton(c,cur,pages){
+  const go=pages[0],on=pages.some(x=>x.id===cur);
   const icon=SK.icons[c.id]||(core()&&core().navIcon(c.id))||SK.icons.action;
-  const badge=core()?core().navBadge(c.id):"";
-  return '<button type="button" class="nav-btn" data-act="nav" data-v="'+c.id+'" title="'+esc(c.label)+'"'+(c.id===cur?' aria-current="page"':'')+'>'+icon+'<span>'+esc(c.label)+'</span>'+(badge||"")+'</button>';
+  const badge=core()?core().navBadge(go.id):"";
+  const more=pages.length>1?'<i class="skn-hubn" title="'+pages.length+' صفحات">'+pages.length+'</i>':"";
+  return '<button type="button" class="nav-btn" data-act="nav" data-v="'+go.id+'" data-hub="'+c.id+'" title="'+esc(c.hubLabel)+'"'+(on?' aria-current="page"':'')+'>'+icon+'<span>'+esc(c.hubLabel)+'</span>'+(badge||more)+'</button>';
+}
+/* the pages of a hub this user may open in the current mode */
+function hubPages(id,cur){
+  const adv=core()&&core().mode()==="advanced";
+  return SK.caps.members(id).filter(x=>(adv||x.primary||x.id===cur)&&SK.perm.can(x.id));
 }
 let lastSig="";
 /* the menu: collapsible domains (icon · name · count), the current screen's domain always open,
    and a filter box above it; open/closed state per device (skosif_nav_v1) */
 const NAV_KEY="skosif_nav_v1";
-const GICON={home:"dash",sales:"commerce",stock:"inventory",procurement:"purchasing",finance:"finance",catalog:"catalog",intelligence:"jev",reports:"execreports",audit:"tbreview",system:"settings"};
+const GICON={home:"dash",intelligence:"decision",sales:"commerce",stock:"inventory",finance:"ledger",catalog:"catalog",reports:"execreports",audit:"tbreview",system:"settings"};
 const CHEV='<svg class="skn-ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
 const navState=()=>{const d=load(NAV_KEY,{})||{};return d.open&&typeof d.open==="object"?d.open:{}};
 function setNavOpen(g,v){const d=load(NAV_KEY,{})||{};d.open={...(d.open||{}),[g]:v};save(NAV_KEY,d)}
@@ -90,12 +98,12 @@ function paintNav(){
   const adv=core().mode()==="advanced",cur=core().view(),open=navState();
   let html="";
   SK.caps.groups().forEach(g=>{
-    const items=SK.caps.inGroup(g.id).filter(c=>(adv||c.primary||c.id===cur)&&SK.perm.can(c.id));
+    const items=SK.caps.hubsInGroup(g.id).map(c=>[c,hubPages(c.id,cur)]).filter(([,pg])=>pg.length);
     if(!items.length)return;
-    const here=items.some(c=>c.id===cur),isOpen=here||(open[g.id]!==undefined?open[g.id]:g.id==="home");
+    const here=items.some(([,pg])=>pg.some(x=>x.id===cur)),isOpen=here||(open[g.id]!==undefined?open[g.id]:g.id==="home");
     html+='<div class="skn-group'+(isOpen?'':' closed')+(here?' here':'')+'" role="group" aria-label="'+esc(g.label)+'" data-g="'+g.id+'">'+
       '<button type="button" class="nav-group skn-gh" data-g="'+g.id+'" aria-expanded="'+isOpen+'"><span class="skn-gi">'+(SK.icons[GICON[g.id]]||"")+'</span><span>'+esc(g.label)+'</span><i class="skn-gc">'+items.length+'</i>'+CHEV+'</button>'+
-      items.map(c=>navButton(c,cur)).join("")+'</div>';
+      items.map(([c,pg])=>navButton(c,cur,pg)).join("")+'</div>';
   });
   if(adv)html+='<p class="skn-note">'+ADV_NOTE+'</p>';
   if(html!==lastSig||!nav.querySelector(".skn-group")){nav.innerHTML=html;lastSig=html}
@@ -106,7 +114,7 @@ function filterNav(){
   nav.classList.toggle("skn-searching",!!q);
   $$(".skn-group",nav).forEach(g=>{
     let any=false;
-    $$(".nav-btn",g).forEach(b=>{const c=SK.caps.get(b.dataset.v),hit=!q||nq((c&&c.label)+" "+(c&&c.kw)+" "+(c&&c.en)+" "+(c&&c.sub)).includes(q);b.classList.toggle("skn-miss",!hit);if(hit)any=true});
+    $$(".nav-btn",g).forEach(b=>{const txt=SK.caps.members(b.dataset.hub||b.dataset.v).map(c=>c.label+" "+c.hubLabel+" "+c.kw+" "+c.en+" "+c.sub).join(" "),hit=!q||nq(txt).includes(q);b.classList.toggle("skn-miss",!hit);if(hit)any=true});
     g.classList.toggle("skn-none",!!q&&!any);
   });
 }
@@ -126,15 +134,25 @@ function navSearch(){
     const g=h.closest(".skn-group"),closed=g.classList.toggle("closed");h.setAttribute("aria-expanded",String(!closed));setNavOpen(h.dataset.g,!closed);
   });
 }
-/* domain tab bar on top of every screen: sibling screens of the same domain */
+/* the tab bar on top of every screen: the pages of its hub when it has several (العملاء · المتابعة ·
+   الائتمان), otherwise the hubs of its domain */
+function stripItems(id){
+  const c=core(),cap=SK.caps.get(id);if(!cap)return{hub:false,items:[]};
+  const pages=hubPages(id,id);
+  /* «متقدم» only marks an advanced page inside a daily hub */
+  const hubAdv=!SK.caps.hub(id).primary;
+  if(pages.length>1)return{hub:true,items:pages.map(x=>({id:x.id,go:x.id,label:x.label,primary:x.primary||hubAdv,on:x.id===id}))};
+  const items=SK.caps.hubsInGroup(cap.group).map(h=>[h,hubPages(h.id,id)]).filter(([,pg])=>pg.length)
+    .map(([h,pg])=>({id:h.id,go:pg[0].id,label:h.hubLabel,primary:h.primary,on:pg.some(x=>x.id===id)}));
+  return{hub:false,items};
+}
 function domainTabs(){
   const c=core();if(!c)return;const v=$("#view");if(!v)return;
   const old=v.querySelector(":scope > .skn-domain");
   const id=c.view(),cap=SK.caps.get(id);
-  const adv=c.mode()==="advanced";
-  const sibs=cap?SK.caps.siblings(id).filter(x=>(adv||x.primary||x.id===id)&&SK.perm.can(x.id)):[];
-  if(sibs.length<2){if(old)old.remove();return}
-  const html='<nav class="skn-domain" aria-label="'+esc(cap.groupLabel)+'">'+sibs.map(x=>'<button type="button" data-act="nav" data-v="'+x.id+'"'+(x.id===id?' aria-current="page"':'')+'>'+(SK.icons[x.id]||c.navIcon(x.id)||"")+'<span>'+esc(x.label)+'</span>'+(x.primary?'':'<i>متقدم</i>')+'</button>').join("")+'</nav>';
+  const {hub,items}=stripItems(id);
+  if(items.length<2){if(old)old.remove();return}
+  const html='<nav class="skn-domain'+(hub?' skn-hubtabs':'')+'" aria-label="'+esc(hub?cap.hubLabel:cap.groupLabel)+'">'+(hub?'<b class="skn-hubt">'+esc(cap.hubLabel)+'</b>':'')+items.map(x=>'<button type="button" data-act="nav" data-v="'+x.go+'"'+(x.on?' aria-current="page"':'')+'>'+(SK.icons[x.id]||c.navIcon(x.id)||"")+'<span>'+esc(x.label)+'</span>'+(x.primary?'':'<i>متقدم</i>')+'</button>').join("")+'</nav>';
   if(old){if(old.outerHTML!==html)old.outerHTML=html}else v.insertAdjacentHTML("afterbegin",html);
   const on=v.querySelector(".skn-domain [aria-current]");if(on&&on.scrollIntoView)on.scrollIntoView({block:"nearest",inline:"nearest"});
 }
@@ -143,7 +161,7 @@ function paintTop(){
   const cap=SK.caps.get(c.view());
   const t=$("#pg-title"),cr=$("#pg-crumb");
   document.documentElement.dataset.domain=cap?cap.group:"";
-  if(cap){if(t&&t.textContent!==cap.label)t.textContent=cap.label;if(cr)cr.textContent=cap.groupLabel+(cap.primary?"":" · متقدم")}
+  if(cap){if(t&&t.textContent!==cap.label)t.textContent=cap.label;if(cr)cr.textContent=SK.caps.path(cap.id)+(cap.primary?"":" · متقدم")}
   else if(cr)cr.textContent="";
   document.title=(cap?cap.label:(t&&t.textContent)||"")+" · S.kosif";
   const rail=$("#rail");document.body.classList.toggle("skn-locked",!!(rail&&rail.classList.contains("open"))&&innerWidth<=900);
@@ -314,7 +332,7 @@ function customerCards(root){
     '<div class="sk-cc-actions">'+(c[7]?c[7].innerHTML:"")+'</div></article>'}).join("");
 }
 
-window.SKosifShell=Object.freeze({paint,toggleAppearance,setAppearance,setLook,looks:()=>LOOKS.map(x=>({id:x[0],name:x[1]})),prefs,resolved,
+window.SKosifShell=Object.freeze({paint,stripItems,toggleAppearance,setAppearance,setLook,looks:()=>LOOKS.map(x=>({id:x[0],name:x[1]})),prefs,resolved,
   toggleRail,tabs:tabIds,setTabs,tabLabel,defaultTabs:()=>TABS.slice(),tabMax:TAB_MAX});
 
 function boot(){
