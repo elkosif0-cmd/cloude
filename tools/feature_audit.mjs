@@ -74,6 +74,28 @@ ok('الجولات 1–33','الأجهزة والمزامنة والنقل ال�
 ok('الجولات 1–33','مركز الإشعارات وسجل المخاطر والملاحظات',O2.notify);ok('الجولات 1–33','حزمة التقارير التنفيذية بالترويسة',O2.pack);ok('الجولات 1–33','الشريط العلوي: الشركة والفترة والبحث والجرس والمستخدم',O2.topbar);
 ok('الجولات 1–33','المدونة المحاسبية والمعايير',O2.codex);ok('الجولات 1–33','جاهزية الإفصاحات',O2.disc);ok('الجولات 1–33','مطابقة البنك',O2.rec);ok('الجولات 1–33','برنامج المراجعة',O2.prog);ok('الجولات 1–33','الخسائر الائتمانية المتوقعة (ECL)',O2.ecl);
 await go('tbreview');await p.click('[data-a="setup"]').catch(()=>{});await p.waitForTimeout(500);ok('الجولات 1–33','الشركات المصرية ومعايير المحاسبة المصرية',await p.evaluate(()=>!!document.querySelector('[data-ctx="country"] option[value="EG"]')));
+// ---------- the books and the working mechanism (rounds 38–41) ----------
+await go('ledger');
+const B=await p.evaluate(()=>{const tabs=[...document.querySelectorAll('[data-sk-tabs="ledger"] [data-tab]')].map(x=>x.dataset.tab);return{tabs,
+  eng:['reverseJournalEntry','isPeriodLocked'].every(k=>typeof SKEngines.finance.ledger[k]==='function')&&typeof SKEngines.sales.sales.splitVatInclusive==='function'&&typeof SKEngines.stock.inventory.weightedAverageCostsAsOf==='function',
+  party:typeof SKEngines.finance.partyLedger.partyBalances==='function',vat:typeof SKEngines.finance.vatReturn.vatReturn==='function',bank:typeof SKEngines.finance.bankReconciliation.matchBankLines==='function',
+  tpl:SK.templates.list().some(t=>t.id==='bank'),close:!!window.SKosifClose,alerts:!!(window.SKosifClose&&Array.isArray(SKosifClose.alerts()))}});
+ok('الدفاتر وآلية العمل','الإقفال الشهري بثماني خطوات حية',B.tabs.includes('close')&&await p.evaluate(()=>document.querySelectorAll('.skclose-steps li').length===8));
+ok('الدفاتر وآلية العمل','تكلفة المبيعات والضريبة الشاملة والعكس بدل الحذف وإقفال الفترة',B.eng&&await p.evaluate(()=>!document.querySelector('[data-l="del-entry"]')));
+await p.click('[data-sk-tabs="ledger"] [data-tab="entries"]');await p.waitForTimeout(400);
+ok('الدفاتر وآلية العمل','عكس القيد وإقفال الدفاتر في شاشة القيود',await has('[data-l="rev-entry"]')&&await has('#lg-lock'));
+await p.click('[data-sk-tabs="ledger"] [data-tab="cash"]');await p.waitForTimeout(400);
+ok('الدفاتر وآلية العمل','التحصيل والسداد: أعمار الذمم وكشوف الحساب من الدفاتر',B.party&&await has('[data-l="settle"]')&&await has('[data-l="stmt"]'));
+await p.click('[data-sk-tabs="ledger"] [data-tab="vat"]');await p.waitForTimeout(400);
+ok('الدفاتر وآلية العمل','إقرار الضريبة ربعاً بربع مع قيد الإقفال',B.vat&&await has('[data-l="vatq"]'));
+await p.click('[data-sk-tabs="ledger"] [data-tab="recon"]');await p.waitForTimeout(500);
+ok('الدفاتر وآلية العمل','مطابقة البنك بقالب كشف واستيراد',B.bank&&B.tpl&&await has('[data-l="bank-import"]'));
+ok('الدفاتر وآلية العمل','الجرد وتسوية المخزون',await has('#lg-cntd'));
+await go('dash',1800);
+ok('الدفاتر وآلية العمل','الملخص الصباحي في مركز القيادة',await p.evaluate(()=>document.querySelectorAll('.skbrief-t').length>=6));
+ok('الدفاتر وآلية العمل','تنبيهات الدفاتر في مركز الإشعارات',B.alerts);
+await go('auditdocs',5000);
+ok('البيانات والاستيراد','استوديو المراجعة يفتح على بيانات تجريبية',await p.evaluate(()=>{const r=[...document.querySelectorAll('#view *')].find(h=>h.shadowRoot)?.shadowRoot;return !!r&&!/لا توجد مستندات بعد/.test(r.textContent)}));
 const ph=await (await b.newContext({viewport:{width:390,height:844},isMobile:true})).newPage();await ph.goto(URL_);await ph.waitForTimeout(5000);
 ok('الجولات 1–33','شريط التبويبات السفلي في الآيفون',await ph.evaluate(()=>!!document.querySelector('.skb,.sk-tabbar,[class*="tabbar"]')));
 if(process.argv[3])fs.writeFileSync(process.argv[3],JSON.stringify(R,null,1));

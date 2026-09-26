@@ -57,7 +57,7 @@ async function journey(root){
     ["decision","التقارير والقرار","التقارير التنفيذية، الطباعة والتصدير، القرارات والمهام",tasks?["warn",tasks+" مهمة مفتوحة"]:["ok","لا مهام متأخرة"],"execreports"]];
   const el=document.createElement("section");el.className="skjr";el.setAttribute("aria-label","رحلة العمل");
   el.innerHTML='<ol>'+S.map((x,i)=>'<li><button type="button" data-flow-go="'+x[4]+'"><span class="n">'+(i+1)+'</span><b>'+esc(x[1])+'</b><small>'+esc(x[2])+'</small><span class="st '+x[3][0]+'">'+esc(x[3][1])+'</span></button></li>').join("")+'</ol>';
-  const demo=root.querySelector(":scope>.skdemo");if(demo)demo.after(el);else root.prepend(el);
+  const br=root.querySelector(":scope>.skbrief"),demo=root.querySelector(":scope>.skdemo");if(br)br.after(el);else if(demo)demo.after(el);else root.prepend(el);
 }
 function bootJourney(){const c=core();if(c&&c.onView)c.onView("dash",r=>setTimeout(()=>journey(r),0));else setTimeout(bootJourney,300)}
 bootJourney();

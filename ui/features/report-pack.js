@@ -8,10 +8,27 @@
 const {$$,esc,load,save,toast}=SK;
 const core=()=>window.SKosifCore;
 const OPT="skosif_report_pack_v1";
-const SECT=[["summary","الملخص التنفيذي"],["trend","اتجاهات المبيعات والمشتريات"],["risks","المخاطر"],["findings","الملاحظات المفتوحة"],["decisions","ما يحتاج قراراً"],["tasks","حالة المهام"],["signoff","الاعتماد والتوقيع"]];
+const SECT=[["summary","الملخص التنفيذي"],["books","الدفاتر والإقفال"],["trend","اتجاهات المبيعات والمشتريات"],["risks","المخاطر"],["findings","الملاحظات المفتوحة"],["decisions","ما يحتاج قراراً"],["tasks","حالة المهام"],["signoff","الاعتماد والتوقيع"]];
 const nf=new Intl.NumberFormat("ar-SA-u-nu-latn",{maximumFractionDigits:1});
 const M=v=>new Intl.NumberFormat("ar-SA-u-nu-latn",{maximumFractionDigits:0}).format(Math.round(v||0))+" ر.س";
-const opts=()=>Object.assign({range:12,sections:SECT.map(s=>s[0]),reviewer:"",approver:""},load(OPT,{})||{});
+const opts=()=>{const o=Object.assign({range:12,sections:SECT.map(s=>s[0]),reviewer:"",approver:""},load(OPT,{})||{});
+  /* a section added after the owner saved a choice is shown until they untick it */
+  if(!o.seen||!o.seen.includes("books")){o.sections=[...new Set([...o.sections,"books"])];o.seen=SECT.map(x=>x[0])}return o};
+/* the books at a glance, from the same source as the morning brief and the month-end close */
+function booksHTML(){
+  const l=window.SKosifLedger;if(!l||!l.snapshot().accounts.length)return "";
+  const t=new Date().toISOString().slice(0,10),ar=l.parties("ar",t),ap=l.parties("ap",t),cash=l.balance("1100",t),d=l.snapshot();
+  const hist=((d.bank||{}).history||[]).map(h=>h.end).sort(),last=hist[hist.length-1];
+  const S=window.SKosifClose?SKosifClose.steps():[],A=S.filter(x=>x.st!=="na"),done=A.filter(x=>x.st==="ok").length;
+  const late=ar?ar.totals["61-90"]+ar.totals["90+"]:0;
+  const q=(()=>{const n=new Date(),k=Math.floor(n.getUTCMonth()/3);return k?n.getUTCFullYear()+"-Q"+k:(n.getUTCFullYear()-1)+"-Q4"})(),v=l.vat(q);
+  const tiles=[["النقدية والبنوك",cash==null?"—":M(cash)],["مستحق من العملاء",ar?M(ar.balance+ar.unassigned):"—",late?"bad":""],["منه متأخر أكثر من 60 يوماً",M(late),late?"bad":"ok"],
+    ["مستحق للموردين",ap?M(ap.balance+ap.unassigned):"—"],["ضريبة "+(v?v.q.label:"الربع"),v?(v.settled?"أُقفلت":M(Math.abs(v.r.net))+(v.r.net>=0?" مستحقة":" مستردة")):"—",v&&!v.settled?"bad":"ok"],
+    ["آخر مطابقة بنكية",last||"لم تُعتمد",last?"":"bad"],["الإقفال الشهري",A.length?done+" من "+A.length+" خطوات":"—",done===A.length?"ok":""],["الفترة مقفلة حتى",d.lockDate||"—"]];
+  const top=ar?ar.rows.filter(r=>r.balance>0.004).slice(0,6):[];
+  return '<section><h2>الدفاتر والإقفال</h2><div class="rp-k">'+tiles.map(([k,val,c])=>'<div><span>'+esc(k)+'</span><b class="'+(c||"")+'">'+esc(val)+'</b></div>').join("")+'</div>'+
+    (top.length?'<table><tr><th>العميل</th><th>الرصيد</th><th>غير مستحق</th><th>1–60 يوماً</th><th>أكثر من 60</th></tr>'+top.map(r=>'<tr><td>'+esc(r.party)+'</td><td>'+M(r.balance)+'</td><td>'+M(r.aging.current)+'</td><td>'+M(r.aging["1-30"]+r.aging["31-60"])+'</td><td>'+M(r.aging["61-90"]+r.aging["90+"])+'</td></tr>').join("")+'</table>':'')+'</section>';
+}
 const score=r=>(+r.likelihood||1)*(+r.impact||1);
 function snapshot(){
   const st=core().stats(),tgt=st.target>1?st.target:st.target*100;
@@ -76,6 +93,7 @@ async function print(root){
       [["المبيعات",M(S)],["المشتريات والمصروفات",M(P+O)],["صافي التدفق",(N<0?"−":"")+M(Math.abs(N)),N<0?"bad":"ok"],["هامش التدفق",S?nf.format(N/S*100)+"٪":"—"],
        ["متوسط هامش البوكسات",s.avg!=null?nf.format(s.avg)+"٪":"—",s.avg!=null&&s.avg<s.tgt?"bad":"ok"],["بوكسات بخسارة",nf.format(s.st.loss),s.st.loss?"bad":""],["المهام المنجزة",s.tasks.length?nf.format(s.done/s.tasks.length*100)+"٪":"—"],["مخاطر مرتفعة مفتوحة",nf.format(s.high.length),s.high.length?"bad":"ok"]]
       .map(([l,v,c])=>'<div><span>'+l+'</span><b class="'+(c||"")+'">'+esc(v)+'</b></div>').join("")+'</div></section>';
+    if(has("books"))b+=booksHTML();
     if(has("trend"))b+='<section><h2>اتجاهات المبيعات والمشتريات</h2>'+SKCharts.bars({width:700,labels:tr.labels,tipLabels:tr.tip,series:[{name:"المبيعات",color:"var(--sk-c1)",values:tr.s},{name:"المشتريات والمصروفات",color:"var(--sk-c2)",values:tr.p.map((v,i)=>v+tr.o[i])}],line:{name:"صافي التدفق",color:"var(--sk-c3)",values:tr.net},height:230})+
       '<table><tr><th>الشهر</th><th>المبيعات</th><th>المشتريات</th><th>المصروفات</th><th>الصافي</th></tr>'+tr.tip.map((m,i)=>'<tr><td>'+esc(m)+'</td><td>'+M(tr.s[i])+'</td><td>'+M(tr.p[i])+'</td><td>'+M(tr.o[i])+'</td><td>'+(tr.net[i]<0?"−":"")+M(Math.abs(tr.net[i]))+'</td></tr>').join("")+
       '<tr><td><b>الإجمالي</b></td><td><b>'+M(S)+'</b></td><td><b>'+M(P)+'</b></td><td><b>'+M(O)+'</b></td><td><b>'+(N<0?"−":"")+M(Math.abs(N))+'</b></td></tr></table><p class="note">المصدر: المبيعات المستوردة، شحنات الموردين، والمصروفات التشغيلية الشهرية المسجلة.</p></section>';

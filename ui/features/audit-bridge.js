@@ -66,7 +66,7 @@ function open(key,node,view,screenId){
   if(a.loading)return;
   const wait=document.createElement("div");wait.className="sk-empty kx-wait";wait.textContent="جارٍ تحميل "+APPS[key].label+"…";a.frame.before(wait);
   a.loading=import(APPS[key].path).then(m=>m.mount(a.host,a.want)).then(api=>{
-    a.api=api;api.setView(a.want);wait.remove();
+    a.api=api;api.setView(a.want);wait.remove();if(key==="studio")seedStudio(a);
     syncTheme();if(key==="classic"){setTimeout(()=>feedAnalytics(a),400);setTimeout(()=>viewsBar(a),300)}
     try{
       const sRoot=a.host.shadowRoot;
@@ -174,6 +174,20 @@ function feedAnalytics(a){
     const dt=new DataTransfer();dt.items.add(new File([tbCSV(t.rows)],"KOSIF-engagement-tb.csv",{type:"text/csv"}));input.files=dt.files;input.dispatchEvent(new Event("change",{bubbles:true}));
     fedSig=t.sig;window.SK.toast("استُلم ميزان ملف المراجعة («"+t.label+"») في أدوات التحليل","info");
   }catch(e){console.error("S.kosif analytics feed",e)}
+}
+/* on a device running the demo company an empty studio opens on its own sample engagement (5000 accounts) with a
+   council round, a proposed adjustment and a report draft, so every page shows how it works; never over real work */
+async function seedStudio(a){
+  try{
+    if(!(window.SK.demo&&SK.demo.active&&SK.demo.active()))return;
+    const st=await import("./audit/v5/continuous-store.js");
+    if(st.store.engagement.documents.length||st.store.analysis)return;
+    (await import("./audit/v5/continuous-documents.js")).loadDemo();
+    st.store.engagement.entity="نموذج استوديو المراجعة — 5000 حساب (بيانات تجريبية)";window.__skStudioDemo=true;
+    const root=a.host.shadowRoot,wait=ms=>new Promise(r=>setTimeout(r,ms));
+    for(const id of ["runCouncilButton","proposeAdjustmentButton","buildDraftButton"]){const b=root&&root.getElementById(id);if(b){b.click();await wait(700)}}
+    a.api.setView(a.want);
+  }catch(e){console.error("S.kosif studio demo",e)}
 }
 /* the audit studio lives inside «مركز المراجعة» (tab «الاستوديو المتقدم»): mount it in the engagement's own tab */
 /* the studio's two starting points (its hidden welcome panel) from the engagement's tab */

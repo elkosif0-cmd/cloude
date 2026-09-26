@@ -152,7 +152,8 @@ jobs:
           # books you can rely on: reversal instead of deletion, a lock date, VAT taken out of the price paid, cost of sales with each sale
           for marker in ["reverseJournalEntry","isPeriodLocked","splitVatInclusive","priceIncludesVat","weightedAverageCosts","rev-entry","lockHTML",
                          "partyBalances","partyStatement","buildSettlementEntry","buildVatSettlementEntry","cashHTML","data-ledger-open",
-                         "matchBankLines","bankReconciliationStatement","bankHTML","stockCountValuation","buildStockCountAdjustment","weightedAverageCostsAsOf"]:
+                         "matchBankLines","bankReconciliationStatement","bankHTML","stockCountValuation","buildStockCountAdjustment","weightedAverageCostsAsOf",
+                         "SKosifClose","skclose-steps","skbrief","booksHTML","seedStudio"]:
               assert marker in js, "ledger control missing: "+marker
           assert 'data-l="del-entry"' not in js, "posted entries are reversed, never deleted"
           for marker in ["SKosifTopbar","SKCharts","SKosifTable","SKosifNotify","SKosifReportPack","SKosifMetrics","skp-band","counter(pages)"]:

@@ -82,7 +82,7 @@ async function loadTB(text,label,ctx){
   const d=st();
   if(d.tbText&&d.session&&d.session.rounds&&d.session.rounds.length&&!await SK.confirm("توجد مراجعة جارية بجولات Gemini — استبدالها بميزان «"+label+"»؟",{danger:true,ok:"استبدال"}))return false;
   Object.entries(ctx||{}).forEach(([k,v])=>{if(v)d.ctx[k]=v});
-  d.tbText=text;fresh(d);put(d);await docClear();tab="tb";setup=false;
+  d.tbText=text;d.loadedAt=new Date().toISOString();d.loadedFrom=label||"";fresh(d);put(d);await docClear();tab="tb";setup=false;
   SK.audit&&SK.audit.log("tbreview",{act:"import",source:label,accounts:tb.rows.length,balanced:tb.balanced});
   toast("استُلم ميزان "+label+": "+tb.rows.length+" حساباً"+(tb.balanced?"، متزن":" — غير متزن، راجع الفرق"),tb.balanced?"ok":"warn");
   return true;
@@ -558,7 +558,7 @@ function bind(node){
     if(a==="sample"){const ta=root.querySelector("[data-tbtext]");if(ta)ta.value=TI().SAMPLE_TB_CSV;const co=root.querySelector('[data-ctx="company"]');if(co&&!co.value)co.value="شركة تجريبية للتجارة";const pe=root.querySelector('[data-ctx="period"]');if(pe&&!pe.value)pe.value="السنة المنتهية في 31 ديسمبر 2025";return}
     if(a==="analyze"){const d=readCtx(st()),text=String((root.querySelector("[data-tbtext]")||{}).value||"").trim();if(!text){toast("ارفع ملف الميزان أو الصقه أولاً","warn");return}
       const tb=TI().parseTrialBalance(text);if(!tb.ok){toast("لم أتعرف على أعمدة الميزان — تأكد من وجود رقم الحساب والمدين والدائن","bad");return}
-      d.tbText=text;fresh(d);put(d);await docClear();tab="tb";setup=false;
+      d.tbText=text;d.loadedAt=new Date().toISOString();d.loadedFrom="ملف أو لصق";fresh(d);put(d);await docClear();tab="tb";setup=false;
       SK.audit&&SK.audit.log("tbreview",{act:"import",accounts:tb.rows.length,balanced:tb.balanced});paint();return}
     if(a==="setup"){setup=!setup;paint();return}
     if(a==="setup-done"){const d=readCtx(st()),mv=Number((root.querySelector("[data-mat]")||{}).value||0);d.materiality=mv>0?Math.round(mv*100):null;put(d);setup=false;paint();return}

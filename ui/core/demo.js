@@ -234,6 +234,17 @@ const SECTIONS=[
     }catch{}
     const bad=entries.filter(e=>{try{return !F.ledger.validateJournalEntry(e).valid}catch{return false}});
     const good=entries.filter(e=>!bad.includes(e));let bank=null;
+    /* past quarters are filed: each ended quarter closes its VAT into 2250 and is paid to the authority before its deadline */
+    try{const V=F.vatReturn,typeOf=x=>(accounts.find(a=>a.id===x)||{}).type,t=ago(0);
+      if(!accounts.some(a=>a.code==="2250"))accounts.push(D(F.accounts.createAccount({code:"2250",name:"ضريبة القيمة المضافة — صافي مستحق للهيئة",type:"liability"})));
+      for(let q=0;q<4;q++){const st=iso(Date.UTC(Y,q*3,1)),en=iso(Date.UTC(Y,q*3+3,0)),due=iso(Date.UTC(Y,q*3+4,0));if(due>=t)break;
+        const r=V.vatReturn({entries:good,start:st,end:en,outputVatAccountId:id("2200"),inputVatAccountId:id("1400"),typeOf,controlAccountIds:["1100","1200","2100","2250"].map(id)});
+        if(!(r.outputVat>0||r.inputVat>0))continue;
+        const se=V.buildVatSettlementEntry({id:"demo-je"+(n++),date:en,reference:"VAT-"+Y+"-Q"+(q+1),outputVat:r.outputVat,inputVat:r.inputVat,outputVatAccountId:id("2200"),inputVatAccountId:id("1400"),netAccountId:id("2250")});
+        good.push(D({...se,memo:"إقفال ضريبة القيمة المضافة — الربع "+(q+1),source:"ضريبة",sourceId:"vat:"+Y+"-Q"+(q+1)}));
+        if(r.net>0)good.push(D({id:"demo-je"+(n++),date:iso(Date.parse(due)-5*DAY),reference:"ZATCA-"+Y+"-Q"+(q+1),memo:"سداد ضريبة الربع "+(q+1)+" للهيئة",source:"سداد",
+          lines:[{accountId:id("2250"),debit:r2(r.net),credit:0,description:"سداد للهيئة"},{accountId:id("1100"),debit:0,credit:r2(r.net),description:"سداد للهيئة"}]}));
+      }}catch{}
     /* a bank statement for the last weeks: cash lines clear a day later, one deposit is still in transit, one payment
        outstanding, and a fee and a profit only the bank knows — so «مطابقة البنك» has a real story */
     try{const BR=F.bankReconciliation,book=BR.bookCashLines(good,id("1100")),end=ago(0),from=ago(40),recent=book.filter(l=>l.date>=from&&l.date<=end);
@@ -304,6 +315,7 @@ async function fill(ids,{quiet}={}){
 async function clear(){
   const ids=Object.keys(reg().sections);let reload=false;
   for(const id of ORDER.slice().reverse()){if(!ids.includes(id))continue;const s=SECTIONS.find(y=>y.id===id);try{await s.clear();if(s.reload)reload=true}catch(e){SK.errors&&SK.errors.report(e,"demo-clear:"+id)}}
+  if(window.__skStudioDemo)reload=true; /* the audit studio holds its sample in memory: a reload empties it */
   const r=reg();r.sections={};r.dismissed=true;setReg(r);SK.audit&&SK.audit.log("demo",{act:"clear",sections:ids.length});
   return {cleared:ids.length,reload};
 }
@@ -350,5 +362,5 @@ function examples(){const v=window.SKosifCore&&SKosifCore.view(),ex=EXAMPLES[v];
 SK.bus&&SK.bus.on("render",()=>setTimeout(()=>{bar();examples()},0));
 SK.bus&&SK.bus.on("nav",()=>setTimeout(bar,0));
 window.addEventListener("load",()=>setTimeout(()=>boot().catch(e=>SK.errors&&SK.errors.report(e,"demo:boot")),700));
-SK.demo=Object.freeze({status,fill,clear,panel,fresh,sections:()=>SECTIONS.map(s=>({id:s.id,label:s.label,caps:s.caps.slice()})),turnOff:()=>{const r=reg();r.off=true;setReg(r)}});
+SK.demo=Object.freeze({status,fill,clear,panel,fresh,active:()=>Object.keys(reg().sections).length>0,sections:()=>SECTIONS.map(s=>({id:s.id,label:s.label,caps:s.caps.slice()})),turnOff:()=>{const r=reg();r.off=true;setReg(r)}});
 })();

@@ -4,6 +4,7 @@
      • المهام: متأخرة، مستحقة اليوم، قريبة الاستحقاق (يومان)
      • سجل المخاطر: مخاطر عالية مفتوحة، مواعيد معالجة فائتة، ملاحظات عالية الأثر
      • المشتريات: استلامات بفرق وزن أو حرارة · قائمة أرقام المتابعة
+     • الدفاتر: موعد إقرار الضريبة، عملاء متأخرون، عمليات لم تُرحّل، مطابقة البنك، شهر لم يُقفل
      • النظام: أخطاء آخر 24 ساعة
      • نشاطك: النسخ والاستعادة والنقل وتغيير الدور (تُعرض مقروءة)
    حالة القراءة ووقت أول ظهور محفوظان على الجهاز (skosif_notify_v1). */
@@ -46,7 +47,9 @@ function collect(){
   if(c0&&c0.temp!=null&&Number(c0.temp)>4)add({id:"cold:"+(c0.at||c0.time||c0.temp),type:"alert",sev:"bad",title:"قراءة تبريد خارج الحد",detail:Number(c0.temp)+"°م"+(c0.loc?" — "+c0.loc:""),view:"traceability"});
   /* 6. system errors (last 24h) */
   (SK.errors.list()||[]).filter(e=>Date.now()-Date.parse(e.at)<DAY&&e.where!=="asset").slice(0,5).forEach(e=>add({id:"er:"+e.at,type:"system",sev:"warn",title:"تعذّر إكمال عملية",detail:String(e.msg||"").slice(0,120),view:"health",at:Date.parse(e.at)}));
-  /* 7. own activity (read by default) */
+  /* 7. the books: VAT deadline, customers overdue, operations not posted, bank not reconciled, month not closed */
+  try{(window.SKosifClose?SKosifClose.alerts():[]).forEach(x=>add({id:"bk:"+x.id,type:"alert",sev:x.sev,title:x.title,detail:x.detail,view:"ledger",ledgerTab:x.tab,q:x.q}))}catch{}
+  /* 8. own activity (read by default) */
   const ACT={backup:["نسخة كاملة للتطبيق","ok"],restore:["استعادة بيانات","warn"],transfer:["نقل بين الأجهزة","info"],role:["تغيير الدور","info"]};
   (SK.audit.all()||[]).filter(e=>ACT[e.type]&&Date.now()-Date.parse(e.at)<7*DAY).slice(0,8).forEach(e=>{const a=ACT[e.type];
     add({id:"au:"+e.at+":"+e.type,type:"activity",sev:a[1],title:"تم: "+a[0],detail:e.type==="role"?"الدور الحالي: "+(SK.caps.roles()[e.to]||{}).label:e.keys!=null?e.keys+" مفتاح بيانات":e.act==="send"?"أُرسلت حزمة نقل":e.act==="receive"?"استُقبلت حزمة نقل":"",view:e.type==="transfer"?"devices":"settings",at:Date.parse(e.at),self:true})});
@@ -63,7 +66,9 @@ function items(){
 const unread=()=>items().filter(x=>x.unread).length;
 function markRead(ids){const s=st();ids.forEach(id=>{s.read[id]=1});save(KEY,s);cache=null;SK.bus.emit("notify",{});if(root&&root.isConnected)paint()}
 const markAll=()=>markRead(items().filter(x=>x.unread).map(x=>x.id));
-function open(id){const x=items().find(i=>i.id===id);if(!x)return;markRead([id]);if(x.view&&SK.caps.get(x.view)&&SK.perm.can(x.view))core().go(x.view)}
+function open(id){const x=items().find(i=>i.id===id);if(!x)return;markRead([id]);
+  if(x.ledgerTab&&window.SKosifLedger&&SK.perm.can("ledger")){SKosifLedger.open(x.ledgerTab,{q:x.q});return}
+  if(x.view&&SK.caps.get(x.view)&&SK.perm.can(x.view))core().go(x.view)}
 const rtf=new Intl.RelativeTimeFormat("ar",{numeric:"auto"});
 function ago(ts){const d=(ts-Date.now())/1000,a=Math.abs(d);return a<60?"الآن":a<3600?rtf.format(Math.round(d/60),"minute"):a<86400?rtf.format(Math.round(d/3600),"hour"):rtf.format(Math.round(d/86400),"day")}
 function rowHTML(x){

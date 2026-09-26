@@ -12,7 +12,7 @@ const BASIC=[["1100","النقدية والبنوك","asset"],["1200","الذم�
   ["2100","الذمم الدائنة (الموردون)","liability"],["2200","ضريبة القيمة المضافة — مخرجات","liability"],["3000","رأس المال","equity"],["3100","الأرباح المبقاة","equity"],
   ["4000","إيرادات المبيعات","revenue"],["5000","تكلفة المبيعات","expense"],["6100","الرواتب والأجور","expense"],["6200","الإيجار","expense"],["6300","مصروفات تشغيلية أخرى","expense"],["2250","ضريبة القيمة المضافة — صافي مستحق للهيئة","liability"],["5100","فروقات الجرد والهدر","expense"],["4900","إيرادات أخرى","revenue"]];
 const ISSUE={JOURNAL_UNBALANCED:"القيد غير متزن: المدين لا يساوي الدائن",LINE_BOTH_SIDES:"سطر فيه مدين ودائن معاً",LINE_NEGATIVE_AMOUNT:"مبلغ سالب",LINE_ZERO_AMOUNT:"سطر بلا مبلغ"};
-let tab="accounts",draft=null,glAcc="",vatQ="";
+let tab="",draft=null,glAcc="",vatQ="";
 const db=()=>{const d=load(KEY,{})||{};return{...d,accounts:Array.isArray(d.accounts)?d.accounts:[],entries:Array.isArray(d.entries)?d.entries:[],lockDate:typeof d.lockDate==="string"?d.lockDate:""}};
 const locked=(d,date)=>E().ledger.isPeriodLocked(date,d.lockDate);
 /* operations already in the books: a reversed entry frees its operation to be posted again */
@@ -237,14 +237,14 @@ function countHTML(d){
   '</div></section>';
 }
 /* ---------- the VAT return from the books (ZATCA layout), quarter by quarter ---------- */
-function quarters(){
-  const p=period(),y=Number(((p&&p.startDate)||today()).slice(0,4)),iso=(m,dd)=>new Date(Date.UTC(y,m,dd)).toISOString().slice(0,10);
+function quarters(year){
+  const p=period(),y=Number(year||((p&&p.startDate)||today()).slice(0,4)),iso=(m,dd)=>new Date(Date.UTC(y,m,dd)).toISOString().slice(0,10);
   return [0,1,2,3].map(q=>({id:y+"-Q"+(q+1),label:"الربع "+["الأول","الثاني","الثالث","الرابع"][q],start:iso(q*3,1),end:iso(q*3+3,0),due:iso(q*3+4,0)}))
     .concat([{id:String(y),label:"السنة "+y,start:iso(0,1),end:iso(12,0),due:iso(13,0)}]);
 }
-function vatCalc(d){
+function vatCalc(d,qid){
   const out=byCode(d,"2200"),inp=byCode(d,"1400");if(!out||!inp)return null;
-  const Q=quarters(),t=today(),q=Q.find(x=>x.id===vatQ)||Q.find(x=>x.id.includes("Q")&&t>=x.start&&t<=x.end)||Q[0];
+  const want=qid||vatQ,Q=quarters(want&&want.slice(0,4)),t=today(),q=Q.find(x=>x.id===want)||Q.find(x=>x.id.includes("Q")&&t>=x.start&&t<=x.end)||Q[0];
   const r=E().vatReturn.vatReturn({entries:d.entries,start:q.start,end:q.end,outputVatAccountId:out,inputVatAccountId:inp,
     typeOf:id=>(d.accounts.find(a=>a.id===id)||{}).type,controlAccountIds:["1100","1200","2100","2250"].map(c=>byCode(d,c)).filter(Boolean)});
   return {Q,q,r,out,inp,settled:d.entries.find(e=>e.sourceId==="vat:"+q.id&&!e.reversedBy)};
@@ -336,10 +336,10 @@ function postReceipts(d){
 
 /* ---------- screen ---------- */
 function paint(root){
-  const d=db(),p=period();
-  root.innerHTML=SK.ui.tabs([["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
+  const d=db(),p=period();if(!tab)tab=d.accounts.length?"close":"accounts";
+  root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
     (p?'<p class="hint">الفترة المالية النشطة: <b>'+esc(p.label)+'</b> ('+esc(p.startDate)+' → '+esc(p.endDate)+') — من «الشركات والفترات».</p>':'')+
-    ({accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
+    ({close:closeHTML,accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
 }
 function bind(root){
   root.addEventListener("click",async e=>{
@@ -465,8 +465,26 @@ function bind(root){
   root.addEventListener("input",sync);root.addEventListener("change",sync);
 }
 SK.view("ledger",{render(node){if(!node.dataset.bound){bind(node);node.dataset.bound="1"}paint(node)}});
+/* the month-end close lives in month-close.js; it reads the books through the api below */
+function closeHTML(){return window.SKosifClose?SKosifClose.html():SK.ui.state.empty({title:"الإقفال الشهري غير متاح"})}
+function pendingOps(d,until){
+  const posted=postedSources(d),u=until||"9999-12-31",pur=load("skosif_purchasing_v1",{});
+  const sales=(load("aghnam-v12-manual-sales",[])||[]).filter(x=>x&&x.id&&!posted.has("sale:"+x.id)&&String(x.date||"").slice(0,10)<=u);
+  const rec=(pur.receipts||[]).filter(r=>r&&r.status==="RECEIVED"&&!posted.has("receipt:"+r.id)&&String(r.date||"").slice(0,10)<=u);
+  const oldest=[...sales.map(x=>String(x.date||"").slice(0,10)),...rec.map(r=>String(r.date||"").slice(0,10))].filter(Boolean).sort()[0]||null;
+  return {sales:sales.length,receipts:rec.length,total:sales.length+rec.length,oldest};
+}
+function partiesOf(d,kind,asOf){const acc=byCode(d,kind==="ap"?"2100":"1200");if(!acc)return null;
+  return E().partyLedger.partyBalances(withParties(d).filter(e=>String(e.date).slice(0,10)<=asOf),acc,kind==="ap"?"credit":"debit",asOf,Number.isFinite(d.termsDays)?d.termsDays:30)}
+function balanceOf(d,code,asOf){const id=byCode(d,code);if(!id)return null;const g=E().ledger.buildGeneralLedger(d.entries.filter(e=>String(e.date).slice(0,10)<=asOf)).find(x=>x.accountId===id);return g?g.balance:0}
 /* any screen can open a ledger tab: data-ledger-open="vat" */
 document.addEventListener("click",e=>{const b=e.target.closest("[data-ledger-open]");if(b){tab=b.dataset.ledgerOpen||"accounts";window.SKosifCore.go("ledger")}});
 window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().accounts,lockDate:()=>db().lockDate,saleEntry:(d,x)=>saleEntry(d,x,costResolver()),
-  open:t=>{tab=t||"accounts";window.SKosifCore.go("ledger")}});
+  open:(t,o={})=>{tab=t||"accounts";if(o.q)vatQ=o.q;window.SKosifCore.go("ledger")},
+  /* read-only views of the books for the month-end close, the morning brief and the alerts */
+  snapshot:()=>db(),pending:until=>pendingOps(db(),until),parties:(kind,asOf)=>partiesOf(db(),kind,asOf||today()),
+  vat:qid=>vatCalc(db(),qid),quarters:y=>quarters(y),balance:(code,asOf)=>balanceOf(db(),code,asOf||today()),
+  trialBalance:end=>E().ledger.buildTrialBalance(db().entries.filter(e=>String(e.date).slice(0,10)<=end)),
+  lockTo:date=>{const d=db();if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||(d.lockDate&&d.lockDate>=date))return false;d.lockDate=date;put(d);SK.audit&&SK.audit.log("ledger",{act:"lock",to:date});return true},
+  sendToReview:async()=>window.SKosifTBReview?SKosifTBReview.fromBooks():false});
 })();
