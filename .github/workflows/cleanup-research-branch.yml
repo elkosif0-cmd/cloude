@@ -1,0 +1,15 @@
+# One-shot: deletes the temporary branch research-tmp-ingest (page text used for study). Removed right after it runs.
+name: Remove temporary research branch (one-shot)
+on:
+  push:
+    branches: [claude/magical-maxwell-taj9xe]
+    paths: [".github/workflows/cleanup-research-branch.yml"]
+permissions:
+  contents: write
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          R="https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
+          if git ls-remote --heads "$R" research-tmp-ingest | grep -q research-tmp-ingest; then git push "$R" --delete research-tmp-ingest; else echo "already gone"; fi
