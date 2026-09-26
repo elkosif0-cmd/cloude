@@ -87,7 +87,7 @@ function findingForm(d){
 }
 function findingsHTML(d){
   const F=d.findings,by=k=>F.filter(f=>f.severity===k&&f.status!=="resolved").length,res=F.filter(f=>f.status==="resolved").length;
-  const C=SKCharts,tile=(cls,l,v,sub)=>'<div class="skk4-t" role="group"><span class="chip '+cls+'">'+SK.icon(cls==="ok"?"check":"alert")+'</span><span class="tx"><span>'+l+'</span><b>'+v+'</b><small>'+sub+'</small></span></div>';
+  const tile=(cls,l,v,sub)=>'<div class="skk4-t" role="group"><span class="chip '+cls+'">'+SK.icon(cls==="ok"?"check":"alert")+'</span><span class="tx"><span>'+l+'</span><b>'+v+'</b><small>'+sub+'</small></span></div>';
   const rows=F.slice().sort((a,b)=>(a.status==="resolved")-(b.status==="resolved")||({high:0,medium:1,low:2}[a.severity]-{high:0,medium:1,low:2}[b.severity])||String(b.date).localeCompare(String(a.date)));
   return '<div class="skk4">'+tile("bad","أثر عالٍ مفتوحة",by("high"),"تحتاج معالجة عاجلة")+tile("warn","متوسطة مفتوحة",by("medium"),"ضمن خطة المعالجة")+tile("","منخفضة مفتوحة",by("low"),"للمتابعة")+tile("ok","محلولة",res,"من أصل "+F.length)+'</div>'+
     (editF!==null?findingForm(d):'')+

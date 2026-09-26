@@ -8,7 +8,7 @@
 (()=>{
 "use strict";
 
-const {$,$$,esc,num,load,save,money,pct,toast,csv}=window.SK;
+const {$,$$,esc,num,load,save,money,csv}=window.SK;
 const roots={};
 let repTab="pack"; // pack | pl | yield | vat | churn | trends | eod — «pack» is ui/features/report-pack.js
 
@@ -50,6 +50,8 @@ function churnList(){
 /* ==========================================================================
    Tab 1: Operational P&L HTML & Logic
    ========================================================================== */
+/* a share of revenue for exports and messages: "—" when there is no revenue, never NaN% or Infinity% */
+const revPct=(v,rev)=>rev>0?((Number(v)||0)/rev*100).toFixed(1)+"%":"—";
 function plHTML(){
   const pl=load(PL_KEY,defaultPL);
   const totalOpex=pl.salaries+pl.rent+pl.utilities+pl.logistics+pl.packaging+pl.otherOpex;
@@ -80,7 +82,7 @@ function plHTML(){
 
       '<div class="sk-kpis">',
         '<div class="sk-kpi"><span>إجمالي الإيرادات</span><b>'+money(pl.revenue)+'</b></div>',
-        '<div class="sk-kpi"><span>مجمل الربح (Gross Profit)</span><b>'+money(grossProfit)+'</b></div>',
+        '<div class="sk-kpi"><span>مجمل الربح (Gross Profit)</span><b>'+money(grossProfit)+'</b><small>الهامش '+grossMargin.toFixed(1)+'%</small></div>',
         '<div class="sk-kpi '+(netProfit>=0?'good':'bad')+'"><span>صافي الربح التشغيلي</span><b>'+money(netProfit)+'</b></div>',
         '<div class="sk-kpi accent"><span>هامش الربح الصافي</span><b>'+netMargin.toFixed(1)+'%</b></div>',
       '</div>',
@@ -138,8 +140,8 @@ function bindPL(){
     msg+="تكلفة الهدر والعظم: "+money(pl.wasteLoss)+"\n";
     msg+="إجمالي المصاريف التشغيلية: "+money(totalOpex)+"\n";
     msg+="--------------------------------\n";
-    msg+="*مجمل الربح:* "+money(grossProfit)+" ("+((grossProfit/pl.revenue)*100).toFixed(1)+"%)\n";
-    msg+="*صافي الربح التشغيلي:* "+money(netProfit)+" ("+((netProfit/pl.revenue)*100).toFixed(1)+"%)\n";
+    msg+="*مجمل الربح:* "+money(grossProfit)+" ("+revPct(grossProfit,pl.revenue)+")\n";
+    msg+="*صافي الربح التشغيلي:* "+money(netProfit)+" ("+revPct(netProfit,pl.revenue)+")\n";
     window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
   });
 
@@ -151,16 +153,17 @@ function bindPL(){
     const headers=["البند","القيمة (ر.س)","النسبة من المبيعات"];
     const rows=[
       ["إجمالي الإيرادات",pl.revenue.toFixed(2),"100%"],
-      ["تكلفة المشتريات (COGS)",pl.cogs.toFixed(2),((pl.cogs/pl.revenue)*100).toFixed(1)+"%"],
-      ["تكلفة الهدر والعظم",pl.wasteLoss.toFixed(2),((pl.wasteLoss/pl.revenue)*100).toFixed(1)+"%"],
-      ["مجمل الربح",grossProfit.toFixed(2),((grossProfit/pl.revenue)*100).toFixed(1)+"%"],
-      ["رواتب وعمالة",pl.salaries.toFixed(2),((pl.salaries/pl.revenue)*100).toFixed(1)+"%"],
-      ["إيجار ومستودع",pl.rent.toFixed(2),((pl.rent/pl.revenue)*100).toFixed(1)+"%"],
-      ["كهرباء وتبريد",pl.utilities.toFixed(2),((pl.utilities/pl.revenue)*100).toFixed(1)+"%"],
-      ["نقل ولوجستيات",pl.logistics.toFixed(2),((pl.logistics/pl.revenue)*100).toFixed(1)+"%"],
-      ["تغليف وفاكيوم",pl.packaging.toFixed(2),((pl.packaging/pl.revenue)*100).toFixed(1)+"%"],
-      ["إجمالي المصاريف التشغيلية",totalOpex.toFixed(2),((totalOpex/pl.revenue)*100).toFixed(1)+"%"],
-      ["صافي الربح التشغيلي",netProfit.toFixed(2),((netProfit/pl.revenue)*100).toFixed(1)+"%"]
+      ["تكلفة المشتريات (COGS)",pl.cogs.toFixed(2),revPct(pl.cogs,pl.revenue)],
+      ["تكلفة الهدر والعظم",pl.wasteLoss.toFixed(2),revPct(pl.wasteLoss,pl.revenue)],
+      ["مجمل الربح",grossProfit.toFixed(2),revPct(grossProfit,pl.revenue)],
+      ["رواتب وعمالة",pl.salaries.toFixed(2),revPct(pl.salaries,pl.revenue)],
+      ["إيجار ومستودع",pl.rent.toFixed(2),revPct(pl.rent,pl.revenue)],
+      ["كهرباء وتبريد",pl.utilities.toFixed(2),revPct(pl.utilities,pl.revenue)],
+      ["نقل ولوجستيات",pl.logistics.toFixed(2),revPct(pl.logistics,pl.revenue)],
+      ["تغليف وفاكيوم",pl.packaging.toFixed(2),revPct(pl.packaging,pl.revenue)],
+      ["مصاريف تشغيلية أخرى",pl.otherOpex.toFixed(2),revPct(pl.otherOpex,pl.revenue)],
+      ["إجمالي المصاريف التشغيلية",totalOpex.toFixed(2),revPct(totalOpex,pl.revenue)],
+      ["صافي الربح التشغيلي",netProfit.toFixed(2),revPct(netProfit,pl.revenue)]
     ];
     csv.download("تقرير_قائمة_الدخل_التشغيلية.csv",headers,rows);
   });

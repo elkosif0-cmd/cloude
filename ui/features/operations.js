@@ -7,7 +7,7 @@
 (()=>{
 "use strict";
 
-const {$,$$,esc,num,load,save,money,pct,toast,csv}=window.SK;
+const {$,$$,esc,num,load,save,money,toast,csv}=window.SK;
 const roots={};
 let opsTab="bbq"; // bbq | po | butcher | subs
 
@@ -273,17 +273,19 @@ function bindPO(root){
     window.open("https://wa.me/"+(phone||"")+"?text="+msg,"_blank");
   };
 
-  $("#po-add-modal-btn",root).onclick=()=>{
-    const supp=prompt("اسم المورد:","مسلخ القصيم");
-    if(!supp)return;
-    const invoiced=num(prompt("الوزن المفوتر بالكيلوجرام (من فاتورة المورد):","200"));
-    const actual=num(prompt("الوزن الفعلي على ميزان الملحمة (كجم):","194"));
-    const temp=num(prompt("درجة حرارة سيارة التوريد عند الوصول (°C):","2.5"));
+  $("#po-add-modal-btn",root).onclick=async()=>{
+    const f=await SK.form("استلام شحنة من مورد",[
+      {key:"supp",label:"اسم المورد",required:true,placeholder:"مثال: مسلخ القصيم"},
+      {key:"invoiced",label:"الوزن المفوتر (كجم)",type:"number",min:0,step:"0.01",required:true,hint:"من فاتورة المورد"},
+      {key:"actual",label:"الوزن الفعلي على الميزان (كجم)",type:"number",min:0,step:"0.01",required:true},
+      {key:"temp",label:"حرارة سيارة التوريد عند الوصول (°C)",type:"number",min:-30,max:30,step:"0.1",hint:"السلسلة الباردة: 0 – 4 °C"}],{ok:"تسجيل الاستلام"});
+    if(!f)return;
+    const supp=f.supp,invoiced=num(f.invoiced),actual=num(f.actual),temp=num(f.temp);
     const diff=Math.max(0,invoiced-actual);
 
     const list=load(PO_KEY,defaultPOs);
     list.unshift({
-      id:"PO-"+Math.floor(1000+Math.random()*9000),
+      id:"PO-"+Date.now().toString(36).slice(-6).toUpperCase(),
       supplier:supp,
       breed:"نعيمي بلدي",
       heads:10,
@@ -443,12 +445,14 @@ function subsHTML(){
 
 function bindSubs(root){
   $$("[data-sub-quick]",root).forEach(b=>{
-    b.onclick=()=>{
+    b.onclick=async()=>{
       const plan=b.dataset.subQuick;
-      const name=prompt("اسم العميل:","سعد القحطاني");
-      if(!name)return;
-      const phone=prompt("رقم جوال العميل:","");
-      const addr=prompt("عنوان التوصيل:","الرياض - حطين");
+      const f=await SK.form("اشتراك جديد",[
+        {key:"name",label:"اسم العميل",required:true},
+        {key:"phone",label:"رقم الجوال",placeholder:"05xxxxxxxx"},
+        {key:"addr",label:"عنوان التوصيل",placeholder:"المدينة - الحي"}],{ok:"إضافة الاشتراك"});
+      if(!f)return;
+      const {name,phone,addr}=f;
 
       let pName="بوكس العائلة الشهري",price=850,cycle="شهري";
       if(plan==="bbq"){pName="بوكس الشواء الأسبوعي";price=240;cycle="أسبوعي";}
@@ -456,7 +460,7 @@ function bindSubs(root){
 
       const list=load(SUBS_KEY,defaultSubs);
       list.unshift({
-        id:"SUB-"+Math.floor(100+Math.random()*900),
+        id:"SUB-"+Date.now().toString(36).slice(-6).toUpperCase(),
         name:name,
         phone:phone||"",
         plan:plan,
@@ -493,15 +497,17 @@ function bindSubs(root){
   });
 
   const addBtn=$("#sub-add-btn",root);
-  if(addBtn)addBtn.onclick=()=>{
-    const name=prompt("اسم العميل:","مشترك جديد");
-    if(!name)return;
-    const phone=prompt("رقم الجوال:","");
-    const pName=prompt("اسم الباقة (مثلاً: بوكس العائلة):","بوكس العائلة الفاخر");
-    const price=num(prompt("القيمة بالريال:","650"));
+  if(addBtn)addBtn.onclick=async()=>{
+    const f=await SK.form("اشتراك بباقة خاصة",[
+      {key:"name",label:"اسم العميل",required:true},
+      {key:"phone",label:"رقم الجوال",placeholder:"05xxxxxxxx"},
+      {key:"pName",label:"اسم الباقة",required:true,placeholder:"مثال: بوكس العائلة"},
+      {key:"price",label:"القيمة الشهرية (ر.س)",type:"number",min:0,step:"0.01",required:true}],{ok:"إضافة الاشتراك"});
+    if(!f)return;
+    const {name,phone,pName}=f,price=num(f.price);
     const list=load(SUBS_KEY,defaultSubs);
     list.unshift({
-      id:"SUB-"+Math.floor(100+Math.random()*900),
+      id:"SUB-"+Date.now().toString(36).slice(-6).toUpperCase(),
       name:name,
       phone:phone||"",
       plan:"custom",
@@ -681,7 +687,7 @@ function bindAging(content){
       const w=window.open("","_blank","width=450,height=550");
       if(!w)return toast("يرجى السماح بالنوافذ المنبثقة لطباعة الملصق");
       w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><title>ملصق تعتيق - '+esc(p.id)+'</title>'+
-        '<style>body{font-family:system-ui,sans-serif;padding:20px;text-align:center;border:2px dashed #333;margin:10px;border-radius:12px;}'+
+        '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap"><style>body{font-family:"IBM Plex Sans Arabic",Tahoma,sans-serif;padding:20px;text-align:center;border:2px dashed #333;margin:10px;border-radius:12px;}'+
         'h2{margin:6px 0;color:#8a5a2b;}table{width:100%;margin:14px 0;border-collapse:collapse;}td{padding:6px;border-bottom:1px solid #eee;text-align:right;}'+
         'b{color:#111;}.tag{display:inline-block;padding:4px 10px;background:#eee;border-radius:6px;font-size:12px;margin-bottom:8px;}</style></head><body>'+
         '<div class="tag">غرفة التعتيق الفاخرة — S.kosif</div>'+
@@ -701,12 +707,13 @@ function bindAging(content){
   });
 
   $$("[data-ag-finish]",content).forEach(b=>{
-    b.onclick=()=>{
+    b.onclick=async()=>{
       const list=load(AGING_KEY,defaultAgingPieces);
       const idx=+b.dataset.agFinish;
       if(!list[idx])return;
-      const actualUsable=prompt("أدخل الوزن الصافي الفعلي بعد التشفية وإزالة القشرة (كجم):",agingCalc(list[idx]).usableKg.toFixed(2));
-      if(actualUsable===null)return;
+      const f=await SK.form("إنهاء التعتيق",[{key:"kg",label:"الوزن الصافي الفعلي (كجم)",type:"number",min:0,step:"0.01",required:true,value:agingCalc(list[idx]).usableKg.toFixed(2),hint:"بعد التشفية وإزالة القشرة"}],{ok:"إنهاء ونقل للمبيعات"});
+      if(!f)return;
+      const actualUsable=f.kg;
       list[idx].status="done";
       list[idx].finalUsableKg=num(actualUsable);
       list[idx].finishDate=new Date().toISOString().slice(0,10);

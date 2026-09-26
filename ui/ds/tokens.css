@@ -32,7 +32,7 @@
   --sk-font:"Amiri","Noto Naskh Arabic","Segoe UI",Tahoma,serif;
   --sk-font-display:"Aref Ruqaa","Amiri",serif;
   --sk-font-mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
-  --sk-fs-xs:12px;--sk-fs-s:13.5px;--sk-fs:15px;--sk-fs-l:17px;--sk-fs-xl:22px;--sk-fs-2xl:28px;
+  --sk-fs-2xs:11px;--sk-fs-xs:12px;--sk-fs-s:13.5px;--sk-fs:15px;--sk-fs-l:17px;--sk-fs-xl:22px;--sk-fs-2xl:28px;
   /* elevation */
   --sk-shadow-1:0 1px 0 rgba(255,255,255,.7) inset,0 6px 18px -12px rgba(90,60,30,.35);
   --sk-shadow-2:0 12px 32px -14px rgba(90,60,30,.35);

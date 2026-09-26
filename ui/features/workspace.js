@@ -2,7 +2,7 @@
    المحركات: SKEngines.system.companyContext، SKEngines.intelligence.council. */
 (()=>{
 "use strict";
-const {$,$$,esc,load,save,money,toast}=SK;
+const {$,esc,load,save,toast}=SK;
 const today=()=>new Date().toISOString().slice(0,10);
 
 /* ================= الشركات والفترات المالية ================= */

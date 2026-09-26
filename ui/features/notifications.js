@@ -9,7 +9,7 @@
    حالة القراءة ووقت أول ظهور محفوظان على الجهاز (skosif_notify_v1). */
 (()=>{
 "use strict";
-const {$,$$,esc,load,save}=SK;
+const {esc,load,save}=SK;
 const core=()=>window.SKosifCore;
 const KEY="skosif_notify_v1",DAY=864e5;
 const today=()=>new Date().toISOString().slice(0,10);

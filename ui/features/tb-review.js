@@ -53,7 +53,6 @@ function activeCo(){const d=load("skosif_companies_v1",{})||{},a=d.active||{};re
 const yearBack=iso=>{const x=new Date(iso+"T00:00:00Z");x.setUTCFullYear(x.getUTCFullYear()-1);return x.toISOString().slice(0,10)};
 async function booksTB(){
   const {co,p}=activeCo(),L=window.SKosifLedger,LE=E().finance&&E().finance.ledger;
-  const inP=(e,a,b)=>(!a||e.date>=a)&&(!b||e.date<=b);
   let rows=[],source="";
   if(L&&LE&&L.entries().length){
     /* balance-sheet accounts to the period end, results for the period, earlier results in retained earnings */

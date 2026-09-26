@@ -161,3 +161,24 @@ export function periodTrialBalance(
   const totals = rows.reduce((sum, row) => ({ debit: money(sum.debit + row.debit), credit: money(sum.credit + row.credit) }), { debit: 0, credit: 0 });
   return { rows, totals, balanced: Math.abs(totals.debit - totals.credit) <= MONEY_TOLERANCE, carried };
 }
+
+/* ---------- controls: a posted entry is never deleted, it is reversed; nothing posts on or before the lock date ---------- */
+export function reverseJournalEntry(entry: JournalEntry, params: { id: string; date: string; reference?: string }): JournalEntry {
+  if (!entry.lines.length) throw new Error('NOTHING_TO_REVERSE');
+  return {
+    id: params.id,
+    date: params.date,
+    reference: params.reference ?? 'عكس ' + (entry.reference || entry.id),
+    lines: entry.lines.map((line) => ({
+      accountId: line.accountId,
+      debit: money(Number(line.credit) || 0),
+      credit: money(Number(line.debit) || 0),
+      ...(line.description ? { description: 'عكس: ' + line.description } : {}),
+    })),
+  };
+}
+
+export function isPeriodLocked(date: string, lockDate?: string | null): boolean {
+  if (!lockDate || !/^\d{4}-\d{2}-\d{2}/.test(lockDate)) return false;
+  return String(date || '').slice(0, 10) <= lockDate.slice(0, 10);
+}

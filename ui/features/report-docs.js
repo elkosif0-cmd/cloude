@@ -18,10 +18,6 @@ const pct=v=>v===null||v===undefined?"—":(v>0?"":"")+v+"%";
 const chg=v=>v===null||v===undefined?"—":'<span class="'+(v>=0?"pos":"neg")+'">'+(v>=0?"+":"")+v+"%</span>";
 
 /* x: {c (tb-review compute), fs, cur, ctx, fw, kams, opinion} */
-function tableRows(rows,withShare){
-  return rows.map(r=>'<tr class="'+(r.level==="total"?"tot":"")+'"><td>'+esc(r.ar)+'</td><td class="n">'+m0(r.current)+'</td><td class="n">'+(r.prior===null?"—":m0(r.prior))+'</td><td class="n">'+chg(r.change)+'</td>'+
-    (withShare?'<td class="n">'+pct(r.pctOfRevenue)+'</td>'+(r.pctOfRevenuePrior!==undefined?'<td class="n">'+pct(r.pctOfRevenuePrior)+'</td>':''):'')+'</tr>').join("");
-}
 const head=(cols,cur)=>'<thead><tr><th>'+esc(cols[0])+' <small>('+esc(cur)+')</small></th>'+cols.slice(1).map(c=>'<th>'+esc(c)+'</th>').join("")+'</tr></thead>';
 function stmt(rows,hp,cur){
   return '<table class="rd-t">'+head(hp?["","إيضاح","السنة الحالية","السنة السابقة"]:["","إيضاح","المبلغ"],cur)+'<tbody>'+rows.map(r=>r.level==="heading"?'<tr class="h"><td colspan="'+(hp?4:3)+'">'+esc(r.ar)+'</td></tr>':

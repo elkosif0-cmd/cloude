@@ -25,7 +25,7 @@
   const toast=msg=>window.SK.toast(msg,"info");
   async function copy(text){
     try{await navigator.clipboard.writeText(text);toast("تم النسخ");}
-    catch{window.prompt("انسخ النص:",text);}
+    catch{window.SK.form("انسخ النص",[{key:"t",label:"حدّد النص وانسخه",type:"textarea",value:text}],{ok:"تم",cancel:"إغلاق"});}
   }
 
   /* ---------- بيانات التطبيق الأساسي (قراءة فقط) ---------- */

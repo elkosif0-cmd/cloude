@@ -144,6 +144,10 @@ jobs:
           for marker in ["SKosifCouncilUI","confidenceMatrix","stopRule","verifyOpinion","integrityChecks","mountStudio","formDialog"]:
               assert marker in js, "council marker missing: "+marker
           assert any(c.get("hidden") and c.get("hub")=="tbreview" for c in caps), "the audit studio lives inside the engagement"
+          # books you can rely on: reversal instead of deletion, a lock date, VAT taken out of the price paid, cost of sales with each sale
+          for marker in ["reverseJournalEntry","isPeriodLocked","splitVatInclusive","priceIncludesVat","weightedAverageCosts","rev-entry","lockHTML"]:
+              assert marker in js, "ledger control missing: "+marker
+          assert 'data-l="del-entry"' not in js, "posted entries are reversed, never deleted"
           for marker in ["SKosifTopbar","SKCharts","SKosifTable","SKosifNotify","SKosifReportPack","SKosifMetrics","skp-band","counter(pages)"]:
               assert marker in js, "luxe marker missing: "+marker
           for marker in ["--sk-heat-1",".sk-ph",".skk4",".sktb-bar",".skhm-cell",".sksev"]:

@@ -20,6 +20,6 @@ document.addEventListener("click",e=>{
 try{
   const proto=Storage.prototype,orig=proto.setItem;
   proto.setItem=function(k,v){orig.call(this,k,v);if(this===window.localStorage&&/^(aghnam|skosif|kosif)/.test(k)&&!/^(skosif_audit_trail|skosif_error_log|skosif_prefs|skosif_palette_recent|skosif_notify_v1|skosif_tables_v1|aghnam-v12-theme|aghnam-pricing-ui-v3)$/.test(k))emit("data",{key:k,bytes:String(v).length})};
-}catch(e){}
+}catch{}
 SK.bus=Object.freeze({on,emit});
 })();

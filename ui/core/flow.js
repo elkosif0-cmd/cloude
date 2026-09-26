@@ -47,7 +47,7 @@ function idbCount(store){return new Promise(res=>{let q;try{q=indexedDB.open("ag
 async function journey(root){
   if(!root||root.querySelector(".skjr"))return;
   const cat=(core()&&core().catalog().items.length)||0,cust=await idbCount("customers"),orders=await idbCount("orders"),pur=(L("skosif_purchasing_v1",{}).orders||[]).length,
-    led=L("skosif_ledger_v1",{}),posted=new Set((led.entries||[]).map(e=>e.sourceId).filter(Boolean)),pend=(L("aghnam-v12-manual-sales",[])||[]).filter(x=>x&&!posted.has("sale:"+x.id)).length,
+    led=L("skosif_ledger_v1",{}),posted=new Set((led.entries||[]).filter(e=>!e.reversedBy).map(e=>e.sourceId).filter(Boolean)),pend=(L("aghnam-v12-manual-sales",[])||[]).filter(x=>x&&!posted.has("sale:"+x.id)).length,
     tb=L("skosif_tbreview_v1",{}),eng=tb.engagement&&tb.engagement.state,fnd=((L("skosif_risks_v1",{}).findings)||[]).filter(f=>f.status!=="closed").length,tasks=(L("skosif_tasks_v1",[])||[]).filter(t=>!t.done).length;
   const ST={new:"لم يبدأ",setup:"الإعداد",analysis:"التحليل","council":"مداولة المجلس","awaiting-client":"بانتظار العميل","human-review":"مراجعة بشرية","draft-report":"مسودة التقرير",approved:"معتمد"};
   const S=[["companies","البيانات الأساسية","الشركة والفترة، الكتالوج والأسعار، العملاء — يدوياً أو بقوالب الاستيراد",cat&&cust?["ok",cat+" صنف · "+cust+" عميل"]:["warn","أكمل الكتالوج والعملاء"],cat?"catalog":"companies"],

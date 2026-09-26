@@ -4,7 +4,7 @@
    قالب يضيفه المستخدم بضغطة ويعدّله. */
 (()=>{
 "use strict";
-const {$,$$,esc,load,save,money,toast}=SK;
+const {$,esc,load,save,money,toast}=SK;
 const E=()=>window.SKEngines.finance;
 const KEY="skosif_ledger_v1",CO_KEY="skosif_companies_v1";
 const TYPES={asset:"أصول",liability:"خصوم",equity:"حقوق ملكية",revenue:"إيرادات",expense:"مصروفات",other:"أخرى"};
@@ -13,7 +13,10 @@ const BASIC=[["1100","النقدية والبنوك","asset"],["1200","الذم�
   ["4000","إيرادات المبيعات","revenue"],["5000","تكلفة المبيعات","expense"],["6100","الرواتب والأجور","expense"],["6200","الإيجار","expense"],["6300","مصروفات تشغيلية أخرى","expense"]];
 const ISSUE={JOURNAL_UNBALANCED:"القيد غير متزن: المدين لا يساوي الدائن",LINE_BOTH_SIDES:"سطر فيه مدين ودائن معاً",LINE_NEGATIVE_AMOUNT:"مبلغ سالب",LINE_ZERO_AMOUNT:"سطر بلا مبلغ"};
 let tab="accounts",draft=null,glAcc="";
-const db=()=>{const d=load(KEY,{});return{accounts:Array.isArray(d.accounts)?d.accounts:[],entries:Array.isArray(d.entries)?d.entries:[]}};
+const db=()=>{const d=load(KEY,{});return{accounts:Array.isArray(d.accounts)?d.accounts:[],entries:Array.isArray(d.entries)?d.entries:[],lockDate:typeof d.lockDate==="string"?d.lockDate:""}};
+const locked=(d,date)=>E().ledger.isPeriodLocked(date,d.lockDate);
+/* operations already in the books: a reversed entry frees its operation to be posted again */
+const postedSources=d=>new Set(d.entries.filter(e=>!e.reversedBy).map(e=>e.sourceId).filter(Boolean));
 const put=d=>save(KEY,d);
 const r2=v=>Math.round((Number(v)||0)*100)/100;
 function period(){const c=load(CO_KEY,{});const a=c.active||{};const p=(c.periods||[]).find(x=>x.id===a.periodId);return p||null}
@@ -59,16 +62,27 @@ function entriesHTML(d){
     '<div class="sk-error" id="lg-err"></div></div></section>'+
     '<section class="card"><div class="card-h"><div><h3>القيود المسجلة</h3><p>'+list.length+' قيداً'+(p?' في الفترة «'+esc(p.label)+'»':'')+'.</p></div></div><div class="card-b">'+
     (list.length?'<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>التاريخ</th><th>المرجع</th><th>البيان</th><th>المبلغ</th><th>المصدر</th><th></th></tr></thead><tbody>'+
-      list.slice(0,200).map(e=>'<tr><td class="n">'+esc(e.date)+'</td><td>'+esc(e.reference||"")+'</td><td>'+esc(e.memo||"")+'</td><td class="n">'+money(e.lines.reduce((s,l)=>s+l.debit,0))+'</td><td>'+esc(e.source||"يدوي")+'</td><td><button type="button" class="linkish" data-l="del-entry" data-id="'+esc(e.id)+'">حذف</button></td></tr>').join("")+'</tbody></table></div>':SK.ui.state.empty({title:"لا توجد قيود في هذه الفترة"}))+
-  '</div></section>'+postingHTML(d);
+      list.slice(0,200).map(e=>'<tr><td class="n">'+esc(e.date)+'</td><td>'+esc(e.reference||"")+'</td><td>'+esc(e.memo||"")+'</td><td class="n">'+money(e.lines.reduce((s,l)=>s+l.debit,0))+'</td><td>'+esc(e.source||"يدوي")+'</td><td>'+entryState(d,e)+'</td></tr>').join("")+'</tbody></table></div>':SK.ui.state.empty({title:"لا توجد قيود في هذه الفترة"}))+
+  '</div></section>'+postingHTML(d)+lockHTML(d);
+}
+/* a posted entry is corrected by a reversing entry, never deleted: the trail stays complete */
+function entryState(d,e){
+  if(e.reversedBy)return '<span class="sk-pill">معكوس</span>';
+  if(e.reversalOf)return '<span class="sk-pill warn">قيد عكس</span>';
+  return (locked(d,e.date)?'<span class="sk-pill" title="الفترة مقفلة">مقفل</span> ':'')+'<button type="button" class="linkish" data-l="rev-entry" data-id="'+esc(e.id)+'">عكس</button>';
+}
+function lockHTML(d){
+  const l=d.lockDate,p=period();
+  return '<section class="card"><div class="card-h"><div><h3>إقفال الدفاتر</h3><p>'+(l?'الدفاتر مقفلة حتى <b>'+esc(l)+'</b>: لا قيد ولا ترحيل ولا عكس بتاريخ في هذه المدة، فتبقى أرقام الفترات المعتمدة كما هي.':'لم تُقفل أي فترة. أقفل الفترة بعد اعتماد قوائمها حتى لا تتغير أرقامها بعد التقرير.')+'</p></div></div>'+
+    '<div class="card-b"><div class="sk-actions"><label class="sk-field"><span>إقفال حتى تاريخ</span><input type="date" id="lg-lock" value="'+esc(l||(p&&p.endDate)||"")+'"></label><button type="button" class="btn" data-l="lock">إقفال الدفاتر</button>'+(l?'<button type="button" class="btn" data-l="unlock">فتح الإقفال</button>':'')+'</div></div></section>';
 }
 /* sales recorded in «تسجيل بيع» and receipts from «المشتريات» can be posted once */
 function postingHTML(d){
-  const posted=new Set(d.entries.map(e=>e.sourceId).filter(Boolean));
+  const posted=postedSources(d);
   const sales=(load("aghnam-v12-manual-sales",[])||[]).filter(x=>x&&x.id&&!posted.has("sale:"+x.id));
   const pur=load("skosif_purchasing_v1",{}),rec=(pur.receipts||[]).filter(r=>r.status==="RECEIVED"&&!posted.has("receipt:"+r.id));
   if(!sales.length&&!rec.length)return "";
-  return '<section class="card"><div class="card-h"><div><h3>بانتظار الترحيل</h3><p>عمليات مسجلة في التطبيق ولم تُرحّل للدفاتر بعد. الأسعار في «تسجيل بيع» شاملة الضريبة.</p></div></div><div class="card-b sk-stack">'+
+  return '<section class="card"><div class="card-h"><div><h3>بانتظار الترحيل</h3><p>عمليات مسجلة في التطبيق ولم تُرحّل للدفاتر بعد. الأسعار في «تسجيل بيع» شاملة الضريبة، وتُرحّل معها تكلفة المبيعات من المخزون.</p></div></div><div class="card-b sk-stack">'+
     (sales.length?'<div class="sk-actions"><span>'+sales.length+' عملية بيع يدوية</span><button type="button" class="btn primary" data-l="post-sales">ترحيل المبيعات</button></div>':'')+
     (rec.length?'<div class="sk-actions"><span>'+rec.length+' استلام مشتريات</span><button type="button" class="btn primary" data-l="post-receipts">ترحيل الاستلامات</button></div>':'')+
   '</div></section>';
@@ -111,32 +125,58 @@ function reconHTML(d){
 /* ---------- posting (engines build the balanced entries) ---------- */
 function ensureAcc(d,codes){const miss=codes.filter(c=>!d.accounts.some(a=>a.code===c));if(miss.length){toast("أضف الحسابات "+miss.join("، ")+" للدليل أولاً (أو أنشئ الدليل الأساسي)","warn");return false}return true}
 const idOf=(d,c)=>d.accounts.find(a=>a.code===c).id;
+/* unit cost excluding VAT for a sold item: weighted average of the goods received, else the dated cost rules of the sales lab, else the catalog cost */
+const ckey=v=>String(v||"").trim().toLowerCase().replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/\s+/g," ");
+function costResolver(){
+  const pur=load("skosif_purchasing_v1",{}),layers=[];
+  (pur.receipts||[]).filter(r=>r&&r.status==="RECEIVED").forEach(r=>{const po=(pur.orders||[]).find(o=>o.id===r.orderId);if(!po)return;
+    (r.lines||[]).forEach(l=>{const pl=(po.lines||[]).find(x=>x.item===l.item);if(pl)layers.push({itemId:l.item,quantity:Number(l.qty)||0,unitCost:Number(pl.cost)||0})})});
+  const wac=window.SKEngines.stock.inventory.weightedAverageCosts(layers,ckey),rules=load("skosif_cost_rules_v1",[]),cat=new Map();
+  try{(window.SKosifCore.catalog().items||[]).forEach(i=>{if(Number(i.cost)>0)cat.set(ckey(i.name),Number(i.cost))})}catch{}
+  return (item,date,channel)=>{const k=ckey(item);if(wac[k]>0)return wac[k];
+    const r=(Array.isArray(rules)?rules:[]).filter(x=>x&&ckey(x.product)===k&&(!x.channel||x.channel===channel)&&(!x.from||x.from<=date)&&(!x.to||x.to>=date))
+      .sort((a,b)=>Number(!!b.channel)-Number(!!a.channel)||String(b.from||"").localeCompare(String(a.from||"")))[0];
+    if(r&&Number(r.cost)>0)return Number(r.cost);return cat.get(k)||null};
+}
+/* one sale from «تسجيل بيع» (prices include VAT) as a balanced entry with its cost of sales; shared with the demo company */
+function saleEntry(d,x,costOf){
+  const date=String(x.date||"").slice(0,10),qty=Number(x.qty)||1,gross=Number(x.unitPrice)||((Number(x.amount)||0)/qty);if(!(gross>0))return null;
+  const withCost=d.accounts.some(a=>a.code==="5000")&&d.accounts.some(a=>a.code==="1300");
+  const b=window.SKEngines.sales.salesPosting.buildSalesPosting({id:x.id,number:x.id,date,dueDate:date,customerId:x.customer||x.phone||"عميل",status:"DRAFT",
+      lines:[{itemId:x.item||"بيع",quantity:qty,unitPrice:gross,vatRate:0.15,priceIncludesVat:true}]},
+    {receivableAccountId:idOf(d,"1200"),revenueAccountId:idOf(d,"4000"),vatPayableAccountId:idOf(d,"2200")},
+    withCost?{cogsAccountId:idOf(d,"5000"),inventoryAccountId:idOf(d,"1300"),unitCost:id=>costOf(id,date,x.category)}:undefined);
+  if(!E().ledger.validateJournalEntry(b.journal).valid)return null;
+  return {entry:{...b.journal,id:SK.ui.uid("je"),memo:"بيع: "+(x.item||"")+" — "+(x.customer||""),reference:x.id,source:"مبيعات",sourceId:"sale:"+x.id},cost:b.cost,uncosted:b.uncosted.length>0};
+}
 function postSales(d){
   if(!ensureAcc(d,["1200","4000","2200"]))return;
-  const vat=0.15,posted=new Set(d.entries.map(e=>e.sourceId));let n=0;
-  let skipped=0;
+  const posted=postedSources(d),costOf=costResolver();let n=0,skipped=0,held=0,noCost=0,cost=0;
   (load("aghnam-v12-manual-sales",[])||[]).forEach(x=>{try{
     if(!x||!x.id||posted.has("sale:"+x.id))return;
-    const qty=Number(x.qty)||1,gross=Number(x.unitPrice)||((Number(x.amount)||0)/qty);if(!(gross>0))return;
-    const bundle=window.SKEngines.sales.salesPosting.buildSalesPosting({id:x.id,number:x.id,date:String(x.date||"").slice(0,10),dueDate:String(x.date||"").slice(0,10),customerId:x.customer||x.phone||"عميل",status:"DRAFT",
-      lines:[{itemId:x.item||"بيع",quantity:qty,unitPrice:r2(gross/(1+vat)),vatRate:vat}]},{receivableAccountId:idOf(d,"1200"),revenueAccountId:idOf(d,"4000"),vatPayableAccountId:idOf(d,"2200")});
-    d.entries.push({...bundle.journal,id:SK.ui.uid("je"),memo:"بيع: "+(x.item||"")+" — "+(x.customer||""),reference:x.id,source:"مبيعات",sourceId:"sale:"+x.id});n++;
-  }catch(err){skipped++}});
-  put(d);toast((n?"رُحّلت "+n+" عملية بيع":"لم تُرحّل أي عملية")+(skipped?" — تُرك "+skipped+" غير مكتمل":""),n&&!skipped?"ok":"warn");
+    if(locked(d,String(x.date||"").slice(0,10))){held++;return}
+    const r=saleEntry(d,x,costOf);if(!r){skipped++;return}
+    d.entries.push(r.entry);cost+=r.cost;if(r.uncosted)noCost++;n++;
+  }catch{skipped++}});
+  put(d);
+  toast((n?"رُحّلت "+n+" عملية بيع"+(cost?" مع تكلفة مبيعات "+money(cost):""):"لم تُرحّل أي عملية")+(noCost?" — "+noCost+" بلا تكلفة معروفة (أضف التكلفة في أوامر الشراء أو قواعد التكلفة)":"")+
+    (held?" — "+held+" في فترة مقفلة":"")+(skipped?" — تُرك "+skipped+" غير مكتمل":""),n&&!skipped&&!noCost&&!held?"ok":"warn");
 }
 function postReceipts(d){
   if(!ensureAcc(d,["1300","1400","2100"]))return;
-  const pur=load("skosif_purchasing_v1",{}),posted=new Set(d.entries.map(e=>e.sourceId));let n=0,skipped=0;
+  const pur=load("skosif_purchasing_v1",{}),posted=postedSources(d);let n=0,skipped=0,held=0;
   (pur.receipts||[]).forEach(r=>{try{
     if(r.status!=="RECEIVED"||posted.has("receipt:"+r.id))return;
+    if(locked(d,String(r.date||"").slice(0,10))){held++;return}
     const po=(pur.orders||[]).find(o=>o.id===r.orderId);if(!po)return;
     const bundle=window.SKEngines.procurement.procurementPosting.buildReceiptPosting(
       {id:po.id,number:po.number,date:po.date,dueDate:po.dueDate||po.date,supplierId:po.supplier,status:"OPEN",lines:po.lines.map(l=>({itemId:l.item,quantity:Number(l.qty)||0,unitCostExVat:Number(l.cost)||0,vatRate:Number(l.vat)||0}))},
       {id:r.id,number:r.id,date:r.date,purchaseOrderId:po.id,status:"DRAFT",lines:r.lines.map(l=>({itemId:l.item,quantity:Number(l.qty)||0}))},
       {inventoryAccountId:idOf(d,"1300"),inputVatAccountId:idOf(d,"1400"),payableAccountId:idOf(d,"2100")});
+    if(!E().ledger.validateJournalEntry(bundle.journal).valid){skipped++;return}
     d.entries.push({...bundle.journal,id:SK.ui.uid("je"),memo:"استلام من "+po.supplier+" — أمر "+po.number,reference:po.number,source:"مشتريات",sourceId:"receipt:"+r.id});n++;
-  }catch(err){skipped++}});
-  put(d);toast((n?"رُحّل "+n+" استلام":"لم يُرحّل أي استلام")+(skipped?" — تُرك "+skipped+" بلا تكلفة أو كمية (أكمل أسعار أمر الشراء)":""),n&&!skipped?"ok":"warn");
+  }catch{skipped++}});
+  put(d);toast((n?"رُحّل "+n+" استلام":"لم يُرحّل أي استلام")+(skipped?" — تُرك "+skipped+" بلا تكلفة أو كمية (أكمل أسعار أمر الشراء)":"")+(held?" — "+held+" في فترة مقفلة":""),n&&!skipped&&!held?"ok":"warn");
 }
 
 /* ---------- screen ---------- */
@@ -163,9 +203,26 @@ function bind(root){
       if(entry.lines.length<2){err.textContent="القيد يحتاج سطرين على الأقل بحسابات ومبالغ";return}
       const v=E().ledger.validateJournalEntry(entry);
       if(!v.valid){err.textContent=[...new Set(v.issues.map(i=>ISSUE[i.code]||i.code))].join(" · ");return}
+      if(locked(d,entry.date)){err.textContent="التاريخ داخل فترة مقفلة (حتى "+d.lockDate+") — اختر تاريخاً بعدها أو افتح الإقفال";return}
       d.entries.push(entry);put(d);draft=null;toast("حُفظ القيد","ok");
     }
-    else if(a==="del-entry"){if(!await SK.confirm("حذف هذا القيد من الدفاتر؟",{danger:true,ok:"حذف"}))return;d.entries=d.entries.filter(x=>x.id!==b.dataset.id);put(d)}
+    else if(a==="rev-entry"){
+      const en=d.entries.find(x=>x.id===b.dataset.id);if(!en||en.reversedBy||en.reversalOf)return;
+      const today=new Date().toISOString().slice(0,10);
+      if(locked(d,today))return toast("اليوم داخل فترة مقفلة — افتح الإقفال أولاً","warn");
+      if(!await SK.confirm("عكس القيد «"+(en.reference||en.memo||en.id)+"» بقيد مقابل بتاريخ اليوم؟ يبقى القيد الأصلي في السجل"+(en.sourceId?"، وتعود العملية إلى «بانتظار الترحيل» لترحيلها من جديد.":"."),{ok:"عكس القيد"}))return;
+      const rv={...E().ledger.reverseJournalEntry(en,{id:SK.ui.uid("je"),date:today}),memo:"عكس: "+(en.memo||en.reference||""),source:"عكس",reversalOf:en.id,...(en.demo?{demo:true}:{})};
+      en.reversedBy=rv.id;d.entries.push(rv);put(d);SK.audit&&SK.audit.log("ledger",{act:"reverse",id:en.id});toast("عُكس القيد","ok");
+    }
+    else if(a==="lock"){
+      const v=$("#lg-lock",root).value;if(!/^\d{4}-\d{2}-\d{2}$/.test(v))return toast("اختر تاريخ الإقفال","warn");
+      if(!await SK.confirm("إقفال الدفاتر حتى "+v+"؟ لن يُقبل بعدها قيد أو ترحيل أو عكس بتاريخ في هذه المدة.",{ok:"إقفال"}))return;
+      d.lockDate=v;put(d);SK.audit&&SK.audit.log("ledger",{act:"lock",to:v});toast("أُقفلت الدفاتر حتى "+v,"ok");
+    }
+    else if(a==="unlock"){
+      if(!await SK.confirm("فتح إقفال الدفاتر؟ يسمح بتغيير أرقام فترات معتمدة، ويُسجَّل في سجل التدقيق.",{danger:true,ok:"فتح الإقفال"}))return;
+      SK.audit&&SK.audit.log("ledger",{act:"unlock",from:d.lockDate});d.lockDate="";put(d);
+    }
     else if(a==="post-sales")postSales(d);
     else if(a==="post-receipts")postReceipts(d);
     else if(a==="gl-acc"){glAcc=b.dataset.id}
@@ -187,5 +244,5 @@ function bind(root){
   root.addEventListener("input",sync);root.addEventListener("change",sync);
 }
 SK.view("ledger",{render(node){if(!node.dataset.bound){bind(node);node.dataset.bound="1"}paint(node)}});
-window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().accounts});
+window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().accounts,lockDate:()=>db().lockDate,saleEntry:(d,x)=>saleEntry(d,x,costResolver())});
 })();

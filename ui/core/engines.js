@@ -7132,7 +7132,7 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/audit/materiality-engine.ts
 	var materiality_engine_exports = /* @__PURE__ */ __exportAll({ calculateMateriality: () => calculateMateriality });
-	function money$21(value) {
+	function money$22(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function calculateMateriality(input) {
@@ -7142,9 +7142,9 @@ window.SKEngines = (function() {
 		const trivialRate = Math.min(1, Math.max(0, input.trivialRate));
 		const overall = base * benchmarkRate;
 		return {
-			overall: money$21(overall),
-			performance: money$21(overall * performanceRate),
-			trivial: money$21(overall * trivialRate)
+			overall: money$22(overall),
+			performance: money$22(overall * performanceRate),
+			trivial: money$22(overall * trivialRate)
 		};
 	}
 	//#endregion
@@ -7761,7 +7761,7 @@ window.SKEngines = (function() {
 		calculateBoxEconomics: () => calculateBoxEconomics,
 		validateBoxRecipe: () => validateBoxRecipe
 	});
-	function money$20(value) {
+	function money$21(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function calculateBoxEconomics(recipe, items) {
@@ -7774,17 +7774,17 @@ window.SKEngines = (function() {
 				itemId: line.itemId,
 				quantity,
 				unitCost,
-				cost: money$20(quantity * unitCost),
+				cost: money$21(quantity * unitCost),
 				missingCost: item?.defaultCost === void 0
 			};
 		});
-		const totalCostExVat = money$20(lines.reduce((sum, line) => sum + line.cost, 0));
+		const totalCostExVat = money$21(lines.reduce((sum, line) => sum + line.cost, 0));
 		const vatRate = Math.max(0, recipe.vatRate);
-		const sellingPriceIncVat = money$20(Math.max(0, recipe.sellingPriceIncVat));
-		const sellingPriceExVat = money$20(sellingPriceIncVat / (1 + vatRate));
-		const vat = money$20(sellingPriceIncVat - sellingPriceExVat);
-		const profitExVat = money$20(sellingPriceExVat - totalCostExVat);
-		const marginPercent = sellingPriceExVat === 0 ? 0 : money$20(profitExVat / sellingPriceExVat * 100);
+		const sellingPriceIncVat = money$21(Math.max(0, recipe.sellingPriceIncVat));
+		const sellingPriceExVat = money$21(sellingPriceIncVat / (1 + vatRate));
+		const vat = money$21(sellingPriceIncVat - sellingPriceExVat);
+		const profitExVat = money$21(sellingPriceExVat - totalCostExVat);
+		const marginPercent = sellingPriceExVat === 0 ? 0 : money$21(profitExVat / sellingPriceExVat * 100);
 		const target = Math.min(95, Math.max(0, recipe.targetMarginPercent ?? 0)) / 100;
 		return {
 			lines,
@@ -7794,7 +7794,7 @@ window.SKEngines = (function() {
 			sellingPriceIncVat,
 			profitExVat,
 			marginPercent,
-			minimumPriceForTargetMarginIncVat: money$20((target >= 1 ? 0 : totalCostExVat / (1 - target)) * (1 + vatRate)),
+			minimumPriceForTargetMarginIncVat: money$21((target >= 1 ? 0 : totalCostExVat / (1 - target)) * (1 + vatRate)),
 			missingCostItems: lines.filter((line) => line.missingCost).length
 		};
 	}
@@ -7981,7 +7981,7 @@ window.SKEngines = (function() {
 		"211232",
 		"2331112"
 	];
-	function money$19(value) {
+	function money$20(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function buildScaleBarcode(input) {
@@ -8006,7 +8006,7 @@ window.SKEngines = (function() {
 			...input,
 			id: crypto.randomUUID(),
 			barcode: buildScaleBarcode(input),
-			totalIncVat: money$19(input.weightKg * input.unitPriceIncVat)
+			totalIncVat: money$20(input.weightKg * input.unitPriceIncVat)
 		};
 	}
 	function code128SvgData(text, height = 32) {
@@ -8102,7 +8102,7 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/catalog/pricing-engine.ts
 	var pricing_engine_exports = /* @__PURE__ */ __exportAll({ calculatePricing: () => calculatePricing });
-	function money$18(value) {
+	function money$19(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function calculatePricing(input) {
@@ -8116,11 +8116,11 @@ window.SKEngines = (function() {
 		const grossProfitInclusiveVat = sellingInclusive - usableCostExVat * (1 + vat);
 		const margin = sellingInclusive === 0 ? 0 : grossProfitInclusiveVat / sellingInclusive * 100;
 		return {
-			purchaseExVat: money$18(purchaseExVat),
-			usableCostExVat: money$18(usableCostExVat),
-			sellingExVat: money$18(sellingExVat),
-			grossProfitInclusiveVat: money$18(grossProfitInclusiveVat),
-			grossMarginPercentOnInclusiveSales: money$18(margin)
+			purchaseExVat: money$19(purchaseExVat),
+			usableCostExVat: money$19(usableCostExVat),
+			sellingExVat: money$19(sellingExVat),
+			grossProfitInclusiveVat: money$19(grossProfitInclusiveVat),
+			grossMarginPercentOnInclusiveSales: money$19(margin)
 		};
 	}
 	//#endregion
@@ -8195,7 +8195,7 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/finance/cash-flow-engine.ts
 	var cash_flow_engine_exports = /* @__PURE__ */ __exportAll({ buildCashFlow: () => buildCashFlow });
-	function money$17(value) {
+	function money$18(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function defaultClass(account) {
@@ -8214,7 +8214,7 @@ window.SKEngines = (function() {
 			const counterpart = /* @__PURE__ */ new Set();
 			for (const line of entry.lines) if (cashSet.has(line.accountId)) cashChange += (line.debit ?? 0) - (line.credit ?? 0);
 			else if ((line.debit ?? 0) !== 0 || (line.credit ?? 0) !== 0) counterpart.add(line.accountId);
-			cashChange = money$17(cashChange);
+			cashChange = money$18(cashChange);
 			if (cashChange === 0) continue;
 			const classes = [...counterpart].map((id) => input.overrides?.[id] ?? defaultClass(accountMap.get(id)));
 			const distinct = [...new Set(classes)];
@@ -8228,14 +8228,14 @@ window.SKEngines = (function() {
 				counterpartAccountIds: [...counterpart]
 			});
 		}
-		const total = (kind) => money$17(activities.filter((a) => a.classification === kind).reduce((sum, a) => sum + a.amount, 0));
+		const total = (kind) => money$18(activities.filter((a) => a.classification === kind).reduce((sum, a) => sum + a.amount, 0));
 		return {
 			activities,
 			operating: total("operating"),
 			investing: total("investing"),
 			financing: total("financing"),
 			unclassified: total("unclassified"),
-			netChange: money$17(activities.reduce((sum, a) => sum + a.amount, 0))
+			netChange: money$18(activities.reduce((sum, a) => sum + a.amount, 0))
 		};
 	}
 	//#endregion
@@ -8243,11 +8243,13 @@ window.SKEngines = (function() {
 	var ledger_engine_exports = /* @__PURE__ */ __exportAll({
 		buildGeneralLedger: () => buildGeneralLedger,
 		buildTrialBalance: () => buildTrialBalance,
+		isPeriodLocked: () => isPeriodLocked,
 		periodTrialBalance: () => periodTrialBalance,
+		reverseJournalEntry: () => reverseJournalEntry,
 		validateJournalEntry: () => validateJournalEntry
 	});
 	var MONEY_TOLERANCE = .005;
-	function money$16(value) {
+	function money$17(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function validateJournalEntry(entry) {
@@ -8287,9 +8289,9 @@ window.SKEngines = (function() {
 				credit: 0,
 				balance: 0
 			};
-			current.debit = money$16(current.debit + line.debit);
-			current.credit = money$16(current.credit + line.credit);
-			current.balance = money$16(current.debit - current.credit);
+			current.debit = money$17(current.debit + line.debit);
+			current.credit = money$17(current.credit + line.credit);
+			current.balance = money$17(current.debit - current.credit);
 			byAccount.set(line.accountId, current);
 		}
 		return [...byAccount.values()].sort((a, b) => a.accountId.localeCompare(b.accountId));
@@ -8297,8 +8299,8 @@ window.SKEngines = (function() {
 	function buildTrialBalance(entries) {
 		const rows = buildGeneralLedger(entries);
 		const totals = rows.reduce((sum, row) => ({
-			debit: money$16(sum.debit + row.debit),
-			credit: money$16(sum.credit + row.credit)
+			debit: money$17(sum.debit + row.debit),
+			credit: money$17(sum.credit + row.credit)
 		}), {
 			debit: 0,
 			credit: 0
@@ -8327,7 +8329,7 @@ window.SKEngines = (function() {
 				balance: 0
 			};
 		}).filter((row) => row.debit || row.credit);
-		const carried = money$16(buildGeneralLedger(before).filter((r) => isResult(typeOf(r.accountId))).reduce((sum, r) => sum + r.balance, 0));
+		const carried = money$17(buildGeneralLedger(before).filter((r) => isResult(typeOf(r.accountId))).reduce((sum, r) => sum + r.balance, 0));
 		if (Math.abs(carried) > MONEY_TOLERANCE) {
 			const re = rows.find((r) => r.accountId === retainedEarningsId);
 			const add = carried > 0 ? {
@@ -8338,9 +8340,9 @@ window.SKEngines = (function() {
 				credit: -carried
 			};
 			if (re) Object.assign(re, {
-				debit: money$16(re.debit + add.debit),
-				credit: money$16(re.credit + add.credit),
-				balance: money$16(re.balance + carried)
+				debit: money$17(re.debit + add.debit),
+				credit: money$17(re.credit + add.credit),
+				balance: money$17(re.balance + carried)
 			});
 			else rows.push({
 				accountId: retainedEarningsId,
@@ -8350,8 +8352,8 @@ window.SKEngines = (function() {
 		}
 		rows.sort((a, b) => a.accountId.localeCompare(b.accountId));
 		const totals = rows.reduce((sum, row) => ({
-			debit: money$16(sum.debit + row.debit),
-			credit: money$16(sum.credit + row.credit)
+			debit: money$17(sum.debit + row.debit),
+			credit: money$17(sum.credit + row.credit)
 		}), {
 			debit: 0,
 			credit: 0
@@ -8363,10 +8365,28 @@ window.SKEngines = (function() {
 			carried
 		};
 	}
+	function reverseJournalEntry(entry, params) {
+		if (!entry.lines.length) throw new Error("NOTHING_TO_REVERSE");
+		return {
+			id: params.id,
+			date: params.date,
+			reference: params.reference ?? "عكس " + (entry.reference || entry.id),
+			lines: entry.lines.map((line) => ({
+				accountId: line.accountId,
+				debit: money$17(Number(line.credit) || 0),
+				credit: money$17(Number(line.debit) || 0),
+				...line.description ? { description: "عكس: " + line.description } : {}
+			}))
+		};
+	}
+	function isPeriodLocked(date, lockDate) {
+		if (!lockDate || !/^\d{4}-\d{2}-\d{2}/.test(lockDate)) return false;
+		return String(date || "").slice(0, 10) <= lockDate.slice(0, 10);
+	}
 	//#endregion
 	//#region app/src/engine/fusion/finance/payables-engine.ts
 	var payables_engine_exports = /* @__PURE__ */ __exportAll({ agePayables: () => agePayables });
-	function money$15(v) {
+	function money$16(v) {
 		return Math.round((v + Number.EPSILON) * 100) / 100;
 	}
 	function days(fromIso, toIso) {
@@ -8383,7 +8403,7 @@ window.SKEngines = (function() {
 	}
 	function agePayables(invoices, asOfDate) {
 		const rows = invoices.map((invoice) => {
-			const outstanding = money$15(Math.max(0, invoice.amount - invoice.paid));
+			const outstanding = money$16(Math.max(0, invoice.amount - invoice.paid));
 			const daysPastDue = outstanding === 0 ? 0 : days(invoice.dueDate, asOfDate);
 			return {
 				...invoice,
@@ -8399,11 +8419,11 @@ window.SKEngines = (function() {
 			"61-90": 0,
 			"90+": 0
 		};
-		for (const row of rows) totals[row.bucket] = money$15(totals[row.bucket] + row.outstanding);
+		for (const row of rows) totals[row.bucket] = money$16(totals[row.bucket] + row.outstanding);
 		return {
 			rows,
 			totals,
-			outstanding: money$15(rows.reduce((sum, row) => sum + row.outstanding, 0))
+			outstanding: money$16(rows.reduce((sum, row) => sum + row.outstanding, 0))
 		};
 	}
 	//#endregion
@@ -8456,11 +8476,11 @@ window.SKEngines = (function() {
 		reconcileSubledger: () => reconcileSubledger,
 		reconcileTrialBalanceToLedger: () => reconcileTrialBalanceToLedger
 	});
-	function money$14(value) {
+	function money$15(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function tbBalance(row) {
-		return money$14((row.debit ?? 0) - (row.credit ?? 0));
+		return money$15((row.debit ?? 0) - (row.credit ?? 0));
 	}
 	function reconcileTrialBalanceToLedger(tb, ledger, tolerance = .005) {
 		const tbMap = new Map(tb.map((row) => [row.accountId.trim(), row]));
@@ -8469,8 +8489,8 @@ window.SKEngines = (function() {
 			const tbRow = tbMap.get(accountId);
 			const glRow = glMap.get(accountId);
 			const tbValue = tbRow ? tbBalance(tbRow) : 0;
-			const glValue = glRow ? money$14(glRow.balance) : 0;
-			const difference = money$14(tbValue - glValue);
+			const glValue = glRow ? money$15(glRow.balance) : 0;
+			const difference = money$15(tbValue - glValue);
 			let status = "MATCH";
 			if (!tbRow) status = "MISSING_TB";
 			else if (!glRow) status = "MISSING_GL";
@@ -8487,14 +8507,14 @@ window.SKEngines = (function() {
 			rows,
 			matched: rows.filter((row) => row.status === "MATCH").length,
 			exceptions: rows.filter((row) => row.status !== "MATCH").length,
-			absoluteDifference: money$14(rows.reduce((sum, row) => sum + Math.abs(row.difference), 0))
+			absoluteDifference: money$15(rows.reduce((sum, row) => sum + Math.abs(row.difference), 0))
 		};
 	}
 	function reconcileSubledger(input) {
 		const tolerance = input.tolerance ?? .005;
-		const glBalance = money$14(input.ledger.find((row) => row.accountId === input.glAccountId)?.balance ?? 0);
-		const subledgerBalance = money$14(input.subledgerBalance);
-		const difference = money$14(glBalance - subledgerBalance);
+		const glBalance = money$15(input.ledger.find((row) => row.accountId === input.glAccountId)?.balance ?? 0);
+		const subledgerBalance = money$15(input.subledgerBalance);
+		const difference = money$15(glBalance - subledgerBalance);
 		return {
 			glAccountId: input.glAccountId,
 			glBalance,
@@ -8510,7 +8530,7 @@ window.SKEngines = (function() {
 		validateTrialBalance: () => validateTrialBalance
 	});
 	var TOLERANCE = .005;
-	function money$13(value) {
+	function money$14(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function validateTrialBalance(rows) {
@@ -8550,9 +8570,9 @@ window.SKEngines = (function() {
 			debit += Number.isFinite(row.debit) ? row.debit : 0;
 			credit += Number.isFinite(row.credit) ? row.credit : 0;
 		});
-		debit = money$13(debit);
-		credit = money$13(credit);
-		const difference = money$13(debit - credit);
+		debit = money$14(debit);
+		credit = money$14(credit);
+		const difference = money$14(debit - credit);
 		if (Math.abs(difference) > TOLERANCE) issues.push({ code: "UNBALANCED_TOTALS" });
 		return {
 			valid: issues.length === 0,
@@ -8565,12 +8585,12 @@ window.SKEngines = (function() {
 		};
 	}
 	function accountMovement(row) {
-		const current = money$13(row.debit - row.credit);
-		const prior = money$13((row.priorDebit ?? 0) - (row.priorCredit ?? 0));
+		const current = money$14(row.debit - row.credit);
+		const prior = money$14((row.priorDebit ?? 0) - (row.priorCredit ?? 0));
 		return {
 			current,
 			prior,
-			absoluteChange: money$13(current - prior),
+			absoluteChange: money$14(current - prior),
 			newAccount: prior === 0 && current !== 0,
 			vanishedAccount: prior !== 0 && current === 0
 		};
@@ -8690,7 +8710,7 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/procurement/procurement-posting-engine.ts
 	var procurement_posting_engine_exports = /* @__PURE__ */ __exportAll({ buildReceiptPosting: () => buildReceiptPosting });
-	function money$12(v) {
+	function money$13(v) {
 		return Math.round((v + Number.EPSILON) * 100) / 100;
 	}
 	function buildReceiptPosting(order, receipt, accounts) {
@@ -8718,9 +8738,9 @@ window.SKEngines = (function() {
 				unitCost: source.unitCostExVat
 			});
 		});
-		taxable = money$12(taxable);
-		vat = money$12(vat);
-		const total = money$12(taxable + vat);
+		taxable = money$13(taxable);
+		vat = money$13(vat);
+		const total = money$13(taxable + vat);
 		if (total <= 0) throw new Error("RECEIPT_TOTAL_MUST_BE_POSITIVE");
 		return {
 			journal: {
@@ -9356,7 +9376,7 @@ window.SKEngines = (function() {
 		parseExcelReconText: () => parseExcelReconText,
 		reconcileExcelRows: () => reconcileExcelRows
 	});
-	function money$11(value) {
+	function money$12(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function percent$1(value) {
@@ -9390,12 +9410,12 @@ window.SKEngines = (function() {
 				status: "UNMATCHED"
 			};
 			const vatDivisor = 1 + Math.max(0, item.vatRate || 0);
-			const excelCostNet = row.cost === void 0 ? void 0 : money$11(input.vatMode === "inclusive" ? row.cost / vatDivisor : row.cost);
-			const excelPriceNet = row.price === void 0 ? void 0 : money$11(input.vatMode === "inclusive" ? row.price / vatDivisor : row.price);
-			const catalogCost = item.defaultCost === void 0 ? void 0 : money$11(item.defaultCost);
-			const catalogPrice = item.defaultPrice === void 0 ? void 0 : money$11(item.defaultPrice);
-			const costDifference = excelCostNet === void 0 || catalogCost === void 0 ? void 0 : money$11(excelCostNet - catalogCost);
-			const priceDifference = excelPriceNet === void 0 || catalogPrice === void 0 ? void 0 : money$11(excelPriceNet - catalogPrice);
+			const excelCostNet = row.cost === void 0 ? void 0 : money$12(input.vatMode === "inclusive" ? row.cost / vatDivisor : row.cost);
+			const excelPriceNet = row.price === void 0 ? void 0 : money$12(input.vatMode === "inclusive" ? row.price / vatDivisor : row.price);
+			const catalogCost = item.defaultCost === void 0 ? void 0 : money$12(item.defaultCost);
+			const catalogPrice = item.defaultPrice === void 0 ? void 0 : money$12(item.defaultPrice);
+			const costDifference = excelCostNet === void 0 || catalogCost === void 0 ? void 0 : money$12(excelCostNet - catalogCost);
+			const priceDifference = excelPriceNet === void 0 || catalogPrice === void 0 ? void 0 : money$12(excelPriceNet - catalogPrice);
 			const costDifferencePercent = costDifference === void 0 || !catalogCost ? void 0 : percent$1(costDifference / catalogCost);
 			const priceDifferencePercent = priceDifference === void 0 || !catalogPrice ? void 0 : percent$1(priceDifference / catalogPrice);
 			const deviations = [costDifferencePercent, priceDifferencePercent].filter((value) => value !== void 0).map(Math.abs);
@@ -9439,7 +9459,7 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/reports/scenario-engine.ts
 	var scenario_engine_exports = /* @__PURE__ */ __exportAll({ runScenario: () => runScenario });
-	function money$10(value) {
+	function money$11(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function pct(value) {
@@ -9449,24 +9469,24 @@ window.SKEngines = (function() {
 		const revenue = Math.max(0, input.revenue);
 		const variableCost = Math.max(0, input.variableCost);
 		const fixedCost = Math.max(0, input.fixedCost);
-		const baselineProfit = money$10(revenue - variableCost - fixedCost);
+		const baselineProfit = money$11(revenue - variableCost - fixedCost);
 		const baselineMargin = revenue === 0 ? 0 : pct(baselineProfit / revenue * 100);
 		const priceFactor = 1 + input.priceChangePercent / 100;
 		const volumeFactor = Math.max(0, 1 + input.volumeChangePercent / 100);
 		const variableCostFactor = Math.max(0, 1 + input.variableCostChangePercent / 100);
 		const fixedCostFactor = Math.max(0, 1 + input.fixedCostChangePercent / 100);
-		const scenarioRevenue = money$10(revenue * priceFactor * volumeFactor);
-		const scenarioVariableCost = money$10(variableCost * volumeFactor * variableCostFactor);
-		const scenarioFixedCost = money$10(fixedCost * fixedCostFactor);
-		const scenarioProfit = money$10(scenarioRevenue - scenarioVariableCost - scenarioFixedCost);
+		const scenarioRevenue = money$11(revenue * priceFactor * volumeFactor);
+		const scenarioVariableCost = money$11(variableCost * volumeFactor * variableCostFactor);
+		const scenarioFixedCost = money$11(fixedCost * fixedCostFactor);
+		const scenarioProfit = money$11(scenarioRevenue - scenarioVariableCost - scenarioFixedCost);
 		const scenarioMargin = scenarioRevenue === 0 ? 0 : pct(scenarioProfit / scenarioRevenue * 100);
 		const contribution = revenue === 0 ? 0 : (revenue - variableCost) / revenue;
-		const breakEven = contribution > 0 ? money$10(fixedCost / contribution) : null;
+		const breakEven = contribution > 0 ? money$11(fixedCost / contribution) : null;
 		return {
 			baseline: {
-				revenue: money$10(revenue),
-				variableCost: money$10(variableCost),
-				fixedCost: money$10(fixedCost),
+				revenue: money$11(revenue),
+				variableCost: money$11(variableCost),
+				fixedCost: money$11(fixedCost),
 				profit: baselineProfit,
 				marginPercent: baselineMargin
 			},
@@ -9477,7 +9497,7 @@ window.SKEngines = (function() {
 				profit: scenarioProfit,
 				marginPercent: scenarioMargin
 			},
-			deltaProfit: money$10(scenarioProfit - baselineProfit),
+			deltaProfit: money$11(scenarioProfit - baselineProfit),
 			contributionMarginPercent: pct(contribution * 100),
 			breakEvenRevenue: breakEven
 		};
@@ -9495,7 +9515,7 @@ window.SKEngines = (function() {
 		formal: 500,
 		keto: 300
 	};
-	function money$9(value) {
+	function money$10(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function cateringGrams(profile, custom) {
@@ -9515,17 +9535,17 @@ window.SKEngines = (function() {
 		const vat = targetPriceExVat * Math.max(0, quote.vatRate);
 		const finalPriceIncVat = targetPriceExVat + vat;
 		return {
-			gramsPerGuest: money$9(gramsPerGuest),
-			totalRawKg: money$9(totalRawKg),
-			meatCost: money$9(meatCost),
-			marinationCost: money$9(marinationCost),
-			toolsCost: money$9(toolsCost),
-			totalCostExVat: money$9(totalCostExVat),
-			targetPriceExVat: money$9(targetPriceExVat),
-			vat: money$9(vat),
-			finalPriceIncVat: money$9(finalPriceIncVat),
-			pricePerGuestIncVat: money$9(finalPriceIncVat / guests),
-			expectedProfitExVat: money$9(targetPriceExVat - totalCostExVat)
+			gramsPerGuest: money$10(gramsPerGuest),
+			totalRawKg: money$10(totalRawKg),
+			meatCost: money$10(meatCost),
+			marinationCost: money$10(marinationCost),
+			toolsCost: money$10(toolsCost),
+			totalCostExVat: money$10(totalCostExVat),
+			targetPriceExVat: money$10(targetPriceExVat),
+			vat: money$10(vat),
+			finalPriceIncVat: money$10(finalPriceIncVat),
+			pricePerGuestIncVat: money$10(finalPriceIncVat / guests),
+			expectedProfitExVat: money$10(targetPriceExVat - totalCostExVat)
 		};
 	}
 	function validateCateringQuote(quote) {
@@ -9548,16 +9568,16 @@ window.SKEngines = (function() {
 		canExtendCredit: () => canExtendCredit,
 		creditUtilization: () => creditUtilization
 	});
-	function money$8(value) {
+	function money$9(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function availableCredit(account) {
-		return money$8(Math.max(0, Math.max(0, account.limit) - Math.max(0, account.balance)));
+		return money$9(Math.max(0, Math.max(0, account.limit) - Math.max(0, account.balance)));
 	}
 	function creditUtilization(account) {
 		const limit = Math.max(0, account.limit);
 		if (limit === 0) return account.balance > 0 ? 100 : 0;
-		return money$8(Math.max(0, account.balance) / limit * 100);
+		return money$9(Math.max(0, account.balance) / limit * 100);
 	}
 	function canExtendCredit(account, amount) {
 		if (account.status === "HOLD") return {
@@ -9583,13 +9603,13 @@ window.SKEngines = (function() {
 		};
 	}
 	function applyCreditMovement(account, input) {
-		const amount = money$8(Math.max(0, input.amount));
+		const amount = money$9(Math.max(0, input.amount));
 		if (amount <= 0) throw new Error("CREDIT_MOVEMENT_AMOUNT_REQUIRED");
 		if (input.type === "SALE") {
 			const decision = canExtendCredit(account, amount);
 			if (!decision.allowed) throw new Error(decision.reason);
 		}
-		const balance = money$8(Math.max(0, account.balance + (input.type === "RECEIPT" ? -amount : amount)));
+		const balance = money$9(Math.max(0, account.balance + (input.type === "RECEIPT" ? -amount : amount)));
 		const movement = {
 			id: input.id ?? crypto.randomUUID(),
 			at: (input.now ?? /* @__PURE__ */ new Date()).toISOString(),
@@ -9662,7 +9682,7 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/sales/invoice-engine.ts
 	var invoice_engine_exports = /* @__PURE__ */ __exportAll({ calculateInvoice: () => calculateInvoice });
-	function money$7(value) {
+	function money$8(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function calculateInvoice(lines) {
@@ -9672,16 +9692,16 @@ window.SKEngines = (function() {
 			const vat = net * Math.max(0, line.vatRate);
 			return {
 				description: line.description,
-				netExVat: money$7(net),
-				vat: money$7(vat),
-				totalIncVat: money$7(net + vat)
+				netExVat: money$8(net),
+				vat: money$8(vat),
+				totalIncVat: money$8(net + vat)
 			};
 		});
 		return {
 			lines: totals,
-			subtotalExVat: money$7(totals.reduce((sum, row) => sum + row.netExVat, 0)),
-			vat: money$7(totals.reduce((sum, row) => sum + row.vat, 0)),
-			totalIncVat: money$7(totals.reduce((sum, row) => sum + row.totalIncVat, 0))
+			subtotalExVat: money$8(totals.reduce((sum, row) => sum + row.netExVat, 0)),
+			vat: money$8(totals.reduce((sum, row) => sum + row.vat, 0)),
+			totalIncVat: money$8(totals.reduce((sum, row) => sum + row.totalIncVat, 0))
 		};
 	}
 	//#endregion
@@ -10153,45 +10173,68 @@ window.SKEngines = (function() {
 	//#region app/src/engine/fusion/sales/sales-engine.ts
 	var sales_engine_exports = /* @__PURE__ */ __exportAll({
 		calculateSalesTotals: () => calculateSalesTotals,
-		grossMargin: () => grossMargin
+		grossMargin: () => grossMargin,
+		splitVatInclusive: () => splitVatInclusive
 	});
-	function money$6(value) {
+	function money$7(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function calculateSalesTotals(lines) {
 		let subtotal = 0;
 		let discount = 0;
+		let taxable = 0;
 		let vat = 0;
 		for (const line of lines) {
 			const gross = Math.max(0, line.quantity) * Math.max(0, line.unitPrice);
 			const lineDiscount = Math.min(gross, Math.max(0, line.discount ?? 0));
 			const net = gross - lineDiscount;
 			const rate = Math.max(0, line.vatRate ?? 0);
-			subtotal += gross;
-			discount += lineDiscount;
-			vat += net * rate;
+			if (line.priceIncludesVat) {
+				const split = splitVatInclusive(net, rate);
+				const discountEx = money$7(lineDiscount / (1 + rate));
+				subtotal += split.net + discountEx;
+				discount += discountEx;
+				taxable += split.net;
+				vat += split.vat;
+			} else {
+				subtotal += gross;
+				discount += lineDiscount;
+				taxable += net;
+				vat += net * rate;
+			}
 		}
-		const taxable = subtotal - discount;
+		const taxableMoney = money$7(taxable);
+		const vatMoney = money$7(vat);
 		return {
-			subtotal: money$6(subtotal),
-			discount: money$6(discount),
-			taxable: money$6(taxable),
-			vat: money$6(vat),
-			total: money$6(taxable + vat)
+			subtotal: money$7(subtotal),
+			discount: money$7(discount),
+			taxable: taxableMoney,
+			vat: vatMoney,
+			total: money$7(taxableMoney + vatMoney)
+		};
+	}
+	/** splits an amount that already includes VAT: net = round(gross ÷ (1+rate)), VAT = gross − net, so the parts add back to the halala */
+	function splitVatInclusive(gross, rate) {
+		const g = money$7(Math.max(0, gross));
+		const net = money$7(g / (1 + Math.max(0, rate)));
+		return {
+			gross: g,
+			net,
+			vat: money$7(g - net)
 		};
 	}
 	function grossMargin(params) {
 		const revenue = Math.max(0, params.revenue);
-		const profit = money$6(revenue - Math.max(0, params.cost));
+		const profit = money$7(revenue - Math.max(0, params.cost));
 		return {
 			profit,
-			marginPercent: revenue === 0 ? 0 : money$6(profit / revenue * 100)
+			marginPercent: revenue === 0 ? 0 : money$7(profit / revenue * 100)
 		};
 	}
 	//#endregion
 	//#region app/src/engine/fusion/sales/sales-intelligence-engine.ts
 	var sales_intelligence_engine_exports = /* @__PURE__ */ __exportAll({ buildSalesIntelligence: () => buildSalesIntelligence });
-	function money$5(value) {
+	function money$6(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function percent(value) {
@@ -10217,16 +10260,16 @@ window.SKEngines = (function() {
 			group.invoices.push(invoice);
 			groups.set(id, group);
 		});
-		const totalRevenueIncVat = money$5(valid.reduce((sum, invoice) => sum + invoice.totalIncVat, 0));
-		const totalVat = money$5(valid.reduce((sum, invoice) => sum + invoice.vat, 0));
-		const totalPaid = money$5(valid.reduce((sum, invoice) => sum + invoice.paid, 0));
-		const totalOutstanding = money$5(valid.reduce((sum, invoice) => sum + invoice.balance, 0));
+		const totalRevenueIncVat = money$6(valid.reduce((sum, invoice) => sum + invoice.totalIncVat, 0));
+		const totalVat = money$6(valid.reduce((sum, invoice) => sum + invoice.vat, 0));
+		const totalPaid = money$6(valid.reduce((sum, invoice) => sum + invoice.paid, 0));
+		const totalOutstanding = money$6(valid.reduce((sum, invoice) => sum + invoice.balance, 0));
 		const raw = [...groups.entries()].map(([customerId, group]) => {
 			const ordered = [...group.invoices].sort((a, b) => a.issuedAt.localeCompare(b.issuedAt));
-			const revenueIncVat = money$5(ordered.reduce((sum, invoice) => sum + invoice.totalIncVat, 0));
-			const vat = money$5(ordered.reduce((sum, invoice) => sum + invoice.vat, 0));
-			const paid = money$5(ordered.reduce((sum, invoice) => sum + invoice.paid, 0));
-			const outstanding = money$5(ordered.reduce((sum, invoice) => sum + invoice.balance, 0));
+			const revenueIncVat = money$6(ordered.reduce((sum, invoice) => sum + invoice.totalIncVat, 0));
+			const vat = money$6(ordered.reduce((sum, invoice) => sum + invoice.vat, 0));
+			const paid = money$6(ordered.reduce((sum, invoice) => sum + invoice.paid, 0));
+			const outstanding = money$6(ordered.reduce((sum, invoice) => sum + invoice.balance, 0));
 			const firstInvoiceDate = ordered[0]?.issuedAt;
 			const lastInvoiceDate = ordered.at(-1)?.issuedAt;
 			return {
@@ -10237,7 +10280,7 @@ window.SKEngines = (function() {
 				vat,
 				paid,
 				outstanding,
-				averageInvoice: ordered.length ? money$5(revenueIncVat / ordered.length) : 0,
+				averageInvoice: ordered.length ? money$6(revenueIncVat / ordered.length) : 0,
 				firstInvoiceDate,
 				lastInvoiceDate,
 				daysSinceLastInvoice: lastInvoiceDate ? daysBetween(lastInvoiceDate, input.asOfDate) : void 0
@@ -10264,19 +10307,59 @@ window.SKEngines = (function() {
 			totalOutstanding,
 			invoices: valid.length,
 			customersWithSales: rows.length,
-			averageInvoice: valid.length ? money$5(totalRevenueIncVat / valid.length) : 0
+			averageInvoice: valid.length ? money$6(totalRevenueIncVat / valid.length) : 0
 		};
 	}
 	//#endregion
 	//#region app/src/engine/fusion/sales/sales-posting-engine.ts
-	var sales_posting_engine_exports = /* @__PURE__ */ __exportAll({ buildSalesPosting: () => buildSalesPosting });
-	function buildSalesPosting(document, accounts) {
+	var sales_posting_engine_exports = /* @__PURE__ */ __exportAll({
+		buildCogsLines: () => buildCogsLines,
+		buildSalesPosting: () => buildSalesPosting
+	});
+	function money$5(value) {
+		return Math.round((value + Number.EPSILON) * 100) / 100;
+	}
+	function buildCogsLines(lines, costing, reference) {
+		let cost = 0;
+		const uncosted = [];
+		for (const line of lines) {
+			const unit = costing.unitCost(line.itemId);
+			if (unit == null || !Number.isFinite(unit) || unit <= 0) {
+				if (!uncosted.includes(line.itemId)) uncosted.push(line.itemId);
+				continue;
+			}
+			cost += Math.max(0, line.quantity) * unit;
+		}
+		cost = money$5(cost);
+		return {
+			lines: cost > 0 ? [{
+				accountId: costing.cogsAccountId,
+				debit: cost,
+				credit: 0,
+				description: "تكلفة المبيعات - " + reference
+			}, {
+				accountId: costing.inventoryAccountId,
+				debit: 0,
+				credit: cost,
+				description: "صرف من المخزون - " + reference
+			}] : [],
+			cost,
+			uncosted
+		};
+	}
+	function buildSalesPosting(document, accounts, costing) {
 		if (document.status === "VOID") throw new Error("CANNOT_POST_VOID_SALE");
 		if (!document.customerId.trim()) throw new Error("CUSTOMER_REQUIRED");
 		if (document.lines.length === 0) throw new Error("SALES_LINES_REQUIRED");
 		if (!accounts.receivableAccountId || !accounts.revenueAccountId || !accounts.vatPayableAccountId) throw new Error("POSTING_ACCOUNTS_REQUIRED");
 		const totals = calculateSalesTotals(document.lines);
 		if (totals.total <= 0) throw new Error("SALE_TOTAL_MUST_BE_POSITIVE");
+		if (costing && (!costing.cogsAccountId || !costing.inventoryAccountId)) throw new Error("COSTING_ACCOUNTS_REQUIRED");
+		const cogs = costing ? buildCogsLines(document.lines, costing, document.number) : {
+			lines: [],
+			cost: 0,
+			uncosted: []
+		};
 		return {
 			journal: {
 				id: "sales-journal-" + document.id,
@@ -10300,7 +10383,8 @@ window.SKEngines = (function() {
 						debit: 0,
 						credit: totals.vat,
 						description: "ضريبة مخرجات - " + document.number
-					}] : []
+					}] : [],
+					...cogs.lines
 				]
 			},
 			receivable: {
@@ -10317,7 +10401,9 @@ window.SKEngines = (function() {
 				date: document.date,
 				type: "SALE",
 				quantity: Math.max(0, line.quantity)
-			}))
+			})),
+			cost: cogs.cost,
+			uncosted: cogs.uncosted
 		};
 	}
 	//#endregion
@@ -10501,7 +10587,8 @@ window.SKEngines = (function() {
 	//#region app/src/engine/fusion/stock/inventory-engine.ts
 	var inventory_engine_exports = /* @__PURE__ */ __exportAll({
 		buildStockPositions: () => buildStockPositions,
-		negativeStockItems: () => negativeStockItems
+		negativeStockItems: () => negativeStockItems,
+		weightedAverageCosts: () => weightedAverageCosts
 	});
 	function isInbound(type) {
 		return type === "OPENING" || type === "PURCHASE" || type === "ADJUSTMENT_IN";
@@ -10533,6 +10620,26 @@ window.SKEngines = (function() {
 	}
 	function negativeStockItems(movements) {
 		return buildStockPositions(movements).filter((row) => row.quantity < 0);
+	}
+	/** weighted-average unit cost per item over the received layers (quantity-weighted, 4 decimals); `key` groups spellings of one item */
+	function weightedAverageCosts(layers, key = (id) => id) {
+		const acc = /* @__PURE__ */ new Map();
+		for (const layer of layers) {
+			const qty = Number(layer.quantity), unit = Number(layer.unitCost);
+			if (!(qty > 0) || !(unit > 0)) continue;
+			const k = key(layer.itemId), row = acc.get(k) ?? {
+				qty: 0,
+				value: 0
+			};
+			row.qty += qty;
+			row.value += qty * unit;
+			acc.set(k, row);
+		}
+		const out = {};
+		acc.forEach((row, k) => {
+			out[k] = Math.round(row.value / row.qty * 1e4) / 1e4;
+		});
+		return out;
 	}
 	//#endregion
 	//#region app/src/engine/fusion/stock/nrv-engine.ts

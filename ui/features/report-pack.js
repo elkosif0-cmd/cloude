@@ -5,7 +5,7 @@
    الأرقام نفسها التي يعرضها مركز القيادة (window.SKosifMetrics) — لا أرقام مضافة. */
 (()=>{
 "use strict";
-const {$,$$,esc,load,save,toast}=SK;
+const {$$,esc,load,save,toast}=SK;
 const core=()=>window.SKosifCore;
 const OPT="skosif_report_pack_v1";
 const SECT=[["summary","الملخص التنفيذي"],["trend","اتجاهات المبيعات والمشتريات"],["risks","المخاطر"],["findings","الملاحظات المفتوحة"],["decisions","ما يحتاج قراراً"],["tasks","حالة المهام"],["signoff","الاعتماد والتوقيع"]];

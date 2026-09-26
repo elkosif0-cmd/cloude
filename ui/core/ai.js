@@ -25,7 +25,7 @@ async function call(path,init,timeoutMs){
   if(init&&init.signal)init.signal.addEventListener("abort",()=>ac.abort(),{once:true});
   let res;
   try{res=await fetch(BASE+path,{...init,signal:ac.signal,headers:{"Content-Type":"application/json","x-goog-api-key":c.key,...(init&&init.headers||{})}})}
-  catch(e){clearTimeout(t);throw new Error(ac.signal.aborted?"أُلغي الطلب أو تجاوز المهلة.":errText(0))}
+  catch{clearTimeout(t);throw new Error(ac.signal.aborted?"أُلغي الطلب أو تجاوز المهلة.":errText(0))}
   clearTimeout(t);
   let data=null;try{data=await res.json()}catch{}
   if(!res.ok)throw new Error(errText(res.status,data&&data.error&&data.error.message||""));

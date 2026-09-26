@@ -56,3 +56,19 @@ export function buildStockPositions(movements: StockMovement[]): StockPosition[]
 export function negativeStockItems(movements: StockMovement[]) {
   return buildStockPositions(movements).filter((row) => row.quantity < 0);
 }
+
+export type CostLayer = { itemId: string; quantity: number; unitCost: number };
+
+/** weighted-average unit cost per item over the received layers (quantity-weighted, 4 decimals); `key` groups spellings of one item */
+export function weightedAverageCosts(layers: CostLayer[], key: (itemId: string) => string = (id) => id): Record<string, number> {
+  const acc = new Map<string, { qty: number; value: number }>();
+  for (const layer of layers) {
+    const qty = Number(layer.quantity), unit = Number(layer.unitCost);
+    if (!(qty > 0) || !(unit > 0)) continue;
+    const k = key(layer.itemId), row = acc.get(k) ?? { qty: 0, value: 0 };
+    row.qty += qty; row.value += qty * unit; acc.set(k, row);
+  }
+  const out: Record<string, number> = {};
+  acc.forEach((row, k) => { out[k] = Math.round((row.value / row.qty) * 10000) / 10000; });
+  return out;
+}

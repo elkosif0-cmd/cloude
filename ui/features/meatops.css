@@ -1,13 +1,13 @@
 /* S.kosif — اقتصاديات الذبيحة وأعمار الذمم */
 .sk37-cut{display:grid;grid-template-columns:1.3fr .6fr .8fr 40px;gap:8px;margin:8px 0}
-.sk37-cut input{min-height:42px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:0 10px;font:inherit;font-size:14px}
+.sk37-cut input{min-height:42px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:0 10px;font:inherit;font-size:var(--sk-fs-s)}
 .sk37-cut button{border:0;border-radius:10px;background:color-mix(in srgb,var(--sk-bad) 12%,var(--surface));color:var(--sk-bad);font-weight:900;cursor:pointer}
 .sk37-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
-.sk37-note{font-size:13px;color:var(--ink-3);line-height:1.7;margin:0 0 8px}
-.sk37-ta{width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:12px;padding:10px;font:inherit;font-size:14px;margin-bottom:10px}
+.sk37-note{font-size:var(--sk-fs-s);color:var(--ink-3);line-height:1.7;margin:0 0 8px}
+.sk37-ta{width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:12px;padding:10px;font:inherit;font-size:var(--sk-fs-s);margin-bottom:10px}
 .sk37-pos{color:var(--sk-ok);font-weight:900}
 .sk37-neg{color:var(--sk-bad);font-weight:900}
-.sk37-bad{margin-top:8px;padding:10px;border-radius:10px;background:color-mix(in srgb,var(--sk-bad) 10%,var(--surface));color:var(--sk-bad);font-size:13px}
+.sk37-bad{margin-top:8px;padding:10px;border-radius:10px;background:color-mix(in srgb,var(--sk-bad) 10%,var(--surface));color:var(--sk-bad);font-size:var(--sk-fs-s)}
 #sk37-result,#sk37-ar-result{display:flex;flex-direction:column;gap:12px;margin-top:12px}
 .sk37-map-wrap{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0;text-align:center}
 .sk37-map-svg{max-width:100%;height:auto;max-height:160px;margin:0 auto;display:block}

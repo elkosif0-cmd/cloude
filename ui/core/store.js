@@ -13,7 +13,7 @@ function appKeys(){const out=[];for(let i=0;i<localStorage.length;i++){const k=l
 function openDb(){
   return new Promise((res,rej)=>{
     if(!("indexedDB" in window))return res(null);
-    let r;try{r=indexedDB.open(DB)}catch(e){return res(null)}
+    let r;try{r=indexedDB.open(DB)}catch{return res(null)}
     r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);
     r.onupgradeneeded=()=>{/* the database does not exist yet: nothing to back up */};
   });
@@ -82,7 +82,7 @@ async function restore(fileOrText,opts={}){
   if(opts.dryRun)return p;
   snapshot=await collect();
   const b=p._b;
-  Object.entries(b.local).forEach(([k,v])=>{try{localStorage.setItem(k,v)}catch(e){throw new Error("مساحة التخزين لا تكفي لاستعادة "+k)}});
+  Object.entries(b.local).forEach(([k,v])=>{try{localStorage.setItem(k,v)}catch{throw new Error("مساحة التخزين لا تكفي لاستعادة "+k)}});
   if(Object.keys(b.idb).length)await writeIdb(b.idb);
   SK.bus&&SK.bus.emit("restore",{keys:Object.keys(b.local).length,rows:p.rows});
   return p;

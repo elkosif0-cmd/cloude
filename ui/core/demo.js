@@ -216,7 +216,10 @@ const SECTIONS=[
     });
     /* the direct sales and the goods received, posted by the same engines as the ledger's own buttons */
     const man=arr("aghnam-v12-manual-sales").filter(x=>x.demo);
-    man.forEach(x=>{try{const b=E().sales.salesPosting.buildSalesPosting({id:x.id,number:x.id,date:x.date,dueDate:x.date,customerId:x.customer,status:"DRAFT",lines:[{itemId:x.item,quantity:x.qty,unitPrice:r2(x.unitPrice/1.15),vatRate:.15}]},{receivableAccountId:id("1200"),revenueAccountId:id("4000"),vatPayableAccountId:id("2200")});
+    man.forEach(x=>{try{
+      /* the ledger's own posting: VAT taken out of the price paid, cost of sales moved out of inventory */
+      if(window.SKosifLedger&&SKosifLedger.saleEntry){const r=SKosifLedger.saleEntry({accounts,entries},x);if(r)entries.push(D({...r.entry,id:"demo-je"+(n++)}));return}
+      const b=E().sales.salesPosting.buildSalesPosting({id:x.id,number:x.id,date:x.date,dueDate:x.date,customerId:x.customer,status:"DRAFT",lines:[{itemId:x.item,quantity:x.qty,unitPrice:x.unitPrice,vatRate:.15,priceIncludesVat:true}]},{receivableAccountId:id("1200"),revenueAccountId:id("4000"),vatPayableAccountId:id("2200")});
       entries.push(D({...b.journal,id:"demo-je"+(n++),memo:"بيع: "+x.item+" — "+x.customer,reference:x.id,source:"مبيعات",sourceId:"sale:"+x.id}))}catch{}});
     const pur=load("skosif_purchasing_v1",{});(pur.receipts||[]).filter(r=>r.demo).forEach(r=>{const po=(pur.orders||[]).find(o=>o.id===r.orderId);if(!po)return;try{
       const b=E().procurement.procurementPosting.buildReceiptPosting({id:po.id,number:po.number,date:po.date,dueDate:po.dueDate||po.date,supplierId:po.supplier,status:"OPEN",lines:po.lines.map(l=>({itemId:l.item,quantity:+l.qty||0,unitCostExVat:+l.cost||0,vatRate:+l.vat||0}))},

@@ -8,7 +8,7 @@
    report preparer in الإعدادات); the bell counts unread items of the notification centre. */
 (()=>{
 "use strict";
-const {$,$$,esc,load,save}=SK;
+const {$,esc,load,save}=SK;
 const core=()=>window.SKosifCore;
 const PROFILE="skosif_profile_v1",CO="skosif_companies_v1";
 const I={
