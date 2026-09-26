@@ -103,7 +103,8 @@ export type Review = { materiality: Materiality; fs: FinancialStatements; accoun
 
 export type ReviewOptions = { framework?: Framework; currency?: string; overrides?: Record<string, string>; materiality?: number;
   /** performance and trivial rates from the materiality plan */ materialityRates?: { performanceRate?: number; trivialRate?: number };
-  evidence?: Record<string, 'accepted' | 'partial' | 'none'>; extraFindings?: Finding[] };
+  evidence?: Record<string, 'accepted' | 'partial' | 'none'>; extraFindings?: Finding[];
+  /** the tax the entity pays when it is neither Saudi (zakat) nor Egyptian (income tax under EAS) */ tax?: 'zakat' | 'income' };
 
 const money = (m: Minor) => formatMinor(m, { decimals: 0 }) + ' ر.س';
 
@@ -111,8 +112,10 @@ const money = (m: Minor) => formatMinor(m, { decimals: 0 }) + ' ر.س';
 export function reviewTrialBalance(tb: TrialBalance, opts: ReviewOptions = {}): Review {
   const framework = opts.framework ?? 'IFRS', egypt = framework === 'EAS', cur = opts.currency ?? (egypt ? 'ج.م' : 'ر.س');
   const money = (m: Minor) => formatMinor(m, { decimals: 0 }) + ' ' + cur;
-  const fs = buildStatements(tb, opts.overrides ?? {}, { tax: egypt ? 'income' : 'zakat' });
-  const mat = materiality(fs, { overall: opts.materiality, ...(opts.materialityRates ?? {}) });
+  const fs = buildStatements(tb, opts.overrides ?? {}, { tax: opts.tax ?? (egypt ? 'income' : 'zakat') });
+  const mat0 = materiality(fs, { overall: opts.materiality, ...(opts.materialityRates ?? {}) });
+  /* an entity that pays income tax rather than zakat: the benchmark carries its name */
+  const mat = opts.tax === 'income' && mat0.benchmark === 'pbz' ? { ...mat0, benchmarkAr: 'الربح قبل ضريبة الدخل' } : mat0;
   const findings: Finding[] = [], adjustments: Adjustment[] = [];
   let seq = 0;
   const add = (f: Omit<Finding, 'id' | 'source'>) => { const x = { ...f, id: 'F-' + String(++seq).padStart(2, '0'), source: 'engine' as const }; findings.push(x); return x; };

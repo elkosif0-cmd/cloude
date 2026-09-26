@@ -59,6 +59,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | جديد — دمج smart-trial-balance-review (مجلس Gemini والجولات) و kosif-audit-pro (القوائم والتحليل) و Moon (المخاطر والرأي) و SEE (التصنيف والجاهزية) + استوديو KOSIF للمراجعة (تبويب «الاستوديو المتقدم» داخل الملف) | `tbreview` | المراجعة والتأكيد › مركز المراجعة › ملف المراجعة | CORE | admin, accountant |
 | جديد — يحل محل قاعدة معايير smart-trial-balance-review ويكمّل مختبر المعايير | `codex` | المراجعة والتأكيد › المعايير والمدونة › المدونة المحاسبية والمعايير | MANAGEMENT | admin, accountant, viewer |
 | جديد — من global_financial_and_audit_research_bundle_extended_verified.pdf (12,506 صفحة) | `auditbench` | المراجعة والتأكيد › المعايير والمدونة › المرجع العالمي للمراجعة | MANAGEMENT | admin |
+| جديد — تشغيل المراجعة على شركات global_financial_and_audit_research_bundle_extended_verified.pdf ومقارنتها بتقارير مراجعيها | `corpuslab` | المراجعة والتأكيد › المعايير والمدونة › مختبر الشركات العالمية | MANAGEMENT | admin |
 | KOSIF Audit Studio | `auditdesk` | المراجعة والتأكيد › مركز المراجعة › الاستوديو المتقدم (advanced) | ADVANCED | admin, accountant |
 | KOSIF Audit Studio | `auditdocs` | المراجعة والتأكيد › مركز المراجعة › المستندات والأدلة (advanced) | ADVANCED | admin, accountant |
 | KOSIF Audit Studio | `auditissues` | المراجعة والتأكيد › مركز المراجعة › الملاحظات والقضايا (advanced) | ADVANCED | admin, accountant |
@@ -84,7 +85,7 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | الرئيسية | المهام والإشعارات | `tasks` المهام · `notifications` مركز الإشعارات |
 | الرئيسية | المخاطر والملاحظات | `risks` المخاطر والملاحظات |
 | المراجعة والتأكيد | مركز المراجعة | `tbreview` ملف المراجعة · `auditdesk` الاستوديو المتقدم · `auditdocs` المستندات والأدلة · `auditissues` الملاحظات والقضايا · `auditcouncil` مجلس المراجعين · `auditfin` القوائم والقيود · `auditreport` التقارير والإصدار · `auditanalytics` التحليل والاختبارات |
-| المراجعة والتأكيد | المعايير والمدونة | `codex` المدونة المحاسبية والمعايير · `auditbench` المرجع العالمي للمراجعة · `auditlab` مختبر المعايير والأبحاث |
+| المراجعة والتأكيد | المعايير والمدونة | `codex` المدونة المحاسبية والمعايير · `auditbench` المرجع العالمي للمراجعة · `corpuslab` مختبر الشركات العالمية · `auditlab` مختبر المعايير والأبحاث |
 | أدوات مساعدة للمحاسب | مركز الأدوات المساعدة | `helperdesk` مركز الأدوات المساعدة |
 | أدوات مساعدة للمحاسب | مركز القرار | `decision` مركز القرار |
 | أدوات مساعدة للمحاسب | Jev ومجلس القرار | `jev` Jev للقرار · `council` مجلس القرار |
@@ -112,15 +113,15 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | النظام والتكاملات | الشركات والفترات | `companies` الشركات والفترات |
 | النظام والتكاملات | الحوكمة والصلاحيات | `governance` الحوكمة والجاهزية · `health` الصحة والتشخيص · `capabilitiesv2` الصلاحيات ومساحات العمل |
 
-67 screens in 31 menu entries.
+68 screens in 31 menu entries.
 
 ## By tier
 
 - **CORE** — العمل اليومي الأساسي (18): `dash`, `notifications`, `commerce`, `zatca`, `customers`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `cash`, `receivables`, `productflow`, `catalog`, `sim`, `builder`, `tbreview`
-- **MANAGEMENT** — الإدارة والمتابعة (10): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `memo`, `execreports`, `archive`, `codex`, `auditbench`
+- **MANAGEMENT** — الإدارة والمتابعة (11): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `memo`, `execreports`, `archive`, `codex`, `auditbench`, `corpuslab`
 - **INTELLIGENCE** — التحليل والذكاء (7): `decision`, `jev`, `council`, `salesintel`, `intelligence`, `economics`, `compare`
 - **ADVANCED** — الهندسة المتقدمة (17): `risklab`, `sensitivity`, `carcass`, `yieldlab`, `nrv`, `finance`, `costs`, `kernel`, `analyzer`, `auditdesk`, `auditdocs`, `auditissues`, `auditcouncil`, `auditfin`, `auditreport`, `auditanalytics`, `auditlab`
 - **UTILITIES** — أدوات مساعدة (10): `helperdesk`, `blending`, `culinary`, `labels`, `scanner`, `smartmatch`, `excelrecon`, `reports`, `exports`, `devices`
 - **ADMIN** — النظام والإدارة (5): `settings`, `companies`, `governance`, `health`, `capabilitiesv2`
 
-Coverage gate: 67 screens in 4 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
+Coverage gate: 68 screens in 4 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.

@@ -1277,6 +1277,27 @@
    ]
   },
   {
+   "id": "corpuslab",
+   "label": "مختبر الشركات العالمية",
+   "sub": "قوائم 47 شركة من التقارير العالمية كموازين مراجعة: يراجعها SQC كأي عميل ويقارن ما وصل إليه بما كتبه مراجعها فعلاً — الأمور الرئيسية بصفحاتها، والأهمية النسبية المفصح عنها، وما يطلبه المراجعون أولاً",
+   "group": "audit",
+   "hub": "codex",
+   "tier": "MANAGEMENT",
+   "module": "ui/features/corpus-lab.js + SKEngines.reports.corpusCompanies + SKEngines.audit.{corpusReplay,openingRequests,globalBenchmarks}",
+   "data": [
+    "لا بيانات محلية — القوائم المنشورة من حزمة البحث العالمية"
+   ],
+   "legacy": "جديد — تشغيل المراجعة على شركات global_financial_and_audit_research_bundle_extended_verified.pdf ومقارنتها بتقارير مراجعيها",
+   "decision": "Rebuild",
+   "kw": "مختبر شركات عالمية اختبار مقارنة تقرير المراجع أمور رئيسية KAM replay أهمية نسبية أرامكو أبل نستله بنوك طلبات المراجعين",
+   "adv": false,
+   "en": "Global Companies Lab",
+   "feeds": [
+    "tbreview",
+    "auditbench"
+   ]
+  },
+  {
    "id": "auditdesk",
    "label": "الاستوديو المتقدم",
    "sub": "مساحة عمل المراجع — داخل «مركز المراجعة › الاستوديو المتقدم»",
