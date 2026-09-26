@@ -407,3 +407,8 @@ details.ap-card[open]>summary::after{content:"▴"}
 .tbr-flow-node.cur>i{background:var(--sk-brand);color:var(--sk-on-brand,#fff)}
 .tbr-flowloop{padding:8px 12px;border:1px dashed color-mix(in srgb,var(--sk-brand) 35%,var(--sk-line));border-radius:12px;background:var(--sk-brand-soft);color:var(--sk-ink-2);font-size:11px;font-weight:700}
 @media(max-width:700px){.tbr-flow-node{flex-basis:145px}.tbr-flow-node small{display:none}.tbr-flow-node{min-height:60px}}
+
+.tbc-jev{margin-top:10px;padding:11px 13px;border:1px solid var(--sk-line);border-radius:12px;background:var(--sk-surface-2)}
+.tbc-jev.ok{border-color:color-mix(in srgb,var(--sk-ok) 35%,var(--sk-line));background:var(--sk-ok-soft)}
+.tbc-jev.warn{border-color:color-mix(in srgb,var(--sk-warn) 35%,var(--sk-line));background:var(--sk-warn-soft)}
+.tbc-jev b{display:block;font-size:12px}.tbc-jev p{margin:4px 0;font-size:12px;color:var(--sk-ink-2)}.tbc-jev small{color:var(--sk-ink-3)}
