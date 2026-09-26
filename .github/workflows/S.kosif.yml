@@ -39,6 +39,11 @@ jobs:
           node --check sw.js
           node --check capabilities-v2/worker.js
 
+      - name: Lint UI modules (out-of-scope names, duplicate keys, unreachable code)
+        run: |
+          npm install --no-save --no-package-lock eslint@9 globals@15
+          npx eslint ui/core ui/components ui/layouts ui/features
+
       - name: Test strict pricing kernel
         working-directory: app
         run: |
@@ -117,6 +122,57 @@ jobs:
           for marker in ["CREATE TABLE IF NOT EXISTS tenants","tenant_members","workspaces","workspace_revisions","audit_log","archived_workspace_is_read_only"]:
               assert marker in cap_schema, marker
           assert "SKIP_WAITING" in sw and "skosif.js" in sw
+          # iPhone & laptop: device core, keyboard, encrypted transfer, install guides, manifest shortcuts
+          for marker in ["SK.device=","beforeinstallprompt","SKosifKeys","skosif-transfer","AES-GCM","toggleRail","setTabs"]:
+              assert marker in js, "device marker missing: "+marker
+          assert 'SK.view("devices"' in js, "devices screen missing"
+          for f in ["INSTALL-iPHONE-ar.txt","INSTALL-LAPTOP-ar.txt"]:
+              assert Path("dist",f).exists(), f
+          mf=json.loads(manifest)
+          assert mf.get("orientation")!="portrait" and mf.get("shortcuts") and "window-controls-overlay" in mf.get("display_override",[]), "manifest must serve laptop and iPhone"
+          assert all(s["url"].startswith("./?") for s in mf["shortcuts"]), "manifest shortcuts must be deep links"
+          assert ":root[data-look=\"kosif\"] .skb" not in css, "the phone tab bar must work in every theme"
+          # KOSIF Luxe: shared components, new screens, report pack, letterhead, sign-in page
+          # no capability is lost: every id in the baseline stays registered and reachable
+          base=[l.split("\t")[0] for l in Path("docs/rebuild/CAPABILITY_BASELINE.txt").read_text(encoding="utf-8").splitlines() if l and not l.startswith("#")]
+          ids={c["id"] for c in caps}
+          lost=[x for x in base if x not in ids]
+          assert not lost, "capabilities lost (restore them or remove them from the baseline on purpose): "+", ".join(lost)
+          assert not [c["id"] for c in caps if c["id"] not in base], "new capability: add it to docs/rebuild/CAPABILITY_BASELINE.txt"
+          # demo data: marked, removable, never over real data
+          for marker in ["SK.demo=","skosif_demo_v1","dropDemo","SK.templates=","KOSIF-template-","function book(","SKosifSalesLab","function matrix(","SK.flow=","skflow","SK.output=","skout-f","application/msword"]:
+              assert marker in js, "demo marker missing: "+marker
+          # the work flow graph: every "feeds" target is a real capability
+          for c in caps:
+              for f in c.get("feeds",[]): assert f in ids, "bad feeds "+c["id"]+" → "+f
+          # the AI audit council inside the engagement (research «مجلس المراجعة الذكي») and the fused audit hub
+          for marker in ["SKosifCouncilUI","confidenceMatrix","stopRule","verifyOpinion","integrityChecks","mountStudio","formDialog"]:
+              assert marker in js, "council marker missing: "+marker
+          assert any(c.get("hidden") and c.get("hub")=="tbreview" for c in caps), "the audit studio lives inside the engagement"
+          # books you can rely on: reversal instead of deletion, a lock date, VAT taken out of the price paid, cost of sales with each sale
+          for marker in ["reverseJournalEntry","isPeriodLocked","splitVatInclusive","priceIncludesVat","weightedAverageCosts","rev-entry","lockHTML",
+                         "partyBalances","partyStatement","buildSettlementEntry","buildVatSettlementEntry","cashHTML","data-ledger-open",
+                         "matchBankLines","bankReconciliationStatement","bankHTML","stockCountValuation","buildStockCountAdjustment","weightedAverageCostsAsOf",
+                         "SKosifClose","skclose-steps","skbrief","booksHTML","seedStudio"]:
+              assert marker in js, "ledger control missing: "+marker
+          assert 'data-l="del-entry"' not in js, "posted entries are reversed, never deleted"
+          for marker in ["SKosifTopbar","SKCharts","SKosifTable","SKosifNotify","SKosifReportPack","SKosifMetrics","skp-band","counter(pages)"]:
+              assert marker in js, "luxe marker missing: "+marker
+          for marker in ["--sk-heat-1",".sk-ph",".skk4",".sktb-bar",".skhm-cell",".sksev"]:
+              assert marker in css, "luxe style missing: "+marker
+          assert "Smarter Audit. Greater Trust." in unlock, "sign-in page lost the KOSIF claim"
+          # live assistant, theme studio, charts v2, tables v2 (Excel), print preview
+          for marker in ["SKosifAssistant","functionDeclarations","accentTokens","waterfall","exportXlsx","rightToLeft","skp-bar","__skRealPrint"]:
+              assert marker in js, "marker missing: "+marker
+          for marker in ["--sk-c1",".ska-panel",".skx-studio","sktb-cards","data-contrast"]:
+              assert marker in css, "style missing: "+marker
+          assert all(c.get("en") for c in caps), "every screen needs its English name (en)"
+          # hubs: a page names a parent in its own domain; parents are menu entries with a hub label
+          byid={c["id"]:c for c in caps}
+          for c in caps:
+              if c.get("hub"):
+                  h=byid.get(c["hub"]); assert h and not h.get("hub") and h["group"]==c["group"], "bad hub for "+c["id"]
+                  assert h.get("hubLabel"), "hub without hubLabel: "+h["id"]
           # accounting & audit: three vendored apps, loaded on first use from dist/audit
           for f in ["audit/mount.js","audit/app.css","audit/markup.html","audit/classic/mount.js","audit/lab/mount.js"]:
               assert Path("dist",f).exists(), f
@@ -126,3 +182,12 @@ jobs:
           assert "document.querySelector(" not in audit_js, "audit studio must query its own shadow root"
           print("S.kosif validation: OK")
           PY
+
+      - name: UI smoke test (every screen, laptop and phone, demo data)
+        run: |
+          npm install --no-save --prefix /tmp/pw playwright@1
+          npx --prefix /tmp/pw playwright install --with-deps chromium
+          (python3 -m http.server 8765 --directory dist >/dev/null 2>&1 &)
+          sleep 2
+          NODE_PATH=/tmp/pw/node_modules node tools/ui_smoke.mjs http://localhost:8765/app-safe.html
+          NODE_PATH=/tmp/pw/node_modules node tools/feature_audit.mjs http://localhost:8765/app-safe.html

@@ -78,8 +78,16 @@ Source: the KOSIF app mockups in Canva (dashboard, trial balance, PBC, risks, mo
 | Rail | navy gradient `#0c2340`, «KOSIF» wordmark + business name + "Audit. Assure. Comply.", active item with cyan edge, sky card «مراجعة أذكى. ثقة أكبر.» (`ui/art/kosif-sky.svg`) |
 | Tabs | domain bar and period filters as pills; active = filled KOSIF blue |
 | KPI | white tiles; a share (e.g. box margin vs. target) is drawn as a progress ring |
-| Phones | sticky bottom tab bar: الرئيسية · الطلبات · المهام · المخزون · المزيد (opens the drawer) |
+| Phones | sticky bottom tab bar in every theme: الرئيسية · الطلبات · المهام · المخاطر · المزيد (opens the drawer); user-chosen in «الأجهزة والمزامنة»; default chosen with Jev |
 | Lock screen | navy background, white card, cloud mark, blue button |
 | Print | same letterhead, KOSIF palette (gradient rule, blue double line); business emblem kept for invoices |
 
 Existing users whose theme was the old default («تراث الوادي») move to KOSIF once; any other theme they picked is kept.
+
+## KOSIF Luxe (round 32)
+
+The default «KOSIF» look is now the luxe layer from the approved mockups — see `docs/design/KOSIF-LUXE.md`.
+`ui/ds/luxe.css` loads after `shell.css` and holds the shared structure (top bar, page head, menus,
+notification rows, charts, heatmap, donut, KPI tiles, table toolbar, severity pills); every theme gets the
+structure through the tokens, the KOSIF look adds the finish. New tokens: `--sk-heat-1…4`,
+`--sk-grad-brand`, `--sk-grad-rail`, `--sk-font-latin`.

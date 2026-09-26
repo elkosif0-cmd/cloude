@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildGeneralLedger, buildTrialBalance, validateJournalEntry, type JournalEntry } from './ledger-engine';
+import { buildGeneralLedger, buildTrialBalance, periodTrialBalance, validateJournalEntry, type JournalEntry, type LedgerAccountType } from './ledger-engine';
 
 const balancedEntry: JournalEntry = {
   id: 'JV-001',
@@ -76,5 +76,24 @@ describe('general ledger and trial balance', () => {
     expect(trialBalance.totals).toEqual({ debit: 1250, credit: 1250 });
     expect(trialBalance.balanced).toBe(true);
     expect(trialBalance.rows).toHaveLength(3);
+  });
+
+  it('builds a period trial balance with opening balances and the prior result in retained earnings', () => {
+    const types: Record<string, LedgerAccountType> = { cash: 'asset', ar: 'asset', capital: 'equity', re: 'equity', sales: 'revenue', cogs: 'expense' };
+    const je = (id: string, date: string, lines: [string, number, number][]): JournalEntry => ({ id, date, lines: lines.map(([accountId, debit, credit]) => ({ accountId, debit, credit })) });
+    const entries = [
+      je('o1', '2024-01-01', [['cash', 50000, 0], ['capital', 0, 50000]]),
+      je('o2', '2024-06-01', [['ar', 20000, 0], ['sales', 0, 20000]]),
+      je('o3', '2024-07-01', [['cogs', 8000, 0], ['cash', 0, 8000]]),
+      je('c1', '2025-03-10', [['ar', 60000, 0], ['sales', 0, 60000]]),
+      je('c2', '2025-04-01', [['cogs', 30000, 0], ['cash', 0, 30000]]),
+      je('late', '2026-01-05', [['cash', 1, 0], ['sales', 0, 1]]),
+    ];
+    const tb = periodTrialBalance(entries, (id) => types[id], { start: '2025-01-01', end: '2025-12-31' }, 're');
+    const bal = Object.fromEntries(tb.rows.map((r) => [r.accountId, r.balance]));
+    expect(bal).toEqual({ ar: 80000, capital: -50000, cash: 12000, cogs: 30000, re: -12000, sales: -60000 });
+    expect(tb.carried).toBe(-12000);
+    expect(tb.balanced).toBe(true);
+    expect(periodTrialBalance(entries, (id) => types[id], { start: '2024-01-01', end: '2024-12-31' }, 're').carried).toBe(0);
   });
 });

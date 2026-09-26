@@ -58,7 +58,18 @@ function reportHTML(d){
   return '<section class="card"><div class="card-h"><div><h3>تقرير الإنجاز اليومي — '+esc(day)+'</h3></div><div class="sk-actions"><button type="button" class="btn sm" data-f="prev">السابق</button><button type="button" class="btn sm" data-f="next">التالي</button><a class="btn sm primary" href="https://wa.me/?text='+encodeURIComponent(txt)+'" target="_blank" rel="noopener">مشاركة واتساب</a><button type="button" class="btn sm" data-f="csv">تصدير السجلات</button></div></div><div class="card-b sk-stack">'+
     '<div class="sk-kpis"><div class="sk-kpi accent"><span>سجلات التواصل</span><b>'+recs.length+'</b></div><div class="sk-kpi good"><span>أرقام أُنجزت</span><b>'+doneQ.length+'</b></div><div class="sk-kpi"><span>طلبات مستلمة</span><b>'+recs.filter(r=>r.received).length+'</b></div><div class="sk-kpi warn"><span>متبقٍ في القائمة</span><b>'+d.queue.filter(q=>!q.done).length+'</b></div></div>'+
     '<div class="sk-kpis">'+block("حسب المصدر",count(recs,r=>r.source))+block("حسب المدينة",count(recs,r=>r.city))+block("طرق الدفع",count(recs,r=>r.payment))+block("مستلمو الطلبات",count(recs.filter(r=>r.receiver),r=>r.receiver))+'</div>'+
-    (recs.length?table(recs):'')+'</div></section>';
+    (recs.length?table(recs):'')+'</div></section>'+planHTML(d);
+}
+/* the suggested follow-up plan (from the attached CRM): open cases across all days, the cities that need it most, what is left in the call list */
+function planHTML(d){
+  const t=new Date().toISOString().slice(0,10),open=d.records.filter(r=>!r.received&&(!r.deliveryDate||r.deliveryDate<=t)).sort((a,b)=>String(a.deliveryDate||a.date).localeCompare(String(b.deliveryDate||b.date)));
+  const byCity={};open.forEach(r=>{const c=r.city||"غير محدد";byCity[c]=(byCity[c]||0)+1});const cities=Object.entries(byCity).sort((a,b)=>b[1]-a[1]).slice(0,6),left=d.queue.filter(q=>!q.done);
+  const steps=[open.length?"اتصل بـ"+open.length+" عميل لم يستلم طلبه بعد — الأقدم أولاً":"",cities.length?"ركّز التوصيل في "+cities[0][0]+" ("+cities[0][1]+" حالة)":"",left.length?"أكمل "+left.length+" رقماً متبقياً في قائمة الاتصال":"","راجع «أولوية التواصل» للعملاء المتوقفين 21 يوماً فأكثر"].filter(Boolean);
+  return '<section class="card"><div class="card-h"><div><h3>خطة المتابعة المقترحة</h3><p>الحالات المفتوحة في كل الأيام، والمدن الأكثر احتياجاً للمتابعة، وما بقي في قائمة الاتصال.</p></div></div><div class="card-b sk-stack">'+
+    '<ol class="fu-plan">'+steps.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ol>'+
+    '<div class="sk-grid2"><div><h4>الحالات المطلوب متابعتها ('+open.length+')</h4>'+(open.length?'<div class="sk-table-wrap"><table class="sk-table" data-sk-plain><thead><tr><th>العميل</th><th>الجوال</th><th>المدينة</th><th>الطلب</th><th>التوصيل</th><th></th></tr></thead><tbody>'+
+      open.slice(0,12).map(r=>'<tr><td>'+esc(r.name)+'</td><td class="mono">'+esc(r.phone||"")+'</td><td>'+esc(r.city||"")+'</td><td>'+esc(r.order||"")+'</td><td class="mono">'+esc(r.deliveryDate||r.date)+'</td><td>'+(SK.flow?SK.flow.actions({title:"متابعة "+r.name+" — "+(r.order||"طلب"),detail:(r.phone||"")+" "+(r.city||""),sev:"medium",cap:"followup"}):'')+'</td></tr>').join("")+'</tbody></table></div>':'<p class="hint">لا حالات مفتوحة.</p>')+'</div>'+
+    '<div><h4>المدن الأكثر احتياجاً للمتابعة</h4>'+(cities.length&&window.SKCharts?SKCharts.hbars({rows:cities.map(([k,v])=>({label:k,value:v}))}):'<p class="hint">—</p>')+'</div></div></div></section>';
 }
 async function paint(root){
   const d=db();

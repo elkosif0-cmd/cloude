@@ -286,7 +286,7 @@
       return;
     }
     const linesTxt=lines.map((l,i)=>(i+1)+". "+l.item.name+" ("+l.qty+"× "+sar(l.item.now||l.item.price)+" ر.س) = "+sar(l.actualPrice)+" ر.س").join("\n");
-    const summary="عرض سعر "+BIZ+"\n"+linesTxt+"\nالإجمالي: "+sar(netTotal)+" ر.س (شامل الضريبة)";
+    const summary="عرض سعر "+BIZ+"\n"+linesTxt+(totalSavings>0?"\nقبل الخصم: "+sar(subtotal)+" ر.س\nالتوفير: "+sar(totalSavings)+" ر.س":"")+"\nالإجمالي: "+sar(netTotal)+" ر.س (شامل الضريبة)";
     navigator.clipboard.writeText(summary).then(()=>{
       toast("تم نسخ تفاصيل عرض السعر إلى الحافظة بنجاح 📋");
     }).catch(()=>{

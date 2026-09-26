@@ -4,7 +4,7 @@
    ويمر أي نص عبر الحجب قبل الإرسال. */
 (()=>{
 "use strict";
-const {$,$$,esc,load,save,toast,redact}=window.SK;
+const {$,$$,esc,load,save,redact}=window.SK;
 const API="https://aghnam-jev-api.kosif199022.workers.dev",SKEY="aghnamJevSession";
 const LOG_KEY="aghnam_v29_jev_log",DRAFT_KEY="skosif_jev_draft",MAX_LOG=100;
 const TYPES={noul:"نعم / لا",choice:"اختيار من بدائل",score:"تقييم على سلّم"};

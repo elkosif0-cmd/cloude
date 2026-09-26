@@ -106,7 +106,7 @@ function bind(){
     const live=num($("#sk37-live")?.value)||48,car=num($("#sk37-carcass")?.value)||24,cost=num($("#sk37-cost")?.value)||1450;
     const rows=allocate(car,cost,cuts);
     const w=window.open("","_blank","width=600,height=750");
-    if(!w)return alert("يرجى السماح بالنوافذ المنبثقة لطباعة أمر التشفية");
+    if(!w)return SK.toast("يرجى السماح بالنوافذ المنبثقة لطباعة أمر التشفية","warn");
     w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><title>أمر تشغيل وتشفية الذبيحة</title>'+
       '<style>body{font-family:system-ui,sans-serif;padding:24px;line-height:1.5;color:#111;}'+
       'h2{margin:0 0 6px;color:#8a5a2b;}table{width:100%;border-collapse:collapse;margin:16px 0;}'+

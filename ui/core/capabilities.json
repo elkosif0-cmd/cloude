@@ -1,6 +1,6 @@
 {
  "version": 1,
- "note": "Single source of truth for every S.kosif screen: navigation (10 domains, each screen daily or advanced), command palette, permissions and docs/rebuild/*.md are generated from this file. Edit here only.",
+ "note": "Single source of truth for every S.kosif screen: navigation (9 domains; related screens form a hub — one menu entry whose pages open as tabs), each screen daily or advanced, command palette, permissions and docs/rebuild/*.md are generated from this file. Edit here only.",
  "tiers": {
   "CORE": "العمل اليومي الأساسي",
   "MANAGEMENT": "الإدارة والمتابعة",
@@ -15,16 +15,16 @@
    "label": "مركز القيادة"
   },
   {
+   "id": "intelligence",
+   "label": "القرار والذكاء"
+  },
+  {
    "id": "sales",
    "label": "المبيعات والعملاء"
   },
   {
    "id": "stock",
-   "label": "المخزون والإنتاج"
-  },
-  {
-   "id": "procurement",
-   "label": "المشتريات والموردون"
+   "label": "المخزون والمشتريات"
   },
   {
    "id": "finance",
@@ -33,10 +33,6 @@
   {
    "id": "catalog",
    "label": "الكتالوج والتسعير"
-  },
-  {
-   "id": "intelligence",
-   "label": "Jev والذكاء"
   },
   {
    "id": "reports",
@@ -101,13 +97,18 @@
     "finance",
     "economics",
     "settings",
+    "devices",
     "tasks",
+    "risks",
+    "notifications",
     "ledger",
     "purchasing",
     "companies",
     "exports",
     "council",
-    "followup"
+    "followup",
+    "tbreview",
+    "codex"
    ],
    "actions": [
     "view",
@@ -134,7 +135,10 @@
     "yieldlab",
     "operations",
     "settings",
+    "devices",
     "tasks",
+    "risks",
+    "notifications",
     "purchasing"
    ],
    "actions": [
@@ -164,7 +168,10 @@
     "labels",
     "scanner",
     "settings",
+    "devices",
     "tasks",
+    "risks",
+    "notifications",
     "followup",
     "council",
     "exports"
@@ -188,7 +195,11 @@
     "cash",
     "operations",
     "settings",
-    "tasks"
+    "devices",
+    "tasks",
+    "risks",
+    "notifications",
+    "codex"
    ],
    "actions": [
     "view"
@@ -210,23 +221,8 @@
    "legacy": "لوحة العمل + بطل v23 + نبض v21 + بطل shell.js",
    "decision": "Rebuild",
    "kw": "الرئيسية لوحة العمل home",
-   "adv": false
-  },
-  {
-   "id": "decision",
-   "label": "مركز القرار",
-   "sub": "صندوق الاستثناءات وأولوية Jev",
-   "group": "home",
-   "tier": "INTELLIGENCE",
-   "module": "core (v19.5 + v20.2)",
-   "data": [
-    "aghnam-pricing-v3",
-    "IDB aghnam-app-v7"
-   ],
-   "legacy": "مركز القرار",
-   "decision": "Keep",
-   "kw": "تنبيهات استثناءات أولوية",
-   "adv": false
+   "adv": false,
+   "en": "Command Center"
   },
   {
    "id": "tasks",
@@ -241,13 +237,154 @@
    "decision": "Rebuild",
    "kw": "مهمة تذكير متابعة",
    "group": "home",
-   "adv": false
+   "hubLabel": "المهام والإشعارات",
+   "adv": false,
+   "en": "Tasks",
+   "feeds": [
+    "notifications"
+   ]
+  },
+  {
+   "id": "notifications",
+   "label": "مركز الإشعارات",
+   "sub": "ما يحتاج انتباهك: القرارات والمهام والمخاطر والاستلامات والنظام",
+   "group": "home",
+   "hub": "tasks",
+   "tier": "CORE",
+   "module": "ui/features/notifications.js + ui/layouts/topbar.js (الجرس)",
+   "data": [
+    "skosif_notify_v1",
+    "skosif_tasks_v1",
+    "skosif_risks_v1",
+    "skosif_audit_trail"
+   ],
+   "legacy": "جديد — شاشة الإشعارات في تصميم KOSIF",
+   "decision": "Rebuild",
+   "kw": "إشعارات تنبيهات جرس غير مقروءة notifications alerts bell",
+   "adv": false,
+   "en": "Notifications"
+  },
+  {
+   "id": "risks",
+   "label": "المخاطر والملاحظات",
+   "sub": "سجل المخاطر بالاحتمالية والأثر وخريطة حرارية، وملاحظات المراجعة حتى الحل",
+   "group": "home",
+   "tier": "MANAGEMENT",
+   "module": "ui/features/risks.js + ui/components/charts.js",
+   "data": [
+    "skosif_risks_v1"
+   ],
+   "legacy": "جديد — شاشة المخاطر والملاحظات في تصميم KOSIF (خريطة المخاطر، توزيع الفئات، أحدث الملاحظات)",
+   "decision": "Rebuild",
+   "kw": "مخاطر خطر ملاحظات خريطة حرارية احتمالية أثر risk register findings heatmap AF",
+   "adv": false,
+   "en": "Risks & Findings",
+   "feeds": [
+    "tasks",
+    "decision"
+   ]
+  },
+  {
+   "id": "decision",
+   "label": "مركز القرار",
+   "sub": "صندوق الاستثناءات وأولوية Jev",
+   "group": "intelligence",
+   "tier": "INTELLIGENCE",
+   "module": "core (v19.5 + v20.2)",
+   "data": [
+    "aghnam-pricing-v3",
+    "IDB aghnam-app-v7"
+   ],
+   "legacy": "مركز القرار",
+   "decision": "Keep",
+   "kw": "تنبيهات استثناءات أولوية",
+   "adv": false,
+   "en": "Decision Center",
+   "feeds": [
+    "jev",
+    "council",
+    "tasks"
+   ]
+  },
+  {
+   "id": "jev",
+   "label": "Jev للقرار",
+   "sub": "قرار منظم من بيانات مجمعة بلا بيانات شخصية",
+   "group": "intelligence",
+   "hubLabel": "Jev ومجلس القرار",
+   "tier": "INTELLIGENCE",
+   "module": "ui/jev.js",
+   "data": [
+    "aghnam_v29_jev_log",
+    "skosif_jev_draft",
+    "session aghnamJevSession"
+   ],
+   "legacy": "Jev للقرار",
+   "decision": "Keep",
+   "kw": "ذكاء مساعد ai",
+   "adv": false,
+   "en": "Jev Decisions",
+   "feeds": [
+    "council"
+   ]
+  },
+  {
+   "id": "council",
+   "label": "مجلس القرار",
+   "sub": "أصوات متعددة بدرجات ثقة وقرار مرجّح",
+   "tier": "INTELLIGENCE",
+   "module": "ui/features/workspace.js + SKEngines.intelligence",
+   "data": [
+    "skosif_council_v1"
+   ],
+   "legacy": "Grand Fusion intelligence.council",
+   "decision": "Rebuild",
+   "kw": "تصويت مجلس قرار",
+   "group": "intelligence",
+   "hub": "jev",
+   "adv": false,
+   "en": "Decision Council"
+  },
+  {
+   "id": "risklab",
+   "label": "المخاطر وجسر الربحية",
+   "sub": "Profit Bridge وTornado وMonte Carlo",
+   "group": "intelligence",
+   "hubLabel": "المخاطر والحساسية",
+   "tier": "ADVANCED",
+   "module": "core (v19)",
+   "data": [
+    "aghnam-pricing-v3"
+   ],
+   "legacy": "المخاطر",
+   "decision": "Keep",
+   "kw": "مخاطر مونت كارلو",
+   "adv": true,
+   "en": "Risk & Profit Bridge"
+  },
+  {
+   "id": "sensitivity",
+   "label": "مختبر الحساسية",
+   "sub": "أثر تغير المدخلات على القرار",
+   "group": "intelligence",
+   "hub": "risklab",
+   "tier": "ADVANCED",
+   "module": "ui/tools.js",
+   "data": [
+    "skosif_v33_decision"
+   ],
+   "legacy": "مختبر الحساسية",
+   "decision": "Keep",
+   "kw": "حساسية سيناريو",
+   "adv": true,
+   "en": "Sensitivity Lab"
   },
   {
    "id": "commerce",
    "label": "الطلبات والتحصيل",
    "sub": "الفواتير وبنود السلة والتسويات",
    "group": "sales",
+   "hubLabel": "الطلبات والفوترة",
    "tier": "CORE",
    "module": "core",
    "data": [
@@ -259,13 +396,42 @@
    "legacy": "الطلبات والتحصيل",
    "decision": "Keep",
    "kw": "طلب فاتورة تحصيل تابي",
-   "adv": false
+   "adv": false,
+   "en": "Orders & Collections",
+   "feeds": [
+    "customers",
+    "receivables",
+    "salesintel",
+    "ledger"
+   ]
+  },
+  {
+   "id": "zatca",
+   "label": "نقطة البيع والفاتورة الضريبية",
+   "sub": "فاتورة مبسطة برمز QR ودفع مجزأ",
+   "group": "sales",
+   "hub": "commerce",
+   "tier": "CORE",
+   "module": "ui/enterprise.js",
+   "data": [
+    "skosif_v32_cart"
+   ],
+   "legacy": "الفاتورة الضريبية",
+   "decision": "Keep",
+   "kw": "زاتكا ضريبة فاتورة qr كاشير",
+   "adv": false,
+   "en": "POS & Tax Invoice",
+   "feeds": [
+    "commerce",
+    "ledger"
+   ]
   },
   {
    "id": "customers",
    "label": "العملاء",
    "sub": "Customer 360 والمبيعات والاستيراد",
    "group": "sales",
+   "hubLabel": "العملاء والائتمان",
    "tier": "CORE",
    "module": "core",
    "data": [
@@ -276,7 +442,14 @@
    "legacy": "السوق والعملاء",
    "decision": "Keep",
    "kw": "عميل جوال مبيعات استيراد",
-   "adv": false
+   "adv": false,
+   "en": "Customers",
+   "feeds": [
+    "followup",
+    "salesintel",
+    "b2bcredit",
+    "offers"
+   ]
   },
   {
    "id": "followup",
@@ -292,7 +465,33 @@
    "decision": "Rebuild",
    "kw": "crm متابعة اتصال واتساب عميل",
    "group": "sales",
-   "adv": false
+   "hub": "customers",
+   "adv": false,
+   "en": "Customer Follow-up",
+   "feeds": [
+    "tasks"
+   ]
+  },
+  {
+   "id": "b2bcredit",
+   "label": "ائتمان المطاعم",
+   "sub": "حدود ائتمان ومبيعات آجلة ودفعات",
+   "group": "sales",
+   "hub": "customers",
+   "tier": "MANAGEMENT",
+   "module": "ui/enterprise.js",
+   "data": [
+    "skosif_v38_ledger"
+   ],
+   "legacy": "ائتمان المطاعم",
+   "decision": "Keep",
+   "kw": "آجل مطعم دين ائتمان",
+   "adv": false,
+   "en": "Restaurant Credit",
+   "feeds": [
+    "receivables",
+    "ledger"
+   ]
   },
   {
    "id": "offers",
@@ -309,37 +508,11 @@
    "legacy": "العروض والكتالوج",
    "decision": "Keep",
    "kw": "عرض سعر كتالوج واتساب سلة",
-   "adv": false
-  },
-  {
-   "id": "zatca",
-   "label": "نقطة البيع والفاتورة الضريبية",
-   "sub": "فاتورة مبسطة برمز QR ودفع مجزأ",
-   "group": "sales",
-   "tier": "CORE",
-   "module": "ui/enterprise.js",
-   "data": [
-    "skosif_v32_cart"
-   ],
-   "legacy": "الفاتورة الضريبية",
-   "decision": "Keep",
-   "kw": "زاتكا ضريبة فاتورة qr كاشير",
-   "adv": false
-  },
-  {
-   "id": "b2bcredit",
-   "label": "ائتمان المطاعم",
-   "sub": "حدود ائتمان ومبيعات آجلة ودفعات",
-   "group": "sales",
-   "tier": "MANAGEMENT",
-   "module": "ui/enterprise.js",
-   "data": [
-    "skosif_v38_ledger"
-   ],
-   "legacy": "ائتمان المطاعم",
-   "decision": "Keep",
-   "kw": "آجل مطعم دين ائتمان",
-   "adv": false
+   "adv": false,
+   "en": "Offers & Catalog",
+   "feeds": [
+    "commerce"
+   ]
   },
   {
    "id": "operations",
@@ -358,13 +531,19 @@
    "legacy": "المناسبات والتشغيل",
    "decision": "Keep",
    "kw": "مناسبة شواء اشتراك وردية تعتيق",
-   "adv": false
+   "adv": false,
+   "en": "Events & Operations",
+   "feeds": [
+    "commerce",
+    "inventory"
+   ]
   },
   {
    "id": "salesintel",
    "label": "ذكاء المبيعات",
    "sub": "اتجاهات وباريتو وABC وRFM",
    "group": "sales",
+   "hubLabel": "ذكاء المبيعات والطلب",
    "tier": "INTELLIGENCE",
    "module": "core (v16)",
    "data": [
@@ -373,13 +552,21 @@
    "legacy": "ذكاء المبيعات",
    "decision": "Keep",
    "kw": "مبيعات اتجاه باريتو",
-   "adv": true
+   "adv": true,
+   "en": "Sales Intelligence",
+   "feeds": [
+    "intelligence",
+    "economics",
+    "decision",
+    "tasks"
+   ]
   },
   {
    "id": "intelligence",
    "label": "ذكاء العملاء والطلب",
    "sub": "الاحتفاظ والشرائح وأولوية المراجعة",
    "group": "sales",
+   "hub": "salesintel",
    "tier": "INTELLIGENCE",
    "module": "core (v18)",
    "data": [
@@ -389,13 +576,15 @@
    "legacy": "ذكاء العملاء",
    "decision": "Keep",
    "kw": "شرائح احتفاظ",
-   "adv": true
+   "adv": true,
+   "en": "Customer & Demand Intelligence"
   },
   {
    "id": "economics",
    "label": "اقتصاديات الطلب",
    "sub": "الشحن والعمولات ومزيج المنتجات",
    "group": "sales",
+   "hub": "salesintel",
    "tier": "INTELLIGENCE",
    "module": "core (v9)",
    "data": [
@@ -405,13 +594,19 @@
    "legacy": "اقتصاديات الطلب",
    "decision": "Keep",
    "kw": "شحن عمولة",
-   "adv": true
+   "adv": true,
+   "en": "Order Economics",
+   "feeds": [
+    "sim",
+    "catalog"
+   ]
   },
   {
    "id": "inventory",
    "label": "المخزون",
    "sub": "الأرصدة وحد إعادة الطلب ورادار الصلاحية",
    "group": "stock",
+   "hubLabel": "المخزون والتتبع",
    "tier": "CORE",
    "module": "ui/inventory.js + ui/erp-plus.js",
    "data": [
@@ -422,13 +617,20 @@
    "legacy": "المخزون",
    "decision": "Keep",
    "kw": "مخزون رصيد صلاحية",
-   "adv": false
+   "adv": false,
+   "en": "Inventory",
+   "feeds": [
+    "purchasing",
+    "traceability",
+    "blending"
+   ]
   },
   {
    "id": "traceability",
    "label": "التتبع والتبريد",
    "sub": "دفعات الذبائح وسجل الحرارة",
    "group": "stock",
+   "hub": "inventory",
    "tier": "MANAGEMENT",
    "module": "ui/enterprise.js",
    "data": [
@@ -438,82 +640,18 @@
    "legacy": "التتبع والتبريد",
    "decision": "Keep",
    "kw": "تتبع تبريد حرارة دفعة",
-   "adv": false
-  },
-  {
-   "id": "blending",
-   "label": "خلطات اللحوم",
-   "sub": "وصفات المفروم والبرجر وأوامر الإنتاج",
-   "group": "stock",
-   "tier": "UTILITIES",
-   "module": "ui/enterprise.js",
-   "data": [],
-   "legacy": "خلطات اللحوم",
-   "decision": "Keep",
-   "kw": "خلطة مفروم برجر إنتاج",
-   "adv": false
-  },
-  {
-   "id": "culinary",
-   "label": "دليل الشيف",
-   "sub": "القطعيات وطرق الطهي",
-   "group": "stock",
-   "tier": "UTILITIES",
-   "module": "ui/enterprise.js",
-   "data": [],
-   "legacy": "دليل الشيف",
-   "decision": "Keep",
-   "kw": "طبخ قطعية",
-   "adv": false
-  },
-  {
-   "id": "carcass",
-   "label": "اقتصاديات الذبيحة",
-   "sub": "تكلفة الكيلو الصافي لكل قطعية",
-   "group": "stock",
-   "tier": "ADVANCED",
-   "module": "ui/meatops.js",
-   "data": [],
-   "legacy": "اقتصاديات الذبيحة",
-   "decision": "Keep",
-   "kw": "ذبيحة تصافي",
-   "adv": true
-  },
-  {
-   "id": "yieldlab",
-   "label": "مختبر الجزارة",
-   "sub": "نسبة الهدر الفعلية ومعامل التكلفة",
-   "group": "stock",
-   "tier": "ADVANCED",
-   "module": "core (v18)",
-   "data": [
-    "aghnam-v18-yield-trials"
-   ],
-   "legacy": "مختبر الجزارة",
-   "decision": "Keep",
-   "kw": "تجربة تشافي هدر",
-   "adv": true
-  },
-  {
-   "id": "nrv",
-   "label": "تفكيك الذبيحة NRV",
-   "sub": "توزيع التكلفة المشتركة",
-   "group": "stock",
-   "tier": "ADVANCED",
-   "module": "core (v19)",
-   "data": [
-    "aghnam-v19-nrv-trials"
-   ],
-   "legacy": "تفكيك الذبيحة",
-   "decision": "Keep",
-   "kw": "ذبيحة توزيع",
-   "adv": true
+   "adv": false,
+   "en": "Traceability & Cold Chain",
+   "feeds": [
+    "inventory"
+   ]
   },
   {
    "id": "suppliers",
    "label": "الموردون والمشتريات",
    "sub": "دفعات الشراء والأوزان والتكلفة",
-   "group": "procurement",
+   "group": "stock",
+   "hubLabel": "الموردون والمشتريات",
    "tier": "CORE",
    "module": "ui/supply.js + ui/erp-plus.js",
    "data": [
@@ -523,7 +661,14 @@
    "legacy": "الموردون",
    "decision": "Keep",
    "kw": "مورد شراء دفعة",
-   "adv": false
+   "adv": false,
+   "en": "Suppliers & Purchasing",
+   "feeds": [
+    "purchasing",
+    "cash",
+    "inventory",
+    "carcass"
+   ]
   },
   {
    "id": "purchasing",
@@ -537,8 +682,128 @@
    "legacy": "Grand Fusion procurement + أسعار الموردين V40",
    "decision": "Rebuild",
    "kw": "شراء أمر استلام فحص مورد سعر",
-   "group": "procurement",
-   "adv": false
+   "group": "stock",
+   "hub": "suppliers",
+   "adv": false,
+   "en": "Purchase Orders & Receiving",
+   "feeds": [
+    "inventory",
+    "ledger"
+   ]
+  },
+  {
+   "id": "blending",
+   "label": "خلطات اللحوم",
+   "sub": "وصفات المفروم والبرجر وأوامر الإنتاج",
+   "group": "stock",
+   "hubLabel": "الإنتاج والخلطات",
+   "tier": "UTILITIES",
+   "module": "ui/enterprise.js",
+   "data": [],
+   "legacy": "خلطات اللحوم",
+   "decision": "Keep",
+   "kw": "خلطة مفروم برجر إنتاج",
+   "adv": false,
+   "en": "Meat Blends",
+   "feeds": [
+    "catalog"
+   ]
+  },
+  {
+   "id": "culinary",
+   "label": "دليل الشيف",
+   "sub": "القطعيات وطرق الطهي",
+   "group": "stock",
+   "hub": "blending",
+   "tier": "UTILITIES",
+   "module": "ui/enterprise.js",
+   "data": [],
+   "legacy": "دليل الشيف",
+   "decision": "Keep",
+   "kw": "طبخ قطعية",
+   "adv": false,
+   "en": "Chef's Guide"
+  },
+  {
+   "id": "carcass",
+   "label": "اقتصاديات الذبيحة",
+   "sub": "تكلفة الكيلو الصافي لكل قطعية",
+   "group": "stock",
+   "hubLabel": "مختبر الذبيحة",
+   "tier": "ADVANCED",
+   "module": "ui/meatops.js",
+   "data": [],
+   "legacy": "اقتصاديات الذبيحة",
+   "decision": "Keep",
+   "kw": "ذبيحة تصافي",
+   "adv": true,
+   "en": "Carcass Economics",
+   "feeds": [
+    "yieldlab",
+    "nrv",
+    "catalog"
+   ]
+  },
+  {
+   "id": "yieldlab",
+   "label": "مختبر الجزارة",
+   "sub": "نسبة الهدر الفعلية ومعامل التكلفة",
+   "group": "stock",
+   "hub": "carcass",
+   "tier": "ADVANCED",
+   "module": "core (v18)",
+   "data": [
+    "aghnam-v18-yield-trials"
+   ],
+   "legacy": "مختبر الجزارة",
+   "decision": "Keep",
+   "kw": "تجربة تشافي هدر",
+   "adv": true,
+   "en": "Butchery Yield Lab",
+   "feeds": [
+    "catalog"
+   ]
+  },
+  {
+   "id": "nrv",
+   "label": "تفكيك الذبيحة NRV",
+   "sub": "توزيع التكلفة المشتركة",
+   "group": "stock",
+   "hub": "carcass",
+   "tier": "ADVANCED",
+   "module": "core (v19)",
+   "data": [
+    "aghnam-v19-nrv-trials"
+   ],
+   "legacy": "تفكيك الذبيحة",
+   "decision": "Keep",
+   "kw": "ذبيحة توزيع",
+   "adv": true,
+   "en": "Carcass Split (NRV)",
+   "feeds": [
+    "catalog"
+   ]
+  },
+  {
+   "id": "ledger",
+   "label": "الدفاتر المحاسبية",
+   "sub": "دليل الحسابات والقيود والأستاذ وميزان المراجعة والمطابقة",
+   "tier": "CORE",
+   "module": "ui/features/ledger.js + SKEngines.finance",
+   "data": [
+    "skosif_ledger_v1"
+   ],
+   "legacy": "Grand Fusion finance (accounts, journals, GL, TB, reconciliation)",
+   "decision": "Rebuild",
+   "kw": "قيد حساب أستاذ ميزان مراجعة محاسبة",
+   "group": "finance",
+   "adv": false,
+   "en": "General Ledger",
+   "feeds": [
+    "tbreview",
+    "execreports",
+    "cash"
+   ]
   },
   {
    "id": "cash",
@@ -554,7 +819,12 @@
    "legacy": "التدفق النقدي",
    "decision": "Keep",
    "kw": "نقد مصروف تدفق",
-   "adv": false
+   "adv": false,
+   "en": "Cash Flow",
+   "feeds": [
+    "finance",
+    "decision"
+   ]
   },
   {
    "id": "receivables",
@@ -569,22 +839,12 @@
    "legacy": "الذمم",
    "decision": "Keep",
    "kw": "ذمم دين تحصيل",
-   "adv": false
-  },
-  {
-   "id": "ledger",
-   "label": "الدفاتر المحاسبية",
-   "sub": "دليل الحسابات والقيود والأستاذ وميزان المراجعة والمطابقة",
-   "tier": "CORE",
-   "module": "ui/features/ledger.js + SKEngines.finance",
-   "data": [
-    "skosif_ledger_v1"
-   ],
-   "legacy": "Grand Fusion finance (accounts, journals, GL, TB, reconciliation)",
-   "decision": "Rebuild",
-   "kw": "قيد حساب أستاذ ميزان مراجعة محاسبة",
-   "group": "finance",
-   "adv": false
+   "adv": false,
+   "en": "Receivables & Collection",
+   "feeds": [
+    "cash",
+    "ledger"
+   ]
   },
   {
    "id": "finance",
@@ -599,13 +859,15 @@
    "legacy": "الهندسة المالية",
    "decision": "Keep",
    "kw": "تعادل حساسية",
-   "adv": true
+   "adv": true,
+   "en": "Financial Engineering"
   },
   {
    "id": "catalog",
    "label": "الأصناف والأسعار",
    "sub": "البحث والتعديل المباشر وقوائم الأسعار",
    "group": "catalog",
+   "hubLabel": "الأصناف والتكاليف",
    "tier": "CORE",
    "module": "core",
    "data": [
@@ -614,28 +876,45 @@
    "legacy": "سجل الأسعار",
    "decision": "Keep",
    "kw": "سعر صنف قائمة",
-   "adv": false
+   "adv": false,
+   "en": "Items & Prices",
+   "feeds": [
+    "sim",
+    "builder",
+    "memo",
+    "labels",
+    "offers",
+    "zatca",
+    "finance"
+   ]
   },
   {
-   "id": "builder",
-   "label": "البوكسات",
-   "sub": "هندسة البوكسات والخلطات والمكونات",
+   "id": "costs",
+   "label": "التكاليف والمصروفات",
+   "sub": "أسعار الشراء والضريبة والهدر",
    "group": "catalog",
-   "tier": "CORE",
+   "hub": "catalog",
+   "tier": "ADVANCED",
    "module": "core",
    "data": [
     "aghnam-pricing-v3"
    ],
-   "legacy": "مركب البوكسات",
+   "legacy": "مركز التكاليف",
    "decision": "Keep",
-   "kw": "بوكس مكونات",
-   "adv": false
+   "kw": "تكلفة هدر مصروف",
+   "adv": true,
+   "en": "Costs & Expenses",
+   "feeds": [
+    "catalog",
+    "builder"
+   ]
   },
   {
    "id": "sim",
    "label": "التسعير السريع",
    "sub": "اختبر سعراً أو استهدف هامشاً",
    "group": "catalog",
+   "hubLabel": "محرك التسعير",
    "tier": "CORE",
    "module": "core",
    "data": [
@@ -644,7 +923,26 @@
    "legacy": "محاكي التسعير",
    "decision": "Keep",
    "kw": "حاسبة هامش محاكي",
-   "adv": false
+   "adv": false,
+   "en": "Quick Pricing",
+   "feeds": [
+    "memo"
+   ]
+  },
+  {
+   "id": "kernel",
+   "label": "نواة التسعير الصارمة",
+   "sub": "المحرك المختبر بالكسور والتقريب",
+   "group": "catalog",
+   "hub": "sim",
+   "tier": "ADVANCED",
+   "module": "ui/kernel.js + ui/pricing-core.js",
+   "data": [],
+   "legacy": "نواة التسعير",
+   "decision": "Keep",
+   "kw": "محرك تقريب",
+   "adv": true,
+   "en": "Strict Pricing Kernel"
   },
   {
    "id": "memo",
@@ -659,69 +957,42 @@
    "legacy": "مذكرة الاعتماد",
    "decision": "Keep",
    "kw": "اعتماد مذكرة موافقة",
-   "adv": false
+   "adv": false,
+   "en": "Price Approvals",
+   "feeds": [
+    "archive",
+    "catalog"
+   ]
   },
   {
-   "id": "labels",
-   "label": "ملصقات الموازين",
-   "sub": "باركود وزن وسعر للطباعة",
+   "id": "builder",
+   "label": "البوكسات",
+   "sub": "هندسة البوكسات والخلطات والمكونات",
    "group": "catalog",
-   "tier": "UTILITIES",
-   "module": "ui/enterprise.js",
-   "data": [],
-   "legacy": "ملصقات الموازين",
-   "decision": "Keep",
-   "kw": "ملصق باركود ميزان",
-   "adv": false
-  },
-  {
-   "id": "scanner",
-   "label": "ماسح الباركود",
-   "sub": "قراءة ملصقات الوزن إلى السلة",
-   "group": "catalog",
-   "tier": "UTILITIES",
-   "module": "ui/enterprise.js",
-   "data": [
-    "skosif_v32_cart"
-   ],
-   "legacy": "ماسح الباركود",
-   "decision": "Keep",
-   "kw": "باركود كاميرا",
-   "adv": false
-  },
-  {
-   "id": "kernel",
-   "label": "نواة التسعير الصارمة",
-   "sub": "المحرك المختبر بالكسور والتقريب",
-   "group": "catalog",
-   "tier": "ADVANCED",
-   "module": "ui/kernel.js + ui/pricing-core.js",
-   "data": [],
-   "legacy": "نواة التسعير",
-   "decision": "Keep",
-   "kw": "محرك تقريب",
-   "adv": true
-  },
-  {
-   "id": "costs",
-   "label": "التكاليف والمصروفات",
-   "sub": "أسعار الشراء والضريبة والهدر",
-   "group": "catalog",
-   "tier": "ADVANCED",
+   "hubLabel": "البوكسات وتحليلها",
+   "tier": "CORE",
    "module": "core",
    "data": [
     "aghnam-pricing-v3"
    ],
-   "legacy": "مركز التكاليف",
+   "legacy": "مركب البوكسات",
    "decision": "Keep",
-   "kw": "تكلفة هدر مصروف",
-   "adv": true
+   "kw": "بوكس مكونات",
+   "adv": false,
+   "en": "Box Builder",
+   "feeds": [
+    "analyzer",
+    "compare",
+    "memo",
+    "offers"
+   ]
   },
   {
    "id": "analyzer",
    "label": "تحليل البوكس",
    "sub": "تكوين التكلفة وأثر كل مكوّن",
    "group": "catalog",
+   "hub": "builder",
    "tier": "ADVANCED",
    "module": "core",
    "data": [
@@ -730,13 +1001,15 @@
    "legacy": "تحليل مكونات البوكس",
    "decision": "Keep",
    "kw": "مكونات دائرة",
-   "adv": true
+   "adv": true,
+   "en": "Box Analyzer"
   },
   {
    "id": "compare",
    "label": "المقارنة التحليلية",
    "sub": "مقارنة بصرية للتكلفة والربح",
    "group": "catalog",
+   "hub": "builder",
    "tier": "INTELLIGENCE",
    "module": "core",
    "data": [
@@ -745,69 +1018,79 @@
    "legacy": "استوديو المقارنة",
    "decision": "Keep",
    "kw": "مقارنة",
-   "adv": true
+   "adv": true,
+   "en": "Comparative Analysis"
   },
   {
-   "id": "jev",
-   "label": "Jev للقرار",
-   "sub": "قرار منظم من بيانات مجمعة بلا بيانات شخصية",
-   "group": "intelligence",
-   "tier": "INTELLIGENCE",
-   "module": "ui/jev.js",
-   "data": [
-    "aghnam_v29_jev_log",
-    "skosif_jev_draft",
-    "session aghnamJevSession"
-   ],
-   "legacy": "Jev للقرار",
+   "id": "labels",
+   "label": "ملصقات الموازين",
+   "sub": "باركود وزن وسعر للطباعة",
+   "group": "catalog",
+   "hubLabel": "الملصقات والباركود",
+   "tier": "UTILITIES",
+   "module": "ui/enterprise.js",
+   "data": [],
+   "legacy": "ملصقات الموازين",
    "decision": "Keep",
-   "kw": "ذكاء مساعد ai",
-   "adv": false
+   "kw": "ملصق باركود ميزان",
+   "adv": false,
+   "en": "Scale Labels"
   },
   {
-   "id": "council",
-   "label": "مجلس القرار",
-   "sub": "أصوات متعددة بدرجات ثقة وقرار مرجّح",
-   "tier": "INTELLIGENCE",
-   "module": "ui/features/workspace.js + SKEngines.intelligence",
+   "id": "scanner",
+   "label": "ماسح الباركود",
+   "sub": "قراءة ملصقات الوزن إلى السلة",
+   "group": "catalog",
+   "hub": "labels",
+   "tier": "UTILITIES",
+   "module": "ui/enterprise.js",
    "data": [
-    "skosif_council_v1"
+    "skosif_v32_cart"
    ],
-   "legacy": "Grand Fusion intelligence.council",
-   "decision": "Rebuild",
-   "kw": "تصويت مجلس قرار",
-   "group": "intelligence",
-   "adv": false
-  },
-  {
-   "id": "risklab",
-   "label": "المخاطر وجسر الربحية",
-   "sub": "Profit Bridge وTornado وMonte Carlo",
-   "group": "intelligence",
-   "tier": "ADVANCED",
-   "module": "core (v19)",
-   "data": [
-    "aghnam-pricing-v3"
-   ],
-   "legacy": "المخاطر",
+   "legacy": "ماسح الباركود",
    "decision": "Keep",
-   "kw": "مخاطر مونت كارلو",
-   "adv": true
+   "kw": "باركود كاميرا",
+   "adv": false,
+   "en": "Barcode Scanner"
   },
   {
-   "id": "sensitivity",
-   "label": "مختبر الحساسية",
-   "sub": "أثر تغير المدخلات على القرار",
-   "group": "intelligence",
-   "tier": "ADVANCED",
+   "id": "smartmatch",
+   "label": "مطابقة المبيعات",
+   "sub": "ربط أوصاف البيع بالأصناف",
+   "group": "catalog",
+   "hubLabel": "المطابقة",
+   "tier": "UTILITIES",
+   "module": "ui/smartmatch.js",
+   "data": [
+    "skosif_v34_product_aliases"
+   ],
+   "legacy": "مطابقة المبيعات",
+   "decision": "Keep",
+   "kw": "مطابقة وصف",
+   "adv": true,
+   "en": "Sales Matching",
+   "feeds": [
+    "customers",
+    "catalog"
+   ]
+  },
+  {
+   "id": "excelrecon",
+   "label": "مطابقة الإكسل",
+   "sub": "ملفك مقابل المعالجة المعتمدة",
+   "group": "catalog",
+   "hub": "smartmatch",
+   "tier": "UTILITIES",
    "module": "ui/tools.js",
-   "data": [
-    "skosif_v33_decision"
-   ],
-   "legacy": "مختبر الحساسية",
+   "data": [],
+   "legacy": "مطابقة الإكسل",
    "decision": "Keep",
-   "kw": "حساسية سيناريو",
-   "adv": true
+   "kw": "إكسل فروقات",
+   "adv": true,
+   "en": "Excel Reconciliation",
+   "feeds": [
+    "catalog"
+   ]
   },
   {
    "id": "execreports",
@@ -825,13 +1108,18 @@
    "legacy": "التقارير التنفيذية",
    "decision": "Keep",
    "kw": "تقرير دخل ضريبة",
-   "adv": false
+   "adv": false,
+   "en": "Executive Reports",
+   "feeds": [
+    "decision"
+   ]
   },
   {
    "id": "reports",
    "label": "مركز الطباعة",
    "sub": "تقارير بشعارك قابلة للتعديل قبل الطباعة",
    "group": "reports",
+   "hubLabel": "الطباعة والتصدير",
    "tier": "UTILITIES",
    "module": "core",
    "data": [
@@ -841,7 +1129,25 @@
    "legacy": "مركز التقارير",
    "decision": "Keep",
    "kw": "طباعة تقرير pdf",
-   "adv": false
+   "adv": false,
+   "en": "Print Center"
+  },
+  {
+   "id": "exports",
+   "label": "مركز التصدير",
+   "sub": "كل جدول إلى CSV ونسخة كاملة",
+   "tier": "UTILITIES",
+   "module": "ui/features/workspace.js",
+   "data": [
+    "كل المفاتيح"
+   ],
+   "legacy": "Grand Fusion reports.exports",
+   "decision": "Rebuild",
+   "kw": "تصدير csv excel نسخة",
+   "group": "reports",
+   "hub": "reports",
+   "adv": false,
+   "en": "Export Center"
   },
   {
    "id": "archive",
@@ -857,55 +1163,57 @@
    "legacy": "الأرشيف",
    "decision": "Keep",
    "kw": "أرشيف سجل نسخة",
-   "adv": false
+   "adv": false,
+   "en": "Archive & Changes"
   },
   {
-   "id": "exports",
-   "label": "مركز التصدير",
-   "sub": "كل جدول إلى CSV ونسخة كاملة",
-   "tier": "UTILITIES",
-   "module": "ui/features/workspace.js",
+   "id": "tbreview",
+   "label": "ملف المراجعة",
+   "sub": "ملف مراجعة واحد: استلام الميزان من الملف أو الدفاتر، المعايير بجوار كل حساب، جولات المراجعة ومجلس المراجعة الذكي ودرجات الثقة ونقاط الاعتماد، المستندات، التسويات، والقوائم والتقارير وخطاب الإدارة",
+   "group": "audit",
+   "tier": "CORE",
+   "module": "ui/features/tb-review.js + ui/core/ai.js + ui/components/xlsx.js + SKEngines.audit.{tbReview,aiReview,documentCheck} + SKEngines.reports.{tbImport,statements,analysis}",
    "data": [
-    "كل المفاتيح"
+    "skosif_tbreview_v1",
+    "IDB skosif-tbreview-docs",
+    "skosif_ai_keys (الجهاز فقط)"
    ],
-   "legacy": "Grand Fusion reports.exports",
+   "legacy": "جديد — دمج smart-trial-balance-review (مجلس Gemini والجولات) و kosif-audit-pro (القوائم والتحليل) و Moon (المخاطر والرأي) و SEE (التصنيف والجاهزية) + استوديو KOSIF للمراجعة (تبويب «الاستوديو المتقدم» داخل الملف)",
    "decision": "Rebuild",
-   "kw": "تصدير csv excel نسخة",
-   "group": "reports",
-   "adv": false
+   "kw": "ميزان مراجعة مراجعة حسابات معايير جيمناي gemini مستندات قيود تسوية امتثال قوائم مالية trial balance audit مركز المراجعة ملف المراجعة مجلس المراجعة الذكي درجة الثقة اعتماد استوديو",
+   "adv": false,
+   "en": "Audit Engagement",
+   "hubLabel": "مركز المراجعة",
+   "feeds": [
+    "risks",
+    "tasks",
+    "codex"
+   ]
   },
   {
-   "id": "smartmatch",
-   "label": "مطابقة المبيعات",
-   "sub": "ربط أوصاف البيع بالأصناف",
-   "group": "reports",
-   "tier": "UTILITIES",
-   "module": "ui/smartmatch.js",
+   "id": "codex",
+   "label": "المدونة المحاسبية والمعايير",
+   "sub": "المعايير بمتطلباتها وإجراءات مراجعتها ومصادرها الرسمية، وتحديثها من الجهات المصدرة باعتمادك",
+   "group": "audit",
+   "tier": "MANAGEMENT",
+   "module": "ui/features/codex.js + SKEngines.audit.{codex,standardsUpdate}",
    "data": [
-    "skosif_v34_product_aliases"
+    "skosif_codex_updates_v1"
    ],
-   "legacy": "مطابقة المبيعات",
-   "decision": "Keep",
-   "kw": "مطابقة وصف",
-   "adv": true
-  },
-  {
-   "id": "excelrecon",
-   "label": "مطابقة الإكسل",
-   "sub": "ملفك مقابل المعالجة المعتمدة",
-   "group": "reports",
-   "tier": "UTILITIES",
-   "module": "ui/tools.js",
-   "data": [],
-   "legacy": "مطابقة الإكسل",
-   "decision": "Keep",
-   "kw": "إكسل فروقات",
-   "adv": true
+   "legacy": "جديد — يحل محل قاعدة معايير smart-trial-balance-review ويكمّل مختبر المعايير",
+   "decision": "Rebuild",
+   "kw": "معايير مدونة IFRS IAS ISA SOCPA زكاة تحديث مصادر رسمية standards codex",
+   "adv": false,
+   "en": "Accounting Codex",
+   "hubLabel": "المعايير والمدونة",
+   "feeds": [
+    "tbreview"
+   ]
   },
   {
    "id": "auditdesk",
-   "label": "مركز المراجعة",
-   "sub": "مساحة عمل المراجع",
+   "label": "الاستوديو المتقدم",
+   "sub": "مساحة عمل المراجع — داخل «مركز المراجعة › الاستوديو المتقدم»",
    "group": "audit",
    "tier": "ADVANCED",
    "module": "ui/audit (v5)",
@@ -915,13 +1223,17 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "مراجعة تدقيق",
-   "adv": true
+   "adv": true,
+   "en": "Audit Desk",
+   "hub": "tbreview",
+   "hidden": true
   },
   {
    "id": "auditdocs",
    "label": "المستندات والأدلة",
-   "sub": "رفع الأدلة وميزان المراجعة",
+   "sub": "رفع الأدلة وميزان المراجعة — داخل «مركز المراجعة › الاستوديو المتقدم»",
    "group": "audit",
+   "hub": "tbreview",
    "tier": "ADVANCED",
    "module": "ui/audit (v5) + ui/audit-bridge.js",
    "data": [
@@ -933,13 +1245,16 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "دليل مستند ميزان",
-   "adv": true
+   "adv": true,
+   "en": "Documents & Evidence",
+   "hidden": true
   },
   {
    "id": "auditissues",
    "label": "الملاحظات والقضايا",
-   "sub": "سجل الملاحظات",
+   "sub": "سجل الملاحظات — داخل «مركز المراجعة › الاستوديو المتقدم»",
    "group": "audit",
+   "hub": "tbreview",
    "tier": "ADVANCED",
    "module": "ui/audit (v5)",
    "data": [
@@ -948,13 +1263,16 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "ملاحظة قضية",
-   "adv": true
+   "adv": true,
+   "en": "Findings & Issues",
+   "hidden": true
   },
   {
    "id": "auditcouncil",
    "label": "مجلس المراجعين",
-   "sub": "مراجعة جماعية بالوكلاء",
+   "sub": "مراجعة جماعية بالوكلاء — داخل «مركز المراجعة › الاستوديو المتقدم»",
    "group": "audit",
+   "hub": "tbreview",
    "tier": "ADVANCED",
    "module": "ui/audit (v5)",
    "data": [
@@ -963,13 +1281,16 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "مجلس",
-   "adv": true
+   "adv": true,
+   "en": "Reviewers' Council",
+   "hidden": true
   },
   {
    "id": "auditfin",
    "label": "القوائم والقيود",
-   "sub": "القوائم المالية والقيود",
+   "sub": "القوائم المالية والقيود — داخل «مركز المراجعة › الاستوديو المتقدم»",
    "group": "audit",
+   "hub": "tbreview",
    "tier": "ADVANCED",
    "module": "ui/audit (v5)",
    "data": [
@@ -978,13 +1299,16 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "قيد قائمة مالية",
-   "adv": true
+   "adv": true,
+   "en": "Statements & Entries",
+   "hidden": true
   },
   {
    "id": "auditreport",
    "label": "التقارير والإصدار",
-   "sub": "تقرير المراجع",
+   "sub": "تقرير المراجع — داخل «مركز المراجعة › الاستوديو المتقدم»",
    "group": "audit",
+   "hub": "tbreview",
    "tier": "ADVANCED",
    "module": "ui/audit (v5)",
    "data": [
@@ -993,12 +1317,14 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "تقرير مراجع",
-   "adv": true
+   "adv": true,
+   "en": "Reports & Issuance",
+   "hidden": true
   },
   {
    "id": "auditanalytics",
-   "label": "التحليل المالي والمخاطر",
-   "sub": "بنفورد والعينات واختبارات القيود",
+   "label": "التحليل والاختبارات",
+   "sub": "بنفورد والعينات واختبارات القيود والنسب على ملف المراجعة",
    "group": "audit",
    "tier": "ADVANCED",
    "module": "ui/audit/classic",
@@ -1008,13 +1334,19 @@
    "legacy": "KOSIF Audit Studio (classic)",
    "decision": "Keep",
    "kw": "بنفورد عينة",
-   "adv": true
+   "adv": true,
+   "en": "Financial Analytics & Risk",
+   "hub": "tbreview",
+   "feeds": [
+    "tbreview"
+   ]
   },
   {
    "id": "auditlab",
-   "label": "مختبر المعايير",
+   "label": "مختبر المعايير والأبحاث",
    "sub": "مختبر البحث في المعايير",
    "group": "audit",
+   "hub": "codex",
    "tier": "ADVANCED",
    "module": "ui/audit/lab",
    "data": [
@@ -1023,13 +1355,15 @@
    "legacy": "KOSIF Audit Studio (lab)",
    "decision": "Keep",
    "kw": "معايير مختبر",
-   "adv": true
+   "adv": true,
+   "en": "Standards Lab"
   },
   {
    "id": "settings",
    "label": "الإعدادات والمظهر",
    "sub": "الاحتساب والنسخ الاحتياطي والمظهر",
    "group": "system",
+   "hubLabel": "الإعدادات والأجهزة",
    "tier": "ADMIN",
    "module": "core + ui/shell.js",
    "data": [
@@ -1039,7 +1373,27 @@
    "legacy": "الإعدادات",
    "decision": "Keep",
    "kw": "إعداد نسخة احتياطية مظهر",
-   "adv": false
+   "adv": false,
+   "en": "Settings & Appearance"
+  },
+  {
+   "id": "devices",
+   "label": "الأجهزة والمزامنة",
+   "sub": "نسخة الآيفون ونسخة اللابتوب: التثبيت، النقل المشفر بين الأجهزة، شريط الجوال واختصارات لوحة المفاتيح",
+   "group": "system",
+   "hub": "settings",
+   "tier": "UTILITIES",
+   "module": "ui/features/devices.js + ui/core/device.js + ui/components/keys.js",
+   "data": [
+    "skosif_prefs",
+    "sk-device-log",
+    "IDB aghnam-app-v7"
+   ],
+   "legacy": "جديد — تعليمات التثبيت (INSTALL-iPHONE-ar.txt) + نسخة v27 للابتوب وv28–v30 للآيفون",
+   "decision": "Rebuild",
+   "kw": "آيفون ايفون iphone لابتوب laptop ماك mac ويندوز تثبيت نقل مزامنة airdrop اختصارات لوحة مفاتيح شريط سفلي devices sync",
+   "adv": false,
+   "en": "Devices & Sync"
   },
   {
    "id": "companies",
@@ -1054,29 +1408,19 @@
    "decision": "Rebuild",
    "kw": "شركة فترة سنة مالية",
    "group": "system",
-   "adv": true
-  },
-  {
-   "id": "health",
-   "label": "الصحة والتشخيص",
-   "sub": "فحص البيانات والتخزين والأخطاء",
-   "group": "system",
-   "tier": "ADMIN",
-   "module": "core (v19.8) + ui/jev.js",
-   "data": [
-    "aghnam-v17-runtime-errors",
-    "skosif_error_log"
-   ],
-   "legacy": "الصحة والاستثناءات",
-   "decision": "Keep",
-   "kw": "تشخيص أخطاء",
-   "adv": true
+   "adv": true,
+   "en": "Companies & Periods",
+   "feeds": [
+    "ledger",
+    "tbreview"
+   ]
   },
   {
    "id": "governance",
    "label": "الحوكمة والجاهزية",
    "sub": "مسار الاعتماد وسجل التدقيق",
    "group": "system",
+   "hubLabel": "الحوكمة والصلاحيات",
    "tier": "ADMIN",
    "module": "core (v18/v19) + ui/core/audit.js",
    "data": [
@@ -1086,13 +1430,33 @@
    "legacy": "الحوكمة",
    "decision": "Keep",
    "kw": "حوكمة تدقيق سجل",
-   "adv": true
+   "adv": true,
+   "en": "Governance & Readiness"
+  },
+  {
+   "id": "health",
+   "label": "الصحة والتشخيص",
+   "sub": "فحص البيانات والتخزين والأخطاء",
+   "group": "system",
+   "hub": "governance",
+   "tier": "ADMIN",
+   "module": "core (v19.8) + ui/jev.js",
+   "data": [
+    "aghnam-v17-runtime-errors",
+    "skosif_error_log"
+   ],
+   "legacy": "الصحة والاستثناءات",
+   "decision": "Keep",
+   "kw": "تشخيص أخطاء",
+   "adv": true,
+   "en": "Health & Diagnostics"
   },
   {
    "id": "capabilitiesv2",
    "label": "الصلاحيات ومساحات العمل",
    "sub": "الأدوار والربط السحابي",
    "group": "system",
+   "hub": "governance",
    "tier": "ADMIN",
    "module": "ui/capabilities-v2.js + capabilities-v2/worker.js",
    "data": [
@@ -1102,7 +1466,8 @@
    "legacy": "Capabilities v2",
    "decision": "Keep",
    "kw": "صلاحيات دور سحابة",
-   "adv": true
+   "adv": true,
+   "en": "Permissions & Workspaces"
   }
  ]
 }

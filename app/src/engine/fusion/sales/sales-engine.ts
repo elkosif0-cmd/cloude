@@ -4,6 +4,8 @@ export type SalesLine = {
   unitPrice: number;
   discount?: number;
   vatRate?: number;
+  /** the unit price and discount already include VAT (a till receipt): the tax is taken out of the amount paid, never added to it */
+  priceIncludesVat?: boolean;
 };
 
 export type SalesTotals = {
@@ -21,6 +23,7 @@ function money(value:number){
 export function calculateSalesTotals(lines:SalesLine[]):SalesTotals{
   let subtotal=0;
   let discount=0;
+  let taxable=0;
   let vat=0;
 
   for(const line of lines){
@@ -30,19 +33,39 @@ export function calculateSalesTotals(lines:SalesLine[]):SalesTotals{
     const lineDiscount=Math.min(gross,Math.max(0,line.discount ?? 0));
     const net=gross-lineDiscount;
     const rate=Math.max(0,line.vatRate ?? 0);
-    subtotal+=gross;
-    discount+=lineDiscount;
-    vat+=net*rate;
+    if(line.priceIncludesVat){
+      const split=splitVatInclusive(net,rate);
+      const discountEx=money(lineDiscount/(1+rate));
+      subtotal+=split.net+discountEx;
+      discount+=discountEx;
+      taxable+=split.net;
+      vat+=split.vat;
+    }else{
+      subtotal+=gross;
+      discount+=lineDiscount;
+      taxable+=net;
+      vat+=net*rate;
+    }
   }
 
-  const taxable=subtotal-discount;
+  const taxableMoney=money(taxable);
+  const vatMoney=money(vat);
   return {
     subtotal:money(subtotal),
     discount:money(discount),
-    taxable:money(taxable),
-    vat:money(vat),
-    total:money(taxable+vat),
+    taxable:taxableMoney,
+    vat:vatMoney,
+    /* the total is the sum of the rounded parts, so a journal built from them always balances */
+    total:money(taxableMoney+vatMoney),
   };
+}
+
+/** splits an amount that already includes VAT: net = round(gross ÷ (1+rate)), VAT = gross − net, so the parts add back to the halala */
+export function splitVatInclusive(gross:number,rate:number){
+  const g=money(Math.max(0,gross));
+  const r=Math.max(0,rate);
+  const net=money(g/(1+r));
+  return {gross:g,net,vat:money(g-net)};
 }
 
 export function grossMargin(params:{revenue:number;cost:number}){

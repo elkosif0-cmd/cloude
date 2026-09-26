@@ -2,7 +2,7 @@
    المحركات: SKEngines.system.companyContext، SKEngines.intelligence.council. */
 (()=>{
 "use strict";
-const {$,$$,esc,load,save,money,toast}=SK;
+const {$,esc,load,save,toast}=SK;
 const today=()=>new Date().toISOString().slice(0,10);
 
 /* ================= الشركات والفترات المالية ================= */
@@ -101,7 +101,9 @@ async function exportsPaint(root){
   const counts=await Promise.all(SOURCES.map(async([,,f])=>{try{const r=await f();return Array.isArray(r)?r.length:0}catch{return 0}}));
   root.innerHTML='<section class="card"><div class="card-h"><div><h3>مركز التصدير</h3><p>كل جدول إلى CSV يفتح في Excel (محمي من حقن المعادلات)، أو نسخة كاملة JSON.</p></div><button type="button" class="btn primary" data-x="all">نسخة كاملة للتطبيق</button></div><div class="card-b">'+
     '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>البيانات</th><th>السجلات</th><th></th></tr></thead><tbody>'+
-    SOURCES.map(([id,label],i)=>'<tr><td>'+esc(label)+'</td><td class="n">'+counts[i]+'</td><td>'+(counts[i]?'<button type="button" class="btn sm" data-x="'+id+'">تصدير CSV</button>':'<span class="hint">لا بيانات</span>')+'</td></tr>').join("")+'</tbody></table></div></div></section>';
+    SOURCES.map(([id,label],i)=>'<tr><td>'+esc(label)+'</td><td class="n">'+counts[i]+'</td><td>'+(counts[i]?'<button type="button" class="btn sm" data-x="'+id+'">تصدير CSV</button>':'<span class="hint">لا بيانات</span>')+'</td></tr>').join("")+'</tbody></table></div></div></section>'+
+    (SK.templates?'<section class="card"><div class="card-h"><div><h3>قوالب الاستيراد</h3><p>قالب Excel لكل قسم: الأعمدة المطلوبة وصفّا مثال وورقة تعليمات. املأه ثم استورده — كل صف يُفحص قبل الحفظ ويُضاف دون حذف الموجود.</p></div></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>القسم</th><th>الأعمدة</th><th></th></tr></thead><tbody>'+
+      SK.templates.list().map(t=>'<tr><td>'+esc(t.label)+'</td><td><small>'+esc(t.columns.join("، "))+'</small></td><td style="white-space:nowrap"><button type="button" class="btn sm" data-tpl-dl="'+t.id+'">تحميل '+(t.format==="csv"?"CSV":"Excel")+'</button> <button type="button" class="btn sm primary" data-tpl-in="'+t.id+'">استيراد</button></td></tr>').join("")+'</tbody></table></div></div></section>':'');
 }
 function exportsBind(root){
   root.addEventListener("click",async e=>{const b=e.target.closest("[data-x]");if(!b)return;
@@ -118,7 +120,7 @@ const PRI={high:["عالية","bad"],normal:["عادية",""],low:["منخفضة
 let tfilter="open";
 const tasks=()=>{const t=load(TK,[]);return Array.isArray(t)?t:[]};
 function tasksPaint(root){
-  const all=tasks(),t=today(),caps=SK.caps.all().filter(c=>SK.perm.can(c.id));
+  const all=tasks(),t=today(),caps=SK.caps.visible().filter(c=>SK.perm.can(c.id));
   const list=all.filter(x=>tfilter==="all"||(tfilter==="open"?!x.done:x.done)).sort((a,b)=>(a.done-b.done)||String(a.due||"9").localeCompare(String(b.due||"9"))||((b.priority==="high")-(a.priority==="high")));
   const over=all.filter(x=>!x.done&&x.due&&x.due<t).length,dueT=all.filter(x=>!x.done&&x.due===t).length;
   root.innerHTML='<div class="sk-kpis"><div class="sk-kpi '+(over?"bad":"")+'"><span>متأخرة</span><b>'+over+'</b></div><div class="sk-kpi '+(dueT?"warn":"")+'"><span>مستحقة اليوم</span><b>'+dueT+'</b></div><div class="sk-kpi"><span>مفتوحة</span><b>'+all.filter(x=>!x.done).length+'</b></div><div class="sk-kpi good"><span>منجزة</span><b>'+all.filter(x=>x.done).length+'</b></div></div>'+
@@ -142,5 +144,7 @@ function tasksBind(root){
   });
 }
 SK.view("tasks",{render(n){if(!n.dataset.bound){tasksBind(n);n.dataset.bound="1"}tasksPaint(n)}});
-window.SKosifTasks=Object.freeze({open:()=>tasks().filter(x=>!x.done)});
+window.SKosifTasks=Object.freeze({open:()=>tasks().filter(x=>!x.done),
+  /* the live assistant adds tasks the same way the form does */
+  add:({title,due,priority,cap})=>{const all=tasks(),x={id:SK.ui.uid("tk"),title:String(title||"").trim().slice(0,200),due:due||today(),priority:["high","normal","low"].includes(priority)?priority:"normal",cap:cap||"",done:false,at:new Date().toISOString()};all.push(x);save(TK,all);if(window.SKosifCore&&SKosifCore.view()==="tasks")SKosifCore.go("tasks");return x}});
 })();

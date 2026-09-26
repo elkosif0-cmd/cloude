@@ -71,7 +71,7 @@ html[data-theme="dark"] .k32 {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 11px;
+  font-size: var(--sk-fs-2xs);
   letter-spacing: 0.15em;
   text-transform: uppercase;
   font-weight: 700;
@@ -105,7 +105,7 @@ html[data-theme="dark"] .k32 {
   border-radius: 999px;
   padding: 8px 18px;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--sk-fs-s);
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
@@ -141,7 +141,7 @@ html[data-theme="dark"] .k32 {
 
 .k32-hero p {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--sk-fs-s);
   color: var(--sk-line-2);
   max-width: 620px;
   line-height: 1.6;
@@ -160,7 +160,7 @@ html[data-theme="dark"] .k32 {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--sk-fs-xs);
   color: var(--sk-warn-soft);
   background: rgba(0, 0, 0, 0.25);
   padding: 4px 10px;
@@ -254,7 +254,7 @@ html[data-theme="dark"] .k32 {
   background: var(--k32-card-subtle);
   color: var(--k32-ink);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--sk-fs-s);
   font-weight: 700;
   padding: 8px 16px;
   border-radius: 999px;
@@ -303,7 +303,7 @@ html[data-theme="dark"] .k32 {
   color: var(--k32-mute);
   border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--sk-fs-s);
   transition: all 0.15s ease;
 }
 
@@ -343,7 +343,7 @@ html[data-theme="dark"] .k32 {
   border-radius: 999px;
   padding: 8px 16px;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--sk-fs-s);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.18s ease;
@@ -398,7 +398,7 @@ html[data-theme="dark"] .k32 {
   background: transparent;
   color: var(--k32-ink);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--sk-fs-s);
   padding: 13px 18px;
   cursor: pointer;
   transition: background 0.15s ease;
@@ -489,7 +489,7 @@ html[data-theme="dark"] .k32 {
 
 .k32-group b {
   width: 100%;
-  font-size: 12.5px;
+  font-size: var(--sk-fs-xs);
   color: var(--k32-mute);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -503,7 +503,7 @@ html[data-theme="dark"] .k32 {
   border-radius: 999px;
   padding: 7px 14px;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--sk-fs-s);
   cursor: pointer;
   transition: all 0.16s ease;
 }
@@ -526,7 +526,7 @@ html[data-theme="dark"] .k32 {
   color: var(--k32-wine);
   font: inherit;
   font-weight: 700;
-  font-size: 13.5px;
+  font-size: var(--sk-fs-s);
   cursor: pointer;
   padding: 4px 0;
   text-decoration: underline;
@@ -623,7 +623,7 @@ html[data-theme="dark"] .k32 {
   color: #FFFFFF;
   font-style: normal;
   font-weight: 800;
-  font-size: 11px;
+  font-size: var(--sk-fs-2xs);
   padding: 4px 9px;
   border-radius: 6px;
   letter-spacing: 0.02em;
@@ -664,7 +664,7 @@ html[data-theme="dark"] .k32 {
 
 /* اسم المنتج والمصنع بأسلوب Eataly */
 .k32-producer {
-  font-size: 11px;
+  font-size: var(--sk-fs-2xs);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--k32-mute);
@@ -690,7 +690,7 @@ html[data-theme="dark"] .k32 {
 
 .k32-cat-tag {
   display: inline-block;
-  font-size: 11px;
+  font-size: var(--sk-fs-2xs);
   color: var(--k32-mute);
   margin-bottom: 6px;
 }
@@ -699,7 +699,7 @@ html[data-theme="dark"] .k32 {
 .k32-margin {
   align-self: flex-start;
   margin-top: 2px;
-  font-size: 11px;
+  font-size: var(--sk-fs-2xs);
   font-weight: 700;
   padding: 3px 8px;
   border-radius: 999px;
@@ -728,7 +728,7 @@ html[data-theme="dark"] .k32 {
 }
 
 .k32-unit {
-  font-size: 11.5px;
+  font-size: var(--sk-fs-xs);
   color: var(--k32-mute);
   line-height: 1.4;
 }
@@ -747,7 +747,7 @@ html[data-theme="dark"] .k32 {
 
 .k32-now s {
   display: block;
-  font-size: 12px;
+  font-size: var(--sk-fs-xs);
   color: var(--k32-mute);
   text-decoration: line-through;
   opacity: 0.85;
@@ -761,7 +761,7 @@ html[data-theme="dark"] .k32 {
 }
 
 .k32-now small {
-  font-size: 11px;
+  font-size: var(--sk-fs-2xs);
   color: var(--k32-mute);
   margin-inline-start: 3px;
   font-weight: 600;
@@ -775,7 +775,7 @@ html[data-theme="dark"] .k32 {
   background: var(--k32-green);
   color: #FFFFFF;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--sk-fs-s);
   font-weight: 700;
   padding: 10px 12px;
   cursor: pointer;
@@ -874,7 +874,7 @@ html[data-theme="dark"] .k32 {
   padding: 8px 4px;
   border-radius: 8px;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--sk-fs-s);
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -898,7 +898,7 @@ html[data-theme="dark"] .k32 {
   display: flex;
   justify-content: space-between;
   margin-bottom: 6px;
-  font-size: 13px;
+  font-size: var(--sk-fs-s);
 }
 
 .k32-preview-row:last-child {
@@ -913,7 +913,7 @@ html[data-theme="dark"] .k32 {
    ========================================================== */
 .k32-savings {
   display: inline-block;
-  font-size: 11px;
+  font-size: var(--sk-fs-2xs);
   font-weight: 700;
   color: var(--k32-wine);
   background: var(--k32-wine-soft);
@@ -935,7 +935,7 @@ html[data-theme="dark"] .k32 {
   background: var(--k32-green);
   color: #FFFFFF;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--sk-fs-s);
   font-weight: 700;
   padding: 9px 12px;
   cursor: pointer;
@@ -1001,7 +1001,7 @@ html[data-theme="dark"] .k32 {
   color: #FFFFFF;
   border-radius: 12px;
   padding: 6px 10px;
-  font-size: 12.5px;
+  font-size: var(--sk-fs-xs);
   font-weight: 800;
   display: flex;
   align-items: center;
@@ -1016,7 +1016,7 @@ html[data-theme="dark"] .k32 {
 }
 
 .k32-cart-summary span {
-  font-size: 11px;
+  font-size: var(--sk-fs-2xs);
   color: var(--sk-line-2);
 }
 
@@ -1027,7 +1027,7 @@ html[data-theme="dark"] .k32 {
   border-radius: 999px;
   padding: 8px 18px;
   font: inherit;
-  font-size: 13.5px;
+  font-size: var(--sk-fs-s);
   font-weight: 800;
   cursor: pointer;
   transition: transform 0.15s ease;
@@ -1125,7 +1125,7 @@ html[data-theme="dark"] .k32 {
   padding: 7px 14px;
   border-radius: 999px;
   font: inherit;
-  font-size: 12.5px;
+  font-size: var(--sk-fs-xs);
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -1151,3 +1151,14 @@ html[data-theme="dark"] .k32 {
 .k32-img>span[aria-hidden] svg,.k32-img>span[aria-hidden] img,.k32-cart-item-icon svg{width:44px;height:44px;color:var(--sk-brand)}
 .k32-cart-item-icon svg{width:26px;height:26px}
 [data-k32-cols] svg{display:block}
+
+/* KOSIF look: the catalogue takes KOSIF blue for its selection states and the KOSIF hero
+   (the sepia valley art stays with the heritage looks) */
+:root[data-look="kosif"] .k32{--k32-green:var(--sk-brand);--k32-green-light:var(--sk-brand-soft)}
+:root[data-look="kosif"] .k32-cat-chip.on{background:var(--sk-brand);border-color:var(--sk-brand);color:var(--sk-on-brand)}
+:root[data-look="kosif"]:not(#x) .k32-hero{background:radial-gradient(520px 260px at 10% 115%,rgba(34,184,230,.35),transparent 70%),var(--sk-grad-brand);border:0;color:#fff}
+:root[data-look="kosif"]:not(#x) .k32-hero::before{display:none}
+:root[data-look="kosif"]:not(#x) .k32-hero h3{color:#fff;font-family:var(--sk-font)}
+:root[data-look="kosif"]:not(#x) .k32-hero p{color:rgba(255,255,255,.86)}
+:root[data-look="kosif"]:not(#x) .k32-hero-brand,:root[data-look="kosif"]:not(#x) .k32-hero-meta>*,:root[data-look="kosif"]:not(#x) .k32-hero-actions button{color:#fff;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.24)}
+:root[data-look="kosif"]:not(#x) .k32-hero-meta>* *{color:inherit}

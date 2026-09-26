@@ -49,14 +49,59 @@ V5_BRIDGE = """
 .kx-body .shell .hero.hero.hero{background:linear-gradient(125deg,var(--kx-brand) 0%,var(--kx-brand-2) 100%)!important;color:#fff!important;box-shadow:none!important}
 .kx-body button.primary,.kx-body .primary{background:var(--kx-brand)!important;border-color:var(--kx-brand)!important;color:#fff!important}
 .kx-body:not([data-workspace-view="overview"]) #kosif-operating-model{display:none!important}
+/* KOSIF identity: the studio's dark leftovers (strips, dialogs, inputs) take the app's tokens */
+.kx-body .gateway-strip,.kx-body .delta-cards div,.kx-body .document-preview-column,.kx-body .document-claim-column,.kx-body .workspace-overview-strip,.kx-body .journey,.kx-body .now-panel{background:var(--sk-surface-2)!important;border-color:var(--sk-line)!important;color:var(--sk-ink)!important}
+.kx-body .document-preview-surface{background:var(--sk-surface-3)!important}
+.kx-body .gateway-strip input,.kx-body .recipe-form input,.kx-body dialog select,.kx-body dialog input[type=file],.kx-body .issue-dialog input,.kx-body .issue-dialog select,.kx-body .issue-dialog textarea,.kx-body .lineage-search input,.kx-body .cash-flow-balances input,.kx-body .cash-movement-form input,.kx-body .cash-movement-form select,.kx-body .equity-component-form input,.kx-body .equity-movement-form input,.kx-body .equity-movement-form select,.kx-body .report-publication-toolbar select{background:var(--sk-surface)!important;color:var(--sk-ink)!important;border-color:var(--sk-line-2)!important}
+.kx-body .statement-lineage-dialog,.kx-body .trace-inspector-dialog{background:var(--sk-surface)!important;color:var(--sk-ink)!important;border-color:var(--sk-line)!important}
+.kx-body .statement-lineage-table thead{background:var(--sk-surface-2)!important}
+.kx-body .trace-inspector-shell pre{background:var(--sk-surface-2)!important;color:var(--sk-ink)!important;border-color:var(--sk-line)!important}
+.kx-body dialog::backdrop{background:rgba(11,31,58,.5)!important}
+.kx-body .specialist-grid article{border-color:var(--sk-line)!important;background:var(--sk-surface-2)!important}
+.kx-body .intent-card:not(.hero *){background:var(--sk-surface)!important;border-color:var(--sk-line)!important;color:var(--sk-ink)!important}
+.kx-body .report-panel:before,.kx-body .council-panel:before{background:var(--sk-grad-brand)!important}
+.kx-body .callout{border-inline-start-color:var(--sk-brand)!important;background:var(--sk-brand-soft)!important}
+.kx-body .dropzone,.kx-body .readiness{background:var(--sk-surface-2)!important;border-color:var(--sk-line-2)!important}
 """
 
 CLASSIC_BRIDGE = """
 :host{display:block}
-.kx-body.kx-body:not([data-theme="dark"]){--primary:var(--kx-brand);--primary-strong:var(--kx-brand);--primary-soft:color-mix(in srgb,var(--kx-brand) 14%,var(--kx-surface));
- --surface:var(--kx-surface);--surface-2:var(--kx-surface-2);--surface-3:var(--kx-ground);--text:var(--kx-ink);--muted:var(--kx-ink-3);--line:var(--kx-line)}
-.kx-body{background:transparent!important;background-image:none!important;min-height:0!important;font-family:var(--kx-font,inherit)!important;border-radius:16px;overflow:hidden}
+/* KOSIF identity: the analysis studio speaks the app's tokens in every look and mode */
+.kx-body.kx-body,.kx-body.kx-body[data-theme="dark"]{color-scheme:inherit;
+ --bg:var(--sk-bg);--surface:var(--sk-surface);--surface-2:var(--sk-surface-2);--surface-3:var(--sk-surface-3);
+ --text:var(--sk-ink);--muted:var(--sk-ink-3);--line:var(--sk-line);--line-strong:var(--sk-line-2);
+ --primary:var(--sk-brand);--primary-strong:var(--sk-brand);--primary-soft:var(--sk-brand-soft);
+ --accent:var(--sk-brand-2);--accent-soft:var(--sk-brand-soft);
+ --danger:var(--sk-bad);--danger-soft:var(--sk-bad-soft);--warning:var(--sk-warn);--warning-soft:var(--sk-warn-soft);
+ --success:var(--sk-ok);--success-soft:var(--sk-ok-soft);--info:var(--sk-info);--info-soft:var(--sk-info-soft);
+ --shadow-sm:var(--sk-shadow-1);--shadow-md:var(--sk-shadow-2);--radius-sm:var(--sk-r-s);--radius:var(--sk-r-l);--radius-lg:calc(var(--sk-r-l) + 4px);
+ --font:var(--sk-font)}
+.kx-body{background:transparent!important;background-image:none!important;min-height:0!important;font-family:var(--sk-font)!important;border-radius:16px;overflow:hidden}
+.kx-body ::selection{background:var(--sk-brand-soft);color:var(--sk-ink)}
 .kx-body .skip-link,.kx-body .mobile-dock{display:none!important}
+/* its menu is the rail of the app: KOSIF navy, sky active pill, no second brand */
+.kx-body .sidebar{background:var(--sk-grad-rail)!important;color:var(--sk-rail-ink)!important;border-radius:var(--sk-r-l)}
+.kx-body .sidebar .brand{display:none!important}
+.kx-body .nav-group{color:var(--sk-rail-mute)!important}
+.kx-body .nav-item{color:var(--sk-rail-ink)!important}
+.kx-body .nav-item:hover{background:var(--sk-rail-2)!important}
+.kx-body .nav-item.active{background:var(--sk-rail-active)!important;color:#fff!important;box-shadow:inset -3px 0 0 var(--sk-brand-2)!important}
+.kx-body .nav-item.active .nav-badge,.kx-body .nav-badge{background:rgba(255,255,255,.1)!important;color:var(--sk-rail-ink)!important}
+.kx-body .new-indicator{background:var(--sk-brand-2)!important}
+.kx-body .sidebar-status{border-top-color:rgba(255,255,255,.08)!important;color:var(--sk-rail-mute)!important}
+/* heroes and covers: the KOSIF gradient, white type, sky highlights */
+.kx-body .command-hero,.kx-body .hero-card,.kx-body .reference-hero,.kx-body .report-cover{background:var(--sk-grad-brand)!important;color:#fff!important}
+.kx-body .hero-copy h1 em{color:#cfeeff!important}
+.kx-body .hero-card .button.primary{background:#fff!important;color:var(--sk-brand)!important;border-color:#fff!important}
+.kx-body .hero-card .button.primary:hover{background:#e8f1fe!important}
+.kx-body .hero-visual::before{border-color:rgba(255,255,255,.22)!important;box-shadow:0 0 0 24px rgba(255,255,255,.04),0 0 0 50px rgba(255,255,255,.02)!important}
+.kx-body .readiness-ring{background:conic-gradient(#fff var(--progress),rgba(255,255,255,.18) 0)!important;box-shadow:none!important}
+.kx-body .readiness-ring::after{background:radial-gradient(ellipse at 30% 70%,#1668e3,#0b1f3a 85%)!important;box-shadow:inset 0 0 30px rgba(6,18,38,.45)!important}
+.kx-body .readiness-ring::before{background:#fff!important;box-shadow:0 0 14px rgba(255,255,255,.8)!important}
+.kx-body .agent-emblem,.kx-body .voice-fab{background:var(--sk-grad-brand)!important;color:#fff!important}
+.kx-body .voice-orb{background:radial-gradient(circle at 35% 35%,#bfe9ff,#1668e3 60%,#0b1f3a)!important}
+.kx-body .toast{background:var(--sk-rail)!important}
+.kx-body .studio-dialog::backdrop{background:rgba(11,31,58,.5)!important}
 .kx-body .voice-fab{position:static!important;display:inline-grid!important;width:auto!important;height:auto!important;min-height:42px;padding:0 16px!important;border-radius:12px!important;margin:12px!important;box-shadow:none!important}
 @media (min-width:901px){
  .kx-body .app-shell{display:grid!important;grid-template-columns:var(--sidebar-width,240px) minmax(0,1fr);align-items:start;min-height:0!important}
@@ -67,9 +112,30 @@ CLASSIC_BRIDGE = """
 
 LAB_BRIDGE = """
 :host{display:block}
-/* the lab is designed dark end to end; it stays a dark panel inside the page */
-.kx-body{min-height:0!important;border-radius:18px;overflow:hidden;padding:4px 0;font-family:var(--kx-font,inherit)!important}
-.kx-body a.back{display:none!important}
+/* KOSIF identity: the lab takes the app's tokens (it was a dark purple panel) */
+.kx-body.kx-body{color-scheme:inherit;--bg:var(--sk-bg);--panel:var(--sk-surface);--panel2:var(--sk-surface-2);--line:var(--sk-line);--text:var(--sk-ink);--muted:var(--sk-ink-3);
+ --accent:var(--sk-brand);--good:var(--sk-ok);--warn:var(--sk-warn);--danger:var(--sk-bad);--shadow:var(--sk-shadow-1)}
+.kx-body{min-height:0!important;background:transparent!important;color:var(--sk-ink)!important;font-family:var(--sk-font)!important}
+.kx-body a.back,.kx-body .top{display:none!important}
+.kx-body .shell{padding:0!important;max-width:none!important}
+.kx-body .card{background:var(--sk-surface)!important;border-color:var(--sk-line)!important;box-shadow:var(--sk-shadow-1)!important;border-radius:var(--sk-r-l)!important}
+.kx-body .hero .hero-copy{background:var(--sk-grad-brand)!important;border:0!important;color:#fff}
+.kx-body .hero .hero-copy p{color:rgba(255,255,255,.88)!important}
+.kx-body .hero .hero-copy .eyebrow{display:none!important}
+.kx-body .hero .hero-copy .note{background:rgba(255,255,255,.12)!important;color:#fff!important;border-right-color:#cfeeff!important}
+.kx-body .source-pill{background:var(--sk-brand-soft)!important;border-color:color-mix(in srgb,var(--sk-brand) 22%,transparent)!important;color:var(--sk-ink-2)!important}
+.kx-body select,.kx-body input{background:var(--sk-surface)!important;color:var(--sk-ink)!important;border-color:var(--sk-line-2)!important}
+.kx-body button{background:var(--sk-brand)!important;color:var(--sk-on-brand)!important}
+.kx-body button.secondary,.kx-body .secondary{background:var(--sk-surface)!important;color:var(--sk-ink)!important;border:1px solid var(--sk-line-2)!important}
+.kx-body .metric,.kx-body .item{background:var(--sk-surface-2)!important;border-color:var(--sk-line)!important}
+.kx-body .status.good{background:var(--sk-ok-soft)!important}.kx-body .status.warn{background:var(--sk-warn-soft)!important}
+.kx-body .status.danger{background:var(--sk-bad-soft)!important}.kx-body .status.info{background:var(--sk-brand-soft)!important;color:var(--sk-brand)!important}
+.kx-body th{color:var(--sk-ink-2)!important;background:var(--sk-surface-2)!important}
+.kx-body td{color:var(--sk-ink)!important}
+.kx-body th,.kx-body td{border-bottom-color:var(--sk-line)!important}
+.kx-body .bar{background:var(--sk-surface-3)!important}
+.kx-body .bar>i{background:var(--sk-grad-brand)!important}
+.kx-body .note{background:var(--sk-brand-soft)!important;color:var(--sk-ink-2)!important;border-right-color:var(--sk-brand)!important}
 """
 
 APPS = {

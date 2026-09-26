@@ -20,15 +20,15 @@ text=re.sub(r'<meta\s+name=["\']apple-mobile-web-app-title["\'][^>]*>', '<meta n
 # The UI ships as one stylesheet and one script, in layer order:
 #   design system (ui/ds) → core services (ui/core) → components → layout → features.
 # ui/core/capabilities.json is the single list of screens; it is inlined for the registry.
-UI_CSS=["ds/tokens.css","ds/components.css","ds/elements.css","ds/shell.css",
+UI_CSS=["ds/tokens.css","ds/components.css","ds/elements.css","ds/shell.css","ds/luxe.css",
         "features/offers.css","features/supply.css","features/smartmatch.css","features/meatops.css","features/kernel.css",
-        "features/enterprise.css","features/reports.css","features/erp-plus.css","features/operations.css","features/capabilities-v2.css"]
-UI_JS=["core/sk.js","core/bus.js","core/errors.js","core/store.js","core/services.js","core/engines.js","core/registry.js","core/perm.js","core/audit.js",
-       "components/states.js","layouts/shell.js","components/palette.js","features/command-center.js",
+        "features/enterprise.css","features/reports.css","features/erp-plus.css","features/operations.css","features/capabilities-v2.css","features/devices.css","features/luxe-screens.css","features/tbreview.css","features/assistant.css"]
+UI_JS=["core/sk.js","core/output.js","core/bus.js","core/errors.js","core/store.js","core/services.js","core/engines.js","core/registry.js","core/perm.js","core/audit.js","core/device.js","core/ai.js","core/demo.js","core/templates.js","core/flow.js","core/a11y.js",
+       "components/states.js","layouts/shell.js","layouts/topbar.js","components/palette.js","components/keys.js","components/charts.js","components/table.js","components/xlsx.js","features/command-center.js",
        "features/jev.js","features/offers.js","features/inventory.js","features/supply.js","features/meatops.js","features/smartmatch.js",
-       "features/pricing-core.js","features/kernel.js","features/tools.js","features/enterprise.js","features/reports.js",
+       "features/pricing-core.js","features/kernel.js","features/tools.js","features/enterprise.js","features/reports.js","features/report-pack.js",
        "features/erp-plus.js","features/operations.js","features/capabilities-v2.js","features/audit-bridge.js",
-       "features/ledger.js","features/purchasing.js","features/workspace.js","features/followup.js"]
+       "features/ledger.js","features/month-close.js","features/purchasing.js","features/workspace.js","features/followup.js","features/devices.js","features/notifications.js","features/risks.js","features/codex.js","features/report-docs.js","features/tb-council.js","features/tb-review.js","features/sales-lab.js","features/assistant.js"]
 listed={"ui/"+n for n in UI_CSS+UI_JS}
 stray=[str(f) for f in Path("ui").glob("*.*") if f.suffix in (".js",".css")]
 stray+=[str(f) for d in ("core","ds","components","layouts","features") for f in Path("ui",d).glob("*.*") if f.suffix in (".js",".css") and str(f) not in listed]
@@ -51,7 +51,7 @@ for name in ["icon-192.png","icon-512.png","apple-touch-icon.png"]:
     src=Path("payload")/(name+".b64")
     (out/name).write_bytes(base64.b64decode(src.read_text(encoding="utf-8").strip()))
 
-for name in ["sw.js","manifest.webmanifest","INSTALL-iPHONE-ar.txt","_headers"]:
+for name in ["sw.js","manifest.webmanifest","INSTALL-iPHONE-ar.txt","INSTALL-LAPTOP-ar.txt","_headers"]:
     (out/name).write_bytes(Path(name).read_bytes())
 (out/"skosif.css").write_text(bundle_css,encoding="utf-8")
 (out/"skosif.js").write_text(bundle_js,encoding="utf-8")
