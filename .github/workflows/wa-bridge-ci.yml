@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - claude/whatsapp-integration-messaging-mvdnxr
+      - codex/kosif-whatsapp-vnext-20260926
     paths:
       - "whatsapp-bridge/**"
       - ".github/workflows/wa-bridge-ci.yml"
