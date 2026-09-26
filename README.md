@@ -109,6 +109,18 @@ into 50 parts, read, and turned into working tools; every figure cites its bundl
   estimate sensitivities — `reports/notes-engine.ts`), the auditor's «نهجنا في المراجعة» section, the audit committee report,
   management's ICFR report with AS 2201 severity (`audit/governance-engine.ts`), and the global peer comparison.
 
+## Fieldwork: from plan to sign-off (ISA 300 → 700)
+
+The engagement file is a working audit, not a report generator: «العمل الميداني» holds the audit strategy, the
+risk × assertion matrix (ISA 315), one working paper per area with its standard reference (A cash … T zakat), its
+procedures — for a significant risk also those the research bundle's auditors performed on the same theme, with the
+page — a monetary-unit sample size (ISA 530), the conclusion and a preparer → different-reviewer sign-off; lead
+schedules show unadjusted → adjustments → final per account. «الإكمال» is the gate (ISA 450/560/570/580/220) the
+report waits on. The report centre groups every document (statements, published reports, governance, analysis,
+audit papers: planning memo, working-paper file, lead schedules, completion memo, representation letter); each opens
+in the in-app preview before printing or exporting to PDF, Word, Excel or HTML — `audit/fieldwork-engine.ts`,
+`ui/features/tb-fieldwork.js`.
+
 ## Live assistant, theme studio, charts, tables and printing
 
 - `ui/features/assistant.js` (`SKosifAssistant`, `Ctrl/⌘+J` or the floating button) — a live chat that

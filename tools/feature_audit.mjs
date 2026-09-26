@@ -64,6 +64,13 @@ const NT=await RD('notes');ok('التقارير المتقدمة','الإيضا�
 const CM=await RD('committee');ok('التقارير المتقدمة','تقرير لجنة المراجعة (نمط HSBC)',CM.includes('الأمور الهامة التي نظرت فيها اللجنة'));
 const IC=await RD('icfr');ok('التقارير المتقدمة','تقرير الإدارة عن الرقابة الداخلية (COSO 2013)',IC.includes('COSO'));
 const PR=await RD('peers');ok('التقارير المتقدمة','المقارنة بالنظراء العالميين',PR.includes('وسيط النظراء'));
+ok('التقارير المتقدمة','مركز التقارير: المستندات مجمعة وأوراق المراجعة تفتح في المعاينة',await p.evaluate(()=>document.querySelectorAll('.tbr-docg .tbr-dg').length===5&&document.querySelectorAll('[data-fw-doc]').length===5));
+await p.click('[data-tab="plan"]');await p.waitForTimeout(1200);
+const FWK=await p.evaluate(()=>({wps:document.querySelectorAll('.fw-wp').length,mx:document.querySelectorAll('.fw-mx tbody tr').length,glob:document.querySelectorAll('.fw-src.global').length,sign:document.querySelectorAll('[data-fw-sign]').length}));
+ok('العمل الميداني','مصفوفة المخاطر × التأكيدات (ISA 315)',FWK.mx>0);ok('العمل الميداني','أوراق عمل بمراجع وإجراءات وعينات (ISA 330/530)',FWK.wps>0);
+ok('العمل الميداني','إجراءات المراجعين العالميين للمخاطر الجوهرية',FWK.glob>0);ok('العمل الميداني','توقيع المُعد والمراجِع مع فصل المهام',FWK.sign>0&&await p.evaluate(()=>{const w=SKEngines.audit.fieldwork.workingPapers({materiality:{overall:1,performance:1,trivial:0},risks:[],accounts:[]});return Array.isArray(w)}));
+await p.click('[data-tab="close"]');await p.waitForTimeout(800);ok('العمل الميداني','بوابة الإكمال (ISA 450/560/570/580)',await has('.fw-gate')&&await p.evaluate(()=>document.querySelectorAll('.fw-item').length>=10));
+await p.click('[data-fw-doc="reps"]');await p.waitForTimeout(1300);ok('العمل الميداني','خطاب الإقرارات يفتح في المعاينة قبل الطباعة',await has('.skout-f'));await p.keyboard.press('Escape');
 // ---------- demo, templates, outputs ----------
 const D=await p.evaluate(async()=>({demo:(await SK.demo.status()).filter(x=>x.demo).length,tpl:SK.templates.list().length,out:!!SK.output}));
 ok('البيانات والاستيراد','بيانات تجريبية للأقسام الفارغة',D.demo>=13);ok('البيانات والاستيراد','قوالب استيراد لكل قسم',D.tpl>=18);

@@ -14,9 +14,10 @@
 "use strict";
 const {esc,load,save,toast}=SK;
 const KEY="skosif_tbreview_v1",MAX_FILE=15*1024*1024,MAX_ROUND=18*1024*1024;
+const FW=()=>window.SKosifFieldwork&&window.SKEngines&&SKEngines.audit.fieldwork?window.SKosifFieldwork:null;
 const E=()=>window.SKEngines,RV=()=>E().audit.tbReview,AI=()=>E().audit.aiReview,DC=()=>E().audit.documentCheck,CX=()=>E().audit.codex,PG=()=>E().audit.programme,DS=()=>E().audit.disclosures;
 const TI=()=>E().reports.tbImport,FS=()=>E().reports.statements,AN=()=>E().reports.analysis,MN=()=>E().reports.money;
-const TABS=[["tb","الميزان والمعايير"],["ai","جولات المراجعة"],["conf","الثقة والمجلس"],["docs","المستندات"],["adj","التسويات والامتثال"],["fs","القوائم والتقارير"]];
+const TABS=[["tb","الميزان والمعايير"],["plan","العمل الميداني"],["ai","جولات المراجعة"],["conf","الثقة والمجلس"],["docs","المستندات"],["adj","التسويات والامتثال"],["close","الإكمال"],["fs","القوائم والتقارير"]];
 const CU=()=>window.SKosifCouncilUI;
 let root=null,tab="tb",filter="all",busy="",abort=null,cache=null,setup=false,fsAfter=true,doc="issue",confHTML={sig:"",h:""},confSeq=0;
 
@@ -345,6 +346,7 @@ function reportParts(c){
   return {fs,hp,rs,z,bm,du,hl,md,fmt};
 }
 const DOCS=[["issue","الإصدار والاعتماد"],["statements","القوائم المالية"],["annual","التقرير السنوي (نموذج 10-K)"],["release","بيان النتائج"],["auditor","تقرير المراجع المستقل"],["notes","الإيضاحات المتممة"],["committee","تقرير لجنة المراجعة"],["icfr","الرقابة الداخلية"],["analysis","التحليل المالي"],["peers","المقارنة العالمية"]];
+const DOC_GROUPS=[["القوائم والإصدار",["issue","statements","notes"]],["التقارير المنشورة",["annual","release","auditor"]],["الحوكمة",["committee","icfr"]],["التحليل",["analysis","peers"]]];
 const PAPER=new Set(["annual","release","auditor","notes","committee","icfr","peers"]);
 let docStyled=false;
 function fmtDate(iso,eg){if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||""))return "";try{return new Date(iso+"T12:00:00").toLocaleDateString(eg?"ar-EG-u-nu-latn":"ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"})}catch{return iso}}
@@ -375,12 +377,15 @@ function docView(c,kind){
 function fsTab(c){
   const p=reportParts(c),fs=p.fs,d=c.derived,f=c.session&&c.session.final,GROUP={liquidity:"السيولة",profitability:"الربحية",efficiency:"الكفاءة",leverage:"الرفع المالي",cash:"التدفق النقدي"};
   const hl=p.hl.map(h=>'<div class="skk4-t"><span class="tx"><span>'+esc(h.ar)+'</span><b>'+(h.kind==="money"?sar(h.current):p.fmt(h.current,h.kind))+'</b><small>'+(h.change===null?(h.prior===null?'':'السابق '+(h.kind==="money"?sar(h.prior):p.fmt(h.prior,h.kind))):(h.change>=0?'▲ ':'▼ ')+Math.abs(h.change)+'% عن السابق')+'</small></span></div>').join("");
-  const docBar='<nav class="tbr-docs" aria-label="مستندات التقارير">'+DOCS.map(([k,l])=>'<button type="button" data-doc="'+k+'" aria-pressed="'+(doc===k)+'">'+esc(l)+'</button>').join("")+'</nav>';
+  const L=Object.fromEntries(DOCS),btn=k=>'<button type="button" data-doc="'+k+'" aria-pressed="'+(doc===k)+'">'+esc(L[k])+'</button>';
+  const fwDocs=FW()?Object.entries(FW().docs).map(([k,[,l]])=>'<button type="button" data-fw-doc="'+k+'" title="يفتح في المعاينة">'+esc(l)+' ↗</button>').join(""):"";
+  const docBar='<nav class="tbr-docs tbr-docg" aria-label="مركز التقارير">'+DOC_GROUPS.map(([g,ks])=>'<div class="tbr-dg"><small>'+esc(g)+'</small><div>'+ks.map(btn).join("")+'</div></div>').join("")+
+    (fwDocs?'<div class="tbr-dg"><small>أوراق المراجعة</small><div>'+fwDocs+'</div></div>':'')+'</nav>';
   const body=PAPER.has(doc)?docView(c,doc):doc==="statements"?fsStatements(c,p,fs,d,f,hl,GROUP):doc==="analysis"?fsAnalysis(c,p,fs,d,f,hl,GROUP):fsIssue(c,p,fs,d,f,hl,GROUP);
   return docBar+'<section class="card tbr-op"><div class="card-b"><div class="tbr-op-h"><div><span class="eyebrow">رأي المراجع — مشتق وفق '+esc(d.isa)+'</span><h3>'+esc(d.ar)+'</h3>'+d.basis.map(x=>'<p>'+esc(x)+'</p>').join("")+(d.goingConcern?'<p class="tbr-warn">مؤشرات استمرارية تتطلب تقييماً وإفصاحاً (ISA 570).</p>':'')+'</div>'+
       '<div class="tbr-op-s">'+(f?'<small>اقتراح Gemini</small><b>'+esc(f.aiOpinion||"—")+'</b>':'<small>لا يوجد تقرير Gemini نهائي</small>')+'<small class="hint">لا يصدر الرأي إلا باعتماد الشريك المسؤول.</small></div></div>'+
       '<div class="sk-actions"><div class="sk-seg" role="group"><button type="button" data-fsv="after" aria-pressed="'+fsAfter+'">بعد التسويات ('+c.accepted.length+')</button><button type="button" data-fsv="before" aria-pressed="'+!fsAfter+'">قبل التسويات</button></div>'+
-      '<button type="button" class="btn primary" data-a="print">طباعة المستند</button><button type="button" class="btn" data-a="jev-op">'+SK.icon("jev")+' رأي ثانٍ من Jev</button><button type="button" class="btn" data-a="fs-csv">تصدير القوائم</button></div></div></section>'+
+      '<button type="button" class="btn primary" data-a="print">'+SK.icon("reports")+' معاينة وطباعة</button><button type="button" class="btn" data-a="jev-op">'+SK.icon("jev")+' رأي ثانٍ من Jev</button><button type="button" class="btn" data-a="fs-csv">تصدير القوائم</button></div></div></section>'+
     body;
 }
 /* management letter in the research's format (appendix C): observation · effect · recommendation · management's
@@ -485,8 +490,9 @@ function printReport(c){
 }
 function printDoc(c,kind){
   const w=window.open("","_blank");if(!w){toast("اسمح بالنوافذ المنبثقة للطباعة","warn");return}
-  const title={annual:"التقرير السنوي",release:"بيان النتائج",auditor:"تقرير المراجع المستقل"}[kind]+" — "+(c.d.ctx.company||"");
-  w.document.open();w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>'+esc(title)+'</title></head><body>'+SKosifReportDocs[kind](docX(c))+'</body></html>');w.document.close();
+  const fw=FW()&&FW().docs[kind],render=fw?fw[0]:SKosifReportDocs[kind];
+  const title=(fw?fw[1]:{annual:"التقرير السنوي",release:"بيان النتائج",auditor:"تقرير المراجع المستقل",notes:"الإيضاحات المتممة",committee:"تقرير لجنة المراجعة",icfr:"تقرير الرقابة الداخلية",peers:"المقارنة بالنظراء العالميين"}[kind]||"مستند")+" — "+(c.d.ctx.company||"");
+  w.document.open();w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>'+esc(title)+'</title></head><body>'+render(docX(c))+'</body></html>');w.document.close();
   SK.brandPrint(w,title);
   const st=w.document.createElement("style");st.textContent=SKosifReportDocs.CSS+"body{background:#fff}";w.document.head.appendChild(st);
   SK.audit&&SK.audit.log("report",{act:"tbreview-"+kind});
@@ -568,6 +574,7 @@ function bind(node){
     if(ad){const d=st(),id=ad.dataset.id;d.accepted=d.accepted.filter(x=>x!==id);d.rejected=d.rejected.filter(x=>x!==id);
       if(ad.dataset.adj==="accept"&&!ad.classList.contains("primary"))d.accepted.push(id);else if(ad.dataset.adj==="reject"&&ad.textContent!=="مرفوض")d.rejected.push(id);
       put(d);paint();return}
+    if(FW()&&e.target.closest("[data-fw-doc],[data-fw-sign],[data-fw-reopen]")){const cc=compute();if(cc&&FW().onClick(e,cc))return}
     const b=e.target.closest("[data-a]");if(!b)return;
     const a=b.dataset.a;
     if(a==="books"){await fromBooks();return}
@@ -584,7 +591,7 @@ function bind(node){
     if(a==="cancel"){abort&&abort.abort();return}
     if(a==="unavail"){const d=st(),s=session(d),id=b.dataset.id;d.session=s.unavailable.includes(id)?{...s,unavailable:s.unavailable.filter(x=>x!==id)}:AI().markUnavailable(s,id);put(d);paint();return}
     const c=compute();if(!c)return;
-    if(a==="print"){if(doc==="annual"||doc==="release"||doc==="auditor")printDoc(c,doc);else printReport(c);return}
+    if(a==="print"){if(PAPER.has(doc))printDoc(c,doc);else printReport(c);return}
     if(a==="letter-print"){printLetter(c);return}
     if(a==="sig-save"){put(readCtx(st()));toast("حُفظت بيانات التوقيع","ok");paint();return}
     if(a==="ecl-save"){const d=st(),b=RV().DEFAULT_ECL_BUCKETS.map((x,i)=>{const ex=root.querySelector('[data-ecl-x="'+i+'"]'),rt=root.querySelector('[data-ecl-r="'+i+'"]');
@@ -604,6 +611,7 @@ function bind(node){
       SK.csv.download(csvName(c,"القوائم-المالية"),["القائمة","البند","إيضاح","الحالية","السابقة"],rows.map(([s,r])=>[s,r.ar,r.note||"",(r.current/100).toFixed(2),r.prior===null?"":(r.prior/100).toFixed(2)]));return}
   });
   node.addEventListener("change",e=>{
+    if(FW()&&FW().onChange(e))return;
     if(CU()&&e.target.closest("[data-ck],[data-rd],[data-jfile],[data-evk]")){CU().onChange(e);return}
     const lr=e.target.closest("[data-lr]");if(lr){const d=st();d.letterResponses={...(d.letterResponses||{}),[lr.dataset.lr]:lr.value.trim()};put(d);toast("حُفظ رد الإدارة","ok");return}
     const f=e.target.closest("[data-tbfile]");if(f&&f.files[0]){loadFile(f.files[0]);f.value="";return}
@@ -622,7 +630,7 @@ function paint(){
   if(!c){root.innerHTML=hero(null)+setupHTML(st(),true)+(window.SKosifAI&&!SKosifAI.ready()?SKosifAI.cardHTML():'');return}
   if(!ADV[tab]&&!TABS.some(x=>x[0]===tab))tab="tb";
   const conf=tab==="conf"&&CU();
-  const body=conf?'<div class="tbc" data-tbc-body aria-busy="true">'+(confHTML.sig===c.sig&&confHTML.h||'<p class="empty">يحسب درجات الثقة والفحوص…</p>')+'</div>':tab==="ai"?aiTab(c):tab==="docs"?docsTab(c):tab==="adj"?adjTab(c):tab==="fs"?fsTab(c):tbTab(c);
+  const body=conf?'<div class="tbc" data-tbc-body aria-busy="true">'+(confHTML.sig===c.sig&&confHTML.h||'<p class="empty">يحسب درجات الثقة والفحوص…</p>')+'</div>':tab==="plan"&&FW()?FW().planTab(c):tab==="close"&&FW()?FW().closeTab(c):tab==="ai"?aiTab(c):tab==="docs"?docsTab(c):tab==="adj"?adjTab(c):tab==="fs"?fsTab(c):tbTab(c);
   const adv=window.SKosifAuditBridge&&ADV[tab]?advHTML(tab):"";
   root.innerHTML='<div class="tbr">'+hero(c)+(setup?setupHTML(c.d,false):'')+body+adv+'</div>';
   window.scrollTo(0,y);
@@ -630,6 +638,7 @@ function paint(){
   if(conf){const seq=++confSeq;CU().confTab(c).then(h=>{if(seq!==confSeq||tab!=="conf"||!root)return;confHTML={sig:c.sig,h};const el=root.querySelector("[data-tbc-body]");if(el){el.innerHTML=h;el.removeAttribute("aria-busy");window.scrollTo(0,y)}})
     .catch(e=>{SK.errors&&SK.errors.report(e,"tbreview-council");const el=root.querySelector("[data-tbc-body]");if(el)el.innerHTML='<p class="empty">تعذر حساب درجات الثقة: '+esc(e.message)+'</p>'})}
 }
+FW()&&FW().init({st,put,paint,root:()=>root,print:k=>{const c=compute();if(c)printDoc(c,k)}});
 CU()&&CU().init({st,put,compute,session,paint,docGet,docPut,docKey,getBusy:()=>busy,setBusy:v=>{busy=v;paint()},setAbort:a=>{abort=a}});
 SK.view("tbreview",{render(node){root=node;if(!node.dataset.bound){bind(node);node.dataset.bound="1"}paint()}});
 })();
