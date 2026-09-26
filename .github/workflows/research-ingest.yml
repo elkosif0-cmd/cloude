@@ -1,0 +1,68 @@
+# Temporary: reads a large research PDF from Google Drive into a temporary Cloudflare D1 database, page by page,
+# so its content can be studied and turned into features. Nothing from the document is committed. Remove after use.
+name: Research ingest (temporary)
+on:
+  push:
+    branches: [claude/magical-maxwell-taj9xe]
+    paths: ["tools/research/ingest-request.json"]
+permissions:
+  contents: read
+concurrency:
+  group: research-ingest
+  cancel-in-progress: true
+env:
+  CLOUDFLARE_ACCOUNT_ID: "9ff3d8494afab356ecbf95a2a231a6b5"
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      ranges: ${{ steps.plan.outputs.ranges }}
+      mode: ${{ steps.req.outputs.mode }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: req
+        run: echo "mode=$(python3 -c 'import json;print(json.load(open("tools/research/ingest-request.json"))["mode"])')" >> "$GITHUB_OUTPUT"
+      - name: D1 write access
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN || secrets.CLOUDFLARE_TOKEN }}
+        run: python3 tools/research/ingest.py probe tools/research/ingest-request.json
+      - name: Download the PDF (the Drive file must be shared as "anyone with the link")
+        run: |
+          ID=$(python3 -c 'import json;print(json.load(open("tools/research/ingest-request.json"))["fileId"])')
+          curl -sSL --retry 3 -o doc.pdf "https://drive.usercontent.google.com/download?id=$ID&export=download&confirm=t"
+          ls -l doc.pdf
+          head -c 5 doc.pdf | grep -q '%PDF' || { echo "::error::not a PDF - the Drive file is not shared by link"; head -c 300 doc.pdf; exit 1; }
+      - name: Plan
+        id: plan
+        if: steps.req.outputs.mode == 'ingest'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN || secrets.CLOUDFLARE_TOKEN }}
+        run: |
+          sudo apt-get -qq update && sudo apt-get -qq install -y poppler-utils >/dev/null
+          pip install -q pypdf
+          python3 tools/research/ingest.py plan tools/research/ingest-request.json doc.pdf
+      - uses: actions/upload-artifact@v4
+        if: steps.req.outputs.mode == 'ingest'
+        with:
+          name: doc
+          path: doc.pdf
+          retention-days: 1
+          compression-level: 0
+  extract:
+    needs: plan
+    if: needs.plan.outputs.mode == 'ingest'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        range: ${{ fromJson(needs.plan.outputs.ranges) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: doc
+      - run: sudo apt-get -qq update && sudo apt-get -qq install -y poppler-utils tesseract-ocr tesseract-ocr-ara >/dev/null
+      - env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN || secrets.CLOUDFLARE_TOKEN }}
+        run: python3 tools/research/ingest.py extract tools/research/ingest-request.json doc.pdf ${{ matrix.range[0] }} ${{ matrix.range[1] }}
