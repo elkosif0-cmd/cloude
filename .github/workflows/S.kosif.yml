@@ -133,6 +133,11 @@ jobs:
           for marker in ["--sk-heat-1",".sk-ph",".skk4",".sktb-bar",".skhm-cell",".sksev"]:
               assert marker in css, "luxe style missing: "+marker
           assert "Smarter Audit. Greater Trust." in unlock, "sign-in page lost the KOSIF claim"
+          # live assistant, theme studio, charts v2, tables v2 (Excel), print preview
+          for marker in ["SKosifAssistant","functionDeclarations","accentTokens","waterfall","exportXlsx","rightToLeft","skp-bar","__skRealPrint"]:
+              assert marker in js, "marker missing: "+marker
+          for marker in ["--sk-c1",".ska-panel",".skx-studio","sktb-cards","data-contrast"]:
+              assert marker in css, "style missing: "+marker
           assert all(c.get("en") for c in caps), "every screen needs its English name (en)"
           # hubs: a page names a parent in its own domain; parents are menu entries with a hub label
           byid={c["id"]:c for c in caps}

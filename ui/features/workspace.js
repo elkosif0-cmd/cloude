@@ -142,5 +142,7 @@ function tasksBind(root){
   });
 }
 SK.view("tasks",{render(n){if(!n.dataset.bound){tasksBind(n);n.dataset.bound="1"}tasksPaint(n)}});
-window.SKosifTasks=Object.freeze({open:()=>tasks().filter(x=>!x.done)});
+window.SKosifTasks=Object.freeze({open:()=>tasks().filter(x=>!x.done),
+  /* the live assistant adds tasks the same way the form does */
+  add:({title,due,priority,cap})=>{const all=tasks(),x={id:SK.ui.uid("tk"),title:String(title||"").trim().slice(0,200),due:due||today(),priority:["high","normal","low"].includes(priority)?priority:"normal",cap:cap||"",done:false,at:new Date().toISOString()};all.push(x);save(TK,all);if(window.SKosifCore&&SKosifCore.view()==="tasks")SKosifCore.go("tasks");return x}});
 })();

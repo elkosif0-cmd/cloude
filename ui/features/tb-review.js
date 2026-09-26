@@ -356,7 +356,11 @@ function fsIssue(c,p,fs,d,f,hl,GROUP){
   '';
 }
 function fsAnalysis(c,p,fs,d,f,hl,GROUP){
+  const fig=window.SKosifReportDocs?SKosifReportDocs.figures(fs,CUR,{width:560,taxLabel:c.fw==="EAS"?"ضريبة الدخل":"الزكاة"}):{};
+  const card=(t,s2,b)=>b?'<section class="card"><div class="card-h"><div><h3>'+t+'</h3><p>'+s2+'</p></div></div><div class="card-b">'+b+'</div></section>':'';
   return ''+
+    '<div class="tbr-2">'+card("من الإيرادات إلى صافي الربح","كل بند يحرّك الرصيد حتى صافي الربح — الأزرق زيادة والأحمر نقص.",fig.bridge)+card("السنة الحالية مقابل السابقة","البنود الرئيسية لقائمة الربح أو الخسارة.",fig.compare||fig.opex)+'</div>'+
+    '<div class="tbr-2">'+card("الإيرادات حسب الفئة","حصة كل حساب إيراد.",fig.categories)+(fig.compare?card("المصروفات التشغيلية","مرتبة من الأكبر.",fig.opex):'')+'</div>'+
     '<section class="card"><div class="card-h"><div><h3>التحليل المالي</h3><p>النسب مع المقارنة، ومؤشرات Altman وBeneish وDuPont.</p></div></div><div class="card-b"><div class="tbr-an">'+
       (p.z?'<div><small>Altman Z″</small><b>'+p.z.z+'</b><span class="sksev '+(p.z.zone==="safe"?"ok":p.z.zone==="grey"?"warn":"bad")+'">'+esc(p.z.zoneAr)+'</span></div>':'')+
       (p.bm?'<div><small>Beneish M</small><b>'+p.bm.m+'</b><span class="sksev '+(p.bm.flagged?"bad":"ok")+'">'+(p.bm.flagged?'فوق الحد −1.78':'ضمن الحدود')+'</span></div>':'')+
@@ -416,7 +420,7 @@ function printDoc(c,kind){
   const title={annual:"التقرير السنوي",release:"بيان النتائج",auditor:"تقرير المراجع المستقل"}[kind]+" — "+(c.d.ctx.company||"");
   w.document.open();w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>'+esc(title)+'</title></head><body>'+SKosifReportDocs[kind](docX(c))+'</body></html>');w.document.close();
   SK.brandPrint(w,title);
-  const st=w.document.createElement("style");st.textContent=SKosifReportDocs.CSS+"@page{size:A4;margin:16mm 14mm}body{background:#fff}";w.document.head.appendChild(st);
+  const st=w.document.createElement("style");st.textContent=SKosifReportDocs.CSS+"body{background:#fff}";w.document.head.appendChild(st);
   SK.audit&&SK.audit.log("report",{act:"tbreview-"+kind});
   setTimeout(()=>{try{w.focus();w.print()}catch{}},700);
 }

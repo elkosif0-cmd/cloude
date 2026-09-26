@@ -27,6 +27,25 @@ function stmt(rows,hp,cur){
   return '<table class="rd-t">'+head(hp?["","إيضاح","السنة الحالية","السنة السابقة"]:["","إيضاح","المبلغ"],cur)+'<tbody>'+rows.map(r=>r.level==="heading"?'<tr class="h"><td colspan="'+(hp?4:3)+'">'+esc(r.ar)+'</td></tr>':
     '<tr class="'+(r.level==="line"?"":r.level==="total"?"tot":"sub")+'"><td>'+esc(r.ar)+'</td><td class="n">'+(r.note||"")+'</td><td class="n">'+m0(r.current)+'</td>'+(hp?'<td class="n">'+(r.prior===null?"":m0(r.prior))+'</td>':'')+'</tr>').join("")+'</tbody></table>';
 }
+/* ---------- figures: the year in charts (engines' numbers, major units) ---------- */
+function figures(fs,cur,o={}){
+  if(!window.SKCharts)return{};
+  const rr=R().resultsTable(fs),v=ar=>{const r=rr.find(x=>x.ar===ar);return r?r:{current:0,prior:null}};
+  const M=x=>(Number(x)||0)/100,nf=new Intl.NumberFormat("ar-SA-u-nu-latn",{maximumFractionDigits:0}),fmt=n=>nf.format(Math.round(n))+" "+cur;
+  const zk=/ضريبة الدخل/.test(o.taxLabel||"")?"الضريبة":"الزكاة",W=o.width||720;
+  const bridge=SKCharts.waterfall({title:"من الإيرادات إلى صافي الربح",width:W,height:270,fmt:SKCharts.compact,tools:o.tools,steps:[
+    {label:"الإيرادات",value:M(v("الإيرادات").current)},{label:"التكلفة",value:-M(v("تكلفة الإيرادات").current)},{label:"مجمل الربح",total:true},
+    {label:"التشغيل",value:-M(v("المصروفات التشغيلية").current)},{label:"الربح التشغيلي",total:true},
+    {label:"التمويل",value:M(v("إيرادات الاستثمار وتكاليف التمويل (صافي)").current)},{label:zk,value:-M(v("الزكاة/ضريبة الدخل").current)},{label:"صافي الربح",total:true}]});
+  const cats=R().revenueByCategory(fs).filter(r=>r.level!=="total");
+  const categories=cats.length>1?SKCharts.hbars({title:"الإيرادات حسب الفئة",fmt,tools:o.tools,valueLabel:"الإيراد ("+cur+")",rows:cats.map(r=>({label:r.ar,value:M(r.current),sub:r.pctOfRevenue!=null?r.pctOfRevenue+"% من الإيرادات":""}))}):"";
+  const keys=["الإيرادات","مجمل الربح","الربح التشغيلي","صافي الربح"];
+  const compare=fs.hasPrior?SKCharts.bars({title:"السنة الحالية مقابل السابقة",width:W,height:240,fmt,tools:o.tools,labels:keys,
+    series:[{name:"السنة الحالية",values:keys.map(k=>M(v(k).current))},{name:"السنة السابقة",values:keys.map(k=>M(v(k).prior))}]}):"";
+  const ox=R().operatingExpenses(fs).filter(r=>r.level!=="total");
+  const opex=ox.length?SKCharts.hbars({title:"المصروفات التشغيلية",fmt,tools:o.tools,valueLabel:"المبلغ ("+cur+")",rows:ox.map(r=>({label:r.ar,value:M(r.current),sub:r.pctOfRevenue!=null?r.pctOfRevenue+"% من الإيرادات":""}))}):"";
+  return{bridge,categories,compare,opex};
+}
 function measures(ms,cur){
   return ms.map(mm=>'<div class="rd-m"><h5>'+esc(mm.ar)+'</h5><table class="rd-t sm">'+head(["البيان","المبلغ"],cur)+'<tbody>'+mm.rows.map(r=>'<tr><td>'+esc(r.ar)+'</td><td class="n">'+m0(r.amount)+'</td></tr>').join("")+
     '<tr class="tot"><td>'+esc(mm.ar)+'</td><td class="n">'+m0(mm.value)+'</td></tr></tbody></table><p class="rd-note">'+esc(mm.note)+'</p></div>').join("");
@@ -67,6 +86,7 @@ function annual(x){
   const fs=x.fs,hp=fs.hasPrior,c=x.c,ctx=x.ctx,cur=x.cur,rv=R();
   const cats=rv.revenueByCategory(fs),ps=rv.productsServices(fs),opx=rv.operatingExpenses(fs),tax=rv.taxProvision(fs,x.fw==="EAS"?"EG":"SA"),liq=rv.liquidity(fs),ms=rv.performanceMeasures(fs);
   const ppe=rv.ppeNote(fs),bsd=rv.balanceSheetDetails(fs),debt=rv.debtNote(fs),rel=rv.resultsRelease(fs,ctx.company,ctx.period,cur);
+  const fig=figures(fs,cur,{width:860,taxLabel:x.fw==="EAS"?"ضريبة الدخل":"الزكاة"});
   const risks=c.base.risks.filter(r=>r.significant||r.level==="متوسط").slice(0,6),hf=c.all.findings.filter(f=>f.severity==="high");
   const gc=c.all.findings.filter(f=>f.kind==="going-concern");
   const toc=[["1","النشاط","it1"],["1أ","عوامل المخاطر","it1a"],["3","الإجراءات القانونية والالتزامات المحتملة","it3"],["7","تقرير الإدارة ومناقشتها وتحليلها","it7"],["7أ","الإفصاحات عن مخاطر السوق","it7a"],["8","القوائم المالية والإيضاحات","it8"],["","تقرير المراجع المستقل","itA"],["9أ","الضوابط والإجراءات","it9a"]];
@@ -85,6 +105,8 @@ function annual(x){
     '<h2 class="rd-part">الجزء الثاني</h2>'+
     item("البند 7","تقرير الإدارة ومناقشتها وتحليلها للمركز المالي ونتائج الأعمال",
       '<h4>نظرة عامة على السنة</h4><ul class="rd-bul">'+rel.bullets.map(b=>'<li>'+esc(b)+'</li>').join("")+'</ul>'+
+      (fig.bridge?'<div class="rd-fig"><h5>الشكل 1 — من الإيرادات إلى صافي الربح ('+esc(cur)+')</h5>'+fig.bridge+'</div>':'')+
+      (fig.categories?'<div class="rd-fig"><h5>الشكل 2 — الإيرادات حسب الفئة</h5>'+fig.categories+'</div>':'')+
       '<h4>الإيرادات حسب الفئة</h4><table class="rd-t">'+head(hp?["الفئة","السنة الحالية","السنة السابقة","التغير","الحصة"]:["الفئة","المبلغ","التغير","الحصة"],cur)+'<tbody>'+
         cats.map(r=>'<tr class="'+(r.level==="total"?"tot":"")+'"><td>'+esc(r.ar)+'</td><td class="n">'+m0(r.current)+'</td>'+(hp?'<td class="n">'+(r.prior===null?"—":m0(r.prior))+'</td>':'')+'<td class="n">'+chg(r.change)+'</td><td class="n">'+pct(r.pctOfRevenue)+'</td></tr>').join("")+'</tbody></table>'+
       '<h4>مجمل الربح</h4>'+(ps?'<table class="rd-t">'+head(["","الإيرادات","مجمل الربح",hp?"الهامش: الحالي / السابق":"هامش مجمل الربح"],cur)+'<tbody>'+
@@ -114,6 +136,8 @@ function annual(x){
   return h;
 }
 const CSS=`
+.rd-fig{margin:14px 0 18px;padding:12px 14px;border:1px solid #e3e9f2;border-radius:10px;break-inside:avoid;page-break-inside:avoid}
+.rd-fig h5{margin:0 0 8px;font-size:12.5px;color:#0b2a5b}
 .rd-doc{font-family:"IBM Plex Sans Arabic",var(--sk-font,system-ui);color:#14233a;line-height:1.85;font-size:13.5px}
 .rd-doc h1,.rd-doc h2,.rd-doc h3,.rd-doc h4,.rd-doc h5{color:#0b2a5b;line-height:1.4}
 .rd-cover{padding:56px 40px;margin-bottom:24px;border-radius:14px;background:linear-gradient(140deg,#0b2a5b,#1668e3);color:#fff;text-align:center}
@@ -124,7 +148,8 @@ const CSS=`
 .rd-item{margin:18px 0 26px}.rd-item>h3{display:flex;align-items:baseline;gap:12px;font-size:17px;border-bottom:1px solid #dfe6ef;padding-bottom:6px}.rd-item>h3 span{color:#1668e3;font-size:13px;min-width:62px}
 .rd-doc h4{margin:18px 0 8px;font-size:14.5px}.rd-doc h5{margin:10px 0 4px;font-size:13.5px}
 .rd-t{width:100%;border-collapse:collapse;margin:6px 0 12px;font-size:12.5px}.rd-t th,.rd-t td{padding:6px 8px;border-bottom:1px solid #e7ecf3;text-align:start}
-.rd-t thead th{background:#f3f6fb;color:#0b2a5b;font-weight:700;border-bottom:2px solid #0b2a5b}.rd-t th small{font-weight:600;color:#6a7a92}
+.rd-t thead th{background:#f3f6fb!important;color:#0b2a5b!important;font-weight:700;border-bottom:2px solid #0b2a5b}
+.rd-doc .rd-t{border:0;border-radius:0}.rd-doc .rd-t tr:nth-child(even) td{background:none}.rd-t th small{font-weight:600;color:#6a7a92}
 .rd-t td.n,.rd-t th:not(:first-child){text-align:end;direction:ltr;font-variant-numeric:tabular-nums;white-space:nowrap}
 .rd-t tr.sub td{font-weight:700;background:#f8fafd}.rd-t tr.tot td{font-weight:800;border-top:1.5px solid #0b2a5b;border-bottom:3px double #0b2a5b}.rd-t tr.h td{font-weight:800;color:#1668e3;padding-top:12px;border-bottom:0}
 .rd-t.sm{max-width:520px}.rd-doc .pos{color:#15803d}.rd-doc .neg{color:#b91c1c}
@@ -141,5 +166,5 @@ const CSS=`
 .rd-sign{display:flex;justify-content:space-between;gap:20px;margin-top:22px;padding-top:12px;border-top:1px solid #dfe6ef}.rd-sign div{display:grid;gap:2px}
 @media print{.rd-cover{page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}.rd-part,.rd-audit{page-break-before:always}.rd-item,.rd-t{page-break-inside:auto}.rd-t tr{page-break-inside:avoid}.rd-toc{page-break-after:always}}
 `;
-window.SKosifReportDocs=Object.freeze({annual,release,auditor,CSS});
+window.SKosifReportDocs=Object.freeze({annual,release,auditor,figures,CSS});
 })();

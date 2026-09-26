@@ -25,6 +25,7 @@ const ACTIONS=[
   {id:"search",t:"بحث في العملاء والطلبات",s:"جوال، رقم طلب، وصف مبيعات",ic:"customers",run:q=>core()&&core().search(q||""),perm:["customers","view"]},
   {id:"backup",t:"نسخة كاملة للتطبيق",s:"كل البيانات في ملف واحد · Ctrl+S",ic:"archive",run:()=>SK.store.backup().catch(e=>SK.errors.report(e,"backup")),perm:["settings","export"]},
   {id:"csv",t:"تصدير الأسعار (CSV)",s:"كل جداول التسعير",ic:"excelrecon",run:act("csv-all"),perm:["catalog","export"]},
+  {id:"assistant",t:"المساعد المباشر",s:"اطلب بالكلام أو الكتابة: افتح، لخّص، صدّر، اطبع، غيّر المظهر · Ctrl+J",ic:"council",run:()=>window.SKosifAssistant&&SKosifAssistant.open()},
   {id:"jev",t:"اسأل Jev",s:"قرار منظم من بيانات مجمعة",ic:"jev",run:()=>go("jev"),perm:["jev","view"]},
   {id:"theme",t:"تبديل المظهر نهاري/ليلي",s:"الثيم الحالي ↔ نسخته الليلية",ic:"settings",run:()=>SKosifShell.toggleAppearance()},
   {id:"looks",t:"اختيار الثيم",s:"تراث الوادي · التنفيذي · المراجعة · ليل التحليل · الدفتر",ic:"settings",run:()=>go("settings")},
@@ -120,5 +121,7 @@ document.addEventListener("keydown",e=>{
   if(F&&!typing&&!isOpen()&&SK.perm.can(F)&&SK.caps.get(F)){e.preventDefault();go(F)}
 },true);
 document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("[data-sk-palette]")){e.preventDefault();open()}});
-window.SKosifCommand=Object.freeze({open,close,isOpen});
+window.SKosifCommand=Object.freeze({open,close,isOpen,
+  /* the live assistant runs the same actions */
+  actions:()=>ACTIONS.filter(allowed).map(a=>({id:a.id,t:a.t,s:a.s})),run:(id,q)=>{const a=ACTIONS.find(x=>x.id===id);if(a&&allowed(a)){a.run(q||"");return true}return false}});
 })();

@@ -292,7 +292,7 @@ body.skn-locked{overflow:hidden}
 :root[data-look="kosif"] .nav-btn:hover{background:rgba(255,255,255,.06);color:#fff}
 :root[data-look="kosif"] .nav-btn[aria-current="page"]{background:linear-gradient(90deg,rgba(31,182,224,.08),rgba(31,182,224,.2));color:#fff;font-weight:700;box-shadow:inset -3px 0 0 #3fd0f0}
 :root[data-look="kosif"] .nav-btn[aria-current="page"] svg{color:#3fd0f0}
-:root[data-look="kosif"] .nav-btn .badge{background:#1668e3;color:#fff}
+:root[data-look="kosif"] .nav-btn .badge{background:var(--sk-brand);color:var(--sk-on-brand)}
 :root[data-look="kosif"] .nav-btn .badge.red{background:#ef4444}
 :root[data-look="kosif"] .nav .skn-note{color:#7f96b5}
 :root[data-look="kosif"] .status-card{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);color:#e9f1fb}
@@ -331,7 +331,7 @@ body.skn-locked{overflow:hidden}
 :root[data-look="kosif"] .skn-domain button{border-radius:10px;color:var(--sk-ink-2)}
 :root[data-look="kosif"] .skn-domain button:hover{background:var(--sk-surface)}
 :root[data-look="kosif"] .skn-domain button[aria-current="page"]{background:var(--sk-brand);color:#fff;box-shadow:0 6px 14px -8px var(--sk-brand)}
-:root[data-look="kosif"] .skn-domain button i{background:rgba(22,104,227,.1);color:var(--sk-brand)}
+:root[data-look="kosif"] .skn-domain button i{background:color-mix(in srgb,var(--sk-brand) 10%,transparent);color:var(--sk-brand)}
 :root[data-look="kosif"] .v12-periods button.on,:root[data-look="kosif"] .sk-seg button[aria-pressed="true"]{background:var(--sk-brand);color:#fff}
 
 /* command center: clean greeting (no artwork), KPI tiles with icon chips and progress rings */
@@ -460,3 +460,25 @@ body.skn-locked{overflow:hidden}
 :root[data-look="kosif"] .nav .skn-gh{font-size:13px;color:#9db1cc;letter-spacing:0}
 :root[data-look="kosif"] .nav .skn-group.here>.skn-gh{color:#fff}
 :root[data-look="kosif"] .nav .skn-group.closed>.skn-gh:hover{color:#dbe6f4}
+
+/* ================= theme studio (typeface · text size · accent · corners · contrast) ================= */
+#view,#pr-modal .modal{zoom:var(--sk-zoom,1)}
+.skx-studio{display:grid;gap:var(--sk-3);padding-top:var(--sk-3);border-top:1px dashed var(--sk-line-2)}
+.skx-studio h4{margin:0;font-size:var(--sk-fs-l)}
+.skx-fonts{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.skx-fonts button{display:grid;gap:2px;text-align:start;padding:10px 12px;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface);color:var(--sk-ink);cursor:pointer}
+.skx-fonts button b{font-size:14px;font-weight:700}
+.skx-fonts button small{font-size:12.5px;color:var(--sk-ink-3)}
+.skx-fonts button[aria-pressed="true"],.skx-accents button[aria-pressed="true"]{border-color:var(--sk-brand);box-shadow:0 0 0 3px color-mix(in srgb,var(--sk-brand) 16%,transparent)}
+.skx-accents{display:flex;flex-wrap:wrap;gap:8px}
+.skx-accents button,.skx-custom{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:4px 12px 4px 6px;border:1px solid var(--sk-line);border-radius:var(--sk-r-pill);background:var(--sk-surface);color:var(--sk-ink-2);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.skx-accents i{width:26px;height:26px;border-radius:50%;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
+.skx-custom input{width:28px;height:28px;padding:0;border:0;border-radius:50%;background:none;cursor:pointer}
+.skx-custom input::-webkit-color-swatch-wrapper{padding:0}.skx-custom input::-webkit-color-swatch{border:0;border-radius:50%}
+
+/* high contrast, on top of any look */
+:root[data-contrast]:not([data-theme="dark"]){--sk-ink:#000;--sk-ink-2:#1b2230;--sk-ink-3:#394356;--sk-line:#8b95a7;--sk-line-2:#5d6779;--sk-rail-mute:#c9d6e8}
+:root[data-contrast][data-theme="dark"]{--sk-ink:#fff;--sk-ink-2:#e3e9f2;--sk-ink-3:#c3ccda;--sk-line:#6e7d93;--sk-line-2:#97a6bb;--sk-rail-mute:#d3deec}
+:root[data-contrast] :focus-visible{outline:3px solid var(--sk-brand)!important;outline-offset:2px!important}
+:root[data-contrast] a,:root[data-contrast] .linkish{text-decoration:underline;text-underline-offset:3px}
+:root[data-contrast] .card,:root[data-contrast] .sk-kpi,:root[data-contrast] .btn{border-width:1.5px}

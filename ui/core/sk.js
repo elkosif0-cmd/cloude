@@ -194,6 +194,46 @@ function letterhead(title){
   return '<div class="skp-orn" style="background-image:url('+base+'art/ornament.svg)"></div><header class="skp-head"><img src="'+base+'art/ram.svg" alt=""><div class="skp-org"><b>'+esc(o.biz||"أغنام الوادي")+'</b>'+(ids.length?'<span>'+ids.join(" · ")+'</span>':'')+'</div>'+
     '<div class="skp-meta"><b>'+esc(title||"")+'</b>'+date+'</div></header>';
 }
+/* ---------- print preview: every printed document opens with a bar of options first ----------
+   paper · orientation · margins · text size · colour or grey · watermark · letterhead on/off · page
+   numbers; the choice is remembered on this device (skosif_print_v1). The window's own print call
+   waits for «طباعة», so each feature keeps building its print window as before. */
+const PKEY="skosif_print_v1";
+const PDEF={paper:"A4",orient:"portrait",margin:"normal",scale:100,gray:false,wm:"",head:true,pages:true,preview:true};
+const popts=()=>Object.assign({},PDEF,load(PKEY,{}));
+const MARG={narrow:"7mm",normal:"12mm",wide:"18mm"};
+function optCSS(o){
+  return '@page{size:'+o.paper+' '+o.orient+';margin:'+MARG[o.margin]+(o.pages?';@bottom-center{content:"صفحة " counter(page) " من " counter(pages);font:9.5px sans-serif;color:#8292a8}':';@bottom-center{content:none}')+'}'+
+    'body{zoom:'+(o.scale/100)+'}'+(o.gray?'html{filter:grayscale(1)}':'')+(o.head?'':'.skp-lux,.skp-head,.skp-orn{display:none!important}')+
+    (o.wm?'body::before{content:"'+String(o.wm).replace(/["\\]/g,"")+'";position:fixed;inset:0;display:grid;place-items:center;font:800 96px/1 "IBM Plex Sans Arabic",sans-serif;color:rgba(11,31,58,.07);transform:rotate(-28deg);pointer-events:none;z-index:0}':'');
+}
+const BAR_CSS='.skp-bar{position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 -4mm 12px;padding:10px 14px;background:#0b1f3a;color:#fff;font:600 12.5px "IBM Plex Sans Arabic","Segoe UI",sans-serif;box-shadow:0 6px 20px -10px rgba(0,0,0,.5)}'+
+  '.skp-bar b{font-size:14px;margin-inline-end:auto}.skp-bar label{display:inline-flex;align-items:center;gap:6px}.skp-bar select,.skp-bar input[type=text]{min-height:32px;padding:0 8px;border:1px solid #2a4a74;border-radius:8px;background:#122a4d;color:#fff;font:inherit}'+
+  '.skp-bar input[type=text]{width:110px}.skp-bar button{min-height:34px;padding:0 14px;border:0;border-radius:9px;font:inherit;cursor:pointer}.skp-bar .go{background:#22b8e6;color:#06101f;font-weight:800}.skp-bar .x{background:#1e3a60;color:#fff}'+
+  '@media print{.skp-bar{display:none!important}}';
+function previewBar(w,d){
+  const o=popts(),sel=(k,opts)=>'<select data-k="'+k+'">'+opts.map(([v,l])=>'<option value="'+v+'"'+(String(o[k])===String(v)?' selected':'')+'>'+l+'</option>').join("")+'</select>';
+  const chk=(k,l)=>'<label><input type="checkbox" data-k="'+k+'"'+(o[k]?' checked':'')+'> '+l+'</label>';
+  const bar=d.createElement("div");bar.className="skp-bar no-print";bar.setAttribute("dir","rtl");
+  bar.innerHTML='<b>معاينة الطباعة</b>'+
+    '<label>الورق '+sel("paper",[["A4","A4"],["A5","A5"],["letter","Letter"],["A3","A3"]])+'</label>'+
+    '<label>الاتجاه '+sel("orient",[["portrait","طولي"],["landscape","عرضي"]])+'</label>'+
+    '<label>الهوامش '+sel("margin",[["narrow","ضيقة"],["normal","عادية"],["wide","واسعة"]])+'</label>'+
+    '<label>الحجم '+sel("scale",[[85,"85%"],[90,"90%"],[100,"100%"],[110,"110%"],[125,"125%"]])+'</label>'+
+    '<label>علامة مائية <input type="text" data-k="wm" list="skp-wm" value="'+esc(o.wm)+'" placeholder="بلا"><datalist id="skp-wm"><option value="مسودة"><option value="سري"><option value="نسخة"><option value="للمراجعة"></datalist></label>'+
+    chk("gray","رمادي")+chk("head","الترويسة")+chk("pages","أرقام الصفحات")+
+    '<button type="button" class="go" data-a="print">طباعة / حفظ PDF</button><button type="button" class="x" data-a="close">إغلاق</button>';
+  d.body.insertBefore(bar,d.body.firstChild);
+  const st=d.createElement("style");st.id="skp-opts";(d.head||d.documentElement).appendChild(st);
+  const apply=()=>{const x=popts();st.textContent=optCSS(x);(d.head||d.documentElement).appendChild(st)};
+  const set=(k,v)=>{const x=popts();x[k]=v;save(PKEY,x);apply()};
+  bar.addEventListener("change",e=>{const el=e.target;if(!el.dataset.k)return;set(el.dataset.k,el.type==="checkbox"?el.checked:el.dataset.k==="scale"?Number(el.value):el.value)});
+  bar.addEventListener("input",e=>{if(e.target.dataset.k==="wm")set("wm",e.target.value.slice(0,24))});
+  bar.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b)return;if(b.dataset.a==="print")w.__skRealPrint();else w.close()});
+  apply();
+  /* features add their own styles after brandPrint: the options stay last */
+  setTimeout(apply,60);w.addEventListener&&w.addEventListener("load",apply);
+}
 function brandPrint(w,title){
   try{
     const d=w.document;if(!d||!d.body)return;
@@ -204,6 +244,12 @@ function brandPrint(w,title){
     if(title&&!d.title)d.title=title;
     d.body.insertAdjacentHTML("afterbegin",letterhead(title||d.title));
     const o=org(),pr=preparer();d.body.insertAdjacentHTML("beforeend",'<footer class="skp-foot">'+esc(o.biz||"أغنام الوادي")+' · صدر من '+(kosifLook()?'KOSIF — Smarter Audit. Greater Trust.':'S.kosif')+(pr?' · أعدّه: '+esc(pr):'')+'</footer>');
+    /* the preview: options apply live; the window's own print() waits for «طباعة» */
+    const bs=d.createElement("style");bs.textContent=BAR_CSS;(d.head||d.documentElement).appendChild(bs);
+    if(!w.__skRealPrint){const real=w.print.bind(w);w.__skRealPrint=()=>{try{w.focus();real()}catch{}};
+      if(popts().preview)w.print=()=>{try{w.focus();const b=d.querySelector(".skp-bar .go");if(b)b.focus()}catch{}};else w.print=w.__skRealPrint}
+    if(window.SKCharts&&d.querySelector(".skch-fig,.skch,.skhb")){const cs=d.createElement("style");cs.id="sk-print-charts";cs.textContent=SKCharts.printCSS;(d.head||d.documentElement).appendChild(cs)}
+    previewBar(w,d);
   }catch(e){report(e,"print")}
 }
 
@@ -211,6 +257,7 @@ function askJev(opts){save("skosif_jev_draft",opts||{});if(core())core().go("jev
 
 window.SK={$,$$,esc,num,load,save,money,pct,toast,view,redact,askJev,icon,icons:ICONS,download,
   confirm:confirmDialog,notify,brandPrint,org,
+  print:Object.freeze({options:popts,set:(k,v)=>{const x=popts();x[k]=v;save(PKEY,x)},css:optCSS}),
   csv:Object.freeze({cell:safeCell,build:csv,download:downloadCsv}),
   lock:Object.freeze({now:lockNow,key:LOCK_KEY,touch:()=>{last=Date.now()}}),
   _flush:flush,version:"2.0"};

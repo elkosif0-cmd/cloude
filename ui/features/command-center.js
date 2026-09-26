@@ -64,8 +64,8 @@ function fillTrend(root){
   loadTrend().then(t=>{
     const box=root.querySelector("#skc-trend"),str=root.querySelector("#skc-structure");if(!box)return;
     const s=series(t,range);
-    box.innerHTML=SKCharts.bars({width:box.clientWidth,labels:s.labels,tipLabels:s.tip,series:[{name:"المبيعات",color:"#1668e3",values:s.s},{name:"المشتريات والمصروفات",color:"#22b35e",values:s.p.map((v,i)=>v+s.o[i])}],
-      line:{name:"صافي التدفق",color:"#22b8e6",values:s.net},height:250,title:"المبيعات والمشتريات شهرياً",empty:"لا مبيعات مستوردة ولا شحنات موردين بعد — استورد ملف المبيعات من مركز البيانات أو سجّل شحنة."});
+    box.innerHTML=SKCharts.bars({width:box.clientWidth,labels:s.labels,tipLabels:s.tip,series:[{name:"المبيعات",color:"var(--sk-c1)",values:s.s},{name:"المشتريات والمصروفات",color:"var(--sk-c2)",values:s.p.map((v,i)=>v+s.o[i])}],
+      line:{name:"صافي التدفق",color:"var(--sk-c3)",values:s.net},height:250,title:"المبيعات والمشتريات شهرياً",empty:"لا مبيعات مستوردة ولا شحنات موردين بعد — استورد ملف المبيعات من مركز البيانات أو سجّل شحنة."});
     if(str){
       const S=s.s.reduce((a,b)=>a+b,0),P=s.p.reduce((a,b)=>a+b,0),O=s.o.reduce((a,b)=>a+b,0),N=S-P-O,base=Math.max(S,P+O,1),M=SKCharts.money;
       str.innerHTML=S||P?SKCharts.progress([{label:"المبيعات",value:S,max:base,text:M(S)},{label:"مشتريات الشحنات",value:P,max:base,text:M(P),cls:"ok"},{label:"المصروفات التشغيلية",value:O,max:base,text:M(O),cls:"warn"},{label:"صافي التدفق",value:Math.abs(N),max:base,text:(N<0?"−":"")+M(Math.abs(N)),cls:N<0?"bad":"cy"}])+

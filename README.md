@@ -69,6 +69,30 @@ artwork was generated in Canva and redrawn as vector art):
   (`report-pack.js`, first tab of التقارير التنفيذية), the KOSIF print letterhead (`SK.brandPrint`) and the
   sign-in page (`unlock.html`).
 
+## Live assistant, theme studio, charts, tables and printing
+
+- `ui/features/assistant.js` (`SKosifAssistant`, `Ctrl/⌘+J` or the floating button) — a live chat that
+  controls the whole app through 22 tools: open any screen, read the current screen (KPIs, sections, table
+  rows, buttons — redacted), business summary, search, open an item, theme/night/accent/font/text size/
+  contrast, daily/advanced, print, export the table (Excel/CSV/copy/print), tasks, the books → trial-balance
+  review, palette actions, and clicking any button or filling any field on the screen. With the user's
+  Gemini key it understands free and compound requests by function calling; without it, Arabic commands are
+  understood on the device. Destructive steps (delete, clear, lock, restore) always ask first; permissions
+  apply; the chat stays on the device (`skosif_chat_v1`, outside backup and transfer); voice input and read-aloud.
+- Theme studio (الإعدادات ← المظهر): typeface (IBM Plex, Tajawal, Cairo, Almarai, Noto Kufi, Readex, Noto
+  Naskh, system), text size, accent colour (presets or custom, contrast-corrected for buttons and night),
+  corners, high contrast — applied as tokens over any look, so screens, charts and prints follow.
+- `ui/components/charts.js` (`SKCharts`) — a categorical palette validated for colour-blind separation in
+  light and night (`--sk-c1…8`), bars (grouped/stacked, 4px data ends), lines/areas with a crosshair,
+  ranked horizontal bars, a waterfall bridge; legends hide/show series, every chart has a table view and
+  PNG/SVG export. The TB review and the annual report show the revenue → net profit bridge, revenue by
+  category, current vs prior and operating expenses.
+- `ui/components/table.js` — every data table gains a totals row, compact rows, a sticky header, cards on
+  phones and an export menu: Excel (`SKXlsx.write`: real .xlsx, right-to-left, frozen header, filter,
+  numbers as numbers), CSV, copy for Excel, print with the letterhead.
+- Printing (`SK.brandPrint`) — every print opens a preview first: paper, orientation, margins, size, grey,
+  watermark, letterhead and page numbers, remembered per device; charts print with their own styles.
+
 ## iPhone & laptop
 
 One app, one dataset, two form factors — see `docs/ROADMAP-ar.md` for what shipped and the idea backlog.

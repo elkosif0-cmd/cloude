@@ -26,7 +26,52 @@ const LOOKS=[
   ["auto","حسب الجهاز","KOSIF نهاراً وKOSIF الليلي ليلاً",["#f3f6fb","#1668e3","#0a1628","#3fd0f0"]]];
 const DARK=new Set(["kosif-night","heritage-night","midnight"]);
 const NIGHT={kosif:"kosif-night",heritage:"heritage-night"};
-function prefs(){return Object.assign({look:"kosif",density:"cozy",lastLight:"kosif",rail:"full"},load(PREF_KEY,{}))}
+function prefs(){return Object.assign({look:"kosif",density:"cozy",lastLight:"kosif",rail:"full",font:"theme",scale:1,radius:"theme",accent:"",contrast:false},load(PREF_KEY,{}))}
+/* ---------- theme studio: typeface, text size, accent colour, corners, contrast ----------
+   applied on top of any look as inline tokens on <html>, so every screen, chart and print follows */
+const FONTS=[
+  ["theme","حسب الثيم","",""],
+  ["plex","IBM Plex Sans Arabic","IBM+Plex+Sans+Arabic:wght@400;500;600;700",'"IBM Plex Sans Arabic"'],
+  ["tajawal","تجوّل Tajawal","Tajawal:wght@400;500;700;800",'"Tajawal"'],
+  ["cairo","القاهرة Cairo","Cairo:wght@400;500;600;700;800",'"Cairo"'],
+  ["almarai","المراعي Almarai","Almarai:wght@400;700;800",'"Almarai"'],
+  ["kufi","نوتو كوفي Noto Kufi","Noto+Kufi+Arabic:wght@400;500;600;700;800",'"Noto Kufi Arabic"'],
+  ["readex","ريدكس Readex Pro","Readex+Pro:wght@400;500;600;700",'"Readex Pro"'],
+  ["naskh","نسخ Noto Naskh","Noto+Naskh+Arabic:wght@400;500;600;700",'"Noto Naskh Arabic"'],
+  ["system","خط الجهاز","",'system-ui']];
+const FALLBACK=',-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,sans-serif';
+const ACCENTS=[["","حسب الثيم"],["#1668e3","أزرق KOSIF"],["#0f9d6c","زمردي"],["#006c35","أخضر وطني"],["#0e8a9a","فيروزي"],["#6b4ee6","ملكي"],["#c2410c","عنبري"],["#b8862b","ذهبي"],["#d0343f","قرمزي"],["#3b4a5e","فحمي"]];
+const hexRgb=h=>{const m=/^#?([0-9a-f]{6})$/i.exec(String(h||"").trim());if(!m)return null;const n=parseInt(m[1],16);return[n>>16&255,n>>8&255,n&255]};
+const rgbHex=c=>"#"+c.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,"0")).join("");
+const lum=c=>{const f=v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)};return .2126*f(c[0])+.7152*f(c[1])+.0722*f(c[2])};
+const contrast=(a,b)=>{const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+const mix=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t);
+/* the brand steps for a chosen accent: readable on the surface, white or ink on the button */
+function accentTokens(hex,dark,surface){
+  let c=hexRgb(hex);if(!c)return null;const W=[255,255,255],K=[0,0,0],sf=hexRgb(surface)||(dark?[15,32,57]:W);
+  if(dark){let t=0;while(contrast(c,sf)<4&&t<.9){t+=.08;c=mix(hexRgb(hex),W,t)}}
+  else{let t=0;while(contrast(c,sf)<3&&t<.9){t+=.08;c=mix(hexRgb(hex),K,t)}}
+  const on=contrast(c,W)>=3.2&&!dark?"#ffffff":(contrast(c,[6,16,31])>=4.5?"#06101f":"#ffffff");
+  const b2=mix(c,dark?W:W,dark?.25:.32),deep=mix(hexRgb(hex),[11,31,58],.55);
+  return{"--sk-brand":rgbHex(c),"--sk-brand-2":rgbHex(b2),"--sk-on-brand":on,"--sk-focus":rgbHex(c),"--sk-info":rgbHex(c),"--sk-s2":rgbHex(c),
+    "--sk-brand-soft":"color-mix(in srgb,"+rgbHex(c)+" "+(dark?"22%":"11%")+",var(--sk-surface))","--sk-info-soft":"color-mix(in srgb,"+rgbHex(c)+" "+(dark?"22%":"11%")+",var(--sk-surface))",
+    "--sk-grad-brand":"linear-gradient(135deg,"+rgbHex(b2)+" 0%,"+rgbHex(c)+" 55%,"+rgbHex(deep)+" 100%)","--sk-rail-active":"color-mix(in srgb,"+rgbHex(b2)+" 16%,transparent)"};
+}
+const RADII={sharp:{"--sk-r-s":"4px","--sk-r":"6px","--sk-r-l":"8px"},round:{"--sk-r-s":"12px","--sk-r":"16px","--sk-r-l":"22px"}};
+const STUDIO_VARS=["--sk-font","--sk-font-display","--sk-brand","--sk-brand-2","--sk-on-brand","--sk-focus","--sk-info","--sk-s2","--sk-brand-soft","--sk-info-soft","--sk-grad-brand","--sk-rail-active","--sk-r-s","--sk-r","--sk-r-l","--sk-zoom"];
+function loadFont(id){
+  const f=FONTS.find(x=>x[0]===id);if(!f||!f[2]||document.getElementById("sk-font-"+id))return;
+  const l=document.createElement("link");l.id="sk-font-"+id;l.rel="stylesheet";l.href="https://fonts.googleapis.com/css2?family="+f[2]+"&display=swap";document.head.appendChild(l);
+}
+function applyStudio(de,p,mode){
+  STUDIO_VARS.forEach(v=>de.style.removeProperty(v));
+  const f=FONTS.find(x=>x[0]===p.font);
+  if(f&&f[3]){loadFont(f[0]);const stack=f[3]+FALLBACK;de.style.setProperty("--sk-font",stack);de.style.setProperty("--sk-font-display",stack)}
+  if(p.accent){const sf=getComputedStyle(de).getPropertyValue("--sk-surface").trim(),t=accentTokens(p.accent,mode==="dark",sf);if(t)Object.entries(t).forEach(([k,v])=>de.style.setProperty(k,v))}
+  if(RADII[p.radius])Object.entries(RADII[p.radius]).forEach(([k,v])=>de.style.setProperty(k,v));
+  const z=Number(p.scale);if(z&&z!==1)de.style.setProperty("--sk-zoom",String(z));
+  de.toggleAttribute("data-contrast",!!p.contrast);
+}
 function migrate(){
   const p=load(PREF_KEY,null);
   /* v2: the KOSIF identity replaces «تراث الوادي» as the default; a deliberately chosen other theme is kept */
@@ -57,6 +102,7 @@ function applyPrefs(){
   de.setAttribute("data-theme",mode);de.setAttribute("data-density",p.density==="compact"?"compact":"cozy");
   de.setAttribute("data-rail",p.rail==="mini"?"mini":"full");
   fonts(look);
+  applyStudio(de,p,mode);
   try{localStorage.setItem("aghnam-v12-theme",mode)}catch{}
   const bar=getComputedStyle(de).getPropertyValue("--sk-rail").trim()||(mode==="dark"?"#1b140e":"#efe2cc");
   $$('meta[name="theme-color"]').forEach(m=>m.setAttribute("content",bar));
@@ -245,6 +291,34 @@ function updates(){
 }
 
 /* ---------- settings: appearance, security, role, full backup ---------- */
+function studioHTML(p){
+  const seg=(name,cur,opts)=>'<div class="sk-seg" role="group" data-studio="'+name+'">'+opts.map(([v,l])=>'<button type="button" data-v="'+v+'" aria-pressed="'+(String(v)===String(cur))+'">'+l+'</button>').join("")+'</div>';
+  return '<div class="skx-studio" id="skx-studio"><h4>استوديو المظهر</h4>'+
+    '<div class="sk-field"><span>الخط</span><div class="skx-fonts">'+FONTS.map(([id,name,,stack])=>'<button type="button" data-font="'+id+'" aria-pressed="'+(p.font===id)+'"'+(stack?' style="font-family:'+esc(stack+FALLBACK).replace(/"/g,"&quot;")+'"':'')+'><b>'+esc(name)+'</b><small>المراجعة أذكى · ١٢٣٤ 1234</small></button>').join("")+'</div></div>'+
+    '<div class="sk-field"><span>حجم النص في الصفحات</span>'+seg("scale",p.scale,[[0.9,"أصغر"],[1,"عادي"],[1.1,"أكبر"],[1.2,"كبير جداً"]])+'</div>'+
+    '<div class="sk-field"><span>لون التمييز — الأزرار والروابط والتحديد والتدرجات</span><div class="skx-accents">'+ACCENTS.map(([hex,name])=>'<button type="button" data-accent="'+hex+'" aria-pressed="'+((p.accent||"")===hex)+'" title="'+esc(name)+'"><i style="background:'+(hex||"var(--sk-grad-brand)")+'"></i><span>'+esc(name)+'</span></button>').join("")+
+      '<label class="skx-custom" title="لون مخصص"><input type="color" id="skx-accent" value="'+esc(p.accent||"#1668e3")+'"><span>مخصص</span></label></div><small class="hint" id="skx-accent-note"></small></div>'+
+    '<div class="sk-field"><span>الزوايا</span>'+seg("radius",p.radius,[["sharp","حادة"],["theme","حسب الثيم"],["round","دائرية"]])+'</div>'+
+    '<label class="checkline"><input type="checkbox" id="skx-contrast"'+(p.contrast?' checked':'')+'> تباين عالٍ — حدود أوضح ونص أغمق وتركيز ظاهر (لضعف النظر والشاشات الساطعة)</label>'+
+    '<label class="checkline"><input type="checkbox" id="skx-preview"'+(SK.print&&SK.print.options().preview?' checked':'')+'> معاينة قبل الطباعة — الورق والاتجاه والهوامش والحجم والعلامة المائية والترويسة وأرقام الصفحات</label>'+
+    '<div class="sk-actions"><button type="button" class="btn" id="skx-studio-reset">إعادة المظهر الافتراضي</button><span class="hint">يُحفظ على هذا الجهاز ويُطبق فوراً على كل الشاشات والرسوم والطباعة.</span></div></div>';
+}
+function bindStudio(root){
+  const box=$("#skx-studio",root);if(!box)return;
+  const note=()=>{const p=prefs(),n=$("#skx-accent-note",box);if(!n)return;if(!p.accent){n.textContent="";return}
+    const c=hexRgb(p.accent),r=contrast(c,[255,255,255]);n.textContent=r<3?"اللون فاتح على النص الأبيض — عُدّلت درجته تلقائياً ليبقى مقروءاً (تباين "+r.toFixed(1)+":1).":"تباين اللون مع الأبيض "+r.toFixed(1)+":1 — مقروء."};
+  box.addEventListener("click",e=>{
+    const f=e.target.closest("[data-font]"),a=e.target.closest("[data-accent]"),sg=e.target.closest("[data-studio] button[data-v]");
+    if(f){setPref("font",f.dataset.font);$$("[data-font]",box).forEach(x=>x.setAttribute("aria-pressed",String(x===f)));SK.toast("الخط: "+f.querySelector("b").textContent,"info")}
+    else if(a){setPref("accent",a.dataset.accent);$$("[data-accent]",box).forEach(x=>x.setAttribute("aria-pressed",String(x===a)));note()}
+    else if(sg){const g=sg.closest("[data-studio]"),k=g.dataset.studio;setPref(k,k==="scale"?Number(sg.dataset.v):sg.dataset.v);$$("button",g).forEach(x=>x.setAttribute("aria-pressed",String(x===sg)))}
+  });
+  $("#skx-accent",box).addEventListener("input",e=>{setPref("accent",e.target.value);$$("[data-accent]",box).forEach(x=>x.setAttribute("aria-pressed","false"));note()});
+  $("#skx-contrast",box).addEventListener("change",e=>setPref("contrast",e.target.checked));
+  $("#skx-preview",box).addEventListener("change",e=>{SK.print.set("preview",e.target.checked);SK.toast(e.target.checked?"ستظهر معاينة قبل كل طباعة":"الطباعة مباشرة دون معاينة","info")});
+  $("#skx-studio-reset",box).addEventListener("click",()=>{const p=prefs();["font","scale","radius","accent","contrast"].forEach(k=>delete p[k]);save(PREF_KEY,p);applyPrefs();box.outerHTML=studioHTML(prefs());bindStudio(root);SK.toast("عاد المظهر الافتراضي","info")});
+  note();
+}
 function settingsCards(root){
   if(!root||root.querySelector("#skx-prefs"))return;
   const p=prefs(),lock=SK.num(load(SK.lock.key,0)),role=SK.perm.role(),isAdmin=role==="admin";
@@ -253,6 +327,7 @@ function settingsCards(root){
   '<section class="card" id="skx-prefs"><div class="card-h"><div><h3>المظهر والأمان</h3><p>نظام تصميم واحد بستة ثيمات كاملة، والقفل التلقائي لهذا الجهاز.</p></div></div><div class="card-b sk-stack">'+
     '<div class="sk-field"><span>الثيم — يغيّر شكل التطبيق كله دون أي تغيير في البيانات</span><div class="skx-themes" id="skx-themes">'+LOOKS.map(([id,name,desc,c])=>'<button type="button" class="skx-theme" data-look="'+id+'" aria-pressed="'+(p.look===id)+'"><span class="sw">'+c.map(x=>'<i style="background:'+x+'"></i>').join("")+'</span><b>'+esc(name)+'</b><small>'+esc(desc)+'</small></button>').join("")+'</div></div>'+
     '<div class="sk-field"><span>كثافة الواجهة</span>'+seg("density",p.density,[["cozy","مريحة"],["compact","مضغوطة"]])+'</div>'+
+    studioHTML(p)+
     '<div class="sk-actions"><label class="sk-field" style="flex:1;min-width:200px"><span>القفل التلقائي بعد عدم النشاط</span><select id="skx-lock">'+
       [[0,"متوقف"],[5,"5 دقائق"],[15,"15 دقيقة"],[30,"30 دقيقة"],[60,"ساعة"]].map(o=>'<option value="'+o[0]+'"'+(o[0]===lock?' selected':'')+'>'+o[1]+'</option>').join("")+
     '</select></label><button type="button" class="btn sk-end" id="skx-lock-now">قفل الآن</button></div></div></section>'+
@@ -268,6 +343,7 @@ function settingsCards(root){
   $$("[data-pref]",root).forEach(g=>g.addEventListener("click",e=>{const b=e.target.closest("button[data-v]");if(!b)return;
     setPref(g.dataset.pref,b.dataset.v);SK.toast(b.dataset.v==="compact"?"واجهة مضغوطة":"واجهة مريحة","info");
     $$("button",g).forEach(x=>x.setAttribute("aria-pressed",String(x===b)))}));
+  bindStudio(root);
   $("#skx-themes",root).addEventListener("click",e=>{const b=e.target.closest("[data-look]");if(!b)return;setLook(b.dataset.look);$$("[data-look]",root).forEach(x=>x.setAttribute("aria-pressed",String(x===b)))});
   $("#skx-lock",root).onchange=e=>{save(SK.lock.key,SK.num(e.target.value));SK.lock.touch();SK.toast(SK.num(e.target.value)?"القفل التلقائي: "+e.target.selectedOptions[0].text:"أُوقف القفل التلقائي","info")};
   $("#skx-lock-now",root).onclick=()=>SK.lock.now();
@@ -332,7 +408,7 @@ function customerCards(root){
     '<div class="sk-cc-actions">'+(c[7]?c[7].innerHTML:"")+'</div></article>'}).join("");
 }
 
-window.SKosifShell=Object.freeze({paint,stripItems,toggleAppearance,setAppearance,setLook,looks:()=>LOOKS.map(x=>({id:x[0],name:x[1]})),prefs,resolved,
+window.SKosifShell=Object.freeze({paint,stripItems,setPref,fonts:()=>FONTS.map(f=>({id:f[0],name:f[1]})),accents:()=>ACCENTS.map(a=>({hex:a[0],name:a[1]})),toggleAppearance,setAppearance,setLook,looks:()=>LOOKS.map(x=>({id:x[0],name:x[1]})),prefs,resolved,
   toggleRail,tabs:tabIds,setTabs,tabLabel,defaultTabs:()=>TABS.slice(),tabMax:TAB_MAX});
 
 function boot(){
