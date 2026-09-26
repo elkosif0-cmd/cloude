@@ -174,7 +174,9 @@ async function check(){
 }
 function bind(node){
   node.addEventListener("click",e=>{
-    const gt=e.target.closest("[data-ag-tab]");if(gt){guideTab=gt.dataset.agTab;guideResult=null;paint();return}\n    if(e.target.closest("[data-ag-run]")){runGuide();return}\n    const s=e.target.closest("[data-std]");if(s){open(s.dataset.std);return}
+    const gt=e.target.closest("[data-ag-tab]");if(gt){guideTab=gt.dataset.agTab;guideResult=null;paint();return}
+    if(e.target.closest("[data-ag-run]")){runGuide();return}
+    const s=e.target.closest("[data-std]");if(s){open(s.dataset.std);return}
     const f=e.target.closest("[data-fam]");if(f){fam=fam===f.dataset.fam&&f.classList.contains("skk4-t")?"all":f.dataset.fam;paint();return}
     const b=e.target.closest("[data-cx]");if(!b)return;
     if(b.dataset.cx==="check"){check();return}
