@@ -54,16 +54,16 @@ Total capabilities: **64** (screens). Cross-cutting capabilities are listed afte
 | `reports` | مركز الطباعة | core | التقارير والتحليلات › الطباعة والتصدير › يومي | `aghnam-pricing-v3`, `aghnam-pricing-prints-v1` | SKosifCore, Engine | Working | Keep |
 | `exports` | مركز التصدير | ui/features/workspace.js | التقارير والتحليلات › الطباعة والتصدير › يومي | `كل المفاتيح` | SKosifCore | Working | Rebuild |
 | `archive` | الأرشيف والتغييرات | core | التقارير والتحليلات › يومي | `aghnam-pricing-v3`, `IDB pricing_snapshots` | SKosifCore, Engine, IndexedDB | Working | Keep |
-| `tbreview` | مراجعة ميزان المراجعة | ui/features/tb-review.js + ui/core/ai.js + ui/components/xlsx.js + SKEngines.audit.{tbReview,aiReview,documentCheck} + SKEngines.reports.{tbImport,statements,analysis} | المراجعة والتأكيد › يومي | `skosif_tbreview_v1`, `IDB skosif-tbreview-docs`, `skosif_ai_keys (الجهاز فقط)` | SKosifCore, IndexedDB | Working | Rebuild |
-| `codex` | المدونة المحاسبية والمعايير | ui/features/codex.js + SKEngines.audit.{codex,standardsUpdate} | المراجعة والتأكيد › يومي | `skosif_codex_updates_v1` | SKosifCore | Working | Rebuild |
-| `auditdesk` | مركز المراجعة | ui/audit (v5) | المراجعة والتأكيد › استوديو المراجعة › متقدم | `audit studio IDB` | SKosifCore | Working | Keep |
-| `auditdocs` | المستندات والأدلة | ui/audit (v5) + ui/audit-bridge.js | المراجعة والتأكيد › استوديو المراجعة › متقدم | `IDB sales_lines`, `skosif_v31_supplier_batches`, `skosif_erp_finance_v1`, `skosif_v38_ledger` | SKosifCore, IndexedDB | Working | Keep |
-| `auditissues` | الملاحظات والقضايا | ui/audit (v5) | المراجعة والتأكيد › استوديو المراجعة › متقدم | `audit studio IDB` | SKosifCore | Working | Keep |
-| `auditcouncil` | مجلس المراجعين | ui/audit (v5) | المراجعة والتأكيد › استوديو المراجعة › متقدم | `audit studio IDB` | SKosifCore | Working | Keep |
-| `auditfin` | القوائم والقيود | ui/audit (v5) | المراجعة والتأكيد › استوديو المراجعة › متقدم | `audit studio IDB` | SKosifCore | Working | Keep |
-| `auditreport` | التقارير والإصدار | ui/audit (v5) | المراجعة والتأكيد › استوديو المراجعة › متقدم | `audit studio IDB` | SKosifCore | Working | Keep |
-| `auditanalytics` | التحليل المالي والمخاطر | ui/audit/classic | المراجعة والتأكيد › التحليل والمعاينة › متقدم | `audit classic storage` | SKosifCore | Working | Keep |
-| `auditlab` | مختبر المعايير | ui/audit/lab | المراجعة والتأكيد › التحليل والمعاينة › متقدم | `audit lab storage` | SKosifCore | Working | Keep |
+| `tbreview` | ملف المراجعة | ui/features/tb-review.js + ui/core/ai.js + ui/components/xlsx.js + SKEngines.audit.{tbReview,aiReview,documentCheck} + SKEngines.reports.{tbImport,statements,analysis} | المراجعة والتأكيد › مركز المراجعة › يومي | `skosif_tbreview_v1`, `IDB skosif-tbreview-docs`, `skosif_ai_keys (الجهاز فقط)` | SKosifCore, IndexedDB | Working | Rebuild |
+| `codex` | المدونة المحاسبية والمعايير | ui/features/codex.js + SKEngines.audit.{codex,standardsUpdate} | المراجعة والتأكيد › المعايير والمدونة › يومي | `skosif_codex_updates_v1` | SKosifCore | Working | Rebuild |
+| `auditdesk` | الاستوديو المتقدم | ui/audit (v5) | المراجعة والتأكيد › مركز المراجعة › متقدم | `audit studio IDB` | SKosifCore | Working | Keep |
+| `auditdocs` | المستندات والأدلة | ui/audit (v5) + ui/audit-bridge.js | المراجعة والتأكيد › مركز المراجعة › متقدم | `IDB sales_lines`, `skosif_v31_supplier_batches`, `skosif_erp_finance_v1`, `skosif_v38_ledger` | SKosifCore, IndexedDB | Working | Keep |
+| `auditissues` | الملاحظات والقضايا | ui/audit (v5) | المراجعة والتأكيد › مركز المراجعة › متقدم | `audit studio IDB` | SKosifCore | Working | Keep |
+| `auditcouncil` | مجلس المراجعين | ui/audit (v5) | المراجعة والتأكيد › مركز المراجعة › متقدم | `audit studio IDB` | SKosifCore | Working | Keep |
+| `auditfin` | القوائم والقيود | ui/audit (v5) | المراجعة والتأكيد › مركز المراجعة › متقدم | `audit studio IDB` | SKosifCore | Working | Keep |
+| `auditreport` | التقارير والإصدار | ui/audit (v5) | المراجعة والتأكيد › مركز المراجعة › متقدم | `audit studio IDB` | SKosifCore | Working | Keep |
+| `auditanalytics` | التحليل والاختبارات | ui/audit/classic | المراجعة والتأكيد › مركز المراجعة › متقدم | `audit classic storage` | SKosifCore | Working | Keep |
+| `auditlab` | مختبر المعايير والأبحاث | ui/audit/lab | المراجعة والتأكيد › المعايير والمدونة › متقدم | `audit lab storage` | SKosifCore | Working | Keep |
 | `settings` | الإعدادات والمظهر | core + ui/shell.js | النظام والتكاملات › الإعدادات والأجهزة › يومي | `aghnam-pricing-v3`, `skosif_prefs` | SKosifCore, Engine | Working | Keep |
 | `devices` | الأجهزة والمزامنة | ui/features/devices.js + ui/core/device.js + ui/components/keys.js | النظام والتكاملات › الإعدادات والأجهزة › يومي | `skosif_prefs`, `sk-device-log`, `IDB aghnam-app-v7` | SKosifCore, IndexedDB | Working | Rebuild |
 | `companies` | الشركات والفترات | ui/features/workspace.js + SKEngines.system | النظام والتكاملات › متقدم | `skosif_companies_v1` | SKosifCore | Working | Rebuild |

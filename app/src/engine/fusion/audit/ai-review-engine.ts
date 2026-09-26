@@ -33,12 +33,17 @@ export const ROUND_SCHEMA = OBJ({
   boardOpinions: ARR(OBJ({ reviewer: { type: 'STRING', enum: [...REVIEWERS] }, opinion: S() }, ['reviewer', 'opinion'])),
   accountStandards: ARR(OBJ({ accountCode: S(), standards: ARR(S()), note: S('علاقة المعيار بالحساب باختصار') }, ['accountCode', 'standards'])),
   findings: ARR(OBJ({ accountCode: S(), accountName: S(), standardCode: S(), issueType: { type: 'STRING', enum: ['تصنيف', 'قياس', 'إفصاح', 'اكتمال', 'تحليلي', 'غش', 'استمرارية', 'أخرى'] },
-    severity: { type: 'STRING', enum: ['جسيمة', 'عالية', 'متوسطة', 'منخفضة'] }, amount: S('المبلغ المتأثر بالريال إن وجد'), comment: S(), recommendation: S() }, ['accountName', 'standardCode', 'severity', 'comment', 'recommendation'])),
-  requestedDocuments: ARR(OBJ({ id: S('REQ-n متسلسل ومحفوظ بين الجولات'), title: S(), purpose: S(), relatedAccounts: ARR(S()), standardCode: S(), priority: { type: 'STRING', enum: ['عالية', 'متوسطة', 'منخفضة'] } }, ['id', 'title', 'purpose', 'priority'])),
+    severity: { type: 'STRING', enum: ['جسيمة', 'عالية', 'متوسطة', 'منخفضة'] }, amount: S('المبلغ المتأثر بالريال إن وجد'), comment: S(), recommendation: S(), citations: ARR(S('رقم دليل من السجل')) }, ['accountName', 'standardCode', 'severity', 'comment', 'recommendation'])),
+  requestedDocuments: ARR(OBJ({ id: S('REQ-n متسلسل ومحفوظ بين الجولات'), title: S(), purpose: S(), relatedAccounts: ARR(S()), standardCode: S(), priority: { type: 'STRING', enum: ['عالية', 'متوسطة', 'منخفضة'] },
+    lineKey: S('مفتاح البند'), assertion: { type: 'STRING', enum: ['existence', 'completeness', 'accuracy', 'cutoff', 'valuation', 'presentation'] }, effort: { type: 'STRING', enum: ['low', 'medium', 'high'] }, citations: ARR(S()) }, ['id', 'title', 'purpose', 'priority'])),
   documentsReviewed: ARR(OBJ({ fileName: S(), requestId: S(), verdict: { type: 'STRING', enum: ['مقبول', 'غير كافٍ', 'مرفوض'] }, notes: S(),
     extracted: OBJ({ documentDate: S('YYYY-MM-DD'), amount: S(), vatAmount: S(), vatNumber: S(), counterparty: S(), reference: S() }, []) }, ['fileName', 'verdict', 'notes'])),
   proposedAdjustments: ADJ_SCHEMA,
   nextStepGuidance: S(),
+  /* the chair of the audit council (optional for a single reviewer) */
+  decision: { type: 'STRING', enum: ['request_more_evidence', 'escalate', 'sufficient'], description: 'قرار الرئيس: طلب أدلة، أو تصعيد للمراجع البشري، أو اكتفاء' },
+  confidence: ARR(OBJ({ lineKey: S(), assertion: { type: 'STRING', enum: ['existence', 'completeness', 'accuracy', 'cutoff', 'valuation', 'presentation'] }, value: { type: 'NUMBER', description: '0-1' } }, ['lineKey', 'assertion', 'value'])),
+  dissent: ARR(OBJ({ member: S(), note: S(), citations: ARR(S()) }, ['member', 'note'])),
 }, ['status', 'executiveSummary', 'riskScore', 'boardOpinions', 'findings', 'requestedDocuments', 'nextStepGuidance']);
 
 export const FINAL_SCHEMA = OBJ({
@@ -47,7 +52,7 @@ export const FINAL_SCHEMA = OBJ({
   keyAuditMatters: ARR(OBJ({ title: S(), why: S('لماذا يعد أمراً رئيسياً'), how: S('كيف عولج في المراجعة') }, ['title', 'why', 'how'])),
   complianceDiscussion: ARR(OBJ({ standardCode: S(), status: { type: 'STRING', enum: ['ممتثل', 'ممتثل جزئياً', 'غير ممتثل', 'غير منطبق'] }, discussion: S() }, ['standardCode', 'status', 'discussion'])),
   adjustments: ADJ_SCHEMA,
-  managementLetter: ARR(OBJ({ title: S(), observation: S(), recommendation: S(), priority: { type: 'STRING', enum: ['عالية', 'متوسطة', 'منخفضة'] } }, ['title', 'observation', 'recommendation', 'priority'])),
+  managementLetter: ARR(OBJ({ title: S(), observation: S(), effect: S(), recommendation: S(), priority: { type: 'STRING', enum: ['عالية', 'متوسطة', 'منخفضة'] } }, ['title', 'observation', 'recommendation', 'priority'])),
   limitations: ARR(S()), closingStatement: S(),
 }, ['overallOpinion', 'headline', 'summary', 'keyAuditMatters', 'complianceDiscussion', 'adjustments', 'managementLetter', 'closingStatement']);
 
@@ -57,10 +62,13 @@ export type ReviewedDoc = { requestId: string; fileName: string; verdict: 'مق�
 export type AiAdjustment = Adjustment & { valid: boolean; problems: string[]; newAccounts: string[] };
 export type Round = { no: number; at: string; model: string; status: 'needs_docs' | 'complete'; summary: string; riskScore: number;
   opinions: { reviewer: string; opinion: string }[]; accountStandards: Record<string, { standards: string[]; unknown: string[]; note: string }>;
-  findings: Finding[]; requests: DocRequest[]; reviewed: ReviewedDoc[]; adjustments: AiAdjustment[]; guidance: string; warnings: string[] };
+  findings: Finding[]; requests: DocRequest[]; reviewed: ReviewedDoc[]; adjustments: AiAdjustment[]; guidance: string; warnings: string[];
+  /* the audit council (research «مجلس المراجعة الذكي»): the chair's decision, confidences, dissent and the members' verified opinions */
+  decision?: 'request_more_evidence' | 'escalate' | 'sufficient'; confidence?: { lineKey: string; assertion: string; value: number }[];
+  dissent?: { member: string; note: string; citations: string[] }[]; council?: { size: number; opinions: unknown[]; disagreements: unknown[] } };
 export type Session = { id: string; ctx: ReviewContext; model: string; createdAt: string; rounds: Round[]; uploads: Upload[]; unavailable: string[]; final?: FinalReport };
 export type FinalReport = { at: string; aiOpinion: string; headline: string; summary: string; kams: { title: string; why: string; how: string }[];
-  compliance: { standardCode: string; status: string; discussion: string }[]; adjustments: AiAdjustment[]; letter: { title: string; observation: string; recommendation: string; priority: string }[];
+  compliance: { standardCode: string; status: string; discussion: string }[]; adjustments: AiAdjustment[]; letter: { title: string; observation: string; effect?: string; recommendation: string; priority: string }[];
   limitations: string[]; closing: string };
 
 const SEV: Record<string, Severity> = { 'جسيمة': 'high', 'عالية': 'high', 'متوسطة': 'medium', 'منخفضة': 'low', high: 'high', medium: 'medium', low: 'low' };
@@ -130,7 +138,7 @@ export function pendingUploads(s: Session): Upload[] {
   return s.uploads.filter((u) => u.round === next);
 }
 
-export function buildRoundBody(s: Session, tb: TrialBalance, review: Review, opts: { temperature?: number } = {}) {
+export function buildRoundBody(s: Session, tb: TrialBalance, review: Review, opts: { temperature?: number; council?: string } = {}) {
   const no = s.rounds.length + 1, parts: Part[] = [];
   parts.push({ text: `الجولة رقم ${no}.` });
   parts.push({ text: describeReview(tb, review) });
@@ -149,6 +157,8 @@ export function buildRoundBody(s: Session, tb: TrialBalance, review: Review, opt
       if (u.data) parts.push({ inlineData: { mimeType: u.mimeType, data: u.data } }); else if (u.text) parts.push({ text: u.text.slice(0, 60000) });
     }
   }
+  if (opts.council) parts.push({ text: 'أنت رئيس المجلس في هذه الجولة. آراء الأعضاء بعد التحقق الآلي من استشهاداتهم وسجل الأدلة المرقمة:\n' + opts.council +
+    '\nاستشهد في كل ملاحظة وطلب بأرقام الأدلة من السجل فقط، وحدد لكل طلب البند والتأكيد والعبء على العميل، واملأ decision وconfidence وdissent (الآراء المخالفة غير المحسومة).' });
   parts.push({ text: no === 1 ? 'راجع الميزان وأكد المعايير لكل حساب واكتشف الأخطاء واطلب المستندات اللازمة.' : 'راجع المستندات المرفوعة مقابل طلباتها، وحدّث الملاحظات، واطلب ما يلزم، أو أعلن اكتمال المراجعة.' });
   return { systemInstruction: { parts: [{ text: systemPrompt(s.ctx) }] }, contents: [{ role: 'user', parts }],
     generationConfig: { temperature: opts.temperature ?? 0.2, responseMimeType: 'application/json', responseSchema: ROUND_SCHEMA } };
@@ -179,8 +189,11 @@ function adjFrom(raw: unknown, i: number, round: number, tb: TrialBalance, prefi
 }
 
 /** Normalize one Gemini round into the app's types; never trusts the model's arithmetic or codes. */
-export function normalizeRound(raw: unknown, s: Session, tb: TrialBalance, model: string, now = new Date()): Round {
+export function normalizeRound(raw: unknown, s: Session, tb: TrialBalance, model: string, now = new Date(), evidenceIds?: Set<string>): Round {
   const r = (raw ?? {}) as Record<string, unknown>, no = s.rounds.length + 1, warnings: string[] = [];
+  /* mandatory citation: only numbered evidence that exists is kept; the rest is reported */
+  const cite = (v: unknown, where: string) => { const list = arr<string>(v).map((c) => str(c, 40)).filter(Boolean); if (!evidenceIds) return list;
+    const bad = list.filter((c) => !evidenceIds.has(c)); if (bad.length) warnings.push(`استشهاد بدليل غير موجود في ${where}: ${bad.join('، ')} — حُذف.`); return list.filter((c) => evidenceIds.has(c)); };
   const codes = new Set(tb.rows.map((x) => x.code));
   const accountStandards: Round['accountStandards'] = {};
   for (const x of arr<Record<string, unknown>>(r.accountStandards)) {
@@ -195,7 +208,7 @@ export function normalizeRound(raw: unknown, s: Session, tb: TrialBalance, model
     return { id: `G${no}-${++fseq}`, severity: SEV[str(f.severity, 20)] ?? 'medium', kind: KIND[str(f.issueType, 20)] ?? 'measurement',
       code: codes.has(code) ? code : undefined, account: str(f.accountName, 200), standard: normalizeCode(std) ?? (std || 'IAS 1'),
       title: str(f.comment, 160).split(/[.،؛]/)[0] || 'ملاحظة', detail: str(f.comment, 2000), basis: amount ? 'المبلغ المتأثر ' + sar(amount) + (s.ctx.framework === 'EAS' ? ' ج.م' : ' ر.س') : 'حكم مهني',
-      action: str(f.recommendation, 1000), source: 'gemini' as const, round: no };
+      action: str(f.recommendation, 1000), source: 'gemini' as const, round: no, citations: cite(f.citations, 'ملاحظة') };
   });
   const existing = new Map<string, DocRequest>(); s.rounds.forEach((x) => x.requests.forEach((q) => existing.set(q.id, q)));
   let next = existing.size + 1;
@@ -207,8 +220,10 @@ export function normalizeRound(raw: unknown, s: Session, tb: TrialBalance, model
     if (same) { if (!requests.some((x) => x.id === same.id)) requests.push(same); continue; }
     if (!/^REQ-\d+$/.test(id) || existing.has(id) || requests.some((x) => x.id === id)) id = 'REQ-' + next;
     next = Math.max(next, Number(id.slice(4)) + 1);
+    const assertion = str(q.assertion, 20), effort = str(q.effort, 10), lineKey = str(q.lineKey, 40);
     requests.push({ id, title, purpose: str(q.purpose, 600), accounts: arr<string>(q.relatedAccounts).map((c) => str(c, 40)).filter(Boolean), standard: normalizeCode(str(q.standardCode, 60)) ?? 'ISA 500',
-      priority: (['عالية', 'متوسطة', 'منخفضة'] as const).find((p) => p === str(q.priority, 20)) ?? 'متوسطة', source: 'gemini', round: no });
+      priority: (['عالية', 'متوسطة', 'منخفضة'] as const).find((p) => p === str(q.priority, 20)) ?? 'متوسطة', source: 'gemini', round: no,
+      ...(lineKey ? { lineKey } : {}), ...(assertion ? { assertion } : {}), ...(['low', 'medium', 'high'].includes(effort) ? { effort: effort as 'low' | 'medium' | 'high' } : {}), ...(q.citations ? { citations: cite(q.citations, 'طلب') } : {}) });
   }
   const up = pendingUploads(s);
   const reviewed: ReviewedDoc[] = arr<Record<string, unknown>>(r.documentsReviewed).map((d) => {
@@ -227,7 +242,10 @@ export function normalizeRound(raw: unknown, s: Session, tb: TrialBalance, model
   const score = Number(r.riskScore);
   return { no, at: now.toISOString(), model, status, summary: str(r.executiveSummary, 4000), riskScore: Number.isFinite(score) ? Math.max(0, Math.min(100, Math.round(score))) : 50,
     opinions: arr<Record<string, unknown>>(r.boardOpinions).map((o) => ({ reviewer: str(o.reviewer, 80), opinion: str(o.opinion, 2000) })).filter((o) => o.opinion),
-    accountStandards, findings, requests, reviewed, adjustments, guidance: str(r.nextStepGuidance, 2000), warnings };
+    accountStandards, findings, requests, reviewed, adjustments, guidance: str(r.nextStepGuidance, 2000), warnings,
+    ...(r.decision ? { decision: (['request_more_evidence', 'escalate', 'sufficient'] as const).find((d) => d === str(r.decision, 30)) ?? 'request_more_evidence' } : {}),
+    ...(r.confidence ? { confidence: arr<Record<string, unknown>>(r.confidence).map((c) => ({ lineKey: str(c.lineKey, 40), assertion: str(c.assertion, 20), value: Math.max(0, Math.min(1, Number(c.value) || 0)) })).filter((c) => c.lineKey) } : {}),
+    ...(r.dissent ? { dissent: arr<Record<string, unknown>>(r.dissent).map((x) => ({ member: str(x.member, 80), note: str(x.note, 800), citations: cite(x.citations, 'رأي مخالف') })).filter((x) => x.note) } : {}) };
 }
 
 export function addRound(s: Session, round: Round): Session { return { ...s, rounds: [...s.rounds, round] }; }
@@ -307,7 +325,7 @@ export function buildFinalBody(s: Session, tb: TrialBalance, review: Review, der
       'غير المتوفرة: ' + (s.unavailable.join('، ') || 'لا شيء'),
       'ملاحظات المجلس: ' + s.rounds.flatMap((r) => r.findings).map((f) => `${f.title} (${f.standard}, ${f.severity})`).join('؛ '),
       `الرأي المشتق آلياً وفق ISA 705: ${derived.ar} — ${derived.basis.join(' ')}`].join('\n') },
-    { text: 'أصدر التقرير النهائي: الملخص، الأمور الرئيسية للمراجعة (ISA 701)، مناقشة الامتثال لكل معيار مؤثر، قيود التسوية النهائية المقترحة، خطاب الإدارة، والقيود على النطاق. اتسق مع الرأي المشتق ما لم تذكر سبباً مهنياً للاختلاف.' },
+    { text: 'أصدر التقرير النهائي: الملخص، الأمور الرئيسية للمراجعة (ISA 701)، مناقشة الامتثال لكل معيار مؤثر، قيود التسوية النهائية المقترحة، خطاب الإدارة (لكل ملاحظة: الملاحظة، الأثر المالي أو الرقابي، التوصية)، والقيود على النطاق. اتسق مع الرأي المشتق ما لم تذكر سبباً مهنياً للاختلاف.' },
   ];
   return { systemInstruction: { parts: [{ text: systemPrompt(s.ctx) }] }, contents: [{ role: 'user', parts }],
     generationConfig: { temperature: 0.2, responseMimeType: 'application/json', responseSchema: FINAL_SCHEMA } };
@@ -319,7 +337,7 @@ export function normalizeFinal(raw: unknown, s: Session, tb: TrialBalance, now =
     kams: arr<Record<string, unknown>>(r.keyAuditMatters).map((k) => ({ title: str(k.title, 200), why: str(k.why, 2000), how: str(k.how, 2000) })).filter((k) => k.title),
     compliance: arr<Record<string, unknown>>(r.complianceDiscussion).map((c) => ({ standardCode: normalizeCode(str(c.standardCode, 60)) ?? str(c.standardCode, 60), status: str(c.status, 30), discussion: str(c.discussion, 3000) })).filter((c) => c.standardCode),
     adjustments: arr(r.adjustments).slice(0, 20).map((a, i) => adjFrom(a, i, s.rounds.length + 1, tb, 'F')),
-    letter: arr<Record<string, unknown>>(r.managementLetter).map((m) => ({ title: str(m.title, 200), observation: str(m.observation, 2000), recommendation: str(m.recommendation, 2000), priority: str(m.priority, 20) })).filter((m) => m.title),
+    letter: arr<Record<string, unknown>>(r.managementLetter).map((m) => ({ title: str(m.title, 200), observation: str(m.observation, 2000), effect: str(m.effect, 2000) || undefined, recommendation: str(m.recommendation, 2000), priority: str(m.priority, 20) })).filter((m) => m.title),
     limitations: arr(r.limitations).map((x) => str(x, 600)).filter(Boolean), closing: str(r.closingStatement, 2000) };
 }
 

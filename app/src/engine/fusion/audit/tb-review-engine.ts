@@ -17,8 +17,10 @@ import { inFramework, standardsFor, STANDARD, type Framework } from './codex-eng
 
 export type Severity = 'high' | 'medium' | 'low';
 export type Finding = { id: string; severity: Severity; kind: 'balance' | 'classification' | 'measurement' | 'disclosure' | 'completeness' | 'analytical' | 'fraud' | 'going-concern';
-  code?: string; account?: string; lineKey?: string; standard: string; title: string; detail: string; basis: string; action: string; source: 'engine' | 'gemini'; round?: number };
-export type DocRequest = { id: string; title: string; purpose: string; lineKey?: string; accounts: string[]; standard: string; priority: 'عالية' | 'متوسطة' | 'منخفضة'; source: 'engine' | 'gemini'; round?: number };
+  code?: string; account?: string; lineKey?: string; standard: string; title: string; detail: string; basis: string; action: string; source: 'engine' | 'gemini'; round?: number;
+  /** numbered evidence the council cited (audit council rounds) */ citations?: string[] };
+export type DocRequest = { id: string; title: string; purpose: string; lineKey?: string; accounts: string[]; standard: string; priority: 'عالية' | 'متوسطة' | 'منخفضة'; source: 'engine' | 'gemini'; round?: number;
+  /** the smart request of the audit council: the assertion it proves, the client's effort, the evidence behind it */ assertion?: string; effort?: 'low' | 'medium' | 'high'; citations?: string[] };
 export type AdjLine = { code: string; name: string; debit: Minor; credit: Minor; /** for an account not yet in the trial balance */ type?: TbRow['type'] };
 export type Adjustment = { id: string; title: string; reason: string; standard: string; lines: AdjLine[]; estimate: boolean; source: 'engine' | 'gemini'; round?: number };
 export type Materiality = { benchmark: 'pbz' | 'revenue' | 'assets'; benchmarkAr: string; base: Minor; rate: number; overall: Minor; performance: Minor; trivial: Minor };

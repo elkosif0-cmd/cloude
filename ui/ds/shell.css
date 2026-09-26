@@ -482,3 +482,9 @@ body.skn-locked{overflow:hidden}
 :root[data-contrast] :focus-visible{outline:3px solid var(--sk-brand)!important;outline-offset:2px!important}
 :root[data-contrast] a,:root[data-contrast] .linkish{text-decoration:underline;text-underline-offset:3px}
 :root[data-contrast] .card,:root[data-contrast] .sk-kpi,:root[data-contrast] .btn{border-width:1.5px}
+.skd-f{display:grid;gap:4px;margin-top:var(--sk-3);font-size:var(--sk-fs-s);color:var(--sk-ink-2)}
+.skd-f>span{font-weight:600;color:var(--sk-ink)}.skd-f>span i{color:var(--sk-bad);font-style:normal}
+.skd-f input,.skd-f select,.skd-f textarea{width:100%;min-height:40px;padding:8px 10px;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface);color:var(--sk-ink);font:inherit}
+.skd-f textarea{min-height:76px;resize:vertical}.skd-f small{color:var(--sk-ink-3)}
+.skd-f input:focus,.skd-f select:focus,.skd-f textarea:focus{outline:2px solid var(--sk-focus);outline-offset:1px}
+.skd-err{margin-top:var(--sk-2);color:var(--sk-bad)!important;font-weight:600}

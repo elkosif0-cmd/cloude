@@ -144,6 +144,35 @@ function confirmDialog(message,opts={}){
   });
 }
 const notify=(message,opts)=>confirmDialog(message,{...opts,alert:true});
+/* a small form in the same dialog (replaces window.prompt): fields [{key,label,type,value,required,options,min,max,step,hint}] → values or null */
+function formDialog(title,fields,opts={}){
+  return new Promise(resolve=>{
+    const prev=document.activeElement;
+    const w=document.createElement("div");w.className="skd-wrap";w.setAttribute("role","presentation");
+    const field=f=>{const id="skf-"+f.key,v=f.value==null?"":String(f.value),req=f.required?' required':'';
+      const ctl=f.type==="textarea"?'<textarea id="'+id+'" name="'+esc(f.key)+'" rows="3"'+req+'>'+esc(v)+'</textarea>':
+        f.type==="select"?'<select id="'+id+'" name="'+esc(f.key)+'">'+(f.options||[]).map(o=>{const [ov,ol]=Array.isArray(o)?o:[o,o];return '<option value="'+esc(ov)+'"'+(String(ov)===v?' selected':'')+'>'+esc(ol)+'</option>'}).join("")+'</select>':
+        '<input id="'+id+'" name="'+esc(f.key)+'" type="'+(f.type==="number"?"number":"text")+'" value="'+esc(v)+'"'+(f.min!=null?' min="'+f.min+'"':'')+(f.max!=null?' max="'+f.max+'"':'')+(f.step!=null?' step="'+f.step+'"':'')+(f.placeholder?' placeholder="'+esc(f.placeholder)+'"':'')+req+' autocomplete="off">';
+      return '<label class="skd-f" for="'+id+'"><span>'+esc(f.label)+(f.required?' <i aria-hidden="true">*</i>':'')+'</span>'+ctl+(f.hint?'<small>'+esc(f.hint)+'</small>':'')+'</label>'};
+    w.innerHTML='<form class="skd" role="dialog" aria-modal="true" aria-labelledby="skd-t" novalidate><h3 id="skd-t">'+esc(title)+'</h3>'+(opts.message?'<p>'+esc(opts.message)+'</p>':'')+
+      fields.map(field).join("")+'<p class="skd-err" role="alert" hidden></p><div class="skd-acts"><button type="button" class="btn" data-r="0">'+esc(opts.cancel||"إلغاء")+'</button><button type="submit" class="btn '+(opts.danger?'danger':'primary')+'">'+esc(opts.ok||"حفظ")+'</button></div></form>';
+    const form=w.querySelector("form"),err=w.querySelector(".skd-err");
+    const done=r=>{w.remove();document.removeEventListener("keydown",key,true);try{prev&&prev.focus()}catch{}resolve(r)};
+    const key=e=>{if(e.key==="Escape"){e.preventDefault();e.stopPropagation();done(null)}};
+    form.addEventListener("submit",e=>{e.preventDefault();const out={};
+      for(const f of fields){const el=form.elements[f.key],raw=String(el.value).trim();
+        if(f.required&&!raw){err.textContent="أكمل: "+f.label;err.hidden=false;el.focus();return}
+        if(f.type==="number"&&raw){const n=Number(raw.replace("٫",".").replace(/[٠-٩]/g,x=>"٠١٢٣٤٥٦٧٨٩".indexOf(x)));
+          if(!Number.isFinite(n)||(f.min!=null&&n<f.min)||(f.max!=null&&n>f.max)){err.textContent=f.label+": قيمة غير صالحة"+(f.min!=null&&f.max!=null?" ("+f.min+" – "+f.max+")":"");err.hidden=false;el.focus();return}
+          out[f.key]=n}else out[f.key]=raw}
+      const bad=opts.validate&&opts.validate(out);if(bad){err.textContent=bad;err.hidden=false;return}
+      done(out)});
+    w.addEventListener("click",e=>{if(e.target.closest('[data-r="0"]')||e.target===w)done(null)});
+    document.addEventListener("keydown",key,true);
+    document.body.appendChild(w);
+    const first=form.querySelector("input,textarea,select");(first||form.querySelector('[type="submit"]')).focus();
+  });
+}
 
 /* ---------- auto-lock ---------- */
 const LOCK_KEY="skosif_autolock_min";
@@ -256,7 +285,7 @@ function brandPrint(w,title){
 function askJev(opts){save("skosif_jev_draft",opts||{});if(core())core().go("jev")}
 
 window.SK={$,$$,esc,num,load,save,money,pct,toast,view,redact,askJev,icon,icons:ICONS,download,
-  confirm:confirmDialog,notify,brandPrint,org,
+  confirm:confirmDialog,notify,form:formDialog,brandPrint,org,
   print:Object.freeze({options:popts,set:(k,v)=>{const x=popts();x[k]=v;save(PKEY,x)},css:optCSS}),
   csv:Object.freeze({cell:safeCell,build:csv,download:downloadCsv}),
   lock:Object.freeze({now:lockNow,key:LOCK_KEY,touch:()=>{last=Date.now()}}),

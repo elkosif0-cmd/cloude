@@ -16,14 +16,17 @@ const {esc,load,save,toast}=SK;
 const KEY="skosif_tbreview_v1",MAX_FILE=15*1024*1024,MAX_ROUND=18*1024*1024;
 const E=()=>window.SKEngines,RV=()=>E().audit.tbReview,AI=()=>E().audit.aiReview,DC=()=>E().audit.documentCheck,CX=()=>E().audit.codex,PG=()=>E().audit.programme,DS=()=>E().audit.disclosures;
 const TI=()=>E().reports.tbImport,FS=()=>E().reports.statements,AN=()=>E().reports.analysis,MN=()=>E().reports.money;
-const TABS=[["tb","الميزان والمعايير"],["ai","جولات المراجعة"],["docs","المستندات"],["adj","التسويات والامتثال"],["fs","القوائم والتقارير"]];
-let root=null,tab="tb",filter="all",busy="",abort=null,cache=null,setup=false,fsAfter=true,doc="issue";
+const TABS=[["tb","الميزان والمعايير"],["ai","جولات المراجعة"],["conf","الثقة والمجلس"],["docs","المستندات"],["adj","التسويات والامتثال"],["fs","القوائم والتقارير"],["studio","الاستوديو المتقدم"]];
+const CU=()=>window.SKosifCouncilUI;
+let root=null,tab="tb",filter="all",busy="",abort=null,cache=null,setup=false,fsAfter=true,doc="issue",confHTML={sig:"",h:""},confSeq=0,studioView="overview";
 
 /* ---------- state ---------- */
 const blank=()=>({ctx:{company:"",period:"",periodStart:"",periodEnd:"",activity:"",country:"SA",framework:"IFRS",currency:"الريال السعودي",legalForm:"",registeredOffice:"",principalPlace:""},fw:{},tbText:"",overrides:{},materiality:null,session:null,accepted:[],rejected:[],ecl:null,
   confirm:{independence:false,edition:false,compliance:false,unrecognized:false,partner:false}});
 const st=()=>{const d=load(KEY,null);return d&&typeof d==="object"?{...blank(),...d,ctx:{...blank().ctx,...(d.ctx||{})},confirm:{...blank().confirm,...(d.confirm||{})}}:blank()};
 let CUR="ر.س";const egypt=d=>d.ctx.country==="EG"||d.ctx.framework==="EAS";
+/* a new trial balance starts a new file: rounds, decisions and the council's record (approvals, states, checklists, exceptions, thresholds, journal) */
+const fresh=d=>{d.session=null;d.accepted=[];d.rejected=[];d.overrides={};["engagement","checklists","exceptions","thOverrides","evidenceMeta","journalSource","journalMeta","letterResponses"].forEach(k=>delete d[k]);confHTML={sig:"",h:""};return d};
 const put=d=>{try{save(KEY,d)}catch{toast("مساحة التخزين لا تكفي — صدّر التقرير ثم ابدأ مراجعة جديدة","bad")}cache=null};
 const m0=v=>MN().formatMinor(v||0,{decimals:0});
 const sar=v=>m0(v)+" "+CUR;
@@ -80,7 +83,7 @@ async function loadTB(text,label,ctx){
   const d=st();
   if(d.tbText&&d.session&&d.session.rounds&&d.session.rounds.length&&!await SK.confirm("توجد مراجعة جارية بجولات Gemini — استبدالها بميزان «"+label+"»؟",{danger:true,ok:"استبدال"}))return false;
   Object.entries(ctx||{}).forEach(([k,v])=>{if(v)d.ctx[k]=v});
-  d.tbText=text;d.session=null;d.accepted=[];d.rejected=[];d.overrides={};put(d);await docClear();tab="tb";setup=false;
+  d.tbText=text;fresh(d);put(d);await docClear();tab="tb";setup=false;
   SK.audit&&SK.audit.log("tbreview",{act:"import",source:label,accounts:tb.rows.length,balanced:tb.balanced});
   toast("استُلم ميزان "+label+": "+tb.rows.length+" حساباً"+(tb.balanced?"، متزن":" — غير متزن، راجع الفرق"),tb.balanced?"ok":"warn");
   return true;
@@ -92,7 +95,9 @@ async function fromBooks(){
   if(ok){if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");else paint()}
   return ok;
 }
-window.SKosifTBReview=Object.freeze({fromBooks,booksTB});
+/* open the engagement on a tab (and a studio page): used by the studio's own deep links and other screens */
+function openTab(t,view){if(t)tab=t;if(view)studioView=view;if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");else paint()}
+window.SKosifTBReview=Object.freeze({fromBooks,booksTB,open:openTab,studio:view=>openTab("studio",view)});
 
 /* ---------- computation (memoized) ---------- */
 function compute(){
@@ -140,7 +145,7 @@ function hero(c){
     (c?'<div class="tbr-tabs" role="tablist">'+TABS.map(([k,l])=>'<button type="button" role="tab" data-tab="'+k+'" aria-selected="'+(tab===k)+'">'+esc(l)+badge(c,k)+'</button>').join("")+'</div>':'');
 }
 function badge(c,k){
-  const n=k==="tb"?c.base.accounts.filter(a=>a.findings.length).length:k==="ai"?(c.session?c.session.rounds.length:0):k==="docs"?(c.session?AI().outstanding(c.session).length:c.base.requests.length):k==="adj"?c.pool.filter(a=>!c.d.accepted.includes(a.id)&&!c.d.rejected.includes(a.id)).length:0;
+  const n=k==="tb"?c.base.accounts.filter(a=>a.findings.length).length:k==="ai"?(c.session?c.session.rounds.length:0):k==="docs"?(c.session?AI().outstanding(c.session).length:c.base.requests.length):k==="adj"?c.pool.filter(a=>!c.d.accepted.includes(a.id)&&!c.d.rejected.includes(a.id)).length:k==="conf"?(c.d.engagement&&c.d.engagement.state==="human-review"?1:0):0;
   return n?'<i class="tbr-n">'+n+'</i>':'';
 }
 
@@ -198,17 +203,18 @@ function fItem(f){
 /* ---------- tab 2: Gemini rounds ---------- */
 function aiTab(c){
   const ready=window.SKosifAI&&SKosifAI.ready(),s=c.session,state=s?AI().sessionState(s):{state:"start",label:"جاهز للجولة الأولى"};
-  const next=s?s.rounds.length+1:1;
+  const next=s?s.rounds.length+1:1,size=CU()?Number(c.d.councilSize)||1:1;
   let action="";
   if(ready){
-    if(state.state==="start"||state.state==="ready"||state.state==="awaiting-docs")action='<button type="button" class="btn primary" data-a="round"'+(busy?' disabled':'')+'>'+(busy==="round"?'Gemini يراجع…':state.state==="start"?'ابدأ الجولة الأولى':'أرسل للجولة '+next)+'</button>';
+    if(state.state==="start"||state.state==="ready"||state.state==="awaiting-docs")action='<button type="button" class="btn primary" data-a="round"'+(busy?' disabled':'')+'>'+(busy==="round"?'Gemini يراجع…':busy==="council"?'المجلس منعقد…':(size>1?'اعقد المجلس — ':'')+(state.state==="start"?'ابدأ الجولة الأولى':'أرسل للجولة '+next))+'</button>';
     if(s&&s.rounds.length)action+='<button type="button" class="btn'+(state.state==="complete"||state.state==="limit"?' primary':'')+'" data-a="final"'+(busy?' disabled':'')+'>'+(busy==="final"?'يُعد التقرير…':s.final?'إعادة إصدار التقرير النهائي':'إصدار التقرير النهائي')+'</button>';
     if(busy)action+='<button type="button" class="btn danger" data-a="cancel">إلغاء</button>';
   }
   const rounds=s?s.rounds.slice().reverse():[];
   return (ready?'':SKosifAI.cardHTML()+'<p class="hint tbr-pad">بدون مفتاح تعمل المراجعة بالمحرك الآلي: المعايير والملاحظات والطلبات والقيود والقوائم متاحة في بقية التبويبات.</p>')+
-    '<section class="card tbr-run"><div class="card-b"><div class="tbr-run-h"><div><b>'+esc(state.label)+'</b><small>'+(s?s.rounds.length+' جولة · '+AI().outstanding(s).length+' مستند مطلوب · '+AI().pendingUploads(s).length+' مرفوع للجولة القادمة':'يرسل الميزان ونتائج المحرك الآلي إلى Gemini ليراجعها بصفة مجلس من ثلاثة مراجعين.')+'</small></div><div class="sk-actions">'+action+'</div></div>'+
-      (busy?'<div class="tbr-busy"><i></i><span>'+(busy==="round"?'يراجع Gemini الميزان والمستندات — قد يستغرق دقيقة أو أكثر.':'يُعد Gemini التقرير النهائي…')+'</span></div>':'')+'</div></section>'+
+    '<section class="card tbr-run"><div class="card-b"><div class="tbr-run-h"><div><b>'+esc(state.label)+'</b><small>'+(s?s.rounds.length+' جولة · '+AI().outstanding(s).length+' مستند مطلوب · '+AI().pendingUploads(s).length+' مرفوع للجولة القادمة':(size>1?'يعرض الميزان وسجل الأدلة المرقمة على '+(size-1)+' أعضاء بآراء مستقلة، ثم يقرر الرئيس — والقرار النهائي من درجات الثقة المحسوبة.':'يرسل الميزان ونتائج المحرك الآلي إلى Gemini ليراجعها بصفة مجلس من ثلاثة مراجعين.'))+'</small></div><div class="sk-actions">'+action+'</div></div>'+
+      (ready&&CU()?CU().aiControls(c):'')+
+      (busy&&busy!=="council"?'<div class="tbr-busy"><i></i><span>'+(busy==="round"?'يراجع Gemini الميزان والمستندات — قد يستغرق دقيقة أو أكثر.':'يُعد Gemini التقرير النهائي…')+'</span></div>':'')+'</div></section>'+
     rounds.map(r=>roundCard(r,c)).join("")+
     (ready?'<details class="tbr-key"><summary>إعداد Gemini (المفتاح والنموذج)</summary>'+SKosifAI.cardHTML()+'</details>':'');
 }
@@ -220,6 +226,7 @@ function roundCard(r,c){
   return '<section class="card tbr-round"><div class="card-h"><div><h3>الجولة '+r.no+' <span class="sksev '+(r.status==="complete"?"ok":"warn")+'">'+(r.status==="complete"?"اكتملت":"تطلب مستندات")+'</span></h3><p>'+esc(r.model)+' · '+esc(new Date(r.at).toLocaleString("ar-SA-u-ca-gregory-nu-latn",{dateStyle:"medium",timeStyle:"short"}))+'</p></div>'+SKCharts.ring(r.riskScore,{cls:r.riskScore>=70?"bad":r.riskScore>=45?"warn":"ok",size:54})+'</div><div class="card-b">'+
     '<p class="tbr-sum">'+esc(r.summary)+'</p>'+
     (r.opinions.length?'<div class="tbr-ops">'+r.opinions.map(o=>'<div><b>'+esc(o.reviewer)+'</b><p>'+esc(o.opinion)+'</p></div>').join("")+'</div>':'')+
+    (CU()?CU().roundExtras(r,c):'')+
     (r.findings.length?'<h4>الملاحظات ('+r.findings.length+')</h4><div class="tbr-flist">'+r.findings.map(fItem).join("")+'</div>':'')+
     (r.requests.filter(q=>q.round===r.no).length?'<h4>المستندات المطلوبة</h4><div class="tbr-reqs">'+r.requests.filter(q=>q.round===r.no).map(q=>reqRow(q,c)).join("")+'</div>':'')+
     (r.reviewed.length?'<h4>المستندات التي راجعها</h4><div class="tbr-tw"><table class="sk-table" data-sk-plain><thead><tr><th>الملف</th><th>الطلب</th><th>الحكم</th><th>الملاحظات والبيانات المستخرجة</th><th>التحقق الآلي</th></tr></thead><tbody>'+r.reviewed.map(docRow).join("")+'</tbody></table></div>':'')+
@@ -229,6 +236,18 @@ function roundCard(r,c){
     (r.guidance?'<p class="tbr-next"><b>الخطوة التالية:</b> '+esc(r.guidance)+'</p>':'')+
   '</div></section>';
 }
+
+/* ---------- tab: the audit studio inside the engagement ----------
+   KOSIF's audit studio (documents, issues, the reviewers' council, statements, report builder) works on this
+   same file: one click sends this engagement's trial balance to its intake. */
+function studioTab(c){
+  const views=window.SKosifAuditBridge?SKosifAuditBridge.STUDIO_VIEWS:[];
+  return '<section class="card tbr-studio"><div class="card-h"><div><h3>الاستوديو المتقدم</h3><p>أدوات استوديو KOSIF للمراجعة على هذا الملف نفسه — ليست تطبيقاً آخر: أرسل ميزان الملف إلى الاستوديو ثم تنقّل بين صفحاته.</p></div>'+
+    (c?'<div class="sk-actions"><button type="button" class="btn primary sm" data-a="studio-send"'+(c.tb.ok?'':' disabled')+'>إرسال ميزان الملف ('+c.tb.rows.length+' حساباً)</button></div>':'<div class="sk-actions"><button type="button" class="btn sm" data-tab="tb">استلام ميزان للملف</button></div>')+'</div>'+
+    '<div class="card-b"><div class="sk-seg tbr-sv" role="group" aria-label="صفحات الاستوديو">'+views.map(v=>'<button type="button" data-sv="'+v.view+'" aria-pressed="'+(studioView===v.view)+'" title="'+esc(v.sub)+'">'+esc(v.label)+'</button>').join("")+'</div></div></section>'+
+    '<div class="tbr-studio-host" data-studio-host></div>';
+}
+function studioRows(c){return c.tb.rows.map(r=>{const b=r.balance/100;return [r.code,r.name,b>0?b:0,b<0?-b:0,TI().TYPE_LABELS[r.type]||""]})}
 
 /* ---------- tab 3: documents ---------- */
 function reqStatus(q,s){
@@ -243,7 +262,7 @@ function reqStatus(q,s){
 function reqRow(q,c){
   const s=c.session,[l,cls]=reqStatus(q,s),files=s?s.uploads.filter(u=>u.requestId===q.id):[];
   return '<div class="tbr-req"><div class="tx"><b><span class="mono">'+esc(q.id)+'</span> '+esc(q.title)+'</b><small>'+esc(q.purpose)+(q.accounts&&q.accounts.length?' · الحسابات: '+esc(q.accounts.join("، ")):'')+'</small>'+
-    (files.length?'<small class="tbr-files">'+files.map(f=>'📎 '+esc(f.fileName)+' ('+Math.max(1,Math.round(f.size/1024))+' ك.ب · ج'+f.round+')').join(" · ")+'</small>':'')+'</div>'+
+    (files.length?'<small class="tbr-files">'+files.map(f=>'📎 '+esc(f.fileName)+' ('+Math.max(1,Math.round(f.size/1024))+' ك.ب · ج'+f.round+')').join(" · ")+'</small>':'')+(CU()&&s?CU().evidenceTagger(q,s,c.d):'')+'</div>'+
     '<div class="tbr-req-m"><span class="sksev '+(q.priority==="عالية"?"bad":q.priority==="متوسطة"?"warn":"info")+'">'+esc(q.priority)+'</span><span class="sksev '+cls+'">'+esc(l)+'</span>'+
     (l==="مقبول"?'':'<label class="btn sm" style="cursor:pointer">رفع<input type="file" multiple data-up="'+esc(q.id)+'" accept=".pdf,.png,.jpg,.jpeg,.webp,.csv,.txt,.tsv,.json" hidden></label>'+
       '<button type="button" class="btn sm" data-a="unavail" data-id="'+esc(q.id)+'">'+(s&&s.unavailable.includes(q.id)?'متوفر':'غير متوفر')+'</button>')+'</div></div>';
@@ -347,12 +366,44 @@ function fsTab(c){
       '<button type="button" class="btn primary" data-a="print">طباعة المستند</button><button type="button" class="btn" data-a="jev-op">'+SK.icon("jev")+' رأي ثانٍ من Jev</button><button type="button" class="btn" data-a="fs-csv">تصدير القوائم</button></div></div></section>'+
     body;
 }
+/* management letter in the research's format (appendix C): observation · effect · recommendation · management's
+   response (the client's reply, typed by the reviewer and kept with the file). Gemini's final letter when issued,
+   otherwise a draft from the engine's high and medium findings. */
+function letterItems(c){
+  const f=c.session&&c.session.final;
+  if(f&&f.letter.length)return {src:"gemini",items:f.letter.map(x=>({title:x.title,priority:x.priority,observation:x.observation,effect:x.effect||"",recommendation:x.recommendation}))};
+  const pr={high:"عالية",medium:"متوسطة",low:"منخفضة"};
+  return {src:"engine",items:c.all.findings.filter(x=>x.severity!=="low").slice(0,12).map(x=>({title:x.title+(x.account?" — "+x.account:""),priority:pr[x.severity],observation:x.detail,
+    effect:(x.severity==="high"?"قد يؤدي إلى تحريف جوهري في القوائم المالية":"قد يؤثر على دقة القوائم المالية أو كفاية الإفصاح")+(x.standard?" — المعيار: "+x.standard:"")+(x.basis?" — "+x.basis:""),recommendation:x.action}))};
+}
+function letterCard(c){
+  const L=letterItems(c),resp=c.d.letterResponses||{};if(!L.items.length)return "";
+  return '<section class="card tbr-letter"><div class="card-h"><div><h3>خطاب الإدارة</h3><p>'+(L.src==="gemini"?'من التقرير النهائي':'مسودة من ملاحظات المحرك الآلي — تكتمل بالتقرير النهائي')+' · الصيغة: الملاحظة، الأثر، التوصية، رد الإدارة (ISA 265).</p></div><div class="sk-actions"><button type="button" class="btn sm" data-a="letter-print">طباعة الخطاب</button></div></div><div class="card-b">'+
+    L.items.map((x,i)=>'<article class="tbr-li"><header><i>'+(i+1)+'</i><b>'+esc(x.title)+'</b><span class="sksev '+(x.priority==="عالية"?"bad":x.priority==="متوسطة"?"warn":"info")+'">'+esc(x.priority)+'</span></header>'+
+      '<dl><dt>الملاحظة</dt><dd>'+esc(x.observation||"—")+'</dd>'+(x.effect?'<dt>الأثر</dt><dd>'+esc(x.effect)+'</dd>':'')+'<dt>التوصية</dt><dd>'+esc(x.recommendation||"—")+'</dd>'+
+      '<dt>رد الإدارة</dt><dd><textarea rows="2" data-lr="'+esc(x.title)+'" placeholder="يُكتب رد الإدارة وتاريخ التنفيذ المتوقع">'+esc(resp[x.title]||"")+'</textarea></dd></dl></article>').join("")+'</div></section>';
+}
+function letterHTML(c){
+  const L=letterItems(c),resp=c.d.letterResponses||{},ctx=c.d.ctx;
+  return '<p>السادة/ إدارة '+esc(ctx.company||"الشركة")+' المحترمين،</p><p>في إطار مراجعتنا للقوائم المالية عن '+esc(ctx.period||"السنة المالية")+'، نود إبلاغكم بالملاحظات التالية على الرقابة الداخلية والممارسات المحاسبية. لا تمثل هذه الملاحظات جميع أوجه القصور المحتملة، وإنما ما لفت انتباهنا أثناء المراجعة.</p>'+
+    L.items.map((x,i)=>'<h3>'+(i+1)+'. '+esc(x.title)+' <small>(الأولوية: '+esc(x.priority)+')</small></h3><table><tr><th>الملاحظة</th><td>'+esc(x.observation||"—")+'</td></tr>'+(x.effect?'<tr><th>الأثر</th><td>'+esc(x.effect)+'</td></tr>':'')+'<tr><th>التوصية</th><td>'+esc(x.recommendation||"—")+'</td></tr><tr><th>رد الإدارة</th><td>'+(resp[x.title]?esc(resp[x.title]):'&nbsp;')+'</td></tr></table>').join("")+
+    '<p>وتفضلوا بقبول فائق الاحترام،</p><p>'+esc(ctx.auditFirm||"[مكتب المراجعة]")+'<br>'+esc(ctx.auditPartner||"[الشريك المسؤول]")+'</p>';
+}
+function printLetter(c){
+  const w=window.open("","_blank");if(!w){toast("اسمح بالنوافذ المنبثقة للطباعة","warn");return}
+  const title="خطاب الإدارة — "+(c.d.ctx.company||"");
+  w.document.open();w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>'+esc(title)+'</title></head><body><h1>خطاب الإدارة</h1>'+letterHTML(c)+'</body></html>');w.document.close();
+  SK.brandPrint(w,title);
+  const s=w.document.createElement("style");s.textContent="table{width:100%;border-collapse:collapse;margin:6px 0 14px;font-size:12px}th,td{border:1px solid #dfe6ef;padding:6px 8px;text-align:right;vertical-align:top}th{background:#f3f6fa;width:110px}h3 small{font-weight:400;color:#667}";w.document.head.appendChild(s);
+  SK.audit&&SK.audit.log("report",{act:"tbreview-letter"});
+  setTimeout(()=>{try{w.focus();w.print()}catch{}},700);
+}
 function fsIssue(c,p,fs,d,f,hl,GROUP){
   return ''+
     programmeCard(c)+disclosuresCard(c)+
     (f?'<section class="card"><div class="card-h"><div><h3>'+esc(f.headline||"ملخص التقرير")+'</h3><p>التقرير النهائي من Gemini · '+esc(f.at.slice(0,10))+'</p></div></div><div class="card-b"><p>'+esc(f.summary)+'</p>'+(f.limitations.length?'<h4>القيود على النطاق</h4><ul>'+f.limitations.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>':'')+'</div></section>':'')+
     '<section class="card"><div class="card-h"><div><h3>الأمور الرئيسية للمراجعة (ISA 701)</h3></div></div><div class="card-b">'+(kamsOf(c).map(k=>'<div class="tbr-kam"><b>'+esc(k.title)+'</b><p><small>لماذا:</small> '+esc(k.why)+'</p><p><small>كيف عولج:</small> '+esc(k.how)+'</p></div>').join("")||'<p class="empty">لا مخاطر جوهرية مصنفة.</p>')+'</div></section>'+
-    (f&&f.letter.length?'<section class="card"><div class="card-h"><div><h3>خطاب الإدارة</h3></div></div><div class="card-b">'+f.letter.map(x=>'<div class="tbr-kam"><b>'+esc(x.title)+' <span class="sksev '+(x.priority==="عالية"?"bad":x.priority==="متوسطة"?"warn":"info")+'">'+esc(x.priority)+'</span></b><p>'+esc(x.observation)+'</p><p><small>التوصية:</small> '+esc(x.recommendation)+'</p></div>').join("")+'</div></section>':'')+
+    letterCard(c)+
   '';
 }
 function fsAnalysis(c,p,fs,d,f,hl,GROUP){
@@ -407,7 +458,7 @@ function printReport(c){
     '<h2>مناقشة الامتثال للمعايير</h2><table><tr><th>المعيار</th><th>الحكم</th><th>المناقشة</th></tr>'+c.all.compliance.map(x=>'<tr><td>'+esc(x.code+' '+x.title)+'</td><td>'+esc(x.status)+'</td><td>'+esc(x.discussion)+'</td></tr>').join("")+'</table>'+
     '<h2>الملاحظات</h2><table><tr><th>الأثر</th><th>الملاحظة</th><th>المعيار</th><th>الأساس</th><th>الإجراء</th></tr>'+c.all.findings.map(x=>'<tr><td>'+SEV_AR[x.severity]+'</td><td>'+esc(x.title+(x.account?' — '+x.account:''))+'</td><td>'+esc(x.standard)+'</td><td>'+esc(x.basis)+'</td><td>'+esc(x.action)+'</td></tr>').join("")+'</table>'+
     '<h2>تقرير الإدارة</h2>'+p.md.map(s=>'<h3>'+esc(s.title)+'</h3>'+s.body.map(x=>'<p>'+esc(x)+'</p>').join("")).join("")+
-    (f&&f.letter.length?'<h2>خطاب الإدارة</h2>'+f.letter.map(x=>'<p><b>'+esc(x.title)+'</b> ('+esc(x.priority)+'): '+esc(x.observation)+' — '+esc(x.recommendation)+'</p>').join(""):'')+
+    (letterItems(c).items.length?'<h2>خطاب الإدارة</h2>'+letterHTML(c):'')+
     '<p style="margin-top:24px;font-size:11px;color:#667">الرأي مسودة مشتقة آلياً وفق ISA 705 ولا يصدر إلا باعتماد الشريك المسؤول. الأرقام محسوبة من ميزان المراجعة بالهللة؛ ملاحظات Gemini حكم مساعد يُراجع مهنياً.</p>';
   w.document.open();w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>تقرير مراجعة ميزان المراجعة</title></head><body>'+b+'</body></html>');w.document.close();
   SK.brandPrint(w,"تقرير مراجعة ميزان المراجعة");
@@ -465,6 +516,7 @@ async function runRound(){
     d=st();s=session(d);s.model=model;
     const r=AI().normalizeRound(raw,s,c.tb,model);
     d.session=AI().addRound(s,r);put(d);
+    if(CU())await CU().afterRound({govern:false}).catch(()=>null);
     SK.audit&&SK.audit.log("tbreview",{act:"round",no:r.no,status:r.status,findings:r.findings.length,requests:r.requests.length});
     toast(r.status==="complete"?"أنهى Gemini طلباته — أصدر التقرير النهائي":"انتهت الجولة "+r.no+": "+r.requests.filter(q=>q.round===r.no).length+" طلب جديد","ok");
   }catch(e){toast(e.message,"bad")}
@@ -484,6 +536,7 @@ async function runFinal(){
 function bind(node){
   window.SKosifAI&&SKosifAI.bindCard(node,()=>paint());
   node.addEventListener("click",async e=>{
+    if(CU()&&e.target.closest("[data-cc]")){CU().onClick(e);return}
     const sb=e.target.closest("[data-std]");
     if(sb){const c=compute(),code=sb.dataset.std,acc=sb.dataset.acc&&c?c.all.accounts.find(a=>a.code===sb.dataset.acc):null;
       const la=acc&&acc.lineKey?RV().LINE_AUDIT[acc.lineKey]:null;
@@ -493,6 +546,7 @@ function bind(node){
     const fl=e.target.closest("[data-flt]");if(fl){filter=fl.dataset.flt;paint();return}
     const dc=e.target.closest("[data-doc]");if(dc){doc=dc.dataset.doc;paint();return}
     const fv=e.target.closest("[data-fsv]");if(fv){fsAfter=fv.dataset.fsv==="after";paint();return}
+    const sv=e.target.closest("[data-sv]");if(sv){studioView=sv.dataset.sv;paint();return}
     const af=e.target.closest("[data-acc-f]");if(af){const c=compute(),a=c.all.accounts.find(x=>x.code===af.dataset.accF);const s=(c.stdMap[a.code]||[])[0];if(s)SKosifCodex.open(s,{account:{code:a.code,name:a.name,lineKey:a.lineKey,lineAr:a.lineAr,basis:a.basis,assertions:a.assertions},note:c.notes[a.code]||"",findings:c.all.findings.filter(f=>f.code===a.code),framework:c.fw});return}
     const ad=e.target.closest("[data-adj]");
     if(ad){const d=st(),id=ad.dataset.id;d.accepted=d.accepted.filter(x=>x!==id);d.rejected=d.rejected.filter(x=>x!==id);
@@ -504,17 +558,19 @@ function bind(node){
     if(a==="sample"){const ta=root.querySelector("[data-tbtext]");if(ta)ta.value=TI().SAMPLE_TB_CSV;const co=root.querySelector('[data-ctx="company"]');if(co&&!co.value)co.value="شركة تجريبية للتجارة";const pe=root.querySelector('[data-ctx="period"]');if(pe&&!pe.value)pe.value="السنة المنتهية في 31 ديسمبر 2025";return}
     if(a==="analyze"){const d=readCtx(st()),text=String((root.querySelector("[data-tbtext]")||{}).value||"").trim();if(!text){toast("ارفع ملف الميزان أو الصقه أولاً","warn");return}
       const tb=TI().parseTrialBalance(text);if(!tb.ok){toast("لم أتعرف على أعمدة الميزان — تأكد من وجود رقم الحساب والمدين والدائن","bad");return}
-      d.tbText=text;d.session=null;d.accepted=[];d.rejected=[];d.overrides={};put(d);await docClear();tab="tb";setup=false;
+      d.tbText=text;fresh(d);put(d);await docClear();tab="tb";setup=false;
       SK.audit&&SK.audit.log("tbreview",{act:"import",accounts:tb.rows.length,balanced:tb.balanced});paint();return}
     if(a==="setup"){setup=!setup;paint();return}
     if(a==="setup-done"){const d=readCtx(st()),mv=Number((root.querySelector("[data-mat]")||{}).value||0);d.materiality=mv>0?Math.round(mv*100):null;put(d);setup=false;paint();return}
     if(a==="reset"){if(!await SK.confirm("بدء مراجعة جديدة يحذف الميزان والجولات والمستندات المرفوعة على هذا الجهاز. هل صدّرت التقرير؟",{danger:true,ok:"مراجعة جديدة"}))return;put(blank());await docClear();tab="tb";setup=false;paint();return}
-    if(a==="round"){runRound();return}
+    if(a==="round"){if(CU()&&(Number(st().councilSize)||1)>1)CU().run();else runRound();return}
     if(a==="final"){runFinal();return}
     if(a==="cancel"){abort&&abort.abort();return}
     if(a==="unavail"){const d=st(),s=session(d),id=b.dataset.id;d.session=s.unavailable.includes(id)?{...s,unavailable:s.unavailable.filter(x=>x!==id)}:AI().markUnavailable(s,id);put(d);paint();return}
     const c=compute();if(!c)return;
     if(a==="print"){if(doc==="annual"||doc==="release"||doc==="auditor")printDoc(c,doc);else printReport(c);return}
+    if(a==="letter-print"){printLetter(c);return}
+    if(a==="studio-send"){SKosifAuditBridge.sendTB(studioRows(c),(c.d.ctx.period||"file").replace(/\s+/g,"-"));return}
     if(a==="sig-save"){put(readCtx(st()));toast("حُفظت بيانات التوقيع","ok");paint();return}
     if(a==="ecl-save"){const d=st(),b=RV().DEFAULT_ECL_BUCKETS.map((x,i)=>{const ex=root.querySelector('[data-ecl-x="'+i+'"]'),rt=root.querySelector('[data-ecl-r="'+i+'"]');
         return {...x,exposure:Math.round((Number(ex&&ex.value)||0)*100),rateBps:Math.round((Number(rt&&rt.value)||0)*100)}});
@@ -533,6 +589,8 @@ function bind(node){
       SK.csv.download(csvName(c,"القوائم-المالية"),["القائمة","البند","إيضاح","الحالية","السابقة"],rows.map(([s,r])=>[s,r.ar,r.note||"",(r.current/100).toFixed(2),r.prior===null?"":(r.prior/100).toFixed(2)]));return}
   });
   node.addEventListener("change",e=>{
+    if(CU()&&e.target.closest("[data-ck],[data-rd],[data-jfile],[data-evk]")){CU().onChange(e);return}
+    const lr=e.target.closest("[data-lr]");if(lr){const d=st();d.letterResponses={...(d.letterResponses||{}),[lr.dataset.lr]:lr.value.trim()};put(d);toast("حُفظ رد الإدارة","ok");return}
     const f=e.target.closest("[data-tbfile]");if(f&&f.files[0]){loadFile(f.files[0]);f.value="";return}
     const u=e.target.closest("[data-up]");if(u&&u.files.length){upload(u.dataset.up,Array.from(u.files));u.value="";return}
     const o=e.target.closest("[data-ov]");if(o){const d=st();if(o.value)d.overrides[o.dataset.ov]=o.value;else delete d.overrides[o.dataset.ov];put(d);paint();return}
@@ -546,10 +604,17 @@ function paint(){
   if(!window.SKEngines||!SKEngines.audit||!SKEngines.audit.tbReview){root.innerHTML='<p class="empty">محركات المراجعة غير محملة.</p>';return}
   let c=null;try{c=compute()}catch(e){SK.errors&&SK.errors.report(e,"tbreview");root.innerHTML=hero(null)+'<p class="empty">تعذر تحليل الميزان: '+esc(e.message)+'</p>'+setupHTML(st(),true);return}
   const y=window.scrollY;
+  if(!c&&tab==="studio"&&window.SKosifAuditBridge){root.innerHTML='<div class="tbr">'+hero(null)+studioTab(null)+'</div>';SKosifAuditBridge.mountStudio(root.querySelector("[data-studio-host]"),studioView);return}
   if(!c){root.innerHTML=hero(null)+setupHTML(st(),true)+(window.SKosifAI&&!SKosifAI.ready()?SKosifAI.cardHTML():'');return}
-  const body=tab==="ai"?aiTab(c):tab==="docs"?docsTab(c):tab==="adj"?adjTab(c):tab==="fs"?fsTab(c):tbTab(c);
+  if(tab==="studio"&&!window.SKosifAuditBridge)tab="tb";
+  const conf=tab==="conf"&&CU();
+  const body=conf?'<div class="tbc" data-tbc-body aria-busy="true">'+(confHTML.sig===c.sig&&confHTML.h||'<p class="empty">يحسب درجات الثقة والفحوص…</p>')+'</div>':tab==="studio"?studioTab(c):tab==="ai"?aiTab(c):tab==="docs"?docsTab(c):tab==="adj"?adjTab(c):tab==="fs"?fsTab(c):tbTab(c);
   root.innerHTML='<div class="tbr">'+hero(c)+(setup?setupHTML(c.d,false):'')+body+'</div>';
   window.scrollTo(0,y);
+  if(tab==="studio"){const h=root.querySelector("[data-studio-host]");if(h)SKosifAuditBridge.mountStudio(h,studioView)}
+  if(conf){const seq=++confSeq;CU().confTab(c).then(h=>{if(seq!==confSeq||tab!=="conf"||!root)return;confHTML={sig:c.sig,h};const el=root.querySelector("[data-tbc-body]");if(el){el.innerHTML=h;el.removeAttribute("aria-busy");window.scrollTo(0,y)}})
+    .catch(e=>{SK.errors&&SK.errors.report(e,"tbreview-council");const el=root.querySelector("[data-tbc-body]");if(el)el.innerHTML='<p class="empty">تعذر حساب درجات الثقة: '+esc(e.message)+'</p>'})}
 }
+CU()&&CU().init({st,put,compute,session,paint,docGet,docPut,docKey,getBusy:()=>busy,setBusy:v=>{busy=v;paint()},setAbort:a=>{abort=a}});
 SK.view("tbreview",{render(node){root=node;if(!node.dataset.bound){bind(node);node.dataset.bound="1"}paint()}});
 })();

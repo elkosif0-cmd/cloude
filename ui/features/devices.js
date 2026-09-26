@@ -99,7 +99,7 @@ function transferCard(){
 function tabsCard(){
   const S=window.SKosifShell;if(!S)return "";
   const sel=S.tabs(),max=S.tabMax;
-  const groups=SK.caps.groups().map(g=>[g,SK.caps.inGroup(g.id).filter(c=>c.primary&&SK.perm.can(c.id))]).filter(([,l])=>l.length);
+  const groups=SK.caps.groups().map(g=>[g,SK.caps.inGroup(g.id).filter(c=>c.primary&&!c.hidden&&SK.perm.can(c.id))]).filter(([,l])=>l.length);
   return '<section class="card" id="dv-tabs"><div class="card-h"><div><h3>شريط الجوال السفلي</h3><p>اختر حتى '+max+' شاشات تظهر أسفل الشاشة على الآيفون، بالترتيب الذي تختاره؛ الباقي من «المزيد».</p></div>'+
     '<div class="sk-actions"><button type="button" class="btn sm" data-dv="tabs-reset">الافتراضي</button></div></div><div class="card-b sk-stack">'+
     '<div class="dv-bar" aria-label="معاينة الشريط">'+sel.map(id=>'<span>'+SK.icon(id)+'<small>'+esc(S.tabLabel(id))+'</small></span>').join("")+

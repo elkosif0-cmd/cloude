@@ -97,4 +97,21 @@ describe('Gemini review rounds', () => {
     expect(friendlyError(400, 'API key not valid')).toContain('غير صالح');
     expect(friendlyError(429)).toContain('429');
   });
+
+  it('carries the council chair’s decision, confidences and dissent, and drops citations to evidence that does not exist', () => {
+    const s = newSession(ctx, 'm', T0);
+    const r = normalizeRound({ ...round1, decision: 'escalate', confidence: [{ lineKey: 'revenue', assertion: 'existence', value: 1.4 }],
+      dissent: [{ member: 'المراجع المتشكك', note: 'هامش غير معتاد', citations: ['T-ANL-001', 'T-ANL-099'] }],
+      findings: [{ accountCode: '4101', accountName: 'المبيعات', standardCode: 'IFRS 15', severity: 'متوسطة', comment: 'ارتفاع', recommendation: 'فحص', citations: ['TB-4101', 'X-1'] }],
+      requestedDocuments: [{ id: 'REQ-1', title: 'عقود أكبر ثلاثة عملاء', purpose: 'الحدوث', priority: 'عالية', lineKey: 'revenue', assertion: 'existence', effort: 'low', citations: ['T-ANL-001'] }] },
+      s, tb, 'm', T0, new Set(['T-ANL-001', 'TB-4101']));
+    expect(r.decision).toBe('escalate');
+    expect(r.confidence).toEqual([{ lineKey: 'revenue', assertion: 'existence', value: 1 }]);
+    expect(r.dissent![0].citations).toEqual(['T-ANL-001']);
+    expect(r.findings[0].citations).toEqual(['TB-4101']);
+    expect([r.requests[0].assertion, r.requests[0].effort, r.requests[0].lineKey]).toEqual(['existence', 'low', 'revenue']);
+    expect(r.warnings.filter((w) => w.startsWith('استشهاد')).length).toBe(2);
+    const body = buildRoundBody(s, tb, review, { council: 'آراء الأعضاء…' });
+    expect(JSON.stringify(body)).toContain('أنت رئيس المجلس');
+  });
 });

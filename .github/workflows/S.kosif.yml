@@ -128,6 +128,10 @@ jobs:
           assert all(s["url"].startswith("./?") for s in mf["shortcuts"]), "manifest shortcuts must be deep links"
           assert ":root[data-look=\"kosif\"] .skb" not in css, "the phone tab bar must work in every theme"
           # KOSIF Luxe: shared components, new screens, report pack, letterhead, sign-in page
+          # the AI audit council inside the engagement (research «مجلس المراجعة الذكي») and the fused audit hub
+          for marker in ["SKosifCouncilUI","confidenceMatrix","stopRule","verifyOpinion","integrityChecks","mountStudio","formDialog"]:
+              assert marker in js, "council marker missing: "+marker
+          assert any(c.get("hidden") and c.get("hub")=="tbreview" for c in caps), "the audit studio lives inside the engagement"
           for marker in ["SKosifTopbar","SKCharts","SKosifTable","SKosifNotify","SKosifReportPack","SKosifMetrics","skp-band","counter(pages)"]:
               assert marker in js, "luxe marker missing: "+marker
           for marker in ["--sk-heat-1",".sk-ph",".skk4",".sktb-bar",".skhm-cell",".sksev"]:

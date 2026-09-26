@@ -118,7 +118,7 @@ const PRI={high:["عالية","bad"],normal:["عادية",""],low:["منخفضة
 let tfilter="open";
 const tasks=()=>{const t=load(TK,[]);return Array.isArray(t)?t:[]};
 function tasksPaint(root){
-  const all=tasks(),t=today(),caps=SK.caps.all().filter(c=>SK.perm.can(c.id));
+  const all=tasks(),t=today(),caps=SK.caps.visible().filter(c=>SK.perm.can(c.id));
   const list=all.filter(x=>tfilter==="all"||(tfilter==="open"?!x.done:x.done)).sort((a,b)=>(a.done-b.done)||String(a.due||"9").localeCompare(String(b.due||"9"))||((b.priority==="high")-(a.priority==="high")));
   const over=all.filter(x=>!x.done&&x.due&&x.due<t).length,dueT=all.filter(x=>!x.done&&x.due===t).length;
   root.innerHTML='<div class="sk-kpis"><div class="sk-kpi '+(over?"bad":"")+'"><span>متأخرة</span><b>'+over+'</b></div><div class="sk-kpi '+(dueT?"warn":"")+'"><span>مستحقة اليوم</span><b>'+dueT+'</b></div><div class="sk-kpi"><span>مفتوحة</span><b>'+all.filter(x=>!x.done).length+'</b></div><div class="sk-kpi good"><span>منجزة</span><b>'+all.filter(x=>x.done).length+'</b></div></div>'+

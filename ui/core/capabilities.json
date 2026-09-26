@@ -1032,8 +1032,8 @@
   },
   {
    "id": "tbreview",
-   "label": "مراجعة ميزان المراجعة",
-   "sub": "استلام الميزان، المعايير بجوار كل حساب، جولات Gemini والمستندات، قيود التسوية، الامتثال، والقوائم والتقارير",
+   "label": "ملف المراجعة",
+   "sub": "ملف مراجعة واحد: استلام الميزان من الملف أو الدفاتر، المعايير بجوار كل حساب، جولات المراجعة ومجلس المراجعة الذكي ودرجات الثقة ونقاط الاعتماد، المستندات، التسويات، والقوائم والتقارير وخطاب الإدارة",
    "group": "audit",
    "tier": "CORE",
    "module": "ui/features/tb-review.js + ui/core/ai.js + ui/components/xlsx.js + SKEngines.audit.{tbReview,aiReview,documentCheck} + SKEngines.reports.{tbImport,statements,analysis}",
@@ -1042,11 +1042,12 @@
     "IDB skosif-tbreview-docs",
     "skosif_ai_keys (الجهاز فقط)"
    ],
-   "legacy": "جديد — دمج smart-trial-balance-review (مجلس Gemini والجولات) و kosif-audit-pro (القوائم والتحليل) و Moon (المخاطر والرأي) و SEE (التصنيف والجاهزية)",
+   "legacy": "جديد — دمج smart-trial-balance-review (مجلس Gemini والجولات) و kosif-audit-pro (القوائم والتحليل) و Moon (المخاطر والرأي) و SEE (التصنيف والجاهزية) + استوديو KOSIF للمراجعة (تبويب «الاستوديو المتقدم» داخل الملف)",
    "decision": "Rebuild",
-   "kw": "ميزان مراجعة مراجعة حسابات معايير جيمناي gemini مستندات قيود تسوية امتثال قوائم مالية trial balance audit",
+   "kw": "ميزان مراجعة مراجعة حسابات معايير جيمناي gemini مستندات قيود تسوية امتثال قوائم مالية trial balance audit مركز المراجعة ملف المراجعة مجلس المراجعة الذكي درجة الثقة اعتماد استوديو",
    "adv": false,
-   "en": "Trial Balance Review"
+   "en": "Audit Engagement",
+   "hubLabel": "مركز المراجعة"
   },
   {
    "id": "codex",
@@ -1062,14 +1063,14 @@
    "decision": "Rebuild",
    "kw": "معايير مدونة IFRS IAS ISA SOCPA زكاة تحديث مصادر رسمية standards codex",
    "adv": false,
-   "en": "Accounting Codex"
+   "en": "Accounting Codex",
+   "hubLabel": "المعايير والمدونة"
   },
   {
    "id": "auditdesk",
-   "label": "مركز المراجعة",
-   "sub": "مساحة عمل المراجع",
+   "label": "الاستوديو المتقدم",
+   "sub": "مساحة عمل المراجع — داخل «مركز المراجعة › الاستوديو المتقدم»",
    "group": "audit",
-   "hubLabel": "استوديو المراجعة",
    "tier": "ADVANCED",
    "module": "ui/audit (v5)",
    "data": [
@@ -1079,14 +1080,16 @@
    "decision": "Keep",
    "kw": "مراجعة تدقيق",
    "adv": true,
-   "en": "Audit Desk"
+   "en": "Audit Desk",
+   "hub": "tbreview",
+   "hidden": true
   },
   {
    "id": "auditdocs",
    "label": "المستندات والأدلة",
-   "sub": "رفع الأدلة وميزان المراجعة",
+   "sub": "رفع الأدلة وميزان المراجعة — داخل «مركز المراجعة › الاستوديو المتقدم»",
    "group": "audit",
-   "hub": "auditdesk",
+   "hub": "tbreview",
    "tier": "ADVANCED",
    "module": "ui/audit (v5) + ui/audit-bridge.js",
    "data": [
@@ -1099,14 +1102,15 @@
    "decision": "Keep",
    "kw": "دليل مستند ميزان",
    "adv": true,
-   "en": "Documents & Evidence"
+   "en": "Documents & Evidence",
+   "hidden": true
   },
   {
    "id": "auditissues",
    "label": "الملاحظات والقضايا",
-   "sub": "سجل الملاحظات",
+   "sub": "سجل الملاحظات — داخل «مركز المراجعة › الاستوديو المتقدم»",
    "group": "audit",
-   "hub": "auditdesk",
+   "hub": "tbreview",
    "tier": "ADVANCED",
    "module": "ui/audit (v5)",
    "data": [
@@ -1116,14 +1120,15 @@
    "decision": "Keep",
    "kw": "ملاحظة قضية",
    "adv": true,
-   "en": "Findings & Issues"
+   "en": "Findings & Issues",
+   "hidden": true
   },
   {
    "id": "auditcouncil",
    "label": "مجلس المراجعين",
-   "sub": "مراجعة جماعية بالوكلاء",
+   "sub": "مراجعة جماعية بالوكلاء — داخل «مركز المراجعة › الاستوديو المتقدم»",
    "group": "audit",
-   "hub": "auditdesk",
+   "hub": "tbreview",
    "tier": "ADVANCED",
    "module": "ui/audit (v5)",
    "data": [
@@ -1133,14 +1138,15 @@
    "decision": "Keep",
    "kw": "مجلس",
    "adv": true,
-   "en": "Reviewers' Council"
+   "en": "Reviewers' Council",
+   "hidden": true
   },
   {
    "id": "auditfin",
    "label": "القوائم والقيود",
-   "sub": "القوائم المالية والقيود",
+   "sub": "القوائم المالية والقيود — داخل «مركز المراجعة › الاستوديو المتقدم»",
    "group": "audit",
-   "hub": "auditdesk",
+   "hub": "tbreview",
    "tier": "ADVANCED",
    "module": "ui/audit (v5)",
    "data": [
@@ -1150,14 +1156,15 @@
    "decision": "Keep",
    "kw": "قيد قائمة مالية",
    "adv": true,
-   "en": "Statements & Entries"
+   "en": "Statements & Entries",
+   "hidden": true
   },
   {
    "id": "auditreport",
    "label": "التقارير والإصدار",
-   "sub": "تقرير المراجع",
+   "sub": "تقرير المراجع — داخل «مركز المراجعة › الاستوديو المتقدم»",
    "group": "audit",
-   "hub": "auditdesk",
+   "hub": "tbreview",
    "tier": "ADVANCED",
    "module": "ui/audit (v5)",
    "data": [
@@ -1167,14 +1174,14 @@
    "decision": "Keep",
    "kw": "تقرير مراجع",
    "adv": true,
-   "en": "Reports & Issuance"
+   "en": "Reports & Issuance",
+   "hidden": true
   },
   {
    "id": "auditanalytics",
-   "label": "التحليل المالي والمخاطر",
-   "sub": "بنفورد والعينات واختبارات القيود",
+   "label": "التحليل والاختبارات",
+   "sub": "بنفورد والعينات واختبارات القيود والنسب على ملف المراجعة",
    "group": "audit",
-   "hubLabel": "التحليل والمعاينة",
    "tier": "ADVANCED",
    "module": "ui/audit/classic",
    "data": [
@@ -1184,14 +1191,15 @@
    "decision": "Keep",
    "kw": "بنفورد عينة",
    "adv": true,
-   "en": "Financial Analytics & Risk"
+   "en": "Financial Analytics & Risk",
+   "hub": "tbreview"
   },
   {
    "id": "auditlab",
-   "label": "مختبر المعايير",
+   "label": "مختبر المعايير والأبحاث",
    "sub": "مختبر البحث في المعايير",
    "group": "audit",
-   "hub": "auditanalytics",
+   "hub": "codex",
    "tier": "ADVANCED",
    "module": "ui/audit/lab",
    "data": [

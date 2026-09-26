@@ -1,9 +1,11 @@
 /* S.kosif — المحاسبة والمراجعة: تطبيقات KOSIF للمراجعة داخل S.kosif.
-   ui/audit (مولّد من kosif-audit-studio بواسطة tools/vendor_audit.py) يحوي ثلاثة تطبيقات،
-   كل منها داخل Shadow DOM خاص فلا تتداخل أنماطه مع التطبيق، ويُحمَّل عند أول فتح فقط:
-   - استوديو المراجعة (ست شاشات لمساحات عمل ملف واحد)
-   - استوديو التحليل المالي (بنفورد، المعاينة، اختبار القيود، الوكيل، الصوت)
-   - مختبر المعايير والأبحاث */
+   ui/audit (مولّد من kosif-audit-studio بواسطة tools/vendor_audit.py) يحوي ثلاث أدوات،
+   كل منها داخل Shadow DOM خاص فلا تتداخل أنماطه مع التطبيق، ويُحمَّل عند أول فتح فقط.
+   منظومة واحدة: لا تطبيق داخل التطبيق —
+   - استوديو المراجعة: تبويب «الاستوديو المتقدم» داخل «مركز المراجعة» يستقبل ميزان الملف نفسه
+     (صفحاته الست مخفية من القائمة؛ فتحها بالبحث أو برابط يفتح التبويب على الصفحة المطلوبة)
+   - التحليل والاختبارات (بنفورد، المعاينة، اختبار القيود، الوكيل، الصوت): صفحة في مركز المراجعة
+   - مختبر المعايير والأبحاث: صفحة في «المعايير والمدونة» بجوار المدونة المحاسبية */
 (()=>{
 "use strict";
 const APPS={
@@ -24,8 +26,7 @@ function app(key){
 function open(key,node,view,screenId){
   /* the domain strip above (shell) already lists every audit screen: no second hub menu here */
   const a=app(key);a.want=view;
-  if(key==="studio"&&view==="documents")node.replaceChildren(tbPanel(),a.frame);
-  else node.replaceChildren(a.frame);
+  node.replaceChildren(a.frame);
   if(a.api){a.api.setView(view);return}
   if(a.loading)return;
   const wait=document.createElement("div");wait.className="sk-empty kx-wait";wait.textContent="جارٍ تحميل "+APPS[key].label+"…";a.frame.before(wait);
@@ -35,16 +36,16 @@ function open(key,node,view,screenId){
       const sRoot=a.host.shadowRoot;
       if(sRoot&&!sRoot.getElementById("sk-audit-unify")){
         const style=document.createElement("style");style.id="sk-audit-unify";
-        style.textContent=".topbar,#topbar,.shell-header,.kx-topbar{display:none!important;}.shell,.kx-shell{padding-top:0!important;margin-top:0!important;}";
+        style.textContent=".topbar,#topbar,.shell-header,.kx-topbar{display:none!important;}.shell,.kx-shell{padding-top:0!important;margin-top:0!important;}"+(key==="studio"?".shell>.hero{display:none!important;}":"");
         sRoot.appendChild(style);
       }
     }catch{}
   })
     .catch(e=>{console.error("S.kosif "+key,e);wait.textContent="تعذر تحميل "+APPS[key].label+". تحقق من الاتصال وأعد المحاولة.";a.loading=null});
 }
-/* ---------- ميزان مراجعة من دفاتر S.kosif ----------
-   يُبنى للفترة المختارة من سجلات التطبيق نفسها، ثم يُسلَّم لنافذة الاستلام في
-   الاستوديو ليراجع المستخدم ربط الأعمدة ويعتمده بنفسه. */
+/* ---------- ميزان مراجعة من السجلات التشغيلية ----------
+   يُبنى للفترة من سجلات التطبيق نفسها (المبيعات والموردون والمدفوعات والآجل) ويستعمله ملف المراجعة
+   حين لا توجد قيود في الدفاتر المحاسبية. */
 const VAT=0.15;
 const load=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v??d}catch{return d}};
 const n=v=>{const x=Number(v);return Number.isFinite(x)?x:0};
@@ -76,42 +77,9 @@ async function buildTB(period){
 }
 const csvCell=v=>{let s=String(v??"");if(/^[=+\-@]/.test(s)&&isNaN(Number(s)))s="'"+s;return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
 const tbCSV=rows=>"﻿"+[["كود الحساب","اسم الحساب","مدين","دائن","التصنيف"],...rows.map(r=>[r[0],r[1],r[2].toFixed(2),r[3].toFixed(2),r[4]])].map(r=>r.map(csvCell).join(",")).join("\n")+"\n";
-function periods(){const now=new Date(),y=now.getFullYear(),m=String(now.getMonth()+1).padStart(2,"0"),pm=new Date(y,now.getMonth()-1,1);
-  return [[y+"-"+m,"الشهر الحالي"],[pm.getFullYear()+"-"+String(pm.getMonth()+1).padStart(2,"0"),"الشهر السابق"],[String(y),"السنة الحالية"],["all","كل الفترات"]]}
-let tbCard=null;
-function tbPanel(){
-  if(tbCard)return tbCard;
-  tbCard=document.createElement("section");tbCard.className="card kx-tb";
-  tbCard.innerHTML='<div class="card-h"><div><h3>ميزان مراجعة من دفاتر S.kosif</h3><p>من المبيعات وشحنات الموردين والمصروفات وذمم الآجل المسجلة في التطبيق، للفترة المختارة. النقدية رقم موازن محسوب.</p></div></div>'+
-    '<div class="card-b sk-stack"><div class="sk-actions"><select class="kx-tb-period">'+periods().map(([v,l])=>'<option value="'+v+'">'+l+' ('+(v==="all"?"الكل":v)+')</option>').join("")+'</select>'+
-    '<button type="button" class="btn kx-tb-build">إعداد الميزان</button><button type="button" class="btn primary kx-tb-send" disabled>إرسال لنافذة الاستلام</button><button type="button" class="btn kx-tb-csv" disabled>تنزيل CSV</button></div><div class="kx-tb-out"></div></div>';
-  let last=null;const $=s=>tbCard.querySelector(s);
-  $(".kx-tb-build").onclick=async()=>{
-    const period=$(".kx-tb-period").value,tb=await buildTB(period);last={period,...tb};
-    const out=$(".kx-tb-out");
-    if(!tb.rows.length){out.innerHTML='<div class="sk-note warn">لا توجد مبيعات أو مشتريات أو مصروفات مسجلة في هذه الفترة.</div>';$(".kx-tb-send").disabled=$(".kx-tb-csv").disabled=true;return}
-    const f=v=>v?v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}):"—",dr=tb.rows.reduce((a,r)=>a+r[2],0),cr=tb.rows.reduce((a,r)=>a+r[3],0);
-    out.innerHTML='<div class="sk-note">المصادر: '+tb.counts.lines+' سطر مبيعات، '+tb.counts.batches+' شحنة مورد، '+tb.counts.flows+' مدفوعات مسجلة.</div>'+
-      '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الكود</th><th>الحساب</th><th>مدين</th><th>دائن</th><th>التصنيف</th></tr></thead><tbody>'+
-      tb.rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1].replace(/[<>&]/g,"")+'</td><td>'+f(r[2])+'</td><td>'+f(r[3])+'</td><td>'+r[4]+'</td></tr>').join("")+
-      '<tr><td></td><td><b>الإجمالي</b></td><td><b>'+f(dr)+'</b></td><td><b>'+f(cr)+'</b></td><td>'+(Math.abs(dr-cr)<0.01?"متزن":"غير متزن")+'</td></tr></tbody></table></div>';
-    $(".kx-tb-send").disabled=$(".kx-tb-csv").disabled=false;
-  };
-  $(".kx-tb-csv").onclick=()=>{if(!last)return;const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([tbCSV(last.rows)],{type:"text/csv;charset=utf-8"}));a.download="S.kosif-trial-balance-"+last.period+".csv";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
-  $(".kx-tb-send").onclick=()=>{
-    const a=state.studio,root=a&&a.host.shadowRoot;if(!last||!root)return;
-    root.getElementById("openSpreadsheetIntake")?.click();
-    const input=root.getElementById("spreadsheetFile");if(!input)return window.SK.toast("نافذة الاستلام غير جاهزة بعد","err");
-    const dt=new DataTransfer();dt.items.add(new File([tbCSV(last.rows)],"S.kosif-trial-balance-"+last.period+".csv",{type:"text/csv"}));
-    input.files=dt.files;input.dispatchEvent(new Event("change",{bubbles:true}));
-    window.SK.toast("راجع ربط الأعمدة في نافذة الاستلام ثم اعتمد الاستيراد","info");
-  };
-  return tbCard;
-}
-
 const SV=p=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>';
 const SCREENS=[
-  ["auditdesk","studio","overview","مركز المراجعة","المرحلة الحالية والخطوة التالية ومؤشرات ملف المراجعة","",SV('<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>')],
+  ["auditdesk","studio","overview","نظرة عامة","المرحلة الحالية والخطوة التالية ومؤشرات ملف المراجعة","",SV('<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>')],
   ["auditdocs","studio","documents","المستندات والأدلة","استلام المستندات وموازين المراجعة وطلبات الأدلة","",SV('<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>')],
   ["auditissues","studio","issues","الملاحظات والقضايا","سجل الملاحظات وحالتها وربطها بالأدلة","",SV('<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>')],
   ["auditcouncil","studio","council","مجلس المراجعين","تسعة مراجعين متخصصين وجولات المراجعة","",SV('<path d="M12 3v18M5 7h14M7 7l-3 7a3 3 0 0 0 6 0zM17 7l-3 7a3 3 0 0 0 6 0z"/>')],
@@ -120,7 +88,21 @@ const SCREENS=[
   ["auditanalytics","classic","overview","التحليل المالي والمخاطر","بنفورد، المعاينة، اختبار القيود، النسب، الأهمية النسبية، الوكيل والمساعد الصوتي","",SV('<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/>')],
   ["auditlab","lab","overview","مختبر المعايير والأبحاث","مصادر IFRS وISA وSOCPA وسريانها، وأسئلة البحث المهني","",SV('<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5V21h16"/>')]
 ];
+/* send a trial balance (rows [code,name,debit,credit,category] in major units) into the studio's intake */
+function sendTB(rows,label){
+  const a=state.studio,root=a&&a.host.shadowRoot;if(!root){window.SK.toast("افتح الاستوديو أولاً ثم أعد الإرسال","warn");return false}
+  root.getElementById("openSpreadsheetIntake")?.click();
+  const input=root.getElementById("spreadsheetFile");if(!input){window.SK.toast("نافذة الاستلام غير جاهزة بعد","err");return false}
+  const dt=new DataTransfer();dt.items.add(new File([tbCSV(rows)],"KOSIF-trial-balance-"+(label||"file")+".csv",{type:"text/csv"}));
+  input.files=dt.files;input.dispatchEvent(new Event("change",{bubbles:true}));
+  window.SK.toast("راجع ربط الأعمدة في نافذة الاستلام ثم اعتمد الاستيراد","info");return true;
+}
+/* the audit studio lives inside «مركز المراجعة» (tab «الاستوديو المتقدم»): mount it in the engagement's own tab */
+function mountStudio(node,view){open("studio",node,view||"overview","auditdesk")}
 /* the operational trial balance (sales, supplier batches, payments, credit) for the TB review */
-window.SKosifAuditBridge=Object.freeze({buildTB});
-SCREENS.forEach(([id,key,view,title,sub,emoji,icon])=>window.SK.view(id,{title,sub,emoji,adv:true,icon:window.SK.icons[id]||icon,render(node){open(key,node,view,id)}}));
+window.SKosifAuditBridge=Object.freeze({buildTB,mountStudio,sendTB,STUDIO_VIEWS:SCREENS.filter(x=>x[1]==="studio").map(x=>({id:x[0],view:x[2],label:x[3],sub:x[4]}))});
+/* a studio page opened directly (search, deep link, old bookmark) opens the engagement's studio tab on that page */
+SCREENS.forEach(([id,key,view,title,sub,emoji,icon])=>window.SK.view(id,{title,sub,emoji,adv:true,icon:window.SK.icons[id]||icon,render(node){
+  if(key==="studio"&&window.SKosifTBReview&&SKosifTBReview.studio){node.innerHTML='<div class="sk-empty kx-wait">يفتح «مركز المراجعة › الاستوديو المتقدم»…</div>';setTimeout(()=>SKosifTBReview.studio(view),0);return}
+  open(key,node,view,id)}}));
 })();

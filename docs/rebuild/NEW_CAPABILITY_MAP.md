@@ -54,16 +54,16 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | مركز التقارير | `reports` | التقارير والتحليلات › الطباعة والتصدير › مركز الطباعة | UTILITIES | admin, accountant, sales, viewer |
 | Grand Fusion reports.exports | `exports` | التقارير والتحليلات › الطباعة والتصدير › مركز التصدير | UTILITIES | admin, accountant, sales |
 | الأرشيف | `archive` | التقارير والتحليلات › الأرشيف والتغييرات | MANAGEMENT | admin, accountant |
-| جديد — دمج smart-trial-balance-review (مجلس Gemini والجولات) و kosif-audit-pro (القوائم والتحليل) و Moon (المخاطر والرأي) و SEE (التصنيف والجاهزية) | `tbreview` | المراجعة والتأكيد › مراجعة ميزان المراجعة | CORE | admin, accountant |
-| جديد — يحل محل قاعدة معايير smart-trial-balance-review ويكمّل مختبر المعايير | `codex` | المراجعة والتأكيد › المدونة المحاسبية والمعايير | MANAGEMENT | admin, accountant, viewer |
-| KOSIF Audit Studio | `auditdesk` | المراجعة والتأكيد › استوديو المراجعة › مركز المراجعة (advanced) | ADVANCED | admin, accountant |
-| KOSIF Audit Studio | `auditdocs` | المراجعة والتأكيد › استوديو المراجعة › المستندات والأدلة (advanced) | ADVANCED | admin, accountant |
-| KOSIF Audit Studio | `auditissues` | المراجعة والتأكيد › استوديو المراجعة › الملاحظات والقضايا (advanced) | ADVANCED | admin, accountant |
-| KOSIF Audit Studio | `auditcouncil` | المراجعة والتأكيد › استوديو المراجعة › مجلس المراجعين (advanced) | ADVANCED | admin, accountant |
-| KOSIF Audit Studio | `auditfin` | المراجعة والتأكيد › استوديو المراجعة › القوائم والقيود (advanced) | ADVANCED | admin, accountant |
-| KOSIF Audit Studio | `auditreport` | المراجعة والتأكيد › استوديو المراجعة › التقارير والإصدار (advanced) | ADVANCED | admin, accountant |
-| KOSIF Audit Studio (classic) | `auditanalytics` | المراجعة والتأكيد › التحليل والمعاينة › التحليل المالي والمخاطر (advanced) | ADVANCED | admin, accountant |
-| KOSIF Audit Studio (lab) | `auditlab` | المراجعة والتأكيد › التحليل والمعاينة › مختبر المعايير (advanced) | ADVANCED | admin, accountant |
+| جديد — دمج smart-trial-balance-review (مجلس Gemini والجولات) و kosif-audit-pro (القوائم والتحليل) و Moon (المخاطر والرأي) و SEE (التصنيف والجاهزية) + استوديو KOSIF للمراجعة (تبويب «الاستوديو المتقدم» داخل الملف) | `tbreview` | المراجعة والتأكيد › مركز المراجعة › ملف المراجعة | CORE | admin, accountant |
+| جديد — يحل محل قاعدة معايير smart-trial-balance-review ويكمّل مختبر المعايير | `codex` | المراجعة والتأكيد › المعايير والمدونة › المدونة المحاسبية والمعايير | MANAGEMENT | admin, accountant, viewer |
+| KOSIF Audit Studio | `auditdesk` | المراجعة والتأكيد › مركز المراجعة › الاستوديو المتقدم (advanced) | ADVANCED | admin, accountant |
+| KOSIF Audit Studio | `auditdocs` | المراجعة والتأكيد › مركز المراجعة › المستندات والأدلة (advanced) | ADVANCED | admin, accountant |
+| KOSIF Audit Studio | `auditissues` | المراجعة والتأكيد › مركز المراجعة › الملاحظات والقضايا (advanced) | ADVANCED | admin, accountant |
+| KOSIF Audit Studio | `auditcouncil` | المراجعة والتأكيد › مركز المراجعة › مجلس المراجعين (advanced) | ADVANCED | admin, accountant |
+| KOSIF Audit Studio | `auditfin` | المراجعة والتأكيد › مركز المراجعة › القوائم والقيود (advanced) | ADVANCED | admin, accountant |
+| KOSIF Audit Studio | `auditreport` | المراجعة والتأكيد › مركز المراجعة › التقارير والإصدار (advanced) | ADVANCED | admin, accountant |
+| KOSIF Audit Studio (classic) | `auditanalytics` | المراجعة والتأكيد › مركز المراجعة › التحليل والاختبارات (advanced) | ADVANCED | admin, accountant |
+| KOSIF Audit Studio (lab) | `auditlab` | المراجعة والتأكيد › المعايير والمدونة › مختبر المعايير والأبحاث (advanced) | ADVANCED | admin, accountant |
 | الإعدادات | `settings` | النظام والتكاملات › الإعدادات والأجهزة › الإعدادات والمظهر | ADMIN | admin, accountant, warehouse, sales, viewer |
 | جديد — تعليمات التثبيت (INSTALL-iPHONE-ar.txt) + نسخة v27 للابتوب وv28–v30 للآيفون | `devices` | النظام والتكاملات › الإعدادات والأجهزة › الأجهزة والمزامنة | UTILITIES | admin, accountant, warehouse, sales, viewer |
 | Grand Fusion system.companies | `companies` | النظام والتكاملات › الشركات والفترات (advanced) | ADMIN | admin, accountant |
@@ -105,15 +105,13 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | التقارير والتحليلات | التقارير التنفيذية | `execreports` التقارير التنفيذية |
 | التقارير والتحليلات | الطباعة والتصدير | `reports` مركز الطباعة · `exports` مركز التصدير |
 | التقارير والتحليلات | الأرشيف والتغييرات | `archive` الأرشيف والتغييرات |
-| المراجعة والتأكيد | مراجعة ميزان المراجعة | `tbreview` مراجعة ميزان المراجعة |
-| المراجعة والتأكيد | المدونة المحاسبية والمعايير | `codex` المدونة المحاسبية والمعايير |
-| المراجعة والتأكيد | استوديو المراجعة | `auditdesk` مركز المراجعة · `auditdocs` المستندات والأدلة · `auditissues` الملاحظات والقضايا · `auditcouncil` مجلس المراجعين · `auditfin` القوائم والقيود · `auditreport` التقارير والإصدار |
-| المراجعة والتأكيد | التحليل والمعاينة | `auditanalytics` التحليل المالي والمخاطر · `auditlab` مختبر المعايير |
+| المراجعة والتأكيد | مركز المراجعة | `tbreview` ملف المراجعة · `auditdesk` الاستوديو المتقدم · `auditdocs` المستندات والأدلة · `auditissues` الملاحظات والقضايا · `auditcouncil` مجلس المراجعين · `auditfin` القوائم والقيود · `auditreport` التقارير والإصدار · `auditanalytics` التحليل والاختبارات |
+| المراجعة والتأكيد | المعايير والمدونة | `codex` المدونة المحاسبية والمعايير · `auditlab` مختبر المعايير والأبحاث |
 | النظام والتكاملات | الإعدادات والأجهزة | `settings` الإعدادات والمظهر · `devices` الأجهزة والمزامنة |
 | النظام والتكاملات | الشركات والفترات | `companies` الشركات والفترات |
 | النظام والتكاملات | الحوكمة والصلاحيات | `governance` الحوكمة والجاهزية · `health` الصحة والتشخيص · `capabilitiesv2` الصلاحيات ومساحات العمل |
 
-64 screens in 35 menu entries.
+64 screens in 33 menu entries.
 
 ## By tier
 

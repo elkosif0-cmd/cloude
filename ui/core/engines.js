@@ -122,7 +122,7 @@ window.SKEngines = (function() {
 		detectDelimiter: () => detectDelimiter,
 		fromRows: () => fromRows,
 		largestBalances: () => largestBalances,
-		norm: () => norm,
+		norm: () => norm$1,
 		parseTrialBalance: () => parseTrialBalance,
 		splitLine: () => splitLine
 	});
@@ -152,7 +152,7 @@ window.SKEngines = (function() {
 		7: "expense",
 		8: "expense"
 	};
-	var norm = (s) => normalizeDigits(s).toLowerCase().replace(/[ً-ٰٟ]/g, "").replace(/[أإآٱ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/ـ/g, "").replace(/\s+/g, " ").trim();
+	var norm$1 = (s) => normalizeDigits(s).toLowerCase().replace(/[ً-ٰٟ]/g, "").replace(/[أإآٱ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/ـ/g, "").replace(/\s+/g, " ").trim();
 	var NAME_HINTS = [
 		{
 			type: "asset",
@@ -283,7 +283,7 @@ window.SKEngines = (function() {
 			type: CODE_PREFIX[digits[0]],
 			basis: "code"
 		};
-		const hay = norm(name);
+		const hay = norm$1(name);
 		if (CONTRA.some((w) => hay.includes(w)) && !/مصروف|مصاريف|expense/.test(hay)) return {
 			type: "asset",
 			basis: "name"
@@ -377,7 +377,7 @@ window.SKEngines = (function() {
 		]
 	};
 	function headerKey(cell) {
-		const k = norm(cell).replace(/[\s_\-.()]/g, "");
+		const k = norm$1(cell).replace(/[\s_\-.()]/g, "");
 		for (const [field, aliases] of Object.entries(HEADERS)) if (aliases.includes(k)) return field;
 		return null;
 	}
@@ -2674,9 +2674,9 @@ window.SKEngines = (function() {
 			key: overrides[row.code],
 			basis: "manual"
 		};
-		const name = norm(row.name), code = String(row.code || "").replace(/\D/g, "");
+		const name = norm$1(row.name), code = String(row.code || "").replace(/\D/g, "");
 		const candidates = LINES.filter((l) => l.types.includes(row.type));
-		const byName = candidates.find((l) => l.kws.some((k) => name.includes(norm(k))));
+		const byName = candidates.find((l) => l.kws.some((k) => name.includes(norm$1(k))));
 		if (byName) return {
 			key: byName.key,
 			basis: "name"
@@ -3121,7 +3121,7 @@ window.SKEngines = (function() {
 	var analysis_engine_exports = /* @__PURE__ */ __exportAll({
 		altmanZ: () => altmanZ,
 		beneishM: () => beneishM,
-		benford: () => benford,
+		benford: () => benford$1,
 		commonSize: () => commonSize,
 		dupont: () => dupont,
 		freeCashFlow: () => freeCashFlow,
@@ -3130,15 +3130,15 @@ window.SKEngines = (function() {
 		mdna: () => mdna,
 		ratios: () => ratios
 	});
-	var r2 = (n) => Math.round(n * 100) / 100;
+	var r2$1 = (n) => Math.round(n * 100) / 100;
 	var div = (a, b) => b ? a / b : null;
 	var pctOf = (a, b) => {
 		const x = div(a, b);
-		return x === null ? null : r2(x * 100);
+		return x === null ? null : r2$1(x * 100);
 	};
 	var times = (a, b) => {
 		const x = div(a, b);
-		return x === null ? null : r2(x);
+		return x === null ? null : r2$1(x);
 	};
 	var days$1 = (a, b) => {
 		const x = div(a, b);
@@ -3404,7 +3404,7 @@ window.SKEngines = (function() {
 	/** Common-size: P&L lines as % of revenue, position lines as % of total assets. */
 	function commonSize(fs) {
 		const rev = fs.keys.revenue, ta = fs.keys.assets;
-		const pc = (a, b) => b ? r2(a / b * 100) : null;
+		const pc = (a, b) => b ? r2$1(a / b * 100) : null;
 		return {
 			pl: fs.pl.map((r) => ({
 				key: r.key,
@@ -3429,7 +3429,7 @@ window.SKEngines = (function() {
 			current: r.current,
 			prior: r.prior,
 			change: r.current - r.prior,
-			changePct: r.prior ? r2((r.current - r.prior) / Math.abs(r.prior) * 100) : null
+			changePct: r.prior ? r2$1((r.current - r.prior) / Math.abs(r.prior) * 100) : null
 		}));
 	}
 	/** DuPont: ROE = net margin × asset turnover × equity multiplier (year-end balances). */
@@ -3437,10 +3437,10 @@ window.SKEngines = (function() {
 		const k = fs.keys, one = (rev, profit, ta, eq) => {
 			const nm = div(profit, rev), at = div(rev, ta), em = div(ta, eq);
 			return {
-				netMargin: nm === null ? null : r2(nm * 100),
-				assetTurnover: at === null ? null : r2(at),
-				equityMultiplier: em === null ? null : r2(em),
-				roe: nm === null || at === null || em === null ? null : r2(nm * at * em * 100)
+				netMargin: nm === null ? null : r2$1(nm * 100),
+				assetTurnover: at === null ? null : r2$1(at),
+				equityMultiplier: em === null ? null : r2$1(em),
+				roe: nm === null || at === null || em === null ? null : r2$1(nm * at * em * 100)
 			};
 		};
 		return {
@@ -3454,16 +3454,16 @@ window.SKEngines = (function() {
 		if (!ta) return null;
 		const retained = fs.lines.filter((l) => l.key === "retained").reduce((a, l) => a + l.current, 0) + k.profit.current;
 		const x1 = (k.ca.current - k.cl.current) / ta, x2 = retained / ta, x3 = k.operating.current / ta, x4 = tl ? k.equity.current / tl : 0;
-		const z = r2(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
+		const z = r2$1(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
 		return {
 			z,
 			zone: z > 2.6 ? "safe" : z >= 1.1 ? "grey" : "distress",
 			zoneAr: z > 2.6 ? "منطقة الأمان" : z >= 1.1 ? "المنطقة الرمادية" : "منطقة التعثر",
 			components: {
-				x1: r2(x1),
-				x2: r2(x2),
-				x3: r2(x3),
-				x4: r2(x4)
+				x1: r2$1(x1),
+				x2: r2$1(x2),
+				x3: r2$1(x3),
+				x4: r2$1(x4)
 			}
 		};
 	}
@@ -3481,7 +3481,7 @@ window.SKEngines = (function() {
 		const sgai = q(q(sga(c), c("revenue")), q(sga(p), p("revenue")));
 		const lvgi = q(q(c("cl") + c("loansNcl") + c("leaseNcl"), c("assets")), q(p("cl") + p("loansNcl") + p("leaseNcl"), p("assets")));
 		const tata = fs.keys.cfo ? q(c("profit") - fs.keys.cfo.current, c("assets")) : 0;
-		const m = r2(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
+		const m = r2$1(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
 		const f = (x) => Math.round(x * 1e3) / 1e3;
 		return {
 			m,
@@ -3499,7 +3499,7 @@ window.SKEngines = (function() {
 		};
 	}
 	/** Benford first digit with Nigrini's mean absolute deviation conformity bands. */
-	function benford(amounts) {
+	function benford$1(amounts) {
 		const firsts = amounts.map((a) => Math.abs(a)).filter((a) => a >= 1e3).map((a) => Number(String(a)[0]));
 		const n = firsts.length, counts = Array(10).fill(0);
 		firsts.forEach((d) => {
@@ -3580,7 +3580,7 @@ window.SKEngines = (function() {
 			rat("current")
 		].map((i) => ({
 			...i,
-			change: i.prior === null || i.current === null || !i.prior ? null : r2((i.current - i.prior) / Math.abs(i.prior) * 100)
+			change: i.prior === null || i.current === null || !i.prior ? null : r2$1((i.current - i.prior) / Math.abs(i.prior) * 100)
 		}));
 	}
 	/** A deterministic management discussion: sentences generated from the numbers only. */
@@ -3590,7 +3590,7 @@ window.SKEngines = (function() {
 		const ch = (key) => {
 			const x = k[key];
 			if (!x || x.prior === null || !x.prior) return null;
-			return r2((x.current - x.prior) / Math.abs(x.prior) * 100);
+			return r2$1((x.current - x.prior) / Math.abs(x.prior) * 100);
 		};
 		const dir = (v, up, down) => v === null ? "" : v >= 0 ? `${up} ${Math.abs(v)}%` : `${down} ${Math.abs(v)}%`;
 		const out = [];
@@ -4005,7 +4005,7 @@ window.SKEngines = (function() {
 			action: "تصحيح الملف المصدر وإعادة الاستيراد."
 		});
 		for (const a of accounts) {
-			const n = norm(a.name), big = Math.abs(a.balance) >= mat.trivial;
+			const n = norm$1(a.name), big = Math.abs(a.balance) >= mat.trivial;
 			if (a.type === "suspense" || !a.lineKey) tag(add({
 				severity: big ? "medium" : "low",
 				kind: "classification",
@@ -4313,7 +4313,7 @@ window.SKEngines = (function() {
 			basis: "الصافي " + money(ppeNet),
 			action: "مراجعة سجل الأصول والاستبعادات."
 		});
-		const salaries = accounts.filter((a) => a.type === "expense" && SALARIES.test(norm(a.name))).reduce((s, a) => s + a.natural, 0);
+		const salaries = accounts.filter((a) => a.type === "expense" && SALARIES.test(norm$1(a.name))).reduce((s, a) => s + a.natural, 0);
 		if (!egypt && salaries > 0 && !fs.lines.some((l) => l.key === "eosb" && l.current !== 0)) add({
 			severity: salaries >= mat.overall ? "high" : "medium",
 			kind: "completeness",
@@ -4336,7 +4336,7 @@ window.SKEngines = (function() {
 			action: "طلب عقود التمويل وكشوف احتساب الفائدة."
 		});
 		const rec = kv("receivables");
-		if (rec >= mat.performance && !fs.lines.some((l) => l.key === "impairment" && l.current !== 0) && !accounts.some((a) => a.lineKey === "receivables" && /خسائر|مخصص|مشكوك/.test(norm(a.name)))) add({
+		if (rec >= mat.performance && !fs.lines.some((l) => l.key === "impairment" && l.current !== 0) && !accounts.some((a) => a.lineKey === "receivables" && /خسائر|مخصص|مشكوك/.test(norm$1(a.name)))) add({
 			severity: "medium",
 			kind: "measurement",
 			lineKey: "receivables",
@@ -4777,7 +4777,7 @@ window.SKEngines = (function() {
 	}
 	/** The allowance already booked: credit balances of the receivables line's allowance accounts. */
 	function existingAllowance(tb) {
-		return tb.rows.filter((r) => lineFor(r).key === "receivables" && /خسائر|مخصص|مشكوك|allowance/.test(norm(r.name))).reduce((a, r) => a + Math.max(0, -r.balance), 0);
+		return tb.rows.filter((r) => lineFor(r).key === "receivables" && /خسائر|مخصص|مشكوك|allowance/.test(norm$1(r.name))).reduce((a, r) => a + Math.max(0, -r.balance), 0);
 	}
 	/** The entry that brings the allowance to the matrix result (up or down); null when nothing changes. */
 	function eclAdjustment(tb, matrix, framework = "IFRS") {
@@ -4854,34 +4854,34 @@ window.SKEngines = (function() {
 		"مدقق المخاطر والأدلة"
 	];
 	var DEFAULT_MODEL = "gemini-2.5-flash";
-	var S = (description) => ({
+	var S$1 = (description) => ({
 		type: "STRING",
 		...description ? { description } : {}
 	});
-	var ARR = (items) => ({
+	var ARR$1 = (items) => ({
 		type: "ARRAY",
 		items
 	});
-	var OBJ = (properties, required) => ({
+	var OBJ$1 = (properties, required) => ({
 		type: "OBJECT",
 		properties,
 		required
 	});
-	var LINES_SCHEMA = ARR(OBJ({
-		accountCode: S("رقم الحساب من الميزان، أو NEW-… لحساب جديد"),
-		accountName: S(),
-		debit: S("مبلغ بالريال أو 0"),
-		credit: S("مبلغ بالريال أو 0")
+	var LINES_SCHEMA = ARR$1(OBJ$1({
+		accountCode: S$1("رقم الحساب من الميزان، أو NEW-… لحساب جديد"),
+		accountName: S$1(),
+		debit: S$1("مبلغ بالريال أو 0"),
+		credit: S$1("مبلغ بالريال أو 0")
 	}, [
 		"accountCode",
 		"accountName",
 		"debit",
 		"credit"
 	]));
-	var ADJ_SCHEMA = ARR(OBJ({
-		title: S(),
-		reason: S(),
-		standardCode: S(),
+	var ADJ_SCHEMA = ARR$1(OBJ$1({
+		title: S$1(),
+		reason: S$1(),
+		standardCode: S$1(),
 		lines: LINES_SCHEMA
 	}, [
 		"title",
@@ -4889,33 +4889,33 @@ window.SKEngines = (function() {
 		"standardCode",
 		"lines"
 	]));
-	var ROUND_SCHEMA = OBJ({
+	var ROUND_SCHEMA = OBJ$1({
 		status: {
 			type: "STRING",
 			enum: ["needs_docs", "complete"],
 			description: "needs_docs ما دامت هناك مستندات مطلوبة أو ملاحظات جوهرية معلقة"
 		},
-		executiveSummary: S(),
+		executiveSummary: S$1(),
 		riskScore: {
 			type: "INTEGER",
 			description: "0-100"
 		},
-		boardOpinions: ARR(OBJ({
+		boardOpinions: ARR$1(OBJ$1({
 			reviewer: {
 				type: "STRING",
 				enum: [...REVIEWERS]
 			},
-			opinion: S()
+			opinion: S$1()
 		}, ["reviewer", "opinion"])),
-		accountStandards: ARR(OBJ({
-			accountCode: S(),
-			standards: ARR(S()),
-			note: S("علاقة المعيار بالحساب باختصار")
+		accountStandards: ARR$1(OBJ$1({
+			accountCode: S$1(),
+			standards: ARR$1(S$1()),
+			note: S$1("علاقة المعيار بالحساب باختصار")
 		}, ["accountCode", "standards"])),
-		findings: ARR(OBJ({
-			accountCode: S(),
-			accountName: S(),
-			standardCode: S(),
+		findings: ARR$1(OBJ$1({
+			accountCode: S$1(),
+			accountName: S$1(),
+			standardCode: S$1(),
 			issueType: {
 				type: "STRING",
 				enum: [
@@ -4938,9 +4938,10 @@ window.SKEngines = (function() {
 					"منخفضة"
 				]
 			},
-			amount: S("المبلغ المتأثر بالريال إن وجد"),
-			comment: S(),
-			recommendation: S()
+			amount: S$1("المبلغ المتأثر بالريال إن وجد"),
+			comment: S$1(),
+			recommendation: S$1(),
+			citations: ARR$1(S$1("رقم دليل من السجل"))
 		}, [
 			"accountName",
 			"standardCode",
@@ -4948,12 +4949,12 @@ window.SKEngines = (function() {
 			"comment",
 			"recommendation"
 		])),
-		requestedDocuments: ARR(OBJ({
-			id: S("REQ-n متسلسل ومحفوظ بين الجولات"),
-			title: S(),
-			purpose: S(),
-			relatedAccounts: ARR(S()),
-			standardCode: S(),
+		requestedDocuments: ARR$1(OBJ$1({
+			id: S$1("REQ-n متسلسل ومحفوظ بين الجولات"),
+			title: S$1(),
+			purpose: S$1(),
+			relatedAccounts: ARR$1(S$1()),
+			standardCode: S$1(),
 			priority: {
 				type: "STRING",
 				enum: [
@@ -4961,16 +4962,37 @@ window.SKEngines = (function() {
 					"متوسطة",
 					"منخفضة"
 				]
-			}
+			},
+			lineKey: S$1("مفتاح البند"),
+			assertion: {
+				type: "STRING",
+				enum: [
+					"existence",
+					"completeness",
+					"accuracy",
+					"cutoff",
+					"valuation",
+					"presentation"
+				]
+			},
+			effort: {
+				type: "STRING",
+				enum: [
+					"low",
+					"medium",
+					"high"
+				]
+			},
+			citations: ARR$1(S$1())
 		}, [
 			"id",
 			"title",
 			"purpose",
 			"priority"
 		])),
-		documentsReviewed: ARR(OBJ({
-			fileName: S(),
-			requestId: S(),
+		documentsReviewed: ARR$1(OBJ$1({
+			fileName: S$1(),
+			requestId: S$1(),
 			verdict: {
 				type: "STRING",
 				enum: [
@@ -4979,14 +5001,14 @@ window.SKEngines = (function() {
 					"مرفوض"
 				]
 			},
-			notes: S(),
-			extracted: OBJ({
-				documentDate: S("YYYY-MM-DD"),
-				amount: S(),
-				vatAmount: S(),
-				vatNumber: S(),
-				counterparty: S(),
-				reference: S()
+			notes: S$1(),
+			extracted: OBJ$1({
+				documentDate: S$1("YYYY-MM-DD"),
+				amount: S$1(),
+				vatAmount: S$1(),
+				vatNumber: S$1(),
+				counterparty: S$1(),
+				reference: S$1()
 			}, [])
 		}, [
 			"fileName",
@@ -4994,7 +5016,43 @@ window.SKEngines = (function() {
 			"notes"
 		])),
 		proposedAdjustments: ADJ_SCHEMA,
-		nextStepGuidance: S()
+		nextStepGuidance: S$1(),
+		decision: {
+			type: "STRING",
+			enum: [
+				"request_more_evidence",
+				"escalate",
+				"sufficient"
+			],
+			description: "قرار الرئيس: طلب أدلة، أو تصعيد للمراجع البشري، أو اكتفاء"
+		},
+		confidence: ARR$1(OBJ$1({
+			lineKey: S$1(),
+			assertion: {
+				type: "STRING",
+				enum: [
+					"existence",
+					"completeness",
+					"accuracy",
+					"cutoff",
+					"valuation",
+					"presentation"
+				]
+			},
+			value: {
+				type: "NUMBER",
+				description: "0-1"
+			}
+		}, [
+			"lineKey",
+			"assertion",
+			"value"
+		])),
+		dissent: ARR$1(OBJ$1({
+			member: S$1(),
+			note: S$1(),
+			citations: ARR$1(S$1())
+		}, ["member", "note"]))
 	}, [
 		"status",
 		"executiveSummary",
@@ -5004,7 +5062,7 @@ window.SKEngines = (function() {
 		"requestedDocuments",
 		"nextStepGuidance"
 	]);
-	var FINAL_SCHEMA = OBJ({
+	var FINAL_SCHEMA = OBJ$1({
 		overallOpinion: {
 			type: "STRING",
 			enum: [
@@ -5014,19 +5072,19 @@ window.SKEngines = (function() {
 				"امتناع عن إبداء الرأي"
 			]
 		},
-		headline: S(),
-		summary: S(),
-		keyAuditMatters: ARR(OBJ({
-			title: S(),
-			why: S("لماذا يعد أمراً رئيسياً"),
-			how: S("كيف عولج في المراجعة")
+		headline: S$1(),
+		summary: S$1(),
+		keyAuditMatters: ARR$1(OBJ$1({
+			title: S$1(),
+			why: S$1("لماذا يعد أمراً رئيسياً"),
+			how: S$1("كيف عولج في المراجعة")
 		}, [
 			"title",
 			"why",
 			"how"
 		])),
-		complianceDiscussion: ARR(OBJ({
-			standardCode: S(),
+		complianceDiscussion: ARR$1(OBJ$1({
+			standardCode: S$1(),
 			status: {
 				type: "STRING",
 				enum: [
@@ -5036,17 +5094,18 @@ window.SKEngines = (function() {
 					"غير منطبق"
 				]
 			},
-			discussion: S()
+			discussion: S$1()
 		}, [
 			"standardCode",
 			"status",
 			"discussion"
 		])),
 		adjustments: ADJ_SCHEMA,
-		managementLetter: ARR(OBJ({
-			title: S(),
-			observation: S(),
-			recommendation: S(),
+		managementLetter: ARR$1(OBJ$1({
+			title: S$1(),
+			observation: S$1(),
+			effect: S$1(),
+			recommendation: S$1(),
 			priority: {
 				type: "STRING",
 				enum: [
@@ -5061,8 +5120,8 @@ window.SKEngines = (function() {
 			"recommendation",
 			"priority"
 		])),
-		limitations: ARR(S()),
-		closingStatement: S()
+		limitations: ARR$1(S$1()),
+		closingStatement: S$1()
 	}, [
 		"overallOpinion",
 		"headline",
@@ -5189,6 +5248,7 @@ window.SKEngines = (function() {
 				else if (u.text) parts.push({ text: u.text.slice(0, 6e4) });
 			}
 		}
+		if (opts.council) parts.push({ text: "أنت رئيس المجلس في هذه الجولة. آراء الأعضاء بعد التحقق الآلي من استشهاداتهم وسجل الأدلة المرقمة:\n" + opts.council + "\nاستشهد في كل ملاحظة وطلب بأرقام الأدلة من السجل فقط، وحدد لكل طلب البند والتأكيد والعبء على العميل، واملأ decision وconfidence وdissent (الآراء المخالفة غير المحسومة)." });
 		parts.push({ text: no === 1 ? "راجع الميزان وأكد المعايير لكل حساب واكتشف الأخطاء واطلب المستندات اللازمة." : "راجع المستندات المرفوعة مقابل طلباتها، وحدّث الملاحظات، واطلب ما يلزم، أو أعلن اكتمال المراجعة." });
 		return {
 			systemInstruction: { parts: [{ text: systemPrompt(s.ctx) }] },
@@ -5253,8 +5313,15 @@ window.SKEngines = (function() {
 		};
 	}
 	/** Normalize one Gemini round into the app's types; never trusts the model's arithmetic or codes. */
-	function normalizeRound(raw, s, tb, model, now = /* @__PURE__ */ new Date()) {
+	function normalizeRound(raw, s, tb, model, now = /* @__PURE__ */ new Date(), evidenceIds) {
 		const r = raw ?? {}, no = s.rounds.length + 1, warnings = [];
+		const cite = (v, where) => {
+			const list = arr(v).map((c) => str(c, 40)).filter(Boolean);
+			if (!evidenceIds) return list;
+			const bad = list.filter((c) => !evidenceIds.has(c));
+			if (bad.length) warnings.push(`استشهاد بدليل غير موجود في ${where}: ${bad.join("، ")} — حُذف.`);
+			return list.filter((c) => evidenceIds.has(c));
+		};
 		const codes = new Set(tb.rows.map((x) => x.code));
 		const accountStandards = {};
 		for (const x of arr(r.accountStandards)) {
@@ -5286,7 +5353,8 @@ window.SKEngines = (function() {
 				basis: amount ? "المبلغ المتأثر " + sar(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
 				action: str(f.recommendation, 1e3),
 				source: "gemini",
-				round: no
+				round: no,
+				citations: cite(f.citations, "ملاحظة")
 			};
 		});
 		const existing = /* @__PURE__ */ new Map();
@@ -5304,6 +5372,7 @@ window.SKEngines = (function() {
 			}
 			if (!/^REQ-\d+$/.test(id) || existing.has(id) || requests.some((x) => x.id === id)) id = "REQ-" + next;
 			next = Math.max(next, Number(id.slice(4)) + 1);
+			const assertion = str(q.assertion, 20), effort = str(q.effort, 10), lineKey = str(q.lineKey, 40);
 			requests.push({
 				id,
 				title,
@@ -5316,7 +5385,15 @@ window.SKEngines = (function() {
 					"منخفضة"
 				].find((p) => p === str(q.priority, 20)) ?? "متوسطة",
 				source: "gemini",
-				round: no
+				round: no,
+				...lineKey ? { lineKey } : {},
+				...assertion ? { assertion } : {},
+				...[
+					"low",
+					"medium",
+					"high"
+				].includes(effort) ? { effort } : {},
+				...q.citations ? { citations: cite(q.citations, "طلب") } : {}
 			});
 		}
 		const up = pendingUploads(s);
@@ -5367,7 +5444,22 @@ window.SKEngines = (function() {
 			reviewed,
 			adjustments,
 			guidance: str(r.nextStepGuidance, 2e3),
-			warnings
+			warnings,
+			...r.decision ? { decision: [
+				"request_more_evidence",
+				"escalate",
+				"sufficient"
+			].find((d) => d === str(r.decision, 30)) ?? "request_more_evidence" } : {},
+			...r.confidence ? { confidence: arr(r.confidence).map((c) => ({
+				lineKey: str(c.lineKey, 40),
+				assertion: str(c.assertion, 20),
+				value: Math.max(0, Math.min(1, Number(c.value) || 0))
+			})).filter((c) => c.lineKey) } : {},
+			...r.dissent ? { dissent: arr(r.dissent).map((x) => ({
+				member: str(x.member, 80),
+				note: str(x.note, 800),
+				citations: cite(x.citations, "رأي مخالف")
+			})).filter((x) => x.note) } : {}
 		};
 	}
 	function addRound(s, round) {
@@ -5511,7 +5603,7 @@ window.SKEngines = (function() {
 				"ملاحظات المجلس: " + s.rounds.flatMap((r) => r.findings).map((f) => `${f.title} (${f.standard}, ${f.severity})`).join("؛ "),
 				`الرأي المشتق آلياً وفق ISA 705: ${derived.ar} — ${derived.basis.join(" ")}`
 			].join("\n") },
-			{ text: "أصدر التقرير النهائي: الملخص، الأمور الرئيسية للمراجعة (ISA 701)، مناقشة الامتثال لكل معيار مؤثر، قيود التسوية النهائية المقترحة، خطاب الإدارة، والقيود على النطاق. اتسق مع الرأي المشتق ما لم تذكر سبباً مهنياً للاختلاف." }
+			{ text: "أصدر التقرير النهائي: الملخص، الأمور الرئيسية للمراجعة (ISA 701)، مناقشة الامتثال لكل معيار مؤثر، قيود التسوية النهائية المقترحة، خطاب الإدارة (لكل ملاحظة: الملاحظة، الأثر المالي أو الرقابي، التوصية)، والقيود على النطاق. اتسق مع الرأي المشتق ما لم تذكر سبباً مهنياً للاختلاف." }
 		];
 		return {
 			systemInstruction: { parts: [{ text: systemPrompt(s.ctx) }] },
@@ -5547,6 +5639,7 @@ window.SKEngines = (function() {
 			letter: arr(r.managementLetter).map((m) => ({
 				title: str(m.title, 200),
 				observation: str(m.observation, 2e3),
+				effect: str(m.effect, 2e3) || void 0,
 				recommendation: str(m.recommendation, 2e3),
 				priority: str(m.priority, 20)
 			})).filter((m) => m.title),
@@ -5572,6 +5665,1100 @@ window.SKEngines = (function() {
 		if (status >= 500) return "خطأ مؤقت من خدمات Google (" + status + ") — أعد المحاولة.";
 		if (status === 0) return "تعذر الاتصال — تحقق من الشبكة أو من مانع يحجب generativelanguage.googleapis.com.";
 		return "خطأ " + status + (message ? ": " + message : "");
+	}
+	//#endregion
+	//#region app/src/engine/fusion/audit/confidence-engine.ts
+	var confidence_engine_exports = /* @__PURE__ */ __exportAll({
+		APPROVALS: () => APPROVALS,
+		ASSERTIONS: () => ASSERTIONS,
+		DEFAULT_WEIGHTS: () => DEFAULT_WEIGHTS,
+		EFFORT: () => EFFORT,
+		ISA_MAP: () => ISA_MAP,
+		OFFICE_READINESS: () => OFFICE_READINESS,
+		RELIABILITY: () => RELIABILITY,
+		ROUND_CHECKLIST: () => ROUND_CHECKLIST,
+		STATES: () => STATES,
+		TRANSITIONS: () => TRANSITIONS,
+		agreement: () => agreement,
+		approve: () => approve,
+		assertionAr: () => assertionAr,
+		assertionKey: () => assertionKey,
+		confidence: () => confidence,
+		confidenceMatrix: () => confidenceMatrix,
+		coverage: () => coverage,
+		derivedState: () => derivedState,
+		expectedGain: () => expectedGain,
+		materialityWeight: () => materialityWeight,
+		newEngagement: () => newEngagement,
+		rankRequests: () => rankRequests,
+		stopRule: () => stopRule,
+		testScore: () => testScore,
+		thresholdFor: () => thresholdFor,
+		transition: () => transition
+	});
+	var ASSERTIONS = [
+		{
+			key: "existence",
+			ar: "الوجود أو الحدوث",
+			question: "هل الأصل موجود؟ هل المعاملة حدثت فعلاً؟",
+			evidence: "مصادقة العميل، إشعار التسليم"
+		},
+		{
+			key: "completeness",
+			ar: "الاكتمال",
+			question: "هل سُجلت كل المعاملات والالتزامات؟",
+			evidence: "فحص المدفوعات اللاحقة، تسلسل المستندات"
+		},
+		{
+			key: "accuracy",
+			ar: "الدقة",
+			question: "هل المبالغ محسوبة ومسجلة بشكل صحيح؟",
+			evidence: "إعادة الاحتساب، مطابقة الفاتورة"
+		},
+		{
+			key: "cutoff",
+			ar: "القطع",
+			question: "هل سُجلت المعاملات في الفترة الصحيحة؟",
+			evidence: "فحص المعاملات حول تاريخ الإقفال"
+		},
+		{
+			key: "valuation",
+			ar: "التقييم",
+			question: "هل الأرصدة مقيمة بمبالغ مناسبة؟",
+			evidence: "تقدير المخصصات، اختبار انخفاض القيمة"
+		},
+		{
+			key: "presentation",
+			ar: "العرض والإفصاح",
+			question: "هل البنود مصنفة ومفصح عنها كما تتطلب المعايير؟",
+			evidence: "مراجعة الإيضاحات مقابل المتطلبات"
+		}
+	];
+	var ASSERT_WORDS = [
+		[/وجود|حدوث|حقوق|ملكيه|ملكية|التزامات|existence|occurrence|rights/i, "existence"],
+		[/اكتمال|completeness/i, "completeness"],
+		[/دقه|دقة|accuracy/i, "accuracy"],
+		[/قطع|cut/i, "cutoff"],
+		[/تقييم|قياس|valuation/i, "valuation"],
+		[/عرض|افصاح|إفصاح|تصنيف|presentation|disclosure/i, "presentation"]
+	];
+	/** The research assertion for an Arabic (or English) assertion name used by the statement lines. */
+	function assertionKey(name) {
+		if (ASSERTIONS.some((a) => a.key === name)) return name;
+		const hit = ASSERT_WORDS.find(([re]) => re.test(String(name || "")));
+		return hit ? hit[1] : null;
+	}
+	var assertionAr = (k) => ASSERTIONS.find((a) => a.key === k).ar;
+	var RELIABILITY = {
+		confirmation: {
+			w: 1,
+			ar: "مصادقة مباشرة من طرف ثالث مستقل"
+		},
+		external: {
+			w: .8,
+			ar: "مستند خارجي في حوزة العميل (فاتورة مورد، كشف بنك)"
+		},
+		"internal-strong": {
+			w: .6,
+			ar: "مستند داخلي في بيئة رقابة داخلية جيدة"
+		},
+		"internal-weak": {
+			w: .4,
+			ar: "مستند داخلي في بيئة رقابة ضعيفة"
+		},
+		representation: {
+			w: .25,
+			ar: "إفادة شفهية أو كتابية من الإدارة"
+		}
+	};
+	var clamp01 = (x) => Number.isFinite(x) ? Math.max(0, Math.min(1, x)) : 0;
+	var r2 = (x) => Math.round(x * 100) / 100;
+	/** E — evidence coverage for a balance: Σ r·v ÷ V, capped at 1 (only accepted evidence counts). */
+	function coverage(items, balance) {
+		const V = Math.abs(balance);
+		if (!V) return items.some((i) => i.accepted) ? 1 : 0;
+		return clamp01(items.filter((i) => i.accepted).reduce((s, i) => s + RELIABILITY[i.kind].w * Math.min(Math.abs(i.amount), V), 0) / V);
+	}
+	/** T — test results: starts at 1 and falls with the misstatements found relative to performance materiality. */
+	function testScore(misstatement, pm) {
+		if (pm <= 0) return misstatement ? 0 : 1;
+		return clamp01(1 - Math.abs(misstatement) / pm);
+	}
+	/** A — council agreement: 1 − the spread of the members' confidences (null when nobody voted). */
+	function agreement(values) {
+		const v = values.filter((x) => Number.isFinite(x)).map(clamp01);
+		if (!v.length) return null;
+		if (v.length === 1) return 1;
+		const mean = v.reduce((a, b) => a + b, 0) / v.length, sd = Math.sqrt(v.reduce((a, b) => a + (b - mean) ** 2, 0) / v.length);
+		return Math.round(clamp01(1 - 2 * sd) * 1e4) / 1e4;
+	}
+	var DEFAULT_WEIGHTS = {
+		E: .5,
+		T: .3,
+		A: .2
+	};
+	/** C = wE·E + wT·T + wA·A; without a council vote A's weight is shared by E and T in proportion. */
+	function confidence(p, w = DEFAULT_WEIGHTS) {
+		const tot = w.E + w.T + w.A || 1, W = {
+			E: w.E / tot,
+			T: w.T / tot,
+			A: w.A / tot
+		};
+		if (p.A === null) {
+			const k = W.E + W.T || 1;
+			return r2(clamp01(W.E / k * p.E + W.T / k * p.T));
+		}
+		return r2(clamp01(W.E * p.E + W.T * p.T + W.A * p.A));
+	}
+	/** The confidence a line needs: material & high risk 0.90, material & medium 0.80, material & low 0.70, immaterial → analytics only (null). */
+	function thresholdFor(line) {
+		if (!(line.material ?? line.significant)) return null;
+		return line.level === "عالٍ" ? .9 : line.level === "متوسط" ? .8 : .7;
+	}
+	var DEFAULT_ASSERT = [
+		"existence",
+		"completeness",
+		"valuation"
+	];
+	function confidenceMatrix(i) {
+		const rows = i.lines.map((l) => {
+			const keys = [...new Set((i.assertions[l.lineKey] ?? DEFAULT_ASSERT).filter(Boolean))];
+			const ov = i.overrides?.[l.lineKey], threshold = ov ? ov.threshold : thresholdFor(l);
+			const cells = keys.map((a) => {
+				const E = coverage(i.evidence.filter((e) => e.lineKey === l.lineKey && (!e.assertions.length || e.assertions.includes(a))), l.amount), T = testScore(i.misstatements[l.lineKey + "|" + a] ?? i.misstatements[l.lineKey] ?? 0, i.pm);
+				const A = agreement(i.council?.[l.lineKey + "|" + a] ?? []), C = confidence({
+					E,
+					T,
+					A
+				}, i.weights);
+				return {
+					assertion: a,
+					E: r2(E),
+					T: r2(T),
+					A: A === null ? null : r2(A),
+					C,
+					met: threshold === null ? null : C >= threshold
+				};
+			});
+			const min = cells.length ? Math.min(...cells.map((c) => c.C)) : 0;
+			return {
+				...l,
+				threshold,
+				...ov ? { override: ov } : {},
+				cells,
+				min: r2(min),
+				met: threshold === null ? null : cells.every((c) => c.met)
+			};
+		});
+		const open = rows.filter((r) => r.met === false), material = rows.filter((r) => r.threshold !== null);
+		const avgOpen = open.length ? r2(open.reduce((s, r) => s + r.min, 0) / open.length) : 1;
+		const avgAll = material.length ? r2(material.reduce((s, r) => s + r.min, 0) / material.length) : 1;
+		return {
+			rows,
+			open,
+			allMet: open.length === 0,
+			avgOpen,
+			avgAll
+		};
+	}
+	function stopRule(h) {
+		if (h.fraud) return {
+			decision: "escalate",
+			code: "fraud",
+			reason: "مؤشر قوي على غش محتمل — يُصعد فوراً للمراجع لأن التعامل معه يحتاج حكماً بشرياً وإجراءات خاصة (ISA 240)"
+		};
+		if (h.allMet && h.round > 0) return {
+			decision: "sufficient",
+			code: "sufficient",
+			reason: "بلغت كل البنود الجوهرية عتباتها لكل التأكيدات ذات الصلة — تُعد مسودة التقرير للاعتماد"
+		};
+		if (h.disagreement) return {
+			decision: "escalate",
+			code: "disagreement",
+			reason: "خلاف حاد بين أعضاء المجلس على بند جوهري لم يحسمه النقاش — يُصعد البند للمراجع"
+		};
+		if (h.round >= h.maxRounds) return {
+			decision: "escalate",
+			code: "max-rounds",
+			reason: "بلغ الملف الحد الأقصى للجولات (" + h.maxRounds + ") — يُصعد للمراجع مع ملخص البنود غير المحسومة"
+		};
+		const n = h.avgOpen.length, gain = h.minGain ?? .02;
+		if (n >= 2 && h.avgOpen[n - 1] - h.avgOpen[n - 2] < gain) return {
+			decision: "escalate",
+			code: "stalled",
+			reason: "لم يرتفع متوسط الثقة في البنود المفتوحة بين جولتين بأكثر من " + Math.round(gain * 100) + "٪ — طلب المزيد لم يعد مجدياً"
+		};
+		return {
+			decision: "continue",
+			code: "continue",
+			reason: "الأدلة غير كافية بعد — تصدر طلبات محددة وينتقل الملف إلى انتظار العميل"
+		};
+	}
+	var EFFORT = {
+		low: {
+			v: 1,
+			ar: "منخفض"
+		},
+		medium: {
+			v: 2,
+			ar: "متوسط"
+		},
+		high: {
+			v: 4,
+			ar: "مرتفع"
+		}
+	};
+	/** ΔC if a piece of evidence of this kind, covering `amount`, were accepted for the line's assertion. */
+	function expectedGain(row, assertion, kind, amount, i) {
+		const cell = row.cells.find((c) => c.assertion === assertion);
+		if (!cell) return 0;
+		const E2 = coverage([...i.evidence.filter((e) => e.lineKey === row.lineKey && (!e.assertions.length || e.assertions.includes(assertion))), {
+			kind,
+			amount,
+			accepted: true
+		}], row.amount);
+		return r2(Math.max(0, confidence({
+			E: E2,
+			T: cell.T,
+			A: cell.A
+		}, i.weights) - cell.C));
+	}
+	/** Priority = ΔC expected × materiality weight ÷ client effort — the largest customer's confirmation before twenty small invoices. */
+	function rankRequests(list) {
+		return list.map((q) => ({
+			...q,
+			score: r2(q.expectedGain * q.materialityWeight / EFFORT[q.effort].v * 100) / 100
+		})).sort((a, b) => b.score - a.score || b.materialityWeight - a.materialityWeight);
+	}
+	/** Materiality weight of a line: its balance relative to overall materiality (≥ 1 means material on its own). */
+	var materialityWeight = (amount, overall) => overall > 0 ? r2(Math.min(10, Math.abs(amount) / overall)) : 1;
+	var STATES = [
+		{
+			key: "new",
+			ar: "جديد"
+		},
+		{
+			key: "setup",
+			ar: "قيد الإعداد"
+		},
+		{
+			key: "analysis",
+			ar: "قيد التحليل"
+		},
+		{
+			key: "council",
+			ar: "نقاش المجلس"
+		},
+		{
+			key: "awaiting-client",
+			ar: "بانتظار العميل"
+		},
+		{
+			key: "human-review",
+			ar: "مراجعة بشرية"
+		},
+		{
+			key: "draft-report",
+			ar: "مسودة التقرير"
+		},
+		{
+			key: "approved",
+			ar: "معتمد ومغلق"
+		}
+	];
+	var TRANSITIONS = {
+		new: ["setup"],
+		setup: ["analysis"],
+		analysis: ["council", "setup"],
+		council: [
+			"awaiting-client",
+			"human-review",
+			"draft-report"
+		],
+		"awaiting-client": ["analysis"],
+		"human-review": [
+			"council",
+			"awaiting-client",
+			"draft-report"
+		],
+		"draft-report": [
+			"approved",
+			"council",
+			"human-review"
+		],
+		approved: []
+	};
+	var APPROVALS = [
+		{
+			key: "plan",
+			ar: "اعتماد الأهمية النسبية وخطة المراجعة",
+			isa: "ISA 300 · ISA 320",
+			why: "الأساس والنسبة حكم مهني؛ النظام يقترح ويبرر والمراجع يعتمد"
+		},
+		{
+			key: "requests",
+			ar: "اعتماد إرسال الطلبات للعميل",
+			isa: "ISA 500 · ISA 240",
+			why: "لا يُرسل طلب للعميل قبل مراجعته — ولا طلب ينبّه طرفاً مشتبهاً به"
+		},
+		{
+			key: "escalation",
+			ar: "قرار المراجع في التصعيد",
+			isa: "ISA 220",
+			why: "الخلاف الحاد ومؤشرات الغش وتوقف التحسن يحسمها إنسان"
+		},
+		{
+			key: "report",
+			ar: "اعتماد مسودة التقرير والرأي",
+			isa: "ISA 700 · ISA 705",
+			why: "لا يصدر تقرير دون موافقة المراجع وتوقيعه"
+		}
+	];
+	var newEngagement = () => ({
+		state: "new",
+		history: [],
+		approvals: {},
+		requestsApproved: []
+	});
+	/** Move the file to a new state: only the allowed transitions, and the guards of the human approvals. */
+	function transition(e, to, actor, reason, now = /* @__PURE__ */ new Date()) {
+		if (e.state === to) return e;
+		if (!TRANSITIONS[e.state].includes(to)) throw new Error("انتقال غير مسموح: من «" + STATES.find((s) => s.key === e.state).ar + "» إلى «" + STATES.find((s) => s.key === to).ar + "»");
+		if (to === "analysis" && e.state === "setup" && !e.approvals.plan) throw new Error("اعتمد الأهمية النسبية وخطة المراجعة أولاً");
+		if (to === "approved" && (!e.approvals.report || !e.approvals.plan)) throw new Error("اعتماد التقرير وخطة المراجعة شرط للإغلاق");
+		return {
+			...e,
+			state: to,
+			history: [...e.history, {
+				from: e.state,
+				to,
+				at: now.toISOString(),
+				actor: actor || "—",
+				reason: reason || ""
+			}]
+		};
+	}
+	function approve(e, key, by, note = "", now = /* @__PURE__ */ new Date(), round) {
+		if (!String(by || "").trim()) throw new Error("اكتب اسم المراجع المعتمد");
+		const a = {
+			by: String(by).trim(),
+			at: now.toISOString(),
+			...note ? { note } : {},
+			...round ? { round } : {}
+		};
+		return {
+			...e,
+			approvals: {
+				...e.approvals,
+				[key]: a
+			},
+			requestsApproved: key === "requests" && round ? [.../* @__PURE__ */ new Set([...e.requestsApproved, round])] : e.requestsApproved
+		};
+	}
+	/** Where the file should be now, from the facts of the review (used to keep the state honest). */
+	function derivedState(f) {
+		if (!f.hasTb) return "new";
+		if (!f.planApproved) return "setup";
+		if (f.reportApproved) return "approved";
+		if (!f.rounds) return "analysis";
+		if (f.lastDecision === "sufficient") return "draft-report";
+		if (f.lastDecision === "escalate") return "human-review";
+		return "awaiting-client";
+	}
+	var ISA_MAP = [
+		{
+			key: "plan",
+			stage: "التخطيط والأهمية النسبية",
+			isa: "ISA 320",
+			what: "الأهمية الكلية وأهمية الأداء وحد التوافه مع توثيق الأساس"
+		},
+		{
+			key: "risk",
+			stage: "فهم المنشأة وتقييم المخاطر",
+			isa: "ISA 315",
+			what: "مناطق الخطر من طبيعة النشاط والأرصدة والتغيرات"
+		},
+		{
+			key: "response",
+			stage: "الاستجابة للمخاطر",
+			isa: "ISA 330",
+			what: "ربط الإجراءات بالمخاطر المقيمة لكل تأكيد"
+		},
+		{
+			key: "evidence",
+			stage: "أدلة المراجعة",
+			isa: "ISA 500",
+			what: "كل استنتاج بدليل مرقم مع تقدير موثوقيته"
+		},
+		{
+			key: "analytics",
+			stage: "الإجراءات التحليلية",
+			isa: "ISA 520",
+			what: "مقارنة النسب والاتجاهات وكشف الانحرافات"
+		},
+		{
+			key: "sampling",
+			stage: "المعاينة",
+			isa: "ISA 530",
+			what: "العينات الموجهة بالمخاطر واستقراء النتائج"
+		},
+		{
+			key: "confirm",
+			stage: "المصادقات الخارجية",
+			isa: "ISA 505",
+			what: "تحديد الأرصدة المناسبة للمصادقة وتتبع الردود"
+		},
+		{
+			key: "fraud",
+			stage: "مخاطر الغش",
+			isa: "ISA 240",
+			what: "القيود غير المعتادة وتحليل بنفورد والتصعيد الفوري"
+		},
+		{
+			key: "estimates",
+			stage: "التقديرات المحاسبية",
+			isa: "ISA 540",
+			what: "المخصصات والتقديرات وافتراضاتها"
+		},
+		{
+			key: "docs",
+			stage: "التوثيق",
+			isa: "ISA 230",
+			what: "أوراق عمل تلقائية لكل جولة وقرار"
+		},
+		{
+			key: "misstatements",
+			stage: "تقييم الأخطاء المكتشفة",
+			isa: "ISA 450",
+			what: "تجميع الأخطاء ومقارنتها بالأهمية النسبية"
+		},
+		{
+			key: "deficiencies",
+			stage: "إبلاغ أوجه القصور",
+			isa: "ISA 265",
+			what: "خطاب الإدارة بنقاط الضعف في الرقابة الداخلية"
+		},
+		{
+			key: "opinion",
+			stage: "تكوين الرأي",
+			isa: "ISA 700",
+			what: "مسودة الرأي للاعتماد من المراجع"
+		}
+	];
+	var ROUND_CHECKLIST = [
+		"راجعت الملاحظات المبدئية وتأكدت أن كل ملاحظة مرتبطة بدليل صحيح",
+		"قرأت الآراء المخالفة غير المحسومة، وقررت هل تستحق متابعة إضافية",
+		"راجعت الطلبات قبل إرسالها للعميل، وحذفت أو عدلت ما لا يلزم",
+		"تحققت من أن الطلبات لا تنبه طرفاً مشتبهاً به في حال وجود مؤشرات غش",
+		"راجعت درجات الثقة للبنود عالية الخطر، وعدلت العتبة عند الحاجة مع توثيق السبب",
+		"سجلت أي حالة تجاوزت فيها قرار النظام، مع السبب"
+	];
+	var OFFICE_READINESS = [
+		"اعتماد سياسة داخلية لاستخدام النظام ونقاط الاعتماد الإلزامية",
+		"تحديد المهام والعملاء المناسبين للمرحلة الأولى (يُفضل الملفات منخفضة الخطر)",
+		"تدريب المراجعين على قراءة نقاش المجلس ومخرجاته بعين ناقدة",
+		"مراجعة اتفاقية الخدمة من حيث الأمان والاحتفاظ بالبيانات وعدم التدريب عليها",
+		"إبلاغ العملاء عند الحاجة باستخدام أدوات تقنية في المراجعة، وفق متطلبات حماية البيانات",
+		"إعداد مجموعة ملفات سابقة داخلية لاختبار النظام قبل الاعتماد عليه",
+		"تحديد مؤشرات قياس الأثر: الساعات الموفرة، والملاحظات الإضافية، ورضا الفريق"
+	];
+	//#endregion
+	//#region app/src/engine/fusion/audit/council-engine.ts
+	var council_engine_exports$1 = /* @__PURE__ */ __exportAll({
+		BENFORD: () => BENFORD,
+		COUNCIL: () => COUNCIL,
+		MEMBERS: () => MEMBERS,
+		MEMBER_SCHEMA: () => MEMBER_SCHEMA,
+		benford: () => benford,
+		councilText: () => councilText,
+		cutoffEntries: () => cutoffEntries,
+		disagreements: () => disagreements,
+		evidenceRegister: () => evidenceRegister,
+		integrityChecks: () => integrityChecks,
+		journalTests: () => journalTests,
+		memberBody: () => memberBody,
+		parseJournal: () => parseJournal,
+		registerText: () => registerText,
+		roleWeight: () => roleWeight,
+		unusualEntries: () => unusualEntries,
+		verifyOpinion: () => verifyOpinion,
+		weightedVote: () => weightedVote
+	});
+	var nd = (s) => String(s ?? "").replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d))).replace(/[٬,\s]/g, "").replace("٫", ".");
+	var num = (s) => {
+		const t = nd(s), neg = /^\(.*\)$/.test(t), v = parseFloat(t.replace(/[()]/g, ""));
+		return Number.isFinite(v) ? neg ? -v : v : 0;
+	};
+	var norm = (s) => String(s || "").toLowerCase().replace(/[ً-ٰٟ]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").trim();
+	var HEAD = [
+		[/رقم القيد|القيد|المرجع|ref|entry|voucher|سند/, "ref"],
+		[/تاريخ|date/, "date"],
+		[/رقم الحساب|الحساب|كود|account|code/, "account"],
+		[/مدين|debit|dr/, "debit"],
+		[/دائن|credit|cr/, "credit"],
+		[/البيان|الوصف|شرح|memo|description|narration/, "memo"],
+		[/المستخدم|user|بواسطه|by/, "user"],
+		[/المصدر|source|نوع/, "source"],
+		[/وقت التسجيل|created|posted/, "createdAt"]
+	];
+	function split(line, d) {
+		const out = [];
+		let cur = "", q = false;
+		for (let i = 0; i < line.length; i++) {
+			const c = line[i];
+			if (c === "\"") {
+				if (q && line[i + 1] === "\"") {
+					cur += "\"";
+					i++;
+				} else q = !q;
+			} else if (c === d && !q) {
+				out.push(cur);
+				cur = "";
+			} else cur += c;
+		}
+		out.push(cur);
+		return out.map((x) => x.trim());
+	}
+	/** A journal export (CSV/TSV, one row per line) → entries grouped by their reference. */
+	function parseJournal(text) {
+		const lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim());
+		if (lines.length < 2) return {
+			entries: [],
+			errors: ["الملف فارغ أو بلا صفوف قيود"]
+		};
+		const d = lines[0].includes("	") ? "	" : lines[0].includes(";") && !lines[0].includes(",") ? ";" : ",";
+		const head = split(lines[0], d).map(norm), col = {};
+		head.forEach((h, i) => {
+			const hit = HEAD.find(([re, k]) => re.test(h) && col[k] === void 0);
+			if (hit) col[hit[1]] = i;
+		});
+		const errors = [];
+		if (col.date === void 0 || col.account === void 0 || col.debit === void 0 && col.credit === void 0) return {
+			entries: [],
+			errors: ["لم أتعرف على أعمدة التاريخ والحساب والمدين/الدائن"]
+		};
+		const map = /* @__PURE__ */ new Map();
+		lines.slice(1).forEach((l, i) => {
+			const c = split(l, d), get = (k) => col[k] === void 0 ? "" : c[col[k]] ?? "";
+			const date = normDate(get("date"));
+			if (!date) {
+				errors.push("السطر " + (i + 2) + ": تاريخ غير مفهوم");
+				return;
+			}
+			const ref = get("ref") || date + "#" + (i + 2), key = ref;
+			const j = map.get(key) ?? {
+				id: "JE-" + ref,
+				ref,
+				date,
+				memo: get("memo"),
+				user: get("user"),
+				source: get("source"),
+				createdAt: normDate(get("createdAt"), true) || void 0,
+				lines: []
+			};
+			if (!j.memo && get("memo")) j.memo = get("memo");
+			j.lines.push({
+				account: get("account"),
+				debit: Math.abs(num(get("debit"))),
+				credit: Math.abs(num(get("credit")))
+			});
+			map.set(key, j);
+		});
+		return {
+			entries: [...map.values()],
+			errors
+		};
+	}
+	function normDate(s, keepTime = false) {
+		const t = nd(s).replace(/\//g, "-");
+		let m = /^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T ](\d{1,2}:\d{2}))?/.exec(t);
+		if (m) return m[1] + "-" + m[2].padStart(2, "0") + "-" + m[3].padStart(2, "0") + (keepTime && m[4] ? "T" + m[4].padStart(5, "0") : "");
+		m = /^(\d{1,2})-(\d{1,2})-(\d{4})/.exec(t);
+		if (m) return m[3] + "-" + m[2].padStart(2, "0") + "-" + m[1].padStart(2, "0");
+		return "";
+	}
+	var amountOf = (j) => Math.round(j.lines.reduce((s, l) => s + l.debit, 0) * 100) / 100;
+	function integrityChecks(i) {
+		const { tb } = i, E = i.entries ?? [], has = E.length > 0, m = (v) => formatMinor(v, { decimals: 2 });
+		const checks = [];
+		checks.push({
+			id: "INT-1",
+			ar: "تساوي المدين والدائن في الميزان",
+			ok: tb.balanced,
+			detail: tb.balanced ? "متزن" : "فرق " + m(tb.difference),
+			request: tb.balanced ? void 0 : "ميزان مراجعة مكتمل ومتزن مصدّر من النظام المحاسبي مباشرة"
+		});
+		checks.push({
+			id: "INT-2",
+			ar: "مطابقة أرصدة أول المدة مع آخر السنة السابقة",
+			ok: tb.hasPrior ? tb.priorDifference === 0 : null,
+			detail: !tb.hasPrior ? "لا يوجد عمود للسنة السابقة" : tb.priorDifference === 0 ? "أرصدة السنة السابقة متزنة" : "أرصدة السنة السابقة غير متزنة بفرق " + m(tb.priorDifference ?? 0),
+			request: tb.hasPrior && tb.priorDifference !== 0 ? "القوائم المعتمدة للسنة السابقة وأرصدة الإقفال لمطابقة أرصدة أول المدة" : !tb.hasPrior ? "ميزان السنة السابقة المعتمد لمطابقة أرصدة أول المدة" : void 0
+		});
+		const nums = E.map((j) => Number(nd(j.ref).replace(/\D/g, ""))).filter((n) => Number.isFinite(n) && n > 0).sort((a, b) => a - b);
+		const gaps = [];
+		for (let k = 1; k < nums.length && gaps.length < 20; k++) for (let g = nums[k - 1] + 1; g < nums[k] && gaps.length < 20; g++) gaps.push(g);
+		checks.push({
+			id: "INT-3",
+			ar: "اكتمال تسلسل أرقام القيود",
+			ok: nums.length >= 2 ? gaps.length === 0 : null,
+			detail: nums.length < 2 ? "لا توجد قيود مرقمة للفحص" : gaps.length ? "أرقام مفقودة: " + gaps.slice(0, 10).join("، ") + (gaps.length > 10 ? "…" : "") : "التسلسل مكتمل (" + nums.length + " قيداً)",
+			request: gaps.length ? "تفسير القيود المفقودة من التسلسل: " + gaps.slice(0, 10).join("، ") : void 0
+		});
+		let mism = [];
+		if (has) {
+			const bal = /* @__PURE__ */ new Map();
+			E.forEach((j) => j.lines.forEach((l) => bal.set(l.account, (bal.get(l.account) ?? 0) + l.debit - l.credit)));
+			mism = tb.rows.filter((r) => bal.has(r.code) && Math.abs(Math.round((bal.get(r.code) ?? 0) * 100) - r.balance) > 100).map((r) => r.code);
+		}
+		checks.push({
+			id: "INT-4",
+			ar: "تطابق مجاميع القيود مع أرصدة الميزان",
+			ok: has ? mism.length === 0 : null,
+			detail: !has ? "لم يُرفع دفتر القيود" : mism.length ? "حسابات لا تطابق القيود: " + mism.slice(0, 8).join("، ") : "مجاميع القيود تطابق الميزان",
+			request: mism.length ? "دفتر القيود الكامل للسنة للحسابات " + mism.slice(0, 8).join("، ") + " أو تفسير الفروق" : void 0
+		});
+		const dup = tb.errors.filter((e) => e.code === "DUPLICATE_ACCOUNT").length;
+		checks.push({
+			id: "INT-5",
+			ar: "كشف الحسابات المكررة أو غير المصنفة",
+			ok: dup === 0 && tb.unclassified === 0,
+			detail: dup || tb.unclassified ? dup + " مكرر · " + tb.unclassified + " غير مصنف" : "لا مكرر ولا غير مصنف",
+			request: dup || tb.unclassified ? "دليل الحسابات المعتمد مع تصنيف الحسابات غير المصنفة ودمج المكررة" : void 0
+		});
+		const out = has && i.period ? E.filter((j) => j.date < i.period.start || j.date > i.period.end) : [];
+		checks.push({
+			id: "INT-6",
+			ar: "صحة الفترة المالية وتواريخ القيود",
+			ok: has && i.period ? out.length === 0 : null,
+			detail: !has ? "لم يُرفع دفتر القيود" : !i.period ? "حدد بداية الفترة ونهايتها" : out.length ? out.length + " قيداً خارج الفترة (أولها " + out[0].date + ")" : "كل القيود داخل الفترة",
+			request: out.length ? "تفسير القيود المسجلة خارج الفترة المالية (" + out.length + ")" : void 0
+		});
+		return checks;
+	}
+	var BENFORD = [
+		1,
+		2,
+		3,
+		4,
+		5,
+		6,
+		7,
+		8,
+		9
+	].map((d) => Math.log10(1 + 1 / d));
+	function benford(amounts) {
+		const firsts = amounts.map((a) => Math.abs(a)).filter((a) => a >= 10).map((a) => Number(String(a).replace(/^0\.?0*/, "")[0])).filter((d) => d >= 1 && d <= 9);
+		const n = firsts.length, counts = Array(9).fill(0);
+		firsts.forEach((d) => counts[d - 1]++);
+		const observed = counts.map((c) => n ? c / n : 0);
+		const chi2 = n ? counts.reduce((s, c, i) => s + (c - n * BENFORD[i]) ** 2 / (n * BENFORD[i]), 0) : 0;
+		const mad = observed.reduce((s, o, i) => s + Math.abs(o - BENFORD[i]), 0) / 9;
+		const conformity = n < 50 ? "insufficient" : mad < .006 ? "close" : mad < .012 ? "acceptable" : mad < .015 ? "marginal" : "nonconformity";
+		let top = 0;
+		observed.forEach((o, i) => {
+			if (Math.abs(o - BENFORD[i]) > Math.abs(observed[top] - BENFORD[top])) top = i;
+		});
+		return {
+			n,
+			counts,
+			observed: observed.map((o) => Math.round(o * 1e4) / 1e4),
+			expected: BENFORD.map((e) => Math.round(e * 1e4) / 1e4),
+			chi2: Math.round(chi2 * 100) / 100,
+			mad: Math.round(mad * 1e4) / 1e4,
+			conformity,
+			conformityAr: {
+				insufficient: "عدد غير كافٍ (أقل من 50)",
+				close: "مطابقة قريبة",
+				acceptable: "مطابقة مقبولة",
+				marginal: "مطابقة حدية",
+				nonconformity: "عدم مطابقة — يستحق الفحص"
+			}[conformity],
+			top: {
+				digit: top + 1,
+				observed: Math.round(observed[top] * 1e4) / 1e4,
+				expected: Math.round(BENFORD[top] * 1e4) / 1e4
+			}
+		};
+	}
+	function unusualEntries(E, o) {
+		const weekend = o.weekend ?? [5, 6], unit = o.roundUnit ?? 1e3, min = o.minRound ?? 1e4;
+		const pairs = /* @__PURE__ */ new Map();
+		const pairOf = (j) => {
+			const dr = j.lines.filter((l) => l.debit).map((l) => l.account).sort().join("+"), cr = j.lines.filter((l) => l.credit).map((l) => l.account).sort().join("+");
+			return dr + "|" + cr;
+		};
+		E.forEach((j) => pairs.set(pairOf(j), (pairs.get(pairOf(j)) ?? 0) + 1));
+		const out = [];
+		E.forEach((j) => {
+			const r = [], amt = amountOf(j), dt = /* @__PURE__ */ new Date(j.date + "T00:00:00Z");
+			if (weekend.includes(dt.getUTCDay())) r.push({
+				code: "weekend",
+				ar: "مسجل في عطلة نهاية الأسبوع"
+			});
+			if (o.periodEnd && j.createdAt && j.createdAt.slice(0, 10) > o.periodEnd && j.date <= o.periodEnd) r.push({
+				code: "backdated",
+				ar: "سُجل بعد الإقفال بتاريخ سابق له"
+			});
+			if (amt >= min && Math.abs(amt % unit) < .005) r.push({
+				code: "round",
+				ar: "مبلغ مقرب (" + amt.toLocaleString("en-US") + ")"
+			});
+			if (/يدوي|manual/i.test(j.source ?? "") && j.lines.some((l) => o.sensitive(l.account))) r.push({
+				code: "manual-sensitive",
+				ar: "قيد يدوي على حساب حساس (إيرادات/مخصصات)"
+			});
+			if (!String(j.memo ?? "").trim()) r.push({
+				code: "no-memo",
+				ar: "بلا وصف"
+			});
+			if (E.length >= 20 && pairs.get(pairOf(j)) === 1 && j.lines.length >= 2) r.push({
+				code: "rare-pair",
+				ar: "يجمع حسابات نادراً ما تجتمع"
+			});
+			if (r.length) out.push({
+				entryId: j.id,
+				ref: j.ref ?? j.id,
+				date: j.date,
+				amount: amt,
+				reasons: r
+			});
+		});
+		const weight = (u) => u.reasons.reduce((s, x) => s + ({
+			backdated: 5,
+			"manual-sensitive": 3,
+			"rare-pair": 2,
+			round: 2,
+			weekend: 1,
+			"no-memo": 1
+		}[x.code] ?? 1), 0);
+		return out.sort((a, b) => weight(b) - weight(a) || b.amount - a.amount);
+	}
+	function cutoffEntries(E, periodEnd, isResult, days = 5) {
+		const end = (/* @__PURE__ */ new Date(periodEnd + "T00:00:00Z")).getTime(), win = days * 864e5;
+		return E.filter((j) => {
+			const t = (/* @__PURE__ */ new Date(j.date + "T00:00:00Z")).getTime();
+			return Math.abs(t - end) <= win && j.lines.some((l) => isResult(l.account));
+		}).map((j) => ({
+			entryId: j.id,
+			ref: j.ref ?? j.id,
+			date: j.date,
+			amount: amountOf(j),
+			side: j.date <= periodEnd ? "before" : "after",
+			memo: j.memo ?? ""
+		})).sort((a, b) => a.date.localeCompare(b.date));
+	}
+	function journalTests(E, o) {
+		const unusual = unusualEntries(E, o), ben = benford(E.map(amountOf)), cutoff = o.periodEnd ? cutoffEntries(E, o.periodEnd, o.isResult) : [];
+		const fraudSignal = unusual.some((u) => u.reasons.some((r) => r.code === "backdated") && E.find((j) => j.id === u.entryId).lines.some((l) => o.sensitive(l.account))) || ben.conformity === "nonconformity" && unusual.length >= Math.max(5, E.length * .05);
+		return {
+			count: E.length,
+			total: Math.round(E.reduce((s, j) => s + amountOf(j), 0) * 100) / 100,
+			unusual,
+			benford: ben,
+			cutoff,
+			fraudSignal
+		};
+	}
+	function evidenceRegister(i) {
+		const out = [], pad = (n) => String(n).padStart(3, "0"), M = (v) => v / 100;
+		i.tb.rows.slice().sort((a, b) => Math.abs(b.balance) - Math.abs(a.balance)).slice(0, i.maxTb ?? 80).forEach((r) => out.push({
+			id: "TB-" + r.code,
+			family: "TB",
+			lineKey: i.lineOf(r.code) ?? void 0,
+			title: r.name,
+			detail: "الرصيد " + formatMinor(r.balance, { decimals: 2 }) + (r.prior !== null ? " · السابق " + formatMinor(r.prior, { decimals: 2 }) : ""),
+			amount: M(r.balance),
+			aboveTolerance: Math.abs(r.balance) > i.pm
+		}));
+		let a = 0, v = 0;
+		i.findings.forEach((f) => {
+			const anl = f.kind === "analytical", id = anl ? "T-ANL-" + pad(++a) : "T-VAL-" + pad(++v);
+			const amt = /[\d٠-٩][\d٠-٩٬,.]*/.exec(f.detail)?.[0];
+			out.push({
+				id,
+				family: anl ? "ANL" : "VAL",
+				lineKey: f.lineKey ?? (f.code ? i.lineOf(f.code) ?? void 0 : void 0),
+				title: f.title,
+				detail: f.detail + (f.code ? " [TB-" + f.code + "]" : ""),
+				amount: amt ? num(amt) : void 0
+			});
+		});
+		(i.checks ?? []).filter((c) => c.ok === false).forEach((c, k) => out.push({
+			id: "T-INT-" + (k + 1),
+			family: "INT",
+			title: c.ar,
+			detail: c.detail
+		}));
+		if (i.journal && i.journal.count) {
+			i.journal.unusual.slice(0, 40).forEach((u, k) => out.push({
+				id: "T-JE-" + pad(k + 1),
+				family: "JE",
+				title: "قيد " + u.ref + " — " + u.date,
+				detail: u.reasons.map((r) => r.ar).join("، "),
+				amount: u.amount
+			}));
+			const b = i.journal.benford;
+			out.push({
+				id: "T-BEN-001",
+				family: "BEN",
+				title: "تحليل بنفورد للرقم الأول (" + b.n + " قيداً)",
+				detail: b.conformityAr + " — MAD " + b.mad + " · χ² " + b.chi2 + " · أكبر انحراف للرقم " + b.top.digit + " (" + Math.round(b.top.observed * 1e3) / 10 + "٪ مقابل " + Math.round(b.top.expected * 1e3) / 10 + "٪)"
+			});
+			i.journal.cutoff.slice(0, 20).forEach((c, k) => out.push({
+				id: "T-CUT-" + pad(k + 1),
+				family: "CUT",
+				title: "قيد حول الإقفال " + c.ref + " — " + c.date + (c.side === "after" ? " (بعد)" : " (قبل)"),
+				detail: c.memo || "—",
+				amount: c.amount
+			}));
+		}
+		(i.docs ?? []).forEach((d, k) => out.push({
+			id: "DOC-" + (k + 1),
+			family: "DOC",
+			lineKey: d.lineKey,
+			title: d.fileName + " ← " + d.requestId,
+			detail: "الحكم: " + d.verdict,
+			amount: d.amount
+		}));
+		return out;
+	}
+	var registerText = (reg) => reg.map((e) => "[" + e.id + "] " + (e.lineKey ? "(" + e.lineKey + ") " : "") + e.title + " — " + e.detail).join("\n");
+	var MEMBERS = [
+		{
+			key: "skeptic",
+			ar: "المراجع المتشكك",
+			seeks: "الاستثناءات والتناقضات والأدلة الناقصة",
+			tools: "القيود غير المعتادة، تحليل بنفورد، مطابقة المستندات",
+			weighs: "بنود الخطر المرتفع",
+			persona: "افترض أن كل رصيد قد يكون مبالغاً فيه أو ناقصاً حتى يثبت العكس بدليل مستقل. غياب الدليل نقص لا نفي. ابحث عن الاستثناءات والتناقضات بين الأدلة، ومؤشرات الغش (ISA 240)."
+		},
+		{
+			key: "analyst",
+			ar: "المحلل المالي",
+			seeks: "الاتجاهات والنسب الشاذة والعلاقات غير المنطقية",
+			tools: "الإجراءات التحليلية، بيانات السنوات السابقة",
+			weighs: "الإيرادات والتكاليف والهوامش",
+			persona: "اختبر العلاقات المنطقية بين البنود (تكلفة المبيعات بالإيرادات، الذمم بالمبيعات، المصروفات بالنشاط) والتغيرات عن السنة السابقة، وحدد الانحرافات التي تتجاوز أهمية الأداء (ISA 520)."
+		},
+		{
+			key: "standards",
+			ar: "خبير المعايير",
+			seeks: "صحة الاعتراف والقياس والعرض والإفصاح",
+			tools: "قاعدة المعرفة بالمعايير المحاسبية",
+			weighs: "المعالجات المحاسبية المعقدة والتقديرات",
+			persona: "افحص الاعتراف والقياس والعرض والإفصاح لكل بند مقابل الإطار المطبق، وخاصة التقديرات (ISA 540): المخصصات، الخسائر الائتمانية المتوقعة، صافي القيمة القابلة للتحقق، انخفاض القيمة."
+		},
+		{
+			key: "tax",
+			ar: "خبير الضرائب والزكاة",
+			seeks: "الأثر الضريبي والزكوي لكل ملاحظة",
+			tools: "قواعد الضريبة والزكاة المحلية",
+			weighs: "المخصصات والوعاء الزكوي وضريبة الدخل",
+			persona: "قدّر الأثر الضريبي والزكوي لكل ملاحظة: الوعاء الزكوي والزكاة المستحقة أو ضريبة الدخل (مصر 22.5٪)، ضريبة القيمة المضافة، والفروقات مع الإقرارات."
+		},
+		{
+			key: "chair",
+			ar: "رئيس المجلس",
+			seeks: "كفاية الأدلة وتوازن الآراء",
+			tools: "كل المخرجات ودرجات الثقة",
+			weighs: "القرار النهائي للجولة",
+			persona: "اجمع نقاط الاتفاق والخلاف، وقرر المسار: طلب أدلة، أو تصعيد للمراجع البشري، أو اكتفاء. سجل كل رأي مخالف لم يُحسم."
+		}
+	];
+	var COUNCIL = {
+		1: [],
+		3: ["skeptic", "analyst"],
+		5: [
+			"skeptic",
+			"analyst",
+			"standards",
+			"tax"
+		]
+	};
+	var TAX_LINES = /zakat|tax/i;
+	var ANALYST_LINES = /^(revenue|cogs|selling|admin|opex|otherIncome|financeCost)$/;
+	var EST_LINES = /^(provisions|receivables|inventory|ppe|impairment|eosb|intangibles|rou|biological|investments)$/;
+	/** A member's vote weighs more on the lines of its trade. */
+	function roleWeight(member, lineKey, highRisk = false) {
+		if (member === "tax") return TAX_LINES.test(lineKey) ? 2 : .75;
+		if (member === "analyst") return ANALYST_LINES.test(lineKey) ? 2 : 1;
+		if (member === "standards") return EST_LINES.test(lineKey) ? 2 : 1;
+		if (member === "skeptic") return highRisk ? 2 : 1;
+		return 1;
+	}
+	var S = (description) => ({
+		type: "STRING",
+		...description ? { description } : {}
+	});
+	var ARR = (items) => ({
+		type: "ARRAY",
+		items
+	});
+	var OBJ = (properties, required) => ({
+		type: "OBJECT",
+		properties,
+		required
+	});
+	var ASSERT_ENUM = {
+		type: "STRING",
+		enum: ASSERTIONS.map((a) => a.key)
+	};
+	var MEMBER_SCHEMA = OBJ({
+		position: S("موقفك في جملة واحدة"),
+		reasoning: S("التعليل مع أرقام الأدلة بين معقوفين مثل [T-ANL-001]"),
+		citations: ARR(S("رقم دليل من السجل فقط")),
+		items: ARR(OBJ({
+			lineKey: S("مفتاح البند كما في السجل"),
+			assertion: ASSERT_ENUM,
+			sufficient: { type: "BOOLEAN" },
+			finding: { type: "BOOLEAN" },
+			confidence: {
+				type: "NUMBER",
+				description: "0 إلى 1"
+			},
+			citations: ARR(S())
+		}, [
+			"lineKey",
+			"assertion",
+			"sufficient",
+			"finding",
+			"confidence",
+			"citations"
+		])),
+		requests: ARR(OBJ({
+			lineKey: S(),
+			assertion: ASSERT_ENUM,
+			evidence: S("المستند المطلوب بدقة: من، ماذا، أي فترة"),
+			reason: S("السبب مع رقم الدليل"),
+			citations: ARR(S()),
+			effort: {
+				type: "STRING",
+				enum: [
+					"low",
+					"medium",
+					"high"
+				]
+			}
+		}, [
+			"lineKey",
+			"assertion",
+			"evidence",
+			"reason",
+			"citations",
+			"effort"
+		]))
+	}, [
+		"position",
+		"reasoning",
+		"citations",
+		"items",
+		"requests"
+	]);
+	function memberBody(member, i) {
+		const m = MEMBERS.find((x) => x.key === member);
+		const system = "أنت «" + m.ar + "» في مجلس مراجعة ذكي من خمسة أعضاء يراجع القوائم المالية لـ«" + (i.company || "المنشأة") + "» — " + (i.period || "") + " — الإطار: " + i.framework + ".\n" + m.persona + "\nقواعد ملزمة: (1) كل ادعاء يرتبط برقم دليل من السجل بين معقوفين، والاستشهاد برقم غير موجود يرفض رأيك آلياً. (2) لا تحسب أرقاماً جديدة ولا تذكر رقماً غير موجود في الدليل الذي تستشهد به. (3) حدد ثقتك من 0 إلى 1 لكل بند وتأكيد تتحدث عنه، وغياب الدليل نقص لا نفي. (4) الطلب الذكي محدد: المستند، والسبب برقم الدليل، والبند والتأكيد، والعبء على العميل. (5) أجب بالعربية وبصيغة JSON المطلوبة فقط.";
+		const user = "الجولة " + i.round + ".\nالبنود الجوهرية وعتباتها ودرجات الثقة الحالية:\n" + i.lines + "\n\nالطلبات القائمة:\n" + (i.outstanding || "—") + "\n\nسجل الأدلة المرقمة:\n" + registerText(i.register) + (i.debate ? "\n\nنقاط الخلاف التي أعادها الرئيس إليك (رد باستشهاد):\n" + i.debate : "");
+		return {
+			systemInstruction: { parts: [{ text: system }] },
+			contents: [{
+				role: "user",
+				parts: [{ text: user }]
+			}],
+			generationConfig: {
+				temperature: member === "skeptic" ? .4 : .2,
+				responseMimeType: "application/json",
+				responseSchema: MEMBER_SCHEMA
+			}
+		};
+	}
+	var IDS = /\b(TB-[\w.-]+|T-(?:ANL|VAL|INT|JE|BEN|CUT)-\d+|DOC-\d+)\b/g;
+	var numbersIn = (t) => (nd(t).replace(/(ISA|IFRS|IAS|EAS|SOCPA|معيار|المعيار|البند|الجولة|REQ|TB|T-[A-Z]+|DOC)[\s-]*\d+/gi, " ").match(/\d+(\.\d+)?/g) ?? []).map(Number).filter((x) => x >= 100 && !(x >= 1900 && x <= 2100));
+	/** Keep only what the register supports: unknown citations reject the opinion; free numbers are flagged. */
+	function verifyOpinion(raw, member, reg) {
+		const o = raw && typeof raw === "object" ? raw : {}, A = (v) => Array.isArray(v) ? v : [];
+		const ids = new Set(reg.map((e) => e.id)), text = String(o.reasoning ?? "") + " " + String(o.position ?? "");
+		const cited = [.../* @__PURE__ */ new Set([...A(o.citations).map(String), ...text.match(IDS) ?? []])];
+		const clampC = (x) => Math.max(0, Math.min(1, Number(x) || 0));
+		const keyOf = (x) => ASSERTIONS.some((a) => a.key === x) ? x : "existence";
+		const items = A(o.items).map((x) => x).map((x) => ({
+			lineKey: String(x.lineKey ?? ""),
+			assertion: keyOf(x.assertion),
+			sufficient: !!x.sufficient,
+			finding: !!x.finding,
+			confidence: clampC(x.confidence),
+			citations: A(x.citations).map(String)
+		})).filter((x) => x.lineKey);
+		const requests = A(o.requests).map((x) => x).map((x) => ({
+			lineKey: String(x.lineKey ?? ""),
+			assertion: keyOf(x.assertion),
+			evidence: String(x.evidence ?? "").slice(0, 400),
+			reason: String(x.reason ?? "").slice(0, 400),
+			citations: A(x.citations).map(String),
+			effort: [
+				"low",
+				"medium",
+				"high"
+			].includes(String(x.effort)) ? x.effort : "medium"
+		})).filter((x) => x.evidence);
+		const all = [
+			...cited,
+			...items.flatMap((x) => x.citations),
+			...requests.flatMap((x) => x.citations)
+		];
+		const unknownCitations = [...new Set(all.filter((c) => !ids.has(c)))];
+		const known = reg.filter((e) => all.includes(e.id)).flatMap((e) => [e.amount ?? NaN, ...numbersIn(e.title + " " + e.detail)]).filter(Number.isFinite).map(Math.abs);
+		const unsupportedNumbers = [...new Set(numbersIn(text).filter((x) => !known.some((k) => Math.abs(k - x) <= Math.max(1, k * .01))).map(String))].slice(0, 8);
+		return {
+			member,
+			position: String(o.position ?? "").slice(0, 300),
+			reasoning: String(o.reasoning ?? "").slice(0, 2400),
+			citations: cited.filter((c) => ids.has(c)),
+			items,
+			requests,
+			unknownCitations,
+			unsupportedNumbers,
+			rejected: unknownCitations.length > 0 || !cited.length && !items.length
+		};
+	}
+	function weightedVote(ops, lineKey, assertion, highRisk = false) {
+		const votes = ops.filter((o) => !o.rejected).flatMap((o) => o.items.filter((x) => x.lineKey === lineKey && x.assertion === assertion).map((x) => ({
+			...x,
+			w: roleWeight(o.member, lineKey, highRisk) * (o.unsupportedNumbers.length ? .5 : 1),
+			member: o.member
+		})));
+		const W = votes.reduce((s, v) => s + v.w, 0);
+		if (!W) return null;
+		return {
+			sufficient: votes.reduce((s, v) => s + (v.sufficient ? v.w : 0), 0) / W,
+			finding: votes.reduce((s, v) => s + (v.finding ? v.w : 0), 0) / W,
+			confidence: Math.round(votes.reduce((s, v) => s + v.confidence * v.w, 0) / W * 100) / 100,
+			values: votes.map((v) => v.confidence),
+			members: votes.map((v) => v.member)
+		};
+	}
+	/** Items the members disagree on (spread > 0.35 or a split on sufficiency) — sent back for the debate. */
+	function disagreements(ops) {
+		return [...new Set(ops.filter((o) => !o.rejected).flatMap((o) => o.items.map((x) => x.lineKey + "|" + x.assertion)))].map((k) => {
+			const [lineKey, assertion] = k.split("|");
+			const xs = ops.filter((o) => !o.rejected).flatMap((o) => o.items.filter((x) => x.lineKey === lineKey && x.assertion === assertion).map((x) => ({
+				member: o.member,
+				...x
+			})));
+			const cs = xs.map((x) => x.confidence), spread = cs.length ? Math.max(...cs) - Math.min(...cs) : 0, split = xs.some((x) => x.sufficient) && xs.some((x) => !x.sufficient);
+			return {
+				lineKey,
+				assertion,
+				spread: Math.round(spread * 100) / 100,
+				split,
+				members: xs
+			};
+		}).filter((d) => d.members.length >= 2 && (d.spread > .35 || d.split));
+	}
+	/** The council's opinions as context for the chair (and for the round's working papers). */
+	function councilText(ops, dis) {
+		const name = (k) => MEMBERS.find((m) => m.key === k).ar;
+		return ops.map((o) => "— " + name(o.member) + (o.rejected ? " [مرفوض آلياً: استشهاد بدليل غير موجود " + o.unknownCitations.join("، ") + "]" : "") + ": " + o.position + "\n  " + o.reasoning + (o.reply ? "\n  الرد في النقاش: " + o.reply : "") + (o.items.length ? "\n  الثقة: " + o.items.map((x) => x.lineKey + "/" + x.assertion + "=" + x.confidence).join("، ") : "")).join("\n") + (dis.length ? "\nنقاط الخلاف: " + dis.map((d) => d.lineKey + "/" + d.assertion + " (فارق " + d.spread + (d.split ? "، انقسام على الكفاية" : "") + ")").join("؛ ") : "\nلا خلاف جوهري بين الأعضاء.");
 	}
 	//#endregion
 	//#region app/src/engine/fusion/audit/disclosures-engine.ts
@@ -5633,22 +6820,22 @@ window.SKEngines = (function() {
 		},
 		15: {
 			title: "الاستثمارات في المشروعات المشتركة",
-			applies: (fs) => fs.lines.some((l) => l.key === "investments" && l.accounts.some((a) => /مشروع مشترك|joint/.test(norm(a.name)))),
+			applies: (fs) => fs.lines.some((l) => l.key === "investments" && l.accounts.some((a) => /مشروع مشترك|joint/.test(norm$1(a.name)))),
 			why: ["توجد حصص في مشروعات مشتركة", "لا توجد مشروعات مشتركة في الميزان"]
 		},
 		16: {
 			title: "العقارات الاستثمارية",
-			applies: (fs) => fs.lines.some((l) => l.accounts.some((a) => /عقار(ات)? استثماري|investment propert/.test(norm(a.name)))),
+			applies: (fs) => fs.lines.some((l) => l.accounts.some((a) => /عقار(ات)? استثماري|investment propert/.test(norm$1(a.name)))),
 			why: ["توجد عقارات استثمارية", "لا توجد عقارات محتفظ بها للإيجار أو لزيادة القيمة"]
 		},
 		26: {
 			title: "المدفوعات المبنية على الأسهم",
-			applies: (fs) => fs.lines.some((l) => l.accounts.some((a) => /خيارات اسهم|مدفوعات مبنيه على اسهم|share-based/.test(norm(a.name)))),
+			applies: (fs) => fs.lines.some((l) => l.accounts.some((a) => /خيارات اسهم|مدفوعات مبنيه على اسهم|share-based/.test(norm$1(a.name)))),
 			why: ["توجد مدفوعات مبنية على أسهم", "لا توجد خطط مدفوعات مبنية على أسهم"]
 		},
 		28: {
 			title: "منافع الموظفين",
-			applies: (fs) => fs.lines.some((l) => l.key === "eosb" && l.current !== 0) || fs.lines.some((l) => l.accounts.some((a) => /رواتب|اجور|salar/.test(norm(a.name)))),
+			applies: (fs) => fs.lines.some((l) => l.key === "eosb" && l.current !== 0) || fs.lines.some((l) => l.accounts.some((a) => /رواتب|اجور|salar/.test(norm$1(a.name)))),
 			why: ["توجد رواتب والتزامات منافع موظفين", "لا توجد رواتب أو منافع موظفين"]
 		},
 		34: {
@@ -7717,7 +8904,7 @@ window.SKEngines = (function() {
 	/** Products vs services (Apple's gross-margin table) — only when the accounts reveal both. */
 	function productsServices(fs) {
 		const rev = line(fs, "revenue")?.accounts ?? [], cogs = line(fs, "cogs")?.accounts ?? [];
-		const isSvc = (n) => SERVICE.test(norm(n));
+		const isSvc = (n) => SERVICE.test(norm$1(n));
 		const sum = (xs, p) => xs.reduce((s, a) => s + (p ? a.prior ?? 0 : a.current), 0);
 		const rs = rev.filter((a) => isSvc(a.name)), rp = rev.filter((a) => !isSvc(a.name)), cs = cogs.filter((a) => isSvc(a.name)), cp = cogs.filter((a) => !isSvc(a.name));
 		if (!rs.length || !rp.length) return null;
@@ -7887,7 +9074,7 @@ window.SKEngines = (function() {
 	function ppeNote(fs) {
 		const accs = line(fs, "ppe")?.accounts ?? [];
 		if (!accs.length) return null;
-		const acc = accs.filter((a) => ACCUM.test(norm(a.name))), gross = accs.filter((a) => !ACCUM.test(norm(a.name)));
+		const acc = accs.filter((a) => ACCUM.test(norm$1(a.name))), gross = accs.filter((a) => !ACCUM.test(norm$1(a.name)));
 		const s = (xs, p) => xs.reduce((t, a) => t + (p ? a.prior ?? 0 : a.current), 0);
 		return {
 			rows: gross.map((a) => ({
@@ -9089,6 +10276,8 @@ window.SKEngines = (function() {
 		audit: {
 			aiReview: ai_review_engine_exports,
 			codex: codex_engine_exports,
+			confidence: confidence_engine_exports,
+			council: council_engine_exports$1,
 			disclosures: disclosures_engine_exports,
 			documentCheck: document_check_engine_exports,
 			evidence: evidence_engine_exports,
