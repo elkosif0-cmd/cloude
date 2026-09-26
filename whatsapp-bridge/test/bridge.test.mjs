@@ -95,17 +95,19 @@ before(async () => {
 
   waitUntils = [];
   const ctx = { storage: memoryStorage(), waitUntil: (p) => waitUntils.push(p) };
-  instance = new mod.WaBridge(ctx, {});
+  const instanceEnv = {};
+  instance = new mod.WaBridge(ctx, instanceEnv);
   env = {
     API_KEY_SHA256: `${sha(KEY)}, ${sha(KEY2).toUpperCase()}`,
     WA: { get: () => instance },
     FILES: {
       async get(key) {
         if (key !== 'cv/CV-Arabic.pdf') return null;
-        return { size: PDF.length, arrayBuffer: async () => PDF.buffer.slice(PDF.byteOffset, PDF.byteOffset + PDF.length), httpMetadata: {} };
+        return { size: PDF.length, arrayBuffer: async () => PDF.buffer.slice(PDF.byteOffset, PDF.byteOffset + PDF.length), httpMetadata: { contentType: 'application/pdf' } };
       },
     },
   };
+  Object.assign(instanceEnv, env);
   await call('/config', { body: { maxPerMinute: 1000 } }); // the whole suite runs inside one minute
 });
 
