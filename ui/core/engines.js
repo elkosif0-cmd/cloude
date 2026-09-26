@@ -3140,7 +3140,7 @@ window.SKEngines = (function() {
 		const x = div(a, b);
 		return x === null ? null : r2$1(x);
 	};
-	var days$1 = (a, b) => {
+	var days$2 = (a, b) => {
 		const x = div(a, b);
 		return x === null ? null : Math.round(x * 365);
 	};
@@ -3185,9 +3185,9 @@ window.SKEngines = (function() {
 			roa: pctOf(s.profit, avg(s.assets, p?.assets)),
 			roe: pctOf(s.profit, avg(s.equity, p?.equity)),
 			roce: pctOf(s.operating, avg(s.assets - s.cl, p ? p.assets - p.cl : void 0)),
-			dso: days$1(s.receivables, s.revenue),
-			dio: days$1(s.inventory, s.cogs),
-			dpo: days$1(s.payables, s.cogs),
+			dso: days$2(s.receivables, s.revenue),
+			dio: days$2(s.inventory, s.cogs),
+			dpo: days$2(s.payables, s.cogs),
 			assetTurnover: times(s.revenue, avg(s.assets, p?.assets)),
 			debtToEquity: times(s.debt, s.equity),
 			gearing: pctOf(netDebt, netDebt + s.equity),
@@ -7132,7 +7132,7 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/audit/materiality-engine.ts
 	var materiality_engine_exports = /* @__PURE__ */ __exportAll({ calculateMateriality: () => calculateMateriality });
-	function money$22(value) {
+	function money$25(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function calculateMateriality(input) {
@@ -7142,9 +7142,9 @@ window.SKEngines = (function() {
 		const trivialRate = Math.min(1, Math.max(0, input.trivialRate));
 		const overall = base * benchmarkRate;
 		return {
-			overall: money$22(overall),
-			performance: money$22(overall * performanceRate),
-			trivial: money$22(overall * trivialRate)
+			overall: money$25(overall),
+			performance: money$25(overall * performanceRate),
+			trivial: money$25(overall * trivialRate)
 		};
 	}
 	//#endregion
@@ -7761,7 +7761,7 @@ window.SKEngines = (function() {
 		calculateBoxEconomics: () => calculateBoxEconomics,
 		validateBoxRecipe: () => validateBoxRecipe
 	});
-	function money$21(value) {
+	function money$24(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function calculateBoxEconomics(recipe, items) {
@@ -7774,17 +7774,17 @@ window.SKEngines = (function() {
 				itemId: line.itemId,
 				quantity,
 				unitCost,
-				cost: money$21(quantity * unitCost),
+				cost: money$24(quantity * unitCost),
 				missingCost: item?.defaultCost === void 0
 			};
 		});
-		const totalCostExVat = money$21(lines.reduce((sum, line) => sum + line.cost, 0));
+		const totalCostExVat = money$24(lines.reduce((sum, line) => sum + line.cost, 0));
 		const vatRate = Math.max(0, recipe.vatRate);
-		const sellingPriceIncVat = money$21(Math.max(0, recipe.sellingPriceIncVat));
-		const sellingPriceExVat = money$21(sellingPriceIncVat / (1 + vatRate));
-		const vat = money$21(sellingPriceIncVat - sellingPriceExVat);
-		const profitExVat = money$21(sellingPriceExVat - totalCostExVat);
-		const marginPercent = sellingPriceExVat === 0 ? 0 : money$21(profitExVat / sellingPriceExVat * 100);
+		const sellingPriceIncVat = money$24(Math.max(0, recipe.sellingPriceIncVat));
+		const sellingPriceExVat = money$24(sellingPriceIncVat / (1 + vatRate));
+		const vat = money$24(sellingPriceIncVat - sellingPriceExVat);
+		const profitExVat = money$24(sellingPriceExVat - totalCostExVat);
+		const marginPercent = sellingPriceExVat === 0 ? 0 : money$24(profitExVat / sellingPriceExVat * 100);
 		const target = Math.min(95, Math.max(0, recipe.targetMarginPercent ?? 0)) / 100;
 		return {
 			lines,
@@ -7794,7 +7794,7 @@ window.SKEngines = (function() {
 			sellingPriceIncVat,
 			profitExVat,
 			marginPercent,
-			minimumPriceForTargetMarginIncVat: money$21((target >= 1 ? 0 : totalCostExVat / (1 - target)) * (1 + vatRate)),
+			minimumPriceForTargetMarginIncVat: money$24((target >= 1 ? 0 : totalCostExVat / (1 - target)) * (1 + vatRate)),
 			missingCostItems: lines.filter((line) => line.missingCost).length
 		};
 	}
@@ -7981,7 +7981,7 @@ window.SKEngines = (function() {
 		"211232",
 		"2331112"
 	];
-	function money$20(value) {
+	function money$23(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function buildScaleBarcode(input) {
@@ -8006,7 +8006,7 @@ window.SKEngines = (function() {
 			...input,
 			id: crypto.randomUUID(),
 			barcode: buildScaleBarcode(input),
-			totalIncVat: money$20(input.weightKg * input.unitPriceIncVat)
+			totalIncVat: money$23(input.weightKg * input.unitPriceIncVat)
 		};
 	}
 	function code128SvgData(text, height = 32) {
@@ -8102,7 +8102,7 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/catalog/pricing-engine.ts
 	var pricing_engine_exports = /* @__PURE__ */ __exportAll({ calculatePricing: () => calculatePricing });
-	function money$19(value) {
+	function money$22(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function calculatePricing(input) {
@@ -8116,11 +8116,11 @@ window.SKEngines = (function() {
 		const grossProfitInclusiveVat = sellingInclusive - usableCostExVat * (1 + vat);
 		const margin = sellingInclusive === 0 ? 0 : grossProfitInclusiveVat / sellingInclusive * 100;
 		return {
-			purchaseExVat: money$19(purchaseExVat),
-			usableCostExVat: money$19(usableCostExVat),
-			sellingExVat: money$19(sellingExVat),
-			grossProfitInclusiveVat: money$19(grossProfitInclusiveVat),
-			grossMarginPercentOnInclusiveSales: money$19(margin)
+			purchaseExVat: money$22(purchaseExVat),
+			usableCostExVat: money$22(usableCostExVat),
+			sellingExVat: money$22(sellingExVat),
+			grossProfitInclusiveVat: money$22(grossProfitInclusiveVat),
+			grossMarginPercentOnInclusiveSales: money$22(margin)
 		};
 	}
 	//#endregion
@@ -8193,9 +8193,108 @@ window.SKEngines = (function() {
 		return issues;
 	}
 	//#endregion
+	//#region app/src/engine/fusion/finance/bank-reconciliation-engine.ts
+	var bank_reconciliation_engine_exports = /* @__PURE__ */ __exportAll({
+		bankReconciliationStatement: () => bankReconciliationStatement,
+		bookCashLines: () => bookCashLines,
+		matchBankLines: () => matchBankLines
+	});
+	function money$21(value) {
+		return Math.round((value + Number.EPSILON) * 100) / 100;
+	}
+	function days$1(a, b) {
+		const x = Date.parse(String(a).slice(0, 10) + "T00:00:00Z"), y = Date.parse(String(b).slice(0, 10) + "T00:00:00Z");
+		return Number.isFinite(x) && Number.isFinite(y) ? Math.round(Math.abs(x - y) / 864e5) : Number.POSITIVE_INFINITY;
+	}
+	/** the cash account's movements, one line per entry: positive = money in */
+	function bookCashLines(entries, cashAccountId) {
+		const out = [];
+		for (const e of entries) {
+			let v = 0;
+			for (const l of e.lines) if (l.accountId === cashAccountId) v += (Number(l.debit) || 0) - (Number(l.credit) || 0);
+			v = money$21(v);
+			if (v !== 0) out.push({
+				id: e.id,
+				date: String(e.date).slice(0, 10),
+				amount: v,
+				reference: e.reference,
+				memo: e.memo
+			});
+		}
+		return out.sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+	}
+	function matchBankLines(bank, book, opts = {}) {
+		const windowDays = opts.days ?? 5;
+		const usedBank = /* @__PURE__ */ new Set(), usedBook = /* @__PURE__ */ new Set(), matches = [];
+		for (const m of opts.manual ?? []) {
+			const b = bank.find((x) => x.id === m.bankId), k = book.find((x) => x.id === m.bookId);
+			if (!b || !k || usedBank.has(b.id) || usedBook.has(k.id)) continue;
+			usedBank.add(b.id);
+			usedBook.add(k.id);
+			matches.push({
+				bankId: b.id,
+				bookId: k.id,
+				days: days$1(b.date, k.date),
+				manual: true
+			});
+		}
+		const norm = (s) => String(s ?? "").trim().toLowerCase();
+		for (const b of [...bank].sort((x, y) => x.date.localeCompare(y.date))) {
+			if (usedBank.has(b.id)) continue;
+			let best = null, bestScore = Number.POSITIVE_INFINITY;
+			for (const k of book) {
+				if (usedBook.has(k.id) || money$21(k.amount) !== money$21(b.amount)) continue;
+				const d = days$1(b.date, k.date);
+				if (d > windowDays) continue;
+				const score = d - (b.reference && norm(b.reference) === norm(k.reference) ? 100 : 0);
+				if (score < bestScore) {
+					best = k;
+					bestScore = score;
+				}
+			}
+			if (best) {
+				usedBank.add(b.id);
+				usedBook.add(best.id);
+				matches.push({
+					bankId: b.id,
+					bookId: best.id,
+					days: days$1(b.date, best.date),
+					manual: false
+				});
+			}
+		}
+		return {
+			matches,
+			unmatchedBank: bank.filter((b) => !usedBank.has(b.id)),
+			unmatchedBook: book.filter((k) => !usedBook.has(k.id))
+		};
+	}
+	function bankReconciliationStatement(p) {
+		const sum = (xs) => money$21(xs.reduce((s, x) => s + x.amount, 0));
+		const depositsInTransit = sum(p.unmatchedBook.filter((x) => x.amount > 0));
+		const outstandingPayments = money$21(-sum(p.unmatchedBook.filter((x) => x.amount < 0)));
+		const bankOnlyIn = sum(p.unmatchedBank.filter((x) => x.amount > 0));
+		const bankOnlyOut = money$21(-sum(p.unmatchedBank.filter((x) => x.amount < 0)));
+		const adjustedBank = money$21(p.statementBalance + depositsInTransit - outstandingPayments);
+		const adjustedBook = money$21(p.bookBalance + bankOnlyIn - bankOnlyOut);
+		const difference = money$21(adjustedBank - adjustedBook);
+		return {
+			statementBalance: money$21(p.statementBalance),
+			bookBalance: money$21(p.bookBalance),
+			depositsInTransit,
+			outstandingPayments,
+			bankOnlyIn,
+			bankOnlyOut,
+			adjustedBank,
+			adjustedBook,
+			difference,
+			reconciled: Math.abs(difference) < .005
+		};
+	}
+	//#endregion
 	//#region app/src/engine/fusion/finance/cash-flow-engine.ts
 	var cash_flow_engine_exports = /* @__PURE__ */ __exportAll({ buildCashFlow: () => buildCashFlow });
-	function money$18(value) {
+	function money$20(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function defaultClass(account) {
@@ -8214,7 +8313,7 @@ window.SKEngines = (function() {
 			const counterpart = /* @__PURE__ */ new Set();
 			for (const line of entry.lines) if (cashSet.has(line.accountId)) cashChange += (line.debit ?? 0) - (line.credit ?? 0);
 			else if ((line.debit ?? 0) !== 0 || (line.credit ?? 0) !== 0) counterpart.add(line.accountId);
-			cashChange = money$18(cashChange);
+			cashChange = money$20(cashChange);
 			if (cashChange === 0) continue;
 			const classes = [...counterpart].map((id) => input.overrides?.[id] ?? defaultClass(accountMap.get(id)));
 			const distinct = [...new Set(classes)];
@@ -8228,14 +8327,14 @@ window.SKEngines = (function() {
 				counterpartAccountIds: [...counterpart]
 			});
 		}
-		const total = (kind) => money$18(activities.filter((a) => a.classification === kind).reduce((sum, a) => sum + a.amount, 0));
+		const total = (kind) => money$20(activities.filter((a) => a.classification === kind).reduce((sum, a) => sum + a.amount, 0));
 		return {
 			activities,
 			operating: total("operating"),
 			investing: total("investing"),
 			financing: total("financing"),
 			unclassified: total("unclassified"),
-			netChange: money$18(activities.reduce((sum, a) => sum + a.amount, 0))
+			netChange: money$20(activities.reduce((sum, a) => sum + a.amount, 0))
 		};
 	}
 	//#endregion
@@ -8249,7 +8348,7 @@ window.SKEngines = (function() {
 		validateJournalEntry: () => validateJournalEntry
 	});
 	var MONEY_TOLERANCE = .005;
-	function money$17(value) {
+	function money$19(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function validateJournalEntry(entry) {
@@ -8289,9 +8388,9 @@ window.SKEngines = (function() {
 				credit: 0,
 				balance: 0
 			};
-			current.debit = money$17(current.debit + line.debit);
-			current.credit = money$17(current.credit + line.credit);
-			current.balance = money$17(current.debit - current.credit);
+			current.debit = money$19(current.debit + line.debit);
+			current.credit = money$19(current.credit + line.credit);
+			current.balance = money$19(current.debit - current.credit);
 			byAccount.set(line.accountId, current);
 		}
 		return [...byAccount.values()].sort((a, b) => a.accountId.localeCompare(b.accountId));
@@ -8299,8 +8398,8 @@ window.SKEngines = (function() {
 	function buildTrialBalance(entries) {
 		const rows = buildGeneralLedger(entries);
 		const totals = rows.reduce((sum, row) => ({
-			debit: money$17(sum.debit + row.debit),
-			credit: money$17(sum.credit + row.credit)
+			debit: money$19(sum.debit + row.debit),
+			credit: money$19(sum.credit + row.credit)
 		}), {
 			debit: 0,
 			credit: 0
@@ -8329,7 +8428,7 @@ window.SKEngines = (function() {
 				balance: 0
 			};
 		}).filter((row) => row.debit || row.credit);
-		const carried = money$17(buildGeneralLedger(before).filter((r) => isResult(typeOf(r.accountId))).reduce((sum, r) => sum + r.balance, 0));
+		const carried = money$19(buildGeneralLedger(before).filter((r) => isResult(typeOf(r.accountId))).reduce((sum, r) => sum + r.balance, 0));
 		if (Math.abs(carried) > MONEY_TOLERANCE) {
 			const re = rows.find((r) => r.accountId === retainedEarningsId);
 			const add = carried > 0 ? {
@@ -8340,9 +8439,9 @@ window.SKEngines = (function() {
 				credit: -carried
 			};
 			if (re) Object.assign(re, {
-				debit: money$17(re.debit + add.debit),
-				credit: money$17(re.credit + add.credit),
-				balance: money$17(re.balance + carried)
+				debit: money$19(re.debit + add.debit),
+				credit: money$19(re.credit + add.credit),
+				balance: money$19(re.balance + carried)
 			});
 			else rows.push({
 				accountId: retainedEarningsId,
@@ -8352,8 +8451,8 @@ window.SKEngines = (function() {
 		}
 		rows.sort((a, b) => a.accountId.localeCompare(b.accountId));
 		const totals = rows.reduce((sum, row) => ({
-			debit: money$17(sum.debit + row.debit),
-			credit: money$17(sum.credit + row.credit)
+			debit: money$19(sum.debit + row.debit),
+			credit: money$19(sum.credit + row.credit)
 		}), {
 			debit: 0,
 			credit: 0
@@ -8373,8 +8472,8 @@ window.SKEngines = (function() {
 			reference: params.reference ?? "عكس " + (entry.reference || entry.id),
 			lines: entry.lines.map((line) => ({
 				accountId: line.accountId,
-				debit: money$17(Number(line.credit) || 0),
-				credit: money$17(Number(line.debit) || 0),
+				debit: money$19(Number(line.credit) || 0),
+				credit: money$19(Number(line.debit) || 0),
 				...line.description ? { description: "عكس: " + line.description } : {}
 			}))
 		};
@@ -8382,49 +8481,6 @@ window.SKEngines = (function() {
 	function isPeriodLocked(date, lockDate) {
 		if (!lockDate || !/^\d{4}-\d{2}-\d{2}/.test(lockDate)) return false;
 		return String(date || "").slice(0, 10) <= lockDate.slice(0, 10);
-	}
-	//#endregion
-	//#region app/src/engine/fusion/finance/payables-engine.ts
-	var payables_engine_exports = /* @__PURE__ */ __exportAll({ agePayables: () => agePayables });
-	function money$16(v) {
-		return Math.round((v + Number.EPSILON) * 100) / 100;
-	}
-	function days(fromIso, toIso) {
-		const from = Date.parse(fromIso + "T00:00:00Z"), to = Date.parse(toIso + "T00:00:00Z");
-		if (!Number.isFinite(from) || !Number.isFinite(to)) return 0;
-		return Math.max(0, Math.floor((to - from) / 864e5));
-	}
-	function bucketFor$1(value) {
-		if (value <= 0) return "current";
-		if (value <= 30) return "1-30";
-		if (value <= 60) return "31-60";
-		if (value <= 90) return "61-90";
-		return "90+";
-	}
-	function agePayables(invoices, asOfDate) {
-		const rows = invoices.map((invoice) => {
-			const outstanding = money$16(Math.max(0, invoice.amount - invoice.paid));
-			const daysPastDue = outstanding === 0 ? 0 : days(invoice.dueDate, asOfDate);
-			return {
-				...invoice,
-				outstanding,
-				daysPastDue,
-				bucket: bucketFor$1(daysPastDue)
-			};
-		}).filter((row) => row.outstanding > 0);
-		const totals = {
-			current: 0,
-			"1-30": 0,
-			"31-60": 0,
-			"61-90": 0,
-			"90+": 0
-		};
-		for (const row of rows) totals[row.bucket] = money$16(totals[row.bucket] + row.outstanding);
-		return {
-			rows,
-			totals,
-			outstanding: money$16(rows.reduce((sum, row) => sum + row.outstanding, 0))
-		};
 	}
 	//#endregion
 	//#region app/src/engine/fusion/finance/receivables-engine.ts
@@ -8438,7 +8494,7 @@ window.SKEngines = (function() {
 		if (!Number.isFinite(from) || !Number.isFinite(to)) return 0;
 		return Math.max(0, Math.floor((to - from) / 864e5));
 	}
-	function bucketFor(days) {
+	function bucketFor$1(days) {
 		if (days <= 0) return "current";
 		if (days <= 30) return "1-30";
 		if (days <= 60) return "31-60";
@@ -8453,7 +8509,7 @@ window.SKEngines = (function() {
 				...invoice,
 				outstanding,
 				daysPastDue,
-				bucket: bucketFor(daysPastDue)
+				bucket: bucketFor$1(daysPastDue)
 			};
 		}).filter((row) => row.outstanding > 0);
 		const totals = {
@@ -8471,16 +8527,231 @@ window.SKEngines = (function() {
 		};
 	}
 	//#endregion
+	//#region app/src/engine/fusion/finance/party-ledger-engine.ts
+	var party_ledger_engine_exports = /* @__PURE__ */ __exportAll({
+		buildSettlementEntry: () => buildSettlementEntry,
+		partyBalances: () => partyBalances,
+		partyMovements: () => partyMovements,
+		partyStatement: () => partyStatement
+	});
+	function money$18(value) {
+		return Math.round((value + Number.EPSILON) * 100) / 100;
+	}
+	function addDays(iso, days) {
+		const t = Date.parse(String(iso).slice(0, 10) + "T00:00:00Z");
+		if (!Number.isFinite(t)) return String(iso).slice(0, 10);
+		return new Date(t + days * 864e5).toISOString().slice(0, 10);
+	}
+	var emptyBuckets = () => ({
+		current: 0,
+		"1-30": 0,
+		"31-60": 0,
+		"61-90": 0,
+		"90+": 0
+	});
+	function netOn(entry, accountId, side) {
+		let v = 0;
+		for (const line of entry.lines) if (line.accountId === accountId) v += side === "debit" ? Number(line.debit) - Number(line.credit) : Number(line.credit) - Number(line.debit);
+		return money$18(v);
+	}
+	/** each entry's net effect on the control account, oldest first; positive raises the party's balance */
+	function partyMovements(entries, accountId, side) {
+		const movements = [];
+		let unassigned = 0;
+		for (const entry of entries) {
+			const amount = netOn(entry, accountId, side);
+			if (amount === 0) continue;
+			const party = String(entry.party ?? "").trim();
+			if (!party) {
+				unassigned += amount;
+				continue;
+			}
+			movements.push({
+				entryId: entry.id,
+				date: String(entry.date).slice(0, 10),
+				reference: entry.reference,
+				memo: entry.memo,
+				party,
+				amount
+			});
+		}
+		movements.sort((a, b) => a.date.localeCompare(b.date) || a.entryId.localeCompare(b.entryId));
+		return {
+			movements,
+			unassigned: money$18(unassigned)
+		};
+	}
+	function partyBalances(entries, accountId, side, asOf, termsDays = 0) {
+		const { movements, unassigned } = partyMovements(entries, accountId, side);
+		const byParty = /* @__PURE__ */ new Map();
+		for (const m of movements) {
+			const list = byParty.get(m.party) ?? [];
+			list.push(m);
+			byParty.set(m.party, list);
+		}
+		const rows = [];
+		const totals = emptyBuckets();
+		byParty.forEach((list, party) => {
+			const open = [];
+			let credit = 0, charged = 0, settled = 0;
+			for (const m of list) if (m.amount > 0) {
+				charged += m.amount;
+				let left = m.amount;
+				if (credit > 0) {
+					const use = Math.min(credit, left);
+					credit -= use;
+					left -= use;
+				}
+				if (left > .004) open.push({
+					date: m.date,
+					left
+				});
+			} else {
+				let pay = -m.amount;
+				settled += pay;
+				while (pay > .004 && open.length) {
+					const use = Math.min(pay, open[0].left);
+					open[0].left -= use;
+					pay -= use;
+					if (open[0].left <= .004) open.shift();
+				}
+				credit += pay;
+			}
+			const aged = ageReceivables(open.map((o, i) => ({
+				id: party + "-" + i,
+				customerId: party,
+				invoiceDate: o.date,
+				dueDate: addDays(o.date, termsDays),
+				amount: money$18(o.left),
+				paid: 0
+			})), asOf);
+			const balance = money$18(charged - settled);
+			const aging = { ...aged.totals };
+			rows.push({
+				party,
+				balance,
+				charged: money$18(charged),
+				settled: money$18(settled),
+				lastDate: list[list.length - 1].date,
+				oldestOpen: open.length ? open[0].date : null,
+				aging
+			});
+			Object.keys(totals).forEach((k) => {
+				totals[k] = money$18(totals[k] + aging[k]);
+			});
+		});
+		rows.sort((a, b) => b.balance - a.balance || a.party.localeCompare(b.party));
+		return {
+			rows,
+			totals,
+			balance: money$18(rows.reduce((s, r) => s + r.balance, 0)),
+			unassigned
+		};
+	}
+	/** a party's statement of account with its running balance */
+	function partyStatement(entries, accountId, side, party) {
+		let running = 0;
+		return partyMovements(entries, accountId, side).movements.filter((m) => m.party === party).map((m) => {
+			running = money$18(running + m.amount);
+			return {
+				date: m.date,
+				reference: m.reference,
+				memo: m.memo,
+				charge: m.amount > 0 ? m.amount : 0,
+				settlement: m.amount < 0 ? -m.amount : 0,
+				balance: running
+			};
+		});
+	}
+	/** a customer collection (Dr cash / Cr receivables) or a supplier payment (Dr payables / Cr cash) */
+	function buildSettlementEntry(p) {
+		const amount = money$18(Number(p.amount));
+		if (!(amount > 0)) throw new Error("AMOUNT_MUST_BE_POSITIVE");
+		if (!String(p.party || "").trim()) throw new Error("PARTY_REQUIRED");
+		if (!p.cashAccountId || !p.controlAccountId) throw new Error("ACCOUNTS_REQUIRED");
+		const collection = p.kind === "collection";
+		return {
+			id: p.id,
+			date: p.date,
+			reference: p.reference,
+			party: p.party.trim(),
+			lines: collection ? [{
+				accountId: p.cashAccountId,
+				debit: amount,
+				credit: 0,
+				description: "تحصيل من " + p.party
+			}, {
+				accountId: p.controlAccountId,
+				debit: 0,
+				credit: amount,
+				description: "تحصيل من " + p.party
+			}] : [{
+				accountId: p.controlAccountId,
+				debit: amount,
+				credit: 0,
+				description: "سداد إلى " + p.party
+			}, {
+				accountId: p.cashAccountId,
+				debit: 0,
+				credit: amount,
+				description: "سداد إلى " + p.party
+			}]
+		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/finance/payables-engine.ts
+	var payables_engine_exports = /* @__PURE__ */ __exportAll({ agePayables: () => agePayables });
+	function money$17(v) {
+		return Math.round((v + Number.EPSILON) * 100) / 100;
+	}
+	function days(fromIso, toIso) {
+		const from = Date.parse(fromIso + "T00:00:00Z"), to = Date.parse(toIso + "T00:00:00Z");
+		if (!Number.isFinite(from) || !Number.isFinite(to)) return 0;
+		return Math.max(0, Math.floor((to - from) / 864e5));
+	}
+	function bucketFor(value) {
+		if (value <= 0) return "current";
+		if (value <= 30) return "1-30";
+		if (value <= 60) return "31-60";
+		if (value <= 90) return "61-90";
+		return "90+";
+	}
+	function agePayables(invoices, asOfDate) {
+		const rows = invoices.map((invoice) => {
+			const outstanding = money$17(Math.max(0, invoice.amount - invoice.paid));
+			const daysPastDue = outstanding === 0 ? 0 : days(invoice.dueDate, asOfDate);
+			return {
+				...invoice,
+				outstanding,
+				daysPastDue,
+				bucket: bucketFor(daysPastDue)
+			};
+		}).filter((row) => row.outstanding > 0);
+		const totals = {
+			current: 0,
+			"1-30": 0,
+			"31-60": 0,
+			"61-90": 0,
+			"90+": 0
+		};
+		for (const row of rows) totals[row.bucket] = money$17(totals[row.bucket] + row.outstanding);
+		return {
+			rows,
+			totals,
+			outstanding: money$17(rows.reduce((sum, row) => sum + row.outstanding, 0))
+		};
+	}
+	//#endregion
 	//#region app/src/engine/fusion/finance/reconciliation-engine.ts
 	var reconciliation_engine_exports = /* @__PURE__ */ __exportAll({
 		reconcileSubledger: () => reconcileSubledger,
 		reconcileTrialBalanceToLedger: () => reconcileTrialBalanceToLedger
 	});
-	function money$15(value) {
+	function money$16(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function tbBalance(row) {
-		return money$15((row.debit ?? 0) - (row.credit ?? 0));
+		return money$16((row.debit ?? 0) - (row.credit ?? 0));
 	}
 	function reconcileTrialBalanceToLedger(tb, ledger, tolerance = .005) {
 		const tbMap = new Map(tb.map((row) => [row.accountId.trim(), row]));
@@ -8489,8 +8760,8 @@ window.SKEngines = (function() {
 			const tbRow = tbMap.get(accountId);
 			const glRow = glMap.get(accountId);
 			const tbValue = tbRow ? tbBalance(tbRow) : 0;
-			const glValue = glRow ? money$15(glRow.balance) : 0;
-			const difference = money$15(tbValue - glValue);
+			const glValue = glRow ? money$16(glRow.balance) : 0;
+			const difference = money$16(tbValue - glValue);
 			let status = "MATCH";
 			if (!tbRow) status = "MISSING_TB";
 			else if (!glRow) status = "MISSING_GL";
@@ -8507,14 +8778,14 @@ window.SKEngines = (function() {
 			rows,
 			matched: rows.filter((row) => row.status === "MATCH").length,
 			exceptions: rows.filter((row) => row.status !== "MATCH").length,
-			absoluteDifference: money$15(rows.reduce((sum, row) => sum + Math.abs(row.difference), 0))
+			absoluteDifference: money$16(rows.reduce((sum, row) => sum + Math.abs(row.difference), 0))
 		};
 	}
 	function reconcileSubledger(input) {
 		const tolerance = input.tolerance ?? .005;
-		const glBalance = money$15(input.ledger.find((row) => row.accountId === input.glAccountId)?.balance ?? 0);
-		const subledgerBalance = money$15(input.subledgerBalance);
-		const difference = money$15(glBalance - subledgerBalance);
+		const glBalance = money$16(input.ledger.find((row) => row.accountId === input.glAccountId)?.balance ?? 0);
+		const subledgerBalance = money$16(input.subledgerBalance);
+		const difference = money$16(glBalance - subledgerBalance);
 		return {
 			glAccountId: input.glAccountId,
 			glBalance,
@@ -8530,7 +8801,7 @@ window.SKEngines = (function() {
 		validateTrialBalance: () => validateTrialBalance
 	});
 	var TOLERANCE = .005;
-	function money$14(value) {
+	function money$15(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function validateTrialBalance(rows) {
@@ -8570,9 +8841,9 @@ window.SKEngines = (function() {
 			debit += Number.isFinite(row.debit) ? row.debit : 0;
 			credit += Number.isFinite(row.credit) ? row.credit : 0;
 		});
-		debit = money$14(debit);
-		credit = money$14(credit);
-		const difference = money$14(debit - credit);
+		debit = money$15(debit);
+		credit = money$15(credit);
+		const difference = money$15(debit - credit);
 		if (Math.abs(difference) > TOLERANCE) issues.push({ code: "UNBALANCED_TOTALS" });
 		return {
 			valid: issues.length === 0,
@@ -8585,14 +8856,110 @@ window.SKEngines = (function() {
 		};
 	}
 	function accountMovement(row) {
-		const current = money$14(row.debit - row.credit);
-		const prior = money$14((row.priorDebit ?? 0) - (row.priorCredit ?? 0));
+		const current = money$15(row.debit - row.credit);
+		const prior = money$15((row.priorDebit ?? 0) - (row.priorCredit ?? 0));
 		return {
 			current,
 			prior,
-			absoluteChange: money$14(current - prior),
+			absoluteChange: money$15(current - prior),
 			newAccount: prior === 0 && current !== 0,
 			vanishedAccount: prior !== 0 && current === 0
+		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/finance/vat-return-engine.ts
+	var vat_return_engine_exports = /* @__PURE__ */ __exportAll({
+		buildVatSettlementEntry: () => buildVatSettlementEntry,
+		vatReturn: () => vatReturn
+	});
+	function money$14(value) {
+		return Math.round((value + Number.EPSILON) * 100) / 100;
+	}
+	function vatReturn(input) {
+		const rate = input.rate ?? .15;
+		const control = /* @__PURE__ */ new Set([
+			...input.controlAccountIds ?? [],
+			input.outputVatAccountId,
+			input.inputVatAccountId
+		]);
+		let salesBase = 0, outputVat = 0, purchasesBase = 0, inputVat = 0, salesEntries = 0, purchaseEntries = 0;
+		const offRate = [];
+		for (const entry of input.entries) {
+			const d = String(entry.date).slice(0, 10);
+			if (entry.vatSettlement || d < input.start || d > input.end) continue;
+			let out = 0, inp = 0, sBase = 0, pBase = 0;
+			for (const line of entry.lines) {
+				const dr = Number(line.debit) || 0, cr = Number(line.credit) || 0;
+				if (line.accountId === input.outputVatAccountId) out += cr - dr;
+				else if (line.accountId === input.inputVatAccountId) inp += dr - cr;
+				else if (!control.has(line.accountId)) {
+					const t = input.typeOf(line.accountId);
+					if (t === "revenue") sBase += cr - dr;
+					else if (t === "asset" || t === "expense") pBase += dr - cr;
+				}
+			}
+			if (Math.abs(out) > .004) {
+				salesEntries++;
+				outputVat += out;
+				salesBase += sBase;
+				if (Math.abs(out - sBase * rate) > .05) offRate.push(entry.id);
+			}
+			if (Math.abs(inp) > .004) {
+				purchaseEntries++;
+				inputVat += inp;
+				purchasesBase += pBase;
+				if (Math.abs(inp - pBase * rate) > .05) offRate.push(entry.id);
+			}
+		}
+		outputVat = money$14(outputVat);
+		inputVat = money$14(inputVat);
+		return {
+			salesBase: money$14(salesBase),
+			outputVat,
+			purchasesBase: money$14(purchasesBase),
+			inputVat,
+			net: money$14(outputVat - inputVat),
+			salesEntries,
+			purchaseEntries,
+			offRate
+		};
+	}
+	/** closes the period's output and input VAT into one account: what is owed to (or refundable from) the authority */
+	function buildVatSettlementEntry(p) {
+		const out = money$14(p.outputVat), inp = money$14(p.inputVat), net = money$14(out - inp);
+		if (out < 0 || inp < 0 || out === 0 && inp === 0) throw new Error("NOTHING_TO_SETTLE");
+		const lines = [
+			...out > 0 ? [{
+				accountId: p.outputVatAccountId,
+				debit: out,
+				credit: 0,
+				description: "إقفال ضريبة المخرجات"
+			}] : [],
+			...inp > 0 ? [{
+				accountId: p.inputVatAccountId,
+				debit: 0,
+				credit: inp,
+				description: "إقفال ضريبة المدخلات"
+			}] : [],
+			...net > 0 ? [{
+				accountId: p.netAccountId,
+				debit: 0,
+				credit: net,
+				description: "صافي الضريبة المستحقة للهيئة"
+			}] : [],
+			...net < 0 ? [{
+				accountId: p.netAccountId,
+				debit: -net,
+				credit: 0,
+				description: "صافي الضريبة المستردة من الهيئة"
+			}] : []
+		];
+		return {
+			id: p.id,
+			date: p.date,
+			reference: p.reference,
+			lines,
+			vatSettlement: true
 		};
 	}
 	//#endregion
@@ -10586,9 +10953,12 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/stock/inventory-engine.ts
 	var inventory_engine_exports = /* @__PURE__ */ __exportAll({
+		buildStockCountAdjustment: () => buildStockCountAdjustment,
 		buildStockPositions: () => buildStockPositions,
 		negativeStockItems: () => negativeStockItems,
-		weightedAverageCosts: () => weightedAverageCosts
+		stockCountValuation: () => stockCountValuation,
+		weightedAverageCosts: () => weightedAverageCosts,
+		weightedAverageCostsAsOf: () => weightedAverageCostsAsOf
 	});
 	function isInbound(type) {
 		return type === "OPENING" || type === "PURCHASE" || type === "ADJUSTMENT_IN";
@@ -10640,6 +11010,69 @@ window.SKEngines = (function() {
 			out[k] = Math.round(row.value / row.qty * 1e4) / 1e4;
 		});
 		return out;
+	}
+	/** weighted-average cost from the receipts dated on or before `asOf` only: a sale never takes the cost of goods bought after it */
+	function weightedAverageCostsAsOf(layers, asOf, key = (id) => id) {
+		return weightedAverageCosts(layers.filter((l) => String(l.date).slice(0, 10) <= String(asOf).slice(0, 10)), key);
+	}
+	/** values a physical stock count at unit cost; items without a cost are listed apart instead of valued at zero */
+	function stockCountValuation(lines, unitCost) {
+		const rows = [];
+		const uncosted = [];
+		let value = 0;
+		for (const line of lines) {
+			const qty = Math.max(0, Number(line.countedQty) || 0), c = unitCost(line.itemId);
+			const cost = c != null && Number.isFinite(c) && c > 0 ? c : null;
+			if (cost == null && qty > 0) uncosted.push(line.itemId);
+			const v = cost == null ? 0 : Math.round(qty * cost * 100) / 100;
+			value += v;
+			rows.push({
+				itemId: line.itemId,
+				countedQty: qty,
+				unitCost: cost,
+				value: v
+			});
+		}
+		return {
+			rows,
+			value: Math.round(value * 100) / 100,
+			uncosted
+		};
+	}
+	/** brings the inventory account to the counted value: a shortfall goes to the count-variance expense, a surplus reduces it */
+	function buildStockCountAdjustment(p) {
+		const diff = Math.round((Number(p.countedValue) - Number(p.bookValue)) * 100) / 100;
+		if (diff === 0) throw new Error("NO_DIFFERENCE");
+		if (!p.inventoryAccountId || !p.varianceAccountId) throw new Error("ACCOUNTS_REQUIRED");
+		const amt = Math.abs(diff);
+		const lines = diff < 0 ? [{
+			accountId: p.varianceAccountId,
+			debit: amt,
+			credit: 0,
+			description: "عجز الجرد"
+		}, {
+			accountId: p.inventoryAccountId,
+			debit: 0,
+			credit: amt,
+			description: "عجز الجرد"
+		}] : [{
+			accountId: p.inventoryAccountId,
+			debit: amt,
+			credit: 0,
+			description: "زيادة الجرد"
+		}, {
+			accountId: p.varianceAccountId,
+			debit: 0,
+			credit: amt,
+			description: "زيادة الجرد"
+		}];
+		return {
+			id: p.id,
+			date: p.date,
+			reference: p.reference ?? "COUNT-" + p.date,
+			lines,
+			difference: diff
+		};
 	}
 	//#endregion
 	//#region app/src/engine/fusion/stock/nrv-engine.ts
@@ -10875,12 +11308,15 @@ window.SKEngines = (function() {
 		},
 		finance: {
 			accounts: accounts_engine_exports,
+			bankReconciliation: bank_reconciliation_engine_exports,
 			cashFlow: cash_flow_engine_exports,
 			ledger: ledger_engine_exports,
+			partyLedger: party_ledger_engine_exports,
 			payables: payables_engine_exports,
 			receivables: receivables_engine_exports,
 			reconciliation: reconciliation_engine_exports,
-			trialBalance: trial_balance_engine_exports
+			trialBalance: trial_balance_engine_exports,
+			vatReturn: vat_return_engine_exports
 		},
 		intelligence: {
 			council: council_engine_exports,

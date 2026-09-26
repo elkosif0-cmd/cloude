@@ -198,7 +198,7 @@ const SECTIONS=[
   empty:async()=>{const d=load("skosif_ledger_v1",{});return !(d.accounts||[]).length&&!(d.entries||[]).length},
   seed:async()=>{
     const F=E().finance,BASIC=[["1100","النقدية والبنوك","asset"],["1200","الذمم المدينة","asset"],["1300","المخزون","asset"],["1400","ضريبة القيمة المضافة — مدخلات","asset"],["2100","الذمم الدائنة (الموردون)","liability"],
-      ["2200","ضريبة القيمة المضافة — مخرجات","liability"],["3000","رأس المال","equity"],["3100","الأرباح المبقاة","equity"],["4000","إيرادات المبيعات","revenue"],["5000","تكلفة المبيعات","expense"],["6100","الرواتب والأجور","expense"],["6200","الإيجار","expense"],["6300","مصروفات تشغيلية أخرى","expense"]];
+      ["2200","ضريبة القيمة المضافة — مخرجات","liability"],["3000","رأس المال","equity"],["3100","الأرباح المبقاة","equity"],["4000","إيرادات المبيعات","revenue"],["4900","إيرادات أخرى","revenue"],["5000","تكلفة المبيعات","expense"],["6100","الرواتب والأجور","expense"],["6200","الإيجار","expense"],["6300","مصروفات تشغيلية أخرى","expense"]];
     const accounts=BASIC.map(([code,name,type])=>D(F.accounts.createAccount({code,name,type}))),id=c=>accounts.find(a=>a.code===c).id,entries=[];let n=1;
     const je=(date,memo,lines,extra={})=>entries.push(D({id:"demo-je"+(n++),date,reference:extra.reference||"DMO-JE"+n,memo,source:extra.source||"يدوي",...(extra.sourceId?{sourceId:extra.sourceId}:{}),lines:lines.map(([c,dr,cr])=>({accountId:id(c),debit:r2(dr),credit:r2(cr)}))}));
     je(Y+"-01-01","رأس المال المدفوع",[["1100",350000,0],["3000",0,350000]]);
@@ -225,10 +225,26 @@ const SECTIONS=[
       const b=E().procurement.procurementPosting.buildReceiptPosting({id:po.id,number:po.number,date:po.date,dueDate:po.dueDate||po.date,supplierId:po.supplier,status:"OPEN",lines:po.lines.map(l=>({itemId:l.item,quantity:+l.qty||0,unitCostExVat:+l.cost||0,vatRate:+l.vat||0}))},
         {id:r.id,number:r.id,date:r.date,purchaseOrderId:po.id,status:"DRAFT",lines:r.lines.map(l=>({itemId:l.item,quantity:+l.qty||0}))},{inventoryAccountId:id("1300"),inputVatAccountId:id("1400"),payableAccountId:id("2100")});
       entries.push(D({...b.journal,id:"demo-je"+(n++),memo:"استلام من "+po.supplier+" — أمر "+po.number,reference:po.number,source:"مشتريات",sourceId:"receipt:"+r.id}))}catch{}});
+    /* a collection from a credit customer and a part payment to a supplier: balances, ageing and statements have a story */
+    try{const P=F.partyLedger,cr=man.find(x=>/آجل/.test(x.payment||""));
+      if(cr)entries.push(D({...P.buildSettlementEntry({id:"demo-je"+(n++),date:ago(1),kind:"collection",party:cr.customer,amount:r2(cr.amount/2),cashAccountId:id("1100"),controlAccountId:id("1200"),reference:"RCV-DEMO1"}),memo:"تحصيل جزئي من "+cr.customer+" (تحويل بنكي)",source:"تحصيل"}));
+      const r0=(pur.receipts||[]).find(r=>r.demo),po0=r0&&(pur.orders||[]).find(o=>o.id===r0.orderId),b0=po0&&entries.find(e=>e.sourceId==="receipt:"+r0.id);
+      const owed=b0?b0.lines.filter(l=>l.accountId===id("2100")).reduce((t,l)=>t+l.credit,0):0;
+      if(owed>0)entries.push(D({...P.buildSettlementEntry({id:"demo-je"+(n++),date:ago(0),kind:"payment",party:po0.supplier,amount:r2(owed*0.6),cashAccountId:id("1100"),controlAccountId:id("2100"),reference:"PAY-DEMO1"}),memo:"سداد جزئي إلى "+po0.supplier+" (تحويل بنكي)",source:"سداد"}));
+    }catch{}
     const bad=entries.filter(e=>{try{return !F.ledger.validateJournalEntry(e).valid}catch{return false}});
-    save("skosif_ledger_v1",{accounts,entries:entries.filter(e=>!bad.includes(e))});
+    const good=entries.filter(e=>!bad.includes(e));let bank=null;
+    /* a bank statement for the last weeks: cash lines clear a day later, one deposit is still in transit, one payment
+       outstanding, and a fee and a profit only the bank knows — so «مطابقة البنك» has a real story */
+    try{const BR=F.bankReconciliation,book=BR.bookCashLines(good,id("1100")),end=ago(0),from=ago(40),recent=book.filter(l=>l.date>=from&&l.date<=end);
+      if(recent.length>=3){const dep=[...recent].reverse().find(l=>l.amount>0),pay=[...recent].reverse().find(l=>l.amount<0);
+        const lines=recent.filter(l=>l!==dep&&l!==pay).map((l,i)=>({id:"demo-bk"+i,date:l.date<end?iso(Date.parse(l.date)+DAY):l.date,amount:l.amount,description:l.memo||l.reference||"حركة",reference:""}));
+        lines.push({id:"demo-bk-int",date:ago(10),amount:60,description:"أرباح حساب جاري",reference:"PRF"},{id:"demo-bk-fee",date:end,amount:-35,description:"رسوم خدمات بنكية",reference:"FEE"});
+        const bal=book.filter(l=>l.date<=end).reduce((t,l)=>t+l.amount,0);
+        bank={demo:true,lines,manual:[],closing:r2(bal-(dep?dep.amount:0)-(pay?pay.amount:0)+60-35),cleared:book.filter(l=>l.date<from).map(l=>l.id),history:[{end:from,closing:r2(book.filter(l=>l.date<from).reduce((t,l)=>t+l.amount,0)),at:from,matched:0}]}}}catch{}
+    save("skosif_ledger_v1",{accounts,entries:good,...(bank?{bank}:{})});
   },
-  clear:async()=>{const d=load("skosif_ledger_v1",null);if(!d)return;d.entries=dropDemo(d.entries);const used=new Set(d.entries.flatMap(e=>(e.lines||[]).map(l=>l.accountId)));d.accounts=(d.accounts||[]).filter(a=>!a.demo||used.has(a.id));save("skosif_ledger_v1",d)}},
+  clear:async()=>{const d=load("skosif_ledger_v1",null);if(!d)return;d.entries=dropDemo(d.entries);if(d.bank&&d.bank.demo)delete d.bank;const used=new Set(d.entries.flatMap(e=>(e.lines||[]).map(l=>l.accountId)));d.accounts=(d.accounts||[]).filter(a=>!a.demo||used.has(a.id));save("skosif_ledger_v1",d)}},
 
 {id:"engagement",label:"ملف المراجعة من الدفاتر",caps:["tbreview"],after:["ledger"],
   empty:async()=>{const d=load("skosif_tbreview_v1",{});return !(d&&d.tbText)},

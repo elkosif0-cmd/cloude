@@ -260,8 +260,11 @@ function vatHTML(){
   const inputVAT=taxablePurchases*0.15;
   const netVAT=outputVAT-inputVAT;
 
+  /* the actual return comes from the books; this one is an estimate from the figures typed in «قائمة الدخل» */
+  const books=window.SKosifLedger&&SKosifLedger.entries().length;
   return [
     '<div class="sk-stack">',
+      '<div class="sk-note'+(books?'':' warn')+'">هذه الأرقام <b>تقدير</b> من مدخلات قائمة الدخل. '+(books?'الإقرار الفعلي من القيود المرحّلة، ربعاً بربع، مع قيد إقفال الضريبة: <button type="button" class="linkish" data-ledger-open="vat">إقرار الضريبة من الدفاتر</button>':'رحّل المبيعات والمشتريات في «الدفاتر المحاسبية» ليُحسب الإقرار الفعلي من القيود.')+'</div>',
       '<div class="sk-kpis">',
         '<div class="sk-kpi"><span>إجمالي المبيعات (شامل الضريبة)</span><b>'+money(pl.revenue)+'</b></div>',
         '<div class="sk-kpi"><span>ضريبة المخرجات المحصلة (15%)</span><b>'+money(outputVAT)+'</b></div>',

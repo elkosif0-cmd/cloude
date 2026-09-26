@@ -72,3 +72,38 @@ export function weightedAverageCosts(layers: CostLayer[], key: (itemId: string) 
   acc.forEach((row, k) => { out[k] = Math.round((row.value / row.qty) * 10000) / 10000; });
   return out;
 }
+
+/** weighted-average cost from the receipts dated on or before `asOf` only: a sale never takes the cost of goods bought after it */
+export function weightedAverageCostsAsOf(layers: (CostLayer & { date: string })[], asOf: string, key: (itemId: string) => string = (id) => id): Record<string, number> {
+  return weightedAverageCosts(layers.filter((l) => String(l.date).slice(0, 10) <= String(asOf).slice(0, 10)), key);
+}
+
+export type CountLine = { itemId: string; countedQty: number };
+
+/** values a physical stock count at unit cost; items without a cost are listed apart instead of valued at zero */
+export function stockCountValuation(lines: CountLine[], unitCost: (itemId: string) => number | null | undefined) {
+  const rows: { itemId: string; countedQty: number; unitCost: number | null; value: number }[] = [];
+  const uncosted: string[] = [];
+  let value = 0;
+  for (const line of lines) {
+    const qty = Math.max(0, Number(line.countedQty) || 0), c = unitCost(line.itemId);
+    const cost = c != null && Number.isFinite(c) && c > 0 ? c : null;
+    if (cost == null && qty > 0) uncosted.push(line.itemId);
+    const v = cost == null ? 0 : Math.round(qty * cost * 100) / 100;
+    value += v;
+    rows.push({ itemId: line.itemId, countedQty: qty, unitCost: cost, value: v });
+  }
+  return { rows, value: Math.round(value * 100) / 100, uncosted };
+}
+
+/** brings the inventory account to the counted value: a shortfall goes to the count-variance expense, a surplus reduces it */
+export function buildStockCountAdjustment(p: { id: string; date: string; bookValue: number; countedValue: number; inventoryAccountId: string; varianceAccountId: string; reference?: string }) {
+  const diff = Math.round((Number(p.countedValue) - Number(p.bookValue)) * 100) / 100;
+  if (diff === 0) throw new Error('NO_DIFFERENCE');
+  if (!p.inventoryAccountId || !p.varianceAccountId) throw new Error('ACCOUNTS_REQUIRED');
+  const amt = Math.abs(diff);
+  const lines = diff < 0
+    ? [{ accountId: p.varianceAccountId, debit: amt, credit: 0, description: 'عجز الجرد' }, { accountId: p.inventoryAccountId, debit: 0, credit: amt, description: 'عجز الجرد' }]
+    : [{ accountId: p.inventoryAccountId, debit: amt, credit: 0, description: 'زيادة الجرد' }, { accountId: p.varianceAccountId, debit: 0, credit: amt, description: 'زيادة الجرد' }];
+  return { id: p.id, date: p.date, reference: p.reference ?? 'COUNT-' + p.date, lines, difference: diff };
+}
