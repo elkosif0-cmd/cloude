@@ -53,11 +53,14 @@ const item=(no,title,body,id)=>'<section class="rd-item" id="'+(id||"")+'"><h3><
 /* ---------- the auditor's report ---------- */
 function auditor(x){
   const a=R().auditorsReport({company:x.ctx.company,periodEnd:x.periodEnd,framework:x.fw,opinion:x.opinion.opinion,basis:x.opinion.basis,kams:x.kams,goingConcern:x.opinion.goingConcern,approach:x.approach,goingConcernSection:x.goingConcernSection,
-    firm:x.ctx.auditFirm,partner:x.ctx.auditPartner,licence:x.ctx.auditLicence,city:x.ctx.auditCity});
+    firm:x.ctx.auditFirm,partner:x.ctx.auditPartner,licence:x.ctx.auditLicence,city:x.ctx.auditCity,
+    jurisdiction:x.ctx.country==="AE"?"AE":x.ctx.country==="EG"?"EG":"SA",group:!!x.ctx.consolidated||/مجموعة|موحد|القابضة|holding|group/i.test((x.ctx.company||"")+" "+(x.ctx.legalForm||""))});
   return '<article class="rd-doc rd-audit"><header class="rd-h"><small>'+(a.draft?'مسودة للمراجعة — لا تصدر قبل اعتماد الشريك':'')+'</small><h2>'+esc(a.title)+'</h2><p>'+esc(a.addressee)+'</p></header>'+
     a.sections.map(s=>'<section class="rd-sec"><h4>'+esc(s.title)+'</h4>'+s.paragraphs.map(p=>'<p>'+esc(p)+'</p>').join("")+kv(s.table)+
-      (s.kams?s.kams.map(k=>'<div class="rd-kam"><h5>'+esc(k.title)+(k.trend==="new"?' <small class="rd-new">جديد</small>':'')+'</h5><table class="rd-kt"><tr><th>وصف الأمر</th><td>'+esc(k.description)+'</td></tr><tr><th>كيف عالجنا الأمر في مراجعتنا</th><td>'+esc(k.how)+'</td></tr>'+
-        (k.observation?'<tr><th>النتيجة</th><td>'+esc(k.observation)+'</td></tr>':'')+(k.refs&&k.refs.length?'<tr><th>مراجع</th><td>'+esc(k.refs.join(" · "))+'</td></tr>':'')+'</table></div>').join(""):'')+'</section>').join("")+
+      /* the key audit matters in two columns, as Aramco's and Emirates NBD's reports print them */
+      (s.kams&&s.kams.length?'<table class="rd-kt2"><thead><tr><th>الأمر الرئيسي للمراجعة</th><th>كيف تناولت مراجعتنا هذا الأمر</th></tr></thead><tbody>'+s.kams.map((k,n)=>'<tr><td><b>'+(n+1)+'. '+esc(k.title)+'</b>'+(k.trend==="new"?' <small class="rd-new">جديد</small>':'')+
+        '<p>'+esc(k.description)+'</p>'+(k.refs&&k.refs.length?'<p class="rd-ref">راجع '+esc(k.refs.join("، "))+'.</p>':'')+'</td><td>'+String(k.how||"").split(/[؛]\s*|\n+/).map(x=>x.replace(/^شملت إجراءاتنا:\s*/,"").trim()).filter(Boolean).map((x,i,arr)=>arr.length>1?'<p class="rd-bul">• '+esc(x.replace(/\.$/,""))+'.</p>':'<p>'+esc(x)+'</p>').join("")+
+        (k.observation?'<p class="rd-obs"><b>النتيجة:</b> '+esc(k.observation)+'</p>':'')+'</td></tr>').join("")+'</tbody></table>':'')+'</section>').join("")+
     '<footer class="rd-sign"><div><b>'+esc(a.signature.firm)+'</b><span>'+esc(a.signature.partner)+' — ترخيص رقم '+esc(a.signature.licence)+'</span></div><div><span>'+esc(a.signature.city)+'</span><span>'+esc(a.signature.date)+'</span></div></footer></article>';
 }
 
@@ -226,6 +229,7 @@ const CSS=`
 .rd-press{text-align:start;border-bottom:3px solid #0b2a5b;padding-bottom:10px}.rd-press small{color:#6a7a92}
 .rd-quote{font-style:italic;color:#34455e;border-inline-start:3px solid #1668e3;padding-inline-start:12px;margin:12px 0}
 .rd-sec{margin:14px 0}.rd-sec h4{border-bottom:1px solid #dfe6ef;padding-bottom:4px}
+.rd-kt2{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}.rd-kt2 th{background:#0b2a5b;color:#fff;padding:8px 12px;text-align:start;width:50%}.rd-kt2 td{vertical-align:top;padding:10px 12px;border:1px solid #dfe6ef;width:50%}.rd-kt2 td p{margin:0 0 6px}.rd-kt2 tr{break-inside:avoid}.rd-kt2 .rd-ref{color:#5a6b85;font-size:11.5px}.rd-kt2 .rd-bul{padding-inline-start:4px}.rd-kt2 .rd-obs{margin-top:8px;padding-top:6px;border-top:1px dashed #dfe6ef}
 .rd-kam{margin:10px 0;border:1px solid #dfe6ef;border-radius:8px;overflow:hidden}.rd-kam h5{margin:0;padding:8px 12px;background:#f3f6fb}
 .rd-kt{width:100%;border-collapse:collapse;font-size:12.5px}.rd-kt th{width:26%;text-align:start;vertical-align:top;padding:8px 12px;color:#0b2a5b;background:#fbfcfe;border-top:1px solid #e7ecf3}.rd-kt td{padding:8px 12px;border-top:1px solid #e7ecf3;border-inline-start:1px solid #e7ecf3}
 .rd-sign{display:flex;justify-content:space-between;gap:20px;margin-top:22px;padding-top:12px;border-top:1px solid #dfe6ef}.rd-sign div{display:grid;gap:2px}

@@ -52,7 +52,7 @@ describe('report outputs in the style of Apple and Amazon', () => {
   });
   it('drafts the auditor’s report with KAMs in the EY form', () => {
     const a = auditorsReport({ company: 'شركة تجريبية', periodEnd: '31 ديسمبر 2025', framework: 'IFRS', opinion: 'unmodified', basis: [], kams: [{ title: 'الاعتراف بالإيراد', description: 'وصف', how: 'إجراءات' }] });
-    expect(a.sections.map((s) => s.title)).toEqual(['الرأي', 'أساس الرأي', 'الأمور الرئيسية للمراجعة', 'المعلومات الأخرى', 'مسؤوليات الإدارة والمكلفين بالحوكمة عن القوائم المالية', 'مسؤوليات المراجع عن مراجعة القوائم المالية']);
+    expect(a.sections.map((s) => s.title)).toEqual(['الرأي', 'ما قمنا بمراجعته', 'أساس الرأي', 'الاستقلال', 'الأمور الرئيسية للمراجعة', 'المعلومات الأخرى', 'مسؤوليات مجلس الإدارة والمكلفين بالحوكمة عن القوائم المالية', 'مسؤوليات المراجع عن مراجعة القوائم المالية']);
     expect(a.sections[0].paragraphs[1]).toContain('المعتمدة في المملكة العربية السعودية');
     expect(a.sections[0].paragraphs[0]).toContain('القوائم المالية لشركة تجريبية');
     expect(a.sections[0].paragraphs[1]).toContain('وفقاً للمعايير الدولية');
@@ -83,3 +83,30 @@ describe('auditor report: the going-concern section (ISA 570 Revised 2024) with 
     expect(r.sections.map((x) => x.title)).not.toContain('الاستنتاجات المتعلقة بالاستمرارية');
   });
 });
+
+describe('auditor report in the structure of the bundle (Aramco, Emirates NBD, e&, Egypt)', () => {
+  it('writes the consolidated Saudi form: what we audited, independence, the full responsibilities', () => {
+    const r = auditorsReport({ company: 'شركة الزيت العربية', periodEnd: '31 ديسمبر 2025', framework: 'IFRS', opinion: 'unmodified', basis: [], kams: [], group: true });
+    const t = r.sections.map((s) => s.title);
+    expect(t.slice(0, 4)).toEqual(['الرأي', 'ما قمنا بمراجعته', 'أساس الرأي', 'الاستقلال']);
+    expect(r.sections[1].paragraphs).toHaveLength(6);                          // the lead-in and the five statements
+    expect(r.sections[0].paragraphs[0]).toContain('وشركاتها التابعة');
+    const aud = r.sections.find((s) => s.title.startsWith('مسؤوليات المراجع'))!;
+    expect(aud.paragraphs.join(' ')).toContain('تخطيط مراجعة المجموعة');      // the group-audit bullet
+    expect(aud.paragraphs.join(' ')).toContain('الأهمية القصوى');            // how the key audit matters are chosen
+    expect(r.sections.find((s) => s.title.startsWith('مسؤوليات مجلس'))!.paragraphs[0]).toContain('نظام الشركات');
+    expect(r.sections.find((s) => s.title === 'المعلومات الأخرى')!.paragraphs.at(-1)).toContain('ليس لدينا ما نقرره');
+    expect(t).not.toContain('التقرير عن المتطلبات القانونية والتنظيمية الأخرى');
+  });
+  it('adds the UAE and Egyptian legal sections, and leaves them out of a disclaimer only where the form does', () => {
+    const ae = auditorsReport({ company: 'x', framework: 'IFRS', opinion: 'unmodified', basis: [], kams: [], jurisdiction: 'AE' });
+    expect(ae.sections.at(-1)!.paragraphs[0]).toContain('المرسوم بقانون اتحادي رقم (32) لسنة 2021');
+    expect(ae.signature.city).toBe('دبي');
+    const eg = auditorsReport({ company: 'x', framework: 'EAS', opinion: 'unmodified', basis: [], kams: [] });
+    expect(eg.sections.at(-1)!.paragraphs[0]).toContain('حسابات مالية منتظمة');
+    const d = auditorsReport({ company: 'x', framework: 'IFRS', opinion: 'disclaimer', basis: ['قيد'], kams: [] });
+    expect(d.sections.map((s) => s.title)).not.toContain('ما قمنا بمراجعته');
+    expect(d.sections.map((s) => s.title)).not.toContain('الاستقلال');
+  });
+});
+
