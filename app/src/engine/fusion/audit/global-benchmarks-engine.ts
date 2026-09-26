@@ -226,8 +226,8 @@ export const MATERIALITY: MaterialityCase[] = [
   { report: 'hsbc-2025', currency: 'USD', overall: 1.55e9, prior: 1.5e9, benchmark: 'profit', basis: 'Profit before tax excluding notable items',
     pct: 0.05, performancePct: 0.75, threshold: 77.5e6, parent: { pct: 0.0075, basis: 'total assets (capped at 95% of group materiality)' }, page: 6205 },
   { report: 'airbus-2023', currency: 'EUR', overall: 292e6, prior: 281e6, benchmark: 'ebit', basis: 'EBIT Adjusted', pct: 0.05, threshold: 15e6, page: 7375 },
-  { report: 'aramco-2025', currency: 'SAR', overall: 26.25e9, prior: 30.0e9, benchmark: 'profit', basis: 'A percentage of income before income taxes and zakat',
-    threshold: 1.88e9, page: 10162 },
+  { report: 'aramco-2025', currency: 'SAR', overall: 26.25e9, prior: 30.0e9, benchmark: 'profit', basis: 'A percentage of income before income taxes and zakat — SAR 702,860m in note 8 (p. 10202), so 3.7%',
+    pct: 0.0373, threshold: 1.88e9, page: 10162 },
 ];
 
 /* ---------- themes: what they are, the statement lines they touch, the pattern the reports share ---------- */

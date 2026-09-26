@@ -12,13 +12,13 @@
 "use strict";
 const {esc}=SK;
 const G=()=>SKEngines.audit.globalBenchmarks,M=()=>SKEngines.audit.materiality;
-const TABS=[["kams","الأمور الرئيسية"],["mat","الأهمية النسبية"],["cos","المراجعون"],["src","المصادر"]];
+const TABS=[["kams","الأمور الرئيسية"],["mat","الأهمية النسبية"],["peers","النظراء"],["cos","المراجعون"],["src","المصادر"]];
 const CC={US:"الولايات المتحدة",UK:"المملكة المتحدة",CH:"سويسرا",DE:"ألمانيا",FR:"فرنسا",NL:"هولندا",JP:"اليابان",KR:"كوريا",TW:"تايوان",CN:"الصين",IN:"الهند",SA:"السعودية",AE:"الإمارات",CA:"كندا",AU:"أستراليا"};
 const nf=new Intl.NumberFormat("en",{maximumFractionDigits:2}),cf=new Intl.NumberFormat("en",{notation:"compact",maximumFractionDigits:2});
 const pct=v=>v==null?"—":nf.format(Math.round(v*1000)/10)+"%";
 const STD={PCAOB:"CAM · PCAOB",ISA:"KAM · ISA"};
 const ST={within:["ضمن الممارسة","ok"],above:["أعلى من الممارسة","warn"],below:["أدنى من الممارسة","warn"],"no-precedent":["لا سابقة مفصح عنها","info"]};
-let root=null,tab="kams",theme="",sector="",std="",q="",mat={benchmark:"pbz",amount:"",rate:5,perf:75,triv:5};
+let root=null,tab="kams",theme="",sector="",std="",q="",psec="",mat={benchmark:"pbz",amount:"",rate:5,perf:75,triv:5};
 
 const page=p=>'<span class="ab-pg" title="صفحة في ملف الحزمة">ص '+nf.format(p)+'</span>';
 function tiles(){
@@ -73,7 +73,21 @@ function matTab(){
       '</tbody></table></div></div></section>';
 }
 
-/* ---------- tab 3: companies and auditors ---------- */
+/* ---------- tab 3: global peers (figures from the bundle's primary statements) ---------- */
+function peersTab(){
+  const P=SKEngines.reports.peerBenchmarks,list=P.PEERS.filter(p=>!psec||p.sector===psec),M=P.METRICS,SEC={fmcg:"الأغذية والسلع الاستهلاكية",retail:"التجزئة",energy:"الطاقة"};
+  const u=(v,unit)=>v===null?'<span class="muted">—</span>':unit==="%"?nf.format(v)+"%":unit==="days"?nf.format(v)+" يوم":nf.format(v)+"×";
+  const med=P.compare(null,{sector:psec});
+  return '<section class="card"><div class="card-h"><div><h3>النظراء العالميون</h3><p>'+list.length+' مجموعات — كل رقم منقول من قوائمها الأولية في الحزمة ومتحقق منه آلياً. قارن منشأتك من «ملف المراجعة › القوائم والتقارير › المقارنة العالمية».</p></div>'+
+      '<div class="sk-seg">'+[["","الكل"],["fmcg","الأغذية والاستهلاكية"],["retail","التجزئة"],["energy","الطاقة"]].map(([k,l])=>'<button type="button" data-ab-psec="'+k+'" aria-pressed="'+(psec===k)+'">'+l+'</button>').join("")+'</div></div>'+
+    '<div class="card-b"><div class="sk-table-wrap"><table class="sk-table ab-t ab-pt" data-sk-plain><thead><tr><th>المؤشر</th>'+list.map(p=>'<th>'+esc(p.company)+'<small class="ab-sub">'+esc(p.fy)+' · '+esc(p.currency)+'</small></th>').join("")+'<th>الوسيط</th></tr></thead><tbody>'+
+      M.map(m=>'<tr><td><b>'+esc(m.ar)+'</b><small class="ab-sub">'+esc(m.formula)+'</small></td>'+list.map(p=>'<td class="num">'+u(P.peerMetrics(p)[m.key],m.unit)+'</td>').join("")+'<td class="num"><b>'+u(med.find(x=>x.key===m.key).median,m.unit)+'</b></td></tr>').join("")+
+    '</tbody></table></div>'+
+    '<div class="ab-psrc">'+list.map(p=>'<span><b>'+esc(p.company)+'</b> '+esc(SEC[p.sector])+' · '+esc(p.framework)+' · القوائم ص '+p.pages.is+'، '+p.pages.bs+(p.pages.bsTo?'–'+p.pages.bsTo:'')+'، '+p.pages.cf+'</span>').join("")+'</div>'+
+    '<p class="hint">— يعني أن القوائم لا تعرض مدخل النسبة: Unilever وأرامكو لا تعرضان تكلفة الإيرادات في قائمة الدخل، وبعض الشركات تجمع الذمم الدائنة التجارية مع غيرها.</p></div></section>';
+}
+
+/* ---------- tab 4: companies and auditors ---------- */
 function cosTab(){
   const s=G().summary(),yr=new Date().getFullYear(),count=id=>G().KAMS.filter(k=>k.report===id).length;
   const rows=G().REPORTS.slice().sort((a,b)=>a.country.localeCompare(b.country)||a.company.localeCompare(b.company));
@@ -87,7 +101,7 @@ function cosTab(){
     '</tbody></table></div></div></section>';
 }
 
-/* ---------- tab 4: the 30 official sources ---------- */
+/* ---------- tab 5: the 30 official sources ---------- */
 function srcTab(){
   const K={filings:"إيداعات الشركات المدرجة",["audit-quality"]:"جودة المراجعة والتفتيش",standards:"المعايير والسلوك المهني"};
   return Object.entries(K).map(([k,l])=>{const xs=G().SOURCES.filter(s=>s.kind===k);
@@ -98,7 +112,7 @@ function srcTab(){
 function paint(){
   if(!root)return;
   root.innerHTML='<div class="ab">'+tiles()+'<div class="sk-seg ab-tabs" role="tablist">'+TABS.map(([k,l])=>'<button type="button" role="tab" data-ab-tab="'+k+'" aria-selected="'+(tab===k)+'" aria-pressed="'+(tab===k)+'">'+l+'</button>').join("")+'</div>'+
-    (tab==="mat"?matTab():tab==="cos"?cosTab():tab==="src"?srcTab():kamsTab())+
+    (tab==="mat"?matTab():tab==="peers"?peersTab():tab==="cos"?cosTab():tab==="src"?srcTab():kamsTab())+
     '<p class="hint ab-note">المصدر: '+esc(G().BUNDLE.file)+' — كل عنوان ورقم منقول من صفحته المذكورة. المحتوى استرشادي؛ القرار المهني للمراجع.</p></div>';
 }
 function paintMat(){const r=root&&root.querySelector("[data-ab-mres]");if(r)r.innerHTML=matResults()}
@@ -107,6 +121,7 @@ function bind(node){
     const t=e.target.closest("[data-ab-tab]");if(t){tab=t.dataset.abTab;paint();return}
     const h=e.target.closest("[data-ab-theme]");if(h){theme=theme===h.dataset.abTheme?"":h.dataset.abTheme;paint();const p=root.querySelector(".ab-pattern");if(p&&p.scrollIntoView)p.scrollIntoView({block:"nearest"});return}
     const s=e.target.closest("[data-ab-std]");if(s){std=s.dataset.abStd;paint();return}
+    const ps=e.target.closest("[data-ab-psec]");if(ps){psec=ps.dataset.abPsec;paint();return}
   });
   node.addEventListener("change",e=>{
     if(e.target.matches("[data-ab-sector]")){sector=e.target.value;paint();return}

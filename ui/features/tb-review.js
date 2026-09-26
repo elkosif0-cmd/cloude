@@ -344,10 +344,25 @@ function reportParts(c){
   const fmt=(v,u)=>v===null||v===undefined?'—':u==="%"?v+'%':u==="days"?v+' يوم':v+'×';
   return {fs,hp,rs,z,bm,du,hl,md,fmt};
 }
-const DOCS=[["issue","الإصدار والاعتماد"],["statements","القوائم المالية"],["annual","التقرير السنوي (نموذج 10-K)"],["release","بيان النتائج"],["auditor","تقرير المراجع المستقل"],["analysis","التحليل المالي"]];
+const DOCS=[["issue","الإصدار والاعتماد"],["statements","القوائم المالية"],["annual","التقرير السنوي (نموذج 10-K)"],["release","بيان النتائج"],["auditor","تقرير المراجع المستقل"],["notes","الإيضاحات المتممة"],["committee","تقرير لجنة المراجعة"],["icfr","الرقابة الداخلية"],["analysis","التحليل المالي"],["peers","المقارنة العالمية"]];
+const PAPER=new Set(["annual","release","auditor","notes","committee","icfr","peers"]);
 let docStyled=false;
 function fmtDate(iso,eg){if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||""))return "";try{return new Date(iso+"T12:00:00").toLocaleDateString(eg?"ar-EG-u-nu-latn":"ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"})}catch{return iso}}
-function docX(c){return {c,fs:fsAfter?c.fsAfterAdj:c.fsBefore,cur:CUR,ctx:c.d.ctx,fw:c.fw,periodEnd:fmtDate(c.d.ctx.periodEnd,c.fw==="EAS"),kams:kamsOf(c).map(k=>({title:k.title,description:k.why,how:k.how})),opinion:c.derived}}
+function docX(c){
+  const fs=fsAfter?c.fsAfterAdj:c.fsBefore,m=c.base.materiality,ctx=c.d.ctx,eg=c.fw==="EAS",kams=kamsOf(c).map(k=>({title:k.title,description:k.why,how:k.how}));
+  const x={c,fs,cur:CUR,ctx,fw:c.fw,periodEnd:fmtDate(ctx.periodEnd,eg),kams,opinion:c.derived};
+  const GV=E().audit.governance;if(!GV)return x;
+  x.approach=GV.auditApproach({materiality:m,currency:CUR,kamTitles:kams.map(k=>k.title),taxWord:eg?"الضريبة":"الزكاة"});
+  x.notesPkg=E().reports.notes.notesPackage(fs,{country:eg?"EG":"SA"});
+  x.policies=Object.fromEntries([1,2,3,4].map(n=>[n,policyNote(n,c)]));
+  const eff=c.accepted.length?RV().adjustmentEffect(c.tb,c.accepted):{profit:0};
+  x.committee={company:ctx.company,period:ctx.period,currency:CUR,firm:ctx.auditFirm,kams,materiality:m,corrected:{count:c.accepted.length,profitEffect:eff.profit},
+    uncorrected:{count:c.pool.filter(a=>!c.d.accepted.includes(a.id)).length,effect:c.derived.misstatement},
+    findings:{high:c.all.summary.high,medium:c.all.summary.medium,low:c.all.findings.filter(f=>f.severity==="low").length,controlTitles:c.all.findings.filter(f=>f.severity==="high").map(f=>f.title)},
+    opinionAr:c.derived.ar,goingConcern:c.derived.goingConcern,framework:c.fw};
+  x.icfr={company:ctx.company,periodEnd:x.periodEnd,materiality:m,uncorrectedEffect:c.derived.misstatement,findings:c.all.findings.map(f=>({title:f.title+(f.account?" — "+f.account:""),severity:f.severity,kind:f.kind}))};
+  return x;
+}
 function docView(c,kind){
   if(!docStyled&&window.SKosifReportDocs){const st=document.createElement("style");st.id="rd-css";st.textContent=SKosifReportDocs.CSS;document.head.appendChild(st);docStyled=true}
   const ctx=c.d.ctx;
@@ -361,7 +376,7 @@ function fsTab(c){
   const p=reportParts(c),fs=p.fs,d=c.derived,f=c.session&&c.session.final,GROUP={liquidity:"السيولة",profitability:"الربحية",efficiency:"الكفاءة",leverage:"الرفع المالي",cash:"التدفق النقدي"};
   const hl=p.hl.map(h=>'<div class="skk4-t"><span class="tx"><span>'+esc(h.ar)+'</span><b>'+(h.kind==="money"?sar(h.current):p.fmt(h.current,h.kind))+'</b><small>'+(h.change===null?(h.prior===null?'':'السابق '+(h.kind==="money"?sar(h.prior):p.fmt(h.prior,h.kind))):(h.change>=0?'▲ ':'▼ ')+Math.abs(h.change)+'% عن السابق')+'</small></span></div>').join("");
   const docBar='<nav class="tbr-docs" aria-label="مستندات التقارير">'+DOCS.map(([k,l])=>'<button type="button" data-doc="'+k+'" aria-pressed="'+(doc===k)+'">'+esc(l)+'</button>').join("")+'</nav>';
-  const body=doc==="annual"||doc==="release"||doc==="auditor"?docView(c,doc):doc==="statements"?fsStatements(c,p,fs,d,f,hl,GROUP):doc==="analysis"?fsAnalysis(c,p,fs,d,f,hl,GROUP):fsIssue(c,p,fs,d,f,hl,GROUP);
+  const body=PAPER.has(doc)?docView(c,doc):doc==="statements"?fsStatements(c,p,fs,d,f,hl,GROUP):doc==="analysis"?fsAnalysis(c,p,fs,d,f,hl,GROUP):fsIssue(c,p,fs,d,f,hl,GROUP);
   return docBar+'<section class="card tbr-op"><div class="card-b"><div class="tbr-op-h"><div><span class="eyebrow">رأي المراجع — مشتق وفق '+esc(d.isa)+'</span><h3>'+esc(d.ar)+'</h3>'+d.basis.map(x=>'<p>'+esc(x)+'</p>').join("")+(d.goingConcern?'<p class="tbr-warn">مؤشرات استمرارية تتطلب تقييماً وإفصاحاً (ISA 570).</p>':'')+'</div>'+
       '<div class="tbr-op-s">'+(f?'<small>اقتراح Gemini</small><b>'+esc(f.aiOpinion||"—")+'</b>':'<small>لا يوجد تقرير Gemini نهائي</small>')+'<small class="hint">لا يصدر الرأي إلا باعتماد الشريك المسؤول.</small></div></div>'+
       '<div class="sk-actions"><div class="sk-seg" role="group"><button type="button" data-fsv="after" aria-pressed="'+fsAfter+'">بعد التسويات ('+c.accepted.length+')</button><button type="button" data-fsv="before" aria-pressed="'+!fsAfter+'">قبل التسويات</button></div>'+

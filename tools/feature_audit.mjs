@@ -56,6 +56,14 @@ ok('البحث العالمي','الأهمية النسبية المفصح عن�
 ok('البحث العالمي','المصادر الرسمية الثلاثون',GB.src===30);
 await p.click('[data-ab-tab="mat"]');await p.waitForTimeout(400);ok('البحث العالمي','فحص اختيار الأهمية النسبية مقابل الممارسة',await has('.ab-chk-r'));
 ok('البحث العالمي','السوابق العالمية داخل ملف المراجعة',GB.inTbr);
+await p.click('[data-ab-tab="peers"]');await p.waitForTimeout(400);ok('البحث العالمي','النظراء العالميون: 8 مجموعات × 13 نسبة من قوائمها',await p.evaluate(()=>document.querySelectorAll('.ab-pt thead th').length===10&&document.querySelectorAll('.ab-pt tbody tr').length===13));
+await go('tbreview',2200);await p.click('[data-tab="fs"]');await p.waitForTimeout(800);
+const RD=async k=>{await p.click('[data-doc="'+k+'"]');await p.waitForTimeout(1000);return p.evaluate(()=>{const a=document.querySelector('.rd-paper article');return a?a.innerText:''})};
+const AUD=await RD('auditor');ok('التقارير المتقدمة','تقرير المراجع: «نهجنا في المراجعة» بالأهمية النسبية وحد الإبلاغ (نمط أرامكو)',AUD.includes('نهجنا في المراجعة')&&AUD.includes('حد الإبلاغ'));
+const NT=await RD('notes');ok('التقارير المتقدمة','الإيضاحات المتممة: المصروفات حسب طبيعتها والمخاطر المالية وإدارة رأس المال',NT.includes('المصروفات حسب طبيعتها')&&NT.includes('إدارة المخاطر المالية')&&NT.includes('إدارة رأس المال'));
+const CM=await RD('committee');ok('التقارير المتقدمة','تقرير لجنة المراجعة (نمط HSBC)',CM.includes('الأمور الهامة التي نظرت فيها اللجنة'));
+const IC=await RD('icfr');ok('التقارير المتقدمة','تقرير الإدارة عن الرقابة الداخلية (COSO 2013)',IC.includes('COSO'));
+const PR=await RD('peers');ok('التقارير المتقدمة','المقارنة بالنظراء العالميين',PR.includes('وسيط النظراء'));
 // ---------- demo, templates, outputs ----------
 const D=await p.evaluate(async()=>({demo:(await SK.demo.status()).filter(x=>x.demo).length,tpl:SK.templates.list().length,out:!!SK.output}));
 ok('البيانات والاستيراد','بيانات تجريبية للأقسام الفارغة',D.demo>=13);ok('البيانات والاستيراد','قوالب استيراد لكل قسم',D.tpl>=18);

@@ -52,6 +52,10 @@
 .ab-2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:var(--sk-4)}.ab-2>*{min-width:0}
 .ab-srcs .cdx-src small{unicode-bidi:plaintext}
 
+/* peers */
+.ab-pt th{white-space:nowrap}.ab-pt td:first-child{min-width:190px}
+.ab-psrc{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:11.5px;color:var(--sk-muted)}.ab-psrc b{color:var(--sk-ink)}
+
 /* inside the engagement file */
 .ab-prec .card-h{align-items:flex-start}
 .ab-prec-i+.ab-prec-i{margin-top:14px;padding-top:14px;border-top:1px dashed var(--sk-line)}

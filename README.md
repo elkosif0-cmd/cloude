@@ -94,6 +94,21 @@ artwork was generated in Canva and redrawn as vector art):
 - **Evaluation** — Jev scores before/after in `docs/EVALUATION-ar.md`; `tools/ui_smoke.mjs` opens every screen on
   laptop and phone in CI.
 
+## Global research bundle: benchmarks, notes and governance reports
+
+The 12,506-page research bundle (49 annual reports, 10-Ks and 20-Fs from 15 countries, plus 30 official sources) was split
+into 50 parts, read, and turned into working tools; every figure cites its bundle page and is machine-checked against it
+(`docs/research/GLOBAL_RESEARCH_BUNDLE_ar.md`).
+
+- **المرجع العالمي للمراجعة** (`auditbench`, in the standards hub): 96 key/critical audit matters by theme and sector, a
+  materiality checker against the 7 disclosed cases (including Aramco, SAR 26.25bn = 3.7% of income before tax and zakat),
+  13 ratios for 8 peer groups, auditors and tenure, and the 30 official sources — `audit/global-benchmarks-engine.ts`,
+  `reports/peer-benchmarks-engine.ts`.
+- **Engagement file › statements and reports** gains the full notes package (expenses by nature, zakat movement and an
+  indicative base, IAS 7.44A, IFRS 7 credit/liquidity/interest risk, capital management with Aramco's gearing and ROACE,
+  estimate sensitivities — `reports/notes-engine.ts`), the auditor's «نهجنا في المراجعة» section, the audit committee report,
+  management's ICFR report with AS 2201 severity (`audit/governance-engine.ts`), and the global peer comparison.
+
 ## Live assistant, theme studio, charts, tables and printing
 
 - `ui/features/assistant.js` (`SKosifAssistant`, `Ctrl/⌘+J` or the floating button) — a live chat that

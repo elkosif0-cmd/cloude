@@ -165,7 +165,9 @@ export const lam = (w: string) => w.startsWith('ال') ? 'لل' + w.slice(2) : '
 export type KeyMatter = { title: string; description: string; how: string };
 export type Opinion = 'unmodified' | 'qualified' | 'adverse' | 'disclaimer';
 export function auditorsReport(i: { company: string; periodEnd?: string; framework: 'IFRS' | 'SME' | 'EAS'; opinion: Opinion; basis: string[]; kams: KeyMatter[];
-  goingConcern?: boolean; firm?: string; partner?: string; licence?: string; city?: string; date?: string }) {
+  goingConcern?: boolean; firm?: string; partner?: string; licence?: string; city?: string; date?: string;
+  /** «Our audit approach» (materiality, scope, KAMs at a glance) — Aramco / ISA (UK) 700; from governance-engine.auditApproach */
+  approach?: { title: string; paragraphs: string[]; table?: { columns: string[]; rows: string[][] } } }) {
   const eg = i.framework === 'EAS', co = i.company || 'المنشأة', end = i.periodEnd || '[تاريخ نهاية الفترة]';
   const fw = eg ? 'معايير المحاسبة المصرية وفي ضوء القوانين واللوائح المصرية السارية'
     : i.framework === 'SME' ? 'المعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم المعتمد في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من الهيئة السعودية للمراجعين والمحاسبين'
@@ -186,6 +188,7 @@ export function auditorsReport(i: { company: string; periodEnd?: string; framewo
     { title: basisTitle, paragraphs: [...(i.opinion === 'unmodified' ? [] : i.basis),
       ...(i.opinion === 'disclaimer' ? [] : [`لقد قمنا بالمراجعة وفقاً ${lam(isa)}. ومسؤولياتنا بموجب تلك المعايير موضحة في قسم «مسؤوليات المراجع عن مراجعة القوائم المالية». ونحن مستقلون عن المنشأة وفقاً ${lam(ethics)}، وقد وفينا بمسؤولياتنا المسلكية الأخرى. ونعتقد أن أدلة المراجعة التي حصلنا عليها كافية ومناسبة لتوفير أساس لرأينا.`])] },
     ...(i.goingConcern ? [{ title: 'عدم تأكد جوهري يتعلق بالاستمرارية', paragraphs: ['نلفت الانتباه إلى الإيضاح المتعلق بأساس الإعداد في القوائم المالية، الذي يبين أحداثاً وظروفاً تشير إلى وجود عدم تأكد جوهري قد يثير شكاً كبيراً في قدرة المنشأة على البقاء كمنشأة مستمرة. ولم يُعدَّل رأينا فيما يتعلق بهذا الأمر.'] }] : []),
+    ...(i.approach && i.opinion !== 'disclaimer' ? [i.approach] : []),
     ...(i.opinion !== 'disclaimer' && i.kams.length ? [{ title: 'الأمور الرئيسية للمراجعة', paragraphs: ['الأمور الرئيسية للمراجعة هي تلك الأمور التي كانت، بحسب حكمنا المهني، لها الأهمية القصوى عند مراجعتنا للقوائم المالية للفترة الحالية. وقد تناولنا هذه الأمور في سياق مراجعتنا للقوائم المالية ككل وعند تكوين رأينا فيها، ولا نبدي رأياً منفصلاً في هذه الأمور.'], kams: i.kams }] : []),
     { title: 'المعلومات الأخرى', paragraphs: ['الإدارة هي المسؤولة عن المعلومات الأخرى التي تشمل المعلومات الواردة في التقرير السنوي، بخلاف القوائم المالية وتقريرنا عنها. ولا يغطي رأينا في القوائم المالية المعلومات الأخرى، ولا نبدي أي شكل من أشكال الاستنتاج التأكيدي بشأنها.'] },
     { title: 'مسؤوليات الإدارة والمكلفين بالحوكمة عن القوائم المالية', paragraphs: [`الإدارة هي المسؤولة عن إعداد القوائم المالية وعرضها بعدل وفقاً ${lam(fw)}، وعن الرقابة الداخلية التي تراها ضرورية لتمكينها من إعداد قوائم مالية خالية من تحريف جوهري، سواء بسبب غش أو خطأ. وعند إعداد القوائم المالية فإن الإدارة هي المسؤولة عن تقييم قدرة المنشأة على البقاء كمنشأة مستمرة.`, 'والمكلفون بالحوكمة هم المسؤولون عن الإشراف على آلية التقرير المالي في المنشأة.'] },
