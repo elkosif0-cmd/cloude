@@ -3555,15 +3555,15 @@ window.SKEngines = (function() {
 		mdna: () => mdna,
 		ratios: () => ratios
 	});
-	var r2$8 = (n) => Math.round(n * 100) / 100;
+	var r2$9 = (n) => Math.round(n * 100) / 100;
 	var div$1 = (a, b) => b ? a / b : null;
 	var pctOf = (a, b) => {
 		const x = div$1(a, b);
-		return x === null ? null : r2$8(x * 100);
+		return x === null ? null : r2$9(x * 100);
 	};
 	var times = (a, b) => {
 		const x = div$1(a, b);
-		return x === null ? null : r2$8(x);
+		return x === null ? null : r2$9(x);
 	};
 	var days$2 = (a, b) => {
 		const x = div$1(a, b);
@@ -3829,7 +3829,7 @@ window.SKEngines = (function() {
 	/** Common-size: P&L lines as % of revenue, position lines as % of total assets. */
 	function commonSize(fs) {
 		const rev = fs.keys.revenue, ta = fs.keys.assets;
-		const pc = (a, b) => b ? r2$8(a / b * 100) : null;
+		const pc = (a, b) => b ? r2$9(a / b * 100) : null;
 		return {
 			pl: fs.pl.map((r) => ({
 				key: r.key,
@@ -3854,7 +3854,7 @@ window.SKEngines = (function() {
 			current: r.current,
 			prior: r.prior,
 			change: r.current - r.prior,
-			changePct: r.prior ? r2$8((r.current - r.prior) / Math.abs(r.prior) * 100) : null
+			changePct: r.prior ? r2$9((r.current - r.prior) / Math.abs(r.prior) * 100) : null
 		}));
 	}
 	/** DuPont: ROE = net margin × asset turnover × equity multiplier (year-end balances). */
@@ -3862,10 +3862,10 @@ window.SKEngines = (function() {
 		const k = fs.keys, one = (rev, profit, ta, eq) => {
 			const nm = div$1(profit, rev), at = div$1(rev, ta), em = div$1(ta, eq);
 			return {
-				netMargin: nm === null ? null : r2$8(nm * 100),
-				assetTurnover: at === null ? null : r2$8(at),
-				equityMultiplier: em === null ? null : r2$8(em),
-				roe: nm === null || at === null || em === null ? null : r2$8(nm * at * em * 100)
+				netMargin: nm === null ? null : r2$9(nm * 100),
+				assetTurnover: at === null ? null : r2$9(at),
+				equityMultiplier: em === null ? null : r2$9(em),
+				roe: nm === null || at === null || em === null ? null : r2$9(nm * at * em * 100)
 			};
 		};
 		return {
@@ -3879,16 +3879,16 @@ window.SKEngines = (function() {
 		if (!ta) return null;
 		const retained = fs.lines.filter((l) => l.key === "retained").reduce((a, l) => a + l.current, 0) + k.profit.current;
 		const x1 = (k.ca.current - k.cl.current) / ta, x2 = retained / ta, x3 = k.operating.current / ta, x4 = tl ? k.equity.current / tl : 0;
-		const z = r2$8(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
+		const z = r2$9(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
 		return {
 			z,
 			zone: z > 2.6 ? "safe" : z >= 1.1 ? "grey" : "distress",
 			zoneAr: z > 2.6 ? "منطقة الأمان" : z >= 1.1 ? "المنطقة الرمادية" : "منطقة التعثر",
 			components: {
-				x1: r2$8(x1),
-				x2: r2$8(x2),
-				x3: r2$8(x3),
-				x4: r2$8(x4)
+				x1: r2$9(x1),
+				x2: r2$9(x2),
+				x3: r2$9(x3),
+				x4: r2$9(x4)
 			}
 		};
 	}
@@ -3906,7 +3906,7 @@ window.SKEngines = (function() {
 		const sgai = q(q(sga(c), c("revenue")), q(sga(p), p("revenue")));
 		const lvgi = q(q(c("cl") + c("loansNcl") + c("leaseNcl"), c("assets")), q(p("cl") + p("loansNcl") + p("leaseNcl"), p("assets")));
 		const tata = fs.keys.cfo ? q(c("profit") - fs.keys.cfo.current, c("assets")) : 0;
-		const m = r2$8(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
+		const m = r2$9(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
 		const f = (x) => Math.round(x * 1e3) / 1e3;
 		return {
 			m,
@@ -4005,7 +4005,7 @@ window.SKEngines = (function() {
 			rat("current")
 		].map((i) => ({
 			...i,
-			change: i.prior === null || i.current === null || !i.prior ? null : r2$8((i.current - i.prior) / Math.abs(i.prior) * 100)
+			change: i.prior === null || i.current === null || !i.prior ? null : r2$9((i.current - i.prior) / Math.abs(i.prior) * 100)
 		}));
 	}
 	/** A deterministic management discussion: sentences generated from the numbers only. */
@@ -4015,7 +4015,7 @@ window.SKEngines = (function() {
 		const ch = (key) => {
 			const x = k[key];
 			if (!x || x.prior === null || !x.prior) return null;
-			return r2$8((x.current - x.prior) / Math.abs(x.prior) * 100);
+			return r2$9((x.current - x.prior) / Math.abs(x.prior) * 100);
 		};
 		const dir = (v, up, down) => v === null ? "" : v >= 0 ? `${up} ${Math.abs(v)}%` : `${down} ${Math.abs(v)}%`;
 		const out = [];
@@ -7579,7 +7579,7 @@ window.SKEngines = (function() {
 		}
 	};
 	var clamp01 = (x) => Number.isFinite(x) ? Math.max(0, Math.min(1, x)) : 0;
-	var r2$7 = (x) => Math.round(x * 100) / 100;
+	var r2$8 = (x) => Math.round(x * 100) / 100;
 	/** E — evidence coverage for a balance: Σ r·v ÷ V, capped at 1 (only accepted evidence counts). */
 	function coverage(items, balance) {
 		const V = Math.abs(balance);
@@ -7613,9 +7613,9 @@ window.SKEngines = (function() {
 		};
 		if (p.A === null) {
 			const k = W.E + W.T || 1;
-			return r2$7(clamp01(W.E / k * p.E + W.T / k * p.T));
+			return r2$8(clamp01(W.E / k * p.E + W.T / k * p.T));
 		}
-		return r2$7(clamp01(W.E * p.E + W.T * p.T + W.A * p.A));
+		return r2$8(clamp01(W.E * p.E + W.T * p.T + W.A * p.A));
 	}
 	/** The confidence a line needs: material & high risk 0.90, material & medium 0.80, material & low 0.70, immaterial → analytics only (null). */
 	function thresholdFor(line) {
@@ -7640,9 +7640,9 @@ window.SKEngines = (function() {
 				}, i.weights);
 				return {
 					assertion: a,
-					E: r2$7(E),
-					T: r2$7(T),
-					A: A === null ? null : r2$7(A),
+					E: r2$8(E),
+					T: r2$8(T),
+					A: A === null ? null : r2$8(A),
 					C,
 					met: threshold === null ? null : C >= threshold
 				};
@@ -7653,13 +7653,13 @@ window.SKEngines = (function() {
 				threshold,
 				...ov ? { override: ov } : {},
 				cells,
-				min: r2$7(min),
+				min: r2$8(min),
 				met: threshold === null ? null : cells.every((c) => c.met)
 			};
 		});
 		const open = rows.filter((r) => r.met === false), material = rows.filter((r) => r.threshold !== null);
-		const avgOpen = open.length ? r2$7(open.reduce((s, r) => s + r.min, 0) / open.length) : 1;
-		const avgAll = material.length ? r2$7(material.reduce((s, r) => s + r.min, 0) / material.length) : 1;
+		const avgOpen = open.length ? r2$8(open.reduce((s, r) => s + r.min, 0) / open.length) : 1;
+		const avgAll = material.length ? r2$8(material.reduce((s, r) => s + r.min, 0) / material.length) : 1;
 		return {
 			rows,
 			open,
@@ -7724,7 +7724,7 @@ window.SKEngines = (function() {
 			amount,
 			accepted: true
 		}], row.amount);
-		return r2$7(Math.max(0, confidence({
+		return r2$8(Math.max(0, confidence({
 			E: E2,
 			T: cell.T,
 			A: cell.A
@@ -7734,11 +7734,11 @@ window.SKEngines = (function() {
 	function rankRequests(list) {
 		return list.map((q) => ({
 			...q,
-			score: r2$7(q.expectedGain * q.materialityWeight / EFFORT[q.effort].v * 100) / 100
+			score: r2$8(q.expectedGain * q.materialityWeight / EFFORT[q.effort].v * 100) / 100
 		})).sort((a, b) => b.score - a.score || b.materialityWeight - a.materialityWeight);
 	}
 	/** Materiality weight of a line: its balance relative to overall materiality (≥ 1 means material on its own). */
-	var materialityWeight = (amount, overall) => overall > 0 ? r2$7(Math.min(10, Math.abs(amount) / overall)) : 1;
+	var materialityWeight = (amount, overall) => overall > 0 ? r2$8(Math.min(10, Math.abs(amount) / overall)) : 1;
 	var STATES = [
 		{
 			key: "new",
@@ -11580,7 +11580,7 @@ window.SKEngines = (function() {
 		sectorPrior: () => sectorPrior,
 		typicalKamCount: () => typicalKamCount
 	});
-	var r2$6 = (x) => Math.round(x * 100) / 100;
+	var r2$7 = (x) => Math.round(x * 100) / 100;
 	/** How often the auditors of a sector reported each theme (share of that sector's reports with KAMs), leaving one report out. */
 	function sectorPrior(sector, exclude) {
 		if (!sector) return {};
@@ -11589,7 +11589,7 @@ window.SKEngines = (function() {
 		const out = {};
 		for (const t of Object.keys(THEMES)) {
 			const n = reports.filter((id) => KAMS.some((k) => k.report === id && k.theme === t)).length;
-			if (n) out[t] = r2$6(n / reports.length);
+			if (n) out[t] = r2$7(n / reports.length);
 		}
 		return out;
 	}
@@ -11660,15 +11660,15 @@ window.SKEngines = (function() {
 			unit: c.unitAr,
 			actual,
 			ours,
-			recall: themes.length ? r2$6(hit / themes.length) : null,
-			rankedRecall: themes.length ? r2$6(rankedHit / themes.length) : null,
-			precision: selected.size && themes.length ? r2$6(ours.filter((o) => o.selected && o.matched).length / selected.size) : null,
+			recall: themes.length ? r2$7(hit / themes.length) : null,
+			rankedRecall: themes.length ? r2$7(rankedHit / themes.length) : null,
+			precision: selected.size && themes.length ? r2$7(ours.filter((o) => o.selected && o.matched).length / selected.size) : null,
 			materiality: {
 				ours: oursMat,
 				benchmark: review.materiality.benchmarkAr,
 				disclosed: disc ? disc.overall / unit : null,
 				disclosedBasis: disc ? disc.basis : null,
-				ratio: disc ? r2$6(oursMat / (disc.overall / unit)) : null,
+				ratio: disc ? r2$7(oursMat / (disc.overall / unit)) : null,
 				page: disc ? disc.page : null
 			},
 			requests: review.requests.length,
@@ -11684,7 +11684,7 @@ window.SKEngines = (function() {
 		return {
 			theirs: theirs.length,
 			covered: covered.length,
-			share: theirs.length ? r2$6(covered.length / theirs.length) : null,
+			share: theirs.length ? r2$7(covered.length / theirs.length) : null,
 			missing: theirs.filter((x) => !SQC_SECTIONS.has(x.key)).map((x) => x.ar)
 		};
 	}
@@ -11704,16 +11704,16 @@ window.SKEngines = (function() {
 			companies: list.length,
 			withKams: withKams.length,
 			kamThemes: actualN,
-			recall: actualN ? r2$6(sel / actualN) : 0,
-			rankedRecall: actualN ? r2$6(rk / actualN) : 0,
-			precision: oursSel ? r2$6(oursHit / oursSel) : 0,
+			recall: actualN ? r2$7(sel / actualN) : 0,
+			rankedRecall: actualN ? r2$7(rk / actualN) : 0,
+			precision: oursSel ? r2$7(oursHit / oursSel) : 0,
 			anyMatch: withKams.filter((r) => r.actual.some((a) => a.found === "selected")).length,
 			missed: Object.entries(missed).map(([theme, n]) => ({
 				theme,
 				ar: THEMES[theme].ar,
 				n
 			})).sort((a, b) => b.n - a.n),
-			structure: stTheirs ? r2$6(stCov / stTheirs) : 0,
+			structure: stTheirs ? r2$7(stCov / stTheirs) : 0,
 			materiality: mat.map((r) => ({
 				id: r.id,
 				company: r.company,
@@ -11748,7 +11748,7 @@ window.SKEngines = (function() {
 		weightedVote: () => weightedVote
 	});
 	var nd = (s) => String(s ?? "").replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d))).replace(/[٬,\s]/g, "").replace("٫", ".");
-	var num = (s) => {
+	var num$1 = (s) => {
 		const t = nd(s), neg = /^\(.*\)$/.test(t), v = parseFloat(t.replace(/[()]/g, ""));
 		return Number.isFinite(v) ? neg ? -v : v : 0;
 	};
@@ -11822,8 +11822,8 @@ window.SKEngines = (function() {
 			if (!j.memo && get("memo")) j.memo = get("memo");
 			j.lines.push({
 				account: get("account"),
-				debit: Math.abs(num(get("debit"))),
-				credit: Math.abs(num(get("credit")))
+				debit: Math.abs(num$1(get("debit"))),
+				credit: Math.abs(num$1(get("credit")))
 			});
 			map.set(key, j);
 		});
@@ -12044,7 +12044,7 @@ window.SKEngines = (function() {
 				lineKey: f.lineKey ?? (f.code ? i.lineOf(f.code) ?? void 0 : void 0),
 				title: f.title,
 				detail: f.detail + (f.code ? " [TB-" + f.code + "]" : ""),
-				amount: amt ? num(amt) : void 0
+				amount: amt ? num$1(amt) : void 0
 			});
 		});
 		(i.checks ?? []).filter((c) => c.ok === false).forEach((c, k) => out.push({
@@ -15341,6 +15341,583 @@ window.SKEngines = (function() {
 			valid: issues.length === 0,
 			issues
 		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/catalog/cost-map-engine.ts
+	var cost_map_engine_exports = /* @__PURE__ */ __exportAll({
+		CLASS_AR: () => CLASS_AR,
+		breakevenUnits: () => breakevenUnits,
+		classifyExpense: () => classifyExpense,
+		costCeiling: () => costCeiling,
+		costChecks: () => costChecks,
+		draftAmount: () => draftAmount,
+		inventoryView: () => inventoryView,
+		priceForMargin: () => priceForMargin,
+		productCostMap: () => productCostMap,
+		roundPrice: () => roundPrice,
+		scenario: () => scenario,
+		sensitivity: () => sensitivity
+	});
+	var num = (v) => {
+		const n = parseFloat(String(v ?? ""));
+		return Number.isFinite(n) ? n : 0;
+	};
+	var clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+	var r2$6 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
+	var f2 = (n) => (Math.round(n * 100) / 100).toFixed(2);
+	var pctTxt = (n) => String(Math.round(n * 1e3) / 10) + "%";
+	/** The pricing engine's rounding policies (nine: …9 from 100 up, …x.90 below; int; half; default: the halala). */
+	function roundPrice(p, mode) {
+		if (!Number.isFinite(p) || p <= 0) return p;
+		const e = 1e-9;
+		switch (mode) {
+			case "nine":
+				if (p >= 100) {
+					const n = Math.ceil(p - e);
+					return n + (9 - n % 10 + 10) % 10;
+				}
+				return +(Math.ceil(p - .9 - e) + .9).toFixed(2);
+			case "int": return Math.ceil(p - e);
+			case "half": return Math.ceil(p * 2 - e) / 2;
+			default: return Math.ceil(p * 100 - e) / 100;
+		}
+	}
+	/** Where a linked expense belongs, read from its name; the user can override it per expense. */
+	function classifyExpense(name) {
+		const s = String(name || "");
+		if (/توصيل|للعميل|للنقل|شحن|عمول|تسويق|إعلان|اعلان|دعاي|منص[ةه]|تطبيق|بوابة|رسوم (?:الدفع|دفع)|مدى/.test(s)) return "selling";
+		if (/إدار|ادار|مكتب|محاسب|رسوم حكومية|اشتراك/.test(s)) return "admin";
+		if (/تغليف|صحن|صحون|علب|علبة|كرتون|صندوق|أكياس|اكياس|ملصق/.test(s)) return "materials";
+		return "conversion";
+	}
+	function ctxOf(S) {
+		const st = S.settings || {};
+		return {
+			v: num(st.vat ?? 15) / 100,
+			yieldM: st.waste !== "markup",
+			netBase: st.base !== "gross",
+			T: num(st.target) / 100,
+			good: num(st.good) / 100,
+			excellent: num(st.excellent) / 100,
+			round: String(st.round || ""),
+			raws: new Map((S.raws || []).map((r) => [String(r.id), r])),
+			boxes: new Map((S.boxes || []).map((b) => [String(b.id), b])),
+			exps: S.exps || []
+		};
+	}
+	var netOf = (c, amt, mode) => mode === "incl" ? amt / (1 + c.v) : amt;
+	var factor = (c, w) => c.yieldM ? 1 / (1 - w) : 1 + w;
+	function rawCost(c, r) {
+		const w = clamp(num(r.waste) / 100, 0, .95), buy = num(r.buy), net = netOf(c, buy, r.vat);
+		return {
+			w,
+			buy,
+			net,
+			cost: net * factor(c, w)
+		};
+	}
+	function marginOf(c, profit, price) {
+		const base = c.netBase ? price / (1 + c.v) : price;
+		return base > 0 ? profit / base : null;
+	}
+	function targetPrice(c, cost, t) {
+		if (!(cost > 0)) return null;
+		if (c.netBase) return t >= .98 ? null : cost / (1 - t) * (1 + c.v);
+		const d = 1 / (1 + c.v) - t;
+		return d <= .005 ? null : cost / d;
+	}
+	function bandOf(c, m) {
+		return m == null || !Number.isFinite(m) ? "na" : m < 0 ? "loss" : m < c.good ? "low" : m < c.excellent ? "good" : "ex";
+	}
+	/** A box's component cost and weight, nested boxes included (at their component cost, as the pricing engine counts them). */
+	function boxComponents(c, b, stack) {
+		if (stack.includes(b.id)) return {
+			comp: 0,
+			weight: 0,
+			missing: 0,
+			cycle: true
+		};
+		let comp = 0, weight = 0, missing = 0, cycle = false;
+		for (const k of b.comps || []) {
+			const q = num(k.q);
+			if (k.t === "box") {
+				const sb = c.boxes.get(String(k.id));
+				if (!sb) {
+					missing++;
+					continue;
+				}
+				const s = boxComponents(c, sb, [...stack, b.id]);
+				if (s.cycle) {
+					cycle = true;
+					continue;
+				}
+				comp += s.comp * q;
+				weight += s.weight * q;
+				missing += s.missing;
+			} else {
+				const r = c.raws.get(String(k.id));
+				if (!r) {
+					missing++;
+					continue;
+				}
+				const rc = rawCost(c, r);
+				comp += (k.wasteMode === "none" ? rc.net : rc.cost) * q;
+				weight += q;
+			}
+		}
+		return {
+			comp,
+			weight,
+			missing,
+			cycle
+		};
+	}
+	/** The cost map of one raw or box of the pricing record; null when the record has no such product. */
+	function productCostMap(S, id, opts = {}) {
+		const c = ctxOf(S), vt = 1 + c.v, wm = c.yieldM ? "بطريقة العائد ÷ (1 − الهدر)" : "بطريقة الإضافة × (1 + الهدر)";
+		const lines = [];
+		let name = "", kind, weight = 0, dishes = 0, missing = 0, cycle = false, hasPrice = false, price = 0, isBy = false;
+		const raw = c.raws.get(String(id)), box = raw ? void 0 : c.boxes.get(String(id));
+		if (raw) {
+			kind = "raw";
+			name = String(raw.name || "");
+			isBy = raw.kind === "by";
+			weight = 1;
+			const rc = rawCost(c, raw);
+			lines.push({
+				key: "purchase",
+				kind: "purchase",
+				refId: raw.id,
+				name: "سعر الشراء",
+				qty: 1,
+				unit: "كجم",
+				unitCost: rc.net,
+				amount: rc.net,
+				share: 0,
+				cls: "materials",
+				baseUnit: rc.net,
+				formula: raw.vat === "incl" ? ["الشراء " + f2(rc.buy) + " شامل الضريبة", "÷ " + vt.toFixed(2) + " = " + f2(rc.net) + " صافي للكجم"] : ["الشراء " + f2(rc.buy) + " صافي للكجم (قبل الضريبة)"]
+			});
+			if (rc.w > 0) lines.push({
+				key: "waste",
+				kind: "waste",
+				refId: raw.id,
+				name: "الهدر",
+				qty: 1,
+				unit: "كجم",
+				unitCost: rc.cost - rc.net,
+				amount: rc.cost - rc.net,
+				share: 0,
+				cls: "materials",
+				baseUnit: rc.net,
+				wasteRate: rc.w,
+				formula: ["هدر " + pctTxt(rc.w) + " " + wm, f2(rc.net) + " → " + f2(rc.cost) + " تكلفة الكجم الصالح"]
+			});
+			const p = raw.price;
+			hasPrice = p !== null && p !== void 0 && p !== "" && num(p) > 0;
+			price = hasPrice ? num(p) : 0;
+		} else if (box) {
+			kind = "box";
+			name = String(box.name || "");
+			dishes = num(box.dishes);
+			(box.comps || []).forEach((k, i) => {
+				const q = num(k.q);
+				if (k.t === "box") {
+					const sb = c.boxes.get(String(k.id));
+					if (!sb) {
+						missing++;
+						return;
+					}
+					const s = boxComponents(c, sb, [box.id]);
+					if (s.cycle) {
+						cycle = true;
+						return;
+					}
+					missing += s.missing;
+					weight += s.weight * q;
+					lines.push({
+						key: "c" + i,
+						kind: "box",
+						refId: sb.id,
+						name: String(sb.name || ""),
+						qty: q,
+						unit: "بوكس",
+						unitCost: s.comp,
+						amount: s.comp * q,
+						share: 0,
+						cls: "materials",
+						unitWeight: s.weight,
+						formula: ["بوكس داخلي بتكلفة مكوناته " + f2(s.comp) + " × " + q + " = " + f2(s.comp * q)]
+					});
+				} else {
+					const r = c.raws.get(String(k.id));
+					if (!r) {
+						missing++;
+						return;
+					}
+					const rc = rawCost(c, r), withW = k.wasteMode !== "none", unit = withW ? rc.cost : rc.net;
+					weight += q;
+					lines.push({
+						key: "c" + i,
+						kind: "raw",
+						refId: r.id,
+						name: String(r.name || ""),
+						qty: q,
+						unit: "كجم",
+						unitCost: unit,
+						amount: unit * q,
+						share: 0,
+						cls: "materials",
+						baseUnit: rc.net,
+						wasteRate: withW ? rc.w : 0,
+						formula: [
+							(r.vat === "incl" ? "الشراء " + f2(rc.buy) + " شامل ÷ " + vt.toFixed(2) + " = " : "الشراء صافٍ ") + f2(rc.net) + " للكجم",
+							...withW && rc.w > 0 ? ["هدر " + pctTxt(rc.w) + " " + wm + " → " + f2(rc.cost)] : withW ? [] : ["بلا هدر: يُباع كما اشتُري"],
+							f2(unit) + " × " + q + " كجم = " + f2(unit * q)
+						]
+					});
+				}
+			});
+			const comp = lines.reduce((s, l) => s + l.amount, 0);
+			(box.ohs || []).forEach((o, i) => {
+				const n = netOf(c, num(o.amt), o.vat);
+				lines.push({
+					key: "o" + i,
+					kind: "overhead",
+					refId: String(o.id || ""),
+					name: String(o.label || "تكلفة إضافية"),
+					qty: 1,
+					unit: "بوكس",
+					unitCost: n,
+					amount: n,
+					share: 0,
+					cls: opts.classes?.[String(o.id || "")] ?? "materials",
+					formula: [o.vat === "incl" ? f2(num(o.amt)) + " شامل ÷ " + vt.toFixed(2) + " = " + f2(n) : f2(n) + " صافٍ"]
+				});
+			});
+			for (const e of c.exps) {
+				if (!(e.links || []).includes(box.id)) continue;
+				const a = num(e.amt), m = e.method || "fixed";
+				const base = m === "kg" ? a * weight : m === "dish" ? a * dishes : m === "pct" ? a / 100 * comp : a;
+				const n = m === "pct" ? base : netOf(c, base, e.vat);
+				const how = m === "kg" ? f2(a) + " لكل كجم × " + r2$6(weight) + " كجم" : m === "dish" ? f2(a) + " لكل صحن × " + dishes + " صحن" : m === "pct" ? a + "% من تكلفة المكونات " + f2(comp) : f2(a) + " ثابت للبوكس";
+				lines.push({
+					key: "e:" + e.id,
+					kind: "expense",
+					refId: e.id,
+					name: String(e.name || "مصروف"),
+					qty: m === "kg" ? weight : m === "dish" ? dishes : 1,
+					unit: m === "kg" ? "كجم" : m === "dish" ? "صحن" : "بوكس",
+					unitCost: m === "kg" || m === "dish" ? netOf(c, a, e.vat) : n,
+					amount: n,
+					share: 0,
+					cls: opts.classes?.[e.id] ?? classifyExpense(String(e.name || "")),
+					method: m,
+					formula: [how + (m !== "pct" && e.vat === "incl" ? " شامل ÷ " + vt.toFixed(2) : ""), "= " + f2(n) + " صافٍ"]
+				});
+			}
+			const dc = Math.max(0, num(box.dishCost));
+			if (dc > 0 && dishes > 0) {
+				const each = dc / vt;
+				lines.push({
+					key: "dish",
+					kind: "dish",
+					refId: box.id,
+					name: "تكلفة الصحون",
+					qty: dishes,
+					unit: "صحن",
+					unitCost: each,
+					amount: each * dishes,
+					share: 0,
+					cls: "materials",
+					formula: [f2(dc) + " للصحن شامل ÷ " + vt.toFixed(2) + " = " + f2(each), "× " + dishes + " صحن = " + f2(each * dishes)]
+				});
+			}
+			price = num(box.price);
+			hasPrice = price > 0;
+		} else return null;
+		const components = lines.filter((l) => l.kind === "raw" || l.kind === "box" || l.kind === "purchase" || l.kind === "waste").reduce((s, l) => s + l.amount, 0);
+		const total = lines.reduce((s, l) => s + l.amount, 0);
+		for (const l of lines) {
+			l.share = total > 0 ? l.amount / total : 0;
+			l.amount = r2$6(l.amount);
+			l.unitCost = Math.round(l.unitCost * 1e4) / 1e4;
+		}
+		const priceNet = hasPrice ? price / vt : 0, profit = hasPrice ? priceNet - total : 0;
+		const margin = hasPrice ? marginOf(c, profit, price) : null, t = targetPrice(c, total, c.T);
+		return {
+			id: String(id),
+			kind,
+			name,
+			lines,
+			components: r2$6(components),
+			total: r2$6(total),
+			weight: r2$6(weight),
+			dishes,
+			hasPrice,
+			price: r2$6(price),
+			priceNet: r2$6(priceNet),
+			vatAmount: r2$6(price - priceNet),
+			profit: r2$6(profit),
+			margin: margin == null ? null : Math.round(margin * 1e6) / 1e6,
+			marginBase: c.netBase ? "net" : "gross",
+			breakeven: r2$6(total * vt),
+			targetRate: c.T,
+			target: t == null ? null : roundPrice(t, c.round),
+			band: isBy ? "by" : bandOf(c, margin),
+			missing,
+			cycle,
+			vatRate: c.v,
+			yieldMethod: c.yieldM,
+			rounding: c.round,
+			good: c.good,
+			excellent: c.excellent
+		};
+	}
+	var marginAt = (map, total, price) => {
+		if (!(price > 0)) return null;
+		const pn = price / (1 + map.vatRate), base = map.marginBase === "net" ? pn : price;
+		return base > 0 ? (pn - total) / base : null;
+	};
+	/** The gross price that gives margin `rate` on `total`, rounded by the record's policy and never below break-even. */
+	function priceForMargin(map, rate, total = map.total) {
+		const vt = 1 + map.vatRate;
+		let p;
+		if (map.marginBase === "net") p = rate >= .98 ? null : total / (1 - rate) * vt;
+		else {
+			const d = 1 / vt - rate;
+			p = d <= .005 ? null : total / d;
+		}
+		if (p == null || !(total > 0)) return null;
+		let out = roundPrice(Math.max(p, total * vt), map.rounding), guard = 0;
+		while (out + 1e-9 < total * vt && guard++ < 50) out = roundPrice(out + .01, map.rounding);
+		return out;
+	}
+	/** The highest cost the current price carries at the target margin, and the room left under it. */
+	function costCeiling(map, rate = map.targetRate) {
+		if (!map.hasPrice) return null;
+		const ceiling = map.marginBase === "net" ? map.priceNet * (1 - rate) : map.priceNet - rate * map.price;
+		return {
+			ceiling: r2$6(ceiling),
+			headroom: r2$6(ceiling - map.total),
+			headroomPct: map.total > 0 ? Math.round((ceiling - map.total) / map.total * 1e3) / 10 : 0
+		};
+	}
+	/** The draft's cost per unit of product: quantity × net unit cost, or a percentage of the components for an expense. */
+	function draftAmount(map, d, components = map.components) {
+		const q = Number(d.qty), u = Number(d.unitCost);
+		if (!Number.isFinite(u) || u <= 0) return 0;
+		if (d.method === "pct") return r2$6(u / 100 * components);
+		return r2$6((Number.isFinite(q) && q > 0 ? q : 1) * (d.vat === "incl" ? u / (1 + map.vatRate) : u));
+	}
+	/** Re-prices the map under a what-if. Nothing is written back; the source record stays the truth. */
+	function scenario(map, w = {}) {
+		const general = 1 + (Number(w.costPct) || 0) / 100, changes = w.lines || {};
+		const rows = map.lines.map((l) => {
+			const ch = changes[l.key] || {};
+			let unit = l.unitCost, qty = l.qty;
+			if ((l.kind === "raw" || l.kind === "waste") && ch.waste != null && l.baseUnit != null) {
+				const wr = clamp(Number(ch.waste) / 100, 0, .95), f = map.yieldMethod ? 1 / (1 - wr) : 1 + wr;
+				unit = l.kind === "raw" ? l.baseUnit * f : l.baseUnit * (f - 1);
+			}
+			if (ch.unitPct != null) unit *= 1 + Number(ch.unitPct) / 100;
+			if (ch.qty != null && (l.kind === "raw" || l.kind === "box") && Number(ch.qty) >= 0) qty = Number(ch.qty);
+			return {
+				key: l.key,
+				kind: l.kind,
+				method: l.method,
+				unitPct: ch.unitPct,
+				before: l.amount,
+				amount: unit * qty * general,
+				qty,
+				weight: l.kind === "raw" ? qty : l.kind === "box" ? (l.unitWeight ?? 0) * qty : 0
+			};
+		});
+		const isComp = (k) => k === "raw" || k === "box" || k === "purchase" || k === "waste";
+		const components = rows.filter((r) => isComp(r.kind)).reduce((s, r) => s + r.amount, 0);
+		const newWeight = map.kind === "raw" ? map.weight : rows.reduce((s, r) => s + r.weight, 0);
+		for (const r of rows) {
+			if (r.kind !== "expense" || r.method !== "kg" && r.method !== "pct") continue;
+			r.amount = r.method === "kg" ? (map.weight > 0 ? r.before * (newWeight / map.weight) : r.before) * general : map.components > 0 ? r.before * (components / map.components) : r.before;
+			if (r.unitPct != null) r.amount *= 1 + Number(r.unitPct) / 100;
+		}
+		const drafts = (w.drafts || []).map((d) => ({
+			id: d.id,
+			label: d.label,
+			amount: draftAmount(map, d, components)
+		}));
+		const total = r2$6(rows.reduce((s, r) => s + r.amount, 0) + drafts.reduce((s, d) => s + d.amount, 0));
+		const price = w.priceGross != null && Number(w.priceGross) > 0 ? Number(w.priceGross) : map.price;
+		const margin = marginAt(map, total, price), rate = w.targetRate ?? map.targetRate;
+		const profit = price > 0 ? r2$6(price / (1 + map.vatRate) - total) : 0;
+		return {
+			total,
+			price: r2$6(price),
+			priceNet: r2$6(price / (1 + map.vatRate)),
+			profit,
+			margin,
+			breakeven: r2$6(total * (1 + map.vatRate)),
+			target: priceForMargin(map, rate, total),
+			targetRate: rate,
+			weight: r2$6(newWeight),
+			deltaTotal: r2$6(total - map.total),
+			deltaProfit: r2$6(profit - map.profit),
+			deltaMarginPts: margin != null && map.margin != null ? Math.round((margin - map.margin) * 1e3) / 10 : null,
+			rows: rows.map((r) => ({
+				key: r.key,
+				before: r.before,
+				amount: r2$6(r.amount),
+				qty: r.qty
+			})),
+			drafts,
+			changed: Object.keys(changes).length + (w.costPct ? 1 : 0) + drafts.length + (price !== map.price ? 1 : 0)
+		};
+	}
+	/** What moves the margin: each input and the price shocked by `step`, ranked by the swing in margin points. */
+	function sensitivity(map, step = .1) {
+		if (!map.hasPrice || map.margin == null) return [];
+		const base = map.marginBase === "net" ? map.priceNet : map.price;
+		const out = map.lines.filter((l) => l.amount > 0).map((l) => ({
+			key: l.key,
+			name: l.name,
+			kind: l.kind,
+			share: l.share,
+			dProfit: r2$6(-step * l.amount),
+			dMarginPts: base > 0 ? Math.round(-step * l.amount / base * 1e3) / 10 : 0
+		}));
+		const up = marginAt(map, map.total, map.price * (1 + step));
+		out.push({
+			key: "price",
+			name: "سعر البيع",
+			kind: "price",
+			share: 0,
+			dProfit: r2$6(map.priceNet * step),
+			dMarginPts: up == null ? 0 : Math.round((up - map.margin) * 1e3) / 10
+		});
+		return out.sort((a, b) => Math.abs(b.dMarginPts) - Math.abs(a.dMarginPts)).slice(0, 7);
+	}
+	var CLASS_AR = {
+		materials: "مواد مباشرة وتعبئة",
+		conversion: "تكاليف تحويل وتجهيز",
+		selling: "تكاليف بيع وتوصيل",
+		admin: "مصروفات إدارية"
+	};
+	/** IAS 2: inventory cost apart from the costs to sell; net realisable value and the write-down below it. */
+	function inventoryView(map, extraSelling = 0) {
+		const sum = (k) => r2$6(map.lines.filter((l) => l.cls === k).reduce((s, l) => s + l.amount, 0));
+		const materials = sum("materials"), conversion = sum("conversion"), selling = r2$6(sum("selling") + extraSelling), admin = sum("admin");
+		const inventoriable = r2$6(materials + conversion);
+		const nrv = map.hasPrice ? r2$6(map.priceNet - selling) : null;
+		return {
+			materials,
+			conversion,
+			selling,
+			admin,
+			inventoriable,
+			nrv,
+			carrying: nrv == null ? inventoriable : r2$6(Math.min(inventoriable, nrv)),
+			writeDown: nrv == null ? 0 : r2$6(Math.max(0, inventoriable - nrv)),
+			excluded: r2$6(selling + admin),
+			refs: [
+				"IAS 2.10",
+				"IAS 2.16",
+				"IAS 2.6",
+				"IAS 2.28"
+			]
+		};
+	}
+	/** Units a period must sell at the current margin to cover fixed costs not in the unit cost. */
+	function breakevenUnits(map, fixed, profit = map.profit) {
+		if (!(fixed > 0)) return null;
+		if (!(profit > 0)) return {
+			units: null,
+			profit: r2$6(profit)
+		};
+		return {
+			units: Math.ceil(fixed / profit - 1e-9),
+			profit: r2$6(profit)
+		};
+	}
+	/** The controls around the product's cost and price, each with what to do. */
+	function costChecks(map, opts = {}) {
+		const out = [], money = (n) => f2(n) + " ر.س";
+		if (opts.catalogCost != null && Number.isFinite(opts.catalogCost)) {
+			const d = r2$6(map.total - Number(opts.catalogCost));
+			out.push(Math.abs(d) <= .01 ? {
+				level: "ok",
+				code: "reconciled",
+				text: "تكلفة الخريطة " + money(map.total) + " مطابقة لتكلفة سجل الأصناف"
+			} : {
+				level: "bad",
+				code: "unreconciled",
+				text: "فرق " + money(d) + " بين تكلفة الخريطة وسجل الأصناف — راجع مكونات الصنف"
+			});
+		}
+		if (map.cycle) out.push({
+			level: "bad",
+			code: "cycle",
+			text: "بوكس يدخل في نفسه عبر بوكس داخلي — التكلفة ناقصة حتى تُفك الحلقة"
+		});
+		if (map.missing) out.push({
+			level: "bad",
+			code: "missing",
+			text: map.missing + " مكوّن محذوف من سجل الأصناف ما زال في الوصفة — التكلفة أقل من الحقيقة"
+		});
+		if (!map.hasPrice) out.push({
+			level: "warn",
+			code: "no-price",
+			text: "لا يوجد سعر بيع؛ السعر المقترح للهامش المستهدف " + (map.target != null ? money(map.target) : "—")
+		});
+		else if (map.price + 1e-9 < map.breakeven) out.push({
+			level: "bad",
+			code: "loss",
+			text: "السعر " + money(map.price) + " أقل من التعادل " + money(map.breakeven) + " — كل بيع يخسر " + money(-map.profit)
+		});
+		else if (map.margin != null && map.margin < map.good) out.push({
+			level: "warn",
+			code: "low-margin",
+			text: "الهامش " + pctTxt(map.margin) + " دون حد «جيد» " + pctTxt(map.good)
+		});
+		else if (map.margin != null && map.margin < map.targetRate) out.push({
+			level: "info",
+			code: "below-target",
+			text: "الهامش " + pctTxt(map.margin) + " دون المستهدف " + pctTxt(map.targetRate) + "؛ السعر المقترح " + (map.target != null ? money(map.target) : "—")
+		});
+		if (map.hasPrice && map.rounding && roundPrice(map.price, map.rounding) !== map.price) out.push({
+			level: "info",
+			code: "rounding",
+			text: "السعر " + money(map.price) + " لا يتبع سياسة التقريب؛ أقرب سعر متوافق " + money(roundPrice(map.price, map.rounding))
+		});
+		const zero = map.lines.filter((l) => (l.kind === "raw" || l.kind === "box" || l.kind === "purchase") && l.amount <= 0);
+		if (zero.length) out.push({
+			level: "warn",
+			code: "zero-cost",
+			text: "بلا تكلفة: " + zero.map((l) => l.name).join("، ") + " — أدخل سعر الشراء"
+		});
+		const highW = map.lines.filter((l) => (l.wasteRate ?? 0) > .3);
+		if (highW.length) out.push({
+			level: "warn",
+			code: "waste",
+			text: "هدر مرتفع (> 30%): " + highW.map((l) => l.name + " " + pctTxt(l.wasteRate ?? 0)).join("، ") + " — الهدر غير المعتاد مصروف وليس تكلفة مخزون (IAS 2.16)"
+		});
+		const top = [...map.lines].sort((a, b) => b.share - a.share)[0];
+		if (top && top.share >= .8 && map.lines.length > 1) out.push({
+			level: "info",
+			code: "concentration",
+			text: pctTxt(top.share) + " من التكلفة في «" + top.name + "» — أي تغير في سعره ينتقل للهامش مباشرة"
+		});
+		const iv = inventoryView(map);
+		if (iv.writeDown > 0) out.push({
+			level: "bad",
+			code: "nrv",
+			text: "صافي القيمة القابلة للتحقق " + money(iv.nrv ?? 0) + " أقل من تكلفة المخزون " + money(iv.inventoriable) + " — تخفيض " + money(iv.writeDown) + " للوحدة (IAS 2.28)"
+		});
+		if (opts.drafts) out.push({
+			level: "info",
+			code: "drafts",
+			text: opts.drafts + " عنصر مقترح في الخريطة غير مسجل في الأصناف — يظهر أثره في «ماذا لو» فقط"
+		});
+		return out;
 	}
 	//#endregion
 	//#region app/src/engine/fusion/catalog/items-engine.ts
@@ -22906,6 +23483,7 @@ window.SKEngines = (function() {
 		},
 		catalog: {
 			box: box_engine_exports,
+			costMap: cost_map_engine_exports,
 			items: items_engine_exports,
 			label: label_engine_exports,
 			offers: offers_engine_exports,
