@@ -64,16 +64,30 @@ type Attachment = {
   mimetype?: string;
   caption?: string;
   asDocument?: boolean;
+  sha256?: string;
 };
 type Item =
   | { kind: 'text'; message: string }
   | ({ kind: 'media' } & Attachment)
   | { kind: 'location'; latitude: number; longitude: number; message?: string };
 type ItemResult = { index: number; ok: boolean; id?: string | null; type?: string; error?: string };
-type Job = { state: 'running' | 'done' | 'partial' | 'failed'; to: string; total: number; results: ItemResult[]; at: number };
-type BundleBody = { sent: boolean; to?: string; results: ItemResult[]; error?: string; duplicate?: boolean; resumed?: boolean };
+type DeliveryState = 'accepted' | 'delivered' | 'read' | 'failed';
+type Job = { state: 'running' | 'done' | 'partial' | 'failed'; to: string; total: number; results: ItemResult[]; at: number; payloadHash?: string };
+type BundleBody = { sent: boolean; accepted?: boolean; deliveryStatus?: string; to?: string; results: ItemResult[]; error?: string; duplicate?: boolean; resumed?: boolean };
 type Reply = { status: number; body: string };
-type Scheduled = { id: string; at: string; to: string; message: string; createdAt: string };
+type Scheduled = {
+  id: string; at: string; to: string; message: string; attachments?: Attachment[]; createdAt: string;
+  status?: 'scheduled' | 'sending' | 'accepted' | 'delivered' | 'read' | 'partial' | 'failed' | 'cancelled';
+  mode?: 'scheduled'; startedAt?: string; completedAt?: string; results?: ItemResult[]; error?: string | null;
+};
+type ReceiptEvent = {
+  eventId: string; provider: string; bootId: string; receiptSeq: number; providerMessageId: string;
+  remoteJid?: string | null; rawStatus: string; normalizedStatus: DeliveryState; providerTimestamp?: number; receivedAt?: number;
+};
+type MessageMap = {
+  providerMessageId: string; operationKey: string; itemIndex: number; to: string; type?: string;
+  state: DeliveryState; acceptedAt: string; deliveredAt?: string; readAt?: string; failedAt?: string;
+};
 type SendBody = Attachment & { to?: string; message?: string; latitude?: number; longitude?: number; attachments?: unknown; idempotencyKey?: string };
 
 const pad = (n: number) => String(n).padStart(10, '0');
@@ -91,7 +105,14 @@ export class WaBridge extends Container<Env> {
   private savedVersion = -1;
   private boot = '';
   private lastSeq = 0;
+  private lastReceiptSeq = 0;
   private syncing: Promise<void> = Promise.resolve();
+  private env: Env;
+
+  constructor(ctx: DurableObjectState, env: Env) {
+    super(ctx, env);
+    this.env = env;
+  }
 
   // ---- container plumbing -------------------------------------------------
 
@@ -131,6 +152,7 @@ export class WaBridge extends Container<Env> {
     if (boot && boot !== this.boot) {
       this.boot = boot;
       this.lastSeq = 0; // the container's inbox sequence restarts with it
+      this.lastReceiptSeq = 0; // receipt sequence is also per container boot
       this.savedVersion = -1;
     }
   }
@@ -182,6 +204,99 @@ export class WaBridge extends Container<Env> {
     // Last save before the container sleeps; only while running, a fetch on a stopped container would start it.
     if (this.ctx.container?.running) await this.sync(undefined, true).catch(() => {});
     await super.onActivityExpired();
+  }
+
+  // ---- delivery receipts --------------------------------------------------
+
+  private receiptRank(state: string): number {
+    return state === 'read' ? 4 : state === 'delivered' ? 3 : state === 'accepted' ? 2 : state === 'failed' ? 1 : 0;
+  }
+
+  private async applyReceipt(r: ReceiptEvent): Promise<void> {
+    if (!r?.providerMessageId || !r?.eventId) return;
+    const mapKey = `msgmap:${r.providerMessageId}`;
+    const mapping = await this.ctx.storage.get<MessageMap>(mapKey);
+    if (!mapping) {
+      await this.ctx.storage.put(`orphan:${r.providerMessageId}:${encodeURIComponent(r.eventId)}`, r);
+      return;
+    }
+    const seenKey = `receiptseen:${encodeURIComponent(r.eventId)}`;
+    if (await this.ctx.storage.get(seenKey)) return;
+    await this.ctx.storage.put(seenKey, true);
+
+    const next = r.normalizedStatus;
+    const prev = mapping.state || 'accepted';
+    const canAdvance = next === 'failed'
+      ? this.receiptRank(prev) < this.receiptRank('delivered')
+      : this.receiptRank(next) > this.receiptRank(prev);
+    if (canAdvance) {
+      const at = new Date(Number(r.providerTimestamp || r.receivedAt || Date.now())).toISOString();
+      mapping.state = next;
+      if (next === 'delivered') mapping.deliveredAt = at;
+      if (next === 'read') {
+        mapping.deliveredAt ??= at;
+        mapping.readAt = at;
+      }
+      if (next === 'failed') mapping.failedAt = at;
+      await this.ctx.storage.put(mapKey, mapping);
+    }
+
+    const deliveryKey = `delivery:${mapping.operationKey}`;
+    const delivery = await this.ctx.storage.get<any>(deliveryKey);
+    if (!delivery) return;
+    const results = (delivery.results || []).map((x: any) =>
+      (x.id === mapping.providerMessageId || x.index === mapping.itemIndex)
+        ? { ...x, deliveryStatus: mapping.state, deliveredAt: mapping.deliveredAt, readAt: mapping.readAt, failedAt: mapping.failedAt }
+        : x
+    );
+    const okItems = results.filter((x: any) => x.ok);
+    const transportFailed = results.some((x: any) => !x.ok);
+    const providerFailed = okItems.some((x: any) => x.deliveryStatus === 'failed');
+    let status = delivery.status;
+    if (transportFailed || providerFailed) {
+      status = okItems.some((x: any) => x.deliveryStatus !== 'failed') ? 'partial' : 'failed';
+    } else if (okItems.length) {
+      const states = okItems.map((x: any) => x.deliveryStatus || 'accepted');
+      if (states.every((x: string) => x === 'read')) status = 'read';
+      else if (states.every((x: string) => this.receiptRank(x) >= this.receiptRank('delivered'))) status = 'delivered';
+      else status = 'accepted';
+    }
+    const patch: any = { ...delivery, status, results, lastReceiptAt: new Date().toISOString() };
+    if (status === 'delivered') patch.deliveredAt ??= new Date(Number(r.providerTimestamp || Date.now())).toISOString();
+    if (status === 'read') {
+      patch.deliveredAt ??= new Date(Number(r.providerTimestamp || Date.now())).toISOString();
+      patch.readAt ??= new Date(Number(r.providerTimestamp || Date.now())).toISOString();
+    }
+    await this.ctx.storage.put(deliveryKey, patch);
+
+    if (mapping.operationKey.startsWith('sched-')) {
+      const taskId = mapping.operationKey.slice(6);
+      const task = await this.ctx.storage.get<any>(`task:${taskId}`);
+      if (task) await this.ctx.storage.put(`task:${taskId}`, { ...task, status, results, deliveredAt: patch.deliveredAt, readAt: patch.readAt });
+    }
+  }
+
+  private async reconcileOrphans(providerMessageId: string): Promise<void> {
+    const all = await this.ctx.storage.list<ReceiptEvent>({ prefix: `orphan:${providerMessageId}:` });
+    for (const [key, receipt] of all) {
+      await this.ctx.storage.delete(key);
+      await this.applyReceipt(receipt);
+    }
+  }
+
+  private async pullReceipts(quiet = false): Promise<number> {
+    const path = `/receipts?after=${this.lastReceiptSeq}`;
+    const res = quiet ? await this.quiet(path) : await this.call(path);
+    if (!res?.ok) return 0; // backward-compatible with an older container during rolling deployment
+    const data = await res.json() as { boot: string; receiptSeq: number; receipts: ReceiptEvent[] };
+    this.noteBoot(data.boot);
+    let n = 0;
+    for (const receipt of data.receipts || []) {
+      await this.applyReceipt(receipt);
+      n++;
+    }
+    this.lastReceiptSeq = Math.max(this.lastReceiptSeq, Number(data.receiptSeq || 0));
+    return n;
   }
 
   // ---- inbox --------------------------------------------------------------
@@ -258,6 +373,7 @@ export class WaBridge extends Container<Env> {
     if (!this.ctx.container?.running) return; // container went to sleep: the chain ends here
     try {
       await this.pull(0, true);
+      await this.pullReceipts(true);
       await this.sync(undefined, true);
     } catch (e) {
       console.warn('poll failed', String(e));
@@ -345,23 +461,38 @@ export class WaBridge extends Container<Env> {
     return (await this.ctx.storage.get<Job>(`job:${key}`)) ?? null;
   }
 
-  // Sends items to one recipient in order, in a single container call. With an idempotency
-  // key, a repeat returns the saved result and a retry after a partial failure sends only
-  // the items that did not go out.
+  // Sends items to one recipient in order, in a single container call. A successful
+  // sock.sendMessage() is recorded as ACCEPTED only; delivery/read require later receipts.
   async sendBundle(to: string, items: Item[], key?: string): Promise<{ status: number; body: BundleBody }> {
+    const payloadHash = await payloadHashOf(to, items);
     const prior = key ? await this.job(key) : null;
-    if (prior?.state === 'done') return { status: 200, body: { sent: true, duplicate: true, to: prior.to, results: prior.results } };
+    if (prior?.payloadHash && prior.payloadHash !== payloadHash) {
+      return { status: 409, body: { sent: false, error: 'idempotency key reused with a different payload', results: prior.results } };
+    }
+    if (prior?.state === 'done') {
+      return { status: 200, body: { sent: true, accepted: true, deliveryStatus: 'accepted', duplicate: true, to: prior.to, results: prior.results } };
+    }
     if (prior?.state === 'running' && Date.now() - prior.at < JOB_STALE_MS) {
       return { status: 409, body: { sent: false, error: 'this idempotency key is already being sent', results: prior.results } };
     }
     const kept = (prior?.results ?? []).filter((r) => r.ok);
     const done = new Set(kept.map((r) => r.index));
     const pending = items.map((item, index) => ({ item, index })).filter((x) => !done.has(x.index));
-    if (!pending.length) return { status: 200, body: { sent: true, duplicate: true, to: prior?.to ?? to, results: kept } };
+    if (!pending.length) {
+      return { status: 200, body: { sent: true, accepted: true, deliveryStatus: 'accepted', duplicate: true, to: prior?.to ?? to, results: kept } };
+    }
+    const deliveryMode = key?.startsWith('sched-') ? 'scheduled' : 'immediate';
+    if (key) await this.ctx.storage.put(`delivery:${key}`, {
+      id: key, mode: deliveryMode, status: 'sending', to, total: items.length, startedAt: new Date().toISOString(), payloadHash,
+    });
     if (await this.rateLimited(pending.length)) {
+      if (key) await this.ctx.storage.put(`delivery:${key}`, {
+        id: key, mode: deliveryMode, status: 'failed', to, total: items.length, results: kept,
+        error: 'rate limit: too many messages this minute', completedAt: new Date().toISOString(), payloadHash,
+      });
       return { status: 429, body: { sent: false, error: 'rate limit: too many messages this minute', results: kept } };
     }
-    if (key) await this.putJob(key, { state: 'running', to, total: items.length, results: kept, at: Date.now() });
+    if (key) await this.putJob(key, { state: 'running', to, total: items.length, results: kept, at: Date.now(), payloadHash });
 
     let status = 500;
     let body: Partial<BundleBody> = {};
@@ -374,26 +505,49 @@ export class WaBridge extends Container<Env> {
       });
       status = res.status;
       const text = await res.text();
-      try {
-        body = JSON.parse(text);
-      } catch {
-        body = { error: text || 'bad container response' };
-      }
+      try { body = JSON.parse(text); } catch { body = { error: text || 'bad container response' }; }
       this.syncSoon();
     } catch (e) {
       body = { error: String((e as Error)?.message || e) };
     }
+
     const mapped = (body.results ?? []).map((r) => ({ ...r, index: pending[r.index]?.index ?? r.index }));
     const results = [...kept, ...mapped].sort((a, b) => a.index - b.index);
-    const sent = results.filter((r) => r.ok).length === items.length;
-    if (sent) status = 200;
+    const acceptedAll = results.filter((r) => r.ok).length === items.length;
+    if (acceptedAll) status = 200;
     const recipient = body.to ?? prior?.to ?? to;
+    const now = new Date().toISOString();
+
     if (key) {
-      const state = sent ? 'done' : results.some((r) => r.ok) ? 'partial' : 'failed';
-      await this.putJob(key, { state, to: recipient, total: items.length, results, at: Date.now() });
+      const state = acceptedAll ? 'done' : results.some((r) => r.ok) ? 'partial' : 'failed';
+      await this.putJob(key, { state, to: recipient, total: items.length, results, at: Date.now(), payloadHash });
+      const deliveryStatus = acceptedAll ? 'accepted' : results.some((r) => r.ok) ? 'partial' : 'failed';
+      const trackedResults = results.map((r) => r.ok ? { ...r, deliveryStatus: 'accepted', acceptedAt: now } : r);
+      await this.ctx.storage.put(`delivery:${key}`, {
+        id: key, mode: deliveryMode, status: deliveryStatus, to: recipient, total: items.length, results: trackedResults,
+        error: body.error || null, acceptedAt: results.some((r) => r.ok) ? now : undefined,
+        completedAt: acceptedAll ? now : undefined, payloadHash,
+      });
+      for (const r of results) {
+        if (!r.ok || !r.id) continue;
+        const mapping: MessageMap = {
+          providerMessageId: r.id, operationKey: key, itemIndex: r.index, to: recipient,
+          type: r.type, state: 'accepted', acceptedAt: now,
+        };
+        await this.ctx.storage.put(`msgmap:${r.id}`, mapping);
+        await this.reconcileOrphans(r.id);
+      }
     }
+
     await this.logSent(recipient, mapped, items);
-    return { status, body: { ...body, to: recipient, sent, results, ...(done.size ? { resumed: true } : {}) } as BundleBody };
+    return {
+      status,
+      body: {
+        ...body, to: recipient, sent: acceptedAll, accepted: acceptedAll,
+        deliveryStatus: acceptedAll ? 'accepted' : results.some((r) => r.ok) ? 'partial' : 'failed',
+        results, ...(done.size ? { resumed: true } : {}),
+      } as BundleBody,
+    };
   }
 
   async messages(opts: { limit: number; from?: string; chat?: string; after?: number; sync: boolean; wait: number }): Promise<Msg[]> {
@@ -432,21 +586,52 @@ export class WaBridge extends Container<Env> {
     return { status: res.status, body: await res.text() };
   }
 
-  async scheduleSend(to: string, message: string, at: string): Promise<Scheduled> {
+  async scheduleBundle(to: string, message: string, attachments: Attachment[], at: string): Promise<Scheduled> {
     const when = new Date(at);
     if (Number.isNaN(when.getTime()) || when.getTime() < Date.now()) throw new HttpError(400, '"at" must be a future ISO-8601 time');
-    const s = await this.schedule(when, 'sendScheduled', { to, message });
-    const item: Scheduled = { id: s.taskId, at: when.toISOString(), to, message, createdAt: new Date().toISOString() };
-    await this.ctx.storage.put(`sched:${s.taskId}`, item);
+    const cleanMessage = String(message || '').trim();
+    const cleanAttachments = Array.isArray(attachments) ? attachments : [];
+    if (!cleanMessage && !cleanAttachments.length) throw new HttpError(400, 'message or attachments are required');
+    const payload = { to, message: cleanMessage, attachments: cleanAttachments };
+    const scheduled = await this.schedule(when, 'sendScheduled', payload);
+    const item: Scheduled = {
+      id: scheduled.taskId, at: when.toISOString(), to, message: cleanMessage, attachments: cleanAttachments,
+      createdAt: new Date().toISOString(), status: 'scheduled', mode: 'scheduled',
+    };
+    await this.ctx.storage.put({ [`sched:${scheduled.taskId}`]: item, [`task:${scheduled.taskId}`]: item });
     return item;
   }
 
-  async sendScheduled(payload: { to: string; message: string }, s: { taskId: string }): Promise<void> {
-    const key = `sched:${s.taskId}`;
-    if (!(await this.ctx.storage.get(key))) return; // cancelled
-    await this.ctx.storage.delete(key);
-    const r = await this.sendBundle(payload.to, [{ kind: 'text', message: payload.message }], `sched-${s.taskId}`);
-    if (r.status !== 200) console.warn('scheduled send failed', JSON.stringify(r.body));
+  async scheduleSend(to: string, message: string, at: string): Promise<Scheduled> {
+    return this.scheduleBundle(to, message, [], at);
+  }
+
+  async sendScheduled(payload: { to: string; message?: string; attachments?: Attachment[] }, scheduled: { taskId: string }): Promise<void> {
+    const schedKey = `sched:${scheduled.taskId}`;
+    const taskKey = `task:${scheduled.taskId}`;
+    const pending = await this.ctx.storage.get<Scheduled>(schedKey);
+    if (!pending) return;
+    const base = (await this.ctx.storage.get<Scheduled>(taskKey)) ?? pending;
+    await this.ctx.storage.put(taskKey, { ...base, status: 'sending', startedAt: new Date().toISOString() });
+    try {
+      const items = await toItems(this.env, { message: payload.message || '', attachments: payload.attachments || [] });
+      const r = await this.sendBundle(payload.to, items, `sched-${scheduled.taskId}`);
+      const status: Scheduled['status'] =
+        r.status === 200 && r.body.accepted ? 'accepted' :
+        r.body.results?.some((x) => x.ok) ? 'partial' :
+        'failed';
+      await this.ctx.storage.put(taskKey, {
+        ...base, status, completedAt: new Date().toISOString(), results: r.body.results || [], error: r.body.error || null,
+      });
+      await this.ctx.storage.delete(schedKey);
+      if (r.status !== 200) console.warn('scheduled send failed', JSON.stringify(r.body));
+    } catch (e) {
+      await this.ctx.storage.put(taskKey, {
+        ...base, status: 'failed', completedAt: new Date().toISOString(), error: String((e as Error)?.message || e),
+      });
+      await this.ctx.storage.delete(schedKey);
+      console.warn('scheduled send failed', String((e as Error)?.message || e));
+    }
   }
 
   async listScheduled(): Promise<Scheduled[]> {
@@ -454,8 +639,112 @@ export class WaBridge extends Container<Env> {
     return [...all.values()].sort((a, b) => a.at.localeCompare(b.at));
   }
 
+  async deliveryReport(limit = 200, statusFilter = ''): Promise<any> {
+    await this.ready().catch(() => null);
+    await this.pullReceipts(false).catch(() => 0);
+    const lim = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    const taskEntries = await this.ctx.storage.list<any>({ prefix: 'task:' });
+    const schedEntries = await this.ctx.storage.list<any>({ prefix: 'sched:' });
+    const deliveryEntries = await this.ctx.storage.list<any>({ prefix: 'delivery:' });
+    const jobEntries = await this.ctx.storage.list<Job>({ prefix: 'job:' });
+    const rows = new Map<string, any>();
+
+    for (const v of taskEntries.values()) rows.set(String(v.id), { ...v });
+    for (const v of schedEntries.values()) {
+      const id = String(v.id);
+      if (!rows.has(id)) rows.set(id, { ...v, status: 'scheduled', mode: 'scheduled' });
+    }
+    for (const [key, v] of deliveryEntries) {
+      if (v.mode === 'scheduled' && String(v.id || '').startsWith('sched-')) {
+        const id = String(v.id).slice(6);
+        const cur = rows.get(id);
+        if (cur) rows.set(id, { ...cur, delivery: v, status: ['scheduled','sending'].includes(cur.status) ? cur.status : v.status });
+        else rows.set(`delivery:${v.id}`, { ...v });
+      } else rows.set(`delivery:${String(v.id || key.slice(9))}`, { ...v });
+    }
+    // Backfill older pre-ledger jobs as accepted/unknown-delivery, never as delivered.
+    for (const [key, job] of jobEntries) {
+      const op = key.slice(4);
+      const rowKey = `delivery:${op}`;
+      if (!rows.has(rowKey) && job.state !== 'running') {
+        rows.set(rowKey, {
+          id: op, mode: op.startsWith('sched-') ? 'scheduled' : 'legacy',
+          status: job.state === 'done' ? 'accepted' : job.state,
+          to: job.to, total: job.total, results: job.results, legacy: true,
+          note: job.state === 'done' ? 'Accepted historically; delivery receipt was not persisted in the old version.' : undefined,
+          createdAt: new Date(job.at).toISOString(),
+        });
+      }
+    }
+
+    let items = [...rows.values()];
+    if (statusFilter && statusFilter !== 'all') items = items.filter((x) => x.status === statusFilter);
+    items.sort((a, b) => String(b.readAt || b.deliveredAt || b.acceptedAt || b.completedAt || b.startedAt || b.createdAt || b.at || '')
+      .localeCompare(String(a.readAt || a.deliveredAt || a.acceptedAt || a.completedAt || a.startedAt || a.createdAt || a.at || '')));
+    const allItems = [...rows.values()];
+    const counts: Record<string, number> = {
+      scheduled: 0, sending: 0, accepted: 0, delivered: 0, read: 0, partial: 0, failed: 0, cancelled: 0,
+    };
+    for (const x of allItems) if (counts[x.status] !== undefined) counts[x.status]++;
+    return {
+      summary: {
+        total: allItems.length,
+        remaining: counts.scheduled + counts.sending,
+        receiptConfirmed: counts.delivered + counts.read,
+        ...counts,
+      },
+      items: items.slice(0, lim),
+    };
+  }
+
+  async diagnostics(): Promise<any> {
+    const checks: any[] = [];
+    let st: Status | null = null;
+    try {
+      st = await this.status();
+      checks.push({ name: 'whatsapp_session', ok: isLinked(st), detail: st.connection });
+    } catch (e) {
+      checks.push({ name: 'whatsapp_session', ok: false, detail: String((e as Error)?.message || e) });
+    }
+    try {
+      const pulled = st ? await this.pullReceipts(false) : 0;
+      checks.push({ name: 'receipt_channel', ok: true, detail: `reconciled ${pulled} receipt event(s)` });
+    } catch (e) {
+      checks.push({ name: 'receipt_channel', ok: false, detail: String((e as Error)?.message || e) });
+    }
+    for (const [alias, meta] of Object.entries(STORED)) {
+      try {
+        const obj = await this.env.FILES?.get(meta.key);
+        if (!obj) throw new Error('missing');
+        const buf = await obj.arrayBuffer();
+        const bytes = new Uint8Array(buf);
+        const pdfOk = meta.mimetype !== 'application/pdf' || validPdf(bytes);
+        checks.push({
+          name: `r2:${alias}`, ok: pdfOk,
+          detail: { key: meta.key, bytes: obj.size, sha256: await sha256Hex(buf), mime: meta.mimetype, pdfIntegrity: pdfOk },
+        });
+      } catch (e) {
+        checks.push({ name: `r2:${alias}`, ok: false, detail: String((e as Error)?.message || e) });
+      }
+    }
+    const scheduled = await this.ctx.storage.list({ prefix: 'sched:' });
+    const orphan = await this.ctx.storage.list({ prefix: 'orphan:' });
+    checks.push({ name: 'durable_storage', ok: true, detail: { scheduled: scheduled.size, orphanReceipts: orphan.size, lastReceiptSeq: this.lastReceiptSeq } });
+    return {
+      ok: checks.every((x) => x.ok),
+      safe: true,
+      note: 'Diagnostics do not send a WhatsApp message.',
+      checks,
+    };
+  }
+
   async cancelScheduled(id: string): Promise<boolean> {
-    return this.ctx.storage.delete(`sched:${id}`);
+    const key = `sched:${id}`;
+    const item = await this.ctx.storage.get<Scheduled>(key);
+    const cancelled = !!item;
+    await this.ctx.storage.delete(key);
+    if (item) await this.ctx.storage.put(`task:${id}`, { ...item, status: 'cancelled', completedAt: new Date().toISOString() });
+    return cancelled;
   }
 
   async logout(): Promise<void> {
@@ -519,6 +808,33 @@ function idempotencyKey(req: Request, body: { idempotencyKey?: unknown }): strin
   return key;
 }
 
+async function sha256Hex(value: string | ArrayBuffer): Promise<string> {
+  const bytes = typeof value === 'string' ? new TextEncoder().encode(value) : value;
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+function validPdf(bytes: Uint8Array): boolean {
+  if (bytes.byteLength < 12) return false;
+  const head = new TextDecoder('latin1').decode(bytes.slice(0, 5));
+  const tail = new TextDecoder('latin1').decode(bytes.slice(Math.max(0, bytes.length - 4096)));
+  return head === '%PDF-' && tail.includes('%%EOF');
+}
+
+async function payloadHashOf(to: string, items: Item[]): Promise<string> {
+  const compact: any[] = [];
+  for (const item of items) {
+    if (item.kind !== 'media') { compact.push(item); continue; }
+    const copy: any = { ...item };
+    if (copy.fileBase64) {
+      copy.contentSha256 = copy.sha256 || await sha256Hex(String(copy.fileBase64));
+      copy.fileBase64 = undefined;
+    }
+    compact.push(copy);
+  }
+  return sha256Hex(JSON.stringify({ to, items: compact }));
+}
+
 const hasFile = (a: Attachment) => !!(a.stored || a.r2Key || a.fileUrl || a.fileBase64 || a.imageUrl || a.videoUrl || a.documentUrl);
 
 // Turns a message plus attachments into send items. Stored files are read from R2 here, before
@@ -552,9 +868,14 @@ async function toItems(env: Env, body: SendBody): Promise<Item[]> {
       const obj = await env.FILES.get(r2Key);
       if (!obj) throw new HttpError(424, `stored file not found in R2: ${r2Key}`);
       if (obj.size > MAX_FILE_BYTES) throw new HttpError(413, `file too large: ${r2Key}`);
-      item.fileBase64 = base64(await obj.arrayBuffer());
-      item.fileUrl = undefined;
+      const buf = await obj.arrayBuffer();
+      const bytes = new Uint8Array(buf);
       item.mimetype ??= obj.httpMetadata?.contentType;
+      const looksPdf = item.mimetype === 'application/pdf' || String(item.filename || '').toLowerCase().endsWith('.pdf');
+      if (looksPdf && !validPdf(bytes)) throw new HttpError(422, `invalid or truncated PDF in R2: ${r2Key}`);
+      item.sha256 = await sha256Hex(buf);
+      item.fileBase64 = base64(buf);
+      item.fileUrl = undefined;
     } else if (!hasFile(a)) {
       throw new HttpError(400, 'each attachment needs stored, r2Key, fileUrl or fileBase64');
     }
@@ -575,7 +896,10 @@ function single(r: { status: number; body: BundleBody }, filename?: string | nul
     return json({ error }, r.status >= 400 ? r.status : 502);
   }
   const first = r.body.results[0];
-  const out: Record<string, unknown> = { sent: true, to: r.body.to, id: first?.id ?? null, type: first?.type };
+  const out: Record<string, unknown> = {
+    sent: true, accepted: true, deliveryStatus: 'accepted',
+    to: r.body.to, id: first?.id ?? null, type: first?.type,
+  };
   if (filename !== undefined) out.filename = filename;
   if (r.body.duplicate) out.duplicate = true;
   return json(out);
@@ -668,12 +992,19 @@ async function route(req: Request, env: Env): Promise<Response> {
   if (path === '/groups' && req.method === 'GET') return relay(await wa.passthrough('/groups'));
   if (path === '/contacts' && req.method === 'GET') return relay(await wa.passthrough('/contacts'));
   if (path === '/log' && req.method === 'GET') return json({ sent: await wa.log(Number(q.get('limit') || 50)) });
+  if (path === '/delivery-report' && req.method === 'GET') {
+    return json(await wa.deliveryReport(Number(q.get('limit') || 200), q.get('status') || ''));
+  }
+  if (path === '/diagnostics' && req.method === 'GET') return json(await wa.diagnostics());
 
   if (path === '/schedule' && req.method === 'GET') return json({ scheduled: await wa.listScheduled() });
   if (path === '/schedule' && req.method === 'POST') {
-    const body = await readJson<{ to?: string; message?: string; at?: string }>(req);
-    if (!body?.to || !body.message?.trim() || !body.at) return json({ error: '"to", "message" and "at" (ISO-8601) are required' }, 400);
-    return json(await wa.scheduleSend(body.to, body.message, body.at), 201);
+    const body = await readJson<{ to?: string; message?: string; attachments?: Attachment[]; at?: string }>(req);
+    const attachments = Array.isArray(body.attachments) ? body.attachments : [];
+    if (!body?.to || (!body.message?.trim() && !attachments.length) || !body.at) {
+      return json({ error: '"to", "at", and message or attachments are required' }, 400);
+    }
+    return json(await wa.scheduleBundle(body.to, body.message || '', attachments, body.at), 201);
   }
   if (path.startsWith('/schedule/') && req.method === 'DELETE') {
     return json({ cancelled: await wa.cancelScheduled(path.slice('/schedule/'.length)) });
@@ -716,7 +1047,7 @@ function openapi(origin: string) {
     openapi: '3.1.0',
     info: {
       title: 'WhatsApp Bridge',
-      version: '3.0.0',
+      version: '3.1.0',
       description:
         'Send and read WhatsApp messages on the linked personal number. Phone numbers are international, digits only (e.g. 201012345678); groups use their id from listWhatsAppGroups.',
     },
@@ -736,7 +1067,7 @@ function openapi(origin: string) {
             longitude: { type: 'number' },
             idempotencyKey: str('Optional. Reusing a key never sends the same message twice'),
           }),
-          responses: { ...ok('Sent'), '404': { description: 'Number is not on WhatsApp' }, '429': { description: 'Rate limit' } },
+          responses: { ...ok('Accepted by WhatsApp transport; delivery/read require receipts'), '404': { description: 'Number is not on WhatsApp' }, '429': { description: 'Rate limit' } },
         },
       },
       '/send-bundle': {
