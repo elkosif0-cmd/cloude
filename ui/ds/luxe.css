@@ -9,6 +9,7 @@
 .topbar{gap:var(--sk-3);min-height:var(--sk-topbar-h)}
 .sk-tb-brand{display:none;align-items:center;gap:8px;flex:none;padding:0;border:0;background:none;color:var(--sk-ink);cursor:pointer}
 .sk-tb-brand svg{width:40px;height:28px}
+.sk-tb-brand svg.sk-tb-sqc{width:64px;height:24px}
 .sk-tb-brand b{font:800 20px/1 var(--sk-font-latin);letter-spacing:.03em;color:var(--sk-ink)}
 .sk-ctx{display:flex;align-items:center;gap:var(--sk-2);min-width:0;flex:0 1 auto}
 .sk-tb-btn{display:inline-flex;align-items:center;gap:10px;min-width:0;min-height:46px;max-width:270px;padding:5px 12px 5px 10px;border:1px solid var(--sk-line);border-radius:14px;

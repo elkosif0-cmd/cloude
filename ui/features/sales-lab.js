@@ -105,7 +105,7 @@ document.addEventListener("click",e=>{
   if(e.target.closest("[data-slab-radd]")){const g=k=>{const el=document.querySelector('[data-cr="'+k+'"]');return el?el.value.trim():""};const product=g("product"),cost=Number(g("cost"));
     if(!product||!(cost>=0)||g("cost")===""){SK.toast("اكتب الصنف والتكلفة","warn");return}if(g("from")&&g("to")&&g("from")>g("to")){SK.toast("تاريخ البداية بعد النهاية","warn");return}
     SK.save(RK,[...rules(),{id:"cr-"+Date.now().toString(36),product,channel:g("channel"),from:g("from"),to:g("to"),cost}]);SK.toast("أُضيفت قاعدة التكلفة","ok");repaint();return}
-  if(e.target.closest("[data-slab-treecsv]")){let items=[];try{items=SKosifCore.catalog().items||[]}catch{}SK.csv.download("KOSIF-item-tree.csv",["الفئة","الصنف","النوع","التكلفة","السعر","الهامش"],items.map(i=>[i.cat,i.name,i.kind==="box"?"بوكس":"خام",i.cost,i.price,i.margin==null?"":Math.round(i.margin*1000)/10+"%"]));return}
+  if(e.target.closest("[data-slab-treecsv]")){let items=[];try{items=SKosifCore.catalog().items||[]}catch{}SK.csv.download("SQC-item-tree.csv",["الفئة","الصنف","النوع","التكلفة","السعر","الهامش"],items.map(i=>[i.cat,i.name,i.kind==="box"?"بوكس":"خام",i.cost,i.price,i.margin==null?"":Math.round(i.margin*1000)/10+"%"]));return}
   const t=e.target.closest("[data-slab-task]");if(t&&window.SKosifTasks&&SKosifTasks.add){SKosifTasks.add({title:"مبادرة: "+t.dataset.slabTask,cap:"salesintel",priority:"normal"});SK.toast("أُضيفت إلى المهام","ok")}
 });
 document.addEventListener("change",e=>{const c=e.target.closest("[data-slab-ch]");if(c){pch=c.value;const h=document.querySelector("[data-slab-host]");if(h)paint(h)}});

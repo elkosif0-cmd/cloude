@@ -1,4 +1,4 @@
-/** KOSIF V5 — generic traceability graph for documents -> reports. */
+/** SQC V5 — generic traceability graph for documents -> reports. */
 export function createTraceabilityGraph(){return{nodes:[],edges:[]}}
 export function addTraceNode(graph,{id,type,label,meta={}}){if(!id)throw new TypeError('Trace node id is required');if(!graph.nodes.some(n=>n.id===id))graph.nodes.push({id,type,label:label??id,meta:structuredClone(meta)});return graph}
 export function addTraceEdge(graph,from,to,relation,meta={}){if(!graph.nodes.some(n=>n.id===from)||!graph.nodes.some(n=>n.id===to))return graph;if(!graph.edges.some(e=>e.from===from&&e.to===to&&e.relation===relation))graph.edges.push({from,to,relation,meta:structuredClone(meta)});return graph}

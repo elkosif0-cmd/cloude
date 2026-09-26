@@ -2,8 +2,8 @@
 // their scope, duplicate keys, unreachable code, assignments to constants. CI runs it; `npx eslint` runs it locally.
 import globals from "globals";
 const appGlobals = Object.fromEntries(["SK", "SKEngines", "SKosifCore", "SKosifShell", "SKCharts", "SKXlsx", "SKosifAI", "SKosifLedger", "SKosifTBReview",
-  "SKosifCouncilUI", "SKosifAuditBridge", "SKosifCodex", "SKosifReportDocs", "SKosifTasks", "SKosifCommand", "SKServices", "SKosifTopbar", "SKosifNotify",
-  "SKosifReportPack", "SKosifMetrics", "SKosifTable", "SKosifKeys", "SKosifAssistant", "SKosifSalesLab", "SKosifClose", "SKosifAuditPractice", "SKosifAccountingGuidance"].map((k) => [k, "readonly"]));
+  "SKosifCouncilUI", "SKosifAuditBridge", "SKosifCodex", "SKosifReportDocs", "SKosifIntegrated", "SKosifTasks", "SKosifCommand", "SKServices", "SKosifTopbar", "SKosifNotify",
+  "SKosifReportPack", "SKosifMetrics", "SKosifTable", "SKosifKeys", "SKosifAssistant", "SKosifSalesLab", "SKosifClose", "SKosifAuditBench", "SKosifAuditPractice", "SKosifAccountingGuidance", "SKosifFieldwork"].map((k) => [k, "readonly"]));
 export default [
   { ignores: ["app/**", "dist/**", "ui/audit/**", "ui/core/engines.js", "capabilities-v2/**", "node_modules/**", "**/*.mjs"] },
   {

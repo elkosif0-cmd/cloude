@@ -11,7 +11,11 @@ import {
   projectSampleMisstatement,
   identifyKamCandidates,
   scopeGroupAuditComponents,
-  evaluateControlRemediation
+  evaluateControlRemediation,
+  evaluateManagementOverride,
+  evaluateEclGovernance,
+  evaluateGoingConcern,
+  assessEngagementQuality
 } from './research-engine.js';
 
 const $ = (selector) => __kxRootR().querySelector(selector);
@@ -32,9 +36,9 @@ function metric(label, value) {
 }
 
 function statusClass(status) {
-  if (['clear', 'remediated'].includes(status)) return 'good';
-  if (['escalate', 'design_gap', 'implementation_gap', 'operating_gap'].includes(status)) return 'danger';
-  if (['investigate', 'watch', 'sustainability_monitoring'].includes(status)) return 'warn';
+  if (['clear', 'remediated', 'strong', 'supported', 'baseline'].includes(status)) return 'good';
+  if (['escalate', 'design_gap', 'implementation_gap', 'operating_gap', 'high-risk', 'blocked', 'weak', 'disclosure-gap'].includes(status)) return 'danger';
+  if (['investigate', 'watch', 'sustainability_monitoring', 'needs-work', 'needs-attention', 'elevated', 'incomplete'].includes(status)) return 'warn';
   return 'info';
 }
 
@@ -85,7 +89,7 @@ function renderSample() {
     ['الأهمية الإجمالية', money(state.materiality.overall), 'تحدد سقف التقييم الإجمالي للارتباط.'],
     ['أهمية الأداء', money(state.materiality.performance), 'تستخدم في تحديد امتداد الاختبار وخطر التجميع.'],
     ['عتبة الفحص 100%', money(p.parameters.certaintyThresholdMinor), 'كل بند يساويها أو يتجاوزها يدخل طبقة certainty.'],
-    ['هدف تغطية المجتمع المتبقي', pct(p.metrics.targetResidualCoveragePct), 'سياسة KOSIF تتغير مع المخاطر والضوابط والتحريف المتوقع.'],
+    ['هدف تغطية المجتمع المتبقي', pct(p.metrics.targetResidualCoveragePct), 'سياسة SQC تتغير مع المخاطر والضوابط والتحريف المتوقع.'],
     ['التغطية الفعلية للمجتمع المتبقي', pct(p.metrics.residualCoveragePct), p.metrics.targetReached ? 'تم بلوغ هدف التغطية.' : 'لم يُبلغ الهدف بسبب سقف العينة؛ يتطلب قرارًا.'],
     ['قيمة البنود المختارة', money(p.metrics.selectedValueMinor), `${p.metrics.selectedCount.toLocaleString('ar-SA')} بندًا إجمالًا.`],
     ['حالة السقف', p.metrics.capApplied ? 'تم تطبيق الحد الأقصى' : 'لم يقيّد الخطة', p.metrics.capApplied ? 'راجع السقف أو وسّع الاختبار.' : 'امتداد الاختبار حقق سياسة الخطة الحالية.']
@@ -185,9 +189,112 @@ function renderControls() {
   $('#controlList').innerHTML = evaluation.controls.map((control) => `<div class="item"><span class="status ${statusClass(control.status)}">${esc(labels[control.status])}</span><strong style="margin-top:8px">${esc(control.title)}</strong><small>${esc(control.blockers.join(' · ') || 'لا توجد موانع آلية ظاهرة؛ يلزم اعتماد المراجع.')}</small></div>`).join('');
 }
 
+
+function checked(id) { return !!$('#' + id)?.checked; }
+function num(id) { return Number($('#' + id)?.value || 0); }
+
+function rowsHtml(rows = []) {
+  return rows.map((row) => `<div class="item"><span class="status ${statusClass(row.status)}">${esc(row.status)}</span><strong style="margin-top:8px">${esc(row.label)}</strong><small>${esc(row.detail || '')}</small></div>`).join('');
+}
+
+function renderOverride() {
+  const r = evaluateManagementOverride({
+    incentivePressure: checked('ovPressure'),
+    privilegedPosting: checked('ovPrivilege'),
+    lateOrPostCloseEntries: num('ovLate'),
+    unusualEntries: num('ovUnusual'),
+    estimateBiasIndicators: num('ovBias'),
+    journalEntryTestingDone: checked('ovJournalsDone'),
+    estimateBiasReviewed: checked('ovEstimateDone'),
+    unusualTransactionsReviewed: checked('ovUnusualDone'),
+    populationCompletenessConfirmed: checked('ovPopulation')
+  });
+  const badge = $('#overrideBadge');
+  badge.textContent = r.score + '/100';
+  badge.className = 'status ' + statusClass(r.risk);
+  $('#overrideResult').innerHTML =
+    `<div class="item"><strong>${esc(r.conclusion)}</strong><small>${esc(r.drivers.join(' · '))}</small></div>` +
+    r.procedures.map((p) => `<div class="item"><span class="status ${p.done ? 'good' : 'warn'}">${p.done ? 'موثق' : 'مفتوح'}</span><strong style="margin-top:8px">${esc(p.label)}</strong><small>${esc(p.detail)}</small></div>`).join('');
+}
+
+function renderEcl() {
+  const r = evaluateEclGovernance({
+    scopeDefined: checked('eclScope'),
+    stagingDefined: checked('eclStaging'),
+    sicrDocumented: checked('eclSicr'),
+    pdLgEadValidated: checked('eclParams'),
+    probabilityWeightedScenarios: checked('eclScenarios'),
+    macroeconomicLinkageDocumented: checked('eclMacro'),
+    overlaysGoverned: checked('eclOverlays'),
+    independentValidation: checked('eclValidation'),
+    backtesting: checked('eclBacktest'),
+    dataLineage: checked('eclLineage'),
+    sensitivityAnalysis: checked('eclSensitivity')
+  });
+  const badge = $('#eclBadge');
+  badge.textContent = r.score + '/100';
+  badge.className = 'status ' + statusClass(r.status);
+  $('#eclResult').innerHTML =
+    `<div class="item"><span class="status ${statusClass(r.status)}">${esc(r.status)}</span><strong style="margin-top:8px">تقييم حوكمة ECL</strong><small>${r.criticalMissing.length ? 'فجوات حرجة: ' + esc(r.criticalMissing.join(' · ')) : 'لا فجوات حرجة آلية ظاهرة.'}</small></div>` +
+    r.checks.map((x) => `<div class="item"><span class="status ${x.status === 'pass' ? 'good' : x.status === 'fail' ? 'danger' : 'warn'}">${esc(x.status)}</span><strong style="margin-top:8px">${esc(x.label)}</strong><small>الوزن ${x.weight}%</small></div>`).join('') +
+    `<div class="note"><b>أسئلة التحدي:</b><br>${r.challengePrompts.map((q, i) => (i + 1) + '. ' + esc(q)).join('<br>')}</div>`;
+}
+
+function renderGoingConcern() {
+  const r = evaluateGoingConcern({
+    forecastMonths: num('gcMonths'),
+    forecastReconciled: checked('gcReconcile'),
+    fundingFacilitiesConfirmed: checked('gcFacilities'),
+    covenantHeadroomTested: checked('gcCovenants'),
+    downsideScenario: checked('gcDownside'),
+    reverseStressTest: checked('gcReverse'),
+    managementPlansTested: checked('gcPlans'),
+    postBalanceEventsReviewed: checked('gcPost'),
+    boardOrGovernanceApproved: checked('gcBoard'),
+    liquidityWarningIndicators: num('gcFlags'),
+    materialUncertaintyIdentified: checked('gcMU'),
+    disclosureAdequate: checked('gcDisclosure')
+  });
+  const badge = $('#goingBadge');
+  badge.textContent = r.score + '/100';
+  badge.className = 'status ' + statusClass(r.status);
+  $('#goingResult').innerHTML =
+    `<div class="item"><span class="status ${statusClass(r.status)}">${esc(r.status)}</span><strong style="margin-top:8px">${esc(r.reporting)}</strong><small>راجع المتطلب الزمني الساري في المدونة المحاسبية قبل الاعتماد.</small></div>` +
+    r.checks.map((x) => `<div class="item"><span class="status ${x.pass ? 'good' : 'warn'}">${x.pass ? 'مكتمل' : 'ناقص'}</span><strong style="margin-top:8px">${esc(x.label)}</strong></div>`).join('');
+}
+
+function renderQuality() {
+  const r = assessEngagementQuality({
+    independenceConfirmed: checked('qInd'),
+    prohibitedNonAuditServices: checked('qProhibited'),
+    nonAuditServicesApproved: checked('qNonAudit'),
+    feeDependenceReviewed: checked('qFees'),
+    partnerRotationReviewed: checked('qRotation'),
+    specialistsUsedWhenNeeded: checked('qExperts'),
+    inspectionFindingsConsidered: checked('qInspection'),
+    testingStatusTransparent: checked('qStatus'),
+    independentChallengeEvidence: checked('qChallenge'),
+    engagementQualityReviewComplete: checked('qEqr')
+  });
+  const badge = $('#qualityBadge');
+  badge.textContent = r.score + '/100';
+  badge.className = 'status ' + statusClass(r.status);
+  $('#qualityResult').innerHTML =
+    `<div class="item"><span class="status ${statusClass(r.status)}">${esc(r.status)}</span><strong style="margin-top:8px">${esc(r.recommendation)}</strong><small>${r.blockers.length ? 'عناصر مانعة: ' + esc(r.blockers.join(' · ')) : 'لا عناصر مانعة آلية ظاهرة.'}</small></div>` +
+    r.checks.map((x) => `<div class="item"><span class="status ${x.status === 'pass' ? 'good' : x.status === 'fail' ? 'danger' : 'warn'}">${esc(x.status)}</span><strong style="margin-top:8px">${esc(x.label)}</strong></div>`).join('');
+}
+
 $('#runPlan').addEventListener('click', runPlan);
 $('#simulateErrors').addEventListener('click', simulateErrors);
+$('#runOverride').addEventListener('click', renderOverride);
+$('#runEcl').addEventListener('click', renderEcl);
+$('#runGoing').addEventListener('click', renderGoingConcern);
+$('#runQuality').addEventListener('click', renderQuality);
 for (const id of ['risk', 'controls', 'aggregation', 'method']) $("#" + id).addEventListener('change', runPlan);
 renderGroupScope();
 renderControls();
+renderOverride();
+renderEcl();
+renderGoingConcern();
+renderQuality();
 runPlan();

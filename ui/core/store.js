@@ -43,13 +43,13 @@ async function collect(){
   const local={};appKeys().forEach(k=>{local[k]=localStorage.getItem(k)});
   const idb=await readIdb();
   const body=JSON.stringify({local,idb});
-  return{format:FORMAT,version:VERSION,app:"S.kosif",createdAt:new Date().toISOString(),
+  return{format:FORMAT,version:VERSION,app:"SQC",createdAt:new Date().toISOString(),
     counts:{keys:Object.keys(local).length,rows:Object.fromEntries(Object.entries(idb).map(([k,v])=>[k,v.length]))},
     sha256:await sha256(body),local,idb};
 }
 async function backup(){
   const b=await collect();
-  SK.download("S.kosif-backup-"+b.createdAt.slice(0,10)+".json",new Blob([JSON.stringify(b)],{type:"application/json"}));
+  SK.download("SQC-backup-"+b.createdAt.slice(0,10)+".json",new Blob([JSON.stringify(b)],{type:"application/json"}));
   SK.bus&&SK.bus.emit("backup",{keys:b.counts.keys,rows:b.counts.rows});
   return b.counts;
 }
@@ -61,12 +61,12 @@ async function parse(fileOrText){
     if(b.sha256&&sum&&sum!==b.sha256)throw new Error("بصمة الملف لا تطابق محتواه — الملف معدّل أو تالف");
     return{local:b.local||{},idb:b.idb||{},createdAt:b.createdAt};
   }
-  /* earlier settings-card export: {app:"S.kosif",data:{key:value}} */
-  if(b&&b.app==="S.kosif"&&b.data&&typeof b.data==="object"){
+  /* earlier settings-card export: {app:"S.kosif",data:{key:value}} (the name before SQC) */
+  if(b&&(b.app==="SQC"||b.app==="S.kosif")&&b.data&&typeof b.data==="object"){
     const local={};Object.entries(b.data).forEach(([k,v])=>{if(PREFIX.test(k))local[k]=typeof v==="string"?v:JSON.stringify(v)});
     return{local,idb:{},createdAt:b.exportedAt};
   }
-  throw new Error("هذا ليس ملف نسخة احتياطية من S.kosif");
+  throw new Error("هذا ليس ملف نسخة احتياطية من SQC");
 }
 /* dry run: what would change, nothing is written */
 async function preview(fileOrText){
@@ -96,7 +96,7 @@ async function rollback(){
   snapshot=null;
   SK.bus&&SK.bus.emit("restore",{rollback:true});
 }
-function downloadSnapshot(){if(snapshot)SK.download("S.kosif-before-restore-"+snapshot.createdAt.slice(0,19).replace(/:/g,"")+".json",new Blob([JSON.stringify(snapshot)],{type:"application/json"}))}
+function downloadSnapshot(){if(snapshot)SK.download("SQC-before-restore-"+snapshot.createdAt.slice(0,19).replace(/:/g,"")+".json",new Blob([JSON.stringify(snapshot)],{type:"application/json"}))}
 function usage(){let bytes=0;const keys=appKeys();keys.forEach(k=>{bytes+=(localStorage.getItem(k)||"").length*2});return{keys:keys.length,bytes}}
 
 SK.store=Object.freeze({keys:appKeys,idbAll,data:collect,backup,preview,restore,rollback,hasSnapshot:()=>!!snapshot,downloadSnapshot,usage});

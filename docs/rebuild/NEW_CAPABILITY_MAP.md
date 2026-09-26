@@ -57,6 +57,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | الأرشيف | `archive` | التقارير والتحليلات › الأرشيف والتغييرات | MANAGEMENT | admin, accountant |
 | جديد — دمج smart-trial-balance-review (مجلس Gemini والجولات) و kosif-audit-pro (القوائم والتحليل) و Moon (المخاطر والرأي) و SEE (التصنيف والجاهزية) + استوديو KOSIF للمراجعة (تبويب «الاستوديو المتقدم» داخل الملف) | `tbreview` | المراجعة والتأكيد › مركز المراجعة › ملف المراجعة | CORE | admin, accountant |
 | جديد — يحل محل قاعدة معايير smart-trial-balance-review ويكمّل مختبر المعايير | `codex` | المراجعة والتأكيد › المعايير والمدونة › المدونة المحاسبية والمعايير | MANAGEMENT | admin, accountant, viewer |
+| جديد — من global_financial_and_audit_research_bundle_extended_verified.pdf (12,506 صفحة) | `auditbench` | المراجعة والتأكيد › المعايير والمدونة › المرجع العالمي للمراجعة | MANAGEMENT | admin |
 | KOSIF Audit Studio | `auditdesk` | المراجعة والتأكيد › مركز المراجعة › الاستوديو المتقدم (advanced) | ADVANCED | admin, accountant |
 | KOSIF Audit Studio | `auditdocs` | المراجعة والتأكيد › مركز المراجعة › المستندات والأدلة (advanced) | ADVANCED | admin, accountant |
 | KOSIF Audit Studio | `auditissues` | المراجعة والتأكيد › مركز المراجعة › الملاحظات والقضايا (advanced) | ADVANCED | admin, accountant |
@@ -104,20 +105,20 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | التقارير والتحليلات | الطباعة والتصدير | `reports` مركز الطباعة · `exports` مركز التصدير |
 | التقارير والتحليلات | الأرشيف والتغييرات | `archive` الأرشيف والتغييرات |
 | المراجعة والتأكيد | مركز المراجعة | `tbreview` ملف المراجعة · `auditdesk` الاستوديو المتقدم · `auditdocs` المستندات والأدلة · `auditissues` الملاحظات والقضايا · `auditcouncil` مجلس المراجعين · `auditfin` القوائم والقيود · `auditreport` التقارير والإصدار · `auditanalytics` التحليل والاختبارات |
-| المراجعة والتأكيد | المعايير والمدونة | `codex` المدونة المحاسبية والمعايير · `auditlab` مختبر المعايير والأبحاث |
+| المراجعة والتأكيد | المعايير والمدونة | `codex` المدونة المحاسبية والمعايير · `auditbench` المرجع العالمي للمراجعة · `auditlab` مختبر المعايير والأبحاث |
 | النظام والتكاملات | الإعدادات والأجهزة | `settings` الإعدادات والمظهر · `devices` الأجهزة والمزامنة |
 | النظام والتكاملات | الشركات والفترات | `companies` الشركات والفترات |
 | النظام والتكاملات | الحوكمة والصلاحيات | `governance` الحوكمة والجاهزية · `health` الصحة والتشخيص · `capabilitiesv2` الصلاحيات ومساحات العمل |
 
-65 screens in 30 menu entries.
+66 screens in 30 menu entries.
 
 ## By tier
 
 - **CORE** — العمل اليومي الأساسي (18): `dash`, `notifications`, `commerce`, `zatca`, `customers`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `cash`, `receivables`, `productflow`, `catalog`, `sim`, `builder`, `tbreview`
-- **MANAGEMENT** — الإدارة والمتابعة (9): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `memo`, `execreports`, `archive`, `codex`
+- **MANAGEMENT** — الإدارة والمتابعة (10): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `memo`, `execreports`, `archive`, `codex`, `auditbench`
 - **INTELLIGENCE** — التحليل والذكاء (7): `decision`, `jev`, `council`, `salesintel`, `intelligence`, `economics`, `compare`
 - **ADVANCED** — الهندسة المتقدمة (17): `risklab`, `sensitivity`, `carcass`, `yieldlab`, `nrv`, `finance`, `costs`, `kernel`, `analyzer`, `auditdesk`, `auditdocs`, `auditissues`, `auditcouncil`, `auditfin`, `auditreport`, `auditanalytics`, `auditlab`
 - **UTILITIES** — أدوات مساعدة (9): `blending`, `culinary`, `labels`, `scanner`, `smartmatch`, `excelrecon`, `reports`, `exports`, `devices`
 - **ADMIN** — النظام والإدارة (5): `settings`, `companies`, `governance`, `health`, `capabilitiesv2`
 
-Coverage gate: 65 screens in 9 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
+Coverage gate: 66 screens in 9 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.

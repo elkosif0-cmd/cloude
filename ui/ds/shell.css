@@ -276,13 +276,13 @@ body.skn-locked{overflow:hidden}
 :root[data-look="kosif"]:not(#x) .rail{background:linear-gradient(180deg,#0c2340 0%,#0b2a4a 55%,#0a2442 100%);border-inline-start:0;padding-bottom:var(--sk-4)}
 :root[data-look="kosif"][data-theme="dark"]:not(#x) .rail{background:linear-gradient(180deg,#071427,#081b33)}
 :root[data-look="kosif"]:not(#x) .rail .brand{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;align-items:center;column-gap:10px;row-gap:0;padding:var(--sk-5) var(--sk-3) var(--sk-4);border-bottom:1px solid rgba(255,255,255,.08);direction:ltr}
-:root[data-look="kosif"]:not(#x) .rail .brand::before{grid-row:1/3;width:54px;height:38px;border-radius:0;box-shadow:none;background:url(./art/kosif-cloud.svg) center/contain no-repeat;-webkit-mask-image:none;mask-image:none}
+:root[data-look="kosif"]:not(#x) .rail .brand::before{grid-row:1/3;width:44px;height:44px;border-radius:0;box-shadow:none;background:url(./art/sqc-icon.svg) center/contain no-repeat;-webkit-mask-image:none;mask-image:none}
 :root[data-look="kosif"]:not(#x) .rail .brand-mark{display:none}
 :root[data-look="kosif"]:not(#x) .rail .brand>div:not(.brand-mark){display:flex;flex-direction:column;align-items:flex-start;min-width:0}
 :root[data-look="kosif"]:not(#x) .rail #app-name{display:block;margin:0;font:700 0/1 var(--sk-font);color:#fff}
-:root[data-look="kosif"]:not(#x) .rail #app-name::before{content:"KOSIF";font:800 30px/1 "Segoe UI",system-ui,sans-serif;letter-spacing:.01em;color:#fff}
+:root[data-look="kosif"]:not(#x) .rail #app-name::before{content:"SQC";font:800 30px/1 "Segoe UI",system-ui,sans-serif;letter-spacing:.01em;color:#fff}
 :root[data-look="kosif"]:not(#x) .rail #biz-name{margin-top:4px;font:600 14px/1.3 var(--sk-font);color:#dce8f7;text-align:start;direction:rtl}
-:root[data-look="kosif"]:not(#x) .rail #biz-name::after{content:"Audit. Assure. Comply.";margin-top:2px;font:400 11.5px/1.3 "Segoe UI",system-ui,sans-serif;color:#8ea4c1;direction:ltr;text-align:start}
+:root[data-look="kosif"]:not(#x) .rail #biz-name::after{content:"Smart Quality Control";margin-top:2px;font:400 11.5px/1.3 "Segoe UI",system-ui,sans-serif;color:#8ea4c1;direction:ltr;text-align:start}
 :root[data-look="kosif"] .modeseg{background:rgba(255,255,255,.06)}
 :root[data-look="kosif"] .modeseg button{color:#b8c8dc}
 :root[data-look="kosif"] .modeseg button[aria-pressed="true"]{background:var(--sk-brand);color:#fff}
@@ -569,7 +569,7 @@ body.skn-locked{overflow:hidden}
 :root:is([data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail .brand-mark{display:none}
 :root:is([data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail .brand>div:not(.brand-mark){display:flex;flex-direction:column;align-items:flex-start;min-width:0}
 :root:is([data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail #app-name{display:block;margin:0;font:700 0/1 var(--sk-font);color:var(--sk-rail-ink)}
-:root:is([data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail #app-name::before{content:"KOSIF";font:800 30px/1 "Segoe UI",system-ui,sans-serif;letter-spacing:.01em;color:var(--sk-rail-ink)}
+:root:is([data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail #app-name::before{content:"SQC";font:800 30px/1 "Segoe UI",system-ui,sans-serif;letter-spacing:.01em;color:var(--sk-rail-ink)}
 :root[data-look="onyx"]:not(#x) .rail #app-name::before{color:var(--sk-brand)}
 :root:is([data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail #biz-name{margin-top:4px;font:600 14px/1.3 var(--sk-font);color:var(--sk-rail-ink);opacity:.86;text-align:start;direction:rtl}
 :root:is([data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail #biz-name::after{content:"Audit. Assure. Comply.";display:block;margin-top:2px;font:400 11.5px/1.3 "Segoe UI",system-ui,sans-serif;color:var(--sk-rail-mute);direction:ltr;text-align:start}

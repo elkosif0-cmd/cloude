@@ -1,4 +1,4 @@
-/** KOSIF V5 — attaches only approved, reconciled cash flow versions to the report. */
+/** SQC V5 — attaches only approved, reconciled cash flow versions to the report. */
 import { reportQuality } from './report-model.js';
 import { latestCashFlowVersion } from './cash-flow-workflow.js';
 const uniq=v=>[...new Set((v||[]).filter(Boolean))];

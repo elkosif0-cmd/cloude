@@ -1,4 +1,23 @@
-# S.kosif — KOSIF · مراجعة أذكى، ثقة أكبر
+# SQC — Smart Quality Control
+
+![SQC — Smart Quality Control · AI-Powered Audit & Assurance Platform](ui/art/sqc-banner.jpg)
+
+**SQC — Smart Quality Control** · منصة المراجعة والتأكيد المدعومة بالذكاء الاصطناعي (AI-Powered Audit & Assurance Platform).
+The app was previously named S.kosif / KOSIF; storage keys and file names keep the old prefix so existing data keeps loading.
+
+### AI audit and integrated reporting
+
+- **Any AI provider:** Google Gemini, OpenAI or Anthropic Claude with the user's own key (`audit/ai-providers-engine.ts`,
+  `ui/core/ai.js`) runs the review rounds, the reviewers' council, the final report and the report narrative.
+- **The whole research bundle, page by page:** all 12,506 pages of the global financial & audit research bundle are
+  classified into 54 section types; each of the 49 reports' structure and the patterns across them (KAM procedures,
+  principal-risk categories, letter topics, APMs, audit-committee topics, auditor-report elements) live in
+  `reports/global-corpus-engine.ts` and the «الحزمة كاملة» tab of the Global Audit Reference.
+- **Integrated annual report:** `reports/narrative-engine.ts` + `ui/features/integrated-report.js` write the report to
+  that structure — AI-drafted when a key is set, engine-drafted otherwise — check every figure in the prose against the
+  company's numbers, and score the report against the bundle. One click runs the whole engagement: round → final
+  report → integrated report. See `docs/research/GLOBAL_RESEARCH_BUNDLE_ar.md`.
+
 
 S.kosif (brand: **KOSIF**) is the production application shell for the encrypted business dataset and the
 unified operations, pricing, customer, finance, audit & compliance, reporting, governance and Jev decision
@@ -93,6 +112,33 @@ artwork was generated in Canva and redrawn as vector art):
   PDF, Word, multi-sheet Excel (`SKXlsx.book`), HTML and share.
 - **Evaluation** — Jev scores before/after in `docs/EVALUATION-ar.md`; `tools/ui_smoke.mjs` opens every screen on
   laptop and phone in CI.
+
+## Global research bundle: benchmarks, notes and governance reports
+
+The 12,506-page research bundle (49 annual reports, 10-Ks and 20-Fs from 15 countries, plus 30 official sources) was split
+into 50 parts, read, and turned into working tools; every figure cites its bundle page and is machine-checked against it
+(`docs/research/GLOBAL_RESEARCH_BUNDLE_ar.md`).
+
+- **المرجع العالمي للمراجعة** (`auditbench`, in the standards hub): 96 key/critical audit matters by theme and sector, a
+  materiality checker against the 7 disclosed cases (including Aramco, SAR 26.25bn = 3.7% of income before tax and zakat),
+  13 ratios for 8 peer groups, auditors and tenure, and the 30 official sources — `audit/global-benchmarks-engine.ts`,
+  `reports/peer-benchmarks-engine.ts`.
+- **Engagement file › statements and reports** gains the full notes package (expenses by nature, zakat movement and an
+  indicative base, IAS 7.44A, IFRS 7 credit/liquidity/interest risk, capital management with Aramco's gearing and ROACE,
+  estimate sensitivities — `reports/notes-engine.ts`), the auditor's «نهجنا في المراجعة» section, the audit committee report,
+  management's ICFR report with AS 2201 severity (`audit/governance-engine.ts`), and the global peer comparison.
+
+## Fieldwork: from plan to sign-off (ISA 300 → 700)
+
+The engagement file is a working audit, not a report generator: «العمل الميداني» holds the audit strategy, the
+risk × assertion matrix (ISA 315), one working paper per area with its standard reference (A cash … T zakat), its
+procedures — for a significant risk also those the research bundle's auditors performed on the same theme, with the
+page — a monetary-unit sample size (ISA 530), the conclusion and a preparer → different-reviewer sign-off; lead
+schedules show unadjusted → adjustments → final per account. «الإكمال» is the gate (ISA 450/560/570/580/220) the
+report waits on. The report centre groups every document (statements, published reports, governance, analysis,
+audit papers: planning memo, working-paper file, lead schedules, completion memo, representation letter); each opens
+in the in-app preview before printing or exporting to PDF, Word, Excel or HTML — `audit/fieldwork-engine.ts`,
+`ui/features/tb-fieldwork.js`.
 
 ## Live assistant, theme studio, charts, tables and printing
 

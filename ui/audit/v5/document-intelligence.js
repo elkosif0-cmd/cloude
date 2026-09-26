@@ -1,5 +1,5 @@
 /**
- * KOSIF V5 — Document Intelligence domain normalization.
+ * SQC V5 — Document Intelligence domain normalization.
  * Pure functions only. AI output is untrusted until normalized and reviewed.
  */
 

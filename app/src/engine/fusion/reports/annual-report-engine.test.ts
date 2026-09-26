@@ -66,30 +66,20 @@ describe('report outputs in the style of Apple and Amazon', () => {
   });
 });
 
-import { approachSection, auditorsReport as ar2, zakatNote } from './annual-report-engine';
-import { parseTrialBalance as ptb2, SAMPLE_TB_CSV as S2 } from './tb-import-engine';
-import { buildStatements as bs2 } from './statements-engine';
-describe('auditor report sections from global practice', () => {
-  const m = { overall: 100_000_00, benchmarkAr: 'الربح قبل الزكاة والضريبة المعدّل', rate: 0.05, why: 'مؤشر الأداء', performance: 75_000_00, performanceRate: 0.75, trivial: 5_000_00 };
-  it('«our audit approach» shows materiality, basis, performance and the reporting threshold (Aramco/PwC)', () => {
-    const s = approachSection({ materiality: m }, [{ title: 'إثبات الإيرادات', description: '', how: '', trend: 'new' }]);
-    expect(s.title).toBe('منهجنا في المراجعة');
-    expect(s.table!.map((r) => r[0])).toContain('حد إبلاغ المكلفين بالحوكمة بالتحريفات');
-    expect(s.table![1][1]).toContain('5%');
-    expect(s.paragraphs.join(' ')).toContain('جديد هذا العام');
-  });
-  it('puts the going-concern conclusion and the approach before the key audit matters', () => {
+import { auditorsReport as ar2 } from './annual-report-engine';
+describe('auditor report: the going-concern section (ISA 570 Revised 2024) with the audit approach', () => {
+  it('puts the going-concern conclusion after the basis and the approach before the key audit matters', () => {
     const r = ar2({ company: 'شركة', framework: 'IFRS', opinion: 'unmodified', basis: [], kams: [{ title: 'ك', description: 'د', how: 'ه', observation: 'ن' }],
-      goingConcernSection: { title: 'الاستنتاجات المتعلقة بالاستمرارية', paragraphs: ['ملائم'] }, approach: { materiality: m } });
+      goingConcernSection: { title: 'الاستنتاجات المتعلقة بالاستمرارية', paragraphs: ['ملائم'] },
+      approach: { title: 'نهجنا في المراجعة', paragraphs: ['الأهمية'], table: { columns: ['', ''], rows: [['الأهمية النسبية العامة', '100']] } } });
     const t = r.sections.map((x) => x.title);
     expect(t.indexOf('الاستنتاجات المتعلقة بالاستمرارية')).toBeGreaterThan(t.indexOf('أساس الرأي'));
-    expect(t.indexOf('منهجنا في المراجعة')).toBeLessThan(t.indexOf('الأمور الرئيسية للمراجعة'));
+    expect(t.indexOf('نهجنا في المراجعة')).toBeLessThan(t.indexOf('الأمور الرئيسية للمراجعة'));
+    expect(r.sections.find((x) => x.kams)!.kams![0].observation).toBe('ن');
   });
-  it('the zakat note rolls the obligation forward (Aramco note 8c)', () => {
-    const n = zakatNote(bs2(ptb2(S2)));
-    expect(n.rows).toHaveLength(4);
-    expect(n.policy).toContain('أيهما أعلى');
-    const [o, c, p, e] = n.rows.map((x) => x.amount);
-    if (o !== null && p !== null) expect((o as number) + (c as number) + (p as number)).toBe(e);
+  it('a disclaimer carries neither the going-concern conclusion nor the approach', () => {
+    const r = ar2({ company: 'شركة', framework: 'IFRS', opinion: 'disclaimer', basis: ['تعذر'], kams: [],
+      goingConcernSection: { title: 'الاستنتاجات المتعلقة بالاستمرارية', paragraphs: ['ملائم'] }, approach: { title: 'نهجنا في المراجعة', paragraphs: [] } });
+    expect(r.sections.map((x) => x.title)).not.toContain('الاستنتاجات المتعلقة بالاستمرارية');
   });
 });

@@ -1,4 +1,4 @@
-// KOSIF Audit Studio — voice.js
+// SQC Audit Studio — voice.js
 // OpenAI Realtime WebRTC عبر Cloudflare Worker، مع بقاء موجّه النوايا المحلي
 // كمسار احتياطي حتمي. لا يُرسل مفتاح OpenAI إلى المتصفح في أي وقت.
 
@@ -191,7 +191,7 @@ export function createVoiceAssistant({ getContext = () => ({}), api = {}, onEven
       session: {
         type: 'realtime',
         instructions: [
-          'أنت KOSIF Live، مساعد مراجعة مالية عربي داخل تطبيق KOSIF Audit Studio.',
+          'أنت SQC Live، مساعد مراجعة مالية عربي داخل تطبيق SQC Audit Studio.',
           'تحدث بالعربية السعودية/الفصحى المبسطة بإيجاز ووضوح.',
           'لا تدّع تنفيذ إجراء داخل التطبيق لم يحدث فعلًا، ولا تصدر رأيًا مهنيًا نهائيًا نيابة عن المراجع البشري.',
           'عندما يسأل المستخدم عن أرقام الملف استخدم فقط السياق المرسل ولا تخمّن.',

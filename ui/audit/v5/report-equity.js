@@ -1,4 +1,4 @@
-/** KOSIF V5 — attaches only approved, reconciled changes-in-equity versions to the report. */
+/** SQC V5 — attaches only approved, reconciled changes-in-equity versions to the report. */
 import { reportQuality } from './report-model.js';
 import { latestEquityVersion } from './equity-workflow.js';
 const uniq=v=>[...new Set((v||[]).filter(Boolean))];

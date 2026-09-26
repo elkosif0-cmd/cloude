@@ -81,7 +81,7 @@ export function buildMoonSnapshot(input = {}) {
 
   return {
     generatedAt: new Date().toISOString(),
-    product: 'Moon compatibility layer over KOSIF Audit Studio',
+    product: 'Moon compatibility layer over SQC Audit Studio',
     engagement: asObject(state.engagement),
     metrics: {
       rows: rows.length,

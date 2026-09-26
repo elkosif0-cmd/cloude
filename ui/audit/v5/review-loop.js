@@ -1,4 +1,4 @@
-/** KOSIF V5 — continuous evidence -> council -> request -> evidence loop orchestration. */
+/** SQC V5 — continuous evidence -> council -> request -> evidence loop orchestration. */
 import{createEvidenceRequestsFromCouncilRound,refreshEvidenceRequests,evidenceRequestMetrics}from'./evidence-requests.js';
 import{deriveEngagementStage,reportReadiness}from'./engagement-machine.js';
 function nextRoundId(rounds=[]){const max=rounds.reduce((h,i)=>{const m=String(i.id??'').match(/^RND-(\d+)$/);return m?Math.max(h,Number(m[1])):h},0);return`RND-${String(max+1).padStart(3,'0')}`}

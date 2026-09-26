@@ -136,7 +136,7 @@ function paint(){
     $$("[data-inv-load]",root).forEach(b=>b.onclick=()=>{const x=load(KEY,[])[+b.dataset.invLoad];if(!x)return;form={item:x.item,stock:x.stock,daily:x.daily,lead:x.lead,safety:x.safety,cycle:x.cycle};last=x;paint();out(x)});
     $$("[data-inv-del]",root).forEach(b=>b.onclick=()=>{const l=load(KEY,[]);l.splice(+b.dataset.invDel,1);save(KEY,l);paint()});
     const clr=$("#inv-clear",root);if(clr)clr.onclick=async()=>{if(await SK.confirm("مسح كل الأصناف المحفوظة؟",{danger:true,ok:"مسح"})){save(KEY,[]);paint()}};
-    const csv=$("#inv-csv",root);if(csv)csv.onclick=()=>window.SK.csv.download("S.kosif-inventory-"+new Date().toISOString().slice(0,10),["الصنف","الحالة","المخزون","البيع اليومي","أيام التغطية","نقطة إعادة الطلب","الكمية المقترحة"],load(KEY,[]).map(x=>[x.item,x.status,x.stock,x.daily,x.cover.toFixed(1),x.reorderPoint.toFixed(1),x.suggested.toFixed(1)]));
+    const csv=$("#inv-csv",root);if(csv)csv.onclick=()=>window.SK.csv.download("SQC-inventory-"+new Date().toISOString().slice(0,10),["الصنف","الحالة","المخزون","البيع اليومي","أيام التغطية","نقطة إعادة الطلب","الكمية المقترحة"],load(KEY,[]).map(x=>[x.item,x.status,x.stock,x.daily,x.cover.toFixed(1),x.reorderPoint.toFixed(1),x.suggested.toFixed(1)]));
     if(last)out(last);
   } else {
     const box=$("#exp-form-box",root);
@@ -166,7 +166,7 @@ function paint(){
     });
     $("#exp-wa-btn",root)?.addEventListener("click",()=>{
       const l=load(EXP_KEY,defaultExpiry);
-      let msg="*⏳ تقرير رادار صلاحية اللحوم — S.kosif*\nالتاريخ: "+new Date().toLocaleDateString("ar-SA")+"\n--------------------------------\n";
+      let msg="*⏳ تقرير رادار صلاحية اللحوم — SQC*\nالتاريخ: "+new Date().toLocaleDateString("ar-SA")+"\n--------------------------------\n";
       l.forEach(x=>{
         const an=expAnalysis(x);
         msg+="• *"+x.item+"* ("+x.id+")\n   - الكمية: "+x.stockKg+" كجم ("+x.storage+")\n   - الحالة: "+an.label+" ("+an.diffDays+" يوم متبقي)\n   - التوصية: "+an.action+"\n";

@@ -1,4 +1,4 @@
-/** KOSIF V5 — governed disclosure/notes candidate engine. */
+/** SQC V5 — governed disclosure/notes candidate engine. */
 const REVIEW_STATUSES=new Set(['applicable','not-applicable','prepared','reviewed']);
 const OPEN_ISSUES=new Set(['open','investigating','management-response','challenged']);
 const norm=v=>String(v??'').trim().toLowerCase().replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[\u064B-\u065F\u0670]/g,'').replace(/\s+/g,' ');

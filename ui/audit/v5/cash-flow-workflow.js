@@ -1,4 +1,4 @@
-/** KOSIF V5 — human-governed immutable cash flow versions. */
+/** SQC V5 — human-governed immutable cash flow versions. */
 import { cashFlowReadiness } from './cash-flow-engine.js';
 const uniq=v=>[...new Set((v||[]).filter(Boolean))];
 function allowedSources(engagement={}){return new Set([...(engagement.documents||[]).map(x=>x.id),...(engagement.evidence||[]).map(x=>x.id)])}

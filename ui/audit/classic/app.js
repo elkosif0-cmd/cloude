@@ -300,7 +300,7 @@ function openView(view, options = {}) {
   $$('.nav-item').forEach((button) => button.classList.toggle('active', button.dataset.view === view));
   state.activeView = view;
   saveState();
-  window.__kxTitle= `${$('.nav-item.active span')?.textContent ?? 'KOSIF'} — KOSIF Audit Studio`;
+  window.__kxTitle= `${$('.nav-item.active span')?.textContent ?? 'SQC'} — SQC Audit Studio`;
   if (!options.keepScroll) {
     window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches || state.studio.quietMotion ? 'instant' : 'smooth' });
     $('#mainContent').focus({ preventScroll: true });
@@ -385,7 +385,7 @@ function autoSuggestBenchmark() {
 
 function loadDemo() {
   const rows = generateDemoAccounts(5000, 380019);
-  setRows(rows, 'بيانات KOSIF التجريبية — 5000 حساب');
+  setRows(rows, 'بيانات SQC التجريبية — 5000 حساب');
   const suggested = autoSuggestBenchmark();
   if (suggested > 0n) {
     const result = calculateMateriality({ benchmark: 'revenue', amountMinor: suggested, risk: 'medium' });
@@ -807,7 +807,7 @@ function loadJournalDemo() {
     { id: 'JE-2608', date: '2026-11-11', user: 'accountant.a', source: 'automatic', amount: '6234.90', description: 'استحقاق رواتب' }
   ];
   $('#journalPeriodEnd').value = '2026-12-31';
-  runJournalReview(rows, 'سجل قيود KOSIF التجريبي');
+  runJournalReview(rows, 'سجل قيود SQC التجريبي');
 }
 
 function renderJournal() {
@@ -1502,7 +1502,7 @@ function studioContext() {
 function packageExport() {
   const eventChain = verifyAuditEventChain(state.auditEvents);
   return {
-    product: 'KOSIF Audit Studio',
+    product: 'SQC Audit Studio',
     schemaVersion: STATE_VERSION,
     exportedAt: new Date().toISOString(),
     engagement: state.engagement,

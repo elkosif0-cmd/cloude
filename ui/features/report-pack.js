@@ -45,7 +45,7 @@ function html(){
   const o=opts(),s=snapshot(),pr=window.SKosifTopbar?SKosifTopbar.profile():{name:""};
   const tile=(l,v,sub)=>'<div class="sk-kpi"><span>'+esc(l)+'</span><b>'+esc(v)+'</b><small>'+esc(sub)+'</small></div>';
   return '<div class="rp">'+
-    '<div class="rp-hero"><div><h3>الحزمة التنفيذية</h3><p>تقرير شامل بنقرة واحدة بترويسة KOSIF: الغلاف، المؤشرات، الاتجاهات، المخاطر، الملاحظات، القرارات، المهام، والاعتماد — جاهز للطباعة أو الحفظ PDF.</p></div>'+
+    '<div class="rp-hero"><div><h3>الحزمة التنفيذية</h3><p>تقرير شامل بنقرة واحدة بترويسة SQC: الغلاف، المؤشرات، الاتجاهات، المخاطر، الملاحظات، القرارات، المهام، والاعتماد — جاهز للطباعة أو الحفظ PDF.</p></div>'+
       '<button type="button" class="btn primary" data-rp="print">'+SK.icon("reports")+' معاينة وطباعة الحزمة</button></div>'+
     '<div class="sk-kpis">'+tile("متوسط هامش البوكسات",s.avg!=null?nf.format(s.avg)+"٪":"—","الهدف "+nf.format(s.tgt)+"٪")+tile("بوكسات بخسارة",nf.format(s.st.loss),"من "+nf.format(s.st.boxes))+
       tile("المهام المنجزة",s.tasks.length?nf.format(s.done/s.tasks.length*100)+"٪":"—",s.late.length+" متأخرة")+tile("مخاطر مرتفعة مفتوحة",nf.format(s.high.length),"من "+nf.format(s.open.length)+" مفتوحة")+tile("ملاحظات مفتوحة",nf.format(s.findings.length),s.findings.filter(f=>f.severity==="high").length+" عالية الأثر")+'</div>'+

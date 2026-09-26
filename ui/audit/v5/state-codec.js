@@ -1,4 +1,4 @@
-/** KOSIF V5 — deterministic JSON codec for workspace state containing BigInt values. */
+/** SQC V5 — deterministic JSON codec for workspace state containing BigInt values. */
 const BIGINT_TAG = '$kosifBigInt';
 const VERSION = 1;
 
@@ -21,7 +21,7 @@ export function parseState(text) {
     if (item && typeof item === 'object' && Array.isArray(item.$kosifSet)) return new Set(item.$kosifSet);
     return item;
   });
-  if (!decoded || decoded.schemaVersion !== VERSION || !('payload' in decoded)) throw new RangeError('Unsupported KOSIF state payload');
+  if (!decoded || decoded.schemaVersion !== VERSION || !('payload' in decoded)) throw new RangeError('Unsupported SQC state payload');
   return decoded.payload;
 }
 

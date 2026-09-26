@@ -126,7 +126,7 @@ function bind(node){
     }
     else if(a==="close"){const r=d.risks.find(x=>x.id===id);r.status="closed";r.closedAt=new Date().toISOString();put(d);paint()}
     else if(a==="del"){if(!await SK.confirm("حذف هذا الخطر من السجل؟",{danger:true,ok:"حذف"}))return;d.risks=d.risks.filter(x=>x.id!==id);d.findings.forEach(f=>{if(f.riskId===id)f.riskId=""});put(d);paint()}
-    else if(a==="csv")SK.csv.download("KOSIF-risk-register",["الرمز","الخطر","الفئة","الاحتمالية","الأثر","الدرجة","المسؤول","موعد المعالجة","الحالة","الاستجابة"],d.risks.map(r=>[r.ref,r.title,r.category,r.likelihood,r.impact,score(r),r.owner,r.due,RST[r.status||"open"][0],r.response]));
+    else if(a==="csv")SK.csv.download("SQC-risk-register",["الرمز","الخطر","الفئة","الاحتمالية","الأثر","الدرجة","المسؤول","موعد المعالجة","الحالة","الاستجابة"],d.risks.map(r=>[r.ref,r.title,r.category,r.likelihood,r.impact,score(r),r.owner,r.due,RST[r.status||"open"][0],r.response]));
     else if(a==="print")printRegister(d);
     else if(a==="fnew"){editF="";paint();$("#af-title",root).focus()}
     else if(a==="fcancel"){editF=null;paint()}
@@ -139,7 +139,7 @@ function bind(node){
     }
     else if(a==="fdone"||a==="freopen"){const f=d.findings.find(x=>x.id===id);f.status=a==="fdone"?"resolved":"open";put(d);paint()}
     else if(a==="fdel"){if(!await SK.confirm("حذف هذه الملاحظة؟",{danger:true,ok:"حذف"}))return;d.findings=d.findings.filter(x=>x.id!==id);put(d);paint()}
-    else if(a==="fcsv")SK.csv.download("KOSIF-findings",["الرقم","الملاحظة","التفاصيل","المجال","الأثر","التاريخ","المسؤول","الحالة"],d.findings.map(f=>[f.ref,f.title,f.detail,f.area,SEV[f.severity||"medium"],f.date,f.owner,FST[f.status||"open"][0]]));
+    else if(a==="fcsv")SK.csv.download("SQC-findings",["الرقم","الملاحظة","التفاصيل","المجال","الأثر","التاريخ","المسؤول","الحالة"],d.findings.map(f=>[f.ref,f.title,f.detail,f.area,SEV[f.severity||"medium"],f.date,f.owner,FST[f.status||"open"][0]]));
   });
 }
 function printRegister(d){

@@ -938,7 +938,7 @@ tbody tr:hover td{background:rgba(238,242,255,.42)!important}
 .panel{border-radius:14px!important}
 .top-actions>a.ghost{display:none}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
-/* S.kosif theme bridge */
+/* SQC theme bridge */
 :host{display:block;--bg:var(--kx-ground);--surface:var(--kx-surface);--surface2:var(--kx-surface-2);--line:var(--kx-line);
  --text:var(--kx-ink);--ink:var(--kx-ink);--muted:var(--kx-ink-3);--brand:var(--kx-brand);--brand2:var(--kx-brand-2);--paper:var(--kx-surface);
  --kosif-ink:var(--kx-ink);--kosif-purple:var(--kx-brand);--kosif-purple-2:var(--kx-brand-2);--kosif-cream:var(--kx-surface);--kosif-line:var(--kx-line)}
@@ -949,7 +949,7 @@ tbody tr:hover td{background:rgba(238,242,255,.42)!important}
 .kx-body .shell .hero.hero.hero{background:linear-gradient(125deg,var(--kx-brand) 0%,var(--kx-brand-2) 100%)!important;color:#fff!important;box-shadow:none!important}
 .kx-body button.primary,.kx-body .primary{background:var(--kx-brand)!important;border-color:var(--kx-brand)!important;color:#fff!important}
 .kx-body:not([data-workspace-view="overview"]) #kosif-operating-model{display:none!important}
-/* KOSIF identity: the studio's dark leftovers (strips, dialogs, inputs) take the app's tokens */
+/* SQC identity: the studio's dark leftovers (strips, dialogs, inputs) take the app's tokens */
 .kx-body .gateway-strip,.kx-body .delta-cards div,.kx-body .document-preview-column,.kx-body .document-claim-column,.kx-body .workspace-overview-strip,.kx-body .journey,.kx-body .now-panel{background:var(--sk-surface-2)!important;border-color:var(--sk-line)!important;color:var(--sk-ink)!important}
 .kx-body .document-preview-surface{background:var(--sk-surface-3)!important}
 .kx-body .gateway-strip input,.kx-body .recipe-form input,.kx-body dialog select,.kx-body dialog input[type=file],.kx-body .issue-dialog input,.kx-body .issue-dialog select,.kx-body .issue-dialog textarea,.kx-body .lineage-search input,.kx-body .cash-flow-balances input,.kx-body .cash-movement-form input,.kx-body .cash-movement-form select,.kx-body .equity-component-form input,.kx-body .equity-movement-form input,.kx-body .equity-movement-form select,.kx-body .report-publication-toolbar select{background:var(--sk-surface)!important;color:var(--sk-ink)!important;border-color:var(--sk-line-2)!important}

@@ -45,7 +45,36 @@ ok('المنظومة الواحدة','مسار العمل (يأتي من / يذ�
 await go('dash',1400);ok('المنظومة الواحدة','رحلة العمل في مركز القيادة',await p.evaluate(()=>document.querySelectorAll('.skjr li').length===5));
 await go('auditanalytics',3500);const A=await p.evaluate(()=>({tabs:document.querySelectorAll('.kx-views [data-kxv]').length,tools:document.querySelectorAll('.kx-views .kx-tool').length}));
 ok('المنظومة الواحدة','أدوات التحليل بتبويبات التطبيق وبثيمه (صفحاتها وصوتها وأوامرها)',A.tabs>=15&&A.tools===2);
-ok('عدم ضياع القدرات','القدرات الـ65 كلها مسجلة',await p.evaluate(()=>SK.caps.all().length)===65);
+ok('عدم ضياع القدرات','القدرات الـ66 كلها مسجلة',await p.evaluate(()=>SK.caps.all().length)===66);
+// ---------- global research bundle: audit benchmarks ----------
+await go('auditbench',1200);
+const CO=await p.evaluate(()=>{const c=SKEngines.reports.globalCorpus,s=c.summary();return{pages:s.pagesClassified,types:s.sectionTypes,bp:document.querySelectorAll('.ab-bp li').length,reps:document.querySelectorAll('[data-ab-rep] option').length,ex:c.EXEMPLARS.length}});
+ok('البحث العالمي','قراءة الحزمة كاملة: كل صفحة مصنفة وبنية كل تقرير',CO.pages>12400&&CO.types>=50&&CO.reps===49&&CO.bp>=30);
+ok('البحث العالمي','الصفحات النموذجية لكل قسم يكتبه المراجع الذكي',CO.ex>=8);
+await p.click('[data-ab-tab="kams"]');await p.waitForTimeout(500);
+const GB=await p.evaluate(()=>{const g=SKEngines.audit.globalBenchmarks,s=g.summary();return{reports:s.reports,kams:s.kams,mat:s.materiality,src:s.sources,hub:SK.caps.members('codex').map(x=>x.id).includes('auditbench'),themes:document.querySelectorAll('.ab-th').length,
+  aramco:g.MATERIALITY.some(m=>m.report==='aramco-2025'&&m.currency==='SAR'),inTbr:!!window.SKosifAuditBench}});
+ok('البحث العالمي','المرجع العالمي للمراجعة صفحة في «المعايير والمدونة»',GB.hub);
+ok('البحث العالمي','مكتبة الأمور الرئيسية للمراجعة (96 أمراً من 49 تقريراً) بموضوعاتها',GB.reports===49&&GB.kams>=90&&GB.themes>=10);
+ok('البحث العالمي','الأهمية النسبية المفصح عنها بما فيها أرامكو (ريال)',GB.mat===7&&GB.aramco);
+ok('البحث العالمي','المصادر الرسمية الثلاثون',GB.src===30);
+await p.click('[data-ab-tab="mat"]');await p.waitForTimeout(400);ok('البحث العالمي','فحص اختيار الأهمية النسبية مقابل الممارسة',await has('.ab-chk-r'));
+ok('البحث العالمي','السوابق العالمية داخل ملف المراجعة',GB.inTbr);
+await p.click('[data-ab-tab="peers"]');await p.waitForTimeout(400);ok('البحث العالمي','النظراء العالميون: 8 مجموعات × 13 نسبة من قوائمها',await p.evaluate(()=>document.querySelectorAll('.ab-pt thead th').length===10&&document.querySelectorAll('.ab-pt tbody tr').length===13));
+await go('tbreview',2200);await p.click('[data-tab="fs"]');await p.waitForTimeout(800);
+const RD=async k=>{await p.click('[data-doc="'+k+'"]');await p.waitForTimeout(1000);return p.evaluate(()=>{const a=document.querySelector('.rd-paper article');return a?a.innerText:''})};
+const AUD=await RD('auditor');ok('التقارير المتقدمة','تقرير المراجع: «نهجنا في المراجعة» بالأهمية النسبية وحد الإبلاغ (نمط أرامكو)',AUD.includes('نهجنا في المراجعة')&&AUD.includes('حد الإبلاغ'));
+const NT=await RD('notes');ok('التقارير المتقدمة','الإيضاحات المتممة: المصروفات حسب طبيعتها والمخاطر المالية وإدارة رأس المال',NT.includes('المصروفات حسب طبيعتها')&&NT.includes('إدارة المخاطر المالية')&&NT.includes('إدارة رأس المال'));
+const CM=await RD('committee');ok('التقارير المتقدمة','تقرير لجنة المراجعة (نمط HSBC)',CM.includes('الأمور الهامة التي نظرت فيها اللجنة'));
+const IC=await RD('icfr');ok('التقارير المتقدمة','تقرير الإدارة عن الرقابة الداخلية (COSO 2013)',IC.includes('COSO'));
+const PR=await RD('peers');ok('التقارير المتقدمة','المقارنة بالنظراء العالميين',PR.includes('وسيط النظراء'));
+ok('التقارير المتقدمة','مركز التقارير: المستندات مجمعة وأوراق المراجعة تفتح في المعاينة',await p.evaluate(()=>document.querySelectorAll('.tbr-docg .tbr-dg').length===5&&document.querySelectorAll('[data-fw-doc]').length===5));
+await p.click('[data-tab="plan"]');await p.waitForTimeout(1200);
+const FWK=await p.evaluate(()=>({wps:document.querySelectorAll('.fw-wp').length,mx:document.querySelectorAll('.fw-mx tbody tr').length,glob:document.querySelectorAll('.fw-src.global').length,sign:document.querySelectorAll('[data-fw-sign]').length}));
+ok('العمل الميداني','مصفوفة المخاطر × التأكيدات (ISA 315)',FWK.mx>0);ok('العمل الميداني','أوراق عمل بمراجع وإجراءات وعينات (ISA 330/530)',FWK.wps>0);
+ok('العمل الميداني','إجراءات المراجعين العالميين للمخاطر الجوهرية',FWK.glob>0);ok('العمل الميداني','توقيع المُعد والمراجِع مع فصل المهام',FWK.sign>0&&await p.evaluate(()=>{const w=SKEngines.audit.fieldwork.workingPapers({materiality:{overall:1,performance:1,trivial:0},risks:[],accounts:[]});return Array.isArray(w)}));
+await p.click('[data-tab="close"]');await p.waitForTimeout(800);ok('العمل الميداني','بوابة الإكمال (ISA 450/560/570/580)',await has('.fw-gate')&&await p.evaluate(()=>document.querySelectorAll('.fw-item').length>=10));
+await p.click('[data-fw-doc="reps"]');await p.waitForTimeout(1300);ok('العمل الميداني','خطاب الإقرارات يفتح في المعاينة قبل الطباعة',await has('.skout-f'));await p.keyboard.press('Escape');
 // ---------- demo, templates, outputs ----------
 const D=await p.evaluate(async()=>({demo:(await SK.demo.status()).filter(x=>x.demo).length,tpl:SK.templates.list().length,out:!!SK.output}));
 ok('البيانات والاستيراد','بيانات تجريبية للأقسام الفارغة',D.demo>=13);ok('البيانات والاستيراد','قوالب استيراد لكل قسم',D.tpl>=18);
@@ -57,7 +86,12 @@ await p.keyboard.press('Escape');
 // ---------- themes & identity ----------
 ok('الهوية والثيمات','خمسة ثيمات احترافية جديدة',['aurora','vivid','oasis','graphite','onyx'].every(x=>E.looks>=14));
 await p.evaluate(()=>SKosifShell.setLook('oasis'));await p.waitForTimeout(500);
-ok('الهوية والثيمات','هوية KOSIF واحدة في كل الثيمات',await p.evaluate(()=>getComputedStyle(document.querySelector('.rail #app-name'),'::before').content.includes('KOSIF')));
+await go('tbreview',1800);await p.click('[data-tab="fs"]');await p.waitForTimeout(700);await p.click('[data-doc="integrated"]');await p.waitForTimeout(1500);
+const IR=await p.evaluate(()=>({cover:!!document.querySelector('.ir-cover'),secs:document.querySelectorAll('.ir-sec').length,q:!!document.querySelector('.ir-q'),bar:!!document.querySelector('.sqc-nb'),risks:document.querySelectorAll('.ir-rt tbody tr').length,
+  prov:window.SKosifAI&&SKosifAI.providers().map(x=>x.id).join(','),check:SKEngines.reports.narrative.verifyNumbers('412.6 مليون',{allowed:[412.6]}).length===0}));
+ok('التقرير المتكامل','التقرير السنوي المتكامل على بنية التقارير العالمية (غلاف، رسائل، مخاطر، جدوى، حوكمة، مراجع، قوائم، ملحق مطابقة)',IR.cover&&IR.secs>=15&&IR.q&&IR.bar&&IR.risks>=5);
+ok('التقرير المتكامل','الذكاء الاصطناعي من Gemini أو OpenAI أو Claude مع التحقق من كل رقم',IR.prov==='gemini,openai,anthropic'&&IR.check);
+ok('الهوية والثيمات','هوية SQC واحدة في كل الثيمات',await p.evaluate(()=>getComputedStyle(document.querySelector('.rail #app-name'),'::before').content.includes('SQC')));
 await p.evaluate(()=>SKosifShell.setLook('kosif'));
 ok('الهوية والثيمات','نظام خطوط موحد (أرقام بعرض ثابت)',await p.evaluate(()=>{const td=document.querySelector('td');return !td||getComputedStyle(td).fontVariantNumeric.includes('tabular')}));
 // ---------- attachments ----------
@@ -72,17 +106,17 @@ ok('المرفقات: CRM','التسجيل اليومي وقائمة الاتص�
 const AG=await p.evaluate(()=>({api:!!window.SKosifAccountingGuidance,change:window.SKosifAccountingGuidance?.accountingChange({newInformationOrNewExperience:true})}));
 ok('المساعد التطبيقي','محرك يميز السياسة والتقدير والخطأ',AG.api&&AG.change?.treatment==='prospective');
 await go('codex',900);ok('المساعد التطبيقي','أدوات الإطار والاعتراف والعرض والإيضاح والتدفقات داخل المدونة',await has('.cdx-guide [data-ag-tab="framework"]')&&await has('.cdx-guide [data-ag-tab="recognition"]')&&await has('.cdx-guide [data-ag-tab="cashflow"]'));
-// ---------- global audit practice from the research bundle (~45 annual reports and auditor's reports) ----------
-await go('tbreview',1200);await p.click('[data-tab="tb"]');await p.waitForTimeout(800);
-ok('ممارسات المراجعة العالمية','خطة الأهمية النسبية: أساس معدّل وتنفيذية حسب الخطر وحد إبلاغ 5%',await has('.ap-card [data-ap-risk="controlDeficiencies"]')&&await txt('حد إبلاغ المكلفين بالحوكمة'));
+// ---------- global audit practice from the research bundle: planning, completion, reporting and the books ----------
+await go('tbreview',1200);await p.click('[data-tab="plan"]');await p.waitForTimeout(1200);
+ok('ممارسات المراجعة العالمية','خطة الأهمية النسبية في العمل الميداني: أساس معدّل وتنفيذية حسب الخطر وحد إبلاغ',await has('.ap-card [data-ap-risk="controlDeficiencies"]')&&await txt('حد إبلاغ المكلفين بالحوكمة'));
+ok('ممارسات المراجعة العالمية','مراجعة التقديرات بأثر رجعي (ISA 540) في التخطيط',await txt('مراجعة التقديرات بأثر رجعي'));
+await p.click('[data-tab="close"]');await p.waitForTimeout(1200);
+ok('ممارسات المراجعة العالمية','الاستمرارية في الإكمال: توقع نقدي 12 شهراً وسيناريوهات حادة واختبار عكسي',await p.evaluate(()=>document.querySelectorAll('.ap-gc tbody tr').length>=6&&!!document.querySelector('.ap-gc svg')));
 await p.click('[data-tab="fs"]');await p.waitForTimeout(1000);await p.click('[data-doc="issue"]');await p.waitForTimeout(1200);
-ok('ممارسات المراجعة العالمية','الاستمرارية: توقع نقدي 12 شهراً وسيناريوهات حادة واختبار عكسي',await p.evaluate(()=>document.querySelectorAll('.ap-gc tbody tr').length>=6&&!!document.querySelector('.ap-gc svg')));
-ok('ممارسات المراجعة العالمية','مكتبة الأمور الرئيسية للمراجعة (الأمر، الاستجابة، النتيجة، المراجع)',await p.evaluate(()=>document.querySelectorAll('.ap-kam [data-ap-kam]').length>0));
+ok('ممارسات المراجعة العالمية','الأمور الرئيسية تُصاغ من المخاطر والسوابق العالمية مع النتيجة والاختيار',await p.evaluate(()=>document.querySelectorAll('.ap-kam [data-ap-kam]').length>0));
 await p.click('[data-doc="auditor"]');await p.waitForTimeout(1200);
-ok('ممارسات المراجعة العالمية','تقرير المراجع: منهجنا في المراجعة وقسم الاستمرارية',await p.evaluate(()=>{const h=[...document.querySelectorAll('.rd-audit .rd-sec h4')].map(x=>x.innerText);return h.includes('منهجنا في المراجعة')&&h.some(x=>/الاستمرارية/.test(x))}));
-await p.click('[data-doc="annual"]');await p.waitForTimeout(1200);ok('ممارسات المراجعة العالمية','إيضاح الزكاة بحركة المخصص وحالة الربوط',await txt('حركة المخصص'));
-const AP=await p.evaluate(()=>({est:typeof SKEngines.audit.estimatesReview.reviewEstimates,trail:!!window.SKosifLedger.trail&&!!SKosifLedger.trail(),rev:typeof SKosifLedger.revenueRecon,steps:SKosifClose.steps().map(s=>s.id)}));
-ok('ممارسات المراجعة العالمية','مراجعة التقديرات بأثر رجعي ومؤشر التحيز',AP.est==='function');
+ok('ممارسات المراجعة العالمية','تقرير المراجع: قسم الاستمرارية ونتيجة كل أمر رئيسي',await p.evaluate(()=>{const h=[...document.querySelectorAll('.rd-audit .rd-sec h4')].map(x=>x.innerText);return h.some(x=>/الاستمرارية/.test(x))&&[...document.querySelectorAll('.rd-audit .rd-kt th')].some(t=>t.innerText==='النتيجة')}));
+const AP=await p.evaluate(()=>({trail:!!window.SKosifLedger.trail&&!!SKosifLedger.trail(),rev:typeof SKosifLedger.revenueRecon,steps:SKosifClose.steps().map(s=>s.id)}));
 ok('ممارسات المراجعة العالمية','سجل التعديلات المختوم في الدفاتر ومطابقة الإيرادات في الإقفال',AP.trail&&AP.rev==='function'&&AP.steps.includes('trail')&&AP.steps.includes('revenue'));
 // ---------- older rounds (1–33) ----------
 const O2=await p.evaluate(()=>({device:!!SK.device,keys:!!window.SKosifKeys,notify:!!window.SKosifNotify,pack:!!window.SKosifReportPack,metrics:!!window.SKosifMetrics,topbar:!!window.SKosifTopbar,

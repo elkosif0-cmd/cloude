@@ -1,10 +1,10 @@
 /* S.kosif — ممارسات المراجعة العالمية داخل ملف المراجعة (window.SKosifAuditPractice).
    ما تعلمناه من تقارير المراجعين لنحو 45 مجموعة عالمية (أرامكو، يونيليفر، أسترازينيكا، بي بي، فولكس فاجن، الإمارات
    دبي الوطني، e&، أمازون، أبل…) صار أدوات تعمل على ميزان هذا الملف نفسه، لا أرشيفاً:
-     • خطة الأهمية النسبية (ISA 320): أساس معدّل ونسبة ضمن مدى، أهمية تنفيذية حسب عوامل الخطر، وحد إبلاغ 5%
-     • الأمور الرئيسية للمراجعة (ISA 701): مكتبة تقترح الأمور من مخاطر البنود بصيغة «الأمر، الاستجابة، النتيجة، المراجع»
-     • الاستمرارية واختبار الضغط (ISA 570): توقع نقدي 12 شهراً وسيناريوهات حادة ومعقولة وإجراءات مخففة واختبار عكسي
-     • مراجعة التقديرات بأثر رجعي (ISA 540): تقدير السنة السابقة مقابل ما حدث فعلاً، ومؤشر تحيز الإدارة
+     • خطة الأهمية النسبية (ISA 320) — تبويب «العمل الميداني»: أساس معدّل ونسبة ضمن مدى، أهمية تنفيذية حسب عوامل الخطر، وحد إبلاغ 5%
+     • الأمور الرئيسية للمراجعة (ISA 701) — «الإصدار»: تُصاغ من مخاطر البنود والسوابق العالمية (global-benchmarks) بصيغة «الأمر، الاستجابة، النتيجة، المراجع»
+     • الاستمرارية واختبار الضغط (ISA 570) — تبويب «الإكمال»: توقع نقدي 12 شهراً وسيناريوهات حادة ومعقولة وإجراءات مخففة واختبار عكسي
+     • مراجعة التقديرات بأثر رجعي (ISA 540.14) — «العمل الميداني»: تقدير السنة السابقة مقابل ما حدث فعلاً، ومؤشر تحيز الإدارة
    تُحفظ مدخلاتها في ملف المراجعة نفسه (skosif_tbreview_v1) عبر st/put التي يمررها tb-review. */
 (()=>{
 "use strict";
@@ -44,8 +44,12 @@ function planCard(c){
 
 /* ---------- key audit matters ---------- */
 function kamList(c){
-  const d=c.d,ev=c.session?E().audit.aiReview.evidenceFromSession(c.base,c.session):{};
-  const ks=KM().suggestKams({fs:c.fsAfterAdj,risks:c.base.risks,materiality:c.base.materiality.overall,framework:c.fw,evidence:ev,priorKeys:Array.isArray(d.priorKams)?d.priorKams:undefined});
+  const d=c.d,AI=E().audit.aiReview,GB=E().audit.globalBenchmarks,cur=d.ctx.country==="EG"||c.fw==="EAS"?"ج.م":"ر.س";
+  /* evidence from the rounds and from the working papers signed in the fieldwork tab */
+  const ev=AI.mergeEvidence?AI.mergeEvidence(c.session?AI.evidenceFromSession(c.base,c.session):{},c.fieldEv||{}):(c.session?AI.evidenceFromSession(c.base,c.session):{});
+  const end=/^\d{4}-\d{2}-\d{2}$/.test(d.ctx.periodEnd||"")?new Date(d.ctx.periodEnd+"T12:00:00").toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"}):"";
+  const ks=KM().suggestKams({fs:c.fsAfterAdj,risks:c.base.risks,materiality:c.base.materiality.overall,currency:cur,periodEnd:end,sector:GB?GB.sectorFromActivity(d.ctx.activity||""):"",
+    evidence:ev,priorKeys:Array.isArray(d.priorKams)?d.priorKams:undefined});
   if(Array.isArray(d.kamSel))ks.forEach(k=>{k.selected=d.kamSel.includes(k.key)});
   return ks;
 }
@@ -55,7 +59,8 @@ function kamCard(c){
   return '<section class="card"><div class="card-h"><div><h3>الأمور الرئيسية للمراجعة (ISA 701)</h3><p>مقترحة من مخاطر البنود بصيغة تقارير المراجعين العالمية: الأمر، كيف عالجناه، النتيجة، المراجع. اختر ما يدخل التقرير.</p></div>'+
     '<button type="button" class="btn sm" data-ap="kam-prior" title="يحفظ الاختيار الحالي كأمور العام السابق لإظهار الجديد والمحذوف في العام القادم">حفظ كأمور العام السابق</button></div><div class="card-b">'+
     (ks.map(k=>'<div class="tbr-kam ap-kam'+(k.selected?' on':'')+'"><label class="checkline"><input type="checkbox" data-ap-kam="'+esc(k.key)+'"'+(k.selected?' checked':'')+'> <b>'+esc(k.title)+'</b> <span class="sksev '+(k.score>=70?'bad':k.score>=55?'warn':'info')+'">خطر '+k.score+'</span>'+(k.trend==="new"?' <span class="sksev ok">جديد</span>':k.trend==="same"?' <span class="sksev">مستمر</span>':'')+'</label>'+
-      '<p><small>الأمر:</small> '+esc(k.description)+'</p><p><small>كيف عالجناه:</small> '+esc(k.how)+'</p><p><small>النتيجة:</small> '+esc(k.observation)+'</p><p class="hint">'+esc(k.refs.join(" · "))+'</p></div>').join("")||'<p class="empty">لا مخاطر بنود كافية لاقتراح أمور رئيسية.</p>')+
+      '<p><small>الأمر:</small> '+esc(k.description)+'</p><p><small>كيف عالجناه:</small> '+esc(k.how)+'</p><p><small>النتيجة:</small> '+esc(k.observation)+'</p><p class="hint">'+esc(k.refs.join(" · "))+'</p>'+
+      (k.examples.length?'<details class="fw-prec"><summary>كيف صاغ مراجعو الشركات العالمية أموراً مشابهة ('+k.examples.length+')</summary><ul>'+k.examples.map(x=>'<li><b dir="ltr">'+esc(x.title)+'</b> <small>'+esc(x.company)+' · ص '+x.page+'</small></li>').join("")+'</ul></details>':'')+'</div>').join("")||'<p class="empty">لا مخاطر بنود كافية لاقتراح أمور رئيسية.</p>')+
     (removed.length?'<p class="hint">أمور العام السابق التي لم تعد رئيسية: '+esc(removed.join("، "))+' — اذكر سبب استبعادها (كما تفعل أسترازينيكا).</p>':'')+'</div></section>';
 }
 
@@ -84,7 +89,7 @@ function gcCard(c){
     '<div class="tbr-tw"><table class="sk-table" data-sk-plain><thead><tr><th>السيناريو</th><th>أدنى نقد</th><th>الشهر</th><th>الهامش مع التسهيلات</th><th>بعد الإجراءات المخففة</th></tr></thead><tbody>'+row(r.base)+r.paths.map(row).join("")+'</tbody></table></div>'+
     '<h4>التسهيلات والإجراءات المخففة</h4><div class="ap-grid"><label class="sk-field"><span>تسهيلات بنكية غير مستخدمة (ريال)</span><input type="number" min="0" step="1000" data-ap-gc="facilities" value="'+riyal(cfg.facilities)+'"></label></div>'+
     '<div class="ap-mits">'+mits.map((x,i)=>'<input data-ap-mit="'+i+'" data-f="ar" value="'+esc(x.ar||"")+'" placeholder="'+(["تأجيل مصروفات رأسمالية","دعم من الشركاء"][i])+'"><input type="number" step="1000" data-ap-mit="'+i+'" data-f="monthly" value="'+riyal(x.monthly)+'" placeholder="أثر شهري (ريال)"><label class="checkline"><input type="checkbox" data-ap-mit="'+i+'" data-f="feasible"'+(x.feasible?' checked':'')+'> قابل للتنفيذ وموثق</label>').join("")+'</div>'+
-    '<p class="hint">يُعد قسم «الاستنتاجات المتعلقة بالاستمرارية» في تقرير المراجع من هذه النتيجة تلقائياً (ISA 570 المحدث 2024 — يسري على الفترات التي تبدأ من 15 ديسمبر 2026).</p></div></section>';
+    '<p class="hint">يُعد قسم «الاستنتاجات المتعلقة بالاستمرارية» في تقرير المراجع من هذه النتيجة تلقائياً (ISA 570 المحدث 2024 — يسري على الفترات التي تبدأ من 15 ديسمبر 2026). بعد مراجعة النتيجة أكّد بند الاستمرارية في بوابة الإكمال أعلاه.</p></div></section>';
 }
 
 /* ---------- retrospective review of estimates ---------- */
@@ -150,5 +155,5 @@ function onClick(e){
   if(a==="kam-prior"){const c=H.compute();d.priorKams=kamList(c).filter(k=>k.selected).map(k=>k.key);H.put(d);toast("حُفظت كأمور العام السابق","ok");H.paint();return true}
   return false;
 }
-window.SKosifAuditPractice=Object.freeze({init:h=>{H=h},planOf,planCard,kams,kamCard,gcOf,gcSection,gcCard,estCard,onChange,onClick});
+window.SKosifAuditPractice=Object.freeze({init:h=>{H=h},planOf,planCard,kamList,kams,kamCard,gcOf,gcSection,gcCard,estCard,onChange,onClick});
 })();

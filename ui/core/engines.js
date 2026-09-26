@@ -13,6 +13,377 @@ window.SKEngines = (function() {
 		return target;
 	};
 	//#endregion
+	//#region app/src/engine/fusion/audit/ai-providers-engine.ts
+	var ai_providers_engine_exports = /* @__PURE__ */ __exportAll({
+		PROVIDERS: () => PROVIDERS,
+		buildRequest: () => buildRequest,
+		errorMessage: () => errorMessage,
+		friendlyError: () => friendlyError$1,
+		isProvider: () => isProvider,
+		modelsFrom: () => modelsFrom,
+		modelsRequest: () => modelsRequest,
+		toGeminiResponse: () => toGeminiResponse,
+		toJsonSchema: () => toJsonSchema
+	});
+	var PROVIDERS = {
+		gemini: {
+			id: "gemini",
+			ar: "Google Gemini",
+			base: "https://generativelanguage.googleapis.com/v1beta/",
+			keyHint: "AIza…",
+			keyPattern: /^[\w-]{20,}$/,
+			keyLink: "https://aistudio.google.com/app/apikey",
+			models: [
+				"gemini-2.5-flash",
+				"gemini-2.5-pro",
+				"gemini-2.5-flash-lite"
+			],
+			host: "generativelanguage.googleapis.com"
+		},
+		openai: {
+			id: "openai",
+			ar: "OpenAI",
+			base: "https://api.openai.com/v1/",
+			keyHint: "sk-…",
+			keyPattern: /^sk-[\w-]{20,}$/,
+			keyLink: "https://platform.openai.com/api-keys",
+			models: [
+				"gpt-5",
+				"gpt-5-mini",
+				"gpt-4.1"
+			],
+			host: "api.openai.com"
+		},
+		anthropic: {
+			id: "anthropic",
+			ar: "Anthropic Claude",
+			base: "https://api.anthropic.com/v1/",
+			keyHint: "sk-ant-…",
+			keyPattern: /^sk-ant-[\w-]{20,}$/,
+			keyLink: "https://platform.claude.com/settings/keys",
+			models: [
+				"claude-opus-5",
+				"claude-sonnet-5",
+				"claude-haiku-4-5"
+			],
+			host: "api.anthropic.com"
+		}
+	};
+	var isProvider = (x) => x === "gemini" || x === "openai" || x === "anthropic";
+	/** Gemini's OpenAPI subset (OBJECT, STRING …) → standard JSON Schema (object, string …). */
+	function toJsonSchema(s) {
+		if (!s) return { type: "object" };
+		const out = {};
+		if (s.type) out.type = String(s.type).toLowerCase();
+		if (s.description) out.description = s.description;
+		if (s.enum) out.enum = [...s.enum];
+		if (s.items) out.items = toJsonSchema(s.items);
+		if (s.properties) out.properties = Object.fromEntries(Object.entries(s.properties).map(([k, v]) => [k, toJsonSchema(v)]));
+		if (s.required) out.required = [...s.required];
+		return out;
+	}
+	var systemText = (b) => (b.systemInstruction?.parts ?? []).map((p) => p.text ?? "").filter(Boolean).join("\n\n");
+	function jsonInstruction(b) {
+		const g = b.generationConfig;
+		if (g?.responseMimeType !== "application/json") return "";
+		return "\n\nأجب بكائن JSON واحد صالح فقط، دون أي نص قبله أو بعده ودون علامات ```" + (g.responseSchema ? "، مطابق لهذا المخطط (JSON Schema):\n" + JSON.stringify(toJsonSchema(g.responseSchema)) : ".");
+	}
+	var fileName = (mime, i) => `document-${i + 1}.${mime === "application/pdf" ? "pdf" : mime.split("/")[1] || "bin"}`;
+	function callIds(contents) {
+		let n = 0;
+		return contents.map((c) => c.parts.map((p) => p.functionCall ? p.functionCall.id || `call_${++n}` : ""));
+	}
+	/** The HTTP request for one generate call (the key goes in the headers). */
+	function buildRequest(provider, body, model, key) {
+		const P = PROVIDERS[provider];
+		if (provider === "gemini") return {
+			url: `${P.base}models/${encodeURIComponent(model)}:generateContent`,
+			headers: {
+				"Content-Type": "application/json",
+				"x-goog-api-key": key
+			},
+			body
+		};
+		const sys = systemText(body) + jsonInstruction(body), ids = callIds(body.contents);
+		const decl = (body.tools ?? []).flatMap((t) => t.functionDeclarations ?? []);
+		const maxOut = body.generationConfig?.maxOutputTokens ?? 16e3;
+		if (provider === "openai") {
+			const messages = [];
+			if (sys) messages.push({
+				role: "system",
+				content: sys
+			});
+			body.contents.forEach((c, ci) => {
+				const calls = c.parts.map((p, pi) => ({
+					p,
+					id: ids[ci][pi]
+				})).filter((x) => x.p.functionCall);
+				if (c.role === "model") {
+					const text = c.parts.map((p) => p.text ?? "").join("");
+					messages.push({
+						role: "assistant",
+						content: text || null,
+						...calls.length ? { tool_calls: calls.map((x) => ({
+							id: x.id,
+							type: "function",
+							function: {
+								name: x.p.functionCall.name,
+								arguments: JSON.stringify(x.p.functionCall.args ?? {})
+							}
+						})) } : {}
+					});
+					return;
+				}
+				const prev = ci > 0 ? body.contents[ci - 1].parts.map((p, pi) => p.functionCall ? {
+					name: p.functionCall.name,
+					id: ids[ci - 1][pi]
+				} : null).filter((x) => !!x) : [];
+				c.parts.filter((p) => p.functionResponse).forEach((p, i) => messages.push({
+					role: "tool",
+					tool_call_id: p.functionResponse.id || prev.find((x) => x.name === p.functionResponse.name)?.id || prev[i]?.id || `call_${i + 1}`,
+					content: JSON.stringify(p.functionResponse.response ?? {})
+				}));
+				const content = c.parts.filter((p) => !p.functionResponse).map((p, i) => p.inlineData ? p.inlineData.mimeType.startsWith("image/") ? {
+					type: "image_url",
+					image_url: { url: `data:${p.inlineData.mimeType};base64,${p.inlineData.data}` }
+				} : {
+					type: "file",
+					file: {
+						filename: fileName(p.inlineData.mimeType, i),
+						file_data: `data:${p.inlineData.mimeType};base64,${p.inlineData.data}`
+					}
+				} : {
+					type: "text",
+					text: p.text ?? ""
+				}).filter((x) => x.type !== "text" || x.text);
+				if (content.length) messages.push({
+					role: "user",
+					content
+				});
+			});
+			const out = {
+				model,
+				messages,
+				max_completion_tokens: maxOut
+			};
+			if (body.generationConfig?.responseMimeType === "application/json" && !decl.length) out.response_format = { type: "json_object" };
+			if (decl.length) out.tools = decl.map((d) => ({
+				type: "function",
+				function: {
+					name: d.name,
+					description: d.description ?? "",
+					parameters: toJsonSchema(d.parameters)
+				}
+			}));
+			return {
+				url: `${P.base}chat/completions`,
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${key}`
+				},
+				body: out
+			};
+		}
+		const messages = [];
+		const push = (role, blocks) => {
+			if (!blocks.length) return;
+			const last = messages[messages.length - 1];
+			if (last && last.role === role) last.content.push(...blocks);
+			else messages.push({
+				role,
+				content: blocks
+			});
+		};
+		body.contents.forEach((c, ci) => {
+			if (c.role === "model") {
+				push("assistant", c.parts.map((p, pi) => p.functionCall ? {
+					type: "tool_use",
+					id: ids[ci][pi],
+					name: p.functionCall.name,
+					input: p.functionCall.args ?? {}
+				} : {
+					type: "text",
+					text: p.text ?? ""
+				}).filter((b) => b.type !== "text" || b.text));
+				return;
+			}
+			const prev = ci > 0 ? body.contents[ci - 1].parts.map((p, pi) => p.functionCall ? {
+				name: p.functionCall.name,
+				id: ids[ci - 1][pi]
+			} : null).filter((x) => !!x) : [];
+			let r = 0;
+			const blocks = c.parts.map((p) => {
+				if (p.functionResponse) {
+					const id = p.functionResponse.id || prev.find((x) => x.name === p.functionResponse.name)?.id || prev[r]?.id || `call_${r + 1}`;
+					r++;
+					return {
+						type: "tool_result",
+						tool_use_id: id,
+						content: JSON.stringify(p.functionResponse.response ?? {})
+					};
+				}
+				if (p.inlineData) return p.inlineData.mimeType === "application/pdf" ? {
+					type: "document",
+					source: {
+						type: "base64",
+						media_type: "application/pdf",
+						data: p.inlineData.data
+					}
+				} : p.inlineData.mimeType.startsWith("image/") ? {
+					type: "image",
+					source: {
+						type: "base64",
+						media_type: p.inlineData.mimeType,
+						data: p.inlineData.data
+					}
+				} : {
+					type: "text",
+					text: "[مرفق بصيغة غير مدعومة: " + p.inlineData.mimeType + "]"
+				};
+				return {
+					type: "text",
+					text: p.text ?? ""
+				};
+			}).filter((b) => b.type !== "text" || b.text);
+			push("user", [...blocks.filter((b) => b.type === "tool_result"), ...blocks.filter((b) => b.type !== "tool_result")]);
+		});
+		const out = {
+			model,
+			max_tokens: maxOut,
+			messages
+		};
+		if (sys) out.system = sys;
+		if (decl.length) out.tools = decl.map((d) => ({
+			name: d.name,
+			description: d.description ?? "",
+			input_schema: toJsonSchema(d.parameters ?? {
+				type: "OBJECT",
+				properties: {}
+			})
+		}));
+		const headers = {
+			"Content-Type": "application/json",
+			"x-api-key": key,
+			"anthropic-version": "2023-06-01",
+			"anthropic-dangerous-direct-browser-access": "true"
+		};
+		if (/^claude-(opus-5|fable-5)/.test(model)) {
+			headers["anthropic-beta"] = "server-side-fallback-2026-07-01";
+			out.fallbacks = "default";
+		}
+		return {
+			url: `${P.base}messages`,
+			headers,
+			body: out
+		};
+	}
+	/** The provider's answer → the Gemini answer shape every feature already reads. */
+	function toGeminiResponse(provider, api) {
+		if (provider === "gemini") return api;
+		const a = api ?? {};
+		if (provider === "openai") {
+			const ch = (a.choices ?? [])[0];
+			const m = ch?.message ?? {}, parts = [];
+			if (m.content) parts.push({ text: m.content });
+			for (const t of m.tool_calls ?? []) {
+				let args = {};
+				try {
+					args = JSON.parse(t.function.arguments || "{}");
+				} catch {}
+				parts.push({ functionCall: {
+					name: t.function.name,
+					args,
+					id: t.id
+				} });
+			}
+			const fr = m.refusal ? "SAFETY" : ch?.finish_reason === "length" ? "MAX_TOKENS" : ch?.finish_reason === "content_filter" ? "SAFETY" : "STOP";
+			const u = a.usage;
+			return {
+				candidates: [{
+					content: {
+						role: "model",
+						parts
+					},
+					finishReason: fr
+				}],
+				...u ? { usageMetadata: {
+					promptTokenCount: u.prompt_tokens ?? 0,
+					candidatesTokenCount: u.completion_tokens ?? 0
+				} } : {}
+			};
+		}
+		const blocks = a.content ?? [];
+		const parts = [];
+		for (const b of blocks) if (b.type === "text" && b.text) parts.push({ text: b.text });
+		else if (b.type === "tool_use" && b.name) parts.push({ functionCall: {
+			name: b.name,
+			args: b.input ?? {},
+			id: b.id
+		} });
+		const sr = a.stop_reason;
+		const fr = sr === "refusal" ? "SAFETY" : sr === "max_tokens" ? "MAX_TOKENS" : "STOP";
+		const u = a.usage;
+		return {
+			candidates: [{
+				content: {
+					role: "model",
+					parts
+				},
+				finishReason: fr
+			}],
+			...u ? { usageMetadata: {
+				promptTokenCount: u.input_tokens ?? 0,
+				candidatesTokenCount: u.output_tokens ?? 0
+			} } : {}
+		};
+	}
+	/** The provider's error body → its message. */
+	function errorMessage(api) {
+		const e = api?.error;
+		return typeof e === "string" ? e : e?.message ?? "";
+	}
+	/** Arabic error text for any provider. */
+	function friendlyError$1(provider, status, message = "") {
+		const P = PROVIDERS[provider];
+		if (status === 401 || status === 400 && /api key not valid|API_KEY_INVALID|invalid x-api-key|incorrect api key/i.test(message)) return `مفتاح ${P.ar} غير صالح — تحقق منه.`;
+		if (status === 400) return "رفض الطلب (400): " + (message || "صيغة غير مقبولة") + ".";
+		if (status === 403) return "المفتاح مرفوض أو غير مصرح له بهذا النموذج (403).";
+		if (status === 404) return "النموذج غير متاح لهذا المفتاح (404) — اختر نموذجاً آخر من القائمة.";
+		if (status === 413) return "حجم المستندات أكبر من المسموح في طلب واحد — ارفعها على جولات.";
+		if (status === 429) return "تجاوزت حصة الاستخدام أو حد المعدل (429) — انتظر قليلاً أو اختر نموذجاً أخف.";
+		if (status === 529 || status >= 500) return `خطأ مؤقت من خدمات ${P.ar} (${status}) — أعد المحاولة.`;
+		if (status === 0) return `تعذر الاتصال — تحقق من الشبكة أو من مانع يحجب ${P.host}.`;
+		return "خطأ " + status + (message ? ": " + message : "");
+	}
+	/** Model ids from each provider's list endpoint (GET …/models), filtered to text-generation models. */
+	function modelsFrom(provider, api) {
+		const a = api ?? {};
+		if (provider === "gemini") return (a.models ?? []).filter((m) => (m.supportedGenerationMethods ?? []).includes("generateContent")).map((m) => String(m.name ?? "").replace(/^models\//, "")).filter((n) => /^gemini/.test(n) && !/embedding|aqa|tts|image|live/.test(n)).sort((x, y) => y.localeCompare(x, "en"));
+		const ids = (a.data ?? []).map((m) => String(m.id ?? "")).filter(Boolean);
+		if (provider === "openai") return ids.filter((n) => /^(gpt-|o\d)/.test(n) && !/audio|realtime|transcribe|tts|image|search|embedding|instruct/.test(n)).sort((x, y) => y.localeCompare(x, "en"));
+		return ids.filter((n) => /^claude-/.test(n));
+	}
+	/** The URL (without key) that lists the models, and its headers. */
+	function modelsRequest(provider, key) {
+		const P = PROVIDERS[provider];
+		if (provider === "gemini") return {
+			url: `${P.base}models?pageSize=200`,
+			headers: { "x-goog-api-key": key }
+		};
+		if (provider === "openai") return {
+			url: `${P.base}models`,
+			headers: { Authorization: `Bearer ${key}` }
+		};
+		return {
+			url: `${P.base}models?limit=100`,
+			headers: {
+				"x-api-key": key,
+				"anthropic-version": "2023-06-01",
+				"anthropic-dangerous-direct-browser-access": "true"
+			}
+		};
+	}
+	//#endregion
 	//#region app/src/engine/fusion/reports/money-engine.ts
 	var money_engine_exports = /* @__PURE__ */ __exportAll({
 		abs: () => abs,
@@ -22,7 +393,7 @@ window.SKEngines = (function() {
 		fromMajor: () => fromMajor,
 		normalizeDigits: () => normalizeDigits,
 		parseMinor: () => parseMinor,
-		pct: () => pct$1,
+		pct: () => pct$4,
 		ratio: () => ratio,
 		sum: () => sum,
 		toMajor: () => toMajor
@@ -74,7 +445,7 @@ window.SKEngines = (function() {
 		return v < 0 ? -Math.round(-v) : Math.round(v);
 	}
 	/** percentage (numerator / denominator × 100), rounded; null when the denominator is zero. */
-	function pct$1(numerator, denominator, digits = 1) {
+	function pct$4(numerator, denominator, digits = 1) {
 		if (!denominator) return null;
 		const f = 10 ** digits;
 		return Math.round(numerator / denominator * 100 * f) / f;
@@ -114,7 +485,7 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/reports/tb-import-engine.ts
 	var tb_import_engine_exports = /* @__PURE__ */ __exportAll({
-		NATURE: () => NATURE,
+		NATURE: () => NATURE$1,
 		SAMPLE_TB_CSV: () => SAMPLE_TB_CSV,
 		TYPE_LABELS: () => TYPE_LABELS,
 		booksToCsv: () => booksToCsv,
@@ -134,7 +505,7 @@ window.SKEngines = (function() {
 		expense: "مصروفات",
 		suspense: "غير مصنّف"
 	};
-	var NATURE = {
+	var NATURE$1 = {
 		asset: "debit",
 		liability: "credit",
 		equity: "credit",
@@ -443,7 +814,7 @@ window.SKEngines = (function() {
 			debit,
 			credit,
 			balance,
-			net: NATURE[cls.type] === "debit" ? balance : -balance,
+			net: NATURE$1[cls.type] === "debit" ? balance : -balance,
 			prior
 		};
 	}
@@ -3130,18 +3501,18 @@ window.SKEngines = (function() {
 		mdna: () => mdna,
 		ratios: () => ratios
 	});
-	var r2$1 = (n) => Math.round(n * 100) / 100;
-	var div = (a, b) => b ? a / b : null;
+	var r2$2 = (n) => Math.round(n * 100) / 100;
+	var div$1 = (a, b) => b ? a / b : null;
 	var pctOf = (a, b) => {
-		const x = div(a, b);
-		return x === null ? null : r2$1(x * 100);
+		const x = div$1(a, b);
+		return x === null ? null : r2$2(x * 100);
 	};
 	var times = (a, b) => {
-		const x = div(a, b);
-		return x === null ? null : r2$1(x);
+		const x = div$1(a, b);
+		return x === null ? null : r2$2(x);
 	};
 	var days$2 = (a, b) => {
-		const x = div(a, b);
+		const x = div$1(a, b);
 		return x === null ? null : Math.round(x * 365);
 	};
 	function snap(fs, prior) {
@@ -3404,7 +3775,7 @@ window.SKEngines = (function() {
 	/** Common-size: P&L lines as % of revenue, position lines as % of total assets. */
 	function commonSize(fs) {
 		const rev = fs.keys.revenue, ta = fs.keys.assets;
-		const pc = (a, b) => b ? r2$1(a / b * 100) : null;
+		const pc = (a, b) => b ? r2$2(a / b * 100) : null;
 		return {
 			pl: fs.pl.map((r) => ({
 				key: r.key,
@@ -3429,18 +3800,18 @@ window.SKEngines = (function() {
 			current: r.current,
 			prior: r.prior,
 			change: r.current - r.prior,
-			changePct: r.prior ? r2$1((r.current - r.prior) / Math.abs(r.prior) * 100) : null
+			changePct: r.prior ? r2$2((r.current - r.prior) / Math.abs(r.prior) * 100) : null
 		}));
 	}
 	/** DuPont: ROE = net margin × asset turnover × equity multiplier (year-end balances). */
 	function dupont(fs) {
 		const k = fs.keys, one = (rev, profit, ta, eq) => {
-			const nm = div(profit, rev), at = div(rev, ta), em = div(ta, eq);
+			const nm = div$1(profit, rev), at = div$1(rev, ta), em = div$1(ta, eq);
 			return {
-				netMargin: nm === null ? null : r2$1(nm * 100),
-				assetTurnover: at === null ? null : r2$1(at),
-				equityMultiplier: em === null ? null : r2$1(em),
-				roe: nm === null || at === null || em === null ? null : r2$1(nm * at * em * 100)
+				netMargin: nm === null ? null : r2$2(nm * 100),
+				assetTurnover: at === null ? null : r2$2(at),
+				equityMultiplier: em === null ? null : r2$2(em),
+				roe: nm === null || at === null || em === null ? null : r2$2(nm * at * em * 100)
 			};
 		};
 		return {
@@ -3454,16 +3825,16 @@ window.SKEngines = (function() {
 		if (!ta) return null;
 		const retained = fs.lines.filter((l) => l.key === "retained").reduce((a, l) => a + l.current, 0) + k.profit.current;
 		const x1 = (k.ca.current - k.cl.current) / ta, x2 = retained / ta, x3 = k.operating.current / ta, x4 = tl ? k.equity.current / tl : 0;
-		const z = r2$1(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
+		const z = r2$2(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
 		return {
 			z,
 			zone: z > 2.6 ? "safe" : z >= 1.1 ? "grey" : "distress",
 			zoneAr: z > 2.6 ? "منطقة الأمان" : z >= 1.1 ? "المنطقة الرمادية" : "منطقة التعثر",
 			components: {
-				x1: r2$1(x1),
-				x2: r2$1(x2),
-				x3: r2$1(x3),
-				x4: r2$1(x4)
+				x1: r2$2(x1),
+				x2: r2$2(x2),
+				x3: r2$2(x3),
+				x4: r2$2(x4)
 			}
 		};
 	}
@@ -3481,7 +3852,7 @@ window.SKEngines = (function() {
 		const sgai = q(q(sga(c), c("revenue")), q(sga(p), p("revenue")));
 		const lvgi = q(q(c("cl") + c("loansNcl") + c("leaseNcl"), c("assets")), q(p("cl") + p("loansNcl") + p("leaseNcl"), p("assets")));
 		const tata = fs.keys.cfo ? q(c("profit") - fs.keys.cfo.current, c("assets")) : 0;
-		const m = r2$1(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
+		const m = r2$2(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
 		const f = (x) => Math.round(x * 1e3) / 1e3;
 		return {
 			m,
@@ -3580,7 +3951,7 @@ window.SKEngines = (function() {
 			rat("current")
 		].map((i) => ({
 			...i,
-			change: i.prior === null || i.current === null || !i.prior ? null : r2$1((i.current - i.prior) / Math.abs(i.prior) * 100)
+			change: i.prior === null || i.current === null || !i.prior ? null : r2$2((i.current - i.prior) / Math.abs(i.prior) * 100)
 		}));
 	}
 	/** A deterministic management discussion: sentences generated from the numbers only. */
@@ -3590,7 +3961,7 @@ window.SKEngines = (function() {
 		const ch = (key) => {
 			const x = k[key];
 			if (!x || x.prior === null || !x.prior) return null;
-			return r2$1((x.current - x.prior) / Math.abs(x.prior) * 100);
+			return r2$2((x.current - x.prior) / Math.abs(x.prior) * 100);
 		};
 		const dir = (v, up, down) => v === null ? "" : v >= 0 ? `${up} ${Math.abs(v)}%` : `${down} ${Math.abs(v)}%`;
 		const out = [];
@@ -3907,6 +4278,7 @@ window.SKEngines = (function() {
 	};
 	var GENERAL_DOCS = [["ميزان المراجعة النهائي موقعاً من الإدارة", "أساس القوائم وإقرار الإدارة بمسؤوليتها"], ["خطاب إقرارات الإدارة (ISA 580)", "إقرارات مكتوبة في تاريخ التقرير"]];
 	var ACCUM$1 = /مجمع|متراكم|accumulated|مخصص اهلاك|مخصص استهلاك/;
+	var ALLOWANCE = /خسائر ائتمانيه|ديون مشكوك|اضمحلال|allowance|credit loss|impairment/;
 	var SUSPENSE = /معلق|تحت التسويه|وسيط|حساب مؤقت|suspense|clearing/;
 	var RELATED = /طرف ذو علاقه|اطراف ذات علاقه|شركه شقيقه|جاري المدير|جاري الشريك|جاري الشركاء|related part/;
 	var SALARIES = /رواتب|اجور|salar|wages/;
@@ -3952,8 +4324,8 @@ window.SKEngines = (function() {
 		const accounts = tb.rows.map((r) => {
 			const { key, basis } = lineFor(r, opts.overrides ?? {});
 			const d = key ? LINE[key] : null;
-			const natural = NATURE[r.type] === "debit" ? r.balance : -r.balance;
-			const priorNat = r.prior === null ? null : NATURE[r.type] === "debit" ? r.prior : -r.prior;
+			const natural = NATURE$1[r.type] === "debit" ? r.balance : -r.balance;
+			const priorNat = r.prior === null ? null : NATURE$1[r.type] === "debit" ? r.prior : -r.prior;
 			const change = priorNat === null ? null : natural - priorNat;
 			return {
 				code: r.code,
@@ -4034,6 +4406,7 @@ window.SKEngines = (function() {
 			}));
 			if (a.natural < 0 && big) {
 				if (a.lineKey === "ppe" && ACCUM$1.test(n)) continue;
+				if (a.lineKey === "receivables" && ALLOWANCE.test(n)) continue;
 				if (a.lineKey === "cash") {
 					tag(add({
 						severity: "high",
@@ -4522,13 +4895,15 @@ window.SKEngines = (function() {
 			const bump = hits.some((f) => f.severity === "high") ? 10 : hits.some((f) => f.severity === "medium") ? 5 : 0;
 			const score = Math.min(100, parts.size + parts.estimate + parts.change + parts.evidence + parts.nature + bump);
 			const level = score >= 70 ? "عالٍ" : score >= 45 ? "متوسط" : "منخفض";
+			const qualitative = !!la.estimate || !!la.fraud || bump > 0 || pc !== null && pc >= 25;
+			const inherent = Math.min(100, parts.size + parts.estimate + parts.change + 25 + parts.nature + bump);
 			return {
 				lineKey: l.key,
 				ar: l.ar,
 				amount,
 				score,
 				level,
-				significant: score >= 70,
+				significant: inherent >= 70 && qualitative,
 				parts,
 				risk: la.risk,
 				procedures: la.procedures
@@ -4704,7 +5079,7 @@ window.SKEngines = (function() {
 				r.debit = bal > 0 ? bal : 0;
 				r.credit = bal < 0 ? -bal : 0;
 				r.balance = bal;
-				r.net = NATURE[r.type] === "debit" ? bal : -bal;
+				r.net = NATURE$1[r.type] === "debit" ? bal : -bal;
 			}
 		}
 		const debit = rows.reduce((s, r) => s + r.debit, 0), credit = rows.reduce((s, r) => s + r.credit, 0);
@@ -4842,6 +5217,7 @@ window.SKEngines = (function() {
 		extractText: () => extractText,
 		friendlyError: () => friendlyError,
 		markUnavailable: () => markUnavailable,
+		mergeEvidence: () => mergeEvidence,
 		mergedFindings: () => mergedFindings,
 		newSession: () => newSession,
 		normalizeFinal: () => normalizeFinal,
@@ -4858,7 +5234,7 @@ window.SKEngines = (function() {
 		"مدقق المخاطر والأدلة"
 	];
 	var DEFAULT_MODEL = "gemini-2.5-flash";
-	var S$1 = (description) => ({
+	var S$2 = (description) => ({
 		type: "STRING",
 		...description ? { description } : {}
 	});
@@ -4872,10 +5248,10 @@ window.SKEngines = (function() {
 		required
 	});
 	var LINES_SCHEMA = ARR$1(OBJ$1({
-		accountCode: S$1("رقم الحساب من الميزان، أو NEW-… لحساب جديد"),
-		accountName: S$1(),
-		debit: S$1("مبلغ بالريال أو 0"),
-		credit: S$1("مبلغ بالريال أو 0")
+		accountCode: S$2("رقم الحساب من الميزان، أو NEW-… لحساب جديد"),
+		accountName: S$2(),
+		debit: S$2("مبلغ بالريال أو 0"),
+		credit: S$2("مبلغ بالريال أو 0")
 	}, [
 		"accountCode",
 		"accountName",
@@ -4883,9 +5259,9 @@ window.SKEngines = (function() {
 		"credit"
 	]));
 	var ADJ_SCHEMA = ARR$1(OBJ$1({
-		title: S$1(),
-		reason: S$1(),
-		standardCode: S$1(),
+		title: S$2(),
+		reason: S$2(),
+		standardCode: S$2(),
 		lines: LINES_SCHEMA
 	}, [
 		"title",
@@ -4899,7 +5275,7 @@ window.SKEngines = (function() {
 			enum: ["needs_docs", "complete"],
 			description: "needs_docs ما دامت هناك مستندات مطلوبة أو ملاحظات جوهرية معلقة"
 		},
-		executiveSummary: S$1(),
+		executiveSummary: S$2(),
 		riskScore: {
 			type: "INTEGER",
 			description: "0-100"
@@ -4909,17 +5285,17 @@ window.SKEngines = (function() {
 				type: "STRING",
 				enum: [...REVIEWERS]
 			},
-			opinion: S$1()
+			opinion: S$2()
 		}, ["reviewer", "opinion"])),
 		accountStandards: ARR$1(OBJ$1({
-			accountCode: S$1(),
-			standards: ARR$1(S$1()),
-			note: S$1("علاقة المعيار بالحساب باختصار")
+			accountCode: S$2(),
+			standards: ARR$1(S$2()),
+			note: S$2("علاقة المعيار بالحساب باختصار")
 		}, ["accountCode", "standards"])),
 		findings: ARR$1(OBJ$1({
-			accountCode: S$1(),
-			accountName: S$1(),
-			standardCode: S$1(),
+			accountCode: S$2(),
+			accountName: S$2(),
+			standardCode: S$2(),
 			issueType: {
 				type: "STRING",
 				enum: [
@@ -4942,10 +5318,10 @@ window.SKEngines = (function() {
 					"منخفضة"
 				]
 			},
-			amount: S$1("المبلغ المتأثر بالريال إن وجد"),
-			comment: S$1(),
-			recommendation: S$1(),
-			citations: ARR$1(S$1("رقم دليل من السجل"))
+			amount: S$2("المبلغ المتأثر بالريال إن وجد"),
+			comment: S$2(),
+			recommendation: S$2(),
+			citations: ARR$1(S$2("رقم دليل من السجل"))
 		}, [
 			"accountName",
 			"standardCode",
@@ -4954,11 +5330,11 @@ window.SKEngines = (function() {
 			"recommendation"
 		])),
 		requestedDocuments: ARR$1(OBJ$1({
-			id: S$1("REQ-n متسلسل ومحفوظ بين الجولات"),
-			title: S$1(),
-			purpose: S$1(),
-			relatedAccounts: ARR$1(S$1()),
-			standardCode: S$1(),
+			id: S$2("REQ-n متسلسل ومحفوظ بين الجولات"),
+			title: S$2(),
+			purpose: S$2(),
+			relatedAccounts: ARR$1(S$2()),
+			standardCode: S$2(),
 			priority: {
 				type: "STRING",
 				enum: [
@@ -4967,7 +5343,7 @@ window.SKEngines = (function() {
 					"منخفضة"
 				]
 			},
-			lineKey: S$1("مفتاح البند"),
+			lineKey: S$2("مفتاح البند"),
 			assertion: {
 				type: "STRING",
 				enum: [
@@ -4987,7 +5363,7 @@ window.SKEngines = (function() {
 					"high"
 				]
 			},
-			citations: ARR$1(S$1())
+			citations: ARR$1(S$2())
 		}, [
 			"id",
 			"title",
@@ -4995,8 +5371,8 @@ window.SKEngines = (function() {
 			"priority"
 		])),
 		documentsReviewed: ARR$1(OBJ$1({
-			fileName: S$1(),
-			requestId: S$1(),
+			fileName: S$2(),
+			requestId: S$2(),
 			verdict: {
 				type: "STRING",
 				enum: [
@@ -5005,14 +5381,14 @@ window.SKEngines = (function() {
 					"مرفوض"
 				]
 			},
-			notes: S$1(),
+			notes: S$2(),
 			extracted: OBJ$1({
-				documentDate: S$1("YYYY-MM-DD"),
-				amount: S$1(),
-				vatAmount: S$1(),
-				vatNumber: S$1(),
-				counterparty: S$1(),
-				reference: S$1()
+				documentDate: S$2("YYYY-MM-DD"),
+				amount: S$2(),
+				vatAmount: S$2(),
+				vatNumber: S$2(),
+				counterparty: S$2(),
+				reference: S$2()
 			}, [])
 		}, [
 			"fileName",
@@ -5020,7 +5396,7 @@ window.SKEngines = (function() {
 			"notes"
 		])),
 		proposedAdjustments: ADJ_SCHEMA,
-		nextStepGuidance: S$1(),
+		nextStepGuidance: S$2(),
 		decision: {
 			type: "STRING",
 			enum: [
@@ -5031,7 +5407,7 @@ window.SKEngines = (function() {
 			description: "قرار الرئيس: طلب أدلة، أو تصعيد للمراجع البشري، أو اكتفاء"
 		},
 		confidence: ARR$1(OBJ$1({
-			lineKey: S$1(),
+			lineKey: S$2(),
 			assertion: {
 				type: "STRING",
 				enum: [
@@ -5053,9 +5429,9 @@ window.SKEngines = (function() {
 			"value"
 		])),
 		dissent: ARR$1(OBJ$1({
-			member: S$1(),
-			note: S$1(),
-			citations: ARR$1(S$1())
+			member: S$2(),
+			note: S$2(),
+			citations: ARR$1(S$2())
 		}, ["member", "note"]))
 	}, [
 		"status",
@@ -5076,19 +5452,19 @@ window.SKEngines = (function() {
 				"امتناع عن إبداء الرأي"
 			]
 		},
-		headline: S$1(),
-		summary: S$1(),
+		headline: S$2(),
+		summary: S$2(),
 		keyAuditMatters: ARR$1(OBJ$1({
-			title: S$1(),
-			why: S$1("لماذا يعد أمراً رئيسياً"),
-			how: S$1("كيف عولج في المراجعة")
+			title: S$2(),
+			why: S$2("لماذا يعد أمراً رئيسياً"),
+			how: S$2("كيف عولج في المراجعة")
 		}, [
 			"title",
 			"why",
 			"how"
 		])),
 		complianceDiscussion: ARR$1(OBJ$1({
-			standardCode: S$1(),
+			standardCode: S$2(),
 			status: {
 				type: "STRING",
 				enum: [
@@ -5098,7 +5474,7 @@ window.SKEngines = (function() {
 					"غير منطبق"
 				]
 			},
-			discussion: S$1()
+			discussion: S$2()
 		}, [
 			"standardCode",
 			"status",
@@ -5106,10 +5482,10 @@ window.SKEngines = (function() {
 		])),
 		adjustments: ADJ_SCHEMA,
 		managementLetter: ARR$1(OBJ$1({
-			title: S$1(),
-			observation: S$1(),
-			effect: S$1(),
-			recommendation: S$1(),
+			title: S$2(),
+			observation: S$2(),
+			effect: S$2(),
+			recommendation: S$2(),
 			priority: {
 				type: "STRING",
 				enum: [
@@ -5124,8 +5500,8 @@ window.SKEngines = (function() {
 			"recommendation",
 			"priority"
 		])),
-		limitations: ARR$1(S$1()),
-		closingStatement: S$1()
+		limitations: ARR$1(S$2()),
+		closingStatement: S$2()
 	}, [
 		"overallOpinion",
 		"headline",
@@ -5154,8 +5530,8 @@ window.SKEngines = (function() {
 		"غش": "fraud",
 		"استمرارية": "going-concern"
 	};
-	var str = (v, max = 4e3) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, max);
-	var arr = (v) => Array.isArray(v) ? v : [];
+	var str$1 = (v, max = 4e3) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, max);
+	var arr$1 = (v) => Array.isArray(v) ? v : [];
 	function newSession(ctx, model = DEFAULT_MODEL, now = /* @__PURE__ */ new Date()) {
 		return {
 			id: "rv-" + now.getTime().toString(36),
@@ -5172,7 +5548,7 @@ window.SKEngines = (function() {
 		const fw = egypt ? "معايير المحاسبة المصرية الصادرة بقرارات وزير الاستثمار وتعديلاتها، وقانون الضريبة على الدخل 91 لسنة 2005 (22.5%)، وقانون الضريبة على القيمة المضافة 67 لسنة 2016 (14%)، وقانون الشركات 159 لسنة 1981؛ والمراجعة وفق معايير المراجعة المصرية المتسقة مع ISA" : ctx.framework === "SME" ? "المعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم المعتمد في المملكة (SOCPA)" : "المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من الهيئة السعودية للمراجعين والمحاسبين (SOCPA)";
 		const codes = STANDARDS.filter((s) => (egypt ? s.family !== "SAUDI" && s.family !== "IFRS" && s.family !== "IAS" : s.family !== "EAS" && s.family !== "EGYPT") && s.status !== "replaced").map((s) => s.code).join("، ");
 		return [
-			"أنت «مجلس المراجعة» في تطبيق KOSIF: ثلاثة مراجعين مستقلين بصوت موحد:",
+			"أنت «مجلس المراجعة» في تطبيق SQC: ثلاثة مراجعين مستقلين بصوت موحد:",
 			"- المراجع الفني المحاسبي: التبويب والقياس والعرض.",
 			"- مراجع الامتثال للمعايير والإفصاح: ملاءمة المعيار لكل حساب وكفاية الإفصاح والمستندات النظامية.",
 			"- مدقق المخاطر والأدلة: المخاطر الجوهرية (ISA 315/330) وكفاية الأدلة (ISA 500) ومؤشرات الغش (ISA 240) والاستمرارية (ISA 570).",
@@ -5291,17 +5667,17 @@ window.SKEngines = (function() {
 	}
 	function adjFrom(raw, i, round, tb, prefix) {
 		const r = raw ?? {};
-		const lines = arr(r.lines).map((l) => ({
-			code: str(l.accountCode, 40) || "NEW",
-			name: str(l.accountName, 200),
+		const lines = arr$1(r.lines).map((l) => ({
+			code: str$1(l.accountCode, 40) || "NEW",
+			name: str$1(l.accountName, 200),
 			debit: Math.abs(parseMinor(l.debit) ?? 0),
 			credit: Math.abs(parseMinor(l.credit) ?? 0)
 		}));
 		const a = {
 			id: `${prefix}${round}-${i + 1}`,
-			title: str(r.title, 200) || "قيد تسوية",
-			reason: str(r.reason, 1e3),
-			standard: normalizeCode$1(str(r.standardCode, 60)) ?? str(r.standardCode, 60),
+			title: str$1(r.title, 200) || "قيد تسوية",
+			reason: str$1(r.reason, 1e3),
+			standard: normalizeCode$1(str$1(r.standardCode, 60)) ?? str$1(r.standardCode, 60),
 			lines,
 			estimate: false,
 			source: "gemini",
@@ -5320,7 +5696,7 @@ window.SKEngines = (function() {
 	function normalizeRound(raw, s, tb, model, now = /* @__PURE__ */ new Date(), evidenceIds) {
 		const r = raw ?? {}, no = s.rounds.length + 1, warnings = [];
 		const cite = (v, where) => {
-			const list = arr(v).map((c) => str(c, 40)).filter(Boolean);
+			const list = arr$1(v).map((c) => str$1(c, 40)).filter(Boolean);
 			if (!evidenceIds) return list;
 			const bad = list.filter((c) => !evidenceIds.has(c));
 			if (bad.length) warnings.push(`استشهاد بدليل غير موجود في ${where}: ${bad.join("، ")} — حُذف.`);
@@ -5328,34 +5704,34 @@ window.SKEngines = (function() {
 		};
 		const codes = new Set(tb.rows.map((x) => x.code));
 		const accountStandards = {};
-		for (const x of arr(r.accountStandards)) {
-			const code = str(x.accountCode, 40);
+		for (const x of arr$1(r.accountStandards)) {
+			const code = str$1(x.accountCode, 40);
 			if (!code) continue;
 			if (!codes.has(code)) {
 				warnings.push(`تجاهل معايير لحساب غير موجود في الميزان: ${code}`);
 				continue;
 			}
-			const list = arr(x.standards).map((c) => str(c, 60)).filter(Boolean);
+			const list = arr$1(x.standards).map((c) => str$1(c, 60)).filter(Boolean);
 			accountStandards[code] = {
 				standards: list.map((c) => normalizeCode$1(c)).filter((c) => !!c).filter((c, i, a) => a.indexOf(c) === i),
 				unknown: list.filter((c) => !normalizeCode$1(c)),
-				note: str(x.note, 600)
+				note: str$1(x.note, 600)
 			};
 		}
 		let fseq = 0;
-		const findings = arr(r.findings).slice(0, 30).map((f) => {
-			const code = str(f.accountCode, 40), std = str(f.standardCode, 60), amount = parseMinor(f.amount);
+		const findings = arr$1(r.findings).slice(0, 30).map((f) => {
+			const code = str$1(f.accountCode, 40), std = str$1(f.standardCode, 60), amount = parseMinor(f.amount);
 			return {
 				id: `G${no}-${++fseq}`,
-				severity: SEV[str(f.severity, 20)] ?? "medium",
-				kind: KIND[str(f.issueType, 20)] ?? "measurement",
+				severity: SEV[str$1(f.severity, 20)] ?? "medium",
+				kind: KIND[str$1(f.issueType, 20)] ?? "measurement",
 				code: codes.has(code) ? code : void 0,
-				account: str(f.accountName, 200),
+				account: str$1(f.accountName, 200),
 				standard: normalizeCode$1(std) ?? (std || "IAS 1"),
-				title: str(f.comment, 160).split(/[.،؛]/)[0] || "ملاحظة",
-				detail: str(f.comment, 2e3),
+				title: str$1(f.comment, 160).split(/[.،؛]/)[0] || "ملاحظة",
+				detail: str$1(f.comment, 2e3),
 				basis: amount ? "المبلغ المتأثر " + sar$1(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
-				action: str(f.recommendation, 1e3),
+				action: str$1(f.recommendation, 1e3),
 				source: "gemini",
 				round: no,
 				citations: cite(f.citations, "ملاحظة")
@@ -5365,10 +5741,10 @@ window.SKEngines = (function() {
 		s.rounds.forEach((x) => x.requests.forEach((q) => existing.set(q.id, q)));
 		let next = existing.size + 1;
 		const requests = [];
-		for (const q of arr(r.requestedDocuments).slice(0, 20)) {
-			const title = str(q.title, 300);
+		for (const q of arr$1(r.requestedDocuments).slice(0, 20)) {
+			const title = str$1(q.title, 300);
 			if (!title) continue;
-			let id = str(q.id, 20).toUpperCase().replace(/\s+/g, "");
+			let id = str$1(q.id, 20).toUpperCase().replace(/\s+/g, "");
 			const same = [...existing.values()].find((e) => e.title === title);
 			if (same) {
 				if (!requests.some((x) => x.id === same.id)) requests.push(same);
@@ -5376,18 +5752,18 @@ window.SKEngines = (function() {
 			}
 			if (!/^REQ-\d+$/.test(id) || existing.has(id) || requests.some((x) => x.id === id)) id = "REQ-" + next;
 			next = Math.max(next, Number(id.slice(4)) + 1);
-			const assertion = str(q.assertion, 20), effort = str(q.effort, 10), lineKey = str(q.lineKey, 40);
+			const assertion = str$1(q.assertion, 20), effort = str$1(q.effort, 10), lineKey = str$1(q.lineKey, 40);
 			requests.push({
 				id,
 				title,
-				purpose: str(q.purpose, 600),
-				accounts: arr(q.relatedAccounts).map((c) => str(c, 40)).filter(Boolean),
-				standard: normalizeCode$1(str(q.standardCode, 60)) ?? "ISA 500",
+				purpose: str$1(q.purpose, 600),
+				accounts: arr$1(q.relatedAccounts).map((c) => str$1(c, 40)).filter(Boolean),
+				standard: normalizeCode$1(str$1(q.standardCode, 60)) ?? "ISA 500",
 				priority: [
 					"عالية",
 					"متوسطة",
 					"منخفضة"
-				].find((p) => p === str(q.priority, 20)) ?? "متوسطة",
+				].find((p) => p === str$1(q.priority, 20)) ?? "متوسطة",
 				source: "gemini",
 				round: no,
 				...lineKey ? { lineKey } : {},
@@ -5401,26 +5777,26 @@ window.SKEngines = (function() {
 			});
 		}
 		const up = pendingUploads(s);
-		const reviewed = arr(r.documentsReviewed).map((d) => {
-			const fileName = str(d.fileName, 300), match = up.find((u) => u.fileName === fileName) ?? up.find((u) => fileName && (u.fileName.includes(fileName) || fileName.includes(u.fileName)));
+		const reviewed = arr$1(r.documentsReviewed).map((d) => {
+			const fileName = str$1(d.fileName, 300), match = up.find((u) => u.fileName === fileName) ?? up.find((u) => fileName && (u.fileName.includes(fileName) || fileName.includes(u.fileName)));
 			const verdict = [
 				"مقبول",
 				"غير كافٍ",
 				"مرفوض"
-			].find((v) => v === str(d.verdict, 20)) ?? "غير كافٍ";
+			].find((v) => v === str$1(d.verdict, 20)) ?? "غير كافٍ";
 			const ex = d.extracted ?? {};
 			return {
-				requestId: match?.requestId ?? str(d.requestId, 20),
+				requestId: match?.requestId ?? str$1(d.requestId, 20),
 				fileName: match?.fileName ?? fileName,
 				verdict,
-				notes: str(d.notes, 2e3),
-				extracted: Object.fromEntries(Object.entries(ex).map(([k, v]) => [k, str(v, 200)]).filter(([, v]) => v))
+				notes: str$1(d.notes, 2e3),
+				extracted: Object.fromEntries(Object.entries(ex).map(([k, v]) => [k, str$1(v, 200)]).filter(([, v]) => v))
 			};
 		});
 		for (const u of up) if (!reviewed.some((d) => d.fileName === u.fileName)) warnings.push(`لم يعلّق المجلس على المستند «${u.fileName}»؛ سيبقى الطلب ${u.requestId} قائماً.`);
-		const adjustments = arr(r.proposedAdjustments).slice(0, 15).map((a, i) => adjFrom(a, i, no, tb, "G"));
+		const adjustments = arr$1(r.proposedAdjustments).slice(0, 15).map((a, i) => adjFrom(a, i, no, tb, "G"));
 		for (const a of adjustments) if (!a.valid) warnings.push(`القيد «${a.title}» لم يُقبل آلياً: ${a.problems.join("، ") || "بيانات ناقصة"}.`);
-		let status = str(r.status, 20) === "complete" ? "complete" : "needs_docs";
+		let status = str$1(r.status, 20) === "complete" ? "complete" : "needs_docs";
 		const newAsks = requests.filter((q) => q.round === no);
 		if (status === "complete" && newAsks.length) {
 			status = "needs_docs";
@@ -5436,32 +5812,32 @@ window.SKEngines = (function() {
 			at: now.toISOString(),
 			model,
 			status,
-			summary: str(r.executiveSummary, 4e3),
+			summary: str$1(r.executiveSummary, 4e3),
 			riskScore: Number.isFinite(score) ? Math.max(0, Math.min(100, Math.round(score))) : 50,
-			opinions: arr(r.boardOpinions).map((o) => ({
-				reviewer: str(o.reviewer, 80),
-				opinion: str(o.opinion, 2e3)
+			opinions: arr$1(r.boardOpinions).map((o) => ({
+				reviewer: str$1(o.reviewer, 80),
+				opinion: str$1(o.opinion, 2e3)
 			})).filter((o) => o.opinion),
 			accountStandards,
 			findings,
 			requests,
 			reviewed,
 			adjustments,
-			guidance: str(r.nextStepGuidance, 2e3),
+			guidance: str$1(r.nextStepGuidance, 2e3),
 			warnings,
 			...r.decision ? { decision: [
 				"request_more_evidence",
 				"escalate",
 				"sufficient"
-			].find((d) => d === str(r.decision, 30)) ?? "request_more_evidence" } : {},
-			...r.confidence ? { confidence: arr(r.confidence).map((c) => ({
-				lineKey: str(c.lineKey, 40),
-				assertion: str(c.assertion, 20),
+			].find((d) => d === str$1(r.decision, 30)) ?? "request_more_evidence" } : {},
+			...r.confidence ? { confidence: arr$1(r.confidence).map((c) => ({
+				lineKey: str$1(c.lineKey, 40),
+				assertion: str$1(c.assertion, 20),
 				value: Math.max(0, Math.min(1, Number(c.value) || 0))
 			})).filter((c) => c.lineKey) } : {},
-			...r.dissent ? { dissent: arr(r.dissent).map((x) => ({
-				member: str(x.member, 80),
-				note: str(x.note, 800),
+			...r.dissent ? { dissent: arr$1(r.dissent).map((x) => ({
+				member: str$1(x.member, 80),
+				note: str$1(x.note, 800),
 				citations: cite(x.citations, "رأي مخالف")
 			})).filter((x) => x.note) } : {}
 		};
@@ -5546,7 +5922,12 @@ window.SKEngines = (function() {
 		}
 		return out;
 	}
-	function deriveOpinion(tb, review, s, accepted) {
+	function mergeEvidence(...maps) {
+		const out = {};
+		for (const m of maps) for (const [k, v] of Object.entries(m)) if (v === "accepted" || !out[k]) out[k] = v;
+		return out;
+	}
+	function deriveOpinion(tb, review, s, accepted, fieldEvidence = {}) {
 		const mat = review.materiality;
 		const uncorrected = [...review.adjustments, ...s.rounds.flatMap((r) => r.adjustments.filter((a) => a.valid))].filter((p) => !accepted.some((a) => a.id === p.id));
 		const eff = uncorrected.length ? adjustmentEffect(tb, uncorrected) : {
@@ -5557,7 +5938,7 @@ window.SKEngines = (function() {
 		const misstatement = Math.max(Math.abs(eff.profit), Math.abs(eff.assets), Math.abs(eff.equity));
 		const highOpen = outstanding(s).filter((q) => q.priority === "عالية");
 		const unavailHigh = s.rounds.flatMap((r) => r.requests).filter((q, i, a) => a.findIndex((x) => x.id === q.id) === i && s.unavailable.includes(q.id) && q.priority === "عالية");
-		const ev = evidenceFromSession(review, s);
+		const ev = mergeEvidence(evidenceFromSession(review, s), fieldEvidence);
 		const sigUnevidenced = review.risks.filter((r) => r.significant && !ev[r.lineKey]).length;
 		const lineOf = (q) => q.lineKey ?? review.accounts.find((a) => q.accounts.includes(a.code))?.lineKey ?? null;
 		const blockedSig = new Set(unavailHigh.map(lineOf).filter((k) => k && review.risks.some((r) => r.lineKey === k && r.significant)));
@@ -5626,29 +6007,29 @@ window.SKEngines = (function() {
 		const r = raw ?? {};
 		return {
 			at: now.toISOString(),
-			aiOpinion: str(r.overallOpinion, 40),
-			headline: str(r.headline, 300),
-			summary: str(r.summary, 6e3),
-			kams: arr(r.keyAuditMatters).map((k) => ({
-				title: str(k.title, 200),
-				why: str(k.why, 2e3),
-				how: str(k.how, 2e3)
+			aiOpinion: str$1(r.overallOpinion, 40),
+			headline: str$1(r.headline, 300),
+			summary: str$1(r.summary, 6e3),
+			kams: arr$1(r.keyAuditMatters).map((k) => ({
+				title: str$1(k.title, 200),
+				why: str$1(k.why, 2e3),
+				how: str$1(k.how, 2e3)
 			})).filter((k) => k.title),
-			compliance: arr(r.complianceDiscussion).map((c) => ({
-				standardCode: normalizeCode$1(str(c.standardCode, 60)) ?? str(c.standardCode, 60),
-				status: str(c.status, 30),
-				discussion: str(c.discussion, 3e3)
+			compliance: arr$1(r.complianceDiscussion).map((c) => ({
+				standardCode: normalizeCode$1(str$1(c.standardCode, 60)) ?? str$1(c.standardCode, 60),
+				status: str$1(c.status, 30),
+				discussion: str$1(c.discussion, 3e3)
 			})).filter((c) => c.standardCode),
-			adjustments: arr(r.adjustments).slice(0, 20).map((a, i) => adjFrom(a, i, s.rounds.length + 1, tb, "F")),
-			letter: arr(r.managementLetter).map((m) => ({
-				title: str(m.title, 200),
-				observation: str(m.observation, 2e3),
-				effect: str(m.effect, 2e3) || void 0,
-				recommendation: str(m.recommendation, 2e3),
-				priority: str(m.priority, 20)
+			adjustments: arr$1(r.adjustments).slice(0, 20).map((a, i) => adjFrom(a, i, s.rounds.length + 1, tb, "F")),
+			letter: arr$1(r.managementLetter).map((m) => ({
+				title: str$1(m.title, 200),
+				observation: str$1(m.observation, 2e3),
+				effect: str$1(m.effect, 2e3) || void 0,
+				recommendation: str$1(m.recommendation, 2e3),
+				priority: str$1(m.priority, 20)
 			})).filter((m) => m.title),
-			limitations: arr(r.limitations).map((x) => str(x, 600)).filter(Boolean),
-			closing: str(r.closingStatement, 2e3)
+			limitations: arr$1(r.limitations).map((x) => str$1(x, 600)).filter(Boolean),
+			closing: str$1(r.closingStatement, 2e3)
 		};
 	}
 	/** Test call body for the key check. */
@@ -5776,7 +6157,7 @@ window.SKEngines = (function() {
 		}
 	};
 	var clamp01 = (x) => Number.isFinite(x) ? Math.max(0, Math.min(1, x)) : 0;
-	var r2 = (x) => Math.round(x * 100) / 100;
+	var r2$1 = (x) => Math.round(x * 100) / 100;
 	/** E — evidence coverage for a balance: Σ r·v ÷ V, capped at 1 (only accepted evidence counts). */
 	function coverage(items, balance) {
 		const V = Math.abs(balance);
@@ -5810,9 +6191,9 @@ window.SKEngines = (function() {
 		};
 		if (p.A === null) {
 			const k = W.E + W.T || 1;
-			return r2(clamp01(W.E / k * p.E + W.T / k * p.T));
+			return r2$1(clamp01(W.E / k * p.E + W.T / k * p.T));
 		}
-		return r2(clamp01(W.E * p.E + W.T * p.T + W.A * p.A));
+		return r2$1(clamp01(W.E * p.E + W.T * p.T + W.A * p.A));
 	}
 	/** The confidence a line needs: material & high risk 0.90, material & medium 0.80, material & low 0.70, immaterial → analytics only (null). */
 	function thresholdFor(line) {
@@ -5837,9 +6218,9 @@ window.SKEngines = (function() {
 				}, i.weights);
 				return {
 					assertion: a,
-					E: r2(E),
-					T: r2(T),
-					A: A === null ? null : r2(A),
+					E: r2$1(E),
+					T: r2$1(T),
+					A: A === null ? null : r2$1(A),
 					C,
 					met: threshold === null ? null : C >= threshold
 				};
@@ -5850,13 +6231,13 @@ window.SKEngines = (function() {
 				threshold,
 				...ov ? { override: ov } : {},
 				cells,
-				min: r2(min),
+				min: r2$1(min),
 				met: threshold === null ? null : cells.every((c) => c.met)
 			};
 		});
 		const open = rows.filter((r) => r.met === false), material = rows.filter((r) => r.threshold !== null);
-		const avgOpen = open.length ? r2(open.reduce((s, r) => s + r.min, 0) / open.length) : 1;
-		const avgAll = material.length ? r2(material.reduce((s, r) => s + r.min, 0) / material.length) : 1;
+		const avgOpen = open.length ? r2$1(open.reduce((s, r) => s + r.min, 0) / open.length) : 1;
+		const avgAll = material.length ? r2$1(material.reduce((s, r) => s + r.min, 0) / material.length) : 1;
 		return {
 			rows,
 			open,
@@ -5921,7 +6302,7 @@ window.SKEngines = (function() {
 			amount,
 			accepted: true
 		}], row.amount);
-		return r2(Math.max(0, confidence({
+		return r2$1(Math.max(0, confidence({
 			E: E2,
 			T: cell.T,
 			A: cell.A
@@ -5931,11 +6312,11 @@ window.SKEngines = (function() {
 	function rankRequests(list) {
 		return list.map((q) => ({
 			...q,
-			score: r2(q.expectedGain * q.materialityWeight / EFFORT[q.effort].v * 100) / 100
+			score: r2$1(q.expectedGain * q.materialityWeight / EFFORT[q.effort].v * 100) / 100
 		})).sort((a, b) => b.score - a.score || b.materialityWeight - a.materialityWeight);
 	}
 	/** Materiality weight of a line: its balance relative to overall materiality (≥ 1 means material on its own). */
-	var materialityWeight = (amount, overall) => overall > 0 ? r2(Math.min(10, Math.abs(amount) / overall)) : 1;
+	var materialityWeight = (amount, overall) => overall > 0 ? r2$1(Math.min(10, Math.abs(amount) / overall)) : 1;
 	var STATES = [
 		{
 			key: "new",
@@ -6591,7 +6972,7 @@ window.SKEngines = (function() {
 		if (member === "skeptic") return highRisk ? 2 : 1;
 		return 1;
 	}
-	var S = (description) => ({
+	var S$1 = (description) => ({
 		type: "STRING",
 		...description ? { description } : {}
 	});
@@ -6609,11 +6990,11 @@ window.SKEngines = (function() {
 		enum: ASSERTIONS.map((a) => a.key)
 	};
 	var MEMBER_SCHEMA = OBJ({
-		position: S("موقفك في جملة واحدة"),
-		reasoning: S("التعليل مع أرقام الأدلة بين معقوفين مثل [T-ANL-001]"),
-		citations: ARR(S("رقم دليل من السجل فقط")),
+		position: S$1("موقفك في جملة واحدة"),
+		reasoning: S$1("التعليل مع أرقام الأدلة بين معقوفين مثل [T-ANL-001]"),
+		citations: ARR(S$1("رقم دليل من السجل فقط")),
 		items: ARR(OBJ({
-			lineKey: S("مفتاح البند كما في السجل"),
+			lineKey: S$1("مفتاح البند كما في السجل"),
 			assertion: ASSERT_ENUM,
 			sufficient: { type: "BOOLEAN" },
 			finding: { type: "BOOLEAN" },
@@ -6621,7 +7002,7 @@ window.SKEngines = (function() {
 				type: "NUMBER",
 				description: "0 إلى 1"
 			},
-			citations: ARR(S())
+			citations: ARR(S$1())
 		}, [
 			"lineKey",
 			"assertion",
@@ -6631,11 +7012,11 @@ window.SKEngines = (function() {
 			"citations"
 		])),
 		requests: ARR(OBJ({
-			lineKey: S(),
+			lineKey: S$1(),
 			assertion: ASSERT_ENUM,
-			evidence: S("المستند المطلوب بدقة: من، ماذا، أي فترة"),
-			reason: S("السبب مع رقم الدليل"),
-			citations: ARR(S()),
+			evidence: S$1("المستند المطلوب بدقة: من، ماذا، أي فترة"),
+			reason: S$1("السبب مع رقم الدليل"),
+			citations: ARR(S$1()),
 			effort: {
 				type: "STRING",
 				enum: [
@@ -6677,7 +7058,7 @@ window.SKEngines = (function() {
 		};
 	}
 	var IDS = /\b(TB-[\w.-]+|T-(?:ANL|VAL|INT|JE|BEN|CUT)-\d+|DOC-\d+)\b/g;
-	var numbersIn = (t) => (nd(t).replace(/(ISA|IFRS|IAS|EAS|SOCPA|معيار|المعيار|البند|الجولة|REQ|TB|T-[A-Z]+|DOC)[\s-]*\d+/gi, " ").match(/\d+(\.\d+)?/g) ?? []).map(Number).filter((x) => x >= 100 && !(x >= 1900 && x <= 2100));
+	var numbersIn$1 = (t) => (nd(t).replace(/(ISA|IFRS|IAS|EAS|SOCPA|معيار|المعيار|البند|الجولة|REQ|TB|T-[A-Z]+|DOC)[\s-]*\d+/gi, " ").match(/\d+(\.\d+)?/g) ?? []).map(Number).filter((x) => x >= 100 && !(x >= 1900 && x <= 2100));
 	/** Keep only what the register supports: unknown citations reject the opinion; free numbers are flagged. */
 	function verifyOpinion(raw, member, reg) {
 		const o = raw && typeof raw === "object" ? raw : {}, A = (v) => Array.isArray(v) ? v : [];
@@ -6711,8 +7092,8 @@ window.SKEngines = (function() {
 			...requests.flatMap((x) => x.citations)
 		];
 		const unknownCitations = [...new Set(all.filter((c) => !ids.has(c)))];
-		const known = reg.filter((e) => all.includes(e.id)).flatMap((e) => [e.amount ?? NaN, ...numbersIn(e.title + " " + e.detail)]).filter(Number.isFinite).map(Math.abs);
-		const unsupportedNumbers = [...new Set(numbersIn(text).filter((x) => !known.some((k) => Math.abs(k - x) <= Math.max(1, k * .01))).map(String))].slice(0, 8);
+		const known = reg.filter((e) => all.includes(e.id)).flatMap((e) => [e.amount ?? NaN, ...numbersIn$1(e.title + " " + e.detail)]).filter(Number.isFinite).map(Math.abs);
+		const unsupportedNumbers = [...new Set(numbersIn$1(text).filter((x) => !known.some((k) => Math.abs(k - x) <= Math.max(1, k * .01))).map(String))].slice(0, 8);
 		return {
 			member,
 			position: String(o.position ?? "").slice(0, 300),
@@ -7182,6 +7563,1336 @@ window.SKEngines = (function() {
 		};
 	}
 	//#endregion
+	//#region app/src/engine/fusion/audit/global-benchmarks-engine.ts
+	var global_benchmarks_engine_exports = /* @__PURE__ */ __exportAll({
+		BUNDLE: () => BUNDLE,
+		KAMS: () => KAMS,
+		MATERIALITY: () => MATERIALITY,
+		REPORTS: () => REPORTS,
+		SECTOR_AR: () => SECTOR_AR,
+		SOURCES: () => SOURCES,
+		THEMES: () => THEMES,
+		checkMateriality: () => checkMateriality,
+		kamLibrary: () => kamLibrary,
+		materialityPractice: () => materialityPractice,
+		precedentsFor: () => precedentsFor,
+		reportOf: () => reportOf,
+		sectorFromActivity: () => sectorFromActivity,
+		summary: () => summary$1,
+		themeStats: () => themeStats
+	});
+	var BUNDLE = {
+		file: "global_financial_and_audit_research_bundle_extended_verified.pdf",
+		pages: 12506
+	};
+	var SOURCES = [
+		{
+			name: "SEC EDGAR",
+			covers: "US public-company 10-K/10-Q filings",
+			url: "https://www.sec.gov/edgar/searchedgar/companysearch.html",
+			kind: "filings"
+		},
+		{
+			name: "SEC Financial Statement Data Sets",
+			covers: "Machine-readable quarterly financial statement data",
+			url: "https://www.sec.gov/dera/data/financial-statement-data-sets.html",
+			kind: "filings"
+		},
+		{
+			name: "Companies House",
+			covers: "UK company accounts and annual reports",
+			url: "https://find-and-update.company-information.service.gov.uk/",
+			kind: "filings"
+		},
+		{
+			name: "FCA National Storage Mechanism",
+			covers: "UK regulated issuers annual financial reports",
+			url: "https://data.fca.org.uk/#/nsm/nationalstoragemechanism",
+			kind: "filings"
+		},
+		{
+			name: "ESMA ESEF filings",
+			covers: "European electronic annual financial reports",
+			url: "https://registers.esma.europa.eu/publication/",
+			kind: "filings"
+		},
+		{
+			name: "SEDAR+",
+			covers: "Canadian public issuer filings",
+			url: "https://www.sedarplus.ca/",
+			kind: "filings"
+		},
+		{
+			name: "ASIC",
+			covers: "Australian company and financial reporting resources",
+			url: "https://asic.gov.au/for-business/financial-reporting/",
+			kind: "filings"
+		},
+		{
+			name: "SEC Philippines PSE Edge",
+			covers: "Philippine listed-company disclosures",
+			url: "https://edge.pse.com.ph/",
+			kind: "filings"
+		},
+		{
+			name: "HKEXnews",
+			covers: "Hong Kong listed-company financial reports",
+			url: "https://www.hkexnews.hk/",
+			kind: "filings"
+		},
+		{
+			name: "SGX",
+			covers: "Singapore listed-company annual reports",
+			url: "https://www.sgx.com/securities/company-announcements",
+			kind: "filings"
+		},
+		{
+			name: "JSE SENS",
+			covers: "South African issuer announcements and reports",
+			url: "https://senspdf.jse.co.za/",
+			kind: "filings"
+		},
+		{
+			name: "Saudi Tadawul",
+			covers: "Saudi listed-company financial statements",
+			url: "https://www.saudiexchange.sa/",
+			kind: "filings"
+		},
+		{
+			name: "ADX",
+			covers: "UAE Abu Dhabi issuer disclosures",
+			url: "https://www.adx.ae/",
+			kind: "filings"
+		},
+		{
+			name: "DFM",
+			covers: "Dubai listed-company disclosures",
+			url: "https://www.dfm.ae/",
+			kind: "filings"
+		},
+		{
+			name: "Euronext",
+			covers: "European issuer regulatory disclosures",
+			url: "https://live.euronext.com/en/products/equities/company-news",
+			kind: "filings"
+		},
+		{
+			name: "Japan EDINET",
+			covers: "Japanese statutory securities reports",
+			url: "https://disclosure2.edinet-fsa.go.jp/",
+			kind: "filings"
+		},
+		{
+			name: "Korea DART",
+			covers: "Korean corporate filings",
+			url: "https://englishdart.fss.or.kr/",
+			kind: "filings"
+		},
+		{
+			name: "India MCA",
+			covers: "Indian company filings and annual returns",
+			url: "https://www.mca.gov.in/",
+			kind: "filings"
+		},
+		{
+			name: "India SEBI",
+			covers: "Indian listed-company disclosures",
+			url: "https://www.sebi.gov.in/",
+			kind: "filings"
+		},
+		{
+			name: "Brazil CVM",
+			covers: "Brazilian issuer reference forms and financials",
+			url: "https://www.gov.br/cvm/pt-br",
+			kind: "filings"
+		},
+		{
+			name: "Deloitte Transparency Reports",
+			covers: "Audit-firm governance, quality and inspection disclosures",
+			url: "https://www.deloitte.com/global/en/about/story/impact/transparency-report.html",
+			kind: "audit-quality"
+		},
+		{
+			name: "PwC Transparency Reports",
+			covers: "Audit quality and governance reports",
+			url: "https://www.pwc.com/gx/en/about/corporate-governance/transparency-report.html",
+			kind: "audit-quality"
+		},
+		{
+			name: "EY Transparency Reports",
+			covers: "Audit quality transparency reports",
+			url: "https://www.ey.com/en_gl/about-us/transparency-report",
+			kind: "audit-quality"
+		},
+		{
+			name: "KPMG Transparency Reports",
+			covers: "Audit quality and independence reports",
+			url: "https://kpmg.com/xx/en/home/about/governance/transparency-report.html",
+			kind: "audit-quality"
+		},
+		{
+			name: "IAASB",
+			covers: "International auditing standards and implementation reports",
+			url: "https://www.iaasb.org/publications",
+			kind: "standards"
+		},
+		{
+			name: "IESBA",
+			covers: "Ethics and independence standards",
+			url: "https://www.ethicsboard.org/publications",
+			kind: "standards"
+		},
+		{
+			name: "PCAOB",
+			covers: "US audit inspection and standards reports",
+			url: "https://pcaobus.org/oversight/inspections",
+			kind: "audit-quality"
+		},
+		{
+			name: "FRC UK",
+			covers: "Audit quality review and corporate reporting reviews",
+			url: "https://www.frc.org.uk/library/annual-reports-and-reviews/",
+			kind: "audit-quality"
+		},
+		{
+			name: "IFIAR",
+			covers: "Global audit regulator inspection findings",
+			url: "https://www.ifiar.org/activities/inspection-findings/",
+			kind: "audit-quality"
+		},
+		{
+			name: "PCAOB firm inspection reports",
+			covers: "Audit firm inspection reports",
+			url: "https://pcaobus.org/oversight/inspections/firm-inspection-reports",
+			kind: "audit-quality"
+		}
+	];
+	var R$1 = (id, company, country, sector, framework, standard, auditor, since, fy, kind, a, b) => ({
+		id,
+		company,
+		country,
+		sector,
+		framework,
+		standard,
+		auditor,
+		...since ? { since } : {},
+		fy,
+		kind,
+		pages: [a, b]
+	});
+	var REPORTS = [
+		R$1("amazon-2023", "Amazon.com, Inc.", "US", "retail", "US GAAP", "PCAOB", "Ernst & Young LLP", 1996, "FY2023", "Annual report + 10-K", 2, 93),
+		R$1("apple-2024", "Apple Inc.", "US", "tech", "US GAAP", "PCAOB", "Ernst & Young LLP", 2009, "FY2024", "10-K", 94, 214),
+		R$1("cisco-2024", "Cisco Systems, Inc.", "US", "tech", "US GAAP", "PCAOB", "PricewaterhouseCoopers LLP", 1988, "FY2024", "Annual report + 10-K", 215, 348),
+		R$1("walmart-2023", "Walmart Inc.", "US", "retail", "US GAAP", "PCAOB", "Ernst & Young LLP", 1969, "FY2023", "10-K", 349, 446),
+		R$1("adobe-2024", "Adobe Inc.", "US", "tech", "US GAAP", "PCAOB", "KPMG LLP", 1983, "FY2024", "10-K", 447, 547),
+		R$1("jpmorgan-2023", "JPMorgan Chase & Co.", "US", "banking", "US GAAP", "PCAOB", "PricewaterhouseCoopers LLP", 1965, "FY2023", "Annual report", 548, 911),
+		R$1("apple-2020", "Apple Inc.", "US", "tech", "US GAAP", "PCAOB", "Ernst & Young LLP", 2009, "FY2020", "10-K", 912, 1016),
+		R$1("amazon-2024", "Amazon.com, Inc.", "US", "retail", "US GAAP", "PCAOB", "Ernst & Young LLP", 1996, "FY2024", "Annual report + 10-K", 1017, 1107),
+		R$1("apple-2023", "Apple Inc.", "US", "tech", "US GAAP", "PCAOB", "Ernst & Young LLP", 2009, "FY2023", "10-K", 1108, 1187),
+		R$1("berkshire-2025", "Berkshire Hathaway Inc.", "US", "insurance", "US GAAP", "PCAOB", "Deloitte & Touche LLP", 1985, "FY2025", "Annual report + 10-K", 1188, 1341),
+		R$1("jpmorgan-2025", "JPMorgan Chase & Co.", "US", "banking", "US GAAP", "PCAOB", "PricewaterhouseCoopers LLP", 1965, "FY2025", "Annual report", 1342, 1706),
+		R$1("bofa-2025", "Bank of America", "US", "banking", "US GAAP", "PCAOB", "PricewaterhouseCoopers LLP", 1958, "FY2025", "Annual report", 1707, 1818),
+		R$1("pepsico-2025", "PepsiCo, Inc.", "US", "fmcg", "US GAAP", "PCAOB", "KPMG LLP", 1990, "FY2025", "Annual report + 10-K", 1819, 1962),
+		R$1("pg-2026", "The Procter & Gamble Company", "US", "fmcg", "US GAAP", "PCAOB", "Deloitte & Touche LLP", 1890, "FY2026", "10-K", 1963, 2043),
+		R$1("homedepot-2025", "The Home Depot, Inc.", "US", "retail", "US GAAP", "PCAOB", "KPMG LLP", 1979, "FY2025", "10-K", 2044, 2131),
+		R$1("mcdonalds-2025", "McDonald's Corporation", "US", "retail", "US GAAP", "PCAOB", "", void 0, "FY2025", "Annual report (letter and highlights)", 2132, 2204),
+		R$1("nestle-2025", "Nestlé Group", "CH", "fmcg", "IFRS", "ISA", "Ernst & Young Ltd", void 0, "FY2025", "Financial statements", 2205, 2342),
+		R$1("roche-2025", "Roche Group", "CH", "pharma", "IFRS", "ISA", "KPMG AG", void 0, "FY2025", "Finance report", 2343, 2539),
+		R$1("novartis-2025", "Novartis AG", "CH", "pharma", "IFRS", "ISA", "KPMG AG", void 0, "FY2025", "Annual report", 2540, 2817),
+		R$1("ubs-2025", "UBS Group AG", "CH", "banking", "IFRS", "PCAOB", "Ernst & Young Ltd", void 0, "FY2025", "Annual report", 2818, 3184),
+		R$1("allianz-2025", "Allianz SE", "DE", "insurance", "IFRS", "ISA", "PricewaterhouseCoopers GmbH", void 0, "FY2025", "Annual report (extract)", 3185, 3240),
+		R$1("mercedes-2025", "Mercedes-Benz Group AG", "DE", "auto", "IFRS", "ISA", "PricewaterhouseCoopers GmbH", void 0, "FY2025", "Annual report", 3241, 3649),
+		R$1("volkswagen-2025", "Volkswagen Group", "DE", "auto", "IFRS", "ISA", "EY GmbH", void 0, "FY2025", "Annual report", 3650, 4323),
+		R$1("telekom-2025", "Deutsche Telekom AG", "DE", "telecom", "IFRS", "ISA", "Deloitte GmbH", void 0, "FY2025", "Annual report", 4324, 4704),
+		R$1("bp-2025", "BP p.l.c.", "UK", "energy", "IFRS", "ISA", "Deloitte LLP", void 0, "FY2025", "Annual report and Form 20-F", 4705, 5101),
+		R$1("unilever-2025", "Unilever PLC", "UK", "fmcg", "IFRS", "ISA", "KPMG LLP", 2014, "FY2025", "Annual report", 5102, 5385),
+		R$1("astrazeneca-2025", "AstraZeneca PLC", "UK", "pharma", "IFRS", "ISA", "PricewaterhouseCoopers LLP", void 0, "FY2025", "Annual report and Form 20-F", 5386, 5698),
+		R$1("gsk-2025", "GSK plc", "UK", "pharma", "IFRS", "ISA", "Deloitte LLP", void 0, "FY2025", "Annual report", 5699, 5949),
+		R$1("hsbc-2025", "HSBC Holdings plc", "UK", "banking", "IFRS", "ISA", "PricewaterhouseCoopers LLP", void 0, "FY2025", "Annual report", 5950, 6321),
+		R$1("totalenergies-2024", "TotalEnergies SE", "FR", "energy", "IFRS", "PCAOB", "PricewaterhouseCoopers Audit · Ernst & Young Audit", void 0, "FY2024", "Form 20-F", 6322, 6986),
+		R$1("airbus-2023", "Airbus SE", "NL", "industrial", "IFRS", "ISA", "Ernst & Young Accountants LLP", void 0, "FY2023", "Annual report + URD", 6987, 7428),
+		R$1("loreal-2024", "L'Oréal", "FR", "fmcg", "IFRS", "ISA", "", void 0, "FY2024", "Annual report (overview)", 7429, 7448),
+		R$1("sanofi-2025", "Sanofi", "FR", "pharma", "IFRS", "PCAOB", "PricewaterhouseCoopers Audit · Forvis Mazars", void 0, "FY2025", "Form 20-F", 7449, 7746),
+		R$1("toyota-2026", "Toyota Motor Corporation", "JP", "auto", "IFRS", "PCAOB", "PricewaterhouseCoopers Japan LLC", 2006, "FY2026 (Mar)", "Form 20-F", 7747, 8010),
+		R$1("honda-2023", "Honda Motor Co., Ltd.", "JP", "auto", "IFRS", "PCAOB", "KPMG AZSA LLC", void 0, "FY2023 (Mar)", "Form 20-F", 8011, 8257),
+		R$1("softbank-2026", "SoftBank Group Corp.", "JP", "tech", "IFRS", "ISA", "", void 0, "FY2026 (Mar)", "Annual report", 8258, 8443),
+		R$1("mufg-2026", "Mitsubishi UFJ Financial Group", "JP", "banking", "US GAAP", "PCAOB", "Deloitte Touche Tohmatsu LLC", 1976, "FY2026 (Mar)", "Form 20-F", 8444, 8795),
+		R$1("smfg-2026", "Sumitomo Mitsui Financial Group", "JP", "banking", "J-GAAP", "ISA", "KPMG AZSA LLC", void 0, "FY2026 (Mar)", "Consolidated financial statements", 8796, 8915),
+		R$1("samsung-2025", "Samsung Electronics", "KR", "tech", "K-IFRS", "ISA", "", void 0, "FY2025", "Consolidated financial statements", 8916, 9017),
+		R$1("honhai-2025", "Hon Hai Precision (Foxconn)", "TW", "tech", "TIFRS", "ISA", "PricewaterhouseCoopers Taiwan", void 0, "FY2025", "Annual report", 9018, 9185),
+		R$1("tencent-2025", "Tencent Holdings", "CN", "tech", "IFRS", "ISA", "PricewaterhouseCoopers", void 0, "FY2025", "Annual report", 9186, 9468),
+		R$1("reliance-2026", "Reliance Industries", "IN", "energy", "Ind AS", "ISA", "Deloitte Haskins & Sells LLP · Chaturvedi & Shah LLP", void 0, "FY2025-26", "Integrated annual report", 9469, 9615),
+		R$1("infosys-2026", "Infosys Limited", "IN", "tech", "Ind AS", "ISA", "Deloitte Haskins & Sells LLP", void 0, "FY2025-26", "Integrated annual report", 9616, 9998),
+		R$1("aramco-2025", "Saudi Arabian Oil Company (Aramco)", "SA", "energy", "IFRS endorsed in KSA + SOCPA", "ISA", "PricewaterhouseCoopers Public Accountants", void 0, "FY2025", "Annual report", 9999, 10244),
+		R$1("emiratesnbd-2025", "Emirates NBD Bank", "AE", "banking", "IFRS", "ISA", "Ernst & Young Middle East", void 0, "FY2025", "Annual report", 10245, 10375),
+		R$1("eand-2025", "e& (Emirates Telecommunications Group)", "AE", "telecom", "IFRS", "ISA", "Ernst & Young", void 0, "FY2025", "Integrated annual report", 10376, 10604),
+		R$1("rbc-2025", "Royal Bank of Canada", "CA", "banking", "IFRS", "ISA", "PricewaterhouseCoopers LLP", 2016, "FY2025", "Annual report", 10605, 10850),
+		R$1("bhp-2025", "BHP Group Limited", "AU", "mining", "IFRS", "PCAOB", "Ernst & Young", void 0, "FY2025", "Form 20-F + S-K 1300 technical reports", 10851, 12300),
+		R$1("cba-2025", "Commonwealth Bank of Australia", "AU", "banking", "AASB (IFRS)", "ISA", "PricewaterhouseCoopers", void 0, "FY2025", "Annual report", 12301, 12506)
+	];
+	var K$1 = (report, theme, page, title) => ({
+		report,
+		title,
+		theme,
+		page
+	});
+	var KAMS = [
+		K$1("amazon-2023", "tax-uncertainty", 49, "Uncertain Tax Positions"),
+		K$1("amazon-2024", "tax-uncertainty", 1063, "Uncertain Tax Positions"),
+		K$1("apple-2020", "tax-uncertainty", 973, "Uncertain Tax Positions"),
+		K$1("apple-2023", "tax-uncertainty", 1159, "Uncertain Tax Positions"),
+		K$1("apple-2024", "tax-uncertainty", 144, "Uncertain Tax Positions"),
+		K$1("cisco-2024", "revenue-recognition", 289, "Revenue Recognition for Certain Product and Services Revenue"),
+		K$1("cisco-2024", "complex-transactions", 289, "Acquisition of Splunk — Valuation of Customer Contracts and Related Relationships Asset and the Technology Asset Acquired"),
+		K$1("walmart-2023", "provisions-litigation", 399, "Contingencies (opioid-related legal proceedings)"),
+		K$1("adobe-2024", "revenue-recognition", 538, "Performance obligations in cloud-enabled software subscriptions"),
+		K$1("jpmorgan-2023", "credit-losses", 749, "Allowance for Loan Losses – Portfolio-based component of Wholesale Loan and Credit Card Loan Portfolios"),
+		K$1("jpmorgan-2023", "fair-value", 749, "Fair Value of Certain Level 3 Financial Instruments"),
+		K$1("jpmorgan-2025", "credit-losses", 1536, "Allowance for Loan Losses – Portfolio-Based Component of the Wholesale and Credit Card Retained Loan Portfolios"),
+		K$1("jpmorgan-2025", "fair-value", 1536, "Fair Value of Certain Level 3 Financial Instruments"),
+		K$1("bofa-2025", "credit-losses", 1771, "Allowance for Loan and Lease Losses - Commercial and Consumer Card Loans"),
+		K$1("berkshire-2025", "actuarial", 1278, "Unpaid Losses and Loss Adjustment Expenses — short-duration property and casualty claim liabilities"),
+		K$1("berkshire-2025", "actuarial", 1278, "Unpaid Losses and Loss Adjustment Expenses — Retroactive Reinsurance Contracts"),
+		K$1("pepsico-2025", "tax-uncertainty", 1936, "Unrecognized tax benefits"),
+		K$1("pg-2026", "impairment-intangibles", 2001, "Intangible Assets — Gillette Indefinite-Lived Intangible Asset"),
+		K$1("homedepot-2025", "inventory", 2084, "Sufficiency of audit evidence over certain merchandise inventories (retail inventory method)"),
+		K$1("nestle-2025", "revenue-deductions", 2312, "Measurement of revenue as it relates to trade spend"),
+		K$1("nestle-2025", "impairment-intangibles", 2312, "Carrying value of goodwill and indefinite useful life intangible assets"),
+		K$1("roche-2025", "revenue-deductions", 2508, "Government and regulatory mandatory price reductions in the US pharmaceuticals business"),
+		K$1("roche-2025", "impairment-intangibles", 2509, "Carrying value of product intangibles not available for use in the Pharmaceuticals Division"),
+		K$1("novartis-2025", "revenue-deductions", 2790, "Provisions for deductions from revenue related to US Managed Care, Medicare Part D and Medicaid rebate programs"),
+		K$1("ubs-2025", "fair-value", 3047, "Valuation of complex or illiquid instruments at fair value"),
+		K$1("ubs-2025", "credit-losses", 3048, "Expected credit losses"),
+		K$1("ubs-2025", "tax-uncertainty", 3049, "Recognition of deferred tax assets"),
+		K$1("volkswagen-2025", "impairment-intangibles", 4295, "Recoverability of goodwill and acquired brand names"),
+		K$1("volkswagen-2025", "impairment-intangibles", 4295, "Capitalization and recoverability of development costs"),
+		K$1("volkswagen-2025", "provisions-litigation", 4299, "Accounting treatment of the risk provisions for the diesel issue"),
+		K$1("volkswagen-2025", "provisions-litigation", 4300, "Completeness and measurement of provisions for warranty obligations"),
+		K$1("volkswagen-2025", "impairment-assets", 4301, "Determination of the expected residual values of lease assets during impairment testing"),
+		K$1("telekom-2025", "revenue-recognition", 4686, "Revenue recognition"),
+		K$1("bp-2025", "climate", 4837, "Potential impact of climate change and the energy transition"),
+		K$1("bp-2025", "impairment-assets", 4837, "Impairment of upstream oil and gas property, plant and equipment (PP&E) assets"),
+		K$1("bp-2025", "provisions-litigation", 4837, "Decommissioning provisions"),
+		K$1("bp-2025", "fair-value", 4847, "Valuation of commodity financial derivatives, where fraud risks may arise in revenue recognition"),
+		K$1("bp-2025", "fraud-override", 4837, "Management override of controls"),
+		K$1("unilever-2025", "revenue-deductions", 5219, "Revenue recognition – Rebates"),
+		K$1("unilever-2025", "tax-uncertainty", 5220, "Indirect tax contingent liabilities in Brazil"),
+		K$1("unilever-2025", "complex-transactions", 5221, "Ice Cream demerger"),
+		K$1("unilever-2025", "parent-investments", 5222, "Investments in subsidiaries (Parent Company)"),
+		K$1("astrazeneca-2025", "revenue-deductions", 5504, "Recognition and measurement of accruals for Managed Care, Medicaid and Medicare Part D rebates on US Product Sales"),
+		K$1("astrazeneca-2025", "impairment-intangibles", 5505, "Impairment assessment of the product, marketing and distribution rights and other intangibles"),
+		K$1("astrazeneca-2025", "provisions-litigation", 5506, "Recognition and measurement of legal provisions and disclosure of contingent liabilities"),
+		K$1("astrazeneca-2025", "actuarial", 5507, "Valuation of defined benefit obligations in the United Kingdom"),
+		K$1("astrazeneca-2025", "parent-investments", 5503, "Distributable reserves (Company)"),
+		K$1("gsk-2025", "revenue-deductions", 5796, "Valuation of US Returns and Rebates (RAR) accruals"),
+		K$1("gsk-2025", "fair-value", 5797, "Valuation of the ViiV Healthcare Shionogi contingent consideration liability"),
+		K$1("gsk-2025", "impairment-intangibles", 5798, "Valuation of other intangible assets"),
+		K$1("gsk-2025", "tax-uncertainty", 5799, "Valuation of uncertain tax positions, including transfer pricing"),
+		K$1("hsbc-2025", "credit-losses", 6206, "Expected credit losses – Loans and advances to customers (Group)"),
+		K$1("hsbc-2025", "parent-investments", 6206, "Investments in subsidiaries (parent company)"),
+		K$1("totalenergies-2024", "impairment-assets", 6369, "Evaluation of the impairment of non-current assets used in exploration and production activities (E&P and Integrated LNG)"),
+		K$1("totalenergies-2024", "impairment-assets", 6372, "Effect of estimated proved developed hydrocarbon reserves on the depreciation of the oil and gas assets used in production activities"),
+		K$1("airbus-2023", "revenue-recognition", 7380, "Revenue recognition (including revenues and costs at completion for onerous and over-time contracts)"),
+		K$1("airbus-2023", "impairment-assets", 7383, "Recoverability of key program assets - long-lived assets"),
+		K$1("airbus-2023", "fair-value", 7384, "Accounting for derivative financial instruments and hedge ineffectiveness"),
+		K$1("sanofi-2025", "impairment-intangibles", 7636, "Recoverable amount of other intangible assets - Acquired R&D, products, trademarks and other rights"),
+		K$1("sanofi-2025", "revenue-deductions", 7636, "Valuation of the provisions for rebates relating to Sanofi’s business in the United States – Medicaid, Medicare and Managed Care"),
+		K$1("sanofi-2025", "tax-uncertainty", 7637, "Uncertain tax positions"),
+		K$1("toyota-2026", "provisions-litigation", 7906, "Liabilities for the costs of recalls and other safety measures"),
+		K$1("toyota-2026", "credit-losses", 7906, "Allowance for credit losses—Retail finance receivables"),
+		K$1("honda-2023", "provisions-litigation", 8137, "Evaluation of the provision for specific warranty programs"),
+		K$1("honda-2023", "credit-losses", 8137, "Allowance for expected credit losses on retail receivables at the finance subsidiary in the United States"),
+		K$1("honda-2023", "impairment-assets", 8138, "Estimated end of term residual values of lease vehicles at the finance subsidiary in the United States"),
+		K$1("mufg-2026", "credit-losses", 8615, "Allowance for Credit Losses — Macroeconomic Variables in Multiple Economic Forecast Scenarios and Weightings"),
+		K$1("mufg-2026", "credit-losses", 8615, "Allowance for Credit Losses — Krungsri Segment — Qualitative Adjustments"),
+		K$1("mufg-2026", "credit-losses", 8616, "Allowance for Credit Losses — Commercial Segment — Internal Credit Rating"),
+		K$1("smfg-2026", "credit-losses", 8909, "The reasonableness of management's assessment of the reserve for possible loan losses for SMBC's corporate loans"),
+		K$1("samsung-2025", "impairment-assets", 8918, "Evaluation of commencement of depreciation related to construction in progress"),
+		K$1("samsung-2025", "revenue-deductions", 8918, "Sales deduction related to sales promotion activities"),
+		K$1("tencent-2025", "revenue-recognition", 9308, "Revenue recognition on provision of online games value-added services related to in-game permanent virtual items – the estimates of expected user lifetime"),
+		K$1("tencent-2025", "impairment-intangibles", 9309, "Impairment assessments of goodwill, investments in associates and investments in joint ventures"),
+		K$1("tencent-2025", "fair-value", 9311, "Fair value measurement of Level 3 financial instruments"),
+		K$1("reliance-2026", "provisions-litigation", 9519, "Litigation matters"),
+		K$1("reliance-2026", "fair-value", 9519, "Fair Valuation of Investments"),
+		K$1("reliance-2026", "it-controls", 9520, "Information Technology (IT) systems and controls over financial reporting"),
+		K$1("reliance-2026", "revenue-recognition", 9562, "Revenue Recognition (reported by the auditors of Reliance Jio Infocomm)"),
+		K$1("infosys-2026", "revenue-recognition", 9810, "Revenue recognition"),
+		K$1("infosys-2026", "revenue-recognition", 9811, "Revenue recognition - Fixed price contracts using the percentage of completion method"),
+		K$1("aramco-2025", "impairment-intangibles", 10164, "Recoverability of Downstream goodwill and the SABIC brand"),
+		K$1("aramco-2025", "impairment-assets", 10165, "Valuation of property, plant and equipment and assets held for sale"),
+		K$1("aramco-2025", "complex-transactions", 10167, "Sale of non-controlling interest in Jafurah Midstream Gas Company"),
+		K$1("emiratesnbd-2025", "credit-losses", 10336, "Expected Credit Loss allowance against Loans and receivables"),
+		K$1("emiratesnbd-2025", "related-parties", 10338, "Related party transactions and balances"),
+		K$1("eand-2025", "revenue-recognition", 10553, "Revenue recognition"),
+		K$1("eand-2025", "impairment-intangibles", 10554, "Carrying value of cash generating units, including goodwill"),
+		K$1("rbc-2025", "credit-losses", 10745, "Allowance for Credit Losses on Loans Categorized as Stage 1 and Stage 2"),
+		K$1("rbc-2025", "tax-uncertainty", 10745, "Uncertain Tax Positions"),
+		K$1("bhp-2025", "impairment-assets", 11205, "Carrying value of property, plant and equipment"),
+		K$1("bhp-2025", "provisions-litigation", 11205, "Closure and rehabilitation provisions"),
+		K$1("bhp-2025", "provisions-litigation", 11206, "Samarco dam failure provisions recognised and the contingent liabilities disclosed"),
+		K$1("cba-2025", "credit-losses", 12468, "Provisions for loan impairment"),
+		K$1("cba-2025", "provisions-litigation", 12469, "Provisions for ongoing class actions"),
+		K$1("cba-2025", "it-controls", 12470, "Operation of financial reporting Information Technology (IT) systems and controls")
+	];
+	var MATERIALITY = [
+		{
+			report: "bp-2025",
+			currency: "USD",
+			overall: 7e8,
+			prior: 8e8,
+			benchmark: "cash-flow",
+			basis: "Cash flow from operations (2.9%) and underlying replacement cost profit before interest and tax (3.6%)",
+			pct: .029,
+			performancePct: .65,
+			threshold: 35e6,
+			parent: {
+				pct: .006,
+				basis: "net assets"
+			},
+			page: 4849
+		},
+		{
+			report: "unilever-2025",
+			currency: "EUR",
+			overall: 5e8,
+			prior: 5e8,
+			benchmark: "profit",
+			basis: "Normalised profit before tax from continuing operations (€8,946m)",
+			pct: .0559,
+			performancePct: .75,
+			threshold: 25e6,
+			parent: {
+				pct: .0035,
+				basis: "total assets"
+			},
+			page: 5216
+		},
+		{
+			report: "astrazeneca-2025",
+			currency: "USD",
+			overall: 62e7,
+			prior: 5e8,
+			benchmark: "profit",
+			basis: "Profit before tax adding back intangible impairments and contingent-consideration fair value and discount unwind",
+			pct: .05,
+			performancePct: .75,
+			parent: {
+				pct: .004,
+				basis: "net assets"
+			},
+			page: 5503
+		},
+		{
+			report: "gsk-2025",
+			currency: "GBP",
+			overall: 35e7,
+			prior: 3e8,
+			benchmark: "profit",
+			basis: "Profit before tax 4.86% · core profit before tax 3.37% · revenue 1.09% · operating cash flow 4.81%",
+			pct: .0486,
+			performancePct: .7,
+			threshold: 15e6,
+			page: 5800
+		},
+		{
+			report: "hsbc-2025",
+			currency: "USD",
+			overall: 155e7,
+			prior: 15e8,
+			benchmark: "profit",
+			basis: "Profit before tax excluding notable items",
+			pct: .05,
+			performancePct: .75,
+			threshold: 775e5,
+			parent: {
+				pct: .0075,
+				basis: "total assets (capped at 95% of group materiality)"
+			},
+			page: 6205
+		},
+		{
+			report: "airbus-2023",
+			currency: "EUR",
+			overall: 292e6,
+			prior: 281e6,
+			benchmark: "ebit",
+			basis: "EBIT Adjusted",
+			pct: .05,
+			threshold: 15e6,
+			page: 7375
+		},
+		{
+			report: "aramco-2025",
+			currency: "SAR",
+			overall: 2625e7,
+			prior: 3e10,
+			benchmark: "profit",
+			basis: "A percentage of income before income taxes and zakat — SAR 702,860m in note 8 (p. 10202), so 3.7%",
+			pct: .0373,
+			threshold: 188e7,
+			page: 10162
+		}
+	];
+	var THEMES = {
+		"revenue-deductions": {
+			ar: "خصومات الإيراد والحوافز والمرتجعات",
+			en: "Rebates, trade spend and price reductions",
+			lines: [
+				"revenue",
+				"accruals",
+				"receivables"
+			],
+			why: "تُطرح الخصومات والحوافز والمرتجعات من الإيراد عند البيع بتقدير يعتمد على معدلات الاستخدام والمطالبات المتوقعة؛ التقدير معقد وعرضة للتحيز ويؤثر مباشرة في الإيراد.",
+			procedures: [
+				"اختبار تصميم وتشغيل الضوابط على احتساب الاستحقاقات",
+				"بناء توقع مستقل للاستحقاق من المطالبات الفعلية والاتجاهات التاريخية",
+				"مقارنة تقديرات الفترة السابقة بما سُدد فعلاً لاختبار دقة التقدير وتحيزه",
+				"فحص المطالبات والتسويات اللاحقة لتاريخ الإقفال"
+			]
+		},
+		"revenue-recognition": {
+			ar: "الاعتراف بالإيراد",
+			en: "Revenue recognition",
+			lines: [
+				"revenue",
+				"contractLiab",
+				"receivables"
+			],
+			why: "تحديد التزامات الأداء وسعر المعاملة وتوقيت انتقال السيطرة (أو نسبة الإنجاز في العقود طويلة الأجل) يتطلب حكماً مهنياً، ومعالجة حجم كبير من المعاملات عبر أنظمة معقدة.",
+			procedures: [
+				"قراءة عينة من العقود وتحديد شروطها المؤثرة في الاعتراف (IFRS 15)",
+				"اختبار الضوابط الآلية وواجهات الأنظمة مع مختصي تقنية المعلومات",
+				"مطابقة عينة من المعاملات مع العقود والفواتير وإثبات التسليم",
+				"اختبار القطع وتقدير التكاليف حتى الإنجاز في العقود على مدى زمني"
+			]
+		},
+		"credit-losses": {
+			ar: "الخسائر الائتمانية المتوقعة",
+			en: "Expected credit losses",
+			lines: ["receivables"],
+			why: "مخصص الخسائر الائتمانية تقدير مستقبلي يعتمد على سيناريوهات اقتصادية وأوزانها وتصنيف المراحل والتعديلات النوعية على مخرجات النماذج.",
+			procedures: [
+				"اختبار ضوابط النماذج والبيانات والسيناريوهات وأوزانها",
+				"تقييم معقولية المتغيرات الاقتصادية المستقبلية مقابل مصادر خارجية",
+				"فحص عينة من التصنيف إلى المراحل والتقييم الفردي للعملاء",
+				"تقييم التعديلات النوعية والإفصاحات (IFRS 9 / IFRS 7)"
+			]
+		},
+		"tax-uncertainty": {
+			ar: "الموقف الضريبي والزكوي غير المؤكد",
+			en: "Uncertain tax and zakat positions",
+			lines: [
+				"zakatPayable",
+				"zakatExpense",
+				"provisions"
+			],
+			why: "تقدير ما إذا كان الموقف الضريبي سيُقبل وقياس أثره يعتمد على تفسير أنظمة معقدة وعلى مراسلات الجهات الضريبية وأحكام القضاء.",
+			procedures: [
+				"إشراك مختصي الضرائب والزكاة في تقييم الأسس الفنية للمواقف",
+				"فحص مراسلات الهيئة والربوط والاعتراضات",
+				"الحصول على مصادقات من المستشارين القانونيين الخارجيين",
+				"تقييم الإفصاحات (IFRIC 23 / IAS 12 / متطلبات الزكاة)"
+			]
+		},
+		"impairment-intangibles": {
+			ar: "انخفاض الشهرة والأصول غير الملموسة",
+			en: "Goodwill and intangible impairment",
+			lines: ["intangibles", "impairment"],
+			why: "القيمة القابلة للاسترداد تعتمد على توقعات تدفقات نقدية ومعدلات نمو وخصم حساسة؛ تغير بسيط في الافتراض قد يغيّر نتيجة الاختبار.",
+			procedures: [
+				"تقييم منهجية التقييم والنماذج بمساعدة مختصي التقييم",
+				"مقارنة التوقعات بالموازنات المعتمدة والأداء الفعلي التاريخي",
+				"مقارنة معدلات الخصم والنمو بنطاق مستقل من بيانات السوق",
+				"تحليل الحساسية للافتراضات الرئيسة وتقييم الإفصاحات (IAS 36)"
+			]
+		},
+		"impairment-assets": {
+			ar: "انخفاض الأصول طويلة الأجل وتقييمها",
+			en: "Long-lived asset impairment and valuation",
+			lines: [
+				"ppe",
+				"rou",
+				"depreciation",
+				"impairment"
+			],
+			why: "استرداد القيمة الدفترية للأصول الثابتة يعتمد على افتراضات الأسعار والكميات والتكاليف والأعمار والقيم المتبقية وتوقيت بدء الاستهلاك.",
+			procedures: [
+				"تقييم تحديد وحدات توليد النقد ومؤشرات الانخفاض",
+				"اختبار الافتراضات مقابل الخطط المعتمدة وبيانات السوق",
+				"فحص بدء الاستهلاك والأعمار الإنتاجية والقيم المتبقية",
+				"فحص تصنيف الأصول المحتفظ بها للبيع وقياسها (IFRS 5)"
+			]
+		},
+		"provisions-litigation": {
+			ar: "المخصصات والقضايا والالتزامات المحتملة",
+			en: "Provisions, litigation and contingencies",
+			lines: ["provisions", "accruals"],
+			why: "تقدير احتمال الخسارة ومبلغها في القضايا والضمانات والاستدعاءات وإعادة التأهيل يعتمد على أحكام الإدارة ورأي المستشارين القانونيين.",
+			procedures: [
+				"قراءة محاضر مجلس الإدارة واللجان",
+				"الحصول على خطابات مباشرة من المستشارين القانونيين الداخليين والخارجيين",
+				"مقارنة افتراضات التقدير بالتسويات والمدفوعات الفعلية",
+				"تقييم كفاية الإفصاح عن الالتزامات المحتملة (IAS 37)"
+			]
+		},
+		"fair-value": {
+			ar: "القيمة العادلة للأدوات غير المتداولة",
+			en: "Level 3 fair value and derivatives",
+			lines: ["investments"],
+			why: "تقييم الأدوات التي لا سعر سوق لها يعتمد على مدخلات غير قابلة للملاحظة، ما يجعل التقدير ذاتياً وعرضة للتحيز.",
+			procedures: [
+				"إعادة تقييم عينة بشكل مستقل بمساعدة مختصي التقييم",
+				"اختبار المدخلات غير القابلة للملاحظة مقابل معاملات حديثة وبيانات خارجية",
+				"تقييم تصنيف مستويات القيمة العادلة (IFRS 13)",
+				"تقييم الإفصاح عن الحساسية"
+			]
+		},
+		actuarial: {
+			ar: "الالتزامات الاكتوارية ومنافع الموظفين",
+			en: "Actuarial liabilities and employee benefits",
+			lines: ["eosb"],
+			why: "قياس الالتزام يعتمد على افتراضات الخصم والتضخم والوفيات أو أنماط المطالبات، وتغيرها يؤثر جوهرياً في المبلغ.",
+			procedures: [
+				"تقييم كفاءة الخبير الاكتواري واستقلاله",
+				"مقارنة الافتراضات بنطاق معقول مستقل",
+				"اختبار البيانات الأساسية (الموظفون والرواتب أو المطالبات)",
+				"تطوير تقدير مستقل ومقارنته بتقدير الإدارة (IAS 19)"
+			]
+		},
+		"it-controls": {
+			ar: "أنظمة تقنية المعلومات وضوابطها",
+			en: "IT systems and controls",
+			lines: [],
+			why: "التقرير المالي يعتمد على أنظمة آلية تعالج حجماً كبيراً من المعاملات؛ ضعف صلاحيات الدخول أو إدارة التغيير يهدد سلامة البيانات.",
+			procedures: [
+				"اختبار الضوابط العامة لتقنية المعلومات: الدخول وإدارة التغيير والتشغيل",
+				"اختبار الضوابط الآلية والواجهات بين الأنظمة",
+				"تقييم أثر أي قصور في الضوابط على نطاق الإجراءات الأساسية"
+			]
+		},
+		"complex-transactions": {
+			ar: "المعاملات المعقدة وغير المعتادة",
+			en: "Complex and unusual transactions",
+			lines: ["investments"],
+			why: "الاستحواذات والانفصالات وبيع الحصص تتطلب أحكاماً في التصنيف والقياس (السيطرة، القيمة العادلة، الحصص غير المسيطرة).",
+			procedures: [
+				"قراءة الاتفاقيات وتقييم جوهرها الاقتصادي",
+				"تقييم المعالجة المحاسبية مع المختصين الفنيين",
+				"التحقق من المتحصلات والقيم الدفترية في تاريخ المعاملة",
+				"تقييم الإفصاحات (IFRS 3 / IFRS 10)"
+			]
+		},
+		inventory: {
+			ar: "المخزون وتقييمه",
+			en: "Inventory existence and valuation",
+			lines: ["inventory", "cogs"],
+			why: "تقييم المخزون يعتمد على طريقة التكلفة وافتراضات الهوامش والتخفيضات والفاقد، ويعالَج آلياً بحجم بيانات كبير.",
+			procedures: [
+				"حضور الجرد في مواقع مختارة",
+				"بناء توقع مستقل لمدخلات طريقة التقييم",
+				"مطابقة عينة مع فواتير الموردين والمدفوعات",
+				"اختبار صافي القيمة القابلة للتحقق (IAS 2)"
+			]
+		},
+		"fraud-override": {
+			ar: "تجاوز الإدارة للضوابط",
+			en: "Management override of controls",
+			lines: [],
+			why: "خطر تجاوز الإدارة للضوابط قائم في كل منشأة (ISA 240) ويتركز في القيود اليدوية والتقديرات والمعاملات غير المعتادة.",
+			procedures: [
+				"اختبار القيود اليومية والتسويات بمعايير مخاطر",
+				"مراجعة التقديرات بحثاً عن تحيز",
+				"تقييم المبرر التجاري للمعاملات غير المعتادة"
+			]
+		},
+		climate: {
+			ar: "أثر المناخ وتحول الطاقة",
+			en: "Climate change and energy transition",
+			lines: ["ppe", "provisions"],
+			why: "افتراضات أسعار الطاقة والكربون وأعمار الأصول تؤثر في الانخفاض والمخصصات والإفصاحات.",
+			procedures: [
+				"تقييم اتساق افتراضات المناخ بين الخطط والقوائم",
+				"تحليل حساسية الانخفاض لسيناريوهات التحول",
+				"فحص الإفصاحات المتعلقة بالمناخ"
+			]
+		},
+		"parent-investments": {
+			ar: "استثمارات الشركة الأم في التابعة",
+			en: "Parent-company investments in subsidiaries",
+			lines: ["investments"],
+			why: "في القوائم المنفصلة للشركة القابضة تمثل الاستثمارات معظم الأصول، فيؤثر أي انخفاض فيها في الاحتياطيات القابلة للتوزيع.",
+			procedures: [
+				"مقارنة القيمة الدفترية بصافي أصول التابعة أو القيمة السوقية",
+				"تقييم مؤشرات الانخفاض",
+				"التحقق من الاحتياطيات القابلة للتوزيع"
+			]
+		},
+		"related-parties": {
+			ar: "الأطراف ذات العلاقة",
+			en: "Related parties",
+			lines: ["partners"],
+			why: "التعاملات مع الجهات الحكومية والأطراف ذات العلاقة جوهرية ومتطلبات إفصاحها محددة (IAS 24).",
+			procedures: [
+				"حصر الأطراف ذات العلاقة ومقارنتها بالسجلات",
+				"فحص الشروط والموافقات",
+				"تقييم الإفصاح عن التركزات"
+			]
+		}
+	};
+	var SECTOR_AR = {
+		tech: "التقنية",
+		retail: "التجزئة",
+		fmcg: "السلع الاستهلاكية والأغذية",
+		banking: "البنوك",
+		insurance: "التأمين",
+		pharma: "الأدوية",
+		energy: "الطاقة",
+		auto: "السيارات",
+		telecom: "الاتصالات",
+		mining: "التعدين",
+		industrial: "الصناعة",
+		conglomerate: "المجموعات المتنوعة"
+	};
+	var REPORT = Object.fromEntries(REPORTS.map((r) => [r.id, r]));
+	var reportOf = (id) => REPORT[id];
+	var row = (k) => {
+		const r = REPORT[k.report];
+		return {
+			...k,
+			company: r.company,
+			fy: r.fy,
+			country: r.country,
+			sector: r.sector,
+			standard: r.standard,
+			auditor: r.auditor,
+			themeAr: THEMES[k.theme].ar
+		};
+	};
+	function kamLibrary(f = {}) {
+		const q = (f.q || "").trim().toLowerCase();
+		return KAMS.map(row).filter((k) => (!f.theme || k.theme === f.theme) && (!f.sector || k.sector === f.sector) && (!f.standard || k.standard === f.standard) && (!q || [
+			k.title,
+			k.company,
+			k.auditor,
+			k.themeAr,
+			THEMES[k.theme].en
+		].some((s) => s.toLowerCase().includes(q))));
+	}
+	/** Theme counts across the bundle, most frequent first, with the sectors where each appears. */
+	function themeStats() {
+		return Object.keys(THEMES).map((t) => {
+			const ks = KAMS.filter((k) => k.theme === t);
+			return {
+				theme: t,
+				ar: THEMES[t].ar,
+				en: THEMES[t].en,
+				count: ks.length,
+				companies: new Set(ks.map((k) => REPORT[k.report].company)).size,
+				sectors: [...new Set(ks.map((k) => REPORT[k.report].sector))]
+			};
+		}).filter((s) => s.count > 0).sort((a, b) => b.count - a.count || a.ar.localeCompare(b.ar));
+	}
+	/** Sector from a free-text activity (Arabic or English), for choosing the closest precedents. */
+	function sectorFromActivity(activity) {
+		const t = (activity || "").toLowerCase();
+		return [
+			["banking", /بنك|مصرف|تمويل|bank|financ|lending/],
+			["insurance", /تأمين|تكافل|insur|reinsur/],
+			["pharma", /دواء|أدوية|صيدل|pharma|drug|biotech/],
+			["energy", /نفط|بترول|غاز|طاقة|oil|gas|energy|petro/],
+			["mining", /تعدين|منجم|معادن|mining|mineral/],
+			["telecom", /اتصالات|telecom|mobile network/],
+			["auto", /سيار|مركبات|auto|vehicle|motor/],
+			["tech", /تقني|برمج|برامج|حاسب|software|tech|cloud|saas|electronic/],
+			["fmcg", /أغذية|غذائ|لحوم|أغنام|مواشي|ألبان|مشروبات|استهلاك|food|meat|dairy|beverage|consumer/],
+			["retail", /تجزئة|متجر|سوبر|retail|store|e-?commerce/],
+			["industrial", /مقاولات|إنشاء|صناع|مصنع|طيران|construct|manufactur|industrial|aero/]
+		].find(([, re]) => re.test(t))?.[0] ?? "";
+	}
+	/** Real KAMs that match a statement line of the engagement — same sector first, then the rest. */
+	function precedentsFor(lineKey, opts = {}) {
+		const limit = opts.limit ?? 3;
+		return Object.keys(THEMES).filter((t) => THEMES[t].lines.includes(lineKey)).map((t) => {
+			const all = KAMS.filter((k) => k.theme === t).map(row);
+			const ranked = [...all.filter((k) => opts.sector && k.sector === opts.sector), ...all.filter((k) => !opts.sector || k.sector !== opts.sector)];
+			return {
+				theme: t,
+				ar: THEMES[t].ar,
+				why: THEMES[t].why,
+				procedures: THEMES[t].procedures,
+				examples: ranked.slice(0, limit)
+			};
+		}).filter((p) => p.examples.length).sort((a, b) => KAMS.filter((k) => k.theme === b.theme).length - KAMS.filter((k) => k.theme === a.theme).length);
+	}
+	var range = (xs) => xs.length ? {
+		min: Math.min(...xs),
+		max: Math.max(...xs),
+		n: xs.length
+	} : null;
+	/** Observed ranges, computed from the disclosures (not hard-coded). */
+	function materialityPractice() {
+		return {
+			profit: range(MATERIALITY.filter((m) => m.pct !== void 0).filter((m) => m.benchmark === "profit" || m.benchmark === "ebit").map((m) => m.pct)),
+			performance: range(MATERIALITY.filter((m) => m.performancePct !== void 0).map((m) => m.performancePct)),
+			threshold: range(MATERIALITY.filter((m) => m.threshold !== void 0).map((m) => Math.round(m.threshold / m.overall * 1e3) / 1e3)),
+			parentAssets: range(MATERIALITY.filter((m) => m.parent).map((m) => m.parent.pct)),
+			cases: MATERIALITY.map((m) => ({
+				...m,
+				company: REPORT[m.report].company,
+				auditor: REPORT[m.report].auditor,
+				fy: REPORT[m.report].fy
+			}))
+		};
+	}
+	/** The engagement's choices against what auditors disclosed. Advisory: ISA 320 leaves the choice to professional judgement. */
+	function checkMateriality(input) {
+		const p = materialityPractice(), pct = (x) => `${Math.round(x * 1e3) / 10}%`;
+		const cmp = (x, r) => {
+			const v = Math.round(x * 1e3) / 1e3;
+			return !r ? "no-precedent" : v < r.min - 1e-9 ? "below" : v > r.max + 1e-9 ? "above" : "within";
+		};
+		const out = [];
+		if (input.benchmark === "pbz") {
+			const st = cmp(input.rate, p.profit);
+			out.push({
+				key: "rate",
+				label: "نسبة الأهمية من الربح",
+				value: input.rate,
+				status: st,
+				observed: p.profit ? `${pct(p.profit.min)}–${pct(p.profit.max)} في ${p.profit.n} تقارير` : "—",
+				note: st === "within" ? "ضمن ما أفصح عنه مراجعو الشركات العالمية على أساس الربح." : st === "above" ? "أعلى من الممارسة المفصح عنها؛ وثّق مبرر النسبة (ISA 320.A8)." : "أقل من الممارسة المفصح عنها؛ مقبول إن كان الخطر مرتفعاً، ووثّق السبب."
+			});
+		} else if (input.benchmark === "assets") {
+			const st = cmp(input.rate, p.parentAssets);
+			out.push({
+				key: "rate",
+				label: "نسبة الأهمية من الموجودات",
+				value: input.rate,
+				status: st,
+				observed: p.parentAssets ? `${pct(p.parentAssets.min)}–${pct(p.parentAssets.max)} (شركات قابضة)` : "—",
+				note: st === "above" ? "المراجعون استخدموا الموجودات أساساً للشركات القابضة بنسب أقل؛ لمنشأة تشغيلية فضّل أساس الربح أو الإيراد متى كان مستقراً." : "ضمن نطاق أساس الموجودات المفصح عنه للشركات القابضة."
+			});
+		} else out.push({
+			key: "rate",
+			label: "نسبة الأهمية من الإيراد",
+			value: input.rate,
+			status: "no-precedent",
+			observed: "لم يعتمد أي تقرير في الحزمة الإيراد أساساً (GSK قارنت به: 1.09%)",
+			note: "الإيراد أساس مقبول حين يكون الربح متذبذباً أو قريباً من الصفر؛ وثّق سبب العدول عن أساس الربح."
+		});
+		const sp = cmp(input.performanceRate, p.performance);
+		out.push({
+			key: "performance",
+			label: "الأهمية التنفيذية",
+			value: input.performanceRate,
+			status: sp,
+			observed: p.performance ? `${pct(p.performance.min)}–${pct(p.performance.max)} من الأهمية العامة` : "—",
+			note: sp === "within" ? "ضمن الممارسة: 65% عند بيئة رقابة أضعف أو تحريفات سابقة، و75% عند بيئة مستقرة." : sp === "above" ? "أعلى من الممارسة المفصح عنها (الحد الأعلى 75%)." : "أدنى من الممارسة؛ مناسب إن كانت التحريفات السابقة كثيرة."
+		});
+		const stt = cmp(input.trivialRate, p.threshold);
+		out.push({
+			key: "trivial",
+			label: "حد التحريفات الواضحة الضآلة",
+			value: input.trivialRate,
+			status: stt,
+			observed: p.threshold ? `${pct(p.threshold.min)}–${pct(p.threshold.max)} من الأهمية العامة` : "—",
+			note: stt === "within" ? "ضمن حد الإبلاغ للجنة المراجعة الذي أفصح عنه المراجعون." : "خارج حدود الإبلاغ المفصح عنها؛ راجع الحد مع المكلفين بالحوكمة."
+		});
+		return out;
+	}
+	/** Headline numbers for the reference screen. */
+	function summary$1() {
+		const auditors = /* @__PURE__ */ new Map();
+		for (const r of REPORTS) {
+			if (!r.auditor) continue;
+			const f = /Ernst|EY/.test(r.auditor) ? "EY" : /Pricewaterhouse|PwC/.test(r.auditor) ? "PwC" : /KPMG/.test(r.auditor) ? "KPMG" : /Deloitte/.test(r.auditor) ? "Deloitte" : r.auditor;
+			auditors.set(f, (auditors.get(f) || 0) + 1);
+		}
+		return {
+			reports: REPORTS.length,
+			pages: BUNDLE.pages,
+			countries: new Set(REPORTS.map((r) => r.country)).size,
+			kams: KAMS.length,
+			pcaob: KAMS.filter((k) => REPORT[k.report].standard === "PCAOB").length,
+			isa: KAMS.filter((k) => REPORT[k.report].standard === "ISA").length,
+			materiality: MATERIALITY.length,
+			sources: SOURCES.length,
+			auditors: [...auditors.entries()].sort((a, b) => b[1] - a[1])
+		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/audit/fieldwork-engine.ts
+	var fieldwork_engine_exports = /* @__PURE__ */ __exportAll({
+		CONFIDENCE: () => CONFIDENCE,
+		HUMAN_CHECKS: () => HUMAN_CHECKS,
+		areaOf: () => areaOf,
+		completion: () => completion,
+		evidenceFromFieldwork: () => evidenceFromFieldwork,
+		leadSchedules: () => leadSchedules,
+		representationLetter: () => representationLetter,
+		riskMatrix: () => riskMatrix,
+		sampleSize: () => sampleSize,
+		signOff: () => signOff,
+		workingPapers: () => workingPapers,
+		wpStatus: () => wpStatus
+	});
+	var AREA = [
+		{
+			ref: "A",
+			ar: "النقد وما في حكمه",
+			lines: ["cash"]
+		},
+		{
+			ref: "B",
+			ar: "الذمم المدينة والإيراد",
+			lines: [
+				"receivables",
+				"revenue",
+				"contractLiab"
+			]
+		},
+		{
+			ref: "C",
+			ar: "المخزون وتكلفة الإيرادات",
+			lines: [
+				"inventory",
+				"cogs",
+				"biological"
+			]
+		},
+		{
+			ref: "D",
+			ar: "الممتلكات والأصول غير الملموسة وحق الاستخدام",
+			lines: [
+				"ppe",
+				"intangibles",
+				"rou",
+				"depreciation",
+				"impairment"
+			]
+		},
+		{
+			ref: "E",
+			ar: "الاستثمارات",
+			lines: ["investments", "investIncome"]
+		},
+		{
+			ref: "F",
+			ar: "المدفوعات المقدمة والأرصدة المدينة الأخرى",
+			lines: [
+				"prepayments",
+				"otherCa",
+				"otherNca",
+				"vatAsset"
+			]
+		},
+		{
+			ref: "L",
+			ar: "الذمم الدائنة والمستحقات",
+			lines: [
+				"payables",
+				"accruals",
+				"otherCl",
+				"vatLiability"
+			]
+		},
+		{
+			ref: "M",
+			ar: "القروض والإيجارات وتكاليف التمويل",
+			lines: [
+				"loansCl",
+				"loansNcl",
+				"leaseNcl",
+				"financeCost"
+			]
+		},
+		{
+			ref: "N",
+			ar: "المخصصات ومنافع الموظفين",
+			lines: ["provisions", "eosb"]
+		},
+		{
+			ref: "Q",
+			ar: "حقوق الملكية والأطراف ذات العلاقة",
+			lines: [
+				"capital",
+				"reserves",
+				"partners",
+				"retained"
+			]
+		},
+		{
+			ref: "S",
+			ar: "المصروفات التشغيلية والإيرادات الأخرى",
+			lines: [
+				"selling",
+				"admin",
+				"otherIncome"
+			]
+		},
+		{
+			ref: "T",
+			ar: "الزكاة والضريبة",
+			lines: ["zakatPayable", "zakatExpense"]
+		}
+	];
+	/** areas tested in full rather than sampled: a few balances each, confirmed or recomputed directly */
+	var FULL = {
+		A: "يُختبر كاملاً: مصادقة كل حساب بنكي ومطابقة تسويته (ISA 505)",
+		M: "يُختبر كاملاً: مصادقة كل قرض وعقد وإعادة احتساب تكلفة التمويل",
+		Q: "يُختبر كاملاً: مطابقة السجل التجاري وقرارات الشركاء وحركة كل حساب",
+		T: "يُختبر كاملاً: إعادة احتساب الوعاء والمخصص ومطابقة الإقرار والربوط"
+	};
+	var areaOf = (lineKey) => AREA.find((a) => a.lines.includes(lineKey)) ?? null;
+	function riskMatrix(review, opts = {}) {
+		const sector = sectorFromActivity(opts.activity ?? "");
+		return review.risks.filter((r) => r.amount !== 0).map((r) => {
+			const la = LINE_AUDIT[r.lineKey], th = precedentsFor(r.lineKey, {
+				sector,
+				limit: 1
+			})[0];
+			const fraud = !!la?.fraud || r.lineKey === "revenue", estimate = !!la?.estimate;
+			const approach = r.significant ? "إجراءات أساسية تفصيلية موسعة مصممة للخطر الجوهري" + (fraud ? " مع عنصر عدم توقع (ISA 240.30)" : "") : r.level === "متوسط" ? "إجراءات أساسية تفصيلية وتحليلية" : "إجراءات تحليلية أساسية";
+			return {
+				lineKey: r.lineKey,
+				ar: r.ar,
+				ref: areaOf(r.lineKey)?.ref ?? "—",
+				amount: r.amount,
+				assertions: LINE[r.lineKey]?.assertions ?? [],
+				score: r.score,
+				level: r.level,
+				significant: r.significant,
+				fraud,
+				estimate,
+				approach,
+				theme: th ? th.ar : null
+			};
+		}).sort((a, b) => b.score - a.score);
+	}
+	var CONFIDENCE = {
+		high: {
+			pct: 95,
+			factor: 3,
+			expansion: 1.6
+		},
+		moderate: {
+			pct: 90,
+			factor: 2.31,
+			expansion: 1.5
+		},
+		low: {
+			pct: 80,
+			factor: 1.61,
+			expansion: 1.3
+		}
+	};
+	function sampleSize(i) {
+		const c = CONFIDENCE[i.risk], pop = Math.abs(i.population), key = Math.min(Math.abs(i.keyItems ?? 0), pop), rest = pop - key;
+		const room = i.performance - (i.expected ?? 0) * c.expansion;
+		if (i.performance <= 0 || room <= 0) return {
+			n: null,
+			confidence: c.pct,
+			factor: c.factor,
+			keyItems: key,
+			interval: null,
+			note: "الخطأ المتوقع يستنفد الأهمية التنفيذية: اختبر المجتمع كله أو خفّض الخطأ المتوقع."
+		};
+		const n = rest ? Math.ceil(rest * c.factor / room) : 0;
+		return {
+			n,
+			confidence: c.pct,
+			factor: c.factor,
+			keyItems: key,
+			interval: n ? Math.floor(rest / n) : null,
+			note: `ثقة ${c.pct}% (معامل ${c.factor})` + (key ? "؛ البنود المساوية للأهمية التنفيذية أو الأكبر منها تُختبر كلها" : "")
+		};
+	}
+	function workingPapers(review, opts = {}) {
+		const m = review.materiality, sector = sectorFromActivity(opts.activity ?? "");
+		const out = [];
+		for (const a of AREA) {
+			const risks = review.risks.filter((r) => a.lines.includes(r.lineKey) && r.amount !== 0);
+			if (!risks.length) continue;
+			const amount = risks.reduce((t, r) => t + Math.abs(r.amount), 0);
+			const significant = risks.some((r) => r.significant), level = significant ? "high" : risks.some((r) => r.level === "متوسط") ? "moderate" : "low";
+			if (!significant && amount < m.trivial) continue;
+			const steps = [], seen = /* @__PURE__ */ new Set();
+			const add = (s) => {
+				if (seen.has(s.text)) return;
+				seen.add(s.text);
+				steps.push({
+					...s,
+					id: `${a.ref}-${steps.length + 1}`
+				});
+			};
+			add({
+				id: "",
+				text: "مطابقة جدول الحساب الرئيسي (Lead) مع ميزان المراجعة والقوائم ورصيد السنة السابقة المراجع",
+				source: "analytical"
+			});
+			for (const r of risks) for (const p of LINE_AUDIT[r.lineKey]?.procedures ?? r.procedures) add({
+				id: "",
+				text: p,
+				source: "line"
+			});
+			if (level !== "low") add({
+				id: "",
+				text: "إجراءات تحليلية أساسية: توقع مستقل للرصيد ومقارنته بالفعلي والتحقيق في الفروق فوق الأهمية التنفيذية (ISA 520)",
+				source: "analytical"
+			});
+			const precedents = [];
+			if (significant) for (const r of risks.filter((x) => x.significant)) for (const p of precedentsFor(r.lineKey, {
+				sector,
+				limit: 2
+			})) {
+				for (const text of p.procedures) add({
+					id: "",
+					text,
+					source: "global",
+					theme: p.ar,
+					cite: p.examples.map((e) => `${e.company} ص ${e.page}`).join("، ")
+				});
+				for (const e of p.examples) if (!precedents.some((x) => x.title === e.title)) precedents.push({
+					title: e.title,
+					company: `${e.company} · ${e.auditor}`,
+					page: e.page
+				});
+			}
+			if (risks.some((r) => LINE_AUDIT[r.lineKey]?.fraud || r.lineKey === "revenue")) add({
+				id: "",
+				text: "اختبار القيود اليومية ذات الخصائص غير المعتادة المرحّلة على حسابات هذا المجال، وعنصر عدم توقع في الإجراءات (ISA 240)",
+				source: "fraud"
+			});
+			out.push({
+				ref: a.ref,
+				area: a.ar,
+				lines: risks.map((r) => r.lineKey),
+				amount,
+				significant,
+				risk: level,
+				objective: `الحصول على أدلة كافية ومناسبة بأن أرصدة ${a.ar} خالية من التحريف الجوهري في تأكيداتها: ${[...new Set(risks.flatMap((r) => LINE[r.lineKey]?.assertions ?? []))].join("، ")}.`,
+				assertions: [...new Set(risks.flatMap((r) => LINE[r.lineKey]?.assertions ?? []))],
+				steps,
+				sample: FULL[a.ref] ? {
+					n: null,
+					confidence: 100,
+					factor: 0,
+					keyItems: amount,
+					interval: null,
+					note: FULL[a.ref]
+				} : sampleSize({
+					population: amount,
+					performance: m.performance,
+					risk: level
+				}),
+				precedents: precedents.slice(0, 4)
+			});
+		}
+		return out;
+	}
+	function wpStatus(wp, s = {}) {
+		const done = (s.done ?? []).filter((id) => wp.steps.some((x) => x.id === id)).length, total = wp.steps.length;
+		const status = s.reviewer && s.preparer ? "reviewed" : s.preparer ? "prepared" : done ? "in-progress" : "not-started";
+		return {
+			done,
+			total,
+			pct: total ? Math.round(done / total * 100) : 0,
+			status
+		};
+	}
+	/** Evidence per line from the signed papers (ISA 330 / 500): reviewed → accepted, prepared → partial. Feeds the opinion and the programme. */
+	function evidenceFromFieldwork(papers, signoffs = {}) {
+		const out = {};
+		for (const w of papers) {
+			const st = wpStatus(w, signoffs[w.ref]).status;
+			if (st === "reviewed") for (const k of w.lines) out[k] = "accepted";
+			else if (st === "prepared") {
+				for (const k of w.lines) if (!out[k]) out[k] = "partial";
+			}
+		}
+		return out;
+	}
+	/** Returns the new sign-off or an error in Arabic: prepare needs every step and a conclusion; review needs a different person. */
+	function signOff(wp, s, role, name, now = /* @__PURE__ */ new Date()) {
+		const who = name.trim();
+		if (!who) return {
+			ok: false,
+			error: "اكتب اسم الموقّع."
+		};
+		if (role === "preparer") {
+			const st = wpStatus(wp, s);
+			if (st.done < st.total) return {
+				ok: false,
+				error: `أكمل الإجراءات أولاً (${st.done} من ${st.total}).`
+			};
+			if (!(s.conclusion ?? "").trim()) return {
+				ok: false,
+				error: "اكتب استنتاج ورقة العمل قبل التوقيع (ISA 230)."
+			};
+			return {
+				ok: true,
+				value: {
+					...s,
+					preparer: who,
+					preparedAt: now.toISOString(),
+					reviewer: void 0,
+					reviewedAt: void 0
+				}
+			};
+		}
+		if (!s.preparer) return {
+			ok: false,
+			error: "لا تُراجع ورقة لم يوقعها المُعد."
+		};
+		if (s.preparer.trim() === who) return {
+			ok: false,
+			error: "المراجِع يجب أن يكون غير المُعد (فصل المهام — ISA 220)."
+		};
+		return {
+			ok: true,
+			value: {
+				...s,
+				reviewer: who,
+				reviewedAt: now.toISOString()
+			}
+		};
+	}
+	function leadSchedules(tb, accepted, overrides = {}) {
+		const before = buildStatements(tb, overrides), after = buildStatements(accepted.length ? applyAdjustments(tb, accepted) : tb, overrides);
+		return AREA.map((a) => {
+			const rows = [];
+			for (const k of a.lines) {
+				const lb = before.lines.find((l) => l.key === k), la = after.lines.find((l) => l.key === k);
+				const codes = [...new Set([...lb?.accounts ?? [], ...la?.accounts ?? []].map((x) => x.code))];
+				for (const code of codes) {
+					const x = lb?.accounts.find((y) => y.code === code), y = la?.accounts.find((z) => z.code === code);
+					const un = x?.current ?? 0, fin = y?.current ?? 0;
+					rows.push({
+						code,
+						name: (x ?? y).name,
+						prior: x?.prior ?? y?.prior ?? null,
+						unadjusted: un,
+						adjustments: fin - un,
+						final: fin
+					});
+				}
+			}
+			const sum = (f) => rows.reduce((t, r) => t + f(r), 0);
+			return {
+				ref: a.ref,
+				area: a.ar,
+				rows,
+				totals: {
+					prior: before.hasPrior ? sum((r) => r.prior ?? 0) : null,
+					unadjusted: sum((r) => r.unadjusted),
+					adjustments: sum((r) => r.adjustments),
+					final: sum((r) => r.final)
+				}
+			};
+		}).filter((x) => x.rows.length);
+	}
+	var HUMAN_CHECKS = [
+		{
+			id: "subsequent",
+			ar: "فُحصت الأحداث اللاحقة حتى تاريخ التقرير (محاضر، حسابات بعد الإقفال، استفسارات)",
+			isa: "ISA 560"
+		},
+		{
+			id: "goingConcern",
+			ar: "قُيّم تقييم الإدارة للاستمرارية لاثني عشر شهراً على الأقل",
+			isa: "ISA 570"
+		},
+		{
+			id: "representations",
+			ar: "استُلم خطاب الإقرارات موقعاً ومؤرخاً بتاريخ التقرير",
+			isa: "ISA 580"
+		},
+		{
+			id: "relatedParties",
+			ar: "حُصرت الأطراف ذات العلاقة ومعاملاتها وأُفصح عنها",
+			isa: "ISA 550"
+		},
+		{
+			id: "lawsRegs",
+			ar: "استُلمت ردود المستشارين القانونيين وقُيّم الالتزام بالأنظمة",
+			isa: "ISA 250 / 501"
+		},
+		{
+			id: "eqcr",
+			ar: "اكتملت مراجعة جودة الارتباط (إن كانت مطلوبة)",
+			isa: "ISQM 2 / ISA 220"
+		}
+	];
+	function completion(i) {
+		const wp = i.papers.map((p) => ({
+			ref: p.ref,
+			status: wpStatus(p, i.signoffs[p.ref]).status
+		}));
+		const items = [
+			{
+				id: "papers",
+				ar: `أوراق العمل موقعة من المُعد والمراجِع (${wp.filter((w) => w.status === "reviewed").length} من ${wp.length})`,
+				isa: "ISA 230 / 220",
+				ok: wp.length > 0 && wp.every((w) => w.status === "reviewed"),
+				auto: true
+			},
+			{
+				id: "misstatements",
+				ar: "التحريفات غير المصححة دون الأهمية النسبية أو معالجة أثرها في الرأي",
+				isa: "ISA 450",
+				ok: Math.abs(i.uncorrected) <= i.materiality,
+				auto: true
+			},
+			{
+				id: "requests",
+				ar: "لا طلبات أدلة عالية الأولوية مفتوحة",
+				isa: "ISA 500",
+				ok: i.highOpenRequests === 0,
+				auto: true
+			},
+			{
+				id: "kams",
+				ar: "صيغت الأمور الرئيسية للمراجعة",
+				isa: "ISA 701",
+				ok: i.kamsDrafted,
+				auto: true
+			},
+			...HUMAN_CHECKS.map((h) => ({
+				...h,
+				ok: !!i.confirmations[h.id] && !(h.id === "goingConcern" && i.goingConcernIssue && !i.confirmations.goingConcernDisclosed),
+				auto: false
+			}))
+		];
+		const open = items.filter((x) => !x.ok);
+		return {
+			items,
+			open: open.length,
+			ready: open.length === 0,
+			pct: Math.round((items.length - open.length) / items.length * 100)
+		};
+	}
+	function representationLetter(i) {
+		const fw = i.framework === "EAS" ? "معايير المحاسبة المصرية" : i.framework === "SME" ? "المعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم المعتمد في المملكة العربية السعودية" : "المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية";
+		const m = (v) => `${Math.round(v / 100).toLocaleString("en")} ${i.currency}`;
+		return {
+			title: "خطاب الإقرارات",
+			to: `السادة/ ${i.auditFirm || "[مكتب المراجعة]"}`,
+			paragraphs: [
+				`نقدم هذا الخطاب فيما يتعلق بمراجعتكم للقوائم المالية لـ${i.company || "[المنشأة]"} عن السنة المنتهية في ${i.periodEnd || "[التاريخ]"} لغرض إبداء رأي بشأن ما إذا كانت تعرض بعدل وفق ${fw}. ونؤكد، حسب علمنا واعتقادنا، ما يلي:`,
+				"القوائم المالية: وفينا بمسؤوليتنا عن إعداد القوائم المالية وعرضها بعدل وفق الإطار المنطبق كما نص عليه خطاب التكليف (ISA 580.10).",
+				"التقديرات: الطرق والبيانات والافتراضات المهمة المستخدمة في التقديرات المحاسبية معقولة (ISA 540).",
+				"الأطراف ذات العلاقة: أفصحنا لكم عن هوية الأطراف ذات العلاقة وجميع العلاقات والمعاملات التي نعلمها، وعالجناها وأفصحنا عنها بشكل مناسب (ISA 550).",
+				"الأحداث اللاحقة: عُدلت القوائم أو أُفصح فيها عن جميع الأحداث اللاحقة لتاريخ القوائم التي يتطلب الإطار تعديلها أو الإفصاح عنها (ISA 560).",
+				i.uncorrected.length ? `التحريفات غير المصححة: نرى أن أثر التحريفات غير المصححة التالية، منفردة ومجتمعة، غير جوهري للقوائم ككل: ${i.uncorrected.map((u) => `${u.title} (${m(u.amount)})`).join("؛ ")} (ISA 450.14).` : "التحريفات غير المصححة: لا توجد تحريفات غير مصححة أبلغتمونا بها.",
+				"المعلومات المقدمة: أتحنا لكم جميع المعلومات والسجلات والمستندات ذات الصلة، ووصولاً غير مقيد إلى الأشخاص الذين رأيتم ضرورة الحصول على أدلة منهم، وسُجلت جميع المعاملات في السجلات المحاسبية (ISA 580.11).",
+				"الغش والالتزام بالأنظمة: أفصحنا لكم عن نتائج تقييمنا لخطر الغش وعن أي غش أو اشتباه فيه نعلمه، وعن جميع حالات عدم الالتزام بالأنظمة المعروفة أو المشتبه بها (ISA 240 / ISA 250).",
+				"القضايا والمطالبات: أفصحنا عن جميع القضايا والمطالبات القائمة أو المحتملة التي يجب مراعاة أثرها عند إعداد القوائم المالية."
+			],
+			signatures: ["الرئيس التنفيذي", "المدير المالي"]
+		};
+	}
+	//#endregion
 	//#region app/src/engine/fusion/audit/going-concern-engine.ts
 	var going_concern_engine_exports = /* @__PURE__ */ __exportAll({
 		DEFAULT_SCENARIOS: () => DEFAULT_SCENARIOS,
@@ -7374,6 +9085,171 @@ window.SKEngines = (function() {
 		};
 	}
 	//#endregion
+	//#region app/src/engine/fusion/audit/governance-engine.ts
+	var governance_engine_exports = /* @__PURE__ */ __exportAll({
+		SEVERITY_AR: () => SEVERITY_AR,
+		auditApproach: () => auditApproach,
+		auditCommitteeReport: () => auditCommitteeReport,
+		classifyDeficiency: () => classifyDeficiency,
+		icfrReport: () => icfrReport
+	});
+	var money$27 = (v, cur) => `${Math.round(v / 100).toLocaleString("en")} ${cur}`;
+	var pct$3 = (v) => `${Math.round(v * 1e3) / 10}%`;
+	var RATIONALE = {
+		pbz: "الربح قبل الزكاة مقياس مهم لمستخدمي القوائم المالية وأساس مقبول عموماً للمنشآت الهادفة للربح.",
+		revenue: "اخترنا الإيرادات أساساً لأن الربح متذبذب أو منخفض نسبةً إلى حجم النشاط، والإيرادات أكثر استقراراً وتعبيراً عن حجم المنشأة.",
+		assets: "اخترنا مجموع الموجودات أساساً لأن الربح ليس مقياس الأداء الرئيس لمستخدمي هذه القوائم."
+	};
+	/** «Our audit approach» (Aramco / ISA (UK) 700): materiality, scope and the key audit matters at a glance. */
+	function auditApproach(i) {
+		const m = i.materiality, cur = i.currency, rate = m.base ? m.overall / m.base : m.rate;
+		const benchmarkAr = i.taxWord === "الضريبة" ? m.benchmarkAr.replace("الزكاة", "ضريبة الدخل") : m.benchmarkAr;
+		return {
+			title: "نهجنا في المراجعة",
+			paragraphs: [
+				`حددنا الأهمية النسبية للقوائم المالية ككل بمبلغ ${money$27(m.overall, cur)}، بنسبة ${pct$3(rate)} من ${benchmarkAr}.`,
+				`واتفقنا مع المكلفين بالحوكمة على أن نبلغهم بالتحريفات التي تتجاوز ${money$27(m.trivial, cur)}، وبما يقل عنها إن استدعت أسباب نوعية ذلك.`,
+				i.components ? `النطاق: ${i.components}.` : "النطاق: مراجعة كاملة للمنشأة، وصُممت الإجراءات لكل بند جوهري على ضوء تقييم مخاطر التحريف الجوهري فيه.",
+				...i.kamTitles.length ? [`الأمور الرئيسية للمراجعة: ${i.kamTitles.join("؛ ")}.`] : [],
+				"وكما في كل مراجعة، عالجنا خطر تجاوز الإدارة لأدوات الرقابة الداخلية، بما في ذلك النظر في وجود تحيز يمثل خطر تحريف جوهري بسبب الغش."
+			],
+			table: {
+				columns: ["", ""],
+				rows: [
+					["الأهمية النسبية العامة", money$27(m.overall, cur)],
+					["كيف حددناها", `${pct$3(rate)} من ${benchmarkAr} (${money$27(m.base, cur)})`],
+					["مبرر الأساس المختار", RATIONALE[m.benchmark]],
+					["الأهمية النسبية التنفيذية", `${money$27(m.performance, cur)} (${pct$3(m.overall ? m.performance / m.overall : 0)} من الأهمية العامة)`],
+					["حد الإبلاغ للمكلفين بالحوكمة", `${money$27(m.trivial, cur)} (${pct$3(m.overall ? m.trivial / m.overall : 0)} من الأهمية العامة)`]
+				]
+			}
+		};
+	}
+	function auditCommitteeReport(i) {
+		const cur = i.currency, firm = i.firm || "[مكتب المراجعة]", fwAr = i.framework === "EAS" ? "معايير المحاسبة المصرية" : i.framework === "SME" ? "المعيار الدولي للمنشآت الصغيرة ومتوسطة الحجم المعتمد في المملكة" : "المعايير الدولية للتقرير المالي المعتمدة في المملكة";
+		const unMat = i.uncorrected.effect > i.materiality.overall;
+		const sections = [
+			{
+				title: "المسؤوليات الرئيسية للجنة",
+				paragraphs: ["تتولى لجنة المراجعة الإشراف على: سلامة القوائم المالية؛ ملاءمة السياسات والتقديرات المحاسبية؛ فاعلية الرقابة الداخلية وإدارة المخاطر؛ أعمال المراجعة الداخلية؛ واستقلال المراجع الخارجي وفاعليته والتوصية بتعيينه وأتعابه."]
+			},
+			{
+				title: "كيف أدت اللجنة مسؤولياتها",
+				paragraphs: [
+					`التقرير المالي: ناقشت اللجنة مع الإدارة والمراجع الخارجي القوائم المالية لـ${i.period || "السنة"} المعدة وفق ${fwAr}، والأحكام والتقديرات المحاسبية الهامة، وكفاية الإفصاحات.`,
+					`الرقابة الداخلية: اطلعت اللجنة على ملاحظات المراجع (عالية الأثر: ${i.findings.high}، متوسطة: ${i.findings.medium})${i.findings.controlTitles.length ? "، أبرزها: " + i.findings.controlTitles.slice(0, 3).join("؛ ") : ""}، وتابعت خطط الإدارة لمعالجتها.`,
+					`المراجع الخارجي: اطلعت اللجنة على خطة المراجعة ونطاقها، والأهمية النسبية المحددة بمبلغ ${money$27(i.materiality.overall, cur)}، وتحققت من استقلال ${firm} وعدم تقديمه خدمات تخل باستقلاله، وقيّمت فاعلية أعماله.`,
+					`التحريفات (ISA 450): ${i.corrected.count ? `اعتمدت الإدارة ${i.corrected.count} من قيود التسوية أثرها على الربح ${money$27(i.corrected.profitEffect, cur)}` : "لم تعتمد الإدارة قيود تسوية بعد"}؛ ${i.uncorrected.count ? `وبقيت ${i.uncorrected.count} من التحريفات غير المصححة أثرها ${money$27(i.uncorrected.effect, cur)}${unMat ? "، وتتجاوز الأهمية النسبية، وقد طلبت اللجنة تصحيحها أو بيان أثرها على الرأي" : "، وهي دون الأهمية النسبية"}` : "ولا توجد تحريفات غير مصححة"}.`
+				]
+			},
+			{
+				title: "الأمور الهامة التي نظرت فيها اللجنة",
+				paragraphs: i.kams.length ? ["الجدول التالي يلخص الأمور الهامة وما خلصت إليه اللجنة."] : ["لم تُحدد أمور رئيسية للمراجعة لهذه السنة."],
+				...i.kams.length ? { table: {
+					columns: [
+						"مجال التركيز",
+						"الأمر",
+						"الاستنتاجات والإجراءات"
+					],
+					rows: i.kams.map((k) => [
+						k.title,
+						k.description || "حكم وتقدير محاسبي هام",
+						`ناقشت اللجنة معالجة الإدارة وإجراءات المراجع: ${k.how}`
+					])
+				} } : {}
+			},
+			{
+				title: "الاستمرارية",
+				paragraphs: [i.goingConcern ? "نظرت اللجنة في مؤشرات تثير شكاً حول قدرة المنشأة على الاستمرار، وطلبت من الإدارة خطتها وتدفقاتها النقدية المتوقعة لاثني عشر شهراً على الأقل من تاريخ القوائم، وتأكدت من كفاية الإفصاح عن عدم التأكد الجوهري." : "راجعت اللجنة تقييم الإدارة لقدرة المنشأة على الاستمرار لاثني عشر شهراً على الأقل ولم يتبين لها عدم تأكد جوهري."]
+			},
+			{
+				title: "توصية اللجنة",
+				paragraphs: [`بناءً على ما سبق، وفي ضوء ${i.opinionAr} المشتق من أعمال المراجعة، توصي اللجنة مجلس الإدارة/الشركاء باعتماد القوائم المالية بعد استكمال ما أشير إليه أعلاه.`]
+			}
+		];
+		return {
+			title: "تقرير لجنة المراجعة",
+			company: i.company,
+			sections,
+			draft: true
+		};
+	}
+	var SEVERITY_AR = {
+		"material-weakness": "ضعف جوهري",
+		"significant-deficiency": "قصور هام",
+		deficiency: "قصور"
+	};
+	/** AS 2201 A7 / A11: a material weakness makes a material misstatement reasonably possible; a significant
+	deficiency merits the attention of those charged with governance; the rest are deficiencies. */
+	function classifyDeficiency(f, m, uncorrectedEffect = 0) {
+		const amt = Math.abs(f.amount ?? 0);
+		if (f.severity === "high" && (f.kind === "fraud" || amt >= m.overall) || f.severity === "high" && uncorrectedEffect > m.overall) return "material-weakness";
+		if (f.severity === "high" || f.severity === "medium" && amt >= m.performance) return "significant-deficiency";
+		return "deficiency";
+	}
+	var CONTROL_KINDS = /* @__PURE__ */ new Set([
+		"balance",
+		"classification",
+		"measurement",
+		"completeness",
+		"fraud",
+		"disclosure"
+	]);
+	function icfrReport(i) {
+		const rows = i.findings.filter((f) => CONTROL_KINDS.has(f.kind)).map((f) => ({
+			...f,
+			class: classifyDeficiency(f, i.materiality, i.uncorrectedEffect ?? 0)
+		}));
+		const mw = rows.filter((r) => r.class === "material-weakness"), sd = rows.filter((r) => r.class === "significant-deficiency");
+		const effective = mw.length === 0, co = i.company || "المنشأة", end = i.periodEnd || "[تاريخ نهاية الفترة]";
+		const sections = [
+			{
+				title: "مسؤولية الإدارة",
+				paragraphs: [`إدارة ${co} مسؤولة عن وضع رقابة داخلية كافية على التقرير المالي والمحافظة عليها. وهي عملية مصممة لتوفير تأكيد معقول بشأن موثوقية التقرير المالي وإعداد القوائم المالية للأغراض الخارجية وفق الإطار المحاسبي المطبق.`]
+			},
+			{
+				title: "الإطار المستخدم في التقييم",
+				paragraphs: ["قيّمت الإدارة فاعلية الرقابة الداخلية على التقرير المالي باستخدام معايير «الرقابة الداخلية — الإطار المتكامل» (2013) الصادر عن لجنة المنظمات الراعية (COSO): بيئة الرقابة، تقييم المخاطر، أنشطة الرقابة، المعلومات والاتصال، وأنشطة المتابعة."]
+			},
+			{
+				title: "نتيجة التقييم",
+				paragraphs: [effective ? `بناءً على هذا التقييم، خلصت الإدارة إلى أن الرقابة الداخلية على التقرير المالي كانت فعالة كما في ${end}${sd.length ? `، مع ${sd.length} قصور هام أُبلغ به المكلفون بالحوكمة وخطة لمعالجته` : ""}.` : `بناءً على هذا التقييم، خلصت الإدارة إلى أن الرقابة الداخلية على التقرير المالي لم تكن فعالة كما في ${end} بسبب ${mw.length} ضعف جوهري موضح أدناه.`],
+				...rows.length ? { table: {
+					columns: [
+						"الملاحظة",
+						"التصنيف",
+						"الأثر"
+					],
+					rows: rows.map((r) => [
+						r.title,
+						SEVERITY_AR[r.class],
+						r.class === "material-weakness" ? "احتمال معقول لعدم منع تحريف جوهري أو اكتشافه في الوقت المناسب" : r.class === "significant-deficiency" ? "يستحق عناية المكلفين بالحوكمة" : "يعالج ضمن خطة التحسين"
+					])
+				} } : {}
+			},
+			{
+				title: "القيود الملازمة",
+				paragraphs: ["قد لا تمنع الرقابة الداخلية التحريفات أو تكتشفها بسبب قيودها الملازمة، كما أن إسقاط أي تقييم للفاعلية على فترات مستقبلية يخضع لخطر عدم كفاية الضوابط بسبب تغير الظروف أو تراجع الالتزام بالسياسات والإجراءات."]
+			},
+			{
+				title: "التغيرات في الرقابة الداخلية",
+				paragraphs: [rows.length ? "تعمل الإدارة على معالجة الملاحظات المذكورة؛ ولم تحدث تغيرات أخرى خلال الربع الأخير أثرت جوهرياً في الرقابة الداخلية على التقرير المالي." : "لم تحدث تغيرات خلال الربع الأخير أثرت جوهرياً، أو يحتمل أن تؤثر جوهرياً، في الرقابة الداخلية على التقرير المالي."]
+			}
+		];
+		return {
+			title: "تقرير الإدارة عن الرقابة الداخلية على التقرير المالي",
+			effective,
+			counts: {
+				materialWeakness: mw.length,
+				significant: sd.length,
+				deficiency: rows.length - mw.length - sd.length
+			},
+			rows,
+			sections,
+			draft: true
+		};
+	}
+	//#endregion
 	//#region app/src/engine/fusion/audit/issues-engine.ts
 	var issues_engine_exports = /* @__PURE__ */ __exportAll({
 		canTransitionIssue: () => canTransitionIssue,
@@ -7411,245 +9287,53 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/audit/kam-engine.ts
 	var kam_engine_exports = /* @__PURE__ */ __exportAll({
-		KAM_LIBRARY: () => KAM_LIBRARY,
 		removedKams: () => removedKams,
 		suggestKams: () => suggestKams
 	});
-	var pc$1 = (x) => (Math.round(x * 10) / 10).toString();
-	var share$1 = (x) => " (" + pc$1(x.pctAssets) + "% من مجموع الموجودات)";
-	var KAM_LIBRARY = [
-		{
-			key: "revenue",
-			lines: ["revenue"],
-			title: "إثبات الإيرادات والخصومات الممنوحة للعملاء",
-			estimate: true,
-			fraud: true,
-			standards: ["IFRS 15", "ISA 240"],
-			why: (x) => `بلغت الإيرادات ${x.money(x.amount)}. تفترض معايير المراجعة وجود مخاطر غش في إثبات الإيراد، ويتأثر الإيراد بالخصومات والحوافز والمرتجعات التي تُقدَّر عند البيع، وبحجم كبير من العمليات الصغيرة المسجلة من نظام المبيعات، وبخطر تسجيل مبيعات في غير فترتها قرب نهاية السنة. لذلك عددنا إثبات الإيرادات من الأمور ذات الأهمية القصوى.`,
-			response: [
-				"فهمنا دورة المبيعات والتحصيل وقيّمنا تصميم الضوابط وتطبيقها، بما فيها ضوابط نظام المبيعات",
-				"طابقنا إجمالي المبيعات في نظام المبيعات مع الإيرادات المسجلة في دفتر الأستاذ لكل شهر وحققنا في الفروق",
-				"حللنا اتجاه الإيرادات الشهرية ونسبة الخصومات إلى المبيعات لكل عميل وصنف وحققنا في الانحرافات غير المتوقعة",
-				"اختبرنا عينة من المبيعات بمطابقتها مع الفواتير وإثباتات التسليم والتحصيل",
-				"اختبرنا القطع بفحص المبيعات والمرتجعات والإشعارات الدائنة قبل نهاية السنة وبعدها",
-				"قارنّا مخصصات الخصومات في السنة السابقة بما دُفع فعلاً لتقييم دقة التقدير واحتمال التحيز",
-				"فحصنا القيود اليدوية المسجلة على حسابات الإيرادات ذات الخصائص غير المعتادة وطلبنا مستنداتها",
-				"قيّمنا كفاية الإفصاحات المتعلقة بالإيرادات"
-			]
-		},
-		{
-			key: "ecl",
-			lines: ["receivables"],
-			title: "الخسائر الائتمانية المتوقعة على الذمم المدينة التجارية",
-			estimate: true,
-			standards: [
-				"IFRS 9",
-				"IFRS 7",
-				"ISA 540"
-			],
-			why: (x) => `بلغ صافي الذمم المدينة التجارية ${x.money(x.amount)}${share$1(x)}. يتطلب قياس الخسائر الائتمانية المتوقعة وفق النهج المبسط حكماً في تقسيم الذمم حسب أعمارها وتحديد معدلات الخسارة التاريخية وتعديلها بمعلومات مستقبلية، وفي تقييم العملاء المتعثرين منفردين. لذلك عددناه من الأمور ذات الأهمية القصوى.`,
-			response: [
-				"اختبرنا دقة كشف أعمار الذمم بمطابقة عينة من الأرصدة مع الفواتير وتواريخها",
-				"قيّمنا منهجية مصفوفة المخصص ومعدلات الخسارة التاريخية والتعديلات المستقبلية المستخدمة",
-				"قيّمنا العملاء المتعثرين والمتأخرين منفردين، وفحصنا المتحصلات اللاحقة لنهاية السنة",
-				"قارنّا مخصص السنة السابقة بالديون المعدومة الفعلية خلال السنة لتقييم دقة التقدير",
-				"أرسلنا مصادقات مباشرة لعينة من أرصدة العملاء وطبقنا إجراءات بديلة لما لم يرد",
-				"قيّمنا إفصاحات مخاطر الائتمان"
-			]
-		},
-		{
-			key: "inventory",
-			lines: ["inventory"],
-			title: "وجود المخزون وتقييمه بالتكلفة أو صافي القيمة القابلة للتحقق",
-			estimate: true,
-			standards: ["IAS 2", "ISA 501"],
-			why: (x) => `بلغ المخزون ${x.money(x.amount)}${share$1(x)}. قد يكون جزء منه قابلاً للتلف أو بطيء الحركة، ويتطلب تحديد التكلفة (المتوسط المرجح) وصافي القيمة القابلة للتحقق حكماً، ويعتمد وجوده على دقة الجرد. لذلك عددناه من الأمور ذات الأهمية القصوى.`,
-			response: [
-				"حضرنا الجرد الفعلي في نهاية السنة واختبرنا عينات من السجلات إلى الموجود ومن الموجود إلى السجلات",
-				"طابقنا نتائج الجرد مع السجلات واختبرنا قيود فروقات الجرد",
-				"أعدنا احتساب تكلفة عينة من الأصناف بالمتوسط المرجح ومطابقتها مع فواتير الشراء",
-				"قارنّا التكلفة بأسعار البيع اللاحقة لنهاية السنة لتقييم صافي القيمة القابلة للتحقق",
-				"حللنا الأصناف بطيئة الحركة والقريبة من انتهاء الصلاحية وقيّمنا كفاية المخصص",
-				"قارنّا مخصص السنة السابقة بالشطب الفعلي خلال السنة",
-				"قيّمنا الإفصاح عن سياسة المخزون ومخصصه"
-			]
-		},
-		{
-			key: "impairment",
-			lines: ["intangibles", "investments"],
-			title: "قابلية استرداد الشهرة والأصول غير الملموسة والاستثمارات",
-			estimate: true,
-			standards: [
-				"IAS 36",
-				"IAS 38",
-				"ISA 540"
-			],
-			why: (x) => `بلغت القيمة الدفترية ${x.money(x.amount)}${share$1(x)}. يعتمد اختبار الانخفاض على تقديرات الإدارة للتدفقات النقدية المستقبلية ومعدل النمو طويل الأجل ومعدل الخصم، وتغير أي منها قد يغير النتيجة جوهرياً. لذلك عددناه من الأمور ذات الأهمية القصوى.`,
-			response: [
-				"قيّمنا تحديد الوحدات المولدة للنقد وتوزيع الشهرة عليها واختبرنا الدقة الحسابية لنموذج القيمة المستخدمة",
-				"طابقنا التدفقات المتوقعة مع الموازنات المعتمدة من مجلس الإدارة",
-				"قارنّا نتائج الفعلية بتوقعات الإدارة في السنوات السابقة لتقييم دقة التنبؤ",
-				"قارنّا معدل الخصم ومعدل النمو طويل الأجل بمدى مستقل مستمد من بيانات السوق",
-				"أعدنا تحليل الحساسية وحددنا التغير في الافتراضات الذي يلغي الفائض",
-				"قيّمنا الإفصاحات المطلوبة في IAS 36 بما فيها الحساسية"
-			]
-		},
-		{
-			key: "ppe",
-			lines: ["ppe", "rou"],
-			title: "القيمة الدفترية للممتلكات والمعدات وأعمارها الإنتاجية",
-			estimate: true,
-			standards: [
-				"IAS 16",
-				"IAS 36",
-				"IFRS 16"
-			],
-			why: (x) => `بلغ صافي الممتلكات والمعدات ${x.money(x.amount)}${share$1(x)}. يتطلب تحديد الأعمار الإنتاجية وتقييم مؤشرات الانخفاض حكماً، ويؤثر ذلك مباشرة في الاستهلاك والربح. لذلك عددناه من الأمور ذات الأهمية القصوى.`,
-			response: [
-				"اختبرنا الإضافات بمطابقتها مع الفواتير والعقود وتحققنا من استيفائها شروط الرسملة",
-				"أعدنا احتساب الاستهلاك وقيّمنا معقولية الأعمار الإنتاجية مقارنة بالاستخدام الفعلي",
-				"قيّمنا مؤشرات الانخفاض، وعند وجودها اختبرنا تقدير القيمة القابلة للاسترداد",
-				"فحصنا الاستبعادات وأرباحها وخسائرها ومطابقة السجل التفصيلي مع دفتر الأستاذ",
-				"قيّمنا إفصاحات الممتلكات والمعدات"
-			]
-		},
-		{
-			key: "provisions",
-			lines: ["provisions", "accruals"],
-			title: "المخصصات والالتزامات المحتملة والقضايا",
-			estimate: true,
-			standards: ["IAS 37", "ISA 501"],
-			why: (x) => `بلغت المخصصات والمستحقات ${x.money(x.amount)}${share$1(x)}. يتطلب تقدير احتمال خروج الموارد ومبلغه، وتقرير الإثبات أو الإفصاح عن التزام محتمل، حكماً مهماً من الإدارة. لذلك عددناه من الأمور ذات الأهمية القصوى.`,
-			response: [
-				"حصلنا على مصادقات مباشرة من المستشارين القانونيين عن القضايا والمطالبات القائمة",
-				"قرأنا محاضر مجلس الإدارة والمراسلات مع الجهات الرقابية لتحديد أي التزامات غير مسجلة",
-				"حللنا حركة المخصصات: الإضافات الجديدة والاستخدامات مقابل التسويات والمدفوعات الفعلية",
-				"قارنّا تقديرات السنة السابقة بما تمت تسويته فعلاً لتقييم دقة التقدير",
-				"قيّمنا إفصاحات الالتزامات المحتملة"
-			]
-		},
-		{
-			key: "zakat",
-			lines: ["zakatPayable", "zakatExpense"],
-			title: "الزكاة وضريبة الدخل والربوط غير المنتهية",
-			estimate: true,
-			standards: [
-				"لائحة الزكاة",
-				"IAS 12",
-				"IAS 37"
-			],
-			why: (x) => `بلغ ${x.ar} ${x.money(x.amount)}. يتطلب احتساب الوعاء الزكوي تفسير لائحة جباية الزكاة في البنود المضافة والمحسومة، وقد تبقى سنوات سابقة دون ربط نهائي من هيئة الزكاة والضريبة والجمارك بما يستلزم تقدير أي فروقات محتملة. لذلك عددناه من الأمور ذات الأهمية القصوى.`,
-			response: [
-				"أعدنا احتساب الوعاء الزكوي وفق اللائحة بمشاركة مختصين في الزكاة والضريبة",
-				"طابقنا المخصص مع الإقرارات المقدمة وسداد الزكاة",
-				"فحصنا مراسلات الهيئة والربوط الصادرة والاعتراضات القائمة",
-				"قارنّا مخصص السنوات السابقة بالربوط النهائية لتقييم دقة التقدير",
-				"قيّمنا الإفصاح عن حالة الربوط والسنوات المفتوحة"
-			]
-		},
-		{
-			key: "eosb",
-			lines: ["eosb"],
-			title: "التزام مكافأة نهاية الخدمة للموظفين",
-			estimate: true,
-			standards: ["IAS 19", "ISA 500"],
-			why: (x) => `بلغ التزام نهاية الخدمة ${x.money(x.amount)}${share$1(x)}. يعتمد قياسه على افتراضات اكتوارية (معدل الخصم وزيادة الرواتب ومعدل ترك الخدمة) وعلى اكتمال بيانات الموظفين. لذلك عددناه من الأمور ذات الأهمية القصوى.`,
-			response: [
-				"اختبرنا اكتمال بيانات الموظفين ودقتها بمطابقتها مع مسيرات الرواتب وعقود العمل",
-				"قيّمنا كفاءة الخبير الاكتواري وموضوعيته",
-				"قارنّا الافتراضات الرئيسية ببيانات السوق وبخبرة المنشأة الفعلية",
-				"أعدنا احتساب الالتزام لعينة من الموظفين وفق نظام العمل",
-				"قيّمنا إفصاحات منافع الموظفين والحساسية"
-			]
-		},
-		{
-			key: "biological",
-			lines: ["biological"],
-			title: "قياس الموجودات الحيوية بالقيمة العادلة ناقصاً تكاليف البيع",
-			estimate: true,
-			standards: ["IAS 41", "IFRS 13"],
-			why: (x) => `بلغت الموجودات الحيوية ${x.money(x.amount)}${share$1(x)}. يعتمد قياسها على أسعار السوق للأعمار والأوزان المماثلة وعلى تقدير تكاليف البيع والنفوق، ويتطلب التحقق من العدد والحالة. لذلك عددناه من الأمور ذات الأهمية القصوى.`,
-			response: [
-				"حضرنا العدّ الفعلي للقطيع وطابقنا الأعداد مع السجلات",
-				"قارنّا الأسعار المستخدمة بأسعار السوق الموثقة للأعمار والأوزان المماثلة",
-				"قيّمنا تقدير تكاليف البيع ومعدلات النفوق مقارنة بالخبرة الفعلية",
-				"قيّمنا إفصاحات IAS 41"
-			]
-		},
-		{
-			key: "loans",
-			lines: ["loansCl", "loansNcl"],
-			title: "التمويل والالتزام بتعهدات القروض وتصنيفها",
-			estimate: false,
-			standards: [
-				"IFRS 9",
-				"IAS 1",
-				"ISA 570"
-			],
-			why: (x) => `بلغ التمويل ${x.money(x.amount)}${share$1(x)}. قد يترتب على الإخلال بتعهدات القروض استحقاقها فوراً وتغيير تصنيفها إلى متداولة، وهو ما يؤثر في تقييم الاستمرارية. لذلك عددناه من الأمور ذات الأهمية القصوى.`,
-			response: [
-				"حصلنا على مصادقات مباشرة من البنوك بالأرصدة والتسهيلات والضمانات",
-				"أعدنا احتساب نسب تعهدات القروض في نهاية السنة وتحققنا من الالتزام بها",
-				"قيّمنا تصنيف القروض بين المتداولة وغير المتداولة وتحليل الاستحقاقات",
-				"ربطنا نتائج التمويل بتقييم الإدارة للاستمرارية",
-				"قيّمنا إفصاحات القروض ومخاطر السيولة"
-			]
-		},
-		{
-			key: "related",
-			lines: ["partners"],
-			title: "المعاملات والأرصدة مع الأطراف ذات العلاقة",
-			estimate: false,
-			standards: ["IAS 24", "نظام الشركات"],
-			why: (x) => `بلغت أرصدة الشركاء والأطراف ذات العلاقة ${x.money(x.amount)}${share$1(x)}. هذه المعاملات قد لا تتم بشروط السوق وتتطلب اعتمادات نظامية وإفصاحاً كاملاً. لذلك عددناها من الأمور ذات الأهمية القصوى.`,
-			response: [
-				"حصلنا على قائمة الأطراف ذات العلاقة وقارنّاها بالسجلات والمحاضر لتحديد أي معاملات غير مفصح عنها",
-				"حصلنا على مصادقات بالأرصدة القائمة في نهاية السنة",
-				"اختبرنا عينة من المعاملات ومستنداتها واعتماداتها",
-				"قيّمنا إفصاحات IAS 24"
-			]
-		}
-	];
-	/** Suggest key audit matters from the engine's line risks. `priorKeys` marks what is new versus last year's report. */
+	var clean$3 = (x) => x.replace(/[.،؛]\s*$/, "");
+	/** The revenue theme carries the presumed risk of fraud (ISA 240.26), so it ranks above an equal line risk. */
+	var FRAUD_THEMES = /* @__PURE__ */ new Set(["revenue-deductions", "revenue-recognition"]);
 	function suggestKams(input) {
-		const { fs, risks, materiality } = input, cur = input.currency ?? "ر.س";
-		const money = (m) => formatMinor(m, { decimals: 0 }) + " " + cur;
-		const assets = Math.abs(fs.keys.assets.current) || 1, revenue = Math.abs(fs.keys.revenue.current) || 1;
-		const out = [];
-		for (const t of KAM_LIBRARY) {
-			const rs = risks.filter((r) => t.lines.includes(r.lineKey));
-			const amount = t.lines.reduce((s, k) => s + Math.abs(fs.lines.find((l) => l.key === k)?.current ?? 0), 0);
-			if (!rs.length || amount === 0) continue;
-			const top = rs.reduce((a, b) => b.score > a.score ? b : a);
-			const score = Math.min(100, top.score + (amount >= materiality * 3 ? 10 : 0) + (t.estimate ? 5 : 0) + (t.fraud ? 8 : 0));
-			const x = {
-				ar: top.ar,
-				amount,
-				pctAssets: amount / assets * 100,
-				pctRevenue: amount / revenue * 100,
-				money,
-				framework: input.framework ?? "IFRS"
-			};
-			const ev = t.lines.map((k) => input.evidence?.[k]).find(Boolean);
+		const { fs, materiality } = input, cur = input.currency ?? "ر.س", money = (m) => formatMinor(m, { decimals: 0 }) + " " + cur;
+		const assets = Math.abs(fs.keys.assets.current) || 1;
+		const byKey = /* @__PURE__ */ new Map();
+		for (const r of input.risks) {
+			const line = fs.lines.find((l) => l.key === r.lineKey), amount = Math.abs(line?.current ?? r.amount ?? 0);
+			if (!amount) continue;
+			const pr = precedentsFor(r.lineKey, {
+				sector: input.sector,
+				limit: 3
+			})[0] ?? null;
+			const key = pr ? pr.theme : r.lineKey, estimate = (r.parts?.estimate ?? 0) >= 15;
+			const score = Math.min(100, r.score + (amount >= materiality * 3 ? 10 : 0) + (estimate ? 5 : 0) + (FRAUD_THEMES.has(key) ? 8 : 0));
+			const prev = byKey.get(key);
+			if (prev && prev.score >= score) {
+				if (!prev.lineKeys.includes(r.lineKey)) prev.lineKeys.push(r.lineKey);
+				continue;
+			}
+			const pct = Math.round(amount / assets * 1e3) / 10;
+			const description = (pr ? pr.why + " " : "") + "بلغ رصيد " + r.ar + " " + money(amount) + (input.periodEnd ? " كما في " + input.periodEnd : "") + " (" + pct + "% من مجموع الموجودات)" + (r.risk ? "، وتتركز مخاطره في " + clean$3(r.risk) : "") + (estimate ? "، ويتضمن تقديرات محاسبية تتطلب حكماً مهنياً مهماً (ISA 540)" : "") + ". لذلك عُدّ من الأمور ذات الأهمية القصوى في مراجعتنا.";
+			const steps = [...new Set([...r.procedures ?? [], ...pr ? pr.procedures : []].map(clean$3))].slice(0, 6);
+			const ev = input.evidence?.[r.lineKey];
+			const how = "شملت إجراءاتنا: " + steps.join("؛ ") + ".";
 			const observation = ev === "accepted" ? "لم تسفر إجراءاتنا عن تحفظات، وحصلنا على أدلة كافية ومناسبة تؤيد ما سجلته الإدارة." : ev === "partial" ? "ما زالت بعض الأدلة المؤيدة قيد الاستكمال؛ تُحدَّث النتيجة قبل إصدار التقرير." : "النتيجة معلقة حتى استكمال الأدلة المطلوبة من المنشأة.";
-			const notes = t.lines.map((k) => fs.lines.find((l) => l.key === k)?.note).filter((n) => !!n);
-			out.push({
-				key: t.key,
-				title: t.title,
-				description: t.why(x),
-				how: "شملت إجراءاتنا: " + t.response.join("؛ ") + ".",
+			byKey.set(key, {
+				key,
+				title: pr ? THEMES[pr.theme].ar : r.ar,
+				description,
+				how,
 				observation,
-				refs: [...t.standards, ...notes.map((n) => "إيضاح " + n)],
-				lineKeys: t.lines,
+				refs: [...line?.standards ?? [], ...line?.note ? ["إيضاح " + line.note] : []],
+				lineKeys: [.../* @__PURE__ */ new Set([...prev?.lineKeys ?? [], r.lineKey])],
 				amount,
-				pctAssets: Math.round(x.pctAssets * 10) / 10,
+				pctAssets: pct,
 				score,
 				selected: false,
-				trend: input.priorKeys ? input.priorKeys.includes(t.key) ? "same" : "new" : null,
-				source: "library"
+				trend: input.priorKeys ? input.priorKeys.includes(key) ? "same" : "new" : null,
+				examples: pr ? pr.examples : []
 			});
 		}
-		out.sort((a, b) => b.score - a.score);
+		const out = [...byKey.values()].sort((a, b) => b.score - a.score);
 		const max = input.max ?? 3;
 		let n = 0;
 		for (const k of out) if (n < max && (k.score >= 70 || k.score >= 55 && k.amount >= materiality)) {
@@ -7659,8 +9343,8 @@ window.SKEngines = (function() {
 		if (!n && out.length) out[0].selected = true;
 		return out.slice(0, 6);
 	}
-	/** Matters reported last year and not this year («no longer included because…», AstraZeneca). */
-	var removedKams = (priorKeys, current) => priorKeys.filter((k) => !current.some((c) => c.selected && c.key === k)).map((k) => KAM_LIBRARY.find((t) => t.key === k)?.title ?? k);
+	/** Matters reported last year and not this year — the report says why they no longer are. */
+	var removedKams = (priorKeys, current) => priorKeys.filter((k) => !current.some((c) => c.selected && c.key === k)).map((k) => THEMES[k]?.ar ?? k);
 	//#endregion
 	//#region app/src/engine/fusion/audit/materiality-engine.ts
 	var materiality_engine_exports = /* @__PURE__ */ __exportAll({
@@ -7668,7 +9352,7 @@ window.SKEngines = (function() {
 		calculateMateriality: () => calculateMateriality,
 		planMateriality: () => planMateriality
 	});
-	function money$25(value) {
+	function money$26(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function calculateMateriality(input) {
@@ -7678,9 +9362,9 @@ window.SKEngines = (function() {
 		const trivialRate = Math.min(1, Math.max(0, input.trivialRate));
 		const overall = base * benchmarkRate;
 		return {
-			overall: money$25(overall),
-			performance: money$25(overall * performanceRate),
-			trivial: money$25(overall * trivialRate)
+			overall: money$26(overall),
+			performance: money$26(overall * performanceRate),
+			trivial: money$26(overall * trivialRate)
 		};
 	}
 	var PLAN_BENCHMARKS = {
@@ -8498,7 +10182,7 @@ window.SKEngines = (function() {
 		calculateBoxEconomics: () => calculateBoxEconomics,
 		validateBoxRecipe: () => validateBoxRecipe
 	});
-	function money$24(value) {
+	function money$25(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function calculateBoxEconomics(recipe, items) {
@@ -8511,17 +10195,17 @@ window.SKEngines = (function() {
 				itemId: line.itemId,
 				quantity,
 				unitCost,
-				cost: money$24(quantity * unitCost),
+				cost: money$25(quantity * unitCost),
 				missingCost: item?.defaultCost === void 0
 			};
 		});
-		const totalCostExVat = money$24(lines.reduce((sum, line) => sum + line.cost, 0));
+		const totalCostExVat = money$25(lines.reduce((sum, line) => sum + line.cost, 0));
 		const vatRate = Math.max(0, recipe.vatRate);
-		const sellingPriceIncVat = money$24(Math.max(0, recipe.sellingPriceIncVat));
-		const sellingPriceExVat = money$24(sellingPriceIncVat / (1 + vatRate));
-		const vat = money$24(sellingPriceIncVat - sellingPriceExVat);
-		const profitExVat = money$24(sellingPriceExVat - totalCostExVat);
-		const marginPercent = sellingPriceExVat === 0 ? 0 : money$24(profitExVat / sellingPriceExVat * 100);
+		const sellingPriceIncVat = money$25(Math.max(0, recipe.sellingPriceIncVat));
+		const sellingPriceExVat = money$25(sellingPriceIncVat / (1 + vatRate));
+		const vat = money$25(sellingPriceIncVat - sellingPriceExVat);
+		const profitExVat = money$25(sellingPriceExVat - totalCostExVat);
+		const marginPercent = sellingPriceExVat === 0 ? 0 : money$25(profitExVat / sellingPriceExVat * 100);
 		const target = Math.min(95, Math.max(0, recipe.targetMarginPercent ?? 0)) / 100;
 		return {
 			lines,
@@ -8531,7 +10215,7 @@ window.SKEngines = (function() {
 			sellingPriceIncVat,
 			profitExVat,
 			marginPercent,
-			minimumPriceForTargetMarginIncVat: money$24((target >= 1 ? 0 : totalCostExVat / (1 - target)) * (1 + vatRate)),
+			minimumPriceForTargetMarginIncVat: money$25((target >= 1 ? 0 : totalCostExVat / (1 - target)) * (1 + vatRate)),
 			missingCostItems: lines.filter((line) => line.missingCost).length
 		};
 	}
@@ -8718,7 +10402,7 @@ window.SKEngines = (function() {
 		"211232",
 		"2331112"
 	];
-	function money$23(value) {
+	function money$24(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function buildScaleBarcode(input) {
@@ -8743,7 +10427,7 @@ window.SKEngines = (function() {
 			...input,
 			id: crypto.randomUUID(),
 			barcode: buildScaleBarcode(input),
-			totalIncVat: money$23(input.weightKg * input.unitPriceIncVat)
+			totalIncVat: money$24(input.weightKg * input.unitPriceIncVat)
 		};
 	}
 	function code128SvgData(text, height = 32) {
@@ -8776,7 +10460,7 @@ window.SKEngines = (function() {
 			rects
 		};
 	}
-	function scaleLabelPrintHtml(label, brand = "S.kosif") {
+	function scaleLabelPrintHtml(label, brand = "SQC") {
 		const barcode = code128SvgData(label.barcode, 30);
 		const rects = barcode.rects.map((rect) => "<rect x=\"" + rect.x + "\" y=\"0\" width=\"" + rect.width + "\" height=\"" + barcode.height + "\" fill=\"#000\"/>").join("");
 		const svg = "<svg viewBox=\"0 0 " + barcode.width + " " + (barcode.height + 13) + "\" xmlns=\"http://www.w3.org/2000/svg\">" + rects + "<text x=\"" + barcode.width / 2 + "\" y=\"" + (barcode.height + 10) + "\" text-anchor=\"middle\" font-family=\"monospace\" font-size=\"9\">" + barcode.value + "</text></svg>";
@@ -8839,7 +10523,7 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/catalog/pricing-engine.ts
 	var pricing_engine_exports = /* @__PURE__ */ __exportAll({ calculatePricing: () => calculatePricing });
-	function money$22(value) {
+	function money$23(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function calculatePricing(input) {
@@ -8853,11 +10537,11 @@ window.SKEngines = (function() {
 		const grossProfitInclusiveVat = sellingInclusive - usableCostExVat * (1 + vat);
 		const margin = sellingInclusive === 0 ? 0 : grossProfitInclusiveVat / sellingInclusive * 100;
 		return {
-			purchaseExVat: money$22(purchaseExVat),
-			usableCostExVat: money$22(usableCostExVat),
-			sellingExVat: money$22(sellingExVat),
-			grossProfitInclusiveVat: money$22(grossProfitInclusiveVat),
-			grossMarginPercentOnInclusiveSales: money$22(margin)
+			purchaseExVat: money$23(purchaseExVat),
+			usableCostExVat: money$23(usableCostExVat),
+			sellingExVat: money$23(sellingExVat),
+			grossProfitInclusiveVat: money$23(grossProfitInclusiveVat),
+			grossMarginPercentOnInclusiveSales: money$23(margin)
 		};
 	}
 	//#endregion
@@ -8936,7 +10620,7 @@ window.SKEngines = (function() {
 		bookCashLines: () => bookCashLines,
 		matchBankLines: () => matchBankLines
 	});
-	function money$21(value) {
+	function money$22(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function days$1(a, b) {
@@ -8949,7 +10633,7 @@ window.SKEngines = (function() {
 		for (const e of entries) {
 			let v = 0;
 			for (const l of e.lines) if (l.accountId === cashAccountId) v += (Number(l.debit) || 0) - (Number(l.credit) || 0);
-			v = money$21(v);
+			v = money$22(v);
 			if (v !== 0) out.push({
 				id: e.id,
 				date: String(e.date).slice(0, 10),
@@ -8980,7 +10664,7 @@ window.SKEngines = (function() {
 			if (usedBank.has(b.id)) continue;
 			let best = null, bestScore = Number.POSITIVE_INFINITY;
 			for (const k of book) {
-				if (usedBook.has(k.id) || money$21(k.amount) !== money$21(b.amount)) continue;
+				if (usedBook.has(k.id) || money$22(k.amount) !== money$22(b.amount)) continue;
 				const d = days$1(b.date, k.date);
 				if (d > windowDays) continue;
 				const score = d - (b.reference && norm(b.reference) === norm(k.reference) ? 100 : 0);
@@ -9007,17 +10691,17 @@ window.SKEngines = (function() {
 		};
 	}
 	function bankReconciliationStatement(p) {
-		const sum = (xs) => money$21(xs.reduce((s, x) => s + x.amount, 0));
+		const sum = (xs) => money$22(xs.reduce((s, x) => s + x.amount, 0));
 		const depositsInTransit = sum(p.unmatchedBook.filter((x) => x.amount > 0));
-		const outstandingPayments = money$21(-sum(p.unmatchedBook.filter((x) => x.amount < 0)));
+		const outstandingPayments = money$22(-sum(p.unmatchedBook.filter((x) => x.amount < 0)));
 		const bankOnlyIn = sum(p.unmatchedBank.filter((x) => x.amount > 0));
-		const bankOnlyOut = money$21(-sum(p.unmatchedBank.filter((x) => x.amount < 0)));
-		const adjustedBank = money$21(p.statementBalance + depositsInTransit - outstandingPayments);
-		const adjustedBook = money$21(p.bookBalance + bankOnlyIn - bankOnlyOut);
-		const difference = money$21(adjustedBank - adjustedBook);
+		const bankOnlyOut = money$22(-sum(p.unmatchedBank.filter((x) => x.amount < 0)));
+		const adjustedBank = money$22(p.statementBalance + depositsInTransit - outstandingPayments);
+		const adjustedBook = money$22(p.bookBalance + bankOnlyIn - bankOnlyOut);
+		const difference = money$22(adjustedBank - adjustedBook);
 		return {
-			statementBalance: money$21(p.statementBalance),
-			bookBalance: money$21(p.bookBalance),
+			statementBalance: money$22(p.statementBalance),
+			bookBalance: money$22(p.bookBalance),
 			depositsInTransit,
 			outstandingPayments,
 			bankOnlyIn,
@@ -9031,7 +10715,7 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/finance/cash-flow-engine.ts
 	var cash_flow_engine_exports = /* @__PURE__ */ __exportAll({ buildCashFlow: () => buildCashFlow });
-	function money$20(value) {
+	function money$21(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function defaultClass(account) {
@@ -9050,7 +10734,7 @@ window.SKEngines = (function() {
 			const counterpart = /* @__PURE__ */ new Set();
 			for (const line of entry.lines) if (cashSet.has(line.accountId)) cashChange += (line.debit ?? 0) - (line.credit ?? 0);
 			else if ((line.debit ?? 0) !== 0 || (line.credit ?? 0) !== 0) counterpart.add(line.accountId);
-			cashChange = money$20(cashChange);
+			cashChange = money$21(cashChange);
 			if (cashChange === 0) continue;
 			const classes = [...counterpart].map((id) => input.overrides?.[id] ?? defaultClass(accountMap.get(id)));
 			const distinct = [...new Set(classes)];
@@ -9064,14 +10748,14 @@ window.SKEngines = (function() {
 				counterpartAccountIds: [...counterpart]
 			});
 		}
-		const total = (kind) => money$20(activities.filter((a) => a.classification === kind).reduce((sum, a) => sum + a.amount, 0));
+		const total = (kind) => money$21(activities.filter((a) => a.classification === kind).reduce((sum, a) => sum + a.amount, 0));
 		return {
 			activities,
 			operating: total("operating"),
 			investing: total("investing"),
 			financing: total("financing"),
 			unclassified: total("unclassified"),
-			netChange: money$20(activities.reduce((sum, a) => sum + a.amount, 0))
+			netChange: money$21(activities.reduce((sum, a) => sum + a.amount, 0))
 		};
 	}
 	//#endregion
@@ -9344,7 +11028,7 @@ window.SKEngines = (function() {
 		validateJournalEntry: () => validateJournalEntry
 	});
 	var MONEY_TOLERANCE = .005;
-	function money$19(value) {
+	function money$20(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function validateJournalEntry(entry) {
@@ -9384,9 +11068,9 @@ window.SKEngines = (function() {
 				credit: 0,
 				balance: 0
 			};
-			current.debit = money$19(current.debit + line.debit);
-			current.credit = money$19(current.credit + line.credit);
-			current.balance = money$19(current.debit - current.credit);
+			current.debit = money$20(current.debit + line.debit);
+			current.credit = money$20(current.credit + line.credit);
+			current.balance = money$20(current.debit - current.credit);
 			byAccount.set(line.accountId, current);
 		}
 		return [...byAccount.values()].sort((a, b) => a.accountId.localeCompare(b.accountId));
@@ -9394,8 +11078,8 @@ window.SKEngines = (function() {
 	function buildTrialBalance(entries) {
 		const rows = buildGeneralLedger(entries);
 		const totals = rows.reduce((sum, row) => ({
-			debit: money$19(sum.debit + row.debit),
-			credit: money$19(sum.credit + row.credit)
+			debit: money$20(sum.debit + row.debit),
+			credit: money$20(sum.credit + row.credit)
 		}), {
 			debit: 0,
 			credit: 0
@@ -9424,7 +11108,7 @@ window.SKEngines = (function() {
 				balance: 0
 			};
 		}).filter((row) => row.debit || row.credit);
-		const carried = money$19(buildGeneralLedger(before).filter((r) => isResult(typeOf(r.accountId))).reduce((sum, r) => sum + r.balance, 0));
+		const carried = money$20(buildGeneralLedger(before).filter((r) => isResult(typeOf(r.accountId))).reduce((sum, r) => sum + r.balance, 0));
 		if (Math.abs(carried) > MONEY_TOLERANCE) {
 			const re = rows.find((r) => r.accountId === retainedEarningsId);
 			const add = carried > 0 ? {
@@ -9435,9 +11119,9 @@ window.SKEngines = (function() {
 				credit: -carried
 			};
 			if (re) Object.assign(re, {
-				debit: money$19(re.debit + add.debit),
-				credit: money$19(re.credit + add.credit),
-				balance: money$19(re.balance + carried)
+				debit: money$20(re.debit + add.debit),
+				credit: money$20(re.credit + add.credit),
+				balance: money$20(re.balance + carried)
 			});
 			else rows.push({
 				accountId: retainedEarningsId,
@@ -9447,8 +11131,8 @@ window.SKEngines = (function() {
 		}
 		rows.sort((a, b) => a.accountId.localeCompare(b.accountId));
 		const totals = rows.reduce((sum, row) => ({
-			debit: money$19(sum.debit + row.debit),
-			credit: money$19(sum.credit + row.credit)
+			debit: money$20(sum.debit + row.debit),
+			credit: money$20(sum.credit + row.credit)
 		}), {
 			debit: 0,
 			credit: 0
@@ -9468,8 +11152,8 @@ window.SKEngines = (function() {
 			reference: params.reference ?? "عكس " + (entry.reference || entry.id),
 			lines: entry.lines.map((line) => ({
 				accountId: line.accountId,
-				debit: money$19(Number(line.credit) || 0),
-				credit: money$19(Number(line.debit) || 0),
+				debit: money$20(Number(line.credit) || 0),
+				credit: money$20(Number(line.debit) || 0),
 				...line.description ? { description: "عكس: " + line.description } : {}
 			}))
 		};
@@ -9530,7 +11214,7 @@ window.SKEngines = (function() {
 		partyMovements: () => partyMovements,
 		partyStatement: () => partyStatement
 	});
-	function money$18(value) {
+	function money$19(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function addDays(iso, days) {
@@ -9548,7 +11232,7 @@ window.SKEngines = (function() {
 	function netOn(entry, accountId, side) {
 		let v = 0;
 		for (const line of entry.lines) if (line.accountId === accountId) v += side === "debit" ? Number(line.debit) - Number(line.credit) : Number(line.credit) - Number(line.debit);
-		return money$18(v);
+		return money$19(v);
 	}
 	/** each entry's net effect on the control account, oldest first; positive raises the party's balance */
 	function partyMovements(entries, accountId, side) {
@@ -9574,7 +11258,7 @@ window.SKEngines = (function() {
 		movements.sort((a, b) => a.date.localeCompare(b.date) || a.entryId.localeCompare(b.entryId));
 		return {
 			movements,
-			unassigned: money$18(unassigned)
+			unassigned: money$19(unassigned)
 		};
 	}
 	function partyBalances(entries, accountId, side, asOf, termsDays = 0) {
@@ -9618,29 +11302,29 @@ window.SKEngines = (function() {
 				customerId: party,
 				invoiceDate: o.date,
 				dueDate: addDays(o.date, termsDays),
-				amount: money$18(o.left),
+				amount: money$19(o.left),
 				paid: 0
 			})), asOf);
-			const balance = money$18(charged - settled);
+			const balance = money$19(charged - settled);
 			const aging = { ...aged.totals };
 			rows.push({
 				party,
 				balance,
-				charged: money$18(charged),
-				settled: money$18(settled),
+				charged: money$19(charged),
+				settled: money$19(settled),
 				lastDate: list[list.length - 1].date,
 				oldestOpen: open.length ? open[0].date : null,
 				aging
 			});
 			Object.keys(totals).forEach((k) => {
-				totals[k] = money$18(totals[k] + aging[k]);
+				totals[k] = money$19(totals[k] + aging[k]);
 			});
 		});
 		rows.sort((a, b) => b.balance - a.balance || a.party.localeCompare(b.party));
 		return {
 			rows,
 			totals,
-			balance: money$18(rows.reduce((s, r) => s + r.balance, 0)),
+			balance: money$19(rows.reduce((s, r) => s + r.balance, 0)),
 			unassigned
 		};
 	}
@@ -9648,7 +11332,7 @@ window.SKEngines = (function() {
 	function partyStatement(entries, accountId, side, party) {
 		let running = 0;
 		return partyMovements(entries, accountId, side).movements.filter((m) => m.party === party).map((m) => {
-			running = money$18(running + m.amount);
+			running = money$19(running + m.amount);
 			return {
 				date: m.date,
 				reference: m.reference,
@@ -9661,7 +11345,7 @@ window.SKEngines = (function() {
 	}
 	/** a customer collection (Dr cash / Cr receivables) or a supplier payment (Dr payables / Cr cash) */
 	function buildSettlementEntry(p) {
-		const amount = money$18(Number(p.amount));
+		const amount = money$19(Number(p.amount));
 		if (!(amount > 0)) throw new Error("AMOUNT_MUST_BE_POSITIVE");
 		if (!String(p.party || "").trim()) throw new Error("PARTY_REQUIRED");
 		if (!p.cashAccountId || !p.controlAccountId) throw new Error("ACCOUNTS_REQUIRED");
@@ -9697,7 +11381,7 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/finance/payables-engine.ts
 	var payables_engine_exports = /* @__PURE__ */ __exportAll({ agePayables: () => agePayables });
-	function money$17(v) {
+	function money$18(v) {
 		return Math.round((v + Number.EPSILON) * 100) / 100;
 	}
 	function days(fromIso, toIso) {
@@ -9714,7 +11398,7 @@ window.SKEngines = (function() {
 	}
 	function agePayables(invoices, asOfDate) {
 		const rows = invoices.map((invoice) => {
-			const outstanding = money$17(Math.max(0, invoice.amount - invoice.paid));
+			const outstanding = money$18(Math.max(0, invoice.amount - invoice.paid));
 			const daysPastDue = outstanding === 0 ? 0 : days(invoice.dueDate, asOfDate);
 			return {
 				...invoice,
@@ -9730,11 +11414,11 @@ window.SKEngines = (function() {
 			"61-90": 0,
 			"90+": 0
 		};
-		for (const row of rows) totals[row.bucket] = money$17(totals[row.bucket] + row.outstanding);
+		for (const row of rows) totals[row.bucket] = money$18(totals[row.bucket] + row.outstanding);
 		return {
 			rows,
 			totals,
-			outstanding: money$17(rows.reduce((sum, row) => sum + row.outstanding, 0))
+			outstanding: money$18(rows.reduce((sum, row) => sum + row.outstanding, 0))
 		};
 	}
 	//#endregion
@@ -9743,11 +11427,11 @@ window.SKEngines = (function() {
 		reconcileSubledger: () => reconcileSubledger,
 		reconcileTrialBalanceToLedger: () => reconcileTrialBalanceToLedger
 	});
-	function money$16(value) {
+	function money$17(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function tbBalance(row) {
-		return money$16((row.debit ?? 0) - (row.credit ?? 0));
+		return money$17((row.debit ?? 0) - (row.credit ?? 0));
 	}
 	function reconcileTrialBalanceToLedger(tb, ledger, tolerance = .005) {
 		const tbMap = new Map(tb.map((row) => [row.accountId.trim(), row]));
@@ -9756,8 +11440,8 @@ window.SKEngines = (function() {
 			const tbRow = tbMap.get(accountId);
 			const glRow = glMap.get(accountId);
 			const tbValue = tbRow ? tbBalance(tbRow) : 0;
-			const glValue = glRow ? money$16(glRow.balance) : 0;
-			const difference = money$16(tbValue - glValue);
+			const glValue = glRow ? money$17(glRow.balance) : 0;
+			const difference = money$17(tbValue - glValue);
 			let status = "MATCH";
 			if (!tbRow) status = "MISSING_TB";
 			else if (!glRow) status = "MISSING_GL";
@@ -9774,14 +11458,14 @@ window.SKEngines = (function() {
 			rows,
 			matched: rows.filter((row) => row.status === "MATCH").length,
 			exceptions: rows.filter((row) => row.status !== "MATCH").length,
-			absoluteDifference: money$16(rows.reduce((sum, row) => sum + Math.abs(row.difference), 0))
+			absoluteDifference: money$17(rows.reduce((sum, row) => sum + Math.abs(row.difference), 0))
 		};
 	}
 	function reconcileSubledger(input) {
 		const tolerance = input.tolerance ?? .005;
-		const glBalance = money$16(input.ledger.find((row) => row.accountId === input.glAccountId)?.balance ?? 0);
-		const subledgerBalance = money$16(input.subledgerBalance);
-		const difference = money$16(glBalance - subledgerBalance);
+		const glBalance = money$17(input.ledger.find((row) => row.accountId === input.glAccountId)?.balance ?? 0);
+		const subledgerBalance = money$17(input.subledgerBalance);
+		const difference = money$17(glBalance - subledgerBalance);
 		return {
 			glAccountId: input.glAccountId,
 			glBalance,
@@ -9797,7 +11481,7 @@ window.SKEngines = (function() {
 		validateTrialBalance: () => validateTrialBalance
 	});
 	var TOLERANCE = .005;
-	function money$15(value) {
+	function money$16(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function validateTrialBalance(rows) {
@@ -9837,9 +11521,9 @@ window.SKEngines = (function() {
 			debit += Number.isFinite(row.debit) ? row.debit : 0;
 			credit += Number.isFinite(row.credit) ? row.credit : 0;
 		});
-		debit = money$15(debit);
-		credit = money$15(credit);
-		const difference = money$15(debit - credit);
+		debit = money$16(debit);
+		credit = money$16(credit);
+		const difference = money$16(debit - credit);
 		if (Math.abs(difference) > TOLERANCE) issues.push({ code: "UNBALANCED_TOTALS" });
 		return {
 			valid: issues.length === 0,
@@ -9852,12 +11536,12 @@ window.SKEngines = (function() {
 		};
 	}
 	function accountMovement(row) {
-		const current = money$15(row.debit - row.credit);
-		const prior = money$15((row.priorDebit ?? 0) - (row.priorCredit ?? 0));
+		const current = money$16(row.debit - row.credit);
+		const prior = money$16((row.priorDebit ?? 0) - (row.priorCredit ?? 0));
 		return {
 			current,
 			prior,
-			absoluteChange: money$15(current - prior),
+			absoluteChange: money$16(current - prior),
 			newAccount: prior === 0 && current !== 0,
 			vanishedAccount: prior !== 0 && current === 0
 		};
@@ -9868,7 +11552,7 @@ window.SKEngines = (function() {
 		buildVatSettlementEntry: () => buildVatSettlementEntry,
 		vatReturn: () => vatReturn
 	});
-	function money$14(value) {
+	function money$15(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function vatReturn(input) {
@@ -9907,14 +11591,14 @@ window.SKEngines = (function() {
 				if (Math.abs(inp - pBase * rate) > .05) offRate.push(entry.id);
 			}
 		}
-		outputVat = money$14(outputVat);
-		inputVat = money$14(inputVat);
+		outputVat = money$15(outputVat);
+		inputVat = money$15(inputVat);
 		return {
-			salesBase: money$14(salesBase),
+			salesBase: money$15(salesBase),
 			outputVat,
-			purchasesBase: money$14(purchasesBase),
+			purchasesBase: money$15(purchasesBase),
 			inputVat,
-			net: money$14(outputVat - inputVat),
+			net: money$15(outputVat - inputVat),
 			salesEntries,
 			purchaseEntries,
 			offRate
@@ -9922,7 +11606,7 @@ window.SKEngines = (function() {
 	}
 	/** closes the period's output and input VAT into one account: what is owed to (or refundable from) the authority */
 	function buildVatSettlementEntry(p) {
-		const out = money$14(p.outputVat), inp = money$14(p.inputVat), net = money$14(out - inp);
+		const out = money$15(p.outputVat), inp = money$15(p.inputVat), net = money$15(out - inp);
 		if (out < 0 || inp < 0 || out === 0 && inp === 0) throw new Error("NOTHING_TO_SETTLE");
 		const lines = [
 			...out > 0 ? [{
@@ -10073,7 +11757,7 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/procurement/procurement-posting-engine.ts
 	var procurement_posting_engine_exports = /* @__PURE__ */ __exportAll({ buildReceiptPosting: () => buildReceiptPosting });
-	function money$13(v) {
+	function money$14(v) {
 		return Math.round((v + Number.EPSILON) * 100) / 100;
 	}
 	function buildReceiptPosting(order, receipt, accounts) {
@@ -10101,9 +11785,9 @@ window.SKEngines = (function() {
 				unitCost: source.unitCostExVat
 			});
 		});
-		taxable = money$13(taxable);
-		vat = money$13(vat);
-		const total = money$13(taxable + vat);
+		taxable = money$14(taxable);
+		vat = money$14(vat);
+		const total = money$14(taxable + vat);
 		if (total <= 0) throw new Error("RECEIPT_TOTAL_MUST_BE_POSITIVE");
 		return {
 			journal: {
@@ -10235,7 +11919,6 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/reports/annual-report-engine.ts
 	var annual_report_engine_exports = /* @__PURE__ */ __exportAll({
-		approachSection: () => approachSection,
 		auditorsReport: () => auditorsReport,
 		balanceSheetDetails: () => balanceSheetDetails,
 		debtNote: () => debtNote,
@@ -10248,17 +11931,16 @@ window.SKEngines = (function() {
 		resultsRelease: () => resultsRelease,
 		resultsTable: () => resultsTable,
 		revenueByCategory: () => revenueByCategory,
-		taxProvision: () => taxProvision,
-		zakatNote: () => zakatNote
+		taxProvision: () => taxProvision
 	});
 	var pc = (a, b) => b ? Math.round((a - b) / Math.abs(b) * 1e3) / 10 : null;
 	var share = (a, b) => b ? Math.round(a / b * 1e3) / 10 : null;
-	var line = (fs, k) => fs.lines.find((l) => l.key === k);
-	var cur = (fs, k) => line(fs, k)?.current ?? 0;
-	var pri = (fs, k) => fs.hasPrior ? line(fs, k)?.prior ?? 0 : null;
+	var line$1 = (fs, k) => fs.lines.find((l) => l.key === k);
+	var cur$1 = (fs, k) => line$1(fs, k)?.current ?? 0;
+	var pri$1 = (fs, k) => fs.hasPrior ? line$1(fs, k)?.prior ?? 0 : null;
 	/** Net sales by category — each revenue account is a category, the smallest folded into «أخرى» beyond `max`. */
 	function revenueByCategory(fs, max = 8) {
-		const accs = (line(fs, "revenue")?.accounts ?? []).map((a) => ({
+		const accs = (line$1(fs, "revenue")?.accounts ?? []).map((a) => ({
 			ar: a.name,
 			current: a.current,
 			prior: a.prior
@@ -10269,7 +11951,7 @@ window.SKEngines = (function() {
 			current: rest.reduce((s, a) => s + a.current, 0),
 			prior: fs.hasPrior ? rest.reduce((s, a) => s + (a.prior ?? 0), 0) : null
 		});
-		const total = cur(fs, "revenue"), totalPrior = pri(fs, "revenue");
+		const total = cur$1(fs, "revenue"), totalPrior = pri$1(fs, "revenue");
 		const rows = head.map((a) => ({
 			...a,
 			change: pc(a.current, a.prior),
@@ -10288,7 +11970,7 @@ window.SKEngines = (function() {
 	var SERVICE = /خدم|اتعاب|استشار|صيان|اشتراك|عمول|تاجير|ايجار|تركيب|تدريب|نقل|service|fee|consult|subscription|rent|commission|maintenance/;
 	/** Products vs services (Apple's gross-margin table) — only when the accounts reveal both. */
 	function productsServices(fs) {
-		const rev = line(fs, "revenue")?.accounts ?? [], cogs = line(fs, "cogs")?.accounts ?? [];
+		const rev = line$1(fs, "revenue")?.accounts ?? [], cogs = line$1(fs, "cogs")?.accounts ?? [];
 		const isSvc = (n) => SERVICE.test(norm$1(n));
 		const sum = (xs, p) => xs.reduce((s, a) => s + (p ? a.prior ?? 0 : a.current), 0);
 		const rs = rev.filter((a) => isSvc(a.name)), rp = rev.filter((a) => !isSvc(a.name)), cs = cogs.filter((a) => isSvc(a.name)), cp = cogs.filter((a) => !isSvc(a.name));
@@ -10312,7 +11994,7 @@ window.SKEngines = (function() {
 			services: seg(rs, cs, "الخدمات"),
 			costSplit: cs.length > 0,
 			total: {
-				revenue: cur(fs, "revenue"),
+				revenue: cur$1(fs, "revenue"),
 				margin: fs.keys.gross.current,
 				marginPct: share(fs.keys.gross.current, fs.keys.revenue.current),
 				marginPctPrior: fs.hasPrior ? share(fs.keys.gross.prior ?? 0, fs.keys.revenue.prior ?? 0) : null
@@ -10354,7 +12036,7 @@ window.SKEngines = (function() {
 			"impairment"
 		].map((k) => ({
 			k,
-			l: line(fs, k)
+			l: line$1(fs, k)
 		})).filter((x) => x.l && (x.l.current || x.l.prior)).map(({ l }) => ({
 			ar: l.ar,
 			current: l.current,
@@ -10437,7 +12119,7 @@ window.SKEngines = (function() {
 				note: "على نهج أمازون: يقرّب النقد المتاح بعد مدفوعات الإيجار التي يعرضها IFRS 16 ضمن الأنشطة التمويلية."
 			});
 		}
-		const da = line(fs, "depreciation");
+		const da = line$1(fs, "depreciation");
 		const e = (op, d) => op + d;
 		out.push({
 			key: "ebitda",
@@ -10457,7 +12139,7 @@ window.SKEngines = (function() {
 	}
 	var ACCUM = /مجمع|متراكم|accumulated/;
 	function ppeNote(fs) {
-		const accs = line(fs, "ppe")?.accounts ?? [];
+		const accs = line$1(fs, "ppe")?.accounts ?? [];
 		if (!accs.length) return null;
 		const acc = accs.filter((a) => ACCUM.test(norm$1(a.name))), gross = accs.filter((a) => !ACCUM.test(norm$1(a.name)));
 		const s = (xs, p) => xs.reduce((t, a) => t + (p ? a.prior ?? 0 : a.current), 0);
@@ -10473,7 +12155,7 @@ window.SKEngines = (function() {
 			accumulatedPrior: fs.hasPrior ? s(acc, true) : null,
 			net: s(accs, false),
 			netPrior: fs.hasPrior ? s(accs, true) : null,
-			depreciation: cur(fs, "depreciation")
+			depreciation: cur$1(fs, "depreciation")
 		};
 	}
 	/** «Other balance sheet details»: the composition of every position line made of two or more accounts. */
@@ -10502,7 +12184,7 @@ window.SKEngines = (function() {
 			"leaseNcl"
 		].map((k) => ({
 			k,
-			l: line(fs, k)
+			l: line$1(fs, k)
 		})).filter((x) => x.l && (x.l.current || x.l.prior)).map(({ k, l }) => ({
 			ar: l.ar,
 			current: l.current,
@@ -10513,16 +12195,16 @@ window.SKEngines = (function() {
 		return items.length ? {
 			items,
 			total,
-			netDebt: total - cur(fs, "cash"),
+			netDebt: total - cur$1(fs, "cash"),
 			financeCost: fs.keys.finance.current
 		} : null;
 	}
 	function liquidity(fs) {
-		const k = fs.keys, cash = cur(fs, "cash"), debt = cur(fs, "loansCl") + cur(fs, "loansNcl") + cur(fs, "leaseNcl");
+		const k = fs.keys, cash = cur$1(fs, "cash"), debt = cur$1(fs, "loansCl") + cur$1(fs, "loansNcl") + cur$1(fs, "leaseNcl");
 		const wc = k.ca.current - k.cl.current, fcf = performanceMeasures(fs).find((m) => m.key === "fcf");
 		return {
 			cash,
-			cashPrior: pri(fs, "cash"),
+			cashPrior: pri$1(fs, "cash"),
 			debt,
 			netCash: cash - debt,
 			workingCapital: wc,
@@ -10576,53 +12258,6 @@ window.SKEngines = (function() {
 			]
 		};
 	}
-	function approachSection(a, kams = []) {
-		const cur = a.currency ?? "ر.س", m = a.materiality, f = (v) => formatMinor(v, { decimals: 0 }) + " " + cur;
-		const pct = (x) => (Math.round(x * 1e4) / 100).toString() + "%";
-		return {
-			title: "منهجنا في المراجعة",
-			paragraphs: [
-				"صممنا مراجعتنا بتحديد الأهمية النسبية وتقييم مخاطر التحريف الجوهري في القوائم المالية، وأولينا عناية خاصة للمجالات التي اتخذت فيها الإدارة أحكاماً ذاتية، ومنها التقديرات المحاسبية المهمة، ولخطر تجاوز الإدارة لأدوات الرقابة الداخلية بما في ذلك تقييم وجود تحيز قد يمثل خطر تحريف جوهري بسبب الغش.",
-				...a.scope ? [a.scope] : [],
-				...kams.length ? ["تشمل الأمور الرئيسية للمراجعة: " + kams.map((k) => k.title + (k.trend === "new" ? " (جديد هذا العام)" : "")).join("؛ ") + "."] : []
-			],
-			table: [
-				["الأهمية النسبية للقوائم المالية ككل", f(m.overall)],
-				["كيف حددناها", pct(m.rate) + " من " + m.benchmarkAr],
-				["مبرر الأساس المستخدم", m.why],
-				["الأهمية النسبية التنفيذية", f(m.performance) + " (" + pct(m.performanceRate) + " من الأهمية النسبية)"],
-				["حد إبلاغ المكلفين بالحوكمة بالتحريفات", f(m.trivial) + "، إضافة إلى أي تحريفات أقل تستوجب الإبلاغ لأسباب نوعية"]
-			]
-		};
-	}
-	function zakatNote(fs, o = {}) {
-		const eg = o.jurisdiction === "EG", pay = line(fs, "zakatPayable"), exp = fs.keys.zakat.current;
-		const opening = pay ? pay.prior : null, closing = pay ? pay.current : 0;
-		const paid = opening === null ? null : opening + exp - closing;
-		return {
-			title: eg ? "ضريبة الدخل" : "الزكاة",
-			policy: eg ? "تُحتسب ضريبة الدخل الجارية على الربح الضريبي وفق قانون الضريبة على الدخل رقم 91 لسنة 2005 بسعر 22.5%، وتُثبت الضريبة المؤجلة على الفروق المؤقتة (معيار المحاسبة المصري 24)." : "تخضع المنشأة للزكاة وفق لائحة جباية الزكاة الصادرة عن هيئة الزكاة والضريبة والجمارك. تُحتسب الزكاة بسعر 2.5% (معدلاً بعدد أيام السنة الميلادية) على الوعاء الزكوي أو صافي الربح المعدل أيهما أعلى، ويُحمّل المخصص على قائمة الربح أو الخسارة. تُعالج الفروقات الناتجة عن الربوط النهائية في الفترة التي تصدر فيها.",
-			rows: [
-				{
-					ar: "الرصيد في بداية السنة",
-					amount: opening
-				},
-				{
-					ar: "المكوّن خلال السنة",
-					amount: exp
-				},
-				{
-					ar: "المسدد خلال السنة",
-					amount: paid === null ? null : -paid
-				},
-				{
-					ar: "الرصيد في نهاية السنة",
-					amount: closing
-				}
-			],
-			assessments: o.assessments || (eg ? "[حالة الفحص الضريبي: السنوات التي تم فحصها والسنوات المفتوحة]" : "[حالة الربوط: السنوات التي صدر عنها ربط نهائي، والسنوات المقدم عنها إقرار ولم يصدر ربطها بعد، وأي اعتراضات قائمة]")
-		};
-	}
 	/** Arabic "لـ" joined to a word: «ل» + «الشركة» → «للشركة», «ل» + «شركة» → «لشركة». */
 	var lam = (w) => w.startsWith("ال") ? "لل" + w.slice(2) : "ل" + w;
 	function auditorsReport(i) {
@@ -10657,7 +12292,7 @@ window.SKEngines = (function() {
 				title: "عدم تأكد جوهري يتعلق بالاستمرارية",
 				paragraphs: ["نلفت الانتباه إلى الإيضاح المتعلق بأساس الإعداد في القوائم المالية، الذي يبين أحداثاً وظروفاً تشير إلى وجود عدم تأكد جوهري قد يثير شكاً كبيراً في قدرة المنشأة على البقاء كمنشأة مستمرة. ولم يُعدَّل رأينا فيما يتعلق بهذا الأمر."]
 			}] : [],
-			...i.approach && i.opinion !== "disclaimer" ? [approachSection(i.approach, i.kams)] : [],
+			...i.approach && i.opinion !== "disclaimer" ? [i.approach] : [],
 			...i.opinion !== "disclaimer" && i.kams.length ? [{
 				title: "الأمور الرئيسية للمراجعة",
 				paragraphs: ["الأمور الرئيسية للمراجعة هي تلك الأمور التي كانت، بحسب حكمنا المهني، لها الأهمية القصوى عند مراجعتنا للقوائم المالية للفترة الحالية. وقد تناولنا هذه الأمور في سياق مراجعتنا للقوائم المالية ككل وعند تكوين رأينا فيها، ولا نبدي رأياً منفصلاً في هذه الأمور."],
@@ -10789,7 +12424,7 @@ window.SKEngines = (function() {
 		parseExcelReconText: () => parseExcelReconText,
 		reconcileExcelRows: () => reconcileExcelRows
 	});
-	function money$12(value) {
+	function money$13(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function percent$1(value) {
@@ -10823,12 +12458,12 @@ window.SKEngines = (function() {
 				status: "UNMATCHED"
 			};
 			const vatDivisor = 1 + Math.max(0, item.vatRate || 0);
-			const excelCostNet = row.cost === void 0 ? void 0 : money$12(input.vatMode === "inclusive" ? row.cost / vatDivisor : row.cost);
-			const excelPriceNet = row.price === void 0 ? void 0 : money$12(input.vatMode === "inclusive" ? row.price / vatDivisor : row.price);
-			const catalogCost = item.defaultCost === void 0 ? void 0 : money$12(item.defaultCost);
-			const catalogPrice = item.defaultPrice === void 0 ? void 0 : money$12(item.defaultPrice);
-			const costDifference = excelCostNet === void 0 || catalogCost === void 0 ? void 0 : money$12(excelCostNet - catalogCost);
-			const priceDifference = excelPriceNet === void 0 || catalogPrice === void 0 ? void 0 : money$12(excelPriceNet - catalogPrice);
+			const excelCostNet = row.cost === void 0 ? void 0 : money$13(input.vatMode === "inclusive" ? row.cost / vatDivisor : row.cost);
+			const excelPriceNet = row.price === void 0 ? void 0 : money$13(input.vatMode === "inclusive" ? row.price / vatDivisor : row.price);
+			const catalogCost = item.defaultCost === void 0 ? void 0 : money$13(item.defaultCost);
+			const catalogPrice = item.defaultPrice === void 0 ? void 0 : money$13(item.defaultPrice);
+			const costDifference = excelCostNet === void 0 || catalogCost === void 0 ? void 0 : money$13(excelCostNet - catalogCost);
+			const priceDifference = excelPriceNet === void 0 || catalogPrice === void 0 ? void 0 : money$13(excelPriceNet - catalogPrice);
 			const costDifferencePercent = costDifference === void 0 || !catalogCost ? void 0 : percent$1(costDifference / catalogCost);
 			const priceDifferencePercent = priceDifference === void 0 || !catalogPrice ? void 0 : percent$1(priceDifference / catalogPrice);
 			const deviations = [costDifferencePercent, priceDifferencePercent].filter((value) => value !== void 0).map(Math.abs);
@@ -10868,6 +12503,3738 @@ window.SKEngines = (function() {
 	}
 	function safeExportName(name) {
 		return name.trim().replace(/[\\/:*?"<>|]+/g, "-").replace(/\s+/g, "-").replace(/-+/g, "-") || "export";
+	}
+	//#endregion
+	//#region app/src/engine/fusion/reports/global-corpus-engine.ts
+	var global_corpus_engine_exports = /* @__PURE__ */ __exportAll({
+		AUDITOR_REPORTS_FOUND: () => 45,
+		CORPUS: () => CORPUS,
+		EXEMPLARS: () => EXEMPLARS,
+		LETTERS: () => LETTERS,
+		SECTIONS: () => SECTIONS,
+		VIABILITY: () => VIABILITY,
+		apms: () => apms,
+		auditorElements: () => auditorElements,
+		blueprint: () => blueprint,
+		committeeTopics: () => committeeTopics,
+		kamProcedures: () => kamProcedures,
+		letterTopics: () => letterTopics,
+		reportIds: () => reportIds,
+		reportList: () => reportList,
+		reportStructure: () => reportStructure,
+		riskCatalogue: () => riskCatalogue,
+		summary: () => summary
+	});
+	var CORPUS = {
+		file: "global_financial_and_audit_research_bundle_extended_verified.pdf",
+		pages: 12506,
+		reports: 49,
+		pagesClassified: 12505,
+		sectionTypes: 54
+	};
+	/** Every section type, in the median order it appears (pos = position through the report, 0 = first page, 1 = last). */
+	var SECTIONS = [
+		{
+			key: "chair_letter",
+			ar: "رسالة رئيس مجلس الإدارة",
+			part: "strategic",
+			reports: 25,
+			pos: .02,
+			examples: [
+				["amazon-2023", 3],
+				["jpmorgan-2023", 551],
+				["amazon-2024", 1018],
+				["pg-2026", 2041]
+			]
+		},
+		{
+			key: "highlights",
+			ar: "العام في لمحة",
+			part: "strategic",
+			reports: 27,
+			pos: .02,
+			examples: [
+				["cisco-2024", 217],
+				["jpmorgan-2023", 549],
+				["jpmorgan-2025", 1343],
+				["bofa-2025", 1733]
+			]
+		},
+		{
+			key: "mdna",
+			ar: "تقرير الإدارة ومناقشتها وتحليلها",
+			part: "strategic",
+			reports: 39,
+			pos: .06,
+			examples: [
+				["amazon-2023", 15],
+				["apple-2024", 96],
+				["cisco-2024", 235],
+				["walmart-2023", 351]
+			]
+		},
+		{
+			key: "strategy",
+			ar: "الاستراتيجية",
+			part: "strategic",
+			reports: 26,
+			pos: .06,
+			examples: [
+				["cisco-2024", 222],
+				["adobe-2024", 449],
+				["jpmorgan-2023", 611],
+				["berkshire-2025", 1275]
+			]
+		},
+		{
+			key: "ceo_letter",
+			ar: "رسالة الرئيس التنفيذي",
+			part: "strategic",
+			reports: 13,
+			pos: .07,
+			examples: [
+				["amazon-2023", 11],
+				["cisco-2024", 348],
+				["amazon-2024", 1026],
+				["berkshire-2025", 1190]
+			]
+		},
+		{
+			key: "sustainability",
+			ar: "الاستدامة والمناخ",
+			part: "strategic",
+			reports: 29,
+			pos: .07,
+			examples: [
+				["cisco-2024", 216],
+				["walmart-2023", 353],
+				["bofa-2025", 1735],
+				["nestle-2025", 2292]
+			]
+		},
+		{
+			key: "reserves_tech",
+			ar: "الاحتياطيات والتقارير الفنية",
+			part: "other",
+			reports: 2,
+			pos: .07,
+			examples: [["totalenergies-2024", 6406], ["bhp-2025", 10860]]
+		},
+		{
+			key: "principal_risks",
+			ar: "المخاطر الرئيسية",
+			part: "strategic",
+			reports: 35,
+			pos: .08,
+			examples: [
+				["amazon-2023", 15],
+				["apple-2024", 96],
+				["cisco-2024", 234],
+				["walmart-2023", 351]
+			]
+		},
+		{
+			key: "people",
+			ar: "الموظفون والسلامة",
+			part: "strategic",
+			reports: 35,
+			pos: .11,
+			examples: [
+				["cisco-2024", 223],
+				["adobe-2024", 465],
+				["jpmorgan-2023", 554],
+				["jpmorgan-2025", 1348]
+			]
+		},
+		{
+			key: "governance",
+			ar: "حوكمة الشركات",
+			part: "governance",
+			reports: 48,
+			pos: .12,
+			examples: [
+				["amazon-2023", 18],
+				["apple-2024", 144],
+				["cisco-2024", 224],
+				["walmart-2023", 362]
+			]
+		},
+		{
+			key: "provisions_note",
+			ar: "المخصصات والالتزامات المحتملة",
+			part: "financial",
+			reports: 44,
+			pos: .14,
+			examples: [
+				["amazon-2023", 15],
+				["apple-2024", 96],
+				["cisco-2024", 325],
+				["walmart-2023", 351]
+			]
+		},
+		{
+			key: "market",
+			ar: "السوق وبيئة التشغيل",
+			part: "strategic",
+			reports: 15,
+			pos: .14,
+			examples: [
+				["cisco-2024", 218],
+				["adobe-2024", 449],
+				["jpmorgan-2023", 675],
+				["jpmorgan-2025", 1461]
+			]
+		},
+		{
+			key: "business_model",
+			ar: "نموذج الأعمال وخلق القيمة",
+			part: "strategic",
+			reports: 25,
+			pos: .14,
+			examples: [
+				["adobe-2024", 454],
+				["jpmorgan-2025", 1409],
+				["nestle-2025", 2261],
+				["roche-2025", 2502]
+			]
+		},
+		{
+			key: "kpis",
+			ar: "مؤشرات الأداء الرئيسية",
+			part: "strategic",
+			reports: 12,
+			pos: .14,
+			examples: [
+				["ubs-2025", 3013],
+				["mercedes-2025", 3285],
+				["volkswagen-2025", 3652],
+				["telekom-2025", 4332]
+			]
+		},
+		{
+			key: "outlook",
+			ar: "التوقعات",
+			part: "strategic",
+			reports: 18,
+			pos: .15,
+			examples: [
+				["jpmorgan-2023", 841],
+				["jpmorgan-2025", 1423],
+				["ubs-2025", 2839],
+				["mercedes-2025", 3321]
+			]
+		},
+		{
+			key: "segment_review",
+			ar: "أداء القطاعات",
+			part: "strategic",
+			reports: 21,
+			pos: .2,
+			examples: [
+				["cisco-2024", 267],
+				["jpmorgan-2023", 640],
+				["berkshire-2025", 1244],
+				["jpmorgan-2025", 1435]
+			]
+		},
+		{
+			key: "capital_banking",
+			ar: "كفاية رأس المال (البنوك)",
+			part: "strategic",
+			reports: 12,
+			pos: .22,
+			examples: [
+				["jpmorgan-2023", 580],
+				["jpmorgan-2025", 1354],
+				["bofa-2025", 1752],
+				["roche-2025", 2488]
+			]
+		},
+		{
+			key: "remuneration",
+			ar: "تقرير المكافآت",
+			part: "governance",
+			reports: 23,
+			pos: .24,
+			examples: [
+				["cisco-2024", 225],
+				["pepsico-2025", 1942],
+				["homedepot-2025", 2127],
+				["roche-2025", 2510]
+			]
+		},
+		{
+			key: "non_gaap",
+			ar: "مقاييس الأداء البديلة",
+			part: "strategic",
+			reports: 21,
+			pos: .25,
+			examples: [
+				["walmart-2023", 386],
+				["jpmorgan-2023", 647],
+				["jpmorgan-2025", 1432],
+				["bofa-2025", 1742]
+			]
+		},
+		{
+			key: "liquidity",
+			ar: "السيولة ومصادر التمويل",
+			part: "strategic",
+			reports: 17,
+			pos: .26,
+			examples: [
+				["amazon-2023", 45],
+				["cisco-2024", 279],
+				["jpmorgan-2023", 687],
+				["apple-2020", 939]
+			]
+		},
+		{
+			key: "risk_management",
+			ar: "إطار إدارة المخاطر",
+			part: "strategic",
+			reports: 22,
+			pos: .27,
+			examples: [
+				["adobe-2024", 481],
+				["jpmorgan-2023", 688],
+				["jpmorgan-2025", 1517],
+				["bofa-2025", 1750]
+			]
+		},
+		{
+			key: "balance_sheet",
+			ar: "قائمة المركز المالي",
+			part: "financial",
+			reports: 45,
+			pos: .28,
+			examples: [
+				["amazon-2023", 48],
+				["apple-2024", 124],
+				["cisco-2024", 279],
+				["walmart-2023", 398]
+			]
+		},
+		{
+			key: "viability",
+			ar: "بيان الجدوى طويلة الأجل",
+			part: "strategic",
+			reports: 4,
+			pos: .28,
+			examples: [
+				["unilever-2025", 5141],
+				["astrazeneca-2025", 5597],
+				["gsk-2025", 5804],
+				["hsbc-2025", 5982]
+			]
+		},
+		{
+			key: "intangibles_note",
+			ar: "إيضاح الشهرة والأصول غير الملموسة",
+			part: "financial",
+			reports: 42,
+			pos: .3,
+			examples: [
+				["amazon-2023", 53],
+				["cisco-2024", 254],
+				["walmart-2023", 404],
+				["adobe-2024", 479]
+			]
+		},
+		{
+			key: "tax_note",
+			ar: "إيضاح الضرائب والزكاة",
+			part: "financial",
+			reports: 45,
+			pos: .31,
+			examples: [
+				["amazon-2023", 49],
+				["apple-2024", 121],
+				["cisco-2024", 257],
+				["walmart-2023", 389]
+			]
+		},
+		{
+			key: "audit_committee",
+			ar: "تقرير لجنة المراجعة",
+			part: "governance",
+			reports: 8,
+			pos: .32,
+			examples: [
+				["bp-2025", 4790],
+				["unilever-2025", 5152],
+				["astrazeneca-2025", 5596],
+				["gsk-2025", 5753]
+			]
+		},
+		{
+			key: "capital_mgmt",
+			ar: "إدارة رأس المال",
+			part: "financial",
+			reports: 17,
+			pos: .33,
+			examples: [
+				["jpmorgan-2023", 676],
+				["jpmorgan-2025", 1462],
+				["pepsico-2025", 1836],
+				["homedepot-2025", 2054]
+			]
+		},
+		{
+			key: "income_statement",
+			ar: "قائمة الدخل",
+			part: "financial",
+			reports: 42,
+			pos: .34,
+			examples: [
+				["amazon-2023", 48],
+				["apple-2024", 124],
+				["cisco-2024", 293],
+				["walmart-2023", 398]
+			]
+		},
+		{
+			key: "ppe_note",
+			ar: "إيضاح الممتلكات والمعدات",
+			part: "financial",
+			reports: 30,
+			pos: .36,
+			examples: [
+				["apple-2024", 135],
+				["apple-2020", 939],
+				["apple-2023", 1149],
+				["berkshire-2025", 1269]
+			]
+		},
+		{
+			key: "employee_benefits",
+			ar: "منافع الموظفين",
+			part: "financial",
+			reports: 42,
+			pos: .37,
+			examples: [
+				["apple-2024", 128],
+				["cisco-2024", 277],
+				["walmart-2023", 413],
+				["adobe-2024", 533]
+			]
+		},
+		{
+			key: "estimates",
+			ar: "الأحكام والتقديرات",
+			part: "financial",
+			reports: 20,
+			pos: .39,
+			examples: [
+				["cisco-2024", 268],
+				["adobe-2024", 484],
+				["jpmorgan-2023", 634],
+				["apple-2023", 1135]
+			]
+		},
+		{
+			key: "shareholder_info",
+			ar: "معلومات المساهمين",
+			part: "other",
+			reports: 9,
+			pos: .39,
+			examples: [
+				["pepsico-2025", 1960],
+				["volkswagen-2025", 3756],
+				["bp-2025", 5070],
+				["unilever-2025", 5212]
+			]
+		},
+		{
+			key: "materiality",
+			ar: "الأهمية النسبية في تقرير المراجع",
+			part: "financial",
+			reports: 4,
+			pos: .4,
+			examples: [
+				["bp-2025", 4849],
+				["unilever-2025", 5216],
+				["gsk-2025", 5800],
+				["aramco-2025", 10162]
+			]
+		},
+		{
+			key: "eps",
+			ar: "ربحية السهم",
+			part: "financial",
+			reports: 30,
+			pos: .41,
+			examples: [
+				["jpmorgan-2023", 558],
+				["apple-2020", 951],
+				["jpmorgan-2025", 1349],
+				["pepsico-2025", 1820]
+			]
+		},
+		{
+			key: "credit_risk",
+			ar: "مخاطر الائتمان",
+			part: "financial",
+			reports: 36,
+			pos: .42,
+			examples: [
+				["cisco-2024", 315],
+				["adobe-2024", 519],
+				["jpmorgan-2023", 683],
+				["apple-2020", 955]
+			]
+		},
+		{
+			key: "dividends",
+			ar: "التوزيعات",
+			part: "financial",
+			reports: 25,
+			pos: .42,
+			examples: [
+				["cisco-2024", 328],
+				["jpmorgan-2023", 868],
+				["jpmorgan-2025", 1659],
+				["pepsico-2025", 1820]
+			]
+		},
+		{
+			key: "leases_note",
+			ar: "إيضاح الإيجارات",
+			part: "financial",
+			reports: 39,
+			pos: .46,
+			examples: [
+				["amazon-2023", 42],
+				["apple-2024", 138],
+				["cisco-2024", 284],
+				["walmart-2023", 378]
+			]
+		},
+		{
+			key: "cash_flow",
+			ar: "قائمة التدفقات النقدية",
+			part: "financial",
+			reports: 41,
+			pos: .47,
+			examples: [
+				["amazon-2023", 43],
+				["apple-2024", 129],
+				["cisco-2024", 295],
+				["walmart-2023", 406]
+			]
+		},
+		{
+			key: "market_risk",
+			ar: "مخاطر السوق",
+			part: "financial",
+			reports: 40,
+			pos: .47,
+			examples: [
+				["amazon-2023", 45],
+				["apple-2024", 123],
+				["cisco-2024", 285],
+				["adobe-2024", 497]
+			]
+		},
+		{
+			key: "fin_instruments",
+			ar: "الأدوات المالية والقيمة العادلة",
+			part: "financial",
+			reports: 43,
+			pos: .47,
+			examples: [
+				["amazon-2023", 60],
+				["cisco-2024", 300],
+				["adobe-2024", 510],
+				["jpmorgan-2023", 713]
+			]
+		},
+		{
+			key: "auditor_report",
+			ar: "تقرير المراجع المستقل",
+			part: "financial",
+			reports: 35,
+			pos: .51,
+			examples: [
+				["amazon-2023", 48],
+				["apple-2024", 144],
+				["cisco-2024", 287],
+				["walmart-2023", 398]
+			]
+		},
+		{
+			key: "notes",
+			ar: "الإيضاحات المتممة",
+			part: "financial",
+			reports: 33,
+			pos: .51,
+			examples: [
+				["amazon-2023", 55],
+				["apple-2024", 130],
+				["cisco-2024", 297],
+				["walmart-2023", 407]
+			]
+		},
+		{
+			key: "related_parties",
+			ar: "الأطراف ذات العلاقة",
+			part: "financial",
+			reports: 24,
+			pos: .51,
+			examples: [
+				["nestle-2025", 2291],
+				["roche-2025", 2486],
+				["novartis-2025", 2679],
+				["ubs-2025", 3158]
+			]
+		},
+		{
+			key: "equity_statement",
+			ar: "قائمة التغيرات في حقوق الملكية",
+			part: "financial",
+			reports: 31,
+			pos: .53,
+			examples: [
+				["amazon-2023", 54],
+				["apple-2024", 124],
+				["walmart-2023", 405],
+				["adobe-2024", 503]
+			]
+		},
+		{
+			key: "revenue_note",
+			ar: "إيضاح الإيرادات",
+			part: "financial",
+			reports: 17,
+			pos: .54,
+			examples: [
+				["cisco-2024", 301],
+				["adobe-2024", 513],
+				["pepsico-2025", 1896],
+				["pg-2026", 1994]
+			]
+		},
+		{
+			key: "liquidity_risk",
+			ar: "مخاطر السيولة",
+			part: "financial",
+			reports: 27,
+			pos: .54,
+			examples: [
+				["jpmorgan-2023", 645],
+				["apple-2023", 1147],
+				["jpmorgan-2025", 1430],
+				["bofa-2025", 1784]
+			]
+		},
+		{
+			key: "going_concern",
+			ar: "الاستمرارية",
+			part: "strategic",
+			reports: 10,
+			pos: .54,
+			examples: [
+				["ubs-2025", 2937],
+				["allianz-2025", 3238],
+				["telekom-2025", 4688],
+				["unilever-2025", 5218]
+			]
+		},
+		{
+			key: "icfr",
+			ar: "الرقابة الداخلية على التقرير المالي",
+			part: "governance",
+			reports: 26,
+			pos: .55,
+			examples: [
+				["amazon-2023", 84],
+				["apple-2024", 146],
+				["cisco-2024", 289],
+				["walmart-2023", 398]
+			]
+		},
+		{
+			key: "accounting_policies",
+			ar: "السياسات المحاسبية",
+			part: "financial",
+			reports: 32,
+			pos: .55,
+			examples: [
+				["apple-2024", 130],
+				["cisco-2024", 232],
+				["walmart-2023", 407],
+				["adobe-2024", 505]
+			]
+		},
+		{
+			key: "segment_note",
+			ar: "إيضاح القطاعات",
+			part: "financial",
+			reports: 33,
+			pos: .57,
+			examples: [
+				["amazon-2023", 37],
+				["cisco-2024", 336],
+				["walmart-2023", 372],
+				["adobe-2024", 511]
+			]
+		},
+		{
+			key: "kam",
+			ar: "الأمور الرئيسية للمراجعة",
+			part: "financial",
+			reports: 25,
+			pos: .58,
+			examples: [
+				["cisco-2024", 289],
+				["adobe-2024", 538],
+				["jpmorgan-2023", 749],
+				["berkshire-2025", 1278]
+			]
+		},
+		{
+			key: "directors_resp",
+			ar: "إقرار مسؤوليات أعضاء مجلس الإدارة",
+			part: "governance",
+			reports: 10,
+			pos: .75,
+			examples: [
+				["nestle-2025", 2319],
+				["roche-2025", 2535],
+				["ubs-2025", 3043],
+				["mercedes-2025", 3629]
+			]
+		},
+		{
+			key: "subsequent_events",
+			ar: "الأحداث اللاحقة",
+			part: "financial",
+			reports: 11,
+			pos: .87,
+			examples: [
+				["nestle-2025", 2293],
+				["allianz-2025", 3223],
+				["volkswagen-2025", 4250],
+				["telekom-2025", 4682]
+			]
+		},
+		{
+			key: "exhibits",
+			ar: "الملاحق والتوقيعات",
+			part: "other",
+			reports: 17,
+			pos: .94,
+			examples: [
+				["amazon-2023", 91],
+				["apple-2024", 153],
+				["cisco-2024", 342],
+				["walmart-2023", 434]
+			]
+		}
+	];
+	/** Each report's own structure: section → first page (contents pages excluded). */
+	var REPORT_MAP = [
+		{
+			id: "amazon-2023",
+			c: "Amazon.com, Inc.",
+			fy: "FY2023",
+			fw: "US GAAP",
+			from: 2,
+			to: 93,
+			s: "chair_letter:3 ceo_letter:11 mdna:15 principal_risks:15 provisions_note:15 governance:18 segment_note:37 leases_note:42 cash_flow:43 liquidity:45 market_risk:45 auditor_report:48 income_statement:48 balance_sheet:48 tax_note:49 intangibles_note:53 equity_statement:54 notes:55 fin_instruments:60 icfr:84 exhibits:91"
+		},
+		{
+			id: "apple-2024",
+			c: "Apple Inc.",
+			fy: "FY2024",
+			fw: "US GAAP",
+			from: 94,
+			to: 214,
+			s: "mdna:96 principal_risks:96 provisions_note:96 tax_note:121 market_risk:123 income_statement:124 balance_sheet:124 equity_statement:124 employee_benefits:128 cash_flow:129 notes:130 accounting_policies:130 ppe_note:135 leases_note:138 governance:144 auditor_report:144 icfr:146 exhibits:153"
+		},
+		{
+			id: "cisco-2024",
+			c: "Cisco Systems, Inc.",
+			fy: "FY2024",
+			fw: "US GAAP",
+			from: 215,
+			to: 348,
+			s: "sustainability:216 highlights:217 market:218 strategy:222 people:223 governance:224 remuneration:225 accounting_policies:232 principal_risks:234 mdna:235 intangibles_note:254 tax_note:257 segment_review:267 estimates:268 employee_benefits:277 liquidity:279 balance_sheet:279 leases_note:284 market_risk:285 auditor_report:287 icfr:289 kam:289 income_statement:293 cash_flow:295 notes:297 fin_instruments:300 revenue_note:301 credit_risk:315 provisions_note:325 dividends:328 segment_note:336 exhibits:342 ceo_letter:348"
+		},
+		{
+			id: "walmart-2023",
+			c: "Walmart Inc.",
+			fy: "FY2023",
+			fw: "US GAAP",
+			from: 349,
+			to: 446,
+			s: "mdna:351 principal_risks:351 provisions_note:351 sustainability:353 governance:362 segment_note:372 leases_note:378 non_gaap:386 tax_note:389 icfr:398 auditor_report:398 income_statement:398 balance_sheet:398 intangibles_note:404 equity_statement:405 cash_flow:406 notes:407 accounting_policies:407 employee_benefits:413 exhibits:434"
+		},
+		{
+			id: "adobe-2024",
+			c: "Adobe Inc.",
+			fy: "FY2024",
+			fw: "US GAAP",
+			from: 447,
+			to: 547,
+			s: "principal_risks:448 strategy:449 market:449 business_model:454 people:465 provisions_note:476 tax_note:478 intangibles_note:479 risk_management:481 mdna:484 estimates:484 notes:485 balance_sheet:494 market_risk:497 income_statement:499 equity_statement:503 cash_flow:504 accounting_policies:505 fin_instruments:510 segment_note:511 revenue_note:513 credit_risk:519 governance:527 employee_benefits:533 leases_note:536 icfr:538 kam:538 exhibits:544"
+		},
+		{
+			id: "jpmorgan-2023",
+			c: "JPMorgan Chase & Co.",
+			fy: "FY2023",
+			fw: "US GAAP",
+			from: 548,
+			to: 911,
+			s: "highlights:549 income_statement:549 chair_letter:551 people:554 eps:558 balance_sheet:564 capital_banking:580 governance:586 provisions_note:598 tax_note:607 strategy:611 mdna:633 estimates:634 segment_review:640 liquidity_risk:645 non_gaap:647 intangibles_note:649 market_risk:651 leases_note:664 market:675 capital_mgmt:676 credit_risk:683 liquidity:687 risk_management:688 fin_instruments:713 icfr:747 kam:749 employee_benefits:752 accounting_policies:759 outlook:841 dividends:868"
+		},
+		{
+			id: "apple-2020",
+			c: "Apple Inc.",
+			fy: "FY2020",
+			fw: "US GAAP",
+			from: 912,
+			to: 1016,
+			s: "mdna:914 principal_risks:914 provisions_note:914 liquidity:939 ppe_note:939 market_risk:940 balance_sheet:941 income_statement:944 equity_statement:944 employee_benefits:948 cash_flow:949 notes:950 accounting_policies:950 eps:951 fin_instruments:954 credit_risk:955 tax_note:960 segment_note:969 leases_note:971 governance:973 auditor_report:973 icfr:975 exhibits:981"
+		},
+		{
+			id: "amazon-2024",
+			c: "Amazon.com, Inc.",
+			fy: "FY2024",
+			fw: "US GAAP",
+			from: 1017,
+			to: 1107,
+			s: "chair_letter:1018 ceo_letter:1026 mdna:1030 principal_risks:1030 provisions_note:1030 governance:1033 segment_note:1052 intangibles_note:1055 tax_note:1056 leases_note:1057 liquidity:1059 market_risk:1059 auditor_report:1062 income_statement:1062 balance_sheet:1062 cash_flow:1064 equity_statement:1068 notes:1069 fin_instruments:1079 icfr:1098 exhibits:1105"
+		},
+		{
+			id: "apple-2023",
+			c: "Apple Inc.",
+			fy: "FY2023",
+			fw: "US GAAP",
+			from: 1108,
+			to: 1187,
+			s: "mdna:1110 principal_risks:1110 provisions_note:1110 credit_risk:1126 tax_note:1134 governance:1135 estimates:1135 market_risk:1136 income_statement:1137 balance_sheet:1137 equity_statement:1137 employee_benefits:1141 cash_flow:1142 notes:1143 accounting_policies:1143 fin_instruments:1146 liquidity_risk:1147 ppe_note:1149 leases_note:1153 segment_note:1157 auditor_report:1159 icfr:1161 exhibits:1168"
+		},
+		{
+			id: "berkshire-2025",
+			c: "Berkshire Hathaway Inc.",
+			fy: "FY2025",
+			fw: "US GAAP",
+			from: 1188,
+			to: 1341,
+			s: "ceo_letter:1190 principal_risks:1213 provisions_note:1213 mdna:1238 segment_review:1244 governance:1245 tax_note:1247 intangibles_note:1268 ppe_note:1269 estimates:1270 strategy:1275 credit_risk:1275 market_risk:1275 auditor_report:1278 kam:1278 balance_sheet:1279 income_statement:1281 cash_flow:1283 notes:1284 accounting_policies:1284 fin_instruments:1313 employee_benefits:1317 segment_note:1319 icfr:1329 exhibits:1333"
+		},
+		{
+			id: "jpmorgan-2025",
+			c: "JPMorgan Chase & Co.",
+			fy: "FY2025",
+			fw: "US GAAP",
+			from: 1342,
+			to: 1706,
+			s: "highlights:1343 income_statement:1343 people:1348 eps:1349 capital_banking:1354 ceo_letter:1369 tax_note:1383 business_model:1409 mdna:1419 estimates:1420 outlook:1423 governance:1423 balance_sheet:1428 liquidity_risk:1430 non_gaap:1432 intangibles_note:1434 segment_review:1435 market_risk:1436 market:1461 capital_mgmt:1462 credit_risk:1469 liquidity:1473 fin_instruments:1499 risk_management:1517 kam:1536 employee_benefits:1539 accounting_policies:1546 leases_note:1650 dividends:1659 provisions_note:1667 segment_note:1680 cash_flow:1684"
+		},
+		{
+			id: "bofa-2025",
+			c: "Bank of America",
+			fy: "FY2025",
+			fw: "US GAAP",
+			from: 1707,
+			to: 1818,
+			s: "people:1707 governance:1708 principal_risks:1712 strategy:1722 highlights:1733 segment_review:1733 sustainability:1735 mdna:1740 notes:1740 balance_sheet:1741 leases_note:1741 non_gaap:1742 income_statement:1743 tax_note:1745 risk_management:1750 intangibles_note:1752 capital_banking:1752 market_risk:1764 cash_flow:1770 equity_statement:1770 auditor_report:1771 liquidity_risk:1784 credit_risk:1788 employee_benefits:1800 fin_instruments:1804"
+		},
+		{
+			id: "pepsico-2025",
+			c: "PepsiCo, Inc.",
+			fy: "FY2025",
+			fw: "US GAAP",
+			from: 1819,
+			to: 1962,
+			s: "highlights:1820 eps:1820 dividends:1820 governance:1822 mdna:1827 principal_risks:1827 provisions_note:1827 people:1834 capital_mgmt:1836 tax_note:1847 segment_review:1859 liquidity:1859 non_gaap:1859 market_risk:1866 employee_benefits:1872 estimates:1879 intangibles_note:1881 income_statement:1884 cash_flow:1886 leases_note:1886 balance_sheet:1888 notes:1890 credit_risk:1895 accounting_policies:1896 revenue_note:1896 fin_instruments:1920 icfr:1935 auditor_report:1935 remuneration:1942 exhibits:1953 shareholder_info:1960"
+		},
+		{
+			id: "pg-2026",
+			c: "Procter & Gamble",
+			fy: "FY2026",
+			fw: "US GAAP",
+			from: 1963,
+			to: 2043,
+			s: "principal_risks:1965 provisions_note:1965 liquidity:1972 mdna:1976 eps:1986 governance:1994 estimates:1994 revenue_note:1994 employee_benefits:1995 non_gaap:1997 icfr:2000 auditor_report:2001 income_statement:2001 balance_sheet:2001 notes:2004 equity_statement:2006 cash_flow:2007 accounting_policies:2008 tax_note:2010 segment_note:2011 intangibles_note:2015 fin_instruments:2025 leases_note:2032 exhibits:2039 chair_letter:2041"
+		},
+		{
+			id: "homedepot-2025",
+			c: "The Home Depot, Inc.",
+			fy: "FY2025",
+			fw: "US GAAP",
+			from: 2044,
+			to: 2131,
+			s: "mdna:2045 principal_risks:2045 provisions_note:2045 people:2054 capital_mgmt:2054 income_statement:2076 non_gaap:2078 strategy:2079 leases_note:2080 dividends:2081 governance:2084 auditor_report:2084 balance_sheet:2084 kam:2085 intangibles_note:2086 equity_statement:2089 cash_flow:2090 notes:2091 accounting_policies:2091 tax_note:2097 segment_note:2098 icfr:2120 remuneration:2127 exhibits:2128 eps:2129"
+		},
+		{
+			id: "mcdonalds-2025",
+			c: "McDonald's Corporation",
+			fy: "FY2025",
+			fw: "US GAAP",
+			from: 2132,
+			to: 2204,
+			s: ""
+		},
+		{
+			id: "nestle-2025",
+			c: "Nestlé Group",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 2205,
+			to: 2342,
+			s: "income_statement:2208 balance_sheet:2208 cash_flow:2208 tax_note:2212 provisions_note:2213 equity_statement:2215 ppe_note:2221 intangibles_note:2221 segment_note:2226 leases_note:2232 employee_benefits:2234 credit_risk:2235 liquidity_risk:2242 fin_instruments:2247 business_model:2261 market_risk:2269 capital_mgmt:2275 eps:2283 governance:2291 related_parties:2291 sustainability:2292 subsequent_events:2293 people:2317 directors_resp:2319 accounting_policies:2338"
+		},
+		{
+			id: "roche-2025",
+			c: "Roche Group",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 2343,
+			to: 2539,
+			s: "highlights:2344 mdna:2347 income_statement:2350 intangibles_note:2353 ppe_note:2368 leases_note:2368 provisions_note:2370 tax_note:2379 employee_benefits:2381 balance_sheet:2384 governance:2388 liquidity_risk:2389 cash_flow:2396 equity_statement:2397 accounting_policies:2398 segment_note:2401 revenue_note:2405 eps:2470 credit_risk:2474 fin_instruments:2478 market_risk:2478 related_parties:2486 capital_banking:2488 business_model:2502 icfr:2506 kam:2508 remuneration:2510 non_gaap:2515 notes:2528 directors_resp:2535"
+		},
+		{
+			id: "novartis-2025",
+			c: "Novartis AG",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 2540,
+			to: 2817,
+			s: "ceo_letter:2543 strategy:2543 sustainability:2544 market_risk:2546 mdna:2547 principal_risks:2551 employee_benefits:2559 credit_risk:2561 intangibles_note:2563 provisions_note:2578 capital_banking:2583 highlights:2587 non_gaap:2592 tax_note:2593 liquidity:2600 cash_flow:2601 fin_instruments:2607 governance:2610 remuneration:2630 people:2631 risk_management:2663 icfr:2671 related_parties:2679 dividends:2680 income_statement:2710 balance_sheet:2710 equity_statement:2710 ppe_note:2728 leases_note:2728 eps:2739 liquidity_risk:2782 kam:2791 notes:2795 chair_letter:2808 business_model:2808"
+		},
+		{
+			id: "ubs-2025",
+			c: "UBS Group AG",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 2818,
+			to: 3184,
+			s: "business_model:2819 strategy:2819 icfr:2820 sustainability:2824 balance_sheet:2830 people:2837 outlook:2839 provisions_note:2847 capital_banking:2849 principal_risks:2855 market_risk:2859 credit_risk:2861 tax_note:2865 estimates:2866 income_statement:2867 intangibles_note:2867 fin_instruments:2867 risk_management:2893 capital_mgmt:2895 governance:2897 market:2899 liquidity_risk:2927 going_concern:2937 employee_benefits:2957 chair_letter:2998 dividends:3008 kpis:3013 auditor_report:3042 directors_resp:3043 equity_statement:3058 eps:3060 cash_flow:3062 accounting_policies:3064 segment_note:3081 mdna:3153 related_parties:3158 highlights:3164 ppe_note:3166 non_gaap:3175"
+		},
+		{
+			id: "allianz-2025",
+			c: "Allianz SE",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 3185,
+			to: 3240,
+			s: "mdna:3186 governance:3190 provisions_note:3197 intangibles_note:3199 accounting_policies:3204 fin_instruments:3206 employee_benefits:3213 balance_sheet:3216 market_risk:3217 subsequent_events:3223 notes:3235 going_concern:3238"
+		},
+		{
+			id: "mercedes-2025",
+			c: "Mercedes-Benz Group AG",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 3241,
+			to: 3649,
+			s: "mdna:3243 governance:3243 chair_letter:3246 business_model:3249 strategy:3277 kpis:3285 income_statement:3291 balance_sheet:3291 cash_flow:3291 fin_instruments:3293 employee_benefits:3297 tax_note:3298 leases_note:3301 provisions_note:3301 intangibles_note:3308 ppe_note:3310 outlook:3321 dividends:3325 risk_management:3327 market_risk:3332 credit_risk:3338 liquidity:3345 sustainability:3346 accounting_policies:3346 people:3362 remuneration:3454 equity_statement:3498 notes:3499 segment_note:3605 capital_mgmt:3608 eps:3609 directors_resp:3629 auditor_report:3630 kam:3637 highlights:3645"
+		},
+		{
+			id: "volkswagen-2025",
+			c: "Volkswagen Group",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 3650,
+			to: 4323,
+			s: "highlights:3651 kpis:3652 sustainability:3652 governance:3652 remuneration:3652 intangibles_note:3657 related_parties:3675 people:3676 risk_management:3681 provisions_note:3695 employee_benefits:3710 mdna:3722 outlook:3722 market:3739 shareholder_info:3756 tax_note:3767 cash_flow:3770 balance_sheet:3774 ppe_note:3778 strategy:3829 fin_instruments:3853 credit_risk:3855 business_model:3876 eps:3877 dividends:3877 leases_note:3990 income_statement:4111 segment_note:4111 equity_statement:4117 market_risk:4170 liquidity_risk:4189 capital_banking:4235 subsequent_events:4250 directors_resp:4293 auditor_report:4294 kam:4299"
+		},
+		{
+			id: "telekom-2025",
+			c: "Deutsche Telekom AG",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 4324,
+			to: 4704,
+			s: "chair_letter:4324 highlights:4324 mdna:4324 sustainability:4331 governance:4331 kpis:4332 remuneration:4338 balance_sheet:4363 strategy:4365 segment_note:4365 business_model:4371 eps:4378 ppe_note:4380 intangibles_note:4380 leases_note:4380 dividends:4390 notes:4394 tax_note:4399 cash_flow:4400 outlook:4405 segment_review:4418 people:4426 risk_management:4430 principal_risks:4450 provisions_note:4472 market:4508 fin_instruments:4528 credit_risk:4528 liquidity_risk:4528 market_risk:4528 accounting_policies:4549 income_statement:4550 employee_benefits:4553 revenue_note:4579 subsequent_events:4682 directors_resp:4684 kam:4686 going_concern:4688"
+		},
+		{
+			id: "bp-2025",
+			c: "BP p.l.c.",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 4705,
+			to: 5101,
+			s: "strategy:4706 segment_review:4709 chair_letter:4710 market:4712 outlook:4713 sustainability:4717 business_model:4719 kpis:4720 people:4722 balance_sheet:4724 risk_management:4751 principal_risks:4766 governance:4778 remuneration:4778 audit_committee:4790 highlights:4800 employee_benefits:4801 provisions_note:4827 auditor_report:4836 kam:4837 revenue_note:4837 ppe_note:4837 intangibles_note:4838 materiality:4849 icfr:4860 income_statement:4861 equity_statement:4863 fin_instruments:4864 cash_flow:4865 estimates:4866 market_risk:4880 tax_note:4884 eps:4900 leases_note:4902 credit_risk:4923 non_gaap:5043 liquidity:5044 mdna:5064 shareholder_info:5070 capital_mgmt:5087 exhibits:5095"
+		},
+		{
+			id: "unilever-2025",
+			c: "Unilever PLC",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 5102,
+			to: 5385,
+			s: "strategy:5104 highlights:5105 business_model:5106 people:5106 chair_letter:5109 ceo_letter:5111 mdna:5113 non_gaap:5116 eps:5116 risk_management:5134 principal_risks:5134 viability:5141 intangibles_note:5148 sustainability:5150 governance:5151 audit_committee:5152 remuneration:5152 market:5162 dividends:5176 employee_benefits:5189 directors_resp:5212 auditor_report:5212 notes:5212 shareholder_info:5212 materiality:5216 going_concern:5218 kam:5219 provisions_note:5220 revenue_note:5228 income_statement:5231 equity_statement:5233 cash_flow:5235 segment_note:5239 balance_sheet:5246 tax_note:5252 ppe_note:5258 liquidity_risk:5270 fin_instruments:5272 market_risk:5272 credit_risk:5278 related_parties:5285 subsequent_events:5286 accounting_policies:5290 estimates:5291 icfr:5315"
+		},
+		{
+			id: "astrazeneca-2025",
+			c: "AstraZeneca PLC",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 5386,
+			to: 5698,
+			s: "strategy:5389 business_model:5395 sustainability:5399 governance:5399 principal_risks:5406 people:5425 risk_management:5434 mdna:5435 kpis:5439 non_gaap:5440 liquidity:5447 fin_instruments:5451 remuneration:5460 shareholder_info:5473 balance_sheet:5475 intangibles_note:5475 employee_benefits:5481 provisions_note:5500 directors_resp:5501 auditor_report:5501 income_statement:5512 equity_statement:5514 cash_flow:5515 credit_risk:5522 eps:5524 ppe_note:5529 leases_note:5529 tax_note:5531 segment_note:5534 estimates:5540 liquidity_risk:5559 market_risk:5564 capital_banking:5582 chair_letter:5596 audit_committee:5596 viability:5597 dividends:5620 highlights:5634 going_concern:5697"
+		},
+		{
+			id: "gsk-2025",
+			c: "GSK plc",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 5699,
+			to: 5949,
+			s: "mdna:5703 non_gaap:5703 intangibles_note:5704 income_statement:5705 balance_sheet:5706 eps:5713 cash_flow:5717 tax_note:5718 ppe_note:5718 fin_instruments:5722 going_concern:5724 estimates:5725 governance:5727 remuneration:5727 strategy:5734 dividends:5735 shareholder_info:5739 market:5740 audit_committee:5753 chair_letter:5759 people:5762 employee_benefits:5766 outlook:5770 auditor_report:5790 notes:5790 provisions_note:5795 kam:5796 materiality:5800 viability:5804 leases_note:5813 segment_note:5820 credit_risk:5839 market_risk:5867 liquidity_risk:5881 principal_risks:5898 sustainability:5912 icfr:5933 ceo_letter:5946 business_model:5946"
+		},
+		{
+			id: "hsbc-2025",
+			c: "HSBC Holdings plc",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 5950,
+			to: 6321,
+			s: "highlights:5950 strategy:5950 kpis:5951 outlook:5953 chair_letter:5957 credit_risk:5963 eps:5963 income_statement:5964 segment_review:5966 provisions_note:5971 sustainability:5975 business_model:5981 principal_risks:5981 viability:5982 going_concern:5982 governance:5982 mdna:5983 balance_sheet:5990 people:6002 fin_instruments:6018 accounting_policies:6026 non_gaap:6042 risk_management:6049 capital_banking:6054 market_risk:6108 employee_benefits:6117 audit_committee:6155 remuneration:6166 directors_resp:6201 auditor_report:6203 kam:6206 equity_statement:6222 cash_flow:6223 tax_note:6235 dividends:6252 intangibles_note:6278 leases_note:6279 liquidity_risk:6285 related_parties:6296 shareholder_info:6306"
+		},
+		{
+			id: "totalenergies-2024",
+			c: "TotalEnergies SE",
+			fy: "FY2024",
+			fw: "IFRS",
+			from: 6322,
+			to: 6986,
+			s: "outlook:6326 principal_risks:6326 fin_instruments:6326 mdna:6327 segment_review:6329 eps:6329 non_gaap:6338 capital_mgmt:6342 balance_sheet:6343 intangibles_note:6344 liquidity:6345 provisions_note:6347 governance:6348 tax_note:6352 icfr:6357 auditor_report:6365 income_statement:6365 kam:6369 ppe_note:6375 cash_flow:6376 equity_statement:6377 notes:6378 accounting_policies:6378 segment_note:6388 reserves_tech:6406 related_parties:6409 employee_benefits:6414 leases_note:6433 market_risk:6447 credit_risk:6450 highlights:6509 dividends:6511 sustainability:6524 business_model:6533 kpis:6551 people:6640 audit_committee:6702 chair_letter:6723"
+		},
+		{
+			id: "airbus-2023",
+			c: "Airbus SE",
+			fy: "FY2023",
+			fw: "IFRS",
+			from: 6987,
+			to: 7428,
+			s: "market:6988 chair_letter:6989 highlights:6989 mdna:6989 principal_risks:6989 eps:6990 governance:7012 market_risk:7013 liquidity:7014 liquidity_risk:7019 fin_instruments:7022 credit_risk:7022 segment_review:7026 sustainability:7032 people:7035 outlook:7094 kpis:7108 employee_benefits:7164 going_concern:7181 provisions_note:7186 income_statement:7187 dividends:7192 auditor_report:7197 risk_management:7222 remuneration:7222 related_parties:7267 balance_sheet:7285 ppe_note:7285 intangibles_note:7285 cash_flow:7287 equity_statement:7289 accounting_policies:7292 segment_note:7292 tax_note:7313 leases_note:7322 subsequent_events:7372 kam:7375 revenue_note:7381"
+		},
+		{
+			id: "loreal-2024",
+			c: "L'Oréal",
+			fy: "FY2024",
+			fw: "IFRS",
+			from: 7429,
+			to: 7448,
+			s: "chair_letter:7429 highlights:7429 governance:7429 people:7438"
+		},
+		{
+			id: "sanofi-2025",
+			c: "Sanofi",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 7449,
+			to: 7746,
+			s: "principal_risks:7454 ppe_note:7454 mdna:7466 sustainability:7466 income_statement:7472 people:7487 intangibles_note:7515 related_parties:7516 tax_note:7522 non_gaap:7524 segment_note:7526 cash_flow:7531 capital_mgmt:7533 liquidity_risk:7534 market_risk:7534 governance:7536 employee_benefits:7575 provisions_note:7607 dividends:7617 icfr:7626 exhibits:7634 auditor_report:7635 balance_sheet:7635 leases_note:7648 notes:7650 business_model:7658 fin_instruments:7658 eps:7697"
+		},
+		{
+			id: "toyota-2026",
+			c: "Toyota Motor Corporation",
+			fy: "FY2026 (Mar)",
+			fw: "IFRS",
+			from: 7747,
+			to: 8010,
+			s: "principal_risks:7752 mdna:7753 provisions_note:7754 sustainability:7756 segment_review:7759 governance:7797 people:7800 business_model:7810 income_statement:7832 liquidity:7837 cash_flow:7838 balance_sheet:7843 tax_note:7844 credit_risk:7845 remuneration:7857 employee_benefits:7866 related_parties:7868 dividends:7884 icfr:7892 auditor_report:7905 kam:7907 equity_statement:7912 notes:7915 accounting_policies:7916 fin_instruments:7920 ppe_note:7923 intangibles_note:7924 leases_note:7925 market_risk:7959 eps:7985 exhibits:7994"
+		},
+		{
+			id: "honda-2023",
+			c: "Honda Motor Co., Ltd.",
+			fy: "FY2023 (Mar)",
+			fw: "IFRS",
+			from: 8011,
+			to: 8257,
+			s: "employee_benefits:8017 governance:8019 mdna:8025 strategy:8045 intangibles_note:8051 people:8054 leases_note:8057 tax_note:8061 segment_review:8070 balance_sheet:8079 kpis:8108 related_parties:8114 provisions_note:8116 dividends:8122 icfr:8125 income_statement:8136 auditor_report:8137 credit_risk:8139 equity_statement:8145 cash_flow:8146 notes:8147 revenue_note:8158 segment_note:8160 fin_instruments:8207 market_risk:8207 ppe_note:8218 exhibits:8224"
+		},
+		{
+			id: "softbank-2026",
+			c: "SoftBank Group Corp.",
+			fy: "FY2026 (Mar)",
+			fw: "IFRS",
+			from: 8258,
+			to: 8443,
+			s: "business_model:8260 people:8267 ceo_letter:8271 notes:8290 related_parties:8290 governance:8293 sustainability:8294 fin_instruments:8312 remuneration:8314 income_statement:8318 tax_note:8327 mdna:8330 segment_note:8337 balance_sheet:8340 segment_review:8342 principal_risks:8360 highlights:8371 outlook:8385 dividends:8435"
+		},
+		{
+			id: "mufg-2026",
+			c: "Mitsubishi UFJ Financial Group",
+			fy: "FY2026 (Mar)",
+			fw: "US GAAP",
+			from: 8444,
+			to: 8795,
+			s: "mdna:8448 principal_risks:8448 intangibles_note:8453 employee_benefits:8454 capital_banking:8454 credit_risk:8455 business_model:8465 strategy:8465 people:8467 sustainability:8468 provisions_note:8489 ppe_note:8494 liquidity:8495 estimates:8495 income_statement:8496 tax_note:8511 segment_review:8513 segment_note:8513 balance_sheet:8532 accounting_policies:8536 governance:8539 related_parties:8561 dividends:8563 liquidity_risk:8574 market_risk:8574 risk_management:8575 fin_instruments:8582 icfr:8594 auditor_report:8595 cash_flow:8625 revenue_note:8634 notes:8650 leases_note:8665 exhibits:8753"
+		},
+		{
+			id: "smfg-2026",
+			c: "Sumitomo Mitsui Financial Group",
+			fy: "FY2026 (Mar)",
+			fw: "J-GAAP",
+			from: 8796,
+			to: 8915,
+			s: "mdna:8796 balance_sheet:8797 income_statement:8799 fin_instruments:8800 cash_flow:8808 tax_note:8808 intangibles_note:8808 notes:8810 accounting_policies:8811 revenue_note:8817 market_risk:8818 estimates:8820 leases_note:8824 provisions_note:8824 subsequent_events:8825 credit_risk:8842 liquidity_risk:8842 employee_benefits:8877 governance:8891 segment_note:8891 eps:8897 auditor_report:8909 outlook:8911"
+		},
+		{
+			id: "samsung-2025",
+			c: "Samsung Electronics",
+			fy: "FY2025",
+			fw: "K-IFRS",
+			from: 8916,
+			to: 9017,
+			s: "governance:8917 auditor_report:8917 balance_sheet:8917 accounting_policies:8918 income_statement:8923 equity_statement:8925 cash_flow:8929 notes:8931 revenue_note:8949 leases_note:8950 employee_benefits:8952 fin_instruments:8953 ppe_note:8969 intangibles_note:8971 provisions_note:8978 tax_note:8986 eps:8989 market_risk:8993 liquidity_risk:8994 segment_note:9000 related_parties:9002 subsequent_events:9010 sustainability:9017"
+		},
+		{
+			id: "honhai-2025",
+			c: "Hon Hai Precision (Foxconn)",
+			fy: "FY2025",
+			fw: "TIFRS",
+			from: 9018,
+			to: 9185,
+			s: "governance:9018 people:9025 employee_benefits:9032 sustainability:9054 remuneration:9056 related_parties:9093 business_model:9143 provisions_note:9171 ppe_note:9172"
+		},
+		{
+			id: "tencent-2025",
+			c: "Tencent Holdings",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 9186,
+			to: 9468,
+			s: "governance:9188 income_statement:9189 tax_note:9189 chair_letter:9190 non_gaap:9190 highlights:9191 provisions_note:9206 employee_benefits:9206 segment_review:9212 ppe_note:9213 people:9272 remuneration:9286 auditor_report:9306 balance_sheet:9306 kam:9308 revenue_note:9308 intangibles_note:9309 fin_instruments:9311 leases_note:9317 equity_statement:9320 cash_flow:9324 notes:9326 accounting_policies:9328 principal_risks:9359 market_risk:9359 credit_risk:9363 liquidity_risk:9367 going_concern:9369 capital_mgmt:9369 estimates:9376 segment_note:9378 eps:9393 business_model:9419 related_parties:9451 subsequent_events:9455"
+		},
+		{
+			id: "reliance-2026",
+			c: "Reliance Industries",
+			fy: "FY2025-26",
+			fw: "Ind AS",
+			from: 9469,
+			to: 9615,
+			s: "highlights:9470 chair_letter:9471 market:9472 provisions_note:9492 governance:9493 remuneration:9496 cash_flow:9502 strategy:9518 kam:9520 tax_note:9524 ppe_note:9525 intangibles_note:9525 leases_note:9532 related_parties:9538 balance_sheet:9540 employee_benefits:9544 capital_mgmt:9556 fin_instruments:9557 liquidity_risk:9558 market_risk:9559 auditor_report:9561 revenue_note:9562 credit_risk:9594"
+		},
+		{
+			id: "infosys-2026",
+			c: "Infosys Limited",
+			fy: "FY2025-26",
+			fw: "Ind AS",
+			from: 9616,
+			to: 9998,
+			s: "mdna:9622 people:9622 governance:9622 sustainability:9624 highlights:9630 eps:9630 chair_letter:9631 dividends:9640 ppe_note:9648 intangibles_note:9648 leases_note:9648 strategy:9653 remuneration:9656 provisions_note:9656 related_parties:9669 tax_note:9691 employee_benefits:9693 segment_review:9694 icfr:9696 audit_committee:9714 risk_management:9744 principal_risks:9747 balance_sheet:9807 cash_flow:9807 equity_statement:9807 auditor_report:9808 kam:9810 revenue_note:9810 segment_note:9836 liquidity_risk:9838 fin_instruments:9847 market_risk:9852 credit_risk:9854 going_concern:9894 notes:9912"
+		},
+		{
+			id: "aramco-2025",
+			c: "Saudi Arabian Oil Company (Aramco)",
+			fy: "FY2025",
+			fw: "IFRS (KSA-endorsed)",
+			from: 9999,
+			to: 10244,
+			s: "governance:10004 segment_note:10006 chair_letter:10007 ceo_letter:10009 strategy:10010 highlights:10011 outlook:10019 capital_mgmt:10029 eps:10029 dividends:10029 balance_sheet:10031 tax_note:10040 non_gaap:10041 risk_management:10070 people:10073 principal_risks:10077 mdna:10081 audit_committee:10095 fin_instruments:10115 sustainability:10117 income_statement:10129 related_parties:10131 auditor_report:10161 materiality:10162 kam:10164 intangibles_note:10165 ppe_note:10166 employee_benefits:10172 notes:10177 accounting_policies:10177 estimates:10177 leases_note:10181 credit_risk:10183 provisions_note:10185 liquidity_risk:10190 subsequent_events:10243"
+		},
+		{
+			id: "emiratesnbd-2025",
+			c: "Emirates NBD Group",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 10245,
+			to: 10375,
+			s: "chair_letter:10246 governance:10248 strategy:10250 ceo_letter:10251 outlook:10257 segment_review:10258 people:10259 market:10263 balance_sheet:10265 highlights:10276 risk_management:10279 principal_risks:10279 capital_banking:10281 sustainability:10283 auditor_report:10335 income_statement:10335 cash_flow:10335 kam:10337 accounting_policies:10337 credit_risk:10337 related_parties:10338 equity_statement:10342 tax_note:10346 fin_instruments:10347 intangibles_note:10355 segment_note:10360 capital_mgmt:10364 market_risk:10370 liquidity_risk:10371"
+		},
+		{
+			id: "eand-2025",
+			c: "e& (Emirates Telecommunications Group)",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 10376,
+			to: 10604,
+			s: "strategy:10379 sustainability:10379 governance:10379 highlights:10388 chair_letter:10397 ceo_letter:10399 market:10405 business_model:10408 people:10412 segment_review:10416 principal_risks:10437 kpis:10458 related_parties:10517 remuneration:10523 risk_management:10539 employee_benefits:10557 accounting_policies:10562 revenue_note:10564 estimates:10573 tax_note:10578 intangibles_note:10579 ppe_note:10581 credit_risk:10588 fin_instruments:10591 provisions_note:10592"
+		},
+		{
+			id: "rbc-2025",
+			c: "Royal Bank of Canada",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 10605,
+			to: 10850,
+			s: "business_model:10606 chair_letter:10610 balance_sheet:10611 people:10616 sustainability:10626 mdna:10628 highlights:10629 outlook:10629 tax_note:10629 capital_banking:10632 income_statement:10633 provisions_note:10635 segment_review:10638 strategy:10642 employee_benefits:10667 risk_management:10671 governance:10672 principal_risks:10674 credit_risk:10679 market_risk:10689 liquidity_risk:10695 capital_mgmt:10723 intangibles_note:10726 related_parties:10731 non_gaap:10739 directors_resp:10744 auditor_report:10745 kam:10746 equity_statement:10753 cash_flow:10754 accounting_policies:10756 fin_instruments:10761 leases_note:10768 eps:10769 shareholder_info:10849"
+		},
+		{
+			id: "bhp-2025",
+			c: "BHP Group Limited",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 10851,
+			to: 12300,
+			s: "strategy:10853 mdna:10854 principal_risks:10854 provisions_note:10855 chair_letter:10857 ceo_letter:10857 kpis:10857 highlights:10858 non_gaap:10858 governance:10858 remuneration:10859 reserves_tech:10860 outlook:10863 people:10864 dividends:10865 income_statement:10877 balance_sheet:10877 cash_flow:10877 employee_benefits:10892 sustainability:10903 business_model:10952 ppe_note:10971 tax_note:10976 related_parties:11029 leases_note:11035 shareholder_info:11093 risk_management:11100 equity_statement:11134 accounting_policies:11135 estimates:11137 notes:11138 segment_note:11138 eps:11155 intangibles_note:11161 fin_instruments:11178 capital_mgmt:11178 liquidity_risk:11179 credit_risk:11183 market_risk:11184 icfr:11207 auditor_report:11207"
+		},
+		{
+			id: "cba-2025",
+			c: "Commonwealth Bank of Australia",
+			fy: "FY2025",
+			fw: "AASB (IFRS)",
+			from: 12301,
+			to: 12506,
+			s: "strategy:12302 people:12302 balance_sheet:12302 segment_review:12307 governance:12307 liquidity:12312 risk_management:12328 capital_mgmt:12328 remuneration:12329 principal_risks:12338 chair_letter:12346 sustainability:12346 outlook:12352 market:12360 business_model:12364 credit_risk:12370 dividends:12377 provisions_note:12388 income_statement:12394 equity_statement:12396 tax_note:12396 cash_flow:12397 notes:12398 fin_instruments:12398 ppe_note:12400 employee_benefits:12404 eps:12406 liquidity_risk:12410 intangibles_note:12425 market_risk:12437 subsequent_events:12465 kam:12469 leases_note:12489 estimates:12491"
+		}
+	];
+	function reportStructure(id) {
+		const r = REPORT_MAP.find((x) => x.id === id);
+		if (!r || !r.s) return [];
+		return r.s.split(" ").map((kv) => {
+			const [key, p] = kv.split(":");
+			return {
+				key,
+				ar: SECTIONS.find((s) => s.key === key)?.ar ?? key,
+				page: Number(p)
+			};
+		});
+	}
+	var reportIds = () => REPORT_MAP.map((r) => r.id);
+	/** The 49 reports read: company, year, framework and page range in the bundle. */
+	var reportList = () => REPORT_MAP.map(({ s: _s, ...r }) => ({
+		...r,
+		company: r.c,
+		sections: _s ? _s.split(" ").length : 0
+	}));
+	var PROC_AR = {
+		forecasts: {
+			ar: "اختبار التوقعات وخطط الأعمال",
+			text: "قيّمنا التدفقات النقدية المتوقعة وقارناها بخطط الأعمال المعتمدة من مجلس الإدارة وبالنتائج الفعلية للسنوات السابقة"
+		},
+		discount_rates: {
+			ar: "معدلات الخصم",
+			text: "قيّمنا معدلات الخصم ومعدلات النمو المستخدمة بمقارنتها بمصادر خارجية مستقلة"
+		},
+		specialists: {
+			ar: "الاستعانة بخبراء",
+			text: "استعنا بخبرائنا المختصين في التقييم (أو الضرائب أو الاكتواريات) لتقييم المنهجية والافتراضات الرئيسية"
+		},
+		test_controls: {
+			ar: "اختبار الضوابط",
+			text: "فهمنا الضوابط الرئيسية على هذه العملية واختبرنا تصميمها وتطبيقها وفاعلية تشغيلها"
+		},
+		component_auditors: {
+			ar: "مراجعو المكونات",
+			text: "وجّهنا فرق مراجعة المكونات وراجعنا أعمالها على هذا الأمر"
+		},
+		it_systems: {
+			ar: "أنظمة المعلومات",
+			text: "اختبرنا الضوابط العامة لتقنية المعلومات والضوابط الآلية على الأنظمة ذات الصلة"
+		},
+		legal_letters: {
+			ar: "مصادقات المستشارين القانونيين",
+			text: "حصلنا على مصادقات من المستشارين القانونيين الخارجيين وناقشنا القضايا القائمة مع الإدارة والشؤون القانونية"
+		},
+		third_party: {
+			ar: "مصادر خارجية",
+			text: "قارنّا المدخلات الرئيسية ببيانات السوق ومصادر خارجية مستقلة"
+		},
+		recalculate: {
+			ar: "إعادة الاحتساب",
+			text: "أعدنا احتساب المبالغ واختبرنا الدقة الحسابية والسلامة المنطقية للنماذج"
+		},
+		independent_estimate: {
+			ar: "تقدير مستقل",
+			text: "أعددنا تقديراً مستقلاً أو مدى معقولاً وقارنّاه بتقدير الإدارة"
+		},
+		journal_entries: {
+			ar: "قيود اليومية",
+			text: "اختبرنا قيود اليومية اليدوية وغير المعتادة المتعلقة بهذا البند"
+		},
+		confirmations: {
+			ar: "المصادقات",
+			text: "حصلنا على مصادقات مباشرة من الأطراف الخارجية لعينة من الأرصدة"
+		},
+		sensitivity: {
+			ar: "تحليل الحساسية",
+			text: "أجرينا تحليلات حساسية لتقييم أثر التغيرات المعقولة الممكنة في الافتراضات الرئيسية"
+		},
+		compare_history: {
+			ar: "المقارنة بالتاريخ",
+			text: "قيّمنا دقة تقديرات الإدارة السابقة بمقارنتها بالنتائج الفعلية"
+		},
+		disclosures: {
+			ar: "كفاية الإفصاحات",
+			text: "قيّمنا كفاية الإفصاحات ذات الصلة في القوائم المالية، بما فيها الإفصاح عن الافتراضات الرئيسية وحساسيتها"
+		},
+		inspect_contracts: {
+			ar: "فحص العقود والمحاضر",
+			text: "قرأنا العقود ومحاضر الاجتماعات والمراسلات ذات الصلة"
+		},
+		data_completeness: {
+			ar: "اكتمال البيانات ودقتها",
+			text: "اختبرنا اكتمال ودقة البيانات الأساسية المستخدمة في التقدير"
+		},
+		cut_off: {
+			ar: "القطع",
+			text: "اختبرنا قطع المعاملات حول تاريخ نهاية السنة"
+		},
+		site_visits: {
+			ar: "الزيارات والجرد",
+			text: "حضرنا الجرد الفعلي وزرنا المواقع"
+		},
+		retrospective: {
+			ar: "المراجعة بأثر رجعي",
+			text: "أجرينا مراجعة بأثر رجعي لنتائج تقديرات السنة السابقة"
+		},
+		subsequent: {
+			ar: "الأحداث والمتحصلات اللاحقة",
+			text: "فحصنا المتحصلات والتسويات اللاحقة لتاريخ القوائم المالية"
+		},
+		evaluate_assumptions: {
+			ar: "معقولية الافتراضات",
+			text: "قيّمنا معقولية افتراضات الإدارة الرئيسية"
+		}
+	};
+	var KP = {
+		"test_controls": {
+			"mentions": 47,
+			"reports": 21
+		},
+		"evaluate_assumptions": {
+			"mentions": 2,
+			"reports": 1
+		},
+		"specialists": {
+			"mentions": 57,
+			"reports": 16
+		},
+		"sensitivity": {
+			"mentions": 13,
+			"reports": 8
+		},
+		"compare_history": {
+			"mentions": 13,
+			"reports": 7
+		},
+		"recalculate": {
+			"mentions": 22,
+			"reports": 12
+		},
+		"confirmations": {
+			"mentions": 17,
+			"reports": 12
+		},
+		"inspect_contracts": {
+			"mentions": 10,
+			"reports": 8
+		},
+		"legal_letters": {
+			"mentions": 24,
+			"reports": 14
+		},
+		"subsequent": {
+			"mentions": 4,
+			"reports": 3
+		},
+		"disclosures": {
+			"mentions": 12,
+			"reports": 7
+		},
+		"data_completeness": {
+			"mentions": 7,
+			"reports": 5
+		},
+		"retrospective": {
+			"mentions": 6,
+			"reports": 3
+		},
+		"third_party": {
+			"mentions": 23,
+			"reports": 10
+		},
+		"independent_estimate": {
+			"mentions": 20,
+			"reports": 11
+		},
+		"journal_entries": {
+			"mentions": 20,
+			"reports": 7
+		},
+		"cut_off": {
+			"mentions": 5,
+			"reports": 2
+		},
+		"site_visits": {
+			"mentions": 5,
+			"reports": 4
+		},
+		"discount_rates": {
+			"mentions": 112,
+			"reports": 17
+		},
+		"forecasts": {
+			"mentions": 239,
+			"reports": 25
+		},
+		"it_systems": {
+			"mentions": 31,
+			"reports": 9
+		},
+		"component_auditors": {
+			"mentions": 39,
+			"reports": 7
+		}
+	};
+	/** Audit procedures the auditors in the bundle describe under their KAMs, ranked by how many reports use them. */
+	function kamProcedures() {
+		return Object.entries(KP).map(([key, v]) => ({
+			key,
+			...v,
+			...PROC_AR[key] ?? {
+				ar: key,
+				text: key
+			}
+		})).sort((a, b) => b.reports - a.reports || b.mentions - a.mentions);
+	}
+	var RISK_AR = {
+		cyber: {
+			ar: "الأمن السيبراني وحماية البيانات",
+			mitigation: "برنامج أمن معلومات بضوابط وصول ومراقبة واختبارات اختراق وخطط استجابة واستعادة",
+			description: "قد تؤدي الهجمات السيبرانية أو تعطل الأنظمة إلى توقف العمليات أو تسرب البيانات أو خسائر مالية وتنظيمية."
+		},
+		competition: {
+			ar: "المنافسة وتغير تفضيلات العملاء",
+			mitigation: "تطوير المنتجات والتسعير ومراقبة حصص السوق وتنويع القنوات",
+			description: "قد تؤثر المنافسة وتغير تفضيلات العملاء في الحصة السوقية والأسعار والهوامش."
+		},
+		fraud_conduct: {
+			ar: "الغش والسلوك المهني",
+			mitigation: "مدونة سلوك وقناة إبلاغ وفصل مهام ومراجعة داخلية",
+			description: "قد يؤدي الغش أو السلوك غير المهني إلى خسائر مالية وتنظيمية وضرر بالسمعة."
+		},
+		reputation: {
+			ar: "السمعة والعلامة التجارية",
+			mitigation: "حوكمة الجودة والتواصل ومعالجة الشكاوى",
+			description: "قد تتأثر ثقة العملاء والمساهمين بأي حادث يمس الجودة أو السلوك أو الالتزام."
+		},
+		macroeconomic: {
+			ar: "الظروف الاقتصادية الكلية والتضخم",
+			mitigation: "مراقبة المؤشرات الاقتصادية وخطط سيناريوهات ومرونة التكاليف",
+			description: "قد يؤثر التباطؤ الاقتصادي والتضخم وارتفاع التكاليف في الطلب والهوامش والقدرة على تمرير الأسعار."
+		},
+		supply_chain: {
+			ar: "سلاسل الإمداد والموردون",
+			mitigation: "تنويع الموردين وعقود طويلة الأجل ومخزون أمان",
+			description: "قد يؤثر انقطاع الإمداد أو اعتماد الشركة على موردين محدودين في توفر المنتجات وتكلفتها."
+		},
+		legal: {
+			ar: "القضايا والنزاعات القانونية",
+			mitigation: "إدارة قانونية ومتابعة القضايا وتكوين المخصصات وفق IAS 37",
+			description: "قد تنشأ عن النزاعات والقضايا التزامات أو تكاليف غير متوقعة."
+		},
+		esg_social: {
+			ar: "المسؤولية الاجتماعية وحقوق الإنسان",
+			mitigation: "سياسات الاستدامة والعناية الواجبة في سلسلة الإمداد",
+			description: "تتزايد توقعات أصحاب المصلحة بشأن المسؤولية الاجتماعية وحقوق العاملين في سلسلة القيمة."
+		},
+		geopolitical: {
+			ar: "المخاطر الجيوسياسية والعقوبات",
+			mitigation: "تقييم الانكشاف الجغرافي وخطط استمرارية وامتثال للعقوبات",
+			description: "قد تؤثر التوترات الجيوسياسية والعقوبات في سلاسل الإمداد والأسواق والتكاليف."
+		},
+		climate: {
+			ar: "تغير المناخ والتحول",
+			mitigation: "تقييم المخاطر المادية والتحولية وخطط خفض الانبعاثات",
+			description: "قد تؤثر الظواهر المناخية ومتطلبات التحول في الإمداد والتكاليف والطلب."
+		},
+		technology_ai: {
+			ar: "التحول التقني والذكاء الاصطناعي",
+			mitigation: "خارطة طريق رقمية وحوكمة استخدام الذكاء الاصطناعي",
+			description: "قد يؤثر التأخر في التحول الرقمي أو سوء استخدام الذكاء الاصطناعي في الكفاءة والقدرة التنافسية."
+		},
+		liquidity_funding: {
+			ar: "السيولة والتمويل",
+			mitigation: "توقعات نقدية وتسهيلات ملتزم بها وتنويع آجال الاستحقاق",
+			description: "قد يؤثر تشدد شروط التمويل أو تركز آجال الاستحقاق في القدرة على الوفاء بالالتزامات وتمويل الاستثمار."
+		},
+		interest: {
+			ar: "أسعار العمولة",
+			mitigation: "مزيج التمويل الثابت والمتغير وتحليل الحساسية",
+			description: "يؤثر ارتفاع أسعار العمولة في تكلفة التمويل ذي السعر المتغير."
+		},
+		health_safety: {
+			ar: "الصحة والسلامة",
+			mitigation: "نظام إدارة سلامة ومؤشرات حوادث وتدريب",
+			description: "قد تؤدي حوادث العمل إلى ضرر بالعاملين وتوقف العمليات والتزامات قانونية."
+		},
+		commodity: {
+			ar: "أسعار السلع والمواد الخام",
+			mitigation: "عقود توريد وتحوط وتمرير الأسعار للعملاء",
+			description: "يؤثر تقلب أسعار المواد الخام والأعلاف والطاقة في تكلفة المبيعات والهوامش."
+		},
+		tax: {
+			ar: "الضرائب والزكاة والرسوم الجمركية",
+			mitigation: "مراجعة ضريبية ومتابعة الربوط والتغيرات التشريعية",
+			description: "قد تنشأ التزامات إضافية عن الربوط الزكوية والضريبية أو تغير التشريعات والرسوم."
+		},
+		fx: {
+			ar: "أسعار الصرف",
+			mitigation: "مطابقة عملات الإيرادات والتكاليف والتحوط",
+			description: "يؤثر تقلب أسعار الصرف في تكلفة الواردات والأرصدة بالعملات الأجنبية."
+		},
+		regulatory: {
+			ar: "الالتزام التنظيمي",
+			mitigation: "إدارة امتثال ومتابعة التشريعات والتدريب",
+			description: "قد تفرض التغيرات التنظيمية متطلبات امتثال وتكاليف إضافية."
+		},
+		business_continuity: {
+			ar: "استمرارية الأعمال والتعطل التشغيلي",
+			mitigation: "خطط استمرارية واختبارات ومواقع بديلة وتأمين",
+			description: "قد يؤدي تعطل المرافق أو الأنظمة أو الأوبئة إلى توقف العمليات."
+		},
+		talent: {
+			ar: "استقطاب الكفاءات والاحتفاظ بها",
+			mitigation: "خطط تعاقب وحوافز وتطوير مهني",
+			description: "قد يؤثر نقص الكفاءات أو فقدان الموظفين الرئيسيين في تنفيذ الخطط."
+		},
+		credit: {
+			ar: "الائتمان والأطراف المقابلة",
+			mitigation: "حدود ائتمان وضمانات ومتابعة أعمار الديون",
+			description: "قد يتعثر العملاء أو الأطراف المقابلة في السداد فتنشأ خسائر ائتمانية."
+		},
+		pension: {
+			ar: "التزامات منافع الموظفين",
+			mitigation: "تقييم اكتواري دوري ومراقبة الافتراضات",
+			description: "قد تتغير التزامات منافع الموظفين بتغير الافتراضات الاكتوارية."
+		},
+		product_quality: {
+			ar: "جودة المنتج وسلامته",
+			mitigation: "أنظمة جودة وسلامة غذاء وتتبع واستدعاء",
+			description: "قد يؤدي أي خلل في سلامة الغذاء أو جودته إلى استدعاء منتجات والتزامات وضرر بالسمعة."
+		},
+		capital_projects: {
+			ar: "تنفيذ المشاريع الرأسمالية",
+			mitigation: "حوكمة المشاريع ومراحل اعتماد ومتابعة التكلفة والجدول",
+			description: "قد يؤدي تأخر المشاريع الرأسمالية أو تجاوز تكاليفها إلى ضغط على العائد والسيولة."
+		}
+	};
+	var RC = {
+		"cyber": 39,
+		"competition": 39,
+		"fraud_conduct": 39,
+		"reputation": 38,
+		"macroeconomic": 37,
+		"supply_chain": 37,
+		"legal": 36,
+		"esg_social": 36,
+		"geopolitical": 35,
+		"climate": 34,
+		"technology_ai": 34,
+		"liquidity_funding": 34,
+		"interest": 33,
+		"health_safety": 32,
+		"commodity": 30,
+		"tax": 30,
+		"fx": 29,
+		"regulatory": 27,
+		"business_continuity": 27,
+		"talent": 24,
+		"credit": 24,
+		"pension": 19,
+		"product_quality": 13,
+		"capital_projects": 3
+	};
+	/** Principal-risk categories, by how many reports name them in their principal-risk or risk-factor pages. */
+	function riskCatalogue() {
+		return Object.entries(RC).map(([key, reports]) => ({
+			key,
+			reports,
+			description: "",
+			...RISK_AR[key] ?? {
+				ar: key,
+				mitigation: ""
+			}
+		})).sort((a, b) => b.reports - a.reports);
+	}
+	var LT_AR = {
+		people_thanks: "الشكر للموظفين والفريق",
+		customers: "العملاء",
+		strategy: "الاستراتيجية وتنفيذها",
+		ai_digital: "التحول الرقمي والذكاء الاصطناعي",
+		outlook: "النظرة المستقبلية",
+		shareholder_returns: "العائد للمساهمين (التوزيعات وإعادة الشراء)",
+		governance_board: "المجلس والحوكمة",
+		capital_allocation: "تخصيص رأس المال والاستثمار",
+		sustainability: "الاستدامة والمناخ",
+		macro_geopolitics: "البيئة الاقتصادية والجيوسياسية",
+		safety: "السلامة",
+		results_vs_prior: "النتائج مقارنة بالسنة السابقة"
+	};
+	var LT = {
+		"people_thanks": 28,
+		"customers": 27,
+		"strategy": 26,
+		"ai_digital": 25,
+		"outlook": 23,
+		"shareholder_returns": 22,
+		"governance_board": 22,
+		"capital_allocation": 21,
+		"sustainability": 21,
+		"macro_geopolitics": 19,
+		"safety": 8,
+		"results_vs_prior": 8
+	};
+	var LETTERS = {
+		reports: 30,
+		medianWordsFirstPages: 2676,
+		examples: [
+			["amazon-2023", 3],
+			["cisco-2024", 348],
+			["jpmorgan-2023", 551],
+			["amazon-2024", 1018],
+			["berkshire-2025", 1190],
+			["jpmorgan-2025", 1345],
+			["pg-2026", 2041],
+			["mcdonalds-2025", 2133],
+			["novartis-2025", 2543],
+			["ubs-2025", 2998],
+			["mercedes-2025", 3246],
+			["telekom-2025", 4324],
+			["bp-2025", 4707],
+			["unilever-2025", 5103],
+			["astrazeneca-2025", 5390],
+			["gsk-2025", 5759],
+			["hsbc-2025", 5957],
+			["totalenergies-2024", 6723],
+			["airbus-2023", 6989],
+			["loreal-2024", 7429],
+			["softbank-2026", 8261],
+			["tencent-2025", 9187],
+			["reliance-2026", 9471],
+			["infosys-2026", 9631],
+			["aramco-2025", 1e4],
+			["emiratesnbd-2025", 10246],
+			["eand-2025", 10378],
+			["rbc-2025", 10610],
+			["bhp-2025", 10857],
+			["cba-2025", 12301]
+		]
+	};
+	/** What the chair's and chief executive's letters cover, by share of the 30 reports that carry one. */
+	function letterTopics() {
+		return Object.entries(LT).map(([key, n]) => ({
+			key,
+			ar: LT_AR[key] ?? key,
+			reports: n,
+			share: Math.round(n / LETTERS.reports * 100)
+		})).sort((a, b) => b.reports - a.reports);
+	}
+	var AP = {
+		"free cash flow": 20,
+		"adjusted EPS": 17,
+		"ROE/ROTE": 13,
+		"EBITDA": 12,
+		"net debt": 10,
+		"operating margin": 8,
+		"constant currency": 6,
+		"ROCE/ROACE": 6,
+		"organic growth": 5,
+		"gearing": 5,
+		"ROIC": 4,
+		"cash conversion": 4
+	};
+	/** Alternative performance measures used in highlights, KPI and MD&A pages. */
+	var apms = () => Object.entries(AP).map(([name, reports]) => ({
+		name,
+		reports
+	})).sort((a, b) => b.reports - a.reports);
+	var AC_AR = {
+		internal_audit: "المراجعة الداخلية",
+		risk_controls: "إدارة المخاطر والرقابة الداخلية",
+		tender_rotation: "طرح المراجعة وتدوير المراجع",
+		climate_reporting: "التقارير المناخية",
+		non_audit_fees: "أتعاب الخدمات غير المراجعة",
+		going_concern_viability: "الاستمرارية والجدوى",
+		cyber: "الأمن السيبراني",
+		significant_judgements: "الأحكام المحاسبية الهامة",
+		whistleblowing: "الإبلاغ عن المخالفات",
+		fair_balanced: "التقرير عادل ومتوازن ومفهوم",
+		external_auditor_effectiveness: "فاعلية المراجع الخارجي واستقلاله"
+	};
+	var AC = {
+		"internal_audit": 7,
+		"risk_controls": 7,
+		"tender_rotation": 6,
+		"climate_reporting": 5,
+		"non_audit_fees": 4,
+		"going_concern_viability": 4,
+		"cyber": 4,
+		"significant_judgements": 3,
+		"whistleblowing": 3,
+		"fair_balanced": 2,
+		"external_auditor_effectiveness": 1
+	};
+	var committeeTopics = () => Object.entries(AC).map(([key, reports]) => ({
+		key,
+		ar: AC_AR[key] ?? key,
+		reports
+	})).sort((a, b) => b.reports - a.reports);
+	var AE_AR = {
+		kam: "الأمور الرئيسية للمراجعة",
+		fraud: "الغش وتجاوز الإدارة للضوابط",
+		other_info: "المعلومات الأخرى",
+		icfr_opinion: "رأي في الرقابة الداخلية",
+		tenure: "مدة تكليف المراجع",
+		going_concern: "الاستنتاج بشأن الاستمرارية",
+		responsibilities: "مسؤوليات المراجع",
+		scope: "نطاق المراجعة",
+		climate: "المناخ في المراجعة",
+		materiality: "الأهمية النسبية بالأرقام"
+	};
+	var AE = {
+		"kam": 45,
+		"materiality": 6,
+		"scope": 10,
+		"other_info": 27,
+		"going_concern": 20,
+		"tenure": 23,
+		"icfr_opinion": 24,
+		"climate": 10,
+		"fraud": 42,
+		"responsibilities": 19
+	};
+	var auditorElements = () => Object.entries(AE).map(([key, reports]) => ({
+		key,
+		ar: AE_AR[key] ?? key,
+		reports
+	})).sort((a, b) => b.reports - a.reports);
+	var VIABILITY = {
+		horizons: {
+			"12 months from the date": 5,
+			"three-year period": 3,
+			"three-year horizon": 2,
+			"period of five years": 2,
+			"three-year assessment": 1,
+			"period of three years": 1,
+			"five-year period": 1
+		},
+		reports: [
+			"astrazeneca-2025",
+			"bhp-2025",
+			"bp-2025",
+			"hsbc-2025",
+			"infosys-2026",
+			"unilever-2025"
+		]
+	};
+	/** The integrated annual report the app writes: sections carried by at least `min` of the 49 reports, in their median order. */
+	function blueprint(min = 8) {
+		return [
+			"strategic",
+			"governance",
+			"financial"
+		].map((part) => ({
+			part,
+			ar: {
+				strategic: "التقرير الاستراتيجي",
+				governance: "الحوكمة",
+				financial: "القوائم المالية وتقرير المراجع",
+				other: "أخرى"
+			}[part],
+			sections: SECTIONS.filter((s) => s.part === part && s.reports >= min).sort((a, b) => a.pos - b.pos)
+		}));
+	}
+	var EXEMPLARS = [
+		{
+			section: "chairLetter",
+			ar: "رسالة رئيس مجلس الإدارة",
+			pattern: [
+				"تبدأ بتحية المساهمين ووصف السنة في جملة («كانت 2025 عاماً…»)",
+				"أبرز الإنجازات التشغيلية والمشاريع",
+				"النتائج الرئيسية بالأرقام مقارنة بالسنة السابقة",
+				"العائد للمساهمين: التوزيعات وسياستها",
+				"دور المجلس والحوكمة والتعيينات",
+				"البيئة الاقتصادية والجيوسياسية",
+				"الشكر للموظفين والمساهمين",
+				"نظرة إلى الأمام دون وعود"
+			],
+			sources: [
+				{
+					report: "aramco-2025",
+					page: 10008,
+					note: "رسالة الرئيس: المشاريع، صافي الدخل المعدل، التدفق الحر، التوزيعات"
+				},
+				{
+					report: "bp-2025",
+					page: 4710,
+					note: "رسالة الرئيس: التعيينات والسلامة والأداء"
+				},
+				{
+					report: "hsbc-2025",
+					page: 5957,
+					note: "رسالة الرئيس التنفيذي: شريط مؤشرات ثم الأهداف 2026–2028"
+				},
+				{
+					report: "jpmorgan-2025",
+					page: 1345,
+					note: "رسالة الرئيس التنفيذي المطولة للمساهمين"
+				}
+			]
+		},
+		{
+			section: "ceoReview",
+			ar: "مراجعة الرئيس التنفيذي",
+			pattern: [
+				"شريط مؤشرات أعلى الصفحة: القيمة ومقارنتها",
+				"الأداء التشغيلي مقابل الاستراتيجية",
+				"محاور الاستراتيجية وما تحقق في كل محور",
+				"الأهداف للسنوات القادمة",
+				"المخاطر والفرص"
+			],
+			sources: [{
+				report: "aramco-2025",
+				page: 10010,
+				note: "رسالة الرئيس وكبير الإداريين التنفيذيين: النمو ومحاور المنبع والمصب"
+			}, {
+				report: "hsbc-2025",
+				page: 5957,
+				note: "RoTE والأرباح قبل الضريبة ثم الأهداف"
+			}]
+		},
+		{
+			section: "principalRisks",
+			ar: "المخاطر الرئيسية",
+			pattern: [
+				"فقرة عن شهية المخاطر وإطار إدارتها ومسؤولية المجلس",
+				"جدول: الخطر | وصفه | كيف ندير الخطر | اتجاه الخطر (ارتفاع/ثبات/انخفاض)",
+				"ربط كل خطر بالاستراتيجية",
+				"المخاطر الناشئة"
+			],
+			sources: [
+				{
+					report: "unilever-2025",
+					page: 5134,
+					note: "شهية المخاطر والتنظيم"
+				},
+				{
+					report: "unilever-2025",
+					page: 5136,
+					note: "جدول الخطر ووصفه وإدارته ومستواه"
+				},
+				{
+					report: "aramco-2025",
+					page: 10081,
+					note: "عوامل المخاطر: فهم الخطر ثم أثره"
+				}
+			]
+		},
+		{
+			section: "viability",
+			ar: "بيان الجدوى والاستمرارية",
+			pattern: [
+				"فترة التقييم (غالباً ثلاث سنوات) ومبررها",
+				"التقييم في ثلاثة أجزاء: الفترة، التمويل والتسهيلات، سيناريوهات شديدة ولكن معقولة",
+				"جدول سيناريوهات مرتبطة بالمخاطر الرئيسية",
+				"الاستنتاج: توقع معقول بالاستمرار والوفاء بالالتزامات"
+			],
+			sources: [
+				{
+					report: "unilever-2025",
+					page: 5141,
+					note: "بيان الجدوى وسيناريوهات المخاطر المتعددة"
+				},
+				{
+					report: "gsk-2025",
+					page: 5792,
+					note: "الجدوى وأساس الاستمرارية والرقابة الداخلية"
+				},
+				{
+					report: "hsbc-2025",
+					page: 6158,
+					note: "لجنة المراجعة: الجدوى طويلة الأجل والاستمرارية"
+				}
+			]
+		},
+		{
+			section: "kams",
+			ar: "الأمور الرئيسية للمراجعة",
+			pattern: [
+				"عمودان: الأمر الرئيسي | كيف عالجته مراجعتنا",
+				"الأمر: متطلب المعيار، المبلغ الدفتري، لماذا هو حكم مهني، الافتراضات الرئيسية بنقاط",
+				"«شملت إجراءاتنا، من بين أمور أخرى، ما يلي:» ثم نقاط تبدأ بفعل (قيّمنا، اختبرنا، قارنّا، استعنا بخبراء، أجرينا تحليل حساسية)",
+				"الختام بتقييم كفاية الإفصاحات",
+				"الإحالة إلى الإيضاح ذي الصلة"
+			],
+			sources: [
+				{
+					report: "aramco-2025",
+					page: 10164,
+					note: "الشهرة وعلامة سابك: الافتراضات بنقاط وإجراءات الخبراء"
+				},
+				{
+					report: "unilever-2025",
+					page: 5219,
+					note: "الأمور الرئيسية"
+				},
+				{
+					report: "hsbc-2025",
+					page: 6206,
+					note: "الأمور الرئيسية لمراجع HSBC"
+				}
+			]
+		},
+		{
+			section: "materiality",
+			ar: "الأهمية النسبية ونطاق المراجعة",
+			pattern: [
+				"جدول: الأهمية العامة وكيف حُددت ومبرر الأساس",
+				"الأهمية التنفيذية وحد الإبلاغ للجنة",
+				"نطاق المراجعة والمكونات"
+			],
+			sources: [
+				{
+					report: "aramco-2025",
+					page: 10162,
+					note: "نظرة عامة، الأهمية، النطاق"
+				},
+				{
+					report: "unilever-2025",
+					page: 5216,
+					note: "الأهمية النسبية"
+				},
+				{
+					report: "bp-2025",
+					page: 4849,
+					note: "الأهمية النسبية"
+				}
+			]
+		},
+		{
+			section: "auditCommittee",
+			ar: "تقرير لجنة المراجعة",
+			pattern: [
+				"المسؤوليات",
+				"كيف أدت اللجنة مهامها",
+				"جدول الأمور الهامة: المجال | الأمر | الاستنتاج",
+				"المراجع الخارجي: الاستقلال والفاعلية والأتعاب",
+				"المراجعة الداخلية والإبلاغ عن المخالفات"
+			],
+			sources: [
+				{
+					report: "hsbc-2025",
+					page: 6153,
+					note: "تقرير لجنة المراجعة"
+				},
+				{
+					report: "astrazeneca-2025",
+					page: 5470,
+					note: "أعضاء اللجنة وجلسات المراجعة المعمقة"
+				},
+				{
+					report: "aramco-2025",
+					page: 10115,
+					note: "الدور الأساسي للجنة المراجعة"
+				},
+				{
+					report: "unilever-2025",
+					page: 5173,
+					note: "تقرير لجنة المراجعة: أولويات السنة"
+				}
+			]
+		},
+		{
+			section: "mdna",
+			ar: "تقرير الإدارة ومناقشتها وتحليلها",
+			pattern: [
+				"نظرة عامة على السنة",
+				"تحليل الإيرادات والتكاليف والهوامش بأسبابها",
+				"السيولة ومصادر التمويل والتدفقات",
+				"مقاييس الأداء البديلة مع مطابقتها بالمعايير",
+				"التقديرات المحاسبية الحرجة",
+				"التوقعات"
+			],
+			sources: [
+				{
+					report: "amazon-2024",
+					page: 1048,
+					note: "البند 7: تقرير الإدارة ومناقشتها وتحليلها"
+				},
+				{
+					report: "aramco-2025",
+					page: 10041,
+					note: "مقاييس غير معرفة في المعايير: المديونية والعائد على رأس المال"
+				},
+				{
+					report: "adobe-2024",
+					page: 484,
+					note: "التقديرات الحرجة"
+				}
+			]
+		},
+		{
+			section: "directorsResponsibilities",
+			ar: "إقرار مسؤوليات المجلس",
+			pattern: [
+				"المسؤولية عن إعداد القوائم وفق الإطار",
+				"اختيار السياسات وتطبيقها والتقديرات المعقولة",
+				"أساس الاستمرارية",
+				"الرقابة الداخلية ومنع الغش",
+				"إقرار بأن التقرير عادل ومتوازن"
+			],
+			sources: [{
+				report: "nestle-2025",
+				page: 2319,
+				note: "مسؤولية مجلس الإدارة"
+			}, {
+				report: "unilever-2025",
+				page: 5213,
+				note: "إقرار مسؤوليات أعضاء المجلس"
+			}]
+		}
+	];
+	function summary() {
+		return {
+			...CORPUS,
+			sections: SECTIONS.length,
+			kamProcedures: Object.keys(KP).length,
+			riskCategories: Object.keys(RC).length,
+			letters: LETTERS.reports,
+			auditorReports: 45
+		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/reports/narrative-engine.ts
+	var narrative_engine_exports = /* @__PURE__ */ __exportAll({
+		NARRATIVE_SCHEMA: () => NARRATIVE_SCHEMA,
+		buildNarrativeBody: () => buildNarrativeBody,
+		compact: () => compact,
+		facts: () => facts,
+		fallbackNarrative: () => fallbackNarrative,
+		normalizeNarrative: () => normalizeNarrative,
+		numbersIn: () => numbersIn,
+		packText: () => packText,
+		quality: () => quality,
+		systemInstruction: () => systemInstruction,
+		verifyNumbers: () => verifyNumbers
+	});
+	var M = (m) => m / 100;
+	var pct$2 = (a, b) => b === null || b === 0 ? null : Math.round((a - b) / Math.abs(b) * 1e3) / 10;
+	var r1$1 = (x) => Math.round(x * 10) / 10;
+	function money$12(m, cur) {
+		return m === null ? "" : formatMinor(m, { decimals: 0 }) + " " + cur;
+	}
+	/** 412,600,000 → «412.6 مليون» (the way the bundle's letters write large figures). */
+	function compact(major, cur) {
+		const a = Math.abs(major), w = (t) => major < 0 ? "(" + t + ")" : t;
+		if (a >= 1e9) return w(r1$1(a / 1e9) + " مليار " + cur);
+		if (a >= 1e6) return w(r1$1(a / 1e6) + " مليون " + cur);
+		if (a >= 1e3) return w(Math.round(a / 1e3).toLocaleString("en-US") + " ألف " + cur);
+		return w(Math.round(a).toLocaleString("en-US") + " " + cur);
+	}
+	function facts(i) {
+		const fs = i.fs, k = fs.keys, cur = i.currency, g = (x) => k[x]?.current ?? 0, gp = (x) => fs.hasPrior ? k[x]?.prior ?? null : null;
+		const out = [];
+		const addMoney = (key, ar, c, p) => out.push({
+			key,
+			ar,
+			value: M(c),
+			prior: p === null ? null : M(p),
+			change: pct$2(c, p),
+			unit: "money",
+			text: compact(M(c), cur),
+			priorText: p === null ? "" : compact(M(p), cur)
+		});
+		const addRatio = (key, ar, c, p, unit) => out.push({
+			key,
+			ar,
+			value: c,
+			prior: p,
+			change: null,
+			unit,
+			text: c === null ? "—" : unit === "%" ? c + "%" : unit === "x" ? c + " مرة" : c + " يوماً",
+			priorText: p === null ? "" : unit === "%" ? p + "%" : unit === "x" ? p + " مرة" : p + " يوماً"
+		});
+		addMoney("revenue", "الإيرادات", g("revenue"), gp("revenue"));
+		addMoney("gross", "مجمل الربح", g("gross"), gp("gross"));
+		addMoney("operating", "الربح التشغيلي", g("operating"), gp("operating"));
+		addMoney("pbz", i.ctx.country === "EG" ? "الربح قبل الضريبة" : "الربح قبل الزكاة", g("pbz"), gp("pbz"));
+		addMoney("profit", "صافي الربح", g("profit"), gp("profit"));
+		const da = g("depreciation"), daP = gp("depreciation");
+		addMoney("ebitda", "الربح قبل الفوائد والزكاة والاستهلاك (EBITDA)", g("operating") + da, gp("operating") === null || daP === null ? null : gp("operating") + daP);
+		if (k.cfo) addMoney("cfo", "صافي النقد من الأنشطة التشغيلية", g("cfo"), null);
+		if (k.capex) addMoney("capex", "الإنفاق الرأسمالي", Math.abs(g("capex")), null);
+		if (k.cfo && k.capex) addMoney("fcf", "التدفق النقدي الحر", g("cfo") - Math.abs(g("capex")), null);
+		addMoney("cash", "النقد وما في حكمه", g("cash"), gp("cash"));
+		const debt = (p) => p ? [
+			gp("loansCl"),
+			gp("loansNcl"),
+			gp("leaseNcl")
+		] : [
+			g("loansCl"),
+			g("loansNcl"),
+			g("leaseNcl")
+		];
+		const nd = debt(false).reduce((a, x) => a + (x ?? 0), 0) - g("cash"), ndP = fs.hasPrior ? debt(true).reduce((a, x) => a + (x ?? 0), 0) - (gp("cash") ?? 0) : null;
+		addMoney("netDebt", "صافي الدين", nd, ndP);
+		addMoney("equity", "حقوق الملكية", g("equity"), gp("equity"));
+		addMoney("assets", "مجموع الموجودات", g("assets"), gp("assets"));
+		const ratio = (a, b) => b ? r1$1(a / b * 100) : null;
+		const eq = g("equity"), eqP = gp("equity");
+		addRatio("grossMargin", "هامش مجمل الربح", ratio(g("gross"), g("revenue")), fs.hasPrior ? ratio(gp("gross") ?? 0, gp("revenue") ?? 0) : null, "%");
+		addRatio("operatingMargin", "هامش الربح التشغيلي", ratio(g("operating"), g("revenue")), fs.hasPrior ? ratio(gp("operating") ?? 0, gp("revenue") ?? 0) : null, "%");
+		addRatio("netMargin", "هامش صافي الربح", ratio(g("profit"), g("revenue")), fs.hasPrior ? ratio(gp("profit") ?? 0, gp("revenue") ?? 0) : null, "%");
+		addRatio("gearing", "نسبة المديونية (صافي الدين ÷ صافي الدين وحقوق الملكية)", nd + eq ? r1$1(nd / (nd + eq) * 100) : null, ndP !== null && eqP !== null && ndP + eqP ? r1$1(ndP / (ndP + eqP) * 100) : null, "%");
+		addRatio("roe", "العائد على حقوق الملكية", ratio(g("profit"), eq), null, "%");
+		addRatio("currentRatio", "نسبة التداول", g("cl") ? Math.round(g("ca") / g("cl") * 100) / 100 : null, fs.hasPrior && gp("cl") ? Math.round((gp("ca") ?? 0) / gp("cl") * 100) / 100 : null, "x");
+		addRatio("dso", "أيام التحصيل", g("revenue") ? Math.round(g("receivables") / g("revenue") * 365) : null, null, "days");
+		addRatio("dio", "أيام المخزون", g("cogs") ? Math.round(g("inventory") / Math.abs(g("cogs")) * 365) : null, null, "days");
+		const zakat = g("zakat");
+		addMoney("zakat", i.ctx.country === "EG" ? "ضريبة الدخل" : "الزكاة", zakat, gp("zakat"));
+		const m = i.review.materiality, sector = sectorFromActivity(i.ctx.activity ?? "");
+		const sig = i.review.risks.filter((r) => r.significant);
+		const precedents = sig.slice(0, 6).flatMap((r) => precedentsFor(r.lineKey, {
+			sector,
+			limit: 3
+		}).slice(0, 1).map((p) => ({
+			line: r.ar,
+			theme: p.ar,
+			examples: p.examples.map((e) => `${e.company} (${e.fy}): «${e.title}» — ص ${e.page}`)
+		})));
+		const peers = (i.peers ?? []).filter((p) => p.you !== null && p.median !== null).map((p) => ({
+			ar: p.ar,
+			you: p.you + (p.unit === "%" ? "%" : p.unit === "x" ? "×" : " يوم"),
+			median: p.median + (p.unit === "%" ? "%" : p.unit === "x" ? "×" : " يوم"),
+			position: p.you >= p.median ? "أعلى من الوسيط" : "أدنى من الوسيط"
+		}));
+		const allowed = /* @__PURE__ */ new Set();
+		const add = (x) => {
+			if (x === null || x === void 0 || !isFinite(x)) return;
+			allowed.add(Math.abs(x));
+			allowed.add(Math.abs(r1$1(x)));
+			allowed.add(Math.abs(Math.round(x)));
+		};
+		for (const f of out) {
+			add(f.value);
+			add(f.prior);
+			add(f.change);
+			for (const v of [f.value, f.prior]) if (f.unit === "money" && v !== null) {
+				add(v / 1e6);
+				add(v / 1e9);
+				add(v / 1e3);
+			}
+			if (f.value !== null && f.prior !== null && f.unit !== "money") add(r1$1(f.value - f.prior));
+		}
+		for (const x of [
+			m.overall,
+			m.performance,
+			m.trivial,
+			m.base
+		]) {
+			add(M(x));
+			add(M(x) / 1e6);
+			add(M(x) / 1e3);
+		}
+		add(m.rate * 100);
+		add(Math.round(m.performance / Math.max(1, m.overall) * 100));
+		add(Math.round(m.trivial / Math.max(1, m.overall) * 100));
+		for (const r of i.review.risks) {
+			add(M(r.amount));
+			add(M(r.amount) / 1e6);
+			add(r.score);
+		}
+		for (const p of i.peers ?? []) {
+			add(p.you);
+			add(p.median);
+		}
+		add(i.adjustments?.count);
+		if (i.adjustments) {
+			add(M(i.adjustments.profitEffect));
+			add(M(i.adjustments.profitEffect) / 1e6);
+		}
+		const fnd = i.findings ?? {
+			high: i.review.summary.high,
+			medium: i.review.summary.medium,
+			low: i.review.summary.low
+		};
+		add(fnd.high);
+		add(fnd.medium);
+		add(fnd.low);
+		add(sig.length);
+		add(i.kams.length);
+		for (const k2 of i.kams) for (const n of numbersIn(k2.description + " " + k2.how)) add(n);
+		for (const n of numbersIn([
+			i.ctx.period,
+			i.ctx.periodEnd,
+			i.ctx.company,
+			i.ctx.activity
+		].join(" "))) add(n);
+		for (const x of i.opinion.basis) for (const n of numbersIn(x)) add(n);
+		add(CORPUS.reports);
+		add(CORPUS.pages);
+		for (const c of riskCatalogue()) add(c.reports);
+		for (const t of letterTopics()) {
+			add(t.reports);
+			add(t.share);
+		}
+		return {
+			company: i.ctx.company || "الشركة",
+			activity: i.ctx.activity || "",
+			period: i.ctx.period || "",
+			periodEnd: i.ctx.periodEnd || "",
+			country: i.ctx.country ?? "SA",
+			currency: cur,
+			framework: {
+				IFRS: "المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية",
+				SME: "المعيار الدولي للتقرير المالي للمنشآت الصغيرة والمتوسطة",
+				EAS: "معايير المحاسبة المصرية"
+			}[i.framework],
+			taxWord: i.ctx.country === "EG" ? "الضريبة" : "الزكاة",
+			sector: sector ? SECTOR_AR[sector] : "",
+			hasPrior: fs.hasPrior,
+			facts: out,
+			risks: sig.map((r) => ({
+				lineKey: r.lineKey,
+				ar: r.ar,
+				amount: money$12(r.amount, cur),
+				risk: r.risk,
+				score: r.score
+			})),
+			kams: i.kams,
+			opinion: i.opinion,
+			materiality: {
+				overall: money$12(m.overall, cur),
+				performance: money$12(m.performance, cur),
+				trivial: money$12(m.trivial, cur),
+				basis: m.benchmarkAr,
+				rate: Math.round(m.rate * 1e3) / 10
+			},
+			peers,
+			adjustments: {
+				count: i.adjustments?.count ?? 0,
+				profitEffect: money$12(i.adjustments?.profitEffect ?? 0, cur)
+			},
+			findings: fnd,
+			precedents,
+			allowed: [...allowed].sort((a, b) => a - b)
+		};
+	}
+	var fact = (p, key) => p.facts.find((f) => f.key === key);
+	var DIGITS = {
+		"٠": "0",
+		"١": "1",
+		"٢": "2",
+		"٣": "3",
+		"٤": "4",
+		"٥": "5",
+		"٦": "6",
+		"٧": "7",
+		"٨": "8",
+		"٩": "9",
+		"٫": ".",
+		"٬": ","
+	};
+	/** Numbers written in a text, skipping standard references (IFRS 15, IAS 37, ISA 700 …), years and small counts. */
+	function numbersIn(text) {
+		const t = String(text || "").replace(/[٠-٩٫٬]/g, (c) => DIGITS[c]);
+		const out = [];
+		const rx = /(IFRS|IAS|ISA|ISQM|IFRIC|SOCPA|AS|COSO|ISRE|SIC|ESRS|ص|صفحة|البند|الإيضاح|إيضاح|الجدول|المادة|رقم)?\s*(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)/g;
+		let m;
+		while (m = rx.exec(t)) {
+			if (m[1]) continue;
+			const n = Number(m[2].replace(/,/g, ""));
+			if (!isFinite(n)) continue;
+			if (Number.isInteger(n) && n >= 1900 && n <= 2100) continue;
+			if (Number.isInteger(n) && n <= 12) continue;
+			out.push(n);
+		}
+		return out;
+	}
+	/** Numbers in the text that the fact pack does not contain (tolerance: the rounding of the written form). */
+	function verifyNumbers(text, p) {
+		const tol = (n) => Number.isInteger(n) ? Math.max(.5, n * 5e-4) : .051;
+		return numbersIn(text).filter((n) => !p.allowed.some((a) => Math.abs(a - n) <= tol(n)));
+	}
+	var S = (description) => ({
+		type: "STRING",
+		...description ? { description } : {}
+	});
+	var A = (items, description) => ({
+		type: "ARRAY",
+		items,
+		...description ? { description } : {}
+	});
+	var O = (properties, required) => ({
+		type: "OBJECT",
+		properties,
+		required
+	});
+	var PARAS = (d) => A(S(), d);
+	var NARRATIVE_SCHEMA = O({
+		chairLetter: O({
+			title: S(),
+			paragraphs: PARAS("6–8 فقرات")
+		}, ["title", "paragraphs"]),
+		ceoReview: O({
+			title: S(),
+			paragraphs: PARAS("5–7 فقرات"),
+			kpiCommentary: A(O({
+				kpi: S(),
+				comment: S()
+			}, ["kpi", "comment"]), "تعليق على 4–6 مؤشرات")
+		}, [
+			"title",
+			"paragraphs",
+			"kpiCommentary"
+		]),
+		strategy: O({ pillars: A(O({
+			title: S(),
+			text: S()
+		}, ["title", "text"]), "3–4 محاور") }, ["pillars"]),
+		performanceReview: O({ paragraphs: PARAS("4–6 فقرات تحليل") }, ["paragraphs"]),
+		liquidity: O({ paragraphs: PARAS("2–3 فقرات") }, ["paragraphs"]),
+		principalRisks: O({
+			intro: S("شهية المخاطر وإطار إدارتها"),
+			risks: A(O({
+				category: S(),
+				title: S(),
+				description: S(),
+				management: S(),
+				trend: {
+					type: "STRING",
+					enum: [
+						"ارتفاع",
+						"ثبات",
+						"انخفاض"
+					]
+				}
+			}, [
+				"category",
+				"title",
+				"description",
+				"management",
+				"trend"
+			]), "6–8 مخاطر")
+		}, ["intro", "risks"]),
+		viability: O({
+			period: S(),
+			assessment: PARAS("3 أجزاء"),
+			scenarios: A(O({
+				scenario: S(),
+				risks: S(),
+				impact: S()
+			}, [
+				"scenario",
+				"risks",
+				"impact"
+			]), "2–3 سيناريوهات"),
+			conclusion: S()
+		}, [
+			"period",
+			"assessment",
+			"scenarios",
+			"conclusion"
+		]),
+		kams: A(O({
+			title: S("نفس العنوان المعطى"),
+			matter: S(),
+			procedures: A(S(), "4–7 إجراءات تبدأ بفعل"),
+			disclosure: S()
+		}, [
+			"title",
+			"matter",
+			"procedures",
+			"disclosure"
+		])),
+		auditCommittee: O({
+			paragraphs: PARAS("3–4 فقرات"),
+			matters: A(O({
+				area: S(),
+				matter: S(),
+				conclusion: S()
+			}, [
+				"area",
+				"matter",
+				"conclusion"
+			]))
+		}, ["paragraphs", "matters"]),
+		sustainability: O({ paragraphs: PARAS("2–3 فقرات") }, ["paragraphs"]),
+		outlook: O({ paragraphs: PARAS("2–3 فقرات") }, ["paragraphs"]),
+		directorsResponsibilities: O({ paragraphs: PARAS("4–5 فقرات") }, ["paragraphs"])
+	}, [
+		"chairLetter",
+		"ceoReview",
+		"strategy",
+		"performanceReview",
+		"liquidity",
+		"principalRisks",
+		"viability",
+		"kams",
+		"auditCommittee",
+		"sustainability",
+		"outlook",
+		"directorsResponsibilities"
+	]);
+	function packText(p) {
+		const f = p.facts.map((x) => `- ${x.ar}: ${x.text}${x.priorText ? ` (السنة السابقة ${x.priorText}${x.change !== null ? `، التغير ${x.change > 0 ? "+" : ""}${x.change}%` : ""})` : ""}`);
+		return [
+			`المنشأة: ${p.company}${p.activity ? " — " + p.activity : ""}${p.sector ? " (قطاع " + p.sector + ")" : ""}. الفترة: ${p.period}. الإطار: ${p.framework}. العملة: ${p.currency}.`,
+			"الأرقام (استخدمها كما هي فقط):",
+			...f,
+			`الأهمية النسبية: ${p.materiality.overall} (${p.materiality.rate}% من ${p.materiality.basis})، التنفيذية ${p.materiality.performance}، حد الإبلاغ ${p.materiality.trivial}.`,
+			`الرأي المشتق من المحرك: ${p.opinion.ar}. ${p.opinion.basis.join(" ")}${p.opinion.goingConcern ? " توجد مؤشرات استمرارية." : ""}`,
+			`الملاحظات: ${p.findings.high} عالية، ${p.findings.medium} متوسطة، ${p.findings.low} منخفضة. قيود التسوية المعتمدة: ${p.adjustments.count} (أثرها على الربح ${p.adjustments.profitEffect}).`,
+			"المخاطر الجوهرية (ISA 315):",
+			...p.risks.map((r) => `- ${r.ar}: ${r.amount} — ${r.risk} (درجة ${r.score})`),
+			"الأمور الرئيسية للمراجعة (العناوين ثابتة):",
+			...p.kams.map((k, i) => `${i + 1}. ${k.title} — ${k.description} الإجراءات: ${k.how}`),
+			...p.peers.length ? ["المقارنة بالنظراء العالميين (نسب):", ...p.peers.map((x) => `- ${x.ar}: ${x.you} مقابل وسيط ${x.median} — ${x.position}`)] : [],
+			...p.precedents.length ? ["سوابق أمور رئيسية من تقارير عالمية للبنود نفسها (للأسلوب لا للنسخ):", ...p.precedents.map((x) => `- ${x.line} ← ${x.theme}: ${x.examples.join("؛ ")}`)] : []
+		].join("\n");
+	}
+	function systemInstruction() {
+		const ex = EXEMPLARS.map((e) => `«${e.ar}»: ${e.pattern.join(" ← ")} (نماذج: ${e.sources.map((s) => `${s.report} ص ${s.page}`).join("، ")})`).join("\n");
+		const lt = letterTopics().slice(0, 9).map((t) => `${t.ar} (${t.share}%)`).join("، ");
+		const kp = kamProcedures().slice(0, 12).map((x) => x.text).join("؛ ");
+		const rc = riskCatalogue().slice(0, 16).map((x) => x.ar).join("، ");
+		const ap = apms().slice(0, 8).map((x) => x.name).join("، ");
+		const ac = committeeTopics().slice(0, 8).map((x) => x.ar).join("، ");
+		return [
+			`أنت كاتب تقارير سنوية ومراجع قانوني أول في شركة SQC — Smart Quality Control. تكتب بالعربية الفصحى الرصينة سرد تقرير سنوي متكامل وأقسام تقرير المراجع بمستوى التقارير المنشورة عالمياً.`,
+			`قرأنا حزمة البحث كاملة (${CORPUS.pages} صفحة، ${CORPUS.reports} تقريراً سنوياً من أكثر من 30 دولة) وصنّفنا كل صفحة. اتبع البنية والأسلوب المستخلصين منها:`,
+			ex,
+			`تغطي رسائل رؤساء المجالس والرؤساء التنفيذيين في الحزمة: ${lt}.`,
+			`إجراءات المراجعة التي يكتبها المراجعون تحت الأمور الرئيسية مرتبة بعدد التقارير: ${kp}.`,
+			`فئات المخاطر الرئيسية الأكثر تكراراً: ${rc}. اختر منها ما يناسب نشاط المنشأة وأرقامها فقط.`,
+			`مقاييس الأداء البديلة الشائعة: ${ap}. موضوعات لجان المراجعة: ${ac}. أفق الجدوى الشائع: ثلاث سنوات (${Object.keys(VIABILITY.horizons).slice(0, 3).join("، ")}).`,
+			"قواعد صارمة:",
+			"1) لا تكتب أي رقم غير موجود في «الأرقام» أو في بيانات الأهمية النسبية والمخاطر والنظراء، واكتبه بالصيغة نفسها (مثل 412.6 مليون ر.س أو +17.3%). لا تحسب أرقاماً جديدة.",
+			"2) لا تخترع أحداثاً أو مشاريع أو أسماء أشخاص أو عملاء أو أسواقاً أو توزيعات لم ترد. عند الحاجة اكتب بصيغة عامة («تواصل الإدارة…»).",
+			"3) عناوين الأمور الرئيسية للمراجعة هي المعطاة حرفياً وبالترتيب نفسه؛ الوصف يذكر متطلب المعيار والمبلغ ولماذا يتطلب حكماً، والإجراءات 4–7 نقاط تبدأ بفعل وتنتهي بتقييم الإفصاحات.",
+			"4) العبارات المستقبلية مشروطة («تتوقع الإدارة»، «تعتزم»)، ولا تعد بنتائج.",
+			"5) لا تبدِ رأياً مراجعاً؛ الرأي هو المشتق من المحرك ويعتمده الشريك.",
+			"6) أسلوب التقارير العالمية: جمل واضحة، أرقام مقارنة بالسنة السابقة، ربط كل خطر بإدارته واتجاهه، وربط الأداء بالاستراتيجية.",
+			"أجب بكائن JSON واحد مطابق للمخطط."
+		].join("\n");
+	}
+	function buildNarrativeBody(p) {
+		return {
+			systemInstruction: { parts: [{ text: systemInstruction() }] },
+			contents: [{
+				role: "user",
+				parts: [{ text: packText(p) }, { text: "اكتب السرد الكامل للتقرير السنوي المتكامل وأقسام المراجع المطلوبة في المخطط، لهذه المنشأة وبهذه الأرقام فقط." }]
+			}],
+			generationConfig: {
+				temperature: .4,
+				responseMimeType: "application/json",
+				responseSchema: NARRATIVE_SCHEMA,
+				maxOutputTokens: 24e3
+			}
+		};
+	}
+	function fallbackNarrative(p) {
+		const v = (k) => fact(p, k);
+		const chg = (k) => {
+			const f = v(k);
+			return f && f.change !== null ? `${f.change > 0 ? "ارتفاعاً" : "انخفاضاً"} بنسبة ${Math.abs(f.change)}% عن ${f.priorText}` : "";
+		};
+		const rev = v("revenue"), prof = v("profit"), op = v("operating"), fcf = v("fcf"), nd = v("netDebt"), gear = v("gearing"), gm = v("grossMargin"), cr = v("currentRatio");
+		const cat0 = riskCatalogue();
+		const riskRows0 = p.risks.slice(0, 7).map((r) => {
+			const cat = riskCatalogue().find((c) => r.lineKey === "receivables" && c.key === "credit" || r.lineKey === "inventory" && c.key === "supply_chain" || (r.lineKey === "zakatPayable" || r.lineKey === "zakatExpense") && c.key === "tax" || r.lineKey === "revenue" && c.key === "competition" || (r.lineKey === "loansNcl" || r.lineKey === "loansCl") && c.key === "liquidity_funding" || r.lineKey === "eosb" && c.key === "pension" || r.lineKey === "provisions" && c.key === "legal");
+			return {
+				key: cat?.key ?? r.lineKey,
+				category: cat?.ar ?? "مخاطر التقرير المالي",
+				title: r.ar,
+				description: `${r.risk}؛ الرصيد ${r.amount}.`,
+				management: cat?.mitigation ?? "ضوابط الإعداد والمراجعة الشهرية والتسويات المستقلة",
+				trend: "ثبات"
+			};
+		});
+		const wanted = [
+			.../لحوم|اغذي|أغذي|غذائ|مواشي|دواجن|food/i.test(p.activity) ? [
+				"product_quality",
+				"supply_chain",
+				"commodity"
+			] : ["supply_chain", "commodity"],
+			"macroeconomic",
+			"cyber",
+			"regulatory",
+			"talent",
+			"business_continuity"
+		];
+		const riskRows = [...new Map(riskRows0.filter((r) => cat0.some((c) => c.key === r.key)).map((r) => [r.key, r])).values()];
+		for (const k2 of wanted) {
+			if (riskRows.length >= 7) break;
+			if (riskRows.some((r) => r.key === k2)) continue;
+			const c = cat0.find((x) => x.key === k2);
+			if (!c) continue;
+			riskRows.push({
+				key: c.key,
+				category: c.ar,
+				title: c.ar,
+				description: c.description || c.ar,
+				management: c.mitigation,
+				trend: "ثبات"
+			});
+		}
+		return {
+			chairLetter: {
+				title: "رسالة رئيس مجلس الإدارة",
+				paragraphs: [
+					"السادة المساهمين الكرام،",
+					`يسرني أن أقدم لكم التقرير السنوي لشركتكم «${p.company}» عن ${p.period}.${rev ? ` بلغت الإيرادات ${rev.text}${chg("revenue") ? "، " + chg("revenue") : ""}` : ""}${prof ? `، وبلغ صافي الربح ${prof.text}${chg("profit") ? "، " + chg("profit") : ""}` : ""}.`,
+					fcf ? `وولّدت أنشطتنا التشغيلية ${v("cfo")?.text ?? ""}، وبلغ التدفق النقدي الحر ${fcf.text} بعد إنفاق رأسمالي ${v("capex")?.text ?? ""} يعكس استمرار الاستثمار في الطاقة الإنتاجية.` : "وتواصل الشركة الاستثمار في طاقتها الإنتاجية وفق خطتها المعتمدة.",
+					`ويحرص المجلس على متانة المركز المالي؛ فقد بلغ صافي الدين ${nd?.text ?? "—"} ونسبة المديونية ${gear?.text ?? "—"}${gear?.priorText ? ` مقابل ${gear.priorText}` : ""}.`,
+					"وأشرف المجلس ولجانه على إطار إدارة المخاطر والرقابة الداخلية، وتابعت لجنة المراجعة أعمال المراجع الخارجي واستقلاله.",
+					"أتقدم بالشكر لزملائي أعضاء المجلس وللإدارة التنفيذية ولجميع العاملين على جهودهم، ولمساهمينا وعملائنا على ثقتهم."
+				]
+			},
+			ceoReview: {
+				title: "مراجعة الرئيس التنفيذي",
+				paragraphs: [
+					`حققت ${p.company} خلال السنة ${rev ? `إيرادات قدرها ${rev.text}` : "نتائج"}${op ? ` وربحاً تشغيلياً ${op.text}` : ""}${gm ? `، بهامش مجمل ربح ${gm.text}${gm.priorText ? ` مقابل ${gm.priorText}` : ""}` : ""}.`,
+					"ركزنا في تنفيذ استراتيجيتنا على تنمية المبيعات مع ضبط تكاليف التشغيل وتحسين دورة رأس المال العامل.",
+					v("dso")?.value ? `بلغت أيام التحصيل ${v("dso").text} وأيام المخزون ${v("dio")?.text ?? "—"}، ونعمل على تحسينهما ضمن أولويات السنة القادمة.` : ""
+				].filter(Boolean),
+				kpiCommentary: [
+					"revenue",
+					"operatingMargin",
+					"profit",
+					"fcf",
+					"gearing"
+				].map((k) => v(k)).filter((f) => !!f && f.value !== null).map((f) => ({
+					kpi: f.ar,
+					comment: f.text + (f.priorText ? ` (السابقة ${f.priorText})` : "")
+				}))
+			},
+			strategy: { pillars: [
+				{
+					title: "نمو مربح",
+					text: `تنمية الإيرادات${rev?.change ? ` (+${rev.change}% هذا العام)` : ""} مع حماية الهوامش.`
+				},
+				{
+					title: "كفاءة التشغيل ورأس المال العامل",
+					text: "خفض دورة التحصيل وتحسين دوران المخزون وضبط التكاليف."
+				},
+				{
+					title: "متانة مالية",
+					text: `الحفاظ على نسبة مديونية ${gear?.text ?? "مناسبة"} وسيولة كافية لخطط الاستثمار.`
+				},
+				{
+					title: "الحوكمة والجودة والامتثال",
+					text: "رقابة داخلية فعالة وتقارير مالية موثوقة وفق المعايير."
+				}
+			] },
+			performanceReview: { paragraphs: [
+				rev ? `بلغت الإيرادات ${rev.text}${chg("revenue") ? "، " + chg("revenue") : ""}.` : "",
+				gm ? `بلغ هامش مجمل الربح ${gm.text}${gm.priorText ? ` مقابل ${gm.priorText} في السنة السابقة` : ""}.` : "",
+				op ? `بلغ الربح التشغيلي ${op.text}${chg("operating") ? "، " + chg("operating") : ""}، وبلغ هامش الربح التشغيلي ${v("operatingMargin")?.text ?? "—"}.` : "",
+				prof ? `بلغ صافي الربح ${prof.text} بعد ${p.taxWord} بمبلغ ${v("zakat")?.text ?? "—"}.` : ""
+			].filter(Boolean) },
+			liquidity: { paragraphs: [`بلغ النقد وما في حكمه ${v("cash")?.text ?? "—"}، وصافي الدين ${nd?.text ?? "—"}، ونسبة التداول ${cr?.text ?? "—"}.`, fcf ? `بلغ صافي النقد من الأنشطة التشغيلية ${v("cfo").text} والتدفق النقدي الحر ${fcf.text}.` : ""].filter(Boolean) },
+			principalRisks: {
+				intro: "يتحمل مجلس الإدارة المسؤولية النهائية عن إدارة المخاطر، ويحدد شهية المخاطر التي تقبلها الشركة لتحقيق أهدافها. تُحدَّد المخاطر وتُقيَّم وتُتابع دورياً، ويُبين الجدول التالي المخاطر الرئيسية وكيفية إدارتها واتجاهها.",
+				risks: riskRows.map(({ key: _k, ...r }) => r)
+			},
+			viability: {
+				period: "ثلاث سنوات",
+				assessment: [
+					"قيّم المجلس آفاق الشركة على مدى ثلاث سنوات، وهي فترة خطة الأعمال المعتمدة.",
+					`شمل التقييم التمويل المتاح وآجال استحقاق القروض (صافي الدين ${nd?.text ?? "—"}) والتدفقات النقدية المتوقعة.`,
+					"واختُبرت سيناريوهات شديدة ولكن معقولة مرتبطة بالمخاطر الرئيسية."
+				],
+				scenarios: [{
+					scenario: "انخفاض الطلب وضغط الأسعار",
+					risks: "المنافسة؛ الظروف الاقتصادية",
+					impact: "انخفاض الإيرادات والهوامش"
+				}, {
+					scenario: "تأخر التحصيل وارتفاع تكلفة التمويل",
+					risks: "الائتمان؛ السيولة والتمويل؛ أسعار العمولة",
+					impact: "ضغط على النقد ورأس المال العامل"
+				}],
+				conclusion: p.opinion.goingConcern ? "توجد مؤشرات تتطلب تقييماً وإفصاحاً عن عدم التأكد الجوهري المتعلق بالاستمرارية (ISA 570)." : "بناءً على هذا التقييم، لدى المجلس توقع معقول بأن الشركة ستتمكن من الاستمرار في عملياتها والوفاء بالتزاماتها خلال فترة التقييم."
+			},
+			kams: p.kams.map((k) => ({
+				title: k.title,
+				matter: k.description,
+				procedures: k.how.split(/؛|;/).map((x) => x.replace(/^\s*شملت إجراءاتنا:\s*/, "").trim()).filter(Boolean),
+				disclosure: "قيّمنا كفاية الإفصاحات ذات الصلة في القوائم المالية."
+			})),
+			auditCommittee: {
+				paragraphs: [
+					`ناقشت اللجنة مع الإدارة والمراجع الخارجي القوائم المالية عن ${p.period} والأحكام والتقديرات المحاسبية الهامة.`,
+					`اطلعت اللجنة على خطة المراجعة والأهمية النسبية المحددة بمبلغ ${p.materiality.overall}، وتحققت من استقلال المراجع الخارجي.`,
+					`وتابعت اللجنة ملاحظات الرقابة الداخلية (${p.findings.high} عالية، ${p.findings.medium} متوسطة) وخطط معالجتها.`
+				],
+				matters: p.kams.map((k) => ({
+					area: k.title,
+					matter: k.description,
+					conclusion: "اطمأنت اللجنة إلى معقولية معالجة الإدارة وكفاية الإفصاح."
+				}))
+			},
+			sustainability: { paragraphs: ["تلتزم الشركة بممارسات أعمال مسؤولة تشمل سلامة الغذاء وجودته، وصحة العاملين وسلامتهم، وترشيد استهلاك الطاقة والمياه."] },
+			outlook: { paragraphs: ["تتوقع الإدارة استمرار الطلب على منتجات الشركة، وتعتزم مواصلة تحسين الكفاءة ورأس المال العامل. تخضع هذه التوقعات لمخاطر وعدم تأكد قد يجعل النتائج الفعلية مختلفة."] },
+			directorsResponsibilities: { paragraphs: [
+				`مجلس الإدارة مسؤول عن إعداد القوائم المالية وعرضها بعدل وفقاً لـ${p.framework}.`,
+				"ويشمل ذلك اختيار السياسات المحاسبية المناسبة وتطبيقها باتساق، وإجراء تقديرات معقولة وحصيفة.",
+				"وتقييم قدرة الشركة على الاستمرار كمنشأة مستمرة واستخدام أساس الاستمرارية ما لم تنوِ الإدارة التصفية.",
+				"والمحافظة على رقابة داخلية كافية لإعداد قوائم خالية من التحريف الجوهري سواء بسبب غش أو خطأ.",
+				"ويؤكد المجلس أن التقرير السنوي ككل عادل ومتوازن ومفهوم."
+			] }
+		};
+	}
+	var str = (x, max = 2400) => String(x ?? "").replace(/\s+/g, " ").trim().slice(0, max);
+	var arr = (x) => Array.isArray(x) ? x : [];
+	var paras = (x, max = 10) => arr(x).map((y) => str(y)).filter(Boolean).slice(0, max);
+	var TRENDS = [
+		"ارتفاع",
+		"ثبات",
+		"انخفاض"
+	];
+	function normalizeNarrative(raw, p, meta = {}) {
+		const r = raw ?? {}, fb = fallbackNarrative(p);
+		const n = {
+			chairLetter: {
+				title: str(r.chairLetter?.title, 120) || fb.chairLetter.title,
+				paragraphs: paras(r.chairLetter?.paragraphs)
+			},
+			ceoReview: {
+				title: str(r.ceoReview?.title, 120) || fb.ceoReview.title,
+				paragraphs: paras(r.ceoReview?.paragraphs),
+				kpiCommentary: arr(r.ceoReview?.kpiCommentary).map((x) => ({
+					kpi: str(x.kpi, 120),
+					comment: str(x.comment, 600)
+				})).filter((x) => x.kpi && x.comment).slice(0, 8)
+			},
+			strategy: { pillars: arr(r.strategy?.pillars).map((x) => ({
+				title: str(x.title, 120),
+				text: str(x.text, 800)
+			})).filter((x) => x.title && x.text).slice(0, 6) },
+			performanceReview: { paragraphs: paras(r.performanceReview?.paragraphs) },
+			liquidity: { paragraphs: paras(r.liquidity?.paragraphs, 5) },
+			principalRisks: {
+				intro: str(r.principalRisks?.intro, 1500),
+				risks: arr(r.principalRisks?.risks).map((x) => ({
+					category: str(x.category, 120),
+					title: str(x.title, 160),
+					description: str(x.description, 900),
+					management: str(x.management, 900),
+					trend: TRENDS.includes(x.trend) ? x.trend : "ثبات"
+				})).filter((x) => x.title && x.description && x.management).slice(0, 10)
+			},
+			viability: {
+				period: str(r.viability?.period, 80),
+				assessment: paras(r.viability?.assessment, 5),
+				scenarios: arr(r.viability?.scenarios).map((x) => ({
+					scenario: str(x.scenario, 400),
+					risks: str(x.risks, 300),
+					impact: str(x.impact, 400)
+				})).filter((x) => x.scenario).slice(0, 4),
+				conclusion: str(r.viability?.conclusion, 900)
+			},
+			kams: p.kams.map((k, i) => {
+				const x = arr(r.kams).find((y) => str(y.title, 300) === k.title) ?? arr(r.kams)[i] ?? {};
+				return {
+					title: k.title,
+					matter: str(x.matter, 1600),
+					procedures: arr(x.procedures).map((y) => str(y, 500)).filter(Boolean).slice(0, 9),
+					disclosure: str(x.disclosure, 600)
+				};
+			}),
+			auditCommittee: {
+				paragraphs: paras(r.auditCommittee?.paragraphs, 6),
+				matters: arr(r.auditCommittee?.matters).map((x) => ({
+					area: str(x.area, 160),
+					matter: str(x.matter, 900),
+					conclusion: str(x.conclusion, 700)
+				})).filter((x) => x.area && x.conclusion).slice(0, 8)
+			},
+			sustainability: { paragraphs: paras(r.sustainability?.paragraphs, 5) },
+			outlook: { paragraphs: paras(r.outlook?.paragraphs, 5) },
+			directorsResponsibilities: { paragraphs: paras(r.directorsResponsibilities?.paragraphs, 7) }
+		};
+		const source = {};
+		const empty = {
+			chairLetter: (x) => x.chairLetter.paragraphs.length < 2,
+			ceoReview: (x) => x.ceoReview.paragraphs.length < 2,
+			strategy: (x) => x.strategy.pillars.length < 2,
+			performanceReview: (x) => !x.performanceReview.paragraphs.length,
+			liquidity: (x) => !x.liquidity.paragraphs.length,
+			principalRisks: (x) => x.principalRisks.risks.length < 3,
+			viability: (x) => !x.viability.conclusion,
+			kams: (x) => x.kams.some((k) => !k.matter || k.procedures.length < 2),
+			auditCommittee: (x) => !x.auditCommittee.paragraphs.length,
+			sustainability: (x) => !x.sustainability.paragraphs.length,
+			outlook: (x) => !x.outlook.paragraphs.length,
+			directorsResponsibilities: (x) => x.directorsResponsibilities.paragraphs.length < 3
+		};
+		for (const k of Object.keys(empty)) if (empty[k](n)) {
+			n[k] = fb[k];
+			source[k] = "engine";
+		} else source[k] = meta.origin ?? "ai";
+		return {
+			narrative: n,
+			source,
+			unverified: Object.keys(n).map((k) => ({
+				section: k,
+				numbers: verifyNumbers(JSON.stringify(n[k]), p)
+			})).filter((x) => x.numbers.length),
+			model: meta.model,
+			at: meta.at
+		};
+	}
+	var has = (t, rx) => rx.test(t);
+	function quality(res, p) {
+		const n = res.narrative, letter = n.chairLetter.paragraphs.join(" ") + " " + n.ceoReview.paragraphs.join(" ");
+		const lt = letterTopics(), share = (k) => lt.find((x) => x.key === k)?.share ?? 0;
+		const items = [
+			{
+				key: "letter-results",
+				ar: "الرسائل تذكر النتائج الرئيسية بالأرقام مقارنة بالسنة السابقة",
+				ok: has(letter, /السابقة|مقارنة|ارتفاع|انخفاض/) && numbersIn(letter).length >= 2,
+				detail: numbersIn(letter).length + " رقماً في الرسائل",
+				basis: "أرامكو ص 10008 · HSBC ص 5957"
+			},
+			{
+				key: "letter-strategy",
+				ar: "الرسائل تربط الأداء بالاستراتيجية",
+				ok: has(letter, /استراتيج/),
+				detail: "",
+				basis: `${share("strategy")}% من رسائل الحزمة`
+			},
+			{
+				key: "letter-people",
+				ar: "الرسائل تشكر الموظفين والفريق",
+				ok: has(letter, /شكر|الموظف|العاملين|فريق/),
+				detail: "",
+				basis: `${share("people_thanks")}% من رسائل الحزمة`
+			},
+			{
+				key: "letter-outlook",
+				ar: "الرسائل تتضمن نظرة مستقبلية مشروطة",
+				ok: has(letter + " " + n.outlook.paragraphs.join(" "), /تتوقع|نتوقع|المستقبل|القادمة|تعتزم/),
+				detail: "",
+				basis: `${share("outlook")}% من رسائل الحزمة`
+			},
+			{
+				key: "kpi",
+				ar: "تعليق على مؤشرات الأداء الرئيسية (4 على الأقل)",
+				ok: n.ceoReview.kpiCommentary.length >= 4,
+				detail: n.ceoReview.kpiCommentary.length + " مؤشرات",
+				basis: "شريط المؤشرات في HSBC ص 5957"
+			},
+			{
+				key: "strategy",
+				ar: "محاور استراتيجية واضحة (3 على الأقل)",
+				ok: n.strategy.pillars.length >= 3,
+				detail: n.strategy.pillars.length + " محاور",
+				basis: "26 تقريراً من 49 فيها قسم استراتيجية"
+			},
+			{
+				key: "mdna",
+				ar: "تحليل الأداء يغطي الإيراد والهامش والربح",
+				ok: has(n.performanceReview.paragraphs.join(" "), /الإيراد/) && has(n.performanceReview.paragraphs.join(" "), /هامش/),
+				detail: "",
+				basis: "39 تقريراً من 49 فيها تقرير إدارة"
+			},
+			{
+				key: "liquidity",
+				ar: "السيولة والتدفقات النقدية وصافي الدين",
+				ok: has(n.liquidity.paragraphs.join(" "), /النقد|التدفق/),
+				detail: "",
+				basis: "أرامكو ص 10041"
+			},
+			{
+				key: "risks-count",
+				ar: "المخاطر الرئيسية: 5 على الأقل",
+				ok: n.principalRisks.risks.length >= 5,
+				detail: n.principalRisks.risks.length + " مخاطر",
+				basis: "35 تقريراً من 49 فيها مخاطر رئيسية"
+			},
+			{
+				key: "risks-table",
+				ar: "لكل خطر وصف وإدارة واتجاه",
+				ok: n.principalRisks.risks.every((r) => r.description && r.management && r.trend),
+				detail: "",
+				basis: "جدول يونيليفر ص 5136"
+			},
+			{
+				key: "risk-appetite",
+				ar: "فقرة شهية المخاطر وإطار إدارتها",
+				ok: n.principalRisks.intro.length > 60,
+				detail: "",
+				basis: "يونيليفر ص 5134"
+			},
+			{
+				key: "viability",
+				ar: "بيان الجدوى: الفترة والسيناريوهات والاستنتاج",
+				ok: !!n.viability.period && n.viability.scenarios.length >= 2 && !!n.viability.conclusion,
+				detail: n.viability.scenarios.length + " سيناريوهات",
+				basis: "يونيليفر ص 5141"
+			},
+			{
+				key: "kam-structure",
+				ar: "كل أمر رئيسي: الوصف و4 إجراءات على الأقل وتقييم الإفصاح",
+				ok: n.kams.length > 0 && n.kams.every((k) => k.matter && k.procedures.length >= 4 && k.disclosure),
+				detail: n.kams.map((k) => k.procedures.length).join("، ") + " إجراءات",
+				basis: "أرامكو ص 10164"
+			},
+			{
+				key: "committee",
+				ar: "تقرير اللجنة: جدول الأمور الهامة والاستنتاجات",
+				ok: n.auditCommittee.matters.length >= 2,
+				detail: n.auditCommittee.matters.length + " أمور",
+				basis: "HSBC ص 6153"
+			},
+			{
+				key: "directors",
+				ar: "إقرار مسؤوليات المجلس كامل",
+				ok: n.directorsResponsibilities.paragraphs.length >= 4,
+				detail: "",
+				basis: "نستله ص 2319 · يونيليفر ص 5213"
+			},
+			{
+				key: "numbers",
+				ar: "كل رقم في السرد موجود في أرقام المنشأة",
+				ok: !res.unverified.length,
+				detail: res.unverified.length ? res.unverified.map((u) => u.section + ": " + u.numbers.join("، ")).join(" | ") : "تحقق آلي",
+				basis: "قاعدة SQC: لا أرقام مخترعة"
+			}
+		];
+		return {
+			score: Math.round(items.filter((x) => x.ok).length / items.length * 100),
+			items
+		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/reports/notes-engine.ts
+	var notes_engine_exports = /* @__PURE__ */ __exportAll({
+		ZAKAT_RATE: () => ZAKAT_RATE,
+		capitalManagement: () => capitalManagement,
+		creditRisk: () => creditRisk,
+		eosbMovement: () => eosbMovement,
+		estimateSensitivities: () => estimateSensitivities,
+		expensesByNature: () => expensesByNature,
+		financingReconciliation: () => financingReconciliation,
+		interestSensitivity: () => interestSensitivity,
+		maturityAnalysis: () => maturityAnalysis,
+		natureOf: () => natureOf,
+		notesPackage: () => notesPackage,
+		provisionsMovement: () => provisionsMovement,
+		zakatNote: () => zakatNote
+	});
+	var line = (fs, k) => fs.lines.find((l) => l.key === k);
+	var cur = (fs, k) => line(fs, k)?.current ?? 0;
+	var pri = (fs, k) => fs.hasPrior ? line(fs, k)?.prior ?? 0 : null;
+	var pct$1 = (a, b) => b ? Math.round(a / b * 1e3) / 10 : null;
+	var yearCols = (fs) => fs.hasPrior ? [
+		"",
+		"السنة الحالية",
+		"السنة السابقة"
+	] : ["", "المبلغ"];
+	/** a row of a current-(and prior-)year table */
+	var R = (ar, current, prior, level) => ({
+		ar,
+		values: prior === void 0 ? [current] : [current, prior],
+		...level ? { level } : {}
+	});
+	var sumRows = (rows, i = 0) => rows.reduce((t, r) => t + (r.values[i] ?? 0), 0);
+	var NATURE = [
+		{
+			key: "goods",
+			ar: "تكلفة البضاعة والمواد المستخدمة",
+			kws: [
+				"مشتريات",
+				"تكلفه المبيعات",
+				"تكلفه البضاعه",
+				"تكلفه الايرادات",
+				"مواد",
+				"خامات",
+				"بضاعه",
+				"purchases",
+				"cost of sales",
+				"materials"
+			]
+		},
+		{
+			key: "staff",
+			ar: "منافع الموظفين",
+			kws: [
+				"رواتب",
+				"اجور",
+				"مكافا",
+				"بدل",
+				"تامينات اجتماعيه",
+				"التامينات الاجتماعيه",
+				"نهايه الخدمه",
+				"عمال",
+				"موظف",
+				"salar",
+				"wage",
+				"gosi",
+				"staff",
+				"employee"
+			]
+		},
+		{
+			key: "rent",
+			ar: "الإيجارات قصيرة الأجل ومنخفضة القيمة",
+			kws: ["ايجار", "rent"]
+		},
+		{
+			key: "utilities",
+			ar: "المرافق والاتصالات",
+			kws: [
+				"كهرباء",
+				"مياه",
+				"اتصالات",
+				"هاتف",
+				"جوال",
+				"انترنت",
+				"utilit",
+				"electric",
+				"telecom"
+			]
+		},
+		{
+			key: "transport",
+			ar: "النقل والشحن والوقود",
+			kws: [
+				"نقل",
+				"شحن",
+				"توصيل",
+				"وقود",
+				"محروقات",
+				"بنزين",
+				"ديزل",
+				"freight",
+				"fuel",
+				"delivery",
+				"transport"
+			]
+		},
+		{
+			key: "marketing",
+			ar: "التسويق والإعلان",
+			kws: [
+				"تسويق",
+				"اعلان",
+				"دعايه",
+				"marketing",
+				"advertis"
+			]
+		},
+		{
+			key: "professional",
+			ar: "الأتعاب المهنية",
+			kws: [
+				"اتعاب",
+				"استشار",
+				"محاما",
+				"مراجعه",
+				"professional",
+				"consult",
+				"audit",
+				"legal"
+			]
+		},
+		{
+			key: "fees",
+			ar: "الرسوم الحكومية",
+			kws: [
+				"رسوم",
+				"تاشير",
+				"اقامه",
+				"اقامات",
+				"رخص",
+				"ترخيص",
+				"government fee",
+				"license"
+			]
+		},
+		{
+			key: "maintenance",
+			ar: "الصيانة والإصلاح",
+			kws: [
+				"صيانه",
+				"اصلاح",
+				"maintenance",
+				"repair"
+			]
+		},
+		{
+			key: "insurance",
+			ar: "التأمين",
+			kws: [
+				"تامين طبي",
+				"تامين المركبات",
+				"اقساط تامين",
+				"insurance"
+			]
+		}
+	];
+	var BY_LINE = {
+		depreciation: {
+			key: "da",
+			ar: "الاستهلاك والإطفاء"
+		},
+		impairment: {
+			key: "impairment",
+			ar: "خسائر الانخفاض والخسائر الائتمانية المتوقعة"
+		}
+	};
+	/** The nature of one expense account (by name; cost of revenue defaults to goods and materials). */
+	function natureOf(name, lineKey) {
+		if (BY_LINE[lineKey]) return BY_LINE[lineKey];
+		const n = norm$1(name), hit = NATURE.find((x) => x.kws.some((k) => n.includes(norm$1(k))));
+		return hit ? {
+			key: hit.key,
+			ar: hit.ar
+		} : lineKey === "cogs" ? {
+			key: "goods",
+			ar: NATURE[0].ar
+		} : {
+			key: "other",
+			ar: "مصروفات أخرى"
+		};
+	}
+	function expensesByNature(fs) {
+		const sums = /* @__PURE__ */ new Map();
+		for (const l of fs.lines.filter((x) => x.section === "cogs" || x.section === "opex")) for (const a of l.accounts) {
+			const n = natureOf(a.name, l.key), s = sums.get(n.key) ?? {
+				ar: n.ar,
+				c: 0,
+				p: 0
+			};
+			s.c += a.current;
+			s.p += a.prior ?? 0;
+			sums.set(n.key, s);
+		}
+		const rows = [
+			...NATURE.map((x) => x.key),
+			"da",
+			"impairment",
+			"other"
+		].filter((k) => sums.has(k) && (sums.get(k).c || sums.get(k).p)).map((k) => R(sums.get(k).ar, sums.get(k).c, fs.hasPrior ? sums.get(k).p : void 0));
+		const total = sumRows(rows), totalPrior = fs.hasPrior ? sumRows(rows, 1) : null, other = sums.get("other")?.c ?? 0;
+		rows.push(R("مجموع تكلفة الإيرادات والمصروفات التشغيلية", total, fs.hasPrior ? totalPrior : void 0, "total"));
+		return {
+			table: {
+				title: "المصروفات حسب طبيعتها",
+				columns: yearCols(fs),
+				rows,
+				note: "تُعرض قائمة الربح أو الخسارة حسب الوظيفة، ويُفصح IFRS 18 (الفقرة 83) عن المبالغ حسب الطبيعة. التصنيف من أسماء الحسابات" + (total && other / total > .2 ? "؛ «مصروفات أخرى» تتجاوز 20% — أعد تسمية الحسابات أو صنّفها." : ".")
+			},
+			total,
+			totalPrior,
+			ties: total === fs.keys.cogs.current + fs.keys.opex.current
+		};
+	}
+	var expenseAccounts = (fs, kws) => fs.lines.filter((l) => [
+		"cogs",
+		"opex",
+		"zakat",
+		"fin"
+	].includes(l.section)).flatMap((l) => l.accounts).filter((a) => kws.some((k) => norm$1(a.name).includes(norm$1(k))));
+	function movement(title, opening, closing, charge, chargeAr, paidAr, note) {
+		if (opening === null) return {
+			title,
+			columns: ["", "المبلغ"],
+			rows: [R("الرصيد في نهاية السنة", closing, void 0, "total")],
+			note: "لا توجد أرصدة مقارنة؛ تُعرض الحركة عند توفر رصيد السنة السابقة."
+		};
+		const rows = [R("الرصيد في بداية السنة", opening)];
+		if (charge !== null) rows.push(R(chargeAr, charge), R(paidAr, closing - opening - charge));
+		else rows.push(R("صافي الحركة خلال السنة", closing - opening));
+		rows.push(R("الرصيد في نهاية السنة", closing, void 0, "total"));
+		return {
+			title,
+			columns: ["", "المبلغ"],
+			rows,
+			note
+		};
+	}
+	function eosbMovement(fs) {
+		if (!line(fs, "eosb")) return null;
+		const ch = expenseAccounts(fs, ["نهايه الخدمه", "end of service"]);
+		return movement("حركة التزامات منافع نهاية الخدمة", pri(fs, "eosb"), cur(fs, "eosb"), ch.length ? ch.reduce((t, a) => t + a.current, 0) : null, "المحمل على السنة", "المدفوع خلال السنة", ch.length ? "المدفوع مشتق: رصيد البداية + المحمل − رصيد النهاية. افتراضات التقييم الاكتواري (IAS 19.144) تُضاف من تقرير الخبير." : "لا يوجد حساب مصروف مستقل لمكافأة نهاية الخدمة؛ أنشئ حساباً لها ليظهر المحمل والمدفوع منفصلين.");
+	}
+	function provisionsMovement(fs) {
+		const L = line(fs, "provisions");
+		if (!L) return null;
+		return movement("حركة المخصصات", pri(fs, "provisions"), L.current, null, "", "", "يفصح IAS 37.84 عن المكوَّن والمستخدم والمعكوس لكل فئة؛ فصّل الحسابات لتظهر الحركة بتفاصيلها.");
+	}
+	var ZAKAT_RATE = {
+		hijri: .025,
+		gregorian: .025775
+	};
+	function zakatNote(fs, opts = {}) {
+		const charge = fs.keys.zakat.current;
+		const move = movement("حركة مخصص الزكاة", pri(fs, "zakatPayable"), cur(fs, "zakatPayable"), charge, "المكوَّن خلال السنة", "المسدد خلال السنة", "على نهج أرامكو (الإيضاح 8(ج)): رصيد أول السنة ← المكوَّن ← المسدد ← رصيد آخر السنة. المسدد مشتق من الحركة.");
+		const adds = [
+			R("حقوق الملكية في بداية السنة (رأس المال والاحتياطيات وجاري الشركاء والأرباح المبقاة)", [
+				"capital",
+				"reserves",
+				"partners",
+				"retained"
+			].reduce((t, k) => t + cur(fs, k), 0)),
+			R("مخصص نهاية الخدمة والمخصصات الأخرى", cur(fs, "eosb") + cur(fs, "provisions")),
+			R("القروض والتزامات الإيجار طويلة الأجل", cur(fs, "loansNcl") + cur(fs, "leaseNcl"))
+		];
+		const deds = [
+			R("ناقصاً: صافي الممتلكات والآلات والمعدات", -cur(fs, "ppe")),
+			R("ناقصاً: الموجودات غير الملموسة وحق الاستخدام", -(cur(fs, "intangibles") + cur(fs, "rou"))),
+			R("ناقصاً: الاستثمارات طويلة الأجل والموجودات الحيوية", -(cur(fs, "investments") + cur(fs, "biological")))
+		];
+		const adjProfit = fs.keys.pbz.current, net = sumRows([...adds, ...deds]) + Math.max(0, adjProfit);
+		const base = Math.max(net, Math.max(0, adjProfit)), calendar = opts.calendar ?? "gregorian", rate = ZAKAT_RATE[calendar], estimate = Math.round(base * rate);
+		const difference = charge - estimate, tolerance = Math.max(1e4, Math.round(Math.abs(estimate) * .1));
+		return {
+			movement: move,
+			base: {
+				title: "الوعاء الزكوي — تقدير إرشادي للمقارنة",
+				columns: ["", "المبلغ"],
+				rows: [
+					...adds,
+					...deds,
+					R("صافي الربح المعدل (الربح قبل الزكاة)", adjProfit),
+					R("الوعاء الزكوي التقديري (لا يقل عن صافي الربح المعدل)", base, void 0, "subtotal"),
+					R(`الزكاة التقديرية بسعر ${Math.round(rate * 1e5) / 1e3}% (${calendar === "hijri" ? "سنة هجرية" : "سنة ميلادية"})`, estimate, void 0, "total"),
+					R("الزكاة المسجلة في القوائم", charge),
+					R("الفرق", difference)
+				],
+				note: "تقدير مبسط للمقارنة فقط: الاحتساب النهائي وفق لائحة جباية الزكاة الصادرة عن هيئة الزكاة والضريبة والجمارك بتعديلاتها على صافي الربح والحسميات، ويعتمده المختص الزكوي."
+			},
+			estimate,
+			charge,
+			difference,
+			flag: Math.abs(difference) > tolerance,
+			rate
+		};
+	}
+	function financingReconciliation(fs) {
+		if (!fs.hasPrior || !fs.cf) return null;
+		const keys = [
+			"loansCl",
+			"loansNcl",
+			"leaseNcl"
+		].filter((k) => line(fs, k) && (cur(fs, k) || pri(fs, k)));
+		if (!keys.length) return null;
+		const cash = (k) => fs.cf.find((r) => r.key === "cf-fin-" + k)?.current ?? 0;
+		const rows = keys.map((k) => {
+			const op = pri(fs, k) ?? 0, cl = cur(fs, k), fl = cash(k);
+			return {
+				ar: line(fs, k).ar,
+				values: [
+					op,
+					fl,
+					cl - op - fl,
+					cl
+				]
+			};
+		});
+		rows.push({
+			ar: "المجموع",
+			values: [
+				0,
+				1,
+				2,
+				3
+			].map((i) => sumRows(rows, i)),
+			level: "total"
+		});
+		return {
+			title: "مطابقة المطلوبات الناشئة عن الأنشطة التمويلية",
+			columns: [
+				"",
+				"الرصيد الافتتاحي",
+				"التدفقات النقدية",
+				"تغيرات غير نقدية",
+				"الرصيد الختامي"
+			],
+			rows,
+			note: "IAS 7.44A–E: التغيرات غير النقدية تشمل عقود الإيجار الجديدة وإعادة التصنيف وفروق العملة؛ صفر يعني أن الحركة كلها نقدية."
+		};
+	}
+	var ALLOW = /خسائر ائتمانيه|مخصص|ديون مشكوك|اضمحلال|allowance|provision|impair/;
+	function creditRisk(fs) {
+		const allowance = (line(fs, "receivables")?.accounts ?? []).filter((a) => ALLOW.test(norm$1(a.name)) || a.current < 0).reduce((t, a) => t + a.current, 0);
+		const gross = cur(fs, "receivables") - allowance, cash = cur(fs, "cash");
+		const other = (line(fs, "prepayments")?.accounts ?? []).filter((a) => /تامينات مسترده|ودائع|ودايع|deposit|مدينون اخرون|ذمم مدينه اخرى/.test(norm$1(a.name))).reduce((t, a) => t + a.current, 0);
+		const maxExposure = cash + gross + allowance + other;
+		const table = {
+			title: "التعرض لمخاطر الائتمان",
+			columns: ["", "المبلغ"],
+			rows: [
+				R("النقد لدى البنوك", cash),
+				R("الذمم المدينة التجارية (إجمالي)", gross),
+				R("مخصص الخسائر الائتمانية المتوقعة", allowance),
+				...other ? [R("ودائع وتأمينات وأرصدة مدينة أخرى", other)] : [],
+				R("الحد الأقصى للتعرض لمخاطر الائتمان", maxExposure, void 0, "total")
+			],
+			note: allowance ? `يغطي المخصص ${pct$1(-allowance, gross)}% من إجمالي الذمم؛ يُطبق النهج المبسط في IFRS 9 بمصفوفة أعمار.` : "لا يوجد مخصص خسائر ائتمانية مسجل؛ قيّم الحاجة إليه بمصفوفة أعمار الديون (IFRS 9.5.5.15)."
+		};
+		return {
+			gross,
+			allowance: -allowance || 0,
+			coverage: pct$1(-allowance, gross),
+			maxExposure,
+			table
+		};
+	}
+	function maturityAnalysis(fs) {
+		const within = cur(fs, "payables") + cur(fs, "accruals") + cur(fs, "loansCl"), later = cur(fs, "loansNcl") + cur(fs, "leaseNcl");
+		return {
+			title: "تحليل استحقاق المطلوبات المالية",
+			columns: ["", "المبلغ"],
+			rows: [
+				R("ذمم دائنة تجارية", cur(fs, "payables")),
+				R("مصروفات مستحقة ومطلوبات أخرى", cur(fs, "accruals")),
+				R("قروض قصيرة الأجل والجزء المتداول", cur(fs, "loansCl")),
+				R("تستحق خلال سنة", within, void 0, "subtotal"),
+				R("قروض طويلة الأجل", cur(fs, "loansNcl")),
+				R("التزامات عقود الإيجار", cur(fs, "leaseNcl")),
+				R("تستحق بعد سنة", later, void 0, "subtotal"),
+				R("مجموع المطلوبات المالية", within + later, void 0, "total")
+			].filter((r) => r.level || r.values[0]),
+			note: "مبني على تصنيف المتداول وغير المتداول. يتطلب IFRS 7.39 التدفقات التعاقدية غير المخصومة شاملة العمولة حسب فترات الاستحقاق؛ أضف جدول السداد لكل قرض وعقد إيجار."
+		};
+	}
+	function interestSensitivity(fs, bp = 100) {
+		const debt = cur(fs, "loansCl") + cur(fs, "loansNcl");
+		return {
+			debt,
+			bp,
+			effect: Math.round(debt * bp / 1e4)
+		};
+	}
+	function capitalManagement(fs) {
+		const at = (p) => {
+			const g = (k) => p ? pri(fs, k) ?? 0 : cur(fs, k);
+			const borrowings = g("loansCl") + g("loansNcl") + g("leaseNcl"), cash = g("cash"), netDebt = borrowings - cash;
+			const equity = p ? fs.keys.equity.prior ?? 0 : fs.keys.equity.current;
+			return {
+				borrowings,
+				cash,
+				netDebt,
+				equity,
+				gearing: netDebt + equity ? Math.round(netDebt / (netDebt + equity) * 1e3) / 10 : null,
+				debtToEquity: equity ? Math.round(borrowings / equity * 100) / 100 : null
+			};
+		};
+		const c = at(false), p = fs.hasPrior ? at(true) : null;
+		const capEmp = c.borrowings + c.equity, capEmpP = p ? p.borrowings + p.equity : null, avg = capEmpP === null ? capEmp : (capEmp + capEmpP) / 2;
+		const roace = avg ? Math.round((fs.keys.profit.current + fs.keys.finance.current) / avg * 1e3) / 10 : null;
+		const pv = (x) => p ? x ?? null : void 0;
+		return {
+			current: c,
+			prior: p,
+			roace,
+			table: {
+				title: "إدارة رأس المال",
+				columns: yearCols(fs),
+				rows: [
+					R("القروض والتزامات الإيجار", c.borrowings, pv(p?.borrowings)),
+					R("ناقصاً: النقد وما في حكمه", -c.cash, pv(p ? -p.cash : void 0)),
+					R("صافي الدين (النقد)", c.netDebt, pv(p?.netDebt), "subtotal"),
+					R("مجموع حقوق الملكية", c.equity, pv(p?.equity)),
+					R("صافي الدين وحقوق الملكية", c.netDebt + c.equity, pv(p ? p.netDebt + p.equity : void 0), "total")
+				],
+				note: `نسبة المديونية = صافي الدين ÷ (صافي الدين + حقوق الملكية): ${c.gearing ?? "—"}%${p ? ` مقابل ${p.gearing ?? "—"}%` : ""} — بتعريف أرامكو السعودية (ص 10041 من الحزمة). العائد على متوسط رأس المال المستخدم = (صافي الربح + تكاليف التمويل) ÷ متوسط (القروض + حقوق الملكية): ${roace ?? "—"}% — تبسيط لتعريف أرامكو (ص 10042) قبل تعديلات البنود غير المتكررة.`
+			}
+		};
+	}
+	function estimateSensitivities(fs) {
+		const out = [];
+		const cr = creditRisk(fs);
+		if (cr.gross) out.push({
+			ar: "الخسائر الائتمانية المتوقعة",
+			assumption: "ارتفاع معدلات الخسارة 10%، أو خسارة 0.1% من إجمالي الذمم إن لم يوجد مخصص",
+			effect: -Math.round(cr.allowance ? cr.allowance * .1 : cr.gross * .001)
+		});
+		const inv = cur(fs, "inventory");
+		if (inv) out.push({
+			ar: "صافي القيمة القابلة للتحقق للمخزون",
+			assumption: "انخفاض أسعار البيع 5% على البضاعة بطيئة الحركة (10% من المخزون)",
+			effect: -Math.round(inv * .1 * .05)
+		});
+		const eosb = cur(fs, "eosb");
+		if (eosb) out.push({
+			ar: "منافع نهاية الخدمة",
+			assumption: "زيادة الالتزام 5% بتغير معدل الخصم أو نمو الرواتب",
+			effect: -Math.round(eosb * .05)
+		});
+		const da = fs.keys.depreciation.current;
+		if (cur(fs, "ppe") && da) out.push({
+			ar: "الأعمار الإنتاجية للممتلكات والمعدات",
+			assumption: "قِصَر الأعمار المتبقية 10%",
+			effect: -Math.round(da * .1)
+		});
+		const ir = interestSensitivity(fs);
+		if (ir.debt) out.push({
+			ar: "أسعار العمولة",
+			assumption: "زيادة 1% على القروض بعمولة متغيرة",
+			effect: -ir.effect
+		});
+		return out;
+	}
+	function notesPackage(fs, opts = {}) {
+		let no = Math.max(0, ...fs.notes.map((n) => n.no)) + 1;
+		const sup = [];
+		const push = (key, ar, en, tables, text = []) => {
+			const t = tables.filter((x) => !!x);
+			if (!t.length && !text.length) return;
+			sup.push({
+				no: no++,
+				key,
+				ar,
+				en,
+				tables: t,
+				text
+			});
+		};
+		const byNature = expensesByNature(fs);
+		if (byNature.total) push("nature", "المصروفات حسب طبيعتها", "Expenses by nature", [byNature.table]);
+		const cr = creditRisk(fs), ir = interestSensitivity(fs), eg = opts.country === "EG";
+		push("risk", "إدارة المخاطر المالية", "Financial risk management", [cr.table, maturityAnalysis(fs)], [
+			"مخاطر الائتمان: تنشأ من النقد لدى البنوك والذمم المدينة؛ تودع المنشأة النقد لدى بنوك ذات تصنيف ائتماني جيد وتراقب أعمار الذمم وحدود الائتمان.",
+			"مخاطر السيولة: تدار بمطابقة استحقاقات الموجودات والمطلوبات والاحتفاظ بتسهيلات كافية.",
+			"مخاطر أسعار العمولة: " + (ir.debt ? `زيادة الأسعار 1% تخفض الربح قبل ${eg ? "الضريبة" : "الزكاة"} بنحو ${Math.round(ir.effect / 100).toLocaleString("en")} (بافتراض عمولة متغيرة)، والانخفاض بالقدر نفسه يرفعه بالمبلغ ذاته.` : "لا قروض بعمولة معرضة لتغير الأسعار."),
+			eg ? "مخاطر العملات: معاملات المنشأة بالجنيه المصري أساساً، وتتعرض لتقلب سعر الصرف على المعاملات والأرصدة بالعملات الأجنبية." : "مخاطر العملات: معاملات المنشأة بالريال السعودي أساساً، والريال مرتبط بالدولار الأمريكي."
+		]);
+		push("capital", "إدارة رأس المال", "Capital management", [capitalManagement(fs).table], ["تهدف المنشأة من إدارة رأس المال إلى حماية قدرتها على الاستمرار وتحقيق عائد للشركاء، وتراقب هيكل رأس المال بنسبة المديونية."]);
+		const fin = financingReconciliation(fs);
+		push("financing", "المطلوبات الناشئة عن الأنشطة التمويلية", "Liabilities from financing activities", [fin]);
+		const sens = estimateSensitivities(fs);
+		if (sens.length) push("sensitivity", "تحليل حساسية التقديرات الرئيسية", "Sensitivity of key estimates", [{
+			title: `أثر تغير معقول في الافتراضات على الربح قبل ${eg ? "الضريبة" : "الزكاة"}`,
+			columns: ["", "الأثر"],
+			rows: sens.map((s) => R(`${s.ar} — ${s.assumption}`, s.effect)),
+			note: "تحليل توضيحي مبني على الأرصدة؛ يُستبدل بتحليل الإدارة لافتراضاتها الفعلية (IAS 1.129)."
+		}]);
+		const zakat = eg ? null : zakatNote(fs, opts);
+		const lineTables = {};
+		const at = (k, t) => {
+			if (t) (lineTables[k] || (lineTables[k] = [])).push(t);
+		};
+		if (zakat) {
+			at("zakatPayable", zakat.movement);
+			at("zakatExpense", zakat.base);
+		}
+		at("eosb", eosbMovement(fs));
+		at("provisions", provisionsMovement(fs));
+		const debtNow = [
+			"loansCl",
+			"loansNcl",
+			"leaseNcl"
+		].reduce((t, k) => t + cur(fs, k), 0);
+		return {
+			lineTables,
+			supplementary: sup,
+			zakat,
+			byNature,
+			checks: {
+				byNatureTies: byNature.ties,
+				financingTies: !fin || fin.rows.at(-1).values[3] === debtNow
+			}
+		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/reports/peer-benchmarks-engine.ts
+	var peer_benchmarks_engine_exports = /* @__PURE__ */ __exportAll({
+		METRICS: () => METRICS,
+		PEERS: () => PEERS,
+		compare: () => compare,
+		inputsFromStatements: () => inputsFromStatements,
+		metricsOf: () => metricsOf,
+		peerMetrics: () => peerMetrics
+	});
+	var PEERS = [
+		{
+			id: "nestle-2025",
+			company: "Nestlé",
+			sector: "fmcg",
+			framework: "IFRS",
+			fy: "FY2025",
+			currency: "CHF",
+			pages: {
+				is: 2210,
+				bs: 2212,
+				bsTo: 2213,
+				cf: 2214
+			},
+			revenue: 89490,
+			cogs: 48694,
+			operating: 12277,
+			net: 9254,
+			assets: 127151,
+			equity: 33058,
+			ca: 31969,
+			cl: 40694,
+			inventory: 12813,
+			receivables: 10561,
+			payables: 20023,
+			payablesScope: "trade-and-other",
+			cfo: 15904,
+			capex: 4527,
+			cash: 4579
+		},
+		{
+			id: "unilever-2025",
+			company: "Unilever",
+			sector: "fmcg",
+			framework: "IFRS",
+			fy: "FY2025",
+			currency: "EUR",
+			pages: {
+				is: 5231,
+				bs: 5234,
+				cf: 5235
+			},
+			revenue: 50503,
+			cogs: null,
+			operating: 9037,
+			net: 6213,
+			assets: 70471,
+			equity: 17587,
+			ca: 17066,
+			cl: 21662,
+			inventory: 4043,
+			receivables: 7346,
+			payables: 16939,
+			payablesScope: "trade-and-other",
+			cfo: 8350,
+			capex: 1417,
+			cash: 3941
+		},
+		{
+			id: "pepsico-2025",
+			company: "PepsiCo",
+			sector: "fmcg",
+			framework: "US GAAP",
+			fy: "FY2025",
+			currency: "USD",
+			pages: {
+				is: 1884,
+				bs: 1888,
+				cf: 1886
+			},
+			revenue: 93925,
+			cogs: 43066,
+			operating: 11498,
+			net: 8295,
+			assets: 107399,
+			equity: 20547,
+			ca: 27949,
+			cl: 32764,
+			inventory: 5845,
+			receivables: 11506,
+			payables: 25903,
+			payablesScope: "trade-and-other",
+			cfo: 12087,
+			capex: 4415,
+			cash: 9159
+		},
+		{
+			id: "pg-2026",
+			company: "Procter & Gamble",
+			sector: "fmcg",
+			framework: "US GAAP",
+			fy: "FY2026",
+			currency: "USD",
+			pages: {
+				is: 2004,
+				bs: 2005,
+				cf: 2007
+			},
+			revenue: 87032,
+			cogs: 43362,
+			operating: 19748,
+			net: 16144,
+			assets: 126521,
+			equity: 54311,
+			ca: 26208,
+			cl: 38694,
+			inventory: 8170,
+			receivables: 6056,
+			payables: 16306,
+			payablesScope: "trade",
+			cfo: 19556,
+			capex: 4409,
+			cash: 9942
+		},
+		{
+			id: "walmart-2023",
+			company: "Walmart",
+			sector: "retail",
+			framework: "US GAAP",
+			fy: "FY2023",
+			currency: "USD",
+			pages: {
+				is: 402,
+				bs: 404,
+				cf: 406
+			},
+			revenue: 611289,
+			cogs: 463721,
+			operating: 20428,
+			net: 11292,
+			assets: 243197,
+			equity: 83754,
+			ca: 75655,
+			cl: 92198,
+			inventory: 56576,
+			receivables: 7933,
+			payables: 53742,
+			payablesScope: "trade",
+			cfo: 28841,
+			capex: 16857,
+			cash: 8625
+		},
+		{
+			id: "homedepot-2025",
+			company: "The Home Depot",
+			sector: "retail",
+			framework: "US GAAP",
+			fy: "FY2025",
+			currency: "USD",
+			pages: {
+				is: 2087,
+				bs: 2086,
+				cf: 2090
+			},
+			revenue: 164683,
+			cogs: 109818,
+			operating: 20890,
+			net: 14156,
+			assets: 105095,
+			equity: 12813,
+			ca: 34391,
+			cl: 32424,
+			inventory: 25817,
+			receivables: 5597,
+			payables: 11491,
+			payablesScope: "trade",
+			cfo: 16325,
+			capex: 3679,
+			cash: 1389
+		},
+		{
+			id: "amazon-2024",
+			company: "Amazon",
+			sector: "retail",
+			framework: "US GAAP",
+			fy: "FY2024",
+			currency: "USD",
+			pages: {
+				is: 1065,
+				bs: 1067,
+				cf: 1064
+			},
+			revenue: 637959,
+			cogs: 326288,
+			operating: 68593,
+			net: 59248,
+			assets: 624894,
+			equity: 285970,
+			ca: 190867,
+			cl: 179431,
+			inventory: 34214,
+			receivables: 55451,
+			payables: 94363,
+			payablesScope: "trade",
+			cfo: 115877,
+			capex: 82999,
+			cash: 78779
+		},
+		{
+			id: "aramco-2025",
+			company: "Saudi Aramco",
+			sector: "energy",
+			framework: "IFRS",
+			fy: "FY2025",
+			currency: "SAR",
+			pages: {
+				is: 10171,
+				bs: 10173,
+				cf: 10175
+			},
+			revenue: 1559342,
+			cogs: null,
+			operating: 706822,
+			net: 350210,
+			assets: 2551964,
+			equity: 1721744,
+			ca: 596277,
+			cl: 298349,
+			inventory: 70542,
+			receivables: 165444,
+			payables: 157708,
+			payablesScope: "trade-and-other",
+			cfo: 510798,
+			capex: 190444,
+			cash: 243099
+		}
+	];
+	var METRICS = [
+		{
+			key: "grossMargin",
+			ar: "هامش مجمل الربح",
+			unit: "%",
+			higherIsBetter: true,
+			formula: "(الإيرادات − تكلفة الإيرادات) ÷ الإيرادات"
+		},
+		{
+			key: "operatingMargin",
+			ar: "هامش الربح التشغيلي",
+			unit: "%",
+			higherIsBetter: true,
+			formula: "الربح التشغيلي ÷ الإيرادات"
+		},
+		{
+			key: "netMargin",
+			ar: "هامش صافي الربح",
+			unit: "%",
+			higherIsBetter: true,
+			formula: "صافي الربح ÷ الإيرادات"
+		},
+		{
+			key: "roe",
+			ar: "العائد على حقوق الملكية",
+			unit: "%",
+			higherIsBetter: true,
+			formula: "صافي الربح ÷ حقوق الملكية في نهاية السنة"
+		},
+		{
+			key: "roa",
+			ar: "العائد على الموجودات",
+			unit: "%",
+			higherIsBetter: true,
+			formula: "صافي الربح ÷ مجموع الموجودات"
+		},
+		{
+			key: "currentRatio",
+			ar: "نسبة التداول",
+			unit: "x",
+			higherIsBetter: null,
+			formula: "الموجودات المتداولة ÷ المطلوبات المتداولة"
+		},
+		{
+			key: "equityRatio",
+			ar: "نسبة حقوق الملكية إلى الموجودات",
+			unit: "%",
+			higherIsBetter: null,
+			formula: "حقوق الملكية ÷ مجموع الموجودات"
+		},
+		{
+			key: "dso",
+			ar: "أيام التحصيل",
+			unit: "days",
+			higherIsBetter: false,
+			formula: "الذمم المدينة ÷ الإيرادات × 365"
+		},
+		{
+			key: "dio",
+			ar: "أيام المخزون",
+			unit: "days",
+			higherIsBetter: false,
+			formula: "المخزون ÷ تكلفة الإيرادات × 365"
+		},
+		{
+			key: "dpo",
+			ar: "أيام السداد للموردين",
+			unit: "days",
+			higherIsBetter: null,
+			formula: "الذمم الدائنة التجارية ÷ تكلفة الإيرادات × 365"
+		},
+		{
+			key: "cashConversion",
+			ar: "تحويل الربح إلى نقد",
+			unit: "x",
+			higherIsBetter: true,
+			formula: "صافي النقد من التشغيل ÷ صافي الربح"
+		},
+		{
+			key: "capexIntensity",
+			ar: "كثافة الإنفاق الرأسمالي",
+			unit: "%",
+			higherIsBetter: null,
+			formula: "الإنفاق الرأسمالي ÷ الإيرادات"
+		},
+		{
+			key: "fcfMargin",
+			ar: "هامش التدفق النقدي الحر",
+			unit: "%",
+			higherIsBetter: true,
+			formula: "(النقد من التشغيل − الإنفاق الرأسمالي) ÷ الإيرادات"
+		}
+	];
+	var r1 = (x) => Math.round(x * 10) / 10;
+	var r2 = (x) => Math.round(x * 100) / 100;
+	var div = (a, b) => a === null || b === null || !b ? null : a / b;
+	function metricsOf(i) {
+		const p = (x) => x === null ? null : r1(x * 100), d = (x) => x === null ? null : Math.round(x * 365), x2 = (x) => x === null ? null : r2(x);
+		return {
+			grossMargin: p(i.cogs === null ? null : div(i.revenue - i.cogs, i.revenue)),
+			operatingMargin: p(div(i.operating, i.revenue)),
+			netMargin: p(div(i.net, i.revenue)),
+			roe: p(i.equity > 0 ? div(i.net, i.equity) : null),
+			roa: p(div(i.net, i.assets)),
+			currentRatio: x2(div(i.ca, i.cl)),
+			equityRatio: p(div(i.equity, i.assets)),
+			dso: d(div(i.receivables, i.revenue)),
+			dio: d(div(i.inventory, i.cogs)),
+			dpo: d(div(i.payables, i.cogs)),
+			cashConversion: x2(i.net > 0 ? div(i.cfo, i.net) : null),
+			capexIntensity: p(div(i.capex, i.revenue)),
+			fcfMargin: p(i.cfo === null || i.capex === null ? null : div(i.cfo - i.capex, i.revenue))
+		};
+	}
+	var peerMetrics = (p) => metricsOf({
+		...p,
+		payables: p.payablesScope === "trade" ? p.payables : null
+	});
+	/** The engagement's own inputs from its statements (capex as a positive outflow). */
+	function inputsFromStatements(fs) {
+		const k = fs.keys;
+		return {
+			revenue: k.revenue.current,
+			cogs: k.cogs.current || null,
+			operating: k.operating.current,
+			net: k.profit.current,
+			assets: k.assets.current,
+			equity: k.equity.current,
+			ca: k.ca.current,
+			cl: k.cl.current,
+			inventory: k.inventory?.current ?? 0,
+			receivables: k.receivables?.current ?? 0,
+			payables: k.payables?.current ?? null,
+			cfo: k.cfo?.current ?? null,
+			capex: k.capex ? -k.capex.current : null
+		};
+	}
+	var median = (xs) => {
+		const s = [...xs].sort((a, b) => a - b), m = Math.floor(s.length / 2);
+		return s.length % 2 ? s[m] : r2((s[m - 1] + s[m]) / 2);
+	};
+	/** Your ratios against the peer group (optionally one sector): the median, the range and where you sit. */
+	function compare(fs, opts = {}) {
+		const group = PEERS.filter((p) => !opts.sector || p.sector === opts.sector), mine = fs ? metricsOf(inputsFromStatements(fs)) : null;
+		return METRICS.map((m) => {
+			const peers = group.map((p) => ({
+				company: p.company,
+				value: peerMetrics(p)[m.key]
+			})).filter((x) => x.value !== null);
+			const vals = peers.map((x) => x.value), you = mine ? mine[m.key] : null;
+			const round = (x) => m.unit === "days" ? Math.round(x) : m.unit === "%" ? r1(x) : r2(x);
+			const min = vals.length ? Math.min(...vals) : null, max = vals.length ? Math.max(...vals) : null, med = vals.length ? round(median(vals)) : null;
+			const position = you === null || min === null || max === null ? "n/a" : you > max ? "above" : you < min ? "below" : "within";
+			const verdict = position === "n/a" || med === null || you === null || m.higherIsBetter === null ? position === "n/a" ? "n/a" : "typical" : Math.abs(you - med) <= Math.abs(med) * .1 ? "typical" : you > med === m.higherIsBetter ? "better" : "weaker";
+			return {
+				key: m.key,
+				ar: m.ar,
+				unit: m.unit,
+				formula: m.formula,
+				you,
+				median: med,
+				min,
+				max,
+				n: vals.length,
+				position,
+				verdict,
+				peers
+			};
+		});
 	}
 	//#endregion
 	//#region app/src/engine/fusion/reports/scenario-engine.ts
@@ -12325,6 +17692,7 @@ window.SKEngines = (function() {
 	//#endregion
 	return {
 		audit: {
+			aiProviders: ai_providers_engine_exports,
 			aiReview: ai_review_engine_exports,
 			codex: codex_engine_exports,
 			confidence: confidence_engine_exports,
@@ -12333,7 +17701,10 @@ window.SKEngines = (function() {
 			documentCheck: document_check_engine_exports,
 			estimatesReview: estimates_review_engine_exports,
 			evidence: evidence_engine_exports,
+			fieldwork: fieldwork_engine_exports,
+			globalBenchmarks: global_benchmarks_engine_exports,
 			goingConcern: going_concern_engine_exports,
+			governance: governance_engine_exports,
 			issues: issues_engine_exports,
 			kam: kam_engine_exports,
 			materiality: materiality_engine_exports,
@@ -12384,7 +17755,11 @@ window.SKEngines = (function() {
 			annualReport: annual_report_engine_exports,
 			excelRecon: excel_recon_engine_exports,
 			export: export_engine_exports,
+			globalCorpus: global_corpus_engine_exports,
 			money: money_engine_exports,
+			narrative: narrative_engine_exports,
+			notes: notes_engine_exports,
+			peerBenchmarks: peer_benchmarks_engine_exports,
 			scenario: scenario_engine_exports,
 			smartMatch: smart_match_engine_exports,
 			statements: statements_engine_exports,

@@ -80,7 +80,7 @@ export function code128SvgData(text:string,height=32){
   return {value,height,width:x+6,rects};
 }
 
-export function scaleLabelPrintHtml(label:ScaleLabel,brand='S.kosif'){
+export function scaleLabelPrintHtml(label:ScaleLabel,brand='SQC'){
   const barcode=code128SvgData(label.barcode,30);
   const rects=barcode.rects.map(rect=>'<rect x="'+rect.x+'" y="0" width="'+rect.width+'" height="'+barcode.height+'" fill="#000"/>').join('');
   const svg='<svg viewBox="0 0 '+barcode.width+' '+(barcode.height+13)+'" xmlns="http://www.w3.org/2000/svg">'+rects+'<text x="'+(barcode.width/2)+'" y="'+(barcode.height+10)+'" text-anchor="middle" font-family="monospace" font-size="9">'+barcode.value+'</text></svg>';

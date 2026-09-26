@@ -97,7 +97,8 @@ const ICONS={
   auditreport:SV('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h6"/><path d="M14 2v6h6v3"/><circle cx="18" cy="16" r="3"/><path d="m16.5 18.6-.8 3.4 2.3-1.2 2.3 1.2-.8-3.4"/><path d="M8 13h4M8 17h3"/>'),
   auditanalytics:SV('<circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.3-4.3"/><path d="m7.5 12.5 2.2-2.2 2 2 3-3.3"/>'),
   auditlab:SV('<path d="M6 18h8M3 22h18M14 22a7 7 0 1 0 0-14h-1M9 14h2M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2zM12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/>'),
-  codex:SV('<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/>')
+  codex:SV('<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/>'),
+  auditbench:SV('<circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c2.6 2.6 3.8 5.8 3.8 9.5s-1.2 6.9-3.8 9.5c-2.6-2.6-3.8-5.8-3.8-9.5s1.2-6.9 3.8-9.5z"/>')
 };
 const icon=id=>ICONS[id]||(core()&&core().navIcon(id))||ICONS.action;
 
@@ -209,7 +210,7 @@ const PRINT_KOSIF='@page{size:A4;margin:14mm 12mm 16mm;@bottom-center{content:"�
  'table{border:1px solid #e4eaf2;border-radius:10px;overflow:hidden;border-collapse:separate;border-spacing:0}th,td{border-bottom:1px solid #edf1f7;padding:7px 9px}th{background:#0b1f3a!important;color:#fff;font-weight:600;font-size:11.5px}'+
  'tr:nth-child(even) td{background:#f8fafd}hr,.r,.skp-foot{border-color:#e4eaf2}small,.muted{color:#8292a8}b,strong{color:#0b1c33}.t{border-top-color:#1668e3}'+
  '.skp-lux{margin:0 0 16px}.skp-band{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;background:linear-gradient(120deg,#0b1f3a 0%,#123a6b 60%,#1668e3 100%)!important;color:#fff}'+
- '.skp-band img{width:58px;height:40px;filter:brightness(0) invert(1)}.skp-mark{flex:1}.skp-mark b{display:block;font:800 24px/1 Montserrat,"Segoe UI",sans-serif;letter-spacing:.06em;color:#fff}'+
+ '.skp-band img{width:88px;height:32px}.skp-mark{flex:1}.skp-mark b{display:block;font:800 24px/1 Montserrat,"Segoe UI",sans-serif;letter-spacing:.06em;color:#fff}'+
  '.skp-mark span{display:block;margin-top:4px;font-size:12px;color:#cfe0f5}.skp-doc{text-align:left}.skp-doc b{display:block;font-size:15px;color:#fff}.skp-doc span{font-size:11px;color:#cfe0f5}'+
  '.skp-ids{display:flex;flex-wrap:wrap;gap:4px 14px;padding:8px 6px 0;font-size:10.5px;color:#8292a8}.skp-foot{margin-top:22px;padding-top:8px;border-top:1px solid #e4eaf2;font-size:10px;color:#8292a8;text-align:center}';
 /* one print identity: the KOSIF letterhead for every look except «تراث الوادي» and «الدفتر» */
@@ -220,7 +221,7 @@ function letterhead(title){
   const o=org(),base=location.href.replace(/[^/?#]*([?#].*)?$/,"");
   const ids=[o.vatNo?"الرقم الضريبي "+esc(o.vatNo):"",o.crNo?"السجل التجاري "+esc(o.crNo):"",o.phone?esc(o.phone):"",o.addr?esc(o.addr):""].filter(Boolean);
   const date=esc(new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"}));
-  if(kosifLook())return '<header class="skp-lux"><div class="skp-band"><img src="'+base+'art/kosif-cloud.svg" alt=""><div class="skp-mark"><b>KOSIF</b><span>'+esc(o.biz||"أغنام الوادي")+'</span></div>'+
+  if(kosifLook())return '<header class="skp-lux"><div class="skp-band"><img src="'+base+'art/sqc-mark.svg" alt=""><div class="skp-mark"><b>SQC</b><span>'+esc(o.biz||"أغنام الوادي")+'</span></div>'+
     '<div class="skp-doc"><b>'+esc(title||"")+'</b><span>'+date+'</span></div></div>'+(ids.length?'<div class="skp-ids">'+ids.map(x=>'<span>'+x+'</span>').join("")+'</div>':'')+'</header>';
   return '<div class="skp-orn" style="background-image:url('+base+'art/ornament.svg)"></div><header class="skp-head"><img src="'+base+'art/ram.svg" alt=""><div class="skp-org"><b>'+esc(o.biz||"أغنام الوادي")+'</b>'+(ids.length?'<span>'+ids.join(" · ")+'</span>':'')+'</div>'+
     '<div class="skp-meta"><b>'+esc(title||"")+'</b>'+date+'</div></header>';
@@ -274,7 +275,7 @@ function brandPrint(w,title){
     d.documentElement.setAttribute("dir","rtl");
     if(title&&!d.title)d.title=title;
     d.body.insertAdjacentHTML("afterbegin",letterhead(title||d.title));
-    const o=org(),pr=preparer();d.body.insertAdjacentHTML("beforeend",'<footer class="skp-foot">'+esc(o.biz||"أغنام الوادي")+' · صدر من '+(kosifLook()?'KOSIF — Smarter Audit. Greater Trust.':'S.kosif')+(pr?' · أعدّه: '+esc(pr):'')+'</footer>');
+    const o=org(),pr=preparer();d.body.insertAdjacentHTML("beforeend",'<footer class="skp-foot">'+esc(o.biz||"أغنام الوادي")+' · صدر من '+'SQC — Smart Quality Control · AI-Powered Audit &amp; Assurance'+(pr?' · أعدّه: '+esc(pr):'')+'</footer>');
     /* in the app's own preview (SK.output) the toolbar lives outside the page */
     if(w.__skEmbedded){if(window.SKCharts&&d.querySelector(".skch-fig,.skch,.skhb")){const cs=d.createElement("style");cs.id="sk-print-charts";cs.textContent=SKCharts.printCSS;(d.head||d.documentElement).appendChild(cs)}
       setTimeout(()=>SK.output&&SK.output.css(d),0);return}

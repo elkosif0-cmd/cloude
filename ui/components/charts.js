@@ -184,7 +184,7 @@ function resolveColor(c,el){if(!/var\(/.test(c))return c;const p=document.create
 function exportFig(fig,fmt){
   const svg=fig.querySelector(".skch svg"),e=REG.get(fig.dataset.skchw);
   /* ASCII file names: some browsers drop a non-Latin download name */
-  const name=(e&&e.o.file||"KOSIF-chart-"+(e?e.kind:"figure"))+"-"+new Date().toISOString().slice(0,10);
+  const name=(e&&e.o.file||"SQC-chart-"+(e?e.kind:"figure"))+"-"+new Date().toISOString().slice(0,10);
   const vb=svg?svg.viewBox.baseVal:null,cs=getComputedStyle(fig),surface=resolveColor("var(--sk-surface)",fig),ink=resolveColor("var(--sk-ink-2)",fig);
   let W=vb?vb.width:640,H=vb?vb.height:320,inner="";
   if(svg){const clone=svg.cloneNode(true),src=[...svg.querySelectorAll("*")],dst=[...clone.querySelectorAll("*")];

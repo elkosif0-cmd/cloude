@@ -1,4 +1,4 @@
-/** KOSIF V5 — deterministic source fingerprint for report freshness (not a security hash). */
+/** SQC V5 — deterministic source fingerprint for report freshness (not a security hash). */
 const s=v=>v==null?'':typeof v==='bigint'?v.toString():String(v);
 const list=v=>(v||[]).map(s).sort().join(',');
 function row(prefix,id,...values){return `${prefix}:${s(id)}:${values.map(s).join(':')}`}

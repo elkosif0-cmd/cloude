@@ -1,5 +1,5 @@
 /**
- * KOSIF Research Intelligence Extension
+ * SQC Research Intelligence Extension
  *
  * Deterministic planning helpers derived from recurring audit-report patterns in the
  * Global Financial & Audit Research Bundle. These functions support professional
@@ -186,7 +186,7 @@ function candidateOrder(rows, { method, seed, candidateCount, risks }) {
 }
 
 /**
- * Plan a substantive sample using a transparent KOSIF policy layer.
+ * Plan a substantive sample using a transparent SQC policy layer.
  *
  * The policy deliberately does NOT claim that ISA 530 prescribes a single formula.
  * Instead it operationalizes factors repeatedly disclosed in audit reports: performance
@@ -275,7 +275,7 @@ export function planAuditSample(inputRows = [], {
 
   return {
     id: planId,
-    policy: 'KOSIF deterministic research-informed sampling policy',
+    policy: 'SQC deterministic research-informed sampling policy',
     standardsContext: ['ISA 320', 'ISA 330', 'ISA 530'],
     finalJudgment: 'human-reviewer',
     humanApprovalRequired: true,
@@ -318,7 +318,7 @@ export function planAuditSample(inputRows = [], {
       'فصل البنود ذات الأهمية الفردية في طبقة فحص 100% قبل المعاينة.',
       'تحديد امتداد العينة المتبقية وفق أهمية الأداء والمخاطر وفعالية الضوابط ومخاطر التجميع والتحريف المتوقع.',
       'استخدام اختيار حتمي قابل لإعادة الإنتاج والتتبع بالبذرة المسجلة.',
-      'هذه سياسة تخطيط KOSIF قابلة للتعديل والاعتماد البشري وليست معادلة إلزامية منصوصًا عليها في ISA 530.'
+      'هذه سياسة تخطيط SQC قابلة للتعديل والاعتماد البشري وليست معادلة إلزامية منصوصًا عليها في ISA 530.'
     ]
   };
 }
@@ -425,7 +425,7 @@ export function projectSampleMisstatement(plan, testResults = [], {
     overallMaterialityMinor: overall,
     performanceMaterialityMinor: performance,
     projectionAvailable,
-    note: 'الإسقاط النسبي أداة تقييم تشغيلية داخل KOSIF؛ يجب على المراجع تقييم ملاءمة طريقة الإسقاط وطبيعة التحريفات قبل الاستنتاج.'
+    note: 'الإسقاط النسبي أداة تقييم تشغيلية داخل SQC؛ يجب على المراجع تقييم ملاءمة طريقة الإسقاط وطبيعة التحريفات قبل الاستنتاج.'
   };
 }
 
@@ -513,7 +513,7 @@ function componentShareBps(amount, total) {
 
 /**
  * Research-informed group-audit scoping screen. Percentage thresholds are explicit
- * KOSIF policy defaults, not standard-mandated cut-offs, and are reviewer-adjustable.
+ * SQC policy defaults, not standard-mandated cut-offs, and are reviewer-adjustable.
  */
 export function scopeGroupAuditComponents(inputComponents = [], {
   fullScopeShareBps = 1500,
@@ -585,7 +585,7 @@ export function scopeGroupAuditComponents(inputComponents = [], {
       fullScopeRiskScore: fullRisk,
       specificScopeRiskScore: specificRisk,
       reviewerAdjustable: true,
-      note: 'النسب حدود سياسة داخلية في KOSIF وليست نسبًا إلزامية مقررة في معيار المراجعة.'
+      note: 'النسب حدود سياسة داخلية في SQC وليست نسبًا إلزامية مقررة في معيار المراجعة.'
     },
     humanApprovalRequired: true
   };
@@ -605,7 +605,7 @@ export function evaluateControlRemediation(inputControls = [], { minimumSustaina
     else if (!control.operatingEffective) { status = 'operating_gap'; blockers.push('الفعالية التشغيلية غير مثبتة'); }
     else if (Number(control.sustainabilityEvidencePeriods ?? 0) < periods) {
       status = 'sustainability_monitoring';
-      blockers.push(`يلزم دليل استدامة عبر ${periods} فترات على الأقل وفق سياسة KOSIF الحالية`);
+      blockers.push(`يلزم دليل استدامة عبر ${periods} فترات على الأقل وفق سياسة SQC الحالية`);
     }
     return {
       ...control,
@@ -625,6 +625,176 @@ export function evaluateControlRemediation(inputControls = [], { minimumSustaina
       openGaps: controls.filter((control) => ['design_gap', 'implementation_gap', 'operating_gap'].includes(control.status)).length,
       openMaterialWeaknesses: openMaterialWeaknesses.length
     },
+    humanApprovalRequired: true
+  };
+}
+
+
+/**
+ * Build a management-override response plan from recurring procedures disclosed by
+ * large-company auditors: targeted journal-entry testing, retrospective review of
+ * estimates for bias, and examination of significant unusual transactions.
+ */
+export function evaluateManagementOverride(input = {}) {
+  const indicators = {
+    incentivePressure: !!input.incentivePressure,
+    privilegedPosting: !!input.privilegedPosting,
+    lateOrPostCloseEntries: Number(input.lateOrPostCloseEntries ?? 0),
+    unusualEntries: Number(input.unusualEntries ?? 0),
+    estimateBiasIndicators: Number(input.estimateBiasIndicators ?? 0),
+    unusualTransactions: Number(input.unusualTransactions ?? 0),
+    controlWeaknesses: Number(input.controlWeaknesses ?? 0)
+  };
+  let score = 25;
+  const drivers = ['خطر تجاوز الإدارة يظل مفترضًا ويحتاج استجابة موثقة'];
+  if (indicators.incentivePressure) { score += 12; drivers.push('ضغط/حافز على النتائج'); }
+  if (indicators.privilegedPosting) { score += 12; drivers.push('إمكانية ترحيل بصلاحيات مرتفعة'); }
+  if (indicators.lateOrPostCloseEntries > 0) { score += Math.min(15, indicators.lateOrPostCloseEntries * 2); drivers.push('قيود متأخرة أو بعد الإقفال'); }
+  if (indicators.unusualEntries > 0) { score += Math.min(12, indicators.unusualEntries); drivers.push('قيود غير اعتيادية'); }
+  if (indicators.estimateBiasIndicators > 0) { score += Math.min(12, indicators.estimateBiasIndicators * 3); drivers.push('مؤشرات تحيز في التقديرات'); }
+  if (indicators.unusualTransactions > 0) { score += Math.min(12, indicators.unusualTransactions * 3); drivers.push('معاملات جوهرية غير اعتيادية'); }
+  if (indicators.controlWeaknesses > 0) { score += Math.min(12, indicators.controlWeaknesses * 3); drivers.push('قصور رقابي مرتبط'); }
+  score = Math.min(100, score);
+
+  const procedures = [
+    { id: 'journal-entry-testing', label: 'اختبار القيود والتعديلات', done: !!input.journalEntryTestingDone, detail: 'حدد معايير الاختيار قبل الاختبار: التوقيت، المستخدم، الحساب، الوصف، المبالغ الدائرية/الكبيرة، القيود العكسية وغير الاعتيادية.' },
+    { id: 'estimate-bias', label: 'مراجعة التقديرات بحثًا عن تحيز الإدارة', done: !!input.estimateBiasReviewed, detail: 'قارن نتائج التقديرات السابقة بالنتائج الفعلية وافحص اتجاه التحيز عبر التقديرات الجوهرية.' },
+    { id: 'unusual-transactions', label: 'فحص المعاملات الجوهرية غير الاعتيادية', done: !!input.unusualTransactionsReviewed, detail: 'افهم الغرض التجاري، الأطراف، التوقيت، شروط العقد والمعالجة المحاسبية، ولا تكتفِ بالمستند الشكلي.' },
+    { id: 'selection-integrity', label: 'توثيق سلامة مجتمع القيود ومعايير الاختيار', done: !!input.populationCompletenessConfirmed, detail: 'أثبت اكتمال مجتمع القيود وربطه بالدفتر قبل الاعتماد على نتائج الاختبار.' }
+  ];
+  const open = procedures.filter((p) => !p.done);
+  const risk = score >= 75 ? 'high' : score >= 50 ? 'elevated' : 'baseline';
+  return {
+    score,
+    risk,
+    drivers: [...new Set(drivers)],
+    procedures,
+    openProcedureCount: open.length,
+    conclusion: open.length
+      ? `خطر التجاوز ${risk === 'high' ? 'مرتفع' : risk === 'elevated' ? 'متزايد' : 'أساسي'} وما زالت ${open.length} استجابات إلزامية في خطة SQC غير موثقة.`
+      : 'الاستجابات الأساسية لتجاوز الإدارة موثقة؛ يبقى تقييم كفاية الاختبار والحكم النهائي للمراجع.',
+    standardsContext: ['ISA 240', 'ISA 330'],
+    humanApprovalRequired: true
+  };
+}
+
+/**
+ * Challenge ECL model governance using patterns repeatedly appearing in bank KAMs:
+ * staging/SICR, PD-LGD-EAD, multiple probability-weighted scenarios, overlays,
+ * data lineage, back-testing/model validation and sensitivity.
+ */
+export function evaluateEclGovernance(input = {}) {
+  const checks = [
+    ['scope', 'تحديد نطاق الأدوات الخاضعة لـECL', input.scopeDefined, 8],
+    ['staging', 'منهج المراحل 1/2/3 واضح ومتسق', input.stagingDefined, 10],
+    ['sicr', 'معايير الزيادة الجوهرية في مخاطر الائتمان SICR موثقة', input.sicrDocumented, 10],
+    ['parameters', 'PD / LGD / EAD موثقة ومختبرة', input.pdLgEadValidated, 12],
+    ['scenarios', 'سيناريوهات مستقبلية متعددة ذات أوزان احتمالية', input.probabilityWeightedScenarios, 12],
+    ['macro', 'متغيرات الاقتصاد الكلي مرتبطة بالنموذج ومبررة', input.macroeconomicLinkageDocumented, 8],
+    ['overlays', 'الـoverlays/PMAs لها حوكمة وحدود وموافقات', input.overlaysGoverned, 12],
+    ['validation', 'تحقق مستقل أو مراجعة نموذج مناسبة', input.independentValidation, 10],
+    ['backtest', 'Back-testing ومقارنة التوقع بالخسائر الفعلية', input.backtesting, 8],
+    ['lineage', 'سلسلة مصدر البيانات واكتمالها قابلة للتتبع', input.dataLineage, 5],
+    ['sensitivity', 'تحليل حساسية للفرضيات والسيناريوهات', input.sensitivityAnalysis, 5]
+  ];
+  let earned = 0, total = 0;
+  const results = checks.map(([id, label, ok, weight]) => {
+    total += weight;
+    if (ok === true) earned += weight;
+    return { id, label, status: ok === true ? 'pass' : ok === false ? 'fail' : 'review', weight };
+  });
+  const score = total ? Math.round((earned / total) * 100) : 0;
+  const criticalMissing = results.filter((x) => ['staging','sicr','parameters','scenarios','overlays','validation'].includes(x.id) && x.status !== 'pass');
+  const status = criticalMissing.length >= 3 || score < 50 ? 'high-risk' : criticalMissing.length || score < 75 ? 'needs-work' : 'strong';
+  return {
+    score,
+    status,
+    checks: results,
+    criticalMissing: criticalMissing.map((x) => x.label),
+    challengePrompts: [
+      'ما الذي أدى إلى انتقال التعرض من Stage 1 إلى Stage 2؟ وهل ظهرت حالات تأخر كان يجب أن تنتقل ولم تنتقل؟',
+      'كيف تغيرت PD/LGD/EAD عن السنة السابقة؟ وما أثر التغير على المخصص؟',
+      'ما السيناريوهات الاقتصادية المستخدمة وما أوزانها؟ وهل توجد نتيجة شديدة لكنها معقولة لم تُلتقط؟',
+      'ما سبب كل management overlay؟ وما آلية منعه من إخفاء ضعف النموذج الأساسي؟',
+      'هل نتائج back-testing تدعم معايرة النموذج أم تشير إلى تحيز منهجي؟'
+    ],
+    standardsContext: ['IFRS 9', 'ISA 540'],
+    humanApprovalRequired: true
+  };
+}
+
+/**
+ * Research-informed going-concern challenge checklist. Horizon is a SQC policy input;
+ * the engagement team must confirm the currently effective requirement in the Codex.
+ */
+export function evaluateGoingConcern(input = {}, { minimumForecastMonths = 12 } = {}) {
+  const minMonths = Math.max(1, Math.min(36, Math.trunc(Number(minimumForecastMonths) || 12)));
+  const months = Math.max(0, Number(input.forecastMonths ?? 0));
+  const checks = [
+    { id: 'horizon', label: `فترة توقع تغطي ${minMonths} شهرًا على الأقل وفق سياسة SQC الحالية`, pass: months >= minMonths },
+    { id: 'reconcile', label: 'توقع التدفقات مرتبط بميزانية/خطة معتمدة وبالأرقام التاريخية', pass: !!input.forecastReconciled },
+    { id: 'facilities', label: 'تسهيلات التمويل الرئيسية مؤكدة وشروطها مفهومة', pass: !!input.fundingFacilitiesConfirmed },
+    { id: 'covenants', label: 'الهامش المتاح قبل خرق التعهدات/الشروط تم اختباره', pass: !!input.covenantHeadroomTested },
+    { id: 'downside', label: 'سيناريو هبوطي شديد لكنه معقول', pass: !!input.downsideScenario },
+    { id: 'reverse', label: 'Reverse stress يحدد نقطة فشل السيولة/التعهدات', pass: !!input.reverseStressTest },
+    { id: 'plans', label: 'خطط الإدارة العلاجية قابلة للتنفيذ وتوقيتها معقول', pass: !!input.managementPlansTested },
+    { id: 'post', label: 'الأحداث بعد الفترة وحتى تاريخ التقرير روجعت', pass: !!input.postBalanceEventsReviewed },
+    { id: 'board', label: 'التقييم/الخطة خضعا للمراجعة والاعتماد المناسب', pass: !!input.boardOrGovernanceApproved }
+  ];
+  const passed = checks.filter((x) => x.pass).length;
+  const score = Math.round((passed / checks.length) * 100);
+  const liquidityFlags = Math.max(0, Number(input.liquidityWarningIndicators ?? 0));
+  const covenantRisk = input.covenantBreachExpected === true;
+  const materialUncertainty = input.materialUncertaintyIdentified === true;
+  let status = score >= 80 ? 'supported' : score >= 55 ? 'incomplete' : 'high-risk';
+  if (covenantRisk || liquidityFlags >= 3) status = 'high-risk';
+  if (materialUncertainty && input.disclosureAdequate !== true) status = 'disclosure-gap';
+  return {
+    score,
+    status,
+    checks,
+    failed: checks.filter((x) => !x.pass).map((x) => x.label),
+    materialUncertainty,
+    reporting: materialUncertainty
+      ? (input.disclosureAdequate === true ? 'راجع أثر عدم التأكد الجوهري على تقرير المراجع وصياغة القسم المناسب.' : 'الإفصاح غير كافٍ مع وجود عدم تأكد جوهري؛ يلزم تصعيد مهني قبل التقرير.')
+      : 'لا تستنتج عدم وجود عدم تأكد جوهري من المؤشرات الآلية وحدها؛ اربط النتيجة بالأدلة وخطط الإدارة.',
+    standardsContext: ['IAS 1', 'ISA 570'],
+    currentRequirementMustBeConfirmedInCodex: true,
+    humanApprovalRequired: true
+  };
+}
+
+/**
+ * Engagement quality and independence screen based on recurring audit-committee and
+ * transparency-report indicators: independence, non-audit services, partner rotation,
+ * specialist involvement, inspection findings, audit-plan/status communication and EQ review.
+ */
+export function assessEngagementQuality(input = {}) {
+  const checks = [
+    ['independence', 'تأكيد الاستقلال السنوي موثق', input.independenceConfirmed, 15],
+    ['prohibited', 'لا توجد خدمات غير مراجعة محظورة', input.prohibitedNonAuditServices !== true, 15],
+    ['approval', 'الخدمات غير المراجعة المسموحة خضعت للموافقة المطلوبة', input.nonAuditServicesApproved, 8],
+    ['fees', 'اعتماد الأتعاب/الاعتماد المالي على العميل خضع للتقييم', input.feeDependenceReviewed, 8],
+    ['rotation', 'تناوب الشريك/الفريق وفق المتطلبات المنطبقة تمت مراجعته', input.partnerRotationReviewed, 8],
+    ['skills', 'استخدام الخبراء عند الحاجة (تقييم، ضريبة، IT، نماذج)', input.specialistsUsedWhenNeeded, 10],
+    ['inspection', 'نتائج التفتيش/المراجعات الداخلية المفتوحة عولجت في التخطيط', input.inspectionFindingsConsidered, 8],
+    ['status', 'حالة الاختبارات والتأخيرات تُرفع مبكرًا للحوكمة', input.testingStatusTransparent, 8],
+    ['challenge', 'يوجد تحدٍ مستقل وموضوعي من الفريق والإدارة/لجنة المراجعة', input.independentChallengeEvidence, 10],
+    ['eqr', 'مراجعة جودة الارتباط أُنجزت عندما تكون مطلوبة', input.engagementQualityReviewComplete, 10]
+  ];
+  let earned=0,total=0;
+  const results=checks.map(([id,label,ok,w])=>{total+=w;if(ok===true)earned+=w;return{id,label,status:ok===true?'pass':ok===false?'fail':'review',weight:w};});
+  const score=total?Math.round((earned/total)*100):0;
+  const blockers=results.filter((x)=>['independence','prohibited','eqr'].includes(x.id)&&x.status!=='pass');
+  const status=blockers.length?'blocked':score>=85?'strong':score>=65?'needs-attention':'weak';
+  return {
+    score,
+    status,
+    checks: results,
+    blockers: blockers.map((x)=>x.label),
+    recommendation: status==='blocked'
+      ? 'لا تُغلق الارتباط قبل حسم نقاط الاستقلال/الجودة الحرجة وتوثيق القرار.'
+      : status==='strong' ? 'مؤشرات الجودة المدخلة قوية؛ استمر في التوثيق والمراقبة.' : 'توجد فجوات في مؤشرات جودة الارتباط تحتاج خطة ومسؤول وتاريخ إغلاق.',
     humanApprovalRequired: true
   };
 }

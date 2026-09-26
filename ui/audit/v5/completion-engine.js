@@ -1,4 +1,4 @@
-/** KOSIF V5 — completion room gates. System facts and human professional decisions stay separate. */
+/** SQC V5 — completion room gates. System facts and human professional decisions stay separate. */
 const ACTIVE_REQUESTS=new Set(['draft','requested','received','under-review','partial']);
 const OPEN_ISSUES=new Set(['open','investigating','management-response','challenged']);
 const PENDING_ADJUSTMENTS=new Set(['proposed','challenged','modified']);

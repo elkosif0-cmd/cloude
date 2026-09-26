@@ -121,7 +121,7 @@ const SECTIONS=[
     });
     const descriptions=[...desc.values()].map(x=>D({id:x.id,original:x.original,normalized:x.normalized,signature:x.signature,seenCount:x.seenCount,qty:x.qty,sales:r2(x.sales),customerCount:x.cs.size,firstSeen:x.firstSeen,lastSeen:x.lastSeen}));
     await idbPut({customers:[...cust.values()],sales_lines:lines,sales_descriptions:descriptions,orders:ords,order_items:items,payments:pays,
-      imports:[D({id:"demo-import",fileName:"بيانات تجريبية — KOSIF",size:0,sha256:"demo",source:"demo",status:"committed",rowCount:lines.length,errorCount:0,duplicateCount:0,createdAt:nowIso(),committedAt:nowIso(),orderCount:ords.length,itemCount:items.length,paymentCount:pays.length,opsOrderCount:0,insertedLines:lines.length,customerCount:cust.size})],
+      imports:[D({id:"demo-import",fileName:"بيانات تجريبية — SQC",size:0,sha256:"demo",source:"demo",status:"committed",rowCount:lines.length,errorCount:0,duplicateCount:0,createdAt:nowIso(),committedAt:nowIso(),orderCount:ords.length,itemCount:items.length,paymentCount:pays.length,opsOrderCount:0,insertedLines:lines.length,customerCount:cust.size})],
       meta:[{key:"dataset",value:{demo:true,datasetVersion:"demo-1",srcLabel:{},cover:null,lastImportAt:nowIso()}}]});
     /* direct sales recorded in «تسجيل بيع» (the ledger posts them) */
     const man=arr("aghnam-v12-manual-sales");

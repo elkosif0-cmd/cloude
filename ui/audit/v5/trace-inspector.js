@@ -1,4 +1,4 @@
-/** KOSIF V5 — resolves any traceable object and its upstream/downstream lineage. */
+/** SQC V5 — resolves any traceable object and its upstream/downstream lineage. */
 import { buildEngagementTraceability, traceAncestors, downstreamImpacts } from './traceability.js';
 
 const collections=Object.freeze([

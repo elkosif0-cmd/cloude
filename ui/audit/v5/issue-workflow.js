@@ -1,4 +1,4 @@
-/** KOSIF V5 — issue-centric review domain. Human resolution stays separate from automated signals. */
+/** SQC V5 — issue-centric review domain. Human resolution stays separate from automated signals. */
 const ACTIVE_REQUESTS=new Set(['draft','requested','received','under-review','partial']);
 const REVIEWED_EVIDENCE=new Set(['reviewed','sufficient']);
 const OPEN_ISSUES=new Set(['open','investigating','management-response','challenged']);

@@ -1,4 +1,4 @@
-/** KOSIF V5 — browser persistence coordinator for D1-backed engagement snapshots. */
+/** SQC V5 — browser persistence coordinator for D1-backed engagement snapshots. */
 import { createEngagementPersistenceClient } from './engagement-persistence.js';
 import { store, DEFAULT_GATEWAY, GATEWAY_KEY, resetWorkspace } from './continuous-store.js';
 
