@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildRequest, friendlyError, modelsFrom, toGeminiResponse, toJsonSchema, type GeminiBody } from './ai-providers-engine';
+import { buildRequest, fallbackModels, friendlyError, modelsFrom, PROVIDERS, retryWithOtherModel, toGeminiResponse, toJsonSchema, type GeminiBody } from './ai-providers-engine';
 
 const body: GeminiBody = {
   systemInstruction: { parts: [{ text: 'أنت مراجع.' }] },
@@ -73,5 +73,17 @@ describe('responses', () => {
     expect(modelsFrom('anthropic', { data: [{ id: 'claude-opus-5' }] })).toEqual(['claude-opus-5']);
     expect(friendlyError('anthropic', 401)).toContain('Anthropic Claude');
     expect(friendlyError('openai', 0)).toContain('api.openai.com');
+  });
+  it('accepts both AI Studio key shapes and falls back to another model when one is retired or overloaded', () => {
+    expect(PROVIDERS.gemini.keyPattern.test('AIzaSyA-1234567890abcdefghijk')).toBe(true);
+    expect(PROVIDERS.gemini.keyPattern.test('AQ.Ab8RN6LPQrY57xCW5hbb_9NMmEM')).toBe(true);
+    expect(PROVIDERS.gemini.keyPattern.test('short')).toBe(false);
+    expect(PROVIDERS.gemini.models[0]).toBe('gemini-flash-latest');
+    expect([404, 429, 500, 503, 529].every(retryWithOtherModel)).toBe(true);
+    expect([400, 401, 403].some(retryWithOtherModel)).toBe(false);
+    const f = fallbackModels('gemini', 'gemini-2.5-flash', ['gemini-3.8-flash']);
+    expect(f[0]).toBe('gemini-flash-latest');
+    expect(f).not.toContain('gemini-2.5-flash');
+    expect(f.length).toBeLessThanOrEqual(4);
   });
 });

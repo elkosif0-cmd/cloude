@@ -18,10 +18,12 @@ window.SKEngines = (function() {
 		PROVIDERS: () => PROVIDERS,
 		buildRequest: () => buildRequest,
 		errorMessage: () => errorMessage,
+		fallbackModels: () => fallbackModels,
 		friendlyError: () => friendlyError$1,
 		isProvider: () => isProvider,
 		modelsFrom: () => modelsFrom,
 		modelsRequest: () => modelsRequest,
+		retryWithOtherModel: () => retryWithOtherModel,
 		toGeminiResponse: () => toGeminiResponse,
 		toJsonSchema: () => toJsonSchema
 	});
@@ -30,13 +32,15 @@ window.SKEngines = (function() {
 			id: "gemini",
 			ar: "Google Gemini",
 			base: "https://generativelanguage.googleapis.com/v1beta/",
-			keyHint: "AIza…",
-			keyPattern: /^[\w-]{20,}$/,
+			keyHint: "AIza… أو AQ.…",
+			keyPattern: /^[\w.-]{20,}$/,
 			keyLink: "https://aistudio.google.com/app/apikey",
 			models: [
-				"gemini-2.5-flash",
-				"gemini-2.5-pro",
-				"gemini-2.5-flash-lite"
+				"gemini-flash-latest",
+				"gemini-3.7-flash",
+				"gemini-3.5-flash",
+				"gemini-flash-lite-latest",
+				"gemini-pro-latest"
 			],
 			host: "generativelanguage.googleapis.com"
 		},
@@ -62,7 +66,7 @@ window.SKEngines = (function() {
 			keyPattern: /^sk-ant-[\w-]{20,}$/,
 			keyLink: "https://platform.claude.com/settings/keys",
 			models: [
-				"claude-opus-5",
+				"claude-opus-5-5",
 				"claude-sonnet-5",
 				"claude-haiku-4-5"
 			],
@@ -354,6 +358,20 @@ window.SKEngines = (function() {
 		if (status === 529 || status >= 500) return `خطأ مؤقت من خدمات ${P.ar} (${status}) — أعد المحاولة.`;
 		if (status === 0) return `تعذر الاتصال — تحقق من الشبكة أو من مانع يحجب ${P.host}.`;
 		return "خطأ " + status + (message ? ": " + message : "");
+	}
+	/** Whether another model may succeed where this one failed: retired or unknown (404), overloaded (5xx/529), or out of quota
+	for this model (429 — a lighter model often has its own quota). A bad key (400/401/403) fails on every model. */
+	function retryWithOtherModel(status) {
+		return status === 404 || status === 429 || status === 529 || status >= 500;
+	}
+	/** The models to try after `current` failed, best first: the provider's defaults, then the models the key listed, lighter last. */
+	function fallbackModels(provider, current, known = []) {
+		const seen = /* @__PURE__ */ new Set([current]), out = [];
+		for (const m of [...PROVIDERS[provider].models, ...known]) if (m && !seen.has(m)) {
+			seen.add(m);
+			out.push(m);
+		}
+		return out.slice(0, 4);
 	}
 	/** Model ids from each provider's list endpoint (GET …/models), filtered to text-generation models. */
 	function modelsFrom(provider, api) {

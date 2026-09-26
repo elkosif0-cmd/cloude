@@ -30,14 +30,22 @@ async function send(url,init,timeoutMs,signal){
   catch{clearTimeout(t);throw new Error(ac.signal.aborted?"أُلغي الطلب أو تجاوز المهلة.":PV().friendlyError(provider(),0))}
   clearTimeout(t);
   let data=null;try{data=await res.json()}catch{}
-  if(!res.ok)throw new Error(PV().friendlyError(provider(),res.status,PV().errorMessage(data)));
+  if(!res.ok){const e=new Error(PV().friendlyError(provider(),res.status,PV().errorMessage(data)));e.status=res.status;throw e}
   return data;
 }
 function need(){const c=conf();if(!c.key)throw new Error("لم يُضبط مفتاح "+c.label+" بعد — أدخله في بطاقة «المراجع الذكي».");return c}
+/* a retired, overloaded or out-of-quota model does not stop the review: the next model is tried, and the one that answered
+   becomes this device's model (a bad key fails at once — no other model would take it) */
 async function generate(body,opts={}){
-  const c=need(),model=opts.model||c.model,w=PV().buildRequest(c.provider,body,model,c.key);
-  const data=await send(w.url,{method:"POST",headers:w.headers,body:JSON.stringify(w.body)},opts.timeout,opts.signal);
-  return PV().toGeminiResponse(c.provider,data);
+  const c=need(),first=opts.model||c.model,tries=[first,...(opts.model?[]:PV().fallbackModels(c.provider,first,c.models))];let last=null;
+  for(const model of tries){
+    const w=PV().buildRequest(c.provider,body,model,c.key);
+    try{const data=await send(w.url,{method:"POST",headers:w.headers,body:JSON.stringify(w.body)},opts.timeout,opts.signal);
+      if(model!==first){setConf({model});toast("النموذج «"+first+"» غير متاح الآن — أكمل «"+model+"» واعتُمد لهذا الجهاز","info")}
+      return PV().toGeminiResponse(c.provider,data)}
+    catch(e){last=e;if(!(e&&e.status&&PV().retryWithOtherModel(e.status))||(opts.signal&&opts.signal.aborted))throw e}
+  }
+  throw last;
 }
 async function models(){
   const c=need(),r=PV().modelsRequest(c.provider,c.key);
