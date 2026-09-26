@@ -1,6 +1,6 @@
 /* S.kosif — الإقفال الشهري والملخص الصباحي وتنبيهات الدفاتر (window.SKosifClose).
-   آلية عمل واحدة واضحة: كل شهر يمر بثماني خطوات بالترتيب — ترحيل العمليات، متابعة التحصيل، مطابقة البنك، الجرد،
-   الضريبة، ميزان المراجعة، الإرسال إلى المراجعة، ثم إقفال الفترة. حالة كل خطوة تُقرأ من البيانات نفسها (لا علامات
+   آلية عمل واحدة واضحة: كل شهر يمر بخطواته بالترتيب — ترحيل العمليات، متابعة التحصيل، مطابقة البنك، الجرد،
+   الضريبة، ميزان المراجعة، سلامة سجل التعديلات، مطابقة الإيرادات، الإرسال إلى المراجعة، ثم إقفال الفترة. حالة كل خطوة تُقرأ من البيانات نفسها (لا علامات
    يدوية)، وكل خطوة تفتح الشاشة التي تُنجز فيها. الملخص الصباحي في مركز القيادة وتنبيهات الجرس تقرأ من المصدر نفسه
    (SKosifLedger)، فلا يختلف رقم بين شاشة وأخرى. */
 (()=>{
@@ -45,6 +45,17 @@ function steps(m){
   }else add("vat","إقرار الضريبة","الإقرار ربع سنوي","na","لا إقرار هذا الشهر — الربع ينتهي في "+label(m.slice(0,5)+String(Math.ceil(mm/3)*3).padStart(2,"0")),{tab:"vat",label:"عرض"});
   const tb=l.trialBalance(end);
   add("tb","ميزان المراجعة","المدين يساوي الدائن في نهاية الشهر",tb.balanced?"ok":"bad",tb.balanced?"متزن — "+tb.rows.length+" حساباً":"غير متزن — فرق "+money(tb.totals.debit-tb.totals.credit),{tab:"tb",label:"الميزان"});
+  /* the journal's audit trail covers the month, and the month's revenue ties to the sales register (research: Reliance,
+     Infosys edit-log reporting; e& and Deutsche Telekom revenue reconciliations) */
+  const CH=window.SKEngines&&SKEngines.finance.journalChain,tr=l.trail&&l.trail();
+  if(CH&&tr){const cv=CH.coversPeriod(d.entries,start,end);
+    add("trail","سلامة سجل التعديلات","كل قيود الشهر مختومة في السلسلة ولا تعديل أو حذف بعد الترحيل",!tr.ok||tr.events?"bad":cv.entries&&!cv.throughout?"warn":"ok",
+      !tr.ok||tr.events?[tr.issues.length?tr.issues.length+" قيد تغيّر أو انقطع تسلسله":"",tr.events?tr.events+" إدراج من خارج الدفاتر":""].filter(Boolean).join(" · "):cv.entries?(cv.throughout?"كل قيود الشهر مختومة ("+cv.entries+")":cv.uncovered+" قيداً سابقاً للتفعيل — اختمها"):"لا قيود في الشهر",{tab:"recon",label:"سجل التعديلات"});}
+  const rr=l.revenueRecon&&l.revenueRecon();
+  if(rr&&(rr.rows.length||rr.unposted.length)){const row=rr.rows.find(x=>x.month===m),unp=rr.unposted.filter(u=>u.date.slice(0,7)===m),man=rr.manual.filter(x=>x.date.slice(0,7)===m);
+    const diff=row?row.ledger-row.other-row.source:0,ok=!unp.length&&Math.abs(diff)<=Math.max(100,rr.tolerance);
+    add("revenue","مطابقة الإيرادات","مبيعات الشهر في السجل = إيرادات الأستاذ، والقيود اليدوية على الإيرادات موثقة",ok?(man.length?"warn":"ok"):"warn",
+      !ok?(unp.length?unp.length+" بيع غير مرحّل":"فرق "+money(diff/100)):man.length?man.length+" قيد يدوي على الإيرادات — وثّقه":"مطابقة",{tab:"recon",label:"مطابقة الإيرادات"});}
   const r=load("skosif_tbreview_v1",{})||{},sent=!!(r.tbText&&r.loadedAt&&r.loadedAt.slice(0,10)>=end);
   add("review","الإرسال إلى المراجعة","ميزان الشهر في ملف المراجعة (المعايير والمجلس الذكي) — اختياري",sent?"ok":"na",sent?"أُرسل في "+r.loadedAt.slice(0,10):"لم يُرسل ميزان هذا الشهر",{run:"review",label:"إرسال الميزان"});
   const locked=!!(d.lockDate&&d.lockDate>=end),ready=S[0].st==="ok"&&S.find(x=>x.id==="tb").st==="ok"&&t>end;

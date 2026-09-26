@@ -156,6 +156,12 @@ jobs:
                          "SKosifClose","skclose-steps","skbrief","booksHTML","syncStudio","recolorStudio","docAIHTML","tbr-adv"]:
               assert marker in js, "ledger control missing: "+marker
           assert 'data-l="del-entry"' not in js, "posted entries are reversed, never deleted"
+          # global audit practice from the research bundle, as working tools: the materiality plan and the retrospective review
+          # of estimates (fieldwork), going concern and viability (completion), key audit matters drafted from the line risks
+          # and the global precedents, and in the books the journal's audit trail (edit log) and the revenue reconciliation
+          for marker in ["planMateriality","suggestKams","assessGoingConcern","goingConcernSection","reviewEstimates","reconcileRevenue",
+                         "verifyChain","sealNew","externalInserts","SKosifAuditPractice","trailHTML","revReconHTML","kamList"]:
+              assert marker in js, "audit practice marker missing: "+marker
           for marker in ["SKosifTopbar","SKCharts","SKosifTable","SKosifNotify","SKosifReportPack","SKosifMetrics","skp-band","counter(pages)"]:
               assert marker in js, "luxe marker missing: "+marker
           for marker in ["--sk-heat-1",".sk-ph",".skk4",".sktb-bar",".skhm-cell",".sksev"]:

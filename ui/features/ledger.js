@@ -17,7 +17,18 @@ const db=()=>{const d=load(KEY,{})||{};return{...d,accounts:Array.isArray(d.acco
 const locked=(d,date)=>E().ledger.isPeriodLocked(date,d.lockDate);
 /* operations already in the books: a reversed entry frees its operation to be posted again */
 const postedSources=d=>new Set(d.entries.filter(e=>!e.reversedBy).map(e=>e.sourceId).filter(Boolean));
-const put=d=>save(KEY,d);
+/* every save seals the entries posted since the last one into the journal's audit trail (edit log): a SHA-256 chain,
+   so an edited, deleted or inserted entry shows (journal-chain-engine). Entries that were already in the books when
+   the trail began stay «legacy» until sealed once; entries that appear in storage without passing through here are
+   recorded as an integrity event before being sealed. Demo entries never enter the chain. */
+const put=d=>{
+  const CH=E().journalChain;
+  if(CH){const now=new Date().toISOString(),stored=(load(KEY,{})||{}).entries||[];
+    if(!d.chain){const had=new Set(stored.map(e=>e.id));d.entries.forEach(e=>{if(!e.hash&&!e.demo&&had.has(e.id))e.legacy=true});d.chain={since:now,events:[]}}
+    else{const ext=CH.externalInserts(stored);if(ext.length){d.chain={...d.chain,events:[...(d.chain.events||[]),{at:now,ids:ext}].slice(-50)};d.entries.forEach(e=>{if(ext.includes(e.id))e.external=true})}}
+    CH.sealNew(d.entries,now)}
+  save(KEY,d);
+};
 const r2=v=>Math.round((Number(v)||0)*100)/100;
 function period(){const c=load(CO_KEY,{});const a=c.active||{};const p=(c.periods||[]).find(x=>x.id===a.periodId);return p||null}
 function inPeriod(e,p){return !p||(e.date>=p.startDate&&e.date<=p.endDate)}
@@ -109,7 +120,42 @@ function tbHTML(d){
     '<tr><td><b>الإجمالي</b></td><td class="n"><b>'+money(tb.totals.debit)+'</b></td><td class="n"><b>'+money(tb.totals.credit)+'</b></td><td></td><td></td></tr></tbody></table></div></div></section>';
 }
 /* control accounts against the operational sub-ledgers kept in the app */
-function reconHTML(d){return controlHTML(d)+bankHTML(d)+countHTML(d)}
+function reconHTML(d){return controlHTML(d)+trailHTML(d)+revReconHTML(d)+bankHTML(d)+countHTML(d)}
+/* ---------- the journal's audit trail (edit log) ---------- */
+function trailOf(d){const CH=E().journalChain,p=period();if(!CH)return null;return{v:CH.verifyChain(d.entries),cov:p?CH.coversPeriod(d.entries,p.startDate,p.endDate):null,p,since:d.chain&&d.chain.since,events:(d.chain&&d.chain.events)||[]}}
+function trailHTML(d){
+  const t=trailOf(d);if(!t||!d.entries.length)return "";
+  const v=t.v,ok=v.ok&&!t.events.length,fmt=x=>x?String(x).slice(0,10):"—";
+  return '<section class="card"><div class="card-h"><div><h3>سجل التعديلات وسلامة القيود</h3><p>كل قيد يُختم عند حفظه في سلسلة SHA-256 مرتبطة بالقيد السابق — التصحيح بقيد عكسي لا بالحذف، فأي تعديل أو حذف أو إدراج خارج الدفاتر يظهر هنا. على نهج مراجعي ريلاينس وإنفوسيس الذين يشهدون أن سجل التعديلات «عمل طوال السنة ولم يُتلاعب به»، وسلسلة فواتير هيئة الزكاة والضريبة.</p></div><span class="sk-pill '+(ok?'good':'bad')+'">'+(ok?(v.legacy?'سليم — مع قيود سابقة للتفعيل':'سليم'):'يحتاج مراجعة')+'</span></div><div class="card-b">'+
+    '<div class="lg-kpis"><div><small>قيود مختومة</small><b>'+v.sealed+'</b><span>من '+(v.total-v.demo)+(v.demo?' (عدا '+v.demo+' تجريبي)':'')+'</span></div><div><small>سابقة للتفعيل</small><b>'+v.legacy+'</b><span>مفعل منذ '+fmt(t.since)+'</span></div><div><small>القيود العكسية</small><b>'+v.reversals+'</b><span>يدوية '+v.manual+'</span></div><div><small>ختم السلسلة</small><b class="mono">'+esc(v.head.slice(0,12))+'…</b><span>'+fmt(v.firstDate)+' ← '+fmt(v.lastDate)+'</span></div></div>'+
+    (t.cov?'<p class="hint">الفترة النشطة ('+esc(t.p.label||"")+'): '+(t.cov.throughout?'السجل يغطي كل قيودها ('+t.cov.entries+' قيداً).':t.cov.entries?t.cov.uncovered+' من '+t.cov.entries+' قيداً خارج السجل — اختمها لتكتمل التغطية.':'لا قيود بعد.')+'</p>':'')+
+    (v.issues.length?'<ul class="lg-issues">'+v.issues.slice(0,12).map(i=>'<li><span class="sk-pill bad">'+esc(i.ar)+'</span> '+esc(i.id)+(i.seq?' (#'+i.seq+')':'')+'</li>').join("")+'</ul>':'')+
+    (t.events.length?'<p class="lg-warn">رُصد '+t.events.length+' حدث إدراج قيود من خارج الدفاتر (آخره '+fmt(t.events[t.events.length-1].at)+')، ثم خُتمت. راجع القيود المعلّمة «من خارج الدفاتر».</p>':'')+
+    (ok&&t.cov&&t.cov.throughout?'<p class="lg-ok">تستخدم الدفاتر سجل تعديلات يعمل على جميع القيود المرحّلة للفترة، ولم يُرصد أي تلاعب به، ويُحفظ مع النسخ الاحتياطية.</p>':'')+
+    '<div class="sk-actions">'+(v.legacy?'<button type="button" class="btn sm" data-l="trail-seal">ختم القيود السابقة للتفعيل ('+v.legacy+')</button>':'')+'<button type="button" class="btn sm" data-l="trail-csv">تصدير سجل التعديلات</button></div></div></section>';
+}
+/* ---------- revenue: the sales register against the ledger ---------- */
+function revReconOf(d){
+  const RR=window.SKEngines.audit&&SKEngines.audit.revenueRecon,p=period();if(!RR)return null;
+  const rev=d.accounts.filter(a=>a.type==="revenue").map(a=>a.id);if(!rev.length)return null;
+  const yr=String(new Date().getFullYear()),start=p?p.startDate:yr+"-01-01",end=p?p.endDate:yr+"-12-31";
+  const sales=(load("aghnam-v12-manual-sales",[])||[]).filter(x=>x&&x.id).map(x=>{const q=Number(x.qty)||1,g=(Number(x.unitPrice)||((Number(x.amount)||0)/q))*q;return{id:String(x.id),date:String(x.date||"").slice(0,10),gross:Math.round(g*100)}});
+  const cents=l=>({accountId:l.accountId,debit:Math.round((Number(l.debit)||0)*100),credit:Math.round((Number(l.credit)||0)*100)});
+  const entries=d.entries.map(e=>({id:e.id,date:String(e.date).slice(0,10),source:e.source,sourceId:e.sourceId,memo:e.memo,reversalOf:e.reversalOf,reversedBy:e.reversedBy,lines:(e.lines||[]).map(cents)}));
+  return {start,end,r:RR.reconcileRevenue({sales,entries,revenueAccounts:rev,start,end})};
+}
+function revReconHTML(d){
+  const x=revReconOf(d);if(!x||(!x.r.rows.length&&!x.r.unposted.length))return "";
+  const r=x.r,h=v=>money(v/100);
+  return '<section class="card"><div class="card-h"><div><h3>مطابقة الإيرادات: سجل المبيعات ↔ دفتر الأستاذ</h3><p>كما يفعل مراجعو e& ودويتشه تيليكوم: مطابقة المبيعات المسجلة (بعد الضريبة) مع إيرادات الأستاذ لكل شهر، وحصر القيود اليدوية على الإيرادات، والمبيعات المعكوسة بعد نهاية الفترة (القطع).</p></div><span class="sk-pill '+(r.reconciled?'good':'bad')+'">'+(r.reconciled?'مطابق':'فروقات')+'</span></div><div class="card-b">'+
+    '<div class="sk-table-wrap"><table class="sk-table" data-sk-plain><thead><tr><th>الشهر</th><th>سجل المبيعات</th><th>الأستاذ</th><th>منها قيود أخرى</th><th>الفرق</th></tr></thead><tbody>'+
+    r.rows.map(m=>'<tr><td class="n">'+esc(m.month)+'</td><td class="n">'+h(m.source)+'</td><td class="n">'+h(m.ledger)+'</td><td class="n">'+(m.other?h(m.other):'—')+'</td><td class="n">'+(m.diff?h(m.diff):'✓')+'</td></tr>').join("")+
+    '<tr class="tot"><td>المجموع</td><td class="n">'+h(r.source)+'</td><td class="n">'+h(r.ledger)+'</td><td class="n">'+h(r.otherRevenue)+'</td><td class="n">'+h(r.diff)+'</td></tr></tbody></table></div>'+
+    (r.unposted.length?'<p class="lg-warn">'+r.unposted.length+' عملية بيع لم تُرحّل بعد بمبلغ '+h(r.unposted.reduce((s,u)=>s+u.amount,0))+' — رحّلها من «القيود».</p>':'')+
+    (r.manual.length?'<h4>قيود على الإيرادات من غير سجل المبيعات ('+r.manual.length+')</h4><ul class="lg-issues">'+r.manual.slice(0,10).map(m=>'<li>'+esc(m.date)+' · '+esc(m.source)+' · '+esc(m.memo||m.id)+' — <b>'+h(m.amount)+'</b></li>').join("")+'</ul><p class="hint">اطلب مستند كل قيد يدوي على الإيرادات — من أهم اختبارات تجاوز الإدارة للرقابة.</p>':'')+
+    (r.reversedAfter.length?'<p class="lg-warn">'+r.reversedAfter.length+' قيد إيراد من داخل الفترة عُكس بعد نهايتها — تحقق من صحة القطع.</p>':'')+
+    '<p class="hint">نافذة القطع: '+esc(r.cutoff.from)+' ← '+esc(r.cutoff.to)+' — '+r.cutoff.count+' عملية بمبلغ '+h(r.cutoff.amount)+' لاختبار عينة منها مع إثباتات التسليم.</p></div></section>';
+}
 function controlHTML(d){
   const gl=E().ledger.buildGeneralLedger(d.entries),byCode=c=>(d.accounts.find(a=>a.code===c)||{}).id;
   const credit=load("skosif_v38_ledger",[]),arSub=Array.isArray(credit)?credit.reduce((s,c)=>s+(Number(c.balance)||0),0):0;
@@ -437,6 +483,8 @@ function bind(root){
       d.entries.push({id:en.id,date:en.date,reference:en.reference,lines:en.lines,memo:"تسوية الجرد — "+(en.difference<0?"عجز ":"زيادة ")+money(Math.abs(en.difference)),source:"جرد"});
       d.count={...C,posted:today()};put(d);SK.audit&&SK.audit.log("ledger",{act:"count-adjust",diff:en.difference});toast("رُحّل فرق الجرد","ok");
     }
+    else if(a==="trail-seal"){if(!await SK.confirm("ختم القيود السابقة لتفعيل سجل التعديلات يدخلها في السلسلة بتاريخ اليوم. متابعة؟",{ok:"ختم"}))return;const n=E().journalChain.sealLegacy(d.entries,new Date().toISOString());put(d);SK.audit&&SK.audit.log("ledger",{act:"trail-seal-legacy",n});toast("خُتم "+n+" قيداً","ok")}
+    else if(a==="trail-csv"){SK.csv.download("S.kosif-journal-audit-trail",["التسلسل","القيد","التاريخ","المرجع","المصدر","البيان","وقت الختم","الختم السابق","الختم","الحالة"],d.entries.map(e=>[e.seq||"",e.id,e.date,e.reference||"",e.source||"يدوي",e.memo||"",e.sealedAt||"",e.prev||"",e.hash||"",e.demo?"تجريبي":e.legacy?"سابق للتفعيل":e.reversedBy?"معكوس":e.external?"من خارج الدفاتر":"مختوم"]));return}
     else if(a==="post-sales")postSales(d);
     else if(a==="post-receipts")postReceipts(d);
     else if(a==="gl-acc"){glAcc=b.dataset.id}
@@ -486,5 +534,8 @@ window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().ac
   vat:qid=>vatCalc(db(),qid),quarters:y=>quarters(y),balance:(code,asOf)=>balanceOf(db(),code,asOf||today()),
   trialBalance:end=>E().ledger.buildTrialBalance(db().entries.filter(e=>String(e.date).slice(0,10)<=end)),
   lockTo:date=>{const d=db();if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||(d.lockDate&&d.lockDate>=date))return false;d.lockDate=date;put(d);SK.audit&&SK.audit.log("ledger",{act:"lock",to:date});return true},
-  sendToReview:async()=>window.SKosifTBReview?SKosifTBReview.fromBooks():false});
+  sendToReview:async()=>window.SKosifTBReview?SKosifTBReview.fromBooks():false,
+  /* the audit trail and the revenue reconciliation for the month-end close and the report pack */
+  trail:()=>{const t=trailOf(db());return t?{...t.v,ok:t.v.ok&&!t.events.length,coverage:t.cov,events:t.events.length,since:t.since}:null},
+  revenueRecon:()=>{const x=revReconOf(db());return x?{...x.r,start:x.start,end:x.end}:null}});
 })();

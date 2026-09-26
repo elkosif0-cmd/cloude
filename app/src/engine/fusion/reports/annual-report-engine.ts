@@ -162,10 +162,12 @@ export function resultsRelease(fs: FinancialStatements, company: string, period:
 /* ---------- the independent auditor's report (EY on Apple and Amazon; ISA 700/701/705) ---------- */
 /** Arabic "لـ" joined to a word: «ل» + «الشركة» → «للشركة», «ل» + «شركة» → «لشركة». */
 export const lam = (w: string) => w.startsWith('ال') ? 'لل' + w.slice(2) : 'ل' + w;
-export type KeyMatter = { title: string; description: string; how: string };
+export type KeyMatter = { title: string; description: string; how: string; /** «Key observations» / «Our results» */ observation?: string; refs?: string[]; trend?: 'new' | 'same' | null };
+export type ReportSection = { title: string; paragraphs: string[]; kams?: KeyMatter[]; table?: { columns: string[]; rows: string[][] } };
 export type Opinion = 'unmodified' | 'qualified' | 'adverse' | 'disclaimer';
 export function auditorsReport(i: { company: string; periodEnd?: string; framework: 'IFRS' | 'SME' | 'EAS'; opinion: Opinion; basis: string[]; kams: KeyMatter[];
   goingConcern?: boolean; firm?: string; partner?: string; licence?: string; city?: string; date?: string;
+  /** the going-concern section from goingConcernSection() (ISA 570 Revised 2024) */ goingConcernSection?: { title: string; paragraphs: string[] };
   /** «Our audit approach» (materiality, scope, KAMs at a glance) — Aramco / ISA (UK) 700; from governance-engine.auditApproach */
   approach?: { title: string; paragraphs: string[]; table?: { columns: string[]; rows: string[][] } } }) {
   const eg = i.framework === 'EAS', co = i.company || 'المنشأة', end = i.periodEnd || '[تاريخ نهاية الفترة]';
@@ -183,11 +185,12 @@ export function auditorsReport(i: { company: string; periodEnd?: string; framewo
         : i.opinion === 'qualified' ? `وفي رأينا، باستثناء آثار الأمور الموضحة في قسم «أساس الرأي المتحفظ»، فإن القوائم المالية المرفقة تعرض بعدل، من جميع الجوانب الجوهرية، المركز المالي ${lam(co)} كما في ${end} وأداءها المالي وتدفقاتها النقدية وفقاً ${lam(fw)}.`
         : `وفي رأينا، بسبب أهمية الأمور الموضحة في قسم «أساس الرأي العكسي»، فإن القوائم المالية المرفقة لا تعرض بعدل المركز المالي ${lam(co)} كما في ${end} ولا أداءها المالي وتدفقاتها النقدية وفقاً ${lam(fw)}.`];
   const basisTitle = { unmodified: 'أساس الرأي', qualified: 'أساس الرأي المتحفظ', adverse: 'أساس الرأي العكسي', disclaimer: 'أساس الامتناع عن إبداء الرأي' }[i.opinion];
-  const sections = [
+  const sections: ReportSection[] = [
     { title, paragraphs: opinionText },
     { title: basisTitle, paragraphs: [...(i.opinion === 'unmodified' ? [] : i.basis),
       ...(i.opinion === 'disclaimer' ? [] : [`لقد قمنا بالمراجعة وفقاً ${lam(isa)}. ومسؤولياتنا بموجب تلك المعايير موضحة في قسم «مسؤوليات المراجع عن مراجعة القوائم المالية». ونحن مستقلون عن المنشأة وفقاً ${lam(ethics)}، وقد وفينا بمسؤولياتنا المسلكية الأخرى. ونعتقد أن أدلة المراجعة التي حصلنا عليها كافية ومناسبة لتوفير أساس لرأينا.`])] },
-    ...(i.goingConcern ? [{ title: 'عدم تأكد جوهري يتعلق بالاستمرارية', paragraphs: ['نلفت الانتباه إلى الإيضاح المتعلق بأساس الإعداد في القوائم المالية، الذي يبين أحداثاً وظروفاً تشير إلى وجود عدم تأكد جوهري قد يثير شكاً كبيراً في قدرة المنشأة على البقاء كمنشأة مستمرة. ولم يُعدَّل رأينا فيما يتعلق بهذا الأمر.'] }] : []),
+    ...(i.goingConcernSection && i.opinion !== 'disclaimer' ? [i.goingConcernSection]
+      : i.goingConcern ? [{ title: 'عدم تأكد جوهري يتعلق بالاستمرارية', paragraphs: ['نلفت الانتباه إلى الإيضاح المتعلق بأساس الإعداد في القوائم المالية، الذي يبين أحداثاً وظروفاً تشير إلى وجود عدم تأكد جوهري قد يثير شكاً كبيراً في قدرة المنشأة على البقاء كمنشأة مستمرة. ولم يُعدَّل رأينا فيما يتعلق بهذا الأمر.'] }] : []),
     ...(i.approach && i.opinion !== 'disclaimer' ? [i.approach] : []),
     ...(i.opinion !== 'disclaimer' && i.kams.length ? [{ title: 'الأمور الرئيسية للمراجعة', paragraphs: ['الأمور الرئيسية للمراجعة هي تلك الأمور التي كانت، بحسب حكمنا المهني، لها الأهمية القصوى عند مراجعتنا للقوائم المالية للفترة الحالية. وقد تناولنا هذه الأمور في سياق مراجعتنا للقوائم المالية ككل وعند تكوين رأينا فيها، ولا نبدي رأياً منفصلاً في هذه الأمور.'], kams: i.kams }] : []),
     { title: 'المعلومات الأخرى', paragraphs: ['الإدارة هي المسؤولة عن المعلومات الأخرى التي تشمل المعلومات الواردة في التقرير السنوي، بخلاف القوائم المالية وتقريرنا عنها. ولا يغطي رأينا في القوائم المالية المعلومات الأخرى، ولا نبدي أي شكل من أشكال الاستنتاج التأكيدي بشأنها.'] },
