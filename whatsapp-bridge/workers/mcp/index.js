@@ -1,6 +1,7 @@
-// MCP server for the KOSIF WhatsApp bridge. The caller passes the bridge key per call; the
-// Worker talks to the bridge over a service binding (BRIDGE) or, without one, over the public URL.
-const VERSION = '1.0.0';
+// KOSIF WhatsApp MCP v1.3 — receipt-aware transport semantics.
+// IMPORTANT: a successful Baileys send is ACCEPTED, not delivered. Delivered/read
+// are reported only after receipt reconciliation in the bridge.
+const VERSION = '1.3.0';
 const PUBLIC_BRIDGE = 'https://wa-kosif.kosif199022.workers.dev';
 const STORED = ['cv-ar', 'cv-en'];
 
@@ -10,17 +11,31 @@ function rpc(id, result) {
 function err(id, code, message) {
   return new Response(JSON.stringify({ jsonrpc: '2.0', id: id ?? null, error: { code, message } }), { headers: { 'content-type': 'application/json; charset=utf-8' } });
 }
-function toolText(text, isError = false) {
-  return { content: [{ type: 'text', text }], ...(isError ? { isError: true } : {}) };
+function toolText(text, isError = false, structuredContent) {
+  return { content: [{ type: 'text', text }], ...(structuredContent ? { structuredContent } : {}), ...(isError ? { isError: true } : {}) };
 }
-const normalizeTo = (v) => (String(v || '').includes('@') ? String(v).trim() : String(v || '').replace(/\D/g, ''));
-
+function normalizeTo(value) {
+  const raw = String(value ?? '').trim();
+  if (/^[0-9-]+@g\.us$/.test(raw)) return raw;
+  let digits = raw
+    .replace(/[٠-٩]/g, (c) => String(c.charCodeAt(0) - 1632))
+    .replace(/[۰-۹]/g, (c) => String(c.charCodeAt(0) - 1776));
+  if (!/^[+0-9 ()-]+$/.test(digits)) throw new Error('INVALID_RECIPIENT');
+  digits = digits.replace(/[^0-9]/g, '');
+  if (digits.startsWith('00')) digits = digits.slice(2);
+  if (/^05[0-9]{8}$/.test(digits)) digits = '966' + digits.slice(1);
+  if (!/^[1-9][0-9]{7,14}$/.test(digits)) throw new Error('INVALID_RECIPIENT');
+  return digits;
+}
 async function callBridge(env, path, key, init = {}) {
-  if (!key || typeof key !== 'string') throw new Error('BRIDGE_KEY_REQUIRED');
+  const effectiveKey = (typeof key === 'string' && key) ? key : env.BRIDGE_KEY;
+  if (!effectiveKey || typeof effectiveKey !== 'string') throw new Error('BRIDGE_KEY_REQUIRED');
   const headers = new Headers(init.headers || {});
-  headers.set('authorization', 'Bearer ' + key);
+  headers.set('authorization', 'Bearer ' + effectiveKey);
   if (init.body) headers.set('content-type', 'application/json');
-  const req = new Request((env.BRIDGE ? 'https://wa-kosif.internal' : PUBLIC_BRIDGE) + path, { ...init, headers });
+  const req = new Request((env.BRIDGE ? 'https://wa-kosif.internal' : PUBLIC_BRIDGE) + path, {
+    ...init, headers, signal: AbortSignal.timeout(60000),
+  });
   return env.BRIDGE ? env.BRIDGE.fetch(req) : fetch(req);
 }
 async function bodyOf(r) {
@@ -29,104 +44,181 @@ async function bodyOf(r) {
 }
 const post = (env, path, key, body) => callBridge(env, path, key, { method: 'POST', body: JSON.stringify(body) });
 
-const keyProp = { type: 'string', description: 'Private KOSIF WhatsApp bridge key.' };
-const toProp = { type: 'string', description: 'Recipient phone in international format (digits only), or a group id ending in @g.us.' };
-const idemProp = { type: 'string', description: 'Optional. Reusing the same key never sends the same item twice.' };
-const fileProps = {
-  stored: { type: 'string', enum: STORED, description: 'A file already stored on the bridge: cv-ar (Arabic CV) or cv-en (English CV).' },
-  fileUrl: { type: 'string', description: 'HTTPS URL of the file.' },
-  fileBase64: { type: 'string', description: 'Base64-encoded file bytes.' },
-  filename: { type: 'string', description: 'File name, e.g. CV.pdf.' },
-  mimetype: { type: 'string', description: 'MIME type, e.g. application/pdf or image/jpeg.' },
-  caption: { type: 'string', description: 'Optional caption.' },
+const keyProp = { type: 'string', description: 'Private bridge key; normally supplied by the MCP Worker secret.' };
+const toProp = { type: 'string', description: 'Recipient phone in international format, or a WhatsApp group id ending in @g.us.' };
+const idemProp = {
+  type: 'string',
+  minLength: 1,
+  maxLength: 128,
+  description: 'Required for immediate sends. Reuse the same key only when retrying the same exact payload.',
 };
-const schema = (properties, required) => ({ type: 'object', properties, required, additionalProperties: false });
+const fileProps = {
+  stored: { type: 'string', enum: STORED, description: 'Reusable R2 file alias: cv-ar or cv-en.' },
+  fileUrl: { type: 'string', description: 'HTTPS file URL. Prefer stored R2 files for repeated documents.' },
+  fileBase64: { type: 'string', description: 'Compatibility path for Base64 file bytes; avoid for large production files.' },
+  filename: { type: 'string', description: 'File name, e.g. CV.pdf.' },
+  mimetype: { type: 'string', description: 'MIME type, e.g. application/pdf.' },
+  caption: { type: 'string', description: 'Optional caption.' },
+  asDocument: { type: 'boolean', description: 'Force sending as a document.' },
+};
+const schema = (properties, required = []) => {
+  const p = { ...properties };
+  delete p.key;
+  return { type: 'object', properties: p, required: required.filter((x) => x !== 'key'), additionalProperties: false };
+};
 
 const TOOLS = [
   {
+    name: 'pair_whatsapp',
+    description: 'Link WhatsApp using QR or a phone pairing code. Completion requires the account owner in WhatsApp.',
+    inputSchema: schema({
+      key: keyProp,
+      method: { type: 'string', enum: ['qr', 'code'] },
+      phone: { type: 'string', description: 'Account phone number; required for code pairing.' },
+    }, ['key', 'method']),
+  },
+  {
     name: 'send_whatsapp_bundle',
-    description: 'Send a message together with files (for example a message plus both CVs) to one recipient: one call, delivered in order. Prefer this over separate message and file calls.',
+    description: 'Send one message plus files to one recipient. A successful result means ACCEPTED by transport, not delivered/read.',
     inputSchema: schema({
       key: keyProp, to: toProp,
-      message: { type: 'string', description: 'Text sent first.' },
-      attachments: { type: 'array', maxItems: 9, items: schema(fileProps, []) },
+      message: { type: 'string', description: 'Optional text sent first.' },
+      attachments: { type: 'array', maxItems: 9, items: schema(fileProps) },
       idempotencyKey: idemProp,
-    }, ['key', 'to']),
+    }, ['key', 'to', 'idempotencyKey']),
   },
   {
     name: 'send_whatsapp_message',
-    description: 'Send one WhatsApp text message immediately. Do not run a separate status check first.',
-    inputSchema: schema({ key: keyProp, to: toProp, message: { type: 'string', minLength: 1, description: 'Exact text to send.' }, idempotencyKey: idemProp }, ['key', 'to', 'message']),
+    description: 'Send one WhatsApp text message immediately. Success means ACCEPTED; query the delivery report for delivered/read.',
+    inputSchema: schema({
+      key: keyProp, to: toProp,
+      message: { type: 'string', minLength: 1, description: 'Exact text to send.' },
+      idempotencyKey: idemProp,
+    }, ['key', 'to', 'message', 'idempotencyKey']),
   },
   {
     name: 'send_whatsapp_file',
-    description: 'Send one image, PDF, or other file immediately. Use stored for the CVs, fileUrl when available, otherwise fileBase64.',
-    inputSchema: schema({ key: keyProp, to: toProp, ...fileProps, idempotencyKey: idemProp }, ['key', 'to']),
+    description: 'Send one image, PDF, or file. Success means ACCEPTED; use the delivery report for receipt-confirmed status.',
+    inputSchema: schema({ key: keyProp, to: toProp, ...fileProps, idempotencyKey: idemProp }, ['key', 'to', 'idempotencyKey']),
   },
   {
     name: 'list_whatsapp_messages',
-    description: 'Read messages received on WhatsApp, newest first. Use when the user asks what someone sent or wants to reply to a message.',
+    description: 'Read received WhatsApp messages, newest first.',
     inputSchema: schema({
       key: keyProp,
-      from: { type: 'string', description: 'Only messages from this phone number (optional).' },
-      chat: { type: 'string', description: 'Only messages in this chat or group id (optional).' },
-      limit: { type: 'integer', minimum: 1, maximum: 200, description: 'Default 30.' },
-      sync: { type: 'boolean', description: 'true (default) connects to WhatsApp first to fetch new messages; false reads the cache instantly.' },
+      from: { type: 'string', description: 'Only messages from this phone number.' },
+      chat: { type: 'string', description: 'Only messages in this chat/group id.' },
+      limit: { type: 'integer', minimum: 1, maximum: 200 },
+      sync: { type: 'boolean', description: 'true connects first; false reads durable cache only.' },
     }, ['key']),
   },
   {
     name: 'list_whatsapp_groups',
-    description: 'Groups the linked number is a member of, with the id to use as a recipient.',
+    description: 'List WhatsApp groups for the linked account.',
     inputSchema: schema({ key: keyProp }, ['key']),
   },
   {
+    name: 'resolve_whatsapp_recipient',
+    description: 'Safely search known contacts/groups and return candidates without sending anything.',
+    inputSchema: schema({
+      key: keyProp,
+      query: { type: 'string', minLength: 1, description: 'Name, phone digits, or group-name fragment.' },
+      includeGroups: { type: 'boolean', description: 'Default true.' },
+    }, ['key', 'query']),
+  },
+  {
     name: 'schedule_whatsapp_message',
-    description: 'Send a text message at a future time (ISO-8601 with timezone).',
-    inputSchema: schema({ key: keyProp, to: toProp, message: { type: 'string', minLength: 1 }, at: { type: 'string', description: 'e.g. 2026-10-01T09:00:00+03:00' } }, ['key', 'to', 'message', 'at']),
+    description: 'Schedule a future WhatsApp text message. The task remains queryable after execution.',
+    inputSchema: schema({ key: keyProp, to: toProp, message: { type: 'string', minLength: 1 }, at: { type: 'string', description: 'ISO-8601 with timezone.' } }, ['key', 'to', 'message', 'at']),
+  },
+  {
+    name: 'schedule_whatsapp_bundle',
+    description: 'Schedule a message together with files such as the Arabic/English CV PDFs.',
+    inputSchema: schema({
+      key: keyProp, to: toProp,
+      message: { type: 'string' },
+      attachments: { type: 'array', maxItems: 9, items: schema(fileProps) },
+      at: { type: 'string', description: 'ISO-8601 with timezone.' },
+    }, ['key', 'to', 'at']),
+  },
+  {
+    name: 'list_whatsapp_schedule',
+    description: 'List WhatsApp jobs still waiting for their scheduled execution time.',
+    inputSchema: schema({ key: keyProp }, ['key']),
+  },
+  {
+    name: 'get_whatsapp_delivery_report',
+    description: 'Unified receipt-aware report. accepted is not delivered; delivered/read require provider receipt evidence.',
+    inputSchema: schema({
+      key: keyProp,
+      status: { type: 'string', enum: ['all','scheduled','sending','accepted','delivered','read','partial','failed','cancelled'] },
+      limit: { type: 'integer', minimum: 1, maximum: 1000 },
+    }, ['key']),
+  },
+  {
+    name: 'diagnose_whatsapp_bridge',
+    description: 'Run a non-destructive self-test of session, receipt channel, durable state and stored R2 CV integrity. Sends no WhatsApp message.',
+    inputSchema: schema({ key: keyProp }, ['key']),
   },
   {
     name: 'get_whatsapp_job',
-    description: 'Delivery result for an idempotency key.',
+    description: 'Check the transport/idempotency job by key. A done job means accepted by transport, not receipt-confirmed delivery.',
     inputSchema: schema({ key: keyProp, jobKey: { type: 'string' } }, ['key', 'jobKey']),
   },
   {
     name: 'get_whatsapp_status',
-    description: 'Check the WhatsApp connection only when the user explicitly asks for status, or after a connection error.',
+    description: 'Check the WhatsApp connection when explicitly requested or after a connection error.',
     inputSchema: schema({ key: keyProp }, ['key']),
   },
 ];
 
-function bundleSummary(r, b) {
-  if (r.ok && b.sent) return toolText(b.duplicate ? 'already sent earlier (not sent again)' : `sent ${b.results.length} item(s)`);
-  const done = (b.results || []).filter((x) => x.ok).length;
-  const failed = (b.results || []).find((x) => !x.ok);
-  return toolText(`not fully sent: ${done} item(s) delivered; error: ${b.error || failed?.error || 'send failed'}`, true);
-}
-function singleSummary(r, b) {
-  return toolText(r.ok ? (b.duplicate ? 'already sent earlier (not sent again)' : 'sent') : (b.error || 'send failed'), !r.ok);
+function sendResult(r, b) {
+  const accepted = r.ok && (b.accepted === true || b.sent === true);
+  const data = { ...b, httpStatus: r.status };
+  data.status = accepted ? 'accepted' : r.status === 202 ? 'queued' : 'failed';
+  data.deliveryStatus = b.deliveryStatus || (accepted ? 'accepted' : data.status);
+  if (b.id) data.messageId = b.id;
+  data.messageIds = (b.results || []).filter((x) => x.ok && x.id).map((x) => x.id);
+  const label = accepted
+    ? (b.duplicate ? 'already accepted earlier (not sent again)' : 'accepted by WhatsApp transport; delivery/read are not yet confirmed')
+    : (b.error || 'send failed');
+  return toolText(label + '\n' + JSON.stringify(data), !r.ok || !accepted, data);
 }
 const fmtTime = (ms) => new Date(ms).toISOString().replace('T', ' ').slice(0, 16);
 
 async function callTool(env, name, a) {
-  const to = normalizeTo(a.to);
+  const to = a.to === undefined ? undefined : normalizeTo(a.to);
+
+  if (name === 'pair_whatsapp') {
+    if (a.method === 'code') {
+      if (!a.phone) return toolText('Phone is required for code pairing.', true);
+      const r = await post(env, '/pair/code', a.key, { phone: String(a.phone) });
+      const b = await bodyOf(r);
+      return toolText(JSON.stringify(b), !r.ok, b);
+    }
+    const r = await callBridge(env, '/pair/qr', a.key);
+    const b = await bodyOf(r);
+    return toolText(JSON.stringify(b), !r.ok, b);
+  }
+
   if (name === 'send_whatsapp_bundle') {
     const message = String(a.message || '').trim();
     const attachments = Array.isArray(a.attachments) ? a.attachments : [];
-    if (!to || (!message && !attachments.length)) return toolText('Missing recipient, or both message and attachments.', true);
+    if (!to || (!message && !attachments.length) || !a.idempotencyKey) return toolText('Missing recipient/content/idempotencyKey.', true);
     const r = await post(env, '/send-bundle', a.key, { to, message, attachments, idempotencyKey: a.idempotencyKey });
-    return bundleSummary(r, await bodyOf(r));
+    return sendResult(r, await bodyOf(r));
   }
   if (name === 'send_whatsapp_message') {
     const message = String(a.message || '').trim();
-    if (!to || !message) return toolText('Missing recipient or message.', true);
+    if (!to || !message || !a.idempotencyKey) return toolText('Missing recipient/message/idempotencyKey.', true);
     const r = await post(env, '/send', a.key, { to, message, idempotencyKey: a.idempotencyKey });
-    return singleSummary(r, await bodyOf(r));
+    return sendResult(r, await bodyOf(r));
   }
   if (name === 'send_whatsapp_file') {
-    if (!to || (!a.stored && !a.fileUrl && !a.fileBase64)) return toolText('Missing recipient or file.', true);
-    const { stored, fileUrl, fileBase64, filename, mimetype, caption, idempotencyKey } = a;
-    const r = await post(env, '/send-media', a.key, { to, stored, fileUrl, fileBase64, filename, mimetype, caption: caption || '', idempotencyKey });
-    return singleSummary(r, await bodyOf(r));
+    if (!to || (!a.stored && !a.fileUrl && !a.fileBase64) || !a.idempotencyKey) return toolText('Missing recipient/file/idempotencyKey.', true);
+    const { stored, fileUrl, fileBase64, filename, mimetype, caption, asDocument, idempotencyKey } = a;
+    const r = await post(env, '/send-media', a.key, { to, stored, fileUrl, fileBase64, filename, mimetype, caption: caption || '', asDocument, idempotencyKey });
+    return sendResult(r, await bodyOf(r));
   }
   if (name === 'list_whatsapp_messages') {
     const q = new URLSearchParams({ limit: String(a.limit || 30), sync: a.sync === false ? '0' : '1' });
@@ -137,27 +229,73 @@ async function callTool(env, name, a) {
     if (!r.ok) return toolText(b.error || 'failed to read messages', true);
     if (!b.messages?.length) return toolText('no messages');
     const lines = b.messages.map((m) => `[${fmtTime(m.timestamp)}] ${m.name || m.phone || m.sender}${m.group ? ` (group ${m.chat})` : ''}: ${m.type === 'text' ? m.text : `<${m.type}> ${m.text}`.trim()}`);
-    return toolText(lines.join('\n'));
+    return toolText(lines.join('\n'), false, b);
   }
   if (name === 'list_whatsapp_groups') {
     const r = await callBridge(env, '/groups', a.key);
     const b = await bodyOf(r);
     if (!r.ok) return toolText(b.error || 'failed to list groups', true);
-    return toolText((b.groups || []).map((g) => `${g.name} — ${g.id} (${g.participants})`).join('\n') || 'no groups');
+    return toolText((b.groups || []).map((g) => `${g.name} — ${g.id} (${g.participants})`).join('\n') || 'no groups', false, b);
+  }
+  if (name === 'resolve_whatsapp_recipient') {
+    const needle = String(a.query || '').trim().toLowerCase();
+    if (!needle) return toolText('query is required', true);
+    const digits = needle.replace(/\D/g, '');
+    const cr = await callBridge(env, '/contacts', a.key);
+    const contacts = cr.ok ? (await bodyOf(cr)).contacts || [] : [];
+    let groups = [];
+    if (a.includeGroups !== false) {
+      const gr = await callBridge(env, '/groups', a.key);
+      groups = gr.ok ? (await bodyOf(gr)).groups || [] : [];
+    }
+    const contactMatches = contacts.filter((c) =>
+      String(c.name || '').toLowerCase().includes(needle) ||
+      (!!digits && String(c.phone || '').includes(digits))
+    ).slice(0, 20);
+    const groupMatches = groups.filter((g) => String(g.name || '').toLowerCase().includes(needle)).slice(0, 20);
+    const data = { query: a.query, contacts: contactMatches, groups: groupMatches, requiresConfirmation: contactMatches.length + groupMatches.length !== 1 };
+    return toolText(JSON.stringify(data), false, data);
   }
   if (name === 'schedule_whatsapp_message') {
     if (!to || !String(a.message || '').trim() || !a.at) return toolText('Missing recipient, message or time.', true);
     const r = await post(env, '/schedule', a.key, { to, message: String(a.message).trim(), at: a.at });
     const b = await bodyOf(r);
-    return toolText(r.ok ? `scheduled for ${b.at} (id ${b.id})` : (b.error || 'scheduling failed'), !r.ok);
+    return toolText(JSON.stringify(b), !r.ok, b);
+  }
+  if (name === 'schedule_whatsapp_bundle') {
+    const message = String(a.message || '').trim();
+    const attachments = Array.isArray(a.attachments) ? a.attachments : [];
+    if (!to || (!message && !attachments.length) || !a.at) return toolText('Missing recipient/content/time.', true);
+    const r = await post(env, '/schedule', a.key, { to, message, attachments, at: a.at });
+    const b = await bodyOf(r);
+    return toolText(JSON.stringify(b), !r.ok, b);
+  }
+  if (name === 'list_whatsapp_schedule') {
+    const r = await callBridge(env, '/schedule', a.key);
+    const b = await bodyOf(r);
+    return toolText(JSON.stringify(b), !r.ok, b);
+  }
+  if (name === 'get_whatsapp_delivery_report') {
+    const q = new URLSearchParams({ limit: String(a.limit || 200) });
+    if (a.status && a.status !== 'all') q.set('status', a.status);
+    const r = await callBridge(env, '/delivery-report?' + q, a.key);
+    const b = await bodyOf(r);
+    return toolText(JSON.stringify(b), !r.ok, b);
+  }
+  if (name === 'diagnose_whatsapp_bridge') {
+    const r = await callBridge(env, '/diagnostics', a.key);
+    const b = await bodyOf(r);
+    return toolText(JSON.stringify(b), !r.ok || b.ok === false, b);
   }
   if (name === 'get_whatsapp_job') {
     const r = await callBridge(env, '/jobs/' + encodeURIComponent(String(a.jobKey || '')), a.key);
-    return toolText(await r.text(), !r.ok);
+    const b = await bodyOf(r);
+    return toolText(JSON.stringify(b), !r.ok, b);
   }
   if (name === 'get_whatsapp_status') {
     const r = await callBridge(env, '/status', a.key);
-    return toolText(await r.text(), !r.ok);
+    const b = await bodyOf(r);
+    return toolText(JSON.stringify(b), !r.ok, b);
   }
   return null;
 }
@@ -183,7 +321,8 @@ export default {
         const result = await callTool(env, msg.params?.name, msg.params?.arguments || {});
         return result ? rpc(id, result) : err(id, -32602, 'Unknown tool');
       } catch (e) {
-        return rpc(id, toolText(e?.message === 'BRIDGE_KEY_REQUIRED' ? 'Bridge key is required.' : 'Request failed.', true));
+        const message = e?.message === 'BRIDGE_KEY_REQUIRED' ? 'Bridge key is required.' : (e?.message || 'Request failed.');
+        return rpc(id, toolText(message, true));
       }
     }
     return err(id, -32601, 'Method not found');

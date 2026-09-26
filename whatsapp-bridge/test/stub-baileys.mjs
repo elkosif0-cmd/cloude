@@ -5,12 +5,16 @@ import { appendFileSync } from 'node:fs';
 export const DisconnectReason = { loggedOut: 401, restartRequired: 515 };
 export const BufferJSON = { replacer: (_k, v) => v, reviver: (_k, v) => v };
 export const Browsers = { macOS: (name) => ['Mac OS', name, '14.4.1'] };
-export const proto = { Message: { AppStateSyncKeyData: { fromObject: (o) => o } } };
+export const proto = {
+  Message: { AppStateSyncKeyData: { fromObject: (o) => o } },
+  WebMessageInfo: { Status: { ERROR: 0, PENDING: 1, SERVER_ACK: 2, DELIVERY_ACK: 3, READ: 4, PLAYED: 5 } },
+};
 export const fetchLatestWaWebVersion = async () => ({ version: [2, 3000, 1] });
 export const fetchLatestBaileysVersion = async () => ({ version: [2, 3000, 1] });
 export const initAuthCreds = () => ({ me: { id: '201000000000@s.whatsapp.net', name: 'Stub' }, registered: true });
 
 let n = 0; // message ids stay unique across sockets, like real WhatsApp ids
+const failedOnce = new Set();
 
 export default function makeWASocket({ auth }) {
   const handlers = {};
@@ -27,7 +31,10 @@ export default function makeWASocket({ auth }) {
     requestPairingCode: async (phone) => 'CODE' + phone.slice(-4),
     groupFetchAllParticipating: async () => ({ 'g1@g.us': { id: 'g1@g.us', subject: 'Test Group', participants: [{}, {}, {}] } }),
     sendMessage: async (jid, payload) => {
-      if (payload.fileName === 'fail.pdf') throw new Error('stub send failure');
+      if (payload.fileName === 'fail.pdf' && !failedOnce.has('fail.pdf')) {
+        failedOnce.add('fail.pdf');
+        throw new Error('stub send failure');
+      }
       const id = 'MSG' + String(++n).padStart(4, '0');
       const bytes = payload.document ?? payload.image ?? payload.video ?? payload.audio;
       const entry = payload.text !== undefined
@@ -47,6 +54,15 @@ export default function makeWASocket({ auth }) {
           message: { conversation: 'reply to ' + (payload.text ?? payload.fileName ?? 'media') },
         }],
       });
+      // Delivery is a separate provider event. This deliberately fires before the
+      // bridge has persisted its message-id mapping, exercising the reconciliation path.
+      emit('messages.update', [{ key: { remoteJid: jid, fromMe: true, id }, update: { status: 3 } }]);
+      if (payload.text === 'read-me') {
+        emit('message-receipt.update', [{
+          key: { remoteJid: jid, fromMe: true, id },
+          receipt: { receiptTimestamp: Date.now(), readTimestamp: Date.now() },
+        }]);
+      }
       return { key: { id } };
     },
     logout: async () => {},

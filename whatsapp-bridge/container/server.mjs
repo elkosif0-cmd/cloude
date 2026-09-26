@@ -31,7 +31,46 @@ let connection = 'idle'; // idle | connecting | qr | open | closed | logged_out
 let qr = null;
 let seq = 0; // inbox sequence, per boot
 const inbox = []; // normalized incoming messages, oldest first
+let receiptSeq = 0;
+const receipts = []; // delivery/read receipts, oldest first; DO persists them
+const RECEIPT_MAX = 4000;
 const contacts = new Map(); // jid -> { name, phone }
+
+function statusLabel(raw) {
+  const table = proto?.WebMessageInfo?.Status;
+  if (typeof raw === 'number' && table) {
+    for (const [name, value] of Object.entries(table)) if (value === raw) return name;
+  }
+  return String(raw ?? '');
+}
+
+function normalizeReceiptStatus(raw) {
+  const label = statusLabel(raw).toUpperCase();
+  if (!label) return null;
+  if (label.includes('READ') || label.includes('PLAYED')) return 'read';
+  if (label.includes('DELIVERY')) return 'delivered';
+  if (label.includes('SERVER') && label.includes('ACK')) return 'accepted';
+  if (label.includes('ERROR') || label.includes('FAILED')) return 'failed';
+  return null;
+}
+
+function recordReceipt({ providerMessageId, remoteJid, rawStatus, normalizedStatus, providerTimestamp }) {
+  if (!providerMessageId || !normalizedStatus) return;
+  const receipt = {
+    eventId: `${BOOT}:${++receiptSeq}`,
+    provider: 'baileys',
+    bootId: BOOT,
+    receiptSeq,
+    providerMessageId,
+    remoteJid: remoteJid || null,
+    rawStatus: statusLabel(rawStatus),
+    normalizedStatus,
+    providerTimestamp: Number(providerTimestamp || Date.now()),
+    receivedAt: Date.now(),
+  };
+  receipts.push(receipt);
+  if (receipts.length > RECEIPT_MAX) receipts.splice(0, receipts.length - RECEIPT_MAX);
+}
 const dropped = new WeakSet(); // sockets we ended on purpose: their close must not reconnect
 let pairingCache = { phone: '', code: '', at: 0 };
 
@@ -187,6 +226,38 @@ function connect() {
         if (inbox.length > INBOX_MAX) inbox.splice(0, inbox.length - INBOX_MAX);
       }
     });
+    s.ev.on('messages.update', (updates) => {
+      for (const entry of updates || []) {
+        const rawStatus = entry?.update?.status;
+        const normalizedStatus = normalizeReceiptStatus(rawStatus);
+        if (!normalizedStatus) continue;
+        recordReceipt({
+          providerMessageId: entry?.key?.id,
+          remoteJid: entry?.key?.remoteJid,
+          rawStatus,
+          normalizedStatus,
+          providerTimestamp: Date.now(),
+        });
+      }
+    });
+    s.ev.on('message-receipt.update', (updates) => {
+      const list = Array.isArray(updates) ? updates : [updates];
+      for (const entry of list) {
+        const r = entry?.receipt || {};
+        const normalizedStatus =
+          r.readTimestamp || r.playedTimestamp ? 'read' :
+          r.receiptTimestamp ? 'delivered' :
+          null;
+        if (!normalizedStatus) continue;
+        recordReceipt({
+          providerMessageId: entry?.key?.id,
+          remoteJid: entry?.key?.remoteJid,
+          rawStatus: normalizedStatus,
+          normalizedStatus,
+          providerTimestamp: Number(r.readTimestamp || r.playedTimestamp || r.receiptTimestamp || Date.now()),
+        });
+      }
+    });
     const onContacts = (list) => {
       for (const c of list || []) rememberContact(c.id, c.name || c.notify || c.verifiedName, c.phoneNumber ? `${c.phoneNumber}@s.whatsapp.net` : null);
     };
@@ -297,6 +368,12 @@ async function buildContent(b) {
     const fileName = b.fileName || b.filename || fromUrl || 'file';
     const ext = fileName.split('.').pop()?.toLowerCase();
     let mime = String(b.mimetype || '').toLowerCase().split(';')[0];
+    const looksPdf = mime === 'application/pdf' || ext === 'pdf';
+    if (looksPdf) {
+      const head = data.subarray(0, 5).toString('latin1');
+      const tail = data.subarray(Math.max(0, data.length - 4096)).toString('latin1');
+      if (head !== '%PDF-' || !tail.includes('%%EOF')) throw fail(422, 'invalid or truncated PDF');
+    }
     if (!mime || mime === 'application/octet-stream') mime = detected && detected !== 'application/octet-stream' ? detected : MIME[ext] || 'application/octet-stream';
     if (b.imageUrl && !mime.startsWith('image/')) mime = 'image/jpeg';
     if (b.videoUrl && !mime.startsWith('video/')) mime = 'video/mp4';
@@ -357,7 +434,7 @@ http
       const url = new URL(req.url, 'http://x');
       const path = url.pathname;
       if (path === '/status') {
-        return send(res, 200, { boot: BOOT, restored: !!auth, connection, qr, version, seq, me: auth?.creds?.me ?? null, contacts: contacts.size });
+        return send(res, 200, { boot: BOOT, restored: !!auth, connection, qr, version, seq, receiptSeq, me: auth?.creds?.me ?? null, contacts: contacts.size });
       }
       if (path === '/restore' && req.method === 'POST') {
         if (!auth) {
@@ -398,6 +475,16 @@ http
         }
         const messages = inbox.filter((m) => m.seq > after);
         return send(res, 200, { boot: BOOT, seq, connection, version, messages });
+      }
+      if (path === '/receipts') {
+        const after = Number(url.searchParams.get('after') || 0);
+        const wait = Math.min(Number(url.searchParams.get('wait') || 0), 5000);
+        if (wait > 0) await sleep(wait);
+        return send(res, 200, {
+          boot: BOOT,
+          receiptSeq,
+          receipts: receipts.filter((r) => r.receiptSeq > after),
+        });
       }
       if (path === '/contacts') {
         const list = [...contacts.entries()].map(([jid, c]) => ({ jid, ...c }));

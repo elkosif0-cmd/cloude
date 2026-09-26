@@ -16,7 +16,7 @@ const tmp = mkdtempSync(join(tmpdir(), 'wa-bridge-test-'));
 const SENT_LOG = join(tmp, 'sent.log');
 const KEY = 'test-key';
 const KEY2 = 'second-key';
-const PDF = Buffer.from('%PDF-1.4 test');
+const PDF = Buffer.from('%PDF-1.4\n1 0 obj\n<<>>\nendobj\n%%EOF\n');
 const PNG = Buffer.from('89504e470d0a1a0a0000000d49484452', 'hex');
 const sha = (s) => createHash('sha256').update(s).digest('hex');
 
@@ -95,17 +95,19 @@ before(async () => {
 
   waitUntils = [];
   const ctx = { storage: memoryStorage(), waitUntil: (p) => waitUntils.push(p) };
-  instance = new mod.WaBridge(ctx, {});
+  const instanceEnv = {};
+  instance = new mod.WaBridge(ctx, instanceEnv);
   env = {
     API_KEY_SHA256: `${sha(KEY)}, ${sha(KEY2).toUpperCase()}`,
     WA: { get: () => instance },
     FILES: {
       async get(key) {
         if (key !== 'cv/CV-Arabic.pdf') return null;
-        return { size: PDF.length, arrayBuffer: async () => PDF.buffer.slice(PDF.byteOffset, PDF.byteOffset + PDF.length), httpMetadata: {} };
+        return { size: PDF.length, arrayBuffer: async () => PDF.buffer.slice(PDF.byteOffset, PDF.byteOffset + PDF.length), httpMetadata: { contentType: 'application/pdf' } };
       },
     },
   };
+  Object.assign(instanceEnv, env);
   await call('/config', { body: { maxPerMinute: 1000 } }); // the whole suite runs inside one minute
 });
 
@@ -222,6 +224,37 @@ test('the same idempotency key never sends twice', async () => {
   assert.equal(job.body.total, 2);
 });
 
+test('an idempotency key cannot be reused for a different payload', async () => {
+  resetSent();
+  const a = await call('/send', { body: { to: '201033333333', message: 'alpha', idempotencyKey: 'same-key' } });
+  assert.equal(a.status, 200);
+  const b = await call('/send', { body: { to: '201033333333', message: 'beta', idempotencyKey: 'same-key' } });
+  assert.equal(b.status, 409);
+  assert.match(b.body.error, /different payload/);
+  assert.equal(sent().length, 1);
+});
+
+test('delivery report advances only from receipt evidence and supports read', async () => {
+  resetSent();
+  const accepted = await call('/send', { body: { to: '201066666666', message: 'read-me', idempotencyKey: 'receipt-1' } });
+  assert.equal(accepted.status, 200);
+  assert.equal(accepted.body.deliveryStatus, 'accepted');
+  const report = await get('/delivery-report?limit=50');
+  const row = report.body.items.find((x) => x.id === 'receipt-1');
+  assert.ok(row, JSON.stringify(report.body));
+  assert.equal(row.status, 'read');
+  assert.ok(report.body.summary.read >= 1);
+});
+
+test('diagnostics is non-destructive and validates the stored CV', async () => {
+  const before = sent().length;
+  const r = await get('/diagnostics');
+  assert.equal(r.status, 200);
+  assert.equal(r.body.safe, true);
+  assert.ok(r.body.checks.some((x) => x.name === 'r2:cv-ar' && x.ok));
+  assert.equal(sent().length, before);
+});
+
 test('Idempotency-Key header works for /send', async () => {
   resetSent();
   const opts = { body: { to: '201033333333', message: 'hdr' }, headers: { 'idempotency-key': 'hdr-1' } };
@@ -248,11 +281,10 @@ test('a retry after a partial failure sends only what is missing', async () => {
   assert.equal(sent().length, 2);
 
   resetSent();
-  body.attachments[1].filename = 'b.pdf';
   const retry = await call('/send-bundle', { body });
   assert.equal(retry.status, 200);
   assert.equal(retry.body.resumed, true);
-  assert.deepEqual(sent().map((s) => s.fileName), ['b.pdf']);
+  assert.deepEqual(sent().map((s) => s.fileName), ['fail.pdf']);
 });
 
 test('/send-media accepts a stored file and reports its filename', async () => {
@@ -304,6 +336,9 @@ test('scheduling stores, lists, cancels and delivers through the same send path'
   await instance.sendScheduled({ to: '201011111111', message: 'later' }, { taskId: a.body.id });
   assert.deepEqual(sent().map((s) => s.text), ['later']);
   assert.equal((await get('/schedule')).body.scheduled.length, 0);
+  const scheduledReport = await get('/delivery-report?limit=50');
+  const scheduledRow = scheduledReport.body.items.find((x) => x.id === a.body.id);
+  assert.ok(['accepted','delivered','read'].includes(scheduledRow.status));
   await instance.sendScheduled({ to: '201011111111', message: 'later' }, { taskId: a.body.id }); // already done: no resend
   assert.equal(sent().length, 1);
 });
@@ -331,25 +366,27 @@ test('pages and OpenAPI are served', async () => {
 // ---- MCP worker, wired to the bridge above ----
 test('MCP tools send a bundle, read messages and report status', async () => {
   const mcp = (await import(join(here, '../workers/mcp/index.js'))).default;
-  const menv = { BRIDGE: { fetch: (req) => worker.fetch(req, env) } };
+  const menv = { BRIDGE: { fetch: (req) => worker.fetch(req, env) }, BRIDGE_KEY: KEY };
   const rpcCall = async (method, params) => (await (await mcp.fetch(new Request('https://m.test/mcp', {
     method: 'POST', body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
   }), menv)).json()).result;
 
   const tools = await rpcCall('tools/list');
-  for (const name of ['send_whatsapp_bundle', 'send_whatsapp_message', 'list_whatsapp_messages', 'list_whatsapp_groups']) {
+  for (const name of ['send_whatsapp_bundle', 'send_whatsapp_message', 'list_whatsapp_messages', 'list_whatsapp_groups', 'get_whatsapp_delivery_report', 'diagnose_whatsapp_bridge', 'resolve_whatsapp_recipient']) {
     assert.ok(tools.tools.some((t) => t.name === name), name);
   }
   resetSent();
-  const args = { key: KEY, to: '201088888888', message: 'mcp', attachments: [{ stored: 'cv-ar' }], idempotencyKey: 'mcp-1' };
+  const args = { to: '201088888888', message: 'mcp', attachments: [{ stored: 'cv-ar' }], idempotencyKey: 'mcp-1' };
   const res = await rpcCall('tools/call', { name: 'send_whatsapp_bundle', arguments: args });
   assert.equal(res.isError, undefined);
-  assert.equal(res.content[0].text, 'sent 2 item(s)');
+  assert.match(res.content[0].text, /accepted by WhatsApp transport/);
   const again = await rpcCall('tools/call', { name: 'send_whatsapp_bundle', arguments: args });
-  assert.match(again.content[0].text, /already sent/);
+  assert.match(again.content[0].text, /already accepted/);
   assert.equal(sent().length, 2);
-  const inbox = await rpcCall('tools/call', { name: 'list_whatsapp_messages', arguments: { key: KEY, from: '201088888888', sync: true } });
+  const inbox = await rpcCall('tools/call', { name: 'list_whatsapp_messages', arguments: { from: '201088888888', sync: true } });
   assert.match(inbox.content[0].text, /reply to mcp/);
-  const bad = await rpcCall('tools/call', { name: 'send_whatsapp_message', arguments: { key: 'wrong', to: '201088888888', message: 'x' } });
-  assert.equal(bad.isError, true);
+  const report = await rpcCall('tools/call', { name: 'get_whatsapp_delivery_report', arguments: { limit: 20 } });
+  assert.match(report.content[0].text, /receiptConfirmed/);
+  const diag = await rpcCall('tools/call', { name: 'diagnose_whatsapp_bridge', arguments: {} });
+  assert.match(diag.content[0].text, /whatsapp_session/);
 });
