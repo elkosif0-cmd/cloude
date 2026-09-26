@@ -2,7 +2,7 @@
 
 Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do not edit by hand.
 
-Total capabilities: **72** (screens). Cross-cutting capabilities are listed after the table.
+Total capabilities: **73** (screens). Cross-cutting capabilities are listed after the table.
 
 | ID | Capability | Module | Current Location | Data Used | Dependencies | Status | Keep/Remove/Merge/Rebuild |
 |---|---|---|---|---|---|---|---|
@@ -41,6 +41,7 @@ Total capabilities: **72** (screens). Cross-cutting capabilities are listed afte
 | `cash` | التدفق النقدي | ui/supply.js + ui/erp-plus.js | الأدوات المساعدة للمحاسب › يومي | `skosif_v31_monthly_opex`, `skosif_erp_finance_v1` | SKosifCore | Working | Keep |
 | `benchmarks` | المقارنة بالشركات العالمية | ui/features/benchmarks.js + SKEngines.reports.corpusBenchmarks | الأدوات المساعدة للمحاسب › يومي | `يقرأ الدفاتر المحاسبية للفترة النشطة (قراءة فقط)`, `sqc_bench_v1 (قطاع المقارنة المختار)` | SKosifCore | Working | Rebuild |
 | `receivables` | الذمم والتحصيل | ui/meatops.js | الأدوات المساعدة للمحاسب › يومي | `skosif_ar_paste` | SKosifCore | Working | Keep |
+| `advances` | السلف والدفعات المقدمة | ui/features/advances.js | الأدوات المساعدة للمحاسب › يومي | `skosif_advances_v1`, `skosif_ledger_v1` | SKosifCore | Working | Rebuild |
 | `finance` | الهندسة المالية | core (v18) | الأدوات المساعدة للمحاسب › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
 | `ptree` | شجرة المنتجات | ui/features/product-tree.js + SKEngines.catalog.productTree | الأدوات المساعدة للمحاسب › يومي | `sqc_ptree_v1 (لكل شركة)`, `يقرأ aghnam-pricing-v3 و IDB aghnam-app-v7`, `يضيف أسعار الموردين إلى skosif_purchasing_v1` | SKosifCore | Working | Rebuild |
 | `productflow` | استوديو المنتج | ui/features/product-flow.js | الأدوات المساعدة للمحاسب › المنتج والتكلفة › يومي | `aghnam-pricing-v3`, `skosif_product_flow_v1` | SKosifCore | Working | Merge |

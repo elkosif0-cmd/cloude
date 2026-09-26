@@ -3555,15 +3555,15 @@ window.SKEngines = (function() {
 		mdna: () => mdna,
 		ratios: () => ratios
 	});
-	var r2$7 = (n) => Math.round(n * 100) / 100;
+	var r2$8 = (n) => Math.round(n * 100) / 100;
 	var div$1 = (a, b) => b ? a / b : null;
 	var pctOf = (a, b) => {
 		const x = div$1(a, b);
-		return x === null ? null : r2$7(x * 100);
+		return x === null ? null : r2$8(x * 100);
 	};
 	var times = (a, b) => {
 		const x = div$1(a, b);
-		return x === null ? null : r2$7(x);
+		return x === null ? null : r2$8(x);
 	};
 	var days$2 = (a, b) => {
 		const x = div$1(a, b);
@@ -3829,7 +3829,7 @@ window.SKEngines = (function() {
 	/** Common-size: P&L lines as % of revenue, position lines as % of total assets. */
 	function commonSize(fs) {
 		const rev = fs.keys.revenue, ta = fs.keys.assets;
-		const pc = (a, b) => b ? r2$7(a / b * 100) : null;
+		const pc = (a, b) => b ? r2$8(a / b * 100) : null;
 		return {
 			pl: fs.pl.map((r) => ({
 				key: r.key,
@@ -3854,7 +3854,7 @@ window.SKEngines = (function() {
 			current: r.current,
 			prior: r.prior,
 			change: r.current - r.prior,
-			changePct: r.prior ? r2$7((r.current - r.prior) / Math.abs(r.prior) * 100) : null
+			changePct: r.prior ? r2$8((r.current - r.prior) / Math.abs(r.prior) * 100) : null
 		}));
 	}
 	/** DuPont: ROE = net margin × asset turnover × equity multiplier (year-end balances). */
@@ -3862,10 +3862,10 @@ window.SKEngines = (function() {
 		const k = fs.keys, one = (rev, profit, ta, eq) => {
 			const nm = div$1(profit, rev), at = div$1(rev, ta), em = div$1(ta, eq);
 			return {
-				netMargin: nm === null ? null : r2$7(nm * 100),
-				assetTurnover: at === null ? null : r2$7(at),
-				equityMultiplier: em === null ? null : r2$7(em),
-				roe: nm === null || at === null || em === null ? null : r2$7(nm * at * em * 100)
+				netMargin: nm === null ? null : r2$8(nm * 100),
+				assetTurnover: at === null ? null : r2$8(at),
+				equityMultiplier: em === null ? null : r2$8(em),
+				roe: nm === null || at === null || em === null ? null : r2$8(nm * at * em * 100)
 			};
 		};
 		return {
@@ -3879,16 +3879,16 @@ window.SKEngines = (function() {
 		if (!ta) return null;
 		const retained = fs.lines.filter((l) => l.key === "retained").reduce((a, l) => a + l.current, 0) + k.profit.current;
 		const x1 = (k.ca.current - k.cl.current) / ta, x2 = retained / ta, x3 = k.operating.current / ta, x4 = tl ? k.equity.current / tl : 0;
-		const z = r2$7(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
+		const z = r2$8(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
 		return {
 			z,
 			zone: z > 2.6 ? "safe" : z >= 1.1 ? "grey" : "distress",
 			zoneAr: z > 2.6 ? "منطقة الأمان" : z >= 1.1 ? "المنطقة الرمادية" : "منطقة التعثر",
 			components: {
-				x1: r2$7(x1),
-				x2: r2$7(x2),
-				x3: r2$7(x3),
-				x4: r2$7(x4)
+				x1: r2$8(x1),
+				x2: r2$8(x2),
+				x3: r2$8(x3),
+				x4: r2$8(x4)
 			}
 		};
 	}
@@ -3906,7 +3906,7 @@ window.SKEngines = (function() {
 		const sgai = q(q(sga(c), c("revenue")), q(sga(p), p("revenue")));
 		const lvgi = q(q(c("cl") + c("loansNcl") + c("leaseNcl"), c("assets")), q(p("cl") + p("loansNcl") + p("leaseNcl"), p("assets")));
 		const tata = fs.keys.cfo ? q(c("profit") - fs.keys.cfo.current, c("assets")) : 0;
-		const m = r2$7(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
+		const m = r2$8(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
 		const f = (x) => Math.round(x * 1e3) / 1e3;
 		return {
 			m,
@@ -4005,7 +4005,7 @@ window.SKEngines = (function() {
 			rat("current")
 		].map((i) => ({
 			...i,
-			change: i.prior === null || i.current === null || !i.prior ? null : r2$7((i.current - i.prior) / Math.abs(i.prior) * 100)
+			change: i.prior === null || i.current === null || !i.prior ? null : r2$8((i.current - i.prior) / Math.abs(i.prior) * 100)
 		}));
 	}
 	/** A deterministic management discussion: sentences generated from the numbers only. */
@@ -4015,7 +4015,7 @@ window.SKEngines = (function() {
 		const ch = (key) => {
 			const x = k[key];
 			if (!x || x.prior === null || !x.prior) return null;
-			return r2$7((x.current - x.prior) / Math.abs(x.prior) * 100);
+			return r2$8((x.current - x.prior) / Math.abs(x.prior) * 100);
 		};
 		const dir = (v, up, down) => v === null ? "" : v >= 0 ? `${up} ${Math.abs(v)}%` : `${down} ${Math.abs(v)}%`;
 		const out = [];
@@ -7579,7 +7579,7 @@ window.SKEngines = (function() {
 		}
 	};
 	var clamp01 = (x) => Number.isFinite(x) ? Math.max(0, Math.min(1, x)) : 0;
-	var r2$6 = (x) => Math.round(x * 100) / 100;
+	var r2$7 = (x) => Math.round(x * 100) / 100;
 	/** E — evidence coverage for a balance: Σ r·v ÷ V, capped at 1 (only accepted evidence counts). */
 	function coverage(items, balance) {
 		const V = Math.abs(balance);
@@ -7613,9 +7613,9 @@ window.SKEngines = (function() {
 		};
 		if (p.A === null) {
 			const k = W.E + W.T || 1;
-			return r2$6(clamp01(W.E / k * p.E + W.T / k * p.T));
+			return r2$7(clamp01(W.E / k * p.E + W.T / k * p.T));
 		}
-		return r2$6(clamp01(W.E * p.E + W.T * p.T + W.A * p.A));
+		return r2$7(clamp01(W.E * p.E + W.T * p.T + W.A * p.A));
 	}
 	/** The confidence a line needs: material & high risk 0.90, material & medium 0.80, material & low 0.70, immaterial → analytics only (null). */
 	function thresholdFor(line) {
@@ -7640,9 +7640,9 @@ window.SKEngines = (function() {
 				}, i.weights);
 				return {
 					assertion: a,
-					E: r2$6(E),
-					T: r2$6(T),
-					A: A === null ? null : r2$6(A),
+					E: r2$7(E),
+					T: r2$7(T),
+					A: A === null ? null : r2$7(A),
 					C,
 					met: threshold === null ? null : C >= threshold
 				};
@@ -7653,13 +7653,13 @@ window.SKEngines = (function() {
 				threshold,
 				...ov ? { override: ov } : {},
 				cells,
-				min: r2$6(min),
+				min: r2$7(min),
 				met: threshold === null ? null : cells.every((c) => c.met)
 			};
 		});
 		const open = rows.filter((r) => r.met === false), material = rows.filter((r) => r.threshold !== null);
-		const avgOpen = open.length ? r2$6(open.reduce((s, r) => s + r.min, 0) / open.length) : 1;
-		const avgAll = material.length ? r2$6(material.reduce((s, r) => s + r.min, 0) / material.length) : 1;
+		const avgOpen = open.length ? r2$7(open.reduce((s, r) => s + r.min, 0) / open.length) : 1;
+		const avgAll = material.length ? r2$7(material.reduce((s, r) => s + r.min, 0) / material.length) : 1;
 		return {
 			rows,
 			open,
@@ -7724,7 +7724,7 @@ window.SKEngines = (function() {
 			amount,
 			accepted: true
 		}], row.amount);
-		return r2$6(Math.max(0, confidence({
+		return r2$7(Math.max(0, confidence({
 			E: E2,
 			T: cell.T,
 			A: cell.A
@@ -7734,11 +7734,11 @@ window.SKEngines = (function() {
 	function rankRequests(list) {
 		return list.map((q) => ({
 			...q,
-			score: r2$6(q.expectedGain * q.materialityWeight / EFFORT[q.effort].v * 100) / 100
+			score: r2$7(q.expectedGain * q.materialityWeight / EFFORT[q.effort].v * 100) / 100
 		})).sort((a, b) => b.score - a.score || b.materialityWeight - a.materialityWeight);
 	}
 	/** Materiality weight of a line: its balance relative to overall materiality (≥ 1 means material on its own). */
-	var materialityWeight = (amount, overall) => overall > 0 ? r2$6(Math.min(10, Math.abs(amount) / overall)) : 1;
+	var materialityWeight = (amount, overall) => overall > 0 ? r2$7(Math.min(10, Math.abs(amount) / overall)) : 1;
 	var STATES = [
 		{
 			key: "new",
@@ -11580,7 +11580,7 @@ window.SKEngines = (function() {
 		sectorPrior: () => sectorPrior,
 		typicalKamCount: () => typicalKamCount
 	});
-	var r2$5 = (x) => Math.round(x * 100) / 100;
+	var r2$6 = (x) => Math.round(x * 100) / 100;
 	/** How often the auditors of a sector reported each theme (share of that sector's reports with KAMs), leaving one report out. */
 	function sectorPrior(sector, exclude) {
 		if (!sector) return {};
@@ -11589,7 +11589,7 @@ window.SKEngines = (function() {
 		const out = {};
 		for (const t of Object.keys(THEMES)) {
 			const n = reports.filter((id) => KAMS.some((k) => k.report === id && k.theme === t)).length;
-			if (n) out[t] = r2$5(n / reports.length);
+			if (n) out[t] = r2$6(n / reports.length);
 		}
 		return out;
 	}
@@ -11660,15 +11660,15 @@ window.SKEngines = (function() {
 			unit: c.unitAr,
 			actual,
 			ours,
-			recall: themes.length ? r2$5(hit / themes.length) : null,
-			rankedRecall: themes.length ? r2$5(rankedHit / themes.length) : null,
-			precision: selected.size && themes.length ? r2$5(ours.filter((o) => o.selected && o.matched).length / selected.size) : null,
+			recall: themes.length ? r2$6(hit / themes.length) : null,
+			rankedRecall: themes.length ? r2$6(rankedHit / themes.length) : null,
+			precision: selected.size && themes.length ? r2$6(ours.filter((o) => o.selected && o.matched).length / selected.size) : null,
 			materiality: {
 				ours: oursMat,
 				benchmark: review.materiality.benchmarkAr,
 				disclosed: disc ? disc.overall / unit : null,
 				disclosedBasis: disc ? disc.basis : null,
-				ratio: disc ? r2$5(oursMat / (disc.overall / unit)) : null,
+				ratio: disc ? r2$6(oursMat / (disc.overall / unit)) : null,
 				page: disc ? disc.page : null
 			},
 			requests: review.requests.length,
@@ -11684,7 +11684,7 @@ window.SKEngines = (function() {
 		return {
 			theirs: theirs.length,
 			covered: covered.length,
-			share: theirs.length ? r2$5(covered.length / theirs.length) : null,
+			share: theirs.length ? r2$6(covered.length / theirs.length) : null,
 			missing: theirs.filter((x) => !SQC_SECTIONS.has(x.key)).map((x) => x.ar)
 		};
 	}
@@ -11704,16 +11704,16 @@ window.SKEngines = (function() {
 			companies: list.length,
 			withKams: withKams.length,
 			kamThemes: actualN,
-			recall: actualN ? r2$5(sel / actualN) : 0,
-			rankedRecall: actualN ? r2$5(rk / actualN) : 0,
-			precision: oursSel ? r2$5(oursHit / oursSel) : 0,
+			recall: actualN ? r2$6(sel / actualN) : 0,
+			rankedRecall: actualN ? r2$6(rk / actualN) : 0,
+			precision: oursSel ? r2$6(oursHit / oursSel) : 0,
 			anyMatch: withKams.filter((r) => r.actual.some((a) => a.found === "selected")).length,
 			missed: Object.entries(missed).map(([theme, n]) => ({
 				theme,
 				ar: THEMES[theme].ar,
 				n
 			})).sort((a, b) => b.n - a.n),
-			structure: stTheirs ? r2$5(stCov / stTheirs) : 0,
+			structure: stTheirs ? r2$6(stCov / stTheirs) : 0,
 			materiality: mat.map((r) => ({
 				id: r.id,
 				company: r.company,
@@ -12340,7 +12340,7 @@ window.SKEngines = (function() {
 		medium: "متوسطة",
 		low: "منخفضة"
 	};
-	var KIND_AR = {
+	var KIND_AR$1 = {
 		classification: "تصنيف",
 		measurement: "قياس",
 		disclosure: "إفصاح",
@@ -12409,7 +12409,7 @@ window.SKEngines = (function() {
 				accountCode: f.code ?? "",
 				accountName: f.account ?? "",
 				standardCode: f.standard,
-				issueType: KIND_AR[f.kind] ?? "أخرى",
+				issueType: KIND_AR$1[f.kind] ?? "أخرى",
 				severity: SEV_AR[f.severity] ?? "متوسطة",
 				comment: f.title + (f.detail ? ": " + f.detail : ""),
 				recommendation: f.action || "الحصول على المستند المؤيد وتسوية الفرق"
@@ -14884,7 +14884,7 @@ window.SKEngines = (function() {
 		reconcileRevenue: () => reconcileRevenue
 	});
 	var netOfVat = (gross, rate = .15) => gross - Math.round(gross * rate / (1 + rate));
-	var month = (d) => String(d || "").slice(0, 7);
+	var month$1 = (d) => String(d || "").slice(0, 7);
 	function reconcileRevenue(input) {
 		const rev = new Set(input.revenueAccounts), { start, end } = input, days = input.cutoffDays ?? 7;
 		const revOf = (e) => e.lines.reduce((s, l) => s + (rev.has(l.accountId) ? l.credit - l.debit : 0), 0);
@@ -14903,13 +14903,13 @@ window.SKEngines = (function() {
 			});
 			return months.get(m);
 		};
-		for (const s of sales) row(month(s.date)).source += netOfVat(s.gross, s.vatRate ?? .15);
+		for (const s of sales) row(month$1(s.date)).source += netOfVat(s.gross, s.vatRate ?? .15);
 		const manual = [];
 		const byId = new Map(input.entries.map((e) => [e.id, e]));
 		for (const e of input.entries) {
 			const a = revOf(e);
 			if (!a || !inP(e.date)) continue;
-			const r = row(month(e.date));
+			const r = row(month$1(e.date));
 			r.ledger += a;
 			const orig = e.reversalOf ? byId.get(e.reversalOf) : void 0;
 			if (String(e.sourceId || "").startsWith("sale:") || String(orig?.sourceId || "").startsWith("sale:")) r.fromSales += a;
@@ -15682,7 +15682,7 @@ window.SKEngines = (function() {
 		suppliers: [],
 		customers: []
 	});
-	var r2$4 = (x) => Math.round(x * 100) / 100;
+	var r2$5 = (x) => Math.round(x * 100) / 100;
 	/** A material's cost per usable unit: purchase cost grossed up for waste (the cheapest supplier price when asked). */
 	function materialUnitCost(m, opts = {}) {
 		let base = m.cost;
@@ -15739,8 +15739,8 @@ window.SKEngines = (function() {
 				kind: "material",
 				name: m.name,
 				qty: c.qty,
-				unitCost: r2$4(u),
-				amount: r2$4(u * c.qty),
+				unitCost: r2$5(u),
+				amount: r2$5(u * c.qty),
 				share: 0
 			});
 		} else {
@@ -15759,16 +15759,16 @@ window.SKEngines = (function() {
 				name: sub.name,
 				qty: c.qty,
 				unitCost: sub.total,
-				amount: r2$4(sub.total * c.qty),
+				amount: r2$5(sub.total * c.qty),
 				share: 0
 			});
 			missing.push(...sub.missing);
 		}
-		const materials = r2$4(lines.reduce((s, l) => s + l.amount, 0)), overhead = r2$4(p.overhead || 0), total = r2$4(materials + overhead);
+		const materials = r2$5(lines.reduce((s, l) => s + l.amount, 0)), overhead = r2$5(p.overhead || 0), total = r2$5(materials + overhead);
 		lines.forEach((l) => {
 			l.share = total ? Math.round(l.amount / total * 1e3) / 10 : 0;
 		});
-		const price = p.price ?? null, profit = price != null ? r2$4(price - total) : null;
+		const price = p.price ?? null, profit = price != null ? r2$5(price - total) : null;
 		return {
 			id: p.id,
 			name: p.name,
@@ -15811,7 +15811,7 @@ window.SKEngines = (function() {
 				product: p.name,
 				before: a.total,
 				after: b.total,
-				change: r2$4(b.total - a.total),
+				change: r2$5(b.total - a.total),
 				marginBefore: a.margin,
 				marginAfter: b.margin
 			};
@@ -15871,7 +15871,7 @@ window.SKEngines = (function() {
 				source: "orders"
 			};
 			a.qty = (a.qty ?? 0) + (l.qty ?? 0);
-			a.amount = r2$4((a.amount ?? 0) + (l.amount ?? 0));
+			a.amount = r2$5((a.amount ?? 0) + (l.amount ?? 0));
 			agg.set(k, a);
 		}
 		const out = [];
@@ -15897,7 +15897,7 @@ window.SKEngines = (function() {
 		}));
 		const nodes = [
 			...col("supplier", suppliers, (s) => "s:" + s, (s) => s, (s) => t.suppliers.filter((x) => x.supplier === s).length + " مادة"),
-			...col("material", t.materials, (m) => m.id, (m) => m.name, (m) => r2$4(materialUnitCost(m)) + " / " + m.unit + (m.waste ? " · هدر " + m.waste + "%" : "")),
+			...col("material", t.materials, (m) => m.id, (m) => m.name, (m) => r2$5(materialUnitCost(m)) + " / " + m.unit + (m.waste ? " · هدر " + m.waste + "%" : "")),
 			...col("product", t.products, (p) => p.id, (p) => p.name, (p) => {
 				const c = productCost(t, p.id);
 				return "تكلفة " + c.total + (c.margin != null ? " · هامش " + c.margin + "%" : "");
@@ -16156,6 +16156,179 @@ window.SKEngines = (function() {
 			ok: true,
 			accounts
 		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/finance/advances-engine.ts
+	var advances_engine_exports = /* @__PURE__ */ __exportAll({
+		KIND_AR: () => KIND_AR,
+		METHOD_AR: () => METHOD_AR,
+		advanceEntries: () => advanceEntries,
+		advanceStatus: () => advanceStatus,
+		advancesSummary: () => advancesSummary,
+		schedule: () => schedule,
+		validateAdvance: () => validateAdvance
+	});
+	var KIND_AR = {
+		employee: "سلفة موظف",
+		supplier: "دفعة مقدمة لمورد",
+		customer: "عربون من عميل"
+	};
+	var METHOD_AR = {
+		cash: "نقداً",
+		salary: "خصم من الراتب",
+		offset: "تسوية مع فاتورة"
+	};
+	var r2$4 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
+	var month = (d) => String(d).slice(0, 7);
+	function addMonths(ym, n) {
+		const [y, m] = ym.split("-").map(Number);
+		return new Date(Date.UTC(y, m - 1 + n, 1)).toISOString().slice(0, 7);
+	}
+	/** Equal monthly instalments from the first due month (the month after the advance by default); the last one takes the rounding. */
+	function schedule(a) {
+		const n = Math.max(1, Math.floor(a.installments || 1)), first = a.firstDue ? month(a.firstDue) : addMonths(month(a.date), 1), each = r2$4(a.amount / n);
+		return Array.from({ length: n }, (_, i) => ({
+			month: addMonths(first, i),
+			due: i === n - 1 ? r2$4(a.amount - each * (n - 1)) : each
+		}));
+	}
+	/** Where the advance stands on a date: paid, balance, what should have been repaid by then, and each instalment filled oldest first. */
+	function advanceStatus(a, asOf) {
+		const paid = r2$4(a.repayments.filter((p) => p.date <= asOf).reduce((t, p) => t + p.amount, 0));
+		const balance = r2$4(Math.max(0, a.amount - paid));
+		let pool = paid;
+		const rows = schedule(a).map((s) => {
+			const got = r2$4(Math.min(s.due, pool));
+			pool = r2$4(pool - got);
+			return {
+				month: s.month,
+				due: s.due,
+				paid: got,
+				left: r2$4(s.due - got)
+			};
+		});
+		const dueToDate = r2$4(rows.filter((r) => r.month <= month(asOf)).reduce((t, r) => t + r.due, 0));
+		const overdue = r2$4(Math.max(0, dueToDate - paid));
+		const next = rows.find((r) => r.left > 0);
+		const state = a.writtenOff ? "written-off" : balance <= .004 ? "settled" : overdue > .004 ? "overdue" : "open";
+		return {
+			paid,
+			balance,
+			dueToDate,
+			overdue,
+			nextDue: next ? {
+				month: next.month,
+				due: next.left
+			} : null,
+			state,
+			progress: a.amount > 0 ? Math.min(1, paid / a.amount) : 1,
+			rows
+		};
+	}
+	/** The journal entries of one advance: the advance itself and each repayment (the same ids every time, so re-posting replaces). */
+	function advanceEntries(a, acc) {
+		const out = [], amt = r2$4(a.amount), ctl = acc[a.kind];
+		if (!(amt > 0) || !String(a.party || "").trim()) return out;
+		const L = (accountId, debit, credit, description) => ({
+			accountId,
+			debit: r2$4(debit),
+			credit: r2$4(credit),
+			description
+		});
+		const what = KIND_AR[a.kind] + " — " + a.party;
+		out.push({
+			id: "adv-" + a.id,
+			date: a.date,
+			reference: a.number,
+			memo: what + (a.purpose ? " (" + a.purpose + ")" : ""),
+			party: a.party,
+			source: "سلف",
+			sourceId: "advance:" + a.id,
+			lines: a.kind === "customer" ? [L(acc.cash, amt, 0, what), L(ctl, 0, amt, what)] : [L(ctl, amt, 0, what), L(acc.cash, 0, amt, what)]
+		});
+		a.repayments.forEach((p, i) => {
+			const v = r2$4(p.amount);
+			if (!(v > 0)) return;
+			const d = (a.kind === "customer" ? p.method === "offset" ? "تسوية العربون مع فاتورة " : "رد العربون إلى " : p.method === "salary" ? "خصم قسط من راتب " : p.method === "offset" ? "تسوية الدفعة مع فاتورة " : "سداد من ") + a.party;
+			const other = p.method === "offset" ? a.kind === "supplier" ? acc.payable : acc.receivable : acc.cash;
+			out.push({
+				id: "adv-" + a.id + "-r" + (i + 1),
+				date: p.date,
+				reference: a.number + "/" + (i + 1),
+				memo: d + (p.note ? " — " + p.note : ""),
+				party: a.party,
+				source: "سلف",
+				sourceId: "advance:" + a.id + ":r" + (i + 1),
+				lines: a.kind === "customer" ? [L(ctl, v, 0, d), L(other, 0, v, d)] : [L(other, v, 0, d), L(ctl, 0, v, d)]
+			});
+		});
+		return out;
+	}
+	/** The register's totals: per kind, per party, and what is overdue. */
+	function advancesSummary(list, asOf) {
+		const kinds = {
+			employee: {
+				count: 0,
+				given: 0,
+				balance: 0,
+				overdue: 0
+			},
+			supplier: {
+				count: 0,
+				given: 0,
+				balance: 0,
+				overdue: 0
+			},
+			customer: {
+				count: 0,
+				given: 0,
+				balance: 0,
+				overdue: 0
+			}
+		};
+		const parties = /* @__PURE__ */ new Map();
+		let overdueCount = 0;
+		for (const a of list) {
+			const s = advanceStatus(a, asOf), k = kinds[a.kind];
+			k.count++;
+			k.given = r2$4(k.given + a.amount);
+			if (!a.writtenOff) {
+				k.balance = r2$4(k.balance + s.balance);
+				k.overdue = r2$4(k.overdue + s.overdue);
+			}
+			if (s.state === "overdue") overdueCount++;
+			const key = a.kind + "|" + a.party, p = parties.get(key) ?? {
+				party: a.party,
+				kind: a.kind,
+				balance: 0,
+				overdue: 0,
+				count: 0
+			};
+			p.count++;
+			if (!a.writtenOff) {
+				p.balance = r2$4(p.balance + s.balance);
+				p.overdue = r2$4(p.overdue + s.overdue);
+			}
+			parties.set(key, p);
+		}
+		return {
+			kinds,
+			parties: [...parties.values()].sort((x, y) => y.balance - x.balance),
+			overdueCount,
+			open: list.filter((a) => advanceStatus(a, asOf).balance > .004 && !a.writtenOff).length
+		};
+	}
+	/** Checks before saving: what makes an advance unusable or suspicious. */
+	function validateAdvance(a, others = []) {
+		const out = [];
+		if (!String(a.party || "").trim()) out.push("اسم الطرف مطلوب");
+		if (!(a.amount > 0)) out.push("المبلغ يجب أن يكون أكبر من صفر");
+		if (!/^\d{4}-\d{2}-\d{2}$/.test(a.date)) out.push("التاريخ غير صالح");
+		const paid = a.repayments.reduce((t, p) => t + p.amount, 0);
+		if (paid - a.amount > .004) out.push("المسدد (" + r2$4(paid) + ") أكبر من السلفة (" + r2$4(a.amount) + ")");
+		if (a.repayments.some((p) => p.date < a.date)) out.push("سداد بتاريخ قبل السلفة");
+		if (a.kind === "employee" && others.some((o) => o.id !== a.id && o.kind === "employee" && o.party === a.party && !o.writtenOff && o.amount - o.repayments.reduce((t, p) => t + p.amount, 0) > .004)) out.push("للموظف سلفة أخرى مفتوحة — تأكد قبل صرف سلفة جديدة");
+		return out;
 	}
 	//#endregion
 	//#region app/src/engine/fusion/finance/bank-reconciliation-engine.ts
@@ -22742,6 +22915,7 @@ window.SKEngines = (function() {
 		finance: {
 			accountOpening: account_opening_engine_exports,
 			accounts: accounts_engine_exports,
+			advances: advances_engine_exports,
 			bankReconciliation: bank_reconciliation_engine_exports,
 			cashFlow: cash_flow_engine_exports,
 			entryLearner: entry_learner_engine_exports,
