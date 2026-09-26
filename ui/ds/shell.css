@@ -577,3 +577,14 @@ body.skn-locked{overflow:hidden}
 :root:is([data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="audit"],[data-look="midnight"]) .modeseg button{color:var(--sk-rail-mute)}
 :root:is([data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="audit"],[data-look="midnight"]) .modeseg button[aria-pressed="true"]{background:var(--sk-brand);color:var(--sk-on-brand)}
 :root:is([data-look="oasis"],[data-look="graphite"],[data-look="onyx"]) .rail input{background:color-mix(in srgb,var(--sk-rail-ink) 6%,transparent);color:var(--sk-rail-ink);border-color:color-mix(in srgb,var(--sk-rail-ink) 14%,transparent)}
+/* ---------- work flow strip (SK.flow) ---------- */
+.sk-ph{flex-wrap:wrap}
+.skflow{flex-basis:100%;display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--sk-line)}
+.skflow::-webkit-scrollbar{display:none}
+.skflow-l{flex:none;color:var(--sk-ink-3);font-size:11.5px;font-weight:700;margin-inline:4px 2px}
+.skflow-c{flex:none;display:inline-flex;align-items:center;gap:5px;min-height:28px;padding:0 10px;border:1px solid var(--sk-line);border-radius:999px;background:var(--sk-surface-2);color:var(--sk-ink-2);font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.skflow-c svg{width:14px;height:14px;color:var(--sk-brand)}
+.skflow-c:hover{border-color:var(--sk-brand);color:var(--sk-brand)}
+.skflow-me{flex:none;padding:3px 10px;border-radius:999px;background:var(--sk-brand-soft);color:var(--sk-brand);font-size:12px;font-weight:800}
+.skflow-acts{display:inline-flex;gap:10px;flex-wrap:wrap}.skflow-acts .linkish{font-size:11.5px}
+@media print{.skflow,.skflow-acts{display:none}}

@@ -197,7 +197,8 @@ function tbTab(c){
 }
 function fItem(f){
   return '<div class="tbr-fi"><span class="sev '+sevCls(f.severity)+'"></span><div class="tx"><b>'+esc(f.title)+(f.account?' — '+esc(f.account):'')+'</b><small>'+esc(f.detail)+'</small><small class="tbr-basis">'+esc(f.basis)+' · الإجراء: '+esc(f.action)+'</small></div>'+
-    '<div class="tbr-fi-m"><button type="button" class="std-b '+famCls(f.standard)+'" data-std="'+esc(f.standard)+'"'+(f.code?' data-acc="'+esc(f.code)+'"':'')+'>'+esc(f.standard)+'</button><span class="tbr-src">'+(f.source==="gemini"?'Gemini ج'+f.round:'المحرك')+'</span></div></div>';
+    '<div class="tbr-fi-m"><button type="button" class="std-b '+famCls(f.standard)+'" data-std="'+esc(f.standard)+'"'+(f.code?' data-acc="'+esc(f.code)+'"':'')+'>'+esc(f.standard)+'</button><span class="tbr-src">'+(f.source==="gemini"?'Gemini ج'+f.round:'المحرك')+'</span>'+
+    (SK.flow?SK.flow.actions({title:f.title+(f.account?' — '+f.account:''),detail:f.detail+' ('+f.standard+')',sev:f.severity,cap:"tbreview"}):'')+'</div></div>';
 }
 
 /* ---------- tab 2: Gemini rounds ---------- */

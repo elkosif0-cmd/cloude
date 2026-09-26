@@ -239,7 +239,10 @@
    "group": "home",
    "hubLabel": "المهام والإشعارات",
    "adv": false,
-   "en": "Tasks"
+   "en": "Tasks",
+   "feeds": [
+    "notifications"
+   ]
   },
   {
    "id": "notifications",
@@ -275,7 +278,11 @@
    "decision": "Rebuild",
    "kw": "مخاطر خطر ملاحظات خريطة حرارية احتمالية أثر risk register findings heatmap AF",
    "adv": false,
-   "en": "Risks & Findings"
+   "en": "Risks & Findings",
+   "feeds": [
+    "tasks",
+    "decision"
+   ]
   },
   {
    "id": "decision",
@@ -292,7 +299,12 @@
    "decision": "Keep",
    "kw": "تنبيهات استثناءات أولوية",
    "adv": false,
-   "en": "Decision Center"
+   "en": "Decision Center",
+   "feeds": [
+    "jev",
+    "council",
+    "tasks"
+   ]
   },
   {
    "id": "jev",
@@ -311,7 +323,10 @@
    "decision": "Keep",
    "kw": "ذكاء مساعد ai",
    "adv": false,
-   "en": "Jev Decisions"
+   "en": "Jev Decisions",
+   "feeds": [
+    "council"
+   ]
   },
   {
    "id": "council",
@@ -382,7 +397,13 @@
    "decision": "Keep",
    "kw": "طلب فاتورة تحصيل تابي",
    "adv": false,
-   "en": "Orders & Collections"
+   "en": "Orders & Collections",
+   "feeds": [
+    "customers",
+    "receivables",
+    "salesintel",
+    "ledger"
+   ]
   },
   {
    "id": "zatca",
@@ -399,7 +420,11 @@
    "decision": "Keep",
    "kw": "زاتكا ضريبة فاتورة qr كاشير",
    "adv": false,
-   "en": "POS & Tax Invoice"
+   "en": "POS & Tax Invoice",
+   "feeds": [
+    "commerce",
+    "ledger"
+   ]
   },
   {
    "id": "customers",
@@ -418,7 +443,13 @@
    "decision": "Keep",
    "kw": "عميل جوال مبيعات استيراد",
    "adv": false,
-   "en": "Customers"
+   "en": "Customers",
+   "feeds": [
+    "followup",
+    "salesintel",
+    "b2bcredit",
+    "offers"
+   ]
   },
   {
    "id": "followup",
@@ -436,7 +467,10 @@
    "group": "sales",
    "hub": "customers",
    "adv": false,
-   "en": "Customer Follow-up"
+   "en": "Customer Follow-up",
+   "feeds": [
+    "tasks"
+   ]
   },
   {
    "id": "b2bcredit",
@@ -453,7 +487,11 @@
    "decision": "Keep",
    "kw": "آجل مطعم دين ائتمان",
    "adv": false,
-   "en": "Restaurant Credit"
+   "en": "Restaurant Credit",
+   "feeds": [
+    "receivables",
+    "ledger"
+   ]
   },
   {
    "id": "offers",
@@ -471,7 +509,10 @@
    "decision": "Keep",
    "kw": "عرض سعر كتالوج واتساب سلة",
    "adv": false,
-   "en": "Offers & Catalog"
+   "en": "Offers & Catalog",
+   "feeds": [
+    "commerce"
+   ]
   },
   {
    "id": "operations",
@@ -491,7 +532,11 @@
    "decision": "Keep",
    "kw": "مناسبة شواء اشتراك وردية تعتيق",
    "adv": false,
-   "en": "Events & Operations"
+   "en": "Events & Operations",
+   "feeds": [
+    "commerce",
+    "inventory"
+   ]
   },
   {
    "id": "salesintel",
@@ -508,7 +553,13 @@
    "decision": "Keep",
    "kw": "مبيعات اتجاه باريتو",
    "adv": true,
-   "en": "Sales Intelligence"
+   "en": "Sales Intelligence",
+   "feeds": [
+    "intelligence",
+    "economics",
+    "decision",
+    "tasks"
+   ]
   },
   {
    "id": "intelligence",
@@ -544,7 +595,11 @@
    "decision": "Keep",
    "kw": "شحن عمولة",
    "adv": true,
-   "en": "Order Economics"
+   "en": "Order Economics",
+   "feeds": [
+    "sim",
+    "catalog"
+   ]
   },
   {
    "id": "inventory",
@@ -563,7 +618,12 @@
    "decision": "Keep",
    "kw": "مخزون رصيد صلاحية",
    "adv": false,
-   "en": "Inventory"
+   "en": "Inventory",
+   "feeds": [
+    "purchasing",
+    "traceability",
+    "blending"
+   ]
   },
   {
    "id": "traceability",
@@ -581,7 +641,10 @@
    "decision": "Keep",
    "kw": "تتبع تبريد حرارة دفعة",
    "adv": false,
-   "en": "Traceability & Cold Chain"
+   "en": "Traceability & Cold Chain",
+   "feeds": [
+    "inventory"
+   ]
   },
   {
    "id": "suppliers",
@@ -599,7 +662,13 @@
    "decision": "Keep",
    "kw": "مورد شراء دفعة",
    "adv": false,
-   "en": "Suppliers & Purchasing"
+   "en": "Suppliers & Purchasing",
+   "feeds": [
+    "purchasing",
+    "cash",
+    "inventory",
+    "carcass"
+   ]
   },
   {
    "id": "purchasing",
@@ -616,7 +685,11 @@
    "group": "stock",
    "hub": "suppliers",
    "adv": false,
-   "en": "Purchase Orders & Receiving"
+   "en": "Purchase Orders & Receiving",
+   "feeds": [
+    "inventory",
+    "ledger"
+   ]
   },
   {
    "id": "blending",
@@ -631,7 +704,10 @@
    "decision": "Keep",
    "kw": "خلطة مفروم برجر إنتاج",
    "adv": false,
-   "en": "Meat Blends"
+   "en": "Meat Blends",
+   "feeds": [
+    "catalog"
+   ]
   },
   {
    "id": "culinary",
@@ -661,7 +737,12 @@
    "decision": "Keep",
    "kw": "ذبيحة تصافي",
    "adv": true,
-   "en": "Carcass Economics"
+   "en": "Carcass Economics",
+   "feeds": [
+    "yieldlab",
+    "nrv",
+    "catalog"
+   ]
   },
   {
    "id": "yieldlab",
@@ -678,7 +759,10 @@
    "decision": "Keep",
    "kw": "تجربة تشافي هدر",
    "adv": true,
-   "en": "Butchery Yield Lab"
+   "en": "Butchery Yield Lab",
+   "feeds": [
+    "catalog"
+   ]
   },
   {
    "id": "nrv",
@@ -695,7 +779,10 @@
    "decision": "Keep",
    "kw": "ذبيحة توزيع",
    "adv": true,
-   "en": "Carcass Split (NRV)"
+   "en": "Carcass Split (NRV)",
+   "feeds": [
+    "catalog"
+   ]
   },
   {
    "id": "ledger",
@@ -711,7 +798,12 @@
    "kw": "قيد حساب أستاذ ميزان مراجعة محاسبة",
    "group": "finance",
    "adv": false,
-   "en": "General Ledger"
+   "en": "General Ledger",
+   "feeds": [
+    "tbreview",
+    "execreports",
+    "cash"
+   ]
   },
   {
    "id": "cash",
@@ -728,7 +820,11 @@
    "decision": "Keep",
    "kw": "نقد مصروف تدفق",
    "adv": false,
-   "en": "Cash Flow"
+   "en": "Cash Flow",
+   "feeds": [
+    "finance",
+    "decision"
+   ]
   },
   {
    "id": "receivables",
@@ -744,7 +840,11 @@
    "decision": "Keep",
    "kw": "ذمم دين تحصيل",
    "adv": false,
-   "en": "Receivables & Collection"
+   "en": "Receivables & Collection",
+   "feeds": [
+    "cash",
+    "ledger"
+   ]
   },
   {
    "id": "finance",
@@ -777,7 +877,16 @@
    "decision": "Keep",
    "kw": "سعر صنف قائمة",
    "adv": false,
-   "en": "Items & Prices"
+   "en": "Items & Prices",
+   "feeds": [
+    "sim",
+    "builder",
+    "memo",
+    "labels",
+    "offers",
+    "zatca",
+    "finance"
+   ]
   },
   {
    "id": "costs",
@@ -794,7 +903,11 @@
    "decision": "Keep",
    "kw": "تكلفة هدر مصروف",
    "adv": true,
-   "en": "Costs & Expenses"
+   "en": "Costs & Expenses",
+   "feeds": [
+    "catalog",
+    "builder"
+   ]
   },
   {
    "id": "sim",
@@ -811,7 +924,10 @@
    "decision": "Keep",
    "kw": "حاسبة هامش محاكي",
    "adv": false,
-   "en": "Quick Pricing"
+   "en": "Quick Pricing",
+   "feeds": [
+    "memo"
+   ]
   },
   {
    "id": "kernel",
@@ -842,7 +958,11 @@
    "decision": "Keep",
    "kw": "اعتماد مذكرة موافقة",
    "adv": false,
-   "en": "Price Approvals"
+   "en": "Price Approvals",
+   "feeds": [
+    "archive",
+    "catalog"
+   ]
   },
   {
    "id": "builder",
@@ -859,7 +979,13 @@
    "decision": "Keep",
    "kw": "بوكس مكونات",
    "adv": false,
-   "en": "Box Builder"
+   "en": "Box Builder",
+   "feeds": [
+    "analyzer",
+    "compare",
+    "memo",
+    "offers"
+   ]
   },
   {
    "id": "analyzer",
@@ -942,7 +1068,11 @@
    "decision": "Keep",
    "kw": "مطابقة وصف",
    "adv": true,
-   "en": "Sales Matching"
+   "en": "Sales Matching",
+   "feeds": [
+    "customers",
+    "catalog"
+   ]
   },
   {
    "id": "excelrecon",
@@ -957,7 +1087,10 @@
    "decision": "Keep",
    "kw": "إكسل فروقات",
    "adv": true,
-   "en": "Excel Reconciliation"
+   "en": "Excel Reconciliation",
+   "feeds": [
+    "catalog"
+   ]
   },
   {
    "id": "execreports",
@@ -976,7 +1109,10 @@
    "decision": "Keep",
    "kw": "تقرير دخل ضريبة",
    "adv": false,
-   "en": "Executive Reports"
+   "en": "Executive Reports",
+   "feeds": [
+    "decision"
+   ]
   },
   {
    "id": "reports",
@@ -1047,7 +1183,12 @@
    "kw": "ميزان مراجعة مراجعة حسابات معايير جيمناي gemini مستندات قيود تسوية امتثال قوائم مالية trial balance audit مركز المراجعة ملف المراجعة مجلس المراجعة الذكي درجة الثقة اعتماد استوديو",
    "adv": false,
    "en": "Audit Engagement",
-   "hubLabel": "مركز المراجعة"
+   "hubLabel": "مركز المراجعة",
+   "feeds": [
+    "risks",
+    "tasks",
+    "codex"
+   ]
   },
   {
    "id": "codex",
@@ -1064,7 +1205,10 @@
    "kw": "معايير مدونة IFRS IAS ISA SOCPA زكاة تحديث مصادر رسمية standards codex",
    "adv": false,
    "en": "Accounting Codex",
-   "hubLabel": "المعايير والمدونة"
+   "hubLabel": "المعايير والمدونة",
+   "feeds": [
+    "tbreview"
+   ]
   },
   {
    "id": "auditdesk",
@@ -1192,7 +1336,10 @@
    "kw": "بنفورد عينة",
    "adv": true,
    "en": "Financial Analytics & Risk",
-   "hub": "tbreview"
+   "hub": "tbreview",
+   "feeds": [
+    "tbreview"
+   ]
   },
   {
    "id": "auditlab",
@@ -1262,7 +1409,11 @@
    "kw": "شركة فترة سنة مالية",
    "group": "system",
    "adv": true,
-   "en": "Companies & Periods"
+   "en": "Companies & Periods",
+   "feeds": [
+    "ledger",
+    "tbreview"
+   ]
   },
   {
    "id": "governance",

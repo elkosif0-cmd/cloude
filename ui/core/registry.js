@@ -29,6 +29,8 @@ SK.caps=Object.freeze({
   /* the menu entries of a domain: one per hub (the parent screen) */
   hubsInGroup:gid=>caps.filter(c=>c.group===gid&&c.hub===c.id&&!c.hidden),
   visible:()=>caps.filter(c=>!c.hidden),
+  /* the work flow: what feeds a screen and what it feeds ("feeds" in the registry; the inverse is computed) */
+  flow:id=>{const c=byId[id];if(!c)return{from:[],to:[]};return{from:caps.filter(x=>(x.feeds||[]).includes(id)),to:(c.feeds||[]).map(f=>byId[f]).filter(Boolean)}},
   siblings:id=>{const c=byId[id];return c?caps.filter(x=>x.group===c.group):[]},
   hub:id=>{const c=byId[id];return c?byId[c.hub]:null},
   members,
