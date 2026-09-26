@@ -24,9 +24,9 @@ if nb!=1: raise SystemExit("Rail brand markup missing")
 # The UI ships as one stylesheet and one script, in layer order:
 #   design system (ui/ds) → core services (ui/core) → components → layout → features.
 # ui/core/capabilities.json is the single list of screens; it is inlined for the registry.
-UI_CSS=["ds/tokens.css","ds/components.css","ds/elements.css","ds/shell.css","ds/luxe.css",
+UI_CSS=["ds/fonts.css","ds/tokens.css","ds/components.css","ds/elements.css","ds/shell.css","ds/luxe.css",
         "features/offers.css","features/supply.css","features/smartmatch.css","features/meatops.css","features/kernel.css",
-        "features/enterprise.css","features/reports.css","features/erp-plus.css","features/operations.css","features/capabilities-v2.css","features/devices.css","features/luxe-screens.css","features/tbreview.css","features/assistant.css","features/accounting-guidance.css","features/audit-bench.css","features/fieldwork.css","features/product-flow.css"]
+        "features/enterprise.css","features/reports.css","features/erp-plus.css","features/operations.css","features/capabilities-v2.css","features/devices.css","features/luxe-screens.css","features/tbreview.css","features/assistant.css","features/accounting-guidance.css","features/audit-bench.css","features/fieldwork.css","features/product-flow.css","ds/sqc.css"]
 UI_JS=["core/sk.js","core/output.js","core/bus.js","core/errors.js","core/store.js","core/services.js","core/engines.js","core/registry.js","core/perm.js","core/audit.js","core/device.js","core/ai.js","core/demo.js","core/templates.js","core/flow.js","core/a11y.js",
        "components/states.js","layouts/shell.js","layouts/topbar.js","components/palette.js","components/keys.js","components/charts.js","components/table.js","components/xlsx.js","features/command-center.js",
        "features/jev.js","features/offers.js","features/inventory.js","features/supply.js","features/meatops.js","features/smartmatch.js",
