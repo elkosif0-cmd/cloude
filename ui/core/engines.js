@@ -7849,109 +7849,109 @@ window.SKEngines = (function() {
 		R$1("bhp-2025", "BHP Group Limited", "AU", "mining", "IFRS", "PCAOB", "Ernst & Young", void 0, "FY2025", "Form 20-F + S-K 1300 technical reports", 10851, 12300),
 		R$1("cba-2025", "Commonwealth Bank of Australia", "AU", "banking", "AASB (IFRS)", "ISA", "PricewaterhouseCoopers", void 0, "FY2025", "Annual report", 12301, 12506)
 	];
-	var K$1 = (report, theme, page, title) => ({
+	var K$2 = (report, theme, page, title) => ({
 		report,
 		title,
 		theme,
 		page
 	});
 	var KAMS = [
-		K$1("amazon-2023", "tax-uncertainty", 49, "Uncertain Tax Positions"),
-		K$1("amazon-2024", "tax-uncertainty", 1063, "Uncertain Tax Positions"),
-		K$1("apple-2020", "tax-uncertainty", 973, "Uncertain Tax Positions"),
-		K$1("apple-2023", "tax-uncertainty", 1159, "Uncertain Tax Positions"),
-		K$1("apple-2024", "tax-uncertainty", 144, "Uncertain Tax Positions"),
-		K$1("cisco-2024", "revenue-recognition", 289, "Revenue Recognition for Certain Product and Services Revenue"),
-		K$1("cisco-2024", "complex-transactions", 289, "Acquisition of Splunk — Valuation of Customer Contracts and Related Relationships Asset and the Technology Asset Acquired"),
-		K$1("walmart-2023", "provisions-litigation", 399, "Contingencies (opioid-related legal proceedings)"),
-		K$1("adobe-2024", "revenue-recognition", 538, "Performance obligations in cloud-enabled software subscriptions"),
-		K$1("jpmorgan-2023", "credit-losses", 749, "Allowance for Loan Losses – Portfolio-based component of Wholesale Loan and Credit Card Loan Portfolios"),
-		K$1("jpmorgan-2023", "fair-value", 749, "Fair Value of Certain Level 3 Financial Instruments"),
-		K$1("jpmorgan-2025", "credit-losses", 1536, "Allowance for Loan Losses – Portfolio-Based Component of the Wholesale and Credit Card Retained Loan Portfolios"),
-		K$1("jpmorgan-2025", "fair-value", 1536, "Fair Value of Certain Level 3 Financial Instruments"),
-		K$1("bofa-2025", "credit-losses", 1771, "Allowance for Loan and Lease Losses - Commercial and Consumer Card Loans"),
-		K$1("berkshire-2025", "actuarial", 1278, "Unpaid Losses and Loss Adjustment Expenses — short-duration property and casualty claim liabilities"),
-		K$1("berkshire-2025", "actuarial", 1278, "Unpaid Losses and Loss Adjustment Expenses — Retroactive Reinsurance Contracts"),
-		K$1("pepsico-2025", "tax-uncertainty", 1936, "Unrecognized tax benefits"),
-		K$1("pg-2026", "impairment-intangibles", 2001, "Intangible Assets — Gillette Indefinite-Lived Intangible Asset"),
-		K$1("homedepot-2025", "inventory", 2084, "Sufficiency of audit evidence over certain merchandise inventories (retail inventory method)"),
-		K$1("nestle-2025", "revenue-deductions", 2312, "Measurement of revenue as it relates to trade spend"),
-		K$1("nestle-2025", "impairment-intangibles", 2312, "Carrying value of goodwill and indefinite useful life intangible assets"),
-		K$1("roche-2025", "revenue-deductions", 2508, "Government and regulatory mandatory price reductions in the US pharmaceuticals business"),
-		K$1("roche-2025", "impairment-intangibles", 2509, "Carrying value of product intangibles not available for use in the Pharmaceuticals Division"),
-		K$1("novartis-2025", "revenue-deductions", 2790, "Provisions for deductions from revenue related to US Managed Care, Medicare Part D and Medicaid rebate programs"),
-		K$1("ubs-2025", "fair-value", 3047, "Valuation of complex or illiquid instruments at fair value"),
-		K$1("ubs-2025", "credit-losses", 3048, "Expected credit losses"),
-		K$1("ubs-2025", "tax-uncertainty", 3049, "Recognition of deferred tax assets"),
-		K$1("volkswagen-2025", "impairment-intangibles", 4295, "Recoverability of goodwill and acquired brand names"),
-		K$1("volkswagen-2025", "impairment-intangibles", 4295, "Capitalization and recoverability of development costs"),
-		K$1("volkswagen-2025", "provisions-litigation", 4299, "Accounting treatment of the risk provisions for the diesel issue"),
-		K$1("volkswagen-2025", "provisions-litigation", 4300, "Completeness and measurement of provisions for warranty obligations"),
-		K$1("volkswagen-2025", "impairment-assets", 4301, "Determination of the expected residual values of lease assets during impairment testing"),
-		K$1("telekom-2025", "revenue-recognition", 4686, "Revenue recognition"),
-		K$1("bp-2025", "climate", 4837, "Potential impact of climate change and the energy transition"),
-		K$1("bp-2025", "impairment-assets", 4837, "Impairment of upstream oil and gas property, plant and equipment (PP&E) assets"),
-		K$1("bp-2025", "provisions-litigation", 4837, "Decommissioning provisions"),
-		K$1("bp-2025", "fair-value", 4847, "Valuation of commodity financial derivatives, where fraud risks may arise in revenue recognition"),
-		K$1("bp-2025", "fraud-override", 4837, "Management override of controls"),
-		K$1("unilever-2025", "revenue-deductions", 5219, "Revenue recognition – Rebates"),
-		K$1("unilever-2025", "tax-uncertainty", 5220, "Indirect tax contingent liabilities in Brazil"),
-		K$1("unilever-2025", "complex-transactions", 5221, "Ice Cream demerger"),
-		K$1("unilever-2025", "parent-investments", 5222, "Investments in subsidiaries (Parent Company)"),
-		K$1("astrazeneca-2025", "revenue-deductions", 5504, "Recognition and measurement of accruals for Managed Care, Medicaid and Medicare Part D rebates on US Product Sales"),
-		K$1("astrazeneca-2025", "impairment-intangibles", 5505, "Impairment assessment of the product, marketing and distribution rights and other intangibles"),
-		K$1("astrazeneca-2025", "provisions-litigation", 5506, "Recognition and measurement of legal provisions and disclosure of contingent liabilities"),
-		K$1("astrazeneca-2025", "actuarial", 5507, "Valuation of defined benefit obligations in the United Kingdom"),
-		K$1("astrazeneca-2025", "parent-investments", 5503, "Distributable reserves (Company)"),
-		K$1("gsk-2025", "revenue-deductions", 5796, "Valuation of US Returns and Rebates (RAR) accruals"),
-		K$1("gsk-2025", "fair-value", 5797, "Valuation of the ViiV Healthcare Shionogi contingent consideration liability"),
-		K$1("gsk-2025", "impairment-intangibles", 5798, "Valuation of other intangible assets"),
-		K$1("gsk-2025", "tax-uncertainty", 5799, "Valuation of uncertain tax positions, including transfer pricing"),
-		K$1("hsbc-2025", "credit-losses", 6206, "Expected credit losses – Loans and advances to customers (Group)"),
-		K$1("hsbc-2025", "parent-investments", 6206, "Investments in subsidiaries (parent company)"),
-		K$1("totalenergies-2024", "impairment-assets", 6369, "Evaluation of the impairment of non-current assets used in exploration and production activities (E&P and Integrated LNG)"),
-		K$1("totalenergies-2024", "impairment-assets", 6372, "Effect of estimated proved developed hydrocarbon reserves on the depreciation of the oil and gas assets used in production activities"),
-		K$1("airbus-2023", "revenue-recognition", 7380, "Revenue recognition (including revenues and costs at completion for onerous and over-time contracts)"),
-		K$1("airbus-2023", "impairment-assets", 7383, "Recoverability of key program assets - long-lived assets"),
-		K$1("airbus-2023", "fair-value", 7384, "Accounting for derivative financial instruments and hedge ineffectiveness"),
-		K$1("sanofi-2025", "impairment-intangibles", 7636, "Recoverable amount of other intangible assets - Acquired R&D, products, trademarks and other rights"),
-		K$1("sanofi-2025", "revenue-deductions", 7636, "Valuation of the provisions for rebates relating to Sanofi’s business in the United States – Medicaid, Medicare and Managed Care"),
-		K$1("sanofi-2025", "tax-uncertainty", 7637, "Uncertain tax positions"),
-		K$1("toyota-2026", "provisions-litigation", 7906, "Liabilities for the costs of recalls and other safety measures"),
-		K$1("toyota-2026", "credit-losses", 7906, "Allowance for credit losses—Retail finance receivables"),
-		K$1("honda-2023", "provisions-litigation", 8137, "Evaluation of the provision for specific warranty programs"),
-		K$1("honda-2023", "credit-losses", 8137, "Allowance for expected credit losses on retail receivables at the finance subsidiary in the United States"),
-		K$1("honda-2023", "impairment-assets", 8138, "Estimated end of term residual values of lease vehicles at the finance subsidiary in the United States"),
-		K$1("mufg-2026", "credit-losses", 8615, "Allowance for Credit Losses — Macroeconomic Variables in Multiple Economic Forecast Scenarios and Weightings"),
-		K$1("mufg-2026", "credit-losses", 8615, "Allowance for Credit Losses — Krungsri Segment — Qualitative Adjustments"),
-		K$1("mufg-2026", "credit-losses", 8616, "Allowance for Credit Losses — Commercial Segment — Internal Credit Rating"),
-		K$1("smfg-2026", "credit-losses", 8909, "The reasonableness of management's assessment of the reserve for possible loan losses for SMBC's corporate loans"),
-		K$1("samsung-2025", "impairment-assets", 8918, "Evaluation of commencement of depreciation related to construction in progress"),
-		K$1("samsung-2025", "revenue-deductions", 8918, "Sales deduction related to sales promotion activities"),
-		K$1("tencent-2025", "revenue-recognition", 9308, "Revenue recognition on provision of online games value-added services related to in-game permanent virtual items – the estimates of expected user lifetime"),
-		K$1("tencent-2025", "impairment-intangibles", 9309, "Impairment assessments of goodwill, investments in associates and investments in joint ventures"),
-		K$1("tencent-2025", "fair-value", 9311, "Fair value measurement of Level 3 financial instruments"),
-		K$1("reliance-2026", "provisions-litigation", 9519, "Litigation matters"),
-		K$1("reliance-2026", "fair-value", 9519, "Fair Valuation of Investments"),
-		K$1("reliance-2026", "it-controls", 9520, "Information Technology (IT) systems and controls over financial reporting"),
-		K$1("reliance-2026", "revenue-recognition", 9562, "Revenue Recognition (reported by the auditors of Reliance Jio Infocomm)"),
-		K$1("infosys-2026", "revenue-recognition", 9810, "Revenue recognition"),
-		K$1("infosys-2026", "revenue-recognition", 9811, "Revenue recognition - Fixed price contracts using the percentage of completion method"),
-		K$1("aramco-2025", "impairment-intangibles", 10164, "Recoverability of Downstream goodwill and the SABIC brand"),
-		K$1("aramco-2025", "impairment-assets", 10165, "Valuation of property, plant and equipment and assets held for sale"),
-		K$1("aramco-2025", "complex-transactions", 10167, "Sale of non-controlling interest in Jafurah Midstream Gas Company"),
-		K$1("emiratesnbd-2025", "credit-losses", 10336, "Expected Credit Loss allowance against Loans and receivables"),
-		K$1("emiratesnbd-2025", "related-parties", 10338, "Related party transactions and balances"),
-		K$1("eand-2025", "revenue-recognition", 10553, "Revenue recognition"),
-		K$1("eand-2025", "impairment-intangibles", 10554, "Carrying value of cash generating units, including goodwill"),
-		K$1("rbc-2025", "credit-losses", 10745, "Allowance for Credit Losses on Loans Categorized as Stage 1 and Stage 2"),
-		K$1("rbc-2025", "tax-uncertainty", 10745, "Uncertain Tax Positions"),
-		K$1("bhp-2025", "impairment-assets", 11205, "Carrying value of property, plant and equipment"),
-		K$1("bhp-2025", "provisions-litigation", 11205, "Closure and rehabilitation provisions"),
-		K$1("bhp-2025", "provisions-litigation", 11206, "Samarco dam failure provisions recognised and the contingent liabilities disclosed"),
-		K$1("cba-2025", "credit-losses", 12468, "Provisions for loan impairment"),
-		K$1("cba-2025", "provisions-litigation", 12469, "Provisions for ongoing class actions"),
-		K$1("cba-2025", "it-controls", 12470, "Operation of financial reporting Information Technology (IT) systems and controls")
+		K$2("amazon-2023", "tax-uncertainty", 49, "Uncertain Tax Positions"),
+		K$2("amazon-2024", "tax-uncertainty", 1063, "Uncertain Tax Positions"),
+		K$2("apple-2020", "tax-uncertainty", 973, "Uncertain Tax Positions"),
+		K$2("apple-2023", "tax-uncertainty", 1159, "Uncertain Tax Positions"),
+		K$2("apple-2024", "tax-uncertainty", 144, "Uncertain Tax Positions"),
+		K$2("cisco-2024", "revenue-recognition", 289, "Revenue Recognition for Certain Product and Services Revenue"),
+		K$2("cisco-2024", "complex-transactions", 289, "Acquisition of Splunk — Valuation of Customer Contracts and Related Relationships Asset and the Technology Asset Acquired"),
+		K$2("walmart-2023", "provisions-litigation", 399, "Contingencies (opioid-related legal proceedings)"),
+		K$2("adobe-2024", "revenue-recognition", 538, "Performance obligations in cloud-enabled software subscriptions"),
+		K$2("jpmorgan-2023", "credit-losses", 749, "Allowance for Loan Losses – Portfolio-based component of Wholesale Loan and Credit Card Loan Portfolios"),
+		K$2("jpmorgan-2023", "fair-value", 749, "Fair Value of Certain Level 3 Financial Instruments"),
+		K$2("jpmorgan-2025", "credit-losses", 1536, "Allowance for Loan Losses – Portfolio-Based Component of the Wholesale and Credit Card Retained Loan Portfolios"),
+		K$2("jpmorgan-2025", "fair-value", 1536, "Fair Value of Certain Level 3 Financial Instruments"),
+		K$2("bofa-2025", "credit-losses", 1771, "Allowance for Loan and Lease Losses - Commercial and Consumer Card Loans"),
+		K$2("berkshire-2025", "actuarial", 1278, "Unpaid Losses and Loss Adjustment Expenses — short-duration property and casualty claim liabilities"),
+		K$2("berkshire-2025", "actuarial", 1278, "Unpaid Losses and Loss Adjustment Expenses — Retroactive Reinsurance Contracts"),
+		K$2("pepsico-2025", "tax-uncertainty", 1936, "Unrecognized tax benefits"),
+		K$2("pg-2026", "impairment-intangibles", 2001, "Intangible Assets — Gillette Indefinite-Lived Intangible Asset"),
+		K$2("homedepot-2025", "inventory", 2084, "Sufficiency of audit evidence over certain merchandise inventories (retail inventory method)"),
+		K$2("nestle-2025", "revenue-deductions", 2312, "Measurement of revenue as it relates to trade spend"),
+		K$2("nestle-2025", "impairment-intangibles", 2312, "Carrying value of goodwill and indefinite useful life intangible assets"),
+		K$2("roche-2025", "revenue-deductions", 2508, "Government and regulatory mandatory price reductions in the US pharmaceuticals business"),
+		K$2("roche-2025", "impairment-intangibles", 2509, "Carrying value of product intangibles not available for use in the Pharmaceuticals Division"),
+		K$2("novartis-2025", "revenue-deductions", 2790, "Provisions for deductions from revenue related to US Managed Care, Medicare Part D and Medicaid rebate programs"),
+		K$2("ubs-2025", "fair-value", 3047, "Valuation of complex or illiquid instruments at fair value"),
+		K$2("ubs-2025", "credit-losses", 3048, "Expected credit losses"),
+		K$2("ubs-2025", "tax-uncertainty", 3049, "Recognition of deferred tax assets"),
+		K$2("volkswagen-2025", "impairment-intangibles", 4295, "Recoverability of goodwill and acquired brand names"),
+		K$2("volkswagen-2025", "impairment-intangibles", 4295, "Capitalization and recoverability of development costs"),
+		K$2("volkswagen-2025", "provisions-litigation", 4299, "Accounting treatment of the risk provisions for the diesel issue"),
+		K$2("volkswagen-2025", "provisions-litigation", 4300, "Completeness and measurement of provisions for warranty obligations"),
+		K$2("volkswagen-2025", "impairment-assets", 4301, "Determination of the expected residual values of lease assets during impairment testing"),
+		K$2("telekom-2025", "revenue-recognition", 4686, "Revenue recognition"),
+		K$2("bp-2025", "climate", 4837, "Potential impact of climate change and the energy transition"),
+		K$2("bp-2025", "impairment-assets", 4837, "Impairment of upstream oil and gas property, plant and equipment (PP&E) assets"),
+		K$2("bp-2025", "provisions-litigation", 4837, "Decommissioning provisions"),
+		K$2("bp-2025", "fair-value", 4847, "Valuation of commodity financial derivatives, where fraud risks may arise in revenue recognition"),
+		K$2("bp-2025", "fraud-override", 4837, "Management override of controls"),
+		K$2("unilever-2025", "revenue-deductions", 5219, "Revenue recognition – Rebates"),
+		K$2("unilever-2025", "tax-uncertainty", 5220, "Indirect tax contingent liabilities in Brazil"),
+		K$2("unilever-2025", "complex-transactions", 5221, "Ice Cream demerger"),
+		K$2("unilever-2025", "parent-investments", 5222, "Investments in subsidiaries (Parent Company)"),
+		K$2("astrazeneca-2025", "revenue-deductions", 5504, "Recognition and measurement of accruals for Managed Care, Medicaid and Medicare Part D rebates on US Product Sales"),
+		K$2("astrazeneca-2025", "impairment-intangibles", 5505, "Impairment assessment of the product, marketing and distribution rights and other intangibles"),
+		K$2("astrazeneca-2025", "provisions-litigation", 5506, "Recognition and measurement of legal provisions and disclosure of contingent liabilities"),
+		K$2("astrazeneca-2025", "actuarial", 5507, "Valuation of defined benefit obligations in the United Kingdom"),
+		K$2("astrazeneca-2025", "parent-investments", 5503, "Distributable reserves (Company)"),
+		K$2("gsk-2025", "revenue-deductions", 5796, "Valuation of US Returns and Rebates (RAR) accruals"),
+		K$2("gsk-2025", "fair-value", 5797, "Valuation of the ViiV Healthcare Shionogi contingent consideration liability"),
+		K$2("gsk-2025", "impairment-intangibles", 5798, "Valuation of other intangible assets"),
+		K$2("gsk-2025", "tax-uncertainty", 5799, "Valuation of uncertain tax positions, including transfer pricing"),
+		K$2("hsbc-2025", "credit-losses", 6206, "Expected credit losses – Loans and advances to customers (Group)"),
+		K$2("hsbc-2025", "parent-investments", 6206, "Investments in subsidiaries (parent company)"),
+		K$2("totalenergies-2024", "impairment-assets", 6369, "Evaluation of the impairment of non-current assets used in exploration and production activities (E&P and Integrated LNG)"),
+		K$2("totalenergies-2024", "impairment-assets", 6372, "Effect of estimated proved developed hydrocarbon reserves on the depreciation of the oil and gas assets used in production activities"),
+		K$2("airbus-2023", "revenue-recognition", 7380, "Revenue recognition (including revenues and costs at completion for onerous and over-time contracts)"),
+		K$2("airbus-2023", "impairment-assets", 7383, "Recoverability of key program assets - long-lived assets"),
+		K$2("airbus-2023", "fair-value", 7384, "Accounting for derivative financial instruments and hedge ineffectiveness"),
+		K$2("sanofi-2025", "impairment-intangibles", 7636, "Recoverable amount of other intangible assets - Acquired R&D, products, trademarks and other rights"),
+		K$2("sanofi-2025", "revenue-deductions", 7636, "Valuation of the provisions for rebates relating to Sanofi’s business in the United States – Medicaid, Medicare and Managed Care"),
+		K$2("sanofi-2025", "tax-uncertainty", 7637, "Uncertain tax positions"),
+		K$2("toyota-2026", "provisions-litigation", 7906, "Liabilities for the costs of recalls and other safety measures"),
+		K$2("toyota-2026", "credit-losses", 7906, "Allowance for credit losses—Retail finance receivables"),
+		K$2("honda-2023", "provisions-litigation", 8137, "Evaluation of the provision for specific warranty programs"),
+		K$2("honda-2023", "credit-losses", 8137, "Allowance for expected credit losses on retail receivables at the finance subsidiary in the United States"),
+		K$2("honda-2023", "impairment-assets", 8138, "Estimated end of term residual values of lease vehicles at the finance subsidiary in the United States"),
+		K$2("mufg-2026", "credit-losses", 8615, "Allowance for Credit Losses — Macroeconomic Variables in Multiple Economic Forecast Scenarios and Weightings"),
+		K$2("mufg-2026", "credit-losses", 8615, "Allowance for Credit Losses — Krungsri Segment — Qualitative Adjustments"),
+		K$2("mufg-2026", "credit-losses", 8616, "Allowance for Credit Losses — Commercial Segment — Internal Credit Rating"),
+		K$2("smfg-2026", "credit-losses", 8909, "The reasonableness of management's assessment of the reserve for possible loan losses for SMBC's corporate loans"),
+		K$2("samsung-2025", "impairment-assets", 8918, "Evaluation of commencement of depreciation related to construction in progress"),
+		K$2("samsung-2025", "revenue-deductions", 8918, "Sales deduction related to sales promotion activities"),
+		K$2("tencent-2025", "revenue-recognition", 9308, "Revenue recognition on provision of online games value-added services related to in-game permanent virtual items – the estimates of expected user lifetime"),
+		K$2("tencent-2025", "impairment-intangibles", 9309, "Impairment assessments of goodwill, investments in associates and investments in joint ventures"),
+		K$2("tencent-2025", "fair-value", 9311, "Fair value measurement of Level 3 financial instruments"),
+		K$2("reliance-2026", "provisions-litigation", 9519, "Litigation matters"),
+		K$2("reliance-2026", "fair-value", 9519, "Fair Valuation of Investments"),
+		K$2("reliance-2026", "it-controls", 9520, "Information Technology (IT) systems and controls over financial reporting"),
+		K$2("reliance-2026", "revenue-recognition", 9562, "Revenue Recognition (reported by the auditors of Reliance Jio Infocomm)"),
+		K$2("infosys-2026", "revenue-recognition", 9810, "Revenue recognition"),
+		K$2("infosys-2026", "revenue-recognition", 9811, "Revenue recognition - Fixed price contracts using the percentage of completion method"),
+		K$2("aramco-2025", "impairment-intangibles", 10164, "Recoverability of Downstream goodwill and the SABIC brand"),
+		K$2("aramco-2025", "impairment-assets", 10165, "Valuation of property, plant and equipment and assets held for sale"),
+		K$2("aramco-2025", "complex-transactions", 10167, "Sale of non-controlling interest in Jafurah Midstream Gas Company"),
+		K$2("emiratesnbd-2025", "credit-losses", 10336, "Expected Credit Loss allowance against Loans and receivables"),
+		K$2("emiratesnbd-2025", "related-parties", 10338, "Related party transactions and balances"),
+		K$2("eand-2025", "revenue-recognition", 10553, "Revenue recognition"),
+		K$2("eand-2025", "impairment-intangibles", 10554, "Carrying value of cash generating units, including goodwill"),
+		K$2("rbc-2025", "credit-losses", 10745, "Allowance for Credit Losses on Loans Categorized as Stage 1 and Stage 2"),
+		K$2("rbc-2025", "tax-uncertainty", 10745, "Uncertain Tax Positions"),
+		K$2("bhp-2025", "impairment-assets", 11205, "Carrying value of property, plant and equipment"),
+		K$2("bhp-2025", "provisions-litigation", 11205, "Closure and rehabilitation provisions"),
+		K$2("bhp-2025", "provisions-litigation", 11206, "Samarco dam failure provisions recognised and the contingent liabilities disclosed"),
+		K$2("cba-2025", "credit-losses", 12468, "Provisions for loan impairment"),
+		K$2("cba-2025", "provisions-litigation", 12469, "Provisions for ongoing class actions"),
+		K$2("cba-2025", "it-controls", 12470, "Operation of financial reporting Information Technology (IT) systems and controls")
 	];
 	var MATERIALITY = [
 		{
@@ -9782,6 +9782,467 @@ window.SKEngines = (function() {
 		return {
 			...report,
 			status: "FINAL"
+		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/audit/requests-engine.ts
+	var requests_engine_exports = /* @__PURE__ */ __exportAll({
+		EVIDENCE: () => EVIDENCE,
+		LIBRARY: () => LIBRARY,
+		STAGE_AR: () => STAGE_AR,
+		buildRequests: () => buildRequests,
+		canConclude: () => canConclude,
+		limitationImpact: () => limitationImpact,
+		nextRound: () => nextRound
+	});
+	/** reliability: 3 external and sent to the auditor directly, 2 external held by the entity, 1 produced by the entity (ISA 500.A31) */
+	var EVIDENCE = {
+		confirmation: {
+			ar: "مصادقة خارجية مباشرة",
+			reliability: 3,
+			bundle: [4, 40]
+		},
+		bank: {
+			ar: "كشوف ومصادقات بنكية",
+			reliability: 3,
+			bundle: [2, 40]
+		},
+		legal: {
+			ar: "خطاب المستشار القانوني",
+			reliability: 3,
+			bundle: [15, 40]
+		},
+		contract: {
+			ar: "عقود واتفاقيات",
+			reliability: 2,
+			bundle: [24, 40]
+		},
+		invoice: {
+			ar: "فواتير ومستندات تسليم وشحن",
+			reliability: 2,
+			bundle: [8, 40]
+		},
+		loan: {
+			ar: "اتفاقيات تمويل وتعهدات",
+			reliability: 2,
+			bundle: [5, 40]
+		},
+		regulatory: {
+			ar: "مراسلات الجهات الرقابية",
+			reliability: 2,
+			bundle: [23, 40]
+		},
+		tax: {
+			ar: "إقرارات وربوط ومراسلات ضريبية وزكوية",
+			reliability: 2,
+			bundle: [10, 40]
+		},
+		valuation: {
+			ar: "تقارير تقييم واكتواري من خبير",
+			reliability: 2,
+			bundle: [17, 40]
+		},
+		market: {
+			ar: "بيانات سوق ومصادر خارجية",
+			reliability: 2,
+			bundle: [21, 40]
+		},
+		minutes: {
+			ar: "محاضر المجلس واللجان",
+			reliability: 2,
+			bundle: [4, 40]
+		},
+		count: {
+			ar: "حضور الجرد والفحص المادي",
+			reliability: 3,
+			bundle: [6, 40]
+		},
+		register: {
+			ar: "سجلات تفصيلية",
+			reliability: 1
+		},
+		schedule: {
+			ar: "كشوف تحليلية من الإدارة",
+			reliability: 1
+		},
+		reconciliation: {
+			ar: "مطابقات",
+			reliability: 1
+		},
+		forecast: {
+			ar: "موازنات وتوقعات وخطط أعمال معتمدة",
+			reliability: 1,
+			bundle: [30, 40]
+		},
+		policy: {
+			ar: "سياسات وإجراءات موثقة",
+			reliability: 1
+		},
+		controls: {
+			ar: "توثيق الضوابط واختبارها",
+			reliability: 1,
+			bundle: [17, 40]
+		},
+		itgc: {
+			ar: "ضوابط تقنية المعلومات العامة",
+			reliability: 1,
+			bundle: [33, 40]
+		},
+		data: {
+			ar: "بيانات أساسية لاختبار الاكتمال والدقة",
+			reliability: 1,
+			bundle: [18, 40]
+		},
+		recalc: {
+			ar: "نماذج قابلة لإعادة الاحتساب",
+			reliability: 1,
+			bundle: [15, 40]
+		},
+		journal: {
+			ar: "مجتمع القيود اليومية",
+			reliability: 1,
+			bundle: [7, 40]
+		},
+		sensitivity: {
+			ar: "تحليل حساسية وتقديرات سابقة",
+			reliability: 1,
+			bundle: [13, 40]
+		},
+		disclosure: {
+			ar: "مسودة الإيضاحات ومصادرها",
+			reliability: 1,
+			bundle: [37, 40]
+		},
+		specialist: {
+			ar: "عمل خبير (ضرائب، تقييم، اكتواري، تقنية)",
+			reliability: 2,
+			bundle: [19, 40]
+		},
+		representation: {
+			ar: "إقرارات مكتوبة من الإدارة",
+			reliability: 1
+		}
+	};
+	var STAGE_AR = {
+		planning: "التخطيط وفهم المنشأة",
+		area: "بنود القوائم",
+		kam: "المناطق الحكمية (الأمور الرئيسية)",
+		completion: "الإقفال والتقرير"
+	};
+	var T = (id, stage, title, purpose, kind, assertions, isa, when, from, alt, x = {}) => ({
+		id,
+		stage,
+		title,
+		purpose,
+		kind,
+		assertions,
+		isa,
+		when,
+		from,
+		alt,
+		...x
+	});
+	var E_ = "existence";
+	var C = "completeness";
+	var A$1 = "accuracy";
+	var K$1 = "cutoff";
+	var V = "valuation";
+	var P = "presentation";
+	var MGT = "الإدارة المالية";
+	var LIBRARY = [
+		T("PL-01", "planning", "ميزان المراجعة النهائي بالأرصدة الافتتاحية والحركة والختامية، موقعاً من الإدارة", "أساس القوائم ومطابقتها مع الأستاذ العام", "schedule", [C, A$1], "ISA 500", "always", MGT, "مطابقة الميزان مع الأستاذ العام المستخرج من النظام مباشرة"),
+		T("PL-02", "planning", "القوائم المالية ومسودة الإيضاحات للسنة محل المراجعة", "ربط الميزان بالقوائم وفحص الإفصاحات", "disclosure", [P], "ISA 700", "always", MGT, "إعداد الربط من الميزان ومطالبة الإدارة بالإيضاحات الناقصة"),
+		T("PL-03", "planning", "القوائم المالية المراجعة للسنة السابقة وتقرير المراجع السابق", "الأرصدة الافتتاحية والمقارنة", "disclosure", [E_, P], "ISA 510", "prior", MGT, "فحص الأرصدة الافتتاحية بإجراءات بديلة (التحصيلات والمدفوعات اللاحقة)"),
+		T("PL-04", "planning", "السجل التجاري وعقد التأسيس والنظام الأساس وآخر تعديلاته", "الكيان النظامي ورأس المال والصلاحيات", "contract", [E_, P], "ISA 315", "always", "الشؤون القانونية", "الاستعلام من السجل الرسمي للجهة المختصة"),
+		T("PL-05", "planning", "الهيكل التنظيمي وهيكل المجموعة والشركات التابعة والزميلة ونسب الملكية", "نطاق التوحيد ومكونات المجموعة", "schedule", [C, P], "ISA 600", "always", MGT, "بناء الهيكل من محاضر المجلس والسجلات الرسمية"),
+		T("PL-06", "planning", "محاضر اجتماعات مجلس الإدارة ولجنة المراجعة والجمعيات للسنة وحتى تاريخ التقرير", "القرارات المؤثرة في القوائم والالتزامات والقضايا", "minutes", [C, P], "ISA 315", "always", "أمين سر المجلس", "إقرار مكتوب بعدم وجود قرارات أخرى، مع الاستفسار من أعضاء المجلس"),
+		T("PL-07", "planning", "قائمة الأطراف ذات العلاقة ومعاملاتها وأرصدتها خلال السنة", "اكتمال الإفصاح عن الأطراف ذات العلاقة (IAS 24)", "schedule", [C, P], "ISA 550", "always", MGT, "مطابقة الأسماء مع السجل التجاري وسجل المساهمين والحسابات الجارية"),
+		T("PL-08", "planning", "دليل السياسات المحاسبية والتقديرات والأحكام الهامة", "ملاءمة السياسات للإطار (IAS 8)", "policy", [P, V], "ISA 315", "always", MGT, "استخلاص السياسات من الإيضاحات ومناقشتها مع الإدارة"),
+		T("PL-09", "planning", "وصف الأنظمة المحاسبية وتقنية المعلومات وصلاحيات المستخدمين وسجل التغييرات", "فهم بيئة التقنية وتقييم مخاطرها", "itgc", [A$1, C], "ISA 315", "always", "إدارة تقنية المعلومات", "الاعتماد على الإجراءات الأساسية الموسعة بدل الضوابط الآلية"),
+		T("PL-10", "planning", "تقارير المراجعة الداخلية وخطابات الإدارة السابقة وردود الإدارة", "المخاطر المعروفة وحالة معالجتها", "controls", [E_, A$1], "ISA 610", "always", "المراجعة الداخلية", "الاستفسار من لجنة المراجعة"),
+		T("PL-11", "planning", "الموازنة المعتمدة للسنة والتقارير الإدارية الشهرية (الفعلي مقابل الموازنة)", "الإجراءات التحليلية وتوقعات الإدارة", "forecast", [A$1, C], "ISA 520", "always", MGT, "تحليل الاتجاهات الشهرية من الأستاذ العام"),
+		T("PL-12", "planning", "تقييم الإدارة للاستمرارية مع توقعات التدفق النقدي لاثني عشر شهراً على الأقل وخطط التمويل", "تقييم الاستمرارية (ISA 570 المحدث)", "forecast", [P, V], "ISA 570", "always", MGT, "بناء نموذج تدفق مستقل من القوائم واختبار سيناريوهات الضغط"),
+		T("PL-13", "planning", "قائمة القضايا والمطالبات والنزاعات القائمة والمحتملة", "الالتزامات المحتملة والمخصصات (IAS 37)", "legal", [C, V], "ISA 501", "always", "الشؤون القانونية", "خطاب مباشر للمستشار القانوني وفحص مصروفات الأتعاب القانونية"),
+		T("PL-14", "planning", "مجتمع القيود اليومية الكامل للسنة (رقم القيد، التاريخ، المستخدم، الحساب، المبلغ، البيان)", "اختبار القيود وتجاوز الإدارة للضوابط", "journal", [E_, A$1], "ISA 240", "always", "إدارة تقنية المعلومات", "استخراج القيود من النظام بحضور المراجع"),
+		T("CA-01", "area", "مصادقات بنكية مباشرة لكل الحسابات (بما فيها المقفلة خلال السنة) والتسهيلات والضمانات", "وجود الأرصدة واكتمال الالتزامات والرهونات", "bank", [
+			E_,
+			C,
+			P
+		], "ISA 505", "always", "البنوك (يرسلها المراجع)", "كشوف الحساب الأصلية لشهر الإقفال وما بعده مع اختبار البنود المعلقة", { lines: [
+			"cash",
+			"loansCl",
+			"loansNcl"
+		] }),
+		T("CA-02", "area", "التسويات البنكية في تاريخ الإقفال مع الكشوف الداعمة والبنود المعلقة", "اكتمال النقد والقطع", "reconciliation", [E_, K$1], "ISA 500", "always", MGT, "فحص كشف الشهر اللاحق لتسوية البنود المعلقة", { lines: ["cash"] }),
+		T("CA-03", "area", "محاضر جرد النقدية والعهد في تاريخ الإقفال", "وجود النقد بالصندوق", "count", [E_], "ISA 501", "material", "أمين الصندوق", "فحص الحركة اللاحقة للعهد وتسويتها", { lines: ["cash"] }),
+		T("AR-01", "area", "كشف أعمار الذمم المدينة بالعميل في تاريخ الإقفال مطابقاً للأستاذ", "التقييم والوجود", "schedule", [E_, V], "ISA 500", "significant", MGT, "إعداد الأعمار من دفتر الأستاذ المساعد", { lines: ["receivables"] }),
+		T("AR-02", "area", "مصادقات أرصدة لعينة من العملاء (إيجابية)", "وجود الأرصدة وحقوق المنشأة", "confirmation", [E_], "ISA 505", "significant", "العملاء (يرسلها المراجع)", "التحصيلات اللاحقة وفواتير البيع ومستندات التسليم للأرصدة غير المؤكدة", { lines: ["receivables"] }),
+		T("AR-03", "area", "سياسة ومصفوفة الخسائر الائتمانية المتوقعة وافتراضاتها المستقبلية وبيانات التعثر التاريخية", "تقييم المخصص (IFRS 9)", "recalc", [V], "ISA 540", "estimate", MGT, "تقدير مستقل للمخصص من الأعمار والتحصيلات اللاحقة", { lines: ["receivables", "impairment"] }),
+		T("AR-04", "area", "التحصيلات اللاحقة لتاريخ الإقفال لأكبر العملاء", "الوجود وقابلية التحصيل", "bank", [E_, V], "ISA 500", "significant", MGT, "مصادقة مباشرة للأرصدة الجوهرية", { lines: ["receivables"] }),
+		T("IN-01", "area", "تعليمات الجرد وقوائم الجرد الفعلي الموقعة وحضور المراجع للجرد", "وجود المخزون وحالته", "count", [E_, C], "ISA 501", "significant", "إدارة المستودعات", "جرد لاحق مع تتبع الحركة عكسياً إلى تاريخ الإقفال", { lines: ["inventory"] }),
+		T("IN-02", "area", "تقييم المخزون بالصنف وطريقة التكلفة وفواتير الشراء لعينة", "التكلفة وصافي القيمة القابلة للتحقق (IAS 2)", "invoice", [V, A$1], "ISA 500", "significant", MGT, "إعادة احتساب التكلفة من فواتير الموردين", { lines: ["inventory", "cogs"] }),
+		T("IN-03", "area", "تقرير الأصناف الراكدة وبطيئة الحركة وأسعار البيع اللاحقة", "مخصص التقادم وصافي القيمة القابلة للتحقق", "schedule", [V], "ISA 540", "estimate", MGT, "مقارنة التكلفة بأسعار البيع اللاحقة لتاريخ الإقفال", { lines: ["inventory"] }),
+		T("PP-01", "area", "سجل الأصول الثابتة التفصيلي (التكلفة، الإضافات، الاستبعادات، الاستهلاك، الأعمار) مطابقاً للأستاذ", "الوجود والدقة وإعادة احتساب الاستهلاك", "register", [
+			E_,
+			A$1,
+			V
+		], "ISA 500", "significant", MGT, "بناء الحركة من الأستاذ العام وفحص عينة مادية", { lines: ["ppe", "depreciation"] }),
+		T("PP-02", "area", "فواتير وعقود ومحاضر استلام الإضافات الجوهرية ومشروعات تحت التنفيذ", "التكلفة والملكية والرسملة (IAS 16)", "invoice", [E_, A$1], "ISA 500", "significant", MGT, "فحص المدفوعات البنكية المقابلة", { lines: ["ppe"] }),
+		T("PP-03", "area", "صكوك ووثائق ملكية الأصول الرئيسة والرهونات عليها", "الحقوق والقيود على الأصول", "contract", [E_, P], "ISA 500", "material", "الشؤون القانونية", "الاستعلام من السجل العقاري ومصادقة البنوك الدائنة", { lines: ["ppe"] }),
+		T("PP-04", "area", "دراسة مؤشرات الانخفاض واختبار القيمة القابلة للاسترداد لوحدات توليد النقد", "التقييم (IAS 36)", "forecast", [V], "ISA 540", "estimate", MGT, "تقييم مستقل للمؤشرات من الأداء الفعلي وخطط التشغيل", { lines: ["ppe", "impairment"] }),
+		T("RO-01", "area", "سجل عقود الإيجار وجداول الالتزام والأصل وأسعار الخصم المستخدمة", "الاكتمال والقياس (IFRS 16)", "contract", [C, V], "ISA 540", "significant", MGT, "فحص مصروفات الإيجار والدفعات لاكتشاف عقود غير مسجلة", { lines: ["rou", "leaseNcl"] }),
+		T("IA-01", "area", "سجل الأصول غير الملموسة والشهرة وتوزيعها على وحدات توليد النقد", "الوجود والتقييم (IAS 38، IFRS 3)", "register", [E_, V], "ISA 500", "significant", MGT, "إعادة بناء الرصيد من اتفاقيات الاستحواذ والتراخيص", { lines: ["intangibles"] }),
+		T("IV-01", "area", "كشوف الاستثمارات ومصادقات أمناء الحفظ وتقارير القيمة العادلة", "الوجود والتقييم (IFRS 9/13)", "confirmation", [E_, V], "ISA 505", "significant", "أمين الحفظ", "أسعار السوق المعلنة وشهادات الملكية الأصلية", { lines: ["investments", "investIncome"] }),
+		T("AP-01", "area", "كشف أرصدة الموردين مع مطابقات كشوف حسابات الموردين الرئيسيين", "اكتمال الالتزامات", "reconciliation", [C, A$1], "ISA 500", "significant", MGT, "مصادقة مباشرة للموردين الرئيسيين", { lines: ["payables"] }),
+		T("AP-02", "area", "المدفوعات والفواتير المستلمة بعد تاريخ الإقفال حتى تاريخ العمل الميداني", "البحث عن الالتزامات غير المسجلة والقطع", "invoice", [C, K$1], "ISA 500", "always", MGT, "فحص كشوف البنك اللاحقة مباشرة", { lines: ["payables", "accruals"] }),
+		T("AP-03", "area", "مصادقات أرصدة لعينة من الموردين (بما فيها الأرصدة الصفرية)", "اكتمال الالتزامات", "confirmation", [C], "ISA 505", "material", "الموردون (يرسلها المراجع)", "كشوف حسابات الموردين والمدفوعات اللاحقة", { lines: ["payables"] }),
+		T("AC-01", "area", "تحليل المصروفات المستحقة والمطلوبات الأخرى مع أساس كل تقدير", "الاكتمال والتقييم", "schedule", [C, V], "ISA 540", "estimate", MGT, "تقدير مستقل من المدفوعات اللاحقة", { lines: ["accruals", "otherCl"] }),
+		T("PR-01", "area", "تحليل حركة المخصصات وأساس كل مخصص ورأي المستشارين", "الاعتراف والقياس (IAS 37)", "legal", [C, V], "ISA 540", "estimate", MGT, "فحص المحاضر والمراسلات والمدفوعات اللاحقة", { lines: ["provisions"] }),
+		T("LN-01", "area", "اتفاقيات القروض والتسهيلات وجداول السداد واحتساب التعهدات المالية", "الاكتمال والتصنيف والالتزام بالتعهدات (IAS 1.74)", "loan", [C, P], "ISA 500", "significant", MGT, "مصادقة البنوك المقرضة مباشرة", { lines: [
+			"loansCl",
+			"loansNcl",
+			"financeCost"
+		] }),
+		T("EB-01", "area", "التقرير الاكتواري لمكافأة نهاية الخدمة وبيانات الموظفين المستخدمة فيه", "القياس (IAS 19)", "valuation", [V, C], "ISA 540", "estimate", "الموارد البشرية", "احتساب مستقل وفق نظام العمل وسجل الرواتب", { lines: ["eosb"] }),
+		T("EB-02", "area", "مسيرات الرواتب الشهرية وعقود عينة من الموظفين وسجل التأمينات الاجتماعية", "حدوث ودقة مصروف الرواتب", "register", [E_, A$1], "ISA 500", "significant", "الموارد البشرية", "مطابقة مسيرات الرواتب مع التحويلات البنكية وسجل التأمينات", { lines: [
+			"admin",
+			"selling",
+			"cogs"
+		] }),
+		T("TX-01", "area", "الإقرارات الزكوية والضريبية والربوط والاعتراضات ومراسلات الهيئة", "الاكتمال والتقييم (IAS 12، أنظمة الزكاة)", "tax", [C, V], "ISA 540", "always", MGT, "إشراك مختص الزكاة والضريبة وإعادة احتساب الوعاء", { lines: ["zakatPayable", "zakatExpense"] }),
+		T("TX-02", "area", "إقرارات ضريبة القيمة المضافة للفترة ومطابقتها مع الإيرادات والمشتريات", "الاكتمال والدقة", "reconciliation", [C, A$1], "ISA 500", "always", MGT, "مطابقة مستقلة من الأستاذ العام", { lines: [
+			"vatAsset",
+			"vatLiability",
+			"revenue"
+		] }),
+		T("EQ-01", "area", "سجل المساهمين/الشركاء وقرارات زيادة رأس المال والتوزيعات والاحتياطيات", "الوجود والعرض", "minutes", [E_, P], "ISA 500", "always", "أمين سر المجلس", "الاستعلام من السجل الرسمي", { lines: [
+			"capital",
+			"reserves",
+			"partners",
+			"retained"
+		] }),
+		T("RV-01", "area", "عقود البيع الرئيسية وسياسة الاعتراف بالإيراد وشروط التسليم والخصومات", "الحدوث والقطع (IFRS 15)", "contract", [E_, K$1], "ISA 500", "always", MGT, "فحص عينة من الفواتير ومستندات التسليم", { lines: ["revenue", "contractLiab"] }),
+		T("RV-02", "area", "فواتير ومستندات تسليم لعينة من المبيعات وحول تاريخ الإقفال", "الحدوث والقطع", "invoice", [E_, K$1], "ISA 500", "always", MGT, "فحص التحصيلات البنكية المقابلة للمبيعات", { lines: ["revenue", "receivables"] }),
+		T("RV-03", "area", "تحليل المرتجعات والخصومات والحوافز بعد تاريخ الإقفال", "تقدير المقابل المتغير والقطع", "schedule", [K$1, V], "ISA 540", "estimate", MGT, "فحص إشعارات الدائن اللاحقة", { lines: ["revenue"] }),
+		T("CS-01", "area", "تحليل تكلفة المبيعات وربطها بحركة المخزون والمشتريات", "الاكتمال والتطابق مع الإيراد", "reconciliation", [C, A$1], "ISA 520", "always", MGT, "إعادة بناء التكلفة من حركة المخزون", { lines: ["cogs", "inventory"] }),
+		T("OX-01", "area", "تحليل المصروفات التشغيلية الجوهرية وفواتير عينة منها", "الحدوث والتصنيف", "invoice", [E_, P], "ISA 500", "significant", MGT, "فحص المدفوعات البنكية المقابلة", { lines: [
+			"selling",
+			"admin",
+			"otherIncome"
+		] }),
+		T("KM-01", "kam", "نموذج اختبار انخفاض الشهرة والأصول غير الملموسة مع الخطة الخمسية المعتمدة من المجلس", "منهجية التقييم والتدفقات (IAS 36) — كما في 30 من 40 تقريراً", "forecast", [V], "ISA 540", "estimate", MGT, "نموذج مستقل بافتراضات السوق بمساعدة مختص تقييم", {
+			theme: "impairment-intangibles",
+			lines: ["intangibles", "impairment"]
+		}),
+		T("KM-02", "kam", "مصادر معدل الخصم ومعدل النمو طويل الأجل وتحليل الحساسية وهامش الأمان", "معقولية الافتراضات مقابل بيانات السوق — 21 من 40 تقريراً", "market", [V], "ISA 540", "estimate", MGT, "احتساب مستقل لمعدل الخصم من بيانات السوق", {
+			theme: "impairment-intangibles",
+			lines: ["intangibles", "ppe"]
+		}),
+		T("KM-03", "kam", "تقرير المقيّم المستقل (العقارات أو الأصول أو الأدوات غير المتداولة) مع خطاب التكليف", "كفاءة الخبير واستقلاله ومدخلاته (ISA 500.8)", "valuation", [V], "ISA 500", "estimate", MGT, "تعيين خبير المراجع لإعادة تقييم عينة", {
+			theme: "fair-value",
+			lines: ["investments", "ppe"]
+		}),
+		T("KM-04", "kam", "توثيق نموذج الخسائر الائتمانية المتوقعة: المراحل، السيناريوهات وأوزانها، والتعديلات الإدارية", "التقييم وتحيز الإدارة (IFRS 9)", "recalc", [V], "ISA 540", "estimate", MGT, "إعادة أداء النموذج لعينة وتقدير مستقل للتعديلات", {
+			theme: "credit-losses",
+			lines: ["receivables", "impairment"]
+		}),
+		T("KM-05", "kam", "بيانات المصدر لاختبار اكتمال ودقة البيانات المدخلة في النماذج", "سلامة المدخلات — 18 من 40 تقريراً", "data", [C, A$1], "ISA 500", "estimate", MGT, "مطابقة عينة من البيانات مع المستندات الأصلية", { lines: [
+			"receivables",
+			"inventory",
+			"eosb",
+			"provisions"
+		] }),
+		T("KM-06", "kam", "مقارنة التقديرات السابقة بنتائجها الفعلية (ما قُدر العام الماضي وما تحقق)", "مؤشرات تحيز الإدارة (ISA 540.14)", "sensitivity", [V], "ISA 540", "estimate", MGT, "مراجعة لاحقة مستقلة للتقديرات من الحركة اللاحقة", { lines: [
+			"provisions",
+			"receivables",
+			"inventory",
+			"accruals"
+		] }),
+		T("KM-07", "kam", "خطابات المستشارين القانونيين الداخليين والخارجيين عن القضايا والتحقيقات (مباشرة للمراجع)", "الاكتمال والتقييم والإفصاح — 15 من 40 تقريراً", "legal", [
+			C,
+			V,
+			P
+		], "ISA 501", "always", "المستشارون القانونيون (يرسلها المراجع)", "اجتماع مع المستشار بحضور الإدارة وإقرار مكتوب", {
+			theme: "provisions-litigation",
+			lines: ["provisions"]
+		}),
+		T("KM-08", "kam", "مراسلات الجهات الرقابية والفحوص والتحقيقات وأي مخالفات", "الالتزام بالأنظمة (ISA 250) — 23 من 40 تقريراً", "regulatory", [C, P], "ISA 250", "always", "الالتزام", "الاستعلام من الجهات وإقرار مكتوب من الإدارة", { theme: "provisions-litigation" }),
+		T("KM-09", "kam", "قوائم صلاحيات المستخدمين وسجلات تغييرات الأنظمة وفصل المهام في النظام المالي", "الضوابط العامة لتقنية المعلومات — 33 من 40 تقريراً", "itgc", [A$1, C], "ISA 315", "always", "إدارة تقنية المعلومات", "توسيع الإجراءات الأساسية وتحليل البيانات الكاملة", { theme: "it-controls" }),
+		T("KM-10", "kam", "تقييم الإدارة للمواقف الضريبية والزكوية غير المؤكدة ورأي مستشارها الضريبي", "الاعتراف والقياس (IFRIC 23)", "tax", [V, C], "ISA 540", "estimate", MGT, "إشراك مختص الضرائب في تقييم مستقل للمواقف", {
+			theme: "tax-uncertainty",
+			lines: [
+				"zakatPayable",
+				"zakatExpense",
+				"provisions"
+			]
+		}),
+		T("KM-11", "kam", "اتفاقيات الاستحواذ أو البيع وتقرير توزيع سعر الشراء", "المعالجة المحاسبية للمعاملات المعقدة (IFRS 3/10)", "contract", [V, P], "ISA 540", "material", MGT, "تقييم مستقل للأصول المستحوذ عليها بمساعدة مختص", {
+			theme: "complex-transactions",
+			lines: ["intangibles", "investments"]
+		}),
+		T("KM-12", "kam", "التقرير الاكتواري الكامل وافتراضات الخصم والتضخم والوفيات", "القياس (IAS 19) مقابل نطاق مستقل", "valuation", [V], "ISA 540", "estimate", "الموارد البشرية", "مقارنة الافتراضات بنطاق خبير المراجع", {
+			theme: "actuarial",
+			lines: ["eosb"]
+		}),
+		T("KM-13", "kam", "تحليل الخصومات والحوافز المستحقة للعملاء وأساس الاستحقاق والتسويات الفعلية اللاحقة", "تقدير المقابل المتغير — كما في تقارير السلع الاستهلاكية", "schedule", [V, K$1], "ISA 540", "estimate", MGT, "توقع مستقل من المطالبات الفعلية والاتجاهات", {
+			theme: "revenue-deductions",
+			lines: ["revenue", "accruals"]
+		}),
+		T("KM-14", "kam", "عقود طويلة الأجل ونسبة الإنجاز وتقديرات التكلفة حتى الإكمال", "توقيت الاعتراف بالإيراد وهوامش العقود (IFRS 15)", "contract", [V, K$1], "ISA 540", "estimate", MGT, "زيارات ميدانية ومقارنة التكاليف الفعلية بالتقديرات السابقة", {
+			theme: "revenue-recognition",
+			lines: ["revenue", "contractLiab"]
+		}),
+		T("KM-15", "kam", "قائمة الأطراف ذات العلاقة من النظام ومصادقات أرصدتهم وعقود معاملاتهم", "الاكتمال والشروط التجارية (IAS 24)", "confirmation", [C, P], "ISA 550", "always", MGT, "فحص المعاملات غير المعتادة وقرارات المجلس", {
+			theme: "related-parties",
+			lines: [
+				"partners",
+				"receivables",
+				"payables"
+			]
+		}),
+		T("CM-01", "completion", "الأحداث اللاحقة لتاريخ القوائم حتى تاريخ التقرير (محاضر، عقود، قضايا، تحصيلات)", "التعديل أو الإفصاح (IAS 10)", "minutes", [C, P], "ISA 560", "always", MGT, "الاستفسار الموثق وفحص الحسابات اللاحقة"),
+		T("CM-02", "completion", "خطابات المستشارين القانونيين المحدثة حتى تاريخ التقرير", "تحديث القضايا والالتزامات المحتملة", "legal", [C], "ISA 501", "always", "المستشارون القانونيون (يرسلها المراجع)", "اجتماع مع المستشار وإقرار الإدارة"),
+		T("CM-03", "completion", "خطاب إقرارات الإدارة موقعاً بتاريخ التقرير", "إقرارات مكتوبة مطلوبة (ISA 580)", "representation", [C, P], "ISA 580", "always", "الإدارة والمجلس", "لا بديل — امتناع الإدارة يعني الامتناع عن إبداء الرأي (ISA 580.20)"),
+		T("CM-04", "completion", "القوائم المالية النهائية والإيضاحات بعد قيود التسوية المعتمدة", "اتساق القوائم مع نتائج المراجعة", "disclosure", [P], "ISA 700", "always", MGT, "تعديل المسودة من قبل المراجع ومطالبة الإدارة باعتمادها"),
+		T("CM-05", "completion", "التقرير السنوي ومعلومات مجلس الإدارة (المعلومات الأخرى)", "قراءة المعلومات الأخرى واتساقها (ISA 720)", "disclosure", [P], "ISA 720", "always", "أمين سر المجلس", "الإشارة في التقرير إلى عدم استلام المعلومات الأخرى")
+	];
+	/** The requests of this engagement: the routine ones every audit needs, the areas that are material or significant, and the
+	judgemental areas its risks point to — each with why it is asked. Ordered by stage, then priority. */
+	function buildRequests(i) {
+		const byLine = new Map(i.risks.map((r) => [r.lineKey, r])), themes = new Set(i.themes ?? []), round = i.round ?? 1, out = [];
+		const has = (t) => (t.lines ?? []).map((k) => byLine.get(k)).filter((r) => !!r && r.amount !== 0);
+		for (const t of LIBRARY) {
+			const lines = has(t), anyLine = !t.lines || lines.length > 0;
+			const sig = lines.some((r) => r.significant), mat = lines.some((r) => Math.abs(r.amount) >= i.materiality), est = lines.some((r) => r.estimate), fr = lines.some((r) => r.fraud);
+			const themed = !!t.theme && themes.has(t.theme);
+			let take = false;
+			if (t.when === "always") take = anyLine;
+			else if (t.when === "prior") take = !!i.hasPrior;
+			else if (t.when === "significant") take = sig || mat || themed;
+			else if (t.when === "material") take = mat || themed;
+			else if (t.when === "estimate") take = est && (sig || mat) || themed;
+			else if (t.when === "fraud") take = fr;
+			if (t.stage === "kam" && t.theme && !themed && !(est && mat)) take = false;
+			if (t.id === "PL-12" && i.goingConcernIssue) take = true;
+			if (!take) continue;
+			const pri = themed || fr || t.id === "PL-12" && i.goingConcernIssue || t.id === "CM-03" || t.id === "PL-01" ? "عالية" : sig || mat || est ? "متوسطة" : "منخفضة";
+			const amount = lines.reduce((s, r) => s + Math.abs(r.amount), 0);
+			const why = [
+				themed ? "منطقة حكمية في هذا الملف" : "",
+				fr ? "خطر احتيال مفترض" : "",
+				mat ? "رصيد أكبر من الأهمية النسبية" : sig ? "بند مهم" : "",
+				est ? "يتضمن تقديرات" : "",
+				t.id === "PL-12" && i.goingConcernIssue ? "مؤشرات شك في الاستمرارية" : "",
+				amount ? "الرصيد " + Math.round(amount).toLocaleString("en") : ""
+			].filter(Boolean).join(" · ") || "مطلوب في كل مراجعة";
+			const ev = EVIDENCE[t.kind];
+			out.push({
+				id: t.id,
+				stage: t.stage,
+				title: t.title,
+				purpose: t.purpose,
+				kind: t.kind,
+				evidenceAr: ev.ar,
+				reliability: ev.reliability,
+				assertions: t.assertions,
+				isa: t.isa,
+				from: t.from,
+				alt: t.alt,
+				lineKeys: lines.map((r) => r.lineKey),
+				lines: lines.map((r) => r.ar),
+				theme: t.theme,
+				priority: pri,
+				why,
+				bundle: ev.bundle,
+				round
+			});
+		}
+		const so = {
+			planning: 0,
+			area: 1,
+			kam: 2,
+			completion: 3
+		}, po = {
+			"عالية": 0,
+			"متوسطة": 1,
+			"منخفضة": 2
+		};
+		return out.sort((a, b) => so[a.stage] - so[b.stage] || po[a.priority] - po[b.priority]);
+	}
+	/** What the next round asks: a partial answer asks for the missing part, a rejected document for the alternative evidence,
+	an unavailable one becomes a limitation (asked again only if it is the management representation, which has no substitute). */
+	function nextRound(reqs, evals, round) {
+		const last = /* @__PURE__ */ new Map();
+		for (const e of evals) {
+			const p = last.get(e.id);
+			if (!p || e.round >= p.round) last.set(e.id, e);
+		}
+		const followUps = [], limitations = [], satisfied = [], open = [];
+		for (const r of reqs) {
+			const e = last.get(r.id);
+			if (!e || e.verdict === "open") {
+				open.push(r.id);
+				continue;
+			}
+			if (e.verdict === "accepted") {
+				satisfied.push(r.id);
+				continue;
+			}
+			if (e.verdict === "unavailable") {
+				limitations.push(r);
+				continue;
+			}
+			followUps.push({
+				id: r.id + "-F" + round,
+				of: r.id,
+				round,
+				kind: e.verdict === "rejected" ? "schedule" : r.kind,
+				title: e.verdict === "partial" ? "استكمال: " + r.title : "بديل: " + r.alt,
+				reason: (e.verdict === "partial" ? "المستند المقدم لا يغطي كل المطلوب" : "المستند مرفوض") + (e.note ? " — " + e.note : "")
+			});
+		}
+		return {
+			followUps,
+			limitations,
+			satisfied,
+			open
+		};
+	}
+	/** Documents the entity declared unavailable, weighed against materiality (ISA 705.7–10 and 580.20). */
+	function limitationImpact(limits, risks, materiality, totalAssets = 0) {
+		const byLine = new Map(risks.map((r) => [r.lineKey, r]));
+		const items = limits.map((r) => ({
+			id: r.id,
+			title: r.title,
+			amount: r.lineKeys.reduce((s, k) => s + Math.abs(byLine.get(k)?.amount ?? 0), 0)
+		}));
+		const amount = items.reduce((s, x) => s + x.amount, 0);
+		if (limits.some((r) => r.id === "CM-03")) return {
+			amount,
+			pervasive: true,
+			opinion: "disclaimer",
+			items,
+			basis: "امتنعت الإدارة عن تقديم الإقرارات المكتوبة (ISA 580.20) — امتناع عن إبداء الرأي"
+		};
+		const areas = new Set(limits.flatMap((r) => r.lineKeys)).size;
+		const pervasive = amount >= Math.max(materiality * 5, totalAssets * .2) || areas >= 4;
+		const opinion = amount < materiality ? "unmodified" : pervasive ? "disclaimer" : "qualified";
+		return {
+			amount,
+			pervasive,
+			opinion,
+			items,
+			basis: opinion === "unmodified" ? "القيود على النطاق دون الأهمية النسبية — لا أثر على الرأي" : opinion === "qualified" ? "تعذر الحصول على أدلة كافية لأرصدة جوهرية غير منتشرة — رأي متحفظ «باستثناء» (ISA 705.7ب)" : "تعذر الحصول على أدلة كافية لأرصدة جوهرية ومنتشرة — امتناع عن إبداء الرأي (ISA 705.9)"
+		};
+	}
+	/** Whether the rounds can stop: every request is satisfied, or what remains was declared unavailable (then the report says so). */
+	function canConclude(reqs, evals, round) {
+		const n = nextRound(reqs, evals, round);
+		const done = n.open.length === 0 && n.followUps.length === 0;
+		return {
+			done,
+			reason: done ? n.limitations.length ? "اكتملت الأدلة المتاحة، وما تبقى أقرت الإدارة بعدم توفره — يُصدر التقرير بأثر القيود" : "اكتملت الأدلة المطلوبة — يُصدر التقرير" : n.open.length + " طلب لم يُقدَّم بعد و" + n.followUps.length + " طلب متابعة",
+			...n
 		};
 	}
 	//#endregion
@@ -18480,6 +18941,7 @@ window.SKEngines = (function() {
 			planning: planning_engine_exports,
 			programme: programme_engine_exports,
 			report: report_engine_exports,
+			requests: requests_engine_exports,
 			revenueRecon: revenue_recon_engine_exports,
 			reviewerCouncil: reviewer_council_engine_exports,
 			sampling: sampling_engine_exports,
