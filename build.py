@@ -62,6 +62,8 @@ for name in ["sw.js","manifest.webmanifest","INSTALL-iPHONE-ar.txt","INSTALL-LAP
 shutil.copytree("ui/art",out/"art")
 # The audit studio stays as ES modules (loaded on first use), outside the bundle.
 shutil.copytree("ui/audit",out/"audit")
+# data loaded on demand (the research bundle's companies as audit clients)
+if Path("ui/data").exists(): shutil.copytree("ui/data",out/"data")
 
 shutil.copytree("secure",out/"secure")
 if private: private_blocks.encrypt(private,Path("secure"),out/"secure")

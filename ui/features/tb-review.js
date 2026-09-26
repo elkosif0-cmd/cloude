@@ -40,7 +40,63 @@ const FW_LABEL={IFRS:"IFRS المعتمدة في المملكة",SME:"معيار
 function idb(){return new Promise((res,rej)=>{if(!("indexedDB" in window))return rej(new Error("المتصفح لا يدعم التخزين المحلي للمستندات"));const r=indexedDB.open("skosif-tbreview-docs",1);r.onupgradeneeded=()=>r.result.createObjectStore("docs");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
 async function docPut(k,v){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction("docs","readwrite");t.objectStore("docs").put(v,k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})}
 async function docGet(k){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction("docs","readonly"),q=t.objectStore("docs").get(k);q.onsuccess=()=>res(q.result||null);q.onerror=()=>rej(q.error)})}
-async function docClear(){try{const db=await idb();await new Promise(res=>{const t=db.transaction("docs","readwrite");t.objectStore("docs").clear();t.oncomplete=res;t.onerror=res})}catch{}}
+/* only the open file's documents (their keys begin with its review session id): the other client files keep theirs */
+async function docClear(){try{const sid=(st().session||{}).id;if(!sid)return;const db=await idb();await new Promise(res=>{const t=db.transaction("docs","readwrite"),c=t.objectStore("docs").openCursor();
+  c.onsuccess=()=>{const x=c.result;if(!x)return;if(String(x.key).startsWith(sid+"|"))x.delete();x.continue()};t.oncomplete=res;t.onerror=res})}catch{}}
+
+/* ---------- the engagement register: several client files on one device ----------
+   The open file stays in skosif_tbreview_v1 (every module reads it there); the others wait in skosif_eng_<id>. */
+const ENG="skosif_engagements_v1";
+const reg=()=>{const r=load(ENG,null);return r&&Array.isArray(r.list)?r:{active:"main",list:[]}};
+function register(){
+  const r=reg(),d=st(),id=r.active||"main";let e=r.list.find(x=>x.id===id);
+  if(!e){e={id,at:new Date().toISOString()};r.list.push(e)}
+  Object.assign(e,{company:d.ctx.company||"ملف بلا اسم",period:d.ctx.periodEnd||d.ctx.period||"",country:d.ctx.country||"",source:d.source||e.source||"user",hasTB:!!d.tbText,
+    rounds:d.session&&d.session.rounds?d.session.rounds.length:0,updatedAt:new Date().toISOString()});
+  r.active=id;save(ENG,r);return r;
+}
+function openFile(id){
+  const r=register();if(id===r.active)return;
+  save("skosif_eng_"+r.active,st());put(load("skosif_eng_"+id,null)||blank());r.active=id;save(ENG,r);register();
+  tab="tb";setup=false;confHTML={sig:"",h:""};paint();
+}
+function newFile(state,meta={}){
+  const r=register();save("skosif_eng_"+r.active,st());
+  const id=SK.ui.uid("eng");put(state||blank());r.active=id;r.list.push({id,at:new Date().toISOString(),...meta});save(ENG,r);register();
+  tab="tb";setup=false;confHTML={sig:"",h:""};paint();return id;
+}
+async function closeFile(id){
+  const r=register();if(r.list.length<2){toast("هذا هو الملف الوحيد — استخدم «مراجعة جديدة» لتفريغه","info");return}
+  const e=r.list.find(x=>x.id===id);if(!e||!await SK.confirm("حذف ملف «"+e.company+"» من هذا الجهاز؟ تُحذف جولاته وقراراته.",{danger:true,ok:"حذف الملف"}))return;
+  if(id===r.active){const next=r.list.find(x=>x.id!==id);await docClear();put(load("skosif_eng_"+next.id,null)||blank());r.active=next.id}
+  localStorage.removeItem("skosif_eng_"+id);r.list=r.list.filter(x=>x.id!==id);save(ENG,r);register();paint();
+}
+function filesBar(){
+  const r=register(),L=r.list.slice().sort((a,b)=>(a.id===r.active?-1:b.id===r.active?1:0)||String(b.updatedAt).localeCompare(String(a.updatedAt)));
+  return '<section class="tbr-files" aria-label="ملفات المراجعة"><div class="tbr-files-h"><b>ملفات المراجعة</b><small>'+r.list.length+' ملف على هذا الجهاز</small></div><div class="tbr-files-l">'+
+    L.map(e=>'<div class="tbr-file'+(e.id===r.active?' on':'')+'"><button type="button" data-file-open="'+esc(e.id)+'" title="فتح الملف"><b>'+esc(e.company)+'</b><small>'+esc([e.period,e.source==="bundle"?"من الحزمة العالمية":"",e.rounds?e.rounds+" جولة":"",e.hasTB?"":"بلا ميزان"].filter(Boolean).join(" · "))+'</small></button>'+
+      (r.list.length>1?'<button type="button" class="tbr-file-x" data-file-close="'+esc(e.id)+'" aria-label="حذف الملف">×</button>':'')+'</div>').join("")+
+    '<button type="button" class="tbr-file-new" data-file-new>+ ملف جديد</button><button type="button" class="tbr-file-new" data-bundle-open>الشركات العالمية ('+BUNDLE_COUNT+')</button></div></section>';
+}
+/* ---------- the bundle's companies as audit clients (ui/data/bundle-clients.json, loaded on demand) ---------- */
+const BUNDLE_COUNT=49;let bundle=null;
+async function bundleData(){if(bundle)return bundle;const r=await fetch("./data/bundle-clients.json");if(!r.ok)throw new Error("تعذر تحميل بيانات الشركات");bundle=await r.json();return bundle}
+async function bundlePicker(){
+  let B;try{B=await bundleData()}catch(e){toast(e.message,"bad");return}
+  const have=new Set(reg().list.filter(e=>e.bundleId).map(e=>e.bundleId));
+  const w=document.createElement("div");w.className="skd-wrap";
+  const rows=B.clients.map(c=>'<tr><td><b>'+esc(c.company)+'</b><small>'+esc(c.fy+" · "+c.countryAr+" · "+c.auditor)+'</small></td><td>'+esc(c.frameworkAr)+'</td><td>'+esc(c.unitAr)+'</td><td>'+(have.has(c.id)?'<button type="button" class="btn sm" data-bundle-go="'+esc(c.id)+'">فتح</button>':'<button type="button" class="btn primary sm" data-bundle-add="'+esc(c.id)+'">إضافة كملف مراجعة</button>')+'</td></tr>').join("");
+  w.innerHTML='<div class="skd tbr-bundle" role="dialog" aria-modal="true" aria-labelledby="tbr-bundle-t"><h3 id="tbr-bundle-t">الشركات العالمية من الحزمة البحثية</h3><p>'+esc(B.note)+'</p><div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الشركة</th><th>الإطار</th><th>العملة</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="skd-acts"><button type="button" class="btn" data-bundle-close>إغلاق</button></div></div>';
+  document.body.appendChild(w);
+  w.addEventListener("click",e=>{if(e.target===w||e.target.closest("[data-bundle-close]")){w.remove();return}
+    const add=e.target.closest("[data-bundle-add]"),go=e.target.closest("[data-bundle-go]");
+    if(go){const f=reg().list.find(x=>x.bundleId===go.dataset.bundleGo);w.remove();if(f)openFile(f.id);return}
+    if(add){const c=B.clients.find(x=>x.id===add.dataset.bundleAdd);if(!c)return;w.remove();
+      const d=blank();d.source="bundle";d.bundleId=c.id;d.tbText=c.tb;d.loadedAt=new Date().toISOString();d.loadedFrom="الحزمة العالمية — "+c.company;
+      Object.assign(d.ctx,{company:c.company,period:"السنة المنتهية في "+c.periodEndAr,periodStart:c.periodStart||"",periodEnd:c.periodEnd,country:c.country==="SA"||c.country==="AE"||c.country==="EG"?c.country:"SA",
+        framework:"IFRS",currency:c.unitAr,activity:c.activityAr||"",legalForm:"شركة مساهمة عامة",consolidated:true,auditFirm:c.auditor});
+      newFile(d,{bundleId:c.id,source:"bundle"});SK.audit&&SK.audit.log("tbreview",{act:"bundle-client",id:c.id});toast("أُضيف ملف «"+c.company+"» — ميزانه مبني من قوائمه المنشورة","ok")}});
+}
 const docKey=(sid,u)=>sid+"|"+u.requestId+"|"+u.fileName;
 const readAs=(file,how)=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error||new Error("تعذرت قراءة الملف"));how==="text"?r.readAsText(file):r.readAsDataURL(file)});
 const isText=f=>/^text\/|csv|json|xml/.test(f.type)||/\.(csv|txt|tsv|json|xml)$/i.test(f.name);
@@ -631,6 +687,10 @@ async function runFinal(){
 function bind(node){
   window.SKosifAI&&SKosifAI.bindCard(node,()=>paint());
   node.addEventListener("click",async e=>{
+    const fo=e.target.closest("[data-file-open]");if(fo){openFile(fo.dataset.fileOpen);return}
+    const fx=e.target.closest("[data-file-close]");if(fx){closeFile(fx.dataset.fileClose);return}
+    if(e.target.closest("[data-file-new]")){newFile(blank());toast("ملف مراجعة جديد — استلم ميزان الشركة","ok");return}
+    if(e.target.closest("[data-bundle-open]")){bundlePicker();return}
     if(CU()&&e.target.closest("[data-cc]")){CU().onClick(e);return}
     if(AP()&&AP().onClick(e))return;
     const sb=e.target.closest("[data-std]");
@@ -704,12 +764,12 @@ function paint(){
   if(!window.SKEngines||!SKEngines.audit||!SKEngines.audit.tbReview){root.innerHTML='<p class="empty">محركات المراجعة غير محملة.</p>';return}
   let c=null;try{c=compute()}catch(e){SK.errors&&SK.errors.report(e,"tbreview");root.innerHTML=hero(null)+'<p class="empty">تعذر تحليل الميزان: '+esc(e.message)+'</p>'+setupHTML(st(),true);return}
   const y=window.scrollY;
-  if(!c){root.innerHTML=hero(null)+setupHTML(st(),true)+(window.SKosifAI&&!SKosifAI.ready()?SKosifAI.cardHTML():'');return}
+  if(!c){root.innerHTML=filesBar()+hero(null)+setupHTML(st(),true)+(window.SKosifAI&&!SKosifAI.ready()?SKosifAI.cardHTML():'');return}
   if(!ADV[tab]&&!TABS.some(x=>x[0]===tab))tab="tb";
   const conf=tab==="conf"&&CU();
   const body=conf?'<div class="tbc" data-tbc-body aria-busy="true">'+(confHTML.sig===c.sig&&confHTML.h||'<p class="empty">يحسب درجات الثقة والفحوص…</p>')+'</div>':tab==="plan"&&FW()?(AP()?AP().planCard(c)+AP().estCard(c):'')+FW().planTab(c):tab==="close"&&FW()?FW().closeTab(c)+(AP()?AP().gcCard(c):''):tab==="ai"?aiTab(c):tab==="docs"?docsTab(c):tab==="adj"?adjTab(c):tab==="fs"?fsTab(c):tbTab(c);
   const adv=window.SKosifAuditBridge&&ADV[tab]?advHTML(tab):"";
-  root.innerHTML='<div class="tbr">'+hero(c)+(setup?setupHTML(c.d,false):'')+body+adv+'</div>';
+  root.innerHTML='<div class="tbr">'+filesBar()+hero(c)+(setup?setupHTML(c.d,false):'')+body+adv+'</div>';
   window.scrollTo(0,y);
   if(adv){const h=root.querySelector("[data-studio-host]");if(h)SKosifAuditBridge.mountStudio(h,ADV[tab])}
   if(conf){const seq=++confSeq;CU().confTab(c).then(h=>{if(seq!==confSeq||tab!=="conf"||!root)return;confHTML={sig:c.sig,h};const el=root.querySelector("[data-tbc-body]");if(el){el.innerHTML=h;el.removeAttribute("aria-busy");window.scrollTo(0,y)}})

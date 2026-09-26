@@ -394,3 +394,16 @@ details.ap-card[open]>summary::after{content:"▴"}
 .ap-kam.on{opacity:1;border-color:color-mix(in srgb,var(--sk-brand) 45%,var(--sk-line))}
 .ap-kam .checkline{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 @media (max-width:640px){.ap-adds,.ap-mits{grid-template-columns:1fr}.ap-est input{max-width:none}}
+
+/* the engagement register: several client files */
+.tbr-files{display:grid;gap:8px;margin-bottom:14px;padding:12px 14px;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface)}
+.tbr-files-h{display:flex;align-items:baseline;gap:10px}.tbr-files-h small{color:var(--sk-ink-3)}
+.tbr-files-l{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.tbr-file{display:flex;align-items:stretch;border:1px solid var(--sk-line);border-radius:var(--sk-r-s);background:var(--sk-surface-2);flex:0 0 auto;max-width:260px}
+.tbr-file.on{border-color:var(--sk-brand);background:var(--sk-brand-soft);box-shadow:0 0 0 1px var(--sk-brand)}
+.tbr-file>button:first-child{border:0;background:transparent;text-align:start;padding:8px 12px;cursor:pointer;display:grid;gap:2px;font:inherit;color:var(--sk-ink);min-width:150px}
+.tbr-file b{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tbr-file small{font-size:11px;color:var(--sk-ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbr-file-x{border:0;border-inline-start:1px solid var(--sk-line);background:transparent;color:var(--sk-ink-3);cursor:pointer;padding:0 9px;font-size:16px}.tbr-file-x:hover{color:var(--sk-bad)}
+.tbr-file-new{flex:0 0 auto;border:1px dashed var(--sk-brand);border-radius:var(--sk-r-s);background:transparent;color:var(--sk-brand);font:inherit;font-size:12.5px;font-weight:700;padding:8px 14px;cursor:pointer;white-space:nowrap}
+.tbr-file-new:hover{background:var(--sk-brand-soft)}
+.tbr-bundle{max-width:min(920px,96vw)}.tbr-bundle .sk-table-wrap{max-height:60vh;overflow:auto}.tbr-bundle td small{display:block;color:var(--sk-ink-3);font-size:11px}
