@@ -811,7 +811,6 @@
    "adv": false,
    "en": "General Ledger",
    "feeds": [
-    "tbreview",
     "execreports",
     "cash"
    ]
