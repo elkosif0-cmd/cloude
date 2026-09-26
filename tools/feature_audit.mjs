@@ -15,7 +15,7 @@ const R=[];const ok=(area,name,v)=>R.push([area,name,!!v]);
 const E=await p.evaluate(()=>({docs:!!window.SKosifReportDocs&&['annual','release','auditor'].every(k=>typeof SKosifReportDocs[k]==='function'),assistant:!!window.SKosifAssistant,cmd:!!window.SKosifCommand,charts:['bars','line','hbars','waterfall','donut','matrix'].every(k=>SKCharts[k]),xlsx:!!(SKXlsx.write&&SKXlsx.book),looks:SKosifShell.looks().length,fonts:SKosifShell.fonts().length,accents:SKosifShell.accents().length,groups:SK.caps.groups().length,hubs:SK.caps.all().filter(c=>c.isHub).length,periodTB:!!SKEngines.finance.ledger.periodTrialBalance,globalReports:!!SK.caps.get('globalreports')}));
 ok('الجولات السابقة','التقرير السنوي بنمط 10-K وبيان النتائج وتقرير المراجع',E.docs);
 ok('الجولات السابقة','إلغاء مركز التقارير العالمي (ما زال ملغياً)',!E.globalReports);
-ok('الجولات السابقة','إعادة التنظيم: 9 مجالات وصفحات مجمّعة',E.groups===9&&E.hubs>=10);
+ok('الجولات السابقة','إعادة التنظيم: مراجعة أولاً + أدوات المحاسب + النظام',E.groups===4&&E.hubs>=10);
 ok('الجولات السابقة','الدفاتر ← ميزان الفترة ← مراجعة الميزان',E.periodTB);
 ok('الجولات السابقة','الرسوم البيانية المطورة (أعمدة، خطوط، أفقي، شلال، دائري، خريطة حرارية)',E.charts);
 ok('الجولات السابقة','Excel حقيقي (ورقة وعدة أوراق)',E.xlsx);
