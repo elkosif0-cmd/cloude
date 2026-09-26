@@ -274,6 +274,9 @@ function brandPrint(w,title){
     if(title&&!d.title)d.title=title;
     d.body.insertAdjacentHTML("afterbegin",letterhead(title||d.title));
     const o=org(),pr=preparer();d.body.insertAdjacentHTML("beforeend",'<footer class="skp-foot">'+esc(o.biz||"أغنام الوادي")+' · صدر من '+(kosifLook()?'KOSIF — Smarter Audit. Greater Trust.':'S.kosif')+(pr?' · أعدّه: '+esc(pr):'')+'</footer>');
+    /* in the app's own preview (SK.output) the toolbar lives outside the page */
+    if(w.__skEmbedded){if(window.SKCharts&&d.querySelector(".skch-fig,.skch,.skhb")){const cs=d.createElement("style");cs.id="sk-print-charts";cs.textContent=SKCharts.printCSS;(d.head||d.documentElement).appendChild(cs)}
+      setTimeout(()=>SK.output&&SK.output.css(d),0);return}
     /* the preview: options apply live; the window's own print() waits for «طباعة» */
     const bs=d.createElement("style");bs.textContent=BAR_CSS;(d.head||d.documentElement).appendChild(bs);
     if(!w.__skRealPrint){const real=w.print.bind(w);w.__skRealPrint=()=>{try{w.focus();real()}catch{}};

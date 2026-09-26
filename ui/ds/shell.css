@@ -588,3 +588,17 @@ body.skn-locked{overflow:hidden}
 .skflow-me{flex:none;padding:3px 10px;border-radius:999px;background:var(--sk-brand-soft);color:var(--sk-brand);font-size:12px;font-weight:800}
 .skflow-acts{display:inline-flex;gap:10px;flex-wrap:wrap}.skflow-acts .linkish{font-size:11.5px}
 @media print{.skflow,.skflow-acts{display:none}}
+/* ---------- in-app document preview (SK.output) ---------- */
+.skout{position:fixed;inset:0;z-index:500;display:flex;flex-direction:column;background:color-mix(in srgb,#0b1220 55%,transparent);backdrop-filter:blur(4px)}
+.skout-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 14px;background:var(--sk-surface);border-bottom:1px solid var(--sk-line);box-shadow:var(--sk-shadow-2)}
+.skout-t{flex:1 1 200px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--sk-fs)}
+.skout-acts{display:flex;flex-wrap:wrap;gap:6px}
+.skout-opts{flex-basis:100%;font-size:var(--sk-fs-s)}.skout-opts summary{cursor:pointer;color:var(--sk-ink-2);font-weight:700}
+.skout-opts>div{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding-top:8px}
+.skout-opts label{display:inline-flex;align-items:center;gap:6px;color:var(--sk-ink-2)}
+.skout-opts select,.skout-opts input[type=text]{min-height:32px;padding:0 8px;border:1px solid var(--sk-line);border-radius:8px;background:var(--sk-surface-2);color:var(--sk-ink);font:inherit}
+.skout-opts input[type=text]{width:110px}
+.skout-f{flex:1;width:100%;border:0;background:#dfe4ec;zoom:var(--z,1)}
+html.skout-open{overflow:hidden}
+@media (max-width:600px){.skout-bar{padding:8px}.skout-acts .btn{min-height:36px}}
+@media print{.skout{display:none}}
