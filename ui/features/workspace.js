@@ -15,7 +15,7 @@ function companiesPaint(root){
   '</div></section>'+
   '<section class="card"><div class="card-h"><div><h3>الشركات</h3></div></div><div class="card-b sk-stack">'+
     '<div class="sk-grid2"><label class="sk-field"><span>اسم الشركة</span><input id="co-name" data-sk-required value="'+esc((document.getElementById("biz-name")||{}).textContent||"")+'"></label><label class="sk-field"><span>العملة</span><select id="co-cur"><option>SAR</option><option>USD</option><option>AED</option><option>EGP</option></select></label></div>'+
-    '<div class="sk-actions"><button type="button" class="btn primary" data-w="add-co">إضافة شركة</button></div>'+
+    '<div class="sk-actions"><button type="button" class="btn primary" data-w="add-co">إضافة شركة</button>'+(d.companies.some(c=>c.id==="waha-co")?'':'<button type="button" class="btn" data-w="add-waha" title="شركة وهمية كاملة بسنتين ماليتين، وملف مراجعتها في «ملف المراجعة»">إضافة شركة الواحة (نموذج)</button>')+'</div>'+
     (d.companies.length?'<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الشركة</th><th>العملة</th><th></th></tr></thead><tbody>'+d.companies.map(c=>'<tr><td>'+esc(c.name)+'</td><td>'+esc(c.currency)+'</td><td>'+(c.id===d.active.companyId?'<span class="sk-pill good">نشطة</span>':'<button type="button" class="linkish" data-w="use-co" data-id="'+esc(c.id)+'">تفعيل</button>')+'</td></tr>').join("")+'</tbody></table></div>':'')+
   '</div></section>'+
   (ctx.company?'<section class="card"><div class="card-h"><div><h3>الفترات المالية — '+esc(ctx.company.name)+'</h3></div></div><div class="card-b sk-stack">'+
@@ -27,6 +27,9 @@ function companiesBind(root){
   root.addEventListener("click",e=>{
     const b=e.target.closest("[data-w]");if(!b)return;const a=b.dataset.w,d=co();
     if(a==="add-co"){if(!SK.ui.validate(root))return;const c={id:SK.ui.uid("co"),name:$("#co-name",root).value.trim(),country:"SA",currency:$("#co-cur",root).value};d.companies.push(c);if(!d.active.companyId)d.active={companyId:c.id}}
+    else if(a==="add-waha"){const W=window.SKEngines.reports.sampleCompany&&SKEngines.reports.sampleCompany.WAHA_COMPANY;if(!W)return;
+      if(!d.companies.some(c=>c.id===W.id)){d.companies.push({id:W.id,name:W.name,country:W.country,currency:W.currency});W.periods.forEach(p=>d.periods.push({...p,companyId:W.id}))}
+      toast("أُضيفت شركة الواحة — افتح «ملف المراجعة» واضغط «شركة الواحة — ملف كامل» لتحميل ميزانها","ok")}
     else if(a==="use-co")d.active={companyId:b.dataset.id};
     else if(a==="add-pe"){if(!SK.ui.validate(root))return;const p={id:SK.ui.uid("pe"),companyId:d.active.companyId,label:$("#pe-label",root).value.trim(),startDate:$("#pe-from",root).value,endDate:$("#pe-to",root).value};
       if(!window.SKEngines.system.companyContext.validatePeriod(p))return toast("تاريخ البداية يجب أن يسبق النهاية","warn");d.periods.push(p);d.active.periodId=p.id}

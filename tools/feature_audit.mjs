@@ -49,6 +49,8 @@ ok('عدم ضياع القدرات','القدرات الـ67 كلها مسجلة
 await go('helperdesk',900);ok('هيكل المنتج','الأدوات غير المرتبطة بالمراجعة مجمعة في «أدوات مساعدة للمحاسب»',await p.evaluate(()=>SK.caps.get('helperdesk')?.group==='helpers'&&document.querySelectorAll('.hd-node').length>=5&&SK.caps.groups().map(g=>g.id).join('|')==='home|audit|helpers|system'));
 await go('tbreview',1200);ok('هيكل المنتج','دورة المراجعة مرسومة كعقد وأسهم مع حلقة جولات الأدلة',await p.evaluate(()=>document.querySelectorAll('.tbr-flow-node').length===9&&!!document.querySelector('.tbr-flowloop')));
 // ---------- global research bundle: audit benchmarks ----------
+await go('companies',900);
+ok('شركة الواحة','شركة الواحة الذهبية: ميزان 40 حساباً بسنتين وبيانات المنشأة، وزر إضافتها في الشركات',await p.evaluate(()=>{const W=SKEngines.reports.sampleCompany;return !!W&&W.WAHA_TB_CSV.split('\n').length===41&&W.WAHA_CONTEXT.company.includes('الواحة')})&&(await has('[data-w="add-waha"]')||await txt('شركة الواحة')));
 await go('auditbench',1200);
 const CO=await p.evaluate(()=>{const c=SKEngines.reports.globalCorpus,s=c.summary();return{pages:s.pagesClassified,types:s.sectionTypes,bp:document.querySelectorAll('.ab-bp li').length,reps:document.querySelectorAll('[data-ab-rep] option').length,ex:c.EXEMPLARS.length}});
 ok('البحث العالمي','قراءة الحزمة كاملة: كل صفحة مصنفة وبنية كل تقرير',CO.pages>12400&&CO.types>=50&&CO.reps===49&&CO.bp>=30);
@@ -95,6 +97,15 @@ ok('التقرير المتكامل','التقرير السنوي المتكام
 ok('التقرير المتكامل','الذكاء الاصطناعي من Gemini أو OpenAI أو Claude مع التحقق من كل رقم',IR.prov==='gemini,openai,anthropic'&&IR.check);
 ok('الهوية والثيمات','هوية SQC واحدة في كل الثيمات',await p.evaluate(()=>getComputedStyle(document.querySelector('.rail #app-name'),'::before').content.includes('SQC')));
 await p.evaluate(()=>SKosifShell.setLook('kosif'));
+/* SQC finish: the interface face is self-hosted and loads; no look lets the rail spill sideways; the SQC mark in every non-heritage look */
+const TY=await p.evaluate(async()=>{await document.fonts.ready;const plex=[...document.fonts].some(f=>/IBM Plex Sans Arabic/.test(f.family)&&f.status==='loaded');
+  const looks=SKosifShell.looks().map(x=>x.id).filter(x=>x!=='auto'),spill=[],mark=[];
+  for(const l of looks){SKosifShell.setLook(l);await new Promise(r=>setTimeout(r,120));const r=document.querySelector('.rail');if(r&&r.scrollWidth>r.clientWidth+1)spill.push(l);
+    const bg=getComputedStyle(document.querySelector('.rail .brand'),'::before').backgroundImage;if(!/heritage/.test(l)&&!/sqc-icon/.test(bg))mark.push(l)}
+  SKosifShell.setLook('kosif');return{plex,spill,mark,n:looks.length}});
+ok('الهوية والثيمات','خط الواجهة IBM Plex Sans Arabic مستضاف داخل التطبيق ويُحمَّل',TY.plex);
+ok('الهوية والثيمات','لا يفيض الشريط الجانبي في أي من الثيمات ('+TY.n+')',!TY.spill.length);
+ok('الهوية والثيمات','شعار SQC في كل الثيمات غير التراثية',!TY.mark.length);
 ok('الهوية والثيمات','نظام خطوط موحد (أرقام بعرض ثابت)',await p.evaluate(()=>{const td=document.querySelector('td');return !td||getComputedStyle(td).fontVariantNumeric.includes('tabular')}));
 // ---------- attachments ----------
 await go('salesintel',1500);const S=await p.evaluate(()=>[...document.querySelectorAll('[data-slab]')].map(x=>x.dataset.slab));

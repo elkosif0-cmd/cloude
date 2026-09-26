@@ -76,8 +76,10 @@ function build(){
 const SECTIONS=[
 {id:"company",label:"الشركة والفترات",caps:["companies"],
   empty:async()=>!(load("skosif_companies_v1",{}).companies||[]).length,
-  seed:async()=>{save("skosif_companies_v1",{companies:[D({id:"demo-co",name:"شركة الوادي التجريبية للحوم",country:"SA",currency:"SAR"})],
-    periods:[D({id:"demo-p1",companyId:"demo-co",label:String(Y),startDate:Y+"-01-01",endDate:Y+"-12-31"}),D({id:"demo-p0",companyId:"demo-co",label:String(Y-1),startDate:(Y-1)+"-01-01",endDate:(Y-1)+"-12-31"})],
+  seed:async()=>{const W=E().reports.sampleCompany&&E().reports.sampleCompany.WAHA_COMPANY;
+    save("skosif_companies_v1",{companies:[D({id:"demo-co",name:"شركة الوادي التجريبية للحوم",country:"SA",currency:"SAR"}),...(W?[D({id:W.id,name:W.name,country:W.country,currency:W.currency})]:[])],
+    periods:[D({id:"demo-p1",companyId:"demo-co",label:String(Y),startDate:Y+"-01-01",endDate:Y+"-12-31"}),D({id:"demo-p0",companyId:"demo-co",label:String(Y-1),startDate:(Y-1)+"-01-01",endDate:(Y-1)+"-12-31"}),
+      ...(W?W.periods.map(p=>D({...p,companyId:W.id})):[])],
     active:{companyId:"demo-co",periodId:"demo-p1"}})},
   clear:async()=>{const d=load("skosif_companies_v1",{});if(!d.companies)return;d.companies=dropDemo(d.companies);d.periods=dropDemo(d.periods);if(d.active&&!d.companies.some(c=>c.id===d.active.companyId))d.active=d.companies[0]?{companyId:d.companies[0].id}:{};save("skosif_companies_v1",d)}},
 
@@ -259,8 +261,11 @@ const SECTIONS=[
 
 {id:"engagement",label:"ملف المراجعة من الدفاتر",caps:["tbreview"],after:["ledger"],
   empty:async()=>{const d=load("skosif_tbreview_v1",{});return !(d&&d.tbText)},
-  seed:async()=>{let text="",ctx={company:"شركة الوادي التجريبية للحوم",period:"السنة المنتهية في 31 ديسمبر "+Y,periodStart:Y+"-01-01",periodEnd:Y+"-12-31",country:"SA"};
-    try{const b=window.SKosifTBReview&&await SKosifTBReview.booksTB();if(b){text=b.text;ctx={...ctx,...Object.fromEntries(Object.entries(b.ctx).filter(([,v])=>v))}}}catch{}
+  /* the engagement file opens on شركة الواحة: a full year with its prior year (the app's own books stay one click away:
+     «من دفاتر التطبيق» in the file) */
+  seed:async()=>{const SC=E().reports.sampleCompany;let text="",ctx={company:"شركة الوادي التجريبية للحوم",period:"السنة المنتهية في 31 ديسمبر "+Y,periodStart:Y+"-01-01",periodEnd:Y+"-12-31",country:"SA"};
+    if(SC){text=SC.WAHA_TB_CSV;ctx={...SC.WAHA_CONTEXT}}
+    else try{const b=window.SKosifTBReview&&await SKosifTBReview.booksTB();if(b){text=b.text;ctx={...ctx,...Object.fromEntries(Object.entries(b.ctx).filter(([,v])=>v))}}}catch{}
     if(!text)text=E().reports.tbImport.SAMPLE_TB_CSV;
     save("skosif_tbreview_v1",{demo:true,ctx:{company:"",period:"",periodStart:"",periodEnd:"",activity:"تجارة اللحوم والمواشي بالتجزئة والجملة",country:"SA",framework:"IFRS",currency:"الريال السعودي",legalForm:"شركة ذات مسؤولية محدودة",registeredOffice:"الرياض",principalPlace:"الرياض",...ctx},
       fw:{},tbText:text,overrides:{},materiality:null,session:null,accepted:[],rejected:[],ecl:null,confirm:{independence:false,edition:false,compliance:false,unrecognized:false,partner:false}})},
