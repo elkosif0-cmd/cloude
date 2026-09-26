@@ -170,3 +170,11 @@ jobs:
           assert "document.querySelector(" not in audit_js, "audit studio must query its own shadow root"
           print("S.kosif validation: OK")
           PY
+
+      - name: UI smoke test (every screen, laptop and phone, demo data)
+        run: |
+          npm install --no-save --prefix /tmp/pw playwright@1
+          npx --prefix /tmp/pw playwright install --with-deps chromium
+          (python3 -m http.server 8765 --directory dist >/dev/null 2>&1 &)
+          sleep 2
+          NODE_PATH=/tmp/pw/node_modules node tools/ui_smoke.mjs http://localhost:8765/app-safe.html

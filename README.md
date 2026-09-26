@@ -69,6 +69,31 @@ artwork was generated in Canva and redrawn as vector art):
   (`report-pack.js`, first tab of التقارير التنفيذية), the KOSIF print letterhead (`SK.brandPrint`) and the
   sign-in page (`unlock.html`).
 
+## One system: council, demo data, templates, themes, preview (round 37)
+
+- **AI audit council** (research «مجلس المراجعة الذكي») in «مركز المراجعة»: 1/3/5 members with independent
+  opinions, mandatory citation of numbered evidence (unknown citations reject the opinion), a debate on
+  disagreements, confidence per line × assertion (C = 0.5E + 0.3T + 0.2A) against materiality/risk
+  thresholds, a coded stopping rule, eight engagement states, four human approvals, the six integrity checks,
+  whole-journal tests (unusual entries, Benford, cut-off), the round report and the management letter
+  (observation / effect / recommendation / response) — `confidence-engine.ts`, `council-engine.ts`,
+  `ui/features/tb-council.js`.
+- **One engagement** — the audit studio's six pages live as the «الاستوديو المتقدم» tab inside the engagement
+  (`hidden` pages in the registry, deep links redirect there). The registry's `feeds` graph drives the
+  «مسار العمل» strip on every screen; `SK.flow` sends any finding to tasks or the findings register.
+  `docs/rebuild/CAPABILITY_BASELINE.txt` + CI guarantee no capability is lost.
+- **Demo data** (`SK.demo`, `ui/core/demo.js`) — a fictional company fills empty sections only; every record is
+  `demo:true`, a strip marks demo screens, one click removes them; a brand-new device fills itself once.
+- **Import templates** (`SK.templates`) — 17 Excel templates (data + instructions sheets; CSV for the core's
+  sales importer), a validating importer that appends, a header button on each screen, a list in exports.
+- **Sales lab** (`sales-analytics-engine.ts`, `ui/features/sales-lab.js`) inside «ذكاء المبيعات».
+- **Five looks** — aurora, vivid, oasis (each with night), graphite, onyx; live previews; view transitions;
+  the KOSIF brand and letterhead in every look but the heritage ones.
+- **In-app preview** (`SK.output`) — every print opens inside the app with page options and exports to
+  PDF, Word, multi-sheet Excel (`SKXlsx.book`), HTML and share.
+- **Evaluation** — Jev scores before/after in `docs/EVALUATION-ar.md`; `tools/ui_smoke.mjs` opens every screen on
+  laptop and phone in CI.
+
 ## Live assistant, theme studio, charts, tables and printing
 
 - `ui/features/assistant.js` (`SKosifAssistant`, `Ctrl/⌘+J` or the floating button) — a live chat that
