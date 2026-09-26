@@ -141,10 +141,21 @@ const session=d=>d.session||AI().newSession(d.ctx,window.SKosifAI?SKosifAI.conf(
 
 /* ---------- header: steps ---------- */
 function stepper(c){
-  const s=c&&c.session,rounds=s?s.rounds.length:0,out=s?AI().outstanding(s).length:0,decided=c?c.pool.every(a=>c.d.accepted.includes(a.id)||c.d.rejected.includes(a.id)):false;
-  const steps=[["استلام الميزان",!!c],["المعايير لكل حساب",!!c&&c.tb.ok],["مراجعة الذكاء الاصطناعي",rounds>0],["المستندات",rounds>0&&!out],["التسويات والامتثال",!!c&&decided],["التقارير",!!(s&&s.final)]];
-  const cur=steps.findIndex(x=>!x[1]);
-  return '<ol class="tbr-steps">'+steps.map(([l,done],i)=>'<li class="'+(done?"done":i===cur?"cur":"")+'"><i>'+(done?"✓":i+1)+'</i><span>'+esc(l)+'</span></li>').join("")+'</ol>';
+  const ss=c&&c.session,rounds=ss?ss.rounds.length:0,out=ss?AI().outstanding(ss).length:0,decided=c?c.pool.every(a=>c.d.accepted.includes(a.id)||c.d.rejected.includes(a.id)):false;
+  const e=c&&c.d&&c.d.engagement,plan=!!(e&&e.approvals&&e.approvals.plan),hasCouncil=!!(ss&&ss.rounds.some(r=>r.council&&r.council.opinions&&r.council.opinions.length));
+  const steps=[
+    ["tb","الميزان والقوائم",!!c,"اربط ميزان المراجعة بالقوائم والحسابات"],
+    ["plan","الأهمية والخطة",plan,"الأهمية النسبية، المخاطر وبرنامج العمل"],
+    ["docs","طلبات أولية",!!c&&c.base.requests.length>0,"PBC والمستندات المطلوبة قبل/بعد كل جولة"],
+    ["conf","مجلس المراجعين",hasCouncil,"آراء مستقلة ثم تحكيم وقرار"],
+    ["docs","الأدلة",rounds>0&&!out,"المستندات المقبولة والناقصة"],
+    ["ai","جولة جديدة",rounds>0,"تُعاد الجولة ما دامت الأدلة غير كافية"],
+    ["adj","التسويات والملاحظات",!!c&&decided,"قيود التسوية والملاحظات والامتثال"],
+    ["close","الإكمال",!!(ss&&ss.final),"بوابات الإكمال والإقرارات"],
+    ["fs","التقارير النهائية",!!(ss&&ss.final),"تقرير المراجع والقوائم والمخرجات"]
+  ];
+  const cur=steps.findIndex(x=>!x[2]);
+  return '<nav class="tbr-flowmap" aria-label="خريطة دورة المراجعة"><div class="tbr-flowtrack">'+steps.map(([k,l,done,sub],i)=>'<button type="button" data-tab="'+k+'" class="tbr-flow-node '+(done?"done":i===cur?"cur":"")+'" title="'+esc(sub)+'"><i>'+(done?"✓":i+1)+'</i><span><b>'+esc(l)+'</b><small>'+esc(sub)+'</small></span></button>').join("")+'</div><div class="tbr-flowloop">↺ إذا لم تكفِ الأدلة: مستندات إضافية ← مجلس ← جولة جديدة، وتتكرر حتى الاكتفاء أو إقرار عدم توفر مستندات أخرى.</div></nav>';
 }
 function hero(c){
   const d=c?c.d:st(),ctx=d.ctx,s=c&&c.session,state=s?AI().sessionState(s):{label:c?"الميزان جاهز — ابدأ جولة المراجع الذكي أو تابع بالمحرك الآلي":"ابدأ باستلام ميزان المراجعة"};
@@ -171,7 +182,7 @@ function setupHTML(d,withTb){
       '<div class="tbr-fw-r"><b>معايير المحاسبة المصرية</b><p>تظهر أرقام المعايير المصرية بجوار الحسابات مع ما يقابلها في IFRS، وتُعامل ضريبة الدخل بدلاً من الزكاة.</p><small>الهيئة العامة للرقابة المالية · مصلحة الضرائب المصرية</small></div></div>':
     '<div class="tbr-fw"><div><h4>الإطار المحاسبي (إرشادات SOCPA — القسم 1)</h4>'+q("listedOrIssuing","أسهم أو أدوات دين متداولة أو في طور الإدراج")+q("fiduciaryForBroadGroup","تحتفظ بأموال مجموعة عريضة من الغير كنشاط رئيس (بنك، تأمين، صندوق)")+q("incidentalDepositsOnly","الاحتفاظ بأموال العملاء عرضي (مدارس، وكالات سفر)")+q("electedFullIfrs","غير خاضعة للمساءلة واختارت المعايير الكاملة")+'</div>'+
       '<div class="tbr-fw-r"><b>'+esc(app.label)+'</b><p>'+esc(app.reason)+'</p><small>'+esc(app.cite.join(" · "))+'</small></div></div>')+
-    (withTb?'<div class="tbr-in"><label class="btn primary" style="cursor:pointer">'+SK.icon("excelrecon")+' رفع ملف الميزان<input type="file" data-tbfile accept=".xlsx,.csv,.tsv,.txt,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></label><button type="button" class="btn" data-a="books" title="ميزان الشركة النشطة من الدفاتر المحاسبية أو السجلات التشغيلية">'+SK.icon("ledger")+' من دفاتر التطبيق</button><button type="button" class="btn" data-a="sample">ميزان تجريبي</button><span class="hint">أو الصق الميزان من Excel:</span></div>'+
+    (withTb?'<div class="tbr-in"><label class="btn primary" style="cursor:pointer">'+SK.icon("excelrecon")+' رفع ملف الميزان<input type="file" data-tbfile accept=".xlsx,.csv,.tsv,.txt,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></label><button type="button" class="btn" data-a="books" title="استيراد يدوي من أدوات المحاسب — لا توجد مزامنة تلقائية مع ملف المراجعة">'+SK.icon("ledger")+' استيراد يدوي من الأدوات</button><button type="button" class="btn" data-a="sample">ميزان تجريبي</button><span class="hint">أو الصق الميزان من Excel:</span></div>'+
       '<textarea data-tbtext rows="7" dir="ltr" placeholder="رقم الحساب\tاسم الحساب\tمدين\tدائن\tالسنة السابقة">'+esc(d.tbText)+'</textarea><div class="sk-actions"><button type="button" class="btn primary" data-a="analyze">تحليل الميزان</button></div>':
       '<div class="sk-actions"><button type="button" class="btn primary" data-a="setup-done">تم</button><label class="sk-field tbr-mat"><span>الأهمية النسبية (ريال) — فارغ = تلقائي</span><input type="number" min="0" step="100" data-mat value="'+(d.materiality?d.materiality/100:"")+'"></label></div>')+
   '</div></section>';

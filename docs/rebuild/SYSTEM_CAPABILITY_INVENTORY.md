@@ -2,59 +2,60 @@
 
 Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do not edit by hand.
 
-Total capabilities: **66** (screens). Cross-cutting capabilities are listed after the table.
+Total capabilities: **67** (screens). Cross-cutting capabilities are listed after the table.
 
 | ID | Capability | Module | Current Location | Data Used | Dependencies | Status | Keep/Remove/Merge/Rebuild |
 |---|---|---|---|---|---|---|---|
-| `dash` | مركز القيادة | core+ui/features/command-center.js | مركز القيادة › يومي | `aghnam-pricing-v3`, `IDB aghnam-app-v7` | SKosifCore, Engine, IndexedDB | Working | Rebuild |
-| `tasks` | المهام | ui/features/workspace.js | مركز القيادة › المهام والإشعارات › يومي | `skosif_tasks_v1` | SKosifCore | Working | Rebuild |
-| `notifications` | مركز الإشعارات | ui/features/notifications.js + ui/layouts/topbar.js (الجرس) | مركز القيادة › المهام والإشعارات › يومي | `skosif_notify_v1`, `skosif_tasks_v1`, `skosif_risks_v1`, `skosif_audit_trail` | SKosifCore | Working | Rebuild |
-| `risks` | المخاطر والملاحظات | ui/features/risks.js + ui/components/charts.js | مركز القيادة › يومي | `skosif_risks_v1` | SKosifCore | Working | Rebuild |
-| `decision` | مركز القرار | core (v19.5 + v20.2) | القرار والذكاء › يومي | `aghnam-pricing-v3`, `IDB aghnam-app-v7` | SKosifCore, Engine, IndexedDB | Working | Keep |
-| `jev` | Jev للقرار | ui/jev.js | القرار والذكاء › Jev ومجلس القرار › يومي | `aghnam_v29_jev_log`, `skosif_jev_draft`, `session aghnamJevSession` | SKosifCore | Working | Keep |
-| `council` | مجلس القرار | ui/features/workspace.js + SKEngines.intelligence | القرار والذكاء › Jev ومجلس القرار › يومي | `skosif_council_v1` | SKosifCore | Working | Rebuild |
-| `risklab` | المخاطر وجسر الربحية | core (v19) | القرار والذكاء › المخاطر والحساسية › متقدم | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
-| `sensitivity` | مختبر الحساسية | ui/tools.js | القرار والذكاء › المخاطر والحساسية › متقدم | `skosif_v33_decision` | SKosifCore | Working | Keep |
-| `commerce` | الطلبات والتحصيل | core | المبيعات والعملاء › الطلبات والفوترة › يومي | `IDB orders`, `IDB order_items`, `IDB payments`, `IDB ops_orders` | SKosifCore, Engine, IndexedDB | Working | Keep |
-| `zatca` | نقطة البيع والفاتورة الضريبية | ui/enterprise.js | المبيعات والعملاء › الطلبات والفوترة › يومي | `skosif_v32_cart` | SKosifCore | Working | Keep |
-| `customers` | العملاء | core | المبيعات والعملاء › العملاء والائتمان › يومي | `IDB customers`, `IDB sales_lines`, `IDB imports` | SKosifCore, Engine, IndexedDB | Working | Keep |
-| `followup` | متابعة العملاء | ui/features/followup.js | المبيعات والعملاء › العملاء والائتمان › يومي | `skosif_followup_v1`, `IDB customers` | SKosifCore, IndexedDB | Working | Rebuild |
-| `b2bcredit` | ائتمان المطاعم | ui/enterprise.js | المبيعات والعملاء › العملاء والائتمان › يومي | `skosif_v38_ledger` | SKosifCore | Working | Keep |
-| `offers` | العروض والكتالوج | ui/offers.js | المبيعات والعملاء › يومي | `skosif_v32_offers`, `skosif_v32_cart`, `skosif_v32_cols` | SKosifCore | Working | Keep |
-| `operations` | المناسبات والتشغيل | ui/operations.js | المبيعات والعملاء › يومي | `skosif_ops_subscriptions`, `skosif_ops_butcher_shifts`, `skosif_ops_po_history`, `skosif_ops_bbq`, `skosif_ops_aging_chamber` | SKosifCore | Working | Keep |
-| `salesintel` | ذكاء المبيعات | core (v16) | المبيعات والعملاء › ذكاء المبيعات والطلب › متقدم | `IDB sales_lines` | SKosifCore, Engine, IndexedDB | Working | Keep |
-| `intelligence` | ذكاء العملاء والطلب | core (v18) | المبيعات والعملاء › ذكاء المبيعات والطلب › متقدم | `IDB customers`, `IDB sales_lines` | SKosifCore, Engine, IndexedDB | Working | Keep |
-| `economics` | اقتصاديات الطلب | core (v9) | المبيعات والعملاء › ذكاء المبيعات والطلب › متقدم | `IDB orders`, `aghnam-econ-fees-v1` | SKosifCore, Engine, IndexedDB | Working | Keep |
-| `inventory` | المخزون | ui/inventory.js + ui/erp-plus.js | المخزون والمشتريات › المخزون والتتبع › يومي | `aghnam_v29_inventory`, `skosif_inv_expiry_batches`, `skosif_erp_inventory_v1` | SKosifCore | Working | Keep |
-| `traceability` | التتبع والتبريد | ui/enterprise.js | المخزون والمشتريات › المخزون والتتبع › يومي | `skosif_v38_batches`, `skosif_v38_coldchain` | SKosifCore | Working | Keep |
-| `suppliers` | الموردون والمشتريات | ui/supply.js + ui/erp-plus.js | المخزون والمشتريات › الموردون والمشتريات › يومي | `skosif_v31_supplier_batches`, `skosif_erp_payables_v1` | SKosifCore | Working | Keep |
-| `purchasing` | أوامر الشراء والاستلام | ui/features/purchasing.js + SKEngines.procurement | المخزون والمشتريات › الموردون والمشتريات › يومي | `skosif_purchasing_v1` | SKosifCore | Working | Rebuild |
-| `blending` | خلطات اللحوم | ui/enterprise.js | المخزون والمشتريات › الإنتاج والخلطات › يومي | — | SKosifCore | Working | Keep |
-| `culinary` | دليل الشيف | ui/enterprise.js | المخزون والمشتريات › الإنتاج والخلطات › يومي | — | SKosifCore | Working | Keep |
-| `carcass` | اقتصاديات الذبيحة | ui/meatops.js | المخزون والمشتريات › مختبر الذبيحة › متقدم | — | SKosifCore | Working | Keep |
-| `yieldlab` | مختبر الجزارة | core (v18) | المخزون والمشتريات › مختبر الذبيحة › متقدم | `aghnam-v18-yield-trials` | SKosifCore, Engine | Working | Keep |
-| `nrv` | تفكيك الذبيحة NRV | core (v19) | المخزون والمشتريات › مختبر الذبيحة › متقدم | `aghnam-v19-nrv-trials` | SKosifCore, Engine | Working | Keep |
-| `ledger` | الدفاتر المحاسبية | ui/features/ledger.js + SKEngines.finance | المالية والمحاسبة › يومي | `skosif_ledger_v1` | SKosifCore | Working | Rebuild |
-| `cash` | التدفق النقدي | ui/supply.js + ui/erp-plus.js | المالية والمحاسبة › يومي | `skosif_v31_monthly_opex`, `skosif_erp_finance_v1` | SKosifCore | Working | Keep |
-| `receivables` | الذمم والتحصيل | ui/meatops.js | المالية والمحاسبة › يومي | `skosif_ar_paste` | SKosifCore | Working | Keep |
-| `finance` | الهندسة المالية | core (v18) | المالية والمحاسبة › متقدم | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
-| `productflow` | استوديو المنتج | ui/features/product-flow.js | الكتالوج والتسعير › المنتج والتكلفة › يومي | `aghnam-pricing-v3`, `skosif_product_flow_v1` | SKosifCore | Working | Merge |
-| `catalog` | الأصناف والأسعار | core | الكتالوج والتسعير › المنتج والتكلفة › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
-| `costs` | التكاليف والمصروفات | core | الكتالوج والتسعير › المنتج والتكلفة › متقدم | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
-| `sim` | التسعير السريع | core | الكتالوج والتسعير › المنتج والتكلفة › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
-| `kernel` | نواة التسعير الصارمة | ui/kernel.js + ui/pricing-core.js | الكتالوج والتسعير › المنتج والتكلفة › متقدم | — | SKosifCore | Working | Keep |
-| `memo` | اعتماد الأسعار | core | الكتالوج والتسعير › المنتج والتكلفة › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
-| `builder` | البوكسات | core | الكتالوج والتسعير › المنتج والتكلفة › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
-| `analyzer` | تحليل البوكس | core | الكتالوج والتسعير › المنتج والتكلفة › متقدم | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
-| `compare` | المقارنة التحليلية | core | الكتالوج والتسعير › المنتج والتكلفة › متقدم | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
-| `labels` | ملصقات الموازين | ui/enterprise.js | الكتالوج والتسعير › الملصقات والباركود › يومي | — | SKosifCore | Working | Keep |
-| `scanner` | ماسح الباركود | ui/enterprise.js | الكتالوج والتسعير › الملصقات والباركود › يومي | `skosif_v32_cart` | SKosifCore | Working | Keep |
-| `smartmatch` | مطابقة المبيعات | ui/smartmatch.js | الكتالوج والتسعير › المطابقة › متقدم | `skosif_v34_product_aliases` | SKosifCore | Working | Keep |
-| `excelrecon` | مطابقة الإكسل | ui/tools.js | الكتالوج والتسعير › المطابقة › متقدم | — | SKosifCore | Working | Keep |
-| `execreports` | التقارير التنفيذية | ui/reports.js | التقارير والتحليلات › يومي | `skosif_rep_pl`, `IDB customers`, `IDB sales_lines`, `skosif_v31_supplier_batches` | SKosifCore, IndexedDB | Working | Keep |
-| `reports` | مركز الطباعة | core | التقارير والتحليلات › الطباعة والتصدير › يومي | `aghnam-pricing-v3`, `aghnam-pricing-prints-v1` | SKosifCore, Engine | Working | Keep |
-| `exports` | مركز التصدير | ui/features/workspace.js | التقارير والتحليلات › الطباعة والتصدير › يومي | `كل المفاتيح` | SKosifCore | Working | Rebuild |
-| `archive` | الأرشيف والتغييرات | core | التقارير والتحليلات › يومي | `aghnam-pricing-v3`, `IDB pricing_snapshots` | SKosifCore, Engine, IndexedDB | Working | Keep |
+| `dash` | مركز القيادة | core+ui/features/command-center.js | الرئيسية › يومي | `aghnam-pricing-v3`, `IDB aghnam-app-v7` | SKosifCore, Engine, IndexedDB | Working | Rebuild |
+| `tasks` | المهام | ui/features/workspace.js | الرئيسية › المهام والإشعارات › يومي | `skosif_tasks_v1` | SKosifCore | Working | Rebuild |
+| `notifications` | مركز الإشعارات | ui/features/notifications.js + ui/layouts/topbar.js (الجرس) | الرئيسية › المهام والإشعارات › يومي | `skosif_notify_v1`, `skosif_tasks_v1`, `skosif_risks_v1`, `skosif_audit_trail` | SKosifCore | Working | Rebuild |
+| `risks` | المخاطر والملاحظات | ui/features/risks.js + ui/components/charts.js | الرئيسية › يومي | `skosif_risks_v1` | SKosifCore | Working | Rebuild |
+| `helperdesk` | مركز الأدوات المساعدة | ui/features/helper-center.js | أدوات مساعدة للمحاسب › يومي | — | SKosifCore | Working | Rebuild |
+| `decision` | مركز القرار | core (v19.5 + v20.2) | أدوات مساعدة للمحاسب › يومي | `aghnam-pricing-v3`, `IDB aghnam-app-v7` | SKosifCore, Engine, IndexedDB | Working | Keep |
+| `jev` | Jev للقرار | ui/jev.js | أدوات مساعدة للمحاسب › Jev ومجلس القرار › يومي | `aghnam_v29_jev_log`, `skosif_jev_draft`, `session aghnamJevSession` | SKosifCore | Working | Keep |
+| `council` | مجلس القرار | ui/features/workspace.js + SKEngines.intelligence | أدوات مساعدة للمحاسب › Jev ومجلس القرار › يومي | `skosif_council_v1` | SKosifCore | Working | Rebuild |
+| `risklab` | المخاطر وجسر الربحية | core (v19) | أدوات مساعدة للمحاسب › المخاطر والحساسية › متقدم | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
+| `sensitivity` | مختبر الحساسية | ui/tools.js | أدوات مساعدة للمحاسب › المخاطر والحساسية › متقدم | `skosif_v33_decision` | SKosifCore | Working | Keep |
+| `commerce` | الطلبات والتحصيل | core | أدوات مساعدة للمحاسب › الطلبات والفوترة › يومي | `IDB orders`, `IDB order_items`, `IDB payments`, `IDB ops_orders` | SKosifCore, Engine, IndexedDB | Working | Keep |
+| `zatca` | نقطة البيع والفاتورة الضريبية | ui/enterprise.js | أدوات مساعدة للمحاسب › الطلبات والفوترة › يومي | `skosif_v32_cart` | SKosifCore | Working | Keep |
+| `customers` | العملاء | core | أدوات مساعدة للمحاسب › العملاء والائتمان › يومي | `IDB customers`, `IDB sales_lines`, `IDB imports` | SKosifCore, Engine, IndexedDB | Working | Keep |
+| `followup` | متابعة العملاء | ui/features/followup.js | أدوات مساعدة للمحاسب › العملاء والائتمان › يومي | `skosif_followup_v1`, `IDB customers` | SKosifCore, IndexedDB | Working | Rebuild |
+| `b2bcredit` | ائتمان المطاعم | ui/enterprise.js | أدوات مساعدة للمحاسب › العملاء والائتمان › يومي | `skosif_v38_ledger` | SKosifCore | Working | Keep |
+| `offers` | العروض والكتالوج | ui/offers.js | أدوات مساعدة للمحاسب › يومي | `skosif_v32_offers`, `skosif_v32_cart`, `skosif_v32_cols` | SKosifCore | Working | Keep |
+| `operations` | المناسبات والتشغيل | ui/operations.js | أدوات مساعدة للمحاسب › يومي | `skosif_ops_subscriptions`, `skosif_ops_butcher_shifts`, `skosif_ops_po_history`, `skosif_ops_bbq`, `skosif_ops_aging_chamber` | SKosifCore | Working | Keep |
+| `salesintel` | ذكاء المبيعات | core (v16) | أدوات مساعدة للمحاسب › ذكاء المبيعات والطلب › متقدم | `IDB sales_lines` | SKosifCore, Engine, IndexedDB | Working | Keep |
+| `intelligence` | ذكاء العملاء والطلب | core (v18) | أدوات مساعدة للمحاسب › ذكاء المبيعات والطلب › متقدم | `IDB customers`, `IDB sales_lines` | SKosifCore, Engine, IndexedDB | Working | Keep |
+| `economics` | اقتصاديات الطلب | core (v9) | أدوات مساعدة للمحاسب › ذكاء المبيعات والطلب › متقدم | `IDB orders`, `aghnam-econ-fees-v1` | SKosifCore, Engine, IndexedDB | Working | Keep |
+| `inventory` | المخزون | ui/inventory.js + ui/erp-plus.js | أدوات مساعدة للمحاسب › المخزون والتتبع › يومي | `aghnam_v29_inventory`, `skosif_inv_expiry_batches`, `skosif_erp_inventory_v1` | SKosifCore | Working | Keep |
+| `traceability` | التتبع والتبريد | ui/enterprise.js | أدوات مساعدة للمحاسب › المخزون والتتبع › يومي | `skosif_v38_batches`, `skosif_v38_coldchain` | SKosifCore | Working | Keep |
+| `suppliers` | الموردون والمشتريات | ui/supply.js + ui/erp-plus.js | أدوات مساعدة للمحاسب › الموردون والمشتريات › يومي | `skosif_v31_supplier_batches`, `skosif_erp_payables_v1` | SKosifCore | Working | Keep |
+| `purchasing` | أوامر الشراء والاستلام | ui/features/purchasing.js + SKEngines.procurement | أدوات مساعدة للمحاسب › الموردون والمشتريات › يومي | `skosif_purchasing_v1` | SKosifCore | Working | Rebuild |
+| `blending` | خلطات اللحوم | ui/enterprise.js | أدوات مساعدة للمحاسب › الإنتاج والخلطات › يومي | — | SKosifCore | Working | Keep |
+| `culinary` | دليل الشيف | ui/enterprise.js | أدوات مساعدة للمحاسب › الإنتاج والخلطات › يومي | — | SKosifCore | Working | Keep |
+| `carcass` | اقتصاديات الذبيحة | ui/meatops.js | أدوات مساعدة للمحاسب › مختبر الذبيحة › متقدم | — | SKosifCore | Working | Keep |
+| `yieldlab` | مختبر الجزارة | core (v18) | أدوات مساعدة للمحاسب › مختبر الذبيحة › متقدم | `aghnam-v18-yield-trials` | SKosifCore, Engine | Working | Keep |
+| `nrv` | تفكيك الذبيحة NRV | core (v19) | أدوات مساعدة للمحاسب › مختبر الذبيحة › متقدم | `aghnam-v19-nrv-trials` | SKosifCore, Engine | Working | Keep |
+| `ledger` | الدفاتر المحاسبية | ui/features/ledger.js + SKEngines.finance | أدوات مساعدة للمحاسب › يومي | `skosif_ledger_v1` | SKosifCore | Working | Rebuild |
+| `cash` | التدفق النقدي | ui/supply.js + ui/erp-plus.js | أدوات مساعدة للمحاسب › يومي | `skosif_v31_monthly_opex`, `skosif_erp_finance_v1` | SKosifCore | Working | Keep |
+| `receivables` | الذمم والتحصيل | ui/meatops.js | أدوات مساعدة للمحاسب › يومي | `skosif_ar_paste` | SKosifCore | Working | Keep |
+| `finance` | الهندسة المالية | core (v18) | أدوات مساعدة للمحاسب › متقدم | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
+| `productflow` | استوديو المنتج | ui/features/product-flow.js | أدوات مساعدة للمحاسب › المنتج والتكلفة › يومي | `aghnam-pricing-v3`, `skosif_product_flow_v1` | SKosifCore | Working | Merge |
+| `catalog` | الأصناف والأسعار | core | أدوات مساعدة للمحاسب › المنتج والتكلفة › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
+| `costs` | التكاليف والمصروفات | core | أدوات مساعدة للمحاسب › المنتج والتكلفة › متقدم | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
+| `sim` | التسعير السريع | core | أدوات مساعدة للمحاسب › المنتج والتكلفة › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
+| `kernel` | نواة التسعير الصارمة | ui/kernel.js + ui/pricing-core.js | أدوات مساعدة للمحاسب › المنتج والتكلفة › متقدم | — | SKosifCore | Working | Keep |
+| `memo` | اعتماد الأسعار | core | أدوات مساعدة للمحاسب › المنتج والتكلفة › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
+| `builder` | البوكسات | core | أدوات مساعدة للمحاسب › المنتج والتكلفة › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
+| `analyzer` | تحليل البوكس | core | أدوات مساعدة للمحاسب › المنتج والتكلفة › متقدم | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
+| `compare` | المقارنة التحليلية | core | أدوات مساعدة للمحاسب › المنتج والتكلفة › متقدم | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
+| `labels` | ملصقات الموازين | ui/enterprise.js | أدوات مساعدة للمحاسب › الملصقات والباركود › يومي | — | SKosifCore | Working | Keep |
+| `scanner` | ماسح الباركود | ui/enterprise.js | أدوات مساعدة للمحاسب › الملصقات والباركود › يومي | `skosif_v32_cart` | SKosifCore | Working | Keep |
+| `smartmatch` | مطابقة المبيعات | ui/smartmatch.js | أدوات مساعدة للمحاسب › المطابقة › متقدم | `skosif_v34_product_aliases` | SKosifCore | Working | Keep |
+| `excelrecon` | مطابقة الإكسل | ui/tools.js | أدوات مساعدة للمحاسب › المطابقة › متقدم | — | SKosifCore | Working | Keep |
+| `execreports` | التقارير التنفيذية | ui/reports.js | أدوات مساعدة للمحاسب › يومي | `skosif_rep_pl`, `IDB customers`, `IDB sales_lines`, `skosif_v31_supplier_batches` | SKosifCore, IndexedDB | Working | Keep |
+| `reports` | مركز الطباعة | core | أدوات مساعدة للمحاسب › الطباعة والتصدير › يومي | `aghnam-pricing-v3`, `aghnam-pricing-prints-v1` | SKosifCore, Engine | Working | Keep |
+| `exports` | مركز التصدير | ui/features/workspace.js | أدوات مساعدة للمحاسب › الطباعة والتصدير › يومي | `كل المفاتيح` | SKosifCore | Working | Rebuild |
+| `archive` | الأرشيف والتغييرات | core | أدوات مساعدة للمحاسب › يومي | `aghnam-pricing-v3`, `IDB pricing_snapshots` | SKosifCore, Engine, IndexedDB | Working | Keep |
 | `tbreview` | ملف المراجعة | ui/features/tb-review.js + ui/features/report-docs.js + ui/features/integrated-report.js + ui/core/ai.js + ui/components/xlsx.js + SKEngines.audit.{tbReview,aiReview,aiProviders,documentCheck,governance,fieldwork} + ui/features/tb-fieldwork.js + SKEngines.reports.{tbImport,statements,analysis,notes,peerBenchmarks,narrative,globalCorpus} | المراجعة والتأكيد › مركز المراجعة › يومي | `skosif_tbreview_v1`, `IDB skosif-tbreview-docs`, `skosif_ai_keys (الجهاز فقط)` | SKosifCore, IndexedDB | Working | Rebuild |
 | `codex` | المدونة المحاسبية والمعايير | ui/features/codex.js + SKEngines.audit.{codex,standardsUpdate} | المراجعة والتأكيد › المعايير والمدونة › يومي | `skosif_codex_updates_v1` | SKosifCore | Working | Rebuild |
 | `auditbench` | المرجع العالمي للمراجعة | ui/features/audit-bench.js + SKEngines.audit.{globalBenchmarks,materiality} + SKEngines.reports.{peerBenchmarks,globalCorpus} | المراجعة والتأكيد › المعايير والمدونة › يومي | `لا بيانات محلية — مرجع ثابت من حزمة البحث العالمية` | SKosifCore | Working | Rebuild |
