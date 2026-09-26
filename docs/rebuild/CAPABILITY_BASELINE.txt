@@ -67,3 +67,4 @@ companies	الشركات والفترات
 governance	الحوكمة والجاهزية
 health	الصحة والتشخيص
 capabilitiesv2	الصلاحيات ومساحات العمل
+advances	السلف والدفعات المقدمة

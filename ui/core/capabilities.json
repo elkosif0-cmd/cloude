@@ -851,6 +851,27 @@
    ]
   },
   {
+   "id": "advances",
+   "label": "السلف والدفعات المقدمة",
+   "sub": "سلف الموظفين والدفعات المقدمة للموردين وعربون العملاء — إضافة وتعديل وسداد في الجدول نفسه وقيود تلقائية باسم الطرف",
+   "group": "finance",
+   "tier": "CORE",
+   "module": "ui/features/advances.js",
+   "data": [
+    "skosif_advances_v1",
+    "skosif_ledger_v1"
+   ],
+   "legacy": "جديد",
+   "decision": "Rebuild",
+   "kw": "سلف سلفة عهدة دفعة مقدمة عربون موظف راتب خصم قسط",
+   "adv": false,
+   "en": "Advances",
+   "feeds": [
+    "ledger",
+    "receivables"
+   ]
+  },
+  {
    "id": "finance",
    "label": "الهندسة المالية",
    "sub": "صدمات التكلفة ونقطة التعادل",

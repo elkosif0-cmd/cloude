@@ -2,7 +2,7 @@
 
 Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do not edit by hand.
 
-Total capabilities: **66** (screens). Cross-cutting capabilities are listed after the table.
+Total capabilities: **67** (screens). Cross-cutting capabilities are listed after the table.
 
 | ID | Capability | Module | Current Location | Data Used | Dependencies | Status | Keep/Remove/Merge/Rebuild |
 |---|---|---|---|---|---|---|---|
@@ -37,6 +37,7 @@ Total capabilities: **66** (screens). Cross-cutting capabilities are listed afte
 | `ledger` | الدفاتر المحاسبية | ui/features/ledger.js + SKEngines.finance | المالية والمحاسبة › يومي | `skosif_ledger_v1` | SKosifCore | Working | Rebuild |
 | `cash` | التدفق النقدي | ui/supply.js + ui/erp-plus.js | المالية والمحاسبة › يومي | `skosif_v31_monthly_opex`, `skosif_erp_finance_v1` | SKosifCore | Working | Keep |
 | `receivables` | الذمم والتحصيل | ui/meatops.js | المالية والمحاسبة › يومي | `skosif_ar_paste` | SKosifCore | Working | Keep |
+| `advances` | السلف والدفعات المقدمة | ui/features/advances.js | المالية والمحاسبة › يومي | `skosif_advances_v1`, `skosif_ledger_v1` | SKosifCore | Working | Rebuild |
 | `finance` | الهندسة المالية | core (v18) | المالية والمحاسبة › متقدم | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
 | `productflow` | استوديو المنتج | ui/features/product-flow.js | الكتالوج والتسعير › المنتج والتكلفة › يومي | `aghnam-pricing-v3`, `skosif_product_flow_v1` | SKosifCore | Working | Merge |
 | `catalog` | الأصناف والأسعار | core | الكتالوج والتسعير › المنتج والتكلفة › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |

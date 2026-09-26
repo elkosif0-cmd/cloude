@@ -37,6 +37,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | Grand Fusion finance (accounts, journals, GL, TB, reconciliation) | `ledger` | المالية والمحاسبة › الدفاتر المحاسبية | CORE | admin, accountant |
 | التدفق النقدي | `cash` | المالية والمحاسبة › التدفق النقدي | CORE | admin, accountant, sales, viewer |
 | الذمم | `receivables` | المالية والمحاسبة › الذمم والتحصيل | CORE | admin, accountant, sales |
+| جديد | `advances` | المالية والمحاسبة › السلف والدفعات المقدمة | CORE | admin |
 | الهندسة المالية | `finance` | المالية والمحاسبة › الهندسة المالية (advanced) | ADVANCED | admin, accountant |
 | واجهة موحدة بدل تشتت الأصناف والتكاليف والتسعير والبوكسات | `productflow` | الكتالوج والتسعير › المنتج والتكلفة › استوديو المنتج | CORE | admin, accountant, warehouse, sales, viewer |
 | سجل الأسعار | `catalog` | الكتالوج والتسعير › المنتج والتكلفة › الأصناف والأسعار | CORE | admin, accountant, warehouse, sales, viewer |
@@ -97,6 +98,7 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | المالية والمحاسبة | الدفاتر المحاسبية | `ledger` الدفاتر المحاسبية |
 | المالية والمحاسبة | التدفق النقدي | `cash` التدفق النقدي |
 | المالية والمحاسبة | الذمم والتحصيل | `receivables` الذمم والتحصيل |
+| المالية والمحاسبة | السلف والدفعات المقدمة | `advances` السلف والدفعات المقدمة |
 | المالية والمحاسبة | الهندسة المالية | `finance` الهندسة المالية |
 | الكتالوج والتسعير | المنتج والتكلفة | `productflow` استوديو المنتج · `catalog` الأصناف والأسعار · `costs` التكاليف والمصروفات · `sim` التسعير السريع · `kernel` نواة التسعير الصارمة · `memo` اعتماد الأسعار · `builder` البوكسات · `analyzer` تحليل البوكس · `compare` المقارنة التحليلية |
 | الكتالوج والتسعير | الملصقات والباركود | `labels` ملصقات الموازين · `scanner` ماسح الباركود |
@@ -110,15 +112,15 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | النظام والتكاملات | الشركات والفترات | `companies` الشركات والفترات |
 | النظام والتكاملات | الحوكمة والصلاحيات | `governance` الحوكمة والجاهزية · `health` الصحة والتشخيص · `capabilitiesv2` الصلاحيات ومساحات العمل |
 
-66 screens in 30 menu entries.
+67 screens in 31 menu entries.
 
 ## By tier
 
-- **CORE** — العمل اليومي الأساسي (18): `dash`, `notifications`, `commerce`, `zatca`, `customers`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `cash`, `receivables`, `productflow`, `catalog`, `sim`, `builder`, `tbreview`
+- **CORE** — العمل اليومي الأساسي (19): `dash`, `notifications`, `commerce`, `zatca`, `customers`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `cash`, `receivables`, `advances`, `productflow`, `catalog`, `sim`, `builder`, `tbreview`
 - **MANAGEMENT** — الإدارة والمتابعة (10): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `memo`, `execreports`, `archive`, `codex`, `auditbench`
 - **INTELLIGENCE** — التحليل والذكاء (7): `decision`, `jev`, `council`, `salesintel`, `intelligence`, `economics`, `compare`
 - **ADVANCED** — الهندسة المتقدمة (17): `risklab`, `sensitivity`, `carcass`, `yieldlab`, `nrv`, `finance`, `costs`, `kernel`, `analyzer`, `auditdesk`, `auditdocs`, `auditissues`, `auditcouncil`, `auditfin`, `auditreport`, `auditanalytics`, `auditlab`
 - **UTILITIES** — أدوات مساعدة (9): `blending`, `culinary`, `labels`, `scanner`, `smartmatch`, `excelrecon`, `reports`, `exports`, `devices`
 - **ADMIN** — النظام والإدارة (5): `settings`, `companies`, `governance`, `health`, `capabilitiesv2`
 
-Coverage gate: 66 screens in 9 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
+Coverage gate: 67 screens in 9 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
