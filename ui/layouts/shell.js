@@ -23,9 +23,17 @@ const LOOKS=[
   ["audit","المراجعة الاحترافية","كثيف ورصين للجداول والأدلة",["#f3f4f6","#1f3b68","#172235","#161b26"]],
   ["midnight","ليل التحليل","داكن للوحات والجلسات الطويلة",["#0d1117","#7c8cff","#4fd1c5","#e8edf5"]],
   ["notebook","الدفتر","ورق مسطّر وعناوين بخط اليد",["#f7f3e8","#2c5aa0","#c0392b","#23252b"]],
-  ["auto","حسب الجهاز","KOSIF نهاراً وKOSIF الليلي ليلاً",["#f3f6fb","#1668e3","#0a1628","#3fd0f0"]]];
-const DARK=new Set(["kosif-night","heritage-night","midnight"]);
-const NIGHT={kosif:"kosif-night",heritage:"heritage-night"};
+  ["aurora","الشفق","زجاج شفاف فوق شفق ناعم — روح أجمل أنظمة الحاسب",["#eef2f9","#ffffff","#0a66ff","#7b61ff"],"pro"],
+  ["aurora-night","الشفق الليلي","الزجاج نفسه على سماء ليلية",["#0a0c13","#141824","#5b95ff","#a18cff"],"pro"],
+  ["vivid","النابض","ألوان لوحة تحليل المبيعات: نيلي وسماوي ووردي وخط تجوّل",["#f8fafc","#ffffff","#6366f1","#ec4899"],"pro"],
+  ["vivid-night","النابض الليلي","النيلي والسماوي على ليل عميق",["#0f1124","#131630","#818cf8","#22d3ee"],"pro"],
+  ["oasis","الواحة","رمل ومريمية وطين — فخامة محلية هادئة",["#f6f1e7","#2e4a3a","#3b6a4e","#c2703d"],"pro"],
+  ["oasis-night","الواحة الليلي","الواحة في ليل الصحراء",["#141915","#101511","#86b896","#e59a63"],"pro"],
+  ["graphite","الجرافيت","داكن مركّز بخطوط دقيقة — للعمل الطويل",["#0e0f12","#0b0c0f","#8183ff","#5ee0c4"],"pro"],
+  ["onyx","العقيق","أسود وذهبي وعناوين بخط النسخ — فخامة المصارف الخاصة",["#0b0b0c","#080808","#d4af5a","#f4efe4"],"pro"],
+  ["auto","حسب الجهاز","ثيمك المختار نهاراً ونسخته الليلية ليلاً",["#f3f6fb","#1668e3","#0a1628","#3fd0f0"]]];
+const DARK=new Set(["kosif-night","heritage-night","midnight","aurora-night","vivid-night","oasis-night","graphite","onyx"]);
+const NIGHT={kosif:"kosif-night",heritage:"heritage-night",aurora:"aurora-night",vivid:"vivid-night",oasis:"oasis-night"};
 function prefs(){return Object.assign({look:"kosif",density:"cozy",lastLight:"kosif",rail:"full",font:"theme",scale:1,radius:"theme",accent:"",contrast:false},load(PREF_KEY,{}))}
 /* ---------- theme studio: typeface, text size, accent colour, corners, contrast ----------
    applied on top of any look as inline tokens on <html>, so every screen, chart and print follows */
@@ -89,9 +97,12 @@ function migrate(){
   save(PREF_KEY,out);
 }
 const mq=matchMedia("(prefers-color-scheme: dark)");
-function lookNow(){const l=prefs().look;return l==="auto"?(mq.matches?"kosif-night":"kosif"):(LOOKS.some(x=>x[0]===l)?l:"kosif")}
+/* «حسب الجهاز» follows the family of the last light look chosen (KOSIF by default) */
+function lookNow(){const p=prefs(),l=p.look;if(l==="auto"){const day=LOOKS.some(x=>x[0]===p.lastLight)&&!DARK.has(p.lastLight)?p.lastLight:"kosif";return mq.matches?(NIGHT[day]||"kosif-night"):day}return LOOKS.some(x=>x[0]===l)?l:"kosif"}
 function resolved(){return DARK.has(lookNow())?"dark":"light"}
+const LOOK_FONTS={vivid:"Tajawal:wght@400;500;700;800",oasis:"Readex+Pro:wght@400;500;600;700",onyx:"Noto+Naskh+Arabic:wght@500;700"};
 function fonts(look){
+  const fam=look.replace(/-night$/,"");if(LOOK_FONTS[fam]&&!document.getElementById("sk-font-look-"+fam)){const l=document.createElement("link");l.id="sk-font-look-"+fam;l.rel="stylesheet";l.href="https://fonts.googleapis.com/css2?family="+LOOK_FONTS[fam]+"&display=swap";document.head.appendChild(l)}
   if(look.startsWith("heritage")||document.getElementById("sk-font-plex"))return;
   const l=document.createElement("link");l.id="sk-font-plex";l.rel="stylesheet";
   l.href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap";document.head.appendChild(l);
@@ -108,7 +119,9 @@ function applyPrefs(){
   $$('meta[name="theme-color"]').forEach(m=>m.setAttribute("content",bar));
 }
 function setPref(k,v){const p=prefs();p[k]=v;save(PREF_KEY,p);applyPrefs()}
-function setLook(l){const p=prefs();if(!LOOKS.some(x=>x[0]===l))l="kosif";p.look=l;if(!DARK.has(l)&&l!=="auto")p.lastLight=l;save(PREF_KEY,p);applyPrefs();SK.toast("المظهر: "+LOOKS.find(x=>x[0]===l)[1],"info")}
+function setLook(l){const p=prefs();if(!LOOKS.some(x=>x[0]===l))l="kosif";p.look=l;if(!DARK.has(l)&&l!=="auto")p.lastLight=l;save(PREF_KEY,p);
+  /* one smooth cross-fade where the browser supports view transitions */
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;if(document.startViewTransition&&!reduce)document.startViewTransition(()=>applyPrefs());else applyPrefs();SK.toast("المظهر: "+LOOKS.find(x=>x[0]===l)[1],"info")}
 /* the topbar moon button: light look ↔ its night counterpart */
 function toggleAppearance(){const cur=lookNow(),p=prefs();if(DARK.has(cur))setLook(p.lastLight||"kosif");else setLook(NIGHT[cur]||"midnight")}
 const setAppearance=a=>setLook(a==="dark"?"kosif-night":a==="auto"?"auto":"kosif");
@@ -325,7 +338,7 @@ function settingsCards(root){
   const seg=(name,cur,opts)=>'<div class="sk-seg" role="group" data-pref="'+name+'">'+opts.map(([v,l])=>'<button type="button" data-v="'+v+'" aria-pressed="'+(v===cur)+'">'+l+'</button>').join("")+'</div>';
   const html=
   '<section class="card" id="skx-prefs"><div class="card-h"><div><h3>المظهر والأمان</h3><p>نظام تصميم واحد بستة ثيمات كاملة، والقفل التلقائي لهذا الجهاز.</p></div></div><div class="card-b sk-stack">'+
-    '<div class="sk-field"><span>الثيم — يغيّر شكل التطبيق كله دون أي تغيير في البيانات</span><div class="skx-themes" id="skx-themes">'+LOOKS.map(([id,name,desc,c])=>'<button type="button" class="skx-theme" data-look="'+id+'" aria-pressed="'+(p.look===id)+'"><span class="sw">'+c.map(x=>'<i style="background:'+x+'"></i>').join("")+'</span><b>'+esc(name)+'</b><small>'+esc(desc)+'</small></button>').join("")+'</div></div>'+
+    '<div class="sk-field"><span>الثيم — يغيّر شكل التطبيق كله دون أي تغيير في البيانات</span><div class="skx-themes" id="skx-themes">'+LOOKS.map(([id,name,desc,c])=>'<button type="button" class="skx-theme" data-look="'+id+'" aria-pressed="'+(p.look===id)+'"><span class="pv" aria-hidden="true" style="--pv-bg:'+c[0]+';--pv-rail:'+c[1]+';--pv-brand:'+c[2]+';--pv-acc:'+c[3]+'"><i class="r"></i><i class="h"></i><i class="k"></i><i class="k2"></i><i class="bt"></i></span><b>'+esc(name)+'</b><small>'+esc(desc)+'</small></button>').join("")+'</div></div>'+
     '<div class="sk-field"><span>كثافة الواجهة</span>'+seg("density",p.density,[["cozy","مريحة"],["compact","مضغوطة"]])+'</div>'+
     studioHTML(p)+
     '<div class="sk-actions"><label class="sk-field" style="flex:1;min-width:200px"><span>القفل التلقائي بعد عدم النشاط</span><select id="skx-lock">'+

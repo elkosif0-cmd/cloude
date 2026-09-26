@@ -186,6 +186,108 @@
 }
 :root[data-look="kosif"] body{font-feature-settings:"tnum" 1,"lnum" 1}
 
+
+/* ================= five world-class looks (round 38) =================
+   aurora = «الشفق» (glass surfaces over a soft aurora; macOS/visionOS spirit) · vivid = «النابض» (the attached
+   sales dashboard's unified light theme: indigo, cyan and pink light, Tajawal) · oasis = «الواحة» (sand, sage and
+   terracotta; regional premium) · graphite = «الجرافيت» (focused dark pro) · onyx = «العقيق» (black and gold luxury).
+   Each light look has a night variant under [data-theme="dark"]. Status colours keep ΔE separation in both. */
+:root[data-look="aurora"]{
+  --sk-bg:#eef2f9;--sk-surface:#ffffff;--sk-surface-2:#f6f8fc;--sk-surface-3:#eceff6;--sk-line:#e3e8f1;--sk-line-2:#d2d9e6;
+  --sk-ink:#101828;--sk-ink-2:#475467;--sk-ink-3:#7a8699;
+  --sk-brand:#0a66ff;--sk-brand-2:#7b61ff;--sk-brand-soft:#e7efff;--sk-on-brand:#ffffff;
+  --sk-ok:#0f8a4b;--sk-ok-soft:#e3f6ea;--sk-ok-mark:#22b35e;--sk-warn:#b25e00;--sk-warn-soft:#fff1dd;--sk-warn-mark:#f5a524;--sk-bad:#d92d20;--sk-bad-soft:#fdecea;--sk-bad-mark:#f04438;--sk-bad-row:#fff6f5;
+  --sk-info:#0a66ff;--sk-info-soft:#e7efff;--sk-info-mark:#3b82f6;--sk-violet:#6941c6;--sk-violet-soft:#f1ecfd;--sk-violet-line:#ddd2f8;
+  --sk-rail:rgba(255,255,255,.62);--sk-rail-2:rgba(10,102,255,.07);--sk-rail-ink:#101828;--sk-rail-mute:#7a8699;--sk-rail-active:rgba(10,102,255,.1);
+  --sk-grid:#e9edf4;--sk-axis:#cfd6e2;--sk-s1:#7b61ff;--sk-s2:#0a66ff;--sk-s3:#22b35e;--sk-focus:#0a66ff;
+  --sk-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;--sk-font-display:-apple-system,BlinkMacSystemFont,"SF Pro Display","IBM Plex Sans Arabic","Segoe UI",sans-serif;
+  --sk-r-s:12px;--sk-r:16px;--sk-r-l:22px;
+  --sk-shadow-1:0 1px 1px rgba(16,24,40,.03),0 18px 40px -26px rgba(16,24,40,.28);--sk-shadow-2:0 24px 60px -30px rgba(16,24,40,.35);--sk-shadow-3:0 40px 90px -30px rgba(16,24,40,.45);
+  --sk-grad-brand:linear-gradient(135deg,#7b61ff 0%,#0a66ff 55%,#00b3ff 100%);--sk-grad-rail:linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,255,255,.55));
+  --sk-heat-1:#cdeedb;--sk-heat-2:#fde9a8;--sk-heat-3:#fcc497;--sk-heat-4:#f7a09a;
+}
+:root[data-look="aurora"][data-theme="dark"]{
+  --sk-bg:#0a0c13;--sk-surface:#141824;--sk-surface-2:#181d2b;--sk-surface-3:#1f2535;--sk-line:#252c3d;--sk-line-2:#323a4f;
+  --sk-ink:#eef1f8;--sk-ink-2:#b6bfd1;--sk-ink-3:#8791a6;--sk-brand:#5b95ff;--sk-brand-2:#a18cff;--sk-brand-soft:#17264a;--sk-on-brand:#06101f;
+  --sk-ok:#5fd394;--sk-ok-soft:#0f2e22;--sk-warn:#f7bd57;--sk-warn-soft:#33260c;--sk-bad:#ff8a80;--sk-bad-soft:#3a1618;--sk-bad-row:#2a1418;--sk-info:#7cb4ff;--sk-info-soft:#132e52;--sk-violet:#c4b5ff;--sk-violet-soft:#241f4a;--sk-violet-line:#3a3470;
+  --sk-rail:rgba(20,24,36,.7);--sk-rail-ink:#eef1f8;--sk-rail-mute:#8791a6;--sk-rail-active:rgba(91,149,255,.16);--sk-grid:#20273a;--sk-axis:#323a4f;--sk-focus:#5b95ff;
+  --sk-shadow-1:0 1px 0 rgba(255,255,255,.04) inset,0 18px 40px -24px rgba(0,0,0,.8);--sk-shadow-2:0 24px 60px -28px rgba(0,0,0,.85);--sk-shadow-3:0 40px 90px -30px rgba(0,0,0,.9);
+  --sk-heat-1:#1f5a3b;--sk-heat-2:#6b5a17;--sk-heat-3:#7a4219;--sk-heat-4:#7f2626;
+}
+:root[data-look="vivid"]{
+  --sk-bg:#f8fafc;--sk-surface:#ffffff;--sk-surface-2:#f8fafc;--sk-surface-3:#f1f5f9;--sk-line:#eef2f7;--sk-line-2:#e2e8f0;
+  --sk-ink:#1e293b;--sk-ink-2:#475569;--sk-ink-3:#64748b;
+  --sk-brand:#6366f1;--sk-brand-2:#06b6d4;--sk-brand-soft:#eef2ff;--sk-on-brand:#ffffff;
+  --sk-ok:#059669;--sk-ok-soft:#ecfdf5;--sk-ok-mark:#10b981;--sk-warn:#b45309;--sk-warn-soft:#fffbeb;--sk-warn-mark:#f59e0b;--sk-bad:#e11d48;--sk-bad-soft:#fff1f2;--sk-bad-mark:#f43f5e;--sk-bad-row:#fff5f7;
+  --sk-info:#0891b2;--sk-info-soft:#ecfeff;--sk-info-mark:#06b6d4;--sk-violet:#7c3aed;--sk-violet-soft:#f5f3ff;--sk-violet-line:#ddd6fe;
+  --sk-rail:#ffffff;--sk-rail-2:rgba(99,102,241,.07);--sk-rail-ink:#1e293b;--sk-rail-mute:#64748b;--sk-rail-active:#eef2ff;
+  --sk-grid:#f1f5f9;--sk-axis:#e2e8f0;--sk-s1:#06b6d4;--sk-s2:#6366f1;--sk-s3:#10b981;--sk-focus:#6366f1;
+  --sk-font:"Tajawal","Segoe UI",Tahoma,system-ui,sans-serif;--sk-font-display:"Tajawal","Segoe UI",sans-serif;
+  --sk-r-s:10px;--sk-r:14px;--sk-r-l:16px;
+  --sk-shadow-1:0 4px 24px -6px rgba(99,102,241,.12);--sk-shadow-2:0 18px 40px -16px rgba(99,102,241,.22);--sk-shadow-3:0 30px 70px -24px rgba(30,41,59,.35);
+  --sk-grad-brand:linear-gradient(135deg,#6366f1 0%,#8b5cf6 45%,#ec4899 100%);--sk-grad-rail:#ffffff;
+  --sk-heat-1:#d1fae5;--sk-heat-2:#fef3c7;--sk-heat-3:#fed7aa;--sk-heat-4:#fecdd3;
+}
+:root[data-look="vivid"][data-theme="dark"]{
+  --sk-bg:#0f1124;--sk-surface:#171a33;--sk-surface-2:#1c2040;--sk-surface-3:#23284d;--sk-line:#2a2f57;--sk-line-2:#363c6b;
+  --sk-ink:#eef0ff;--sk-ink-2:#bcc2e6;--sk-ink-3:#8c93c2;--sk-brand:#818cf8;--sk-brand-2:#22d3ee;--sk-brand-soft:#23285a;--sk-on-brand:#0b0d20;
+  --sk-ok:#34d399;--sk-ok-soft:#0d2e26;--sk-warn:#fbbf24;--sk-warn-soft:#33270b;--sk-bad:#fb7185;--sk-bad-soft:#3b1522;--sk-bad-row:#2c1320;--sk-info:#67e8f9;--sk-info-soft:#0f2f3a;--sk-violet:#c4b5fd;--sk-violet-soft:#2a2150;--sk-violet-line:#40357a;
+  --sk-rail:#131630;--sk-rail-ink:#eef0ff;--sk-rail-mute:#8c93c2;--sk-rail-active:rgba(129,140,248,.18);--sk-grid:#23284d;--sk-axis:#363c6b;--sk-focus:#818cf8;
+  --sk-shadow-1:0 1px 0 rgba(255,255,255,.04) inset,0 14px 30px -18px rgba(0,0,0,.7);--sk-shadow-2:0 20px 44px -20px rgba(0,0,0,.8);--sk-shadow-3:0 34px 80px -28px rgba(0,0,0,.85);
+  --sk-heat-1:#14532d;--sk-heat-2:#713f12;--sk-heat-3:#7c2d12;--sk-heat-4:#881337;
+}
+:root[data-look="oasis"]{
+  --sk-bg:#f6f1e7;--sk-surface:#fffdf8;--sk-surface-2:#faf6ee;--sk-surface-3:#f0e8d8;--sk-line:#e7dcc6;--sk-line-2:#d8c9ab;
+  --sk-ink:#23261f;--sk-ink-2:#4f5344;--sk-ink-3:#7f806c;
+  --sk-brand:#3b6a4e;--sk-brand-2:#c2703d;--sk-brand-soft:#e5efe6;--sk-on-brand:#ffffff;
+  --sk-ok:#2f7a45;--sk-ok-soft:#e4f1e2;--sk-ok-mark:#3f9a5a;--sk-warn:#9a5b06;--sk-warn-soft:#f8ead0;--sk-warn-mark:#d4880f;--sk-bad:#b1362c;--sk-bad-soft:#f7e0da;--sk-bad-mark:#cf4b3e;--sk-bad-row:#fbeee9;
+  --sk-info:#2d6a7a;--sk-info-soft:#e1eeef;--sk-info-mark:#3f8fa3;--sk-violet:#6d4a8c;--sk-violet-soft:#efe6f3;--sk-violet-line:#dccbe6;
+  --sk-rail:#2e4a3a;--sk-rail-2:rgba(255,255,255,.07);--sk-rail-ink:#f3eee2;--sk-rail-mute:#b7c2b1;--sk-rail-active:rgba(233,196,150,.18);
+  --sk-grid:#ece2cf;--sk-axis:#d8c9ab;--sk-s1:#c2703d;--sk-s2:#3b6a4e;--sk-s3:#2d6a7a;--sk-focus:#3b6a4e;
+  --sk-font:"Readex Pro","IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;--sk-font-display:"Readex Pro","IBM Plex Sans Arabic",sans-serif;
+  --sk-r-s:10px;--sk-r:14px;--sk-r-l:18px;
+  --sk-shadow-1:0 1px 0 rgba(255,255,255,.8) inset,0 10px 26px -18px rgba(60,50,30,.35);--sk-shadow-2:0 18px 40px -20px rgba(60,50,30,.35);--sk-shadow-3:0 32px 80px -28px rgba(40,34,20,.45);
+  --sk-grad-brand:linear-gradient(135deg,#c2703d 0%,#8a6a3a 40%,#3b6a4e 100%);--sk-grad-rail:linear-gradient(180deg,#34533f,#2a4436);
+  --sk-heat-1:#d6ead0;--sk-heat-2:#f1e2a8;--sk-heat-3:#eec19a;--sk-heat-4:#e3a092;
+}
+:root[data-look="oasis"][data-theme="dark"]{
+  --sk-bg:#141915;--sk-surface:#1c231e;--sk-surface-2:#212923;--sk-surface-3:#28312a;--sk-line:#313b33;--sk-line-2:#3e4a40;
+  --sk-ink:#f1ede2;--sk-ink-2:#cdc8b6;--sk-ink-3:#9c9884;--sk-brand:#86b896;--sk-brand-2:#e59a63;--sk-brand-soft:#223528;--sk-on-brand:#0f1510;
+  --sk-ok:#7cc48f;--sk-ok-soft:#18291c;--sk-warn:#e7b25a;--sk-warn-soft:#33250f;--sk-bad:#ef8f84;--sk-bad-soft:#3a1814;--sk-bad-row:#2a1512;--sk-info:#8cc6d3;--sk-info-soft:#152a2f;--sk-violet:#c6a8e0;--sk-violet-soft:#2a1f33;--sk-violet-line:#47355a;
+  --sk-rail:#101511;--sk-rail-ink:#f1ede2;--sk-rail-mute:#9c9884;--sk-rail-active:rgba(229,154,99,.16);--sk-grid:#28312a;--sk-axis:#3e4a40;--sk-focus:#86b896;--sk-grad-rail:linear-gradient(180deg,#121813,#0f140f);
+  --sk-shadow-1:0 1px 0 rgba(255,255,255,.03) inset,0 10px 26px -16px rgba(0,0,0,.7);--sk-shadow-2:0 16px 36px -16px rgba(0,0,0,.75);--sk-shadow-3:0 30px 70px -20px rgba(0,0,0,.8);
+  --sk-heat-1:#1f4d2e;--sk-heat-2:#5f5317;--sk-heat-3:#6f3d1b;--sk-heat-4:#742a24;
+}
+:root[data-look="graphite"]{
+  --sk-bg:#0e0f12;--sk-surface:#16171b;--sk-surface-2:#1b1c21;--sk-surface-3:#222329;--sk-line:#26272d;--sk-line-2:#33343b;
+  --sk-ink:#eceef2;--sk-ink-2:#b4b7c2;--sk-ink-3:#858995;--sk-brand:#8183ff;--sk-brand-2:#5ee0c4;--sk-brand-soft:#23244a;--sk-on-brand:#0b0c14;
+  --sk-ok:#4cc38a;--sk-ok-soft:#10261c;--sk-ok-mark:#3fb37b;--sk-warn:#e9b44c;--sk-warn-soft:#2e2410;--sk-warn-mark:#d9a33e;--sk-bad:#f2686a;--sk-bad-soft:#331719;--sk-bad-mark:#e5534b;--sk-bad-row:#241315;
+  --sk-info:#7aa7ff;--sk-info-soft:#16223d;--sk-info-mark:#5b8def;--sk-violet:#b6a4ff;--sk-violet-soft:#221d40;--sk-violet-line:#383066;
+  --sk-rail:#0b0c0f;--sk-rail-2:rgba(255,255,255,.04);--sk-rail-ink:#e6e8ee;--sk-rail-mute:#7d818d;--sk-rail-active:rgba(129,131,255,.14);
+  --sk-grid:#212228;--sk-axis:#33343b;--sk-s1:#5ee0c4;--sk-s2:#8183ff;--sk-s3:#4cc38a;--sk-focus:#8183ff;
+  --sk-font:"IBM Plex Sans Arabic",-apple-system,"Segoe UI",Tahoma,sans-serif;--sk-font-display:"IBM Plex Sans Arabic",-apple-system,"Segoe UI",sans-serif;
+  --sk-fs:14px;--sk-r-s:6px;--sk-r:9px;--sk-r-l:12px;
+  --sk-shadow-1:0 0 0 1px rgba(255,255,255,.02),0 8px 20px -14px rgba(0,0,0,.8);--sk-shadow-2:0 16px 36px -18px rgba(0,0,0,.85);--sk-shadow-3:0 30px 70px -24px rgba(0,0,0,.9);
+  --sk-grad-brand:linear-gradient(135deg,#2a2b52 0%,#3d3f8f 50%,#1c6f63 100%);--sk-grad-rail:#0b0c0f;
+  --sk-heat-1:#173d2b;--sk-heat-2:#4d4214;--sk-heat-3:#5c3317;--sk-heat-4:#5f2224;
+  color-scheme:dark;
+}
+:root[data-look="onyx"]{
+  --sk-bg:#0b0b0c;--sk-surface:#141415;--sk-surface-2:#19191b;--sk-surface-3:#212123;--sk-line:#2a2927;--sk-line-2:#39372f;
+  --sk-ink:#f4efe4;--sk-ink-2:#cfc6b3;--sk-ink-3:#9a917e;--sk-brand:#d4af5a;--sk-brand-2:#b8893a;--sk-brand-soft:#2b2415;--sk-on-brand:#141008;
+  --sk-ok:#6fcf97;--sk-ok-soft:#10261a;--sk-ok-mark:#57b882;--sk-warn:#e8b04b;--sk-warn-soft:#2f2410;--sk-warn-mark:#d9a33e;--sk-bad:#ef7b6f;--sk-bad-soft:#321713;--sk-bad-mark:#e0604f;--sk-bad-row:#231311;
+  --sk-info:#8ab4d6;--sk-info-soft:#16232e;--sk-info-mark:#6f9ec4;--sk-violet:#cdb4e6;--sk-violet-soft:#241c2c;--sk-violet-line:#3d3049;
+  --sk-rail:#080808;--sk-rail-2:rgba(212,175,90,.06);--sk-rail-ink:#f1ead9;--sk-rail-mute:#8f8672;--sk-rail-active:rgba(212,175,90,.14);
+  --sk-grid:#232222;--sk-axis:#39372f;--sk-s1:#8ab4d6;--sk-s2:#d4af5a;--sk-s3:#6fcf97;--sk-focus:#d4af5a;
+  --sk-font:"IBM Plex Sans Arabic",-apple-system,"Segoe UI",Tahoma,sans-serif;--sk-font-display:"Noto Naskh Arabic","Amiri",serif;
+  --sk-r-s:8px;--sk-r:12px;--sk-r-l:16px;
+  --sk-shadow-1:0 1px 0 rgba(212,175,90,.06) inset,0 12px 30px -18px rgba(0,0,0,.9);--sk-shadow-2:0 20px 44px -20px rgba(0,0,0,.9);--sk-shadow-3:0 34px 80px -26px rgba(0,0,0,.95);
+  --sk-grad-brand:linear-gradient(135deg,#1c1a14 0%,#3a3020 45%,#8a6a2c 100%);--sk-grad-rail:linear-gradient(180deg,#0a0a0a,#070707);
+  --sk-heat-1:#1b3d28;--sk-heat-2:#4f4215;--sk-heat-3:#5e3517;--sk-heat-4:#5e2420;
+  color-scheme:dark;
+}
+:root[data-look="vivid"] body{font-feature-settings:"tnum" 1}
+
 /* printing always uses the light heritage palette, whatever theme is on screen */
 @media print{
   :root,:root[data-theme="dark"],:root[data-look]{

@@ -211,7 +211,8 @@ const PRINT_KOSIF='@page{size:A4;margin:14mm 12mm 16mm;@bottom-center{content:"�
  '.skp-band img{width:58px;height:40px;filter:brightness(0) invert(1)}.skp-mark{flex:1}.skp-mark b{display:block;font:800 24px/1 Montserrat,"Segoe UI",sans-serif;letter-spacing:.06em;color:#fff}'+
  '.skp-mark span{display:block;margin-top:4px;font-size:12px;color:#cfe0f5}.skp-doc{text-align:left}.skp-doc b{display:block;font-size:15px;color:#fff}.skp-doc span{font-size:11px;color:#cfe0f5}'+
  '.skp-ids{display:flex;flex-wrap:wrap;gap:4px 14px;padding:8px 6px 0;font-size:10.5px;color:#8292a8}.skp-foot{margin-top:22px;padding-top:8px;border-top:1px solid #e4eaf2;font-size:10px;color:#8292a8;text-align:center}';
-const kosifLook=()=>document.documentElement.getAttribute("data-look")==="kosif";
+/* one print identity: the KOSIF letterhead for every look except «تراث الوادي» and «الدفتر» */
+const kosifLook=()=>!["heritage","notebook"].includes(document.documentElement.getAttribute("data-look")||"kosif");
 /* the preparer: the name set in the user menu (skosif_profile_v1), else الإعدادات */
 function preparer(){try{const p=JSON.parse(localStorage.getItem("skosif_profile_v1")||"{}");if(p&&p.name)return p.name+(p.title?" — "+p.title:"")}catch{}return org().preparer||""}
 function letterhead(title){

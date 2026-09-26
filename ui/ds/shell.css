@@ -514,3 +514,66 @@ body.skn-locked{overflow:hidden}
 .sktpl-all{width:min(720px,100%)}.sktpl-all .sk-table-wrap{max-height:60vh;overflow:auto;margin-top:var(--sk-3)}
 @media (max-width:600px){.sk-ph .sktpl-btn span{display:none}.sktpl-row{flex-wrap:wrap}}
 @media print{.sktpl-btn,.sktpl-menu{display:none}}
+/* ================= five world-class looks: component character (round 38) ================= */
+/* الشفق — glass cards over an aurora ground */
+:root[data-look="aurora"] body{background:radial-gradient(900px 520px at 100% -10%,rgba(123,97,255,.16),transparent 60%),radial-gradient(800px 520px at -10% 30%,rgba(0,179,255,.14),transparent 60%),radial-gradient(700px 500px at 60% 110%,rgba(10,102,255,.1),transparent 60%),var(--sk-bg) fixed}
+:root[data-look="aurora"][data-theme="dark"] body{background:radial-gradient(900px 520px at 100% -10%,rgba(123,97,255,.22),transparent 60%),radial-gradient(800px 520px at -10% 30%,rgba(0,179,255,.14),transparent 60%),var(--sk-bg) fixed}
+:root[data-look="aurora"] .card,:root[data-look="aurora"] .skc-card,:root[data-look="aurora"] .sk-kpi,:root[data-look="aurora"] .sk-ph,:root[data-look="aurora"] .topbar{background:color-mix(in srgb,var(--sk-surface) 74%,transparent)!important;backdrop-filter:blur(20px) saturate(1.5);-webkit-backdrop-filter:blur(20px) saturate(1.5);border-color:color-mix(in srgb,var(--sk-line) 70%,transparent)!important}
+:root[data-look="aurora"] .rail{background:var(--sk-grad-rail)!important;backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);border-inline-start:1px solid var(--sk-line)}
+:root[data-look="aurora"] .nav-btn[aria-current="page"]{background:var(--sk-rail-active);color:var(--sk-brand);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--sk-brand) 22%,transparent)}
+:root[data-look="aurora"] .btn.primary{background:var(--sk-grad-brand);border:0;box-shadow:0 10px 24px -12px rgba(10,102,255,.6)}
+/* النابض — the attached dashboard's light theme: soft colour light, indigo actions, gradient scrollbars */
+:root[data-look="vivid"] body{background:radial-gradient(600px 400px at 95% -5%,rgba(99,102,241,.08),transparent 60%),radial-gradient(500px 380px at -5% 40%,rgba(6,182,212,.07),transparent 60%),radial-gradient(500px 380px at 100% 85%,rgba(236,72,153,.06),transparent 60%),var(--sk-bg) fixed}
+:root[data-look="vivid"][data-theme="dark"] body{background:radial-gradient(600px 400px at 95% -5%,rgba(129,140,248,.16),transparent 60%),radial-gradient(500px 380px at -5% 40%,rgba(34,211,238,.1),transparent 60%),var(--sk-bg) fixed}
+:root[data-look="vivid"] .card,:root[data-look="vivid"] .skc-card{border-color:var(--sk-line)}
+:root[data-look="vivid"] .nav-btn[aria-current="page"]{background:linear-gradient(135deg,var(--sk-brand),#8b5cf6);color:#fff}
+:root[data-look="vivid"] .nav-btn[aria-current="page"] svg{color:#fff}
+:root[data-look="vivid"] .btn.primary{background:linear-gradient(135deg,#6366f1,#8b5cf6);border:0}
+:root[data-look="vivid"] ::-webkit-scrollbar{width:10px;height:10px}:root[data-look="vivid"] ::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#818cf8,#c084fc);border-radius:8px}
+:root[data-look="vivid"] ::selection{background:rgba(99,102,241,.25)}
+/* الواحة — deep sage rail with a woven hairline, terracotta accents, warm paper */
+:root[data-look="oasis"] .rail{background:var(--sk-grad-rail)!important}
+:root[data-look="oasis"] .rail::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.07;background:repeating-linear-gradient(45deg,#fff 0 1px,transparent 1px 12px),repeating-linear-gradient(-45deg,#fff 0 1px,transparent 1px 12px)}
+:root[data-look="oasis"] .nav-btn[aria-current="page"]{background:var(--sk-rail-active);color:#f6d7b0;box-shadow:inset -3px 0 0 var(--sk-brand-2)}
+:root[data-look="oasis"] .nav-btn[aria-current="page"] svg{color:#f6d7b0}
+:root[data-look="oasis"] h2,:root[data-look="oasis"] h3{letter-spacing:-.01em}
+:root[data-look="oasis"] .card-h h3::before{content:"";display:inline-block;width:6px;height:6px;margin-inline-end:8px;vertical-align:middle;border-radius:2px;background:var(--sk-brand-2);transform:rotate(45deg)}
+/* الجرافيت — crisp hairlines, compact, subtle glow on the current screen */
+:root[data-look="graphite"] .card,:root[data-look="graphite"] .skc-card{box-shadow:none;border-color:var(--sk-line)}
+:root[data-look="graphite"] .nav-btn{min-height:36px}
+:root[data-look="graphite"] .nav-btn[aria-current="page"]{background:var(--sk-rail-active);color:#fff;box-shadow:inset 0 0 0 1px rgba(129,131,255,.35),0 0 18px -6px rgba(129,131,255,.6)}
+:root[data-look="graphite"] .nav-btn[aria-current="page"] svg{color:var(--sk-brand)}
+:root[data-look="graphite"] .sk-table th,:root[data-look="graphite"] .t th{font-size:11.5px;letter-spacing:.02em;text-transform:none}
+/* العقيق — black and gold: gold hairlines, serif headings, quiet surfaces */
+:root[data-look="onyx"] .card,:root[data-look="onyx"] .skc-card{border-color:color-mix(in srgb,var(--sk-brand) 16%,var(--sk-line))}
+:root[data-look="onyx"] .card-h h3,:root[data-look="onyx"] .sk-ph h1,:root[data-look="onyx"] #pg-title{font-family:var(--sk-font-display);font-weight:700}
+:root[data-look="onyx"] .rail{border-inline-start:1px solid rgba(212,175,90,.18)}
+:root[data-look="onyx"] .nav-btn[aria-current="page"]{background:linear-gradient(90deg,rgba(212,175,90,.04),rgba(212,175,90,.16));color:#f1d894;box-shadow:inset -2px 0 0 var(--sk-brand)}
+:root[data-look="onyx"] .nav-btn[aria-current="page"] svg{color:var(--sk-brand)}
+:root[data-look="onyx"] .btn.primary{background:linear-gradient(135deg,#e2c57a,#b8893a);color:#141008;border:0}
+/* theme change: one smooth cross-fade where supported */
+::view-transition-old(root),::view-transition-new(root){animation-duration:.28s}
+/* theme studio: each card is a live miniature of the look (ground, rail, header, cards, button) */
+.skx-themes{grid-template-columns:repeat(auto-fill,minmax(168px,1fr))}
+.skx-theme .pv{position:relative;display:block;height:78px;border-radius:9px;overflow:hidden;background:var(--pv-bg);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.skx-theme .pv i{position:absolute;display:block;border-radius:4px}
+.skx-theme .pv .r{inset-block:0;inset-inline-start:0;width:26%;border-radius:0;background:var(--pv-rail);box-shadow:inset -1px 0 0 rgba(0,0,0,.06)}
+.skx-theme .pv .h{inset-block-start:9px;inset-inline-start:32%;width:40%;height:8px;background:var(--pv-brand);opacity:.9}
+.skx-theme .pv .k{inset-block-start:24px;inset-inline-start:32%;width:29%;height:30px;background:color-mix(in srgb,var(--pv-bg) 55%,#fff);box-shadow:0 3px 8px -4px rgba(0,0,0,.35)}
+.skx-theme .pv .k2{inset-block-start:24px;inset-inline-start:65%;width:29%;height:30px;background:color-mix(in srgb,var(--pv-acc) 22%,var(--pv-bg));box-shadow:0 3px 8px -4px rgba(0,0,0,.35)}
+.skx-theme .pv .bt{inset-block-end:8px;inset-inline-end:8px;width:30%;height:10px;border-radius:99px;background:linear-gradient(90deg,var(--pv-brand),var(--pv-acc))}
+.skx-theme:hover .pv{transform:translateY(-1px);transition:transform .15s var(--sk-ease)}
+/* one identity: the KOSIF brand block on the rail in every look except «تراث الوادي» and «الدفتر» (colours from the rail tokens) */
+:root:is([data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail .brand{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;align-items:center;column-gap:10px;row-gap:0;padding:var(--sk-5) var(--sk-3) var(--sk-4);border-bottom:1px solid color-mix(in srgb,var(--sk-rail-ink) 10%,transparent);direction:ltr}
+:root:is([data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail .brand::before{grid-row:1/3;width:54px;height:38px;border-radius:0;box-shadow:none;padding:0;border:0;background:url(./art/kosif-cloud.svg) center/contain no-repeat;-webkit-mask-image:none;mask-image:none}
+:root:is([data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail .brand-mark{display:none}
+:root:is([data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail .brand>div:not(.brand-mark){display:flex;flex-direction:column;align-items:flex-start;min-width:0}
+:root:is([data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail #app-name{display:block;margin:0;font:700 0/1 var(--sk-font);color:var(--sk-rail-ink)}
+:root:is([data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail #app-name::before{content:"KOSIF";font:800 30px/1 "Segoe UI",system-ui,sans-serif;letter-spacing:.01em;color:var(--sk-rail-ink)}
+:root[data-look="onyx"]:not(#x) .rail #app-name::before{color:var(--sk-brand)}
+:root:is([data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail #biz-name{margin-top:4px;font:600 14px/1.3 var(--sk-font);color:var(--sk-rail-ink);opacity:.86;text-align:start;direction:rtl}
+:root:is([data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail #biz-name::after{content:"Audit. Assure. Comply.";display:block;margin-top:2px;font:400 11.5px/1.3 "Segoe UI",system-ui,sans-serif;color:var(--sk-rail-mute);direction:ltr;text-align:start}
+:root:is([data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="audit"],[data-look="midnight"]) .modeseg{background:color-mix(in srgb,var(--sk-rail-ink) 7%,transparent)}
+:root:is([data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="audit"],[data-look="midnight"]) .modeseg button{color:var(--sk-rail-mute)}
+:root:is([data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="audit"],[data-look="midnight"]) .modeseg button[aria-pressed="true"]{background:var(--sk-brand);color:var(--sk-on-brand)}
+:root:is([data-look="oasis"],[data-look="graphite"],[data-look="onyx"]) .rail input{background:color-mix(in srgb,var(--sk-rail-ink) 6%,transparent);color:var(--sk-rail-ink);border-color:color-mix(in srgb,var(--sk-rail-ink) 14%,transparent)}
