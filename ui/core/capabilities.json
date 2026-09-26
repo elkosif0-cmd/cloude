@@ -1251,6 +1251,26 @@
    ]
   },
   {
+   "id": "auditbench",
+   "label": "المرجع العالمي للمراجعة",
+   "sub": "ما كتبه مراجعو 49 مجموعة عالمية فعلاً: الأمور الرئيسية للمراجعة بموضوعاتها، والأهمية النسبية المفصح عنها لفحص اختيارك، والمراجعون، و30 مصدراً رسمياً — كل عنوان برقم صفحته في حزمة البحث",
+   "group": "audit",
+   "hub": "codex",
+   "tier": "MANAGEMENT",
+   "module": "ui/features/audit-bench.js + SKEngines.audit.{globalBenchmarks,materiality}",
+   "data": [
+    "لا بيانات محلية — مرجع ثابت من حزمة البحث العالمية"
+   ],
+   "legacy": "جديد — من global_financial_and_audit_research_bundle_extended_verified.pdf (12,506 صفحة)",
+   "decision": "Rebuild",
+   "kw": "مرجع عالمي أمور رئيسية للمراجعة KAM CAM أهمية نسبية materiality تقارير سنوية 10-K 20-F أرامكو مراجعون سوابق benchmark",
+   "adv": false,
+   "en": "Global Audit Benchmarks",
+   "feeds": [
+    "tbreview"
+   ]
+  },
+  {
    "id": "auditdesk",
    "label": "الاستوديو المتقدم",
    "sub": "مساحة عمل المراجع — داخل «مركز المراجعة › الاستوديو المتقدم»",

@@ -97,7 +97,8 @@ const ICONS={
   auditreport:SV('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h6"/><path d="M14 2v6h6v3"/><circle cx="18" cy="16" r="3"/><path d="m16.5 18.6-.8 3.4 2.3-1.2 2.3 1.2-.8-3.4"/><path d="M8 13h4M8 17h3"/>'),
   auditanalytics:SV('<circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.3-4.3"/><path d="m7.5 12.5 2.2-2.2 2 2 3-3.3"/>'),
   auditlab:SV('<path d="M6 18h8M3 22h18M14 22a7 7 0 1 0 0-14h-1M9 14h2M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2zM12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/>'),
-  codex:SV('<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/>')
+  codex:SV('<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/>'),
+  auditbench:SV('<circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c2.6 2.6 3.8 5.8 3.8 9.5s-1.2 6.9-3.8 9.5c-2.6-2.6-3.8-5.8-3.8-9.5s1.2-6.9 3.8-9.5z"/>')
 };
 const icon=id=>ICONS[id]||(core()&&core().navIcon(id))||ICONS.action;
 

@@ -3,7 +3,7 @@
 import globals from "globals";
 const appGlobals = Object.fromEntries(["SK", "SKEngines", "SKosifCore", "SKosifShell", "SKCharts", "SKXlsx", "SKosifAI", "SKosifLedger", "SKosifTBReview",
   "SKosifCouncilUI", "SKosifAuditBridge", "SKosifCodex", "SKosifReportDocs", "SKosifTasks", "SKosifCommand", "SKServices", "SKosifTopbar", "SKosifNotify",
-  "SKosifReportPack", "SKosifMetrics", "SKosifTable", "SKosifKeys", "SKosifAssistant", "SKosifSalesLab", "SKosifClose"].map((k) => [k, "readonly"]));
+  "SKosifReportPack", "SKosifMetrics", "SKosifTable", "SKosifKeys", "SKosifAssistant", "SKosifSalesLab", "SKosifClose", "SKosifAuditBench"].map((k) => [k, "readonly"]));
 export default [
   { ignores: ["app/**", "dist/**", "ui/audit/**", "ui/core/engines.js", "capabilities-v2/**", "node_modules/**", "**/*.mjs"] },
   {

@@ -189,7 +189,7 @@ function tbTab(c){
       tile(c.tb.balanced?"check":"alert",c.tb.balanced?"ok":"bad",'التوازن',c.tb.balanced?'متوازن':'غير متوازن',c.tb.balanced?'مدين = دائن '+sar(c.tb.totals.debit):'الفرق '+sar(c.tb.difference))+
       tile("calc","warn",'الأهمية النسبية',sar(m.overall),m.benchmarkAr+' × '+(m.rate*100)+'% · التنفيذية '+sar(m.performance))+
       tile("risks",b.summary.high?"bad":"ok",'الملاحظات',b.findings.length,b.summary.high+' عالية · '+b.summary.medium+' متوسطة')+
-    '</div>'+
+    '</div>'+(window.SKosifAuditBench?SKosifAuditBench.materialityNote(m):'')+
     (topF.length?'<section class="card"><div class="card-h"><div><h3>أهم ما اكتشفته المراجعة</h3><p>المحرك الآلي'+(c.session&&c.session.rounds.length?' و Gemini':'')+' — كل ملاحظة بأساسها الرقمي ومعيارها.</p></div></div><div class="card-b tbr-flist">'+topF.map(fItem).join("")+'</div></section>':'')+
     '<section class="card"><div class="card-h"><div><h3>الحسابات ومعاييرها</h3><p>اضغط رقم المعيار بجوار الحساب لتعرف علاقته بالحساب ومتطلباته ومصدره الرسمي.</p></div><div class="sk-seg">'+[["all","الكل"],["flag","عليها ملاحظات"],["map","تحتاج تبويب"]].map(([v,l])=>'<button type="button" data-flt="'+v+'" aria-pressed="'+(filter===v)+'">'+l+'</button>').join("")+'</div></div>'+
     '<div class="card-b tbr-tw"><table class="sk-table tbr-t"><thead><tr><th>الرقم</th><th>الحساب</th><th>البند في القوائم</th><th>الرصيد</th><th>السابق</th><th>التغير</th><th>المعايير</th><th>ملاحظات</th></tr></thead><tbody>'+rows.map(row).join("")+'</tbody></table></div></section>';
@@ -354,6 +354,7 @@ function docView(c,kind){
   return (kind==="auditor"?'<section class="card"><div class="card-h"><div><h3>بيانات التوقيع</h3><p>تظهر في تقرير المراجع؛ الخانات الفارغة تبقى بين قوسين لتُستكمل.</p></div></div><div class="card-b"><div class="tbr-sig">'+
     [["auditFirm","مكتب المراجعة"],["auditPartner","الشريك المسؤول"],["auditLicence","رقم الترخيص"],["auditCity","المدينة"]].map(([k,l])=>'<label class="sk-field"><span>'+l+'</span><input data-ctx="'+k+'" value="'+esc(ctx[k]||"")+'"></label>').join("")+
     '</div><div class="sk-actions"><button type="button" class="btn sm primary" data-a="sig-save">حفظ</button></div></div></section>':'')+
+    (kind==="auditor"&&window.SKosifAuditBench?SKosifAuditBench.precedentsHTML(c.base.risks.filter(r=>r.significant).map(r=>r.lineKey),ctx.activity):'')+
     '<div class="rd-paper">'+SKosifReportDocs[kind](docX(c))+'</div>';
 }
 function fsTab(c){

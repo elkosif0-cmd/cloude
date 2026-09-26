@@ -2,7 +2,7 @@
 
 Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do not edit by hand.
 
-Total capabilities: **65** (screens). Cross-cutting capabilities are listed after the table.
+Total capabilities: **66** (screens). Cross-cutting capabilities are listed after the table.
 
 | ID | Capability | Module | Current Location | Data Used | Dependencies | Status | Keep/Remove/Merge/Rebuild |
 |---|---|---|---|---|---|---|---|
@@ -57,6 +57,7 @@ Total capabilities: **65** (screens). Cross-cutting capabilities are listed afte
 | `archive` | الأرشيف والتغييرات | core | التقارير والتحليلات › يومي | `aghnam-pricing-v3`, `IDB pricing_snapshots` | SKosifCore, Engine, IndexedDB | Working | Keep |
 | `tbreview` | ملف المراجعة | ui/features/tb-review.js + ui/core/ai.js + ui/components/xlsx.js + SKEngines.audit.{tbReview,aiReview,documentCheck} + SKEngines.reports.{tbImport,statements,analysis} | المراجعة والتأكيد › مركز المراجعة › يومي | `skosif_tbreview_v1`, `IDB skosif-tbreview-docs`, `skosif_ai_keys (الجهاز فقط)` | SKosifCore, IndexedDB | Working | Rebuild |
 | `codex` | المدونة المحاسبية والمعايير | ui/features/codex.js + SKEngines.audit.{codex,standardsUpdate} | المراجعة والتأكيد › المعايير والمدونة › يومي | `skosif_codex_updates_v1` | SKosifCore | Working | Rebuild |
+| `auditbench` | المرجع العالمي للمراجعة | ui/features/audit-bench.js + SKEngines.audit.{globalBenchmarks,materiality} | المراجعة والتأكيد › المعايير والمدونة › يومي | `لا بيانات محلية — مرجع ثابت من حزمة البحث العالمية` | SKosifCore | Working | Rebuild |
 | `auditdesk` | الاستوديو المتقدم | ui/audit (v5) | المراجعة والتأكيد › مركز المراجعة › متقدم | `audit studio IDB` | SKosifCore | Working | Keep |
 | `auditdocs` | المستندات والأدلة | ui/audit (v5) + ui/audit-bridge.js | المراجعة والتأكيد › مركز المراجعة › متقدم | `IDB sales_lines`, `skosif_v31_supplier_batches`, `skosif_erp_finance_v1`, `skosif_v38_ledger` | SKosifCore, IndexedDB | Working | Keep |
 | `auditissues` | الملاحظات والقضايا | ui/audit (v5) | المراجعة والتأكيد › مركز المراجعة › متقدم | `audit studio IDB` | SKosifCore | Working | Keep |

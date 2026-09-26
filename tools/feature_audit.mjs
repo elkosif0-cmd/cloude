@@ -45,7 +45,17 @@ ok('المنظومة الواحدة','مسار العمل (يأتي من / يذ�
 await go('dash',1400);ok('المنظومة الواحدة','رحلة العمل في مركز القيادة',await p.evaluate(()=>document.querySelectorAll('.skjr li').length===5));
 await go('auditanalytics',3500);const A=await p.evaluate(()=>({tabs:document.querySelectorAll('.kx-views [data-kxv]').length,tools:document.querySelectorAll('.kx-views .kx-tool').length}));
 ok('المنظومة الواحدة','أدوات التحليل بتبويبات التطبيق وبثيمه (صفحاتها وصوتها وأوامرها)',A.tabs>=15&&A.tools===2);
-ok('عدم ضياع القدرات','القدرات الـ65 كلها مسجلة',await p.evaluate(()=>SK.caps.all().length)===65);
+ok('عدم ضياع القدرات','القدرات الـ66 كلها مسجلة',await p.evaluate(()=>SK.caps.all().length)===66);
+// ---------- global research bundle: audit benchmarks ----------
+await go('auditbench',1200);
+const GB=await p.evaluate(()=>{const g=SKEngines.audit.globalBenchmarks,s=g.summary();return{reports:s.reports,kams:s.kams,mat:s.materiality,src:s.sources,hub:SK.caps.members('codex').map(x=>x.id).includes('auditbench'),themes:document.querySelectorAll('.ab-th').length,
+  aramco:g.MATERIALITY.some(m=>m.report==='aramco-2025'&&m.currency==='SAR'),inTbr:!!window.SKosifAuditBench}});
+ok('البحث العالمي','المرجع العالمي للمراجعة صفحة في «المعايير والمدونة»',GB.hub);
+ok('البحث العالمي','مكتبة الأمور الرئيسية للمراجعة (96 أمراً من 49 تقريراً) بموضوعاتها',GB.reports===49&&GB.kams>=90&&GB.themes>=10);
+ok('البحث العالمي','الأهمية النسبية المفصح عنها بما فيها أرامكو (ريال)',GB.mat===7&&GB.aramco);
+ok('البحث العالمي','المصادر الرسمية الثلاثون',GB.src===30);
+await p.click('[data-ab-tab="mat"]');await p.waitForTimeout(400);ok('البحث العالمي','فحص اختيار الأهمية النسبية مقابل الممارسة',await has('.ab-chk-r'));
+ok('البحث العالمي','السوابق العالمية داخل ملف المراجعة',GB.inTbr);
 // ---------- demo, templates, outputs ----------
 const D=await p.evaluate(async()=>({demo:(await SK.demo.status()).filter(x=>x.demo).length,tpl:SK.templates.list().length,out:!!SK.output}));
 ok('البيانات والاستيراد','بيانات تجريبية للأقسام الفارغة',D.demo>=13);ok('البيانات والاستيراد','قوالب استيراد لكل قسم',D.tpl>=18);
