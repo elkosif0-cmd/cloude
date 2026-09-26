@@ -52,11 +52,12 @@ const item=(no,title,body,id)=>'<section class="rd-item" id="'+(id||"")+'"><h3><
 
 /* ---------- the auditor's report ---------- */
 function auditor(x){
-  const a=R().auditorsReport({company:x.ctx.company,periodEnd:x.periodEnd,framework:x.fw,opinion:x.opinion.opinion,basis:x.opinion.basis,kams:x.kams,goingConcern:x.opinion.goingConcern,approach:x.approach,
+  const a=R().auditorsReport({company:x.ctx.company,periodEnd:x.periodEnd,framework:x.fw,opinion:x.opinion.opinion,basis:x.opinion.basis,kams:x.kams,goingConcern:x.opinion.goingConcern,approach:x.approach,goingConcernSection:x.goingConcernSection,
     firm:x.ctx.auditFirm,partner:x.ctx.auditPartner,licence:x.ctx.auditLicence,city:x.ctx.auditCity});
   return '<article class="rd-doc rd-audit"><header class="rd-h"><small>'+(a.draft?'مسودة للمراجعة — لا تصدر قبل اعتماد الشريك':'')+'</small><h2>'+esc(a.title)+'</h2><p>'+esc(a.addressee)+'</p></header>'+
     a.sections.map(s=>'<section class="rd-sec"><h4>'+esc(s.title)+'</h4>'+s.paragraphs.map(p=>'<p>'+esc(p)+'</p>').join("")+kv(s.table)+
-      (s.kams?s.kams.map(k=>'<div class="rd-kam"><h5>'+esc(k.title)+'</h5><table class="rd-kt"><tr><th>وصف الأمر</th><td>'+esc(k.description)+'</td></tr><tr><th>كيف عالجنا الأمر في مراجعتنا</th><td>'+esc(k.how)+'</td></tr></table></div>').join(""):'')+'</section>').join("")+
+      (s.kams?s.kams.map(k=>'<div class="rd-kam"><h5>'+esc(k.title)+(k.trend==="new"?' <small class="rd-new">جديد</small>':'')+'</h5><table class="rd-kt"><tr><th>وصف الأمر</th><td>'+esc(k.description)+'</td></tr><tr><th>كيف عالجنا الأمر في مراجعتنا</th><td>'+esc(k.how)+'</td></tr>'+
+        (k.observation?'<tr><th>النتيجة</th><td>'+esc(k.observation)+'</td></tr>':'')+(k.refs&&k.refs.length?'<tr><th>مراجع</th><td>'+esc(k.refs.join(" · "))+'</td></tr>':'')+'</table></div>').join(""):'')+'</section>').join("")+
     '<footer class="rd-sign"><div><b>'+esc(a.signature.firm)+'</b><span>'+esc(a.signature.partner)+' — ترخيص رقم '+esc(a.signature.licence)+'</span></div><div><span>'+esc(a.signature.city)+'</span><span>'+esc(a.signature.date)+'</span></div></footer></article>';
 }
 
@@ -199,6 +200,7 @@ const CSS=`
 .rd-sub{display:block;color:#6a7a92;font-size:10.5px;font-weight:400}
 .rd-rng-c{width:160px}.rd-rng{position:relative;display:block;height:12px;min-width:120px}.rd-rng i{position:absolute;top:4px;height:4px;border-radius:2px;background:#cfd8e6}.rd-rng b{position:absolute;top:0;width:2px;height:12px;background:#0b2a5b}.rd-rng em{position:absolute;top:2px;width:8px;height:8px;margin-inline-start:-4px;border-radius:50%;background:#1668e3;box-shadow:0 0 0 2px #fff}
 @media (max-width:640px){.rd-toc2{columns:1}.rd-rng-c{display:none}}
+.rd-new{font-size:10.5px;font-weight:600;color:#0b6b3a;background:#e6f4ec;border-radius:6px;padding:1px 6px;margin-inline-start:6px}
 .rd-fig{margin:14px 0 18px;padding:12px 14px;border:1px solid #e3e9f2;border-radius:10px;break-inside:avoid;page-break-inside:avoid}
 .rd-fig h5{margin:0 0 8px;font-size:12.5px;color:#0b2a5b}
 .rd-doc{font-family:"IBM Plex Sans Arabic",var(--sk-font,system-ui);color:#14233a;line-height:1.85;font-size:13.5px}

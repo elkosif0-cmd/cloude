@@ -65,3 +65,21 @@ describe('report outputs in the style of Apple and Amazon', () => {
     expect(q.signature.city).toBe('القاهرة');
   });
 });
+
+import { auditorsReport as ar2 } from './annual-report-engine';
+describe('auditor report: the going-concern section (ISA 570 Revised 2024) with the audit approach', () => {
+  it('puts the going-concern conclusion after the basis and the approach before the key audit matters', () => {
+    const r = ar2({ company: 'شركة', framework: 'IFRS', opinion: 'unmodified', basis: [], kams: [{ title: 'ك', description: 'د', how: 'ه', observation: 'ن' }],
+      goingConcernSection: { title: 'الاستنتاجات المتعلقة بالاستمرارية', paragraphs: ['ملائم'] },
+      approach: { title: 'نهجنا في المراجعة', paragraphs: ['الأهمية'], table: { columns: ['', ''], rows: [['الأهمية النسبية العامة', '100']] } } });
+    const t = r.sections.map((x) => x.title);
+    expect(t.indexOf('الاستنتاجات المتعلقة بالاستمرارية')).toBeGreaterThan(t.indexOf('أساس الرأي'));
+    expect(t.indexOf('نهجنا في المراجعة')).toBeLessThan(t.indexOf('الأمور الرئيسية للمراجعة'));
+    expect(r.sections.find((x) => x.kams)!.kams![0].observation).toBe('ن');
+  });
+  it('a disclaimer carries neither the going-concern conclusion nor the approach', () => {
+    const r = ar2({ company: 'شركة', framework: 'IFRS', opinion: 'disclaimer', basis: ['تعذر'], kams: [],
+      goingConcernSection: { title: 'الاستنتاجات المتعلقة بالاستمرارية', paragraphs: ['ملائم'] }, approach: { title: 'نهجنا في المراجعة', paragraphs: [] } });
+    expect(r.sections.map((x) => x.title)).not.toContain('الاستنتاجات المتعلقة بالاستمرارية');
+  });
+});

@@ -579,7 +579,7 @@ body.skn-locked{overflow:hidden}
 :root:is([data-look="oasis"],[data-look="graphite"],[data-look="onyx"]) .rail input{background:color-mix(in srgb,var(--sk-rail-ink) 6%,transparent);color:var(--sk-rail-ink);border-color:color-mix(in srgb,var(--sk-rail-ink) 14%,transparent)}
 /* ---------- work flow strip (SK.flow) ---------- */
 .sk-ph{flex-wrap:wrap}
-.skflow{flex-basis:100%;display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--sk-line)}
+.skflow{flex-basis:100%;min-width:0;max-width:100%;display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--sk-line)}
 .skflow::-webkit-scrollbar{display:none}
 .skflow-l{flex:none;color:var(--sk-ink-3);font-size:var(--sk-fs-xs);font-weight:700;margin-inline:4px 2px}
 .skflow-c{flex:none;display:inline-flex;align-items:center;gap:5px;min-height:28px;padding:0 10px;border:1px solid var(--sk-line);border-radius:999px;background:var(--sk-surface-2);color:var(--sk-ink-2);font:inherit;font-size:var(--sk-fs-xs);font-weight:600;cursor:pointer}
@@ -655,3 +655,14 @@ body{line-height:1.65;-webkit-font-smoothing:antialiased;text-rendering:optimize
 .kx-views .kx-n{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin-inline-start:4px;border-radius:99px;background:var(--sk-brand);color:var(--sk-on-brand);font-style:normal;font-size:var(--sk-fs-2xs);font-weight:800}
 .kx-views .kx-tool{color:var(--sk-brand)}
 .tbr-sv-start{margin-bottom:10px}
+
+/* ledger: the journal's audit trail and the revenue reconciliation (ledger.js) */
+.lg-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:10px}
+.lg-kpis>div{display:grid;gap:2px;padding:10px 12px;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface-2,var(--sk-surface))}
+.lg-kpis small{color:var(--sk-ink-3);font-size:var(--sk-fs-xs);font-weight:700}
+.lg-kpis b{font-size:var(--sk-fs-l);font-weight:800;color:var(--sk-ink);font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis}
+.lg-kpis span{color:var(--sk-ink-2);font-size:var(--sk-fs-xs)}
+.lg-issues{margin:8px 0;padding-inline-start:18px;display:grid;gap:4px;font-size:var(--sk-fs-s)}
+.lg-warn,.lg-ok{margin:8px 0;padding:9px 12px;border-radius:var(--sk-r-s,8px);font-size:var(--sk-fs-s);line-height:1.7}
+.lg-warn{background:var(--sk-bad-soft);color:var(--sk-ink);border-inline-start:3px solid var(--sk-bad)}
+.lg-ok{background:var(--sk-ok-soft);color:var(--sk-ink);border-inline-start:3px solid var(--sk-ok)}
