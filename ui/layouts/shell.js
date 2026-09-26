@@ -201,6 +201,8 @@ function stripItems(id){
   /* «متقدم» only marks an advanced page inside a daily hub */
   const hubAdv=!SK.caps.hub(id).primary;
   if(pages.length>1)return{hub:true,items:pages.map(x=>({id:x.id,go:x.id,label:x.label,primary:x.primary||hubAdv,on:x.id===id}))};
+  /* accountant helpers can be numerous: their center/map is the domain navigation, not a 20-tab strip */
+  if(cap.group==="helpers")return{hub:false,items:[]};
   const items=SK.caps.hubsInGroup(cap.group).map(h=>[h,hubPages(h.id,id)]).filter(([,pg])=>pg.length)
     .map(([h,pg])=>({id:h.id,go:pg[0].id,label:h.hubLabel,primary:h.primary,on:pg.some(x=>x.id===id)}));
   return{hub:false,items};
