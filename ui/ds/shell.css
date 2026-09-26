@@ -488,3 +488,19 @@ body.skn-locked{overflow:hidden}
 .skd-f textarea{min-height:76px;resize:vertical}.skd-f small{color:var(--sk-ink-3)}
 .skd-f input:focus,.skd-f select:focus,.skd-f textarea:focus{outline:2px solid var(--sk-focus);outline-offset:1px}
 .skd-err{margin-top:var(--sk-2);color:var(--sk-bad)!important;font-weight:600}
+/* ---------- demo data strip (SK.demo) ---------- */
+.skdemo{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:0 0 var(--sk-3);padding:8px 12px;border:1px dashed color-mix(in srgb,var(--sk-warn) 55%,var(--sk-line));border-radius:var(--sk-r);background:color-mix(in srgb,var(--sk-warn-soft) 75%,var(--sk-surface));color:var(--sk-ink-2);font-size:var(--sk-fs-s)}
+.skdemo b{color:var(--sk-warn)}
+.skdemo>span:not(.skdemo-dot){flex:1 1 280px;min-width:0}
+.skdemo-dot{width:9px;height:9px;border-radius:50%;background:var(--sk-warn-mark);box-shadow:0 0 0 4px color-mix(in srgb,var(--sk-warn-mark) 22%,transparent)}
+.skdemo .btn.sm{min-height:30px}
+.skdemo-x{border:0;background:none;color:var(--sk-ink-3);font-size:18px;line-height:1;cursor:pointer;padding:2px 6px}
+.skdemo-panel{width:min(560px,100%)}
+.skdemo-panel .sk-table-wrap{max-height:52vh;overflow:auto;margin-top:var(--sk-3)}
+.skdemo-overlay{position:fixed;inset:0;z-index:600;display:grid;place-items:center;background:color-mix(in srgb,var(--sk-bg) 88%,transparent);backdrop-filter:blur(6px)}
+.skdemo-overlay>div{display:grid;justify-items:center;gap:10px;padding:28px 32px;border-radius:var(--sk-r-l);background:var(--sk-surface);box-shadow:var(--sk-shadow-3);text-align:center}
+.skdemo-overlay i{width:34px;height:34px;border-radius:50%;border:4px solid var(--sk-brand);border-inline-end-color:transparent;animation:skdemo-spin .8s linear infinite}
+.skdemo-overlay small{color:var(--sk-ink-3)}
+@keyframes skdemo-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.skdemo-overlay i{animation:none}}
+@media print{.skdemo{display:none}}
