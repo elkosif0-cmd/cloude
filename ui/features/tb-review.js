@@ -245,7 +245,7 @@ function studioTab(c){
   const views=window.SKosifAuditBridge?SKosifAuditBridge.STUDIO_VIEWS:[];
   return '<section class="card tbr-studio"><div class="card-h"><div><h3>الاستوديو المتقدم</h3><p>أدوات استوديو KOSIF للمراجعة على هذا الملف نفسه — ليست تطبيقاً آخر: أرسل ميزان الملف إلى الاستوديو ثم تنقّل بين صفحاته.</p></div>'+
     (c?'<div class="sk-actions"><button type="button" class="btn primary sm" data-a="studio-send"'+(c.tb.ok?'':' disabled')+'>إرسال ميزان الملف ('+c.tb.rows.length+' حساباً)</button></div>':'<div class="sk-actions"><button type="button" class="btn sm" data-tab="tb">استلام ميزان للملف</button></div>')+'</div>'+
-    '<div class="card-b"><div class="sk-seg tbr-sv" role="group" aria-label="صفحات الاستوديو">'+views.map(v=>'<button type="button" data-sv="'+v.view+'" aria-pressed="'+(studioView===v.view)+'" title="'+esc(v.sub)+'">'+esc(v.label)+'</button>').join("")+'</div></div></section>'+
+    '<div class="card-b"><div class="sk-actions tbr-sv-start"><button type="button" class="btn sm" data-a="studio-start" data-id="reviewDocumentCard">ابدأ من المستندات</button><button type="button" class="btn sm" data-a="studio-start" data-id="buildReportCard">ابدأ من المخرج (قائمة أو تقرير)</button></div><div class="sk-seg tbr-sv" role="group" aria-label="صفحات الاستوديو">'+views.map(v=>'<button type="button" data-sv="'+v.view+'" aria-pressed="'+(studioView===v.view)+'" title="'+esc(v.sub)+'">'+esc(v.label)+'</button>').join("")+'</div></div></section>'+
     '<div class="tbr-studio-host" data-studio-host></div>';
 }
 function studioRows(c){return c.tb.rows.map(r=>{const b=r.balance/100;return [r.code,r.name,b>0?b:0,b<0?-b:0,TI().TYPE_LABELS[r.type]||""]})}
@@ -571,6 +571,7 @@ function bind(node){
     const c=compute();if(!c)return;
     if(a==="print"){if(doc==="annual"||doc==="release"||doc==="auditor")printDoc(c,doc);else printReport(c);return}
     if(a==="letter-print"){printLetter(c);return}
+    if(a==="studio-start"){SKosifAuditBridge.studioAction(b.dataset.id);return}
     if(a==="studio-send"){SKosifAuditBridge.sendTB(studioRows(c),(c.d.ctx.period||"file").replace(/\s+/g,"-"));return}
     if(a==="sig-save"){put(readCtx(st()));toast("حُفظت بيانات التوقيع","ok");paint();return}
     if(a==="ecl-save"){const d=st(),b=RV().DEFAULT_ECL_BUCKETS.map((x,i)=>{const ex=root.querySelector('[data-ecl-x="'+i+'"]'),rt=root.querySelector('[data-ecl-r="'+i+'"]');

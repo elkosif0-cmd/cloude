@@ -38,8 +38,13 @@ function viewsBar(a){
   const root=a.host.shadowRoot;if(!root)return;const items=[...root.querySelectorAll("#mainNav .nav-item,.nav-list .nav-item")];if(!items.length)return;
   let bar=a.frame.previousElementSibling;if(!bar||!bar.classList.contains("kx-views")){bar=document.createElement("nav");bar.className="kx-views sk-seg";bar.setAttribute("aria-label","صفحات التحليل");a.frame.before(bar)}
   const cur=(items.find(x=>x.classList.contains("active"))||items[0]).dataset.view;
-  bar.innerHTML=items.map(x=>'<button type="button" data-kxv="'+x.dataset.view+'" aria-pressed="'+(x.dataset.view===cur)+'">'+(({"مركز القيادة":"نظرة عامة"})[(x.querySelector("span")||x).textContent.trim()]||(x.querySelector("span")||x).textContent.trim())+'</button>').join("");
-  bar.onclick=e=>{const b=e.target.closest("[data-kxv]");if(!b)return;const it=items.find(x=>x.dataset.view===b.dataset.kxv);if(it){it.click();bar.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)))}};
+  /* nothing of the hidden chrome is lost: page counts ride on the tabs, voice and the tool's command palette sit beside them */
+  const label=x=>{const t=(x.querySelector("span")||x).textContent.trim();return ({"مركز القيادة":"نظرة عامة"})[t]||t},badge=x=>{const n=x.querySelector(".nav-badge");const v=n?n.textContent.trim():"";return v&&v!=="0"&&v!=="—"?' <i class="kx-n">'+v+'</i>':""};
+  bar.innerHTML=items.map(x=>'<button type="button" data-kxv="'+x.dataset.view+'" aria-pressed="'+(x.dataset.view===cur)+'">'+label(x)+badge(x)+'</button>').join("")+
+    (root.getElementById("voiceTopButton")?'<button type="button" class="kx-tool" data-kxb="voiceTopButton" title="المحادثة الصوتية المباشرة (V)">🎙 صوتي</button>':"")+
+    (root.getElementById("paletteButton")?'<button type="button" class="kx-tool" data-kxb="paletteButton" title="أوامر أدوات التحليل">⌘ الأوامر</button>':"");
+  bar.onclick=e=>{const t=e.target.closest("[data-kxb]");if(t){const el=root.getElementById(t.dataset.kxb);if(el)el.click();return}
+    const b=e.target.closest("[data-kxv]");if(!b)return;const it=items.find(x=>x.dataset.view===b.dataset.kxv);if(it){it.click();bar.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)))}};
 }
 /* night mode follows the app */
 function syncTheme(){Object.values(state).forEach(a=>{const b=a.host.shadowRoot&&a.host.shadowRoot.querySelector(".kx-body");if(b)b.setAttribute("data-theme",document.documentElement.getAttribute("data-theme")==="dark"?"dark":"light")})}
@@ -171,9 +176,11 @@ function feedAnalytics(a){
   }catch(e){console.error("S.kosif analytics feed",e)}
 }
 /* the audit studio lives inside «مركز المراجعة» (tab «الاستوديو المتقدم»): mount it in the engagement's own tab */
+/* the studio's two starting points (its hidden welcome panel) from the engagement's tab */
+function studioAction(id){const r=state.studio&&state.studio.host.shadowRoot,el=r&&r.getElementById(id);if(el){el.click();return true}window.SK.toast("افتح الاستوديو أولاً","warn");return false}
 function mountStudio(node,view){open("studio",node,view||"overview","auditdesk");if((view||"overview")==="documents")node.insertBefore(tbPanel(),node.firstChild)}
 /* the operational trial balance (sales, supplier batches, payments, credit) for the TB review */
-window.SKosifAuditBridge=Object.freeze({buildTB,mountStudio,sendTB,STUDIO_VIEWS:SCREENS.filter(x=>x[1]==="studio").map(x=>({id:x[0],view:x[2],label:x[3],sub:x[4]}))});
+window.SKosifAuditBridge=Object.freeze({buildTB,mountStudio,sendTB,studioAction,STUDIO_VIEWS:SCREENS.filter(x=>x[1]==="studio").map(x=>({id:x[0],view:x[2],label:x[3],sub:x[4]}))});
 /* a studio page opened directly (search, deep link, old bookmark) opens the engagement's studio tab on that page */
 SCREENS.forEach(([id,key,view,title,sub,emoji,icon])=>window.SK.view(id,{title,sub,emoji,adv:true,icon:window.SK.icons[id]||icon,render(node){
   if(key==="studio"&&window.SKosifTBReview&&SKosifTBReview.studio){node.innerHTML='<div class="sk-empty kx-wait">يفتح «مركز المراجعة › الاستوديو المتقدم»…</div>';setTimeout(()=>SKosifTBReview.studio(view),0);return}

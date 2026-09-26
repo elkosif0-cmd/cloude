@@ -617,7 +617,7 @@ body{line-height:1.65;-webkit-font-smoothing:antialiased;text-rendering:optimize
 :where(#view) :where(input,select,textarea,button){font-family:inherit}
 :where(code,kbd,.mono){font-family:var(--sk-font-mono)}
 /* ---------- the analytics tool's pages as the app's own tabs ---------- */
-.kx-views{margin:0 0 var(--sk-3);flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.kx-views{position:relative;z-index:5;margin:0 0 var(--sk-3);flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
 .kx-views button{flex:0 0 auto;padding:0 12px;white-space:nowrap}
 /* ---------- «رحلة العمل» (how the app works) ---------- */
 .skjr{margin:0 0 var(--sk-4)}
@@ -632,3 +632,6 @@ body{line-height:1.65;-webkit-font-smoothing:antialiased;text-rendering:optimize
 @media (max-width:900px){.skjr ol{grid-template-columns:1fr 1fr}.skjr li::after{display:none}}
 @media (max-width:520px){.skjr ol{grid-template-columns:1fr}}
 @media print{.skjr{display:none}}
+.kx-views .kx-n{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin-inline-start:4px;border-radius:99px;background:var(--sk-brand);color:var(--sk-on-brand);font-style:normal;font-size:10.5px;font-weight:800}
+.kx-views .kx-tool{color:var(--sk-brand)}
+.tbr-sv-start{margin-bottom:10px}
