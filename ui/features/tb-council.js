@@ -92,6 +92,31 @@ function sync(d,c,m,reason,actor){
   d.engagement=e;return e;
 }
 
+/* ---------- Jev adjudication: choose the best-supported council opinion, never the accounting numbers ---------- */
+const JEV_API="https://aghnam-jev-api.kosif199022.workers.dev",JEV_SESSION="aghnamJevSession";
+async function jevAdjudicate(ops,dis,round,signal){
+  let token="";try{token=sessionStorage.getItem(JEV_SESSION)||""}catch{}
+  const valid=(ops||[]).filter(o=>!o.rejected&&o.position);
+  if(!token)return{available:false,reason:"جلسة Jev غير مفعلة"};
+  if(valid.length<2)return{available:false,reason:"لا توجد آراء كافية للتحكيم"};
+  const name=k=>(CN().MEMBERS.find(x=>x.key===k)||{ar:k}).ar;
+  const labels=valid.map((o,i)=>"رأي "+(i+1)+" — "+name(o.member)+": "+String(o.position).slice(0,220));
+  const state=[
+    "جولة مراجعة رقم "+round,
+    "المطلوب: ترجيح الرأي الأكثر اتساقاً مع الأدلة والاستشهادات فقط، لا إنشاء أرقام أو معالجات جديدة.",
+    "الآراء:",
+    ...valid.map((o,i)=>(i+1)+") "+name(o.member)+" | "+o.position+" | الأدلة: "+(o.citations||[]).join("، ")),
+    dis&&dis.length?"نقاط الخلاف: "+dis.map(x=>x.lineKey+"/"+x.assertion+" فارق "+x.spread).join("؛ "):"لا خلافات جوهرية مسجلة."
+  ].join("\n");
+  const payload={type:"choice",instructions:"اختر رأياً واحداً ليكون توصية التحكيم للمجلس. فضّل الرأي الذي يستند إلى أدلة صحيحة ومباشرة ويعالج المخاطر الجوهرية بوضوح. لا تغيّر الأرقام ولا تتجاوز قاعدة الاكتفاء الآلية أو اعتماد المراجع.",state:SK.redact?SK.redact(state):state,criteria:Object.fromEntries(labels.map(x=>[x,null]))};
+  const res=await fetch(JEV_API+"/api/jev",{method:"POST",headers:{"content-type":"application/json","authorization":"Bearer "+token},body:JSON.stringify(payload),signal});
+  const data=await res.json().catch(()=>({}));if(!res.ok||!data.ok)throw new Error(data.error||"تعذر تحكيم Jev");
+  const a=data.result?.answers?.decision||data.result?.decision||data.result||{};
+  const selected=a.choice??a.answer??a.selected??a.label??"";
+  const confidence=typeof a.confidence==="number"?a.confidence:null;
+  return{available:true,selected:String(selected).slice(0,500),confidence,at:new Date().toISOString()};
+}
+
 /* ---------- the council round ---------- */
 async function run(){
   const c=H.compute();if(!c||H.getBusy())return;
@@ -124,14 +149,20 @@ async function run(){
       }
       ops._dis=dis;
     }
-    say(members.length?"رئيس المجلس يقرر ويراجع المستندات…":"المراجع يراجع الميزان والمستندات…");
     const dis=ops._dis||[];
-    const api=await SKosifAI.generate(AI().buildRoundBody(withData,c.tb,c.base,{council:(members.length?CN().councilText(ops,dis)+"\n\n":"")+"سجل الأدلة المرقمة:\n"+CN().registerText(m.register)}),{signal:abort.signal,timeout:300000});
+    let jev={available:false,reason:"مجلس أحادي"};
+    if(members.length){
+      say("Jev يحكّم بين الآراء وفق الأدلة…");
+      try{jev=await jevAdjudicate(ops,dis,s.rounds.length+1,abort.signal)}catch(err){jev={available:false,reason:err.message||String(err)}}
+    }
+    say(members.length?"رئيس المجلس يراجع تحكيم Jev ويصدر توصيته…":"المراجع يراجع الميزان والمستندات…");
+    const jevText=jev.available?"\n\nتحكيم Jev (توصية ترجيح لا تتجاوز القواعد الآلية): "+jev.selected+(jev.confidence!=null?" · الثقة "+Math.round(jev.confidence*100)+"٪":""):"";
+    const api=await SKosifAI.generate(AI().buildRoundBody(withData,c.tb,c.base,{council:(members.length?CN().councilText(ops,dis)+jevText+"\n\n":"")+"سجل الأدلة المرقمة:\n"+CN().registerText(m.register)}),{signal:abort.signal,timeout:300000});
     const ex=AI().extractText(api);if(ex.blocked)throw new Error("رفض النموذج الرد لأسباب تتعلق بسياسة المحتوى.");
     const raw=AI().parseJsonLoose(ex.text);if(!raw)throw new Error("رد الرئيس لم يكن بالصيغة المتوقعة — أعد المحاولة.");
     d=H.st();s=H.session(d);
     const r=AI().normalizeRound(raw,s,c.tb,SKosifAI.conf().model,new Date(),new Set(m.register.map(x=>x.id)));
-    if(members.length)r.council={size,opinions:ops.map(o=>({...o})),disagreements:dis};
+    if(members.length)r.council={size,opinions:ops.map(o=>({...o})),disagreements:dis,jev};
     d.session=AI().addRound(s,r);H.put(d);
     const last=await afterRound({govern:true,dis,size});
     toast({sufficient:"اكتفاء — تُعد مسودة التقرير لاعتمادك",escalate:"تصعيد للمراجع: "+last.stop.reason.split("—")[0],continue:"انتهت الجولة "+last.no+": راجع الطلبات واعتمد إرسالها"}[last.stop.decision],last.stop.decision==="escalate"?"warn":"ok");
@@ -176,6 +207,7 @@ function roundExtras(r,c){
         (o.unsupportedNumbers&&o.unsupportedNumbers.length?'<p class="tbc-warnn">أرقام غير موجودة في الأدلة المستشهد بها: '+esc(o.unsupportedNumbers.join("، "))+' — وزن صوته نصف</p>':'')+
         '<div class="cites">'+o.citations.map(x=>'<span class="cite ok">'+esc(x)+'</span>').join("")+(o.unknownCitations||[]).map(x=>'<span class="cite bad">'+esc(x)+'</span>').join("")+'</div></article>'}).join("")+'</div>';
     if(r.council.disagreements&&r.council.disagreements.length)h+='<p class="hint">نقاط خلاف نوقشت: '+r.council.disagreements.map(x=>esc(x.lineKey+"/"+CF().assertionAr(x.assertion))+' (فارق '+x.spread+(x.split?'، انقسام':'')+')').join("؛ ")+'</p>';
+    if(r.council.jev)h+='<div class="tbc-jev '+(r.council.jev.available?'ok':'warn')+'"><b>تحكيم Jev</b><p>'+(r.council.jev.available?esc(r.council.jev.selected)+(r.council.jev.confidence!=null?' · ثقة '+Math.round(r.council.jev.confidence*100)+'٪':''):esc(r.council.jev.reason||'غير متاح'))+'</p><small>توصية ترجيح بين آراء المجلس فقط؛ قرار الاكتفاء يحكمه محرك الثقة واعتماد المراجع.</small></div>';
   }
   if(r.dissent&&r.dissent.length)h+='<h4>الآراء المخالفة غير المحسومة</h4><ul class="tbc-dis">'+r.dissent.map(x=>'<li><b>'+esc(x.member)+':</b> '+esc(x.note)+(x.citations.length?' <span class="cites">'+x.citations.map(z=>'<span class="cite ok">'+esc(z)+'</span>').join("")+'</span>':'')+'</li>').join("")+'</ul>';
   const asks=r.requests.filter(q=>q.round===r.no),approved=e.requestsApproved&&e.requestsApproved.includes(r.no);
