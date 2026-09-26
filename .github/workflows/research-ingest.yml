@@ -1,17 +1,16 @@
-# Temporary: reads a large research PDF from Google Drive into a temporary Cloudflare D1 database, page by page,
-# so its content can be studied and turned into features. Nothing from the document is committed. Remove after use.
+# Temporary: reads a large research PDF from Google Drive (shared by link) into page text, pushed to the temporary
+# branch research-tmp-ingest of this private repository for study, then that branch is deleted. Nothing from the
+# document reaches the app or its branches. Remove this workflow after use.
 name: Research ingest (temporary)
 on:
   push:
     branches: [claude/magical-maxwell-taj9xe]
     paths: ["tools/research/ingest-request.json"]
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: research-ingest
   cancel-in-progress: true
-env:
-  CLOUDFLARE_ACCOUNT_ID: "9ff3d8494afab356ecbf95a2a231a6b5"
 jobs:
   plan:
     runs-on: ubuntu-latest
@@ -21,26 +20,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: req
-        run: echo "mode=$(python3 -c 'import json;print(json.load(open("tools/research/ingest-request.json"))["mode"])')" >> "$GITHUB_OUTPUT"
-      - name: D1 write access
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN || secrets.CLOUDFLARE_TOKEN }}
-        run: python3 tools/research/ingest.py probe tools/research/ingest-request.json
+        run: |
+          R=tools/research/ingest-request.json
+          echo "mode=$(python3 -c "import json;print(json.load(open('$R'))['mode'])")" >> "$GITHUB_OUTPUT"
+          echo "id=$(python3 -c "import json;print(json.load(open('$R'))['fileId'])")" >> "$GITHUB_OUTPUT"
+          echo "size=$(python3 -c "import json;print(json.load(open('$R')).get('pagesPerJob',150))")" >> "$GITHUB_OUTPUT"
       - name: Download the PDF (the Drive file must be shared as "anyone with the link")
         run: |
-          ID=$(python3 -c 'import json;print(json.load(open("tools/research/ingest-request.json"))["fileId"])')
-          curl -sSL --retry 3 -o doc.pdf "https://drive.usercontent.google.com/download?id=$ID&export=download&confirm=t"
+          curl -sSL --retry 3 -o doc.pdf "https://drive.usercontent.google.com/download?id=${{ steps.req.outputs.id }}&export=download&confirm=t"
           ls -l doc.pdf
           head -c 5 doc.pdf | grep -q '%PDF' || { echo "::error::not a PDF - the Drive file is not shared by link"; head -c 300 doc.pdf; exit 1; }
       - name: Plan
         id: plan
         if: steps.req.outputs.mode == 'ingest'
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN || secrets.CLOUDFLARE_TOKEN }}
         run: |
           sudo apt-get -qq update && sudo apt-get -qq install -y poppler-utils >/dev/null
           pip install -q pypdf
-          python3 tools/research/ingest.py plan tools/research/ingest-request.json doc.pdf
+          python3 tools/research/ingest.py plan doc.pdf ${{ steps.req.outputs.size }} meta
       - uses: actions/upload-artifact@v4
         if: steps.req.outputs.mode == 'ingest'
         with:
@@ -48,6 +44,12 @@ jobs:
           path: doc.pdf
           retention-days: 1
           compression-level: 0
+      - uses: actions/upload-artifact@v4
+        if: steps.req.outputs.mode == 'ingest'
+        with:
+          name: meta
+          path: meta/
+          retention-days: 1
   extract:
     needs: plan
     if: needs.plan.outputs.mode == 'ingest'
@@ -63,6 +65,29 @@ jobs:
         with:
           name: doc
       - run: sudo apt-get -qq update && sudo apt-get -qq install -y poppler-utils tesseract-ocr tesseract-ocr-ara >/dev/null
-      - env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN || secrets.CLOUDFLARE_TOKEN }}
-        run: python3 tools/research/ingest.py extract tools/research/ingest-request.json doc.pdf ${{ matrix.range[0] }} ${{ matrix.range[1] }}
+      - run: |
+          F=$(printf 'p%05d-%05d.jsonl' ${{ matrix.range[0] }} ${{ matrix.range[1] }})
+          python3 tools/research/ingest.py extract doc.pdf ${{ matrix.range[0] }} ${{ matrix.range[1] }} "$F"
+          echo "F=$F" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: text-${{ matrix.range[0] }}
+          path: ${{ env.F }}
+          retention-days: 1
+  collect:
+    needs: extract
+    if: always() && needs.extract.result != 'skipped'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: "{text-*,meta}"
+          path: parts
+      - name: Push the text to the temporary branch research-tmp-ingest
+        run: |
+          mkdir -p out && find parts -name '*.jsonl' -exec cp {} out/ \; && cp parts/meta/* out/ 2>/dev/null || true
+          ls out | head; du -sh out
+          cd out && git init -q -b research-tmp-ingest && git config user.name "research-ingest" && git config user.email "research-ingest@users.noreply.github.com"
+          git add -A && git commit -q -m "Temporary research text (delete after study)"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" research-tmp-ingest
