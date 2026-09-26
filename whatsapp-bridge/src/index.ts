@@ -919,7 +919,8 @@ async function route(req: Request, env: Env): Promise<Response> {
   if (path === '/openapi.json') return json(openapi(url.origin));
   if (!(await authorized(req, url, env))) return json({ error: 'unauthorized' }, 401);
 
-  const wa = getContainer(env.WA, INSTANCE);
+  // Cast away Durable Object RPC serializer recursion here; WaBridge itself is typechecked above.
+  const wa = getContainer(env.WA, INSTANCE) as unknown as WaBridge;
 
   if (path === '/pair' && req.method === 'GET') return html(PAIR_HTML);
   if (path === '/dashboard' && req.method === 'GET') return html(DASHBOARD_HTML);
