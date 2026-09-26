@@ -32,12 +32,12 @@ async function seal(c){
   const gz=gzipOk(),body=gz?await pipe(plain,new CompressionStream("gzip")):plain;
   const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
   const ct=new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM",iv},await keyFor(c,salt,ITER),body));
-  const pkg={format:FORMAT,version:1,app:"S.kosif",createdAt:backup.createdAt,from:D().label(),counts:backup.counts,
+  const pkg={format:FORMAT,version:1,app:"SQC",createdAt:backup.createdAt,from:D().label(),counts:backup.counts,
     kdf:{name:"PBKDF2",hash:"SHA-256",iterations:ITER,salt:b64(salt)},cipher:{name:"AES-GCM",iv:b64(iv)},gz,data:b64(ct)};
   return{pkg,counts:backup.counts,bytes:plain.length};
 }
 async function open(pkg,c){
-  if(!pkg||pkg.format!==FORMAT)throw new Error("هذا ليس ملف نقل من KOSIF");
+  if(!pkg||pkg.format!==FORMAT)throw new Error("هذا ليس ملف نقل من SQC");
   let body;
   try{body=new Uint8Array(await crypto.subtle.decrypt({name:"AES-GCM",iv:unb64(pkg.cipher.iv)},await keyFor(c,unb64(pkg.kdf.salt),pkg.kdf.iterations),unb64(pkg.data)))}
   catch{throw new Error("رمز النقل غير صحيح، أو الملف تغيّر بعد إرساله")}
@@ -115,7 +115,7 @@ function laptopCard(){
     '<div class="sk-field"><span>القائمة الجانبية على الشاشات الواسعة</span><div class="sk-seg" role="group" id="dv-rail"><button type="button" data-railmode="full" aria-pressed="'+!mini+'">كاملة بالأسماء</button><button type="button" data-railmode="mini" aria-pressed="'+mini+'">أيقونات فقط</button></div></div>'+
     '<div class="dv-keys">'+top.map(([l,ks])=>'<div class="skd-keys"><span>'+esc(l)+'</span><span dir="ltr">'+ks.map(x=>'<kbd>'+esc(x)+'</kbd>').join(" ")+'</span></div>').join("")+'</div>'+
     '<div class="sk-actions"><button type="button" class="btn" data-dv="keys">'+SK.icon("keyboard")+' كل الاختصارات</button></div>'+
-    '<h4 class="dv-h4">روابط سريعة</h4><p class="hint">كل رابط يفتح KOSIF على شاشة أو إجراء مباشرة (بعد كلمة المرور). على الآيفون: ضعه في تطبيق «الاختصارات» بإجراء «فتح عناوين URL» ليعمل من Siri والشاشة الرئيسية. على اللابتوب: ضعه في المفضلة. وعند التثبيت تظهر أربعة منها بالضغط المطوّل على الأيقونة.</p>'+
+    '<h4 class="dv-h4">روابط سريعة</h4><p class="hint">كل رابط يفتح SQC على شاشة أو إجراء مباشرة (بعد كلمة المرور). على الآيفون: ضعه في تطبيق «الاختصارات» بإجراء «فتح عناوين URL» ليعمل من Siri والشاشة الرئيسية. على اللابتوب: ضعه في المفضلة. وعند التثبيت تظهر أربعة منها بالضغط المطوّل على الأيقونة.</p>'+
     '<div class="dv-links">'+links.map(([l,p])=>{const u=d.link(p);return '<div class="dv-link"><b>'+esc(l)+'</b><code dir="ltr">'+esc(u.replace(/^https?:\/\//,""))+'</code><button type="button" class="btn sm" data-dv="copy-link" data-u="'+esc(u)+'">نسخ</button></div>'}).join("")+'</div>'+
   '</div></section>';
 }
@@ -147,7 +147,7 @@ async function send(btn){
 async function deliver(mode){
   const out=$("#dv-send-out",root);if(!ready)return;
   const {file,counts}=ready;
-  const how=mode==="share"?await D().share({files:[file],title:"KOSIF — حزمة نقل",text:"حزمة نقل مشفرة من KOSIF ("+D().label()+"). افتحها من «الأجهزة والمزامنة» بالرمز الذي أرسلته لك منفصلاً."}):(SK.download(file.name,file),"downloaded");
+  const how=mode==="share"?await D().share({files:[file],title:"SQC — حزمة نقل",text:"حزمة نقل مشفرة من SQC ("+D().label()+"). افتحها من «الأجهزة والمزامنة» بالرمز الذي أرسلته لك منفصلاً."}):(SK.download(file.name,file),"downloaded");
   if(how==="cancelled"){toast("أُلغيت المشاركة — لم يُرسل شيء","info");return}
   const via={shared:"ورقة المشاركة",downloaded:"تنزيل ملف"}[how]||how;
   logEvent({dir:"out",keys:counts.keys,rows:rowsOf(counts),via});

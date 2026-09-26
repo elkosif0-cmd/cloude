@@ -1,4 +1,4 @@
-/** Curated knowledge catalogue for KOSIF Audit Studio. */
+/** Curated knowledge catalogue for SQC Audit Studio. */
 
 const standard = (id, framework, titleAr, titleEn, objective, triggers, recognition, measurement, presentation, disclosure, procedures, evidence, related = [], metadata = {}) => ({
   id, framework, titleAr, titleEn, objective, triggers, recognition, measurement, presentation, disclosure, procedures, evidence, related, ...metadata

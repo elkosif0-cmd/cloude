@@ -1,5 +1,5 @@
 /**
- * KOSIF Research Intelligence Extension
+ * SQC Research Intelligence Extension
  *
  * Deterministic planning helpers derived from recurring audit-report patterns in the
  * Global Financial & Audit Research Bundle. These functions support professional
@@ -186,7 +186,7 @@ function candidateOrder(rows, { method, seed, candidateCount, risks }) {
 }
 
 /**
- * Plan a substantive sample using a transparent KOSIF policy layer.
+ * Plan a substantive sample using a transparent SQC policy layer.
  *
  * The policy deliberately does NOT claim that ISA 530 prescribes a single formula.
  * Instead it operationalizes factors repeatedly disclosed in audit reports: performance
@@ -275,7 +275,7 @@ export function planAuditSample(inputRows = [], {
 
   return {
     id: planId,
-    policy: 'KOSIF deterministic research-informed sampling policy',
+    policy: 'SQC deterministic research-informed sampling policy',
     standardsContext: ['ISA 320', 'ISA 330', 'ISA 530'],
     finalJudgment: 'human-reviewer',
     humanApprovalRequired: true,
@@ -318,7 +318,7 @@ export function planAuditSample(inputRows = [], {
       'فصل البنود ذات الأهمية الفردية في طبقة فحص 100% قبل المعاينة.',
       'تحديد امتداد العينة المتبقية وفق أهمية الأداء والمخاطر وفعالية الضوابط ومخاطر التجميع والتحريف المتوقع.',
       'استخدام اختيار حتمي قابل لإعادة الإنتاج والتتبع بالبذرة المسجلة.',
-      'هذه سياسة تخطيط KOSIF قابلة للتعديل والاعتماد البشري وليست معادلة إلزامية منصوصًا عليها في ISA 530.'
+      'هذه سياسة تخطيط SQC قابلة للتعديل والاعتماد البشري وليست معادلة إلزامية منصوصًا عليها في ISA 530.'
     ]
   };
 }
@@ -425,7 +425,7 @@ export function projectSampleMisstatement(plan, testResults = [], {
     overallMaterialityMinor: overall,
     performanceMaterialityMinor: performance,
     projectionAvailable,
-    note: 'الإسقاط النسبي أداة تقييم تشغيلية داخل KOSIF؛ يجب على المراجع تقييم ملاءمة طريقة الإسقاط وطبيعة التحريفات قبل الاستنتاج.'
+    note: 'الإسقاط النسبي أداة تقييم تشغيلية داخل SQC؛ يجب على المراجع تقييم ملاءمة طريقة الإسقاط وطبيعة التحريفات قبل الاستنتاج.'
   };
 }
 
@@ -513,7 +513,7 @@ function componentShareBps(amount, total) {
 
 /**
  * Research-informed group-audit scoping screen. Percentage thresholds are explicit
- * KOSIF policy defaults, not standard-mandated cut-offs, and are reviewer-adjustable.
+ * SQC policy defaults, not standard-mandated cut-offs, and are reviewer-adjustable.
  */
 export function scopeGroupAuditComponents(inputComponents = [], {
   fullScopeShareBps = 1500,
@@ -585,7 +585,7 @@ export function scopeGroupAuditComponents(inputComponents = [], {
       fullScopeRiskScore: fullRisk,
       specificScopeRiskScore: specificRisk,
       reviewerAdjustable: true,
-      note: 'النسب حدود سياسة داخلية في KOSIF وليست نسبًا إلزامية مقررة في معيار المراجعة.'
+      note: 'النسب حدود سياسة داخلية في SQC وليست نسبًا إلزامية مقررة في معيار المراجعة.'
     },
     humanApprovalRequired: true
   };
@@ -605,7 +605,7 @@ export function evaluateControlRemediation(inputControls = [], { minimumSustaina
     else if (!control.operatingEffective) { status = 'operating_gap'; blockers.push('الفعالية التشغيلية غير مثبتة'); }
     else if (Number(control.sustainabilityEvidencePeriods ?? 0) < periods) {
       status = 'sustainability_monitoring';
-      blockers.push(`يلزم دليل استدامة عبر ${periods} فترات على الأقل وفق سياسة KOSIF الحالية`);
+      blockers.push(`يلزم دليل استدامة عبر ${periods} فترات على الأقل وفق سياسة SQC الحالية`);
     }
     return {
       ...control,
@@ -671,7 +671,7 @@ export function evaluateManagementOverride(input = {}) {
     procedures,
     openProcedureCount: open.length,
     conclusion: open.length
-      ? `خطر التجاوز ${risk === 'high' ? 'مرتفع' : risk === 'elevated' ? 'متزايد' : 'أساسي'} وما زالت ${open.length} استجابات إلزامية في خطة KOSIF غير موثقة.`
+      ? `خطر التجاوز ${risk === 'high' ? 'مرتفع' : risk === 'elevated' ? 'متزايد' : 'أساسي'} وما زالت ${open.length} استجابات إلزامية في خطة SQC غير موثقة.`
       : 'الاستجابات الأساسية لتجاوز الإدارة موثقة؛ يبقى تقييم كفاية الاختبار والحكم النهائي للمراجع.',
     standardsContext: ['ISA 240', 'ISA 330'],
     humanApprovalRequired: true
@@ -724,14 +724,14 @@ export function evaluateEclGovernance(input = {}) {
 }
 
 /**
- * Research-informed going-concern challenge checklist. Horizon is a KOSIF policy input;
+ * Research-informed going-concern challenge checklist. Horizon is a SQC policy input;
  * the engagement team must confirm the currently effective requirement in the Codex.
  */
 export function evaluateGoingConcern(input = {}, { minimumForecastMonths = 12 } = {}) {
   const minMonths = Math.max(1, Math.min(36, Math.trunc(Number(minimumForecastMonths) || 12)));
   const months = Math.max(0, Number(input.forecastMonths ?? 0));
   const checks = [
-    { id: 'horizon', label: `فترة توقع تغطي ${minMonths} شهرًا على الأقل وفق سياسة KOSIF الحالية`, pass: months >= minMonths },
+    { id: 'horizon', label: `فترة توقع تغطي ${minMonths} شهرًا على الأقل وفق سياسة SQC الحالية`, pass: months >= minMonths },
     { id: 'reconcile', label: 'توقع التدفقات مرتبط بميزانية/خطة معتمدة وبالأرقام التاريخية', pass: !!input.forecastReconciled },
     { id: 'facilities', label: 'تسهيلات التمويل الرئيسية مؤكدة وشروطها مفهومة', pass: !!input.fundingFacilitiesConfirmed },
     { id: 'covenants', label: 'الهامش المتاح قبل خرق التعهدات/الشروط تم اختباره', pass: !!input.covenantHeadroomTested },

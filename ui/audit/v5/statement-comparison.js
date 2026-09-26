@@ -1,4 +1,4 @@
-/** KOSIF V5 — Original vs Adjusted financial-statement comparison. */
+/** SQC V5 — Original vs Adjusted financial-statement comparison. */
 import { validateTrialBalance } from '../engine.js';
 import { buildFinancialStatements, STATEMENT_LAYOUT } from '../analytics.js';
 import { buildAdjustedTrialBalance } from './adjustment-ledger.js';

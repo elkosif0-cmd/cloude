@@ -27,7 +27,7 @@ function appContext(){
   const low=[...act].filter(i=>i.margin!=null).sort((a,b)=>a.margin-b.margin).slice(0,5);
   const inv=load("aghnam_v29_inventory",[]);
   const reorder=Array.isArray(inv)?inv.filter(x=>Number(x.stock)<=Number(x.reorderPoint||0)).length:0;
-  return ["ملخص S.kosif (أرقام مجمعة):",
+  return ["ملخص SQC (أرقام مجمعة):",
     "أصناف نشطة: "+act.length+" (خام "+act.filter(i=>i.kind==="raw").length+"، بوكسات "+act.filter(i=>i.kind==="box").length+")",
     "متوسط الهامش: "+(avg*100).toFixed(1)+"٪",
     "أصناف تحت الهامش المستهدف: "+below.length,
@@ -75,7 +75,7 @@ function bind(){
   $("#jev-clear",root).onclick=()=>{Object.assign(st,{q:"",c:"",ctx:"",result:null,status:""});paint()};
   const x=$("#jev-ctx-x",root);if(x)x.onclick=()=>{grab();st.ctx="";paint()};
   $("#jev-log-clear",root).onclick=async()=>{if(await SK.confirm("مسح سجل قرارات Jev بالكامل؟",{danger:true,ok:"مسح"})){save(LOG_KEY,[]);paint()}};
-  $("#jev-log-csv",root).onclick=()=>window.SK.csv.download("S.kosif-jev-"+new Date().toISOString().slice(0,10),["التاريخ","المصدر","السؤال","النتيجة"],load(LOG_KEY,[]).map(x=>[x.at,x.source||"",x.question||"",x.summary||""]));
+  $("#jev-log-csv",root).onclick=()=>window.SK.csv.download("SQC-jev-"+new Date().toISOString().slice(0,10),["التاريخ","المصدر","السؤال","النتيجة"],load(LOG_KEY,[]).map(x=>[x.at,x.source||"",x.question||"",x.summary||""]));
 }
 async function run(){
   grab();
@@ -83,7 +83,7 @@ async function run(){
   if(!token){st.status="!Jev غير مفعّل لهذه الجلسة. افتح التطبيق من شاشة كلمة المرور مرة أخرى.";return paint()}
   const q=st.q.trim();if(!q){st.status="!اكتب السؤال أولاً.";return paint()}
   const lines=st.c.split(/\n+/).map(s=>s.trim()).filter(Boolean);
-  const state=redact(["قرار داخل تطبيق S.kosif",st.ctx,st.attach?appContext():""].filter(Boolean).join("\n\n"));
+  const state=redact(["قرار داخل تطبيق SQC",st.ctx,st.attach?appContext():""].filter(Boolean).join("\n\n"));
   const payload={type:st.type,instructions:redact(q),state};
   if(st.type==="noul"){
     const y=lines.find(x=>/^نعم\s*[:：]/.test(x)),n=lines.find(x=>/^لا\s*[:：]/.test(x));

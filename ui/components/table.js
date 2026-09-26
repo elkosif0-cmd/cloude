@@ -150,7 +150,7 @@ function exportData(table){
   const name=((core()&&SK.caps.get(core().view())||{}).label||"جدول");
   return{heads:idx.map(i=>hs[i].textContent.trim()),rows:rows.map(r=>idx.map(i=>cellText(r.cells[i]))),name,idx};
 }
-const fileName=ext=>"KOSIF-"+((core()&&core().view())||"table")+"-"+new Date().toISOString().slice(0,10)+"."+ext;
+const fileName=ext=>"SQC-"+((core()&&core().view())||"table")+"-"+new Date().toISOString().slice(0,10)+"."+ext;
 function exportXlsx(table){
   const x=exportData(table);if(!window.SKXlsx||!SKXlsx.write)return exportCsv(table);
   SK.download(fileName("xlsx"),SKXlsx.write(x.name,x.heads,x.rows,{rtl:true}));SK.toast("صُدّر "+x.rows.length+" صفاً إلى Excel","ok");
@@ -181,7 +181,7 @@ function exportCsv(table){
   const idx=hs.map((h,i)=>i).filter(i=>!hid.has(hs[i].textContent.trim())&&hs[i].textContent.trim()&&!hs[i].classList.contains("act"));
   const q=norm(s.q),rows=orig.filter(r=>!q||norm(r.textContent).includes(q));
   const name=((core()&&SK.caps.get(core().view())||{}).label||"جدول")+"-"+new Date().toISOString().slice(0,10);
-  SK.csv.download("S.kosif-"+name,idx.map(i=>hs[i].textContent.trim()),rows.map(r=>idx.map(i=>cellText(r.cells[i]))));
+  SK.csv.download("SQC-"+name,idx.map(i=>hs[i].textContent.trim()),rows.map(r=>idx.map(i=>cellText(r.cells[i]))));
   SK.toast("صُدّر "+rows.length+" صفاً","ok");
 }
 let menu=null;

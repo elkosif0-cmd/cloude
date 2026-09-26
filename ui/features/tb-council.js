@@ -281,7 +281,7 @@ async function roundReport(no){
     '<h2>الآراء المخالفة غير المحسومة</h2>'+((r.dissent||[]).length?'<ul>'+r.dissent.map(x=>'<li><b>'+esc(x.member)+':</b> '+esc(x.note)+(x.citations.length?' ['+esc(x.citations.join("، "))+']':'')+'</li>').join("")+'</ul>':'<p>لا آراء مخالفة.</p>')+
     '<h2>قائمة فحص المراجع</h2><ul>'+CF().ROUND_CHECKLIST.map((t,i)=>'<li>'+(ck[i]?'☑':'☐')+' '+esc(t)+'</li>').join("")+'</ul>'+
     '<h2>نقطة الاعتماد</h2><p>'+(appr?'☑ اعتمد المراجع إرسال الطلبات للعميل — التاريخ: '+esc(fmtAt(appr.at))+' — الاسم: '+esc(appr.by):'☐ اعتمد المراجع إرسال الطلبات للعميل — التاريخ: ____ — الاسم: ____')+'</p>'+
-    '<p class="muted">القيم من محركات KOSIF؛ درجات الثقة محسوبة بالكود وليست من النموذج اللغوي.</p></body></html>');
+    '<p class="muted">القيم من محركات SQC؛ درجات الثقة محسوبة بالكود وليست من النموذج اللغوي.</p></body></html>');
   w.document.close();SK.brandPrint(w,title);setTimeout(()=>{try{w.focus();w.print()}catch{}},400);
 }
 function sendList(no){

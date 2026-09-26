@@ -1,4 +1,4 @@
-/** KOSIF V5 — source-backed detail builders for professional report sections. */
+/** SQC V5 — source-backed detail builders for professional report sections. */
 import { engagementAssertionCoverage } from './audit-coverage.js';
 const OPEN=new Set(['open','investigating','management-response','challenged']);
 const uniq=v=>[...new Set((v||[]).filter(Boolean))];

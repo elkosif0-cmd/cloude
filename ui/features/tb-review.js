@@ -14,9 +14,10 @@
 "use strict";
 const {esc,load,save,toast}=SK;
 const KEY="skosif_tbreview_v1",MAX_FILE=15*1024*1024,MAX_ROUND=18*1024*1024;
+const FW=()=>window.SKosifFieldwork&&window.SKEngines&&SKEngines.audit.fieldwork?window.SKosifFieldwork:null;
 const E=()=>window.SKEngines,RV=()=>E().audit.tbReview,AI=()=>E().audit.aiReview,DC=()=>E().audit.documentCheck,CX=()=>E().audit.codex,PG=()=>E().audit.programme,DS=()=>E().audit.disclosures;
 const TI=()=>E().reports.tbImport,FS=()=>E().reports.statements,AN=()=>E().reports.analysis,MN=()=>E().reports.money;
-const TABS=[["tb","الميزان والمعايير"],["ai","جولات المراجعة"],["conf","الثقة والمجلس"],["docs","المستندات"],["adj","التسويات والامتثال"],["fs","القوائم والتقارير"]];
+const TABS=[["tb","الميزان والمعايير"],["plan","العمل الميداني"],["ai","جولات المراجعة"],["conf","الثقة والمجلس"],["docs","المستندات"],["adj","التسويات والامتثال"],["close","الإكمال"],["fs","القوائم والتقارير"]];
 const CU=()=>window.SKosifCouncilUI;
 let root=null,tab="tb",filter="all",busy="",abort=null,cache=null,setup=false,fsAfter=true,doc="issue",confHTML={sig:"",h:""},confSeq=0;
 
@@ -80,7 +81,7 @@ async function booksTB(){
 async function loadTB(text,label,ctx){
   const tb=TI().parseTrialBalance(text);if(!tb.ok){toast("لم أتعرف على أعمدة الميزان","bad");return false}
   const d=st();
-  if(d.tbText&&d.session&&d.session.rounds&&d.session.rounds.length&&!await SK.confirm("توجد مراجعة جارية بجولات Gemini — استبدالها بميزان «"+label+"»؟",{danger:true,ok:"استبدال"}))return false;
+  if(d.tbText&&d.session&&d.session.rounds&&d.session.rounds.length&&!await SK.confirm("توجد مراجعة جارية بجولات المراجع الذكي — استبدالها بميزان «"+label+"»؟",{danger:true,ok:"استبدال"}))return false;
   Object.entries(ctx||{}).forEach(([k,v])=>{if(v)d.ctx[k]=v});
   d.tbText=text;d.loadedAt=new Date().toISOString();d.loadedFrom=label||"";fresh(d);put(d);await docClear();tab="tb";setup=false;
   SK.audit&&SK.audit.log("tbreview",{act:"import",source:label,accounts:tb.rows.length,balanced:tb.balanced});
@@ -101,16 +102,19 @@ window.SKosifTBReview=Object.freeze({fromBooks,booksTB,rows:()=>{const c=compute
 /* ---------- computation (memoized) ---------- */
 function compute(){
   const d=st();CUR=egypt(d)?"ج.م":"ر.س";if(!d.tbText)return null;
-  const sig=JSON.stringify([MN().fingerprint(d.tbText),d.overrides,d.ctx,d.materiality,d.session&&d.session.rounds.length,d.session&&d.session.unavailable,d.accepted,d.rejected,!!(d.session&&d.session.final),d.ecl,d.confirm]);
+  const sig=JSON.stringify([MN().fingerprint(d.tbText),d.overrides,d.ctx,d.materiality,d.session&&d.session.rounds.length,d.session&&d.session.unavailable,d.accepted,d.rejected,!!(d.session&&d.session.final),d.ecl,d.confirm,d.field&&d.field.so]);
   if(cache&&cache.sig===sig)return cache;
   const tb=TI().parseTrialBalance(d.tbText);
   const fw=egypt(d)?"EAS":d.ctx.framework,tax=egypt(d)?"income":"zakat";
   const opts={framework:fw,currency:CUR,overrides:d.overrides,materiality:d.materiality||undefined};
   let base=RV().reviewTrialBalance(tb,opts);
   const s=d.session;
-  if(s&&s.rounds.length){const ev=AI().evidenceFromSession(base,s);if(Object.keys(ev).length)base=RV().reviewTrialBalance(tb,{...opts,evidence:ev})}
+  /* evidence: the council's accepted documents and the working papers signed in the fieldwork tab (ISA 330) */
+  const FWE=E().audit.fieldwork,so=d.field&&d.field.so||{};
+  const fieldEv=FWE&&FWE.evidenceFromFieldwork&&Object.keys(so).length?FWE.evidenceFromFieldwork(FWE.workingPapers(base,{activity:d.ctx.activity||""}),so):{};
+  {const ev=AI().mergeEvidence(s&&s.rounds.length?AI().evidenceFromSession(base,s):{},fieldEv);if(Object.keys(ev).length)base=RV().reviewTrialBalance(tb,{...opts,evidence:ev})}
   const gem=s?s.rounds.flatMap(r=>r.findings):[];
-  const all=gem.length?RV().reviewTrialBalance(tb,{...opts,evidence:s?AI().evidenceFromSession(base,s):{},extraFindings:gem}):base;
+  const all=gem.length?RV().reviewTrialBalance(tb,{...opts,evidence:AI().mergeEvidence(s?AI().evidenceFromSession(base,s):{},fieldEv),extraFindings:gem}):base;
   const stdMap=s?AI().accountStandards(base,s):Object.fromEntries(base.accounts.map(a=>[a.code,a.standards.map(x=>x.code)]));
   const notes={};if(s)for(const r of s.rounds)for(const [code,v] of Object.entries(r.accountStandards))if(v.note)notes[code]=v.note;
   const eclM=d.ecl?RV().eclMatrix(d.ecl):null,eclA=eclM?RV().eclAdjustment(tb,eclM,fw):null;
@@ -118,14 +122,14 @@ function compute(){
   const accepted=pool.filter(a=>d.accepted.includes(a.id));
   const adjusted=accepted.length?RV().applyAdjustments(tb,accepted):tb;
   const fsBefore=base.fs,fsAfterAdj=accepted.length?FS().buildStatements(adjusted,d.overrides,{tax}):base.fs;
-  const derived=AI().deriveOpinion(tb,base,s||AI().newSession({...d.ctx,framework:fw}),accepted);
-  const evidence=s?AI().evidenceFromSession(base,s):{},c=d.ctx,cf=d.confirm;
+  const derived=AI().deriveOpinion(tb,base,s||AI().newSession({...d.ctx,framework:fw}),accepted,fieldEv);
+  const evidence=AI().mergeEvidence(s?AI().evidenceFromSession(base,s):{},fieldEv),c=d.ctx,cf=d.confirm;
   const disclosures=DS().disclosureReadiness({fs:fsAfterAdj,framework:fw,periodEnd:c.periodEnd,currency:CUR,confirm:{editionReviewed:cf.edition,complianceApproved:cf.compliance,unrecognizedReviewed:cf.unrecognized},
     entity:{legalName:c.company,legalForm:c.legalForm,country:egypt(d)?"مصر":"المملكة العربية السعودية",registeredOffice:c.registeredOffice,principalPlace:c.principalPlace,activities:c.activity}});
   const decided=pool.every(a=>d.accepted.includes(a.id)||d.rejected.includes(a.id));
   const programme=PG().auditProgramme({review:base,framework:fw,evidence,company:c.company,period:c.period,activity:c.activity,independenceConfirmed:cf.independence,partnerApproved:cf.partner,
     rounds:s?s.rounds.length:0,finalIssued:!!(s&&s.final),adjustmentsDecided:decided,disclosuresValid:disclosures.valid});
-  cache={sig,d,fw,tb,base,all,stdMap,notes,pool,accepted,adjusted,fsBefore,fsAfterAdj,derived,session:s,eclM,disclosures,programme,decided};
+  cache={sig,d,fw,tb,base,all,stdMap,notes,pool,accepted,adjusted,fsBefore,fsAfterAdj,derived,session:s,eclM,disclosures,programme,decided,fieldEv};
   return cache;
 }
 const session=d=>d.session||AI().newSession(d.ctx,window.SKosifAI?SKosifAI.conf().model:AI().DEFAULT_MODEL);
@@ -133,12 +137,12 @@ const session=d=>d.session||AI().newSession(d.ctx,window.SKosifAI?SKosifAI.conf(
 /* ---------- header: steps ---------- */
 function stepper(c){
   const s=c&&c.session,rounds=s?s.rounds.length:0,out=s?AI().outstanding(s).length:0,decided=c?c.pool.every(a=>c.d.accepted.includes(a.id)||c.d.rejected.includes(a.id)):false;
-  const steps=[["استلام الميزان",!!c],["المعايير لكل حساب",!!c&&c.tb.ok],["مراجعة Gemini",rounds>0],["المستندات",rounds>0&&!out],["التسويات والامتثال",!!c&&decided],["التقارير",!!(s&&s.final)]];
+  const steps=[["استلام الميزان",!!c],["المعايير لكل حساب",!!c&&c.tb.ok],["مراجعة الذكاء الاصطناعي",rounds>0],["المستندات",rounds>0&&!out],["التسويات والامتثال",!!c&&decided],["التقارير",!!(s&&s.final)]];
   const cur=steps.findIndex(x=>!x[1]);
   return '<ol class="tbr-steps">'+steps.map(([l,done],i)=>'<li class="'+(done?"done":i===cur?"cur":"")+'"><i>'+(done?"✓":i+1)+'</i><span>'+esc(l)+'</span></li>').join("")+'</ol>';
 }
 function hero(c){
-  const d=c?c.d:st(),ctx=d.ctx,s=c&&c.session,state=s?AI().sessionState(s):{label:c?"الميزان جاهز — ابدأ جولة Gemini أو تابع بالمحرك الآلي":"ابدأ باستلام ميزان المراجعة"};
+  const d=c?c.d:st(),ctx=d.ctx,s=c&&c.session,state=s?AI().sessionState(s):{label:c?"الميزان جاهز — ابدأ جولة المراجع الذكي أو تابع بالمحرك الآلي":"ابدأ باستلام ميزان المراجعة"};
   return '<section class="tbr-hero"><div class="tx"><span class="eyebrow">مراجعة الحسابات بالمعايير</span><h2>'+esc(ctx.company||"منشأة جديدة")+'</h2><p>'+esc([ctx.period,FW_LABEL[egypt(d)?"EAS":ctx.framework],ctx.activity].filter(Boolean).join(" · "))+'</p>'+
     '<p class="tbr-state">'+esc(state.label)+'</p></div><div class="sk-actions">'+(c?'<button type="button" class="btn sm" data-a="setup">بيانات المراجعة</button><button type="button" class="btn sm" data-a="reset">مراجعة جديدة</button>':'')+'</div></section>'+stepper(c)+
     (c?'<div class="tbr-tabs" role="tablist">'+TABS.map(([k,l])=>'<button type="button" role="tab" data-tab="'+k+'" aria-selected="'+(tab===k)+'">'+esc(l)+badge(c,k)+'</button>').join("")+'</div>':'');
@@ -189,14 +193,14 @@ function tbTab(c){
       tile(c.tb.balanced?"check":"alert",c.tb.balanced?"ok":"bad",'التوازن',c.tb.balanced?'متوازن':'غير متوازن',c.tb.balanced?'مدين = دائن '+sar(c.tb.totals.debit):'الفرق '+sar(c.tb.difference))+
       tile("calc","warn",'الأهمية النسبية',sar(m.overall),m.benchmarkAr+' × '+(m.rate*100)+'% · التنفيذية '+sar(m.performance))+
       tile("risks",b.summary.high?"bad":"ok",'الملاحظات',b.findings.length,b.summary.high+' عالية · '+b.summary.medium+' متوسطة')+
-    '</div>'+
-    (topF.length?'<section class="card"><div class="card-h"><div><h3>أهم ما اكتشفته المراجعة</h3><p>المحرك الآلي'+(c.session&&c.session.rounds.length?' و Gemini':'')+' — كل ملاحظة بأساسها الرقمي ومعيارها.</p></div></div><div class="card-b tbr-flist">'+topF.map(fItem).join("")+'</div></section>':'')+
+    '</div>'+(window.SKosifAuditBench?SKosifAuditBench.materialityNote(m):'')+
+    (topF.length?'<section class="card"><div class="card-h"><div><h3>أهم ما اكتشفته المراجعة</h3><p>المحرك الآلي'+(c.session&&c.session.rounds.length?' و المراجع الذكي':'')+' — كل ملاحظة بأساسها الرقمي ومعيارها.</p></div></div><div class="card-b tbr-flist">'+topF.map(fItem).join("")+'</div></section>':'')+
     '<section class="card"><div class="card-h"><div><h3>الحسابات ومعاييرها</h3><p>اضغط رقم المعيار بجوار الحساب لتعرف علاقته بالحساب ومتطلباته ومصدره الرسمي.</p></div><div class="sk-seg">'+[["all","الكل"],["flag","عليها ملاحظات"],["map","تحتاج تبويب"]].map(([v,l])=>'<button type="button" data-flt="'+v+'" aria-pressed="'+(filter===v)+'">'+l+'</button>').join("")+'</div></div>'+
     '<div class="card-b tbr-tw"><table class="sk-table tbr-t"><thead><tr><th>الرقم</th><th>الحساب</th><th>البند في القوائم</th><th>الرصيد</th><th>السابق</th><th>التغير</th><th>المعايير</th><th>ملاحظات</th></tr></thead><tbody>'+rows.map(row).join("")+'</tbody></table></div></section>';
 }
 function fItem(f){
   return '<div class="tbr-fi"><span class="sev '+sevCls(f.severity)+'"></span><div class="tx"><b>'+esc(f.title)+(f.account?' — '+esc(f.account):'')+'</b><small>'+esc(f.detail)+'</small><small class="tbr-basis">'+esc(f.basis)+' · الإجراء: '+esc(f.action)+'</small></div>'+
-    '<div class="tbr-fi-m"><button type="button" class="std-b '+famCls(f.standard)+'" data-std="'+esc(f.standard)+'"'+(f.code?' data-acc="'+esc(f.code)+'"':'')+'>'+esc(f.standard)+'</button><span class="tbr-src">'+(f.source==="gemini"?'Gemini ج'+f.round:'المحرك')+'</span>'+
+    '<div class="tbr-fi-m"><button type="button" class="std-b '+famCls(f.standard)+'" data-std="'+esc(f.standard)+'"'+(f.code?' data-acc="'+esc(f.code)+'"':'')+'>'+esc(f.standard)+'</button><span class="tbr-src">'+(f.source==="gemini"?'المراجع الذكي ج'+f.round:'المحرك')+'</span>'+
     (SK.flow?SK.flow.actions({title:f.title+(f.account?' — '+f.account:''),detail:f.detail+' ('+f.standard+')',sev:f.severity,cap:"tbreview"}):'')+'</div></div>';
 }
 
@@ -206,17 +210,18 @@ function aiTab(c){
   const next=s?s.rounds.length+1:1,size=CU()?Number(c.d.councilSize)||1:1;
   let action="";
   if(ready){
-    if(state.state==="start"||state.state==="ready"||state.state==="awaiting-docs")action='<button type="button" class="btn primary" data-a="round"'+(busy?' disabled':'')+'>'+(busy==="round"?'Gemini يراجع…':busy==="council"?'المجلس منعقد…':(size>1?'اعقد المجلس — ':'')+(state.state==="start"?'ابدأ الجولة الأولى':'أرسل للجولة '+next))+'</button>';
+    if(state.state==="start"||state.state==="ready"||state.state==="awaiting-docs")action='<button type="button" class="btn primary" data-a="round"'+(busy?' disabled':'')+'>'+(busy==="round"?'المراجع الذكي يراجع…':busy==="council"?'المجلس منعقد…':(size>1?'اعقد المجلس — ':'')+(state.state==="start"?'ابدأ الجولة الأولى':'أرسل للجولة '+next))+'</button>';
     if(s&&s.rounds.length)action+='<button type="button" class="btn'+(state.state==="complete"||state.state==="limit"?' primary':'')+'" data-a="final"'+(busy?' disabled':'')+'>'+(busy==="final"?'يُعد التقرير…':s.final?'إعادة إصدار التقرير النهائي':'إصدار التقرير النهائي')+'</button>';
+    if(ready)action+='<button type="button" class="btn" data-a="full-audit"'+(busy?' disabled':'')+' title="جولة مراجعة (أو المجلس) ثم التقرير النهائي ثم التقرير السنوي المتكامل بصياغة الذكاء الاصطناعي">'+(busy==="full"?esc(fullStep||"المراجعة الكاملة جارية…"):'✦ المراجعة الكاملة حتى التقرير المتكامل')+'</button>';
     if(busy)action+='<button type="button" class="btn danger" data-a="cancel">إلغاء</button>';
   }
   const rounds=s?s.rounds.slice().reverse():[];
   return (ready?'':SKosifAI.cardHTML()+'<p class="hint tbr-pad">بدون مفتاح تعمل المراجعة بالمحرك الآلي: المعايير والملاحظات والطلبات والقيود والقوائم متاحة في بقية التبويبات.</p>')+
-    '<section class="card tbr-run"><div class="card-b"><div class="tbr-run-h"><div><b>'+esc(state.label)+'</b><small>'+(s?s.rounds.length+' جولة · '+AI().outstanding(s).length+' مستند مطلوب · '+AI().pendingUploads(s).length+' مرفوع للجولة القادمة':(size>1?'يعرض الميزان وسجل الأدلة المرقمة على '+(size-1)+' أعضاء بآراء مستقلة، ثم يقرر الرئيس — والقرار النهائي من درجات الثقة المحسوبة.':'يرسل الميزان ونتائج المحرك الآلي إلى Gemini ليراجعها بصفة مجلس من ثلاثة مراجعين.'))+'</small></div><div class="sk-actions">'+action+'</div></div>'+
-      (CU()?CU().aiControls(c)+(ready?'':'<p class="hint">المجلس يحتاج مفتاح Gemini (أدناه)؛ بدونه تعمل المراجعة بالمحرك الآلي.</p>'):'')+
-      (busy&&busy!=="council"?'<div class="tbr-busy"><i></i><span>'+(busy==="round"?'يراجع Gemini الميزان والمستندات — قد يستغرق دقيقة أو أكثر.':'يُعد Gemini التقرير النهائي…')+'</span></div>':'')+'</div></section>'+
+    '<section class="card tbr-run"><div class="card-b"><div class="tbr-run-h"><div><b>'+esc(state.label)+'</b><small>'+(s?s.rounds.length+' جولة · '+AI().outstanding(s).length+' مستند مطلوب · '+AI().pendingUploads(s).length+' مرفوع للجولة القادمة':(size>1?'يعرض الميزان وسجل الأدلة المرقمة على '+(size-1)+' أعضاء بآراء مستقلة، ثم يقرر الرئيس — والقرار النهائي من درجات الثقة المحسوبة.':'يرسل الميزان ونتائج المحرك الآلي إلى المراجع الذكي ليراجعها بصفة مجلس من ثلاثة مراجعين.'))+'</small></div><div class="sk-actions">'+action+'</div></div>'+
+      (CU()?CU().aiControls(c)+(ready?'':'<p class="hint">المجلس يحتاج مفتاح الذكاء الاصطناعي (Gemini أو OpenAI أو Claude) (أدناه)؛ بدونه تعمل المراجعة بالمحرك الآلي.</p>'):'')+
+      (busy&&busy!=="council"?'<div class="tbr-busy"><i></i><span>'+(busy==="round"?'يراجع المراجع الذكي الميزان والمستندات — قد يستغرق دقيقة أو أكثر.':'يُعد المراجع الذكي التقرير النهائي…')+'</span></div>':'')+'</div></section>'+
     rounds.map(r=>roundCard(r,c)).join("")+
-    (ready?'<details class="tbr-key"><summary>إعداد Gemini (المفتاح والنموذج)</summary>'+SKosifAI.cardHTML()+'</details>':'');
+    (ready?'<details class="tbr-key"><summary>إعداد المراجع الذكي (المفتاح والنموذج)</summary>'+SKosifAI.cardHTML()+'</details>':'');
 }
 function roundCard(r,c){
   const today=new Date().toISOString().slice(0,10),ctx=c.d.ctx;
@@ -270,8 +275,8 @@ function reqRow(q,c){
 }
 function docsTab(c){
   const s=c.session,gem=s?[...new Map(s.rounds.flatMap(r=>r.requests).map(q=>[q.id,q])).values()]:[];
-  return '<section class="card"><div class="card-h"><div><h3>طلبات Gemini</h3><p>'+(gem.length?gem.length+' طلباً عبر الجولات. ارفع المستند ثم أرسل الجولة التالية من تبويب «جولات المراجعة».':'تظهر هنا بعد الجولة الأولى.')+'</p></div></div><div class="card-b tbr-reqs">'+(gem.map(q=>reqRow(q,c)).join("")||'<p class="empty">لا طلبات بعد.</p>')+'</div></section>'+
-    '<section class="card"><div class="card-h"><div><h3>قائمة المستندات المطلوبة من العميل (PBC)</h3><p>أعدها المحرك الآلي حسب البنود والمخاطر — '+c.base.requests.length+' مستنداً. ما ترفعه هنا يُرسل أيضاً إلى Gemini في الجولة التالية.</p></div><div class="sk-actions"><button type="button" class="btn sm" data-a="pbc-csv">تصدير القائمة</button></div></div><div class="card-b tbr-reqs">'+c.base.requests.map(q=>reqRow(q,c)).join("")+'</div></section>';
+  return '<section class="card"><div class="card-h"><div><h3>طلبات المراجع الذكي</h3><p>'+(gem.length?gem.length+' طلباً عبر الجولات. ارفع المستند ثم أرسل الجولة التالية من تبويب «جولات المراجعة».':'تظهر هنا بعد الجولة الأولى.')+'</p></div></div><div class="card-b tbr-reqs">'+(gem.map(q=>reqRow(q,c)).join("")||'<p class="empty">لا طلبات بعد.</p>')+'</div></section>'+
+    '<section class="card"><div class="card-h"><div><h3>قائمة المستندات المطلوبة من العميل (PBC)</h3><p>أعدها المحرك الآلي حسب البنود والمخاطر — '+c.base.requests.length+' مستنداً. ما ترفعه هنا يُرسل أيضاً إلى المراجع الذكي في الجولة التالية.</p></div><div class="sk-actions"><button type="button" class="btn sm" data-a="pbc-csv">تصدير القائمة</button></div></div><div class="card-b tbr-reqs">'+c.base.requests.map(q=>reqRow(q,c)).join("")+'</div></section>';
 }
 
 /* ---------- tab 4: adjustments and compliance ---------- */
@@ -290,7 +295,7 @@ function adjTab(c){
   const eff=c.accepted.length?RV().adjustmentEffect(c.tb,c.accepted):{profit:0,assets:0,equity:0};
   const un=uncorr.length?RV().adjustmentEffect(c.tb,uncorr):{profit:0};
   const card=a=>{const v=RV().validateAdjustment(a,c.tb),on=d.accepted.includes(a.id),off=d.rejected.includes(a.id);
-    return '<div class="tbr-adj'+(on?' on':off?' off':'')+'"><div class="tbr-adj-h"><div><b><span class="mono">'+esc(a.id)+'</span> '+esc(a.title)+'</b><small>'+esc(a.reason)+'</small></div><div class="tbr-adj-m"><button type="button" class="std-b '+famCls(CX().normalizeCode(a.standard)||"")+'" data-std="'+esc(CX().normalizeCode(a.standard)||a.standard)+'">'+esc(a.standard)+'</button><span class="tbr-src">'+(a.source==="gemini"?"Gemini"+(a.round?" ج"+a.round:""):"المحرك")+'</span>'+(a.estimate?'<span class="sksev warn">تقديري</span>':'')+'<span class="sksev '+(v.balanced?"ok":"bad")+'">'+(v.balanced?"متوازن":"غير متوازن")+'</span></div></div>'+
+    return '<div class="tbr-adj'+(on?' on':off?' off':'')+'"><div class="tbr-adj-h"><div><b><span class="mono">'+esc(a.id)+'</span> '+esc(a.title)+'</b><small>'+esc(a.reason)+'</small></div><div class="tbr-adj-m"><button type="button" class="std-b '+famCls(CX().normalizeCode(a.standard)||"")+'" data-std="'+esc(CX().normalizeCode(a.standard)||a.standard)+'">'+esc(a.standard)+'</button><span class="tbr-src">'+(a.source==="gemini"?"المراجع الذكي"+(a.round?" ج"+a.round:""):"المحرك")+'</span>'+(a.estimate?'<span class="sksev warn">تقديري</span>':'')+'<span class="sksev '+(v.balanced?"ok":"bad")+'">'+(v.balanced?"متوازن":"غير متوازن")+'</span></div></div>'+
       '<table class="sk-table tbr-jl" data-sk-plain><thead><tr><th>الحساب</th><th>مدين</th><th>دائن</th></tr></thead><tbody>'+a.lines.map(l=>'<tr><td><span class="mono">'+esc(l.code)+'</span> '+esc(l.name)+(v.newAccounts.some(n=>n.startsWith(l.code+" "))?' <span class="sksev info">حساب جديد</span>':'')+'</td><td class="num">'+(l.debit?m0(l.debit):'')+'</td><td class="num">'+(l.credit?m0(l.credit):'')+'</td></tr>').join("")+
       '<tr class="tot"><td>المجموع</td><td class="num">'+m0(v.debit)+'</td><td class="num">'+m0(v.credit)+'</td></tr></tbody></table>'+
       '<div class="sk-actions"><button type="button" class="btn sm '+(on?'primary':'')+'" data-adj="accept" data-id="'+esc(a.id)+'"'+(v.valid?'':' disabled')+'>'+(on?'✓ معتمد':'اعتماد القيد')+'</button><button type="button" class="btn sm" data-adj="reject" data-id="'+esc(a.id)+'">'+(off?'مرفوض':'رفض')+'</button></div></div>'};
@@ -305,7 +310,7 @@ function adjTab(c){
     '<section class="card"><div class="card-h"><div><h3>قيود التسوية المقترحة</h3><p>كل قيد متوازن ومتحقق من حساباته قبل عرضه؛ المعتمد منها يدخل في القوائم «بعد التسويات».</p></div><div class="sk-actions"><button type="button" class="btn sm" data-a="jev-adj"'+(c.pool.length>1?'':' disabled')+'>'+SK.icon("jev")+' أولوية القيود مع Jev</button><button type="button" class="btn sm" data-a="adj-csv">تصدير القيود</button></div></div><div class="card-b">'+(c.pool.map(card).join("")||'<p class="empty">لا قيود مقترحة — لم يظهر ما يستوجب التسوية من الأرقام.</p>')+'</div></section>'+
     '<section class="card"><div class="card-h"><div><h3>مناقشة الامتثال للمعايير</h3><p>لكل معيار: الحسابات التي يحكمها، الملاحظات، الأدلة المنتظرة، والحكم.</p></div></div><div class="card-b tbr-comp">'+
       comp.map(x=>'<div class="tbr-ci"><div class="tbr-ci-h"><button type="button" class="std-b '+famCls(x.code)+'" data-std="'+esc(x.code)+'">'+esc(x.code)+'</button><b>'+esc(x.title)+'</b><span class="sksev '+(x.status==="ممتثل"?"ok":x.status==="غير ممتثل"?"bad":x.status==="ممتثل جزئياً"?"warn":"info")+'">'+esc(x.status)+'</span></div><p>'+esc(x.discussion)+'</p></div>').join("")+
-      (c.session&&c.session.final&&c.session.final.compliance.length?'<h4>رأي Gemini في الامتثال (التقرير النهائي)</h4>'+c.session.final.compliance.map(x=>'<div class="tbr-ci"><div class="tbr-ci-h"><button type="button" class="std-b '+famCls(x.standardCode)+'" data-std="'+esc(x.standardCode)+'">'+esc(x.standardCode)+'</button><span class="sksev '+(x.status==="ممتثل"?"ok":x.status==="غير ممتثل"?"bad":"warn")+'">'+esc(x.status)+'</span></div><p>'+esc(x.discussion)+'</p></div>').join(""):'')+
+      (c.session&&c.session.final&&c.session.final.compliance.length?'<h4>رأي المراجع الذكي في الامتثال (التقرير النهائي)</h4>'+c.session.final.compliance.map(x=>'<div class="tbr-ci"><div class="tbr-ci-h"><button type="button" class="std-b '+famCls(x.standardCode)+'" data-std="'+esc(x.standardCode)+'">'+esc(x.standardCode)+'</button><span class="sksev '+(x.status==="ممتثل"?"ok":x.status==="غير ممتثل"?"bad":"warn")+'">'+esc(x.status)+'</span></div><p>'+esc(x.discussion)+'</p></div>').join(""):'')+
     '</div></section>';
 }
 
@@ -334,41 +339,84 @@ function stmt(rows,hasPrior,cls=""){
 function kamsOf(c){
   const f=c.session&&c.session.final;
   if(f&&f.kams.length)return f.kams;
-  const ev=c.session?AI().evidenceFromSession(c.base,c.session):{};
-  return c.base.risks.filter(r=>r.significant).slice(0,3).map(r=>({title:r.ar,
-    why:'بلغ رصيد '+r.ar+' '+sar(r.amount)+'، وقُيّم خطره بدرجة '+r.score+' من 100 لأن '+r.risk+(r.parts.estimate>=15?' ويتضمن تقديرات محاسبية تتطلب حكماً مهنياً (ISA 540)':'')+'. لذلك عُدّ من الأمور ذات الأهمية القصوى في مراجعتنا.',
-    how:'شملت إجراءاتنا: '+r.procedures.join('؛ ')+'.'+(ev[r.lineKey]==="accepted"?' وحصلنا على المستندات المؤيدة وقيّمناها في جولات المراجعة.':ev[r.lineKey]==="partial"?' وما زالت بعض المستندات المؤيدة قيد الاستكمال.':'')}));
+  const ev=AI().mergeEvidence(c.session?AI().evidenceFromSession(c.base,c.session):{},c.fieldEv||{}),GB=E().audit.globalBenchmarks;
+  const sector=GB?GB.sectorFromActivity(c.d.ctx.activity||""):"",end=fmtDate(c.d.ctx.periodEnd,c.fw==="EAS");
+  /* the matters of most significance (ISA 701), written as the bundle's auditors write them (Aramco p 10164): why the
+     matter needs judgement and the carrying amount; then the procedures — the line's own and those the global auditors
+     performed on the same theme — ending with the evidence obtained */
+  return c.base.risks.filter(r=>r.significant).sort((a,b)=>(b.parts.size+b.parts.estimate+b.parts.change+b.parts.nature)-(a.parts.size+a.parts.estimate+a.parts.change+a.parts.nature)).slice(0,3).map(r=>{
+    const pr=GB?GB.precedentsFor(r.lineKey,{sector,limit:2})[0]:null;
+    const steps=[...new Set([...r.procedures,...(pr?pr.procedures:[])].map(x=>x.replace(/[.،؛]\s*$/,"")))].slice(0,6);
+    return {title:r.ar,
+      why:(pr?pr.why+' ':'')+'بلغ رصيد '+r.ar+' '+sar(r.amount)+(end?' كما في '+end:'')+'، وتتركز مخاطره في '+r.risk+(r.parts.estimate>=15?'، ويتضمن تقديرات محاسبية تتطلب حكماً مهنياً مهماً (ISA 540)':'')+'. لذلك عُدّ من الأمور ذات الأهمية القصوى في مراجعتنا.',
+      how:'شملت إجراءاتنا: '+steps.join('؛ ')+'.'+(ev[r.lineKey]==="accepted"?' وحصلنا على أدلة كافية ومناسبة ووُقّعت ورقة العمل من المُعد والمراجِع.':ev[r.lineKey]==="partial"?' وما زالت بعض الأدلة قيد الاستكمال.':'')};
+  });
 }
 function reportParts(c){
   const fs=fsAfter?c.fsAfterAdj:c.fsBefore,hp=fs.hasPrior,rs=AN().ratios(fs),z=AN().altmanZ(fs),bm=AN().beneishM(fs),du=AN().dupont(fs).current,hl=AN().highlights(fs),md=AN().mdna(fs);
   const fmt=(v,u)=>v===null||v===undefined?'—':u==="%"?v+'%':u==="days"?v+' يوم':v+'×';
   return {fs,hp,rs,z,bm,du,hl,md,fmt};
 }
-const DOCS=[["issue","الإصدار والاعتماد"],["statements","القوائم المالية"],["annual","التقرير السنوي (نموذج 10-K)"],["release","بيان النتائج"],["auditor","تقرير المراجع المستقل"],["analysis","التحليل المالي"]];
+const DOCS=[["issue","الإصدار والاعتماد"],["integrated","التقرير السنوي المتكامل"],["statements","القوائم المالية"],["annual","التقرير السنوي (نموذج 10-K)"],["release","بيان النتائج"],["auditor","تقرير المراجع المستقل"],["notes","الإيضاحات المتممة"],["committee","تقرير لجنة المراجعة"],["icfr","الرقابة الداخلية"],["analysis","التحليل المالي"],["peers","المقارنة العالمية"]];
+const DOC_GROUPS=[["القوائم والإصدار",["issue","statements","notes"]],["التقارير المنشورة",["integrated","annual","release","auditor"]],["الحوكمة",["committee","icfr"]],["التحليل",["analysis","peers"]]];
+const PAPER=new Set(["integrated","annual","release","auditor","notes","committee","icfr","peers"]);
 let docStyled=false;
 function fmtDate(iso,eg){if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||""))return "";try{return new Date(iso+"T12:00:00").toLocaleDateString(eg?"ar-EG-u-nu-latn":"ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"})}catch{return iso}}
-function docX(c){return {c,fs:fsAfter?c.fsAfterAdj:c.fsBefore,cur:CUR,ctx:c.d.ctx,fw:c.fw,periodEnd:fmtDate(c.d.ctx.periodEnd,c.fw==="EAS"),kams:kamsOf(c).map(k=>({title:k.title,description:k.why,how:k.how})),opinion:c.derived}}
+function docX(c){
+  const fs=fsAfter?c.fsAfterAdj:c.fsBefore,m=c.base.materiality,ctx=c.d.ctx,eg=c.fw==="EAS",kams=kamsOf(c).map(k=>({title:k.title,description:k.why,how:k.how}));
+  const x={c,fs,cur:CUR,ctx,fw:c.fw,periodEnd:fmtDate(ctx.periodEnd,eg),kams,opinion:c.derived};
+  const GV=E().audit.governance;if(!GV)return x;
+  x.approach=GV.auditApproach({materiality:m,currency:CUR,kamTitles:kams.map(k=>k.title),taxWord:eg?"الضريبة":"الزكاة"});
+  x.notesPkg=E().reports.notes.notesPackage(fs,{country:eg?"EG":"SA"});
+  x.policies=Object.fromEntries([1,2,3,4].map(n=>[n,policyNote(n,c)]));
+  const eff=c.accepted.length?RV().adjustmentEffect(c.tb,c.accepted):{profit:0};
+  x.committee={company:ctx.company,period:ctx.period,currency:CUR,firm:ctx.auditFirm,kams,materiality:m,corrected:{count:c.accepted.length,profitEffect:eff.profit},
+    uncorrected:{count:c.pool.filter(a=>!c.d.accepted.includes(a.id)).length,effect:c.derived.misstatement},
+    findings:{high:c.all.summary.high,medium:c.all.summary.medium,low:c.all.findings.filter(f=>f.severity==="low").length,controlTitles:c.all.findings.filter(f=>f.severity==="high").map(f=>f.title)},
+    opinionAr:c.derived.ar,goingConcern:c.derived.goingConcern,framework:c.fw};
+  x.icfr={company:ctx.company,periodEnd:x.periodEnd,materiality:m,uncorrectedEffect:c.derived.misstatement,findings:c.all.findings.map(f=>({title:f.title+(f.account?" — "+f.account:""),severity:f.severity,kind:f.kind}))};
+  /* the integrated report's narrative: the AI's saved draft while the figures it was written on still hold, else the engine's */
+  const NR=E().reports.narrative;
+  if(NR){
+    x.pack=NR.facts({fs,review:c.base,ctx:{...ctx,country:eg?"EG":"SA"},framework:c.fw,currency:CUR,kams,adjustments:{count:c.accepted.length,profitEffect:eff.profit},
+      opinion:{ar:c.derived.ar,modified:c.derived.opinion!=="unmodified",basis:c.derived.basis,goingConcern:c.derived.goingConcern},
+      peers:E().reports.peerBenchmarks?E().reports.peerBenchmarks.compare(fs,{}).map(r=>({ar:r.ar,you:r.you,median:r.median,unit:r.unit})):[],
+      findings:{high:c.all.summary.high,medium:c.all.summary.medium,low:c.all.findings.filter(f=>f.severity==="low").length}});
+    const saved=c.d.narrative,sig=narrSig(x.pack);
+    x.narrStale=!!(saved&&saved.sig!==sig);
+    x.narr=saved&&saved.sig===sig?saved.result:NR.normalizeNarrative(NR.fallbackNarrative(x.pack),x.pack,{origin:"engine"});
+    x.q=NR.quality(x.narr,x.pack);
+  }
+  return x;
+}
+/* the narrative belongs to the figures it was written on */
+const narrSig=pack=>MN().fingerprint([pack.facts.map(f=>[f.key,f.value,f.prior]),pack.kams.map(k=>k.title),pack.opinion.ar]);
 function docView(c,kind){
-  if(!docStyled&&window.SKosifReportDocs){const st=document.createElement("style");st.id="rd-css";st.textContent=SKosifReportDocs.CSS;document.head.appendChild(st);docStyled=true}
+  if(!docStyled&&window.SKosifReportDocs){const st=document.createElement("style");st.id="rd-css";st.textContent=SKosifReportDocs.CSS+(window.SKosifIntegrated?SKosifIntegrated.CSS:"");document.head.appendChild(st);docStyled=true}
   const ctx=c.d.ctx;
+  if(kind==="integrated"&&window.SKosifIntegrated)return narrBar(c)+'<div class="rd-paper">'+SKosifIntegrated.render(docX(c))+'</div>';
   return (kind==="auditor"?'<section class="card"><div class="card-h"><div><h3>بيانات التوقيع</h3><p>تظهر في تقرير المراجع؛ الخانات الفارغة تبقى بين قوسين لتُستكمل.</p></div></div><div class="card-b"><div class="tbr-sig">'+
     [["auditFirm","مكتب المراجعة"],["auditPartner","الشريك المسؤول"],["auditLicence","رقم الترخيص"],["auditCity","المدينة"]].map(([k,l])=>'<label class="sk-field"><span>'+l+'</span><input data-ctx="'+k+'" value="'+esc(ctx[k]||"")+'"></label>').join("")+
     '</div><div class="sk-actions"><button type="button" class="btn sm primary" data-a="sig-save">حفظ</button></div></div></section>':'')+
+    (kind==="auditor"&&window.SKosifAuditBench?SKosifAuditBench.precedentsHTML(c.base.risks.filter(r=>r.significant).map(r=>r.lineKey),ctx.activity):'')+
     '<div class="rd-paper">'+SKosifReportDocs[kind](docX(c))+'</div>';
 }
 function fsTab(c){
   const p=reportParts(c),fs=p.fs,d=c.derived,f=c.session&&c.session.final,GROUP={liquidity:"السيولة",profitability:"الربحية",efficiency:"الكفاءة",leverage:"الرفع المالي",cash:"التدفق النقدي"};
   const hl=p.hl.map(h=>'<div class="skk4-t"><span class="tx"><span>'+esc(h.ar)+'</span><b>'+(h.kind==="money"?sar(h.current):p.fmt(h.current,h.kind))+'</b><small>'+(h.change===null?(h.prior===null?'':'السابق '+(h.kind==="money"?sar(h.prior):p.fmt(h.prior,h.kind))):(h.change>=0?'▲ ':'▼ ')+Math.abs(h.change)+'% عن السابق')+'</small></span></div>').join("");
-  const docBar='<nav class="tbr-docs" aria-label="مستندات التقارير">'+DOCS.map(([k,l])=>'<button type="button" data-doc="'+k+'" aria-pressed="'+(doc===k)+'">'+esc(l)+'</button>').join("")+'</nav>';
-  const body=doc==="annual"||doc==="release"||doc==="auditor"?docView(c,doc):doc==="statements"?fsStatements(c,p,fs,d,f,hl,GROUP):doc==="analysis"?fsAnalysis(c,p,fs,d,f,hl,GROUP):fsIssue(c,p,fs,d,f,hl,GROUP);
+  const L=Object.fromEntries(DOCS),btn=k=>'<button type="button" data-doc="'+k+'" aria-pressed="'+(doc===k)+'">'+esc(L[k])+'</button>';
+  const fwDocs=FW()?Object.entries(FW().docs).map(([k,[,l]])=>'<button type="button" data-fw-doc="'+k+'" title="يفتح في المعاينة">'+esc(l)+' ↗</button>').join(""):"";
+  const docBar='<nav class="tbr-docs tbr-docg" aria-label="مركز التقارير">'+DOC_GROUPS.map(([g,ks])=>'<div class="tbr-dg"><small>'+esc(g)+'</small><div>'+ks.map(btn).join("")+'</div></div>').join("")+
+    (fwDocs?'<div class="tbr-dg"><small>أوراق المراجعة</small><div>'+fwDocs+'</div></div>':'')+'</nav>';
+  const body=PAPER.has(doc)?docView(c,doc):doc==="statements"?fsStatements(c,p,fs,d,f,hl,GROUP):doc==="analysis"?fsAnalysis(c,p,fs,d,f,hl,GROUP):fsIssue(c,p,fs,d,f,hl,GROUP);
   return docBar+'<section class="card tbr-op"><div class="card-b"><div class="tbr-op-h"><div><span class="eyebrow">رأي المراجع — مشتق وفق '+esc(d.isa)+'</span><h3>'+esc(d.ar)+'</h3>'+d.basis.map(x=>'<p>'+esc(x)+'</p>').join("")+(d.goingConcern?'<p class="tbr-warn">مؤشرات استمرارية تتطلب تقييماً وإفصاحاً (ISA 570).</p>':'')+'</div>'+
-      '<div class="tbr-op-s">'+(f?'<small>اقتراح Gemini</small><b>'+esc(f.aiOpinion||"—")+'</b>':'<small>لا يوجد تقرير Gemini نهائي</small>')+'<small class="hint">لا يصدر الرأي إلا باعتماد الشريك المسؤول.</small></div></div>'+
+      '<div class="tbr-op-s">'+(f?'<small>اقتراح المراجع الذكي</small><b>'+esc(f.aiOpinion||"—")+'</b>':'<small>لا يوجد تقرير المراجع الذكي نهائي</small>')+'<small class="hint">لا يصدر الرأي إلا باعتماد الشريك المسؤول.</small></div></div>'+
       '<div class="sk-actions"><div class="sk-seg" role="group"><button type="button" data-fsv="after" aria-pressed="'+fsAfter+'">بعد التسويات ('+c.accepted.length+')</button><button type="button" data-fsv="before" aria-pressed="'+!fsAfter+'">قبل التسويات</button></div>'+
-      '<button type="button" class="btn primary" data-a="print">طباعة المستند</button><button type="button" class="btn" data-a="jev-op">'+SK.icon("jev")+' رأي ثانٍ من Jev</button><button type="button" class="btn" data-a="fs-csv">تصدير القوائم</button></div></div></section>'+
+      '<button type="button" class="btn primary" data-a="print">'+SK.icon("reports")+' معاينة وطباعة</button><button type="button" class="btn" data-a="jev-op">'+SK.icon("jev")+' رأي ثانٍ من Jev</button><button type="button" class="btn" data-a="fs-csv">تصدير القوائم</button></div></div></section>'+
     body;
 }
 /* management letter in the research's format (appendix C): observation · effect · recommendation · management's
-   response (the client's reply, typed by the reviewer and kept with the file). Gemini's final letter when issued,
+   response (the client's reply, typed by the reviewer and kept with the file). المراجع الذكي's final letter when issued,
    otherwise a draft from the engine's high and medium findings. */
 function letterItems(c){
   const f=c.session&&c.session.final;
@@ -402,7 +450,7 @@ function printLetter(c){
 function fsIssue(c,p,fs,d,f,hl,GROUP){
   return ''+
     programmeCard(c)+disclosuresCard(c)+
-    (f?'<section class="card"><div class="card-h"><div><h3>'+esc(f.headline||"ملخص التقرير")+'</h3><p>التقرير النهائي من Gemini · '+esc(f.at.slice(0,10))+'</p></div></div><div class="card-b"><p>'+esc(f.summary)+'</p>'+(f.limitations.length?'<h4>القيود على النطاق</h4><ul>'+f.limitations.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>':'')+'</div></section>':'')+
+    (f?'<section class="card"><div class="card-h"><div><h3>'+esc(f.headline||"ملخص التقرير")+'</h3><p>التقرير النهائي من المراجع الذكي · '+esc(f.at.slice(0,10))+'</p></div></div><div class="card-b"><p>'+esc(f.summary)+'</p>'+(f.limitations.length?'<h4>القيود على النطاق</h4><ul>'+f.limitations.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>':'')+'</div></section>':'')+
     '<section class="card"><div class="card-h"><div><h3>الأمور الرئيسية للمراجعة (ISA 701)</h3></div></div><div class="card-b">'+(kamsOf(c).map(k=>'<div class="tbr-kam"><b>'+esc(k.title)+'</b><p><small>لماذا:</small> '+esc(k.why)+'</p><p><small>كيف عولج:</small> '+esc(k.how)+'</p></div>').join("")||'<p class="empty">لا مخاطر جوهرية مصنفة.</p>')+'</div></section>'+
     letterCard(c)+
   '';
@@ -450,7 +498,7 @@ function printReport(c){
   const p=reportParts(c),fs=p.fs,d=c.derived,ctx=c.d.ctx,f=c.session&&c.session.final;
   const tbl=(rows,hp)=>'<table><tr><th></th><th>إيضاح</th><th>'+(hp?'الحالية':'المبلغ')+'</th>'+(hp?'<th>السابقة</th>':'')+'</tr>'+rows.map(r=>r.level==="heading"?'<tr><td colspan="4"><b>'+esc(r.ar)+'</b></td></tr>':'<tr'+(r.level!=="line"?' style="font-weight:700"':'')+'><td>'+esc(r.ar)+'</td><td>'+(r.note||'')+'</td><td>'+m0(r.current)+'</td>'+(hp?'<td>'+(r.prior===null?'':m0(r.prior))+'</td>':'')+'</tr>').join("")+'</table>';
   let b='<h1>تقرير مراجعة ميزان المراجعة</h1><p><b>'+esc(ctx.company||"")+'</b> — '+esc(ctx.period||"")+' — '+esc(FW_LABEL[c.fw])+'</p>'+
-    '<h2>الرأي المشتق ('+esc(d.isa)+')</h2><p><b>'+esc(d.ar)+'</b></p>'+d.basis.map(x=>'<p>'+esc(x)+'</p>').join("")+(f?'<p>اقتراح Gemini: '+esc(f.aiOpinion)+'</p><p>'+esc(f.summary)+'</p>':'')+
+    '<h2>الرأي المشتق ('+esc(d.isa)+')</h2><p><b>'+esc(d.ar)+'</b></p>'+d.basis.map(x=>'<p>'+esc(x)+'</p>').join("")+(f?'<p>اقتراح المراجع الذكي: '+esc(f.aiOpinion)+'</p><p>'+esc(f.summary)+'</p>':'')+
     '<h2>برنامج المراجعة</h2><table><tr><th>المرحلة</th><th>الحالة</th><th>التفاصيل</th></tr>'+c.programme.map(x=>'<tr><td>'+esc(x.id+' '+x.title)+'</td><td>'+esc(x.status)+'</td><td>'+esc(x.detail)+'</td></tr>').join("")+'</table>'+
     '<p>جاهزية الإفصاحات: '+(c.disclosures.valid?'جاهزة للمراجعة البشرية':'غير مكتملة — '+c.disclosures.checks.filter(k=>k.status==="fail").map(k=>esc(k.label)).join("، "))+'</p>'+
     '<h2>الأمور الرئيسية للمراجعة</h2>'+kamsOf(c).map(k=>'<p><b>'+esc(k.title)+'</b> — '+esc(k.why)+' '+esc(k.how)+'</p>').join("")+
@@ -460,7 +508,7 @@ function printReport(c){
     '<h2>الملاحظات</h2><table><tr><th>الأثر</th><th>الملاحظة</th><th>المعيار</th><th>الأساس</th><th>الإجراء</th></tr>'+c.all.findings.map(x=>'<tr><td>'+SEV_AR[x.severity]+'</td><td>'+esc(x.title+(x.account?' — '+x.account:''))+'</td><td>'+esc(x.standard)+'</td><td>'+esc(x.basis)+'</td><td>'+esc(x.action)+'</td></tr>').join("")+'</table>'+
     '<h2>تقرير الإدارة</h2>'+p.md.map(s=>'<h3>'+esc(s.title)+'</h3>'+s.body.map(x=>'<p>'+esc(x)+'</p>').join("")).join("")+
     (letterItems(c).items.length?'<h2>خطاب الإدارة</h2>'+letterHTML(c):'')+
-    '<p style="margin-top:24px;font-size:11px;color:#667">الرأي مسودة مشتقة آلياً وفق ISA 705 ولا يصدر إلا باعتماد الشريك المسؤول. الأرقام محسوبة من ميزان المراجعة بالهللة؛ ملاحظات Gemini حكم مساعد يُراجع مهنياً.</p>';
+    '<p style="margin-top:24px;font-size:11px;color:#667">الرأي مسودة مشتقة آلياً وفق ISA 705 ولا يصدر إلا باعتماد الشريك المسؤول. الأرقام محسوبة من ميزان المراجعة بالهللة؛ ملاحظات المراجع الذكي حكم مساعد يُراجع مهنياً.</p>';
   w.document.open();w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>تقرير مراجعة ميزان المراجعة</title></head><body>'+b+'</body></html>');w.document.close();
   SK.brandPrint(w,"تقرير مراجعة ميزان المراجعة");
   const s=w.document.createElement("style");s.textContent="table{width:100%;border-collapse:collapse;margin:6px 0 14px;font-size:11.5px}th,td{border:1px solid #dfe6ef;padding:4px 7px;text-align:right}th{background:#f3f6fa}td:nth-child(n+3){direction:ltr;text-align:left}h2{margin-top:18px}";w.document.head.appendChild(s);
@@ -469,10 +517,11 @@ function printReport(c){
 }
 function printDoc(c,kind){
   const w=window.open("","_blank");if(!w){toast("اسمح بالنوافذ المنبثقة للطباعة","warn");return}
-  const title={annual:"التقرير السنوي",release:"بيان النتائج",auditor:"تقرير المراجع المستقل"}[kind]+" — "+(c.d.ctx.company||"");
-  w.document.open();w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>'+esc(title)+'</title></head><body>'+SKosifReportDocs[kind](docX(c))+'</body></html>');w.document.close();
+  const fw=FW()&&FW().docs[kind],render=fw?fw[0]:kind==="integrated"&&window.SKosifIntegrated?SKosifIntegrated.render:SKosifReportDocs[kind];
+  const title=(fw?fw[1]:{integrated:"التقرير السنوي المتكامل",annual:"التقرير السنوي",release:"بيان النتائج",auditor:"تقرير المراجع المستقل",notes:"الإيضاحات المتممة",committee:"تقرير لجنة المراجعة",icfr:"تقرير الرقابة الداخلية",peers:"المقارنة بالنظراء العالميين"}[kind]||"مستند")+" — "+(c.d.ctx.company||"");
+  w.document.open();w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>'+esc(title)+'</title></head><body>'+render(docX(c))+'</body></html>');w.document.close();
   SK.brandPrint(w,title);
-  const st=w.document.createElement("style");st.textContent=SKosifReportDocs.CSS+"body{background:#fff}";w.document.head.appendChild(st);
+  const st=w.document.createElement("style");st.textContent=SKosifReportDocs.CSS+(window.SKosifIntegrated?SKosifIntegrated.CSS:"")+"body{background:#fff}";w.document.head.appendChild(st);
   SK.audit&&SK.audit.log("report",{act:"tbreview-"+kind});
   setTimeout(()=>{try{w.focus();w.print()}catch{}},700);
 }
@@ -513,22 +562,68 @@ async function runRound(){
   try{
     const model=SKosifAI.conf().model,api=await SKosifAI.generate(AI().buildRoundBody(withData,c.tb,c.base),{signal:abort.signal,timeout:300000});
     const ex=AI().extractText(api);if(ex.blocked)throw new Error("رفض النموذج الرد لأسباب تتعلق بسياسة المحتوى.");
-    const raw=AI().parseJsonLoose(ex.text);if(!raw)throw new Error("رد Gemini لم يكن بالصيغة المتوقعة"+(ex.finishReason?" ("+ex.finishReason+")":"")+" — أعد المحاولة.");
+    const raw=AI().parseJsonLoose(ex.text);if(!raw)throw new Error("رد النموذج لم يكن بالصيغة المتوقعة"+(ex.finishReason?" ("+ex.finishReason+")":"")+" — أعد المحاولة.");
     d=st();s=session(d);s.model=model;
     const r=AI().normalizeRound(raw,s,c.tb,model);
     d.session=AI().addRound(s,r);put(d);
     if(CU())await CU().afterRound({govern:false}).catch(()=>null);
     SK.audit&&SK.audit.log("tbreview",{act:"round",no:r.no,status:r.status,findings:r.findings.length,requests:r.requests.length});
-    toast(r.status==="complete"?"أنهى Gemini طلباته — أصدر التقرير النهائي":"انتهت الجولة "+r.no+": "+r.requests.filter(q=>q.round===r.no).length+" طلب جديد","ok");
+    toast(r.status==="complete"?"أنهى المراجع الذكي طلباته — أصدر التقرير النهائي":"انتهت الجولة "+r.no+": "+r.requests.filter(q=>q.round===r.no).length+" طلب جديد","ok");
   }catch(e){toast(e.message,"bad")}
   finally{busy="";abort=null;paint()}
+}
+/* ---------- the integrated report written by the AI reviewer, and the whole engagement in one run ---------- */
+function narrBar(c){
+  const x=docX(c),ready=window.SKosifAI&&SKosifAI.ready(),cf=ready?SKosifAI.conf():null,q=x.q,ai=x.narr&&Object.values(x.narr.source||{}).some(v=>v==="ai");
+  const G=E().reports.globalCorpus,sum=G?G.summary():null;
+  return '<section class="card sqc-nb"><div class="card-b"><div class="sqc-nb-h"><div><span class="eyebrow">التقرير السنوي المتكامل — على بنية '+(sum?sum.reports:49)+' تقريراً عالمياً</span>'+
+    '<h3>'+(ai?'صاغه '+esc(x.narr.model||"الذكاء الاصطناعي"):'مسودة محرك SQC')+'</h3><p>قرأت SQC حزمة البحث كاملة ('+(sum?sum.pages.toLocaleString("en-US"):"12,506")+' صفحة) واستخرجت بنية التقارير المنشورة وأسلوب رسائلها ومخاطرها وأمورها الرئيسية. '+
+    (ready?'يكتب '+esc(cf.label)+' السرد كاملاً بأرقام المنشأة فقط، ثم يُطابَق كل رقم ويُقاس التقرير بالحزمة.':'أضف مفتاح Gemini أو OpenAI أو Claude في «جولات المراجعة» ليكتب الذكاء الاصطناعي السرد؛ المسودة الحالية من المحرك وأرقامها من القوائم.')+'</p>'+
+    (x.narrStale?'<p class="tbr-warn">تغيرت الأرقام بعد آخر صياغة — عُرضت مسودة المحرك؛ أعد الصياغة.</p>':'')+
+    (x.narr&&x.narr.unverified&&x.narr.unverified.length?'<p class="tbr-warn">'+x.narr.unverified.reduce((a,u)=>a+u.numbers.length,0)+' رقماً في السرد لا يطابق أرقام المنشأة — مذكورة في الملحق.</p>':'')+'</div>'+
+    '<div class="sqc-nb-s"><b>'+(q?q.score:0)+'%</b><small>مطابقة للتقارير العالمية</small></div></div>'+
+    '<div class="sk-actions">'+(ready?'<button type="button" class="btn primary" data-a="narr-ai"'+(busy?' disabled':'')+'>'+(busy==="narr"?'يكتب '+esc(cf.label)+' التقرير…':'✦ صياغة التقرير بالذكاء الاصطناعي')+'</button>'+
+      '<button type="button" class="btn" data-a="full-audit"'+(busy?' disabled':'')+'>'+(busy==="full"?esc(fullStep||"المراجعة الكاملة جارية…"):'المراجعة الكاملة: جولة ← تقرير نهائي ← التقرير المتكامل')+'</button>':'')+
+    (busy==="narr"||busy==="full"?'<button type="button" class="btn danger" data-a="cancel">إيقاف</button>':'')+
+    (c.d.narrative?'<button type="button" class="btn" data-a="narr-reset">العودة لمسودة المحرك</button>':'')+
+    '<button type="button" class="btn" data-a="print">'+SK.icon("reports")+' معاينة وطباعة</button></div></div></section>';
+}
+async function runNarrative(){
+  const c=compute();if(!c||busy)return false;const x=docX(c);if(!x.pack)return false;
+  const NR=E().reports.narrative;busy="narr";abort=new AbortController();paint();
+  try{
+    const api=await SKosifAI.generate(NR.buildNarrativeBody(x.pack),{signal:abort.signal,timeout:420000});
+    const ex=AI().extractText(api);if(ex.blocked)throw new Error("رفض النموذج الرد لأسباب تتعلق بسياسة المحتوى.");
+    const raw=AI().parseJsonLoose(ex.text);if(!raw)throw new Error("رد النموذج لم يكن بالصيغة المتوقعة"+(ex.finishReason?" ("+ex.finishReason+")":"")+" — أعد المحاولة.");
+    const cf=SKosifAI.conf(),r=NR.normalizeNarrative(raw,x.pack,{model:cf.label+" · "+cf.model,at:new Date().toISOString()});
+    const d=st();d.narrative={sig:narrSig(x.pack),result:r};put(d);tab="fs";doc="integrated";
+    const q=NR.quality(r,x.pack),bad=r.unverified.reduce((a,u)=>a+u.numbers.length,0);
+    SK.audit&&SK.audit.log("tbreview",{act:"narrative",provider:cf.provider,model:cf.model,score:q.score,unverified:bad});
+    toast("اكتمل التقرير المتكامل: مطابقة "+q.score+"%"+(bad?" — "+bad+" رقم يحتاج مراجعة":""),bad?"warn":"ok");return true;
+  }catch(e){toast(e.message,"bad");return false}
+  finally{busy="";abort=null;paint()}
+}
+let fullStep="";
+/* one run: a review round (or the council) when none was held, the final report, then the integrated report.
+   Documents the reviewer requests stay open and are reported as limitations; the opinion stays the engine's. */
+async function runFull(){
+  if(busy)return;const c0=compute();if(!c0)return;
+  const step=async(label,fn,ok)=>{fullStep=label;paint();await fn();if(!ok())throw new Error("توقفت المراجعة الكاملة عند: "+label)};
+  try{
+    const rounds=()=>(st().session&&st().session.rounds.length)||0,r0=rounds();
+    if(!r0)await step("الجولة الأولى: مراجعة الميزان والمعايير",()=>CU()&&(Number(st().councilSize)||1)>1?CU().run():runRound(),()=>rounds()>r0);
+    await step("إصدار التقرير النهائي والقيود وخطاب الإدارة",runFinal,()=>!!(st().session&&st().session.final));
+    await step("صياغة التقرير السنوي المتكامل",runNarrative,()=>!!st().narrative);
+    SK.audit&&SK.audit.log("tbreview",{act:"full-audit"});
+  }catch(e){toast(e.message,"warn")}
+  finally{fullStep="";tab="fs";doc="integrated";paint()}
 }
 async function runFinal(){
   const c=compute();if(!c||busy||!c.session)return;
   busy="final";abort=new AbortController();paint();
   try{
     const api=await SKosifAI.generate(AI().buildFinalBody(c.session,c.tb,c.base,c.derived),{signal:abort.signal,timeout:300000});
-    const ex=AI().extractText(api),raw=AI().parseJsonLoose(ex.text);if(!raw)throw new Error("رد Gemini لم يكن بالصيغة المتوقعة — أعد المحاولة.");
+    const ex=AI().extractText(api),raw=AI().parseJsonLoose(ex.text);if(!raw)throw new Error("رد النموذج لم يكن بالصيغة المتوقعة — أعد المحاولة.");
     const d=st();d.session={...session(d),final:AI().normalizeFinal(raw,session(d),c.tb)};put(d);tab="fs";
     SK.audit&&SK.audit.log("tbreview",{act:"final"});toast("صدر التقرير النهائي","ok");
   }catch(e){toast(e.message,"bad")}
@@ -552,6 +647,7 @@ function bind(node){
     if(ad){const d=st(),id=ad.dataset.id;d.accepted=d.accepted.filter(x=>x!==id);d.rejected=d.rejected.filter(x=>x!==id);
       if(ad.dataset.adj==="accept"&&!ad.classList.contains("primary"))d.accepted.push(id);else if(ad.dataset.adj==="reject"&&ad.textContent!=="مرفوض")d.rejected.push(id);
       put(d);paint();return}
+    if(FW()&&e.target.closest("[data-fw-doc],[data-fw-sign],[data-fw-reopen]")){const cc=compute();if(cc&&FW().onClick(e,cc))return}
     const b=e.target.closest("[data-a]");if(!b)return;
     const a=b.dataset.a;
     if(a==="books"){await fromBooks();return}
@@ -565,10 +661,13 @@ function bind(node){
     if(a==="reset"){if(!await SK.confirm("بدء مراجعة جديدة يحذف الميزان والجولات والمستندات المرفوعة على هذا الجهاز. هل صدّرت التقرير؟",{danger:true,ok:"مراجعة جديدة"}))return;put(blank());await docClear();tab="tb";setup=false;paint();return}
     if(a==="round"){if(CU()&&(Number(st().councilSize)||1)>1)CU().run();else runRound();return}
     if(a==="final"){runFinal();return}
+    if(a==="narr-ai"){runNarrative();return}
+    if(a==="full-audit"){runFull();return}
+    if(a==="narr-reset"){const d=st();delete d.narrative;put(d);paint();return}
     if(a==="cancel"){abort&&abort.abort();return}
     if(a==="unavail"){const d=st(),s=session(d),id=b.dataset.id;d.session=s.unavailable.includes(id)?{...s,unavailable:s.unavailable.filter(x=>x!==id)}:AI().markUnavailable(s,id);put(d);paint();return}
     const c=compute();if(!c)return;
-    if(a==="print"){if(doc==="annual"||doc==="release"||doc==="auditor")printDoc(c,doc);else printReport(c);return}
+    if(a==="print"){if(PAPER.has(doc))printDoc(c,doc);else printReport(c);return}
     if(a==="letter-print"){printLetter(c);return}
     if(a==="sig-save"){put(readCtx(st()));toast("حُفظت بيانات التوقيع","ok");paint();return}
     if(a==="ecl-save"){const d=st(),b=RV().DEFAULT_ECL_BUCKETS.map((x,i)=>{const ex=root.querySelector('[data-ecl-x="'+i+'"]'),rt=root.querySelector('[data-ecl-r="'+i+'"]');
@@ -582,12 +681,13 @@ function bind(node){
     if(a==="jev-adj"){const list=c.pool.filter(x=>!c.d.rejected.includes(x.id)).slice(0,6);
       SK.askJev({type:"choice",question:"أي قيود التسوية المقترحة يجب اعتماده أولاً قبل إصدار القوائم المالية؟",options:list.map(x=>x.title+" ("+x.standard+") — "+m0(x.lines.reduce((t,l)=>t+l.debit,0))),context:facts()});return}
     if(a==="jev-op"){SK.askJev({type:"choice",question:"ما نوع رأي المراجع الأنسب بناءً على نتائج المراجعة؟",options:["رأي غير معدل","رأي متحفظ","رأي عكسي","امتناع عن إبداء الرأي"],context:facts()});return}
-    if(a==="adj-csv"){SK.csv.download(csvName(c,"قيود-التسوية"),["القيد","البيان","المعيار","المصدر","الحالة","رقم الحساب","اسم الحساب","مدين","دائن"],c.pool.flatMap(x=>x.lines.map(l=>[x.id,x.title,x.standard,x.source==="gemini"?"Gemini":"المحرك",c.d.accepted.includes(x.id)?"معتمد":c.d.rejected.includes(x.id)?"مرفوض":"مقترح",l.code,l.name,(l.debit/100).toFixed(2),(l.credit/100).toFixed(2)])));return}
+    if(a==="adj-csv"){SK.csv.download(csvName(c,"قيود-التسوية"),["القيد","البيان","المعيار","المصدر","الحالة","رقم الحساب","اسم الحساب","مدين","دائن"],c.pool.flatMap(x=>x.lines.map(l=>[x.id,x.title,x.standard,x.source==="gemini"?"المراجع الذكي":"المحرك",c.d.accepted.includes(x.id)?"معتمد":c.d.rejected.includes(x.id)?"مرفوض":"مقترح",l.code,l.name,(l.debit/100).toFixed(2),(l.credit/100).toFixed(2)])));return}
     if(a==="pbc-csv"){SK.csv.download(csvName(c,"قائمة-المستندات"),["الرقم","المستند","الغرض","الأولوية","المعيار","الحسابات"],c.base.requests.map(q=>[q.id,q.title,q.purpose,q.priority,q.standard,(q.accounts||[]).join(" ")]));return}
     if(a==="fs-csv"){const fs=fsAfter?c.fsAfterAdj:c.fsBefore,rows=[...fs.pl.map(r=>["الربح أو الخسارة",r]),...fs.sfp.map(r=>["المركز المالي",r]),...(fs.cf||[]).map(r=>["التدفقات النقدية",r])].filter(([,r])=>r.level!=="heading");
       SK.csv.download(csvName(c,"القوائم-المالية"),["القائمة","البند","إيضاح","الحالية","السابقة"],rows.map(([s,r])=>[s,r.ar,r.note||"",(r.current/100).toFixed(2),r.prior===null?"":(r.prior/100).toFixed(2)]));return}
   });
   node.addEventListener("change",e=>{
+    if(FW()&&FW().onChange(e))return;
     if(CU()&&e.target.closest("[data-ck],[data-rd],[data-jfile],[data-evk]")){CU().onChange(e);return}
     const lr=e.target.closest("[data-lr]");if(lr){const d=st();d.letterResponses={...(d.letterResponses||{}),[lr.dataset.lr]:lr.value.trim()};put(d);toast("حُفظ رد الإدارة","ok");return}
     const f=e.target.closest("[data-tbfile]");if(f&&f.files[0]){loadFile(f.files[0]);f.value="";return}
@@ -606,7 +706,7 @@ function paint(){
   if(!c){root.innerHTML=hero(null)+setupHTML(st(),true)+(window.SKosifAI&&!SKosifAI.ready()?SKosifAI.cardHTML():'');return}
   if(!ADV[tab]&&!TABS.some(x=>x[0]===tab))tab="tb";
   const conf=tab==="conf"&&CU();
-  const body=conf?'<div class="tbc" data-tbc-body aria-busy="true">'+(confHTML.sig===c.sig&&confHTML.h||'<p class="empty">يحسب درجات الثقة والفحوص…</p>')+'</div>':tab==="ai"?aiTab(c):tab==="docs"?docsTab(c):tab==="adj"?adjTab(c):tab==="fs"?fsTab(c):tbTab(c);
+  const body=conf?'<div class="tbc" data-tbc-body aria-busy="true">'+(confHTML.sig===c.sig&&confHTML.h||'<p class="empty">يحسب درجات الثقة والفحوص…</p>')+'</div>':tab==="plan"&&FW()?FW().planTab(c):tab==="close"&&FW()?FW().closeTab(c):tab==="ai"?aiTab(c):tab==="docs"?docsTab(c):tab==="adj"?adjTab(c):tab==="fs"?fsTab(c):tbTab(c);
   const adv=window.SKosifAuditBridge&&ADV[tab]?advHTML(tab):"";
   root.innerHTML='<div class="tbr">'+hero(c)+(setup?setupHTML(c.d,false):'')+body+adv+'</div>';
   window.scrollTo(0,y);
@@ -614,6 +714,7 @@ function paint(){
   if(conf){const seq=++confSeq;CU().confTab(c).then(h=>{if(seq!==confSeq||tab!=="conf"||!root)return;confHTML={sig:c.sig,h};const el=root.querySelector("[data-tbc-body]");if(el){el.innerHTML=h;el.removeAttribute("aria-busy");window.scrollTo(0,y)}})
     .catch(e=>{SK.errors&&SK.errors.report(e,"tbreview-council");const el=root.querySelector("[data-tbc-body]");if(el)el.innerHTML='<p class="empty">تعذر حساب درجات الثقة: '+esc(e.message)+'</p>'})}
 }
+FW()&&FW().init({st,put,paint,root:()=>root,print:k=>{const c=compute();if(c)printDoc(c,k)}});
 CU()&&CU().init({st,put,compute,session,paint,docGet,docPut,docKey,getBusy:()=>busy,setBusy:v=>{busy=v;paint()},setAbort:a=>{abort=a}});
 SK.view("tbreview",{render(node){root=node;if(!node.dataset.bound){bind(node);node.dataset.bound="1"}paint()}});
 })();

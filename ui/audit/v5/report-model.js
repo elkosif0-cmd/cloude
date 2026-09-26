@@ -1,4 +1,4 @@
-/** KOSIF V5 — source-backed professional report model. Rendering is a separate concern. */
+/** SQC V5 — source-backed professional report model. Rendering is a separate concern. */
 import { reportReadiness } from './engagement-machine.js';
 import { evidenceRequestMetrics } from './evidence-requests.js';
 import { reportSourceFingerprint } from './report-source.js';
@@ -35,7 +35,7 @@ function buildSection(id, ctx) {
       addSources(s, latest?.id ? [latest.id] : []); break;
     }
     case 'opinion':
-      s.humanReviewRequired=true; s.status='human-required'; s.paragraphs.push('لا يصدر KOSIF رأيًا نهائيًا بصورة آلية. هذا القسم محجوز لصياغة واعتماد المراجع البشري بعد استيفاء بوابات الإكمال.');
+      s.humanReviewRequired=true; s.status='human-required'; s.paragraphs.push('لا يصدر SQC رأيًا نهائيًا بصورة آلية. هذا القسم محجوز لصياغة واعتماد المراجع البشري بعد استيفاء بوابات الإكمال.');
       addSources(s, latest?.id ? [latest.id] : []); break;
     case 'basis-for-opinion':
       s.humanReviewRequired=true; s.status='human-required'; s.paragraphs.push(`بوابات الجاهزية الحالية: ${ctx.readiness.score}%، مع ${ctx.readiness.blockers.length} مانعًا حرجًا.`); s.paragraphs.push('مصادر هذا القسم هي الأدلة المسجلة في الارتباط؛ وجودها وحده لا يعني كفايتها حتى تُراجع وتُغلق الطلبات والقضايا ذات الصلة.'); addSources(s, engagement.evidence.map(e=>e.id)); break;
@@ -80,7 +80,7 @@ function buildSection(id, ctx) {
       if (!statements?.pl) { s.status='unavailable'; s.unavailableReason='لا يوجد ميزان مراجعة منظم لبناء قائمة الربح أو الخسارة.'; break; }
       s.tables.push({headers:['البند','القيمة'],rows:[['الإيرادات',statements.pl.revenue.total],['المصروفات',statements.pl.expenses.total],['ربح الفترة',statements.pl.profit]]}); addSources(s,accepted.map(a=>a.id)); break;
     case 'cash-flows':
-      s.status='unavailable'; s.unavailableReason='محرك التدفقات النقدية لم يُربط بعد ببيانات الحركات والمقارنات؛ لن ينشئ KOSIF تدفقات تقديرية.'; break;
+      s.status='unavailable'; s.unavailableReason='محرك التدفقات النقدية لم يُربط بعد ببيانات الحركات والمقارنات؛ لن ينشئ SQC تدفقات تقديرية.'; break;
     case 'changes-in-equity':
       s.status='unavailable'; s.unavailableReason='يلزم ربط حركات حقوق الملكية والمقارنات قبل بناء القائمة بصورة قابلة للتتبع.'; break;
     case 'notes':

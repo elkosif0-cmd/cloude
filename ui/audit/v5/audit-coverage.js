@@ -1,4 +1,4 @@
-/** KOSIF V5 — assertion coverage + council-round delta. Pure domain functions. */
+/** SQC V5 — assertion coverage + council-round delta. Pure domain functions. */
 const ACTIVE_REQUESTS=new Set(['draft','requested','received','under-review','partial']);
 const REVIEWED_EVIDENCE=new Set(['reviewed','sufficient']);
 const ASSERTIONS=[

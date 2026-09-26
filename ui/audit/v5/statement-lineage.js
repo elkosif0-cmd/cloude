@@ -1,4 +1,4 @@
-/** KOSIF V5 — account-level lineage for SFP/P&L comparison rows. */
+/** SQC V5 — account-level lineage for SFP/P&L comparison rows. */
 import { validateTrialBalance } from '../engine.js';
 import { STATEMENT_LAYOUT } from '../analytics.js';
 import { buildAdjustedTrialBalance } from './adjustment-ledger.js';

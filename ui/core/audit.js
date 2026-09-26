@@ -19,7 +19,7 @@ function log(type,detail){
   if(!timer)timer=setTimeout(flush,800);
 }
 function clear(){buf=[];flush()}
-function csv(){SK.csv.download("S.kosif-audit-trail",["الوقت","الحدث","الدور","الشاشة","التفاصيل"],all().map(e=>[e.at,e.type,e.role,e.view,e.act||e.to||e.key||e.msg||(e.keys!=null?e.keys+" مفتاح":"")]))}
+function csv(){SK.csv.download("SQC-audit-trail",["الوقت","الحدث","الدور","الشاشة","التفاصيل"],all().map(e=>[e.at,e.type,e.role,e.view,e.act||e.to||e.key||e.msg||(e.keys!=null?e.keys+" مفتاح":"")]))}
 addEventListener("pagehide",flush);
 if(SK.bus){
   SK.bus.on("nav",d=>log("nav",{to:d.to}));

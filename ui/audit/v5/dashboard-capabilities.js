@@ -73,7 +73,7 @@ export function dashboardRecommendations(metrics,quality){
   if(metrics.openRequests)out.push({kind:'urgent',title:'أغلق دورة طلبات الأدلة',text:`يوجد ${metrics.openRequests} طلبًا مفتوحًا. ابدأ بالأعلى أولوية ثم أعد جولة المجلس بعد الاستلام.`});
   if(metrics.highIssues)out.push({kind:'urgent',title:'ركّز على القضايا عالية الأثر',text:`هناك ${metrics.highIssues} قضية عالية/حرجة مفتوحة؛ إبقاؤها مفتوحة يخفض جاهزية التقرير.`});
   if(metrics.evidence&&metrics.evidenceReviewPercent<70)out.push({kind:'warn',title:'ارفع نسبة مراجعة الأدلة',text:`تمت مراجعة ${metrics.evidenceReviewPercent}% فقط من الأدلة الحالية. لا تعامل Claims غير المراجعة كدليل كافٍ.`});
-  if(metrics.concentration.topShare>=50)out.push({kind:'warn',title:'اختبر تركّز الأرصدة',text:`أكبر 10 حسابات تمثل ${metrics.concentration.topShare.toFixed(1)}% من القيمة المطلقة للأرصدة. هذه إشارة KOSIF للتخطيط وليست حكمًا مهنيًا بذاتها.`});
+  if(metrics.concentration.topShare>=50)out.push({kind:'warn',title:'اختبر تركّز الأرصدة',text:`أكبر 10 حسابات تمثل ${metrics.concentration.topShare.toFixed(1)}% من القيمة المطلقة للأرصدة. هذه إشارة SQC للتخطيط وليست حكمًا مهنيًا بذاتها.`});
   if(!metrics.councilRounds&&metrics.documents)out.push({kind:'',title:'اعقد الجولة الأولى',text:'المستندات موجودة لكن لا توجد جولة مجلس بعد. الجولة الأولى تحول النواقص إلى طلبات محكومة.'});
   if(quality.score<85)out.push({kind:'warn',title:'راجع مركز جودة البيانات',text:`درجة سلامة البيانات ${quality.score}/100. أصلح نقاط المصدر والتكرار والحقول الناقصة قبل الاعتماد على المخرجات.`});
   if(metrics.ready)out.push({kind:'',title:'الملف جاهز للبناء',text:'بوابات الجاهزية الحالية مستوفاة. ابنِ المسودة ثم مررها على المراجعة البشرية قبل الإصدار.'});

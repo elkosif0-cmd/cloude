@@ -1,4 +1,4 @@
-/** KOSIF V5 — pure workspace information architecture. */
+/** SQC V5 — pure workspace information architecture. */
 export const WORKSPACE_VIEWS=Object.freeze([
   {id:'overview',label:'الآن',shortLabel:'الآن'},
   {id:'documents',label:'المستندات والأدلة',shortLabel:'المستندات'},

@@ -1,4 +1,4 @@
-/** KOSIF V5 — human report review and controlled issuance. */
+/** SQC V5 — human report review and controlled issuance. */
 import { reportQuality } from './report-model.js';
 import { reportIsStale } from './report-source.js';
 

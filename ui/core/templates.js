@@ -141,7 +141,7 @@ function append(key,rows,flag){const list=load(key,[]);const arr=Array.isArray(l
 /* ---------- download ---------- */
 const typeHint=c=>c.hint||(c.type==="date"?"تاريخ YYYY-MM-DD":c.type==="num"?"رقم":c.type==="bool"?"نعم / لا":c.choices?"إحدى القيم: "+c.choices.join("، "):"نص");
 function download(id,fmt){
-  const t=T.find(x=>x.id===id);if(!t)return;const f=fmt||t.format,head=t.cols.map(c=>c.h),ex=[t.cols.map(c=>c.ex==null?"":c.ex),t.second||[]].filter(r=>r.length),name="KOSIF-template-"+t.id;
+  const t=T.find(x=>x.id===id);if(!t)return;const f=fmt||t.format,head=t.cols.map(c=>c.h),ex=[t.cols.map(c=>c.ex==null?"":c.ex),t.second||[]].filter(r=>r.length),name="SQC-template-"+t.id;
   if(f==="csv"){SK.csv.download(name+".csv",head,ex);return}
   const blob=SKXlsx.book([{name:"البيانات",headers:head,rows:ex,text:true,noFilter:true,wide:14},
     {name:"التعليمات",headers:["العمود","إلزامي","الصيغة أو القيم","مثال"],rows:[...t.cols.map(c=>[c.h,c.req?"نعم":"اختياري",typeHint(c),c.ex==null?"":String(c.ex)]),["","","",""],["ملاحظة",t.note,"",""],["","احذف صفي المثال قبل الاستيراد، ولا تغيّر أسماء الأعمدة (يمكن تغيير ترتيبها).","",""]],text:true,noFilter:true,wide:18}]);

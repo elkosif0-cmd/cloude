@@ -1,4 +1,4 @@
-/** KOSIF V5 — strict statement of changes in equity engine. */
+/** SQC V5 — strict statement of changes in equity engine. */
 const DIRECTIONS=new Set(['increase','decrease']);
 const KINDS=new Set(['profit-or-loss','dividend','capital-issue','repurchase','reserve-transfer','oci','prior-period-adjustment','other']);
 const uniq=v=>[...new Set((v||[]).map(String).map(x=>x.trim()).filter(Boolean))];

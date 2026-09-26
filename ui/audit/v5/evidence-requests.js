@@ -1,4 +1,4 @@
-/** KOSIF V5 — Council asks -> governed evidence requests. */
+/** SQC V5 — Council asks -> governed evidence requests. */
 const OPEN=new Set(['draft','requested','received','under-review','partial']);
 function normalize(v=''){return String(v).trim().toLowerCase().replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[\u064B-\u065F\u0670]/g,'').replace(/\s+/g,' ')}
 function requestKey(title,issueId=''){return `${normalize(title)}|${String(issueId||'')}`}

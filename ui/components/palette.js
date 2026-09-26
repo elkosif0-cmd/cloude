@@ -37,7 +37,7 @@ const ACTIONS=[
   {id:"lock",t:"قفل التطبيق الآن",s:"يتطلب كلمة المرور لفتحه",ic:"lock",run:()=>SK.lock.now()},
   {id:"keys",t:"اختصارات لوحة المفاتيح",s:"للابتوب: التنقل بالمجالات والحروف · ?",ic:"calc",run:()=>window.SKosifKeys&&SKosifKeys.help()},
   {id:"rail",t:"طيّ القائمة الجانبية / توسيعها",s:"أيقونات فقط لمساحة عمل أوسع على اللابتوب",ic:"dash",run:()=>SKosifShell.toggleRail()},
-  {id:"install",t:"تثبيت KOSIF كتطبيق على هذا الجهاز",s:"الشاشة الرئيسية للآيفون أو Dock/قائمة ابدأ للابتوب",ic:"action",run:()=>SK.device&&SK.device.install()},
+  {id:"install",t:"تثبيت SQC كتطبيق على هذا الجهاز",s:"الشاشة الرئيسية للآيفون أو Dock/قائمة ابدأ للابتوب",ic:"action",run:()=>SK.device&&SK.device.install()},
   {id:"transfer",t:"نقل البيانات بين الآيفون واللابتوب",s:"حزمة مشفرة عبر AirDrop أو واتساب أو الملفات",ic:"devices",run:()=>go("devices"),perm:["devices","view"]}
 ];
 function allowed(a){return !a.perm||SK.perm.can(a.perm[0],a.perm[1])}

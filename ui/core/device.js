@@ -44,7 +44,7 @@ MODES.forEach(m=>{try{matchMedia("(display-mode: "+m+")").addEventListener("chan
 /* ---------- install: the browser prompt on laptops/Android, the Share → Home Screen steps on iOS ---------- */
 let deferred=null;
 addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;SK.bus&&SK.bus.emit("device",{installable:true})});
-addEventListener("appinstalled",()=>{deferred=null;mark();SK.toast&&SK.toast("ثُبّت KOSIF على هذا الجهاز","ok");SK.bus&&SK.bus.emit("device",{installed:true})});
+addEventListener("appinstalled",()=>{deferred=null;mark();SK.toast&&SK.toast("ثُبّت SQC على هذا الجهاز","ok");SK.bus&&SK.bus.emit("device",{installed:true})});
 function installMode(){
   if(standalone())return "installed";
   if(deferred)return "prompt";
@@ -53,11 +53,11 @@ function installMode(){
   return "manual";
 }
 const STEPS={
-  ios:["اضغط زر المشاركة ⬆︎ أسفل Safari.","اختر «إضافة إلى الشاشة الرئيسية».","اضغط «إضافة» — يفتح KOSIF بعدها بملء الشاشة ويعمل دون اتصال."],
+  ios:["اضغط زر المشاركة ⬆︎ أسفل Safari.","اختر «إضافة إلى الشاشة الرئيسية».","اضغط «إضافة» — يفتح SQC بعدها بملء الشاشة ويعمل دون اتصال."],
   "ios-other":["افتح هذا الرابط في Safari (التثبيت على الآيفون يتم من Safari).","زر المشاركة ⬆︎ ← «إضافة إلى الشاشة الرئيسية»."],
-  "mac-safari":["من قائمة «ملف» في Safari اختر «إضافة إلى Dock».","يظهر KOSIF في Dock كتطبيق مستقل بنافذته الخاصة."],
-  manual:["في Chrome أو Edge: أيقونة التثبيت ⊕ في شريط العنوان، أو القائمة ⋮ ← «تثبيت KOSIF».","يفتح بعدها في نافذة مستقلة ويظهر في قائمة ابدأ أو Launchpad."],
-  installed:["KOSIF مثبّت ويعمل كتطبيق على هذا الجهاز."]
+  "mac-safari":["من قائمة «ملف» في Safari اختر «إضافة إلى Dock».","يظهر SQC في Dock كتطبيق مستقل بنافذته الخاصة."],
+  manual:["في Chrome أو Edge: أيقونة التثبيت ⊕ في شريط العنوان، أو القائمة ⋮ ← «تثبيت SQC».","يفتح بعدها في نافذة مستقلة ويظهر في قائمة ابدأ أو Launchpad."],
+  installed:["SQC مثبّت ويعمل كتطبيق على هذا الجهاز."]
 };
 async function install(){
   const m=installMode();
@@ -66,7 +66,7 @@ async function install(){
     try{await e.prompt();const r=await e.userChoice;return r&&r.outcome==="accepted"}catch(err){SK.errors.report(err,"install",{silent:true})}
     return false;
   }
-  await SK.notify(STEPS[m].map((s,i)=>(i+1)+") "+s).join("\n"),{title:m==="installed"?"مثبّت":"تثبيت KOSIF على "+OS_LABEL[os]});
+  await SK.notify(STEPS[m].map((s,i)=>(i+1)+") "+s).join("\n"),{title:m==="installed"?"مثبّت":"تثبيت SQC على "+OS_LABEL[os]});
   return false;
 }
 

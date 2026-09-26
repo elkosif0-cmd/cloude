@@ -30,9 +30,11 @@ function figures(fs,cur,o={}){
   const M=x=>(Number(x)||0)/100,nf=new Intl.NumberFormat("ar-SA-u-nu-latn",{maximumFractionDigits:0}),fmt=n=>nf.format(Math.round(n))+" "+cur;
   const zk=/ضريبة الدخل/.test(o.taxLabel||"")?"الضريبة":"الزكاة",W=o.width||720;
   const bridge=SKCharts.waterfall({title:"من الإيرادات إلى صافي الربح",width:W,height:270,fmt:SKCharts.compact,tools:o.tools,steps:[
-    {label:"الإيرادات",value:M(v("الإيرادات").current)},{label:"التكلفة",value:-M(v("تكلفة الإيرادات").current)},{label:"مجمل الربح",total:true},
-    {label:"التشغيل",value:-M(v("المصروفات التشغيلية").current)},{label:"الربح التشغيلي",total:true},
-    {label:"التمويل",value:M(v("إيرادات الاستثمار وتكاليف التمويل (صافي)").current)},{label:zk,value:-M(v("الزكاة/ضريبة الدخل").current)},{label:"صافي الربح",total:true}]});
+    /* each step is the difference of the statement's own subtotals, so the bars always land on the reported profit
+       (other operating income, the share of associates and investment income included) */
+    {label:"الإيرادات",value:M(v("الإيرادات").current)},{label:"التكلفة",value:M(v("مجمل الربح").current-v("الإيرادات").current)},{label:"مجمل الربح",total:true},
+    {label:"التشغيل (صافي)",value:M(v("الربح التشغيلي").current-v("مجمل الربح").current)},{label:"الربح التشغيلي",total:true},
+    {label:"الاستثمار والتمويل",value:M(v("صافي الربح").current+v("الزكاة/ضريبة الدخل").current-v("الربح التشغيلي").current)},{label:zk,value:-M(v("الزكاة/ضريبة الدخل").current)},{label:"صافي الربح",total:true}]});
   const cats=R().revenueByCategory(fs).filter(r=>r.level!=="total");
   const categories=cats.length>1?SKCharts.hbars({title:"الإيرادات حسب الفئة",fmt,tools:o.tools,valueLabel:"الإيراد ("+cur+")",rows:cats.map(r=>({label:r.ar,value:M(r.current),sub:r.pctOfRevenue!=null?r.pctOfRevenue+"% من الإيرادات":""}))}):"";
   const keys=["الإيرادات","مجمل الربح","الربح التشغيلي","صافي الربح"];
@@ -50,10 +52,10 @@ const item=(no,title,body,id)=>'<section class="rd-item" id="'+(id||"")+'"><h3><
 
 /* ---------- the auditor's report ---------- */
 function auditor(x){
-  const a=R().auditorsReport({company:x.ctx.company,periodEnd:x.periodEnd,framework:x.fw,opinion:x.opinion.opinion,basis:x.opinion.basis,kams:x.kams,goingConcern:x.opinion.goingConcern,
+  const a=R().auditorsReport({company:x.ctx.company,periodEnd:x.periodEnd,framework:x.fw,opinion:x.opinion.opinion,basis:x.opinion.basis,kams:x.kams,goingConcern:x.opinion.goingConcern,approach:x.approach,
     firm:x.ctx.auditFirm,partner:x.ctx.auditPartner,licence:x.ctx.auditLicence,city:x.ctx.auditCity});
   return '<article class="rd-doc rd-audit"><header class="rd-h"><small>'+(a.draft?'مسودة للمراجعة — لا تصدر قبل اعتماد الشريك':'')+'</small><h2>'+esc(a.title)+'</h2><p>'+esc(a.addressee)+'</p></header>'+
-    a.sections.map(s=>'<section class="rd-sec"><h4>'+esc(s.title)+'</h4>'+s.paragraphs.map(p=>'<p>'+esc(p)+'</p>').join("")+
+    a.sections.map(s=>'<section class="rd-sec"><h4>'+esc(s.title)+'</h4>'+s.paragraphs.map(p=>'<p>'+esc(p)+'</p>').join("")+kv(s.table)+
       (s.kams?s.kams.map(k=>'<div class="rd-kam"><h5>'+esc(k.title)+'</h5><table class="rd-kt"><tr><th>وصف الأمر</th><td>'+esc(k.description)+'</td></tr><tr><th>كيف عالجنا الأمر في مراجعتنا</th><td>'+esc(k.how)+'</td></tr></table></div>').join(""):'')+'</section>').join("")+
     '<footer class="rd-sign"><div><b>'+esc(a.signature.firm)+'</b><span>'+esc(a.signature.partner)+' — ترخيص رقم '+esc(a.signature.licence)+'</span></div><div><span>'+esc(a.signature.city)+'</span><span>'+esc(a.signature.date)+'</span></div></footer></article>';
 }
@@ -89,7 +91,7 @@ function annual(x){
   const shareTable=(rows)=>'<table class="rd-t">'+head(hp?["","السنة الحالية","السنة السابقة","التغير","% من الإيرادات","% السابقة"]:["","المبلغ","التغير","% من الإيرادات"],cur)+'<tbody>'+
     rows.map(r=>'<tr class="'+(r.level==="total"?"tot":"")+'"><td>'+esc(r.ar)+'</td><td class="n">'+m0(r.current)+'</td>'+(hp?'<td class="n">'+(r.prior===null?"—":m0(r.prior))+'</td>':'')+'<td class="n">'+chg(r.change)+'</td><td class="n">'+pct(r.pctOfRevenue)+'</td>'+(hp?'<td class="n">'+pct(r.pctOfRevenuePrior)+'</td>':'')+'</tr>').join("")+'</tbody></table>';
   let h='<article class="rd-doc rd-annual">'+
-    '<header class="rd-cover"><small>التقرير السنوي</small><h1>'+esc(ctx.company||"[اسم المنشأة]")+'</h1><p>'+esc(ctx.period||"[الفترة]")+'</p><p>'+esc({IFRS:"المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية",SME:"المعيار الدولي للتقرير المالي للمنشآت الصغيرة والمتوسطة (المملكة)",EAS:"معايير المحاسبة المصرية"}[x.fw])+' · العملة: '+esc(cur)+'</p><i>مسودة معدّة بـ KOSIF على نموذج التقرير السنوي (10-K) — للمراجعة قبل الإصدار</i></header>'+
+    '<header class="rd-cover"><small>التقرير السنوي</small><h1>'+esc(ctx.company||"[اسم المنشأة]")+'</h1><p>'+esc(ctx.period||"[الفترة]")+'</p><p>'+esc({IFRS:"المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية",SME:"المعيار الدولي للتقرير المالي للمنشآت الصغيرة والمتوسطة (المملكة)",EAS:"معايير المحاسبة المصرية"}[x.fw])+' · العملة: '+esc(cur)+'</p><i>مسودة معدّة بـ SQC على نموذج التقرير السنوي (10-K) — للمراجعة قبل الإصدار</i></header>'+
     '<nav class="rd-toc"><h4>المحتويات</h4><ol>'+toc.map(([n,t,id])=>'<li><a href="#'+id+'"><span>'+(n?'البند '+esc(n):'تقرير')+'</span>'+esc(t)+'</a></li>').join("")+'</ol></nav>'+
     '<h2 class="rd-part">الجزء الأول</h2>'+
     item("البند 1","النشاط",'<p>'+esc(ctx.company||"المنشأة")+(ctx.legalForm?' — '+esc(ctx.legalForm):'')+'، ومقرها '+esc(ctx.registeredOffice||ctx.principalPlace||"[المقر]")+'، تعمل في '+esc(ctx.activity||"[النشاط]")+'. تُعد قوائمها المالية وفق '+esc({IFRS:"المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية",SME:"المعيار الدولي للتقرير المالي للمنشآت الصغيرة والمتوسطة المعتمد في المملكة",EAS:"معايير المحاسبة المصرية"}[x.fw])+'.</p>'+
@@ -131,7 +133,72 @@ function annual(x){
   '</article>';
   return h;
 }
+/* ---------- shared: a label/value table (governance sections) and an engine table (notes) ---------- */
+function kv(t){
+  if(!t||!t.rows||!t.rows.length)return "";
+  const head=t.columns&&t.columns.some(Boolean)?'<thead><tr>'+t.columns.map(c=>'<th>'+esc(c)+'</th>').join("")+'</tr></thead>':'';
+  return '<table class="rd-t rd-kv">'+head+'<tbody>'+t.rows.map(r=>'<tr>'+r.map((c,i)=>i===0&&!head?'<th>'+esc(c)+'</th>':'<td>'+esc(c)+'</td>').join("")+'</tr>').join("")+'</tbody></table>';
+}
+function etable(t,cur){
+  if(!t)return "";
+  return '<div class="rd-nt"><h5>'+esc(t.title)+'</h5><table class="rd-t">'+head(t.columns.length>1?t.columns:["",""],cur)+'<tbody>'+
+    t.rows.map(r=>'<tr class="'+(r.level==="total"?"tot":r.level==="subtotal"?"sub":"")+'"><td>'+esc(r.ar)+'</td>'+r.values.map(v=>'<td class="n">'+(v===null||v===undefined?"—":m0(v))+'</td>').join("")+'</tr>').join("")+
+    '</tbody></table>'+(t.note?'<p class="rd-note">'+esc(t.note)+'</p>':'')+'</div>';
+}
+
+/* ---------- the notes to the financial statements (the full package) ---------- */
+function notes(x){
+  const fs=x.fs,hp=fs.hasPrior,cur=x.cur,pk=x.notesPkg,ctx=x.ctx;
+  const lineNote=n=>{const l=fs.lines.find(z=>z.key===n.lineKey);if(!l)return "";
+    return '<table class="rd-t">'+head(hp?["الحساب","السنة الحالية","السنة السابقة"]:["الحساب","المبلغ"],cur)+'<tbody>'+l.accounts.map(a=>'<tr><td>'+esc(a.name)+' <small class="rd-mono">'+esc(a.code)+'</small></td><td class="n">'+m0(a.current)+'</td>'+(hp?'<td class="n">'+(a.prior===null?"—":m0(a.prior))+'</td>':'')+'</tr>').join("")+
+      '<tr class="tot"><td>'+esc(l.ar)+'</td><td class="n">'+m0(l.current)+'</td>'+(hp?'<td class="n">'+(l.prior===null?"—":m0(l.prior))+'</td>':'')+'</tr></tbody></table>'+
+      '<p class="rd-note">المعايير: '+esc(l.standards.join("، "))+'</p>'+(pk.lineTables[n.lineKey]||[]).map(t=>etable(t,cur)).join("")};
+  const policy=n=>'<p>'+esc(x.policies[n.no]||"")+'</p>'+(n.no===4&&x.c.disclosures.uncertainties.length?'<ul class="rd-bul">'+x.c.disclosures.uncertainties.map(u=>'<li><b>'+esc(u.nature)+'</b> — '+esc(u.affected)+' '+m0(u.carrying)+' '+esc(cur)+'؛ الافتراضات: '+esc(u.assumptions.join("، "))+'.</li>').join("")+'</ul>':'');
+  const note=(no,ar,en,body)=>'<section class="rd-note-s"><h4><span>'+no+'</span>'+esc(ar)+' <small dir="ltr">'+esc(en)+'</small></h4>'+body+'</section>';
+  return '<article class="rd-doc rd-notes"><header class="rd-h"><small>القوائم المالية</small><h2>الإيضاحات المتممة للقوائم المالية</h2><p>'+esc(ctx.company||"[اسم المنشأة]")+' — '+esc(ctx.period||"[الفترة]")+' · جميع المبالغ بالعملة: '+esc(cur)+'</p></header>'+
+    '<nav class="rd-toc"><h4>فهرس الإيضاحات</h4><ol class="rd-toc2">'+[...fs.notes.map(n=>[n.no,n.ar]),...pk.supplementary.map(s=>[s.no,s.ar])].map(([n,a])=>'<li><span>'+n+'</span>'+esc(a)+'</li>').join("")+'</ol></nav>'+
+    fs.notes.map(n=>note(n.no,n.ar,n.en,n.kind==="policy"?policy(n):lineNote(n))).join("")+
+    pk.supplementary.map(s=>note(s.no,s.ar,s.en,s.text.map(t=>'<p>'+esc(t)+'</p>').join("")+s.tables.map(t=>etable(t,cur)).join(""))).join("")+
+    (pk.zakat&&pk.zakat.flag?'<p class="rd-risk">الزكاة المسجلة تختلف عن التقدير الإرشادي بأكثر من 10% — راجع احتساب الوعاء قبل الإصدار.</p>':'')+
+    '<p class="rd-note">جداول الحركة والمطابقات مشتقة من ميزان المراجعة وتتطابق مع القوائم؛ ما يتطلب بيانات خارج الميزان (الجداول التعاقدية للاستحقاق، التقييم الاكتواري، الاحتساب الزكوي النهائي) مذكور على جدوله.</p></article>';
+}
+
+/* ---------- governance: audit committee and internal control ---------- */
+function govDoc(r,eyebrow){
+  return '<article class="rd-doc rd-gov"><header class="rd-h"><small>'+esc(eyebrow)+'</small><h2>'+esc(r.title)+'</h2></header>'+
+    r.sections.map(s=>'<section class="rd-sec"><h4>'+esc(s.title)+'</h4>'+s.paragraphs.map(p=>'<p>'+esc(p)+'</p>').join("")+kv(s.table)+'</section>').join("")+
+    '<footer class="rd-sign"><div><b>[الاسم]</b><span>[المنصب]</span></div><div><span>[التاريخ]</span></div></footer></article>';
+}
+function committee(x){return govDoc(SKEngines.audit.governance.auditCommitteeReport(x.committee),"مسودة — تعتمدها اللجنة")}
+function icfr(x){
+  const r=SKEngines.audit.governance.icfrReport(x.icfr);
+  return govDoc(r,(r.effective?"الرقابة فعالة":"الرقابة غير فعالة")+" — مسودة تعتمدها الإدارة");
+}
+
+/* ---------- global peers: your ratios against eight groups read from the research bundle ---------- */
+function peers(x){
+  const P=SKEngines.reports.peerBenchmarks,rows=P.compare(x.fs,{sector:x.peerSector||""});
+  const u=(v,unit)=>v===null||v===undefined?"—":unit==="%"?v+"%":unit==="days"?v+" يوم":v+"×";
+  const V={better:["أفضل من الوسيط","pos"],weaker:["أضعف من الوسيط","neg"],typical:["قريب من الوسيط",""],"n/a":["—",""]};
+  const bar=r=>{if(r.you===null||r.min===null||r.max===null||r.max===r.min)return "";const lo=Math.min(r.min,r.you),hi=Math.max(r.max,r.you),sp=hi-lo||1,pos=v=>((v-lo)/sp*100).toFixed(1);
+    return '<span class="rd-rng" aria-hidden="true"><i style="inset-inline-start:'+pos(r.min)+'%;width:'+(pos(r.max)-pos(r.min)).toFixed(1)+'%"></i><b style="inset-inline-start:'+pos(r.median)+'%"></b><em style="inset-inline-start:'+pos(r.you)+'%"></em></span>'};
+  return '<article class="rd-doc rd-peers"><header class="rd-h"><small>التحليل</small><h2>المقارنة بالنظراء العالميين</h2><p>نسبك مقابل '+P.PEERS.length+' مجموعات عالمية من حزمة البحث — النسب فقط، فلا تختلط العملات.</p></header>'+
+    '<table class="rd-t"><thead><tr><th>المؤشر</th><th>منشأتك</th><th>وسيط النظراء</th><th>المدى</th><th>الموقع</th><th></th></tr></thead><tbody>'+
+    rows.map(r=>'<tr><td>'+esc(r.ar)+'<small class="rd-sub">'+esc(r.formula)+'</small></td><td class="n"><b>'+u(r.you,r.unit)+'</b></td><td class="n">'+u(r.median,r.unit)+'</td><td class="n">'+(r.min===null?"—":u(r.min,r.unit)+' – '+u(r.max,r.unit))+'</td><td class="'+V[r.verdict][1]+'">'+V[r.verdict][0]+'</td><td class="rd-rng-c">'+bar(r)+'</td></tr>').join("")+'</tbody></table>'+
+    '<p class="rd-note">الشريط: المدى الرمادي للنظراء، والخط الداكن للوسيط، والنقطة لمنشأتك.</p>'+
+    '<h4>النظراء ومصادر أرقامهم</h4><table class="rd-t sm"><thead><tr><th>المجموعة</th><th>السنة</th><th>الإطار</th><th>العملة</th><th>صفحات القوائم في الحزمة</th></tr></thead><tbody>'+
+    P.PEERS.map(p=>'<tr><td>'+esc(p.company)+'</td><td>'+esc(p.fy)+'</td><td>'+esc(p.framework)+'</td><td>'+esc(p.currency)+'</td><td class="n">'+p.pages.is+' · '+p.pages.bs+(p.pages.bsTo?'–'+p.pages.bsTo:'')+' · '+p.pages.cf+'</td></tr>').join("")+'</tbody></table>'+
+    '<p class="rd-note">المقارنة سياق لا هدف: الحجم ونموذج العمل والإطار (IFRS أو US GAAP) تختلف. أيام السداد تُحسب لمن يفصل الذمم الدائنة التجارية فقط، وهامش مجمل الربح لمن يعرض تكلفة الإيرادات.</p></article>';
+}
+
 const CSS=`
+.rd-kv th{width:32%;background:#f8fafd!important;color:#0b2a5b!important;font-weight:700;border-bottom:1px solid #e7ecf3}.rd-kv td{white-space:normal!important;text-align:start!important;direction:rtl!important}
+.rd-nt{margin:10px 0 14px}.rd-nt h5{margin:8px 0 4px}.rd-mono{font-family:ui-monospace,monospace;color:#6a7a92;font-size:11px}
+.rd-note-s{margin:18px 0;break-inside:auto}.rd-note-s>h4{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid #dfe6ef;padding-bottom:4px}.rd-note-s>h4 span{min-width:28px;color:#1668e3}.rd-note-s>h4 small{margin-inline-start:auto;font-weight:500;color:#6a7a92;font-size:11px}
+.rd-toc .rd-toc2{display:block;columns:2;column-gap:28px}.rd-toc2 li{display:flex;gap:10px;break-inside:avoid;padding:2px 0}.rd-toc2 li span{min-width:24px;color:#1668e3;font-weight:700}
+.rd-sub{display:block;color:#6a7a92;font-size:10.5px;font-weight:400}
+.rd-rng-c{width:160px}.rd-rng{position:relative;display:block;height:12px;min-width:120px}.rd-rng i{position:absolute;top:4px;height:4px;border-radius:2px;background:#cfd8e6}.rd-rng b{position:absolute;top:0;width:2px;height:12px;background:#0b2a5b}.rd-rng em{position:absolute;top:2px;width:8px;height:8px;margin-inline-start:-4px;border-radius:50%;background:#1668e3;box-shadow:0 0 0 2px #fff}
+@media (max-width:640px){.rd-toc2{columns:1}.rd-rng-c{display:none}}
 .rd-fig{margin:14px 0 18px;padding:12px 14px;border:1px solid #e3e9f2;border-radius:10px;break-inside:avoid;page-break-inside:avoid}
 .rd-fig h5{margin:0 0 8px;font-size:12.5px;color:#0b2a5b}
 .rd-doc{font-family:"IBM Plex Sans Arabic",var(--sk-font,system-ui);color:#14233a;line-height:1.85;font-size:13.5px}
@@ -162,5 +229,5 @@ const CSS=`
 .rd-sign{display:flex;justify-content:space-between;gap:20px;margin-top:22px;padding-top:12px;border-top:1px solid #dfe6ef}.rd-sign div{display:grid;gap:2px}
 @media print{.rd-cover{page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}.rd-part,.rd-audit{page-break-before:always}.rd-item,.rd-t{page-break-inside:auto}.rd-t tr{page-break-inside:avoid}.rd-toc{page-break-after:always}}
 `;
-window.SKosifReportDocs=Object.freeze({annual,release,auditor,figures,CSS});
+window.SKosifReportDocs=Object.freeze({annual,release,auditor,notes,committee,icfr,peers,figures,stmt,kv,CSS});
 })();

@@ -1,5 +1,5 @@
 /**
- * KOSIF Audit Studio deterministic engine.
+ * SQC Audit Studio deterministic engine.
  * All accountable monetary calculations use integer minor units (BigInt).
  * AI-style commentary in the UI never posts entries or approves an audit opinion.
  */
