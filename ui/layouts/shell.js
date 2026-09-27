@@ -1,6 +1,7 @@
 /* S.kosif layout — the app shell (window.SKosifShell).
-   Paints the rail from the capability registry (one source of truth), filtered by role and by
-   the daily/advanced switch; keeps the topbar title, breadcrumb and search in sync; owns the
+   Paints the rail from the capability registry (one source of truth), filtered by role: the section
+   switch at the top of the rail (the audit · the helper tools · Jev · the command centre) and the
+   domains of the current section below it, every screen listed (there is no daily/advanced split); keeps the topbar title, breadcrumb and search in sync; owns the
    appearance preferences, the phone drawer (with an edge swipe) and its bottom tab bar (the user
    picks its screens), the laptop's compact rail, the installed-window title bar, the offline
    notice, the update notice and the no-permission state. The core calls SKosifShell.paint()
@@ -10,7 +11,6 @@
 const {$,$$,esc,load,save}=SK;
 const core=()=>window.SKosifCore;
 const PREF_KEY="skosif_prefs";
-const ADV_NOTE="الأدوات المتقدمة ظاهرة داخل كل مجال — أخفها من «التشغيل اليومي».";
 
 /* ---------- preferences: theme (look) + density ----------
    look: kosif (default, the adopted KOSIF identity) | kosif-night | heritage | heritage-night | executive | audit | midnight | notebook | auto */
@@ -137,16 +137,33 @@ function navButton(c,cur,pages){
   const more=pages.length>1?'<i class="skn-hubn" title="'+pages.length+' صفحات">'+pages.length+'</i>':"";
   return '<button type="button" class="nav-btn" data-act="nav" data-v="'+go.id+'" data-hub="'+c.id+'" title="'+esc(c.hubLabel)+'"'+(on?' aria-current="page"':'')+'>'+icon+'<span>'+esc(c.hubLabel)+'</span>'+(badge||more)+'</button>';
 }
-/* the pages of a hub this user may open in the current mode */
-function hubPages(id,cur){
-  const adv=core()&&core().mode()==="advanced";
-  return SK.caps.members(id).filter(x=>(adv||x.primary||x.id===cur)&&SK.perm.can(x.id));
-}
+/* the pages of a hub this user may open (all of them: nothing is hidden behind an «advanced» mode) */
+function hubPages(id){return SK.caps.members(id).filter(x=>SK.perm.can(x.id))}
 let lastSig="";
 /* the menu: collapsible domains (icon · name · count), the current screen's domain always open,
    and a filter box above it; open/closed state per device (skosif_nav_v1) */
 const NAV_KEY="skosif_nav_v1";
-const GICON={home:"dash",audit:"tbreview",helpers:"helperdesk",system:"settings"};
+const GICON={command:"dash",audit:"tbreview",auditref:"codex",helpers:"helperdesk",catalog:"productflow",sales:"commerce",stock:"inventory",finance:"ledger",reports:"execreports",jev:"jev",system:"settings"};
+/* the section on screen: the current screen's, or — on a system screen — the last one chosen */
+function curSection(){
+  const c=core(),sec=c?SK.caps.sectionOf(c.view()):"",d=load(NAV_KEY,{})||{};
+  if(sec&&sec!=="system"){if(d.sec!==sec){d.sec=sec;save(NAV_KEY,d)}return sec}
+  return d.sec||"audit";
+}
+/* remember the last screen of each section, so switching back returns to it */
+function rememberView(){const c=core();if(!c)return;const v=c.view(),sec=SK.caps.sectionOf(v);if(!sec||sec==="system")return;const d=load(NAV_KEY,{})||{};d.last={...(d.last||{}),[sec]:v};save(NAV_KEY,d)}
+function goSection(id){
+  const S=SK.caps.section(id),c=core();if(!S||!c)return;const d=load(NAV_KEY,{})||{},last=(d.last||{})[id];
+  d.sec=id;save(NAV_KEY,d);const to=last&&SK.caps.get(last)&&SK.perm.can(last)?last:S.home;
+  if(c.view()===to){lastSig="";paint()}else c.go(to);
+}
+/* the section switch replaces the old «daily / advanced» segment at the top of the rail */
+function paintSections(){
+  const box=$("#modeseg");if(!box)return;const cur=curSection();
+  const html=SK.caps.sections().map(S=>'<button type="button" data-sec="'+S.id+'" aria-pressed="'+(S.id===cur)+'" title="'+esc(S.label+" — "+S.sub)+'">'+(SK.icons[S.icon]||"")+'<span>'+esc(S.short)+'</span></button>').join("");
+  if(box.dataset.skSec!==html){box.innerHTML=html;box.dataset.skSec=html;box.classList.add("sk-secs");box.setAttribute("role","group");box.setAttribute("aria-label","أقسام التطبيق")}
+  if(!box.dataset.skBound){box.dataset.skBound="1";box.addEventListener("click",e=>{const b=e.target.closest("[data-sec]");if(!b)return;e.preventDefault();e.stopPropagation();goSection(b.dataset.sec)},true)}
+}
 const CHEV='<svg class="skn-ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
 const navState=()=>{const d=load(NAV_KEY,{})||{};return d.open&&typeof d.open==="object"?d.open:{}};
 function setNavOpen(g,v){const d=load(NAV_KEY,{})||{};d.open={...(d.open||{}),[g]:v};save(NAV_KEY,d)}
@@ -154,20 +171,19 @@ let navQ="";
 const nq=s=>String(s||"").toLowerCase().replace(/[ً-ٰٟ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").trim();
 function paintNav(){
   const nav=$("#nav");if(!nav||!core())return;
-  const adv=core().mode()==="advanced",cur=core().view(),open=navState();
-  let html="",helper=false;
-  SK.caps.groups().forEach(g=>{
-    const items=SK.caps.hubsInGroup(g.id).map(c=>[c,hubPages(c.id,cur)]).filter(([,pg])=>pg.length);
+  const cur=core().view(),open=navState(),sec=curSection(),S=SK.caps.section(sec);
+  rememberView();paintSections();
+  let html=S?'<p class="skn-sec skn-sec-top">'+esc(S.label)+'</p>':"",sys=false;
+  SK.caps.groups().filter(g=>g.section===sec||g.section==="system").forEach(g=>{
+    const items=SK.caps.hubsInGroup(g.id).map(c=>[c,hubPages(c.id)]).filter(([,pg])=>pg.length);
     if(!items.length)return;
-    /* the audit is the application; everything after this heading helps the accountant and stands on its own */
-    if(g.section==="helper"&&!helper){helper=true;html+='<p class="skn-sec">الأدوات المساعدة للمحاسب</p>'}
-    if(g.section!=="helper"&&helper&&g.id==="system"){html+='<p class="skn-sec">النظام</p>';helper=false}
-    const here=items.some(([,pg])=>pg.some(x=>x.id===cur)),isOpen=here||(open[g.id]!==undefined?open[g.id]:g.id==="audit");
+    if(g.section==="system"&&!sys){sys=true;html+='<p class="skn-sec">النظام</p>'}
+    const first=SK.caps.groupsIn(sec)[0];
+    const here=items.some(([,pg])=>pg.some(x=>x.id===cur)),isOpen=here||(open[g.id]!==undefined?open[g.id]:g.section!=="system"&&(g.section!=="helpers"||g===first||g.id==="helpers"));
     html+='<div class="skn-group'+(isOpen?'':' closed')+(here?' here':'')+'" role="group" aria-label="'+esc(g.label)+'" data-g="'+g.id+'">'+
       '<button type="button" class="nav-group skn-gh" data-g="'+g.id+'" aria-expanded="'+isOpen+'"><span class="skn-gi">'+(SK.icons[GICON[g.id]]||"")+'</span><span>'+esc(g.label)+'</span><i class="skn-gc">'+items.length+'</i>'+CHEV+'</button>'+
       items.map(([c,pg])=>navButton(c,cur,pg)).join("")+'</div>';
   });
-  if(adv)html+='<p class="skn-note">'+ADV_NOTE+'</p>';
   if(html!==lastSig||!nav.querySelector(".skn-group")){nav.innerHTML=html;lastSig=html}
   navSearch();filterNav();
 }
@@ -200,14 +216,12 @@ function navSearch(){
    الائتمان), otherwise the hubs of its domain */
 function stripItems(id){
   const c=core(),cap=SK.caps.get(id);if(!cap)return{hub:false,items:[]};
-  const pages=hubPages(id,id);
-  /* «متقدم» only marks an advanced page inside a daily hub */
-  const hubAdv=!SK.caps.hub(id).primary;
-  if(pages.length>1)return{hub:true,items:pages.map(x=>({id:x.id,go:x.id,label:x.label,primary:x.primary||hubAdv,on:x.id===id}))};
+  const pages=hubPages(id);
+  if(pages.length>1)return{hub:true,items:pages.map(x=>({id:x.id,go:x.id,label:x.label,on:x.id===id}))};
   /* accountant helpers can be numerous: their center/map is the domain navigation, not a 20-tab strip */
   if(cap.group==="helpers")return{hub:false,items:[]};
-  const items=SK.caps.hubsInGroup(cap.group).map(h=>[h,hubPages(h.id,id)]).filter(([,pg])=>pg.length)
-    .map(([h,pg])=>({id:h.id,go:pg[0].id,label:h.hubLabel,primary:h.primary,on:pg.some(x=>x.id===id)}));
+  const items=SK.caps.hubsInGroup(cap.group).map(h=>[h,hubPages(h.id)]).filter(([,pg])=>pg.length)
+    .map(([h,pg])=>({id:h.id,go:pg[0].id,label:h.hubLabel,on:pg.some(x=>x.id===id)}));
   return{hub:false,items};
 }
 function domainTabs(){
@@ -216,7 +230,7 @@ function domainTabs(){
   const id=c.view(),cap=SK.caps.get(id);
   const {hub,items}=stripItems(id);
   if(items.length<2){if(old)old.remove();return}
-  const html='<nav class="skn-domain'+(hub?' skn-hubtabs':'')+'" aria-label="'+esc(hub?cap.hubLabel:cap.groupLabel)+'">'+(hub?'<b class="skn-hubt">'+esc(cap.hubLabel)+'</b>':'')+items.map(x=>'<button type="button" data-act="nav" data-v="'+x.go+'"'+(x.on?' aria-current="page"':'')+'>'+(SK.icons[x.id]||c.navIcon(x.id)||"")+'<span>'+esc(x.label)+'</span>'+(x.primary?'':'<i>متقدم</i>')+'</button>').join("")+'</nav>';
+  const html='<nav class="skn-domain'+(hub?' skn-hubtabs':'')+'" aria-label="'+esc(hub?cap.hubLabel:cap.groupLabel)+'">'+(hub?'<b class="skn-hubt">'+esc(cap.hubLabel)+'</b>':'')+items.map(x=>'<button type="button" data-act="nav" data-v="'+x.go+'"'+(x.on?' aria-current="page"':'')+'>'+(SK.icons[x.id]||c.navIcon(x.id)||"")+'<span>'+esc(x.label)+'</span></button>').join("")+'</nav>';
   if(old){if(old.outerHTML!==html)old.outerHTML=html}else v.insertAdjacentHTML("afterbegin",html);
   const on=v.querySelector(".skn-domain [aria-current]");if(on&&on.scrollIntoView)on.scrollIntoView({block:"nearest",inline:"nearest"});
 }
@@ -225,7 +239,7 @@ function paintTop(){
   const cap=SK.caps.get(c.view());
   const t=$("#pg-title"),cr=$("#pg-crumb");
   document.documentElement.dataset.domain=cap?cap.group:"";
-  if(cap){if(t&&t.textContent!==cap.label)t.textContent=cap.label;if(cr)cr.textContent=SK.caps.path(cap.id)+(cap.primary?"":" · متقدم")}
+  if(cap){if(t&&t.textContent!==cap.label)t.textContent=cap.label;if(cr)cr.textContent=((SK.caps.section(cap.section)||{}).short?SK.caps.section(cap.section).short+" › ":"")+SK.caps.path(cap.id)}
   else if(cr)cr.textContent="";
   document.title=(cap?cap.label:(t&&t.textContent)||"")+" · SQC";
   const rail=$("#rail");document.body.classList.toggle("skn-locked",!!(rail&&rail.classList.contains("open"))&&innerWidth<=900);
@@ -233,7 +247,8 @@ function paintTop(){
 /* phones: bottom tab bar — in the page flow (sticky), never over content. Four screens the user
    picks in «الأجهزة والمزامنة» (prefs.tabs), then «المزيد» opens the drawer. */
 /* default four chosen with Jev (hybrid: daily selling + the new risk screen, p=0.75); notifications live on the bell */
-const TABS=["tbreview","helperdesk","codex","auditbench"];
+/* the phone's bar: the four sections of the app */
+const TABS=["tbreview","helperdesk","jev","dash"];
 const SHORT={dash:"الرئيسية",helperdesk:"الأدوات",tbreview:"المراجعة",codex:"المعايير",auditbench:"المرجع",commerce:"الطلبات",tasks:"المهام",inventory:"المخزون",zatca:"الفاتورة",customers:"العملاء",followup:"المتابعة",offers:"العروض",
   catalog:"الأسعار",sim:"التسعير",purchasing:"الشراء",suppliers:"الموردون",cash:"النقد",receivables:"الذمم",ledger:"الدفاتر",jev:"Jev",council:"المجلس",
   execreports:"التقارير",scanner:"الماسح",labels:"الملصقات",operations:"المناسبات",b2bcredit:"الائتمان",traceability:"التبريد",decision:"القرار",
@@ -433,7 +448,7 @@ function boot(){
   const c=core();
   SK._flush();
   if(c){
-    c.setAdvanced(SK.caps.advancedIds());
+    c.setAdvanced([]);/* no screen is gated behind an «advanced» mode */
     c.onView("settings",settingsCards);
     c.onView("customers",customerCards);
   }

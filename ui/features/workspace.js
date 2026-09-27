@@ -30,7 +30,7 @@ function companiesBind(root){
     else if(a==="add-waha"){const W=window.SKEngines.reports.sampleCompany&&SKEngines.reports.sampleCompany.WAHA_COMPANY;if(!W)return;
       if(!d.companies.some(c=>c.id===W.id)){d.companies.push({id:W.id,name:W.name,country:W.country,currency:W.currency});W.periods.forEach(p=>d.periods.push({...p,companyId:W.id}))}
       toast("أُضيفت شركة الواحة — افتح «ملف المراجعة» واضغط «شركة الواحة — ملف كامل» لتحميل ميزانها","ok")}
-    else if(a==="use-co")d.active={companyId:b.dataset.id};
+    else if(a==="use-co"){if(SK.ws){SK.ws.switchTo(b.dataset.id).catch(err=>toast(err.message||String(err),"err"));return}d.active={companyId:b.dataset.id}}
     else if(a==="add-pe"){if(!SK.ui.validate(root))return;const p={id:SK.ui.uid("pe"),companyId:d.active.companyId,label:$("#pe-label",root).value.trim(),startDate:$("#pe-from",root).value,endDate:$("#pe-to",root).value};
       if(!window.SKEngines.system.companyContext.validatePeriod(p))return toast("تاريخ البداية يجب أن يسبق النهاية","warn");d.periods.push(p);d.active.periodId=p.id}
     else if(a==="use-pe")d.active.periodId=b.dataset.id;

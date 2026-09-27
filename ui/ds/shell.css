@@ -671,3 +671,17 @@ body{line-height:1.65;-webkit-font-smoothing:antialiased;text-rendering:optimize
 .skn-sec{margin:14px 12px 4px;font-size:10.5px;font-weight:800;letter-spacing:.06em;color:var(--sk-rail-mute,#8da2c0);text-transform:none;opacity:.9}
 #nav .skn-sec:first-child{margin-top:4px}
 .skn-searching .skn-sec{display:none}
+
+/* the section switch at the top of the rail: four programs in one app (the audit · the helper tools · Jev · the command centre) */
+.modeseg.sk-secs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px}
+.modeseg.sk-secs button{flex-direction:column;gap:3px;min-height:52px;padding:6px 2px;font-size:11px;font-weight:700;line-height:1.2}
+.modeseg.sk-secs button svg{width:17px;height:17px}
+.modeseg.sk-secs button span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.skn-sec-top{font-size:12px;color:var(--sk-rail-ink,inherit);opacity:.9;margin-top:6px}
+:root[data-rail="mini"] .modeseg.sk-secs{grid-template-columns:1fr}
+:root[data-rail="mini"] .modeseg.sk-secs button span{display:none}
+
+/* the page never scrolls sideways (on a phone it hid the first tab and cut every title): wide strips and
+   tables already scroll inside themselves, so their overflow is clipped here instead of widening the page */
+.maincol,#view{overflow-x:clip;max-width:100%}
+#view>*{min-width:0;max-width:100%}

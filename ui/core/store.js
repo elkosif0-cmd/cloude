@@ -2,7 +2,8 @@
    One backup for the whole app: every app localStorage key + every IndexedDB store of
    aghnam-app-v7. Restore is two-step: a dry run returns a preview without writing;
    applying it first keeps a pre-restore snapshot so rollback() can undo it. data() returns the
-   same backup object without downloading it (the encrypted iPhone ⇄ laptop transfer uses it). */
+   same backup object without downloading it (the encrypted iPhone ⇄ laptop transfer uses it).
+   The other companies of the helper tools (parked by SK.ws) travel in the same backup under "ws". */
 (()=>{
 "use strict";
 const DB="aghnam-app-v7",PREFIX=/^(aghnam|skosif|kosif|s_kosif)/,FORMAT="skosif-backup",VERSION=2;
@@ -39,13 +40,16 @@ async function sha256(text){
   const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(text));
   return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
 }
+/* the hashed body: the parked companies join it only when there are some (older backups hash {local,idb}) */
+const bodyOf=b=>JSON.stringify(b.ws&&Object.keys(b.ws).length?{local:b.local,idb:b.idb,ws:b.ws}:{local:b.local,idb:b.idb});
 async function collect(){
   const local={};appKeys().forEach(k=>{local[k]=localStorage.getItem(k)});
   const idb=await readIdb();
-  const body=JSON.stringify({local,idb});
+  let ws={};try{ws=SK.ws?await SK.ws.allSnaps():{}}catch{ws={}}
+  const b={local,idb,...(Object.keys(ws).length?{ws}:{})};
   return{format:FORMAT,version:VERSION,app:"SQC",createdAt:new Date().toISOString(),
-    counts:{keys:Object.keys(local).length,rows:Object.fromEntries(Object.entries(idb).map(([k,v])=>[k,v.length]))},
-    sha256:await sha256(body),local,idb};
+    counts:{keys:Object.keys(local).length,rows:Object.fromEntries(Object.entries(idb).map(([k,v])=>[k,v.length])),companies:Object.keys(ws).length},
+    sha256:await sha256(bodyOf(b)),...b};
 }
 async function backup(){
   const b=await collect();
@@ -57,9 +61,9 @@ async function parse(fileOrText){
   const text=typeof fileOrText==="string"?fileOrText:await fileOrText.text();
   let b;try{b=JSON.parse(text)}catch{throw new Error("الملف ليس JSON صالحاً")}
   if(b&&b.format===FORMAT){
-    const sum=await sha256(JSON.stringify({local:b.local,idb:b.idb}));
+    const sum=await sha256(bodyOf(b));
     if(b.sha256&&sum&&sum!==b.sha256)throw new Error("بصمة الملف لا تطابق محتواه — الملف معدّل أو تالف");
-    return{local:b.local||{},idb:b.idb||{},createdAt:b.createdAt};
+    return{local:b.local||{},idb:b.idb||{},ws:b.ws||{},createdAt:b.createdAt};
   }
   /* earlier settings-card export: {app:"S.kosif",data:{key:value}} (the name before SQC) */
   if(b&&(b.app==="SQC"||b.app==="S.kosif")&&b.data&&typeof b.data==="object"){
@@ -75,7 +79,7 @@ async function preview(fileOrText){
   Object.entries(b.local).forEach(([k,v])=>{const now=localStorage.getItem(k);if(now==null)keys.add.push(k);else if(now!==v)keys.change.push(k);else keys.same.push(k)});
   const keep=cur.filter(k=>!(k in b.local));
   const rows=Object.fromEntries(Object.entries(b.idb).map(([k,v])=>[k,(v||[]).length]));
-  return{createdAt:b.createdAt,keys,untouched:keep,rows,_b:b};
+  return{createdAt:b.createdAt,keys,untouched:keep,rows,companies:Object.keys(b.ws||{}).length,_b:b};
 }
 async function restore(fileOrText,opts={}){
   const p=await preview(fileOrText);
@@ -84,6 +88,7 @@ async function restore(fileOrText,opts={}){
   const b=p._b;
   Object.entries(b.local).forEach(([k,v])=>{try{localStorage.setItem(k,v)}catch{throw new Error("مساحة التخزين لا تكفي لاستعادة "+k)}});
   if(Object.keys(b.idb).length)await writeIdb(b.idb);
+  if(SK.ws&&Object.keys(b.ws||{}).length)await SK.ws.putSnaps(b.ws);
   SK.bus&&SK.bus.emit("restore",{keys:Object.keys(b.local).length,rows:p.rows});
   return p;
 }

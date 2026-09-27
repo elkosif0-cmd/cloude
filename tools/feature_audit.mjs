@@ -12,10 +12,10 @@ const has=s=>p.evaluate(x=>!!document.querySelector(x),s);
 const txt=s=>p.evaluate(x=>document.body.innerText.includes(x),s);
 const R=[];const ok=(area,name,v)=>R.push([area,name,!!v]);
 // ---------- earlier rounds ----------
-const E=await p.evaluate(()=>({docs:!!window.SKosifReportDocs&&['annual','release','auditor'].every(k=>typeof SKosifReportDocs[k]==='function'),assistant:!!window.SKosifAssistant,cmd:!!window.SKosifCommand,charts:['bars','line','hbars','waterfall','donut','matrix'].every(k=>SKCharts[k]),xlsx:!!(SKXlsx.write&&SKXlsx.book),looks:SKosifShell.looks().length,fonts:SKosifShell.fonts().length,accents:SKosifShell.accents().length,groups:SK.caps.groups().length,hubs:SK.caps.all().filter(c=>c.isHub).length,periodTB:!!SKEngines.finance.ledger.periodTrialBalance,globalReports:!!SK.caps.get('globalreports')}));
+const E=await p.evaluate(()=>({docs:!!window.SKosifReportDocs&&['annual','release','auditor'].every(k=>typeof SKosifReportDocs[k]==='function'),assistant:!!window.SKosifAssistant,cmd:!!window.SKosifCommand,charts:['bars','line','hbars','waterfall','donut','matrix'].every(k=>SKCharts[k]),xlsx:!!(SKXlsx.write&&SKXlsx.book),looks:SKosifShell.looks().length,fonts:SKosifShell.fonts().length,accents:SKosifShell.accents().length,groups:SK.caps.groups().length,sections:SK.caps.sections().length,hubs:SK.caps.all().filter(c=>c.isHub).length,periodTB:!!SKEngines.finance.ledger.periodTrialBalance,globalReports:!!SK.caps.get('globalreports')}));
 ok('الجولات السابقة','التقرير السنوي بنمط 10-K وبيان النتائج وتقرير المراجع',E.docs);
 ok('الجولات السابقة','إلغاء مركز التقارير العالمي (ما زال ملغياً)',!E.globalReports);
-ok('الجولات السابقة','إعادة التنظيم: مراجعة أولاً + أدوات المحاسب + النظام',E.groups===4&&E.hubs>=10);
+ok('الجولات السابقة','إعادة التنظيم: المراجعة أولاً + أدوات المحاسب + جيف + مركز القيادة، والنظام',E.sections===4&&E.groups>=8&&E.hubs>=10);
 ok('الجولات السابقة','الدفاتر ← ميزان الفترة ← مراجعة الميزان',E.periodTB);
 ok('الجولات السابقة','الرسوم البيانية المطورة (أعمدة، خطوط، أفقي، شلال، دائري، خريطة حرارية)',E.charts);
 ok('الجولات السابقة','Excel حقيقي (ورقة وعدة أوراق)',E.xlsx);
@@ -47,7 +47,8 @@ await go('auditanalytics',3500);const A=await p.evaluate(()=>({tabs:document.que
 ok('المنظومة الواحدة','أدوات التحليل بتبويبات التطبيق وبثيمه (صفحاتها وصوتها وأوامرها)',A.tabs>=15&&A.tools===2);
 {const base=(await import('node:fs')).readFileSync(new URL('../docs/rebuild/CAPABILITY_BASELINE.txt',import.meta.url),'utf8').split('\n').filter(l=>l&&!l.startsWith('#')).map(l=>l.split('\t')[0]);
  const have=await p.evaluate(()=>SK.caps.all().map(c=>c.id));ok('عدم ضياع القدرات','قدرات خط الأساس الـ'+base.length+' كلها مسجلة',base.every(id=>have.includes(id))&&have.length>=base.length);}
-await go('helperdesk',900);ok('هيكل المنتج','الأدوات غير المرتبطة بالمراجعة مجمعة في «أدوات مساعدة للمحاسب»',await p.evaluate(()=>SK.caps.get('helperdesk')?.group==='helpers'&&document.querySelectorAll('.hd-node').length>=5&&SK.caps.groups().map(g=>g.id).join('|')==='home|audit|helpers|system'));
+await go('helperdesk',900);ok('هيكل المنتج','أربعة أقسام: المراجعة، الأدوات المساعدة، جيف، مركز القيادة — بلا تقسيم يومي/متقدم',await p.evaluate(()=>SK.caps.sections().map(s=>s.id).join('|')==='audit|helpers|jev|command'&&SK.caps.advancedIds().length===0&&document.querySelectorAll('#modeseg [data-sec]').length===4&&SK.caps.all().every(c=>c.section)));
+ok('هيكل المنتج','الأدوات المساعدة برنامج مستقل: يسأل عن الشركة (الحالية / أخرى / جديدة) ثم شجرة فروعها',await p.evaluate(()=>SK.caps.get('helperdesk')?.section==='helpers'&&!!SK.ws&&document.querySelectorAll('.hd-co').length>=2&&!!document.querySelector('[data-hd-form]')&&document.querySelectorAll('.hd-branch').length>=5));
 await go('tbreview',1200);ok('هيكل المنتج','دورة المراجعة مرسومة كعقد وأسهم مع حلقة جولات الأدلة',await p.evaluate(()=>document.querySelectorAll('.tbr-flow-node').length===9&&!!document.querySelector('.tbr-flowloop')));
 // ---------- global research bundle: audit benchmarks ----------
 await go('companies',900);

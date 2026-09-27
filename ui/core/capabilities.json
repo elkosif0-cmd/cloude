@@ -1,6 +1,6 @@
 {
  "version": 1,
- "note": "Single source of truth for every S.kosif screen: navigation (9 domains; related screens form a hub — one menu entry whose pages open as tabs), each screen daily or advanced, command palette, permissions and docs/rebuild/*.md are generated from this file. Edit here only.",
+ "note": "Single source of truth for every SQC screen: four sections (the audit, the accountant's helper tools, Jev, the command centre) plus the system; each section holds domains, and related screens form a hub (one menu entry whose pages open as tabs). Every screen is in the menu — there is no daily/advanced split. The command palette, permissions and docs/rebuild/*.md are generated from this file. Edit here only.",
  "tiers": {
   "CORE": "العمل اليومي الأساسي",
   "MANAGEMENT": "الإدارة والمتابعة",
@@ -11,47 +11,59 @@
  },
  "groups": [
   {
+   "id": "command",
+   "label": "مركز القيادة العام",
+   "section": "command"
+  },
+  {
    "id": "audit",
-   "label": "المراجعة"
+   "label": "ملفات المراجعة",
+   "section": "audit"
+  },
+  {
+   "id": "auditref",
+   "label": "المعايير والمرجع العالمي",
+   "section": "audit"
+  },
+  {
+   "id": "helpers",
+   "label": "مدخل الأدوات والشركة",
+   "section": "helpers"
   },
   {
    "id": "catalog",
-   "label": "التكاليف والتسعير",
-   "section": "helper"
+   "label": "المنتج والتكاليف والتسعير",
+   "section": "helpers"
   },
   {
    "id": "sales",
    "label": "المبيعات والعملاء",
-   "section": "helper"
+   "section": "helpers"
   },
   {
    "id": "stock",
-   "label": "المخزون والموردون",
-   "section": "helper"
+   "label": "المخزون والموردون والإنتاج",
+   "section": "helpers"
   },
   {
    "id": "finance",
    "label": "المالية والمحاسبة",
-   "section": "helper"
+   "section": "helpers"
   },
   {
    "id": "reports",
-   "label": "التقارير",
-   "section": "helper"
+   "label": "التقارير والبيانات",
+   "section": "helpers"
   },
   {
-   "id": "intelligence",
-   "label": "القرار والذكاء",
-   "section": "helper"
-  },
-  {
-   "id": "home",
-   "label": "لوحة الأعمال والمهام",
-   "section": "helper"
+   "id": "jev",
+   "label": "جيف والقرار",
+   "section": "jev"
   },
   {
    "id": "system",
-   "label": "النظام والتكاملات"
+   "label": "النظام والتكاملات",
+   "section": "system"
   }
  ],
  "roles": {
@@ -226,7 +238,7 @@
    "id": "dash",
    "label": "مركز القيادة",
    "sub": "ما يحتاج قراراً اليوم، والمؤشرات من سجلاتك الفعلية",
-   "group": "home",
+   "group": "command",
    "tier": "CORE",
    "module": "core+ui/features/command-center.js",
    "data": [
@@ -251,7 +263,7 @@
    "legacy": "مهام منصة V40 + مهام CRM V8.2",
    "decision": "Rebuild",
    "kw": "مهمة تذكير متابعة",
-   "group": "home",
+   "group": "command",
    "hubLabel": "المهام والإشعارات",
    "adv": false,
    "en": "Tasks",
@@ -263,7 +275,7 @@
    "id": "notifications",
    "label": "مركز الإشعارات",
    "sub": "ما يحتاج انتباهك: القرارات والمهام والمخاطر والاستلامات والنظام",
-   "group": "home",
+   "group": "command",
    "hub": "tasks",
    "tier": "CORE",
    "module": "ui/features/notifications.js + ui/layouts/topbar.js (الجرس)",
@@ -283,7 +295,7 @@
    "id": "risks",
    "label": "المخاطر والملاحظات",
    "sub": "سجل المخاطر بالاحتمالية والأثر وخريطة حرارية، وملاحظات المراجعة حتى الحل",
-   "group": "home",
+   "group": "command",
    "tier": "MANAGEMENT",
    "module": "ui/features/risks.js + ui/components/charts.js",
    "data": [
@@ -303,7 +315,7 @@
    "id": "decision",
    "label": "مركز القرار",
    "sub": "صندوق الاستثناءات وأولوية Jev",
-   "group": "intelligence",
+   "group": "jev",
    "tier": "INTELLIGENCE",
    "module": "core (v19.5 + v20.2)",
    "data": [
@@ -325,7 +337,7 @@
    "id": "jev",
    "label": "Jev للقرار",
    "sub": "قرار منظم من بيانات مجمعة بلا بيانات شخصية",
-   "group": "intelligence",
+   "group": "jev",
    "hubLabel": "Jev ومجلس القرار",
    "tier": "INTELLIGENCE",
    "module": "ui/jev.js",
@@ -355,7 +367,7 @@
    "legacy": "Grand Fusion intelligence.council",
    "decision": "Rebuild",
    "kw": "تصويت مجلس قرار",
-   "group": "intelligence",
+   "group": "jev",
    "hub": "jev",
    "adv": false,
    "en": "Decision Council"
@@ -364,7 +376,7 @@
    "id": "risklab",
    "label": "المخاطر وجسر الربحية",
    "sub": "Profit Bridge وTornado وMonte Carlo",
-   "group": "intelligence",
+   "group": "jev",
    "hubLabel": "المخاطر والحساسية",
    "tier": "ADVANCED",
    "module": "core (v19)",
@@ -374,14 +386,14 @@
    "legacy": "المخاطر",
    "decision": "Keep",
    "kw": "مخاطر مونت كارلو",
-   "adv": true,
+   "adv": false,
    "en": "Risk & Profit Bridge"
   },
   {
    "id": "sensitivity",
    "label": "مختبر الحساسية",
    "sub": "أثر تغير المدخلات على القرار",
-   "group": "intelligence",
+   "group": "jev",
    "hub": "risklab",
    "tier": "ADVANCED",
    "module": "ui/tools.js",
@@ -391,7 +403,7 @@
    "legacy": "مختبر الحساسية",
    "decision": "Keep",
    "kw": "حساسية سيناريو",
-   "adv": true,
+   "adv": false,
    "en": "Sensitivity Lab"
   },
   {
@@ -567,7 +579,7 @@
    "legacy": "ذكاء المبيعات",
    "decision": "Keep",
    "kw": "مبيعات اتجاه باريتو",
-   "adv": true,
+   "adv": false,
    "en": "Sales Intelligence",
    "feeds": [
     "intelligence",
@@ -591,7 +603,7 @@
    "legacy": "ذكاء العملاء",
    "decision": "Keep",
    "kw": "شرائح احتفاظ",
-   "adv": true,
+   "adv": false,
    "en": "Customer & Demand Intelligence"
   },
   {
@@ -609,7 +621,7 @@
    "legacy": "اقتصاديات الطلب",
    "decision": "Keep",
    "kw": "شحن عمولة",
-   "adv": true,
+   "adv": false,
    "en": "Order Economics",
    "feeds": [
     "sim",
@@ -751,7 +763,7 @@
    "legacy": "اقتصاديات الذبيحة",
    "decision": "Keep",
    "kw": "ذبيحة تصافي",
-   "adv": true,
+   "adv": false,
    "en": "Carcass Economics",
    "feeds": [
     "yieldlab",
@@ -773,7 +785,7 @@
    "legacy": "مختبر الجزارة",
    "decision": "Keep",
    "kw": "تجربة تشافي هدر",
-   "adv": true,
+   "adv": false,
    "en": "Butchery Yield Lab",
    "feeds": [
     "catalog"
@@ -793,7 +805,7 @@
    "legacy": "تفكيك الذبيحة",
    "decision": "Keep",
    "kw": "ذبيحة توزيع",
-   "adv": true,
+   "adv": false,
    "en": "Carcass Split (NRV)",
    "feeds": [
     "catalog"
@@ -895,7 +907,7 @@
    "legacy": "الهندسة المالية",
    "decision": "Keep",
    "kw": "تعادل حساسية",
-   "adv": true,
+   "adv": false,
    "en": "Financial Engineering"
   },
   {
@@ -947,8 +959,7 @@
     "zatca",
     "finance"
    ],
-   "hub": "productflow",
-   "hidden": false
+   "hub": "productflow"
   },
   {
    "id": "costs",
@@ -964,13 +975,12 @@
    "legacy": "مركز التكاليف",
    "decision": "Keep",
    "kw": "تكلفة هدر مصروف",
-   "adv": true,
+   "adv": false,
    "en": "Costs & Expenses",
    "feeds": [
     "catalog",
     "builder"
-   ],
-   "hidden": false
+   ]
   },
   {
    "id": "sim",
@@ -991,8 +1001,7 @@
    "feeds": [
     "memo"
    ],
-   "hub": "productflow",
-   "hidden": false
+   "hub": "productflow"
   },
   {
    "id": "kernel",
@@ -1006,9 +1015,8 @@
    "legacy": "نواة التسعير",
    "decision": "Keep",
    "kw": "محرك تقريب",
-   "adv": true,
-   "en": "Strict Pricing Kernel",
-   "hidden": false
+   "adv": false,
+   "en": "Strict Pricing Kernel"
   },
   {
    "id": "memo",
@@ -1029,8 +1037,7 @@
     "archive",
     "catalog"
    ],
-   "hub": "productflow",
-   "hidden": false
+   "hub": "productflow"
   },
   {
    "id": "builder",
@@ -1054,8 +1061,7 @@
     "memo",
     "offers"
    ],
-   "hub": "productflow",
-   "hidden": false
+   "hub": "productflow"
   },
   {
    "id": "analyzer",
@@ -1071,9 +1077,8 @@
    "legacy": "تحليل مكونات البوكس",
    "decision": "Keep",
    "kw": "مكونات دائرة",
-   "adv": true,
-   "en": "Box Analyzer",
-   "hidden": false
+   "adv": false,
+   "en": "Box Analyzer"
   },
   {
    "id": "compare",
@@ -1089,9 +1094,8 @@
    "legacy": "استوديو المقارنة",
    "decision": "Keep",
    "kw": "مقارنة",
-   "adv": true,
-   "en": "Comparative Analysis",
-   "hidden": false
+   "adv": false,
+   "en": "Comparative Analysis"
   },
   {
    "id": "labels",
@@ -1129,7 +1133,7 @@
    "id": "smartmatch",
    "label": "مطابقة المبيعات",
    "sub": "ربط أوصاف البيع بالأصناف",
-   "group": "catalog",
+   "group": "reports",
    "hubLabel": "المطابقة",
    "tier": "UTILITIES",
    "module": "ui/smartmatch.js",
@@ -1139,7 +1143,7 @@
    "legacy": "مطابقة المبيعات",
    "decision": "Keep",
    "kw": "مطابقة وصف",
-   "adv": true,
+   "adv": false,
    "en": "Sales Matching",
    "feeds": [
     "customers",
@@ -1150,7 +1154,7 @@
    "id": "excelrecon",
    "label": "مطابقة الإكسل",
    "sub": "ملفك مقابل المعالجة المعتمدة",
-   "group": "catalog",
+   "group": "reports",
    "hub": "smartmatch",
    "tier": "UTILITIES",
    "module": "ui/tools.js",
@@ -1158,7 +1162,7 @@
    "legacy": "مطابقة الإكسل",
    "decision": "Keep",
    "kw": "إكسل فروقات",
-   "adv": true,
+   "adv": false,
    "en": "Excel Reconciliation",
    "feeds": [
     "catalog"
@@ -1266,7 +1270,7 @@
    "id": "codex",
    "label": "المدونة المحاسبية والمعايير",
    "sub": "المعايير بمتطلباتها وإجراءات مراجعتها ومصادرها الرسمية، وتحديثها من الجهات المصدرة باعتمادك",
-   "group": "audit",
+   "group": "auditref",
    "tier": "MANAGEMENT",
    "module": "ui/features/codex.js + SKEngines.audit.{codex,standardsUpdate}",
    "data": [
@@ -1286,7 +1290,7 @@
    "id": "auditbench",
    "label": "المرجع العالمي للمراجعة",
    "sub": "ما كتبه مراجعو 49 مجموعة عالمية فعلاً: الأمور الرئيسية للمراجعة بموضوعاتها، والأهمية النسبية المفصح عنها لفحص اختيارك، ونسب ثماني مجموعات نظيرة من قوائمها، والمراجعون، و30 مصدراً رسمياً — كل رقم بصفحته في حزمة البحث",
-   "group": "audit",
+   "group": "auditref",
    "hub": "codex",
    "tier": "MANAGEMENT",
    "module": "ui/features/audit-bench.js + SKEngines.audit.{globalBenchmarks,materiality} + SKEngines.reports.{peerBenchmarks,globalCorpus}",
@@ -1315,7 +1319,7 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "مراجعة تدقيق",
-   "adv": true,
+   "adv": false,
    "en": "Audit Desk",
    "hub": "tbreview",
    "hidden": true
@@ -1337,7 +1341,7 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "دليل مستند ميزان",
-   "adv": true,
+   "adv": false,
    "en": "Documents & Evidence",
    "hidden": true
   },
@@ -1355,7 +1359,7 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "ملاحظة قضية",
-   "adv": true,
+   "adv": false,
    "en": "Findings & Issues",
    "hidden": true
   },
@@ -1373,7 +1377,7 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "مجلس",
-   "adv": true,
+   "adv": false,
    "en": "Reviewers' Council",
    "hidden": true
   },
@@ -1391,7 +1395,7 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "قيد قائمة مالية",
-   "adv": true,
+   "adv": false,
    "en": "Statements & Entries",
    "hidden": true
   },
@@ -1409,7 +1413,7 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "تقرير مراجع",
-   "adv": true,
+   "adv": false,
    "en": "Reports & Issuance",
    "hidden": true
   },
@@ -1426,7 +1430,7 @@
    "legacy": "KOSIF Audit Studio (classic)",
    "decision": "Keep",
    "kw": "بنفورد عينة",
-   "adv": true,
+   "adv": false,
    "en": "Financial Analytics & Risk",
    "hub": "tbreview",
    "feeds": [
@@ -1437,7 +1441,7 @@
    "id": "auditlab",
    "label": "مختبر المعايير والأبحاث",
    "sub": "مختبر البحث في المعايير",
-   "group": "audit",
+   "group": "auditref",
    "hub": "codex",
    "tier": "ADVANCED",
    "module": "ui/audit/lab",
@@ -1447,7 +1451,7 @@
    "legacy": "KOSIF Audit Studio (lab)",
    "decision": "Keep",
    "kw": "معايير مختبر",
-   "adv": true,
+   "adv": false,
    "en": "Standards Lab"
   },
   {
@@ -1500,7 +1504,7 @@
    "decision": "Rebuild",
    "kw": "شركة فترة سنة مالية",
    "group": "system",
-   "adv": true,
+   "adv": false,
    "en": "Companies & Periods",
    "feeds": [
     "ledger",
@@ -1522,7 +1526,7 @@
    "legacy": "الحوكمة",
    "decision": "Keep",
    "kw": "حوكمة تدقيق سجل",
-   "adv": true,
+   "adv": false,
    "en": "Governance & Readiness"
   },
   {
@@ -1540,7 +1544,7 @@
    "legacy": "الصحة والاستثناءات",
    "decision": "Keep",
    "kw": "تشخيص أخطاء",
-   "adv": true,
+   "adv": false,
    "en": "Health & Diagnostics"
   },
   {
@@ -1558,29 +1562,32 @@
    "legacy": "Capabilities v2",
    "decision": "Keep",
    "kw": "صلاحيات دور سحابة",
-   "adv": true,
+   "adv": false,
    "en": "Permissions & Workspaces"
   },
   {
    "id": "helperdesk",
-   "label": "مركز الأدوات المساعدة",
-   "sub": "خريطة مستقلة لأدوات المحاسب — التكلفة والتحليل والمطابقة والقرار والتقارير",
-   "group": "home",
-   "hubLabel": "مركز الأدوات المساعدة",
+   "label": "الشركة وشجرة الأدوات",
+   "sub": "اختر الشركة (الحالية أو أخرى أو جديدة) ثم شجرتها: المنتج والتكلفة، المبيعات والعملاء، المخزون والموردون، الدفاتر، التقارير",
+   "group": "helpers",
+   "hubLabel": "الشركة وشجرة الأدوات",
    "tier": "UTILITIES",
    "module": "ui/features/helper-center.js",
-   "data": [],
+   "data": [
+    "skosif_companies_v1",
+    "skosif-workspaces (IndexedDB)"
+   ],
    "legacy": "تنظيم كل الأدوات غير المرتبطة مباشرة بملف المراجعة في مساحة مستقلة",
    "decision": "Rebuild",
-   "kw": "أدوات مساعدة محاسب تكاليف مبيعات عملاء مطابقة تحليل Jev تقارير",
+   "kw": "أدوات مساعدة محاسب شركة جديدة تبديل الشركة مساحة عمل شجرة تكاليف مبيعات عملاء مخزون موردون قيود تقارير",
    "adv": false,
-   "en": "Accountant Helper Center",
+   "en": "Helper tools — company & tree",
    "feeds": [
     "productflow",
     "commerce",
+    "inventory",
     "ledger",
     "smartmatch",
-    "jev",
     "execreports"
    ]
   },
@@ -1589,7 +1596,6 @@
    "label": "مختبر الشركات العالمية",
    "sub": "قوائم 47 شركة من التقارير العالمية كموازين مراجعة: يراجعها SQC كأي عميل ويقارن ما وصل إليه بما كتبه مراجعها فعلاً — الأمور الرئيسية بصفحاتها، والأهمية النسبية المفصح عنها، وما يطلبه المراجعون أولاً",
    "group": "audit",
-   "hub": "codex",
    "tier": "MANAGEMENT",
    "module": "ui/features/corpus-lab.js + SKEngines.reports.corpusCompanies + SKEngines.audit.{corpusReplay,openingRequests,globalBenchmarks}",
    "data": [
@@ -1603,7 +1609,42 @@
    "feeds": [
     "tbreview",
     "auditbench"
-   ]
+   ],
+   "hubLabel": "الشركات العالمية (عملاء تجريبيون)"
+  }
+ ],
+ "sections": [
+  {
+   "id": "audit",
+   "label": "المراجعة والمراجعة المالية",
+   "short": "المراجعة",
+   "home": "tbreview",
+   "icon": "tbreview",
+   "sub": "ملفات العملاء من الميزان إلى التقرير"
+  },
+  {
+   "id": "helpers",
+   "label": "الأدوات المساعدة للمحاسب",
+   "short": "الأدوات",
+   "home": "helperdesk",
+   "icon": "helperdesk",
+   "sub": "بيانات شركة واحدة في كل مرة: المنتج والتكلفة والمبيعات والمخزون والدفاتر"
+  },
+  {
+   "id": "jev",
+   "label": "جيف",
+   "short": "جيف",
+   "home": "jev",
+   "icon": "jev",
+   "sub": "القرار المنظم والمجلس والحساسية"
+  },
+  {
+   "id": "command",
+   "label": "مركز القيادة العام",
+   "short": "القيادة",
+   "home": "dash",
+   "icon": "dash",
+   "sub": "المهام والإشعارات والمخاطر"
   }
  ]
 }

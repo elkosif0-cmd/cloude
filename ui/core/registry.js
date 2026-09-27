@@ -10,12 +10,14 @@
 "use strict";
 const RAW=window.__SK_CAPS__||{groups:[],capabilities:[],roles:{},tiers:{}};
 const groups=RAW.groups.map(g=>Object.freeze({...g}));
+/* the four sections — the audit, the accountant's helper tools, Jev, the command centre — and the system */
+const sections=(RAW.sections||[]).map(s=>Object.freeze({...s}));
 const gById=Object.fromEntries(groups.map(g=>[g.id,g]));
 const rawById=Object.fromEntries(RAW.capabilities.map(c=>[c.id,c]));
 const hubOf=c=>c.hub&&rawById[c.hub]?c.hub:c.id;
 const caps=RAW.capabilities.map(c=>{
   const h=hubOf(c),p=rawById[h];
-  return Object.freeze({...c,primary:!c.adv,groupLabel:(gById[c.group]||{}).label||"",
+  return Object.freeze({...c,primary:true,section:(gById[c.group]||{}).section||"",groupLabel:(gById[c.group]||{}).label||"",
     hub:h,hubLabel:p.hubLabel||p.label,isHub:RAW.capabilities.some(x=>x.hub===c.id)});
 });
 const byId=Object.fromEntries(caps.map(c=>[c.id,c]));
@@ -36,7 +38,12 @@ SK.caps=Object.freeze({
   members,
   /* "المبيعات والعملاء › العملاء والائتمان" for a page inside a hub */
   path:id=>{const c=byId[id];if(!c)return"";return c.groupLabel+(members(id).length>1?" › "+c.hubLabel:"")},
-  advancedIds:()=>caps.filter(c=>!c.primary).map(c=>c.id),
+  /* no screen is «advanced» any more: everything is in the menu of its section */
+  advancedIds:()=>[],
+  sections:()=>sections,
+  section:id=>sections.find(s=>s.id===id)||null,
+  sectionOf:id=>{const c=byId[id];return c?c.section:""},
+  groupsIn:sid=>groups.filter(g=>g.section===sid),
   roles:()=>RAW.roles||{},
   tiers:()=>RAW.tiers||{}
 });

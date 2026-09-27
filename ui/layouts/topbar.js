@@ -187,7 +187,11 @@ function onMenu(e){
   const m=b.dataset.m;
   if(m==="readall"){SKosifNotify.markAll();closeMenu();paint();return}
   closeMenu();
-  if(m==="co")setActive({companyId:b.dataset.id,periodId:null});
+  if(m==="co"){
+    /* a company switch moves the helper tools' data with it (SK.ws parks this company, opens that one) */
+    if(SK.ws&&b.dataset.id!==SK.ws.activeId())SK.ws.switchTo(b.dataset.id).catch(err=>SK.toast(err.message||String(err),"err"));
+    else setActive({companyId:b.dataset.id,periodId:null});
+  }
   else if(m==="pe")setActive({periodId:b.dataset.id||null});
   else if(m==="go")core().go(b.dataset.v);
   else if(m==="profile")profileDialog();
