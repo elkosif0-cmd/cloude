@@ -169,7 +169,7 @@ ok('الشركات العالمية','مختبر الشركات: 47 شركة م�
 ok('الشركات العالمية','خبرة القطاع ترفع ما يجده SQC من أمور المراجعين',await p.evaluate(()=>{const r=SKEngines.audit.corpusReplay,a=r.replayAll(),b=r.replayAll({prior:false});return a.recall>b.recall}));
 ok('الشركات العالمية','ما يطلبه المراجعون أولاً (إجراءات ومستندات من الأمور الرئيسية)',await has('.cl-proc'));
 await p.evaluate(()=>SKosifTBReview.loadCorpus('aramco-2025'));await p.waitForTimeout(2500);
-ok('الشركات العالمية','فتح شركة عالمية كملف مراجعة بعملتها ومراجعها وسنتها',await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}');return d.ctx&&d.ctx.corpusId==='aramco-2025'&&/ريال/.test(d.ctx.curSym)&&/Pricewaterhouse/.test(d.ctx.auditFirm)&&Object.keys(d.overrides||{}).length>10}));
+ok('الشركات العالمية','فتح شركة عالمية كملف مراجعة بعملتها ومراجعها وسنتها',await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}');return d.ctx&&d.ctx.corpusId==='aramco-2025'&&/ريال/.test(d.ctx.curSym)&&/Pricewaterhouse/.test(d.ctx.auditFirm)&&(Object.keys(d.overrides||{}).length>10||String(d.tbText||'').split('\n').length>20)}));
 await p.evaluate(()=>SKosifTBReview.open('docs'));await p.waitForTimeout(1500);
 ok('الشركات العالمية','طلبات الجولة الأولى تشمل ما اعتمد عليه مراجعو التقارير العالمية',await txt('مراجعين في التقارير العالمية'));
 // ---------- the link map: arrows that write records ----------
@@ -200,6 +200,12 @@ ok('محاكي القيود','يتعلم من قيود الفترة: الحسا�
 const JS2=await p.evaluate(()=>{const s=SKosifJournalSim.suggest('فاتورة ضريبية من مؤسسة المراعي الذهبية — استلام نعيمي طازج — الإجمالي 5,750 شامل الضريبة');const u=SKosifJournalSim.suggest('مستند رقم 7');
   const dr=s.lines.reduce((t,l)=>t+l.debit,0),cr=s.lines.reduce((t,l)=>t+l.credit,0);return{book:s.book,bal:Math.abs(dr-cr)<0.01&&dr===5750,vat:s.lines.some(l=>l.debit===750),where:s.where,uq:u.questions.length,uc:u.confidence}});
 ok('محاكي القيود','يقترح قيد المستند (بالضريبة) وأين يُسجّل، ويسأل حين لا يكون متأكداً',JS2.book==='purchases'&&JS2.bal&&JS2.vat&&JS2.where.includes('المشتريات')&&JS2.uq>0&&JS2.uc<0.55);
+// ---------- a bundle company walked from the first requests to the report ----------
+await go('tbreview',1200);await p.evaluate(()=>SKosifTBReview.openClient('apple-2024'));await p.waitForTimeout(2500);
+await p.evaluate(()=>SKosifTBReview.demo());
+for(let i=0;i<40;i++){await p.waitForTimeout(600);if(await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}');return !!(d.session&&d.session.final)}))break}
+const DM=await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}'),s=d.session||{rounds:[],uploads:[]};return{co:d.ctx&&d.ctx.company,src:d.source,rounds:s.rounds.map(r=>r.status).join(','),uploads:s.uploads.length,insuff:s.rounds.some(r=>r.reviewed.some(v=>v.verdict==='غير كافٍ')),kams:s.final?s.final.kams.length:0,op:s.final&&s.final.aiOpinion}});
+ok('العملاء التجريبيون','شركة عالمية كملف مراجعة كامل دون مفتاح: طلبات ← مستندات ← جولات حتى الاكتفاء ← التقرير النهائي',/Apple/.test(DM.co)&&DM.src==='bundle'&&DM.rounds==='needs_docs,needs_docs,complete'&&DM.uploads>=5&&DM.insuff&&DM.kams>=1&&!!DM.op);
 // ---------- the original systems, restored with demo data ----------
 await p.evaluate(()=>SKosifLegacy.open('crm'));await p.waitForTimeout(3500);
 const LG=await (async()=>{const fr=p.frames().find(f=>f.url().includes('/legacy/crm'));if(!fr)return{};return fr.evaluate(()=>{const t=document.documentElement.outerHTML;const ph=[...new Set(t.match(/(?<!\d)05\d{8}(?!\d)/g)||[])];return{v:document.title.includes('V8.2'),phones:ph.length,clean:ph.every(x=>/^05000000\d\d$/.test(x))}})})();

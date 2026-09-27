@@ -11768,7 +11768,7 @@ window.SKEngines = (function() {
 		if (m) return m[3] + "-" + m[2].padStart(2, "0") + "-" + m[1].padStart(2, "0");
 		return "";
 	}
-	var amountOf = (j) => Math.round(j.lines.reduce((s, l) => s + l.debit, 0) * 100) / 100;
+	var amountOf$1 = (j) => Math.round(j.lines.reduce((s, l) => s + l.debit, 0) * 100) / 100;
 	function integrityChecks(i) {
 		const { tb } = i, E = i.entries ?? [], has = E.length > 0, m = (v) => formatMinor(v, { decimals: 2 });
 		const checks = [];
@@ -11882,7 +11882,7 @@ window.SKEngines = (function() {
 		E.forEach((j) => pairs.set(pairOf(j), (pairs.get(pairOf(j)) ?? 0) + 1));
 		const out = [];
 		E.forEach((j) => {
-			const r = [], amt = amountOf(j), dt = /* @__PURE__ */ new Date(j.date + "T00:00:00Z");
+			const r = [], amt = amountOf$1(j), dt = /* @__PURE__ */ new Date(j.date + "T00:00:00Z");
 			if (weekend.includes(dt.getUTCDay())) r.push({
 				code: "weekend",
 				ar: "مسجل في عطلة نهاية الأسبوع"
@@ -11934,17 +11934,17 @@ window.SKEngines = (function() {
 			entryId: j.id,
 			ref: j.ref ?? j.id,
 			date: j.date,
-			amount: amountOf(j),
+			amount: amountOf$1(j),
 			side: j.date <= periodEnd ? "before" : "after",
 			memo: j.memo ?? ""
 		})).sort((a, b) => a.date.localeCompare(b.date));
 	}
 	function journalTests(E, o) {
-		const unusual = unusualEntries(E, o), ben = benford(E.map(amountOf)), cutoff = o.periodEnd ? cutoffEntries(E, o.periodEnd, o.isResult) : [];
+		const unusual = unusualEntries(E, o), ben = benford(E.map(amountOf$1)), cutoff = o.periodEnd ? cutoffEntries(E, o.periodEnd, o.isResult) : [];
 		const fraudSignal = unusual.some((u) => u.reasons.some((r) => r.code === "backdated") && E.find((j) => j.id === u.entryId).lines.some((l) => o.sensitive(l.account))) || ben.conformity === "nonconformity" && unusual.length >= Math.max(5, E.length * .05);
 		return {
 			count: E.length,
-			total: Math.round(E.reduce((s, j) => s + amountOf(j), 0) * 100) / 100,
+			total: Math.round(E.reduce((s, j) => s + amountOf$1(j), 0) * 100) / 100,
 			unusual,
 			benford: ben,
 			cutoff,
@@ -12250,6 +12250,271 @@ window.SKEngines = (function() {
 	function councilText(ops, dis) {
 		const name = (k) => MEMBERS.find((m) => m.key === k).ar;
 		return ops.map((o) => "— " + name(o.member) + (o.rejected ? " [مرفوض آلياً: استشهاد بدليل غير موجود " + o.unknownCitations.join("، ") + "]" : "") + ": " + o.position + "\n  " + o.reasoning + (o.reply ? "\n  الرد في النقاش: " + o.reply : "") + (o.items.length ? "\n  الثقة: " + o.items.map((x) => x.lineKey + "/" + x.assertion + "=" + x.confidence).join("، ") : "")).join("\n") + (dis.length ? "\nنقاط الخلاف: " + dis.map((d) => d.lineKey + "/" + d.assertion + " (فارق " + d.spread + (d.split ? "، انقسام على الكفاية" : "") + ")").join("؛ ") : "\nلا خلاف جوهري بين الأعضاء.");
+	}
+	//#endregion
+	//#region app/src/engine/fusion/audit/demo-engagement-engine.ts
+	var demo_engagement_engine_exports = /* @__PURE__ */ __exportAll({
+		documents: () => documents,
+		final: () => final,
+		firstRequests: () => firstRequests,
+		followUpDocuments: () => followUpDocuments,
+		pickInsufficient: () => pickInsufficient,
+		round1: () => round1,
+		round2: () => round2,
+		round3: () => round3
+	});
+	var SEV_AR = {
+		high: "عالية",
+		medium: "متوسطة",
+		low: "منخفضة"
+	};
+	var KIND_AR$1 = {
+		classification: "تصنيف",
+		measurement: "قياس",
+		disclosure: "إفصاح",
+		completeness: "اكتمال",
+		analytical: "تحليلي",
+		fraud: "غش",
+		"going-concern": "استمرارية",
+		balance: "أخرى"
+	};
+	var PRIO = {
+		"عالية": 0,
+		"متوسطة": 1,
+		"منخفضة": 2
+	};
+	var OPINION_AR = {
+		unmodified: "غير معدل",
+		qualified: "متحفظ",
+		adverse: "عكسي",
+		disclaimer: "امتناع عن إبداء الرأي"
+	};
+	function money$28(m, cur) {
+		return formatMinor(Math.round(m), { decimals: 0 }) + (cur ? " " + cur : "");
+	}
+	function addDays$1(iso, n) {
+		if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return "";
+		const d = /* @__PURE__ */ new Date(iso.slice(0, 10) + "T00:00:00Z");
+		d.setUTCDate(d.getUTCDate() + n);
+		return d.toISOString().slice(0, 10);
+	}
+	function firstRequests(review, extra = [], max = 8) {
+		const sig = new Set(review.risks.filter((r) => r.significant).map((r) => r.lineKey));
+		return [...review.requests, ...extra.filter((q) => !review.requests.some((x) => x.title === q.title))].slice().sort((a, b) => (PRIO[a.priority] ?? 1) - (PRIO[b.priority] ?? 1) || Number(!sig.has(a.lineKey ?? "")) - Number(!sig.has(b.lineKey ?? ""))).slice(0, max);
+	}
+	var lineOf = (review, q) => q.lineKey ?? review.accounts.find((a) => q.accounts.includes(a.code))?.lineKey ?? "";
+	var amountOf = (review, q) => {
+		const acc = review.accounts.filter((a) => q.accounts.includes(a.code));
+		if (acc.length) return acc.reduce((s, a) => s + Math.abs(a.natural), 0);
+		const r = review.risks.find((x) => x.lineKey === lineOf(review, q));
+		return r ? Math.abs(r.amount) : 0;
+	};
+	var assertionOf = (key) => /cash|bank|receiv/.test(key) ? "existence" : /revenue|sales/.test(key) ? "cutoff" : /inventor|ppe|intang|goodwill|invest/.test(key) ? "valuation" : /payable|accru|loan|provision/.test(key) ? "completeness" : "accuracy";
+	function round1(review, ctx, extra = []) {
+		const reqs = firstRequests(review, extra);
+		const sig = review.risks.filter((r) => r.significant);
+		const mat = review.materiality, cur = ctx.currency;
+		const top = review.findings.slice().sort((a, b) => (a.severity === "high" ? 0 : a.severity === "medium" ? 1 : 2) - (b.severity === "high" ? 0 : b.severity === "medium" ? 1 : 2)).slice(0, 6);
+		return {
+			status: "needs_docs",
+			executiveSummary: `راجع المجلس ميزان «${ctx.company}» (${review.summary.accounts} حساباً) بأهمية نسبية ${money$28(mat.overall, cur)} على أساس ${mat.benchmarkAr}. ` + (sig.length ? `المخاطر الجوهرية: ${sig.map((r) => r.ar).join("، ")}. ` : "") + `طُلب ${reqs.length} مستنداً لتغطيتها قبل إبداء الرأي.`,
+			riskScore: Math.min(90, 30 + sig.length * 8 + top.filter((f) => f.severity === "high").length * 6),
+			boardOpinions: [
+				{
+					reviewer: REVIEWERS[0],
+					opinion: `التصنيف والقياس في الميزان متسقان مع ${review.compliance.length} معياراً مؤثراً؛ ${top.length ? "أبرز ما يحتاج دليلاً: " + top.slice(0, 2).map((f) => f.title).join("، ") : "لا ملاحظات جوهرية في القراءة الأولى"}.`
+				},
+				{
+					reviewer: REVIEWERS[1],
+					opinion: "الإفصاحات تتطلب إثبات الأرصدة الرئيسية والأحداث اللاحقة قبل الاعتماد؛ نطلب المستندات المؤيدة لكل بند جوهري."
+				},
+				{
+					reviewer: REVIEWERS[2],
+					opinion: sig.length ? `نركز الأدلة على ${sig.slice(0, 3).map((r) => r.ar).join(" و")} لأنها الأعلى خطراً وقيمة.` : "المخاطر في الحدود المعتادة؛ نكتفي بالإجراءات الأساسية."
+				}
+			],
+			findings: top.map((f) => ({
+				accountCode: f.code ?? "",
+				accountName: f.account ?? "",
+				standardCode: f.standard,
+				issueType: KIND_AR$1[f.kind] ?? "أخرى",
+				severity: SEV_AR[f.severity] ?? "متوسطة",
+				comment: f.title + (f.detail ? ": " + f.detail : ""),
+				recommendation: f.action || "الحصول على المستند المؤيد وتسوية الفرق"
+			})),
+			requestedDocuments: reqs.map((q, i) => ({
+				id: "REQ-" + (i + 1),
+				title: q.title,
+				purpose: q.purpose || q.why || "إثبات الرصيد",
+				relatedAccounts: q.accounts,
+				standardCode: q.standard,
+				priority: q.priority,
+				lineKey: lineOf(review, q),
+				assertion: q.assertion || assertionOf(lineOf(review, q)),
+				effort: q.effort || "medium"
+			})),
+			confidence: sig.map((r) => ({
+				lineKey: r.lineKey,
+				assertion: assertionOf(r.lineKey),
+				value: .35
+			})),
+			decision: "request_more_evidence",
+			nextStepGuidance: "ارفع المستندات المطلوبة ثم شغّل الجولة التالية."
+		};
+	}
+	function body(key, title, amount, ctx, date) {
+		const pe = ctx.periodEnd || "نهاية الفترة";
+		if (/cash|bank/.test(key) || /بنك|نقد/.test(title)) return `مصادقة بنكية مستلمة مباشرة من البنك.\nالرصيد الدفتري في ${pe}: ${amount}\nالرصيد حسب البنك: ${amount}\nالفرق: لا يوجد. لا تسهيلات أو رهونات غير مفصح عنها.`;
+		if (/receiv/.test(key) || /عملاء|مدين/.test(title)) return `ملخص مصادقات العملاء كما في ${pe}.\nالرصيد الإجمالي: ${amount}\nأُرسلت 25 مصادقة إيجابية تغطي 68٪ من الرصيد؛ وردت 21 مصادقة مطابقة.\nأعمار الديون مرفقة؛ 4 مصادقات لم يرد عليها بعد.`;
+		if (/inventor/.test(key) || /مخزون|جرد/.test(title)) return `محضر الجرد الفعلي في ${pe} بحضور ممثل المراجع.\nقيمة المخزون الدفترية: ${amount}\nفروق الجرد: 0.3٪ سُوّيت في الدفاتر. اختبار صافي القيمة البيعية: لا انخفاض جوهري.`;
+		if (/ppe|intang|goodwill|asset/.test(key) || /أصول|ممتلكات|شهرة/.test(title)) return `سجل الأصول غير المتداولة وحركتها خلال السنة.\nصافي القيمة الدفترية: ${amount}\nالإضافات مؤيدة بفواتير وعقود؛ اختبار الانخفاض في القيمة (IAS 36) لم يظهر خسارة.`;
+		if (/revenue|sales/.test(key) || /إيراد|مبيعات/.test(title)) return `عينة من فواتير المبيعات حول تاريخ ${pe} (قطع الفترة).\nإجمالي الإيرادات: ${amount}\n30 فاتورة مطابقة لإشعارات التسليم والتحصيل؛ لا مبيعات مسجلة بعد نهاية الفترة ضمن الفترة.`;
+		if (/payable|accru/.test(key) || /موردين|دائن|مستحق/.test(title)) return `مصادقات الموردين والبحث عن الالتزامات غير المسجلة.\nالرصيد: ${amount}\nفحصت المدفوعات اللاحقة حتى ${date}؛ لا التزامات غير مسجلة.`;
+		if (/loan|borrow|lease/.test(key) || /قرض|تمويل|إيجار/.test(title)) return `عقود التمويل وجداول السداد ومصادقات الجهات الممولة.\nالرصيد القائم: ${amount}\nالتعهدات المالية مستوفاة كما في ${pe}.`;
+		if (/zakat|tax/.test(key) || /زكاة|ضريب/.test(title)) return `الإقرار والربط وحساب الوعاء.\nالمخصص: ${amount}\nالربوط النهائية حتى السنة السابقة مرفقة؛ لا اعتراضات قائمة جوهرية.`;
+		if (/going|continu/.test(key) || /استمرار/.test(title)) return `خطة الإدارة والتدفقات النقدية المتوقعة لاثني عشر شهراً بعد ${pe}.\nالتسهيلات غير المستخدمة كافية لتغطية الالتزامات القريبة.`;
+		return `جدول تفصيلي بالرصيد مع المستندات المؤيدة.\nالرصيد: ${amount}\nمطابق للدفاتر والميزان.`;
+	}
+	function documents(review, requests, ctx, round = 1) {
+		const date = addDays$1(ctx.periodEnd, 45) || (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+		return requests.map((q) => {
+			const key = lineOf(review, q), amt = money$28(amountOf(review, q), ctx.currency);
+			const text = `مستند تجريبي (عرض قدرات SQC) — ليس مستنداً حقيقياً\nإلى: ${ctx.auditFirm || "المراجع الخارجي"}\nمن: إدارة ${ctx.company}\nالموضوع: ${q.title}\nالتاريخ: ${date}\nالمرجع: DOC-${q.id}-${round}\n\n` + body(key, q.title, amt, ctx, date);
+			return {
+				requestId: q.id,
+				fileName: `${q.id}-${round}-مستند.txt`,
+				text
+			};
+		});
+	}
+	function pickInsufficient(review, requests) {
+		if (!requests.length) return null;
+		const by = (re) => requests.find((q) => re.test(lineOf(review, q)) || re.test(q.title));
+		return (by(/receiv|عملاء|مدين/) ?? by(/revenue|إيراد|مبيعات/) ?? requests[Math.min(1, requests.length - 1)]).id;
+	}
+	function round2(review, requests, uploads, ctx) {
+		const weak = pickInsufficient(review, requests), wq = requests.find((q) => q.id === weak);
+		const date = addDays$1(ctx.periodEnd, 45);
+		const sig = review.risks.filter((r) => r.significant);
+		const weakLine = wq ? lineOf(review, wq) : "";
+		return {
+			status: "needs_docs",
+			executiveSummary: `راجع المجلس ${uploads.length} مستنداً: قُبل ${uploads.length - (weak ? 1 : 0)}` + (wq ? `، ووُجد «${wq.title}» غير كافٍ فطُلب استكماله.` : "."),
+			riskScore: Math.max(15, 20 + sig.length * 5),
+			boardOpinions: [
+				{
+					reviewer: REVIEWERS[0],
+					opinion: "المستندات المقبولة تؤيد الأرصدة المسجلة دون فروق جوهرية."
+				},
+				{
+					reviewer: REVIEWERS[1],
+					opinion: wq ? "لا يكتمل الإفصاح عن " + wq.title + " قبل استكمال المستند." : "الإفصاحات مؤيدة."
+				},
+				{
+					reviewer: REVIEWERS[2],
+					opinion: wq ? "مصادقات لم يُرد عليها تحتاج إجراءً بديلاً (تحصيلات لاحقة أو فواتير مؤيدة) وفق ISA 505." : "الأدلة كافية."
+				}
+			],
+			findings: [],
+			documentsReviewed: uploads.map((u) => ({
+				fileName: u.fileName,
+				requestId: u.requestId,
+				verdict: u.requestId === weak ? "غير كافٍ" : "مقبول",
+				notes: u.requestId === weak ? "بعض البنود دون رد أو مستند مؤيد؛ يلزم إجراء بديل." : "مطابق للدفاتر والميزان؛ مستلم من مصدر مستقل أو مؤيد بمستندات.",
+				extracted: {
+					documentDate: date,
+					reference: "DOC-" + u.requestId + "-1",
+					counterparty: ctx.company
+				}
+			})),
+			requestedDocuments: wq ? [{
+				id: "REQ-" + (requests.length + 1),
+				title: "استكمال: " + wq.title + " — إجراء بديل للبنود دون رد",
+				purpose: "التحصيلات اللاحقة والفواتير المؤيدة للبنود التي لم تُصادَق",
+				relatedAccounts: wq.accounts,
+				standardCode: "ISA 505",
+				priority: "عالية",
+				lineKey: weakLine,
+				assertion: "existence",
+				effort: "low"
+			}] : [],
+			confidence: sig.map((r) => ({
+				lineKey: r.lineKey,
+				assertion: assertionOf(r.lineKey),
+				value: r.lineKey === weakLine ? .55 : .8
+			})),
+			decision: wq ? "request_more_evidence" : "sufficient",
+			nextStepGuidance: wq ? "ارفع مستند الاستكمال ثم شغّل الجولة الأخيرة." : "الأدلة كافية — أصدر التقرير النهائي."
+		};
+	}
+	function followUpDocuments(review, original, follow, ctx) {
+		const date = addDays$1(ctx.periodEnd, 60) || (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+		const text = `مستند تجريبي (عرض قدرات SQC) — ليس مستنداً حقيقياً\nمن: إدارة ${ctx.company}\nالموضوع: ${follow.title}\nالتاريخ: ${date}\n\nالبنود الأربعة التي لم يُرد على مصادقاتها: حُصّلت بالكامل بعد نهاية الفترة (كشوف البنك مرفقة) وفواتيرها وإشعارات تسليمها مطابقة. قيمة البنود: ${money$28(amountOf(review, follow) * .08, ctx.currency)}.`;
+		return [{
+			requestId: follow.id,
+			fileName: `${follow.id}-استكمال.txt`,
+			text
+		}, ...original ? [{
+			requestId: original.id,
+			fileName: `${original.id}-2-مستند-مكمل.txt`,
+			text
+		}] : []];
+	}
+	function round3(review, uploads, ctx) {
+		const sig = review.risks.filter((r) => r.significant);
+		return {
+			status: "complete",
+			executiveSummary: `اكتملت الأدلة: قُبل مستند الاستكمال، وغطت المستندات المقبولة ${sig.length ? "كل المخاطر الجوهرية" : "البنود الرئيسية"} لـ«${ctx.company}». الأدلة كافية وملائمة لإبداء الرأي.`,
+			riskScore: 15,
+			boardOpinions: REVIEWERS.map((r) => ({
+				reviewer: r,
+				opinion: "الأدلة كافية وملائمة؛ لا اعتراض على إصدار التقرير."
+			})),
+			findings: [],
+			documentsReviewed: uploads.map((u) => ({
+				fileName: u.fileName,
+				requestId: u.requestId,
+				verdict: "مقبول",
+				notes: "الإجراء البديل كافٍ: تحصيلات لاحقة مطابقة.",
+				extracted: { counterparty: ctx.company }
+			})),
+			requestedDocuments: [],
+			confidence: sig.map((r) => ({
+				lineKey: r.lineKey,
+				assertion: assertionOf(r.lineKey),
+				value: .9
+			})),
+			decision: "sufficient",
+			nextStepGuidance: "أصدر التقرير النهائي."
+		};
+	}
+	function final(review, derived, kams, ctx) {
+		const letter = review.findings.filter((f) => f.severity !== "high").slice(0, 5);
+		return {
+			overallOpinion: OPINION_AR[derived.opinion] ?? "غير معدل",
+			headline: `${derived.ar} على القوائم المالية لـ«${ctx.company}»${ctx.periodEnd ? " للسنة المنتهية في " + ctx.periodEnd : ""}`,
+			summary: `أنهى المجلس ثلاث جولات: طلب المستندات، مراجعتها وطلب استكمال واحد، ثم الاكتفاء. ` + derived.basis.join(" "),
+			keyAuditMatters: kams.slice(0, 4).map((k) => ({
+				title: k.title,
+				why: k.why || k.description || "",
+				how: k.how
+			})),
+			complianceDiscussion: review.compliance.slice(0, 12).map((c) => ({
+				standardCode: c.code,
+				status: c.status === "يتطلب أدلة" ? "ممتثل" : c.status,
+				discussion: c.status === "يتطلب أدلة" ? "استُكملت الأدلة المطلوبة في الجولات؛ " + c.discussion : c.discussion
+			})),
+			adjustments: [],
+			managementLetter: letter.map((f) => ({
+				title: f.title,
+				observation: f.detail || f.title,
+				effect: f.basis,
+				recommendation: f.action || "تعزيز الرقابة على البند",
+				priority: SEV_AR[f.severity] ?? "متوسطة"
+			})),
+			limitations: [],
+			closingStatement: "مراجعة تجريبية لعرض قدرات SQC: المستندات مولّدة من أرقام الميزان، والرأي مشتق آلياً وفق ISA 705 ويبقى للشريك المسؤول."
+		};
 	}
 	//#endregion
 	//#region app/src/engine/fusion/audit/disclosures-engine.ts
@@ -22126,6 +22391,7 @@ window.SKEngines = (function() {
 			confidence: confidence_engine_exports,
 			corpusReplay: corpus_replay_engine_exports,
 			council: council_engine_exports$1,
+			demoEngagement: demo_engagement_engine_exports,
 			disclosures: disclosures_engine_exports,
 			documentCheck: document_check_engine_exports,
 			estimatesReview: estimates_review_engine_exports,

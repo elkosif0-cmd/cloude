@@ -91,11 +91,26 @@ async function bundlePicker(){
   w.addEventListener("click",e=>{if(e.target===w||e.target.closest("[data-bundle-close]")){w.remove();return}
     const add=e.target.closest("[data-bundle-add]"),go=e.target.closest("[data-bundle-go]");
     if(go){const f=reg().list.find(x=>x.bundleId===go.dataset.bundleGo);w.remove();if(f)openFile(f.id);return}
-    if(add){const c=B.clients.find(x=>x.id===add.dataset.bundleAdd);if(!c)return;w.remove();
-      const d=blank();d.source="bundle";d.bundleId=c.id;d.tbText=c.tb;d.loadedAt=new Date().toISOString();d.loadedFrom="الحزمة العالمية — "+c.company;
-      Object.assign(d.ctx,{company:c.company,period:"السنة المنتهية في "+c.periodEndAr,periodStart:c.periodStart||"",periodEnd:c.periodEnd,country:c.country==="SA"||c.country==="AE"||c.country==="EG"?c.country:"SA",
-        framework:"IFRS",currency:c.unitAr,activity:c.activityAr||"",legalForm:"شركة مساهمة عامة",consolidated:true,auditFirm:c.auditor,...bundleForm(c)});
-      newFile(d,{bundleId:c.id,source:"bundle"});SK.audit&&SK.audit.log("tbreview",{act:"bundle-client",id:c.id});toast("أُضيف ملف «"+c.company+"» — ميزانه مبني من قوائمه المنشورة","ok")}});
+    if(add){w.remove();openClient(add.dataset.bundleAdd)}});
+}
+/* one way to open a company of the research bundle: its own engagement file (opened again if it exists), the
+   trial balance built from its published statements (line by line), its auditor, year end and report form, and
+   the benchmark context (sector, currency, tax, framework, auditing standard) the key matters and requests use */
+async function openClient(id){
+  const f=reg().list.find(x=>x.bundleId===id);if(f){openFile(f.id);if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");return f.id}
+  let B=null;try{B=await bundleData()}catch{}
+  const c=B&&B.clients.find(x=>x.id===id),CC=E().reports.corpusCompanies,t=CC&&CC.companyTrialBalance?CC.companyTrialBalance(id):null;
+  if(!c&&!t){toast("الشركة غير موجودة في الحزمة","bad");return null}
+  const d=blank();d.source="bundle";d.bundleId=id;d.loadedAt=new Date().toISOString();
+  if(c){d.tbText=c.tb;d.loadedFrom="الحزمة العالمية — "+c.company;
+    Object.assign(d.ctx,{company:c.company,period:"السنة المنتهية في "+c.periodEndAr,periodStart:c.periodStart||"",periodEnd:c.periodEnd,country:c.country==="SA"||c.country==="AE"||c.country==="EG"?c.country:"SA",
+      framework:"IFRS",currency:c.unitAr,activity:c.activityAr||"",legalForm:"شركة مساهمة عامة",consolidated:true,auditFirm:c.auditor,...bundleForm(c)});
+    if(t){const x=t.ctx;Object.assign(d.ctx,{corpusId:x.corpusId,curSym:x.curSym,taxKind:x.taxKind,sector:x.sector,reportingFramework:x.reportingFramework,auditStandard:x.auditStandard})}}
+  else{d.tbText=t.csv;d.overrides={...t.overrides};d.loadedFrom="الحزمة العالمية — "+t.company.company;d.ctx={...d.ctx,...t.ctx}}
+  const fid=newFile(d,{bundleId:id,source:"bundle"});SK.audit&&SK.audit.log("tbreview",{act:"bundle-client",id});
+  toast("فُتح ملف «"+d.ctx.company+"» — ميزانه من قوائمه المنشورة. جرّب «المراجعة التجريبية الكاملة» لترى الجولات حتى التقرير","ok");
+  if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");
+  return fid;
 }
 /* the report the company's own auditor issued decides the form of ours: PCAOB for the SEC filers, the extended ISA (UK) report for the
    UK-listed groups (and Airbus's Dutch report, written the same way), the local form for Saudi, UAE and Egyptian companies, ISA 700 for the rest */
@@ -159,13 +174,7 @@ async function loadTB(text,label,ctx,overrides){
   return true;
 }
 /* a company of the research bundle as the client: its published statements as a two-year trial balance, its auditor and year end */
-async function loadCorpus(id){
-  const CC=E().reports.corpusCompanies;if(!CC)return false;const t=CC.companyTrialBalance(id);if(!t){toast("الشركة غير موجودة في الحزمة","bad");return false}
-  const ok=await loadTB(t.csv,t.company.company+" "+t.company.fy,{...t.ctx},t.overrides);
-  if(ok){const d=st();d.ctx={...blank().ctx,...t.ctx};d.fw={};put(d);SK.audit&&SK.audit.log("tbreview",{act:"corpus",id});
-    if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");else paint()}
-  return ok;
-}
+async function loadCorpus(id){return !!(await openClient(id))}
 async function fromBooks(){
   const b=await booksTB();
   if(!b){toast("لا توجد قيود في الدفاتر المحاسبية ولا مبيعات أو مشتريات مسجلة للفترة","warn");return false}
@@ -175,7 +184,7 @@ async function fromBooks(){
 }
 /* open the engagement on a tab (and a studio page): used by the studio's own deep links and other screens */
 function openTab(t,view){if(t==="studio")t=Object.keys(ADV).find(k=>ADV[k]===view)||"docs";if(t)tab=t;if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");else paint()}
-window.SKosifTBReview=Object.freeze({fromBooks,loadCorpus,booksTB,rows:()=>{const c=compute();return c&&c.tb.ok?{rows:studioRows(c),sig:c.sig,label:c.d.ctx.company||"file",ctx:{...c.d.ctx}}:null},load:(text,label,ctx)=>loadTB(text,label,ctx),open:openTab,studio:view=>openTab("studio",view)});
+window.SKosifTBReview=Object.freeze({fromBooks,loadCorpus,openClient,demo:()=>runDemo(),booksTB,rows:()=>{const c=compute();return c&&c.tb.ok?{rows:studioRows(c),sig:c.sig,label:c.d.ctx.company||"file",ctx:{...c.d.ctx}}:null},load:(text,label,ctx)=>loadTB(text,label,ctx),open:openTab,studio:view=>openTab("studio",view)});
 
 /* ---------- computation (memoized) ---------- */
 function compute(){
@@ -246,7 +255,7 @@ function stepper(c){
 function hero(c){
   const d=c?c.d:st(),ctx=d.ctx,s=c&&c.session,state=s?AI().sessionState(s):{label:c?"الميزان جاهز — ابدأ جولة المراجع الذكي أو تابع بالمحرك الآلي":"ابدأ باستلام ميزان المراجعة"};
   return '<section class="tbr-hero"><div class="tx"><span class="eyebrow">مراجعة الحسابات بالمعايير</span><h2>'+esc(ctx.company||"منشأة جديدة")+'</h2><p>'+esc([ctx.period,ctx.frameworkAr||(ctx.corpusId?(ctx.reportingFramework||"IFRS")+" · مراجعها "+(ctx.auditFirm||""):FW_LABEL[egypt(d)?"EAS":ctx.framework]),ctx.activity].filter(Boolean).join(" · "))+'</p>'+
-    '<p class="tbr-state">'+esc(state.label)+'</p></div><div class="sk-actions">'+(c?'<button type="button" class="btn sm" data-a="setup">بيانات المراجعة</button><button type="button" class="btn sm" data-a="reset">مراجعة جديدة</button>':'')+'</div></section>'+stepper(c)+
+    '<p class="tbr-state">'+esc(busy==="demo"&&fullStep?fullStep:state.label)+'</p>'+(c&&d.source==="bundle"&&!(s&&s.rounds.length)?'<p class="tbr-demo-cta">شركة من الحزمة العالمية: شغّل «المراجعة التجريبية الكاملة» لترى الطلبات الأولى والمستندات والجولات حتى التقرير النهائي — دون مفتاح ذكاء اصطناعي.</p>':'')+(d.demoRun?'<p class="tbr-demo-cta">مراجعة تجريبية: المستندات مولّدة من أرقام الميزان لعرض القدرات.</p>':'')+'</div><div class="sk-actions">'+(c?'<button type="button" class="btn sm'+(d.source==="bundle"&&!(s&&s.rounds.length)?' primary':'')+'" data-a="demo-audit"'+(busy?' disabled':'')+'>'+(busy==="demo"?'جارٍ…':'▶ المراجعة التجريبية الكاملة')+'</button><button type="button" class="btn sm" data-a="setup">بيانات المراجعة</button><button type="button" class="btn sm" data-a="reset">مراجعة جديدة</button>':'')+'</div></section>'+stepper(c)+
     (c?'<div class="tbr-tabs" role="tablist">'+TABS.map(([k,l])=>'<button type="button" role="tab" data-tab="'+k+'" aria-selected="'+(tab===k)+'">'+esc(l)+badge(c,k)+'</button>').join("")+'</div>':'');
 }
 function badge(c,k){
@@ -725,6 +734,44 @@ async function runFull(){
   }catch(e){toast(e.message,"warn")}
   finally{fullStep="";tab="fs";doc="integrated";paint()}
 }
+/* a demonstration engagement without an AI key: three council rounds written by the engine, the client's documents
+   generated from the trial balance, the proposed entries accepted, and the final report — the whole cycle in one run */
+async function runDemo(){
+  if(busy)return;let c=compute();if(!c||!c.tb.ok){toast("حمّل الميزان أولاً","warn");return}
+  let d=st();if(d.session&&d.session.rounds&&d.session.rounds.length&&!await SK.confirm("في الملف جولات سابقة — استبدالها بمراجعة تجريبية كاملة؟",{danger:true,ok:"استبدال"}))return;
+  const DE=E().audit.demoEngagement,MODEL="محاكاة SQC (دون مفتاح)",pause=ms=>new Promise(r=>setTimeout(r,ms));
+  const ctx={company:d.ctx.company||"المنشأة",periodEnd:d.ctx.periodEnd||"",currency:CUR,auditFirm:d.ctx.auditFirm||""};
+  const up=async(s,list)=>{for(const x of list){await docPut(docKey(s.id,x),{text:x.text});s=AI().addUpload(s,{requestId:x.requestId,fileName:x.fileName,mimeType:"text/plain",size:x.text.length})}return s};
+  const save1=async s=>{const dd=st();dd.session=s;put(dd);if(CU())await CU().afterRound({govern:false}).catch(()=>null)};
+  busy="demo";
+  try{
+    await docClear();d=st();d.session=null;d.accepted=[];d.rejected=[];put(d);c=compute();
+    let s=session(st());
+    fullStep="الجولة ١: المجلس يقرأ الميزان ويطلب المستندات";paint();await pause(450);
+    const r1=AI().normalizeRound(DE.round1(c.base,ctx),s,c.tb,MODEL);s=AI().addRound(s,r1);await save1(s);
+    fullStep="الإدارة ترفع "+r1.requests.length+" مستنداً";paint();await pause(450);
+    const docs=DE.documents(c.base,r1.requests,ctx,1);s=await up(s,docs);await save1(s);
+    fullStep="الجولة ٢: المجلس يراجع المستندات";paint();await pause(450);
+    c=compute();const r2=AI().normalizeRound(DE.round2(c.base,r1.requests,docs,ctx),s,c.tb,MODEL);s=AI().addRound(s,r2);await save1(s);
+    const follow=r2.requests.find(q=>q.round===2);let n=docs.length;
+    if(follow){fullStep="الإدارة تستكمل المستند غير الكافي";paint();await pause(450);
+      const weak=r1.requests.find(q=>r2.reviewed.some(v=>v.requestId===q.id&&v.verdict!=="مقبول"));
+      const fu=DE.followUpDocuments(c.base,weak,follow,ctx);s=await up(s,fu);n+=fu.length;await save1(s);
+      fullStep="الجولة ٣: الاكتفاء بالأدلة";paint();await pause(450);
+      c=compute();const r3=AI().normalizeRound(DE.round3(c.base,fu,ctx),s,c.tb,MODEL);s=AI().addRound(s,r3);await save1(s)}
+    fullStep="قيود التسوية";paint();
+    c=compute();d=st();d.accepted=c.pool.filter(a=>!d.rejected.includes(a.id)).map(a=>a.id);put(d);
+    fullStep="التقرير النهائي";paint();await pause(350);
+    c=compute();d=st();
+    const KMx=E().audit.kam,GBx=E().audit.globalBenchmarks,sector=d.ctx.sector||(GBx?GBx.sectorFromActivity(d.ctx.activity||""):"");
+    const kams=KMx?KMx.suggestKams({fs:c.fsAfterAdj,risks:c.base.risks,materiality:c.base.materiality.overall,currency:CUR,periodEnd:d.ctx.periodEnd,sector,exclude:d.ctx.corpusId||d.bundleId||undefined}).map(k=>({title:k.title,why:k.description,how:k.how})):[];
+    const f=AI().normalizeFinal(DE.final(c.base,c.derived,kams,ctx),s,c.tb);
+    d=st();d.session={...s,final:f};d.demoRun={at:new Date().toISOString(),docs:n};put(d);
+    SK.audit&&SK.audit.log("tbreview",{act:"demo-audit",rounds:s.rounds.length,docs:n});
+    toast("اكتملت المراجعة التجريبية: "+s.rounds.length+" جولات و"+n+" مستنداً وقيود التسوية والتقرير النهائي","ok");
+  }catch(e){toast(e.message||String(e),"bad")}
+  finally{busy="";fullStep="";tab="fs";paint()}
+}
 async function runFinal(){
   const c=compute();if(!c||busy||!c.session)return;
   busy="final";abort=new AbortController();paint();
@@ -763,7 +810,8 @@ function bind(node){
     const b=e.target.closest("[data-a]");if(!b)return;
     const a=b.dataset.a;
     if(a==="books"){await fromBooks();return}
-    if(a==="corpus"){const sel=root.querySelector("[data-corpus]");if(sel&&sel.value)await loadCorpus(sel.value);else toast("اختر شركة من القائمة","warn");return}
+    if(a==="corpus"){const sel=root.querySelector("[data-corpus]");if(sel&&sel.value)await openClient(sel.value);else toast("اختر شركة من القائمة","warn");return}
+    if(a==="demo-audit"){runDemo();return}
     if(a==="waha"){const SC=E().reports.sampleCompany;if(!SC)return;
       if(await loadTB(SC.WAHA_TB_CSV,"شركة الواحة الذهبية",{...SC.WAHA_CONTEXT})){const d=st();d.ctx={...d.ctx,...SC.WAHA_CONTEXT};d.fw={};put(d);paint()}return}
     if(a==="sample"){const ta=root.querySelector("[data-tbtext]");if(ta)ta.value=TI().SAMPLE_TB_CSV;const co=root.querySelector('[data-ctx="company"]');if(co&&!co.value)co.value="شركة تجريبية للتجارة";const pe=root.querySelector('[data-ctx="period"]');if(pe&&!pe.value)pe.value="السنة المنتهية في 31 ديسمبر 2025";return}
