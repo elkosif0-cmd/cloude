@@ -206,6 +206,10 @@ await p.evaluate(()=>SKosifTBReview.demo());
 for(let i=0;i<40;i++){await p.waitForTimeout(600);if(await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}');return !!(d.session&&d.session.final)}))break}
 const DM=await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}'),s=d.session||{rounds:[],uploads:[]};return{co:d.ctx&&d.ctx.company,src:d.source,rounds:s.rounds.map(r=>r.status).join(','),uploads:s.uploads.length,insuff:s.rounds.some(r=>r.reviewed.some(v=>v.verdict==='غير كافٍ')),kams:s.final?s.final.kams.length:0,op:s.final&&s.final.aiOpinion}});
 ok('العملاء التجريبيون','شركة عالمية كملف مراجعة كامل دون مفتاح: طلبات ← مستندات ← جولات حتى الاكتفاء ← التقرير النهائي',/Apple/.test(DM.co)&&DM.src==='bundle'&&DM.rounds==='needs_docs,needs_docs,complete'&&DM.uploads>=5&&DM.insuff&&DM.kams>=1&&!!DM.op);
+await p.evaluate(()=>SKosifTBReview.open('docs'));await p.waitForTimeout(1000);await p.click('[data-a="pbc-letter"]');await p.waitForTimeout(2500);
+const PBL=await (async()=>{const fr=p.frames().find(f=>f!==p.mainFrame()&&f.parentFrame()===p.mainFrame());return fr?fr.evaluate(()=>({t:document.body.innerText.includes('خطاب طلب المستندات'),stages:document.querySelectorAll('h2').length,rows:document.querySelectorAll('tr').length,logo:!!document.querySelector('.skp-band img,.skp-head img')})):{}})();
+ok('تقارير المراجعة','خطاب طلب المستندات للعميل بمراحل المراجعة والمواعيد والبدائل، على ترويسة المكتب وشعار SQC',PBL.t&&PBL.stages>=3&&PBL.rows>=15&&PBL.logo);
+await p.keyboard.press('Escape');await p.waitForTimeout(400);
 // ---------- the original systems, restored with demo data ----------
 await p.evaluate(()=>SKosifLegacy.open('crm'));await p.waitForTimeout(3500);
 const LG=await (async()=>{const fr=p.frames().find(f=>f.url().includes('/legacy/crm'));if(!fr)return{};return fr.evaluate(()=>{const t=document.documentElement.outerHTML;const ph=[...new Set(t.match(/(?<!\d)05\d{8}(?!\d)/g)||[])];return{v:document.title.includes('V8.2'),phones:ph.length,clean:ph.every(x=>/^05000000\d\d$/.test(x))}})})();

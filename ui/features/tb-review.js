@@ -390,7 +390,7 @@ function reqRow(q,c){
 function docsTab(c){
   const s=c.session,gem=s?[...new Map(s.rounds.flatMap(r=>r.requests).map(q=>[q.id,q])).values()]:[];
   return '<section class="card"><div class="card-h"><div><h3>طلبات المراجع الذكي</h3><p>'+(gem.length?gem.length+' طلباً عبر الجولات. ارفع المستند ثم أرسل الجولة التالية من تبويب «جولات المراجعة».':'تظهر هنا بعد الجولة الأولى.')+'</p></div></div><div class="card-b tbr-reqs">'+(gem.map(q=>reqRow(q,c)).join("")||'<p class="empty">لا طلبات بعد.</p>')+'</div></section>'+
-    '<section class="card"><div class="card-h"><div><h3>قائمة المستندات المطلوبة من العميل (PBC)</h3><p>أعدها المحرك الآلي حسب البنود والمخاطر — '+c.base.requests.length+' مستنداً. ما ترفعه هنا يُرسل أيضاً إلى المراجع الذكي في الجولة التالية.</p></div><div class="sk-actions"><button type="button" class="btn sm" data-a="pbc-csv">تصدير القائمة</button></div></div><div class="card-b tbr-reqs">'+[["planning","التخطيط وفهم المنشأة"],["area","بنود القوائم"],["kam","المناطق الحكمية (الأمور الرئيسية)"],["completion","الإقفال والتقرير"],["",""]].map(([k,l])=>{const qs=c.base.requests.filter(q=>(q.stage||"")===k);return qs.length?(l?'<h4 class="tbr-stage">'+esc(l)+' <small>'+qs.length+'</small></h4>':'')+qs.map(q=>reqRow(q,c)).join(""):""}).join("")+'</div></section>';
+    '<section class="card"><div class="card-h"><div><h3>قائمة المستندات المطلوبة من العميل (PBC)</h3><p>أعدها المحرك الآلي حسب البنود والمخاطر — '+c.base.requests.length+' مستنداً. ما ترفعه هنا يُرسل أيضاً إلى المراجع الذكي في الجولة التالية.</p></div><div class="sk-actions"><button type="button" class="btn primary sm" data-a="pbc-letter">'+SK.icon("reports")+' خطاب طلب المستندات</button><button type="button" class="btn sm" data-a="pbc-csv">تصدير القائمة</button></div></div><div class="card-b tbr-reqs">'+[["planning","التخطيط وفهم المنشأة"],["area","بنود القوائم"],["kam","المناطق الحكمية (الأمور الرئيسية)"],["completion","الإقفال والتقرير"],["",""]].map(([k,l])=>{const qs=c.base.requests.filter(q=>(q.stage||"")===k);return qs.length?(l?'<h4 class="tbr-stage">'+esc(l)+' <small>'+qs.length+'</small></h4>':'')+qs.map(q=>reqRow(q,c)).join(""):""}).join("")+'</div></section>';
 }
 
 /* ---------- tab 4: adjustments and compliance ---------- */
@@ -623,6 +623,27 @@ function printReport(c){
   SK.audit&&SK.audit.log("report",{act:"tbreview-print"});
   setTimeout(()=>{try{w.focus();w.print()}catch{}},700);
 }
+/* the formal request letter to the client (PBC): what the auditor asks for, grouped by stage as the auditors of the
+   global reports ask it — first the planning documents, then the balances, then the judgemental areas, then completion —
+   each with its purpose, the standard, who provides it, the date it is due and the alternative if it cannot be had */
+function printPbcLetter(c){
+  const ctx=c.d.ctx,reqs=c.base.requests,end=ctx.periodEnd||"",due=n=>{if(!/^\d{4}-\d{2}-\d{2}/.test(end))return"";const x=new Date(end.slice(0,10)+"T00:00:00Z");x.setUTCDate(x.getUTCDate()+n);return x.toISOString().slice(0,10)};
+  const D={"عالية":due(15),"متوسطة":due(30),"منخفضة":due(45)},ST=[["planning","أولاً: التخطيط وفهم المنشأة"],["area","ثانياً: أرصدة القوائم المالية"],["kam","ثالثاً: المناطق الحكمية (الأمور الرئيسية للمراجعة)"],["completion","رابعاً: الإقفال وإصدار التقرير"]];
+  let pr={};try{pr=JSON.parse(localStorage.getItem("skosif_profile_v1")||"{}")||{}}catch{}
+  const firm=pr.firm||"فريق المراجعة",mat=c.base.materiality;let n=0;
+  const rows=st=>reqs.filter(q=>(q.stage||"area")===st).map(q=>'<tr><td>'+(++n)+'</td><td><b>'+esc(q.title)+'</b>'+(q.purpose?'<br><small>'+esc(q.purpose)+'</small>':'')+'</td><td>'+esc(q.evidenceAr||"")+(q.reliability?'<br><small>'+"●".repeat(q.reliability)+"○".repeat(3-q.reliability)+'</small>':'')+'</td><td>'+esc(q.from||"الإدارة المالية")+'</td><td>'+esc(q.standard||"")+'</td><td>'+esc(q.priority)+'<br><small>'+esc(D[q.priority]||"")+'</small></td><td><small>'+esc(q.alt||"")+'</small></td></tr>').join("");
+  const w=window.open("","_blank");if(!w){toast("اسمح بالنوافذ المنبثقة للطباعة","warn");return}
+  const body='<p style="text-align:left">التاريخ: '+esc(new Date().toISOString().slice(0,10))+'</p><p>السادة/ إدارة <b>'+esc(ctx.company||"المنشأة")+'</b> المحترمين،</p><p>الموضوع: <b>طلب المستندات اللازمة لمراجعة القوائم المالية '+esc(ctx.period||"")+'</b></p>'+
+    '<p>السلام عليكم ورحمة الله وبركاته، وبعد: تنفيذاً لخطاب التكليف، نرجو التكرم بتزويدنا بالمستندات التالية في المواعيد المبينة. رُتّبت الطلبات بحسب مراحل المراجعة كما تطلبها مكاتب المراجعة في التقارير العالمية، وحُدد لكل طلب الغرض منه والمعيار ومن يقدمه والبديل إن تعذر توفيره.'+
+    (mat?' الأهمية النسبية المخططة: '+esc(sar(mat.overall))+' على أساس '+esc(mat.benchmarkAr)+'.':'')+'</p>'+
+    ST.map(([k,l])=>{const r=rows(k);return r?'<h2>'+esc(l)+'</h2><table><tr><th>#</th><th>المستند والغرض</th><th>نوع الدليل وموثوقيته</th><th>يقدمه</th><th>المعيار</th><th>الأولوية والموعد</th><th>البديل إن تعذر</th></tr>'+r+'</table>':""}).join("")+
+    '<h2>ملاحظات</h2><ul><li>تُرسل المصادقات الخارجية (البنوك، العملاء، الموردون، المستشار القانوني) من الجهة مباشرة إلى المراجع (ISA 505).</li><li>المستند الذي يتعذر توفيره يُبلَّغ به كتابياً؛ يُطبق الإجراء البديل، وإن لم يكفِ يُقيَّم أثره على الرأي (ISA 705).</li><li>قد نطلب مستندات إضافية بعد فحص ما يرد، وفق نتائج الجولات.</li></ul>'+
+    '<p>وتفضلوا بقبول فائق الاحترام،</p><p><b>'+esc(firm)+'</b>'+(pr.license?' — ترخيص رقم '+esc(pr.license):'')+(pr.name?'<br>'+esc(pr.name)+(pr.title?' — '+esc(pr.title):''):'')+'</p>';
+  w.document.open();w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>خطاب طلب المستندات — '+esc(ctx.company||"")+'</title></head><body><h1>خطاب طلب المستندات</h1>'+body+'</body></html>');w.document.close();
+  SK.brandPrint(w,"خطاب طلب المستندات");
+  const st=w.document.createElement("style");st.textContent="table{width:100%;border-collapse:collapse;margin:6px 0 14px;font-size:11px}th,td{border:1px solid #dfe6ef;padding:5px 7px;text-align:right;vertical-align:top}th{background:#f3f6fa}small{color:#667}h2{margin-top:16px;font-size:14px}";w.document.head.appendChild(st);
+  SK.audit&&SK.audit.log("report",{act:"pbc-letter",n:reqs.length});
+}
 function printDoc(c,kind){
   const w=window.open("","_blank");if(!w){toast("اسمح بالنوافذ المنبثقة للطباعة","warn");return}
   const fw=FW()&&FW().docs[kind],render=fw?fw[0]:kind==="integrated"&&window.SKosifIntegrated?SKosifIntegrated.render:SKosifReportDocs[kind];
@@ -812,6 +833,7 @@ function bind(node){
     if(a==="books"){await fromBooks();return}
     if(a==="corpus"){const sel=root.querySelector("[data-corpus]");if(sel&&sel.value)await openClient(sel.value);else toast("اختر شركة من القائمة","warn");return}
     if(a==="demo-audit"){runDemo();return}
+    if(a==="pbc-letter"){const cc=compute();if(cc)printPbcLetter(cc);return}
     if(a==="waha"){const SC=E().reports.sampleCompany;if(!SC)return;
       if(await loadTB(SC.WAHA_TB_CSV,"شركة الواحة الذهبية",{...SC.WAHA_CONTEXT})){const d=st();d.ctx={...d.ctx,...SC.WAHA_CONTEXT};d.fw={};put(d);paint()}return}
     if(a==="sample"){const ta=root.querySelector("[data-tbtext]");if(ta)ta.value=TI().SAMPLE_TB_CSV;const co=root.querySelector('[data-ctx="company"]');if(co&&!co.value)co.value="شركة تجريبية للتجارة";const pe=root.querySelector('[data-ctx="period"]');if(pe&&!pe.value)pe.value="السنة المنتهية في 31 ديسمبر 2025";return}

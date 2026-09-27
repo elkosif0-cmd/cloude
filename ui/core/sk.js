@@ -224,9 +224,17 @@ const PRINT_KOSIF='@page{size:A4;margin:14mm 12mm 16mm;@bottom-center{content:"�
 const kosifLook=()=>!["heritage","notebook"].includes(document.documentElement.getAttribute("data-look")||"kosif");
 /* the preparer: the name set in the user menu (skosif_profile_v1), else الإعدادات */
 function preparer(){try{const p=JSON.parse(localStorage.getItem("skosif_profile_v1")||"{}");if(p&&p.name)return p.name+(p.title?" — "+p.title:"")}catch{}return org().preparer||""}
+/* who issues the printed page: in the audit section the audit firm (the profile's «المكتب المهني» and licence),
+   elsewhere the company open in the helper tools (its name, VAT and CR numbers from the settings) */
+function issuer(){
+  let sec="";try{const c=core();sec=c&&SK.caps?SK.caps.sectionOf(c.view()):""}catch{}
+  if(sec==="audit"){let p={};try{p=JSON.parse(localStorage.getItem("skosif_profile_v1")||"{}")||{}}catch{}
+    return{name:String(p.firm||"").trim()||"المراجعة والمراجعة المالية",ids:[p.license?"ترخيص رقم "+esc(p.license):"",p.city?esc(p.city):""].filter(Boolean)}}
+  const o=org();return{name:o.biz||"أغنام الوادي",ids:[o.vatNo?"الرقم الضريبي "+esc(o.vatNo):"",o.crNo?"السجل التجاري "+esc(o.crNo):"",o.phone?esc(o.phone):"",o.addr?esc(o.addr):""].filter(Boolean)};
+}
 function letterhead(title){
-  const o=org(),base=location.href.replace(/[^/?#]*([?#].*)?$/,"");
-  const ids=[o.vatNo?"الرقم الضريبي "+esc(o.vatNo):"",o.crNo?"السجل التجاري "+esc(o.crNo):"",o.phone?esc(o.phone):"",o.addr?esc(o.addr):""].filter(Boolean);
+  const who=issuer(),o={biz:who.name},base=location.href.replace(/[^/?#]*([?#].*)?$/,"");
+  const ids=who.ids;
   const date=esc(new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"}));
   if(kosifLook())return '<header class="skp-lux"><div class="skp-band"><img src="'+base+'art/sqc-mark.svg" alt=""><div class="skp-mark"><b>SQC</b><span>'+esc(o.biz||"أغنام الوادي")+'</span></div>'+
     '<div class="skp-doc"><b>'+esc(title||"")+'</b><span>'+date+'</span></div></div>'+(ids.length?'<div class="skp-ids">'+ids.map(x=>'<span>'+x+'</span>').join("")+'</div>':'')+'</header>';
@@ -282,7 +290,7 @@ function brandPrint(w,title){
     d.documentElement.setAttribute("dir","rtl");
     if(title&&!d.title)d.title=title;
     d.body.insertAdjacentHTML("afterbegin",letterhead(title||d.title));
-    const o=org(),pr=preparer();d.body.insertAdjacentHTML("beforeend",'<footer class="skp-foot">'+esc(o.biz||"أغنام الوادي")+' · صدر من '+'SQC — Smart Quality Control · AI-Powered Audit &amp; Assurance'+(pr?' · أعدّه: '+esc(pr):'')+'</footer>');
+    const pr=preparer();d.body.insertAdjacentHTML("beforeend",'<footer class="skp-foot">'+esc(issuer().name)+' · صدر من '+'SQC — Smart Quality Control · AI-Powered Audit &amp; Assurance'+(pr?' · أعدّه: '+esc(pr):'')+'</footer>');
     /* in the app's own preview (SK.output) the toolbar lives outside the page */
     if(w.__skEmbedded){if(window.SKCharts&&d.querySelector(".skch-fig,.skch,.skhb")){const cs=d.createElement("style");cs.id="sk-print-charts";cs.textContent=SKCharts.printCSS;(d.head||d.documentElement).appendChild(cs)}
       setTimeout(()=>SK.output&&SK.output.css(d),0);return}
