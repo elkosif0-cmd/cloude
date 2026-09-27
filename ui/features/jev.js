@@ -132,7 +132,7 @@ function grabThink(){
   if(q)th.q=q.value;if(c)th.ctx=c.value;if(o)th.opts=o.value;
 }
 function bindThink(){
-  $("[data-th-mode]",root).forEach(b=>b.onclick=()=>{grabThink();th.mode=b.dataset.thMode;paint()});
+  $$("[data-th-mode]",root).forEach(b=>b.onclick=()=>{grabThink();th.mode=b.dataset.thMode;paint()});
   const run=$("#th-run",root);if(run)run.onclick=runThink;
   const clear=$("#th-clear",root);if(clear)clear.onclick=()=>{Object.assign(th,{q:"",ctx:"",opts:"",result:null,status:""});paint()};
 }
