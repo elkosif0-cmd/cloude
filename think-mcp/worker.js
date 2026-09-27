@@ -7,7 +7,9 @@ const FAST_AGENTS = [
 const FRONTIER_AGENTS = [
   { id:"gpt", source:"cleanapis", model:"gpt-5.6-sol", role:"Lead frontier solver: produce the strongest feasible solution and challenge hidden assumptions." },
   { id:"claude", source:"cleanapis", model:"claude-opus-5", role:"Deep skeptical reviewer: stress-test logic, evidence, edge cases, and downside risk." },
-  { id:"gemini", source:"cleanapis", model:"gemini-3.7-flash", role:"Alternative-path analyst: compare approaches, surface missing options, and test trade-offs." }
+  { id:"gemini", source:"cleanapis", model:"gemini-3.7-flash", role:"Alternative-path analyst: compare approaches, surface missing options, and test trade-offs." },
+  { id:"mythos", source:"cleanapis", model:"claude-mythos-preview", role:"Adversarial scenario architect: test counterfactuals, failure modes, and hidden second-order effects." },
+  { id:"fable", source:"cleanapis", model:"claude-fable-5.1", role:"Creative synthesis challenger: seek unconventional but defensible alternatives and expose framing bias." }
 ];
 
 function json(data,status){ return new Response(JSON.stringify(data),{status:status||200,headers:{"content-type":"application/json; charset=utf-8"}}); }
@@ -55,9 +57,9 @@ function agentPrompt(agent,stage,input,peers){
     "Task: "+JSON.stringify({question:input.question,context:input.context,options:input.options,peerArtifacts:peers||[]})
   ].join("\n");
 }
-async function cleanApisChat(env,model,messages,maxTokens=700){
+async function cleanApisChat(env,model,messages,maxTokens=500){
   if(!env.cleanapis)throw new Error("CLEANAPIS_KEY_MISSING");
-  const ac=new AbortController(),timer=setTimeout(()=>ac.abort(),75000);
+  const ac=new AbortController(),timer=setTimeout(()=>ac.abort(),30000);
   let r;
   try{
     r=await fetch("https://cleanapis.com/v1/chat/completions",{
@@ -81,7 +83,7 @@ async function callAgent(env,agent,stage,input,peers){
     {role:"user",content:agentPrompt(agent,stage,input,peers)}
   ];
   if(agent.source==="cleanapis"){
-    const raw=await cleanApisChat(env,agent.model,messages,700);
+    const raw=await cleanApisChat(env,agent.model,messages,500);
     return artifact(agent,parseJson(raw));
   }
   const result=await env.AI.run(agent.model,{messages,max_tokens:550,response_format:{type:"json_object"}});
@@ -102,7 +104,7 @@ async function stage(env,name,agents,input,peers){
 async function stageWithFallback(env,name,preferred,input,peers){
   let r=await stage(env,name,preferred,input,peers);
   const isFrontier=preferred.some(a=>a.source==="cleanapis");
-  if(isFrontier&&r.artifacts.length<2){
+  if(isFrontier&&r.artifacts.length<3){
     const frontierFailures=r.failures;
     const fallback=await stage(env,name,FAST_AGENTS,input,peers);
     if(fallback.artifacts.length){
@@ -133,24 +135,20 @@ function council(artifacts,options){
     votes:votes.map(v=>({agentId:v.agentId,optionId:v.recommendationId,confidence:v.confidence}))
   };
 }
-async function synthesize(env,input,artifacts,c,mode){
-  const prompt=[
-    "You are the chair of KOSIF Think.",
-    "Synthesize the structured agent artifacts into a concise Arabic answer.",
-    "Do not reveal chain-of-thought. State the conclusion, strongest evidence, material disagreement, and remaining uncertainty.",
-    "Return valid JSON only: {\"finalAnswer\":\"...\",\"confidence\":0.0,\"remainingUncertainty\":[\"...\"]}.",
-    JSON.stringify({question:input.question,context:input.context,options:input.options,artifacts,council:c})
-  ].join("\n");
-  if(mode!=="fast"&&env.cleanapis){
-    try{
-      const raw=await cleanApisChat(env,"gpt-5.6-sol",[{role:"user",content:prompt}],1100);
-      const x=parseJson(raw);
-      return {finalAnswer:text(x.finalAnswer,6000),confidence:clamp(x.confidence),remainingUncertainty:list(x.remainingUncertainty,8),chair:{source:"cleanapis",model:"gpt-5.6-sol"}};
-    }catch(_){}
+function provisionalSynthesis(artifacts,c){
+  const ranked=artifacts.slice().sort((a,b)=>b.confidence-a.confidence);
+  const top=ranked[0]||null;
+  const uncertainty=[];
+  for(const a of ranked){
+    for(const x of [...(a.risks||[]),...(a.objections||[])]) if(x&&!uncertainty.includes(x)) uncertainty.push(x);
   }
-  const r=await env.AI.run("@cf/moonshotai/kimi-k2.6",{messages:[{role:"user",content:prompt}],max_tokens:mode==="deep"?2500:900,reasoning_effort:mode==="deep"?"high":"none",response_format:{type:"json_object"}});
-  const x=parseJson(extractAI(r));
-  return {finalAnswer:text(x.finalAnswer,6000),confidence:clamp(x.confidence),remainingUncertainty:list(x.remainingUncertainty,8),chair:{source:"cloudflare",model:"@cf/moonshotai/kimi-k2.6"}};
+  return {
+    finalAnswer:top?.answer||"",
+    confidence:top?.confidence||0,
+    remainingUncertainty:uncertainty.slice(0,8),
+    chair:{source:"chatgpt",model:"caller",pendingJev:true},
+    note:"Provisional only. ChatGPT should reconcile all artifacts with Jev and produce the final answer."
+  };
 }
 function jevPayload(input,artifacts,c){
   const state={question:input.question,context:input.context,artifacts,council:c};
@@ -184,13 +182,7 @@ async function runThink(env,args){
   }
   if(!artifacts.length) throw new Error("ALL_AGENTS_FAILED");
   const c=council(artifacts,input.options);
-  let synthesis;
-  try{synthesis=await synthesize(env,input,artifacts,c,mode);}
-  catch(e){
-    const top=artifacts.slice().sort((a,b)=>b.confidence-a.confidence)[0];
-    synthesis={finalAnswer:top.answer,confidence:top.confidence,remainingUncertainty:[],chair:null};
-    failures.push({agentId:"chair",model:"gpt-5.6-sol/@cf/moonshotai/kimi-k2.6",error:text(e?.message||e,500)});
-  }
+  const synthesis=provisionalSynthesis(artifacts,c);
   const preJevReasons=[];
   if(c?.tied) preJevReasons.push("COUNCIL_TIED");
   if(c&&c.agreementPercent<80) preJevReasons.push("COUNCIL_AGREEMENT_BELOW_80");
@@ -201,7 +193,7 @@ async function runThink(env,args){
     preJevGate:{passed:preJevReasons.length===0,reasons:preJevReasons},
     synthesis,
     jev_payload:jevPayload(input,artifacts,c),
-    next_step:"Submit jev_payload to the matching Jev Bridge tool, then reconcile the Jev verdict with this council result before answering the user."
+    next_step:"Submit jev_payload to the matching Jev Bridge tool. ChatGPT is the final chair: reconcile Jev with every agent artifact and the deterministic council, then answer the user."
   };
 }
 
@@ -233,7 +225,7 @@ async function callTool(env,name,args){
     ok:true,version:VERSION,modes:["fast","council","deep"],cleanApisConfigured:!!env.cleanapis,
     fastAgents:FAST_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role})),
     frontierAgents:FRONTIER_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role})),
-    routing:{fast:"Cloudflare fast council",council:"GPT-5.6 Sol + Claude Opus 5 + Gemini 3.7 Flash via Clean APIs",deep:"Same frontier council with critique + revision",fallback:"Cloudflare fast council if fewer than two frontier agents succeed"},
+    routing:{fast:"Cloudflare fast council",council:"GPT-5.6 Sol + Claude Opus 5 + Gemini 3.7 Flash + Claude Mythos Preview + Claude Fable 5.1 via Clean APIs",deep:"Same five-agent frontier council with critique + revision",fallback:"Cloudflare fast council if fewer than three frontier agents succeed",finalChair:"ChatGPT after Jev"},
     jevIntegration:"kosif_think returns jev_payload; ChatGPT should call the matching Jev Bridge tool before the final synthesis."
   },false);
   return null;
