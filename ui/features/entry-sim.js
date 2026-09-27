@@ -17,7 +17,7 @@ const FIELDS=[["date","التاريخ"],["ref","رقم القيد"],["account","
 let root=null,tab="",doc={text:"",amount:"",date:"",vatIncluded:true},res=null,edit=null,pending=null,busy=false,useAi=true,attach=null;
 const nf=new Intl.NumberFormat("en",{minimumFractionDigits:2,maximumFractionDigits:2}),n2=v=>nf.format(Number(v)||0);
 const today=()=>new Date().toISOString().slice(0,10);
-const companyId=()=>{const s=window.SKosifSpace&&SKosifSpace.current&&SKosifSpace.current();if(s&&s.id)return String(s.id);const d=load("skosif_companies_v1",{})||{};return String((d.active||{}).companyId||"space-main")};
+const companyId=()=>{const s=window.SKosifSpace&&window.SKosifSpace.current&&window.SKosifSpace.current();if(s&&s.id)return String(s.id);const d=load("skosif_companies_v1",{})||{};return String((d.active||{}).companyId||"space-main")};
 const memoryKey=()=>BASE_KEY+"__"+companyId().replace(/[^A-Za-z0-9_.-]/g,"_");
 const fresh=()=>({...EL().emptyMemory(),companyId:companyId(),accountMap:{}});
 const normalize=m=>m&&m.v===1&&Array.isArray(m.patterns)&&(!m.companyId||m.companyId===companyId())?{...m,companyId:companyId(),accountMap:m.accountMap||{}}:fresh();
