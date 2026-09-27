@@ -2650,6 +2650,19 @@ window.SKEngines = (function() {
 			cf: "financing"
 		},
 		{
+			key: "otherNcl",
+			ar: "مطلوبات غير متداولة أخرى",
+			en: "Other non-current liabilities",
+			statement: "sfp",
+			section: "ncl",
+			types: ["liability"],
+			kws: [],
+			prefixes: [],
+			standards: ["IAS 1"],
+			assertions: ["الاكتمال", "العرض"],
+			cf: "noncash"
+		},
+		{
 			key: "zakatPayable",
 			ar: "زكاة مستحقة",
 			en: "Zakat payable",
@@ -3542,15 +3555,15 @@ window.SKEngines = (function() {
 		mdna: () => mdna,
 		ratios: () => ratios
 	});
-	var r2$4 = (n) => Math.round(n * 100) / 100;
+	var r2$5 = (n) => Math.round(n * 100) / 100;
 	var div$1 = (a, b) => b ? a / b : null;
 	var pctOf = (a, b) => {
 		const x = div$1(a, b);
-		return x === null ? null : r2$4(x * 100);
+		return x === null ? null : r2$5(x * 100);
 	};
 	var times = (a, b) => {
 		const x = div$1(a, b);
-		return x === null ? null : r2$4(x);
+		return x === null ? null : r2$5(x);
 	};
 	var days$2 = (a, b) => {
 		const x = div$1(a, b);
@@ -3816,7 +3829,7 @@ window.SKEngines = (function() {
 	/** Common-size: P&L lines as % of revenue, position lines as % of total assets. */
 	function commonSize(fs) {
 		const rev = fs.keys.revenue, ta = fs.keys.assets;
-		const pc = (a, b) => b ? r2$4(a / b * 100) : null;
+		const pc = (a, b) => b ? r2$5(a / b * 100) : null;
 		return {
 			pl: fs.pl.map((r) => ({
 				key: r.key,
@@ -3841,7 +3854,7 @@ window.SKEngines = (function() {
 			current: r.current,
 			prior: r.prior,
 			change: r.current - r.prior,
-			changePct: r.prior ? r2$4((r.current - r.prior) / Math.abs(r.prior) * 100) : null
+			changePct: r.prior ? r2$5((r.current - r.prior) / Math.abs(r.prior) * 100) : null
 		}));
 	}
 	/** DuPont: ROE = net margin × asset turnover × equity multiplier (year-end balances). */
@@ -3849,10 +3862,10 @@ window.SKEngines = (function() {
 		const k = fs.keys, one = (rev, profit, ta, eq) => {
 			const nm = div$1(profit, rev), at = div$1(rev, ta), em = div$1(ta, eq);
 			return {
-				netMargin: nm === null ? null : r2$4(nm * 100),
-				assetTurnover: at === null ? null : r2$4(at),
-				equityMultiplier: em === null ? null : r2$4(em),
-				roe: nm === null || at === null || em === null ? null : r2$4(nm * at * em * 100)
+				netMargin: nm === null ? null : r2$5(nm * 100),
+				assetTurnover: at === null ? null : r2$5(at),
+				equityMultiplier: em === null ? null : r2$5(em),
+				roe: nm === null || at === null || em === null ? null : r2$5(nm * at * em * 100)
 			};
 		};
 		return {
@@ -3866,16 +3879,16 @@ window.SKEngines = (function() {
 		if (!ta) return null;
 		const retained = fs.lines.filter((l) => l.key === "retained").reduce((a, l) => a + l.current, 0) + k.profit.current;
 		const x1 = (k.ca.current - k.cl.current) / ta, x2 = retained / ta, x3 = k.operating.current / ta, x4 = tl ? k.equity.current / tl : 0;
-		const z = r2$4(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
+		const z = r2$5(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
 		return {
 			z,
 			zone: z > 2.6 ? "safe" : z >= 1.1 ? "grey" : "distress",
 			zoneAr: z > 2.6 ? "منطقة الأمان" : z >= 1.1 ? "المنطقة الرمادية" : "منطقة التعثر",
 			components: {
-				x1: r2$4(x1),
-				x2: r2$4(x2),
-				x3: r2$4(x3),
-				x4: r2$4(x4)
+				x1: r2$5(x1),
+				x2: r2$5(x2),
+				x3: r2$5(x3),
+				x4: r2$5(x4)
 			}
 		};
 	}
@@ -3893,7 +3906,7 @@ window.SKEngines = (function() {
 		const sgai = q(q(sga(c), c("revenue")), q(sga(p), p("revenue")));
 		const lvgi = q(q(c("cl") + c("loansNcl") + c("leaseNcl"), c("assets")), q(p("cl") + p("loansNcl") + p("leaseNcl"), p("assets")));
 		const tata = fs.keys.cfo ? q(c("profit") - fs.keys.cfo.current, c("assets")) : 0;
-		const m = r2$4(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
+		const m = r2$5(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
 		const f = (x) => Math.round(x * 1e3) / 1e3;
 		return {
 			m,
@@ -3992,7 +4005,7 @@ window.SKEngines = (function() {
 			rat("current")
 		].map((i) => ({
 			...i,
-			change: i.prior === null || i.current === null || !i.prior ? null : r2$4((i.current - i.prior) / Math.abs(i.prior) * 100)
+			change: i.prior === null || i.current === null || !i.prior ? null : r2$5((i.current - i.prior) / Math.abs(i.prior) * 100)
 		}));
 	}
 	/** A deterministic management discussion: sentences generated from the numbers only. */
@@ -4002,7 +4015,7 @@ window.SKEngines = (function() {
 		const ch = (key) => {
 			const x = k[key];
 			if (!x || x.prior === null || !x.prior) return null;
-			return r2$4((x.current - x.prior) / Math.abs(x.prior) * 100);
+			return r2$5((x.current - x.prior) / Math.abs(x.prior) * 100);
 		};
 		const dir = (v, up, down) => v === null ? "" : v >= 0 ? `${up} ${Math.abs(v)}%` : `${down} ${Math.abs(v)}%`;
 		const out = [];
@@ -4060,7 +4073,7 @@ window.SKEngines = (function() {
 		summary: () => summary$1,
 		themePrior: () => themePrior,
 		themeStats: () => themeStats,
-		typicalKamCount: () => typicalKamCount
+		typicalKamCount: () => typicalKamCount$1
 	});
 	var BUNDLE = {
 		file: "global_financial_and_audit_research_bundle_extended_verified.pdf",
@@ -4791,23 +4804,20 @@ window.SKEngines = (function() {
 			["industrial", /مقاولات|إنشاء|صناع|مصنع|طيران|construct|manufactur|industrial|aero/]
 		].find(([, re]) => re.test(t))?.[0] ?? "";
 	}
-	/** How often each theme is a key/critical audit matter for reports of this sector (and standard), smoothed towards the
-	whole bundle: p = (reports of the sector carrying it + 2 × its share across all reports) / (reports of the sector + 2).
-	`exclude` leaves one report out, so the bundle can test itself without seeing the answer. */
+	/** How often each theme is a key/critical audit matter in the reports of this sector — the share of the sector's reports carrying it;
+	for a sector the bundle does not cover, the share under the same standard, else across all reports. `exclude` leaves one report
+	out, so the bundle can test itself without seeing the answer (the replay measured the plain sector share ranking best). */
 	function themePrior(opts = {}) {
 		const reps = REPORTS.filter((r) => r.id !== opts.exclude && KAMS.some((k) => k.report === r.id));
 		const has = (r, t) => KAMS.some((k) => k.report === r.id && k.theme === t);
 		const inSector = reps.filter((r) => opts.sector && r.sector === opts.sector), inStd = reps.filter((r) => opts.standard && r.standard === opts.standard);
+		const pool = inSector.length ? inSector : inStd.length ? inStd : reps;
 		const out = {};
-		for (const t of Object.keys(THEMES)) {
-			const g = reps.length ? reps.filter((r) => has(r, t)).length / reps.length : 0;
-			const std = inStd.length ? (inStd.filter((r) => has(r, t)).length + 2 * g) / (inStd.length + 2) : g;
-			out[t] = inSector.length ? (inSector.filter((r) => has(r, t)).length + 2 * std) / (inSector.length + 2) : std;
-		}
+		for (const t of Object.keys(THEMES)) out[t] = pool.length ? Math.round(pool.filter((r) => has(r, t)).length / pool.length * 100) / 100 : 0;
 		return out;
 	}
 	/** How many matters reports of a standard carry: PCAOB reports about two critical audit matters, ISA reports three or more. */
-	function typicalKamCount(standard, ukStyle = false) {
+	function typicalKamCount$1(standard, ukStyle = false) {
 		if (ukStyle) return 4;
 		return standard === "PCAOB" ? 2 : 3;
 	}
@@ -5689,11 +5699,15 @@ window.SKEngines = (function() {
 	function reviewTrialBalance(tb, opts = {}) {
 		const framework = opts.framework ?? "IFRS", egypt = framework === "EAS", cur = opts.currency ?? (egypt ? "ج.م" : "ر.س");
 		const money = (m) => formatMinor(m, { decimals: 0 }) + " " + cur;
-		const fs = buildStatements(tb, opts.overrides ?? {}, { tax: egypt ? "income" : "zakat" });
-		const mat = materiality(fs, {
+		const fs = buildStatements(tb, opts.overrides ?? {}, { tax: opts.tax ?? (egypt ? "income" : "zakat") });
+		const mat0 = materiality(fs, {
 			overall: opts.materiality,
 			...opts.materialityRates ?? {}
 		});
+		const mat = opts.tax === "income" && mat0.benchmark === "pbz" ? {
+			...mat0,
+			benchmarkAr: "الربح قبل ضريبة الدخل"
+		} : mat0;
 		const findings = [], adjustments = [];
 		let seq = 0;
 		const add = (f) => {
@@ -7553,7 +7567,7 @@ window.SKEngines = (function() {
 		}
 	};
 	var clamp01 = (x) => Number.isFinite(x) ? Math.max(0, Math.min(1, x)) : 0;
-	var r2$3 = (x) => Math.round(x * 100) / 100;
+	var r2$4 = (x) => Math.round(x * 100) / 100;
 	/** E — evidence coverage for a balance: Σ r·v ÷ V, capped at 1 (only accepted evidence counts). */
 	function coverage(items, balance) {
 		const V = Math.abs(balance);
@@ -7587,9 +7601,9 @@ window.SKEngines = (function() {
 		};
 		if (p.A === null) {
 			const k = W.E + W.T || 1;
-			return r2$3(clamp01(W.E / k * p.E + W.T / k * p.T));
+			return r2$4(clamp01(W.E / k * p.E + W.T / k * p.T));
 		}
-		return r2$3(clamp01(W.E * p.E + W.T * p.T + W.A * p.A));
+		return r2$4(clamp01(W.E * p.E + W.T * p.T + W.A * p.A));
 	}
 	/** The confidence a line needs: material & high risk 0.90, material & medium 0.80, material & low 0.70, immaterial → analytics only (null). */
 	function thresholdFor(line) {
@@ -7614,9 +7628,9 @@ window.SKEngines = (function() {
 				}, i.weights);
 				return {
 					assertion: a,
-					E: r2$3(E),
-					T: r2$3(T),
-					A: A === null ? null : r2$3(A),
+					E: r2$4(E),
+					T: r2$4(T),
+					A: A === null ? null : r2$4(A),
 					C,
 					met: threshold === null ? null : C >= threshold
 				};
@@ -7627,13 +7641,13 @@ window.SKEngines = (function() {
 				threshold,
 				...ov ? { override: ov } : {},
 				cells,
-				min: r2$3(min),
+				min: r2$4(min),
 				met: threshold === null ? null : cells.every((c) => c.met)
 			};
 		});
 		const open = rows.filter((r) => r.met === false), material = rows.filter((r) => r.threshold !== null);
-		const avgOpen = open.length ? r2$3(open.reduce((s, r) => s + r.min, 0) / open.length) : 1;
-		const avgAll = material.length ? r2$3(material.reduce((s, r) => s + r.min, 0) / material.length) : 1;
+		const avgOpen = open.length ? r2$4(open.reduce((s, r) => s + r.min, 0) / open.length) : 1;
+		const avgAll = material.length ? r2$4(material.reduce((s, r) => s + r.min, 0) / material.length) : 1;
 		return {
 			rows,
 			open,
@@ -7698,7 +7712,7 @@ window.SKEngines = (function() {
 			amount,
 			accepted: true
 		}], row.amount);
-		return r2$3(Math.max(0, confidence({
+		return r2$4(Math.max(0, confidence({
 			E: E2,
 			T: cell.T,
 			A: cell.A
@@ -7708,11 +7722,11 @@ window.SKEngines = (function() {
 	function rankRequests(list) {
 		return list.map((q) => ({
 			...q,
-			score: r2$3(q.expectedGain * q.materialityWeight / EFFORT[q.effort].v * 100) / 100
+			score: r2$4(q.expectedGain * q.materialityWeight / EFFORT[q.effort].v * 100) / 100
 		})).sort((a, b) => b.score - a.score || b.materialityWeight - a.materialityWeight);
 	}
 	/** Materiality weight of a line: its balance relative to overall materiality (≥ 1 means material on its own). */
-	var materialityWeight = (amount, overall) => overall > 0 ? r2$3(Math.min(10, Math.abs(amount) / overall)) : 1;
+	var materialityWeight = (amount, overall) => overall > 0 ? r2$4(Math.min(10, Math.abs(amount) / overall)) : 1;
 	var STATES = [
 		{
 			key: "new",
@@ -7943,6 +7957,3702 @@ window.SKEngines = (function() {
 		"إعداد مجموعة ملفات سابقة داخلية لاختبار النظام قبل الاعتماد عليه",
 		"تحديد مؤشرات قياس الأثر: الساعات الموفرة، والملاحظات الإضافية، ورضا الفريق"
 	];
+	//#endregion
+	//#region app/src/engine/fusion/audit/kam-engine.ts
+	var kam_engine_exports = /* @__PURE__ */ __exportAll({
+		removedKams: () => removedKams,
+		suggestKams: () => suggestKams
+	});
+	var clean$3 = (x) => x.replace(/[.،؛]\s*$/, "");
+	/** The revenue theme carries the presumed risk of fraud (ISA 240.26), so it ranks above an equal line risk. */
+	var FRAUD_THEMES = /* @__PURE__ */ new Set(["revenue-deductions", "revenue-recognition"]);
+	function suggestKams(input) {
+		const { fs, materiality } = input, cur = input.currency ?? "ر.س", money = (m) => formatMinor(m, { decimals: 0 }) + " " + cur;
+		const assets = Math.abs(fs.keys.assets.current) || 1;
+		const byKey = /* @__PURE__ */ new Map();
+		const prior = input.sectorPrior ?? themePrior({
+			sector: input.sector,
+			standard: input.standard,
+			exclude: input.exclude
+		});
+		for (const r of input.risks) {
+			const line = fs.lines.find((l) => l.key === r.lineKey), amount = Math.abs(line?.current ?? r.amount ?? 0);
+			if (!amount) continue;
+			const pr = [...precedentsFor(r.lineKey, {
+				sector: input.sector,
+				limit: 3
+			}).filter((p) => !input.exclude || p.examples.some((e) => e.report !== input.exclude))].sort((a, b) => (prior[b.theme] ?? 0) - (prior[a.theme] ?? 0))[0] ?? null;
+			const key = pr ? pr.theme : r.lineKey, estimate = (r.parts?.estimate ?? 0) >= 15;
+			const score = Math.min(100, r.score + (amount >= materiality * 3 ? 10 : 0) + (estimate ? 5 : 0) + (FRAUD_THEMES.has(key) ? 8 : 0));
+			const pct = Math.round(amount / assets * 1e3) / 10;
+			const weight = Math.round(score + Math.min(30, pct * .6) + (prior[key] ?? 0) * 40);
+			const prev = byKey.get(key);
+			if (prev && prev.weight >= weight) {
+				if (!prev.lineKeys.includes(r.lineKey)) prev.lineKeys.push(r.lineKey);
+				continue;
+			}
+			const description = (pr ? pr.why + " " : "") + "بلغ رصيد " + r.ar + " " + money(amount) + (input.periodEnd ? " كما في " + input.periodEnd : "") + " (" + pct + "% من مجموع الموجودات)" + (r.risk ? "، وتتركز مخاطره في " + clean$3(r.risk) : "") + (estimate ? "، ويتضمن تقديرات محاسبية تتطلب حكماً مهنياً مهماً (ISA 540)" : "") + ". لذلك عُدّ من الأمور ذات الأهمية القصوى في مراجعتنا.";
+			const steps = [...new Set([...r.procedures ?? [], ...pr ? pr.procedures : []].map(clean$3))].slice(0, 6);
+			const ev = input.evidence?.[r.lineKey];
+			const how = "شملت إجراءاتنا: " + steps.join("؛ ") + ".";
+			const observation = ev === "accepted" ? "لم تسفر إجراءاتنا عن تحفظات، وحصلنا على أدلة كافية ومناسبة تؤيد ما سجلته الإدارة." : ev === "partial" ? "ما زالت بعض الأدلة المؤيدة قيد الاستكمال؛ تُحدَّث النتيجة قبل إصدار التقرير." : "النتيجة معلقة حتى استكمال الأدلة المطلوبة من المنشأة.";
+			byKey.set(key, {
+				key,
+				title: pr ? THEMES[pr.theme].ar : r.ar,
+				description,
+				how,
+				observation,
+				refs: [...line?.standards ?? [], ...line?.note ? ["إيضاح " + line.note] : []],
+				lineKeys: [.../* @__PURE__ */ new Set([...prev?.lineKeys ?? [], r.lineKey])],
+				amount,
+				pctAssets: pct,
+				score,
+				weight,
+				selected: false,
+				trend: input.priorKeys ? input.priorKeys.includes(key) ? "same" : "new" : null,
+				examples: pr ? pr.examples.filter((e) => e.report !== input.exclude) : []
+			});
+		}
+		const out = [...byKey.values()].sort((a, b) => b.weight - a.weight || b.score - a.score);
+		const max = input.max ?? (input.standard === "PCAOB" ? 2 : 3);
+		let n = 0;
+		for (const k of out) if (n < max && (k.score >= 70 || k.score >= 55 && k.amount >= materiality)) {
+			k.selected = true;
+			n++;
+		}
+		if (!n && out.length) out[0].selected = true;
+		return out.slice(0, 6);
+	}
+	/** Matters reported last year and not this year — the report says why they no longer are. */
+	var removedKams = (priorKeys, current) => priorKeys.filter((k) => !current.some((c) => c.selected && c.key === k)).map((k) => THEMES[k]?.ar ?? k);
+	//#endregion
+	//#region app/src/engine/fusion/reports/corpus-companies-engine.ts
+	var corpus_companies_engine_exports = /* @__PURE__ */ __exportAll({
+		FIGURES: () => FIGURES,
+		NO_STATEMENTS: () => NO_STATEMENTS,
+		companyTrialBalance: () => companyTrialBalance,
+		corpusCompanies: () => corpusCompanies,
+		corpusCompany: () => corpusCompany
+	});
+	var FIGURES = {
+		"amazon-2023": {
+			kind: "corporate",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 51,
+				bs: 53
+			},
+			rev: [574785, 513983],
+			cogs: [304739, 288831],
+			op: [36852, 12248],
+			pbt: [37557, -5936],
+			tax: [7120, -3217],
+			net: [30425, -2722],
+			cash: [73387, 53888],
+			recv: [52253, 42360],
+			inv: [33318, 34405],
+			invst: [13393, 16138],
+			ppe: [276690, 252838],
+			intang: [22789, 20288],
+			ca: [172351, 146791],
+			assets: [527854, 462675],
+			pay: [84981, 79600],
+			cl: [164917, 155393],
+			debt: [58314, 67150],
+			equity: [201875, 146043]
+		},
+		"apple-2024": {
+			kind: "corporate",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 125,
+				bs: 127
+			},
+			rev: [391035, 383285],
+			cogs: [210352, 214137],
+			op: [123216, 114301],
+			pbt: [123485, 113736],
+			tax: [29749, 16741],
+			net: [93736, 96995],
+			cash: [29943, 29965],
+			recv: [33410, 29508],
+			inv: [7286, 6331],
+			invst: [126707, 132134],
+			ppe: [45680, 43715],
+			intang: [0, 0],
+			ca: [152987, 143566],
+			assets: [364980, 352583],
+			pay: [68960, 62611],
+			cl: [176392, 145308],
+			debt: [106629, 111088],
+			equity: [56950, 62146]
+		},
+		"cisco-2024": {
+			kind: "corporate",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 293,
+				bs: 292
+			},
+			rev: [53803, 56998],
+			cogs: [18975, 21245],
+			op: [12181, 15031],
+			pbt: [12234, 15318],
+			tax: [1914, 2705],
+			net: [10320, 12613],
+			cash: [7508, 10123],
+			recv: [6685, 5854],
+			inv: [3373, 3644],
+			invst: [10346, 16023],
+			ppe: [2090, 2085],
+			intang: [69879, 40353],
+			ca: [36862, 43348],
+			assets: [124413, 101852],
+			pay: [2304, 2313],
+			taxp: [5424, 9991],
+			cl: [40584, 31309],
+			debt: [30962, 8391],
+			equity: [45457, 44353]
+		},
+		"walmart-2023": {
+			kind: "corporate",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 402,
+				bs: 404
+			},
+			rev: [611289, 572754],
+			cogs: [463721, 429e3],
+			op: [20428, 25942],
+			pbt: [17016, 18696],
+			tax: [5724, 4756],
+			net: [11292, 13940],
+			cash: [8625, 14760],
+			recv: [7933, 8280],
+			inv: [56576, 56511],
+			invst: [0, 0],
+			ppe: [119234, 112624],
+			intang: [28174, 29014],
+			ca: [75655, 81070],
+			assets: [243197, 244860],
+			pay: [53742, 55261],
+			taxp: [727, 851],
+			cl: [92198, 87379],
+			debt: [39212, 38077],
+			equity: [83754, 91891]
+		},
+		"adobe-2024": {
+			kind: "corporate",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 501,
+				bs: 500
+			},
+			rev: [21505, 19409],
+			cogs: [2358, 2354],
+			op: [6741, 6650],
+			pbt: [6931, 6799],
+			tax: [1371, 1371],
+			net: [5560, 5428],
+			cash: [7613, 7141],
+			recv: [2072, 2224],
+			inv: [0, 0],
+			invst: [273, 701],
+			ppe: [2217, 2388],
+			intang: [13570, 13893],
+			ca: [11232, 11084],
+			assets: [30230, 29779],
+			pay: [361, 314],
+			taxp: [667, 599],
+			cl: [10521, 8251],
+			debt: [5628, 3634],
+			equity: [14105, 16518]
+		},
+		"jpmorgan-2023": {
+			kind: "bank",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 751,
+				bs: 753
+			},
+			rev: [158104, 128695],
+			pbt: [61612, 46166],
+			tax: [12060, 8490],
+			net: [49552, 37676],
+			ecl: [9320, 6389],
+			cash: [624151, 567234],
+			recv: [1301286, 1115921],
+			allow: [22420, 19726],
+			invst: [571552, 631162],
+			ppe: [30157, 27734],
+			intang: [64381, 60859],
+			assets: [3875393, 3665743],
+			pay: [2400688, 2340179],
+			debt: [391825, 295865],
+			equity: [327878, 292332]
+		},
+		"apple-2020": {
+			kind: "corporate",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 945,
+				bs: 947
+			},
+			rev: [274515, 260174],
+			cogs: [169559, 161782],
+			op: [66288, 63930],
+			pbt: [67091, 65737],
+			tax: [9680, 10481],
+			net: [57411, 55256],
+			cash: [38016, 48844],
+			recv: [16120, 22926],
+			inv: [4061, 4106],
+			invst: [153814, 157054],
+			ppe: [36766, 37378],
+			intang: [0, 0],
+			ca: [143713, 162819],
+			assets: [323888, 338516],
+			pay: [42296, 46236],
+			cl: [105392, 105718],
+			debt: [112436, 108047],
+			equity: [65339, 90488]
+		},
+		"amazon-2024": {
+			kind: "corporate",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 1065,
+				bs: 1067
+			},
+			rev: [637959, 574785],
+			cogs: [326288, 304739],
+			op: [68593, 36852],
+			pbt: [68614, 37557],
+			tax: [9265, 7120],
+			net: [59248, 30425],
+			cash: [78779, 73387],
+			recv: [55451, 52253],
+			inv: [34214, 33318],
+			invst: [22423, 13393],
+			ppe: [328806, 276690],
+			intang: [23074, 22789],
+			ca: [190867, 172351],
+			assets: [624894, 527854],
+			pay: [94363, 84981],
+			cl: [179431, 164917],
+			debt: [52623, 58314],
+			equity: [285970, 201875]
+		},
+		"apple-2023": {
+			kind: "corporate",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 1138,
+				bs: 1140
+			},
+			rev: [383285, 394328],
+			cogs: [214137, 223546],
+			op: [114301, 119437],
+			pbt: [113736, 119103],
+			tax: [16741, 19300],
+			net: [96995, 99803],
+			cash: [29965, 23646],
+			recv: [29508, 28184],
+			inv: [6331, 4946],
+			invst: [132134, 145463],
+			ppe: [43715, 42117],
+			intang: [0, 0],
+			ca: [143566, 135405],
+			assets: [352583, 352755],
+			pay: [62611, 64115],
+			cl: [145308, 153982],
+			debt: [111088, 120069],
+			equity: [62146, 50672]
+		},
+		"berkshire-2025": {
+			kind: "insurer",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 1281,
+				bs: 1279
+			},
+			rev: [371444, 371433],
+			cogs: [167747, 170711],
+			pbt: [82459, 110376],
+			tax: [15199, 20815],
+			net: [67260, 89561],
+			cash: [51877, 47729],
+			recv: [78554, 76188],
+			inv: [24424, 24008],
+			invst: [657006, 604558],
+			ppe: [235160, 222929],
+			intang: [116876, 118518],
+			assets: [1222176, 1153881],
+			pay: [57269, 55715],
+			taxp: [86955, 85870],
+			reserves: [151761, 147594],
+			debt: [129081, 124762],
+			equity: [719703, 651655]
+		},
+		"jpmorgan-2025": {
+			kind: "bank",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 1538,
+				bs: 1540
+			},
+			rev: [182447, 177556],
+			pbt: [72595, 75081],
+			tax: [15547, 16610],
+			net: [57048, 58471],
+			ecl: [14212, 10678],
+			cash: [343338, 469317],
+			recv: [1467664, 1323643],
+			allow: [25765, 24345],
+			invst: [777332, 681320],
+			ppe: [36244, 32223],
+			intang: [64458, 64560],
+			assets: [4424900, 4002814],
+			pay: [2559320, 2406032],
+			debt: [435206, 401418],
+			equity: [362438, 344758]
+		},
+		"bofa-2025": {
+			kind: "bank",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 1772,
+				bs: 1772
+			},
+			rev: [113097, 105856],
+			pbt: [37695, 33223],
+			tax: [7186, 6250],
+			net: [30509, 26973],
+			ecl: [5675, 5821],
+			cash: [231845, 290114],
+			recv: [1172497, 1082595],
+			allow: [13203, 13240],
+			invst: [925635, 917284],
+			ppe: [12516, 12168],
+			intang: [69021, 69021],
+			assets: [3411738, 3261299],
+			pay: [2018729, 1965467],
+			debt: [317816, 283279],
+			equity: [303243, 293963]
+		},
+		"pepsico-2025": {
+			kind: "corporate",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 1884,
+				bs: 1888
+			},
+			rev: [93925, 91854],
+			cogs: [43066, 41744],
+			op: [11498, 12887],
+			pbt: [10244, 11946],
+			tax: [1949, 2320],
+			net: [8295, 9626],
+			cash: [9159, 8505],
+			recv: [11506, 10333],
+			inv: [5845, 5306],
+			invst: [2409, 2746],
+			ppe: [29905, 28008],
+			intang: [33982, 32335],
+			ca: [27949, 25826],
+			assets: [107399, 99467],
+			pay: [25903, 24454],
+			cl: [32764, 31536],
+			debt: [49182, 44306],
+			equity: [20547, 18171]
+		},
+		"pg-2026": {
+			kind: "corporate",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 2004,
+				bs: 2005
+			},
+			rev: [87032, 84284],
+			cogs: [43362, 41164],
+			op: [19748, 20451],
+			pbt: [20377, 20167],
+			tax: [4233, 4102],
+			net: [16144, 16065],
+			cash: [9942, 9556],
+			recv: [6056, 6185],
+			inv: [8170, 7551],
+			invst: [0, 0],
+			ppe: [25360, 23897],
+			intang: [62720, 63560],
+			ca: [26208, 25392],
+			assets: [126521, 125231],
+			pay: [16306, 15227],
+			cl: [38694, 36058],
+			debt: [34138, 34508],
+			equity: [54311, 52284]
+		},
+		"homedepot-2025": {
+			kind: "corporate",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 2087,
+				bs: 2086
+			},
+			rev: [164683, 159514],
+			cogs: [109818, 106206],
+			op: [20890, 21526],
+			pbt: [18602, 19406],
+			tax: [4446, 4600],
+			net: [14156, 14806],
+			cash: [1389, 1659],
+			recv: [5597, 4903],
+			inv: [25817, 23451],
+			invst: [0, 0],
+			ppe: [37225, 35294],
+			intang: [32673, 28458],
+			ca: [34391, 31683],
+			assets: [105095, 96119],
+			pay: [11491, 11938],
+			taxp: [114, 832],
+			cl: [32424, 28661],
+			debt: [55772, 53383],
+			equity: [12813, 6640]
+		},
+		"nestle-2025": {
+			kind: "corporate",
+			currency: "CHF",
+			unit: "m",
+			pages: {
+				is: 2210,
+				bs: 2212
+			},
+			rev: [89490, 91354],
+			cogs: [48694, 48670],
+			op: [12277, 14724],
+			pbt: [10751, 13239],
+			tax: [2640, 3314],
+			net: [9254, 11174],
+			cash: [4579, 5556],
+			recv: [10561, 11251],
+			inv: [12813, 13260],
+			invst: [17388, 20291],
+			ppe: [32549, 33706],
+			intang: [44309, 49840],
+			ca: [31969, 35188],
+			assets: [127151, 139264],
+			pay: [20023, 21807],
+			taxp: [2338, 2435],
+			prov: [1830, 1951],
+			cl: [40694, 42863],
+			debt: [57852, 63560],
+			pens: [2299, 2629],
+			equity: [33058, 36693]
+		},
+		"roche-2025": {
+			kind: "corporate",
+			currency: "CHF",
+			unit: "m",
+			pages: {
+				is: 2392,
+				bs: 2395
+			},
+			rev: [63356, 62395],
+			cogs: [16645, 16283],
+			op: [18476, 13417],
+			pbt: [16973, 11793],
+			tax: [3174, 2606],
+			net: [13799, 9187],
+			cash: [5582, 6975],
+			recv: [11506, 11297],
+			inv: [7479, 7606],
+			invst: [9894, 10342],
+			ppe: [22934, 23740],
+			intang: [26813, 25179],
+			ca: [38729, 40036],
+			assets: [100703, 101801],
+			pay: [5779, 4894],
+			taxp: [2867, 2923],
+			prov: [2798, 2805],
+			cl: [28001, 27023],
+			debt: [31636, 34654],
+			pens: [3950, 4381],
+			equity: [37880, 36161]
+		},
+		"novartis-2025": {
+			kind: "corporate",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 2713,
+				bs: 2715
+			},
+			rev: [56674, 51722],
+			cogs: [13699, 12827],
+			op: [17644, 14544],
+			pbt: [16352, 13640],
+			tax: [2385, 1701],
+			net: [13967, 11939],
+			cash: [11435, 11459],
+			recv: [8937, 7423],
+			inv: [6269, 5723],
+			invst: [2601, 4132],
+			ppe: [12352, 10873],
+			intang: [54978, 51671],
+			ca: [30460, 29704],
+			assets: [110949, 102246],
+			pay: [4456, 4572],
+			taxp: [1969, 1599],
+			cl: [27278, 28692],
+			debt: [33537, 29598],
+			equity: [46549, 44126]
+		},
+		"ubs-2025": {
+			kind: "bank",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 3055,
+				bs: 3057
+			},
+			rev: [49573, 48611],
+			pbt: [8853, 6821],
+			tax: [1056, 1675],
+			net: [7797, 5146],
+			ecl: [524, 551],
+			cash: [209858, 223329],
+			recv: [653846, 579967],
+			ppe: [16057, 15498],
+			intang: [6948, 6887],
+			assets: [1617427, 1565028],
+			pay: [788367, 745777],
+			debt: [328500, 322128],
+			equity: [90484, 85574]
+		},
+		"allianz-2025": {
+			kind: "insurer",
+			holding: true,
+			currency: "EUR",
+			unit: "m",
+			pages: {
+				is: 3203,
+				bs: 3199
+			},
+			rev: [16657, 17302],
+			pbt: [9388, 7857],
+			tax: [35, -744],
+			net: [9352, 8601],
+			cash: [235, 846],
+			recv: [5952, 6369],
+			inv: [0, 0],
+			invst: [130425, 129183],
+			ppe: [13, 14],
+			intang: [5, 6],
+			assets: [137319, 137156],
+			prov: [11512, 10509],
+			reserves: [27554, 26086],
+			debt: [17894, 18678],
+			equity: [44619, 43167]
+		},
+		"mercedes-2025": {
+			kind: "corporate",
+			currency: "EUR",
+			unit: "m",
+			pages: {
+				is: 3492,
+				bs: 3494
+			},
+			rev: [132214, 145594],
+			cogs: [109881, 117018],
+			op: [5820, 13599],
+			pbt: [6284, 14147],
+			tax: [953, 3738],
+			net: [5331, 10409],
+			cash: [12254, 14511],
+			recv: [82140, 94840],
+			inv: [23933, 26234],
+			invst: [17603, 20516],
+			ppe: [66812, 71757],
+			intang: [20547, 19436],
+			ca: [102132, 101767],
+			assets: [255466, 265010],
+			pay: [10665, 11312],
+			taxp: [1666, 2047],
+			prov: [15458, 15020],
+			cl: [73768, 74826],
+			debt: [100006, 112798],
+			pens: [807, 952],
+			equity: [94240, 93630]
+		},
+		"volkswagen-2025": {
+			kind: "corporate",
+			currency: "EUR",
+			unit: "m",
+			pages: {
+				is: 4112,
+				bs: 4115
+			},
+			rev: [321913, 324656],
+			cogs: [270671, 265184],
+			op: [8868, 19060],
+			pbt: [9307, 16806],
+			tax: [2403, 4411],
+			net: [6904, 12394],
+			cash: [38801, 40296],
+			recv: [192016, 191072],
+			inv: [56042, 56720],
+			invst: [47493, 43948],
+			ppe: [155562, 144645],
+			intang: [91474, 93333],
+			ca: [247865, 245231],
+			assets: [644467, 632905],
+			pay: [30490, 29772],
+			taxp: [5850, 6506],
+			prov: [51669, 51064],
+			cl: [226525, 217039],
+			debt: [264703, 254081],
+			pens: [22826, 27602],
+			equity: [203054, 196731]
+		},
+		"telekom-2025": {
+			kind: "corporate",
+			currency: "EUR",
+			unit: "m",
+			pages: {
+				is: 4552,
+				bs: 4551
+			},
+			rev: [119081, 115769],
+			cogs: [48747, 47374],
+			op: [24822, 26277],
+			pbt: [19499, 22958],
+			tax: [4573, 5301],
+			net: [14926, 17657],
+			cash: [7818, 8472],
+			recv: [16842, 16411],
+			inv: [2866, 2451],
+			invst: [11087, 7343],
+			ppe: [93370, 98826],
+			intang: [133650, 149115],
+			ca: [41177, 37161],
+			assets: [289769, 304934],
+			pay: [9581, 9489],
+			taxp: [563, 736],
+			prov: [7919, 7869],
+			cl: [36848, 35182],
+			debt: [110339, 112191],
+			pens: [1883, 3209],
+			equity: [92231, 98640]
+		},
+		"bp-2025": {
+			kind: "corporate",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 4861,
+				bs: 4864
+			},
+			rev: [189335, 189185],
+			cogs: [110640, 113941],
+			op: [12642, 11297],
+			pbt: [7746, 6782],
+			tax: [6451, 5553],
+			net: [1295, 1229],
+			cash: [36556, 39204],
+			recv: [26014, 27127],
+			inv: [22499, 23232],
+			invst: [21740, 21489],
+			ppe: [98633, 100238],
+			intang: [18497, 24534],
+			ca: [101786, 102834],
+			assets: [278526, 282228],
+			pay: [56843, 58411],
+			taxp: [1262, 1573],
+			prov: [20379, 18288],
+			cl: [80581, 82241],
+			debt: [57958, 59547],
+			pens: [4816, 4873],
+			equity: [74e3, 78318]
+		},
+		"unilever-2025": {
+			kind: "corporate",
+			currency: "EUR",
+			unit: "m",
+			pages: {
+				is: 5231,
+				bs: 5234
+			},
+			rev: [50503, 52479],
+			op: [9037, 8829],
+			pbt: [8693, 8371],
+			tax: [2481, 2332],
+			net: [10011, 6369],
+			cash: [3941, 6136],
+			recv: [7346, 6011],
+			inv: [4043, 5177],
+			invst: [4186, 2901],
+			ppe: [8992, 11669],
+			intang: [34764, 40901],
+			ca: [17066, 19194],
+			assets: [70471, 79750],
+			pay: [16939, 16690],
+			taxp: [1742, 1263],
+			prov: [1128, 1402],
+			cl: [21662, 25234],
+			debt: [28278, 32053],
+			pens: [944, 1194],
+			equity: [17587, 22555]
+		},
+		"astrazeneca-2025": {
+			kind: "corporate",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 5512,
+				bs: 5513
+			},
+			rev: [58739, 54073],
+			cogs: [10633, 10207],
+			op: [13743, 10003],
+			pbt: [12402, 8691],
+			tax: [2169, 1650],
+			net: [10233, 7041],
+			cash: [5711, 5488],
+			recv: [15177, 12972],
+			inv: [6557, 5288],
+			invst: [2555, 2066],
+			ppe: [14703, 11647],
+			intang: [59088, 58202],
+			ca: [28723, 25827],
+			assets: [114074, 104035],
+			pay: [25280, 22465],
+			taxp: [1784, 1644],
+			prov: [1604, 2190],
+			cl: [30617, 27866],
+			debt: [27819, 28843],
+			pens: [1105, 1330],
+			equity: [48719, 40871]
+		},
+		"gsk-2025": {
+			kind: "corporate",
+			currency: "GBP",
+			unit: "m",
+			pages: {
+				is: 5805,
+				bs: 5806
+			},
+			rev: [32667, 31376],
+			cogs: [9017, 9048],
+			op: [7932, 4021],
+			pbt: [7401, 3477],
+			tax: [1112, 526],
+			net: [6289, 2951],
+			cash: [3397, 3870],
+			recv: [7471, 6836],
+			inv: [5924, 5669],
+			invst: [1135, 1217],
+			ppe: [10048, 10073],
+			intang: [23766, 22497],
+			ca: [17510, 16997],
+			assets: [61118, 59463],
+			pay: [15381, 15335],
+			taxp: [498, 703],
+			prov: [1548, 2535],
+			cl: [21391, 21697],
+			debt: [17720, 16986],
+			pens: [1687, 1864],
+			equity: [15956, 13086]
+		},
+		"hsbc-2025": {
+			kind: "bank",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 6212,
+				bs: 6214
+			},
+			rev: [68274, 65854],
+			pbt: [29907, 32309],
+			tax: [6776, 7310],
+			net: [23131, 24999],
+			ecl: [3850, 3414],
+			cash: [242859, 267674],
+			recv: [988399, 930658],
+			invst: [567211, 493166],
+			intang: [13107, 12384],
+			assets: [3233034, 3017048],
+			pay: [1786828, 1654955],
+			debt: [128081, 131743],
+			equity: [205666, 192273]
+		},
+		"totalenergies-2024": {
+			kind: "corporate",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 6373,
+				bs: 6375
+			},
+			rev: [195610, 218945],
+			cogs: [127664, 143041],
+			pbt: [26806, 34811],
+			tax: [10775, 13301],
+			net: [16031, 21510],
+			cash: [25844, 27263],
+			recv: [19281, 23442],
+			inv: [18868, 19317],
+			invst: [42984, 38585],
+			ppe: [109095, 108916],
+			intang: [34238, 33083],
+			ca: [96571, 99529],
+			assets: [285487, 283654],
+			pay: [39932, 41335],
+			prov: [19872, 21257],
+			cl: [87960, 88785],
+			debt: [53557, 50068],
+			pens: [1753, 1993],
+			equity: [120255, 119453]
+		},
+		"airbus-2023": {
+			kind: "corporate",
+			currency: "EUR",
+			unit: "m",
+			pages: {
+				is: 7283,
+				bs: 7285
+			},
+			rev: [65446, 58763],
+			cogs: [55402, 48192],
+			op: [4603, 5325],
+			pbt: [4769, 5075],
+			tax: [1156, 939],
+			net: [3613, 4136],
+			cash: [16469, 15823],
+			recv: [4725, 4953],
+			inv: [33741, 32202],
+			invst: [16551, 14697],
+			ppe: [17236, 16542],
+			intang: [16929, 16768],
+			ca: [63948, 63002],
+			assets: [118871, 115944],
+			pay: [14323, 13261],
+			contract: [48498, 45913],
+			taxp: [740, 817],
+			prov: [9828, 11023],
+			cl: [53676, 52595],
+			debt: [13591, 12773],
+			equity: [17730, 12982]
+		},
+		"sanofi-2025": {
+			kind: "corporate",
+			currency: "EUR",
+			unit: "m",
+			pages: {
+				is: 7644,
+				bs: 7642
+			},
+			rev: [46716, 44286],
+			cogs: [13049, 13205],
+			op: [6344, 7252],
+			pbt: [6175, 6698],
+			tax: [1043, 1204],
+			net: [7851, 5618],
+			cash: [7657, 7441],
+			recv: [8410, 7677],
+			inv: [10214, 9431],
+			invst: [3259, 316],
+			ppe: [11511, 11601],
+			intang: [67561, 66013],
+			ca: [30952, 42588],
+			assets: [126805, 132798],
+			pay: [7361, 7551],
+			taxp: [2832, 2209],
+			prov: [6703, 8096],
+			cl: [28345, 29162],
+			debt: [18590, 16e3],
+			equity: [71710, 77857]
+		},
+		"toyota-2026": {
+			kind: "corporate",
+			currency: "JPY",
+			unit: "m",
+			pages: {
+				is: 7910,
+				bs: 7908
+			},
+			rev: [50684952, 48036704],
+			cogs: [42221212, 38458666],
+			op: [3766216, 4795586],
+			pbt: [5152996, 6414590],
+			tax: [1167234, 1624835],
+			net: [3985761, 4789755],
+			cash: [12659622, 8982404],
+			recv: [42762642, 37304757],
+			inv: [5134996, 4598232],
+			invst: [20460792, 22616651],
+			ppe: [17968597, 15916761],
+			intang: [1392755, 1363266],
+			ca: [42824081, 37078676],
+			assets: [105522331, 93601350],
+			pay: [5856945, 5527347],
+			taxp: [711675, 505500],
+			prov: [3027597, 2680203],
+			cl: [33605019, 29434220],
+			debt: [43205469, 38792879],
+			pens: [1022483, 1019568],
+			equity: [41020068, 36878913]
+		},
+		"honda-2023": {
+			kind: "corporate",
+			currency: "JPY",
+			unit: "m",
+			pages: {
+				is: 8143,
+				bs: 8142
+			},
+			rev: [16907725, 14552696],
+			cogs: [13576133, 11567923],
+			op: [780769, 871232],
+			pbt: [879565, 1070190],
+			tax: [162256, 309489],
+			net: [717309, 760701],
+			cash: [3803014, 3674931],
+			recv: [6955023, 6331264],
+			inv: [2167184, 1918548],
+			invst: [2034908, 2004801],
+			ppe: [7894401, 8238536],
+			intang: [870900, 849507],
+			ca: [9578348, 8841425],
+			assets: [24670067, 23973153],
+			pay: [1426333, 1236233],
+			taxp: [86252, 96116],
+			prov: [632870, 522013],
+			cl: [6652124, 6004399],
+			debt: [7665168, 8102556],
+			pens: [255852, 282054],
+			equity: [11502291, 10772546]
+		},
+		"softbank-2026": {
+			kind: "corporate",
+			condensed: true,
+			currency: "JPY",
+			unit: "m",
+			pages: {
+				is: 8334,
+				bs: 8350
+			},
+			rev: [7798650, 7243752],
+			cogs: [3782511, 3489549],
+			pbt: [6134905, 1704721],
+			tax: [502929, 101613],
+			net: [5631976, 1603108],
+			cash: [5362150, 3713028],
+			recv: [3302622, 3008144],
+			inv: [240179, 198291],
+			invst: [24234980, 11913917],
+			ppe: [4368171, 3688146],
+			intang: [9784375, 8196493],
+			ca: [11815601, 9432918],
+			assets: [60749547, 45013756],
+			equity: [20468432, 13953026]
+		},
+		"mufg-2026": {
+			kind: "bank",
+			currency: "JPY",
+			unit: "m",
+			pages: {
+				is: 8620,
+				bs: 8618
+			},
+			rev: [6937653, 5658732],
+			pbt: [2509495, 1795576],
+			tax: [625591, 527938],
+			net: [1883904, 1267638],
+			ecl: [226112, 121790],
+			cash: [90369985, 109298114],
+			recv: [143584884, 130195440],
+			allow: [1234340, 1243075],
+			invst: [53819507, 58318547],
+			ppe: [1084857, 919854],
+			intang: [2041554, 1960679],
+			assets: [425581652, 405940211],
+			pay: [260755340, 249415006],
+			debt: [21884349, 21022407],
+			equity: [20840057, 19249738]
+		},
+		"smfg-2026": {
+			kind: "bank",
+			currency: "JPY",
+			unit: "m",
+			pages: {
+				is: 8799,
+				bs: 8797
+			},
+			rev: [10790853, 10174894],
+			pbt: [2251725, 1699943],
+			tax: [666910, 513065],
+			net: [1584815, 1186877],
+			ecl: [192226, 167639],
+			cash: [73696930, 75590583],
+			recv: [117629215, 111136239],
+			allow: [1007469, 925931],
+			invst: [39974120, 40760968],
+			ppe: [1074673, 1006556],
+			intang: [1151037, 1017322],
+			assets: [328511145, 306282015],
+			pay: [185674241, 171498651],
+			debt: [25513660, 25435801],
+			equity: [15933144, 14841509]
+		},
+		"samsung-2025": {
+			kind: "corporate",
+			currency: "KRW",
+			unit: "m",
+			pages: {
+				is: 8923,
+				bs: 8920
+			},
+			rev: [333605938, 300870903],
+			cogs: [202235513, 186562268],
+			op: [43601051, 32725961],
+			pbt: [49481471, 37529734],
+			tax: [4274666, 3078383],
+			net: [45206805, 34451351],
+			cash: [57856378, 53705579],
+			recv: [51127642, 43623073],
+			inv: [52636828, 51754865],
+			invst: [99338363, 83295009],
+			ppe: [215304784, 205945209],
+			intang: [29480565, 23738566],
+			ca: [247684612, 227062266],
+			assets: [566942110, 514531948],
+			pay: [13039380, 12370177],
+			taxp: [7037174, 4340171],
+			prov: [10590970, 11336513],
+			cl: [106411348, 93326299],
+			debt: [25239139, 19330184],
+			pens: [558520, 521410],
+			equity: [436320337, 402192070]
+		},
+		"honhai-2025": {
+			kind: "corporate",
+			condensed: true,
+			currency: "TWD",
+			unit: "m",
+			pages: {
+				is: 9173,
+				bs: 9172
+			},
+			rev: [8103105, 6859615],
+			cogs: [7604944, 6430670],
+			op: [259223, 200607],
+			pbt: [293445, 211875],
+			tax: [78410, 40196],
+			net: [215034, 171679],
+			invst: [197613, 200117],
+			ppe: [543393, 468838],
+			ca: [3961827, 3375765],
+			assets: [5104672, 4394500],
+			cl: [2710849, 2174818],
+			equity: [1970763, 1851588]
+		},
+		"tencent-2025": {
+			kind: "corporate",
+			currency: "RMB",
+			unit: "m",
+			pages: {
+				is: 9315,
+				bs: 9317
+			},
+			rev: [751766, 660257],
+			cogs: [329173, 311011],
+			op: [241562, 208099],
+			pbt: [277249, 241485],
+			tax: [47448, 45018],
+			net: [229801, 196467],
+			cash: [141041, 132519],
+			recv: [49930, 48203],
+			inv: [530, 440],
+			invst: [957219, 817687],
+			ppe: [200231, 134084],
+			intang: [205999, 196127],
+			ca: [595460, 496180],
+			assets: [2038986, 1780995],
+			pay: [121127, 118712],
+			contract: [112519, 106333],
+			taxp: [18558, 16586],
+			cl: [412751, 396909],
+			debt: [387733, 338615],
+			equity: [1241065, 1053896]
+		},
+		"reliance-2026": {
+			kind: "corporate",
+			currency: "INR",
+			unit: "crore",
+			pages: {
+				is: 9568,
+				bs: 9567
+			},
+			rev: [1075675, 980136],
+			cogs: [688663, 629689],
+			pbt: [123162, 106017],
+			tax: [27552, 25230],
+			net: [95754, 81309],
+			cash: [145977, 106502],
+			recv: [58491, 42121],
+			inv: [166941, 146062],
+			invst: [248332, 242381],
+			ppe: [1140105, 1054110],
+			intang: [222376, 207641],
+			ca: [594249, 499270],
+			assets: [2178140, 1950121],
+			pay: [158842, 186789],
+			prov: [26991, 32451],
+			cl: [541254, 453737],
+			debt: [374421, 347530],
+			equity: [1085866, 1009626]
+		},
+		"infosys-2026": {
+			kind: "corporate",
+			currency: "INR",
+			unit: "crore",
+			pages: {
+				is: 9901,
+				bs: 9899
+			},
+			rev: [178650, 162990],
+			pbt: [39995, 37608],
+			tax: [10521, 10858],
+			net: [29474, 26750],
+			cash: [22201, 24455],
+			recv: [35234, 31158],
+			inv: [0, 0],
+			invst: [21880, 23541],
+			ppe: [19354, 18903],
+			intang: [14942, 12872],
+			ca: [103489, 97099],
+			assets: [155967, 148903],
+			pay: [4744, 4164],
+			taxp: [5644, 4853],
+			prov: [1512, 1475],
+			cl: [52322, 42850],
+			debt: [0, 0],
+			equity: [93297, 96203]
+		},
+		"aramco-2025": {
+			kind: "corporate",
+			currency: "SAR",
+			unit: "m",
+			pages: {
+				is: 10171,
+				bs: 10173
+			},
+			rev: [1559342, 1637299],
+			op: [706822, 774625],
+			pbt: [702860, 782010],
+			tax: [352650, 383588],
+			net: [350210, 398422],
+			cash: [243099, 216642],
+			recv: [165444, 167884],
+			inv: [70542, 83728],
+			invst: [154321, 119311],
+			ppe: [1590748, 1494318],
+			intang: [164825, 164581],
+			ca: [596277, 565396],
+			assets: [2551964, 2423630],
+			pay: [157708, 157467],
+			taxp: [68412, 71951],
+			prov: [36790, 31044],
+			cl: [298349, 299263],
+			debt: [363617, 319290],
+			pens: [25951, 26866],
+			equity: [1721744, 1651355]
+		},
+		"emiratesnbd-2025": {
+			kind: "bank",
+			currency: "AED",
+			unit: "m",
+			pages: {
+				is: 10340,
+				bs: 10340
+			},
+			rev: [49319, 44134],
+			pbt: [29838, 27141],
+			tax: [5831, 4133],
+			net: [24007, 23008],
+			ecl: [1468, 106],
+			cash: [260794, 237431],
+			recv: [632847, 501627],
+			invst: [206608, 199223],
+			ppe: [8742, 7941],
+			intang: [5620, 5626],
+			assets: [1164442, 996582],
+			pay: [786024, 666777],
+			debt: [90287, 79903],
+			equity: [144819, 126214]
+		},
+		"eand-2025": {
+			kind: "corporate",
+			currency: "AED",
+			unit: "m",
+			pages: {
+				is: 10556,
+				bs: 10558
+			},
+			rev: [72858, 59203],
+			op: [23241, 20061],
+			pbt: [26783, 17582],
+			tax: [10627, 6999],
+			net: [16156, 10583],
+			cash: [34308, 33628],
+			recv: [19164, 17052],
+			inv: [1302, 1200],
+			invst: [33233, 32099],
+			ppe: [54283, 47324],
+			intang: [54299, 43728],
+			ca: [60893, 58768],
+			assets: [205059, 183327],
+			pay: [38371, 31382],
+			taxp: [1995, 1263],
+			prov: [5042, 4487],
+			cl: [88432, 76904],
+			debt: [67639, 69195],
+			pens: [1613, 1484],
+			equity: [61763, 53920]
+		},
+		"rbc-2025": {
+			kind: "bank",
+			currency: "CAD",
+			unit: "m",
+			pages: {
+				is: 10751,
+				bs: 10750
+			},
+			rev: [66605, 57344],
+			pbt: [25651, 19862],
+			tax: [5282, 3622],
+			net: [20369, 16240],
+			ecl: [4362, 3232],
+			cash: [87388, 122743],
+			recv: [1042422, 981380],
+			allow: [7093, 6037],
+			invst: [342721, 256618],
+			ppe: [6819, 6852],
+			intang: [26807, 27084],
+			assets: [2325006, 2171582],
+			pay: [1515616, 1409531],
+			equity: [139151, 127192]
+		},
+		"bhp-2025": {
+			kind: "corporate",
+			currency: "USD",
+			unit: "m",
+			pages: {
+				is: 11130,
+				bs: 11132
+			},
+			rev: [51262, 55658],
+			op: [19464, 17537],
+			pbt: [18353, 16048],
+			tax: [7210, 6447],
+			net: [11143, 9601],
+			cash: [11894, 12501],
+			recv: [4253, 5339],
+			inv: [6978, 7039],
+			invst: [5790, 3272],
+			ppe: [76457, 71629],
+			intang: [1924, 1718],
+			ca: [22830, 24338],
+			assets: [108790, 102362],
+			pay: [6670, 6764],
+			taxp: [903, 924],
+			prov: [19321, 19095],
+			cl: [15639, 14296],
+			debt: [24496, 20718],
+			equity: [52218, 49120]
+		},
+		"cba-2025": {
+			kind: "bank",
+			currency: "AUD",
+			unit: "m",
+			pages: {
+				is: 12394,
+				bs: 12395
+			},
+			rev: [30153, 28290],
+			pbt: [15580, 14549],
+			tax: [4669, 4416],
+			net: [10866, 10116],
+			ecl: [788, 726],
+			cash: [72443, 83819],
+			recv: [1079452, 1007756],
+			ppe: [3606, 3563],
+			intang: [8515, 8082],
+			assets: [1452456, 1353799],
+			pay: [1012557, 937857],
+			equity: [78704, 78776]
+		}
+	};
+	var NO_STATEMENTS = {
+		"mcdonalds-2025": "the bundle carries the letter and highlights only (pp. 2132–2204)",
+		"loreal-2024": "the bundle carries the overview only (pp. 7429–7448)"
+	};
+	var YEAR_END = {
+		"apple-2024": "2024-09-28",
+		"apple-2023": "2023-09-30",
+		"apple-2020": "2020-09-26",
+		"cisco-2024": "2024-07-27",
+		"walmart-2023": "2023-01-31",
+		"adobe-2024": "2024-11-29",
+		"pepsico-2025": "2025-12-27",
+		"pg-2026": "2026-06-30",
+		"homedepot-2025": "2026-02-01",
+		"toyota-2026": "2026-03-31",
+		"honda-2023": "2023-03-31",
+		"softbank-2026": "2026-03-31",
+		"mufg-2026": "2026-03-31",
+		"smfg-2026": "2026-03-31",
+		"reliance-2026": "2026-03-31",
+		"infosys-2026": "2026-03-31",
+		"rbc-2025": "2025-10-31",
+		"bhp-2025": "2025-06-30",
+		"cba-2025": "2025-06-30"
+	};
+	var CURRENCY_AR = {
+		USD: "دولار أمريكي",
+		EUR: "يورو",
+		CHF: "فرنك سويسري",
+		GBP: "جنيه إسترليني",
+		JPY: "ين ياباني",
+		KRW: "وون كوري",
+		RMB: "يوان صيني",
+		INR: "روبية هندية",
+		TWD: "دولار تايواني",
+		SAR: "ريال سعودي",
+		AED: "درهم إماراتي",
+		AUD: "دولار أسترالي",
+		CAD: "دولار كندي"
+	};
+	var COUNTRY_AR = {
+		US: "الولايات المتحدة",
+		CH: "سويسرا",
+		DE: "ألمانيا",
+		UK: "المملكة المتحدة",
+		FR: "فرنسا",
+		NL: "هولندا",
+		JP: "اليابان",
+		KR: "كوريا الجنوبية",
+		TW: "تايوان",
+		CN: "الصين",
+		IN: "الهند",
+		SA: "المملكة العربية السعودية",
+		AE: "الإمارات العربية المتحدة",
+		CA: "كندا",
+		AU: "أستراليا"
+	};
+	var SECTOR_EN = {
+		tech: "tech",
+		retail: "retail",
+		fmcg: "food & consumer",
+		banking: "banking",
+		insurance: "insurance",
+		pharma: "pharma",
+		energy: "energy",
+		auto: "auto",
+		telecom: "telecom",
+		mining: "mining",
+		industrial: "industrial",
+		conglomerate: "conglomerate"
+	};
+	var unitAr = (f) => (f.unit === "crore" ? "كرور " : "مليون ") + (f.currency === "INR" ? "روبية" : CURRENCY_AR[f.currency] ?? f.currency);
+	/** Every company with statements, in bundle order. */
+	function corpusCompanies() {
+		return REPORTS.filter((r) => FIGURES[r.id]).map((r) => {
+			const f = FIGURES[r.id];
+			return {
+				...r,
+				figures: f,
+				yearEnd: YEAR_END[r.id] ?? (r.fy.match(/\d{4}/)?.[0] ?? "2025") + "-12-31",
+				unitAr: unitAr(f),
+				currencyAr: CURRENCY_AR[f.currency] ?? f.currency
+			};
+		});
+	}
+	var corpusCompany = (id) => corpusCompanies().find((c) => c.id === id) ?? null;
+	var pick = (p, i) => p ? p[i] : 0;
+	function accounts(c) {
+		const f = c.figures, bank = f.kind === "bank", ins = f.kind === "insurer";
+		const Y = (fn) => [fn(0), fn(1)];
+		const cash = Y((i) => pick(f.cash, i)), gross = Y((i) => pick(f.recv, i) + pick(f.allow, i)), allow = Y((i) => pick(f.allow, i)), inv = Y((i) => pick(f.inv, i));
+		const ppe = Y((i) => pick(f.ppe, i)), intang = Y((i) => pick(f.intang, i));
+		const parts = Y((i) => {
+			const known = pick(f.cash, i) + pick(f.recv, i) + pick(f.inv, i) + pick(f.invst, i) + pick(f.ppe, i) + pick(f.intang, i);
+			return f.assets[i] - known;
+		});
+		const invst = Y((i) => pick(f.invst, i) + Math.min(0, parts[i]));
+		const otherCa = Y((i) => {
+			const rest = Math.max(0, parts[i]);
+			if (!f.ca) return 0;
+			return Math.max(0, Math.min(rest, f.ca[i] - pick(f.cash, i) - pick(f.recv, i) - pick(f.inv, i)));
+		});
+		const otherNca = Y((i) => Math.max(0, parts[i]) - otherCa[i]);
+		const L = Y((i) => f.assets[i] - f.equity[i]);
+		const pay = Y((i) => pick(f.pay, i)), contract = Y((i) => pick(f.contract, i)), taxp = Y((i) => pick(f.taxp, i)), prov = Y((i) => pick(f.prov, i)), reserves = Y((i) => pick(f.reserves, i));
+		const debt = Y((i) => pick(f.debt, i)), pens = Y((i) => pick(f.pens, i));
+		const lrest = Y((i) => L[i] - pay[i] - contract[i] - taxp[i] - prov[i] - reserves[i] - debt[i] - pens[i]);
+		const otherCl = Y((i) => {
+			const rest = Math.max(0, lrest[i]);
+			if (!f.cl) return f.kind === "corporate" ? 0 : rest;
+			return Math.max(0, Math.min(rest, f.cl[i] - pay[i] - contract[i] - taxp[i] - prov[i]));
+		});
+		const otherNcl = Y((i) => Math.max(0, lrest[i]) - otherCl[i]);
+		const debtAdj = Y((i) => debt[i] + Math.min(0, lrest[i]));
+		const rev = Y((i) => pick(f.rev, i)), cogs = Y((i) => pick(f.cogs, i)), ecl = Y((i) => pick(f.ecl, i));
+		const op = Y((i) => f.op ? f.op[i] : f.pbt[i]);
+		const opex = Y((i) => rev[i] - cogs[i] - ecl[i] - op[i]);
+		const nonop = Y((i) => f.pbt[i] - op[i]);
+		const after = Y((i) => f.net[i] - (f.pbt[i] - f.tax[i]));
+		const eqOpen = Y((i) => f.equity[i] - f.net[i]);
+		const A = (code, name, line, side, v) => ({
+			code,
+			name,
+			line,
+			side,
+			v
+		});
+		const pos = (code, name, line, drWhenPositive, v) => A(code, name, line, drWhenPositive ? "dr" : "cr", v);
+		return [
+			A("1101", bank ? "النقد والأرصدة لدى البنوك المركزية والبنوك" : "النقد وما في حكمه", "cash", "dr", cash),
+			A("1121", bank ? "قروض وسلف العملاء (إجمالي)" : f.allow ? "الذمم المدينة (إجمالي)" : "الذمم المدينة التجارية", "receivables", "dr", gross),
+			A("1129", "مخصص الخسائر الائتمانية المتوقعة", "receivables", "cr", allow),
+			A("1141", "المخزون", "inventory", "dr", inv),
+			A("1161", "موجودات متداولة أخرى", "otherCa", "dr", otherCa),
+			A("1501", "ممتلكات وآلات ومعدات وحق استخدام", "ppe", "dr", ppe),
+			A("1801", "الشهرة والموجودات غير الملموسة", "intangibles", "dr", intang),
+			A("1901", f.holding ? "استثمارات في شركات تابعة وزميلة واستثمارات أخرى" : "استثمارات وأوراق مالية", "investments", "dr", invst),
+			A("1951", "موجودات غير متداولة أخرى", "otherNca", "dr", otherNca),
+			A("2101", bank ? "ودائع العملاء" : "الذمم الدائنة التجارية", "payables", "cr", pay),
+			A("2111", "مطلوبات عقود (إيرادات مؤجلة)", "contractLiab", "cr", contract),
+			A("2141", "ضرائب دخل مستحقة", "zakatPayable", "cr", taxp),
+			A("2161", "المخصصات", "provisions", "cr", prov),
+			A("2162", "احتياطيات مطالبات التأمين", "provisions", "cr", reserves),
+			A("2171", "مطلوبات متداولة أخرى", "otherCl", "cr", otherCl),
+			A("2201", bank ? "الديون المصدرة والقروض طويلة الأجل" : "القروض والتمويل", "loansNcl", "cr", debtAdj),
+			A("2301", "التزامات منافع الموظفين والتقاعد", "eosb", "cr", pens),
+			A("2401", "مطلوبات غير متداولة أخرى", "otherNcl", "cr", otherNcl),
+			A("3101", "حقوق الملكية في بداية السنة بعد التوزيعات والحركات الأخرى", "retained", "cr", eqOpen),
+			A("4101", bank ? "إجمالي دخل العمليات" : ins ? "الإيرادات (الأقساط والمبيعات ودخل الاستثمار)" : "الإيرادات", "revenue", "cr", rev),
+			A("5101", "تكلفة الإيرادات", "cogs", "dr", cogs),
+			A("5401", "مصروف الخسائر الائتمانية المتوقعة", "impairment", "dr", ecl),
+			pos("5301", "المصروفات التشغيلية", "admin", true, opex),
+			pos(nonop[0] >= 0 ? "4201" : "7101", "صافي الإيرادات (التكاليف) غير التشغيلية والتمويلية", nonop[0] >= 0 ? "investIncome" : "financeCost", false, nonop),
+			pos("8101", "ضريبة الدخل", "zakatExpense", true, f.tax),
+			pos("4701", "حصة نتائج الشركات الزميلة والعمليات غير المستمرة بعد الضريبة", "investIncome", false, after)
+		].filter((a) => a.v[0] !== 0 || a.v[1] !== 0);
+	}
+	/** The trial balance as the engagement file imports it (CSV with the prior year), the line of each account, and the engagement context. */
+	function companyTrialBalance(id) {
+		const c = corpusCompany(id);
+		if (!c) return null;
+		const accs = accounts(c), f = c.figures;
+		const signed = (a, v) => a.side === "dr" ? v : -v;
+		const csv = ["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة", ...accs.map((a) => {
+			const cur = signed(a, a.v[0]), pr = signed(a, a.v[1]);
+			return [
+				a.code,
+				a.name,
+				cur > 0 ? cur : "",
+				cur < 0 ? -cur : "",
+				pr
+			].join(",");
+		})].join("\n");
+		const overrides = Object.fromEntries(accs.map((a) => [a.code, a.line]));
+		const year = c.yearEnd.slice(0, 4);
+		return {
+			company: c,
+			csv,
+			overrides,
+			ctx: {
+				company: c.company,
+				activity: SECTOR_AR[c.sector] + " (" + SECTOR_EN[c.sector] + ")" + (f.kind === "bank" ? " — بنك" : f.kind === "insurer" ? " — تأمين واستثمار" : ""),
+				sector: c.sector,
+				period: "السنة المالية المنتهية في " + c.yearEnd + " (" + c.fy + ")",
+				periodStart: "",
+				periodEnd: c.yearEnd,
+				legalForm: "شركة مدرجة",
+				registeredOffice: COUNTRY_AR[c.country] ?? c.country,
+				principalPlace: COUNTRY_AR[c.country] ?? c.country,
+				country: c.country === "SA" ? "SA" : "INTL",
+				framework: "IFRS",
+				currency: c.currencyAr,
+				curSym: c.unitAr,
+				taxKind: c.country === "SA" ? "zakat" : "income",
+				auditFirm: c.auditor || "مراجع المجموعة",
+				auditCity: COUNTRY_AR[c.country] ?? "",
+				corpusId: c.id,
+				reportingFramework: c.framework,
+				auditStandard: c.standard
+			},
+			year,
+			balanced: [0, 1].every((i) => Math.abs(accs.reduce((s, a) => s + signed(a, a.v[i]), 0)) < .5),
+			source: "ص " + f.pages.is + " (قائمة الدخل) · ص " + f.pages.bs + " (المركز المالي)"
+		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/reports/global-corpus-engine.ts
+	var global_corpus_engine_exports = /* @__PURE__ */ __exportAll({
+		AUDITOR_REPORTS_FOUND: () => 45,
+		CORPUS: () => CORPUS,
+		EXEMPLARS: () => EXEMPLARS,
+		LETTERS: () => LETTERS,
+		SECTIONS: () => SECTIONS,
+		VIABILITY: () => VIABILITY,
+		apms: () => apms,
+		auditorElements: () => auditorElements,
+		blueprint: () => blueprint,
+		committeeTopics: () => committeeTopics,
+		kamProcedures: () => kamProcedures,
+		letterTopics: () => letterTopics,
+		reportIds: () => reportIds,
+		reportList: () => reportList,
+		reportStructure: () => reportStructure,
+		riskCatalogue: () => riskCatalogue,
+		summary: () => summary
+	});
+	var CORPUS = {
+		file: "global_financial_and_audit_research_bundle_extended_verified.pdf",
+		pages: 12506,
+		reports: 49,
+		pagesClassified: 12505,
+		sectionTypes: 54
+	};
+	/** Every section type, in the median order it appears (pos = position through the report, 0 = first page, 1 = last). */
+	var SECTIONS = [
+		{
+			key: "chair_letter",
+			ar: "رسالة رئيس مجلس الإدارة",
+			part: "strategic",
+			reports: 25,
+			pos: .02,
+			examples: [
+				["amazon-2023", 3],
+				["jpmorgan-2023", 551],
+				["amazon-2024", 1018],
+				["pg-2026", 2041]
+			]
+		},
+		{
+			key: "highlights",
+			ar: "العام في لمحة",
+			part: "strategic",
+			reports: 27,
+			pos: .02,
+			examples: [
+				["cisco-2024", 217],
+				["jpmorgan-2023", 549],
+				["jpmorgan-2025", 1343],
+				["bofa-2025", 1733]
+			]
+		},
+		{
+			key: "mdna",
+			ar: "تقرير الإدارة ومناقشتها وتحليلها",
+			part: "strategic",
+			reports: 39,
+			pos: .06,
+			examples: [
+				["amazon-2023", 15],
+				["apple-2024", 96],
+				["cisco-2024", 235],
+				["walmart-2023", 351]
+			]
+		},
+		{
+			key: "strategy",
+			ar: "الاستراتيجية",
+			part: "strategic",
+			reports: 26,
+			pos: .06,
+			examples: [
+				["cisco-2024", 222],
+				["adobe-2024", 449],
+				["jpmorgan-2023", 611],
+				["berkshire-2025", 1275]
+			]
+		},
+		{
+			key: "ceo_letter",
+			ar: "رسالة الرئيس التنفيذي",
+			part: "strategic",
+			reports: 13,
+			pos: .07,
+			examples: [
+				["amazon-2023", 11],
+				["cisco-2024", 348],
+				["amazon-2024", 1026],
+				["berkshire-2025", 1190]
+			]
+		},
+		{
+			key: "sustainability",
+			ar: "الاستدامة والمناخ",
+			part: "strategic",
+			reports: 29,
+			pos: .07,
+			examples: [
+				["cisco-2024", 216],
+				["walmart-2023", 353],
+				["bofa-2025", 1735],
+				["nestle-2025", 2292]
+			]
+		},
+		{
+			key: "reserves_tech",
+			ar: "الاحتياطيات والتقارير الفنية",
+			part: "other",
+			reports: 2,
+			pos: .07,
+			examples: [["totalenergies-2024", 6406], ["bhp-2025", 10860]]
+		},
+		{
+			key: "principal_risks",
+			ar: "المخاطر الرئيسية",
+			part: "strategic",
+			reports: 35,
+			pos: .08,
+			examples: [
+				["amazon-2023", 15],
+				["apple-2024", 96],
+				["cisco-2024", 234],
+				["walmart-2023", 351]
+			]
+		},
+		{
+			key: "people",
+			ar: "الموظفون والسلامة",
+			part: "strategic",
+			reports: 35,
+			pos: .11,
+			examples: [
+				["cisco-2024", 223],
+				["adobe-2024", 465],
+				["jpmorgan-2023", 554],
+				["jpmorgan-2025", 1348]
+			]
+		},
+		{
+			key: "governance",
+			ar: "حوكمة الشركات",
+			part: "governance",
+			reports: 48,
+			pos: .12,
+			examples: [
+				["amazon-2023", 18],
+				["apple-2024", 144],
+				["cisco-2024", 224],
+				["walmart-2023", 362]
+			]
+		},
+		{
+			key: "provisions_note",
+			ar: "المخصصات والالتزامات المحتملة",
+			part: "financial",
+			reports: 44,
+			pos: .14,
+			examples: [
+				["amazon-2023", 15],
+				["apple-2024", 96],
+				["cisco-2024", 325],
+				["walmart-2023", 351]
+			]
+		},
+		{
+			key: "market",
+			ar: "السوق وبيئة التشغيل",
+			part: "strategic",
+			reports: 15,
+			pos: .14,
+			examples: [
+				["cisco-2024", 218],
+				["adobe-2024", 449],
+				["jpmorgan-2023", 675],
+				["jpmorgan-2025", 1461]
+			]
+		},
+		{
+			key: "business_model",
+			ar: "نموذج الأعمال وخلق القيمة",
+			part: "strategic",
+			reports: 25,
+			pos: .14,
+			examples: [
+				["adobe-2024", 454],
+				["jpmorgan-2025", 1409],
+				["nestle-2025", 2261],
+				["roche-2025", 2502]
+			]
+		},
+		{
+			key: "kpis",
+			ar: "مؤشرات الأداء الرئيسية",
+			part: "strategic",
+			reports: 12,
+			pos: .14,
+			examples: [
+				["ubs-2025", 3013],
+				["mercedes-2025", 3285],
+				["volkswagen-2025", 3652],
+				["telekom-2025", 4332]
+			]
+		},
+		{
+			key: "outlook",
+			ar: "التوقعات",
+			part: "strategic",
+			reports: 18,
+			pos: .15,
+			examples: [
+				["jpmorgan-2023", 841],
+				["jpmorgan-2025", 1423],
+				["ubs-2025", 2839],
+				["mercedes-2025", 3321]
+			]
+		},
+		{
+			key: "segment_review",
+			ar: "أداء القطاعات",
+			part: "strategic",
+			reports: 21,
+			pos: .2,
+			examples: [
+				["cisco-2024", 267],
+				["jpmorgan-2023", 640],
+				["berkshire-2025", 1244],
+				["jpmorgan-2025", 1435]
+			]
+		},
+		{
+			key: "capital_banking",
+			ar: "كفاية رأس المال (البنوك)",
+			part: "strategic",
+			reports: 12,
+			pos: .22,
+			examples: [
+				["jpmorgan-2023", 580],
+				["jpmorgan-2025", 1354],
+				["bofa-2025", 1752],
+				["roche-2025", 2488]
+			]
+		},
+		{
+			key: "remuneration",
+			ar: "تقرير المكافآت",
+			part: "governance",
+			reports: 23,
+			pos: .24,
+			examples: [
+				["cisco-2024", 225],
+				["pepsico-2025", 1942],
+				["homedepot-2025", 2127],
+				["roche-2025", 2510]
+			]
+		},
+		{
+			key: "non_gaap",
+			ar: "مقاييس الأداء البديلة",
+			part: "strategic",
+			reports: 21,
+			pos: .25,
+			examples: [
+				["walmart-2023", 386],
+				["jpmorgan-2023", 647],
+				["jpmorgan-2025", 1432],
+				["bofa-2025", 1742]
+			]
+		},
+		{
+			key: "liquidity",
+			ar: "السيولة ومصادر التمويل",
+			part: "strategic",
+			reports: 17,
+			pos: .26,
+			examples: [
+				["amazon-2023", 45],
+				["cisco-2024", 279],
+				["jpmorgan-2023", 687],
+				["apple-2020", 939]
+			]
+		},
+		{
+			key: "risk_management",
+			ar: "إطار إدارة المخاطر",
+			part: "strategic",
+			reports: 22,
+			pos: .27,
+			examples: [
+				["adobe-2024", 481],
+				["jpmorgan-2023", 688],
+				["jpmorgan-2025", 1517],
+				["bofa-2025", 1750]
+			]
+		},
+		{
+			key: "balance_sheet",
+			ar: "قائمة المركز المالي",
+			part: "financial",
+			reports: 45,
+			pos: .28,
+			examples: [
+				["amazon-2023", 48],
+				["apple-2024", 124],
+				["cisco-2024", 279],
+				["walmart-2023", 398]
+			]
+		},
+		{
+			key: "viability",
+			ar: "بيان الجدوى طويلة الأجل",
+			part: "strategic",
+			reports: 4,
+			pos: .28,
+			examples: [
+				["unilever-2025", 5141],
+				["astrazeneca-2025", 5597],
+				["gsk-2025", 5804],
+				["hsbc-2025", 5982]
+			]
+		},
+		{
+			key: "intangibles_note",
+			ar: "إيضاح الشهرة والأصول غير الملموسة",
+			part: "financial",
+			reports: 42,
+			pos: .3,
+			examples: [
+				["amazon-2023", 53],
+				["cisco-2024", 254],
+				["walmart-2023", 404],
+				["adobe-2024", 479]
+			]
+		},
+		{
+			key: "tax_note",
+			ar: "إيضاح الضرائب والزكاة",
+			part: "financial",
+			reports: 45,
+			pos: .31,
+			examples: [
+				["amazon-2023", 49],
+				["apple-2024", 121],
+				["cisco-2024", 257],
+				["walmart-2023", 389]
+			]
+		},
+		{
+			key: "audit_committee",
+			ar: "تقرير لجنة المراجعة",
+			part: "governance",
+			reports: 8,
+			pos: .32,
+			examples: [
+				["bp-2025", 4790],
+				["unilever-2025", 5152],
+				["astrazeneca-2025", 5596],
+				["gsk-2025", 5753]
+			]
+		},
+		{
+			key: "capital_mgmt",
+			ar: "إدارة رأس المال",
+			part: "financial",
+			reports: 17,
+			pos: .33,
+			examples: [
+				["jpmorgan-2023", 676],
+				["jpmorgan-2025", 1462],
+				["pepsico-2025", 1836],
+				["homedepot-2025", 2054]
+			]
+		},
+		{
+			key: "income_statement",
+			ar: "قائمة الدخل",
+			part: "financial",
+			reports: 42,
+			pos: .34,
+			examples: [
+				["amazon-2023", 48],
+				["apple-2024", 124],
+				["cisco-2024", 293],
+				["walmart-2023", 398]
+			]
+		},
+		{
+			key: "ppe_note",
+			ar: "إيضاح الممتلكات والمعدات",
+			part: "financial",
+			reports: 30,
+			pos: .36,
+			examples: [
+				["apple-2024", 135],
+				["apple-2020", 939],
+				["apple-2023", 1149],
+				["berkshire-2025", 1269]
+			]
+		},
+		{
+			key: "employee_benefits",
+			ar: "منافع الموظفين",
+			part: "financial",
+			reports: 42,
+			pos: .37,
+			examples: [
+				["apple-2024", 128],
+				["cisco-2024", 277],
+				["walmart-2023", 413],
+				["adobe-2024", 533]
+			]
+		},
+		{
+			key: "estimates",
+			ar: "الأحكام والتقديرات",
+			part: "financial",
+			reports: 20,
+			pos: .39,
+			examples: [
+				["cisco-2024", 268],
+				["adobe-2024", 484],
+				["jpmorgan-2023", 634],
+				["apple-2023", 1135]
+			]
+		},
+		{
+			key: "shareholder_info",
+			ar: "معلومات المساهمين",
+			part: "other",
+			reports: 9,
+			pos: .39,
+			examples: [
+				["pepsico-2025", 1960],
+				["volkswagen-2025", 3756],
+				["bp-2025", 5070],
+				["unilever-2025", 5212]
+			]
+		},
+		{
+			key: "materiality",
+			ar: "الأهمية النسبية في تقرير المراجع",
+			part: "financial",
+			reports: 4,
+			pos: .4,
+			examples: [
+				["bp-2025", 4849],
+				["unilever-2025", 5216],
+				["gsk-2025", 5800],
+				["aramco-2025", 10162]
+			]
+		},
+		{
+			key: "eps",
+			ar: "ربحية السهم",
+			part: "financial",
+			reports: 30,
+			pos: .41,
+			examples: [
+				["jpmorgan-2023", 558],
+				["apple-2020", 951],
+				["jpmorgan-2025", 1349],
+				["pepsico-2025", 1820]
+			]
+		},
+		{
+			key: "credit_risk",
+			ar: "مخاطر الائتمان",
+			part: "financial",
+			reports: 36,
+			pos: .42,
+			examples: [
+				["cisco-2024", 315],
+				["adobe-2024", 519],
+				["jpmorgan-2023", 683],
+				["apple-2020", 955]
+			]
+		},
+		{
+			key: "dividends",
+			ar: "التوزيعات",
+			part: "financial",
+			reports: 25,
+			pos: .42,
+			examples: [
+				["cisco-2024", 328],
+				["jpmorgan-2023", 868],
+				["jpmorgan-2025", 1659],
+				["pepsico-2025", 1820]
+			]
+		},
+		{
+			key: "leases_note",
+			ar: "إيضاح الإيجارات",
+			part: "financial",
+			reports: 39,
+			pos: .46,
+			examples: [
+				["amazon-2023", 42],
+				["apple-2024", 138],
+				["cisco-2024", 284],
+				["walmart-2023", 378]
+			]
+		},
+		{
+			key: "cash_flow",
+			ar: "قائمة التدفقات النقدية",
+			part: "financial",
+			reports: 41,
+			pos: .47,
+			examples: [
+				["amazon-2023", 43],
+				["apple-2024", 129],
+				["cisco-2024", 295],
+				["walmart-2023", 406]
+			]
+		},
+		{
+			key: "market_risk",
+			ar: "مخاطر السوق",
+			part: "financial",
+			reports: 40,
+			pos: .47,
+			examples: [
+				["amazon-2023", 45],
+				["apple-2024", 123],
+				["cisco-2024", 285],
+				["adobe-2024", 497]
+			]
+		},
+		{
+			key: "fin_instruments",
+			ar: "الأدوات المالية والقيمة العادلة",
+			part: "financial",
+			reports: 43,
+			pos: .47,
+			examples: [
+				["amazon-2023", 60],
+				["cisco-2024", 300],
+				["adobe-2024", 510],
+				["jpmorgan-2023", 713]
+			]
+		},
+		{
+			key: "auditor_report",
+			ar: "تقرير المراجع المستقل",
+			part: "financial",
+			reports: 35,
+			pos: .51,
+			examples: [
+				["amazon-2023", 48],
+				["apple-2024", 144],
+				["cisco-2024", 287],
+				["walmart-2023", 398]
+			]
+		},
+		{
+			key: "notes",
+			ar: "الإيضاحات المتممة",
+			part: "financial",
+			reports: 33,
+			pos: .51,
+			examples: [
+				["amazon-2023", 55],
+				["apple-2024", 130],
+				["cisco-2024", 297],
+				["walmart-2023", 407]
+			]
+		},
+		{
+			key: "related_parties",
+			ar: "الأطراف ذات العلاقة",
+			part: "financial",
+			reports: 24,
+			pos: .51,
+			examples: [
+				["nestle-2025", 2291],
+				["roche-2025", 2486],
+				["novartis-2025", 2679],
+				["ubs-2025", 3158]
+			]
+		},
+		{
+			key: "equity_statement",
+			ar: "قائمة التغيرات في حقوق الملكية",
+			part: "financial",
+			reports: 31,
+			pos: .53,
+			examples: [
+				["amazon-2023", 54],
+				["apple-2024", 124],
+				["walmart-2023", 405],
+				["adobe-2024", 503]
+			]
+		},
+		{
+			key: "revenue_note",
+			ar: "إيضاح الإيرادات",
+			part: "financial",
+			reports: 17,
+			pos: .54,
+			examples: [
+				["cisco-2024", 301],
+				["adobe-2024", 513],
+				["pepsico-2025", 1896],
+				["pg-2026", 1994]
+			]
+		},
+		{
+			key: "liquidity_risk",
+			ar: "مخاطر السيولة",
+			part: "financial",
+			reports: 27,
+			pos: .54,
+			examples: [
+				["jpmorgan-2023", 645],
+				["apple-2023", 1147],
+				["jpmorgan-2025", 1430],
+				["bofa-2025", 1784]
+			]
+		},
+		{
+			key: "going_concern",
+			ar: "الاستمرارية",
+			part: "strategic",
+			reports: 10,
+			pos: .54,
+			examples: [
+				["ubs-2025", 2937],
+				["allianz-2025", 3238],
+				["telekom-2025", 4688],
+				["unilever-2025", 5218]
+			]
+		},
+		{
+			key: "icfr",
+			ar: "الرقابة الداخلية على التقرير المالي",
+			part: "governance",
+			reports: 26,
+			pos: .55,
+			examples: [
+				["amazon-2023", 84],
+				["apple-2024", 146],
+				["cisco-2024", 289],
+				["walmart-2023", 398]
+			]
+		},
+		{
+			key: "accounting_policies",
+			ar: "السياسات المحاسبية",
+			part: "financial",
+			reports: 32,
+			pos: .55,
+			examples: [
+				["apple-2024", 130],
+				["cisco-2024", 232],
+				["walmart-2023", 407],
+				["adobe-2024", 505]
+			]
+		},
+		{
+			key: "segment_note",
+			ar: "إيضاح القطاعات",
+			part: "financial",
+			reports: 33,
+			pos: .57,
+			examples: [
+				["amazon-2023", 37],
+				["cisco-2024", 336],
+				["walmart-2023", 372],
+				["adobe-2024", 511]
+			]
+		},
+		{
+			key: "kam",
+			ar: "الأمور الرئيسية للمراجعة",
+			part: "financial",
+			reports: 25,
+			pos: .58,
+			examples: [
+				["cisco-2024", 289],
+				["adobe-2024", 538],
+				["jpmorgan-2023", 749],
+				["berkshire-2025", 1278]
+			]
+		},
+		{
+			key: "directors_resp",
+			ar: "إقرار مسؤوليات أعضاء مجلس الإدارة",
+			part: "governance",
+			reports: 10,
+			pos: .75,
+			examples: [
+				["nestle-2025", 2319],
+				["roche-2025", 2535],
+				["ubs-2025", 3043],
+				["mercedes-2025", 3629]
+			]
+		},
+		{
+			key: "subsequent_events",
+			ar: "الأحداث اللاحقة",
+			part: "financial",
+			reports: 11,
+			pos: .87,
+			examples: [
+				["nestle-2025", 2293],
+				["allianz-2025", 3223],
+				["volkswagen-2025", 4250],
+				["telekom-2025", 4682]
+			]
+		},
+		{
+			key: "exhibits",
+			ar: "الملاحق والتوقيعات",
+			part: "other",
+			reports: 17,
+			pos: .94,
+			examples: [
+				["amazon-2023", 91],
+				["apple-2024", 153],
+				["cisco-2024", 342],
+				["walmart-2023", 434]
+			]
+		}
+	];
+	/** Each report's own structure: section → first page (contents pages excluded). */
+	var REPORT_MAP = [
+		{
+			id: "amazon-2023",
+			c: "Amazon.com, Inc.",
+			fy: "FY2023",
+			fw: "US GAAP",
+			from: 2,
+			to: 93,
+			s: "chair_letter:3 ceo_letter:11 mdna:15 principal_risks:15 provisions_note:15 governance:18 segment_note:37 leases_note:42 cash_flow:43 liquidity:45 market_risk:45 auditor_report:48 income_statement:48 balance_sheet:48 tax_note:49 intangibles_note:53 equity_statement:54 notes:55 fin_instruments:60 icfr:84 exhibits:91"
+		},
+		{
+			id: "apple-2024",
+			c: "Apple Inc.",
+			fy: "FY2024",
+			fw: "US GAAP",
+			from: 94,
+			to: 214,
+			s: "mdna:96 principal_risks:96 provisions_note:96 tax_note:121 market_risk:123 income_statement:124 balance_sheet:124 equity_statement:124 employee_benefits:128 cash_flow:129 notes:130 accounting_policies:130 ppe_note:135 leases_note:138 governance:144 auditor_report:144 icfr:146 exhibits:153"
+		},
+		{
+			id: "cisco-2024",
+			c: "Cisco Systems, Inc.",
+			fy: "FY2024",
+			fw: "US GAAP",
+			from: 215,
+			to: 348,
+			s: "sustainability:216 highlights:217 market:218 strategy:222 people:223 governance:224 remuneration:225 accounting_policies:232 principal_risks:234 mdna:235 intangibles_note:254 tax_note:257 segment_review:267 estimates:268 employee_benefits:277 liquidity:279 balance_sheet:279 leases_note:284 market_risk:285 auditor_report:287 icfr:289 kam:289 income_statement:293 cash_flow:295 notes:297 fin_instruments:300 revenue_note:301 credit_risk:315 provisions_note:325 dividends:328 segment_note:336 exhibits:342 ceo_letter:348"
+		},
+		{
+			id: "walmart-2023",
+			c: "Walmart Inc.",
+			fy: "FY2023",
+			fw: "US GAAP",
+			from: 349,
+			to: 446,
+			s: "mdna:351 principal_risks:351 provisions_note:351 sustainability:353 governance:362 segment_note:372 leases_note:378 non_gaap:386 tax_note:389 icfr:398 auditor_report:398 income_statement:398 balance_sheet:398 intangibles_note:404 equity_statement:405 cash_flow:406 notes:407 accounting_policies:407 employee_benefits:413 exhibits:434"
+		},
+		{
+			id: "adobe-2024",
+			c: "Adobe Inc.",
+			fy: "FY2024",
+			fw: "US GAAP",
+			from: 447,
+			to: 547,
+			s: "principal_risks:448 strategy:449 market:449 business_model:454 people:465 provisions_note:476 tax_note:478 intangibles_note:479 risk_management:481 mdna:484 estimates:484 notes:485 balance_sheet:494 market_risk:497 income_statement:499 equity_statement:503 cash_flow:504 accounting_policies:505 fin_instruments:510 segment_note:511 revenue_note:513 credit_risk:519 governance:527 employee_benefits:533 leases_note:536 icfr:538 kam:538 exhibits:544"
+		},
+		{
+			id: "jpmorgan-2023",
+			c: "JPMorgan Chase & Co.",
+			fy: "FY2023",
+			fw: "US GAAP",
+			from: 548,
+			to: 911,
+			s: "highlights:549 income_statement:549 chair_letter:551 people:554 eps:558 balance_sheet:564 capital_banking:580 governance:586 provisions_note:598 tax_note:607 strategy:611 mdna:633 estimates:634 segment_review:640 liquidity_risk:645 non_gaap:647 intangibles_note:649 market_risk:651 leases_note:664 market:675 capital_mgmt:676 credit_risk:683 liquidity:687 risk_management:688 fin_instruments:713 icfr:747 kam:749 employee_benefits:752 accounting_policies:759 outlook:841 dividends:868"
+		},
+		{
+			id: "apple-2020",
+			c: "Apple Inc.",
+			fy: "FY2020",
+			fw: "US GAAP",
+			from: 912,
+			to: 1016,
+			s: "mdna:914 principal_risks:914 provisions_note:914 liquidity:939 ppe_note:939 market_risk:940 balance_sheet:941 income_statement:944 equity_statement:944 employee_benefits:948 cash_flow:949 notes:950 accounting_policies:950 eps:951 fin_instruments:954 credit_risk:955 tax_note:960 segment_note:969 leases_note:971 governance:973 auditor_report:973 icfr:975 exhibits:981"
+		},
+		{
+			id: "amazon-2024",
+			c: "Amazon.com, Inc.",
+			fy: "FY2024",
+			fw: "US GAAP",
+			from: 1017,
+			to: 1107,
+			s: "chair_letter:1018 ceo_letter:1026 mdna:1030 principal_risks:1030 provisions_note:1030 governance:1033 segment_note:1052 intangibles_note:1055 tax_note:1056 leases_note:1057 liquidity:1059 market_risk:1059 auditor_report:1062 income_statement:1062 balance_sheet:1062 cash_flow:1064 equity_statement:1068 notes:1069 fin_instruments:1079 icfr:1098 exhibits:1105"
+		},
+		{
+			id: "apple-2023",
+			c: "Apple Inc.",
+			fy: "FY2023",
+			fw: "US GAAP",
+			from: 1108,
+			to: 1187,
+			s: "mdna:1110 principal_risks:1110 provisions_note:1110 credit_risk:1126 tax_note:1134 governance:1135 estimates:1135 market_risk:1136 income_statement:1137 balance_sheet:1137 equity_statement:1137 employee_benefits:1141 cash_flow:1142 notes:1143 accounting_policies:1143 fin_instruments:1146 liquidity_risk:1147 ppe_note:1149 leases_note:1153 segment_note:1157 auditor_report:1159 icfr:1161 exhibits:1168"
+		},
+		{
+			id: "berkshire-2025",
+			c: "Berkshire Hathaway Inc.",
+			fy: "FY2025",
+			fw: "US GAAP",
+			from: 1188,
+			to: 1341,
+			s: "ceo_letter:1190 principal_risks:1213 provisions_note:1213 mdna:1238 segment_review:1244 governance:1245 tax_note:1247 intangibles_note:1268 ppe_note:1269 estimates:1270 strategy:1275 credit_risk:1275 market_risk:1275 auditor_report:1278 kam:1278 balance_sheet:1279 income_statement:1281 cash_flow:1283 notes:1284 accounting_policies:1284 fin_instruments:1313 employee_benefits:1317 segment_note:1319 icfr:1329 exhibits:1333"
+		},
+		{
+			id: "jpmorgan-2025",
+			c: "JPMorgan Chase & Co.",
+			fy: "FY2025",
+			fw: "US GAAP",
+			from: 1342,
+			to: 1706,
+			s: "highlights:1343 income_statement:1343 people:1348 eps:1349 capital_banking:1354 ceo_letter:1369 tax_note:1383 business_model:1409 mdna:1419 estimates:1420 outlook:1423 governance:1423 balance_sheet:1428 liquidity_risk:1430 non_gaap:1432 intangibles_note:1434 segment_review:1435 market_risk:1436 market:1461 capital_mgmt:1462 credit_risk:1469 liquidity:1473 fin_instruments:1499 risk_management:1517 kam:1536 employee_benefits:1539 accounting_policies:1546 leases_note:1650 dividends:1659 provisions_note:1667 segment_note:1680 cash_flow:1684"
+		},
+		{
+			id: "bofa-2025",
+			c: "Bank of America",
+			fy: "FY2025",
+			fw: "US GAAP",
+			from: 1707,
+			to: 1818,
+			s: "people:1707 governance:1708 principal_risks:1712 strategy:1722 highlights:1733 segment_review:1733 sustainability:1735 mdna:1740 notes:1740 balance_sheet:1741 leases_note:1741 non_gaap:1742 income_statement:1743 tax_note:1745 risk_management:1750 intangibles_note:1752 capital_banking:1752 market_risk:1764 cash_flow:1770 equity_statement:1770 auditor_report:1771 liquidity_risk:1784 credit_risk:1788 employee_benefits:1800 fin_instruments:1804"
+		},
+		{
+			id: "pepsico-2025",
+			c: "PepsiCo, Inc.",
+			fy: "FY2025",
+			fw: "US GAAP",
+			from: 1819,
+			to: 1962,
+			s: "highlights:1820 eps:1820 dividends:1820 governance:1822 mdna:1827 principal_risks:1827 provisions_note:1827 people:1834 capital_mgmt:1836 tax_note:1847 segment_review:1859 liquidity:1859 non_gaap:1859 market_risk:1866 employee_benefits:1872 estimates:1879 intangibles_note:1881 income_statement:1884 cash_flow:1886 leases_note:1886 balance_sheet:1888 notes:1890 credit_risk:1895 accounting_policies:1896 revenue_note:1896 fin_instruments:1920 icfr:1935 auditor_report:1935 remuneration:1942 exhibits:1953 shareholder_info:1960"
+		},
+		{
+			id: "pg-2026",
+			c: "Procter & Gamble",
+			fy: "FY2026",
+			fw: "US GAAP",
+			from: 1963,
+			to: 2043,
+			s: "principal_risks:1965 provisions_note:1965 liquidity:1972 mdna:1976 eps:1986 governance:1994 estimates:1994 revenue_note:1994 employee_benefits:1995 non_gaap:1997 icfr:2000 auditor_report:2001 income_statement:2001 balance_sheet:2001 notes:2004 equity_statement:2006 cash_flow:2007 accounting_policies:2008 tax_note:2010 segment_note:2011 intangibles_note:2015 fin_instruments:2025 leases_note:2032 exhibits:2039 chair_letter:2041"
+		},
+		{
+			id: "homedepot-2025",
+			c: "The Home Depot, Inc.",
+			fy: "FY2025",
+			fw: "US GAAP",
+			from: 2044,
+			to: 2131,
+			s: "mdna:2045 principal_risks:2045 provisions_note:2045 people:2054 capital_mgmt:2054 income_statement:2076 non_gaap:2078 strategy:2079 leases_note:2080 dividends:2081 governance:2084 auditor_report:2084 balance_sheet:2084 kam:2085 intangibles_note:2086 equity_statement:2089 cash_flow:2090 notes:2091 accounting_policies:2091 tax_note:2097 segment_note:2098 icfr:2120 remuneration:2127 exhibits:2128 eps:2129"
+		},
+		{
+			id: "mcdonalds-2025",
+			c: "McDonald's Corporation",
+			fy: "FY2025",
+			fw: "US GAAP",
+			from: 2132,
+			to: 2204,
+			s: ""
+		},
+		{
+			id: "nestle-2025",
+			c: "Nestlé Group",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 2205,
+			to: 2342,
+			s: "income_statement:2208 balance_sheet:2208 cash_flow:2208 tax_note:2212 provisions_note:2213 equity_statement:2215 ppe_note:2221 intangibles_note:2221 segment_note:2226 leases_note:2232 employee_benefits:2234 credit_risk:2235 liquidity_risk:2242 fin_instruments:2247 business_model:2261 market_risk:2269 capital_mgmt:2275 eps:2283 governance:2291 related_parties:2291 sustainability:2292 subsequent_events:2293 people:2317 directors_resp:2319 accounting_policies:2338"
+		},
+		{
+			id: "roche-2025",
+			c: "Roche Group",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 2343,
+			to: 2539,
+			s: "highlights:2344 mdna:2347 income_statement:2350 intangibles_note:2353 ppe_note:2368 leases_note:2368 provisions_note:2370 tax_note:2379 employee_benefits:2381 balance_sheet:2384 governance:2388 liquidity_risk:2389 cash_flow:2396 equity_statement:2397 accounting_policies:2398 segment_note:2401 revenue_note:2405 eps:2470 credit_risk:2474 fin_instruments:2478 market_risk:2478 related_parties:2486 capital_banking:2488 business_model:2502 icfr:2506 kam:2508 remuneration:2510 non_gaap:2515 notes:2528 directors_resp:2535"
+		},
+		{
+			id: "novartis-2025",
+			c: "Novartis AG",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 2540,
+			to: 2817,
+			s: "ceo_letter:2543 strategy:2543 sustainability:2544 market_risk:2546 mdna:2547 principal_risks:2551 employee_benefits:2559 credit_risk:2561 intangibles_note:2563 provisions_note:2578 capital_banking:2583 highlights:2587 non_gaap:2592 tax_note:2593 liquidity:2600 cash_flow:2601 fin_instruments:2607 governance:2610 remuneration:2630 people:2631 risk_management:2663 icfr:2671 related_parties:2679 dividends:2680 income_statement:2710 balance_sheet:2710 equity_statement:2710 ppe_note:2728 leases_note:2728 eps:2739 liquidity_risk:2782 kam:2791 notes:2795 chair_letter:2808 business_model:2808"
+		},
+		{
+			id: "ubs-2025",
+			c: "UBS Group AG",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 2818,
+			to: 3184,
+			s: "business_model:2819 strategy:2819 icfr:2820 sustainability:2824 balance_sheet:2830 people:2837 outlook:2839 provisions_note:2847 capital_banking:2849 principal_risks:2855 market_risk:2859 credit_risk:2861 tax_note:2865 estimates:2866 income_statement:2867 intangibles_note:2867 fin_instruments:2867 risk_management:2893 capital_mgmt:2895 governance:2897 market:2899 liquidity_risk:2927 going_concern:2937 employee_benefits:2957 chair_letter:2998 dividends:3008 kpis:3013 auditor_report:3042 directors_resp:3043 equity_statement:3058 eps:3060 cash_flow:3062 accounting_policies:3064 segment_note:3081 mdna:3153 related_parties:3158 highlights:3164 ppe_note:3166 non_gaap:3175"
+		},
+		{
+			id: "allianz-2025",
+			c: "Allianz SE",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 3185,
+			to: 3240,
+			s: "mdna:3186 governance:3190 provisions_note:3197 intangibles_note:3199 accounting_policies:3204 fin_instruments:3206 employee_benefits:3213 balance_sheet:3216 market_risk:3217 subsequent_events:3223 notes:3235 going_concern:3238"
+		},
+		{
+			id: "mercedes-2025",
+			c: "Mercedes-Benz Group AG",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 3241,
+			to: 3649,
+			s: "mdna:3243 governance:3243 chair_letter:3246 business_model:3249 strategy:3277 kpis:3285 income_statement:3291 balance_sheet:3291 cash_flow:3291 fin_instruments:3293 employee_benefits:3297 tax_note:3298 leases_note:3301 provisions_note:3301 intangibles_note:3308 ppe_note:3310 outlook:3321 dividends:3325 risk_management:3327 market_risk:3332 credit_risk:3338 liquidity:3345 sustainability:3346 accounting_policies:3346 people:3362 remuneration:3454 equity_statement:3498 notes:3499 segment_note:3605 capital_mgmt:3608 eps:3609 directors_resp:3629 auditor_report:3630 kam:3637 highlights:3645"
+		},
+		{
+			id: "volkswagen-2025",
+			c: "Volkswagen Group",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 3650,
+			to: 4323,
+			s: "highlights:3651 kpis:3652 sustainability:3652 governance:3652 remuneration:3652 intangibles_note:3657 related_parties:3675 people:3676 risk_management:3681 provisions_note:3695 employee_benefits:3710 mdna:3722 outlook:3722 market:3739 shareholder_info:3756 tax_note:3767 cash_flow:3770 balance_sheet:3774 ppe_note:3778 strategy:3829 fin_instruments:3853 credit_risk:3855 business_model:3876 eps:3877 dividends:3877 leases_note:3990 income_statement:4111 segment_note:4111 equity_statement:4117 market_risk:4170 liquidity_risk:4189 capital_banking:4235 subsequent_events:4250 directors_resp:4293 auditor_report:4294 kam:4299"
+		},
+		{
+			id: "telekom-2025",
+			c: "Deutsche Telekom AG",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 4324,
+			to: 4704,
+			s: "chair_letter:4324 highlights:4324 mdna:4324 sustainability:4331 governance:4331 kpis:4332 remuneration:4338 balance_sheet:4363 strategy:4365 segment_note:4365 business_model:4371 eps:4378 ppe_note:4380 intangibles_note:4380 leases_note:4380 dividends:4390 notes:4394 tax_note:4399 cash_flow:4400 outlook:4405 segment_review:4418 people:4426 risk_management:4430 principal_risks:4450 provisions_note:4472 market:4508 fin_instruments:4528 credit_risk:4528 liquidity_risk:4528 market_risk:4528 accounting_policies:4549 income_statement:4550 employee_benefits:4553 revenue_note:4579 subsequent_events:4682 directors_resp:4684 kam:4686 going_concern:4688"
+		},
+		{
+			id: "bp-2025",
+			c: "BP p.l.c.",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 4705,
+			to: 5101,
+			s: "strategy:4706 segment_review:4709 chair_letter:4710 market:4712 outlook:4713 sustainability:4717 business_model:4719 kpis:4720 people:4722 balance_sheet:4724 risk_management:4751 principal_risks:4766 governance:4778 remuneration:4778 audit_committee:4790 highlights:4800 employee_benefits:4801 provisions_note:4827 auditor_report:4836 kam:4837 revenue_note:4837 ppe_note:4837 intangibles_note:4838 materiality:4849 icfr:4860 income_statement:4861 equity_statement:4863 fin_instruments:4864 cash_flow:4865 estimates:4866 market_risk:4880 tax_note:4884 eps:4900 leases_note:4902 credit_risk:4923 non_gaap:5043 liquidity:5044 mdna:5064 shareholder_info:5070 capital_mgmt:5087 exhibits:5095"
+		},
+		{
+			id: "unilever-2025",
+			c: "Unilever PLC",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 5102,
+			to: 5385,
+			s: "strategy:5104 highlights:5105 business_model:5106 people:5106 chair_letter:5109 ceo_letter:5111 mdna:5113 non_gaap:5116 eps:5116 risk_management:5134 principal_risks:5134 viability:5141 intangibles_note:5148 sustainability:5150 governance:5151 audit_committee:5152 remuneration:5152 market:5162 dividends:5176 employee_benefits:5189 directors_resp:5212 auditor_report:5212 notes:5212 shareholder_info:5212 materiality:5216 going_concern:5218 kam:5219 provisions_note:5220 revenue_note:5228 income_statement:5231 equity_statement:5233 cash_flow:5235 segment_note:5239 balance_sheet:5246 tax_note:5252 ppe_note:5258 liquidity_risk:5270 fin_instruments:5272 market_risk:5272 credit_risk:5278 related_parties:5285 subsequent_events:5286 accounting_policies:5290 estimates:5291 icfr:5315"
+		},
+		{
+			id: "astrazeneca-2025",
+			c: "AstraZeneca PLC",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 5386,
+			to: 5698,
+			s: "strategy:5389 business_model:5395 sustainability:5399 governance:5399 principal_risks:5406 people:5425 risk_management:5434 mdna:5435 kpis:5439 non_gaap:5440 liquidity:5447 fin_instruments:5451 remuneration:5460 shareholder_info:5473 balance_sheet:5475 intangibles_note:5475 employee_benefits:5481 provisions_note:5500 directors_resp:5501 auditor_report:5501 income_statement:5512 equity_statement:5514 cash_flow:5515 credit_risk:5522 eps:5524 ppe_note:5529 leases_note:5529 tax_note:5531 segment_note:5534 estimates:5540 liquidity_risk:5559 market_risk:5564 capital_banking:5582 chair_letter:5596 audit_committee:5596 viability:5597 dividends:5620 highlights:5634 going_concern:5697"
+		},
+		{
+			id: "gsk-2025",
+			c: "GSK plc",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 5699,
+			to: 5949,
+			s: "mdna:5703 non_gaap:5703 intangibles_note:5704 income_statement:5705 balance_sheet:5706 eps:5713 cash_flow:5717 tax_note:5718 ppe_note:5718 fin_instruments:5722 going_concern:5724 estimates:5725 governance:5727 remuneration:5727 strategy:5734 dividends:5735 shareholder_info:5739 market:5740 audit_committee:5753 chair_letter:5759 people:5762 employee_benefits:5766 outlook:5770 auditor_report:5790 notes:5790 provisions_note:5795 kam:5796 materiality:5800 viability:5804 leases_note:5813 segment_note:5820 credit_risk:5839 market_risk:5867 liquidity_risk:5881 principal_risks:5898 sustainability:5912 icfr:5933 ceo_letter:5946 business_model:5946"
+		},
+		{
+			id: "hsbc-2025",
+			c: "HSBC Holdings plc",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 5950,
+			to: 6321,
+			s: "highlights:5950 strategy:5950 kpis:5951 outlook:5953 chair_letter:5957 credit_risk:5963 eps:5963 income_statement:5964 segment_review:5966 provisions_note:5971 sustainability:5975 business_model:5981 principal_risks:5981 viability:5982 going_concern:5982 governance:5982 mdna:5983 balance_sheet:5990 people:6002 fin_instruments:6018 accounting_policies:6026 non_gaap:6042 risk_management:6049 capital_banking:6054 market_risk:6108 employee_benefits:6117 audit_committee:6155 remuneration:6166 directors_resp:6201 auditor_report:6203 kam:6206 equity_statement:6222 cash_flow:6223 tax_note:6235 dividends:6252 intangibles_note:6278 leases_note:6279 liquidity_risk:6285 related_parties:6296 shareholder_info:6306"
+		},
+		{
+			id: "totalenergies-2024",
+			c: "TotalEnergies SE",
+			fy: "FY2024",
+			fw: "IFRS",
+			from: 6322,
+			to: 6986,
+			s: "outlook:6326 principal_risks:6326 fin_instruments:6326 mdna:6327 segment_review:6329 eps:6329 non_gaap:6338 capital_mgmt:6342 balance_sheet:6343 intangibles_note:6344 liquidity:6345 provisions_note:6347 governance:6348 tax_note:6352 icfr:6357 auditor_report:6365 income_statement:6365 kam:6369 ppe_note:6375 cash_flow:6376 equity_statement:6377 notes:6378 accounting_policies:6378 segment_note:6388 reserves_tech:6406 related_parties:6409 employee_benefits:6414 leases_note:6433 market_risk:6447 credit_risk:6450 highlights:6509 dividends:6511 sustainability:6524 business_model:6533 kpis:6551 people:6640 audit_committee:6702 chair_letter:6723"
+		},
+		{
+			id: "airbus-2023",
+			c: "Airbus SE",
+			fy: "FY2023",
+			fw: "IFRS",
+			from: 6987,
+			to: 7428,
+			s: "market:6988 chair_letter:6989 highlights:6989 mdna:6989 principal_risks:6989 eps:6990 governance:7012 market_risk:7013 liquidity:7014 liquidity_risk:7019 fin_instruments:7022 credit_risk:7022 segment_review:7026 sustainability:7032 people:7035 outlook:7094 kpis:7108 employee_benefits:7164 going_concern:7181 provisions_note:7186 income_statement:7187 dividends:7192 auditor_report:7197 risk_management:7222 remuneration:7222 related_parties:7267 balance_sheet:7285 ppe_note:7285 intangibles_note:7285 cash_flow:7287 equity_statement:7289 accounting_policies:7292 segment_note:7292 tax_note:7313 leases_note:7322 subsequent_events:7372 kam:7375 revenue_note:7381"
+		},
+		{
+			id: "loreal-2024",
+			c: "L'Oréal",
+			fy: "FY2024",
+			fw: "IFRS",
+			from: 7429,
+			to: 7448,
+			s: "chair_letter:7429 highlights:7429 governance:7429 people:7438"
+		},
+		{
+			id: "sanofi-2025",
+			c: "Sanofi",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 7449,
+			to: 7746,
+			s: "principal_risks:7454 ppe_note:7454 mdna:7466 sustainability:7466 income_statement:7472 people:7487 intangibles_note:7515 related_parties:7516 tax_note:7522 non_gaap:7524 segment_note:7526 cash_flow:7531 capital_mgmt:7533 liquidity_risk:7534 market_risk:7534 governance:7536 employee_benefits:7575 provisions_note:7607 dividends:7617 icfr:7626 exhibits:7634 auditor_report:7635 balance_sheet:7635 leases_note:7648 notes:7650 business_model:7658 fin_instruments:7658 eps:7697"
+		},
+		{
+			id: "toyota-2026",
+			c: "Toyota Motor Corporation",
+			fy: "FY2026 (Mar)",
+			fw: "IFRS",
+			from: 7747,
+			to: 8010,
+			s: "principal_risks:7752 mdna:7753 provisions_note:7754 sustainability:7756 segment_review:7759 governance:7797 people:7800 business_model:7810 income_statement:7832 liquidity:7837 cash_flow:7838 balance_sheet:7843 tax_note:7844 credit_risk:7845 remuneration:7857 employee_benefits:7866 related_parties:7868 dividends:7884 icfr:7892 auditor_report:7905 kam:7907 equity_statement:7912 notes:7915 accounting_policies:7916 fin_instruments:7920 ppe_note:7923 intangibles_note:7924 leases_note:7925 market_risk:7959 eps:7985 exhibits:7994"
+		},
+		{
+			id: "honda-2023",
+			c: "Honda Motor Co., Ltd.",
+			fy: "FY2023 (Mar)",
+			fw: "IFRS",
+			from: 8011,
+			to: 8257,
+			s: "employee_benefits:8017 governance:8019 mdna:8025 strategy:8045 intangibles_note:8051 people:8054 leases_note:8057 tax_note:8061 segment_review:8070 balance_sheet:8079 kpis:8108 related_parties:8114 provisions_note:8116 dividends:8122 icfr:8125 income_statement:8136 auditor_report:8137 credit_risk:8139 equity_statement:8145 cash_flow:8146 notes:8147 revenue_note:8158 segment_note:8160 fin_instruments:8207 market_risk:8207 ppe_note:8218 exhibits:8224"
+		},
+		{
+			id: "softbank-2026",
+			c: "SoftBank Group Corp.",
+			fy: "FY2026 (Mar)",
+			fw: "IFRS",
+			from: 8258,
+			to: 8443,
+			s: "business_model:8260 people:8267 ceo_letter:8271 notes:8290 related_parties:8290 governance:8293 sustainability:8294 fin_instruments:8312 remuneration:8314 income_statement:8318 tax_note:8327 mdna:8330 segment_note:8337 balance_sheet:8340 segment_review:8342 principal_risks:8360 highlights:8371 outlook:8385 dividends:8435"
+		},
+		{
+			id: "mufg-2026",
+			c: "Mitsubishi UFJ Financial Group",
+			fy: "FY2026 (Mar)",
+			fw: "US GAAP",
+			from: 8444,
+			to: 8795,
+			s: "mdna:8448 principal_risks:8448 intangibles_note:8453 employee_benefits:8454 capital_banking:8454 credit_risk:8455 business_model:8465 strategy:8465 people:8467 sustainability:8468 provisions_note:8489 ppe_note:8494 liquidity:8495 estimates:8495 income_statement:8496 tax_note:8511 segment_review:8513 segment_note:8513 balance_sheet:8532 accounting_policies:8536 governance:8539 related_parties:8561 dividends:8563 liquidity_risk:8574 market_risk:8574 risk_management:8575 fin_instruments:8582 icfr:8594 auditor_report:8595 cash_flow:8625 revenue_note:8634 notes:8650 leases_note:8665 exhibits:8753"
+		},
+		{
+			id: "smfg-2026",
+			c: "Sumitomo Mitsui Financial Group",
+			fy: "FY2026 (Mar)",
+			fw: "J-GAAP",
+			from: 8796,
+			to: 8915,
+			s: "mdna:8796 balance_sheet:8797 income_statement:8799 fin_instruments:8800 cash_flow:8808 tax_note:8808 intangibles_note:8808 notes:8810 accounting_policies:8811 revenue_note:8817 market_risk:8818 estimates:8820 leases_note:8824 provisions_note:8824 subsequent_events:8825 credit_risk:8842 liquidity_risk:8842 employee_benefits:8877 governance:8891 segment_note:8891 eps:8897 auditor_report:8909 outlook:8911"
+		},
+		{
+			id: "samsung-2025",
+			c: "Samsung Electronics",
+			fy: "FY2025",
+			fw: "K-IFRS",
+			from: 8916,
+			to: 9017,
+			s: "governance:8917 auditor_report:8917 balance_sheet:8917 accounting_policies:8918 income_statement:8923 equity_statement:8925 cash_flow:8929 notes:8931 revenue_note:8949 leases_note:8950 employee_benefits:8952 fin_instruments:8953 ppe_note:8969 intangibles_note:8971 provisions_note:8978 tax_note:8986 eps:8989 market_risk:8993 liquidity_risk:8994 segment_note:9000 related_parties:9002 subsequent_events:9010 sustainability:9017"
+		},
+		{
+			id: "honhai-2025",
+			c: "Hon Hai Precision (Foxconn)",
+			fy: "FY2025",
+			fw: "TIFRS",
+			from: 9018,
+			to: 9185,
+			s: "governance:9018 people:9025 employee_benefits:9032 sustainability:9054 remuneration:9056 related_parties:9093 business_model:9143 provisions_note:9171 ppe_note:9172"
+		},
+		{
+			id: "tencent-2025",
+			c: "Tencent Holdings",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 9186,
+			to: 9468,
+			s: "governance:9188 income_statement:9189 tax_note:9189 chair_letter:9190 non_gaap:9190 highlights:9191 provisions_note:9206 employee_benefits:9206 segment_review:9212 ppe_note:9213 people:9272 remuneration:9286 auditor_report:9306 balance_sheet:9306 kam:9308 revenue_note:9308 intangibles_note:9309 fin_instruments:9311 leases_note:9317 equity_statement:9320 cash_flow:9324 notes:9326 accounting_policies:9328 principal_risks:9359 market_risk:9359 credit_risk:9363 liquidity_risk:9367 going_concern:9369 capital_mgmt:9369 estimates:9376 segment_note:9378 eps:9393 business_model:9419 related_parties:9451 subsequent_events:9455"
+		},
+		{
+			id: "reliance-2026",
+			c: "Reliance Industries",
+			fy: "FY2025-26",
+			fw: "Ind AS",
+			from: 9469,
+			to: 9615,
+			s: "highlights:9470 chair_letter:9471 market:9472 provisions_note:9492 governance:9493 remuneration:9496 cash_flow:9502 strategy:9518 kam:9520 tax_note:9524 ppe_note:9525 intangibles_note:9525 leases_note:9532 related_parties:9538 balance_sheet:9540 employee_benefits:9544 capital_mgmt:9556 fin_instruments:9557 liquidity_risk:9558 market_risk:9559 auditor_report:9561 revenue_note:9562 credit_risk:9594"
+		},
+		{
+			id: "infosys-2026",
+			c: "Infosys Limited",
+			fy: "FY2025-26",
+			fw: "Ind AS",
+			from: 9616,
+			to: 9998,
+			s: "mdna:9622 people:9622 governance:9622 sustainability:9624 highlights:9630 eps:9630 chair_letter:9631 dividends:9640 ppe_note:9648 intangibles_note:9648 leases_note:9648 strategy:9653 remuneration:9656 provisions_note:9656 related_parties:9669 tax_note:9691 employee_benefits:9693 segment_review:9694 icfr:9696 audit_committee:9714 risk_management:9744 principal_risks:9747 balance_sheet:9807 cash_flow:9807 equity_statement:9807 auditor_report:9808 kam:9810 revenue_note:9810 segment_note:9836 liquidity_risk:9838 fin_instruments:9847 market_risk:9852 credit_risk:9854 going_concern:9894 notes:9912"
+		},
+		{
+			id: "aramco-2025",
+			c: "Saudi Arabian Oil Company (Aramco)",
+			fy: "FY2025",
+			fw: "IFRS (KSA-endorsed)",
+			from: 9999,
+			to: 10244,
+			s: "governance:10004 segment_note:10006 chair_letter:10007 ceo_letter:10009 strategy:10010 highlights:10011 outlook:10019 capital_mgmt:10029 eps:10029 dividends:10029 balance_sheet:10031 tax_note:10040 non_gaap:10041 risk_management:10070 people:10073 principal_risks:10077 mdna:10081 audit_committee:10095 fin_instruments:10115 sustainability:10117 income_statement:10129 related_parties:10131 auditor_report:10161 materiality:10162 kam:10164 intangibles_note:10165 ppe_note:10166 employee_benefits:10172 notes:10177 accounting_policies:10177 estimates:10177 leases_note:10181 credit_risk:10183 provisions_note:10185 liquidity_risk:10190 subsequent_events:10243"
+		},
+		{
+			id: "emiratesnbd-2025",
+			c: "Emirates NBD Group",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 10245,
+			to: 10375,
+			s: "chair_letter:10246 governance:10248 strategy:10250 ceo_letter:10251 outlook:10257 segment_review:10258 people:10259 market:10263 balance_sheet:10265 highlights:10276 risk_management:10279 principal_risks:10279 capital_banking:10281 sustainability:10283 auditor_report:10335 income_statement:10335 cash_flow:10335 kam:10337 accounting_policies:10337 credit_risk:10337 related_parties:10338 equity_statement:10342 tax_note:10346 fin_instruments:10347 intangibles_note:10355 segment_note:10360 capital_mgmt:10364 market_risk:10370 liquidity_risk:10371"
+		},
+		{
+			id: "eand-2025",
+			c: "e& (Emirates Telecommunications Group)",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 10376,
+			to: 10604,
+			s: "strategy:10379 sustainability:10379 governance:10379 highlights:10388 chair_letter:10397 ceo_letter:10399 market:10405 business_model:10408 people:10412 segment_review:10416 principal_risks:10437 kpis:10458 related_parties:10517 remuneration:10523 risk_management:10539 employee_benefits:10557 accounting_policies:10562 revenue_note:10564 estimates:10573 tax_note:10578 intangibles_note:10579 ppe_note:10581 credit_risk:10588 fin_instruments:10591 provisions_note:10592"
+		},
+		{
+			id: "rbc-2025",
+			c: "Royal Bank of Canada",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 10605,
+			to: 10850,
+			s: "business_model:10606 chair_letter:10610 balance_sheet:10611 people:10616 sustainability:10626 mdna:10628 highlights:10629 outlook:10629 tax_note:10629 capital_banking:10632 income_statement:10633 provisions_note:10635 segment_review:10638 strategy:10642 employee_benefits:10667 risk_management:10671 governance:10672 principal_risks:10674 credit_risk:10679 market_risk:10689 liquidity_risk:10695 capital_mgmt:10723 intangibles_note:10726 related_parties:10731 non_gaap:10739 directors_resp:10744 auditor_report:10745 kam:10746 equity_statement:10753 cash_flow:10754 accounting_policies:10756 fin_instruments:10761 leases_note:10768 eps:10769 shareholder_info:10849"
+		},
+		{
+			id: "bhp-2025",
+			c: "BHP Group Limited",
+			fy: "FY2025",
+			fw: "IFRS",
+			from: 10851,
+			to: 12300,
+			s: "strategy:10853 mdna:10854 principal_risks:10854 provisions_note:10855 chair_letter:10857 ceo_letter:10857 kpis:10857 highlights:10858 non_gaap:10858 governance:10858 remuneration:10859 reserves_tech:10860 outlook:10863 people:10864 dividends:10865 income_statement:10877 balance_sheet:10877 cash_flow:10877 employee_benefits:10892 sustainability:10903 business_model:10952 ppe_note:10971 tax_note:10976 related_parties:11029 leases_note:11035 shareholder_info:11093 risk_management:11100 equity_statement:11134 accounting_policies:11135 estimates:11137 notes:11138 segment_note:11138 eps:11155 intangibles_note:11161 fin_instruments:11178 capital_mgmt:11178 liquidity_risk:11179 credit_risk:11183 market_risk:11184 icfr:11207 auditor_report:11207"
+		},
+		{
+			id: "cba-2025",
+			c: "Commonwealth Bank of Australia",
+			fy: "FY2025",
+			fw: "AASB (IFRS)",
+			from: 12301,
+			to: 12506,
+			s: "strategy:12302 people:12302 balance_sheet:12302 segment_review:12307 governance:12307 liquidity:12312 risk_management:12328 capital_mgmt:12328 remuneration:12329 principal_risks:12338 chair_letter:12346 sustainability:12346 outlook:12352 market:12360 business_model:12364 credit_risk:12370 dividends:12377 provisions_note:12388 income_statement:12394 equity_statement:12396 tax_note:12396 cash_flow:12397 notes:12398 fin_instruments:12398 ppe_note:12400 employee_benefits:12404 eps:12406 liquidity_risk:12410 intangibles_note:12425 market_risk:12437 subsequent_events:12465 kam:12469 leases_note:12489 estimates:12491"
+		}
+	];
+	function reportStructure(id) {
+		const r = REPORT_MAP.find((x) => x.id === id);
+		if (!r || !r.s) return [];
+		return r.s.split(" ").map((kv) => {
+			const [key, p] = kv.split(":");
+			return {
+				key,
+				ar: SECTIONS.find((s) => s.key === key)?.ar ?? key,
+				page: Number(p)
+			};
+		});
+	}
+	var reportIds = () => REPORT_MAP.map((r) => r.id);
+	/** The 49 reports read: company, year, framework and page range in the bundle. */
+	var reportList = () => REPORT_MAP.map(({ s: _s, ...r }) => ({
+		...r,
+		company: r.c,
+		sections: _s ? _s.split(" ").length : 0
+	}));
+	var PROC_AR = {
+		forecasts: {
+			ar: "اختبار التوقعات وخطط الأعمال",
+			text: "قيّمنا التدفقات النقدية المتوقعة وقارناها بخطط الأعمال المعتمدة من مجلس الإدارة وبالنتائج الفعلية للسنوات السابقة"
+		},
+		discount_rates: {
+			ar: "معدلات الخصم",
+			text: "قيّمنا معدلات الخصم ومعدلات النمو المستخدمة بمقارنتها بمصادر خارجية مستقلة"
+		},
+		specialists: {
+			ar: "الاستعانة بخبراء",
+			text: "استعنا بخبرائنا المختصين في التقييم (أو الضرائب أو الاكتواريات) لتقييم المنهجية والافتراضات الرئيسية"
+		},
+		test_controls: {
+			ar: "اختبار الضوابط",
+			text: "فهمنا الضوابط الرئيسية على هذه العملية واختبرنا تصميمها وتطبيقها وفاعلية تشغيلها"
+		},
+		component_auditors: {
+			ar: "مراجعو المكونات",
+			text: "وجّهنا فرق مراجعة المكونات وراجعنا أعمالها على هذا الأمر"
+		},
+		it_systems: {
+			ar: "أنظمة المعلومات",
+			text: "اختبرنا الضوابط العامة لتقنية المعلومات والضوابط الآلية على الأنظمة ذات الصلة"
+		},
+		legal_letters: {
+			ar: "مصادقات المستشارين القانونيين",
+			text: "حصلنا على مصادقات من المستشارين القانونيين الخارجيين وناقشنا القضايا القائمة مع الإدارة والشؤون القانونية"
+		},
+		third_party: {
+			ar: "مصادر خارجية",
+			text: "قارنّا المدخلات الرئيسية ببيانات السوق ومصادر خارجية مستقلة"
+		},
+		recalculate: {
+			ar: "إعادة الاحتساب",
+			text: "أعدنا احتساب المبالغ واختبرنا الدقة الحسابية والسلامة المنطقية للنماذج"
+		},
+		independent_estimate: {
+			ar: "تقدير مستقل",
+			text: "أعددنا تقديراً مستقلاً أو مدى معقولاً وقارنّاه بتقدير الإدارة"
+		},
+		journal_entries: {
+			ar: "قيود اليومية",
+			text: "اختبرنا قيود اليومية اليدوية وغير المعتادة المتعلقة بهذا البند"
+		},
+		confirmations: {
+			ar: "المصادقات",
+			text: "حصلنا على مصادقات مباشرة من الأطراف الخارجية لعينة من الأرصدة"
+		},
+		sensitivity: {
+			ar: "تحليل الحساسية",
+			text: "أجرينا تحليلات حساسية لتقييم أثر التغيرات المعقولة الممكنة في الافتراضات الرئيسية"
+		},
+		compare_history: {
+			ar: "المقارنة بالتاريخ",
+			text: "قيّمنا دقة تقديرات الإدارة السابقة بمقارنتها بالنتائج الفعلية"
+		},
+		disclosures: {
+			ar: "كفاية الإفصاحات",
+			text: "قيّمنا كفاية الإفصاحات ذات الصلة في القوائم المالية، بما فيها الإفصاح عن الافتراضات الرئيسية وحساسيتها"
+		},
+		inspect_contracts: {
+			ar: "فحص العقود والمحاضر",
+			text: "قرأنا العقود ومحاضر الاجتماعات والمراسلات ذات الصلة"
+		},
+		data_completeness: {
+			ar: "اكتمال البيانات ودقتها",
+			text: "اختبرنا اكتمال ودقة البيانات الأساسية المستخدمة في التقدير"
+		},
+		cut_off: {
+			ar: "القطع",
+			text: "اختبرنا قطع المعاملات حول تاريخ نهاية السنة"
+		},
+		site_visits: {
+			ar: "الزيارات والجرد",
+			text: "حضرنا الجرد الفعلي وزرنا المواقع"
+		},
+		retrospective: {
+			ar: "المراجعة بأثر رجعي",
+			text: "أجرينا مراجعة بأثر رجعي لنتائج تقديرات السنة السابقة"
+		},
+		subsequent: {
+			ar: "الأحداث والمتحصلات اللاحقة",
+			text: "فحصنا المتحصلات والتسويات اللاحقة لتاريخ القوائم المالية"
+		},
+		evaluate_assumptions: {
+			ar: "معقولية الافتراضات",
+			text: "قيّمنا معقولية افتراضات الإدارة الرئيسية"
+		}
+	};
+	var KP = {
+		"test_controls": {
+			"mentions": 47,
+			"reports": 21
+		},
+		"evaluate_assumptions": {
+			"mentions": 2,
+			"reports": 1
+		},
+		"specialists": {
+			"mentions": 57,
+			"reports": 16
+		},
+		"sensitivity": {
+			"mentions": 13,
+			"reports": 8
+		},
+		"compare_history": {
+			"mentions": 13,
+			"reports": 7
+		},
+		"recalculate": {
+			"mentions": 22,
+			"reports": 12
+		},
+		"confirmations": {
+			"mentions": 17,
+			"reports": 12
+		},
+		"inspect_contracts": {
+			"mentions": 10,
+			"reports": 8
+		},
+		"legal_letters": {
+			"mentions": 24,
+			"reports": 14
+		},
+		"subsequent": {
+			"mentions": 4,
+			"reports": 3
+		},
+		"disclosures": {
+			"mentions": 12,
+			"reports": 7
+		},
+		"data_completeness": {
+			"mentions": 7,
+			"reports": 5
+		},
+		"retrospective": {
+			"mentions": 6,
+			"reports": 3
+		},
+		"third_party": {
+			"mentions": 23,
+			"reports": 10
+		},
+		"independent_estimate": {
+			"mentions": 20,
+			"reports": 11
+		},
+		"journal_entries": {
+			"mentions": 20,
+			"reports": 7
+		},
+		"cut_off": {
+			"mentions": 5,
+			"reports": 2
+		},
+		"site_visits": {
+			"mentions": 5,
+			"reports": 4
+		},
+		"discount_rates": {
+			"mentions": 112,
+			"reports": 17
+		},
+		"forecasts": {
+			"mentions": 239,
+			"reports": 25
+		},
+		"it_systems": {
+			"mentions": 31,
+			"reports": 9
+		},
+		"component_auditors": {
+			"mentions": 39,
+			"reports": 7
+		}
+	};
+	/** Audit procedures the auditors in the bundle describe under their KAMs, ranked by how many reports use them. */
+	function kamProcedures() {
+		return Object.entries(KP).map(([key, v]) => ({
+			key,
+			...v,
+			...PROC_AR[key] ?? {
+				ar: key,
+				text: key
+			}
+		})).sort((a, b) => b.reports - a.reports || b.mentions - a.mentions);
+	}
+	var RISK_AR = {
+		cyber: {
+			ar: "الأمن السيبراني وحماية البيانات",
+			mitigation: "برنامج أمن معلومات بضوابط وصول ومراقبة واختبارات اختراق وخطط استجابة واستعادة",
+			description: "قد تؤدي الهجمات السيبرانية أو تعطل الأنظمة إلى توقف العمليات أو تسرب البيانات أو خسائر مالية وتنظيمية."
+		},
+		competition: {
+			ar: "المنافسة وتغير تفضيلات العملاء",
+			mitigation: "تطوير المنتجات والتسعير ومراقبة حصص السوق وتنويع القنوات",
+			description: "قد تؤثر المنافسة وتغير تفضيلات العملاء في الحصة السوقية والأسعار والهوامش."
+		},
+		fraud_conduct: {
+			ar: "الغش والسلوك المهني",
+			mitigation: "مدونة سلوك وقناة إبلاغ وفصل مهام ومراجعة داخلية",
+			description: "قد يؤدي الغش أو السلوك غير المهني إلى خسائر مالية وتنظيمية وضرر بالسمعة."
+		},
+		reputation: {
+			ar: "السمعة والعلامة التجارية",
+			mitigation: "حوكمة الجودة والتواصل ومعالجة الشكاوى",
+			description: "قد تتأثر ثقة العملاء والمساهمين بأي حادث يمس الجودة أو السلوك أو الالتزام."
+		},
+		macroeconomic: {
+			ar: "الظروف الاقتصادية الكلية والتضخم",
+			mitigation: "مراقبة المؤشرات الاقتصادية وخطط سيناريوهات ومرونة التكاليف",
+			description: "قد يؤثر التباطؤ الاقتصادي والتضخم وارتفاع التكاليف في الطلب والهوامش والقدرة على تمرير الأسعار."
+		},
+		supply_chain: {
+			ar: "سلاسل الإمداد والموردون",
+			mitigation: "تنويع الموردين وعقود طويلة الأجل ومخزون أمان",
+			description: "قد يؤثر انقطاع الإمداد أو اعتماد الشركة على موردين محدودين في توفر المنتجات وتكلفتها."
+		},
+		legal: {
+			ar: "القضايا والنزاعات القانونية",
+			mitigation: "إدارة قانونية ومتابعة القضايا وتكوين المخصصات وفق IAS 37",
+			description: "قد تنشأ عن النزاعات والقضايا التزامات أو تكاليف غير متوقعة."
+		},
+		esg_social: {
+			ar: "المسؤولية الاجتماعية وحقوق الإنسان",
+			mitigation: "سياسات الاستدامة والعناية الواجبة في سلسلة الإمداد",
+			description: "تتزايد توقعات أصحاب المصلحة بشأن المسؤولية الاجتماعية وحقوق العاملين في سلسلة القيمة."
+		},
+		geopolitical: {
+			ar: "المخاطر الجيوسياسية والعقوبات",
+			mitigation: "تقييم الانكشاف الجغرافي وخطط استمرارية وامتثال للعقوبات",
+			description: "قد تؤثر التوترات الجيوسياسية والعقوبات في سلاسل الإمداد والأسواق والتكاليف."
+		},
+		climate: {
+			ar: "تغير المناخ والتحول",
+			mitigation: "تقييم المخاطر المادية والتحولية وخطط خفض الانبعاثات",
+			description: "قد تؤثر الظواهر المناخية ومتطلبات التحول في الإمداد والتكاليف والطلب."
+		},
+		technology_ai: {
+			ar: "التحول التقني والذكاء الاصطناعي",
+			mitigation: "خارطة طريق رقمية وحوكمة استخدام الذكاء الاصطناعي",
+			description: "قد يؤثر التأخر في التحول الرقمي أو سوء استخدام الذكاء الاصطناعي في الكفاءة والقدرة التنافسية."
+		},
+		liquidity_funding: {
+			ar: "السيولة والتمويل",
+			mitigation: "توقعات نقدية وتسهيلات ملتزم بها وتنويع آجال الاستحقاق",
+			description: "قد يؤثر تشدد شروط التمويل أو تركز آجال الاستحقاق في القدرة على الوفاء بالالتزامات وتمويل الاستثمار."
+		},
+		interest: {
+			ar: "أسعار العمولة",
+			mitigation: "مزيج التمويل الثابت والمتغير وتحليل الحساسية",
+			description: "يؤثر ارتفاع أسعار العمولة في تكلفة التمويل ذي السعر المتغير."
+		},
+		health_safety: {
+			ar: "الصحة والسلامة",
+			mitigation: "نظام إدارة سلامة ومؤشرات حوادث وتدريب",
+			description: "قد تؤدي حوادث العمل إلى ضرر بالعاملين وتوقف العمليات والتزامات قانونية."
+		},
+		commodity: {
+			ar: "أسعار السلع والمواد الخام",
+			mitigation: "عقود توريد وتحوط وتمرير الأسعار للعملاء",
+			description: "يؤثر تقلب أسعار المواد الخام والأعلاف والطاقة في تكلفة المبيعات والهوامش."
+		},
+		tax: {
+			ar: "الضرائب والزكاة والرسوم الجمركية",
+			mitigation: "مراجعة ضريبية ومتابعة الربوط والتغيرات التشريعية",
+			description: "قد تنشأ التزامات إضافية عن الربوط الزكوية والضريبية أو تغير التشريعات والرسوم."
+		},
+		fx: {
+			ar: "أسعار الصرف",
+			mitigation: "مطابقة عملات الإيرادات والتكاليف والتحوط",
+			description: "يؤثر تقلب أسعار الصرف في تكلفة الواردات والأرصدة بالعملات الأجنبية."
+		},
+		regulatory: {
+			ar: "الالتزام التنظيمي",
+			mitigation: "إدارة امتثال ومتابعة التشريعات والتدريب",
+			description: "قد تفرض التغيرات التنظيمية متطلبات امتثال وتكاليف إضافية."
+		},
+		business_continuity: {
+			ar: "استمرارية الأعمال والتعطل التشغيلي",
+			mitigation: "خطط استمرارية واختبارات ومواقع بديلة وتأمين",
+			description: "قد يؤدي تعطل المرافق أو الأنظمة أو الأوبئة إلى توقف العمليات."
+		},
+		talent: {
+			ar: "استقطاب الكفاءات والاحتفاظ بها",
+			mitigation: "خطط تعاقب وحوافز وتطوير مهني",
+			description: "قد يؤثر نقص الكفاءات أو فقدان الموظفين الرئيسيين في تنفيذ الخطط."
+		},
+		credit: {
+			ar: "الائتمان والأطراف المقابلة",
+			mitigation: "حدود ائتمان وضمانات ومتابعة أعمار الديون",
+			description: "قد يتعثر العملاء أو الأطراف المقابلة في السداد فتنشأ خسائر ائتمانية."
+		},
+		pension: {
+			ar: "التزامات منافع الموظفين",
+			mitigation: "تقييم اكتواري دوري ومراقبة الافتراضات",
+			description: "قد تتغير التزامات منافع الموظفين بتغير الافتراضات الاكتوارية."
+		},
+		product_quality: {
+			ar: "جودة المنتج وسلامته",
+			mitigation: "أنظمة جودة وسلامة غذاء وتتبع واستدعاء",
+			description: "قد يؤدي أي خلل في سلامة الغذاء أو جودته إلى استدعاء منتجات والتزامات وضرر بالسمعة."
+		},
+		capital_projects: {
+			ar: "تنفيذ المشاريع الرأسمالية",
+			mitigation: "حوكمة المشاريع ومراحل اعتماد ومتابعة التكلفة والجدول",
+			description: "قد يؤدي تأخر المشاريع الرأسمالية أو تجاوز تكاليفها إلى ضغط على العائد والسيولة."
+		}
+	};
+	var RC = {
+		"cyber": 39,
+		"competition": 39,
+		"fraud_conduct": 39,
+		"reputation": 38,
+		"macroeconomic": 37,
+		"supply_chain": 37,
+		"legal": 36,
+		"esg_social": 36,
+		"geopolitical": 35,
+		"climate": 34,
+		"technology_ai": 34,
+		"liquidity_funding": 34,
+		"interest": 33,
+		"health_safety": 32,
+		"commodity": 30,
+		"tax": 30,
+		"fx": 29,
+		"regulatory": 27,
+		"business_continuity": 27,
+		"talent": 24,
+		"credit": 24,
+		"pension": 19,
+		"product_quality": 13,
+		"capital_projects": 3
+	};
+	/** Principal-risk categories, by how many reports name them in their principal-risk or risk-factor pages. */
+	function riskCatalogue() {
+		return Object.entries(RC).map(([key, reports]) => ({
+			key,
+			reports,
+			description: "",
+			...RISK_AR[key] ?? {
+				ar: key,
+				mitigation: ""
+			}
+		})).sort((a, b) => b.reports - a.reports);
+	}
+	var LT_AR = {
+		people_thanks: "الشكر للموظفين والفريق",
+		customers: "العملاء",
+		strategy: "الاستراتيجية وتنفيذها",
+		ai_digital: "التحول الرقمي والذكاء الاصطناعي",
+		outlook: "النظرة المستقبلية",
+		shareholder_returns: "العائد للمساهمين (التوزيعات وإعادة الشراء)",
+		governance_board: "المجلس والحوكمة",
+		capital_allocation: "تخصيص رأس المال والاستثمار",
+		sustainability: "الاستدامة والمناخ",
+		macro_geopolitics: "البيئة الاقتصادية والجيوسياسية",
+		safety: "السلامة",
+		results_vs_prior: "النتائج مقارنة بالسنة السابقة"
+	};
+	var LT = {
+		"people_thanks": 28,
+		"customers": 27,
+		"strategy": 26,
+		"ai_digital": 25,
+		"outlook": 23,
+		"shareholder_returns": 22,
+		"governance_board": 22,
+		"capital_allocation": 21,
+		"sustainability": 21,
+		"macro_geopolitics": 19,
+		"safety": 8,
+		"results_vs_prior": 8
+	};
+	var LETTERS = {
+		reports: 30,
+		medianWordsFirstPages: 2676,
+		examples: [
+			["amazon-2023", 3],
+			["cisco-2024", 348],
+			["jpmorgan-2023", 551],
+			["amazon-2024", 1018],
+			["berkshire-2025", 1190],
+			["jpmorgan-2025", 1345],
+			["pg-2026", 2041],
+			["mcdonalds-2025", 2133],
+			["novartis-2025", 2543],
+			["ubs-2025", 2998],
+			["mercedes-2025", 3246],
+			["telekom-2025", 4324],
+			["bp-2025", 4707],
+			["unilever-2025", 5103],
+			["astrazeneca-2025", 5390],
+			["gsk-2025", 5759],
+			["hsbc-2025", 5957],
+			["totalenergies-2024", 6723],
+			["airbus-2023", 6989],
+			["loreal-2024", 7429],
+			["softbank-2026", 8261],
+			["tencent-2025", 9187],
+			["reliance-2026", 9471],
+			["infosys-2026", 9631],
+			["aramco-2025", 1e4],
+			["emiratesnbd-2025", 10246],
+			["eand-2025", 10378],
+			["rbc-2025", 10610],
+			["bhp-2025", 10857],
+			["cba-2025", 12301]
+		]
+	};
+	/** What the chair's and chief executive's letters cover, by share of the 30 reports that carry one. */
+	function letterTopics() {
+		return Object.entries(LT).map(([key, n]) => ({
+			key,
+			ar: LT_AR[key] ?? key,
+			reports: n,
+			share: Math.round(n / LETTERS.reports * 100)
+		})).sort((a, b) => b.reports - a.reports);
+	}
+	var AP = {
+		"free cash flow": 20,
+		"adjusted EPS": 17,
+		"ROE/ROTE": 13,
+		"EBITDA": 12,
+		"net debt": 10,
+		"operating margin": 8,
+		"constant currency": 6,
+		"ROCE/ROACE": 6,
+		"organic growth": 5,
+		"gearing": 5,
+		"ROIC": 4,
+		"cash conversion": 4
+	};
+	/** Alternative performance measures used in highlights, KPI and MD&A pages. */
+	var apms = () => Object.entries(AP).map(([name, reports]) => ({
+		name,
+		reports
+	})).sort((a, b) => b.reports - a.reports);
+	var AC_AR = {
+		internal_audit: "المراجعة الداخلية",
+		risk_controls: "إدارة المخاطر والرقابة الداخلية",
+		tender_rotation: "طرح المراجعة وتدوير المراجع",
+		climate_reporting: "التقارير المناخية",
+		non_audit_fees: "أتعاب الخدمات غير المراجعة",
+		going_concern_viability: "الاستمرارية والجدوى",
+		cyber: "الأمن السيبراني",
+		significant_judgements: "الأحكام المحاسبية الهامة",
+		whistleblowing: "الإبلاغ عن المخالفات",
+		fair_balanced: "التقرير عادل ومتوازن ومفهوم",
+		external_auditor_effectiveness: "فاعلية المراجع الخارجي واستقلاله"
+	};
+	var AC = {
+		"internal_audit": 7,
+		"risk_controls": 7,
+		"tender_rotation": 6,
+		"climate_reporting": 5,
+		"non_audit_fees": 4,
+		"going_concern_viability": 4,
+		"cyber": 4,
+		"significant_judgements": 3,
+		"whistleblowing": 3,
+		"fair_balanced": 2,
+		"external_auditor_effectiveness": 1
+	};
+	var committeeTopics = () => Object.entries(AC).map(([key, reports]) => ({
+		key,
+		ar: AC_AR[key] ?? key,
+		reports
+	})).sort((a, b) => b.reports - a.reports);
+	var AE_AR = {
+		kam: "الأمور الرئيسية للمراجعة",
+		fraud: "الغش وتجاوز الإدارة للضوابط",
+		other_info: "المعلومات الأخرى",
+		icfr_opinion: "رأي في الرقابة الداخلية",
+		tenure: "مدة تكليف المراجع",
+		going_concern: "الاستنتاج بشأن الاستمرارية",
+		responsibilities: "مسؤوليات المراجع",
+		scope: "نطاق المراجعة",
+		climate: "المناخ في المراجعة",
+		materiality: "الأهمية النسبية بالأرقام"
+	};
+	var AE = {
+		"kam": 45,
+		"materiality": 6,
+		"scope": 10,
+		"other_info": 27,
+		"going_concern": 20,
+		"tenure": 23,
+		"icfr_opinion": 24,
+		"climate": 10,
+		"fraud": 42,
+		"responsibilities": 19
+	};
+	var auditorElements = () => Object.entries(AE).map(([key, reports]) => ({
+		key,
+		ar: AE_AR[key] ?? key,
+		reports
+	})).sort((a, b) => b.reports - a.reports);
+	var VIABILITY = {
+		horizons: {
+			"12 months from the date": 5,
+			"three-year period": 3,
+			"three-year horizon": 2,
+			"period of five years": 2,
+			"three-year assessment": 1,
+			"period of three years": 1,
+			"five-year period": 1
+		},
+		reports: [
+			"astrazeneca-2025",
+			"bhp-2025",
+			"bp-2025",
+			"hsbc-2025",
+			"infosys-2026",
+			"unilever-2025"
+		]
+	};
+	/** The integrated annual report the app writes: sections carried by at least `min` of the 49 reports, in their median order. */
+	function blueprint(min = 8) {
+		return [
+			"strategic",
+			"governance",
+			"financial"
+		].map((part) => ({
+			part,
+			ar: {
+				strategic: "التقرير الاستراتيجي",
+				governance: "الحوكمة",
+				financial: "القوائم المالية وتقرير المراجع",
+				other: "أخرى"
+			}[part],
+			sections: SECTIONS.filter((s) => s.part === part && s.reports >= min).sort((a, b) => a.pos - b.pos)
+		}));
+	}
+	var EXEMPLARS = [
+		{
+			section: "chairLetter",
+			ar: "رسالة رئيس مجلس الإدارة",
+			pattern: [
+				"تبدأ بتحية المساهمين ووصف السنة في جملة («كانت 2025 عاماً…»)",
+				"أبرز الإنجازات التشغيلية والمشاريع",
+				"النتائج الرئيسية بالأرقام مقارنة بالسنة السابقة",
+				"العائد للمساهمين: التوزيعات وسياستها",
+				"دور المجلس والحوكمة والتعيينات",
+				"البيئة الاقتصادية والجيوسياسية",
+				"الشكر للموظفين والمساهمين",
+				"نظرة إلى الأمام دون وعود"
+			],
+			sources: [
+				{
+					report: "aramco-2025",
+					page: 10008,
+					note: "رسالة الرئيس: المشاريع، صافي الدخل المعدل، التدفق الحر، التوزيعات"
+				},
+				{
+					report: "bp-2025",
+					page: 4710,
+					note: "رسالة الرئيس: التعيينات والسلامة والأداء"
+				},
+				{
+					report: "hsbc-2025",
+					page: 5957,
+					note: "رسالة الرئيس التنفيذي: شريط مؤشرات ثم الأهداف 2026–2028"
+				},
+				{
+					report: "jpmorgan-2025",
+					page: 1345,
+					note: "رسالة الرئيس التنفيذي المطولة للمساهمين"
+				}
+			]
+		},
+		{
+			section: "ceoReview",
+			ar: "مراجعة الرئيس التنفيذي",
+			pattern: [
+				"شريط مؤشرات أعلى الصفحة: القيمة ومقارنتها",
+				"الأداء التشغيلي مقابل الاستراتيجية",
+				"محاور الاستراتيجية وما تحقق في كل محور",
+				"الأهداف للسنوات القادمة",
+				"المخاطر والفرص"
+			],
+			sources: [{
+				report: "aramco-2025",
+				page: 10010,
+				note: "رسالة الرئيس وكبير الإداريين التنفيذيين: النمو ومحاور المنبع والمصب"
+			}, {
+				report: "hsbc-2025",
+				page: 5957,
+				note: "RoTE والأرباح قبل الضريبة ثم الأهداف"
+			}]
+		},
+		{
+			section: "principalRisks",
+			ar: "المخاطر الرئيسية",
+			pattern: [
+				"فقرة عن شهية المخاطر وإطار إدارتها ومسؤولية المجلس",
+				"جدول: الخطر | وصفه | كيف ندير الخطر | اتجاه الخطر (ارتفاع/ثبات/انخفاض)",
+				"ربط كل خطر بالاستراتيجية",
+				"المخاطر الناشئة"
+			],
+			sources: [
+				{
+					report: "unilever-2025",
+					page: 5134,
+					note: "شهية المخاطر والتنظيم"
+				},
+				{
+					report: "unilever-2025",
+					page: 5136,
+					note: "جدول الخطر ووصفه وإدارته ومستواه"
+				},
+				{
+					report: "aramco-2025",
+					page: 10081,
+					note: "عوامل المخاطر: فهم الخطر ثم أثره"
+				}
+			]
+		},
+		{
+			section: "viability",
+			ar: "بيان الجدوى والاستمرارية",
+			pattern: [
+				"فترة التقييم (غالباً ثلاث سنوات) ومبررها",
+				"التقييم في ثلاثة أجزاء: الفترة، التمويل والتسهيلات، سيناريوهات شديدة ولكن معقولة",
+				"جدول سيناريوهات مرتبطة بالمخاطر الرئيسية",
+				"الاستنتاج: توقع معقول بالاستمرار والوفاء بالالتزامات"
+			],
+			sources: [
+				{
+					report: "unilever-2025",
+					page: 5141,
+					note: "بيان الجدوى وسيناريوهات المخاطر المتعددة"
+				},
+				{
+					report: "gsk-2025",
+					page: 5792,
+					note: "الجدوى وأساس الاستمرارية والرقابة الداخلية"
+				},
+				{
+					report: "hsbc-2025",
+					page: 6158,
+					note: "لجنة المراجعة: الجدوى طويلة الأجل والاستمرارية"
+				}
+			]
+		},
+		{
+			section: "kams",
+			ar: "الأمور الرئيسية للمراجعة",
+			pattern: [
+				"عمودان: الأمر الرئيسي | كيف عالجته مراجعتنا",
+				"الأمر: متطلب المعيار، المبلغ الدفتري، لماذا هو حكم مهني، الافتراضات الرئيسية بنقاط",
+				"«شملت إجراءاتنا، من بين أمور أخرى، ما يلي:» ثم نقاط تبدأ بفعل (قيّمنا، اختبرنا، قارنّا، استعنا بخبراء، أجرينا تحليل حساسية)",
+				"الختام بتقييم كفاية الإفصاحات",
+				"الإحالة إلى الإيضاح ذي الصلة"
+			],
+			sources: [
+				{
+					report: "aramco-2025",
+					page: 10164,
+					note: "الشهرة وعلامة سابك: الافتراضات بنقاط وإجراءات الخبراء"
+				},
+				{
+					report: "unilever-2025",
+					page: 5219,
+					note: "الأمور الرئيسية"
+				},
+				{
+					report: "hsbc-2025",
+					page: 6206,
+					note: "الأمور الرئيسية لمراجع HSBC"
+				}
+			]
+		},
+		{
+			section: "materiality",
+			ar: "الأهمية النسبية ونطاق المراجعة",
+			pattern: [
+				"جدول: الأهمية العامة وكيف حُددت ومبرر الأساس",
+				"الأهمية التنفيذية وحد الإبلاغ للجنة",
+				"نطاق المراجعة والمكونات"
+			],
+			sources: [
+				{
+					report: "aramco-2025",
+					page: 10162,
+					note: "نظرة عامة، الأهمية، النطاق"
+				},
+				{
+					report: "unilever-2025",
+					page: 5216,
+					note: "الأهمية النسبية"
+				},
+				{
+					report: "bp-2025",
+					page: 4849,
+					note: "الأهمية النسبية"
+				}
+			]
+		},
+		{
+			section: "auditCommittee",
+			ar: "تقرير لجنة المراجعة",
+			pattern: [
+				"المسؤوليات",
+				"كيف أدت اللجنة مهامها",
+				"جدول الأمور الهامة: المجال | الأمر | الاستنتاج",
+				"المراجع الخارجي: الاستقلال والفاعلية والأتعاب",
+				"المراجعة الداخلية والإبلاغ عن المخالفات"
+			],
+			sources: [
+				{
+					report: "hsbc-2025",
+					page: 6153,
+					note: "تقرير لجنة المراجعة"
+				},
+				{
+					report: "astrazeneca-2025",
+					page: 5470,
+					note: "أعضاء اللجنة وجلسات المراجعة المعمقة"
+				},
+				{
+					report: "aramco-2025",
+					page: 10115,
+					note: "الدور الأساسي للجنة المراجعة"
+				},
+				{
+					report: "unilever-2025",
+					page: 5173,
+					note: "تقرير لجنة المراجعة: أولويات السنة"
+				}
+			]
+		},
+		{
+			section: "mdna",
+			ar: "تقرير الإدارة ومناقشتها وتحليلها",
+			pattern: [
+				"نظرة عامة على السنة",
+				"تحليل الإيرادات والتكاليف والهوامش بأسبابها",
+				"السيولة ومصادر التمويل والتدفقات",
+				"مقاييس الأداء البديلة مع مطابقتها بالمعايير",
+				"التقديرات المحاسبية الحرجة",
+				"التوقعات"
+			],
+			sources: [
+				{
+					report: "amazon-2024",
+					page: 1048,
+					note: "البند 7: تقرير الإدارة ومناقشتها وتحليلها"
+				},
+				{
+					report: "aramco-2025",
+					page: 10041,
+					note: "مقاييس غير معرفة في المعايير: المديونية والعائد على رأس المال"
+				},
+				{
+					report: "adobe-2024",
+					page: 484,
+					note: "التقديرات الحرجة"
+				}
+			]
+		},
+		{
+			section: "directorsResponsibilities",
+			ar: "إقرار مسؤوليات المجلس",
+			pattern: [
+				"المسؤولية عن إعداد القوائم وفق الإطار",
+				"اختيار السياسات وتطبيقها والتقديرات المعقولة",
+				"أساس الاستمرارية",
+				"الرقابة الداخلية ومنع الغش",
+				"إقرار بأن التقرير عادل ومتوازن"
+			],
+			sources: [{
+				report: "nestle-2025",
+				page: 2319,
+				note: "مسؤولية مجلس الإدارة"
+			}, {
+				report: "unilever-2025",
+				page: 5213,
+				note: "إقرار مسؤوليات أعضاء المجلس"
+			}]
+		}
+	];
+	function summary() {
+		return {
+			...CORPUS,
+			sections: SECTIONS.length,
+			kamProcedures: Object.keys(KP).length,
+			riskCategories: Object.keys(RC).length,
+			letters: LETTERS.reports,
+			auditorReports: 45
+		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/audit/corpus-replay-engine.ts
+	var corpus_replay_engine_exports = /* @__PURE__ */ __exportAll({
+		replayAll: () => replayAll,
+		replayCompany: () => replayCompany,
+		sectorPrior: () => sectorPrior,
+		typicalKamCount: () => typicalKamCount
+	});
+	var r2$3 = (x) => Math.round(x * 100) / 100;
+	/** How often the auditors of a sector reported each theme (share of that sector's reports with KAMs), leaving one report out. */
+	function sectorPrior(sector, exclude) {
+		if (!sector) return {};
+		const reports = [...new Set(KAMS.map((k) => k.report))].filter((id) => id !== exclude && corpusSector(id) === sector);
+		if (!reports.length) return {};
+		const out = {};
+		for (const t of Object.keys(THEMES)) {
+			const n = reports.filter((id) => KAMS.some((k) => k.report === id && k.theme === t)).length;
+			if (n) out[t] = r2$3(n / reports.length);
+		}
+		return out;
+	}
+	/** How many matters (distinct themes) auditors under a standard report — the mean over the bundle's reports, leaving one out. */
+	function typicalKamCount(standard, exclude) {
+		const ids = [...new Set(KAMS.map((k) => k.report))].filter((id) => id !== exclude && REPORT_STD.get(id) === standard);
+		if (!ids.length) return 3;
+		const mean = ids.reduce((s, id) => s + new Set(KAMS.filter((k) => k.report === id).map((k) => k.theme)).size, 0) / ids.length;
+		return Math.max(1, Math.round(mean));
+	}
+	var REPORT_STD = new Map(REPORTS.map((r) => [r.id, r.standard]));
+	var SECTOR_OF = /* @__PURE__ */ new Map();
+	function corpusSector(id) {
+		if (!SECTOR_OF.size) for (const c of corpusCompanies()) SECTOR_OF.set(c.id, c.sector);
+		return SECTOR_OF.get(id);
+	}
+	/** Replay the audit of one company of the bundle. */
+	function replayCompany(id, opts = {}) {
+		const t = companyTrialBalance(id);
+		if (!t) return null;
+		const c = t.company;
+		const review = reviewTrialBalance(parseTrialBalance(t.csv), {
+			framework: "IFRS",
+			currency: t.ctx.curSym,
+			overrides: t.overrides,
+			tax: t.ctx.taxKind
+		});
+		const prior = opts.prior === false ? {} : opts.prior === "smoothed" ? void 0 : sectorPrior(c.sector, c.id);
+		const kams = suggestKams({
+			fs: review.fs,
+			risks: review.risks,
+			materiality: review.materiality.overall,
+			currency: t.ctx.curSym,
+			periodEnd: c.yearEnd,
+			sector: c.sector,
+			max: opts.max ?? 3,
+			sectorPrior: prior,
+			exclude: c.id,
+			standard: REPORT_STD.get(c.id)
+		});
+		const rows = KAMS.filter((k) => k.report === id);
+		const themes = [...new Set(rows.map((k) => k.theme))];
+		const selected = new Set(kams.filter((k) => k.selected).map((k) => k.key)), ranked = new Set(kams.map((k) => k.key));
+		const actual = themes.map((th) => ({
+			theme: th,
+			ar: THEMES[th].ar,
+			titles: rows.filter((k) => k.theme === th).map((k) => k.title),
+			pages: rows.filter((k) => k.theme === th).map((k) => k.page),
+			found: selected.has(th) ? "selected" : ranked.has(th) ? "ranked" : "missed"
+		}));
+		const ours = kams.map((k) => ({
+			key: k.key,
+			title: k.title,
+			selected: k.selected,
+			score: k.score,
+			matched: themes.includes(k.key)
+		}));
+		const hit = actual.filter((a) => a.found === "selected").length, rankedHit = actual.filter((a) => a.found !== "missed").length;
+		const unit = c.figures.unit === "crore" ? 1e7 : 1e6;
+		const disc = MATERIALITY.find((m) => m.report === id) ?? null, oursMat = review.materiality.overall / 100;
+		return {
+			id,
+			company: c.company,
+			sector: c.sector,
+			auditor: c.auditor,
+			fy: c.fy,
+			unit: c.unitAr,
+			actual,
+			ours,
+			recall: themes.length ? r2$3(hit / themes.length) : null,
+			rankedRecall: themes.length ? r2$3(rankedHit / themes.length) : null,
+			precision: selected.size && themes.length ? r2$3(ours.filter((o) => o.selected && o.matched).length / selected.size) : null,
+			materiality: {
+				ours: oursMat,
+				benchmark: review.materiality.benchmarkAr,
+				disclosed: disc ? disc.overall / unit : null,
+				disclosedBasis: disc ? disc.basis : null,
+				ratio: disc ? r2$3(oursMat / (disc.overall / unit)) : null,
+				page: disc ? disc.page : null
+			},
+			requests: review.requests.length,
+			findings: review.findings.length,
+			balanced: t.balanced,
+			structure: structureOf(id)
+		};
+	}
+	var SQC_SECTIONS = new Set(blueprint().flatMap((p) => p.sections.map((x) => x.key)));
+	function structureOf(id) {
+		const theirs = [...new Map(reportStructure(id).map((x) => [x.key, x])).values()];
+		const covered = theirs.filter((x) => SQC_SECTIONS.has(x.key));
+		return {
+			theirs: theirs.length,
+			covered: covered.length,
+			share: theirs.length ? r2$3(covered.length / theirs.length) : null,
+			missing: theirs.filter((x) => !SQC_SECTIONS.has(x.key)).map((x) => x.ar)
+		};
+	}
+	/** The replay over every company, with the totals and the themes the engine missed most. */
+	function replayAll(opts = {}) {
+		const list = corpusCompanies().map((c) => replayCompany(c.id, opts)).filter(Boolean);
+		const withKams = list.filter((r) => r.actual.length);
+		const actualN = withKams.reduce((s, r) => s + r.actual.length, 0);
+		const sel = withKams.reduce((s, r) => s + r.actual.filter((a) => a.found === "selected").length, 0);
+		const rk = withKams.reduce((s, r) => s + r.actual.filter((a) => a.found !== "missed").length, 0);
+		const oursSel = withKams.reduce((s, r) => s + r.ours.filter((o) => o.selected).length, 0), oursHit = withKams.reduce((s, r) => s + r.ours.filter((o) => o.selected && o.matched).length, 0);
+		const missed = {};
+		for (const r of withKams) for (const a of r.actual) if (a.found === "missed") missed[a.theme] = (missed[a.theme] ?? 0) + 1;
+		const mat = list.filter((r) => r.materiality.ratio !== null);
+		const st = list.filter((r) => r.structure.theirs), stTheirs = st.reduce((a, r) => a + r.structure.theirs, 0), stCov = st.reduce((a, r) => a + r.structure.covered, 0);
+		return {
+			companies: list.length,
+			withKams: withKams.length,
+			kamThemes: actualN,
+			recall: actualN ? r2$3(sel / actualN) : 0,
+			rankedRecall: actualN ? r2$3(rk / actualN) : 0,
+			precision: oursSel ? r2$3(oursHit / oursSel) : 0,
+			anyMatch: withKams.filter((r) => r.actual.some((a) => a.found === "selected")).length,
+			missed: Object.entries(missed).map(([theme, n]) => ({
+				theme,
+				ar: THEMES[theme].ar,
+				n
+			})).sort((a, b) => b.n - a.n),
+			structure: stTheirs ? r2$3(stCov / stTheirs) : 0,
+			materiality: mat.map((r) => ({
+				id: r.id,
+				company: r.company,
+				ours: r.materiality.ours,
+				disclosed: r.materiality.disclosed,
+				ratio: r.materiality.ratio,
+				page: r.materiality.page
+			})),
+			list
+		};
+	}
 	//#endregion
 	//#region app/src/engine/fusion/audit/council-engine.ts
 	var council_engine_exports$1 = /* @__PURE__ */ __exportAll({
@@ -9847,73 +13557,6 @@ window.SKEngines = (function() {
 		}[severity];
 	}
 	//#endregion
-	//#region app/src/engine/fusion/audit/kam-engine.ts
-	var kam_engine_exports = /* @__PURE__ */ __exportAll({
-		removedKams: () => removedKams,
-		suggestKams: () => suggestKams
-	});
-	var clean$3 = (x) => x.replace(/[.،؛]\s*$/, "");
-	/** The revenue theme carries the presumed risk of fraud (ISA 240.26), so it ranks above an equal line risk. */
-	var FRAUD_THEMES = /* @__PURE__ */ new Set(["revenue-deductions", "revenue-recognition"]);
-	function suggestKams(input) {
-		const { fs, materiality } = input, cur = input.currency ?? "ر.س", money = (m) => formatMinor(m, { decimals: 0 }) + " " + cur;
-		const assets = Math.abs(fs.keys.assets.current) || 1;
-		const byKey = /* @__PURE__ */ new Map();
-		const prior = themePrior({
-			sector: input.sector,
-			standard: input.standard,
-			exclude: input.exclude
-		});
-		for (const r of input.risks) {
-			const line = fs.lines.find((l) => l.key === r.lineKey), amount = Math.abs(line?.current ?? r.amount ?? 0);
-			if (!amount) continue;
-			const pr = precedentsFor(r.lineKey, {
-				sector: input.sector,
-				limit: 3
-			}).filter((p) => !input.exclude || p.examples.some((e) => e.report !== input.exclude)).sort((a, b) => prior[b.theme] - prior[a.theme])[0] ?? null;
-			const key = pr ? pr.theme : r.lineKey, estimate = (r.parts?.estimate ?? 0) >= 15;
-			const p = pr ? prior[pr.theme] : 0;
-			const score = Math.min(100, Math.round(.45 * r.score + 60 * p + (amount >= materiality * 3 ? 6 : 0) + (estimate ? 4 : 0) + (FRAUD_THEMES.has(key) ? 5 : 0)));
-			const prev = byKey.get(key);
-			if (prev && prev.score >= score) {
-				if (!prev.lineKeys.includes(r.lineKey)) prev.lineKeys.push(r.lineKey);
-				continue;
-			}
-			const pct = Math.round(amount / assets * 1e3) / 10;
-			const description = (pr ? pr.why + " " : "") + "بلغ رصيد " + r.ar + " " + money(amount) + (input.periodEnd ? " كما في " + input.periodEnd : "") + " (" + pct + "% من مجموع الموجودات)" + (r.risk ? "، وتتركز مخاطره في " + clean$3(r.risk) : "") + (estimate ? "، ويتضمن تقديرات محاسبية تتطلب حكماً مهنياً مهماً (ISA 540)" : "") + ". لذلك عُدّ من الأمور ذات الأهمية القصوى في مراجعتنا.";
-			const steps = [...new Set([...r.procedures ?? [], ...pr ? pr.procedures : []].map(clean$3))].slice(0, 6);
-			const ev = input.evidence?.[r.lineKey];
-			const how = "شملت إجراءاتنا: " + steps.join("؛ ") + ".";
-			const observation = ev === "accepted" ? "لم تسفر إجراءاتنا عن تحفظات، وحصلنا على أدلة كافية ومناسبة تؤيد ما سجلته الإدارة." : ev === "partial" ? "ما زالت بعض الأدلة المؤيدة قيد الاستكمال؛ تُحدَّث النتيجة قبل إصدار التقرير." : "النتيجة معلقة حتى استكمال الأدلة المطلوبة من المنشأة.";
-			byKey.set(key, {
-				key,
-				title: pr ? THEMES[pr.theme].ar : r.ar,
-				description,
-				how,
-				observation,
-				refs: [...line?.standards ?? [], ...line?.note ? ["إيضاح " + line.note] : []],
-				lineKeys: [.../* @__PURE__ */ new Set([...prev?.lineKeys ?? [], r.lineKey])],
-				amount,
-				pctAssets: pct,
-				score,
-				selected: false,
-				trend: input.priorKeys ? input.priorKeys.includes(key) ? "same" : "new" : null,
-				examples: pr ? pr.examples.filter((e) => e.report !== input.exclude) : []
-			});
-		}
-		const out = [...byKey.values()].sort((a, b) => b.score - a.score);
-		const max = input.max ?? (input.standard === "PCAOB" ? 2 : 3);
-		let n = 0;
-		for (const k of out) if (n < max && k.score >= 50 && k.amount >= materiality) {
-			k.selected = true;
-			n++;
-		}
-		if (!n && out.length) out[0].selected = true;
-		return out.slice(0, 6);
-	}
-	/** Matters reported last year and not this year — the report says why they no longer are. */
-	var removedKams = (priorKeys, current) => priorKeys.filter((k) => !current.some((c) => c.selected && c.key === k)).map((k) => THEMES[k]?.ar ?? k);
-	//#endregion
 	//#region app/src/engine/fusion/audit/materiality-engine.ts
 	var materiality_engine_exports = /* @__PURE__ */ __exportAll({
 		PLAN_BENCHMARKS: () => PLAN_BENCHMARKS,
@@ -10038,6 +13681,399 @@ window.SKEngines = (function() {
 			auto: !i.benchmark
 		};
 	}
+	//#endregion
+	//#region app/src/engine/fusion/audit/opening-requests-engine.ts
+	var opening_requests_engine_exports = /* @__PURE__ */ __exportAll({
+		PROC_DOCS: () => PROC_DOCS,
+		THEME_PROCS: () => THEME_PROCS,
+		openingRequests: () => openingRequests,
+		procedureLeague: () => procedureLeague,
+		themeOf: () => themeOf
+	});
+	var THEME_PROCS = {
+		"tax-uncertainty": {
+			reports: 11,
+			procs: {
+				test_controls: 7,
+				confirmations: 4,
+				legal_letters: 4,
+				forecasts: 2,
+				retrospective: 1,
+				specialists: 1,
+				compare_history: 1,
+				data_completeness: 1
+			}
+		},
+		"credit-losses": {
+			reports: 11,
+			procs: {
+				forecasts: 8,
+				test_controls: 3,
+				recalculate: 2,
+				evaluate_assumptions: 1,
+				specialists: 1
+			}
+		},
+		"impairment-intangibles": {
+			reports: 10,
+			procs: {
+				forecasts: 9,
+				discount_rates: 7,
+				specialists: 6,
+				recalculate: 4,
+				third_party: 4,
+				sensitivity: 3,
+				independent_estimate: 2,
+				test_controls: 2,
+				disclosures: 2,
+				compare_history: 2,
+				journal_entries: 1,
+				retrospective: 1
+			}
+		},
+		"provisions-litigation": {
+			reports: 9,
+			procs: {
+				test_controls: 6,
+				legal_letters: 5,
+				forecasts: 5,
+				discount_rates: 4,
+				disclosures: 3,
+				inspect_contracts: 2,
+				confirmations: 2,
+				data_completeness: 2,
+				independent_estimate: 2,
+				specialists: 2,
+				it_systems: 2,
+				evaluate_assumptions: 1,
+				recalculate: 1,
+				compare_history: 1
+			}
+		},
+		"revenue-recognition": {
+			reports: 8,
+			procs: {
+				discount_rates: 4,
+				specialists: 4,
+				forecasts: 4,
+				test_controls: 3,
+				it_systems: 3,
+				cut_off: 2,
+				compare_history: 2,
+				data_completeness: 1,
+				disclosures: 1,
+				sensitivity: 1,
+				recalculate: 1,
+				journal_entries: 1
+			}
+		},
+		"fair-value": {
+			reports: 8,
+			procs: {
+				specialists: 5,
+				test_controls: 4,
+				forecasts: 3,
+				independent_estimate: 2,
+				recalculate: 1,
+				journal_entries: 1,
+				third_party: 1,
+				confirmations: 1,
+				discount_rates: 1,
+				it_systems: 1
+			}
+		},
+		"revenue-deductions": {
+			reports: 8,
+			procs: {
+				independent_estimate: 5,
+				third_party: 3,
+				journal_entries: 2,
+				forecasts: 2,
+				retrospective: 2,
+				test_controls: 2,
+				recalculate: 1,
+				specialists: 1,
+				sensitivity: 1,
+				discount_rates: 1,
+				disclosures: 1,
+				data_completeness: 1,
+				compare_history: 1,
+				legal_letters: 1
+			}
+		},
+		"impairment-assets": {
+			reports: 8,
+			procs: {
+				forecasts: 6,
+				test_controls: 5,
+				discount_rates: 5,
+				sensitivity: 2,
+				specialists: 2,
+				recalculate: 2,
+				third_party: 2,
+				subsequent: 1,
+				compare_history: 1,
+				disclosures: 1,
+				data_completeness: 1
+			}
+		},
+		"complex-transactions": {
+			reports: 3,
+			procs: {
+				data_completeness: 1,
+				discount_rates: 1,
+				specialists: 1,
+				recalculate: 1,
+				inspect_contracts: 1
+			}
+		},
+		"parent-investments": {
+			reports: 3,
+			procs: {
+				sensitivity: 2,
+				third_party: 2,
+				discount_rates: 2,
+				test_controls: 2,
+				inspect_contracts: 1,
+				component_auditors: 1,
+				disclosures: 1,
+				data_completeness: 1,
+				independent_estimate: 1,
+				specialists: 1,
+				recalculate: 1,
+				forecasts: 1
+			}
+		},
+		"actuarial": {
+			reports: 2,
+			procs: {
+				independent_estimate: 2,
+				specialists: 1,
+				compare_history: 1,
+				test_controls: 1,
+				disclosures: 1,
+				data_completeness: 1,
+				site_visits: 1,
+				discount_rates: 1,
+				component_auditors: 1
+			}
+		},
+		"it-controls": {
+			reports: 2,
+			procs: {
+				it_systems: 2,
+				test_controls: 1,
+				specialists: 1
+			}
+		},
+		"inventory": {
+			reports: 1,
+			procs: {
+				site_visits: 1,
+				it_systems: 1
+			}
+		},
+		"climate": {
+			reports: 1,
+			procs: {
+				discount_rates: 1,
+				forecasts: 1
+			}
+		},
+		"fraud-override": {
+			reports: 1,
+			procs: {
+				sensitivity: 1,
+				discount_rates: 1,
+				forecasts: 1
+			}
+		},
+		"related-parties": {
+			reports: 1,
+			procs: {
+				confirmations: 1,
+				inspect_contracts: 1,
+				disclosures: 1
+			}
+		}
+	};
+	var PROC_DOCS = {
+		forecasts: {
+			ar: "اختبار التوقعات وخطط الأعمال",
+			standard: "ISA 540",
+			docs: [["الموازنة وخطة الأعمال المعتمدة من مجلس الإدارة وتوقعات التدفقات النقدية", "اختبار الافتراضات المستقبلية ومقارنتها بالأداء الفعلي"]]
+		},
+		discount_rates: {
+			ar: "معدلات الخصم والنمو",
+			standard: "ISA 540",
+			docs: [["احتساب معدل الخصم ومعدل النمو طويل الأجل ومصادر مدخلاتهما", "مقارنتها بنطاق مستقل من بيانات السوق"]]
+		},
+		specialists: {
+			ar: "الاستعانة بالخبراء",
+			standard: "ISA 500 / ISA 620",
+			docs: [["تقارير خبراء الإدارة (التقييم، الاكتواري، الضريبي) وخطابات تكليفهم", "تقييم كفاءة الخبير وموضوعيته والاعتماد على عمله"]]
+		},
+		test_controls: {
+			ar: "اختبار الضوابط",
+			standard: "ISA 315 / ISA 330",
+			docs: [["توثيق الضوابط الرئيسية على العملية (السياسات، مصفوفة الصلاحيات، أدلة الاعتماد)", "اختبار تصميم الضوابط وتطبيقها وفاعلية تشغيلها"]]
+		},
+		confirmations: {
+			ar: "المصادقات الخارجية",
+			standard: "ISA 505",
+			docs: [["بيانات الأطراف للمصادقة (العملاء، الموردون، البنوك، الجهات الضريبية) وتفويض الإدارة بالمصادقة", "الحصول على أدلة خارجية مباشرة"]]
+		},
+		legal_letters: {
+			ar: "خطابات المستشارين القانونيين",
+			standard: "ISA 501",
+			docs: [["قائمة القضايا والمطالبات والمستشارين القانونيين، ومراسلات الجهات الرقابية", "تقييم الالتزامات المحتملة والمخصصات (IAS 37)"]]
+		},
+		recalculate: {
+			ar: "إعادة الاحتساب",
+			standard: "ISA 500",
+			docs: [["جداول احتساب الإدارة للتقدير (ملف العمل بالمعادلات)", "إعادة الاحتساب واختبار الدقة الحسابية"]]
+		},
+		inspect_contracts: {
+			ar: "فحص العقود والمحاضر",
+			standard: "ISA 500",
+			docs: [["العقود والاتفاقيات الجوهرية ومحاضر مجلس الإدارة واللجان للسنة وما بعدها", "فهم الشروط المؤثرة في الاعتراف والقياس"]]
+		},
+		independent_estimate: {
+			ar: "التقدير المستقل",
+			standard: "ISA 540",
+			docs: [["البيانات التاريخية التي بُني عليها التقدير (المطالبات، الاستخدام، المرتجعات)", "بناء توقع مستقل ومقارنته بتقدير الإدارة"]]
+		},
+		third_party: {
+			ar: "مصادر خارجية",
+			standard: "ISA 500",
+			docs: [["مصادر البيانات الخارجية المستخدمة (أسعار السوق، المؤشرات، تقارير الصناعة)", "مقارنة المدخلات بمصادر مستقلة"]]
+		},
+		sensitivity: {
+			ar: "تحليل الحساسية",
+			standard: "ISA 540",
+			docs: [["تحليلات الحساسية التي أعدتها الإدارة للافتراضات الرئيسية", "تقييم أثر التغيرات المعقولة الممكنة وكفاية الإفصاح"]]
+		},
+		compare_history: {
+			ar: "المقارنة بالنتائج الفعلية",
+			standard: "ISA 540",
+			docs: [["تقديرات السنة السابقة وما تحقق منها فعلاً", "تقييم دقة تقديرات الإدارة السابقة"]]
+		},
+		retrospective: {
+			ar: "المراجعة بأثر رجعي",
+			standard: "ISA 540",
+			docs: [["تسوية مخصصات السنة السابقة مع ما سُدد أو استُخدم فعلاً", "اكتشاف التحيز في التقديرات"]]
+		},
+		data_completeness: {
+			ar: "اكتمال البيانات ودقتها",
+			standard: "ISA 500",
+			docs: [["البيانات التفصيلية الأساسية للتقدير مطابقةً للأستاذ العام", "اختبار اكتمال ودقة المدخلات"]]
+		},
+		disclosures: {
+			ar: "كفاية الإفصاحات",
+			standard: "ISA 700",
+			docs: [["مسودة الإيضاحات المتعلقة بالبند وافتراضاته وحساسيته", "تقييم كفاية الإفصاح"]]
+		},
+		journal_entries: {
+			ar: "قيود اليومية",
+			standard: "ISA 240",
+			docs: [["تصدير كامل لقيود اليومية للسنة من النظام (المُدخل، المعتمد، التاريخ، الوصف)", "اختبار القيود اليدوية وغير المعتادة"]]
+		},
+		cut_off: {
+			ar: "القطع",
+			standard: "ISA 500",
+			docs: [["فواتير ومستندات الشحن والاستلام قبل نهاية السنة وبعدها بأسبوعين", "اختبار قطع المعاملات"]]
+		},
+		site_visits: {
+			ar: "الجرد وزيارة المواقع",
+			standard: "ISA 501",
+			docs: [["تعليمات الجرد وجدوله وقوائم الجرد الموقعة", "حضور الجرد وإثبات الوجود"]]
+		},
+		subsequent: {
+			ar: "الأحداث والمتحصلات اللاحقة",
+			standard: "ISA 560",
+			docs: [["كشوف التحصيلات والمدفوعات والتسويات اللاحقة لنهاية السنة", "إثبات الوجود والتقييم بالأحداث اللاحقة"]]
+		},
+		it_systems: {
+			ar: "أنظمة المعلومات",
+			standard: "ISA 315",
+			docs: [["قائمة الأنظمة المالية ومستخدميها وصلاحياتهم وسجل التغييرات", "اختبار الضوابط العامة لتقنية المعلومات"]]
+		},
+		evaluate_assumptions: {
+			ar: "معقولية الافتراضات",
+			standard: "ISA 540",
+			docs: [["مذكرة الإدارة بالافتراضات الرئيسية ومبرراتها", "تقييم معقولية الافتراضات"]]
+		},
+		component_auditors: {
+			ar: "مراجعو المكونات",
+			standard: "ISA 600",
+			docs: [["قائمة الشركات التابعة ومراجعيها وحزم التقرير الخاصة بها", "توجيه أعمال مراجعي المكونات ومراجعتها"]]
+		}
+	};
+	var REPORT_NAME = new Map(REPORTS.map((r) => [r.id, r.company]));
+	var THEME_LINES = (t) => THEMES[t]?.lines ?? [];
+	/** The first-round requests for the engagement's matters: per theme, the procedures most auditors relied on (at least `minShare` of them). */
+	function openingRequests(themes, opts = {}) {
+		const out = [], seen = /* @__PURE__ */ new Set(), min = opts.minShare ?? .25, per = opts.perTheme ?? 3;
+		for (const t of themes) {
+			const tp = THEME_PROCS[t];
+			if (!tp) continue;
+			const ranked = Object.entries(tp.procs).map(([k, n]) => ({
+				k,
+				n,
+				share: n / tp.reports
+			})).filter((x) => x.share >= min).sort((a, b) => b.n - a.n).slice(0, per);
+			const precedents = KAMS.filter((k) => k.theme === t).slice(0, 3).map((k) => ({
+				company: REPORT_NAME.get(k.report) ?? k.report,
+				page: k.page
+			}));
+			for (const { k, n, share } of ranked) for (const [title, purpose] of PROC_DOCS[k].docs) {
+				const key = title + "|" + t;
+				if (seen.has(key)) continue;
+				seen.add(key);
+				const themeAr = THEMES[t]?.ar ?? t;
+				out.push({
+					id: "PBC-W-" + t + "-" + k,
+					title: title + " — " + themeAr,
+					purpose: purpose + " (" + n + " من " + tp.reports + " مراجعين في التقارير العالمية)",
+					lineKey: opts.lineOf?.(t) ?? THEME_LINES(t)[0],
+					accounts: [],
+					standard: PROC_DOCS[k].standard,
+					priority: share >= .5 ? "عالية" : "متوسطة",
+					source: "engine",
+					proc: k,
+					procAr: PROC_DOCS[k].ar,
+					theme: t,
+					themeAr,
+					share: Math.round(share * 100) / 100,
+					used: n,
+					of: tp.reports,
+					precedents
+				});
+			}
+		}
+		return out.sort((a, b) => b.share - a.share);
+	}
+	/** What auditors rely on across all matters — the procedures ranked by how many matter themes they serve and how often. */
+	function procedureLeague() {
+		const agg = /* @__PURE__ */ new Map();
+		for (const tp of Object.values(THEME_PROCS)) for (const [k, n] of Object.entries(tp.procs)) {
+			const a = agg.get(k) ?? {
+				n: 0,
+				themes: 0
+			};
+			a.n += n;
+			a.themes++;
+			agg.set(k, a);
+		}
+		return [...agg.entries()].map(([k, v]) => ({
+			key: k,
+			ar: PROC_DOCS[k].ar,
+			matters: v.n,
+			themes: v.themes,
+			docs: PROC_DOCS[k].docs.map((d) => d[0])
+		})).sort((a, b) => b.matters - a.matters);
+	}
+	var themeOf = (t) => t in THEMES ? t : null;
 	//#endregion
 	//#region app/src/engine/fusion/audit/pbc-engine.ts
 	var pbc_engine_exports = /* @__PURE__ */ __exportAll({
@@ -14071,1994 +18107,6 @@ window.SKEngines = (function() {
 		return name.trim().replace(/[\\/:*?"<>|]+/g, "-").replace(/\s+/g, "-").replace(/-+/g, "-") || "export";
 	}
 	//#endregion
-	//#region app/src/engine/fusion/reports/global-corpus-engine.ts
-	var global_corpus_engine_exports = /* @__PURE__ */ __exportAll({
-		AUDITOR_REPORTS_FOUND: () => 45,
-		CORPUS: () => CORPUS,
-		EXEMPLARS: () => EXEMPLARS,
-		LETTERS: () => LETTERS,
-		SECTIONS: () => SECTIONS,
-		VIABILITY: () => VIABILITY,
-		apms: () => apms,
-		auditorElements: () => auditorElements,
-		blueprint: () => blueprint,
-		committeeTopics: () => committeeTopics,
-		kamProcedures: () => kamProcedures,
-		letterTopics: () => letterTopics,
-		reportIds: () => reportIds,
-		reportList: () => reportList,
-		reportStructure: () => reportStructure,
-		riskCatalogue: () => riskCatalogue,
-		summary: () => summary
-	});
-	var CORPUS = {
-		file: "global_financial_and_audit_research_bundle_extended_verified.pdf",
-		pages: 12506,
-		reports: 49,
-		pagesClassified: 12505,
-		sectionTypes: 54
-	};
-	/** Every section type, in the median order it appears (pos = position through the report, 0 = first page, 1 = last). */
-	var SECTIONS = [
-		{
-			key: "chair_letter",
-			ar: "رسالة رئيس مجلس الإدارة",
-			part: "strategic",
-			reports: 25,
-			pos: .02,
-			examples: [
-				["amazon-2023", 3],
-				["jpmorgan-2023", 551],
-				["amazon-2024", 1018],
-				["pg-2026", 2041]
-			]
-		},
-		{
-			key: "highlights",
-			ar: "العام في لمحة",
-			part: "strategic",
-			reports: 27,
-			pos: .02,
-			examples: [
-				["cisco-2024", 217],
-				["jpmorgan-2023", 549],
-				["jpmorgan-2025", 1343],
-				["bofa-2025", 1733]
-			]
-		},
-		{
-			key: "mdna",
-			ar: "تقرير الإدارة ومناقشتها وتحليلها",
-			part: "strategic",
-			reports: 39,
-			pos: .06,
-			examples: [
-				["amazon-2023", 15],
-				["apple-2024", 96],
-				["cisco-2024", 235],
-				["walmart-2023", 351]
-			]
-		},
-		{
-			key: "strategy",
-			ar: "الاستراتيجية",
-			part: "strategic",
-			reports: 26,
-			pos: .06,
-			examples: [
-				["cisco-2024", 222],
-				["adobe-2024", 449],
-				["jpmorgan-2023", 611],
-				["berkshire-2025", 1275]
-			]
-		},
-		{
-			key: "ceo_letter",
-			ar: "رسالة الرئيس التنفيذي",
-			part: "strategic",
-			reports: 13,
-			pos: .07,
-			examples: [
-				["amazon-2023", 11],
-				["cisco-2024", 348],
-				["amazon-2024", 1026],
-				["berkshire-2025", 1190]
-			]
-		},
-		{
-			key: "sustainability",
-			ar: "الاستدامة والمناخ",
-			part: "strategic",
-			reports: 29,
-			pos: .07,
-			examples: [
-				["cisco-2024", 216],
-				["walmart-2023", 353],
-				["bofa-2025", 1735],
-				["nestle-2025", 2292]
-			]
-		},
-		{
-			key: "reserves_tech",
-			ar: "الاحتياطيات والتقارير الفنية",
-			part: "other",
-			reports: 2,
-			pos: .07,
-			examples: [["totalenergies-2024", 6406], ["bhp-2025", 10860]]
-		},
-		{
-			key: "principal_risks",
-			ar: "المخاطر الرئيسية",
-			part: "strategic",
-			reports: 35,
-			pos: .08,
-			examples: [
-				["amazon-2023", 15],
-				["apple-2024", 96],
-				["cisco-2024", 234],
-				["walmart-2023", 351]
-			]
-		},
-		{
-			key: "people",
-			ar: "الموظفون والسلامة",
-			part: "strategic",
-			reports: 35,
-			pos: .11,
-			examples: [
-				["cisco-2024", 223],
-				["adobe-2024", 465],
-				["jpmorgan-2023", 554],
-				["jpmorgan-2025", 1348]
-			]
-		},
-		{
-			key: "governance",
-			ar: "حوكمة الشركات",
-			part: "governance",
-			reports: 48,
-			pos: .12,
-			examples: [
-				["amazon-2023", 18],
-				["apple-2024", 144],
-				["cisco-2024", 224],
-				["walmart-2023", 362]
-			]
-		},
-		{
-			key: "provisions_note",
-			ar: "المخصصات والالتزامات المحتملة",
-			part: "financial",
-			reports: 44,
-			pos: .14,
-			examples: [
-				["amazon-2023", 15],
-				["apple-2024", 96],
-				["cisco-2024", 325],
-				["walmart-2023", 351]
-			]
-		},
-		{
-			key: "market",
-			ar: "السوق وبيئة التشغيل",
-			part: "strategic",
-			reports: 15,
-			pos: .14,
-			examples: [
-				["cisco-2024", 218],
-				["adobe-2024", 449],
-				["jpmorgan-2023", 675],
-				["jpmorgan-2025", 1461]
-			]
-		},
-		{
-			key: "business_model",
-			ar: "نموذج الأعمال وخلق القيمة",
-			part: "strategic",
-			reports: 25,
-			pos: .14,
-			examples: [
-				["adobe-2024", 454],
-				["jpmorgan-2025", 1409],
-				["nestle-2025", 2261],
-				["roche-2025", 2502]
-			]
-		},
-		{
-			key: "kpis",
-			ar: "مؤشرات الأداء الرئيسية",
-			part: "strategic",
-			reports: 12,
-			pos: .14,
-			examples: [
-				["ubs-2025", 3013],
-				["mercedes-2025", 3285],
-				["volkswagen-2025", 3652],
-				["telekom-2025", 4332]
-			]
-		},
-		{
-			key: "outlook",
-			ar: "التوقعات",
-			part: "strategic",
-			reports: 18,
-			pos: .15,
-			examples: [
-				["jpmorgan-2023", 841],
-				["jpmorgan-2025", 1423],
-				["ubs-2025", 2839],
-				["mercedes-2025", 3321]
-			]
-		},
-		{
-			key: "segment_review",
-			ar: "أداء القطاعات",
-			part: "strategic",
-			reports: 21,
-			pos: .2,
-			examples: [
-				["cisco-2024", 267],
-				["jpmorgan-2023", 640],
-				["berkshire-2025", 1244],
-				["jpmorgan-2025", 1435]
-			]
-		},
-		{
-			key: "capital_banking",
-			ar: "كفاية رأس المال (البنوك)",
-			part: "strategic",
-			reports: 12,
-			pos: .22,
-			examples: [
-				["jpmorgan-2023", 580],
-				["jpmorgan-2025", 1354],
-				["bofa-2025", 1752],
-				["roche-2025", 2488]
-			]
-		},
-		{
-			key: "remuneration",
-			ar: "تقرير المكافآت",
-			part: "governance",
-			reports: 23,
-			pos: .24,
-			examples: [
-				["cisco-2024", 225],
-				["pepsico-2025", 1942],
-				["homedepot-2025", 2127],
-				["roche-2025", 2510]
-			]
-		},
-		{
-			key: "non_gaap",
-			ar: "مقاييس الأداء البديلة",
-			part: "strategic",
-			reports: 21,
-			pos: .25,
-			examples: [
-				["walmart-2023", 386],
-				["jpmorgan-2023", 647],
-				["jpmorgan-2025", 1432],
-				["bofa-2025", 1742]
-			]
-		},
-		{
-			key: "liquidity",
-			ar: "السيولة ومصادر التمويل",
-			part: "strategic",
-			reports: 17,
-			pos: .26,
-			examples: [
-				["amazon-2023", 45],
-				["cisco-2024", 279],
-				["jpmorgan-2023", 687],
-				["apple-2020", 939]
-			]
-		},
-		{
-			key: "risk_management",
-			ar: "إطار إدارة المخاطر",
-			part: "strategic",
-			reports: 22,
-			pos: .27,
-			examples: [
-				["adobe-2024", 481],
-				["jpmorgan-2023", 688],
-				["jpmorgan-2025", 1517],
-				["bofa-2025", 1750]
-			]
-		},
-		{
-			key: "balance_sheet",
-			ar: "قائمة المركز المالي",
-			part: "financial",
-			reports: 45,
-			pos: .28,
-			examples: [
-				["amazon-2023", 48],
-				["apple-2024", 124],
-				["cisco-2024", 279],
-				["walmart-2023", 398]
-			]
-		},
-		{
-			key: "viability",
-			ar: "بيان الجدوى طويلة الأجل",
-			part: "strategic",
-			reports: 4,
-			pos: .28,
-			examples: [
-				["unilever-2025", 5141],
-				["astrazeneca-2025", 5597],
-				["gsk-2025", 5804],
-				["hsbc-2025", 5982]
-			]
-		},
-		{
-			key: "intangibles_note",
-			ar: "إيضاح الشهرة والأصول غير الملموسة",
-			part: "financial",
-			reports: 42,
-			pos: .3,
-			examples: [
-				["amazon-2023", 53],
-				["cisco-2024", 254],
-				["walmart-2023", 404],
-				["adobe-2024", 479]
-			]
-		},
-		{
-			key: "tax_note",
-			ar: "إيضاح الضرائب والزكاة",
-			part: "financial",
-			reports: 45,
-			pos: .31,
-			examples: [
-				["amazon-2023", 49],
-				["apple-2024", 121],
-				["cisco-2024", 257],
-				["walmart-2023", 389]
-			]
-		},
-		{
-			key: "audit_committee",
-			ar: "تقرير لجنة المراجعة",
-			part: "governance",
-			reports: 8,
-			pos: .32,
-			examples: [
-				["bp-2025", 4790],
-				["unilever-2025", 5152],
-				["astrazeneca-2025", 5596],
-				["gsk-2025", 5753]
-			]
-		},
-		{
-			key: "capital_mgmt",
-			ar: "إدارة رأس المال",
-			part: "financial",
-			reports: 17,
-			pos: .33,
-			examples: [
-				["jpmorgan-2023", 676],
-				["jpmorgan-2025", 1462],
-				["pepsico-2025", 1836],
-				["homedepot-2025", 2054]
-			]
-		},
-		{
-			key: "income_statement",
-			ar: "قائمة الدخل",
-			part: "financial",
-			reports: 42,
-			pos: .34,
-			examples: [
-				["amazon-2023", 48],
-				["apple-2024", 124],
-				["cisco-2024", 293],
-				["walmart-2023", 398]
-			]
-		},
-		{
-			key: "ppe_note",
-			ar: "إيضاح الممتلكات والمعدات",
-			part: "financial",
-			reports: 30,
-			pos: .36,
-			examples: [
-				["apple-2024", 135],
-				["apple-2020", 939],
-				["apple-2023", 1149],
-				["berkshire-2025", 1269]
-			]
-		},
-		{
-			key: "employee_benefits",
-			ar: "منافع الموظفين",
-			part: "financial",
-			reports: 42,
-			pos: .37,
-			examples: [
-				["apple-2024", 128],
-				["cisco-2024", 277],
-				["walmart-2023", 413],
-				["adobe-2024", 533]
-			]
-		},
-		{
-			key: "estimates",
-			ar: "الأحكام والتقديرات",
-			part: "financial",
-			reports: 20,
-			pos: .39,
-			examples: [
-				["cisco-2024", 268],
-				["adobe-2024", 484],
-				["jpmorgan-2023", 634],
-				["apple-2023", 1135]
-			]
-		},
-		{
-			key: "shareholder_info",
-			ar: "معلومات المساهمين",
-			part: "other",
-			reports: 9,
-			pos: .39,
-			examples: [
-				["pepsico-2025", 1960],
-				["volkswagen-2025", 3756],
-				["bp-2025", 5070],
-				["unilever-2025", 5212]
-			]
-		},
-		{
-			key: "materiality",
-			ar: "الأهمية النسبية في تقرير المراجع",
-			part: "financial",
-			reports: 4,
-			pos: .4,
-			examples: [
-				["bp-2025", 4849],
-				["unilever-2025", 5216],
-				["gsk-2025", 5800],
-				["aramco-2025", 10162]
-			]
-		},
-		{
-			key: "eps",
-			ar: "ربحية السهم",
-			part: "financial",
-			reports: 30,
-			pos: .41,
-			examples: [
-				["jpmorgan-2023", 558],
-				["apple-2020", 951],
-				["jpmorgan-2025", 1349],
-				["pepsico-2025", 1820]
-			]
-		},
-		{
-			key: "credit_risk",
-			ar: "مخاطر الائتمان",
-			part: "financial",
-			reports: 36,
-			pos: .42,
-			examples: [
-				["cisco-2024", 315],
-				["adobe-2024", 519],
-				["jpmorgan-2023", 683],
-				["apple-2020", 955]
-			]
-		},
-		{
-			key: "dividends",
-			ar: "التوزيعات",
-			part: "financial",
-			reports: 25,
-			pos: .42,
-			examples: [
-				["cisco-2024", 328],
-				["jpmorgan-2023", 868],
-				["jpmorgan-2025", 1659],
-				["pepsico-2025", 1820]
-			]
-		},
-		{
-			key: "leases_note",
-			ar: "إيضاح الإيجارات",
-			part: "financial",
-			reports: 39,
-			pos: .46,
-			examples: [
-				["amazon-2023", 42],
-				["apple-2024", 138],
-				["cisco-2024", 284],
-				["walmart-2023", 378]
-			]
-		},
-		{
-			key: "cash_flow",
-			ar: "قائمة التدفقات النقدية",
-			part: "financial",
-			reports: 41,
-			pos: .47,
-			examples: [
-				["amazon-2023", 43],
-				["apple-2024", 129],
-				["cisco-2024", 295],
-				["walmart-2023", 406]
-			]
-		},
-		{
-			key: "market_risk",
-			ar: "مخاطر السوق",
-			part: "financial",
-			reports: 40,
-			pos: .47,
-			examples: [
-				["amazon-2023", 45],
-				["apple-2024", 123],
-				["cisco-2024", 285],
-				["adobe-2024", 497]
-			]
-		},
-		{
-			key: "fin_instruments",
-			ar: "الأدوات المالية والقيمة العادلة",
-			part: "financial",
-			reports: 43,
-			pos: .47,
-			examples: [
-				["amazon-2023", 60],
-				["cisco-2024", 300],
-				["adobe-2024", 510],
-				["jpmorgan-2023", 713]
-			]
-		},
-		{
-			key: "auditor_report",
-			ar: "تقرير المراجع المستقل",
-			part: "financial",
-			reports: 35,
-			pos: .51,
-			examples: [
-				["amazon-2023", 48],
-				["apple-2024", 144],
-				["cisco-2024", 287],
-				["walmart-2023", 398]
-			]
-		},
-		{
-			key: "notes",
-			ar: "الإيضاحات المتممة",
-			part: "financial",
-			reports: 33,
-			pos: .51,
-			examples: [
-				["amazon-2023", 55],
-				["apple-2024", 130],
-				["cisco-2024", 297],
-				["walmart-2023", 407]
-			]
-		},
-		{
-			key: "related_parties",
-			ar: "الأطراف ذات العلاقة",
-			part: "financial",
-			reports: 24,
-			pos: .51,
-			examples: [
-				["nestle-2025", 2291],
-				["roche-2025", 2486],
-				["novartis-2025", 2679],
-				["ubs-2025", 3158]
-			]
-		},
-		{
-			key: "equity_statement",
-			ar: "قائمة التغيرات في حقوق الملكية",
-			part: "financial",
-			reports: 31,
-			pos: .53,
-			examples: [
-				["amazon-2023", 54],
-				["apple-2024", 124],
-				["walmart-2023", 405],
-				["adobe-2024", 503]
-			]
-		},
-		{
-			key: "revenue_note",
-			ar: "إيضاح الإيرادات",
-			part: "financial",
-			reports: 17,
-			pos: .54,
-			examples: [
-				["cisco-2024", 301],
-				["adobe-2024", 513],
-				["pepsico-2025", 1896],
-				["pg-2026", 1994]
-			]
-		},
-		{
-			key: "liquidity_risk",
-			ar: "مخاطر السيولة",
-			part: "financial",
-			reports: 27,
-			pos: .54,
-			examples: [
-				["jpmorgan-2023", 645],
-				["apple-2023", 1147],
-				["jpmorgan-2025", 1430],
-				["bofa-2025", 1784]
-			]
-		},
-		{
-			key: "going_concern",
-			ar: "الاستمرارية",
-			part: "strategic",
-			reports: 10,
-			pos: .54,
-			examples: [
-				["ubs-2025", 2937],
-				["allianz-2025", 3238],
-				["telekom-2025", 4688],
-				["unilever-2025", 5218]
-			]
-		},
-		{
-			key: "icfr",
-			ar: "الرقابة الداخلية على التقرير المالي",
-			part: "governance",
-			reports: 26,
-			pos: .55,
-			examples: [
-				["amazon-2023", 84],
-				["apple-2024", 146],
-				["cisco-2024", 289],
-				["walmart-2023", 398]
-			]
-		},
-		{
-			key: "accounting_policies",
-			ar: "السياسات المحاسبية",
-			part: "financial",
-			reports: 32,
-			pos: .55,
-			examples: [
-				["apple-2024", 130],
-				["cisco-2024", 232],
-				["walmart-2023", 407],
-				["adobe-2024", 505]
-			]
-		},
-		{
-			key: "segment_note",
-			ar: "إيضاح القطاعات",
-			part: "financial",
-			reports: 33,
-			pos: .57,
-			examples: [
-				["amazon-2023", 37],
-				["cisco-2024", 336],
-				["walmart-2023", 372],
-				["adobe-2024", 511]
-			]
-		},
-		{
-			key: "kam",
-			ar: "الأمور الرئيسية للمراجعة",
-			part: "financial",
-			reports: 25,
-			pos: .58,
-			examples: [
-				["cisco-2024", 289],
-				["adobe-2024", 538],
-				["jpmorgan-2023", 749],
-				["berkshire-2025", 1278]
-			]
-		},
-		{
-			key: "directors_resp",
-			ar: "إقرار مسؤوليات أعضاء مجلس الإدارة",
-			part: "governance",
-			reports: 10,
-			pos: .75,
-			examples: [
-				["nestle-2025", 2319],
-				["roche-2025", 2535],
-				["ubs-2025", 3043],
-				["mercedes-2025", 3629]
-			]
-		},
-		{
-			key: "subsequent_events",
-			ar: "الأحداث اللاحقة",
-			part: "financial",
-			reports: 11,
-			pos: .87,
-			examples: [
-				["nestle-2025", 2293],
-				["allianz-2025", 3223],
-				["volkswagen-2025", 4250],
-				["telekom-2025", 4682]
-			]
-		},
-		{
-			key: "exhibits",
-			ar: "الملاحق والتوقيعات",
-			part: "other",
-			reports: 17,
-			pos: .94,
-			examples: [
-				["amazon-2023", 91],
-				["apple-2024", 153],
-				["cisco-2024", 342],
-				["walmart-2023", 434]
-			]
-		}
-	];
-	/** Each report's own structure: section → first page (contents pages excluded). */
-	var REPORT_MAP = [
-		{
-			id: "amazon-2023",
-			c: "Amazon.com, Inc.",
-			fy: "FY2023",
-			fw: "US GAAP",
-			from: 2,
-			to: 93,
-			s: "chair_letter:3 ceo_letter:11 mdna:15 principal_risks:15 provisions_note:15 governance:18 segment_note:37 leases_note:42 cash_flow:43 liquidity:45 market_risk:45 auditor_report:48 income_statement:48 balance_sheet:48 tax_note:49 intangibles_note:53 equity_statement:54 notes:55 fin_instruments:60 icfr:84 exhibits:91"
-		},
-		{
-			id: "apple-2024",
-			c: "Apple Inc.",
-			fy: "FY2024",
-			fw: "US GAAP",
-			from: 94,
-			to: 214,
-			s: "mdna:96 principal_risks:96 provisions_note:96 tax_note:121 market_risk:123 income_statement:124 balance_sheet:124 equity_statement:124 employee_benefits:128 cash_flow:129 notes:130 accounting_policies:130 ppe_note:135 leases_note:138 governance:144 auditor_report:144 icfr:146 exhibits:153"
-		},
-		{
-			id: "cisco-2024",
-			c: "Cisco Systems, Inc.",
-			fy: "FY2024",
-			fw: "US GAAP",
-			from: 215,
-			to: 348,
-			s: "sustainability:216 highlights:217 market:218 strategy:222 people:223 governance:224 remuneration:225 accounting_policies:232 principal_risks:234 mdna:235 intangibles_note:254 tax_note:257 segment_review:267 estimates:268 employee_benefits:277 liquidity:279 balance_sheet:279 leases_note:284 market_risk:285 auditor_report:287 icfr:289 kam:289 income_statement:293 cash_flow:295 notes:297 fin_instruments:300 revenue_note:301 credit_risk:315 provisions_note:325 dividends:328 segment_note:336 exhibits:342 ceo_letter:348"
-		},
-		{
-			id: "walmart-2023",
-			c: "Walmart Inc.",
-			fy: "FY2023",
-			fw: "US GAAP",
-			from: 349,
-			to: 446,
-			s: "mdna:351 principal_risks:351 provisions_note:351 sustainability:353 governance:362 segment_note:372 leases_note:378 non_gaap:386 tax_note:389 icfr:398 auditor_report:398 income_statement:398 balance_sheet:398 intangibles_note:404 equity_statement:405 cash_flow:406 notes:407 accounting_policies:407 employee_benefits:413 exhibits:434"
-		},
-		{
-			id: "adobe-2024",
-			c: "Adobe Inc.",
-			fy: "FY2024",
-			fw: "US GAAP",
-			from: 447,
-			to: 547,
-			s: "principal_risks:448 strategy:449 market:449 business_model:454 people:465 provisions_note:476 tax_note:478 intangibles_note:479 risk_management:481 mdna:484 estimates:484 notes:485 balance_sheet:494 market_risk:497 income_statement:499 equity_statement:503 cash_flow:504 accounting_policies:505 fin_instruments:510 segment_note:511 revenue_note:513 credit_risk:519 governance:527 employee_benefits:533 leases_note:536 icfr:538 kam:538 exhibits:544"
-		},
-		{
-			id: "jpmorgan-2023",
-			c: "JPMorgan Chase & Co.",
-			fy: "FY2023",
-			fw: "US GAAP",
-			from: 548,
-			to: 911,
-			s: "highlights:549 income_statement:549 chair_letter:551 people:554 eps:558 balance_sheet:564 capital_banking:580 governance:586 provisions_note:598 tax_note:607 strategy:611 mdna:633 estimates:634 segment_review:640 liquidity_risk:645 non_gaap:647 intangibles_note:649 market_risk:651 leases_note:664 market:675 capital_mgmt:676 credit_risk:683 liquidity:687 risk_management:688 fin_instruments:713 icfr:747 kam:749 employee_benefits:752 accounting_policies:759 outlook:841 dividends:868"
-		},
-		{
-			id: "apple-2020",
-			c: "Apple Inc.",
-			fy: "FY2020",
-			fw: "US GAAP",
-			from: 912,
-			to: 1016,
-			s: "mdna:914 principal_risks:914 provisions_note:914 liquidity:939 ppe_note:939 market_risk:940 balance_sheet:941 income_statement:944 equity_statement:944 employee_benefits:948 cash_flow:949 notes:950 accounting_policies:950 eps:951 fin_instruments:954 credit_risk:955 tax_note:960 segment_note:969 leases_note:971 governance:973 auditor_report:973 icfr:975 exhibits:981"
-		},
-		{
-			id: "amazon-2024",
-			c: "Amazon.com, Inc.",
-			fy: "FY2024",
-			fw: "US GAAP",
-			from: 1017,
-			to: 1107,
-			s: "chair_letter:1018 ceo_letter:1026 mdna:1030 principal_risks:1030 provisions_note:1030 governance:1033 segment_note:1052 intangibles_note:1055 tax_note:1056 leases_note:1057 liquidity:1059 market_risk:1059 auditor_report:1062 income_statement:1062 balance_sheet:1062 cash_flow:1064 equity_statement:1068 notes:1069 fin_instruments:1079 icfr:1098 exhibits:1105"
-		},
-		{
-			id: "apple-2023",
-			c: "Apple Inc.",
-			fy: "FY2023",
-			fw: "US GAAP",
-			from: 1108,
-			to: 1187,
-			s: "mdna:1110 principal_risks:1110 provisions_note:1110 credit_risk:1126 tax_note:1134 governance:1135 estimates:1135 market_risk:1136 income_statement:1137 balance_sheet:1137 equity_statement:1137 employee_benefits:1141 cash_flow:1142 notes:1143 accounting_policies:1143 fin_instruments:1146 liquidity_risk:1147 ppe_note:1149 leases_note:1153 segment_note:1157 auditor_report:1159 icfr:1161 exhibits:1168"
-		},
-		{
-			id: "berkshire-2025",
-			c: "Berkshire Hathaway Inc.",
-			fy: "FY2025",
-			fw: "US GAAP",
-			from: 1188,
-			to: 1341,
-			s: "ceo_letter:1190 principal_risks:1213 provisions_note:1213 mdna:1238 segment_review:1244 governance:1245 tax_note:1247 intangibles_note:1268 ppe_note:1269 estimates:1270 strategy:1275 credit_risk:1275 market_risk:1275 auditor_report:1278 kam:1278 balance_sheet:1279 income_statement:1281 cash_flow:1283 notes:1284 accounting_policies:1284 fin_instruments:1313 employee_benefits:1317 segment_note:1319 icfr:1329 exhibits:1333"
-		},
-		{
-			id: "jpmorgan-2025",
-			c: "JPMorgan Chase & Co.",
-			fy: "FY2025",
-			fw: "US GAAP",
-			from: 1342,
-			to: 1706,
-			s: "highlights:1343 income_statement:1343 people:1348 eps:1349 capital_banking:1354 ceo_letter:1369 tax_note:1383 business_model:1409 mdna:1419 estimates:1420 outlook:1423 governance:1423 balance_sheet:1428 liquidity_risk:1430 non_gaap:1432 intangibles_note:1434 segment_review:1435 market_risk:1436 market:1461 capital_mgmt:1462 credit_risk:1469 liquidity:1473 fin_instruments:1499 risk_management:1517 kam:1536 employee_benefits:1539 accounting_policies:1546 leases_note:1650 dividends:1659 provisions_note:1667 segment_note:1680 cash_flow:1684"
-		},
-		{
-			id: "bofa-2025",
-			c: "Bank of America",
-			fy: "FY2025",
-			fw: "US GAAP",
-			from: 1707,
-			to: 1818,
-			s: "people:1707 governance:1708 principal_risks:1712 strategy:1722 highlights:1733 segment_review:1733 sustainability:1735 mdna:1740 notes:1740 balance_sheet:1741 leases_note:1741 non_gaap:1742 income_statement:1743 tax_note:1745 risk_management:1750 intangibles_note:1752 capital_banking:1752 market_risk:1764 cash_flow:1770 equity_statement:1770 auditor_report:1771 liquidity_risk:1784 credit_risk:1788 employee_benefits:1800 fin_instruments:1804"
-		},
-		{
-			id: "pepsico-2025",
-			c: "PepsiCo, Inc.",
-			fy: "FY2025",
-			fw: "US GAAP",
-			from: 1819,
-			to: 1962,
-			s: "highlights:1820 eps:1820 dividends:1820 governance:1822 mdna:1827 principal_risks:1827 provisions_note:1827 people:1834 capital_mgmt:1836 tax_note:1847 segment_review:1859 liquidity:1859 non_gaap:1859 market_risk:1866 employee_benefits:1872 estimates:1879 intangibles_note:1881 income_statement:1884 cash_flow:1886 leases_note:1886 balance_sheet:1888 notes:1890 credit_risk:1895 accounting_policies:1896 revenue_note:1896 fin_instruments:1920 icfr:1935 auditor_report:1935 remuneration:1942 exhibits:1953 shareholder_info:1960"
-		},
-		{
-			id: "pg-2026",
-			c: "Procter & Gamble",
-			fy: "FY2026",
-			fw: "US GAAP",
-			from: 1963,
-			to: 2043,
-			s: "principal_risks:1965 provisions_note:1965 liquidity:1972 mdna:1976 eps:1986 governance:1994 estimates:1994 revenue_note:1994 employee_benefits:1995 non_gaap:1997 icfr:2000 auditor_report:2001 income_statement:2001 balance_sheet:2001 notes:2004 equity_statement:2006 cash_flow:2007 accounting_policies:2008 tax_note:2010 segment_note:2011 intangibles_note:2015 fin_instruments:2025 leases_note:2032 exhibits:2039 chair_letter:2041"
-		},
-		{
-			id: "homedepot-2025",
-			c: "The Home Depot, Inc.",
-			fy: "FY2025",
-			fw: "US GAAP",
-			from: 2044,
-			to: 2131,
-			s: "mdna:2045 principal_risks:2045 provisions_note:2045 people:2054 capital_mgmt:2054 income_statement:2076 non_gaap:2078 strategy:2079 leases_note:2080 dividends:2081 governance:2084 auditor_report:2084 balance_sheet:2084 kam:2085 intangibles_note:2086 equity_statement:2089 cash_flow:2090 notes:2091 accounting_policies:2091 tax_note:2097 segment_note:2098 icfr:2120 remuneration:2127 exhibits:2128 eps:2129"
-		},
-		{
-			id: "mcdonalds-2025",
-			c: "McDonald's Corporation",
-			fy: "FY2025",
-			fw: "US GAAP",
-			from: 2132,
-			to: 2204,
-			s: ""
-		},
-		{
-			id: "nestle-2025",
-			c: "Nestlé Group",
-			fy: "FY2025",
-			fw: "IFRS",
-			from: 2205,
-			to: 2342,
-			s: "income_statement:2208 balance_sheet:2208 cash_flow:2208 tax_note:2212 provisions_note:2213 equity_statement:2215 ppe_note:2221 intangibles_note:2221 segment_note:2226 leases_note:2232 employee_benefits:2234 credit_risk:2235 liquidity_risk:2242 fin_instruments:2247 business_model:2261 market_risk:2269 capital_mgmt:2275 eps:2283 governance:2291 related_parties:2291 sustainability:2292 subsequent_events:2293 people:2317 directors_resp:2319 accounting_policies:2338"
-		},
-		{
-			id: "roche-2025",
-			c: "Roche Group",
-			fy: "FY2025",
-			fw: "IFRS",
-			from: 2343,
-			to: 2539,
-			s: "highlights:2344 mdna:2347 income_statement:2350 intangibles_note:2353 ppe_note:2368 leases_note:2368 provisions_note:2370 tax_note:2379 employee_benefits:2381 balance_sheet:2384 governance:2388 liquidity_risk:2389 cash_flow:2396 equity_statement:2397 accounting_policies:2398 segment_note:2401 revenue_note:2405 eps:2470 credit_risk:2474 fin_instruments:2478 market_risk:2478 related_parties:2486 capital_banking:2488 business_model:2502 icfr:2506 kam:2508 remuneration:2510 non_gaap:2515 notes:2528 directors_resp:2535"
-		},
-		{
-			id: "novartis-2025",
-			c: "Novartis AG",
-			fy: "FY2025",
-			fw: "IFRS",
-			from: 2540,
-			to: 2817,
-			s: "ceo_letter:2543 strategy:2543 sustainability:2544 market_risk:2546 mdna:2547 principal_risks:2551 employee_benefits:2559 credit_risk:2561 intangibles_note:2563 provisions_note:2578 capital_banking:2583 highlights:2587 non_gaap:2592 tax_note:2593 liquidity:2600 cash_flow:2601 fin_instruments:2607 governance:2610 remuneration:2630 people:2631 risk_management:2663 icfr:2671 related_parties:2679 dividends:2680 income_statement:2710 balance_sheet:2710 equity_statement:2710 ppe_note:2728 leases_note:2728 eps:2739 liquidity_risk:2782 kam:2791 notes:2795 chair_letter:2808 business_model:2808"
-		},
-		{
-			id: "ubs-2025",
-			c: "UBS Group AG",
-			fy: "FY2025",
-			fw: "IFRS",
-			from: 2818,
-			to: 3184,
-			s: "business_model:2819 strategy:2819 icfr:2820 sustainability:2824 balance_sheet:2830 people:2837 outlook:2839 provisions_note:2847 capital_banking:2849 principal_risks:2855 market_risk:2859 credit_risk:2861 tax_note:2865 estimates:2866 income_statement:2867 intangibles_note:2867 fin_instruments:2867 risk_management:2893 capital_mgmt:2895 governance:2897 market:2899 liquidity_risk:2927 going_concern:2937 employee_benefits:2957 chair_letter:2998 dividends:3008 kpis:3013 auditor_report:3042 directors_resp:3043 equity_statement:3058 eps:3060 cash_flow:3062 accounting_policies:3064 segment_note:3081 mdna:3153 related_parties:3158 highlights:3164 ppe_note:3166 non_gaap:3175"
-		},
-		{
-			id: "allianz-2025",
-			c: "Allianz SE",
-			fy: "FY2025",
-			fw: "IFRS",
-			from: 3185,
-			to: 3240,
-			s: "mdna:3186 governance:3190 provisions_note:3197 intangibles_note:3199 accounting_policies:3204 fin_instruments:3206 employee_benefits:3213 balance_sheet:3216 market_risk:3217 subsequent_events:3223 notes:3235 going_concern:3238"
-		},
-		{
-			id: "mercedes-2025",
-			c: "Mercedes-Benz Group AG",
-			fy: "FY2025",
-			fw: "IFRS",
-			from: 3241,
-			to: 3649,
-			s: "mdna:3243 governance:3243 chair_letter:3246 business_model:3249 strategy:3277 kpis:3285 income_statement:3291 balance_sheet:3291 cash_flow:3291 fin_instruments:3293 employee_benefits:3297 tax_note:3298 leases_note:3301 provisions_note:3301 intangibles_note:3308 ppe_note:3310 outlook:3321 dividends:3325 risk_management:3327 market_risk:3332 credit_risk:3338 liquidity:3345 sustainability:3346 accounting_policies:3346 people:3362 remuneration:3454 equity_statement:3498 notes:3499 segment_note:3605 capital_mgmt:3608 eps:3609 directors_resp:3629 auditor_report:3630 kam:3637 highlights:3645"
-		},
-		{
-			id: "volkswagen-2025",
-			c: "Volkswagen Group",
-			fy: "FY2025",
-			fw: "IFRS",
-			from: 3650,
-			to: 4323,
-			s: "highlights:3651 kpis:3652 sustainability:3652 governance:3652 remuneration:3652 intangibles_note:3657 related_parties:3675 people:3676 risk_management:3681 provisions_note:3695 employee_benefits:3710 mdna:3722 outlook:3722 market:3739 shareholder_info:3756 tax_note:3767 cash_flow:3770 balance_sheet:3774 ppe_note:3778 strategy:3829 fin_instruments:3853 credit_risk:3855 business_model:3876 eps:3877 dividends:3877 leases_note:3990 income_statement:4111 segment_note:4111 equity_statement:4117 market_risk:4170 liquidity_risk:4189 capital_banking:4235 subsequent_events:4250 directors_resp:4293 auditor_report:4294 kam:4299"
-		},
-		{
-			id: "telekom-2025",
-			c: "Deutsche Telekom AG",
-			fy: "FY2025",
-			fw: "IFRS",
-			from: 4324,
-			to: 4704,
-			s: "chair_letter:4324 highlights:4324 mdna:4324 sustainability:4331 governance:4331 kpis:4332 remuneration:4338 balance_sheet:4363 strategy:4365 segment_note:4365 business_model:4371 eps:4378 ppe_note:4380 intangibles_note:4380 leases_note:4380 dividends:4390 notes:4394 tax_note:4399 cash_flow:4400 outlook:4405 segment_review:4418 people:4426 risk_management:4430 principal_risks:4450 provisions_note:4472 market:4508 fin_instruments:4528 credit_risk:4528 liquidity_risk:4528 market_risk:4528 accounting_policies:4549 income_statement:4550 employee_benefits:4553 revenue_note:4579 subsequent_events:4682 directors_resp:4684 kam:4686 going_concern:4688"
-		},
-		{
-			id: "bp-2025",
-			c: "BP p.l.c.",
-			fy: "FY2025",
-			fw: "IFRS",
-			from: 4705,
-			to: 5101,
-			s: "strategy:4706 segment_review:4709 chair_letter:4710 market:4712 outlook:4713 sustainability:4717 business_model:4719 kpis:4720 people:4722 balance_sheet:4724 risk_management:4751 principal_risks:4766 governance:4778 remuneration:4778 audit_committee:4790 highlights:4800 employee_benefits:4801 provisions_note:4827 auditor_report:4836 kam:4837 revenue_note:4837 ppe_note:4837 intangibles_note:4838 materiality:4849 icfr:4860 income_statement:4861 equity_statement:4863 fin_instruments:4864 cash_flow:4865 estimates:4866 market_risk:4880 tax_note:4884 eps:4900 leases_note:4902 credit_risk:4923 non_gaap:5043 liquidity:5044 mdna:5064 shareholder_info:5070 capital_mgmt:5087 exhibits:5095"
-		},
-		{
-			id: "unilever-2025",
-			c: "Unilever PLC",
-			fy: "FY2025",
-			fw: "IFRS",
-			from: 5102,
-			to: 5385,
-			s: "strategy:5104 highlights:5105 business_model:5106 people:5106 chair_letter:5109 ceo_letter:5111 mdna:5113 non_gaap:5116 eps:5116 risk_management:5134 principal_risks:5134 viability:5141 intangibles_note:5148 sustainability:5150 governance:5151 audit_committee:5152 remuneration:5152 market:5162 dividends:5176 employee_benefits:5189 directors_resp:5212 auditor_report:5212 notes:5212 shareholder_info:5212 materiality:5216 going_concern:5218 kam:5219 provisions_note:5220 revenue_note:5228 income_statement:5231 equity_statement:5233 cash_flow:5235 segment_note:5239 balance_sheet:5246 tax_note:5252 ppe_note:5258 liquidity_risk:5270 fin_instruments:5272 market_risk:5272 credit_risk:5278 related_parties:5285 subsequent_events:5286 accounting_policies:5290 estimates:5291 icfr:5315"
-		},
-		{
-			id: "astrazeneca-2025",
-			c: "AstraZeneca PLC",
-			fy: "FY2025",
-			fw: "IFRS",
-			from: 5386,
-			to: 5698,
-			s: "strategy:5389 business_model:5395 sustainability:5399 governance:5399 principal_risks:5406 people:5425 risk_management:5434 mdna:5435 kpis:5439 non_gaap:5440 liquidity:5447 fin_instruments:5451 remuneration:5460 shareholder_info:5473 balance_sheet:5475 intangibles_note:5475 employee_benefits:5481 provisions_note:5500 directors_resp:5501 auditor_report:5501 income_statement:5512 equity_statement:5514 cash_flow:5515 credit_risk:5522 eps:5524 ppe_note:5529 leases_note:5529 tax_note:5531 segment_note:5534 estimates:5540 liquidity_risk:5559 market_risk:5564 capital_banking:5582 chair_letter:5596 audit_committee:5596 viability:5597 dividends:5620 highlights:5634 going_concern:5697"
-		},
-		{
-			id: "gsk-2025",
-			c: "GSK plc",
-			fy: "FY2025",
-			fw: "IFRS",
-			from: 5699,
-			to: 5949,
-			s: "mdna:5703 non_gaap:5703 intangibles_note:5704 income_statement:5705 balance_sheet:5706 eps:5713 cash_flow:5717 tax_note:5718 ppe_note:5718 fin_instruments:5722 going_concern:5724 estimates:5725 governance:5727 remuneration:5727 strategy:5734 dividends:5735 shareholder_info:5739 market:5740 audit_committee:5753 chair_letter:5759 people:5762 employee_benefits:5766 outlook:5770 auditor_report:5790 notes:5790 provisions_note:5795 kam:5796 materiality:5800 viability:5804 leases_note:5813 segment_note:5820 credit_risk:5839 market_risk:5867 liquidity_risk:5881 principal_risks:5898 sustainability:5912 icfr:5933 ceo_letter:5946 business_model:5946"
-		},
-		{
-			id: "hsbc-2025",
-			c: "HSBC Holdings plc",
-			fy: "FY2025",
-			fw: "IFRS",
-			from: 5950,
-			to: 6321,
-			s: "highlights:5950 strategy:5950 kpis:5951 outlook:5953 chair_letter:5957 credit_risk:5963 eps:5963 income_statement:5964 segment_review:5966 provisions_note:5971 sustainability:5975 business_model:5981 principal_risks:5981 viability:5982 going_concern:5982 governance:5982 mdna:5983 balance_sheet:5990 people:6002 fin_instruments:6018 accounting_policies:6026 non_gaap:6042 risk_management:6049 capital_banking:6054 market_risk:6108 employee_benefits:6117 audit_committee:6155 remuneration:6166 directors_resp:6201 auditor_report:6203 kam:6206 equity_statement:6222 cash_flow:6223 tax_note:6235 dividends:6252 intangibles_note:6278 leases_note:6279 liquidity_risk:6285 related_parties:6296 shareholder_info:6306"
-		},
-		{
-			id: "totalenergies-2024",
-			c: "TotalEnergies SE",
-			fy: "FY2024",
-			fw: "IFRS",
-			from: 6322,
-			to: 6986,
-			s: "outlook:6326 principal_risks:6326 fin_instruments:6326 mdna:6327 segment_review:6329 eps:6329 non_gaap:6338 capital_mgmt:6342 balance_sheet:6343 intangibles_note:6344 liquidity:6345 provisions_note:6347 governance:6348 tax_note:6352 icfr:6357 auditor_report:6365 income_statement:6365 kam:6369 ppe_note:6375 cash_flow:6376 equity_statement:6377 notes:6378 accounting_policies:6378 segment_note:6388 reserves_tech:6406 related_parties:6409 employee_benefits:6414 leases_note:6433 market_risk:6447 credit_risk:6450 highlights:6509 dividends:6511 sustainability:6524 business_model:6533 kpis:6551 people:6640 audit_committee:6702 chair_letter:6723"
-		},
-		{
-			id: "airbus-2023",
-			c: "Airbus SE",
-			fy: "FY2023",
-			fw: "IFRS",
-			from: 6987,
-			to: 7428,
-			s: "market:6988 chair_letter:6989 highlights:6989 mdna:6989 principal_risks:6989 eps:6990 governance:7012 market_risk:7013 liquidity:7014 liquidity_risk:7019 fin_instruments:7022 credit_risk:7022 segment_review:7026 sustainability:7032 people:7035 outlook:7094 kpis:7108 employee_benefits:7164 going_concern:7181 provisions_note:7186 income_statement:7187 dividends:7192 auditor_report:7197 risk_management:7222 remuneration:7222 related_parties:7267 balance_sheet:7285 ppe_note:7285 intangibles_note:7285 cash_flow:7287 equity_statement:7289 accounting_policies:7292 segment_note:7292 tax_note:7313 leases_note:7322 subsequent_events:7372 kam:7375 revenue_note:7381"
-		},
-		{
-			id: "loreal-2024",
-			c: "L'Oréal",
-			fy: "FY2024",
-			fw: "IFRS",
-			from: 7429,
-			to: 7448,
-			s: "chair_letter:7429 highlights:7429 governance:7429 people:7438"
-		},
-		{
-			id: "sanofi-2025",
-			c: "Sanofi",
-			fy: "FY2025",
-			fw: "IFRS",
-			from: 7449,
-			to: 7746,
-			s: "principal_risks:7454 ppe_note:7454 mdna:7466 sustainability:7466 income_statement:7472 people:7487 intangibles_note:7515 related_parties:7516 tax_note:7522 non_gaap:7524 segment_note:7526 cash_flow:7531 capital_mgmt:7533 liquidity_risk:7534 market_risk:7534 governance:7536 employee_benefits:7575 provisions_note:7607 dividends:7617 icfr:7626 exhibits:7634 auditor_report:7635 balance_sheet:7635 leases_note:7648 notes:7650 business_model:7658 fin_instruments:7658 eps:7697"
-		},
-		{
-			id: "toyota-2026",
-			c: "Toyota Motor Corporation",
-			fy: "FY2026 (Mar)",
-			fw: "IFRS",
-			from: 7747,
-			to: 8010,
-			s: "principal_risks:7752 mdna:7753 provisions_note:7754 sustainability:7756 segment_review:7759 governance:7797 people:7800 business_model:7810 income_statement:7832 liquidity:7837 cash_flow:7838 balance_sheet:7843 tax_note:7844 credit_risk:7845 remuneration:7857 employee_benefits:7866 related_parties:7868 dividends:7884 icfr:7892 auditor_report:7905 kam:7907 equity_statement:7912 notes:7915 accounting_policies:7916 fin_instruments:7920 ppe_note:7923 intangibles_note:7924 leases_note:7925 market_risk:7959 eps:7985 exhibits:7994"
-		},
-		{
-			id: "honda-2023",
-			c: "Honda Motor Co., Ltd.",
-			fy: "FY2023 (Mar)",
-			fw: "IFRS",
-			from: 8011,
-			to: 8257,
-			s: "employee_benefits:8017 governance:8019 mdna:8025 strategy:8045 intangibles_note:8051 people:8054 leases_note:8057 tax_note:8061 segment_review:8070 balance_sheet:8079 kpis:8108 related_parties:8114 provisions_note:8116 dividends:8122 icfr:8125 income_statement:8136 auditor_report:8137 credit_risk:8139 equity_statement:8145 cash_flow:8146 notes:8147 revenue_note:8158 segment_note:8160 fin_instruments:8207 market_risk:8207 ppe_note:8218 exhibits:8224"
-		},
-		{
-			id: "softbank-2026",
-			c: "SoftBank Group Corp.",
-			fy: "FY2026 (Mar)",
-			fw: "IFRS",
-			from: 8258,
-			to: 8443,
-			s: "business_model:8260 people:8267 ceo_letter:8271 notes:8290 related_parties:8290 governance:8293 sustainability:8294 fin_instruments:8312 remuneration:8314 income_statement:8318 tax_note:8327 mdna:8330 segment_note:8337 balance_sheet:8340 segment_review:8342 principal_risks:8360 highlights:8371 outlook:8385 dividends:8435"
-		},
-		{
-			id: "mufg-2026",
-			c: "Mitsubishi UFJ Financial Group",
-			fy: "FY2026 (Mar)",
-			fw: "US GAAP",
-			from: 8444,
-			to: 8795,
-			s: "mdna:8448 principal_risks:8448 intangibles_note:8453 employee_benefits:8454 capital_banking:8454 credit_risk:8455 business_model:8465 strategy:8465 people:8467 sustainability:8468 provisions_note:8489 ppe_note:8494 liquidity:8495 estimates:8495 income_statement:8496 tax_note:8511 segment_review:8513 segment_note:8513 balance_sheet:8532 accounting_policies:8536 governance:8539 related_parties:8561 dividends:8563 liquidity_risk:8574 market_risk:8574 risk_management:8575 fin_instruments:8582 icfr:8594 auditor_report:8595 cash_flow:8625 revenue_note:8634 notes:8650 leases_note:8665 exhibits:8753"
-		},
-		{
-			id: "smfg-2026",
-			c: "Sumitomo Mitsui Financial Group",
-			fy: "FY2026 (Mar)",
-			fw: "J-GAAP",
-			from: 8796,
-			to: 8915,
-			s: "mdna:8796 balance_sheet:8797 income_statement:8799 fin_instruments:8800 cash_flow:8808 tax_note:8808 intangibles_note:8808 notes:8810 accounting_policies:8811 revenue_note:8817 market_risk:8818 estimates:8820 leases_note:8824 provisions_note:8824 subsequent_events:8825 credit_risk:8842 liquidity_risk:8842 employee_benefits:8877 governance:8891 segment_note:8891 eps:8897 auditor_report:8909 outlook:8911"
-		},
-		{
-			id: "samsung-2025",
-			c: "Samsung Electronics",
-			fy: "FY2025",
-			fw: "K-IFRS",
-			from: 8916,
-			to: 9017,
-			s: "governance:8917 auditor_report:8917 balance_sheet:8917 accounting_policies:8918 income_statement:8923 equity_statement:8925 cash_flow:8929 notes:8931 revenue_note:8949 leases_note:8950 employee_benefits:8952 fin_instruments:8953 ppe_note:8969 intangibles_note:8971 provisions_note:8978 tax_note:8986 eps:8989 market_risk:8993 liquidity_risk:8994 segment_note:9000 related_parties:9002 subsequent_events:9010 sustainability:9017"
-		},
-		{
-			id: "honhai-2025",
-			c: "Hon Hai Precision (Foxconn)",
-			fy: "FY2025",
-			fw: "TIFRS",
-			from: 9018,
-			to: 9185,
-			s: "governance:9018 people:9025 employee_benefits:9032 sustainability:9054 remuneration:9056 related_parties:9093 business_model:9143 provisions_note:9171 ppe_note:9172"
-		},
-		{
-			id: "tencent-2025",
-			c: "Tencent Holdings",
-			fy: "FY2025",
-			fw: "IFRS",
-			from: 9186,
-			to: 9468,
-			s: "governance:9188 income_statement:9189 tax_note:9189 chair_letter:9190 non_gaap:9190 highlights:9191 provisions_note:9206 employee_benefits:9206 segment_review:9212 ppe_note:9213 people:9272 remuneration:9286 auditor_report:9306 balance_sheet:9306 kam:9308 revenue_note:9308 intangibles_note:9309 fin_instruments:9311 leases_note:9317 equity_statement:9320 cash_flow:9324 notes:9326 accounting_policies:9328 principal_risks:9359 market_risk:9359 credit_risk:9363 liquidity_risk:9367 going_concern:9369 capital_mgmt:9369 estimates:9376 segment_note:9378 eps:9393 business_model:9419 related_parties:9451 subsequent_events:9455"
-		},
-		{
-			id: "reliance-2026",
-			c: "Reliance Industries",
-			fy: "FY2025-26",
-			fw: "Ind AS",
-			from: 9469,
-			to: 9615,
-			s: "highlights:9470 chair_letter:9471 market:9472 provisions_note:9492 governance:9493 remuneration:9496 cash_flow:9502 strategy:9518 kam:9520 tax_note:9524 ppe_note:9525 intangibles_note:9525 leases_note:9532 related_parties:9538 balance_sheet:9540 employee_benefits:9544 capital_mgmt:9556 fin_instruments:9557 liquidity_risk:9558 market_risk:9559 auditor_report:9561 revenue_note:9562 credit_risk:9594"
-		},
-		{
-			id: "infosys-2026",
-			c: "Infosys Limited",
-			fy: "FY2025-26",
-			fw: "Ind AS",
-			from: 9616,
-			to: 9998,
-			s: "mdna:9622 people:9622 governance:9622 sustainability:9624 highlights:9630 eps:9630 chair_letter:9631 dividends:9640 ppe_note:9648 intangibles_note:9648 leases_note:9648 strategy:9653 remuneration:9656 provisions_note:9656 related_parties:9669 tax_note:9691 employee_benefits:9693 segment_review:9694 icfr:9696 audit_committee:9714 risk_management:9744 principal_risks:9747 balance_sheet:9807 cash_flow:9807 equity_statement:9807 auditor_report:9808 kam:9810 revenue_note:9810 segment_note:9836 liquidity_risk:9838 fin_instruments:9847 market_risk:9852 credit_risk:9854 going_concern:9894 notes:9912"
-		},
-		{
-			id: "aramco-2025",
-			c: "Saudi Arabian Oil Company (Aramco)",
-			fy: "FY2025",
-			fw: "IFRS (KSA-endorsed)",
-			from: 9999,
-			to: 10244,
-			s: "governance:10004 segment_note:10006 chair_letter:10007 ceo_letter:10009 strategy:10010 highlights:10011 outlook:10019 capital_mgmt:10029 eps:10029 dividends:10029 balance_sheet:10031 tax_note:10040 non_gaap:10041 risk_management:10070 people:10073 principal_risks:10077 mdna:10081 audit_committee:10095 fin_instruments:10115 sustainability:10117 income_statement:10129 related_parties:10131 auditor_report:10161 materiality:10162 kam:10164 intangibles_note:10165 ppe_note:10166 employee_benefits:10172 notes:10177 accounting_policies:10177 estimates:10177 leases_note:10181 credit_risk:10183 provisions_note:10185 liquidity_risk:10190 subsequent_events:10243"
-		},
-		{
-			id: "emiratesnbd-2025",
-			c: "Emirates NBD Group",
-			fy: "FY2025",
-			fw: "IFRS",
-			from: 10245,
-			to: 10375,
-			s: "chair_letter:10246 governance:10248 strategy:10250 ceo_letter:10251 outlook:10257 segment_review:10258 people:10259 market:10263 balance_sheet:10265 highlights:10276 risk_management:10279 principal_risks:10279 capital_banking:10281 sustainability:10283 auditor_report:10335 income_statement:10335 cash_flow:10335 kam:10337 accounting_policies:10337 credit_risk:10337 related_parties:10338 equity_statement:10342 tax_note:10346 fin_instruments:10347 intangibles_note:10355 segment_note:10360 capital_mgmt:10364 market_risk:10370 liquidity_risk:10371"
-		},
-		{
-			id: "eand-2025",
-			c: "e& (Emirates Telecommunications Group)",
-			fy: "FY2025",
-			fw: "IFRS",
-			from: 10376,
-			to: 10604,
-			s: "strategy:10379 sustainability:10379 governance:10379 highlights:10388 chair_letter:10397 ceo_letter:10399 market:10405 business_model:10408 people:10412 segment_review:10416 principal_risks:10437 kpis:10458 related_parties:10517 remuneration:10523 risk_management:10539 employee_benefits:10557 accounting_policies:10562 revenue_note:10564 estimates:10573 tax_note:10578 intangibles_note:10579 ppe_note:10581 credit_risk:10588 fin_instruments:10591 provisions_note:10592"
-		},
-		{
-			id: "rbc-2025",
-			c: "Royal Bank of Canada",
-			fy: "FY2025",
-			fw: "IFRS",
-			from: 10605,
-			to: 10850,
-			s: "business_model:10606 chair_letter:10610 balance_sheet:10611 people:10616 sustainability:10626 mdna:10628 highlights:10629 outlook:10629 tax_note:10629 capital_banking:10632 income_statement:10633 provisions_note:10635 segment_review:10638 strategy:10642 employee_benefits:10667 risk_management:10671 governance:10672 principal_risks:10674 credit_risk:10679 market_risk:10689 liquidity_risk:10695 capital_mgmt:10723 intangibles_note:10726 related_parties:10731 non_gaap:10739 directors_resp:10744 auditor_report:10745 kam:10746 equity_statement:10753 cash_flow:10754 accounting_policies:10756 fin_instruments:10761 leases_note:10768 eps:10769 shareholder_info:10849"
-		},
-		{
-			id: "bhp-2025",
-			c: "BHP Group Limited",
-			fy: "FY2025",
-			fw: "IFRS",
-			from: 10851,
-			to: 12300,
-			s: "strategy:10853 mdna:10854 principal_risks:10854 provisions_note:10855 chair_letter:10857 ceo_letter:10857 kpis:10857 highlights:10858 non_gaap:10858 governance:10858 remuneration:10859 reserves_tech:10860 outlook:10863 people:10864 dividends:10865 income_statement:10877 balance_sheet:10877 cash_flow:10877 employee_benefits:10892 sustainability:10903 business_model:10952 ppe_note:10971 tax_note:10976 related_parties:11029 leases_note:11035 shareholder_info:11093 risk_management:11100 equity_statement:11134 accounting_policies:11135 estimates:11137 notes:11138 segment_note:11138 eps:11155 intangibles_note:11161 fin_instruments:11178 capital_mgmt:11178 liquidity_risk:11179 credit_risk:11183 market_risk:11184 icfr:11207 auditor_report:11207"
-		},
-		{
-			id: "cba-2025",
-			c: "Commonwealth Bank of Australia",
-			fy: "FY2025",
-			fw: "AASB (IFRS)",
-			from: 12301,
-			to: 12506,
-			s: "strategy:12302 people:12302 balance_sheet:12302 segment_review:12307 governance:12307 liquidity:12312 risk_management:12328 capital_mgmt:12328 remuneration:12329 principal_risks:12338 chair_letter:12346 sustainability:12346 outlook:12352 market:12360 business_model:12364 credit_risk:12370 dividends:12377 provisions_note:12388 income_statement:12394 equity_statement:12396 tax_note:12396 cash_flow:12397 notes:12398 fin_instruments:12398 ppe_note:12400 employee_benefits:12404 eps:12406 liquidity_risk:12410 intangibles_note:12425 market_risk:12437 subsequent_events:12465 kam:12469 leases_note:12489 estimates:12491"
-		}
-	];
-	function reportStructure(id) {
-		const r = REPORT_MAP.find((x) => x.id === id);
-		if (!r || !r.s) return [];
-		return r.s.split(" ").map((kv) => {
-			const [key, p] = kv.split(":");
-			return {
-				key,
-				ar: SECTIONS.find((s) => s.key === key)?.ar ?? key,
-				page: Number(p)
-			};
-		});
-	}
-	var reportIds = () => REPORT_MAP.map((r) => r.id);
-	/** The 49 reports read: company, year, framework and page range in the bundle. */
-	var reportList = () => REPORT_MAP.map(({ s: _s, ...r }) => ({
-		...r,
-		company: r.c,
-		sections: _s ? _s.split(" ").length : 0
-	}));
-	var PROC_AR = {
-		forecasts: {
-			ar: "اختبار التوقعات وخطط الأعمال",
-			text: "قيّمنا التدفقات النقدية المتوقعة وقارناها بخطط الأعمال المعتمدة من مجلس الإدارة وبالنتائج الفعلية للسنوات السابقة"
-		},
-		discount_rates: {
-			ar: "معدلات الخصم",
-			text: "قيّمنا معدلات الخصم ومعدلات النمو المستخدمة بمقارنتها بمصادر خارجية مستقلة"
-		},
-		specialists: {
-			ar: "الاستعانة بخبراء",
-			text: "استعنا بخبرائنا المختصين في التقييم (أو الضرائب أو الاكتواريات) لتقييم المنهجية والافتراضات الرئيسية"
-		},
-		test_controls: {
-			ar: "اختبار الضوابط",
-			text: "فهمنا الضوابط الرئيسية على هذه العملية واختبرنا تصميمها وتطبيقها وفاعلية تشغيلها"
-		},
-		component_auditors: {
-			ar: "مراجعو المكونات",
-			text: "وجّهنا فرق مراجعة المكونات وراجعنا أعمالها على هذا الأمر"
-		},
-		it_systems: {
-			ar: "أنظمة المعلومات",
-			text: "اختبرنا الضوابط العامة لتقنية المعلومات والضوابط الآلية على الأنظمة ذات الصلة"
-		},
-		legal_letters: {
-			ar: "مصادقات المستشارين القانونيين",
-			text: "حصلنا على مصادقات من المستشارين القانونيين الخارجيين وناقشنا القضايا القائمة مع الإدارة والشؤون القانونية"
-		},
-		third_party: {
-			ar: "مصادر خارجية",
-			text: "قارنّا المدخلات الرئيسية ببيانات السوق ومصادر خارجية مستقلة"
-		},
-		recalculate: {
-			ar: "إعادة الاحتساب",
-			text: "أعدنا احتساب المبالغ واختبرنا الدقة الحسابية والسلامة المنطقية للنماذج"
-		},
-		independent_estimate: {
-			ar: "تقدير مستقل",
-			text: "أعددنا تقديراً مستقلاً أو مدى معقولاً وقارنّاه بتقدير الإدارة"
-		},
-		journal_entries: {
-			ar: "قيود اليومية",
-			text: "اختبرنا قيود اليومية اليدوية وغير المعتادة المتعلقة بهذا البند"
-		},
-		confirmations: {
-			ar: "المصادقات",
-			text: "حصلنا على مصادقات مباشرة من الأطراف الخارجية لعينة من الأرصدة"
-		},
-		sensitivity: {
-			ar: "تحليل الحساسية",
-			text: "أجرينا تحليلات حساسية لتقييم أثر التغيرات المعقولة الممكنة في الافتراضات الرئيسية"
-		},
-		compare_history: {
-			ar: "المقارنة بالتاريخ",
-			text: "قيّمنا دقة تقديرات الإدارة السابقة بمقارنتها بالنتائج الفعلية"
-		},
-		disclosures: {
-			ar: "كفاية الإفصاحات",
-			text: "قيّمنا كفاية الإفصاحات ذات الصلة في القوائم المالية، بما فيها الإفصاح عن الافتراضات الرئيسية وحساسيتها"
-		},
-		inspect_contracts: {
-			ar: "فحص العقود والمحاضر",
-			text: "قرأنا العقود ومحاضر الاجتماعات والمراسلات ذات الصلة"
-		},
-		data_completeness: {
-			ar: "اكتمال البيانات ودقتها",
-			text: "اختبرنا اكتمال ودقة البيانات الأساسية المستخدمة في التقدير"
-		},
-		cut_off: {
-			ar: "القطع",
-			text: "اختبرنا قطع المعاملات حول تاريخ نهاية السنة"
-		},
-		site_visits: {
-			ar: "الزيارات والجرد",
-			text: "حضرنا الجرد الفعلي وزرنا المواقع"
-		},
-		retrospective: {
-			ar: "المراجعة بأثر رجعي",
-			text: "أجرينا مراجعة بأثر رجعي لنتائج تقديرات السنة السابقة"
-		},
-		subsequent: {
-			ar: "الأحداث والمتحصلات اللاحقة",
-			text: "فحصنا المتحصلات والتسويات اللاحقة لتاريخ القوائم المالية"
-		},
-		evaluate_assumptions: {
-			ar: "معقولية الافتراضات",
-			text: "قيّمنا معقولية افتراضات الإدارة الرئيسية"
-		}
-	};
-	var KP = {
-		"test_controls": {
-			"mentions": 47,
-			"reports": 21
-		},
-		"evaluate_assumptions": {
-			"mentions": 2,
-			"reports": 1
-		},
-		"specialists": {
-			"mentions": 57,
-			"reports": 16
-		},
-		"sensitivity": {
-			"mentions": 13,
-			"reports": 8
-		},
-		"compare_history": {
-			"mentions": 13,
-			"reports": 7
-		},
-		"recalculate": {
-			"mentions": 22,
-			"reports": 12
-		},
-		"confirmations": {
-			"mentions": 17,
-			"reports": 12
-		},
-		"inspect_contracts": {
-			"mentions": 10,
-			"reports": 8
-		},
-		"legal_letters": {
-			"mentions": 24,
-			"reports": 14
-		},
-		"subsequent": {
-			"mentions": 4,
-			"reports": 3
-		},
-		"disclosures": {
-			"mentions": 12,
-			"reports": 7
-		},
-		"data_completeness": {
-			"mentions": 7,
-			"reports": 5
-		},
-		"retrospective": {
-			"mentions": 6,
-			"reports": 3
-		},
-		"third_party": {
-			"mentions": 23,
-			"reports": 10
-		},
-		"independent_estimate": {
-			"mentions": 20,
-			"reports": 11
-		},
-		"journal_entries": {
-			"mentions": 20,
-			"reports": 7
-		},
-		"cut_off": {
-			"mentions": 5,
-			"reports": 2
-		},
-		"site_visits": {
-			"mentions": 5,
-			"reports": 4
-		},
-		"discount_rates": {
-			"mentions": 112,
-			"reports": 17
-		},
-		"forecasts": {
-			"mentions": 239,
-			"reports": 25
-		},
-		"it_systems": {
-			"mentions": 31,
-			"reports": 9
-		},
-		"component_auditors": {
-			"mentions": 39,
-			"reports": 7
-		}
-	};
-	/** Audit procedures the auditors in the bundle describe under their KAMs, ranked by how many reports use them. */
-	function kamProcedures() {
-		return Object.entries(KP).map(([key, v]) => ({
-			key,
-			...v,
-			...PROC_AR[key] ?? {
-				ar: key,
-				text: key
-			}
-		})).sort((a, b) => b.reports - a.reports || b.mentions - a.mentions);
-	}
-	var RISK_AR = {
-		cyber: {
-			ar: "الأمن السيبراني وحماية البيانات",
-			mitigation: "برنامج أمن معلومات بضوابط وصول ومراقبة واختبارات اختراق وخطط استجابة واستعادة",
-			description: "قد تؤدي الهجمات السيبرانية أو تعطل الأنظمة إلى توقف العمليات أو تسرب البيانات أو خسائر مالية وتنظيمية."
-		},
-		competition: {
-			ar: "المنافسة وتغير تفضيلات العملاء",
-			mitigation: "تطوير المنتجات والتسعير ومراقبة حصص السوق وتنويع القنوات",
-			description: "قد تؤثر المنافسة وتغير تفضيلات العملاء في الحصة السوقية والأسعار والهوامش."
-		},
-		fraud_conduct: {
-			ar: "الغش والسلوك المهني",
-			mitigation: "مدونة سلوك وقناة إبلاغ وفصل مهام ومراجعة داخلية",
-			description: "قد يؤدي الغش أو السلوك غير المهني إلى خسائر مالية وتنظيمية وضرر بالسمعة."
-		},
-		reputation: {
-			ar: "السمعة والعلامة التجارية",
-			mitigation: "حوكمة الجودة والتواصل ومعالجة الشكاوى",
-			description: "قد تتأثر ثقة العملاء والمساهمين بأي حادث يمس الجودة أو السلوك أو الالتزام."
-		},
-		macroeconomic: {
-			ar: "الظروف الاقتصادية الكلية والتضخم",
-			mitigation: "مراقبة المؤشرات الاقتصادية وخطط سيناريوهات ومرونة التكاليف",
-			description: "قد يؤثر التباطؤ الاقتصادي والتضخم وارتفاع التكاليف في الطلب والهوامش والقدرة على تمرير الأسعار."
-		},
-		supply_chain: {
-			ar: "سلاسل الإمداد والموردون",
-			mitigation: "تنويع الموردين وعقود طويلة الأجل ومخزون أمان",
-			description: "قد يؤثر انقطاع الإمداد أو اعتماد الشركة على موردين محدودين في توفر المنتجات وتكلفتها."
-		},
-		legal: {
-			ar: "القضايا والنزاعات القانونية",
-			mitigation: "إدارة قانونية ومتابعة القضايا وتكوين المخصصات وفق IAS 37",
-			description: "قد تنشأ عن النزاعات والقضايا التزامات أو تكاليف غير متوقعة."
-		},
-		esg_social: {
-			ar: "المسؤولية الاجتماعية وحقوق الإنسان",
-			mitigation: "سياسات الاستدامة والعناية الواجبة في سلسلة الإمداد",
-			description: "تتزايد توقعات أصحاب المصلحة بشأن المسؤولية الاجتماعية وحقوق العاملين في سلسلة القيمة."
-		},
-		geopolitical: {
-			ar: "المخاطر الجيوسياسية والعقوبات",
-			mitigation: "تقييم الانكشاف الجغرافي وخطط استمرارية وامتثال للعقوبات",
-			description: "قد تؤثر التوترات الجيوسياسية والعقوبات في سلاسل الإمداد والأسواق والتكاليف."
-		},
-		climate: {
-			ar: "تغير المناخ والتحول",
-			mitigation: "تقييم المخاطر المادية والتحولية وخطط خفض الانبعاثات",
-			description: "قد تؤثر الظواهر المناخية ومتطلبات التحول في الإمداد والتكاليف والطلب."
-		},
-		technology_ai: {
-			ar: "التحول التقني والذكاء الاصطناعي",
-			mitigation: "خارطة طريق رقمية وحوكمة استخدام الذكاء الاصطناعي",
-			description: "قد يؤثر التأخر في التحول الرقمي أو سوء استخدام الذكاء الاصطناعي في الكفاءة والقدرة التنافسية."
-		},
-		liquidity_funding: {
-			ar: "السيولة والتمويل",
-			mitigation: "توقعات نقدية وتسهيلات ملتزم بها وتنويع آجال الاستحقاق",
-			description: "قد يؤثر تشدد شروط التمويل أو تركز آجال الاستحقاق في القدرة على الوفاء بالالتزامات وتمويل الاستثمار."
-		},
-		interest: {
-			ar: "أسعار العمولة",
-			mitigation: "مزيج التمويل الثابت والمتغير وتحليل الحساسية",
-			description: "يؤثر ارتفاع أسعار العمولة في تكلفة التمويل ذي السعر المتغير."
-		},
-		health_safety: {
-			ar: "الصحة والسلامة",
-			mitigation: "نظام إدارة سلامة ومؤشرات حوادث وتدريب",
-			description: "قد تؤدي حوادث العمل إلى ضرر بالعاملين وتوقف العمليات والتزامات قانونية."
-		},
-		commodity: {
-			ar: "أسعار السلع والمواد الخام",
-			mitigation: "عقود توريد وتحوط وتمرير الأسعار للعملاء",
-			description: "يؤثر تقلب أسعار المواد الخام والأعلاف والطاقة في تكلفة المبيعات والهوامش."
-		},
-		tax: {
-			ar: "الضرائب والزكاة والرسوم الجمركية",
-			mitigation: "مراجعة ضريبية ومتابعة الربوط والتغيرات التشريعية",
-			description: "قد تنشأ التزامات إضافية عن الربوط الزكوية والضريبية أو تغير التشريعات والرسوم."
-		},
-		fx: {
-			ar: "أسعار الصرف",
-			mitigation: "مطابقة عملات الإيرادات والتكاليف والتحوط",
-			description: "يؤثر تقلب أسعار الصرف في تكلفة الواردات والأرصدة بالعملات الأجنبية."
-		},
-		regulatory: {
-			ar: "الالتزام التنظيمي",
-			mitigation: "إدارة امتثال ومتابعة التشريعات والتدريب",
-			description: "قد تفرض التغيرات التنظيمية متطلبات امتثال وتكاليف إضافية."
-		},
-		business_continuity: {
-			ar: "استمرارية الأعمال والتعطل التشغيلي",
-			mitigation: "خطط استمرارية واختبارات ومواقع بديلة وتأمين",
-			description: "قد يؤدي تعطل المرافق أو الأنظمة أو الأوبئة إلى توقف العمليات."
-		},
-		talent: {
-			ar: "استقطاب الكفاءات والاحتفاظ بها",
-			mitigation: "خطط تعاقب وحوافز وتطوير مهني",
-			description: "قد يؤثر نقص الكفاءات أو فقدان الموظفين الرئيسيين في تنفيذ الخطط."
-		},
-		credit: {
-			ar: "الائتمان والأطراف المقابلة",
-			mitigation: "حدود ائتمان وضمانات ومتابعة أعمار الديون",
-			description: "قد يتعثر العملاء أو الأطراف المقابلة في السداد فتنشأ خسائر ائتمانية."
-		},
-		pension: {
-			ar: "التزامات منافع الموظفين",
-			mitigation: "تقييم اكتواري دوري ومراقبة الافتراضات",
-			description: "قد تتغير التزامات منافع الموظفين بتغير الافتراضات الاكتوارية."
-		},
-		product_quality: {
-			ar: "جودة المنتج وسلامته",
-			mitigation: "أنظمة جودة وسلامة غذاء وتتبع واستدعاء",
-			description: "قد يؤدي أي خلل في سلامة الغذاء أو جودته إلى استدعاء منتجات والتزامات وضرر بالسمعة."
-		},
-		capital_projects: {
-			ar: "تنفيذ المشاريع الرأسمالية",
-			mitigation: "حوكمة المشاريع ومراحل اعتماد ومتابعة التكلفة والجدول",
-			description: "قد يؤدي تأخر المشاريع الرأسمالية أو تجاوز تكاليفها إلى ضغط على العائد والسيولة."
-		}
-	};
-	var RC = {
-		"cyber": 39,
-		"competition": 39,
-		"fraud_conduct": 39,
-		"reputation": 38,
-		"macroeconomic": 37,
-		"supply_chain": 37,
-		"legal": 36,
-		"esg_social": 36,
-		"geopolitical": 35,
-		"climate": 34,
-		"technology_ai": 34,
-		"liquidity_funding": 34,
-		"interest": 33,
-		"health_safety": 32,
-		"commodity": 30,
-		"tax": 30,
-		"fx": 29,
-		"regulatory": 27,
-		"business_continuity": 27,
-		"talent": 24,
-		"credit": 24,
-		"pension": 19,
-		"product_quality": 13,
-		"capital_projects": 3
-	};
-	/** Principal-risk categories, by how many reports name them in their principal-risk or risk-factor pages. */
-	function riskCatalogue() {
-		return Object.entries(RC).map(([key, reports]) => ({
-			key,
-			reports,
-			description: "",
-			...RISK_AR[key] ?? {
-				ar: key,
-				mitigation: ""
-			}
-		})).sort((a, b) => b.reports - a.reports);
-	}
-	var LT_AR = {
-		people_thanks: "الشكر للموظفين والفريق",
-		customers: "العملاء",
-		strategy: "الاستراتيجية وتنفيذها",
-		ai_digital: "التحول الرقمي والذكاء الاصطناعي",
-		outlook: "النظرة المستقبلية",
-		shareholder_returns: "العائد للمساهمين (التوزيعات وإعادة الشراء)",
-		governance_board: "المجلس والحوكمة",
-		capital_allocation: "تخصيص رأس المال والاستثمار",
-		sustainability: "الاستدامة والمناخ",
-		macro_geopolitics: "البيئة الاقتصادية والجيوسياسية",
-		safety: "السلامة",
-		results_vs_prior: "النتائج مقارنة بالسنة السابقة"
-	};
-	var LT = {
-		"people_thanks": 28,
-		"customers": 27,
-		"strategy": 26,
-		"ai_digital": 25,
-		"outlook": 23,
-		"shareholder_returns": 22,
-		"governance_board": 22,
-		"capital_allocation": 21,
-		"sustainability": 21,
-		"macro_geopolitics": 19,
-		"safety": 8,
-		"results_vs_prior": 8
-	};
-	var LETTERS = {
-		reports: 30,
-		medianWordsFirstPages: 2676,
-		examples: [
-			["amazon-2023", 3],
-			["cisco-2024", 348],
-			["jpmorgan-2023", 551],
-			["amazon-2024", 1018],
-			["berkshire-2025", 1190],
-			["jpmorgan-2025", 1345],
-			["pg-2026", 2041],
-			["mcdonalds-2025", 2133],
-			["novartis-2025", 2543],
-			["ubs-2025", 2998],
-			["mercedes-2025", 3246],
-			["telekom-2025", 4324],
-			["bp-2025", 4707],
-			["unilever-2025", 5103],
-			["astrazeneca-2025", 5390],
-			["gsk-2025", 5759],
-			["hsbc-2025", 5957],
-			["totalenergies-2024", 6723],
-			["airbus-2023", 6989],
-			["loreal-2024", 7429],
-			["softbank-2026", 8261],
-			["tencent-2025", 9187],
-			["reliance-2026", 9471],
-			["infosys-2026", 9631],
-			["aramco-2025", 1e4],
-			["emiratesnbd-2025", 10246],
-			["eand-2025", 10378],
-			["rbc-2025", 10610],
-			["bhp-2025", 10857],
-			["cba-2025", 12301]
-		]
-	};
-	/** What the chair's and chief executive's letters cover, by share of the 30 reports that carry one. */
-	function letterTopics() {
-		return Object.entries(LT).map(([key, n]) => ({
-			key,
-			ar: LT_AR[key] ?? key,
-			reports: n,
-			share: Math.round(n / LETTERS.reports * 100)
-		})).sort((a, b) => b.reports - a.reports);
-	}
-	var AP = {
-		"free cash flow": 20,
-		"adjusted EPS": 17,
-		"ROE/ROTE": 13,
-		"EBITDA": 12,
-		"net debt": 10,
-		"operating margin": 8,
-		"constant currency": 6,
-		"ROCE/ROACE": 6,
-		"organic growth": 5,
-		"gearing": 5,
-		"ROIC": 4,
-		"cash conversion": 4
-	};
-	/** Alternative performance measures used in highlights, KPI and MD&A pages. */
-	var apms = () => Object.entries(AP).map(([name, reports]) => ({
-		name,
-		reports
-	})).sort((a, b) => b.reports - a.reports);
-	var AC_AR = {
-		internal_audit: "المراجعة الداخلية",
-		risk_controls: "إدارة المخاطر والرقابة الداخلية",
-		tender_rotation: "طرح المراجعة وتدوير المراجع",
-		climate_reporting: "التقارير المناخية",
-		non_audit_fees: "أتعاب الخدمات غير المراجعة",
-		going_concern_viability: "الاستمرارية والجدوى",
-		cyber: "الأمن السيبراني",
-		significant_judgements: "الأحكام المحاسبية الهامة",
-		whistleblowing: "الإبلاغ عن المخالفات",
-		fair_balanced: "التقرير عادل ومتوازن ومفهوم",
-		external_auditor_effectiveness: "فاعلية المراجع الخارجي واستقلاله"
-	};
-	var AC = {
-		"internal_audit": 7,
-		"risk_controls": 7,
-		"tender_rotation": 6,
-		"climate_reporting": 5,
-		"non_audit_fees": 4,
-		"going_concern_viability": 4,
-		"cyber": 4,
-		"significant_judgements": 3,
-		"whistleblowing": 3,
-		"fair_balanced": 2,
-		"external_auditor_effectiveness": 1
-	};
-	var committeeTopics = () => Object.entries(AC).map(([key, reports]) => ({
-		key,
-		ar: AC_AR[key] ?? key,
-		reports
-	})).sort((a, b) => b.reports - a.reports);
-	var AE_AR = {
-		kam: "الأمور الرئيسية للمراجعة",
-		fraud: "الغش وتجاوز الإدارة للضوابط",
-		other_info: "المعلومات الأخرى",
-		icfr_opinion: "رأي في الرقابة الداخلية",
-		tenure: "مدة تكليف المراجع",
-		going_concern: "الاستنتاج بشأن الاستمرارية",
-		responsibilities: "مسؤوليات المراجع",
-		scope: "نطاق المراجعة",
-		climate: "المناخ في المراجعة",
-		materiality: "الأهمية النسبية بالأرقام"
-	};
-	var AE = {
-		"kam": 45,
-		"materiality": 6,
-		"scope": 10,
-		"other_info": 27,
-		"going_concern": 20,
-		"tenure": 23,
-		"icfr_opinion": 24,
-		"climate": 10,
-		"fraud": 42,
-		"responsibilities": 19
-	};
-	var auditorElements = () => Object.entries(AE).map(([key, reports]) => ({
-		key,
-		ar: AE_AR[key] ?? key,
-		reports
-	})).sort((a, b) => b.reports - a.reports);
-	var VIABILITY = {
-		horizons: {
-			"12 months from the date": 5,
-			"three-year period": 3,
-			"three-year horizon": 2,
-			"period of five years": 2,
-			"three-year assessment": 1,
-			"period of three years": 1,
-			"five-year period": 1
-		},
-		reports: [
-			"astrazeneca-2025",
-			"bhp-2025",
-			"bp-2025",
-			"hsbc-2025",
-			"infosys-2026",
-			"unilever-2025"
-		]
-	};
-	/** The integrated annual report the app writes: sections carried by at least `min` of the 49 reports, in their median order. */
-	function blueprint(min = 8) {
-		return [
-			"strategic",
-			"governance",
-			"financial"
-		].map((part) => ({
-			part,
-			ar: {
-				strategic: "التقرير الاستراتيجي",
-				governance: "الحوكمة",
-				financial: "القوائم المالية وتقرير المراجع",
-				other: "أخرى"
-			}[part],
-			sections: SECTIONS.filter((s) => s.part === part && s.reports >= min).sort((a, b) => a.pos - b.pos)
-		}));
-	}
-	var EXEMPLARS = [
-		{
-			section: "chairLetter",
-			ar: "رسالة رئيس مجلس الإدارة",
-			pattern: [
-				"تبدأ بتحية المساهمين ووصف السنة في جملة («كانت 2025 عاماً…»)",
-				"أبرز الإنجازات التشغيلية والمشاريع",
-				"النتائج الرئيسية بالأرقام مقارنة بالسنة السابقة",
-				"العائد للمساهمين: التوزيعات وسياستها",
-				"دور المجلس والحوكمة والتعيينات",
-				"البيئة الاقتصادية والجيوسياسية",
-				"الشكر للموظفين والمساهمين",
-				"نظرة إلى الأمام دون وعود"
-			],
-			sources: [
-				{
-					report: "aramco-2025",
-					page: 10008,
-					note: "رسالة الرئيس: المشاريع، صافي الدخل المعدل، التدفق الحر، التوزيعات"
-				},
-				{
-					report: "bp-2025",
-					page: 4710,
-					note: "رسالة الرئيس: التعيينات والسلامة والأداء"
-				},
-				{
-					report: "hsbc-2025",
-					page: 5957,
-					note: "رسالة الرئيس التنفيذي: شريط مؤشرات ثم الأهداف 2026–2028"
-				},
-				{
-					report: "jpmorgan-2025",
-					page: 1345,
-					note: "رسالة الرئيس التنفيذي المطولة للمساهمين"
-				}
-			]
-		},
-		{
-			section: "ceoReview",
-			ar: "مراجعة الرئيس التنفيذي",
-			pattern: [
-				"شريط مؤشرات أعلى الصفحة: القيمة ومقارنتها",
-				"الأداء التشغيلي مقابل الاستراتيجية",
-				"محاور الاستراتيجية وما تحقق في كل محور",
-				"الأهداف للسنوات القادمة",
-				"المخاطر والفرص"
-			],
-			sources: [{
-				report: "aramco-2025",
-				page: 10010,
-				note: "رسالة الرئيس وكبير الإداريين التنفيذيين: النمو ومحاور المنبع والمصب"
-			}, {
-				report: "hsbc-2025",
-				page: 5957,
-				note: "RoTE والأرباح قبل الضريبة ثم الأهداف"
-			}]
-		},
-		{
-			section: "principalRisks",
-			ar: "المخاطر الرئيسية",
-			pattern: [
-				"فقرة عن شهية المخاطر وإطار إدارتها ومسؤولية المجلس",
-				"جدول: الخطر | وصفه | كيف ندير الخطر | اتجاه الخطر (ارتفاع/ثبات/انخفاض)",
-				"ربط كل خطر بالاستراتيجية",
-				"المخاطر الناشئة"
-			],
-			sources: [
-				{
-					report: "unilever-2025",
-					page: 5134,
-					note: "شهية المخاطر والتنظيم"
-				},
-				{
-					report: "unilever-2025",
-					page: 5136,
-					note: "جدول الخطر ووصفه وإدارته ومستواه"
-				},
-				{
-					report: "aramco-2025",
-					page: 10081,
-					note: "عوامل المخاطر: فهم الخطر ثم أثره"
-				}
-			]
-		},
-		{
-			section: "viability",
-			ar: "بيان الجدوى والاستمرارية",
-			pattern: [
-				"فترة التقييم (غالباً ثلاث سنوات) ومبررها",
-				"التقييم في ثلاثة أجزاء: الفترة، التمويل والتسهيلات، سيناريوهات شديدة ولكن معقولة",
-				"جدول سيناريوهات مرتبطة بالمخاطر الرئيسية",
-				"الاستنتاج: توقع معقول بالاستمرار والوفاء بالالتزامات"
-			],
-			sources: [
-				{
-					report: "unilever-2025",
-					page: 5141,
-					note: "بيان الجدوى وسيناريوهات المخاطر المتعددة"
-				},
-				{
-					report: "gsk-2025",
-					page: 5792,
-					note: "الجدوى وأساس الاستمرارية والرقابة الداخلية"
-				},
-				{
-					report: "hsbc-2025",
-					page: 6158,
-					note: "لجنة المراجعة: الجدوى طويلة الأجل والاستمرارية"
-				}
-			]
-		},
-		{
-			section: "kams",
-			ar: "الأمور الرئيسية للمراجعة",
-			pattern: [
-				"عمودان: الأمر الرئيسي | كيف عالجته مراجعتنا",
-				"الأمر: متطلب المعيار، المبلغ الدفتري، لماذا هو حكم مهني، الافتراضات الرئيسية بنقاط",
-				"«شملت إجراءاتنا، من بين أمور أخرى، ما يلي:» ثم نقاط تبدأ بفعل (قيّمنا، اختبرنا، قارنّا، استعنا بخبراء، أجرينا تحليل حساسية)",
-				"الختام بتقييم كفاية الإفصاحات",
-				"الإحالة إلى الإيضاح ذي الصلة"
-			],
-			sources: [
-				{
-					report: "aramco-2025",
-					page: 10164,
-					note: "الشهرة وعلامة سابك: الافتراضات بنقاط وإجراءات الخبراء"
-				},
-				{
-					report: "unilever-2025",
-					page: 5219,
-					note: "الأمور الرئيسية"
-				},
-				{
-					report: "hsbc-2025",
-					page: 6206,
-					note: "الأمور الرئيسية لمراجع HSBC"
-				}
-			]
-		},
-		{
-			section: "materiality",
-			ar: "الأهمية النسبية ونطاق المراجعة",
-			pattern: [
-				"جدول: الأهمية العامة وكيف حُددت ومبرر الأساس",
-				"الأهمية التنفيذية وحد الإبلاغ للجنة",
-				"نطاق المراجعة والمكونات"
-			],
-			sources: [
-				{
-					report: "aramco-2025",
-					page: 10162,
-					note: "نظرة عامة، الأهمية، النطاق"
-				},
-				{
-					report: "unilever-2025",
-					page: 5216,
-					note: "الأهمية النسبية"
-				},
-				{
-					report: "bp-2025",
-					page: 4849,
-					note: "الأهمية النسبية"
-				}
-			]
-		},
-		{
-			section: "auditCommittee",
-			ar: "تقرير لجنة المراجعة",
-			pattern: [
-				"المسؤوليات",
-				"كيف أدت اللجنة مهامها",
-				"جدول الأمور الهامة: المجال | الأمر | الاستنتاج",
-				"المراجع الخارجي: الاستقلال والفاعلية والأتعاب",
-				"المراجعة الداخلية والإبلاغ عن المخالفات"
-			],
-			sources: [
-				{
-					report: "hsbc-2025",
-					page: 6153,
-					note: "تقرير لجنة المراجعة"
-				},
-				{
-					report: "astrazeneca-2025",
-					page: 5470,
-					note: "أعضاء اللجنة وجلسات المراجعة المعمقة"
-				},
-				{
-					report: "aramco-2025",
-					page: 10115,
-					note: "الدور الأساسي للجنة المراجعة"
-				},
-				{
-					report: "unilever-2025",
-					page: 5173,
-					note: "تقرير لجنة المراجعة: أولويات السنة"
-				}
-			]
-		},
-		{
-			section: "mdna",
-			ar: "تقرير الإدارة ومناقشتها وتحليلها",
-			pattern: [
-				"نظرة عامة على السنة",
-				"تحليل الإيرادات والتكاليف والهوامش بأسبابها",
-				"السيولة ومصادر التمويل والتدفقات",
-				"مقاييس الأداء البديلة مع مطابقتها بالمعايير",
-				"التقديرات المحاسبية الحرجة",
-				"التوقعات"
-			],
-			sources: [
-				{
-					report: "amazon-2024",
-					page: 1048,
-					note: "البند 7: تقرير الإدارة ومناقشتها وتحليلها"
-				},
-				{
-					report: "aramco-2025",
-					page: 10041,
-					note: "مقاييس غير معرفة في المعايير: المديونية والعائد على رأس المال"
-				},
-				{
-					report: "adobe-2024",
-					page: 484,
-					note: "التقديرات الحرجة"
-				}
-			]
-		},
-		{
-			section: "directorsResponsibilities",
-			ar: "إقرار مسؤوليات المجلس",
-			pattern: [
-				"المسؤولية عن إعداد القوائم وفق الإطار",
-				"اختيار السياسات وتطبيقها والتقديرات المعقولة",
-				"أساس الاستمرارية",
-				"الرقابة الداخلية ومنع الغش",
-				"إقرار بأن التقرير عادل ومتوازن"
-			],
-			sources: [{
-				report: "nestle-2025",
-				page: 2319,
-				note: "مسؤولية مجلس الإدارة"
-			}, {
-				report: "unilever-2025",
-				page: 5213,
-				note: "إقرار مسؤوليات أعضاء المجلس"
-			}]
-		}
-	];
-	function summary() {
-		return {
-			...CORPUS,
-			sections: SECTIONS.length,
-			kamProcedures: Object.keys(KP).length,
-			riskCategories: Object.keys(RC).length,
-			letters: LETTERS.reports,
-			auditorReports: 45
-		};
-	}
-	//#endregion
 	//#region app/src/engine/fusion/reports/narrative-engine.ts
 	var narrative_engine_exports = /* @__PURE__ */ __exportAll({
 		NARRATIVE_SCHEMA: () => NARRATIVE_SCHEMA,
@@ -17803,6 +19851,89 @@ window.SKEngines = (function() {
 		});
 	}
 	//#endregion
+	//#region app/src/engine/fusion/reports/sample-company-engine.ts
+	var sample_company_engine_exports = /* @__PURE__ */ __exportAll({
+		WAHA_COMPANY: () => WAHA_COMPANY,
+		WAHA_CONTEXT: () => WAHA_CONTEXT,
+		WAHA_TB_CSV: () => WAHA_TB_CSV
+	});
+	var WAHA_TB_CSV = [
+		"رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة",
+		"1101,النقد لدى البنوك,38450000,,45720000",
+		"1102,ودائع بنكية قصيرة الأجل,20000000,,40000000",
+		"1121,ذمم مدينة تجارية - عملاء,96300000,,71800000",
+		"1129,مخصص خسائر ائتمانية متوقعة,,2100000,-1950000",
+		"1141,مخزون مواد خام ولحوم مجمدة,54700000,,41200000",
+		"1142,مخزون بضاعة تامة الصنع,18900000,,16300000",
+		"1161,مصروفات مدفوعة مقدما,6240000,,5100000",
+		"1171,ضريبة المدخلات,3180000,,2640000",
+		"1501,أراضي,45000000,,45000000",
+		"1502,مباني ومصانع,128000000,,119500000",
+		"1503,آلات ومعدات التصنيع,164500000,,142000000",
+		"1504,سيارات وشاحنات مبردة,36800000,,31200000",
+		"1509,مجمع الإهلاك,,118600000,-97400000",
+		"1601,موجودات حق الاستخدام,22400000,,25900000",
+		"1801,برامج وتراخيص ERP,7600000,,8900000",
+		"1901,استثمار في شركة زميلة,15000000,,15000000",
+		"2101,موردون,,61400000,-52900000",
+		"2111,دفعات مقدمة من عملاء,,4850000,-3200000",
+		"2121,مصروفات مستحقة,,12700000,-10450000",
+		"2131,ضريبة المخرجات,,5960000,-4870000",
+		"2141,زكاة مستحقة,,7850000,-6420000",
+		"2151,تمويل مرابحة قصير الأجل,,35000000,-28000000",
+		"2201,قرض طويل الأجل - صندوق التنمية الصناعية,,82000000,-96000000",
+		"2211,التزامات عقود الإيجار,,21300000,-24600000",
+		"2301,مخصص مكافأة نهاية الخدمة,,19450000,-17100000",
+		"2311,مخصص قضايا ومطالبات,,3200000,-1000000",
+		"3101,رأس المال,,150000000,-150000000",
+		"3201,احتياطي نظامي,,21500000,-18000000",
+		"3301,أرباح مبقاة,,79860000,-74670000",
+		"4101,المبيعات,,412600000,-351800000",
+		"4201,إيرادات أخرى,,1850000,-1420000",
+		"4701,حصة في أرباح شركة زميلة,,2300000,-1900000",
+		"5101,تكلفة المبيعات,280000000,,236000000",
+		"5201,مصروفات بيع وتوزيع,31600000,,27900000",
+		"6101,رواتب وأجور إدارية,24800000,,22300000",
+		"6201,مصروف الإهلاك والإطفاء,23900000,,21600000",
+		"6301,خسائر ائتمانية متوقعة,150000,,400000",
+		"6401,مصروفات عمومية وإدارية أخرى,9700000,,8900000",
+		"7101,تكاليف التمويل,7450000,,7900000",
+		"8101,مصروف الزكاة,7850000,,6420000"
+	].join("\n");
+	var WAHA_CONTEXT = {
+		company: "شركة الواحة الذهبية للصناعات الغذائية",
+		activity: "تصنيع وتوزيع اللحوم والأغذية المجمدة",
+		period: "السنة المنتهية في 31 ديسمبر 2025",
+		periodStart: "2025-01-01",
+		periodEnd: "2025-12-31",
+		legalForm: "شركة مساهمة مقفلة",
+		registeredOffice: "الرياض — المملكة العربية السعودية",
+		principalPlace: "المدينة الصناعية الثانية، الرياض",
+		country: "SA",
+		framework: "IFRS",
+		currency: "الريال السعودي",
+		auditFirm: "مكتب كوسف للمراجعة والاستشارات",
+		auditCity: "الرياض"
+	};
+	/** The company as the companies screen stores it, with its two financial years. */
+	var WAHA_COMPANY = {
+		id: "waha-co",
+		name: WAHA_CONTEXT.company,
+		country: "SA",
+		currency: "SAR",
+		periods: [{
+			id: "waha-2025",
+			label: "2025",
+			startDate: "2025-01-01",
+			endDate: "2025-12-31"
+		}, {
+			id: "waha-2024",
+			label: "2024",
+			startDate: "2024-01-01",
+			endDate: "2024-12-31"
+		}]
+	};
+	//#endregion
 	//#region app/src/engine/fusion/reports/scenario-engine.ts
 	var scenario_engine_exports = /* @__PURE__ */ __exportAll({ runScenario: () => runScenario });
 	function money$11(value) {
@@ -19262,6 +21393,7 @@ window.SKEngines = (function() {
 			aiReview: ai_review_engine_exports,
 			codex: codex_engine_exports,
 			confidence: confidence_engine_exports,
+			corpusReplay: corpus_replay_engine_exports,
 			council: council_engine_exports$1,
 			disclosures: disclosures_engine_exports,
 			documentCheck: document_check_engine_exports,
@@ -19274,6 +21406,7 @@ window.SKEngines = (function() {
 			issues: issues_engine_exports,
 			kam: kam_engine_exports,
 			materiality: materiality_engine_exports,
+			openingRequests: opening_requests_engine_exports,
 			pbc: pbc_engine_exports,
 			planning: planning_engine_exports,
 			programme: programme_engine_exports,
@@ -19322,6 +21455,7 @@ window.SKEngines = (function() {
 		reports: {
 			analysis: analysis_engine_exports,
 			annualReport: annual_report_engine_exports,
+			corpusCompanies: corpus_companies_engine_exports,
 			excelRecon: excel_recon_engine_exports,
 			export: export_engine_exports,
 			globalCorpus: global_corpus_engine_exports,
@@ -19329,6 +21463,7 @@ window.SKEngines = (function() {
 			narrative: narrative_engine_exports,
 			notes: notes_engine_exports,
 			peerBenchmarks: peer_benchmarks_engine_exports,
+			sampleCompany: sample_company_engine_exports,
 			scenario: scenario_engine_exports,
 			smartMatch: smart_match_engine_exports,
 			statements: statements_engine_exports,

@@ -121,7 +121,7 @@ function applyPrefs(){
 function setPref(k,v){const p=prefs();p[k]=v;save(PREF_KEY,p);applyPrefs()}
 function setLook(l){const p=prefs();if(!LOOKS.some(x=>x[0]===l))l="kosif";p.look=l;if(!DARK.has(l)&&l!=="auto")p.lastLight=l;save(PREF_KEY,p);
   /* one smooth cross-fade where the browser supports view transitions */
-  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;if(document.startViewTransition&&!reduce)document.startViewTransition(()=>applyPrefs());else applyPrefs();SK.toast("المظهر: "+LOOKS.find(x=>x[0]===l)[1],"info")}
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;if(document.startViewTransition&&!reduce){const vt=document.startViewTransition(()=>applyPrefs());for(const k of["ready","finished","updateCallbackDone"])vt[k]&&vt[k].catch(()=>{})}else applyPrefs();SK.toast("المظهر: "+LOOKS.find(x=>x[0]===l)[1],"info")}
 /* the topbar moon button: light look ↔ its night counterpart */
 function toggleAppearance(){const cur=lookNow(),p=prefs();if(DARK.has(cur))setLook(p.lastLight||"kosif");else setLook(NIGHT[cur]||"midnight")}
 const setAppearance=a=>setLook(a==="dark"?"kosif-night":a==="auto"?"auto":"kosif");
@@ -146,7 +146,7 @@ let lastSig="";
 /* the menu: collapsible domains (icon · name · count), the current screen's domain always open,
    and a filter box above it; open/closed state per device (skosif_nav_v1) */
 const NAV_KEY="skosif_nav_v1";
-const GICON={home:"dash",intelligence:"decision",sales:"commerce",stock:"inventory",finance:"ledger",catalog:"catalog",reports:"execreports",audit:"tbreview",system:"settings"};
+const GICON={home:"dash",audit:"tbreview",helpers:"helperdesk",system:"settings"};
 const CHEV='<svg class="skn-ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
 const navState=()=>{const d=load(NAV_KEY,{})||{};return d.open&&typeof d.open==="object"?d.open:{}};
 function setNavOpen(g,v){const d=load(NAV_KEY,{})||{};d.open={...(d.open||{}),[g]:v};save(NAV_KEY,d)}
@@ -204,6 +204,8 @@ function stripItems(id){
   /* «متقدم» only marks an advanced page inside a daily hub */
   const hubAdv=!SK.caps.hub(id).primary;
   if(pages.length>1)return{hub:true,items:pages.map(x=>({id:x.id,go:x.id,label:x.label,primary:x.primary||hubAdv,on:x.id===id}))};
+  /* accountant helpers can be numerous: their center/map is the domain navigation, not a 20-tab strip */
+  if(cap.group==="helpers")return{hub:false,items:[]};
   const items=SK.caps.hubsInGroup(cap.group).map(h=>[h,hubPages(h.id,id)]).filter(([,pg])=>pg.length)
     .map(([h,pg])=>({id:h.id,go:pg[0].id,label:h.hubLabel,primary:h.primary,on:pg.some(x=>x.id===id)}));
   return{hub:false,items};
@@ -231,8 +233,8 @@ function paintTop(){
 /* phones: bottom tab bar — in the page flow (sticky), never over content. Four screens the user
    picks in «الأجهزة والمزامنة» (prefs.tabs), then «المزيد» opens the drawer. */
 /* default four chosen with Jev (hybrid: daily selling + the new risk screen, p=0.75); notifications live on the bell */
-const TABS=["dash","commerce","tasks","risks"];
-const SHORT={dash:"الرئيسية",commerce:"الطلبات",tasks:"المهام",inventory:"المخزون",zatca:"الفاتورة",customers:"العملاء",followup:"المتابعة",offers:"العروض",
+const TABS=["tbreview","helperdesk","codex","auditbench"];
+const SHORT={dash:"الرئيسية",helperdesk:"الأدوات",tbreview:"المراجعة",codex:"المعايير",auditbench:"المرجع",commerce:"الطلبات",tasks:"المهام",inventory:"المخزون",zatca:"الفاتورة",customers:"العملاء",followup:"المتابعة",offers:"العروض",
   catalog:"الأسعار",sim:"التسعير",purchasing:"الشراء",suppliers:"الموردون",cash:"النقد",receivables:"الذمم",ledger:"الدفاتر",jev:"Jev",council:"المجلس",
   execreports:"التقارير",scanner:"الماسح",labels:"الملصقات",operations:"المناسبات",b2bcredit:"الائتمان",traceability:"التبريد",decision:"القرار",
   reports:"الطباعة",exports:"التصدير",settings:"الإعدادات",devices:"الأجهزة",memo:"الاعتماد",builder:"البوكسات",risks:"المخاطر",notifications:"الإشعارات"};

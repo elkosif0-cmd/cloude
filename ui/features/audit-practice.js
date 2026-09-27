@@ -44,11 +44,14 @@ function planCard(c){
 
 /* ---------- key audit matters ---------- */
 function kamList(c){
-  const d=c.d,AI=E().audit.aiReview,GB=E().audit.globalBenchmarks,cur=d.source==="bundle"&&d.ctx.currency?d.ctx.currency:d.ctx.country==="EG"||c.fw==="EAS"?"ج.م":"ر.س";
+  const d=c.d,AI=E().audit.aiReview,GB=E().audit.globalBenchmarks,CRx=E().audit.corpusReplay;
+  const cur=d.ctx.curSym||(d.source==="bundle"&&d.ctx.currency?d.ctx.currency:d.ctx.country==="EG"||c.fw==="EAS"?"ج.م":"ر.س"),sector=d.ctx.sector||(GB?GB.sectorFromActivity(d.ctx.activity||""):"");
   /* evidence from the rounds and from the working papers signed in the fieldwork tab */
   const ev=AI.mergeEvidence?AI.mergeEvidence(c.session?AI.evidenceFromSession(c.base,c.session):{},c.fieldEv||{}):(c.session?AI.evidenceFromSession(c.base,c.session):{});
   const end=/^\d{4}-\d{2}-\d{2}$/.test(d.ctx.periodEnd||"")?new Date(d.ctx.periodEnd+"T12:00:00").toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"}):"";
-  const ks=KM().suggestKams({fs:c.fsAfterAdj,risks:c.base.risks,materiality:c.base.materiality.overall,currency:cur,periodEnd:end,sector:GB?GB.sectorFromActivity(d.ctx.activity||""):"",
+  /* a company of the research bundle never informs its own ranking: its sector prior leaves it out */
+  const ks=KM().suggestKams({fs:c.fsAfterAdj,risks:c.base.risks,materiality:c.base.materiality.overall,currency:cur,periodEnd:end,sector,
+    sectorPrior:CRx&&d.ctx.corpusId?CRx.sectorPrior(sector,d.ctx.corpusId):undefined,exclude:d.ctx.corpusId||d.bundleId||undefined,
     evidence:ev,priorKeys:Array.isArray(d.priorKams)?d.priorKams:undefined,standard:d.ctx.reportForm==="US"?"PCAOB":"ISA",max:d.ctx.reportForm==="UK"?4:undefined});
   if(Array.isArray(d.kamSel))ks.forEach(k=>{k.selected=d.kamSel.includes(k.key)});
   return ks;

@@ -5,6 +5,7 @@ dash	مركز القيادة
 tasks	المهام
 notifications	مركز الإشعارات
 risks	المخاطر والملاحظات
+helperdesk	مركز الأدوات المساعدة
 decision	مركز القرار
 jev	Jev للقرار
 council	مجلس القرار
@@ -53,6 +54,7 @@ archive	الأرشيف والتغييرات
 tbreview	ملف المراجعة
 codex	المدونة المحاسبية والمعايير
 auditbench	المرجع العالمي للمراجعة
+corpuslab	مختبر الشركات العالمية
 auditdesk	الاستوديو المتقدم
 auditdocs	المستندات والأدلة
 auditissues	الملاحظات والقضايا

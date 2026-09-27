@@ -322,19 +322,16 @@ export function sectorFromActivity(activity: string): Sector | '' {
   return map.find(([, re]) => re.test(t))?.[0] ?? '';
 }
 
-/** How often each theme is a key/critical audit matter for reports of this sector (and standard), smoothed towards the
-    whole bundle: p = (reports of the sector carrying it + 2 × its share across all reports) / (reports of the sector + 2).
-    `exclude` leaves one report out, so the bundle can test itself without seeing the answer. */
+/** How often each theme is a key/critical audit matter in the reports of this sector — the share of the sector's reports carrying it;
+    for a sector the bundle does not cover, the share under the same standard, else across all reports. `exclude` leaves one report
+    out, so the bundle can test itself without seeing the answer (the replay measured the plain sector share ranking best). */
 export function themePrior(opts: { sector?: Sector | ''; standard?: Standard | ''; exclude?: string } = {}): Record<Theme, number> {
   const reps = REPORTS.filter((r) => r.id !== opts.exclude && KAMS.some((k) => k.report === r.id));
   const has = (r: Report, t: Theme) => KAMS.some((k) => k.report === r.id && k.theme === t);
   const inSector = reps.filter((r) => opts.sector && r.sector === opts.sector), inStd = reps.filter((r) => opts.standard && r.standard === opts.standard);
+  const pool = inSector.length ? inSector : inStd.length ? inStd : reps;
   const out = {} as Record<Theme, number>;
-  for (const t of Object.keys(THEMES) as Theme[]) {
-    const g = reps.length ? reps.filter((r) => has(r, t)).length / reps.length : 0;
-    const std = inStd.length ? (inStd.filter((r) => has(r, t)).length + 2 * g) / (inStd.length + 2) : g;
-    out[t] = inSector.length ? (inSector.filter((r) => has(r, t)).length + 2 * std) / (inSector.length + 2) : std;
-  }
+  for (const t of Object.keys(THEMES) as Theme[]) out[t] = pool.length ? Math.round((pool.filter((r) => has(r, t)).length / pool.length) * 100) / 100 : 0;
   return out;
 }
 /** How many matters reports of a standard carry: PCAOB reports about two critical audit matters, ISA reports three or more. */

@@ -19,7 +19,7 @@
   --sk-info:#2d6a7a;--sk-info-soft:#e1eeef;--sk-info-mark:#3f8fa3;
   --sk-violet:#6d4a8c;--sk-violet-soft:#efe6f3;--sk-violet-line:#dccbe6;
   /* rail */
-  --sk-rail:#efe2cc;--sk-rail-2:rgba(138,90,43,.08);--sk-rail-ink:#3a2414;--sk-rail-mute:#8c735a;--sk-rail-active:#f3dfbd;
+  --sk-rail:#efe2cc;--sk-rail-2:rgba(138,90,43,.08);--sk-rail-ink:#3a2414;--sk-rail-mute:#6e5741;--sk-rail-active:#f3dfbd;
   /* charts */
   --sk-grid:#e8dcc6;--sk-axis:#cdb996;--sk-s1:#8c735a;--sk-s2:#8a5a2b;--sk-s3:#3f9a5a;
   /* focus */
@@ -106,9 +106,9 @@
    executive = «التنفيذي» · audit = «المراجعة الاحترافية» · midnight = «ليل التحليل» · notebook = «الدفتر» */
 :root[data-look="executive"]{
   --sk-bg:#f5f6fb;--sk-surface:#ffffff;--sk-surface-2:#f7f8fd;--sk-surface-3:#eef0f8;--sk-line:#e6e8f2;--sk-line-2:#d7dbea;
-  --sk-ink:#1d2340;--sk-ink-2:#4b5270;--sk-ink-3:#7c829c;
+  --sk-ink:#1d2340;--sk-ink-2:#4b5270;--sk-ink-3:#5c6280;
   --sk-brand:#5b4ee6;--sk-brand-2:#3d7bf5;--sk-brand-soft:#ecebff;--sk-on-brand:#ffffff;
-  --sk-rail:#ffffff;--sk-rail-2:rgba(91,78,230,.07);--sk-rail-ink:#1d2340;--sk-rail-mute:#7c829c;--sk-rail-active:#ecebff;
+  --sk-rail:#ffffff;--sk-rail-2:rgba(91,78,230,.07);--sk-rail-ink:#1d2340;--sk-rail-mute:#5c6280;--sk-rail-active:#ecebff;
   --sk-grid:#eceef6;--sk-axis:#cfd4e6;--sk-s1:#7c829c;--sk-s2:#5b4ee6;--sk-s3:#1fa971;--sk-focus:#5b4ee6;
   --sk-font:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;--sk-font-display:"IBM Plex Sans Arabic","Segoe UI",sans-serif;
   --sk-shadow-1:0 10px 30px -18px rgba(61,70,160,.35);--sk-shadow-2:0 18px 40px -18px rgba(61,70,160,.4);
@@ -116,7 +116,7 @@
 }
 :root[data-look="audit"]{
   --sk-bg:#f3f4f6;--sk-surface:#ffffff;--sk-surface-2:#f8f9fb;--sk-surface-3:#eceef2;--sk-line:#dde1e7;--sk-line-2:#c9ced6;
-  --sk-ink:#161b26;--sk-ink-2:#3d4554;--sk-ink-3:#6b7384;
+  --sk-ink:#161b26;--sk-ink-2:#3d4554;--sk-ink-3:#5b6373;
   --sk-brand:#1f3b68;--sk-brand-2:#2f5d9e;--sk-brand-soft:#e3eaf5;--sk-on-brand:#ffffff;
   --sk-rail:#172235;--sk-rail-2:rgba(255,255,255,.07);--sk-rail-ink:#e7ecf4;--sk-rail-mute:#94a0b4;--sk-rail-active:rgba(255,255,255,.12);
   --sk-grid:#e6e9ee;--sk-axis:#c3c9d3;--sk-s1:#6b7384;--sk-s2:#1f3b68;--sk-s3:#2f7a45;--sk-focus:#2f5d9e;
@@ -134,9 +134,9 @@
 }
 :root[data-look="notebook"]{
   --sk-bg:#f7f3e8;--sk-surface:#fffdf6;--sk-surface-2:#fbf7ec;--sk-surface-3:#f1ead7;--sk-line:#e4dcc5;--sk-line-2:#d3c8a8;
-  --sk-ink:#23252b;--sk-ink-2:#4a4d57;--sk-ink-3:#7a7d86;
+  --sk-ink:#23252b;--sk-ink-2:#4a4d57;--sk-ink-3:#5d6069;
   --sk-brand:#2c5aa0;--sk-brand-2:#c0392b;--sk-brand-soft:#e4ecf8;--sk-on-brand:#ffffff;
-  --sk-rail:#fbf7ec;--sk-rail-2:rgba(44,90,160,.07);--sk-rail-ink:#23252b;--sk-rail-mute:#7a7d86;--sk-rail-active:#e4ecf8;
+  --sk-rail:#fbf7ec;--sk-rail-2:rgba(44,90,160,.07);--sk-rail-ink:#23252b;--sk-rail-mute:#5d6069;--sk-rail-active:#e4ecf8;
   --sk-focus:#2c5aa0;--sk-s2:#2c5aa0;
   --sk-font:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;--sk-font-display:"Aref Ruqaa","Amiri",serif;
   --sk-shadow-1:0 1px 0 rgba(0,0,0,.04);--sk-r:8px;--sk-r-l:10px;
@@ -148,7 +148,7 @@
    Default look. */
 :root[data-look="kosif"]{
   --sk-bg:#f3f6fa;--sk-surface:#ffffff;--sk-surface-2:#f7f9fc;--sk-surface-3:#edf2f8;--sk-line:#e4eaf2;--sk-line-2:#d3dce8;
-  --sk-ink:#0b1c33;--sk-ink-2:#44566f;--sk-ink-3:#8292a8;
+  --sk-ink:#0b1c33;--sk-ink-2:#3f5169;--sk-ink-3:#5a6a80;
   --sk-brand:#1668e3;--sk-brand-2:#22b8e6;--sk-brand-soft:#e8f1fe;--sk-on-brand:#ffffff;
   --sk-ok:#12884a;--sk-ok-soft:#e4f6eb;--sk-ok-mark:#22b35e;
   --sk-warn:#b86204;--sk-warn-soft:#fff2dc;--sk-warn-mark:#f5a524;
@@ -194,11 +194,11 @@
    Each light look has a night variant under [data-theme="dark"]. Status colours keep ΔE separation in both. */
 :root[data-look="aurora"]{
   --sk-bg:#eef2f9;--sk-surface:#ffffff;--sk-surface-2:#f6f8fc;--sk-surface-3:#eceff6;--sk-line:#e3e8f1;--sk-line-2:#d2d9e6;
-  --sk-ink:#101828;--sk-ink-2:#475467;--sk-ink-3:#7a8699;
+  --sk-ink:#101828;--sk-ink-2:#475467;--sk-ink-3:#5b6678;
   --sk-brand:#0a66ff;--sk-brand-2:#7b61ff;--sk-brand-soft:#e7efff;--sk-on-brand:#ffffff;
   --sk-ok:#0f8a4b;--sk-ok-soft:#e3f6ea;--sk-ok-mark:#22b35e;--sk-warn:#b25e00;--sk-warn-soft:#fff1dd;--sk-warn-mark:#f5a524;--sk-bad:#d92d20;--sk-bad-soft:#fdecea;--sk-bad-mark:#f04438;--sk-bad-row:#fff6f5;
   --sk-info:#0a66ff;--sk-info-soft:#e7efff;--sk-info-mark:#3b82f6;--sk-violet:#6941c6;--sk-violet-soft:#f1ecfd;--sk-violet-line:#ddd2f8;
-  --sk-rail:rgba(255,255,255,.62);--sk-rail-2:rgba(10,102,255,.07);--sk-rail-ink:#101828;--sk-rail-mute:#7a8699;--sk-rail-active:rgba(10,102,255,.1);
+  --sk-rail:rgba(255,255,255,.62);--sk-rail-2:rgba(10,102,255,.07);--sk-rail-ink:#101828;--sk-rail-mute:#5b6678;--sk-rail-active:rgba(10,102,255,.1);
   --sk-grid:#e9edf4;--sk-axis:#cfd6e2;--sk-s1:#7b61ff;--sk-s2:#0a66ff;--sk-s3:#22b35e;--sk-focus:#0a66ff;
   --sk-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;--sk-font-display:-apple-system,BlinkMacSystemFont,"SF Pro Display","IBM Plex Sans Arabic","Segoe UI",sans-serif;
   --sk-r-s:12px;--sk-r:16px;--sk-r-l:22px;
@@ -210,13 +210,13 @@
   --sk-bg:#0a0c13;--sk-surface:#141824;--sk-surface-2:#181d2b;--sk-surface-3:#1f2535;--sk-line:#252c3d;--sk-line-2:#323a4f;
   --sk-ink:#eef1f8;--sk-ink-2:#b6bfd1;--sk-ink-3:#8791a6;--sk-brand:#5b95ff;--sk-brand-2:#a18cff;--sk-brand-soft:#17264a;--sk-on-brand:#06101f;
   --sk-ok:#5fd394;--sk-ok-soft:#0f2e22;--sk-warn:#f7bd57;--sk-warn-soft:#33260c;--sk-bad:#ff8a80;--sk-bad-soft:#3a1618;--sk-bad-row:#2a1418;--sk-info:#7cb4ff;--sk-info-soft:#132e52;--sk-violet:#c4b5ff;--sk-violet-soft:#241f4a;--sk-violet-line:#3a3470;
-  --sk-rail:rgba(20,24,36,.7);--sk-rail-ink:#eef1f8;--sk-rail-mute:#8791a6;--sk-rail-active:rgba(91,149,255,.16);--sk-grid:#20273a;--sk-axis:#323a4f;--sk-focus:#5b95ff;
+  --sk-rail:rgba(20,24,36,.7);--sk-rail-ink:#eef1f8;--sk-rail-mute:#8791a6;--sk-rail-active:rgba(91,149,255,.16);--sk-grad-rail:linear-gradient(180deg,rgba(20,24,36,.86),rgba(16,20,31,.78));--sk-grid:#20273a;--sk-axis:#323a4f;--sk-focus:#5b95ff;
   --sk-shadow-1:0 1px 0 rgba(255,255,255,.04) inset,0 18px 40px -24px rgba(0,0,0,.8);--sk-shadow-2:0 24px 60px -28px rgba(0,0,0,.85);--sk-shadow-3:0 40px 90px -30px rgba(0,0,0,.9);
   --sk-heat-1:#1f5a3b;--sk-heat-2:#6b5a17;--sk-heat-3:#7a4219;--sk-heat-4:#7f2626;
 }
 :root[data-look="vivid"]{
   --sk-bg:#f8fafc;--sk-surface:#ffffff;--sk-surface-2:#f8fafc;--sk-surface-3:#f1f5f9;--sk-line:#eef2f7;--sk-line-2:#e2e8f0;
-  --sk-ink:#1e293b;--sk-ink-2:#475569;--sk-ink-3:#64748b;
+  --sk-ink:#1e293b;--sk-ink-2:#475569;--sk-ink-3:#5b6a7f;
   --sk-brand:#6366f1;--sk-brand-2:#06b6d4;--sk-brand-soft:#eef2ff;--sk-on-brand:#ffffff;
   --sk-ok:#059669;--sk-ok-soft:#ecfdf5;--sk-ok-mark:#10b981;--sk-warn:#b45309;--sk-warn-soft:#fffbeb;--sk-warn-mark:#f59e0b;--sk-bad:#e11d48;--sk-bad-soft:#fff1f2;--sk-bad-mark:#f43f5e;--sk-bad-row:#fff5f7;
   --sk-info:#0891b2;--sk-info-soft:#ecfeff;--sk-info-mark:#06b6d4;--sk-violet:#7c3aed;--sk-violet-soft:#f5f3ff;--sk-violet-line:#ddd6fe;
@@ -238,7 +238,7 @@
 }
 :root[data-look="oasis"]{
   --sk-bg:#f6f1e7;--sk-surface:#fffdf8;--sk-surface-2:#faf6ee;--sk-surface-3:#f0e8d8;--sk-line:#e7dcc6;--sk-line-2:#d8c9ab;
-  --sk-ink:#23261f;--sk-ink-2:#4f5344;--sk-ink-3:#7f806c;
+  --sk-ink:#23261f;--sk-ink-2:#4f5344;--sk-ink-3:#5f604e;
   --sk-brand:#3b6a4e;--sk-brand-2:#c2703d;--sk-brand-soft:#e5efe6;--sk-on-brand:#ffffff;
   --sk-ok:#2f7a45;--sk-ok-soft:#e4f1e2;--sk-ok-mark:#3f9a5a;--sk-warn:#9a5b06;--sk-warn-soft:#f8ead0;--sk-warn-mark:#d4880f;--sk-bad:#b1362c;--sk-bad-soft:#f7e0da;--sk-bad-mark:#cf4b3e;--sk-bad-row:#fbeee9;
   --sk-info:#2d6a7a;--sk-info-soft:#e1eeef;--sk-info-mark:#3f8fa3;--sk-violet:#6d4a8c;--sk-violet-soft:#efe6f3;--sk-violet-line:#dccbe6;

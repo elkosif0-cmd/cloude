@@ -73,6 +73,8 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | الحوكمة | `governance` | النظام والتكاملات › الحوكمة والصلاحيات › الحوكمة والجاهزية (advanced) | ADMIN | admin |
 | الصحة والاستثناءات | `health` | النظام والتكاملات › الحوكمة والصلاحيات › الصحة والتشخيص (advanced) | ADMIN | admin |
 | Capabilities v2 | `capabilitiesv2` | النظام والتكاملات › الحوكمة والصلاحيات › الصلاحيات ومساحات العمل (advanced) | ADMIN | admin |
+| تنظيم كل الأدوات غير المرتبطة مباشرة بملف المراجعة في مساحة مستقلة | `helperdesk` | لوحة الأعمال والمهام › مركز الأدوات المساعدة | UTILITIES | admin, accountant, warehouse, sales, viewer |
+| جديد — تشغيل المراجعة على شركات global_financial_and_audit_research_bundle_extended_verified.pdf ومقارنتها بتقارير مراجعيها | `corpuslab` | المراجعة › المعايير والمدونة › مختبر الشركات العالمية | MANAGEMENT | admin |
 
 ## Menu: domains and hubs
 
@@ -81,7 +83,7 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | Domain | Menu entry | Pages |
 |---|---|---|
 | المراجعة | مركز المراجعة | `tbreview` ملف المراجعة · `auditdesk` الاستوديو المتقدم · `auditdocs` المستندات والأدلة · `auditissues` الملاحظات والقضايا · `auditcouncil` مجلس المراجعين · `auditfin` القوائم والقيود · `auditreport` التقارير والإصدار · `auditanalytics` التحليل والاختبارات |
-| المراجعة | المعايير والمدونة | `codex` المدونة المحاسبية والمعايير · `auditbench` المرجع العالمي للمراجعة · `auditlab` مختبر المعايير والأبحاث |
+| المراجعة | المعايير والمدونة | `codex` المدونة المحاسبية والمعايير · `auditbench` المرجع العالمي للمراجعة · `auditlab` مختبر المعايير والأبحاث · `corpuslab` مختبر الشركات العالمية |
 | التكاليف والتسعير | المنتج والتكلفة | `productflow` استوديو المنتج · `catalog` الأصناف والأسعار · `costs` التكاليف والمصروفات · `sim` التسعير السريع · `kernel` نواة التسعير الصارمة · `memo` اعتماد الأسعار · `builder` البوكسات · `analyzer` تحليل البوكس · `compare` المقارنة التحليلية |
 | التكاليف والتسعير | الملصقات والباركود | `labels` ملصقات الموازين · `scanner` ماسح الباركود |
 | التكاليف والتسعير | المطابقة | `smartmatch` مطابقة المبيعات · `excelrecon` مطابقة الإكسل |
@@ -108,19 +110,20 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | لوحة الأعمال والمهام | مركز القيادة | `dash` مركز القيادة |
 | لوحة الأعمال والمهام | المهام والإشعارات | `tasks` المهام · `notifications` مركز الإشعارات |
 | لوحة الأعمال والمهام | المخاطر والملاحظات | `risks` المخاطر والملاحظات |
+| لوحة الأعمال والمهام | مركز الأدوات المساعدة | `helperdesk` مركز الأدوات المساعدة |
 | النظام والتكاملات | الإعدادات والأجهزة | `settings` الإعدادات والمظهر · `devices` الأجهزة والمزامنة |
 | النظام والتكاملات | الشركات والفترات | `companies` الشركات والفترات |
 | النظام والتكاملات | الحوكمة والصلاحيات | `governance` الحوكمة والجاهزية · `health` الصحة والتشخيص · `capabilitiesv2` الصلاحيات ومساحات العمل |
 
-67 screens in 31 menu entries.
+69 screens in 32 menu entries.
 
 ## By tier
 
 - **CORE** — العمل اليومي الأساسي (19): `dash`, `notifications`, `commerce`, `zatca`, `customers`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `cash`, `receivables`, `advances`, `productflow`, `catalog`, `sim`, `builder`, `tbreview`
-- **MANAGEMENT** — الإدارة والمتابعة (10): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `memo`, `execreports`, `archive`, `codex`, `auditbench`
+- **MANAGEMENT** — الإدارة والمتابعة (11): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `memo`, `execreports`, `archive`, `codex`, `auditbench`, `corpuslab`
 - **INTELLIGENCE** — التحليل والذكاء (7): `decision`, `jev`, `council`, `salesintel`, `intelligence`, `economics`, `compare`
 - **ADVANCED** — الهندسة المتقدمة (17): `risklab`, `sensitivity`, `carcass`, `yieldlab`, `nrv`, `finance`, `costs`, `kernel`, `analyzer`, `auditdesk`, `auditdocs`, `auditissues`, `auditcouncil`, `auditfin`, `auditreport`, `auditanalytics`, `auditlab`
-- **UTILITIES** — أدوات مساعدة (9): `blending`, `culinary`, `labels`, `scanner`, `smartmatch`, `excelrecon`, `reports`, `exports`, `devices`
+- **UTILITIES** — أدوات مساعدة (10): `blending`, `culinary`, `labels`, `scanner`, `smartmatch`, `excelrecon`, `reports`, `exports`, `devices`, `helperdesk`
 - **ADMIN** — النظام والإدارة (5): `settings`, `companies`, `governance`, `health`, `capabilitiesv2`
 
-Coverage gate: 67 screens in 9 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
+Coverage gate: 69 screens in 9 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.

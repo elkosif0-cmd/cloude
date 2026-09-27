@@ -2,7 +2,7 @@
 
 Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do not edit by hand.
 
-Total capabilities: **67** (screens). Cross-cutting capabilities are listed after the table.
+Total capabilities: **69** (screens). Cross-cutting capabilities are listed after the table.
 
 | ID | Capability | Module | Current Location | Data Used | Dependencies | Status | Keep/Remove/Merge/Rebuild |
 |---|---|---|---|---|---|---|---|
@@ -73,6 +73,8 @@ Total capabilities: **67** (screens). Cross-cutting capabilities are listed afte
 | `governance` | الحوكمة والجاهزية | core (v18/v19) + ui/core/audit.js | النظام والتكاملات › الحوكمة والصلاحيات › متقدم | `aghnam-pricing-v3`, `skosif_audit_trail` | SKosifCore, Engine | Working | Keep |
 | `health` | الصحة والتشخيص | core (v19.8) + ui/jev.js | النظام والتكاملات › الحوكمة والصلاحيات › متقدم | `aghnam-v17-runtime-errors`, `skosif_error_log` | SKosifCore, Engine | Working | Keep |
 | `capabilitiesv2` | الصلاحيات ومساحات العمل | ui/capabilities-v2.js + capabilities-v2/worker.js | النظام والتكاملات › الحوكمة والصلاحيات › متقدم | `skosif_cap_v2_config`, `skosif_cap_v2_local_workspace` | SKosifCore | Working | Keep |
+| `helperdesk` | مركز الأدوات المساعدة | ui/features/helper-center.js | لوحة الأعمال والمهام › يومي | — | SKosifCore | Working | Rebuild |
+| `corpuslab` | مختبر الشركات العالمية | ui/features/corpus-lab.js + SKEngines.reports.corpusCompanies + SKEngines.audit.{corpusReplay,openingRequests,globalBenchmarks} | المراجعة › المعايير والمدونة › يومي | `لا بيانات محلية — القوائم المنشورة من حزمة البحث العالمية` | SKosifCore | Working | Rebuild |
 
 ## Cross-cutting capabilities
 

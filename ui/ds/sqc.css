@@ -1,0 +1,66 @@
+/* SQC finish — loaded last, after the design system and every feature stylesheet.
+   Structural fixes that hold in every look (the rail never spills, the status card wraps, the dashboard tiles balance),
+   the SQC identity in every non-heritage look (mark, wordmark, tagline), and the typographic baseline
+   (self-hosted faces from ds/fonts.css, tabular figures, antialiasing). Looks keep their own palettes. */
+
+/* ---------- typography baseline ---------- */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;font-feature-settings:"kern" 1}
+:where(td,th,.n,.num,output,time,[class*="kpi"] b,.stat b){font-variant-numeric:tabular-nums}
+:where(h1,h2,h3,h4){text-wrap:balance;letter-spacing:0}
+:where(p,li,small,dd){text-wrap:pretty}
+::selection{background:color-mix(in srgb,var(--sk-brand) 22%,transparent)}
+
+/* ---------- the rail: nothing spills sideways, in any look ---------- */
+.rail{overflow-x:hidden}
+.rail .status-card{min-width:0;overflow:hidden}
+.rail .status-card .row{min-width:0}
+.rail .status-card .row>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rail .status-card .acts2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.rail .status-card .acts2 .btn{min-width:0;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:auto;min-height:50px;
+  padding:7px 4px;font-size:11.5px;line-height:1.25;white-space:normal;text-align:center}
+.rail .status-card .acts2 .btn svg{width:17px;height:17px;margin:0;flex:none}
+.rail .status-card .save-line,.rail .status-card .v17-stability{min-width:0;flex-wrap:wrap}
+/* the sync line takes the rail's own ink: readable on light and dark rails alike */
+.rail .status-card .v19-sync{flex-wrap:wrap;gap:4px 10px;min-width:0;background:color-mix(in srgb,currentColor 7%,transparent);border-color:color-mix(in srgb,currentColor 16%,transparent);color:inherit}
+.rail .status-card .v19-sync b,.rail .status-card .v19-sync small{color:inherit}
+.rail .status-card .v19-sync small{opacity:.78}
+
+/* ---------- the SQC identity in the rail (every look but the heritage ones, which carry the business's own mark) ---------- */
+:root:not([data-look="heritage"]):not(#x):not(#y) .rail .brand{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;align-items:center;column-gap:12px;row-gap:0;direction:ltr}
+:root:not([data-look="heritage"]):not(#x):not(#y) .rail .brand::before{content:"";grid-row:1/3;width:46px;height:46px;border-radius:13px;padding:0;border:0;
+  background:url(./art/sqc-icon.svg) center/cover no-repeat;box-shadow:0 6px 18px -8px rgba(7,20,42,.55);-webkit-mask-image:none;mask-image:none}
+:root:not([data-look="heritage"]):not(#x):not(#y) .rail .brand-mark{display:none}
+:root:not([data-look="heritage"]):not(#x):not(#y) .rail .brand>div:not(.brand-mark){display:flex;flex-direction:column;align-items:flex-start;min-width:0}
+:root:not([data-look="heritage"]):not(#x):not(#y) .rail #app-name{display:block;margin:0;font:700 0/1 var(--sk-font)}
+:root:not([data-look="heritage"]):not(#x):not(#y) .rail #app-name::before{content:"SQC";font:800 28px/1 "Montserrat","IBM Plex Sans Arabic",system-ui,sans-serif;letter-spacing:.06em;color:var(--sk-rail-ink,currentColor)}
+:root[data-look="kosif"]:not(#x):not(#y) .rail #app-name::before{color:#fff}
+:root[data-look="onyx"]:not(#x):not(#y) .rail #app-name::before{color:var(--sk-brand)}
+:root:not([data-look="heritage"]):not(#x):not(#y) .rail #biz-name{margin-top:5px;font:600 13px/1.4 var(--sk-font);direction:rtl;text-align:start;max-width:100%;white-space:normal}
+:root:not([data-look="heritage"]):not(#x):not(#y) .rail #biz-name::after{content:"Smart Quality Control";display:block;margin-top:3px;font:600 9.5px/1.3 "Montserrat",system-ui,sans-serif;letter-spacing:.07em;
+  text-transform:uppercase;direction:ltr;text-align:start;opacity:.72;white-space:nowrap}
+
+/* the card at the foot of the SQC rail: the mark and the platform line (replaces the earlier slogan) */
+:root[data-look="kosif"]:not(#x):not(#y) .rail::after{content:"AI-Powered Audit & Assurance Platform";white-space:normal;display:block;min-height:0;margin:var(--sk-4) var(--sk-1) 0;
+  padding:52px 14px 12px;border-radius:14px;direction:ltr;text-align:left;font:600 11px/1.45 "Montserrat",system-ui,sans-serif;letter-spacing:.04em;color:#9fc3f2;
+  background:url(./art/sqc-mark.svg) 14px 14px/78px auto no-repeat,linear-gradient(160deg,rgba(124,196,255,.10),rgba(255,255,255,.03));box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}
+@media (max-width:900px){:root[data-look="kosif"]:not(#x):not(#y) .rail::after{display:none}}
+
+/* ---------- dashboard: the morning tiles fill their row instead of leaving one alone ---------- */
+.skbrief-g{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+@media (max-width:520px){.skbrief-g{grid-template-columns:1fr 1fr}}
+
+/* ---------- top bar brand (phone) uses the latin display face ---------- */
+.sk-tb-brand b{font-family:"Montserrat","IBM Plex Sans Arabic",system-ui,sans-serif;letter-spacing:.06em}
+
+/* rail status lines take the rail's muted ink (the page's muted ink is too dark on a navy rail) */
+.rail .status-card .save-line,.rail .status-card .v17-stability{color:var(--sk-rail-mute,var(--sk-ink-3))}
+
+/* top bar: the avatar's initials and the notification count stay legible on their fills */
+.sk-av{text-shadow:0 1px 1px rgba(0,0,0,.28)}
+:root[data-look="kosif"]:not([data-theme="dark"]) .sk-av{background:linear-gradient(135deg,#0b2a5b,#1668e3)}
+.sk-tb-icon .dot{background:color-mix(in srgb,var(--sk-bad-mark) 82%,#000)}
+
+/* the phone top bar: the SQC mark already spells the name, so the text beside it is left to screen readers */
+.sk-tb-brand svg.sk-tb-sqc{width:74px;height:27px}
+.sk-tb-brand svg.sk-tb-sqc+b{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
