@@ -4,7 +4,10 @@ import { createRequire } from 'module'; import fs from 'fs';
 const URL_=process.argv[2]||'http://localhost:8765/app-safe.html';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
-const b = await chromium.launch(); const p = await (await b.newContext({viewport:{width:1440,height:900}})).newPage(); const errs=[];
+const b = await chromium.launch(); const ctx0 = await b.newContext({viewport:{width:1440,height:900}});
+// a user who already answered «which company?» for the helper tools this session (the chooser has its own check below)
+await ctx0.addInitScript(()=>{try{if(!location.hash.includes('askspace'))sessionStorage.setItem('sqc_space_chosen','1')}catch{}});
+const p = await ctx0.newPage(); const errs=[];
 p.on('pageerror',e=>errs.push(e.message)); p.on('dialog',d=>d.dismiss());
 await p.goto(URL_); await p.waitForTimeout(6000); await p.waitForLoadState('load'); await p.waitForTimeout(2500);
 const go=async(v,ms=900)=>{await p.evaluate(x=>SKosifCore.go(x),v);await p.waitForTimeout(ms)};
@@ -47,7 +50,8 @@ await go('auditanalytics',3500);const A=await p.evaluate(()=>({tabs:document.que
 ok('المنظومة الواحدة','أدوات التحليل بتبويبات التطبيق وبثيمه (صفحاتها وصوتها وأوامرها)',A.tabs>=15&&A.tools===2);
 {const base=(await import('node:fs')).readFileSync(new URL('../docs/rebuild/CAPABILITY_BASELINE.txt',import.meta.url),'utf8').split('\n').filter(l=>l&&!l.startsWith('#')).map(l=>l.split('\t')[0]);
  const have=await p.evaluate(()=>SK.caps.all().map(c=>c.id));ok('عدم ضياع القدرات','قدرات خط الأساس الـ'+base.length+' كلها مسجلة',base.every(id=>have.includes(id))&&have.length>=base.length);}
-await go('helperdesk',900);ok('هيكل المنتج','الأدوات غير المرتبطة بالمراجعة مجمعة في «أدوات مساعدة للمحاسب»',await p.evaluate(()=>SK.caps.get('helperdesk')?.group==='helpers'&&document.querySelectorAll('.hd-node').length>=5&&SK.caps.groups().map(g=>g.id).join('|')==='home|audit|helpers|system'));
+await go('helperdesk',900);ok('هيكل المنتج','أربعة أقسام: العام · المراجعة والمراجعة المالية · الأدوات المساعدة للمحاسب · Jev — دون وضع «متقدم»',await p.evaluate(()=>SK.caps.get('helperdesk')?.group==='helpers'&&SK.caps.get('jev')?.group==='jev'&&document.querySelectorAll('.hd-node').length>=5&&SK.caps.groups().map(g=>g.id).join('|')==='home|audit|helpers|jev'&&SK.caps.advancedIds().length===0));
+ok('هيكل المنتج','الأدوات المساعدة تعرض شركتها ومبدّل الشركات',await p.evaluate(()=>!!document.querySelector('.sqc-space-bar [data-space-open]')&&!!window.SKosifSpace));
 await go('tbreview',1200);ok('هيكل المنتج','دورة المراجعة مرسومة كعقد وأسهم مع حلقة جولات الأدلة',await p.evaluate(()=>document.querySelectorAll('.tbr-flow-node').length===9&&!!document.querySelector('.tbr-flowloop')));
 // ---------- global research bundle: audit benchmarks ----------
 await go('companies',900);

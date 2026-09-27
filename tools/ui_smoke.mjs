@@ -11,7 +11,8 @@ const caps = JSON.parse(fs.readFileSync(new URL('../ui/core/capabilities.json', 
 const browser = await chromium.launch();
 const failures = [];
 for (const [tag, opts] of [['laptop', { viewport: { width: 1440, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }]]) {
-  const page = await (await browser.newContext(opts)).newPage();
+  const ctx = await browser.newContext(opts); await ctx.addInitScript(() => { try { sessionStorage.setItem('sqc_space_chosen', '1'); } catch {} });
+  const page = await ctx.newPage();
   let errs = [];
   page.on('pageerror', (e) => errs.push('page: ' + e.message));
   page.on('console', (m) => { if (m.type() === 'error' && !/ERR_|net::|Failed to load resource|favicon/.test(m.text())) errs.push('console: ' + m.text().slice(0, 200)); });

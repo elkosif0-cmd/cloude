@@ -12,19 +12,19 @@
  "groups": [
   {
    "id": "home",
-   "label": "الرئيسية"
+   "label": "العام"
   },
   {
    "id": "audit",
-   "label": "المراجعة والتأكيد"
+   "label": "المراجعة والمراجعة المالية"
   },
   {
    "id": "helpers",
-   "label": "أدوات مساعدة للمحاسب"
+   "label": "الأدوات المساعدة للمحاسب"
   },
   {
-   "id": "system",
-   "label": "النظام والتكاملات"
+   "id": "jev",
+   "label": "Jev والقرار"
   }
  ],
  "roles": {
@@ -299,7 +299,7 @@
    "id": "decision",
    "label": "مركز القرار",
    "sub": "صندوق الاستثناءات وأولوية Jev",
-   "group": "helpers",
+   "group": "jev",
    "tier": "INTELLIGENCE",
    "module": "core (v19.5 + v20.2)",
    "data": [
@@ -321,7 +321,7 @@
    "id": "jev",
    "label": "Jev للقرار",
    "sub": "قرار منظم من بيانات مجمعة بلا بيانات شخصية",
-   "group": "helpers",
+   "group": "jev",
    "hubLabel": "Jev ومجلس القرار",
    "tier": "INTELLIGENCE",
    "module": "ui/jev.js",
@@ -351,7 +351,7 @@
    "legacy": "Grand Fusion intelligence.council",
    "decision": "Rebuild",
    "kw": "تصويت مجلس قرار",
-   "group": "helpers",
+   "group": "jev",
    "hub": "jev",
    "adv": false,
    "en": "Decision Council"
@@ -370,7 +370,7 @@
    "legacy": "المخاطر",
    "decision": "Keep",
    "kw": "مخاطر مونت كارلو",
-   "adv": true,
+   "adv": false,
    "en": "Risk & Profit Bridge"
   },
   {
@@ -387,7 +387,7 @@
    "legacy": "مختبر الحساسية",
    "decision": "Keep",
    "kw": "حساسية سيناريو",
-   "adv": true,
+   "adv": false,
    "en": "Sensitivity Lab"
   },
   {
@@ -563,7 +563,7 @@
    "legacy": "ذكاء المبيعات",
    "decision": "Keep",
    "kw": "مبيعات اتجاه باريتو",
-   "adv": true,
+   "adv": false,
    "en": "Sales Intelligence",
    "feeds": [
     "intelligence",
@@ -587,7 +587,7 @@
    "legacy": "ذكاء العملاء",
    "decision": "Keep",
    "kw": "شرائح احتفاظ",
-   "adv": true,
+   "adv": false,
    "en": "Customer & Demand Intelligence"
   },
   {
@@ -605,7 +605,7 @@
    "legacy": "اقتصاديات الطلب",
    "decision": "Keep",
    "kw": "شحن عمولة",
-   "adv": true,
+   "adv": false,
    "en": "Order Economics",
    "feeds": [
     "sim",
@@ -747,7 +747,7 @@
    "legacy": "اقتصاديات الذبيحة",
    "decision": "Keep",
    "kw": "ذبيحة تصافي",
-   "adv": true,
+   "adv": false,
    "en": "Carcass Economics",
    "feeds": [
     "yieldlab",
@@ -769,7 +769,7 @@
    "legacy": "مختبر الجزارة",
    "decision": "Keep",
    "kw": "تجربة تشافي هدر",
-   "adv": true,
+   "adv": false,
    "en": "Butchery Yield Lab",
    "feeds": [
     "catalog"
@@ -789,7 +789,7 @@
    "legacy": "تفكيك الذبيحة",
    "decision": "Keep",
    "kw": "ذبيحة توزيع",
-   "adv": true,
+   "adv": false,
    "en": "Carcass Split (NRV)",
    "feeds": [
     "catalog"
@@ -869,7 +869,7 @@
    "legacy": "الهندسة المالية",
    "decision": "Keep",
    "kw": "تعادل حساسية",
-   "adv": true,
+   "adv": false,
    "en": "Financial Engineering"
   },
   {
@@ -938,7 +938,7 @@
    "legacy": "مركز التكاليف",
    "decision": "Keep",
    "kw": "تكلفة هدر مصروف",
-   "adv": true,
+   "adv": false,
    "en": "Costs & Expenses",
    "feeds": [
     "catalog",
@@ -980,7 +980,7 @@
    "legacy": "نواة التسعير",
    "decision": "Keep",
    "kw": "محرك تقريب",
-   "adv": true,
+   "adv": false,
    "en": "Strict Pricing Kernel",
    "hidden": true
   },
@@ -1045,7 +1045,7 @@
    "legacy": "تحليل مكونات البوكس",
    "decision": "Keep",
    "kw": "مكونات دائرة",
-   "adv": true,
+   "adv": false,
    "en": "Box Analyzer",
    "hidden": true
   },
@@ -1063,7 +1063,7 @@
    "legacy": "استوديو المقارنة",
    "decision": "Keep",
    "kw": "مقارنة",
-   "adv": true,
+   "adv": false,
    "en": "Comparative Analysis",
    "hidden": true
   },
@@ -1113,7 +1113,7 @@
    "legacy": "مطابقة المبيعات",
    "decision": "Keep",
    "kw": "مطابقة وصف",
-   "adv": true,
+   "adv": false,
    "en": "Sales Matching",
    "feeds": [
     "customers",
@@ -1132,7 +1132,7 @@
    "legacy": "مطابقة الإكسل",
    "decision": "Keep",
    "kw": "إكسل فروقات",
-   "adv": true,
+   "adv": false,
    "en": "Excel Reconciliation",
    "feeds": [
     "catalog"
@@ -1310,7 +1310,7 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "مراجعة تدقيق",
-   "adv": true,
+   "adv": false,
    "en": "Audit Desk",
    "hub": "tbreview",
    "hidden": true
@@ -1332,7 +1332,7 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "دليل مستند ميزان",
-   "adv": true,
+   "adv": false,
    "en": "Documents & Evidence",
    "hidden": true
   },
@@ -1350,7 +1350,7 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "ملاحظة قضية",
-   "adv": true,
+   "adv": false,
    "en": "Findings & Issues",
    "hidden": true
   },
@@ -1368,7 +1368,7 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "مجلس",
-   "adv": true,
+   "adv": false,
    "en": "Reviewers' Council",
    "hidden": true
   },
@@ -1386,7 +1386,7 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "قيد قائمة مالية",
-   "adv": true,
+   "adv": false,
    "en": "Statements & Entries",
    "hidden": true
   },
@@ -1404,7 +1404,7 @@
    "legacy": "KOSIF Audit Studio",
    "decision": "Keep",
    "kw": "تقرير مراجع",
-   "adv": true,
+   "adv": false,
    "en": "Reports & Issuance",
    "hidden": true
   },
@@ -1421,7 +1421,7 @@
    "legacy": "KOSIF Audit Studio (classic)",
    "decision": "Keep",
    "kw": "بنفورد عينة",
-   "adv": true,
+   "adv": false,
    "en": "Financial Analytics & Risk",
    "hub": "tbreview",
    "feeds": [
@@ -1442,14 +1442,14 @@
    "legacy": "KOSIF Audit Studio (lab)",
    "decision": "Keep",
    "kw": "معايير مختبر",
-   "adv": true,
+   "adv": false,
    "en": "Standards Lab"
   },
   {
    "id": "settings",
    "label": "الإعدادات والمظهر",
    "sub": "الاحتساب والنسخ الاحتياطي والمظهر",
-   "group": "system",
+   "group": "home",
    "hubLabel": "الإعدادات والأجهزة",
    "tier": "ADMIN",
    "module": "core + ui/shell.js",
@@ -1467,7 +1467,7 @@
    "id": "devices",
    "label": "الأجهزة والمزامنة",
    "sub": "نسخة الآيفون ونسخة اللابتوب: التثبيت، النقل المشفر بين الأجهزة، شريط الجوال واختصارات لوحة المفاتيح",
-   "group": "system",
+   "group": "home",
    "hub": "settings",
    "tier": "UTILITIES",
    "module": "ui/features/devices.js + ui/core/device.js + ui/components/keys.js",
@@ -1494,8 +1494,8 @@
    "legacy": "Grand Fusion system.companies",
    "decision": "Rebuild",
    "kw": "شركة فترة سنة مالية",
-   "group": "system",
-   "adv": true,
+   "group": "home",
+   "adv": false,
    "en": "Companies & Periods",
    "feeds": [
     "ledger",
@@ -1506,7 +1506,7 @@
    "id": "governance",
    "label": "الحوكمة والجاهزية",
    "sub": "مسار الاعتماد وسجل التدقيق",
-   "group": "system",
+   "group": "home",
    "hubLabel": "الحوكمة والصلاحيات",
    "tier": "ADMIN",
    "module": "core (v18/v19) + ui/core/audit.js",
@@ -1517,14 +1517,14 @@
    "legacy": "الحوكمة",
    "decision": "Keep",
    "kw": "حوكمة تدقيق سجل",
-   "adv": true,
+   "adv": false,
    "en": "Governance & Readiness"
   },
   {
    "id": "health",
    "label": "الصحة والتشخيص",
    "sub": "فحص البيانات والتخزين والأخطاء",
-   "group": "system",
+   "group": "home",
    "hub": "governance",
    "tier": "ADMIN",
    "module": "core (v19.8) + ui/jev.js",
@@ -1535,14 +1535,14 @@
    "legacy": "الصحة والاستثناءات",
    "decision": "Keep",
    "kw": "تشخيص أخطاء",
-   "adv": true,
+   "adv": false,
    "en": "Health & Diagnostics"
   },
   {
    "id": "capabilitiesv2",
    "label": "الصلاحيات ومساحات العمل",
    "sub": "الأدوار والربط السحابي",
-   "group": "system",
+   "group": "home",
    "hub": "governance",
    "tier": "ADMIN",
    "module": "ui/capabilities-v2.js + capabilities-v2/worker.js",
@@ -1553,7 +1553,7 @@
    "legacy": "Capabilities v2",
    "decision": "Keep",
    "kw": "صلاحيات دور سحابة",
-   "adv": true,
+   "adv": false,
    "en": "Permissions & Workspaces"
   }
  ]
