@@ -2809,6 +2809,23 @@ window.SKEngines = (function() {
 			cf: "wc"
 		},
 		{
+			key: "discontinued",
+			ar: "الربح (الخسارة) من العمليات غير المستمرة",
+			en: "Profit (loss) from discontinued operations",
+			statement: "pl",
+			section: "disc",
+			types: ["revenue", "expense"],
+			kws: [
+				"عمليات غير مستمره",
+				"العمليات غير المستمره",
+				"discontinued"
+			],
+			prefixes: ["495"],
+			standards: ["IFRS 5"],
+			assertions: ["العرض", "التصنيف"],
+			cf: "none"
+		},
+		{
 			key: "revenue",
 			ar: "الإيرادات",
 			en: "Revenue",
@@ -3084,7 +3101,7 @@ window.SKEngines = (function() {
 			basis: "none"
 		};
 	}
-	var present = (l, signed) => l.types.includes("asset") || l.types.includes("expense") ? signed : -signed;
+	var present = (l, signed) => l.section === "disc" ? -signed : l.types.includes("asset") || l.types.includes("expense") ? signed : -signed;
 	var TAX_WORDS = {
 		zakat: {
 			before: "الربح قبل التمويل والزكاة",
@@ -3144,7 +3161,7 @@ window.SKEngines = (function() {
 			const g = (k) => prior ? vp(k) : v(k), sx = (s) => sec(s, prior);
 			const revenue = g("revenue"), cogs = g("cogs"), gross = revenue - cogs;
 			const opex = sx("opex"), otherInc = sx("opinc"), operating = gross - opex + otherInc;
-			const invest = sx("inv"), pbfz = operating + invest, finance = sx("fin"), pbz = pbfz - finance, zakat = sx("zakat");
+			const invest = sx("inv"), pbfz = operating + invest, finance = sx("fin"), pbz = pbfz - finance, zakat = sx("zakat"), continuing = pbz - zakat, disc = sx("disc");
 			return {
 				revenue,
 				cogs,
@@ -3157,7 +3174,9 @@ window.SKEngines = (function() {
 				finance,
 				pbz,
 				zakat,
-				profit: pbz - zakat
+				continuing,
+				disc,
+				profit: continuing + disc
 			};
 		};
 		const pc = P(false), pp = hasPrior ? P(true) : null;
@@ -3188,6 +3207,7 @@ window.SKEngines = (function() {
 			lr("financeCost", -1),
 			row("pbz", TW.pbz, "Profit before zakat", pc.pbz, pp?.pbz ?? null, "subtotal"),
 			lr("zakatExpense", -1),
+			...pc.disc || pp?.disc ? [row("continuing", "الربح من العمليات المستمرة", "Profit from continuing operations", pc.continuing, pp?.continuing ?? null, "subtotal"), lr("discontinued")] : [],
 			row("profit", "صافي ربح السنة", "Profit for the year", pc.profit, pp?.profit ?? null, "total")
 		].filter((r) => r.level !== "line" || r.current !== 0 || (r.prior ?? 0) !== 0);
 		const nca = sec("nca"), ca = sec("ca"), ncl = sec("ncl"), cl = sec("cl"), eqTb = sec("eq");
@@ -3425,7 +3445,8 @@ window.SKEngines = (function() {
 			"opinc",
 			"inv",
 			"fin",
-			"zakat"
+			"zakat",
+			"disc"
 		]) for (const l of LINES.filter((x) => x.section === s)) {
 			const L = acc.get(l.key);
 			if (!L || L.current === 0 && (L.prior ?? 0) === 0) continue;
@@ -3458,6 +3479,8 @@ window.SKEngines = (function() {
 			"finance",
 			"pbz",
 			"zakat",
+			"continuing",
+			"disc",
 			"profit"
 		].forEach((k) => put(k, pc[k], pp ? pp[k] : null));
 		put("nca", nca, ncaP);
@@ -4035,7 +4058,9 @@ window.SKEngines = (function() {
 		reportOf: () => reportOf,
 		sectorFromActivity: () => sectorFromActivity,
 		summary: () => summary$1,
-		themeStats: () => themeStats
+		themePrior: () => themePrior,
+		themeStats: () => themeStats,
+		typicalKamCount: () => typicalKamCount
 	});
 	var BUNDLE = {
 		file: "global_financial_and_audit_research_bundle_extended_verified.pdf",
@@ -4761,10 +4786,30 @@ window.SKEngines = (function() {
 			["telecom", /اتصالات|telecom|mobile network/],
 			["auto", /سيار|مركبات|auto|vehicle|motor/],
 			["tech", /تقني|برمج|برامج|حاسب|software|tech|cloud|saas|electronic/],
-			["fmcg", /أغذية|غذائ|لحوم|أغنام|مواشي|ألبان|مشروبات|استهلاك|food|meat|dairy|beverage|consumer/],
+			["fmcg", /أغذية|غذائ|لحوم|أغنام|مواشي|ألبان|مشروبات|استهلاك|food|meat|dairy|beverage|consumer|fmcg/],
 			["retail", /تجزئة|متجر|سوبر|retail|store|e-?commerce/],
 			["industrial", /مقاولات|إنشاء|صناع|مصنع|طيران|construct|manufactur|industrial|aero/]
 		].find(([, re]) => re.test(t))?.[0] ?? "";
+	}
+	/** How often each theme is a key/critical audit matter for reports of this sector (and standard), smoothed towards the
+	whole bundle: p = (reports of the sector carrying it + 2 × its share across all reports) / (reports of the sector + 2).
+	`exclude` leaves one report out, so the bundle can test itself without seeing the answer. */
+	function themePrior(opts = {}) {
+		const reps = REPORTS.filter((r) => r.id !== opts.exclude && KAMS.some((k) => k.report === r.id));
+		const has = (r, t) => KAMS.some((k) => k.report === r.id && k.theme === t);
+		const inSector = reps.filter((r) => opts.sector && r.sector === opts.sector), inStd = reps.filter((r) => opts.standard && r.standard === opts.standard);
+		const out = {};
+		for (const t of Object.keys(THEMES)) {
+			const g = reps.length ? reps.filter((r) => has(r, t)).length / reps.length : 0;
+			const std = inStd.length ? (inStd.filter((r) => has(r, t)).length + 2 * g) / (inStd.length + 2) : g;
+			out[t] = inSector.length ? (inSector.filter((r) => has(r, t)).length + 2 * std) / (inSector.length + 2) : std;
+		}
+		return out;
+	}
+	/** How many matters reports of a standard carry: PCAOB reports about two critical audit matters, ISA reports three or more. */
+	function typicalKamCount(standard, ukStyle = false) {
+		if (ukStyle) return 4;
+		return standard === "PCAOB" ? 2 : 3;
 	}
 	/** Real KAMs that match a statement line of the engagement — same sector first, then the rest. */
 	function precedentsFor(lineKey, opts = {}) {
@@ -9445,22 +9490,29 @@ window.SKEngines = (function() {
 		const opexCash = Math.abs(v("selling")) + Math.abs(v("admin"));
 		const capex = Math.abs(fs.cf?.find((r) => r.key === "cf-inv-ppe")?.current ?? 0);
 		const zakat = Math.abs(v("zakatPayable"));
+		const costBase = cogs || cogs + opexCash, dpoOnCosts = !cogs && costBase > 0;
+		const k = fs.keys, finance = Math.abs(k.finance?.current ?? 0), refinance = (k.profit?.current ?? 0) > 0 && (k.operating?.current ?? 0) >= 3 * finance;
 		return {
 			openingCash: v("cash"),
 			monthlyRevenue: Math.round(rev / 12),
 			grossMargin: rev ? Math.max(-1, Math.min(1, (rev - cogs) / rev)) : 0,
 			monthlyFixedCosts: Math.round(opexCash / 12),
 			dsoDays: rev ? Math.round(Math.abs(v("receivables")) / rev * 365) : 0,
-			dpoDays: cogs ? Math.round(Math.abs(v("payables")) / cogs * 365) : 0,
+			dpoDays: costBase ? Math.round(Math.abs(v("payables")) / costBase * 365) : 0,
 			openingReceivables: Math.abs(v("receivables")),
 			openingPayables: Math.abs(v("payables")),
-			monthlyDebtService: Math.round(Math.abs(v("loansCl")) / 12),
+			monthlyDebtService: Math.round((refinance ? finance : Math.abs(v("loansCl"))) / 12),
 			monthlyCapex: Math.round(capex / 12),
 			zakatDue: zakat ? {
 				month: 4,
 				amount: zakat
 			} : void 0,
-			undrawnFacilities: o.undrawnFacilities ?? 0
+			undrawnFacilities: o.undrawnFacilities ?? 0,
+			...dpoOnCosts ? { dpoOnCosts } : {},
+			...o.financial ? { financial: true } : {},
+			...refinance ? { refinance } : {},
+			...opexCash ? { variableCostShare: Math.round(Math.min(.8, Math.max(cogs ? 0 : .5, Math.abs(v("selling")) / opexCash)) * 100) / 100 } : {},
+			...rev ? { operatingMargin: Math.round((k.operating?.current ?? 0) / rev * 1e3) / 1e3 } : {}
 		};
 	}
 	function run(b, s, mit = []) {
@@ -9469,8 +9521,9 @@ window.SKEngines = (function() {
 		const margin = Math.max(-1, Math.min(1, b.grossMargin + s.marginPts)), dso = Math.max(0, b.dsoDays + s.dsoDelta);
 		for (let m = 1; m <= 12; m++) {
 			const revenue = Math.max(0, b.monthlyRevenue * (1 + s.revenuePct)), cogs = revenue * (1 - margin);
-			const recEnd = revenue * dso / 30, payEnd = cogs * b.dpoDays / 30;
-			const op = revenue - cogs - b.monthlyFixedCosts * (1 + (s.fixedPct ?? 0)) - (recEnd - rec) + (payEnd - pay);
+			const recEnd = revenue * dso / 30, payEnd = (cogs + (b.dpoOnCosts ? b.monthlyFixedCosts * (1 + (s.fixedPct ?? 0)) : 0)) * b.dpoDays / 30;
+			const vs = b.variableCostShare ?? 0, costs = b.monthlyFixedCosts * (1 + (s.fixedPct ?? 0)) * (1 - vs + vs * (1 + s.revenuePct));
+			const op = revenue - cogs - costs - (recEnd - rec) + (payEnd - pay);
 			rec = recEnd;
 			pay = payEnd;
 			cash += op - b.monthlyDebtService - b.monthlyCapex;
@@ -9484,8 +9537,25 @@ window.SKEngines = (function() {
 		}
 		return { months };
 	}
-	function summarise(b, s, mit) {
-		const { months } = run(b, s);
+	/** «Severe but plausible» for this entity: a margin squeeze or cost rise sized to its own operating margin — five points off a
+	3% retailer is not plausible, it is a different business (full shocks from a 10% operating margin up) — and a collections
+	delay sized to the days of credit it actually gives. */
+	function calibrate(b, s) {
+		const dso = s.dsoDelta > 0 ? { dsoDelta: Math.min(s.dsoDelta, Math.max(3, Math.round(b.dsoDays * .5))) } : {};
+		if (b.operatingMargin === void 0 || b.operatingMargin >= .1) return {
+			...s,
+			...dso
+		};
+		const k = Math.max(.2, b.operatingMargin / .1);
+		return {
+			...s,
+			...dso,
+			marginPts: s.marginPts * k,
+			...s.fixedPct ? { fixedPct: s.fixedPct * k } : {}
+		};
+	}
+	function summarise(b, s0, mit) {
+		const s = calibrate(b, s0), { months } = run(b, s);
 		const min = months.reduce((a, x) => x.cash < a.cash ? x : a, months[0]);
 		const short = months.find((x) => x.cash + b.undrawnFacilities < 0);
 		const path = {
@@ -9542,7 +9612,7 @@ window.SKEngines = (function() {
 		const worst = paths.reduce((a, x) => x.headroom < a.headroom ? x : a, paths[0] ?? base);
 		const severeOk = paths.every((p) => p.headroom >= 0), mitigatedOk = paths.every((p) => p.headroom >= 0 || (p.mitigated?.headroom ?? -1) >= 0);
 		const high = (input.indicators ?? []).filter((x) => x.severity === "high").length;
-		const conclusion = base.headroom < 0 ? "material-uncertainty" : severeOk && !high ? "no-material-uncertainty" : mitigatedOk ? "close-call" : "material-uncertainty";
+		const conclusion = b.financial ? high ? "close-call" : "no-material-uncertainty" : base.headroom < 0 ? "material-uncertainty" : severeOk && !high ? "no-material-uncertainty" : mitigatedOk ? "close-call" : "material-uncertainty";
 		return {
 			base,
 			paths,
@@ -9554,7 +9624,7 @@ window.SKEngines = (function() {
 				"close-call": "أساس الاستمرارية ملائم مع حكم مهم يستوجب الإفصاح (حالة قريبة)",
 				"material-uncertainty": "عدم تأكد جوهري محتمل يتعلق بالاستمرارية"
 			}[conclusion],
-			why: conclusion === "material-uncertainty" ? base.headroom < 0 ? "حتى في الحالة الأساسية ينفد النقد والتسهيلات خلال الاثني عشر شهراً القادمة (الشهر " + base.shortfallMonth + ")." : "سيناريو «" + worst.ar + "» يستنفد النقد والتسهيلات ولا تكفي الإجراءات المخففة المتاحة لتغطيته." : conclusion === "close-call" ? "بعض السيناريوهات الحادة تستنفد النقد لولا الإجراءات المخففة؛ يُفصح عن الحكم المهم وتقييم قابلية تنفيذ الإجراءات (IAS 1.122)." : "يبقى النقد والتسهيلات موجبة في كل السيناريوهات الحادة المعقولة خلال الاثني عشر شهراً.",
+			why: b.financial ? "منشأة مالية: تُقيَّم الاستمرارية بنسب السيولة التي تفرضها الجهة الرقابية (تغطية السيولة وصافي التمويل المستقر) وكفاية رأس المال وخطط التمويل، لا بتوقع التدفق التشغيلي لمنشأة تجارية." : conclusion === "material-uncertainty" ? base.headroom < 0 ? "حتى في الحالة الأساسية ينفد النقد والتسهيلات خلال الاثني عشر شهراً القادمة (الشهر " + base.shortfallMonth + ")." : "سيناريو «" + worst.ar + "» يستنفد النقد والتسهيلات ولا تكفي الإجراءات المخففة المتاحة لتغطيته." : conclusion === "close-call" ? "بعض السيناريوهات الحادة تستنفد النقد لولا الإجراءات المخففة؛ يُفصح عن الحكم المهم وتقييم قابلية تنفيذ الإجراءات (IAS 1.122)." : "يبقى النقد والتسهيلات موجبة في كل السيناريوهات الحادة المعقولة خلال الاثني عشر شهراً.",
 			highIndicators: high
 		};
 	}
@@ -9789,15 +9859,21 @@ window.SKEngines = (function() {
 		const { fs, materiality } = input, cur = input.currency ?? "ر.س", money = (m) => formatMinor(m, { decimals: 0 }) + " " + cur;
 		const assets = Math.abs(fs.keys.assets.current) || 1;
 		const byKey = /* @__PURE__ */ new Map();
+		const prior = themePrior({
+			sector: input.sector,
+			standard: input.standard,
+			exclude: input.exclude
+		});
 		for (const r of input.risks) {
 			const line = fs.lines.find((l) => l.key === r.lineKey), amount = Math.abs(line?.current ?? r.amount ?? 0);
 			if (!amount) continue;
 			const pr = precedentsFor(r.lineKey, {
 				sector: input.sector,
 				limit: 3
-			})[0] ?? null;
+			}).filter((p) => !input.exclude || p.examples.some((e) => e.report !== input.exclude)).sort((a, b) => prior[b.theme] - prior[a.theme])[0] ?? null;
 			const key = pr ? pr.theme : r.lineKey, estimate = (r.parts?.estimate ?? 0) >= 15;
-			const score = Math.min(100, r.score + (amount >= materiality * 3 ? 10 : 0) + (estimate ? 5 : 0) + (FRAUD_THEMES.has(key) ? 8 : 0));
+			const p = pr ? prior[pr.theme] : 0;
+			const score = Math.min(100, Math.round(.45 * r.score + 60 * p + (amount >= materiality * 3 ? 6 : 0) + (estimate ? 4 : 0) + (FRAUD_THEMES.has(key) ? 5 : 0)));
 			const prev = byKey.get(key);
 			if (prev && prev.score >= score) {
 				if (!prev.lineKeys.includes(r.lineKey)) prev.lineKeys.push(r.lineKey);
@@ -9822,13 +9898,13 @@ window.SKEngines = (function() {
 				score,
 				selected: false,
 				trend: input.priorKeys ? input.priorKeys.includes(key) ? "same" : "new" : null,
-				examples: pr ? pr.examples : []
+				examples: pr ? pr.examples.filter((e) => e.report !== input.exclude) : []
 			});
 		}
 		const out = [...byKey.values()].sort((a, b) => b.score - a.score);
-		const max = input.max ?? 3;
+		const max = input.max ?? (input.standard === "PCAOB" ? 2 : 3);
 		let n = 0;
-		for (const k of out) if (n < max && (k.score >= 70 || k.score >= 55 && k.amount >= materiality)) {
+		for (const k of out) if (n < max && k.score >= 50 && k.amount >= materiality) {
 			k.selected = true;
 			n++;
 		}
@@ -13508,12 +13584,14 @@ window.SKEngines = (function() {
 	columns; other information; the board's and the auditor's responsibilities in full; the report on other legal and
 	regulatory requirements where the law asks for one; the signature with the licence. */
 	function auditorsReport(i) {
-		const J = i.framework === "EAS" ? "EG" : i.jurisdiction ?? "SA", eg = J === "EG", ae = J === "AE";
+		const J = i.framework === "EAS" ? "EG" : i.jurisdiction ?? "SA", eg = J === "EG", ae = J === "AE", intl = J === "INT";
+		if (J === "US") return pcaobReport(i);
+		if (J === "UK") return ukReport(i);
 		const co = i.company || "المنشأة", end = i.periodEnd || "[تاريخ نهاية الفترة]", g = !!i.group;
-		const fw = eg ? "معايير المحاسبة المصرية وفي ضوء القوانين واللوائح المصرية السارية" : ae ? "المعايير الدولية للتقرير المالي الصادرة عن مجلس معايير المحاسبة الدولية" : i.framework === "SME" ? "المعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم المعتمد في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من الهيئة السعودية للمراجعين والمحاسبين" : "المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من الهيئة السعودية للمراجعين والمحاسبين";
-		const isa = eg ? "معايير المراجعة المصرية" : ae ? "المعايير الدولية للمراجعة" : "المعايير الدولية للمراجعة المعتمدة في المملكة العربية السعودية";
-		const ethics = eg ? "متطلبات السلوك المهني ذات الصلة في جمهورية مصر العربية" : ae ? "الميثاق الدولي لسلوك وآداب المهنة للمحاسبين المهنيين (بما في ذلك معايير الاستقلال الدولية) الصادر عن مجلس المعايير الدولية لأخلاقيات المحاسبين، والمتطلبات الأخلاقية ذات الصلة بمراجعة القوائم المالية في دولة الإمارات العربية المتحدة" : "الميثاق الدولي لسلوك وآداب المهنة للمحاسبين المهنيين (بما في ذلك معايير الاستقلال الدولية) المعتمد في المملكة العربية السعودية";
-		const law = eg ? "" : ae ? "والأحكام السارية من النظام الأساسي للشركة والمرسوم بقانون اتحادي رقم (32) لسنة 2021" : "والمتطلبات المعمول بها في نظام الشركات والنظام الأساس للشركة";
+		const fw = i.frameworkAr ? i.frameworkAr : eg ? "معايير المحاسبة المصرية وفي ضوء القوانين واللوائح المصرية السارية" : ae || intl ? "المعايير الدولية للتقرير المالي الصادرة عن مجلس معايير المحاسبة الدولية" : i.framework === "SME" ? "المعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم المعتمد في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من الهيئة السعودية للمراجعين والمحاسبين" : "المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من الهيئة السعودية للمراجعين والمحاسبين";
+		const isa = eg ? "معايير المراجعة المصرية" : ae || intl ? "المعايير الدولية للمراجعة" : "المعايير الدولية للمراجعة المعتمدة في المملكة العربية السعودية";
+		const ethics = eg ? "متطلبات السلوك المهني ذات الصلة في جمهورية مصر العربية" : intl ? `الميثاق الدولي لسلوك وآداب المهنة للمحاسبين المهنيين (بما في ذلك معايير الاستقلال الدولية) الصادر عن مجلس المعايير الدولية لأخلاقيات المحاسبين («الميثاق») والمتطلبات الأخلاقية ذات الصلة بمراجعتنا ل${g ? "لقوائم المالية الموحدة" : "لقوائم المالية"}${i.countryAr ? " في " + i.countryAr : ""}` : ae ? "الميثاق الدولي لسلوك وآداب المهنة للمحاسبين المهنيين (بما في ذلك معايير الاستقلال الدولية) الصادر عن مجلس المعايير الدولية لأخلاقيات المحاسبين، والمتطلبات الأخلاقية ذات الصلة بمراجعة القوائم المالية في دولة الإمارات العربية المتحدة" : "الميثاق الدولي لسلوك وآداب المهنة للمحاسبين المهنيين (بما في ذلك معايير الاستقلال الدولية) المعتمد في المملكة العربية السعودية";
+		const law = eg || intl ? "" : ae ? "والأحكام السارية من النظام الأساسي للشركة والمرسوم بقانون اتحادي رقم (32) لسنة 2021" : "والمتطلبات المعمول بها في نظام الشركات والنظام الأساس للشركة";
 		const fs = g ? "القوائم المالية الموحدة" : "القوائم المالية", ent = g ? "المجموعة" : "الشركة", board = eg ? "الإدارة" : "مجلس الإدارة";
 		const who = g ? `${co} («الشركة») وشركاتها التابعة (يُشار إليها معاً بـ«المجموعة»)` : co;
 		const title = {
@@ -13608,6 +13686,14 @@ window.SKEngines = (function() {
 					`• أنه، استناداً إلى المعلومات التي أتيحت لنا، لم يلفت انتباهنا ما يجعلنا نعتقد أن ${ent} قد خالفت خلال السنة أياً من الأحكام المعمول بها في المرسوم بقانون أو نظامها الأساسي بشكل قد يؤثر جوهرياً على أنشطتها أو مركزها المالي.`
 				]
 			}] : [],
+			...intl && i.countryAr === "الهند" ? [{
+				title: "التقرير عن المتطلبات القانونية والتنظيمية الأخرى",
+				paragraphs: [
+					"وفقاً لما يقتضيه أمر تقرير المراجع للشركات (CARO) الصادر عن الحكومة المركزية بموجب المادة 143(11) من قانون الشركات لعام 2013، نرفق بياناً بالأمور المحددة في الفقرتين 3 و4 من ذلك الأمر، بالقدر المنطبق.",
+					"وكما تقتضي المادة 143(3) من القانون، نفيد بأننا: حصلنا على جميع المعلومات والتفسيرات التي تطلبتها مراجعتنا؛ وأن الدفاتر المحاسبية المطلوبة نظاماً قد أُمسكت بصورة سليمة؛ وأن قوائم المركز المالي والربح أو الخسارة والتدفقات النقدية متفقة مع تلك الدفاتر؛ وأنها تتوافق مع معايير المحاسبة الهندية المحددة بموجب المادة 133 من القانون.",
+					"ونرفق تقريرنا المنفصل عن كفاية ضوابط التقرير المالي الداخلية وفاعلية تشغيلها بموجب البند (i) من المادة 143(3) من القانون."
+				]
+			}] : [],
 			...eg ? [{
 				title: "تقرير عن المتطلبات القانونية والتنظيمية الأخرى",
 				paragraphs: [
@@ -13617,17 +13703,191 @@ window.SKEngines = (function() {
 				]
 			}] : []
 		];
+		const code = (t) => t === title ? "opinion" : t === "ما قمنا بمراجعته" ? "audited" : t === basisTitle ? "basis" : t === "الاستقلال" ? "independence" : /الاستمرارية/.test(t) ? "going_concern" : i.approach && t === i.approach.title ? "approach materiality scope" : t === "الأمور الرئيسية للمراجعة" ? "kam" : t === "المعلومات الأخرى" ? "other_info" : t.startsWith("مسؤوليات المراجع") ? "resp_aud" : t.startsWith("مسؤوليات") ? "resp_mgmt going_concern" : /القانونية/.test(t) ? "legal" : "";
 		return {
 			title: "تقرير المراجع المستقل",
 			addressee: `إلى السادة ${eg ? "مساهمي" : "المساهمين في"} ${co}`,
-			sections,
+			sections: sections.map((x) => ({
+				...x,
+				code: x.code ?? code(x.title)
+			})),
 			signature: {
 				firm: i.firm || "[اسم مكتب المراجعة]",
 				partner: i.partner || "[اسم الشريك]",
 				licence: i.licence || "[رقم الترخيص]",
-				city: i.city || (eg ? "القاهرة" : ae ? "دبي" : "الرياض"),
+				city: i.city || (eg ? "القاهرة" : ae ? "دبي" : intl ? "[المدينة]" : "الرياض"),
 				date: i.date || "[تاريخ التقرير]"
 			},
+			form: J,
+			draft: true
+		};
+	}
+	var OPINION_WORD = {
+		unmodified: "الرأي",
+		qualified: "الرأي المتحفظ",
+		adverse: "الرأي العكسي",
+		disclaimer: "الامتناع عن إبداء الرأي"
+	};
+	/** The PCAOB report (AS 3101) as the bundle's US filers carry it — EY on Apple and Amazon, Deloitte on Walmart, PwC on JPMorgan:
+	the opinion on the financial statements with the reference to the separate ICFR opinion; the basis for opinion in the PCAOB's
+	words (management's responsibility, registration and independence, reasonable assurance, what the audit included); the critical
+	audit matters, each as «description of the matter» and «how we addressed the matter»; the tenure line; firm, city and date. */
+	function pcaobReport(i) {
+		const co = i.company || "الشركة", end = i.periodEnd || "[تاريخ نهاية الفترة]", prior = i.priorPeriodEnd || "[تاريخ نهاية الفترة السابقة]";
+		const fw = i.frameworkAr || "مبادئ المحاسبة المقبولة عموماً في الولايات المتحدة الأمريكية", nd = i.opinion !== "disclaimer";
+		const stmts = "قوائم المركز المالي الموحدة المرفقة ل" + co + " (يُشار إليها بـ«الشركة») كما في " + end + " و" + prior + "، والقوائم الموحدة ذات العلاقة للعمليات والدخل الشامل وحقوق المساهمين والتدفقات النقدية لكل سنة من السنوات الثلاث في الفترة المنتهية في " + end + "، والإيضاحات ذات العلاقة (يُشار إليها مجتمعةً بـ«القوائم المالية الموحدة»)";
+		const fair = "المركز المالي للشركة كما في " + end + " و" + prior + "، ونتائج عملياتها وتدفقاتها النقدية لكل سنة من السنوات الثلاث في الفترة المنتهية في " + end + "، وفقاً " + lam(fw);
+		const opinion = i.opinion === "disclaimer" ? ["كُلفنا بمراجعة " + stmts + ". ونظراً لأهمية الأمور الموضحة في فقرة «أساس الامتناع عن إبداء الرأي»، لم نتمكن من الحصول على أدلة مراجعة كافية ومناسبة لتوفير أساس لرأي مراجعة، وبناءً عليه فإننا لا نبدي رأياً في هذه القوائم المالية الموحدة."] : ["لقد راجعنا " + stmts + ". " + (i.opinion === "unmodified" ? "وفي رأينا، فإن القوائم المالية الموحدة تعرض بعدل، من جميع الجوانب الجوهرية، " + fair + "." : i.opinion === "qualified" ? "وفي رأينا، باستثناء آثار الأمر الموضح في فقرة «أساس الرأي المتحفظ»، فإن القوائم المالية الموحدة تعرض بعدل، من جميع الجوانب الجوهرية، " + fair + "." : "وفي رأينا، بسبب أهمية الأمر الموضح في فقرة «أساس الرأي العكسي»، فإن القوائم المالية الموحدة لا تعرض بعدل " + fair + "."), ...i.icfr !== false ? ["كما راجعنا، وفقاً لمعايير مجلس الرقابة على محاسبة الشركات العامة في الولايات المتحدة الأمريكية («مجلس الرقابة» أو PCAOB)، الرقابة الداخلية على التقرير المالي للشركة كما في " + end + "، استناداً إلى المعايير الواردة في «الرقابة الداخلية — الإطار المتكامل» الصادر عن لجنة المنظمات الراعية لهيئة تريدواي (إطار 2013)، وقد أبدينا في تقريرنا المؤرخ في " + (i.date || "[تاريخ التقرير]") + " رأياً غير متحفظ بشأنها."] : []];
+		const sections = [
+			{
+				title: OPINION_WORD[i.opinion] + " في القوائم المالية",
+				paragraphs: opinion,
+				code: "opinion audited" + (i.icfr !== false ? " icfr" : "")
+			},
+			{
+				title: "أساس " + OPINION_WORD[i.opinion],
+				code: "basis independence",
+				paragraphs: [
+					...i.opinion === "unmodified" ? [] : i.basis,
+					"هذه القوائم المالية مسؤولية إدارة الشركة. ومسؤوليتنا هي إبداء رأي في القوائم المالية للشركة استناداً إلى مراجعاتنا. ونحن مكتب محاسبة عامة مسجّل لدى مجلس الرقابة، ويتعين علينا أن نكون مستقلين عن الشركة وفقاً لقوانين الأوراق المالية الفيدرالية الأمريكية والقواعد واللوائح المعمول بها الصادرة عن هيئة الأوراق المالية والبورصات الأمريكية ومجلس الرقابة.",
+					...nd ? ["لقد قمنا بمراجعاتنا وفقاً لمعايير مجلس الرقابة. وتتطلب تلك المعايير أن نخطط المراجعة وننفذها للحصول على تأكيد معقول عما إذا كانت القوائم المالية خالية من تحريف جوهري، سواء بسبب خطأ أو غش. وقد تضمنت مراجعاتنا تنفيذ إجراءات لتقييم مخاطر التحريف الجوهري في القوائم المالية، سواء بسبب خطأ أو غش، وتنفيذ إجراءات تستجيب لتلك المخاطر، وشملت تلك الإجراءات فحص الأدلة المتعلقة بالمبالغ والإفصاحات في القوائم المالية على أساس الاختبار. كما تضمنت مراجعاتنا تقييم المبادئ المحاسبية المستخدمة والتقديرات المهمة التي أجرتها الإدارة، وتقييم العرض العام للقوائم المالية. ونعتقد أن مراجعاتنا توفر أساساً معقولاً لرأينا."] : []
+				]
+			},
+			...i.goingConcern ? [{
+				title: "عدم تأكد جوهري بشأن قدرة الشركة على الاستمرار",
+				code: "going_concern",
+				paragraphs: ["أُعدت القوائم المالية المرفقة على افتراض استمرار الشركة كمنشأة مستمرة. وكما هو مبين في الإيضاح المتعلق بأساس الإعداد، فإن ظروفاً قائمة تثير شكاً كبيراً في قدرة الشركة على الاستمرار، وخطط الإدارة بشأنها موضحة في ذلك الإيضاح. ولا تتضمن القوائم المالية أي تعديلات قد تنتج عن نتيجة عدم التأكد هذا."]
+			}] : [],
+			...nd && i.kams.length ? [{
+				title: "الأمور الحرجة للمراجعة",
+				code: "cam",
+				kamHeads: ["وصف الأمر", "كيف تناولنا الأمر في مراجعتنا"],
+				obsLabel: "النتيجة",
+				paragraphs: ["الأمور الحرجة للمراجعة الموضحة أدناه هي أمور نشأت عن مراجعة القوائم المالية للفترة الحالية وأُبلغت، أو كان مطلوباً إبلاغها، إلى لجنة المراجعة، و(1) تتعلق بحسابات أو إفصاحات جوهرية للقوائم المالية، و(2) انطوت على أحكام صعبة أو ذاتية أو معقدة بشكل خاص من جانبنا. ولا يغيّر الإبلاغ عن الأمور الحرجة للمراجعة بأي حال رأينا في القوائم المالية الموحدة ككل، ولسنا، بالإبلاغ عنها أدناه، نبدي رأياً منفصلاً في هذه الأمور أو في الحسابات أو الإفصاحات التي تتعلق بها."],
+				kams: i.kams
+			}] : []
+		];
+		return {
+			title: "تقرير مكتب المحاسبة العامة المسجّل المستقل",
+			addressee: "إلى المساهمين ومجلس إدارة " + co,
+			sections,
+			signature: {
+				firm: i.firm || "[اسم مكتب المراجعة]",
+				partner: "",
+				licence: "",
+				city: i.city || "[المدينة]",
+				date: i.date || "[تاريخ التقرير]",
+				note: "لقد عملنا مراجعاً لحسابات الشركة منذ " + (i.since ? String(i.since) : "[سنة التعيين]") + "."
+			},
+			form: "US",
+			draft: true
+		};
+	}
+	/** The extended ISA (UK) 700 report as KPMG writes Unilever's and Deloitte bp's: «our opinion is unmodified» with the true-and-fair
+	bullets; the basis with the uninterrupted engagement and the FRC Ethical Standard; the overview of the audit (materiality, scope,
+	the matters); the key audit matters as «the risk — our response — our results»; going concern and the viability statement; fraud
+	and breaches of laws and regulations (the ability to detect); other information; matters reported by exception; the respective
+	responsibilities; and the purpose of the audit work and to whom the auditor owes responsibility. */
+	function ukReport(i) {
+		const co = i.company || "الشركة", end = i.periodEnd || "[تاريخ نهاية الفترة]", g = i.group !== false, nd = i.opinion !== "disclaimer";
+		const fw = i.frameworkAr || "المعايير المحاسبية المعتمدة في المملكة المتحدة والمعايير الدولية للتقرير المالي الصادرة عن مجلس معايير المحاسبة الدولية";
+		const endYear = (end.match(/(\d{4})/) || [])[1], years = i.since && endYear ? Number(endYear) - i.since + 1 : null;
+		const opinionParas = i.opinion === "disclaimer" ? ["كُلفنا بمراجعة القوائم المالية ل" + co + " للسنة المنتهية في " + end + ". ولا نبدي رأياً فيها، لأننا لم نتمكن، بسبب أهمية الأمور الموضحة في قسم «أساس الامتناع عن إبداء الرأي»، من الحصول على أدلة مراجعة كافية ومناسبة لتوفير أساس لرأي."] : [
+			"لقد راجعنا القوائم المالية ل" + co + " («الشركة») للسنة المنتهية في " + end + "، والتي تتضمن القوائم المالية الموحدة للمجموعة والقوائم المالية للشركة الأم، والإيضاحات ذات العلاقة بما فيها معلومات السياسات المحاسبية الجوهرية.",
+			i.opinion === "qualified" ? "وفي رأينا، باستثناء آثار الأمر الموضح في قسم «أساس الرأي المتحفظ»:" : i.opinion === "adverse" ? "وفي رأينا، بسبب أهمية الأمر الموضح في قسم «أساس الرأي العكسي»، فإن القوائم المالية لا تعطي صورة حقيقية وعادلة، وإلا:" : "وفي رأينا:",
+			"• تعطي القوائم المالية صورة حقيقية وعادلة عن وضع شؤون " + (g ? "المجموعة والشركة الأم" : "الشركة") + " كما في " + end + "، وعن ربح " + (g ? "المجموعة" : "الشركة") + " للسنة المنتهية في ذلك التاريخ؛",
+			"• أُعدت القوائم المالية على نحو سليم وفقاً " + lam(fw) + "؛",
+			"• أُعدت القوائم المالية وفقاً لمتطلبات القانون المعمول به على الشركة."
+		];
+		const sections = [
+			{
+				title: "1. " + (i.opinion === "unmodified" ? "رأينا غير معدّل" : OPINION_WORD[i.opinion]),
+				code: "opinion audited",
+				paragraphs: opinionParas
+			},
+			{
+				title: "أساس " + OPINION_WORD[i.opinion],
+				code: "basis independence tenure",
+				paragraphs: [
+					...i.opinion === "unmodified" ? [] : i.basis,
+					"قمنا بالمراجعة وفقاً للمعايير الدولية للمراجعة (المملكة المتحدة) والقانون المعمول به، ومسؤولياتنا موضحة أدناه. ونعتقد أن أدلة المراجعة التي حصلنا عليها كافية ومناسبة لتوفير أساس لرأينا. ويتسق رأينا مع تقريرنا إلى لجنة المراجعة.",
+					"عُيِّنا مراجعين من قِبل المساهمين" + (i.since ? " في " + i.since + "، وتبلغ فترة تكليفنا المتصلة دون انقطاع " + (years ?? "[عدد]") + " سنة" : " [تاريخ التعيين وفترة التكليف المتصلة]") + ". وقد وفينا بمسؤولياتنا الأخلاقية وفقاً للمتطلبات الأخلاقية المعمول بها، بما فيها المعيار الأخلاقي لمجلس التقارير المالية (FRC) كما يطبق على المنشآت المدرجة ذات المصلحة العامة، ولم نقدم للمجموعة أو للشركة خدمات غير مراجعة يحظرها ذلك المعيار."
+				]
+			},
+			...nd && i.approach ? [{
+				...i.approach,
+				title: "2. نظرة عامة على مراجعتنا: الأهمية النسبية والنطاق",
+				code: "approach materiality scope"
+			}] : [],
+			...nd && i.kams.length ? [{
+				title: "3. الأمور الرئيسية للمراجعة: تقييمنا لمخاطر التحريف الجوهري",
+				code: "kam",
+				kamHeads: ["الخطر", "استجابتنا"],
+				obsLabel: "نتائجنا",
+				paragraphs: ["الأمور الرئيسية للمراجعة هي تلك الأمور التي كانت، بحسب حكمنا المهني، لها الأهمية القصوى في مراجعة القوائم المالية، وتشمل أهم مخاطر التحريف الجوهري المقيّمة (سواء بسبب الغش أو غيره) التي حددناها، بما فيها تلك التي كان لها الأثر الأكبر على الاستراتيجية العامة للمراجعة وتخصيص الموارد فيها وتوجيه جهود فريق التكليف. وقد تناولنا هذه الأمور، ونعرض نتائج إجراءاتنا بشأنها، في سياق مراجعتنا للقوائم المالية ككل وعند تكوين رأينا فيها، ولا نبدي رأياً منفصلاً في هذه الأمور."],
+				kams: i.kams
+			}] : [],
+			...i.goingConcernSection && nd ? [{
+				...i.goingConcernSection,
+				title: "4. " + i.goingConcernSection.title,
+				code: "going_concern"
+			}] : [{
+				title: "4. الاستمرارية",
+				code: "going_concern",
+				paragraphs: i.goingConcern ? ["نلفت الانتباه إلى الإيضاح المتعلق بأساس الإعداد، الذي يبين أحداثاً وظروفاً تشير إلى وجود عدم تأكد جوهري قد يثير شكاً كبيراً في قدرة المجموعة على الاستمرار. ولم يُعدَّل رأينا فيما يتعلق بهذا الأمر."] : [
+					"أعد المديرون القوائم المالية على أساس الاستمرارية لأنهم لا يعتزمون تصفية المجموعة أو الشركة أو إيقاف عملياتهما، ويرون أن وضعهما المالي يمكّنهما من الاستمرار لفترة لا تقل عن سنة من تاريخ اعتماد القوائم المالية («فترة الاستمرارية»).",
+					"واستنتاجاتنا بناءً على عملنا: • نرى أن استخدام المديرين لأساس الاستمرارية في المحاسبة عند إعداد القوائم المالية مناسب؛ • لم نحدد، ونتفق مع تقييم المديرين بعدم وجود، عدم تأكد جوهري متعلق بأحداث أو ظروف قد تثير، منفردة أو مجتمعة، شكاً كبيراً في قدرة المجموعة أو الشركة على الاستمرار خلال فترة الاستمرارية؛ • لم نجد ما نقرره بشأن بيان الاستمرارية في القوائم المالية.",
+					"ومع ذلك، ولأنه لا يمكن التنبؤ بجميع الأحداث أو الظروف المستقبلية، فإن هذه الاستنتاجات ليست ضماناً لاستمرار المجموعة أو الشركة."
+				]
+			}],
+			{
+				title: "5. الغش ومخالفة القوانين واللوائح — قدرتنا على الاكتشاف",
+				code: "fraud",
+				paragraphs: [
+					"تحديد مخاطر التحريف الجوهري بسبب الغش: لتحديد المخاطر قيّمنا الأحداث أو الظروف التي قد تشير إلى حافز أو ضغط لارتكاب الغش أو فرصة له، وشمل ذلك الاستفسار من المديرين ولجنة المراجعة والمراجعة الداخلية، وقراءة محاضر مجلس الإدارة، والنظر في خطط المكافآت ومؤشرات الأداء، واستخدام الإجراءات التحليلية لتحديد العلاقات غير المعتادة أو غير المتوقعة.",
+					"وكما تقتضي معايير المراجعة، نفذنا إجراءات للتعامل مع خطر تجاوز الإدارة للضوابط، ولا سيما خطر أن تكون الإدارة في وضع يسمح لها بتسجيل قيود محاسبية غير مناسبة، وخطر التحيز في التقديرات والأحكام المحاسبية؛ واخترنا قيود اليومية لاختبارها وفق معايير خطر، وقارناها بالمستندات المؤيدة.",
+					"تحديد مخاطر التحريف الجوهري بسبب عدم الالتزام بالقوانين واللوائح: حددنا مجالات القوانين واللوائح التي يُتوقع بشكل معقول أن يكون لها أثر جوهري في القوائم المالية من خبرتنا القطاعية والمناقشة مع المديرين والإدارة، ومن القراءة والمراسلات مع الجهات التنظيمية.",
+					"سياق القدرة على الاكتشاف: نظراً للقيود المتأصلة في المراجعة، هناك خطر لا يمكن تجنبه بألا نكتشف بعض التحريفات الجوهرية في القوائم المالية حتى لو خُططت المراجعة ونُفذت على النحو السليم؛ ويزداد هذا الخطر بالنسبة للغش لأنه قد ينطوي على التواطؤ أو التزوير أو الحذف المتعمد أو التحريف أو تجاوز الرقابة الداخلية."
+				]
+			},
+			{
+				title: "6. لم نجد تحريفات جوهرية في المعلومات الأخرى المعروضة في التقرير السنوي",
+				code: "other_info",
+				paragraphs: ["إن المديرين هم المسؤولون عن المعلومات الأخرى المعروضة في التقرير السنوي مع القوائم المالية. ولا يغطي رأينا في القوائم المالية المعلومات الأخرى، وبناءً عليه لا نبدي رأي مراجعة أو أي شكل من أشكال الاستنتاج التأكيدي بشأنها، إلا بالقدر المذكور صراحةً أدناه.", "ومسؤوليتنا هي قراءة المعلومات الأخرى، والنظر عند ذلك فيما إذا كانت، بناءً على عملنا في مراجعة القوائم المالية، محرفة بشكل جوهري أو غير متسقة مع القوائم المالية أو مع معرفتنا المكتسبة من المراجعة. ولم نحدد، بناءً على ذلك العمل وحده، تحريفات جوهرية في المعلومات الأخرى."]
+			},
+			{
+				title: "7. الإفصاحات عن بيان الجدوى وحوكمة الشركة",
+				code: "viability",
+				paragraphs: ["بناءً على المعرفة التي اكتسبناها أثناء مراجعة القوائم المالية، ليس لدينا ما نقرره أو نضيفه أو نلفت الانتباه إليه جوهرياً بشأن: إفصاحات المديرين عن المخاطر الرئيسية وكيفية إدارتها؛ وبيان الجدوى الذي يوضح كيف قيّم المديرون آفاق المجموعة والفترة التي غطاها التقييم ولماذا يرونها مناسبة؛ وبيان المديرين بأن التقرير السنوي عادل ومتوازن ومفهوم؛ وقسم تقرير لجنة المراجعة."]
+			},
+			{
+				title: "8. التقرير عن المتطلبات القانونية والتنظيمية الأخرى: الأمور التي نقرر عنها بالاستثناء",
+				code: "exception legal",
+				paragraphs: ["يتعين علينا بموجب القانون المعمول به أن نقرر إليكم إذا رأينا أن: الشركة لم تمسك سجلات محاسبية كافية، أو لم تُستلم عوائد كافية لمراجعتنا من الفروع التي لم نزرها؛ أو أن القوائم المالية للشركة الأم غير متفقة مع السجلات والعوائد المحاسبية؛ أو أن إفصاحات معينة عن مكافآت المديرين المحددة نظاماً لم تُفصح؛ أو أننا لم نحصل على جميع المعلومات والتفسيرات التي نحتاجها لمراجعتنا. وليس لدينا ما نقرره في هذه النواحي."]
+			},
+			{
+				title: "9. مسؤوليات كل منا",
+				code: "resp_mgmt resp_aud",
+				paragraphs: ["مسؤوليات المديرين: كما يوضح بيان مسؤولياتهم، فإن المديرين مسؤولون عن إعداد القوائم المالية بما يعطي صورة حقيقية وعادلة، وعن الرقابة الداخلية التي يرونها ضرورية لإعدادها خالية من تحريف جوهري سواء بسبب الغش أو الخطأ، وعن تقييم قدرة المجموعة والشركة الأم على الاستمرار والإفصاح عن الأمور المتعلقة بذلك واستخدام أساس الاستمرارية في المحاسبة ما لم يعتزموا التصفية أو إيقاف العمليات أو لم يكن لديهم بديل واقعي.", "مسؤوليات المراجع: هدفنا الحصول على تأكيد معقول عما إذا كانت القوائم المالية ككل خالية من تحريف جوهري، سواء بسبب الغش أو الخطأ، وإصدار تقرير يتضمن رأينا. والتأكيد المعقول مستوى عالٍ من التأكيد، لكنه ليس ضماناً بأن المراجعة المنفذة وفقاً للمعايير الدولية للمراجعة (المملكة المتحدة) ستكشف دائماً عن التحريف الجوهري عند وجوده. ويتوفر وصف أشمل لمسؤولياتنا على الموقع الإلكتروني لمجلس التقارير المالية."]
+			},
+			{
+				title: "10. الغرض من أعمال المراجعة والجهة التي ندين لها بالمسؤولية",
+				code: "purpose",
+				paragraphs: ["أُعد هذا التقرير لأعضاء الشركة فقط، بصفتهم هيئة، وفقاً للقانون المعمول به. وقد اضطلعنا بأعمال المراجعة لكي نبلغ أعضاء الشركة بتلك الأمور التي يتعين علينا إبلاغهم بها في تقرير المراجع، ولا لأي غرض آخر. وإلى أقصى حد يسمح به القانون، لا نقبل ولا نتحمل أي مسؤولية تجاه أي شخص غير الشركة وأعضائها بصفتهم هيئة، عن أعمال المراجعة التي قمنا بها أو عن هذا التقرير أو عن الآراء التي كوّناها."]
+			}
+		];
+		return {
+			title: "تقرير المراجع المستقل إلى أعضاء " + co,
+			addressee: "",
+			sections,
+			signature: {
+				firm: i.firm || "[اسم مكتب المراجعة]",
+				partner: (i.partner || "[اسم الشريك]") + " (المراجع القانوني الأول) نيابةً عن " + (i.firm || "[اسم مكتب المراجعة]") + "، محاسبون قانونيون ومراجعون قانونيون",
+				licence: "",
+				city: i.city || "[المدينة]",
+				date: i.date || "[تاريخ التقرير]"
+			},
+			form: "UK",
 			draft: true
 		};
 	}

@@ -44,12 +44,12 @@ function planCard(c){
 
 /* ---------- key audit matters ---------- */
 function kamList(c){
-  const d=c.d,AI=E().audit.aiReview,GB=E().audit.globalBenchmarks,cur=d.ctx.country==="EG"||c.fw==="EAS"?"ج.م":"ر.س";
+  const d=c.d,AI=E().audit.aiReview,GB=E().audit.globalBenchmarks,cur=d.source==="bundle"&&d.ctx.currency?d.ctx.currency:d.ctx.country==="EG"||c.fw==="EAS"?"ج.م":"ر.س";
   /* evidence from the rounds and from the working papers signed in the fieldwork tab */
   const ev=AI.mergeEvidence?AI.mergeEvidence(c.session?AI.evidenceFromSession(c.base,c.session):{},c.fieldEv||{}):(c.session?AI.evidenceFromSession(c.base,c.session):{});
   const end=/^\d{4}-\d{2}-\d{2}$/.test(d.ctx.periodEnd||"")?new Date(d.ctx.periodEnd+"T12:00:00").toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"}):"";
   const ks=KM().suggestKams({fs:c.fsAfterAdj,risks:c.base.risks,materiality:c.base.materiality.overall,currency:cur,periodEnd:end,sector:GB?GB.sectorFromActivity(d.ctx.activity||""):"",
-    evidence:ev,priorKeys:Array.isArray(d.priorKams)?d.priorKams:undefined});
+    evidence:ev,priorKeys:Array.isArray(d.priorKams)?d.priorKams:undefined,standard:d.ctx.reportForm==="US"?"PCAOB":"ISA",max:d.ctx.reportForm==="UK"?4:undefined});
   if(Array.isArray(d.kamSel))ks.forEach(k=>{k.selected=d.kamSel.includes(k.key)});
   return ks;
 }
@@ -69,7 +69,8 @@ let gcMemo={sig:"",r:null};
 function gcOf(c){
   const cfg=c.d.gc||{},sig=c.sig+"|"+JSON.stringify(cfg);
   if(gcMemo.sig===sig)return gcMemo.r;
-  const base=GC().baselineFromStatements(c.fsAfterAdj,{undrawnFacilities:cfg.facilities||0});
+  const GBk=E().audit.globalBenchmarks,sector=GBk?GBk.sectorFromActivity(c.d.ctx.activity||""):"";
+  const base=GC().baselineFromStatements(c.fsAfterAdj,{undrawnFacilities:cfg.facilities||0,financial:sector==="banking"||sector==="insurance"});
   const mit=(cfg.mitigations||[]).filter(x=>x&&x.monthly).map(x=>({ar:x.ar||"إجراء مخفف",monthly:x.monthly,fromMonth:x.fromMonth||1,feasible:!!x.feasible}));
   const r=GC().assessGoingConcern({baseline:base,mitigations:mit,indicators:c.all.findings.filter(f=>f.kind==="going-concern").map(f=>({title:f.title,severity:f.severity}))});
   gcMemo={sig,r:{...r,baseline:base,mit}};return gcMemo.r;

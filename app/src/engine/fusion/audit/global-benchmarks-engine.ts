@@ -316,10 +316,31 @@ export function sectorFromActivity(activity: string): Sector | '' {
     ['banking', /بنك|مصرف|تمويل|bank|financ|lending/], ['insurance', /تأمين|تكافل|insur|reinsur/], ['pharma', /دواء|أدوية|صيدل|pharma|drug|biotech/],
     ['energy', /نفط|بترول|غاز|طاقة|oil|gas|energy|petro/], ['mining', /تعدين|منجم|معادن|mining|mineral/], ['telecom', /اتصالات|telecom|mobile network/],
     ['auto', /سيار|مركبات|auto|vehicle|motor/], ['tech', /تقني|برمج|برامج|حاسب|software|tech|cloud|saas|electronic/],
-    ['fmcg', /أغذية|غذائ|لحوم|أغنام|مواشي|ألبان|مشروبات|استهلاك|food|meat|dairy|beverage|consumer/], ['retail', /تجزئة|متجر|سوبر|retail|store|e-?commerce/],
+    ['fmcg', /أغذية|غذائ|لحوم|أغنام|مواشي|ألبان|مشروبات|استهلاك|food|meat|dairy|beverage|consumer|fmcg/], ['retail', /تجزئة|متجر|سوبر|retail|store|e-?commerce/],
     ['industrial', /مقاولات|إنشاء|صناع|مصنع|طيران|construct|manufactur|industrial|aero/],
   ];
   return map.find(([, re]) => re.test(t))?.[0] ?? '';
+}
+
+/** How often each theme is a key/critical audit matter for reports of this sector (and standard), smoothed towards the
+    whole bundle: p = (reports of the sector carrying it + 2 × its share across all reports) / (reports of the sector + 2).
+    `exclude` leaves one report out, so the bundle can test itself without seeing the answer. */
+export function themePrior(opts: { sector?: Sector | ''; standard?: Standard | ''; exclude?: string } = {}): Record<Theme, number> {
+  const reps = REPORTS.filter((r) => r.id !== opts.exclude && KAMS.some((k) => k.report === r.id));
+  const has = (r: Report, t: Theme) => KAMS.some((k) => k.report === r.id && k.theme === t);
+  const inSector = reps.filter((r) => opts.sector && r.sector === opts.sector), inStd = reps.filter((r) => opts.standard && r.standard === opts.standard);
+  const out = {} as Record<Theme, number>;
+  for (const t of Object.keys(THEMES) as Theme[]) {
+    const g = reps.length ? reps.filter((r) => has(r, t)).length / reps.length : 0;
+    const std = inStd.length ? (inStd.filter((r) => has(r, t)).length + 2 * g) / (inStd.length + 2) : g;
+    out[t] = inSector.length ? (inSector.filter((r) => has(r, t)).length + 2 * std) / (inSector.length + 2) : std;
+  }
+  return out;
+}
+/** How many matters reports of a standard carry: PCAOB reports about two critical audit matters, ISA reports three or more. */
+export function typicalKamCount(standard?: Standard | '', ukStyle = false): number {
+  if (ukStyle) return 4;
+  return standard === 'PCAOB' ? 2 : 3;
 }
 
 export type Precedent = { theme: Theme; ar: string; why: string; procedures: string[]; examples: KamRow[] };

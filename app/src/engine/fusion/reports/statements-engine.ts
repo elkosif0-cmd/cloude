@@ -12,7 +12,7 @@ import { type Minor } from './money-engine';
 import { norm, type AccountType, type TrialBalance, type TbRow } from './tb-import-engine';
 
 export type Statement = 'sfp' | 'pl';
-export type Section = 'nca' | 'ca' | 'ncl' | 'cl' | 'eq' | 'rev' | 'cogs' | 'opex' | 'opinc' | 'inv' | 'fin' | 'zakat';
+export type Section = 'nca' | 'ca' | 'ncl' | 'cl' | 'eq' | 'rev' | 'cogs' | 'opex' | 'opinc' | 'inv' | 'fin' | 'zakat' | 'disc';
 export type CfRole = 'cash' | 'wc' | 'noncash' | 'zakatPayable' | 'investing' | 'financing' | 'equity' | 'retained' | 'none';
 export type LineDef = {
   key: string; ar: string; en: string; statement: Statement; section: Section; types: AccountType[];
@@ -54,6 +54,8 @@ export const LINES: LineDef[] = [
   { key: 'provisions', ar: 'مخصصات', en: 'Provisions', statement: 'sfp', section: 'cl', types: ['liability'], kws: ['مخصص', 'provision'], prefixes: [], standards: ['IAS 37'], assertions: ['الاكتمال', 'التقييم'], cf: 'noncash' },
   { key: 'otherCl', ar: 'مطلوبات متداولة أخرى', en: 'Other current liabilities', statement: 'sfp', section: 'cl', types: ['liability'], kws: [], prefixes: ['20', '21'], standards: ['IAS 1'], assertions: ['الاكتمال'], cf: 'wc' },
   /* ---- profit or loss (IFRS 18 categories) ---- */
+  /* after tax, on its own line (IFRS 5.33): a discontinued operation's result never enters profit before tax */
+  { key: 'discontinued', ar: 'الربح (الخسارة) من العمليات غير المستمرة', en: 'Profit (loss) from discontinued operations', statement: 'pl', section: 'disc', types: ['revenue', 'expense'], kws: ['عمليات غير مستمره', 'العمليات غير المستمره', 'discontinued'], prefixes: ['495'], standards: ['IFRS 5'], assertions: ['العرض', 'التصنيف'], cf: 'none' },
   { key: 'revenue', ar: 'الإيرادات', en: 'Revenue', statement: 'pl', section: 'rev', types: ['revenue'], kws: ['مبيعات', 'ايراد المبيعات', 'ايرادات النشاط', 'ايرادات العقود', 'sales', 'revenue'], prefixes: ['41', '40'], standards: ['IFRS 15'], assertions: ['الحدوث', 'الاكتمال', 'الدقه', 'القطع'], cf: 'none' },
   { key: 'investIncome', ar: 'إيرادات الاستثمار', en: 'Investment income', statement: 'pl', section: 'inv', types: ['revenue'], kws: ['ايراد استثمار', 'ايرادات استثمار', 'عوائد ودائع', 'ارباح استثمار', 'توزيعات مستلمه', 'حصه في', 'investment income', 'dividend'], prefixes: ['47'], standards: ['IFRS 18', 'IFRS 9'], assertions: ['الحدوث', 'الدقه'], cf: 'none' },
   { key: 'otherIncome', ar: 'إيرادات تشغيلية أخرى', en: 'Other operating income', statement: 'pl', section: 'opinc', types: ['revenue'], kws: ['ايرادات اخرى', 'ايراد اخر', 'ارباح بيع', 'other income'], prefixes: ['42', '43', '44', '45', '46', '48', '49'], standards: ['IFRS 18'], assertions: ['الحدوث', 'التصنيف'], cf: 'none' },
@@ -93,7 +95,7 @@ export type FinancialStatements = {
 };
 
 /* value in the line's natural presentation: assets & expenses debit-positive, the rest credit-positive */
-const present = (l: LineDef, signed: Minor) => (l.types.includes('asset') || l.types.includes('expense') ? signed : -signed);
+const present = (l: LineDef, signed: Minor) => (l.section === 'disc' ? -signed : l.types.includes('asset') || l.types.includes('expense') ? signed : -signed);
 
 /* Saudi entities pay zakat; Egyptian (and most other) entities pay income tax — the labels follow */
 const TAX_WORDS = { zakat: { before: 'الربح قبل التمويل والزكاة', pbz: 'الربح قبل الزكاة', payable: 'زكاة مستحقة', paid: 'الزكاة المدفوعة' },
@@ -118,8 +120,8 @@ export function buildStatements(tb: TrialBalance, overrides: Record<string, stri
     const g = (k: string) => (prior ? vp(k) : v(k)), sx = (s: Section) => sec(s, prior);
     const revenue = g('revenue'), cogs = g('cogs'), gross = revenue - cogs;
     const opex = sx('opex'), otherInc = sx('opinc'), operating = gross - opex + otherInc;
-    const invest = sx('inv'), pbfz = operating + invest, finance = sx('fin'), pbz = pbfz - finance, zakat = sx('zakat'), profit = pbz - zakat;
-    return { revenue, cogs, gross, opex, otherInc, operating, invest, pbfz, finance, pbz, zakat, profit };
+    const invest = sx('inv'), pbfz = operating + invest, finance = sx('fin'), pbz = pbfz - finance, zakat = sx('zakat'), continuing = pbz - zakat, disc = sx('disc'), profit = continuing + disc;
+    return { revenue, cogs, gross, opex, otherInc, operating, invest, pbfz, finance, pbz, zakat, continuing, disc, profit };
   };
   const pc = P(false), pp = hasPrior ? P(true) : null;
   const row = (key: string, ar: string, en: string, c: Minor, p: Minor | null, level: Row['level'] = 'line'): Row => ({ key, ar, en, current: c, prior: p, level });
@@ -130,7 +132,9 @@ export function buildStatements(tb: TrialBalance, overrides: Record<string, stri
     row('operating', 'الربح التشغيلي', 'Operating profit', pc.operating, pp?.operating ?? null, 'subtotal'),
     lr('investIncome'), row('pbfz', TW.before, 'Profit before financing and zakat', pc.pbfz, pp?.pbfz ?? null, 'subtotal'),
     lr('financeCost', -1), row('pbz', TW.pbz, 'Profit before zakat', pc.pbz, pp?.pbz ?? null, 'subtotal'),
-    lr('zakatExpense', -1), row('profit', 'صافي ربح السنة', 'Profit for the year', pc.profit, pp?.profit ?? null, 'total'),
+    lr('zakatExpense', -1),
+    ...(pc.disc || pp?.disc ? [row('continuing', 'الربح من العمليات المستمرة', 'Profit from continuing operations', pc.continuing, pp?.continuing ?? null, 'subtotal'), lr('discontinued')] : []),
+    row('profit', 'صافي ربح السنة', 'Profit for the year', pc.profit, pp?.profit ?? null, 'total'),
   ].filter((r) => r.level !== 'line' || r.current !== 0 || (r.prior ?? 0) !== 0);
   /* financial position (equity includes the result for the year: P&L accounts are open in a pre-closing trial balance) */
   const nca = sec('nca'), ca = sec('ca'), ncl = sec('ncl'), cl = sec('cl'), eqTb = sec('eq');
@@ -219,7 +223,7 @@ export function buildStatements(tb: TrialBalance, overrides: Record<string, stri
     { no: 4, ar: 'الأحكام والتقديرات المحاسبية الهامة', en: 'Significant judgements and estimates', kind: 'policy' },
   ];
   let no = 5;
-  const order = ['nca', 'ca', 'eq', 'ncl', 'cl', 'rev', 'cogs', 'opex', 'opinc', 'inv', 'fin', 'zakat'] as Section[];
+  const order = ['nca', 'ca', 'eq', 'ncl', 'cl', 'rev', 'cogs', 'opex', 'opinc', 'inv', 'fin', 'zakat', 'disc'] as Section[];
   for (const s of order) for (const l of LINES.filter((x) => x.section === s)) {
     const L = acc.get(l.key); if (!L || (L.current === 0 && (L.prior ?? 0) === 0)) continue;
     L.note = no; notes.push({ no, ar: l.ar, en: l.en, kind: 'line', lineKey: l.key }); no++;
@@ -228,7 +232,7 @@ export function buildStatements(tb: TrialBalance, overrides: Record<string, stri
   for (const r of [...pl, ...sfp]) if (LINE[r.key]) r.note = noteOf(r.key);
   const keys: FinancialStatements['keys'] = {};
   const put = (k: string, c: Minor, p: Minor | null) => { keys[k] = { current: c, prior: hasPrior ? p : null }; };
-  (['revenue', 'cogs', 'gross', 'opex', 'operating', 'pbfz', 'finance', 'pbz', 'zakat', 'profit'] as const).forEach((k) => put(k, pc[k], pp ? pp[k] : null));
+  (['revenue', 'cogs', 'gross', 'opex', 'operating', 'pbfz', 'finance', 'pbz', 'zakat', 'continuing', 'disc', 'profit'] as const).forEach((k) => put(k, pc[k], pp ? pp[k] : null));
   put('nca', nca, ncaP); put('ca', ca, caP); put('assets', nca + ca, ncaP + caP); put('ncl', ncl, nclP); put('cl', cl, clP);
   put('liabilities', ncl + cl, nclP + clP); put('equity', eq, eqP);
   for (const k of ['cash', 'receivables', 'inventory', 'payables', 'ppe', 'loansCl', 'loansNcl', 'leaseNcl', 'depreciation', 'selling', 'admin']) put(k, v(k), vp(k));

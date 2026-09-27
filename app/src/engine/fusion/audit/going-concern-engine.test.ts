@@ -42,3 +42,20 @@ describe('going concern and viability (ISA 570)', () => {
     expect(goingConcernSection('material-uncertainty').title).toBe('عدم تأكد جوهري يتعلق بالاستمرارية');
   });
 });
+
+describe('going concern for large groups and financial institutions (the bundle testing the model)', () => {
+  const base = { openingCash: 3_940_000, monthlyRevenue: 4_200_000, grossMargin: 1, monthlyFixedCosts: 3_460_000, dsoDays: 53, dpoDays: 0, openingReceivables: 7_300_000,
+    openingPayables: 16_900_000, monthlyDebtService: 0, monthlyCapex: 220_000, undrawnFacilities: 0 };
+  it('measures supplier days on all cash costs when there is no cost of sales, so year-end payables are not all paid in month one', () => {
+    const naive = assessGoingConcern({ baseline: base });
+    expect(naive.conclusion).toBe('material-uncertainty');
+    const fixed = assessGoingConcern({ baseline: { ...base, dpoDays: Math.round(16_900_000 / (3_460_000 * 12) * 365), dpoOnCosts: true } });
+    expect(fixed.conclusion).not.toBe('material-uncertainty');
+  });
+  it('does not run a trading forecast for a bank: indicators decide, and the reason names the regulator ratios', () => {
+    const r = assessGoingConcern({ baseline: { ...base, financial: true } });
+    expect(r.conclusion).toBe('no-material-uncertainty');
+    expect(r.why).toContain('نسب السيولة');
+    expect(assessGoingConcern({ baseline: { ...base, financial: true }, indicators: [{ title: 'خسائر متراكمة', severity: 'high' }] }).conclusion).toBe('close-call');
+  });
+});

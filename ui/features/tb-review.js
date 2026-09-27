@@ -94,8 +94,21 @@ async function bundlePicker(){
     if(add){const c=B.clients.find(x=>x.id===add.dataset.bundleAdd);if(!c)return;w.remove();
       const d=blank();d.source="bundle";d.bundleId=c.id;d.tbText=c.tb;d.loadedAt=new Date().toISOString();d.loadedFrom="الحزمة العالمية — "+c.company;
       Object.assign(d.ctx,{company:c.company,period:"السنة المنتهية في "+c.periodEndAr,periodStart:c.periodStart||"",periodEnd:c.periodEnd,country:c.country==="SA"||c.country==="AE"||c.country==="EG"?c.country:"SA",
-        framework:"IFRS",currency:c.unitAr,activity:c.activityAr||"",legalForm:"شركة مساهمة عامة",consolidated:true,auditFirm:c.auditor});
+        framework:"IFRS",currency:c.unitAr,activity:c.activityAr||"",legalForm:"شركة مساهمة عامة",consolidated:true,auditFirm:c.auditor,...bundleForm(c)});
       newFile(d,{bundleId:c.id,source:"bundle"});SK.audit&&SK.audit.log("tbreview",{act:"bundle-client",id:c.id});toast("أُضيف ملف «"+c.company+"» — ميزانه مبني من قوائمه المنشورة","ok")}});
+}
+/* the report the company's own auditor issued decides the form of ours: PCAOB for the SEC filers, the extended ISA (UK) report for the
+   UK-listed groups (and Airbus's Dutch report, written the same way), the local form for Saudi, UAE and Egyptian companies, ISA 700 for the rest */
+const FW_AR={"US GAAP":"مبادئ المحاسبة المقبولة عموماً في الولايات المتحدة الأمريكية","J-GAAP":"مبادئ المحاسبة المقبولة عموماً في اليابان","K-IFRS":"المعايير الدولية للتقرير المالي المعتمدة في جمهورية كوريا",
+  "TIFRS":"المعايير الدولية للتقرير المالي المعتمدة من هيئة الرقابة المالية في تايوان","Ind AS":"معايير المحاسبة الهندية (Ind AS) الصادرة بموجب قانون الشركات لعام 2013","AASB (IFRS)":"معايير المحاسبة الأسترالية المتوافقة مع المعايير الدولية للتقرير المالي"};
+const EU=new Set(["DE","FR","NL"]);
+function bundleForm(c){
+  const G=E().audit.globalBenchmarks,r=G&&G.reportOf?G.reportOf(c.id)||{}:{},fwk=r.framework||c.framework||"";
+  const form=c.auditStd==="PCAOB"?"US":c.country==="UK"||c.country==="NL"?"UK":["SA","AE","EG"].includes(c.country)?c.country:"INT";
+  const frameworkAr=FW_AR[fwk]||(fwk==="IFRS"&&form!=="UK"?(EU.has(c.country)?"المعايير الدولية للتقرير المالي كما اعتمدها الاتحاد الأوروبي":"المعايير الدولية للتقرير المالي الصادرة عن مجلس معايير المحاسبة الدولية"):"");
+  /* the sector, written so the benchmarks recognise it (the KAM precedents, a bank's going concern) */
+  const activity=r.sector?((G.SECTOR_AR||{})[r.sector]||"")+" ("+r.sector+")":"";
+  return{reportForm:form,frameworkAr,auditSince:r.since||"",countryAr:c.countryAr||"",activity};
 }
 const docKey=(sid,u)=>sid+"|"+u.requestId+"|"+u.fileName;
 const readAs=(file,how)=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error||new Error("تعذرت قراءة الملف"));how==="text"?r.readAsText(file):r.readAsDataURL(file)});
@@ -157,7 +170,7 @@ window.SKosifTBReview=Object.freeze({fromBooks,booksTB,rows:()=>{const c=compute
 
 /* ---------- computation (memoized) ---------- */
 function compute(){
-  const d=st();CUR=egypt(d)?"ج.م":"ر.س";if(!d.tbText)return null;
+  const d=st();CUR=d.source==="bundle"&&d.ctx.currency?d.ctx.currency:egypt(d)?"ج.م":"ر.س";if(!d.tbText)return null;
   const sig=JSON.stringify([MN().fingerprint(d.tbText),d.overrides,d.ctx,d.materiality,d.session&&d.session.rounds.length,d.session&&d.session.unavailable,d.accepted,d.rejected,!!(d.session&&d.session.final),d.ecl,d.confirm,d.field&&d.field.so,d.matPlanOn&&d.matPlan]);
   if(cache&&cache.sig===sig)return cache;
   const tb=TI().parseTrialBalance(d.tbText);
@@ -204,7 +217,7 @@ function stepper(c){
 }
 function hero(c){
   const d=c?c.d:st(),ctx=d.ctx,s=c&&c.session,state=s?AI().sessionState(s):{label:c?"الميزان جاهز — ابدأ جولة المراجع الذكي أو تابع بالمحرك الآلي":"ابدأ باستلام ميزان المراجعة"};
-  return '<section class="tbr-hero"><div class="tx"><span class="eyebrow">مراجعة الحسابات بالمعايير</span><h2>'+esc(ctx.company||"منشأة جديدة")+'</h2><p>'+esc([ctx.period,FW_LABEL[egypt(d)?"EAS":ctx.framework],ctx.activity].filter(Boolean).join(" · "))+'</p>'+
+  return '<section class="tbr-hero"><div class="tx"><span class="eyebrow">مراجعة الحسابات بالمعايير</span><h2>'+esc(ctx.company||"منشأة جديدة")+'</h2><p>'+esc([ctx.period,ctx.frameworkAr||FW_LABEL[egypt(d)?"EAS":ctx.framework],ctx.activity].filter(Boolean).join(" · "))+'</p>'+
     '<p class="tbr-state">'+esc(state.label)+'</p></div><div class="sk-actions">'+(c?'<button type="button" class="btn sm" data-a="setup">بيانات المراجعة</button><button type="button" class="btn sm" data-a="reset">مراجعة جديدة</button>':'')+'</div></section>'+stepper(c)+
     (c?'<div class="tbr-tabs" role="tablist">'+TABS.map(([k,l])=>'<button type="button" role="tab" data-tab="'+k+'" aria-selected="'+(tab===k)+'">'+esc(l)+badge(c,k)+'</button>').join("")+'</div>':'');
 }
@@ -422,7 +435,7 @@ let docStyled=false;
 function fmtDate(iso,eg){if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||""))return "";try{return new Date(iso+"T12:00:00").toLocaleDateString(eg?"ar-EG-u-nu-latn":"ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"})}catch{return iso}}
 function docX(c){
   const fs=fsAfter?c.fsAfterAdj:c.fsBefore,m=c.base.materiality,ctx=c.d.ctx,eg=c.fw==="EAS",kams=kamsOf(c).map(k=>({title:k.title,description:k.why,how:k.how,observation:k.observation,refs:k.refs,trend:k.trend}));
-  const x={c,fs,cur:CUR,ctx,fw:c.fw,periodEnd:fmtDate(ctx.periodEnd,eg),kams,opinion:c.derived,goingConcernSection:AP()?AP().gcSection(c):undefined};
+  const x={c,fs,cur:CUR,ctx,fw:c.fw,periodEnd:fmtDate(ctx.periodEnd,eg),priorPeriodEnd:ctx.periodEnd?fmtDate(yearBack(ctx.periodEnd),eg):"",kams,opinion:c.derived,goingConcernSection:AP()?AP().gcSection(c):undefined};
   const GV=E().audit.governance;if(!GV)return x;
   x.approach=GV.auditApproach({materiality:m,currency:CUR,kamTitles:kams.map(k=>k.title),taxWord:eg?"الضريبة":"الزكاة"});
   x.notesPkg=E().reports.notes.notesPackage(fs,{country:eg?"EG":"SA"});

@@ -110,3 +110,38 @@ describe('auditor report in the structure of the bundle (Aramco, Emirates NBD, e
   });
 });
 
+
+describe('the report forms of the bundle: PCAOB, ISA (UK) and ISA', () => {
+  const kams = [{ title: 'الموقف الضريبي غير المؤكد', description: 'وصف', how: 'إجراءات', observation: 'لا ملاحظات' }];
+  it('writes a PCAOB report: opinion with the ICFR reference, the PCAOB basis, critical audit matters in their own columns, the tenure line', () => {
+    const r = auditorsReport({ company: 'Apple Inc.', periodEnd: '28 سبتمبر 2024', priorPeriodEnd: '30 سبتمبر 2023', framework: 'IFRS', opinion: 'unmodified', basis: [], kams, jurisdiction: 'US', since: 2009, firm: 'Ernst & Young LLP', city: 'سان خوسيه' });
+    expect(r.title).toBe('تقرير مكتب المحاسبة العامة المسجّل المستقل');
+    const codes = r.sections.map((x) => x.code).join(' ');
+    for (const c of ['opinion', 'audited', 'basis', 'icfr', 'cam']) expect(codes).toContain(c);
+    expect(r.sections[0].paragraphs.join(' ')).toContain('مبادئ المحاسبة المقبولة عموماً في الولايات المتحدة');
+    expect(r.sections[1].paragraphs.join(' ')).toContain('مكتب محاسبة عامة مسجّل لدى مجلس الرقابة');
+    const cam = r.sections.find((x) => x.code === 'cam')!;
+    expect(cam.kamHeads).toEqual(['وصف الأمر', 'كيف تناولنا الأمر في مراجعتنا']);
+    expect(r.signature.note).toBe('لقد عملنا مراجعاً لحسابات الشركة منذ 2009.');
+    expect(r.sections.some((x) => x.title === 'المعلومات الأخرى')).toBe(false);
+  });
+  it('writes the extended ISA (UK) report: overview, risk/response/results, going concern, fraud, exception reporting, purpose', () => {
+    const approach = { title: 'نهجنا في المراجعة', paragraphs: ['حددنا الأهمية النسبية'], table: { columns: ['', ''], rows: [['الأهمية النسبية العامة', '500']] } };
+    const r = auditorsReport({ company: 'Unilever PLC', periodEnd: '31 ديسمبر 2025', framework: 'IFRS', opinion: 'unmodified', basis: [], kams, jurisdiction: 'UK', since: 2014, approach, group: true });
+    const codes = r.sections.map((x) => x.code).join(' ');
+    for (const c of ['opinion', 'basis', 'tenure', 'approach', 'materiality', 'scope', 'kam', 'going_concern', 'fraud', 'other_info', 'viability', 'exception', 'resp_aud', 'purpose']) expect(codes).toContain(c);
+    expect(r.sections[0].title).toBe('1. رأينا غير معدّل');
+    expect(r.sections[1].paragraphs.join(' ')).toContain('12 سنة');
+    expect(r.sections.find((x) => x.code === 'kam')!.kamHeads).toEqual(['الخطر', 'استجابتنا']);
+    expect(r.signature.partner).toContain('المراجع القانوني الأول');
+  });
+  it('writes the international ISA 700 report without the Saudi law or the Saudi endorsement', () => {
+    const r = auditorsReport({ company: 'Samsung Electronics', periodEnd: '31 ديسمبر 2025', framework: 'IFRS', opinion: 'unmodified', basis: [], kams, jurisdiction: 'INT', countryAr: 'كوريا الجنوبية', frameworkAr: 'المعايير الدولية للتقرير المالي المعتمدة في كوريا' });
+    const all = r.sections.flatMap((x) => x.paragraphs).join(' ');
+    expect(all).toContain('المعتمدة في كوريا');
+    expect(all).toContain('في كوريا الجنوبية');
+    expect(all).not.toContain('نظام الشركات');
+    expect(all).not.toContain('المعتمدة في المملكة العربية السعودية');
+    expect(r.sections.flatMap((x) => (x.code ?? '').split(' '))).toEqual(expect.arrayContaining(['opinion', 'audited', 'basis', 'independence', 'kam', 'other_info', 'resp_mgmt', 'resp_aud']));
+  });
+});

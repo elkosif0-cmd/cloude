@@ -10,7 +10,7 @@
    The suggestions are ranked; the partner chooses what the report carries. */
 import { formatMinor, type Minor } from '../reports/money-engine';
 import type { FinancialStatements } from '../reports/statements-engine';
-import { precedentsFor, THEMES, type KamRow, type Sector, type Theme } from './global-benchmarks-engine';
+import { precedentsFor, themePrior, THEMES, type KamRow, type Sector, type Standard, type Theme } from './global-benchmarks-engine';
 
 export type KamRisk = { lineKey: string; ar: string; amount: Minor; score: number; significant: boolean; risk?: string; procedures?: string[]; parts?: { estimate?: number } };
 export type Kam = { key: string; title: string; description: string; how: string; observation: string; refs: string[]; lineKeys: string[];
@@ -21,16 +21,23 @@ const clean = (x: string) => x.replace(/[.،؛]\s*$/, '');
 const FRAUD_THEMES = new Set<string>(['revenue-deductions', 'revenue-recognition']);
 
 export function suggestKams(input: { fs: FinancialStatements; risks: KamRisk[]; materiality: Minor; currency?: string; periodEnd?: string; sector?: Sector | '';
-  evidence?: Record<string, 'accepted' | 'partial' | 'none'>; priorKeys?: string[]; max?: number }): Kam[] {
+  evidence?: Record<string, 'accepted' | 'partial' | 'none'>; priorKeys?: string[]; max?: number;
+  /** the auditing standard of the report (PCAOB reports carry fewer matters) */ standard?: Standard | '';
+  /** leave this bundle report out of the precedents (the bundle testing itself) */ exclude?: string }): Kam[] {
   const { fs, materiality } = input, cur = input.currency ?? 'ر.س', money = (m: Minor) => formatMinor(m, { decimals: 0 }) + ' ' + cur;
   const assets = Math.abs(fs.keys.assets.current) || 1;
   const byKey = new Map<string, Kam>();
+  /* which theme a risky line becomes, and how much it weighs, follows what auditors of the same sector actually reported:
+     receivables are a credit-loss matter for a bank and seldom for a drug maker, whose revenue is a matter of rebates */
+  const prior = themePrior({ sector: input.sector, standard: input.standard, exclude: input.exclude });
   for (const r of input.risks) {
     const line = fs.lines.find((l) => l.key === r.lineKey), amount = Math.abs(line?.current ?? r.amount ?? 0);
     if (!amount) continue;
-    const pr = precedentsFor(r.lineKey, { sector: input.sector, limit: 3 })[0] ?? null;
+    const precs = precedentsFor(r.lineKey, { sector: input.sector, limit: 3 }).filter((p) => !input.exclude || p.examples.some((e) => e.report !== input.exclude));
+    const pr = precs.sort((a, b) => prior[b.theme as Theme] - prior[a.theme as Theme])[0] ?? null;
     const key: string = pr ? pr.theme : r.lineKey, estimate = (r.parts?.estimate ?? 0) >= 15;
-    const score = Math.min(100, r.score + (amount >= materiality * 3 ? 10 : 0) + (estimate ? 5 : 0) + (FRAUD_THEMES.has(key) ? 8 : 0));
+    const p = pr ? prior[pr.theme as Theme] : 0;
+    const score = Math.min(100, Math.round(0.45 * r.score + 60 * p + (amount >= materiality * 3 ? 6 : 0) + (estimate ? 4 : 0) + (FRAUD_THEMES.has(key) ? 5 : 0)));
     const prev = byKey.get(key);
     if (prev && prev.score >= score) { if (!prev.lineKeys.includes(r.lineKey)) prev.lineKeys.push(r.lineKey); continue; }
     const pct = Math.round((amount / assets) * 1000) / 10;
@@ -44,12 +51,13 @@ export function suggestKams(input: { fs: FinancialStatements; risks: KamRisk[]; 
       : 'النتيجة معلقة حتى استكمال الأدلة المطلوبة من المنشأة.';
     byKey.set(key, { key, title: pr ? THEMES[pr.theme as Theme].ar : r.ar, description, how, observation,
       refs: [...(line?.standards ?? []), ...(line?.note ? ['إيضاح ' + line.note] : [])], lineKeys: [...new Set([...(prev?.lineKeys ?? []), r.lineKey])],
-      amount, pctAssets: pct, score, selected: false, trend: input.priorKeys ? (input.priorKeys.includes(key) ? 'same' : 'new') : null, examples: pr ? pr.examples : [] });
+      amount, pctAssets: pct, score, selected: false, trend: input.priorKeys ? (input.priorKeys.includes(key) ? 'same' : 'new') : null,
+      examples: pr ? pr.examples.filter((e) => e.report !== input.exclude) : [] });
   }
   const out = [...byKey.values()].sort((a, b) => b.score - a.score);
-  const max = input.max ?? 3;
+  const max = input.max ?? (input.standard === 'PCAOB' ? 2 : 3);
   let n = 0;
-  for (const k of out) if (n < max && (k.score >= 70 || (k.score >= 55 && k.amount >= materiality))) { k.selected = true; n++; }
+  for (const k of out) if (n < max && k.score >= 50 && k.amount >= materiality) { k.selected = true; n++; }
   if (!n && out.length) out[0].selected = true;
   return out.slice(0, 6);
 }
