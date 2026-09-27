@@ -3514,15 +3514,15 @@ window.SKEngines = (function() {
 		mdna: () => mdna,
 		ratios: () => ratios
 	});
-	var r2$6 = (n) => Math.round(n * 100) / 100;
+	var r2$7 = (n) => Math.round(n * 100) / 100;
 	var div$1 = (a, b) => b ? a / b : null;
 	var pctOf = (a, b) => {
 		const x = div$1(a, b);
-		return x === null ? null : r2$6(x * 100);
+		return x === null ? null : r2$7(x * 100);
 	};
 	var times = (a, b) => {
 		const x = div$1(a, b);
-		return x === null ? null : r2$6(x);
+		return x === null ? null : r2$7(x);
 	};
 	var days$2 = (a, b) => {
 		const x = div$1(a, b);
@@ -3788,7 +3788,7 @@ window.SKEngines = (function() {
 	/** Common-size: P&L lines as % of revenue, position lines as % of total assets. */
 	function commonSize(fs) {
 		const rev = fs.keys.revenue, ta = fs.keys.assets;
-		const pc = (a, b) => b ? r2$6(a / b * 100) : null;
+		const pc = (a, b) => b ? r2$7(a / b * 100) : null;
 		return {
 			pl: fs.pl.map((r) => ({
 				key: r.key,
@@ -3813,7 +3813,7 @@ window.SKEngines = (function() {
 			current: r.current,
 			prior: r.prior,
 			change: r.current - r.prior,
-			changePct: r.prior ? r2$6((r.current - r.prior) / Math.abs(r.prior) * 100) : null
+			changePct: r.prior ? r2$7((r.current - r.prior) / Math.abs(r.prior) * 100) : null
 		}));
 	}
 	/** DuPont: ROE = net margin × asset turnover × equity multiplier (year-end balances). */
@@ -3821,10 +3821,10 @@ window.SKEngines = (function() {
 		const k = fs.keys, one = (rev, profit, ta, eq) => {
 			const nm = div$1(profit, rev), at = div$1(rev, ta), em = div$1(ta, eq);
 			return {
-				netMargin: nm === null ? null : r2$6(nm * 100),
-				assetTurnover: at === null ? null : r2$6(at),
-				equityMultiplier: em === null ? null : r2$6(em),
-				roe: nm === null || at === null || em === null ? null : r2$6(nm * at * em * 100)
+				netMargin: nm === null ? null : r2$7(nm * 100),
+				assetTurnover: at === null ? null : r2$7(at),
+				equityMultiplier: em === null ? null : r2$7(em),
+				roe: nm === null || at === null || em === null ? null : r2$7(nm * at * em * 100)
 			};
 		};
 		return {
@@ -3838,16 +3838,16 @@ window.SKEngines = (function() {
 		if (!ta) return null;
 		const retained = fs.lines.filter((l) => l.key === "retained").reduce((a, l) => a + l.current, 0) + k.profit.current;
 		const x1 = (k.ca.current - k.cl.current) / ta, x2 = retained / ta, x3 = k.operating.current / ta, x4 = tl ? k.equity.current / tl : 0;
-		const z = r2$6(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
+		const z = r2$7(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
 		return {
 			z,
 			zone: z > 2.6 ? "safe" : z >= 1.1 ? "grey" : "distress",
 			zoneAr: z > 2.6 ? "منطقة الأمان" : z >= 1.1 ? "المنطقة الرمادية" : "منطقة التعثر",
 			components: {
-				x1: r2$6(x1),
-				x2: r2$6(x2),
-				x3: r2$6(x3),
-				x4: r2$6(x4)
+				x1: r2$7(x1),
+				x2: r2$7(x2),
+				x3: r2$7(x3),
+				x4: r2$7(x4)
 			}
 		};
 	}
@@ -3865,7 +3865,7 @@ window.SKEngines = (function() {
 		const sgai = q(q(sga(c), c("revenue")), q(sga(p), p("revenue")));
 		const lvgi = q(q(c("cl") + c("loansNcl") + c("leaseNcl"), c("assets")), q(p("cl") + p("loansNcl") + p("leaseNcl"), p("assets")));
 		const tata = fs.keys.cfo ? q(c("profit") - fs.keys.cfo.current, c("assets")) : 0;
-		const m = r2$6(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
+		const m = r2$7(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
 		const f = (x) => Math.round(x * 1e3) / 1e3;
 		return {
 			m,
@@ -3964,7 +3964,7 @@ window.SKEngines = (function() {
 			rat("current")
 		].map((i) => ({
 			...i,
-			change: i.prior === null || i.current === null || !i.prior ? null : r2$6((i.current - i.prior) / Math.abs(i.prior) * 100)
+			change: i.prior === null || i.current === null || !i.prior ? null : r2$7((i.current - i.prior) / Math.abs(i.prior) * 100)
 		}));
 	}
 	/** A deterministic management discussion: sentences generated from the numbers only. */
@@ -3974,7 +3974,7 @@ window.SKEngines = (function() {
 		const ch = (key) => {
 			const x = k[key];
 			if (!x || x.prior === null || !x.prior) return null;
-			return r2$6((x.current - x.prior) / Math.abs(x.prior) * 100);
+			return r2$7((x.current - x.prior) / Math.abs(x.prior) * 100);
 		};
 		const dir = (v, up, down) => v === null ? "" : v >= 0 ? `${up} ${Math.abs(v)}%` : `${down} ${Math.abs(v)}%`;
 		const out = [];
@@ -6182,7 +6182,7 @@ window.SKEngines = (function() {
 		}
 	};
 	var clamp01 = (x) => Number.isFinite(x) ? Math.max(0, Math.min(1, x)) : 0;
-	var r2$5 = (x) => Math.round(x * 100) / 100;
+	var r2$6 = (x) => Math.round(x * 100) / 100;
 	/** E — evidence coverage for a balance: Σ r·v ÷ V, capped at 1 (only accepted evidence counts). */
 	function coverage(items, balance) {
 		const V = Math.abs(balance);
@@ -6216,9 +6216,9 @@ window.SKEngines = (function() {
 		};
 		if (p.A === null) {
 			const k = W.E + W.T || 1;
-			return r2$5(clamp01(W.E / k * p.E + W.T / k * p.T));
+			return r2$6(clamp01(W.E / k * p.E + W.T / k * p.T));
 		}
-		return r2$5(clamp01(W.E * p.E + W.T * p.T + W.A * p.A));
+		return r2$6(clamp01(W.E * p.E + W.T * p.T + W.A * p.A));
 	}
 	/** The confidence a line needs: material & high risk 0.90, material & medium 0.80, material & low 0.70, immaterial → analytics only (null). */
 	function thresholdFor(line) {
@@ -6243,9 +6243,9 @@ window.SKEngines = (function() {
 				}, i.weights);
 				return {
 					assertion: a,
-					E: r2$5(E),
-					T: r2$5(T),
-					A: A === null ? null : r2$5(A),
+					E: r2$6(E),
+					T: r2$6(T),
+					A: A === null ? null : r2$6(A),
 					C,
 					met: threshold === null ? null : C >= threshold
 				};
@@ -6256,13 +6256,13 @@ window.SKEngines = (function() {
 				threshold,
 				...ov ? { override: ov } : {},
 				cells,
-				min: r2$5(min),
+				min: r2$6(min),
 				met: threshold === null ? null : cells.every((c) => c.met)
 			};
 		});
 		const open = rows.filter((r) => r.met === false), material = rows.filter((r) => r.threshold !== null);
-		const avgOpen = open.length ? r2$5(open.reduce((s, r) => s + r.min, 0) / open.length) : 1;
-		const avgAll = material.length ? r2$5(material.reduce((s, r) => s + r.min, 0) / material.length) : 1;
+		const avgOpen = open.length ? r2$6(open.reduce((s, r) => s + r.min, 0) / open.length) : 1;
+		const avgAll = material.length ? r2$6(material.reduce((s, r) => s + r.min, 0) / material.length) : 1;
 		return {
 			rows,
 			open,
@@ -6327,7 +6327,7 @@ window.SKEngines = (function() {
 			amount,
 			accepted: true
 		}], row.amount);
-		return r2$5(Math.max(0, confidence({
+		return r2$6(Math.max(0, confidence({
 			E: E2,
 			T: cell.T,
 			A: cell.A
@@ -6337,11 +6337,11 @@ window.SKEngines = (function() {
 	function rankRequests(list) {
 		return list.map((q) => ({
 			...q,
-			score: r2$5(q.expectedGain * q.materialityWeight / EFFORT[q.effort].v * 100) / 100
+			score: r2$6(q.expectedGain * q.materialityWeight / EFFORT[q.effort].v * 100) / 100
 		})).sort((a, b) => b.score - a.score || b.materialityWeight - a.materialityWeight);
 	}
 	/** Materiality weight of a line: its balance relative to overall materiality (≥ 1 means material on its own). */
-	var materialityWeight = (amount, overall) => overall > 0 ? r2$5(Math.min(10, Math.abs(amount) / overall)) : 1;
+	var materialityWeight = (amount, overall) => overall > 0 ? r2$6(Math.min(10, Math.abs(amount) / overall)) : 1;
 	var STATES = [
 		{
 			key: "new",
@@ -6588,7 +6588,7 @@ window.SKEngines = (function() {
 		precedentsFor: () => precedentsFor,
 		reportOf: () => reportOf,
 		sectorFromActivity: () => sectorFromActivity,
-		summary: () => summary$1,
+		summary: () => summary$2,
 		themeStats: () => themeStats
 	});
 	var BUNDLE = {
@@ -7412,7 +7412,7 @@ window.SKEngines = (function() {
 		return out;
 	}
 	/** Headline numbers for the reference screen. */
-	function summary$1() {
+	function summary$2() {
 		const auditors = /* @__PURE__ */ new Map();
 		for (const r of REPORTS) {
 			if (!r.auditor) continue;
@@ -9021,7 +9021,7 @@ window.SKEngines = (function() {
 		reportList: () => reportList,
 		reportStructure: () => reportStructure,
 		riskCatalogue: () => riskCatalogue,
-		summary: () => summary
+		summary: () => summary$1
 	});
 	var CORPUS = {
 		file: "global_financial_and_audit_research_bundle_extended_verified.pdf",
@@ -10980,7 +10980,7 @@ window.SKEngines = (function() {
 			}]
 		}
 	];
-	function summary() {
+	function summary$1() {
 		return {
 			...CORPUS,
 			sections: SECTIONS.length,
@@ -10998,7 +10998,7 @@ window.SKEngines = (function() {
 		sectorPrior: () => sectorPrior,
 		typicalKamCount: () => typicalKamCount
 	});
-	var r2$4 = (x) => Math.round(x * 100) / 100;
+	var r2$5 = (x) => Math.round(x * 100) / 100;
 	/** How often the auditors of a sector reported each theme (share of that sector's reports with KAMs), leaving one report out. */
 	function sectorPrior(sector, exclude) {
 		if (!sector) return {};
@@ -11007,7 +11007,7 @@ window.SKEngines = (function() {
 		const out = {};
 		for (const t of Object.keys(THEMES)) {
 			const n = reports.filter((id) => KAMS.some((k) => k.report === id && k.theme === t)).length;
-			if (n) out[t] = r2$4(n / reports.length);
+			if (n) out[t] = r2$5(n / reports.length);
 		}
 		return out;
 	}
@@ -11076,15 +11076,15 @@ window.SKEngines = (function() {
 			unit: c.unitAr,
 			actual,
 			ours,
-			recall: themes.length ? r2$4(hit / themes.length) : null,
-			rankedRecall: themes.length ? r2$4(rankedHit / themes.length) : null,
-			precision: selected.size && themes.length ? r2$4(ours.filter((o) => o.selected && o.matched).length / selected.size) : null,
+			recall: themes.length ? r2$5(hit / themes.length) : null,
+			rankedRecall: themes.length ? r2$5(rankedHit / themes.length) : null,
+			precision: selected.size && themes.length ? r2$5(ours.filter((o) => o.selected && o.matched).length / selected.size) : null,
 			materiality: {
 				ours: oursMat,
 				benchmark: review.materiality.benchmarkAr,
 				disclosed: disc ? disc.overall / unit : null,
 				disclosedBasis: disc ? disc.basis : null,
-				ratio: disc ? r2$4(oursMat / (disc.overall / unit)) : null,
+				ratio: disc ? r2$5(oursMat / (disc.overall / unit)) : null,
 				page: disc ? disc.page : null
 			},
 			requests: review.requests.length,
@@ -11100,7 +11100,7 @@ window.SKEngines = (function() {
 		return {
 			theirs: theirs.length,
 			covered: covered.length,
-			share: theirs.length ? r2$4(covered.length / theirs.length) : null,
+			share: theirs.length ? r2$5(covered.length / theirs.length) : null,
 			missing: theirs.filter((x) => !SQC_SECTIONS.has(x.key)).map((x) => x.ar)
 		};
 	}
@@ -11120,16 +11120,16 @@ window.SKEngines = (function() {
 			companies: list.length,
 			withKams: withKams.length,
 			kamThemes: actualN,
-			recall: actualN ? r2$4(sel / actualN) : 0,
-			rankedRecall: actualN ? r2$4(rk / actualN) : 0,
-			precision: oursSel ? r2$4(oursHit / oursSel) : 0,
+			recall: actualN ? r2$5(sel / actualN) : 0,
+			rankedRecall: actualN ? r2$5(rk / actualN) : 0,
+			precision: oursSel ? r2$5(oursHit / oursSel) : 0,
 			anyMatch: withKams.filter((r) => r.actual.some((a) => a.found === "selected")).length,
 			missed: Object.entries(missed).map(([theme, n]) => ({
 				theme,
 				ar: THEMES[theme].ar,
 				n
 			})).sort((a, b) => b.n - a.n),
-			structure: stTheirs ? r2$4(stCov / stTheirs) : 0,
+			structure: stTheirs ? r2$5(stCov / stTheirs) : 0,
 			materiality: mat.map((r) => ({
 				id: r.id,
 				company: r.company,
@@ -14638,7 +14638,7 @@ window.SKEngines = (function() {
 		suppliers: [],
 		customers: []
 	});
-	var r2$3 = (x) => Math.round(x * 100) / 100;
+	var r2$4 = (x) => Math.round(x * 100) / 100;
 	/** A material's cost per usable unit: purchase cost grossed up for waste (the cheapest supplier price when asked). */
 	function materialUnitCost(m, opts = {}) {
 		let base = m.cost;
@@ -14695,8 +14695,8 @@ window.SKEngines = (function() {
 				kind: "material",
 				name: m.name,
 				qty: c.qty,
-				unitCost: r2$3(u),
-				amount: r2$3(u * c.qty),
+				unitCost: r2$4(u),
+				amount: r2$4(u * c.qty),
 				share: 0
 			});
 		} else {
@@ -14715,16 +14715,16 @@ window.SKEngines = (function() {
 				name: sub.name,
 				qty: c.qty,
 				unitCost: sub.total,
-				amount: r2$3(sub.total * c.qty),
+				amount: r2$4(sub.total * c.qty),
 				share: 0
 			});
 			missing.push(...sub.missing);
 		}
-		const materials = r2$3(lines.reduce((s, l) => s + l.amount, 0)), overhead = r2$3(p.overhead || 0), total = r2$3(materials + overhead);
+		const materials = r2$4(lines.reduce((s, l) => s + l.amount, 0)), overhead = r2$4(p.overhead || 0), total = r2$4(materials + overhead);
 		lines.forEach((l) => {
 			l.share = total ? Math.round(l.amount / total * 1e3) / 10 : 0;
 		});
-		const price = p.price ?? null, profit = price != null ? r2$3(price - total) : null;
+		const price = p.price ?? null, profit = price != null ? r2$4(price - total) : null;
 		return {
 			id: p.id,
 			name: p.name,
@@ -14767,7 +14767,7 @@ window.SKEngines = (function() {
 				product: p.name,
 				before: a.total,
 				after: b.total,
-				change: r2$3(b.total - a.total),
+				change: r2$4(b.total - a.total),
 				marginBefore: a.margin,
 				marginAfter: b.margin
 			};
@@ -14827,7 +14827,7 @@ window.SKEngines = (function() {
 				source: "orders"
 			};
 			a.qty = (a.qty ?? 0) + (l.qty ?? 0);
-			a.amount = r2$3((a.amount ?? 0) + (l.amount ?? 0));
+			a.amount = r2$4((a.amount ?? 0) + (l.amount ?? 0));
 			agg.set(k, a);
 		}
 		const out = [];
@@ -14853,7 +14853,7 @@ window.SKEngines = (function() {
 		}));
 		const nodes = [
 			...col("supplier", suppliers, (s) => "s:" + s, (s) => s, (s) => t.suppliers.filter((x) => x.supplier === s).length + " مادة"),
-			...col("material", t.materials, (m) => m.id, (m) => m.name, (m) => r2$3(materialUnitCost(m)) + " / " + m.unit + (m.waste ? " · هدر " + m.waste + "%" : "")),
+			...col("material", t.materials, (m) => m.id, (m) => m.name, (m) => r2$4(materialUnitCost(m)) + " / " + m.unit + (m.waste ? " · هدر " + m.waste + "%" : "")),
 			...col("product", t.products, (p) => p.id, (p) => p.name, (p) => {
 				const c = productCost(t, p.id);
 				return "تكلفة " + c.total + (c.margin != null ? " · هامش " + c.margin + "%" : "");
@@ -15231,7 +15231,7 @@ window.SKEngines = (function() {
 		},
 		log: []
 	});
-	var r2$2 = (x) => Math.round((x + Number.EPSILON) * 100) / 100;
+	var r2$3 = (x) => Math.round((x + Number.EPSILON) * 100) / 100;
 	var now = () => (/* @__PURE__ */ new Date()).toISOString();
 	var STOP = /* @__PURE__ */ new Set([
 		"من",
@@ -15516,10 +15516,10 @@ window.SKEngines = (function() {
 			if (!legs.length) continue;
 			const { total, net } = sideTotal(side);
 			const nonShare = legs.filter((l) => !l.vat).reduce((s, l) => s + l.share, 0) || 1;
-			const rounded = legs.map((l) => net == null ? total * l.share : l.vat ? (total - net) * (l.share / (legs.filter((x) => x.vat).reduce((s, x) => s + x.share, 0) || 1)) : net * (l.share / nonShare)).map(r2$2), diff = r2$2(r2$2(total) - rounded.reduce((s, x) => s + x, 0));
+			const rounded = legs.map((l) => net == null ? total * l.share : l.vat ? (total - net) * (l.share / (legs.filter((x) => x.vat).reduce((s, x) => s + x.share, 0) || 1)) : net * (l.share / nonShare)).map(r2$3), diff = r2$3(r2$3(total) - rounded.reduce((s, x) => s + x, 0));
 			if (diff) {
 				const i = rounded.indexOf(Math.max(...rounded));
-				rounded[i] = r2$2(rounded[i] + diff);
+				rounded[i] = r2$3(rounded[i] + diff);
 			}
 			legs.forEach((l, i) => out.push({
 				account: l.account,
@@ -15752,8 +15752,8 @@ window.SKEngines = (function() {
 		const lines = (Array.isArray(r.lines) ? r.lines : []).map((l) => ({
 			account: String(l.account ?? "").trim(),
 			name: String(l.name ?? "").trim(),
-			debit: r2$2(num(l.debit)),
-			credit: r2$2(num(l.credit))
+			debit: r2$3(num(l.debit)),
+			credit: r2$3(num(l.credit))
 		})).filter((l) => l.account && (l.debit || l.credit));
 		lines.forEach((l) => {
 			if (mem.accounts[l.account]) l.name = mem.accounts[l.account].name || l.name;
@@ -17407,6 +17407,625 @@ window.SKEngines = (function() {
 		};
 	}
 	//#endregion
+	//#region app/src/engine/fusion/reports/peer-benchmarks-engine.ts
+	var peer_benchmarks_engine_exports = /* @__PURE__ */ __exportAll({
+		METRICS: () => METRICS,
+		PEERS: () => PEERS,
+		compare: () => compare,
+		inputsFromStatements: () => inputsFromStatements,
+		metricsOf: () => metricsOf,
+		peerMetrics: () => peerMetrics
+	});
+	var PEERS = [
+		{
+			id: "nestle-2025",
+			company: "Nestlé",
+			sector: "fmcg",
+			framework: "IFRS",
+			fy: "FY2025",
+			currency: "CHF",
+			pages: {
+				is: 2210,
+				bs: 2212,
+				bsTo: 2213,
+				cf: 2214
+			},
+			revenue: 89490,
+			cogs: 48694,
+			operating: 12277,
+			net: 9254,
+			assets: 127151,
+			equity: 33058,
+			ca: 31969,
+			cl: 40694,
+			inventory: 12813,
+			receivables: 10561,
+			payables: 20023,
+			payablesScope: "trade-and-other",
+			cfo: 15904,
+			capex: 4527,
+			cash: 4579
+		},
+		{
+			id: "unilever-2025",
+			company: "Unilever",
+			sector: "fmcg",
+			framework: "IFRS",
+			fy: "FY2025",
+			currency: "EUR",
+			pages: {
+				is: 5231,
+				bs: 5234,
+				cf: 5235
+			},
+			revenue: 50503,
+			cogs: null,
+			operating: 9037,
+			net: 6213,
+			assets: 70471,
+			equity: 17587,
+			ca: 17066,
+			cl: 21662,
+			inventory: 4043,
+			receivables: 7346,
+			payables: 16939,
+			payablesScope: "trade-and-other",
+			cfo: 8350,
+			capex: 1417,
+			cash: 3941
+		},
+		{
+			id: "pepsico-2025",
+			company: "PepsiCo",
+			sector: "fmcg",
+			framework: "US GAAP",
+			fy: "FY2025",
+			currency: "USD",
+			pages: {
+				is: 1884,
+				bs: 1888,
+				cf: 1886
+			},
+			revenue: 93925,
+			cogs: 43066,
+			operating: 11498,
+			net: 8295,
+			assets: 107399,
+			equity: 20547,
+			ca: 27949,
+			cl: 32764,
+			inventory: 5845,
+			receivables: 11506,
+			payables: 25903,
+			payablesScope: "trade-and-other",
+			cfo: 12087,
+			capex: 4415,
+			cash: 9159
+		},
+		{
+			id: "pg-2026",
+			company: "Procter & Gamble",
+			sector: "fmcg",
+			framework: "US GAAP",
+			fy: "FY2026",
+			currency: "USD",
+			pages: {
+				is: 2004,
+				bs: 2005,
+				cf: 2007
+			},
+			revenue: 87032,
+			cogs: 43362,
+			operating: 19748,
+			net: 16144,
+			assets: 126521,
+			equity: 54311,
+			ca: 26208,
+			cl: 38694,
+			inventory: 8170,
+			receivables: 6056,
+			payables: 16306,
+			payablesScope: "trade",
+			cfo: 19556,
+			capex: 4409,
+			cash: 9942
+		},
+		{
+			id: "walmart-2023",
+			company: "Walmart",
+			sector: "retail",
+			framework: "US GAAP",
+			fy: "FY2023",
+			currency: "USD",
+			pages: {
+				is: 402,
+				bs: 404,
+				cf: 406
+			},
+			revenue: 611289,
+			cogs: 463721,
+			operating: 20428,
+			net: 11292,
+			assets: 243197,
+			equity: 83754,
+			ca: 75655,
+			cl: 92198,
+			inventory: 56576,
+			receivables: 7933,
+			payables: 53742,
+			payablesScope: "trade",
+			cfo: 28841,
+			capex: 16857,
+			cash: 8625
+		},
+		{
+			id: "homedepot-2025",
+			company: "The Home Depot",
+			sector: "retail",
+			framework: "US GAAP",
+			fy: "FY2025",
+			currency: "USD",
+			pages: {
+				is: 2087,
+				bs: 2086,
+				cf: 2090
+			},
+			revenue: 164683,
+			cogs: 109818,
+			operating: 20890,
+			net: 14156,
+			assets: 105095,
+			equity: 12813,
+			ca: 34391,
+			cl: 32424,
+			inventory: 25817,
+			receivables: 5597,
+			payables: 11491,
+			payablesScope: "trade",
+			cfo: 16325,
+			capex: 3679,
+			cash: 1389
+		},
+		{
+			id: "amazon-2024",
+			company: "Amazon",
+			sector: "retail",
+			framework: "US GAAP",
+			fy: "FY2024",
+			currency: "USD",
+			pages: {
+				is: 1065,
+				bs: 1067,
+				cf: 1064
+			},
+			revenue: 637959,
+			cogs: 326288,
+			operating: 68593,
+			net: 59248,
+			assets: 624894,
+			equity: 285970,
+			ca: 190867,
+			cl: 179431,
+			inventory: 34214,
+			receivables: 55451,
+			payables: 94363,
+			payablesScope: "trade",
+			cfo: 115877,
+			capex: 82999,
+			cash: 78779
+		},
+		{
+			id: "aramco-2025",
+			company: "Saudi Aramco",
+			sector: "energy",
+			framework: "IFRS",
+			fy: "FY2025",
+			currency: "SAR",
+			pages: {
+				is: 10171,
+				bs: 10173,
+				cf: 10175
+			},
+			revenue: 1559342,
+			cogs: null,
+			operating: 706822,
+			net: 350210,
+			assets: 2551964,
+			equity: 1721744,
+			ca: 596277,
+			cl: 298349,
+			inventory: 70542,
+			receivables: 165444,
+			payables: 157708,
+			payablesScope: "trade-and-other",
+			cfo: 510798,
+			capex: 190444,
+			cash: 243099
+		}
+	];
+	var METRICS = [
+		{
+			key: "grossMargin",
+			ar: "هامش مجمل الربح",
+			unit: "%",
+			higherIsBetter: true,
+			formula: "(الإيرادات − تكلفة الإيرادات) ÷ الإيرادات"
+		},
+		{
+			key: "operatingMargin",
+			ar: "هامش الربح التشغيلي",
+			unit: "%",
+			higherIsBetter: true,
+			formula: "الربح التشغيلي ÷ الإيرادات"
+		},
+		{
+			key: "netMargin",
+			ar: "هامش صافي الربح",
+			unit: "%",
+			higherIsBetter: true,
+			formula: "صافي الربح ÷ الإيرادات"
+		},
+		{
+			key: "roe",
+			ar: "العائد على حقوق الملكية",
+			unit: "%",
+			higherIsBetter: true,
+			formula: "صافي الربح ÷ حقوق الملكية في نهاية السنة"
+		},
+		{
+			key: "roa",
+			ar: "العائد على الموجودات",
+			unit: "%",
+			higherIsBetter: true,
+			formula: "صافي الربح ÷ مجموع الموجودات"
+		},
+		{
+			key: "currentRatio",
+			ar: "نسبة التداول",
+			unit: "x",
+			higherIsBetter: null,
+			formula: "الموجودات المتداولة ÷ المطلوبات المتداولة"
+		},
+		{
+			key: "equityRatio",
+			ar: "نسبة حقوق الملكية إلى الموجودات",
+			unit: "%",
+			higherIsBetter: null,
+			formula: "حقوق الملكية ÷ مجموع الموجودات"
+		},
+		{
+			key: "dso",
+			ar: "أيام التحصيل",
+			unit: "days",
+			higherIsBetter: false,
+			formula: "الذمم المدينة ÷ الإيرادات × 365"
+		},
+		{
+			key: "dio",
+			ar: "أيام المخزون",
+			unit: "days",
+			higherIsBetter: false,
+			formula: "المخزون ÷ تكلفة الإيرادات × 365"
+		},
+		{
+			key: "dpo",
+			ar: "أيام السداد للموردين",
+			unit: "days",
+			higherIsBetter: null,
+			formula: "الذمم الدائنة التجارية ÷ تكلفة الإيرادات × 365"
+		},
+		{
+			key: "cashConversion",
+			ar: "تحويل الربح إلى نقد",
+			unit: "x",
+			higherIsBetter: true,
+			formula: "صافي النقد من التشغيل ÷ صافي الربح"
+		},
+		{
+			key: "capexIntensity",
+			ar: "كثافة الإنفاق الرأسمالي",
+			unit: "%",
+			higherIsBetter: null,
+			formula: "الإنفاق الرأسمالي ÷ الإيرادات"
+		},
+		{
+			key: "fcfMargin",
+			ar: "هامش التدفق النقدي الحر",
+			unit: "%",
+			higherIsBetter: true,
+			formula: "(النقد من التشغيل − الإنفاق الرأسمالي) ÷ الإيرادات"
+		}
+	];
+	var r1$2 = (x) => Math.round(x * 10) / 10;
+	var r2$2 = (x) => Math.round(x * 100) / 100;
+	var div = (a, b) => a === null || b === null || !b ? null : a / b;
+	function metricsOf(i) {
+		const p = (x) => x === null ? null : r1$2(x * 100), d = (x) => x === null ? null : Math.round(x * 365), x2 = (x) => x === null ? null : r2$2(x);
+		return {
+			grossMargin: p(i.cogs === null ? null : div(i.revenue - i.cogs, i.revenue)),
+			operatingMargin: p(div(i.operating, i.revenue)),
+			netMargin: p(div(i.net, i.revenue)),
+			roe: p(i.equity > 0 ? div(i.net, i.equity) : null),
+			roa: p(div(i.net, i.assets)),
+			currentRatio: x2(div(i.ca, i.cl)),
+			equityRatio: p(div(i.equity, i.assets)),
+			dso: d(div(i.receivables, i.revenue)),
+			dio: d(div(i.inventory, i.cogs)),
+			dpo: d(div(i.payables, i.cogs)),
+			cashConversion: x2(i.net > 0 ? div(i.cfo, i.net) : null),
+			capexIntensity: p(div(i.capex, i.revenue)),
+			fcfMargin: p(i.cfo === null || i.capex === null ? null : div(i.cfo - i.capex, i.revenue))
+		};
+	}
+	var peerMetrics = (p) => metricsOf({
+		...p,
+		payables: p.payablesScope === "trade" ? p.payables : null
+	});
+	/** The engagement's own inputs from its statements (capex as a positive outflow). */
+	function inputsFromStatements(fs) {
+		const k = fs.keys;
+		return {
+			revenue: k.revenue.current,
+			cogs: k.cogs.current || null,
+			operating: k.operating.current,
+			net: k.profit.current,
+			assets: k.assets.current,
+			equity: k.equity.current,
+			ca: k.ca.current,
+			cl: k.cl.current,
+			inventory: k.inventory?.current ?? 0,
+			receivables: k.receivables?.current ?? 0,
+			payables: k.payables?.current ?? null,
+			cfo: k.cfo?.current ?? null,
+			capex: k.capex ? -k.capex.current : null
+		};
+	}
+	var median = (xs) => {
+		const s = [...xs].sort((a, b) => a - b), m = Math.floor(s.length / 2);
+		return s.length % 2 ? s[m] : r2$2((s[m - 1] + s[m]) / 2);
+	};
+	/** Your ratios against the peer group (optionally one sector): the median, the range and where you sit. */
+	function compare(fs, opts = {}) {
+		const group = PEERS.filter((p) => !opts.sector || p.sector === opts.sector), mine = fs ? metricsOf(inputsFromStatements(fs)) : null;
+		return METRICS.map((m) => {
+			const peers = group.map((p) => ({
+				company: p.company,
+				value: peerMetrics(p)[m.key]
+			})).filter((x) => x.value !== null);
+			const vals = peers.map((x) => x.value), you = mine ? mine[m.key] : null;
+			const round = (x) => m.unit === "days" ? Math.round(x) : m.unit === "%" ? r1$2(x) : r2$2(x);
+			const min = vals.length ? Math.min(...vals) : null, max = vals.length ? Math.max(...vals) : null, med = vals.length ? round(median(vals)) : null;
+			const position = you === null || min === null || max === null ? "n/a" : you > max ? "above" : you < min ? "below" : "within";
+			const verdict = position === "n/a" || med === null || you === null || m.higherIsBetter === null ? position === "n/a" ? "n/a" : "typical" : Math.abs(you - med) <= Math.abs(med) * .1 ? "typical" : you > med === m.higherIsBetter ? "better" : "weaker";
+			return {
+				key: m.key,
+				ar: m.ar,
+				unit: m.unit,
+				formula: m.formula,
+				you,
+				median: med,
+				min,
+				max,
+				n: vals.length,
+				position,
+				verdict,
+				peers
+			};
+		});
+	}
+	//#endregion
+	//#region app/src/engine/fusion/reports/corpus-benchmarks-engine.ts
+	var corpus_benchmarks_engine_exports = /* @__PURE__ */ __exportAll({
+		CHECKS: () => CHECKS,
+		KEYS: () => KEYS,
+		benchmark: () => benchmark,
+		companyMetrics: () => companyMetrics,
+		corpusPeers: () => corpusPeers,
+		quantile: () => quantile,
+		sectors: () => sectors,
+		summary: () => summary
+	});
+	/** The ratios the bundle's statements support (income statement and balance sheet only). */
+	var KEYS = [
+		"grossMargin",
+		"operatingMargin",
+		"netMargin",
+		"roe",
+		"roa",
+		"currentRatio",
+		"equityRatio",
+		"dso",
+		"dio",
+		"dpo"
+	];
+	var CHECKS = {
+		grossMargin: {
+			ar: "راجع تكلفة الأصناف الأعلى مبيعاً وأسعار البيع مقابل التكلفة الفعلية، والهدر في الإنتاج",
+			screen: "costs",
+			screenAr: "التكاليف والمصروفات"
+		},
+		operatingMargin: {
+			ar: "حلّل المصروفات التشغيلية حسب البند مقابل الإيرادات، وابحث عن بنود نمت أسرع من المبيعات",
+			screen: "costs",
+			screenAr: "التكاليف والمصروفات"
+		},
+		netMargin: {
+			ar: "افصل أثر البنود غير المتكررة والتمويل والزكاة/الضريبة عن الربح التشغيلي",
+			screen: "execreports",
+			screenAr: "التقارير التنفيذية"
+		},
+		roe: {
+			ar: "قارن الربح بحقوق الملكية: هل الربح منخفض أم رأس المال غير مستغل؟",
+			screen: "finance",
+			screenAr: "الهندسة المالية"
+		},
+		roa: {
+			ar: "راجع الأصول غير المنتجة: مخزون راكد، ذمم متأخرة، أصول ثابتة غير مستخدمة",
+			screen: "inventory",
+			screenAr: "المخزون"
+		},
+		currentRatio: {
+			ar: "راجع توقيت التزامات الأجل القصير مقابل التحصيل المتوقع — خطة نقدية لـ 13 أسبوعاً",
+			screen: "cash",
+			screenAr: "التدفق النقدي"
+		},
+		equityRatio: {
+			ar: "راجع مصادر التمويل: قروض قصيرة تموّل أصولاً طويلة؟",
+			screen: "finance",
+			screenAr: "الهندسة المالية"
+		},
+		dso: {
+			ar: "راجع أعمار الذمم والعملاء المتأخرين وشروط الائتمان الممنوحة",
+			screen: "receivables",
+			screenAr: "الذمم والتحصيل"
+		},
+		dio: {
+			ar: "راجع الأصناف بطيئة الحركة والمنتهية الصلاحية واختبر صافي القيمة القابلة للتحقق",
+			screen: "inventory",
+			screenAr: "المخزون"
+		}
+	};
+	var r1$1 = (x) => Math.round(x * 10) / 10;
+	var r2$1 = (x) => Math.round(x * 100) / 100;
+	/** Linear-interpolated quantile of a sorted list. */
+	function quantile(sorted, q) {
+		if (!sorted.length) return null;
+		const at = (sorted.length - 1) * q, lo = Math.floor(at), hi = Math.ceil(at);
+		return sorted[lo] + (sorted[hi] - sorted[lo]) * (at - lo);
+	}
+	/** The non-financial companies with their ratios (optionally one sector). */
+	function corpusPeers(sector = "") {
+		return corpusCompanies().filter((c) => c.figures.kind === "corporate" && c.figures.rev && (!sector || c.sector === sector)).map((c) => {
+			const f = c.figures, v = (p) => p ? p[0] : 0;
+			const m = metricsOf({
+				revenue: v(f.rev),
+				cogs: f.cogs ? f.cogs[0] : null,
+				operating: f.op ? f.op[0] : f.pbt[0],
+				net: f.net[0],
+				assets: f.assets[0],
+				equity: f.equity[0],
+				ca: v(f.ca),
+				cl: v(f.cl),
+				inventory: v(f.inv),
+				receivables: v(f.recv),
+				payables: f.pay ? f.pay[0] : null,
+				cfo: null,
+				capex: null
+			});
+			if (!f.ca || !f.cl) m.currentRatio = null;
+			if (!f.recv) m.dso = null;
+			if (!f.inv || !f.cogs) m.dio = null;
+			return {
+				id: c.id,
+				company: c.company,
+				sector: c.sector,
+				sectorAr: SECTOR_AR[c.sector],
+				fy: c.fy,
+				framework: c.framework,
+				pages: f.pages,
+				metrics: m
+			};
+		});
+	}
+	/** Sectors with at least `min` non-financial companies, for the sector filter. */
+	function sectors(min = 3) {
+		const n = {};
+		corpusPeers().forEach((p) => {
+			n[p.sector] = (n[p.sector] ?? 0) + 1;
+		});
+		return Object.entries(n).filter(([, k]) => k >= min).map(([id, k]) => ({
+			id,
+			ar: SECTOR_AR[id],
+			companies: k
+		})).sort((a, b) => b.companies - a.companies);
+	}
+	var ZERO_NOTE = {
+		dso: "لا ذمم مدينة في نهاية الفترة (مبيعات نقدية) — لا تنطبق",
+		dio: "لا مخزون في نهاية الفترة — لا تنطبق",
+		dpo: "لا ذمم دائنة تجارية في نهاية الفترة — لا تنطبق"
+	};
+	/** The company's own ratios. The corpus is full years; a shorter period (e.g. the year to date) is put on the same
+	*  basis: returns on the period's profit are annualised, and days are counted over the period's own length. */
+	function companyMetrics(fs, periodDays = 365) {
+		const i = inputsFromStatements(fs), m = metricsOf(i), notes = {};
+		const d = Math.max(1, Math.min(366, Math.round(periodDays))), toYear = 365 / d, toPeriod = d / 365;
+		if (m.roe !== null) m.roe = r1$1(m.roe * toYear);
+		if (m.roa !== null) m.roa = r1$1(m.roa * toYear);
+		for (const k of [
+			"dso",
+			"dio",
+			"dpo"
+		]) if (m[k] !== null) m[k] = Math.round(m[k] * toPeriod);
+		if (!i.receivables) {
+			m.dso = null;
+			notes.dso = ZERO_NOTE.dso;
+		}
+		if (!i.inventory) {
+			m.dio = null;
+			notes.dio = ZERO_NOTE.dio;
+		}
+		if (!i.payables) {
+			m.dpo = null;
+			notes.dpo = ZERO_NOTE.dpo;
+		}
+		return {
+			m,
+			notes
+		};
+	}
+	/** The company's ratios (from its statements) against the corpus. */
+	function benchmark(fs, opts = {}) {
+		const peers = corpusPeers(opts.sector ?? ""), own = fs ? companyMetrics(fs, opts.periodDays ?? 365) : null, mine = own ? own.m : null;
+		return KEYS.map((key) => {
+			const m = METRICS.find((x) => x.key === key);
+			const rows = peers.filter((p) => p.metrics[key] !== null).map((p) => ({
+				p,
+				v: p.metrics[key]
+			}));
+			const vals = rows.map((r) => r.v).sort((a, b) => a - b), you = mine ? mine[key] : null;
+			const round = (x) => x === null ? null : m.unit === "days" ? Math.round(x) : m.unit === "%" ? r1$1(x) : r2$1(x);
+			const percentile = you === null || !vals.length ? null : Math.round((vals.filter((x) => x < you).length + vals.filter((x) => x === you).length / 2) / vals.length * 100);
+			const good = percentile === null ? null : m.higherIsBetter === false ? 100 - percentile : percentile;
+			const band = good === null ? "n/a" : good >= 75 ? "top" : good >= 50 ? "upper" : good >= 25 ? "lower" : "bottom";
+			const weak = m.higherIsBetter !== null && band === "bottom";
+			const closest = you === null ? [] : [...rows].sort((a, b) => Math.abs(a.v - you) - Math.abs(b.v - you)).slice(0, 3).map((r) => ({
+				company: r.p.company,
+				value: r.v,
+				sectorAr: r.p.sectorAr,
+				page: key === "dso" || key === "dio" || key === "dpo" || key === "currentRatio" || key === "equityRatio" ? r.p.pages.bs : r.p.pages.is
+			}));
+			return {
+				key,
+				ar: m.ar,
+				unit: m.unit,
+				formula: m.formula,
+				higherIsBetter: m.higherIsBetter,
+				you,
+				n: vals.length,
+				p25: round(quantile(vals, .25)),
+				median: round(quantile(vals, .5)),
+				p75: round(quantile(vals, .75)),
+				min: vals.length ? vals[0] : null,
+				max: vals.length ? vals[vals.length - 1] : null,
+				percentile,
+				band,
+				weak,
+				closest,
+				check: weak ? CHECKS[key] ?? null : null,
+				note: own?.notes[key] ?? null
+			};
+		});
+	}
+	/** One line per result, for the summary card and the assistant. */
+	function summary(rows) {
+		const scored = rows.filter((r) => r.band !== "n/a" && r.higherIsBetter !== null);
+		return {
+			compared: rows.filter((r) => r.you !== null).length,
+			strong: scored.filter((r) => r.band === "top").map((r) => r.ar),
+			weak: scored.filter((r) => r.weak).map((r) => r.ar)
+		};
+	}
+	//#endregion
 	//#region app/src/engine/fusion/reports/smart-match-engine.ts
 	var smart_match_engine_exports = /* @__PURE__ */ __exportAll({
 		bestCatalogMatch: () => bestCatalogMatch,
@@ -17602,15 +18221,15 @@ window.SKEngines = (function() {
 	});
 	var M = (m) => m / 100;
 	var pct$2 = (a, b) => b === null || b === 0 ? null : Math.round((a - b) / Math.abs(b) * 1e3) / 10;
-	var r1$1 = (x) => Math.round(x * 10) / 10;
+	var r1 = (x) => Math.round(x * 10) / 10;
 	function money$12(m, cur) {
 		return m === null ? "" : formatMinor(m, { decimals: 0 }) + " " + cur;
 	}
 	/** 412,600,000 → «412.6 مليون» (the way the bundle's letters write large figures). */
 	function compact(major, cur) {
 		const a = Math.abs(major), w = (t) => major < 0 ? "(" + t + ")" : t;
-		if (a >= 1e9) return w(r1$1(a / 1e9) + " مليار " + cur);
-		if (a >= 1e6) return w(r1$1(a / 1e6) + " مليون " + cur);
+		if (a >= 1e9) return w(r1(a / 1e9) + " مليار " + cur);
+		if (a >= 1e6) return w(r1(a / 1e6) + " مليون " + cur);
 		if (a >= 1e3) return w(Math.round(a / 1e3).toLocaleString("en-US") + " ألف " + cur);
 		return w(Math.round(a).toLocaleString("en-US") + " " + cur);
 	}
@@ -17661,12 +18280,12 @@ window.SKEngines = (function() {
 		addMoney("netDebt", "صافي الدين", nd, ndP);
 		addMoney("equity", "حقوق الملكية", g("equity"), gp("equity"));
 		addMoney("assets", "مجموع الموجودات", g("assets"), gp("assets"));
-		const ratio = (a, b) => b ? r1$1(a / b * 100) : null;
+		const ratio = (a, b) => b ? r1(a / b * 100) : null;
 		const eq = g("equity"), eqP = gp("equity");
 		addRatio("grossMargin", "هامش مجمل الربح", ratio(g("gross"), g("revenue")), fs.hasPrior ? ratio(gp("gross") ?? 0, gp("revenue") ?? 0) : null, "%");
 		addRatio("operatingMargin", "هامش الربح التشغيلي", ratio(g("operating"), g("revenue")), fs.hasPrior ? ratio(gp("operating") ?? 0, gp("revenue") ?? 0) : null, "%");
 		addRatio("netMargin", "هامش صافي الربح", ratio(g("profit"), g("revenue")), fs.hasPrior ? ratio(gp("profit") ?? 0, gp("revenue") ?? 0) : null, "%");
-		addRatio("gearing", "نسبة المديونية (صافي الدين ÷ صافي الدين وحقوق الملكية)", nd + eq ? r1$1(nd / (nd + eq) * 100) : null, ndP !== null && eqP !== null && ndP + eqP ? r1$1(ndP / (ndP + eqP) * 100) : null, "%");
+		addRatio("gearing", "نسبة المديونية (صافي الدين ÷ صافي الدين وحقوق الملكية)", nd + eq ? r1(nd / (nd + eq) * 100) : null, ndP !== null && eqP !== null && ndP + eqP ? r1(ndP / (ndP + eqP) * 100) : null, "%");
 		addRatio("roe", "العائد على حقوق الملكية", ratio(g("profit"), eq), null, "%");
 		addRatio("currentRatio", "نسبة التداول", g("cl") ? Math.round(g("ca") / g("cl") * 100) / 100 : null, fs.hasPrior && gp("cl") ? Math.round((gp("ca") ?? 0) / gp("cl") * 100) / 100 : null, "x");
 		addRatio("dso", "أيام التحصيل", g("revenue") ? Math.round(g("receivables") / g("revenue") * 365) : null, null, "days");
@@ -17693,7 +18312,7 @@ window.SKEngines = (function() {
 		const add = (x) => {
 			if (x === null || x === void 0 || !isFinite(x)) return;
 			allowed.add(Math.abs(x));
-			allowed.add(Math.abs(r1$1(x)));
+			allowed.add(Math.abs(r1(x)));
 			allowed.add(Math.abs(Math.round(x)));
 		};
 		for (const f of out) {
@@ -17705,7 +18324,7 @@ window.SKEngines = (function() {
 				add(v / 1e9);
 				add(v / 1e3);
 			}
-			if (f.value !== null && f.prior !== null && f.unit !== "money") add(r1$1(f.value - f.prior));
+			if (f.value !== null && f.prior !== null && f.unit !== "money") add(r1(f.value - f.prior));
 		}
 		for (const x of [
 			m.overall,
@@ -18921,413 +19540,6 @@ window.SKEngines = (function() {
 				financingTies: !fin || fin.rows.at(-1).values[3] === debtNow
 			}
 		};
-	}
-	//#endregion
-	//#region app/src/engine/fusion/reports/peer-benchmarks-engine.ts
-	var peer_benchmarks_engine_exports = /* @__PURE__ */ __exportAll({
-		METRICS: () => METRICS,
-		PEERS: () => PEERS,
-		compare: () => compare,
-		inputsFromStatements: () => inputsFromStatements,
-		metricsOf: () => metricsOf,
-		peerMetrics: () => peerMetrics
-	});
-	var PEERS = [
-		{
-			id: "nestle-2025",
-			company: "Nestlé",
-			sector: "fmcg",
-			framework: "IFRS",
-			fy: "FY2025",
-			currency: "CHF",
-			pages: {
-				is: 2210,
-				bs: 2212,
-				bsTo: 2213,
-				cf: 2214
-			},
-			revenue: 89490,
-			cogs: 48694,
-			operating: 12277,
-			net: 9254,
-			assets: 127151,
-			equity: 33058,
-			ca: 31969,
-			cl: 40694,
-			inventory: 12813,
-			receivables: 10561,
-			payables: 20023,
-			payablesScope: "trade-and-other",
-			cfo: 15904,
-			capex: 4527,
-			cash: 4579
-		},
-		{
-			id: "unilever-2025",
-			company: "Unilever",
-			sector: "fmcg",
-			framework: "IFRS",
-			fy: "FY2025",
-			currency: "EUR",
-			pages: {
-				is: 5231,
-				bs: 5234,
-				cf: 5235
-			},
-			revenue: 50503,
-			cogs: null,
-			operating: 9037,
-			net: 6213,
-			assets: 70471,
-			equity: 17587,
-			ca: 17066,
-			cl: 21662,
-			inventory: 4043,
-			receivables: 7346,
-			payables: 16939,
-			payablesScope: "trade-and-other",
-			cfo: 8350,
-			capex: 1417,
-			cash: 3941
-		},
-		{
-			id: "pepsico-2025",
-			company: "PepsiCo",
-			sector: "fmcg",
-			framework: "US GAAP",
-			fy: "FY2025",
-			currency: "USD",
-			pages: {
-				is: 1884,
-				bs: 1888,
-				cf: 1886
-			},
-			revenue: 93925,
-			cogs: 43066,
-			operating: 11498,
-			net: 8295,
-			assets: 107399,
-			equity: 20547,
-			ca: 27949,
-			cl: 32764,
-			inventory: 5845,
-			receivables: 11506,
-			payables: 25903,
-			payablesScope: "trade-and-other",
-			cfo: 12087,
-			capex: 4415,
-			cash: 9159
-		},
-		{
-			id: "pg-2026",
-			company: "Procter & Gamble",
-			sector: "fmcg",
-			framework: "US GAAP",
-			fy: "FY2026",
-			currency: "USD",
-			pages: {
-				is: 2004,
-				bs: 2005,
-				cf: 2007
-			},
-			revenue: 87032,
-			cogs: 43362,
-			operating: 19748,
-			net: 16144,
-			assets: 126521,
-			equity: 54311,
-			ca: 26208,
-			cl: 38694,
-			inventory: 8170,
-			receivables: 6056,
-			payables: 16306,
-			payablesScope: "trade",
-			cfo: 19556,
-			capex: 4409,
-			cash: 9942
-		},
-		{
-			id: "walmart-2023",
-			company: "Walmart",
-			sector: "retail",
-			framework: "US GAAP",
-			fy: "FY2023",
-			currency: "USD",
-			pages: {
-				is: 402,
-				bs: 404,
-				cf: 406
-			},
-			revenue: 611289,
-			cogs: 463721,
-			operating: 20428,
-			net: 11292,
-			assets: 243197,
-			equity: 83754,
-			ca: 75655,
-			cl: 92198,
-			inventory: 56576,
-			receivables: 7933,
-			payables: 53742,
-			payablesScope: "trade",
-			cfo: 28841,
-			capex: 16857,
-			cash: 8625
-		},
-		{
-			id: "homedepot-2025",
-			company: "The Home Depot",
-			sector: "retail",
-			framework: "US GAAP",
-			fy: "FY2025",
-			currency: "USD",
-			pages: {
-				is: 2087,
-				bs: 2086,
-				cf: 2090
-			},
-			revenue: 164683,
-			cogs: 109818,
-			operating: 20890,
-			net: 14156,
-			assets: 105095,
-			equity: 12813,
-			ca: 34391,
-			cl: 32424,
-			inventory: 25817,
-			receivables: 5597,
-			payables: 11491,
-			payablesScope: "trade",
-			cfo: 16325,
-			capex: 3679,
-			cash: 1389
-		},
-		{
-			id: "amazon-2024",
-			company: "Amazon",
-			sector: "retail",
-			framework: "US GAAP",
-			fy: "FY2024",
-			currency: "USD",
-			pages: {
-				is: 1065,
-				bs: 1067,
-				cf: 1064
-			},
-			revenue: 637959,
-			cogs: 326288,
-			operating: 68593,
-			net: 59248,
-			assets: 624894,
-			equity: 285970,
-			ca: 190867,
-			cl: 179431,
-			inventory: 34214,
-			receivables: 55451,
-			payables: 94363,
-			payablesScope: "trade",
-			cfo: 115877,
-			capex: 82999,
-			cash: 78779
-		},
-		{
-			id: "aramco-2025",
-			company: "Saudi Aramco",
-			sector: "energy",
-			framework: "IFRS",
-			fy: "FY2025",
-			currency: "SAR",
-			pages: {
-				is: 10171,
-				bs: 10173,
-				cf: 10175
-			},
-			revenue: 1559342,
-			cogs: null,
-			operating: 706822,
-			net: 350210,
-			assets: 2551964,
-			equity: 1721744,
-			ca: 596277,
-			cl: 298349,
-			inventory: 70542,
-			receivables: 165444,
-			payables: 157708,
-			payablesScope: "trade-and-other",
-			cfo: 510798,
-			capex: 190444,
-			cash: 243099
-		}
-	];
-	var METRICS = [
-		{
-			key: "grossMargin",
-			ar: "هامش مجمل الربح",
-			unit: "%",
-			higherIsBetter: true,
-			formula: "(الإيرادات − تكلفة الإيرادات) ÷ الإيرادات"
-		},
-		{
-			key: "operatingMargin",
-			ar: "هامش الربح التشغيلي",
-			unit: "%",
-			higherIsBetter: true,
-			formula: "الربح التشغيلي ÷ الإيرادات"
-		},
-		{
-			key: "netMargin",
-			ar: "هامش صافي الربح",
-			unit: "%",
-			higherIsBetter: true,
-			formula: "صافي الربح ÷ الإيرادات"
-		},
-		{
-			key: "roe",
-			ar: "العائد على حقوق الملكية",
-			unit: "%",
-			higherIsBetter: true,
-			formula: "صافي الربح ÷ حقوق الملكية في نهاية السنة"
-		},
-		{
-			key: "roa",
-			ar: "العائد على الموجودات",
-			unit: "%",
-			higherIsBetter: true,
-			formula: "صافي الربح ÷ مجموع الموجودات"
-		},
-		{
-			key: "currentRatio",
-			ar: "نسبة التداول",
-			unit: "x",
-			higherIsBetter: null,
-			formula: "الموجودات المتداولة ÷ المطلوبات المتداولة"
-		},
-		{
-			key: "equityRatio",
-			ar: "نسبة حقوق الملكية إلى الموجودات",
-			unit: "%",
-			higherIsBetter: null,
-			formula: "حقوق الملكية ÷ مجموع الموجودات"
-		},
-		{
-			key: "dso",
-			ar: "أيام التحصيل",
-			unit: "days",
-			higherIsBetter: false,
-			formula: "الذمم المدينة ÷ الإيرادات × 365"
-		},
-		{
-			key: "dio",
-			ar: "أيام المخزون",
-			unit: "days",
-			higherIsBetter: false,
-			formula: "المخزون ÷ تكلفة الإيرادات × 365"
-		},
-		{
-			key: "dpo",
-			ar: "أيام السداد للموردين",
-			unit: "days",
-			higherIsBetter: null,
-			formula: "الذمم الدائنة التجارية ÷ تكلفة الإيرادات × 365"
-		},
-		{
-			key: "cashConversion",
-			ar: "تحويل الربح إلى نقد",
-			unit: "x",
-			higherIsBetter: true,
-			formula: "صافي النقد من التشغيل ÷ صافي الربح"
-		},
-		{
-			key: "capexIntensity",
-			ar: "كثافة الإنفاق الرأسمالي",
-			unit: "%",
-			higherIsBetter: null,
-			formula: "الإنفاق الرأسمالي ÷ الإيرادات"
-		},
-		{
-			key: "fcfMargin",
-			ar: "هامش التدفق النقدي الحر",
-			unit: "%",
-			higherIsBetter: true,
-			formula: "(النقد من التشغيل − الإنفاق الرأسمالي) ÷ الإيرادات"
-		}
-	];
-	var r1 = (x) => Math.round(x * 10) / 10;
-	var r2$1 = (x) => Math.round(x * 100) / 100;
-	var div = (a, b) => a === null || b === null || !b ? null : a / b;
-	function metricsOf(i) {
-		const p = (x) => x === null ? null : r1(x * 100), d = (x) => x === null ? null : Math.round(x * 365), x2 = (x) => x === null ? null : r2$1(x);
-		return {
-			grossMargin: p(i.cogs === null ? null : div(i.revenue - i.cogs, i.revenue)),
-			operatingMargin: p(div(i.operating, i.revenue)),
-			netMargin: p(div(i.net, i.revenue)),
-			roe: p(i.equity > 0 ? div(i.net, i.equity) : null),
-			roa: p(div(i.net, i.assets)),
-			currentRatio: x2(div(i.ca, i.cl)),
-			equityRatio: p(div(i.equity, i.assets)),
-			dso: d(div(i.receivables, i.revenue)),
-			dio: d(div(i.inventory, i.cogs)),
-			dpo: d(div(i.payables, i.cogs)),
-			cashConversion: x2(i.net > 0 ? div(i.cfo, i.net) : null),
-			capexIntensity: p(div(i.capex, i.revenue)),
-			fcfMargin: p(i.cfo === null || i.capex === null ? null : div(i.cfo - i.capex, i.revenue))
-		};
-	}
-	var peerMetrics = (p) => metricsOf({
-		...p,
-		payables: p.payablesScope === "trade" ? p.payables : null
-	});
-	/** The engagement's own inputs from its statements (capex as a positive outflow). */
-	function inputsFromStatements(fs) {
-		const k = fs.keys;
-		return {
-			revenue: k.revenue.current,
-			cogs: k.cogs.current || null,
-			operating: k.operating.current,
-			net: k.profit.current,
-			assets: k.assets.current,
-			equity: k.equity.current,
-			ca: k.ca.current,
-			cl: k.cl.current,
-			inventory: k.inventory?.current ?? 0,
-			receivables: k.receivables?.current ?? 0,
-			payables: k.payables?.current ?? null,
-			cfo: k.cfo?.current ?? null,
-			capex: k.capex ? -k.capex.current : null
-		};
-	}
-	var median = (xs) => {
-		const s = [...xs].sort((a, b) => a - b), m = Math.floor(s.length / 2);
-		return s.length % 2 ? s[m] : r2$1((s[m - 1] + s[m]) / 2);
-	};
-	/** Your ratios against the peer group (optionally one sector): the median, the range and where you sit. */
-	function compare(fs, opts = {}) {
-		const group = PEERS.filter((p) => !opts.sector || p.sector === opts.sector), mine = fs ? metricsOf(inputsFromStatements(fs)) : null;
-		return METRICS.map((m) => {
-			const peers = group.map((p) => ({
-				company: p.company,
-				value: peerMetrics(p)[m.key]
-			})).filter((x) => x.value !== null);
-			const vals = peers.map((x) => x.value), you = mine ? mine[m.key] : null;
-			const round = (x) => m.unit === "days" ? Math.round(x) : m.unit === "%" ? r1(x) : r2$1(x);
-			const min = vals.length ? Math.min(...vals) : null, max = vals.length ? Math.max(...vals) : null, med = vals.length ? round(median(vals)) : null;
-			const position = you === null || min === null || max === null ? "n/a" : you > max ? "above" : you < min ? "below" : "within";
-			const verdict = position === "n/a" || med === null || you === null || m.higherIsBetter === null ? position === "n/a" ? "n/a" : "typical" : Math.abs(you - med) <= Math.abs(med) * .1 ? "typical" : you > med === m.higherIsBetter ? "better" : "weaker";
-			return {
-				key: m.key,
-				ar: m.ar,
-				unit: m.unit,
-				formula: m.formula,
-				you,
-				median: med,
-				min,
-				max,
-				n: vals.length,
-				position,
-				verdict,
-				peers
-			};
-		});
 	}
 	//#endregion
 	//#region app/src/engine/fusion/reports/sample-company-engine.ts
@@ -21196,6 +21408,7 @@ window.SKEngines = (function() {
 		reports: {
 			analysis: analysis_engine_exports,
 			annualReport: annual_report_engine_exports,
+			corpusBenchmarks: corpus_benchmarks_engine_exports,
 			corpusCompanies: corpus_companies_engine_exports,
 			excelRecon: excel_recon_engine_exports,
 			export: export_engine_exports,
