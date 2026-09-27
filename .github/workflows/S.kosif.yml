@@ -34,7 +34,7 @@ jobs:
 
       - name: Validate source syntax
         run: |
-          python3 -m py_compile build.py private_blocks.py tools/payload.py
+          python3 -m py_compile build.py private_blocks.py tools/payload.py tools/identity_check.py
           for f in ui/core/*.js ui/components/*.js ui/layouts/*.js ui/features/*.js; do node --check "$f"; done
           node --check sw.js
           node --check capabilities-v2/worker.js
@@ -71,6 +71,9 @@ jobs:
         env:
           KOSIF_UNLOCK_PASSWORD: ${{ secrets.KOSIF_UNLOCK_PASSWORD }}
         run: python3 build.py
+
+      - name: Product identity is audit-first SQC (أغنام الوادي stays the demo company)
+        run: python3 tools/identity_check.py
 
       - name: Validate production bundle
         run: |

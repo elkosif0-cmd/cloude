@@ -21,7 +21,7 @@
   -webkit-mask-image:radial-gradient(ellipse at center,#000 60%,transparent 78%);mask-image:radial-gradient(ellipse at center,#000 60%,transparent 78%)}
 .rail .brand-mark,.rail #app-name{display:none}
 .rail #biz-name{margin:0;font:700 32px/1.2 var(--sk-font-display);color:var(--sk-rail-ink);text-align:center}
-.rail #biz-name::after{content:"التسعير والطلبات والعملاء في مكان واحد";display:block;margin-top:2px;font:400 13px/1.6 var(--sk-font);color:var(--sk-rail-mute)}
+.rail #biz-name::after{content:"المراجعة والأدلة والتقارير في مكان واحد";display:block;margin-top:2px;font:400 13px/1.6 var(--sk-font);color:var(--sk-rail-mute)}
 
 /* daily / advanced switch — progressive disclosure */
 .modeseg{display:flex;gap:4px;margin:var(--sk-2) var(--sk-1) 0;padding:4px;border-radius:var(--sk-r);background:var(--sk-rail-2);flex-shrink:0}
