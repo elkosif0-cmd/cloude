@@ -189,12 +189,34 @@ await p.click('.sm-svg [data-sm-region="makkah"]');await p.waitForTimeout(900);
 ok('الأدوات المساعدة','الاقتراب من المنطقة ثم المدينة يُظهر المدن ثم الأحياء',await p.evaluate(async()=>{if(!document.querySelector('.sm-svg [data-sm-city]'))return false;document.querySelector('.sm-svg [data-sm-city="جدة"]')?.dispatchEvent(new MouseEvent('click',{bubbles:true}));await new Promise(r=>setTimeout(r,900));return document.querySelectorAll('.sm-d').length>0}));
 await p.click('[data-sm-tab="analysis"]');await p.waitForTimeout(700);
 ok('الأدوات المساعدة','تحليل المبيعات: الأكثر طلباً والشهور والعملاء وABC',await p.evaluate(()=>document.querySelectorAll('.skhb').length>=2&&/ABC/.test(document.body.innerText)));
-await go('jesim',1200);await p.evaluate(()=>localStorage.removeItem('sqc_jesim_v1'));await go('jesim',800);
+await go('jesim',1200);await p.evaluate(()=>{localStorage.removeItem(SKosifEntrySim.memoryKey());localStorage.removeItem('sqc_jesim_v1')});await go('jesim',800);
 await p.click('[data-js-tab="learn"]');await p.waitForTimeout(300);await p.click('[data-js="books"]');await p.waitForTimeout(600);
 ok('الأدوات المساعدة','محاكي القيود يتعلم طريقة التسجيل من قيود الدفاتر',await p.evaluate(()=>{const m=SKosifEntrySim.memory();return m.patterns.length>=3&&m.stats.entries>20&&Object.keys(m.accounts).length>5}));
 await p.click('[data-js-tab="suggest"]');await p.waitForTimeout(300);await p.fill('[data-jd="text"]','مبيعات الشهر ملخص نقاط البيع');await p.fill('[data-jd="amount"]','1150');await p.click('[data-js="run"]');await p.waitForTimeout(500);
 ok('الأدوات المساعدة','يقترح قيد المستند متزناً وأين يُسجّل مع درجة الثقة',await p.evaluate(()=>!!document.querySelector('.js-res .js-lines')&&!!document.querySelector('.js-where')&&/٪/.test(document.querySelector('.js-res .sksev').textContent)));
 ok('الأدوات المساعدة','يسأل حين لا يعرف المستند، والمساعد متصل بالمحاكي',await p.evaluate(()=>{const s=SKosifEntrySim.suggest('غرامة تأخير مرورية لسيارة التوصيل',300);return s.status!=='sure'&&!!s.question&&SK.caps.get('jesim').group==='helpers'}));
+ok('الأدوات المساعدة','ذاكرة محاكي القيود موسومة ومعزولة بمفتاح الشركة الحالية',await p.evaluate(()=>{const id=SKosifEntrySim.companyId(),m=SKosifEntrySim.memory(),k=SKosifEntrySim.memoryKey();return m.companyId===id&&k.startsWith('sqc_jesim_v1__')&&k.endsWith(id.replace(/[^A-Za-z0-9_.-]/g,'_'))}));
+const JPG=await p.evaluate(()=>{
+  const raw=localStorage.getItem('skosif_ledger_v1'),L=SKosifLedger,date='2099-12-31';let result;
+  try{
+    const beforeA=L.accounts().length,beforeE=L.entries().length,proposal={date,memo:'E2E governed simulator post',reference:'E2E-GOV',source:'محاكي القيود',
+      lines:[{account:'599901',name:'مصروف اختبار غير موجود',debit:25,credit:0},{account:'499902',name:'إيراد اختبار غير موجود',debit:0,credit:25}]};
+    const reject=L.post(proposal),safeReject=L.accounts().length===beforeA&&L.entries().length===beforeE;
+    const partial=L.post(proposal,{open:[{code:'599901',name:'مصروف اختبار غير موجود',type:'expense'}]}),safePartial=L.accounts().length===beforeA&&L.entries().length===beforeE;
+    const opened=L.post(proposal,{open:[{code:'599901',name:'مصروف اختبار غير موجود',type:'expense'},{code:'499902',name:'إيراد اختبار غير موجود',type:'revenue'}]});
+    const explicitOk=opened.ok&&L.accounts().length===beforeA+2&&L.entries().length===beforeE+1;
+    const active=L.accounts().filter(a=>a.active!==false&&a.code).slice(0,2),mapBeforeA=L.accounts().length,mapBeforeE=L.entries().length;
+    let mapped={ok:false};
+    if(active.length===2)mapped=L.post({date,memo:'E2E mapped simulator post',reference:'E2E-MAP',source:'محاكي القيود',
+      lines:[{account:'EXT-D',name:'خارجي مدين',debit:10,credit:0},{account:'EXT-C',name:'خارجي دائن',debit:0,credit:10}]},
+      {map:{'EXT-D':String(active[0].code),'EXT-C':String(active[1].code)}});
+    const mappingOk=mapped.ok&&L.accounts().length===mapBeforeA&&L.entries().length===mapBeforeE+1;
+    result={reject:reject.code==='MISSING_ACCOUNTS'&&(reject.missingAccounts||[]).length===2&&safeReject,
+      partial:partial.code==='MISSING_ACCOUNTS'&&safePartial,explicit:explicitOk,mapping:mappingOk};
+  }finally{if(raw==null)localStorage.removeItem('skosif_ledger_v1');else localStorage.setItem('skosif_ledger_v1',raw)}
+  return result;
+});
+ok('الأدوات المساعدة','حوكمة الترحيل: الحساب الناقص يُرفض بلا أثر، والفتح/الربط الصريح فقط يسمح بالقيد',JPG.reject&&JPG.partial&&JPG.explicit&&JPG.mapping);
 const ph=await (await b.newContext({viewport:{width:390,height:844},isMobile:true})).newPage();await ph.goto(URL_);await ph.waitForTimeout(5000);
 ok('الجولات 1–33','شريط التبويبات السفلي في الآيفون',await ph.evaluate(()=>!!document.querySelector('.skb,.sk-tabbar,[class*="tabbar"]')));
 if(process.argv[3])fs.writeFileSync(process.argv[3],JSON.stringify(R,null,1));
