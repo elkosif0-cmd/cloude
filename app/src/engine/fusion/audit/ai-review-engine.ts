@@ -18,8 +18,10 @@ import { normalizeCode, STANDARDS, type Framework } from './codex-engine';
 import { adjustmentEffect, validateAdjustment, type Adjustment, type DocRequest, type Finding, type Review, type Severity } from './tb-review-engine';
 
 export const REVIEWERS = ['المراجع الفني المحاسبي', 'مراجع الامتثال للمعايير والإفصاح', 'مدقق المخاطر والأدلة'] as const;
-export const DEFAULT_MODEL = 'gemini-2.5-flash';
-export const MAX_ROUNDS = 6;
+export const DEFAULT_MODEL = 'gemini-flash-latest';
+/** no cap: the rounds go on until the evidence is sufficient or what remains is declared unavailable by the entity (then the
+    report carries the limitation, ISA 705); a firm may still pass its own cap to sessionState */
+export const MAX_ROUNDS = Number.POSITIVE_INFINITY;
 
 const S = (description?: string) => ({ type: 'STRING', ...(description ? { description } : {}) });
 const ARR = (items: object) => ({ type: 'ARRAY', items });
@@ -257,6 +259,8 @@ export function sessionState(s: Session, maxRounds = MAX_ROUNDS): { state: 'star
   if (!s.rounds.length) return { state: 'start', label: 'جاهز للجولة الأولى' };
   const last = s.rounds[s.rounds.length - 1];
   if (last.status === 'complete' && !outstanding(s).length) return { state: 'complete', label: 'اكتملت المراجعة — أصدر التقرير' };
+  if (!outstanding(s).length && s.unavailable.length && !pendingUploads(s).length)
+    return { state: 'complete', label: `ما تبقى من الطلبات (${s.unavailable.length}) أقرت الإدارة بعدم توفره — يصدر التقرير بأثر القيود على النطاق (ISA 705)` };
   if (s.rounds.length >= maxRounds) return { state: 'limit', label: `بلغت ${maxRounds} جولات — يصدر التقرير مع تسجيل القيود على النطاق` };
   if (pendingUploads(s).length) return { state: 'ready', label: `${pendingUploads(s).length} مستند جاهز لجولة المراجعة ${s.rounds.length + 1}` };
   return { state: 'awaiting-docs', label: `بانتظار ${outstanding(s).length} مستند` };

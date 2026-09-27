@@ -407,3 +407,9 @@ details.ap-card[open]>summary::after{content:"▴"}
 .tbr-file-new{flex:0 0 auto;border:1px dashed var(--sk-brand);border-radius:var(--sk-r-s);background:transparent;color:var(--sk-brand);font:inherit;font-size:12.5px;font-weight:700;padding:8px 14px;cursor:pointer;white-space:nowrap}
 .tbr-file-new:hover{background:var(--sk-brand-soft)}
 .tbr-bundle{max-width:min(920px,96vw)}.tbr-bundle .sk-table-wrap{max-height:60vh;overflow:auto}.tbr-bundle td small{display:block;color:var(--sk-ink-3);font-size:11px}
+
+/* request library details: evidence kind and reliability, who provides it, why, the alternative */
+.tbr-stage{margin:14px 0 6px;font-size:13px;color:var(--sk-brand);display:flex;gap:8px;align-items:center}.tbr-stage small{font-size:11px;color:var(--sk-ink-3);font-weight:600}
+.tbr-req-ev{color:var(--sk-ink-2)!important}.tbr-rel{letter-spacing:1px;font-size:10px}.tbr-rel.r3{color:var(--sk-ok)}.tbr-rel.r2{color:var(--sk-info)}.tbr-rel.r1{color:var(--sk-warn)}
+.tbr-req-alt{color:var(--sk-ink-3)!important;font-style:italic}.tbr-req-alt.on{color:var(--sk-warn)!important;font-style:normal;font-weight:700}
+.tbr-req-un{background:color-mix(in srgb,var(--sk-warn-soft) 55%,transparent)}

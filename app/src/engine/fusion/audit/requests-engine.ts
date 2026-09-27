@@ -64,6 +64,7 @@ export const LIBRARY: Template[] = [
   /* ---------- the areas (ISA 500, 501, 505, 540) ---------- */
   T('CA-01', 'area', 'مصادقات بنكية مباشرة لكل الحسابات (بما فيها المقفلة خلال السنة) والتسهيلات والضمانات', 'وجود الأرصدة واكتمال الالتزامات والرهونات', 'bank', [E_, C, P], 'ISA 505', 'always', 'البنوك (يرسلها المراجع)', 'كشوف الحساب الأصلية لشهر الإقفال وما بعده مع اختبار البنود المعلقة', { lines: ['cash', 'loansCl', 'loansNcl'] }),
   T('CA-02', 'area', 'التسويات البنكية في تاريخ الإقفال مع الكشوف الداعمة والبنود المعلقة', 'اكتمال النقد والقطع', 'reconciliation', [E_, K], 'ISA 500', 'always', MGT, 'فحص كشف الشهر اللاحق لتسوية البنود المعلقة', { lines: ['cash'] }),
+  T('CA-04', 'area', 'كشوف الحسابات البنكية لشهر الإقفال والشهر اللاحق لكل حساب', 'إثبات الرصيد في تاريخ الإقفال وتسوية البنود المعلقة لاحقاً', 'bank', [E_, K], 'ISA 500', 'always', MGT, 'طلب الكشوف من البنك مباشرة عبر المصادقة البنكية', { lines: ['cash'] }),
   T('CA-03', 'area', 'محاضر جرد النقدية والعهد في تاريخ الإقفال', 'وجود النقد بالصندوق', 'count', [E_], 'ISA 501', 'material', 'أمين الصندوق', 'فحص الحركة اللاحقة للعهد وتسويتها', { lines: ['cash'] }),
   T('AR-01', 'area', 'كشف أعمار الذمم المدينة بالعميل في تاريخ الإقفال مطابقاً للأستاذ', 'التقييم والوجود', 'schedule', [E_, V], 'ISA 500', 'significant', MGT, 'إعداد الأعمار من دفتر الأستاذ المساعد', { lines: ['receivables'] }),
   T('AR-02', 'area', 'مصادقات أرصدة لعينة من العملاء (إيجابية)', 'وجود الأرصدة وحقوق المنشأة', 'confirmation', [E_], 'ISA 505', 'significant', 'العملاء (يرسلها المراجع)', 'التحصيلات اللاحقة وفواتير البيع ومستندات التسليم للأرصدة غير المؤكدة', { lines: ['receivables'] }),
@@ -122,6 +123,8 @@ export const LIBRARY: Template[] = [
 ];
 
 /* ---------- building the list for one engagement ---------- */
+/** without these no opinion can be formed: the signed TB, the statements and notes, the minutes, the journal population, the representations */
+const ESSENTIAL = new Set(['PL-01', 'PL-02', 'PL-06', 'PL-14', 'CM-03', 'CM-04']);
 export type LineRisk = { lineKey: string; ar: string; amount: number; significant: boolean; estimate?: boolean; fraud?: boolean; score?: number };
 export type Request = { id: string; stage: Stage; title: string; purpose: string; kind: EvidenceKind; evidenceAr: string; reliability: 1 | 2 | 3; assertions: AssertionKey[];
   isa: string; from: string; alt: string; lineKeys: string[]; lines: string[]; theme?: Theme; priority: 'عالية' | 'متوسطة' | 'منخفضة'; why: string; bundle?: [number, number]; round: number };
@@ -146,7 +149,8 @@ export function buildRequests(i: BuildInput): Request[] {
     if (t.stage === 'kam' && t.theme && !themed && !(est && mat)) take = false;
     if (t.id === 'PL-12' && i.goingConcernIssue) take = true;
     if (!take) continue;
-    const pri: Request['priority'] = themed || fr || (t.id === 'PL-12' && i.goingConcernIssue) || t.id === 'CM-03' || t.id === 'PL-01' ? 'عالية' : sig || mat || est ? 'متوسطة' : 'منخفضة';
+    const pri: Request['priority'] = themed || fr || (t.id === 'PL-12' && i.goingConcernIssue) || ESSENTIAL.has(t.id) ? 'عالية'
+      : sig || mat || est || t.stage === 'planning' || t.stage === 'completion' ? 'متوسطة' : 'منخفضة';
     const amount = lines.reduce((s, r) => s + Math.abs(r.amount), 0);
     const why = [themed ? 'منطقة حكمية في هذا الملف' : '', fr ? 'خطر احتيال مفترض' : '', mat ? 'رصيد أكبر من الأهمية النسبية' : sig ? 'بند مهم' : '', est ? 'يتضمن تقديرات' : '',
       t.id === 'PL-12' && i.goingConcernIssue ? 'مؤشرات شك في الاستمرارية' : '', amount ? 'الرصيد ' + Math.round(amount).toLocaleString('en') : ''].filter(Boolean).join(' · ') || 'مطلوب في كل مراجعة';

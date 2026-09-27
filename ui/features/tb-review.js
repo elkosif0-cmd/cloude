@@ -328,7 +328,10 @@ function reqStatus(q,s){
 }
 function reqRow(q,c){
   const s=c.session,[l,cls]=reqStatus(q,s),files=s?s.uploads.filter(u=>u.requestId===q.id):[];
-  return '<div class="tbr-req"><div class="tx"><b><span class="mono">'+esc(q.id)+'</span> '+esc(q.title)+'</b><small>'+esc(q.purpose)+(q.accounts&&q.accounts.length?' · الحسابات: '+esc(q.accounts.join("، ")):'')+'</small>'+
+  const un=s&&s.unavailable.includes(q.id);
+  return '<div class="tbr-req'+(un?' tbr-req-un':'')+'"><div class="tx"><b><span class="mono">'+esc(q.id)+'</span> '+esc(q.title)+'</b><small>'+esc(q.purpose)+(q.accounts&&q.accounts.length?' · الحسابات: '+esc(q.accounts.join("، ")):'')+'</small>'+
+    (q.evidenceAr?'<small class="tbr-req-ev"><span class="tbr-rel r'+(q.reliability||1)+'" title="موثوقية الدليل (ISA 500)">'+"●".repeat(q.reliability||1)+"○".repeat(3-(q.reliability||1))+'</span> '+esc(q.evidenceAr)+(q.from?' · يقدمه: '+esc(q.from):'')+(q.why?' · '+esc(q.why):'')+'</small>':'')+
+    (q.alt?'<small class="tbr-req-alt'+(un?' on':'')+'">'+(un?'غير متوفر — الإجراء البديل: ':'البديل إن تعذر: ')+esc(q.alt)+'</small>':'')+
     (files.length?'<small class="tbr-files">'+files.map(f=>'📎 '+esc(f.fileName)+' ('+Math.max(1,Math.round(f.size/1024))+' ك.ب · ج'+f.round+')').join(" · ")+'</small>':'')+(CU()&&s?CU().evidenceTagger(q,s,c.d):'')+'</div>'+
     '<div class="tbr-req-m"><span class="sksev '+(q.priority==="عالية"?"bad":q.priority==="متوسطة"?"warn":"info")+'">'+esc(q.priority)+'</span><span class="sksev '+cls+'">'+esc(l)+'</span>'+
     (l==="مقبول"?'':'<label class="btn sm" style="cursor:pointer">رفع<input type="file" multiple data-up="'+esc(q.id)+'" accept=".pdf,.png,.jpg,.jpeg,.webp,.csv,.txt,.tsv,.json" hidden></label>'+
@@ -337,7 +340,7 @@ function reqRow(q,c){
 function docsTab(c){
   const s=c.session,gem=s?[...new Map(s.rounds.flatMap(r=>r.requests).map(q=>[q.id,q])).values()]:[];
   return '<section class="card"><div class="card-h"><div><h3>طلبات المراجع الذكي</h3><p>'+(gem.length?gem.length+' طلباً عبر الجولات. ارفع المستند ثم أرسل الجولة التالية من تبويب «جولات المراجعة».':'تظهر هنا بعد الجولة الأولى.')+'</p></div></div><div class="card-b tbr-reqs">'+(gem.map(q=>reqRow(q,c)).join("")||'<p class="empty">لا طلبات بعد.</p>')+'</div></section>'+
-    '<section class="card"><div class="card-h"><div><h3>قائمة المستندات المطلوبة من العميل (PBC)</h3><p>أعدها المحرك الآلي حسب البنود والمخاطر — '+c.base.requests.length+' مستنداً. ما ترفعه هنا يُرسل أيضاً إلى المراجع الذكي في الجولة التالية.</p></div><div class="sk-actions"><button type="button" class="btn sm" data-a="pbc-csv">تصدير القائمة</button></div></div><div class="card-b tbr-reqs">'+c.base.requests.map(q=>reqRow(q,c)).join("")+'</div></section>';
+    '<section class="card"><div class="card-h"><div><h3>قائمة المستندات المطلوبة من العميل (PBC)</h3><p>أعدها المحرك الآلي حسب البنود والمخاطر — '+c.base.requests.length+' مستنداً. ما ترفعه هنا يُرسل أيضاً إلى المراجع الذكي في الجولة التالية.</p></div><div class="sk-actions"><button type="button" class="btn sm" data-a="pbc-csv">تصدير القائمة</button></div></div><div class="card-b tbr-reqs">'+[["planning","التخطيط وفهم المنشأة"],["area","بنود القوائم"],["kam","المناطق الحكمية (الأمور الرئيسية)"],["completion","الإقفال والتقرير"],["",""]].map(([k,l])=>{const qs=c.base.requests.filter(q=>(q.stage||"")===k);return qs.length?(l?'<h4 class="tbr-stage">'+esc(l)+' <small>'+qs.length+'</small></h4>':'')+qs.map(q=>reqRow(q,c)).join(""):""}).join("")+'</div></section>';
 }
 
 /* ---------- tab 4: adjustments and compliance ---------- */

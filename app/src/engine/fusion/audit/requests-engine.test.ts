@@ -29,6 +29,8 @@ describe('document requests', () => {
     expect(r[0].stage).toBe('planning');
     expect(r[r.length - 1].stage).toBe('completion');
     expect(r.find((x) => x.id === 'AR-02')!.reliability).toBe(3);      // a confirmation sent to the auditor directly
+    expect(['PL-01', 'PL-02', 'CM-03'].map((id) => r.find((x) => x.id === id)!.priority)).toEqual(['عالية', 'عالية', 'عالية']);
+    expect(r.filter((x) => x.stage === 'planning').every((x) => x.priority !== 'منخفضة')).toBe(true);
     expect(buildRequests({ risks, materiality: 500_000 }).map((x) => x.id)).not.toContain('PL-03');
   });
 

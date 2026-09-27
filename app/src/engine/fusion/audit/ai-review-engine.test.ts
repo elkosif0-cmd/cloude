@@ -65,6 +65,16 @@ describe('Gemini review rounds', () => {
     expect(accountStandards(review, s)['1141']).toEqual(['IAS 2', 'ISA 501']);
     expect(mergedFindings(review, s).some((f) => f.source === 'gemini')).toBe(true);
   });
+  it('has no round cap, and concludes when every remaining request is declared unavailable by the entity', () => {
+    let s = addRound(newSession(ctx, 'm', T0), normalizeRound(round1, newSession(ctx, 'm', T0), tb, 'm', T0));
+    for (let i = 0; i < 12; i++) s = { ...s, rounds: [...s.rounds, { ...s.rounds[0], no: s.rounds.length + 1 }] };
+    expect(sessionState(s).state).toBe('awaiting-docs');                  // twelve rounds and still asking: no «limit»
+    s = markUnavailable(markUnavailable(s, 'REQ-1'), 'REQ-2');
+    const st = sessionState(s);
+    expect(st.state).toBe('complete');
+    expect(st.label).toContain('أقرت الإدارة بعدم توفره');
+    expect(sessionState(s, 5).state).toBe('complete');                    // a firm's own cap still applies only while documents are awaited
+  });
   it('refuses «complete» when the same round asks for documents', () => {
     const r = normalizeRound({ ...round1, status: 'complete' }, newSession(ctx, 'm', T0), tb, 'm', T0);
     expect(r.status).toBe('needs_docs');
