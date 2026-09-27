@@ -79,7 +79,7 @@ function filesBar(){
     '<button type="button" class="tbr-file-new" data-file-new>+ ملف جديد</button><button type="button" class="tbr-file-new" data-bundle-open>الشركات العالمية ('+BUNDLE_COUNT+')</button></div></section>';
 }
 /* ---------- the bundle's companies as audit clients (ui/data/bundle-clients.json, loaded on demand) ---------- */
-const BUNDLE_COUNT=49;let bundle=null;
+const BUNDLE_COUNT=47;let bundle=null;
 async function bundleData(){if(bundle)return bundle;const r=await fetch("./data/bundle-clients.json");if(!r.ok)throw new Error("تعذر تحميل بيانات الشركات");bundle=await r.json();return bundle}
 async function bundlePicker(){
   let B;try{B=await bundleData()}catch(e){toast(e.message,"bad");return}
