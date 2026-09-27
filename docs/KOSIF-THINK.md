@@ -98,3 +98,54 @@ KOSIF Think طبقة تنسيق واحدة فوق مزوّدي الذكاء ال
 - The Clean APIs credential remains a Cloudflare secret named `cleanapis`; its value is never committed to GitHub or returned by the MCP.
 - Frontier synthesis prefers GPT-5.6 Sol; Kimi K2.6 on Workers AI remains the synthesis fallback.
 - The MCP still returns a structured `jev_payload` for the existing Jev Bridge decision gate.
+
+
+## مسار البيانات الفعلي: أين تذهب ردود الـAgents؟
+
+في نسخة MCP الحالية لا تمر ردود المجلس عبر TinyFish.
+
+المسار هو:
+
+```
+ChatGPT
+  ↓ MCP
+KOSIF Think Worker (Cloudflare)
+  ├─ GPT-5.6 Sol ───────┐
+  ├─ Claude Opus 5 ─────┤
+  ├─ Gemini 3.7 Flash ──┤
+  ├─ Claude Mythos ─────┤
+  └─ Claude Fable 5.1 ──┘
+          ↓
+   artifacts[] داخل ذاكرة طلب الـWorker
+          ↓
+   deterministic council
+          ↓
+   jev_payload
+          ↓
+ChatGPT → Jev Bridge
+          ↓
+ChatGPT final chair / final answer
+```
+
+- الـWorker يستقبل ردود النماذج عبر HTTPS من Clean APIs، ويحوّل كل رد إلى `artifact` منظم.
+- أثناء الطلب الحالي تُجمع الردود في مصفوفة `artifacts[]` داخل ذاكرة الـWorker فقط.
+- لا يوجد تخزين دائم لهذه الردود في KV أو D1 أو R2 في KOSIF Think حاليًا.
+- بعد ذلك يُحسب consensus محليًا، ويُرجع الـWorker كل الـartifacts و`jev_payload` إلى ChatGPT عبر MCP.
+- ChatGPT يرسل `jev_payload` إلى Jev Bridge ثم يعمل كرئيس المجلس النهائي ويصوغ الإجابة للمستخدم.
+
+## علاقة TinyFish
+
+TinyFish **ليس جزءًا من خط التفكير الأساسي لـKOSIF Think v2**.
+
+استخدامه الحالي منفصل في حالتين:
+1. كأداة Browser/Fetch خارجية لاختبار رابط Worker المنشور وقراءة health endpoints أثناء التطوير.
+2. في Worker منفصل باسم `kosif-jev` توجد bindings خاصة بـTinyFish لسيناريوهات التصفح/الصور والملفات، لكنها ليست مستخدمة داخل `kosif-think-mcp`.
+
+لذلك:
+- Agents → لا يرسلون ردودهم إلى TinyFish.
+- TinyFish → لا يجمع نتائج المجلس.
+- KOSIF Think Worker → هو نقطة التجميع الفعلية لردود الـAgents.
+- Jev → هو Decision Gate بعد التجميع.
+- ChatGPT → هو Final Chair بعد Jev.
+
+إذا احتجنا لاحقًا Web Research Agent داخل المجلس، يمكن إضافة TinyFish كـResearch Tool مستقل يجلب evidence من الويب ثم يضيفها إلى `context` قبل تشغيل النماذج، بدل استخدامه كناقل للردود.
