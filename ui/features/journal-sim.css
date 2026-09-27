@@ -1,0 +1,35 @@
+/* The journal simulator (محاكي القيود) */
+.js{display:grid;gap:12px;min-width:0}
+.js-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.js-tabs button{font:inherit;font-size:13px;font-weight:700;padding:8px 14px;border:1px solid var(--sk-line);border-radius:12px;background:var(--sk-surface);color:var(--sk-ink-2);cursor:pointer}
+.js-tabs button[aria-selected="true"]{background:var(--sk-brand);border-color:var(--sk-brand);color:var(--sk-on-brand,#fff)}
+.js-tabs i{font-style:normal;font-size:11px;padding:1px 7px;border-radius:99px;background:rgba(255,255,255,.25)}
+.js-card{padding:16px 18px;display:grid;gap:10px;min-width:0}.js-card h3{margin:0;font-size:15px}.js-card h4{margin:6px 0 0;font-size:13px}.js-card p{margin:0}
+.js-row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}.js-row .sk-field{min-width:160px}
+.js-file{cursor:pointer}.js-file svg,.js-row .btn svg{width:15px;height:15px}
+.js-ok{font-size:12px;color:var(--sk-good,#1f9d6a);font-weight:700}
+.js-reports{list-style:none;margin:0;padding:0;display:grid;gap:4px}.js-reports li{display:flex;gap:8px;align-items:baseline;font-size:12.5px}.js-reports small{color:var(--sk-ink-3)}.js-reports .linkish{margin-inline-start:auto}
+.js-kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.js-k{padding:10px 12px;border-radius:12px;background:var(--sk-surface);border:1px solid var(--sk-line);display:grid;gap:2px}.js-k small{font-size:11px;color:var(--sk-ink-3)}.js-k b{font-size:15px}.js-k .bad{color:var(--sk-bad,#c0392b)}
+.js-under{line-height:1.9;font-size:13.5px;padding:10px 12px;border-radius:12px;background:var(--sk-surface-2)}
+.js-acc{font-size:11.5px;direction:rtl}
+.js-kinds{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}.js-kinds ul{margin:4px 0 0;padding-inline-start:16px;font-size:12px}
+.js-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.js-sug-h{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.js-conf{position:relative;min-width:200px;height:24px;border-radius:99px;background:var(--sk-surface-2);overflow:hidden;border:1px solid var(--sk-line)}
+.js-conf i{position:absolute;inset:0 auto 0 0;background:var(--sk-good,#1f9d6a);opacity:.35}.js-conf.mid i{background:#c98a00}.js-conf.low i{background:var(--sk-bad,#c0392b)}
+[dir="rtl"] .js-conf i{inset:0 0 0 auto}
+.js-conf span{position:relative;display:block;text-align:center;font-size:12px;font-weight:700;line-height:22px}
+.js-qs{display:grid;gap:8px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,#c98a00 10%,var(--sk-surface));border:1px solid color-mix(in srgb,#c98a00 35%,var(--sk-line))}
+.js-q b{font-size:13px}.js-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.js-chips button{font:inherit;font-size:12px;padding:5px 12px;border-radius:99px;border:1px solid var(--sk-line);background:var(--sk-surface);cursor:pointer}.js-chips button:hover{border-color:var(--sk-brand);color:var(--sk-brand)}
+.js-chips input{width:130px}
+.js-lines select{min-width:220px;max-width:100%}.js-lines input{width:120px}
+.js-where{font-size:13px;padding:8px 12px;border-radius:10px;background:var(--sk-brand-soft)}
+.js-steps,.js-why{margin:0;padding-inline-start:20px;font-size:13px;line-height:1.8}
+.js-alt{font-size:12.5px}
+.js-final{padding-top:8px;border-top:1px solid var(--sk-line)}
+.js-hist{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:13px}
+.js-busy{margin:0;padding:10px 14px;border-radius:12px;background:var(--sk-brand-soft);color:var(--sk-brand);font-weight:700}
+@media(max-width:560px){.js-card{padding:12px}.js-lines select{min-width:150px}.js-lines input{width:84px}.js-conf{min-width:100%}}
+.js-li{display:block;padding-inline-start:14px;position:relative}.js-li::before{content:"•";position:absolute;inset-inline-start:2px;color:var(--sk-brand)}

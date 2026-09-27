@@ -3555,15 +3555,15 @@ window.SKEngines = (function() {
 		mdna: () => mdna,
 		ratios: () => ratios
 	});
-	var r2$5 = (n) => Math.round(n * 100) / 100;
+	var r2$6 = (n) => Math.round(n * 100) / 100;
 	var div$1 = (a, b) => b ? a / b : null;
 	var pctOf = (a, b) => {
 		const x = div$1(a, b);
-		return x === null ? null : r2$5(x * 100);
+		return x === null ? null : r2$6(x * 100);
 	};
 	var times = (a, b) => {
 		const x = div$1(a, b);
-		return x === null ? null : r2$5(x);
+		return x === null ? null : r2$6(x);
 	};
 	var days$2 = (a, b) => {
 		const x = div$1(a, b);
@@ -3829,7 +3829,7 @@ window.SKEngines = (function() {
 	/** Common-size: P&L lines as % of revenue, position lines as % of total assets. */
 	function commonSize(fs) {
 		const rev = fs.keys.revenue, ta = fs.keys.assets;
-		const pc = (a, b) => b ? r2$5(a / b * 100) : null;
+		const pc = (a, b) => b ? r2$6(a / b * 100) : null;
 		return {
 			pl: fs.pl.map((r) => ({
 				key: r.key,
@@ -3854,7 +3854,7 @@ window.SKEngines = (function() {
 			current: r.current,
 			prior: r.prior,
 			change: r.current - r.prior,
-			changePct: r.prior ? r2$5((r.current - r.prior) / Math.abs(r.prior) * 100) : null
+			changePct: r.prior ? r2$6((r.current - r.prior) / Math.abs(r.prior) * 100) : null
 		}));
 	}
 	/** DuPont: ROE = net margin × asset turnover × equity multiplier (year-end balances). */
@@ -3862,10 +3862,10 @@ window.SKEngines = (function() {
 		const k = fs.keys, one = (rev, profit, ta, eq) => {
 			const nm = div$1(profit, rev), at = div$1(rev, ta), em = div$1(ta, eq);
 			return {
-				netMargin: nm === null ? null : r2$5(nm * 100),
-				assetTurnover: at === null ? null : r2$5(at),
-				equityMultiplier: em === null ? null : r2$5(em),
-				roe: nm === null || at === null || em === null ? null : r2$5(nm * at * em * 100)
+				netMargin: nm === null ? null : r2$6(nm * 100),
+				assetTurnover: at === null ? null : r2$6(at),
+				equityMultiplier: em === null ? null : r2$6(em),
+				roe: nm === null || at === null || em === null ? null : r2$6(nm * at * em * 100)
 			};
 		};
 		return {
@@ -3879,16 +3879,16 @@ window.SKEngines = (function() {
 		if (!ta) return null;
 		const retained = fs.lines.filter((l) => l.key === "retained").reduce((a, l) => a + l.current, 0) + k.profit.current;
 		const x1 = (k.ca.current - k.cl.current) / ta, x2 = retained / ta, x3 = k.operating.current / ta, x4 = tl ? k.equity.current / tl : 0;
-		const z = r2$5(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
+		const z = r2$6(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
 		return {
 			z,
 			zone: z > 2.6 ? "safe" : z >= 1.1 ? "grey" : "distress",
 			zoneAr: z > 2.6 ? "منطقة الأمان" : z >= 1.1 ? "المنطقة الرمادية" : "منطقة التعثر",
 			components: {
-				x1: r2$5(x1),
-				x2: r2$5(x2),
-				x3: r2$5(x3),
-				x4: r2$5(x4)
+				x1: r2$6(x1),
+				x2: r2$6(x2),
+				x3: r2$6(x3),
+				x4: r2$6(x4)
 			}
 		};
 	}
@@ -3906,7 +3906,7 @@ window.SKEngines = (function() {
 		const sgai = q(q(sga(c), c("revenue")), q(sga(p), p("revenue")));
 		const lvgi = q(q(c("cl") + c("loansNcl") + c("leaseNcl"), c("assets")), q(p("cl") + p("loansNcl") + p("leaseNcl"), p("assets")));
 		const tata = fs.keys.cfo ? q(c("profit") - fs.keys.cfo.current, c("assets")) : 0;
-		const m = r2$5(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
+		const m = r2$6(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
 		const f = (x) => Math.round(x * 1e3) / 1e3;
 		return {
 			m,
@@ -4005,7 +4005,7 @@ window.SKEngines = (function() {
 			rat("current")
 		].map((i) => ({
 			...i,
-			change: i.prior === null || i.current === null || !i.prior ? null : r2$5((i.current - i.prior) / Math.abs(i.prior) * 100)
+			change: i.prior === null || i.current === null || !i.prior ? null : r2$6((i.current - i.prior) / Math.abs(i.prior) * 100)
 		}));
 	}
 	/** A deterministic management discussion: sentences generated from the numbers only. */
@@ -4015,7 +4015,7 @@ window.SKEngines = (function() {
 		const ch = (key) => {
 			const x = k[key];
 			if (!x || x.prior === null || !x.prior) return null;
-			return r2$5((x.current - x.prior) / Math.abs(x.prior) * 100);
+			return r2$6((x.current - x.prior) / Math.abs(x.prior) * 100);
 		};
 		const dir = (v, up, down) => v === null ? "" : v >= 0 ? `${up} ${Math.abs(v)}%` : `${down} ${Math.abs(v)}%`;
 		const out = [];
@@ -7567,7 +7567,7 @@ window.SKEngines = (function() {
 		}
 	};
 	var clamp01 = (x) => Number.isFinite(x) ? Math.max(0, Math.min(1, x)) : 0;
-	var r2$4 = (x) => Math.round(x * 100) / 100;
+	var r2$5 = (x) => Math.round(x * 100) / 100;
 	/** E — evidence coverage for a balance: Σ r·v ÷ V, capped at 1 (only accepted evidence counts). */
 	function coverage(items, balance) {
 		const V = Math.abs(balance);
@@ -7601,9 +7601,9 @@ window.SKEngines = (function() {
 		};
 		if (p.A === null) {
 			const k = W.E + W.T || 1;
-			return r2$4(clamp01(W.E / k * p.E + W.T / k * p.T));
+			return r2$5(clamp01(W.E / k * p.E + W.T / k * p.T));
 		}
-		return r2$4(clamp01(W.E * p.E + W.T * p.T + W.A * p.A));
+		return r2$5(clamp01(W.E * p.E + W.T * p.T + W.A * p.A));
 	}
 	/** The confidence a line needs: material & high risk 0.90, material & medium 0.80, material & low 0.70, immaterial → analytics only (null). */
 	function thresholdFor(line) {
@@ -7628,9 +7628,9 @@ window.SKEngines = (function() {
 				}, i.weights);
 				return {
 					assertion: a,
-					E: r2$4(E),
-					T: r2$4(T),
-					A: A === null ? null : r2$4(A),
+					E: r2$5(E),
+					T: r2$5(T),
+					A: A === null ? null : r2$5(A),
 					C,
 					met: threshold === null ? null : C >= threshold
 				};
@@ -7641,13 +7641,13 @@ window.SKEngines = (function() {
 				threshold,
 				...ov ? { override: ov } : {},
 				cells,
-				min: r2$4(min),
+				min: r2$5(min),
 				met: threshold === null ? null : cells.every((c) => c.met)
 			};
 		});
 		const open = rows.filter((r) => r.met === false), material = rows.filter((r) => r.threshold !== null);
-		const avgOpen = open.length ? r2$4(open.reduce((s, r) => s + r.min, 0) / open.length) : 1;
-		const avgAll = material.length ? r2$4(material.reduce((s, r) => s + r.min, 0) / material.length) : 1;
+		const avgOpen = open.length ? r2$5(open.reduce((s, r) => s + r.min, 0) / open.length) : 1;
+		const avgAll = material.length ? r2$5(material.reduce((s, r) => s + r.min, 0) / material.length) : 1;
 		return {
 			rows,
 			open,
@@ -7712,7 +7712,7 @@ window.SKEngines = (function() {
 			amount,
 			accepted: true
 		}], row.amount);
-		return r2$4(Math.max(0, confidence({
+		return r2$5(Math.max(0, confidence({
 			E: E2,
 			T: cell.T,
 			A: cell.A
@@ -7722,11 +7722,11 @@ window.SKEngines = (function() {
 	function rankRequests(list) {
 		return list.map((q) => ({
 			...q,
-			score: r2$4(q.expectedGain * q.materialityWeight / EFFORT[q.effort].v * 100) / 100
+			score: r2$5(q.expectedGain * q.materialityWeight / EFFORT[q.effort].v * 100) / 100
 		})).sort((a, b) => b.score - a.score || b.materialityWeight - a.materialityWeight);
 	}
 	/** Materiality weight of a line: its balance relative to overall materiality (≥ 1 means material on its own). */
-	var materialityWeight = (amount, overall) => overall > 0 ? r2$4(Math.min(10, Math.abs(amount) / overall)) : 1;
+	var materialityWeight = (amount, overall) => overall > 0 ? r2$5(Math.min(10, Math.abs(amount) / overall)) : 1;
 	var STATES = [
 		{
 			key: "new",
@@ -11509,7 +11509,7 @@ window.SKEngines = (function() {
 		sectorPrior: () => sectorPrior,
 		typicalKamCount: () => typicalKamCount
 	});
-	var r2$3 = (x) => Math.round(x * 100) / 100;
+	var r2$4 = (x) => Math.round(x * 100) / 100;
 	/** How often the auditors of a sector reported each theme (share of that sector's reports with KAMs), leaving one report out. */
 	function sectorPrior(sector, exclude) {
 		if (!sector) return {};
@@ -11518,7 +11518,7 @@ window.SKEngines = (function() {
 		const out = {};
 		for (const t of Object.keys(THEMES)) {
 			const n = reports.filter((id) => KAMS.some((k) => k.report === id && k.theme === t)).length;
-			if (n) out[t] = r2$3(n / reports.length);
+			if (n) out[t] = r2$4(n / reports.length);
 		}
 		return out;
 	}
@@ -11588,15 +11588,15 @@ window.SKEngines = (function() {
 			unit: c.unitAr,
 			actual,
 			ours,
-			recall: themes.length ? r2$3(hit / themes.length) : null,
-			rankedRecall: themes.length ? r2$3(rankedHit / themes.length) : null,
-			precision: selected.size && themes.length ? r2$3(ours.filter((o) => o.selected && o.matched).length / selected.size) : null,
+			recall: themes.length ? r2$4(hit / themes.length) : null,
+			rankedRecall: themes.length ? r2$4(rankedHit / themes.length) : null,
+			precision: selected.size && themes.length ? r2$4(ours.filter((o) => o.selected && o.matched).length / selected.size) : null,
 			materiality: {
 				ours: oursMat,
 				benchmark: review.materiality.benchmarkAr,
 				disclosed: disc ? disc.overall / unit : null,
 				disclosedBasis: disc ? disc.basis : null,
-				ratio: disc ? r2$3(oursMat / (disc.overall / unit)) : null,
+				ratio: disc ? r2$4(oursMat / (disc.overall / unit)) : null,
 				page: disc ? disc.page : null
 			},
 			requests: review.requests.length,
@@ -11612,7 +11612,7 @@ window.SKEngines = (function() {
 		return {
 			theirs: theirs.length,
 			covered: covered.length,
-			share: theirs.length ? r2$3(covered.length / theirs.length) : null,
+			share: theirs.length ? r2$4(covered.length / theirs.length) : null,
 			missing: theirs.filter((x) => !SQC_SECTIONS.has(x.key)).map((x) => x.ar)
 		};
 	}
@@ -11632,16 +11632,16 @@ window.SKEngines = (function() {
 			companies: list.length,
 			withKams: withKams.length,
 			kamThemes: actualN,
-			recall: actualN ? r2$3(sel / actualN) : 0,
-			rankedRecall: actualN ? r2$3(rk / actualN) : 0,
-			precision: oursSel ? r2$3(oursHit / oursSel) : 0,
+			recall: actualN ? r2$4(sel / actualN) : 0,
+			rankedRecall: actualN ? r2$4(rk / actualN) : 0,
+			precision: oursSel ? r2$4(oursHit / oursSel) : 0,
 			anyMatch: withKams.filter((r) => r.actual.some((a) => a.found === "selected")).length,
 			missed: Object.entries(missed).map(([theme, n]) => ({
 				theme,
 				ar: THEMES[theme].ar,
 				n
 			})).sort((a, b) => b.n - a.n),
-			structure: stTheirs ? r2$3(stCov / stTheirs) : 0,
+			structure: stTheirs ? r2$4(stCov / stTheirs) : 0,
 			materiality: mat.map((r) => ({
 				id: r.id,
 				company: r.company,
@@ -11668,7 +11668,7 @@ window.SKEngines = (function() {
 		integrityChecks: () => integrityChecks,
 		journalTests: () => journalTests,
 		memberBody: () => memberBody,
-		parseJournal: () => parseJournal,
+		parseJournal: () => parseJournal$1,
 		registerText: () => registerText,
 		roleWeight: () => roleWeight,
 		unusualEntries: () => unusualEntries,
@@ -11676,12 +11676,12 @@ window.SKEngines = (function() {
 		weightedVote: () => weightedVote
 	});
 	var nd = (s) => String(s ?? "").replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d))).replace(/[٬,\s]/g, "").replace("٫", ".");
-	var num$1 = (s) => {
+	var num$2 = (s) => {
 		const t = nd(s), neg = /^\(.*\)$/.test(t), v = parseFloat(t.replace(/[()]/g, ""));
 		return Number.isFinite(v) ? neg ? -v : v : 0;
 	};
 	var norm = (s) => String(s || "").toLowerCase().replace(/[ً-ٰٟ]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").trim();
-	var HEAD = [
+	var HEAD$1 = [
 		[/رقم القيد|القيد|المرجع|ref|entry|voucher|سند/, "ref"],
 		[/تاريخ|date/, "date"],
 		[/رقم الحساب|الحساب|كود|account|code/, "account"],
@@ -11711,7 +11711,7 @@ window.SKEngines = (function() {
 		return out.map((x) => x.trim());
 	}
 	/** A journal export (CSV/TSV, one row per line) → entries grouped by their reference. */
-	function parseJournal(text) {
+	function parseJournal$1(text) {
 		const lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim());
 		if (lines.length < 2) return {
 			entries: [],
@@ -11720,7 +11720,7 @@ window.SKEngines = (function() {
 		const d = lines[0].includes("	") ? "	" : lines[0].includes(";") && !lines[0].includes(",") ? ";" : ",";
 		const head = split(lines[0], d).map(norm), col = {};
 		head.forEach((h, i) => {
-			const hit = HEAD.find(([re, k]) => re.test(h) && col[k] === void 0);
+			const hit = HEAD$1.find(([re, k]) => re.test(h) && col[k] === void 0);
 			if (hit) col[hit[1]] = i;
 		});
 		const errors = [];
@@ -11750,8 +11750,8 @@ window.SKEngines = (function() {
 			if (!j.memo && get("memo")) j.memo = get("memo");
 			j.lines.push({
 				account: get("account"),
-				debit: Math.abs(num$1(get("debit"))),
-				credit: Math.abs(num$1(get("credit")))
+				debit: Math.abs(num$2(get("debit"))),
+				credit: Math.abs(num$2(get("credit")))
 			});
 			map.set(key, j);
 		});
@@ -11972,7 +11972,7 @@ window.SKEngines = (function() {
 				lineKey: f.lineKey ?? (f.code ? i.lineOf(f.code) ?? void 0 : void 0),
 				title: f.title,
 				detail: f.detail + (f.code ? " [TB-" + f.code + "]" : ""),
-				amount: amt ? num$1(amt) : void 0
+				amount: amt ? num$2(amt) : void 0
 			});
 		});
 		(i.checks ?? []).filter((c) => c.ok === false).forEach((c, k) => out.push({
@@ -14851,12 +14851,12 @@ window.SKEngines = (function() {
 		scenario: () => scenario,
 		sensitivity: () => sensitivity
 	});
-	var num = (v) => {
+	var num$1 = (v) => {
 		const n = parseFloat(String(v ?? ""));
 		return Number.isFinite(n) ? n : 0;
 	};
 	var clamp = (n, a, b) => Math.min(b, Math.max(a, n));
-	var r2$2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
+	var r2$3 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 	var f2 = (n) => (Math.round(n * 100) / 100).toFixed(2);
 	var pctTxt = (n) => String(Math.round(n * 1e3) / 10) + "%";
 	/** The pricing engine's rounding policies (nine: …9 from 100 up, …x.90 below; int; half; default: the halala). */
@@ -14886,12 +14886,12 @@ window.SKEngines = (function() {
 	function ctxOf(S) {
 		const st = S.settings || {};
 		return {
-			v: num(st.vat ?? 15) / 100,
+			v: num$1(st.vat ?? 15) / 100,
 			yieldM: st.waste !== "markup",
 			netBase: st.base !== "gross",
-			T: num(st.target) / 100,
-			good: num(st.good) / 100,
-			excellent: num(st.excellent) / 100,
+			T: num$1(st.target) / 100,
+			good: num$1(st.good) / 100,
+			excellent: num$1(st.excellent) / 100,
 			round: String(st.round || ""),
 			raws: new Map((S.raws || []).map((r) => [String(r.id), r])),
 			boxes: new Map((S.boxes || []).map((b) => [String(b.id), b])),
@@ -14901,7 +14901,7 @@ window.SKEngines = (function() {
 	var netOf = (c, amt, mode) => mode === "incl" ? amt / (1 + c.v) : amt;
 	var factor = (c, w) => c.yieldM ? 1 / (1 - w) : 1 + w;
 	function rawCost(c, r) {
-		const w = clamp(num(r.waste) / 100, 0, .95), buy = num(r.buy), net = netOf(c, buy, r.vat);
+		const w = clamp(num$1(r.waste) / 100, 0, .95), buy = num$1(r.buy), net = netOf(c, buy, r.vat);
 		return {
 			w,
 			buy,
@@ -14932,7 +14932,7 @@ window.SKEngines = (function() {
 		};
 		let comp = 0, weight = 0, missing = 0, cycle = false;
 		for (const k of b.comps || []) {
-			const q = num(k.q);
+			const q = num$1(k.q);
 			if (k.t === "box") {
 				const sb = c.boxes.get(String(k.id));
 				if (!sb) {
@@ -15007,14 +15007,14 @@ window.SKEngines = (function() {
 				formula: ["هدر " + pctTxt(rc.w) + " " + wm, f2(rc.net) + " → " + f2(rc.cost) + " تكلفة الكجم الصالح"]
 			});
 			const p = raw.price;
-			hasPrice = p !== null && p !== void 0 && p !== "" && num(p) > 0;
-			price = hasPrice ? num(p) : 0;
+			hasPrice = p !== null && p !== void 0 && p !== "" && num$1(p) > 0;
+			price = hasPrice ? num$1(p) : 0;
 		} else if (box) {
 			kind = "box";
 			name = String(box.name || "");
-			dishes = num(box.dishes);
+			dishes = num$1(box.dishes);
 			(box.comps || []).forEach((k, i) => {
-				const q = num(k.q);
+				const q = num$1(k.q);
 				if (k.t === "box") {
 					const sb = c.boxes.get(String(k.id));
 					if (!sb) {
@@ -15073,7 +15073,7 @@ window.SKEngines = (function() {
 			});
 			const comp = lines.reduce((s, l) => s + l.amount, 0);
 			(box.ohs || []).forEach((o, i) => {
-				const n = netOf(c, num(o.amt), o.vat);
+				const n = netOf(c, num$1(o.amt), o.vat);
 				lines.push({
 					key: "o" + i,
 					kind: "overhead",
@@ -15085,15 +15085,15 @@ window.SKEngines = (function() {
 					amount: n,
 					share: 0,
 					cls: opts.classes?.[String(o.id || "")] ?? "materials",
-					formula: [o.vat === "incl" ? f2(num(o.amt)) + " شامل ÷ " + vt.toFixed(2) + " = " + f2(n) : f2(n) + " صافٍ"]
+					formula: [o.vat === "incl" ? f2(num$1(o.amt)) + " شامل ÷ " + vt.toFixed(2) + " = " + f2(n) : f2(n) + " صافٍ"]
 				});
 			});
 			for (const e of c.exps) {
 				if (!(e.links || []).includes(box.id)) continue;
-				const a = num(e.amt), m = e.method || "fixed";
+				const a = num$1(e.amt), m = e.method || "fixed";
 				const base = m === "kg" ? a * weight : m === "dish" ? a * dishes : m === "pct" ? a / 100 * comp : a;
 				const n = m === "pct" ? base : netOf(c, base, e.vat);
-				const how = m === "kg" ? f2(a) + " لكل كجم × " + r2$2(weight) + " كجم" : m === "dish" ? f2(a) + " لكل صحن × " + dishes + " صحن" : m === "pct" ? a + "% من تكلفة المكونات " + f2(comp) : f2(a) + " ثابت للبوكس";
+				const how = m === "kg" ? f2(a) + " لكل كجم × " + r2$3(weight) + " كجم" : m === "dish" ? f2(a) + " لكل صحن × " + dishes + " صحن" : m === "pct" ? a + "% من تكلفة المكونات " + f2(comp) : f2(a) + " ثابت للبوكس";
 				lines.push({
 					key: "e:" + e.id,
 					kind: "expense",
@@ -15109,7 +15109,7 @@ window.SKEngines = (function() {
 					formula: [how + (m !== "pct" && e.vat === "incl" ? " شامل ÷ " + vt.toFixed(2) : ""), "= " + f2(n) + " صافٍ"]
 				});
 			}
-			const dc = Math.max(0, num(box.dishCost));
+			const dc = Math.max(0, num$1(box.dishCost));
 			if (dc > 0 && dishes > 0) {
 				const each = dc / vt;
 				lines.push({
@@ -15126,14 +15126,14 @@ window.SKEngines = (function() {
 					formula: [f2(dc) + " للصحن شامل ÷ " + vt.toFixed(2) + " = " + f2(each), "× " + dishes + " صحن = " + f2(each * dishes)]
 				});
 			}
-			price = num(box.price);
+			price = num$1(box.price);
 			hasPrice = price > 0;
 		} else return null;
 		const components = lines.filter((l) => l.kind === "raw" || l.kind === "box" || l.kind === "purchase" || l.kind === "waste").reduce((s, l) => s + l.amount, 0);
 		const total = lines.reduce((s, l) => s + l.amount, 0);
 		for (const l of lines) {
 			l.share = total > 0 ? l.amount / total : 0;
-			l.amount = r2$2(l.amount);
+			l.amount = r2$3(l.amount);
 			l.unitCost = Math.round(l.unitCost * 1e4) / 1e4;
 		}
 		const priceNet = hasPrice ? price / vt : 0, profit = hasPrice ? priceNet - total : 0;
@@ -15143,18 +15143,18 @@ window.SKEngines = (function() {
 			kind,
 			name,
 			lines,
-			components: r2$2(components),
-			total: r2$2(total),
-			weight: r2$2(weight),
+			components: r2$3(components),
+			total: r2$3(total),
+			weight: r2$3(weight),
 			dishes,
 			hasPrice,
-			price: r2$2(price),
-			priceNet: r2$2(priceNet),
-			vatAmount: r2$2(price - priceNet),
-			profit: r2$2(profit),
+			price: r2$3(price),
+			priceNet: r2$3(priceNet),
+			vatAmount: r2$3(price - priceNet),
+			profit: r2$3(profit),
 			margin: margin == null ? null : Math.round(margin * 1e6) / 1e6,
 			marginBase: c.netBase ? "net" : "gross",
-			breakeven: r2$2(total * vt),
+			breakeven: r2$3(total * vt),
 			targetRate: c.T,
 			target: t == null ? null : roundPrice(t, c.round),
 			band: isBy ? "by" : bandOf(c, margin),
@@ -15191,8 +15191,8 @@ window.SKEngines = (function() {
 		if (!map.hasPrice) return null;
 		const ceiling = map.marginBase === "net" ? map.priceNet * (1 - rate) : map.priceNet - rate * map.price;
 		return {
-			ceiling: r2$2(ceiling),
-			headroom: r2$2(ceiling - map.total),
+			ceiling: r2$3(ceiling),
+			headroom: r2$3(ceiling - map.total),
 			headroomPct: map.total > 0 ? Math.round((ceiling - map.total) / map.total * 1e3) / 10 : 0
 		};
 	}
@@ -15200,8 +15200,8 @@ window.SKEngines = (function() {
 	function draftAmount(map, d, components = map.components) {
 		const q = Number(d.qty), u = Number(d.unitCost);
 		if (!Number.isFinite(u) || u <= 0) return 0;
-		if (d.method === "pct") return r2$2(u / 100 * components);
-		return r2$2((Number.isFinite(q) && q > 0 ? q : 1) * (d.vat === "incl" ? u / (1 + map.vatRate) : u));
+		if (d.method === "pct") return r2$3(u / 100 * components);
+		return r2$3((Number.isFinite(q) && q > 0 ? q : 1) * (d.vat === "incl" ? u / (1 + map.vatRate) : u));
 	}
 	/** Re-prices the map under a what-if. Nothing is written back; the source record stays the truth. */
 	function scenario(map, w = {}) {
@@ -15239,27 +15239,27 @@ window.SKEngines = (function() {
 			label: d.label,
 			amount: draftAmount(map, d, components)
 		}));
-		const total = r2$2(rows.reduce((s, r) => s + r.amount, 0) + drafts.reduce((s, d) => s + d.amount, 0));
+		const total = r2$3(rows.reduce((s, r) => s + r.amount, 0) + drafts.reduce((s, d) => s + d.amount, 0));
 		const price = w.priceGross != null && Number(w.priceGross) > 0 ? Number(w.priceGross) : map.price;
 		const margin = marginAt(map, total, price), rate = w.targetRate ?? map.targetRate;
-		const profit = price > 0 ? r2$2(price / (1 + map.vatRate) - total) : 0;
+		const profit = price > 0 ? r2$3(price / (1 + map.vatRate) - total) : 0;
 		return {
 			total,
-			price: r2$2(price),
-			priceNet: r2$2(price / (1 + map.vatRate)),
+			price: r2$3(price),
+			priceNet: r2$3(price / (1 + map.vatRate)),
 			profit,
 			margin,
-			breakeven: r2$2(total * (1 + map.vatRate)),
+			breakeven: r2$3(total * (1 + map.vatRate)),
 			target: priceForMargin(map, rate, total),
 			targetRate: rate,
-			weight: r2$2(newWeight),
-			deltaTotal: r2$2(total - map.total),
-			deltaProfit: r2$2(profit - map.profit),
+			weight: r2$3(newWeight),
+			deltaTotal: r2$3(total - map.total),
+			deltaProfit: r2$3(profit - map.profit),
 			deltaMarginPts: margin != null && map.margin != null ? Math.round((margin - map.margin) * 1e3) / 10 : null,
 			rows: rows.map((r) => ({
 				key: r.key,
 				before: r.before,
-				amount: r2$2(r.amount),
+				amount: r2$3(r.amount),
 				qty: r.qty
 			})),
 			drafts,
@@ -15275,7 +15275,7 @@ window.SKEngines = (function() {
 			name: l.name,
 			kind: l.kind,
 			share: l.share,
-			dProfit: r2$2(-step * l.amount),
+			dProfit: r2$3(-step * l.amount),
 			dMarginPts: base > 0 ? Math.round(-step * l.amount / base * 1e3) / 10 : 0
 		}));
 		const up = marginAt(map, map.total, map.price * (1 + step));
@@ -15284,7 +15284,7 @@ window.SKEngines = (function() {
 			name: "سعر البيع",
 			kind: "price",
 			share: 0,
-			dProfit: r2$2(map.priceNet * step),
+			dProfit: r2$3(map.priceNet * step),
 			dMarginPts: up == null ? 0 : Math.round((up - map.margin) * 1e3) / 10
 		});
 		return out.sort((a, b) => Math.abs(b.dMarginPts) - Math.abs(a.dMarginPts)).slice(0, 7);
@@ -15297,10 +15297,10 @@ window.SKEngines = (function() {
 	};
 	/** IAS 2: inventory cost apart from the costs to sell; net realisable value and the write-down below it. */
 	function inventoryView(map, extraSelling = 0) {
-		const sum = (k) => r2$2(map.lines.filter((l) => l.cls === k).reduce((s, l) => s + l.amount, 0));
-		const materials = sum("materials"), conversion = sum("conversion"), selling = r2$2(sum("selling") + extraSelling), admin = sum("admin");
-		const inventoriable = r2$2(materials + conversion);
-		const nrv = map.hasPrice ? r2$2(map.priceNet - selling) : null;
+		const sum = (k) => r2$3(map.lines.filter((l) => l.cls === k).reduce((s, l) => s + l.amount, 0));
+		const materials = sum("materials"), conversion = sum("conversion"), selling = r2$3(sum("selling") + extraSelling), admin = sum("admin");
+		const inventoriable = r2$3(materials + conversion);
+		const nrv = map.hasPrice ? r2$3(map.priceNet - selling) : null;
 		return {
 			materials,
 			conversion,
@@ -15308,9 +15308,9 @@ window.SKEngines = (function() {
 			admin,
 			inventoriable,
 			nrv,
-			carrying: nrv == null ? inventoriable : r2$2(Math.min(inventoriable, nrv)),
-			writeDown: nrv == null ? 0 : r2$2(Math.max(0, inventoriable - nrv)),
-			excluded: r2$2(selling + admin),
+			carrying: nrv == null ? inventoriable : r2$3(Math.min(inventoriable, nrv)),
+			writeDown: nrv == null ? 0 : r2$3(Math.max(0, inventoriable - nrv)),
+			excluded: r2$3(selling + admin),
 			refs: [
 				"IAS 2.10",
 				"IAS 2.16",
@@ -15324,18 +15324,18 @@ window.SKEngines = (function() {
 		if (!(fixed > 0)) return null;
 		if (!(profit > 0)) return {
 			units: null,
-			profit: r2$2(profit)
+			profit: r2$3(profit)
 		};
 		return {
 			units: Math.ceil(fixed / profit - 1e-9),
-			profit: r2$2(profit)
+			profit: r2$3(profit)
 		};
 	}
 	/** The controls around the product's cost and price, each with what to do. */
 	function costChecks(map, opts = {}) {
 		const out = [], money = (n) => f2(n) + " ر.س";
 		if (opts.catalogCost != null && Number.isFinite(opts.catalogCost)) {
-			const d = r2$2(map.total - Number(opts.catalogCost));
+			const d = r2$3(map.total - Number(opts.catalogCost));
 			out.push(Math.abs(d) <= .01 ? {
 				level: "ok",
 				code: "reconciled",
@@ -15815,7 +15815,7 @@ window.SKEngines = (function() {
 		salary: "خصم من الراتب",
 		offset: "تسوية مع فاتورة"
 	};
-	var r2$1 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
+	var r2$2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 	var month = (d) => String(d).slice(0, 7);
 	function addMonths(ym, n) {
 		const [y, m] = ym.split("-").map(Number);
@@ -15823,29 +15823,29 @@ window.SKEngines = (function() {
 	}
 	/** Equal monthly instalments from the first due month (the month after the advance by default); the last one takes the rounding. */
 	function schedule(a) {
-		const n = Math.max(1, Math.floor(a.installments || 1)), first = a.firstDue ? month(a.firstDue) : addMonths(month(a.date), 1), each = r2$1(a.amount / n);
+		const n = Math.max(1, Math.floor(a.installments || 1)), first = a.firstDue ? month(a.firstDue) : addMonths(month(a.date), 1), each = r2$2(a.amount / n);
 		return Array.from({ length: n }, (_, i) => ({
 			month: addMonths(first, i),
-			due: i === n - 1 ? r2$1(a.amount - each * (n - 1)) : each
+			due: i === n - 1 ? r2$2(a.amount - each * (n - 1)) : each
 		}));
 	}
 	/** Where the advance stands on a date: paid, balance, what should have been repaid by then, and each instalment filled oldest first. */
 	function advanceStatus(a, asOf) {
-		const paid = r2$1(a.repayments.filter((p) => p.date <= asOf).reduce((t, p) => t + p.amount, 0));
-		const balance = r2$1(Math.max(0, a.amount - paid));
+		const paid = r2$2(a.repayments.filter((p) => p.date <= asOf).reduce((t, p) => t + p.amount, 0));
+		const balance = r2$2(Math.max(0, a.amount - paid));
 		let pool = paid;
 		const rows = schedule(a).map((s) => {
-			const got = r2$1(Math.min(s.due, pool));
-			pool = r2$1(pool - got);
+			const got = r2$2(Math.min(s.due, pool));
+			pool = r2$2(pool - got);
 			return {
 				month: s.month,
 				due: s.due,
 				paid: got,
-				left: r2$1(s.due - got)
+				left: r2$2(s.due - got)
 			};
 		});
-		const dueToDate = r2$1(rows.filter((r) => r.month <= month(asOf)).reduce((t, r) => t + r.due, 0));
-		const overdue = r2$1(Math.max(0, dueToDate - paid));
+		const dueToDate = r2$2(rows.filter((r) => r.month <= month(asOf)).reduce((t, r) => t + r.due, 0));
+		const overdue = r2$2(Math.max(0, dueToDate - paid));
 		const next = rows.find((r) => r.left > 0);
 		const state = a.writtenOff ? "written-off" : balance <= .004 ? "settled" : overdue > .004 ? "overdue" : "open";
 		return {
@@ -15864,12 +15864,12 @@ window.SKEngines = (function() {
 	}
 	/** The journal entries of one advance: the advance itself and each repayment (the same ids every time, so re-posting replaces). */
 	function advanceEntries(a, acc) {
-		const out = [], amt = r2$1(a.amount), ctl = acc[a.kind];
+		const out = [], amt = r2$2(a.amount), ctl = acc[a.kind];
 		if (!(amt > 0) || !String(a.party || "").trim()) return out;
 		const L = (accountId, debit, credit, description) => ({
 			accountId,
-			debit: r2$1(debit),
-			credit: r2$1(credit),
+			debit: r2$2(debit),
+			credit: r2$2(credit),
 			description
 		});
 		const what = KIND_AR[a.kind] + " — " + a.party;
@@ -15884,7 +15884,7 @@ window.SKEngines = (function() {
 			lines: a.kind === "customer" ? [L(acc.cash, amt, 0, what), L(ctl, 0, amt, what)] : [L(ctl, amt, 0, what), L(acc.cash, 0, amt, what)]
 		});
 		a.repayments.forEach((p, i) => {
-			const v = r2$1(p.amount);
+			const v = r2$2(p.amount);
 			if (!(v > 0)) return;
 			const d = (a.kind === "customer" ? p.method === "offset" ? "تسوية العربون مع فاتورة " : "رد العربون إلى " : p.method === "salary" ? "خصم قسط من راتب " : p.method === "offset" ? "تسوية الدفعة مع فاتورة " : "سداد من ") + a.party;
 			const other = p.method === "offset" ? a.kind === "supplier" ? acc.payable : acc.receivable : acc.cash;
@@ -15928,10 +15928,10 @@ window.SKEngines = (function() {
 		for (const a of list) {
 			const s = advanceStatus(a, asOf), k = kinds[a.kind];
 			k.count++;
-			k.given = r2$1(k.given + a.amount);
+			k.given = r2$2(k.given + a.amount);
 			if (!a.writtenOff) {
-				k.balance = r2$1(k.balance + s.balance);
-				k.overdue = r2$1(k.overdue + s.overdue);
+				k.balance = r2$2(k.balance + s.balance);
+				k.overdue = r2$2(k.overdue + s.overdue);
 			}
 			if (s.state === "overdue") overdueCount++;
 			const key = a.kind + "|" + a.party, p = parties.get(key) ?? {
@@ -15943,8 +15943,8 @@ window.SKEngines = (function() {
 			};
 			p.count++;
 			if (!a.writtenOff) {
-				p.balance = r2$1(p.balance + s.balance);
-				p.overdue = r2$1(p.overdue + s.overdue);
+				p.balance = r2$2(p.balance + s.balance);
+				p.overdue = r2$2(p.overdue + s.overdue);
 			}
 			parties.set(key, p);
 		}
@@ -15962,7 +15962,7 @@ window.SKEngines = (function() {
 		if (!(a.amount > 0)) out.push("المبلغ يجب أن يكون أكبر من صفر");
 		if (!/^\d{4}-\d{2}-\d{2}$/.test(a.date)) out.push("التاريخ غير صالح");
 		const paid = a.repayments.reduce((t, p) => t + p.amount, 0);
-		if (paid - a.amount > .004) out.push("المسدد (" + r2$1(paid) + ") أكبر من السلفة (" + r2$1(a.amount) + ")");
+		if (paid - a.amount > .004) out.push("المسدد (" + r2$2(paid) + ") أكبر من السلفة (" + r2$2(a.amount) + ")");
 		if (a.repayments.some((p) => p.date < a.date)) out.push("سداد بتاريخ قبل السلفة");
 		if (a.kind === "employee" && others.some((o) => o.id !== a.id && o.kind === "employee" && o.party === a.party && !o.writtenOff && o.amount - o.repayments.reduce((t, p) => t + p.amount, 0) > .004)) out.push("للموظف سلفة أخرى مفتوحة — تأكد قبل صرف سلفة جديدة");
 		return out;
@@ -16370,6 +16370,737 @@ window.SKEngines = (function() {
 			uncovered: out.length,
 			throughout: inP.length > 0 && out.length === 0
 		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/finance/journal-sim-engine.ts
+	var journal_sim_engine_exports = /* @__PURE__ */ __exportAll({
+		BOOK_AR: () => BOOK_AR,
+		accountKind: () => accountKind,
+		describe: () => describe$1,
+		docType: () => docType,
+		extract: () => extract,
+		learn: () => learn,
+		normalize: () => normalize$1,
+		parseJournal: () => parseJournal,
+		patternType: () => patternType,
+		remember: () => remember,
+		suggest: () => suggest,
+		toIso: () => toIso,
+		tokens: () => tokens
+	});
+	var VAT = .15;
+	var r2$1 = (v) => Math.round((Number(v) || 0) * 100) / 100;
+	var num = (v) => {
+		const n = Number(String(v ?? "").replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d))).replace(/[,،\s]/g, "").replace("٫", "."));
+		return Number.isFinite(n) ? n : 0;
+	};
+	function normalize$1(s) {
+		return String(s || "").replace(/[ً-ْٰـ]/g, "").replace(/[أإآٱ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/ؤ/g, "و").replace(/ئ/g, "ي").replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d))).toLowerCase();
+	}
+	var STOP = /* @__PURE__ */ new Set([
+		"من",
+		"الي",
+		"الى",
+		"في",
+		"علي",
+		"على",
+		"عن",
+		"مع",
+		"او",
+		"و",
+		"ال",
+		"هذا",
+		"هذه",
+		"ذلك",
+		"رقم",
+		"تاريخ",
+		"بتاريخ",
+		"مبلغ",
+		"قيمه",
+		"بقيمه",
+		"عدد",
+		"شهر",
+		"لشهر",
+		"سنه",
+		"عام",
+		"the",
+		"of",
+		"for",
+		"to",
+		"and",
+		"a",
+		"an",
+		"no",
+		"on",
+		"by",
+		"at",
+		"in",
+		"ريال",
+		"رس",
+		"sar",
+		"sr"
+	]);
+	function tokens(s) {
+		const out = [];
+		for (let w of normalize$1(s).split(/[^a-zء-ي]+/)) {
+			if (!w) continue;
+			if (w.length > 4 && w.startsWith("ال")) w = w.slice(2);
+			else if (w.length > 5 && (w.startsWith("بال") || w.startsWith("وال") || w.startsWith("لل"))) w = w.slice(w.startsWith("لل") ? 2 : 3);
+			if (w.length < 2 || STOP.has(w)) continue;
+			out.push(w);
+		}
+		return out;
+	}
+	function accountKind(code, name = "") {
+		const n = normalize$1(name);
+		if (/ضريب|vat/.test(n)) return /مدخلات|مشتريات|input|recoverable|قابله للاسترداد/.test(n) ? "vat_in" : /مخرجات|مبيعات|output|payable|مستحقه/.test(n) ? "vat_out" : "vat";
+		if (/رواتب|اجور|مرتبات|salar|wage|payroll/.test(n)) return "payroll";
+		if (/صندوق|نقديه بالصندوق|نقد|cash|petty/.test(n) && !/بنك|bank/.test(n)) return "cash";
+		if (/بنك|مصرف|bank|راجحي|اهلي|انماء|رياض|بلاد/.test(n)) return "bank";
+		if (/عملاء|مدينون|ذمم مدينه|receivable|debtors|customers/.test(n)) return "receivable";
+		if (/موردون|موردين|دائنون|ذمم دائنه|payable|creditors|suppliers|مستحقات/.test(n)) return "payable";
+		if (/مخزون|بضاعه|inventory|stock/.test(n)) return "inventory";
+		if (/مبيعات|ايراد|revenue|sales|income/.test(n) && !/تكلفه|cost/.test(n)) return "revenue";
+		if (/راس المال|جاري الشريك|جاري المالك|capital|equity|ارباح مبقاه|محتجزه/.test(n)) return "equity";
+		if (/اصول|معدات|سيارات|اثاث|اجهزه|مباني|اراضي|equipment|vehicle|furniture|asset/.test(n) && !/اهلاك|استهلاك|depreciation expense/.test(n)) return "asset";
+		if (/مصروف|مصاريف|تكلفه|ايجار|كهرباء|مياه|صيانه|اتصالات|نقل|تسويق|اهلاك|expense|cost|rent|utilities/.test(n)) return "expense";
+		const c = String(code).trim()[0];
+		return c === "1" ? "asset" : c === "2" ? "payable" : c === "3" ? "equity" : c === "4" ? "revenue" : c === "5" || c === "6" ? "expense" : "other";
+	}
+	var SETTLE = [
+		"cash",
+		"bank",
+		"payable",
+		"receivable"
+	];
+	function bookOf(d, c) {
+		const k = new Set([...d, ...c].map((x) => x.kind));
+		if (k.has("revenue") || k.has("vat_out")) return "sales";
+		if (k.has("payroll")) return "payroll";
+		if (d.some((x) => x.kind === "asset")) return "assets";
+		if ((k.has("vat_in") || c.some((x) => x.kind === "payable")) && d.some((x) => x.kind === "inventory" || x.kind === "expense")) return "purchases";
+		if (k.has("bank")) return "bank";
+		if (k.has("cash")) return "cash";
+		return "general";
+	}
+	var BOOK_AR = {
+		purchases: "دفتر المشتريات",
+		sales: "دفتر المبيعات",
+		cash: "دفتر الصندوق",
+		bank: "دفتر البنك",
+		payroll: "قيود الرواتب",
+		assets: "سجل الأصول الثابتة",
+		general: "دفتر اليومية العامة"
+	};
+	var HEAD = {
+		entry: /رقم القيد|القيد|entry|voucher|je\b|سند/i,
+		date: /تاريخ|date/i,
+		code: /رمز|رقم الحساب|كود|code|account no|acct/i,
+		name: /اسم الحساب|الحساب|account name|account/i,
+		debit: /مدين|debit|dr\b/i,
+		credit: /دائن|credit|cr\b/i,
+		memo: /بيان|البيان|الوصف|شرح|description|memo|narration/i,
+		party: /الطرف|المورد|العميل|party|vendor|customer/i
+	};
+	function parseJournal(rows) {
+		const issues = [];
+		const hi = rows.findIndex((r) => r.some((c) => HEAD.debit.test(String(c))) && r.some((c) => HEAD.credit.test(String(c))));
+		if (hi < 0) return {
+			lines: [],
+			issues: ["لم أجد عمودي «مدين» و«دائن» في الملف"],
+			columns: {}
+		};
+		const h = rows[hi].map((c) => String(c || "").trim());
+		const col = {};
+		const used = /* @__PURE__ */ new Set();
+		[
+			"debit",
+			"credit",
+			"date",
+			"entry",
+			"code",
+			"memo",
+			"party",
+			"name"
+		].forEach((k) => {
+			const i = h.findIndex((c, j) => !used.has(j) && HEAD[k].test(c));
+			if (i >= 0) {
+				col[k] = i;
+				used.add(i);
+			}
+		});
+		if (col.code == null && col.name == null) issues.push("لم أجد عمود الحساب");
+		const lines = [];
+		let lastEntry = "", lastDate = "", autoNo = 0, bal = 0;
+		for (const r of rows.slice(hi + 1)) {
+			if (!r || r.every((c) => !String(c ?? "").trim())) continue;
+			const g = (k) => col[k] == null ? "" : String(r[col[k]] ?? "").trim();
+			const debit = num(g("debit")), credit = num(g("credit"));
+			if (!debit && !credit) continue;
+			let entry = g("entry"), date = toIso(g("date"));
+			if (!entry) {
+				if (Math.abs(bal) < .005) autoNo++;
+				entry = lastEntry && Math.abs(bal) >= .005 ? lastEntry : "JE-" + autoNo;
+			}
+			if (!date) date = lastDate;
+			if (entry !== lastEntry) bal = 0;
+			bal += debit - credit;
+			const code = g("code") || g("name");
+			lines.push({
+				entry,
+				date,
+				code,
+				name: g("name") || g("code"),
+				debit: r2$1(debit),
+				credit: r2$1(credit),
+				memo: g("memo"),
+				party: g("party")
+			});
+			lastEntry = entry;
+			lastDate = date;
+		}
+		if (!lines.length) issues.push("لا سطور بمبالغ في الملف");
+		return {
+			lines,
+			issues,
+			columns: col
+		};
+	}
+	function toIso(s) {
+		const t = String(s || "").trim().replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));
+		let m = t.match(/(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
+		if (m) return m[1] + "-" + m[2].padStart(2, "0") + "-" + m[3].padStart(2, "0");
+		m = t.match(/(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
+		if (m) return m[3] + "-" + m[2].padStart(2, "0") + "-" + m[1].padStart(2, "0");
+		const n = Number(t);
+		if (n > 3e4 && n < 8e4) return new Date(Date.UTC(1899, 11, 30) + n * 864e5).toISOString().slice(0, 10);
+		return "";
+	}
+	function learn(all, opts = {}) {
+		const lines = all.filter((l) => (!opts.from || !l.date || l.date >= opts.from) && (!opts.to || !l.date || l.date <= opts.to));
+		const acc = /* @__PURE__ */ new Map();
+		lines.forEach((l) => {
+			const a = acc.get(l.code) || {
+				code: l.code,
+				name: l.name || l.code,
+				kind: accountKind(l.code, l.name || ""),
+				debit: 0,
+				credit: 0,
+				lines: 0
+			};
+			a.debit += l.debit;
+			a.credit += l.credit;
+			a.lines++;
+			if (l.name && a.name === a.code) a.name = l.name;
+			acc.set(l.code, a);
+		});
+		const byEntry = /* @__PURE__ */ new Map();
+		lines.forEach((l) => {
+			const k = l.entry || l.date + "|" + (l.memo || "");
+			if (!byEntry.has(k)) byEntry.set(k, []);
+			byEntry.get(k).push(l);
+		});
+		const pats = /* @__PURE__ */ new Map();
+		const unbalanced = [];
+		const df = /* @__PURE__ */ new Map();
+		byEntry.forEach((ls, id) => {
+			const dr = ls.reduce((s, l) => s + l.debit, 0), cr = ls.reduce((s, l) => s + l.credit, 0);
+			if (Math.abs(dr - cr) > .01) unbalanced.push(id);
+			const dC = [...new Set(ls.filter((l) => l.debit > 0).map((l) => l.code))].sort(), cC = [...new Set(ls.filter((l) => l.credit > 0).map((l) => l.code))].sort();
+			if (!dC.length || !cC.length) return;
+			const sig = "D:" + dC.join("+") + "|C:" + cC.join("+");
+			const words = [...new Set(tokens(ls.map((l) => (l.memo || "") + " " + (l.party || "")).join(" ")))];
+			words.forEach((w) => df.set(w, (df.get(w) || 0) + 1));
+			let p = pats.get(sig);
+			if (!p) {
+				p = {
+					sig,
+					label: "",
+					book: "general",
+					debit: [],
+					credit: [],
+					count: 0,
+					total: 0,
+					min: Infinity,
+					max: 0,
+					tokens: {},
+					parties: [],
+					months: [],
+					vat: false,
+					examples: [],
+					dAmt: /* @__PURE__ */ new Map(),
+					cAmt: /* @__PURE__ */ new Map()
+				};
+				pats.set(sig, p);
+			}
+			p.count++;
+			p.total += dr;
+			p.min = Math.min(p.min, dr);
+			p.max = Math.max(p.max, dr);
+			ls.forEach((l) => {
+				if (l.debit) p.dAmt.set(l.code, (p.dAmt.get(l.code) || 0) + l.debit);
+				if (l.credit) p.cAmt.set(l.code, (p.cAmt.get(l.code) || 0) + l.credit);
+			});
+			words.forEach((w) => {
+				p.tokens[w] = (p.tokens[w] || 0) + 1;
+			});
+			ls.forEach((l) => {
+				if (l.party && !p.parties.includes(l.party)) p.parties.push(l.party);
+			});
+			const mo = (ls[0].date || "").slice(0, 7);
+			if (mo && !p.months.includes(mo)) p.months.push(mo);
+			if (p.examples.length < 5) p.examples.push(id);
+		});
+		const N = Math.max(1, byEntry.size), idf = {};
+		df.forEach((v, w) => {
+			idf[w] = Math.log(1 + N / v);
+		});
+		const share = (m) => {
+			const t = [...m.values()].reduce((s, v) => s + v, 0) || 1;
+			return [...m.entries()].map(([code, v]) => {
+				const a = acc.get(code);
+				return {
+					code,
+					name: a.name,
+					share: v / t,
+					kind: a.kind
+				};
+			}).sort((x, y) => y.share - x.share);
+		};
+		const patterns = [...pats.values()].map((p) => {
+			const debit = share(p.dAmt), credit = share(p.cAmt);
+			const vat = [...debit, ...credit].some((x) => x.kind === "vat" || x.kind === "vat_in" || x.kind === "vat_out");
+			const book = bookOf(debit, credit);
+			const main = (s) => s.find((x) => !/vat/.test(x.kind)) || s[0];
+			const label = main(debit).name + " ← " + main(credit).name;
+			const { dAmt: _d, cAmt: _c, ...rest } = p;
+			return {
+				...rest,
+				debit,
+				credit,
+				vat,
+				book,
+				label,
+				min: r2$1(p.min),
+				max: r2$1(p.max),
+				total: r2$1(p.total),
+				months: p.months.sort()
+			};
+		}).sort((a, b) => b.count - a.count);
+		const dates = lines.map((l) => l.date).filter(Boolean).sort();
+		const recurring = patterns.filter((p) => p.months.length >= 3 && p.count <= p.months.length * 1.5).map((p) => ({
+			sig: p.sig,
+			label: p.label,
+			months: p.months.length,
+			avg: r2$1(p.total / p.count)
+		}));
+		return {
+			from: opts.from || dates[0] || "",
+			to: opts.to || dates[dates.length - 1] || "",
+			entries: byEntry.size,
+			lines: lines.length,
+			accounts: [...acc.values()].sort((a, b) => a.code.localeCompare(b.code)),
+			patterns,
+			recurring,
+			unbalanced,
+			idf
+		};
+	}
+	function extract(text) {
+		const t = normalize$1(text);
+		const numsAt = (re) => {
+			const out = [];
+			let m;
+			const g = new RegExp(re.source, "g");
+			while (m = g.exec(t)) {
+				const w = t.slice(m.index, m.index + 60), nr = /(\d[\d,]*(?:\.\d+)?)\s*([%٪])?/g;
+				let x;
+				while (x = nr.exec(w)) if (!x[2]) {
+					out.push(num(x[1]));
+					break;
+				}
+			}
+			return out;
+		};
+		const totals = numsAt(/(اجمالي|الاجمالي|المجموع|الصافي|المستحق|total|amount due|net amount|المبلغ)/);
+		const vatNums = numsAt(/(ضريبه القيمه المضافه|الضريبه|ضريبه|vat)/);
+		const all = [];
+		{
+			const nr = /(رقم|no\.?|#|ref|مرجع)?\s*(\d[\d,]*(?:\.\d+)?)\s*([%٪/-])?/g;
+			let x;
+			while (x = nr.exec(t)) {
+				if (x[1] || x[3]) continue;
+				const v = num(x[2]);
+				if (v >= 1 && !(v >= 1900 && v <= 2100 && Number.isInteger(v)) && String(Math.round(v)).length <= 8) all.push(v);
+			}
+		}
+		const amount = totals.length ? Math.max(...totals) : all.length ? Math.max(...all) : null;
+		const mentionsVat = /ضريب|vat|15 ?%|15٪/.test(t);
+		const vat = /غير شامل|قبل الضريبه|excl|exclusive/.test(t) ? "excl" : /شامل|incl|inclusive/.test(t) ? "incl" : /معفي|بدون ضريبه|exempt|zero.rated/.test(t) ? "none" : mentionsVat ? "incl" : "unknown";
+		const method = /نقدا|نقدي|كاش|cash/.test(t) ? "cash" : /تحويل|بنك|شيك|مدي|بطاقه|transfer|bank|cheque|card/.test(t) ? "bank" : /اجل|على الحساب|علي الحساب|credit|net 30|مستحق/.test(t) ? "credit" : "";
+		const pm = String(text).match(/(?:المورد|من|السادة|السيد|العميل|لصالح|سداد|تحصيل من|supplier|vendor|from|bill to|paid to|to)\s*[:：/]?\s*([^\n,،:—–|\d٠-٩]{3,50})/i);
+		const cm = String(text).match(/((?:شركة|شركه|مؤسسة|مؤسسه|مكتب|مصنع|مطعم|مطاعم|محل|مجموعة|مجموعه|مستشفى|صيدلية)\s[^\n,،:—–|\d٠-٩]{2,40}|[A-Z][\w&.' ]{1,40}\s(?:Co\.?|Company|LLC|Ltd\.?|Est\.?))/);
+		const clean = (v) => v.replace(/\s+(?:بتاريخ|تاريخ|رقم|الاجمالي|الإجمالي|المبلغ|لشهر|عن شهر|شامل|قبل|المستحق|تسدد|يسدد).*$/, "").trim().split(/\s+/).slice(0, 5).join(" ");
+		const generic = /^(ال)?(بنك|صندوق|حساب|خزينه)/;
+		const party = [cm && cm[1], pm && pm[1]].filter((v) => !!v).map(clean).find((v) => v.length >= 3 && !generic.test(normalize$1(v))) || null;
+		const d = toIso(String(text));
+		return {
+			amount: amount ? r2$1(amount) : null,
+			vatAmount: vatNums.length ? r2$1(Math.min(...vatNums)) : null,
+			date: d || null,
+			party,
+			vat,
+			method
+		};
+	}
+	function docType(text) {
+		const t = normalize$1(text);
+		if (/رواتب|مسير|اجور|payroll|salar/.test(t)) return "payroll";
+		if (/سند قبض|تحصيل|استلام مبلغ|استلمنا مبلغ|receipt voucher|received from|collection/.test(t)) return "receipt";
+		if (/سند صرف|سداد|دفعه|دفعنا|تحويل الي|payment voucher|paid to|remittance/.test(t) && !/فاتوره ضريبيه|tax invoice/.test(t)) return "payment";
+		if (/فاتوره مبيعات|فاتوره بيع|بيع الي|مبيعات الي|sales invoice/.test(t)) return "sales";
+		if (/شراء (سياره|معدات|جهاز|اجهزه|اثاث|ثلاجه)|اصل ثابت|fixed asset/.test(t)) return "asset";
+		if (/فاتوره|فاتوره ضريبيه|invoice|bill|مشتريات|شراء|توريد|استلام بضاعه|اشعار استلام/.test(t)) return "purchase";
+		return null;
+	}
+	function patternType(debit, credit) {
+		const dk = new Set(debit.map((x) => x.kind)), ck = new Set(credit.map((x) => x.kind));
+		if (dk.has("payroll")) return "payroll";
+		if (ck.has("revenue") || ck.has("vat_out")) return "sales";
+		if (dk.has("asset")) return "asset";
+		if ((dk.has("inventory") || dk.has("expense")) && (ck.has("payable") || ck.has("cash") || ck.has("bank"))) return "purchase";
+		if (dk.has("payable") && (ck.has("cash") || ck.has("bank"))) return "payment";
+		if ((dk.has("cash") || dk.has("bank")) && ck.has("receivable")) return "receipt";
+		return null;
+	}
+	function simTokens(doc, p, idf, count) {
+		const hits = [];
+		let s = 0, norm = 0;
+		doc.forEach((w) => {
+			const i = idf[w] ?? 1;
+			norm += i;
+			if (p[w]) {
+				s += i * Math.min(1, p[w] / Math.max(1, count) * 2);
+				hits.push(w);
+			}
+		});
+		return {
+			s: norm ? s / norm : 0,
+			hits
+		};
+	}
+	var jaccard = (a, b) => {
+		const A = new Set(a), B = new Set(b);
+		let n = 0;
+		A.forEach((x) => {
+			if (B.has(x)) n++;
+		});
+		return A.size + B.size ? n / (A.size + B.size - n) : 0;
+	};
+	function settleAccount(model, kind) {
+		return model.accounts.filter((a) => a.kind === kind).sort((a, b) => b.lines - a.lines)[0] || null;
+	}
+	function buildLines(model, debit, credit, amount, vatState, method) {
+		const isVat = (x) => x.kind === "vat" || x.kind === "vat_in" || x.kind === "vat_out";
+		const hasVat = [...debit, ...credit].some(isVat);
+		let net = amount, vat = 0, gross = amount;
+		if (hasVat && vatState !== "none") {
+			if (vatState === "excl") {
+				vat = r2$1(amount * VAT);
+				gross = r2$1(amount + vat);
+			} else {
+				net = r2$1(amount / 1.15);
+				vat = r2$1(amount - net);
+			}
+		}
+		const want = method === "cash" ? "cash" : method === "bank" ? "bank" : method === "credit" ? null : null;
+		const swap = (side) => side.map((x) => {
+			if (!want || !SETTLE.includes(x.kind) || x.kind === want) return x;
+			if (method === "credit") return x;
+			const a = settleAccount(model, want);
+			return a ? {
+				...x,
+				code: a.code,
+				name: a.name,
+				kind: a.kind
+			} : x;
+		});
+		const toCredit = (side) => method === "credit" ? side.map((x) => {
+			if (x.kind === "cash" || x.kind === "bank") {
+				const a = settleAccount(model, debit.some((d) => d.kind === "revenue") || side.some((s) => s.kind === "revenue") ? "receivable" : "payable");
+				return a ? {
+					...x,
+					code: a.code,
+					name: a.name,
+					kind: a.kind
+				} : x;
+			}
+			return x;
+		}) : side;
+		const D = toCredit(swap(debit)), C = toCredit(swap(credit));
+		const spread = (side, total, vatLine, dr) => {
+			const plain = side.filter((x) => !isVat(x)), vats = side.filter(isVat);
+			const t = plain.reduce((s, x) => s + x.share, 0) || 1;
+			const out = plain.map((x) => ({
+				code: x.code,
+				name: x.name,
+				debit: dr ? r2$1(total * x.share / t) : 0,
+				credit: dr ? 0 : r2$1(total * x.share / t)
+			}));
+			if (vats.length && vatLine) out.push({
+				code: vats[0].code,
+				name: vats[0].name,
+				debit: dr ? vatLine : 0,
+				credit: dr ? 0 : vatLine
+			});
+			const sum = out.reduce((s, l) => s + (dr ? l.debit : l.credit), 0), want2 = r2$1(total + (vats.length ? vatLine : 0));
+			if (out.length && Math.abs(sum - want2) >= .005) {
+				const big = out[0];
+				if (dr) big.debit = r2$1(big.debit + want2 - sum);
+				else big.credit = r2$1(big.credit + want2 - sum);
+			}
+			return out;
+		};
+		const dVat = D.some(isVat), cVat = C.some(isVat);
+		const dLines = spread(D, dVat ? net : cVat ? gross : amount, dVat ? vat : 0, true);
+		const cLines = spread(C, cVat ? net : dVat ? gross : amount, cVat ? vat : 0, false);
+		return [...dLines, ...cLines].filter((l) => l.debit || l.credit);
+	}
+	function suggest(model, doc, memory = { examples: [] }) {
+		const ex = extract(doc.text || "");
+		const amount = doc.amount != null && doc.amount > 0 ? doc.amount : ex.amount;
+		const party = (doc.party || ex.party || "").trim();
+		const vatState = doc.vat && doc.vat !== "unknown" ? doc.vat : ex.vat;
+		const method = doc.method || ex.method;
+		const words = [...new Set(tokens((doc.text || "") + " " + party))];
+		const dt = docType(doc.text || "");
+		const typeFit = (d, c) => {
+			if (!dt) return 0;
+			const pt = patternType(d, c);
+			return pt === dt ? .3 : pt ? -.2 : 0;
+		};
+		const cands = /* @__PURE__ */ new Map();
+		const put = (c) => {
+			const o = cands.get(c.sig);
+			if (!o || c.score > o.score) cands.set(c.sig, o ? {
+				...c,
+				score: Math.max(c.score, o.score) + .05,
+				why: [...c.why, ...o.why]
+			} : c);
+		};
+		model.patterns.forEach((p) => {
+			const { s, hits } = simTokens(words, p.tokens, model.idf, p.count);
+			let score = s;
+			const why = [];
+			if (hits.length) why.push("كلمات تتكرر في هذا النوع من القيود: " + hits.slice(0, 5).join("، "));
+			if (party && p.parties.some((x) => normalize$1(x).includes(normalize$1(party)) || normalize$1(party).includes(normalize$1(x)))) {
+				score += .35;
+				why.push("الطرف «" + party + "» سُجّل بهذا الشكل من قبل");
+			}
+			if (amount && p.count > 1 && amount >= p.min * .5 && amount <= p.max * 1.6) score += .06;
+			score += Math.min(.08, Math.log(1 + p.count) * .02);
+			const tf = typeFit(p.debit, p.credit);
+			score += tf;
+			if (tf > 0) why.push("نوع المستند يوافق هذا القيد");
+			if (score > .05) put({
+				sig: p.sig,
+				label: p.label,
+				book: p.book,
+				debit: p.debit,
+				credit: p.credit,
+				score,
+				why,
+				src: "history",
+				p
+			});
+		});
+		memory.examples.forEach((e) => {
+			let score = jaccard(words, e.tokens) * 1.4;
+			const why = ["يشبه مستنداً اعتمدته بتاريخ " + e.at.slice(0, 10)];
+			if (party && e.party && normalize$1(e.party) === normalize$1(party)) {
+				score += .5;
+				why.push("نفس الطرف «" + e.party + "»");
+			}
+			score += typeFit(e.debit, e.credit);
+			if (score > .2) put({
+				sig: e.sig,
+				label: e.label,
+				book: e.book,
+				debit: e.debit,
+				credit: e.credit,
+				score,
+				why,
+				src: "memory",
+				p: model.patterns.find((p) => p.sig === e.sig)
+			});
+		});
+		let ranked = [...cands.values()].sort((a, b) => b.score - a.score);
+		if (doc.sig) {
+			const forced = ranked.find((c) => c.sig === doc.sig) || (() => {
+				const p = model.patterns.find((x) => x.sig === doc.sig);
+				return p ? {
+					sig: p.sig,
+					label: p.label,
+					book: p.book,
+					debit: p.debit,
+					credit: p.credit,
+					score: 1,
+					why: ["اخترت هذا النوع"],
+					src: "history",
+					p
+				} : null;
+			})();
+			if (forced) ranked = [{
+				...forced,
+				score: Math.max(1, forced.score),
+				why: ["اخترت هذا النوع", ...forced.why]
+			}, ...ranked.filter((c) => c.sig !== doc.sig)];
+		}
+		const top = ranked[0], second = ranked[1];
+		const questions = [];
+		const extracted = {
+			...ex,
+			amount: amount ?? null,
+			party: party || null,
+			vat: vatState,
+			method
+		};
+		if (!top) return {
+			confidence: 0,
+			sig: "",
+			label: "",
+			book: "general",
+			lines: [],
+			where: "",
+			steps: ["لم أجد قيداً يشبه هذا المستند في القيود التي تعلمتها — سجّله يدوياً مرة وسأتعلمه"],
+			why: [],
+			questions: [{
+				id: "kind",
+				text: "ما نوع هذا المستند؟",
+				options: model.patterns.slice(0, 6).map((p) => ({
+					value: p.sig,
+					label: p.label
+				}))
+			}],
+			alternatives: [],
+			extracted,
+			source: "none"
+		};
+		const abs = Math.min(1, top.score / .7), margin = second ? (top.score - second.score) / (top.score || 1) : 1;
+		let confidence = Math.round(Math.max(0, Math.min(1, abs * .6 + margin * .4)) * 100) / 100;
+		if (doc.sig) confidence = Math.max(confidence, .8);
+		if (confidence < .55 && ranked.length > 1 && !doc.sig) questions.push({
+			id: "kind",
+			text: "لست متأكداً من نوع المستند — أيها أقرب؟",
+			options: ranked.slice(0, 4).map((c) => ({
+				value: c.sig,
+				label: c.label
+			}))
+		});
+		if (!amount) questions.push({
+			id: "amount",
+			text: "ما مبلغ المستند؟"
+		});
+		const hasVat = [...top.debit, ...top.credit].some((x) => /vat/.test(x.kind));
+		if (hasVat && (vatState === "unknown" || !vatState)) questions.push({
+			id: "vat",
+			text: "هل المبلغ شامل ضريبة القيمة المضافة؟",
+			options: [
+				{
+					value: "incl",
+					label: "شامل الضريبة"
+				},
+				{
+					value: "excl",
+					label: "قبل الضريبة"
+				},
+				{
+					value: "none",
+					label: "بدون ضريبة"
+				}
+			]
+		});
+		const settles = [...top.debit, ...top.credit].some((x) => SETTLE.includes(x.kind));
+		const kindsSeen = new Set(model.accounts.filter((a) => SETTLE.includes(a.kind)).map((a) => a.kind));
+		if (settles && !method && kindsSeen.size > 1) questions.push({
+			id: "method",
+			text: "كيف دُفع أو سيُدفع؟",
+			options: [
+				{
+					value: "cash",
+					label: "نقداً"
+				},
+				{
+					value: "bank",
+					label: "تحويل أو شيك أو بطاقة"
+				},
+				{
+					value: "credit",
+					label: "آجل (على الحساب)"
+				}
+			]
+		});
+		const lines = amount ? buildLines(model, top.debit, top.credit, amount, hasVat ? vatState === "unknown" ? "incl" : vatState : "none", method) : [];
+		const steps = ["أرفق صورة المستند بالقيد واحفظ رقمه في المرجع"];
+		if (hasVat) steps.push("تأكد أن المستند فاتورة ضريبية: الرقم الضريبي للطرف وتاريخ التوريد ومبلغ الضريبة");
+		if (top.book === "assets") steps.push("أضف الأصل إلى سجل الأصول الثابتة وحدد عمره الإنتاجي وتاريخ بدء الإهلاك");
+		if ([...top.debit, ...top.credit].some((x) => x.kind === "payable")) steps.push("سجّل الاستحقاق على المورد في دفتر الموردين وتابعه للسداد في موعده");
+		if ([...top.debit, ...top.credit].some((x) => x.kind === "receivable")) steps.push("أضف المبلغ لرصيد العميل وتابع التحصيل");
+		const p = top.p;
+		if (p && amount && p.count > 2 && amount > p.max * 1.5) steps.push("المبلغ أكبر من المعتاد لهذا النوع (أعلى ما سُجّل " + p.max.toLocaleString("en") + ") — راجعه مع المدير المالي قبل الترحيل");
+		if (p && model.recurring.some((r) => r.sig === p.sig)) steps.push("هذا قيد متكرر شهرياً — تأكد أنه لم يُسجّل لنفس الشهر من قبل");
+		if (confidence < .55) steps.push("الثقة منخفضة: أجب عن الأسئلة أو اختر النوع الصحيح قبل الاعتماد");
+		const where = BOOK_AR[top.book] + (party && [...top.debit, ...top.credit].some((x) => x.kind === "payable" || x.kind === "receivable") ? " — وفي الحساب الفرعي للطرف «" + party + "»" : "") + (extracted.date ? " بتاريخ " + extracted.date : "");
+		return {
+			confidence,
+			sig: top.sig,
+			label: top.label,
+			book: top.book,
+			lines,
+			where,
+			steps,
+			why: [...new Set(top.why)],
+			questions,
+			alternatives: ranked.slice(1, 4).map((c) => ({
+				sig: c.sig,
+				label: c.label,
+				score: Math.round(c.score * 100) / 100
+			})),
+			extracted,
+			source: top.src
+		};
+	}
+	function remember(memory, doc, s, model, at = (/* @__PURE__ */ new Date()).toISOString()) {
+		const words = [...new Set(tokens((doc.text || "") + " " + (doc.party || "")))];
+		const kinds = new Map(model.accounts.map((a) => [a.code, a.kind]));
+		const tD = s.lines.reduce((t, l) => t + l.debit, 0) || 1, tC = s.lines.reduce((t, l) => t + l.credit, 0) || 1;
+		const side = (dr) => s.lines.filter((l) => dr ? l.debit : l.credit).map((l) => ({
+			code: l.code,
+			name: l.name,
+			share: dr ? l.debit / tD : l.credit / tC,
+			kind: kinds.get(l.code) || accountKind(l.code, l.name)
+		}));
+		const debit = side(true), credit = side(false);
+		const sig = "D:" + [...new Set(debit.map((x) => x.code))].sort().join("+") + "|C:" + [...new Set(credit.map((x) => x.code))].sort().join("+");
+		const e = {
+			id: "ex-" + at.replace(/\D/g, "").slice(0, 14) + "-" + memory.examples.length,
+			at,
+			tokens: words,
+			party: (doc.party || "").trim(),
+			sig,
+			label: s.label || debit[0]?.name + " ← " + credit[0]?.name,
+			book: s.book || bookOf(debit, credit),
+			debit,
+			credit,
+			amount: r2$1(tD),
+			vat: [...debit, ...credit].some((x) => /vat/.test(x.kind))
+		};
+		return { examples: [e, ...memory.examples.filter((x) => !(x.sig === e.sig && jaccard(x.tokens, e.tokens) > .9 && x.party === e.party))].slice(0, 500) };
+	}
+	function describe$1(model, max = 25) {
+		const acc = model.accounts.slice(0, 80).map((a) => a.code + " " + a.name + " [" + a.kind + "]").join("\n");
+		const pats = model.patterns.slice(0, max).map((p) => "- " + p.label + " (" + BOOK_AR[p.book] + "): مدين " + p.debit.map((x) => x.code + " " + Math.round(x.share * 100) + "%").join(" + ") + " / دائن " + p.credit.map((x) => x.code + " " + Math.round(x.share * 100) + "%").join(" + ") + " · " + p.count + " مرة · كلمات: " + Object.entries(p.tokens).sort((a, b) => b[1] - a[1]).slice(0, 6).map((x) => x[0]).join("، ") + (p.vat ? " · بضريبة" : "")).join("\n");
+		return "الفترة: " + model.from + " إلى " + model.to + " · " + model.entries + " قيداً\nالحسابات:\n" + acc + "\nأنماط التسجيل:\n" + pats + (model.recurring.length ? "\nقيود متكررة: " + model.recurring.map((r) => r.label + " (" + r.months + " شهراً)").join("، ") : "");
 	}
 	//#endregion
 	//#region app/src/engine/fusion/finance/ledger-engine.ts
@@ -21434,6 +22165,7 @@ window.SKEngines = (function() {
 			bankReconciliation: bank_reconciliation_engine_exports,
 			cashFlow: cash_flow_engine_exports,
 			journalChain: journal_chain_engine_exports,
+			journalSim: journal_sim_engine_exports,
 			ledger: ledger_engine_exports,
 			partyLedger: party_ledger_engine_exports,
 			payables: payables_engine_exports,

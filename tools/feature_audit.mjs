@@ -193,6 +193,13 @@ await p.evaluate(()=>SKosifGeoMap.country());
 await p.evaluate(()=>SKosifItemReport.open('raw','r1'));await p.waitForTimeout(2500);
 const IRP=await p.evaluate(()=>[...document.querySelectorAll('.ir-sec h3')].map(x=>x.textContent).join('|'));
 ok('تقرير الصنف','تقرير الصنف: أسباب التكلفة والموردون والشحنات والمبيعات الشهرية والمشترون والمدن',['لماذا هذه التكلفة','الموردون','المبيعات شهراً بشهر','أكبر المشترين','أين يُباع'].every(k=>IRP.includes(k)));
+// ---------- the journal simulator ----------
+await go('jsim',1000);await p.click('[data-js-ledger]');await p.waitForTimeout(1200);
+const JS1=await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_jsim_v1')||'{}');return{e:d.model&&d.model.entries,p:d.model&&d.model.patterns.length,rows:document.querySelectorAll('.js-card table tbody tr').length}});
+ok('محاكي القيود','يتعلم من قيود الفترة: الحسابات وأنماط التسجيل والقيود المتكررة',JS1.e>50&&JS1.p>=5&&JS1.rows>=5);
+const JS2=await p.evaluate(()=>{const s=SKosifJournalSim.suggest('فاتورة ضريبية من مؤسسة المراعي الذهبية — استلام نعيمي طازج — الإجمالي 5,750 شامل الضريبة');const u=SKosifJournalSim.suggest('مستند رقم 7');
+  const dr=s.lines.reduce((t,l)=>t+l.debit,0),cr=s.lines.reduce((t,l)=>t+l.credit,0);return{book:s.book,bal:Math.abs(dr-cr)<0.01&&dr===5750,vat:s.lines.some(l=>l.debit===750),where:s.where,uq:u.questions.length,uc:u.confidence}});
+ok('محاكي القيود','يقترح قيد المستند (بالضريبة) وأين يُسجّل، ويسأل حين لا يكون متأكداً',JS2.book==='purchases'&&JS2.bal&&JS2.vat&&JS2.where.includes('المشتريات')&&JS2.uq>0&&JS2.uc<0.55);
 const ph=await (await b.newContext({viewport:{width:390,height:844},isMobile:true})).newPage();await ph.goto(URL_);await ph.waitForTimeout(5000);
 ok('الجولات 1–33','شريط التبويبات السفلي في الآيفون',await ph.evaluate(()=>!!document.querySelector('.skb,.sk-tabbar,[class*="tabbar"]')));
 if(process.argv[3])fs.writeFileSync(process.argv[3],JSON.stringify(R,null,1));

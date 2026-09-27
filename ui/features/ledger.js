@@ -551,7 +551,17 @@ function syncSource(prefix,want){
 function ensureAccounts(list){const d=db();let added=0;const ids={};
   list.forEach(([code,name,type])=>{let a=d.accounts.find(x=>x.code===code);if(!a){a=E().accounts.createAccount({code,name,type});d.accounts.push(a);added++}ids[code]=a.id});
   if(added)put(d);return ids}
-window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().accounts,lockDate:()=>db().lockDate,saleEntry:(d,x)=>saleEntry(d,x,costResolver()),
+/* posting from another tool (the journal simulator): validated, outside a locked period, sealed like every save */
+function postExternal(entry){
+  const d=db(),e={id:SK.ui.uid("je"),date:entry.date,reference:String(entry.reference||""),memo:String(entry.memo||""),source:entry.source||"أداة مساعدة",
+    lines:(entry.lines||[]).filter(l=>l.accountId&&(Number(l.debit)||Number(l.credit))).map(l=>({accountId:l.accountId,debit:r2(l.debit),credit:r2(l.credit)}))};
+  const v=E().ledger.validateJournalEntry(e);if(!v.valid)throw new Error([...new Set(v.issues.map(i=>ISSUE[i.code]||i.code))].join(" · "));
+  if(locked(d,e.date))throw new Error("التاريخ داخل فترة مقفلة (حتى "+d.lockDate+")");
+  d.entries.push(e);put(d);SK.audit&&SK.audit.log("ledger",{act:"post",source:e.source,id:e.id});return e.id;
+}
+function ensureAccount(a){const d=db();let x=d.accounts.find(y=>String(y.code)===String(a.code));if(x)return x.id;
+  x=E().accounts.createAccount({code:String(a.code),name:String(a.name||a.code),type:a.type||"expense"});d.accounts.push(x);put(d);return x.id}
+window.SKosifLedger=Object.freeze({post:postExternal,ensureAccount,entries:()=>db().entries,accounts:()=>db().accounts,lockDate:()=>db().lockDate,saleEntry:(d,x)=>saleEntry(d,x,costResolver()),
   open:(t,o={})=>{tab=t||"accounts";if(o.q)vatQ=o.q;window.SKosifCore.go("ledger")},
   /* read-only views of the books for the month-end close, the morning brief and the alerts */
   snapshot:()=>db(),pending:until=>pendingOps(db(),until),parties:(kind,asOf)=>partiesOf(db(),kind,asOf||today()),

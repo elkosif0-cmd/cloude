@@ -57,6 +57,7 @@ const ICONS={
   helperdesk:SV('<circle cx="12" cy="12" r="2.5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/>'),
   geomap:SV('<path d="M9 4 3 6.5v13.5L9 17.5l6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>'),
   itemreport:SV('<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 15.5h5M10 8.5h2"/>'),
+  jsim:SV('<path d="M4 5h9M4 9h9M4 13h6"/><path d="M15 12.5 18 9.5l2.5 2.5-3 3z"/><path d="m14 16 1-3.5 2.5 2.5L14 16zM4 17h6M4 21h12"/>'),
   linkmap:SV('<rect x="2.5" y="3.5" width="7" height="5" rx="1.5"/><rect x="14.5" y="3.5" width="7" height="5" rx="1.5"/><rect x="8.5" y="15.5" width="7" height="5" rx="1.5"/><path d="M9.5 6h5M6 8.5c0 4 6 3 6 7M18 8.5c0 4-6 3-6 7"/>'),
   productflow:SV('<circle cx="12" cy="12" r="3"/><path d="M12 3v6M12 15v6M3 12h6M15 12h6"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><circle cx="3" cy="12" r="1.5"/><circle cx="21" cy="12" r="1.5"/>'),
   builder:SV('<path d="M16 16h6M19 13v6"/><path d="M21 10V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l2-1.1"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/>'),

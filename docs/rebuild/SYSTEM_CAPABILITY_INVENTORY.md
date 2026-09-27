@@ -2,7 +2,7 @@
 
 Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do not edit by hand.
 
-Total capabilities: **72** (screens). Cross-cutting capabilities are listed after the table.
+Total capabilities: **73** (screens). Cross-cutting capabilities are listed after the table.
 
 | ID | Capability | Module | Current Location | Data Used | Dependencies | Status | Keep/Remove/Merge/Rebuild |
 |---|---|---|---|---|---|---|---|
@@ -36,6 +36,7 @@ Total capabilities: **72** (screens). Cross-cutting capabilities are listed afte
 | `yieldlab` | مختبر الجزارة | core (v18) | المخزون والموردون والإنتاج › مختبر الذبيحة › يومي | `aghnam-v18-yield-trials` | SKosifCore, Engine | Working | Keep |
 | `nrv` | تفكيك الذبيحة NRV | core (v19) | المخزون والموردون والإنتاج › مختبر الذبيحة › يومي | `aghnam-v19-nrv-trials` | SKosifCore, Engine | Working | Keep |
 | `ledger` | الدفاتر المحاسبية | ui/features/ledger.js + SKEngines.finance | المالية والمحاسبة › يومي | `skosif_ledger_v1` | SKosifCore | Working | Rebuild |
+| `jsim` | محاكي القيود | ui/features/journal-sim.js | المالية والمحاسبة › يومي | `skosif_jsim_v1`, `skosif_ledger_v1` | SKosifCore | Working | New |
 | `cash` | التدفق النقدي | ui/supply.js + ui/erp-plus.js | المالية والمحاسبة › يومي | `skosif_v31_monthly_opex`, `skosif_erp_finance_v1` | SKosifCore | Working | Keep |
 | `receivables` | الذمم والتحصيل | ui/meatops.js | المالية والمحاسبة › يومي | `skosif_ar_paste` | SKosifCore | Working | Keep |
 | `advances` | السلف والدفعات المقدمة | ui/features/advances.js | المالية والمحاسبة › يومي | `skosif_advances_v1`, `skosif_ledger_v1` | SKosifCore | Working | Rebuild |
