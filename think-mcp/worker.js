@@ -207,75 +207,181 @@ function jevPayload(input,artifacts,c){
 async function runThink(env,args){
   const input={question:text(args?.question,12000),context:text(args?.context,24000),options:cleanOptions(args?.options)};
   if(!input.question) throw new Error("QUESTION_REQUIRED");
-  const mode=["fast","council","deep"].includes(args?.mode)?args.mode:"council";
-  let failures=[];
-  const preferred=mode==="fast"?FAST_AGENTS:FRONTIER_AGENTS;
-  let r=await stageWithFallback(env,"independent",preferred,input,[]);
-  let artifacts=r.artifacts; failures=failures.concat(r.failures); let agents=r.agents; let backend=r.backend; let fallback=r.fallback;
-
-  if(mode==="deep"&&!fallback&&artifacts.length>=3){
-    const critics=FRONTIER_AGENTS.filter(a=>["claude","mythos","fable"].includes(a.id)&&artifacts.some(x=>x.agentId===a.id));
-    if(critics.length){
-      const cr=await stage(env,"critique",critics,input,artifacts);
-      artifacts=mergeArtifacts(artifacts,cr.artifacts);
-      failures=failures.concat(cr.failures);
-    }
-    const revisers=FRONTIER_AGENTS.filter(a=>["gpt","gemini"].includes(a.id)&&artifacts.some(x=>x.agentId===a.id));
-    if(revisers.length){
-      const rr=await stage(env,"revision",revisers,input,artifacts);
-      artifacts=mergeArtifacts(artifacts,rr.artifacts);
-      failures=failures.concat(rr.failures);
-    }
-    agents=FRONTIER_AGENTS.filter(a=>artifacts.some(x=>x.agentId===a.id));
+  const mode=args?.mode||"fast";
+  if(mode!=="fast"){
+    return {
+      version:VERSION,
+      mode,
+      orchestrationRequired:true,
+      frontierAgents:FRONTIER_AGENTS.map(a=>({id:a.id,model:a.model,role:a.role})),
+      instruction:"For Council or Deep, call kosif_agent for the frontier agents, then call kosif_council with the returned artifacts. This avoids a single long-running fan-out request."
+    };
   }
-
-  if(!artifacts.length) throw new Error("ALL_AGENTS_FAILED");
-  const c=council(artifacts,input.options);
-  const synthesis=provisionalSynthesis(artifacts,c);
-  const preJevReasons=[];
-  if(c?.tied) preJevReasons.push("COUNCIL_TIED");
-  if(c&&c.agreementPercent<80) preJevReasons.push("COUNCIL_AGREEMENT_BELOW_80");
+  const r=await stage(env,"independent",FAST_AGENTS,input,[]);
+  if(!r.artifacts.length) throw new Error("ALL_FAST_AGENTS_FAILED");
+  const c=council(r.artifacts,input.options);
   return {
-    version:VERSION,mode,backend,fallback,
-    agents:agents.map(a=>({id:a.id,source:a.source||"cloudflare",model:a.model,role:a.role})),
-    artifacts,failures,council:c,
-    preJevGate:{passed:preJevReasons.length===0,reasons:preJevReasons},
-    synthesis,
-    jev_payload:jevPayload(input,artifacts,c),
-    next_step:"Submit jev_payload to the matching Jev Bridge tool. ChatGPT is the final chair: reconcile Jev with every agent artifact and the deterministic council, then answer the user."
+    version:VERSION,mode:"fast",backend:"cloudflare-fast",
+    agents:FAST_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role})),
+    artifacts:r.artifacts,failures:r.failures,council:c,
+    preJevGate:{passed:!c?.tied&&(!c||c.agreementPercent>=80),reasons:[...(c?.tied?["COUNCIL_TIED"]:[]),...(c&&c.agreementPercent<80?["COUNCIL_AGREEMENT_BELOW_80"]:[])]},
+    synthesis:provisionalSynthesis(r.artifacts,c),
+    jev_payload:jevPayload(input,r.artifacts,c),
+    next_step:"Submit jev_payload to Jev Bridge, then let ChatGPT produce the final answer."
   };
 }
 
+function frontierById(id){
+  return FRONTIER_AGENTS.find(a=>a.id===id)||null;
+}
+function sanitizePeer(x){
+  return {
+    agentId:text(x?.agentId,80),
+    recommendationId:x?.recommendationId==null?null:text(x.recommendationId,80),
+    answer:text(x?.answer,1800),
+    evidence:list(x?.evidence,6),
+    assumptions:list(x?.assumptions,6),
+    risks:list(x?.risks,6),
+    objections:list(x?.objections,6),
+    confidence:clamp(x?.confidence)
+  };
+}
+async function runAgentTool(env,args){
+  const agent=frontierById(text(args?.agent,40));
+  if(!agent)throw new Error("UNKNOWN_FRONTIER_AGENT");
+  const stageName=["independent","critique","revision"].includes(args?.stage)?args.stage:"independent";
+  const input={question:text(args?.question,12000),context:text(args?.context,24000),options:cleanOptions(args?.options)};
+  if(!input.question)throw new Error("QUESTION_REQUIRED");
+  const peers=Array.isArray(args?.peers)?args.peers.map(sanitizePeer).filter(x=>x.agentId):[];
+  const artifactResult=await callAgent(env,agent,stageName,input,peers);
+  return {
+    version:VERSION,
+    stage:stageName,
+    agent:{id:agent.id,source:agent.source,model:agent.model,role:agent.role,micro:!!agent.micro},
+    artifact:artifactResult
+  };
+}
+function sanitizeArtifact(x){
+  return {
+    agentId:text(x?.agentId,80),
+    source:text(x?.source,40),
+    model:text(x?.model,120),
+    role:text(x?.role,500),
+    recommendationId:x?.recommendationId==null?null:text(x.recommendationId,80),
+    answer:text(x?.answer,4000),
+    evidence:list(x?.evidence,8),
+    assumptions:list(x?.assumptions,8),
+    risks:list(x?.risks,8),
+    objections:list(x?.objections,8),
+    confidence:clamp(x?.confidence)
+  };
+}
+function aggregateCouncilTool(args){
+  const input={question:text(args?.question,12000),context:text(args?.context,24000),options:cleanOptions(args?.options)};
+  if(!input.question)throw new Error("QUESTION_REQUIRED");
+  const artifacts=(Array.isArray(args?.artifacts)?args.artifacts:[]).map(sanitizeArtifact).filter(x=>x.agentId&&x.answer);
+  if(!artifacts.length)throw new Error("ARTIFACTS_REQUIRED");
+  const c=council(artifacts,input.options);
+  const reasons=[];
+  if(c?.tied)reasons.push("COUNCIL_TIED");
+  if(c&&c.agreementPercent<80)reasons.push("COUNCIL_AGREEMENT_BELOW_80");
+  const expected=new Set(FRONTIER_AGENTS.map(a=>a.id));
+  const present=new Set(artifacts.map(a=>a.agentId));
+  const missing=Array.from(expected).filter(id=>!present.has(id));
+  if(missing.length)reasons.push("MISSING_FRONTIER_AGENTS");
+  return {
+    version:VERSION,
+    artifacts,
+    council:c,
+    coverage:{present:Array.from(present),missing,frontierTotal:FRONTIER_AGENTS.length},
+    preJevGate:{passed:reasons.length===0,reasons},
+    synthesis:provisionalSynthesis(artifacts,c),
+    jev_payload:jevPayload(input,artifacts,c),
+    next_step:"Call the matching Jev Bridge tool with jev_payload. ChatGPT is the final chair and should reconcile Jev with all agent artifacts and the deterministic council."
+  };
+}
+
+const ARTIFACT_SCHEMA={
+  type:"object",
+  properties:{
+    agentId:{type:"string"},source:{type:"string"},model:{type:"string"},role:{type:"string"},
+    recommendationId:{type:["string","null"]},answer:{type:"string"},
+    evidence:{type:"array",items:{type:"string"}},assumptions:{type:"array",items:{type:"string"}},
+    risks:{type:"array",items:{type:"string"}},objections:{type:"array",items:{type:"string"}},confidence:{type:"number"}
+  },
+  required:["agentId","answer","confidence"],
+  additionalProperties:true
+};
 const TOOLS=[
   {
-    name:"kosif_think",
-    description:"Run KOSIF Think: a multi-agent reasoning council with independent analysis, peer critique, optional deep revision, deterministic option consensus, and a Jev-ready decision payload. After this tool returns, submit jev_payload to Jev Bridge before giving the final answer when Jev is available.",
+    name:"kosif_agent",
+    description:"Run exactly one KOSIF frontier agent through Clean APIs. Use separate calls for gpt, claude, gemini, mythos, and fable; this avoids one long fan-out request. Returns a structured artifact, not hidden chain-of-thought.",
     inputSchema:{
       type:"object",
       properties:{
-        question:{type:"string",description:"The problem, question, or decision to analyze."},
-        context:{type:"string",description:"Relevant facts, constraints, evidence, numbers, or document summary."},
-        options:{type:"object",description:"Optional closed set of alternatives, keyed A/B/C or other short labels.",additionalProperties:{type:"string"}},
-        mode:{type:"string",enum:["fast","council","deep"],description:"fast = Cloudflare independent council; council = frontier independent council + synthesis; deep = frontier independent + critique + revision + synthesis."}
+        agent:{type:"string",enum:["gpt","claude","gemini","mythos","fable"]},
+        stage:{type:"string",enum:["independent","critique","revision"]},
+        question:{type:"string"},
+        context:{type:"string"},
+        options:{type:"object",additionalProperties:{type:"string"}},
+        peers:{type:"array",items:ARTIFACT_SCHEMA}
+      },
+      required:["agent","question"],
+      additionalProperties:false
+    }
+  },
+  {
+    name:"kosif_council",
+    description:"Aggregate KOSIF frontier agent artifacts deterministically, calculate option agreement, prepare the Jev payload, and hand control back to ChatGPT as final chair.",
+    inputSchema:{
+      type:"object",
+      properties:{
+        question:{type:"string"},
+        context:{type:"string"},
+        options:{type:"object",additionalProperties:{type:"string"}},
+        artifacts:{type:"array",items:ARTIFACT_SCHEMA,minItems:1,maxItems:10}
+      },
+      required:["question","artifacts"],
+      additionalProperties:false
+    }
+  },
+  {
+    name:"kosif_think",
+    description:"Fast KOSIF Think convenience run using the low-latency Cloudflare council. For frontier Council or Deep mode, use kosif_agent + kosif_council so GPT, Claude, Gemini, Mythos, and Fable return independently.",
+    inputSchema:{
+      type:"object",
+      properties:{
+        question:{type:"string"},
+        context:{type:"string"},
+        options:{type:"object",additionalProperties:{type:"string"}},
+        mode:{type:"string",enum:["fast","council","deep"]}
       },
       required:["question"],additionalProperties:false
     }
   },
   {
     name:"kosif_think_status",
-    description:"Show KOSIF Think version, Fast Cloudflare agents, Clean APIs frontier agents, fallback state, modes, and Jev handoff behavior.",
+    description:"Show KOSIF Think version, frontier agents, fast agents, routing, Clean APIs availability, and Jev handoff behavior.",
     inputSchema:{type:"object",properties:{},additionalProperties:false}
   }
 ];
 
 async function callTool(env,name,args){
+  if(name==="kosif_agent") return toolResult(await runAgentTool(env,args),false);
+  if(name==="kosif_council") return toolResult(aggregateCouncilTool(args),false);
   if(name==="kosif_think") return toolResult(await runThink(env,args),false);
   if(name==="kosif_think_status") return toolResult({
-    ok:true,version:VERSION,modes:["fast","council","deep"],cleanApisConfigured:!!env.cleanapis,
+    ok:true,version:VERSION,cleanApisConfigured:!!env.cleanapis,
     fastAgents:FAST_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role})),
-    frontierAgents:FRONTIER_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role})),
-    routing:{fast:"Cloudflare fast council",council:"GPT-5.6 Sol + Claude Opus 5 full artifacts, plus Gemini/Mythos/Fable micro-specialists",deep:"Core full analysis plus specialist challenge passes",fallback:"Cloudflare fast council if fewer than three frontier agents succeed",finalChair:"ChatGPT after Jev"},
-    jevIntegration:"kosif_think returns jev_payload; ChatGPT should call the matching Jev Bridge tool before the final synthesis."
+    frontierAgents:FRONTIER_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role,micro:!!a.micro})),
+    routing:{
+      fast:"kosif_think -> Cloudflare fast council",
+      council:"ChatGPT calls kosif_agent independently for gpt + claude + gemini + mythos + fable, then kosif_council",
+      deep:"Same five independent agents; then targeted critique/revision agent calls; then kosif_council",
+      finalChair:"Jev review followed by ChatGPT final synthesis",
+      tinyFish:"Not part of the core reasoning bus; optional only for browser/web interaction or visual evidence collection."
+    },
+    jevIntegration:"kosif_council returns jev_payload; pass it to Jev Bridge before the final ChatGPT answer."
   },false);
   return null;
 }
