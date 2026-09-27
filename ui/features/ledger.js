@@ -537,5 +537,15 @@ window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().ac
   sendToReview:async()=>window.SKosifTBReview?SKosifTBReview.fromBooks():false,
   /* the audit trail and the revenue reconciliation for the month-end close and the report pack */
   trail:()=>{const t=trailOf(db());return t?{...t.v,ok:t.v.ok&&!t.events.length,coverage:t.cov,events:t.events.length,since:t.since}:null},
-  revenueRecon:()=>{const x=revReconOf(db());return x?{...x.r,start:x.start,end:x.end}:null}});
+  revenueRecon:()=>{const x=revReconOf(db());return x?{...x.r,start:x.start,end:x.end}:null},
+  /* an entry proposed elsewhere (the entry simulator), by account codes: missing accounts are opened by their code's
+     class, the entry is validated and the lock date respected; returns {ok, id} or {ok:false, error} */
+  post:x=>{const d=db(),byCode=c=>d.accounts.find(a=>a.code===String(c));
+    const cls={"1":"asset","2":"liability","3":"equity","4":"revenue","5":"expense","6":"expense","7":"expense","8":"expense"};
+    for(const l of x.lines||[]){if(!byCode(l.account)){try{d.accounts.push(E().accounts.createAccount({code:String(l.account),name:l.name||String(l.account),type:cls[String(l.account)[0]]||"other",parentId:""}))}catch{return{ok:false,error:"تعذر فتح الحساب "+l.account}}}}
+    const entry={id:SK.ui.uid("je"),date:x.date||today(),reference:String(x.reference||""),memo:String(x.memo||""),source:x.source||"محاكي القيود",
+      lines:(x.lines||[]).map(l=>({accountId:byCode(l.account).id,debit:r2(l.debit),credit:r2(l.credit)}))};
+    const v=E().ledger.validateJournalEntry(entry);if(!v.valid)return{ok:false,error:[...new Set(v.issues.map(i=>ISSUE[i.code]||i.code))].join(" · ")};
+    if(locked(d,entry.date))return{ok:false,error:"التاريخ داخل فترة مقفلة (حتى "+d.lockDate+")"};
+    d.entries.push(entry);put(d);SK.audit&&SK.audit.log("ledger",{act:"post",source:entry.source});return{ok:true,id:entry.id}}});
 })();

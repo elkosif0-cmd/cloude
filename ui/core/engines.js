@@ -3514,15 +3514,15 @@ window.SKEngines = (function() {
 		mdna: () => mdna,
 		ratios: () => ratios
 	});
-	var r2$5 = (n) => Math.round(n * 100) / 100;
+	var r2$6 = (n) => Math.round(n * 100) / 100;
 	var div$1 = (a, b) => b ? a / b : null;
 	var pctOf = (a, b) => {
 		const x = div$1(a, b);
-		return x === null ? null : r2$5(x * 100);
+		return x === null ? null : r2$6(x * 100);
 	};
 	var times = (a, b) => {
 		const x = div$1(a, b);
-		return x === null ? null : r2$5(x);
+		return x === null ? null : r2$6(x);
 	};
 	var days$2 = (a, b) => {
 		const x = div$1(a, b);
@@ -3788,7 +3788,7 @@ window.SKEngines = (function() {
 	/** Common-size: P&L lines as % of revenue, position lines as % of total assets. */
 	function commonSize(fs) {
 		const rev = fs.keys.revenue, ta = fs.keys.assets;
-		const pc = (a, b) => b ? r2$5(a / b * 100) : null;
+		const pc = (a, b) => b ? r2$6(a / b * 100) : null;
 		return {
 			pl: fs.pl.map((r) => ({
 				key: r.key,
@@ -3813,7 +3813,7 @@ window.SKEngines = (function() {
 			current: r.current,
 			prior: r.prior,
 			change: r.current - r.prior,
-			changePct: r.prior ? r2$5((r.current - r.prior) / Math.abs(r.prior) * 100) : null
+			changePct: r.prior ? r2$6((r.current - r.prior) / Math.abs(r.prior) * 100) : null
 		}));
 	}
 	/** DuPont: ROE = net margin × asset turnover × equity multiplier (year-end balances). */
@@ -3821,10 +3821,10 @@ window.SKEngines = (function() {
 		const k = fs.keys, one = (rev, profit, ta, eq) => {
 			const nm = div$1(profit, rev), at = div$1(rev, ta), em = div$1(ta, eq);
 			return {
-				netMargin: nm === null ? null : r2$5(nm * 100),
-				assetTurnover: at === null ? null : r2$5(at),
-				equityMultiplier: em === null ? null : r2$5(em),
-				roe: nm === null || at === null || em === null ? null : r2$5(nm * at * em * 100)
+				netMargin: nm === null ? null : r2$6(nm * 100),
+				assetTurnover: at === null ? null : r2$6(at),
+				equityMultiplier: em === null ? null : r2$6(em),
+				roe: nm === null || at === null || em === null ? null : r2$6(nm * at * em * 100)
 			};
 		};
 		return {
@@ -3838,16 +3838,16 @@ window.SKEngines = (function() {
 		if (!ta) return null;
 		const retained = fs.lines.filter((l) => l.key === "retained").reduce((a, l) => a + l.current, 0) + k.profit.current;
 		const x1 = (k.ca.current - k.cl.current) / ta, x2 = retained / ta, x3 = k.operating.current / ta, x4 = tl ? k.equity.current / tl : 0;
-		const z = r2$5(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
+		const z = r2$6(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
 		return {
 			z,
 			zone: z > 2.6 ? "safe" : z >= 1.1 ? "grey" : "distress",
 			zoneAr: z > 2.6 ? "منطقة الأمان" : z >= 1.1 ? "المنطقة الرمادية" : "منطقة التعثر",
 			components: {
-				x1: r2$5(x1),
-				x2: r2$5(x2),
-				x3: r2$5(x3),
-				x4: r2$5(x4)
+				x1: r2$6(x1),
+				x2: r2$6(x2),
+				x3: r2$6(x3),
+				x4: r2$6(x4)
 			}
 		};
 	}
@@ -3865,7 +3865,7 @@ window.SKEngines = (function() {
 		const sgai = q(q(sga(c), c("revenue")), q(sga(p), p("revenue")));
 		const lvgi = q(q(c("cl") + c("loansNcl") + c("leaseNcl"), c("assets")), q(p("cl") + p("loansNcl") + p("leaseNcl"), p("assets")));
 		const tata = fs.keys.cfo ? q(c("profit") - fs.keys.cfo.current, c("assets")) : 0;
-		const m = r2$5(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
+		const m = r2$6(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
 		const f = (x) => Math.round(x * 1e3) / 1e3;
 		return {
 			m,
@@ -3964,7 +3964,7 @@ window.SKEngines = (function() {
 			rat("current")
 		].map((i) => ({
 			...i,
-			change: i.prior === null || i.current === null || !i.prior ? null : r2$5((i.current - i.prior) / Math.abs(i.prior) * 100)
+			change: i.prior === null || i.current === null || !i.prior ? null : r2$6((i.current - i.prior) / Math.abs(i.prior) * 100)
 		}));
 	}
 	/** A deterministic management discussion: sentences generated from the numbers only. */
@@ -3974,7 +3974,7 @@ window.SKEngines = (function() {
 		const ch = (key) => {
 			const x = k[key];
 			if (!x || x.prior === null || !x.prior) return null;
-			return r2$5((x.current - x.prior) / Math.abs(x.prior) * 100);
+			return r2$6((x.current - x.prior) / Math.abs(x.prior) * 100);
 		};
 		const dir = (v, up, down) => v === null ? "" : v >= 0 ? `${up} ${Math.abs(v)}%` : `${down} ${Math.abs(v)}%`;
 		const out = [];
@@ -5259,7 +5259,7 @@ window.SKEngines = (function() {
 		"مدقق المخاطر والأدلة"
 	];
 	var DEFAULT_MODEL = "gemini-2.5-flash";
-	var S$2 = (description) => ({
+	var S$3 = (description) => ({
 		type: "STRING",
 		...description ? { description } : {}
 	});
@@ -5267,26 +5267,26 @@ window.SKEngines = (function() {
 		type: "ARRAY",
 		items
 	});
-	var OBJ$1 = (properties, required) => ({
+	var OBJ$2 = (properties, required) => ({
 		type: "OBJECT",
 		properties,
 		required
 	});
-	var LINES_SCHEMA = ARR$1(OBJ$1({
-		accountCode: S$2("رقم الحساب من الميزان، أو NEW-… لحساب جديد"),
-		accountName: S$2(),
-		debit: S$2("مبلغ بالريال أو 0"),
-		credit: S$2("مبلغ بالريال أو 0")
+	var LINES_SCHEMA = ARR$1(OBJ$2({
+		accountCode: S$3("رقم الحساب من الميزان، أو NEW-… لحساب جديد"),
+		accountName: S$3(),
+		debit: S$3("مبلغ بالريال أو 0"),
+		credit: S$3("مبلغ بالريال أو 0")
 	}, [
 		"accountCode",
 		"accountName",
 		"debit",
 		"credit"
 	]));
-	var ADJ_SCHEMA = ARR$1(OBJ$1({
-		title: S$2(),
-		reason: S$2(),
-		standardCode: S$2(),
+	var ADJ_SCHEMA = ARR$1(OBJ$2({
+		title: S$3(),
+		reason: S$3(),
+		standardCode: S$3(),
 		lines: LINES_SCHEMA
 	}, [
 		"title",
@@ -5294,33 +5294,33 @@ window.SKEngines = (function() {
 		"standardCode",
 		"lines"
 	]));
-	var ROUND_SCHEMA = OBJ$1({
+	var ROUND_SCHEMA = OBJ$2({
 		status: {
 			type: "STRING",
 			enum: ["needs_docs", "complete"],
 			description: "needs_docs ما دامت هناك مستندات مطلوبة أو ملاحظات جوهرية معلقة"
 		},
-		executiveSummary: S$2(),
+		executiveSummary: S$3(),
 		riskScore: {
 			type: "INTEGER",
 			description: "0-100"
 		},
-		boardOpinions: ARR$1(OBJ$1({
+		boardOpinions: ARR$1(OBJ$2({
 			reviewer: {
 				type: "STRING",
 				enum: [...REVIEWERS]
 			},
-			opinion: S$2()
+			opinion: S$3()
 		}, ["reviewer", "opinion"])),
-		accountStandards: ARR$1(OBJ$1({
-			accountCode: S$2(),
-			standards: ARR$1(S$2()),
-			note: S$2("علاقة المعيار بالحساب باختصار")
+		accountStandards: ARR$1(OBJ$2({
+			accountCode: S$3(),
+			standards: ARR$1(S$3()),
+			note: S$3("علاقة المعيار بالحساب باختصار")
 		}, ["accountCode", "standards"])),
-		findings: ARR$1(OBJ$1({
-			accountCode: S$2(),
-			accountName: S$2(),
-			standardCode: S$2(),
+		findings: ARR$1(OBJ$2({
+			accountCode: S$3(),
+			accountName: S$3(),
+			standardCode: S$3(),
 			issueType: {
 				type: "STRING",
 				enum: [
@@ -5343,10 +5343,10 @@ window.SKEngines = (function() {
 					"منخفضة"
 				]
 			},
-			amount: S$2("المبلغ المتأثر بالريال إن وجد"),
-			comment: S$2(),
-			recommendation: S$2(),
-			citations: ARR$1(S$2("رقم دليل من السجل"))
+			amount: S$3("المبلغ المتأثر بالريال إن وجد"),
+			comment: S$3(),
+			recommendation: S$3(),
+			citations: ARR$1(S$3("رقم دليل من السجل"))
 		}, [
 			"accountName",
 			"standardCode",
@@ -5354,12 +5354,12 @@ window.SKEngines = (function() {
 			"comment",
 			"recommendation"
 		])),
-		requestedDocuments: ARR$1(OBJ$1({
-			id: S$2("REQ-n متسلسل ومحفوظ بين الجولات"),
-			title: S$2(),
-			purpose: S$2(),
-			relatedAccounts: ARR$1(S$2()),
-			standardCode: S$2(),
+		requestedDocuments: ARR$1(OBJ$2({
+			id: S$3("REQ-n متسلسل ومحفوظ بين الجولات"),
+			title: S$3(),
+			purpose: S$3(),
+			relatedAccounts: ARR$1(S$3()),
+			standardCode: S$3(),
 			priority: {
 				type: "STRING",
 				enum: [
@@ -5368,7 +5368,7 @@ window.SKEngines = (function() {
 					"منخفضة"
 				]
 			},
-			lineKey: S$2("مفتاح البند"),
+			lineKey: S$3("مفتاح البند"),
 			assertion: {
 				type: "STRING",
 				enum: [
@@ -5388,16 +5388,16 @@ window.SKEngines = (function() {
 					"high"
 				]
 			},
-			citations: ARR$1(S$2())
+			citations: ARR$1(S$3())
 		}, [
 			"id",
 			"title",
 			"purpose",
 			"priority"
 		])),
-		documentsReviewed: ARR$1(OBJ$1({
-			fileName: S$2(),
-			requestId: S$2(),
+		documentsReviewed: ARR$1(OBJ$2({
+			fileName: S$3(),
+			requestId: S$3(),
 			verdict: {
 				type: "STRING",
 				enum: [
@@ -5406,14 +5406,14 @@ window.SKEngines = (function() {
 					"مرفوض"
 				]
 			},
-			notes: S$2(),
-			extracted: OBJ$1({
-				documentDate: S$2("YYYY-MM-DD"),
-				amount: S$2(),
-				vatAmount: S$2(),
-				vatNumber: S$2(),
-				counterparty: S$2(),
-				reference: S$2()
+			notes: S$3(),
+			extracted: OBJ$2({
+				documentDate: S$3("YYYY-MM-DD"),
+				amount: S$3(),
+				vatAmount: S$3(),
+				vatNumber: S$3(),
+				counterparty: S$3(),
+				reference: S$3()
 			}, [])
 		}, [
 			"fileName",
@@ -5421,7 +5421,7 @@ window.SKEngines = (function() {
 			"notes"
 		])),
 		proposedAdjustments: ADJ_SCHEMA,
-		nextStepGuidance: S$2(),
+		nextStepGuidance: S$3(),
 		decision: {
 			type: "STRING",
 			enum: [
@@ -5431,8 +5431,8 @@ window.SKEngines = (function() {
 			],
 			description: "قرار الرئيس: طلب أدلة، أو تصعيد للمراجع البشري، أو اكتفاء"
 		},
-		confidence: ARR$1(OBJ$1({
-			lineKey: S$2(),
+		confidence: ARR$1(OBJ$2({
+			lineKey: S$3(),
 			assertion: {
 				type: "STRING",
 				enum: [
@@ -5453,10 +5453,10 @@ window.SKEngines = (function() {
 			"assertion",
 			"value"
 		])),
-		dissent: ARR$1(OBJ$1({
-			member: S$2(),
-			note: S$2(),
-			citations: ARR$1(S$2())
+		dissent: ARR$1(OBJ$2({
+			member: S$3(),
+			note: S$3(),
+			citations: ARR$1(S$3())
 		}, ["member", "note"]))
 	}, [
 		"status",
@@ -5467,7 +5467,7 @@ window.SKEngines = (function() {
 		"requestedDocuments",
 		"nextStepGuidance"
 	]);
-	var FINAL_SCHEMA = OBJ$1({
+	var FINAL_SCHEMA = OBJ$2({
 		overallOpinion: {
 			type: "STRING",
 			enum: [
@@ -5477,19 +5477,19 @@ window.SKEngines = (function() {
 				"امتناع عن إبداء الرأي"
 			]
 		},
-		headline: S$2(),
-		summary: S$2(),
-		keyAuditMatters: ARR$1(OBJ$1({
-			title: S$2(),
-			why: S$2("لماذا يعد أمراً رئيسياً"),
-			how: S$2("كيف عولج في المراجعة")
+		headline: S$3(),
+		summary: S$3(),
+		keyAuditMatters: ARR$1(OBJ$2({
+			title: S$3(),
+			why: S$3("لماذا يعد أمراً رئيسياً"),
+			how: S$3("كيف عولج في المراجعة")
 		}, [
 			"title",
 			"why",
 			"how"
 		])),
-		complianceDiscussion: ARR$1(OBJ$1({
-			standardCode: S$2(),
+		complianceDiscussion: ARR$1(OBJ$2({
+			standardCode: S$3(),
 			status: {
 				type: "STRING",
 				enum: [
@@ -5499,18 +5499,18 @@ window.SKEngines = (function() {
 					"غير منطبق"
 				]
 			},
-			discussion: S$2()
+			discussion: S$3()
 		}, [
 			"standardCode",
 			"status",
 			"discussion"
 		])),
 		adjustments: ADJ_SCHEMA,
-		managementLetter: ARR$1(OBJ$1({
-			title: S$2(),
-			observation: S$2(),
-			effect: S$2(),
-			recommendation: S$2(),
+		managementLetter: ARR$1(OBJ$2({
+			title: S$3(),
+			observation: S$3(),
+			effect: S$3(),
+			recommendation: S$3(),
 			priority: {
 				type: "STRING",
 				enum: [
@@ -5525,8 +5525,8 @@ window.SKEngines = (function() {
 			"recommendation",
 			"priority"
 		])),
-		limitations: ARR$1(S$2()),
-		closingStatement: S$2()
+		limitations: ARR$1(S$3()),
+		closingStatement: S$3()
 	}, [
 		"overallOpinion",
 		"headline",
@@ -6182,7 +6182,7 @@ window.SKEngines = (function() {
 		}
 	};
 	var clamp01 = (x) => Number.isFinite(x) ? Math.max(0, Math.min(1, x)) : 0;
-	var r2$4 = (x) => Math.round(x * 100) / 100;
+	var r2$5 = (x) => Math.round(x * 100) / 100;
 	/** E — evidence coverage for a balance: Σ r·v ÷ V, capped at 1 (only accepted evidence counts). */
 	function coverage(items, balance) {
 		const V = Math.abs(balance);
@@ -6216,9 +6216,9 @@ window.SKEngines = (function() {
 		};
 		if (p.A === null) {
 			const k = W.E + W.T || 1;
-			return r2$4(clamp01(W.E / k * p.E + W.T / k * p.T));
+			return r2$5(clamp01(W.E / k * p.E + W.T / k * p.T));
 		}
-		return r2$4(clamp01(W.E * p.E + W.T * p.T + W.A * p.A));
+		return r2$5(clamp01(W.E * p.E + W.T * p.T + W.A * p.A));
 	}
 	/** The confidence a line needs: material & high risk 0.90, material & medium 0.80, material & low 0.70, immaterial → analytics only (null). */
 	function thresholdFor(line) {
@@ -6243,9 +6243,9 @@ window.SKEngines = (function() {
 				}, i.weights);
 				return {
 					assertion: a,
-					E: r2$4(E),
-					T: r2$4(T),
-					A: A === null ? null : r2$4(A),
+					E: r2$5(E),
+					T: r2$5(T),
+					A: A === null ? null : r2$5(A),
 					C,
 					met: threshold === null ? null : C >= threshold
 				};
@@ -6256,13 +6256,13 @@ window.SKEngines = (function() {
 				threshold,
 				...ov ? { override: ov } : {},
 				cells,
-				min: r2$4(min),
+				min: r2$5(min),
 				met: threshold === null ? null : cells.every((c) => c.met)
 			};
 		});
 		const open = rows.filter((r) => r.met === false), material = rows.filter((r) => r.threshold !== null);
-		const avgOpen = open.length ? r2$4(open.reduce((s, r) => s + r.min, 0) / open.length) : 1;
-		const avgAll = material.length ? r2$4(material.reduce((s, r) => s + r.min, 0) / material.length) : 1;
+		const avgOpen = open.length ? r2$5(open.reduce((s, r) => s + r.min, 0) / open.length) : 1;
+		const avgAll = material.length ? r2$5(material.reduce((s, r) => s + r.min, 0) / material.length) : 1;
 		return {
 			rows,
 			open,
@@ -6327,7 +6327,7 @@ window.SKEngines = (function() {
 			amount,
 			accepted: true
 		}], row.amount);
-		return r2$4(Math.max(0, confidence({
+		return r2$5(Math.max(0, confidence({
 			E: E2,
 			T: cell.T,
 			A: cell.A
@@ -6337,11 +6337,11 @@ window.SKEngines = (function() {
 	function rankRequests(list) {
 		return list.map((q) => ({
 			...q,
-			score: r2$4(q.expectedGain * q.materialityWeight / EFFORT[q.effort].v * 100) / 100
+			score: r2$5(q.expectedGain * q.materialityWeight / EFFORT[q.effort].v * 100) / 100
 		})).sort((a, b) => b.score - a.score || b.materialityWeight - a.materialityWeight);
 	}
 	/** Materiality weight of a line: its balance relative to overall materiality (≥ 1 means material on its own). */
-	var materialityWeight = (amount, overall) => overall > 0 ? r2$4(Math.min(10, Math.abs(amount) / overall)) : 1;
+	var materialityWeight = (amount, overall) => overall > 0 ? r2$5(Math.min(10, Math.abs(amount) / overall)) : 1;
 	var STATES = [
 		{
 			key: "new",
@@ -10998,7 +10998,7 @@ window.SKEngines = (function() {
 		sectorPrior: () => sectorPrior,
 		typicalKamCount: () => typicalKamCount
 	});
-	var r2$3 = (x) => Math.round(x * 100) / 100;
+	var r2$4 = (x) => Math.round(x * 100) / 100;
 	/** How often the auditors of a sector reported each theme (share of that sector's reports with KAMs), leaving one report out. */
 	function sectorPrior(sector, exclude) {
 		if (!sector) return {};
@@ -11007,7 +11007,7 @@ window.SKEngines = (function() {
 		const out = {};
 		for (const t of Object.keys(THEMES)) {
 			const n = reports.filter((id) => KAMS.some((k) => k.report === id && k.theme === t)).length;
-			if (n) out[t] = r2$3(n / reports.length);
+			if (n) out[t] = r2$4(n / reports.length);
 		}
 		return out;
 	}
@@ -11076,15 +11076,15 @@ window.SKEngines = (function() {
 			unit: c.unitAr,
 			actual,
 			ours,
-			recall: themes.length ? r2$3(hit / themes.length) : null,
-			rankedRecall: themes.length ? r2$3(rankedHit / themes.length) : null,
-			precision: selected.size && themes.length ? r2$3(ours.filter((o) => o.selected && o.matched).length / selected.size) : null,
+			recall: themes.length ? r2$4(hit / themes.length) : null,
+			rankedRecall: themes.length ? r2$4(rankedHit / themes.length) : null,
+			precision: selected.size && themes.length ? r2$4(ours.filter((o) => o.selected && o.matched).length / selected.size) : null,
 			materiality: {
 				ours: oursMat,
 				benchmark: review.materiality.benchmarkAr,
 				disclosed: disc ? disc.overall / unit : null,
 				disclosedBasis: disc ? disc.basis : null,
-				ratio: disc ? r2$3(oursMat / (disc.overall / unit)) : null,
+				ratio: disc ? r2$4(oursMat / (disc.overall / unit)) : null,
 				page: disc ? disc.page : null
 			},
 			requests: review.requests.length,
@@ -11100,7 +11100,7 @@ window.SKEngines = (function() {
 		return {
 			theirs: theirs.length,
 			covered: covered.length,
-			share: theirs.length ? r2$3(covered.length / theirs.length) : null,
+			share: theirs.length ? r2$4(covered.length / theirs.length) : null,
 			missing: theirs.filter((x) => !SQC_SECTIONS.has(x.key)).map((x) => x.ar)
 		};
 	}
@@ -11120,16 +11120,16 @@ window.SKEngines = (function() {
 			companies: list.length,
 			withKams: withKams.length,
 			kamThemes: actualN,
-			recall: actualN ? r2$3(sel / actualN) : 0,
-			rankedRecall: actualN ? r2$3(rk / actualN) : 0,
-			precision: oursSel ? r2$3(oursHit / oursSel) : 0,
+			recall: actualN ? r2$4(sel / actualN) : 0,
+			rankedRecall: actualN ? r2$4(rk / actualN) : 0,
+			precision: oursSel ? r2$4(oursHit / oursSel) : 0,
 			anyMatch: withKams.filter((r) => r.actual.some((a) => a.found === "selected")).length,
 			missed: Object.entries(missed).map(([theme, n]) => ({
 				theme,
 				ar: THEMES[theme].ar,
 				n
 			})).sort((a, b) => b.n - a.n),
-			structure: stTheirs ? r2$3(stCov / stTheirs) : 0,
+			structure: stTheirs ? r2$4(stCov / stTheirs) : 0,
 			materiality: mat.map((r) => ({
 				id: r.id,
 				company: r.company,
@@ -11566,7 +11566,7 @@ window.SKEngines = (function() {
 		if (member === "skeptic") return highRisk ? 2 : 1;
 		return 1;
 	}
-	var S$1 = (description) => ({
+	var S$2 = (description) => ({
 		type: "STRING",
 		...description ? { description } : {}
 	});
@@ -11574,7 +11574,7 @@ window.SKEngines = (function() {
 		type: "ARRAY",
 		items
 	});
-	var OBJ = (properties, required) => ({
+	var OBJ$1 = (properties, required) => ({
 		type: "OBJECT",
 		properties,
 		required
@@ -11583,12 +11583,12 @@ window.SKEngines = (function() {
 		type: "STRING",
 		enum: ASSERTIONS.map((a) => a.key)
 	};
-	var MEMBER_SCHEMA = OBJ({
-		position: S$1("موقفك في جملة واحدة"),
-		reasoning: S$1("التعليل مع أرقام الأدلة بين معقوفين مثل [T-ANL-001]"),
-		citations: ARR(S$1("رقم دليل من السجل فقط")),
-		items: ARR(OBJ({
-			lineKey: S$1("مفتاح البند كما في السجل"),
+	var MEMBER_SCHEMA = OBJ$1({
+		position: S$2("موقفك في جملة واحدة"),
+		reasoning: S$2("التعليل مع أرقام الأدلة بين معقوفين مثل [T-ANL-001]"),
+		citations: ARR(S$2("رقم دليل من السجل فقط")),
+		items: ARR(OBJ$1({
+			lineKey: S$2("مفتاح البند كما في السجل"),
 			assertion: ASSERT_ENUM,
 			sufficient: { type: "BOOLEAN" },
 			finding: { type: "BOOLEAN" },
@@ -11596,7 +11596,7 @@ window.SKEngines = (function() {
 				type: "NUMBER",
 				description: "0 إلى 1"
 			},
-			citations: ARR(S$1())
+			citations: ARR(S$2())
 		}, [
 			"lineKey",
 			"assertion",
@@ -11605,12 +11605,12 @@ window.SKEngines = (function() {
 			"confidence",
 			"citations"
 		])),
-		requests: ARR(OBJ({
-			lineKey: S$1(),
+		requests: ARR(OBJ$1({
+			lineKey: S$2(),
 			assertion: ASSERT_ENUM,
-			evidence: S$1("المستند المطلوب بدقة: من، ماذا، أي فترة"),
-			reason: S$1("السبب مع رقم الدليل"),
-			citations: ARR(S$1()),
+			evidence: S$2("المستند المطلوب بدقة: من، ماذا، أي فترة"),
+			reason: S$2("السبب مع رقم الدليل"),
+			citations: ARR(S$2()),
 			effort: {
 				type: "STRING",
 				enum: [
@@ -14638,7 +14638,7 @@ window.SKEngines = (function() {
 		suppliers: [],
 		customers: []
 	});
-	var r2$2 = (x) => Math.round(x * 100) / 100;
+	var r2$3 = (x) => Math.round(x * 100) / 100;
 	/** A material's cost per usable unit: purchase cost grossed up for waste (the cheapest supplier price when asked). */
 	function materialUnitCost(m, opts = {}) {
 		let base = m.cost;
@@ -14695,8 +14695,8 @@ window.SKEngines = (function() {
 				kind: "material",
 				name: m.name,
 				qty: c.qty,
-				unitCost: r2$2(u),
-				amount: r2$2(u * c.qty),
+				unitCost: r2$3(u),
+				amount: r2$3(u * c.qty),
 				share: 0
 			});
 		} else {
@@ -14715,16 +14715,16 @@ window.SKEngines = (function() {
 				name: sub.name,
 				qty: c.qty,
 				unitCost: sub.total,
-				amount: r2$2(sub.total * c.qty),
+				amount: r2$3(sub.total * c.qty),
 				share: 0
 			});
 			missing.push(...sub.missing);
 		}
-		const materials = r2$2(lines.reduce((s, l) => s + l.amount, 0)), overhead = r2$2(p.overhead || 0), total = r2$2(materials + overhead);
+		const materials = r2$3(lines.reduce((s, l) => s + l.amount, 0)), overhead = r2$3(p.overhead || 0), total = r2$3(materials + overhead);
 		lines.forEach((l) => {
 			l.share = total ? Math.round(l.amount / total * 1e3) / 10 : 0;
 		});
-		const price = p.price ?? null, profit = price != null ? r2$2(price - total) : null;
+		const price = p.price ?? null, profit = price != null ? r2$3(price - total) : null;
 		return {
 			id: p.id,
 			name: p.name,
@@ -14767,7 +14767,7 @@ window.SKEngines = (function() {
 				product: p.name,
 				before: a.total,
 				after: b.total,
-				change: r2$2(b.total - a.total),
+				change: r2$3(b.total - a.total),
 				marginBefore: a.margin,
 				marginAfter: b.margin
 			};
@@ -14827,7 +14827,7 @@ window.SKEngines = (function() {
 				source: "orders"
 			};
 			a.qty = (a.qty ?? 0) + (l.qty ?? 0);
-			a.amount = r2$2((a.amount ?? 0) + (l.amount ?? 0));
+			a.amount = r2$3((a.amount ?? 0) + (l.amount ?? 0));
 			agg.set(k, a);
 		}
 		const out = [];
@@ -14853,7 +14853,7 @@ window.SKEngines = (function() {
 		}));
 		const nodes = [
 			...col("supplier", suppliers, (s) => "s:" + s, (s) => s, (s) => t.suppliers.filter((x) => x.supplier === s).length + " مادة"),
-			...col("material", t.materials, (m) => m.id, (m) => m.name, (m) => r2$2(materialUnitCost(m)) + " / " + m.unit + (m.waste ? " · هدر " + m.waste + "%" : "")),
+			...col("material", t.materials, (m) => m.id, (m) => m.name, (m) => r2$3(materialUnitCost(m)) + " / " + m.unit + (m.waste ? " · هدر " + m.waste + "%" : "")),
 			...col("product", t.products, (p) => p.id, (p) => p.name, (p) => {
 				const c = productCost(t, p.id);
 				return "تكلفة " + c.total + (c.margin != null ? " · هامش " + c.margin + "%" : "");
@@ -15193,6 +15193,651 @@ window.SKEngines = (function() {
 			unclassified: total("unclassified"),
 			netChange: money$21(activities.reduce((sum, a) => sum + a.amount, 0))
 		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/finance/entry-learner-engine.ts
+	var entry_learner_engine_exports = /* @__PURE__ */ __exportAll({
+		AI_SCHEMA: () => AI_SCHEMA,
+		aiBody: () => aiBody,
+		detectColumns: () => detectColumns,
+		emptyMemory: () => emptyMemory,
+		forget: () => forget,
+		groupEntries: () => groupEntries,
+		isBalanced: () => isBalanced,
+		journalOf: () => journalOf,
+		learn: () => learn,
+		learnReport: () => learnReport,
+		linesFor: () => linesFor,
+		memoryText: () => memoryText,
+		rowsFrom: () => rowsFrom,
+		shapeOf: () => shapeOf,
+		suggest: () => suggest,
+		teach: () => teach,
+		tokens: () => tokens,
+		verifyAi: () => verifyAi
+	});
+	var emptyMemory = () => ({
+		v: 1,
+		accounts: {},
+		patterns: [],
+		rules: [],
+		notes: [],
+		stats: {
+			entries: 0,
+			lines: 0,
+			from: "",
+			to: "",
+			files: []
+		},
+		log: []
+	});
+	var r2$2 = (x) => Math.round((x + Number.EPSILON) * 100) / 100;
+	var now = () => (/* @__PURE__ */ new Date()).toISOString();
+	var STOP = /* @__PURE__ */ new Set([
+		"من",
+		"الى",
+		"علي",
+		"في",
+		"عن",
+		"مع",
+		"او",
+		"و",
+		"ثم",
+		"رقم",
+		"بتاريخ",
+		"تاريخ",
+		"قيد",
+		"قيمه",
+		"مبلغ",
+		"عدد",
+		"شهر",
+		"سند",
+		"فاتوره",
+		"لشهر",
+		"عن",
+		"هذا",
+		"هذه",
+		"الي",
+		"بقيمه",
+		"بمبلغ",
+		"ريال",
+		"رس",
+		"sar",
+		"the",
+		"of",
+		"to",
+		"for",
+		"and",
+		"no",
+		"inv",
+		"ref"
+	]);
+	function tokens(text) {
+		const n = String(text || "").toLowerCase().replace(/[ً-ٰٟ]/g, "").replace(/[أإآٱ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/ـ/g, "").replace(/[^\p{L}\s]/gu, " ");
+		const out = [];
+		for (let w of n.split(/\s+/)) {
+			if (!w) continue;
+			if (/^(وال|بال|لل|فال|كال)/.test(w) && w.length > 5) w = w.replace(/^(وال|بال|فال|كال)/, "").replace(/^لل/, "");
+			else if (w.startsWith("ال") && w.length > 4) w = w.slice(2);
+			if (w.length < 2 || STOP.has(w)) continue;
+			out.push(w);
+		}
+		return out;
+	}
+	/** Journal rows grouped into entries: by entry number, or — when a file carries none — by date and description.
+	*  Rows without a number continue the entry above them (files that print the number once per entry). */
+	function groupEntries(rows) {
+		const map = /* @__PURE__ */ new Map();
+		let last = "";
+		for (const r of rows) {
+			const acc = String(r.account ?? "").trim();
+			if (!acc) continue;
+			const debit = Math.abs(Number(r.debit) || 0), credit = Math.abs(Number(r.credit) || 0);
+			if (!debit && !credit) continue;
+			let key = String(r.ref ?? "").trim();
+			if (!key) key = last && !String(r.date ?? "").trim() && !String(r.memo ?? "").trim() ? last : String(r.date ?? "") + "|" + String(r.memo ?? "").trim();
+			last = key;
+			const e = map.get(key) ?? {
+				ref: key,
+				date: String(r.date ?? "").slice(0, 10),
+				memo: "",
+				lines: []
+			};
+			if (!e.date && r.date) e.date = String(r.date).slice(0, 10);
+			if (r.memo && !e.memo.includes(String(r.memo).trim())) e.memo = (e.memo ? e.memo + " — " : "") + String(r.memo).trim();
+			e.lines.push({
+				account: acc,
+				name: String(r.name ?? "").trim(),
+				debit,
+				credit
+			});
+			map.set(key, e);
+		}
+		return [...map.values()];
+	}
+	var VAT_RE = /ضريب|قيمه مضافه|القيمة المضافة|vat/i;
+	var CASH_RE = /نقد|صندوق|خزين|بنك|مصرف|راجحي|اهلي|الأهلي|انماء|cash|bank/i;
+	var SALES_RE = /مبيعات|ايراد|إيراد|revenue|sales/i;
+	var AP_RE = /مورد|دائن|ذمم دائن|payable|supplier/i;
+	var AR_RE = /عميل|عملاء|مدين|ذمم مدين|receivable|customer/i;
+	var STOCK_RE = /مخزون|مشتريات|بضاع|inventory|purchase/i;
+	var PAY_RE = /رواتب|اجور|أجور|salar|payroll/i;
+	var FA_RE = /اصول ثابت|أصول ثابت|آلات|معدات|سيارات|اثاث|أثاث|fixed asset|equipment/i;
+	/** The book a pattern is recorded in and the voucher that carries it, from the accounts on each side. */
+	function journalOf(legs) {
+		const has = (re, side) => legs.some((l) => (!side || l.side === side) && re.test(l.name + " " + l.account));
+		if (has(PAY_RE, "D")) return "يومية الرواتب — مسير الرواتب";
+		if (has(SALES_RE, "C")) return has(CASH_RE, "D") ? "يومية المبيعات — فاتورة بيع نقدي / سند قبض" : "يومية المبيعات — فاتورة بيع آجل";
+		if (has(CASH_RE, "D") && has(AR_RE, "C")) return "يومية المقبوضات — سند قبض من عميل";
+		if (has(CASH_RE, "C") && has(AP_RE, "D")) return "يومية المدفوعات — سند صرف لمورد";
+		if (has(AP_RE, "C") && (has(STOCK_RE, "D") || has(VAT_RE, "D"))) return "يومية المشتريات — فاتورة مورد";
+		if (has(FA_RE, "D")) return "اليومية العامة — إضافة أصل ثابت";
+		if (has(CASH_RE, "C")) return "يومية المدفوعات — سند صرف";
+		if (has(CASH_RE, "D")) return "يومية المقبوضات — سند قبض";
+		return "اليومية العامة — قيد يومية";
+	}
+	/** An entry's shape: each account, its side and its share of the entry's side total; VAT legs marked with their rate. */
+	function shapeOf(e) {
+		const by = /* @__PURE__ */ new Map();
+		for (const l of e.lines) {
+			const x = by.get(l.account) ?? {
+				account: l.account,
+				name: l.name,
+				d: 0,
+				c: 0
+			};
+			x.d += l.debit;
+			x.c += l.credit;
+			if (!x.name && l.name) x.name = l.name;
+			by.set(l.account, x);
+		}
+		const legs = [];
+		for (const x of by.values()) {
+			const net = x.d - x.c;
+			if (Math.abs(net) < .005) continue;
+			legs.push({
+				account: x.account,
+				name: x.name,
+				side: net > 0 ? "D" : "C",
+				share: Math.abs(net),
+				vat: VAT_RE.test(x.name + " " + x.account) || void 0
+			});
+		}
+		const tot = {
+			D: 0,
+			C: 0
+		};
+		legs.forEach((l) => {
+			tot[l.side] += l.share;
+		});
+		let vatRate;
+		for (const side of ["D", "C"]) {
+			const vat = legs.filter((l) => l.side === side && l.vat).reduce((s, l) => s + l.share, 0), net = tot[side] - vat;
+			if (vat > 0 && net > 0) vatRate = Math.round(vat / net * 1e3) / 1e3;
+		}
+		legs.forEach((l) => {
+			l.share = tot[l.side] ? Math.round(l.share / tot[l.side] * 1e4) / 1e4 : 0;
+		});
+		legs.sort((a, b) => a.side === b.side ? a.account.localeCompare(b.account) : a.side === "D" ? -1 : 1);
+		return {
+			key: legs.map((l) => l.side + ":" + l.account).join("|"),
+			legs,
+			vatRate
+		};
+	}
+	var keyOf = (p) => p.legs.map((l) => l.side + ":" + l.account).join("|");
+	var bump = (w, list, by = 1) => {
+		for (const t of list) w[t] = (w[t] ?? 0) + by;
+	};
+	/** Folds a journal (rows as read from a file) into the memory. Returns what was learnt. */
+	function learn(mem, rows, file = "ملف قيود") {
+		const entries = groupEntries(rows);
+		let fresh = 0, skipped = 0;
+		const byKey = new Map(mem.patterns.map((p) => [keyOf(p), p]));
+		for (const e of entries) {
+			for (const l of e.lines) {
+				const a = mem.accounts[l.account] ?? {
+					name: l.name,
+					d: 0,
+					c: 0
+				};
+				if (l.name) a.name = l.name;
+				a.d += l.debit;
+				a.c += l.credit;
+				mem.accounts[l.account] = a;
+			}
+			const d = e.lines.reduce((s, l) => s + l.debit, 0), c = e.lines.reduce((s, l) => s + l.credit, 0);
+			if (Math.abs(d - c) > .01 || e.lines.length < 2) {
+				skipped++;
+				continue;
+			}
+			const s = shapeOf(e);
+			if (s.legs.length < 2) {
+				skipped++;
+				continue;
+			}
+			s.legs.forEach((l) => {
+				if (!l.name) l.name = mem.accounts[l.account]?.name ?? "";
+			});
+			let p = byKey.get(s.key);
+			if (!p) {
+				p = {
+					id: "p" + (mem.patterns.length + 1) + "-" + s.key.length,
+					title: e.memo.slice(0, 70) || s.legs.map((l) => l.name || l.account).join(" / "),
+					journal: journalOf(s.legs),
+					legs: s.legs,
+					words: {},
+					count: 0,
+					confirmed: 0,
+					samples: [],
+					source: "journal"
+				};
+				mem.patterns.push(p);
+				byKey.set(s.key, p);
+				fresh++;
+			} else p.legs.forEach((l) => {
+				const n = s.legs.find((x) => x.side === l.side && x.account === l.account);
+				if (n) l.share = Math.round((l.share * p.count + n.share) / (p.count + 1) * 1e4) / 1e4;
+			});
+			p.count++;
+			if (s.vatRate) p.vatRate = p.vatRate ? Math.round((p.vatRate * (p.count - 1) + s.vatRate) / p.count * 1e3) / 1e3 : s.vatRate;
+			bump(p.words, [...new Set(tokens(e.memo))]);
+			if (e.memo && p.samples.length < 4 && !p.samples.includes(e.memo)) p.samples.push(e.memo.slice(0, 140));
+			if (e.date) {
+				if (!p.from || e.date < p.from) p.from = e.date;
+				if (!p.to || e.date > p.to) p.to = e.date;
+			}
+			if (e.date) {
+				if (!mem.stats.from || e.date < mem.stats.from) mem.stats.from = e.date;
+				if (!mem.stats.to || e.date > mem.stats.to) mem.stats.to = e.date;
+			}
+		}
+		mem.stats.entries += entries.length - skipped;
+		mem.stats.lines += entries.reduce((s, e) => s + e.lines.length, 0);
+		if (!mem.stats.files.includes(file)) mem.stats.files.push(file);
+		mem.log.unshift({
+			at: now(),
+			what: "تعلّم من «" + file + "»: " + (entries.length - skipped) + " قيداً، " + fresh + " نمطاً جديداً" + (skipped ? "، " + skipped + " قيداً غير متزن تُرك" : "")
+		});
+		mem.log = mem.log.slice(0, 60);
+		return {
+			entries: entries.length - skipped,
+			newPatterns: fresh,
+			accounts: Object.keys(mem.accounts).length,
+			skipped
+		};
+	}
+	var POLICY_RE = /يسجل|تسجل|يُسجل|تُسجل|يقيد|تقيد|يُقيد|قيد|يحمل|تحمل|يُحمل|يرحل|ترحل|تثبت|يثبت|يعالج|تعالج|يستهلك|تستهلك|يخصص|مخصص|تُرسمل|يرسمل|recorded|recognis|recogniz|charged|capitali[sz]|accrued|posted/i;
+	/** Keeps the sentences of a report that say how something is recorded, with the known accounts they name. */
+	function learnReport(mem, text, source = "تقرير") {
+		const names = Object.entries(mem.accounts).filter(([, a]) => a.name && a.name.length > 2);
+		let n = 0;
+		for (const raw of String(text || "").split(/(?<=[.!؟?\n])\s+|\n+/)) {
+			const s = raw.replace(/\s+/g, " ").trim();
+			if (s.length < 12 || s.length > 400 || !POLICY_RE.test(s)) continue;
+			const accounts = names.filter(([code, a]) => s.includes(a.name) || new RegExp("(^|\\D)" + code + "(\\D|$)").test(s)).map(([code]) => code);
+			if (mem.notes.some((x) => x.text === s)) continue;
+			mem.notes.push({
+				id: "n" + (mem.notes.length + 1) + "-" + s.length,
+				text: s,
+				source,
+				accounts,
+				words: [...new Set(tokens(s))],
+				at: now()
+			});
+			n++;
+		}
+		mem.log.unshift({
+			at: now(),
+			what: "قرأ «" + source + "»: " + n + " ملاحظة عن طريقة التسجيل"
+		});
+		mem.log = mem.log.slice(0, 60);
+		return { notes: n };
+	}
+	function idf(mem) {
+		const df = /* @__PURE__ */ new Map();
+		for (const p of mem.patterns) for (const w of Object.keys(p.words)) df.set(w, (df.get(w) ?? 0) + 1);
+		const N = Math.max(mem.patterns.length, 1);
+		return (w) => Math.log(1 + N / (df.get(w) ?? .5));
+	}
+	/** The entry's lines for an amount: VAT split out at the pattern's rate, each side shared as usual, rounded and balanced. */
+	function linesFor(p, amount, vatIncluded = true) {
+		const A = Math.abs(Number(amount) || 0), rate = p.vatRate ?? 0;
+		const sideTotal = (side) => {
+			const hasVat = p.legs.some((l) => l.side === side && l.vat);
+			return {
+				total: rate && !vatIncluded ? A * (1 + rate) : A,
+				net: rate && hasVat ? vatIncluded ? A / (1 + rate) : A : null
+			};
+		};
+		const out = [];
+		for (const side of ["D", "C"]) {
+			const legs = p.legs.filter((l) => l.side === side);
+			if (!legs.length) continue;
+			const { total, net } = sideTotal(side);
+			const nonShare = legs.filter((l) => !l.vat).reduce((s, l) => s + l.share, 0) || 1;
+			const rounded = legs.map((l) => net == null ? total * l.share : l.vat ? (total - net) * (l.share / (legs.filter((x) => x.vat).reduce((s, x) => s + x.share, 0) || 1)) : net * (l.share / nonShare)).map(r2$2), diff = r2$2(r2$2(total) - rounded.reduce((s, x) => s + x, 0));
+			if (diff) {
+				const i = rounded.indexOf(Math.max(...rounded));
+				rounded[i] = r2$2(rounded[i] + diff);
+			}
+			legs.forEach((l, i) => out.push({
+				account: l.account,
+				name: l.name,
+				debit: side === "D" ? rounded[i] : 0,
+				credit: side === "C" ? rounded[i] : 0
+			}));
+		}
+		return out;
+	}
+	var isBalanced = (lines) => lines.length >= 2 && Math.abs(lines.reduce((s, l) => s + l.debit - l.credit, 0)) < .005 && lines.some((l) => l.debit > 0);
+	/** The suggested entry for a document, how sure the memory is, and — when unsure — the question to ask. */
+	function suggest(mem, doc, opts = {}) {
+		const sureAt = opts.sureAt ?? .6, words = [...new Set(tokens(doc.text))], W = idf(mem);
+		const none = {
+			status: "unknown",
+			confidence: 0,
+			patternId: null,
+			title: "",
+			journal: "",
+			lines: [],
+			balanced: false,
+			reasons: [],
+			alternatives: [],
+			question: null
+		};
+		if (!mem.patterns.length) return {
+			...none,
+			reasons: ["الذاكرة فارغة — ارفع قيود فترة سابقة أولاً ليتعلم المحاكي طريقة التسجيل"],
+			question: "لم أتعلم بعد طريقة التسجيل في هذه الشركة. ارفع قيود فترة سابقة، أو حدّد القيد بنفسك وسأحفظه."
+		};
+		const docWeight = words.reduce((s, w) => s + W(w), 0) || 1;
+		const maxCount = Math.max(...mem.patterns.map((p) => p.count + p.confirmed), 1);
+		const scored = mem.patterns.map((p) => {
+			const hit = words.filter((w) => p.words[w]);
+			let s = hit.reduce((a, w) => a + W(w) * (1 + Math.log(p.words[w])), 0) / docWeight;
+			const rules = mem.rules.filter((r) => r.patternId === p.id && r.words.length && r.words.every((w) => words.includes(w)));
+			if (rules.length) s += 2;
+			const notes = mem.notes.filter((n) => n.accounts.some((a) => p.legs.some((l) => l.account === a)) && n.words.filter((w) => words.includes(w)).length >= 2);
+			if (notes.length) s += .25;
+			s += .05 * ((p.count + p.confirmed) / maxCount);
+			return {
+				p,
+				s,
+				hit,
+				rules,
+				notes,
+				coverage: hit.reduce((a, w) => a + W(w), 0) / docWeight
+			};
+		}).sort((a, b) => b.s - a.s);
+		const top = scored[0], second = scored[1];
+		if (!top || !top.hit.length && !top.rules.length) return {
+			...none,
+			alternatives: scored.slice(0, 3).map((x) => ({
+				patternId: x.p.id,
+				title: x.p.title,
+				score: Math.round(x.s * 100) / 100
+			})),
+			reasons: ["لا تطابق كلمات المستند أي نمط في الذاكرة"],
+			question: "لم أجد قيداً مشابهاً في قيود الشركة. ما نوع هذا المستند؟ اختر من الأنماط أو حدّد الحسابات بنفسك."
+		};
+		const margin = second ? (top.s - second.s) / (top.s || 1) : 1;
+		let confidence = Math.min(1, top.coverage * 1.25) * (.5 + .5 * margin);
+		if (top.rules.length) confidence = Math.max(confidence, .92);
+		confidence = Math.round(confidence * 100) / 100;
+		const lines = linesFor(top.p, doc.amount, doc.vatIncluded !== false);
+		const reasons = [
+			top.rules.length ? "قاعدة علّمتها للمحاكي: «" + top.rules[0].example.slice(0, 60) + "»" : "",
+			top.hit.length ? "كلمات مطابقة: " + top.hit.slice(0, 6).join("، ") : "",
+			"تكرر هذا القيد " + top.p.count + " مرة في القيود المرفوعة" + (top.p.confirmed ? " وأكدته " + top.p.confirmed + " مرة" : ""),
+			top.p.vatRate ? "فُصلت ضريبة القيمة المضافة بنسبة " + Math.round(top.p.vatRate * 1e3) / 10 + "٪ كما في القيود السابقة" : "",
+			...top.notes.slice(0, 2).map((n) => "من «" + n.source + "»: " + n.text.slice(0, 90))
+		].filter(Boolean);
+		const status = confidence >= sureAt ? "sure" : "unsure";
+		const alts = scored.slice(0, 4).filter((x) => x.s > 0).map((x) => ({
+			patternId: x.p.id,
+			title: x.p.title,
+			score: Math.round(x.s * 100) / 100
+		}));
+		return {
+			status,
+			confidence,
+			patternId: top.p.id,
+			title: top.p.title,
+			journal: top.p.journal,
+			lines,
+			balanced: isBalanced(lines),
+			reasons,
+			alternatives: alts,
+			question: status === "sure" ? null : "لست متأكداً: هذا المستند يشبه «" + top.p.title + "»" + (second && second.s > 0 ? " ويشبه أيضاً «" + second.p.title + "»" : "") + ". أيهما الصحيح؟ جوابك يُحفظ في الذاكرة."
+		};
+	}
+	/** Records the right answer for a document: a rule on its distinctive words, and the words on the pattern. */
+	function teach(mem, doc, answer) {
+		let p;
+		if ("patternId" in answer) p = mem.patterns.find((x) => x.id === answer.patternId);
+		else {
+			const legs = answer.legs.map((l) => ({ ...l })), key = legs.map((l) => l.side + ":" + l.account).sort().join("|");
+			p = mem.patterns.find((x) => keyOf(x).split("|").sort().join("|") === key);
+			if (!p) {
+				p = {
+					id: "u" + (mem.patterns.length + 1) + "-" + key.length,
+					title: answer.title || doc.text.slice(0, 60),
+					journal: journalOf(legs),
+					legs,
+					words: {},
+					count: 0,
+					confirmed: 0,
+					samples: [],
+					vatRate: answer.vatRate,
+					source: "user"
+				};
+				mem.patterns.push(p);
+			}
+			legs.forEach((l) => {
+				if (!mem.accounts[l.account]) mem.accounts[l.account] = {
+					name: l.name,
+					d: 0,
+					c: 0
+				};
+			});
+		}
+		if (!p) throw new Error("PATTERN_NOT_FOUND");
+		const W = idf(mem), words = [...new Set(tokens(doc.text))];
+		bump(p.words, words, 2);
+		p.confirmed++;
+		if (doc.text && p.samples.length < 6 && !p.samples.includes(doc.text.slice(0, 140))) p.samples.push(doc.text.slice(0, 140));
+		const key = words.sort((a, b) => W(b) - W(a)).slice(0, 3);
+		if (key.length) {
+			mem.rules = mem.rules.filter((r) => r.words.join(" ") !== key.join(" "));
+			mem.rules.push({
+				id: "r" + (mem.rules.length + 1) + "-" + key.join("").length,
+				words: key,
+				patternId: p.id,
+				at: now(),
+				example: doc.text.slice(0, 120)
+			});
+		}
+		mem.log.unshift({
+			at: now(),
+			what: "تعلّم من جوابك: «" + doc.text.slice(0, 50) + "» ← " + p.title
+		});
+		mem.log = mem.log.slice(0, 60);
+		return p;
+	}
+	function forget(mem, id) {
+		const n = mem.patterns.length + mem.rules.length + mem.notes.length;
+		mem.patterns = mem.patterns.filter((p) => p.id !== id);
+		mem.rules = mem.rules.filter((r) => r.id !== id && r.patternId !== id);
+		mem.notes = mem.notes.filter((x) => x.id !== id);
+		return mem.patterns.length + mem.rules.length + mem.notes.length < n;
+	}
+	/** A compact text of what the memory knows, for the AI's instructions (accounts, patterns with their words, rules, notes). */
+	function memoryText(mem, limit = 30) {
+		const acc = Object.entries(mem.accounts).slice(0, 120).map(([c, a]) => c + " " + a.name).join("؛ ");
+		const pats = [...mem.patterns].sort((a, b) => b.count + b.confirmed - (a.count + a.confirmed)).slice(0, limit).map((p) => "[" + p.id + "] " + p.title + " (" + p.count + " مرة، " + p.journal + "): " + p.legs.map((l) => (l.side === "D" ? "من " : "إلى ") + l.account + " " + l.name + " " + Math.round(l.share * 100) + "٪").join("، ") + (p.vatRate ? "، ض.ق.م " + Math.round(p.vatRate * 100) + "٪" : "") + " — كلمات: " + Object.entries(p.words).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([w]) => w).join(" "));
+		return "دليل الحسابات: " + acc + "\n\nأنماط القيود المتعلمة:\n" + pats.join("\n") + (mem.rules.length ? "\n\nقواعد علمها المحاسب:\n" + mem.rules.slice(-20).map((r) => "«" + r.example.slice(0, 60) + "» ← [" + r.patternId + "]").join("\n") : "") + (mem.notes.length ? "\n\nمن تقارير المدير المالي:\n" + mem.notes.slice(-15).map((n) => "• " + n.text.slice(0, 200)).join("\n") : "");
+	}
+	var S$1 = (description) => ({
+		type: "STRING",
+		...description ? { description } : {}
+	});
+	var OBJ = (properties, required) => ({
+		type: "OBJECT",
+		properties,
+		required
+	});
+	var AI_SCHEMA = OBJ({
+		patternId: S$1("معرّف النمط من الذاكرة إن طابق، أو فارغ"),
+		title: S$1("وصف قصير للقيد"),
+		journal: S$1("الدفتر أو اليومية والمستند الذي يُسجل فيه"),
+		lines: {
+			type: "ARRAY",
+			items: OBJ({
+				account: S$1("رقم الحساب من الدليل"),
+				name: S$1(),
+				debit: S$1("مبلغ أو 0"),
+				credit: S$1("مبلغ أو 0")
+			}, [
+				"account",
+				"name",
+				"debit",
+				"credit"
+			])
+		},
+		confidence: {
+			type: "NUMBER",
+			description: "0 إلى 1"
+		},
+		reason: S$1("لماذا هذا القيد، من الذاكرة"),
+		question: S$1("سؤال للمحاسب إن لم تكن متأكداً، وإلا فارغ"),
+		extracted: OBJ({
+			amount: S$1(),
+			date: S$1(),
+			party: S$1(),
+			vatIncluded: { type: "BOOLEAN" }
+		}, [])
+	}, [
+		"title",
+		"journal",
+		"lines",
+		"confidence",
+		"reason"
+	]);
+	/** The request (Gemini shape) asking the AI for the entry of a document, grounded in the memory and the local suggestion. */
+	function aiBody(mem, doc, local, attachment) {
+		const sys = "أنت محاسب أول في هذه الشركة. مهمتك اقتراح قيد اليومية لمستند، بالطريقة التي تسجل بها هذه الشركة قيودها بالضبط كما تظهر في الذاكرة أدناه. استخدم أرقام الحسابات الموجودة في الدليل فقط، واجعل القيد متزناً، وافصل ضريبة القيمة المضافة كما تفعل الشركة. إذا لم تكن متأكداً فاكتب سؤالاً محدداً للمحاسب في question وأعط confidence أقل من 0.6. لا تخترع حسابات.\n\n" + memoryText(mem);
+		const parts = [{ text: "المستند: " + (doc.text || "(مرفق)") + "\nالمبلغ: " + (doc.amount || "غير محدد — استخرجه من المرفق") + (doc.date ? "\nالتاريخ: " + doc.date : "") + "\nالمبلغ " + (doc.vatIncluded === false ? "قبل" : "شامل") + " الضريبة.\n\nاقتراح المحرك المحلي: " + (local.patternId ? "[" + local.patternId + "] " + local.title + " بثقة " + local.confidence : "لا يوجد") }];
+		if (attachment) parts.push({ inlineData: {
+			mimeType: attachment.mime,
+			data: attachment.data
+		} });
+		return {
+			systemInstruction: { parts: [{ text: sys }] },
+			contents: [{
+				role: "user",
+				parts
+			}],
+			generationConfig: {
+				temperature: .1,
+				responseMimeType: "application/json",
+				responseSchema: AI_SCHEMA
+			}
+		};
+	}
+	/** The AI's answer checked against the memory: known accounts only, balanced, or it falls back to asking. */
+	function verifyAi(mem, raw, local) {
+		const r = raw ?? {};
+		const num = (v) => Math.abs(Number(String(v ?? "").replace(/[^\d.\-]/g, "")) || 0);
+		const lines = (Array.isArray(r.lines) ? r.lines : []).map((l) => ({
+			account: String(l.account ?? "").trim(),
+			name: String(l.name ?? "").trim(),
+			debit: r2$2(num(l.debit)),
+			credit: r2$2(num(l.credit))
+		})).filter((l) => l.account && (l.debit || l.credit));
+		lines.forEach((l) => {
+			if (mem.accounts[l.account]) l.name = mem.accounts[l.account].name || l.name;
+		});
+		const unknownAccounts = lines.filter((l) => !mem.accounts[l.account]).map((l) => l.account);
+		const balanced = isBalanced(lines), pid = String(r.patternId ?? "");
+		let confidence = Math.max(0, Math.min(1, Number(r.confidence) || 0));
+		if (!balanced || unknownAccounts.length) confidence = Math.min(confidence, .4);
+		const q = String(r.question ?? "").trim();
+		const ex = r.extracted ?? {};
+		const status = !lines.length ? "unknown" : confidence >= .6 && !q ? "sure" : "unsure";
+		return {
+			status,
+			confidence: Math.round(confidence * 100) / 100,
+			patternId: mem.patterns.some((p) => p.id === pid) ? pid : null,
+			title: String(r.title ?? local.title ?? ""),
+			journal: String(r.journal ?? local.journal ?? ""),
+			lines,
+			balanced,
+			reasons: [
+				String(r.reason ?? ""),
+				!balanced ? "القيد المقترح من الذكاء الاصطناعي غير متزن" : "",
+				unknownAccounts.length ? "حسابات غير موجودة في الدليل: " + unknownAccounts.join("، ") : ""
+			].filter(Boolean),
+			alternatives: local.alternatives,
+			question: q || (status === "sure" ? null : local.question ?? "تحقق من القيد قبل اعتماده."),
+			unknownAccounts,
+			extracted: {
+				amount: num(ex.amount) || void 0,
+				date: String(ex.date ?? "") || void 0,
+				party: String(ex.party ?? "") || void 0
+			}
+		};
+	}
+	var COLS = [
+		["date", /تاريخ|date/],
+		["ref", /رقم القيد|القيد|مستند|سند|ref|entry|voucher|journal no|je/],
+		["account", /رقم الحساب|رمز الحساب|كود|account code|acc(ount)? ?no|code/],
+		["name", /اسم الحساب|الحساب|account name|account/],
+		["debit", /مدين|debit|dr/],
+		["credit", /دائن|credit|cr/],
+		["memo", /بيان|وصف|شرح|ملاحظ|description|memo|narration|details/],
+		["amount", /مبلغ|amount|value/],
+		["side", /نوع|طبيعه|طبيعة|side|d\/c|dr\/cr/]
+	];
+	/** Which column holds which field, from a file's header row (the screen lets the user correct it). */
+	function detectColumns(head) {
+		const h = head.map((x) => String(x ?? "").trim().toLowerCase()), out = {}, used = /* @__PURE__ */ new Set();
+		for (const [f, re] of COLS) {
+			const i = h.findIndex((x, j) => !used.has(j) && re.test(x));
+			if (i >= 0) {
+				out[f] = i;
+				used.add(i);
+			}
+		}
+		return out;
+	}
+	/** Rows of a journal file as journal rows, given the column map (a single amount column with a side column is supported). */
+	function rowsFrom(rows, map) {
+		const g = (r, f) => map[f] == null || map[f] < 0 ? "" : String(r[map[f]] ?? "").trim();
+		const num = (v) => {
+			const s = v.replace(/[٬,\s]/g, "").replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));
+			const neg = /^\(.*\)$/.test(s);
+			const n = Number(s.replace(/[^\d.\-]/g, "")) || 0;
+			return neg ? -n : n;
+		};
+		return rows.map((r) => {
+			let debit = num(g(r, "debit")), credit = num(g(r, "credit"));
+			if (!debit && !credit && map.amount != null) {
+				const a = num(g(r, "amount")), side = g(r, "side").toLowerCase();
+				if (/دائن|^c|cr/.test(side) || !side && a < 0) credit = Math.abs(a);
+				else debit = Math.abs(a);
+			}
+			const acc = g(r, "account") || g(r, "name");
+			return {
+				date: g(r, "date"),
+				ref: g(r, "ref"),
+				account: acc,
+				name: g(r, "name") !== acc ? g(r, "name") : "",
+				debit,
+				credit,
+				memo: g(r, "memo")
+			};
+		}).filter((x) => x.account);
 	}
 	//#endregion
 	//#region app/src/engine/fusion/finance/journal-chain-engine.ts
@@ -20528,6 +21173,7 @@ window.SKEngines = (function() {
 			accounts: accounts_engine_exports,
 			bankReconciliation: bank_reconciliation_engine_exports,
 			cashFlow: cash_flow_engine_exports,
+			entryLearner: entry_learner_engine_exports,
 			journalChain: journal_chain_engine_exports,
 			ledger: ledger_engine_exports,
 			partyLedger: party_ledger_engine_exports,

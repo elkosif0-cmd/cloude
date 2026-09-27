@@ -37,6 +37,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | مختبر الجزارة | `yieldlab` | الأدوات المساعدة للمحاسب › مختبر الذبيحة › مختبر الجزارة | ADVANCED | admin, warehouse |
 | تفكيك الذبيحة | `nrv` | الأدوات المساعدة للمحاسب › مختبر الذبيحة › تفكيك الذبيحة NRV | ADVANCED | admin |
 | Grand Fusion finance (accounts, journals, GL, TB, reconciliation) | `ledger` | الأدوات المساعدة للمحاسب › الدفاتر المحاسبية | CORE | admin, accountant |
+| جديد — فهم القيود ومحاكاتها بذاكرة داخلية | `jesim` | الأدوات المساعدة للمحاسب › محاكي القيود | CORE | admin |
 | التدفق النقدي | `cash` | الأدوات المساعدة للمحاسب › التدفق النقدي | CORE | admin, accountant, sales, viewer |
 | الذمم | `receivables` | الأدوات المساعدة للمحاسب › الذمم والتحصيل | CORE | admin, accountant, sales |
 | الهندسة المالية | `finance` | الأدوات المساعدة للمحاسب › الهندسة المالية | ADVANCED | admin, accountant |
@@ -104,6 +105,7 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | الأدوات المساعدة للمحاسب | الإنتاج والخلطات | `blending` خلطات اللحوم · `culinary` دليل الشيف |
 | الأدوات المساعدة للمحاسب | مختبر الذبيحة | `carcass` اقتصاديات الذبيحة · `yieldlab` مختبر الجزارة · `nrv` تفكيك الذبيحة NRV |
 | الأدوات المساعدة للمحاسب | الدفاتر المحاسبية | `ledger` الدفاتر المحاسبية |
+| الأدوات المساعدة للمحاسب | محاكي القيود | `jesim` محاكي القيود |
 | الأدوات المساعدة للمحاسب | التدفق النقدي | `cash` التدفق النقدي |
 | الأدوات المساعدة للمحاسب | الذمم والتحصيل | `receivables` الذمم والتحصيل |
 | الأدوات المساعدة للمحاسب | الهندسة المالية | `finance` الهندسة المالية |
@@ -117,15 +119,15 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | Jev والقرار | مركز القرار | `decision` مركز القرار |
 | Jev والقرار | Jev ومجلس القرار | `jev` Jev للقرار · `council` مجلس القرار |
 
-70 screens in 33 menu entries.
+71 screens in 34 menu entries.
 
 ## By tier
 
-- **CORE** — العمل اليومي الأساسي (20): `dash`, `notifications`, `salesmap`, `commerce`, `zatca`, `customers`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `cash`, `receivables`, `ptree`, `productflow`, `catalog`, `sim`, `builder`, `tbreview`
+- **CORE** — العمل اليومي الأساسي (21): `dash`, `notifications`, `salesmap`, `commerce`, `zatca`, `customers`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `jesim`, `cash`, `receivables`, `ptree`, `productflow`, `catalog`, `sim`, `builder`, `tbreview`
 - **MANAGEMENT** — الإدارة والمتابعة (11): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `memo`, `execreports`, `archive`, `codex`, `auditbench`, `corpuslab`
 - **INTELLIGENCE** — التحليل والذكاء (7): `decision`, `jev`, `council`, `salesintel`, `intelligence`, `economics`, `compare`
 - **ADVANCED** — الهندسة المتقدمة (17): `risklab`, `sensitivity`, `carcass`, `yieldlab`, `nrv`, `finance`, `costs`, `kernel`, `analyzer`, `auditdesk`, `auditdocs`, `auditissues`, `auditcouncil`, `auditfin`, `auditreport`, `auditanalytics`, `auditlab`
 - **UTILITIES** — أدوات مساعدة (10): `helperdesk`, `blending`, `culinary`, `labels`, `scanner`, `smartmatch`, `excelrecon`, `reports`, `exports`, `devices`
 - **ADMIN** — النظام والإدارة (5): `settings`, `companies`, `governance`, `health`, `capabilitiesv2`
 
-Coverage gate: 70 screens in 4 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
+Coverage gate: 71 screens in 4 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
