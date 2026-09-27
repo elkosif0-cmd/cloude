@@ -4295,6 +4295,12 @@ window.SKEngines = (function() {
 	var SUSPENSE = /معلق|تحت التسويه|وسيط|حساب مؤقت|suspense|clearing/;
 	var RELATED = /طرف ذو علاقه|اطراف ذات علاقه|شركه شقيقه|جاري المدير|جاري الشريك|جاري الشركاء|related part/;
 	var SALARIES = /رواتب|اجور|salar|wages/;
+	var INTL_DOC = {
+		"احتساب الزكاة للسنة": ["احتساب ضريبة الدخل للسنة (الجارية والمؤجلة) والإقرارات", "التحقق من IAS 12 والتشريع الضريبي المطبق"],
+		"الإقرار الزكوي وإيصال السداد وشهادة الزكاة": ["الإقرارات الضريبية وإيصالات السداد ومطابقتها بالمخصص", "مطابقة الالتزام الضريبي"],
+		"الربوط والاعتراضات القائمة": ["الربوط والفحوص الضريبية والنزاعات القائمة مع الجهات الضريبية", "تقييم المواقف الضريبية غير المؤكدة (IFRIC 23)"],
+		"عينة فواتير المبيعات الإلكترونية مع رموز QR": ["عينة فواتير المبيعات وعقودها ومستندات التسليم", "التحقق من الحدوث والدقة"]
+	};
 	var ROUND_PRONE = /* @__PURE__ */ new Set([
 		"provisions",
 		"accruals",
@@ -4308,7 +4314,7 @@ window.SKEngines = (function() {
 	]);
 	/** Run the whole deterministic review of a trial balance. */
 	function reviewTrialBalance(tb, opts = {}) {
-		const framework = opts.framework ?? "IFRS", egypt = framework === "EAS", cur = opts.currency ?? (egypt ? "ج.م" : "ر.س");
+		const framework = opts.framework ?? "IFRS", egypt = framework === "EAS", intl = !egypt && opts.tax === "income", cur = opts.currency ?? (egypt ? "ج.م" : "ر.س");
 		const money = (m) => formatMinor(m, { decimals: 0 }) + " " + cur;
 		const fs = buildStatements(tb, opts.overrides ?? {}, { tax: opts.tax ?? (egypt ? "income" : "zakat") });
 		const mat0 = materiality(fs, {
@@ -4645,7 +4651,7 @@ window.SKEngines = (function() {
 			basis: "مصروف الضريبة " + money(zakatExp),
 			action: "طلب الإقرار وإيصالات السداد ونماذج الخصم تحت الحساب."
 		});
-		else if (pbz > 0 && zakatExp === 0) {
+		else if (!intl && pbz > 0 && zakatExp === 0) {
 			const sources = kv("equity") + kv("ncl"), deductions = kv("nca"), base = Math.max(sources - deductions, pbz), est = Math.round(base * .025 / 100) * 100;
 			add({
 				severity: est >= mat.trivial ? "high" : "medium",
@@ -4676,7 +4682,7 @@ window.SKEngines = (function() {
 					type: "liability"
 				}]
 			});
-		} else if (zakatExp > 0 && zakatPay === 0) add({
+		} else if (!intl && zakatExp > 0 && zakatPay === 0) add({
 			severity: "low",
 			kind: "completeness",
 			lineKey: "zakatPayable",
@@ -4687,7 +4693,8 @@ window.SKEngines = (function() {
 			action: "طلب إيصال السداد أو قيد المخصص."
 		});
 		const ppeNet = kv("ppe");
-		if (ppeNet > 0 && kv("depreciation") === 0) add({
+		const depInside = accounts.some((a) => a.type === "expense" && a.natural !== 0 && /استهلاك|اهلاك|اطفاء/.test(norm$1(a.name)));
+		if (ppeNet > 0 && kv("depreciation") === 0 && !depInside) add({
 			severity: ppeNet >= mat.overall ? "high" : "medium",
 			kind: "completeness",
 			lineKey: "ppe",
@@ -4708,7 +4715,7 @@ window.SKEngines = (function() {
 			action: "مراجعة سجل الأصول والاستبعادات."
 		});
 		const salaries = accounts.filter((a) => a.type === "expense" && SALARIES.test(norm$1(a.name))).reduce((s, a) => s + a.natural, 0);
-		if (!egypt && salaries > 0 && !fs.lines.some((l) => l.key === "eosb" && l.current !== 0)) add({
+		if (!egypt && !intl && salaries > 0 && !fs.lines.some((l) => l.key === "eosb" && l.current !== 0)) add({
 			severity: salaries >= mat.overall ? "high" : "medium",
 			kind: "completeness",
 			lineKey: "eosb",
@@ -4719,7 +4726,8 @@ window.SKEngines = (function() {
 			action: "طلب كشف الموظفين واحتساب الالتزام."
 		});
 		const loans = kv("loansCl") + kv("loansNcl");
-		if (loans > 0 && kv("finance") === 0) add({
+		const financeInside = accounts.some((a) => a.natural !== 0 && a.lineKey !== "loansNcl" && a.lineKey !== "loansCl" && /تكاليف التمويل|تكلفه التمويل|فوائد/.test(norm$1(a.name)));
+		if (loans > 0 && kv("finance") === 0 && !financeInside) add({
 			severity: "medium",
 			kind: "completeness",
 			lineKey: "loansNcl",
@@ -4751,7 +4759,7 @@ window.SKEngines = (function() {
 			action: "طلب حركة المخزون وقيد تكلفة المبيعات."
 		});
 		const vatA = fs.lines.find((l) => l.key === "vatAsset")?.current ?? 0, vatL = fs.lines.find((l) => l.key === "vatLiability")?.current ?? 0;
-		if (kv("revenue") > 0 && vatA === 0 && vatL === 0) add({
+		if (!intl && kv("revenue") > 0 && vatA === 0 && vatL === 0) add({
 			severity: "low",
 			kind: "completeness",
 			lineKey: "revenue",
@@ -4875,7 +4883,7 @@ window.SKEngines = (function() {
 			basis: "حقوق الملكية " + money(kv("equity")),
 			action: "تقييم خطط الإدارة والدعم المالي والإفصاح."
 		});
-		else if (kv("cl") > 0 && kv("ca") < kv("cl")) add({
+		else if (!opts.unclassified && kv("cl") > 0 && kv("ca") < kv("cl")) add({
 			severity: "medium",
 			kind: "going-concern",
 			standard: "ISA 570",
@@ -4949,7 +4957,7 @@ window.SKEngines = (function() {
 			const la = LINE_AUDIT[r.lineKey];
 			if (!la) continue;
 			const accs = fs.lines.find((l) => l.key === r.lineKey).accounts.map((a) => a.code);
-			la.docs.forEach(([title, purpose], i) => {
+			la.docs.map(([t, p]) => intl ? INTL_DOC[t] ?? [t, p] : [t, p]).forEach(([title, purpose], i) => {
 				if (requests.some((q) => q.title === title)) return;
 				requests.push({
 					id: "PBC-" + r.lineKey + "-" + (i + 1),
@@ -5959,7 +5967,7 @@ window.SKEngines = (function() {
 		const sigUnevidenced = review.risks.filter((r) => r.significant && !ev[r.lineKey]).length;
 		const lineOf = (q) => q.lineKey ?? review.accounts.find((a) => q.accounts.includes(a.code))?.lineKey ?? null;
 		const blockedSig = new Set(unavailHigh.map(lineOf).filter((k) => k && review.risks.some((r) => r.lineKey === k && r.significant)));
-		const basis = [], material = misstatement > mat.overall, pervasive = misstatement > mat.overall * 5, cs = s.ctx.framework === "EAS" ? "ج.م" : "ر.س";
+		const basis = [], material = misstatement > mat.overall, pervasive = misstatement > mat.overall * 5, cs = s.ctx.curSym ?? (s.ctx.framework === "EAS" ? "ج.م" : "ر.س");
 		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar$1(misstatement)} ${cs} مقابل أهمية نسبية ${sar$1(mat.overall)} ${cs} (ISA 450).`);
 		if (unavailHigh.length) basis.push(`تعذر الحصول على ${unavailHigh.length} مستند عالي الأولوية: ` + unavailHigh.map((q) => q.title).join("، ") + ".");
 		const scopePervasive = unavailHigh.length >= 3 || blockedSig.size >= 3;
@@ -8841,7 +8849,22 @@ window.SKEngines = (function() {
 		industrial: "industrial",
 		conglomerate: "conglomerate"
 	};
-	var unitAr = (f) => (f.unit === "crore" ? "كرور " : "مليون ") + (f.currency === "INR" ? "روبية" : CURRENCY_AR[f.currency] ?? f.currency);
+	var UNIT_SHORT = {
+		USD: "$",
+		EUR: "€",
+		GBP: "£",
+		JPY: "¥",
+		CHF: "CHF",
+		KRW: "₩",
+		RMB: "RMB",
+		TWD: "TWD",
+		SAR: "ريال",
+		AED: "درهم",
+		AUD: "A$",
+		CAD: "C$",
+		INR: "روبية"
+	};
+	var unitAr = (f) => (f.unit === "crore" ? "كرور " : "مليون ") + (UNIT_SHORT[f.currency] ?? f.currency);
 	/** Every company with statements, in bundle order. */
 	function corpusCompanies() {
 		return REPORTS.filter((r) => FIGURES[r.id]).map((r) => {
@@ -8866,26 +8889,28 @@ window.SKEngines = (function() {
 			const known = pick(f.cash, i) + pick(f.recv, i) + pick(f.inv, i) + pick(f.invst, i) + pick(f.ppe, i) + pick(f.intang, i);
 			return f.assets[i] - known;
 		});
-		const invst = Y((i) => pick(f.invst, i) + Math.min(0, parts[i]));
-		const otherCa = Y((i) => {
-			const rest = Math.max(0, parts[i]);
-			if (!f.ca) return 0;
-			return Math.max(0, Math.min(rest, f.ca[i] - pick(f.cash, i) - pick(f.recv, i) - pick(f.inv, i)));
-		});
-		const otherNca = Y((i) => Math.max(0, parts[i]) - otherCa[i]);
+		const invst0 = Y((i) => pick(f.invst, i) + Math.min(0, parts[i]));
+		const caNeed = Y((i) => f.ca ? Math.max(0, f.ca[i] - pick(f.cash, i) - pick(f.recv, i) - pick(f.inv, i)) : 0);
+		const otherCa0 = Y((i) => Math.min(Math.max(0, parts[i]), caNeed[i]));
+		const invCur = Y((i) => Math.min(invst0[i], caNeed[i] - otherCa0[i]));
+		const invst = Y((i) => invst0[i] - invCur[i]), otherCa = Y((i) => otherCa0[i] + invCur[i]);
+		const otherNca = Y((i) => Math.max(0, parts[i]) - otherCa0[i]);
 		const L = Y((i) => f.assets[i] - f.equity[i]);
 		const pay = Y((i) => pick(f.pay, i)), contract = Y((i) => pick(f.contract, i)), taxp = Y((i) => pick(f.taxp, i)), prov = Y((i) => pick(f.prov, i)), reserves = Y((i) => pick(f.reserves, i));
 		const debt = Y((i) => pick(f.debt, i)), pens = Y((i) => pick(f.pens, i));
 		const lrest = Y((i) => L[i] - pay[i] - contract[i] - taxp[i] - prov[i] - reserves[i] - debt[i] - pens[i]);
+		const clNeed = Y((i) => f.cl ? Math.max(0, f.cl[i] - pay[i] - contract[i] - taxp[i] - prov[i] - reserves[i]) : 0);
 		const otherCl = Y((i) => {
 			const rest = Math.max(0, lrest[i]);
 			if (!f.cl) return f.kind === "corporate" ? 0 : rest;
-			return Math.max(0, Math.min(rest, f.cl[i] - pay[i] - contract[i] - taxp[i] - prov[i]));
+			return Math.min(rest, clNeed[i]);
 		});
 		const otherNcl = Y((i) => Math.max(0, lrest[i]) - otherCl[i]);
 		const debtAdj = Y((i) => debt[i] + Math.min(0, lrest[i]));
+		const debtCur = Y((i) => Math.max(0, Math.min(debtAdj[i], clNeed[i] - otherCl[i])));
+		const debtNc = Y((i) => debtAdj[i] - debtCur[i]);
 		const rev = Y((i) => pick(f.rev, i)), cogs = Y((i) => pick(f.cogs, i)), ecl = Y((i) => pick(f.ecl, i));
-		const op = Y((i) => f.op ? f.op[i] : f.pbt[i]);
+		const op = Y((i) => f.op ? f.op[i] : Math.min(f.pbt[i], rev[i] - cogs[i] - ecl[i]));
 		const opex = Y((i) => rev[i] - cogs[i] - ecl[i] - op[i]);
 		const nonop = Y((i) => f.pbt[i] - op[i]);
 		const after = Y((i) => f.net[i] - (f.pbt[i] - f.tax[i]));
@@ -8900,10 +8925,10 @@ window.SKEngines = (function() {
 		const pos = (code, name, line, drWhenPositive, v) => A(code, name, line, drWhenPositive ? "dr" : "cr", v);
 		return [
 			A("1101", bank ? "النقد والأرصدة لدى البنوك المركزية والبنوك" : "النقد وما في حكمه", "cash", "dr", cash),
-			A("1121", bank ? "قروض وسلف العملاء (إجمالي)" : f.allow ? "الذمم المدينة (إجمالي)" : "الذمم المدينة التجارية", "receivables", "dr", gross),
-			A("1129", "مخصص الخسائر الائتمانية المتوقعة", "receivables", "cr", allow),
+			A("1121", bank ? "قروض وسلف العملاء (إجمالي)" : f.allow ? "الذمم المدينة (إجمالي)" : "الذمم المدينة التجارية (بالصافي بعد مخصص الخسائر الائتمانية)", "receivables", "dr", gross),
+			A("1129", "مخصص خسائر ائتمانية متوقعة", "receivables", "cr", allow),
 			A("1141", "المخزون", "inventory", "dr", inv),
-			A("1161", "موجودات متداولة أخرى", "otherCa", "dr", otherCa),
+			A("1161", "استثمارات قصيرة الأجل وموجودات متداولة أخرى", "otherCa", "dr", otherCa),
 			A("1501", "ممتلكات وآلات ومعدات وحق استخدام", "ppe", "dr", ppe),
 			A("1801", "الشهرة والموجودات غير الملموسة", "intangibles", "dr", intang),
 			A("1901", f.holding ? "استثمارات في شركات تابعة وزميلة واستثمارات أخرى" : "استثمارات وأوراق مالية", "investments", "dr", invst),
@@ -8914,17 +8939,18 @@ window.SKEngines = (function() {
 			A("2161", "المخصصات", "provisions", "cr", prov),
 			A("2162", "احتياطيات مطالبات التأمين", "provisions", "cr", reserves),
 			A("2171", "مطلوبات متداولة أخرى", "otherCl", "cr", otherCl),
-			A("2201", bank ? "الديون المصدرة والقروض طويلة الأجل" : "القروض والتمويل", "loansNcl", "cr", debtAdj),
+			A("2151", "الجزء المتداول من القروض والتمويل", "loansCl", "cr", debtCur),
+			A("2201", bank ? "الديون المصدرة والقروض طويلة الأجل" : "القروض والتمويل طويلة الأجل", "loansNcl", "cr", debtNc),
 			A("2301", "التزامات منافع الموظفين والتقاعد", "eosb", "cr", pens),
 			A("2401", "مطلوبات غير متداولة أخرى", "otherNcl", "cr", otherNcl),
 			A("3101", "حقوق الملكية في بداية السنة بعد التوزيعات والحركات الأخرى", "retained", "cr", eqOpen),
 			A("4101", bank ? "إجمالي دخل العمليات" : ins ? "الإيرادات (الأقساط والمبيعات ودخل الاستثمار)" : "الإيرادات", "revenue", "cr", rev),
 			A("5101", "تكلفة الإيرادات", "cogs", "dr", cogs),
 			A("5401", "مصروف الخسائر الائتمانية المتوقعة", "impairment", "dr", ecl),
-			pos("5301", "المصروفات التشغيلية", "admin", true, opex),
-			pos(nonop[0] >= 0 ? "4201" : "7101", "صافي الإيرادات (التكاليف) غير التشغيلية والتمويلية", nonop[0] >= 0 ? "investIncome" : "financeCost", false, nonop),
+			!f.cogs && pick(f.inv, 0) > 0 ? pos("5101", "تكاليف التشغيل (تشمل تكلفة البضاعة والاستهلاك والإطفاء — القائمة معروضة بطبيعة المصروف)", "cogs", true, opex) : pos("5301", f.op ? "المصروفات التشغيلية (تشمل الاستهلاك والإطفاء)" : "المصروفات التشغيلية (تشمل الاستهلاك والإطفاء وتكاليف التمويل)", "admin", true, opex),
+			pos(nonop[0] >= 0 ? "4201" : "7101", "صافي تكاليف التمويل والإيرادات غير التشغيلية", nonop[0] >= 0 ? "investIncome" : "financeCost", false, nonop),
 			pos("8101", "ضريبة الدخل", "zakatExpense", true, f.tax),
-			pos("4701", "حصة نتائج الشركات الزميلة والعمليات غير المستمرة بعد الضريبة", "investIncome", false, after)
+			pos(after[0] >= 0 ? "4701" : "7201", "حصة نتائج الشركات الزميلة والعمليات غير المستمرة بعد الضريبة", "investIncome", false, after)
 		].filter((a) => a.v[0] !== 0 || a.v[1] !== 0);
 	}
 	/** The trial balance as the engagement file imports it (CSV with the prior year), the line of each account, and the engagement context. */
@@ -8961,6 +8987,7 @@ window.SKEngines = (function() {
 				principalPlace: COUNTRY_AR[c.country] ?? c.country,
 				country: c.country === "SA" ? "SA" : "INTL",
 				framework: "IFRS",
+				unclassified: f.kind !== "corporate",
 				currency: c.currencyAr,
 				curSym: c.unitAr,
 				taxKind: c.country === "SA" ? "zakat" : "income",
@@ -11006,7 +11033,8 @@ window.SKEngines = (function() {
 			framework: "IFRS",
 			currency: t.ctx.curSym,
 			overrides: t.overrides,
-			tax: t.ctx.taxKind
+			tax: t.ctx.taxKind,
+			unclassified: t.ctx.unclassified
 		});
 		const prior = opts.prior === false ? void 0 : sectorPrior(c.sector, c.id);
 		const kams = suggestKams({

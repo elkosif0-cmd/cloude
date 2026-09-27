@@ -93,7 +93,7 @@ async function loadTB(text,label,ctx,overrides){
 async function loadCorpus(id){
   const CC=E().reports.corpusCompanies;if(!CC)return false;const t=CC.companyTrialBalance(id);if(!t){toast("الشركة غير موجودة في الحزمة","bad");return false}
   const ok=await loadTB(t.csv,t.company.company+" "+t.company.fy,{...t.ctx},t.overrides);
-  if(ok){const d=st();d.ctx={...blank().ctx,...t.ctx};d.fw={};put(d);SK.audit&&SK.audit.log("tbreview",{act:"corpus",id});
+  if(ok){const d=st();d.ctx={...blank().ctx,...t.ctx};d.fw={listedOrIssuing:true};put(d);SK.audit&&SK.audit.log("tbreview",{act:"corpus",id});
     if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");else paint()}
   return ok;
 }
@@ -115,7 +115,7 @@ function compute(){
   if(cache&&cache.sig===sig)return cache;
   const tb=TI().parseTrialBalance(d.tbText);
   const fw=egypt(d)?"EAS":d.ctx.framework,tax=egypt(d)?"income":d.ctx.taxKind==="income"?"income":"zakat";
-  const opts={framework:fw,currency:CUR,overrides:d.overrides,materiality:d.materiality||undefined,tax};
+  const opts={framework:fw,currency:CUR,overrides:d.overrides,materiality:d.materiality||undefined,tax,unclassified:!!d.ctx.unclassified};
   let base=RV().reviewTrialBalance(tb,opts);
   /* the materiality plan (ISA 320), once adopted, sets materiality and the performance and trivial rates of the whole review */
   const k0=base.fs.keys,plan=d.matPlanOn&&E().audit.materiality.planMateriality?E().audit.materiality.planMateriality({pbt:k0.pbz.current,revenue:k0.revenue.current,assets:k0.assets.current,equity:k0.equity.current,...(d.matPlan||{})}):null;
@@ -187,21 +187,23 @@ function badge(c,k){
 
 /* ---------- setup (company, period, framework, trial balance) ---------- */
 function setupHTML(d,withTb){
-  const c=d.ctx,fw=d.fw||{},app=CX().frameworkApplicability(fw),eg=egypt(d);
+  const c=d.ctx,fw=d.fw||{},app=CX().frameworkApplicability(fw),eg=egypt(d),intl=c.country==="INTL";
   const q=(k,l)=>'<label class="checkline"><input type="checkbox" data-fw="'+k+'"'+(fw[k]?' checked':'')+'> '+esc(l)+'</label>';
   return '<section class="card"><div class="card-h"><div><h3>'+(withTb?"استلام ميزان المراجعة":"بيانات المراجعة")+'</h3><p>اطلب من الشركة ميزان المراجعة (Excel أو CSV) بأعمدة: رقم الحساب، اسم الحساب، مدين، دائن — ويفضّل عمود السنة السابقة للمقارنة وقائمة التدفقات.</p></div></div><div class="card-b">'+
-    '<div class="sk-grid2"><label class="sk-field"><span>بلد المنشأة</span><select data-ctx="country"><option value="SA"'+(eg?'':' selected')+'>المملكة العربية السعودية — IFRS المعتمدة / SOCPA</option><option value="EG"'+(eg?' selected':'')+'>جمهورية مصر العربية — معايير المحاسبة المصرية</option></select></label>'+
+    '<div class="sk-grid2"><label class="sk-field"><span>بلد المنشأة</span><select data-ctx="country"><option value="SA"'+(eg?'':' selected')+'>المملكة العربية السعودية — IFRS المعتمدة / SOCPA</option><option value="EG"'+(eg?' selected':'')+'>جمهورية مصر العربية — معايير المحاسبة المصرية</option>'+(intl?'<option value="INTL" selected>'+esc(c.registeredOffice||"دولية")+' — '+esc(c.reportingFramework||"IFRS")+' (شركة من التقارير العالمية)</option>':'')+'</select></label>'+
       '<label class="sk-field"><span>الشكل القانوني</span><input data-ctx="legalForm" value="'+esc(c.legalForm)+'" placeholder="ذات مسؤولية محدودة، مساهمة…"></label></div>'+
     '<div class="sk-grid2"><label class="sk-field"><span>المنشأة</span><input data-ctx="company" value="'+esc(c.company)+'" placeholder="اسم الشركة"></label><label class="sk-field"><span>النشاط</span><input data-ctx="activity" value="'+esc(c.activity)+'" placeholder="تجارة، مقاولات، خدمات…"></label></div>'+
     '<div class="sk-grid2"><label class="sk-field"><span>الفترة</span><input data-ctx="period" value="'+esc(c.period)+'" placeholder="السنة المنتهية في 31 ديسمبر 2025"></label><div class="sk-grid2"><label class="sk-field"><span>من</span><input type="date" data-ctx="periodStart" value="'+esc(c.periodStart)+'"></label><label class="sk-field"><span>إلى</span><input type="date" data-ctx="periodEnd" value="'+esc(c.periodEnd)+'"></label></div></div>'+
     '<div class="sk-grid2"><label class="sk-field"><span>المكتب المسجل</span><input data-ctx="registeredOffice" value="'+esc(c.registeredOffice)+'" placeholder="المدينة والعنوان"></label><label class="sk-field"><span>المقر الرئيسي للنشاط</span><input data-ctx="principalPlace" value="'+esc(c.principalPlace)+'"></label></div>'+
-    (eg?'<div class="tbr-fw"><div><h4>الإطار المحاسبي</h4><p class="hint">معايير المحاسبة المصرية الصادرة بقرارات وزير الاستثمار وتعديلاتها، وقانون الضريبة على الدخل 91 لسنة 2005 (22.5%)، وقانون الضريبة على القيمة المضافة 67 لسنة 2016 (14%)، وقانون الشركات 159 لسنة 1981. العملة: الجنيه المصري.</p></div>'+
+    (intl?'<div class="tbr-fw"><div><h4>الإطار المحاسبي</h4><p class="hint">شركة مدرجة من التقارير العالمية: قوائمها معدة وفق '+esc(c.reportingFramework||"IFRS")+' ومراجعة وفق '+esc(c.auditStandard==="PCAOB"?"معايير PCAOB":"معايير المراجعة الدولية ISA")+'. يراجعها SQC بالمعايير الدولية؛ الأرقام بالعملة والوحدة المنشورة ('+esc(c.curSym||"")+').</p></div>'+
+      '<div class="tbr-fw-r"><b>'+esc(c.reportingFramework||"IFRS")+'</b><p>مراجعها الفعلي: '+esc(c.auditFirm||"—")+'. قارن ما يصل إليه SQC بتقريره من «مختبر الشركات العالمية».</p><small>حزمة البحث العالمية · 12,506 صفحة</small></div></div>':
+    eg?'<div class="tbr-fw"><div><h4>الإطار المحاسبي</h4><p class="hint">معايير المحاسبة المصرية الصادرة بقرارات وزير الاستثمار وتعديلاتها، وقانون الضريبة على الدخل 91 لسنة 2005 (22.5%)، وقانون الضريبة على القيمة المضافة 67 لسنة 2016 (14%)، وقانون الشركات 159 لسنة 1981. العملة: الجنيه المصري.</p></div>'+
       '<div class="tbr-fw-r"><b>معايير المحاسبة المصرية</b><p>تظهر أرقام المعايير المصرية بجوار الحسابات مع ما يقابلها في IFRS، وتُعامل ضريبة الدخل بدلاً من الزكاة.</p><small>الهيئة العامة للرقابة المالية · مصلحة الضرائب المصرية</small></div></div>':
     '<div class="tbr-fw"><div><h4>الإطار المحاسبي (إرشادات SOCPA — القسم 1)</h4>'+q("listedOrIssuing","أسهم أو أدوات دين متداولة أو في طور الإدراج")+q("fiduciaryForBroadGroup","تحتفظ بأموال مجموعة عريضة من الغير كنشاط رئيس (بنك، تأمين، صندوق)")+q("incidentalDepositsOnly","الاحتفاظ بأموال العملاء عرضي (مدارس، وكالات سفر)")+q("electedFullIfrs","غير خاضعة للمساءلة واختارت المعايير الكاملة")+'</div>'+
       '<div class="tbr-fw-r"><b>'+esc(app.label)+'</b><p>'+esc(app.reason)+'</p><small>'+esc(app.cite.join(" · "))+'</small></div></div>')+
     (withTb?'<div class="tbr-in"><label class="btn primary" style="cursor:pointer">'+SK.icon("excelrecon")+' رفع ملف الميزان<input type="file" data-tbfile accept=".xlsx,.csv,.tsv,.txt,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></label><button type="button" class="btn" data-a="books" title="استيراد يدوي من أدوات المحاسب — لا توجد مزامنة تلقائية مع ملف المراجعة">'+SK.icon("ledger")+' استيراد يدوي من الأدوات</button><button type="button" class="btn" data-a="waha" title="شركة وهمية كاملة: 40 حساباً بسنتين وبيانات المنشأة والمراجع">شركة الواحة — ملف كامل</button>'+corpusPicker()+'<button type="button" class="btn" data-a="sample">ميزان تجريبي</button><span class="hint">أو الصق الميزان من Excel:</span></div>'+
       '<textarea data-tbtext rows="7" dir="ltr" placeholder="رقم الحساب\tاسم الحساب\tمدين\tدائن\tالسنة السابقة">'+esc(d.tbText)+'</textarea><div class="sk-actions"><button type="button" class="btn primary" data-a="analyze">تحليل الميزان</button></div>':
-      '<div class="sk-actions"><button type="button" class="btn primary" data-a="setup-done">تم</button><label class="sk-field tbr-mat"><span>الأهمية النسبية (ريال) — فارغ = تلقائي</span><input type="number" min="0" step="100" data-mat value="'+(d.materiality?d.materiality/100:"")+'"></label></div>')+
+      '<div class="sk-actions"><button type="button" class="btn primary" data-a="setup-done">تم</button><label class="sk-field tbr-mat"><span>الأهمية النسبية ('+esc(c.curSym||(eg?"جنيه":"ريال"))+') — فارغ = تلقائي</span><input type="number" min="0" step="100" data-mat value="'+(d.materiality?d.materiality/100:"")+'"></label></div>')+
   '</div></section>';
 }
 
@@ -572,7 +574,7 @@ function corpusPicker(){
     Object.entries(by).map(([k,cs])=>'<optgroup label="'+esc(GB&&GB.SECTOR_AR[k]||k)+'">'+cs.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.company+" — "+c.fy)+'</option>').join("")+'</optgroup>').join("")+
     '</select><button type="button" class="btn" data-a="corpus" title="قوائمها المنشورة كميزان بسنتين، ومراجعها وسنتها المالية — لتشغيل المراجعة كاملة ومقارنتها بتقرير مراجعها">افتح كملف مراجعة</button></span>';
 }
-function readCtx(d){root.querySelectorAll("[data-ctx]").forEach(i=>{d.ctx[i.dataset.ctx]=i.value.trim()});d.ctx.framework=d.ctx.country==="EG"?"EAS":CX().frameworkApplicability(d.fw||{}).framework;d.ctx.currency=d.ctx.country==="EG"?"الجنيه المصري":"الريال السعودي";return d}
+function readCtx(d){root.querySelectorAll("[data-ctx]").forEach(i=>{d.ctx[i.dataset.ctx]=i.value.trim()});if(d.ctx.country==="INTL"){d.ctx.framework="IFRS";return d}d.ctx.framework=d.ctx.country==="EG"?"EAS":CX().frameworkApplicability(d.fw||{}).framework;d.ctx.currency=d.ctx.country==="EG"?"الجنيه المصري":"الريال السعودي";return d}
 async function upload(reqId,files){
   let d=st(),s=session(d);const pend=AI().pendingUploads(s).reduce((a,u)=>a+u.size,0);let added=0,total=pend;
   for(const f of files){
@@ -749,6 +751,8 @@ function paint(){
   const body=conf?'<div class="tbc" data-tbc-body aria-busy="true">'+(confHTML.sig===c.sig&&confHTML.h||'<p class="empty">يحسب درجات الثقة والفحوص…</p>')+'</div>':tab==="plan"&&FW()?(AP()?AP().planCard(c)+AP().estCard(c):'')+FW().planTab(c):tab==="close"&&FW()?FW().closeTab(c)+(AP()?AP().gcCard(c):''):tab==="ai"?aiTab(c):tab==="docs"?docsTab(c):tab==="adj"?adjTab(c):tab==="fs"?fsTab(c):tbTab(c);
   const adv=window.SKosifAuditBridge&&ADV[tab]?advHTML(tab):"";
   root.innerHTML='<div class="tbr">'+hero(c)+(setup?setupHTML(c.d,false):'')+body+adv+'</div>';
+  /* the flow map scrolls sideways: bring the current step into view without moving the page */
+  {const tr=root.querySelector(".tbr-flowtrack"),cu=tr&&tr.querySelector(".cur,.tbr-flow-node:not(.done)");if(tr&&cu){const a=tr.getBoundingClientRect(),b=cu.getBoundingClientRect();tr.scrollLeft+=(b.left+b.width/2)-(a.left+a.width/2)}}
   window.scrollTo(0,y);
   if(adv){const h=root.querySelector("[data-studio-host]");if(h)SKosifAuditBridge.mountStudio(h,ADV[tab])}
   if(conf){const seq=++confSeq;CU().confTab(c).then(h=>{if(seq!==confSeq||tab!=="conf"||!root)return;confHTML={sig:c.sig,h};const el=root.querySelector("[data-tbc-body]");if(el){el.innerHTML=h;el.removeAttribute("aria-busy");window.scrollTo(0,y)}})

@@ -136,7 +136,9 @@ const COUNTRY_AR: Record<string, string> = { US: 'الولايات المتحد�
 export type CorpusCompany = Report & { figures: Figures; yearEnd: string; unitAr: string; currencyAr: string };
 const SECTOR_EN: Record<string, string> = { tech: 'tech', retail: 'retail', fmcg: 'food & consumer', banking: 'banking', insurance: 'insurance', pharma: 'pharma',
   energy: 'energy', auto: 'auto', telecom: 'telecom', mining: 'mining', industrial: 'industrial', conglomerate: 'conglomerate' };
-const unitAr = (f: Figures) => (f.unit === 'crore' ? 'كرور ' : 'مليون ') + (f.currency === 'INR' ? 'روبية' : CURRENCY_AR[f.currency] ?? f.currency);
+/* the unit as the figures carry it on screen — short, so a tile's figure stays on one line */
+const UNIT_SHORT: Record<string, string> = { USD: '$', EUR: '€', GBP: '£', JPY: '¥', CHF: 'CHF', KRW: '₩', RMB: 'RMB', TWD: 'TWD', SAR: 'ريال', AED: 'درهم', AUD: 'A$', CAD: 'C$', INR: 'روبية' };
+const unitAr = (f: Figures) => (f.unit === 'crore' ? 'كرور ' : 'مليون ') + (UNIT_SHORT[f.currency] ?? f.currency);
 /** Every company with statements, in bundle order. */
 export function corpusCompanies(): CorpusCompany[] {
   return REPORTS.filter((r) => FIGURES[r.id]).map((r) => {
@@ -159,20 +161,29 @@ function accounts(c: CorpusCompany): Acc[] {
     const known = pick(f.cash, i) + pick(f.recv, i) + pick(f.inv, i) + pick(f.invst, i) + pick(f.ppe, i) + pick(f.intang, i), rest = f.assets[i] - known;
     return rest;
   });
-  const invst = Y((i) => pick(f.invst, i) + Math.min(0, parts[i])); /* overlap: a current security counted twice in the published lines */
-  const otherCa = Y((i) => { const rest = Math.max(0, parts[i]); if (!f.ca) return 0; return Math.max(0, Math.min(rest, f.ca[i] - pick(f.cash, i) - pick(f.recv, i) - pick(f.inv, i))); });
-  const otherNca = Y((i) => Math.max(0, parts[i]) - otherCa[i]);
+  const invst0 = Y((i) => pick(f.invst, i) + Math.min(0, parts[i])); /* overlap: a current security counted twice in the published lines */
+  const caNeed = Y((i) => (f.ca ? Math.max(0, f.ca[i] - pick(f.cash, i) - pick(f.recv, i) - pick(f.inv, i)) : 0));
+  const otherCa0 = Y((i) => Math.min(Math.max(0, parts[i]), caNeed[i]));
+  /* what current assets still lack is the current part of the investments (marketable securities, deposits) */
+  const invCur = Y((i) => Math.min(invst0[i], caNeed[i] - otherCa0[i]));
+  const invst = Y((i) => invst0[i] - invCur[i]), otherCa = Y((i) => otherCa0[i] + invCur[i]);
+  const otherNca = Y((i) => Math.max(0, parts[i]) - otherCa0[i]);
   /* liabilities: the same, against total liabilities (assets − equity) */
   const L = Y((i) => f.assets[i] - f.equity[i]);
   const pay = Y((i) => pick(f.pay, i)), contract = Y((i) => pick(f.contract, i)), taxp = Y((i) => pick(f.taxp, i)), prov = Y((i) => pick(f.prov, i)), reserves = Y((i) => pick(f.reserves, i));
   const debt = Y((i) => pick(f.debt, i)), pens = Y((i) => pick(f.pens, i));
   const lrest = Y((i) => L[i] - pay[i] - contract[i] - taxp[i] - prov[i] - reserves[i] - debt[i] - pens[i]);
-  const otherCl = Y((i) => { const rest = Math.max(0, lrest[i]); if (!f.cl) return f.kind === 'corporate' ? 0 : rest; return Math.max(0, Math.min(rest, f.cl[i] - pay[i] - contract[i] - taxp[i] - prov[i])); });
+  const clNeed = Y((i) => (f.cl ? Math.max(0, f.cl[i] - pay[i] - contract[i] - taxp[i] - prov[i] - reserves[i]) : 0));
+  const otherCl = Y((i) => { const rest = Math.max(0, lrest[i]); if (!f.cl) return f.kind === 'corporate' ? 0 : rest; return Math.min(rest, clNeed[i]); });
   const otherNcl = Y((i) => Math.max(0, lrest[i]) - otherCl[i]);
   const debtAdj = Y((i) => debt[i] + Math.min(0, lrest[i])); /* overlap on the liability side is taken out of borrowings */
+  /* what current liabilities still lack is the current part of the borrowings */
+  const debtCur = Y((i) => Math.max(0, Math.min(debtAdj[i], clNeed[i] - otherCl[i])));
+  const debtNc = Y((i) => debtAdj[i] - debtCur[i]);
   /* profit or loss: revenue, cost of sales, operating costs to the published operating profit, the rest to profit before tax, tax, and what follows tax */
   const rev = Y((i) => pick(f.rev, i)), cogs = Y((i) => pick(f.cogs, i)), ecl = Y((i) => pick(f.ecl, i));
-  const op = Y((i) => (f.op ? f.op[i] : f.pbt[i]));
+  /* without a published operating result, operating costs stop at zero: the rest of profit before tax is non-operating (SoftBank's investment gains) */
+  const op = Y((i) => (f.op ? f.op[i] : Math.min(f.pbt[i], rev[i] - cogs[i] - ecl[i])));
   const opex = Y((i) => rev[i] - cogs[i] - ecl[i] - op[i]);
   const nonop = Y((i) => f.pbt[i] - op[i]);
   const after = Y((i) => f.net[i] - (f.pbt[i] - f.tax[i]));
@@ -181,10 +192,10 @@ function accounts(c: CorpusCompany): Acc[] {
   const pos = (code: string, name: string, line: string, drWhenPositive: boolean, v: Pair) => A(code, name, line, drWhenPositive ? 'dr' : 'cr', v);
   const list: Acc[] = [
     A('1101', bank ? 'النقد والأرصدة لدى البنوك المركزية والبنوك' : 'النقد وما في حكمه', 'cash', 'dr', cash),
-    A('1121', bank ? 'قروض وسلف العملاء (إجمالي)' : f.allow ? 'الذمم المدينة (إجمالي)' : 'الذمم المدينة التجارية', 'receivables', 'dr', gross),
-    A('1129', 'مخصص الخسائر الائتمانية المتوقعة', 'receivables', 'cr', allow),
+    A('1121', bank ? 'قروض وسلف العملاء (إجمالي)' : f.allow ? 'الذمم المدينة (إجمالي)' : 'الذمم المدينة التجارية (بالصافي بعد مخصص الخسائر الائتمانية)', 'receivables', 'dr', gross),
+    A('1129', 'مخصص خسائر ائتمانية متوقعة', 'receivables', 'cr', allow),
     A('1141', 'المخزون', 'inventory', 'dr', inv),
-    A('1161', 'موجودات متداولة أخرى', 'otherCa', 'dr', otherCa),
+    A('1161', 'استثمارات قصيرة الأجل وموجودات متداولة أخرى', 'otherCa', 'dr', otherCa),
     A('1501', 'ممتلكات وآلات ومعدات وحق استخدام', 'ppe', 'dr', ppe),
     A('1801', 'الشهرة والموجودات غير الملموسة', 'intangibles', 'dr', intang),
     A('1901', f.holding ? 'استثمارات في شركات تابعة وزميلة واستثمارات أخرى' : 'استثمارات وأوراق مالية', 'investments', 'dr', invst),
@@ -195,17 +206,21 @@ function accounts(c: CorpusCompany): Acc[] {
     A('2161', 'المخصصات', 'provisions', 'cr', prov),
     A('2162', 'احتياطيات مطالبات التأمين', 'provisions', 'cr', reserves),
     A('2171', 'مطلوبات متداولة أخرى', 'otherCl', 'cr', otherCl),
-    A('2201', bank ? 'الديون المصدرة والقروض طويلة الأجل' : 'القروض والتمويل', 'loansNcl', 'cr', debtAdj),
+    A('2151', 'الجزء المتداول من القروض والتمويل', 'loansCl', 'cr', debtCur),
+    A('2201', bank ? 'الديون المصدرة والقروض طويلة الأجل' : 'القروض والتمويل طويلة الأجل', 'loansNcl', 'cr', debtNc),
     A('2301', 'التزامات منافع الموظفين والتقاعد', 'eosb', 'cr', pens),
     A('2401', 'مطلوبات غير متداولة أخرى', 'otherNcl', 'cr', otherNcl),
     A('3101', 'حقوق الملكية في بداية السنة بعد التوزيعات والحركات الأخرى', 'retained', 'cr', eqOpen),
     A('4101', bank ? 'إجمالي دخل العمليات' : ins ? 'الإيرادات (الأقساط والمبيعات ودخل الاستثمار)' : 'الإيرادات', 'revenue', 'cr', rev),
     A('5101', 'تكلفة الإيرادات', 'cogs', 'dr', cogs),
     A('5401', 'مصروف الخسائر الائتمانية المتوقعة', 'impairment', 'dr', ecl),
-    pos('5301', 'المصروفات التشغيلية', 'admin', true, opex),
-    pos(nonop[0] >= 0 ? '4201' : '7101', 'صافي الإيرادات (التكاليف) غير التشغيلية والتمويلية', nonop[0] >= 0 ? 'investIncome' : 'financeCost', false, nonop),
+    /* a statement by nature (no cost of sales published) with inventory: its operating costs carry the cost of goods */
+    !f.cogs && pick(f.inv, 0) > 0
+      ? pos('5101', 'تكاليف التشغيل (تشمل تكلفة البضاعة والاستهلاك والإطفاء — القائمة معروضة بطبيعة المصروف)', 'cogs', true, opex)
+      : pos('5301', f.op ? 'المصروفات التشغيلية (تشمل الاستهلاك والإطفاء)' : 'المصروفات التشغيلية (تشمل الاستهلاك والإطفاء وتكاليف التمويل)', 'admin', true, opex),
+    pos(nonop[0] >= 0 ? '4201' : '7101', 'صافي تكاليف التمويل والإيرادات غير التشغيلية', nonop[0] >= 0 ? 'investIncome' : 'financeCost', false, nonop),
     pos('8101', 'ضريبة الدخل', 'zakatExpense', true, f.tax),
-    pos('4701', 'حصة نتائج الشركات الزميلة والعمليات غير المستمرة بعد الضريبة', 'investIncome', false, after),
+    pos(after[0] >= 0 ? '4701' : '7201', 'حصة نتائج الشركات الزميلة والعمليات غير المستمرة بعد الضريبة', 'investIncome', false, after),
   ];
   return list.filter((a) => a.v[0] !== 0 || a.v[1] !== 0);
 }
@@ -226,7 +241,7 @@ export function companyTrialBalance(id: string) {
     company: c.company, activity: SECTOR_AR[c.sector] + ' (' + SECTOR_EN[c.sector] + ')' + (f.kind === 'bank' ? ' — بنك' : f.kind === 'insurer' ? ' — تأمين واستثمار' : ''), sector: c.sector,
     period: 'السنة المالية المنتهية في ' + c.yearEnd + ' (' + c.fy + ')', periodStart: '', periodEnd: c.yearEnd,
     legalForm: 'شركة مدرجة', registeredOffice: COUNTRY_AR[c.country] ?? c.country, principalPlace: COUNTRY_AR[c.country] ?? c.country,
-    country: c.country === 'SA' ? 'SA' : 'INTL', framework: 'IFRS' as const, currency: c.currencyAr, curSym: c.unitAr, taxKind: c.country === 'SA' ? 'zakat' : 'income',
+    country: c.country === 'SA' ? 'SA' : 'INTL', framework: 'IFRS' as const, unclassified: f.kind !== 'corporate', currency: c.currencyAr, curSym: c.unitAr, taxKind: c.country === 'SA' ? 'zakat' : 'income',
     auditFirm: c.auditor || 'مراجع المجموعة', auditCity: COUNTRY_AR[c.country] ?? '', corpusId: c.id, reportingFramework: c.framework, auditStandard: c.standard,
   };
   const balanced = [0, 1].every((i) => Math.abs(accs.reduce((s, a) => s + signed(a, a.v[i]), 0)) < 0.5);

@@ -171,6 +171,9 @@ await p.evaluate(()=>SKosifTBReview.loadCorpus('aramco-2025'));await p.waitForTi
 ok('الشركات العالمية','فتح شركة عالمية كملف مراجعة بعملتها ومراجعها وسنتها',await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}');return d.ctx&&d.ctx.corpusId==='aramco-2025'&&/ريال/.test(d.ctx.curSym)&&/Pricewaterhouse/.test(d.ctx.auditFirm)&&Object.keys(d.overrides||{}).length>10}));
 await p.evaluate(()=>SKosifTBReview.open('docs'));await p.waitForTimeout(1500);
 ok('الشركات العالمية','طلبات الجولة الأولى تشمل ما اعتمد عليه مراجعو التقارير العالمية',await txt('مراجعين في التقارير العالمية'));
+ok('الشركات العالمية','شركة دولية: طلبات ضريبة الدخل لا الزكاة ولا فواتير QR',await p.evaluate(()=>SKosifTBReview.loadCorpus('apple-2024')).then(()=>p.waitForTimeout(2500)).then(()=>p.evaluate(()=>SKosifTBReview.open('docs'))).then(()=>p.waitForTimeout(1500)).then(()=>p.evaluate(()=>{const t=document.querySelector('#view').innerText;return /ضريبة الدخل/.test(t)&&!/احتساب الزكاة|رموز QR/.test(t)})));
+ok('الشركات العالمية','بيانات المراجعة تحفظ إطار الشركة الدولية ولا تقترح معيار المنشآت الصغيرة',await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}');return d.ctx.country==='INTL'&&d.ctx.framework==='IFRS'}));
+ok('هيكل المنتج','بطاقة الشريط الجانبي تعرض حالة ملف المراجعة لا هوامش البوكسات',await p.evaluate(()=>{const c=document.getElementById('status-card');return !!c&&/ملف المراجعة/.test(c.innerText)&&!/هامش البوكسات/.test(c.innerText)}));
 const ph=await (await b.newContext({viewport:{width:390,height:844},isMobile:true})).newPage();await ph.goto(URL_);await ph.waitForTimeout(5000);
 ok('الجولات 1–33','شريط التبويبات السفلي في الآيفون',await ph.evaluate(()=>!!document.querySelector('.skb,.sk-tabbar,[class*="tabbar"]')));
 if(process.argv[3])fs.writeFileSync(process.argv[3],JSON.stringify(R,null,1));
