@@ -78,9 +78,13 @@ KOSIF Think طبقة تنسيق واحدة فوق مزوّدي الذكاء ال
 
 الاستجابة تعرض النتيجة النهائية، اتفاق المجلس، قرار Jev، artifacts المختصرة، التعارضات، وأي Agent فشل.
 
-## المرحلة التالية
-1. Adapter يربط `think-engine.ts` بالمحرك الحالي للمزوّدات.
-2. Adapter لـJev يرسل JSON-RPC عبر Service Binding الموجود.
-3. Worker `KOSIF Think API` واحد.
-4. شاشة داخل KOSIF: Fast / Council / Deep، اختيار Agents، budget، وDecision Log.
-5. اختبارات contract + timeout + partial failure + malformed JSON + Jev unavailable.
+## حالة التنفيذ الحالية
+- `SKosifAI.generateFor(provider, ...)` يشغّل كل مزود مضبوط بمفتاحه المحلي بدون إرسال المفاتيح إلى خادم KOSIF.
+- شاشة Jev تحتوي الآن على KOSIF Think بأوضاع Fast / Council / Deep.
+- `SKosifThink.run(...)` API داخلي متاح لبقية وحدات التطبيق.
+- جولات independent → critique → revision تعمل حسب الوضع المختار.
+- Jev يراجع النتيجة عبر الجسر الحالي، وبوابة الاعتماد الافتراضية تستخدم 80% لاتفاق المجلس و80% لثقة Jev عندما تتوفر.
+- فشل مزود واحد لا يوقف بقية الجولة.
+
+## الخطوة اللاحقة الاختيارية
+يمكن إضافة HTTP Worker خارجي `/v1/think` لاحقاً إذا أُريد تشغيل المجلس خارج التطبيق. التنفيذ الحالي يبقي مفاتيح النماذج على جهاز المستخدم، وهو أكثر تحفظاً للخصوصية.
