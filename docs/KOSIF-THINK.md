@@ -88,3 +88,13 @@ KOSIF Think طبقة تنسيق واحدة فوق مزوّدي الذكاء ال
 
 ## الخطوة اللاحقة الاختيارية
 يمكن إضافة HTTP Worker خارجي `/v1/think` لاحقاً إذا أُريد تشغيل المجلس خارج التطبيق. التنفيذ الحالي يبقي مفاتيح النماذج على جهاز المستخدم، وهو أكثر تحفظاً للخصوصية.
+
+
+## KOSIF Think v2 — Clean APIs frontier council
+- **Fast** keeps the low-latency Cloudflare council: Llama 3.3 70B Fast + Mistral Small 3.1 24B + Llama 4 Scout.
+- **Council** routes to the new Clean APIs secret using GPT-5.6 Sol + Claude Opus 5 + Gemini 3.7 Flash in parallel.
+- **Deep** uses the same frontier trio, then critique and revision rounds before Jev handoff.
+- If fewer than two Clean APIs frontier agents succeed, the stage automatically falls back to the Cloudflare fast council.
+- The Clean APIs credential remains a Cloudflare secret named `cleanapis`; its value is never committed to GitHub or returned by the MCP.
+- Frontier synthesis prefers GPT-5.6 Sol; Kimi K2.6 on Workers AI remains the synthesis fallback.
+- The MCP still returns a structured `jev_payload` for the existing Jev Bridge decision gate.
