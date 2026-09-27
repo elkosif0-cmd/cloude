@@ -10,7 +10,6 @@
 const {$,$$,esc,load,save}=SK;
 const core=()=>window.SKosifCore;
 const PREF_KEY="skosif_prefs";
-const ADV_NOTE="الأدوات المتقدمة ظاهرة داخل كل مجال — أخفها من «التشغيل اليومي».";
 
 /* ---------- preferences: theme (look) + density ----------
    look: kosif (default, the adopted KOSIF identity) | kosif-night | heritage | heritage-night | executive | audit | midnight | notebook | auto */
@@ -146,7 +145,7 @@ let lastSig="";
 /* the menu: collapsible domains (icon · name · count), the current screen's domain always open,
    and a filter box above it; open/closed state per device (skosif_nav_v1) */
 const NAV_KEY="skosif_nav_v1";
-const GICON={home:"dash",audit:"tbreview",helpers:"helperdesk",system:"settings"};
+const GICON={home:"dash",audit:"tbreview",helpers:"helperdesk",jev:"jev"};
 const CHEV='<svg class="skn-ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
 const navState=()=>{const d=load(NAV_KEY,{})||{};return d.open&&typeof d.open==="object"?d.open:{}};
 function setNavOpen(g,v){const d=load(NAV_KEY,{})||{};d.open={...(d.open||{}),[g]:v};save(NAV_KEY,d)}
@@ -154,7 +153,7 @@ let navQ="";
 const nq=s=>String(s||"").toLowerCase().replace(/[ً-ٰٟ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").trim();
 function paintNav(){
   const nav=$("#nav");if(!nav||!core())return;
-  const adv=core().mode()==="advanced",cur=core().view(),open=navState();
+  const cur=core().view(),open=navState();
   let html="";
   SK.caps.groups().forEach(g=>{
     const items=SK.caps.hubsInGroup(g.id).map(c=>[c,hubPages(c.id,cur)]).filter(([,pg])=>pg.length);
@@ -164,7 +163,6 @@ function paintNav(){
       '<button type="button" class="nav-group skn-gh" data-g="'+g.id+'" aria-expanded="'+isOpen+'"><span class="skn-gi">'+(SK.icons[GICON[g.id]]||"")+'</span><span>'+esc(g.label)+'</span><i class="skn-gc">'+items.length+'</i>'+CHEV+'</button>'+
       items.map(([c,pg])=>navButton(c,cur,pg)).join("")+'</div>';
   });
-  if(adv)html+='<p class="skn-note">'+ADV_NOTE+'</p>';
   if(html!==lastSig||!nav.querySelector(".skn-group")){nav.innerHTML=html;lastSig=html}
   navSearch();filterNav();
 }

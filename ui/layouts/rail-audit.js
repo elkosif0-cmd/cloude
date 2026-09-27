@@ -38,6 +38,8 @@ function apply(){
   busy=false;
 }
 function start(){
+  /* the old daily/advanced switch is gone: whoever left the app in «advanced» comes back to the one mode */
+  try{const c=window.SKosifCore;if(c&&c.mode&&c.mode()==="advanced"&&c.setMode)c.setMode("standard")}catch{}
   const card=document.getElementById("status-card");if(!card){setTimeout(start,500);return}
   apply();
   new MutationObserver(()=>{if(!busy)apply()}).observe(card,{childList:true});
