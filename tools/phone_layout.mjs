@@ -6,6 +6,9 @@
 //   • nothing is clipped: no visible control, table or panel lies outside the screen unless an ancestor scrolls
 //     horizontally (a wide table inside a scrolling panel is fine; a button pushed off-screen is not);
 //   • the screen's host keeps the click listeners it had on the first visit (duplicated handlers stack on revisits);
+//   • HOME / SHELL, on every viewport (320px included): the command center, the top bar (menu, logo, search,
+//     notifications, user), the company and period controls and the bottom tab bar stay on screen, the RTL page does not
+//     start scrolled or right-clipped, and three visits do not grow its listeners;
 //   • the document is right-to-left, and dialogs fit the screen and scroll inside;
 //   • the startup overlays fit, on a 390px and a 320px phone: the demo-loading card shown on a first start (measured the
 //     moment it appears) keeps a 12px gutter on both sides so both rounded sides stay visible, its RTL text stays inside
@@ -29,9 +32,9 @@ const MEASURE = () => {
   const de = document.documentElement, W = de.clientWidth;
   const over = Math.max(de.scrollWidth, document.body.scrollWidth) - W;
   const scrollsX = (el) => { for (let x = el.parentElement; x && x !== document.body; x = x.parentElement) { const o = getComputedStyle(x).overflowX; if (o === 'auto' || o === 'scroll') return true; } return false; };
-  const fixedOrRail = (el) => { for (let x = el; x && x !== document.body; x = x.parentElement) { if (x.classList.contains('rail') || getComputedStyle(x).position === 'fixed') return true; } return false; };
+  const fixedOrRail = (el) => { for (let x = el; x && x !== document.body; x = x.parentElement) { if (x.classList.contains('rail') || x.classList.contains('toasts') || x.classList.contains('skdemo-overlay')) return true; } return false; };
   const sx = window.scrollX, clipped = [];
-  for (const el of document.querySelectorAll('#view button, #view a[href], #view input:not([type=hidden]), #view select, #view textarea, #view table, #view .card, #view [role=tab]')) {
+  for (const el of document.querySelectorAll('#view button, #view a[href], #view input:not([type=hidden]), #view select, #view textarea, #view table, #view .card, #view [role=tab], .topbar, .topbar button, .topbar a, .topbar img, .topbar svg, .skb, .skb button, .skb a')) {
     const r = el.getBoundingClientRect(); if (!r.width || !r.height || getComputedStyle(el).visibility === 'hidden') continue;
     const L = r.left + sx, R = r.right + sx;
     if ((L < -2 || R > W + 2) && !scrollsX(el) && !fixedOrRail(el)) clipped.push(el.tagName.toLowerCase() + (el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/)[0] : '') + '«' + (el.textContent || '').trim().slice(0, 18) + '»[' + Math.round(L) + ',' + Math.round(R) + ']');
@@ -70,6 +73,34 @@ for (const [tag, opts, screensToo] of [['phone', { viewport: { width: 390, heigh
   };
   const closeOverlays = () => p.evaluate(() => { document.querySelectorAll('.skd-wrap,.skout').forEach((x) => x.remove()); });
   let screens = 0, tabsSeen = 0;
+  /* HOME / SHELL: the command center with the top bar (menu, logo, search, notifications, user), the company and
+     period controls and the bottom tab bar — at first paint (an RTL page must not start scrolled or right-clipped)
+     and on three visits (listeners must not grow). Runs on every viewport, the 320px phone included. */
+  step(tag + ' · home/shell');
+  const first = await p.evaluate(() => ({ sx: window.scrollX, sl: (document.scrollingElement || document.documentElement).scrollLeft, view: SKosifCore.view() }));
+  if (first.sx !== 0 || first.sl !== 0) failures.push(`${tag} home: the page starts scrolled sideways (scrollX ${first.sx}, scrollLeft ${first.sl})`);
+  const homeCounts = [];
+  for (const visit of [1, 2, 3]) {
+    if (visit > 1) { await p.evaluate(() => SKosifCore.go('tasks')); await p.waitForTimeout(250); }
+    await p.evaluate(() => SKosifCore.go('dash')); await p.waitForTimeout(700); await closeOverlays();
+    homeCounts.push(await listeners());
+    const m = await p.evaluate(MEASURE);
+    const shell = await p.evaluate(() => { const W = document.documentElement.clientWidth, sx = window.scrollX, need = ['.topbar', '.topbar .sk-tb-brand', '#sk-tb-user', '#sk-tb-bell', '.skt-search'], out = [];
+      for (const sel of need) { const e = document.querySelector(sel); if (!e) continue; const r = e.getBoundingClientRect(); if (r.width && (r.left + sx < -1 || r.right + sx > W + 1)) out.push(sel + '[' + Math.round(r.left + sx) + ',' + Math.round(r.right + sx) + ']'); }
+      return out; });
+    if (m.over > 2) failures.push(`${tag} home (visit ${visit}): page scrolls sideways by ${m.over}px`);
+    if (m.clipped.length || shell.length) failures.push(`${tag} home (visit ${visit}): clipped ${m.clipped.concat(shell).join(' ')}`);
+    if (m.small && m.small.length) failures.push(`${tag} home (visit ${visit}): touch targets too small ${m.small.join(' ')}`);
+    for (const t of await p.evaluate(TABS)) {
+      const el = await p.$(`[data-pl-tab="${t}"]`); if (!el || !(await el.isVisible())) continue;
+      await el.click({ timeout: 5000 }).catch(() => {}); await p.waitForTimeout(350); await closeOverlays();
+      if (await p.evaluate(() => SKosifCore.view()) !== 'dash') { await p.evaluate(() => SKosifCore.go('dash')); await p.waitForTimeout(300); continue; }
+      const mt = await p.evaluate(MEASURE);
+      if (mt.over > 2 || mt.clipped.length) failures.push(`${tag} home › tab ${t} (visit ${visit}): ${mt.over > 2 ? 'scrolls sideways by ' + mt.over + 'px ' : ''}${mt.clipped.join(' ')}`);
+      await p.evaluate(TABS);
+    }
+  }
+  if (homeCounts[0] >= 0 && Math.max(...homeCounts) > homeCounts[0]) failures.push(`${tag} home: click listeners grew on revisits (${homeCounts.join(' → ')})`);
   for (const c of screensToo ? caps : []) {
     const counts = [];
     for (const visit of [1, 2]) {
