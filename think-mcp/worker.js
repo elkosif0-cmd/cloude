@@ -57,9 +57,9 @@ function agentPrompt(agent,stage,input,peers){
     "Task: "+JSON.stringify({question:input.question,context:input.context,options:input.options,peerArtifacts:peers||[]})
   ].join("\n");
 }
-async function cleanApisChat(env,model,messages,maxTokens=500){
+async function cleanApisChat(env,model,messages,maxTokens=320){
   if(!env.cleanapis)throw new Error("CLEANAPIS_KEY_MISSING");
-  const ac=new AbortController(),timer=setTimeout(()=>ac.abort(),30000);
+  const ac=new AbortController(),timer=setTimeout(()=>ac.abort(),20000);
   let r;
   try{
     r=await fetch("https://cleanapis.com/v1/chat/completions",{
@@ -83,23 +83,29 @@ async function callAgent(env,agent,stage,input,peers){
     {role:"user",content:agentPrompt(agent,stage,input,peers)}
   ];
   if(agent.source==="cleanapis"){
-    const raw=await cleanApisChat(env,agent.model,messages,500);
+    const raw=await cleanApisChat(env,agent.model,messages,320);
     return artifact(agent,parseJson(raw));
   }
   const result=await env.AI.run(agent.model,{messages,max_tokens:550,response_format:{type:"json_object"}});
   return artifact(agent,parseJson(extractAI(result)));
 }
 async function stage(env,name,agents,input,peers){
-  const settled=await Promise.allSettled(agents.map(a=>{
-    const p=(peers||[]).filter(x=>x.agentId!==a.id).map(x=>({agentId:x.agentId,recommendationId:x.recommendationId,answer:text(x.answer,1800),evidence:x.evidence,risks:x.risks,objections:x.objections,confidence:x.confidence}));
-    return callAgent(env,a,name,input,p);
-  }));
   const artifacts=[],failures=[];
-  settled.forEach((x,i)=>{
-    if(x.status==="fulfilled") artifacts.push(x.value);
-    else failures.push({agentId:agents[i].id,model:agents[i].model,error:text(x.reason?.message||x.reason,500)});
-  });
+  const runOne=async(agent)=>{
+    const p=(peers||[]).filter(x=>x.agentId!==agent.id).map(x=>({agentId:x.agentId,recommendationId:x.recommendationId,answer:text(x.answer,1400),evidence:x.evidence,risks:x.risks,objections:x.objections,confidence:x.confidence}));
+    try{artifacts.push(await callAgent(env,agent,name,input,p));}
+    catch(e){failures.push({agentId:agent.id,model:agent.model,error:text(e?.message||e,500)});}
+  };
+  const clean=agents.filter(a=>a.source==="cleanapis");
+  const local=agents.filter(a=>a.source!=="cleanapis");
+  if(local.length) await Promise.all(local.map(runOne));
+  for(let i=0;i<clean.length;i+=2) await Promise.all(clean.slice(i,i+2).map(runOne));
   return {artifacts,failures};
+}
+function mergeArtifacts(base,updates){
+  const by=new Map(base.map(x=>[x.agentId,x]));
+  for(const x of updates)by.set(x.agentId,x);
+  return Array.from(by.values());
 }
 async function stageWithFallback(env,name,preferred,input,peers){
   let r=await stage(env,name,preferred,input,peers);
@@ -167,19 +173,26 @@ async function runThink(env,args){
   if(!input.question) throw new Error("QUESTION_REQUIRED");
   const mode=["fast","council","deep"].includes(args?.mode)?args.mode:"council";
   let failures=[];
-  let agents=mode==="fast"?FAST_AGENTS:FRONTIER_AGENTS;
-  let r=await stageWithFallback(env,"independent",agents,input,[]);
-  let artifacts=r.artifacts; failures=failures.concat(r.failures); agents=r.agents; let backend=r.backend; let fallback=r.fallback;
-  if(mode==="deep"&&artifacts.length>1){
-    r=await stageWithFallback(env,"critique",agents,input,artifacts);
-    if(r.artifacts.length){artifacts=r.artifacts;agents=r.agents;backend=r.backend;fallback=fallback||r.fallback}
-    failures=failures.concat(r.failures);
+  const preferred=mode==="fast"?FAST_AGENTS:FRONTIER_AGENTS;
+  let r=await stageWithFallback(env,"independent",preferred,input,[]);
+  let artifacts=r.artifacts; failures=failures.concat(r.failures); let agents=r.agents; let backend=r.backend; let fallback=r.fallback;
+
+  if(mode==="deep"&&!fallback&&artifacts.length>=3){
+    const critics=FRONTIER_AGENTS.filter(a=>["claude","mythos","fable"].includes(a.id)&&artifacts.some(x=>x.agentId===a.id));
+    if(critics.length){
+      const cr=await stage(env,"critique",critics,input,artifacts);
+      artifacts=mergeArtifacts(artifacts,cr.artifacts);
+      failures=failures.concat(cr.failures);
+    }
+    const revisers=FRONTIER_AGENTS.filter(a=>["gpt","gemini"].includes(a.id)&&artifacts.some(x=>x.agentId===a.id));
+    if(revisers.length){
+      const rr=await stage(env,"revision",revisers,input,artifacts);
+      artifacts=mergeArtifacts(artifacts,rr.artifacts);
+      failures=failures.concat(rr.failures);
+    }
+    agents=FRONTIER_AGENTS.filter(a=>artifacts.some(x=>x.agentId===a.id));
   }
-  if(mode==="deep"&&artifacts.length>1){
-    r=await stageWithFallback(env,"revision",agents,input,artifacts);
-    if(r.artifacts.length){artifacts=r.artifacts;agents=r.agents;backend=r.backend;fallback=fallback||r.fallback}
-    failures=failures.concat(r.failures);
-  }
+
   if(!artifacts.length) throw new Error("ALL_AGENTS_FAILED");
   const c=council(artifacts,input.options);
   const synthesis=provisionalSynthesis(artifacts,c);
@@ -225,7 +238,7 @@ async function callTool(env,name,args){
     ok:true,version:VERSION,modes:["fast","council","deep"],cleanApisConfigured:!!env.cleanapis,
     fastAgents:FAST_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role})),
     frontierAgents:FRONTIER_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role})),
-    routing:{fast:"Cloudflare fast council",council:"GPT-5.6 Sol + Claude Opus 5 + Gemini 3.7 Flash + Claude Mythos Preview + Claude Fable 5.1 via Clean APIs",deep:"Same five-agent frontier council with critique + revision",fallback:"Cloudflare fast council if fewer than three frontier agents succeed",finalChair:"ChatGPT after Jev"},
+    routing:{fast:"Cloudflare fast council",council:"Five Clean APIs frontier agents executed in 2+2+1 waves",deep:"Five frontier agents, then Claude/Mythos/Fable critique and GPT/Gemini revision",fallback:"Cloudflare fast council if fewer than three frontier agents succeed",finalChair:"ChatGPT after Jev"},
     jevIntegration:"kosif_think returns jev_payload; ChatGPT should call the matching Jev Bridge tool before the final synthesis."
   },false);
   return null;
