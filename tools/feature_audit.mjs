@@ -217,6 +217,9 @@ const JPG=await p.evaluate(()=>{
   return result;
 });
 ok('الأدوات المساعدة','حوكمة الترحيل: الحساب الناقص يُرفض بلا أثر، والفتح/الربط الصريح فقط يسمح بالقيد',JPG.reject&&JPG.partial&&JPG.explicit&&JPG.mapping);
+// ---------- the second round of requests follows the client's answers to the first ----------
+const R2=await p.evaluate(()=>{const O=SKEngines.audit.openingRequests,f=O.openingRequests(['impairment-intangibles']);const r=O.followUpRequests(f,id=>/-forecasts$/.test(id)?'unavailable':'open');return{alt:r.filter(x=>x.reason==='alternative').map(x=>x.proc).sort().join(','),round:r.length>0&&r.every(x=>x.round===2),none:O.followUpRequests(f,()=>'open').length}});
+ok('المراجعة','الجولة الثانية: توقعات غير متوفرة تُستبدل بتقدير مستقل ومراجعة بأثر رجعي (ISA 540)، ولا يُكرر طلب بلا رد',R2.alt==='independent_estimate,retrospective'&&R2.round&&R2.none===0);
 // ---------- regression: revisiting a view must not stack delegated listeners ----------
 await p.evaluate(()=>{
   const orig=EventTarget.prototype.addEventListener;
