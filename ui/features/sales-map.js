@@ -176,6 +176,8 @@ function paint(){
 async function refresh(){await loadData();vb=null;paint()}
 function render(el){
   root=el;data=null;paint();refresh();
+  if(el.dataset.smBound==="1")return;
+  el.dataset.smBound="1";
   el.addEventListener("click",e=>{
     const t=e.target.closest("[data-sm-tab]");if(t){tab=t.dataset.smTab;paint();return}
     const r=e.target.closest("[data-sm-region]");if(r&&tab==="map"){go({k:"region",region:r.dataset.smRegion,city:""});return}

@@ -62,6 +62,8 @@ function paint(){
 }
 function render(el){
   root=el;paint();
+  if(el.dataset.clBound==="1")return;
+  el.dataset.clBound="1";
   el.addEventListener("click",async e=>{
     const p=e.target.closest("[data-cl-prior]");if(p){prior=p.dataset.clPrior==="1";paint();return}
     const o=e.target.closest("[data-cl-open]");if(o&&window.SKosifTBReview&&SKosifTBReview.loadCorpus){await SKosifTBReview.loadCorpus(o.dataset.clOpen);return}
