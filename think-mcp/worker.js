@@ -1,8 +1,8 @@
 const VERSION = "0.1.0";
 const AGENTS = [
   { id:"solver", model:"@cf/meta/llama-3.3-70b-instruct-fp8-fast", role:"Lead solver: build the strongest answer and test feasibility." },
-  { id:"skeptic", model:"@cf/google/gemma-4-26b-a4b-it", role:"Skeptical critic: find weak assumptions, contradictions, missing evidence, and downside risk." },
-  { id:"alternatives", model:"@cf/qwen/qwen3.8-27b", role:"Alternatives analyst: compare approaches, identify overlooked options, and test trade-offs." }
+  { id:"skeptic", model:"@cf/mistralai/mistral-small-3.1-24b-instruct", role:"Skeptical critic: find weak assumptions, contradictions, missing evidence, and downside risk." },
+  { id:"alternatives", model:"@cf/meta/llama-4-scout-17b-16e-instruct", role:"Alternatives analyst: compare approaches, identify overlooked options, and test trade-offs." }
 ];
 
 function json(data,status){ return new Response(JSON.stringify(data),{status:status||200,headers:{"content-type":"application/json; charset=utf-8"}}); }
@@ -56,7 +56,8 @@ async function callAgent(env,agent,stage,input,peers){
       {role:"system",content:"You are KOSIF Think. Be rigorous, concise, and evidence-aware. Output valid JSON only."},
       {role:"user",content:agentPrompt(agent,stage,input,peers)}
     ],
-    max_tokens:1200
+    max_tokens:550,
+    response_format:{type:"json_object"}
   });
   return artifact(agent,parseJson(extractAI(result)));
 }
@@ -101,7 +102,7 @@ async function synthesize(env,input,artifacts,c,mode){
     "Return valid JSON only: {\"finalAnswer\":\"...\",\"confidence\":0.0,\"remainingUncertainty\":[\"...\"]}.",
     JSON.stringify({question:input.question,context:input.context,options:input.options,artifacts,council:c})
   ].join("\n");
-  const r=await env.AI.run("@cf/moonshotai/kimi-k2.6",{messages:[{role:"user",content:prompt}],max_tokens:mode==="deep"?4000:1800,reasoning_effort:mode==="deep"?"high":"none"});
+  const r=await env.AI.run("@cf/moonshotai/kimi-k2.6",{messages:[{role:"user",content:prompt}],max_tokens:mode==="deep"?2500:900,reasoning_effort:mode==="deep"?"high":"none",response_format:{type:"json_object"}});
   const x=parseJson(extractAI(r));
   return {finalAnswer:text(x.finalAnswer,6000),confidence:clamp(x.confidence),remainingUncertainty:list(x.remainingUncertainty,8)};
 }
