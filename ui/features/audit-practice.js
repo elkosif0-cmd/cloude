@@ -106,7 +106,8 @@ function estItems(c){
 }
 function estCard(c){
   if(!c.fsBefore.hasPrior)return '<section class="card"><div class="card-h"><div><h3>مراجعة التقديرات بأثر رجعي (ISA 540)</h3><p>تتطلب عمود السنة السابقة في الميزان: تقدير السنة الماضية يُقارن بما حدث فعلاً.</p></div></div></section>';
-  const items=estItems(c);if(!items.length)return "";
+  const items=estItems(c);
+  if(!items.length)return '<section class="card ap-est"><div class="card-h"><div><h3>مراجعة التقديرات بأثر رجعي (ISA 540)</h3><p>لا توجد في هذا الميزان بنود تقديرية بأرصدة للسنة السابقة (المخصصات، الخسائر الائتمانية، مخصص المخزون، منافع الموظفين، المستحقات، الزكاة) — عند ظهورها يُقارن تقدير السنة الماضية بما حدث فعلاً هنا.</p></div></div></section>';
   const m=c.base.materiality,r=ER().reviewEstimates(items,{overall:m.overall,performance:m.performance,trivial:m.trivial});
   const DIR={under:["أقل من الواقع","bad"],over:["أعلى من الواقع","warn"],accurate:["دقيق","ok"],pending:["بانتظار النتيجة","info"]};
   const SIG={trivial:"ضئيل","below-performance":"دون التنفيذية","above-performance":"فوق التنفيذية",material:"جوهري",pending:"—"};

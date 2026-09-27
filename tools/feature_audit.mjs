@@ -45,7 +45,7 @@ ok('المنظومة الواحدة','مسار العمل (يأتي من / يذ�
 await go('dash',1400);ok('المنظومة الواحدة','رحلة العمل في مركز القيادة',await p.evaluate(()=>document.querySelectorAll('.skjr li').length===5));
 await go('auditanalytics',3500);const A=await p.evaluate(()=>({tabs:document.querySelectorAll('.kx-views [data-kxv]').length,tools:document.querySelectorAll('.kx-views .kx-tool').length}));
 ok('المنظومة الواحدة','أدوات التحليل بتبويبات التطبيق وبثيمه (صفحاتها وصوتها وأوامرها)',A.tabs>=15&&A.tools===2);
-ok('عدم ضياع القدرات','القدرات الـ66 كلها مسجلة',await p.evaluate(()=>SK.caps.all().length)===66);
+ok('عدم ضياع القدرات','القدرات الـ67 كلها مسجلة (66 + السلف)',await p.evaluate(()=>SK.caps.all().length)===67);
 // ---------- global research bundle: audit benchmarks ----------
 await go('auditbench',1200);
 const CO=await p.evaluate(()=>{const c=SKEngines.reports.globalCorpus,s=c.summary();return{pages:s.pagesClassified,types:s.sectionTypes,bp:document.querySelectorAll('.ab-bp li').length,reps:document.querySelectorAll('[data-ab-rep] option').length,ex:c.EXEMPLARS.length}});
@@ -115,7 +115,7 @@ ok('ممارسات المراجعة العالمية','الاستمرارية ف
 await p.click('[data-tab="fs"]');await p.waitForTimeout(1000);await p.click('[data-doc="issue"]');await p.waitForTimeout(1200);
 ok('ممارسات المراجعة العالمية','الأمور الرئيسية تُصاغ من المخاطر والسوابق العالمية مع النتيجة والاختيار',await p.evaluate(()=>document.querySelectorAll('.ap-kam [data-ap-kam]').length>0));
 await p.click('[data-doc="auditor"]');await p.waitForTimeout(1200);
-ok('ممارسات المراجعة العالمية','تقرير المراجع: قسم الاستمرارية ونتيجة كل أمر رئيسي',await p.evaluate(()=>{const h=[...document.querySelectorAll('.rd-audit .rd-sec h4')].map(x=>x.innerText);return h.some(x=>/الاستمرارية/.test(x))&&[...document.querySelectorAll('.rd-audit .rd-kt th')].some(t=>t.innerText==='النتيجة')}));
+ok('ممارسات المراجعة العالمية','تقرير المراجع: قسم الاستمرارية ونتيجة كل أمر رئيسي',await p.evaluate(()=>{const h=[...document.querySelectorAll('.rd-audit .rd-sec h4')].map(x=>x.innerText);return h.some(x=>/الاستمرارية/.test(x))&&!!document.querySelector('.rd-audit .rd-kt2 .rd-obs')}));
 const AP=await p.evaluate(()=>({trail:!!window.SKosifLedger.trail&&!!SKosifLedger.trail(),rev:typeof SKosifLedger.revenueRecon,steps:SKosifClose.steps().map(s=>s.id)}));
 ok('ممارسات المراجعة العالمية','سجل التعديلات المختوم في الدفاتر ومطابقة الإيرادات في الإقفال',AP.trail&&AP.rev==='function'&&AP.steps.includes('trail')&&AP.steps.includes('revenue'));
 // ---------- older rounds (1–33) ----------

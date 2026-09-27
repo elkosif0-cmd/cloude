@@ -11,36 +11,43 @@
  },
  "groups": [
   {
-   "id": "home",
-   "label": "مركز القيادة"
-  },
-  {
-   "id": "intelligence",
-   "label": "القرار والذكاء"
-  },
-  {
-   "id": "sales",
-   "label": "المبيعات والعملاء"
-  },
-  {
-   "id": "stock",
-   "label": "المخزون والمشتريات"
-  },
-  {
-   "id": "finance",
-   "label": "المالية والمحاسبة"
+   "id": "audit",
+   "label": "المراجعة"
   },
   {
    "id": "catalog",
-   "label": "الكتالوج والتسعير"
+   "label": "التكاليف والتسعير",
+   "section": "helper"
+  },
+  {
+   "id": "sales",
+   "label": "المبيعات والعملاء",
+   "section": "helper"
+  },
+  {
+   "id": "stock",
+   "label": "المخزون والموردون",
+   "section": "helper"
+  },
+  {
+   "id": "finance",
+   "label": "المالية والمحاسبة",
+   "section": "helper"
   },
   {
    "id": "reports",
-   "label": "التقارير والتحليلات"
+   "label": "التقارير",
+   "section": "helper"
   },
   {
-   "id": "audit",
-   "label": "المراجعة والتأكيد"
+   "id": "intelligence",
+   "label": "القرار والذكاء",
+   "section": "helper"
+  },
+  {
+   "id": "home",
+   "label": "لوحة الأعمال والمهام",
+   "section": "helper"
   },
   {
    "id": "system",
@@ -937,7 +944,7 @@
     "finance"
    ],
    "hub": "productflow",
-   "hidden": true
+   "hidden": false
   },
   {
    "id": "costs",
@@ -959,7 +966,7 @@
     "catalog",
     "builder"
    ],
-   "hidden": true
+   "hidden": false
   },
   {
    "id": "sim",
@@ -981,7 +988,7 @@
     "memo"
    ],
    "hub": "productflow",
-   "hidden": true
+   "hidden": false
   },
   {
    "id": "kernel",
@@ -997,7 +1004,7 @@
    "kw": "محرك تقريب",
    "adv": true,
    "en": "Strict Pricing Kernel",
-   "hidden": true
+   "hidden": false
   },
   {
    "id": "memo",
@@ -1019,7 +1026,7 @@
     "catalog"
    ],
    "hub": "productflow",
-   "hidden": true
+   "hidden": false
   },
   {
    "id": "builder",
@@ -1044,7 +1051,7 @@
     "offers"
    ],
    "hub": "productflow",
-   "hidden": true
+   "hidden": false
   },
   {
    "id": "analyzer",
@@ -1062,7 +1069,7 @@
    "kw": "مكونات دائرة",
    "adv": true,
    "en": "Box Analyzer",
-   "hidden": true
+   "hidden": false
   },
   {
    "id": "compare",
@@ -1080,7 +1087,7 @@
    "kw": "مقارنة",
    "adv": true,
    "en": "Comparative Analysis",
-   "hidden": true
+   "hidden": false
   },
   {
    "id": "labels",

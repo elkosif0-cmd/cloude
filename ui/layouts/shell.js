@@ -155,11 +155,14 @@ const nq=s=>String(s||"").toLowerCase().replace(/[ً-ٰٟ]/g,"").replace(/[أإ�
 function paintNav(){
   const nav=$("#nav");if(!nav||!core())return;
   const adv=core().mode()==="advanced",cur=core().view(),open=navState();
-  let html="";
+  let html="",helper=false;
   SK.caps.groups().forEach(g=>{
     const items=SK.caps.hubsInGroup(g.id).map(c=>[c,hubPages(c.id,cur)]).filter(([,pg])=>pg.length);
     if(!items.length)return;
-    const here=items.some(([,pg])=>pg.some(x=>x.id===cur)),isOpen=here||(open[g.id]!==undefined?open[g.id]:g.id==="home");
+    /* the audit is the application; everything after this heading helps the accountant and stands on its own */
+    if(g.section==="helper"&&!helper){helper=true;html+='<p class="skn-sec">الأدوات المساعدة للمحاسب</p>'}
+    if(g.section!=="helper"&&helper&&g.id==="system"){html+='<p class="skn-sec">النظام</p>';helper=false}
+    const here=items.some(([,pg])=>pg.some(x=>x.id===cur)),isOpen=here||(open[g.id]!==undefined?open[g.id]:g.id==="audit");
     html+='<div class="skn-group'+(isOpen?'':' closed')+(here?' here':'')+'" role="group" aria-label="'+esc(g.label)+'" data-g="'+g.id+'">'+
       '<button type="button" class="nav-group skn-gh" data-g="'+g.id+'" aria-expanded="'+isOpen+'"><span class="skn-gi">'+(SK.icons[GICON[g.id]]||"")+'</span><span>'+esc(g.label)+'</span><i class="skn-gc">'+items.length+'</i>'+CHEV+'</button>'+
       items.map(([c,pg])=>navButton(c,cur,pg)).join("")+'</div>';
