@@ -2,7 +2,7 @@
 
 Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do not edit by hand.
 
-Total capabilities: **68** (screens). Cross-cutting capabilities are listed after the table.
+Total capabilities: **70** (screens). Cross-cutting capabilities are listed after the table.
 
 | ID | Capability | Module | Current Location | Data Used | Dependencies | Status | Keep/Remove/Merge/Rebuild |
 |---|---|---|---|---|---|---|---|
@@ -16,6 +16,7 @@ Total capabilities: **68** (screens). Cross-cutting capabilities are listed afte
 | `council` | مجلس القرار | ui/features/workspace.js + SKEngines.intelligence | Jev والقرار › Jev ومجلس القرار › يومي | `skosif_council_v1` | SKosifCore | Working | Rebuild |
 | `risklab` | المخاطر وجسر الربحية | core (v19) | الأدوات المساعدة للمحاسب › المخاطر والحساسية › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
 | `sensitivity` | مختبر الحساسية | ui/tools.js | الأدوات المساعدة للمحاسب › المخاطر والحساسية › يومي | `skosif_v33_decision` | SKosifCore | Working | Keep |
+| `salesmap` | خريطة العملاء وتحليل المبيعات | ui/features/sales-map.js + SKEngines.sales.salesGeo + SKCharts | الأدوات المساعدة للمحاسب › يومي | `يقرأ IDB aghnam-app-v7 (الطلبات)`, `sqc_salesup_v1 (ملف مبيعات مرفوع، لكل شركة)` | SKosifCore | Working | Rebuild |
 | `commerce` | الطلبات والتحصيل | core | الأدوات المساعدة للمحاسب › الطلبات والفوترة › يومي | `IDB orders`, `IDB order_items`, `IDB payments`, `IDB ops_orders` | SKosifCore, Engine, IndexedDB | Working | Keep |
 | `zatca` | نقطة البيع والفاتورة الضريبية | ui/enterprise.js | الأدوات المساعدة للمحاسب › الطلبات والفوترة › يومي | `skosif_v32_cart` | SKosifCore | Working | Keep |
 | `customers` | العملاء | core | الأدوات المساعدة للمحاسب › العملاء والائتمان › يومي | `IDB customers`, `IDB sales_lines`, `IDB imports` | SKosifCore, Engine, IndexedDB | Working | Keep |
@@ -39,6 +40,7 @@ Total capabilities: **68** (screens). Cross-cutting capabilities are listed afte
 | `cash` | التدفق النقدي | ui/supply.js + ui/erp-plus.js | الأدوات المساعدة للمحاسب › يومي | `skosif_v31_monthly_opex`, `skosif_erp_finance_v1` | SKosifCore | Working | Keep |
 | `receivables` | الذمم والتحصيل | ui/meatops.js | الأدوات المساعدة للمحاسب › يومي | `skosif_ar_paste` | SKosifCore | Working | Keep |
 | `finance` | الهندسة المالية | core (v18) | الأدوات المساعدة للمحاسب › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
+| `ptree` | شجرة المنتجات | ui/features/product-tree.js + SKEngines.catalog.productTree | الأدوات المساعدة للمحاسب › يومي | `sqc_ptree_v1 (لكل شركة)`, `يقرأ aghnam-pricing-v3 و IDB aghnam-app-v7`, `يضيف أسعار الموردين إلى skosif_purchasing_v1` | SKosifCore | Working | Rebuild |
 | `productflow` | استوديو المنتج | ui/features/product-flow.js | الأدوات المساعدة للمحاسب › المنتج والتكلفة › يومي | `aghnam-pricing-v3`, `skosif_product_flow_v1` | SKosifCore | Working | Merge |
 | `catalog` | الأصناف والأسعار | core | الأدوات المساعدة للمحاسب › المنتج والتكلفة › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
 | `costs` | التكاليف والمصروفات | core | الأدوات المساعدة للمحاسب › المنتج والتكلفة › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |

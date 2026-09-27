@@ -493,7 +493,7 @@ window.SKEngines = (function() {
 		detectDelimiter: () => detectDelimiter,
 		fromRows: () => fromRows,
 		largestBalances: () => largestBalances,
-		norm: () => norm$1,
+		norm: () => norm$3,
 		parseTrialBalance: () => parseTrialBalance,
 		splitLine: () => splitLine
 	});
@@ -523,7 +523,7 @@ window.SKEngines = (function() {
 		7: "expense",
 		8: "expense"
 	};
-	var norm$1 = (s) => normalizeDigits(s).toLowerCase().replace(/[ً-ٰٟ]/g, "").replace(/[أإآٱ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/ـ/g, "").replace(/\s+/g, " ").trim();
+	var norm$3 = (s) => normalizeDigits(s).toLowerCase().replace(/[ً-ٰٟ]/g, "").replace(/[أإآٱ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/ـ/g, "").replace(/\s+/g, " ").trim();
 	var NAME_HINTS = [
 		{
 			type: "asset",
@@ -654,7 +654,7 @@ window.SKEngines = (function() {
 			type: CODE_PREFIX[digits[0]],
 			basis: "code"
 		};
-		const hay = norm$1(name);
+		const hay = norm$3(name);
 		if (CONTRA.some((w) => hay.includes(w)) && !/مصروف|مصاريف|expense/.test(hay)) return {
 			type: "asset",
 			basis: "name"
@@ -748,7 +748,7 @@ window.SKEngines = (function() {
 		]
 	};
 	function headerKey(cell) {
-		const k = norm$1(cell).replace(/[\s_\-.()]/g, "");
+		const k = norm$3(cell).replace(/[\s_\-.()]/g, "");
 		for (const [field, aliases] of Object.entries(HEADERS)) if (aliases.includes(k)) return field;
 		return null;
 	}
@@ -3058,9 +3058,9 @@ window.SKEngines = (function() {
 			key: overrides[row.code],
 			basis: "manual"
 		};
-		const name = norm$1(row.name), code = String(row.code || "").replace(/\D/g, "");
+		const name = norm$3(row.name), code = String(row.code || "").replace(/\D/g, "");
 		const candidates = LINES.filter((l) => l.types.includes(row.type));
-		const byName = candidates.find((l) => l.kws.some((k) => name.includes(norm$1(k))));
+		const byName = candidates.find((l) => l.kws.some((k) => name.includes(norm$3(k))));
 		if (byName) return {
 			key: byName.key,
 			basis: "name"
@@ -3514,15 +3514,15 @@ window.SKEngines = (function() {
 		mdna: () => mdna,
 		ratios: () => ratios
 	});
-	var r2$3 = (n) => Math.round(n * 100) / 100;
+	var r2$5 = (n) => Math.round(n * 100) / 100;
 	var div$1 = (a, b) => b ? a / b : null;
 	var pctOf = (a, b) => {
 		const x = div$1(a, b);
-		return x === null ? null : r2$3(x * 100);
+		return x === null ? null : r2$5(x * 100);
 	};
 	var times = (a, b) => {
 		const x = div$1(a, b);
-		return x === null ? null : r2$3(x);
+		return x === null ? null : r2$5(x);
 	};
 	var days$2 = (a, b) => {
 		const x = div$1(a, b);
@@ -3788,7 +3788,7 @@ window.SKEngines = (function() {
 	/** Common-size: P&L lines as % of revenue, position lines as % of total assets. */
 	function commonSize(fs) {
 		const rev = fs.keys.revenue, ta = fs.keys.assets;
-		const pc = (a, b) => b ? r2$3(a / b * 100) : null;
+		const pc = (a, b) => b ? r2$5(a / b * 100) : null;
 		return {
 			pl: fs.pl.map((r) => ({
 				key: r.key,
@@ -3813,7 +3813,7 @@ window.SKEngines = (function() {
 			current: r.current,
 			prior: r.prior,
 			change: r.current - r.prior,
-			changePct: r.prior ? r2$3((r.current - r.prior) / Math.abs(r.prior) * 100) : null
+			changePct: r.prior ? r2$5((r.current - r.prior) / Math.abs(r.prior) * 100) : null
 		}));
 	}
 	/** DuPont: ROE = net margin × asset turnover × equity multiplier (year-end balances). */
@@ -3821,10 +3821,10 @@ window.SKEngines = (function() {
 		const k = fs.keys, one = (rev, profit, ta, eq) => {
 			const nm = div$1(profit, rev), at = div$1(rev, ta), em = div$1(ta, eq);
 			return {
-				netMargin: nm === null ? null : r2$3(nm * 100),
-				assetTurnover: at === null ? null : r2$3(at),
-				equityMultiplier: em === null ? null : r2$3(em),
-				roe: nm === null || at === null || em === null ? null : r2$3(nm * at * em * 100)
+				netMargin: nm === null ? null : r2$5(nm * 100),
+				assetTurnover: at === null ? null : r2$5(at),
+				equityMultiplier: em === null ? null : r2$5(em),
+				roe: nm === null || at === null || em === null ? null : r2$5(nm * at * em * 100)
 			};
 		};
 		return {
@@ -3838,16 +3838,16 @@ window.SKEngines = (function() {
 		if (!ta) return null;
 		const retained = fs.lines.filter((l) => l.key === "retained").reduce((a, l) => a + l.current, 0) + k.profit.current;
 		const x1 = (k.ca.current - k.cl.current) / ta, x2 = retained / ta, x3 = k.operating.current / ta, x4 = tl ? k.equity.current / tl : 0;
-		const z = r2$3(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
+		const z = r2$5(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
 		return {
 			z,
 			zone: z > 2.6 ? "safe" : z >= 1.1 ? "grey" : "distress",
 			zoneAr: z > 2.6 ? "منطقة الأمان" : z >= 1.1 ? "المنطقة الرمادية" : "منطقة التعثر",
 			components: {
-				x1: r2$3(x1),
-				x2: r2$3(x2),
-				x3: r2$3(x3),
-				x4: r2$3(x4)
+				x1: r2$5(x1),
+				x2: r2$5(x2),
+				x3: r2$5(x3),
+				x4: r2$5(x4)
 			}
 		};
 	}
@@ -3865,7 +3865,7 @@ window.SKEngines = (function() {
 		const sgai = q(q(sga(c), c("revenue")), q(sga(p), p("revenue")));
 		const lvgi = q(q(c("cl") + c("loansNcl") + c("leaseNcl"), c("assets")), q(p("cl") + p("loansNcl") + p("leaseNcl"), p("assets")));
 		const tata = fs.keys.cfo ? q(c("profit") - fs.keys.cfo.current, c("assets")) : 0;
-		const m = r2$3(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
+		const m = r2$5(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
 		const f = (x) => Math.round(x * 1e3) / 1e3;
 		return {
 			m,
@@ -3964,7 +3964,7 @@ window.SKEngines = (function() {
 			rat("current")
 		].map((i) => ({
 			...i,
-			change: i.prior === null || i.current === null || !i.prior ? null : r2$3((i.current - i.prior) / Math.abs(i.prior) * 100)
+			change: i.prior === null || i.current === null || !i.prior ? null : r2$5((i.current - i.prior) / Math.abs(i.prior) * 100)
 		}));
 	}
 	/** A deterministic management discussion: sentences generated from the numbers only. */
@@ -3974,7 +3974,7 @@ window.SKEngines = (function() {
 		const ch = (key) => {
 			const x = k[key];
 			if (!x || x.prior === null || !x.prior) return null;
-			return r2$3((x.current - x.prior) / Math.abs(x.prior) * 100);
+			return r2$5((x.current - x.prior) / Math.abs(x.prior) * 100);
 		};
 		const dir = (v, up, down) => v === null ? "" : v >= 0 ? `${up} ${Math.abs(v)}%` : `${down} ${Math.abs(v)}%`;
 		const out = [];
@@ -4404,7 +4404,7 @@ window.SKEngines = (function() {
 			action: "تصحيح الملف المصدر وإعادة الاستيراد."
 		});
 		for (const a of accounts) {
-			const n = norm$1(a.name), big = Math.abs(a.balance) >= mat.trivial;
+			const n = norm$3(a.name), big = Math.abs(a.balance) >= mat.trivial;
 			if (a.type === "suspense" || !a.lineKey) tag(add({
 				severity: big ? "medium" : "low",
 				kind: "classification",
@@ -4693,7 +4693,7 @@ window.SKEngines = (function() {
 			action: "طلب إيصال السداد أو قيد المخصص."
 		});
 		const ppeNet = kv("ppe");
-		const depInside = accounts.some((a) => a.type === "expense" && a.natural !== 0 && /استهلاك|اهلاك|اطفاء/.test(norm$1(a.name)));
+		const depInside = accounts.some((a) => a.type === "expense" && a.natural !== 0 && /استهلاك|اهلاك|اطفاء/.test(norm$3(a.name)));
 		if (ppeNet > 0 && kv("depreciation") === 0 && !depInside) add({
 			severity: ppeNet >= mat.overall ? "high" : "medium",
 			kind: "completeness",
@@ -4714,7 +4714,7 @@ window.SKEngines = (function() {
 			basis: "الصافي " + money(ppeNet),
 			action: "مراجعة سجل الأصول والاستبعادات."
 		});
-		const salaries = accounts.filter((a) => a.type === "expense" && SALARIES.test(norm$1(a.name))).reduce((s, a) => s + a.natural, 0);
+		const salaries = accounts.filter((a) => a.type === "expense" && SALARIES.test(norm$3(a.name))).reduce((s, a) => s + a.natural, 0);
 		if (!egypt && !intl && salaries > 0 && !fs.lines.some((l) => l.key === "eosb" && l.current !== 0)) add({
 			severity: salaries >= mat.overall ? "high" : "medium",
 			kind: "completeness",
@@ -4726,7 +4726,7 @@ window.SKEngines = (function() {
 			action: "طلب كشف الموظفين واحتساب الالتزام."
 		});
 		const loans = kv("loansCl") + kv("loansNcl");
-		const financeInside = accounts.some((a) => a.natural !== 0 && a.lineKey !== "loansNcl" && a.lineKey !== "loansCl" && /تكاليف التمويل|تكلفه التمويل|فوائد/.test(norm$1(a.name)));
+		const financeInside = accounts.some((a) => a.natural !== 0 && a.lineKey !== "loansNcl" && a.lineKey !== "loansCl" && /تكاليف التمويل|تكلفه التمويل|فوائد/.test(norm$3(a.name)));
 		if (loans > 0 && kv("finance") === 0 && !financeInside) add({
 			severity: "medium",
 			kind: "completeness",
@@ -4738,7 +4738,7 @@ window.SKEngines = (function() {
 			action: "طلب عقود التمويل وكشوف احتساب الفائدة."
 		});
 		const rec = kv("receivables");
-		if (rec >= mat.performance && !fs.lines.some((l) => l.key === "impairment" && l.current !== 0) && !accounts.some((a) => a.lineKey === "receivables" && /خسائر|مخصص|مشكوك/.test(norm$1(a.name)))) add({
+		if (rec >= mat.performance && !fs.lines.some((l) => l.key === "impairment" && l.current !== 0) && !accounts.some((a) => a.lineKey === "receivables" && /خسائر|مخصص|مشكوك/.test(norm$3(a.name)))) add({
 			severity: "medium",
 			kind: "measurement",
 			lineKey: "receivables",
@@ -5181,7 +5181,7 @@ window.SKEngines = (function() {
 	}
 	/** The allowance already booked: credit balances of the receivables line's allowance accounts. */
 	function existingAllowance(tb) {
-		return tb.rows.filter((r) => lineFor(r).key === "receivables" && /خسائر|مخصص|مشكوك|allowance/.test(norm$1(r.name))).reduce((a, r) => a + Math.max(0, -r.balance), 0);
+		return tb.rows.filter((r) => lineFor(r).key === "receivables" && /خسائر|مخصص|مشكوك|allowance/.test(norm$3(r.name))).reduce((a, r) => a + Math.max(0, -r.balance), 0);
 	}
 	/** The entry that brings the allowance to the matrix result (up or down); null when nothing changes. */
 	function eclAdjustment(tb, matrix, framework = "IFRS") {
@@ -6182,7 +6182,7 @@ window.SKEngines = (function() {
 		}
 	};
 	var clamp01 = (x) => Number.isFinite(x) ? Math.max(0, Math.min(1, x)) : 0;
-	var r2$2 = (x) => Math.round(x * 100) / 100;
+	var r2$4 = (x) => Math.round(x * 100) / 100;
 	/** E — evidence coverage for a balance: Σ r·v ÷ V, capped at 1 (only accepted evidence counts). */
 	function coverage(items, balance) {
 		const V = Math.abs(balance);
@@ -6216,9 +6216,9 @@ window.SKEngines = (function() {
 		};
 		if (p.A === null) {
 			const k = W.E + W.T || 1;
-			return r2$2(clamp01(W.E / k * p.E + W.T / k * p.T));
+			return r2$4(clamp01(W.E / k * p.E + W.T / k * p.T));
 		}
-		return r2$2(clamp01(W.E * p.E + W.T * p.T + W.A * p.A));
+		return r2$4(clamp01(W.E * p.E + W.T * p.T + W.A * p.A));
 	}
 	/** The confidence a line needs: material & high risk 0.90, material & medium 0.80, material & low 0.70, immaterial → analytics only (null). */
 	function thresholdFor(line) {
@@ -6243,9 +6243,9 @@ window.SKEngines = (function() {
 				}, i.weights);
 				return {
 					assertion: a,
-					E: r2$2(E),
-					T: r2$2(T),
-					A: A === null ? null : r2$2(A),
+					E: r2$4(E),
+					T: r2$4(T),
+					A: A === null ? null : r2$4(A),
 					C,
 					met: threshold === null ? null : C >= threshold
 				};
@@ -6256,13 +6256,13 @@ window.SKEngines = (function() {
 				threshold,
 				...ov ? { override: ov } : {},
 				cells,
-				min: r2$2(min),
+				min: r2$4(min),
 				met: threshold === null ? null : cells.every((c) => c.met)
 			};
 		});
 		const open = rows.filter((r) => r.met === false), material = rows.filter((r) => r.threshold !== null);
-		const avgOpen = open.length ? r2$2(open.reduce((s, r) => s + r.min, 0) / open.length) : 1;
-		const avgAll = material.length ? r2$2(material.reduce((s, r) => s + r.min, 0) / material.length) : 1;
+		const avgOpen = open.length ? r2$4(open.reduce((s, r) => s + r.min, 0) / open.length) : 1;
+		const avgAll = material.length ? r2$4(material.reduce((s, r) => s + r.min, 0) / material.length) : 1;
 		return {
 			rows,
 			open,
@@ -6327,7 +6327,7 @@ window.SKEngines = (function() {
 			amount,
 			accepted: true
 		}], row.amount);
-		return r2$2(Math.max(0, confidence({
+		return r2$4(Math.max(0, confidence({
 			E: E2,
 			T: cell.T,
 			A: cell.A
@@ -6337,11 +6337,11 @@ window.SKEngines = (function() {
 	function rankRequests(list) {
 		return list.map((q) => ({
 			...q,
-			score: r2$2(q.expectedGain * q.materialityWeight / EFFORT[q.effort].v * 100) / 100
+			score: r2$4(q.expectedGain * q.materialityWeight / EFFORT[q.effort].v * 100) / 100
 		})).sort((a, b) => b.score - a.score || b.materialityWeight - a.materialityWeight);
 	}
 	/** Materiality weight of a line: its balance relative to overall materiality (≥ 1 means material on its own). */
-	var materialityWeight = (amount, overall) => overall > 0 ? r2$2(Math.min(10, Math.abs(amount) / overall)) : 1;
+	var materialityWeight = (amount, overall) => overall > 0 ? r2$4(Math.min(10, Math.abs(amount) / overall)) : 1;
 	var STATES = [
 		{
 			key: "new",
@@ -10998,7 +10998,7 @@ window.SKEngines = (function() {
 		sectorPrior: () => sectorPrior,
 		typicalKamCount: () => typicalKamCount
 	});
-	var r2$1 = (x) => Math.round(x * 100) / 100;
+	var r2$3 = (x) => Math.round(x * 100) / 100;
 	/** How often the auditors of a sector reported each theme (share of that sector's reports with KAMs), leaving one report out. */
 	function sectorPrior(sector, exclude) {
 		if (!sector) return {};
@@ -11007,7 +11007,7 @@ window.SKEngines = (function() {
 		const out = {};
 		for (const t of Object.keys(THEMES)) {
 			const n = reports.filter((id) => KAMS.some((k) => k.report === id && k.theme === t)).length;
-			if (n) out[t] = r2$1(n / reports.length);
+			if (n) out[t] = r2$3(n / reports.length);
 		}
 		return out;
 	}
@@ -11076,15 +11076,15 @@ window.SKEngines = (function() {
 			unit: c.unitAr,
 			actual,
 			ours,
-			recall: themes.length ? r2$1(hit / themes.length) : null,
-			rankedRecall: themes.length ? r2$1(rankedHit / themes.length) : null,
-			precision: selected.size && themes.length ? r2$1(ours.filter((o) => o.selected && o.matched).length / selected.size) : null,
+			recall: themes.length ? r2$3(hit / themes.length) : null,
+			rankedRecall: themes.length ? r2$3(rankedHit / themes.length) : null,
+			precision: selected.size && themes.length ? r2$3(ours.filter((o) => o.selected && o.matched).length / selected.size) : null,
 			materiality: {
 				ours: oursMat,
 				benchmark: review.materiality.benchmarkAr,
 				disclosed: disc ? disc.overall / unit : null,
 				disclosedBasis: disc ? disc.basis : null,
-				ratio: disc ? r2$1(oursMat / (disc.overall / unit)) : null,
+				ratio: disc ? r2$3(oursMat / (disc.overall / unit)) : null,
 				page: disc ? disc.page : null
 			},
 			requests: review.requests.length,
@@ -11100,7 +11100,7 @@ window.SKEngines = (function() {
 		return {
 			theirs: theirs.length,
 			covered: covered.length,
-			share: theirs.length ? r2$1(covered.length / theirs.length) : null,
+			share: theirs.length ? r2$3(covered.length / theirs.length) : null,
 			missing: theirs.filter((x) => !SQC_SECTIONS.has(x.key)).map((x) => x.ar)
 		};
 	}
@@ -11120,16 +11120,16 @@ window.SKEngines = (function() {
 			companies: list.length,
 			withKams: withKams.length,
 			kamThemes: actualN,
-			recall: actualN ? r2$1(sel / actualN) : 0,
-			rankedRecall: actualN ? r2$1(rk / actualN) : 0,
-			precision: oursSel ? r2$1(oursHit / oursSel) : 0,
+			recall: actualN ? r2$3(sel / actualN) : 0,
+			rankedRecall: actualN ? r2$3(rk / actualN) : 0,
+			precision: oursSel ? r2$3(oursHit / oursSel) : 0,
 			anyMatch: withKams.filter((r) => r.actual.some((a) => a.found === "selected")).length,
 			missed: Object.entries(missed).map(([theme, n]) => ({
 				theme,
 				ar: THEMES[theme].ar,
 				n
 			})).sort((a, b) => b.n - a.n),
-			structure: stTheirs ? r2$1(stCov / stTheirs) : 0,
+			structure: stTheirs ? r2$3(stCov / stTheirs) : 0,
 			materiality: mat.map((r) => ({
 				id: r.id,
 				company: r.company,
@@ -11168,7 +11168,7 @@ window.SKEngines = (function() {
 		const t = nd(s), neg = /^\(.*\)$/.test(t), v = parseFloat(t.replace(/[()]/g, ""));
 		return Number.isFinite(v) ? neg ? -v : v : 0;
 	};
-	var norm = (s) => String(s || "").toLowerCase().replace(/[ً-ٰٟ]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").trim();
+	var norm$2 = (s) => String(s || "").toLowerCase().replace(/[ً-ٰٟ]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").trim();
 	var HEAD = [
 		[/رقم القيد|القيد|المرجع|ref|entry|voucher|سند/, "ref"],
 		[/تاريخ|date/, "date"],
@@ -11206,7 +11206,7 @@ window.SKEngines = (function() {
 			errors: ["الملف فارغ أو بلا صفوف قيود"]
 		};
 		const d = lines[0].includes("	") ? "	" : lines[0].includes(";") && !lines[0].includes(",") ? ";" : ",";
-		const head = split(lines[0], d).map(norm), col = {};
+		const head = split(lines[0], d).map(norm$2), col = {};
 		head.forEach((h, i) => {
 			const hit = HEAD.find(([re, k]) => re.test(h) && col[k] === void 0);
 			if (hit) col[hit[1]] = i;
@@ -11799,22 +11799,22 @@ window.SKEngines = (function() {
 		},
 		15: {
 			title: "الاستثمارات في المشروعات المشتركة",
-			applies: (fs) => fs.lines.some((l) => l.key === "investments" && l.accounts.some((a) => /مشروع مشترك|joint/.test(norm$1(a.name)))),
+			applies: (fs) => fs.lines.some((l) => l.key === "investments" && l.accounts.some((a) => /مشروع مشترك|joint/.test(norm$3(a.name)))),
 			why: ["توجد حصص في مشروعات مشتركة", "لا توجد مشروعات مشتركة في الميزان"]
 		},
 		16: {
 			title: "العقارات الاستثمارية",
-			applies: (fs) => fs.lines.some((l) => l.accounts.some((a) => /عقار(ات)? استثماري|investment propert/.test(norm$1(a.name)))),
+			applies: (fs) => fs.lines.some((l) => l.accounts.some((a) => /عقار(ات)? استثماري|investment propert/.test(norm$3(a.name)))),
 			why: ["توجد عقارات استثمارية", "لا توجد عقارات محتفظ بها للإيجار أو لزيادة القيمة"]
 		},
 		26: {
 			title: "المدفوعات المبنية على الأسهم",
-			applies: (fs) => fs.lines.some((l) => l.accounts.some((a) => /خيارات اسهم|مدفوعات مبنيه على اسهم|share-based/.test(norm$1(a.name)))),
+			applies: (fs) => fs.lines.some((l) => l.accounts.some((a) => /خيارات اسهم|مدفوعات مبنيه على اسهم|share-based/.test(norm$3(a.name)))),
 			why: ["توجد مدفوعات مبنية على أسهم", "لا توجد خطط مدفوعات مبنية على أسهم"]
 		},
 		28: {
 			title: "منافع الموظفين",
-			applies: (fs) => fs.lines.some((l) => l.key === "eosb" && l.current !== 0) || fs.lines.some((l) => l.accounts.some((a) => /رواتب|اجور|salar/.test(norm$1(a.name)))),
+			applies: (fs) => fs.lines.some((l) => l.key === "eosb" && l.current !== 0) || fs.lines.some((l) => l.accounts.some((a) => /رواتب|اجور|salar/.test(norm$3(a.name)))),
 			why: ["توجد رواتب والتزامات منافع موظفين", "لا توجد رواتب أو منافع موظفين"]
 		},
 		34: {
@@ -14612,6 +14612,375 @@ window.SKEngines = (function() {
 		};
 	}
 	//#endregion
+	//#region app/src/engine/fusion/catalog/product-tree-engine.ts
+	var product_tree_engine_exports = /* @__PURE__ */ __exportAll({
+		addMaterial: () => addMaterial,
+		addProduct: () => addProduct,
+		connect: () => connect,
+		customersFromOrders: () => customersFromOrders,
+		cycles: () => cycles,
+		disconnect: () => disconnect,
+		emptyTree: () => emptyTree,
+		fromWorkbook: () => fromWorkbook,
+		graph: () => graph,
+		linkCustomer: () => linkCustomer,
+		linkSupplier: () => linkSupplier,
+		materialUnitCost: () => materialUnitCost,
+		mergeWorkbook: () => mergeWorkbook,
+		priceShock: () => priceShock,
+		productCost: () => productCost,
+		removeNode: () => removeNode,
+		whereUsed: () => whereUsed
+	});
+	var emptyTree = () => ({
+		materials: [],
+		products: [],
+		suppliers: [],
+		customers: []
+	});
+	var r2$2 = (x) => Math.round(x * 100) / 100;
+	/** A material's cost per usable unit: purchase cost grossed up for waste (the cheapest supplier price when asked). */
+	function materialUnitCost(m, opts = {}) {
+		let base = m.cost;
+		if (opts.bestSupplier && opts.suppliers) {
+			const prices = opts.suppliers.filter((s) => s.materialId === m.id && s.price > 0).map((s) => s.price);
+			if (prices.length) base = Math.min(...prices);
+		}
+		const usable = 1 - Math.min(Math.max(m.waste, 0), 95) / 100;
+		return usable > 0 ? base / usable : base;
+	}
+	/** Products that (directly or through sub-products) contain themselves — a tree must not loop. */
+	function cycles(t) {
+		const byId = new Map(t.products.map((p) => [p.id, p])), bad = /* @__PURE__ */ new Set();
+		const walk = (id, stack) => {
+			if (stack.includes(id)) {
+				stack.slice(stack.indexOf(id)).forEach((x) => bad.add(x));
+				return;
+			}
+			const p = byId.get(id);
+			if (!p) return;
+			for (const c of p.components) if (c.kind === "product") walk(c.ref, [...stack, id]);
+		};
+		for (const p of t.products) walk(p.id, []);
+		return [...bad];
+	}
+	/** The rolled-up cost of a product, line by line. */
+	function productCost(t, productId, opts = {}, seen = []) {
+		const p = t.products.find((x) => x.id === productId);
+		if (!p) return {
+			id: productId,
+			name: "",
+			lines: [],
+			materials: 0,
+			overhead: 0,
+			total: 0,
+			price: null,
+			profit: null,
+			margin: null,
+			missing: [productId]
+		};
+		const mats = new Map(t.materials.map((m) => [m.id, m])), lines = [], missing = [];
+		for (const c of p.components) if (c.kind === "material") {
+			const m = mats.get(c.ref);
+			if (!m) {
+				missing.push(c.ref);
+				continue;
+			}
+			const u = materialUnitCost(m, {
+				suppliers: t.suppliers,
+				bestSupplier: opts.bestSupplier
+			});
+			lines.push({
+				ref: c.ref,
+				kind: "material",
+				name: m.name,
+				qty: c.qty,
+				unitCost: r2$2(u),
+				amount: r2$2(u * c.qty),
+				share: 0
+			});
+		} else {
+			if (seen.includes(c.ref) || c.ref === p.id) {
+				missing.push(c.ref);
+				continue;
+			}
+			const sub = productCost(t, c.ref, opts, [...seen, p.id]);
+			if (!sub.name) {
+				missing.push(c.ref);
+				continue;
+			}
+			lines.push({
+				ref: c.ref,
+				kind: "product",
+				name: sub.name,
+				qty: c.qty,
+				unitCost: sub.total,
+				amount: r2$2(sub.total * c.qty),
+				share: 0
+			});
+			missing.push(...sub.missing);
+		}
+		const materials = r2$2(lines.reduce((s, l) => s + l.amount, 0)), overhead = r2$2(p.overhead || 0), total = r2$2(materials + overhead);
+		lines.forEach((l) => {
+			l.share = total ? Math.round(l.amount / total * 1e3) / 10 : 0;
+		});
+		const price = p.price ?? null, profit = price != null ? r2$2(price - total) : null;
+		return {
+			id: p.id,
+			name: p.name,
+			lines,
+			materials,
+			overhead,
+			total,
+			price,
+			profit,
+			margin: price ? Math.round((price - total) / price * 1e3) / 10 : null,
+			missing
+		};
+	}
+	/** Where a material is used, and how much of each product's cost it carries. */
+	function whereUsed(t, materialId) {
+		return t.products.map((p) => {
+			const l = productCost(t, p.id).lines.find((x) => x.kind === "material" && x.ref === materialId);
+			return l ? {
+				productId: p.id,
+				product: p.name,
+				qty: l.qty,
+				amount: l.amount,
+				share: l.share
+			} : null;
+		}).filter((x) => !!x);
+	}
+	/** What happens to every product when a material's cost moves by `pct` %. */
+	function priceShock(t, materialId, pct) {
+		const shocked = {
+			...t,
+			materials: t.materials.map((m) => m.id === materialId ? {
+				...m,
+				cost: m.cost * (1 + pct / 100)
+			} : m)
+		};
+		return t.products.map((p) => {
+			const a = productCost(t, p.id), b = productCost(shocked, p.id);
+			return {
+				productId: p.id,
+				product: p.name,
+				before: a.total,
+				after: b.total,
+				change: r2$2(b.total - a.total),
+				marginBefore: a.margin,
+				marginAfter: b.margin
+			};
+		}).filter((x) => x.change !== 0);
+	}
+	function fromWorkbook(raws, boxes) {
+		const t = emptyTree();
+		t.materials = raws.map((r) => ({
+			id: "m-" + r.id,
+			name: String(r.name || ""),
+			unit: "كجم",
+			cost: Number(r.buy) || 0,
+			waste: Number(r.waste) || 0,
+			price: r.price ?? null,
+			category: r.cat
+		}));
+		const rawIds = new Set(raws.map((r) => r.id)), boxIds = new Set(boxes.map((b) => b.id));
+		t.products = boxes.map((b) => ({
+			id: "p-" + b.id,
+			name: String(b.name || ""),
+			price: b.price ?? null,
+			category: b.cat,
+			overhead: (b.ohs || []).reduce((s, o) => s + (Number(o.amt) || 0), 0),
+			components: (b.comps || []).filter((c) => c.t === "raw" && rawIds.has(c.id) || c.t === "box" && boxIds.has(c.id)).map((c) => ({
+				ref: (c.t === "box" ? "p-" : "m-") + c.id,
+				kind: c.t === "box" ? "product" : "material",
+				qty: Number(c.q ?? c.kg) || 0
+			}))
+		}));
+		return t;
+	}
+	/** Merge the workbook's items into a tree without losing what the user drew (their materials, links and products stay). */
+	function mergeWorkbook(t, w) {
+		const have = /* @__PURE__ */ new Set([...t.materials.map((m) => m.id), ...t.products.map((p) => p.id)]);
+		return {
+			...t,
+			materials: [...t.materials, ...w.materials.filter((m) => !have.has(m.id))],
+			products: [...t.products, ...w.products.filter((p) => !have.has(p.id))]
+		};
+	}
+	var norm$1 = (s) => String(s || "").trim().replace(/\s+/g, " ").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").toLowerCase();
+	/** Who bought each product, from order lines (product name → customer), strongest buyers first. */
+	function customersFromOrders(t, lines, top = 8) {
+		const byName = new Map(t.products.map((p) => [norm$1(p.name), p.id]));
+		t.materials.forEach((m) => {
+			if (!byName.has(norm$1(m.name))) byName.set(norm$1(m.name), "mat:" + m.id);
+		});
+		const agg = /* @__PURE__ */ new Map();
+		for (const l of lines) {
+			const id = byName.get(norm$1(l.product));
+			if (!id || id.startsWith("mat:") || !l.customer) continue;
+			const k = id + "|" + l.customer, a = agg.get(k) ?? {
+				customer: l.customer,
+				productId: id,
+				qty: 0,
+				amount: 0,
+				source: "orders"
+			};
+			a.qty = (a.qty ?? 0) + (l.qty ?? 0);
+			a.amount = r2$2((a.amount ?? 0) + (l.amount ?? 0));
+			agg.set(k, a);
+		}
+		const out = [];
+		for (const p of t.products) out.push(...[...agg.values()].filter((a) => a.productId === p.id).sort((a, b) => (b.amount ?? 0) - (a.amount ?? 0)).slice(0, top));
+		return out;
+	}
+	function graph(t, opts = {}) {
+		const W = opts.width ?? 1200, cols = {
+			supplier: .1,
+			material: .36,
+			product: .64,
+			customer: .9
+		};
+		const suppliers = [.../* @__PURE__ */ new Set([...t.suppliers.map((s) => s.supplier), ...t.people?.suppliers ?? []])];
+		const custs = [.../* @__PURE__ */ new Set([...t.customers.map((c) => c.customer), ...t.people?.customers ?? []])];
+		const col = (kind, items, id, label, sub) => items.map((x, i) => ({
+			id: id(x),
+			kind,
+			label: label(x),
+			sub: sub(x),
+			x: Math.round(W * cols[kind]),
+			y: 60 + i * 74
+		}));
+		const nodes = [
+			...col("supplier", suppliers, (s) => "s:" + s, (s) => s, (s) => t.suppliers.filter((x) => x.supplier === s).length + " مادة"),
+			...col("material", t.materials, (m) => m.id, (m) => m.name, (m) => r2$2(materialUnitCost(m)) + " / " + m.unit + (m.waste ? " · هدر " + m.waste + "%" : "")),
+			...col("product", t.products, (p) => p.id, (p) => p.name, (p) => {
+				const c = productCost(t, p.id);
+				return "تكلفة " + c.total + (c.margin != null ? " · هامش " + c.margin + "%" : "");
+			}),
+			...col("customer", custs, (c) => "c:" + c, (c) => c, (c) => t.customers.filter((x) => x.customer === c).length + " منتج")
+		];
+		const edges = [
+			...t.suppliers.map((s) => ({
+				from: "s:" + s.supplier,
+				to: s.materialId,
+				label: String(s.price),
+				kind: "supply"
+			})),
+			...t.products.flatMap((p) => p.components.map((c) => ({
+				from: c.ref,
+				to: p.id,
+				label: "× " + c.qty,
+				kind: "component"
+			}))),
+			...t.customers.map((c) => ({
+				from: c.productId,
+				to: "c:" + c.customer,
+				label: c.qty ? String(c.qty) : "",
+				kind: "sale"
+			}))
+		].filter((e) => nodes.some((n) => n.id === e.from) && nodes.some((n) => n.id === e.to));
+		let keep = nodes;
+		if (opts.focus) {
+			const near = /* @__PURE__ */ new Set([opts.focus]);
+			for (let i = 0; i < 3; i++) for (const e of edges) {
+				if (near.has(e.from)) near.add(e.to);
+				if (near.has(e.to)) near.add(e.from);
+			}
+			keep = nodes.filter((n) => near.has(n.id));
+			const byKind = {};
+			keep = keep.map((n) => ({
+				...n,
+				y: 60 + (byKind[n.kind] = (byKind[n.kind] ?? -1) + 1) * 74
+			}));
+		}
+		if (t.pos && !opts.focus) keep = keep.map((n) => t.pos[n.id] ? {
+			...n,
+			x: t.pos[n.id].x,
+			y: t.pos[n.id].y
+		} : n);
+		const ids = new Set(keep.map((n) => n.id));
+		const height = Math.max(240, ...keep.map((n) => n.y + 60));
+		return {
+			nodes: keep,
+			edges: edges.filter((e) => ids.has(e.from) && ids.has(e.to)),
+			width: W,
+			height
+		};
+	}
+	var slug = (p) => p + "-" + Math.random().toString(36).slice(2, 8);
+	function addMaterial(t, m) {
+		return {
+			...t,
+			materials: [...t.materials, {
+				...m,
+				id: m.id ?? slug("m")
+			}]
+		};
+	}
+	function addProduct(t, p) {
+		return {
+			...t,
+			products: [...t.products, {
+				...p,
+				id: p.id ?? slug("p")
+			}]
+		};
+	}
+	/** Connect a component to a product (a material or a sub-product) — refused when it would make a loop. */
+	function connect(t, productId, ref, kind, qty) {
+		const next = {
+			...t,
+			products: t.products.map((p) => p.id !== productId ? p : {
+				...p,
+				components: [...p.components.filter((c) => c.ref !== ref), {
+					ref,
+					kind,
+					qty
+				}]
+			})
+		};
+		if (cycles(next).length) throw new Error("LOOP");
+		return next;
+	}
+	function disconnect(t, productId, ref) {
+		return {
+			...t,
+			products: t.products.map((p) => p.id !== productId ? p : {
+				...p,
+				components: p.components.filter((c) => c.ref !== ref)
+			})
+		};
+	}
+	function linkSupplier(t, s) {
+		return {
+			...t,
+			suppliers: [...t.suppliers.filter((x) => !(x.supplier === s.supplier && x.materialId === s.materialId)), s]
+		};
+	}
+	function linkCustomer(t, c) {
+		return {
+			...t,
+			customers: [...t.customers.filter((x) => !(x.customer === c.customer && x.productId === c.productId)), c]
+		};
+	}
+	function removeNode(t, id) {
+		return {
+			people: {
+				suppliers: (t.people?.suppliers ?? []).filter((x) => "s:" + x !== id),
+				customers: (t.people?.customers ?? []).filter((x) => "c:" + x !== id)
+			},
+			pos: t.pos,
+			materials: t.materials.filter((m) => m.id !== id),
+			products: t.products.filter((p) => p.id !== id).map((p) => ({
+				...p,
+				components: p.components.filter((c) => c.ref !== id)
+			})),
+			suppliers: t.suppliers.filter((s) => s.materialId !== id && "s:" + s.supplier !== id),
+			customers: t.customers.filter((c) => c.productId !== id && "c:" + c.customer !== id)
+		};
+	}
+	//#endregion
 	//#region app/src/engine/fusion/finance/accounts-engine.ts
 	var accounts_engine_exports = /* @__PURE__ */ __exportAll({
 		createAccount: () => createAccount,
@@ -16038,7 +16407,7 @@ window.SKEngines = (function() {
 	/** Products vs services (Apple's gross-margin table) — only when the accounts reveal both. */
 	function productsServices(fs) {
 		const rev = line$1(fs, "revenue")?.accounts ?? [], cogs = line$1(fs, "cogs")?.accounts ?? [];
-		const isSvc = (n) => SERVICE.test(norm$1(n));
+		const isSvc = (n) => SERVICE.test(norm$3(n));
 		const sum = (xs, p) => xs.reduce((s, a) => s + (p ? a.prior ?? 0 : a.current), 0);
 		const rs = rev.filter((a) => isSvc(a.name)), rp = rev.filter((a) => !isSvc(a.name)), cs = cogs.filter((a) => isSvc(a.name)), cp = cogs.filter((a) => !isSvc(a.name));
 		if (!rs.length || !rp.length) return null;
@@ -16208,7 +16577,7 @@ window.SKEngines = (function() {
 	function ppeNote(fs) {
 		const accs = line$1(fs, "ppe")?.accounts ?? [];
 		if (!accs.length) return null;
-		const acc = accs.filter((a) => ACCUM.test(norm$1(a.name))), gross = accs.filter((a) => !ACCUM.test(norm$1(a.name)));
+		const acc = accs.filter((a) => ACCUM.test(norm$3(a.name))), gross = accs.filter((a) => !ACCUM.test(norm$3(a.name)));
 		const s = (xs, p) => xs.reduce((t, a) => t + (p ? a.prior ?? 0 : a.current), 0);
 		return {
 			rows: gross.map((a) => ({
@@ -17555,7 +17924,7 @@ window.SKEngines = (function() {
 	/** The nature of one expense account (by name; cost of revenue defaults to goods and materials). */
 	function natureOf(name, lineKey) {
 		if (BY_LINE[lineKey]) return BY_LINE[lineKey];
-		const n = norm$1(name), hit = NATURE.find((x) => x.kws.some((k) => n.includes(norm$1(k))));
+		const n = norm$3(name), hit = NATURE.find((x) => x.kws.some((k) => n.includes(norm$3(k))));
 		return hit ? {
 			key: hit.key,
 			ar: hit.ar
@@ -17604,7 +17973,7 @@ window.SKEngines = (function() {
 		"opex",
 		"zakat",
 		"fin"
-	].includes(l.section)).flatMap((l) => l.accounts).filter((a) => kws.some((k) => norm$1(a.name).includes(norm$1(k))));
+	].includes(l.section)).flatMap((l) => l.accounts).filter((a) => kws.some((k) => norm$3(a.name).includes(norm$3(k))));
 	function movement(title, opening, closing, charge, chargeAr, paidAr, note) {
 		if (opening === null) return {
 			title,
@@ -17727,9 +18096,9 @@ window.SKEngines = (function() {
 	}
 	var ALLOW = /خسائر ائتمانيه|مخصص|ديون مشكوك|اضمحلال|allowance|provision|impair/;
 	function creditRisk(fs) {
-		const allowance = (line(fs, "receivables")?.accounts ?? []).filter((a) => ALLOW.test(norm$1(a.name)) || a.current < 0).reduce((t, a) => t + a.current, 0);
+		const allowance = (line(fs, "receivables")?.accounts ?? []).filter((a) => ALLOW.test(norm$3(a.name)) || a.current < 0).reduce((t, a) => t + a.current, 0);
 		const gross = cur(fs, "receivables") - allowance, cash = cur(fs, "cash");
-		const other = (line(fs, "prepayments")?.accounts ?? []).filter((a) => /تامينات مسترده|ودائع|ودايع|deposit|مدينون اخرون|ذمم مدينه اخرى/.test(norm$1(a.name))).reduce((t, a) => t + a.current, 0);
+		const other = (line(fs, "prepayments")?.accounts ?? []).filter((a) => /تامينات مسترده|ودائع|ودايع|deposit|مدينون اخرون|ذمم مدينه اخرى/.test(norm$3(a.name))).reduce((t, a) => t + a.current, 0);
 		const maxExposure = cash + gross + allowance + other;
 		const table = {
 			title: "التعرض لمخاطر الائتمان",
@@ -18239,10 +18608,10 @@ window.SKEngines = (function() {
 		}
 	];
 	var r1 = (x) => Math.round(x * 10) / 10;
-	var r2 = (x) => Math.round(x * 100) / 100;
+	var r2$1 = (x) => Math.round(x * 100) / 100;
 	var div = (a, b) => a === null || b === null || !b ? null : a / b;
 	function metricsOf(i) {
-		const p = (x) => x === null ? null : r1(x * 100), d = (x) => x === null ? null : Math.round(x * 365), x2 = (x) => x === null ? null : r2(x);
+		const p = (x) => x === null ? null : r1(x * 100), d = (x) => x === null ? null : Math.round(x * 365), x2 = (x) => x === null ? null : r2$1(x);
 		return {
 			grossMargin: p(i.cogs === null ? null : div(i.revenue - i.cogs, i.revenue)),
 			operatingMargin: p(div(i.operating, i.revenue)),
@@ -18284,7 +18653,7 @@ window.SKEngines = (function() {
 	}
 	var median = (xs) => {
 		const s = [...xs].sort((a, b) => a - b), m = Math.floor(s.length / 2);
-		return s.length % 2 ? s[m] : r2((s[m - 1] + s[m]) / 2);
+		return s.length % 2 ? s[m] : r2$1((s[m - 1] + s[m]) / 2);
 	};
 	/** Your ratios against the peer group (optionally one sector): the median, the range and where you sit. */
 	function compare(fs, opts = {}) {
@@ -18295,7 +18664,7 @@ window.SKEngines = (function() {
 				value: peerMetrics(p)[m.key]
 			})).filter((x) => x.value !== null);
 			const vals = peers.map((x) => x.value), you = mine ? mine[m.key] : null;
-			const round = (x) => m.unit === "days" ? Math.round(x) : m.unit === "%" ? r1(x) : r2(x);
+			const round = (x) => m.unit === "days" ? Math.round(x) : m.unit === "%" ? r1(x) : r2$1(x);
 			const min = vals.length ? Math.min(...vals) : null, max = vals.length ? Math.max(...vals) : null, med = vals.length ? round(median(vals)) : null;
 			const position = you === null || min === null || max === null ? "n/a" : you > max ? "above" : you < min ? "below" : "within";
 			const verdict = position === "n/a" || med === null || you === null || m.higherIsBetter === null ? position === "n/a" ? "n/a" : "typical" : Math.abs(you - med) <= Math.abs(med) * .1 ? "typical" : you > med === m.higherIsBetter ? "better" : "weaker";
@@ -19174,6 +19543,269 @@ window.SKEngines = (function() {
 		};
 	}
 	//#endregion
+	//#region app/src/engine/fusion/sales/sales-geo-engine.ts
+	var sales_geo_engine_exports = /* @__PURE__ */ __exportAll({
+		CITIES: () => CITIES,
+		OUTLINE: () => OUTLINE,
+		REGIONS: () => REGIONS,
+		aggregate: () => aggregate,
+		cityOf: () => cityOf,
+		districtSpots: () => districtSpots,
+		heat: () => heat,
+		project: () => project
+	});
+	var REGIONS = [
+		{
+			key: "riyadh",
+			ar: "منطقة الرياض",
+			seat: "الرياض",
+			lat: 24.71,
+			lon: 46.68
+		},
+		{
+			key: "makkah",
+			ar: "منطقة مكة المكرمة",
+			seat: "مكة المكرمة",
+			lat: 21.39,
+			lon: 39.86
+		},
+		{
+			key: "madinah",
+			ar: "منطقة المدينة المنورة",
+			seat: "المدينة المنورة",
+			lat: 24.47,
+			lon: 39.61
+		},
+		{
+			key: "qassim",
+			ar: "منطقة القصيم",
+			seat: "بريدة",
+			lat: 26.33,
+			lon: 43.97
+		},
+		{
+			key: "eastern",
+			ar: "المنطقة الشرقية",
+			seat: "الدمام",
+			lat: 26.43,
+			lon: 50.1
+		},
+		{
+			key: "asir",
+			ar: "منطقة عسير",
+			seat: "أبها",
+			lat: 18.22,
+			lon: 42.51
+		},
+		{
+			key: "tabuk",
+			ar: "منطقة تبوك",
+			seat: "تبوك",
+			lat: 28.38,
+			lon: 36.57
+		},
+		{
+			key: "hail",
+			ar: "منطقة حائل",
+			seat: "حائل",
+			lat: 27.52,
+			lon: 41.7
+		},
+		{
+			key: "northern",
+			ar: "منطقة الحدود الشمالية",
+			seat: "عرعر",
+			lat: 30.98,
+			lon: 41.04
+		},
+		{
+			key: "jazan",
+			ar: "منطقة جازان",
+			seat: "جازان",
+			lat: 16.89,
+			lon: 42.55
+		},
+		{
+			key: "najran",
+			ar: "منطقة نجران",
+			seat: "نجران",
+			lat: 17.49,
+			lon: 44.13
+		},
+		{
+			key: "baha",
+			ar: "منطقة الباحة",
+			seat: "الباحة",
+			lat: 20.01,
+			lon: 41.47
+		},
+		{
+			key: "jouf",
+			ar: "منطقة الجوف",
+			seat: "سكاكا",
+			lat: 29.97,
+			lon: 40.21
+		}
+	];
+	var C = (ar, region, lat, lon, ...aliases) => ({
+		ar,
+		region,
+		lat,
+		lon,
+		aliases
+	});
+	var CITIES = [
+		C("الرياض", "riyadh", 24.71, 46.68, "riyadh"),
+		C("الخرج", "riyadh", 24.15, 47.33, "kharj"),
+		C("الدرعية", "riyadh", 24.74, 46.57, "diriyah"),
+		C("المجمعة", "riyadh", 25.9, 45.34),
+		C("جدة", "makkah", 21.49, 39.19, "jeddah", "jiddah"),
+		C("مكة المكرمة", "makkah", 21.39, 39.86, "مكه", "مكة", "makkah", "mecca"),
+		C("الطائف", "makkah", 21.27, 40.42, "taif"),
+		C("رابغ", "makkah", 22.8, 39.03, "rabigh"),
+		C("القنفذة", "makkah", 19.13, 41.08),
+		C("المدينة المنورة", "madinah", 24.47, 39.61, "المدينه", "المدينة", "madinah", "medina"),
+		C("ينبع", "madinah", 24.09, 38.06, "yanbu"),
+		C("بريدة", "qassim", 26.33, 43.97, "buraidah", "buraydah"),
+		C("عنيزة", "qassim", 26.08, 43.99, "unaizah"),
+		C("الرس", "qassim", 25.87, 43.5),
+		C("الدمام", "eastern", 26.43, 50.1, "dammam"),
+		C("الخبر", "eastern", 26.28, 50.21, "khobar", "al khobar"),
+		C("الظهران", "eastern", 26.29, 50.11, "dhahran"),
+		C("الجبيل", "eastern", 27.01, 49.66, "jubail"),
+		C("الأحساء", "eastern", 25.38, 49.59, "الاحساء", "الهفوف", "hofuf", "ahsa"),
+		C("القطيف", "eastern", 26.56, 50.01, "qatif"),
+		C("حفر الباطن", "eastern", 28.43, 45.96, "hafar"),
+		C("أبها", "asir", 18.22, 42.51, "ابها", "abha"),
+		C("خميس مشيط", "asir", 18.31, 42.73, "khamis"),
+		C("تبوك", "tabuk", 28.38, 36.57, "tabuk"),
+		C("حائل", "hail", 27.52, 41.7, "hail"),
+		C("عرعر", "northern", 30.98, 41.04, "arar"),
+		C("جازان", "jazan", 16.89, 42.55, "جيزان", "jazan", "jizan"),
+		C("نجران", "najran", 17.49, 44.13, "najran"),
+		C("الباحة", "baha", 20.01, 41.47, "baha"),
+		C("سكاكا", "jouf", 29.97, 40.21, "sakaka")
+	];
+	/** The Kingdom's outline (longitude, latitude), schematic — enough to place the cities, not a survey. */
+	var OUTLINE = [
+		[34.9, 29.4],
+		[36, 29.2],
+		[37.5, 30],
+		[38, 31.5],
+		[39.2, 32.1],
+		[40.4, 31.9],
+		[42, 31.1],
+		[44.7, 29.2],
+		[46.5, 29.1],
+		[47.4, 28.9],
+		[48.4, 28.5],
+		[49.3, 27.2],
+		[50.1, 26.6],
+		[50.2, 25.8],
+		[50.8, 24.8],
+		[51.6, 24.3],
+		[52.6, 22.9],
+		[55.1, 22.6],
+		[55.7, 22],
+		[55, 20],
+		[52, 19],
+		[49.1, 18.6],
+		[47.5, 17.1],
+		[46.3, 17.2],
+		[44, 17.4],
+		[43.3, 17.5],
+		[43, 16.7],
+		[42.7, 16.4],
+		[42.1, 17.5],
+		[41.2, 19],
+		[40.2, 20.3],
+		[39.1, 21.5],
+		[38.9, 22.7],
+		[38, 24.1],
+		[37.2, 25.1],
+		[36.5, 26],
+		[35.5, 27.5],
+		[34.8, 28.1]
+	];
+	/** Plane coordinates for a point: longitude scaled by the cosine of the Kingdom's mid-latitude. */
+	function project(lat, lon, box = {
+		w: 1e3,
+		h: 820
+	}) {
+		const minLon = 34.4, maxLat = 32.6, k = Math.cos(24 * Math.PI / 180);
+		const sx = box.w / (21.800000000000004 * k), sy = box.h / 16.700000000000003, s = Math.min(sx, sy);
+		return {
+			x: Math.round((lon - minLon) * k * s * 10) / 10,
+			y: Math.round((maxLat - lat) * s * 10) / 10
+		};
+	}
+	var norm = (s) => String(s || "").trim().toLowerCase().replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/^ال/, "").replace(/\s+/g, " ");
+	var INDEX = /* @__PURE__ */ new Map();
+	for (const c of CITIES) for (const n of [c.ar, ...c.aliases]) INDEX.set(norm(n), c);
+	/** The city (and so its region) of a free-text city name, or null when it is not a known city. */
+	function cityOf(name) {
+		return INDEX.get(norm(name)) ?? null;
+	}
+	var r2 = (x) => Math.round(x * 100) / 100;
+	/** Orders by region, city and district, with the orders whose city is not known kept apart. */
+	function aggregate(orders) {
+		const reg = /* @__PURE__ */ new Map(), city = /* @__PURE__ */ new Map(), dist = /* @__PURE__ */ new Map(), unknown = /* @__PURE__ */ new Map();
+		const add = (m, k, o) => {
+			const a = m.get(k) ?? {
+				orders: 0,
+				amount: 0,
+				cust: /* @__PURE__ */ new Set()
+			};
+			a.orders++;
+			a.amount += o.amount ?? 0;
+			if (o.customer) a.cust.add(o.customer);
+			m.set(k, a);
+		};
+		let total = 0;
+		for (const o of orders) {
+			total += o.amount ?? 0;
+			const c = cityOf(o.city ?? "");
+			if (!c) {
+				add(unknown, (o.city || "غير محدد").trim(), o);
+				continue;
+			}
+			add(reg, c.region, o);
+			add(city, c.ar, o);
+			add(dist, c.ar + "|" + (String(o.district || "").trim() || "غير محدد"), o);
+		}
+		const cells = (m, ar) => [...m.entries()].map(([k, a]) => ({
+			key: k,
+			ar: ar(k),
+			orders: a.orders,
+			amount: r2(a.amount),
+			customers: a.cust.size,
+			share: total ? Math.round(a.amount / total * 1e3) / 10 : 0
+		})).sort((a, b) => b.amount - a.amount);
+		return {
+			total: r2(total),
+			orders: orders.length,
+			regions: cells(reg, (k) => REGIONS.find((r) => r.key === k).ar),
+			cities: cells(city, (k) => k),
+			districts: cells(dist, (k) => k.split("|")[1]).map((d) => ({
+				...d,
+				city: d.key.split("|")[0]
+			})),
+			unknown: cells(unknown, (k) => k)
+		};
+	}
+	/** Positions for a city's districts around its centre (a golden-angle spiral, largest first), in plane units. */
+	function districtSpots(n, radius = 34) {
+		return Array.from({ length: n }, (_, i) => {
+			const r = radius * Math.sqrt((i + .6) / Math.max(n, 1)), a = i * 2.39996;
+			return {
+				dx: Math.round(r * Math.cos(a) * 10) / 10,
+				dy: Math.round(r * Math.sin(a) * 10) / 10
+			};
+		});
+	}
+	/** A colour step 0–5 for a value against the largest, for the map's legend. */
+	var heat = (v, max) => max <= 0 || v <= 0 ? 0 : Math.min(5, Math.max(1, Math.ceil(v / max * 5)));
+	//#endregion
 	//#region app/src/engine/fusion/sales/sales-intelligence-engine.ts
 	var sales_intelligence_engine_exports = /* @__PURE__ */ __exportAll({ buildSalesIntelligence: () => buildSalesIntelligence });
 	function money$6(value) {
@@ -19889,7 +20521,8 @@ window.SKEngines = (function() {
 			items: items_engine_exports,
 			label: label_engine_exports,
 			offers: offers_engine_exports,
-			pricing: pricing_engine_exports
+			pricing: pricing_engine_exports,
+			productTree: product_tree_engine_exports
 		},
 		finance: {
 			accounts: accounts_engine_exports,
@@ -19938,6 +20571,7 @@ window.SKEngines = (function() {
 			invoice: invoice_engine_exports,
 			salesAnalytics: sales_analytics_engine_exports,
 			sales: sales_engine_exports,
+			salesGeo: sales_geo_engine_exports,
 			salesIntelligence: sales_intelligence_engine_exports,
 			salesPosting: sales_posting_engine_exports,
 			subscription: subscription_engine_exports,

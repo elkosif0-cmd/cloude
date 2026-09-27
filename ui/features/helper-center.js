@@ -6,8 +6,8 @@
 const {esc}=SK;
 const core=()=>window.SKosifCore;
 const SECTIONS=[
-  {id:"cost",label:"التكاليف والمنتجات",sub:"التكلفة، التسعير، البوكسات والموردون",icon:"productflow",targets:["productflow","suppliers","purchasing","inventory"]},
-  {id:"sales",label:"المبيعات والعملاء",sub:"الطلبات، العملاء، التحصيل وتحليل الطلب",icon:"commerce",targets:["commerce","customers","salesintel","offers"]},
+  {id:"cost",label:"التكاليف والمنتجات",sub:"التكلفة، التسعير، البوكسات والموردون",icon:"productflow",targets:["ptree","productflow","suppliers","purchasing","inventory"]},
+  {id:"sales",label:"المبيعات والعملاء",sub:"الطلبات، العملاء، التحصيل وتحليل الطلب",icon:"commerce",targets:["salesmap","commerce","customers","salesintel","offers"]},
   {id:"finance",label:"تحليل ومساعدة مالية",sub:"النقد، الذمم، الدفاتر، الحساسية والمخاطر",icon:"ledger",targets:["cash","receivables","ledger","finance","risklab"]},
   {id:"recon",label:"المطابقة والبيانات",sub:"مطابقة Excel، المبيعات، الاستيراد والتصدير",icon:"excelrecon",targets:["smartmatch","excelrecon","exports","reports"]},
   {id:"decision",label:"القرار والذكاء",sub:"Jev، مجلس القرار، الحساسية والملاحظات",icon:"jev",targets:["jev","council","decision","sensitivity","risks"]},

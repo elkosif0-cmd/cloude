@@ -178,6 +178,17 @@ ok('الشركات العالمية','طلبات الجولة الأولى تش�
 ok('الشركات العالمية','شركة دولية: طلبات ضريبة الدخل لا الزكاة ولا فواتير QR',await p.evaluate(()=>SKosifTBReview.loadCorpus('apple-2024')).then(()=>p.waitForTimeout(2500)).then(()=>p.evaluate(()=>SKosifTBReview.open('docs'))).then(()=>p.waitForTimeout(1500)).then(()=>p.evaluate(()=>{const t=document.querySelector('#view').innerText;return /ضريبة الدخل/.test(t)&&!/احتساب الزكاة|رموز QR/.test(t)})));
 ok('الشركات العالمية','بيانات المراجعة تحفظ إطار الشركة الدولية ولا تقترح معيار المنشآت الصغيرة',await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}');return d.ctx.country==='INTL'&&d.ctx.framework==='IFRS'}));
 ok('هيكل المنتج','بطاقة الشريط الجانبي تعرض حالة ملف المراجعة لا هوامش البوكسات',await p.evaluate(()=>{const c=document.getElementById('status-card');return !!c&&/ملف المراجعة/.test(c.innerText)&&!/هامش البوكسات/.test(c.innerText)}));
+// ---------- the accountant helpers: product tree, customer map, sales analysis ----------
+await go('ptree',2500);
+ok('الأدوات المساعدة','شجرة المنتجات: المواد والمنتجات والموردون والعملاء من بيانات الشركة، بالشجرة والجدول والأسهم',await p.evaluate(()=>{const t=SKosifProductTree.get();return t.materials.length>0&&t.products.length>0&&t.suppliers.length>0&&t.customers.length>0&&!!document.querySelector('.pt-node')}));
+await p.click('[data-pt-tab="arrows"]');await p.waitForTimeout(600);
+ok('الأدوات المساعدة','الأسهم: مورد ← مادة ← منتج ← عميل',await p.evaluate(()=>['supplier','material','product','customer'].every(k=>document.querySelector('.pt-g.'+k))&&document.querySelectorAll('.pt-e').length>5));
+await go('salesmap',2500);
+ok('الأدوات المساعدة','خريطة العملاء: المناطق ملوّنة بالطلبات مع أرقامها',await p.evaluate(()=>document.querySelectorAll('.sm-svg [data-sm-region]').length===13&&document.querySelectorAll('.sm-side li').length>0));
+await p.click('.sm-svg [data-sm-region="makkah"]');await p.waitForTimeout(900);
+ok('الأدوات المساعدة','الاقتراب من المنطقة ثم المدينة يُظهر المدن ثم الأحياء',await p.evaluate(async()=>{if(!document.querySelector('.sm-svg [data-sm-city]'))return false;document.querySelector('.sm-svg [data-sm-city="جدة"]')?.dispatchEvent(new MouseEvent('click',{bubbles:true}));await new Promise(r=>setTimeout(r,900));return document.querySelectorAll('.sm-d').length>0}));
+await p.click('[data-sm-tab="analysis"]');await p.waitForTimeout(700);
+ok('الأدوات المساعدة','تحليل المبيعات: الأكثر طلباً والشهور والعملاء وABC',await p.evaluate(()=>document.querySelectorAll('.skhb').length>=2&&/ABC/.test(document.body.innerText)));
 const ph=await (await b.newContext({viewport:{width:390,height:844},isMobile:true})).newPage();await ph.goto(URL_);await ph.waitForTimeout(5000);
 ok('الجولات 1–33','شريط التبويبات السفلي في الآيفون',await ph.evaluate(()=>!!document.querySelector('.skb,.sk-tabbar,[class*="tabbar"]')));
 if(process.argv[3])fs.writeFileSync(process.argv[3],JSON.stringify(R,null,1));

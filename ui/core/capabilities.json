@@ -391,6 +391,28 @@
    "en": "Sensitivity Lab"
   },
   {
+   "id": "salesmap",
+   "label": "خريطة العملاء وتحليل المبيعات",
+   "sub": "المملكة ← المنطقة ← المدينة ← الحي ملوّنة بالطلبات، وتحليل المبيعات (الأكثر طلباً، الشهور، العملاء، القنوات، ABC)، وتقرير أي صنف للطباعة، ورفع ملف مبيعات",
+   "group": "helpers",
+   "hubLabel": "خريطة العملاء والمبيعات",
+   "tier": "CORE",
+   "module": "ui/features/sales-map.js + SKEngines.sales.salesGeo + SKCharts",
+   "data": [
+    "يقرأ IDB aghnam-app-v7 (الطلبات)",
+    "sqc_salesup_v1 (ملف مبيعات مرفوع، لكل شركة)"
+   ],
+   "legacy": "جديد — خريطة جغرافية للعملاء وتحليل المبيعات وتقرير الصنف",
+   "decision": "Rebuild",
+   "kw": "خريطة عملاء مناطق مدن أحياء جدة الرياض طلبات مبيعات تحليل الأكثر طلبا abc تقرير صنف رفع مبيعات excel",
+   "adv": false,
+   "en": "Customer Map & Sales Analysis",
+   "feeds": [
+    "customers",
+    "commerce"
+   ]
+  },
+  {
    "id": "commerce",
    "label": "الطلبات والتحصيل",
    "sub": "الفواتير وبنود السلة والتسويات",
@@ -871,6 +893,30 @@
    "kw": "تعادل حساسية",
    "adv": false,
    "en": "Financial Engineering"
+  },
+  {
+   "id": "ptree",
+   "label": "شجرة المنتجات",
+   "sub": "المواد الخام بتكلفتها وهدرها ← المنتجات والبوكسات المكوّنة منها ← الموردون والعملاء — جدولاً أو شجرةً أو أسهماً، مع تكلفة كل منتج وهامشه وأثر تغير الأسعار",
+   "group": "helpers",
+   "hubLabel": "شجرة المنتجات",
+   "tier": "CORE",
+   "module": "ui/features/product-tree.js + SKEngines.catalog.productTree",
+   "data": [
+    "sqc_ptree_v1 (لكل شركة)",
+    "يقرأ aghnam-pricing-v3 و IDB aghnam-app-v7",
+    "يضيف أسعار الموردين إلى skosif_purchasing_v1"
+   ],
+   "legacy": "جديد — شجرة المنتجات وربطها بالموردين والعملاء بالأسهم",
+   "decision": "Rebuild",
+   "kw": "شجرة منتجات مواد خام هدر تكلفة بوكس تركيبة مكونات bom موردين عملاء أسهم خريطة هامش",
+   "adv": false,
+   "en": "Product Tree",
+   "feeds": [
+    "catalog",
+    "suppliers",
+    "customers"
+   ]
   },
   {
    "id": "productflow",
