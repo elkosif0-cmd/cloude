@@ -1,7 +1,7 @@
 const VERSION = "0.1.0";
 const AGENTS = [
-  { id:"solver", model:"@cf/moonshotai/kimi-k2.6", role:"Lead solver: build the strongest answer and test feasibility." },
-  { id:"skeptic", model:"@cf/zai-org/glm-5.3-flash", role:"Skeptical critic: find weak assumptions, contradictions, missing evidence, and downside risk." },
+  { id:"solver", model:"@cf/meta/llama-3.3-70b-instruct-fp8-fast", role:"Lead solver: build the strongest answer and test feasibility." },
+  { id:"skeptic", model:"@cf/google/gemma-4-26b-a4b-it", role:"Skeptical critic: find weak assumptions, contradictions, missing evidence, and downside risk." },
   { id:"alternatives", model:"@cf/qwen/qwen3.8-27b", role:"Alternatives analyst: compare approaches, identify overlooked options, and test trade-offs." }
 ];
 
@@ -56,7 +56,7 @@ async function callAgent(env,agent,stage,input,peers){
       {role:"system",content:"You are KOSIF Think. Be rigorous, concise, and evidence-aware. Output valid JSON only."},
       {role:"user",content:agentPrompt(agent,stage,input,peers)}
     ],
-    max_tokens:1800
+    max_tokens:1200
   });
   return artifact(agent,parseJson(extractAI(result)));
 }
@@ -93,7 +93,7 @@ function council(artifacts,options){
     votes:votes.map(v=>({agentId:v.agentId,optionId:v.recommendationId,confidence:v.confidence}))
   };
 }
-async function synthesize(env,input,artifacts,c){
+async function synthesize(env,input,artifacts,c,mode){
   const prompt=[
     "You are the chair of KOSIF Think.",
     "Synthesize the structured agent artifacts into a concise Arabic answer.",
@@ -101,7 +101,7 @@ async function synthesize(env,input,artifacts,c){
     "Return valid JSON only: {\"finalAnswer\":\"...\",\"confidence\":0.0,\"remainingUncertainty\":[\"...\"]}.",
     JSON.stringify({question:input.question,context:input.context,options:input.options,artifacts,council:c})
   ].join("\n");
-  const r=await env.AI.run("@cf/moonshotai/kimi-k2.6",{messages:[{role:"user",content:prompt}],max_tokens:1800});
+  const r=await env.AI.run("@cf/moonshotai/kimi-k2.6",{messages:[{role:"user",content:prompt}],max_tokens:mode==="deep"?4000:1800,reasoning_effort:mode==="deep"?"high":"none"});
   const x=parseJson(extractAI(r));
   return {finalAnswer:text(x.finalAnswer,6000),confidence:clamp(x.confidence),remainingUncertainty:list(x.remainingUncertainty,8)};
 }
