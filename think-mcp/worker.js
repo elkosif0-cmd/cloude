@@ -7,9 +7,9 @@ const FAST_AGENTS = [
 const FRONTIER_AGENTS = [
   { id:"gpt", source:"cleanapis", model:"gpt-5.6-sol", role:"Lead frontier solver: produce the strongest feasible solution and challenge hidden assumptions." },
   { id:"claude", source:"cleanapis", model:"claude-opus-5", role:"Deep skeptical reviewer: stress-test logic, evidence, edge cases, and downside risk." },
-  { id:"gemini", source:"cleanapis", model:"gemini-3.7-flash", compact:true, role:"Alternative-path analyst: compare approaches, surface missing options, and test trade-offs." },
-  { id:"mythos", source:"cleanapis", model:"claude-mythos-preview", compact:true, role:"Adversarial scenario architect: test counterfactuals, failure modes, and hidden second-order effects." },
-  { id:"fable", source:"cleanapis", model:"claude-fable-5.1", compact:true, role:"Creative synthesis challenger: seek unconventional but defensible alternatives and expose framing bias." }
+  { id:"gemini", source:"cleanapis", model:"gemini-3.7-flash", micro:true, role:"Alternative-path analyst: compare approaches, surface missing options, and test trade-offs." },
+  { id:"mythos", source:"cleanapis", model:"claude-mythos-preview", micro:true, role:"Adversarial scenario architect: test counterfactuals, failure modes, and hidden second-order effects." },
+  { id:"fable", source:"cleanapis", model:"claude-fable-5.1", micro:true, role:"Creative synthesis challenger: seek unconventional but defensible alternatives and expose framing bias." }
 ];
 
 function json(data,status){ return new Response(JSON.stringify(data),{status:status||200,headers:{"content-type":"application/json; charset=utf-8"}}); }
@@ -41,29 +41,25 @@ function parseJson(raw){
 }
 function artifact(agent,x){
   return {
-    agentId:agent.id, source:agent.source||"cloudflare", model:agent.model, role:agent.role, compact:!!agent.compact,
+    agentId:agent.id, source:agent.source||"cloudflare", model:agent.model, role:agent.role, micro:!!agent.micro,
     recommendationId:x?.recommendationId==null?null:text(x.recommendationId,80),
     answer:text(x?.answer,3500), evidence:list(x?.evidence,8), assumptions:list(x?.assumptions,8),
     risks:list(x?.risks,8), objections:list(x?.objections,8), confidence:clamp(x?.confidence)
   };
 }
 function agentPrompt(agent,stage,input,peers){
-  const compact=!!agent.compact;
-  const shape=compact
-    ? {recommendationId:"option key or null",answer:"<=60 words",evidence:["<=2"],assumptions:["<=2"],risks:["<=2"],objections:["<=2"],confidence:0.0}
-    : {recommendationId:"option key when options exist, otherwise null",answer:"concise reviewable conclusion",evidence:["facts"],assumptions:["assumptions"],risks:["risks"],objections:["objections"],confidence:0.0};
-  const stageRule=stage==="independent"?"Work independently. Do not anchor on another model.":stage==="critique"?"Review peer artifacts. Identify only material conflicts or unsupported claims, then revise.":"Produce the final revised position after criticism.";
+  const shape={recommendationId:"option key when options exist, otherwise null",answer:"concise reviewable conclusion",evidence:["facts"],assumptions:["assumptions"],risks:["risks"],objections:["objections"],confidence:0.0};
+  const stageRule=stage==="independent"?"Work independently. Do not anchor on another model.":stage==="critique"?"Review peer artifacts. Identify material conflicts or unsupported claims and return your revised position.":"Produce the final revised position after criticism.";
   return [
     "You are a member of KOSIF Think.","Role: "+agent.role,stageRule,
-    compact?"Be extremely concise. Focus only on the most decision-changing insight.":"Be rigorous and concise.",
-    "Do not reveal private chain-of-thought. Return only the decision artifact.",
+    "Be rigorous and concise. Do not reveal private chain-of-thought.",
     "Return one valid JSON object only, matching this shape: "+JSON.stringify(shape),
     "Task: "+JSON.stringify({question:input.question,context:input.context,options:input.options,peerArtifacts:peers||[]})
   ].join("\n");
 }
 async function cleanApisChat(env,model,messages,maxTokens=320){
   if(!env.cleanapis)throw new Error("CLEANAPIS_KEY_MISSING");
-  const ac=new AbortController(),timer=setTimeout(()=>ac.abort(),20000);
+  const ac=new AbortController(),timer=setTimeout(()=>ac.abort(),25000);
   let r;
   try{
     r=await fetch("https://cleanapis.com/v1/chat/completions",{
@@ -81,13 +77,49 @@ async function cleanApisChat(env,model,messages,maxTokens=320){
   if(!out)throw new Error("CLEANAPIS_EMPTY_RESPONSE");
   return out;
 }
+async function cleanApisMicro(env,agent,stage,input,peers){
+  if(!env.cleanapis)throw new Error("CLEANAPIS_KEY_MISSING");
+  const optionKeys=Object.keys(input.options||{});
+  const format=optionKeys.length?"<one option key from "+optionKeys.join(",")+" or NONE>|<confidence 0 to 1>|<one decision-changing insight, max 45 words>":"NONE|<confidence 0 to 1>|<one decision-changing insight, max 45 words>";
+  const peerText=(peers||[]).slice(0,5).map(x=>({agentId:x.agentId,recommendationId:x.recommendationId,answer:text(x.answer,450)}));
+  const prompt=[
+    "You are a KOSIF Think specialist.",
+    "Role: "+agent.role,
+    stage==="independent"?"Work independently.":"Use the peer summaries only to challenge or refine the decision.",
+    "Return EXACTLY one line in this format: "+format,
+    "No chain-of-thought. No markdown. No extra commentary.",
+    "Task: "+JSON.stringify({question:input.question,context:input.context,options:input.options,peerSummaries:peerText})
+  ].join("\n");
+  const ac=new AbortController(),timer=setTimeout(()=>ac.abort(),12000);
+  let r;
+  try{
+    r=await fetch("https://cleanapis.com/v1/chat/completions",{
+      method:"POST",
+      headers:{"content-type":"application/json",authorization:"Bearer "+env.cleanapis},
+      body:JSON.stringify({model:agent.model,messages:[{role:"user",content:prompt}],max_tokens:95}),
+      signal:ac.signal
+    });
+  }catch(e){
+    throw new Error(ac.signal.aborted?"MICRO_TIMEOUT":"MICRO_NETWORK: "+text(e?.message||e,250));
+  }finally{clearTimeout(timer)}
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error("MICRO_"+r.status+": "+text(d?.error?.message||"request failed",300));
+  const raw=text(d?.choices?.[0]?.message?.content,1200).replace(/\n+/g," ").trim();
+  const parts=raw.split("|");
+  const rec=parts[0]&&optionKeys.includes(parts[0].trim())?parts[0].trim():null;
+  const conf=clamp(parseFloat(parts[1]));
+  const insight=text(parts.slice(2).join("|")||raw,700);
+  return artifact(agent,{recommendationId:rec,answer:insight,evidence:insight?[insight]:[],assumptions:[],risks:agent.id==="mythos"&&insight?[insight]:[],objections:agent.id==="fable"&&insight?[insight]:[],confidence:conf||0.7});
+}
+
 async function callAgent(env,agent,stage,input,peers){
+  if(agent.source==="cleanapis"&&agent.micro) return cleanApisMicro(env,agent,stage,input,peers);
   const messages=[
     {role:"system",content:"You are KOSIF Think. Be rigorous, concise, and evidence-aware. Output valid JSON only. Never reveal hidden chain-of-thought."},
     {role:"user",content:agentPrompt(agent,stage,input,peers)}
   ];
   if(agent.source==="cleanapis"){
-    const raw=await cleanApisChat(env,agent.model,messages,agent.compact?170:260);
+    const raw=await cleanApisChat(env,agent.model,messages,260);
     return artifact(agent,parseJson(raw));
   }
   const result=await env.AI.run(agent.model,{messages,max_tokens:550,response_format:{type:"json_object"}});
@@ -242,7 +274,7 @@ async function callTool(env,name,args){
     ok:true,version:VERSION,modes:["fast","council","deep"],cleanApisConfigured:!!env.cleanapis,
     fastAgents:FAST_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role})),
     frontierAgents:FRONTIER_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role})),
-    routing:{fast:"Cloudflare fast council",council:"Five Clean APIs frontier agents executed in 2+2+1 waves",deep:"Five frontier agents, then Claude/Mythos/Fable critique and GPT/Gemini revision",fallback:"Cloudflare fast council if fewer than three frontier agents succeed",finalChair:"ChatGPT after Jev"},
+    routing:{fast:"Cloudflare fast council",council:"GPT-5.6 Sol + Claude Opus 5 full artifacts, plus Gemini/Mythos/Fable micro-specialists",deep:"Core full analysis plus specialist challenge passes",fallback:"Cloudflare fast council if fewer than three frontier agents succeed",finalChair:"ChatGPT after Jev"},
     jevIntegration:"kosif_think returns jev_payload; ChatGPT should call the matching Jev Bridge tool before the final synthesis."
   },false);
   return null;
