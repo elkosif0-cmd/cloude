@@ -37,7 +37,7 @@ Total capabilities: **71** (screens). Cross-cutting capabilities are listed afte
 | `yieldlab` | مختبر الجزارة | core (v18) | الأدوات المساعدة للمحاسب › مختبر الذبيحة › يومي | `aghnam-v18-yield-trials` | SKosifCore, Engine | Working | Keep |
 | `nrv` | تفكيك الذبيحة NRV | core (v19) | الأدوات المساعدة للمحاسب › مختبر الذبيحة › يومي | `aghnam-v19-nrv-trials` | SKosifCore, Engine | Working | Keep |
 | `ledger` | الدفاتر المحاسبية | ui/features/ledger.js + SKEngines.finance | الأدوات المساعدة للمحاسب › يومي | `skosif_ledger_v1` | SKosifCore | Working | Rebuild |
-| `jesim` | محاكي القيود | ui/features/entry-sim.js + SKEngines.finance.entryLearner | الأدوات المساعدة للمحاسب › يومي | `sqc_jesim_v1 (لكل شركة)`, `يقرأ skosif_ledger_v1 ويرحّل إليه القيد المعتمد` | SKosifCore | Working | Rebuild |
+| `jesim` | محاكي القيود | ui/features/entry-sim.js + SKEngines.finance.entryLearner | الأدوات المساعدة للمحاسب › يومي | `sqc_jesim_v1__<companyId> (ذاكرة موسومة ومعزولة لكل شركة)`, `يقرأ skosif_ledger_v1 ويرحّل إليه القيد المعتمد` | SKosifCore | Working | Rebuild |
 | `cash` | التدفق النقدي | ui/supply.js + ui/erp-plus.js | الأدوات المساعدة للمحاسب › يومي | `skosif_v31_monthly_opex`, `skosif_erp_finance_v1` | SKosifCore | Working | Keep |
 | `receivables` | الذمم والتحصيل | ui/meatops.js | الأدوات المساعدة للمحاسب › يومي | `skosif_ar_paste` | SKosifCore | Working | Keep |
 | `finance` | الهندسة المالية | core (v18) | الأدوات المساعدة للمحاسب › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
