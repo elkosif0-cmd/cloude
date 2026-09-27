@@ -846,7 +846,7 @@
    "tier": "CORE",
    "module": "ui/features/entry-sim.js + SKEngines.finance.entryLearner",
    "data": [
-    "sqc_jesim_v1 (لكل شركة)",
+    "sqc_jesim_v1__<companyId> (ذاكرة موسومة ومعزولة لكل شركة)",
     "يقرأ skosif_ledger_v1 ويرحّل إليه القيد المعتمد"
    ],
    "legacy": "جديد — فهم القيود ومحاكاتها بذاكرة داخلية",
