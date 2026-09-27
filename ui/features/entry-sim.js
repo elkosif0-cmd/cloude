@@ -68,17 +68,21 @@ async function post(){
   let r=L.post(payload),chosen={};
   if(!r.ok&&r.code==="MISSING_ACCOUNTS"){
     const accounts=L.accounts().filter(a=>a.active!==false).sort((a,b)=>String(a.code).localeCompare(String(b.code)));
-    const typeOf=c=>({"1":"asset","2":"liability","3":"equity","4":"revenue","5":"expense","6":"expense","7":"expense","8":"expense"}[String(c)[0]]||"other"),open=[];
+    /* the accountant decides each missing account explicitly: nothing is preselected, mapping to an existing active
+       account is offered first (the safer path), and opening a new account needs its name and a type picked from
+       the list — never guessed from the code's digits */
+    const TYPES=[["asset","أصل"],["liability","التزام"],["equity","حقوق ملكية"],["revenue","إيراد"],["expense","مصروف"],["other","أخرى"]],open=[];
     for(const miss of r.missingAccounts||[]){
       const existing=accounts.map(a=>[String(a.code),String(a.code)+" — "+a.name]),canOpen=!miss.inactive;
-      const choices=(canOpen?[["__new__","فتح حساب جديد بهذا الرقم"]]:[]).concat(existing);
+      const choices=[["","اختر…"]].concat(existing,canOpen?[["__new__","فتح حساب جديد بالرقم "+miss.resolvedCode+" (باسم ونوع تحددهما)"]]:[]);
       const v=await SK.form("الحساب «"+miss.resolvedCode+"» غير متاح في دليل الشركة",[
-        {key:"choice",label:miss.inactive?"اختر حساباً نشطاً بديلاً":"اربطه بحساب موجود أو افتح حساباً جديداً",type:"select",value:canOpen?"__new__":(existing[0]&&existing[0][0]||""),options:choices,required:true},
-        {key:"name",label:"اسم الحساب عند فتح حساب جديد",value:miss.name||"",placeholder:"اسم الحساب"},
-        {key:"type",label:"نوع الحساب الجديد",type:"select",value:typeOf(miss.resolvedCode),options:[["asset","أصل"],["liability","التزام"],["equity","حقوق ملكية"],["revenue","إيراد"],["expense","مصروف"],["other","أخرى"]]}
-      ],{ok:"متابعة",message:"لن يُفتح حساب ولن يُرحّل القيد إلا بعد معالجة كل الحسابات الناقصة صراحةً."});
+        {key:"choice",label:miss.inactive?"اختر حساباً نشطاً بديلاً":"اربطه بحساب موجود في الدليل، أو افتح حساباً جديداً",type:"select",value:"",options:choices,required:true},
+        ...(canOpen?[{key:"name",label:"اسم الحساب (عند فتح حساب جديد)",value:miss.name||"",placeholder:"اسم الحساب"},
+          {key:"type",label:"نوع الحساب (عند فتح حساب جديد)",type:"select",value:"",options:[["","اختر النوع…"]].concat(TYPES)}]:[])
+      ],{ok:"متابعة",message:"لن يُفتح حساب ولن يُرحّل القيد إلا بعد قرارك الصريح لكل حساب ناقص.",
+        validate:o=>o.choice!=="__new__"?null:!String(o.name||"").trim()?"اكتب اسم الحساب الجديد":!TYPES.some(t=>t[0]===o.type)?"اختر نوع الحساب الجديد صراحةً":null});
       if(!v)return toast("أُلغي الترحيل — لم يتغير دليل الحسابات أو الدفاتر","info");
-      if(v.choice==="__new__"){if(!String(v.name||miss.name||"").trim())return toast("اكتب اسم الحساب الجديد","warn");open.push({code:miss.resolvedCode,name:String(v.name||miss.name).trim(),type:v.type||typeOf(miss.resolvedCode)})}
+      if(v.choice==="__new__")open.push({code:miss.resolvedCode,name:String(v.name).trim(),type:v.type});
       else chosen[miss.code]=v.choice;
     }
     r=L.post(payload,{map:chosen,open});

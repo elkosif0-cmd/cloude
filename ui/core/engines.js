@@ -15050,6 +15050,70 @@ window.SKEngines = (function() {
 		return issues;
 	}
 	//#endregion
+	//#region app/src/engine/fusion/finance/account-opening-engine.ts
+	var account_opening_engine_exports = /* @__PURE__ */ __exportAll({
+		ACCOUNT_TYPES: () => ACCOUNT_TYPES,
+		isAccountType: () => isAccountType,
+		planAccountOpening: () => planAccountOpening
+	});
+	var ACCOUNT_TYPES = [
+		"asset",
+		"liability",
+		"equity",
+		"revenue",
+		"expense",
+		"other"
+	];
+	var isAccountType = (t) => typeof t === "string" && ACCOUNT_TYPES.includes(t);
+	/** The accounts to open, or every reason the specifications cannot be accepted (nothing is created in that case). */
+	function planAccountOpening(chart, specs) {
+		const issues = [], seen = /* @__PURE__ */ new Set(), accounts = [];
+		for (const s of specs) {
+			const code = String(s?.code ?? "").trim(), name = String(s?.name ?? "").trim(), type = s?.type == null ? "" : String(s.type).trim();
+			if (!code) {
+				issues.push({
+					code: "",
+					reason: "CODE_REQUIRED"
+				});
+				continue;
+			}
+			if (chart.some((a) => String(a.code) === code)) issues.push({
+				code,
+				reason: "CODE_EXISTS"
+			});
+			if (seen.has(code)) issues.push({
+				code,
+				reason: "CODE_DUPLICATE"
+			});
+			seen.add(code);
+			if (!name) issues.push({
+				code,
+				reason: "NAME_REQUIRED"
+			});
+			if (!type) issues.push({
+				code,
+				reason: "TYPE_REQUIRED"
+			});
+			else if (!isAccountType(type)) issues.push({
+				code,
+				reason: "TYPE_INVALID"
+			});
+			if (name && isAccountType(type)) accounts.push(createAccount({
+				code,
+				name,
+				type,
+				parentId: s.parentId
+			}));
+		}
+		return issues.length ? {
+			ok: false,
+			issues
+		} : {
+			ok: true,
+			accounts
+		};
+	}
+	//#endregion
 	//#region app/src/engine/fusion/finance/bank-reconciliation-engine.ts
 	var bank_reconciliation_engine_exports = /* @__PURE__ */ __exportAll({
 		bankReconciliationStatement: () => bankReconciliationStatement,
@@ -21170,6 +21234,7 @@ window.SKEngines = (function() {
 			productTree: product_tree_engine_exports
 		},
 		finance: {
+			accountOpening: account_opening_engine_exports,
 			accounts: accounts_engine_exports,
 			bankReconciliation: bank_reconciliation_engine_exports,
 			cashFlow: cash_flow_engine_exports,
