@@ -6,7 +6,8 @@
 //   • one user action has exactly one effect: a supplier → material arrow opens one price dialog and adds exactly one
 //     supplier link and one supplier price; an item report opens exactly one print preview.
 // Usage: node tools/revisit_e2e.mjs [url]
-import { chromium } from 'playwright';
+import { createRequire } from 'module';
+const { chromium } = createRequire(import.meta.url)('playwright'); /* resolved through NODE_PATH in CI, like ui_smoke */
 
 const URL_ = process.argv[2] || 'http://localhost:8765/app-safe.html';
 const failures = [], passed = [];
