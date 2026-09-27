@@ -35,6 +35,8 @@ function render(root){
   root.innerHTML='<div class="hd-shell"><section class="card hd-hero"><div><span class="eyebrow">ACCOUNTANT HELPERS</span><h2>أدوات مساعدة للمحاسب</h2><p>التطبيق أساسه المراجعة. هذه الأدوات مستقلة لمساعدة المحاسب في التكلفة والتحليل والمطابقة والقرار؛ استخدامها لا يضيف مستندًا أو دليلاً لملف المراجعة إلا إذا أرفقه المراجع صراحة داخل الارتباط.</p></div><span class="hd-badge">مستقلة عن ملف المراجعة</span></section>'+
   '<section class="card hd-map"><div class="hd-map-head"><div><h3>خريطة الأدوات</h3><p>اختر المجال من الخريطة؛ كل فرع يقود للأدوات المناسبة.</p></div></div><div class="hd-canvas">'+lines()+'<div class="hd-center"><span>'+(SK.icons.helperdesk||SK.icons.productflow||"")+'</span><b>المحاسب</b><small>أدوات مساعدة</small></div>'+SECTIONS.map(point).join("")+'</div></section>'+
   '<div class="hd-grid">'+table()+'</div></div>';
+  if(root.dataset.hdBound==="1")return;
+  root.dataset.hdBound="1";
   root.addEventListener("click",e=>{const b=e.target.closest("[data-hd-go]");if(b)core()&&core().go(b.dataset.hdGo)});
 }
 SK.view("helperdesk",{render});
