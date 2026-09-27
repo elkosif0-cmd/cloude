@@ -124,7 +124,7 @@ function thinkHTML(){
     '<label class="sk-field"><span>بدائل اختيارية — بديل في كل سطر</span><textarea id="th-opts" rows="3" placeholder="خطة أ&#10;خطة ب">'+esc(th.opts)+'</textarea></label>'+
     '<div class="sk-actions"><button type="button" class="btn primary" id="th-run"'+(th.busy?' disabled':'')+'>'+(th.busy?"المجلس يعمل…":"شغّل KOSIF Think")+'</button><button type="button" class="btn" id="th-clear">مسح</button></div>'+
     (th.status?'<div class="sk-note'+(th.status.startsWith("!")?" bad":"")+'">'+esc(th.status.replace(/^!/,""))+'</div>':'')+
-    (r?'<div class="sk-result"><span>النتيجة النهائية</span><b>'+esc(r.finalAnswer||"")+'</b><small>الوكلاء الناجحون '+r.artifacts.length+(r.council?" · اتفاق المجلس "+r.council.agreementPercent+"٪":"")+(jev?" · Jev: "+esc(jev.h)+" "+esc(jev.d):"")+'</small></div><details><summary>نتائج الوكلاء والمخاطر</summary><div class="sk-stack">'+cards+(r.failures?.length?'<div class="sk-note bad">فشل: '+esc(r.failures.map(x=>x.provider+" — "+x.message).join(" | "))+'</div>':'')+'</div></details>':'')+
+    (r?'<div class="sk-result"><span>النتيجة النهائية</span><b>'+esc(r.finalAnswer||"")+'</b><small>الوكلاء الناجحون '+r.artifacts.length+(r.council?" · اتفاق المجلس "+r.council.agreementPercent+"٪":"")+(jev?" · Jev: "+esc(jev.h)+" "+esc(jev.d):"")+' · البوابة: '+(r.gate?.passed?"اجتازت":"مراجعة إضافية")+'</small>'+(r.gate?.reasons?.length?'<div class="sk-note warn">'+esc(r.gate.reasons.join(" · "))+'</div>':'')+'</div><details><summary>نتائج الوكلاء والمخاطر</summary><div class="sk-stack">'+cards+(r.failures?.length?'<div class="sk-note bad">فشل: '+esc(r.failures.map(x=>x.provider+" — "+x.message).join(" | "))+'</div>':'')+'</div></details>':'')+
   '</div></section>';
 }
 function grabThink(){
@@ -136,49 +136,61 @@ function bindThink(){
   const run=$("#th-run",root);if(run)run.onclick=runThink;
   const clear=$("#th-clear",root);if(clear)clear.onclick=()=>{Object.assign(th,{q:"",ctx:"",opts:"",result:null,status:""});paint()};
 }
+async function executeThink({question,context="",options={},mode="council"}){
+  const q=String(question||"").trim();
+  if(!q)throw new Error("اكتب السؤال أولاً.");
+  const providers=window.SKosifAI?.configured?.()||[];
+  if(!providers.length)throw new Error("لا يوجد مفتاح AI مضبوط. أضف مفتاح OpenAI أو Claude أو Gemini أولاً.");
+  const failures=[];
+  let round=await runThinkStage("independent",providers,q,String(context||""),options,[]);
+  let artifacts=round.artifacts;failures.push(...round.failures);
+  if(mode!=="fast"&&artifacts.length>1){
+    round=await runThinkStage("critique",artifacts.map(x=>x.provider),q,String(context||""),options,artifacts);
+    if(round.artifacts.length)artifacts=round.artifacts;failures.push(...round.failures);
+  }
+  if(mode==="deep"&&artifacts.length>1){
+    round=await runThinkStage("revision",artifacts.map(x=>x.provider),q,String(context||""),options,artifacts);
+    if(round.artifacts.length)artifacts=round.artifacts;failures.push(...round.failures);
+  }
+  if(!artifacts.length)throw new Error("لم ينجح أي Agent في إرجاع نتيجة.");
+  const votes=artifacts.filter(a=>a.recommendationId&&options[a.recommendationId]).map(a=>({provider:a.provider,optionId:a.recommendationId,confidence:a.confidence,rationale:a.answer.slice(0,600)}));
+  const council=votes.length&&window.SKEngines?.intelligence?.council?.resolveCouncil?SKEngines.intelligence.council.resolveCouncil(votes):null;
+  let jev=null;
+  try{
+    const state=redact(JSON.stringify({artifacts,council}));
+    jev=Object.keys(options).length>=2
+      ? await callJev({type:"choice",instructions:"اختر البديل الأكثر اتساقاً مع الأدلة والقيود والمخاطر التي توصل إليها مجلس KOSIF Think.",state,criteria:options})
+      : await callJev({type:"noul",instructions:"هل نتيجة مجلس KOSIF Think الحالية قوية بما يكفي للاعتماد دون جولة إضافية؟",state,true_criteria:"الأدلة متسقة والاعتراضات الجوهرية محلولة.",false_criteria:"يوجد تعارض جوهري أو افتراض غير محسوم قد يغيّر النتيجة."});
+  }catch(e){failures.push({provider:"Jev",message:e.message||String(e)})}
+  const jv=jev?jevVerdict(jev):null,reasons=[];
+  if(council?.tied)reasons.push("تعادل في مجلس الوكلاء");
+  if(council&&council.agreementPercent<80)reasons.push("اتفاق المجلس أقل من 80٪");
+  if(jv?.confidence!=null&&jv.confidence<.8)reasons.push("ثقة Jev أقل من 80٪");
+  const gate={passed:reasons.length===0,reasons};
+  const chair=providers.includes("openai")?"openai":artifacts[0].provider;
+  artifacts.sort((a,b)=>b.confidence-a.confidence);
+  let finalAnswer=artifacts[0].answer,finalConfidence=artifacts[0].confidence,remainingUncertainty=[];
+  try{
+    const syn=await synthesizeThink(chair,q,artifacts,council,jev);
+    if(syn?.finalAnswer)finalAnswer=String(syn.finalAnswer);
+    if(Number.isFinite(Number(syn?.confidence)))finalConfidence=Math.max(0,Math.min(1,Number(syn.confidence)));
+    if(Array.isArray(syn?.remainingUncertainty))remainingUncertainty=syn.remainingUncertainty.map(x=>String(x)).slice(0,8);
+  }catch(e){failures.push({provider:chair+"-synthesis",message:e.message||String(e)})}
+  return {mode,artifacts,council,jev,jevVerdict:jv,gate,failures,finalAnswer,finalConfidence,remainingUncertainty};
+}
 async function runThink(){
   grabThink();
   const q=th.q.trim();if(!q){th.status="!اكتب السؤال أولاً.";return paint()}
-  const providers=window.SKosifAI?.configured?.()||[];
-  if(!providers.length){th.status="!لا يوجد مفتاح AI مضبوط. أضف مفتاح OpenAI أو Claude أو Gemini أولاً.";return paint()}
-  const options=thinkOptions(),context=th.ctx.trim();
+  const options=thinkOptions();
   Object.assign(th,{busy:true,status:"",result:null});paint();
-  const failures=[];
   try{
-    let round=await runThinkStage("independent",providers,q,context,options,[]);
-    let artifacts=round.artifacts;failures.push(...round.failures);
-    if(th.mode!=="fast"&&artifacts.length>1){
-      round=await runThinkStage("critique",artifacts.map(x=>x.provider),q,context,options,artifacts);
-      if(round.artifacts.length)artifacts=round.artifacts;failures.push(...round.failures);
-    }
-    if(th.mode==="deep"&&artifacts.length>1){
-      round=await runThinkStage("revision",artifacts.map(x=>x.provider),q,context,options,artifacts);
-      if(round.artifacts.length)artifacts=round.artifacts;failures.push(...round.failures);
-    }
-    if(!artifacts.length)throw new Error("لم ينجح أي Agent في إرجاع نتيجة.");
-    const votes=artifacts.filter(a=>a.recommendationId&&options[a.recommendationId]).map(a=>({provider:a.provider,optionId:a.recommendationId,confidence:a.confidence,rationale:a.answer.slice(0,600)}));
-    const council=votes.length&&window.SKEngines?.intelligence?.council?.resolveCouncil?SKEngines.intelligence.council.resolveCouncil(votes):null;
-    let jev=null;
-    try{
-      const state=redact(JSON.stringify({artifacts,council}));
-      jev=Object.keys(options).length>=2
-        ? await callJev({type:"choice",instructions:"اختر البديل الأكثر اتساقاً مع الأدلة والقيود والمخاطر التي توصل إليها مجلس KOSIF Think.",state,criteria:options})
-        : await callJev({type:"noul",instructions:"هل نتيجة مجلس KOSIF Think الحالية قوية بما يكفي للاعتماد دون جولة إضافية؟",state,true_criteria:"الأدلة متسقة والاعتراضات الجوهرية محلولة.",false_criteria:"يوجد تعارض جوهري أو افتراض غير محسوم قد يغيّر النتيجة."});
-    }catch(e){failures.push({provider:"Jev",message:e.message||String(e)})}
-    const chair=providers.includes("openai")?"openai":artifacts[0].provider;
-    let finalAnswer=artifacts.sort((a,b)=>b.confidence-a.confidence)[0].answer,finalConfidence=artifacts[0].confidence,remainingUncertainty=[];
-    try{
-      const syn=await synthesizeThink(chair,q,artifacts,council,jev);
-      if(syn?.finalAnswer)finalAnswer=String(syn.finalAnswer);
-      if(Number.isFinite(Number(syn?.confidence)))finalConfidence=Math.max(0,Math.min(1,Number(syn.confidence)));
-      if(Array.isArray(syn?.remainingUncertainty))remainingUncertainty=syn.remainingUncertainty.map(x=>String(x)).slice(0,8);
-    }catch(e){failures.push({provider:chair+"-synthesis",message:e.message||String(e)})}
-    th.result={mode:th.mode,artifacts,council,jev,failures,finalAnswer,finalConfidence,remainingUncertainty};
-    th.status="تم — "+artifacts.length+" Agent شارك"+(jev?" وJev راجع النتيجة.":"؛ Jev لم يكن متاحاً.");
-    logDecision({source:"KOSIF Think",type:th.mode,question:q,summary:finalAnswer.slice(0,220)});
+    th.result=await executeThink({question:q,context:th.ctx.trim(),options,mode:th.mode});
+    th.status="تم — "+th.result.artifacts.length+" Agent شارك"+(th.result.jev?" وJev راجع النتيجة.":"؛ Jev لم يكن متاحاً.")+(th.result.gate.passed?" · بوابة الاعتماد اجتازت.":" · تحتاج مراجعة إضافية.");
+    logDecision({source:"KOSIF Think",type:th.mode,question:q,summary:th.result.finalAnswer.slice(0,220)});
   }catch(e){th.status="!"+(e.message||String(e))}
   finally{th.busy=false;paint()}
 }
+window.SKosifThink=Object.freeze({run:executeThink,configuredAgents:()=>window.SKosifAI?.configured?.()||[]});
 window.SKosifJev=Object.freeze({call:callJev,summary});
 
 function logDecision(x){const l=load(LOG_KEY,[]);l.unshift({at:new Date().toISOString(),...x});save(LOG_KEY,l.slice(0,MAX_LOG))}
