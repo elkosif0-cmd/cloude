@@ -222,7 +222,7 @@ function paint(){if(!root)return;root.innerHTML=html();bind()}
 function grab(){const q=$("#jev-q",root),c=$("#jev-c",root),a=$("#jev-attach",root);if(q)st.q=q.value;if(c)st.c=c.value;if(a)st.attach=a.checked}
 function bind(){
   bindThink();
-  $("[data-jev-type]",root).forEach(b=>b.onclick=()=>{grab();st.type=b.dataset.jevType;paint()});
+  $$("[data-jev-type]",root).forEach(b=>b.onclick=()=>{grab();st.type=b.dataset.jevType;paint()});
   $$("[data-jev-preset]",root).forEach(b=>b.onclick=()=>{const p=PRESETS[b.dataset.jevPreset];Object.assign(st,{type:p.type,q:p.q,c:p.c,result:null,status:""});paint()});
   $("#jev-run",root).onclick=run;
   $("#jev-clear",root).onclick=()=>{Object.assign(st,{q:"",c:"",ctx:"",result:null,status:""});paint()};
