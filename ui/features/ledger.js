@@ -538,14 +538,27 @@ window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().ac
   /* the audit trail and the revenue reconciliation for the month-end close and the report pack */
   trail:()=>{const t=trailOf(db());return t?{...t.v,ok:t.v.ok&&!t.events.length,coverage:t.cov,events:t.events.length,since:t.since}:null},
   revenueRecon:()=>{const x=revReconOf(db());return x?{...x.r,start:x.start,end:x.end}:null},
-  /* an entry proposed elsewhere (the entry simulator), by account codes: missing accounts are opened by their code's
-     class, the entry is validated and the lock date respected; returns {ok, id} or {ok:false, error} */
-  post:x=>{const d=db(),byCode=c=>d.accounts.find(a=>a.code===String(c));
-    const cls={"1":"asset","2":"liability","3":"equity","4":"revenue","5":"expense","6":"expense","7":"expense","8":"expense"};
-    for(const l of x.lines||[]){if(!byCode(l.account)){try{d.accounts.push(E().accounts.createAccount({code:String(l.account),name:l.name||String(l.account),type:cls[String(l.account)[0]]||"other",parentId:""}))}catch{return{ok:false,error:"تعذر فتح الحساب "+l.account}}}}
+  /* An entry proposed elsewhere (the entry simulator), by account codes.
+     Governance: nothing is mutated until every line resolves to an active chart account, the entry balances,
+     and the date is open. Missing accounts are returned to the caller for an explicit map/open decision. */
+  post:(x,opts={})=>{const d=db(),map=opts.map||{},open=Array.isArray(opts.open)?opts.open:[],
+    cls={"1":"asset","2":"liability","3":"equity","4":"revenue","5":"expense","6":"expense","7":"expense","8":"expense"},
+    anyCode=c=>d.accounts.find(a=>String(a.code)===String(c)),activeCode=c=>d.accounts.find(a=>String(a.code)===String(c)&&a.active!==false),
+    requested=new Map(open.map(a=>[String(a.code),a])),src=(x.lines||[]).map(l=>{const original=String(l.account||"").trim(),resolved=String(map[original]||original).trim();return{...l,original,resolved}});
+    if(src.length<2)return{ok:false,code:"EMPTY_ENTRY",error:"القيد يحتاج سطرين على الأقل"};
+    const miss=new Map();
+    src.forEach(l=>{if(activeCode(l.resolved))return;const old=anyCode(l.resolved);if(old&&old.active===false){miss.set(l.original,{code:l.original,resolvedCode:l.resolved,name:l.name||old.name||"",inactive:true});return}
+      if(!requested.has(l.resolved))miss.set(l.original,{code:l.original,resolvedCode:l.resolved,name:l.name||"",inactive:false})});
+    if(miss.size)return{ok:false,code:"MISSING_ACCOUNTS",error:"يوجد حساب غير موجود أو غير نشط في دليل الشركة",missingAccounts:[...miss.values()]};
+    const staged=[],need=[...new Set(src.map(l=>l.resolved).filter(c=>!activeCode(c)))];
+    for(const code of need){const spec=requested.get(code),old=anyCode(code);if(old&&old.active===false)return{ok:false,code:"INACTIVE_ACCOUNT",error:"الحساب "+code+" موجود لكنه غير نشط",missingAccounts:[{code,resolvedCode:code,name:old.name||"",inactive:true}]};
+      const name=String(spec&&spec.name||"").trim();if(!name)return{ok:false,code:"ACCOUNT_NAME_REQUIRED",error:"اكتب اسم الحساب الجديد "+code,missingAccounts:[{code,resolvedCode:code,name:"",inactive:false}]};
+      try{staged.push(E().accounts.createAccount({code,name,type:spec.type||cls[code[0]]||"other",parentId:spec.parentId||""}))}catch{return{ok:false,code:"ACCOUNT_CREATE_FAILED",error:"تعذر فتح الحساب "+code}}}
+    const resolved=c=>activeCode(c)||staged.find(a=>String(a.code)===String(c));
     const entry={id:SK.ui.uid("je"),date:x.date||today(),reference:String(x.reference||""),memo:String(x.memo||""),source:x.source||"محاكي القيود",
-      lines:(x.lines||[]).map(l=>({accountId:byCode(l.account).id,debit:r2(l.debit),credit:r2(l.credit)}))};
-    const v=E().ledger.validateJournalEntry(entry);if(!v.valid)return{ok:false,error:[...new Set(v.issues.map(i=>ISSUE[i.code]||i.code))].join(" · ")};
-    if(locked(d,entry.date))return{ok:false,error:"التاريخ داخل فترة مقفلة (حتى "+d.lockDate+")"};
-    d.entries.push(entry);put(d);SK.audit&&SK.audit.log("ledger",{act:"post",source:entry.source});return{ok:true,id:entry.id}}});
+      lines:src.map(l=>({accountId:resolved(l.resolved).id,debit:r2(l.debit),credit:r2(l.credit)}))};
+    const v=E().ledger.validateJournalEntry(entry);if(!v.valid)return{ok:false,code:"INVALID_ENTRY",error:[...new Set(v.issues.map(i=>ISSUE[i.code]||i.code))].join(" · ")};
+    if(locked(d,entry.date))return{ok:false,code:"LOCKED_PERIOD",error:"التاريخ داخل فترة مقفلة (حتى "+d.lockDate+")"};
+    d.accounts.push(...staged);d.entries.push(entry);put(d);SK.audit&&SK.audit.log("ledger",{act:"post",source:entry.source,createdAccounts:staged.map(a=>a.code)});
+    return{ok:true,id:entry.id,createdAccounts:staged.map(a=>({id:a.id,code:a.code,name:a.name}))}}});
 })();
