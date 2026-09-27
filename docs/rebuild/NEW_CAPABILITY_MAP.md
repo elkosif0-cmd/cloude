@@ -16,6 +16,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | Grand Fusion intelligence.council | `council` | Jev والقرار › Jev ومجلس القرار › مجلس القرار | INTELLIGENCE | admin, accountant, sales |
 | المخاطر | `risklab` | الأدوات المساعدة للمحاسب › المخاطر والحساسية › المخاطر وجسر الربحية | ADVANCED | admin |
 | مختبر الحساسية | `sensitivity` | الأدوات المساعدة للمحاسب › المخاطر والحساسية › مختبر الحساسية | ADVANCED | admin, accountant |
+| جديد — خريطة جغرافية للعملاء وتحليل المبيعات وتقرير الصنف | `salesmap` | الأدوات المساعدة للمحاسب › خريطة العملاء وتحليل المبيعات | CORE | admin |
 | الطلبات والتحصيل | `commerce` | الأدوات المساعدة للمحاسب › الطلبات والفوترة › الطلبات والتحصيل | CORE | admin, accountant, sales |
 | الفاتورة الضريبية | `zatca` | الأدوات المساعدة للمحاسب › الطلبات والفوترة › نقطة البيع والفاتورة الضريبية | CORE | admin, accountant, sales |
 | السوق والعملاء | `customers` | الأدوات المساعدة للمحاسب › العملاء والائتمان › العملاء | CORE | admin, accountant, sales |
@@ -39,6 +40,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | التدفق النقدي | `cash` | الأدوات المساعدة للمحاسب › التدفق النقدي | CORE | admin, accountant, sales, viewer |
 | الذمم | `receivables` | الأدوات المساعدة للمحاسب › الذمم والتحصيل | CORE | admin, accountant, sales |
 | الهندسة المالية | `finance` | الأدوات المساعدة للمحاسب › الهندسة المالية | ADVANCED | admin, accountant |
+| جديد — شجرة المنتجات وربطها بالموردين والعملاء بالأسهم | `ptree` | الأدوات المساعدة للمحاسب › شجرة المنتجات | CORE | admin |
 | واجهة موحدة بدل تشتت الأصناف والتكاليف والتسعير والبوكسات | `productflow` | الأدوات المساعدة للمحاسب › المنتج والتكلفة › استوديو المنتج | CORE | admin, accountant, warehouse, sales, viewer |
 | سجل الأسعار | `catalog` | الأدوات المساعدة للمحاسب › المنتج والتكلفة › الأصناف والأسعار | CORE | admin, accountant, warehouse, sales, viewer |
 | مركز التكاليف | `costs` | الأدوات المساعدة للمحاسب › المنتج والتكلفة › التكاليف والمصروفات | ADVANCED | admin |
@@ -91,6 +93,7 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | المراجعة والمراجعة المالية | المعايير والمدونة | `codex` المدونة المحاسبية والمعايير · `auditbench` المرجع العالمي للمراجعة · `corpuslab` مختبر الشركات العالمية · `auditlab` مختبر المعايير والأبحاث |
 | الأدوات المساعدة للمحاسب | مركز الأدوات المساعدة | `helperdesk` مركز الأدوات المساعدة |
 | الأدوات المساعدة للمحاسب | المخاطر والحساسية | `risklab` المخاطر وجسر الربحية · `sensitivity` مختبر الحساسية |
+| الأدوات المساعدة للمحاسب | خريطة العملاء والمبيعات | `salesmap` خريطة العملاء وتحليل المبيعات |
 | الأدوات المساعدة للمحاسب | الطلبات والفوترة | `commerce` الطلبات والتحصيل · `zatca` نقطة البيع والفاتورة الضريبية |
 | الأدوات المساعدة للمحاسب | العملاء والائتمان | `customers` العملاء · `followup` متابعة العملاء · `b2bcredit` ائتمان المطاعم |
 | الأدوات المساعدة للمحاسب | العروض والكتالوج | `offers` العروض والكتالوج |
@@ -104,6 +107,7 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | الأدوات المساعدة للمحاسب | التدفق النقدي | `cash` التدفق النقدي |
 | الأدوات المساعدة للمحاسب | الذمم والتحصيل | `receivables` الذمم والتحصيل |
 | الأدوات المساعدة للمحاسب | الهندسة المالية | `finance` الهندسة المالية |
+| الأدوات المساعدة للمحاسب | شجرة المنتجات | `ptree` شجرة المنتجات |
 | الأدوات المساعدة للمحاسب | المنتج والتكلفة | `productflow` استوديو المنتج · `catalog` الأصناف والأسعار · `costs` التكاليف والمصروفات · `sim` التسعير السريع · `kernel` نواة التسعير الصارمة · `memo` اعتماد الأسعار · `builder` البوكسات · `analyzer` تحليل البوكس · `compare` المقارنة التحليلية |
 | الأدوات المساعدة للمحاسب | الملصقات والباركود | `labels` ملصقات الموازين · `scanner` ماسح الباركود |
 | الأدوات المساعدة للمحاسب | المطابقة | `smartmatch` مطابقة المبيعات · `excelrecon` مطابقة الإكسل |
@@ -113,15 +117,15 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | Jev والقرار | مركز القرار | `decision` مركز القرار |
 | Jev والقرار | Jev ومجلس القرار | `jev` Jev للقرار · `council` مجلس القرار |
 
-68 screens in 31 menu entries.
+70 screens in 33 menu entries.
 
 ## By tier
 
-- **CORE** — العمل اليومي الأساسي (18): `dash`, `notifications`, `commerce`, `zatca`, `customers`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `cash`, `receivables`, `productflow`, `catalog`, `sim`, `builder`, `tbreview`
+- **CORE** — العمل اليومي الأساسي (20): `dash`, `notifications`, `salesmap`, `commerce`, `zatca`, `customers`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `cash`, `receivables`, `ptree`, `productflow`, `catalog`, `sim`, `builder`, `tbreview`
 - **MANAGEMENT** — الإدارة والمتابعة (11): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `memo`, `execreports`, `archive`, `codex`, `auditbench`, `corpuslab`
 - **INTELLIGENCE** — التحليل والذكاء (7): `decision`, `jev`, `council`, `salesintel`, `intelligence`, `economics`, `compare`
 - **ADVANCED** — الهندسة المتقدمة (17): `risklab`, `sensitivity`, `carcass`, `yieldlab`, `nrv`, `finance`, `costs`, `kernel`, `analyzer`, `auditdesk`, `auditdocs`, `auditissues`, `auditcouncil`, `auditfin`, `auditreport`, `auditanalytics`, `auditlab`
 - **UTILITIES** — أدوات مساعدة (10): `helperdesk`, `blending`, `culinary`, `labels`, `scanner`, `smartmatch`, `excelrecon`, `reports`, `exports`, `devices`
 - **ADMIN** — النظام والإدارة (5): `settings`, `companies`, `governance`, `health`, `capabilitiesv2`
 
-Coverage gate: 68 screens in 4 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
+Coverage gate: 70 screens in 4 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
