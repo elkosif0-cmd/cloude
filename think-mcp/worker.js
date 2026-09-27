@@ -172,7 +172,7 @@ async function runThink(env,args){
   let agents=mode==="fast"?FAST_AGENTS:FRONTIER_AGENTS;
   let r=await stageWithFallback(env,"independent",agents,input,[]);
   let artifacts=r.artifacts; failures=failures.concat(r.failures); agents=r.agents; let backend=r.backend; let fallback=r.fallback;
-  if(mode!=="fast"&&artifacts.length>1){
+  if(mode==="deep"&&artifacts.length>1){
     r=await stageWithFallback(env,"critique",agents,input,artifacts);
     if(r.artifacts.length){artifacts=r.artifacts;agents=r.agents;backend=r.backend;fallback=fallback||r.fallback}
     failures=failures.concat(r.failures);
@@ -215,7 +215,7 @@ const TOOLS=[
         question:{type:"string",description:"The problem, question, or decision to analyze."},
         context:{type:"string",description:"Relevant facts, constraints, evidence, numbers, or document summary."},
         options:{type:"object",description:"Optional closed set of alternatives, keyed A/B/C or other short labels.",additionalProperties:{type:"string"}},
-        mode:{type:"string",enum:["fast","council","deep"],description:"fast = independent round only; council = independent + critique; deep = independent + critique + revision."}
+        mode:{type:"string",enum:["fast","council","deep"],description:"fast = Cloudflare independent council; council = frontier independent council + synthesis; deep = frontier independent + critique + revision + synthesis."}
       },
       required:["question"],additionalProperties:false
     }
