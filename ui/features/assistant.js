@@ -2,7 +2,7 @@
    اكتب أو تكلّم: «افتح مراجعة الميزان»، «لخّص هذه الشاشة»، «صدّر الجدول إلى Excel»، «بدّل للوضع
    الليلي»، «اجعل اللون زمردياً والخط القاهرة»، «أضف مهمة جرد المخزون غداً»، «اضغط تحليل الميزان»…
      • أدوات (TOOLS): الانتقال لأي شاشة من السجل، قراءة الشاشة الحالية، البحث، فتح صنف، المظهر (الثيم،
-       الوضع الليلي، لون التمييز، الخط، حجم النص، التباين)، الوضع اليومي/المتقدم، الطباعة، تصدير الجداول،
+       الوضع الليلي، لون التمييز، الخط، حجم النص، التباين)، الطباعة، تصدير الجداول، اقتراح قيد أي مستند (محاكي القيود)،
        المهام، ملخص الأعمال، مراجعة ميزان الدفاتر، إجراءات لوحة الأوامر، والضغط على أي زر أو تعبئة أي
        حقل في الشاشة — فكل ما يفعله المستخدم بيده يفعله المساعد بطلبه.
      • بمفتاح Gemini (على جهازك فقط): يفهم الطلبات الحرة والمركبة ويستدعي الأدوات بنفسه (function calling)
@@ -89,7 +89,7 @@ const shell=()=>window.SKosifShell;
 const TOOLS=[
   {name:"go_to_screen",d:"فتح أي شاشة في التطبيق بالاسم العربي أو المعرّف (مثل: العملاء، مراجعة ميزان المراجعة، tbreview)",p:{screen:S("STRING","اسم الشاشة أو معرّفها")},req:["screen"],
     run:({screen})=>{const c=findScreen(screen);if(!c)return{ok:false,text:"لم أجد شاشة باسم «"+screen+"»"};if(!SK.perm.can(c.id))return{ok:false,text:"دورك الحالي لا يسمح بفتح «"+c.label+"»"};
-      if(!c.primary&&core().mode()!=="advanced")core().setMode("advanced");core().go(c.id);return{ok:true,text:"فُتحت «"+c.label+"»"+(c.hubLabel!==c.label?" ضمن «"+c.hubLabel+"»":"")}}},
+      core().go(c.id);return{ok:true,text:"فُتحت «"+c.label+"»"+(c.hubLabel!==c.label?" ضمن «"+c.hubLabel+"»":"")}}},
   {name:"list_screens",d:"قائمة شاشات التطبيق مجمّعة حسب المجالات",p:{},run:()=>({ok:true,text:SK.caps.groups().map(g=>g.label+": "+SK.caps.hubsInGroup(g.id).map(h=>h.hubLabel).join("، ")).join("\n")})},
   {name:"read_screen",d:"قراءة ما يظهر في الشاشة الحالية: العنوان والمؤشرات والأقسام وأول صفوف الجداول والأزرار المتاحة — استخدمها قبل الإجابة عن أي سؤال عن الأرقام",p:{},run:()=>({ok:true,text:readScreen()})},
   {name:"app_summary",d:"ملخص الأعمال: الشركة والفترة، المهام، ما يحتاج قراراً، أرقام آخر شهر، المخاطر",p:{},run:async()=>({ok:true,text:await appSummary()})},
@@ -106,7 +106,10 @@ const TOOLS=[
     run:({font})=>{const f=pick(shell().fonts(),font,"id");if(!f)return{ok:false,text:"خط غير معروف: "+font};shell().setPref("font",f.id);return{ok:true,text:"الخط: "+f.name}}},
   {name:"set_text_size",d:"حجم النص في الصفحات",p:{scale:S("NUMBER","0.9 أو 1 أو 1.1 أو 1.2")},req:["scale"],run:({scale})=>{const s=[0.9,1,1.1,1.2].reduce((a,b)=>Math.abs(b-scale)<Math.abs(a-scale)?b:a,1);shell().setPref("scale",s);return{ok:true,text:"حجم النص "+Math.round(s*100)+"%"}}},
   {name:"set_contrast",d:"تشغيل أو إيقاف التباين العالي",p:{on:S("BOOLEAN","تشغيل")},req:["on"],run:({on})=>{shell().setPref("contrast",!!on);return{ok:true,text:on?"التباين العالي مفعّل":"التباين العالي متوقف"}}},
-  {name:"set_mode",d:"التشغيل اليومي أو إظهار الأدوات المتقدمة",p:{mode:S("STRING","daily | advanced",{enum:["daily","advanced"]})},req:["mode"],run:({mode})=>{core().setMode(mode==="advanced"?"advanced":"standard");return{ok:true,text:mode==="advanced"?"الأدوات المتقدمة ظاهرة":"التشغيل اليومي"}}},
+  {name:"suggest_entry",d:"اقتراح قيد اليومية لمستند بطريقة تسجيل الشركة (محاكي القيود): الحسابات والمبالغ وأين يُسجّل ودرجة الثقة، ويفتح المحاكي بالاقتراح",p:{text:S("STRING","وصف المستند كما يُكتب في البيان"),amount:S("NUMBER","المبلغ")},req:["text"],
+    run:({text,amount})=>{const J=window.SKosifEntrySim;if(!J)return{ok:false,text:"محاكي القيود غير متاح"};if(!SK.perm.can("jesim"))return{ok:false,text:"دورك لا يسمح بمحاكي القيود"};const s=J.suggest(text,amount);J.open(text,amount);
+      if(!s.lines.length)return{ok:true,text:s.question||"لم يتعلم المحاكي قيداً مشابهاً بعد — فتحته لتحدد القيد"};
+      return{ok:true,text:(s.status==="sure"?"":"غير متأكد ("+Math.round(s.confidence*100)+"٪): ")+s.title+" — "+s.journal+"\n"+s.lines.map(l=>(l.debit?"من ح/ ":"إلى ح/ ")+l.account+" "+l.name+" "+(l.debit||l.credit)).join("\n")+(s.question?"\n"+s.question:"")}}},
   {name:"print_page",d:"طباعة المستند أو التقرير المعروض في الشاشة الحالية (بمعاينة الطباعة)",p:{},
     run:()=>{const b=["[data-a=\"print\"]",".sktb-bar [data-t=\"export\"]"].map(s=>$$(s,$("#view")).find(visible))[0]||findControl("طباعة");
       if(b&&!/sktb/.test(b.className)){b.click();return{ok:true,text:"فُتحت معاينة الطباعة"}}const t=$$("table[data-sktb]",$("#view")).find(visible);if(t&&window.SKosifTable){SKosifTable.printTable(t);return{ok:true,text:"فُتحت طباعة الجدول"}}
@@ -153,8 +156,8 @@ function localPlan(text){
   if(/تباين/.test(n))plan.push(["set_contrast",{on:!/(اوقف|الغ|بدون|اطفي)/.test(n)}]);
   const lc=n.match(/لون\s+([^\s]+(?:\s+وطني)?)/);if(lc){const w=ACC_WORDS.find(([k])=>lc[1].includes(k));plan.push(["set_accent",{color:w?w[1]:/افتراض/.test(lc[1])?"افتراضي":lc[1]}])}
   const fm=n.match(/خط\s+([^\s]+)/);if(fm&&!/(كبر|صغر|اكبر|اصغر|تكبير|تصغير)/.test(n))plan.push(["set_font",{font:fm[1].replace(/^ال/,"")}]);
-  if(/(الادوات المتقدمه|متقدم|advanced)/.test(n)&&/(اظهر|افتح|فعل|شغل|اعرض|وضع)/.test(n))plan.push(["set_mode",{mode:"advanced"}]);
-  else if(/(التشغيل اليومي|الوضع اليومي|اخف(ي)? المتقدم)/.test(n))plan.push(["set_mode",{mode:"daily"}]);
+  const je=text.match(/(?:اقترح|وجّه|وجه|سجّل|سجل|ما)\s+(?:لي\s+)?(?:قيد|القيد)\s+(?:ل|عن|على)?\s*(.+)/);
+  if(je){const a=je[1].match(/([\d٠-٩][\d٠-٩,.٬]*)/),amt=a?Number(a[1].replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[,٬]/g,"")):0;plan.push(["suggest_entry",{text:je[1].replace(a?a[1]:"","").replace(/\s*(بمبلغ|بقيمة|قيمته|مبلغ)\s*$/,"").trim(),amount:amt}])}
   const task=text.match(/(?:أضف|اضف|انشئ|أنشئ|سجل|سجّل)\s+مهم[ةه]\s*[:：]?\s*(.+)/);
   if(task){let t=task[1].replace(/[\u064B-\u065F]/g,"").trim(),due=today();if(/غد[اًا]?|بكر[هة]/.test(t)){due=today(1);t=t.replace(/\s*(غد[اًا]?|بكر[هة])\s*/,"")}else if(/اليوم/.test(t))t=t.replace(/\s*اليوم\s*/,"");plan.push(["create_task",{title:t||task[1].trim(),due,priority:/عاجل|مهم[ةه] جدا/.test(t)?"high":"normal"}]);return plan}
   if(/(مهامي|المهام المفتوحه|ما هي المهام|اعرض المهام)/.test(n))plan.push(["list_tasks",{}]);
@@ -175,7 +178,7 @@ function localPlan(text){
   if(!plan.length&&findScreen(text)&&norm(text).split(" ").length<=4)plan.push(["go_to_screen",{screen:text}]);
   return plan;
 }
-const HELP="أستطيع التحكم في التطبيق كله. جرّب:\n• «افتح مراجعة الميزان» أو أي شاشة\n• «لخّص هذه الشاشة» · «ملخص الأعمال»\n• «ابحث عن 0555…»\n• «صدّر الجدول إلى Excel» · «اطبع»\n• «الوضع الليلي» · «لون زمردي» · «خط القاهرة» · «كبّر الخط» · «تباين عالٍ»\n• «أضف مهمة جرد المخزون غداً» · «مهامي»\n• «راجع ميزان الدفاتر»\n• «اضغط تحليل الميزان» · «اكتب شركة الأفق في المنشأة»\nبمفتاح الذكاء الاصطناعي (Gemini أو OpenAI أو Claude) (في مراجعة الميزان ← المراجع الذكي) أفهم الطلبات الحرة والمركبة وأجيب عن أسئلتك من أرقام الشاشة.";
+const HELP="أستطيع التحكم في التطبيق كله. جرّب:\n• «افتح مراجعة الميزان» أو أي شاشة\n• «لخّص هذه الشاشة» · «ملخص الأعمال»\n• «ابحث عن 0555…»\n• «صدّر الجدول إلى Excel» · «اطبع»\n• «الوضع الليلي» · «لون زمردي» · «خط القاهرة» · «كبّر الخط» · «تباين عالٍ»\n• «أضف مهمة جرد المخزون غداً» · «مهامي»\n• «راجع ميزان الدفاتر»\n• «اقترح قيد فاتورة كهرباء الفرع 1150» (محاكي القيود)\n• «اضغط تحليل الميزان» · «اكتب شركة الأفق في المنشأة»\nبمفتاح الذكاء الاصطناعي (Gemini أو OpenAI أو Claude) (في مراجعة الميزان ← المراجع الذكي) أفهم الطلبات الحرة والمركبة وأجيب عن أسئلتك من أرقام الشاشة.";
 
 /* ---------- Gemini: function calling over the same tools ---------- */
 function decl(){return TOOLS.map(t=>({name:t.name,description:t.d,parameters:{type:"OBJECT",properties:Object.fromEntries(Object.entries(t.p).map(([k,v])=>[k,{...v}])),...(t.req?{required:t.req}:{})}}))}
@@ -187,7 +190,7 @@ function system(){
     "قبل الإجابة عن أي سؤال عن أرقام أو بيانات استدعِ read_screen أو app_summary، ولا تخترع أرقاماً أبداً. "+
     "لتعبئة نموذج أو الضغط على زر اقرأ الشاشة أولاً لتعرف أسماء الحقول والأزرار. الإجراءات الهادمة يؤكدها المستخدم بنفسه. "+
     "أجب بالعربية بإيجاز ووضوح وبلهجة المستخدم، واذكر ما نفّذته.\n"+
-    "الشاشة الحالية: "+(cap?cap.id+" — "+cap.label:c.view())+" · الوضع: "+(c.mode()==="advanced"?"متقدم":"يومي")+" · الدور: "+SK.perm.label()+" · التاريخ: "+today()+"\nالشاشات المتاحة:\n"+screens;
+    "الشاشة الحالية: "+(cap?cap.id+" — "+cap.label:c.view())+" · الدور: "+SK.perm.label()+" · التاريخ: "+today()+"\nالشاشات المتاحة:\n"+screens;
 }
 async function gemini(history,onStep){
   const contents=history.filter(m=>m.role==="user"||m.role==="model").slice(-12).map(m=>({role:m.role,parts:[{text:m.text}]}));
