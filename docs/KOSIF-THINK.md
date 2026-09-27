@@ -90,62 +90,104 @@ KOSIF Think طبقة تنسيق واحدة فوق مزوّدي الذكاء ال
 يمكن إضافة HTTP Worker خارجي `/v1/think` لاحقاً إذا أُريد تشغيل المجلس خارج التطبيق. التنفيذ الحالي يبقي مفاتيح النماذج على جهاز المستخدم، وهو أكثر تحفظاً للخصوصية.
 
 
-## KOSIF Think v2 — Clean APIs frontier council
-- **Fast** keeps the low-latency Cloudflare council: Llama 3.3 70B Fast + Mistral Small 3.1 24B + Llama 4 Scout.
-- **Council** routes to the new Clean APIs secret using GPT-5.6 Sol + Claude Opus 5 + Gemini 3.7 Flash in parallel.
-- **Deep** uses the same frontier trio, then critique and revision rounds before Jev handoff.
-- If fewer than two Clean APIs frontier agents succeed, the stage automatically falls back to the Cloudflare fast council.
-- The Clean APIs credential remains a Cloudflare secret named `cleanapis`; its value is never committed to GitHub or returned by the MCP.
-- Frontier synthesis prefers GPT-5.6 Sol; Kimi K2.6 on Workers AI remains the synthesis fallback.
-- The MCP still returns a structured `jev_payload` for the existing Jev Bridge decision gate.
+## KOSIF Think v3 — ChatGPT-orchestrated frontier council
 
+### Frontier models
+The Clean APIs secret `cleanapis` is used only inside the Cloudflare Worker. The configured frontier council is:
 
-## مسار البيانات الفعلي: أين تذهب ردود الـAgents؟
+- GPT-5.6 Sol — lead solution architect.
+- Claude Opus 5 — skeptical reviewer.
+- Gemini 3.7 Flash — alternatives/trade-off specialist.
+- Claude Mythos Preview — adversarial scenarios, counterfactuals, and second-order effects.
+- Claude Fable 5.1 — creative reframing and framing-bias specialist.
 
-في نسخة MCP الحالية لا تمر ردود المجلس عبر TinyFish.
+The five model IDs were verified against the live Clean APIs account. The secret itself is never stored in GitHub or returned over MCP.
 
-المسار هو:
+### Why the agents are separate MCP calls
+A single Cloudflare request that fans out to five frontier reasoning models can exceed a practical response window even when each model works correctly by itself. KOSIF Think therefore does not use one long frontier fan-out request.
+
+For Council/Deep, ChatGPT calls `kosif_agent` separately for each frontier agent. Each call returns exactly one structured artifact. ChatGPT then supplies the successful artifacts to `kosif_council`, which is deterministic and fast.
+
+Fast mode remains available through `kosif_think(mode=fast)` and uses the low-latency Cloudflare council:
+- Llama 3.3 70B FP8 Fast
+- Mistral Small 3.1 24B
+- Llama 4 Scout
+
+### Council flow
 
 ```
 ChatGPT
-  ↓ MCP
-KOSIF Think Worker (Cloudflare)
-  ├─ GPT-5.6 Sol ───────┐
-  ├─ Claude Opus 5 ─────┤
-  ├─ Gemini 3.7 Flash ──┤
-  ├─ Claude Mythos ─────┤
-  └─ Claude Fable 5.1 ──┘
-          ↓
-   artifacts[] داخل ذاكرة طلب الـWorker
-          ↓
-   deterministic council
-          ↓
-   jev_payload
-          ↓
-ChatGPT → Jev Bridge
-          ↓
-ChatGPT final chair / final answer
+  ├─ MCP kosif_agent(gpt) ───────> Worker ─> Clean APIs ─> GPT-5.6 Sol ─────┐
+  ├─ MCP kosif_agent(claude) ────> Worker ─> Clean APIs ─> Claude Opus 5 ──┤
+  ├─ MCP kosif_agent(gemini) ────> Worker ─> Clean APIs ─> Gemini 3.7 ─────┤
+  ├─ MCP kosif_agent(mythos) ────> Worker ─> Clean APIs ─> Mythos ─────────┤
+  └─ MCP kosif_agent(fable) ─────> Worker ─> Clean APIs ─> Fable 5.1 ──────┘
+                         each response returns to ChatGPT as an artifact
+                                           ↓
+                             MCP kosif_council(artifacts)
+                                           ↓
+                         deterministic council + jev_payload
+                                           ↓
+                                   ChatGPT → Jev
+                                           ↓
+                              ChatGPT final chair
 ```
 
-- الـWorker يستقبل ردود النماذج عبر HTTPS من Clean APIs، ويحوّل كل رد إلى `artifact` منظم.
-- أثناء الطلب الحالي تُجمع الردود في مصفوفة `artifacts[]` داخل ذاكرة الـWorker فقط.
-- لا يوجد تخزين دائم لهذه الردود في KV أو D1 أو R2 في KOSIF Think حاليًا.
-- بعد ذلك يُحسب consensus محليًا، ويُرجع الـWorker كل الـartifacts و`jev_payload` إلى ChatGPT عبر MCP.
-- ChatGPT يرسل `jev_payload` إلى Jev Bridge ثم يعمل كرئيس المجلس النهائي ويصوغ الإجابة للمستخدم.
+### Where responses are received
+Agent responses are **not** collected in TinyFish and are not persisted in a mailbox.
 
-## علاقة TinyFish
+For each frontier call the path is:
 
-TinyFish **ليس جزءًا من خط التفكير الأساسي لـKOSIF Think v2**.
+`ChatGPT → MCP → KOSIF Think Worker → Clean APIs → selected model → Worker → MCP response → ChatGPT`
 
-استخدامه الحالي منفصل في حالتين:
-1. كأداة Browser/Fetch خارجية لاختبار رابط Worker المنشور وقراءة health endpoints أثناء التطوير.
-2. في Worker منفصل باسم `kosif-jev` توجد bindings خاصة بـTinyFish لسيناريوهات التصفح/الصور والملفات، لكنها ليست مستخدمة داخل `kosif-think-mcp`.
+ChatGPT receives the structured artifact returned by each `kosif_agent` call and keeps the successful artifacts in the active tool/conversation state. It then passes those artifacts to `kosif_council`.
 
-لذلك:
-- Agents → لا يرسلون ردودهم إلى TinyFish.
-- TinyFish → لا يجمع نتائج المجلس.
-- KOSIF Think Worker → هو نقطة التجميع الفعلية لردود الـAgents.
-- Jev → هو Decision Gate بعد التجميع.
-- ChatGPT → هو Final Chair بعد Jev.
+The current KOSIF Think Worker does not persist council answers to KV, D1, or R2.
 
-إذا احتجنا لاحقًا Web Research Agent داخل المجلس، يمكن إضافة TinyFish كـResearch Tool مستقل يجلب evidence من الويب ثم يضيفها إلى `context` قبل تشغيل النماذج، بدل استخدامه كناقل للردود.
+### Deep flow
+Deep starts with the same five independent artifacts. Then:
+1. Claude, Mythos, and Fable can be called again with `stage=critique` and the independent artifacts as `peers`.
+2. GPT and Gemini can then be called with `stage=revision` using the latest artifact set.
+3. Keep one latest artifact per agent.
+4. Call `kosif_council`.
+5. Send its `jev_payload` to Jev.
+6. ChatGPT is the final chair.
+
+This keeps hidden chain-of-thought out of the protocol. Agents exchange only reviewable artifacts/summaries.
+
+## TinyFish boundary
+
+TinyFish is **optional and separate from KOSIF Think's core reasoning transport**.
+
+It is useful when the task requires:
+- opening or interacting with a web page,
+- browser automation,
+- collecting external web/visual evidence,
+- checking a deployed endpoint during development.
+
+If TinyFish gathers useful evidence, that evidence can be inserted into KOSIF Think `context` before the frontier agents are called.
+
+TinyFish is **not**:
+- the place GPT/Claude/Gemini/Mythos/Fable send their answers,
+- the council aggregator,
+- the Jev bridge,
+- required for ordinary KOSIF Think reasoning.
+
+A separate `kosif-jev` Worker may have TinyFish bindings for browser/image workflows. That is a separate workflow and does not put TinyFish in the KOSIF Think reasoning bus.
+
+## Jev and final answer
+
+`kosif_council` returns:
+- the sanitized artifacts,
+- deterministic consensus/tie metadata,
+- coverage/missing-agent information,
+- `jev_payload`.
+
+ChatGPT sends `jev_payload` to the matching Jev tool (`choice`, `noul`, or `score`). Jev is the independent decision gate; ChatGPT remains the final chair that reconciles:
+1. the five agent artifacts,
+2. deterministic council agreement,
+3. Jev's verdict,
+4. the user's constraints and evidence.
+
+No component should request or expose a model's hidden chain-of-thought.
+
