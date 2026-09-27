@@ -64,6 +64,12 @@ jobs:
           npx vitest run src/engine/fusion
           node ../tools/build_engines.mjs --check
 
+      - name: Test KOSIF Think orchestrator
+        working-directory: app
+        run: |
+          npx tsc -p tsconfig.think.json --noEmit
+          npx vitest run src/engine/think
+
       - name: Capability docs are in sync with the registry
         run: python3 tools/capability_docs.py --check
 
