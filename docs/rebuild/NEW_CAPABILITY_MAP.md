@@ -23,6 +23,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | العروض والكتالوج | `offers` | المبيعات والعملاء › العروض والكتالوج | CORE | admin, accountant, sales, viewer |
 | المناسبات والتشغيل | `operations` | المبيعات والعملاء › المناسبات والتشغيل | MANAGEMENT | admin, accountant, warehouse, sales, viewer |
 | ذكاء المبيعات | `salesintel` | المبيعات والعملاء › ذكاء المبيعات والطلب › ذكاء المبيعات | INTELLIGENCE | admin |
+| خريطة جغرافية للعملاء: السعودية ثم منطقة مكة وجدة ثم أحياء جدة بالألوان حسب عدد الطلبات | `geomap` | المبيعات والعملاء › خريطة العملاء الجغرافية | INTELLIGENCE | admin |
 | ذكاء العملاء | `intelligence` | المبيعات والعملاء › ذكاء المبيعات والطلب › ذكاء العملاء والطلب | INTELLIGENCE | admin |
 | اقتصاديات الطلب | `economics` | المبيعات والعملاء › ذكاء المبيعات والطلب › اقتصاديات الطلب | INTELLIGENCE | admin, accountant |
 | المخزون | `inventory` | المخزون والموردون والإنتاج › المخزون والتتبع › المخزون | CORE | admin, accountant, warehouse, viewer |
@@ -54,6 +55,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | مطابقة المبيعات | `smartmatch` | التقارير والبيانات › المطابقة › مطابقة المبيعات | UTILITIES | admin, accountant, sales |
 | مطابقة الإكسل | `excelrecon` | التقارير والبيانات › المطابقة › مطابقة الإكسل | UTILITIES | admin, accountant |
 | التقارير التنفيذية | `execreports` | التقارير والبيانات › التقارير التنفيذية | MANAGEMENT | admin, accountant, sales, viewer |
+| تقارير مختلفة عن أي صنف في الأدوات المساعدة — تطوير للأدوات الحالية | `itemreport` | التقارير والبيانات › تقرير الصنف | MANAGEMENT | admin |
 | مركز التقارير | `reports` | التقارير والبيانات › الطباعة والتصدير › مركز الطباعة | UTILITIES | admin, accountant, sales, viewer |
 | Grand Fusion reports.exports | `exports` | التقارير والبيانات › الطباعة والتصدير › مركز التصدير | UTILITIES | admin, accountant, sales |
 | الأرشيف | `archive` | التقارير والبيانات › الأرشيف والتغييرات | MANAGEMENT | admin, accountant |
@@ -98,6 +100,7 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | المبيعات والعملاء | العروض والكتالوج | `offers` العروض والكتالوج |
 | المبيعات والعملاء | المناسبات والتشغيل | `operations` المناسبات والتشغيل |
 | المبيعات والعملاء | ذكاء المبيعات والطلب | `salesintel` ذكاء المبيعات · `intelligence` ذكاء العملاء والطلب · `economics` اقتصاديات الطلب |
+| المبيعات والعملاء | خريطة العملاء الجغرافية | `geomap` خريطة العملاء الجغرافية |
 | المخزون والموردون والإنتاج | المخزون والتتبع | `inventory` المخزون · `traceability` التتبع والتبريد |
 | المخزون والموردون والإنتاج | الموردون والمشتريات | `suppliers` الموردون والمشتريات · `purchasing` أوامر الشراء والاستلام |
 | المخزون والموردون والإنتاج | الإنتاج والخلطات | `blending` خلطات اللحوم · `culinary` دليل الشيف |
@@ -109,6 +112,7 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | المالية والمحاسبة | الهندسة المالية | `finance` الهندسة المالية |
 | التقارير والبيانات | المطابقة | `smartmatch` مطابقة المبيعات · `excelrecon` مطابقة الإكسل |
 | التقارير والبيانات | التقارير التنفيذية | `execreports` التقارير التنفيذية |
+| التقارير والبيانات | تقرير الصنف | `itemreport` تقرير الصنف |
 | التقارير والبيانات | الطباعة والتصدير | `reports` مركز الطباعة · `exports` مركز التصدير |
 | التقارير والبيانات | الأرشيف والتغييرات | `archive` الأرشيف والتغييرات |
 | جيف والقرار | مركز القرار | `decision` مركز القرار |
@@ -118,15 +122,15 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | النظام والتكاملات | الشركات والفترات | `companies` الشركات والفترات |
 | النظام والتكاملات | الحوكمة والصلاحيات | `governance` الحوكمة والجاهزية · `health` الصحة والتشخيص · `capabilitiesv2` الصلاحيات ومساحات العمل |
 
-70 screens in 34 menu entries.
+72 screens in 36 menu entries.
 
 ## By tier
 
 - **CORE** — العمل اليومي الأساسي (20): `dash`, `notifications`, `commerce`, `zatca`, `customers`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `cash`, `receivables`, `advances`, `productflow`, `linkmap`, `catalog`, `sim`, `builder`, `tbreview`
-- **MANAGEMENT** — الإدارة والمتابعة (11): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `memo`, `execreports`, `archive`, `codex`, `auditbench`, `corpuslab`
-- **INTELLIGENCE** — التحليل والذكاء (7): `decision`, `jev`, `council`, `salesintel`, `intelligence`, `economics`, `compare`
+- **MANAGEMENT** — الإدارة والمتابعة (12): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `memo`, `execreports`, `itemreport`, `archive`, `codex`, `auditbench`, `corpuslab`
+- **INTELLIGENCE** — التحليل والذكاء (8): `decision`, `jev`, `council`, `salesintel`, `geomap`, `intelligence`, `economics`, `compare`
 - **ADVANCED** — الهندسة المتقدمة (17): `risklab`, `sensitivity`, `carcass`, `yieldlab`, `nrv`, `finance`, `costs`, `kernel`, `analyzer`, `auditdesk`, `auditdocs`, `auditissues`, `auditcouncil`, `auditfin`, `auditreport`, `auditanalytics`, `auditlab`
 - **UTILITIES** — أدوات مساعدة (10): `blending`, `culinary`, `labels`, `scanner`, `smartmatch`, `excelrecon`, `reports`, `exports`, `devices`, `helperdesk`
 - **ADMIN** — النظام والإدارة (5): `settings`, `companies`, `governance`, `health`, `capabilitiesv2`
 
-Coverage gate: 70 screens in 11 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
+Coverage gate: 72 screens in 11 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.

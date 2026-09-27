@@ -2,7 +2,7 @@
 
 Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do not edit by hand.
 
-Total capabilities: **70** (screens). Cross-cutting capabilities are listed after the table.
+Total capabilities: **72** (screens). Cross-cutting capabilities are listed after the table.
 
 | ID | Capability | Module | Current Location | Data Used | Dependencies | Status | Keep/Remove/Merge/Rebuild |
 |---|---|---|---|---|---|---|---|
@@ -23,6 +23,7 @@ Total capabilities: **70** (screens). Cross-cutting capabilities are listed afte
 | `offers` | العروض والكتالوج | ui/offers.js | المبيعات والعملاء › يومي | `skosif_v32_offers`, `skosif_v32_cart`, `skosif_v32_cols` | SKosifCore | Working | Keep |
 | `operations` | المناسبات والتشغيل | ui/operations.js | المبيعات والعملاء › يومي | `skosif_ops_subscriptions`, `skosif_ops_butcher_shifts`, `skosif_ops_po_history`, `skosif_ops_bbq`, `skosif_ops_aging_chamber` | SKosifCore | Working | Keep |
 | `salesintel` | ذكاء المبيعات | core (v16) | المبيعات والعملاء › ذكاء المبيعات والطلب › يومي | `IDB sales_lines` | SKosifCore, Engine, IndexedDB | Working | Keep |
+| `geomap` | خريطة العملاء الجغرافية | ui/features/geo-map.js | المبيعات والعملاء › يومي | `orders (IndexedDB)`, `order_items (IndexedDB)`, `customers (IndexedDB)`, `ui/data/sa-geo.json` | SKosifCore | Working | New |
 | `intelligence` | ذكاء العملاء والطلب | core (v18) | المبيعات والعملاء › ذكاء المبيعات والطلب › يومي | `IDB customers`, `IDB sales_lines` | SKosifCore, Engine, IndexedDB | Working | Keep |
 | `economics` | اقتصاديات الطلب | core (v9) | المبيعات والعملاء › ذكاء المبيعات والطلب › يومي | `IDB orders`, `aghnam-econ-fees-v1` | SKosifCore, Engine, IndexedDB | Working | Keep |
 | `inventory` | المخزون | ui/inventory.js + ui/erp-plus.js | المخزون والموردون والإنتاج › المخزون والتتبع › يومي | `aghnam_v29_inventory`, `skosif_inv_expiry_batches`, `skosif_erp_inventory_v1` | SKosifCore | Working | Keep |
@@ -54,6 +55,7 @@ Total capabilities: **70** (screens). Cross-cutting capabilities are listed afte
 | `smartmatch` | مطابقة المبيعات | ui/smartmatch.js | التقارير والبيانات › المطابقة › يومي | `skosif_v34_product_aliases` | SKosifCore | Working | Keep |
 | `excelrecon` | مطابقة الإكسل | ui/tools.js | التقارير والبيانات › المطابقة › يومي | — | SKosifCore | Working | Keep |
 | `execreports` | التقارير التنفيذية | ui/reports.js | التقارير والبيانات › يومي | `skosif_rep_pl`, `IDB customers`, `IDB sales_lines`, `skosif_v31_supplier_batches` | SKosifCore, IndexedDB | Working | Keep |
+| `itemreport` | تقرير الصنف | ui/features/item-report.js | التقارير والبيانات › يومي | `aghnam-pricing-v3`, `order_items (IndexedDB)`, `orders (IndexedDB)`, `skosif_v31_supplier_batches` | SKosifCore | Working | New |
 | `reports` | مركز الطباعة | core | التقارير والبيانات › الطباعة والتصدير › يومي | `aghnam-pricing-v3`, `aghnam-pricing-prints-v1` | SKosifCore, Engine | Working | Keep |
 | `exports` | مركز التصدير | ui/features/workspace.js | التقارير والبيانات › الطباعة والتصدير › يومي | `كل المفاتيح` | SKosifCore | Working | Rebuild |
 | `archive` | الأرشيف والتغييرات | core | التقارير والبيانات › يومي | `aghnam-pricing-v3`, `IDB pricing_snapshots` | SKosifCore, Engine, IndexedDB | Working | Keep |

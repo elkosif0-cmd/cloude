@@ -70,7 +70,11 @@ function catalogData(){
 function products(){const {raws,boxes}=catalogData();return[...raws.filter(r=>r[7]==="main").map(r=>({name:r[1],price:r[6],unit:"كجم"})),...boxes.map(b=>({name:b[1],price:b[3],unit:"بوكس"}))]}
 const FIRST=["عبدالله","محمد","فهد","خالد","سلمان","نورة","سارة","ريم","عبدالعزيز","تركي","ماجد","هند","لمى","فيصل","يوسف","منيرة","بندر","عمر"];
 const LAST=["الحربي","العتيبي","القحطاني","الشهري","الغامدي","الزهراني","المطيري","الدوسري","السبيعي","العنزي","الشمري","البقمي"];
-const CITIES=[["الرياض",["العليا","الملقا","النرجس","الياسمين"]],["جدة",["الروضة","السلامة","الحمراء"]],["الدمام",["الشاطئ","الفيصلية"]],["مكة المكرمة",["العزيزية","الشوقية"]],["الخبر",["العقربية"]],["المدينة المنورة",["قباء"]]];
+/* where the demo customers live: Jeddah and Riyadh weigh most (the customer map zooms into their districts) */
+const RIYADH=["العليا","الملقا","النرجس","الياسمين","السليمانية","الملز","النخيل","حطين","الصحافة","المروج","قرطبة","الروضة"];
+const JEDDAH=["الروضة","السلامة","الحمراء","الشاطئ","النعيم","الصفا","المروة","الزهراء","البوادي","الفيصلية","النسيم","أبحر الشمالية","الخالدية","الربوة","العزيزية","الرحاب","المحمدية","الأندلس","السامر","البساتين"];
+const CITIES=[["الرياض",RIYADH],["جدة",JEDDAH],["جدة",JEDDAH],["الرياض",RIYADH],["جدة",JEDDAH],["الدمام",["الشاطئ","الفيصلية","النزهة","المزروعية","الجلوية"]],["مكة المكرمة",["العزيزية","الشوقية","العوالي","الزاهر","النسيم"]],
+  ["الخبر",["العقربية","الراكة","الثقبة","اليرموك"]],["المدينة المنورة",["قباء","العزيزية","العيون","الخالدية"]],["الطائف",["الحوية","شهار"]],["أبها",["المنسك","الخالدية"]],["بريدة",["الريان"]],["تبوك",["المروج"]]];
 const CHANNELS=["المتجر","المعرض","التطبيق","مبيعات الجملة"],PAY=["مدى","نقدي","تحويل بنكي","آجل"];
 const RESTAURANTS=["مطعم الديرة للمشويات","مطبخ الضيافة الملكية","مطعم نجد الأصيل","مطاعم سفرة الخير","مطعم البحر الأحمر"];
 
@@ -96,7 +100,7 @@ function build(){
   /* 100 customers; the last five are the restaurants that buy wholesale on credit (the same phone numbers as their credit accounts) */
   const NC=100,NR=RESTAURANTS.length;
   const customers=Array.from({length:NC},(_,i)=>{const [city,ds]=pick(CITIES),p=phone(i),rest=i>=NC-NR;
-    return{i,name:rest?RESTAURANTS[i-(NC-NR)]:FIRST[i%FIRST.length]+" "+LAST[(i*5+Math.floor(i/36))%LAST.length],phone:p,city:rest?"الرياض":city,district:pick(ds),source:rest?"مبيعات الجملة":pick(CHANNELS)}});
+    return{i,name:rest?RESTAURANTS[i-(NC-NR)]:FIRST[i%FIRST.length]+" "+LAST[(i*5+Math.floor(i/36))%LAST.length],phone:p,city:rest?"الرياض":city,district:pick(rest?RIYADH:ds),source:rest?"مبيعات الجملة":pick(CHANNELS)}});
   const P=products(),kg=P.filter(p=>p.unit==="كجم"),retail=customers.slice(0,NC-NR),rest=customers.slice(NC-NR),orders=[];let n=1;
   /* about 1,300 orders over twelve months, growing month by month; popular items sell most (a Pareto shape for ABC and RFM) */
   months(12).forEach((m,mi)=>{const count=88+mi*3+int(0,16);for(let k=0;k<count;k++){

@@ -1,0 +1,16 @@
+/* The item report (تقرير الصنف) */
+.ir{display:grid;gap:12px;min-width:0}
+.ir-bar{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;padding:10px 12px;border:1px solid var(--sk-line);border-radius:14px;background:var(--sk-surface)}
+.ir-pick{flex:1 1 260px;min-width:0}.ir-pick select{width:100%}
+.ir-acts{display:flex;flex-wrap:wrap;gap:6px}.ir-acts .btn svg{width:14px;height:14px}
+.ir-doc{padding:20px 22px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 22px;min-width:0}
+.ir-doc>*{grid-column:1/-1;min-width:0}.ir-doc>.ir-half{grid-column:auto}
+.ir-head h2{margin:2px 0 8px;font-size:22px}.ir-type{font-size:12px;color:var(--sk-brand);font-weight:700}
+.ir-kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:6px}
+.ir-k{display:grid;gap:2px;padding:10px 12px;border-radius:12px;background:var(--sk-surface-2);border:1px solid var(--sk-line)}
+.ir-k small{font-size:11px;color:var(--sk-ink-3)}.ir-k b{font-size:16px;font-variant-numeric:tabular-nums}.ir-k span{font-size:11px;color:var(--sk-ink-2)}
+.ir-sec h3{margin:16px 0 8px;font-size:14px;padding-bottom:6px;border-bottom:1px solid var(--sk-line)}
+.ir-t td.n,.ir-t th.n{text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ir-dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:13px}.ir-dl dt{color:var(--sk-ink-3)}.ir-dl dd{margin:0;font-weight:600}
+.ir-ul{margin:0;padding-inline-start:18px;font-size:13px}
+@media(max-width:760px){.ir-doc{grid-template-columns:1fr;padding:14px}.ir-doc>.ir-half{grid-column:1/-1}}

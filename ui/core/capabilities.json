@@ -589,6 +589,29 @@
    ]
   },
   {
+   "id": "geomap",
+   "label": "خريطة العملاء الجغرافية",
+   "sub": "السعودية بالمناطق ثم المدن ثم الأحياء — ملونة حسب الطلبات أو المبيعات أو العملاء، مع الأكثر مبيعاً وأكبر العملاء في كل مكان",
+   "group": "sales",
+   "tier": "INTELLIGENCE",
+   "module": "ui/features/geo-map.js",
+   "data": [
+    "orders (IndexedDB)",
+    "order_items (IndexedDB)",
+    "customers (IndexedDB)",
+    "ui/data/sa-geo.json"
+   ],
+   "legacy": "خريطة جغرافية للعملاء: السعودية ثم منطقة مكة وجدة ثم أحياء جدة بالألوان حسب عدد الطلبات",
+   "decision": "New",
+   "kw": "خريطة جغرافية عملاء مناطق مدن أحياء جدة الرياض طلبات مبيعات توزيع",
+   "adv": false,
+   "en": "Customer map",
+   "feeds": [
+    "customers",
+    "salesintel"
+   ]
+  },
+  {
    "id": "intelligence",
    "label": "ذكاء العملاء والطلب",
    "sub": "الاحتفاظ والشرائح وأولوية المراجعة",
@@ -1213,6 +1236,29 @@
    "en": "Executive Reports",
    "feeds": [
     "decision"
+   ]
+  },
+  {
+   "id": "itemreport",
+   "label": "تقرير الصنف",
+   "sub": "كل ما يخص صنفاً أو بوكساً في صفحة واحدة تُطبع: التكلفة وأسبابها، السعر والهامش، الموردون، المخزون، المبيعات شهرياً، المشترون والمدن",
+   "group": "reports",
+   "tier": "MANAGEMENT",
+   "module": "ui/features/item-report.js",
+   "data": [
+    "aghnam-pricing-v3",
+    "order_items (IndexedDB)",
+    "orders (IndexedDB)",
+    "skosif_v31_supplier_batches"
+   ],
+   "legacy": "تقارير مختلفة عن أي صنف في الأدوات المساعدة — تطوير للأدوات الحالية",
+   "decision": "New",
+   "kw": "تقرير صنف بوكس منتج تكلفة هامش مورد مبيعات شهرية عملاء مدن طباعة",
+   "adv": false,
+   "en": "Item report",
+   "feeds": [
+    "linkmap",
+    "productflow"
    ]
   },
   {

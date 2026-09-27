@@ -182,6 +182,17 @@ const LW=await p.evaluate(async()=>{const bid=SK.pricing.addBox({name:'بوكس 
   return{cost:c&&c.cost,price:pur.prices.some(x=>x.supplier==='مورد فحص الأسهم'&&x.price===44),master:m.suppliers.some(x=>x.name==='مورد فحص الأسهم'),nb:nb.some(x=>x.rel==='supplies'&&x.id==='مورد فحص الأسهم')&&nb.some(x=>x.rel==='comp'&&x.id===bid)}});
 ok('خريطة الربط','سهم «مكوّن في» يكتب تركيب البوكس ويعيد التطبيق حساب تكلفته فوراً',LW.cost>0);
 ok('خريطة الربط','سهم «يورّد» يسجّل سعر المورد ويضيف المورد الجديد لقائمة الموردين',LW.price&&LW.master&&LW.nb);
+// ---------- the customer map ----------
+await go('geomap',2500);
+const GM1=await p.evaluate(()=>({regions:document.querySelectorAll('.gm-reg').length,colored:[...document.querySelectorAll('.gm-reg')].filter(x=>/rgb/.test(x.getAttribute('fill')||'')).length,cities:document.querySelectorAll('.gm-city').length,rank:document.querySelectorAll('[data-rank-region]').length}));
+ok('خريطة العملاء','السعودية بمناطقها الـ13 ملونة حسب الطلبات مع فقاعات المدن وترتيب المناطق',GM1.regions===13&&GM1.colored>=5&&GM1.cities>=5&&GM1.rank>=5);
+await p.evaluate(()=>SKosifGeoMap.city('جدة'));await p.waitForTimeout(1500);
+const GM2=await p.evaluate(()=>({d:document.querySelectorAll('.gm-dist').length,colored:[...document.querySelectorAll('.gm-dist')].filter(x=>/rgb/.test(x.getAttribute('fill')||'')).length,crumb:document.querySelector('.gm-crumbs').textContent}));
+ok('خريطة العملاء','التقريب إلى جدة: الأحياء ملونة حسب عدد الطلبات',GM2.d>=15&&GM2.colored>=8&&GM2.crumb.includes('جدة')&&GM2.crumb.includes('مكة'));
+await p.evaluate(()=>SKosifGeoMap.country());
+await p.evaluate(()=>SKosifItemReport.open('raw','r1'));await p.waitForTimeout(2500);
+const IRP=await p.evaluate(()=>[...document.querySelectorAll('.ir-sec h3')].map(x=>x.textContent).join('|'));
+ok('تقرير الصنف','تقرير الصنف: أسباب التكلفة والموردون والشحنات والمبيعات الشهرية والمشترون والمدن',['لماذا هذه التكلفة','الموردون','المبيعات شهراً بشهر','أكبر المشترين','أين يُباع'].every(k=>IRP.includes(k)));
 const ph=await (await b.newContext({viewport:{width:390,height:844},isMobile:true})).newPage();await ph.goto(URL_);await ph.waitForTimeout(5000);
 ok('الجولات 1–33','شريط التبويبات السفلي في الآيفون',await ph.evaluate(()=>!!document.querySelector('.skb,.sk-tabbar,[class*="tabbar"]')));
 if(process.argv[3])fs.writeFileSync(process.argv[3],JSON.stringify(R,null,1));
