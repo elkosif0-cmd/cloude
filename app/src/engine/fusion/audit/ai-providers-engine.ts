@@ -12,12 +12,14 @@ export type ProviderId = 'gemini' | 'openai' | 'anthropic';
 export type Provider = { id: ProviderId; ar: string; base: string; keyHint: string; keyPattern: RegExp; keyLink: string; models: string[]; host: string };
 
 export const PROVIDERS: Record<ProviderId, Provider> = {
-  gemini: { id: 'gemini', ar: 'Google Gemini', base: 'https://generativelanguage.googleapis.com/v1beta/', keyHint: 'AIza…', keyPattern: /^[\w-]{20,}$/,
-    keyLink: 'https://aistudio.google.com/app/apikey', models: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.5-flash-lite'], host: 'generativelanguage.googleapis.com' },
+  // AI Studio issues keys in two shapes: the older «AIza…» and the newer «AQ.…» (with a dot). The «-latest» aliases follow Google's
+  // current model, so a retired model id (gemini-2.5-* for new keys) never strands the reviewer.
+  gemini: { id: 'gemini', ar: 'Google Gemini', base: 'https://generativelanguage.googleapis.com/v1beta/', keyHint: 'AIza… أو AQ.…', keyPattern: /^[\w.-]{20,}$/,
+    keyLink: 'https://aistudio.google.com/app/apikey', models: ['gemini-flash-latest', 'gemini-3.7-flash', 'gemini-3.5-flash', 'gemini-flash-lite-latest', 'gemini-pro-latest'], host: 'generativelanguage.googleapis.com' },
   openai: { id: 'openai', ar: 'OpenAI', base: 'https://api.openai.com/v1/', keyHint: 'sk-…', keyPattern: /^sk-[\w-]{20,}$/,
     keyLink: 'https://platform.openai.com/api-keys', models: ['gpt-5', 'gpt-5-mini', 'gpt-4.1'], host: 'api.openai.com' },
   anthropic: { id: 'anthropic', ar: 'Anthropic Claude', base: 'https://api.anthropic.com/v1/', keyHint: 'sk-ant-…', keyPattern: /^sk-ant-[\w-]{20,}$/,
-    keyLink: 'https://platform.claude.com/settings/keys', models: ['claude-opus-5', 'claude-sonnet-5', 'claude-haiku-4-5'], host: 'api.anthropic.com' },
+    keyLink: 'https://platform.claude.com/settings/keys', models: ['claude-opus-5-5', 'claude-sonnet-5', 'claude-haiku-4-5'], host: 'api.anthropic.com' },
 };
 export const isProvider = (x: unknown): x is ProviderId => x === 'gemini' || x === 'openai' || x === 'anthropic';
 
@@ -173,6 +175,15 @@ export function friendlyError(provider: ProviderId, status: number, message = ''
   if (status === 529 || status >= 500) return `خطأ مؤقت من خدمات ${P.ar} (${status}) — أعد المحاولة.`;
   if (status === 0) return `تعذر الاتصال — تحقق من الشبكة أو من مانع يحجب ${P.host}.`;
   return 'خطأ ' + status + (message ? ': ' + message : '');
+}
+/** Whether another model may succeed where this one failed: retired or unknown (404), overloaded (5xx/529), or out of quota
+    for this model (429 — a lighter model often has its own quota). A bad key (400/401/403) fails on every model. */
+export function retryWithOtherModel(status: number): boolean { return status === 404 || status === 429 || status === 529 || status >= 500; }
+/** The models to try after `current` failed, best first: the provider's defaults, then the models the key listed, lighter last. */
+export function fallbackModels(provider: ProviderId, current: string, known: string[] = []): string[] {
+  const seen = new Set([current]), out: string[] = [];
+  for (const m of [...PROVIDERS[provider].models, ...known]) if (m && !seen.has(m)) { seen.add(m); out.push(m); }
+  return out.slice(0, 4);
 }
 /** Model ids from each provider's list endpoint (GET …/models), filtered to text-generation models. */
 export function modelsFrom(provider: ProviderId, api: unknown): string[] {

@@ -59,3 +59,19 @@ describe('financial statements from a trial balance', () => {
     expect(one.checks.mappedPct).toBe(50);
   });
 });
+
+describe('discontinued operations (IFRS 5.33)', () => {
+  it('sits after tax on its own line: profit before tax and materiality exclude it', () => {
+    const tb = parseTrialBalance(['رقم الحساب,اسم الحساب,مدين,دائن', '1101,النقد,1300,', '3101,رأس المال,,700',
+      '4101,المبيعات,,1000', '5101,تكلفة المبيعات,600,', '8101,ضريبة الدخل,100,', '4951,Gain on disposal of discontinued operations,,300'].join('\n'));
+    const fs = buildStatements(tb);
+    expect(fs.keys.pbz.current).toBe(40000);
+    expect(fs.keys.continuing.current).toBe(30000);
+    expect(fs.keys.disc.current).toBe(30000);
+    expect(fs.keys.profit.current).toBe(60000);
+    const keys = fs.pl.map((r) => r.key);
+    expect(keys.indexOf('discontinued')).toBeGreaterThan(keys.indexOf('zakatExpense'));
+    expect(keys).toContain('continuing');
+    expect(fs.checks.balanced).toBe(true);
+  });
+});

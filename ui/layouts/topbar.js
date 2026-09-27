@@ -24,7 +24,7 @@ const I={
 };
 
 /* ---------- data ---------- */
-function profile(){const p=load(PROFILE,{})||{},o=SK.org();return{name:String(p.name||o.preparer||"").trim(),title:String(p.title||"").trim()}}
+function profile(){const p=load(PROFILE,{})||{},o=SK.org();return{name:String(p.name||o.preparer||"").trim(),title:String(p.title||"").trim(),firm:String(p.firm||"").trim(),license:String(p.license||"").trim()}}
 function initials(n){const w=String(n||"").trim().split(/\s+/).filter(Boolean);if(!w.length)return "K";const f=s=>s.replace(/^(ال)/,"").charAt(0)||s.charAt(0);return w.length>1?f(w[0])+" "+f(w[1]):f(w[0])}
 const firstName=n=>String(n||"").trim().split(/\s+/)[0]||"";
 function ctx(){
@@ -174,14 +174,16 @@ function bellMenu(btn){
 function profileDialog(){
   const pr=profile();
   const w=document.createElement("div");w.className="skd-wrap";
-  w.innerHTML='<form class="skd" role="dialog" aria-modal="true" aria-labelledby="skpf-t"><h3 id="skpf-t">الاسم واللقب</h3><p>يظهران أعلى التطبيق وفي التحية وعلى التقارير المطبوعة (المُعِدّ). يُحفظان على هذا الجهاز.</p>'+
+  w.innerHTML='<form class="skd" role="dialog" aria-modal="true" aria-labelledby="skpf-t"><h3 id="skpf-t">الاسم واللقب والمكتب</h3><p>يظهران أعلى التطبيق وفي التحية وعلى التقارير المطبوعة (المُعِدّ). يُحفظان على هذا الجهاز.</p>'+
     '<div class="sk-stack" style="margin-top:12px"><label class="sk-field"><span>الاسم</span><input name="n" value="'+esc(pr.name)+'" autocomplete="name" placeholder="مثال: أحمد المطيري"></label>'+
-    '<label class="sk-field"><span>اللقب الوظيفي</span><input name="t" value="'+esc(pr.title)+'" placeholder="مثال: شريك المراجعة · المدير المالي"></label></div>'+
+    '<label class="sk-field"><span>اللقب الوظيفي</span><input name="t" value="'+esc(pr.title)+'" placeholder="مثال: شريك المراجعة · المدير المالي"></label>'+
+    '<label class="sk-field"><span>المكتب المهني (يظهر على تقارير المراجعة)</span><input name="f" value="'+esc(pr.firm||"")+'" placeholder="مثال: مكتب النخبة للمراجعة والاستشارات"></label>'+
+    '<label class="sk-field"><span>رقم الترخيص المهني</span><input name="l" value="'+esc(pr.license||"")+'" inputmode="numeric" placeholder="اختياري"></label></div>'+
     '<div class="skd-acts"><button type="button" class="btn" data-r="0">إلغاء</button><button type="submit" class="btn primary">حفظ</button></div></form>';
   const done=()=>{w.remove();document.removeEventListener("keydown",esc_,true)};
   const esc_=e=>{if(e.key==="Escape"){e.preventDefault();e.stopPropagation();done()}};
   w.addEventListener("click",e=>{if(e.target===w||e.target.closest('[data-r="0"]'))done()});
-  $("form",w).addEventListener("submit",e=>{e.preventDefault();const f=e.target;save(PROFILE,{name:f.n.value.trim().slice(0,60),title:f.t.value.trim().slice(0,60)});done();paint();SK.toast("حُفظ الاسم","ok");const c=core();if(c&&c.view()==="dash")c.go("dash",{keepScroll:true})});
+  $("form",w).addEventListener("submit",e=>{e.preventDefault();const f=e.target;save(PROFILE,{...(load(PROFILE,{})||{}),name:f.n.value.trim().slice(0,60),title:f.t.value.trim().slice(0,60),firm:f.f.value.trim().slice(0,80),license:f.l.value.trim().slice(0,30)});done();paint();SK.toast("حُفظ الاسم","ok");const c=core();if(c&&c.view()==="dash")c.go("dash",{keepScroll:true})});
   document.addEventListener("keydown",esc_,true);document.body.appendChild(w);$("input",w).focus();
 }
 function onClick(e){

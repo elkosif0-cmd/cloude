@@ -14,13 +14,17 @@ import { classifyAccount, NATURE, norm, type TbRow, type TrialBalance } from '..
 import { buildStatements, LINE, lineFor, type FinancialStatements } from '../reports/statements-engine';
 import { beneishM } from '../reports/analysis-engine';
 import { inFramework, standardsFor, STANDARD, type Framework } from './codex-engine';
+import { THEMES, type Theme } from './global-benchmarks-engine';
+import { buildRequests } from './requests-engine';
 
 export type Severity = 'high' | 'medium' | 'low';
 export type Finding = { id: string; severity: Severity; kind: 'balance' | 'classification' | 'measurement' | 'disclosure' | 'completeness' | 'analytical' | 'fraud' | 'going-concern';
   code?: string; account?: string; lineKey?: string; standard: string; title: string; detail: string; basis: string; action: string; source: 'engine' | 'gemini'; round?: number;
   /** numbered evidence the council cited (audit council rounds) */ citations?: string[] };
 export type DocRequest = { id: string; title: string; purpose: string; lineKey?: string; accounts: string[]; standard: string; priority: 'عالية' | 'متوسطة' | 'منخفضة'; source: 'engine' | 'gemini'; round?: number;
-  /** the smart request of the audit council: the assertion it proves, the client's effort, the evidence behind it */ assertion?: string; effort?: 'low' | 'medium' | 'high'; citations?: string[] };
+  /** the smart request of the audit council: the assertion it proves, the client's effort, the evidence behind it */ assertion?: string; effort?: 'low' | 'medium' | 'high'; citations?: string[];
+  /** from the request library (requests-engine): the evidence kind and its reliability, the stage, who provides it, the alternative, why it is asked */
+  kind?: string; evidenceAr?: string; reliability?: 1 | 2 | 3; stage?: string; from?: string; alt?: string; why?: string; lineKeys?: string[] };
 export type AdjLine = { code: string; name: string; debit: Minor; credit: Minor; /** for an account not yet in the trial balance */ type?: TbRow['type'] };
 export type Adjustment = { id: string; title: string; reason: string; standard: string; lines: AdjLine[]; estimate: boolean; source: 'engine' | 'gemini'; round?: number };
 export type Materiality = { benchmark: 'pbz' | 'revenue' | 'assets'; benchmarkAr: string; base: Minor; rate: number; overall: Minor; performance: Minor; trivial: Minor };
@@ -89,13 +93,6 @@ const SUSPENSE = /معلق|تحت التسويه|وسيط|حساب مؤقت|susp
 const RELATED = /طرف ذو علاقه|اطراف ذات علاقه|شركه شقيقه|جاري المدير|جاري الشريك|جاري الشركاء|related part/;
 const SALARIES = /رواتب|اجور|salar|wages/;
 /* estimates and accruals — where a round balance suggests a guess rather than a calculation */
-/* the Saudi-specific requests, as asked of an entity outside the Kingdom that pays income tax */
-const INTL_DOC: Record<string, [string, string]> = {
-  'احتساب الزكاة للسنة': ['احتساب ضريبة الدخل للسنة (الجارية والمؤجلة) والإقرارات', 'التحقق من IAS 12 والتشريع الضريبي المطبق'],
-  'الإقرار الزكوي وإيصال السداد وشهادة الزكاة': ['الإقرارات الضريبية وإيصالات السداد ومطابقتها بالمخصص', 'مطابقة الالتزام الضريبي'],
-  'الربوط والاعتراضات القائمة': ['الربوط والفحوص الضريبية والنزاعات القائمة مع الجهات الضريبية', 'تقييم المواقف الضريبية غير المؤكدة (IFRIC 23)'],
-  'عينة فواتير المبيعات الإلكترونية مع رموز QR': ['عينة فواتير المبيعات وعقودها ومستندات التسليم', 'التحقق من الحدوث والدقة'],
-};
 const ROUND_PRONE = new Set(['provisions', 'accruals', 'zakatPayable', 'zakatExpense', 'eosb', 'impairment', 'depreciation', 'otherIncome', 'contractLiab']);
 
 export type AccountReview = { code: string; name: string; type: TbRow['type']; lineKey: string | null; lineAr: string; basis: string;
@@ -275,16 +272,15 @@ export function reviewTrialBalance(tb: TrialBalance, opts: ReviewOptions = {}): 
     return { lineKey: l.key, ar: l.ar, amount, score, level, significant: inherent >= 70 && qualitative, parts, risk: la.risk, procedures: la.procedures };
   }).sort((a, b) => b.score - a.score);
 
-  /* document requests */
-  const requests: DocRequest[] = GENERAL_DOCS.map(([title, purpose], i) => ({ id: 'PBC-G' + (i + 1), title, purpose, accounts: [], standard: 'ISA 580', priority: 'عالية' as const, source: 'engine' as const }));
-  if (fs.hasPrior) requests.push({ id: 'PBC-G3', title: 'القوائم المالية المراجعة للسنة السابقة', purpose: 'مطابقة الأرصدة الافتتاحية والمقارنة', accounts: [], standard: 'ISA 510', priority: 'عالية', source: 'engine' });
-  for (const r of risks) {
-    if (r.level === 'منخفض' && Math.abs(r.amount) < mat.performance) continue;
-    const la = LINE_AUDIT[r.lineKey]; if (!la) continue;
-    const accs = fs.lines.find((l) => l.key === r.lineKey)!.accounts.map((a) => a.code);
-    la.docs.map(([t, p]) => (intl ? INTL_DOC[t] ?? [t, p] : [t, p])).forEach(([title, purpose], i) => { if (requests.some((q) => q.title === title)) return;
-      requests.push({ id: 'PBC-' + r.lineKey + '-' + (i + 1), title, purpose, lineKey: r.lineKey, accounts: accs, standard: inFramework(LINE[r.lineKey]?.standards[0] ?? 'ISA 500', framework), priority: r.level === 'عالٍ' ? 'عالية' : r.level === 'متوسط' ? 'متوسطة' : 'منخفضة', source: 'engine' }); });
-  }
+  /* document requests — the request library (requests-engine): the routine evidence every audit collects, the areas that are
+     material or significant, the judgemental areas the significant lines point to, and completion */
+  const themes = [...new Set(risks.filter((r) => r.significant).flatMap((r) => (Object.entries(THEMES) as [Theme, { lines: string[] }][]).filter(([, t]) => t.lines.includes(r.lineKey)).map(([k]) => k)))];
+  const lib = buildRequests({ risks: risks.map((r) => ({ lineKey: r.lineKey, ar: r.ar, amount: r.amount, significant: r.significant, estimate: !!LINE_AUDIT[r.lineKey]?.estimate, fraud: !!LINE_AUDIT[r.lineKey]?.fraud, score: r.score })),
+    materiality: mat.overall, hasPrior: fs.hasPrior, themes, intl });
+  const accountsOf = (keys: string[]) => keys.flatMap((k) => fs.lines.find((l) => l.key === k)?.accounts.map((a) => a.code) ?? []);
+  const requests: DocRequest[] = lib.map((q) => ({ id: q.id, title: q.title, purpose: q.purpose, lineKey: q.lineKeys[0], lineKeys: q.lineKeys, accounts: accountsOf(q.lineKeys),
+    standard: q.lineKeys[0] ? inFramework(LINE[q.lineKeys[0]]?.standards[0] ?? q.isa, framework) : q.isa, priority: q.priority, source: 'engine' as const,
+    kind: q.kind, evidenceAr: q.evidenceAr, reliability: q.reliability, stage: q.stage, from: q.from, alt: q.alt, why: q.why }));
 
   const compliance = complianceOf(fs, findings, requests, opts.evidence ?? {}, framework, cur);
   const high = findings.filter((f) => f.severity === 'high').length, medium = findings.filter((f) => f.severity === 'medium').length, low = findings.length - high - medium;

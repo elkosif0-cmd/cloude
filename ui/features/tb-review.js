@@ -40,7 +40,93 @@ const FW_LABEL={IFRS:"IFRS المعتمدة في المملكة",SME:"معيار
 function idb(){return new Promise((res,rej)=>{if(!("indexedDB" in window))return rej(new Error("المتصفح لا يدعم التخزين المحلي للمستندات"));const r=indexedDB.open("skosif-tbreview-docs",1);r.onupgradeneeded=()=>r.result.createObjectStore("docs");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
 async function docPut(k,v){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction("docs","readwrite");t.objectStore("docs").put(v,k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})}
 async function docGet(k){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction("docs","readonly"),q=t.objectStore("docs").get(k);q.onsuccess=()=>res(q.result||null);q.onerror=()=>rej(q.error)})}
-async function docClear(){try{const db=await idb();await new Promise(res=>{const t=db.transaction("docs","readwrite");t.objectStore("docs").clear();t.oncomplete=res;t.onerror=res})}catch{}}
+/* only the open file's documents (their keys begin with its review session id): the other client files keep theirs */
+async function docClear(){try{const sid=(st().session||{}).id;if(!sid)return;const db=await idb();await new Promise(res=>{const t=db.transaction("docs","readwrite"),c=t.objectStore("docs").openCursor();
+  c.onsuccess=()=>{const x=c.result;if(!x)return;if(String(x.key).startsWith(sid+"|"))x.delete();x.continue()};t.oncomplete=res;t.onerror=res})}catch{}}
+
+/* ---------- the engagement register: several client files on one device ----------
+   The open file stays in skosif_tbreview_v1 (every module reads it there); the others wait in skosif_eng_<id>. */
+const ENG="skosif_engagements_v1";
+const reg=()=>{const r=load(ENG,null);return r&&Array.isArray(r.list)?r:{active:"main",list:[]}};
+function register(){
+  const r=reg(),d=st(),id=r.active||"main";let e=r.list.find(x=>x.id===id);
+  if(!e){e={id,at:new Date().toISOString()};r.list.push(e)}
+  Object.assign(e,{company:d.ctx.company||"ملف بلا اسم",period:d.ctx.periodEnd||d.ctx.period||"",country:d.ctx.country||"",source:d.source||e.source||"user",hasTB:!!d.tbText,
+    rounds:d.session&&d.session.rounds?d.session.rounds.length:0,updatedAt:new Date().toISOString()});
+  r.active=id;save(ENG,r);return r;
+}
+function openFile(id){
+  const r=register();if(id===r.active)return;
+  save("skosif_eng_"+r.active,st());put(load("skosif_eng_"+id,null)||blank());r.active=id;save(ENG,r);register();
+  tab="tb";setup=false;confHTML={sig:"",h:""};paint();
+}
+function newFile(state,meta={}){
+  const r=register();save("skosif_eng_"+r.active,st());
+  const id=SK.ui.uid("eng");put(state||blank());r.active=id;r.list.push({id,at:new Date().toISOString(),...meta});save(ENG,r);register();
+  tab="tb";setup=false;confHTML={sig:"",h:""};paint();return id;
+}
+async function closeFile(id){
+  const r=register();if(r.list.length<2){toast("هذا هو الملف الوحيد — استخدم «مراجعة جديدة» لتفريغه","info");return}
+  const e=r.list.find(x=>x.id===id);if(!e||!await SK.confirm("حذف ملف «"+e.company+"» من هذا الجهاز؟ تُحذف جولاته وقراراته.",{danger:true,ok:"حذف الملف"}))return;
+  if(id===r.active){const next=r.list.find(x=>x.id!==id);await docClear();put(load("skosif_eng_"+next.id,null)||blank());r.active=next.id}
+  localStorage.removeItem("skosif_eng_"+id);r.list=r.list.filter(x=>x.id!==id);save(ENG,r);register();paint();
+}
+function filesBar(){
+  const r=register(),L=r.list.slice().sort((a,b)=>(a.id===r.active?-1:b.id===r.active?1:0)||String(b.updatedAt).localeCompare(String(a.updatedAt)));
+  return '<section class="tbr-files" aria-label="ملفات المراجعة"><div class="tbr-files-h"><b>ملفات المراجعة</b><small>'+r.list.length+' ملف على هذا الجهاز</small></div><div class="tbr-files-l">'+
+    L.map(e=>'<div class="tbr-file'+(e.id===r.active?' on':'')+'"><button type="button" data-file-open="'+esc(e.id)+'" title="فتح الملف"><b>'+esc(e.company)+'</b><small>'+esc([e.period,e.source==="bundle"?"من الحزمة العالمية":"",e.rounds?e.rounds+" جولة":"",e.hasTB?"":"بلا ميزان"].filter(Boolean).join(" · "))+'</small></button>'+
+      (r.list.length>1?'<button type="button" class="tbr-file-x" data-file-close="'+esc(e.id)+'" aria-label="حذف الملف">×</button>':'')+'</div>').join("")+
+    '<button type="button" class="tbr-file-new" data-file-new>+ ملف جديد</button><button type="button" class="tbr-file-new" data-bundle-open>الشركات العالمية ('+BUNDLE_COUNT+')</button></div></section>';
+}
+/* ---------- the bundle's companies as audit clients (ui/data/bundle-clients.json, loaded on demand) ---------- */
+const BUNDLE_COUNT=47;let bundle=null;
+async function bundleData(){if(bundle)return bundle;const r=await fetch("./data/bundle-clients.json");if(!r.ok)throw new Error("تعذر تحميل بيانات الشركات");bundle=await r.json();return bundle}
+async function bundlePicker(){
+  let B;try{B=await bundleData()}catch(e){toast(e.message,"bad");return}
+  const have=new Set(reg().list.filter(e=>e.bundleId).map(e=>e.bundleId));
+  const w=document.createElement("div");w.className="skd-wrap";
+  const rows=B.clients.map(c=>'<tr><td><b>'+esc(c.company)+'</b><small>'+esc(c.fy+" · "+c.countryAr+" · "+c.auditor)+'</small></td><td>'+esc(c.frameworkAr)+'</td><td>'+esc(c.unitAr)+'</td><td>'+(have.has(c.id)?'<button type="button" class="btn sm" data-bundle-go="'+esc(c.id)+'">فتح</button>':'<button type="button" class="btn primary sm" data-bundle-add="'+esc(c.id)+'">إضافة كملف مراجعة</button>')+'</td></tr>').join("");
+  w.innerHTML='<div class="skd tbr-bundle" role="dialog" aria-modal="true" aria-labelledby="tbr-bundle-t"><h3 id="tbr-bundle-t">الشركات العالمية من الحزمة البحثية</h3><p>'+esc(B.note)+'</p><div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الشركة</th><th>الإطار</th><th>العملة</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="skd-acts"><button type="button" class="btn" data-bundle-close>إغلاق</button></div></div>';
+  document.body.appendChild(w);
+  w.addEventListener("click",e=>{if(e.target===w||e.target.closest("[data-bundle-close]")){w.remove();return}
+    const add=e.target.closest("[data-bundle-add]"),go=e.target.closest("[data-bundle-go]");
+    if(go){const f=reg().list.find(x=>x.bundleId===go.dataset.bundleGo);w.remove();if(f)openFile(f.id);return}
+    if(add){w.remove();openClient(add.dataset.bundleAdd)}});
+}
+/* one way to open a company of the research bundle: its own engagement file (opened again if it exists), the
+   trial balance built from its published statements (line by line), its auditor, year end and report form, and
+   the benchmark context (sector, currency, tax, framework, auditing standard) the key matters and requests use */
+async function openClient(id){
+  const f=reg().list.find(x=>x.bundleId===id);if(f){openFile(f.id);if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");return f.id}
+  let B=null;try{B=await bundleData()}catch{}
+  const c=B&&B.clients.find(x=>x.id===id),CC=E().reports.corpusCompanies,t=CC&&CC.companyTrialBalance?CC.companyTrialBalance(id):null;
+  if(!c&&!t){toast("الشركة غير موجودة في الحزمة","bad");return null}
+  const d=blank();d.source="bundle";d.bundleId=id;d.loadedAt=new Date().toISOString();
+  if(c){d.tbText=c.tb;d.loadedFrom="الحزمة العالمية — "+c.company;
+    Object.assign(d.ctx,{company:c.company,period:"السنة المنتهية في "+c.periodEndAr,periodStart:c.periodStart||"",periodEnd:c.periodEnd,country:c.country==="SA"?"SA":c.country==="EG"?"EG":"INTL",
+      framework:"IFRS",currency:c.unitAr,activity:c.activityAr||"",legalForm:"شركة مساهمة عامة",consolidated:true,auditFirm:c.auditor,...bundleForm(c)});
+    if(t){const x=t.ctx;Object.assign(d.ctx,{country:x.country,corpusId:x.corpusId,curSym:x.curSym,taxKind:x.taxKind,sector:x.sector,reportingFramework:x.reportingFramework,auditStandard:x.auditStandard,...(x.unclassified?{unclassified:true}:{})})}
+    else if(d.ctx.country==="INTL")d.ctx.taxKind="income";}
+  else{d.tbText=t.csv;d.overrides={...t.overrides};d.loadedFrom="الحزمة العالمية — "+t.company.company;d.ctx={...d.ctx,...t.ctx}}
+  d.fw={listedOrIssuing:true};
+  const fid=newFile(d,{bundleId:id,source:"bundle"});SK.audit&&SK.audit.log("tbreview",{act:"bundle-client",id});
+  toast("فُتح ملف «"+d.ctx.company+"» — ميزانه من قوائمه المنشورة. جرّب «المراجعة التجريبية الكاملة» لترى الجولات حتى التقرير","ok");
+  if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");
+  return fid;
+}
+/* the report the company's own auditor issued decides the form of ours: PCAOB for the SEC filers, the extended ISA (UK) report for the
+   UK-listed groups (and Airbus's Dutch report, written the same way), the local form for Saudi, UAE and Egyptian companies, ISA 700 for the rest */
+const FW_AR={"US GAAP":"مبادئ المحاسبة المقبولة عموماً في الولايات المتحدة الأمريكية","J-GAAP":"مبادئ المحاسبة المقبولة عموماً في اليابان","K-IFRS":"المعايير الدولية للتقرير المالي المعتمدة في جمهورية كوريا",
+  "TIFRS":"المعايير الدولية للتقرير المالي المعتمدة من هيئة الرقابة المالية في تايوان","Ind AS":"معايير المحاسبة الهندية (Ind AS) الصادرة بموجب قانون الشركات لعام 2013","AASB (IFRS)":"معايير المحاسبة الأسترالية المتوافقة مع المعايير الدولية للتقرير المالي"};
+const EU=new Set(["DE","FR","NL"]);
+function bundleForm(c){
+  const G=E().audit.globalBenchmarks,r=G&&G.reportOf?G.reportOf(c.id)||{}:{},fwk=r.framework||c.framework||"";
+  const form=c.auditStd==="PCAOB"?"US":c.country==="UK"||c.country==="NL"?"UK":["SA","AE","EG"].includes(c.country)?c.country:"INT";
+  const frameworkAr=FW_AR[fwk]||(fwk==="IFRS"&&form!=="UK"?(EU.has(c.country)?"المعايير الدولية للتقرير المالي كما اعتمدها الاتحاد الأوروبي":"المعايير الدولية للتقرير المالي الصادرة عن مجلس معايير المحاسبة الدولية"):"");
+  /* the sector, written so the benchmarks recognise it (the KAM precedents, a bank's going concern) */
+  const activity=r.sector?((G.SECTOR_AR||{})[r.sector]||"")+" ("+r.sector+")":"";
+  return{reportForm:form,frameworkAr,auditSince:r.since||"",countryAr:c.countryAr||"",activity};
+}
 const docKey=(sid,u)=>sid+"|"+u.requestId+"|"+u.fileName;
 const readAs=(file,how)=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error||new Error("تعذرت قراءة الملف"));how==="text"?r.readAsText(file):r.readAsDataURL(file)});
 const isText=f=>/^text\/|csv|json|xml/.test(f.type)||/\.(csv|txt|tsv|json|xml)$/i.test(f.name);
@@ -90,13 +176,7 @@ async function loadTB(text,label,ctx,overrides){
   return true;
 }
 /* a company of the research bundle as the client: its published statements as a two-year trial balance, its auditor and year end */
-async function loadCorpus(id){
-  const CC=E().reports.corpusCompanies;if(!CC)return false;const t=CC.companyTrialBalance(id);if(!t){toast("الشركة غير موجودة في الحزمة","bad");return false}
-  const ok=await loadTB(t.csv,t.company.company+" "+t.company.fy,{...t.ctx},t.overrides);
-  if(ok){const d=st();d.ctx={...blank().ctx,...t.ctx};d.fw={listedOrIssuing:true};put(d);SK.audit&&SK.audit.log("tbreview",{act:"corpus",id});
-    if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");else paint()}
-  return ok;
-}
+async function loadCorpus(id){return !!(await openClient(id))}
 async function fromBooks(){
   const b=await booksTB();
   if(!b){toast("لا توجد قيود في الدفاتر المحاسبية ولا مبيعات أو مشتريات مسجلة للفترة","warn");return false}
@@ -106,11 +186,11 @@ async function fromBooks(){
 }
 /* open the engagement on a tab (and a studio page): used by the studio's own deep links and other screens */
 function openTab(t,view){if(t==="studio")t=Object.keys(ADV).find(k=>ADV[k]===view)||"docs";if(t)tab=t;if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");else paint()}
-window.SKosifTBReview=Object.freeze({fromBooks,loadCorpus,booksTB,rows:()=>{const c=compute();return c&&c.tb.ok?{rows:studioRows(c),sig:c.sig,label:c.d.ctx.company||"file",ctx:{...c.d.ctx}}:null},load:(text,label,ctx)=>loadTB(text,label,ctx),open:openTab,studio:view=>openTab("studio",view)});
+window.SKosifTBReview=Object.freeze({fromBooks,loadCorpus,openClient,demo:()=>runDemo(),booksTB,rows:()=>{const c=compute();return c&&c.tb.ok?{rows:studioRows(c),sig:c.sig,label:c.d.ctx.company||"file",ctx:{...c.d.ctx}}:null},load:(text,label,ctx)=>loadTB(text,label,ctx),open:openTab,studio:view=>openTab("studio",view)});
 
 /* ---------- computation (memoized) ---------- */
 function compute(){
-  const d=st();CUR=d.ctx.curSym||(egypt(d)?"ج.م":"ر.س");if(!d.tbText)return null;
+  const d=st();CUR=d.ctx.curSym||(d.source==="bundle"&&d.ctx.currency?d.ctx.currency:egypt(d)?"ج.م":"ر.س");if(!d.tbText)return null;
   const sig=JSON.stringify([MN().fingerprint(d.tbText),d.overrides,d.ctx,d.materiality,d.session&&d.session.rounds.length,d.session&&d.session.unavailable,d.accepted,d.rejected,!!(d.session&&d.session.final),d.ecl,d.confirm,d.field&&d.field.so,d.matPlanOn&&d.matPlan]);
   if(cache&&cache.sig===sig)return cache;
   const tb=TI().parseTrialBalance(d.tbText);
@@ -176,8 +256,8 @@ function stepper(c){
 }
 function hero(c){
   const d=c?c.d:st(),ctx=d.ctx,s=c&&c.session,state=s?AI().sessionState(s):{label:c?"الميزان جاهز — ابدأ جولة المراجع الذكي أو تابع بالمحرك الآلي":"ابدأ باستلام ميزان المراجعة"};
-  return '<section class="tbr-hero"><div class="tx"><span class="eyebrow">مراجعة الحسابات بالمعايير</span><h2>'+esc(ctx.company||"منشأة جديدة")+'</h2><p>'+esc([ctx.period,(ctx.corpusId?(ctx.reportingFramework||"IFRS")+" · مراجعها "+(ctx.auditFirm||""):FW_LABEL[egypt(d)?"EAS":ctx.framework]),ctx.activity].filter(Boolean).join(" · "))+'</p>'+
-    '<p class="tbr-state">'+esc(state.label)+'</p></div><div class="sk-actions">'+(c?'<button type="button" class="btn sm" data-a="setup">بيانات المراجعة</button><button type="button" class="btn sm" data-a="reset">مراجعة جديدة</button>':'')+'</div></section>'+stepper(c)+
+  return '<section class="tbr-hero"><div class="tx"><span class="eyebrow">مراجعة الحسابات بالمعايير</span><h2>'+esc(ctx.company||"منشأة جديدة")+'</h2><p>'+esc([ctx.period,ctx.frameworkAr||(ctx.corpusId?(ctx.reportingFramework||"IFRS")+" · مراجعها "+(ctx.auditFirm||""):FW_LABEL[egypt(d)?"EAS":ctx.framework]),ctx.activity].filter(Boolean).join(" · "))+'</p>'+
+    '<p class="tbr-state">'+esc(busy==="demo"&&fullStep?fullStep:state.label)+'</p>'+(c&&d.source==="bundle"&&!(s&&s.rounds.length)?'<p class="tbr-demo-cta">شركة من الحزمة العالمية: شغّل «المراجعة التجريبية الكاملة» لترى الطلبات الأولى والمستندات والجولات حتى التقرير النهائي — دون مفتاح ذكاء اصطناعي.</p>':'')+(d.demoRun?'<p class="tbr-demo-cta">مراجعة تجريبية: المستندات مولّدة من أرقام الميزان لعرض القدرات.</p>':'')+'</div><div class="sk-actions">'+(c?'<button type="button" class="btn sm'+(d.source==="bundle"&&!(s&&s.rounds.length)?' primary':'')+'" data-a="demo-audit"'+(busy?' disabled':'')+'>'+(busy==="demo"?'جارٍ…':'▶ المراجعة التجريبية الكاملة')+'</button><button type="button" class="btn sm" data-a="setup">بيانات المراجعة</button><button type="button" class="btn sm" data-a="reset">مراجعة جديدة</button>':'')+'</div></section>'+stepper(c)+
     (c?'<div class="tbr-tabs" role="tablist">'+TABS.map(([k,l])=>'<button type="button" role="tab" data-tab="'+k+'" aria-selected="'+(tab===k)+'">'+esc(l)+badge(c,k)+'</button>').join("")+'</div>':'');
 }
 function badge(c,k){
@@ -302,7 +382,10 @@ function reqStatus(q,s){
 }
 function reqRow(q,c){
   const s=c.session,[l,cls]=reqStatus(q,s),files=s?s.uploads.filter(u=>u.requestId===q.id):[];
-  return '<div class="tbr-req"><div class="tx"><b><span class="mono">'+esc(q.id)+'</span> '+esc(q.title)+'</b><small>'+esc(q.purpose)+(q.accounts&&q.accounts.length?' · الحسابات: '+esc(q.accounts.join("، ")):'')+'</small>'+
+  const un=s&&s.unavailable.includes(q.id);
+  return '<div class="tbr-req'+(un?' tbr-req-un':'')+'"><div class="tx"><b><span class="mono">'+esc(q.id)+'</span> '+esc(q.title)+'</b><small>'+esc(q.purpose)+(q.accounts&&q.accounts.length?' · الحسابات: '+esc(q.accounts.join("، ")):'')+'</small>'+
+    (q.evidenceAr?'<small class="tbr-req-ev"><span class="tbr-rel r'+(q.reliability||1)+'" title="موثوقية الدليل (ISA 500)">'+"●".repeat(q.reliability||1)+"○".repeat(3-(q.reliability||1))+'</span> '+esc(q.evidenceAr)+(q.from?' · يقدمه: '+esc(q.from):'')+(q.why?' · '+esc(q.why):'')+'</small>':'')+
+    (q.alt?'<small class="tbr-req-alt'+(un?' on':'')+'">'+(un?'غير متوفر — الإجراء البديل: ':'البديل إن تعذر: ')+esc(q.alt)+'</small>':'')+
     (files.length?'<small class="tbr-files">'+files.map(f=>'📎 '+esc(f.fileName)+' ('+Math.max(1,Math.round(f.size/1024))+' ك.ب · ج'+f.round+')').join(" · ")+'</small>':'')+(CU()&&s?CU().evidenceTagger(q,s,c.d):'')+'</div>'+
     '<div class="tbr-req-m"><span class="sksev '+(q.priority==="عالية"?"bad":q.priority==="متوسطة"?"warn":"info")+'">'+esc(q.priority)+'</span><span class="sksev '+cls+'">'+esc(l)+'</span>'+
     (l==="مقبول"?'':'<label class="btn sm" style="cursor:pointer">رفع<input type="file" multiple data-up="'+esc(q.id)+'" accept=".pdf,.png,.jpg,.jpeg,.webp,.csv,.txt,.tsv,.json" hidden></label>'+
@@ -311,7 +394,7 @@ function reqRow(q,c){
 function docsTab(c){
   const s=c.session,gem=s?[...new Map(s.rounds.flatMap(r=>r.requests).map(q=>[q.id,q])).values()]:[];
   return '<section class="card"><div class="card-h"><div><h3>طلبات المراجع الذكي</h3><p>'+(gem.length?gem.length+' طلباً عبر الجولات. ارفع المستند ثم أرسل الجولة التالية من تبويب «جولات المراجعة».':'تظهر هنا بعد الجولة الأولى.')+'</p></div></div><div class="card-b tbr-reqs">'+(gem.map(q=>reqRow(q,c)).join("")||'<p class="empty">لا طلبات بعد.</p>')+'</div></section>'+
-    '<section class="card"><div class="card-h"><div><h3>قائمة المستندات المطلوبة من العميل (PBC)</h3><p>أعدها المحرك الآلي حسب البنود والمخاطر — '+c.base.requests.length+' مستنداً. ما ترفعه هنا يُرسل أيضاً إلى المراجع الذكي في الجولة التالية.</p></div><div class="sk-actions"><button type="button" class="btn sm" data-a="pbc-csv">تصدير القائمة</button></div></div><div class="card-b tbr-reqs">'+c.base.requests.map(q=>reqRow(q,c)).join("")+'</div></section>';
+    '<section class="card"><div class="card-h"><div><h3>قائمة المستندات المطلوبة من العميل (PBC)</h3><p>أعدها المحرك الآلي حسب البنود والمخاطر — '+c.base.requests.length+' مستنداً. ما ترفعه هنا يُرسل أيضاً إلى المراجع الذكي في الجولة التالية.</p></div><div class="sk-actions"><button type="button" class="btn primary sm" data-a="pbc-letter">'+SK.icon("reports")+' خطاب طلب المستندات</button><button type="button" class="btn sm" data-a="pbc-csv">تصدير القائمة</button></div></div><div class="card-b tbr-reqs">'+[["planning","التخطيط وفهم المنشأة"],["area","بنود القوائم"],["kam","المناطق الحكمية (الأمور الرئيسية)"],["completion","الإقفال والتقرير"],["",""]].map(([k,l])=>{const qs=c.base.requests.filter(q=>(q.stage||"")===k);return qs.length?(l?'<h4 class="tbr-stage">'+esc(l)+' <small>'+qs.length+'</small></h4>':'')+qs.map(q=>reqRow(q,c)).join(""):""}).join("")+'</div></section>';
 }
 
 /* ---------- tab 4: adjustments and compliance ---------- */
@@ -393,7 +476,7 @@ let docStyled=false;
 function fmtDate(iso,eg){if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||""))return "";try{return new Date(iso+"T12:00:00").toLocaleDateString(eg?"ar-EG-u-nu-latn":"ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"})}catch{return iso}}
 function docX(c){
   const fs=fsAfter?c.fsAfterAdj:c.fsBefore,m=c.base.materiality,ctx=c.d.ctx,eg=c.fw==="EAS",kams=kamsOf(c).map(k=>({title:k.title,description:k.why,how:k.how,observation:k.observation,refs:k.refs,trend:k.trend}));
-  const x={c,fs,cur:CUR,ctx,fw:c.fw,periodEnd:fmtDate(ctx.periodEnd,eg),kams,opinion:c.derived,goingConcernSection:AP()?AP().gcSection(c):undefined};
+  const x={c,fs,cur:CUR,ctx,fw:c.fw,periodEnd:fmtDate(ctx.periodEnd,eg),priorPeriodEnd:ctx.periodEnd?fmtDate(yearBack(ctx.periodEnd),eg):"",kams,opinion:c.derived,goingConcernSection:AP()?AP().gcSection(c):undefined};
   const GV=E().audit.governance;if(!GV)return x;
   x.approach=GV.auditApproach({materiality:m,currency:CUR,kamTitles:kams.map(k=>k.title),taxWord:eg?"الضريبة":"الزكاة"});
   x.notesPkg=E().reports.notes.notesPackage(fs,{country:eg?"EG":"SA"});
@@ -544,6 +627,27 @@ function printReport(c){
   SK.audit&&SK.audit.log("report",{act:"tbreview-print"});
   setTimeout(()=>{try{w.focus();w.print()}catch{}},700);
 }
+/* the formal request letter to the client (PBC): what the auditor asks for, grouped by stage as the auditors of the
+   global reports ask it — first the planning documents, then the balances, then the judgemental areas, then completion —
+   each with its purpose, the standard, who provides it, the date it is due and the alternative if it cannot be had */
+function printPbcLetter(c){
+  const ctx=c.d.ctx,reqs=c.base.requests,end=ctx.periodEnd||"",due=n=>{if(!/^\d{4}-\d{2}-\d{2}/.test(end))return"";const x=new Date(end.slice(0,10)+"T00:00:00Z");x.setUTCDate(x.getUTCDate()+n);return x.toISOString().slice(0,10)};
+  const D={"عالية":due(15),"متوسطة":due(30),"منخفضة":due(45)},ST=[["planning","أولاً: التخطيط وفهم المنشأة"],["area","ثانياً: أرصدة القوائم المالية"],["kam","ثالثاً: المناطق الحكمية (الأمور الرئيسية للمراجعة)"],["completion","رابعاً: الإقفال وإصدار التقرير"]];
+  let pr={};try{pr=JSON.parse(localStorage.getItem("skosif_profile_v1")||"{}")||{}}catch{}
+  const firm=pr.firm||"فريق المراجعة",mat=c.base.materiality;let n=0;
+  const rows=st=>reqs.filter(q=>(q.stage||"area")===st).map(q=>'<tr><td>'+(++n)+'</td><td><b>'+esc(q.title)+'</b>'+(q.purpose?'<br><small>'+esc(q.purpose)+'</small>':'')+'</td><td>'+esc(q.evidenceAr||"")+(q.reliability?'<br><small>'+"●".repeat(q.reliability)+"○".repeat(3-q.reliability)+'</small>':'')+'</td><td>'+esc(q.from||"الإدارة المالية")+'</td><td>'+esc(q.standard||"")+'</td><td>'+esc(q.priority)+'<br><small>'+esc(D[q.priority]||"")+'</small></td><td><small>'+esc(q.alt||"")+'</small></td></tr>').join("");
+  const w=window.open("","_blank");if(!w){toast("اسمح بالنوافذ المنبثقة للطباعة","warn");return}
+  const body='<p style="text-align:left">التاريخ: '+esc(new Date().toISOString().slice(0,10))+'</p><p>السادة/ إدارة <b>'+esc(ctx.company||"المنشأة")+'</b> المحترمين،</p><p>الموضوع: <b>طلب المستندات اللازمة لمراجعة القوائم المالية '+esc(ctx.period||"")+'</b></p>'+
+    '<p>السلام عليكم ورحمة الله وبركاته، وبعد: تنفيذاً لخطاب التكليف، نرجو التكرم بتزويدنا بالمستندات التالية في المواعيد المبينة. رُتّبت الطلبات بحسب مراحل المراجعة كما تطلبها مكاتب المراجعة في التقارير العالمية، وحُدد لكل طلب الغرض منه والمعيار ومن يقدمه والبديل إن تعذر توفيره.'+
+    (mat?' الأهمية النسبية المخططة: '+esc(sar(mat.overall))+' على أساس '+esc(mat.benchmarkAr)+'.':'')+'</p>'+
+    ST.map(([k,l])=>{const r=rows(k);return r?'<h2>'+esc(l)+'</h2><table><tr><th>#</th><th>المستند والغرض</th><th>نوع الدليل وموثوقيته</th><th>يقدمه</th><th>المعيار</th><th>الأولوية والموعد</th><th>البديل إن تعذر</th></tr>'+r+'</table>':""}).join("")+
+    '<h2>ملاحظات</h2><ul><li>تُرسل المصادقات الخارجية (البنوك، العملاء، الموردون، المستشار القانوني) من الجهة مباشرة إلى المراجع (ISA 505).</li><li>المستند الذي يتعذر توفيره يُبلَّغ به كتابياً؛ يُطبق الإجراء البديل، وإن لم يكفِ يُقيَّم أثره على الرأي (ISA 705).</li><li>قد نطلب مستندات إضافية بعد فحص ما يرد، وفق نتائج الجولات.</li></ul>'+
+    '<p>وتفضلوا بقبول فائق الاحترام،</p><p><b>'+esc(firm)+'</b>'+(pr.license?' — ترخيص رقم '+esc(pr.license):'')+(pr.name?'<br>'+esc(pr.name)+(pr.title?' — '+esc(pr.title):''):'')+'</p>';
+  w.document.open();w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>خطاب طلب المستندات — '+esc(ctx.company||"")+'</title></head><body><h1>خطاب طلب المستندات</h1>'+body+'</body></html>');w.document.close();
+  SK.brandPrint(w,"خطاب طلب المستندات");
+  const st=w.document.createElement("style");st.textContent="table{width:100%;border-collapse:collapse;margin:6px 0 14px;font-size:11px}th,td{border:1px solid #dfe6ef;padding:5px 7px;text-align:right;vertical-align:top}th{background:#f3f6fa}small{color:#667}h2{margin-top:16px;font-size:14px}";w.document.head.appendChild(st);
+  SK.audit&&SK.audit.log("report",{act:"pbc-letter",n:reqs.length});
+}
 function printDoc(c,kind){
   const w=window.open("","_blank");if(!w){toast("اسمح بالنوافذ المنبثقة للطباعة","warn");return}
   const fw=FW()&&FW().docs[kind],render=fw?fw[0]:kind==="integrated"&&window.SKosifIntegrated?SKosifIntegrated.render:SKosifReportDocs[kind];
@@ -655,6 +759,44 @@ async function runFull(){
   }catch(e){toast(e.message,"warn")}
   finally{fullStep="";tab="fs";doc="integrated";paint()}
 }
+/* a demonstration engagement without an AI key: three council rounds written by the engine, the client's documents
+   generated from the trial balance, the proposed entries accepted, and the final report — the whole cycle in one run */
+async function runDemo(){
+  if(busy)return;let c=compute();if(!c||!c.tb.ok){toast("حمّل الميزان أولاً","warn");return}
+  let d=st();if(d.session&&d.session.rounds&&d.session.rounds.length&&!await SK.confirm("في الملف جولات سابقة — استبدالها بمراجعة تجريبية كاملة؟",{danger:true,ok:"استبدال"}))return;
+  const DE=E().audit.demoEngagement,MODEL="محاكاة SQC (دون مفتاح)",pause=ms=>new Promise(r=>setTimeout(r,ms));
+  const ctx={company:d.ctx.company||"المنشأة",periodEnd:d.ctx.periodEnd||"",currency:CUR,auditFirm:d.ctx.auditFirm||""};
+  const up=async(s,list)=>{for(const x of list){await docPut(docKey(s.id,x),{text:x.text});s=AI().addUpload(s,{requestId:x.requestId,fileName:x.fileName,mimeType:"text/plain",size:x.text.length})}return s};
+  const save1=async s=>{const dd=st();dd.session=s;put(dd);if(CU())await CU().afterRound({govern:false}).catch(()=>null)};
+  busy="demo";
+  try{
+    await docClear();d=st();d.session=null;d.accepted=[];d.rejected=[];put(d);c=compute();
+    let s=session(st());
+    fullStep="الجولة ١: المجلس يقرأ الميزان ويطلب المستندات";paint();await pause(450);
+    const r1=AI().normalizeRound(DE.round1(c.base,ctx),s,c.tb,MODEL);s=AI().addRound(s,r1);await save1(s);
+    fullStep="الإدارة ترفع "+r1.requests.length+" مستنداً";paint();await pause(450);
+    const docs=DE.documents(c.base,r1.requests,ctx,1);s=await up(s,docs);await save1(s);
+    fullStep="الجولة ٢: المجلس يراجع المستندات";paint();await pause(450);
+    c=compute();const r2=AI().normalizeRound(DE.round2(c.base,r1.requests,docs,ctx),s,c.tb,MODEL);s=AI().addRound(s,r2);await save1(s);
+    const follow=r2.requests.find(q=>q.round===2);let n=docs.length;
+    if(follow){fullStep="الإدارة تستكمل المستند غير الكافي";paint();await pause(450);
+      const weak=r1.requests.find(q=>r2.reviewed.some(v=>v.requestId===q.id&&v.verdict!=="مقبول"));
+      const fu=DE.followUpDocuments(c.base,weak,follow,ctx);s=await up(s,fu);n+=fu.length;await save1(s);
+      fullStep="الجولة ٣: الاكتفاء بالأدلة";paint();await pause(450);
+      c=compute();const r3=AI().normalizeRound(DE.round3(c.base,fu,ctx),s,c.tb,MODEL);s=AI().addRound(s,r3);await save1(s)}
+    fullStep="قيود التسوية";paint();
+    c=compute();d=st();d.accepted=c.pool.filter(a=>!d.rejected.includes(a.id)).map(a=>a.id);put(d);
+    fullStep="التقرير النهائي";paint();await pause(350);
+    c=compute();d=st();
+    const KMx=E().audit.kam,GBx=E().audit.globalBenchmarks,sector=d.ctx.sector||(GBx?GBx.sectorFromActivity(d.ctx.activity||""):"");
+    const kams=KMx?KMx.suggestKams({fs:c.fsAfterAdj,risks:c.base.risks,materiality:c.base.materiality.overall,currency:CUR,periodEnd:d.ctx.periodEnd,sector,exclude:d.ctx.corpusId||d.bundleId||undefined}).map(k=>({title:k.title,why:k.description,how:k.how})):[];
+    const f=AI().normalizeFinal(DE.final(c.base,c.derived,kams,ctx),s,c.tb);
+    d=st();d.session={...s,final:f};d.demoRun={at:new Date().toISOString(),docs:n};put(d);
+    SK.audit&&SK.audit.log("tbreview",{act:"demo-audit",rounds:s.rounds.length,docs:n});
+    toast("اكتملت المراجعة التجريبية: "+s.rounds.length+" جولات و"+n+" مستنداً وقيود التسوية والتقرير النهائي","ok");
+  }catch(e){toast(e.message||String(e),"bad")}
+  finally{busy="";fullStep="";tab="fs";paint()}
+}
 async function runFinal(){
   const c=compute();if(!c||busy||!c.session)return;
   busy="final";abort=new AbortController();paint();
@@ -669,6 +811,10 @@ async function runFinal(){
 function bind(node){
   window.SKosifAI&&SKosifAI.bindCard(node,()=>paint());
   node.addEventListener("click",async e=>{
+    const fo=e.target.closest("[data-file-open]");if(fo){openFile(fo.dataset.fileOpen);return}
+    const fx=e.target.closest("[data-file-close]");if(fx){closeFile(fx.dataset.fileClose);return}
+    if(e.target.closest("[data-file-new]")){newFile(blank());toast("ملف مراجعة جديد — استلم ميزان الشركة","ok");return}
+    if(e.target.closest("[data-bundle-open]")){bundlePicker();return}
     if(CU()&&e.target.closest("[data-cc]")){CU().onClick(e);return}
     if(AP()&&AP().onClick(e))return;
     const sb=e.target.closest("[data-std]");
@@ -689,7 +835,9 @@ function bind(node){
     const b=e.target.closest("[data-a]");if(!b)return;
     const a=b.dataset.a;
     if(a==="books"){await fromBooks();return}
-    if(a==="corpus"){const sel=root.querySelector("[data-corpus]");if(sel&&sel.value)await loadCorpus(sel.value);else toast("اختر شركة من القائمة","warn");return}
+    if(a==="corpus"){const sel=root.querySelector("[data-corpus]");if(sel&&sel.value)await openClient(sel.value);else toast("اختر شركة من القائمة","warn");return}
+    if(a==="demo-audit"){runDemo();return}
+    if(a==="pbc-letter"){const cc=compute();if(cc)printPbcLetter(cc);return}
     if(a==="waha"){const SC=E().reports.sampleCompany;if(!SC)return;
       if(await loadTB(SC.WAHA_TB_CSV,"شركة الواحة الذهبية",{...SC.WAHA_CONTEXT})){const d=st();d.ctx={...d.ctx,...SC.WAHA_CONTEXT};d.fw={};put(d);paint()}return}
     if(a==="sample"){const ta=root.querySelector("[data-tbtext]");if(ta)ta.value=TI().SAMPLE_TB_CSV;const co=root.querySelector('[data-ctx="company"]');if(co&&!co.value)co.value="شركة تجريبية للتجارة";const pe=root.querySelector('[data-ctx="period"]');if(pe&&!pe.value)pe.value="السنة المنتهية في 31 ديسمبر 2025";return}
@@ -745,12 +893,12 @@ function paint(){
   if(!window.SKEngines||!SKEngines.audit||!SKEngines.audit.tbReview){root.innerHTML='<p class="empty">محركات المراجعة غير محملة.</p>';return}
   let c=null;try{c=compute()}catch(e){SK.errors&&SK.errors.report(e,"tbreview");root.innerHTML=hero(null)+'<p class="empty">تعذر تحليل الميزان: '+esc(e.message)+'</p>'+setupHTML(st(),true);return}
   const y=window.scrollY;
-  if(!c){root.innerHTML=hero(null)+setupHTML(st(),true)+(window.SKosifAI&&!SKosifAI.ready()?SKosifAI.cardHTML():'');return}
+  if(!c){root.innerHTML=filesBar()+hero(null)+setupHTML(st(),true)+(window.SKosifAI&&!SKosifAI.ready()?SKosifAI.cardHTML():'');return}
   if(!ADV[tab]&&!TABS.some(x=>x[0]===tab))tab="tb";
   const conf=tab==="conf"&&CU();
   const body=conf?'<div class="tbc" data-tbc-body aria-busy="true">'+(confHTML.sig===c.sig&&confHTML.h||'<p class="empty">يحسب درجات الثقة والفحوص…</p>')+'</div>':tab==="plan"&&FW()?(AP()?AP().planCard(c)+AP().estCard(c):'')+FW().planTab(c):tab==="close"&&FW()?FW().closeTab(c)+(AP()?AP().gcCard(c):''):tab==="ai"?aiTab(c):tab==="docs"?docsTab(c):tab==="adj"?adjTab(c):tab==="fs"?fsTab(c):tbTab(c);
   const adv=window.SKosifAuditBridge&&ADV[tab]?advHTML(tab):"";
-  root.innerHTML='<div class="tbr">'+hero(c)+(setup?setupHTML(c.d,false):'')+body+adv+'</div>';
+  root.innerHTML='<div class="tbr">'+filesBar()+hero(c)+(setup?setupHTML(c.d,false):'')+body+adv+'</div>';
   /* the flow map scrolls sideways: bring the current step into view without moving the page */
   {const tr=root.querySelector(".tbr-flowtrack"),cu=tr&&tr.querySelector(".cur,.tbr-flow-node:not(.done)");if(tr&&cu){const a=tr.getBoundingClientRect(),b=cu.getBoundingClientRect();tr.scrollLeft+=(b.left+b.width/2)-(a.left+a.width/2)}}
   window.scrollTo(0,y);

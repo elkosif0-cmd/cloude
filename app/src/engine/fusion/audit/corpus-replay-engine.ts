@@ -55,13 +55,15 @@ function corpusSector(id: string): Sector | undefined {
 }
 
 /** Replay the audit of one company of the bundle. */
-export function replayCompany(id: string, opts: { prior?: boolean; max?: number } = {}): Replay | null {
+export function replayCompany(id: string, opts: { prior?: boolean | 'smoothed'; max?: number } = {}): Replay | null {
   const t = companyTrialBalance(id);
   if (!t) return null;
   const c = t.company, tb = parseTrialBalance(t.csv);
   const review = reviewTrialBalance(tb, { framework: 'IFRS', currency: t.ctx.curSym, overrides: t.overrides, tax: t.ctx.taxKind as 'zakat' | 'income', unclassified: t.ctx.unclassified });
-  const prior = opts.prior === false ? undefined : sectorPrior(c.sector, c.id);
-  const kams = suggestKams({ fs: review.fs, risks: review.risks, materiality: review.materiality.overall, currency: t.ctx.curSym, periodEnd: c.yearEnd, sector: c.sector, max: opts.max ?? 3, sectorPrior: prior });
+  /* no prior at all, the sector's own share (sector-only), or the smoothed prior (sector → standard → all reports); always leave-one-out */
+  const prior = opts.prior === false ? {} : opts.prior === 'smoothed' ? undefined : sectorPrior(c.sector, c.id);
+  const kams = suggestKams({ fs: review.fs, risks: review.risks, materiality: review.materiality.overall, currency: t.ctx.curSym, periodEnd: c.yearEnd, sector: c.sector, max: opts.max ?? 3, sectorPrior: prior,
+    exclude: c.id, standard: REPORT_STD.get(c.id) });
   const rows = KAMS.filter((k) => k.report === id);
   const themes = [...new Set(rows.map((k) => k.theme))];
   const selected = new Set(kams.filter((k) => k.selected).map((k) => k.key)), ranked = new Set(kams.map((k) => k.key));
@@ -89,7 +91,7 @@ function structureOf(id: string) {
 }
 
 /** The replay over every company, with the totals and the themes the engine missed most. */
-export function replayAll(opts: { prior?: boolean; max?: number } = {}) {
+export function replayAll(opts: { prior?: boolean | 'smoothed'; max?: number } = {}) {
   const list = corpusCompanies().map((c) => replayCompany(c.id, opts)!).filter(Boolean);
   const withKams = list.filter((r) => r.actual.length);
   const actualN = withKams.reduce((s, r) => s + r.actual.length, 0);

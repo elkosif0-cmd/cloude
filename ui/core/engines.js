@@ -18,10 +18,12 @@ window.SKEngines = (function() {
 		PROVIDERS: () => PROVIDERS,
 		buildRequest: () => buildRequest,
 		errorMessage: () => errorMessage,
+		fallbackModels: () => fallbackModels,
 		friendlyError: () => friendlyError$1,
 		isProvider: () => isProvider,
 		modelsFrom: () => modelsFrom,
 		modelsRequest: () => modelsRequest,
+		retryWithOtherModel: () => retryWithOtherModel,
 		toGeminiResponse: () => toGeminiResponse,
 		toJsonSchema: () => toJsonSchema
 	});
@@ -30,13 +32,15 @@ window.SKEngines = (function() {
 			id: "gemini",
 			ar: "Google Gemini",
 			base: "https://generativelanguage.googleapis.com/v1beta/",
-			keyHint: "AIza…",
-			keyPattern: /^[\w-]{20,}$/,
+			keyHint: "AIza… أو AQ.…",
+			keyPattern: /^[\w.-]{20,}$/,
 			keyLink: "https://aistudio.google.com/app/apikey",
 			models: [
-				"gemini-2.5-flash",
-				"gemini-2.5-pro",
-				"gemini-2.5-flash-lite"
+				"gemini-flash-latest",
+				"gemini-3.7-flash",
+				"gemini-3.5-flash",
+				"gemini-flash-lite-latest",
+				"gemini-pro-latest"
 			],
 			host: "generativelanguage.googleapis.com"
 		},
@@ -62,7 +66,7 @@ window.SKEngines = (function() {
 			keyPattern: /^sk-ant-[\w-]{20,}$/,
 			keyLink: "https://platform.claude.com/settings/keys",
 			models: [
-				"claude-opus-5",
+				"claude-opus-5-5",
 				"claude-sonnet-5",
 				"claude-haiku-4-5"
 			],
@@ -354,6 +358,20 @@ window.SKEngines = (function() {
 		if (status === 529 || status >= 500) return `خطأ مؤقت من خدمات ${P.ar} (${status}) — أعد المحاولة.`;
 		if (status === 0) return `تعذر الاتصال — تحقق من الشبكة أو من مانع يحجب ${P.host}.`;
 		return "خطأ " + status + (message ? ": " + message : "");
+	}
+	/** Whether another model may succeed where this one failed: retired or unknown (404), overloaded (5xx/529), or out of quota
+	for this model (429 — a lighter model often has its own quota). A bad key (400/401/403) fails on every model. */
+	function retryWithOtherModel(status) {
+		return status === 404 || status === 429 || status === 529 || status >= 500;
+	}
+	/** The models to try after `current` failed, best first: the provider's defaults, then the models the key listed, lighter last. */
+	function fallbackModels(provider, current, known = []) {
+		const seen = /* @__PURE__ */ new Set([current]), out = [];
+		for (const m of [...PROVIDERS[provider].models, ...known]) if (m && !seen.has(m)) {
+			seen.add(m);
+			out.push(m);
+		}
+		return out.slice(0, 4);
 	}
 	/** Model ids from each provider's list endpoint (GET …/models), filtered to text-generation models. */
 	function modelsFrom(provider, api) {
@@ -2804,6 +2822,23 @@ window.SKEngines = (function() {
 			cf: "wc"
 		},
 		{
+			key: "discontinued",
+			ar: "الربح (الخسارة) من العمليات غير المستمرة",
+			en: "Profit (loss) from discontinued operations",
+			statement: "pl",
+			section: "disc",
+			types: ["revenue", "expense"],
+			kws: [
+				"عمليات غير مستمره",
+				"العمليات غير المستمره",
+				"discontinued"
+			],
+			prefixes: ["495"],
+			standards: ["IFRS 5"],
+			assertions: ["العرض", "التصنيف"],
+			cf: "none"
+		},
+		{
 			key: "revenue",
 			ar: "الإيرادات",
 			en: "Revenue",
@@ -3079,7 +3114,7 @@ window.SKEngines = (function() {
 			basis: "none"
 		};
 	}
-	var present = (l, signed) => l.types.includes("asset") || l.types.includes("expense") ? signed : -signed;
+	var present = (l, signed) => l.section === "disc" ? -signed : l.types.includes("asset") || l.types.includes("expense") ? signed : -signed;
 	var TAX_WORDS = {
 		zakat: {
 			before: "الربح قبل التمويل والزكاة",
@@ -3139,7 +3174,7 @@ window.SKEngines = (function() {
 			const g = (k) => prior ? vp(k) : v(k), sx = (s) => sec(s, prior);
 			const revenue = g("revenue"), cogs = g("cogs"), gross = revenue - cogs;
 			const opex = sx("opex"), otherInc = sx("opinc"), operating = gross - opex + otherInc;
-			const invest = sx("inv"), pbfz = operating + invest, finance = sx("fin"), pbz = pbfz - finance, zakat = sx("zakat");
+			const invest = sx("inv"), pbfz = operating + invest, finance = sx("fin"), pbz = pbfz - finance, zakat = sx("zakat"), continuing = pbz - zakat, disc = sx("disc");
 			return {
 				revenue,
 				cogs,
@@ -3152,7 +3187,9 @@ window.SKEngines = (function() {
 				finance,
 				pbz,
 				zakat,
-				profit: pbz - zakat
+				continuing,
+				disc,
+				profit: continuing + disc
 			};
 		};
 		const pc = P(false), pp = hasPrior ? P(true) : null;
@@ -3183,6 +3220,7 @@ window.SKEngines = (function() {
 			lr("financeCost", -1),
 			row("pbz", TW.pbz, "Profit before zakat", pc.pbz, pp?.pbz ?? null, "subtotal"),
 			lr("zakatExpense", -1),
+			...pc.disc || pp?.disc ? [row("continuing", "الربح من العمليات المستمرة", "Profit from continuing operations", pc.continuing, pp?.continuing ?? null, "subtotal"), lr("discontinued")] : [],
 			row("profit", "صافي ربح السنة", "Profit for the year", pc.profit, pp?.profit ?? null, "total")
 		].filter((r) => r.level !== "line" || r.current !== 0 || (r.prior ?? 0) !== 0);
 		const nca = sec("nca"), ca = sec("ca"), ncl = sec("ncl"), cl = sec("cl"), eqTb = sec("eq");
@@ -3420,7 +3458,8 @@ window.SKEngines = (function() {
 			"opinc",
 			"inv",
 			"fin",
-			"zakat"
+			"zakat",
+			"disc"
 		]) for (const l of LINES.filter((x) => x.section === s)) {
 			const L = acc.get(l.key);
 			if (!L || L.current === 0 && (L.prior ?? 0) === 0) continue;
@@ -3453,6 +3492,8 @@ window.SKEngines = (function() {
 			"finance",
 			"pbz",
 			"zakat",
+			"continuing",
+			"disc",
 			"profit"
 		].forEach((k) => put(k, pc[k], pp ? pp[k] : null));
 		put("nca", nca, ncaP);
@@ -4014,6 +4055,1364 @@ window.SKEngines = (function() {
 		return out;
 	}
 	//#endregion
+	//#region app/src/engine/fusion/audit/global-benchmarks-engine.ts
+	var global_benchmarks_engine_exports = /* @__PURE__ */ __exportAll({
+		BUNDLE: () => BUNDLE,
+		KAMS: () => KAMS,
+		MATERIALITY: () => MATERIALITY,
+		REPORTS: () => REPORTS,
+		SECTOR_AR: () => SECTOR_AR,
+		SOURCES: () => SOURCES,
+		THEMES: () => THEMES,
+		checkMateriality: () => checkMateriality,
+		kamLibrary: () => kamLibrary,
+		materialityPractice: () => materialityPractice,
+		precedentsFor: () => precedentsFor,
+		reportOf: () => reportOf,
+		sectorFromActivity: () => sectorFromActivity,
+		summary: () => summary$1,
+		themePrior: () => themePrior,
+		themeStats: () => themeStats,
+		typicalKamCount: () => typicalKamCount$1
+	});
+	var BUNDLE = {
+		file: "global_financial_and_audit_research_bundle_extended_verified.pdf",
+		pages: 12506
+	};
+	var SOURCES = [
+		{
+			name: "SEC EDGAR",
+			covers: "US public-company 10-K/10-Q filings",
+			url: "https://www.sec.gov/edgar/searchedgar/companysearch.html",
+			kind: "filings"
+		},
+		{
+			name: "SEC Financial Statement Data Sets",
+			covers: "Machine-readable quarterly financial statement data",
+			url: "https://www.sec.gov/dera/data/financial-statement-data-sets.html",
+			kind: "filings"
+		},
+		{
+			name: "Companies House",
+			covers: "UK company accounts and annual reports",
+			url: "https://find-and-update.company-information.service.gov.uk/",
+			kind: "filings"
+		},
+		{
+			name: "FCA National Storage Mechanism",
+			covers: "UK regulated issuers annual financial reports",
+			url: "https://data.fca.org.uk/#/nsm/nationalstoragemechanism",
+			kind: "filings"
+		},
+		{
+			name: "ESMA ESEF filings",
+			covers: "European electronic annual financial reports",
+			url: "https://registers.esma.europa.eu/publication/",
+			kind: "filings"
+		},
+		{
+			name: "SEDAR+",
+			covers: "Canadian public issuer filings",
+			url: "https://www.sedarplus.ca/",
+			kind: "filings"
+		},
+		{
+			name: "ASIC",
+			covers: "Australian company and financial reporting resources",
+			url: "https://asic.gov.au/for-business/financial-reporting/",
+			kind: "filings"
+		},
+		{
+			name: "SEC Philippines PSE Edge",
+			covers: "Philippine listed-company disclosures",
+			url: "https://edge.pse.com.ph/",
+			kind: "filings"
+		},
+		{
+			name: "HKEXnews",
+			covers: "Hong Kong listed-company financial reports",
+			url: "https://www.hkexnews.hk/",
+			kind: "filings"
+		},
+		{
+			name: "SGX",
+			covers: "Singapore listed-company annual reports",
+			url: "https://www.sgx.com/securities/company-announcements",
+			kind: "filings"
+		},
+		{
+			name: "JSE SENS",
+			covers: "South African issuer announcements and reports",
+			url: "https://senspdf.jse.co.za/",
+			kind: "filings"
+		},
+		{
+			name: "Saudi Tadawul",
+			covers: "Saudi listed-company financial statements",
+			url: "https://www.saudiexchange.sa/",
+			kind: "filings"
+		},
+		{
+			name: "ADX",
+			covers: "UAE Abu Dhabi issuer disclosures",
+			url: "https://www.adx.ae/",
+			kind: "filings"
+		},
+		{
+			name: "DFM",
+			covers: "Dubai listed-company disclosures",
+			url: "https://www.dfm.ae/",
+			kind: "filings"
+		},
+		{
+			name: "Euronext",
+			covers: "European issuer regulatory disclosures",
+			url: "https://live.euronext.com/en/products/equities/company-news",
+			kind: "filings"
+		},
+		{
+			name: "Japan EDINET",
+			covers: "Japanese statutory securities reports",
+			url: "https://disclosure2.edinet-fsa.go.jp/",
+			kind: "filings"
+		},
+		{
+			name: "Korea DART",
+			covers: "Korean corporate filings",
+			url: "https://englishdart.fss.or.kr/",
+			kind: "filings"
+		},
+		{
+			name: "India MCA",
+			covers: "Indian company filings and annual returns",
+			url: "https://www.mca.gov.in/",
+			kind: "filings"
+		},
+		{
+			name: "India SEBI",
+			covers: "Indian listed-company disclosures",
+			url: "https://www.sebi.gov.in/",
+			kind: "filings"
+		},
+		{
+			name: "Brazil CVM",
+			covers: "Brazilian issuer reference forms and financials",
+			url: "https://www.gov.br/cvm/pt-br",
+			kind: "filings"
+		},
+		{
+			name: "Deloitte Transparency Reports",
+			covers: "Audit-firm governance, quality and inspection disclosures",
+			url: "https://www.deloitte.com/global/en/about/story/impact/transparency-report.html",
+			kind: "audit-quality"
+		},
+		{
+			name: "PwC Transparency Reports",
+			covers: "Audit quality and governance reports",
+			url: "https://www.pwc.com/gx/en/about/corporate-governance/transparency-report.html",
+			kind: "audit-quality"
+		},
+		{
+			name: "EY Transparency Reports",
+			covers: "Audit quality transparency reports",
+			url: "https://www.ey.com/en_gl/about-us/transparency-report",
+			kind: "audit-quality"
+		},
+		{
+			name: "KPMG Transparency Reports",
+			covers: "Audit quality and independence reports",
+			url: "https://kpmg.com/xx/en/home/about/governance/transparency-report.html",
+			kind: "audit-quality"
+		},
+		{
+			name: "IAASB",
+			covers: "International auditing standards and implementation reports",
+			url: "https://www.iaasb.org/publications",
+			kind: "standards"
+		},
+		{
+			name: "IESBA",
+			covers: "Ethics and independence standards",
+			url: "https://www.ethicsboard.org/publications",
+			kind: "standards"
+		},
+		{
+			name: "PCAOB",
+			covers: "US audit inspection and standards reports",
+			url: "https://pcaobus.org/oversight/inspections",
+			kind: "audit-quality"
+		},
+		{
+			name: "FRC UK",
+			covers: "Audit quality review and corporate reporting reviews",
+			url: "https://www.frc.org.uk/library/annual-reports-and-reviews/",
+			kind: "audit-quality"
+		},
+		{
+			name: "IFIAR",
+			covers: "Global audit regulator inspection findings",
+			url: "https://www.ifiar.org/activities/inspection-findings/",
+			kind: "audit-quality"
+		},
+		{
+			name: "PCAOB firm inspection reports",
+			covers: "Audit firm inspection reports",
+			url: "https://pcaobus.org/oversight/inspections/firm-inspection-reports",
+			kind: "audit-quality"
+		}
+	];
+	var R$1 = (id, company, country, sector, framework, standard, auditor, since, fy, kind, a, b) => ({
+		id,
+		company,
+		country,
+		sector,
+		framework,
+		standard,
+		auditor,
+		...since ? { since } : {},
+		fy,
+		kind,
+		pages: [a, b]
+	});
+	var REPORTS = [
+		R$1("amazon-2023", "Amazon.com, Inc.", "US", "retail", "US GAAP", "PCAOB", "Ernst & Young LLP", 1996, "FY2023", "Annual report + 10-K", 2, 93),
+		R$1("apple-2024", "Apple Inc.", "US", "tech", "US GAAP", "PCAOB", "Ernst & Young LLP", 2009, "FY2024", "10-K", 94, 214),
+		R$1("cisco-2024", "Cisco Systems, Inc.", "US", "tech", "US GAAP", "PCAOB", "PricewaterhouseCoopers LLP", 1988, "FY2024", "Annual report + 10-K", 215, 348),
+		R$1("walmart-2023", "Walmart Inc.", "US", "retail", "US GAAP", "PCAOB", "Ernst & Young LLP", 1969, "FY2023", "10-K", 349, 446),
+		R$1("adobe-2024", "Adobe Inc.", "US", "tech", "US GAAP", "PCAOB", "KPMG LLP", 1983, "FY2024", "10-K", 447, 547),
+		R$1("jpmorgan-2023", "JPMorgan Chase & Co.", "US", "banking", "US GAAP", "PCAOB", "PricewaterhouseCoopers LLP", 1965, "FY2023", "Annual report", 548, 911),
+		R$1("apple-2020", "Apple Inc.", "US", "tech", "US GAAP", "PCAOB", "Ernst & Young LLP", 2009, "FY2020", "10-K", 912, 1016),
+		R$1("amazon-2024", "Amazon.com, Inc.", "US", "retail", "US GAAP", "PCAOB", "Ernst & Young LLP", 1996, "FY2024", "Annual report + 10-K", 1017, 1107),
+		R$1("apple-2023", "Apple Inc.", "US", "tech", "US GAAP", "PCAOB", "Ernst & Young LLP", 2009, "FY2023", "10-K", 1108, 1187),
+		R$1("berkshire-2025", "Berkshire Hathaway Inc.", "US", "insurance", "US GAAP", "PCAOB", "Deloitte & Touche LLP", 1985, "FY2025", "Annual report + 10-K", 1188, 1341),
+		R$1("jpmorgan-2025", "JPMorgan Chase & Co.", "US", "banking", "US GAAP", "PCAOB", "PricewaterhouseCoopers LLP", 1965, "FY2025", "Annual report", 1342, 1706),
+		R$1("bofa-2025", "Bank of America", "US", "banking", "US GAAP", "PCAOB", "PricewaterhouseCoopers LLP", 1958, "FY2025", "Annual report", 1707, 1818),
+		R$1("pepsico-2025", "PepsiCo, Inc.", "US", "fmcg", "US GAAP", "PCAOB", "KPMG LLP", 1990, "FY2025", "Annual report + 10-K", 1819, 1962),
+		R$1("pg-2026", "The Procter & Gamble Company", "US", "fmcg", "US GAAP", "PCAOB", "Deloitte & Touche LLP", 1890, "FY2026", "10-K", 1963, 2043),
+		R$1("homedepot-2025", "The Home Depot, Inc.", "US", "retail", "US GAAP", "PCAOB", "KPMG LLP", 1979, "FY2025", "10-K", 2044, 2131),
+		R$1("mcdonalds-2025", "McDonald's Corporation", "US", "retail", "US GAAP", "PCAOB", "", void 0, "FY2025", "Annual report (letter and highlights)", 2132, 2204),
+		R$1("nestle-2025", "Nestlé Group", "CH", "fmcg", "IFRS", "ISA", "Ernst & Young Ltd", void 0, "FY2025", "Financial statements", 2205, 2342),
+		R$1("roche-2025", "Roche Group", "CH", "pharma", "IFRS", "ISA", "KPMG AG", void 0, "FY2025", "Finance report", 2343, 2539),
+		R$1("novartis-2025", "Novartis AG", "CH", "pharma", "IFRS", "ISA", "KPMG AG", void 0, "FY2025", "Annual report", 2540, 2817),
+		R$1("ubs-2025", "UBS Group AG", "CH", "banking", "IFRS", "PCAOB", "Ernst & Young Ltd", void 0, "FY2025", "Annual report", 2818, 3184),
+		R$1("allianz-2025", "Allianz SE", "DE", "insurance", "IFRS", "ISA", "PricewaterhouseCoopers GmbH", void 0, "FY2025", "Annual report (extract)", 3185, 3240),
+		R$1("mercedes-2025", "Mercedes-Benz Group AG", "DE", "auto", "IFRS", "ISA", "PricewaterhouseCoopers GmbH", void 0, "FY2025", "Annual report", 3241, 3649),
+		R$1("volkswagen-2025", "Volkswagen Group", "DE", "auto", "IFRS", "ISA", "EY GmbH", void 0, "FY2025", "Annual report", 3650, 4323),
+		R$1("telekom-2025", "Deutsche Telekom AG", "DE", "telecom", "IFRS", "ISA", "Deloitte GmbH", void 0, "FY2025", "Annual report", 4324, 4704),
+		R$1("bp-2025", "BP p.l.c.", "UK", "energy", "IFRS", "ISA", "Deloitte LLP", void 0, "FY2025", "Annual report and Form 20-F", 4705, 5101),
+		R$1("unilever-2025", "Unilever PLC", "UK", "fmcg", "IFRS", "ISA", "KPMG LLP", 2014, "FY2025", "Annual report", 5102, 5385),
+		R$1("astrazeneca-2025", "AstraZeneca PLC", "UK", "pharma", "IFRS", "ISA", "PricewaterhouseCoopers LLP", void 0, "FY2025", "Annual report and Form 20-F", 5386, 5698),
+		R$1("gsk-2025", "GSK plc", "UK", "pharma", "IFRS", "ISA", "Deloitte LLP", void 0, "FY2025", "Annual report", 5699, 5949),
+		R$1("hsbc-2025", "HSBC Holdings plc", "UK", "banking", "IFRS", "ISA", "PricewaterhouseCoopers LLP", void 0, "FY2025", "Annual report", 5950, 6321),
+		R$1("totalenergies-2024", "TotalEnergies SE", "FR", "energy", "IFRS", "PCAOB", "PricewaterhouseCoopers Audit · Ernst & Young Audit", void 0, "FY2024", "Form 20-F", 6322, 6986),
+		R$1("airbus-2023", "Airbus SE", "NL", "industrial", "IFRS", "ISA", "Ernst & Young Accountants LLP", void 0, "FY2023", "Annual report + URD", 6987, 7428),
+		R$1("loreal-2024", "L'Oréal", "FR", "fmcg", "IFRS", "ISA", "", void 0, "FY2024", "Annual report (overview)", 7429, 7448),
+		R$1("sanofi-2025", "Sanofi", "FR", "pharma", "IFRS", "PCAOB", "PricewaterhouseCoopers Audit · Forvis Mazars", void 0, "FY2025", "Form 20-F", 7449, 7746),
+		R$1("toyota-2026", "Toyota Motor Corporation", "JP", "auto", "IFRS", "PCAOB", "PricewaterhouseCoopers Japan LLC", 2006, "FY2026 (Mar)", "Form 20-F", 7747, 8010),
+		R$1("honda-2023", "Honda Motor Co., Ltd.", "JP", "auto", "IFRS", "PCAOB", "KPMG AZSA LLC", void 0, "FY2023 (Mar)", "Form 20-F", 8011, 8257),
+		R$1("softbank-2026", "SoftBank Group Corp.", "JP", "tech", "IFRS", "ISA", "", void 0, "FY2026 (Mar)", "Annual report", 8258, 8443),
+		R$1("mufg-2026", "Mitsubishi UFJ Financial Group", "JP", "banking", "US GAAP", "PCAOB", "Deloitte Touche Tohmatsu LLC", 1976, "FY2026 (Mar)", "Form 20-F", 8444, 8795),
+		R$1("smfg-2026", "Sumitomo Mitsui Financial Group", "JP", "banking", "J-GAAP", "ISA", "KPMG AZSA LLC", void 0, "FY2026 (Mar)", "Consolidated financial statements", 8796, 8915),
+		R$1("samsung-2025", "Samsung Electronics", "KR", "tech", "K-IFRS", "ISA", "", void 0, "FY2025", "Consolidated financial statements", 8916, 9017),
+		R$1("honhai-2025", "Hon Hai Precision (Foxconn)", "TW", "tech", "TIFRS", "ISA", "PricewaterhouseCoopers Taiwan", void 0, "FY2025", "Annual report", 9018, 9185),
+		R$1("tencent-2025", "Tencent Holdings", "CN", "tech", "IFRS", "ISA", "PricewaterhouseCoopers", void 0, "FY2025", "Annual report", 9186, 9468),
+		R$1("reliance-2026", "Reliance Industries", "IN", "energy", "Ind AS", "ISA", "Deloitte Haskins & Sells LLP · Chaturvedi & Shah LLP", void 0, "FY2025-26", "Integrated annual report", 9469, 9615),
+		R$1("infosys-2026", "Infosys Limited", "IN", "tech", "Ind AS", "ISA", "Deloitte Haskins & Sells LLP", void 0, "FY2025-26", "Integrated annual report", 9616, 9998),
+		R$1("aramco-2025", "Saudi Arabian Oil Company (Aramco)", "SA", "energy", "IFRS endorsed in KSA + SOCPA", "ISA", "PricewaterhouseCoopers Public Accountants", void 0, "FY2025", "Annual report", 9999, 10244),
+		R$1("emiratesnbd-2025", "Emirates NBD Bank", "AE", "banking", "IFRS", "ISA", "Ernst & Young Middle East", void 0, "FY2025", "Annual report", 10245, 10375),
+		R$1("eand-2025", "e& (Emirates Telecommunications Group)", "AE", "telecom", "IFRS", "ISA", "Ernst & Young", void 0, "FY2025", "Integrated annual report", 10376, 10604),
+		R$1("rbc-2025", "Royal Bank of Canada", "CA", "banking", "IFRS", "ISA", "PricewaterhouseCoopers LLP", 2016, "FY2025", "Annual report", 10605, 10850),
+		R$1("bhp-2025", "BHP Group Limited", "AU", "mining", "IFRS", "PCAOB", "Ernst & Young", void 0, "FY2025", "Form 20-F + S-K 1300 technical reports", 10851, 12300),
+		R$1("cba-2025", "Commonwealth Bank of Australia", "AU", "banking", "AASB (IFRS)", "ISA", "PricewaterhouseCoopers", void 0, "FY2025", "Annual report", 12301, 12506)
+	];
+	var K$2 = (report, theme, page, title) => ({
+		report,
+		title,
+		theme,
+		page
+	});
+	var KAMS = [
+		K$2("amazon-2023", "tax-uncertainty", 49, "Uncertain Tax Positions"),
+		K$2("amazon-2024", "tax-uncertainty", 1063, "Uncertain Tax Positions"),
+		K$2("apple-2020", "tax-uncertainty", 973, "Uncertain Tax Positions"),
+		K$2("apple-2023", "tax-uncertainty", 1159, "Uncertain Tax Positions"),
+		K$2("apple-2024", "tax-uncertainty", 144, "Uncertain Tax Positions"),
+		K$2("cisco-2024", "revenue-recognition", 289, "Revenue Recognition for Certain Product and Services Revenue"),
+		K$2("cisco-2024", "complex-transactions", 289, "Acquisition of Splunk — Valuation of Customer Contracts and Related Relationships Asset and the Technology Asset Acquired"),
+		K$2("walmart-2023", "provisions-litigation", 399, "Contingencies (opioid-related legal proceedings)"),
+		K$2("adobe-2024", "revenue-recognition", 538, "Performance obligations in cloud-enabled software subscriptions"),
+		K$2("jpmorgan-2023", "credit-losses", 749, "Allowance for Loan Losses – Portfolio-based component of Wholesale Loan and Credit Card Loan Portfolios"),
+		K$2("jpmorgan-2023", "fair-value", 749, "Fair Value of Certain Level 3 Financial Instruments"),
+		K$2("jpmorgan-2025", "credit-losses", 1536, "Allowance for Loan Losses – Portfolio-Based Component of the Wholesale and Credit Card Retained Loan Portfolios"),
+		K$2("jpmorgan-2025", "fair-value", 1536, "Fair Value of Certain Level 3 Financial Instruments"),
+		K$2("bofa-2025", "credit-losses", 1771, "Allowance for Loan and Lease Losses - Commercial and Consumer Card Loans"),
+		K$2("berkshire-2025", "actuarial", 1278, "Unpaid Losses and Loss Adjustment Expenses — short-duration property and casualty claim liabilities"),
+		K$2("berkshire-2025", "actuarial", 1278, "Unpaid Losses and Loss Adjustment Expenses — Retroactive Reinsurance Contracts"),
+		K$2("pepsico-2025", "tax-uncertainty", 1936, "Unrecognized tax benefits"),
+		K$2("pg-2026", "impairment-intangibles", 2001, "Intangible Assets — Gillette Indefinite-Lived Intangible Asset"),
+		K$2("homedepot-2025", "inventory", 2084, "Sufficiency of audit evidence over certain merchandise inventories (retail inventory method)"),
+		K$2("nestle-2025", "revenue-deductions", 2312, "Measurement of revenue as it relates to trade spend"),
+		K$2("nestle-2025", "impairment-intangibles", 2312, "Carrying value of goodwill and indefinite useful life intangible assets"),
+		K$2("roche-2025", "revenue-deductions", 2508, "Government and regulatory mandatory price reductions in the US pharmaceuticals business"),
+		K$2("roche-2025", "impairment-intangibles", 2509, "Carrying value of product intangibles not available for use in the Pharmaceuticals Division"),
+		K$2("novartis-2025", "revenue-deductions", 2790, "Provisions for deductions from revenue related to US Managed Care, Medicare Part D and Medicaid rebate programs"),
+		K$2("ubs-2025", "fair-value", 3047, "Valuation of complex or illiquid instruments at fair value"),
+		K$2("ubs-2025", "credit-losses", 3048, "Expected credit losses"),
+		K$2("ubs-2025", "tax-uncertainty", 3049, "Recognition of deferred tax assets"),
+		K$2("volkswagen-2025", "impairment-intangibles", 4295, "Recoverability of goodwill and acquired brand names"),
+		K$2("volkswagen-2025", "impairment-intangibles", 4295, "Capitalization and recoverability of development costs"),
+		K$2("volkswagen-2025", "provisions-litigation", 4299, "Accounting treatment of the risk provisions for the diesel issue"),
+		K$2("volkswagen-2025", "provisions-litigation", 4300, "Completeness and measurement of provisions for warranty obligations"),
+		K$2("volkswagen-2025", "impairment-assets", 4301, "Determination of the expected residual values of lease assets during impairment testing"),
+		K$2("telekom-2025", "revenue-recognition", 4686, "Revenue recognition"),
+		K$2("bp-2025", "climate", 4837, "Potential impact of climate change and the energy transition"),
+		K$2("bp-2025", "impairment-assets", 4837, "Impairment of upstream oil and gas property, plant and equipment (PP&E) assets"),
+		K$2("bp-2025", "provisions-litigation", 4837, "Decommissioning provisions"),
+		K$2("bp-2025", "fair-value", 4847, "Valuation of commodity financial derivatives, where fraud risks may arise in revenue recognition"),
+		K$2("bp-2025", "fraud-override", 4837, "Management override of controls"),
+		K$2("unilever-2025", "revenue-deductions", 5219, "Revenue recognition – Rebates"),
+		K$2("unilever-2025", "tax-uncertainty", 5220, "Indirect tax contingent liabilities in Brazil"),
+		K$2("unilever-2025", "complex-transactions", 5221, "Ice Cream demerger"),
+		K$2("unilever-2025", "parent-investments", 5222, "Investments in subsidiaries (Parent Company)"),
+		K$2("astrazeneca-2025", "revenue-deductions", 5504, "Recognition and measurement of accruals for Managed Care, Medicaid and Medicare Part D rebates on US Product Sales"),
+		K$2("astrazeneca-2025", "impairment-intangibles", 5505, "Impairment assessment of the product, marketing and distribution rights and other intangibles"),
+		K$2("astrazeneca-2025", "provisions-litigation", 5506, "Recognition and measurement of legal provisions and disclosure of contingent liabilities"),
+		K$2("astrazeneca-2025", "actuarial", 5507, "Valuation of defined benefit obligations in the United Kingdom"),
+		K$2("astrazeneca-2025", "parent-investments", 5503, "Distributable reserves (Company)"),
+		K$2("gsk-2025", "revenue-deductions", 5796, "Valuation of US Returns and Rebates (RAR) accruals"),
+		K$2("gsk-2025", "fair-value", 5797, "Valuation of the ViiV Healthcare Shionogi contingent consideration liability"),
+		K$2("gsk-2025", "impairment-intangibles", 5798, "Valuation of other intangible assets"),
+		K$2("gsk-2025", "tax-uncertainty", 5799, "Valuation of uncertain tax positions, including transfer pricing"),
+		K$2("hsbc-2025", "credit-losses", 6206, "Expected credit losses – Loans and advances to customers (Group)"),
+		K$2("hsbc-2025", "parent-investments", 6206, "Investments in subsidiaries (parent company)"),
+		K$2("totalenergies-2024", "impairment-assets", 6369, "Evaluation of the impairment of non-current assets used in exploration and production activities (E&P and Integrated LNG)"),
+		K$2("totalenergies-2024", "impairment-assets", 6372, "Effect of estimated proved developed hydrocarbon reserves on the depreciation of the oil and gas assets used in production activities"),
+		K$2("airbus-2023", "revenue-recognition", 7380, "Revenue recognition (including revenues and costs at completion for onerous and over-time contracts)"),
+		K$2("airbus-2023", "impairment-assets", 7383, "Recoverability of key program assets - long-lived assets"),
+		K$2("airbus-2023", "fair-value", 7384, "Accounting for derivative financial instruments and hedge ineffectiveness"),
+		K$2("sanofi-2025", "impairment-intangibles", 7636, "Recoverable amount of other intangible assets - Acquired R&D, products, trademarks and other rights"),
+		K$2("sanofi-2025", "revenue-deductions", 7636, "Valuation of the provisions for rebates relating to Sanofi’s business in the United States – Medicaid, Medicare and Managed Care"),
+		K$2("sanofi-2025", "tax-uncertainty", 7637, "Uncertain tax positions"),
+		K$2("toyota-2026", "provisions-litigation", 7906, "Liabilities for the costs of recalls and other safety measures"),
+		K$2("toyota-2026", "credit-losses", 7906, "Allowance for credit losses—Retail finance receivables"),
+		K$2("honda-2023", "provisions-litigation", 8137, "Evaluation of the provision for specific warranty programs"),
+		K$2("honda-2023", "credit-losses", 8137, "Allowance for expected credit losses on retail receivables at the finance subsidiary in the United States"),
+		K$2("honda-2023", "impairment-assets", 8138, "Estimated end of term residual values of lease vehicles at the finance subsidiary in the United States"),
+		K$2("mufg-2026", "credit-losses", 8615, "Allowance for Credit Losses — Macroeconomic Variables in Multiple Economic Forecast Scenarios and Weightings"),
+		K$2("mufg-2026", "credit-losses", 8615, "Allowance for Credit Losses — Krungsri Segment — Qualitative Adjustments"),
+		K$2("mufg-2026", "credit-losses", 8616, "Allowance for Credit Losses — Commercial Segment — Internal Credit Rating"),
+		K$2("smfg-2026", "credit-losses", 8909, "The reasonableness of management's assessment of the reserve for possible loan losses for SMBC's corporate loans"),
+		K$2("samsung-2025", "impairment-assets", 8918, "Evaluation of commencement of depreciation related to construction in progress"),
+		K$2("samsung-2025", "revenue-deductions", 8918, "Sales deduction related to sales promotion activities"),
+		K$2("tencent-2025", "revenue-recognition", 9308, "Revenue recognition on provision of online games value-added services related to in-game permanent virtual items – the estimates of expected user lifetime"),
+		K$2("tencent-2025", "impairment-intangibles", 9309, "Impairment assessments of goodwill, investments in associates and investments in joint ventures"),
+		K$2("tencent-2025", "fair-value", 9311, "Fair value measurement of Level 3 financial instruments"),
+		K$2("reliance-2026", "provisions-litigation", 9519, "Litigation matters"),
+		K$2("reliance-2026", "fair-value", 9519, "Fair Valuation of Investments"),
+		K$2("reliance-2026", "it-controls", 9520, "Information Technology (IT) systems and controls over financial reporting"),
+		K$2("reliance-2026", "revenue-recognition", 9562, "Revenue Recognition (reported by the auditors of Reliance Jio Infocomm)"),
+		K$2("infosys-2026", "revenue-recognition", 9810, "Revenue recognition"),
+		K$2("infosys-2026", "revenue-recognition", 9811, "Revenue recognition - Fixed price contracts using the percentage of completion method"),
+		K$2("aramco-2025", "impairment-intangibles", 10164, "Recoverability of Downstream goodwill and the SABIC brand"),
+		K$2("aramco-2025", "impairment-assets", 10165, "Valuation of property, plant and equipment and assets held for sale"),
+		K$2("aramco-2025", "complex-transactions", 10167, "Sale of non-controlling interest in Jafurah Midstream Gas Company"),
+		K$2("emiratesnbd-2025", "credit-losses", 10336, "Expected Credit Loss allowance against Loans and receivables"),
+		K$2("emiratesnbd-2025", "related-parties", 10338, "Related party transactions and balances"),
+		K$2("eand-2025", "revenue-recognition", 10553, "Revenue recognition"),
+		K$2("eand-2025", "impairment-intangibles", 10554, "Carrying value of cash generating units, including goodwill"),
+		K$2("rbc-2025", "credit-losses", 10745, "Allowance for Credit Losses on Loans Categorized as Stage 1 and Stage 2"),
+		K$2("rbc-2025", "tax-uncertainty", 10745, "Uncertain Tax Positions"),
+		K$2("bhp-2025", "impairment-assets", 11205, "Carrying value of property, plant and equipment"),
+		K$2("bhp-2025", "provisions-litigation", 11205, "Closure and rehabilitation provisions"),
+		K$2("bhp-2025", "provisions-litigation", 11206, "Samarco dam failure provisions recognised and the contingent liabilities disclosed"),
+		K$2("cba-2025", "credit-losses", 12468, "Provisions for loan impairment"),
+		K$2("cba-2025", "provisions-litigation", 12469, "Provisions for ongoing class actions"),
+		K$2("cba-2025", "it-controls", 12470, "Operation of financial reporting Information Technology (IT) systems and controls")
+	];
+	var MATERIALITY = [
+		{
+			report: "bp-2025",
+			currency: "USD",
+			overall: 7e8,
+			prior: 8e8,
+			benchmark: "cash-flow",
+			basis: "Cash flow from operations (2.9%) and underlying replacement cost profit before interest and tax (3.6%)",
+			pct: .029,
+			performancePct: .65,
+			threshold: 35e6,
+			parent: {
+				pct: .006,
+				basis: "net assets"
+			},
+			page: 4849
+		},
+		{
+			report: "unilever-2025",
+			currency: "EUR",
+			overall: 5e8,
+			prior: 5e8,
+			benchmark: "profit",
+			basis: "Normalised profit before tax from continuing operations (€8,946m)",
+			pct: .0559,
+			performancePct: .75,
+			threshold: 25e6,
+			parent: {
+				pct: .0035,
+				basis: "total assets"
+			},
+			page: 5216
+		},
+		{
+			report: "astrazeneca-2025",
+			currency: "USD",
+			overall: 62e7,
+			prior: 5e8,
+			benchmark: "profit",
+			basis: "Profit before tax adding back intangible impairments and contingent-consideration fair value and discount unwind",
+			pct: .05,
+			performancePct: .75,
+			parent: {
+				pct: .004,
+				basis: "net assets"
+			},
+			page: 5503
+		},
+		{
+			report: "gsk-2025",
+			currency: "GBP",
+			overall: 35e7,
+			prior: 3e8,
+			benchmark: "profit",
+			basis: "Profit before tax 4.86% · core profit before tax 3.37% · revenue 1.09% · operating cash flow 4.81%",
+			pct: .0486,
+			performancePct: .7,
+			threshold: 15e6,
+			page: 5800
+		},
+		{
+			report: "hsbc-2025",
+			currency: "USD",
+			overall: 155e7,
+			prior: 15e8,
+			benchmark: "profit",
+			basis: "Profit before tax excluding notable items",
+			pct: .05,
+			performancePct: .75,
+			threshold: 775e5,
+			parent: {
+				pct: .0075,
+				basis: "total assets (capped at 95% of group materiality)"
+			},
+			page: 6205
+		},
+		{
+			report: "airbus-2023",
+			currency: "EUR",
+			overall: 292e6,
+			prior: 281e6,
+			benchmark: "ebit",
+			basis: "EBIT Adjusted",
+			pct: .05,
+			threshold: 15e6,
+			page: 7375
+		},
+		{
+			report: "aramco-2025",
+			currency: "SAR",
+			overall: 2625e7,
+			prior: 3e10,
+			benchmark: "profit",
+			basis: "A percentage of income before income taxes and zakat — SAR 702,860m in note 8 (p. 10202), so 3.7%",
+			pct: .0373,
+			threshold: 188e7,
+			page: 10162
+		}
+	];
+	var THEMES = {
+		"revenue-deductions": {
+			ar: "خصومات الإيراد والحوافز والمرتجعات",
+			en: "Rebates, trade spend and price reductions",
+			lines: [
+				"revenue",
+				"accruals",
+				"receivables"
+			],
+			why: "تُطرح الخصومات والحوافز والمرتجعات من الإيراد عند البيع بتقدير يعتمد على معدلات الاستخدام والمطالبات المتوقعة؛ التقدير معقد وعرضة للتحيز ويؤثر مباشرة في الإيراد.",
+			procedures: [
+				"اختبار تصميم وتشغيل الضوابط على احتساب الاستحقاقات",
+				"بناء توقع مستقل للاستحقاق من المطالبات الفعلية والاتجاهات التاريخية",
+				"مقارنة تقديرات الفترة السابقة بما سُدد فعلاً لاختبار دقة التقدير وتحيزه",
+				"فحص المطالبات والتسويات اللاحقة لتاريخ الإقفال"
+			]
+		},
+		"revenue-recognition": {
+			ar: "الاعتراف بالإيراد",
+			en: "Revenue recognition",
+			lines: [
+				"revenue",
+				"contractLiab",
+				"receivables"
+			],
+			why: "تحديد التزامات الأداء وسعر المعاملة وتوقيت انتقال السيطرة (أو نسبة الإنجاز في العقود طويلة الأجل) يتطلب حكماً مهنياً، ومعالجة حجم كبير من المعاملات عبر أنظمة معقدة.",
+			procedures: [
+				"قراءة عينة من العقود وتحديد شروطها المؤثرة في الاعتراف (IFRS 15)",
+				"اختبار الضوابط الآلية وواجهات الأنظمة مع مختصي تقنية المعلومات",
+				"مطابقة عينة من المعاملات مع العقود والفواتير وإثبات التسليم",
+				"اختبار القطع وتقدير التكاليف حتى الإنجاز في العقود على مدى زمني"
+			]
+		},
+		"credit-losses": {
+			ar: "الخسائر الائتمانية المتوقعة",
+			en: "Expected credit losses",
+			lines: ["receivables"],
+			why: "مخصص الخسائر الائتمانية تقدير مستقبلي يعتمد على سيناريوهات اقتصادية وأوزانها وتصنيف المراحل والتعديلات النوعية على مخرجات النماذج.",
+			procedures: [
+				"اختبار ضوابط النماذج والبيانات والسيناريوهات وأوزانها",
+				"تقييم معقولية المتغيرات الاقتصادية المستقبلية مقابل مصادر خارجية",
+				"فحص عينة من التصنيف إلى المراحل والتقييم الفردي للعملاء",
+				"تقييم التعديلات النوعية والإفصاحات (IFRS 9 / IFRS 7)"
+			]
+		},
+		"tax-uncertainty": {
+			ar: "الموقف الضريبي والزكوي غير المؤكد",
+			en: "Uncertain tax and zakat positions",
+			lines: [
+				"zakatPayable",
+				"zakatExpense",
+				"provisions"
+			],
+			why: "تقدير ما إذا كان الموقف الضريبي سيُقبل وقياس أثره يعتمد على تفسير أنظمة معقدة وعلى مراسلات الجهات الضريبية وأحكام القضاء.",
+			procedures: [
+				"إشراك مختصي الضرائب والزكاة في تقييم الأسس الفنية للمواقف",
+				"فحص مراسلات الهيئة والربوط والاعتراضات",
+				"الحصول على مصادقات من المستشارين القانونيين الخارجيين",
+				"تقييم الإفصاحات (IFRIC 23 / IAS 12 / متطلبات الزكاة)"
+			]
+		},
+		"impairment-intangibles": {
+			ar: "انخفاض الشهرة والأصول غير الملموسة",
+			en: "Goodwill and intangible impairment",
+			lines: ["intangibles", "impairment"],
+			why: "القيمة القابلة للاسترداد تعتمد على توقعات تدفقات نقدية ومعدلات نمو وخصم حساسة؛ تغير بسيط في الافتراض قد يغيّر نتيجة الاختبار.",
+			procedures: [
+				"تقييم منهجية التقييم والنماذج بمساعدة مختصي التقييم",
+				"مقارنة التوقعات بالموازنات المعتمدة والأداء الفعلي التاريخي",
+				"مقارنة معدلات الخصم والنمو بنطاق مستقل من بيانات السوق",
+				"تحليل الحساسية للافتراضات الرئيسة وتقييم الإفصاحات (IAS 36)"
+			]
+		},
+		"impairment-assets": {
+			ar: "انخفاض الأصول طويلة الأجل وتقييمها",
+			en: "Long-lived asset impairment and valuation",
+			lines: [
+				"ppe",
+				"rou",
+				"depreciation",
+				"impairment"
+			],
+			why: "استرداد القيمة الدفترية للأصول الثابتة يعتمد على افتراضات الأسعار والكميات والتكاليف والأعمار والقيم المتبقية وتوقيت بدء الاستهلاك.",
+			procedures: [
+				"تقييم تحديد وحدات توليد النقد ومؤشرات الانخفاض",
+				"اختبار الافتراضات مقابل الخطط المعتمدة وبيانات السوق",
+				"فحص بدء الاستهلاك والأعمار الإنتاجية والقيم المتبقية",
+				"فحص تصنيف الأصول المحتفظ بها للبيع وقياسها (IFRS 5)"
+			]
+		},
+		"provisions-litigation": {
+			ar: "المخصصات والقضايا والالتزامات المحتملة",
+			en: "Provisions, litigation and contingencies",
+			lines: ["provisions", "accruals"],
+			why: "تقدير احتمال الخسارة ومبلغها في القضايا والضمانات والاستدعاءات وإعادة التأهيل يعتمد على أحكام الإدارة ورأي المستشارين القانونيين.",
+			procedures: [
+				"قراءة محاضر مجلس الإدارة واللجان",
+				"الحصول على خطابات مباشرة من المستشارين القانونيين الداخليين والخارجيين",
+				"مقارنة افتراضات التقدير بالتسويات والمدفوعات الفعلية",
+				"تقييم كفاية الإفصاح عن الالتزامات المحتملة (IAS 37)"
+			]
+		},
+		"fair-value": {
+			ar: "القيمة العادلة للأدوات غير المتداولة",
+			en: "Level 3 fair value and derivatives",
+			lines: ["investments"],
+			why: "تقييم الأدوات التي لا سعر سوق لها يعتمد على مدخلات غير قابلة للملاحظة، ما يجعل التقدير ذاتياً وعرضة للتحيز.",
+			procedures: [
+				"إعادة تقييم عينة بشكل مستقل بمساعدة مختصي التقييم",
+				"اختبار المدخلات غير القابلة للملاحظة مقابل معاملات حديثة وبيانات خارجية",
+				"تقييم تصنيف مستويات القيمة العادلة (IFRS 13)",
+				"تقييم الإفصاح عن الحساسية"
+			]
+		},
+		actuarial: {
+			ar: "الالتزامات الاكتوارية ومنافع الموظفين",
+			en: "Actuarial liabilities and employee benefits",
+			lines: ["eosb"],
+			why: "قياس الالتزام يعتمد على افتراضات الخصم والتضخم والوفيات أو أنماط المطالبات، وتغيرها يؤثر جوهرياً في المبلغ.",
+			procedures: [
+				"تقييم كفاءة الخبير الاكتواري واستقلاله",
+				"مقارنة الافتراضات بنطاق معقول مستقل",
+				"اختبار البيانات الأساسية (الموظفون والرواتب أو المطالبات)",
+				"تطوير تقدير مستقل ومقارنته بتقدير الإدارة (IAS 19)"
+			]
+		},
+		"it-controls": {
+			ar: "أنظمة تقنية المعلومات وضوابطها",
+			en: "IT systems and controls",
+			lines: [],
+			why: "التقرير المالي يعتمد على أنظمة آلية تعالج حجماً كبيراً من المعاملات؛ ضعف صلاحيات الدخول أو إدارة التغيير يهدد سلامة البيانات.",
+			procedures: [
+				"اختبار الضوابط العامة لتقنية المعلومات: الدخول وإدارة التغيير والتشغيل",
+				"اختبار الضوابط الآلية والواجهات بين الأنظمة",
+				"تقييم أثر أي قصور في الضوابط على نطاق الإجراءات الأساسية"
+			]
+		},
+		"complex-transactions": {
+			ar: "المعاملات المعقدة وغير المعتادة",
+			en: "Complex and unusual transactions",
+			lines: ["investments"],
+			why: "الاستحواذات والانفصالات وبيع الحصص تتطلب أحكاماً في التصنيف والقياس (السيطرة، القيمة العادلة، الحصص غير المسيطرة).",
+			procedures: [
+				"قراءة الاتفاقيات وتقييم جوهرها الاقتصادي",
+				"تقييم المعالجة المحاسبية مع المختصين الفنيين",
+				"التحقق من المتحصلات والقيم الدفترية في تاريخ المعاملة",
+				"تقييم الإفصاحات (IFRS 3 / IFRS 10)"
+			]
+		},
+		inventory: {
+			ar: "المخزون وتقييمه",
+			en: "Inventory existence and valuation",
+			lines: ["inventory", "cogs"],
+			why: "تقييم المخزون يعتمد على طريقة التكلفة وافتراضات الهوامش والتخفيضات والفاقد، ويعالَج آلياً بحجم بيانات كبير.",
+			procedures: [
+				"حضور الجرد في مواقع مختارة",
+				"بناء توقع مستقل لمدخلات طريقة التقييم",
+				"مطابقة عينة مع فواتير الموردين والمدفوعات",
+				"اختبار صافي القيمة القابلة للتحقق (IAS 2)"
+			]
+		},
+		"fraud-override": {
+			ar: "تجاوز الإدارة للضوابط",
+			en: "Management override of controls",
+			lines: [],
+			why: "خطر تجاوز الإدارة للضوابط قائم في كل منشأة (ISA 240) ويتركز في القيود اليدوية والتقديرات والمعاملات غير المعتادة.",
+			procedures: [
+				"اختبار القيود اليومية والتسويات بمعايير مخاطر",
+				"مراجعة التقديرات بحثاً عن تحيز",
+				"تقييم المبرر التجاري للمعاملات غير المعتادة"
+			]
+		},
+		climate: {
+			ar: "أثر المناخ وتحول الطاقة",
+			en: "Climate change and energy transition",
+			lines: ["ppe", "provisions"],
+			why: "افتراضات أسعار الطاقة والكربون وأعمار الأصول تؤثر في الانخفاض والمخصصات والإفصاحات.",
+			procedures: [
+				"تقييم اتساق افتراضات المناخ بين الخطط والقوائم",
+				"تحليل حساسية الانخفاض لسيناريوهات التحول",
+				"فحص الإفصاحات المتعلقة بالمناخ"
+			]
+		},
+		"parent-investments": {
+			ar: "استثمارات الشركة الأم في التابعة",
+			en: "Parent-company investments in subsidiaries",
+			lines: ["investments"],
+			why: "في القوائم المنفصلة للشركة القابضة تمثل الاستثمارات معظم الأصول، فيؤثر أي انخفاض فيها في الاحتياطيات القابلة للتوزيع.",
+			procedures: [
+				"مقارنة القيمة الدفترية بصافي أصول التابعة أو القيمة السوقية",
+				"تقييم مؤشرات الانخفاض",
+				"التحقق من الاحتياطيات القابلة للتوزيع"
+			]
+		},
+		"related-parties": {
+			ar: "الأطراف ذات العلاقة",
+			en: "Related parties",
+			lines: ["partners"],
+			why: "التعاملات مع الجهات الحكومية والأطراف ذات العلاقة جوهرية ومتطلبات إفصاحها محددة (IAS 24).",
+			procedures: [
+				"حصر الأطراف ذات العلاقة ومقارنتها بالسجلات",
+				"فحص الشروط والموافقات",
+				"تقييم الإفصاح عن التركزات"
+			]
+		}
+	};
+	var SECTOR_AR = {
+		tech: "التقنية",
+		retail: "التجزئة",
+		fmcg: "السلع الاستهلاكية والأغذية",
+		banking: "البنوك",
+		insurance: "التأمين",
+		pharma: "الأدوية",
+		energy: "الطاقة",
+		auto: "السيارات",
+		telecom: "الاتصالات",
+		mining: "التعدين",
+		industrial: "الصناعة",
+		conglomerate: "المجموعات المتنوعة"
+	};
+	var REPORT = Object.fromEntries(REPORTS.map((r) => [r.id, r]));
+	var reportOf = (id) => REPORT[id];
+	var row = (k) => {
+		const r = REPORT[k.report];
+		return {
+			...k,
+			company: r.company,
+			fy: r.fy,
+			country: r.country,
+			sector: r.sector,
+			standard: r.standard,
+			auditor: r.auditor,
+			themeAr: THEMES[k.theme].ar
+		};
+	};
+	function kamLibrary(f = {}) {
+		const q = (f.q || "").trim().toLowerCase();
+		return KAMS.map(row).filter((k) => (!f.theme || k.theme === f.theme) && (!f.sector || k.sector === f.sector) && (!f.standard || k.standard === f.standard) && (!q || [
+			k.title,
+			k.company,
+			k.auditor,
+			k.themeAr,
+			THEMES[k.theme].en
+		].some((s) => s.toLowerCase().includes(q))));
+	}
+	/** Theme counts across the bundle, most frequent first, with the sectors where each appears. */
+	function themeStats() {
+		return Object.keys(THEMES).map((t) => {
+			const ks = KAMS.filter((k) => k.theme === t);
+			return {
+				theme: t,
+				ar: THEMES[t].ar,
+				en: THEMES[t].en,
+				count: ks.length,
+				companies: new Set(ks.map((k) => REPORT[k.report].company)).size,
+				sectors: [...new Set(ks.map((k) => REPORT[k.report].sector))]
+			};
+		}).filter((s) => s.count > 0).sort((a, b) => b.count - a.count || a.ar.localeCompare(b.ar));
+	}
+	/** Sector from a free-text activity (Arabic or English), for choosing the closest precedents. */
+	function sectorFromActivity(activity) {
+		const t = (activity || "").toLowerCase();
+		return [
+			["banking", /بنك|مصرف|تمويل|bank|financ|lending/],
+			["insurance", /تأمين|تكافل|insur|reinsur/],
+			["pharma", /دواء|أدوية|صيدل|pharma|drug|biotech/],
+			["energy", /نفط|بترول|غاز|طاقة|oil|gas|energy|petro/],
+			["mining", /تعدين|منجم|معادن|mining|mineral/],
+			["telecom", /اتصالات|telecom|mobile network/],
+			["auto", /سيار|مركبات|auto|vehicle|motor/],
+			["tech", /تقني|برمج|برامج|حاسب|software|tech|cloud|saas|electronic/],
+			["fmcg", /أغذية|غذائ|لحوم|أغنام|مواشي|ألبان|مشروبات|استهلاك|food|meat|dairy|beverage|consumer|fmcg/],
+			["retail", /تجزئة|متجر|سوبر|retail|store|e-?commerce/],
+			["industrial", /مقاولات|إنشاء|صناع|مصنع|طيران|construct|manufactur|industrial|aero/]
+		].find(([, re]) => re.test(t))?.[0] ?? "";
+	}
+	/** How often each theme is a key/critical audit matter in the reports of this sector — the share of the sector's reports carrying it;
+	for a sector the bundle does not cover, the share under the same standard, else across all reports. `exclude` leaves one report
+	out, so the bundle can test itself without seeing the answer (the replay measured the plain sector share ranking best). */
+	function themePrior(opts = {}) {
+		const reps = REPORTS.filter((r) => r.id !== opts.exclude && KAMS.some((k) => k.report === r.id));
+		const has = (r, t) => KAMS.some((k) => k.report === r.id && k.theme === t);
+		const inSector = reps.filter((r) => opts.sector && r.sector === opts.sector), inStd = reps.filter((r) => opts.standard && r.standard === opts.standard);
+		const pool = inSector.length ? inSector : inStd.length ? inStd : reps;
+		const out = {};
+		for (const t of Object.keys(THEMES)) out[t] = pool.length ? Math.round(pool.filter((r) => has(r, t)).length / pool.length * 100) / 100 : 0;
+		return out;
+	}
+	/** How many matters reports of a standard carry: PCAOB reports about two critical audit matters, ISA reports three or more. */
+	function typicalKamCount$1(standard, ukStyle = false) {
+		if (ukStyle) return 4;
+		return standard === "PCAOB" ? 2 : 3;
+	}
+	/** Real KAMs that match a statement line of the engagement — same sector first, then the rest. */
+	function precedentsFor(lineKey, opts = {}) {
+		const limit = opts.limit ?? 3;
+		return Object.keys(THEMES).filter((t) => THEMES[t].lines.includes(lineKey)).map((t) => {
+			const all = KAMS.filter((k) => k.theme === t).map(row);
+			const ranked = [...all.filter((k) => opts.sector && k.sector === opts.sector), ...all.filter((k) => !opts.sector || k.sector !== opts.sector)];
+			return {
+				theme: t,
+				ar: THEMES[t].ar,
+				why: THEMES[t].why,
+				procedures: THEMES[t].procedures,
+				examples: ranked.slice(0, limit)
+			};
+		}).filter((p) => p.examples.length).sort((a, b) => KAMS.filter((k) => k.theme === b.theme).length - KAMS.filter((k) => k.theme === a.theme).length);
+	}
+	var range = (xs) => xs.length ? {
+		min: Math.min(...xs),
+		max: Math.max(...xs),
+		n: xs.length
+	} : null;
+	/** Observed ranges, computed from the disclosures (not hard-coded). */
+	function materialityPractice() {
+		return {
+			profit: range(MATERIALITY.filter((m) => m.pct !== void 0).filter((m) => m.benchmark === "profit" || m.benchmark === "ebit").map((m) => m.pct)),
+			performance: range(MATERIALITY.filter((m) => m.performancePct !== void 0).map((m) => m.performancePct)),
+			threshold: range(MATERIALITY.filter((m) => m.threshold !== void 0).map((m) => Math.round(m.threshold / m.overall * 1e3) / 1e3)),
+			parentAssets: range(MATERIALITY.filter((m) => m.parent).map((m) => m.parent.pct)),
+			cases: MATERIALITY.map((m) => ({
+				...m,
+				company: REPORT[m.report].company,
+				auditor: REPORT[m.report].auditor,
+				fy: REPORT[m.report].fy
+			}))
+		};
+	}
+	/** The engagement's choices against what auditors disclosed. Advisory: ISA 320 leaves the choice to professional judgement. */
+	function checkMateriality(input) {
+		const p = materialityPractice(), pct = (x) => `${Math.round(x * 1e3) / 10}%`;
+		const cmp = (x, r) => {
+			const v = Math.round(x * 1e3) / 1e3;
+			return !r ? "no-precedent" : v < r.min - 1e-9 ? "below" : v > r.max + 1e-9 ? "above" : "within";
+		};
+		const out = [];
+		if (input.benchmark === "pbz") {
+			const st = cmp(input.rate, p.profit);
+			out.push({
+				key: "rate",
+				label: "نسبة الأهمية من الربح",
+				value: input.rate,
+				status: st,
+				observed: p.profit ? `${pct(p.profit.min)}–${pct(p.profit.max)} في ${p.profit.n} تقارير` : "—",
+				note: st === "within" ? "ضمن ما أفصح عنه مراجعو الشركات العالمية على أساس الربح." : st === "above" ? "أعلى من الممارسة المفصح عنها؛ وثّق مبرر النسبة (ISA 320.A8)." : "أقل من الممارسة المفصح عنها؛ مقبول إن كان الخطر مرتفعاً، ووثّق السبب."
+			});
+		} else if (input.benchmark === "assets") {
+			const st = cmp(input.rate, p.parentAssets);
+			out.push({
+				key: "rate",
+				label: "نسبة الأهمية من الموجودات",
+				value: input.rate,
+				status: st,
+				observed: p.parentAssets ? `${pct(p.parentAssets.min)}–${pct(p.parentAssets.max)} (شركات قابضة)` : "—",
+				note: st === "above" ? "المراجعون استخدموا الموجودات أساساً للشركات القابضة بنسب أقل؛ لمنشأة تشغيلية فضّل أساس الربح أو الإيراد متى كان مستقراً." : "ضمن نطاق أساس الموجودات المفصح عنه للشركات القابضة."
+			});
+		} else out.push({
+			key: "rate",
+			label: "نسبة الأهمية من الإيراد",
+			value: input.rate,
+			status: "no-precedent",
+			observed: "لم يعتمد أي تقرير في الحزمة الإيراد أساساً (GSK قارنت به: 1.09%)",
+			note: "الإيراد أساس مقبول حين يكون الربح متذبذباً أو قريباً من الصفر؛ وثّق سبب العدول عن أساس الربح."
+		});
+		const sp = cmp(input.performanceRate, p.performance);
+		out.push({
+			key: "performance",
+			label: "الأهمية التنفيذية",
+			value: input.performanceRate,
+			status: sp,
+			observed: p.performance ? `${pct(p.performance.min)}–${pct(p.performance.max)} من الأهمية العامة` : "—",
+			note: sp === "within" ? "ضمن الممارسة: 65% عند بيئة رقابة أضعف أو تحريفات سابقة، و75% عند بيئة مستقرة." : sp === "above" ? "أعلى من الممارسة المفصح عنها (الحد الأعلى 75%)." : "أدنى من الممارسة؛ مناسب إن كانت التحريفات السابقة كثيرة."
+		});
+		const stt = cmp(input.trivialRate, p.threshold);
+		out.push({
+			key: "trivial",
+			label: "حد التحريفات الواضحة الضآلة",
+			value: input.trivialRate,
+			status: stt,
+			observed: p.threshold ? `${pct(p.threshold.min)}–${pct(p.threshold.max)} من الأهمية العامة` : "—",
+			note: stt === "within" ? "ضمن حد الإبلاغ للجنة المراجعة الذي أفصح عنه المراجعون." : "خارج حدود الإبلاغ المفصح عنها؛ راجع الحد مع المكلفين بالحوكمة."
+		});
+		return out;
+	}
+	/** Headline numbers for the reference screen. */
+	function summary$1() {
+		const auditors = /* @__PURE__ */ new Map();
+		for (const r of REPORTS) {
+			if (!r.auditor) continue;
+			const f = /Ernst|EY/.test(r.auditor) ? "EY" : /Pricewaterhouse|PwC/.test(r.auditor) ? "PwC" : /KPMG/.test(r.auditor) ? "KPMG" : /Deloitte/.test(r.auditor) ? "Deloitte" : r.auditor;
+			auditors.set(f, (auditors.get(f) || 0) + 1);
+		}
+		return {
+			reports: REPORTS.length,
+			pages: BUNDLE.pages,
+			countries: new Set(REPORTS.map((r) => r.country)).size,
+			kams: KAMS.length,
+			pcaob: KAMS.filter((k) => REPORT[k.report].standard === "PCAOB").length,
+			isa: KAMS.filter((k) => REPORT[k.report].standard === "ISA").length,
+			materiality: MATERIALITY.length,
+			sources: SOURCES.length,
+			auditors: [...auditors.entries()].sort((a, b) => b[1] - a[1])
+		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/audit/requests-engine.ts
+	var requests_engine_exports = /* @__PURE__ */ __exportAll({
+		EVIDENCE: () => EVIDENCE,
+		LIBRARY: () => LIBRARY,
+		STAGE_AR: () => STAGE_AR,
+		buildRequests: () => buildRequests,
+		canConclude: () => canConclude,
+		limitationImpact: () => limitationImpact,
+		nextRound: () => nextRound
+	});
+	/** reliability: 3 external and sent to the auditor directly, 2 external held by the entity, 1 produced by the entity (ISA 500.A31) */
+	var EVIDENCE = {
+		confirmation: {
+			ar: "مصادقة خارجية مباشرة",
+			reliability: 3,
+			bundle: [4, 40]
+		},
+		bank: {
+			ar: "كشوف ومصادقات بنكية",
+			reliability: 3,
+			bundle: [2, 40]
+		},
+		legal: {
+			ar: "خطاب المستشار القانوني",
+			reliability: 3,
+			bundle: [15, 40]
+		},
+		contract: {
+			ar: "عقود واتفاقيات",
+			reliability: 2,
+			bundle: [24, 40]
+		},
+		invoice: {
+			ar: "فواتير ومستندات تسليم وشحن",
+			reliability: 2,
+			bundle: [8, 40]
+		},
+		loan: {
+			ar: "اتفاقيات تمويل وتعهدات",
+			reliability: 2,
+			bundle: [5, 40]
+		},
+		regulatory: {
+			ar: "مراسلات الجهات الرقابية",
+			reliability: 2,
+			bundle: [23, 40]
+		},
+		tax: {
+			ar: "إقرارات وربوط ومراسلات ضريبية وزكوية",
+			reliability: 2,
+			bundle: [10, 40]
+		},
+		valuation: {
+			ar: "تقارير تقييم واكتواري من خبير",
+			reliability: 2,
+			bundle: [17, 40]
+		},
+		market: {
+			ar: "بيانات سوق ومصادر خارجية",
+			reliability: 2,
+			bundle: [21, 40]
+		},
+		minutes: {
+			ar: "محاضر المجلس واللجان",
+			reliability: 2,
+			bundle: [4, 40]
+		},
+		count: {
+			ar: "حضور الجرد والفحص المادي",
+			reliability: 3,
+			bundle: [6, 40]
+		},
+		register: {
+			ar: "سجلات تفصيلية",
+			reliability: 1
+		},
+		schedule: {
+			ar: "كشوف تحليلية من الإدارة",
+			reliability: 1
+		},
+		reconciliation: {
+			ar: "مطابقات",
+			reliability: 1
+		},
+		forecast: {
+			ar: "موازنات وتوقعات وخطط أعمال معتمدة",
+			reliability: 1,
+			bundle: [30, 40]
+		},
+		policy: {
+			ar: "سياسات وإجراءات موثقة",
+			reliability: 1
+		},
+		controls: {
+			ar: "توثيق الضوابط واختبارها",
+			reliability: 1,
+			bundle: [17, 40]
+		},
+		itgc: {
+			ar: "ضوابط تقنية المعلومات العامة",
+			reliability: 1,
+			bundle: [33, 40]
+		},
+		data: {
+			ar: "بيانات أساسية لاختبار الاكتمال والدقة",
+			reliability: 1,
+			bundle: [18, 40]
+		},
+		recalc: {
+			ar: "نماذج قابلة لإعادة الاحتساب",
+			reliability: 1,
+			bundle: [15, 40]
+		},
+		journal: {
+			ar: "مجتمع القيود اليومية",
+			reliability: 1,
+			bundle: [7, 40]
+		},
+		sensitivity: {
+			ar: "تحليل حساسية وتقديرات سابقة",
+			reliability: 1,
+			bundle: [13, 40]
+		},
+		disclosure: {
+			ar: "مسودة الإيضاحات ومصادرها",
+			reliability: 1,
+			bundle: [37, 40]
+		},
+		specialist: {
+			ar: "عمل خبير (ضرائب، تقييم، اكتواري، تقنية)",
+			reliability: 2,
+			bundle: [19, 40]
+		},
+		representation: {
+			ar: "إقرارات مكتوبة من الإدارة",
+			reliability: 1
+		}
+	};
+	var STAGE_AR = {
+		planning: "التخطيط وفهم المنشأة",
+		area: "بنود القوائم",
+		kam: "المناطق الحكمية (الأمور الرئيسية)",
+		completion: "الإقفال والتقرير"
+	};
+	var T = (id, stage, title, purpose, kind, assertions, isa, when, from, alt, x = {}) => ({
+		id,
+		stage,
+		title,
+		purpose,
+		kind,
+		assertions,
+		isa,
+		when,
+		from,
+		alt,
+		...x
+	});
+	var E_ = "existence";
+	var C$1 = "completeness";
+	var A$1 = "accuracy";
+	var K$1 = "cutoff";
+	var V = "valuation";
+	var P = "presentation";
+	var MGT = "الإدارة المالية";
+	var LIBRARY = [
+		T("PL-01", "planning", "ميزان المراجعة النهائي بالأرصدة الافتتاحية والحركة والختامية، موقعاً من الإدارة", "أساس القوائم ومطابقتها مع الأستاذ العام", "schedule", [C$1, A$1], "ISA 500", "always", MGT, "مطابقة الميزان مع الأستاذ العام المستخرج من النظام مباشرة"),
+		T("PL-02", "planning", "القوائم المالية ومسودة الإيضاحات للسنة محل المراجعة", "ربط الميزان بالقوائم وفحص الإفصاحات", "disclosure", [P], "ISA 700", "always", MGT, "إعداد الربط من الميزان ومطالبة الإدارة بالإيضاحات الناقصة"),
+		T("PL-03", "planning", "القوائم المالية المراجعة للسنة السابقة وتقرير المراجع السابق", "الأرصدة الافتتاحية والمقارنة", "disclosure", [E_, P], "ISA 510", "prior", MGT, "فحص الأرصدة الافتتاحية بإجراءات بديلة (التحصيلات والمدفوعات اللاحقة)"),
+		T("PL-04", "planning", "السجل التجاري وعقد التأسيس والنظام الأساس وآخر تعديلاته", "الكيان النظامي ورأس المال والصلاحيات", "contract", [E_, P], "ISA 315", "always", "الشؤون القانونية", "الاستعلام من السجل الرسمي للجهة المختصة"),
+		T("PL-05", "planning", "الهيكل التنظيمي وهيكل المجموعة والشركات التابعة والزميلة ونسب الملكية", "نطاق التوحيد ومكونات المجموعة", "schedule", [C$1, P], "ISA 600", "always", MGT, "بناء الهيكل من محاضر المجلس والسجلات الرسمية"),
+		T("PL-06", "planning", "محاضر اجتماعات مجلس الإدارة ولجنة المراجعة والجمعيات للسنة وحتى تاريخ التقرير", "القرارات المؤثرة في القوائم والالتزامات والقضايا", "minutes", [C$1, P], "ISA 315", "always", "أمين سر المجلس", "إقرار مكتوب بعدم وجود قرارات أخرى، مع الاستفسار من أعضاء المجلس"),
+		T("PL-07", "planning", "قائمة الأطراف ذات العلاقة ومعاملاتها وأرصدتها خلال السنة", "اكتمال الإفصاح عن الأطراف ذات العلاقة (IAS 24)", "schedule", [C$1, P], "ISA 550", "always", MGT, "مطابقة الأسماء مع السجل التجاري وسجل المساهمين والحسابات الجارية"),
+		T("PL-08", "planning", "دليل السياسات المحاسبية والتقديرات والأحكام الهامة", "ملاءمة السياسات للإطار (IAS 8)", "policy", [P, V], "ISA 315", "always", MGT, "استخلاص السياسات من الإيضاحات ومناقشتها مع الإدارة"),
+		T("PL-09", "planning", "وصف الأنظمة المحاسبية وتقنية المعلومات وصلاحيات المستخدمين وسجل التغييرات", "فهم بيئة التقنية وتقييم مخاطرها", "itgc", [A$1, C$1], "ISA 315", "always", "إدارة تقنية المعلومات", "الاعتماد على الإجراءات الأساسية الموسعة بدل الضوابط الآلية"),
+		T("PL-10", "planning", "تقارير المراجعة الداخلية وخطابات الإدارة السابقة وردود الإدارة", "المخاطر المعروفة وحالة معالجتها", "controls", [E_, A$1], "ISA 610", "always", "المراجعة الداخلية", "الاستفسار من لجنة المراجعة"),
+		T("PL-11", "planning", "الموازنة المعتمدة للسنة والتقارير الإدارية الشهرية (الفعلي مقابل الموازنة)", "الإجراءات التحليلية وتوقعات الإدارة", "forecast", [A$1, C$1], "ISA 520", "always", MGT, "تحليل الاتجاهات الشهرية من الأستاذ العام"),
+		T("PL-12", "planning", "تقييم الإدارة للاستمرارية مع توقعات التدفق النقدي لاثني عشر شهراً على الأقل وخطط التمويل", "تقييم الاستمرارية (ISA 570 المحدث)", "forecast", [P, V], "ISA 570", "always", MGT, "بناء نموذج تدفق مستقل من القوائم واختبار سيناريوهات الضغط"),
+		T("PL-13", "planning", "قائمة القضايا والمطالبات والنزاعات القائمة والمحتملة", "الالتزامات المحتملة والمخصصات (IAS 37)", "legal", [C$1, V], "ISA 501", "always", "الشؤون القانونية", "خطاب مباشر للمستشار القانوني وفحص مصروفات الأتعاب القانونية"),
+		T("PL-14", "planning", "مجتمع القيود اليومية الكامل للسنة (رقم القيد، التاريخ، المستخدم، الحساب، المبلغ، البيان)", "اختبار القيود وتجاوز الإدارة للضوابط", "journal", [E_, A$1], "ISA 240", "always", "إدارة تقنية المعلومات", "استخراج القيود من النظام بحضور المراجع"),
+		T("CA-01", "area", "مصادقات بنكية مباشرة لكل الحسابات (بما فيها المقفلة خلال السنة) والتسهيلات والضمانات", "وجود الأرصدة واكتمال الالتزامات والرهونات", "bank", [
+			E_,
+			C$1,
+			P
+		], "ISA 505", "always", "البنوك (يرسلها المراجع)", "كشوف الحساب الأصلية لشهر الإقفال وما بعده مع اختبار البنود المعلقة", { lines: [
+			"cash",
+			"loansCl",
+			"loansNcl"
+		] }),
+		T("CA-02", "area", "التسويات البنكية في تاريخ الإقفال مع الكشوف الداعمة والبنود المعلقة", "اكتمال النقد والقطع", "reconciliation", [E_, K$1], "ISA 500", "always", MGT, "فحص كشف الشهر اللاحق لتسوية البنود المعلقة", { lines: ["cash"] }),
+		T("CA-04", "area", "كشوف الحسابات البنكية لشهر الإقفال والشهر اللاحق لكل حساب", "إثبات الرصيد في تاريخ الإقفال وتسوية البنود المعلقة لاحقاً", "bank", [E_, K$1], "ISA 500", "always", MGT, "طلب الكشوف من البنك مباشرة عبر المصادقة البنكية", { lines: ["cash"] }),
+		T("CA-03", "area", "محاضر جرد النقدية والعهد في تاريخ الإقفال", "وجود النقد بالصندوق", "count", [E_], "ISA 501", "material", "أمين الصندوق", "فحص الحركة اللاحقة للعهد وتسويتها", { lines: ["cash"] }),
+		T("AR-01", "area", "كشف أعمار الذمم المدينة بالعميل في تاريخ الإقفال مطابقاً للأستاذ", "التقييم والوجود", "schedule", [E_, V], "ISA 500", "significant", MGT, "إعداد الأعمار من دفتر الأستاذ المساعد", { lines: ["receivables"] }),
+		T("AR-02", "area", "مصادقات أرصدة لعينة من العملاء (إيجابية)", "وجود الأرصدة وحقوق المنشأة", "confirmation", [E_], "ISA 505", "significant", "العملاء (يرسلها المراجع)", "التحصيلات اللاحقة وفواتير البيع ومستندات التسليم للأرصدة غير المؤكدة", { lines: ["receivables"] }),
+		T("AR-03", "area", "سياسة ومصفوفة الخسائر الائتمانية المتوقعة وافتراضاتها المستقبلية وبيانات التعثر التاريخية", "تقييم المخصص (IFRS 9)", "recalc", [V], "ISA 540", "estimate", MGT, "تقدير مستقل للمخصص من الأعمار والتحصيلات اللاحقة", { lines: ["receivables", "impairment"] }),
+		T("AR-04", "area", "التحصيلات اللاحقة لتاريخ الإقفال لأكبر العملاء", "الوجود وقابلية التحصيل", "bank", [E_, V], "ISA 500", "significant", MGT, "مصادقة مباشرة للأرصدة الجوهرية", { lines: ["receivables"] }),
+		T("IN-01", "area", "تعليمات الجرد وقوائم الجرد الفعلي الموقعة وحضور المراجع للجرد", "وجود المخزون وحالته", "count", [E_, C$1], "ISA 501", "significant", "إدارة المستودعات", "جرد لاحق مع تتبع الحركة عكسياً إلى تاريخ الإقفال", { lines: ["inventory"] }),
+		T("IN-02", "area", "تقييم المخزون بالصنف وطريقة التكلفة وفواتير الشراء لعينة", "التكلفة وصافي القيمة القابلة للتحقق (IAS 2)", "invoice", [V, A$1], "ISA 500", "significant", MGT, "إعادة احتساب التكلفة من فواتير الموردين", { lines: ["inventory", "cogs"] }),
+		T("IN-03", "area", "تقرير الأصناف الراكدة وبطيئة الحركة وأسعار البيع اللاحقة", "مخصص التقادم وصافي القيمة القابلة للتحقق", "schedule", [V], "ISA 540", "estimate", MGT, "مقارنة التكلفة بأسعار البيع اللاحقة لتاريخ الإقفال", { lines: ["inventory"] }),
+		T("PP-01", "area", "سجل الأصول الثابتة التفصيلي (التكلفة، الإضافات، الاستبعادات، الاستهلاك، الأعمار) مطابقاً للأستاذ", "الوجود والدقة وإعادة احتساب الاستهلاك", "register", [
+			E_,
+			A$1,
+			V
+		], "ISA 500", "significant", MGT, "بناء الحركة من الأستاذ العام وفحص عينة مادية", { lines: ["ppe", "depreciation"] }),
+		T("PP-02", "area", "فواتير وعقود ومحاضر استلام الإضافات الجوهرية ومشروعات تحت التنفيذ", "التكلفة والملكية والرسملة (IAS 16)", "invoice", [E_, A$1], "ISA 500", "significant", MGT, "فحص المدفوعات البنكية المقابلة", { lines: ["ppe"] }),
+		T("PP-03", "area", "صكوك ووثائق ملكية الأصول الرئيسة والرهونات عليها", "الحقوق والقيود على الأصول", "contract", [E_, P], "ISA 500", "material", "الشؤون القانونية", "الاستعلام من السجل العقاري ومصادقة البنوك الدائنة", { lines: ["ppe"] }),
+		T("PP-04", "area", "دراسة مؤشرات الانخفاض واختبار القيمة القابلة للاسترداد لوحدات توليد النقد", "التقييم (IAS 36)", "forecast", [V], "ISA 540", "estimate", MGT, "تقييم مستقل للمؤشرات من الأداء الفعلي وخطط التشغيل", { lines: ["ppe", "impairment"] }),
+		T("RO-01", "area", "سجل عقود الإيجار وجداول الالتزام والأصل وأسعار الخصم المستخدمة", "الاكتمال والقياس (IFRS 16)", "contract", [C$1, V], "ISA 540", "significant", MGT, "فحص مصروفات الإيجار والدفعات لاكتشاف عقود غير مسجلة", { lines: ["rou", "leaseNcl"] }),
+		T("IA-01", "area", "سجل الأصول غير الملموسة والشهرة وتوزيعها على وحدات توليد النقد", "الوجود والتقييم (IAS 38، IFRS 3)", "register", [E_, V], "ISA 500", "significant", MGT, "إعادة بناء الرصيد من اتفاقيات الاستحواذ والتراخيص", { lines: ["intangibles"] }),
+		T("IV-01", "area", "كشوف الاستثمارات ومصادقات أمناء الحفظ وتقارير القيمة العادلة", "الوجود والتقييم (IFRS 9/13)", "confirmation", [E_, V], "ISA 505", "significant", "أمين الحفظ", "أسعار السوق المعلنة وشهادات الملكية الأصلية", { lines: ["investments", "investIncome"] }),
+		T("AP-01", "area", "كشف أرصدة الموردين مع مطابقات كشوف حسابات الموردين الرئيسيين", "اكتمال الالتزامات", "reconciliation", [C$1, A$1], "ISA 500", "significant", MGT, "مصادقة مباشرة للموردين الرئيسيين", { lines: ["payables"] }),
+		T("AP-02", "area", "المدفوعات والفواتير المستلمة بعد تاريخ الإقفال حتى تاريخ العمل الميداني", "البحث عن الالتزامات غير المسجلة والقطع", "invoice", [C$1, K$1], "ISA 500", "always", MGT, "فحص كشوف البنك اللاحقة مباشرة", { lines: ["payables", "accruals"] }),
+		T("AP-03", "area", "مصادقات أرصدة لعينة من الموردين (بما فيها الأرصدة الصفرية)", "اكتمال الالتزامات", "confirmation", [C$1], "ISA 505", "material", "الموردون (يرسلها المراجع)", "كشوف حسابات الموردين والمدفوعات اللاحقة", { lines: ["payables"] }),
+		T("AC-01", "area", "تحليل المصروفات المستحقة والمطلوبات الأخرى مع أساس كل تقدير", "الاكتمال والتقييم", "schedule", [C$1, V], "ISA 540", "estimate", MGT, "تقدير مستقل من المدفوعات اللاحقة", { lines: ["accruals", "otherCl"] }),
+		T("PR-01", "area", "تحليل حركة المخصصات وأساس كل مخصص ورأي المستشارين", "الاعتراف والقياس (IAS 37)", "legal", [C$1, V], "ISA 540", "estimate", MGT, "فحص المحاضر والمراسلات والمدفوعات اللاحقة", { lines: ["provisions"] }),
+		T("LN-01", "area", "اتفاقيات القروض والتسهيلات وجداول السداد واحتساب التعهدات المالية", "الاكتمال والتصنيف والالتزام بالتعهدات (IAS 1.74)", "loan", [C$1, P], "ISA 500", "significant", MGT, "مصادقة البنوك المقرضة مباشرة", { lines: [
+			"loansCl",
+			"loansNcl",
+			"financeCost"
+		] }),
+		T("EB-01", "area", "التقرير الاكتواري لمكافأة نهاية الخدمة وبيانات الموظفين المستخدمة فيه", "القياس (IAS 19)", "valuation", [V, C$1], "ISA 540", "estimate", "الموارد البشرية", "احتساب مستقل وفق نظام العمل وسجل الرواتب", { lines: ["eosb"] }),
+		T("EB-02", "area", "مسيرات الرواتب الشهرية وعقود عينة من الموظفين وسجل التأمينات الاجتماعية", "حدوث ودقة مصروف الرواتب", "register", [E_, A$1], "ISA 500", "significant", "الموارد البشرية", "مطابقة مسيرات الرواتب مع التحويلات البنكية وسجل التأمينات", { lines: [
+			"admin",
+			"selling",
+			"cogs"
+		] }),
+		T("TX-01", "area", "الإقرارات الزكوية والضريبية والربوط والاعتراضات ومراسلات الهيئة", "الاكتمال والتقييم (IAS 12، أنظمة الزكاة)", "tax", [C$1, V], "ISA 540", "always", MGT, "إشراك مختص الزكاة والضريبة وإعادة احتساب الوعاء", { lines: ["zakatPayable", "zakatExpense"] }),
+		T("TX-02", "area", "إقرارات ضريبة القيمة المضافة للفترة ومطابقتها مع الإيرادات والمشتريات", "الاكتمال والدقة", "reconciliation", [C$1, A$1], "ISA 500", "always", MGT, "مطابقة مستقلة من الأستاذ العام", { lines: [
+			"vatAsset",
+			"vatLiability",
+			"revenue"
+		] }),
+		T("EQ-01", "area", "سجل المساهمين/الشركاء وقرارات زيادة رأس المال والتوزيعات والاحتياطيات", "الوجود والعرض", "minutes", [E_, P], "ISA 500", "always", "أمين سر المجلس", "الاستعلام من السجل الرسمي", { lines: [
+			"capital",
+			"reserves",
+			"partners",
+			"retained"
+		] }),
+		T("RV-01", "area", "عقود البيع الرئيسية وسياسة الاعتراف بالإيراد وشروط التسليم والخصومات", "الحدوث والقطع (IFRS 15)", "contract", [E_, K$1], "ISA 500", "always", MGT, "فحص عينة من الفواتير ومستندات التسليم", { lines: ["revenue", "contractLiab"] }),
+		T("RV-02", "area", "فواتير ومستندات تسليم لعينة من المبيعات وحول تاريخ الإقفال", "الحدوث والقطع", "invoice", [E_, K$1], "ISA 500", "always", MGT, "فحص التحصيلات البنكية المقابلة للمبيعات", { lines: ["revenue", "receivables"] }),
+		T("RV-03", "area", "تحليل المرتجعات والخصومات والحوافز بعد تاريخ الإقفال", "تقدير المقابل المتغير والقطع", "schedule", [K$1, V], "ISA 540", "estimate", MGT, "فحص إشعارات الدائن اللاحقة", { lines: ["revenue"] }),
+		T("CS-01", "area", "تحليل تكلفة المبيعات وربطها بحركة المخزون والمشتريات", "الاكتمال والتطابق مع الإيراد", "reconciliation", [C$1, A$1], "ISA 520", "always", MGT, "إعادة بناء التكلفة من حركة المخزون", { lines: ["cogs", "inventory"] }),
+		T("OX-01", "area", "تحليل المصروفات التشغيلية الجوهرية وفواتير عينة منها", "الحدوث والتصنيف", "invoice", [E_, P], "ISA 500", "significant", MGT, "فحص المدفوعات البنكية المقابلة", { lines: [
+			"selling",
+			"admin",
+			"otherIncome"
+		] }),
+		T("KM-01", "kam", "نموذج اختبار انخفاض الشهرة والأصول غير الملموسة مع الخطة الخمسية المعتمدة من المجلس", "منهجية التقييم والتدفقات (IAS 36) — كما في 30 من 40 تقريراً", "forecast", [V], "ISA 540", "estimate", MGT, "نموذج مستقل بافتراضات السوق بمساعدة مختص تقييم", {
+			theme: "impairment-intangibles",
+			lines: ["intangibles", "impairment"]
+		}),
+		T("KM-02", "kam", "مصادر معدل الخصم ومعدل النمو طويل الأجل وتحليل الحساسية وهامش الأمان", "معقولية الافتراضات مقابل بيانات السوق — 21 من 40 تقريراً", "market", [V], "ISA 540", "estimate", MGT, "احتساب مستقل لمعدل الخصم من بيانات السوق", {
+			theme: "impairment-intangibles",
+			lines: ["intangibles", "ppe"]
+		}),
+		T("KM-03", "kam", "تقرير المقيّم المستقل (العقارات أو الأصول أو الأدوات غير المتداولة) مع خطاب التكليف", "كفاءة الخبير واستقلاله ومدخلاته (ISA 500.8)", "valuation", [V], "ISA 500", "estimate", MGT, "تعيين خبير المراجع لإعادة تقييم عينة", {
+			theme: "fair-value",
+			lines: ["investments", "ppe"]
+		}),
+		T("KM-04", "kam", "توثيق نموذج الخسائر الائتمانية المتوقعة: المراحل، السيناريوهات وأوزانها، والتعديلات الإدارية", "التقييم وتحيز الإدارة (IFRS 9)", "recalc", [V], "ISA 540", "estimate", MGT, "إعادة أداء النموذج لعينة وتقدير مستقل للتعديلات", {
+			theme: "credit-losses",
+			lines: ["receivables", "impairment"]
+		}),
+		T("KM-05", "kam", "بيانات المصدر لاختبار اكتمال ودقة البيانات المدخلة في النماذج", "سلامة المدخلات — 18 من 40 تقريراً", "data", [C$1, A$1], "ISA 500", "estimate", MGT, "مطابقة عينة من البيانات مع المستندات الأصلية", { lines: [
+			"receivables",
+			"inventory",
+			"eosb",
+			"provisions"
+		] }),
+		T("KM-06", "kam", "مقارنة التقديرات السابقة بنتائجها الفعلية (ما قُدر العام الماضي وما تحقق)", "مؤشرات تحيز الإدارة (ISA 540.14)", "sensitivity", [V], "ISA 540", "estimate", MGT, "مراجعة لاحقة مستقلة للتقديرات من الحركة اللاحقة", { lines: [
+			"provisions",
+			"receivables",
+			"inventory",
+			"accruals"
+		] }),
+		T("KM-07", "kam", "خطابات المستشارين القانونيين الداخليين والخارجيين عن القضايا والتحقيقات (مباشرة للمراجع)", "الاكتمال والتقييم والإفصاح — 15 من 40 تقريراً", "legal", [
+			C$1,
+			V,
+			P
+		], "ISA 501", "always", "المستشارون القانونيون (يرسلها المراجع)", "اجتماع مع المستشار بحضور الإدارة وإقرار مكتوب", {
+			theme: "provisions-litigation",
+			lines: ["provisions"]
+		}),
+		T("KM-08", "kam", "مراسلات الجهات الرقابية والفحوص والتحقيقات وأي مخالفات", "الالتزام بالأنظمة (ISA 250) — 23 من 40 تقريراً", "regulatory", [C$1, P], "ISA 250", "always", "الالتزام", "الاستعلام من الجهات وإقرار مكتوب من الإدارة", { theme: "provisions-litigation" }),
+		T("KM-09", "kam", "قوائم صلاحيات المستخدمين وسجلات تغييرات الأنظمة وفصل المهام في النظام المالي", "الضوابط العامة لتقنية المعلومات — 33 من 40 تقريراً", "itgc", [A$1, C$1], "ISA 315", "always", "إدارة تقنية المعلومات", "توسيع الإجراءات الأساسية وتحليل البيانات الكاملة", { theme: "it-controls" }),
+		T("KM-10", "kam", "تقييم الإدارة للمواقف الضريبية والزكوية غير المؤكدة ورأي مستشارها الضريبي", "الاعتراف والقياس (IFRIC 23)", "tax", [V, C$1], "ISA 540", "estimate", MGT, "إشراك مختص الضرائب في تقييم مستقل للمواقف", {
+			theme: "tax-uncertainty",
+			lines: [
+				"zakatPayable",
+				"zakatExpense",
+				"provisions"
+			]
+		}),
+		T("KM-11", "kam", "اتفاقيات الاستحواذ أو البيع وتقرير توزيع سعر الشراء", "المعالجة المحاسبية للمعاملات المعقدة (IFRS 3/10)", "contract", [V, P], "ISA 540", "material", MGT, "تقييم مستقل للأصول المستحوذ عليها بمساعدة مختص", {
+			theme: "complex-transactions",
+			lines: ["intangibles", "investments"]
+		}),
+		T("KM-12", "kam", "التقرير الاكتواري الكامل وافتراضات الخصم والتضخم والوفيات", "القياس (IAS 19) مقابل نطاق مستقل", "valuation", [V], "ISA 540", "estimate", "الموارد البشرية", "مقارنة الافتراضات بنطاق خبير المراجع", {
+			theme: "actuarial",
+			lines: ["eosb"]
+		}),
+		T("KM-13", "kam", "تحليل الخصومات والحوافز المستحقة للعملاء وأساس الاستحقاق والتسويات الفعلية اللاحقة", "تقدير المقابل المتغير — كما في تقارير السلع الاستهلاكية", "schedule", [V, K$1], "ISA 540", "estimate", MGT, "توقع مستقل من المطالبات الفعلية والاتجاهات", {
+			theme: "revenue-deductions",
+			lines: ["revenue", "accruals"]
+		}),
+		T("KM-14", "kam", "عقود طويلة الأجل ونسبة الإنجاز وتقديرات التكلفة حتى الإكمال", "توقيت الاعتراف بالإيراد وهوامش العقود (IFRS 15)", "contract", [V, K$1], "ISA 540", "estimate", MGT, "زيارات ميدانية ومقارنة التكاليف الفعلية بالتقديرات السابقة", {
+			theme: "revenue-recognition",
+			lines: ["revenue", "contractLiab"]
+		}),
+		T("KM-15", "kam", "قائمة الأطراف ذات العلاقة من النظام ومصادقات أرصدتهم وعقود معاملاتهم", "الاكتمال والشروط التجارية (IAS 24)", "confirmation", [C$1, P], "ISA 550", "always", MGT, "فحص المعاملات غير المعتادة وقرارات المجلس", {
+			theme: "related-parties",
+			lines: [
+				"partners",
+				"receivables",
+				"payables"
+			]
+		}),
+		T("CM-01", "completion", "الأحداث اللاحقة لتاريخ القوائم حتى تاريخ التقرير (محاضر، عقود، قضايا، تحصيلات)", "التعديل أو الإفصاح (IAS 10)", "minutes", [C$1, P], "ISA 560", "always", MGT, "الاستفسار الموثق وفحص الحسابات اللاحقة"),
+		T("CM-02", "completion", "خطابات المستشارين القانونيين المحدثة حتى تاريخ التقرير", "تحديث القضايا والالتزامات المحتملة", "legal", [C$1], "ISA 501", "always", "المستشارون القانونيون (يرسلها المراجع)", "اجتماع مع المستشار وإقرار الإدارة"),
+		T("CM-03", "completion", "خطاب إقرارات الإدارة موقعاً بتاريخ التقرير", "إقرارات مكتوبة مطلوبة (ISA 580)", "representation", [C$1, P], "ISA 580", "always", "الإدارة والمجلس", "لا بديل — امتناع الإدارة يعني الامتناع عن إبداء الرأي (ISA 580.20)"),
+		T("CM-04", "completion", "القوائم المالية النهائية والإيضاحات بعد قيود التسوية المعتمدة", "اتساق القوائم مع نتائج المراجعة", "disclosure", [P], "ISA 700", "always", MGT, "تعديل المسودة من قبل المراجع ومطالبة الإدارة باعتمادها"),
+		T("CM-05", "completion", "التقرير السنوي ومعلومات مجلس الإدارة (المعلومات الأخرى)", "قراءة المعلومات الأخرى واتساقها (ISA 720)", "disclosure", [P], "ISA 720", "always", "أمين سر المجلس", "الإشارة في التقرير إلى عدم استلام المعلومات الأخرى")
+	];
+	/** without these no opinion can be formed: the signed TB, the statements and notes, the minutes, the journal population, the representations */
+	var ESSENTIAL = /* @__PURE__ */ new Set([
+		"PL-01",
+		"PL-02",
+		"PL-06",
+		"PL-14",
+		"CM-03",
+		"CM-04"
+	]);
+	var INTL = {
+		"TX-01": ["احتساب ضريبة الدخل (الجارية والمؤجلة) وإقراراتها وإيصالات السداد والربوط والنزاعات ومراسلات الجهات الضريبية", "الاكتمال والتقييم (IAS 12، IFRIC 23)"],
+		"EB-01": ["التقرير الاكتواري لالتزامات منافع الموظفين (المعاشات ونهاية الخدمة) وبياناته", "القياس (IAS 19)"],
+		"KM-10": ["تقييم الإدارة للمواقف الضريبية غير المؤكدة ورأي مستشارها الضريبي", "الاعتراف والقياس (IFRIC 23)"]
+	};
+	/** The requests of this engagement: the routine ones every audit needs, the areas that are material or significant, and the
+	judgemental areas its risks point to — each with why it is asked. Ordered by stage, then priority. */
+	function buildRequests(i) {
+		const byLine = new Map(i.risks.map((r) => [r.lineKey, r])), themes = new Set(i.themes ?? []), round = i.round ?? 1, out = [];
+		const has = (t) => (t.lines ?? []).map((k) => byLine.get(k)).filter((r) => !!r && r.amount !== 0);
+		for (const t of LIBRARY) {
+			const lines = has(t), anyLine = !t.lines || lines.length > 0;
+			const sig = lines.some((r) => r.significant), mat = lines.some((r) => Math.abs(r.amount) >= i.materiality), est = lines.some((r) => r.estimate), fr = lines.some((r) => r.fraud);
+			const themed = !!t.theme && themes.has(t.theme);
+			let take = false;
+			if (t.when === "always") take = anyLine;
+			else if (t.when === "prior") take = !!i.hasPrior;
+			else if (t.when === "significant") take = sig || mat || themed;
+			else if (t.when === "material") take = mat || themed;
+			else if (t.when === "estimate") take = est && (sig || mat) || themed;
+			else if (t.when === "fraud") take = fr;
+			if (t.stage === "kam" && t.theme && !themed && !(est && mat)) take = false;
+			if (t.id === "PL-12" && i.goingConcernIssue) take = true;
+			if (!take) continue;
+			const pri = themed || fr || t.id === "PL-12" && i.goingConcernIssue || ESSENTIAL.has(t.id) ? "عالية" : sig || mat || est || t.stage === "planning" || t.stage === "completion" ? "متوسطة" : "منخفضة";
+			const amount = lines.reduce((s, r) => s + Math.abs(r.amount), 0);
+			const why = [
+				themed ? "منطقة حكمية في هذا الملف" : "",
+				fr ? "خطر احتيال مفترض" : "",
+				mat ? "رصيد أكبر من الأهمية النسبية" : sig ? "بند مهم" : "",
+				est ? "يتضمن تقديرات" : "",
+				t.id === "PL-12" && i.goingConcernIssue ? "مؤشرات شك في الاستمرارية" : "",
+				amount ? "الرصيد " + Math.round(amount).toLocaleString("en") : ""
+			].filter(Boolean).join(" · ") || "مطلوب في كل مراجعة";
+			const ev = i.intl && t.kind === "tax" ? {
+				...EVIDENCE.tax,
+				ar: "إقرارات وربوط ومراسلات ضريبية"
+			} : EVIDENCE[t.kind];
+			const [title, purpose] = i.intl && INTL[t.id] ? INTL[t.id] : [t.title, t.purpose];
+			out.push({
+				id: t.id,
+				stage: t.stage,
+				title,
+				purpose,
+				kind: t.kind,
+				evidenceAr: ev.ar,
+				reliability: ev.reliability,
+				assertions: t.assertions,
+				isa: t.isa,
+				from: t.from,
+				alt: t.alt,
+				lineKeys: lines.map((r) => r.lineKey),
+				lines: lines.map((r) => r.ar),
+				theme: t.theme,
+				priority: pri,
+				why,
+				bundle: ev.bundle,
+				round
+			});
+		}
+		const so = {
+			planning: 0,
+			area: 1,
+			kam: 2,
+			completion: 3
+		}, po = {
+			"عالية": 0,
+			"متوسطة": 1,
+			"منخفضة": 2
+		};
+		return out.sort((a, b) => so[a.stage] - so[b.stage] || po[a.priority] - po[b.priority]);
+	}
+	/** What the next round asks: a partial answer asks for the missing part, a rejected document for the alternative evidence,
+	an unavailable one becomes a limitation (asked again only if it is the management representation, which has no substitute). */
+	function nextRound(reqs, evals, round) {
+		const last = /* @__PURE__ */ new Map();
+		for (const e of evals) {
+			const p = last.get(e.id);
+			if (!p || e.round >= p.round) last.set(e.id, e);
+		}
+		const followUps = [], limitations = [], satisfied = [], open = [];
+		for (const r of reqs) {
+			const e = last.get(r.id);
+			if (!e || e.verdict === "open") {
+				open.push(r.id);
+				continue;
+			}
+			if (e.verdict === "accepted") {
+				satisfied.push(r.id);
+				continue;
+			}
+			if (e.verdict === "unavailable") {
+				limitations.push(r);
+				continue;
+			}
+			followUps.push({
+				id: r.id + "-F" + round,
+				of: r.id,
+				round,
+				kind: e.verdict === "rejected" ? "schedule" : r.kind,
+				title: e.verdict === "partial" ? "استكمال: " + r.title : "بديل: " + r.alt,
+				reason: (e.verdict === "partial" ? "المستند المقدم لا يغطي كل المطلوب" : "المستند مرفوض") + (e.note ? " — " + e.note : "")
+			});
+		}
+		return {
+			followUps,
+			limitations,
+			satisfied,
+			open
+		};
+	}
+	/** Documents the entity declared unavailable, weighed against materiality (ISA 705.7–10 and 580.20). */
+	function limitationImpact(limits, risks, materiality, totalAssets = 0) {
+		const byLine = new Map(risks.map((r) => [r.lineKey, r]));
+		const items = limits.map((r) => ({
+			id: r.id,
+			title: r.title,
+			amount: r.lineKeys.reduce((s, k) => s + Math.abs(byLine.get(k)?.amount ?? 0), 0)
+		}));
+		const amount = items.reduce((s, x) => s + x.amount, 0);
+		if (limits.some((r) => r.id === "CM-03")) return {
+			amount,
+			pervasive: true,
+			opinion: "disclaimer",
+			items,
+			basis: "امتنعت الإدارة عن تقديم الإقرارات المكتوبة (ISA 580.20) — امتناع عن إبداء الرأي"
+		};
+		const areas = new Set(limits.flatMap((r) => r.lineKeys)).size;
+		const pervasive = amount >= Math.max(materiality * 5, totalAssets * .2) || areas >= 4;
+		const opinion = amount < materiality ? "unmodified" : pervasive ? "disclaimer" : "qualified";
+		return {
+			amount,
+			pervasive,
+			opinion,
+			items,
+			basis: opinion === "unmodified" ? "القيود على النطاق دون الأهمية النسبية — لا أثر على الرأي" : opinion === "qualified" ? "تعذر الحصول على أدلة كافية لأرصدة جوهرية غير منتشرة — رأي متحفظ «باستثناء» (ISA 705.7ب)" : "تعذر الحصول على أدلة كافية لأرصدة جوهرية ومنتشرة — امتناع عن إبداء الرأي (ISA 705.9)"
+		};
+	}
+	/** Whether the rounds can stop: every request is satisfied, or what remains was declared unavailable (then the report says so). */
+	function canConclude(reqs, evals, round) {
+		const n = nextRound(reqs, evals, round);
+		const done = n.open.length === 0 && n.followUps.length === 0;
+		return {
+			done,
+			reason: done ? n.limitations.length ? "اكتملت الأدلة المتاحة، وما تبقى أقرت الإدارة بعدم توفره — يُصدر التقرير بأثر القيود" : "اكتملت الأدلة المطلوبة — يُصدر التقرير" : n.open.length + " طلب لم يُقدَّم بعد و" + n.followUps.length + " طلب متابعة",
+			...n
+		};
+	}
+	//#endregion
 	//#region app/src/engine/fusion/audit/tb-review-engine.ts
 	var tb_review_engine_exports = /* @__PURE__ */ __exportAll({
 		DEFAULT_ECL_BUCKETS: () => DEFAULT_ECL_BUCKETS,
@@ -4289,18 +5688,11 @@ window.SKEngines = (function() {
 			docs: [["تحليل الإيرادات الأخرى ومستنداتها", "التصنيف (IFRS 18)"]]
 		}
 	};
-	var GENERAL_DOCS = [["ميزان المراجعة النهائي موقعاً من الإدارة", "أساس القوائم وإقرار الإدارة بمسؤوليتها"], ["خطاب إقرارات الإدارة (ISA 580)", "إقرارات مكتوبة في تاريخ التقرير"]];
 	var ACCUM$1 = /مجمع|متراكم|accumulated|مخصص اهلاك|مخصص استهلاك/;
 	var ALLOWANCE = /خسائر ائتمانيه|ديون مشكوك|اضمحلال|allowance|credit loss|impairment/;
 	var SUSPENSE = /معلق|تحت التسويه|وسيط|حساب مؤقت|suspense|clearing/;
 	var RELATED = /طرف ذو علاقه|اطراف ذات علاقه|شركه شقيقه|جاري المدير|جاري الشريك|جاري الشركاء|related part/;
 	var SALARIES = /رواتب|اجور|salar|wages/;
-	var INTL_DOC = {
-		"احتساب الزكاة للسنة": ["احتساب ضريبة الدخل للسنة (الجارية والمؤجلة) والإقرارات", "التحقق من IAS 12 والتشريع الضريبي المطبق"],
-		"الإقرار الزكوي وإيصال السداد وشهادة الزكاة": ["الإقرارات الضريبية وإيصالات السداد ومطابقتها بالمخصص", "مطابقة الالتزام الضريبي"],
-		"الربوط والاعتراضات القائمة": ["الربوط والفحوص الضريبية والنزاعات القائمة مع الجهات الضريبية", "تقييم المواقف الضريبية غير المؤكدة (IFRIC 23)"],
-		"عينة فواتير المبيعات الإلكترونية مع رموز QR": ["عينة فواتير المبيعات وعقودها ومستندات التسليم", "التحقق من الحدوث والدقة"]
-	};
 	var ROUND_PRONE = /* @__PURE__ */ new Set([
 		"provisions",
 		"accruals",
@@ -4934,43 +6326,41 @@ window.SKEngines = (function() {
 				procedures: la.procedures
 			};
 		}).sort((a, b) => b.score - a.score);
-		const requests = GENERAL_DOCS.map(([title, purpose], i) => ({
-			id: "PBC-G" + (i + 1),
-			title,
-			purpose,
-			accounts: [],
-			standard: "ISA 580",
-			priority: "عالية",
-			source: "engine"
-		}));
-		if (fs.hasPrior) requests.push({
-			id: "PBC-G3",
-			title: "القوائم المالية المراجعة للسنة السابقة",
-			purpose: "مطابقة الأرصدة الافتتاحية والمقارنة",
-			accounts: [],
-			standard: "ISA 510",
-			priority: "عالية",
-			source: "engine"
+		const themes = [...new Set(risks.filter((r) => r.significant).flatMap((r) => Object.entries(THEMES).filter(([, t]) => t.lines.includes(r.lineKey)).map(([k]) => k)))];
+		const lib = buildRequests({
+			risks: risks.map((r) => ({
+				lineKey: r.lineKey,
+				ar: r.ar,
+				amount: r.amount,
+				significant: r.significant,
+				estimate: !!LINE_AUDIT[r.lineKey]?.estimate,
+				fraud: !!LINE_AUDIT[r.lineKey]?.fraud,
+				score: r.score
+			})),
+			materiality: mat.overall,
+			hasPrior: fs.hasPrior,
+			themes,
+			intl
 		});
-		for (const r of risks) {
-			if (r.level === "منخفض" && Math.abs(r.amount) < mat.performance) continue;
-			const la = LINE_AUDIT[r.lineKey];
-			if (!la) continue;
-			const accs = fs.lines.find((l) => l.key === r.lineKey).accounts.map((a) => a.code);
-			la.docs.map(([t, p]) => intl ? INTL_DOC[t] ?? [t, p] : [t, p]).forEach(([title, purpose], i) => {
-				if (requests.some((q) => q.title === title)) return;
-				requests.push({
-					id: "PBC-" + r.lineKey + "-" + (i + 1),
-					title,
-					purpose,
-					lineKey: r.lineKey,
-					accounts: accs,
-					standard: inFramework(LINE[r.lineKey]?.standards[0] ?? "ISA 500", framework),
-					priority: r.level === "عالٍ" ? "عالية" : r.level === "متوسط" ? "متوسطة" : "منخفضة",
-					source: "engine"
-				});
-			});
-		}
+		const accountsOf = (keys) => keys.flatMap((k) => fs.lines.find((l) => l.key === k)?.accounts.map((a) => a.code) ?? []);
+		const requests = lib.map((q) => ({
+			id: q.id,
+			title: q.title,
+			purpose: q.purpose,
+			lineKey: q.lineKeys[0],
+			lineKeys: q.lineKeys,
+			accounts: accountsOf(q.lineKeys),
+			standard: q.lineKeys[0] ? inFramework(LINE[q.lineKeys[0]]?.standards[0] ?? q.isa, framework) : q.isa,
+			priority: q.priority,
+			source: "engine",
+			kind: q.kind,
+			evidenceAr: q.evidenceAr,
+			reliability: q.reliability,
+			stage: q.stage,
+			from: q.from,
+			alt: q.alt,
+			why: q.why
+		}));
 		const compliance = complianceOf(fs, findings, requests, opts.evidence ?? {}, framework, cur);
 		const high = findings.filter((f) => f.severity === "high").length, medium = findings.filter((f) => f.severity === "medium").length, low = findings.length - high - medium;
 		const score = Math.min(100, Math.round(risks.slice(0, 5).reduce((s, r) => s + r.score, 0) / Math.max(1, Math.min(5, risks.length)) * .7 + Math.min(30, high * 10 + medium * 3)));
@@ -5227,7 +6617,7 @@ window.SKEngines = (function() {
 	var ai_review_engine_exports = /* @__PURE__ */ __exportAll({
 		DEFAULT_MODEL: () => DEFAULT_MODEL,
 		FINAL_SCHEMA: () => FINAL_SCHEMA,
-		MAX_ROUNDS: () => 6,
+		MAX_ROUNDS: () => MAX_ROUNDS,
 		PING_BODY: () => PING_BODY,
 		REVIEWERS: () => REVIEWERS,
 		ROUND_SCHEMA: () => ROUND_SCHEMA,
@@ -5258,7 +6648,10 @@ window.SKEngines = (function() {
 		"مراجع الامتثال للمعايير والإفصاح",
 		"مدقق المخاطر والأدلة"
 	];
-	var DEFAULT_MODEL = "gemini-2.5-flash";
+	var DEFAULT_MODEL = "gemini-flash-latest";
+	/** no cap: the rounds go on until the evidence is sufficient or what remains is declared unavailable by the entity (then the
+	report carries the limitation, ISA 705); a firm may still pass its own cap to sessionState */
+	var MAX_ROUNDS = Number.POSITIVE_INFINITY;
 	var S$3 = (description) => ({
 		type: "STRING",
 		...description ? { description } : {}
@@ -5888,7 +7281,7 @@ window.SKEngines = (function() {
 			unavailable: [...s.unavailable, requestId]
 		};
 	}
-	function sessionState(s, maxRounds = 6) {
+	function sessionState(s, maxRounds = MAX_ROUNDS) {
 		if (s.final) return {
 			state: "final",
 			label: "صدر التقرير النهائي"
@@ -5900,6 +7293,10 @@ window.SKEngines = (function() {
 		if (s.rounds[s.rounds.length - 1].status === "complete" && !outstanding(s).length) return {
 			state: "complete",
 			label: "اكتملت المراجعة — أصدر التقرير"
+		};
+		if (!outstanding(s).length && s.unavailable.length && !pendingUploads(s).length) return {
+			state: "complete",
+			label: `ما تبقى من الطلبات (${s.unavailable.length}) أقرت الإدارة بعدم توفره — يصدر التقرير بأثر القيود على النطاق (ISA 705)`
 		};
 		if (s.rounds.length >= maxRounds) return {
 			state: "limit",
@@ -6573,865 +7970,6 @@ window.SKEngines = (function() {
 		"تحديد مؤشرات قياس الأثر: الساعات الموفرة، والملاحظات الإضافية، ورضا الفريق"
 	];
 	//#endregion
-	//#region app/src/engine/fusion/audit/global-benchmarks-engine.ts
-	var global_benchmarks_engine_exports = /* @__PURE__ */ __exportAll({
-		BUNDLE: () => BUNDLE,
-		KAMS: () => KAMS,
-		MATERIALITY: () => MATERIALITY,
-		REPORTS: () => REPORTS,
-		SECTOR_AR: () => SECTOR_AR,
-		SOURCES: () => SOURCES,
-		THEMES: () => THEMES,
-		checkMateriality: () => checkMateriality,
-		kamLibrary: () => kamLibrary,
-		materialityPractice: () => materialityPractice,
-		precedentsFor: () => precedentsFor,
-		reportOf: () => reportOf,
-		sectorFromActivity: () => sectorFromActivity,
-		summary: () => summary$1,
-		themeStats: () => themeStats
-	});
-	var BUNDLE = {
-		file: "global_financial_and_audit_research_bundle_extended_verified.pdf",
-		pages: 12506
-	};
-	var SOURCES = [
-		{
-			name: "SEC EDGAR",
-			covers: "US public-company 10-K/10-Q filings",
-			url: "https://www.sec.gov/edgar/searchedgar/companysearch.html",
-			kind: "filings"
-		},
-		{
-			name: "SEC Financial Statement Data Sets",
-			covers: "Machine-readable quarterly financial statement data",
-			url: "https://www.sec.gov/dera/data/financial-statement-data-sets.html",
-			kind: "filings"
-		},
-		{
-			name: "Companies House",
-			covers: "UK company accounts and annual reports",
-			url: "https://find-and-update.company-information.service.gov.uk/",
-			kind: "filings"
-		},
-		{
-			name: "FCA National Storage Mechanism",
-			covers: "UK regulated issuers annual financial reports",
-			url: "https://data.fca.org.uk/#/nsm/nationalstoragemechanism",
-			kind: "filings"
-		},
-		{
-			name: "ESMA ESEF filings",
-			covers: "European electronic annual financial reports",
-			url: "https://registers.esma.europa.eu/publication/",
-			kind: "filings"
-		},
-		{
-			name: "SEDAR+",
-			covers: "Canadian public issuer filings",
-			url: "https://www.sedarplus.ca/",
-			kind: "filings"
-		},
-		{
-			name: "ASIC",
-			covers: "Australian company and financial reporting resources",
-			url: "https://asic.gov.au/for-business/financial-reporting/",
-			kind: "filings"
-		},
-		{
-			name: "SEC Philippines PSE Edge",
-			covers: "Philippine listed-company disclosures",
-			url: "https://edge.pse.com.ph/",
-			kind: "filings"
-		},
-		{
-			name: "HKEXnews",
-			covers: "Hong Kong listed-company financial reports",
-			url: "https://www.hkexnews.hk/",
-			kind: "filings"
-		},
-		{
-			name: "SGX",
-			covers: "Singapore listed-company annual reports",
-			url: "https://www.sgx.com/securities/company-announcements",
-			kind: "filings"
-		},
-		{
-			name: "JSE SENS",
-			covers: "South African issuer announcements and reports",
-			url: "https://senspdf.jse.co.za/",
-			kind: "filings"
-		},
-		{
-			name: "Saudi Tadawul",
-			covers: "Saudi listed-company financial statements",
-			url: "https://www.saudiexchange.sa/",
-			kind: "filings"
-		},
-		{
-			name: "ADX",
-			covers: "UAE Abu Dhabi issuer disclosures",
-			url: "https://www.adx.ae/",
-			kind: "filings"
-		},
-		{
-			name: "DFM",
-			covers: "Dubai listed-company disclosures",
-			url: "https://www.dfm.ae/",
-			kind: "filings"
-		},
-		{
-			name: "Euronext",
-			covers: "European issuer regulatory disclosures",
-			url: "https://live.euronext.com/en/products/equities/company-news",
-			kind: "filings"
-		},
-		{
-			name: "Japan EDINET",
-			covers: "Japanese statutory securities reports",
-			url: "https://disclosure2.edinet-fsa.go.jp/",
-			kind: "filings"
-		},
-		{
-			name: "Korea DART",
-			covers: "Korean corporate filings",
-			url: "https://englishdart.fss.or.kr/",
-			kind: "filings"
-		},
-		{
-			name: "India MCA",
-			covers: "Indian company filings and annual returns",
-			url: "https://www.mca.gov.in/",
-			kind: "filings"
-		},
-		{
-			name: "India SEBI",
-			covers: "Indian listed-company disclosures",
-			url: "https://www.sebi.gov.in/",
-			kind: "filings"
-		},
-		{
-			name: "Brazil CVM",
-			covers: "Brazilian issuer reference forms and financials",
-			url: "https://www.gov.br/cvm/pt-br",
-			kind: "filings"
-		},
-		{
-			name: "Deloitte Transparency Reports",
-			covers: "Audit-firm governance, quality and inspection disclosures",
-			url: "https://www.deloitte.com/global/en/about/story/impact/transparency-report.html",
-			kind: "audit-quality"
-		},
-		{
-			name: "PwC Transparency Reports",
-			covers: "Audit quality and governance reports",
-			url: "https://www.pwc.com/gx/en/about/corporate-governance/transparency-report.html",
-			kind: "audit-quality"
-		},
-		{
-			name: "EY Transparency Reports",
-			covers: "Audit quality transparency reports",
-			url: "https://www.ey.com/en_gl/about-us/transparency-report",
-			kind: "audit-quality"
-		},
-		{
-			name: "KPMG Transparency Reports",
-			covers: "Audit quality and independence reports",
-			url: "https://kpmg.com/xx/en/home/about/governance/transparency-report.html",
-			kind: "audit-quality"
-		},
-		{
-			name: "IAASB",
-			covers: "International auditing standards and implementation reports",
-			url: "https://www.iaasb.org/publications",
-			kind: "standards"
-		},
-		{
-			name: "IESBA",
-			covers: "Ethics and independence standards",
-			url: "https://www.ethicsboard.org/publications",
-			kind: "standards"
-		},
-		{
-			name: "PCAOB",
-			covers: "US audit inspection and standards reports",
-			url: "https://pcaobus.org/oversight/inspections",
-			kind: "audit-quality"
-		},
-		{
-			name: "FRC UK",
-			covers: "Audit quality review and corporate reporting reviews",
-			url: "https://www.frc.org.uk/library/annual-reports-and-reviews/",
-			kind: "audit-quality"
-		},
-		{
-			name: "IFIAR",
-			covers: "Global audit regulator inspection findings",
-			url: "https://www.ifiar.org/activities/inspection-findings/",
-			kind: "audit-quality"
-		},
-		{
-			name: "PCAOB firm inspection reports",
-			covers: "Audit firm inspection reports",
-			url: "https://pcaobus.org/oversight/inspections/firm-inspection-reports",
-			kind: "audit-quality"
-		}
-	];
-	var R$1 = (id, company, country, sector, framework, standard, auditor, since, fy, kind, a, b) => ({
-		id,
-		company,
-		country,
-		sector,
-		framework,
-		standard,
-		auditor,
-		...since ? { since } : {},
-		fy,
-		kind,
-		pages: [a, b]
-	});
-	var REPORTS = [
-		R$1("amazon-2023", "Amazon.com, Inc.", "US", "retail", "US GAAP", "PCAOB", "Ernst & Young LLP", 1996, "FY2023", "Annual report + 10-K", 2, 93),
-		R$1("apple-2024", "Apple Inc.", "US", "tech", "US GAAP", "PCAOB", "Ernst & Young LLP", 2009, "FY2024", "10-K", 94, 214),
-		R$1("cisco-2024", "Cisco Systems, Inc.", "US", "tech", "US GAAP", "PCAOB", "PricewaterhouseCoopers LLP", 1988, "FY2024", "Annual report + 10-K", 215, 348),
-		R$1("walmart-2023", "Walmart Inc.", "US", "retail", "US GAAP", "PCAOB", "Ernst & Young LLP", 1969, "FY2023", "10-K", 349, 446),
-		R$1("adobe-2024", "Adobe Inc.", "US", "tech", "US GAAP", "PCAOB", "KPMG LLP", 1983, "FY2024", "10-K", 447, 547),
-		R$1("jpmorgan-2023", "JPMorgan Chase & Co.", "US", "banking", "US GAAP", "PCAOB", "PricewaterhouseCoopers LLP", 1965, "FY2023", "Annual report", 548, 911),
-		R$1("apple-2020", "Apple Inc.", "US", "tech", "US GAAP", "PCAOB", "Ernst & Young LLP", 2009, "FY2020", "10-K", 912, 1016),
-		R$1("amazon-2024", "Amazon.com, Inc.", "US", "retail", "US GAAP", "PCAOB", "Ernst & Young LLP", 1996, "FY2024", "Annual report + 10-K", 1017, 1107),
-		R$1("apple-2023", "Apple Inc.", "US", "tech", "US GAAP", "PCAOB", "Ernst & Young LLP", 2009, "FY2023", "10-K", 1108, 1187),
-		R$1("berkshire-2025", "Berkshire Hathaway Inc.", "US", "insurance", "US GAAP", "PCAOB", "Deloitte & Touche LLP", 1985, "FY2025", "Annual report + 10-K", 1188, 1341),
-		R$1("jpmorgan-2025", "JPMorgan Chase & Co.", "US", "banking", "US GAAP", "PCAOB", "PricewaterhouseCoopers LLP", 1965, "FY2025", "Annual report", 1342, 1706),
-		R$1("bofa-2025", "Bank of America", "US", "banking", "US GAAP", "PCAOB", "PricewaterhouseCoopers LLP", 1958, "FY2025", "Annual report", 1707, 1818),
-		R$1("pepsico-2025", "PepsiCo, Inc.", "US", "fmcg", "US GAAP", "PCAOB", "KPMG LLP", 1990, "FY2025", "Annual report + 10-K", 1819, 1962),
-		R$1("pg-2026", "The Procter & Gamble Company", "US", "fmcg", "US GAAP", "PCAOB", "Deloitte & Touche LLP", 1890, "FY2026", "10-K", 1963, 2043),
-		R$1("homedepot-2025", "The Home Depot, Inc.", "US", "retail", "US GAAP", "PCAOB", "KPMG LLP", 1979, "FY2025", "10-K", 2044, 2131),
-		R$1("mcdonalds-2025", "McDonald's Corporation", "US", "retail", "US GAAP", "PCAOB", "", void 0, "FY2025", "Annual report (letter and highlights)", 2132, 2204),
-		R$1("nestle-2025", "Nestlé Group", "CH", "fmcg", "IFRS", "ISA", "Ernst & Young Ltd", void 0, "FY2025", "Financial statements", 2205, 2342),
-		R$1("roche-2025", "Roche Group", "CH", "pharma", "IFRS", "ISA", "KPMG AG", void 0, "FY2025", "Finance report", 2343, 2539),
-		R$1("novartis-2025", "Novartis AG", "CH", "pharma", "IFRS", "ISA", "KPMG AG", void 0, "FY2025", "Annual report", 2540, 2817),
-		R$1("ubs-2025", "UBS Group AG", "CH", "banking", "IFRS", "PCAOB", "Ernst & Young Ltd", void 0, "FY2025", "Annual report", 2818, 3184),
-		R$1("allianz-2025", "Allianz SE", "DE", "insurance", "IFRS", "ISA", "PricewaterhouseCoopers GmbH", void 0, "FY2025", "Annual report (extract)", 3185, 3240),
-		R$1("mercedes-2025", "Mercedes-Benz Group AG", "DE", "auto", "IFRS", "ISA", "PricewaterhouseCoopers GmbH", void 0, "FY2025", "Annual report", 3241, 3649),
-		R$1("volkswagen-2025", "Volkswagen Group", "DE", "auto", "IFRS", "ISA", "EY GmbH", void 0, "FY2025", "Annual report", 3650, 4323),
-		R$1("telekom-2025", "Deutsche Telekom AG", "DE", "telecom", "IFRS", "ISA", "Deloitte GmbH", void 0, "FY2025", "Annual report", 4324, 4704),
-		R$1("bp-2025", "BP p.l.c.", "UK", "energy", "IFRS", "ISA", "Deloitte LLP", void 0, "FY2025", "Annual report and Form 20-F", 4705, 5101),
-		R$1("unilever-2025", "Unilever PLC", "UK", "fmcg", "IFRS", "ISA", "KPMG LLP", 2014, "FY2025", "Annual report", 5102, 5385),
-		R$1("astrazeneca-2025", "AstraZeneca PLC", "UK", "pharma", "IFRS", "ISA", "PricewaterhouseCoopers LLP", void 0, "FY2025", "Annual report and Form 20-F", 5386, 5698),
-		R$1("gsk-2025", "GSK plc", "UK", "pharma", "IFRS", "ISA", "Deloitte LLP", void 0, "FY2025", "Annual report", 5699, 5949),
-		R$1("hsbc-2025", "HSBC Holdings plc", "UK", "banking", "IFRS", "ISA", "PricewaterhouseCoopers LLP", void 0, "FY2025", "Annual report", 5950, 6321),
-		R$1("totalenergies-2024", "TotalEnergies SE", "FR", "energy", "IFRS", "PCAOB", "PricewaterhouseCoopers Audit · Ernst & Young Audit", void 0, "FY2024", "Form 20-F", 6322, 6986),
-		R$1("airbus-2023", "Airbus SE", "NL", "industrial", "IFRS", "ISA", "Ernst & Young Accountants LLP", void 0, "FY2023", "Annual report + URD", 6987, 7428),
-		R$1("loreal-2024", "L'Oréal", "FR", "fmcg", "IFRS", "ISA", "", void 0, "FY2024", "Annual report (overview)", 7429, 7448),
-		R$1("sanofi-2025", "Sanofi", "FR", "pharma", "IFRS", "PCAOB", "PricewaterhouseCoopers Audit · Forvis Mazars", void 0, "FY2025", "Form 20-F", 7449, 7746),
-		R$1("toyota-2026", "Toyota Motor Corporation", "JP", "auto", "IFRS", "PCAOB", "PricewaterhouseCoopers Japan LLC", 2006, "FY2026 (Mar)", "Form 20-F", 7747, 8010),
-		R$1("honda-2023", "Honda Motor Co., Ltd.", "JP", "auto", "IFRS", "PCAOB", "KPMG AZSA LLC", void 0, "FY2023 (Mar)", "Form 20-F", 8011, 8257),
-		R$1("softbank-2026", "SoftBank Group Corp.", "JP", "tech", "IFRS", "ISA", "", void 0, "FY2026 (Mar)", "Annual report", 8258, 8443),
-		R$1("mufg-2026", "Mitsubishi UFJ Financial Group", "JP", "banking", "US GAAP", "PCAOB", "Deloitte Touche Tohmatsu LLC", 1976, "FY2026 (Mar)", "Form 20-F", 8444, 8795),
-		R$1("smfg-2026", "Sumitomo Mitsui Financial Group", "JP", "banking", "J-GAAP", "ISA", "KPMG AZSA LLC", void 0, "FY2026 (Mar)", "Consolidated financial statements", 8796, 8915),
-		R$1("samsung-2025", "Samsung Electronics", "KR", "tech", "K-IFRS", "ISA", "", void 0, "FY2025", "Consolidated financial statements", 8916, 9017),
-		R$1("honhai-2025", "Hon Hai Precision (Foxconn)", "TW", "tech", "TIFRS", "ISA", "PricewaterhouseCoopers Taiwan", void 0, "FY2025", "Annual report", 9018, 9185),
-		R$1("tencent-2025", "Tencent Holdings", "CN", "tech", "IFRS", "ISA", "PricewaterhouseCoopers", void 0, "FY2025", "Annual report", 9186, 9468),
-		R$1("reliance-2026", "Reliance Industries", "IN", "energy", "Ind AS", "ISA", "Deloitte Haskins & Sells LLP · Chaturvedi & Shah LLP", void 0, "FY2025-26", "Integrated annual report", 9469, 9615),
-		R$1("infosys-2026", "Infosys Limited", "IN", "tech", "Ind AS", "ISA", "Deloitte Haskins & Sells LLP", void 0, "FY2025-26", "Integrated annual report", 9616, 9998),
-		R$1("aramco-2025", "Saudi Arabian Oil Company (Aramco)", "SA", "energy", "IFRS endorsed in KSA + SOCPA", "ISA", "PricewaterhouseCoopers Public Accountants", void 0, "FY2025", "Annual report", 9999, 10244),
-		R$1("emiratesnbd-2025", "Emirates NBD Bank", "AE", "banking", "IFRS", "ISA", "Ernst & Young Middle East", void 0, "FY2025", "Annual report", 10245, 10375),
-		R$1("eand-2025", "e& (Emirates Telecommunications Group)", "AE", "telecom", "IFRS", "ISA", "Ernst & Young", void 0, "FY2025", "Integrated annual report", 10376, 10604),
-		R$1("rbc-2025", "Royal Bank of Canada", "CA", "banking", "IFRS", "ISA", "PricewaterhouseCoopers LLP", 2016, "FY2025", "Annual report", 10605, 10850),
-		R$1("bhp-2025", "BHP Group Limited", "AU", "mining", "IFRS", "PCAOB", "Ernst & Young", void 0, "FY2025", "Form 20-F + S-K 1300 technical reports", 10851, 12300),
-		R$1("cba-2025", "Commonwealth Bank of Australia", "AU", "banking", "AASB (IFRS)", "ISA", "PricewaterhouseCoopers", void 0, "FY2025", "Annual report", 12301, 12506)
-	];
-	var K$1 = (report, theme, page, title) => ({
-		report,
-		title,
-		theme,
-		page
-	});
-	var KAMS = [
-		K$1("amazon-2023", "tax-uncertainty", 49, "Uncertain Tax Positions"),
-		K$1("amazon-2024", "tax-uncertainty", 1063, "Uncertain Tax Positions"),
-		K$1("apple-2020", "tax-uncertainty", 973, "Uncertain Tax Positions"),
-		K$1("apple-2023", "tax-uncertainty", 1159, "Uncertain Tax Positions"),
-		K$1("apple-2024", "tax-uncertainty", 144, "Uncertain Tax Positions"),
-		K$1("cisco-2024", "revenue-recognition", 289, "Revenue Recognition for Certain Product and Services Revenue"),
-		K$1("cisco-2024", "complex-transactions", 289, "Acquisition of Splunk — Valuation of Customer Contracts and Related Relationships Asset and the Technology Asset Acquired"),
-		K$1("walmart-2023", "provisions-litigation", 399, "Contingencies (opioid-related legal proceedings)"),
-		K$1("adobe-2024", "revenue-recognition", 538, "Performance obligations in cloud-enabled software subscriptions"),
-		K$1("jpmorgan-2023", "credit-losses", 749, "Allowance for Loan Losses – Portfolio-based component of Wholesale Loan and Credit Card Loan Portfolios"),
-		K$1("jpmorgan-2023", "fair-value", 749, "Fair Value of Certain Level 3 Financial Instruments"),
-		K$1("jpmorgan-2025", "credit-losses", 1536, "Allowance for Loan Losses – Portfolio-Based Component of the Wholesale and Credit Card Retained Loan Portfolios"),
-		K$1("jpmorgan-2025", "fair-value", 1536, "Fair Value of Certain Level 3 Financial Instruments"),
-		K$1("bofa-2025", "credit-losses", 1771, "Allowance for Loan and Lease Losses - Commercial and Consumer Card Loans"),
-		K$1("berkshire-2025", "actuarial", 1278, "Unpaid Losses and Loss Adjustment Expenses — short-duration property and casualty claim liabilities"),
-		K$1("berkshire-2025", "actuarial", 1278, "Unpaid Losses and Loss Adjustment Expenses — Retroactive Reinsurance Contracts"),
-		K$1("pepsico-2025", "tax-uncertainty", 1936, "Unrecognized tax benefits"),
-		K$1("pg-2026", "impairment-intangibles", 2001, "Intangible Assets — Gillette Indefinite-Lived Intangible Asset"),
-		K$1("homedepot-2025", "inventory", 2084, "Sufficiency of audit evidence over certain merchandise inventories (retail inventory method)"),
-		K$1("nestle-2025", "revenue-deductions", 2312, "Measurement of revenue as it relates to trade spend"),
-		K$1("nestle-2025", "impairment-intangibles", 2312, "Carrying value of goodwill and indefinite useful life intangible assets"),
-		K$1("roche-2025", "revenue-deductions", 2508, "Government and regulatory mandatory price reductions in the US pharmaceuticals business"),
-		K$1("roche-2025", "impairment-intangibles", 2509, "Carrying value of product intangibles not available for use in the Pharmaceuticals Division"),
-		K$1("novartis-2025", "revenue-deductions", 2790, "Provisions for deductions from revenue related to US Managed Care, Medicare Part D and Medicaid rebate programs"),
-		K$1("ubs-2025", "fair-value", 3047, "Valuation of complex or illiquid instruments at fair value"),
-		K$1("ubs-2025", "credit-losses", 3048, "Expected credit losses"),
-		K$1("ubs-2025", "tax-uncertainty", 3049, "Recognition of deferred tax assets"),
-		K$1("volkswagen-2025", "impairment-intangibles", 4295, "Recoverability of goodwill and acquired brand names"),
-		K$1("volkswagen-2025", "impairment-intangibles", 4295, "Capitalization and recoverability of development costs"),
-		K$1("volkswagen-2025", "provisions-litigation", 4299, "Accounting treatment of the risk provisions for the diesel issue"),
-		K$1("volkswagen-2025", "provisions-litigation", 4300, "Completeness and measurement of provisions for warranty obligations"),
-		K$1("volkswagen-2025", "impairment-assets", 4301, "Determination of the expected residual values of lease assets during impairment testing"),
-		K$1("telekom-2025", "revenue-recognition", 4686, "Revenue recognition"),
-		K$1("bp-2025", "climate", 4837, "Potential impact of climate change and the energy transition"),
-		K$1("bp-2025", "impairment-assets", 4837, "Impairment of upstream oil and gas property, plant and equipment (PP&E) assets"),
-		K$1("bp-2025", "provisions-litigation", 4837, "Decommissioning provisions"),
-		K$1("bp-2025", "fair-value", 4847, "Valuation of commodity financial derivatives, where fraud risks may arise in revenue recognition"),
-		K$1("bp-2025", "fraud-override", 4837, "Management override of controls"),
-		K$1("unilever-2025", "revenue-deductions", 5219, "Revenue recognition – Rebates"),
-		K$1("unilever-2025", "tax-uncertainty", 5220, "Indirect tax contingent liabilities in Brazil"),
-		K$1("unilever-2025", "complex-transactions", 5221, "Ice Cream demerger"),
-		K$1("unilever-2025", "parent-investments", 5222, "Investments in subsidiaries (Parent Company)"),
-		K$1("astrazeneca-2025", "revenue-deductions", 5504, "Recognition and measurement of accruals for Managed Care, Medicaid and Medicare Part D rebates on US Product Sales"),
-		K$1("astrazeneca-2025", "impairment-intangibles", 5505, "Impairment assessment of the product, marketing and distribution rights and other intangibles"),
-		K$1("astrazeneca-2025", "provisions-litigation", 5506, "Recognition and measurement of legal provisions and disclosure of contingent liabilities"),
-		K$1("astrazeneca-2025", "actuarial", 5507, "Valuation of defined benefit obligations in the United Kingdom"),
-		K$1("astrazeneca-2025", "parent-investments", 5503, "Distributable reserves (Company)"),
-		K$1("gsk-2025", "revenue-deductions", 5796, "Valuation of US Returns and Rebates (RAR) accruals"),
-		K$1("gsk-2025", "fair-value", 5797, "Valuation of the ViiV Healthcare Shionogi contingent consideration liability"),
-		K$1("gsk-2025", "impairment-intangibles", 5798, "Valuation of other intangible assets"),
-		K$1("gsk-2025", "tax-uncertainty", 5799, "Valuation of uncertain tax positions, including transfer pricing"),
-		K$1("hsbc-2025", "credit-losses", 6206, "Expected credit losses – Loans and advances to customers (Group)"),
-		K$1("hsbc-2025", "parent-investments", 6206, "Investments in subsidiaries (parent company)"),
-		K$1("totalenergies-2024", "impairment-assets", 6369, "Evaluation of the impairment of non-current assets used in exploration and production activities (E&P and Integrated LNG)"),
-		K$1("totalenergies-2024", "impairment-assets", 6372, "Effect of estimated proved developed hydrocarbon reserves on the depreciation of the oil and gas assets used in production activities"),
-		K$1("airbus-2023", "revenue-recognition", 7380, "Revenue recognition (including revenues and costs at completion for onerous and over-time contracts)"),
-		K$1("airbus-2023", "impairment-assets", 7383, "Recoverability of key program assets - long-lived assets"),
-		K$1("airbus-2023", "fair-value", 7384, "Accounting for derivative financial instruments and hedge ineffectiveness"),
-		K$1("sanofi-2025", "impairment-intangibles", 7636, "Recoverable amount of other intangible assets - Acquired R&D, products, trademarks and other rights"),
-		K$1("sanofi-2025", "revenue-deductions", 7636, "Valuation of the provisions for rebates relating to Sanofi’s business in the United States – Medicaid, Medicare and Managed Care"),
-		K$1("sanofi-2025", "tax-uncertainty", 7637, "Uncertain tax positions"),
-		K$1("toyota-2026", "provisions-litigation", 7906, "Liabilities for the costs of recalls and other safety measures"),
-		K$1("toyota-2026", "credit-losses", 7906, "Allowance for credit losses—Retail finance receivables"),
-		K$1("honda-2023", "provisions-litigation", 8137, "Evaluation of the provision for specific warranty programs"),
-		K$1("honda-2023", "credit-losses", 8137, "Allowance for expected credit losses on retail receivables at the finance subsidiary in the United States"),
-		K$1("honda-2023", "impairment-assets", 8138, "Estimated end of term residual values of lease vehicles at the finance subsidiary in the United States"),
-		K$1("mufg-2026", "credit-losses", 8615, "Allowance for Credit Losses — Macroeconomic Variables in Multiple Economic Forecast Scenarios and Weightings"),
-		K$1("mufg-2026", "credit-losses", 8615, "Allowance for Credit Losses — Krungsri Segment — Qualitative Adjustments"),
-		K$1("mufg-2026", "credit-losses", 8616, "Allowance for Credit Losses — Commercial Segment — Internal Credit Rating"),
-		K$1("smfg-2026", "credit-losses", 8909, "The reasonableness of management's assessment of the reserve for possible loan losses for SMBC's corporate loans"),
-		K$1("samsung-2025", "impairment-assets", 8918, "Evaluation of commencement of depreciation related to construction in progress"),
-		K$1("samsung-2025", "revenue-deductions", 8918, "Sales deduction related to sales promotion activities"),
-		K$1("tencent-2025", "revenue-recognition", 9308, "Revenue recognition on provision of online games value-added services related to in-game permanent virtual items – the estimates of expected user lifetime"),
-		K$1("tencent-2025", "impairment-intangibles", 9309, "Impairment assessments of goodwill, investments in associates and investments in joint ventures"),
-		K$1("tencent-2025", "fair-value", 9311, "Fair value measurement of Level 3 financial instruments"),
-		K$1("reliance-2026", "provisions-litigation", 9519, "Litigation matters"),
-		K$1("reliance-2026", "fair-value", 9519, "Fair Valuation of Investments"),
-		K$1("reliance-2026", "it-controls", 9520, "Information Technology (IT) systems and controls over financial reporting"),
-		K$1("reliance-2026", "revenue-recognition", 9562, "Revenue Recognition (reported by the auditors of Reliance Jio Infocomm)"),
-		K$1("infosys-2026", "revenue-recognition", 9810, "Revenue recognition"),
-		K$1("infosys-2026", "revenue-recognition", 9811, "Revenue recognition - Fixed price contracts using the percentage of completion method"),
-		K$1("aramco-2025", "impairment-intangibles", 10164, "Recoverability of Downstream goodwill and the SABIC brand"),
-		K$1("aramco-2025", "impairment-assets", 10165, "Valuation of property, plant and equipment and assets held for sale"),
-		K$1("aramco-2025", "complex-transactions", 10167, "Sale of non-controlling interest in Jafurah Midstream Gas Company"),
-		K$1("emiratesnbd-2025", "credit-losses", 10336, "Expected Credit Loss allowance against Loans and receivables"),
-		K$1("emiratesnbd-2025", "related-parties", 10338, "Related party transactions and balances"),
-		K$1("eand-2025", "revenue-recognition", 10553, "Revenue recognition"),
-		K$1("eand-2025", "impairment-intangibles", 10554, "Carrying value of cash generating units, including goodwill"),
-		K$1("rbc-2025", "credit-losses", 10745, "Allowance for Credit Losses on Loans Categorized as Stage 1 and Stage 2"),
-		K$1("rbc-2025", "tax-uncertainty", 10745, "Uncertain Tax Positions"),
-		K$1("bhp-2025", "impairment-assets", 11205, "Carrying value of property, plant and equipment"),
-		K$1("bhp-2025", "provisions-litigation", 11205, "Closure and rehabilitation provisions"),
-		K$1("bhp-2025", "provisions-litigation", 11206, "Samarco dam failure provisions recognised and the contingent liabilities disclosed"),
-		K$1("cba-2025", "credit-losses", 12468, "Provisions for loan impairment"),
-		K$1("cba-2025", "provisions-litigation", 12469, "Provisions for ongoing class actions"),
-		K$1("cba-2025", "it-controls", 12470, "Operation of financial reporting Information Technology (IT) systems and controls")
-	];
-	var MATERIALITY = [
-		{
-			report: "bp-2025",
-			currency: "USD",
-			overall: 7e8,
-			prior: 8e8,
-			benchmark: "cash-flow",
-			basis: "Cash flow from operations (2.9%) and underlying replacement cost profit before interest and tax (3.6%)",
-			pct: .029,
-			performancePct: .65,
-			threshold: 35e6,
-			parent: {
-				pct: .006,
-				basis: "net assets"
-			},
-			page: 4849
-		},
-		{
-			report: "unilever-2025",
-			currency: "EUR",
-			overall: 5e8,
-			prior: 5e8,
-			benchmark: "profit",
-			basis: "Normalised profit before tax from continuing operations (€8,946m)",
-			pct: .0559,
-			performancePct: .75,
-			threshold: 25e6,
-			parent: {
-				pct: .0035,
-				basis: "total assets"
-			},
-			page: 5216
-		},
-		{
-			report: "astrazeneca-2025",
-			currency: "USD",
-			overall: 62e7,
-			prior: 5e8,
-			benchmark: "profit",
-			basis: "Profit before tax adding back intangible impairments and contingent-consideration fair value and discount unwind",
-			pct: .05,
-			performancePct: .75,
-			parent: {
-				pct: .004,
-				basis: "net assets"
-			},
-			page: 5503
-		},
-		{
-			report: "gsk-2025",
-			currency: "GBP",
-			overall: 35e7,
-			prior: 3e8,
-			benchmark: "profit",
-			basis: "Profit before tax 4.86% · core profit before tax 3.37% · revenue 1.09% · operating cash flow 4.81%",
-			pct: .0486,
-			performancePct: .7,
-			threshold: 15e6,
-			page: 5800
-		},
-		{
-			report: "hsbc-2025",
-			currency: "USD",
-			overall: 155e7,
-			prior: 15e8,
-			benchmark: "profit",
-			basis: "Profit before tax excluding notable items",
-			pct: .05,
-			performancePct: .75,
-			threshold: 775e5,
-			parent: {
-				pct: .0075,
-				basis: "total assets (capped at 95% of group materiality)"
-			},
-			page: 6205
-		},
-		{
-			report: "airbus-2023",
-			currency: "EUR",
-			overall: 292e6,
-			prior: 281e6,
-			benchmark: "ebit",
-			basis: "EBIT Adjusted",
-			pct: .05,
-			threshold: 15e6,
-			page: 7375
-		},
-		{
-			report: "aramco-2025",
-			currency: "SAR",
-			overall: 2625e7,
-			prior: 3e10,
-			benchmark: "profit",
-			basis: "A percentage of income before income taxes and zakat — SAR 702,860m in note 8 (p. 10202), so 3.7%",
-			pct: .0373,
-			threshold: 188e7,
-			page: 10162
-		}
-	];
-	var THEMES = {
-		"revenue-deductions": {
-			ar: "خصومات الإيراد والحوافز والمرتجعات",
-			en: "Rebates, trade spend and price reductions",
-			lines: [
-				"revenue",
-				"accruals",
-				"receivables"
-			],
-			why: "تُطرح الخصومات والحوافز والمرتجعات من الإيراد عند البيع بتقدير يعتمد على معدلات الاستخدام والمطالبات المتوقعة؛ التقدير معقد وعرضة للتحيز ويؤثر مباشرة في الإيراد.",
-			procedures: [
-				"اختبار تصميم وتشغيل الضوابط على احتساب الاستحقاقات",
-				"بناء توقع مستقل للاستحقاق من المطالبات الفعلية والاتجاهات التاريخية",
-				"مقارنة تقديرات الفترة السابقة بما سُدد فعلاً لاختبار دقة التقدير وتحيزه",
-				"فحص المطالبات والتسويات اللاحقة لتاريخ الإقفال"
-			]
-		},
-		"revenue-recognition": {
-			ar: "الاعتراف بالإيراد",
-			en: "Revenue recognition",
-			lines: [
-				"revenue",
-				"contractLiab",
-				"receivables"
-			],
-			why: "تحديد التزامات الأداء وسعر المعاملة وتوقيت انتقال السيطرة (أو نسبة الإنجاز في العقود طويلة الأجل) يتطلب حكماً مهنياً، ومعالجة حجم كبير من المعاملات عبر أنظمة معقدة.",
-			procedures: [
-				"قراءة عينة من العقود وتحديد شروطها المؤثرة في الاعتراف (IFRS 15)",
-				"اختبار الضوابط الآلية وواجهات الأنظمة مع مختصي تقنية المعلومات",
-				"مطابقة عينة من المعاملات مع العقود والفواتير وإثبات التسليم",
-				"اختبار القطع وتقدير التكاليف حتى الإنجاز في العقود على مدى زمني"
-			]
-		},
-		"credit-losses": {
-			ar: "الخسائر الائتمانية المتوقعة",
-			en: "Expected credit losses",
-			lines: ["receivables"],
-			why: "مخصص الخسائر الائتمانية تقدير مستقبلي يعتمد على سيناريوهات اقتصادية وأوزانها وتصنيف المراحل والتعديلات النوعية على مخرجات النماذج.",
-			procedures: [
-				"اختبار ضوابط النماذج والبيانات والسيناريوهات وأوزانها",
-				"تقييم معقولية المتغيرات الاقتصادية المستقبلية مقابل مصادر خارجية",
-				"فحص عينة من التصنيف إلى المراحل والتقييم الفردي للعملاء",
-				"تقييم التعديلات النوعية والإفصاحات (IFRS 9 / IFRS 7)"
-			]
-		},
-		"tax-uncertainty": {
-			ar: "الموقف الضريبي والزكوي غير المؤكد",
-			en: "Uncertain tax and zakat positions",
-			lines: [
-				"zakatPayable",
-				"zakatExpense",
-				"provisions"
-			],
-			why: "تقدير ما إذا كان الموقف الضريبي سيُقبل وقياس أثره يعتمد على تفسير أنظمة معقدة وعلى مراسلات الجهات الضريبية وأحكام القضاء.",
-			procedures: [
-				"إشراك مختصي الضرائب والزكاة في تقييم الأسس الفنية للمواقف",
-				"فحص مراسلات الهيئة والربوط والاعتراضات",
-				"الحصول على مصادقات من المستشارين القانونيين الخارجيين",
-				"تقييم الإفصاحات (IFRIC 23 / IAS 12 / متطلبات الزكاة)"
-			]
-		},
-		"impairment-intangibles": {
-			ar: "انخفاض الشهرة والأصول غير الملموسة",
-			en: "Goodwill and intangible impairment",
-			lines: ["intangibles", "impairment"],
-			why: "القيمة القابلة للاسترداد تعتمد على توقعات تدفقات نقدية ومعدلات نمو وخصم حساسة؛ تغير بسيط في الافتراض قد يغيّر نتيجة الاختبار.",
-			procedures: [
-				"تقييم منهجية التقييم والنماذج بمساعدة مختصي التقييم",
-				"مقارنة التوقعات بالموازنات المعتمدة والأداء الفعلي التاريخي",
-				"مقارنة معدلات الخصم والنمو بنطاق مستقل من بيانات السوق",
-				"تحليل الحساسية للافتراضات الرئيسة وتقييم الإفصاحات (IAS 36)"
-			]
-		},
-		"impairment-assets": {
-			ar: "انخفاض الأصول طويلة الأجل وتقييمها",
-			en: "Long-lived asset impairment and valuation",
-			lines: [
-				"ppe",
-				"rou",
-				"depreciation",
-				"impairment"
-			],
-			why: "استرداد القيمة الدفترية للأصول الثابتة يعتمد على افتراضات الأسعار والكميات والتكاليف والأعمار والقيم المتبقية وتوقيت بدء الاستهلاك.",
-			procedures: [
-				"تقييم تحديد وحدات توليد النقد ومؤشرات الانخفاض",
-				"اختبار الافتراضات مقابل الخطط المعتمدة وبيانات السوق",
-				"فحص بدء الاستهلاك والأعمار الإنتاجية والقيم المتبقية",
-				"فحص تصنيف الأصول المحتفظ بها للبيع وقياسها (IFRS 5)"
-			]
-		},
-		"provisions-litigation": {
-			ar: "المخصصات والقضايا والالتزامات المحتملة",
-			en: "Provisions, litigation and contingencies",
-			lines: ["provisions", "accruals"],
-			why: "تقدير احتمال الخسارة ومبلغها في القضايا والضمانات والاستدعاءات وإعادة التأهيل يعتمد على أحكام الإدارة ورأي المستشارين القانونيين.",
-			procedures: [
-				"قراءة محاضر مجلس الإدارة واللجان",
-				"الحصول على خطابات مباشرة من المستشارين القانونيين الداخليين والخارجيين",
-				"مقارنة افتراضات التقدير بالتسويات والمدفوعات الفعلية",
-				"تقييم كفاية الإفصاح عن الالتزامات المحتملة (IAS 37)"
-			]
-		},
-		"fair-value": {
-			ar: "القيمة العادلة للأدوات غير المتداولة",
-			en: "Level 3 fair value and derivatives",
-			lines: ["investments"],
-			why: "تقييم الأدوات التي لا سعر سوق لها يعتمد على مدخلات غير قابلة للملاحظة، ما يجعل التقدير ذاتياً وعرضة للتحيز.",
-			procedures: [
-				"إعادة تقييم عينة بشكل مستقل بمساعدة مختصي التقييم",
-				"اختبار المدخلات غير القابلة للملاحظة مقابل معاملات حديثة وبيانات خارجية",
-				"تقييم تصنيف مستويات القيمة العادلة (IFRS 13)",
-				"تقييم الإفصاح عن الحساسية"
-			]
-		},
-		actuarial: {
-			ar: "الالتزامات الاكتوارية ومنافع الموظفين",
-			en: "Actuarial liabilities and employee benefits",
-			lines: ["eosb"],
-			why: "قياس الالتزام يعتمد على افتراضات الخصم والتضخم والوفيات أو أنماط المطالبات، وتغيرها يؤثر جوهرياً في المبلغ.",
-			procedures: [
-				"تقييم كفاءة الخبير الاكتواري واستقلاله",
-				"مقارنة الافتراضات بنطاق معقول مستقل",
-				"اختبار البيانات الأساسية (الموظفون والرواتب أو المطالبات)",
-				"تطوير تقدير مستقل ومقارنته بتقدير الإدارة (IAS 19)"
-			]
-		},
-		"it-controls": {
-			ar: "أنظمة تقنية المعلومات وضوابطها",
-			en: "IT systems and controls",
-			lines: [],
-			why: "التقرير المالي يعتمد على أنظمة آلية تعالج حجماً كبيراً من المعاملات؛ ضعف صلاحيات الدخول أو إدارة التغيير يهدد سلامة البيانات.",
-			procedures: [
-				"اختبار الضوابط العامة لتقنية المعلومات: الدخول وإدارة التغيير والتشغيل",
-				"اختبار الضوابط الآلية والواجهات بين الأنظمة",
-				"تقييم أثر أي قصور في الضوابط على نطاق الإجراءات الأساسية"
-			]
-		},
-		"complex-transactions": {
-			ar: "المعاملات المعقدة وغير المعتادة",
-			en: "Complex and unusual transactions",
-			lines: ["investments"],
-			why: "الاستحواذات والانفصالات وبيع الحصص تتطلب أحكاماً في التصنيف والقياس (السيطرة، القيمة العادلة، الحصص غير المسيطرة).",
-			procedures: [
-				"قراءة الاتفاقيات وتقييم جوهرها الاقتصادي",
-				"تقييم المعالجة المحاسبية مع المختصين الفنيين",
-				"التحقق من المتحصلات والقيم الدفترية في تاريخ المعاملة",
-				"تقييم الإفصاحات (IFRS 3 / IFRS 10)"
-			]
-		},
-		inventory: {
-			ar: "المخزون وتقييمه",
-			en: "Inventory existence and valuation",
-			lines: ["inventory", "cogs"],
-			why: "تقييم المخزون يعتمد على طريقة التكلفة وافتراضات الهوامش والتخفيضات والفاقد، ويعالَج آلياً بحجم بيانات كبير.",
-			procedures: [
-				"حضور الجرد في مواقع مختارة",
-				"بناء توقع مستقل لمدخلات طريقة التقييم",
-				"مطابقة عينة مع فواتير الموردين والمدفوعات",
-				"اختبار صافي القيمة القابلة للتحقق (IAS 2)"
-			]
-		},
-		"fraud-override": {
-			ar: "تجاوز الإدارة للضوابط",
-			en: "Management override of controls",
-			lines: [],
-			why: "خطر تجاوز الإدارة للضوابط قائم في كل منشأة (ISA 240) ويتركز في القيود اليدوية والتقديرات والمعاملات غير المعتادة.",
-			procedures: [
-				"اختبار القيود اليومية والتسويات بمعايير مخاطر",
-				"مراجعة التقديرات بحثاً عن تحيز",
-				"تقييم المبرر التجاري للمعاملات غير المعتادة"
-			]
-		},
-		climate: {
-			ar: "أثر المناخ وتحول الطاقة",
-			en: "Climate change and energy transition",
-			lines: ["ppe", "provisions"],
-			why: "افتراضات أسعار الطاقة والكربون وأعمار الأصول تؤثر في الانخفاض والمخصصات والإفصاحات.",
-			procedures: [
-				"تقييم اتساق افتراضات المناخ بين الخطط والقوائم",
-				"تحليل حساسية الانخفاض لسيناريوهات التحول",
-				"فحص الإفصاحات المتعلقة بالمناخ"
-			]
-		},
-		"parent-investments": {
-			ar: "استثمارات الشركة الأم في التابعة",
-			en: "Parent-company investments in subsidiaries",
-			lines: ["investments"],
-			why: "في القوائم المنفصلة للشركة القابضة تمثل الاستثمارات معظم الأصول، فيؤثر أي انخفاض فيها في الاحتياطيات القابلة للتوزيع.",
-			procedures: [
-				"مقارنة القيمة الدفترية بصافي أصول التابعة أو القيمة السوقية",
-				"تقييم مؤشرات الانخفاض",
-				"التحقق من الاحتياطيات القابلة للتوزيع"
-			]
-		},
-		"related-parties": {
-			ar: "الأطراف ذات العلاقة",
-			en: "Related parties",
-			lines: ["partners"],
-			why: "التعاملات مع الجهات الحكومية والأطراف ذات العلاقة جوهرية ومتطلبات إفصاحها محددة (IAS 24).",
-			procedures: [
-				"حصر الأطراف ذات العلاقة ومقارنتها بالسجلات",
-				"فحص الشروط والموافقات",
-				"تقييم الإفصاح عن التركزات"
-			]
-		}
-	};
-	var SECTOR_AR = {
-		tech: "التقنية",
-		retail: "التجزئة",
-		fmcg: "السلع الاستهلاكية والأغذية",
-		banking: "البنوك",
-		insurance: "التأمين",
-		pharma: "الأدوية",
-		energy: "الطاقة",
-		auto: "السيارات",
-		telecom: "الاتصالات",
-		mining: "التعدين",
-		industrial: "الصناعة",
-		conglomerate: "المجموعات المتنوعة"
-	};
-	var REPORT = Object.fromEntries(REPORTS.map((r) => [r.id, r]));
-	var reportOf = (id) => REPORT[id];
-	var row = (k) => {
-		const r = REPORT[k.report];
-		return {
-			...k,
-			company: r.company,
-			fy: r.fy,
-			country: r.country,
-			sector: r.sector,
-			standard: r.standard,
-			auditor: r.auditor,
-			themeAr: THEMES[k.theme].ar
-		};
-	};
-	function kamLibrary(f = {}) {
-		const q = (f.q || "").trim().toLowerCase();
-		return KAMS.map(row).filter((k) => (!f.theme || k.theme === f.theme) && (!f.sector || k.sector === f.sector) && (!f.standard || k.standard === f.standard) && (!q || [
-			k.title,
-			k.company,
-			k.auditor,
-			k.themeAr,
-			THEMES[k.theme].en
-		].some((s) => s.toLowerCase().includes(q))));
-	}
-	/** Theme counts across the bundle, most frequent first, with the sectors where each appears. */
-	function themeStats() {
-		return Object.keys(THEMES).map((t) => {
-			const ks = KAMS.filter((k) => k.theme === t);
-			return {
-				theme: t,
-				ar: THEMES[t].ar,
-				en: THEMES[t].en,
-				count: ks.length,
-				companies: new Set(ks.map((k) => REPORT[k.report].company)).size,
-				sectors: [...new Set(ks.map((k) => REPORT[k.report].sector))]
-			};
-		}).filter((s) => s.count > 0).sort((a, b) => b.count - a.count || a.ar.localeCompare(b.ar));
-	}
-	/** Sector from a free-text activity (Arabic or English), for choosing the closest precedents. */
-	function sectorFromActivity(activity) {
-		const t = (activity || "").toLowerCase();
-		return [
-			["banking", /بنك|مصرف|تمويل|bank|financ|lending/],
-			["insurance", /تأمين|تكافل|insur|reinsur/],
-			["pharma", /دواء|أدوية|صيدل|pharma|drug|biotech/],
-			["energy", /نفط|بترول|غاز|طاقة|oil|gas|energy|petro/],
-			["mining", /تعدين|منجم|معادن|mining|mineral/],
-			["telecom", /اتصالات|telecom|mobile network/],
-			["auto", /سيار|مركبات|auto|vehicle|motor/],
-			["tech", /تقني|برمج|برامج|حاسب|software|tech|cloud|saas|electronic/],
-			["fmcg", /أغذية|غذائ|لحوم|أغنام|مواشي|ألبان|مشروبات|استهلاك|food|meat|dairy|beverage|consumer/],
-			["retail", /تجزئة|متجر|سوبر|retail|store|e-?commerce/],
-			["industrial", /مقاولات|إنشاء|صناع|مصنع|طيران|construct|manufactur|industrial|aero/]
-		].find(([, re]) => re.test(t))?.[0] ?? "";
-	}
-	/** Real KAMs that match a statement line of the engagement — same sector first, then the rest. */
-	function precedentsFor(lineKey, opts = {}) {
-		const limit = opts.limit ?? 3;
-		return Object.keys(THEMES).filter((t) => THEMES[t].lines.includes(lineKey)).map((t) => {
-			const all = KAMS.filter((k) => k.theme === t).map(row);
-			const ranked = [...all.filter((k) => opts.sector && k.sector === opts.sector), ...all.filter((k) => !opts.sector || k.sector !== opts.sector)];
-			return {
-				theme: t,
-				ar: THEMES[t].ar,
-				why: THEMES[t].why,
-				procedures: THEMES[t].procedures,
-				examples: ranked.slice(0, limit)
-			};
-		}).filter((p) => p.examples.length).sort((a, b) => KAMS.filter((k) => k.theme === b.theme).length - KAMS.filter((k) => k.theme === a.theme).length);
-	}
-	var range = (xs) => xs.length ? {
-		min: Math.min(...xs),
-		max: Math.max(...xs),
-		n: xs.length
-	} : null;
-	/** Observed ranges, computed from the disclosures (not hard-coded). */
-	function materialityPractice() {
-		return {
-			profit: range(MATERIALITY.filter((m) => m.pct !== void 0).filter((m) => m.benchmark === "profit" || m.benchmark === "ebit").map((m) => m.pct)),
-			performance: range(MATERIALITY.filter((m) => m.performancePct !== void 0).map((m) => m.performancePct)),
-			threshold: range(MATERIALITY.filter((m) => m.threshold !== void 0).map((m) => Math.round(m.threshold / m.overall * 1e3) / 1e3)),
-			parentAssets: range(MATERIALITY.filter((m) => m.parent).map((m) => m.parent.pct)),
-			cases: MATERIALITY.map((m) => ({
-				...m,
-				company: REPORT[m.report].company,
-				auditor: REPORT[m.report].auditor,
-				fy: REPORT[m.report].fy
-			}))
-		};
-	}
-	/** The engagement's choices against what auditors disclosed. Advisory: ISA 320 leaves the choice to professional judgement. */
-	function checkMateriality(input) {
-		const p = materialityPractice(), pct = (x) => `${Math.round(x * 1e3) / 10}%`;
-		const cmp = (x, r) => {
-			const v = Math.round(x * 1e3) / 1e3;
-			return !r ? "no-precedent" : v < r.min - 1e-9 ? "below" : v > r.max + 1e-9 ? "above" : "within";
-		};
-		const out = [];
-		if (input.benchmark === "pbz") {
-			const st = cmp(input.rate, p.profit);
-			out.push({
-				key: "rate",
-				label: "نسبة الأهمية من الربح",
-				value: input.rate,
-				status: st,
-				observed: p.profit ? `${pct(p.profit.min)}–${pct(p.profit.max)} في ${p.profit.n} تقارير` : "—",
-				note: st === "within" ? "ضمن ما أفصح عنه مراجعو الشركات العالمية على أساس الربح." : st === "above" ? "أعلى من الممارسة المفصح عنها؛ وثّق مبرر النسبة (ISA 320.A8)." : "أقل من الممارسة المفصح عنها؛ مقبول إن كان الخطر مرتفعاً، ووثّق السبب."
-			});
-		} else if (input.benchmark === "assets") {
-			const st = cmp(input.rate, p.parentAssets);
-			out.push({
-				key: "rate",
-				label: "نسبة الأهمية من الموجودات",
-				value: input.rate,
-				status: st,
-				observed: p.parentAssets ? `${pct(p.parentAssets.min)}–${pct(p.parentAssets.max)} (شركات قابضة)` : "—",
-				note: st === "above" ? "المراجعون استخدموا الموجودات أساساً للشركات القابضة بنسب أقل؛ لمنشأة تشغيلية فضّل أساس الربح أو الإيراد متى كان مستقراً." : "ضمن نطاق أساس الموجودات المفصح عنه للشركات القابضة."
-			});
-		} else out.push({
-			key: "rate",
-			label: "نسبة الأهمية من الإيراد",
-			value: input.rate,
-			status: "no-precedent",
-			observed: "لم يعتمد أي تقرير في الحزمة الإيراد أساساً (GSK قارنت به: 1.09%)",
-			note: "الإيراد أساس مقبول حين يكون الربح متذبذباً أو قريباً من الصفر؛ وثّق سبب العدول عن أساس الربح."
-		});
-		const sp = cmp(input.performanceRate, p.performance);
-		out.push({
-			key: "performance",
-			label: "الأهمية التنفيذية",
-			value: input.performanceRate,
-			status: sp,
-			observed: p.performance ? `${pct(p.performance.min)}–${pct(p.performance.max)} من الأهمية العامة` : "—",
-			note: sp === "within" ? "ضمن الممارسة: 65% عند بيئة رقابة أضعف أو تحريفات سابقة، و75% عند بيئة مستقرة." : sp === "above" ? "أعلى من الممارسة المفصح عنها (الحد الأعلى 75%)." : "أدنى من الممارسة؛ مناسب إن كانت التحريفات السابقة كثيرة."
-		});
-		const stt = cmp(input.trivialRate, p.threshold);
-		out.push({
-			key: "trivial",
-			label: "حد التحريفات الواضحة الضآلة",
-			value: input.trivialRate,
-			status: stt,
-			observed: p.threshold ? `${pct(p.threshold.min)}–${pct(p.threshold.max)} من الأهمية العامة` : "—",
-			note: stt === "within" ? "ضمن حد الإبلاغ للجنة المراجعة الذي أفصح عنه المراجعون." : "خارج حدود الإبلاغ المفصح عنها؛ راجع الحد مع المكلفين بالحوكمة."
-		});
-		return out;
-	}
-	/** Headline numbers for the reference screen. */
-	function summary$1() {
-		const auditors = /* @__PURE__ */ new Map();
-		for (const r of REPORTS) {
-			if (!r.auditor) continue;
-			const f = /Ernst|EY/.test(r.auditor) ? "EY" : /Pricewaterhouse|PwC/.test(r.auditor) ? "PwC" : /KPMG/.test(r.auditor) ? "KPMG" : /Deloitte/.test(r.auditor) ? "Deloitte" : r.auditor;
-			auditors.set(f, (auditors.get(f) || 0) + 1);
-		}
-		return {
-			reports: REPORTS.length,
-			pages: BUNDLE.pages,
-			countries: new Set(REPORTS.map((r) => r.country)).size,
-			kams: KAMS.length,
-			pcaob: KAMS.filter((k) => REPORT[k.report].standard === "PCAOB").length,
-			isa: KAMS.filter((k) => REPORT[k.report].standard === "ISA").length,
-			materiality: MATERIALITY.length,
-			sources: SOURCES.length,
-			auditors: [...auditors.entries()].sort((a, b) => b[1] - a[1])
-		};
-	}
-	//#endregion
 	//#region app/src/engine/fusion/audit/kam-engine.ts
 	var kam_engine_exports = /* @__PURE__ */ __exportAll({
 		removedKams: () => removedKams,
@@ -7444,14 +7982,18 @@ window.SKEngines = (function() {
 		const { fs, materiality } = input, cur = input.currency ?? "ر.س", money = (m) => formatMinor(m, { decimals: 0 }) + " " + cur;
 		const assets = Math.abs(fs.keys.assets.current) || 1;
 		const byKey = /* @__PURE__ */ new Map();
+		const prior = input.sectorPrior ?? themePrior({
+			sector: input.sector,
+			standard: input.standard,
+			exclude: input.exclude
+		});
 		for (const r of input.risks) {
 			const line = fs.lines.find((l) => l.key === r.lineKey), amount = Math.abs(line?.current ?? r.amount ?? 0);
 			if (!amount) continue;
-			const prs = precedentsFor(r.lineKey, {
+			const pr = [...precedentsFor(r.lineKey, {
 				sector: input.sector,
 				limit: 3
-			}), prior = input.sectorPrior ?? {};
-			const pr = [...prs].sort((a, b) => (prior[b.theme] ?? 0) - (prior[a.theme] ?? 0))[0] ?? null;
+			}).filter((p) => !input.exclude || p.examples.some((e) => e.report !== input.exclude))].sort((a, b) => (prior[b.theme] ?? 0) - (prior[a.theme] ?? 0))[0] ?? null;
 			const key = pr ? pr.theme : r.lineKey, estimate = (r.parts?.estimate ?? 0) >= 15;
 			const score = Math.min(100, r.score + (amount >= materiality * 3 ? 10 : 0) + (estimate ? 5 : 0) + (FRAUD_THEMES.has(key) ? 8 : 0));
 			const pct = Math.round(amount / assets * 1e3) / 10;
@@ -7480,11 +8022,11 @@ window.SKEngines = (function() {
 				weight,
 				selected: false,
 				trend: input.priorKeys ? input.priorKeys.includes(key) ? "same" : "new" : null,
-				examples: pr ? pr.examples : []
+				examples: pr ? pr.examples.filter((e) => e.report !== input.exclude) : []
 			});
 		}
 		const out = [...byKey.values()].sort((a, b) => b.weight - a.weight || b.score - a.score);
-		const max = input.max ?? 3;
+		const max = input.max ?? (input.standard === "PCAOB" ? 2 : 3);
 		let n = 0;
 		for (const k of out) if (n < max && (k.score >= 70 || k.score >= 55 && k.amount >= materiality)) {
 			k.selected = true;
@@ -11036,7 +11578,7 @@ window.SKEngines = (function() {
 			tax: t.ctx.taxKind,
 			unclassified: t.ctx.unclassified
 		});
-		const prior = opts.prior === false ? void 0 : sectorPrior(c.sector, c.id);
+		const prior = opts.prior === false ? {} : opts.prior === "smoothed" ? void 0 : sectorPrior(c.sector, c.id);
 		const kams = suggestKams({
 			fs: review.fs,
 			risks: review.risks,
@@ -11045,7 +11587,9 @@ window.SKEngines = (function() {
 			periodEnd: c.yearEnd,
 			sector: c.sector,
 			max: opts.max ?? 3,
-			sectorPrior: prior
+			sectorPrior: prior,
+			exclude: c.id,
+			standard: REPORT_STD.get(c.id)
 		});
 		const rows = KAMS.filter((k) => k.report === id);
 		const themes = [...new Set(rows.map((k) => k.theme))];
@@ -11256,7 +11800,7 @@ window.SKEngines = (function() {
 		if (m) return m[3] + "-" + m[2].padStart(2, "0") + "-" + m[1].padStart(2, "0");
 		return "";
 	}
-	var amountOf = (j) => Math.round(j.lines.reduce((s, l) => s + l.debit, 0) * 100) / 100;
+	var amountOf$1 = (j) => Math.round(j.lines.reduce((s, l) => s + l.debit, 0) * 100) / 100;
 	function integrityChecks(i) {
 		const { tb } = i, E = i.entries ?? [], has = E.length > 0, m = (v) => formatMinor(v, { decimals: 2 });
 		const checks = [];
@@ -11370,7 +11914,7 @@ window.SKEngines = (function() {
 		E.forEach((j) => pairs.set(pairOf(j), (pairs.get(pairOf(j)) ?? 0) + 1));
 		const out = [];
 		E.forEach((j) => {
-			const r = [], amt = amountOf(j), dt = /* @__PURE__ */ new Date(j.date + "T00:00:00Z");
+			const r = [], amt = amountOf$1(j), dt = /* @__PURE__ */ new Date(j.date + "T00:00:00Z");
 			if (weekend.includes(dt.getUTCDay())) r.push({
 				code: "weekend",
 				ar: "مسجل في عطلة نهاية الأسبوع"
@@ -11422,17 +11966,17 @@ window.SKEngines = (function() {
 			entryId: j.id,
 			ref: j.ref ?? j.id,
 			date: j.date,
-			amount: amountOf(j),
+			amount: amountOf$1(j),
 			side: j.date <= periodEnd ? "before" : "after",
 			memo: j.memo ?? ""
 		})).sort((a, b) => a.date.localeCompare(b.date));
 	}
 	function journalTests(E, o) {
-		const unusual = unusualEntries(E, o), ben = benford(E.map(amountOf)), cutoff = o.periodEnd ? cutoffEntries(E, o.periodEnd, o.isResult) : [];
+		const unusual = unusualEntries(E, o), ben = benford(E.map(amountOf$1)), cutoff = o.periodEnd ? cutoffEntries(E, o.periodEnd, o.isResult) : [];
 		const fraudSignal = unusual.some((u) => u.reasons.some((r) => r.code === "backdated") && E.find((j) => j.id === u.entryId).lines.some((l) => o.sensitive(l.account))) || ben.conformity === "nonconformity" && unusual.length >= Math.max(5, E.length * .05);
 		return {
 			count: E.length,
-			total: Math.round(E.reduce((s, j) => s + amountOf(j), 0) * 100) / 100,
+			total: Math.round(E.reduce((s, j) => s + amountOf$1(j), 0) * 100) / 100,
 			unusual,
 			benford: ben,
 			cutoff,
@@ -11738,6 +12282,271 @@ window.SKEngines = (function() {
 	function councilText(ops, dis) {
 		const name = (k) => MEMBERS.find((m) => m.key === k).ar;
 		return ops.map((o) => "— " + name(o.member) + (o.rejected ? " [مرفوض آلياً: استشهاد بدليل غير موجود " + o.unknownCitations.join("، ") + "]" : "") + ": " + o.position + "\n  " + o.reasoning + (o.reply ? "\n  الرد في النقاش: " + o.reply : "") + (o.items.length ? "\n  الثقة: " + o.items.map((x) => x.lineKey + "/" + x.assertion + "=" + x.confidence).join("، ") : "")).join("\n") + (dis.length ? "\nنقاط الخلاف: " + dis.map((d) => d.lineKey + "/" + d.assertion + " (فارق " + d.spread + (d.split ? "، انقسام على الكفاية" : "") + ")").join("؛ ") : "\nلا خلاف جوهري بين الأعضاء.");
+	}
+	//#endregion
+	//#region app/src/engine/fusion/audit/demo-engagement-engine.ts
+	var demo_engagement_engine_exports = /* @__PURE__ */ __exportAll({
+		documents: () => documents,
+		final: () => final,
+		firstRequests: () => firstRequests,
+		followUpDocuments: () => followUpDocuments,
+		pickInsufficient: () => pickInsufficient,
+		round1: () => round1,
+		round2: () => round2,
+		round3: () => round3
+	});
+	var SEV_AR = {
+		high: "عالية",
+		medium: "متوسطة",
+		low: "منخفضة"
+	};
+	var KIND_AR = {
+		classification: "تصنيف",
+		measurement: "قياس",
+		disclosure: "إفصاح",
+		completeness: "اكتمال",
+		analytical: "تحليلي",
+		fraud: "غش",
+		"going-concern": "استمرارية",
+		balance: "أخرى"
+	};
+	var PRIO = {
+		"عالية": 0,
+		"متوسطة": 1,
+		"منخفضة": 2
+	};
+	var OPINION_AR = {
+		unmodified: "غير معدل",
+		qualified: "متحفظ",
+		adverse: "عكسي",
+		disclaimer: "امتناع عن إبداء الرأي"
+	};
+	function money$28(m, cur) {
+		return formatMinor(Math.round(m), { decimals: 0 }) + (cur ? " " + cur : "");
+	}
+	function addDays$1(iso, n) {
+		if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return "";
+		const d = /* @__PURE__ */ new Date(iso.slice(0, 10) + "T00:00:00Z");
+		d.setUTCDate(d.getUTCDate() + n);
+		return d.toISOString().slice(0, 10);
+	}
+	function firstRequests(review, extra = [], max = 8) {
+		const sig = new Set(review.risks.filter((r) => r.significant).map((r) => r.lineKey));
+		return [...review.requests, ...extra.filter((q) => !review.requests.some((x) => x.title === q.title))].slice().sort((a, b) => (PRIO[a.priority] ?? 1) - (PRIO[b.priority] ?? 1) || Number(!sig.has(a.lineKey ?? "")) - Number(!sig.has(b.lineKey ?? ""))).slice(0, max);
+	}
+	var lineOf = (review, q) => q.lineKey ?? review.accounts.find((a) => q.accounts.includes(a.code))?.lineKey ?? "";
+	var amountOf = (review, q) => {
+		const acc = review.accounts.filter((a) => q.accounts.includes(a.code));
+		if (acc.length) return acc.reduce((s, a) => s + Math.abs(a.natural), 0);
+		const r = review.risks.find((x) => x.lineKey === lineOf(review, q));
+		return r ? Math.abs(r.amount) : 0;
+	};
+	var assertionOf = (key) => /cash|bank|receiv/.test(key) ? "existence" : /revenue|sales/.test(key) ? "cutoff" : /inventor|ppe|intang|goodwill|invest/.test(key) ? "valuation" : /payable|accru|loan|provision/.test(key) ? "completeness" : "accuracy";
+	function round1(review, ctx, extra = []) {
+		const reqs = firstRequests(review, extra);
+		const sig = review.risks.filter((r) => r.significant);
+		const mat = review.materiality, cur = ctx.currency;
+		const top = review.findings.slice().sort((a, b) => (a.severity === "high" ? 0 : a.severity === "medium" ? 1 : 2) - (b.severity === "high" ? 0 : b.severity === "medium" ? 1 : 2)).slice(0, 6);
+		return {
+			status: "needs_docs",
+			executiveSummary: `راجع المجلس ميزان «${ctx.company}» (${review.summary.accounts} حساباً) بأهمية نسبية ${money$28(mat.overall, cur)} على أساس ${mat.benchmarkAr}. ` + (sig.length ? `المخاطر الجوهرية: ${sig.map((r) => r.ar).join("، ")}. ` : "") + `طُلب ${reqs.length} مستنداً لتغطيتها قبل إبداء الرأي.`,
+			riskScore: Math.min(90, 30 + sig.length * 8 + top.filter((f) => f.severity === "high").length * 6),
+			boardOpinions: [
+				{
+					reviewer: REVIEWERS[0],
+					opinion: `التصنيف والقياس في الميزان متسقان مع ${review.compliance.length} معياراً مؤثراً؛ ${top.length ? "أبرز ما يحتاج دليلاً: " + top.slice(0, 2).map((f) => f.title).join("، ") : "لا ملاحظات جوهرية في القراءة الأولى"}.`
+				},
+				{
+					reviewer: REVIEWERS[1],
+					opinion: "الإفصاحات تتطلب إثبات الأرصدة الرئيسية والأحداث اللاحقة قبل الاعتماد؛ نطلب المستندات المؤيدة لكل بند جوهري."
+				},
+				{
+					reviewer: REVIEWERS[2],
+					opinion: sig.length ? `نركز الأدلة على ${sig.slice(0, 3).map((r) => r.ar).join(" و")} لأنها الأعلى خطراً وقيمة.` : "المخاطر في الحدود المعتادة؛ نكتفي بالإجراءات الأساسية."
+				}
+			],
+			findings: top.map((f) => ({
+				accountCode: f.code ?? "",
+				accountName: f.account ?? "",
+				standardCode: f.standard,
+				issueType: KIND_AR[f.kind] ?? "أخرى",
+				severity: SEV_AR[f.severity] ?? "متوسطة",
+				comment: f.title + (f.detail ? ": " + f.detail : ""),
+				recommendation: f.action || "الحصول على المستند المؤيد وتسوية الفرق"
+			})),
+			requestedDocuments: reqs.map((q, i) => ({
+				id: "REQ-" + (i + 1),
+				title: q.title,
+				purpose: q.purpose || q.why || "إثبات الرصيد",
+				relatedAccounts: q.accounts,
+				standardCode: q.standard,
+				priority: q.priority,
+				lineKey: lineOf(review, q),
+				assertion: q.assertion || assertionOf(lineOf(review, q)),
+				effort: q.effort || "medium"
+			})),
+			confidence: sig.map((r) => ({
+				lineKey: r.lineKey,
+				assertion: assertionOf(r.lineKey),
+				value: .35
+			})),
+			decision: "request_more_evidence",
+			nextStepGuidance: "ارفع المستندات المطلوبة ثم شغّل الجولة التالية."
+		};
+	}
+	function body(key, title, amount, ctx, date) {
+		const pe = ctx.periodEnd || "نهاية الفترة";
+		if (/cash|bank/.test(key) || /بنك|نقد/.test(title)) return `مصادقة بنكية مستلمة مباشرة من البنك.\nالرصيد الدفتري في ${pe}: ${amount}\nالرصيد حسب البنك: ${amount}\nالفرق: لا يوجد. لا تسهيلات أو رهونات غير مفصح عنها.`;
+		if (/receiv/.test(key) || /عملاء|مدين/.test(title)) return `ملخص مصادقات العملاء كما في ${pe}.\nالرصيد الإجمالي: ${amount}\nأُرسلت 25 مصادقة إيجابية تغطي 68٪ من الرصيد؛ وردت 21 مصادقة مطابقة.\nأعمار الديون مرفقة؛ 4 مصادقات لم يرد عليها بعد.`;
+		if (/inventor/.test(key) || /مخزون|جرد/.test(title)) return `محضر الجرد الفعلي في ${pe} بحضور ممثل المراجع.\nقيمة المخزون الدفترية: ${amount}\nفروق الجرد: 0.3٪ سُوّيت في الدفاتر. اختبار صافي القيمة البيعية: لا انخفاض جوهري.`;
+		if (/ppe|intang|goodwill|asset/.test(key) || /أصول|ممتلكات|شهرة/.test(title)) return `سجل الأصول غير المتداولة وحركتها خلال السنة.\nصافي القيمة الدفترية: ${amount}\nالإضافات مؤيدة بفواتير وعقود؛ اختبار الانخفاض في القيمة (IAS 36) لم يظهر خسارة.`;
+		if (/revenue|sales/.test(key) || /إيراد|مبيعات/.test(title)) return `عينة من فواتير المبيعات حول تاريخ ${pe} (قطع الفترة).\nإجمالي الإيرادات: ${amount}\n30 فاتورة مطابقة لإشعارات التسليم والتحصيل؛ لا مبيعات مسجلة بعد نهاية الفترة ضمن الفترة.`;
+		if (/payable|accru/.test(key) || /موردين|دائن|مستحق/.test(title)) return `مصادقات الموردين والبحث عن الالتزامات غير المسجلة.\nالرصيد: ${amount}\nفحصت المدفوعات اللاحقة حتى ${date}؛ لا التزامات غير مسجلة.`;
+		if (/loan|borrow|lease/.test(key) || /قرض|تمويل|إيجار/.test(title)) return `عقود التمويل وجداول السداد ومصادقات الجهات الممولة.\nالرصيد القائم: ${amount}\nالتعهدات المالية مستوفاة كما في ${pe}.`;
+		if (/zakat|tax/.test(key) || /زكاة|ضريب/.test(title)) return `الإقرار والربط وحساب الوعاء.\nالمخصص: ${amount}\nالربوط النهائية حتى السنة السابقة مرفقة؛ لا اعتراضات قائمة جوهرية.`;
+		if (/going|continu/.test(key) || /استمرار/.test(title)) return `خطة الإدارة والتدفقات النقدية المتوقعة لاثني عشر شهراً بعد ${pe}.\nالتسهيلات غير المستخدمة كافية لتغطية الالتزامات القريبة.`;
+		return `جدول تفصيلي بالرصيد مع المستندات المؤيدة.\nالرصيد: ${amount}\nمطابق للدفاتر والميزان.`;
+	}
+	function documents(review, requests, ctx, round = 1) {
+		const date = addDays$1(ctx.periodEnd, 45) || (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+		return requests.map((q) => {
+			const key = lineOf(review, q), amt = money$28(amountOf(review, q), ctx.currency);
+			const text = `مستند تجريبي (عرض قدرات SQC) — ليس مستنداً حقيقياً\nإلى: ${ctx.auditFirm || "المراجع الخارجي"}\nمن: إدارة ${ctx.company}\nالموضوع: ${q.title}\nالتاريخ: ${date}\nالمرجع: DOC-${q.id}-${round}\n\n` + body(key, q.title, amt, ctx, date);
+			return {
+				requestId: q.id,
+				fileName: `${q.id}-${round}-مستند.txt`,
+				text
+			};
+		});
+	}
+	function pickInsufficient(review, requests) {
+		if (!requests.length) return null;
+		const by = (re) => requests.find((q) => re.test(lineOf(review, q)) || re.test(q.title));
+		return (by(/receiv|عملاء|مدين/) ?? by(/revenue|إيراد|مبيعات/) ?? requests[Math.min(1, requests.length - 1)]).id;
+	}
+	function round2(review, requests, uploads, ctx) {
+		const weak = pickInsufficient(review, requests), wq = requests.find((q) => q.id === weak);
+		const date = addDays$1(ctx.periodEnd, 45);
+		const sig = review.risks.filter((r) => r.significant);
+		const weakLine = wq ? lineOf(review, wq) : "";
+		return {
+			status: "needs_docs",
+			executiveSummary: `راجع المجلس ${uploads.length} مستنداً: قُبل ${uploads.length - (weak ? 1 : 0)}` + (wq ? `، ووُجد «${wq.title}» غير كافٍ فطُلب استكماله.` : "."),
+			riskScore: Math.max(15, 20 + sig.length * 5),
+			boardOpinions: [
+				{
+					reviewer: REVIEWERS[0],
+					opinion: "المستندات المقبولة تؤيد الأرصدة المسجلة دون فروق جوهرية."
+				},
+				{
+					reviewer: REVIEWERS[1],
+					opinion: wq ? "لا يكتمل الإفصاح عن " + wq.title + " قبل استكمال المستند." : "الإفصاحات مؤيدة."
+				},
+				{
+					reviewer: REVIEWERS[2],
+					opinion: wq ? "مصادقات لم يُرد عليها تحتاج إجراءً بديلاً (تحصيلات لاحقة أو فواتير مؤيدة) وفق ISA 505." : "الأدلة كافية."
+				}
+			],
+			findings: [],
+			documentsReviewed: uploads.map((u) => ({
+				fileName: u.fileName,
+				requestId: u.requestId,
+				verdict: u.requestId === weak ? "غير كافٍ" : "مقبول",
+				notes: u.requestId === weak ? "بعض البنود دون رد أو مستند مؤيد؛ يلزم إجراء بديل." : "مطابق للدفاتر والميزان؛ مستلم من مصدر مستقل أو مؤيد بمستندات.",
+				extracted: {
+					documentDate: date,
+					reference: "DOC-" + u.requestId + "-1",
+					counterparty: ctx.company
+				}
+			})),
+			requestedDocuments: wq ? [{
+				id: "REQ-" + (requests.length + 1),
+				title: "استكمال: " + wq.title + " — إجراء بديل للبنود دون رد",
+				purpose: "التحصيلات اللاحقة والفواتير المؤيدة للبنود التي لم تُصادَق",
+				relatedAccounts: wq.accounts,
+				standardCode: "ISA 505",
+				priority: "عالية",
+				lineKey: weakLine,
+				assertion: "existence",
+				effort: "low"
+			}] : [],
+			confidence: sig.map((r) => ({
+				lineKey: r.lineKey,
+				assertion: assertionOf(r.lineKey),
+				value: r.lineKey === weakLine ? .55 : .8
+			})),
+			decision: wq ? "request_more_evidence" : "sufficient",
+			nextStepGuidance: wq ? "ارفع مستند الاستكمال ثم شغّل الجولة الأخيرة." : "الأدلة كافية — أصدر التقرير النهائي."
+		};
+	}
+	function followUpDocuments(review, original, follow, ctx) {
+		const date = addDays$1(ctx.periodEnd, 60) || (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+		const text = `مستند تجريبي (عرض قدرات SQC) — ليس مستنداً حقيقياً\nمن: إدارة ${ctx.company}\nالموضوع: ${follow.title}\nالتاريخ: ${date}\n\nالبنود الأربعة التي لم يُرد على مصادقاتها: حُصّلت بالكامل بعد نهاية الفترة (كشوف البنك مرفقة) وفواتيرها وإشعارات تسليمها مطابقة. قيمة البنود: ${money$28(amountOf(review, follow) * .08, ctx.currency)}.`;
+		return [{
+			requestId: follow.id,
+			fileName: `${follow.id}-استكمال.txt`,
+			text
+		}, ...original ? [{
+			requestId: original.id,
+			fileName: `${original.id}-2-مستند-مكمل.txt`,
+			text
+		}] : []];
+	}
+	function round3(review, uploads, ctx) {
+		const sig = review.risks.filter((r) => r.significant);
+		return {
+			status: "complete",
+			executiveSummary: `اكتملت الأدلة: قُبل مستند الاستكمال، وغطت المستندات المقبولة ${sig.length ? "كل المخاطر الجوهرية" : "البنود الرئيسية"} لـ«${ctx.company}». الأدلة كافية وملائمة لإبداء الرأي.`,
+			riskScore: 15,
+			boardOpinions: REVIEWERS.map((r) => ({
+				reviewer: r,
+				opinion: "الأدلة كافية وملائمة؛ لا اعتراض على إصدار التقرير."
+			})),
+			findings: [],
+			documentsReviewed: uploads.map((u) => ({
+				fileName: u.fileName,
+				requestId: u.requestId,
+				verdict: "مقبول",
+				notes: "الإجراء البديل كافٍ: تحصيلات لاحقة مطابقة.",
+				extracted: { counterparty: ctx.company }
+			})),
+			requestedDocuments: [],
+			confidence: sig.map((r) => ({
+				lineKey: r.lineKey,
+				assertion: assertionOf(r.lineKey),
+				value: .9
+			})),
+			decision: "sufficient",
+			nextStepGuidance: "أصدر التقرير النهائي."
+		};
+	}
+	function final(review, derived, kams, ctx) {
+		const letter = review.findings.filter((f) => f.severity !== "high").slice(0, 5);
+		return {
+			overallOpinion: OPINION_AR[derived.opinion] ?? "غير معدل",
+			headline: `${derived.ar} على القوائم المالية لـ«${ctx.company}»${ctx.periodEnd ? " للسنة المنتهية في " + ctx.periodEnd : ""}`,
+			summary: `أنهى المجلس ثلاث جولات: طلب المستندات، مراجعتها وطلب استكمال واحد، ثم الاكتفاء. ` + derived.basis.join(" "),
+			keyAuditMatters: kams.slice(0, 4).map((k) => ({
+				title: k.title,
+				why: k.why || k.description || "",
+				how: k.how
+			})),
+			complianceDiscussion: review.compliance.slice(0, 12).map((c) => ({
+				standardCode: c.code,
+				status: c.status === "يتطلب أدلة" ? "ممتثل" : c.status,
+				discussion: c.status === "يتطلب أدلة" ? "استُكملت الأدلة المطلوبة في الجولات؛ " + c.discussion : c.discussion
+			})),
+			adjustments: [],
+			managementLetter: letter.map((f) => ({
+				title: f.title,
+				observation: f.detail || f.title,
+				effect: f.basis,
+				recommendation: f.action || "تعزيز الرقابة على البند",
+				priority: SEV_AR[f.severity] ?? "متوسطة"
+			})),
+			limitations: [],
+			closingStatement: "مراجعة تجريبية لعرض قدرات SQC: المستندات مولّدة من أرقام الميزان، والرأي مشتق آلياً وفق ISA 705 ويبقى للشريك المسؤول."
+		};
 	}
 	//#endregion
 	//#region app/src/engine/fusion/audit/disclosures-engine.ts
@@ -12688,22 +13497,29 @@ window.SKEngines = (function() {
 		const opexCash = Math.abs(v("selling")) + Math.abs(v("admin"));
 		const capex = Math.abs(fs.cf?.find((r) => r.key === "cf-inv-ppe")?.current ?? 0);
 		const zakat = Math.abs(v("zakatPayable"));
+		const costBase = cogs || cogs + opexCash, dpoOnCosts = !cogs && costBase > 0;
+		const k = fs.keys, finance = Math.abs(k.finance?.current ?? 0), refinance = (k.profit?.current ?? 0) > 0 && (k.operating?.current ?? 0) >= 3 * finance;
 		return {
 			openingCash: v("cash"),
 			monthlyRevenue: Math.round(rev / 12),
 			grossMargin: rev ? Math.max(-1, Math.min(1, (rev - cogs) / rev)) : 0,
 			monthlyFixedCosts: Math.round(opexCash / 12),
 			dsoDays: rev ? Math.round(Math.abs(v("receivables")) / rev * 365) : 0,
-			dpoDays: cogs ? Math.round(Math.abs(v("payables")) / cogs * 365) : 0,
+			dpoDays: costBase ? Math.round(Math.abs(v("payables")) / costBase * 365) : 0,
 			openingReceivables: Math.abs(v("receivables")),
 			openingPayables: Math.abs(v("payables")),
-			monthlyDebtService: Math.round(Math.abs(v("loansCl")) / 12),
+			monthlyDebtService: Math.round((refinance ? finance : Math.abs(v("loansCl"))) / 12),
 			monthlyCapex: Math.round(capex / 12),
 			zakatDue: zakat ? {
 				month: 4,
 				amount: zakat
 			} : void 0,
-			undrawnFacilities: o.undrawnFacilities ?? 0
+			undrawnFacilities: o.undrawnFacilities ?? 0,
+			...dpoOnCosts ? { dpoOnCosts } : {},
+			...o.financial ? { financial: true } : {},
+			...refinance ? { refinance } : {},
+			...opexCash ? { variableCostShare: Math.round(Math.min(.8, Math.max(cogs ? 0 : .5, Math.abs(v("selling")) / opexCash)) * 100) / 100 } : {},
+			...rev ? { operatingMargin: Math.round((k.operating?.current ?? 0) / rev * 1e3) / 1e3 } : {}
 		};
 	}
 	function run(b, s, mit = []) {
@@ -12712,8 +13528,9 @@ window.SKEngines = (function() {
 		const margin = Math.max(-1, Math.min(1, b.grossMargin + s.marginPts)), dso = Math.max(0, b.dsoDays + s.dsoDelta);
 		for (let m = 1; m <= 12; m++) {
 			const revenue = Math.max(0, b.monthlyRevenue * (1 + s.revenuePct)), cogs = revenue * (1 - margin);
-			const recEnd = revenue * dso / 30, payEnd = cogs * b.dpoDays / 30;
-			const op = revenue - cogs - b.monthlyFixedCosts * (1 + (s.fixedPct ?? 0)) - (recEnd - rec) + (payEnd - pay);
+			const recEnd = revenue * dso / 30, payEnd = (cogs + (b.dpoOnCosts ? b.monthlyFixedCosts * (1 + (s.fixedPct ?? 0)) : 0)) * b.dpoDays / 30;
+			const vs = b.variableCostShare ?? 0, costs = b.monthlyFixedCosts * (1 + (s.fixedPct ?? 0)) * (1 - vs + vs * (1 + s.revenuePct));
+			const op = revenue - cogs - costs - (recEnd - rec) + (payEnd - pay);
 			rec = recEnd;
 			pay = payEnd;
 			cash += op - b.monthlyDebtService - b.monthlyCapex;
@@ -12727,8 +13544,25 @@ window.SKEngines = (function() {
 		}
 		return { months };
 	}
-	function summarise(b, s, mit) {
-		const { months } = run(b, s);
+	/** «Severe but plausible» for this entity: a margin squeeze or cost rise sized to its own operating margin — five points off a
+	3% retailer is not plausible, it is a different business (full shocks from a 10% operating margin up) — and a collections
+	delay sized to the days of credit it actually gives. */
+	function calibrate(b, s) {
+		const dso = s.dsoDelta > 0 ? { dsoDelta: Math.min(s.dsoDelta, Math.max(3, Math.round(b.dsoDays * .5))) } : {};
+		if (b.operatingMargin === void 0 || b.operatingMargin >= .1) return {
+			...s,
+			...dso
+		};
+		const k = Math.max(.2, b.operatingMargin / .1);
+		return {
+			...s,
+			...dso,
+			marginPts: s.marginPts * k,
+			...s.fixedPct ? { fixedPct: s.fixedPct * k } : {}
+		};
+	}
+	function summarise(b, s0, mit) {
+		const s = calibrate(b, s0), { months } = run(b, s);
 		const min = months.reduce((a, x) => x.cash < a.cash ? x : a, months[0]);
 		const short = months.find((x) => x.cash + b.undrawnFacilities < 0);
 		const path = {
@@ -12785,7 +13619,7 @@ window.SKEngines = (function() {
 		const worst = paths.reduce((a, x) => x.headroom < a.headroom ? x : a, paths[0] ?? base);
 		const severeOk = paths.every((p) => p.headroom >= 0), mitigatedOk = paths.every((p) => p.headroom >= 0 || (p.mitigated?.headroom ?? -1) >= 0);
 		const high = (input.indicators ?? []).filter((x) => x.severity === "high").length;
-		const conclusion = base.headroom < 0 ? "material-uncertainty" : severeOk && !high ? "no-material-uncertainty" : mitigatedOk ? "close-call" : "material-uncertainty";
+		const conclusion = b.financial ? high ? "close-call" : "no-material-uncertainty" : base.headroom < 0 ? "material-uncertainty" : severeOk && !high ? "no-material-uncertainty" : mitigatedOk ? "close-call" : "material-uncertainty";
 		return {
 			base,
 			paths,
@@ -12797,7 +13631,7 @@ window.SKEngines = (function() {
 				"close-call": "أساس الاستمرارية ملائم مع حكم مهم يستوجب الإفصاح (حالة قريبة)",
 				"material-uncertainty": "عدم تأكد جوهري محتمل يتعلق بالاستمرارية"
 			}[conclusion],
-			why: conclusion === "material-uncertainty" ? base.headroom < 0 ? "حتى في الحالة الأساسية ينفد النقد والتسهيلات خلال الاثني عشر شهراً القادمة (الشهر " + base.shortfallMonth + ")." : "سيناريو «" + worst.ar + "» يستنفد النقد والتسهيلات ولا تكفي الإجراءات المخففة المتاحة لتغطيته." : conclusion === "close-call" ? "بعض السيناريوهات الحادة تستنفد النقد لولا الإجراءات المخففة؛ يُفصح عن الحكم المهم وتقييم قابلية تنفيذ الإجراءات (IAS 1.122)." : "يبقى النقد والتسهيلات موجبة في كل السيناريوهات الحادة المعقولة خلال الاثني عشر شهراً.",
+			why: b.financial ? "منشأة مالية: تُقيَّم الاستمرارية بنسب السيولة التي تفرضها الجهة الرقابية (تغطية السيولة وصافي التمويل المستقر) وكفاية رأس المال وخطط التمويل، لا بتوقع التدفق التشغيلي لمنشأة تجارية." : conclusion === "material-uncertainty" ? base.headroom < 0 ? "حتى في الحالة الأساسية ينفد النقد والتسهيلات خلال الاثني عشر شهراً القادمة (الشهر " + base.shortfallMonth + ")." : "سيناريو «" + worst.ar + "» يستنفد النقد والتسهيلات ولا تكفي الإجراءات المخففة المتاحة لتغطيته." : conclusion === "close-call" ? "بعض السيناريوهات الحادة تستنفد النقد لولا الإجراءات المخففة؛ يُفصح عن الحكم المهم وتقييم قابلية تنفيذ الإجراءات (IAS 1.122)." : "يبقى النقد والتسهيلات موجبة في كل السيناريوهات الحادة المعقولة خلال الاثني عشر شهراً.",
 			highIndicators: high
 		};
 	}
@@ -17405,68 +18239,316 @@ window.SKEngines = (function() {
 	}
 	/** Arabic "لـ" joined to a word: «ل» + «الشركة» → «للشركة», «ل» + «شركة» → «لشركة». */
 	var lam = (w) => w.startsWith("ال") ? "لل" + w.slice(2) : "ل" + w;
+	/** The independent auditor's report as the bundle's reports write it — Saudi Aramco (PwC, ISA endorsed in the Kingdom),
+	Emirates NBD and e& (UAE Federal Decree-Law No. 32 of 2021), and the Egyptian form: opinion; what we have audited; basis;
+	independence; going concern; our audit approach with the materiality table and the scope; the key audit matters in two
+	columns; other information; the board's and the auditor's responsibilities in full; the report on other legal and
+	regulatory requirements where the law asks for one; the signature with the licence. */
 	function auditorsReport(i) {
-		const eg = i.framework === "EAS", co = i.company || "المنشأة", end = i.periodEnd || "[تاريخ نهاية الفترة]";
-		const fw = eg ? "معايير المحاسبة المصرية وفي ضوء القوانين واللوائح المصرية السارية" : i.framework === "SME" ? "المعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم المعتمد في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من الهيئة السعودية للمراجعين والمحاسبين" : "المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من الهيئة السعودية للمراجعين والمحاسبين";
-		const isa = eg ? "معايير المراجعة المصرية" : "المعايير الدولية للمراجعة المعتمدة في المملكة العربية السعودية";
-		const ethics = eg ? "متطلبات السلوك المهني ذات الصلة في جمهورية مصر العربية" : "الميثاق الدولي لسلوك وآداب المهنة للمحاسبين المهنيين المعتمد في المملكة العربية السعودية";
+		const J = i.framework === "EAS" ? "EG" : i.jurisdiction ?? "SA", eg = J === "EG", ae = J === "AE", intl = J === "INT";
+		if (J === "US") return pcaobReport(i);
+		if (J === "UK") return ukReport(i);
+		const co = i.company || "المنشأة", end = i.periodEnd || "[تاريخ نهاية الفترة]", g = !!i.group;
+		const fw = i.frameworkAr ? i.frameworkAr : eg ? "معايير المحاسبة المصرية وفي ضوء القوانين واللوائح المصرية السارية" : ae || intl ? "المعايير الدولية للتقرير المالي الصادرة عن مجلس معايير المحاسبة الدولية" : i.framework === "SME" ? "المعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم المعتمد في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من الهيئة السعودية للمراجعين والمحاسبين" : "المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من الهيئة السعودية للمراجعين والمحاسبين";
+		const isa = eg ? "معايير المراجعة المصرية" : ae || intl ? "المعايير الدولية للمراجعة" : "المعايير الدولية للمراجعة المعتمدة في المملكة العربية السعودية";
+		const ethics = eg ? "متطلبات السلوك المهني ذات الصلة في جمهورية مصر العربية" : intl ? `الميثاق الدولي لسلوك وآداب المهنة للمحاسبين المهنيين (بما في ذلك معايير الاستقلال الدولية) الصادر عن مجلس المعايير الدولية لأخلاقيات المحاسبين («الميثاق») والمتطلبات الأخلاقية ذات الصلة بمراجعتنا ل${g ? "لقوائم المالية الموحدة" : "لقوائم المالية"}${i.countryAr ? " في " + i.countryAr : ""}` : ae ? "الميثاق الدولي لسلوك وآداب المهنة للمحاسبين المهنيين (بما في ذلك معايير الاستقلال الدولية) الصادر عن مجلس المعايير الدولية لأخلاقيات المحاسبين، والمتطلبات الأخلاقية ذات الصلة بمراجعة القوائم المالية في دولة الإمارات العربية المتحدة" : "الميثاق الدولي لسلوك وآداب المهنة للمحاسبين المهنيين (بما في ذلك معايير الاستقلال الدولية) المعتمد في المملكة العربية السعودية";
+		const law = eg || intl ? "" : ae ? "والأحكام السارية من النظام الأساسي للشركة والمرسوم بقانون اتحادي رقم (32) لسنة 2021" : "والمتطلبات المعمول بها في نظام الشركات والنظام الأساس للشركة";
+		const fs = g ? "القوائم المالية الموحدة" : "القوائم المالية", ent = g ? "المجموعة" : "الشركة", board = eg ? "الإدارة" : "مجلس الإدارة";
+		const who = g ? `${co} («الشركة») وشركاتها التابعة (يُشار إليها معاً بـ«المجموعة»)` : co;
 		const title = {
 			unmodified: "الرأي",
 			qualified: "الرأي المتحفظ",
 			adverse: "الرأي العكسي",
 			disclaimer: "الامتناع عن إبداء الرأي"
 		}[i.opinion];
-		const statements = `القوائم المالية ${lam(co)}، التي تشمل قائمة المركز المالي كما في ${end}، وقوائم الربح أو الخسارة والدخل الشامل الآخر والتغيرات في حقوق الملكية والتدفقات النقدية للسنة المنتهية في ذلك التاريخ، والإيضاحات المرفقة بما فيها ملخص السياسات المحاسبية الجوهرية`;
-		const opinionText = i.opinion === "disclaimer" ? [`كُلفنا بمراجعة ${statements}. نحن لا نبدي رأياً في القوائم المالية المرفقة، وبسبب أهمية الأمور الموضحة في قسم «أساس الامتناع عن إبداء الرأي» لم نتمكن من الحصول على ما يكفي من أدلة المراجعة المناسبة لتوفير أساس لرأي.`] : [`لقد راجعنا ${statements}.`, i.opinion === "unmodified" ? `وفي رأينا، فإن القوائم المالية المرفقة تعرض بعدل، من جميع الجوانب الجوهرية، المركز المالي ${lam(co)} كما في ${end} وأداءها المالي وتدفقاتها النقدية للسنة المنتهية في ذلك التاريخ وفقاً ${lam(fw)}.` : i.opinion === "qualified" ? `وفي رأينا، باستثناء آثار الأمور الموضحة في قسم «أساس الرأي المتحفظ»، فإن القوائم المالية المرفقة تعرض بعدل، من جميع الجوانب الجوهرية، المركز المالي ${lam(co)} كما في ${end} وأداءها المالي وتدفقاتها النقدية وفقاً ${lam(fw)}.` : `وفي رأينا، بسبب أهمية الأمور الموضحة في قسم «أساس الرأي العكسي»، فإن القوائم المالية المرفقة لا تعرض بعدل المركز المالي ${lam(co)} كما في ${end} ولا أداءها المالي وتدفقاتها النقدية وفقاً ${lam(fw)}.`];
+		const listed = [
+			`قائمة ${g ? "المركز المالي الموحدة" : "المركز المالي"} كما في ${end}؛`,
+			`قائمة ${g ? "الربح أو الخسارة والدخل الشامل الآخر الموحدة" : "الربح أو الخسارة والدخل الشامل الآخر"} للسنة المنتهية في ذلك التاريخ؛`,
+			`قائمة ${g ? "التغيرات في حقوق الملكية الموحدة" : "التغيرات في حقوق الملكية"} للسنة المنتهية في ذلك التاريخ؛`,
+			`قائمة ${g ? "التدفقات النقدية الموحدة" : "التدفقات النقدية"} للسنة المنتهية في ذلك التاريخ؛`,
+			`الإيضاحات المرفقة ب${fs}، والتي تتضمن معلومات السياسات المحاسبية الجوهرية والمعلومات التفسيرية الأخرى.`
+		];
+		const fair = `المركز المالي ${g ? "الموحد " : ""}${lam(ent)} كما في ${end}، وأداءها المالي ${g ? "الموحد " : ""}وتدفقاتها النقدية ${g ? "الموحدة " : ""}للسنة المنتهية في ذلك التاريخ وفقاً ${lam(fw)}`;
+		const opinionText = i.opinion === "disclaimer" ? [`كُلفنا بمراجعة ${fs} ${lam(who)}. نحن لا نبدي رأياً في ${fs} المرفقة، وبسبب أهمية الأمور الموضحة في قسم «أساس الامتناع عن إبداء الرأي» لم نتمكن من الحصول على ما يكفي من أدلة المراجعة المناسبة لتوفير أساس لرأي في هذه ${fs}.`] : [`لقد راجعنا ${fs} ${lam(who)}.`, i.opinion === "unmodified" ? `وفي رأينا، فإن ${fs} المرفقة تعرض بعدل، من جميع الجوانب الجوهرية، ${fair}.` : i.opinion === "qualified" ? `وفي رأينا، باستثناء آثار الأمور الموضحة في قسم «أساس الرأي المتحفظ»، فإن ${fs} المرفقة تعرض بعدل، من جميع الجوانب الجوهرية، ${fair}.` : `وفي رأينا، بسبب أهمية الأمور الموضحة في قسم «أساس الرأي العكسي»، فإن ${fs} المرفقة لا تعرض بعدل ${fair}.`];
 		const basisTitle = {
 			unmodified: "أساس الرأي",
 			qualified: "أساس الرأي المتحفظ",
 			adverse: "أساس الرأي العكسي",
 			disclaimer: "أساس الامتناع عن إبداء الرأي"
 		}[i.opinion];
+		const nd = i.opinion !== "disclaimer";
 		const sections = [
 			{
 				title,
 				paragraphs: opinionText
 			},
+			...nd ? [{
+				title: "ما قمنا بمراجعته",
+				paragraphs: [`تتكون ${fs} ${lam(ent)} مما يلي:`, ...listed.map((x) => "• " + x)]
+			}] : [],
 			{
 				title: basisTitle,
-				paragraphs: [...i.opinion === "unmodified" ? [] : i.basis, ...i.opinion === "disclaimer" ? [] : [`لقد قمنا بالمراجعة وفقاً ${lam(isa)}. ومسؤولياتنا بموجب تلك المعايير موضحة في قسم «مسؤوليات المراجع عن مراجعة القوائم المالية». ونحن مستقلون عن المنشأة وفقاً ${lam(ethics)}، وقد وفينا بمسؤولياتنا المسلكية الأخرى. ونعتقد أن أدلة المراجعة التي حصلنا عليها كافية ومناسبة لتوفير أساس لرأينا.`]]
+				paragraphs: [...i.opinion === "unmodified" ? [] : i.basis, ...nd ? [`لقد قمنا بالمراجعة وفقاً ${lam(isa)}. ومسؤولياتنا بموجب تلك المعايير موضحة في قسم «مسؤوليات المراجع عن مراجعة ${fs}» في تقريرنا. ونعتقد أن أدلة المراجعة التي حصلنا عليها كافية ومناسبة لتوفير أساس لرأينا.`] : []]
 			},
-			...i.goingConcernSection && i.opinion !== "disclaimer" ? [i.goingConcernSection] : i.goingConcern ? [{
-				title: "عدم تأكد جوهري يتعلق بالاستمرارية",
-				paragraphs: ["نلفت الانتباه إلى الإيضاح المتعلق بأساس الإعداد في القوائم المالية، الذي يبين أحداثاً وظروفاً تشير إلى وجود عدم تأكد جوهري قد يثير شكاً كبيراً في قدرة المنشأة على البقاء كمنشأة مستمرة. ولم يُعدَّل رأينا فيما يتعلق بهذا الأمر."]
+			...nd ? [{
+				title: "الاستقلال",
+				paragraphs: [`نحن مستقلون عن ${ent} وفقاً ${lam(ethics)}${g ? "، وذلك بالقدر المنطبق على مراجعة القوائم المالية للمنشآت ذات المصلحة العامة" : ""}. وقد وفينا أيضاً بمسؤولياتنا المسلكية الأخرى وفقاً لمتطلبات ذلك الميثاق.`]
 			}] : [],
-			...i.approach && i.opinion !== "disclaimer" ? [i.approach] : [],
-			...i.opinion !== "disclaimer" && i.kams.length ? [{
+			...i.goingConcernSection && nd ? [i.goingConcernSection] : i.goingConcern ? [{
+				title: "عدم تأكد جوهري يتعلق بالاستمرارية",
+				paragraphs: [`نلفت الانتباه إلى الإيضاح المتعلق بأساس الإعداد في ${fs}، الذي يبين أحداثاً وظروفاً تشير إلى وجود عدم تأكد جوهري قد يثير شكاً كبيراً في قدرة ${ent} على البقاء كمنشأة مستمرة. ولم يُعدَّل رأينا فيما يتعلق بهذا الأمر.`]
+			}] : [],
+			...i.approach && nd ? [i.approach] : [],
+			...nd && i.kams.length ? [{
 				title: "الأمور الرئيسية للمراجعة",
-				paragraphs: ["الأمور الرئيسية للمراجعة هي تلك الأمور التي كانت، بحسب حكمنا المهني، لها الأهمية القصوى عند مراجعتنا للقوائم المالية للفترة الحالية. وقد تناولنا هذه الأمور في سياق مراجعتنا للقوائم المالية ككل وعند تكوين رأينا فيها، ولا نبدي رأياً منفصلاً في هذه الأمور."],
+				paragraphs: [`الأمور الرئيسية للمراجعة هي تلك الأمور التي كانت، بحسب حكمنا المهني، لها الأهمية القصوى عند مراجعتنا ل${fs} للفترة الحالية. وقد تناولنا هذه الأمور في سياق مراجعتنا ل${fs} ككل وعند تكوين رأينا فيها، ولا نبدي رأياً منفصلاً في هذه الأمور.`],
 				kams: i.kams
 			}] : [],
 			{
 				title: "المعلومات الأخرى",
-				paragraphs: ["الإدارة هي المسؤولة عن المعلومات الأخرى التي تشمل المعلومات الواردة في التقرير السنوي، بخلاف القوائم المالية وتقريرنا عنها. ولا يغطي رأينا في القوائم المالية المعلومات الأخرى، ولا نبدي أي شكل من أشكال الاستنتاج التأكيدي بشأنها."]
+				paragraphs: [
+					`إن ${board} هو المسؤول عن المعلومات الأخرى. وتتضمن المعلومات الأخرى التقرير السنوي، ولكنها لا تتضمن ${fs} وتقريرنا عنها.`,
+					`ولا يغطي رأينا في ${fs} المعلومات الأخرى، ولا نبدي أي شكل من أشكال الاستنتاج التأكيدي بشأنها.`,
+					`وفيما يتعلق بمراجعتنا ل${fs}، فإن مسؤوليتنا هي قراءة المعلومات الأخرى المحددة أعلاه، وعند القيام بذلك، النظر فيما إذا كانت المعلومات الأخرى غير متسقة بشكل جوهري مع ${fs} أو مع المعرفة التي حصلنا عليها أثناء المراجعة، أو يظهر بطريقة أخرى أنها محرفة بشكل جوهري.`,
+					i.otherInfoRead === false ? "ولم تُتح لنا المعلومات الأخرى قبل تاريخ هذا التقرير؛ وعندما نقرؤها، إذا استنتجنا وجود تحريف جوهري فيها، فإنه يتعين علينا إبلاغ المكلفين بالحوكمة بالأمر." : "وإذا استنتجنا، بناءً على العمل الذي قمنا به، وجود تحريف جوهري في هذه المعلومات الأخرى، فإنه يتعين علينا التقرير عن تلك الحقيقة. وليس لدينا ما نقرره في هذا الشأن."
+				]
 			},
 			{
-				title: "مسؤوليات الإدارة والمكلفين بالحوكمة عن القوائم المالية",
-				paragraphs: [`الإدارة هي المسؤولة عن إعداد القوائم المالية وعرضها بعدل وفقاً ${lam(fw)}، وعن الرقابة الداخلية التي تراها ضرورية لتمكينها من إعداد قوائم مالية خالية من تحريف جوهري، سواء بسبب غش أو خطأ. وعند إعداد القوائم المالية فإن الإدارة هي المسؤولة عن تقييم قدرة المنشأة على البقاء كمنشأة مستمرة.`, "والمكلفون بالحوكمة هم المسؤولون عن الإشراف على آلية التقرير المالي في المنشأة."]
+				title: `مسؤوليات ${board} والمكلفين بالحوكمة عن ${fs}`,
+				paragraphs: [
+					`إن ${board} هو المسؤول عن إعداد ${fs} وعرضها بعدل وفقاً ${lam(fw)}${law ? " " + law : ""}، وعن الرقابة الداخلية التي يراها ضرورية لتمكينه من إعداد ${fs} خالية من تحريف جوهري، سواء بسبب غش أو خطأ.`,
+					`وعند إعداد ${fs}، فإن ${board} هو المسؤول عن تقييم قدرة ${ent} على البقاء كمنشأة مستمرة، وعن الإفصاح، بحسب ما يقتضيه الحال، عن الأمور ذات العلاقة بالاستمرارية، واستخدام أساس الاستمرارية في المحاسبة، ما لم يكن لديه نية لتصفية ${ent} أو إيقاف عملياتها، أو ليس لديه خيار واقعي بخلاف ذلك.`,
+					`والمكلفون بالحوكمة هم المسؤولون عن الإشراف على آلية التقرير المالي في ${ent}.`
+				]
 			},
 			{
-				title: "مسؤوليات المراجع عن مراجعة القوائم المالية",
-				paragraphs: ["تتمثل أهدافنا في الحصول على تأكيد معقول عما إذا كانت القوائم المالية ككل خالية من تحريف جوهري، سواء بسبب غش أو خطأ، وإصدار تقرير المراجع الذي يتضمن رأينا. والتأكيد المعقول هو مستوى عالٍ من التأكيد، إلا أنه ليس ضماناً على أن المراجعة التي تُنفذ وفقاً للمعايير ستكشف دائماً عن التحريف الجوهري عند وجوده.", "وكجزء من المراجعة، نمارس الحكم المهني ونحافظ على نزعة الشك المهني: نحدد مخاطر التحريف الجوهري ونقيّمها ونصمم إجراءات تستجيب لها، ونحصل على فهم للرقابة الداخلية ذات الصلة، ونقيّم مدى مناسبة السياسات المحاسبية ومعقولية التقديرات، ونستنتج مدى مناسبة استخدام الإدارة لأساس الاستمرارية، ونقيّم العرض العام للقوائم المالية وهيكلها ومحتواها."]
-			}
+				title: `مسؤوليات المراجع عن مراجعة ${fs}`,
+				paragraphs: [
+					`تتمثل أهدافنا في الحصول على تأكيد معقول عما إذا كانت ${fs} ككل خالية من تحريف جوهري، سواء بسبب غش أو خطأ، وإصدار تقرير المراجع الذي يتضمن رأينا. والتأكيد المعقول هو مستوى عالٍ من التأكيد، إلا أنه ليس ضماناً على أن المراجعة التي تُنفذ وفقاً ${lam(isa)} ستكشف دائماً عن التحريف الجوهري عند وجوده. ويمكن أن تنشأ التحريفات عن غش أو خطأ، وتُعد جوهرية إذا كان يمكن بشكل معقول توقع أنها ستؤثر، منفردة أو في مجملها، على القرارات الاقتصادية التي يتخذها المستخدمون على أساس هذه ${fs}.`,
+					`وكجزء من المراجعة وفقاً ${lam(isa)}، فإننا نمارس الحكم المهني ونحافظ على نزعة الشك المهني خلال المراجعة. كما نقوم بما يلي:`,
+					`• تحديد مخاطر التحريف الجوهري في ${fs} وتقييمها، سواء بسبب غش أو خطأ، وتصميم وتنفيذ إجراءات مراجعة استجابةً لتلك المخاطر، والحصول على أدلة مراجعة كافية ومناسبة لتوفير أساس لرأينا. ويُعد خطر عدم اكتشاف تحريف جوهري ناتج عن غش أعلى من الخطر الناتج عن خطأ، لأن الغش قد ينطوي على تواطؤ أو تزوير أو حذف متعمد أو إفادات مضللة أو تجاوز للرقابة الداخلية.`,
+					`• الحصول على فهم للرقابة الداخلية ذات الصلة بالمراجعة لتصميم إجراءات مراجعة مناسبة للظروف، وليس بغرض إبداء رأي في فاعلية الرقابة الداخلية ${lam(ent)}.`,
+					`• تقييم مدى مناسبة السياسات المحاسبية المستخدمة، ومدى معقولية التقديرات المحاسبية والإفصاحات ذات العلاقة التي قام بها ${board}.`,
+					`• استنتاج مدى مناسبة استخدام ${board} لأساس الاستمرارية في المحاسبة، واستناداً إلى أدلة المراجعة التي تم الحصول عليها، ما إذا كان هناك عدم تأكد جوهري متعلق بأحداث أو ظروف قد تثير شكاً كبيراً في قدرة ${ent} على البقاء كمنشأة مستمرة. وإذا استنتجنا وجود عدم تأكد جوهري، فإنه يتعين علينا لفت الانتباه في تقريرنا إلى الإفصاحات ذات العلاقة في ${fs}، أو تعديل رأينا إذا كانت تلك الإفصاحات غير كافية. وتستند استنتاجاتنا إلى أدلة المراجعة التي تم الحصول عليها حتى تاريخ تقريرنا، ومع ذلك فإن أحداثاً أو ظروفاً مستقبلية قد تتسبب في توقف ${ent} عن البقاء كمنشأة مستمرة.`,
+					`• تقييم العرض العام ل${fs} وهيكلها ومحتواها، بما في ذلك الإفصاحات، وما إذا كانت ${fs} تعبر عن المعاملات والأحداث التي تمثلها بطريقة تحقق العرض العادل.`,
+					...g ? [`• تخطيط مراجعة المجموعة وتنفيذها للحصول على أدلة مراجعة كافية ومناسبة فيما يتعلق بالمعلومات المالية للمنشآت أو وحدات الأعمال داخل المجموعة كأساس لتكوين رأي في ${fs}. ونحن مسؤولون عن توجيه أعمال المراجعة المنفذة لأغراض مراجعة المجموعة والإشراف عليها وفحصها، ونظل المسؤولين الوحيدين عن رأينا.`] : [],
+					"ونتواصل مع المكلفين بالحوكمة فيما يتعلق، من بين أمور أخرى، بالنطاق والتوقيت المخطط للمراجعة والنتائج المهمة للمراجعة، بما في ذلك أي أوجه قصور مهمة في الرقابة الداخلية نكتشفها أثناء المراجعة.",
+					"ونقدم أيضاً للمكلفين بالحوكمة بياناً بأننا قد التزمنا بالمتطلبات الأخلاقية ذات الصلة بالاستقلال، ونبلغهم بجميع العلاقات والأمور الأخرى التي قد يُعتقد بشكل معقول أنها تؤثر على استقلالنا، وبحسب مقتضى الحال، بالإجراءات المتخذة لإزالة المخاطر أو الضمانات المطبقة.",
+					`ومن الأمور التي تم إبلاغها للمكلفين بالحوكمة، نحدد تلك الأمور التي كانت لها الأهمية القصوى عند مراجعة ${fs} للفترة الحالية، وبناءً على ذلك تُعد الأمور الرئيسية للمراجعة. ونوضح هذه الأمور في تقريرنا ما لم يمنع نظام أو لائحة الإفصاح العلني عن الأمر، أو عندما نقرر، في ظروف نادرة للغاية، أن الأمر لا ينبغي الإبلاغ عنه في تقريرنا لأنه من المتوقع بشكل معقول أن تفوق التبعات السلبية لذلك منافع المصلحة العامة من هذا الإبلاغ.`
+				]
+			},
+			...ae ? [{
+				title: "التقرير عن المتطلبات القانونية والتنظيمية الأخرى",
+				paragraphs: [
+					"وفقاً لمتطلبات المرسوم بقانون اتحادي رقم (32) لسنة 2021 نفيد بما يلي:",
+					"• أننا قد حصلنا على جميع المعلومات والإيضاحات التي اعتبرناها ضرورية لأغراض مراجعتنا؛",
+					`• أن ${fs} قد أُعدت، من جميع الجوانب الجوهرية، وفقاً للأحكام المعمول بها في المرسوم بقانون اتحادي رقم (32) لسنة 2021؛`,
+					`• أن ${ent} قد احتفظت بدفاتر محاسبية منتظمة، وأن المعلومات المالية الواردة في تقرير ${board} تتفق مع دفاتر ${ent} المحاسبية؛`,
+					`• أنه، استناداً إلى المعلومات التي أتيحت لنا، لم يلفت انتباهنا ما يجعلنا نعتقد أن ${ent} قد خالفت خلال السنة أياً من الأحكام المعمول بها في المرسوم بقانون أو نظامها الأساسي بشكل قد يؤثر جوهرياً على أنشطتها أو مركزها المالي.`
+				]
+			}] : [],
+			...intl && i.countryAr === "الهند" ? [{
+				title: "التقرير عن المتطلبات القانونية والتنظيمية الأخرى",
+				paragraphs: [
+					"وفقاً لما يقتضيه أمر تقرير المراجع للشركات (CARO) الصادر عن الحكومة المركزية بموجب المادة 143(11) من قانون الشركات لعام 2013، نرفق بياناً بالأمور المحددة في الفقرتين 3 و4 من ذلك الأمر، بالقدر المنطبق.",
+					"وكما تقتضي المادة 143(3) من القانون، نفيد بأننا: حصلنا على جميع المعلومات والتفسيرات التي تطلبتها مراجعتنا؛ وأن الدفاتر المحاسبية المطلوبة نظاماً قد أُمسكت بصورة سليمة؛ وأن قوائم المركز المالي والربح أو الخسارة والتدفقات النقدية متفقة مع تلك الدفاتر؛ وأنها تتوافق مع معايير المحاسبة الهندية المحددة بموجب المادة 133 من القانون.",
+					"ونرفق تقريرنا المنفصل عن كفاية ضوابط التقرير المالي الداخلية وفاعلية تشغيلها بموجب البند (i) من المادة 143(3) من القانون."
+				]
+			}] : [],
+			...eg ? [{
+				title: "تقرير عن المتطلبات القانونية والتنظيمية الأخرى",
+				paragraphs: [
+					"تمسك الشركة حسابات مالية منتظمة تتضمن كل ما نص القانون ونظام الشركة على وجوب إثباته فيها، وقد وُجدت القوائم المالية متفقة مع ما هو وارد بتلك الحسابات.",
+					"وقد تم جرد المخزون بمعرفة إدارة الشركة وفقاً للأصول المرعية.",
+					"والبيانات المالية الواردة بتقرير مجلس الإدارة المُعد وفقاً لمتطلبات قانون الشركات ولائحته التنفيذية متفقة مع ما هو وارد بدفاتر الشركة وذلك في الحدود التي تثبت بها مثل تلك البيانات في الدفاتر."
+				]
+			}] : []
 		];
+		const code = (t) => t === title ? "opinion" : t === "ما قمنا بمراجعته" ? "audited" : t === basisTitle ? "basis" : t === "الاستقلال" ? "independence" : /الاستمرارية/.test(t) ? "going_concern" : i.approach && t === i.approach.title ? "approach materiality scope" : t === "الأمور الرئيسية للمراجعة" ? "kam" : t === "المعلومات الأخرى" ? "other_info" : t.startsWith("مسؤوليات المراجع") ? "resp_aud" : t.startsWith("مسؤوليات") ? "resp_mgmt going_concern" : /القانونية/.test(t) ? "legal" : "";
 		return {
 			title: "تقرير المراجع المستقل",
-			addressee: `إلى السادة المساهمين/الشركاء في ${co}`,
-			sections,
+			addressee: `إلى السادة ${eg ? "مساهمي" : "المساهمين في"} ${co}`,
+			sections: sections.map((x) => ({
+				...x,
+				code: x.code ?? code(x.title)
+			})),
 			signature: {
 				firm: i.firm || "[اسم مكتب المراجعة]",
 				partner: i.partner || "[اسم الشريك]",
 				licence: i.licence || "[رقم الترخيص]",
-				city: i.city || (eg ? "القاهرة" : "الرياض"),
+				city: i.city || (eg ? "القاهرة" : ae ? "دبي" : intl ? "[المدينة]" : "الرياض"),
 				date: i.date || "[تاريخ التقرير]"
 			},
+			form: J,
+			draft: true
+		};
+	}
+	var OPINION_WORD = {
+		unmodified: "الرأي",
+		qualified: "الرأي المتحفظ",
+		adverse: "الرأي العكسي",
+		disclaimer: "الامتناع عن إبداء الرأي"
+	};
+	/** The PCAOB report (AS 3101) as the bundle's US filers carry it — EY on Apple and Amazon, Deloitte on Walmart, PwC on JPMorgan:
+	the opinion on the financial statements with the reference to the separate ICFR opinion; the basis for opinion in the PCAOB's
+	words (management's responsibility, registration and independence, reasonable assurance, what the audit included); the critical
+	audit matters, each as «description of the matter» and «how we addressed the matter»; the tenure line; firm, city and date. */
+	function pcaobReport(i) {
+		const co = i.company || "الشركة", end = i.periodEnd || "[تاريخ نهاية الفترة]", prior = i.priorPeriodEnd || "[تاريخ نهاية الفترة السابقة]";
+		const fw = i.frameworkAr || "مبادئ المحاسبة المقبولة عموماً في الولايات المتحدة الأمريكية", nd = i.opinion !== "disclaimer";
+		const stmts = "قوائم المركز المالي الموحدة المرفقة ل" + co + " (يُشار إليها بـ«الشركة») كما في " + end + " و" + prior + "، والقوائم الموحدة ذات العلاقة للعمليات والدخل الشامل وحقوق المساهمين والتدفقات النقدية لكل سنة من السنوات الثلاث في الفترة المنتهية في " + end + "، والإيضاحات ذات العلاقة (يُشار إليها مجتمعةً بـ«القوائم المالية الموحدة»)";
+		const fair = "المركز المالي للشركة كما في " + end + " و" + prior + "، ونتائج عملياتها وتدفقاتها النقدية لكل سنة من السنوات الثلاث في الفترة المنتهية في " + end + "، وفقاً " + lam(fw);
+		const opinion = i.opinion === "disclaimer" ? ["كُلفنا بمراجعة " + stmts + ". ونظراً لأهمية الأمور الموضحة في فقرة «أساس الامتناع عن إبداء الرأي»، لم نتمكن من الحصول على أدلة مراجعة كافية ومناسبة لتوفير أساس لرأي مراجعة، وبناءً عليه فإننا لا نبدي رأياً في هذه القوائم المالية الموحدة."] : ["لقد راجعنا " + stmts + ". " + (i.opinion === "unmodified" ? "وفي رأينا، فإن القوائم المالية الموحدة تعرض بعدل، من جميع الجوانب الجوهرية، " + fair + "." : i.opinion === "qualified" ? "وفي رأينا، باستثناء آثار الأمر الموضح في فقرة «أساس الرأي المتحفظ»، فإن القوائم المالية الموحدة تعرض بعدل، من جميع الجوانب الجوهرية، " + fair + "." : "وفي رأينا، بسبب أهمية الأمر الموضح في فقرة «أساس الرأي العكسي»، فإن القوائم المالية الموحدة لا تعرض بعدل " + fair + "."), ...i.icfr !== false ? ["كما راجعنا، وفقاً لمعايير مجلس الرقابة على محاسبة الشركات العامة في الولايات المتحدة الأمريكية («مجلس الرقابة» أو PCAOB)، الرقابة الداخلية على التقرير المالي للشركة كما في " + end + "، استناداً إلى المعايير الواردة في «الرقابة الداخلية — الإطار المتكامل» الصادر عن لجنة المنظمات الراعية لهيئة تريدواي (إطار 2013)، وقد أبدينا في تقريرنا المؤرخ في " + (i.date || "[تاريخ التقرير]") + " رأياً غير متحفظ بشأنها."] : []];
+		const sections = [
+			{
+				title: OPINION_WORD[i.opinion] + " في القوائم المالية",
+				paragraphs: opinion,
+				code: "opinion audited" + (i.icfr !== false ? " icfr" : "")
+			},
+			{
+				title: "أساس " + OPINION_WORD[i.opinion],
+				code: "basis independence",
+				paragraphs: [
+					...i.opinion === "unmodified" ? [] : i.basis,
+					"هذه القوائم المالية مسؤولية إدارة الشركة. ومسؤوليتنا هي إبداء رأي في القوائم المالية للشركة استناداً إلى مراجعاتنا. ونحن مكتب محاسبة عامة مسجّل لدى مجلس الرقابة، ويتعين علينا أن نكون مستقلين عن الشركة وفقاً لقوانين الأوراق المالية الفيدرالية الأمريكية والقواعد واللوائح المعمول بها الصادرة عن هيئة الأوراق المالية والبورصات الأمريكية ومجلس الرقابة.",
+					...nd ? ["لقد قمنا بمراجعاتنا وفقاً لمعايير مجلس الرقابة. وتتطلب تلك المعايير أن نخطط المراجعة وننفذها للحصول على تأكيد معقول عما إذا كانت القوائم المالية خالية من تحريف جوهري، سواء بسبب خطأ أو غش. وقد تضمنت مراجعاتنا تنفيذ إجراءات لتقييم مخاطر التحريف الجوهري في القوائم المالية، سواء بسبب خطأ أو غش، وتنفيذ إجراءات تستجيب لتلك المخاطر، وشملت تلك الإجراءات فحص الأدلة المتعلقة بالمبالغ والإفصاحات في القوائم المالية على أساس الاختبار. كما تضمنت مراجعاتنا تقييم المبادئ المحاسبية المستخدمة والتقديرات المهمة التي أجرتها الإدارة، وتقييم العرض العام للقوائم المالية. ونعتقد أن مراجعاتنا توفر أساساً معقولاً لرأينا."] : []
+				]
+			},
+			...i.goingConcern ? [{
+				title: "عدم تأكد جوهري بشأن قدرة الشركة على الاستمرار",
+				code: "going_concern",
+				paragraphs: ["أُعدت القوائم المالية المرفقة على افتراض استمرار الشركة كمنشأة مستمرة. وكما هو مبين في الإيضاح المتعلق بأساس الإعداد، فإن ظروفاً قائمة تثير شكاً كبيراً في قدرة الشركة على الاستمرار، وخطط الإدارة بشأنها موضحة في ذلك الإيضاح. ولا تتضمن القوائم المالية أي تعديلات قد تنتج عن نتيجة عدم التأكد هذا."]
+			}] : [],
+			...nd && i.kams.length ? [{
+				title: "الأمور الحرجة للمراجعة",
+				code: "cam",
+				kamHeads: ["وصف الأمر", "كيف تناولنا الأمر في مراجعتنا"],
+				obsLabel: "النتيجة",
+				paragraphs: ["الأمور الحرجة للمراجعة الموضحة أدناه هي أمور نشأت عن مراجعة القوائم المالية للفترة الحالية وأُبلغت، أو كان مطلوباً إبلاغها، إلى لجنة المراجعة، و(1) تتعلق بحسابات أو إفصاحات جوهرية للقوائم المالية، و(2) انطوت على أحكام صعبة أو ذاتية أو معقدة بشكل خاص من جانبنا. ولا يغيّر الإبلاغ عن الأمور الحرجة للمراجعة بأي حال رأينا في القوائم المالية الموحدة ككل، ولسنا، بالإبلاغ عنها أدناه، نبدي رأياً منفصلاً في هذه الأمور أو في الحسابات أو الإفصاحات التي تتعلق بها."],
+				kams: i.kams
+			}] : []
+		];
+		return {
+			title: "تقرير مكتب المحاسبة العامة المسجّل المستقل",
+			addressee: "إلى المساهمين ومجلس إدارة " + co,
+			sections,
+			signature: {
+				firm: i.firm || "[اسم مكتب المراجعة]",
+				partner: "",
+				licence: "",
+				city: i.city || "[المدينة]",
+				date: i.date || "[تاريخ التقرير]",
+				note: "لقد عملنا مراجعاً لحسابات الشركة منذ " + (i.since ? String(i.since) : "[سنة التعيين]") + "."
+			},
+			form: "US",
+			draft: true
+		};
+	}
+	/** The extended ISA (UK) 700 report as KPMG writes Unilever's and Deloitte bp's: «our opinion is unmodified» with the true-and-fair
+	bullets; the basis with the uninterrupted engagement and the FRC Ethical Standard; the overview of the audit (materiality, scope,
+	the matters); the key audit matters as «the risk — our response — our results»; going concern and the viability statement; fraud
+	and breaches of laws and regulations (the ability to detect); other information; matters reported by exception; the respective
+	responsibilities; and the purpose of the audit work and to whom the auditor owes responsibility. */
+	function ukReport(i) {
+		const co = i.company || "الشركة", end = i.periodEnd || "[تاريخ نهاية الفترة]", g = i.group !== false, nd = i.opinion !== "disclaimer";
+		const fw = i.frameworkAr || "المعايير المحاسبية المعتمدة في المملكة المتحدة والمعايير الدولية للتقرير المالي الصادرة عن مجلس معايير المحاسبة الدولية";
+		const endYear = (end.match(/(\d{4})/) || [])[1], years = i.since && endYear ? Number(endYear) - i.since + 1 : null;
+		const opinionParas = i.opinion === "disclaimer" ? ["كُلفنا بمراجعة القوائم المالية ل" + co + " للسنة المنتهية في " + end + ". ولا نبدي رأياً فيها، لأننا لم نتمكن، بسبب أهمية الأمور الموضحة في قسم «أساس الامتناع عن إبداء الرأي»، من الحصول على أدلة مراجعة كافية ومناسبة لتوفير أساس لرأي."] : [
+			"لقد راجعنا القوائم المالية ل" + co + " («الشركة») للسنة المنتهية في " + end + "، والتي تتضمن القوائم المالية الموحدة للمجموعة والقوائم المالية للشركة الأم، والإيضاحات ذات العلاقة بما فيها معلومات السياسات المحاسبية الجوهرية.",
+			i.opinion === "qualified" ? "وفي رأينا، باستثناء آثار الأمر الموضح في قسم «أساس الرأي المتحفظ»:" : i.opinion === "adverse" ? "وفي رأينا، بسبب أهمية الأمر الموضح في قسم «أساس الرأي العكسي»، فإن القوائم المالية لا تعطي صورة حقيقية وعادلة، وإلا:" : "وفي رأينا:",
+			"• تعطي القوائم المالية صورة حقيقية وعادلة عن وضع شؤون " + (g ? "المجموعة والشركة الأم" : "الشركة") + " كما في " + end + "، وعن ربح " + (g ? "المجموعة" : "الشركة") + " للسنة المنتهية في ذلك التاريخ؛",
+			"• أُعدت القوائم المالية على نحو سليم وفقاً " + lam(fw) + "؛",
+			"• أُعدت القوائم المالية وفقاً لمتطلبات القانون المعمول به على الشركة."
+		];
+		const sections = [
+			{
+				title: "1. " + (i.opinion === "unmodified" ? "رأينا غير معدّل" : OPINION_WORD[i.opinion]),
+				code: "opinion audited",
+				paragraphs: opinionParas
+			},
+			{
+				title: "أساس " + OPINION_WORD[i.opinion],
+				code: "basis independence tenure",
+				paragraphs: [
+					...i.opinion === "unmodified" ? [] : i.basis,
+					"قمنا بالمراجعة وفقاً للمعايير الدولية للمراجعة (المملكة المتحدة) والقانون المعمول به، ومسؤولياتنا موضحة أدناه. ونعتقد أن أدلة المراجعة التي حصلنا عليها كافية ومناسبة لتوفير أساس لرأينا. ويتسق رأينا مع تقريرنا إلى لجنة المراجعة.",
+					"عُيِّنا مراجعين من قِبل المساهمين" + (i.since ? " في " + i.since + "، وتبلغ فترة تكليفنا المتصلة دون انقطاع " + (years ?? "[عدد]") + " سنة" : " [تاريخ التعيين وفترة التكليف المتصلة]") + ". وقد وفينا بمسؤولياتنا الأخلاقية وفقاً للمتطلبات الأخلاقية المعمول بها، بما فيها المعيار الأخلاقي لمجلس التقارير المالية (FRC) كما يطبق على المنشآت المدرجة ذات المصلحة العامة، ولم نقدم للمجموعة أو للشركة خدمات غير مراجعة يحظرها ذلك المعيار."
+				]
+			},
+			...nd && i.approach ? [{
+				...i.approach,
+				title: "2. نظرة عامة على مراجعتنا: الأهمية النسبية والنطاق",
+				code: "approach materiality scope"
+			}] : [],
+			...nd && i.kams.length ? [{
+				title: "3. الأمور الرئيسية للمراجعة: تقييمنا لمخاطر التحريف الجوهري",
+				code: "kam",
+				kamHeads: ["الخطر", "استجابتنا"],
+				obsLabel: "نتائجنا",
+				paragraphs: ["الأمور الرئيسية للمراجعة هي تلك الأمور التي كانت، بحسب حكمنا المهني، لها الأهمية القصوى في مراجعة القوائم المالية، وتشمل أهم مخاطر التحريف الجوهري المقيّمة (سواء بسبب الغش أو غيره) التي حددناها، بما فيها تلك التي كان لها الأثر الأكبر على الاستراتيجية العامة للمراجعة وتخصيص الموارد فيها وتوجيه جهود فريق التكليف. وقد تناولنا هذه الأمور، ونعرض نتائج إجراءاتنا بشأنها، في سياق مراجعتنا للقوائم المالية ككل وعند تكوين رأينا فيها، ولا نبدي رأياً منفصلاً في هذه الأمور."],
+				kams: i.kams
+			}] : [],
+			...i.goingConcernSection && nd ? [{
+				...i.goingConcernSection,
+				title: "4. " + i.goingConcernSection.title,
+				code: "going_concern"
+			}] : [{
+				title: "4. الاستمرارية",
+				code: "going_concern",
+				paragraphs: i.goingConcern ? ["نلفت الانتباه إلى الإيضاح المتعلق بأساس الإعداد، الذي يبين أحداثاً وظروفاً تشير إلى وجود عدم تأكد جوهري قد يثير شكاً كبيراً في قدرة المجموعة على الاستمرار. ولم يُعدَّل رأينا فيما يتعلق بهذا الأمر."] : [
+					"أعد المديرون القوائم المالية على أساس الاستمرارية لأنهم لا يعتزمون تصفية المجموعة أو الشركة أو إيقاف عملياتهما، ويرون أن وضعهما المالي يمكّنهما من الاستمرار لفترة لا تقل عن سنة من تاريخ اعتماد القوائم المالية («فترة الاستمرارية»).",
+					"واستنتاجاتنا بناءً على عملنا: • نرى أن استخدام المديرين لأساس الاستمرارية في المحاسبة عند إعداد القوائم المالية مناسب؛ • لم نحدد، ونتفق مع تقييم المديرين بعدم وجود، عدم تأكد جوهري متعلق بأحداث أو ظروف قد تثير، منفردة أو مجتمعة، شكاً كبيراً في قدرة المجموعة أو الشركة على الاستمرار خلال فترة الاستمرارية؛ • لم نجد ما نقرره بشأن بيان الاستمرارية في القوائم المالية.",
+					"ومع ذلك، ولأنه لا يمكن التنبؤ بجميع الأحداث أو الظروف المستقبلية، فإن هذه الاستنتاجات ليست ضماناً لاستمرار المجموعة أو الشركة."
+				]
+			}],
+			{
+				title: "5. الغش ومخالفة القوانين واللوائح — قدرتنا على الاكتشاف",
+				code: "fraud",
+				paragraphs: [
+					"تحديد مخاطر التحريف الجوهري بسبب الغش: لتحديد المخاطر قيّمنا الأحداث أو الظروف التي قد تشير إلى حافز أو ضغط لارتكاب الغش أو فرصة له، وشمل ذلك الاستفسار من المديرين ولجنة المراجعة والمراجعة الداخلية، وقراءة محاضر مجلس الإدارة، والنظر في خطط المكافآت ومؤشرات الأداء، واستخدام الإجراءات التحليلية لتحديد العلاقات غير المعتادة أو غير المتوقعة.",
+					"وكما تقتضي معايير المراجعة، نفذنا إجراءات للتعامل مع خطر تجاوز الإدارة للضوابط، ولا سيما خطر أن تكون الإدارة في وضع يسمح لها بتسجيل قيود محاسبية غير مناسبة، وخطر التحيز في التقديرات والأحكام المحاسبية؛ واخترنا قيود اليومية لاختبارها وفق معايير خطر، وقارناها بالمستندات المؤيدة.",
+					"تحديد مخاطر التحريف الجوهري بسبب عدم الالتزام بالقوانين واللوائح: حددنا مجالات القوانين واللوائح التي يُتوقع بشكل معقول أن يكون لها أثر جوهري في القوائم المالية من خبرتنا القطاعية والمناقشة مع المديرين والإدارة، ومن القراءة والمراسلات مع الجهات التنظيمية.",
+					"سياق القدرة على الاكتشاف: نظراً للقيود المتأصلة في المراجعة، هناك خطر لا يمكن تجنبه بألا نكتشف بعض التحريفات الجوهرية في القوائم المالية حتى لو خُططت المراجعة ونُفذت على النحو السليم؛ ويزداد هذا الخطر بالنسبة للغش لأنه قد ينطوي على التواطؤ أو التزوير أو الحذف المتعمد أو التحريف أو تجاوز الرقابة الداخلية."
+				]
+			},
+			{
+				title: "6. لم نجد تحريفات جوهرية في المعلومات الأخرى المعروضة في التقرير السنوي",
+				code: "other_info",
+				paragraphs: ["إن المديرين هم المسؤولون عن المعلومات الأخرى المعروضة في التقرير السنوي مع القوائم المالية. ولا يغطي رأينا في القوائم المالية المعلومات الأخرى، وبناءً عليه لا نبدي رأي مراجعة أو أي شكل من أشكال الاستنتاج التأكيدي بشأنها، إلا بالقدر المذكور صراحةً أدناه.", "ومسؤوليتنا هي قراءة المعلومات الأخرى، والنظر عند ذلك فيما إذا كانت، بناءً على عملنا في مراجعة القوائم المالية، محرفة بشكل جوهري أو غير متسقة مع القوائم المالية أو مع معرفتنا المكتسبة من المراجعة. ولم نحدد، بناءً على ذلك العمل وحده، تحريفات جوهرية في المعلومات الأخرى."]
+			},
+			{
+				title: "7. الإفصاحات عن بيان الجدوى وحوكمة الشركة",
+				code: "viability",
+				paragraphs: ["بناءً على المعرفة التي اكتسبناها أثناء مراجعة القوائم المالية، ليس لدينا ما نقرره أو نضيفه أو نلفت الانتباه إليه جوهرياً بشأن: إفصاحات المديرين عن المخاطر الرئيسية وكيفية إدارتها؛ وبيان الجدوى الذي يوضح كيف قيّم المديرون آفاق المجموعة والفترة التي غطاها التقييم ولماذا يرونها مناسبة؛ وبيان المديرين بأن التقرير السنوي عادل ومتوازن ومفهوم؛ وقسم تقرير لجنة المراجعة."]
+			},
+			{
+				title: "8. التقرير عن المتطلبات القانونية والتنظيمية الأخرى: الأمور التي نقرر عنها بالاستثناء",
+				code: "exception legal",
+				paragraphs: ["يتعين علينا بموجب القانون المعمول به أن نقرر إليكم إذا رأينا أن: الشركة لم تمسك سجلات محاسبية كافية، أو لم تُستلم عوائد كافية لمراجعتنا من الفروع التي لم نزرها؛ أو أن القوائم المالية للشركة الأم غير متفقة مع السجلات والعوائد المحاسبية؛ أو أن إفصاحات معينة عن مكافآت المديرين المحددة نظاماً لم تُفصح؛ أو أننا لم نحصل على جميع المعلومات والتفسيرات التي نحتاجها لمراجعتنا. وليس لدينا ما نقرره في هذه النواحي."]
+			},
+			{
+				title: "9. مسؤوليات كل منا",
+				code: "resp_mgmt resp_aud",
+				paragraphs: ["مسؤوليات المديرين: كما يوضح بيان مسؤولياتهم، فإن المديرين مسؤولون عن إعداد القوائم المالية بما يعطي صورة حقيقية وعادلة، وعن الرقابة الداخلية التي يرونها ضرورية لإعدادها خالية من تحريف جوهري سواء بسبب الغش أو الخطأ، وعن تقييم قدرة المجموعة والشركة الأم على الاستمرار والإفصاح عن الأمور المتعلقة بذلك واستخدام أساس الاستمرارية في المحاسبة ما لم يعتزموا التصفية أو إيقاف العمليات أو لم يكن لديهم بديل واقعي.", "مسؤوليات المراجع: هدفنا الحصول على تأكيد معقول عما إذا كانت القوائم المالية ككل خالية من تحريف جوهري، سواء بسبب الغش أو الخطأ، وإصدار تقرير يتضمن رأينا. والتأكيد المعقول مستوى عالٍ من التأكيد، لكنه ليس ضماناً بأن المراجعة المنفذة وفقاً للمعايير الدولية للمراجعة (المملكة المتحدة) ستكشف دائماً عن التحريف الجوهري عند وجوده. ويتوفر وصف أشمل لمسؤولياتنا على الموقع الإلكتروني لمجلس التقارير المالية."]
+			},
+			{
+				title: "10. الغرض من أعمال المراجعة والجهة التي ندين لها بالمسؤولية",
+				code: "purpose",
+				paragraphs: ["أُعد هذا التقرير لأعضاء الشركة فقط، بصفتهم هيئة، وفقاً للقانون المعمول به. وقد اضطلعنا بأعمال المراجعة لكي نبلغ أعضاء الشركة بتلك الأمور التي يتعين علينا إبلاغهم بها في تقرير المراجع، ولا لأي غرض آخر. وإلى أقصى حد يسمح به القانون، لا نقبل ولا نتحمل أي مسؤولية تجاه أي شخص غير الشركة وأعضائها بصفتهم هيئة، عن أعمال المراجعة التي قمنا بها أو عن هذا التقرير أو عن الآراء التي كوّناها."]
+			}
+		];
+		return {
+			title: "تقرير المراجع المستقل إلى أعضاء " + co,
+			addressee: "",
+			sections,
+			signature: {
+				firm: i.firm || "[اسم مكتب المراجعة]",
+				partner: (i.partner || "[اسم الشريك]") + " (المراجع القانوني الأول) نيابةً عن " + (i.firm || "[اسم مكتب المراجعة]") + "، محاسبون قانونيون ومراجعون قانونيون",
+				licence: "",
+				city: i.city || "[المدينة]",
+				date: i.date || "[تاريخ التقرير]"
+			},
+			form: "UK",
 			draft: true
 		};
 	}
@@ -21201,6 +22283,7 @@ window.SKEngines = (function() {
 			confidence: confidence_engine_exports,
 			corpusReplay: corpus_replay_engine_exports,
 			council: council_engine_exports$1,
+			demoEngagement: demo_engagement_engine_exports,
 			disclosures: disclosures_engine_exports,
 			documentCheck: document_check_engine_exports,
 			estimatesReview: estimates_review_engine_exports,
@@ -21217,6 +22300,7 @@ window.SKEngines = (function() {
 			planning: planning_engine_exports,
 			programme: programme_engine_exports,
 			report: report_engine_exports,
+			requests: requests_engine_exports,
 			revenueRecon: revenue_recon_engine_exports,
 			reviewerCouncil: reviewer_council_engine_exports,
 			sampling: sampling_engine_exports,

@@ -30,15 +30,23 @@ async function send(url,init,timeoutMs,signal,pid=provider()){
   catch{clearTimeout(t);throw new Error(ac.signal.aborted?"أُلغي الطلب أو تجاوز المهلة.":PV().friendlyError(pid,0))}
   clearTimeout(t);
   let data=null;try{data=await res.json()}catch{}
-  if(!res.ok)throw new Error(PV().friendlyError(pid,res.status,PV().errorMessage(data)));
+  if(!res.ok){const e=new Error(PV().friendlyError(pid,res.status,PV().errorMessage(data)));e.status=res.status;throw e}
   return data;
 }
 function need(id){const c=conf(id);if(!c.key)throw new Error("لم يُضبط مفتاح "+c.label+" بعد — أدخله في بطاقة «المراجع الذكي».");return c}
+/* a retired, overloaded or out-of-quota model does not stop the review: the next model is tried, and the one that answered
+   becomes this device's model for that provider (a bad key fails at once — no other model would take it) */
 async function generateFor(id,body,opts={}){
   if(!PV().isProvider(id))throw new Error("مزود ذكاء اصطناعي غير معروف.");
-  const c=need(id),model=opts.model||c.model,w=PV().buildRequest(c.provider,body,model,c.key);
-  const data=await send(w.url,{method:"POST",headers:w.headers,body:JSON.stringify(w.body)},opts.timeout,opts.signal,c.provider);
-  return PV().toGeminiResponse(c.provider,data);
+  const c=need(id),first=opts.model||c.model,tries=[first,...(opts.model?[]:PV().fallbackModels(c.provider,first,c.models))];let last=null;
+  for(const model of tries){
+    const w=PV().buildRequest(c.provider,body,model,c.key);
+    try{const data=await send(w.url,{method:"POST",headers:w.headers,body:JSON.stringify(w.body)},opts.timeout,opts.signal,c.provider);
+      if(model!==first){setConf({model},c.provider);toast("النموذج «"+first+"» غير متاح الآن — أكمل «"+model+"» واعتُمد لهذا الجهاز","info")}
+      return PV().toGeminiResponse(c.provider,data)}
+    catch(e){last=e;if(!(e&&e.status&&PV().retryWithOtherModel(e.status))||(opts.signal&&opts.signal.aborted))throw e}
+  }
+  throw last;
 }
 async function generate(body,opts={}){
   return generateFor(provider(),body,opts);

@@ -80,6 +80,7 @@ if MODE=="preview":
 shutil.copytree("ui/art",out/"art")
 # The audit studio stays as ES modules (loaded on first use), outside the bundle.
 shutil.copytree("ui/audit",out/"audit")
+if Path("ui/data").exists(): shutil.copytree("ui/data",out/"data")
 
 if MODE=="production":
     shutil.copytree("secure",out/"secure")
