@@ -195,6 +195,10 @@ await p.click('.sm-svg [data-sm-region="makkah"]');await p.waitForTimeout(900);
 ok('الأدوات المساعدة','الاقتراب من المنطقة ثم المدينة يُظهر المدن ثم الأحياء',await p.evaluate(async()=>{if(!document.querySelector('.sm-svg [data-sm-city]'))return false;document.querySelector('.sm-svg [data-sm-city="جدة"]')?.dispatchEvent(new MouseEvent('click',{bubbles:true}));await new Promise(r=>setTimeout(r,900));return document.querySelectorAll('.sm-d').length>0}));
 await p.click('[data-sm-tab="analysis"]');await p.waitForTimeout(700);
 ok('الأدوات المساعدة','تحليل المبيعات: الأكثر طلباً والشهور والعملاء وABC',await p.evaluate(()=>document.querySelectorAll('.skhb').length>=2&&/ABC/.test(document.body.innerText)));
+// ---------- the original systems, restored with demo data ----------
+await p.evaluate(()=>SKosifLegacy.open('crm'));await p.waitForTimeout(3500);
+const LG=await (async()=>{const fr=p.frames().find(f=>f.url().includes('/legacy/crm'));if(!fr)return{};return fr.evaluate(()=>{const t=document.documentElement.outerHTML;const ph=[...new Set(t.match(/(?<!\d)05\d{8}(?!\d)/g)||[])];return{v:document.title.includes('V8.2'),phones:ph.length,clean:ph.every(x=>/^05000000\d\d$/.test(x))}})})();
+ok('الأنظمة الأصلية','استعادة متابعة العملاء V8.2 وV31 وV33 وV40 داخل الأدوات المساعدة — ببيانات تجريبية فقط',LG.v&&LG.clean&&await p.evaluate(()=>document.querySelectorAll('.lg-card').length===4));
 await go('benchmarks',2500);
 {const BM=await p.evaluate(()=>{const rows=[...document.querySelectorAll('.bm-t tbody tr')];const E=SKEngines.reports.corpusBenchmarks,all=E.corpusPeers('').length;
   return{rows:rows.length,bars:document.querySelectorAll('.bm-bar').length,all,noBank:!E.corpusPeers('').some(x=>x.sector==='banking'||x.sector==='insurance'),pages:rows.some(r=>/ص \d+/.test(r.innerText))}});

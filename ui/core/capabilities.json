@@ -1667,6 +1667,27 @@
    "kw": "صلاحيات دور سحابة",
    "adv": false,
    "en": "Permissions & Workspaces"
+  },
+  {
+   "id": "legacyapps",
+   "label": "الأنظمة الأصلية",
+   "sub": "متابعة العملاء V8.2 ومنصات المبيعات والتكاليف V31 وV33 وV40 — كما كانت، ببيانات تجريبية",
+   "group": "helpers",
+   "tier": "UTILITIES",
+   "module": "ui/features/legacy-apps.js",
+   "data": [
+    "sales_customer_followup_* (CRM V8.2)",
+    "aghnam_alwadi_dashboard_v11 (V31/V33/V40)"
+   ],
+   "legacy": "التطبيقات المدمجة في إصدار v25 (CRM V8.2، V31، V33، V40) التي حُذفت — مستعادة بعد تنظيف بياناتها",
+   "decision": "Restore",
+   "kw": "الأنظمة الأصلية متابعة العملاء crm v8.2 v31 v33 v40 منصة الذهب المبيعات والتكاليف العمليات الذكية",
+   "adv": false,
+   "en": "Original systems",
+   "feeds": [
+    "followup",
+    "salesintel"
+   ]
   }
  ]
 }

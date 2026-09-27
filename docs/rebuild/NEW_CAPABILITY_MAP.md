@@ -79,6 +79,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | الحوكمة | `governance` | العام › الحوكمة والصلاحيات › الحوكمة والجاهزية | ADMIN | admin |
 | الصحة والاستثناءات | `health` | العام › الحوكمة والصلاحيات › الصحة والتشخيص | ADMIN | admin |
 | Capabilities v2 | `capabilitiesv2` | العام › الحوكمة والصلاحيات › الصلاحيات ومساحات العمل | ADMIN | admin |
+| التطبيقات المدمجة في إصدار v25 (CRM V8.2، V31، V33، V40) التي حُذفت — مستعادة بعد تنظيف بياناتها | `legacyapps` | الأدوات المساعدة للمحاسب › الأنظمة الأصلية | UTILITIES | admin |
 
 ## Menu: domains and hubs
 
@@ -120,10 +121,11 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | الأدوات المساعدة للمحاسب | التقارير التنفيذية | `execreports` التقارير التنفيذية |
 | الأدوات المساعدة للمحاسب | الطباعة والتصدير | `reports` مركز الطباعة · `exports` مركز التصدير |
 | الأدوات المساعدة للمحاسب | الأرشيف والتغييرات | `archive` الأرشيف والتغييرات |
+| الأدوات المساعدة للمحاسب | الأنظمة الأصلية | `legacyapps` الأنظمة الأصلية |
 | Jev والقرار | مركز القرار | `decision` مركز القرار |
 | Jev والقرار | Jev ومجلس القرار | `jev` Jev للقرار · `council` مجلس القرار |
 
-73 screens in 36 menu entries.
+74 screens in 37 menu entries.
 
 ## By tier
 
@@ -131,7 +133,7 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 - **MANAGEMENT** — الإدارة والمتابعة (12): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `benchmarks`, `memo`, `execreports`, `archive`, `codex`, `auditbench`, `corpuslab`
 - **INTELLIGENCE** — التحليل والذكاء (7): `decision`, `jev`, `council`, `salesintel`, `intelligence`, `economics`, `compare`
 - **ADVANCED** — الهندسة المتقدمة (17): `risklab`, `sensitivity`, `carcass`, `yieldlab`, `nrv`, `finance`, `costs`, `kernel`, `analyzer`, `auditdesk`, `auditdocs`, `auditissues`, `auditcouncil`, `auditfin`, `auditreport`, `auditanalytics`, `auditlab`
-- **UTILITIES** — أدوات مساعدة (10): `helperdesk`, `blending`, `culinary`, `labels`, `scanner`, `smartmatch`, `excelrecon`, `reports`, `exports`, `devices`
+- **UTILITIES** — أدوات مساعدة (11): `helperdesk`, `blending`, `culinary`, `labels`, `scanner`, `smartmatch`, `excelrecon`, `reports`, `exports`, `devices`, `legacyapps`
 - **ADMIN** — النظام والإدارة (5): `settings`, `companies`, `governance`, `health`, `capabilitiesv2`
 
-Coverage gate: 73 screens in 4 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
+Coverage gate: 74 screens in 4 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
