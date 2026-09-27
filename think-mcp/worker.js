@@ -7,9 +7,9 @@ const FAST_AGENTS = [
 const FRONTIER_AGENTS = [
   { id:"gpt", source:"cleanapis", model:"gpt-5.6-sol", role:"Lead frontier solver: produce the strongest feasible solution and challenge hidden assumptions." },
   { id:"claude", source:"cleanapis", model:"claude-opus-5", role:"Deep skeptical reviewer: stress-test logic, evidence, edge cases, and downside risk." },
-  { id:"gemini", source:"cleanapis", model:"gemini-3.7-flash", role:"Alternative-path analyst: compare approaches, surface missing options, and test trade-offs." },
-  { id:"mythos", source:"cleanapis", model:"claude-mythos-preview", role:"Adversarial scenario architect: test counterfactuals, failure modes, and hidden second-order effects." },
-  { id:"fable", source:"cleanapis", model:"claude-fable-5.1", role:"Creative synthesis challenger: seek unconventional but defensible alternatives and expose framing bias." }
+  { id:"gemini", source:"cleanapis", model:"gemini-3.7-flash", compact:true, role:"Alternative-path analyst: compare approaches, surface missing options, and test trade-offs." },
+  { id:"mythos", source:"cleanapis", model:"claude-mythos-preview", compact:true, role:"Adversarial scenario architect: test counterfactuals, failure modes, and hidden second-order effects." },
+  { id:"fable", source:"cleanapis", model:"claude-fable-5.1", compact:true, role:"Creative synthesis challenger: seek unconventional but defensible alternatives and expose framing bias." }
 ];
 
 function json(data,status){ return new Response(JSON.stringify(data),{status:status||200,headers:{"content-type":"application/json; charset=utf-8"}}); }
@@ -41,18 +41,22 @@ function parseJson(raw){
 }
 function artifact(agent,x){
   return {
-    agentId:agent.id, source:agent.source||"cloudflare", model:agent.model, role:agent.role,
+    agentId:agent.id, source:agent.source||"cloudflare", model:agent.model, role:agent.role, compact:!!agent.compact,
     recommendationId:x?.recommendationId==null?null:text(x.recommendationId,80),
     answer:text(x?.answer,3500), evidence:list(x?.evidence,8), assumptions:list(x?.assumptions,8),
     risks:list(x?.risks,8), objections:list(x?.objections,8), confidence:clamp(x?.confidence)
   };
 }
 function agentPrompt(agent,stage,input,peers){
-  const shape={recommendationId:"option key when options exist, otherwise null",answer:"concise reviewable conclusion",evidence:["facts"],assumptions:["assumptions"],risks:["risks"],objections:["objections"],confidence:0.0};
-  const stageRule=stage==="independent"?"Work independently. Do not anchor on another model.":stage==="critique"?"Review peer artifacts. Identify material conflicts or unsupported claims and return your revised position.":"Produce your final revised position after peer criticism.";
+  const compact=!!agent.compact;
+  const shape=compact
+    ? {recommendationId:"option key or null",answer:"<=60 words",evidence:["<=2"],assumptions:["<=2"],risks:["<=2"],objections:["<=2"],confidence:0.0}
+    : {recommendationId:"option key when options exist, otherwise null",answer:"concise reviewable conclusion",evidence:["facts"],assumptions:["assumptions"],risks:["risks"],objections:["objections"],confidence:0.0};
+  const stageRule=stage==="independent"?"Work independently. Do not anchor on another model.":stage==="critique"?"Review peer artifacts. Identify only material conflicts or unsupported claims, then revise.":"Produce the final revised position after criticism.";
   return [
     "You are a member of KOSIF Think.","Role: "+agent.role,stageRule,
-    "Do not reveal private chain-of-thought. Return only a compact decision artifact.",
+    compact?"Be extremely concise. Focus only on the most decision-changing insight.":"Be rigorous and concise.",
+    "Do not reveal private chain-of-thought. Return only the decision artifact.",
     "Return one valid JSON object only, matching this shape: "+JSON.stringify(shape),
     "Task: "+JSON.stringify({question:input.question,context:input.context,options:input.options,peerArtifacts:peers||[]})
   ].join("\n");
@@ -83,7 +87,7 @@ async function callAgent(env,agent,stage,input,peers){
     {role:"user",content:agentPrompt(agent,stage,input,peers)}
   ];
   if(agent.source==="cleanapis"){
-    const raw=await cleanApisChat(env,agent.model,messages,320);
+    const raw=await cleanApisChat(env,agent.model,messages,agent.compact?170:260);
     return artifact(agent,parseJson(raw));
   }
   const result=await env.AI.run(agent.model,{messages,max_tokens:550,response_format:{type:"json_object"}});
