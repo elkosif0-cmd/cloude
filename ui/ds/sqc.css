@@ -64,3 +64,7 @@ body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-r
 /* the phone top bar: the SQC mark already spells the name, so the text beside it is left to screen readers */
 .sk-tb-brand svg.sk-tb-sqc{width:74px;height:27px}
 .sk-tb-brand svg.sk-tb-sqc+b{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* the rail status card: the audit file (ui/layouts/rail-audit.js) */
+.rail .status-card .sqc-rs-co span{font-weight:700;color:inherit;opacity:.92}
+.rail .status-card .sqc-rs .btn{min-height:28px;padding:2px 12px}

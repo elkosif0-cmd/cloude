@@ -89,6 +89,13 @@ const SUSPENSE = /معلق|تحت التسويه|وسيط|حساب مؤقت|susp
 const RELATED = /طرف ذو علاقه|اطراف ذات علاقه|شركه شقيقه|جاري المدير|جاري الشريك|جاري الشركاء|related part/;
 const SALARIES = /رواتب|اجور|salar|wages/;
 /* estimates and accruals — where a round balance suggests a guess rather than a calculation */
+/* the Saudi-specific requests, as asked of an entity outside the Kingdom that pays income tax */
+const INTL_DOC: Record<string, [string, string]> = {
+  'احتساب الزكاة للسنة': ['احتساب ضريبة الدخل للسنة (الجارية والمؤجلة) والإقرارات', 'التحقق من IAS 12 والتشريع الضريبي المطبق'],
+  'الإقرار الزكوي وإيصال السداد وشهادة الزكاة': ['الإقرارات الضريبية وإيصالات السداد ومطابقتها بالمخصص', 'مطابقة الالتزام الضريبي'],
+  'الربوط والاعتراضات القائمة': ['الربوط والفحوص الضريبية والنزاعات القائمة مع الجهات الضريبية', 'تقييم المواقف الضريبية غير المؤكدة (IFRIC 23)'],
+  'عينة فواتير المبيعات الإلكترونية مع رموز QR': ['عينة فواتير المبيعات وعقودها ومستندات التسليم', 'التحقق من الحدوث والدقة'],
+};
 const ROUND_PRONE = new Set(['provisions', 'accruals', 'zakatPayable', 'zakatExpense', 'eosb', 'impairment', 'depreciation', 'otherIncome', 'contractLiab']);
 
 export type AccountReview = { code: string; name: string; type: TbRow['type']; lineKey: string | null; lineAr: string; basis: string;
@@ -104,13 +111,14 @@ export type Review = { materiality: Materiality; fs: FinancialStatements; accoun
 export type ReviewOptions = { framework?: Framework; currency?: string; overrides?: Record<string, string>; materiality?: number;
   /** performance and trivial rates from the materiality plan */ materialityRates?: { performanceRate?: number; trivialRate?: number };
   evidence?: Record<string, 'accepted' | 'partial' | 'none'>; extraFindings?: Finding[];
-  /** the tax the entity pays when it is neither Saudi (zakat) nor Egyptian (income tax under EAS) */ tax?: 'zakat' | 'income' };
+  /** the tax the entity pays when it is neither Saudi (zakat) nor Egyptian (income tax under EAS) */ tax?: 'zakat' | 'income';
+  /** a bank or insurer: its balance sheet is not split into current and non-current, so the working-capital test does not apply */ unclassified?: boolean };
 
 const money = (m: Minor) => formatMinor(m, { decimals: 0 }) + ' ر.س';
 
 /** Run the whole deterministic review of a trial balance. */
 export function reviewTrialBalance(tb: TrialBalance, opts: ReviewOptions = {}): Review {
-  const framework = opts.framework ?? 'IFRS', egypt = framework === 'EAS', cur = opts.currency ?? (egypt ? 'ج.م' : 'ر.س');
+  const framework = opts.framework ?? 'IFRS', egypt = framework === 'EAS', intl = !egypt && opts.tax === 'income', cur = opts.currency ?? (egypt ? 'ج.م' : 'ر.س');
   const money = (m: Minor) => formatMinor(m, { decimals: 0 }) + ' ' + cur;
   const fs = buildStatements(tb, opts.overrides ?? {}, { tax: opts.tax ?? (egypt ? 'income' : 'zakat') });
   const mat0 = materiality(fs, { overall: opts.materiality, ...(opts.materialityRates ?? {}) });
@@ -187,25 +195,28 @@ export function reviewTrialBalance(tb: TrialBalance, opts: ReviewOptions = {}): 
     if (est > 0) adj({ title: 'استحقاق ضريبة الدخل عن السنة (تقديري)', reason: 'لا يوجد مصروف ضريبة دخل في الميزان', standard: 'EAS 24', estimate: true,
       lines: [{ code: 'ADJ-TE', name: 'مصروف ضريبة الدخل', debit: est, credit: 0, type: 'expense' }, { code: 'ADJ-TP', name: 'ضريبة الدخل المستحقة', debit: 0, credit: est, type: 'liability' }] });
   } else if (egypt && zakatExp > 0 && zakatPay === 0) add({ severity: 'low', kind: 'completeness', lineKey: 'zakatPayable', standard: 'ضريبة الدخل (مصر)', title: 'مصروف ضريبة دخل دون التزام قائم', detail: 'إن سُددت الضريبة أو خُصمت تحت الحساب فيلزم الدليل، وإلا فيلزم قيد الالتزام.', basis: 'مصروف الضريبة ' + money(zakatExp), action: 'طلب الإقرار وإيصالات السداد ونماذج الخصم تحت الحساب.' });
-  else if (pbz > 0 && zakatExp === 0) {
+  else if (!intl && pbz > 0 && zakatExp === 0) {
     const sources = kv('equity') + kv('ncl'), deductions = kv('nca'), base = Math.max(sources - deductions, pbz), est = Math.round((base * 0.025) / 100) * 100;
     add({ severity: est >= mat.trivial ? 'high' : 'medium', kind: 'completeness', lineKey: 'zakatExpense', standard: 'لائحة الزكاة', title: 'لا يوجد مصروف زكاة رغم تحقق ربح', detail: 'الزكاة التزام عن السنة يجب قيده. التقدير الأولي على وعاء مبسط (حقوق الملكية + الالتزامات غير المتداولة − الموجودات غير المتداولة، وبحد أدنى الربح قبل الزكاة) بسعر 2.5%؛ الاحتساب النهائي من الإقرار مع مراعاة حدي الوعاء في اللائحة.', basis: `وعاء تقديري ${money(base)} × 2.5% = ${money(est)}`, action: 'قيد مخصص الزكاة وطلب الإقرار الزكوي.' });
     if (est > 0) adj({ title: 'استحقاق زكاة السنة (تقديري)', reason: 'لا يوجد مصروف زكاة في الميزان', standard: 'لائحة الزكاة / IAS 37', estimate: true,
       lines: [{ code: 'ADJ-ZE', name: 'مصروف الزكاة', debit: est, credit: 0, type: 'expense' }, { code: 'ADJ-ZP', name: 'مخصص الزكاة المستحقة', debit: 0, credit: est, type: 'liability' }] });
-  } else if (zakatExp > 0 && zakatPay === 0) add({ severity: 'low', kind: 'completeness', lineKey: 'zakatPayable', standard: 'لائحة الزكاة', title: 'مصروف زكاة دون مخصص قائم', detail: 'إن سُددت الزكاة قبل الإقفال فيلزم إيصال السداد، وإلا فيلزم قيد المخصص.', basis: 'مصروف الزكاة ' + money(zakatExp), action: 'طلب إيصال السداد أو قيد المخصص.' });
+  } else if (!intl && zakatExp > 0 && zakatPay === 0) add({ severity: 'low', kind: 'completeness', lineKey: 'zakatPayable', standard: 'لائحة الزكاة', title: 'مصروف زكاة دون مخصص قائم', detail: 'إن سُددت الزكاة قبل الإقفال فيلزم إيصال السداد، وإلا فيلزم قيد المخصص.', basis: 'مصروف الزكاة ' + money(zakatExp), action: 'طلب إيصال السداد أو قيد المخصص.' });
   const ppeNet = kv('ppe');
-  if (ppeNet > 0 && kv('depreciation') === 0) add({ severity: ppeNet >= mat.overall ? 'high' : 'medium', kind: 'completeness', lineKey: 'ppe', standard: 'IAS 16', title: 'أصول ثابتة دون مصروف استهلاك', detail: 'يجب استهلاك الأصول على أعمارها الإنتاجية؛ غياب المصروف يضخم الربح والأصول.', basis: 'صافي الأصول الثابتة ' + money(ppeNet), action: 'طلب سجل الأصول واحتساب استهلاك السنة ثم قيده.' });
+  /* depreciation carried inside another expense account (a statement by function) still counts */
+  const depInside = accounts.some((a) => a.type === 'expense' && a.natural !== 0 && /استهلاك|اهلاك|اطفاء/.test(norm(a.name)));
+  if (ppeNet > 0 && kv('depreciation') === 0 && !depInside) add({ severity: ppeNet >= mat.overall ? 'high' : 'medium', kind: 'completeness', lineKey: 'ppe', standard: 'IAS 16', title: 'أصول ثابتة دون مصروف استهلاك', detail: 'يجب استهلاك الأصول على أعمارها الإنتاجية؛ غياب المصروف يضخم الربح والأصول.', basis: 'صافي الأصول الثابتة ' + money(ppeNet), action: 'طلب سجل الأصول واحتساب استهلاك السنة ثم قيده.' });
   if (ppeNet < 0) add({ severity: 'high', kind: 'measurement', lineKey: 'ppe', standard: 'IAS 16', title: 'مجمع الاستهلاك يتجاوز التكلفة', detail: 'صافي القيمة الدفترية سالب.', basis: 'الصافي ' + money(ppeNet), action: 'مراجعة سجل الأصول والاستبعادات.' });
   const salaries = accounts.filter((a) => a.type === 'expense' && SALARIES.test(norm(a.name))).reduce((s, a) => s + a.natural, 0);
-  if (!egypt && salaries > 0 && !fs.lines.some((l) => l.key === 'eosb' && l.current !== 0)) add({ severity: salaries >= mat.overall ? 'high' : 'medium', kind: 'completeness', lineKey: 'eosb', standard: 'IAS 19', title: 'رواتب دون التزام مكافأة نهاية الخدمة', detail: 'نظام العمل يوجب مكافأة نهاية الخدمة؛ الالتزام يقاس وفق IAS 19 (أو بالتبسيط المسموح في معيار المنشآت الصغيرة).', basis: 'الرواتب ' + money(salaries), action: 'طلب كشف الموظفين واحتساب الالتزام.' });
+  if (!egypt && !intl && salaries > 0 && !fs.lines.some((l) => l.key === 'eosb' && l.current !== 0)) add({ severity: salaries >= mat.overall ? 'high' : 'medium', kind: 'completeness', lineKey: 'eosb', standard: 'IAS 19', title: 'رواتب دون التزام مكافأة نهاية الخدمة', detail: 'نظام العمل يوجب مكافأة نهاية الخدمة؛ الالتزام يقاس وفق IAS 19 (أو بالتبسيط المسموح في معيار المنشآت الصغيرة).', basis: 'الرواتب ' + money(salaries), action: 'طلب كشف الموظفين واحتساب الالتزام.' });
   const loans = kv('loansCl') + kv('loansNcl');
-  if (loans > 0 && kv('finance') === 0) add({ severity: 'medium', kind: 'completeness', lineKey: 'loansNcl', standard: 'IFRS 9', title: 'قروض دون تكلفة تمويل', detail: 'إما أن التمويل بلا تكلفة (يلزم دليل)، أو رُسملت (IAS 23)، أو لم تُقيد.', basis: 'القروض ' + money(loans), action: 'طلب عقود التمويل وكشوف احتساب الفائدة.' });
+  const financeInside = accounts.some((a) => a.natural !== 0 && a.lineKey !== 'loansNcl' && a.lineKey !== 'loansCl' && /تكاليف التمويل|تكلفه التمويل|فوائد/.test(norm(a.name)));
+  if (loans > 0 && kv('finance') === 0 && !financeInside) add({ severity: 'medium', kind: 'completeness', lineKey: 'loansNcl', standard: 'IFRS 9', title: 'قروض دون تكلفة تمويل', detail: 'إما أن التمويل بلا تكلفة (يلزم دليل)، أو رُسملت (IAS 23)، أو لم تُقيد.', basis: 'القروض ' + money(loans), action: 'طلب عقود التمويل وكشوف احتساب الفائدة.' });
   const rec = kv('receivables');
   if (rec >= mat.performance && !fs.lines.some((l) => l.key === 'impairment' && l.current !== 0) && !accounts.some((a) => a.lineKey === 'receivables' && /خسائر|مخصص|مشكوك/.test(norm(a.name))))
     add({ severity: 'medium', kind: 'measurement', lineKey: 'receivables', standard: 'IFRS 9', title: 'ذمم مدينة دون مخصص خسائر ائتمانية متوقعة', detail: 'المعيار يوجب تقدير الخسائر الائتمانية المتوقعة ولو كانت صغيرة.', basis: 'الذمم ' + money(rec), action: 'طلب أعمار الديون ومصفوفة المخصص.' });
   if (kv('inventory') > 0 && kv('cogs') === 0) add({ severity: 'medium', kind: 'completeness', lineKey: 'cogs', standard: 'IAS 2', title: 'مخزون دون تكلفة مبيعات', detail: 'وجود مخزون ومبيعات دون تكلفة مبيعات يدل على جرد دوري لم يُقفل.', basis: 'المخزون ' + money(kv('inventory')), action: 'طلب حركة المخزون وقيد تكلفة المبيعات.' });
   const vatA = fs.lines.find((l) => l.key === 'vatAsset')?.current ?? 0, vatL = fs.lines.find((l) => l.key === 'vatLiability')?.current ?? 0;
-  if (kv('revenue') > 0 && vatA === 0 && vatL === 0) add({ severity: 'low', kind: 'completeness', lineKey: 'revenue', standard: 'ZATCA VAT', title: 'لا توجد أرصدة ضريبة قيمة مضافة', detail: 'منشأة ذات إيراد دون أرصدة ضريبة؛ تحقق من التسجيل والإقرارات أو من إقفال الأرصدة.', basis: 'الإيراد ' + money(kv('revenue')), action: 'طلب شهادة التسجيل والإقرارات.' });
+  if (!intl && kv('revenue') > 0 && vatA === 0 && vatL === 0) add({ severity: 'low', kind: 'completeness', lineKey: 'revenue', standard: 'ZATCA VAT', title: 'لا توجد أرصدة ضريبة قيمة مضافة', detail: 'منشأة ذات إيراد دون أرصدة ضريبة؛ تحقق من التسجيل والإقرارات أو من إقفال الأرصدة.', basis: 'الإيراد ' + money(kv('revenue')), action: 'طلب شهادة التسجيل والإقرارات.' });
   if (vatA > 0 && vatL > 0) {
     const off = Math.min(vatA, vatL);
     add({ severity: 'low', kind: 'classification', lineKey: 'vatLiability', standard: 'IAS 32', title: 'ضريبة مدخلات ومخرجات قائمتان معاً', detail: 'تُعرض بالصافي لأنها تُسوّى في إقرار واحد مع الهيئة.', basis: `مدخلات ${money(vatA)} · مخرجات ${money(vatL)}`, action: 'مقاصة الرصيدين حتى الأقل منهما.' });
@@ -239,7 +250,7 @@ export function reviewTrialBalance(tb: TrialBalance, opts: ReviewOptions = {}): 
   }
   /* going concern indicators (ISA 570) */
   if (kv('equity') < 0) add({ severity: 'high', kind: 'going-concern', standard: 'ISA 570', title: 'حقوق ملكية سالبة', detail: 'مؤشر جوهري على عدم التأكد بشأن الاستمرارية؛ قد تنطبق أحكام نظام الشركات عند بلوغ الخسائر نصف رأس المال.', basis: 'حقوق الملكية ' + money(kv('equity')), action: 'تقييم خطط الإدارة والدعم المالي والإفصاح.' });
-  else if (kv('cl') > 0 && kv('ca') < kv('cl')) add({ severity: 'medium', kind: 'going-concern', standard: 'ISA 570', title: 'المطلوبات المتداولة تتجاوز الموجودات المتداولة', detail: 'عجز رأس المال العامل مؤشر على مخاطر السيولة.', basis: `${money(kv('ca'))} مقابل ${money(kv('cl'))}`, action: 'الحصول على التدفقات النقدية المتوقعة لـ12 شهراً.' });
+  else if (!opts.unclassified && kv('cl') > 0 && kv('ca') < kv('cl')) add({ severity: 'medium', kind: 'going-concern', standard: 'ISA 570', title: 'المطلوبات المتداولة تتجاوز الموجودات المتداولة', detail: 'عجز رأس المال العامل مؤشر على مخاطر السيولة.', basis: `${money(kv('ca'))} مقابل ${money(kv('cl'))}`, action: 'الحصول على التدفقات النقدية المتوقعة لـ12 شهراً.' });
 
   if (egypt) { for (const f of findings) f.standard = inFramework(f.standard, framework); for (const a of adjustments) a.standard = a.standard.split(' / ').map((x) => inFramework(x, framework)).join(' / '); }
   for (const f of opts.extraFindings ?? []) { findings.push(f); if (f.code) acc(f.code)?.findings.push(f.id); }
@@ -271,7 +282,7 @@ export function reviewTrialBalance(tb: TrialBalance, opts: ReviewOptions = {}): 
     if (r.level === 'منخفض' && Math.abs(r.amount) < mat.performance) continue;
     const la = LINE_AUDIT[r.lineKey]; if (!la) continue;
     const accs = fs.lines.find((l) => l.key === r.lineKey)!.accounts.map((a) => a.code);
-    la.docs.forEach(([title, purpose], i) => { if (requests.some((q) => q.title === title)) return;
+    la.docs.map(([t, p]) => (intl ? INTL_DOC[t] ?? [t, p] : [t, p])).forEach(([title, purpose], i) => { if (requests.some((q) => q.title === title)) return;
       requests.push({ id: 'PBC-' + r.lineKey + '-' + (i + 1), title, purpose, lineKey: r.lineKey, accounts: accs, standard: inFramework(LINE[r.lineKey]?.standards[0] ?? 'ISA 500', framework), priority: r.level === 'عالٍ' ? 'عالية' : r.level === 'متوسط' ? 'متوسطة' : 'منخفضة', source: 'engine' }); });
   }
 

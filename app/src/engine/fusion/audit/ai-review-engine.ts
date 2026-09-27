@@ -56,7 +56,8 @@ export const FINAL_SCHEMA = OBJ({
   limitations: ARR(S()), closingStatement: S(),
 }, ['overallOpinion', 'headline', 'summary', 'keyAuditMatters', 'complianceDiscussion', 'adjustments', 'managementLetter', 'closingStatement']);
 
-export type ReviewContext = { company: string; period: string; periodEnd?: string; framework: Framework; currency?: string; activity?: string };
+export type ReviewContext = { company: string; period: string; periodEnd?: string; framework: Framework; currency?: string; activity?: string;
+  /** the unit the figures are stated in, when not riyals (a company of the global reports: «مليون دولار أمريكي») */ curSym?: string };
 export type Upload = { requestId: string; fileName: string; mimeType: string; size: number; round: number; data?: string; text?: string };
 export type ReviewedDoc = { requestId: string; fileName: string; verdict: 'مقبول' | 'غير كافٍ' | 'مرفوض'; notes: string; extracted: Record<string, string> };
 export type AiAdjustment = Adjustment & { valid: boolean; problems: string[]; newAccounts: string[] };
@@ -307,7 +308,7 @@ export function deriveOpinion(tb: TrialBalance, review: Review, s: Session, acce
   const sigUnevidenced = review.risks.filter((r) => r.significant && !ev[r.lineKey]).length;
   const lineOf = (q: DocRequest) => q.lineKey ?? review.accounts.find((a) => q.accounts.includes(a.code))?.lineKey ?? null;
   const blockedSig = new Set(unavailHigh.map(lineOf).filter((k) => k && review.risks.some((r) => r.lineKey === k && r.significant)));
-  const basis: string[] = [], material = misstatement > mat.overall, pervasive = misstatement > mat.overall * 5, cs = s.ctx.framework === 'EAS' ? 'ج.م' : 'ر.س';
+  const basis: string[] = [], material = misstatement > mat.overall, pervasive = misstatement > mat.overall * 5, cs = s.ctx.curSym ?? (s.ctx.framework === 'EAS' ? 'ج.م' : 'ر.س');
   if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar(misstatement)} ${cs} مقابل أهمية نسبية ${sar(mat.overall)} ${cs} (ISA 450).`);
   if (unavailHigh.length) basis.push(`تعذر الحصول على ${unavailHigh.length} مستند عالي الأولوية: ` + unavailHigh.map((q) => q.title).join('، ') + '.');
   const scopePervasive = unavailHigh.length >= 3 || blockedSig.size >= 3;

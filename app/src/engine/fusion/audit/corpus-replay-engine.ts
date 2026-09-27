@@ -59,7 +59,7 @@ export function replayCompany(id: string, opts: { prior?: boolean; max?: number 
   const t = companyTrialBalance(id);
   if (!t) return null;
   const c = t.company, tb = parseTrialBalance(t.csv);
-  const review = reviewTrialBalance(tb, { framework: 'IFRS', currency: t.ctx.curSym, overrides: t.overrides, tax: t.ctx.taxKind as 'zakat' | 'income' });
+  const review = reviewTrialBalance(tb, { framework: 'IFRS', currency: t.ctx.curSym, overrides: t.overrides, tax: t.ctx.taxKind as 'zakat' | 'income', unclassified: t.ctx.unclassified });
   const prior = opts.prior === false ? undefined : sectorPrior(c.sector, c.id);
   const kams = suggestKams({ fs: review.fs, risks: review.risks, materiality: review.materiality.overall, currency: t.ctx.curSym, periodEnd: c.yearEnd, sector: c.sector, max: opts.max ?? 3, sectorPrior: prior });
   const rows = KAMS.filter((k) => k.report === id);

@@ -397,7 +397,7 @@ details.ap-card[open]>summary::after{content:"▴"}
 
 /* audit cycle as nodes + arrows */
 .tbr-flowmap{display:grid;gap:8px;margin:0;padding:0}
-.tbr-flowtrack{display:flex;align-items:stretch;gap:22px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:thin}
+.tbr-flowtrack{display:flex;align-items:stretch;gap:22px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:thin;scroll-behavior:auto;-webkit-mask-image:linear-gradient(to left,#000 0,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(to left,#000 0,#000 calc(100% - 36px),transparent)}
 .tbr-flow-node{position:relative;flex:0 0 178px;min-height:78px;display:flex;align-items:center;gap:9px;text-align:right;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface);color:var(--sk-ink-2);padding:10px 11px;font:inherit;cursor:pointer}
 .tbr-flow-node:not(:last-child)::after{content:"←";position:absolute;left:-19px;top:50%;transform:translateY(-50%);font-size:20px;font-weight:900;color:var(--sk-brand);pointer-events:none}
 .tbr-flow-node>i{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--sk-surface-3);font-style:normal;font-weight:900}
