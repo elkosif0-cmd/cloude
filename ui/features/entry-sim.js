@@ -11,14 +11,23 @@
 (()=>{
 "use strict";
 const {esc,toast,load,save}=SK;
-const KEY="sqc_jesim_v1",EL=()=>SKEngines.finance.entryLearner,AIE=()=>SKEngines.audit.aiReview;
+const BASE_KEY="sqc_jesim_v1",EL=()=>SKEngines.finance.entryLearner,AIE=()=>SKEngines.audit.aiReview;
 const TABS=[["suggest","اقترح قيداً"],["learn","علّمه"],["memory","الذاكرة"]];
 const FIELDS=[["date","التاريخ"],["ref","رقم القيد"],["account","رقم الحساب"],["name","اسم الحساب"],["debit","مدين"],["credit","دائن"],["amount","المبلغ (عمود واحد)"],["side","مدين/دائن"],["memo","البيان"]];
 let root=null,tab="",doc={text:"",amount:"",date:"",vatIncluded:true},res=null,edit=null,pending=null,busy=false,useAi=true,attach=null;
 const nf=new Intl.NumberFormat("en",{minimumFractionDigits:2,maximumFractionDigits:2}),n2=v=>nf.format(Number(v)||0);
 const today=()=>new Date().toISOString().slice(0,10);
-const mem=()=>{const m=load(KEY,null);return m&&m.v===1&&Array.isArray(m.patterns)?m:EL().emptyMemory()};
-const put=m=>{save(KEY,m);SK.audit&&SK.audit.log("jesim",{act:"memory",patterns:m.patterns.length,rules:m.rules.length})};
+const companyId=()=>{const s=window.SKosifSpace&&SKosifSpace.current&&SKosifSpace.current();if(s&&s.id)return String(s.id);const d=load("skosif_companies_v1",{})||{};return String((d.active||{}).companyId||"space-main")};
+const memoryKey=()=>BASE_KEY+"__"+companyId().replace(/[^A-Za-z0-9_.-]/g,"_");
+const fresh=()=>({...EL().emptyMemory(),companyId:companyId(),accountMap:{}});
+const normalize=m=>m&&m.v===1&&Array.isArray(m.patterns)&&(!m.companyId||m.companyId===companyId())?{...m,companyId:companyId(),accountMap:m.accountMap||{}}:fresh();
+const mem=()=>{const k=memoryKey(),own=load(k,null);if(own)return normalize(own);
+  /* one-time migration of the legacy per-snapshot key into the active company's explicit key */
+  const legacy=load(BASE_KEY,null);if(legacy&&legacy.v===1&&Array.isArray(legacy.patterns)){const m=normalize(legacy);save(k,m);localStorage.removeItem(BASE_KEY);return m}
+  return fresh()};
+const put=m=>{const v=normalize(m);save(memoryKey(),v);SK.audit&&SK.audit.log("jesim",{act:"memory",company:v.companyId,patterns:v.patterns.length,rules:v.rules.length})};
+const chart=()=>window.SKosifLedger&&SKosifLedger.accounts?SKosifLedger.accounts().filter(a=>a.active!==false):[];
+const applyAccountMap=(lines,m=mem())=>{const mp=m.accountMap||{},by=new Map(chart().map(a=>[String(a.code),a]));return(lines||[]).map(l=>{const code=String(mp[l.account]||l.account),a=by.get(code);return{...l,account:code,name:a&&a.name||l.name}})};
 const aiReady=()=>!!(window.SKosifAI&&SKosifAI.ready());
 const readAs=(file,how)=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=()=>no(r.error||new Error("تعذرت قراءة الملف"));how==="text"?r.readAsText(file):r.readAsDataURL(file)});
 const mimeOf=f=>f.type||(/\.pdf$/i.test(f.name)?"application/pdf":/\.png$/i.test(f.name)?"image/png":/\.jpe?g$/i.test(f.name)?"image/jpeg":"application/octet-stream");
@@ -39,7 +48,7 @@ async function run(){
     }catch(e){toast("الذكاء الاصطناعي: "+e.message,"warn")}
     busy=false;
   }
-  res={...s,doc:d};paint();
+  s={...s,lines:applyAccountMap(s.lines,m)};res={...s,doc:d};paint();
 }
 function teachWith(patternId){
   const m=mem();try{const p=EL().teach(m,res.doc,{patternId});put(m);toast("حُفظ في الذاكرة: «"+p.title.slice(0,40)+"»","ok")}catch{return toast("النمط غير موجود","bad")}
@@ -53,10 +62,29 @@ function teachOwn(){
   const p=EL().teach(m,res.doc,{legs:sh.legs,title:res.doc.text.slice(0,60),vatRate:sh.vatRate});put(m);
   toast("تعلّم قيداً جديداً: «"+p.title.slice(0,40)+"»","ok");edit=null;run();
 }
-function post(){
-  const L=window.SKosifLedger;if(!L||!L.post)return toast("الدفاتر المحاسبية غير متاحة","bad");
-  const r=L.post({date:res.doc.date,memo:res.doc.text||res.title,reference:"",lines:res.lines,source:"محاكي القيود"});
+async function post(){
+  if(!res||res.posted)return;const L=window.SKosifLedger;if(!L||!L.post)return toast("الدفاتر المحاسبية غير متاحة","bad");
+  const payload={date:res.doc.date,memo:res.doc.text||res.title,reference:"",lines:res.lines,source:"محاكي القيود"};
+  let r=L.post(payload),chosen={};
+  if(!r.ok&&r.code==="MISSING_ACCOUNTS"){
+    const accounts=L.accounts().filter(a=>a.active!==false).sort((a,b)=>String(a.code).localeCompare(String(b.code)));
+    const typeOf=c=>({"1":"asset","2":"liability","3":"equity","4":"revenue","5":"expense","6":"expense","7":"expense","8":"expense"}[String(c)[0]]||"other"),open=[];
+    for(const miss of r.missingAccounts||[]){
+      const existing=accounts.map(a=>[String(a.code),String(a.code)+" — "+a.name]),canOpen=!miss.inactive;
+      const choices=(canOpen?[["__new__","فتح حساب جديد بهذا الرقم"]]:[]).concat(existing);
+      const v=await SK.form("الحساب «"+miss.resolvedCode+"» غير متاح في دليل الشركة",[
+        {key:"choice",label:miss.inactive?"اختر حساباً نشطاً بديلاً":"اربطه بحساب موجود أو افتح حساباً جديداً",type:"select",value:canOpen?"__new__":(existing[0]&&existing[0][0]||""),options:choices,required:true},
+        {key:"name",label:"اسم الحساب عند فتح حساب جديد",value:miss.name||"",placeholder:"اسم الحساب"},
+        {key:"type",label:"نوع الحساب الجديد",type:"select",value:typeOf(miss.resolvedCode),options:[["asset","أصل"],["liability","التزام"],["equity","حقوق ملكية"],["revenue","إيراد"],["expense","مصروف"],["other","أخرى"]]}
+      ],{ok:"متابعة",message:"لن يُفتح حساب ولن يُرحّل القيد إلا بعد معالجة كل الحسابات الناقصة صراحةً."});
+      if(!v)return toast("أُلغي الترحيل — لم يتغير دليل الحسابات أو الدفاتر","info");
+      if(v.choice==="__new__"){if(!String(v.name||miss.name||"").trim())return toast("اكتب اسم الحساب الجديد","warn");open.push({code:miss.resolvedCode,name:String(v.name||miss.name).trim(),type:v.type||typeOf(miss.resolvedCode)})}
+      else chosen[miss.code]=v.choice;
+    }
+    r=L.post(payload,{map:chosen,open});
+  }
   if(!r.ok)return toast("لم يُرحّل: "+r.error,"bad");
+  if(Object.keys(chosen).length){const m=mem();m.accountMap={...(m.accountMap||{}),...chosen};put(m);res={...res,lines:applyAccountMap(res.lines,m)}}
   if(res.patternId){const m=mem();try{EL().teach(m,res.doc,{patternId:res.patternId});put(m)}catch{/* the pattern was removed meanwhile */}}
   toast("رُحّل القيد إلى الدفاتر المحاسبية وحُفظ في الذاكرة","ok");res={...res,posted:r.id};paint();
 }
@@ -124,7 +152,7 @@ function linesTable(lines){
 }
 function editor(m){
   const opts='<datalist id="js-acc">'+Object.entries(m.accounts).map(([c,a])=>'<option value="'+esc(c)+'">'+esc(a.name)+'</option>').join("")+'</datalist>';
-  return '<section class="card js-edit"><div class="card-h"><div><h3>حدّد القيد بنفسك</h3><p>اختر الحسابات من دليل الشركة (أو اكتب رقماً جديداً) والمبالغ؛ يُحفظ نمطاً جديداً ويُتعرف على المستندات المشابهة بعده.</p></div></div><div class="card-b">'+opts+
+  return '<section class="card js-edit"><div class="card-h"><div><h3>حدّد القيد بنفسك</h3><p>اختر الحسابات والمبالغ. إذا كان رقم الحساب غير موجود في دليل الشركة فلن يُنشأ بصمت: سيطلب المحاكي ربطه بحساب نشط أو فتحه صراحة قبل أي ترحيل.</p></div></div><div class="card-b">'+opts+
     edit.map((l,i)=>'<div class="js-er"><input list="js-acc" data-je="account" data-i="'+i+'" value="'+esc(l.account)+'" placeholder="رقم الحساب" aria-label="رقم الحساب"><input data-je="name" data-i="'+i+'" value="'+esc(l.name)+'" placeholder="اسم الحساب" aria-label="اسم الحساب"><input inputmode="decimal" data-je="debit" data-i="'+i+'" value="'+esc(l.debit||"")+'" placeholder="مدين" aria-label="مدين"><input inputmode="decimal" data-je="credit" data-i="'+i+'" value="'+esc(l.credit||"")+'" placeholder="دائن" aria-label="دائن"><button type="button" class="btn sm" data-js="rm-line" data-i="'+i+'" aria-label="حذف السطر">×</button></div>').join("")+
     '<div class="sk-actions"><button type="button" class="btn sm" data-js="add-line">+ سطر</button><button type="button" class="btn primary" data-js="teach-own">احفظ القيد وتعلّمه</button><button type="button" class="btn" data-js="cancel-edit">إلغاء</button></div></div></section>';
 }
@@ -231,9 +259,9 @@ function bind(el){
     x.value="";
   });
 }
-function render(el){root=el;paint();bind(el)}
+function render(el){root=el;paint();if(el.dataset.jesimBound!=="1"){bind(el);el.dataset.jesimBound="1"}}
 SK.view("jesim",{render});
 /* for the assistant and other screens: the suggestion for a document, without opening the screen */
-window.SKosifEntrySim=Object.freeze({memory:mem,suggest:(text,amount,o={})=>EL().suggest(mem(),{text:String(text||""),amount:Number(amount)||0,vatIncluded:o.vatIncluded!==false}),
+window.SKosifEntrySim=Object.freeze({memory:mem,memoryKey,companyId,suggest:(text,amount,o={})=>{const m=mem(),s=EL().suggest(m,{text:String(text||""),amount:Number(amount)||0,vatIncluded:o.vatIncluded!==false});return{...s,lines:applyAccountMap(s.lines,m)}},
   open:(text,amount)=>{doc={...doc,text:String(text||""),amount:amount?String(amount):""};tab="suggest";res=null;window.SKosifCore.go("jesim");if(text)setTimeout(run,0)}});
 })();
