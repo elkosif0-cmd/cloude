@@ -2,7 +2,7 @@
 
 Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do not edit by hand.
 
-Total capabilities: **69** (screens). Cross-cutting capabilities are listed after the table.
+Total capabilities: **70** (screens). Cross-cutting capabilities are listed after the table.
 
 | ID | Capability | Module | Current Location | Data Used | Dependencies | Status | Keep/Remove/Merge/Rebuild |
 |---|---|---|---|---|---|---|---|
@@ -40,6 +40,7 @@ Total capabilities: **69** (screens). Cross-cutting capabilities are listed afte
 | `advances` | السلف والدفعات المقدمة | ui/features/advances.js | المالية والمحاسبة › يومي | `skosif_advances_v1`, `skosif_ledger_v1` | SKosifCore | Working | Rebuild |
 | `finance` | الهندسة المالية | core (v18) | المالية والمحاسبة › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
 | `productflow` | استوديو المنتج | ui/features/product-flow.js | المنتج والتكاليف والتسعير › المنتج والتكلفة › يومي | `aghnam-pricing-v3`, `skosif_product_flow_v1` | SKosifCore | Working | Merge |
+| `linkmap` | خريطة الربط (الأسهم) | ui/features/link-map.js | المنتج والتكاليف والتسعير › يومي | `skosif_linkmap_v1`, `aghnam-pricing-v3`, `skosif_purchasing_v1`, `aghnam-v15-master-lists` | SKosifCore | Working | New |
 | `catalog` | الأصناف والأسعار | core | المنتج والتكاليف والتسعير › المنتج والتكلفة › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
 | `costs` | التكاليف والمصروفات | core | المنتج والتكاليف والتسعير › المنتج والتكلفة › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
 | `sim` | التسعير السريع | core | المنتج والتكاليف والتسعير › المنتج والتكلفة › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |

@@ -40,6 +40,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | جديد | `advances` | المالية والمحاسبة › السلف والدفعات المقدمة | CORE | admin |
 | الهندسة المالية | `finance` | المالية والمحاسبة › الهندسة المالية | ADVANCED | admin, accountant |
 | واجهة موحدة بدل تشتت الأصناف والتكاليف والتسعير والبوكسات | `productflow` | المنتج والتكاليف والتسعير › المنتج والتكلفة › استوديو المنتج | CORE | admin, accountant, warehouse, sales, viewer |
+| فكرة الأسهم: إضافة عنصر ثم توصيل السهم واختيار نوع العلاقة؛ شجرة المنتج وتحويل المواد الخام إلى أسهم الموردين | `linkmap` | المنتج والتكاليف والتسعير › خريطة الربط (الأسهم) | CORE | admin |
 | سجل الأسعار | `catalog` | المنتج والتكاليف والتسعير › المنتج والتكلفة › الأصناف والأسعار | CORE | admin, accountant, warehouse, sales, viewer |
 | مركز التكاليف | `costs` | المنتج والتكاليف والتسعير › المنتج والتكلفة › التكاليف والمصروفات | ADVANCED | admin |
 | محاكي التسعير | `sim` | المنتج والتكاليف والتسعير › المنتج والتكلفة › التسعير السريع | CORE | admin |
@@ -90,6 +91,7 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | المعايير والمرجع العالمي | المعايير والمدونة | `codex` المدونة المحاسبية والمعايير · `auditbench` المرجع العالمي للمراجعة · `auditlab` مختبر المعايير والأبحاث |
 | مدخل الأدوات والشركة | الشركة وشجرة الأدوات | `helperdesk` الشركة وشجرة الأدوات |
 | المنتج والتكاليف والتسعير | المنتج والتكلفة | `productflow` استوديو المنتج · `catalog` الأصناف والأسعار · `costs` التكاليف والمصروفات · `sim` التسعير السريع · `kernel` نواة التسعير الصارمة · `memo` اعتماد الأسعار · `builder` البوكسات · `analyzer` تحليل البوكس · `compare` المقارنة التحليلية |
+| المنتج والتكاليف والتسعير | خريطة الربط (الأسهم) | `linkmap` خريطة الربط (الأسهم) |
 | المنتج والتكاليف والتسعير | الملصقات والباركود | `labels` ملصقات الموازين · `scanner` ماسح الباركود |
 | المبيعات والعملاء | الطلبات والفوترة | `commerce` الطلبات والتحصيل · `zatca` نقطة البيع والفاتورة الضريبية |
 | المبيعات والعملاء | العملاء والائتمان | `customers` العملاء · `followup` متابعة العملاء · `b2bcredit` ائتمان المطاعم |
@@ -116,15 +118,15 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | النظام والتكاملات | الشركات والفترات | `companies` الشركات والفترات |
 | النظام والتكاملات | الحوكمة والصلاحيات | `governance` الحوكمة والجاهزية · `health` الصحة والتشخيص · `capabilitiesv2` الصلاحيات ومساحات العمل |
 
-69 screens in 33 menu entries.
+70 screens in 34 menu entries.
 
 ## By tier
 
-- **CORE** — العمل اليومي الأساسي (19): `dash`, `notifications`, `commerce`, `zatca`, `customers`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `cash`, `receivables`, `advances`, `productflow`, `catalog`, `sim`, `builder`, `tbreview`
+- **CORE** — العمل اليومي الأساسي (20): `dash`, `notifications`, `commerce`, `zatca`, `customers`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `cash`, `receivables`, `advances`, `productflow`, `linkmap`, `catalog`, `sim`, `builder`, `tbreview`
 - **MANAGEMENT** — الإدارة والمتابعة (11): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `memo`, `execreports`, `archive`, `codex`, `auditbench`, `corpuslab`
 - **INTELLIGENCE** — التحليل والذكاء (7): `decision`, `jev`, `council`, `salesintel`, `intelligence`, `economics`, `compare`
 - **ADVANCED** — الهندسة المتقدمة (17): `risklab`, `sensitivity`, `carcass`, `yieldlab`, `nrv`, `finance`, `costs`, `kernel`, `analyzer`, `auditdesk`, `auditdocs`, `auditissues`, `auditcouncil`, `auditfin`, `auditreport`, `auditanalytics`, `auditlab`
 - **UTILITIES** — أدوات مساعدة (10): `blending`, `culinary`, `labels`, `scanner`, `smartmatch`, `excelrecon`, `reports`, `exports`, `devices`, `helperdesk`
 - **ADMIN** — النظام والإدارة (5): `settings`, `companies`, `governance`, `health`, `capabilitiesv2`
 
-Coverage gate: 69 screens in 11 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
+Coverage gate: 70 screens in 11 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.

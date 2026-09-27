@@ -172,6 +172,16 @@ await p.evaluate(()=>SKosifTBReview.loadCorpus('aramco-2025'));await p.waitForTi
 ok('الشركات العالمية','فتح شركة عالمية كملف مراجعة بعملتها ومراجعها وسنتها',await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}');return d.ctx&&d.ctx.corpusId==='aramco-2025'&&/ريال/.test(d.ctx.curSym)&&/Pricewaterhouse/.test(d.ctx.auditFirm)&&Object.keys(d.overrides||{}).length>10}));
 await p.evaluate(()=>SKosifTBReview.open('docs'));await p.waitForTimeout(1500);
 ok('الشركات العالمية','طلبات الجولة الأولى تشمل ما اعتمد عليه مراجعو التقارير العالمية',await txt('مراجعين في التقارير العالمية'));
+// ---------- the link map: arrows that write records ----------
+await go('linkmap',1200);await p.evaluate(()=>SKosifLinkMap.product('b7'));await p.waitForTimeout(2000);
+const LM=await p.evaluate(()=>({b:SKosifLinkMap.boards().slice(-1)[0],nodes:document.querySelectorAll('.lm-node').length,edges:document.querySelectorAll('.lm-edges [data-edge]').length,handles:document.querySelectorAll('.lm-node [data-handle]').length}));
+ok('خريطة الربط','شجرة المنتج بالأسهم: المكوّنات والمصروف ومن اشتراه',LM.nodes>=6&&LM.edges>=5&&LM.handles===LM.nodes&&/شجرة/.test(LM.b.name));
+const LW=await p.evaluate(async()=>{const bid=SK.pricing.addBox({name:'بوكس فحص الأسهم',price:150});SK.pricing.setComp(bid,'raw','r1',2);await new Promise(r=>setTimeout(r,400));
+  const c=SKosifCore.catalog().items.find(i=>i.id===bid);SK.graph.linkSupplier({supplier:'مورد فحص الأسهم',item:'نعيمي طازج',rawId:'r1',price:44});
+  const pur=JSON.parse(localStorage.getItem('skosif_purchasing_v1'));const m=JSON.parse(localStorage.getItem('aghnam-v15-master-lists'));const nb=await SK.graph.neighbours('raw','r1');
+  return{cost:c&&c.cost,price:pur.prices.some(x=>x.supplier==='مورد فحص الأسهم'&&x.price===44),master:m.suppliers.some(x=>x.name==='مورد فحص الأسهم'),nb:nb.some(x=>x.rel==='supplies'&&x.id==='مورد فحص الأسهم')&&nb.some(x=>x.rel==='comp'&&x.id===bid)}});
+ok('خريطة الربط','سهم «مكوّن في» يكتب تركيب البوكس ويعيد التطبيق حساب تكلفته فوراً',LW.cost>0);
+ok('خريطة الربط','سهم «يورّد» يسجّل سعر المورد ويضيف المورد الجديد لقائمة الموردين',LW.price&&LW.master&&LW.nb);
 const ph=await (await b.newContext({viewport:{width:390,height:844},isMobile:true})).newPage();await ph.goto(URL_);await ph.waitForTimeout(5000);
 ok('الجولات 1–33','شريط التبويبات السفلي في الآيفون',await ph.evaluate(()=>!!document.querySelector('.skb,.sk-tabbar,[class*="tabbar"]')));
 if(process.argv[3])fs.writeFileSync(process.argv[3],JSON.stringify(R,null,1));

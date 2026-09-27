@@ -161,8 +161,10 @@ function goSection(id){
 function paintSections(){
   const box=$("#modeseg");if(!box)return;const cur=curSection();
   const html=SK.caps.sections().map(S=>'<button type="button" data-sec="'+S.id+'" aria-pressed="'+(S.id===cur)+'" title="'+esc(S.label+" — "+S.sub)+'">'+(SK.icons[S.icon]||"")+'<span>'+esc(S.short)+'</span></button>').join("");
-  if(box.dataset.skSec!==html){box.innerHTML=html;box.dataset.skSec=html;box.classList.add("sk-secs");box.setAttribute("role","group");box.setAttribute("aria-label","أقسام التطبيق")}
-  if(!box.dataset.skBound){box.dataset.skBound="1";box.addEventListener("click",e=>{const b=e.target.closest("[data-sec]");if(!b)return;e.preventDefault();e.stopPropagation();goSection(b.dataset.sec)},true)}
+  /* the base app repaints its own mode buttons here when it re-renders (e.g. after taking a newer pricing record): paint the sections back */
+  if(box.dataset.skSec!==html||box.querySelectorAll("[data-sec]").length!==SK.caps.sections().length){box.innerHTML=html;box.dataset.skSec=html;box.classList.add("sk-secs");box.setAttribute("role","group");box.setAttribute("aria-label","أقسام التطبيق")}
+  if(!box.dataset.skBound){box.dataset.skBound="1";box.addEventListener("click",e=>{const b=e.target.closest("[data-sec]");if(!b)return;e.preventDefault();e.stopPropagation();goSection(b.dataset.sec)},true);
+    new MutationObserver(()=>{if(box.querySelectorAll("[data-sec]").length!==SK.caps.sections().length)paintSections()}).observe(box,{childList:true})}
 }
 const CHEV='<svg class="skn-ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
 const navState=()=>{const d=load(NAV_KEY,{})||{};return d.open&&typeof d.open==="object"?d.open:{}};

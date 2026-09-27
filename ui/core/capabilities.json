@@ -935,6 +935,31 @@
    ]
   },
   {
+   "id": "linkmap",
+   "label": "خريطة الربط (الأسهم)",
+   "sub": "اربط الأصناف بالبوكسات والموردين والعملاء والمخزون بسهم — والسهم يسجّل التركيب وأسعار الموردين وتحميل المصروفات",
+   "group": "catalog",
+   "tier": "CORE",
+   "module": "ui/features/link-map.js",
+   "data": [
+    "skosif_linkmap_v1",
+    "aghnam-pricing-v3",
+    "skosif_purchasing_v1",
+    "aghnam-v15-master-lists"
+   ],
+   "legacy": "فكرة الأسهم: إضافة عنصر ثم توصيل السهم واختيار نوع العلاقة؛ شجرة المنتج وتحويل المواد الخام إلى أسهم الموردين",
+   "decision": "New",
+   "kw": "خريطة ربط أسهم شجرة منتج مواد خام بوكس تركيبة مورد سعر عميل مخزون مصروف علاقة",
+   "adv": false,
+   "en": "Link map",
+   "feeds": [
+    "productflow",
+    "suppliers",
+    "customers",
+    "inventory"
+   ]
+  },
+  {
    "id": "catalog",
    "label": "الأصناف والأسعار",
    "sub": "البحث والتعديل المباشر وقوائم الأسعار",
