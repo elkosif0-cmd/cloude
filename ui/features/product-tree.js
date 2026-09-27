@@ -206,7 +206,7 @@ function bind(el){
   el.addEventListener("pointermove",e=>{if(!drag)return;const pt=drag.svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const p=pt.matrixTransform(drag.svg.getScreenCTM().inverse());drag.x=p.x-drag.ox;drag.y=p.y-drag.oy;drag.moved=true;drag.nd.setAttribute("transform","translate("+drag.x+","+drag.y+")")});
   el.addEventListener("pointerup",()=>{if(!drag)return;const d=drag;drag=null;if(!d.moved)return;const t=get(),W=1200;t.pos=t.pos||{};t.pos[d.id]={x:Math.round(W-(d.x+NW/2)),y:Math.round(d.y+NH/2)};put(t);paint()});
 }
-function render(el){root=el;paint();bind(el);if(!get().materials.length&&!get().products.length)sync(true)}
+function render(el){root=el;paint();if(el.dataset.ptBound!=="1"){bind(el);el.dataset.ptBound="1"}if(!get().materials.length&&!get().products.length)sync(true)}
 SK.view("ptree",{render});
 window.SKosifProductTree=Object.freeze({get,sync,print:printReport});
 })();
