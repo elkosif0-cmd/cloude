@@ -6,7 +6,7 @@
    The other companies of the helper tools (parked by SK.ws) travel in the same backup under "ws". */
 (()=>{
 "use strict";
-const DB="aghnam-app-v7",PREFIX=/^(aghnam|skosif|kosif|s_kosif)/,FORMAT="skosif-backup",VERSION=2;
+const DB="aghnam-app-v7",PREFIX=/^(aghnam|skosif|kosif|s_kosif|sales_customer_followup)/,FORMAT="skosif-backup",VERSION=2;
 const SKIP=new Set(["skosif_error_log","skosif_ai_keys","skosif_chat_v1"]);/* the Gemini key never leaves this device */
 let snapshot=null;
 

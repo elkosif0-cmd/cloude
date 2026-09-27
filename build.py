@@ -26,13 +26,13 @@ if nb!=1: raise SystemExit("Rail brand markup missing")
 # ui/core/capabilities.json is the single list of screens; it is inlined for the registry.
 UI_CSS=["ds/fonts.css","ds/tokens.css","ds/components.css","ds/elements.css","ds/shell.css","ds/luxe.css",
         "features/offers.css","features/supply.css","features/smartmatch.css","features/meatops.css","features/kernel.css",
-        "features/enterprise.css","features/reports.css","features/erp-plus.css","features/operations.css","features/capabilities-v2.css","features/devices.css","features/luxe-screens.css","features/tbreview.css","features/assistant.css","features/accounting-guidance.css","features/audit-bench.css","features/fieldwork.css","features/helper-center.css","features/corpus-lab.css","features/product-flow.css","features/link-map.css","features/geo-map.css","features/item-report.css","features/journal-sim.css","features/advances.css","ds/sqc.css"]
+        "features/enterprise.css","features/reports.css","features/erp-plus.css","features/operations.css","features/capabilities-v2.css","features/devices.css","features/luxe-screens.css","features/tbreview.css","features/assistant.css","features/accounting-guidance.css","features/audit-bench.css","features/fieldwork.css","features/helper-center.css","features/corpus-lab.css","features/product-flow.css","features/link-map.css","features/geo-map.css","features/item-report.css","features/journal-sim.css","features/legacy-apps.css","features/advances.css","ds/sqc.css"]
 UI_JS=["core/sk.js","core/output.js","core/bus.js","core/errors.js","core/store.js","core/ws.js","core/graph.js","core/services.js","core/engines.js","core/registry.js","core/perm.js","core/audit.js","core/device.js","core/ai.js","core/demo.js","core/templates.js","core/flow.js","core/a11y.js",
        "components/states.js","layouts/shell.js","layouts/topbar.js","components/palette.js","components/keys.js","components/charts.js","components/table.js","components/xlsx.js","features/command-center.js",
        "features/jev.js","features/offers.js","features/inventory.js","features/supply.js","features/meatops.js","features/smartmatch.js",
        "features/pricing-core.js","features/kernel.js","features/tools.js","features/enterprise.js","features/reports.js","features/report-pack.js",
        "features/erp-plus.js","features/operations.js","features/capabilities-v2.js","features/audit-bridge.js",
-       "features/ledger.js","features/advances.js","features/month-close.js","features/purchasing.js","features/workspace.js","features/followup.js","features/devices.js","features/notifications.js","features/risks.js","features/accounting-guidance.js","features/codex.js","features/audit-bench.js","features/report-docs.js","features/integrated-report.js","features/audit-practice.js","features/corpus-lab.js","features/tb-council.js","features/tb-fieldwork.js","features/tb-review.js","features/sales-lab.js","features/assistant.js","features/helper-center.js","features/product-flow.js","features/link-map.js","features/geo-map.js","features/item-report.js","features/journal-sim.js"]
+       "features/ledger.js","features/advances.js","features/month-close.js","features/purchasing.js","features/workspace.js","features/followup.js","features/devices.js","features/notifications.js","features/risks.js","features/accounting-guidance.js","features/codex.js","features/audit-bench.js","features/report-docs.js","features/integrated-report.js","features/audit-practice.js","features/corpus-lab.js","features/tb-council.js","features/tb-fieldwork.js","features/tb-review.js","features/sales-lab.js","features/assistant.js","features/helper-center.js","features/product-flow.js","features/link-map.js","features/geo-map.js","features/item-report.js","features/journal-sim.js","features/legacy-apps.js"]
 listed={"ui/"+n for n in UI_CSS+UI_JS}
 stray=[str(f) for f in Path("ui").glob("*.*") if f.suffix in (".js",".css")]
 stray+=[str(f) for d in ("core","ds","components","layouts","features") for f in Path("ui",d).glob("*.*") if f.suffix in (".js",".css") and str(f) not in listed]
@@ -64,6 +64,7 @@ shutil.copytree("ui/art",out/"art")
 shutil.copytree("ui/audit",out/"audit")
 # data loaded on demand (the research bundle's companies as audit clients)
 if Path("ui/data").exists(): shutil.copytree("ui/data",out/"data")
+if Path("ui/legacy").exists(): shutil.copytree("ui/legacy",out/"legacy")
 
 shutil.copytree("secure",out/"secure")
 if private: private_blocks.encrypt(private,Path("secure"),out/"secure")

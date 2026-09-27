@@ -200,6 +200,10 @@ ok('محاكي القيود','يتعلم من قيود الفترة: الحسا�
 const JS2=await p.evaluate(()=>{const s=SKosifJournalSim.suggest('فاتورة ضريبية من مؤسسة المراعي الذهبية — استلام نعيمي طازج — الإجمالي 5,750 شامل الضريبة');const u=SKosifJournalSim.suggest('مستند رقم 7');
   const dr=s.lines.reduce((t,l)=>t+l.debit,0),cr=s.lines.reduce((t,l)=>t+l.credit,0);return{book:s.book,bal:Math.abs(dr-cr)<0.01&&dr===5750,vat:s.lines.some(l=>l.debit===750),where:s.where,uq:u.questions.length,uc:u.confidence}});
 ok('محاكي القيود','يقترح قيد المستند (بالضريبة) وأين يُسجّل، ويسأل حين لا يكون متأكداً',JS2.book==='purchases'&&JS2.bal&&JS2.vat&&JS2.where.includes('المشتريات')&&JS2.uq>0&&JS2.uc<0.55);
+// ---------- the original systems, restored with demo data ----------
+await p.evaluate(()=>SKosifLegacy.open('crm'));await p.waitForTimeout(3500);
+const LG=await (async()=>{const fr=p.frames().find(f=>f.url().includes('/legacy/crm'));if(!fr)return{};return fr.evaluate(()=>{const t=document.documentElement.outerHTML;const ph=[...new Set(t.match(/(?<!\d)05\d{8}(?!\d)/g)||[])];return{v:document.title.includes('V8.2'),phones:ph.length,clean:ph.every(x=>/^05000000\d\d$/.test(x))}})})();
+ok('الأنظمة الأصلية','استعادة متابعة العملاء V8.2 وV31 وV33 وV40 داخل الأدوات المساعدة — ببيانات تجريبية فقط',LG.v&&LG.clean&&await p.evaluate(()=>document.querySelectorAll('.lg-card').length===4));
 const ph=await (await b.newContext({viewport:{width:390,height:844},isMobile:true})).newPage();await ph.goto(URL_);await ph.waitForTimeout(5000);
 ok('الجولات 1–33','شريط التبويبات السفلي في الآيفون',await ph.evaluate(()=>!!document.querySelector('.skb,.sk-tabbar,[class*="tabbar"]')));
 if(process.argv[3])fs.writeFileSync(process.argv[3],JSON.stringify(R,null,1));

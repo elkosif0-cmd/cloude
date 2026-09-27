@@ -14,7 +14,7 @@ const CO="skosif_companies_v1",WSDB="skosif-workspaces",APPDB="aghnam-app-v7";
 const SHARED=new Set(["skosif_prefs","skosif_nav_v1","skosif_profile_v1",CO,"skosif_audit_trail","skosif_ai_keys","skosif_chat_v1","skosif_error_log",
   "aghnam-v12-theme","skosif_tbreview_v1","skosif_engagements_v1","skosif_notify_v1","skosif_tasks_v1","skosif_risks_v1","skosif_council_v1","skosif_ws_meta_v1"]);
 const SHARED_PREFIX=["skosif_eng_","skosif_codex","skosif_std","skosif_bench","skosif_jev","skosif_device","skosif_perm","skosif_user","skosif_role","aghnamJev"];
-const APP=/^(aghnam|skosif|kosif|s_kosif)/;
+const APP=/^(aghnam|skosif|kosif|s_kosif|sales_customer_followup)/;
 /* a key that belongs to the company on screen (and moves with it) */
 const isWsKey=k=>APP.test(k)&&!SHARED.has(k)&&!SHARED_PREFIX.some(p=>k.startsWith(p));
 

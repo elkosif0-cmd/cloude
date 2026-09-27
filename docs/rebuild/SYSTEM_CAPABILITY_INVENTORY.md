@@ -2,7 +2,7 @@
 
 Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do not edit by hand.
 
-Total capabilities: **73** (screens). Cross-cutting capabilities are listed after the table.
+Total capabilities: **74** (screens). Cross-cutting capabilities are listed after the table.
 
 | ID | Capability | Module | Current Location | Data Used | Dependencies | Status | Keep/Remove/Merge/Rebuild |
 |---|---|---|---|---|---|---|---|
@@ -78,6 +78,7 @@ Total capabilities: **73** (screens). Cross-cutting capabilities are listed afte
 | `health` | الصحة والتشخيص | core (v19.8) + ui/jev.js | النظام والتكاملات › الحوكمة والصلاحيات › يومي | `aghnam-v17-runtime-errors`, `skosif_error_log` | SKosifCore, Engine | Working | Keep |
 | `capabilitiesv2` | الصلاحيات ومساحات العمل | ui/capabilities-v2.js + capabilities-v2/worker.js | النظام والتكاملات › الحوكمة والصلاحيات › يومي | `skosif_cap_v2_config`, `skosif_cap_v2_local_workspace` | SKosifCore | Working | Keep |
 | `helperdesk` | الشركة وشجرة الأدوات | ui/features/helper-center.js | مدخل الأدوات والشركة › يومي | `skosif_companies_v1`, `skosif-workspaces (IndexedDB)` | SKosifCore | Working | Rebuild |
+| `legacyapps` | الأنظمة الأصلية | ui/features/legacy-apps.js | مدخل الأدوات والشركة › يومي | `sales_customer_followup_* (CRM V8.2)`, `aghnam_alwadi_dashboard_v11 (V31/V33/V40)` | SKosifCore | Working | Restore |
 | `corpuslab` | مختبر الشركات العالمية | ui/features/corpus-lab.js + SKEngines.reports.corpusCompanies + SKEngines.audit.{corpusReplay,openingRequests,globalBenchmarks} | ملفات المراجعة › يومي | `لا بيانات محلية — القوائم المنشورة من حزمة البحث العالمية` | SKosifCore | Working | Rebuild |
 
 ## Cross-cutting capabilities

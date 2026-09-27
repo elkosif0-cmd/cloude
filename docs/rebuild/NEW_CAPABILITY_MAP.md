@@ -78,6 +78,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | الصحة والاستثناءات | `health` | النظام والتكاملات › الحوكمة والصلاحيات › الصحة والتشخيص | ADMIN | admin |
 | Capabilities v2 | `capabilitiesv2` | النظام والتكاملات › الحوكمة والصلاحيات › الصلاحيات ومساحات العمل | ADMIN | admin |
 | تنظيم كل الأدوات غير المرتبطة مباشرة بملف المراجعة في مساحة مستقلة | `helperdesk` | مدخل الأدوات والشركة › الشركة وشجرة الأدوات | UTILITIES | admin, accountant, warehouse, sales, viewer |
+| التطبيقات المدمجة في إصدار v25 (CRM V8.2، V31، V33، V40) التي حُذفت — مستعادة بعد تنظيف بياناتها | `legacyapps` | مدخل الأدوات والشركة › الأنظمة الأصلية | UTILITIES | admin |
 | جديد — تشغيل المراجعة على شركات global_financial_and_audit_research_bundle_extended_verified.pdf ومقارنتها بتقارير مراجعيها | `corpuslab` | ملفات المراجعة › مختبر الشركات العالمية | MANAGEMENT | admin |
 
 ## Menu: domains and hubs
@@ -93,6 +94,7 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | ملفات المراجعة | الشركات العالمية (عملاء تجريبيون) | `corpuslab` مختبر الشركات العالمية |
 | المعايير والمرجع العالمي | المعايير والمدونة | `codex` المدونة المحاسبية والمعايير · `auditbench` المرجع العالمي للمراجعة · `auditlab` مختبر المعايير والأبحاث |
 | مدخل الأدوات والشركة | الشركة وشجرة الأدوات | `helperdesk` الشركة وشجرة الأدوات |
+| مدخل الأدوات والشركة | الأنظمة الأصلية | `legacyapps` الأنظمة الأصلية |
 | المنتج والتكاليف والتسعير | المنتج والتكلفة | `productflow` استوديو المنتج · `catalog` الأصناف والأسعار · `costs` التكاليف والمصروفات · `sim` التسعير السريع · `kernel` نواة التسعير الصارمة · `memo` اعتماد الأسعار · `builder` البوكسات · `analyzer` تحليل البوكس · `compare` المقارنة التحليلية |
 | المنتج والتكاليف والتسعير | خريطة الربط (الأسهم) | `linkmap` خريطة الربط (الأسهم) |
 | المنتج والتكاليف والتسعير | الملصقات والباركود | `labels` ملصقات الموازين · `scanner` ماسح الباركود |
@@ -124,7 +126,7 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | النظام والتكاملات | الشركات والفترات | `companies` الشركات والفترات |
 | النظام والتكاملات | الحوكمة والصلاحيات | `governance` الحوكمة والجاهزية · `health` الصحة والتشخيص · `capabilitiesv2` الصلاحيات ومساحات العمل |
 
-73 screens in 37 menu entries.
+74 screens in 38 menu entries.
 
 ## By tier
 
@@ -132,7 +134,7 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 - **MANAGEMENT** — الإدارة والمتابعة (12): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `memo`, `execreports`, `itemreport`, `archive`, `codex`, `auditbench`, `corpuslab`
 - **INTELLIGENCE** — التحليل والذكاء (9): `decision`, `jev`, `council`, `salesintel`, `geomap`, `intelligence`, `economics`, `jsim`, `compare`
 - **ADVANCED** — الهندسة المتقدمة (17): `risklab`, `sensitivity`, `carcass`, `yieldlab`, `nrv`, `finance`, `costs`, `kernel`, `analyzer`, `auditdesk`, `auditdocs`, `auditissues`, `auditcouncil`, `auditfin`, `auditreport`, `auditanalytics`, `auditlab`
-- **UTILITIES** — أدوات مساعدة (10): `blending`, `culinary`, `labels`, `scanner`, `smartmatch`, `excelrecon`, `reports`, `exports`, `devices`, `helperdesk`
+- **UTILITIES** — أدوات مساعدة (11): `blending`, `culinary`, `labels`, `scanner`, `smartmatch`, `excelrecon`, `reports`, `exports`, `devices`, `helperdesk`, `legacyapps`
 - **ADMIN** — النظام والإدارة (5): `settings`, `companies`, `governance`, `health`, `capabilitiesv2`
 
-Coverage gate: 73 screens in 11 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
+Coverage gate: 74 screens in 11 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
