@@ -217,6 +217,28 @@ const JPG=await p.evaluate(()=>{
   return result;
 });
 ok('الأدوات المساعدة','حوكمة الترحيل: الحساب الناقص يُرفض بلا أثر، والفتح/الربط الصريح فقط يسمح بالقيد',JPG.reject&&JPG.partial&&JPG.explicit&&JPG.mapping);
+// ---------- regression: revisiting a view must not stack delegated listeners ----------
+await p.evaluate(()=>{
+  const orig=EventTarget.prototype.addEventListener;
+  window.__sqcListenerAuditOrig=orig;
+  window.__sqcListenerAudit={pt:0,sm:0,cl:0,hd:0};
+  EventTarget.prototype.addEventListener=function(type,fn,opt){
+    try{
+      if(this instanceof Element){
+        if(this.querySelector?.('[data-pt],[data-pt-tab]'))window.__sqcListenerAudit.pt++;
+        else if(this.querySelector?.('[data-sm],[data-sm-tab],[data-sm-region]'))window.__sqcListenerAudit.sm++;
+        else if(this.querySelector?.('[data-cl-prior],[data-cl-open]'))window.__sqcListenerAudit.cl++;
+        else if(this.querySelector?.('[data-hd-go]'))window.__sqcListenerAudit.hd++;
+      }
+    }catch{}
+    return orig.call(this,type,fn,opt);
+  };
+});
+await go('helperdesk',180);await go('ptree',180);await go('helperdesk',180);await go('salesmap',180);await go('helperdesk',180);await go('corpuslab',180);
+await go('helperdesk',180);await go('ptree',180);await go('salesmap',180);await go('corpuslab',180);
+const LA=await p.evaluate(()=>({...window.__sqcListenerAudit}));
+ok('ثبات الواجهات','إعادة فتح الشاشات لا تراكم مستمعي الأحداث (مركز الأدوات · شجرة المنتجات · خريطة المبيعات · مختبر الشركات)',LA.pt===0&&LA.sm===0&&LA.cl===0&&LA.hd===0);
+await p.evaluate(()=>{if(window.__sqcListenerAuditOrig)EventTarget.prototype.addEventListener=window.__sqcListenerAuditOrig;delete window.__sqcListenerAuditOrig;delete window.__sqcListenerAudit});
 const ph=await (await b.newContext({viewport:{width:390,height:844},isMobile:true})).newPage();await ph.goto(URL_);await ph.waitForTimeout(5000);
 ok('الجولات 1–33','شريط التبويبات السفلي في الآيفون',await ph.evaluate(()=>!!document.querySelector('.skb,.sk-tabbar,[class*="tabbar"]')));
 if(process.argv[3])fs.writeFileSync(process.argv[3],JSON.stringify(R,null,1));
