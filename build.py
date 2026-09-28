@@ -1,6 +1,16 @@
 from pathlib import Path
 import base64, gzip, hashlib, json, re, shutil
 import private_blocks
+from build_mode import build_mode
+
+MODE=build_mode()  # production, or preview: no private data at all (see build_mode.py)
+
+PREVIEW_INDEX="""<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<meta http-equiv="refresh" content="0;url=./app-safe.html"><title>SQC — معاينة</title></head>
+<body style="font-family:system-ui,sans-serif;padding:24px"><p>معاينة SQC ببيانات تجريبية فقط — لا تحتوي أي بيانات خاصة.
+<a href="./app-safe.html">فتح التطبيق</a></p></body></html>
+"""
 
 out=Path("dist")
 if out.exists(): shutil.rmtree(out)
@@ -48,8 +58,12 @@ if not sep: raise SystemExit("Final body close missing")
 text=head+f'<script src="./skosif.js?v={tag}" defer></script></body>'+tail
 
 text,private=private_blocks.extract(text)
+if MODE=="preview": private=None  # preview drops private blocks instead of encrypting them
 (out/"app-safe.html").write_text(text,encoding="utf-8")
-(out/"index.html").write_bytes(Path("unlock.html").read_bytes())
+if MODE=="preview":
+    (out/"index.html").write_text(PREVIEW_INDEX,encoding="utf-8")
+else:
+    (out/"index.html").write_bytes(Path("unlock.html").read_bytes())
 
 for name in ["icon-192.png","icon-512.png","apple-touch-icon.png"]:
     src=Path("payload")/(name+".b64")
@@ -57,14 +71,17 @@ for name in ["icon-192.png","icon-512.png","apple-touch-icon.png"]:
 
 for name in ["sw.js","manifest.webmanifest","INSTALL-iPHONE-ar.txt","INSTALL-LAPTOP-ar.txt","_headers"]:
     (out/name).write_bytes(Path(name).read_bytes())
+if MODE=="preview":
+    with open(out/"_headers","a",encoding="utf-8") as h: h.write("/*\n  X-Robots-Tag: noindex, nofollow\n")
 (out/"skosif.css").write_text(bundle_css,encoding="utf-8")
 (out/"skosif.js").write_text(bundle_js,encoding="utf-8")
 shutil.copytree("ui/art",out/"art")
 # The audit studio stays as ES modules (loaded on first use), outside the bundle.
 shutil.copytree("ui/audit",out/"audit")
 
-shutil.copytree("secure",out/"secure")
-if private: private_blocks.encrypt(private,Path("secure"),out/"secure")
+if MODE=="production":
+    shutil.copytree("secure",out/"secure")
+    if private: private_blocks.encrypt(private,Path("secure"),out/"secure")
 
 # Name the service-worker cache after the build contents so every release
 # replaces the copy cached on installed phones.
@@ -76,4 +93,4 @@ sw=(out/"sw.js").read_text(encoding="utf-8")
 sw,n=re.subn(r"const CACHE='[^']*';",f"const CACHE='skosif-{digest.hexdigest()[:12]}';",sw,count=1)
 if n!=1: raise SystemExit("sw.js CACHE marker missing")
 (out/"sw.js").write_text(sw,encoding="utf-8")
-print("Built SQC:",len(list(out.rglob("*"))),"entries")
+print("Built SQC ("+MODE+"):",len(list(out.rglob("*"))),"entries")
