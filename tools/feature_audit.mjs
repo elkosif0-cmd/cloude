@@ -121,9 +121,13 @@ await go('followup');await p.click('[data-tab="report"]');await p.waitForTimeout
 ok('المرفقات: CRM','التسجيل اليومي وقائمة الاتصال وأولوية التواصل وتقرير الإنجاز',await p.evaluate(()=>['log','queue','priority','report'].every(k=>document.querySelector('[data-sk-tabs="fu"] [data-tab="'+k+'"]'))));
 
 // ---------- accounting application guidance from SOCPA guides ----------
-const AG=await p.evaluate(()=>({api:!!window.SKosifAccountingGuidance,change:window.SKosifAccountingGuidance?.accountingChange({newInformationOrNewExperience:true})}));
+const AG=await p.evaluate(()=>({api:!!window.SKosifAccountingGuidance,change:window.SKosifAccountingGuidance?.accountingChange({newInformationOrNewExperience:true}),
+  ifrs19:window.SKosifAccountingGuidance?.ifrs19Eligibility({isSubsidiary:true,publicAccountability:false,parentProducesPublicIfrsConsolidated:true,usesFullIfrs:true}),
+  event:window.SKosifAccountingGuidance?.subsequentEvents({eventDateKnown:true,authorizationDateKnown:true,beforeAuthorization:true,evidenceOfConditionAtReportingDate:true,material:true})}));
 ok('المساعد التطبيقي','محرك يميز السياسة والتقدير والخطأ',AG.api&&AG.change?.treatment==='prospective');
-await go('codex',900);ok('المساعد التطبيقي','أدوات الإطار والاعتراف والعرض والإيضاح والتدفقات داخل المدونة',await has('.cdx-guide [data-ag-tab="framework"]')&&await has('.cdx-guide [data-ag-tab="recognition"]')&&await has('.cdx-guide [data-ag-tab="cashflow"]'));
+ok('المساعد التطبيقي','أهلية IFRS 19 وتصنيف الأحداث اللاحقة',AG.ifrs19?.decision==='eligible'&&AG.event?.decision==='adjusting');
+await go('codex',900);ok('المساعد التطبيقي','أدوات الإطار والاعتراف والعرض والإيضاح والتدفقات والتطبيقات المتقدمة داخل المدونة',await has('.cdx-guide [data-ag-tab="framework"]')&&await has('.cdx-guide [data-ag-tab="recognition"]')&&await has('.cdx-guide [data-ag-tab="cashflow"]')&&await has('.cdx-guide [data-ag-tab="advanced"]'));
+await p.click('.cdx-guide [data-ag-tab="advanced"]');await p.waitForTimeout(300);ok('المساعد التطبيقي','IFRS 18 وIFRS 19 والأطراف ذات العلاقة والأحداث اللاحقة في مجموعة واحدة',await has('[data-ag-mode="ifrs18"]')&&await has('[data-ag-mode="ifrs19"]')&&await has('[data-ag-mode="related"]')&&await has('[data-ag-mode="events"]'));
 // ---------- global audit practice from the research bundle: planning, completion, reporting and the books ----------
 await go('tbreview',1200);await p.click('[data-tab="plan"]');await p.waitForTimeout(1200);
 ok('ممارسات المراجعة العالمية','خطة الأهمية النسبية في العمل الميداني: أساس معدّل وتنفيذية حسب الخطر وحد إبلاغ',await has('.ap-card [data-ap-risk="controlDeficiencies"]')&&await txt('حد إبلاغ المكلفين بالحوكمة'));
