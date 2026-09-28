@@ -34,7 +34,8 @@ for (const [tag, opts] of [['laptop', { viewport: { width: 1366, height: 900 } }
   const go = async (v) => { await p.evaluate((x) => SKosifCore.go(x), v); await p.waitForTimeout(1200); await p.evaluate(() => document.querySelectorAll('.skd-wrap').forEach((x) => x.remove())); };
 
   /* advances: a new employee advance, saved and posted to the books */
-  phase = 'advances';\n  await go('advances');
+  phase = 'advances';
+  await go('advances');
   const party = 'موظف اختبار ' + tag;
   const before = await p.evaluate(() => SKosifAdvances.list().length);
   await p.evaluate(({ party }) => {
@@ -50,7 +51,8 @@ for (const [tag, opts] of [['laptop', { viewport: { width: 1366, height: 900 } }
   ok(tag, 'advances: no sideways scroll', (await p.evaluate(over)) <= 1);
 
   /* the original systems */
-  phase = 'legacyapps';\n  await go('legacyapps');
+  phase = 'legacyapps';
+  await go('legacyapps');
   const cards = await p.locator('#view .lg-card').count();
   await p.evaluate(() => SKosifLegacy.open('crm')); await p.waitForTimeout(3500);
   const fr = p.frames().find((f) => f.url().includes('/legacy/crm'));
@@ -60,7 +62,8 @@ for (const [tag, opts] of [['laptop', { viewport: { width: 1366, height: 900 } }
   ok(tag, 'original systems: no sideways scroll', (await p.evaluate(over)) <= 1);
 
   /* the product studio's cost map */
-  phase = 'productflow';\n  await go('productflow');
+  phase = 'productflow';
+  await go('productflow');
   const cm = await p.evaluate(() => { const E = SKEngines.catalog && SKEngines.catalog.costMap; return { engine: !!E, keys: E ? Object.keys(E).length : 0, text: (document.querySelector('#view') || {}).textContent.length }; });
   ok(tag, 'product studio: the cost-map engine is loaded and the screen renders', cm.engine && cm.keys > 0 && cm.text > 200, JSON.stringify(cm));
   ok(tag, 'product studio: no sideways scroll', (await p.evaluate(over)) <= 1);
