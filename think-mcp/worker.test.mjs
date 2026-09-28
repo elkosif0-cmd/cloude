@@ -275,6 +275,28 @@ test('kosif_route never assumes a plugin is connected when the host did not prov
   assert.ok(out.hostContract.route.includes('currently connected'));
 });
 
+
+test('kosif_route can route future connected tools that are not hardcoded in the catalog', async () => {
+  const e = env();
+  const r = await worker.fetch(req('/mcp', {
+    token: e.KOSIF_THINK_TOKEN,
+    body: call('kosif_route', {
+      task: 'راجع الواجهة والخطوط واكتشف مشاكل الكود',
+      availableTools: [
+        {
+          name: 'Future UI Inspector',
+          connected: true,
+          costClass: 'included',
+          description: 'Responsive UI, typography and accessibility checker',
+          lanes: ['design', 'dev']
+        }
+      ]
+    })
+  }), e);
+  const out = (await r.json()).result.structuredContent;
+  assert.ok(out.useNow.some(x => x.name === 'Future UI Inspector'));
+});
+
 test('kosif_think_status exposes host routing and cost guardrails without claiming direct plugin access', async () => {
   const e = env();
   const r = await worker.fetch(req('/mcp', { token: e.KOSIF_THINK_TOKEN, body: call('kosif_think_status', {}) }), e);
@@ -283,6 +305,7 @@ test('kosif_think_status exposes host routing and cost guardrails without claimi
   assert.equal(out.hostToolRouting.mode, 'host-mediated');
   assert.equal(out.hostToolRouting.directPluginCalls, false);
   assert.equal(out.hostToolRouting.routeTool, 'kosif_route');
+  assert.equal(out.hostToolRouting.dynamicToolsSupported, true);
   assert.ok(out.hostToolRouting.catalogSize >= 30);
   assert.deepEqual(out.hostToolRouting.autoCostClasses.sort(), ['existing_plan','free','included']);
   assert.ok(out.hostToolRouting.approvalRequired.includes('credits'));
