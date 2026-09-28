@@ -187,7 +187,7 @@ function chooser(){
   const f=w.querySelector(".skd-acts .primary");f&&f.focus();
 }
 function inHelpers(){const c=window.SKosifCore,cap=c&&SK.caps&&SK.caps.get(c.view());return!!(cap&&cap.group==="helpers")}
-function onNav(){if(inHelpers()){banner();if(!sessionStorage.getItem(USER_ASKED))userChooser();else if(!sessionStorage.getItem(ASKED))chooser()}else{hideUserChooser();hideChooser()}}
+function onNav(){if(inHelpers()){banner();sessionStorage.setItem(USER_ASKED,"1");if(!sessionStorage.getItem(ASKED))chooser()}else{hideUserChooser();hideChooser()}}
 /* the strip at the top of every helper screen: which company, and the way to change it */
 function banner(){
   setTimeout(()=>{const v=document.getElementById("view");if(!v||!inHelpers())return;
