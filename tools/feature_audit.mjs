@@ -189,6 +189,10 @@ await p.click('.sm-svg [data-sm-region="makkah"]');await p.waitForTimeout(900);
 ok('الأدوات المساعدة','الاقتراب من المنطقة ثم المدينة يُظهر المدن ثم الأحياء',await p.evaluate(async()=>{if(!document.querySelector('.sm-svg [data-sm-city]'))return false;document.querySelector('.sm-svg [data-sm-city="جدة"]')?.dispatchEvent(new MouseEvent('click',{bubbles:true}));await new Promise(r=>setTimeout(r,900));return document.querySelectorAll('.sm-d').length>0}));
 await p.click('[data-sm-tab="analysis"]');await p.waitForTimeout(700);
 ok('الأدوات المساعدة','تحليل المبيعات: الأكثر طلباً والشهور والعملاء وABC',await p.evaluate(()=>document.querySelectorAll('.skhb').length>=2&&/ABC/.test(document.body.innerText)));
+await go('benchmarks',2500);
+{const BM=await p.evaluate(()=>{const rows=[...document.querySelectorAll('.bm-t tbody tr')];const E=SKEngines.reports.corpusBenchmarks,all=E.corpusPeers('').length;
+  return{rows:rows.length,bars:document.querySelectorAll('.bm-bar').length,all,noBank:!E.corpusPeers('').some(x=>x.sector==='banking'||x.sector==='insurance'),pages:rows.some(r=>/ص \d+/.test(r.innerText))}});
+ok('الأدوات المساعدة','المقارنة بالشركات العالمية: عشر نسب مقابل 35 شركة غير مالية بصفحاتها، بلا بنوك ولا تأمين',BM.rows===10&&BM.bars===10&&BM.all===35&&BM.noBank&&BM.pages);}
 await go('jesim',1200);await p.evaluate(()=>{localStorage.removeItem(SKosifEntrySim.memoryKey());localStorage.removeItem('sqc_jesim_v1')});await go('jesim',800);
 await p.click('[data-js-tab="learn"]');await p.waitForTimeout(300);await p.click('[data-js="books"]');await p.waitForTimeout(600);
 ok('الأدوات المساعدة','محاكي القيود يتعلم طريقة التسجيل من قيود الدفاتر',await p.evaluate(()=>{const m=SKosifEntrySim.memory();return m.patterns.length>=3&&m.stats.entries>20&&Object.keys(m.accounts).length>5}));
