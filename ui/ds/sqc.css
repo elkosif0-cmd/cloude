@@ -76,10 +76,12 @@ body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-r
 .sqc-space{width:min(520px,100%)}
 .sqc-space .eyebrow{display:block;margin-bottom:4px}
 .sqc-space-list{display:grid;gap:8px;margin:var(--sk-3) 0;max-height:46vh;overflow:auto}
-.sqc-space-o{display:grid;gap:2px;text-align:start;padding:12px 14px;border:1px solid var(--sk-line);border-radius:12px;background:var(--sk-surface);color:var(--sk-ink);font:inherit;cursor:pointer}
+.sqc-space-o{display:grid;gap:2px;text-align:start;padding:12px 14px;border:1px solid var(--sk-line);border-radius:12px;background:var(--sk-surface);color:var(--sk-ink);font:inherit;cursor:pointer;min-width:0;overflow-wrap:anywhere}
 .sqc-space-o:hover,.sqc-space-o:focus-visible{border-color:var(--sk-brand);background:var(--sk-brand-soft)}
 .sqc-space-o.on{border-color:color-mix(in srgb,var(--sk-brand) 55%,var(--sk-line))}
 .sqc-space-o small{color:var(--sk-ink-3)}
+/* phones: a dialog's actions keep their 44px touch target (the kosif look's 40px buttons would otherwise win) */
+@media (max-width:600px){.skd .skd-acts>.btn{min-height:44px}}
 .sqc-space-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 var(--sk-3);padding:8px 12px;border:1px solid var(--sk-line);border-radius:12px;background:color-mix(in srgb,var(--sk-brand) 6%,var(--sk-surface));font-size:13.5px}
 .sqc-space-bar span{display:inline-flex;align-items:center;gap:8px}
 .sqc-space-bar svg{width:17px;height:17px;color:var(--sk-brand)}

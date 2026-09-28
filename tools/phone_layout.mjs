@@ -179,8 +179,17 @@ for (const [tag, opts, screensToo] of [['phone', { viewport: { width: 390, heigh
   for (const o of ov) if (o.left < 12 || o.right > o.W - 12 || !o.textInside || o.over > 2 || !o.rtl) failures.push(`${tag}: demo-loading card does not fit the screen ${JSON.stringify(o)}`);
   const ch = await p.evaluate(async () => { SKosifSpace.choose(); await new Promise((r) => setTimeout(r, 300)); const d = document.querySelector('#sqc-space .skd'), de = document.documentElement;
     if (!d) return null; const r = d.getBoundingClientRect(), out = { W: de.clientWidth, left: Math.round(r.left), right: Math.round(r.right), over: Math.max(de.scrollWidth, document.body.scrollWidth) - de.clientWidth, scrollsInside: d.scrollHeight <= d.clientHeight + 1 || /(auto|scroll)/.test(getComputedStyle(d).overflowY) };
+    /* the dialog is fixed, so an action pushed past its edge widens neither it nor the page: measure every action too */
+    const list = [...d.querySelectorAll('.skd-acts > *, .sqc-space-o')].filter((b) => b.offsetParent).map((b) => ({ b, x: b.getBoundingClientRect() }));
+    out.acts = list.filter(({ b, x }) => x.left < -0.5 || x.right > out.W + 0.5 || b.scrollWidth > b.clientWidth + 1).map(({ b, x }) => `«${b.textContent.trim().slice(0, 20)}» ${x.left.toFixed(1)}–${x.right.toFixed(1)}`);
+    for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) {
+      const a = list[i].x, b = list[j].x;
+      if (Math.min(a.right, b.right) > Math.max(a.left, b.left) + 2 && Math.min(a.bottom, b.bottom) > Math.max(a.top, b.top) + 2) {
+        out.acts.push(`«${list[i].b.textContent.trim().slice(0, 16)}» overlaps «${list[j].b.textContent.trim().slice(0, 16)}»`);
+      }
+    }
     document.getElementById('sqc-space').remove(); return out; });
-  if (!ch || ch.left < 0 || ch.right > ch.W || ch.over > 2 || !ch.scrollsInside) failures.push(`${tag}: company chooser does not fit the screen ${JSON.stringify(ch)}`);
+  if (!ch || ch.left < 0 || ch.right > ch.W || ch.over > 2 || !ch.scrollsInside || ch.acts.length) failures.push(`${tag}: company chooser does not fit the screen ${JSON.stringify(ch)}`);
   /* status text in every look (light and night): the chips, badges and danger buttons of the screens that carry them */
   if (tag === 'phone') {
     step(tag + ' · status text in every look');
