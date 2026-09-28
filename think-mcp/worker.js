@@ -1,4 +1,4 @@
-const VERSION = "0.5.3";
+const VERSION = "0.5.4";
 const FAST_AGENTS = [
   { id:"solver", source:"cloudflare", model:"@cf/meta/llama-3.3-70b-instruct-fp8-fast", role:"Lead solver: build the strongest answer and test feasibility." },
   { id:"skeptic", source:"cloudflare", model:"@cf/mistralai/mistral-small-3.1-24b-instruct", role:"Skeptical critic: find weak assumptions, contradictions, missing evidence, and downside risk." },
@@ -84,7 +84,7 @@ const BROWSER_JEV_CONTRACT = {
   system1:"stable local KOSIF action graph",
   ambiguityResolver:"bounded Jev choice over observed stable candidates only",
   compatibilityOperations:["CLICK","TYPE","SCROLL_DOWN","SCROLL_UP","GO_BACK","FINISH"],
-  sequence:["analyze","action_space","assess","risk_gate","revalidate","execute","verify","delta_or_recover"],
+  sequence:["observe_or_analyze","action_space","assess","jev_choice_if_needed","apply_decision","verify","delta_or_recover"],
   completionRule:"FINISH, short action history, or model probability are hypotheses only; require an observable postcondition.",
   cancellationRule:"Honor cancellation before the next side effect.",
   sourceFixes:[
@@ -744,7 +744,7 @@ async function callTool(env,name,args){
     mandatoryOnSelection:true,
     enforcement:"Instruction-level only; the server cannot force host tool invocation.",
     modelIdentity:"Configured provider aliases; underlying model identity is not independently verified.",
-    improvements:["unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery"],
+    improvements:["unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application"],
     access:{auth:"bearer",pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierEnabled:String(env.THINK_FRONTIER_ENABLED||"true").toLowerCase()!=="false",
       rateLimiter:typeof env.THINK_RATE_LIMITER?.limit==="function",modelLimiter:typeof env.THINK_MODEL_LIMITER?.limit==="function",limits:limits(env),browserOrigins:allowedOrigins(env).length},
     routing:{
@@ -755,11 +755,11 @@ async function callTool(env,name,args){
       finalChair:"Jev review followed by ChatGPT final synthesis",
       hostTools:"kosif_route plans host-mediated plugin/tool calls; the host executes only useNow and returns evidence to KOSIF.",
       tinyFish:"Browser/web interaction is routed through kosif_route when available; it is not part of the hidden reasoning bus.",
-      kosifComputer:"For authorized device/browser work prefer KOSIF Computer. Use browserjev for indexed semantic decisions and browserremote for deterministic remote input; Jev resolves only bounded observed ambiguity.",
+      kosifComputer:"For authorized device/browser work prefer KOSIF Computer. Use browserjev.observe/action_space/assess first. If ambiguity remains, Jev chooses only among observed stable candidates, then KOSIF Computer must revalidate and execute via browserjev.apply_decision before verify/delta/recover. Use browserremote only for deterministic remote input.",
       browserJevContract:BROWSER_JEV_CONTRACT
     },
     hostToolRouting:{mode:"host-mediated",directPluginCalls:false,routeTool:"kosif_route",catalogSize:HOST_TOOL_CATALOG.length,dynamicToolsSupported:true,autoCostClasses:Array.from(AUTO_COST_CLASSES),approvalRequired:["mixed","credits","paid","unknown"]},
-    jevIntegration:"kosif_council returns jev_payload; pass it to Jev Bridge before the final ChatGPT answer."
+    jevIntegration:"For browser ambiguity, Jev Choice is host-mediated over a closed observed candidate set and its structured result returns to KOSIF Computer browserjev.apply_decision for revalidation, risk gating, execution and verification. kosif_council jev_payload remains the general final-review handoff."
   },false);
   return null;
 }
