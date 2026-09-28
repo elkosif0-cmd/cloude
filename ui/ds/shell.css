@@ -215,6 +215,7 @@ body.skn-locked{overflow:hidden}
 .skd p{color:var(--sk-ink-2);font-size:var(--sk-fs-s);white-space:pre-line}
 .skd-acts{display:flex;justify-content:flex-end;gap:var(--sk-2);margin-top:var(--sk-4)}
 @media (max-width:600px){.skd-wrap{align-items:flex-end;padding:0}.skd{border-radius:var(--sk-r-l) var(--sk-r-l) 0 0;padding-bottom:calc(var(--sk-5) + env(safe-area-inset-bottom))}.skd-acts .btn{flex:1;min-height:44px}}
+@media (max-width:360px){.skd-acts{flex-direction:column-reverse;align-items:stretch}.skd-acts .btn{width:100%;min-width:0;flex:0 0 auto}}
 
 @media print{.rail,.topbar,.scrim,.skp-wrap,.sk-update,.sk-offline-bar{display:none!important}.app{display:block}.main{padding:0}}
 @media (prefers-reduced-motion:reduce){.rail,.nav-btn{transition:none}.sks-skel i{animation:none}}
