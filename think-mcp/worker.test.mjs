@@ -66,7 +66,7 @@ test('the right token: tools/list, then kosif_agent reaches Clean APIs with the 
   const e = env();
   const list = await worker.fetch(req('/mcp', { token: e.KOSIF_THINK_TOKEN }), e);
   assert.equal(list.status, 200);
-  assert.deepEqual((await list.json()).result.tools.map((t) => t.name), ['kosif_agent', 'kosif_council', 'kosif_think', 'kosif_think_status']);
+  assert.deepEqual((await list.json()).result.tools.map((t) => t.name), ['kosif_agent', 'kosif_council', 'kosif_think', 'kosif_route', 'kosif_think_status']);
   let sentAuth = null;
   upstream = (url, init) => { sentAuth = init.headers.authorization; return Response.json({ choices: [{ message: { content: '{"answer":"basis appropriate","confidence":0.9}' } }] }); };
   const { r, fetch } = await spent(() => worker.fetch(req('/mcp', { token: e.KOSIF_THINK_TOKEN, body: agentCall }), e));
@@ -215,6 +215,77 @@ test('kosif_think_status (authenticated) reports how access is configured, never
   assert.ok(!t.includes(e.KOSIF_THINK_TOKEN));
   const access = JSON.parse(t).result.structuredContent.access;
   assert.deepEqual({ ...access, limits: undefined }, { auth: 'bearer', pathToken: false, frontierEnabled: true, rateLimiter: true, modelLimiter: false, limits: undefined, browserOrigins: 1 });
+});
+
+
+test('kosif_route is deterministic, host-mediated, and spends no model calls', async () => {
+  const e = env();
+  const body = call('kosif_route', {
+    task: 'راجع واجهة التطبيق واكتشف أخطاء الكود ثم جهّز النشر',
+    availableTools: [
+      { name: 'GitHub', connected: true, costClass: 'existing_plan' },
+      { name: 'Figma', connected: true, costClass: 'existing_plan' },
+      { name: 'PostHog', connected: true, costClass: 'existing_plan' },
+      { name: 'Cloudflare', connected: true, costClass: 'existing_plan' },
+      { name: 'Runway', connected: true, costClass: 'credits' }
+    ]
+  });
+  const { r, fetch, ai } = await spent(() => worker.fetch(req('/mcp', { token: e.KOSIF_THINK_TOKEN, body }), e));
+  assert.equal(fetch + ai, 0, 'routing itself never runs a model or paid upstream');
+  const out = (await r.json()).result.structuredContent;
+  assert.equal(out.mode, 'host-mediated');
+  assert.equal(out.directPluginCalls, false);
+  const names = out.useNow.map(x => x.name);
+  assert.ok(names.includes('GitHub'));
+  assert.ok(names.includes('Figma'));
+  assert.ok(names.includes('Cloudflare'));
+  assert.equal(out.hostContract.truthfulness.includes('Never claim'), true);
+});
+
+test('kosif_route enforces the user cost policy: free/included/current-plan auto, credits or unknown require approval', async () => {
+  const e = env();
+  const args = {
+    task: 'أنشئ صورة احترافية وإعلان بصري ثم حرّك الصورة كفيديو',
+    availableTools: [
+      { name: 'Adobe Express', connected: true, costClass: 'free' },
+      { name: 'Runway', connected: true, costClass: 'credits' },
+      { name: 'OpenArt', connected: true, costClass: 'unknown' },
+      { name: 'Higgsfield', connected: true, costClass: 'unknown' },
+      { name: 'Canva', connected: true, costClass: 'mixed' }
+    ],
+    maxTools: 10
+  };
+  let r = await worker.fetch(req('/mcp', { token: e.KOSIF_THINK_TOKEN, body: call('kosif_route', args) }), e);
+  let out = (await r.json()).result.structuredContent;
+  assert.ok(out.useNow.some(x => x.name === 'Adobe Express'));
+  for (const name of ['Runway', 'OpenArt', 'Higgsfield', 'Canva'])
+    assert.ok(out.needsApproval.some(x => x.name === name), name + ' is gated');
+  r = await worker.fetch(req('/mcp', { token: e.KOSIF_THINK_TOKEN, body: call('kosif_route', { ...args, approvedTools: ['Runway'] }) }), e);
+  out = (await r.json()).result.structuredContent;
+  assert.ok(out.useNow.some(x => x.name === 'Runway' && x.approved === true));
+  assert.ok(!out.needsApproval.some(x => x.name === 'Runway'));
+});
+
+test('kosif_route never assumes a plugin is connected when the host did not provide availability', async () => {
+  const e = env();
+  const r = await worker.fetch(req('/mcp', { token: e.KOSIF_THINK_TOKEN, body: call('kosif_route', { task: 'ابحث في القانون واللوائح عن هذا الموضوع' }) }), e);
+  const out = (await r.json()).result.structuredContent;
+  assert.equal(out.useNow.length, 0);
+  assert.ok(out.needsAvailabilityCheck.some(x => x.name === 'Legal Data Hunter'));
+  assert.ok(out.hostContract.route.includes('currently connected'));
+});
+
+test('kosif_think_status exposes host routing and cost guardrails without claiming direct plugin access', async () => {
+  const e = env();
+  const r = await worker.fetch(req('/mcp', { token: e.KOSIF_THINK_TOKEN, body: call('kosif_think_status', {}) }), e);
+  const out = (await r.json()).result.structuredContent;
+  assert.equal(out.version, '0.5.0');
+  assert.equal(out.hostToolRouting.mode, 'host-mediated');
+  assert.equal(out.hostToolRouting.directPluginCalls, false);
+  assert.equal(out.hostToolRouting.routeTool, 'kosif_route');
+  assert.ok(out.hostToolRouting.catalogSize >= 30);
+  assert.deepEqual(out.hostToolRouting.autoCostClasses.sort(), ['existing_plan','free','included']);
+  assert.ok(out.hostToolRouting.approvalRequired.includes('credits'));
 });
 
 test('the source carries no credential and every response path sets the security headers', () => {
