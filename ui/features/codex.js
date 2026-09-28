@@ -14,7 +14,7 @@ const KEY="skosif_codex_updates_v1";
 const X=()=>SKEngines.audit.codex,U=()=>SKEngines.audit.standardsUpdate,G=()=>window.SKosifAccountingGuidance;
 const FAM={IFRS:"معايير التقرير المالي",IAS:"معايير المحاسبة",ISA:"معايير المراجعة",SAUDI:"متطلبات سعودية",EAS:"معايير المحاسبة المصرية",EGYPT:"متطلبات مصرية"};
 const STATUS={effective:["ساري","ok"],upcoming:["سريان قادم","warn"],replaced:["يُستبدل","info"]};
-let root=null,q="",fam="all",busy=false,guideTab="framework",guideResult=null;
+let root=null,q="",fam="all",busy=false,guideTab="framework",guideMode="ifrs18",guideResult=null;
 const upd=()=>{const d=load(KEY,{})||{};return{checkedAt:d.checkedAt||"",items:Array.isArray(d.items)?d.items:[]}};
 const list=()=>U().applyApproved(X().STANDARDS,upd().items);
 const get=code=>list().find(s=>s.code===code)||null;
@@ -53,7 +53,7 @@ function open(code,ctx={}){
 }
 
 
-const AG_TABS=[["framework","الإطار"],["recognition","الاعتراف"],["change","السياسة / التقدير / الخطأ"],["presentation","العرض"],["disclosure","الإيضاحات"],["cashflow","التدفقات"]];
+const AG_TABS=[["framework","الإطار"],["recognition","الاعتراف"],["change","السياسة / التقدير / الخطأ"],["presentation","العرض"],["disclosure","الإيضاحات"],["cashflow","التدفقات"],["advanced","تطبيقات متقدمة"]];
 const agSel=(name,label,help,extra="")=>'<label class="cdx-guide-q"><span><b>'+esc(label)+'</b><small>'+esc(help||"")+'</small></span><select data-ag-f="'+name+'" '+extra+'><option value="">— اختر —</option><option value="yes">نعم</option><option value="no">لا</option></select></label>';
 const agNum=(name,label,help,ph="")=>'<label class="cdx-guide-q"><span><b>'+esc(label)+'</b><small>'+esc(help||"")+'</small></span><input data-ag-f="'+name+'" type="number" step="any" placeholder="'+esc(ph)+'"></label>';
 function guideForm(){
@@ -93,6 +93,47 @@ function guideForm(){
     agSel("judgements","هل الأحكام المهنية مفصولة عن التقديرات؟","")+
     agSel("uncertainty","هل مصادر عدم تأكد التقدير مفصح عنها؟","بما في ذلك طبيعة البند ومبلغه الدفتري والافتراضات الرئيسية.")+
     agSel("unrecognized","هل روجعت البنود غير المعترف بها والارتباطات؟","مثل الالتزامات المحتملة والضمانات والارتباطات.");
+
+  if(guideTab==="advanced"){
+    const modes=[["ifrs18","IFRS 18"],["ifrs19","IFRS 19"],["related","الأطراف ذات العلاقة"],["events","الأحداث اللاحقة"]];
+    const head='<div class="sk-seg cdx-guide-tabs">'+modes.map(([k,l])=>'<button type="button" data-ag-mode="'+k+'" aria-pressed="'+(guideMode===k)+'">'+esc(l)+'</button>').join("")+'</div>';
+    if(guideMode==="ifrs18")return head+
+      agSel("a18cat","هل خريطة الحسابات مصنفة إلى التشغيل والاستثمار والتمويل والضريبة/الزكاة والعمليات المتوقفة؟","أساس قائمة الربح أو الخسارة في IFRS 18.")+
+      agSel("a18sub","هل المجاميع الإلزامية محسوبة ومختبرة؟","مثل الربح التشغيلي والربح قبل التمويل والضرائب حسب الانطباق.")+
+      agSel("a18mpmi","هل تم حصر مقاييس الأداء المحددة من الإدارة MPM؟","راجع الاتصالات العامة خارج القوائم.")+
+      agSel("a18mpmr","هل تمت مصالحة كل MPM مع أقرب مجموع IFRS؟","مع آثار الضريبة وحقوق غير المسيطرين عند الانطباق.")+
+      agSel("a18exp","هل تحليل المصروفات التشغيلية المطلوب متاح؟","خصوصًا عند العرض حسب الوظيفة.")+
+      agSel("a18agg","هل سياسة التجميع والتفصيل وأسماء البنود محدثة؟","لتجنب إخفاء معلومات جوهرية.")+
+      agSel("a18comp","هل البيانات المقارنة وخطة الانتقال جاهزة؟","IFRS 18 إلزامي من 1 يناير 2027.")+
+      agSel("a18sys","هل الأنظمة ومصادر البيانات تدعم التصنيفات الجديدة؟","تجنب الاعتماد على إعادة تصنيف يدوية بنهاية الفترة.");
+    if(guideMode==="ifrs19")return head+
+      agSel("a19sub","هل المنشأة شركة تابعة؟","شرط أساسي للأهلية.")+
+      agSel("a19pa","هل المنشأة خاضعة للمساءلة العامة؟","اختر «لا» لتكون مؤهلة مبدئيًا.")+
+      agSel("a19parent","هل الأم النهائية/الوسيطة تصدر قوائم موحدة IFRS متاحة للاستخدام العام؟","يلزم توافر القوائم الموحدة المؤهلة.")+
+      agSel("a19full","هل التابعة تطبق الاعتراف والقياس وفق IFRS الكاملة؟","IFRS 19 يخفض الإفصاحات فقط.");
+    if(guideMode==="related")return head+
+      agSel("rpr","هل سجل الأطراف ذات العلاقة كامل ومحدث؟","الإدارة العليا، الملاك، المنشآت تحت السيطرة/التأثير وغيرها.")+
+      agSel("rpm","هل روجعت محاضر المجلس واللجان والإدارة؟","للبحث عن أطراف أو معاملات لم تكن معروفة.")+
+      agSel("rpc","هل عملية تحديد الأطراف وضوابطها مفهومة؟","من يحدد العلاقة وكيف تُراجع التغييرات.")+
+      agSel("rpf","هل الأرصدة الجوهرية تمت مصادقتها أو تنفيذ بدائل؟","")+
+      agSel("rps","هل عينة المعاملات مدعومة بالعقود والمستندات؟","")+
+      agSel("rpa","هل المعاملات الجوهرية حاصلة على الموافقات المطلوبة؟","")+
+      agSel("rpd","هل الإفصاحات مكتملة؟","IAS 24 ومتطلبات المخاطر ذات الصلة.")+
+      agSel("rpu","هل المعاملات غير الاعتيادية/غير السوقية تم تقييمها؟","")+
+      agSel("rpg","هل المنشأة حكومية/مرتبطة بالحكومة؟","لتفعيل فحص تركّز المعاملات.")+
+      agSel("rpgc","إذا كانت مرتبطة بالحكومة: هل التركّز مقيم ومفصح عنه؟","");
+    return head+
+      agSel("evdate","هل تاريخ الحدث معروف؟","")+
+      agSel("evauthd","هل تاريخ اعتماد القوائم ومن اعتمدها موثق؟","")+
+      agSel("evbefore","هل وقع الحدث قبل تاريخ اعتماد القوائم؟","")+
+      agSel("evcond","هل يقدم الحدث دليلاً عن ظروف كانت قائمة في تاريخ التقرير؟","هذا يفرق المعدّل عن غير المعدّل.")+
+      agSel("evmat","هل الحدث جوهري؟","")+
+      agSel("evdiv","هل هو توزيعات أرباح معلنة بعد الفترة؟","لا تثبت التوزيعات اللاحقة كالتزام في تاريخ التقرير.")+
+      agSel("evgc","هل يؤثر الحدث في ملاءمة أساس الاستمرارية؟","قد يتجاوز مجرد تصنيف الحدث إلى إعادة تقييم أساس الإعداد.")+
+      agSel("evlegal","هل يتعلق بدعوى/مطالبة قانونية؟","")+
+      agSel("evlegalev","إذا قانوني: هل حصلت على أدلة/تأكيدات مناسبة من المستشار القانوني؟","");
+  }
+
   return '<label class="cdx-guide-q"><span><b>الإطار</b><small>قواعد السعودية لمعيار المنشآت الصغيرة تُفعل عند SME.</small></span><select data-ag-f="framework"><option value="SME">IFRS for SMEs</option><option value="IFRS">Full IFRS</option></select></label>'+
     agNum("zakat","الزكاة المدفوعة","إن وجدت في السعودية ضمن SME تظهر منفصلة بالتشغيلية.","0")+
     agNum("months","مدة استحقاق معادل النقد بالأشهر","عادة 3 أشهر أو أقل مؤشر مهم.","3")+
@@ -112,6 +153,10 @@ function runGuide(){
   else if(guideTab==="change")data=G().accountingChange({priorPeriodInformationWasAvailable:agVal("priorinfo"),failureOrMisuseOfReliableInformation:agVal("misuse"),newInformationOrNewExperience:agVal("newinfo"),changedMeasurementTechniqueOrAssumption:agVal("technique"),changedRecognitionMeasurementPresentationRule:agVal("rule"),requiredByNewStandard:agVal("required"),transitionSpecified:agVal("transition"),voluntaryPolicyChange:agVal("voluntary"),material:agVal("material")});
   else if(guideTab==="presentation")data=G().presentation({hasComparatives:agVal("comparatives"),presentationConsistent:agVal("consistent"),reclassificationExplained:agVal("reclass"),currentNoncurrentApplied:agVal("current"),materialItemsSeparated:agVal("materialsep"),unsupportedOffsetting:agVal("offset"),ociExists:agVal("oci"),ociPresented:agVal("ocipresent"),equityOpeningToClosingReconciled:agVal("equity"),statementLinesCrossReferencedToNotes:agVal("xref")});
   else if(guideTab==="disclosure")data=G().disclosures({entityInfo:agVal("entity"),complianceStatementHumanApproved:agVal("compliance"),measurementBases:agVal("measurement"),materialPolicies:agVal("policies"),statementSupportNotes:agVal("support"),judgementsSeparatedFromEstimates:agVal("judgements"),estimationUncertaintyDisclosed:agVal("uncertainty"),unrecognizedItemsReviewed:agVal("unrecognized")});
+  else if(guideTab==="advanced"&&guideMode==="ifrs18")data=G().ifrs18Readiness({categoriesMapped:agVal("a18cat"),mandatorySubtotalsReady:agVal("a18sub"),mpmInventoryComplete:agVal("a18mpmi"),mpmReconciled:agVal("a18mpmr"),expenseAnalysisReady:agVal("a18exp"),aggregationPolicyUpdated:agVal("a18agg"),comparativesPrepared:agVal("a18comp"),systemsReady:agVal("a18sys")});
+  else if(guideTab==="advanced"&&guideMode==="ifrs19")data=G().ifrs19Eligibility({isSubsidiary:agVal("a19sub"),publicAccountability:agVal("a19pa"),parentProducesPublicIfrsConsolidated:agVal("a19parent"),usesFullIfrs:agVal("a19full")});
+  else if(guideTab==="advanced"&&guideMode==="related")data=G().relatedParties({relatedPartyRegisterComplete:agVal("rpr"),minutesReviewed:agVal("rpm"),processAndControlsUnderstood:agVal("rpc"),balancesConfirmedOrAlternative:agVal("rpf"),transactionsSupported:agVal("rps"),materialTransactionsApproved:agVal("rpa"),disclosuresComplete:agVal("rpd"),unusualTermsReviewed:agVal("rpu"),governmentRelated:agVal("rpg"),governmentConcentrationAssessed:agVal("rpgc")});
+  else if(guideTab==="advanced"&&guideMode==="events")data=G().subsequentEvents({eventDateKnown:agVal("evdate"),authorizationDateKnown:agVal("evauthd"),beforeAuthorization:agVal("evbefore"),evidenceOfConditionAtReportingDate:agVal("evcond"),material:agVal("evmat"),dividendDeclaredAfterPeriod:agVal("evdiv"),affectsGoingConcern:agVal("evgc"),legalMatter:agVal("evlegal"),legalEvidenceObtained:agVal("evlegalev")});
   else data=G().cashFlow({framework:agVal("framework")||"SME",country:"SA",zakatPaid:agVal("zakat"),cashEquivalentsMaturityMonths:agVal("months"),overdraftRepayableOnDemandAndIntegralToCashManagement:agVal("overdraft"),nonCashTransactionsPresent:agVal("noncash"),financingCostNatureDocumented:agVal("financecost")});
   guideResult={tab:guideTab,data};paint();
 }
@@ -122,6 +167,7 @@ function guideResultHTML(){
   let head="";
   if(d.decision)head=({recognize:"يستوفي مؤشرات الاعتراف", "do-not-recognize":"لا يستوفي الاعتراف حالياً",review:"يحتاج حكماً مهنياً"}[d.decision]||d.decision);
   if(d.category)head=({policy:"تغيير سياسة محاسبية",estimate:"تغيير تقدير محاسبي","prior-period-error":"خطأ فترة سابقة",review:"يلزم فصل الوقائع"}[d.category]||d.category)+' · '+({retrospective:"أثر رجعي",prospective:"أثر مستقبلي","transition-provisions":"أحكام انتقالية","current-period":"الفترة الحالية",review:"مراجعة"}[d.treatment]||d.treatment);
+  if(!head&&d.label)head=d.label;
   const rows=(d.checks||[]).map(x=>'<div class="cdx-guide-row '+x.status+'"><span class="cdx-guide-dot"></span><span><b>'+esc(x.label)+'</b><small>'+esc(x.detail||"")+'</small></span></div>').join("");
   const disc=(d.disclosures||d.disclosure||[]).length?'<details><summary>الإفصاحات / التوثيق المطلوب</summary><ul>'+(d.disclosures||d.disclosure).map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul></details>':"";
   return '<div class="cdx-guide-result">'+(head||d.reason?'<div class="cdx-guide-verdict">'+(head?'<b>'+esc(head)+'</b>':'')+(d.reason?'<small>'+esc(d.reason)+'</small>':'')+'</div>':'')+'<div class="cdx-guide-list">'+rows+'</div>'+disc+(d.order?'<p class="hint">ترتيب مقترح: '+esc(d.order.join(" ← "))+'</p>':'')+'<p class="hint">المراجعة البشرية مطلوبة قبل اعتماد المعالجة أو بيان الالتزام.</p></div>';
@@ -175,6 +221,7 @@ async function check(){
 function bind(node){
   node.addEventListener("click",e=>{
     const gt=e.target.closest("[data-ag-tab]");if(gt){guideTab=gt.dataset.agTab;guideResult=null;paint();return}
+    const gm=e.target.closest("[data-ag-mode]");if(gm){guideMode=gm.dataset.agMode;guideResult=null;paint();return}
     if(e.target.closest("[data-ag-run]")){runGuide();return}
     const s=e.target.closest("[data-std]");if(s){open(s.dataset.std);return}
     const f=e.target.closest("[data-fam]");if(f){fam=fam===f.dataset.fam&&f.classList.contains("skk4-t")?"all":f.dataset.fam;paint();return}

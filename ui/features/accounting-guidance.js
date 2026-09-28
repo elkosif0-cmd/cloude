@@ -82,5 +82,96 @@ function cashFlow(i={}){
   if(i.financingCostNatureDocumented===false)c.push(check("finance-cost","طبيعة تكاليف التمويل",false,"وثّق طبيعة التمويل/الاستثمار والسياسة قبل التصنيف والإفصاح.","warning"));
   return{checks:c,humanReviewRequired:true};
 }
-window.SKosifAccountingGuidance=Object.freeze({recognition,accountingChange,presentation,disclosures,cashFlow});
+
+function ifrs19Eligibility(i={}){
+  const c=[
+    check("subsidiary","المنشأة شركة تابعة",i.isSubsidiary,"IFRS 19 متاح فقط للمنشآت التابعة المؤهلة."),
+    check("public-accountability","لا تخضع للمساءلة العامة",i.publicAccountability===false,"إذا كانت أدواتها متداولة/قيد الإدراج أو تحتفظ بأصول لقطاع عريض من الغير كنشاط رئيس فلا تكون مؤهلة."),
+    check("parent-ifrs","المنشأة الأم تصدر قوائم موحدة وفق IFRS ومتاحة للاستخدام العام",i.parentProducesPublicIfrsConsolidated,"يلزم وجود قوائم موحدة للأم متوافقة مع IFRS ومتاحة للاستخدام العام."),
+    check("full-ifrs","المنشأة تطبق متطلبات الاعتراف والقياس في IFRS الكاملة",i.usesFullIfrs,"IFRS 19 يخفف الإفصاحات؛ لا يستبدل قواعد الاعتراف والقياس في IFRS.")
+  ];
+  const fail=c.some(x=>x.status==="fail");
+  const review=c.some(x=>x.status==="review");
+  const decision=fail?"ineligible":review?"review":"eligible";
+  const reason=decision==="eligible"?"تظهر المنشأة مؤهلة لاختيار IFRS 19 للإفصاحات المخفضة، مع بقاء الاعتراف والقياس وفق IFRS الكاملة."
+    :decision==="ineligible"?"شرط أو أكثر من شروط الأهلية غير مستوفى؛ لا تستخدم IFRS 19 بناءً على الوقائع المدخلة."
+    :"توجد وقائع غير محسومة؛ يلزم توثيق هيكل المجموعة وحالة المساءلة العامة قبل الاختيار.";
+  return{decision,label:decision==="eligible"?"مؤهلة مبدئيًا لـ IFRS 19":decision==="ineligible"?"غير مؤهلة لـ IFRS 19":"أهلية IFRS 19 تحتاج مراجعة",reason,checks:c,
+    disclosures:["وثّق سبب الأهلية وقرار اختيار IFRS 19.","تحقق من الإفصاحات المخفضة المنطبقة لكل معيار دون تغيير متطلبات الاعتراف والقياس."],
+    effective:"1 يناير 2027",saudiAdoption:"اعتمدته SOCPA بتاريخ 26-12-2024 ضمن نسخة المعايير المحدثة 2025.",humanReviewRequired:true};
+}
+
+function ifrs18Readiness(i={}){
+  const c=[
+    check("categories","تصنيف بنود الربح أو الخسارة إلى التشغيل والاستثمار والتمويل والضريبة/الزكاة والعمليات المتوقفة",i.categoriesMapped,"أنشئ خريطة حسابات واضحة للفئات الجديدة."),
+    check("subtotals","المجاميع الإلزامية محسوبة ومختبرة",i.mandatorySubtotalsReady,"يشمل الربح التشغيلي والربح قبل التمويل والضرائب بحسب الانطباق."),
+    check("mpm-inventory","حصر مقاييس الأداء المحددة من الإدارة MPM",i.mpmInventoryComplete,"راجع التقارير العامة خارج القوائم لتحديد المقاييس التي تقع ضمن نطاق IFRS 18."),
+    check("mpm-reconcile","مطابقة كل MPM مع أقرب مجموع IFRS",i.mpmReconciled,"يلزم بيان المصالحة وآثار الضريبة وحقوق غير المسيطرين عند الانطباق."),
+    check("expenses","تحليل المصروفات التشغيلية المطلوب متاح",i.expenseAnalysisReady,"إذا عُرضت المصروفات حسب الوظيفة، جهّز معلومات الطبيعة المطلوبة في الإيضاحات."),
+    check("aggregation","سياسة التجميع والتفصيل وأسماء البنود محدثة",i.aggregationPolicyUpdated,"اختبر ألا تحجب التجميعات الواسعة معلومات جوهرية."),
+    check("comparatives","البيانات المقارنة وخطة الانتقال جاهزة",i.comparativesPrepared,"يتطلب التطبيق الأول إعادة عرض المقارنات وفق متطلبات الانتقال المنطبقة."),
+    check("systems","مصادر البيانات والأنظمة تدعم التصنيفات والمصالحات الجديدة",i.systemsReady,"لا تجعل الإعداد اليدوي نهاية الفترة هو الضابط الوحيد.")
+  ];
+  const failed=c.filter(x=>x.status==="fail"),review=c.filter(x=>x.status==="review");
+  const score=Math.round((c.filter(x=>x.status==="pass").length/c.length)*100);
+  const decision=failed.length>=3?"not-ready":failed.length||review.length?"partial":"ready";
+  const reason=decision==="ready"?"جاهزية مرتفعة للانتقال إلى IFRS 18 وفق عناصر الفحص المدخلة."
+    :decision==="not-ready"?"توجد فجوات انتقال جوهرية؛ ابدأ بخريطة التصنيف وMPM والبيانات المقارنة قبل 2027."
+    :"الجاهزية جزئية؛ أغلق عناصر الفحص غير المكتملة قبل التطبيق الإلزامي.";
+  return{decision,label:"جاهزية IFRS 18 · "+score+"%",score,reason,checks:c,
+    disclosures:["وثّق تقييم أثر IFRS 18 وخطة الانتقال.","احصر MPM المستخدمة في الاتصالات العامة واربطها بالمجاميع المحددة في IFRS."],
+    effective:"1 يناير 2027",humanReviewRequired:true};
+}
+
+function relatedParties(i={}){
+  const c=[
+    check("register","سجل الأطراف ذات العلاقة محدث وموقع/معتمد",i.relatedPartyRegisterComplete,"ابدأ من الإدارة وكبار الملاك والإدارة العليا والمنشآت تحت السيطرة أو التأثير."),
+    check("minutes","محاضر مجلس الإدارة واللجان والإدارة روجعت لاكتشاف أطراف/معاملات غير معروفة",i.minutesReviewed,"المحاضر قد تكشف معاملات لم تظهر في السجل المقدم."),
+    check("controls","عملية تحديد وتسجيل الأطراف ذات العلاقة وضوابطها مفهومة",i.processAndControlsUnderstood,"وثّق من يحدد العلاقة وكيف تُراجع التغييرات خلال السنة."),
+    check("confirm","الأرصدة الجوهرية تمت مصادقتها أو نُفذت إجراءات بديلة",i.balancesConfirmedOrAlternative,"اربط الرصيد بالطرف والشروط والتحصيل/السداد اللاحق عند الحاجة."),
+    check("support","عينة المعاملات مختبرة بمستنداتها وشروطها",i.transactionsSupported,"لا تكتفِ باسم الطرف؛ افحص العقد والغرض والسعر والتوقيت."),
+    check("approval","المعاملات الجوهرية خضعت للموافقات والحوكمة المطلوبة",i.materialTransactionsApproved,"غياب الموافقة أو تجاوزها يرفع مخاطر الغش والحوكمة."),
+    check("disclosure","الإفصاحات تغطي طبيعة العلاقة والمعاملات والأرصدة والشروط",i.disclosuresComplete,"اختبر IAS 24 ومتطلبات المخاطر ذات الصلة مثل IFRS 7 عند الانطباق."),
+    check("unusual","المعاملات غير الاعتيادية أو غير السوقية تم تقييمها",i.unusualTermsReviewed,"الشروط غير العادية أو المعاملات قرب نهاية الفترة تستلزم عناية إضافية.")
+  ];
+  if(i.governmentRelated)c.push(check("government","تركيز المعاملات مع الحكومة/المنشآت الحكومية مقيم ومفصح عنه",i.governmentConcentrationAssessed,"قيّم الإعفاءات المتاحة مع تقديم المؤشرات النوعية/الكمية المطلوبة ومخاطر التركّز."));
+  const open=c.filter(x=>x.status!=="pass");
+  const decision=open.length>=4?"high-risk":open.length?"needs-work":"controlled";
+  const reason=decision==="controlled"?"لا تظهر فجوات تشغيلية في خطوات الأطراف ذات العلاقة المدخلة."
+    :decision==="high-risk"?"عدة إجراءات أساسية غير مكتملة؛ اعتبر الأطراف ذات العلاقة منطقة مخاطر مرتفعة حتى إغلاقها."
+    :"توجد فجوات محددة في الاكتمال أو الإثبات أو الإفصاح.";
+  return{decision,label:decision==="controlled"?"مسار الأطراف ذات العلاقة مكتمل مبدئيًا":decision==="high-risk"?"مخاطر أطراف ذات علاقة مرتفعة":"الأطراف ذات العلاقة تحتاج استكمال",reason,checks:c,
+    procedures:["مقارنة السجل مع محاضر المجلس واللجان.","مصادقة الأرصدة أو تنفيذ بدائل.","اختبار عينة المعاملات وشروطها وموافقاتها.","تقييم كفاية الإفصاح والتركيزات."],
+    standards:["IAS 24","ISA 550"],humanReviewRequired:true};
+}
+
+function subsequentEvents(i={}){
+  const within=i.beforeAuthorization===true;
+  let decision="outside-review-window",label="بعد تاريخ اعتماد القوائم",reason="الحدث بعد تاريخ اعتماد القوائم؛ لا يصنف كحدث لاحق ضمن IAS 10 لهذه القوائم، مع تقييم أي مسؤوليات لاحقة بحسب الظروف.";
+  const c=[
+    check("date","تاريخ الحدث محدد",i.eventDateKnown,"يلزم تحديد تاريخ الحدث ومقارنته بتاريخ اعتماد القوائم."),
+    check("authorization","تاريخ اعتماد القوائم ومن اعتمدها موثق",i.authorizationDateKnown,"الفترة اللاحقة تمتد حتى تاريخ اعتماد القوائم للإصدار.")
+  ];
+  if(within){
+    if(i.affectsGoingConcern){
+      decision="going-concern";label="حدث يؤثر في أساس الاستمرارية";reason="إذا دل الحدث على أن أساس الاستمرارية لم يعد مناسبًا فقد يتطلب تغيير أساس الإعداد، وليس مجرد إفصاح حدث غير معدل.";
+    }else if(i.dividendDeclaredAfterPeriod){
+      decision="non-adjusting-dividend";label="توزيعات معلنة بعد الفترة";reason="لا تُثبت كالتزام في تاريخ التقرير؛ تُفصح وفق المتطلبات المنطبقة.";
+    }else if(i.evidenceOfConditionAtReportingDate===true){
+      decision="adjusting";label="حدث مُعدِّل";reason="الحدث يقدم دليلاً إضافيًا عن ظروف كانت قائمة في تاريخ التقرير؛ عدّل الأرقام والإفصاحات المرتبطة.";
+    }else if(i.evidenceOfConditionAtReportingDate===false){
+      decision="non-adjusting";label="حدث غير مُعدِّل";reason=i.material===true?"لا تعدّل الأرقام، لكن افصح عن طبيعة الحدث وتقدير أثره المالي إذا كان جوهريًا.":"لا تعدّل الأرقام؛ قيّم ما إذا كان عدم الإفصاح قد يؤثر في قرارات المستخدمين.";
+    }else{decision="review";label="يحتاج تحديد منشأ الظروف";reason="لم يُحسم هل الظروف كانت قائمة في تاريخ التقرير؛ افصل بين الدليل عن حالة قائمة وبين حدث نشأ بعد الفترة.";}
+    c.push(check("condition","تحديد هل الظروف كانت قائمة بتاريخ التقرير",i.evidenceOfConditionAtReportingDate,"هذا هو الفاصل الأساسي بين المعدّل وغير المعدّل.","warning"));
+    c.push(check("material","الأهمية النسبية للحدث مقيمة",i.material!==undefined,"الأحداث غير المعدلة الجوهرية تحتاج إفصاحًا عن الطبيعة والأثر المالي إن أمكن.","warning"));
+  }
+  if(i.legalMatter)c.push(check("legal","موقف الدعوى/المطالبة مدعوم بمراسلات أو تأكيد قانوني عند الحاجة",i.legalEvidenceObtained,"للمطالبات الجوهرية راجع المحامي الداخلي والخارجي واحصل على أدلة مناسبة."));
+  const disclosures=[];
+  if(["non-adjusting","non-adjusting-dividend"].includes(decision))disclosures.push("طبيعة الحدث بعد الفترة.","تقدير الأثر المالي أو بيان تعذر تقديره عند اللزوم.");
+  if(decision==="adjusting")disclosures.push("تحديث الأرقام والإيضاحات المتأثرة وربط التعديل بدليل الحدث اللاحق.");
+  if(decision==="going-concern")disclosures.push("إعادة تقييم أساس الإعداد وخطط الإدارة والإفصاحات المتعلقة بالاستمرارية.");
+  return{decision,label,reason,checks:c,disclosures,standards:["IAS 10","ISA 560"],humanReviewRequired:true};
+}
+
+window.SKosifAccountingGuidance=Object.freeze({recognition,accountingChange,presentation,disclosures,cashFlow,ifrs19Eligibility,ifrs18Readiness,relatedParties,subsequentEvents});
 })();

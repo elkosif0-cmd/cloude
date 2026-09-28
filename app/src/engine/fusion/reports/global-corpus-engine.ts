@@ -131,6 +131,47 @@ export const reportIds = () => REPORT_MAP.map((r) => r.id);
 /** The 49 reports read: company, year, framework and page range in the bundle. */
 export const reportList = () => REPORT_MAP.map(({ s: _s, ...r }) => ({ ...r, company: r.c, sections: _s ? _s.split(' ').length : 0 }));
 
+export type ReportCompatibility = {
+  id:string; company:string; fy:string; framework:string;
+  matched:number; total:number; coveragePct:number;
+  matchedSections:{key:string;ar:string;page:number}[];
+  missingSections:{key:string;ar:string;page:number}[];
+};
+
+/**
+ * Compare a generated SQC report pack with every one of the 49 report structures
+ * read from the global bundle. This is structural coverage only — it never claims
+ * that a company-specific disclosure is applicable merely because a peer has it.
+ */
+export function reportCompatibility(generatedKeys:string[]):ReportCompatibility[] {
+  const have=new Set((generatedKeys||[]).map(String));
+  return REPORT_MAP.map((r)=>{
+    const structure=reportStructure(r.id);
+    const matchedSections=structure.filter((x)=>have.has(x.key));
+    const missingSections=structure.filter((x)=>!have.has(x.key));
+    const total=structure.length,matched=matchedSections.length;
+    return {
+      id:r.id,company:r.c,fy:r.fy,framework:r.fw,matched,total,
+      coveragePct:total?Math.round(matched/total*100):0,
+      matchedSections,missingSections
+    };
+  }).sort((a,b)=>b.coveragePct-a.coveragePct||b.total-a.total||a.company.localeCompare(b.company));
+}
+
+/** Aggregate the 49-company compatibility matrix for a generated pack. */
+export function compatibilitySummary(generatedKeys:string[]) {
+  const rows=reportCompatibility(generatedKeys);
+  const avg=rows.length?Math.round(rows.reduce((t,r)=>t+r.coveragePct,0)/rows.length):0;
+  return {
+    reports:rows.length,
+    averageCoveragePct:avg,
+    atLeast80:rows.filter((r)=>r.coveragePct>=80).length,
+    atLeast60:rows.filter((r)=>r.coveragePct>=60).length,
+    best:rows.slice(0,5),
+    weakest:[...rows].sort((a,b)=>a.coveragePct-b.coveragePct||b.total-a.total).slice(0,5)
+  };
+}
+
 const PROC_AR: Record<string, { ar: string; text: string }> = {
   forecasts: { ar: 'اختبار التوقعات وخطط الأعمال', text: 'قيّمنا التدفقات النقدية المتوقعة وقارناها بخطط الأعمال المعتمدة من مجلس الإدارة وبالنتائج الفعلية للسنوات السابقة' },
   discount_rates: { ar: 'معدلات الخصم', text: 'قيّمنا معدلات الخصم ومعدلات النمو المستخدمة بمقارنتها بمصادر خارجية مستقلة' },

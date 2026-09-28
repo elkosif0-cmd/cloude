@@ -145,3 +145,13 @@ html{overflow-x:hidden}
   #view .linklike{min-height:24px;padding-block:2px}
   .skdemo-x{display:inline-grid;place-items:center}
 }
+
+/* ---------- tabs never squeeze a label ----------
+   A segmented control (.sk-seg) wraps: each option is at least as wide as its label, shares the row equally when
+   the options fit, and moves to the next row when they do not. A scrolling tab bar scrolls instead of shrinking its
+   tabs until the labels are cut (tools/phone_layout.mjs measures both at 390 and 320). */
+.sk-seg>button,.sk-seg>[role=tab]{min-width:max-content}
+.sk-ops-nav>*,#view .tabs>button,#view [role=tablist]:not(.sk-seg)>*{flex-shrink:0}
+/* the open tab shows as open whether its control marks it pressed (aria-pressed) or selected (role=tab, aria-selected) */
+.sk-seg>[aria-selected="true"]{background:var(--sk-surface);color:var(--sk-brand);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+:root[data-look="kosif"] .sk-seg>[aria-selected="true"]{background:var(--sk-brand);color:#fff}
