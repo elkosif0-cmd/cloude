@@ -76,22 +76,84 @@ function filesBar(){
   return '<section class="tbr-files" aria-label="ملفات المراجعة"><div class="tbr-files-h"><b>ملفات المراجعة</b><small>'+r.list.length+' ملف على هذا الجهاز</small></div><div class="tbr-files-l">'+
     L.map(e=>'<div class="tbr-file'+(e.id===r.active?' on':'')+'"><button type="button" data-file-open="'+esc(e.id)+'" title="فتح الملف"><b>'+esc(e.company)+'</b><small>'+esc([e.period,e.source==="bundle"?"من الحزمة العالمية":"",e.rounds?e.rounds+" جولة":"",e.hasTB?"":"بلا ميزان"].filter(Boolean).join(" · "))+'</small></button>'+
       (r.list.length>1?'<button type="button" class="tbr-file-x" data-file-close="'+esc(e.id)+'" aria-label="حذف الملف">×</button>':'')+'</div>').join("")+
-    '<button type="button" class="tbr-file-new" data-file-new>+ ملف جديد</button><button type="button" class="tbr-file-new" data-bundle-open>الشركات العالمية ('+BUNDLE_COUNT+')</button></div></section>';
+    '<button type="button" class="tbr-file-new" data-file-new>+ ملف جديد</button><button type="button" class="tbr-file-new tbr-file-show" data-bundle-open>▶ نموذج عرض القدرات: '+BUNDLE_COMPANIES+' شركة عالمية</button></div></section>';
 }
-/* ---------- the bundle's companies as audit clients (ui/data/bundle-clients.json, loaded on demand) ---------- */
-const BUNDLE_COUNT=47;let bundle=null;
+/* ---------- the bundle's companies as audit clients (ui/data/bundle-clients.json, loaded on demand), and as the
+   showcase of the whole app: pick one, and it is audited end to end without an AI key, then toured screen by screen ---------- */
+const BUNDLE_COUNT=47,BUNDLE_COMPANIES=43;let bundle=null;const pick={q:"",sector:""};
 async function bundleData(){if(bundle)return bundle;const r=await fetch("./data/bundle-clients.json");if(!r.ok)throw new Error("تعذر تحميل بيانات الشركات");bundle=await r.json();return bundle}
+/* each client with its sector from the corpus (banks and insurers included), named in Arabic */
+function bundleList(B){
+  const CC=E().reports.corpusCompanies,G=E().audit.globalBenchmarks,SA=(G&&G.SECTOR_AR)||{},by={};
+  try{(CC?CC.corpusCompanies():[]).forEach(c=>{by[c.id]=c.sector})}catch{/* the corpus engine is optional here */}
+  return B.clients.map(c=>({...c,sector:by[c.id]||"",sectorAr:SA[by[c.id]]||by[c.id]||""}));
+}
+function bundleRows(L){
+  const have=new Set(reg().list.filter(e=>e.bundleId).map(e=>e.bundleId)),q=pick.q.trim().toLowerCase();
+  const list=L.filter(c=>(!pick.sector||c.sector===pick.sector)&&(!q||[c.company,c.countryAr,c.auditor,c.sectorAr].join(" ").toLowerCase().includes(q)));
+  return list.length?list.map(c=>'<tr><td><b>'+esc(c.company)+'</b><small>'+esc([c.sectorAr,c.fy,c.countryAr,c.auditor,c.unitAr].filter(Boolean).join(" · "))+'</small></td><td>'+esc(c.frameworkAr)+'</td>'+
+    '<td class="tbr-bundle-a"><button type="button" class="btn primary sm" data-bundle-show="'+esc(c.id)+'">عرض القدرات</button>'+
+    (have.has(c.id)?'<button type="button" class="btn sm" data-bundle-go="'+esc(c.id)+'">فتح الملف</button>':'<button type="button" class="btn sm" data-bundle-add="'+esc(c.id)+'">ملف فقط</button>')+'</td></tr>').join("")
+    :'<tr><td colspan="3" class="muted">لا توجد شركة بهذا البحث.</td></tr>';
+}
 async function bundlePicker(){
   let B;try{B=await bundleData()}catch(e){toast(e.message,"bad");return}
-  const have=new Set(reg().list.filter(e=>e.bundleId).map(e=>e.bundleId));
-  const w=document.createElement("div");w.className="skd-wrap";
-  const rows=B.clients.map(c=>'<tr><td><b>'+esc(c.company)+'</b><small>'+esc(c.fy+" · "+c.countryAr+" · "+c.auditor)+'</small></td><td>'+esc(c.frameworkAr)+'</td><td>'+esc(c.unitAr)+'</td><td>'+(have.has(c.id)?'<button type="button" class="btn sm" data-bundle-go="'+esc(c.id)+'">فتح</button>':'<button type="button" class="btn primary sm" data-bundle-add="'+esc(c.id)+'">إضافة كملف مراجعة</button>')+'</td></tr>').join("");
-  w.innerHTML='<div class="skd tbr-bundle" role="dialog" aria-modal="true" aria-labelledby="tbr-bundle-t"><h3 id="tbr-bundle-t">الشركات العالمية من الحزمة البحثية</h3><p>'+esc(B.note)+'</p><div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الشركة</th><th>الإطار</th><th>العملة</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="skd-acts"><button type="button" class="btn" data-bundle-close>إغلاق</button></div></div>';
+  document.getElementById("tbr-bundle")?.remove();
+  const L=bundleList(B),n={};L.forEach(c=>{if(c.sector)n[c.sector]=(n[c.sector]||0)+1});
+  const w=document.createElement("div");w.className="skd-wrap";w.id="tbr-bundle";
+  w.innerHTML='<div class="skd tbr-bundle" role="dialog" aria-modal="true" aria-labelledby="tbr-bundle-t"><span class="eyebrow">نموذج عرض القدرات</span><h3 id="tbr-bundle-t">اختر شركة من الحزمة العالمية</h3><small class="muted">'+BUNDLE_COMPANIES+' شركة بقوائم '+BUNDLE_COUNT+' سنة مالية (بعضها لأكثر من سنة)</small>'+
+    '<p>«عرض القدرات» يفتح الشركة كملف مراجعة بميزانها من قوائمها المنشورة، ويراجعها كاملة دون مفتاح ذكاء اصطناعي — الطلبات والمستندات والجولات والتسويات حتى التقرير — ثم يأخذك في جولة على كل ما أنتجه التطبيق لها، مع مقارنته بتقرير مراجعها الفعلي. '+esc(B.note||"")+'</p>'+
+    '<div class="tbr-bundle-f"><input type="search" data-bundle-q placeholder="ابحث باسم الشركة أو الدولة أو المراجع" aria-label="بحث في الشركات" value="'+esc(pick.q)+'">'+
+    '<select data-bundle-sector aria-label="القطاع"><option value="">كل القطاعات ('+L.length+')</option>'+Object.keys(n).map(k=>'<option value="'+esc(k)+'"'+(k===pick.sector?' selected':'')+'>'+esc((L.find(c=>c.sector===k)||{}).sectorAr||k)+' ('+n[k]+')</option>').join("")+'</select></div>'+
+    '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الشركة</th><th>الإطار</th><th></th></tr></thead><tbody data-bundle-rows>'+bundleRows(L)+'</tbody></table></div>'+
+    '<div class="skd-acts"><button type="button" class="btn" data-bundle-close>إغلاق</button></div></div>';
   document.body.appendChild(w);
+  const redraw=()=>{const t=w.querySelector("[data-bundle-rows]");if(t)t.innerHTML=bundleRows(L)};
+  w.addEventListener("input",e=>{if(e.target.matches("[data-bundle-q]")){pick.q=e.target.value;redraw()}});
+  w.addEventListener("change",e=>{if(e.target.matches("[data-bundle-sector]")){pick.sector=e.target.value;redraw()}});
   w.addEventListener("click",e=>{if(e.target===w||e.target.closest("[data-bundle-close]")){w.remove();return}
-    const add=e.target.closest("[data-bundle-add]"),go=e.target.closest("[data-bundle-go]");
+    const add=e.target.closest("[data-bundle-add]"),go=e.target.closest("[data-bundle-go]"),show=e.target.closest("[data-bundle-show]");
+    if(show){w.remove();showcase(show.dataset.bundleShow);return}
     if(go){const f=reg().list.find(x=>x.bundleId===go.dataset.bundleGo);w.remove();if(f)openFile(f.id);return}
     if(add){w.remove();openClient(add.dataset.bundleAdd)}});
+  const i=w.querySelector("[data-bundle-q]");i&&!matchMedia("(pointer:coarse)").matches&&i.focus();
+}
+/* the showcase: the company's own file (opened again if it exists), its full audit run once, then the tour */
+async function showcase(id){
+  if(busy)return null;
+  const fid=await openClient(id);if(!fid)return null;
+  let d=st();
+  if(!(d.session&&d.session.final&&d.demoRun)){await runDemo();d=st()}
+  if(!(d.session&&d.session.final))return null;
+  d.showcase={at:new Date().toISOString()};put(d);tab="tb";paint();
+  SK.audit&&SK.audit.log("tbreview",{act:"showcase",id});
+  const t=root&&root.querySelector(".tbr-tour");if(t)t.scrollIntoView({block:"start"});
+  return fid;
+}
+/* the tour: what the app produced for this company, each step opening the screen or tab that holds it */
+function tourHTML(c){
+  const d=c.d;if(!d.showcase||!d.bundleId)return"";
+  const s=d.session||{},rounds=(s.rounds||[]).length,G=E().audit.globalBenchmarks,R=E().audit.corpusReplay;
+  let rp=null;try{rp=R&&R.replayCompany?R.replayCompany(d.bundleId):null}catch{/* the replay is optional */}
+  const hit=rp?rp.actual.filter(a=>a.found!=="missed").length:0,rep=G&&G.reportOf?G.reportOf(d.bundleId):null,form={US:"PCAOB",UK:"ISA (UK) الموسّع",SA:"النموذج السعودي",AE:"النموذج الإماراتي",EG:"النموذج المصري",INT:"ISA 700"}[d.ctx.reportForm]||"ISA 700";
+  const can=v=>SK.caps&&SK.caps.get(v)&&(!SK.perm||SK.perm.can(v));
+  const steps=[
+    ["tab:tb","الميزان والمعايير",c.tb.rows.length+" حساباً من قوائمها المنشورة · الأهمية النسبية "+m0(c.base.materiality.overall)],
+    ["tab:plan","العمل الميداني","مصفوفة المخاطر ("+(c.base.risks||[]).length+") والاستراتيجية وأوراق العمل والمعاينة"],
+    ["tab:ai","جولات المراجعة",rounds+" جولات · "+((d.demoRun&&d.demoRun.docs)||0)+" مستنداً مرفوعاً ومقيّماً"],
+    ["tab:conf","الثقة ومجلس المراجعين","درجة ثقة لكل حساب وفحوص المجلس"],
+    ["tab:adj","التسويات والامتثال",((d.accepted||[]).length?(d.accepted||[]).length+" قيد تسوية معتمد":"لا تسويات مقترحة على ميزانها")+" · فحص الامتثال"],
+    ["tab:close","الإكمال","الاستمرارية والأحداث اللاحقة وخطاب الإفادات وبوابة الإصدار"],
+    ["doc:auditor","تقرير المراجع المستقل",c.derived.ar+" · بشكل "+form],
+    ["doc:integrated","التقرير السنوي المتكامل","القصة والحوكمة والقوائم والإيضاحات، بترتيب تقارير الحزمة"],
+    ["view:auditanalytics","التحليل والاختبارات","بنفورد والمعاينة واختبار القيود والنسب على ميزانها"],
+    ["view:corpuslab","مقارنتها بمراجعها الفعلي",rp?(rp.auditor||"المراجع")+": "+rp.actual.length+" أمور رئيسية — وجدنا منها "+hit:"مقارنة بما أصدره مراجعها الفعلي"],
+    ["view:auditbench","المرجع العالمي","سوابق قطاعها"+(rep&&rep.sector?" ("+((G.SECTOR_AR||{})[rep.sector]||rep.sector)+")":"")+" وأهميتها النسبية والأمور الرئيسية"]
+  ].filter(([k])=>!k.startsWith("view:")||can(k.slice(5)));
+  return '<section class="card tbr-tour" aria-labelledby="tbr-tour-t"><div class="tbr-tour-h"><div><span class="eyebrow">جولة القدرات</span><h3 id="tbr-tour-t">ماذا فعل SQC مع «'+esc(d.ctx.company)+'»</h3>'+
+    '<p>مراجعة كاملة دون مفتاح ذكاء اصطناعي: المستندات مولّدة من أرقام ميزانها لعرض القدرات. اضغط أي خطوة لترى نتيجتها.</p></div>'+
+    '<div class="sk-actions"><button type="button" class="btn sm" data-bundle-open>شركة أخرى</button><button type="button" class="btn sm" data-tour-hide>إخفاء الجولة</button></div></div>'+
+    '<ol class="tbr-tour-l">'+steps.map(([k,t,x],i)=>'<li><button type="button" data-tour="'+esc(k)+'"><span class="tbr-tour-n">'+(i+1)+'</span><b>'+esc(t)+'</b><small>'+esc(x)+'</small></button></li>').join("")+'</ol></section>';
 }
 /* one way to open a company of the research bundle: its own engagement file (opened again if it exists), the
    trial balance built from its published statements (line by line), its auditor, year end and report form, and
@@ -186,7 +248,7 @@ async function fromBooks(){
 }
 /* open the engagement on a tab (and a studio page): used by the studio's own deep links and other screens */
 function openTab(t,view){if(t==="studio")t=Object.keys(ADV).find(k=>ADV[k]===view)||"docs";if(t)tab=t;if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");else paint()}
-window.SKosifTBReview=Object.freeze({fromBooks,loadCorpus,openClient,demo:()=>runDemo(),booksTB,rows:()=>{const c=compute();return c&&c.tb.ok?{rows:studioRows(c),sig:c.sig,label:c.d.ctx.company||"file",ctx:{...c.d.ctx}}:null},load:(text,label,ctx)=>loadTB(text,label,ctx),open:openTab,studio:view=>openTab("studio",view)});
+window.SKosifTBReview=Object.freeze({fromBooks,loadCorpus,openClient,showcase,picker:()=>bundlePicker(),demo:()=>runDemo(),booksTB,rows:()=>{const c=compute();return c&&c.tb.ok?{rows:studioRows(c),sig:c.sig,label:c.d.ctx.company||"file",ctx:{...c.d.ctx}}:null},load:(text,label,ctx)=>loadTB(text,label,ctx),open:openTab,studio:view=>openTab("studio",view)});
 
 /* ---------- computation (memoized) ---------- */
 function compute(){
@@ -832,6 +894,8 @@ function bind(node){
     const fx=e.target.closest("[data-file-close]");if(fx){closeFile(fx.dataset.fileClose);return}
     if(e.target.closest("[data-file-new]")){newFile(blank());toast("ملف مراجعة جديد — استلم ميزان الشركة","ok");return}
     if(e.target.closest("[data-bundle-open]")){bundlePicker();return}
+    const tg=e.target.closest("[data-tour]");if(tg){const [k,v]=tg.dataset.tour.split(":");if(k==="tab"){tab=v;paint()}else if(k==="doc"){tab="fs";doc=v;paint()}else if(window.SKosifCore)SKosifCore.go(v);return}
+    if(e.target.closest("[data-tour-hide]")){const d=st();delete d.showcase;put(d);paint();return}
     if(CU()&&e.target.closest("[data-cc]")){CU().onClick(e);return}
     if(AP()&&AP().onClick(e))return;
     const sb=e.target.closest("[data-std]");
@@ -915,7 +979,7 @@ function paint(){
   const conf=tab==="conf"&&CU();
   const body=conf?'<div class="tbc" data-tbc-body aria-busy="true">'+(confHTML.sig===c.sig&&confHTML.h||'<p class="empty">يحسب درجات الثقة والفحوص…</p>')+'</div>':tab==="plan"&&FW()?(AP()?AP().planCard(c)+AP().estCard(c):'')+FW().planTab(c):tab==="close"&&FW()?FW().closeTab(c)+(AP()?AP().gcCard(c):''):tab==="ai"?aiTab(c):tab==="docs"?docsTab(c):tab==="adj"?adjTab(c):tab==="fs"?fsTab(c):tbTab(c);
   const adv=window.SKosifAuditBridge&&ADV[tab]?advHTML(tab):"";
-  root.innerHTML='<div class="tbr">'+filesBar()+hero(c)+(setup?setupHTML(c.d,false):'')+body+adv+'</div>';
+  root.innerHTML='<div class="tbr">'+filesBar()+tourHTML(c)+hero(c)+(setup?setupHTML(c.d,false):'')+body+adv+'</div>';
   /* the flow map scrolls sideways: bring the current step into view without moving the page */
   {const tr=root.querySelector(".tbr-flowtrack"),cu=tr&&tr.querySelector(".cur,.tbr-flow-node:not(.done)");if(tr&&cu){const a=tr.getBoundingClientRect(),b=cu.getBoundingClientRect();tr.scrollLeft+=(b.left+b.width/2)-(a.left+a.width/2)}}
   window.scrollTo(0,y);
