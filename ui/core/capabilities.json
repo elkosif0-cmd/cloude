@@ -1,6 +1,6 @@
 {
  "version": 1,
- "note": "Single source of truth for every S.kosif screen: navigation (9 domains; related screens form a hub — one menu entry whose pages open as tabs), each screen daily or advanced, command palette, permissions and docs/rebuild/*.md are generated from this file. Edit here only.",
+ "note": "Single source of truth for every S.kosif screen: navigation has four top-level sections (home, audit, helpers, jev); related screens form a hub whose pages open as tabs. There is no separate user-facing daily/advanced switch; legacy primary/advanced metadata is compatibility data only. Command palette, permissions and docs/rebuild/*.md are generated from this file. Edit here only.",
  "tiers": {
   "CORE": "العمل اليومي الأساسي",
   "MANAGEMENT": "الإدارة والمتابعة",

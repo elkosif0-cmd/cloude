@@ -224,7 +224,7 @@ body.skn-locked{overflow:hidden}
 :root[data-density="compact"] .nav-btn{min-height:34px}
 
 /* ---------- domain tab bar (screens of the same domain) ---------- */
-.skn-domain{display:flex;gap:6px;overflow-x:auto;padding:4px;margin:0 0 var(--sk-2);border:1px solid var(--sk-line);border-radius:var(--sk-r-l);background:var(--sk-surface);box-shadow:var(--sk-shadow-1);scrollbar-width:none}
+.skn-domain{display:flex;gap:6px;overflow-x:auto;min-width:0;max-width:100%;padding:4px;margin:0 0 var(--sk-2);border:1px solid var(--sk-line);border-radius:var(--sk-r-l);background:var(--sk-surface);box-shadow:var(--sk-shadow-1);scrollbar-width:none}
 .skn-domain::-webkit-scrollbar{display:none}
 .skn-domain button{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:0 12px;border:0;border-radius:var(--sk-r);background:transparent;color:var(--sk-ink-2);font:inherit;font-size:var(--sk-fs-s);font-weight:700;cursor:pointer;white-space:nowrap}
 .skn-domain button svg{width:16px;height:16px;color:var(--sk-brand)}
@@ -498,9 +498,10 @@ body.skn-locked{overflow:hidden}
 .skdemo-panel{width:min(560px,100%)}
 .skdemo-panel .sk-table-wrap{max-height:52vh;overflow:auto;margin-top:var(--sk-3)}
 .skdemo-overlay{position:fixed;inset:0;z-index:600;display:grid;place-items:center;background:color-mix(in srgb,var(--sk-bg) 88%,transparent);backdrop-filter:blur(6px)}
-.skdemo-overlay>div{display:grid;justify-items:center;gap:10px;padding:28px 32px;border-radius:var(--sk-r-l);background:var(--sk-surface);box-shadow:var(--sk-shadow-3);text-align:center}
+.skdemo-overlay>div{display:grid;justify-items:center;gap:10px;padding:28px 32px;box-sizing:border-box;max-width:min(440px,calc(100vw - 32px));overflow-wrap:anywhere;border-radius:var(--sk-r-l);background:var(--sk-surface);box-shadow:var(--sk-shadow-3);text-align:center}
 .skdemo-overlay i{width:34px;height:34px;border-radius:50%;border:4px solid var(--sk-brand);border-inline-end-color:transparent;animation:skdemo-spin .8s linear infinite}
 .skdemo-overlay small{color:var(--sk-ink-3)}
+@media (max-width:640px){.skdemo-overlay>div{padding:22px 18px}}
 @keyframes skdemo-spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.skdemo-overlay i{animation:none}}
 @media print{.skdemo{display:none}}
