@@ -3,7 +3,7 @@
    the form factor (phone, tablet, laptop), whether the app is installed (home screen / dock /
    window) and which modifier key to show (⌘ or Ctrl). It marks <html> with data-device,
    data-os and data-standalone so the design system can adapt, keeps the browser's install
-   prompt for the laptop, opens deep links (?go=screen, ?do=action — used by the manifest
+   prompt for the laptop, opens deep links (?go=screen, ?do=action, #screen — used by the manifest
    shortcuts and by the Shortcuts app on the iPhone) and wraps the share sheet (AirDrop,
    WhatsApp, Files) with a download fallback. */
 (()=>{
@@ -95,7 +95,7 @@ async function share({title,text,files,url}={}){
   try{await nav.clipboard.writeText([text,url].filter(Boolean).join("\n"));SK.toast("نُسخ إلى الحافظة","ok");return "copied"}catch{return "failed"}
 }
 
-/* ---------- deep links: ?go=<screen> and ?do=<action> (manifest shortcuts, Shortcuts app, bookmarks) ---------- */
+/* ---------- deep links: ?go=<screen>, ?do=<action> and #<screen> (manifest shortcuts, Shortcuts app, bookmarks) ---------- */
 const DO={
   sale:c=>SK.perm.can("commerce","create")&&c.act("v12-sale-new"),
   search:()=>window.SKosifCommand&&SKosifCommand.open(),
@@ -106,9 +106,35 @@ const DO={
    the link waits in this tab's session and is applied again after that reload; it is forgotten once the app has
    settled (no demo overlay on screen), so a later refresh does not jump again */
 const PENDING="sk_deeplink";
+/* #screen links (https://…/#salesmap, #sales, #المبيعات): the address names the screen that is open. A link
+   opens it (also through the sign-in page, which keeps the address), and moving between screens rewrites the hash
+   in place (replaceState — the back button is not flooded). The hash read at load is kept before the core's first
+   render can rewrite it. */
+const HASH_ALIAS={sales:"salesmap",orders:"commerce",pos:"zatca",invoice:"zatca",customers:"customers",audit:"tbreview",engagement:"tbreview",
+  helpers:"helperdesk",home:"dash",books:"ledger",entries:"jesim",inventory:"inventory",reports:"auditreport",benchmark:"benchmarks",jev:"jev"};
+const HOME="dash";
+function screenOf(h){
+  let k=String(h||"").replace(/^#\/?/,"");try{k=decodeURIComponent(k)}catch{}
+  k=k.trim();if(!k)return null;
+  const low=k.toLowerCase(),all=SK.caps.all();
+  const c=SK.caps.get(k)||SK.caps.get(low)||SK.caps.get(HASH_ALIAS[low]||"")||all.find(x=>x.label===k||x.hubLabel===k)||null;
+  return c&&SK.perm.can(c.id)?c.id:null;
+}
+const START_HASH=location.hash;
+function syncHash(){
+  const c=window.SKosifCore;if(!c)return;
+  const v=c.view(),want=v&&v!==HOME&&SK.caps.get(v)?"#"+v:"";
+  if(location.hash===want)return;
+  try{history.replaceState(history.state,"",location.pathname+location.search+want)}catch{}
+}
+let syncing=false,syncT=0;
+function followNav(){if(!syncing)return;clearTimeout(syncT);syncT=setTimeout(syncHash,60)}
+addEventListener("hashchange",()=>{const id=screenOf(location.hash),c=window.SKosifCore;if(id&&c&&c.view()!==id)c.go(id);else if(!id&&syncing)setTimeout(syncHash,0)});
 function deepLink(){
   let q;try{q=new URLSearchParams(location.search)}catch{return}
   let go=q.get("go"),act=q.get("do");const c=window.SKosifCore;
+  if(!go&&!act)go=screenOf(START_HASH);
+  syncing=true;SK.bus&&SK.bus.on("nav",followNav);setTimeout(syncHash,400);
   try{if(go||act)sessionStorage.setItem(PENDING,JSON.stringify({go,act,at:Date.now()}));
     else{const p=JSON.parse(sessionStorage.getItem(PENDING)||"null");if(p&&Date.now()-p.at<60000){go=p.go;act=p.act}}}catch{}
   if(!c||(!go&&!act))return;

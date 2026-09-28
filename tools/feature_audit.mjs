@@ -199,6 +199,9 @@ await go('benchmarks',2500);
 {const BM=await p.evaluate(()=>{const rows=[...document.querySelectorAll('.bm-t tbody tr')];const E=SKEngines.reports.corpusBenchmarks,all=E.corpusPeers('').length;
   return{rows:rows.length,bars:document.querySelectorAll('.bm-bar').length,all,noBank:!E.corpusPeers('').some(x=>x.sector==='banking'||x.sector==='insurance'),pages:rows.some(r=>/ص \d+/.test(r.innerText))}});
 ok('الأدوات المساعدة','المقارنة بالشركات العالمية: عشر نسب مقابل 35 شركة غير مالية بصفحاتها، بلا بنوك ولا تأمين',BM.rows===10&&BM.bars===10&&BM.all===35&&BM.noBank&&BM.pages);}
+{const HL=await p.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),r={};SKosifCore.go('customers');await w(300);r.sync=location.hash==='#customers';
+  location.hash='#sales';await w(600);r.alias=SKosifCore.view()==='salesmap'&&location.hash==='#salesmap';SKosifCore.go('dash');await w(300);r.home=location.hash==='';return r});
+ok('الواجهة','روابط الشاشات: العنوان يتبع الشاشة المفتوحة، و#sales يفتح خريطة المبيعات، والرئيسية بلا رابط',HL.sync&&HL.alias&&HL.home);}
 await go('jesim',1200);await p.evaluate(()=>{localStorage.removeItem(SKosifEntrySim.memoryKey());localStorage.removeItem('sqc_jesim_v1')});await go('jesim',800);
 await p.click('[data-js-tab="learn"]');await p.waitForTimeout(300);await p.click('[data-js="books"]');await p.waitForTimeout(600);
 ok('الأدوات المساعدة','محاكي القيود يتعلم طريقة التسجيل من قيود الدفاتر',await p.evaluate(()=>{const m=SKosifEntrySim.memory();return m.patterns.length>=3&&m.stats.entries>20&&Object.keys(m.accounts).length>5}));
