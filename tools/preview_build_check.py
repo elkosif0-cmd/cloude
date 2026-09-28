@@ -20,6 +20,13 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 import private_blocks  # noqa: E402
 
+if hasattr(sys.stdout, "reconfigure"):
+    try: sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception: pass
+if hasattr(sys.stderr, "reconfigure"):
+    try: sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception: pass
+
 failures = []
 def ok(name, cond, extra=""):
     print(("✓ " if cond else "✗ ") + name + (f" — {extra}" if extra and not cond else ""))
