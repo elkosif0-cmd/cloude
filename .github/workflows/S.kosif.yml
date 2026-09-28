@@ -119,6 +119,10 @@ jobs:
           for f in ["skosif.js","skosif.css","sw.js","manifest.webmanifest","secure/crypto.json","secure/private.json"]:
               assert Path("dist",f).exists(), f
           assert "./skosif.css?v=" in app and "./skosif.js?v=" in app, "ui bundle not linked"
+          # the build number the core's error log records with each error, the same as the bundle's ?v=
+          import re as _re
+          _b=_re.search(r'<meta name="sqc-build" content="([0-9a-f]{10})">',app)
+          assert _b and "./skosif.js?v="+_b.group(1) in app, "build number missing or not the bundle's"
           assert "<title>SQC — Smart Quality Control</title>" in app
           assert "SQC" in unlock and "sqc-logo.svg" in unlock
           assert '"name":"SQC — Smart Quality Control"' in manifest
@@ -236,3 +240,4 @@ jobs:
           NODE_PATH=/tmp/pw/node_modules timeout 300 node tools/jev_page_check.mjs
           NODE_PATH=/tmp/pw/node_modules timeout 1500 node tools/phone_layout.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/revisit_e2e.mjs http://localhost:8765/app-safe.html
+          NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/v17_runtime_e2e.mjs http://localhost:8765/app-safe.html
