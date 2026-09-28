@@ -207,6 +207,9 @@ const JPG=await p.evaluate(()=>{
       lines:[{account:'599901',name:'مصروف اختبار غير موجود',debit:25,credit:0},{account:'499902',name:'إيراد اختبار غير موجود',debit:0,credit:25}]};
     const reject=L.post(proposal),safeReject=L.accounts().length===beforeA&&L.entries().length===beforeE;
     const partial=L.post(proposal,{open:[{code:'599901',name:'مصروف اختبار غير موجود',type:'expense'}]}),safePartial=L.accounts().length===beforeA&&L.entries().length===beforeE;
+    /* the type is the accountant's explicit choice: omitted or unsupported, nothing is opened or posted */
+    const noType=L.post(proposal,{open:[{code:'599901',name:'مصروف اختبار غير موجود'},{code:'499902',name:'إيراد اختبار غير موجود',type:'revenue'}]}),safeNoType=L.accounts().length===beforeA&&L.entries().length===beforeE;
+    const badType=L.post(proposal,{open:[{code:'599901',name:'مصروف اختبار غير موجود',type:'banana'},{code:'499902',name:'إيراد اختبار غير موجود',type:'revenue'}]}),safeBadType=L.accounts().length===beforeA&&L.entries().length===beforeE;
     const opened=L.post(proposal,{open:[{code:'599901',name:'مصروف اختبار غير موجود',type:'expense'},{code:'499902',name:'إيراد اختبار غير موجود',type:'revenue'}]});
     const explicitOk=opened.ok&&L.accounts().length===beforeA+2&&L.entries().length===beforeE+1;
     const active=L.accounts().filter(a=>a.active!==false&&a.code).slice(0,2),mapBeforeA=L.accounts().length,mapBeforeE=L.entries().length;
@@ -216,11 +219,13 @@ const JPG=await p.evaluate(()=>{
       {map:{'EXT-D':String(active[0].code),'EXT-C':String(active[1].code)}});
     const mappingOk=mapped.ok&&L.accounts().length===mapBeforeA&&L.entries().length===mapBeforeE+1;
     result={reject:reject.code==='MISSING_ACCOUNTS'&&(reject.missingAccounts||[]).length===2&&safeReject,
-      partial:partial.code==='MISSING_ACCOUNTS'&&safePartial,explicit:explicitOk,mapping:mappingOk};
+      partial:partial.code==='MISSING_ACCOUNTS'&&safePartial,explicit:explicitOk,mapping:mappingOk,
+      noType:noType.code==='ACCOUNT_TYPE_REQUIRED'&&safeNoType,badType:badType.code==='ACCOUNT_TYPE_INVALID'&&safeBadType};
   }finally{if(raw==null)localStorage.removeItem('skosif_ledger_v1');else localStorage.setItem('skosif_ledger_v1',raw)}
   return result;
 });
 ok('الأدوات المساعدة','حوكمة الترحيل: الحساب الناقص يُرفض بلا أثر، والفتح/الربط الصريح فقط يسمح بالقيد',JPG.reject&&JPG.partial&&JPG.explicit&&JPG.mapping);
+ok('الأدوات المساعدة','فتح حساب بلا نوع أو بنوع غير مدعوم يُرفض بلا أي أثر — لا استنتاج للنوع من رقم الحساب',JPG.noType&&JPG.badType);
 // ---------- regression: revisiting a view must not stack delegated listeners ----------
 await p.evaluate(()=>{
   const orig=EventTarget.prototype.addEventListener;
