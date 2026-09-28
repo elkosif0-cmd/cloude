@@ -33,9 +33,9 @@ UI_JS=["core/sk.js","core/output.js","core/bus.js","core/errors.js","core/store.
        "features/pricing-core.js","features/kernel.js","features/tools.js","features/enterprise.js","features/reports.js","features/report-pack.js",
        "features/erp-plus.js","features/operations.js","features/capabilities-v2.js","features/audit-bridge.js",
        "features/ledger.js","features/month-close.js","features/purchasing.js","features/workspace.js","features/followup.js","features/devices.js","features/notifications.js","features/risks.js","features/accounting-guidance.js","features/codex.js","features/audit-bench.js","features/report-docs.js","features/integrated-report.js","features/audit-practice.js","features/corpus-lab.js","features/product-tree.js","features/sales-map.js","features/entry-sim.js","features/tb-council.js","features/tb-fieldwork.js","features/tb-review.js","features/sales-lab.js","features/assistant.js","features/helper-center.js","features/product-flow.js","features/benchmarks.js"]
-listed={"ui/"+n for n in UI_CSS+UI_JS}
-stray=[str(f) for f in Path("ui").glob("*.*") if f.suffix in (".js",".css")]
-stray+=[str(f) for d in ("core","ds","components","layouts","features") for f in Path("ui",d).glob("*.*") if f.suffix in (".js",".css") and str(f) not in listed]
+listed={Path("ui",n).as_posix() for n in UI_CSS+UI_JS}
+stray=[f.as_posix() for f in Path("ui").glob("*.*") if f.suffix in (".js",".css")]
+stray+=[f.as_posix() for d in ("core","ds","components","layouts","features") for f in Path("ui",d).glob("*.*") if f.suffix in (".js",".css") and f.as_posix() not in listed]
 if stray: raise SystemExit("UI files not wired into the build (add them to UI_CSS/UI_JS or delete them): "+", ".join(sorted(stray)))
 caps=json.loads(Path("ui/core/capabilities.json").read_text(encoding="utf-8"))
 bundle_css="\n".join(f"/* ---- ui/{n} ---- */\n"+Path("ui",n).read_text(encoding="utf-8") for n in UI_CSS)
