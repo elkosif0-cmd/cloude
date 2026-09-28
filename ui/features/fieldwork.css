@@ -7,7 +7,8 @@
 .fw-wp>summary{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;padding:12px 14px;cursor:pointer;list-style:none}.fw-wp>summary::-webkit-details-marker{display:none}
 .fw-ref{display:inline-grid;place-items:center;min-width:34px;height:34px;border-radius:10px;background:var(--sk-brand-soft);color:var(--sk-brand);font-weight:800}
 .fw-tt{display:grid;flex:1 1 180px}.fw-tt small{color:var(--sk-muted)}
-.fw-wp-b{padding:0 14px 14px;display:grid;gap:10px}
+.fw-wp-b{padding:0 14px 14px;display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+.fw-wp-b>*{min-width:0}
 .fw-obj,.fw-smp{margin:0;line-height:1.7;font-size:13px}
 .fw-steps{margin:0;padding:0;list-style:none;display:grid;gap:6px}
 .fw-steps label{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px;padding:8px 10px;border-radius:var(--sk-r-s);background:var(--sk-surface-2);line-height:1.6;cursor:pointer}
@@ -17,6 +18,7 @@
 .fw-prec summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--sk-brand)}.fw-prec ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:6px}.fw-prec li{padding:8px 10px;border-radius:var(--sk-r-s);background:var(--sk-surface-2)}.fw-prec b{display:block;font-size:12.5px;text-align:left;unicode-bidi:plaintext}.fw-prec small{color:var(--sk-muted);font-size:11px}
 .fw-sign{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;padding-top:8px;border-top:1px dashed var(--sk-line)}.fw-sign>div{display:grid;gap:3px;min-width:200px}.fw-sign small{color:var(--sk-muted)}
 .fw-in{display:flex;gap:6px}.fw-in input{min-height:34px;padding:0 10px;border:1px solid var(--sk-line);border-radius:var(--sk-r-s);background:var(--sk-surface-2);color:var(--sk-ink);font:inherit;min-width:0;flex:1}
+.fw-sign>div{grid-template-columns:minmax(0,1fr)}.fw-in{min-width:0}.fw-in input{width:0}
 .fw-gate .card-h{align-items:center}.fw-gate.ok{border-color:var(--sk-ok)}
 .fw-items{display:grid;gap:8px;margin-bottom:12px}
 .fw-item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--sk-line);border-radius:var(--sk-r-s);background:var(--sk-surface)}
