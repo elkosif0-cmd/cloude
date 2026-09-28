@@ -19198,7 +19198,7 @@ window.SKEngines = (function() {
 		};
 	}
 	/** Arabic "لـ" joined to a word: «ل» + «الشركة» → «للشركة», «ل» + «شركة» → «لشركة». */
-	var lam = (w) => w.startsWith("ال") ? "لل" + w.slice(2) : "ل" + w;
+	var lam = (w) => !w || typeof w !== "string" ? "" : w.startsWith("ال") ? "لل" + w.slice(2) : "ل" + w;
 	/** The independent auditor's report as the bundle's reports write it — Saudi Aramco (PwC, ISA endorsed in the Kingdom),
 	Emirates NBD and e& (UAE Federal Decree-Law No. 32 of 2021), and the Egyptian form: opinion; what we have audited; basis;
 	independence; going concern; our audit approach with the materiality table and the scope; the key audit matters in two
@@ -19324,7 +19324,7 @@ window.SKEngines = (function() {
 				]
 			}] : []
 		];
-		const code = (t) => t === title ? "opinion" : t === "ما قمنا بمراجعته" ? "audited" : t === basisTitle ? "basis" : t === "الاستقلال" ? "independence" : /الاستمرارية/.test(t) ? "going_concern" : i.approach && t === i.approach.title ? "approach materiality scope" : t === "الأمور الرئيسية للمراجعة" ? "kam" : t === "المعلومات الأخرى" ? "other_info" : t.startsWith("مسؤوليات المراجع") ? "resp_aud" : t.startsWith("مسؤوليات") ? "resp_mgmt going_concern" : /القانونية/.test(t) ? "legal" : "";
+		const code = (t) => !t || typeof t !== "string" ? "" : t === title ? "opinion" : t === "ما قمنا بمراجعته" ? "audited" : t === basisTitle ? "basis" : t === "الاستقلال" ? "independence" : /الاستمرارية/.test(t) ? "going_concern" : i.approach && t === i.approach.title ? "approach materiality scope" : t === "الأمور الرئيسية للمراجعة" ? "kam" : t === "المعلومات الأخرى" ? "other_info" : t.startsWith("مسؤوليات المراجع") ? "resp_aud" : t.startsWith("مسؤوليات") ? "resp_mgmt going_concern" : /القانونية/.test(t) ? "legal" : "";
 		return {
 			title: "تقرير المراجع المستقل",
 			addressee: `إلى السادة ${eg ? "مساهمي" : "المساهمين في"} ${co}`,
