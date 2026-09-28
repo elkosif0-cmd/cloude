@@ -397,6 +397,25 @@ details.ap-card>.card-b{overflow-x:auto}
 .ap-kam .checkline{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 @media (max-width:640px){.ap-adds,.ap-mits{grid-template-columns:1fr}.ap-est input{max-width:none}}
 
+/* the engagement register: several client files */
+.tbr-files{display:grid;gap:8px;margin-bottom:14px;padding:12px 14px;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface)}
+.tbr-files-h{display:flex;align-items:baseline;gap:10px}.tbr-files-h small{color:var(--sk-ink-3)}
+.tbr-files-l{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.tbr-file{display:flex;align-items:stretch;border:1px solid var(--sk-line);border-radius:var(--sk-r-s);background:var(--sk-surface-2);flex:0 0 auto;max-width:260px}
+.tbr-file.on{border-color:var(--sk-brand);background:var(--sk-brand-soft);box-shadow:0 0 0 1px var(--sk-brand)}
+.tbr-file>button:first-child{border:0;background:transparent;text-align:start;padding:8px 12px;cursor:pointer;display:grid;gap:2px;font:inherit;color:var(--sk-ink);min-width:150px}
+.tbr-file b{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tbr-file small{font-size:11px;color:var(--sk-ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbr-file-x{border:0;border-inline-start:1px solid var(--sk-line);background:transparent;color:var(--sk-ink-3);cursor:pointer;padding:0 9px;font-size:16px}.tbr-file-x:hover{color:var(--sk-bad)}
+.tbr-file-new{flex:0 0 auto;border:1px dashed var(--sk-brand);border-radius:var(--sk-r-s);background:transparent;color:var(--sk-brand);font:inherit;font-size:12.5px;font-weight:700;padding:8px 14px;cursor:pointer;white-space:nowrap}
+.tbr-file-new:hover{background:var(--sk-brand-soft)}
+.tbr-bundle{max-width:min(920px,96vw)}.tbr-bundle .sk-table-wrap{max-height:60vh;overflow:auto}.tbr-bundle td small{display:block;color:var(--sk-ink-3);font-size:11px}
+
+/* request library details: evidence kind and reliability, who provides it, why, the alternative */
+.tbr-stage{margin:14px 0 6px;font-size:13px;color:var(--sk-brand);display:flex;gap:8px;align-items:center}.tbr-stage small{font-size:11px;color:var(--sk-ink-3);font-weight:600}
+.tbr-req-ev{color:var(--sk-ink-2)!important}.tbr-rel{letter-spacing:1px;font-size:10px}.tbr-rel.r3{color:var(--sk-ok)}.tbr-rel.r2{color:var(--sk-info)}.tbr-rel.r1{color:var(--sk-warn)}
+.tbr-req-alt{color:var(--sk-ink-3)!important;font-style:italic}.tbr-req-alt.on{color:var(--sk-warn)!important;font-style:normal;font-weight:700}
+.tbr-req-un{background:color-mix(in srgb,var(--sk-warn-soft) 55%,transparent)}
+
 /* audit cycle as nodes + arrows */
 .tbr-flowmap{display:grid;gap:8px;margin:0;padding:0}
 .tbr-flowtrack{display:flex;align-items:stretch;gap:22px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:thin;scroll-behavior:auto;-webkit-mask-image:linear-gradient(to left,#000 0,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(to left,#000 0,#000 calc(100% - 36px),transparent)}
@@ -414,6 +433,7 @@ details.ap-card>.card-b{overflow-x:auto}
 .tbc-jev.ok{border-color:color-mix(in srgb,var(--sk-ok) 35%,var(--sk-line));background:var(--sk-ok-soft)}
 .tbc-jev.warn{border-color:color-mix(in srgb,var(--sk-warn) 35%,var(--sk-line));background:var(--sk-warn-soft)}
 .tbc-jev b{display:block;font-size:12px}.tbc-jev p{margin:4px 0;font-size:12px;color:var(--sk-ink-2)}.tbc-jev small{color:var(--sk-ink-3)}
+.tbr-hero .tbr-demo-cta{margin:8px 0 0;font-size:12.5px;color:rgba(255,255,255,.9);max-width:760px;line-height:1.7}
 
 /* ---------- the second round of requests ---------- */
 .tbr-r2card{overflow-x:auto}
