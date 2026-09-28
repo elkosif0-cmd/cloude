@@ -192,6 +192,50 @@ ChatGPT sends `jev_payload` to the matching Jev tool (`choice`, `noul`, or `scor
 No component should request or expose a model's hidden chain-of-thought.
 
 
+## KOSIF Think v0.5 — Host Tool Router
+
+KOSIF Think adds a deterministic `kosif_route` tool for coordinating external ChatGPT tools/plugins without pretending that the Worker can call those host tools itself.
+
+### Boundary
+The Cloudflare Worker owns reasoning/orchestration only. It does **not** receive the user's ChatGPT plugin OAuth sessions and cannot directly invoke arbitrary host plugins. The route is:
+
+`KOSIF Think preflight → kosif_route → ChatGPT host calls selected tools → tool evidence returns to KOSIF → council/Jev → final answer`
+
+### Routing lanes
+`kosif_route` classifies a task across research/science/legal, browser/computer, development/security/deploy/observability, UI/UX/typography/image/video, documents/memory, and communication.
+
+The built-in catalog covers the tools currently used around KOSIF, including Acumen, Tavily, Parallel Search, Firecrawl, Consensus, Scite, Readwise, Legal Data Hunter, TinyFish, Remote Desktop Commander, GitHub, Superpowers, Codex Security, Cloudflare, Vercel, Supabase, PostHog, Figma, Adobe Express, Canva, Runway and related tools.
+
+The router is not limited to that catalog. The host can pass a future or custom connected tool with `name`, optional `description`, optional `lanes`, and `costClass`; KOSIF can route it without another Worker release.
+
+### Connection truthfulness
+The catalog is not proof that a tool is connected. The ChatGPT host passes the tools it can actually access in `availableTools`. If availability is not supplied, the router returns `needsAvailabilityCheck` and never assumes a connection.
+
+### Cost guardrail
+The user budget policy is conservative:
+- `free`, `included`, and `existing_plan` → may appear in `useNow`;
+- `mixed`, `credits`, `paid`, and `unknown` → `needsApproval`; an omitted host cost is normalized to `unknown`, so KOSIF never assumes a connected tool is free or included;
+- a gated tool moves to `useNow` only when its exact name is passed in `approvedTools` for that task.
+
+Connection does not equal permission to spend. The route response warns when credits, a paid plan, mixed billing, or unknown billing may apply.
+
+### Example
+```json
+{
+  "task": "راجع واجهة التطبيق واكتشف أخطاء الكود ثم جهز النشر",
+  "availableTools": [
+    {"name":"GitHub","connected":true,"costClass":"existing_plan"},
+    {"name":"Figma","connected":true,"costClass":"existing_plan"},
+    {"name":"PostHog","connected":true,"costClass":"existing_plan"},
+    {"name":"Cloudflare","connected":true,"costClass":"existing_plan"}
+  ],
+  "budgetMode": "safe"
+}
+```
+
+The result is a host execution plan, not proof that KOSIF called those plugins itself.
+
+
 ## Access control (security)
 
 > **الخلاصة:** كانت نقطة `/mcp` في Worker `kosif-think-mcp` مفتوحة لأي شخص على الإنترنت، وكل استدعاء لـ`kosif_agent` يستهلك رصيد مفتاح Clean APIs (`cleanapis`)، وكل `kosif_think` يشغّل ثلاثة نماذج Workers AI. أصبحت النقطة مغلقة إلا بتوكن، مع حدود استخدام وإيقاف فوري ورفض آمن.
