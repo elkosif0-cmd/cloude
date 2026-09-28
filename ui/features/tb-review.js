@@ -206,7 +206,10 @@ function compute(){
   if(OR&&KMx&&GBx){const sector=d.ctx.sector||GBx.sectorFromActivity(d.ctx.activity||""),prior=CRx?CRx.sectorPrior(sector,d.ctx.corpusId||undefined):{};
     const ks=KMx.suggestKams({fs:base.fs,risks:base.risks,materiality:base.materiality.overall,currency:CUR,sector,sectorPrior:prior});
     const have=new Set(base.requests.map(q=>q.title));opening=OR.openingRequests(ks.slice(0,4).map(k=>k.key),{lineOf:t=>(ks.find(k=>k.key===t)||{lineKeys:[]}).lineKeys[0]}).filter(q=>!have.has(q.title))}
-  const withOpening=r=>opening.length?{...r,requests:[...r.requests,...opening.filter(q=>!r.requests.some(x=>x.id===q.id))]}:r;
+  /* the second round follows the client's answers to the first: alternatives for what is unavailable or rejected,
+     supplements for what came back incomplete, the next procedures where the first answers were accepted */
+  const second=opening.length&&OR.followUpRequests&&d.session?OR.followUpRequests(opening,r1State(d.session)):[];
+  const withOpening=r=>{const extra=[...opening,...second];return extra.length?{...r,requests:[...r.requests,...extra.filter(q=>!r.requests.some(x=>x.id===q.id))]}:r};
   base=withOpening(base);
   const s=d.session;
   /* evidence: the council's accepted documents and the working papers signed in the fieldwork tab (ISA 330) */
@@ -371,6 +374,18 @@ function advHTML(t){
 function studioRows(c){return c.tb.rows.map(r=>{const b=r.balance/100;return [r.code,r.name,b>0?b:0,b<0?-b:0,TI().TYPE_LABELS[r.type]||""]})}
 
 /* ---------- tab 3: documents ---------- */
+/* the state of a first-round request's answer, as the second round reads it */
+const r1State=s=>id=>{const [l]=reqStatus({id},s);return l==="مقبول"?"accepted":l==="غير متوفر"?"unavailable":l==="مرفوض"?"rejected":l==="غير كافٍ"?"partial":"open"};
+function roundTwoCard(c){
+  const OR=E().audit.openingRequests,first=c.base.requests.filter(q=>/^PBC-W-/.test(q.id));
+  if(!OR||!OR.followUpSummary||!first.length)return "";
+  const s=c.session,second=c.base.requests.filter(q=>q.round===2&&/^PBC-R2-/.test(q.id));
+  const rows=OR.followUpSummary(first,r1State(s),second);
+  return '<section class="card tbr-r2card"><div class="card-h"><div><h3>الجولة الثانية من الطلبات</h3><p>تُبنى من ردود العميل على الجولة الأولى: إجراء بديل لما لم يتوفر أو رُفض، واستكمال لما وصل ناقصاً، وتعميق الفحص بالإجراء التالي لدى مراجعي التقارير العالمية حيث قُبلت الأدلة. الطلب الذي لم يُجب بعد يبقى في الجولة الأولى.</p></div></div>'+
+    '<table class="sk-table" data-sk-plain><thead><tr><th>الموضوع</th><th>مقبول</th><th>بلا رد</th><th>بديل</th><th>استكمال</th><th>تعميق</th></tr></thead><tbody>'+
+    rows.map(r=>'<tr><td>'+esc(r.themeAr)+'</td><td class="num">'+r.accepted+'</td><td class="num">'+r.open+'</td><td class="num">'+r.alternative+'</td><td class="num">'+r.supplement+'</td><td class="num">'+r.deepen+'</td></tr>').join("")+
+    '</tbody></table><p class="tbr-note">'+(second.length?'طلبات الجولة الثانية: '+second.length+' — مدرجة في قائمة المستندات أدناه بعلامة «ج2».':'لا طلبات في الجولة الثانية بعد — تظهر حين يرد العميل على طلبات الجولة الأولى.')+'</p></section>';
+}
 function reqStatus(q,s){
   if(!s)return ["قائم","warn"];
   const rev=s.rounds.flatMap(r=>r.reviewed).filter(x=>x.requestId===q.id),last=rev[rev.length-1];
@@ -386,6 +401,7 @@ function reqRow(q,c){
   return '<div class="tbr-req'+(un?' tbr-req-un':'')+'"><div class="tx"><b><span class="mono">'+esc(q.id)+'</span> '+esc(q.title)+'</b><small>'+esc(q.purpose)+(q.accounts&&q.accounts.length?' · الحسابات: '+esc(q.accounts.join("، ")):'')+'</small>'+
     (q.evidenceAr?'<small class="tbr-req-ev"><span class="tbr-rel r'+(q.reliability||1)+'" title="موثوقية الدليل (ISA 500)">'+"●".repeat(q.reliability||1)+"○".repeat(3-(q.reliability||1))+'</span> '+esc(q.evidenceAr)+(q.from?' · يقدمه: '+esc(q.from):'')+(q.why?' · '+esc(q.why):'')+'</small>':'')+
     (q.alt?'<small class="tbr-req-alt'+(un?' on':'')+'">'+(un?'غير متوفر — الإجراء البديل: ':'البديل إن تعذر: ')+esc(q.alt)+'</small>':'')+
+    (q.round===2&&q.reasonAr?'<small class="tbr-r2">ج2 · '+esc(q.reasonAr)+' · '+esc(q.basis||"")+'</small>':'')+
     (files.length?'<small class="tbr-files">'+files.map(f=>'📎 '+esc(f.fileName)+' ('+Math.max(1,Math.round(f.size/1024))+' ك.ب · ج'+f.round+')').join(" · ")+'</small>':'')+(CU()&&s?CU().evidenceTagger(q,s,c.d):'')+'</div>'+
     '<div class="tbr-req-m"><span class="sksev '+(q.priority==="عالية"?"bad":q.priority==="متوسطة"?"warn":"info")+'">'+esc(q.priority)+'</span><span class="sksev '+cls+'">'+esc(l)+'</span>'+
     (l==="مقبول"?'':'<label class="btn sm" style="cursor:pointer">رفع<input type="file" multiple data-up="'+esc(q.id)+'" accept=".pdf,.png,.jpg,.jpeg,.webp,.csv,.txt,.tsv,.json" hidden></label>'+
@@ -394,6 +410,7 @@ function reqRow(q,c){
 function docsTab(c){
   const s=c.session,gem=s?[...new Map(s.rounds.flatMap(r=>r.requests).map(q=>[q.id,q])).values()]:[];
   return '<section class="card"><div class="card-h"><div><h3>طلبات المراجع الذكي</h3><p>'+(gem.length?gem.length+' طلباً عبر الجولات. ارفع المستند ثم أرسل الجولة التالية من تبويب «جولات المراجعة».':'تظهر هنا بعد الجولة الأولى.')+'</p></div></div><div class="card-b tbr-reqs">'+(gem.map(q=>reqRow(q,c)).join("")||'<p class="empty">لا طلبات بعد.</p>')+'</div></section>'+
+    roundTwoCard(c)+
     '<section class="card"><div class="card-h"><div><h3>قائمة المستندات المطلوبة من العميل (PBC)</h3><p>أعدها المحرك الآلي حسب البنود والمخاطر — '+c.base.requests.length+' مستنداً. ما ترفعه هنا يُرسل أيضاً إلى المراجع الذكي في الجولة التالية.</p></div><div class="sk-actions"><button type="button" class="btn primary sm" data-a="pbc-letter">'+SK.icon("reports")+' خطاب طلب المستندات</button><button type="button" class="btn sm" data-a="pbc-csv">تصدير القائمة</button></div></div><div class="card-b tbr-reqs">'+[["planning","التخطيط وفهم المنشأة"],["area","بنود القوائم"],["kam","المناطق الحكمية (الأمور الرئيسية)"],["completion","الإقفال والتقرير"],["",""]].map(([k,l])=>{const qs=c.base.requests.filter(q=>(q.stage||"")===k);return qs.length?(l?'<h4 class="tbr-stage">'+esc(l)+' <small>'+qs.length+'</small></h4>':'')+qs.map(q=>reqRow(q,c)).join(""):""}).join("")+'</div></section>';
 }
 

@@ -13981,8 +13981,11 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/audit/opening-requests-engine.ts
 	var opening_requests_engine_exports = /* @__PURE__ */ __exportAll({
+		ALTERNATIVES: () => ALTERNATIVES,
 		PROC_DOCS: () => PROC_DOCS,
 		THEME_PROCS: () => THEME_PROCS,
+		followUpRequests: () => followUpRequests,
+		followUpSummary: () => followUpSummary,
 		openingRequests: () => openingRequests,
 		procedureLeague: () => procedureLeague,
 		themeOf: () => themeOf
@@ -14371,6 +14374,173 @@ window.SKEngines = (function() {
 		})).sort((a, b) => b.matters - a.matters);
 	}
 	var themeOf = (t) => t in THEMES ? t : null;
+	/** When a procedure's documents cannot be had, the procedures the standards allow instead. */
+	var ALTERNATIVES = {
+		confirmations: {
+			to: ["subsequent", "inspect_contracts"],
+			basis: "ISA 505 — إجراءات بديلة عند عدم الرد: المتحصلات والمدفوعات اللاحقة وفحص المستندات المؤيدة"
+		},
+		legal_letters: {
+			to: ["inspect_contracts", "subsequent"],
+			basis: "ISA 501 — عند تعذّر الحصول على رد المستشار القانوني: فحص المحاضر والمراسلات والأحداث اللاحقة"
+		},
+		forecasts: {
+			to: ["independent_estimate", "retrospective"],
+			basis: "ISA 540 — تقدير مستقل من المراجع، أو مقارنة تقديرات السنة السابقة بنتائجها الفعلية"
+		},
+		evaluate_assumptions: {
+			to: ["compare_history", "independent_estimate"],
+			basis: "ISA 540 — مقارنة الافتراضات بالنتائج الفعلية أو بتقدير مستقل"
+		},
+		specialists: {
+			to: ["independent_estimate", "third_party"],
+			basis: "ISA 500 / ISA 620 — تقدير مستقل أو مصدر خارجي عند غياب تقرير خبير الإدارة"
+		},
+		discount_rates: {
+			to: ["third_party", "independent_estimate"],
+			basis: "ISA 540 — مدخلات السوق من مصدر خارجي أو معدل يحتسبه المراجع"
+		},
+		sensitivity: {
+			to: ["independent_estimate"],
+			basis: "ISA 540 — مدى تقدير مستقل يغني عن تحليل الحساسية الغائب"
+		},
+		recalculate: {
+			to: ["independent_estimate"],
+			basis: "ISA 540 — يعيد المراجع التقدير بنفسه عند غياب جداول الإدارة"
+		},
+		test_controls: {
+			to: ["data_completeness", "journal_entries"],
+			basis: "ISA 330 — عند تعذّر الاعتماد على الضوابط: إجراءات تحقق أساسية موسّعة"
+		},
+		it_systems: {
+			to: ["data_completeness", "journal_entries"],
+			basis: "ISA 315 / ISA 330 — اختبار اكتمال البيانات ودقتها مباشرة عند غياب توثيق الأنظمة"
+		},
+		site_visits: {
+			to: ["subsequent", "cut_off"],
+			basis: "ISA 501 — عند تعذّر حضور الجرد: جرد في تاريخ لاحق مع اختبار الحركات بين التاريخين"
+		},
+		inspect_contracts: {
+			to: ["confirmations", "third_party"],
+			basis: "ISA 500 / ISA 505 — مصادقة الطرف الآخر أو مصدر خارجي بدل العقد الغائب"
+		},
+		data_completeness: {
+			to: ["recalculate"],
+			basis: "ISA 500 — يعيد المراجع بناء البيانات من السجلات الأصلية"
+		},
+		cut_off: {
+			to: ["subsequent"],
+			basis: "ISA 500 / ISA 560 — فحص المعاملات اللاحقة لتاريخ القوائم"
+		},
+		journal_entries: {
+			to: ["data_completeness"],
+			basis: "ISA 240 — اختبار اكتمال مجتمع القيود من مصادره عند تعذّر التصدير الكامل"
+		},
+		compare_history: {
+			to: ["independent_estimate"],
+			basis: "ISA 540 — تقدير مستقل عند غياب سجل التقديرات السابقة"
+		},
+		retrospective: {
+			to: ["independent_estimate"],
+			basis: "ISA 540 — تقدير مستقل عند غياب تسوية تقديرات السنة السابقة"
+		},
+		third_party: {
+			to: ["independent_estimate"],
+			basis: "ISA 500 — تقدير مستقل عند غياب المصدر الخارجي"
+		},
+		component_auditors: {
+			to: ["inspect_contracts", "recalculate"],
+			basis: "ISA 600 — إجراءات مباشرة من فريق المجموعة على معلومات المكوّن"
+		},
+		subsequent: {
+			to: ["inspect_contracts"],
+			basis: "ISA 560 — فحص المحاضر والعقود للأحداث اللاحقة"
+		}
+	};
+	var REASON_AR = {
+		alternative: "إجراء بديل",
+		supplement: "استكمال مستند",
+		deepen: "تعميق الفحص"
+	};
+	/** The second-round requests, from the first round's requests and the state of each one's answer. */
+	function followUpRequests(first, stateOf, opts = {}) {
+		const out = [], perDeep = opts.deepenPerTheme ?? 2, min = opts.minShare ?? .15;
+		const byTheme = /* @__PURE__ */ new Map();
+		for (const r of first) byTheme.set(r.theme, [...byTheme.get(r.theme) ?? [], r]);
+		for (const [t, reqs] of byTheme) {
+			const tp = THEME_PROCS[t], themeAr = reqs[0].themeAr, asked = new Set(reqs.map((r) => r.proc)), emitted = /* @__PURE__ */ new Set();
+			const precedents = reqs[0].precedents;
+			const push = (proc, reason, basis, from, priority) => {
+				const [title, purpose] = PROC_DOCS[proc].docs[0];
+				const id = "PBC-R2-" + t + "-" + proc + (reason === "supplement" ? "-s" : "");
+				if (emitted.has(id)) return;
+				emitted.add(id);
+				const n = tp?.procs[proc];
+				out.push({
+					id,
+					round: 2,
+					reason,
+					reasonAr: REASON_AR[reason],
+					basis,
+					from: from?.id,
+					proc,
+					procAr: PROC_DOCS[proc].ar,
+					theme: t,
+					themeAr,
+					precedents,
+					title: (reason === "supplement" ? "استكمال: " : "") + title + " — " + themeAr,
+					purpose: reason === "supplement" ? "المستند المستلم في الجولة الأولى ناقص — يُستكمل بما يغطي: " + purpose : reason === "alternative" ? "بديل عن «" + (from ? from.title : "") + "» — " + purpose : purpose + (n && tp ? " (" + n + " من " + tp.reports + " مراجعين في التقارير العالمية)" : ""),
+					lineKey: reqs[0].lineKey,
+					accounts: [],
+					standard: PROC_DOCS[proc].standard,
+					priority,
+					source: "engine",
+					...n && tp ? {
+						used: n,
+						of: tp.reports,
+						share: Math.round(n / tp.reports * 100) / 100
+					} : {}
+				});
+			};
+			for (const r of reqs) {
+				const st = stateOf(r.id);
+				if (st === "partial") push(r.proc, "supplement", r.standard + " — كفاية الدليل ومناسبته", r, "عالية");
+				else if (st === "unavailable" || st === "rejected") {
+					const alt = ALTERNATIVES[r.proc];
+					for (const k of alt?.to ?? []) if (!asked.has(k)) push(k, "alternative", alt.basis, r, "عالية");
+				}
+			}
+			if (tp && reqs.some((r) => stateOf(r.id) === "accepted")) {
+				const next = Object.entries(tp.procs).map(([k, n]) => ({
+					k,
+					n,
+					share: n / tp.reports
+				})).filter((x) => !asked.has(x.k) && x.share >= min).sort((a, b) => b.n - a.n).slice(0, perDeep);
+				for (const { k, share } of next) push(k, "deepen", PROC_DOCS[k].standard + " — الإجراء التالي لدى مراجعي التقارير العالمية لهذا الموضوع", null, share >= .3 ? "متوسطة" : "منخفضة");
+			}
+		}
+		const rank = {
+			alternative: 0,
+			supplement: 1,
+			deepen: 2
+		};
+		return out.sort((a, b) => rank[a.reason] - rank[b.reason] || (b.share ?? 0) - (a.share ?? 0));
+	}
+	/** One line per theme for the second round: how many requests of each kind, and what is still waiting in the first. */
+	function followUpSummary(first, stateOf, second = followUpRequests(first, stateOf)) {
+		return [...new Set(first.map((r) => r.theme))].map((t) => {
+			const f = first.filter((r) => r.theme === t), s = second.filter((r) => r.theme === t);
+			return {
+				theme: t,
+				themeAr: f[0].themeAr,
+				accepted: f.filter((r) => stateOf(r.id) === "accepted").length,
+				open: f.filter((r) => stateOf(r.id) === "open").length,
+				alternative: s.filter((r) => r.reason === "alternative").length,
+				supplement: s.filter((r) => r.reason === "supplement").length,
+				deepen: s.filter((r) => r.reason === "deepen").length
+			};
+		});
+	}
 	//#endregion
 	//#region app/src/engine/fusion/audit/pbc-engine.ts
 	var pbc_engine_exports = /* @__PURE__ */ __exportAll({
