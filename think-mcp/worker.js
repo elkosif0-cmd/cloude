@@ -1,4 +1,4 @@
-const VERSION = "0.4.1";
+const VERSION = "0.5.0";
 const FAST_AGENTS = [
   { id:"solver", source:"cloudflare", model:"@cf/meta/llama-3.3-70b-instruct-fp8-fast", role:"Lead solver: build the strongest answer and test feasibility." },
   { id:"skeptic", source:"cloudflare", model:"@cf/mistralai/mistral-small-3.1-24b-instruct", role:"Skeptical critic: find weak assumptions, contradictions, missing evidence, and downside risk." },
@@ -10,6 +10,67 @@ const FRONTIER_AGENTS = [
   { id:"gemini", source:"cleanapis", model:"gemini-3.7-flash", micro:true, role:"Alternative-path analyst: compare approaches, surface missing options, and test trade-offs." },
   { id:"mythos", source:"cleanapis", model:"claude-mythos-preview", micro:true, role:"Adversarial scenario architect: test counterfactuals, failure modes, and hidden second-order effects." },
   { id:"fable", source:"cleanapis", model:"claude-fable-5.1", micro:true, role:"Creative synthesis challenger: seek unconventional but defensible alternatives and expose framing bias." }
+];
+
+const HOST_TOOL_CATALOG = [
+  {name:"Acumen by Talarion",lanes:["research"],cost:"existing_plan",priority:100,hints:["blind spot","missing","coverage","what am i missing","نقطة عمياء","ناقص"]},
+  {name:"Tavily",lanes:["research"],cost:"existing_plan",priority:92,hints:["search","current","latest","web","بحث","حديث"]},
+  {name:"Parallel Search",lanes:["research"],cost:"existing_plan",priority:90,hints:["parallel","compare sources","مصادر","مقارنة"]},
+  {name:"Firecrawl",lanes:["research","browser"],cost:"existing_plan",priority:86,hints:["crawl","scrape","extract","website","موقع","استخراج"]},
+  {name:"Consensus",lanes:["research","science"],cost:"existing_plan",priority:96,hints:["paper","study","evidence","دراسة","بحث علمي"]},
+  {name:"Scite",lanes:["research","science"],cost:"existing_plan",priority:94,hints:["citation","cited","paper","استشهاد","مرجع"]},
+  {name:"Readwise",lanes:["research","memory","docs"],cost:"existing_plan",priority:82,hints:["library","highlight","saved","مكتبة","ملاحظات"]},
+  {name:"Legal Data Hunter",lanes:["research","legal"],cost:"existing_plan",priority:100,hints:["law","regulation","case","قانون","لائحة","نظام","امتثال"]},
+  {name:"TinyFish",lanes:["browser","research"],cost:"included",priority:100,hints:["browser","click","form","navigate","متصفح","اضغط","افتح"]},
+  {name:"Remote Desktop Commander",lanes:["browser","dev"],cost:"included",priority:92,hints:["computer","desktop","terminal","file","كمبيوتر","جهاز","ترمينال"]},
+  {name:"Opera Browser Connector",lanes:["browser"],cost:"existing_plan",priority:80,hints:["opera","tab","screenshot","تبويب","متصفح"]},
+  {name:"GitHub",lanes:["dev"],cost:"existing_plan",priority:100,hints:["repo","pull request","code","github","كود","مستودع"]},
+  {name:"Superpowers",lanes:["dev"],cost:"included",priority:96,hints:["tdd","debug","plan","test","اختبار","تصحيح"]},
+  {name:"Codex Security",lanes:["dev"],cost:"included",priority:94,hints:["security","vulnerability","scan","أمن","ثغرة"]},
+  {name:"Cloudflare",lanes:["deploy","dev"],cost:"existing_plan",priority:100,hints:["worker","pages","cloudflare","deploy","نشر"]},
+  {name:"Vercel",lanes:["deploy","dev"],cost:"existing_plan",priority:94,hints:["vercel","deploy","hosting","نشر","استضافة"]},
+  {name:"Supabase",lanes:["dev","deploy"],cost:"existing_plan",priority:90,hints:["database","postgres","auth","sql","قاعدة","مصادقة"]},
+  {name:"PostHog",lanes:["observe","dev"],cost:"existing_plan",priority:100,hints:["analytics","error","feature flag","logs","تحليلات","أخطاء"]},
+  {name:"Datadog",lanes:["observe","dev"],cost:"existing_plan",priority:95,hints:["logs","trace","rum","incident","monitor","سجل","تتبع"]},
+  {name:"Replit",lanes:["dev"],cost:"existing_plan",priority:75,hints:["prototype","app","build","تطبيق","برمجة"]},
+  {name:"Lovable",lanes:["dev","design"],cost:"existing_plan",priority:78,hints:["frontend","tailwind","shadcn","واجهة","تصميم"]},
+  {name:"Base44",lanes:["dev"],cost:"existing_plan",priority:72,hints:["full stack","app","تطبيق"]},
+  {name:"Webflow",lanes:["design","dev","deploy"],cost:"existing_plan",priority:82,hints:["website","cms","webflow","واجهة","موقع"]},
+  {name:"WordPress.com",lanes:["docs","design","deploy"],cost:"existing_plan",priority:76,hints:["wordpress","site","blog","موقع","مدونة"]},
+  {name:"Railway",lanes:["deploy","observe"],cost:"existing_plan",priority:72,hints:["railway","service","deploy","logs","نشر"]},
+  {name:"Floot",lanes:["dev","deploy"],cost:"existing_plan",priority:70,hints:["full stack","host","database","تطبيق"]},
+  {name:"Figma",lanes:["design","image"],cost:"existing_plan",priority:100,hints:["figma","ui","ux","layout","font","واجهة","خط","تصميم"]},
+  {name:"Adobe Express",lanes:["design","image"],cost:"free",priority:98,hints:["poster","flyer","social","template","بوستر","فلاير","تصميم"]},
+  {name:"Canva",lanes:["design","image"],cost:"mixed",priority:88,hints:["canva","poster","brand","social","بوستر","هوية"]},
+  {name:"Runway",lanes:["image","video"],cost:"credits",priority:88,hints:["video","animate","image edit","فيديو","تحريك","صورة"]},
+  {name:"OpenArt",lanes:["image","video"],cost:"unknown",priority:84,hints:["image","video","model","صورة","فيديو"]},
+  {name:"Higgsfield",lanes:["image","video","design"],cost:"unknown",priority:86,hints:["hero shot","product","creative","إعلان","منتج","صورة"]},
+  {name:"Adobe",lanes:["image","design","video"],cost:"mixed",priority:90,hints:["retouch","photoshop","lightroom","تنقيح","إضاءة","ألوان"]},
+  {name:"HeyGen",lanes:["video"],cost:"unknown",priority:82,hints:["avatar","voice","presenter","أفاتار","مقدم"]},
+  {name:"Descript",lanes:["video"],cost:"unknown",priority:80,hints:["edit video","captions","b-roll","مونتاج","ترجمة"]},
+  {name:"Google Drive",lanes:["docs","memory"],cost:"existing_plan",priority:100,hints:["drive","docs","sheets","slides","ملف","مستند","شيت"]},
+  {name:"Notion",lanes:["docs","memory"],cost:"existing_plan",priority:90,hints:["notion","wiki","knowledge","ملاحظات","معرفة"]},
+  {name:"Dropbox Dash",lanes:["memory","docs"],cost:"existing_plan",priority:86,hints:["workspace","knowledge","ملفات","معرفة"]},
+  {name:"Granola",lanes:["memory","docs"],cost:"existing_plan",priority:88,hints:["meeting","decision","transcript","اجتماع","قرار"]},
+  {name:"Gmail",lanes:["communication","docs"],cost:"existing_plan",priority:90,hints:["email","mail","بريد","ايميل"]},
+  {name:"Resend",lanes:["communication","dev"],cost:"existing_plan",priority:82,hints:["transactional email","broadcast","webhook","بريد","ويب هوك"]}
+];
+const COST_CLASSES = new Set(["free","included","existing_plan","mixed","credits","paid","unknown"]);
+const AUTO_COST_CLASSES = new Set(["free","included","existing_plan"]);
+const LANE_RULES = [
+  ["legal",/(legal|law|regulat|compliance|contract|case\b|قانون|لائحة|نظام|امتثال|عقد|قضية)/i],
+  ["science",/(study|paper|journal|scientific|evidence|clinical|دراسة|ورقة|بحث علمي|دليل علمي)/i],
+  ["browser",/(browser|website|page\b|click|navigate|form|screenshot|متصفح|موقع|صفحة|اضغط|افتح|سكرين)/i],
+  ["dev",/(code|coding|program|bug|debug|api\b|github|frontend|backend|react|css|javascript|typescript|كود|برمج|خطأ|واجهة برمجية)/i],
+  ["deploy",/(deploy|hosting|cloudflare|vercel|worker|railway|production|نشر|استضافة|كلاودفلر|فيرسل)/i],
+  ["observe",/(log|trace|monitor|analytics|error tracking|incident|rum\b|سجل|تتبع|مراقبة|تحليلات|أخطاء)/i],
+  ["design",/(design|ui\b|ux\b|layout|font|typography|figma|webflow|واجهة|تصميم|خط|ألوان|تنسيق)/i],
+  ["image",/(image|photo|poster|graphic|illustration|picture|صورة|بوستر|رسم|جرافيك|تصوير)/i],
+  ["video",/(video|animation|avatar|motion|reel|فيديو|تحريك|أفاتار|موشن)/i],
+  ["docs",/(document|pdf|doc\b|sheet|slide|report|مستند|ملف|اكسل|عرض|تقرير)/i],
+  ["memory",/(meeting|notes|highlight|library|history|context|اجتماع|ملاحظات|مكتبة|سياق|سابق)/i],
+  ["communication",/(email|mail|message|whatsapp|بريد|رسالة|واتساب)/i],
+  ["research",/(research|search|source|verify|latest|current|compare|fact|بحث|ابحث|مصدر|تحقق|أحدث|مقارنة|معلومة)/i]
 ];
 
 /* ---- access control ----------------------------------------------------------------------------------------------
@@ -280,6 +341,84 @@ function jevPayload(input,artifacts,c){
     false_criteria:"A material conflict, unsupported assumption, or unresolved risk could change the conclusion."
   };
 }
+function routeLanes(task){
+  const q=text(task,12000),out=[];
+  for(const [lane,re] of LANE_RULES) if(re.test(q)) out.push(lane);
+  if(out.includes("legal")&&!out.includes("research")) out.push("research");
+  if(out.includes("science")&&!out.includes("research")) out.push("research");
+  if(out.includes("design")&&/(web|site|app|واجهة|موقع|تطبيق)/i.test(q)&&!out.includes("dev")) out.push("dev");
+  return Array.from(new Set(out));
+}
+function normalizeAvailableTools(v){
+  if(!Array.isArray(v)) return new Map();
+  const m=new Map();
+  for(const x of v.slice(0,120)){
+    if(!x||typeof x!=="object"||Array.isArray(x)) continue;
+    const name=text(x.name,120);
+    if(!name) continue;
+    const cc=COST_CLASSES.has(String(x.costClass||""))?String(x.costClass):"unknown";
+    m.set(name.toLowerCase(),{name,connected:x.connected!==false,costClass:cc});
+  }
+  return m;
+}
+function routeTool(env,args){
+  const task=text(args?.task,12000);
+  if(!task) throw new Error("TASK_REQUIRED");
+  const lanes=routeLanes(task);
+  const available=normalizeAvailableTools(args?.availableTools);
+  const approved=new Set((Array.isArray(args?.approvedTools)?args.approvedTools:[]).slice(0,80).map(x=>text(x,120).toLowerCase()).filter(Boolean));
+  const preferred=new Set((Array.isArray(args?.preferredTools)?args.preferredTools:[]).slice(0,40).map(x=>text(x,120).toLowerCase()).filter(Boolean));
+  const strictFree=args?.budgetMode==="strict_free";
+  const autoCosts=strictFree?new Set(["free","included"]):AUTO_COST_CLASSES;
+  const maxTools=Math.max(1,Math.min(20,Number(args?.maxTools)||10));
+  const q=task.toLowerCase();
+
+  const scored=HOST_TOOL_CATALOG.map(t=>{
+    const laneHits=t.lanes.filter(l=>lanes.includes(l)).length;
+    const hintHits=t.hints.filter(h=>q.includes(String(h).toLowerCase())).length;
+    const forced=preferred.has(t.name.toLowerCase())?1:0;
+    return {...t,score:laneHits*100+hintHits*20+forced*500};
+  }).filter(t=>t.score>0).sort((a,b)=>b.score-a.score||b.priority-a.priority||a.name.localeCompare(b.name)).slice(0,maxTools);
+
+  const useNow=[],needsApproval=[],needsAvailabilityCheck=[],missingConnections=[];
+  for(const t of scored){
+    const st=available.get(t.name.toLowerCase());
+    const connected=st?st.connected:null;
+    const costClass=st?.costClass&&st.costClass!=="unknown"?st.costClass:t.cost;
+    const item={name:t.name,lanes:t.lanes.filter(l=>lanes.includes(l)),costClass,reason:t.hints.find(h=>q.includes(String(h).toLowerCase()))||t.lanes.filter(l=>lanes.includes(l))[0]||"preferred"};
+    if(connected===null){ needsAvailabilityCheck.push(item); continue; }
+    if(!connected){ missingConnections.push(item); continue; }
+    if(autoCosts.has(costClass)||approved.has(t.name.toLowerCase())) useNow.push({...item,approved:approved.has(t.name.toLowerCase())});
+    else needsApproval.push({...item,warning:costClass==="credits"?"May consume credits.":costClass==="paid"?"May require a paid plan.":costClass==="mixed"?"Some capabilities may consume credits or require a paid plan.":"Cost is not verified; ask before use."});
+  }
+
+  return {
+    version:VERSION,
+    mode:"host-mediated",
+    directPluginCalls:false,
+    task,
+    lanes,
+    budgetPolicy:{
+      mode:strictFree?"strict_free":"free_or_included_or_existing_plan",
+      autoCostClasses:Array.from(autoCosts),
+      approvalRequired:["mixed","credits","paid","unknown"],
+      rule:"Never execute a paid, credit-based, mixed, or unknown-cost host tool unless the user has explicitly approved that tool for this task."
+    },
+    useNow,
+    needsApproval,
+    needsAvailabilityCheck,
+    missingConnections,
+    hostContract:{
+      preflight:"KOSIF Think reasons first.",
+      route:"Call kosif_route with the task and the host's currently connected tools. Pass costClass when the host knows it.",
+      execute:"The ChatGPT host, not this Worker, calls tools listed in useNow. Do not call needsApproval until the user explicitly approves them.",
+      returnEvidence:"Summarize or attach host-tool results back into KOSIF Think context for synthesis/council.",
+      finalReview:"If KOSIF returns jev_payload, run Jev before the final answer.",
+      truthfulness:"Never claim that KOSIF Think directly invoked a host plugin; routing is advisory and host-mediated."
+    }
+  };
+}
+
 async function runThink(env,args){
   const input={question:text(args?.question,12000),context:text(args?.context,24000),options:cleanOptions(args?.options)};
   if(!input.question) throw new Error("QUESTION_REQUIRED");
@@ -437,8 +576,24 @@ const TOOLS=[
     }
   },
   {
+    name:"kosif_route",
+    description:"Plan host-side tool/plugin usage after KOSIF reasoning. This Worker does not call host plugins directly. The host passes connected tools and cost classes; free, included, or existing-plan tools may be used automatically, while mixed/credit/paid/unknown-cost tools require explicit user approval.",
+    inputSchema:{
+      type:"object",
+      properties:{
+        task:{type:"string"},
+        availableTools:{type:"array",maxItems:120,items:{type:"object",properties:{name:{type:"string"},connected:{type:"boolean"},costClass:{type:"string",enum:["free","included","existing_plan","mixed","credits","paid","unknown"]}},required:["name"],additionalProperties:false}},
+        approvedTools:{type:"array",items:{type:"string"},maxItems:80},
+        preferredTools:{type:"array",items:{type:"string"},maxItems:40},
+        maxTools:{type:"integer",minimum:1,maximum:20},
+        budgetMode:{type:"string",enum:["safe","strict_free"]}
+      },
+      required:["task"],additionalProperties:false
+    }
+  },
+  {
     name:"kosif_think_status",
-    description:"Show KOSIF Think version, mandatory-on-selection preflight behavior, frontier agents, fast agents, routing, Clean APIs availability, and Jev handoff behavior.",
+    description:"Show KOSIF Think version, mandatory-on-selection preflight behavior, frontier agents, fast agents, host-tool routing/cost policy, Clean APIs availability, and Jev handoff behavior.",
     inputSchema:{type:"object",properties:{},additionalProperties:false}
   }
 ];
@@ -447,6 +602,7 @@ async function callTool(env,name,args){
   if(name==="kosif_agent") return toolResult(await runAgentTool(env,args),false);
   if(name==="kosif_council") return toolResult(aggregateCouncilTool(args),false);
   if(name==="kosif_think") return toolResult(await runThink(env,args),false);
+  if(name==="kosif_route") return toolResult(routeTool(env,args),false);
   if(name==="kosif_think_status") return toolResult({
     ok:true,version:VERSION,cleanApisConfigured:!!env.cleanapis,
     fastAgents:FAST_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role})),
@@ -460,8 +616,10 @@ async function callTool(env,name,args){
       council:"ChatGPT calls kosif_agent independently for gpt + claude + gemini + mythos + fable, then kosif_council",
       deep:"Same five independent agents; then targeted critique/revision agent calls; then kosif_council",
       finalChair:"Jev review followed by ChatGPT final synthesis",
-      tinyFish:"Not part of the core reasoning bus; optional only for browser/web interaction or visual evidence collection."
+      hostTools:"kosif_route plans host-mediated plugin/tool calls; the host executes only useNow and returns evidence to KOSIF.",
+      tinyFish:"Browser/web interaction is routed through kosif_route when available; it is not part of the hidden reasoning bus."
     },
+    hostToolRouting:{mode:"host-mediated",directPluginCalls:false,routeTool:"kosif_route",catalogSize:HOST_TOOL_CATALOG.length,autoCostClasses:Array.from(AUTO_COST_CLASSES),approvalRequired:["mixed","credits","paid","unknown"]},
     jevIntegration:"kosif_council returns jev_payload; pass it to Jev Bridge before the final ChatGPT answer."
   },false);
   return null;
@@ -500,7 +658,7 @@ async function handleMcp(req,env,url){
   try{msg=JSON.parse(raw);}catch(_){return rpcErr(null,-32700,"Parse error",200,cors);}
   if(!msg||typeof msg!=="object"||Array.isArray(msg)||typeof msg.method!=="string") return rpcErr(null,-32600,"Invalid Request",200,cors);
   const id=msg.id;
-  if(msg.method==="initialize") return rpc(id,{protocolVersion:msg.params?.protocolVersion||"2025-06-18",capabilities:{tools:{}},serverInfo:{name:"kosif-think",version:VERSION},instructions:"MANDATORY-ON-SELECTION: If the user explicitly selects or invokes KOSIF Think in the current turn, call KOSIF Think before any substantive answer or other tool, even for a simple task. Use kosif_think with mode fast for simple preflight; use kosif_agent + kosif_council for Council/Deep work. Avoid redundant preflight calls in the same user turn. If a KOSIF result returns jev_payload, call the matching Jev Bridge tool before finalizing. This is plugin/MCP-scope behavior and does not claim platform-level enforcement outside KOSIF."},cors);
+  if(msg.method==="initialize") return rpc(id,{protocolVersion:msg.params?.protocolVersion||"2025-06-18",capabilities:{tools:{}},serverInfo:{name:"kosif-think",version:VERSION},instructions:"MANDATORY-ON-SELECTION: If the user explicitly selects or invokes KOSIF Think in the current turn, call KOSIF Think before any substantive answer or other tool, even for a simple task. Use kosif_think with mode fast for simple preflight; use kosif_agent + kosif_council for Council/Deep work. When external evidence or execution would help, call kosif_route next and pass currently connected host tools plus costClass when known. The ChatGPT host executes only route.useNow; never execute route.needsApproval until the user explicitly approves that tool for the task. Return host-tool evidence to KOSIF for synthesis. If a KOSIF result returns jev_payload, call the matching Jev Bridge tool before finalizing. KOSIF routing is host-mediated: this Worker does not directly invoke arbitrary ChatGPT plugins and must never claim that it did. Avoid redundant preflight calls in the same user turn."},cors);
   if(msg.method.startsWith("notifications/")) return empty(202,cors);
   if(msg.method==="ping") return rpc(id,{},cors);
   if(msg.method==="tools/list") return rpc(id,{tools:TOOLS},cors);
