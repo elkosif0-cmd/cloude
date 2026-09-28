@@ -59,6 +59,7 @@ jobs:
           for f in ui/core/*.js ui/components/*.js ui/layouts/*.js ui/features/*.js; do node --check "$f"; done
           node --check sw.js
           node --check capabilities-v2/worker.js
+          node --check think-mcp/worker.js
 
       - name: Lint UI modules (out-of-scope names, duplicate keys, unreachable code)
         run: |
@@ -90,6 +91,9 @@ jobs:
         run: |
           npx tsc -p tsconfig.think.json --noEmit
           npx vitest run src/engine/think
+
+      - name: Test KOSIF Think MCP access control (auth, limits, CORS, body size)
+        run: node --test think-mcp/worker.test.mjs
 
       - name: Capability docs are in sync with the registry
         run: python3 tools/capability_docs.py --check

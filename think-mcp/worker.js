@@ -1,4 +1,4 @@
-const VERSION = "0.3.0";
+const VERSION = "0.4.1";
 const FAST_AGENTS = [
   { id:"solver", source:"cloudflare", model:"@cf/meta/llama-3.3-70b-instruct-fp8-fast", role:"Lead solver: build the strongest answer and test feasibility." },
   { id:"skeptic", source:"cloudflare", model:"@cf/mistralai/mistral-small-3.1-24b-instruct", role:"Skeptical critic: find weak assumptions, contradictions, missing evidence, and downside risk." },
@@ -12,9 +12,85 @@ const FRONTIER_AGENTS = [
   { id:"fable", source:"cleanapis", model:"claude-fable-5.1", micro:true, role:"Creative synthesis challenger: seek unconventional but defensible alternatives and expose framing bias." }
 ];
 
-function json(data,status){ return new Response(JSON.stringify(data),{status:status||200,headers:{"content-type":"application/json; charset=utf-8"}}); }
-function rpc(id,result){ return json({jsonrpc:"2.0",id:id,result:result}); }
-function rpcErr(id,code,message){ return json({jsonrpc:"2.0",id:id==null?null:id,error:{code:code,message:message}}); }
+/* ---- access control ----------------------------------------------------------------------------------------------
+   /mcp spends paid model calls (the Clean APIs key and Workers AI), so it is closed unless the caller proves itself:
+     • KOSIF_THINK_TOKEN (a Worker secret, at least 32 characters) sent as "Authorization: Bearer <token>"; only when
+       THINK_ALLOW_PATH_TOKEN is "true" (for MCP clients that cannot send headers) also as /mcp/<token>. Compared in
+       constant time. With no token configured, or a short one, /mcp answers 503 and runs nothing.
+     • per caller: THINK_RPM requests and THINK_MODEL_RPM model-running tool calls a minute, enforced by the
+       THINK_RATE_LIMITER / THINK_MODEL_LIMITER rate-limit bindings, or by a window in this isolate when they are not
+       bound (or fail); THINK_AUTH_FAILS_PER_MIN failed sign-ins a minute per IP, then 429 without checking the token.
+     • THINK_FRONTIER_ENABLED "false" stops every Clean APIs call (kosif_agent) at once.
+     • browsers only from the origins in THINK_ALLOWED_ORIGINS; any other Origin gets 403 (the MCP transport rule
+       against DNS rebinding). POST with a JSON body only; bodies over THINK_MAX_BODY_BYTES get 413.
+   Nothing returned carries a secret, a token or an upstream error text. */
+const MIN_TOKEN_LENGTH = 32;
+const MODEL_TOOLS = new Set(["kosif_agent","kosif_think"]);
+const BASE_HEADERS = { "cache-control":"no-store", "x-content-type-options":"nosniff", "referrer-policy":"no-referrer" };
+const PREFLIGHT_HEADERS = { "access-control-allow-methods":"POST", "access-control-allow-headers":"authorization, content-type, mcp-protocol-version, mcp-session-id", "access-control-max-age":"600" };
+
+function num(env,name,def,min,max){ const n=Number(env[name]); return Number.isFinite(n)&&n>=min&&n<=max?Math.floor(n):def; }
+function limits(env){
+  return {
+    maxBody:num(env,"THINK_MAX_BODY_BYTES",131072,1024,1048576),
+    rpm:num(env,"THINK_RPM",30,1,10000),
+    modelRpm:num(env,"THINK_MODEL_RPM",10,1,10000),
+    authFails:num(env,"THINK_AUTH_FAILS_PER_MIN",20,1,10000)
+  };
+}
+const enc = new TextEncoder();
+async function sha256(v){ return new Uint8Array(await crypto.subtle.digest("SHA-256",enc.encode(String(v)))); }
+/* both sides are hashed first, so the comparison takes the same time whatever the lengths or the first difference */
+async function sameSecret(a,b){ const [x,y]=await Promise.all([sha256(a),sha256(b)]); let d=0; for(let i=0;i<x.length;i++) d|=x[i]^y[i]; return d===0; }
+async function callerKey(token){ return "caller:"+Array.from((await sha256("kosif-think:"+token)).slice(0,12),b=>b.toString(16).padStart(2,"0")).join(""); }
+
+/* a fixed one-minute window per key in this isolate: the fallback when no rate-limit binding is present or it fails */
+const windows = new Map();
+function windowCount(key){ const w=windows.get(key); return w&&Date.now()-w.start<60000?w.count:0; }
+function windowHit(key,limit){
+  const now=Date.now(),w=windows.get(key);
+  if(!w||now-w.start>=60000){
+    if(windows.size>=5000) for(const [k,v] of windows) if(now-v.start>=60000) windows.delete(k);
+    windows.set(key,{start:now,count:1});
+    return true;
+  }
+  if(w.count>=limit) return false;
+  w.count++;
+  return true;
+}
+async function allow(env,binding,key,limit){
+  const b=env[binding];
+  if(b&&typeof b.limit==="function"){
+    try{ const r=await b.limit({key}); return !!(r&&r.success); }catch(_){ /* never fail open: use the local window */ }
+  }
+  return windowHit(binding+"|"+key,limit);
+}
+function allowedOrigins(env){ return String(env.THINK_ALLOWED_ORIGINS||"").split(",").map(s=>s.trim()).filter(Boolean); }
+function corsFor(origin){ return origin?{"access-control-allow-origin":origin,"access-control-expose-headers":"retry-after","vary":"Origin"}:{}; }
+function bearer(req){ const m=/^Bearer[ \t]+([^\s]+)$/i.exec(req.headers.get("authorization")||""); return m?m[1]:""; }
+/* only this Worker's own error codes go back to a caller; anything else (an upstream or runtime message) is replaced */
+function publicError(e){ const m=String(e?.message||e||""); return /^[A-Z][A-Z0-9_]{2,60}$/.test(m)?m:"AGENT_FAILED"; }
+async function readBody(req,max){
+  const declared=Number(req.headers.get("content-length"));
+  if(Number.isFinite(declared)&&declared>max) throw new Error("BODY_TOO_LARGE");
+  if(!req.body) return "";
+  const reader=req.body.getReader(),chunks=[];let size=0;
+  for(;;){
+    const {done,value}=await reader.read();
+    if(done) break;
+    size+=value.byteLength;
+    if(size>max){ try{await reader.cancel();}catch(_){} throw new Error("BODY_TOO_LARGE"); }
+    chunks.push(value);
+  }
+  const all=new Uint8Array(size);let at=0;
+  for(const c of chunks){ all.set(c,at); at+=c.byteLength; }
+  return new TextDecoder().decode(all);
+}
+
+function json(data,status,headers){ return new Response(JSON.stringify(data),{status:status||200,headers:{...BASE_HEADERS,"content-type":"application/json; charset=utf-8",...(headers||{})}}); }
+function empty(status,headers){ return new Response(null,{status,headers:{...BASE_HEADERS,...(headers||{})}}); }
+function rpc(id,result,headers){ return json({jsonrpc:"2.0",id:id,result:result},200,headers); }
+function rpcErr(id,code,message,status,headers){ return json({jsonrpc:"2.0",id:id==null?null:id,error:{code:code,message:message}},status||200,headers); }
 function toolResult(data,isError){ return {content:[{type:"text",text:JSON.stringify(data)}],structuredContent:data,isError:!!isError}; }
 function text(v,max){ const s=String(v==null?"":v).trim(); return s.slice(0,max||12000); }
 function cleanOptions(v){
@@ -69,10 +145,10 @@ async function cleanApisChat(env,model,messages,maxTokens=320){
       signal:ac.signal
     });
   }catch(e){
-    throw new Error(ac.signal.aborted?"CLEANAPIS_TIMEOUT":"CLEANAPIS_NETWORK: "+text(e?.message||e,300));
+    throw new Error(ac.signal.aborted?"CLEANAPIS_TIMEOUT":"CLEANAPIS_NETWORK");
   }finally{clearTimeout(timer)}
   const d=await r.json().catch(()=>({}));
-  if(!r.ok)throw new Error("CLEANAPIS_"+r.status+": "+text(d?.error?.message||"request failed",400));
+  if(!r.ok)throw new Error("CLEANAPIS_"+r.status);
   const out=d?.choices?.[0]?.message?.content;
   if(!out)throw new Error("CLEANAPIS_EMPTY_RESPONSE");
   return out;
@@ -100,10 +176,10 @@ async function cleanApisMicro(env,agent,stage,input,peers){
       signal:ac.signal
     });
   }catch(e){
-    throw new Error(ac.signal.aborted?"MICRO_TIMEOUT":"MICRO_NETWORK: "+text(e?.message||e,250));
+    throw new Error(ac.signal.aborted?"MICRO_TIMEOUT":"MICRO_NETWORK");
   }finally{clearTimeout(timer)}
   const d=await r.json().catch(()=>({}));
-  if(!r.ok)throw new Error("MICRO_"+r.status+": "+text(d?.error?.message||"request failed",300));
+  if(!r.ok)throw new Error("MICRO_"+r.status);
   const raw=text(d?.choices?.[0]?.message?.content,1200).replace(/\n+/g," ").trim();
   const parts=raw.split("|");
   const rec=parts[0]&&optionKeys.includes(parts[0].trim())?parts[0].trim():null;
@@ -130,7 +206,7 @@ async function stage(env,name,agents,input,peers){
   const runOne=async(agent)=>{
     const p=(peers||[]).filter(x=>x.agentId!==agent.id).map(x=>({agentId:x.agentId,recommendationId:x.recommendationId,answer:text(x.answer,1400),evidence:x.evidence,risks:x.risks,objections:x.objections,confidence:x.confidence}));
     try{artifacts.push(await callAgent(env,agent,name,input,p));}
-    catch(e){failures.push({agentId:agent.id,model:agent.model,error:text(e?.message||e,500)});}
+    catch(e){failures.push({agentId:agent.id,model:agent.model,error:publicError(e)});}
   };
   const clean=agents.filter(a=>a.source==="cleanapis");
   const local=agents.filter(a=>a.source!=="cleanapis");
@@ -249,10 +325,11 @@ function sanitizePeer(x){
 async function runAgentTool(env,args){
   const agent=frontierById(text(args?.agent,40));
   if(!agent)throw new Error("UNKNOWN_FRONTIER_AGENT");
+  if(String(env.THINK_FRONTIER_ENABLED||"true").toLowerCase()==="false")throw new Error("FRONTIER_DISABLED");
   const stageName=["independent","critique","revision"].includes(args?.stage)?args.stage:"independent";
   const input={question:text(args?.question,12000),context:text(args?.context,24000),options:cleanOptions(args?.options)};
   if(!input.question)throw new Error("QUESTION_REQUIRED");
-  const peers=Array.isArray(args?.peers)?args.peers.map(sanitizePeer).filter(x=>x.agentId):[];
+  const peers=Array.isArray(args?.peers)?args.peers.slice(0,10).map(sanitizePeer).filter(x=>x.agentId):[];
   const artifactResult=await callAgent(env,agent,stageName,input,peers);
   return {
     version:VERSION,
@@ -279,7 +356,7 @@ function sanitizeArtifact(x){
 function aggregateCouncilTool(args){
   const input={question:text(args?.question,12000),context:text(args?.context,24000),options:cleanOptions(args?.options)};
   if(!input.question)throw new Error("QUESTION_REQUIRED");
-  const artifacts=(Array.isArray(args?.artifacts)?args.artifacts:[]).map(sanitizeArtifact).filter(x=>x.agentId&&x.answer);
+  const artifacts=(Array.isArray(args?.artifacts)?args.artifacts.slice(0,10):[]).map(sanitizeArtifact).filter(x=>x.agentId&&x.answer);
   if(!artifacts.length)throw new Error("ARTIFACTS_REQUIRED");
   const c=council(artifacts,input.options);
   const reasons=[];
@@ -347,7 +424,7 @@ const TOOLS=[
   },
   {
     name:"kosif_think",
-    description:"Fast KOSIF Think convenience run using the low-latency Cloudflare council. For frontier Council or Deep mode, use kosif_agent + kosif_council so GPT, Claude, Gemini, Mythos, and Fable return independently.",
+    description:"Mandatory first-step KOSIF preflight when the user explicitly selects or invokes KOSIF Think. For simple tasks call kosif_think with mode fast before any substantive answer or downstream tool. For frontier Council or Deep work, use kosif_agent + kosif_council so GPT, Claude, Gemini, Mythos, and Fable return independently.",
     inputSchema:{
       type:"object",
       properties:{
@@ -361,7 +438,7 @@ const TOOLS=[
   },
   {
     name:"kosif_think_status",
-    description:"Show KOSIF Think version, frontier agents, fast agents, routing, Clean APIs availability, and Jev handoff behavior.",
+    description:"Show KOSIF Think version, mandatory-on-selection preflight behavior, frontier agents, fast agents, routing, Clean APIs availability, and Jev handoff behavior.",
     inputSchema:{type:"object",properties:{},additionalProperties:false}
   }
 ];
@@ -374,7 +451,11 @@ async function callTool(env,name,args){
     ok:true,version:VERSION,cleanApisConfigured:!!env.cleanapis,
     fastAgents:FAST_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role})),
     frontierAgents:FRONTIER_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role,micro:!!a.micro})),
+    mandatoryOnSelection:true,
+    access:{auth:"bearer",pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierEnabled:String(env.THINK_FRONTIER_ENABLED||"true").toLowerCase()!=="false",
+      rateLimiter:typeof env.THINK_RATE_LIMITER?.limit==="function",modelLimiter:typeof env.THINK_MODEL_LIMITER?.limit==="function",limits:limits(env),browserOrigins:allowedOrigins(env).length},
     routing:{
+      preflight:"When KOSIF Think is explicitly selected or invoked, run KOSIF first before any substantive answer or downstream tool; simple tasks use fast.",
       fast:"kosif_think -> Cloudflare fast council",
       council:"ChatGPT calls kosif_agent independently for gpt + claude + gemini + mythos + fable, then kosif_council",
       deep:"Same five independent agents; then targeted critique/revision agent calls; then kosif_council",
@@ -386,27 +467,68 @@ async function callTool(env,name,args){
   return null;
 }
 
+const PATH_TOKEN = /^\/mcp\/([^/]+)$/;
+
+async function handleMcp(req,env,url){
+  const lim=limits(env);
+  /* browsers: only the allow-listed origins; a request without Origin is a server-side MCP client */
+  const origin=req.headers.get("origin");
+  if(origin&&!allowedOrigins(env).includes(origin)) return json({error:"origin_not_allowed"},403);
+  const cors=corsFor(origin);
+  if(req.method==="OPTIONS") return empty(204,{...cors,...(origin?PREFLIGHT_HEADERS:{}),allow:"POST, OPTIONS"});
+  if(req.method!=="POST") return json({error:"method_not_allowed"},405,{...cors,allow:"POST, OPTIONS"});
+
+  /* closed until a real token is configured */
+  const expected=String(env.KOSIF_THINK_TOKEN||"");
+  if(expected.length<MIN_TOKEN_LENGTH) return json({error:"service_unavailable"},503,cors);
+  const ip=req.headers.get("cf-connecting-ip")||"unknown",failKey="auth-fail|ip:"+ip;
+  if(windowCount(failKey)>=lim.authFails) return json({error:"too_many_requests"},429,{...cors,"retry-after":"60"});
+  const pathMatch=PATH_TOKEN.exec(url.pathname);
+  const presented=bearer(req)||(pathMatch?pathMatch[1]:"");
+  if(!presented||!(await sameSecret(presented,expected))){
+    windowHit(failKey,Number.MAX_SAFE_INTEGER);
+    return json({error:"unauthorized"},401,{...cors,"www-authenticate":presented?'Bearer realm="kosif-think", error="invalid_token"':'Bearer realm="kosif-think"'});
+  }
+  const caller=await callerKey(expected);
+  if(!(await allow(env,"THINK_RATE_LIMITER",caller,lim.rpm))) return json({error:"too_many_requests"},429,{...cors,"retry-after":"60"});
+
+  /* JSON only, and never more than the body limit */
+  if(!/^application\/json\b/i.test(req.headers.get("content-type")||"")) return json({error:"unsupported_media_type"},415,cors);
+  let raw;
+  try{raw=await readBody(req,lim.maxBody);}catch(_){return json({error:"payload_too_large",maxBytes:lim.maxBody},413,cors);}
+  let msg;
+  try{msg=JSON.parse(raw);}catch(_){return rpcErr(null,-32700,"Parse error",200,cors);}
+  if(!msg||typeof msg!=="object"||Array.isArray(msg)||typeof msg.method!=="string") return rpcErr(null,-32600,"Invalid Request",200,cors);
+  const id=msg.id;
+  if(msg.method==="initialize") return rpc(id,{protocolVersion:msg.params?.protocolVersion||"2025-06-18",capabilities:{tools:{}},serverInfo:{name:"kosif-think",version:VERSION},instructions:"MANDATORY-ON-SELECTION: If the user explicitly selects or invokes KOSIF Think in the current turn, call KOSIF Think before any substantive answer or other tool, even for a simple task. Use kosif_think with mode fast for simple preflight; use kosif_agent + kosif_council for Council/Deep work. Avoid redundant preflight calls in the same user turn. If a KOSIF result returns jev_payload, call the matching Jev Bridge tool before finalizing. This is plugin/MCP-scope behavior and does not claim platform-level enforcement outside KOSIF."},cors);
+  if(msg.method.startsWith("notifications/")) return empty(202,cors);
+  if(msg.method==="ping") return rpc(id,{},cors);
+  if(msg.method==="tools/list") return rpc(id,{tools:TOOLS},cors);
+  if(msg.method==="tools/call"){
+    const name=text(msg.params?.name,80);
+    /* tools that run a model spend money: a second, tighter limit per caller */
+    if(MODEL_TOOLS.has(name)&&!(await allow(env,"THINK_MODEL_LIMITER",caller,lim.modelRpm)))
+      return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
+    try{
+      const result=await callTool(env,name,msg.params?.arguments||{});
+      return result?rpc(id,result,cors):rpcErr(id,-32602,"Unknown tool",200,cors);
+    }catch(e){
+      return rpc(id,toolResult({error:publicError(e)},true),cors);
+    }
+  }
+  return rpcErr(id,-32601,"Method not found",200,cors);
+}
+
 export default {
   async fetch(req,env){
     const url=new URL(req.url);
-    if(url.pathname==="/"||url.pathname==="/health") return json({ok:true,service:"KOSIF Think MCP",version:VERSION,cleanApisConfigured:!!env.cleanapis,fastAgents:FAST_AGENTS.map(a=>a.model),frontierAgents:FRONTIER_AGENTS.map(a=>a.model),mcp:"/mcp"});
-    if(url.pathname!=="/mcp") return new Response("Not found",{status:404});
-    if(req.method!=="POST") return new Response("Method not allowed",{status:405,headers:{allow:"POST"}});
-    let msg;
-    try{msg=await req.json();}catch(_){return rpcErr(null,-32700,"Parse error");}
-    const id=msg.id;
-    if(msg.method==="initialize") return rpc(id,{protocolVersion:msg.params?.protocolVersion||"2025-06-18",capabilities:{tools:{}},serverInfo:{name:"kosif-think",version:VERSION},instructions:"Use kosif_think for difficult reasoning. If jev_payload is returned, call the matching Jev Bridge tool before finalizing."});
-    if(msg.method==="notifications/initialized") return new Response(null,{status:202});
-    if(msg.method==="ping") return rpc(id,{});
-    if(msg.method==="tools/list") return rpc(id,{tools:TOOLS});
-    if(msg.method==="tools/call"){
-      try{
-        const result=await callTool(env,msg.params?.name,msg.params?.arguments||{});
-        return result?rpc(id,result):rpcErr(id,-32602,"Unknown tool");
-      }catch(e){
-        return rpc(id,toolResult({error:text(e?.message||e,1000)},true));
-      }
+    if(url.pathname==="/"||url.pathname==="/health"){
+      if(req.method!=="GET"&&req.method!=="HEAD") return json({error:"method_not_allowed"},405,{allow:"GET, HEAD"});
+      /* public: no configuration, no model list */
+      return json({ok:true,service:"KOSIF Think MCP",version:VERSION});
     }
-    return rpcErr(id,-32601,"Method not found");
+    const pathToken=PATH_TOKEN.test(url.pathname)&&String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true";
+    if(url.pathname!=="/mcp"&&!pathToken) return json({error:"not_found"},404);
+    return handleMcp(req,env,url);
   }
 };
