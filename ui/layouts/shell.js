@@ -16,6 +16,8 @@ const PREF_KEY="skosif_prefs";
 const LOOKS=[
   ["kosif","SQC","الهوية المعتمدة: شريط كحلي وأزرق SQC وبطاقات بيضاء وحلقات تقدّم",["#f3f6fb","#0c2340","#1668e3","#1fb6e0"]],
   ["kosif-night","SQC الليلي","نفس الهوية بإضاءة ليلية",["#0a1628","#071427","#4a93ff","#3fd0f0"]],
+  ["najd","نجد الفاخر","أخضر ملكي وذهب نجد وبطاقات بيضاء ناصعة وحلقات فخمة",["#f7faf7","#07381e","#006c35","#d4af37"],"pro"],
+  ["najd-night","ليل نجد","نفس الفخامة بإضاءة ليلية خضراء داكنة",["#09150e","#07150d","#2ecc71","#f1c40f"],"pro"],
   ["heritage","تراث الوادي","الهوية الافتراضية: رَقّ وحبر بني ورسوم الوادي",["#f4ead8","#8a5a2b","#efe2cc","#2b1a0f"]],
   ["heritage-night","ليل الوادي","نفس الهوية بإضاءة ليلية",["#16110c","#d09a5e","#201811","#f4ead8"]],
   ["executive","التنفيذي","مساحة فاتحة، بنفسجي وأزرق، أرقام قوية",["#f5f6fb","#5b4ee6","#3d7bf5","#1d2340"]],
@@ -31,8 +33,8 @@ const LOOKS=[
   ["graphite","الجرافيت","داكن مركّز بخطوط دقيقة — للعمل الطويل",["#0e0f12","#0b0c0f","#8183ff","#5ee0c4"],"pro"],
   ["onyx","العقيق","أسود وذهبي وعناوين بخط النسخ — فخامة المصارف الخاصة",["#0b0b0c","#080808","#d4af5a","#f4efe4"],"pro"],
   ["auto","حسب الجهاز","ثيمك المختار نهاراً ونسخته الليلية ليلاً",["#f3f6fb","#1668e3","#0a1628","#3fd0f0"]]];
-const DARK=new Set(["kosif-night","heritage-night","midnight","aurora-night","vivid-night","oasis-night","graphite","onyx"]);
-const NIGHT={kosif:"kosif-night",heritage:"heritage-night",aurora:"aurora-night",vivid:"vivid-night",oasis:"oasis-night"};
+const DARK=new Set(["kosif-night","najd-night","heritage-night","midnight","aurora-night","vivid-night","oasis-night","graphite","onyx"]);
+const NIGHT={kosif:"kosif-night",najd:"najd-night",heritage:"heritage-night",aurora:"aurora-night",vivid:"vivid-night",oasis:"oasis-night"};
 function prefs(){return Object.assign({look:"kosif",density:"cozy",lastLight:"kosif",rail:"full",font:"theme",scale:1,radius:"theme",accent:"",contrast:false},load(PREF_KEY,{}))}
 /* ---------- theme studio: typeface, text size, accent colour, corners, contrast ----------
    applied on top of any look as inline tokens on <html>, so every screen, chart and print follows */
@@ -99,7 +101,7 @@ const mq=matchMedia("(prefers-color-scheme: dark)");
 /* «حسب الجهاز» follows the family of the last light look chosen (KOSIF by default) */
 function lookNow(){const p=prefs(),l=p.look;if(l==="auto"){const day=LOOKS.some(x=>x[0]===p.lastLight)&&!DARK.has(p.lastLight)?p.lastLight:"kosif";return mq.matches?(NIGHT[day]||"kosif-night"):day}return LOOKS.some(x=>x[0]===l)?l:"kosif"}
 function resolved(){return DARK.has(lookNow())?"dark":"light"}
-const LOOK_FONTS={vivid:"Tajawal:wght@400;500;700;800",oasis:"Readex+Pro:wght@400;500;600;700",onyx:"Noto+Naskh+Arabic:wght@500;700"};
+const LOOK_FONTS={vivid:"Tajawal:wght@400;500;700;800",oasis:"Readex+Pro:wght@400;500;600;700",onyx:"Noto+Naskh+Arabic:wght@500;700",najd:"IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Aref+Ruqaa:wght@700"};
 function fonts(look){
   const fam=look.replace(/-night$/,"");if(LOOK_FONTS[fam]&&!document.getElementById("sk-font-look-"+fam)){const l=document.createElement("link");l.id="sk-font-look-"+fam;l.rel="stylesheet";l.href="https://fonts.googleapis.com/css2?family="+LOOK_FONTS[fam]+"&display=swap";document.head.appendChild(l)}
   if(look.startsWith("heritage")||document.getElementById("sk-font-plex"))return;
@@ -119,8 +121,11 @@ function applyPrefs(){
 }
 function setPref(k,v){const p=prefs();p[k]=v;save(PREF_KEY,p);applyPrefs()}
 function setLook(l){const p=prefs();if(!LOOKS.some(x=>x[0]===l))l="kosif";p.look=l;if(!DARK.has(l)&&l!=="auto")p.lastLight=l;save(PREF_KEY,p);
+  const de=document.documentElement;de.classList.add("sk-theme-trans");setTimeout(()=>de.classList.remove("sk-theme-trans"),260);
   /* one smooth cross-fade where the browser supports view transitions */
-  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;if(document.startViewTransition&&!reduce){const vt=document.startViewTransition(()=>applyPrefs());for(const k of["ready","finished","updateCallbackDone"])vt[k]&&vt[k].catch(()=>{})}else applyPrefs();SK.toast("المظهر: "+LOOKS.find(x=>x[0]===l)[1],"info")}
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;if(document.startViewTransition&&!reduce){const vt=document.startViewTransition(()=>applyPrefs());for(const k of["ready","finished","updateCallbackDone"])vt[k]&&vt[k].catch(()=>{})}else applyPrefs();
+  SK.bus.emit("theme",l);if(window.SKosifTopbar&&SKosifTopbar.paint)SKosifTopbar.paint();
+  SK.toast("المظهر: "+LOOKS.find(x=>x[0]===l)[1],"info")}
 /* the topbar moon button: light look ↔ its night counterpart */
 function toggleAppearance(){const cur=lookNow(),p=prefs();if(DARK.has(cur))setLook(p.lastLight||"kosif");else setLook(NIGHT[cur]||"midnight")}
 const setAppearance=a=>setLook(a==="dark"?"kosif-night":a==="auto"?"auto":"kosif");
@@ -337,7 +342,7 @@ function settingsCards(root){
   const p=prefs(),lock=SK.num(load(SK.lock.key,0)),role=SK.perm.role(),isAdmin=role==="admin";
   const seg=(name,cur,opts)=>'<div class="sk-seg" role="group" data-pref="'+name+'">'+opts.map(([v,l])=>'<button type="button" data-v="'+v+'" aria-pressed="'+(v===cur)+'">'+l+'</button>').join("")+'</div>';
   const html=
-  '<section class="card" id="skx-prefs"><div class="card-h"><div><h3>المظهر والأمان</h3><p>نظام تصميم واحد بستة ثيمات كاملة، والقفل التلقائي لهذا الجهاز.</p></div></div><div class="card-b sk-stack">'+
+  '<section class="card" id="skx-prefs"><div class="card-h"><div><h3>المظهر والأمان</h3><p>نظام تصميم متقدم بمظهر نهاري وليلي متكامل، والقفل التلقائي لهذا الجهاز.</p></div></div><div class="card-b sk-stack">'+
     '<div class="sk-field"><span>الثيم — يغيّر شكل التطبيق كله دون أي تغيير في البيانات</span><div class="skx-themes" id="skx-themes">'+LOOKS.map(([id,name,desc,c])=>'<button type="button" class="skx-theme" data-look="'+id+'" aria-pressed="'+(p.look===id)+'"><span class="pv" aria-hidden="true" style="--pv-bg:'+c[0]+';--pv-rail:'+c[1]+';--pv-brand:'+c[2]+';--pv-acc:'+c[3]+'"><i class="r"></i><i class="h"></i><i class="k"></i><i class="k2"></i><i class="bt"></i></span><b>'+esc(name)+'</b><small>'+esc(desc)+'</small></button>').join("")+'</div></div>'+
     '<div class="sk-field"><span>كثافة الواجهة</span>'+seg("density",p.density,[["cozy","مريحة"],["compact","مضغوطة"]])+'</div>'+
     studioHTML(p)+

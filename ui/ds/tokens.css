@@ -92,6 +92,16 @@
 
 @media (prefers-reduced-motion:reduce){:root{--sk-t:0ms}}
 
+/* smooth appearance and look transition */
+html.sk-theme-trans,
+html.sk-theme-trans body,
+html.sk-theme-trans .rail,
+html.sk-theme-trans .card,
+html.sk-theme-trans .topbar,
+html.sk-theme-trans .maincol{
+  transition:background-color 220ms cubic-bezier(.2,.8,.2,1),color 220ms cubic-bezier(.2,.8,.2,1),border-color 220ms cubic-bezier(.2,.8,.2,1),box-shadow 220ms cubic-bezier(.2,.8,.2,1);
+}
+
 /* chart series: the categorical palette in its fixed order (identity, never rank); light and dark steps
    validated for colour-blind separation (worst adjacent ΔE 9.1 light · 8.4 dark, normal-vision ≥ 19) —
    slots 3–5 sit under 3:1 on white, so every chart ships a legend, tooltips and a table view */
@@ -257,6 +267,42 @@
   --sk-rail:#101511;--sk-rail-ink:#f1ede2;--sk-rail-mute:#9c9884;--sk-rail-active:rgba(229,154,99,.16);--sk-grid:#28312a;--sk-axis:#3e4a40;--sk-focus:#86b896;--sk-grad-rail:linear-gradient(180deg,#121813,#0f140f);
   --sk-shadow-1:0 1px 0 rgba(255,255,255,.03) inset,0 10px 26px -16px rgba(0,0,0,.7);--sk-shadow-2:0 16px 36px -16px rgba(0,0,0,.75);--sk-shadow-3:0 30px 70px -20px rgba(0,0,0,.8);
   --sk-heat-1:#1f4d2e;--sk-heat-2:#5f5317;--sk-heat-3:#6f3d1b;--sk-heat-4:#742a24;
+:root[data-look="najd"]{
+  --sk-bg:#f7faf7;--sk-surface:#ffffff;--sk-surface-2:#f2f7f3;--sk-surface-3:#e5efe7;--sk-line:#d8e5da;--sk-line-2:#c3d6c6;
+  --sk-ink:#11281a;--sk-ink-2:#345240;--sk-ink-3:#567362;
+  --sk-brand:#006c35;--sk-brand-2:#d4af37;--sk-brand-soft:#e6f3eb;--sk-on-brand:#ffffff;
+  --sk-ok:#058241;--sk-ok-soft:#e5f6ec;--sk-ok-mark:#1fa85b;
+  --sk-warn:#965300;--sk-warn-soft:#fff4e0;--sk-warn-mark:#ea8d13;
+  --sk-bad:#ba2121;--sk-bad-soft:#fdecea;--sk-bad-mark:#e53e3e;--sk-bad-row:#fef5f5;
+  --sk-info:#006c35;--sk-info-soft:#e6f3eb;--sk-info-mark:#0b8a47;
+  --sk-violet:#5a4282;--sk-violet-soft:#ede7f6;--sk-violet-line:#d5c7ea;
+  --sk-rail:#07381e;--sk-rail-2:rgba(255,255,255,.07);--sk-rail-ink:#f2f9f4;--sk-rail-mute:#8fb89e;--sk-rail-active:rgba(212,175,55,.18);
+  --sk-grid:#e5efe7;--sk-axis:#c3d6c6;--sk-s1:#d4af37;--sk-s2:#006c35;--sk-s3:#1fa85b;--sk-focus:#006c35;
+  --sk-font:"IBM Plex Sans Arabic","Tajawal",-apple-system,sans-serif;--sk-font-display:"Aref Ruqaa","Amiri",serif;
+  --sk-r-s:10px;--sk-r:14px;--sk-r-l:18px;
+  --sk-shadow-1:0 1px 2px rgba(7,56,30,.05),0 12px 30px -20px rgba(7,56,30,.3);
+  --sk-shadow-2:0 18px 40px -20px rgba(7,56,30,.32);
+  --sk-shadow-3:0 32px 75px -24px rgba(7,56,30,.45);
+  --sk-grad-brand:linear-gradient(135deg,#006c35 0%,#09532c 50%,#d4af37 100%);
+  --sk-grad-rail:linear-gradient(180deg,#07381e,#0a4425);
+  --sk-heat-1:#c9eed7;--sk-heat-2:#fcf0ad;--sk-heat-3:#fed19e;--sk-heat-4:#fca5a5;
+}
+:root[data-look="najd"][data-theme="dark"]{
+  --sk-bg:#09150e;--sk-surface:#102318;--sk-surface-2:#162c1f;--sk-surface-3:#1d3928;--sk-line:#254733;--sk-line-2:#325a42;
+  --sk-ink:#f1f8f3;--sk-ink-2:#c0d8c8;--sk-ink-3:#8aa994;
+  --sk-brand:#2ecc71;--sk-brand-2:#f1c40f;--sk-brand-soft:#193826;--sk-on-brand:#06110a;
+  --sk-ok:#5cd68f;--sk-ok-soft:#0e2d1d;--sk-warn:#f5b942;--sk-warn-soft:#33280c;
+  --sk-bad:#ff8585;--sk-bad-soft:#3b1717;--sk-bad-row:#2c1313;
+  --sk-info:#5cd68f;--sk-info-soft:#113121;
+  --sk-rail:#07150d;--sk-rail-ink:#f1f8f3;--sk-rail-mute:#8aa994;--sk-rail-active:rgba(241,196,15,.2);
+  --sk-grid:#1d3928;--sk-axis:#325a42;--sk-focus:#2ecc71;
+  --sk-violet:#bfadff;--sk-violet-soft:#28204d;--sk-violet-line:#3e3373;
+  --sk-grad-rail:linear-gradient(180deg,#07150d,#0c2216);
+  --sk-heat-1:#155731;--sk-heat-2:#695213;--sk-heat-3:#773b14;--sk-heat-4:#7a1d1d;
+  --sk-shadow-1:0 1px 0 rgba(255,255,255,.04) inset,0 10px 26px -16px rgba(0,0,0,.75);
+  --sk-shadow-2:0 16px 36px -18px rgba(0,0,0,.8);
+  --sk-shadow-3:0 30px 70px -22px rgba(0,0,0,.85);
+  color-scheme:dark;
 }
 :root[data-look="graphite"]{
   --sk-bg:#0e0f12;--sk-surface:#16171b;--sk-surface-2:#1b1c21;--sk-surface-3:#222329;--sk-line:#26272d;--sk-line-2:#33343b;

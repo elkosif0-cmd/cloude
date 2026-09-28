@@ -16,6 +16,8 @@ const I={
   calendar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>',
   bell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>',
   chev:'<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>',
+  sun:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>',
+  moon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>',
   /* the SQC mark: the S in brand blue, Q and C in the current ink so it reads on light and dark bars */
   sqc:'<svg class="sk-tb-sqc" viewBox="0 0 300 110" aria-hidden="true"><defs><linearGradient id="sktb-s" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7cc4ff"/><stop offset=".55" stop-color="#2f8cff"/><stop offset="1" stop-color="#1557d6"/></linearGradient></defs><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="19"><path stroke="url(#sktb-s)" d="M84 20H40a17 17 0 0 0 0 34h24a17 17 0 0 1 0 34H14"/><path stroke="currentColor" d="M144 20a34 34 0 1 0 0 68h6a34 34 0 0 0 0-68z"/><path stroke="#2f8cff" d="M156 66l24 26"/><path stroke="currentColor" d="M278 30a34 34 0 1 0 0 50"/></g><circle cx="276" cy="80" r="6" fill="#2f8cff"/></svg>',
   cloud:'<svg viewBox="0 0 96 64" aria-hidden="true"><defs><linearGradient id="sktb-kc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3fd0f0"/><stop offset="1" stop-color="#1668e3"/></linearGradient></defs><path d="M26 54h46a16 16 0 0 0 1.6-31.9A22 22 0 0 0 31.4 17 14.5 14.5 0 0 0 12 30.5 12 12 0 0 0 26 54z" fill="none" stroke="url(#sktb-kc)" stroke-width="6.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M40 54V43h16v11" fill="none" stroke="url(#sktb-kc)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
@@ -66,11 +68,12 @@ function build(){
   const ctxBox=mk('<div class="sk-ctx" id="sk-ctx"><button type="button" class="sk-tb-btn" id="sk-tb-co" data-sktb="co" aria-haspopup="menu"><span class="ic">'+I.building+'</span><span class="tx"><b></b><small></small></span>'+I.chev+'</button>'+
     '<button type="button" class="sk-tb-btn sk-tb-pe" id="sk-tb-pe" data-sktb="pe" aria-haspopup="menu"><span class="ic">'+I.calendar+'</span><span class="tx"><b></b></span>'+I.chev+'</button></div>');
   const bell=mk('<button type="button" class="sk-tb-icon" id="sk-tb-bell" data-sktb="bell" aria-label="الإشعارات">'+I.bell+'<span class="dot" hidden></span></button>');
+  const theme=mk('<button type="button" class="sk-tb-icon" id="sk-tb-theme" data-sktb="theme" aria-label="تبديل المظهر">'+I.moon+'</button>');
   const user=mk('<button type="button" class="sk-tb-user" id="sk-tb-user" data-sktb="user" aria-haspopup="menu"><span class="sk-av" aria-hidden="true"></span><span class="tx"><b></b><small></small></span></button>');
   (menu||bar.firstChild).after(brand);brand.after(ctxBox);
   if(search)ctxBox.after(search);
   if(grow)(search||ctxBox).after(grow);
-  bar.append(bell,user);
+  bar.append(bell,theme,user);
   bar.addEventListener("click",onClick);ph.addEventListener("click",onClick);
   built=true;place();
   return true;
@@ -109,6 +112,15 @@ function paint(){
   const dot=$("#sk-tb-bell .dot"),n=window.SKosifNotify?SKosifNotify.unread():0;
   if(dot){dot.hidden=!n;dot.textContent=n>99?"99+":String(n)}
   const bell=$("#sk-tb-bell");if(bell)bell.setAttribute("aria-label",n?"الإشعارات — "+n+" غير مقروءة":"الإشعارات");
+  /* theme */
+  const themeBtn=$("#sk-tb-theme");
+  if(themeBtn){
+    const dark=window.SKosifShell&&SKosifShell.resolved()==="dark";
+    themeBtn.innerHTML=dark?I.sun:I.moon;
+    const tip=dark?"المظهر النهاري (Ctrl+Shift+L)":"المظهر الليلي (Ctrl+Shift+L)";
+    themeBtn.setAttribute("aria-label",tip);
+    themeBtn.setAttribute("title",tip);
+  }
   /* user */
   const u=$("#sk-tb-user");
   if(u){$(".sk-av",u).textContent=initials(pr.name);$("b",u).textContent=pr.name||"أضف اسمك";$("small",u).textContent=pr.title||SK.perm.label()}
@@ -180,6 +192,7 @@ function onClick(e){
   else if(a==="pe")peMenu(b);
   else if(a==="user")userMenu(b);
   else if(a==="bell")bellMenu(b);
+  else if(a==="theme"&&window.SKosifShell)SKosifShell.toggleAppearance();
 }
 function onMenu(e){
   const b=e.target.closest("[data-m],[data-nid]");if(!b)return;
@@ -204,6 +217,7 @@ function boot(){
   paint();
   SK.bus.on("data",d=>{if(d&&(d.key===CO||d.key===PROFILE||d.key==="aghnam-pricing-v3"))paint()});
   SK.bus.on("notify",()=>paint());SK.bus.on("role",()=>paint());SK.bus.on("nav",()=>closeMenu());
+  SK.bus.on("theme",()=>paint());
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
 window.SKosifTopbar=Object.freeze({paint,profile,initials,firstName,closeMenu});

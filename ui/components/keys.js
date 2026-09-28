@@ -47,7 +47,7 @@ function sheetHTML(){
   const F=[["F2","فاتورة ضريبية","zatca"],["F3","ملصقات الموازين","labels"],["F4","ماسح الباركود","scanner"],["F8","المناسبات والتشغيل","operations"],["F9","المخزون","inventory"]].filter(x=>can(x[2]));
   return '<div class="skk" role="dialog" aria-modal="true" aria-labelledby="skk-t"><div class="skk-h"><h3 id="skk-t">اختصارات لوحة المفاتيح</h3><button type="button" class="btn sm" data-skk-close>إغلاق <kbd>Esc</kbd></button></div><div class="skk-b">'+
     '<section class="skk-sec"><h4>عام</h4>'+
-      row("بحث وانتقال سريع",k(M,"K"))+row("بحث سريع",k("/"))+row("هذه القائمة",k("?"))+row("طيّ القائمة الجانبية / توسيعها",k(M,"B"))+row("نسخة كاملة للتطبيق",k(M,"S"))+
+      row("بحث وانتقال سريع",k(M,"K"))+row("بحث سريع",k("/"))+row("هذه القائمة",k("?"))+row("طيّ القائمة الجانبية / توسيعها",k(M,"B"))+row("تبديل المظهر (ليلي / نهاري)",k(M,"Shift","L"))+row("نسخة كاملة للتطبيق",k(M,"S"))+
     '</section>'+
     '<section class="skk-sec"><h4>التنقل بين الشاشات</h4>'+row("الشاشة السابقة في القسم",k("["))+row("الشاشة التالية في القسم",k("]"))+gos+'</section>'+
     '<section class="skk-sec"><h4>الأقسام</h4>'+groups+'</section>'+
@@ -72,6 +72,7 @@ document.addEventListener("keydown",e=>{
   const code=e.code||"",mod=e.ctrlKey||e.metaKey;
   if(sheet){if(e.key==="Escape"){e.preventDefault();e.stopPropagation();close()}return}
   if(mod&&!e.altKey&&!e.shiftKey&&code==="KeyB"&&!(e.target&&e.target.isContentEditable)){if(innerWidth>900&&window.SKosifShell){e.preventDefault();SKosifShell.toggleRail()}return}
+  if(mod&&!e.altKey&&e.shiftKey&&code==="KeyL"&&!typing(e.target)){if(window.SKosifShell){e.preventDefault();SKosifShell.toggleAppearance()}return}
   if(mod||typing(e.target)||busy())return;
   if(e.altKey&&!e.shiftKey){const n=DIGITS.indexOf(code);if(n>=0&&domain(n))e.preventDefault();return}
   if(e.altKey)return;
