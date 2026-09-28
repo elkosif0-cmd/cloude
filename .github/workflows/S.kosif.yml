@@ -55,7 +55,7 @@ jobs:
 
       - name: Validate source syntax
         run: |
-          python3 -m py_compile build.py private_blocks.py tools/payload.py
+          python3 -m py_compile build.py build_mode.py private_blocks.py tools/payload.py tools/preview_build_check.py
           for f in ui/core/*.js ui/components/*.js ui/layouts/*.js ui/features/*.js; do node --check "$f"; done
           node --check sw.js
           node --check capabilities-v2/worker.js
@@ -93,6 +93,9 @@ jobs:
 
       - name: Capability docs are in sync with the registry
         run: python3 tools/capability_docs.py --check
+
+      - name: Preview builds cannot publish private data; production still needs the password
+        run: python3 tools/preview_build_check.py
 
       - name: Build S.kosif
         env:
@@ -226,4 +229,6 @@ jobs:
           NODE_PATH=/tmp/pw/node_modules node tools/feature_audit.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules node tools/jesim_e2e.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules node tools/assistant_reach.mjs http://localhost:8765/app-safe.html
+          NODE_PATH=/tmp/pw/node_modules timeout 1500 node tools/phone_layout.mjs http://localhost:8765/app-safe.html
+          NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/revisit_e2e.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules timeout 300 node tools/jev_page_check.mjs
