@@ -390,6 +390,8 @@ details.ap-card[open]>summary::after{content:"▴"}
 .ap-ul b{color:var(--sk-bad)}
 .ap-why{margin:8px 0;padding:10px 12px;border-inline-start:3px solid var(--sk-brand);background:var(--sk-brand-soft);border-radius:var(--sk-r-s,8px);color:var(--sk-ink);font-size:var(--sk-fs-s);line-height:1.8}
 .ap-cc{margin-top:8px}
+/* the comparison table scrolls inside its card on narrow screens instead of widening the page */
+details.ap-card>.card-b{overflow-x:auto}
 .ap-kam{opacity:.72;transition:opacity .2s var(--sk-ease,ease)}
 .ap-kam.on{opacity:1;border-color:color-mix(in srgb,var(--sk-brand) 45%,var(--sk-line))}
 .ap-kam .checkline{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
