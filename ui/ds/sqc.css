@@ -84,6 +84,7 @@ body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-r
 @media (max-width:600px){.skd .skd-acts>.btn{min-height:44px}}
 .sqc-space-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 var(--sk-3);padding:8px 12px;border:1px solid var(--sk-line);border-radius:12px;background:color-mix(in srgb,var(--sk-brand) 6%,var(--sk-surface));font-size:13.5px}
 .sqc-space-bar span{display:inline-flex;align-items:center;gap:8px}
+.sqc-space-bar-actions{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
 .sqc-space-bar svg{width:17px;height:17px;color:var(--sk-brand)}
 
 /* ---------- phones: nothing widens the page ----------
