@@ -267,6 +267,7 @@ html.sk-theme-trans .maincol{
   --sk-rail:#101511;--sk-rail-ink:#f1ede2;--sk-rail-mute:#9c9884;--sk-rail-active:rgba(229,154,99,.16);--sk-grid:#28312a;--sk-axis:#3e4a40;--sk-focus:#86b896;--sk-grad-rail:linear-gradient(180deg,#121813,#0f140f);
   --sk-shadow-1:0 1px 0 rgba(255,255,255,.03) inset,0 10px 26px -16px rgba(0,0,0,.7);--sk-shadow-2:0 16px 36px -16px rgba(0,0,0,.75);--sk-shadow-3:0 30px 70px -20px rgba(0,0,0,.8);
   --sk-heat-1:#1f4d2e;--sk-heat-2:#5f5317;--sk-heat-3:#6f3d1b;--sk-heat-4:#742a24;
+}
 :root[data-look="najd"]{
   --sk-bg:#f7faf7;--sk-surface:#ffffff;--sk-surface-2:#f2f7f3;--sk-surface-3:#e5efe7;--sk-line:#d8e5da;--sk-line-2:#c3d6c6;
   --sk-ink:#11281a;--sk-ink-2:#345240;--sk-ink-3:#567362;
