@@ -5,7 +5,7 @@ const appGlobals = Object.fromEntries(["SK", "SKEngines", "SKosifCore", "SKosifS
   "SKosifCouncilUI", "SKosifAuditBridge", "SKosifCodex", "SKosifReportDocs", "SKosifIntegrated", "SKosifTasks", "SKosifCommand", "SKServices", "SKosifTopbar", "SKosifNotify",
   "SKosifReportPack", "SKosifMetrics", "SKosifTable", "SKosifKeys", "SKosifAssistant", "SKosifSalesLab", "SKosifClose", "SKosifAuditBench", "SKosifAuditPractice", "SKosifAccountingGuidance", "SKosifFieldwork", "SKosifAdvances"].map((k) => [k, "readonly"]));
 export default [
-  { ignores: ["app/**", "dist/**", "ui/audit/**", "ui/core/engines.js", "capabilities-v2/**", "node_modules/**", "**/*.mjs"] },
+  { ignores: ["app/**", "dist/**", "ui/audit/**", "ui/legacy/**", "ui/core/engines.js", "capabilities-v2/**", "node_modules/**", "**/*.mjs"] },
   {
     files: ["ui/**/*.js"],
     languageOptions: { ecmaVersion: 2023, sourceType: "script", globals: { ...globals.browser, ...appGlobals } },
