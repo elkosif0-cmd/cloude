@@ -136,6 +136,14 @@ async function callBridge(env, body) {
 }
 
 
+/* Error text returned to callers never carries the bridge credential: the bridge URL embeds the token, so any message
+   that could echo it is scrubbed before it leaves the worker. */
+function safeError(env, e) {
+  let m=String(e?.message||e||"تعذر تنفيذ القرار.");
+  const t=env&&env.JEV_BRIDGE_TOKEN; if(t) m=m.split(t).join("[redacted]");
+  return m.replace(/\/mcp\/[^\s"'<>]+/g,"/mcp/[redacted]").slice(0,300);
+}
+
 const PUBLIC_RATE = new Map();
 function allowPublic(ip) {
   const now=Date.now(), windowMs=60_000, max=20;
@@ -261,7 +269,7 @@ footer{text-align:center;color:#61788d;font-size:12px;margin-top:22px;line-heigh
   <footer>واجهة عامة خفيفة · لا يتم عرض مفاتيح Jev أو أسرار الاتصال في المتصفح.</footer>
 </div>
 <script>
-const $=s=>document.querySelector(s), $=s=>[...document.querySelectorAll(s)];
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 let mode="noul";
 const q=$("#q"), state=$("#state"), result=$("#result"), err=$("#err"), status=$("#status"), go=$("#go");
 
@@ -277,18 +285,18 @@ fillList("#scoreList",["ضعيف","مقبول","جيد","ممتاز"]);
 
 function setMode(m){
   mode=m;
-  $(".tab").forEach(x=>x.classList.toggle("active",x.dataset.type===m));
+  $$(".tab").forEach(x=>x.classList.toggle("active",x.dataset.type===m));
   $("#choiceFields").hidden=m!=="choice";
   $("#scoreFields").hidden=m!=="score";
   $("#noulAdvanced").hidden=m!=="noul";
   $("#advanced").hidden=m!=="noul";
 }
-$(".tab").forEach(x=>x.onclick=()=>setMode(x.dataset.type));
+$$(".tab").forEach(x=>x.onclick=()=>setMode(x.dataset.type));
 $("#addChoice").onclick=()=>$("#choiceList").append(row(""));
 $("#addScore").onclick=()=>$("#scoreList").append(row(""));
-$(".ex").forEach(x=>x.onclick=()=>{ q.value=x.dataset.q; if(x.dataset.mode)setMode(x.dataset.mode); q.focus(); });
+$$(".ex").forEach(x=>x.onclick=()=>{ q.value=x.dataset.q; if(x.dataset.mode)setMode(x.dataset.mode); q.focus(); });
 
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;","'":"&#39;"}[c]));}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function pct(n){return Math.round(Number(n||0)*1000)/10}
 function bars(items){
   return '<div class="bars">'+items.map(([label,p])=>'<div class="barrow"><div class="barlabel" title="'+esc(label)+'">'+esc(label)+'</div><div class="track"><div class="fill" style="width:'+Math.max(0,Math.min(100,pct(p)))+'%"></div></div><div class="pct">'+pct(p)+'%</div></div>').join("")+'</div>';
@@ -302,7 +310,7 @@ function render(data){
     result.className="";
     result.innerHTML='<div class="big">'+pct(Math.max(y,n))+'%</div><div class="answer">يميل القرار إلى <b>'+word+'</b></div>'+bars([["نعم",y],["لا",n]])+'<div class="meta"><span class="chip">'+esc(model)+'</span></div>';
   } else if(d.type==="choice"){
-    const probs=d.probabilities||{}, labels=[...$("#choiceList input")].map(x=>x.value.trim()).filter(Boolean);
+    const probs=d.probabilities||{}, labels=$$("#choiceList input").map(x=>x.value.trim()).filter(Boolean);
     const items=Object.entries(probs).map(([k,v])=>{const idx=k.charCodeAt(0)-65;return [labels[idx]||k,v]}).sort((a,b)=>b[1]-a[1]);
     const idx=String(d.choice||"A").charCodeAt(0)-65, picked=labels[idx]||d.choice||"—";
     result.className="";
@@ -319,8 +327,8 @@ go.onclick=async()=>{
   try{
     const body={type:mode,instructions:q.value.trim(),state:state.value.trim()};
     if(mode==="noul"){body.true_criteria=$("#trueC").value.trim();body.false_criteria=$("#falseC").value.trim();}
-    if(mode==="choice")body.criteria=[...$("#choiceList input")].map(x=>x.value);
-    if(mode==="score")body.criteria=[...$("#scoreList input")].map(x=>x.value);
+    if(mode==="choice")body.criteria=$$("#choiceList input").map(x=>x.value);
+    if(mode==="score")body.criteria=$$("#scoreList input").map(x=>x.value);
     const r=await fetch("/api/public-jev",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
     const d=await r.json();
     if(!r.ok||!d.ok)throw new Error(d.error||"تعذر تنفيذ القرار.");
@@ -347,12 +355,13 @@ export default {
       if(!allowPublic(ip)) return json({ok:false,error:"تم تجاوز حد الاستخدام المؤقت. حاول بعد دقيقة."},429,origin);
       const len=Number(request.headers.get("content-length")||0);
       if(len>24000) return json({ok:false,error:"الطلب أكبر من الحد المسموح."},413,origin);
+      if(!env.JEV_BRIDGE_TOKEN || !env.JEV_BRIDGE) return json({ok:false,error:"الخدمة غير مهيأة"},503,origin);
       try {
         const body=await request.json();
         const result=await callBridge(env,body);
         return json({ok:true,result},200,origin);
       } catch(e) {
-        return json({ok:false,error:e?.message||String(e)},400,origin);
+        return json({ok:false,error:safeError(env,e)},400,origin);
       }
     }
 
@@ -385,7 +394,7 @@ export default {
         const result=await callBridge(env,body);
         return json({ok:true,result},200,origin);
       } catch(e) {
-        return json({ok:false,error:e?.message||String(e)},400,origin);
+        return json({ok:false,error:safeError(env,e)},400,origin);
       }
     }
     return json({ok:false,error:"Not found"},404,origin);
