@@ -248,3 +248,4 @@ jobs:
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/v17_runtime_e2e.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/deeplink_e2e.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/restored_e2e.mjs http://localhost:8765/app-safe.html
+          NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/advances_e2e.mjs http://localhost:8765/app-safe.html
