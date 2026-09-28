@@ -2,7 +2,7 @@
    Keys are matched by their physical position (KeyboardEvent.code), so they work the same on an
    Arabic or an English keyboard layout:
      ? or F1            this sheet            Ctrl/⌘+B   fold the rail to icons
-     Alt+1 … Alt+0      the ten domains       [  ]       previous / next screen of the domain
+     Alt+1 … Alt+4      the four sections       [  ]       previous / next screen of the section
      G then a letter    jump to a screen (G D home, G O orders, G I inventory …)
    The command palette keeps Ctrl/⌘+K, /, Ctrl/⌘+S and the counter keys F2–F9 (palette.js). */
 (()=>{
@@ -20,7 +20,7 @@ const typing=t=>t&&(t.isContentEditable||/^(input|textarea|select)$/i.test(t.tag
 const busy=()=>!!document.querySelector("#pr-modal .modal,.skd-wrap")||(window.SKosifCommand&&SKosifCommand.isOpen());
 const can=id=>!!SK.caps.get(id)&&SK.perm.can(id);
 function go(id){if(!can(id))return false;core().go(id);return true}
-/* the first screen of the n-th domain the role can open (daily screens first) */
+/* the first screen of the n-th top-level section the role can open */
 function domain(n){
   const g=SK.caps.groups()[n];if(!g)return false;
   const list=SK.caps.hubsInGroup(g.id).flatMap(h=>SK.caps.members(h.id)).filter(c=>SK.perm.can(c.id));
@@ -28,7 +28,7 @@ function domain(n){
   if(pick){core().go(pick.id);return true}
   return false;
 }
-/* [ and ]: walk the tab bar of the current screen (the pages of its hub, or the hubs of its domain) */
+/* [ and ]: walk the tab bar of the current screen (the pages of its hub, or the hubs of its section) */
 function sibling(step){
   const c=core(),id=c.view();
   const items=window.SKosifShell&&SKosifShell.stripItems?SKosifShell.stripItems(id).items:[];
@@ -49,8 +49,8 @@ function sheetHTML(){
     '<section class="skk-sec"><h4>عام</h4>'+
       row("بحث وانتقال سريع",k(M,"K"))+row("بحث سريع",k("/"))+row("هذه القائمة",k("?"))+row("طيّ القائمة الجانبية / توسيعها",k(M,"B"))+row("نسخة كاملة للتطبيق",k(M,"S"))+
     '</section>'+
-    '<section class="skk-sec"><h4>التنقل بين الشاشات</h4>'+row("الشاشة السابقة في المجال",k("["))+row("الشاشة التالية في المجال",k("]"))+gos+'</section>'+
-    '<section class="skk-sec"><h4>المجالات العشرة</h4>'+groups+'</section>'+
+    '<section class="skk-sec"><h4>التنقل بين الشاشات</h4>'+row("الشاشة السابقة في القسم",k("["))+row("الشاشة التالية في القسم",k("]"))+gos+'</section>'+
+    '<section class="skk-sec"><h4>الأقسام</h4>'+groups+'</section>'+
     '<section class="skk-sec">'+(F.length?'<h4>الكاشير والمستودع</h4>'+F.map(([f,l])=>row(l,k(f))).join(""):'')+
       '<h4 style="margin-top:12px">داخل لوحة البحث</h4>'+row("تنقّل بين النتائج",k("↑","↓"))+row("فتح",k("Enter"))+row("تثبيت صنف",k(M,"P"))+row("حاسبة",k("=","12*4"))+
       (d.os==="ios"||d.os==="ipados"?'<p class="hint" style="margin-top:10px">الاختصارات تعمل مع لوحة مفاتيح خارجية على الآيباد والآيفون.</p>':'')+

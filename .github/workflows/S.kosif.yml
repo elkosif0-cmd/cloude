@@ -15,6 +15,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  windows-build-smoke:
+    name: Windows production-build smoke
+    runs-on: windows-latest
+    env:
+      KOSIF_UNLOCK_PASSWORD: ${{ secrets.KOSIF_UNLOCK_PASSWORD }}
+    steps:
+      - name: Checkout S.kosif
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build S.kosif on Windows
+        run: python build.py
+
+      - name: Verify Windows build artifacts
+        run: |
+          python -c "from pathlib import Path; required=['dist/index.html','dist/app-safe.html','dist/skosif.js','dist/skosif.css','dist/sw.js']; missing=[p for p in required if not Path(p).is_file()]; assert not missing, 'missing build artifacts: '+', '.join(missing); print('Windows production-build smoke: OK')"
+
   validate:
     name: S.kosif Production Build
     runs-on: ubuntu-latest
