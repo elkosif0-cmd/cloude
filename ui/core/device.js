@@ -102,14 +102,41 @@ const DO={
   item:c=>{if(!SK.perm.can("catalog","create"))return;c.go("catalog");setTimeout(()=>c.act("item-new",{source:"catalog"}),150)},
   keys:()=>window.SKosifKeys&&SKosifKeys.help()
 };
+/* the first start fills the sample data and reloads the page after the link has been read (and the address cleaned):
+   the link waits in this tab's session and is applied again after that reload; it is forgotten once the app has
+   settled (no demo overlay on screen), so a later refresh does not jump again */
+const PENDING="sk_deeplink";
+/* a link may also name the screen after # (…/#sales, …/#inventory, …/#go=zatca&do=sale): the same as ?go= and ?do=.
+   A few everyday words stand for the screen that holds them now; any screen id works as it is. */
+const HASH_ALIAS={sales:"salesintel",orders:"commerce"};
+function fromHash(){
+  let h="";try{h=decodeURIComponent(String(location.hash||"").replace(/^#\/?/,"")).trim()}catch{return {}}
+  if(!h)return {};
+  if(h.includes("=")){let p;try{p=new URLSearchParams(h)}catch{return {}}return {go:p.get("go"),act:p.get("do")}}
+  const id=HASH_ALIAS[h.toLowerCase()]||h;
+  return SK.caps.get(id)?{go:id}:{};
+}
 function deepLink(){
   let q;try{q=new URLSearchParams(location.search)}catch{return}
-  const go=q.get("go"),act=q.get("do"),c=window.SKosifCore;
+  let go=q.get("go"),act=q.get("do"),hash=false;const c=window.SKosifCore;
+  if(!go&&!act){const h=fromHash();if(h.go||h.act){go=h.go||null;act=h.act||null;hash=true}}
+  /* the waiting link is used once, and only by a load that brings no address of its own (the first start's reload);
+     any other load forgets it, so a refresh or a new link never jumps back to it */
+  try{if(go||act)sessionStorage.setItem(PENDING,JSON.stringify({go,act,at:Date.now()}));
+    else{const p=JSON.parse(sessionStorage.getItem(PENDING)||"null");sessionStorage.removeItem(PENDING);
+      if(p&&Date.now()-p.at<60000&&!location.search&&!location.hash){go=p.go;act=p.act}}}catch{}
   if(!c||(!go&&!act))return;
-  try{history.replaceState(history.state,"",location.pathname+location.hash)}catch{}
+  const settle=()=>{if(document.querySelector(".skdemo-overlay"))return setTimeout(settle,1000);try{sessionStorage.removeItem(PENDING)}catch{}};
+  setTimeout(settle,2500);
+  try{history.replaceState(history.state,"",location.pathname+(hash?"":location.hash))}catch{}
   if(go&&SK.caps.get(go)&&SK.perm.can(go))c.go(go);
   if(act&&DO[act])setTimeout(()=>{try{DO[act](c)}catch(e){SK.errors.report(e,"deeplink:"+act)}},200);
 }
+/* a # link followed inside the running app (a pasted address, a link in a report) opens its screen too */
+addEventListener("hashchange",()=>{const h=fromHash(),c=window.SKosifCore;if(!c||(!h.go&&!h.act))return;
+  try{history.replaceState(history.state,"",location.pathname+location.search)}catch{}
+  if(h.go&&SK.caps.get(h.go)&&SK.perm.can(h.go))c.go(h.go);
+  if(h.act&&DO[h.act])setTimeout(()=>{try{DO[h.act](c)}catch(e){SK.errors.report(e,"deeplink:"+h.act)}},200)});
 function link(params){const u=new URL(location.href.split(/[?#]/)[0]);Object.entries(params||{}).forEach(([k,v])=>u.searchParams.set(k,v));return u.href}
 /* after the core has booted (its boot runs on DOMContentLoaded, after this deferred bundle) */
 let linked=false;const boot=()=>{if(linked)return;linked=true;setTimeout(deepLink,120)};

@@ -133,7 +133,7 @@ ok('ممارسات المراجعة العالمية','الاستمرارية ف
 await p.click('[data-tab="fs"]');await p.waitForTimeout(1000);await p.click('[data-doc="issue"]');await p.waitForTimeout(1200);
 ok('ممارسات المراجعة العالمية','الأمور الرئيسية تُصاغ من المخاطر والسوابق العالمية مع النتيجة والاختيار',await p.evaluate(()=>document.querySelectorAll('.ap-kam [data-ap-kam]').length>0));
 await p.click('[data-doc="auditor"]');await p.waitForTimeout(1200);
-ok('ممارسات المراجعة العالمية','تقرير المراجع: قسم الاستمرارية ونتيجة كل أمر رئيسي',await p.evaluate(()=>{const h=[...document.querySelectorAll('.rd-audit .rd-sec h4')].map(x=>x.innerText);return h.some(x=>/الاستمرارية/.test(x))&&[...document.querySelectorAll('.rd-audit .rd-kt th')].some(t=>t.innerText==='النتيجة')}));
+ok('ممارسات المراجعة العالمية','تقرير المراجع: قسم الاستمرارية ونتيجة كل أمر رئيسي',await p.evaluate(()=>{const h=[...document.querySelectorAll('.rd-audit .rd-sec h4')].map(x=>x.innerText);return h.some(x=>/الاستمرارية/.test(x))&&!!document.querySelector('.rd-audit .rd-kt2 .rd-obs')}));
 const AP=await p.evaluate(()=>({trail:!!window.SKosifLedger.trail&&!!SKosifLedger.trail(),rev:typeof SKosifLedger.revenueRecon,steps:SKosifClose.steps().map(s=>s.id)}));
 ok('ممارسات المراجعة العالمية','سجل التعديلات المختوم في الدفاتر ومطابقة الإيرادات في الإقفال',AP.trail&&AP.rev==='function'&&AP.steps.includes('trail')&&AP.steps.includes('revenue'));
 // ---------- older rounds (1–33) ----------
@@ -172,7 +172,7 @@ ok('الشركات العالمية','مختبر الشركات: 47 شركة م�
 ok('الشركات العالمية','خبرة القطاع ترفع ما يجده SQC من أمور المراجعين',await p.evaluate(()=>{const r=SKEngines.audit.corpusReplay,a=r.replayAll(),b=r.replayAll({prior:false});return a.recall>b.recall}));
 ok('الشركات العالمية','ما يطلبه المراجعون أولاً (إجراءات ومستندات من الأمور الرئيسية)',await has('.cl-proc'));
 await p.evaluate(()=>SKosifTBReview.loadCorpus('aramco-2025'));await p.waitForTimeout(2500);
-ok('الشركات العالمية','فتح شركة عالمية كملف مراجعة بعملتها ومراجعها وسنتها',await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}');return d.ctx&&d.ctx.corpusId==='aramco-2025'&&/ريال/.test(d.ctx.curSym)&&/Pricewaterhouse/.test(d.ctx.auditFirm)&&Object.keys(d.overrides||{}).length>10}));
+ok('الشركات العالمية','فتح شركة عالمية كملف مراجعة بعملتها ومراجعها وسنتها',await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}');return d.ctx&&d.ctx.corpusId==='aramco-2025'&&/ريال/.test(d.ctx.curSym)&&/Pricewaterhouse/.test(d.ctx.auditFirm)&&(Object.keys(d.overrides||{}).length>10||String(d.tbText||'').split('\n').length>20)}));
 await p.evaluate(()=>SKosifTBReview.open('docs'));await p.waitForTimeout(1500);
 ok('الشركات العالمية','طلبات الجولة الأولى تشمل ما اعتمد عليه مراجعو التقارير العالمية',await txt('مراجعين في التقارير العالمية'));
 ok('الشركات العالمية','شركة دولية: طلبات ضريبة الدخل لا الزكاة ولا فواتير QR',await p.evaluate(()=>SKosifTBReview.loadCorpus('apple-2024')).then(()=>p.waitForTimeout(2500)).then(()=>p.evaluate(()=>SKosifTBReview.open('docs'))).then(()=>p.waitForTimeout(1500)).then(()=>p.evaluate(()=>{const t=document.querySelector('#view').innerText;return /ضريبة الدخل/.test(t)&&!/احتساب الزكاة|رموز QR/.test(t)})));
@@ -189,6 +189,10 @@ await p.click('.sm-svg [data-sm-region="makkah"]');await p.waitForTimeout(900);
 ok('الأدوات المساعدة','الاقتراب من المنطقة ثم المدينة يُظهر المدن ثم الأحياء',await p.evaluate(async()=>{if(!document.querySelector('.sm-svg [data-sm-city]'))return false;document.querySelector('.sm-svg [data-sm-city="جدة"]')?.dispatchEvent(new MouseEvent('click',{bubbles:true}));await new Promise(r=>setTimeout(r,900));return document.querySelectorAll('.sm-d').length>0}));
 await p.click('[data-sm-tab="analysis"]');await p.waitForTimeout(700);
 ok('الأدوات المساعدة','تحليل المبيعات: الأكثر طلباً والشهور والعملاء وABC',await p.evaluate(()=>document.querySelectorAll('.skhb').length>=2&&/ABC/.test(document.body.innerText)));
+await go('benchmarks',2500);
+{const BM=await p.evaluate(()=>{const rows=[...document.querySelectorAll('.bm-t tbody tr')];const E=SKEngines.reports.corpusBenchmarks,all=E.corpusPeers('').length;
+  return{rows:rows.length,bars:document.querySelectorAll('.bm-bar').length,all,noBank:!E.corpusPeers('').some(x=>x.sector==='banking'||x.sector==='insurance'),pages:rows.some(r=>/ص \d+/.test(r.innerText))}});
+ok('الأدوات المساعدة','المقارنة بالشركات العالمية: عشر نسب مقابل 35 شركة غير مالية بصفحاتها، بلا بنوك ولا تأمين',BM.rows===10&&BM.bars===10&&BM.all===35&&BM.noBank&&BM.pages);}
 await go('jesim',1200);await p.evaluate(()=>{localStorage.removeItem(SKosifEntrySim.memoryKey());localStorage.removeItem('sqc_jesim_v1')});await go('jesim',800);
 await p.click('[data-js-tab="learn"]');await p.waitForTimeout(300);await p.click('[data-js="books"]');await p.waitForTimeout(600);
 ok('الأدوات المساعدة','محاكي القيود يتعلم طريقة التسجيل من قيود الدفاتر',await p.evaluate(()=>{const m=SKosifEntrySim.memory();return m.patterns.length>=3&&m.stats.entries>20&&Object.keys(m.accounts).length>5}));
@@ -222,6 +226,9 @@ const JPG=await p.evaluate(()=>{
 });
 ok('الأدوات المساعدة','حوكمة الترحيل: الحساب الناقص يُرفض بلا أثر، والفتح/الربط الصريح فقط يسمح بالقيد',JPG.reject&&JPG.partial&&JPG.explicit&&JPG.mapping);
 ok('الأدوات المساعدة','فتح حساب بلا نوع أو بنوع غير مدعوم يُرفض بلا أي أثر — لا استنتاج للنوع من رقم الحساب',JPG.noType&&JPG.badType);
+// ---------- the second round of requests follows the client's answers to the first ----------
+const R2=await p.evaluate(()=>{const O=SKEngines.audit.openingRequests,f=O.openingRequests(['impairment-intangibles']);const r=O.followUpRequests(f,id=>/-forecasts$/.test(id)?'unavailable':'open');return{alt:r.filter(x=>x.reason==='alternative').map(x=>x.proc).sort().join(','),round:r.length>0&&r.every(x=>x.round===2),none:O.followUpRequests(f,()=>'open').length}});
+ok('المراجعة','الجولة الثانية: توقعات غير متوفرة تُستبدل بتقدير مستقل ومراجعة بأثر رجعي (ISA 540)، ولا يُكرر طلب بلا رد',R2.alt==='independent_estimate,retrospective'&&R2.round&&R2.none===0);
 // ---------- regression: revisiting a view must not stack delegated listeners ----------
 await p.evaluate(()=>{
   const orig=EventTarget.prototype.addEventListener;
@@ -244,6 +251,17 @@ await go('helperdesk',180);await go('ptree',180);await go('salesmap',180);await 
 const LA=await p.evaluate(()=>({...window.__sqcListenerAudit}));
 ok('ثبات الواجهات','إعادة فتح الشاشات لا تراكم مستمعي الأحداث (مركز الأدوات · شجرة المنتجات · خريطة المبيعات · مختبر الشركات)',LA.pt===0&&LA.sm===0&&LA.cl===0&&LA.hd===0);
 await p.evaluate(()=>{if(window.__sqcListenerAuditOrig)EventTarget.prototype.addEventListener=window.__sqcListenerAuditOrig;delete window.__sqcListenerAuditOrig;delete window.__sqcListenerAudit});
+// ---------- a bundle company walked from the first requests to the report (no AI key) ----------
+await go('tbreview',1200);await p.evaluate(()=>SKosifTBReview.openClient('apple-2024'));await p.waitForTimeout(2500);
+await p.evaluate(()=>SKosifTBReview.demo());
+for(let i=0;i<40;i++){await p.waitForTimeout(600);if(await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}');return !!(d.session&&d.session.final)}))break}
+const DM=await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}'),s=d.session||{rounds:[],uploads:[]};return{co:d.ctx&&d.ctx.company,src:d.source,intl:d.ctx&&d.ctx.country,rounds:s.rounds.map(r=>r.status).join(','),uploads:s.uploads.length,insuff:s.rounds.some(r=>r.reviewed.some(v=>v.verdict==='غير كافٍ')),kams:s.final?s.final.kams.length:0,op:s.final&&s.final.aiOpinion,
+  zak:JSON.stringify(s.rounds.flatMap(r=>r.requests.map(q=>q.title))).match(/الزكاة|زكوي|QR|ZATCA/)}});
+ok('العملاء التجريبيون','شركة عالمية كملف مراجعة كامل دون مفتاح: طلبات ← مستندات ← جولات حتى الاكتفاء ← التقرير النهائي',/Apple/.test(DM.co)&&DM.src==='bundle'&&DM.intl==='INTL'&&DM.rounds==='needs_docs,needs_docs,complete'&&DM.uploads>=5&&DM.insuff&&DM.kams>=1&&!!DM.op&&!DM.zak);
+await p.evaluate(()=>SKosifTBReview.open('docs'));await p.waitForTimeout(1000);await p.click('[data-a="pbc-letter"]');await p.waitForTimeout(2500);
+const PBL=await (async()=>{const fr=p.frames().find(f=>f!==p.mainFrame()&&f.parentFrame()===p.mainFrame());return fr?fr.evaluate(()=>({t:document.body.innerText.includes('خطاب طلب المستندات'),stages:document.querySelectorAll('h2').length,rows:document.querySelectorAll('tr').length,logo:!!document.querySelector('.skp-band img,.skp-head img')})):{}})();
+ok('تقارير المراجعة','خطاب طلب المستندات للعميل بمراحل المراجعة والمواعيد والبدائل، على ترويسة المكتب وشعار SQC',PBL.t&&PBL.stages>=3&&PBL.rows>=15&&PBL.logo);
+await p.keyboard.press('Escape');await p.waitForTimeout(400);
 const ph=await (await b.newContext({viewport:{width:390,height:844},isMobile:true})).newPage();await ph.goto(URL_);await ph.waitForTimeout(5000);
 ok('الجولات 1–33','شريط التبويبات السفلي في الآيفون',await ph.evaluate(()=>!!document.querySelector('.skb,.sk-tabbar,[class*="tabbar"]')));
 if(process.argv[3])fs.writeFileSync(process.argv[3],JSON.stringify(R,null,1));

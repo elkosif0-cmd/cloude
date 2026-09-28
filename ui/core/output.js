@@ -25,7 +25,7 @@ function toolbar(o){
   const sel=(k,opts)=>'<select data-k="'+k+'" aria-label="'+k+'">'+opts.map(([v,l])=>'<option value="'+v+'"'+(String(o[k])===String(v)?' selected':'')+'>'+l+'</option>').join("")+'</select>';
   const chk=(k,l)=>'<label class="skout-chk"><input type="checkbox" data-k="'+k+'"'+(o[k]?' checked':'')+'> '+l+'</label>';
   return '<div class="skout-bar"><b class="skout-t"></b>'+
-    '<div class="skout-acts"><button type="button" class="btn primary sm" data-o="print">طباعة / PDF</button><button type="button" class="btn sm" data-o="word">Word</button><button type="button" class="btn sm" data-o="excel">Excel</button><button type="button" class="btn sm" data-o="html">HTML</button>'+
+    '<div class="skout-acts"><button type="button" class="btn primary sm" data-o="print">طباعة / PDF</button><button type="button" class="btn sm" data-o="present" title="عرض المستند قسماً قسماً بملء الشاشة">عرض تقديمي</button><button type="button" class="btn sm" data-o="word">Word</button><button type="button" class="btn sm" data-o="excel">Excel</button><button type="button" class="btn sm" data-o="html">HTML</button>'+
     (navigator.share?'<button type="button" class="btn sm" data-o="share">مشاركة</button>':'')+'<button type="button" class="btn sm" data-o="window" title="فتح في نافذة مستقلة">↗</button><button type="button" class="btn sm" data-o="close" aria-label="إغلاق">✕</button></div>'+
     '<details class="skout-opts"><summary>خيارات الصفحة</summary><div>'+
       '<label>الورق '+sel("paper",[["A4","A4"],["A5","A5"],["letter","Letter"],["A3","A3"]])+'</label><label>الاتجاه '+sel("orient",[["portrait","طولي"],["landscape","عرضي"]])+'</label>'+
@@ -49,7 +49,7 @@ function sheet(){
   setTimeout(()=>{const b=wrap.querySelector('[data-o="print"]');b&&b.focus()},60);
   return w;
 }
-function close(){if(!cur)return;clearInterval(cur.t);cur.wrap.remove();document.documentElement.classList.remove("skout-open");cur=null}
+function close(){if(pres)endPresent();if(!cur)return;clearInterval(cur.t);cur.wrap.remove();document.documentElement.classList.remove("skout-open");cur=null}
 function docHTML(d){
   const c=d.documentElement.cloneNode(true);c.querySelectorAll("script,.skp-bar,#skout-paper").forEach(x=>x.remove());
   c.querySelectorAll("img[src]").forEach(i=>{try{i.src=new URL(i.getAttribute("src"),location.href).href}catch{}});
@@ -63,9 +63,80 @@ function tablesOf(d){
     return {name:(h||"جدول "+(i+1)).slice(0,28),headers:rows[0],rows:rows.slice(1)};
   });
 }
+/* ---------- presentation mode: the document, one section per slide, full screen ----------
+   For a meeting with the client or the audit committee: a title slide (SQC, the document title, the company, the
+   date), then one slide per section of the document (split at its h1/h2 headings), each under the SQC mark. The
+   slides keep the document's own styles, so its tables look as they do in print. Keys: ← next, → previous (the
+   document reads right to left), PageDown/Space next, PageUp previous, Home/End, Esc leaves; swipe on a phone. */
+let pres=null;
+const PRES_CSS='html,body{margin:0;height:100%;background:#0b1f3a}body{padding:0!important;width:auto!important;max-width:none!important;min-height:0!important;box-shadow:none!important}'+
+  '.sl{display:none;box-sizing:border-box;flex-direction:column;height:100vh;padding:clamp(12px,3vw,40px) clamp(12px,4vw,56px);background:#fff;overflow:auto}.sl.on{display:flex}'+
+  '.sl-h{display:flex;align-items:center;gap:12px;padding-bottom:10px;margin-bottom:clamp(10px,2vh,22px);border-bottom:3px solid #1668e3}.sl-h img{height:28px;width:auto}.sl-h span{font:800 14px/1 Montserrat,"Segoe UI",sans-serif;letter-spacing:.08em;color:#0b1f3a}'+
+  '.sl-h b{margin-inline-start:auto;font:700 clamp(15px,2.2vw,24px)/1.3 "IBM Plex Sans Arabic","Segoe UI",sans-serif;color:#0b1f3a;text-align:end}'+
+  '.sl-b{flex:1;font-size:clamp(13px,1.35vw,17px)}.sl-b table{font-size:inherit}.sl-b h1,.sl-b h2{display:none}'+
+  '.sl.t{justify-content:center;align-items:center;text-align:center;background:linear-gradient(135deg,#0b1f3a 0%,#123a6b 60%,#1668e3 100%);color:#fff}'+
+  '.sl.t img{height:64px;width:auto;margin-bottom:22px}.sl.t h1{display:block;margin:0 0 10px;color:#fff;font:800 clamp(22px,4vw,44px)/1.25 "IBM Plex Sans Arabic","Segoe UI",sans-serif}.sl.t p{margin:4px 0;color:#cfe0f5;font-size:clamp(13px,1.6vw,18px)}';
+function slidesOf(d){
+  const title=(d.title||(d.querySelector("h1")||{}).textContent||"مستند").trim();
+  const body=d.body.cloneNode(true);body.querySelectorAll("script,.skp-bar,.no-print,.skp-lux,.skp-head,.skp-orn").forEach(x=>x.remove());
+  let root=body;
+  while(root.children.length===1&&!/^H[1-3]$/.test(root.firstElementChild.tagName)&&root.firstElementChild.children.length>1)root=root.firstElementChild;
+  const out=[],pre=[];let s=null;
+  for(const el of [...root.children]){
+    if(/^H[12]$/.test(el.tagName)){s={h:el.textContent.trim()||title,nodes:[]};out.push(s);continue}
+    if(!s){pre.push(el);continue}
+    s.nodes.push(el);
+  }
+  /* short lines before the first heading (company, period) become the title slide's subtitle; a longer opening is its own slide */
+  const preText=pre.map(n=>n.textContent.replace(/\s+/g," ").trim()).filter(Boolean).join(" · ");
+  const shortPre=preText.length<=240&&!pre.some(n=>n.matches("table")||n.querySelector("table,img,svg"));
+  if(pre.length&&!shortPre)out.unshift({h:title,nodes:pre});
+  return {title,subtitle:shortPre?preText:"",slides:out.filter(x=>x.nodes.some(n=>n.textContent.trim()||n.querySelector("img,table,svg")))};
+}
+function present(){
+  if(!cur)return;
+  const d=cur.w.document,{title,subtitle,slides}=slidesOf(d),base=location.href.replace(/[^/?#]*([?#].*)?$/,""),mark=base+"art/sqc-mark.svg";
+  let biz="";try{biz=(JSON.parse(localStorage.getItem("aghnam-pricing-v3")||"{}").settings||{}).biz||""}catch{}
+  const date=new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"});
+  const styles=[...d.querySelectorAll("style,link[rel=stylesheet]")].filter(x=>x.id!=="skout-paper"&&x.id!=="skp-opts").map(x=>x.outerHTML).join("");
+  const html='<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">'+styles+'<style>'+PRES_CSS+'</style></head><body>'+
+    '<section class="sl t on"><img src="'+mark+'" alt="SQC"><h1>'+esc(title)+'</h1>'+(subtitle?'<p>'+esc(subtitle)+'</p>':biz?'<p>'+esc(biz)+'</p>':'')+'<p>'+esc(date)+'</p></section>'+
+    slides.map(s=>'<section class="sl"><header class="sl-h"><img src="'+mark+'" alt=""><span>SQC</span><b>'+esc(s.h)+'</b></header><div class="sl-b">'+s.nodes.map(n=>n.outerHTML).join("")+'</div></section>').join("")+'</body></html>';
+  const wrap=document.createElement("div");wrap.className="skpres";wrap.setAttribute("role","dialog");wrap.setAttribute("aria-modal","true");wrap.setAttribute("aria-label","عرض تقديمي: "+title);
+  wrap.innerHTML='<iframe class="skpres-f" title="'+esc(title)+'"></iframe><div class="skpres-bar"><button type="button" class="btn sm" data-p="prev" aria-label="الشريحة السابقة">→</button>'+
+    '<span class="skpres-n" aria-live="polite"></span><button type="button" class="btn sm" data-p="next" aria-label="الشريحة التالية">←</button><button type="button" class="btn sm" data-p="close" aria-label="إنهاء العرض">إنهاء</button></div>';
+  document.body.appendChild(wrap);
+  const f=wrap.querySelector("iframe");f.srcdoc=html;
+  pres={wrap,f,i:0,n:slides.length+1};
+  const key=e=>{if(!pres)return;const k=e.key;
+    if(k==="Escape"){e.preventDefault();e.stopPropagation();return endPresent()}
+    if(k==="ArrowLeft"||k==="PageDown"||k===" "){e.preventDefault();go(pres.i+1)}else if(k==="ArrowRight"||k==="PageUp"){e.preventDefault();go(pres.i-1)}
+    else if(k==="Home"){e.preventDefault();go(0)}else if(k==="End"){e.preventDefault();go(pres.n-1)}};
+  pres.key=key;document.addEventListener("keydown",key,true);
+  f.addEventListener("load",()=>{const fd=f.contentDocument;if(!fd)return;fd.addEventListener("keydown",key,true);
+    let x0=null;fd.addEventListener("touchstart",e=>{x0=e.touches[0].clientX},{passive:true});
+    fd.addEventListener("touchend",e=>{if(x0==null)return;const dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)>50)go(pres.i+(dx>0?1:-1))},{passive:true});
+    go(0);try{f.contentWindow.focus()}catch{}});
+  try{wrap.requestFullscreen&&wrap.requestFullscreen().catch(()=>{})}catch{}
+  SK.audit&&SK.audit.log("report",{act:"present",title:title.slice(0,60)});
+}
+function go(i){
+  if(!pres)return;pres.i=Math.max(0,Math.min(pres.n-1,i));
+  const fd=pres.f.contentDocument;if(fd)[...fd.querySelectorAll(".sl")].forEach((s,k)=>{s.classList.toggle("on",k===pres.i);if(k===pres.i)s.scrollTop=0});
+  pres.wrap.querySelector(".skpres-n").textContent=(pres.i+1)+" من "+pres.n;
+  pres.wrap.querySelector('[data-p="prev"]').disabled=pres.i===0;pres.wrap.querySelector('[data-p="next"]').disabled=pres.i===pres.n-1;
+}
+function endPresent(){
+  if(!pres)return;document.removeEventListener("keydown",pres.key,true);
+  try{if(document.fullscreenElement)document.exitFullscreen().catch(()=>{})}catch{}
+  pres.wrap.remove();pres=null;
+  const b=cur&&cur.wrap.querySelector('[data-o="present"]');b&&b.focus();
+}
+document.addEventListener("click",e=>{const b=e.target.closest(".skpres [data-p]");if(!b||!pres)return;const p=b.dataset.p;if(p==="close")endPresent();else go(pres.i+(p==="next"?1:-1))});
 async function act(a){
   if(!cur)return;const d=cur.w.document,title=(d.title||"مستند").trim();
   if(a==="close")return close();
+  if(a==="present")return present();
   if(a==="print"){css(d);cur.w.__skRealPrint?cur.w.__skRealPrint():cur.w.print();SK.audit&&SK.audit.log("report",{act:"print",title:title.slice(0,60)});return}
   if(a==="word"){const html=docHTML(d).replace("<html",'<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"').replace("<head>",'<head><meta charset="utf-8"><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View></w:WordDocument></xml><![endif]--><style>body{direction:rtl}table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:4px 6px}</style>');
     SK.download(ascii(title)+".doc",new Blob(["﻿"+html],{type:"application/msword"}));SK.audit&&SK.audit.log("report",{act:"word"});return}
@@ -81,7 +152,7 @@ document.addEventListener("change",e=>{
   const k=el.dataset.k;if(!k)return;SK.print.set(k,el.type==="checkbox"?el.checked:k==="scale"?Number(el.value):el.value);css(cur.w.document);
 });
 document.addEventListener("input",e=>{if(cur&&e.target.dataset&&e.target.dataset.k==="wm"&&e.target.closest(".skout-bar")){SK.print.set("wm",e.target.value.slice(0,24));css(cur.w.document)}});
-document.addEventListener("keydown",e=>{if(cur&&e.key==="Escape"){e.preventDefault();close()}},true);
+document.addEventListener("keydown",e=>{if(cur&&e.key==="Escape"&&!pres){e.preventDefault();close()}},true);
 /* moving to another screen closes the preview */
 addEventListener("sk:nav",()=>close());
 /* a blank window.open() (every print in the app) becomes the in-app preview */
