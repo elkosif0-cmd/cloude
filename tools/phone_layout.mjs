@@ -9,6 +9,9 @@
 //   • HOME / SHELL, on every viewport (320px included): the command center, the top bar (menu, logo, search,
 //     notifications, user), the company and period controls and the bottom tab bar stay on screen, the RTL page does not
 //     start scrolled or right-clipped, and three visits do not grow its listeners;
+//   • on touch screens, buttons and tabs are at least 32px high and inline text-link buttons 24px (WCAG 2.2 AA);
+//   • status text — severity chips, standard badges, danger buttons — keeps 4.5:1 over its composited background, on
+//     every screen and in every look (light and night);
 //   • the document is right-to-left, and dialogs fit the screen and scroll inside;
 //   • the startup overlays fit, on a 390px and a 320px phone: the demo-loading card shown on a first start (measured the
 //     moment it appears) keeps a 12px gutter on both sides so both rounded sides stay visible, its RTL text stays inside
@@ -39,7 +42,27 @@ const MEASURE = () => {
     const L = r.left + sx, R = r.right + sx;
     if ((L < -2 || R > W + 2) && !scrollsX(el) && !fixedOrRail(el)) clipped.push(el.tagName.toLowerCase() + (el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/)[0] : '') + '«' + (el.textContent || '').trim().slice(0, 18) + '»[' + Math.round(L) + ',' + Math.round(R) + ']');
   }
-  return { over, clipped: clipped.slice(0, 4), rtl: de.dir === 'rtl' || getComputedStyle(de).direction === 'rtl' };
+  /* touch targets on touch screens: buttons and tabs ≥ 32px high, inline text-link buttons ≥ 24px (WCAG 2.2 AA) */
+  const small = [];
+  if (matchMedia('(pointer:coarse)').matches) for (const el of document.querySelectorAll('#view button, #view [role=tab], .skdemo-x')) {
+    const r = el.getBoundingClientRect(); if (!r.width || !r.height || getComputedStyle(el).visibility === 'hidden' || el.closest('.sr,[aria-hidden=true]')) continue;
+    const need = el.classList.contains('linklike') ? 24 : 32;
+    if (r.height < need - 0.5 || r.width < 24 - 0.5) small.push('«' + (el.getAttribute('aria-label') || el.textContent || '').trim().slice(0, 16) + '» ' + Math.round(r.width) + '×' + Math.round(r.height));
+  }
+  /* readable status text: chips, standard badges and danger buttons ≥ 4.5:1 over their composited background */
+  const cv = document.createElement('canvas'); cv.width = cv.height = 1; const cx = cv.getContext('2d', { willReadFrequently: true });
+  const rgba = (c) => { cx.clearRect(0, 0, 1, 1); cx.fillStyle = '#000'; cx.fillStyle = c; cx.fillRect(0, 0, 1, 1); const d = cx.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2], d[3] / 255]; };
+  const onto = (top, bot) => [0, 1, 2].map((i) => top[i] * top[3] + bot[i] * (1 - top[3])).concat(1);
+  const lum = (c) => { const f = (x) => { x /= 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); }; return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]); };
+  const faint = [];
+  for (const el of document.querySelectorAll('#view .sksev, #view .std-b, #view .btn.danger, .skdemo-bar .btn.danger')) {
+    if (!el.getBoundingClientRect().width) continue;
+    const chain = []; for (let x = el; x; x = x.parentElement) chain.push(rgba(getComputedStyle(x).backgroundColor));
+    let bg = [255, 255, 255, 1]; for (const layer of chain.reverse()) bg = onto(layer, bg);
+    const fg = onto(rgba(getComputedStyle(el).color), bg), ratio = (Math.max(lum(fg), lum(bg)) + 0.05) / (Math.min(lum(fg), lum(bg)) + 0.05);
+    if (ratio < 4.5) faint.push(el.className.trim().replace(/\s+/g, '.') + ' ' + ratio.toFixed(2));
+  }
+  return { over, clipped: clipped.slice(0, 4), small: [...new Set(small)].slice(0, 4), faint: [...new Set(faint)].slice(0, 4), rtl: de.dir === 'rtl' || getComputedStyle(de).direction === 'rtl' };
 };
 /* the tabs inside a screen (not the hub strip, which leads to other screens) */
 const TABS = () => [...document.querySelectorAll('#view [role=tab], #view *')].filter((el) => (el.getAttribute('role') === 'tab' || [...el.attributes].some((a) => /^data-[a-z]+-tab$/.test(a.name))) && !el.closest('.skn-domain') && el.offsetParent !== null)
@@ -91,6 +114,7 @@ for (const [tag, opts, screensToo] of [['phone', { viewport: { width: 390, heigh
     if (m.over > 2) failures.push(`${tag} home (visit ${visit}): page scrolls sideways by ${m.over}px`);
     if (m.clipped.length || shell.length) failures.push(`${tag} home (visit ${visit}): clipped ${m.clipped.concat(shell).join(' ')}`);
     if (m.small && m.small.length) failures.push(`${tag} home (visit ${visit}): touch targets too small ${m.small.join(' ')}`);
+    if (m.faint && m.faint.length) failures.push(`${tag} home (visit ${visit}): status text below 4.5:1 ${m.faint.join(' ')}`);
     for (const t of await p.evaluate(TABS)) {
       const el = await p.$(`[data-pl-tab="${t}"]`); if (!el || !(await el.isVisible())) continue;
       await el.click({ timeout: 5000 }).catch(() => {}); await p.waitForTimeout(350); await closeOverlays();
@@ -112,6 +136,8 @@ for (const [tag, opts, screensToo] of [['phone', { viewport: { width: 390, heigh
       if (!m.rtl) failures.push(`${tag} ${c.id}: document is not RTL`);
       if (m.over > 2) failures.push(`${tag} ${c.id} (visit ${visit}): page scrolls sideways by ${m.over}px`);
       if (m.clipped.length) failures.push(`${tag} ${c.id} (visit ${visit}): clipped ${m.clipped.join(' ')}`);
+      if (m.small.length) failures.push(`${tag} ${c.id} (visit ${visit}): touch targets too small ${m.small.join(' ')}`);
+      if (m.faint.length) failures.push(`${tag} ${c.id} (visit ${visit}): status text below 4.5:1 ${m.faint.join(' ')}`);
       const tabs = await p.evaluate(TABS);
       for (const t of tabs) {
         step(`${tag} · ${c.id} · visit ${visit} · tab ${t}`);
@@ -122,6 +148,8 @@ for (const [tag, opts, screensToo] of [['phone', { viewport: { width: 390, heigh
         const mt = await p.evaluate(MEASURE); tabsSeen++;
         if (mt.over > 2) failures.push(`${tag} ${c.id} › «${label}» (visit ${visit}): page scrolls sideways by ${mt.over}px`);
         if (mt.clipped.length) failures.push(`${tag} ${c.id} › «${label}» (visit ${visit}): clipped ${mt.clipped.join(' ')}`);
+        if (mt.small.length) failures.push(`${tag} ${c.id} › «${label}» (visit ${visit}): touch targets too small ${mt.small.join(' ')}`);
+        if (mt.faint.length) failures.push(`${tag} ${c.id} › «${label}» (visit ${visit}): status text below 4.5:1 ${mt.faint.join(' ')}`);
         await p.evaluate(TABS); /* re-tag after a repaint */
       }
     }
@@ -138,6 +166,20 @@ for (const [tag, opts, screensToo] of [['phone', { viewport: { width: 390, heigh
     if (!d) return null; const r = d.getBoundingClientRect(), out = { W: de.clientWidth, left: Math.round(r.left), right: Math.round(r.right), over: Math.max(de.scrollWidth, document.body.scrollWidth) - de.clientWidth, scrollsInside: d.scrollHeight <= d.clientHeight + 1 || /(auto|scroll)/.test(getComputedStyle(d).overflowY) };
     document.getElementById('sqc-space').remove(); return out; });
   if (!ch || ch.left < 0 || ch.right > ch.W || ch.over > 2 || !ch.scrollsInside) failures.push(`${tag}: company chooser does not fit the screen ${JSON.stringify(ch)}`);
+  /* status text in every look (light and night): the chips, badges and danger buttons of the screens that carry them */
+  if (tag === 'phone') {
+    step(tag + ' · status text in every look');
+    const looks = await p.evaluate(() => SKosifShell.looks().map((x) => x.id).filter((x) => x !== 'auto'));
+    for (const look of looks) {
+      await p.evaluate((l) => SKosifShell.setLook(l), look); await p.waitForTimeout(200);
+      for (const v of ['dash', 'codex', 'tbreview', 'risks']) {
+        await p.evaluate((x) => SKosifCore.go(x), v); await p.waitForTimeout(400); await closeOverlays();
+        const m = await p.evaluate(MEASURE);
+        if (m.faint.length) failures.push(`${tag} look ${look} · ${v}: status text below 4.5:1 ${m.faint.join(' ')}`);
+      }
+    }
+    await p.evaluate(() => SKosifShell.setLook('kosif'));
+  }
   /* dialogs: fit the screen and scroll inside when tall */
   step(tag + ' · dialogs');
   const dlg = await p.evaluate(async () => {
