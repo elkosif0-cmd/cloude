@@ -9,6 +9,8 @@
 .app{display:grid;grid-template-columns:var(--sk-rail-w) minmax(0,1fr);min-height:100dvh}
 .maincol{min-width:0;display:flex;flex-direction:column}
 .main{display:flex;flex-direction:column;gap:var(--sk-5);width:100%;max-width:1480px;margin:0 auto;padding:var(--sk-5) var(--sk-6) var(--sk-7)}
+/* the core's error banner sits just before #view (.main), outside its padding: give it the page's side gutters and width */
+.v17-runtime-banner{box-sizing:border-box;margin-block-start:var(--sk-4);margin-inline:max(var(--sk-6),calc((100% - 1480px) / 2 + var(--sk-6)))}
 .scrim{display:none}
 
 /* ---------- rail ---------- */
@@ -92,6 +94,7 @@
 @media (max-width:1280px){
   :root{--sk-rail-w:256px}
   .main{padding:var(--sk-4) var(--sk-5) var(--sk-7)}
+  .v17-runtime-banner{margin-inline:var(--sk-5)}
   .topbar{padding-inline:var(--sk-5)}
   .hdr .lbl-t{display:none}
 }
@@ -121,6 +124,7 @@
   .hdr:empty{display:none}
   .hdr .mbadge{display:none}
   .main{padding:var(--sk-3) var(--sk-3) calc(var(--sk-6) + env(safe-area-inset-bottom));gap:var(--sk-4)}
+  .v17-runtime-banner{margin-inline:var(--sk-3)}
   .sk-update{margin:var(--sk-2) var(--sk-3) 0}
   .card-h{padding:14px 14px 8px}.card-b{padding:8px 14px 14px}.card-f{padding:10px 14px}
   .grid2,.grid3,.split,.bento,.bento-2,.customer-analytics,.decision-grid,.suggestion-grid,.global-results{grid-template-columns:minmax(0,1fr)}
