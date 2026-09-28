@@ -6,6 +6,7 @@
 //   • nothing is clipped: no visible control, table or panel lies outside the screen unless an ancestor scrolls
 //     horizontally (a wide table inside a scrolling panel is fine; a button pushed off-screen is not);
 //   • the screen's host keeps the click listeners it had on the first visit (duplicated handlers stack on revisits);
+//   • no tab or segment label is cut or drawn over its neighbour (a squeezed tab passes the overflow checks);
 //   • HOME / SHELL, on every viewport (320px included): the command center, the top bar (menu, logo, search,
 //     notifications, user), the company and period controls and the bottom tab bar stay on screen, the RTL page does not
 //     start scrolled or right-clipped, and three visits do not grow its listeners;
@@ -49,6 +50,17 @@ const MEASURE = () => {
     const need = el.classList.contains('linklike') ? 24 : 32;
     if (r.height < need - 0.5 || r.width < 24 - 0.5) small.push('«' + (el.getAttribute('aria-label') || el.textContent || '').trim().slice(0, 16) + '» ' + Math.round(r.width) + '×' + Math.round(r.height));
   }
+  /* tab and segment labels are never cut or drawn over each other (a squeezed tab looks fine to the overflow checks) */
+  const cut = [];
+  for (const bar of document.querySelectorAll('#view .sk-seg, #view [role=tablist], #view .sk-ops-nav, #view .tabs')) {
+    const opts = [...bar.children].filter((x) => x.offsetParent !== null && x.getBoundingClientRect().width);
+    opts.forEach((x, i) => {
+      const lab = '«' + (x.textContent || '').trim().slice(0, 18) + '»';
+      if (x.scrollWidth > x.clientWidth + 2) cut.push(lab + ' cut');
+      const a = x.getBoundingClientRect();
+      for (const y of opts.slice(i + 1)) { const b = y.getBoundingClientRect(); if (a.top < b.bottom - 2 && b.top < a.bottom - 2 && a.left < b.right - 2 && b.left < a.right - 2) cut.push(lab + ' overlaps «' + (y.textContent || '').trim().slice(0, 12) + '»'); }
+    });
+  }
   /* readable status text: chips, standard badges and danger buttons ≥ 4.5:1 over their composited background */
   const cv = document.createElement('canvas'); cv.width = cv.height = 1; const cx = cv.getContext('2d', { willReadFrequently: true });
   const rgba = (c) => { cx.clearRect(0, 0, 1, 1); cx.fillStyle = '#000'; cx.fillStyle = c; cx.fillRect(0, 0, 1, 1); const d = cx.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2], d[3] / 255]; };
@@ -62,7 +74,7 @@ const MEASURE = () => {
     const fg = onto(rgba(getComputedStyle(el).color), bg), ratio = (Math.max(lum(fg), lum(bg)) + 0.05) / (Math.min(lum(fg), lum(bg)) + 0.05);
     if (ratio < 4.5) faint.push(el.className.trim().replace(/\s+/g, '.') + ' ' + ratio.toFixed(2));
   }
-  return { over, clipped: clipped.slice(0, 4), small: [...new Set(small)].slice(0, 4), faint: [...new Set(faint)].slice(0, 4), rtl: de.dir === 'rtl' || getComputedStyle(de).direction === 'rtl' };
+  return { over, clipped: clipped.slice(0, 4), small: [...new Set(small)].slice(0, 4), faint: [...new Set(faint)].slice(0, 4), cut: [...new Set(cut)].slice(0, 4), rtl: de.dir === 'rtl' || getComputedStyle(de).direction === 'rtl' };
 };
 /* the tabs inside a screen (not the hub strip, which leads to other screens) */
 const TABS = () => [...document.querySelectorAll('#view [role=tab], #view *')].filter((el) => (el.getAttribute('role') === 'tab' || [...el.attributes].some((a) => /^data-[a-z]+-tab$/.test(a.name))) && !el.closest('.skn-domain') && el.offsetParent !== null)
@@ -115,6 +127,7 @@ for (const [tag, opts, screensToo] of [['phone', { viewport: { width: 390, heigh
     if (m.clipped.length || shell.length) failures.push(`${tag} home (visit ${visit}): clipped ${m.clipped.concat(shell).join(' ')}`);
     if (m.small && m.small.length) failures.push(`${tag} home (visit ${visit}): touch targets too small ${m.small.join(' ')}`);
     if (m.faint && m.faint.length) failures.push(`${tag} home (visit ${visit}): status text below 4.5:1 ${m.faint.join(' ')}`);
+    if (m.cut && m.cut.length) failures.push(`${tag} home (visit ${visit}): tab labels cut ${m.cut.join(' ')}`);
     for (const t of await p.evaluate(TABS)) {
       const el = await p.$(`[data-pl-tab="${t}"]`); if (!el || !(await el.isVisible())) continue;
       await el.click({ timeout: 5000 }).catch(() => {}); await p.waitForTimeout(350); await closeOverlays();
@@ -138,6 +151,7 @@ for (const [tag, opts, screensToo] of [['phone', { viewport: { width: 390, heigh
       if (m.clipped.length) failures.push(`${tag} ${c.id} (visit ${visit}): clipped ${m.clipped.join(' ')}`);
       if (m.small.length) failures.push(`${tag} ${c.id} (visit ${visit}): touch targets too small ${m.small.join(' ')}`);
       if (m.faint.length) failures.push(`${tag} ${c.id} (visit ${visit}): status text below 4.5:1 ${m.faint.join(' ')}`);
+      if (m.cut.length) failures.push(`${tag} ${c.id} (visit ${visit}): tab labels cut ${m.cut.join(' ')}`);
       const tabs = await p.evaluate(TABS);
       for (const t of tabs) {
         step(`${tag} · ${c.id} · visit ${visit} · tab ${t}`);
@@ -150,6 +164,7 @@ for (const [tag, opts, screensToo] of [['phone', { viewport: { width: 390, heigh
         if (mt.clipped.length) failures.push(`${tag} ${c.id} › «${label}» (visit ${visit}): clipped ${mt.clipped.join(' ')}`);
         if (mt.small.length) failures.push(`${tag} ${c.id} › «${label}» (visit ${visit}): touch targets too small ${mt.small.join(' ')}`);
         if (mt.faint.length) failures.push(`${tag} ${c.id} › «${label}» (visit ${visit}): status text below 4.5:1 ${mt.faint.join(' ')}`);
+        if (mt.cut.length) failures.push(`${tag} ${c.id} › «${label}» (visit ${visit}): tab labels cut ${mt.cut.join(' ')}`);
         await p.evaluate(TABS); /* re-tag after a repaint */
       }
     }
