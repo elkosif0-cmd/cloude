@@ -1468,7 +1468,7 @@ window.SKEngines = (function() {
 			disclosures: ["إفصاحات مخفضة بدلاً من متطلبات المعايير الأخرى"],
 			audit: ["التحقق من شروط الأهلية"],
 			effective: "1 يناير 2027",
-			latest: "تعديلات أغسطس 2025 لاستكمال المعايير اللاحقة",
+			latest: "اعتمدته SOCPA في 26-12-2024 ضمن نسخة المعايير المحدثة 2025؛ وتعديلات أغسطس 2025 لاستكمال المعايير اللاحقة",
 			status: "upcoming",
 			org: "IFRS Foundation",
 			url: IFRS("ifrs-19-subsidiaries-without-public-accountability-disclosures")
