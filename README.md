@@ -62,11 +62,7 @@ capability inventory, the new information architecture and the rebuild plan.
   (from the Grand Fusion branch); `node tools/build_engines.mjs` compiles them to `ui/core/engines.js`
   (`window.SKEngines`), and CI checks the compiled file is current.
 - `app/` — the strict TypeScript engines and their tests (run in CI).
-- Navigation: 9 domains (مركز القيادة · القرار والذكاء · المبيعات والعملاء · المخزون والمشتريات · المالية
-  والمحاسبة · الكتالوج والتسعير · التقارير والتحليلات · المراجعة والتأكيد · النظام والتكاملات). Related screens
-  form a hub (`"hub"`/`"hubLabel"` in `ui/core/capabilities.json`): one menu entry — 64 screens in 35 entries —
-  whose pages open as tabs on top of each other (العملاء · المتابعة · الائتمان), each keeping its own id,
-  permission and deep link. Each screen is daily or advanced; `docs/rebuild/CAPABILITY_COVERAGE_ALL_VERSIONS.md` lists every capability of every past version.
+- Navigation: four top-level sections, driven by `ui/core/capabilities.json`: **العام · المراجعة والمراجعة المالية · الأدوات المساعدة للمحاسب · Jev والقرار**. Related screens form a hub (`"hub"`/`"hubLabel"`): one menu entry whose pages open as tabs, each keeping its own id, permission and deep link. There is no separate user-facing daily/advanced mode switch; every screen lives under one of the four sections, while compatibility metadata can still mark preferred/default pages. `docs/rebuild/CAPABILITY_COVERAGE_ALL_VERSIONS.md` lists every capability of every past version.
 
 ## KOSIF Luxe
 

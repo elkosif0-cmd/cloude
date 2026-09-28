@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "npm run check",
-    "check": "tsc -p tsconfig.pricing-core.json --noEmit && tsc -p tsconfig.meatops.json --noEmit && tsc -p tsconfig.fusion.json --noEmit && vitest run src/engine",
+    "check": "tsc -p tsconfig.pricing-core.json --noEmit && tsc -p tsconfig.meatops.json --noEmit && tsc -p tsconfig.fusion.json --noEmit && tsc -p tsconfig.think.json --noEmit && vitest run src/engine",
     "test": "vitest run src/engine"
   },
   "dependencies": {

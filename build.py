@@ -1,6 +1,17 @@
 from pathlib import Path
 import base64, gzip, hashlib, json, re, shutil
 import private_blocks
+from build_mode import build_mode
+
+MODE=build_mode()  # production, or preview: no private data at all (see build_mode.py)
+
+PREVIEW_INDEX="""<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<meta http-equiv="refresh" content="0;url=./app-safe.html"><title>SQC — معاينة</title></head>
+<body style="font-family:system-ui,sans-serif;padding:24px"><p>معاينة SQC ببيانات تجريبية فقط — لا تحتوي أي بيانات خاصة.
+<a href="./app-safe.html">فتح التطبيق</a></p></body></html>
+"""
+
 
 out=Path("dist")
 if out.exists(): shutil.rmtree(out)
@@ -37,9 +48,9 @@ UI_JS=["core/sk.js","core/output.js","core/bus.js","core/errors.js","core/store.
        "features/pricing-core.js","features/kernel.js","features/tools.js","features/enterprise.js","features/reports.js","features/report-pack.js",
        "features/erp-plus.js","features/operations.js","features/capabilities-v2.js","features/audit-bridge.js",
        "features/ledger.js","features/month-close.js","features/purchasing.js","features/workspace.js","features/followup.js","features/devices.js","features/notifications.js","features/risks.js","features/accounting-guidance.js","features/codex.js","features/audit-bench.js","features/report-docs.js","features/integrated-report.js","features/audit-practice.js","features/corpus-lab.js","features/product-tree.js","features/sales-map.js","features/entry-sim.js","features/tb-council.js","features/tb-fieldwork.js","features/tb-review.js","features/sales-lab.js","features/assistant.js","features/helper-center.js","features/product-flow.js"]
-listed={"ui/"+n for n in UI_CSS+UI_JS}
-stray=[str(f) for f in Path("ui").glob("*.*") if f.suffix in (".js",".css")]
-stray+=[str(f) for d in ("core","ds","components","layouts","features") for f in Path("ui",d).glob("*.*") if f.suffix in (".js",".css") and str(f) not in listed]
+listed={Path("ui",n).as_posix() for n in UI_CSS+UI_JS}
+stray=[f.as_posix() for f in Path("ui").glob("*.*") if f.suffix in (".js",".css")]
+stray+=[f.as_posix() for d in ("core","ds","components","layouts","features") for f in Path("ui",d).glob("*.*") if f.suffix in (".js",".css") and f.as_posix() not in listed]
 if stray: raise SystemExit("UI files not wired into the build (add them to UI_CSS/UI_JS or delete them): "+", ".join(sorted(stray)))
 caps=json.loads(Path("ui/core/capabilities.json").read_text(encoding="utf-8"))
 bundle_css="\n".join(f"/* ---- ui/{n} ---- */\n"+Path("ui",n).read_text(encoding="utf-8") for n in UI_CSS)
@@ -52,8 +63,13 @@ if not sep: raise SystemExit("Final body close missing")
 text=head+f'<script src="./skosif.js?v={tag}" defer></script></body>'+tail
 
 text,private=private_blocks.extract(text)
+if MODE=="preview": private=None  # cut out above; a preview drops the blocks instead of encrypting them
 (out/"app-safe.html").write_text(text,encoding="utf-8")
-(out/"index.html").write_bytes(Path("unlock.html").read_bytes())
+if MODE=="preview":
+    # no unlock page: there is nothing to unlock. The app opens on its demo data.
+    (out/"index.html").write_text(PREVIEW_INDEX,encoding="utf-8")
+else:
+    (out/"index.html").write_bytes(Path("unlock.html").read_bytes())
 
 for name in ["icon-192.png","icon-512.png","apple-touch-icon.png"]:
     src=Path("payload")/(name+".b64")
@@ -61,14 +77,17 @@ for name in ["icon-192.png","icon-512.png","apple-touch-icon.png"]:
 
 for name in ["sw.js","manifest.webmanifest","INSTALL-iPHONE-ar.txt","INSTALL-LAPTOP-ar.txt","_headers"]:
     (out/name).write_bytes(Path(name).read_bytes())
+if MODE=="preview":
+    with open(out/"_headers","a",encoding="utf-8") as h: h.write("/*\n  X-Robots-Tag: noindex, nofollow\n")
 (out/"skosif.css").write_text(bundle_css,encoding="utf-8")
 (out/"skosif.js").write_text(bundle_js,encoding="utf-8")
 shutil.copytree("ui/art",out/"art")
 # The audit studio stays as ES modules (loaded on first use), outside the bundle.
 shutil.copytree("ui/audit",out/"audit")
 
-shutil.copytree("secure",out/"secure")
-if private: private_blocks.encrypt(private,Path("secure"),out/"secure")
+if MODE=="production":
+    shutil.copytree("secure",out/"secure")
+    if private: private_blocks.encrypt(private,Path("secure"),out/"secure")
 
 # Name the service-worker cache after the build contents so every release
 # replaces the copy cached on installed phones.
@@ -80,4 +99,4 @@ sw=(out/"sw.js").read_text(encoding="utf-8")
 sw,n=re.subn(r"const CACHE='[^']*';",f"const CACHE='skosif-{digest.hexdigest()[:12]}';",sw,count=1)
 if n!=1: raise SystemExit("sw.js CACHE marker missing")
 (out/"sw.js").write_text(sw,encoding="utf-8")
-print("Built SQC:",len(list(out.rglob("*"))),"entries")
+print("Built SQC ("+MODE+"):",len(list(out.rglob("*"))),"entries")
