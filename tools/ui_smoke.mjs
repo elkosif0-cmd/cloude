@@ -27,7 +27,9 @@ for (const [tag, opts] of [['laptop', { viewport: { width: 1440, height: 900 } }
     errs = [];
     await page.evaluate((id) => SKosifCore.go(id), c.id);
     await page.waitForTimeout(500);
-    const r = await page.evaluate(() => ({ len: document.querySelector('#view').innerText.length, over: document.documentElement.scrollWidth - innerWidth }));
+    /* the page's width against the document's client width — on phones the layout viewport widens to fit wide
+       content, so innerWidth grows with the bug and cannot be the reference */
+    const r = await page.evaluate(() => ({ len: document.querySelector('#view').innerText.length, over: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - document.documentElement.clientWidth }));
     if (errs.length) failures.push(`${tag} ${c.id}: ${errs[0]}`);
     if (r.over > 2) failures.push(`${tag} ${c.id}: horizontal overflow ${r.over}px`);
     if (r.len < 40) failures.push(`${tag} ${c.id}: nothing rendered`);
