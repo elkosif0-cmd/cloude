@@ -218,7 +218,9 @@ function all(){
 function headerButton(){
   const ph=document.querySelector(".sk-ph");if(!ph)return;const v=window.SKosifCore&&SKosifCore.view(),list=forView(v);let b=ph.querySelector(".sktpl-btn");
   if(!list.length){if(b)b.remove();return}
-  if(!b){b=document.createElement("button");b.type="button";b.className="sktpl-btn btn sm";b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg><span>قوالب الاستيراد</span>';ph.appendChild(b)}
+  if(!b){b=document.createElement("button");b.type="button";b.className="sktpl-btn btn sm";b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg><span>قوالب الاستيراد</span>'}
+  /* with the screen's other actions (on a phone the actions share one row under the title, not a row each) */
+  const host=ph.querySelector(".hdr")||ph;if(b.parentElement!==host)host.appendChild(b);
   b.dataset.view=v;b.title=list.map(t=>t.label).join("، ");
 }
 document.addEventListener("click",e=>{

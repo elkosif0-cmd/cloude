@@ -152,3 +152,6 @@ html{overflow-x:hidden}
    tabs until the labels are cut (tools/phone_layout.mjs measures both at 390 and 320). */
 .sk-seg>button,.sk-seg>[role=tab]{min-width:max-content}
 .sk-ops-nav>*,#view .tabs>button,#view [role=tablist]:not(.sk-seg)>*{flex-shrink:0}
+/* the open tab shows as open whether its control marks it pressed (aria-pressed) or selected (role=tab, aria-selected) */
+.sk-seg>[aria-selected="true"]{background:var(--sk-surface);color:var(--sk-brand);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+:root[data-look="kosif"] .sk-seg>[aria-selected="true"]{background:var(--sk-brand);color:#fff}
