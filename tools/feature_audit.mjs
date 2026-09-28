@@ -52,6 +52,7 @@ ok('المنظومة الواحدة','أدوات التحليل بتبويبات
  const have=await p.evaluate(()=>SK.caps.all().map(c=>c.id));ok('عدم ضياع القدرات','قدرات خط الأساس الـ'+base.length+' كلها مسجلة',base.every(id=>have.includes(id))&&have.length>=base.length);}
 await go('helperdesk',900);ok('هيكل المنتج','أربعة أقسام: العام · المراجعة والمراجعة المالية · الأدوات المساعدة للمحاسب · Jev — دون وضع «متقدم»',await p.evaluate(()=>SK.caps.get('helperdesk')?.group==='helpers'&&SK.caps.get('jev')?.group==='jev'&&document.querySelectorAll('.hd-node').length>=5&&SK.caps.groups().map(g=>g.id).join('|')==='home|audit|helpers|jev'&&SK.caps.advancedIds().length===0));
 ok('هيكل المنتج','الأدوات المساعدة تعرض شركتها ومبدّل الشركات',await p.evaluate(()=>!!document.querySelector('.sqc-space-bar [data-space-open]')&&!!window.SKosifSpace));
+ok('هيكل المنتج','الأدوات المساعدة تعرض مستخدم المحاسب وتفصل مساحاته',await p.evaluate(()=>!!document.querySelector('.sqc-space-bar [data-user-open]')&&typeof SKosifSpace.user==='function'&&typeof SKosifSpace.switchUser==='function'&&typeof SKosifSpace.createUser==='function'));
 await go('tbreview',1200);ok('هيكل المنتج','دورة المراجعة مرسومة كعقد وأسهم مع حلقة جولات الأدلة',await p.evaluate(()=>document.querySelectorAll('.tbr-flow-node').length===9&&!!document.querySelector('.tbr-flowloop')));
 // ---------- global research bundle: audit benchmarks ----------
 await go('companies',900);
