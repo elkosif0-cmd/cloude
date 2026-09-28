@@ -217,7 +217,9 @@ The Worker holds no business data, so the exposure is spending and abuse of the 
 | Request size | `Content-Type: application/json` only (`415`); bodies over `THINK_MAX_BODY_BYTES` (default 128 KiB) → `413`, checked on the header and on the bytes actually read. JSON-RPC batches or messages without a method → `-32600`. |
 | No leaks | Public `/health` returns only `ok`, `service`, `version`. Errors carry this Worker's codes only (`CLEANAPIS_402`, `CLEANAPIS_NETWORK`, `AGENT_FAILED` …). `kosif_think_status` (authenticated) shows how access is configured, never a value. |
 
-`think-mcp/worker.test.mjs` proves each row (CI step "Test KOSIF Think MCP access control"); run against version 0.4.0 it fails 17 of its 18 tests.
+`think-mcp/worker.test.mjs` proves each row (CI step "Test KOSIF Think MCP access control"); run against version 0.4.0 the access tests fail 17 of 18.
+
+Version 0.4.2 is this access control together with the council rules deployed by hand as a separate «0.4.1» (which had no access control): one artifact per known frontier agent, agreement counted over every participating agent, a conservative readiness gate, a synthesis that follows the winning option, and no invented confidence or evidence. Deploying 0.4.2 keeps those rules and closes `/mcp`.
 
 ### Deploying the change (manual; no workflow deploys this Worker)
 1. Make a token and store it as a Worker secret (it is never written in the repository):

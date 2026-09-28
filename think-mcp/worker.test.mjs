@@ -222,3 +222,39 @@ test('the source carries no credential and every response path sets the security
   assert.ok(!/sk-[A-Za-z0-9_-]{16,}|Bearer [A-Za-z0-9_-]{20,}/.test(src), 'no key or bearer literal in the source');
   assert.ok(!/new Response\(/.test(src.replace(/function (json|empty)\([^)]*\)\{ return new Response\(/g, '')), 'responses are built only by json() and empty(), which add the security headers');
 });
+
+/* the council rules that went live in the deployed 0.4.1, kept behind the access control */
+const rpcResult = async (e, body) => JSON.parse(await (await worker.fetch(req('/mcp', { token: e.KOSIF_THINK_TOKEN, body }), e)).text()).result.structuredContent;
+
+test('council: one artifact per known frontier agent, abstentions counted, a conservative readiness gate', async () => {
+  const e = env();
+  const dup = await rpcResult(e, call('kosif_council', { question: 'q', artifacts: [{ agentId: 'gpt', answer: 'a', confidence: 0.9 }, { agentId: 'gpt', answer: 'b', confidence: 0.9 }] }));
+  assert.equal(dup.error, 'DUPLICATE_AGENT_ID');
+  const unknown = await rpcResult(e, call('kosif_council', { question: 'q', artifacts: [{ agentId: 'intruder', answer: 'a', confidence: 0.9 }] }));
+  assert.equal(unknown.error, 'UNKNOWN_FRONTIER_AGENT');
+  const options = { A: 'keep', B: 'change' };
+  const r = await rpcResult(e, call('kosif_council', { question: 'q', options, artifacts: [
+    { agentId: 'gpt', answer: 'keep it', recommendationId: 'A', confidence: 0.9, evidence: ['x'] },
+    { agentId: 'claude', answer: 'keep it', recommendationId: 'A', confidence: 0.8, evidence: ['y'] },
+    { agentId: 'gemini', answer: 'no view', confidence: 0.4, evidence: ['z'] },
+  ] }));
+  assert.equal(r.council.winningOptionId, 'A');
+  assert.equal(r.council.abstentions, 1);
+  assert.equal(r.council.agreementPercent, 66.67, 'agreement counts every participating agent, abstentions included');
+  assert.equal(r.preJevGate.passed, false);
+  assert.ok(r.preJevGate.reasons.includes('MISSING_AGENTS') && r.preJevGate.reasons.includes('COUNCIL_AGREEMENT_BELOW_80'), r.preJevGate.reasons.join(','));
+  assert.equal(r.synthesis.finalAnswer, 'keep it', 'the synthesis follows the winning option');
+});
+
+test('agents: an empty answer or a malformed short answer is a failure, never a made-up artifact', async () => {
+  const e = env();
+  upstream = () => Response.json({ choices: [{ message: { content: '{"answer":"","confidence":0.9}' } }] });
+  assert.equal((await rpcResult(e, agentCall)).error, 'AGENT_EMPTY_ANSWER');
+  upstream = () => Response.json({ choices: [{ message: { content: 'just prose without the format' } }] });
+  assert.equal((await rpcResult(e, call('kosif_agent', { agent: 'gemini', question: 'q' }))).error, 'MICRO_FORMAT_INVALID');
+  upstream = () => Response.json({ choices: [{ message: { content: 'NONE|0|a real but unsure insight' } }] });
+  const zero = await rpcResult(e, call('kosif_agent', { agent: 'gemini', question: 'q' }));
+  assert.equal(zero.artifact.confidence, 0, 'a zero confidence stays zero');
+  assert.deepEqual(zero.artifact.evidence, [], 'an insight is not counted as evidence');
+  assert.equal((await rpcResult(e, call('kosif_think', { question: 'q', mode: 'turbo' }))).error, 'INVALID_MODE');
+});

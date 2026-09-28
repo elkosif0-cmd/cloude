@@ -1,4 +1,4 @@
-const VERSION = "0.4.1";
+const VERSION = "0.4.2";
 const FAST_AGENTS = [
   { id:"solver", source:"cloudflare", model:"@cf/meta/llama-3.3-70b-instruct-fp8-fast", role:"Lead solver: build the strongest answer and test feasibility." },
   { id:"skeptic", source:"cloudflare", model:"@cf/mistralai/mistral-small-3.1-24b-instruct", role:"Skeptical critic: find weak assumptions, contradictions, missing evidence, and downside risk." },
@@ -116,6 +116,7 @@ function parseJson(raw){
   throw new Error("AGENT_JSON_INVALID");
 }
 function artifact(agent,x){
+  if(!text(x?.answer,3500)) throw new Error("AGENT_EMPTY_ANSWER");
   return {
     agentId:agent.id, source:agent.source||"cloudflare", model:agent.model, role:agent.role, micro:!!agent.micro,
     recommendationId:x?.recommendationId==null?null:text(x.recommendationId,80),
@@ -183,9 +184,10 @@ async function cleanApisMicro(env,agent,stage,input,peers){
   const raw=text(d?.choices?.[0]?.message?.content,1200).replace(/\n+/g," ").trim();
   const parts=raw.split("|");
   const rec=parts[0]&&optionKeys.includes(parts[0].trim())?parts[0].trim():null;
-  const conf=clamp(parseFloat(parts[1]));
+  if(parts.length<3||!parts[1].trim()||!Number.isFinite(Number(parts[1]))) throw new Error("MICRO_FORMAT_INVALID");
+  const conf=clamp(Number(parts[1]));
   const insight=text(parts.slice(2).join("|")||raw,700);
-  return artifact(agent,{recommendationId:rec,answer:insight,evidence:insight?[insight]:[],assumptions:[],risks:agent.id==="mythos"&&insight?[insight]:[],objections:agent.id==="fable"&&insight?[insight]:[],confidence:conf||0.7});
+  return artifact(agent,{recommendationId:rec,answer:insight,evidence:[],assumptions:[],risks:agent.id==="mythos"&&insight?[insight]:[],objections:agent.id==="fable"&&insight?[insight]:[],confidence:conf});
 }
 
 async function callAgent(env,agent,stage,input,peers){
@@ -232,11 +234,30 @@ async function stageWithFallback(env,name,preferred,input,peers){
   const active=preferred.filter(a=>r.artifacts.some(x=>x.agentId===a.id));
   return {artifacts:r.artifacts,failures:r.failures,agents:active.length?active:preferred,backend:isFrontier?"cleanapis-frontier":"cloudflare-fast",fallback:false};
 }
+function evaluateGate(artifacts,options,expectedIds){
+  const c=council(artifacts,options), reasons=[];
+  const present=new Set(artifacts.map(a=>a.agentId));
+  const missing=expectedIds.filter(id=>!present.has(id));
+  if(missing.length) reasons.push("MISSING_AGENTS");
+  if(Object.keys(options).length){
+    if(!c) reasons.push("NO_VALID_VOTES");
+    if(c?.tied) reasons.push("COUNCIL_TIED");
+    if(c&&c.agreementPercent<80) reasons.push("COUNCIL_AGREEMENT_BELOW_80");
+  }else reasons.push("OPEN_ENDED_REQUIRES_REVIEW");
+  if(artifacts.some(a=>a.assumptions?.length)) reasons.push("ASSUMPTIONS_REQUIRE_VERIFICATION");
+  if(artifacts.some(a=>a.objections?.length)) reasons.push("OBJECTIONS_REQUIRE_REVIEW");
+  if(artifacts.some(a=>a.risks?.length)) reasons.push("RISKS_REQUIRE_REVIEW");
+  if(artifacts.some(a=>!a.evidence?.length)) reasons.push("EVIDENCE_MISSING");
+  return {passed:reasons.length===0,reasons,missing,
+    scope:"Structural readiness only; evidence and model identity are not independently verified.",
+    betterAlternativeRisk:null};
+}
+
 function council(artifacts,options){
   const keys=new Set(Object.keys(options));
   const votes=artifacts.filter(a=>a.recommendationId&&keys.has(a.recommendationId));
   if(!votes.length) return null;
-  const rows={};
+  const rows=Object.create(null);
   votes.forEach(v=>{
     const k=v.recommendationId,c=clamp(v.confidence);
     rows[k]=rows[k]||{count:0,weight:0,totalConfidence:0};
@@ -247,22 +268,25 @@ function council(artifacts,options){
   const tied=!!(second&&Math.abs(first[1].weight-second[1].weight)<1e-9&&first[1].count===second[1].count);
   return {
     winningOptionId:tied?null:first[0],
-    agreementPercent:Math.round((first[1].count/votes.length)*10000)/100,
+    agreementPercent:Math.round((first[1].count/artifacts.length)*10000)/100,
     confidence:Math.round((first[1].totalConfidence/first[1].count)*10000)/10000,
     tied,
+    participatingAgents:artifacts.length, validVotes:votes.length, abstentions:artifacts.length-votes.length,
+    confidenceMeaning:"Self-reported confidence, not a calibrated probability of correctness.",
     votes:votes.map(v=>({agentId:v.agentId,optionId:v.recommendationId,confidence:v.confidence}))
   };
 }
 function provisionalSynthesis(artifacts,c){
   const ranked=artifacts.slice().sort((a,b)=>b.confidence-a.confidence);
-  const top=ranked[0]||null;
+  const top=(c?.winningOptionId?ranked.find(a=>a.recommendationId===c.winningOptionId):ranked[0])||null;
   const uncertainty=[];
   for(const a of ranked){
-    for(const x of [...(a.risks||[]),...(a.objections||[])]) if(x&&!uncertainty.includes(x)) uncertainty.push(x);
+    for(const x of [...(a.assumptions||[]),...(a.risks||[]),...(a.objections||[])]) if(x&&!uncertainty.includes(x)) uncertainty.push(x);
   }
   return {
     finalAnswer:top?.answer||"",
-    confidence:top?.confidence||0,
+    confidence:c?.confidence??top?.confidence??0,
+    confidenceMeaning:"Self-reported, not independently verified.",
     remainingUncertainty:uncertainty.slice(0,8),
     chair:{source:"chatgpt",model:"caller",pendingJev:true},
     note:"Provisional only. ChatGPT should reconcile all artifacts with Jev and produce the final answer."
@@ -284,6 +308,7 @@ async function runThink(env,args){
   const input={question:text(args?.question,12000),context:text(args?.context,24000),options:cleanOptions(args?.options)};
   if(!input.question) throw new Error("QUESTION_REQUIRED");
   const mode=args?.mode||"fast";
+  if(!["fast","council","deep"].includes(mode)) throw new Error("INVALID_MODE");
   if(mode!=="fast"){
     return {
       version:VERSION,
@@ -300,7 +325,7 @@ async function runThink(env,args){
     version:VERSION,mode:"fast",backend:"cloudflare-fast",
     agents:FAST_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role})),
     artifacts:r.artifacts,failures:r.failures,council:c,
-    preJevGate:{passed:!c?.tied&&(!c||c.agreementPercent>=80),reasons:[...(c?.tied?["COUNCIL_TIED"]:[]),...(c&&c.agreementPercent<80?["COUNCIL_AGREEMENT_BELOW_80"]:[])]},
+    preJevGate:evaluateGate(r.artifacts,input.options,FAST_AGENTS.map(a=>a.id)),
     synthesis:provisionalSynthesis(r.artifacts,c),
     jev_payload:jevPayload(input,r.artifacts,c),
     next_step:"Submit jev_payload to Jev Bridge, then let ChatGPT produce the final answer."
@@ -358,20 +383,19 @@ function aggregateCouncilTool(args){
   if(!input.question)throw new Error("QUESTION_REQUIRED");
   const artifacts=(Array.isArray(args?.artifacts)?args.artifacts.slice(0,10):[]).map(sanitizeArtifact).filter(x=>x.agentId&&x.answer);
   if(!artifacts.length)throw new Error("ARTIFACTS_REQUIRED");
+  const ids=artifacts.map(a=>a.agentId);
+  if(new Set(ids).size!==ids.length) throw new Error("DUPLICATE_AGENT_ID");
+  if(ids.some(id=>!frontierById(id))) throw new Error("UNKNOWN_FRONTIER_AGENT");
   const c=council(artifacts,input.options);
-  const reasons=[];
-  if(c?.tied)reasons.push("COUNCIL_TIED");
-  if(c&&c.agreementPercent<80)reasons.push("COUNCIL_AGREEMENT_BELOW_80");
   const expected=new Set(FRONTIER_AGENTS.map(a=>a.id));
   const present=new Set(artifacts.map(a=>a.agentId));
   const missing=Array.from(expected).filter(id=>!present.has(id));
-  if(missing.length)reasons.push("MISSING_FRONTIER_AGENTS");
   return {
     version:VERSION,
     artifacts,
     council:c,
     coverage:{present:Array.from(present),missing,frontierTotal:FRONTIER_AGENTS.length},
-    preJevGate:{passed:reasons.length===0,reasons},
+    preJevGate:evaluateGate(artifacts,input.options,FRONTIER_AGENTS.map(a=>a.id)),
     synthesis:provisionalSynthesis(artifacts,c),
     jev_payload:jevPayload(input,artifacts,c),
     next_step:"Call the matching Jev Bridge tool with jev_payload. ChatGPT is the final chair and should reconcile Jev with all agent artifacts and the deterministic council."
@@ -452,6 +476,9 @@ async function callTool(env,name,args){
     fastAgents:FAST_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role})),
     frontierAgents:FRONTIER_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role,micro:!!a.micro})),
     mandatoryOnSelection:true,
+    enforcement:"Instruction-level only; the server cannot force host tool invocation.",
+    modelIdentity:"Configured provider aliases; underlying model identity is not independently verified.",
+    improvements:["unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control"],
     access:{auth:"bearer",pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierEnabled:String(env.THINK_FRONTIER_ENABLED||"true").toLowerCase()!=="false",
       rateLimiter:typeof env.THINK_RATE_LIMITER?.limit==="function",modelLimiter:typeof env.THINK_MODEL_LIMITER?.limit==="function",limits:limits(env),browserOrigins:allowedOrigins(env).length},
     routing:{
