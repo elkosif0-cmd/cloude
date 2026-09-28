@@ -95,3 +95,94 @@ export function procedureLeague() {
   return [...agg.entries()].map(([k, v]) => ({ key: k, ar: PROC_DOCS[k].ar, matters: v.n, themes: v.themes, docs: PROC_DOCS[k].docs.map((d) => d[0]) })).sort((a, b) => b.matters - a.matters);
 }
 export const themeOf = (t: string): Theme | null => (t in THEMES ? (t as Theme) : null);
+
+/* ---------- the second round: what the engagement asks for once the first answers are in ----------
+   The client's answers to the first round decide the second, as they did for the auditors of the bundle:
+   - a document that is unavailable, or was rejected, is replaced by the procedure the standards allow instead
+     (ALTERNATIVES — a non-response to a confirmation is followed by testing the subsequent receipts, ISA 505; a
+     missing forecast by an independent estimate or a look-back at last year's estimates, ISA 540; …);
+   - a document received incomplete is asked for again, for what is missing;
+   - where the first answers were accepted, the theme deepens with the next procedures the bundle auditors relied on
+     for it (THEME_PROCS, beyond the first round's cut).
+   A request still unanswered is not repeated: it stays open in the first round. */
+export type RoundOneState = 'accepted' | 'partial' | 'rejected' | 'unavailable' | 'open';
+
+/** When a procedure's documents cannot be had, the procedures the standards allow instead. */
+export const ALTERNATIVES: Partial<Record<ProcKey, { to: ProcKey[]; basis: string }>> = {
+  confirmations: { to: ['subsequent', 'inspect_contracts'], basis: 'ISA 505 — إجراءات بديلة عند عدم الرد: المتحصلات والمدفوعات اللاحقة وفحص المستندات المؤيدة' },
+  legal_letters: { to: ['inspect_contracts', 'subsequent'], basis: 'ISA 501 — عند تعذّر الحصول على رد المستشار القانوني: فحص المحاضر والمراسلات والأحداث اللاحقة' },
+  forecasts: { to: ['independent_estimate', 'retrospective'], basis: 'ISA 540 — تقدير مستقل من المراجع، أو مقارنة تقديرات السنة السابقة بنتائجها الفعلية' },
+  evaluate_assumptions: { to: ['compare_history', 'independent_estimate'], basis: 'ISA 540 — مقارنة الافتراضات بالنتائج الفعلية أو بتقدير مستقل' },
+  specialists: { to: ['independent_estimate', 'third_party'], basis: 'ISA 500 / ISA 620 — تقدير مستقل أو مصدر خارجي عند غياب تقرير خبير الإدارة' },
+  discount_rates: { to: ['third_party', 'independent_estimate'], basis: 'ISA 540 — مدخلات السوق من مصدر خارجي أو معدل يحتسبه المراجع' },
+  sensitivity: { to: ['independent_estimate'], basis: 'ISA 540 — مدى تقدير مستقل يغني عن تحليل الحساسية الغائب' },
+  recalculate: { to: ['independent_estimate'], basis: 'ISA 540 — يعيد المراجع التقدير بنفسه عند غياب جداول الإدارة' },
+  test_controls: { to: ['data_completeness', 'journal_entries'], basis: 'ISA 330 — عند تعذّر الاعتماد على الضوابط: إجراءات تحقق أساسية موسّعة' },
+  it_systems: { to: ['data_completeness', 'journal_entries'], basis: 'ISA 315 / ISA 330 — اختبار اكتمال البيانات ودقتها مباشرة عند غياب توثيق الأنظمة' },
+  site_visits: { to: ['subsequent', 'cut_off'], basis: 'ISA 501 — عند تعذّر حضور الجرد: جرد في تاريخ لاحق مع اختبار الحركات بين التاريخين' },
+  inspect_contracts: { to: ['confirmations', 'third_party'], basis: 'ISA 500 / ISA 505 — مصادقة الطرف الآخر أو مصدر خارجي بدل العقد الغائب' },
+  data_completeness: { to: ['recalculate'], basis: 'ISA 500 — يعيد المراجع بناء البيانات من السجلات الأصلية' },
+  cut_off: { to: ['subsequent'], basis: 'ISA 500 / ISA 560 — فحص المعاملات اللاحقة لتاريخ القوائم' },
+  journal_entries: { to: ['data_completeness'], basis: 'ISA 240 — اختبار اكتمال مجتمع القيود من مصادره عند تعذّر التصدير الكامل' },
+  compare_history: { to: ['independent_estimate'], basis: 'ISA 540 — تقدير مستقل عند غياب سجل التقديرات السابقة' },
+  retrospective: { to: ['independent_estimate'], basis: 'ISA 540 — تقدير مستقل عند غياب تسوية تقديرات السنة السابقة' },
+  third_party: { to: ['independent_estimate'], basis: 'ISA 500 — تقدير مستقل عند غياب المصدر الخارجي' },
+  component_auditors: { to: ['inspect_contracts', 'recalculate'], basis: 'ISA 600 — إجراءات مباشرة من فريق المجموعة على معلومات المكوّن' },
+  subsequent: { to: ['inspect_contracts'], basis: 'ISA 560 — فحص المحاضر والعقود للأحداث اللاحقة' },
+};
+
+export type FollowUpReason = 'alternative' | 'supplement' | 'deepen';
+export type FollowUpRequest = DocRequest & { round: 2; reason: FollowUpReason; reasonAr: string; basis: string; from?: string; proc: ProcKey; procAr: string; theme: string; themeAr: string;
+  used?: number; of?: number; share?: number; precedents: { company: string; page: number }[] };
+const REASON_AR: Record<FollowUpReason, string> = { alternative: 'إجراء بديل', supplement: 'استكمال مستند', deepen: 'تعميق الفحص' };
+
+/** The second-round requests, from the first round's requests and the state of each one's answer. */
+export function followUpRequests(first: OpeningRequest[], stateOf: (id: string) => RoundOneState, opts: { deepenPerTheme?: number; minShare?: number } = {}): FollowUpRequest[] {
+  const out: FollowUpRequest[] = [], perDeep = opts.deepenPerTheme ?? 2, min = opts.minShare ?? 0.15;
+  const byTheme = new Map<string, OpeningRequest[]>();
+  for (const r of first) byTheme.set(r.theme, [...(byTheme.get(r.theme) ?? []), r]);
+  for (const [t, reqs] of byTheme) {
+    const tp = THEME_PROCS[t], themeAr = reqs[0].themeAr, asked = new Set<ProcKey>(reqs.map((r) => r.proc)), emitted = new Set<string>();
+    const precedents = reqs[0].precedents;
+    const push = (proc: ProcKey, reason: FollowUpReason, basis: string, from: OpeningRequest | null, priority: DocRequest['priority']) => {
+      const [title, purpose] = PROC_DOCS[proc].docs[0];
+      const id = 'PBC-R2-' + t + '-' + proc + (reason === 'supplement' ? '-s' : '');
+      if (emitted.has(id)) return;
+      emitted.add(id);
+      const n = tp?.procs[proc];
+      out.push({ id, round: 2, reason, reasonAr: REASON_AR[reason], basis, from: from?.id, proc, procAr: PROC_DOCS[proc].ar, theme: t, themeAr, precedents,
+        title: (reason === 'supplement' ? 'استكمال: ' : '') + title + ' — ' + themeAr,
+        purpose: reason === 'supplement' ? 'المستند المستلم في الجولة الأولى ناقص — يُستكمل بما يغطي: ' + purpose
+          : reason === 'alternative' ? 'بديل عن «' + (from ? from.title : '') + '» — ' + purpose
+          : purpose + (n && tp ? ' (' + n + ' من ' + tp.reports + ' مراجعين في التقارير العالمية)' : ''),
+        lineKey: reqs[0].lineKey, accounts: [], standard: PROC_DOCS[proc].standard, priority, source: 'engine',
+        ...(n && tp ? { used: n, of: tp.reports, share: Math.round((n / tp.reports) * 100) / 100 } : {}) });
+    };
+    for (const r of reqs) {
+      const st = stateOf(r.id);
+      if (st === 'partial') push(r.proc, 'supplement', r.standard + ' — كفاية الدليل ومناسبته', r, 'عالية');
+      else if (st === 'unavailable' || st === 'rejected') {
+        const alt = ALTERNATIVES[r.proc];
+        for (const k of alt?.to ?? []) if (!asked.has(k)) push(k, 'alternative', alt!.basis, r, 'عالية');
+      }
+    }
+    /* deepen only where the client has started answering the theme; an unanswered theme waits in the first round */
+    if (tp && reqs.some((r) => stateOf(r.id) === 'accepted')) {
+      const next = (Object.entries(tp.procs) as [ProcKey, number][]).map(([k, n]) => ({ k, n, share: n / tp.reports }))
+        .filter((x) => !asked.has(x.k) && x.share >= min).sort((a, b) => b.n - a.n).slice(0, perDeep);
+      for (const { k, share } of next) push(k, 'deepen', PROC_DOCS[k].standard + ' — الإجراء التالي لدى مراجعي التقارير العالمية لهذا الموضوع', null, share >= 0.3 ? 'متوسطة' : 'منخفضة');
+    }
+  }
+  const rank: Record<FollowUpReason, number> = { alternative: 0, supplement: 1, deepen: 2 };
+  return out.sort((a, b) => rank[a.reason] - rank[b.reason] || (b.share ?? 0) - (a.share ?? 0));
+}
+
+/** One line per theme for the second round: how many requests of each kind, and what is still waiting in the first. */
+export function followUpSummary(first: OpeningRequest[], stateOf: (id: string) => RoundOneState, second = followUpRequests(first, stateOf)) {
+  const themes = [...new Set(first.map((r) => r.theme))];
+  return themes.map((t) => {
+    const f = first.filter((r) => r.theme === t), s = second.filter((r) => r.theme === t);
+    return { theme: t, themeAr: f[0].themeAr, accepted: f.filter((r) => stateOf(r.id) === 'accepted').length, open: f.filter((r) => stateOf(r.id) === 'open').length,
+      alternative: s.filter((r) => r.reason === 'alternative').length, supplement: s.filter((r) => r.reason === 'supplement').length, deepen: s.filter((r) => r.reason === 'deepen').length };
+  });
+}

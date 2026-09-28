@@ -414,3 +414,9 @@ details.ap-card>.card-b{overflow-x:auto}
 .tbc-jev.ok{border-color:color-mix(in srgb,var(--sk-ok) 35%,var(--sk-line));background:var(--sk-ok-soft)}
 .tbc-jev.warn{border-color:color-mix(in srgb,var(--sk-warn) 35%,var(--sk-line));background:var(--sk-warn-soft)}
 .tbc-jev b{display:block;font-size:12px}.tbc-jev p{margin:4px 0;font-size:12px;color:var(--sk-ink-2)}.tbc-jev small{color:var(--sk-ink-3)}
+
+/* ---------- the second round of requests ---------- */
+.tbr-r2card{overflow-x:auto}
+.tbr-r2card .sk-table td.num{text-align:center}
+.tbr-note{margin:10px 0 0;color:var(--sk-mute);font-size:13px}
+.tbr-req small.tbr-r2{color:color-mix(in srgb,var(--sk-brand) 70%,var(--sk-ink));font-weight:600}
