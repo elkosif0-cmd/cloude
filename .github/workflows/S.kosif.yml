@@ -15,6 +15,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  windows-build-smoke:
+    name: Windows production-build smoke
+    runs-on: windows-latest
+    env:
+      KOSIF_UNLOCK_PASSWORD: ${{ secrets.KOSIF_UNLOCK_PASSWORD }}
+    steps:
+      - name: Checkout S.kosif
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build S.kosif on Windows
+        run: python build.py
+
+      - name: Verify Windows build artifacts
+        run: |
+          python -c "from pathlib import Path; required=['dist/index.html','dist/app-safe.html','dist/skosif.js','dist/skosif.css','dist/sw.js']; missing=[p for p in required if not Path(p).is_file()]; assert not missing, 'missing build artifacts: '+', '.join(missing); print('Windows production-build smoke: OK')"
+
   validate:
     name: S.kosif Production Build
     runs-on: ubuntu-latest
@@ -63,6 +84,12 @@ jobs:
           npx tsc -p tsconfig.fusion.json --noEmit
           npx vitest run src/engine/fusion
           node ../tools/build_engines.mjs --check
+
+      - name: Test KOSIF Think orchestrator
+        working-directory: app
+        run: |
+          npx tsc -p tsconfig.think.json --noEmit
+          npx vitest run src/engine/think
 
       - name: Capability docs are in sync with the registry
         run: python3 tools/capability_docs.py --check
@@ -201,6 +228,7 @@ jobs:
           NODE_PATH=/tmp/pw/node_modules node tools/ui_smoke.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules node tools/feature_audit.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules node tools/jesim_e2e.mjs http://localhost:8765/app-safe.html
+          NODE_PATH=/tmp/pw/node_modules node tools/assistant_reach.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules timeout 1500 node tools/phone_layout.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/revisit_e2e.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules timeout 300 node tools/jev_page_check.mjs
