@@ -96,10 +96,12 @@ await p.keyboard.press('Escape');
 ok('الهوية والثيمات','خمسة ثيمات احترافية جديدة',['aurora','vivid','oasis','graphite','onyx'].every(x=>E.looks>=14));
 await p.evaluate(()=>SKosifShell.setLook('oasis'));await p.waitForTimeout(500);
 await go('tbreview',1800);await p.click('[data-tab="fs"]');await p.waitForTimeout(700);await p.click('[data-doc="integrated"]');await p.waitForTimeout(1500);
-const IR=await p.evaluate(()=>({cover:!!document.querySelector('.ir-cover'),secs:document.querySelectorAll('.ir-sec').length,q:!!document.querySelector('.ir-q'),bar:!!document.querySelector('.sqc-nb'),risks:document.querySelectorAll('.ir-rt tbody tr').length,
+const IR=await p.evaluate(()=>({cover:!!document.querySelector('.ir-cover'),secs:document.querySelectorAll('.ir-sec').length,q:!!document.querySelector('.ir-q'),bar:!!document.querySelector('.sqc-nb'),risks:document.querySelectorAll('.ir-rt tbody tr').length,compat:document.querySelectorAll('.ir-compat-t tbody tr').length,
+  corpusCompat:SKEngines.reports.globalCorpus.reportCompatibility(['auditor_report','income_statement','balance_sheet']).length,
   prov:window.SKosifAI&&SKosifAI.providers().map(x=>x.id).join(','),check:SKEngines.reports.narrative.verifyNumbers('412.6 مليون',{allowed:[412.6]}).length===0}));
 ok('التقرير المتكامل','التقرير السنوي المتكامل على بنية التقارير العالمية (غلاف، رسائل، مخاطر، جدوى، حوكمة، مراجع، قوائم، ملحق مطابقة)',IR.cover&&IR.secs>=15&&IR.q&&IR.bar&&IR.risks>=5);
 ok('التقرير المتكامل','الذكاء الاصطناعي من Gemini أو OpenAI أو Claude مع التحقق من كل رقم',IR.prov==='gemini,openai,anthropic'&&IR.check);
+ok('التقرير المتكامل','اختبار هيكل المخرجات فعلياً مقابل كل التقارير الـ49',IR.compat===49&&IR.corpusCompat===49);
 ok('الهوية والثيمات','هوية SQC واحدة في كل الثيمات',await p.evaluate(()=>getComputedStyle(document.querySelector('.rail #app-name'),'::before').content.includes('SQC')));
 await p.evaluate(()=>SKosifShell.setLook('kosif'));
 /* SQC finish: the interface face is self-hosted and loads; no look lets the rail spill sideways; the SQC mark in every non-heritage look */

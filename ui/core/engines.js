@@ -9015,8 +9015,10 @@ window.SKEngines = (function() {
 		auditorElements: () => auditorElements,
 		blueprint: () => blueprint,
 		committeeTopics: () => committeeTopics,
+		compatibilitySummary: () => compatibilitySummary,
 		kamProcedures: () => kamProcedures,
 		letterTopics: () => letterTopics,
+		reportCompatibility: () => reportCompatibility,
 		reportIds: () => reportIds,
 		reportList: () => reportList,
 		reportStructure: () => reportStructure,
@@ -10193,6 +10195,44 @@ window.SKEngines = (function() {
 		company: r.c,
 		sections: _s ? _s.split(" ").length : 0
 	}));
+	/**
+	* Compare a generated SQC report pack with every one of the 49 report structures
+	* read from the global bundle. This is structural coverage only — it never claims
+	* that a company-specific disclosure is applicable merely because a peer has it.
+	*/
+	function reportCompatibility(generatedKeys) {
+		const have = new Set((generatedKeys || []).map(String));
+		return REPORT_MAP.map((r) => {
+			const structure = reportStructure(r.id);
+			const matchedSections = structure.filter((x) => have.has(x.key));
+			const missingSections = structure.filter((x) => !have.has(x.key));
+			const total = structure.length, matched = matchedSections.length;
+			return {
+				id: r.id,
+				company: r.c,
+				fy: r.fy,
+				framework: r.fw,
+				matched,
+				total,
+				coveragePct: total ? Math.round(matched / total * 100) : 0,
+				matchedSections,
+				missingSections
+			};
+		}).sort((a, b) => b.coveragePct - a.coveragePct || b.total - a.total || a.company.localeCompare(b.company));
+	}
+	/** Aggregate the 49-company compatibility matrix for a generated pack. */
+	function compatibilitySummary(generatedKeys) {
+		const rows = reportCompatibility(generatedKeys);
+		const avg = rows.length ? Math.round(rows.reduce((t, r) => t + r.coveragePct, 0) / rows.length) : 0;
+		return {
+			reports: rows.length,
+			averageCoveragePct: avg,
+			atLeast80: rows.filter((r) => r.coveragePct >= 80).length,
+			atLeast60: rows.filter((r) => r.coveragePct >= 60).length,
+			best: rows.slice(0, 5),
+			weakest: [...rows].sort((a, b) => a.coveragePct - b.coveragePct || b.total - a.total).slice(0, 5)
+		};
+	}
 	var PROC_AR = {
 		forecasts: {
 			ar: "اختبار التوقعات وخطط الأعمال",

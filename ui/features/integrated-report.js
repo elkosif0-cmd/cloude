@@ -47,6 +47,31 @@ function kamsTable(narr){
   return '<div class="ir-kams">'+narr.narrative.kams.map((k,i)=>'<div class="ir-kam"><h5><span>'+(i+1)+'</span>'+esc(k.title)+'</h5><div class="ir-kg"><div><small>الأمر الرئيسي للمراجعة</small><p>'+esc(k.matter)+'</p></div>'+
     '<div><small>كيف عالجت مراجعتنا الأمر</small><p>شملت إجراءاتنا، من بين أمور أخرى، ما يلي:</p><ul>'+k.procedures.map(p=>'<li>'+esc(p)+'</li>').join("")+(k.disclosure?'<li>'+esc(k.disclosure)+'</li>':'')+'</ul></div></div></div>').join("")+'</div>';
 }
+function compatibilityKeys(x){
+  const n=x.narr?.narrative||{},fs=x.fs||{},pk=x.notesPkg||{},keys=new Set(["auditor_report","income_statement","balance_sheet","notes","governance","icfr"]);
+  const add=(k,on=true)=>{if(on)keys.add(k)};
+  add("highlights",!!(x.pack?.facts||[]).length);add("chair_letter",(n.chairLetter?.paragraphs||[]).length>=2);add("ceo_letter",(n.ceoReview?.paragraphs||[]).length>=2);
+  add("kpis",(n.ceoReview?.kpiCommentary||[]).length>=4);add("strategy",(n.strategy?.pillars||[]).length>=2);add("mdna",(n.performanceReview?.paragraphs||[]).length>0);
+  add("liquidity",(n.liquidity?.paragraphs||[]).length>0);add("principal_risks",(n.principalRisks?.risks||[]).length>0);add("risk_management",String(n.principalRisks?.intro||"").length>30);
+  add("viability",!!n.viability?.conclusion);add("sustainability",(n.sustainability?.paragraphs||[]).length>0);add("outlook",(n.outlook?.paragraphs||[]).length>0);
+  add("audit_committee",(n.auditCommittee?.paragraphs||[]).length>0||(n.auditCommittee?.matters||[]).length>0);add("directors_resp",(n.directorsResponsibilities?.paragraphs||[]).length>0);
+  add("kam",(n.kams||[]).length>0);add("materiality",!!x.approach);add("cash_flow",!!fs.cf);add("accounting_policies",!!x.policies&&Object.keys(x.policies).length>0);
+  add("estimates",!!(x.c?.disclosures?.uncertainties||[]).length||(pk.supplementary||[]).some(z=>z.key==="sensitivity"));
+  const line=k=>(fs.lines||[]).find(z=>z.key===k&&(z.current||z.prior));
+  add("tax_note",!!line("zakatExpense")||!!line("taxExpense")||!!line("zakatPayable"));add("ppe_note",!!line("ppe"));add("intangibles_note",!!line("intangibles")||!!line("goodwill"));
+  add("employee_benefits",!!line("eosb"));add("leases_note",!!line("rou")||!!line("leaseNcl")||!!line("leaseCl"));add("provisions_note",!!line("provisions"));add("revenue_note",!!line("revenue"));
+  const sup=new Set((pk.supplementary||[]).map(z=>z.key));add("credit_risk",sup.has("risk"));add("liquidity_risk",sup.has("risk"));add("market_risk",sup.has("risk"));add("fin_instruments",sup.has("risk")||sup.has("financing"));add("capital_mgmt",sup.has("capital"));
+  return [...keys];
+}
+function compatibilityTable(x){
+  const G=GC(),keys=compatibilityKeys(x),rows=G.reportCompatibility(keys),sum=G.compatibilitySummary(keys),cls=n=>n>=80?"pos":n<55?"neg":"";
+  return '<details class="ir-compat" open><summary><b>اختبار المخرجات مقابل التقارير الـ49</b><span>متوسط التغطية الهيكلية '+sum.averageCoveragePct+'% · ≥80%: '+sum.atLeast80+' · ≥60%: '+sum.atLeast60+'</span></summary>'+
+    '<p class="rd-note">هذا اختبار بنية المخرجات، وليس ادعاء أن منشأتك يجب أن تقلّد شركة بعينها. كل صف يقارن أقسام حزمة SQC الناتجة بأقسام التقرير المنشور فعلياً ويُظهر الفجوات.</p>'+
+    '<div class="ir-compat-wrap"><table class="ir-rt ir-compat-t"><thead><tr><th>الشركة / التقرير</th><th>الإطار</th><th>التغطية</th><th>الموجود</th><th>أبرز الأقسام غير المغطاة</th></tr></thead><tbody>'+
+    rows.map(r=>'<tr><td><b>'+esc(r.company)+'</b><small>'+esc(r.fy)+' · '+esc(r.id)+'</small></td><td>'+esc(r.framework)+'</td><td class="'+cls(r.coveragePct)+'"><b>'+r.coveragePct+'%</b></td><td>'+r.matched+'/'+r.total+'</td><td>'+(r.missingSections.length?esc(r.missingSections.slice(0,5).map(z=>z.ar).join("، "))+(r.missingSections.length>5?' <small>+'+(r.missingSections.length-5)+'</small>':''):'<span class="pos">مغطى هيكلياً</span>')+'</td></tr>').join("")+
+    '</tbody></table></div></details>';
+}
+
 function appendix(x){
   const q=x.q,narr=x.narr,G=GC(),sum=G.summary(),bp=G.blueprint();
   const ai=Object.values(narr.source||{}).filter(v=>v==="ai").length,tot=Object.keys(narr.source||{}).length;
@@ -54,6 +79,7 @@ function appendix(x){
     'تُقاس هذه المسودة بما تحتويه تلك التقارير قسماً قسماً، ويُطابَق كل رقم في السرد مع أرقام المنشأة.</p><p class="ir-src">'+(ai?'صاغ الذكاء الاصطناعي '+ai+' من '+tot+' أقسام'+(narr.model?' ('+esc(narr.model)+(narr.at?' · '+esc(narr.at.slice(0,10)):'')+')':'')+'، والباقي من محرك SQC.':'السرد من محرك SQC (دون ذكاء اصطناعي).')+'</p></div></div>'+
     '<table class="ir-rt ir-qt"><thead><tr><th>المعيار</th><th>النتيجة</th><th>الأساس في الحزمة</th></tr></thead><tbody>'+q.items.map(i=>'<tr><td>'+esc(i.ar)+(i.detail?'<small>'+esc(i.detail)+'</small>':'')+'</td><td class="'+(i.ok?"pos":"neg")+'">'+(i.ok?"✓ مستوفى":"✗ غير مستوفى")+'</td><td>'+esc(i.basis)+'</td></tr>').join("")+'</tbody></table>'+
     (narr.unverified&&narr.unverified.length?'<p class="ir-warn">أرقام لم يمكن تتبعها إلى أرقام المنشأة — تُصحح أو تُحذف قبل الإصدار: '+esc(narr.unverified.map(u=>u.section+': '+u.numbers.join("، ")).join(" | "))+'</p>':'')+
+    compatibilityTable(x)+
     '<h4>البنية المتبعة (من ترتيب الأقسام في التقارير الـ'+sum.reports+')</h4><div class="ir-bp">'+bp.map(p=>'<div><b>'+esc(p.ar)+'</b><ol>'+p.sections.map(s=>'<li>'+esc(s.ar)+' <small>'+s.reports+'/'+sum.reports+'</small></li>').join("")+'</ol></div>').join("")+'</div>';
 }
 
@@ -132,7 +158,7 @@ const CSS=`
 .ir-kams{display:grid;gap:12px}.ir-kam{border:1px solid #dfe6ef;border-radius:12px;overflow:hidden}.ir-kam h5{display:flex;gap:10px;align-items:center;margin:0;padding:10px 14px;background:var(--ir-soft)}
 .ir-kam h5 span{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:6px;background:var(--ir-navy);color:#fff;font-size:12px}
 .ir-kg{display:grid;grid-template-columns:1fr 1fr}.ir-kg>div{padding:12px 14px}.ir-kg>div+div{border-inline-start:1px solid #e7ecf3}.ir-kg small{color:var(--ir-blue);font-weight:700}.ir-kg ul{margin:6px 0 0;padding-inline-start:18px;display:grid;gap:4px}
-.ir-q{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:center;margin-bottom:10px}.ir-qs{display:grid;place-items:center;aspect-ratio:1;border-radius:50%;background:conic-gradient(var(--ir-blue) 0 100%,#e3e9f2 0);color:var(--ir-navy);text-align:center;padding:14px;border:10px solid #e3e9f2}
+.ir-compat{margin:18px 0;border:1px solid #dfe6ef;border-radius:12px;background:#fff;overflow:hidden}.ir-compat summary{cursor:pointer;padding:12px 14px;display:flex;justify-content:space-between;gap:12px;background:var(--ir-soft);color:var(--ir-navy)}.ir-compat summary span{font-size:11px;color:#5b6b82}.ir-compat>p{margin:10px 14px}.ir-compat-wrap{max-height:520px;overflow:auto;border-top:1px solid #e7ecf3}.ir-compat-t{margin:0}.ir-compat-t td:first-child{min-width:210px}.ir-compat-t td:last-child{min-width:260px}.ir-compat-t td small{display:block}\n.ir-q{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:center;margin-bottom:10px}.ir-qs{display:grid;place-items:center;aspect-ratio:1;border-radius:50%;background:conic-gradient(var(--ir-blue) 0 100%,#e3e9f2 0);color:var(--ir-navy);text-align:center;padding:14px;border:10px solid #e3e9f2}
 .ir-qs b{font-size:30px}.ir-qs small{font-size:10.5px;line-height:1.3}.ir-src{color:#34455e;font-weight:600}.ir-warn{padding:10px 14px;border-radius:10px;background:#fff4e5;color:#92400e}
 .ir-qt td:nth-child(2){white-space:nowrap;font-weight:700}
 .ir-bp{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.ir-bp ol{margin:6px 0 0;padding-inline-start:18px;font-size:12px;display:grid;gap:2px}.ir-bp small{color:#6a7a92}
