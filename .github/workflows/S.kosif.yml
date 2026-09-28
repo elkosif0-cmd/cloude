@@ -243,6 +243,7 @@ jobs:
           NODE_PATH=/tmp/pw/node_modules timeout 300 node tools/jev_page_check.mjs
           NODE_PATH=/tmp/pw/node_modules timeout 1500 node tools/phone_layout.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/modal_actions_e2e.mjs http://localhost:8765/app-safe.html
+          NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/helper_user_spaces_e2e.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/revisit_e2e.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/v17_runtime_e2e.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/deeplink_e2e.mjs http://localhost:8765/app-safe.html
