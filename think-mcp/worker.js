@@ -1,4 +1,4 @@
-const VERSION = "0.3.0";
+const VERSION = "0.4.0";
 const FAST_AGENTS = [
   { id:"solver", source:"cloudflare", model:"@cf/meta/llama-3.3-70b-instruct-fp8-fast", role:"Lead solver: build the strongest answer and test feasibility." },
   { id:"skeptic", source:"cloudflare", model:"@cf/mistralai/mistral-small-3.1-24b-instruct", role:"Skeptical critic: find weak assumptions, contradictions, missing evidence, and downside risk." },
@@ -347,7 +347,7 @@ const TOOLS=[
   },
   {
     name:"kosif_think",
-    description:"Fast KOSIF Think convenience run using the low-latency Cloudflare council. For frontier Council or Deep mode, use kosif_agent + kosif_council so GPT, Claude, Gemini, Mythos, and Fable return independently.",
+    description:"Mandatory first-step KOSIF preflight when the user explicitly selects or invokes KOSIF Think. For simple tasks call kosif_think with mode fast before any substantive answer or downstream tool. For frontier Council or Deep work, use kosif_agent + kosif_council so GPT, Claude, Gemini, Mythos, and Fable return independently.",
     inputSchema:{
       type:"object",
       properties:{
@@ -361,7 +361,7 @@ const TOOLS=[
   },
   {
     name:"kosif_think_status",
-    description:"Show KOSIF Think version, frontier agents, fast agents, routing, Clean APIs availability, and Jev handoff behavior.",
+    description:"Show KOSIF Think version, mandatory-on-selection preflight behavior, frontier agents, fast agents, routing, Clean APIs availability, and Jev handoff behavior.",
     inputSchema:{type:"object",properties:{},additionalProperties:false}
   }
 ];
@@ -374,7 +374,9 @@ async function callTool(env,name,args){
     ok:true,version:VERSION,cleanApisConfigured:!!env.cleanapis,
     fastAgents:FAST_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role})),
     frontierAgents:FRONTIER_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role,micro:!!a.micro})),
+    mandatoryOnSelection:true,
     routing:{
+      preflight:"When KOSIF Think is explicitly selected or invoked, run KOSIF first before any substantive answer or downstream tool; simple tasks use fast.",
       fast:"kosif_think -> Cloudflare fast council",
       council:"ChatGPT calls kosif_agent independently for gpt + claude + gemini + mythos + fable, then kosif_council",
       deep:"Same five independent agents; then targeted critique/revision agent calls; then kosif_council",
@@ -395,7 +397,7 @@ export default {
     let msg;
     try{msg=await req.json();}catch(_){return rpcErr(null,-32700,"Parse error");}
     const id=msg.id;
-    if(msg.method==="initialize") return rpc(id,{protocolVersion:msg.params?.protocolVersion||"2025-06-18",capabilities:{tools:{}},serverInfo:{name:"kosif-think",version:VERSION},instructions:"Use kosif_think for difficult reasoning. If jev_payload is returned, call the matching Jev Bridge tool before finalizing."});
+    if(msg.method==="initialize") return rpc(id,{protocolVersion:msg.params?.protocolVersion||"2025-06-18",capabilities:{tools:{}},serverInfo:{name:"kosif-think",version:VERSION},instructions:"MANDATORY-ON-SELECTION: If the user explicitly selects or invokes KOSIF Think in the current turn, call KOSIF Think before any substantive answer or other tool, even for a simple task. Use kosif_think with mode fast for simple preflight; use kosif_agent + kosif_council for Council/Deep work. Avoid redundant preflight calls in the same user turn. If a KOSIF result returns jev_payload, call the matching Jev Bridge tool before finalizing. This is plugin/MCP-scope behavior and does not claim platform-level enforcement outside KOSIF."});
     if(msg.method==="notifications/initialized") return new Response(null,{status:202});
     if(msg.method==="ping") return rpc(id,{});
     if(msg.method==="tools/list") return rpc(id,{tools:TOOLS});
