@@ -1,4 +1,4 @@
-const VERSION = "0.5.2";
+const VERSION = "0.5.3";
 const FAST_AGENTS = [
   { id:"solver", source:"cloudflare", model:"@cf/meta/llama-3.3-70b-instruct-fp8-fast", role:"Lead solver: build the strongest answer and test feasibility." },
   { id:"skeptic", source:"cloudflare", model:"@cf/mistralai/mistral-small-3.1-24b-instruct", role:"Skeptical critic: find weak assumptions, contradictions, missing evidence, and downside risk." },
@@ -77,6 +77,26 @@ const LANE_RULES = [
   ["communication",/(email|mail|message|whatsapp|بريد|رسالة|واتساب)/i],
   ["research",/(research|search|source|verify|latest|current|compare|fact|بحث|ابحث|مصدر|تحقق|أحدث|مقارنة|معلومة)/i]
 ];
+
+const BROWSER_JEV_CONTRACT = {
+  source:"uploaded jev-browser.rar source review",
+  executionAuthority:"KOSIF Computer",
+  system1:"stable local KOSIF action graph",
+  ambiguityResolver:"bounded Jev choice over observed stable candidates only",
+  compatibilityOperations:["CLICK","TYPE","SCROLL_DOWN","SCROLL_UP","GO_BACK","FINISH"],
+  sequence:["analyze","action_space","assess","risk_gate","revalidate","execute","verify","delta_or_recover"],
+  completionRule:"FINISH, short action history, or model probability are hypotheses only; require an observable postcondition.",
+  cancellationRule:"Honor cancellation before the next side effect.",
+  sourceFixes:[
+    "replace transient numeric data-jev-id authority with stable semantic action IDs and revalidate before execution",
+    "group candidate filter predicates so ARIA-role nodes cannot bypass recent-action and exclusion rules",
+    "treat target index zero as a valid candidate",
+    "remove raw dashboard secret entry and storage",
+    "reject unauthenticated public remote-control binding",
+    "prefer DOM, event, and screen deltas over continuous full-frame reasoning streams"
+  ],
+  humanGates:["CAPTCHA","OTP","payment confirmation","credential/security confirmation"]
+};
 
 /* ---- access control ----------------------------------------------------------------------------------------------
    /mcp spends paid model calls (the Clean APIs key and Workers AI), so it is closed unless the caller proves itself:
@@ -496,6 +516,14 @@ function preflightTool(args){
       browserTask,
       costApprovalRequired:["mixed","credits","paid","unknown"]
     },
+    browserProtocol:browserTask?BROWSER_JEV_CONTRACT:null,
+    sourceReview:{
+      jevBrowserMerged:true,
+      localFirst:true,
+      boundedJev:true,
+      verifyFinish:true,
+      cancellationAware:true
+    },
     executionPolicy:{
       preferSmallestToolSet:true,
       verifyAfterSideEffects:true,
@@ -504,7 +532,9 @@ function preflightTool(args){
       paidRequiresExplicitApproval:true,
       secretHandling:"never return raw credentials"
     },
-    nextStep:"Use kosif_route with the host's live tool inventory, then execute only authorized routes and verify."
+    nextStep:browserTask
+      ?"Route to KOSIF Computer when available: analyze -> stable action space -> local assess -> bounded Jev only when observed candidates are ambiguous -> revalidate -> risk gate -> execute -> verify -> delta/recover."
+      :"Use kosif_route with the host's live tool inventory, then execute only authorized routes and verify."
   };
 }
 
@@ -714,7 +744,7 @@ async function callTool(env,name,args){
     mandatoryOnSelection:true,
     enforcement:"Instruction-level only; the server cannot force host tool invocation.",
     modelIdentity:"Configured provider aliases; underlying model identity is not independently verified.",
-    improvements:["unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor"],
+    improvements:["unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery"],
     access:{auth:"bearer",pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierEnabled:String(env.THINK_FRONTIER_ENABLED||"true").toLowerCase()!=="false",
       rateLimiter:typeof env.THINK_RATE_LIMITER?.limit==="function",modelLimiter:typeof env.THINK_MODEL_LIMITER?.limit==="function",limits:limits(env),browserOrigins:allowedOrigins(env).length},
     routing:{
@@ -725,7 +755,8 @@ async function callTool(env,name,args){
       finalChair:"Jev review followed by ChatGPT final synthesis",
       hostTools:"kosif_route plans host-mediated plugin/tool calls; the host executes only useNow and returns evidence to KOSIF.",
       tinyFish:"Browser/web interaction is routed through kosif_route when available; it is not part of the hidden reasoning bus.",
-      kosifComputer:"For authorized device/browser work prefer KOSIF Computer. Use browserjev for indexed semantic decisions and browserremote for deterministic remote input; Jev resolves only bounded observed ambiguity."
+      kosifComputer:"For authorized device/browser work prefer KOSIF Computer. Use browserjev for indexed semantic decisions and browserremote for deterministic remote input; Jev resolves only bounded observed ambiguity.",
+      browserJevContract:BROWSER_JEV_CONTRACT
     },
     hostToolRouting:{mode:"host-mediated",directPluginCalls:false,routeTool:"kosif_route",catalogSize:HOST_TOOL_CATALOG.length,dynamicToolsSupported:true,autoCostClasses:Array.from(AUTO_COST_CLASSES),approvalRequired:["mixed","credits","paid","unknown"]},
     jevIntegration:"kosif_council returns jev_payload; pass it to Jev Bridge before the final ChatGPT answer."
@@ -769,7 +800,7 @@ async function handleMcp(req,env,url){
     protocolVersion:msg.params?.protocolVersion||"2025-06-18",
     capabilities:{tools:{}},
     serverInfo:{name:"kosif-think",version:VERSION},
-    instructions:"KOSIF Think public preflight is deterministic and does not run paid models. When explicitly selected, call kosif_preflight first, then kosif_route with the host's live tool inventory. The ChatGPT host executes routed tools and verifies side effects. Model-running kosif_think/kosif_agent remain protected and are not exposed to anonymous sessions. If a result returns jev_payload, call Jev before finalizing."
+    instructions:"KOSIF Think public preflight is deterministic and does not run paid models. When explicitly selected, call kosif_preflight first, then kosif_route with the host's live tool inventory. For authorized browser/device work, prefer KOSIF Computer: stable action graph first, local deterministic choice when obvious, bounded Jev only over observed ambiguous candidates, cancellation before the next side effect, then observable verification and delta/recovery. FINISH alone never proves completion. The ChatGPT host executes routed tools and verifies side effects. Model-running kosif_think/kosif_agent remain protected and are not exposed to anonymous sessions. If a result returns jev_payload, call Jev before finalizing."
   },cors);
   if(msg.method.startsWith("notifications/")) return empty(202,cors);
   if(msg.method==="ping") return rpc(id,{},cors);
