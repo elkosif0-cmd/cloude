@@ -357,7 +357,8 @@ function normalizeAvailableTools(v){
     const name=text(x.name,120);
     if(!name) continue;
     const cc=COST_CLASSES.has(String(x.costClass||""))?String(x.costClass):"unknown";
-    m.set(name.toLowerCase(),{name,connected:x.connected!==false,costClass:cc});
+    const lanes=Array.isArray(x.lanes)?x.lanes.slice(0,12).map(y=>text(y,40)).filter(Boolean):[];
+    m.set(name.toLowerCase(),{name,connected:x.connected!==false,costClass:cc,description:text(x.description,1200),lanes});
   }
   return m;
 }
@@ -373,9 +374,14 @@ function routeTool(env,args){
   const maxTools=Math.max(1,Math.min(20,Number(args?.maxTools)||10));
   const q=task.toLowerCase();
 
-  const scored=HOST_TOOL_CATALOG.map(t=>{
+  const catalogNames=new Set(HOST_TOOL_CATALOG.map(t=>t.name.toLowerCase()));
+  const dynamicTools=Array.from(available.values()).filter(st=>!catalogNames.has(st.name.toLowerCase())).map(st=>{
+    const inferred=st.lanes.length?st.lanes:routeLanes(st.name+" "+st.description);
+    return {name:st.name,lanes:inferred,cost:st.costClass,priority:60,hints:[]};
+  });
+  const scored=HOST_TOOL_CATALOG.concat(dynamicTools).map(t=>{
     const laneHits=t.lanes.filter(l=>lanes.includes(l)).length;
-    const hintHits=t.hints.filter(h=>q.includes(String(h).toLowerCase())).length;
+    const hintHits=(t.hints||[]).filter(h=>q.includes(String(h).toLowerCase())).length;
     const forced=preferred.has(t.name.toLowerCase())?1:0;
     const state=available.get(t.name.toLowerCase());
     const availabilityBoost=available.size?(state?.connected?10000:state?5000:0):0;
@@ -584,7 +590,7 @@ const TOOLS=[
       type:"object",
       properties:{
         task:{type:"string"},
-        availableTools:{type:"array",maxItems:120,items:{type:"object",properties:{name:{type:"string"},connected:{type:"boolean"},costClass:{type:"string",enum:["free","included","existing_plan","mixed","credits","paid","unknown"]}},required:["name"],additionalProperties:false}},
+        availableTools:{type:"array",maxItems:120,items:{type:"object",properties:{name:{type:"string"},connected:{type:"boolean"},costClass:{type:"string",enum:["free","included","existing_plan","mixed","credits","paid","unknown"]},description:{type:"string"},lanes:{type:"array",items:{type:"string"},maxItems:12}},required:["name"],additionalProperties:false}},
         approvedTools:{type:"array",items:{type:"string"},maxItems:80},
         preferredTools:{type:"array",items:{type:"string"},maxItems:40},
         maxTools:{type:"integer",minimum:1,maximum:20},
@@ -621,7 +627,7 @@ async function callTool(env,name,args){
       hostTools:"kosif_route plans host-mediated plugin/tool calls; the host executes only useNow and returns evidence to KOSIF.",
       tinyFish:"Browser/web interaction is routed through kosif_route when available; it is not part of the hidden reasoning bus."
     },
-    hostToolRouting:{mode:"host-mediated",directPluginCalls:false,routeTool:"kosif_route",catalogSize:HOST_TOOL_CATALOG.length,autoCostClasses:Array.from(AUTO_COST_CLASSES),approvalRequired:["mixed","credits","paid","unknown"]},
+    hostToolRouting:{mode:"host-mediated",directPluginCalls:false,routeTool:"kosif_route",catalogSize:HOST_TOOL_CATALOG.length,dynamicToolsSupported:true,autoCostClasses:Array.from(AUTO_COST_CLASSES),approvalRequired:["mixed","credits","paid","unknown"]},
     jevIntegration:"kosif_council returns jev_payload; pass it to Jev Bridge before the final ChatGPT answer."
   },false);
   return null;
