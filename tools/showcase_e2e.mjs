@@ -30,7 +30,10 @@ for (const [tag, opts] of [['laptop', { viewport: { width: 1366, height: 900 } }
   const ctx = await browser.newContext(opts);
   ctx.setDefaultTimeout(30000);
   const p = await ctx.newPage();
-  const errs = []; p.on('pageerror', (e) => errs.push(e.message));
+  /* a page error names the step it happened in and where it was thrown, so a failure in CI can be traced */
+  let phase = 'start';
+  const errs = []; p.on('pageerror', (e) => errs.push(`${e.message} [during ${phase}] at ${String(e.stack || '').split('\n').slice(1, 4).map((l) => l.trim()).join(' < ')}`));
+  phase = 'first start';
   await p.goto(URL_, { waitUntil: 'load' });
   /* settled: the first start's sample data is recorded, its overlay is gone, and the page is the one reloaded after it */
   for (let t0 = Date.now(), quiet = 0; Date.now() - t0 < 90000; await p.waitForTimeout(250)) {
@@ -43,6 +46,7 @@ for (const [tag, opts] of [['laptop', { viewport: { width: 1366, height: 900 } }
   await p.waitForSelector('#view [data-bundle-open]', { timeout: 20000 });
 
   /* the picker */
+  phase = 'picker';
   await p.click('#view .tbr-files [data-bundle-open]');
   await p.waitForSelector('#tbr-bundle [data-bundle-show]', { timeout: 15000 });
   const all = await p.locator('#tbr-bundle [data-bundle-show]').count();
@@ -58,6 +62,7 @@ for (const [tag, opts] of [['laptop', { viewport: { width: 1366, height: 900 } }
   await p.fill('#tbr-bundle [data-bundle-q]', 'Aramco');
 
   /* «عرض القدرات»: the file, the full audit, the tour */
+  phase = 'showcase run';
   const t0 = Date.now();
   const btn = p.locator('#tbr-bundle [data-bundle-show]').first();
   await (opts.hasTouch ? btn.tap() : btn.click());
@@ -72,6 +77,7 @@ for (const [tag, opts] of [['laptop', { viewport: { width: 1366, height: 900 } }
 
   /* every step opens what it names */
   for (const k of info.steps) {
+    phase = 'tour step ' + k;
     await p.evaluate(() => { if (SKosifCore.view() !== 'tbreview') SKosifCore.go('tbreview'); });
     await p.waitForSelector(`#view .tbr-tour [data-tour="${k}"]`, { timeout: 15000 });
     await p.evaluate((kk) => document.querySelector(`#view .tbr-tour [data-tour="${kk}"]`).click(), k);
@@ -87,6 +93,7 @@ for (const [tag, opts] of [['laptop', { viewport: { width: 1366, height: 900 } }
   }
 
   /* the same company again: the same file, no duplicate and no second run */
+  phase = 'same company again';
   await p.evaluate(() => SKosifCore.go('tbreview')); await p.waitForTimeout(400);
   const before = await p.locator('#view .tbr-file').count();
   await p.evaluate(() => SKosifTBReview.showcase('aramco-2025'));
@@ -95,7 +102,7 @@ for (const [tag, opts] of [['laptop', { viewport: { width: 1366, height: 900 } }
   ok(tag, 'choosing the same company again reopens its file', after === before, `${before} → ${after}`);
   await p.click('#view .tbr-tour [data-tour-hide]');
   ok(tag, 'the tour can be hidden', !(await p.locator('#view .tbr-tour').count()));
-  ok(tag, 'no page errors', !errs.length, [...new Set(errs)].slice(0, 2).join(' | '));
+  ok(tag, 'no page errors', !errs.length, [...new Set(errs)].slice(0, 3).join(' | '));
   await ctx.close();
 }
 
