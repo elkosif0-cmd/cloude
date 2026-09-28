@@ -1,4 +1,4 @@
-const VERSION = "0.5.1";
+const VERSION = "0.5.2";
 const FAST_AGENTS = [
   { id:"solver", source:"cloudflare", model:"@cf/meta/llama-3.3-70b-instruct-fp8-fast", role:"Lead solver: build the strongest answer and test feasibility." },
   { id:"skeptic", source:"cloudflare", model:"@cf/mistralai/mistral-small-3.1-24b-instruct", role:"Skeptical critic: find weak assumptions, contradictions, missing evidence, and downside risk." },
@@ -21,6 +21,8 @@ const HOST_TOOL_CATALOG = [
   {name:"Scite",lanes:["research","science"],cost:"existing_plan",priority:94,hints:["citation","cited","paper","استشهاد","مرجع"]},
   {name:"Readwise",lanes:["research","memory","docs"],cost:"existing_plan",priority:82,hints:["library","highlight","saved","مكتبة","ملاحظات"]},
   {name:"Legal Data Hunter",lanes:["research","legal"],cost:"existing_plan",priority:100,hints:["law","regulation","case","قانون","لائحة","نظام","امتثال"]},
+  {name:"KOSIF Computer",lanes:["computer","browser","automation","dev","docs"],cost:"included",priority:125,hints:["computer","desktop","device","windows","browser","playwright","cdp","uia","file dialog","screen state","excel","android","متصفح","جهاز","كمبيوتر","ويندوز","تحكم","اكسل"]},
+  {name:"Jev Bridge",lanes:["decision","browser","automation"],cost:"included",priority:120,hints:["jev","choice","noul","ambiguous","ambiguity","decision","candidate","اختيار","قرار","غموض","مرشح"]},
   {name:"TinyFish",lanes:["browser","research"],cost:"included",priority:100,hints:["browser","click","form","navigate","متصفح","اضغط","افتح"]},
   {name:"Remote Desktop Commander",lanes:["browser","dev"],cost:"included",priority:92,hints:["computer","desktop","terminal","file","كمبيوتر","جهاز","ترمينال"]},
   {name:"Opera Browser Connector",lanes:["browser"],cost:"existing_plan",priority:80,hints:["opera","tab","screenshot","تبويب","متصفح"]},
@@ -58,6 +60,9 @@ const HOST_TOOL_CATALOG = [
 const COST_CLASSES = new Set(["free","included","existing_plan","mixed","credits","paid","unknown"]);
 const AUTO_COST_CLASSES = new Set(["free","included","existing_plan"]);
 const LANE_RULES = [
+  ["decision",/(jev|choice|noul|decision|ambiguous|ambiguity|candidate|اختيار|قرار|غموض|مرشح)/i],
+  ["computer",/(computer|desktop|device|windows|uia|mouse|keyboard|file dialog|screen state|excel|android|كمبيوتر|جهاز|ويندوز|ماوس|كيبورد|اكسل|اندرويد)/i],
+  ["automation",/(automation|workflow|agent loop|autonomous|batch|orchestrat|أتمتة|سير عمل|وكيل ذاتي|دفعة)/i],
   ["legal",/(legal|law|regulat|compliance|contract|case\b|قانون|لائحة|نظام|امتثال|عقد|قضية)/i],
   ["science",/(study|paper|journal|scientific|evidence|clinical|دراسة|ورقة|بحث علمي|دليل علمي)/i],
   ["browser",/(browser|website|page\b|click|navigate|form|screenshot|متصفح|موقع|صفحة|اضغط|افتح|سكرين)/i],
@@ -448,7 +453,22 @@ function routeTool(env,args){
       returnEvidence:"Summarize or attach host-tool results back into KOSIF Think context for synthesis/council.",
       finalReview:"If KOSIF returns jev_payload, run Jev before the final answer.",
       truthfulness:"Never claim that KOSIF Think directly invoked a host plugin; routing is advisory and host-mediated."
-    }
+    },
+    browserJevPolicy:lanes.includes("browser")?{
+      preferredExecutor:"KOSIF Computer",
+      cognitiveLane:"browserjev",
+      directRemoteLane:"browserremote",
+      sequence:"analyze -> snapshot -> assess -> risk gate -> execute -> verify -> delta/recover",
+      jevRule:"Use Jev Bridge only when KOSIF Computer reports bounded ambiguity (needs_jev=true), and choose only among observed stable action IDs.",
+      humanCheckpoints:["CAPTCHA","OTP","payment confirmation","credential/security prompts"],
+      completionRule:"FINISH or confidence is only a hypothesis; require an observable postcondition."
+    }:null,
+    computerPolicy:lanes.includes("computer")?{
+      preferredExecutor:"KOSIF Computer",
+      routingOrder:["browserjev","Playwright/CDP","Chrome DevTools","Windows UIA","vision","coordinates"],
+      batch:"Prefer workflow.run for deterministic multi-step work.",
+      verify:true
+    }:null
   };
 }
 
@@ -694,7 +714,7 @@ async function callTool(env,name,args){
     mandatoryOnSelection:true,
     enforcement:"Instruction-level only; the server cannot force host tool invocation.",
     modelIdentity:"Configured provider aliases; underlying model identity is not independently verified.",
-    improvements:["unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard"],
+    improvements:["unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor"],
     access:{auth:"bearer",pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierEnabled:String(env.THINK_FRONTIER_ENABLED||"true").toLowerCase()!=="false",
       rateLimiter:typeof env.THINK_RATE_LIMITER?.limit==="function",modelLimiter:typeof env.THINK_MODEL_LIMITER?.limit==="function",limits:limits(env),browserOrigins:allowedOrigins(env).length},
     routing:{
@@ -704,7 +724,8 @@ async function callTool(env,name,args){
       deep:"Same five independent agents; then targeted critique/revision agent calls; then kosif_council",
       finalChair:"Jev review followed by ChatGPT final synthesis",
       hostTools:"kosif_route plans host-mediated plugin/tool calls; the host executes only useNow and returns evidence to KOSIF.",
-      tinyFish:"Browser/web interaction is routed through kosif_route when available; it is not part of the hidden reasoning bus."
+      tinyFish:"Browser/web interaction is routed through kosif_route when available; it is not part of the hidden reasoning bus.",
+      kosifComputer:"For authorized device/browser work prefer KOSIF Computer. Use browserjev for indexed semantic decisions and browserremote for deterministic remote input; Jev resolves only bounded observed ambiguity."
     },
     hostToolRouting:{mode:"host-mediated",directPluginCalls:false,routeTool:"kosif_route",catalogSize:HOST_TOOL_CATALOG.length,dynamicToolsSupported:true,autoCostClasses:Array.from(AUTO_COST_CLASSES),approvalRequired:["mixed","credits","paid","unknown"]},
     jevIntegration:"kosif_council returns jev_payload; pass it to Jev Bridge before the final ChatGPT answer."
