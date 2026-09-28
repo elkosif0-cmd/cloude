@@ -699,8 +699,12 @@ table.t{width:100%;border-collapse:separate;border-spacing:0;font-size:var(--sk-
 .v17-runtime-banner{display:none;align-items:flex-start;gap:10px;padding:10px 14px;border:1px solid color-mix(in srgb,var(--ls-mark) 24%,var(--line));background:color-mix(in srgb,var(--ls-soft) 68%,var(--surface));border-radius:14px;margin-bottom:10px;color:var(--ink-2)}
 .v17-runtime-banner.show{display:flex}
 .v17-runtime-banner b{color:var(--ls)}
-.v17-runtime-banner .grow{flex:1}
-.v17-runtime-banner code{direction:ltr;unicode-bidi:isolate;font-size:var(--sk-fs-2xs);color:var(--ink-3)}
+.v17-runtime-banner .grow{flex:1;min-width:0}
+.v17-runtime-banner code{direction:ltr;unicode-bidi:isolate;font-size:var(--sk-fs-2xs);color:var(--ink-3);overflow-wrap:anywhere}
+.v17-runtime-banner time,.v17-runtime-banner [dir="ltr"]{unicode-bidi:isolate}
+.v17-runtime-banner .v17-stack{margin-top:6px}
+.v17-runtime-banner .v17-stack summary{cursor:pointer;font-size:var(--sk-fs-2xs);color:var(--ink-3)}
+.v17-runtime-banner .v17-stack pre{margin:6px 0 0;max-height:12em;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;text-align:left;font-size:var(--sk-fs-2xs);color:var(--ink-3)}
 .v17-nav-secondary{margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
 .v17-product-hero{border:1px solid var(--line);border-radius:24px;background:linear-gradient(145deg,color-mix(in srgb,var(--brand-soft) 55%,var(--surface)),var(--surface));padding:22px;display:flex;align-items:flex-start;justify-content:space-between;gap:18px;box-shadow:var(--shadow)}
 .v17-product-title{display:flex;gap:14px;align-items:flex-start;min-width:0}

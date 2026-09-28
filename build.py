@@ -52,8 +52,10 @@ caps=json.loads(Path("ui/core/capabilities.json").read_text(encoding="utf-8"))
 bundle_css="\n".join(f"/* ---- ui/{n} ---- */\n"+Path("ui",n).read_text(encoding="utf-8") for n in UI_CSS)
 # Each module is isolated: an error while one loads is logged and the modules after it still load.
 bundle_js="window.__SK_CAPS__="+json.dumps(caps,ensure_ascii=False,separators=(",",":"))+";\n"+"\n".join(f"/* ---- ui/{n} ---- */\ntry{{\n"+Path("ui",n).read_text(encoding="utf-8")+f"\n}}catch(e){{console.error('S.kosif module ui/{n} failed to load',e)}}" for n in UI_JS)
-tag=hashlib.sha256((bundle_css+bundle_js).encode()).hexdigest()[:10]
-text=text.replace("</head>",f'<link rel="stylesheet" href="./skosif.css?v={tag}"></head>',1)
+# The build number: the ?v= of the bundle and the <meta name="sqc-build"> the core's error log records with each error,
+# so an error can be told apart from one raised by another release. It covers the core too, not only the bundle.
+tag=hashlib.sha256((text+bundle_css+bundle_js).encode()).hexdigest()[:10]
+text=text.replace("</head>",f'<meta name="sqc-build" content="{tag}"><link rel="stylesheet" href="./skosif.css?v={tag}"></head>',1)
 head,sep,tail=text.rpartition("</body>")
 if not sep: raise SystemExit("Final body close missing")
 text=head+f'<script src="./skosif.js?v={tag}" defer></script></body>'+tail
