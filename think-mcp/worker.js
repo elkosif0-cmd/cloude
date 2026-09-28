@@ -377,7 +377,9 @@ function routeTool(env,args){
     const laneHits=t.lanes.filter(l=>lanes.includes(l)).length;
     const hintHits=t.hints.filter(h=>q.includes(String(h).toLowerCase())).length;
     const forced=preferred.has(t.name.toLowerCase())?1:0;
-    return {...t,score:laneHits*100+hintHits*20+forced*500};
+    const state=available.get(t.name.toLowerCase());
+    const availabilityBoost=available.size?(state?.connected?10000:state?5000:0):0;
+    return {...t,score:availabilityBoost+laneHits*100+hintHits*20+forced*500};
   }).filter(t=>t.score>0).sort((a,b)=>b.score-a.score||b.priority-a.priority||a.name.localeCompare(b.name)).slice(0,maxTools);
 
   const useNow=[],needsApproval=[],needsAvailabilityCheck=[],missingConnections=[];
