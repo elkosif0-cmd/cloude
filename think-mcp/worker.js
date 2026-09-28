@@ -392,7 +392,7 @@ function routeTool(env,args){
   for(const t of scored){
     const st=available.get(t.name.toLowerCase());
     const connected=st?st.connected:null;
-    const costClass=st?.costClass&&st.costClass!=="unknown"?st.costClass:t.cost;
+    const costClass=st?st.costClass:t.cost;
     const item={name:t.name,lanes:t.lanes.filter(l=>lanes.includes(l)),costClass,reason:t.hints.find(h=>q.includes(String(h).toLowerCase()))||t.lanes.filter(l=>lanes.includes(l))[0]||"preferred"};
     if(connected===null){ needsAvailabilityCheck.push(item); continue; }
     if(!connected){ missingConnections.push(item); continue; }
