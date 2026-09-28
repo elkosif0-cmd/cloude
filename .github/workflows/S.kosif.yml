@@ -225,3 +225,4 @@ jobs:
           NODE_PATH=/tmp/pw/node_modules node tools/ui_smoke.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules node tools/feature_audit.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules node tools/jesim_e2e.mjs http://localhost:8765/app-safe.html
+          NODE_PATH=/tmp/pw/node_modules node tools/assistant_reach.mjs http://localhost:8765/app-safe.html
