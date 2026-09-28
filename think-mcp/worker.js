@@ -1,4 +1,4 @@
-const VERSION = "0.5.0";
+const VERSION = "0.5.1";
 const FAST_AGENTS = [
   { id:"solver", source:"cloudflare", model:"@cf/meta/llama-3.3-70b-instruct-fp8-fast", role:"Lead solver: build the strongest answer and test feasibility." },
   { id:"skeptic", source:"cloudflare", model:"@cf/mistralai/mistral-small-3.1-24b-instruct", role:"Skeptical critic: find weak assumptions, contradictions, missing evidence, and downside risk." },
@@ -87,6 +87,7 @@ const LANE_RULES = [
    Nothing returned carries a secret, a token or an upstream error text. */
 const MIN_TOKEN_LENGTH = 32;
 const MODEL_TOOLS = new Set(["kosif_agent","kosif_think"]);
+const PUBLIC_TOOLS = new Set(["kosif_preflight","kosif_route","kosif_council","kosif_think_status"]);
 const BASE_HEADERS = { "cache-control":"no-store", "x-content-type-options":"nosniff", "referrer-policy":"no-referrer" };
 const PREFLIGHT_HEADERS = { "access-control-allow-methods":"POST", "access-control-allow-headers":"authorization, content-type, mcp-protocol-version, mcp-session-id", "access-control-max-age":"600" };
 
@@ -451,6 +452,42 @@ function routeTool(env,args){
   };
 }
 
+
+function preflightTool(args){
+  const question=text(args?.question,12000);
+  if(!question) throw new Error("QUESTION_REQUIRED");
+  const context=text(args?.context,12000);
+  const options=cleanOptions(args?.options);
+  const combined=(question+" "+context).toLowerCase();
+  const lanes=routeLanes(combined);
+  const externalWrite=/(send|email|message|deploy|publish|delete|remove|purchase|pay|buy|merge|commit|upload|submit|create account|api key|token|secret|ارسل|ابعث|انشر|احذف|ادفع|اشتري|ادمج|ارفع|سجل|مفتاح)/i.test(combined);
+  const freshEvidence=/(latest|current|today|now|recent|news|price|status|أحدث|حالي|اليوم|الآن|خبر|سعر|حالة)/i.test(combined);
+  const browserTask=lanes.includes("browser");
+  return {
+    version:VERSION,
+    mode:"deterministic-preflight",
+    modelCalls:false,
+    question,
+    lanes,
+    optionKeys:Object.keys(options),
+    checks:{
+      externalWrite,
+      freshEvidence,
+      browserTask,
+      costApprovalRequired:["mixed","credits","paid","unknown"]
+    },
+    executionPolicy:{
+      preferSmallestToolSet:true,
+      verifyAfterSideEffects:true,
+      noDuplicateWrites:true,
+      freeFirst:true,
+      paidRequiresExplicitApproval:true,
+      secretHandling:"never return raw credentials"
+    },
+    nextStep:"Use kosif_route with the host's live tool inventory, then execute only authorized routes and verify."
+  };
+}
+
 async function runThink(env,args){
   const input={question:text(args?.question,12000),context:text(args?.context,24000),options:cleanOptions(args?.options)};
   if(!input.question) throw new Error("QUESTION_REQUIRED");
@@ -562,6 +599,20 @@ const ARTIFACT_SCHEMA={
 };
 const TOOLS=[
   {
+    name:"kosif_preflight",
+    description:"Deterministic, no-model KOSIF first-step preflight. Use when KOSIF Think is explicitly selected: identify lanes, side-effect risk, freshness needs, cost gates, and the next host-routing step without consuming model credits.",
+    inputSchema:{
+      type:"object",
+      properties:{
+        question:{type:"string"},
+        context:{type:"string"},
+        options:{type:"object",additionalProperties:{type:"string"}}
+      },
+      required:["question"],
+      additionalProperties:false
+    }
+  },
+  {
     name:"kosif_agent",
     description:"Run exactly one KOSIF frontier agent through Clean APIs. Use separate calls for gpt, claude, gemini, mythos, and fable; this avoids one long fan-out request. Returns a structured artifact, not hidden chain-of-thought.",
     inputSchema:{
@@ -631,6 +682,7 @@ const TOOLS=[
 ];
 
 async function callTool(env,name,args){
+  if(name==="kosif_preflight") return toolResult(preflightTool(args),false);
   if(name==="kosif_agent") return toolResult(await runAgentTool(env,args),false);
   if(name==="kosif_council") return toolResult(aggregateCouncilTool(args),false);
   if(name==="kosif_think") return toolResult(await runThink(env,args),false);
@@ -664,44 +716,62 @@ const PATH_TOKEN = /^\/mcp\/([^/]+)$/;
 
 async function handleMcp(req,env,url){
   const lim=limits(env);
-  /* browsers: only the allow-listed origins; a request without Origin is a server-side MCP client */
   const origin=req.headers.get("origin");
   if(origin&&!allowedOrigins(env).includes(origin)) return json({error:"origin_not_allowed"},403);
   const cors=corsFor(origin);
   if(req.method==="OPTIONS") return empty(204,{...cors,...(origin?PREFLIGHT_HEADERS:{}),allow:"POST, OPTIONS"});
   if(req.method!=="POST") return json({error:"method_not_allowed"},405,{...cors,allow:"POST, OPTIONS"});
-
-  /* closed until a real token is configured */
-  const expected=String(env.KOSIF_THINK_TOKEN||"");
-  if(expected.length<MIN_TOKEN_LENGTH) return json({error:"service_unavailable"},503,cors);
-  const ip=req.headers.get("cf-connecting-ip")||"unknown",failKey="auth-fail|ip:"+ip;
-  if(windowCount(failKey)>=lim.authFails) return json({error:"too_many_requests"},429,{...cors,"retry-after":"60"});
-  const pathMatch=PATH_TOKEN.exec(url.pathname);
-  const presented=bearer(req)||(pathMatch?pathMatch[1]:"");
-  if(!presented||!(await sameSecret(presented,expected))){
-    windowHit(failKey,Number.MAX_SAFE_INTEGER);
-    return json({error:"unauthorized"},401,{...cors,"www-authenticate":presented?'Bearer realm="kosif-think", error="invalid_token"':'Bearer realm="kosif-think"'});
-  }
-  const caller=await callerKey(expected);
-  if(!(await allow(env,"THINK_RATE_LIMITER",caller,lim.rpm))) return json({error:"too_many_requests"},429,{...cors,"retry-after":"60"});
-
-  /* JSON only, and never more than the body limit */
   if(!/^application\/json\b/i.test(req.headers.get("content-type")||"")) return json({error:"unsupported_media_type"},415,cors);
+
   let raw;
   try{raw=await readBody(req,lim.maxBody);}catch(_){return json({error:"payload_too_large",maxBytes:lim.maxBody},413,cors);}
   let msg;
   try{msg=JSON.parse(raw);}catch(_){return rpcErr(null,-32700,"Parse error",200,cors);}
   if(!msg||typeof msg!=="object"||Array.isArray(msg)||typeof msg.method!=="string") return rpcErr(null,-32600,"Invalid Request",200,cors);
   const id=msg.id;
-  if(msg.method==="initialize") return rpc(id,{protocolVersion:msg.params?.protocolVersion||"2025-06-18",capabilities:{tools:{}},serverInfo:{name:"kosif-think",version:VERSION},instructions:"MANDATORY-ON-SELECTION: If the user explicitly selects or invokes KOSIF Think in the current turn, call KOSIF Think before any substantive answer or other tool, even for a simple task. Use kosif_think with mode fast for simple preflight; use kosif_agent + kosif_council for Council/Deep work. When external evidence or execution would help, call kosif_route next and pass currently connected host tools plus costClass when known. The ChatGPT host executes only route.useNow; never execute route.needsApproval until the user explicitly approves that tool for the task. Return host-tool evidence to KOSIF for synthesis. If a KOSIF result returns jev_payload, call the matching Jev Bridge tool before finalizing. KOSIF routing is host-mediated: this Worker does not directly invoke arbitrary ChatGPT plugins and must never claim that it did. Avoid redundant preflight calls in the same user turn."},cors);
+
+  const ip=req.headers.get("cf-connecting-ip")||"unknown";
+  const expected=String(env.KOSIF_THINK_TOKEN||"");
+  const pathMatch=PATH_TOKEN.exec(url.pathname);
+  const presented=bearer(req)||(pathMatch?pathMatch[1]:"");
+  let authed=false;
+  if(expected.length>=MIN_TOKEN_LENGTH&&presented){
+    try{authed=await sameSecret(presented,expected);}catch(_){authed=false;}
+  }
+  const failKey="auth-fail|ip:"+ip;
+  if(presented&&!authed){
+    if(windowCount(failKey)>=lim.authFails) return json({error:"too_many_requests"},429,{...cors,"retry-after":"60"});
+    windowHit(failKey,Number.MAX_SAFE_INTEGER);
+  }
+
+  if(msg.method==="initialize") return rpc(id,{
+    protocolVersion:msg.params?.protocolVersion||"2025-06-18",
+    capabilities:{tools:{}},
+    serverInfo:{name:"kosif-think",version:VERSION},
+    instructions:"KOSIF Think public preflight is deterministic and does not run paid models. When explicitly selected, call kosif_preflight first, then kosif_route with the host's live tool inventory. The ChatGPT host executes routed tools and verifies side effects. Model-running kosif_think/kosif_agent remain protected and are not exposed to anonymous sessions. If a result returns jev_payload, call Jev before finalizing."
+  },cors);
   if(msg.method.startsWith("notifications/")) return empty(202,cors);
   if(msg.method==="ping") return rpc(id,{},cors);
-  if(msg.method==="tools/list") return rpc(id,{tools:TOOLS},cors);
+
+  if(msg.method==="tools/list"){
+    const publicTools=TOOLS.filter(t=>PUBLIC_TOOLS.has(t.name));
+    return rpc(id,{tools:authed?TOOLS:publicTools},cors);
+  }
+
   if(msg.method==="tools/call"){
     const name=text(msg.params?.name,80);
-    /* tools that run a model spend money: a second, tighter limit per caller */
-    if(MODEL_TOOLS.has(name)&&!(await allow(env,"THINK_MODEL_LIMITER",caller,lim.modelRpm)))
-      return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
+    const isPublic=PUBLIC_TOOLS.has(name);
+    if(!isPublic){
+      if(expected.length<MIN_TOKEN_LENGTH) return rpcErr(id,-32001,"Protected model tools unavailable",503,cors);
+      if(!authed) return rpcErr(id,-32001,"Authentication required",401,{...cors,"www-authenticate":'Bearer realm="kosif-think"'});
+      const caller=await callerKey(presented);
+      if(!(await allow(env,"THINK_RATE_LIMITER",caller,lim.rpm))) return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
+      if(MODEL_TOOLS.has(name)&&!(await allow(env,"THINK_MODEL_LIMITER",caller,lim.modelRpm)))
+        return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
+    }else{
+      const publicCaller="public:ip:"+ip;
+      if(!(await allow(env,"THINK_RATE_LIMITER",publicCaller,lim.rpm))) return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
+    }
     try{
       const result=await callTool(env,name,msg.params?.arguments||{});
       return result?rpc(id,result,cors):rpcErr(id,-32602,"Unknown tool",200,cors);
