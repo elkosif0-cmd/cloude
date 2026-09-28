@@ -178,9 +178,11 @@ for (const [tag, opts, screensToo] of [['phone', { viewport: { width: 390, heigh
   /* the card keeps a side gutter (both rounded sides clearly visible), whatever font has loaded yet */
   for (const o of ov) if (o.left < 12 || o.right > o.W - 12 || !o.textInside || o.over > 2 || !o.rtl) failures.push(`${tag}: demo-loading card does not fit the screen ${JSON.stringify(o)}`);
   const ch = await p.evaluate(async () => { SKosifSpace.choose(); await new Promise((r) => setTimeout(r, 300)); const d = document.querySelector('#sqc-space .skd'), de = document.documentElement;
-    if (!d) return null; const r = d.getBoundingClientRect(), out = { W: de.clientWidth, left: Math.round(r.left), right: Math.round(r.right), over: Math.max(de.scrollWidth, document.body.scrollWidth) - de.clientWidth, scrollsInside: d.scrollHeight <= d.clientHeight + 1 || /(auto|scroll)/.test(getComputedStyle(d).overflowY) };
+    if (!d) return null; const r = d.getBoundingClientRect(), acts = [...d.querySelectorAll('.skd-acts .btn')].filter((b) => b.offsetParent !== null).map((b) => { const x = b.getBoundingClientRect(); return { text: (b.textContent || '').trim().slice(0, 28), left: Math.round(x.left), right: Math.round(x.right), top: Math.round(x.top), bottom: Math.round(x.bottom), cut: b.scrollWidth > b.clientWidth + 2 }; });
+    let overlap = false; for (let i = 0; i < acts.length; i++) for (let j = i + 1; j < acts.length; j++) if (acts[i].left < acts[j].right - 2 && acts[j].left < acts[i].right - 2 && acts[i].top < acts[j].bottom - 2 && acts[j].top < acts[i].bottom - 2) overlap = true;
+    const out = { W: de.clientWidth, left: Math.round(r.left), right: Math.round(r.right), over: Math.max(de.scrollWidth, document.body.scrollWidth) - de.clientWidth, scrollsInside: d.scrollHeight <= d.clientHeight + 1 || /(auto|scroll)/.test(getComputedStyle(d).overflowY), acts, actionFits: acts.every((a) => a.left >= 0 && a.right <= de.clientWidth && !a.cut), actionOverlap: overlap };
     document.getElementById('sqc-space').remove(); return out; });
-  if (!ch || ch.left < 0 || ch.right > ch.W || ch.over > 2 || !ch.scrollsInside) failures.push(`${tag}: company chooser does not fit the screen ${JSON.stringify(ch)}`);
+  if (!ch || ch.left < 0 || ch.right > ch.W || ch.over > 2 || !ch.scrollsInside || !ch.actionFits || ch.actionOverlap) failures.push(`${tag}: company chooser does not fit the screen ${JSON.stringify(ch)}`);
   /* status text in every look (light and night): the chips, badges and danger buttons of the screens that carry them */
   if (tag === 'phone') {
     step(tag + ' · status text in every look');
