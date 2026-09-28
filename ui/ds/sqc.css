@@ -88,11 +88,20 @@ body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-r
    Screens laid out for laptops keep their design; on narrow screens their grids may shrink below their content
    (minmax(0,…)), four-up figures become two-up, side-by-side panels stack, controls shrink to their column, and
    wide tables scroll inside their panel instead of pushing the page sideways. (tools/phone_layout.mjs) */
+html{overflow-x:hidden}
 @media (max-width:900px){
+  html,body{overflow-x:hidden;max-width:100vw}
+  .app,.maincol,.main,#view{min-width:0;max-width:100%}
+  .card{min-width:0;max-width:100%}
+  .card-b{min-width:0;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .sk-table-wrap,.tw,.tbl-wrap,.table-wrap,.t-wrap{min-width:0;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
   .sk-grid-2,.intel-view .grid2{grid-template-columns:minmax(0,1fr)}
   .sk-grid-2>*,.grid2>*{min-width:0}
   .card-h{flex-wrap:wrap}
   .card-h>*{min-width:0}
+}
+@media (max-width:760px){
+  #sk-tb-theme{display:none}
 }
 @media (max-width:640px){
   .skx-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
