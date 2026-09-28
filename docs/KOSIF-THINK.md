@@ -213,6 +213,8 @@ This preserves the real platform boundary while making tool use systematic.
 
 The built-in catalog covers the tools currently used around KOSIF, including Acumen, Tavily, Parallel Search, Firecrawl, Consensus, Scite, Readwise, Legal Data Hunter, TinyFish, Remote Desktop Commander, GitHub, Superpowers, Codex Security, Cloudflare, Vercel, Supabase, PostHog, Figma, Adobe Express, Canva, Runway and related development/creative tools.
 
+The router is not limited to that catalog. The host can pass a future or custom connected tool with `name`, optional `description`, optional `lanes`, and `costClass`; KOSIF can route it without another Worker release. This is how the contract scales to newly installed ChatGPT plugins.
+
 ### Connection truthfulness
 The catalog is **not** proof that a tool is connected. The ChatGPT host passes the tools it can actually access in `availableTools`. If availability is not supplied, the router returns `needsAvailabilityCheck` and never assumes a connection.
 
