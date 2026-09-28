@@ -22,26 +22,30 @@ const setConf=(patch,id)=>{const pid=id||provider(),o=read(),c=conf(pid);delete 
 const setProvider=id=>{if(!PV().isProvider(id))return;const o=read();o.provider=id;write(o)};
 const aiEng=()=>window.SKEngines&&SKEngines.audit.aiReview;
 
-async function send(url,init,timeoutMs,signal){
+async function send(url,init,timeoutMs,signal,pid=provider()){
   const ac=new AbortController(),t=setTimeout(()=>ac.abort(),timeoutMs||180000);
   if(signal)signal.addEventListener("abort",()=>ac.abort(),{once:true});
   let res;
   try{res=await fetch(url,{...init,signal:ac.signal})}
-  catch{clearTimeout(t);throw new Error(ac.signal.aborted?"أُلغي الطلب أو تجاوز المهلة.":PV().friendlyError(provider(),0))}
+  catch{clearTimeout(t);throw new Error(ac.signal.aborted?"أُلغي الطلب أو تجاوز المهلة.":PV().friendlyError(pid,0))}
   clearTimeout(t);
   let data=null;try{data=await res.json()}catch{}
-  if(!res.ok)throw new Error(PV().friendlyError(provider(),res.status,PV().errorMessage(data)));
+  if(!res.ok)throw new Error(PV().friendlyError(pid,res.status,PV().errorMessage(data)));
   return data;
 }
-function need(){const c=conf();if(!c.key)throw new Error("لم يُضبط مفتاح "+c.label+" بعد — أدخله في بطاقة «المراجع الذكي».");return c}
-async function generate(body,opts={}){
-  const c=need(),model=opts.model||c.model,w=PV().buildRequest(c.provider,body,model,c.key);
-  const data=await send(w.url,{method:"POST",headers:w.headers,body:JSON.stringify(w.body)},opts.timeout,opts.signal);
+function need(id){const c=conf(id);if(!c.key)throw new Error("لم يُضبط مفتاح "+c.label+" بعد — أدخله في بطاقة «المراجع الذكي».");return c}
+async function generateFor(id,body,opts={}){
+  if(!PV().isProvider(id))throw new Error("مزود ذكاء اصطناعي غير معروف.");
+  const c=need(id),model=opts.model||c.model,w=PV().buildRequest(c.provider,body,model,c.key);
+  const data=await send(w.url,{method:"POST",headers:w.headers,body:JSON.stringify(w.body)},opts.timeout,opts.signal,c.provider);
   return PV().toGeminiResponse(c.provider,data);
+}
+async function generate(body,opts={}){
+  return generateFor(provider(),body,opts);
 }
 async function models(){
   const c=need(),r=PV().modelsRequest(c.provider,c.key);
-  const list=PV().modelsFrom(c.provider,await send(r.url,{method:"GET",headers:r.headers},30000));
+  const list=PV().modelsFrom(c.provider,await send(r.url,{method:"GET",headers:r.headers},30000,undefined,c.provider));
   if(list.length)setConf({models:list});
   return list;
 }
@@ -81,5 +85,5 @@ function bindCard(node,onChange){
     }catch(err){toast(err.message,"bad")}finally{b.disabled=false;b.textContent=old}
   });
 }
-window.SKosifAI=Object.freeze({ready:()=>!!(PV()&&conf().key),conf,provider,setProvider,providers:()=>PV()?Object.values(PV().PROVIDERS):[],setModel:m=>setConf({model:m}),generate,models,test,cardHTML,bindCard});
+window.SKosifAI=Object.freeze({ready:()=>!!(PV()&&conf().key),conf,provider,setProvider,providers:()=>PV()?Object.values(PV().PROVIDERS):[],configured:()=>PV()?Object.keys(PV().PROVIDERS).filter(id=>!!conf(id).key):[],setModel:m=>setConf({model:m}),generate,generateFor,models,test,cardHTML,bindCard});
 })();
