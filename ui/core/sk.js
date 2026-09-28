@@ -100,6 +100,7 @@ const ICONS={
   auditanalytics:SV('<circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.3-4.3"/><path d="m7.5 12.5 2.2-2.2 2 2 3-3.3"/>'),
   auditlab:SV('<path d="M6 18h8M3 22h18M14 22a7 7 0 1 0 0-14h-1M9 14h2M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2zM12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/>'),
   codex:SV('<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/>'),
+  benchmarks:SV('<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/><circle cx="16" cy="9" r="2"/>'),
   salesmap:SV('<path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>'),
   jesim:SV('<path d="M5 4h10l4 4v12H5z"/><path d="M15 4v4h4M8 12h8M8 16h5"/><circle cx="17.5" cy="17.5" r="2.5"/><path d="m19.3 19.3 1.7 1.7"/>'),
   ptree:SV('<circle cx="12" cy="5" r="2.2"/><circle cx="5" cy="19" r="2.2"/><circle cx="12" cy="19" r="2.2"/><circle cx="19" cy="19" r="2.2"/><path d="M12 7.2v9.6M12 11H6v5.8M12 11h7v5.8"/>'),

@@ -880,6 +880,30 @@
    ]
   },
   {
+   "id": "benchmarks",
+   "label": "المقارنة بالشركات العالمية",
+   "sub": "نسب الشركة من دفاترها مقابل 35 مجموعة عالمية من حزمة الأبحاث: الربيعيات والوسيط والمرتبة وأقرب الشركات بصفحاتها، وماذا أفحص أولاً",
+   "group": "helpers",
+   "hubLabel": "المقارنة بالشركات العالمية",
+   "tier": "MANAGEMENT",
+   "module": "ui/features/benchmarks.js + SKEngines.reports.corpusBenchmarks",
+   "data": [
+    "يقرأ الدفاتر المحاسبية للفترة النشطة (قراءة فقط)",
+    "sqc_bench_v1 (قطاع المقارنة المختار)"
+   ],
+   "legacy": "جديد — مقارنة مرجعية من حزمة الأبحاث للمحاسب",
+   "decision": "Rebuild",
+   "kw": "مقارنة مرجعية نسب هامش ربح تداول أيام تحصيل مخزون موردين شركات عالمية قطاع وسيط ربيع benchmark",
+   "adv": false,
+   "en": "Global Benchmarks",
+   "feeds": [
+    "receivables",
+    "inventory",
+    "costs",
+    "cash"
+   ]
+  },
+  {
    "id": "receivables",
    "label": "الذمم والتحصيل",
    "sub": "أعمار الذمم والمتابعة",
