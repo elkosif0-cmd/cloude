@@ -1,4 +1,4 @@
-const VERSION = "0.5.1";
+const VERSION = "0.5.2";
 const FAST_AGENTS = [
   { id:"solver", source:"cloudflare", model:"@cf/meta/llama-3.3-70b-instruct-fp8-fast", role:"Lead solver: build the strongest answer and test feasibility." },
   { id:"skeptic", source:"cloudflare", model:"@cf/mistralai/mistral-small-3.1-24b-instruct", role:"Skeptical critic: find weak assumptions, contradictions, missing evidence, and downside risk." },
@@ -13,6 +13,7 @@ const FRONTIER_AGENTS = [
 ];
 
 const HOST_TOOL_CATALOG = [
+  {name:"KOSIF Computer",lanes:["browser","dev"],cost:"included",priority:110,hints:["computer","desktop","browser","click","navigate","form","windows","app","متصفح","كمبيوتر","جهاز","ويندوز","اضغط","افتح"]},
   {name:"Acumen by Talarion",lanes:["research"],cost:"existing_plan",priority:100,hints:["blind spot","missing","coverage","what am i missing","نقطة عمياء","ناقص"]},
   {name:"Tavily",lanes:["research"],cost:"existing_plan",priority:92,hints:["search","current","latest","web","بحث","حديث"]},
   {name:"Parallel Search",lanes:["research"],cost:"existing_plan",priority:90,hints:["parallel","compare sources","مصادر","مقارنة"]},
@@ -58,6 +59,7 @@ const HOST_TOOL_CATALOG = [
 const COST_CLASSES = new Set(["free","included","existing_plan","mixed","credits","paid","unknown"]);
 const AUTO_COST_CLASSES = new Set(["free","included","existing_plan"]);
 const LANE_RULES = [
+  ["device",/(computer|desktop|windows|mouse|keyboard|app\b|dialog|screen|device|كمبيوتر|جهاز|ويندوز|ماوس|كيبورد|نافذة|شاشة)/i],
   ["legal",/(legal|law|regulat|compliance|contract|case\b|قانون|لائحة|نظام|امتثال|عقد|قضية)/i],
   ["science",/(study|paper|journal|scientific|evidence|clinical|دراسة|ورقة|بحث علمي|دليل علمي)/i],
   ["browser",/(browser|website|page\b|click|navigate|form|screenshot|متصفح|موقع|صفحة|اضغط|افتح|سكرين)/i],
@@ -72,6 +74,26 @@ const LANE_RULES = [
   ["communication",/(email|mail|message|whatsapp|بريد|رسالة|واتساب)/i],
   ["research",/(research|search|source|verify|latest|current|compare|fact|بحث|ابحث|مصدر|تحقق|أحدث|مقارنة|معلومة)/i]
 ];
+
+const BROWSER_JEV_CONTRACT = {
+  source:"uploaded jev-browser.rar source review",
+  executionAuthority:"KOSIF Computer",
+  system1:"stable local KOSIF action graph",
+  ambiguityResolver:"bounded Jev choice over observed stable candidates only",
+  compatibilityOperations:["CLICK","TYPE","SCROLL_DOWN","SCROLL_UP","GO_BACK","FINISH"],
+  sequence:["analyze","action_space","assess","risk_gate","revalidate","execute","verify","delta_or_recover"],
+  completionRule:"FINISH, short history, or model probability are hypotheses only; require observable postconditions.",
+  cancellationRule:"Honor cancellation before the next side effect.",
+  sourceFixes:[
+    "replace transient data-jev-id authority with stable semantic action IDs",
+    "correct candidate predicate precedence so role nodes do not bypass exclusion/risk rules",
+    "treat element index zero as valid",
+    "remove raw dashboard secret entry/storage",
+    "reject unauthenticated public remote-control binding",
+    "prefer event/DOM/screen deltas over continuous full-frame reasoning streams"
+  ],
+  humanGates:["CAPTCHA","OTP","payment confirmation","credential/security confirmation"]
+};
 
 /* ---- access control ----------------------------------------------------------------------------------------------
    /mcp spends paid model calls (the Clean APIs key and Workers AI), so it is closed unless the caller proves itself:
@@ -476,6 +498,14 @@ function preflightTool(args){
       browserTask,
       costApprovalRequired:["mixed","credits","paid","unknown"]
     },
+    browserProtocol:browserTask?BROWSER_JEV_CONTRACT:null,
+    sourceReview:{
+      jevBrowserMerged:true,
+      localFirst:true,
+      boundedJev:true,
+      verifyFinish:true
+
+    },
     executionPolicy:{
       preferSmallestToolSet:true,
       verifyAfterSideEffects:true,
@@ -484,7 +514,9 @@ function preflightTool(args){
       paidRequiresExplicitApproval:true,
       secretHandling:"never return raw credentials"
     },
-    nextStep:"Use kosif_route with the host's live tool inventory, then execute only authorized routes and verify."
+    nextStep:browserTask
+      ?"Route to KOSIF Computer when available: analyze -> stable action space -> local assess -> bounded Jev only if ambiguous -> revalidate -> execute -> verify -> delta/recover."
+      :"Use kosif_route with the host's live tool inventory, then execute only authorized routes and verify."
   };
 }
 
@@ -694,7 +726,7 @@ async function callTool(env,name,args){
     mandatoryOnSelection:true,
     enforcement:"Instruction-level only; the server cannot force host tool invocation.",
     modelIdentity:"Configured provider aliases; underlying model identity is not independently verified.",
-    improvements:["unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard"],
+    improvements:["unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-stable-action-contract","browser-cancel-trace-verification"],
     access:{auth:"bearer",pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierEnabled:String(env.THINK_FRONTIER_ENABLED||"true").toLowerCase()!=="false",
       rateLimiter:typeof env.THINK_RATE_LIMITER?.limit==="function",modelLimiter:typeof env.THINK_MODEL_LIMITER?.limit==="function",limits:limits(env),browserOrigins:allowedOrigins(env).length},
     routing:{
@@ -704,7 +736,9 @@ async function callTool(env,name,args){
       deep:"Same five independent agents; then targeted critique/revision agent calls; then kosif_council",
       finalChair:"Jev review followed by ChatGPT final synthesis",
       hostTools:"kosif_route plans host-mediated plugin/tool calls; the host executes only useNow and returns evidence to KOSIF.",
-      tinyFish:"Browser/web interaction is routed through kosif_route when available; it is not part of the hidden reasoning bus."
+      tinyFish:"Browser/web interaction is routed through kosif_route when available; it is not part of the hidden reasoning bus.",
+      browserJev:"For authorized KOSIF browser work: stable action graph first; local deterministic choice when obvious; bounded Jev over observed candidates only; revalidate, execute and verify through KOSIF Computer; FINISH is not completion proof.",
+      browserJevContract:BROWSER_JEV_CONTRACT
     },
     hostToolRouting:{mode:"host-mediated",directPluginCalls:false,routeTool:"kosif_route",catalogSize:HOST_TOOL_CATALOG.length,dynamicToolsSupported:true,autoCostClasses:Array.from(AUTO_COST_CLASSES),approvalRequired:["mixed","credits","paid","unknown"]},
     jevIntegration:"kosif_council returns jev_payload; pass it to Jev Bridge before the final ChatGPT answer."
@@ -748,7 +782,7 @@ async function handleMcp(req,env,url){
     protocolVersion:msg.params?.protocolVersion||"2025-06-18",
     capabilities:{tools:{}},
     serverInfo:{name:"kosif-think",version:VERSION},
-    instructions:"KOSIF Think public preflight is deterministic and does not run paid models. When explicitly selected, call kosif_preflight first, then kosif_route with the host's live tool inventory. The ChatGPT host executes routed tools and verifies side effects. Model-running kosif_think/kosif_agent remain protected and are not exposed to anonymous sessions. If a result returns jev_payload, call Jev before finalizing."
+    instructions:"KOSIF Think public preflight is deterministic and does not run paid models. When explicitly selected, call kosif_preflight first, then kosif_route with the host's live tool inventory. For browser/device work, prefer KOSIF Computer's stable action graph and local deterministic ranking; call Jev only for bounded observed ambiguity, then verify observable postconditions. The ChatGPT host executes routed tools and verifies side effects. Model-running kosif_think/kosif_agent remain protected and are not exposed to anonymous sessions. If a result returns jev_payload, call Jev before finalizing."
   },cors);
   if(msg.method.startsWith("notifications/")) return empty(202,cors);
   if(msg.method==="ping") return rpc(id,{},cors);
