@@ -276,6 +276,21 @@ test('kosif_route never assumes a plugin is connected when the host did not prov
 });
 
 
+
+test('kosif_route treats an omitted or unknown cost as approval-gated even for a known tool', async () => {
+  const e = env();
+  const r = await worker.fetch(req('/mcp', {
+    token: e.KOSIF_THINK_TOKEN,
+    body: call('kosif_route', {
+      task: 'راجع كود GitHub واكتشف الخطأ',
+      availableTools: [{ name: 'GitHub', connected: true }]
+    })
+  }), e);
+  const out = (await r.json()).result.structuredContent;
+  assert.ok(!out.useNow.some(x => x.name === 'GitHub'));
+  assert.ok(out.needsApproval.some(x => x.name === 'GitHub' && x.costClass === 'unknown'));
+});
+
 test('kosif_route can route future connected tools that are not hardcoded in the catalog', async () => {
   const e = env();
   const r = await worker.fetch(req('/mcp', {
