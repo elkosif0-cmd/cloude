@@ -542,7 +542,6 @@ window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().ac
      Governance: nothing is mutated until every line resolves to an active chart account, the entry balances,
      and the date is open. Missing accounts are returned to the caller for an explicit map/open decision. */
   post:(x,opts={})=>{const d=db(),map=opts.map||{},open=Array.isArray(opts.open)?opts.open:[],
-    cls={"1":"asset","2":"liability","3":"equity","4":"revenue","5":"expense","6":"expense","7":"expense","8":"expense"},
     anyCode=c=>d.accounts.find(a=>String(a.code)===String(c)),activeCode=c=>d.accounts.find(a=>String(a.code)===String(c)&&a.active!==false),
     requested=new Map(open.map(a=>[String(a.code),a])),src=(x.lines||[]).map(l=>{const original=String(l.account||"").trim(),resolved=String(map[original]||original).trim();return{...l,original,resolved}});
     if(src.length<2)return{ok:false,code:"EMPTY_ENTRY",error:"القيد يحتاج سطرين على الأقل"};
@@ -550,10 +549,14 @@ window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().ac
     src.forEach(l=>{if(activeCode(l.resolved))return;const old=anyCode(l.resolved);if(old&&old.active===false){miss.set(l.original,{code:l.original,resolvedCode:l.resolved,name:l.name||old.name||"",inactive:true});return}
       if(!requested.has(l.resolved))miss.set(l.original,{code:l.original,resolvedCode:l.resolved,name:l.name||"",inactive:false})});
     if(miss.size)return{ok:false,code:"MISSING_ACCOUNTS",error:"يوجد حساب غير موجود أو غير نشط في دليل الشركة",missingAccounts:[...miss.values()]};
-    const staged=[],need=[...new Set(src.map(l=>l.resolved).filter(c=>!activeCode(c)))];
-    for(const code of need){const spec=requested.get(code),old=anyCode(code);if(old&&old.active===false)return{ok:false,code:"INACTIVE_ACCOUNT",error:"الحساب "+code+" موجود لكنه غير نشط",missingAccounts:[{code,resolvedCode:code,name:old.name||"",inactive:true}]};
-      const name=String(spec&&spec.name||"").trim();if(!name)return{ok:false,code:"ACCOUNT_NAME_REQUIRED",error:"اكتب اسم الحساب الجديد "+code,missingAccounts:[{code,resolvedCode:code,name:"",inactive:false}]};
-      try{staged.push(E().accounts.createAccount({code,name,type:spec.type||cls[code[0]]||"other",parentId:spec.parentId||""}))}catch{return{ok:false,code:"ACCOUNT_CREATE_FAILED",error:"تعذر فتح الحساب "+code}}}
+    const need=[...new Set(src.map(l=>l.resolved).filter(c=>!activeCode(c)))];
+    for(const code of need){const old=anyCode(code);if(old&&old.active===false)return{ok:false,code:"INACTIVE_ACCOUNT",error:"الحساب "+code+" موجود لكنه غير نشط",missingAccounts:[{code,resolvedCode:code,name:old.name||"",inactive:true}]}}
+    /* an account is opened only as the accountant specified it: code, name and a type chosen from the supported
+       list — never inferred from the code's digits (account-opening-engine); any gap and nothing is written */
+    const plan=E().accountOpening.planAccountOpening(d.accounts,need.map(code=>({...(requested.get(code)||{}),code})));
+    if(!plan.ok){const i=plan.issues[0],why={NAME_REQUIRED:["ACCOUNT_NAME_REQUIRED","اكتب اسم الحساب الجديد "],TYPE_REQUIRED:["ACCOUNT_TYPE_REQUIRED","اختر نوع الحساب الجديد صراحةً "],TYPE_INVALID:["ACCOUNT_TYPE_INVALID","نوع غير مدعوم للحساب "]}[i.reason]||["ACCOUNT_CREATE_FAILED","تعذر فتح الحساب "];
+      return{ok:false,code:why[0],error:why[1]+i.code,issues:plan.issues,missingAccounts:plan.issues.map(x=>({code:x.code,resolvedCode:x.code,name:(requested.get(x.code)||{}).name||"",inactive:false}))}}
+    const staged=plan.accounts;
     const resolved=c=>activeCode(c)||staged.find(a=>String(a.code)===String(c));
     const entry={id:SK.ui.uid("je"),date:x.date||today(),reference:String(x.reference||""),memo:String(x.memo||""),source:x.source||"محاكي القيود",
       lines:src.map(l=>({accountId:resolved(l.resolved).id,debit:r2(l.debit),credit:r2(l.credit)}))};
