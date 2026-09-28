@@ -1,0 +1,34 @@
+/* السلف والدفعات المقدمة — one table, edited in place */
+.adv{display:grid;gap:16px;min-width:0}
+.adv-head{padding:18px 20px}.adv-head h2{margin:0 0 4px}.adv-head p{margin:0;color:var(--sk-ink-3);max-width:820px}
+.adv-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.adv-kpi{border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface);padding:12px 14px;display:grid;gap:3px;box-shadow:var(--sk-shadow-1)}
+.adv-kpi span{font-size:12px;color:var(--sk-ink-3)}.adv-kpi b{font-size:18px;font-variant-numeric:tabular-nums}.adv-kpi small{font-size:11px;color:var(--sk-ink-3)}
+.adv-kpi.warn{border-color:var(--sk-warn);background:var(--sk-warn-soft)}
+.adv-list{overflow:hidden;min-width:0}
+.adv-bar-top{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--sk-line);flex-wrap:wrap}
+.adv-filters{display:flex;gap:6px;flex-wrap:wrap}.adv-filters button{border:1px solid var(--sk-line);background:var(--sk-surface-2);color:var(--sk-ink);border-radius:999px;padding:5px 12px;font:inherit;font-size:12px;cursor:pointer}
+.adv-filters button.on{background:var(--sk-brand);border-color:var(--sk-brand);color:var(--sk-on-brand,#fff)}
+.adv-bar-top input[type=search]{min-width:min(260px,100%);border:1px solid var(--sk-line);border-radius:var(--sk-r-s);padding:7px 10px;background:var(--sk-surface);color:var(--sk-ink)}
+.adv-table td{vertical-align:middle}.adv-table td small{display:block;font-size:11px;color:var(--sk-ink-3)}
+.adv-table input,.adv-table select{width:100%;min-width:0;border:1px solid var(--sk-line);border-radius:var(--sk-r-s);padding:6px 8px;background:var(--sk-surface);color:var(--sk-ink);font:inherit;font-size:12.5px}
+.adv-new td{background:color-mix(in srgb,var(--sk-brand-soft) 50%,var(--sk-surface))}.adv-plus{font-weight:800;color:var(--sk-brand);font-size:18px}
+.adv-row{cursor:pointer}.adv-row:hover td,.adv-row.on td{background:var(--sk-surface-2)}.adv-row:focus-visible{outline:2px solid var(--sk-brand);outline-offset:-2px}
+.adv-od{color:var(--sk-warn)!important;font-weight:700}
+.adv-bar{display:block;height:6px;border-radius:999px;background:var(--sk-surface-3,var(--sk-line));position:relative;min-width:60px;overflow:hidden}
+.adv-bar::after{content:"";position:absolute;inset:0;inset-inline-end:auto;width:var(--p);background:var(--sk-ok)}
+.adv-detail>td{background:color-mix(in srgb,var(--sk-brand-soft) 35%,var(--sk-surface));padding:0!important}
+.adv-d{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:14px}
+.adv-d section{border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface);padding:12px;display:grid;gap:10px;min-width:0}
+.adv-d h4{margin:0;font-size:13px}
+.adv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.adv-grid input,.adv-grid select{width:100%;min-width:0}
+.adv-issues{margin:0;padding:8px 26px 8px 10px;border-radius:var(--sk-r-s);background:var(--sk-warn-soft);font-size:12px}
+.adv-sched{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px}
+.adv-sched div{border:1px solid var(--sk-line);border-radius:var(--sk-r-s);padding:7px;display:grid;gap:2px;background:var(--sk-surface-2)}
+.adv-sched div.paid{background:var(--sk-ok-soft);border-color:color-mix(in srgb,var(--sk-ok) 40%,var(--sk-line))}.adv-sched div.late{background:var(--sk-warn-soft);border-color:var(--sk-warn)}
+.adv-sched small,.adv-sched span{font-size:10.5px;color:var(--sk-ink-3)}.adv-sched b{font-size:12.5px;font-variant-numeric:tabular-nums}
+.adv-reps input,.adv-reps select{width:100%;min-width:0}.adv-reps select{min-width:128px}.adv-new select{min-width:132px}.adv-new [data-n=party]{min-width:170px}.adv-new [data-n=date],.adv-reps [type=date]{min-width:128px}
+.adv-books p{margin:0;font-size:12.5px}
+@media(max-width:900px){.adv-kpis{grid-template-columns:1fr 1fr}.adv-d{grid-template-columns:1fr}}
+@media(max-width:560px){.adv-table thead{display:none}.adv-table tr{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;padding:10px;border-bottom:1px solid var(--sk-line)}.adv-table td{border:0!important;padding:2px 0!important}.adv-table td[colspan]{grid-column:1/-1}.adv-detail{display:block!important;padding:0!important}}

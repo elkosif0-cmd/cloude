@@ -161,7 +161,7 @@ export function resultsRelease(fs: FinancialStatements, company: string, period:
 
 /* ---------- the independent auditor's report (EY on Apple and Amazon; ISA 700/701/705) ---------- */
 /** Arabic "لـ" joined to a word: «ل» + «الشركة» → «للشركة», «ل» + «شركة» → «لشركة». */
-export const lam = (w: string) => w.startsWith('ال') ? 'لل' + w.slice(2) : 'ل' + w;
+export const lam = (w?: string) => !w || typeof w !== 'string' ? '' : w.startsWith('ال') ? 'لل' + w.slice(2) : 'ل' + w;
 export type KeyMatter = { title: string; description: string; how: string; /** «Key observations» / «Our results» */ observation?: string; refs?: string[]; trend?: 'new' | 'same' | null };
 export type ReportSection = { title: string; paragraphs: string[]; kams?: KeyMatter[]; table?: { columns: string[]; rows: string[][] };
   /** what the section is, in the terms the bundle's reports are indexed by (opinion, basis, kam, cam, icfr, tenure…) */ code?: string;
@@ -262,7 +262,7 @@ export function auditorsReport(i: { company: string; periodEnd?: string; framewo
       'وقد تم جرد المخزون بمعرفة إدارة الشركة وفقاً للأصول المرعية.',
       'والبيانات المالية الواردة بتقرير مجلس الإدارة المُعد وفقاً لمتطلبات قانون الشركات ولائحته التنفيذية متفقة مع ما هو وارد بدفاتر الشركة وذلك في الحدود التي تثبت بها مثل تلك البيانات في الدفاتر.'] }] : []),
   ];
-  const code = (t: string) => t === title ? 'opinion' : t === 'ما قمنا بمراجعته' ? 'audited' : t === basisTitle ? 'basis' : t === 'الاستقلال' ? 'independence'
+  const code = (t?: string) => !t || typeof t !== 'string' ? '' : t === title ? 'opinion' : t === 'ما قمنا بمراجعته' ? 'audited' : t === basisTitle ? 'basis' : t === 'الاستقلال' ? 'independence'
     : /الاستمرارية/.test(t) ? 'going_concern' : i.approach && t === i.approach.title ? 'approach materiality scope' : t === 'الأمور الرئيسية للمراجعة' ? 'kam'
     : t === 'المعلومات الأخرى' ? 'other_info' : t.startsWith('مسؤوليات المراجع') ? 'resp_aud' : t.startsWith('مسؤوليات') ? 'resp_mgmt going_concern' : /القانونية/.test(t) ? 'legal' : '';
   return { title: 'تقرير المراجع المستقل', addressee: `إلى السادة ${eg ? 'مساهمي' : 'المساهمين في'} ${co}`, sections: sections.map((x) => ({ ...x, code: x.code ?? code(x.title) })),

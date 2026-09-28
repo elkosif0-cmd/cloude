@@ -100,7 +100,9 @@ const DO={
   sale:c=>SK.perm.can("commerce","create")&&c.act("v12-sale-new"),
   search:()=>window.SKosifCommand&&SKosifCommand.open(),
   item:c=>{if(!SK.perm.can("catalog","create"))return;c.go("catalog");setTimeout(()=>c.act("item-new",{source:"catalog"}),150)},
-  keys:()=>window.SKosifKeys&&SKosifKeys.help()
+  keys:()=>window.SKosifKeys&&SKosifKeys.help(),
+  /* the showcase: pick a company of the research bundle and see the whole audit run on it */
+  showcase:c=>{if(!SK.perm.can("tbreview"))return;c.go("tbreview");setTimeout(()=>window.SKosifTBReview&&SKosifTBReview.picker(),150)}
 };
 /* the first start fills the sample data and reloads the page after the link has been read (and the address cleaned):
    the link waits in this tab's session and is applied again after that reload; it is forgotten once the app has

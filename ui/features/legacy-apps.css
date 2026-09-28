@@ -1,0 +1,9 @@
+/* The original systems (الأنظمة الأصلية) */
+.lg{display:grid;gap:10px;min-width:0}
+.lg-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.lg-card{display:flex;gap:10px;align-items:flex-start;text-align:right;padding:12px;border:1px solid var(--sk-line);border-radius:14px;background:var(--sk-surface);color:var(--sk-ink);font:inherit;cursor:pointer}
+.lg-card svg{width:22px;height:22px;color:var(--sk-brand);flex:none;margin-top:2px}.lg-card span{display:grid;gap:3px}.lg-card b{font-size:13px}.lg-card small{font-size:11px;color:var(--sk-ink-3);line-height:1.5}
+.lg-card[aria-selected="true"]{border:2px solid var(--sk-brand);background:var(--sk-brand-soft)}
+.lg-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;font-size:12px;color:var(--sk-ink-2)}.lg-bar p{margin:0}
+.lg-frame{width:100%;height:calc(100vh - 150px);min-height:560px;border:1px solid var(--sk-line);border-radius:16px;background:#fff}
+@media(max-width:560px){.lg-frame{height:78vh;min-height:480px}}

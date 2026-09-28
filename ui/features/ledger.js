@@ -527,6 +527,28 @@ function partiesOf(d,kind,asOf){const acc=byCode(d,kind==="ap"?"2100":"1200");if
 function balanceOf(d,code,asOf){const id=byCode(d,code);if(!id)return null;const g=E().ledger.buildGeneralLedger(d.entries.filter(e=>String(e.date).slice(0,10)<=asOf)).find(x=>x.accountId===id);return g?g.balance:0}
 /* any screen can open a ledger tab: data-ledger-open="vat" */
 document.addEventListener("click",e=>{const b=e.target.closest("[data-ledger-open]");if(b){tab=b.dataset.ledgerOpen||"accounts";window.SKosifCore.go("ledger")}});
+/* a screen that edits its records in place keeps its entries in step with them: what is new is posted, what changed is
+   reversed (dated today) and posted again, what disappeared is reversed. The books keep their history and the edit log
+   stays whole; dates inside a locked period are refused, never rewritten. */
+function syncSource(prefix,want){
+  const d=db(),today=new Date().toISOString().slice(0,10),out={posted:0,reversed:0,blocked:[]};
+  const sig=e=>JSON.stringify([String(e.date).slice(0,10),e.party||"",(e.lines||[]).map(l=>[l.accountId,r2(l.debit),r2(l.credit)])]);
+  const wantBy=new Map((want||[]).map(w=>[w.sourceId,w]));
+  d.entries.filter(e=>!e.reversedBy&&!e.reversalOf&&String(e.sourceId||"").startsWith(prefix)).forEach(e=>{
+    const w=wantBy.get(e.sourceId);if(w&&sig(w)===sig(e)){wantBy.delete(e.sourceId);return}
+    if(locked(d,today)||locked(d,String(e.date).slice(0,10))){out.blocked.push(e.sourceId);wantBy.delete(e.sourceId);return}
+    const rv={...E().ledger.reverseJournalEntry(e,{id:SK.ui.uid("je"),date:today}),memo:"عكس بعد تعديل: "+(e.memo||e.reference||""),source:"عكس",reversalOf:e.id,...(e.party?{party:e.party}:{}),...(e.demo?{demo:true}:{})};
+    e.reversedBy=rv.id;d.entries.push(rv);out.reversed++});
+  wantBy.forEach(w=>{if(locked(d,String(w.date).slice(0,10))){out.blocked.push(w.sourceId);return}
+    const v=E().ledger.validateJournalEntry(w);if(!v.valid){out.blocked.push(w.sourceId);return}
+    d.entries.push({...w,id:SK.ui.uid("je")});out.posted++});
+  if(out.posted||out.reversed)put(d);
+  return out;
+}
+/* the accounts a screen posts to, created once with the chart's own builder */
+function ensureAccounts(list){const d=db();let added=0;const ids={};
+  list.forEach(([code,name,type])=>{let a=d.accounts.find(x=>x.code===code);if(!a){a=E().accounts.createAccount({code,name,type});d.accounts.push(a);added++}ids[code]=a.id});
+  if(added)put(d);return ids}
 window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().accounts,lockDate:()=>db().lockDate,saleEntry:(d,x)=>saleEntry(d,x,costResolver()),
   open:(t,o={})=>{tab=t||"accounts";if(o.q)vatQ=o.q;window.SKosifCore.go("ledger")},
   /* read-only views of the books for the month-end close, the morning brief and the alerts */
@@ -563,5 +585,6 @@ window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().ac
     const v=E().ledger.validateJournalEntry(entry);if(!v.valid)return{ok:false,code:"INVALID_ENTRY",error:[...new Set(v.issues.map(i=>ISSUE[i.code]||i.code))].join(" · ")};
     if(locked(d,entry.date))return{ok:false,code:"LOCKED_PERIOD",error:"التاريخ داخل فترة مقفلة (حتى "+d.lockDate+")"};
     d.accounts.push(...staged);d.entries.push(entry);put(d);SK.audit&&SK.audit.log("ledger",{act:"post",source:entry.source,createdAccounts:staged.map(a=>a.code)});
-    return{ok:true,id:entry.id,createdAccounts:staged.map(a=>({id:a.id,code:a.code,name:a.name}))}}});
+    return{ok:true,id:entry.id,createdAccounts:staged.map(a=>({id:a.id,code:a.code,name:a.name}))}},
+  sync:(prefix,want)=>syncSource(prefix,want),ensureAccounts,locked:date=>locked(db(),date)});
 })();
