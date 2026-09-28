@@ -83,3 +83,28 @@ body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-r
 .sqc-space-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 var(--sk-3);padding:8px 12px;border:1px solid var(--sk-line);border-radius:12px;background:color-mix(in srgb,var(--sk-brand) 6%,var(--sk-surface));font-size:13.5px}
 .sqc-space-bar span{display:inline-flex;align-items:center;gap:8px}
 .sqc-space-bar svg{width:17px;height:17px;color:var(--sk-brand)}
+
+/* ---------- phones: nothing widens the page ----------
+   Screens laid out for laptops keep their design; on narrow screens their grids may shrink below their content
+   (minmax(0,…)), four-up figures become two-up, side-by-side panels stack, controls shrink to their column, and
+   wide tables scroll inside their panel instead of pushing the page sideways. (tools/phone_layout.mjs) */
+@media (max-width:900px){
+  .sk-grid-2,.intel-view .grid2{grid-template-columns:minmax(0,1fr)}
+  .sk-grid-2>*,.grid2>*{min-width:0}
+  .card-h{flex-wrap:wrap}
+  .card-h>*{min-width:0}
+}
+@media (max-width:640px){
+  .skx-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .skx-kpis>*{min-width:0;overflow-wrap:anywhere}
+  .skx-grid2{grid-template-columns:minmax(0,1fr)!important}
+  .skx-panel{min-width:0;overflow-x:auto}
+  .skx-line{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) 34px}
+  .skx-line>*,.sk37-cut>*{min-width:0}
+  .sk37-cut{grid-template-columns:minmax(0,1fr) 80px}
+  #view input:not([type=checkbox]):not([type=radio]):not([type=range]),#view select,#view textarea{min-width:0;max-width:100%}
+  #view .hint,#view p{overflow-wrap:anywhere}
+  .sk-grid2{grid-template-columns:minmax(0,1fr)}
+  .sk-grid2>*{min-width:0}
+  .skslab-tree details{overflow-x:auto;max-width:100%}
+}
