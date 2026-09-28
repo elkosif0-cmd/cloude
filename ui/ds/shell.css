@@ -213,9 +213,11 @@ body.skn-locked{overflow:hidden}
 .skd{width:min(440px,100%);padding:var(--sk-5);border:1px solid var(--sk-line);border-radius:var(--sk-r-l);background:var(--sk-surface);box-shadow:var(--sk-shadow-3)}
 .skd h3{font-size:var(--sk-fs-l);margin-bottom:var(--sk-2)}
 .skd p{color:var(--sk-ink-2);font-size:var(--sk-fs-s);white-space:pre-line}
-.skd-acts{display:flex;justify-content:flex-end;gap:var(--sk-2);margin-top:var(--sk-4)}
-@media (max-width:600px){.skd-wrap{align-items:flex-end;padding:0}.skd{border-radius:var(--sk-r-l) var(--sk-r-l) 0 0;padding-bottom:calc(var(--sk-5) + env(safe-area-inset-bottom))}.skd-acts .btn{flex:1;min-height:44px}}
-@media (max-width:360px){#sqc-space .skd-acts{flex-direction:column-reverse;align-items:stretch}#sqc-space .skd-acts .btn{width:100%;min-width:0;flex:0 0 auto}}
+.skd-acts{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:var(--sk-2);margin-top:var(--sk-4)}
+/* a long label (a company's name) wraps inside its button, and the row wraps, instead of pushing an action off the screen */
+.skd-acts>.btn{max-width:100%;min-width:0;white-space:normal;overflow-wrap:anywhere;text-align:center}
+@media (max-width:600px){.skd-wrap{align-items:flex-end;padding:0}.skd{border-radius:var(--sk-r-l) var(--sk-r-l) 0 0;padding-bottom:calc(var(--sk-5) + env(safe-area-inset-bottom))}.skd-acts .btn{flex:1 1 auto;min-height:44px}}
+@media (max-width:360px){.skd-acts>.btn{flex-basis:100%}}
 
 @media print{.rail,.topbar,.scrim,.skp-wrap,.sk-update,.sk-offline-bar{display:none!important}.app{display:block}.main{padding:0}}
 @media (prefers-reduced-motion:reduce){.rail,.nav-btn{transition:none}.sks-skel i{animation:none}}
