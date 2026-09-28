@@ -27,6 +27,10 @@ text=html.decode("utf-8")
 # Product branding: keep business data intact, rename only the application shell.
 text=re.sub(r"<title>[^<]*</title>","<title>SQC — Smart Quality Control</title>",text,count=1,flags=re.I)
 text=re.sub(r'<meta\s+name=["\']apple-mobile-web-app-title["\'][^>]*>', '<meta name="apple-mobile-web-app-title" content="SQC">', text, count=1, flags=re.I)
+# Product identity is audit-first SQC; أغنام الوادي is only the demo company, never the product description.
+DESCRIPTION="SQC — Smart Quality Control: منصة المراجعة والتأكيد — ملف المراجعة والأدلة والقوائم والتقارير، مع أدوات مساعدة للمحاسب، تعمل دون اتصال."
+text,nd=re.subn(r'<meta\s+name=["\']description["\'][^>]*>',f'<meta name="description" content="{DESCRIPTION}">',text,count=1,flags=re.I)
+if nd!=1: raise SystemExit("Page description meta missing")
 # the rail brand: the SQC mark and name (the core markup is kept; only the brand block is replaced)
 text,nb=re.subn(r'<div class="brand-mark" aria-hidden="true">.*?</div>\s*<div><h1 id="app-name">[^<]*</h1>',
   '<div class="brand-mark" aria-hidden="true"><img src="./art/sqc-icon.svg" alt="" width="24" height="24"></div>\n        <div><h1 id="app-name">SQC</h1>',text,count=1,flags=re.S)
