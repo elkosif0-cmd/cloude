@@ -9,8 +9,14 @@ export async function mount(host, view) {
     fetch(new URL('./markup.html', import.meta.url)).then(r => r.text()),
   ]);
   root.innerHTML = '<style>' + css + '</style><div class="kx-body">' + markup + '</div>';
-  await import('./continuous-review.js');
-  await import('./product-model.js');
-  const nav = await import('./v5/continuous-workspace-navigation.js');
+  const loadModule = async (path, tries = 3) => {
+    for (let i = 0; i < tries; i++) {
+      try { return await import(path); }
+      catch (e) { if (i === tries - 1) throw e; await new Promise(r => setTimeout(r, 200 * (i + 1))); }
+    }
+  };
+  await loadModule('./continuous-review.js');
+  await loadModule('./product-model.js');
+  const nav = await loadModule('./v5/continuous-workspace-navigation.js');
   return { setView: v => nav.setWorkspaceView(v, { syncHash: false }) };
 }

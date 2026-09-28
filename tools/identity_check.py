@@ -10,6 +10,12 @@ Usage: python3 tools/identity_check.py [dist]
 from pathlib import Path
 import json, re, sys
 
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 DIST = Path(sys.argv[1] if len(sys.argv) > 1 else "dist")
 SALES_FIRST = ["التسعير والطلبات والعملاء", "منظومة أغنام الوادي", "مع العمليات والتسعير والمالية", "مع التسعير والطلبات والمخزون"]
 failures = []
