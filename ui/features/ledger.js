@@ -545,10 +545,12 @@ function syncSource(prefix,want){
   if(out.posted||out.reversed)put(d);
   return out;
 }
-/* the accounts a screen posts to, created once with the chart's own builder */
-function ensureAccounts(list){const d=db();let added=0;const ids={};
-  list.forEach(([code,name,type])=>{let a=d.accounts.find(x=>x.code===code);if(!a){a=E().accounts.createAccount({code,name,type});d.accounts.push(a);added++}ids[code]=a.id});
-  if(added)put(d);return ids}
+/* the accounts a screen posts to, opened once through the chart's account-opening rule (explicit code, name and type) */
+function ensureAccounts(list){const d=db(),has=c=>d.accounts.find(x=>String(x.code)===String(c));
+  const plan=E().accountOpening.planAccountOpening(d.accounts,list.filter(([code])=>!has(code)).map(([code,name,type])=>({code,name,type})));
+  if(!plan.ok)throw new Error("ACCOUNT_OPENING: "+plan.issues.map(i=>i.code+" "+i.reason).join(", "));
+  if(plan.accounts.length){d.accounts.push(...plan.accounts);put(d)}
+  return Object.fromEntries(list.map(([code])=>[code,has(code).id]))}
 window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().accounts,lockDate:()=>db().lockDate,saleEntry:(d,x)=>saleEntry(d,x,costResolver()),
   open:(t,o={})=>{tab=t||"accounts";if(o.q)vatQ=o.q;window.SKosifCore.go("ledger")},
   /* read-only views of the books for the month-end close, the morning brief and the alerts */

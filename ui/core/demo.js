@@ -259,6 +259,30 @@ const SECTIONS=[
   },
   clear:async()=>{const d=load("skosif_ledger_v1",null);if(!d)return;d.entries=dropDemo(d.entries);if(d.bank&&d.bank.demo)delete d.bank;const used=new Set(d.entries.flatMap(e=>(e.lines||[]).map(l=>l.accountId)));d.accounts=(d.accounts||[]).filter(a=>!a.demo||used.has(a.id));save("skosif_ledger_v1",d)}},
 
+{id:"advances",label:"السلف والدفعات المقدمة",caps:["advances"],after:["ledger","purchasing"],
+  empty:async()=>!(load("skosif_advances_v1",{}).advances||[]).length,
+  /* three employees (one repaying from his salary on schedule, one behind, one settled), a supplier prepayment half
+     settled against his invoice and a customer's deposit — posted through the advances screen's own sync, so the
+     journal, the party statements and the register agree */
+  seed:async()=>{
+    const t=new Date(),mon=(n,day)=>iso(Date.UTC(t.getUTCFullYear(),t.getUTCMonth()-n,day)),upto=d=>d>ago(0)?ago(0):d;
+    const pur=load("skosif_purchasing_v1",{}),sup=((pur.orders||[]).find(o=>o.demo&&o.supplier)||{}).supplier||"مؤسسة المراعي الذهبية";
+    const {customers}=build(),cus=customers[3].name,rep=(id,date,amount,method,note)=>({id,date:upto(date),amount,method,...(note?{note}:{})});
+    const list=[
+      D({id:"demo-adv1",number:"ADV-"+Y+"-0001",kind:"employee",party:"خالد العتيبي",date:mon(4,5),amount:6000,installments:6,purpose:"سلفة على الراتب",
+        repayments:[3,2,1,0].map((n,i)=>rep("demo-adv1-r"+i,mon(n,27),1000,"salary"))}),
+      D({id:"demo-adv2",number:"ADV-"+Y+"-0002",kind:"employee",party:"سعيد القحطاني",date:mon(3,10),amount:3000,installments:3,purpose:"ظرف عائلي",
+        repayments:[rep("demo-adv2-r0",mon(2,27),1000,"salary")]}),
+      D({id:"demo-adv3",number:"ADV-"+Y+"-0003",kind:"employee",party:"ماجد الشهري",date:mon(2,3),amount:1500,installments:1,purpose:"عهدة مصروفات نثرية",
+        repayments:[rep("demo-adv3-r0",mon(1,20),1500,"cash","رُدّت نقداً بعد تسوية الفواتير")]}),
+      D({id:"demo-adv4",number:"ADV-"+Y+"-0004",kind:"supplier",party:sup,date:mon(2,12),amount:20000,installments:1,firstDue:mon(-1,1),purpose:"دفعة مقدمة لحجز مواشي الموسم",
+        repayments:[rep("demo-adv4-r0",mon(1,15),10000,"offset","تسوية مع فاتورة الدفعة الأولى")]}),
+      D({id:"demo-adv5",number:"ADV-"+Y+"-0005",kind:"customer",party:cus,date:ago(10),amount:2500,installments:1,firstDue:mon(-1,1),purpose:"عربون طلب ذبائح لمناسبة",repayments:[]})];
+    const d=Object.assign({advances:[],seq:0},load("skosif_advances_v1",{}));d.advances=d.advances.concat(list);d.seq=Math.max(d.seq||0,list.length);
+    save("skosif_advances_v1",d);
+    const A=window.SKosifAdvances;if(A)list.forEach(a=>A.post(a))},
+  clear:async()=>{const d=load("skosif_advances_v1",null);if(!d)return;d.advances=dropDemo(d.advances);save("skosif_advances_v1",d)}},
+
 {id:"engagement",label:"ملف المراجعة من الدفاتر",caps:["tbreview"],after:["ledger"],
   empty:async()=>{const d=load("skosif_tbreview_v1",{});return !(d&&d.tbText)},
   /* the engagement file opens on شركة الواحة: a full year with its prior year (the app's own books stay one click away:

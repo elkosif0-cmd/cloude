@@ -28,19 +28,23 @@ for (const [tag, opts] of [['laptop', { viewport: { width: 1366, height: 900 } }
     await p.waitForFunction(() => window.SKosifCore && document.querySelector('.topbar') && !document.querySelector('.skdemo-overlay'), null, { timeout: 60000 });
     await p.waitForTimeout(1500);
   };
-  const view = () => p.evaluate(() => SKosifCore.view());
-  const address = () => p.evaluate(() => location.search + location.hash);
+  /* the first start fills the sample data and reloads: a read that lands in that reload waits for the new page and reads
+     again, and a wait for a screen outlives the reload (it starts over on the new page) */
+  const settle = async (fn) => { for (let i = 0; ; i++) { try { return await p.evaluate(fn); } catch (e) { if (i >= 3) throw e; await ready().catch(() => {}); } } };
+  const view = () => settle(() => SKosifCore.view());
+  const address = () => settle(() => location.search + location.hash);
+  const land = async (want, ms) => { for (let i = 0; i < 3; i++) { try { await p.waitForFunction((w) => !!window.SKosifCore && SKosifCore.view() === w, want, { timeout: ms }); return; } catch { await ready().catch(() => {}); } } };
 
   /* a fresh start: the sample data is filled and the page reloads; the link must still land */
   await p.goto(URL_ + '#sales', { waitUntil: 'load' }); await ready();
-  await p.waitForFunction(() => SKosifCore.view() === 'salesintel', null, { timeout: 20000 }).catch(() => {});
+  await land('salesintel', 20000);
   ok(tag, 'fresh start: #sales opens Sales Intelligence', (await view()) === 'salesintel', `${await view()}`);
   ok(tag, 'fresh start: the used link is taken out of the address', (await address()) === '', await address());
 
   for (const [link, want] of CASES) {
     await p.goto('about:blank');
     await p.goto(URL_ + link, { waitUntil: 'load' }); await ready();
-    await p.waitForFunction((w) => SKosifCore.view() === w, want, { timeout: 15000 }).catch(() => {});
+    await land(want, 15000);
     ok(tag, `${link} opens ${want}`, (await view()) === want, `${await view()}`);
     ok(tag, `${link} is taken out of the address`, (await address()) === '', await address());
   }
@@ -56,10 +60,10 @@ for (const [tag, opts] of [['laptop', { viewport: { width: 1366, height: 900 } }
 
   /* a # link followed inside the running app */
   await p.evaluate(() => { location.hash = '#orders'; });
-  await p.waitForFunction(() => SKosifCore.view() === 'commerce', null, { timeout: 10000 }).catch(() => {});
+  await land('commerce', 10000);
   ok(tag, 'a # link inside the running app opens its screen', (await view()) === 'commerce', `${await view()}`);
   await p.evaluate(() => { location.hash = '#sales'; });
-  await p.waitForFunction(() => SKosifCore.view() === 'salesintel', null, { timeout: 10000 }).catch(() => {});
+  await land('salesintel', 10000);
   ok(tag, '…and the next one too', (await view()) === 'salesintel', `${await view()}`);
 
   ok(tag, 'no page errors', errs.length === 0, errs.join(' | '));
