@@ -157,9 +157,11 @@ async function newUser(){
   if(!v)return;const u=await createUser(v.name,v.pin||"");await switchUser(u.id,v.pin||"");
 }
 function hideUserChooser(){const w=document.getElementById("sqc-user-space");if(w)w.remove()}
-async function chooseUser(id){const u=userReg().users[id];if(!u)return;if(!u.pinHash){await switchUser(id);return}
+async function chooseUser(id){const u=userReg().users[id];if(!u)return;let ok=false;if(!u.pinHash)ok=await switchUser(id);else{
   const v=await SK.form("فتح أدوات "+u.name,[{key:"pin",label:"رمز الدخول",type:"password",required:true}],{ok:"فتح",message:"هذا القفل محلي على هذا الجهاز."});
-  if(v)await switchUser(id,v.pin||"");
+  if(v)ok=await switchUser(id,v.pin||"");
+}
+  if(ok&&inHelpers()&&!sessionStorage.getItem(ASKED))chooser();
 }
 function userChooser(){
   if(document.getElementById("sqc-user-space"))return;const cur=user(),w=document.createElement("div");w.id="sqc-user-space";w.className="skd-wrap";w.setAttribute("role","presentation");
@@ -185,7 +187,7 @@ function chooser(){
   const f=w.querySelector(".skd-acts .primary");f&&f.focus();
 }
 function inHelpers(){const c=window.SKosifCore,cap=c&&SK.caps&&SK.caps.get(c.view());return!!(cap&&cap.group==="helpers")}
-function onNav(){if(inHelpers()){banner();if(!sessionStorage.getItem(USER_ASKED))userChooser();else if(!sessionStorage.getItem(ASKED))chooser()}}
+function onNav(){if(inHelpers()){banner();if(!sessionStorage.getItem(USER_ASKED))userChooser();else if(!sessionStorage.getItem(ASKED))chooser()}else{hideUserChooser();hideChooser()}}
 /* the strip at the top of every helper screen: which company, and the way to change it */
 function banner(){
   setTimeout(()=>{const v=document.getElementById("view");if(!v||!inHelpers())return;
