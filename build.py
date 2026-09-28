@@ -12,6 +12,7 @@ PREVIEW_INDEX="""<!doctype html><html lang="ar" dir="rtl"><head><meta charset="u
 <a href="./app-safe.html">فتح التطبيق</a></p></body></html>
 """
 
+
 out=Path("dist")
 if out.exists(): shutil.rmtree(out)
 out.mkdir()
