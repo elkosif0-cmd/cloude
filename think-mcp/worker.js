@@ -1,4 +1,4 @@
-const VERSION = "0.5.4";
+const VERSION = "0.5.5";
 const FAST_AGENTS = [
   { id:"solver", source:"cloudflare", model:"@cf/meta/llama-3.3-70b-instruct-fp8-fast", role:"Lead solver: build the strongest answer and test feasibility." },
   { id:"skeptic", source:"cloudflare", model:"@cf/mistralai/mistral-small-3.1-24b-instruct", role:"Skeptical critic: find weak assumptions, contradictions, missing evidence, and downside risk." },
@@ -112,7 +112,7 @@ const BROWSER_JEV_CONTRACT = {
    Nothing returned carries a secret, a token or an upstream error text. */
 const MIN_TOKEN_LENGTH = 32;
 const MODEL_TOOLS = new Set(["kosif_agent","kosif_think"]);
-const PUBLIC_TOOLS = new Set(["kosif_preflight","kosif_route","kosif_council","kosif_think_status"]);
+const PUBLIC_TOOLS = new Set(["kosif_preflight","kosif_route","kosif_council","kosif_verify_evidence","kosif_compare_candidates","kosif_think_status"]);
 const BASE_HEADERS = { "cache-control":"no-store", "x-content-type-options":"nosniff", "referrer-policy":"no-referrer" };
 const PREFLIGHT_HEADERS = { "access-control-allow-methods":"POST", "access-control-allow-headers":"authorization, content-type, mcp-protocol-version, mcp-session-id", "access-control-max-age":"600" };
 
@@ -636,6 +636,84 @@ function aggregateCouncilTool(args){
   };
 }
 
+
+function verifyEvidenceTool(args){
+  const goal=text(args?.goal,12000);
+  const claims=Array.isArray(args?.claims)?args.claims:[];
+  const evidence=Array.isArray(args?.evidence)?args.evidence:[];
+  const threshold=Math.max(0,Math.min(1,Number(args?.threshold ?? 0.75)));
+  if(!claims.length) throw new Error("CLAIMS_REQUIRED");
+  const byClaim=new Map();
+  for(const e of evidence){
+    if(!e||typeof e!=="object") continue;
+    const cid=text(e.claimId ?? e.claim_id,120);
+    if(!cid) continue;
+    if(!byClaim.has(cid)) byClaim.set(cid,[]);
+    byClaim.get(cid).push(e);
+  }
+  const rows=claims.map((c,i)=>{
+    const obj=typeof c==="string"?{id:`c${i+1}`,text:c}:c||{};
+    const id=text(obj.id||`c${i+1}`,120);
+    const claimText=text(obj.text,4000);
+    const evs=byClaim.get(id)||[];
+    const supporting=evs.filter(e=>e.supports===true && e.observed!==false && Number(e.confidence||0)>=threshold);
+    const opposing=evs.filter(e=>e.supports===false && e.observed!==false && Number(e.confidence||0)>=threshold);
+    const status=opposing.length?"contradicted":(supporting.length?"verified":"unverified");
+    return {
+      id,text:claimText,status,
+      supportCount:supporting.length,opposeCount:opposing.length,
+      sources:supporting.slice(0,8).map(e=>text(e.source||e.kind||"observed",240))
+    };
+  });
+  const allVerified=rows.length>0 && rows.every(r=>r.status==="verified");
+  const risk=/\b(pay|payment|purchase|buy|transfer|withdraw|delete|remove|send|publish|credential|password|otp|2fa)\b|دفع|شراء|تحويل|سحب|حذف|إرسال|ارسل|نشر|كلمة مرور|رمز/i.test(goal+" "+rows.map(r=>r.text).join(" "));
+  return {
+    version:VERSION,mode:"evidence_cove",goal,threshold,claims:rows,
+    allVerified,
+    unverified:rows.filter(r=>r.status==="unverified").map(r=>r.id),
+    contradicted:rows.filter(r=>r.status==="contradicted").map(r=>r.id),
+    safetyCheckpointPossible:risk,
+    completionAllowed:allVerified && !args?.requireHumanCheckpoint,
+    rule:"No claim is verified without observed supporting evidence at or above the configured confidence threshold."
+  };
+}
+
+function compareCandidatesTool(args){
+  const candidates=Array.isArray(args?.candidates)?args.candidates:[];
+  if(candidates.length<2) throw new Error("AT_LEAST_TWO_CANDIDATES_REQUIRED");
+  const defaults={correctness:0.35,safety:0.30,evidence:0.25,efficiency:0.10};
+  const raw=(args?.weights&&typeof args.weights==="object")?args.weights:defaults;
+  let total=0; const weights={};
+  for(const [k,v] of Object.entries(raw)){const n=Math.max(0,Number(v)||0);weights[k]=n;total+=n;}
+  if(total<=0) throw new Error("INVALID_WEIGHTS");
+  for(const k of Object.keys(weights)) weights[k]/=total;
+  const ranking=candidates.map((c,i)=>{
+    const obj=c&&typeof c==="object"?c:{};
+    const id=text(obj.id||`candidate_${i+1}`,120);
+    const metrics=(obj.metrics&&typeof obj.metrics==="object")?obj.metrics:{};
+    const missing=Object.keys(weights).filter(k=>!(k in metrics));
+    const vals={};
+    for(const k of Object.keys(weights)) vals[k]=Math.max(0,Math.min(1,Number(metrics[k]||0)));
+    const score=Object.keys(weights).reduce((sum,k)=>sum+vals[k]*weights[k],0);
+    return {id,title:text(obj.title,500),score:Number(score.toFixed(4)),metrics:vals,missingMetrics:missing,evidenceCount:Array.isArray(obj.evidence)?obj.evidence.length:0};
+  }).sort((a,b)=>(b.score-a.score)||(b.evidenceCount-a.evidenceCount));
+  const gap=Number((ranking[0].score-ranking[1].score).toFixed(4));
+  const tie=Math.max(0,Math.min(1,Number(args?.jevGapThreshold ?? 0.03)));
+  const needsJev=gap<=tie || ranking[0].missingMetrics.length>0;
+  const top=ranking.slice(0,Math.min(4,ranking.length));
+  const criteria=Object.fromEntries(top.map(x=>[x.id,`${x.title||x.id}; score=${x.score}; metrics=${JSON.stringify(x.metrics)}`]));
+  return {
+    version:VERSION,mode:"evidence_tournament",ranking,leader:ranking[0].id,gap,needsJev,
+    jev_payload:needsJev?{
+      tool:"jev_choice",
+      state:{goal:text(args?.problem,8000),candidates:top},
+      instructions:"Choose only among the supplied candidate IDs. Do not invent a new candidate or score.",
+      criteria
+    }:null,
+    rule:"Scores are computed only from caller-supplied metrics; KOSIF does not invent candidate quality scores."
+  };
+}
+
 const ARTIFACT_SCHEMA={
   type:"object",
   properties:{
@@ -660,6 +738,35 @@ const TOOLS=[
       },
       required:["question"],
       additionalProperties:false
+    }
+  },
+  {
+    name:"kosif_verify_evidence",
+    description:"Evidence-backed Chain-of-Verification. Verifies supplied claims only when observed supporting evidence meets the confidence threshold; never marks unsupported claims verified.",
+    inputSchema:{
+      type:"object",
+      properties:{
+        goal:{type:"string"},
+        claims:{type:"array",minItems:1,maxItems:80,items:{oneOf:[{type:"string"},{type:"object",properties:{id:{type:"string"},text:{type:"string"}},required:["text"],additionalProperties:false}]}},
+        evidence:{type:"array",maxItems:300,items:{type:"object",properties:{claimId:{type:"string"},claim_id:{type:"string"},source:{type:"string"},kind:{type:"string"},supports:{type:"boolean"},observed:{type:"boolean"},confidence:{type:"number",minimum:0,maximum:1}},required:["supports","confidence"],additionalProperties:false}},
+        threshold:{type:"number",minimum:0,maximum:1},
+        requireHumanCheckpoint:{type:"boolean"}
+      },
+      required:["claims"],additionalProperties:false
+    }
+  },
+  {
+    name:"kosif_compare_candidates",
+    description:"Evidence tournament over caller-supplied candidate metrics. Computes deterministic weighted ranking without inventing scores; emits a bounded Jev Choice payload only when candidates are close or metrics are incomplete.",
+    inputSchema:{
+      type:"object",
+      properties:{
+        problem:{type:"string"},
+        candidates:{type:"array",minItems:2,maxItems:20,items:{type:"object",properties:{id:{type:"string"},title:{type:"string"},metrics:{type:"object",additionalProperties:{type:"number"}},evidence:{type:"array",items:{type:"string"},maxItems:40}},required:["id","metrics"],additionalProperties:false}},
+        weights:{type:"object",additionalProperties:{type:"number"}},
+        jevGapThreshold:{type:"number",minimum:0,maximum:1}
+      },
+      required:["candidates"],additionalProperties:false
     }
   },
   {
@@ -733,6 +840,8 @@ const TOOLS=[
 
 async function callTool(env,name,args){
   if(name==="kosif_preflight") return toolResult(preflightTool(args),false);
+  if(name==="kosif_verify_evidence") return toolResult(verifyEvidenceTool(args),false);
+  if(name==="kosif_compare_candidates") return toolResult(compareCandidatesTool(args),false);
   if(name==="kosif_agent") return toolResult(await runAgentTool(env,args),false);
   if(name==="kosif_council") return toolResult(aggregateCouncilTool(args),false);
   if(name==="kosif_think") return toolResult(await runThink(env,args),false);
@@ -744,7 +853,7 @@ async function callTool(env,name,args){
     mandatoryOnSelection:true,
     enforcement:"Instruction-level only; the server cannot force host tool invocation.",
     modelIdentity:"Configured provider aliases; underlying model identity is not independently verified.",
-    improvements:["unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application"],
+    improvements:["unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","evidence-backed-cove","evidence-tournament","four-tier-memory-routing"],
     access:{auth:"bearer",pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierEnabled:String(env.THINK_FRONTIER_ENABLED||"true").toLowerCase()!=="false",
       rateLimiter:typeof env.THINK_RATE_LIMITER?.limit==="function",modelLimiter:typeof env.THINK_MODEL_LIMITER?.limit==="function",limits:limits(env),browserOrigins:allowedOrigins(env).length},
     routing:{
