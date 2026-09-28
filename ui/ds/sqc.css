@@ -108,3 +108,31 @@ body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-r
   .sk-grid2>*{min-width:0}
   .skslab-tree details{overflow-x:auto;max-width:100%}
 }
+
+/* ---------- readable status text in every look ----------
+   Severity chips, standard badges and danger buttons write their status colour on its own soft tint; in several looks
+   that pair fell below 4.5:1 for their small bold text. The text now mixes the status colour toward the look's ink —
+   darker on light looks, lighter on night looks — so the hue stays and the contrast holds (tools/phone_layout.mjs
+   measures every look). */
+.sksev.high,.sksev.bad{color:color-mix(in srgb,var(--sk-bad) 60%,var(--sk-ink))}
+.sksev.medium,.sksev.warn{color:color-mix(in srgb,var(--sk-warn) 60%,var(--sk-ink))}
+.sksev.low,.sksev.info{color:color-mix(in srgb,var(--sk-info) 60%,var(--sk-ink))}
+.sksev.ok,.sksev.done{color:color-mix(in srgb,var(--sk-ok) 60%,var(--sk-ink))}
+.std-b.std-ifrs{color:color-mix(in srgb,var(--sk-brand) 60%,var(--sk-ink))}
+.std-b.std-ias{color:color-mix(in srgb,var(--sk-info) 60%,var(--sk-ink))}
+.std-b.std-isa{color:color-mix(in srgb,var(--sk-violet) 60%,var(--sk-ink))}
+.std-b.std-saudi{color:color-mix(in srgb,var(--sk-ok) 60%,var(--sk-ink))}
+.std-b.std-eas{color:color-mix(in srgb,var(--sk-warn) 60%,var(--sk-ink))}
+.std-b.std-egypt{color:color-mix(in srgb,#0d9488 55%,var(--sk-ink))}
+.btn.danger{color:color-mix(in srgb,var(--ls) 60%,var(--sk-ink))}
+
+/* ---------- touch targets ----------
+   On touch screens every button and tab is at least 32px high (and square controls 32px wide); inline text-link
+   buttons are at least 24px (WCAG 2.2 AA target size). Pointer devices keep the compact desktop sizes. */
+@media (pointer:coarse){
+  #view button:not(.linklike),#view [role=tab],.skdemo-x{min-height:32px}
+  /* zero specificity: a control's own wider minimum (e.g. the quick-start buttons' 140px) still wins */
+  :where(#view button:not(.linklike),.skdemo-x){min-width:32px}
+  #view .linklike{min-height:24px;padding-block:2px}
+  .skdemo-x{display:inline-grid;place-items:center}
+}
