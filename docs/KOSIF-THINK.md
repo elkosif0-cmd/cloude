@@ -191,3 +191,41 @@ ChatGPT sends `jev_payload` to the matching Jev tool (`choice`, `noul`, or `scor
 
 No component should request or expose a model's hidden chain-of-thought.
 
+
+## Access control (security)
+
+> **الخلاصة:** كانت نقطة `/mcp` في Worker `kosif-think-mcp` مفتوحة لأي شخص على الإنترنت، وكل استدعاء لـ`kosif_agent` يستهلك رصيد مفتاح Clean APIs (`cleanapis`)، وكل `kosif_think` يشغّل ثلاثة نماذج Workers AI. أصبحت النقطة مغلقة إلا بتوكن، مع حدود استخدام وإيقاف فوري ورفض آمن.
+
+### The risk this closes
+Up to version 0.4.0 the deployed Worker (`workers_dev = true`) answered every `POST /mcp` without checking who sent it:
+- `kosif_agent` sends the caller's prompt to a frontier model through Clean APIs, billed to the `cleanapis` key; `kosif_think` runs three Workers AI models. Anyone who found the `workers.dev` URL could spend both, with no rate limit and no size limit, and could use the Worker as a free proxy to those models.
+- the public `/health` said whether the Clean APIs key was configured and listed every model;
+- upstream error texts (which can name the account or the key's balance) were passed back to the caller.
+
+The Worker holds no business data, so the exposure is spending and abuse of the key (which a provider may then suspend), not a data leak. Review the Clean APIs usage since the Worker was first deployed (2026-09-27 21:42 UTC) for calls that were not yours.
+
+### Controls
+| Control | Behaviour |
+|---|---|
+| Authentication | `Authorization: Bearer <KOSIF_THINK_TOKEN>`, compared in constant time. `/mcp/<token>` works only when `THINK_ALLOW_PATH_TOKEN = "true"` (for a client that cannot send headers; the token then sits in URLs and logs, so prefer the header). |
+| Fail closed | No `KOSIF_THINK_TOKEN`, or one shorter than 32 characters → `503`, nothing runs. |
+| Unauthorised | `401` with `WWW-Authenticate: Bearer`, a fixed body, no model call. After `THINK_AUTH_FAILS_PER_MIN` failures a minute from one IP → `429` before any token check. |
+| Rate limits | Per caller: `THINK_RPM` requests and `THINK_MODEL_RPM` model-running calls (`kosif_agent`, `kosif_think`) a minute, through the `THINK_RATE_LIMITER` / `THINK_MODEL_LIMITER` rate-limit bindings; a local window takes over if a binding is missing or fails (never fails open). `429` + `Retry-After: 60`. |
+| Kill switch | `THINK_FRONTIER_ENABLED = "false"` stops every Clean APIs call at once. |
+| Methods | `/mcp`: `POST` (+ `OPTIONS` preflight) only, else `405`. `/health`: `GET`/`HEAD` only. |
+| CORS / Origin | No browser origin by default. A request carrying an `Origin` that is not in `THINK_ALLOWED_ORIGINS` → `403` (the MCP HTTP transport rule against DNS rebinding); an allowed origin gets its own origin back, never `*`. |
+| Request size | `Content-Type: application/json` only (`415`); bodies over `THINK_MAX_BODY_BYTES` (default 128 KiB) → `413`, checked on the header and on the bytes actually read. JSON-RPC batches or messages without a method → `-32600`. |
+| No leaks | Public `/health` returns only `ok`, `service`, `version`. Errors carry this Worker's codes only (`CLEANAPIS_402`, `CLEANAPIS_NETWORK`, `AGENT_FAILED` …). `kosif_think_status` (authenticated) shows how access is configured, never a value. |
+
+`think-mcp/worker.test.mjs` proves each row (CI step "Test KOSIF Think MCP access control"); run against version 0.4.0 it fails 17 of its 18 tests.
+
+### Deploying the change (manual; no workflow deploys this Worker)
+1. Make a token and store it as a Worker secret (it is never written in the repository):
+   `printf %s "$(openssl rand -hex 32)" | npx wrangler secret put KOSIF_THINK_TOKEN --config wrangler.think.toml`
+   (64 hex characters: no `/` or `+`, so it also works in `/mcp/<token>`; `printf %s` adds no newline).
+2. Give the same token to the MCP client as `Authorization: Bearer …`. Only if the client cannot send headers, set `THINK_ALLOW_PATH_TOKEN = "true"` and use `/mcp/<token>`.
+3. `npx wrangler deploy --config wrangler.think.toml`
+4. Check: `POST /mcp` without the header → `401`; with it → `200`; `kosif_think_status` → `access`.
+5. Set a spending limit on the Clean APIs account: it is the only hard cap on what the key can spend.
+
+Rotation: put a new `KOSIF_THINK_TOKEN`, then update the client. If the key itself may have been used by someone else, rotate `cleanapis` at Clean APIs and `wrangler secret put cleanapis` again. For stronger caller identity, put the Worker behind Cloudflare Access with a service token.
