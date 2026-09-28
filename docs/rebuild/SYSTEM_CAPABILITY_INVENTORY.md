@@ -2,7 +2,7 @@
 
 Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do not edit by hand.
 
-Total capabilities: **72** (screens). Cross-cutting capabilities are listed after the table.
+Total capabilities: **74** (screens). Cross-cutting capabilities are listed after the table.
 
 | ID | Capability | Module | Current Location | Data Used | Dependencies | Status | Keep/Remove/Merge/Rebuild |
 |---|---|---|---|---|---|---|---|
@@ -41,6 +41,7 @@ Total capabilities: **72** (screens). Cross-cutting capabilities are listed afte
 | `cash` | التدفق النقدي | ui/supply.js + ui/erp-plus.js | الأدوات المساعدة للمحاسب › يومي | `skosif_v31_monthly_opex`, `skosif_erp_finance_v1` | SKosifCore | Working | Keep |
 | `benchmarks` | المقارنة بالشركات العالمية | ui/features/benchmarks.js + SKEngines.reports.corpusBenchmarks | الأدوات المساعدة للمحاسب › يومي | `يقرأ الدفاتر المحاسبية للفترة النشطة (قراءة فقط)`, `sqc_bench_v1 (قطاع المقارنة المختار)` | SKosifCore | Working | Rebuild |
 | `receivables` | الذمم والتحصيل | ui/meatops.js | الأدوات المساعدة للمحاسب › يومي | `skosif_ar_paste` | SKosifCore | Working | Keep |
+| `advances` | السلف والدفعات المقدمة | ui/features/advances.js | الأدوات المساعدة للمحاسب › يومي | `skosif_advances_v1`, `skosif_ledger_v1` | SKosifCore | Working | Rebuild |
 | `finance` | الهندسة المالية | core (v18) | الأدوات المساعدة للمحاسب › يومي | `aghnam-pricing-v3` | SKosifCore, Engine | Working | Keep |
 | `ptree` | شجرة المنتجات | ui/features/product-tree.js + SKEngines.catalog.productTree | الأدوات المساعدة للمحاسب › يومي | `sqc_ptree_v1 (لكل شركة)`, `يقرأ aghnam-pricing-v3 و IDB aghnam-app-v7`, `يضيف أسعار الموردين إلى skosif_purchasing_v1` | SKosifCore | Working | Rebuild |
 | `productflow` | استوديو المنتج | ui/features/product-flow.js | الأدوات المساعدة للمحاسب › المنتج والتكلفة › يومي | `aghnam-pricing-v3`, `skosif_product_flow_v1` | SKosifCore | Working | Merge |
@@ -78,6 +79,7 @@ Total capabilities: **72** (screens). Cross-cutting capabilities are listed afte
 | `governance` | الحوكمة والجاهزية | core (v18/v19) + ui/core/audit.js | العام › الحوكمة والصلاحيات › يومي | `aghnam-pricing-v3`, `skosif_audit_trail` | SKosifCore, Engine | Working | Keep |
 | `health` | الصحة والتشخيص | core (v19.8) + ui/jev.js | العام › الحوكمة والصلاحيات › يومي | `aghnam-v17-runtime-errors`, `skosif_error_log` | SKosifCore, Engine | Working | Keep |
 | `capabilitiesv2` | الصلاحيات ومساحات العمل | ui/capabilities-v2.js + capabilities-v2/worker.js | العام › الحوكمة والصلاحيات › يومي | `skosif_cap_v2_config`, `skosif_cap_v2_local_workspace` | SKosifCore | Working | Keep |
+| `legacyapps` | الأنظمة الأصلية | ui/features/legacy-apps.js | الأدوات المساعدة للمحاسب › يومي | `sales_customer_followup_* (CRM V8.2)`, `aghnam_alwadi_dashboard_v11 (V31/V33/V40)` | SKosifCore | Working | Restore |
 
 ## Cross-cutting capabilities
 

@@ -924,6 +924,27 @@
    ]
   },
   {
+   "id": "advances",
+   "label": "السلف والدفعات المقدمة",
+   "sub": "سلف الموظفين والدفعات المقدمة للموردين وعربون العملاء — إضافة وتعديل وسداد في الجدول نفسه وقيود تلقائية باسم الطرف",
+   "group": "helpers",
+   "tier": "CORE",
+   "module": "ui/features/advances.js",
+   "data": [
+    "skosif_advances_v1",
+    "skosif_ledger_v1"
+   ],
+   "legacy": "جديد",
+   "decision": "Rebuild",
+   "kw": "سلف سلفة عهدة دفعة مقدمة عربون موظف راتب خصم قسط",
+   "adv": false,
+   "en": "Advances",
+   "feeds": [
+    "ledger",
+    "receivables"
+   ]
+  },
+  {
    "id": "finance",
    "label": "الهندسة المالية",
    "sub": "صدمات التكلفة ونقطة التعادل",
@@ -1646,6 +1667,27 @@
    "kw": "صلاحيات دور سحابة",
    "adv": false,
    "en": "Permissions & Workspaces"
+  },
+  {
+   "id": "legacyapps",
+   "label": "الأنظمة الأصلية",
+   "sub": "متابعة العملاء V8.2 ومنصات المبيعات والتكاليف V31 وV33 وV40 — كما كانت، ببيانات تجريبية",
+   "group": "helpers",
+   "tier": "UTILITIES",
+   "module": "ui/features/legacy-apps.js",
+   "data": [
+    "sales_customer_followup_* (CRM V8.2)",
+    "aghnam_alwadi_dashboard_v11 (V31/V33/V40)"
+   ],
+   "legacy": "التطبيقات المدمجة في إصدار v25 (CRM V8.2، V31، V33، V40) التي حُذفت — مستعادة بعد تنظيف بياناتها",
+   "decision": "Restore",
+   "kw": "الأنظمة الأصلية متابعة العملاء crm v8.2 v31 v33 v40 منصة الذهب المبيعات والتكاليف العمليات الذكية",
+   "adv": false,
+   "en": "Original systems",
+   "feeds": [
+    "followup",
+    "salesintel"
+   ]
   }
  ]
 }
