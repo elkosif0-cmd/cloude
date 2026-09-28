@@ -221,7 +221,7 @@ The catalog is **not** proof that a tool is connected. The ChatGPT host passes t
 ### Cost guardrail
 The default user policy is:
 - `free`, `included`, and `existing_plan` → may appear in `useNow`;
-- `mixed`, `credits`, `paid`, and `unknown` → `needsApproval`;
+- `mixed`, `credits`, `paid`, and `unknown` → `needsApproval`; an omitted host cost is normalized to `unknown`, so KOSIF never assumes a connected tool is free or included.
 - a gated tool moves to `useNow` only when its exact name is passed in `approvedTools` for that task.
 
 This is intentionally conservative. Connection does not equal permission to spend. The route response includes a warning when credits, a paid plan, mixed billing, or unknown billing may apply.
