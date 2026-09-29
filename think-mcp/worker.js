@@ -1,4 +1,4 @@
-const VERSION = "0.5.7";
+const VERSION = "0.5.8";
 const FAST_AGENTS = [
   { id:"solver", source:"cloudflare", model:"@cf/meta/llama-3.3-70b-instruct-fp8-fast", role:"Lead solver: build the strongest answer and test feasibility." },
   { id:"skeptic", source:"cloudflare", model:"@cf/mistralai/mistral-small-3.1-24b-instruct", role:"Skeptical critic: find weak assumptions, contradictions, missing evidence, and downside risk." },
@@ -82,7 +82,7 @@ const BROWSER_JEV_CONTRACT = {
   source:"uploaded jev-browser.rar source review",
   executionAuthority:"KOSIF Computer",
   system1:"stable local KOSIF action graph",
-  ambiguityResolver:"bounded Jev choice over observed stable candidates only",
+  ambiguityResolver:"bounded Jev choice over observed stable candidates only",\n  decisionTicket:{packetIdRequiredForJev:true,ttlSeconds:30,oneTime:true,candidateDigest:true,replayRejected:true},
   compatibilityOperations:["CLICK","TYPE","SCROLL_DOWN","SCROLL_UP","GO_BACK","FINISH"],
   sequence:["observe_or_analyze","action_space","assess","jev_choice_if_needed","apply_decision","adaptive_settle","verify","delta_or_recover"],
   completionRule:"FINISH, short action history, transport success, state change, or model probability are hypotheses only; require an observable postcondition.",
@@ -852,7 +852,7 @@ const TOOLS=[
   }
 ];
 
-async function callTool(env,name,args){
+async function callTool(env,name,args,ctx={}){
   if(name==="kosif_preflight") return toolResult(preflightTool(args),false);
   if(name==="kosif_verify_evidence") return toolResult(verifyEvidenceTool(args),false);
   if(name==="kosif_compare_candidates") return toolResult(compareCandidatesTool(args),false);
@@ -860,15 +860,15 @@ async function callTool(env,name,args){
   if(name==="kosif_council") return toolResult(aggregateCouncilTool(args),false);
   if(name==="kosif_think") return toolResult(await runThink(env,args),false);
   if(name==="kosif_route") return toolResult(routeTool(env,args),false);
-  if(name==="kosif_think_status") return toolResult({
+  if(name==="kosif_think_status") {\n    const frontierConfigured=!!env.cleanapis && String(env.THINK_FRONTIER_ENABLED||"true").toLowerCase()!=="false";\n    const frontierAuthenticatedForThisRequest=!!ctx.authed;\n    return toolResult({
     ok:true,version:VERSION,cleanApisConfigured:!!env.cleanapis,
     fastAgents:FAST_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role})),
     frontierAgents:FRONTIER_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role,micro:!!a.micro})),
     mandatoryOnSelection:true,publicThinkFallback:"deterministic-preflight",
     enforcement:"Instruction-level only; the server cannot force host tool invocation.",
     modelIdentity:"Configured provider aliases; underlying model identity is not independently verified.",
-    improvements:["unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","evidence-backed-cove","evidence-tournament","four-tier-memory-routing"],
-    access:{auth:"bearer",pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierEnabled:String(env.THINK_FRONTIER_ENABLED||"true").toLowerCase()!=="false",
+    improvements:["unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","one-time-jev-packet-binding","evidence-backed-cove","evidence-tournament","four-tier-memory-routing"],
+    access:{auth:"bearer",pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierConfigured,frontierAuthenticatedForThisRequest,frontierAvailableForThisRequest:frontierConfigured&&frontierAuthenticatedForThisRequest,
       rateLimiter:typeof env.THINK_RATE_LIMITER?.limit==="function",modelLimiter:typeof env.THINK_MODEL_LIMITER?.limit==="function",limits:limits(env),browserOrigins:allowedOrigins(env).length},
     routing:{
       preflight:"When KOSIF Think is explicitly selected or invoked, run KOSIF first before any substantive answer or downstream tool; simple tasks use fast.",
@@ -878,12 +878,16 @@ async function callTool(env,name,args){
       finalChair:"Jev review followed by ChatGPT final synthesis",
       hostTools:"kosif_route plans host-mediated plugin/tool calls; the host executes only useNow and returns evidence to KOSIF.",
       tinyFish:"Browser/web interaction is routed through kosif_route when available; it is not part of the hidden reasoning bus.",
-      kosifComputer:"For authorized device/browser work prefer KOSIF Computer. Use browserjev.observe/action_space/assess first. If ambiguity remains, Jev chooses only among observed stable candidates, then KOSIF Computer must revalidate and execute via browserjev.apply_decision before verify/delta/recover. Use browserremote only for deterministic remote input.",
+      kosifComputer:"For authorized device/browser work prefer KOSIF Computer. Use browseragent/browserjev observe and a closed action packet first. If ambiguity remains, Jev chooses only among observed stable candidates; preserve packet_id. KOSIF Computer revalidates the one-time packet, graph revision and candidate set before execution, then verifies/delta-recovers. Use browserremote only for deterministic remote input.",
       browserJevContract:BROWSER_JEV_CONTRACT
     },
     hostToolRouting:{mode:"host-mediated",directPluginCalls:false,routeTool:"kosif_route",catalogSize:HOST_TOOL_CATALOG.length,dynamicToolsSupported:true,autoCostClasses:Array.from(AUTO_COST_CLASSES),approvalRequired:["mixed","credits","paid","unknown"]},
-    jevIntegration:"For browser ambiguity, Jev Choice is host-mediated over a closed observed candidate set and its structured result returns to KOSIF Computer browserjev.apply_decision for revalidation, risk gating, execution and verification. kosif_council jev_payload remains the general final-review handoff."
+    frontierConfigured,
+    frontierAuthenticatedForThisRequest,
+    frontierAvailableForThisRequest:frontierConfigured&&frontierAuthenticatedForThisRequest,
+    jevIntegration:"For browser ambiguity, Jev Choice is host-mediated over a closed observed candidate set. Preserve/echo packet_id and return the choice through KOSIF Computer browseragent.apply_jev/browserjev.apply_decision; KOSIF revalidates graph revision, candidate digest, one-time ticket, risk gate, execution and verification. kosif_council jev_payload remains the general final-review handoff."
   },false);
+  }
   return null;
 }
 
@@ -923,7 +927,7 @@ async function handleMcp(req,env,url){
     protocolVersion:msg.params?.protocolVersion||"2025-06-18",
     capabilities:{tools:{}},
     serverInfo:{name:"kosif-think",version:VERSION},
-    instructions:"KOSIF Think public preflight is deterministic and does not run paid models. When explicitly selected, call kosif_preflight first, then kosif_route with the host's live tool inventory. For authorized browser/device work, prefer KOSIF Computer: stable action graph first, local deterministic choice when obvious, bounded Jev only over observed ambiguous candidates, cancellation before the next side effect, then observable verification and delta/recovery. FINISH alone never proves completion. The ChatGPT host executes routed tools and verifies side effects. Anonymous kosif_think calls return deterministic no-model preflight only; frontier/model-running kosif_think and kosif_agent remain protected. If a result returns jev_payload, call Jev before finalizing."
+    instructions:"KOSIF Think public preflight is deterministic and does not run paid models. When explicitly selected, call kosif_preflight first, then kosif_route with the host's live tool inventory. For authorized browser/device work, prefer KOSIF Computer: stable action graph first, local deterministic choice when obvious, bounded Jev only over observed ambiguous candidates, preserve the returned packet_id for one-time application, cancellation before the next side effect, then observable verification and delta/recovery. FINISH alone never proves completion. The ChatGPT host executes routed tools and verifies side effects. Anonymous kosif_think calls return deterministic no-model preflight only; frontier/model-running kosif_think and kosif_agent remain protected. If a result returns jev_payload, call Jev before finalizing."
   },cors);
   if(msg.method.startsWith("notifications/")) return empty(202,cors);
   if(msg.method==="ping") return rpc(id,{},cors);
@@ -959,7 +963,7 @@ async function handleMcp(req,env,url){
       if(!(await allow(env,"THINK_RATE_LIMITER",publicCaller,lim.rpm))) return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
     }
     try{
-      const result=await callTool(env,name,msg.params?.arguments||{});
+      const result=await callTool(env,name,msg.params?.arguments||{},{authed});
       return result?rpc(id,result,cors):rpcErr(id,-32602,"Unknown tool",200,cors);
     }catch(e){
       return rpc(id,toolResult({error:publicError(e)},true),cors);
