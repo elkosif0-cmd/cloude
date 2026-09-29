@@ -1,4 +1,4 @@
-const VERSION = "0.5.5";
+const VERSION = "0.5.6";
 const FAST_AGENTS = [
   { id:"solver", source:"cloudflare", model:"@cf/meta/llama-3.3-70b-instruct-fp8-fast", role:"Lead solver: build the strongest answer and test feasibility." },
   { id:"skeptic", source:"cloudflare", model:"@cf/mistralai/mistral-small-3.1-24b-instruct", role:"Skeptical critic: find weak assumptions, contradictions, missing evidence, and downside risk." },
@@ -850,7 +850,7 @@ async function callTool(env,name,args){
     ok:true,version:VERSION,cleanApisConfigured:!!env.cleanapis,
     fastAgents:FAST_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role})),
     frontierAgents:FRONTIER_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role,micro:!!a.micro})),
-    mandatoryOnSelection:true,
+    mandatoryOnSelection:true,publicThinkFallback:"deterministic-preflight",
     enforcement:"Instruction-level only; the server cannot force host tool invocation.",
     modelIdentity:"Configured provider aliases; underlying model identity is not independently verified.",
     improvements:["unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","evidence-backed-cove","evidence-tournament","four-tier-memory-routing"],
@@ -909,18 +909,29 @@ async function handleMcp(req,env,url){
     protocolVersion:msg.params?.protocolVersion||"2025-06-18",
     capabilities:{tools:{}},
     serverInfo:{name:"kosif-think",version:VERSION},
-    instructions:"KOSIF Think public preflight is deterministic and does not run paid models. When explicitly selected, call kosif_preflight first, then kosif_route with the host's live tool inventory. For authorized browser/device work, prefer KOSIF Computer: stable action graph first, local deterministic choice when obvious, bounded Jev only over observed ambiguous candidates, cancellation before the next side effect, then observable verification and delta/recovery. FINISH alone never proves completion. The ChatGPT host executes routed tools and verifies side effects. Model-running kosif_think/kosif_agent remain protected and are not exposed to anonymous sessions. If a result returns jev_payload, call Jev before finalizing."
+    instructions:"KOSIF Think public preflight is deterministic and does not run paid models. When explicitly selected, call kosif_preflight first, then kosif_route with the host's live tool inventory. For authorized browser/device work, prefer KOSIF Computer: stable action graph first, local deterministic choice when obvious, bounded Jev only over observed ambiguous candidates, cancellation before the next side effect, then observable verification and delta/recovery. FINISH alone never proves completion. The ChatGPT host executes routed tools and verifies side effects. Anonymous kosif_think calls return deterministic no-model preflight only; frontier/model-running kosif_think and kosif_agent remain protected. If a result returns jev_payload, call Jev before finalizing."
   },cors);
   if(msg.method.startsWith("notifications/")) return empty(202,cors);
   if(msg.method==="ping") return rpc(id,{},cors);
 
   if(msg.method==="tools/list"){
-    const publicTools=TOOLS.filter(t=>PUBLIC_TOOLS.has(t.name));
+    const publicTools=TOOLS.filter(t=>PUBLIC_TOOLS.has(t.name)||t.name==="kosif_think");
     return rpc(id,{tools:authed?TOOLS:publicTools},cors);
   }
 
   if(msg.method==="tools/call"){
     const name=text(msg.params?.name,80);
+    if(name==="kosif_think"&&!authed){
+      const pre=preflightTool(msg.params?.arguments||{});
+      return rpc(id,toolResult({
+        ...pre,
+        requestedMode:text(msg.params?.arguments?.mode||"fast",40),
+        execution:"public-deterministic-preflight",
+        modelCalls:false,
+        frontierAvailable:false,
+        nextStep:"Use host-side routing/execution. For browser/device work prefer KOSIF Computer browseragent/browserjev; use Jev only for a closed observed candidate set."
+      },false),cors);
+    }
     const isPublic=PUBLIC_TOOLS.has(name);
     if(!isPublic){
       if(expected.length<MIN_TOKEN_LENGTH) return rpcErr(id,-32001,"Protected model tools unavailable",503,cors);
