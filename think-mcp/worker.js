@@ -1,4 +1,4 @@
-const VERSION = "0.5.6";
+const VERSION = "0.5.7";
 const FAST_AGENTS = [
   { id:"solver", source:"cloudflare", model:"@cf/meta/llama-3.3-70b-instruct-fp8-fast", role:"Lead solver: build the strongest answer and test feasibility." },
   { id:"skeptic", source:"cloudflare", model:"@cf/mistralai/mistral-small-3.1-24b-instruct", role:"Skeptical critic: find weak assumptions, contradictions, missing evidence, and downside risk." },
@@ -84,13 +84,27 @@ const BROWSER_JEV_CONTRACT = {
   system1:"stable local KOSIF action graph",
   ambiguityResolver:"bounded Jev choice over observed stable candidates only",
   compatibilityOperations:["CLICK","TYPE","SCROLL_DOWN","SCROLL_UP","GO_BACK","FINISH"],
-  sequence:["observe_or_analyze","action_space","assess","jev_choice_if_needed","apply_decision","verify","delta_or_recover"],
-  completionRule:"FINISH, short action history, or model probability are hypotheses only; require an observable postcondition.",
+  sequence:["observe_or_analyze","action_space","assess","jev_choice_if_needed","apply_decision","adaptive_settle","verify","delta_or_recover"],
+  completionRule:"FINISH, short action history, transport success, state change, or model probability are hypotheses only; require an observable postcondition.",
   cancellationRule:"Honor cancellation before the next side effect.",
+  verificationContract:{
+    operators:["all_of","any_of","not"],
+    predicates:["url_contains","url_regex","title_contains","title_regex","text_contains","text_absent","text_regex","dialog_text_contains","dialog_text_absent","action_id_present","action_id_absent","context_alias_present","context_alias_absent","changed_from","node_count_min","node_count_max"],
+    stateChangeRule:"A changed page is action evidence, not task-completion evidence."
+  },
+  recoveryContract:{
+    adaptiveSettle:true,
+    repeatedNoChangeEscalation:2,
+    metrics:["action_latency","settle_latency","jev_escalations","stalls","recoveries"]
+  },
   sourceFixes:[
-    "replace transient numeric data-jev-id authority with stable semantic action IDs and revalidate before execution",
+    "replace transient numeric data-jev-id authority with stable semantic action IDs and fresh-state revalidation",
+    "add contextual target aliases that prioritize durable selector/name/ARIA/placeholder/href shape and normalize dynamic counters",
     "group candidate filter predicates so ARIA-role nodes cannot bypass recent-action and exclusion rules",
     "treat target index zero as a valid candidate",
+    "replace fixed-delay-only action handling with adaptive semantic settle polling",
+    "support richer observable verification with all/any/not and absence/regex/dialog predicates",
+    "escalate repeated no-change actions to bounded recovery instead of blind repetition",
     "remove raw dashboard secret entry and storage",
     "reject unauthenticated public remote-control binding",
     "prefer DOM, event, and screen deltas over continuous full-frame reasoning streams"
