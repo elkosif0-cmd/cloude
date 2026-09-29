@@ -82,7 +82,8 @@ const BROWSER_JEV_CONTRACT = {
   source:"uploaded jev-browser.rar source review",
   executionAuthority:"KOSIF Computer",
   system1:"stable local KOSIF action graph",
-  ambiguityResolver:"bounded Jev choice over observed stable candidates only",\n  decisionTicket:{packetIdRequiredForJev:true,ttlSeconds:30,oneTime:true,candidateDigest:true,replayRejected:true},
+  ambiguityResolver:"bounded Jev choice over observed stable candidates only",
+  decisionTicket:{packetIdRequiredForJev:true,ttlSeconds:30,oneTime:true,candidateDigest:true,replayRejected:true},
   compatibilityOperations:["CLICK","TYPE","SCROLL_DOWN","SCROLL_UP","GO_BACK","FINISH"],
   sequence:["observe_or_analyze","action_space","assess","jev_choice_if_needed","apply_decision","adaptive_settle","verify","delta_or_recover"],
   completionRule:"FINISH, short action history, transport success, state change, or model probability are hypotheses only; require an observable postcondition.",
@@ -860,7 +861,10 @@ async function callTool(env,name,args,ctx={}){
   if(name==="kosif_council") return toolResult(aggregateCouncilTool(args),false);
   if(name==="kosif_think") return toolResult(await runThink(env,args),false);
   if(name==="kosif_route") return toolResult(routeTool(env,args),false);
-  if(name==="kosif_think_status") {\n    const frontierConfigured=!!env.cleanapis && String(env.THINK_FRONTIER_ENABLED||"true").toLowerCase()!=="false";\n    const frontierAuthenticatedForThisRequest=!!ctx.authed;\n    return toolResult({
+  if(name==="kosif_think_status") {
+    const frontierConfigured=!!env.cleanapis && String(env.THINK_FRONTIER_ENABLED||"true").toLowerCase()!=="false";
+    const frontierAuthenticatedForThisRequest=!!ctx.authed;
+    return toolResult({
     ok:true,version:VERSION,cleanApisConfigured:!!env.cleanapis,
     fastAgents:FAST_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role})),
     frontierAgents:FRONTIER_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role,micro:!!a.micro})),
