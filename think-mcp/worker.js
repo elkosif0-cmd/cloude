@@ -24,6 +24,8 @@ const REASONING_PROTOCOL = Object.freeze({
     "separate_observations_assumptions_and_unknowns",
     "generate_multiple_alternatives_and_problem_representations",
     "audit_overconfidence_confirmation_availability_anchoring_and_framing",
+    "check_logical_validity_contradictions_and_fallacy_risk",
+    "map_evidence_dependencies_before_treating_signals_as_independent",
     "estimate_uncertainty_and_decision_changing_evidence",
     "define_objective_constraints_risk_and_reversibility",
     "prefer_small_reversible_tracer_actions_before_large_commitments",
@@ -676,7 +678,7 @@ function routeTool(env,args){
     const freshness=Math.max(0,Math.min(1,1-(freshnessAge/Math.max(1,inventoryTtlSeconds*1000))));
     const capabilityFit=Math.max(0,Math.min(1,0.22+Math.min(0.48,laneHits*0.24)+Math.min(0.20,hintHits*0.08)+(forced?0.10:0)));
     const schemaConfidence=state?.schemaHash?1:(state?.version?0.82:0.58);
-    const reliability=state?.successRate==null?0.68:Math.max(0,Math.min(1,(state.successRate*state.sampleSize+1.5)/(state.sampleSize+2)));
+    const reliability=state?.successRate==null?0.68:Math.max(0,Math.min(1,(state.successRate*state.sampleSize+2)/(state.sampleSize+4)));
     const evidenceQuality=state?.evidenceQuality==null?0.65:state.evidenceQuality;
     const reversibility=state?.reversibleHint===true?1:state?.reversibleHint===false?0.35:(state?.idempotentHint===true?0.90:0.68);
     const destructive=state?.destructiveHint===true||state?.verbs?.some(v=>/delete|remove|pay|purchase|transfer|publish|deploy|merge/i.test(v));
@@ -706,11 +708,19 @@ function routeTool(env,args){
       state?.evidenceQuality!=null?"evidence_quality":null,
       state?.reversibleHint!=null||state?.idempotentHint!=null?"reversibility":null
     ].filter(Boolean);
+    const independenceGroups=[
+      laneHits>0||hintHits>0?"task_fit":null,
+      state?.trustScore!=null||state?.evidenceQuality!=null?"provenance":null,
+      state?.schemaHash||state?.version||state?.observedAt!=null?"live_state":null,
+      state?.successRate!=null&&state?.sampleSize>0?"outcome_history":null,
+      state?.reversibleHint!=null||state?.idempotentHint!=null?"execution_safety":null
+    ].filter(Boolean);
     return {...t,state,hostName,costClass,failedRoute,laneHits,hintHits,
       decision:{score:Number(score.toFixed(4)),capabilityFit:Number(capabilityFit.toFixed(3)),trust:Number(trust.toFixed(3)),
         schemaConfidence:Number(schemaConfidence.toFixed(3)),freshness:Number(freshness.toFixed(3)),reliability:Number(reliability.toFixed(3)),
         evidenceQuality:Number(evidenceQuality.toFixed(3)),reversibility:Number(reversibility.toFixed(3)),safety:Number(safety.toFixed(3)),
-        costFit:Number(costFit.toFixed(3)),latencyScore:Number(latencyScore.toFixed(3)),dependencyDiversity:Number(dependencyDiversity.toFixed(3)),independentSignals}};
+        costFit:Number(costFit.toFixed(3)),latencyScore:Number(latencyScore.toFixed(3)),dependencyDiversity:Number(dependencyDiversity.toFixed(3)),
+        independentSignals,independenceGroups}};
   }).filter(t=>(t.laneHits>0||t.hintHits>0||preferred.has(toolKey(t.name)))&&!t.failedRoute)
     .sort((a,b)=>b.decision.score-a.decision.score||b.priority-a.priority||a.name.localeCompare(b.name))
     .slice(0,maxTools);
@@ -744,8 +754,8 @@ function routeTool(env,args){
   const margin=top?Number((top.decision.score-(runner?.decision.score||0)).toFixed(4)):0;
   const topDecisionSet=eligible.slice(0,4);
   const candidateSetHash="tools_"+fnv1a(JSON.stringify({task,lanes,writeIntent,candidates:topDecisionSet.map(x=>[x.hostToolName,x.schemaHash,x.version,x.decision.score]),failed:Array.from(failed).sort()}));
-  const minSignals=3,deterministicThreshold=0.82,jevProbabilityThreshold=0.92,jevConfidenceThreshold=0.85,executionThreshold=0.90;
-  const topReady=!!top&&top.decision.score>=deterministicThreshold&&top.decision.independentSignals.length>=minSignals&&top.decision.schemaConfidence>=0.58&&top.decision.freshness>=0.5;
+  const minSignals=3,minIndependenceGroups=3,deterministicThreshold=0.82,jevProbabilityThreshold=0.92,jevConfidenceThreshold=0.85,executionThreshold=0.90;
+  const topReady=!!top&&top.decision.score>=deterministicThreshold&&top.decision.independentSignals.length>=minSignals&&top.decision.independenceGroups.length>=minIndependenceGroups&&top.decision.schemaConfidence>=0.58&&top.decision.freshness>=0.5;
   const competing=topDecisionSet.length>1;
   const requiresJev=competing&&(writeIntent||reasoningMode!=="fast"||margin<0.16);
   const criteria=Object.fromEntries(topDecisionSet.map(x=>[x.hostToolName,
@@ -763,9 +773,9 @@ function routeTool(env,args){
     const jevConfidence=Math.max(0,Math.min(1,Number(jd.confidence ?? 0)));
     const chosen=topDecisionSet.find(x=>toolKey(x.hostToolName)===toolKey(choice));
     const packetMatches=!!jd.candidateSetHash&&text(jd.candidateSetHash,120)===candidateSetHash;
-    const signalCoverage=chosen?Math.min(1,Math.max(0.5,chosen.decision.independentSignals.length/5)):0;
+    const signalCoverage=chosen?Math.min(1,Math.max(0.5,chosen.decision.independenceGroups.length/4)):0;
     const composite=chosen?Math.min(chosen.decision.score,probability,signalCoverage):0;
-    const allowed=!!chosen&&choice!=="ABSTAIN"&&packetMatches&&chosen.decision.independentSignals.length>=minSignals&&
+    const allowed=!!chosen&&choice!=="ABSTAIN"&&packetMatches&&chosen.decision.independentSignals.length>=minSignals&&chosen.decision.independenceGroups.length>=minIndependenceGroups&&
       chosen.decision.score>=deterministicThreshold&&probability>=jevProbabilityThreshold&&jevConfidence>=jevConfidenceThreshold&&composite>=executionThreshold;
     jevValidation={
       received:true,choice,packetMatches,probability:Number(probability.toFixed(4)),jevConfidence:Number(jevConfidence.toFixed(4)),
@@ -776,7 +786,8 @@ function routeTool(env,args){
       reasons:[
         !chosen?"CHOICE_OUTSIDE_CLOSED_SET":null,
         !packetMatches?"CANDIDATE_SET_CHANGED":null,
-        chosen&&chosen.decision.independentSignals.length<minSignals?"INSUFFICIENT_INDEPENDENT_SIGNALS":null,
+        chosen&&chosen.decision.independentSignals.length<minSignals?"INSUFFICIENT_SUPPORT_SIGNALS":null,
+        chosen&&chosen.decision.independenceGroups.length<minIndependenceGroups?"INSUFFICIENT_INDEPENDENCE_GROUPS":null,
         chosen&&chosen.decision.score<deterministicThreshold?"DETERMINISTIC_SUPPORT_TOO_LOW":null,
         probability<jevProbabilityThreshold?"JEV_PROBABILITY_BELOW_92":null,
         jevConfidence<jevConfidenceThreshold?"JEV_CONFIDENCE_BELOW_85":null,
@@ -810,7 +821,7 @@ function routeTool(env,args){
         id:x.hostToolName,name:x.name,score:x.decision.score,metrics:x.decision,dependencyGroup:x.dependencyGroup||"",schemaHash:x.schemaHash,version:x.version
       })),
       leader:top?.hostToolName||null,margin,topReady,requiresJev,
-      thresholds:{deterministic:deterministicThreshold,minIndependentSignals:minSignals,jevProbability:jevProbabilityThreshold,jevConfidence:jevConfidenceThreshold,executionComposite:executionThreshold},
+      thresholds:{deterministic:deterministicThreshold,minSupportSignals:minSignals,minIndependenceGroups,jevProbability:jevProbabilityThreshold,jevConfidence:jevConfidenceThreshold,executionComposite:executionThreshold},
       jev_payload:requiresJev?{
         tool:"jev_choice",
         state:{task,candidateSetHash,candidates:topDecisionSet.map(x=>({id:x.hostToolName,metrics:x.decision,schemaHash:x.schemaHash,version:x.version}))},
@@ -1222,7 +1233,7 @@ async function callTool(env,name,args,ctx={}){
     mandatoryOnSelection:true,publicThinkFallback:"fast-cloudflare-council",
     enforcement:"Instruction-level only; the server cannot force host tool invocation.",
     modelIdentity:"Configured provider aliases; underlying model identity is not independently verified.",
-    improvements:["unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","one-time-jev-packet-binding","evidence-backed-cove","evidence-tournament","four-tier-memory-routing","dynamic-capability-mesh-v1","all-plugin-host-routing","lease-ttl-registry","schema-hash-drift-guard","idempotency-key-routing","plugin-output-trust-boundary","minimal-relevant-tool-set","deep-research-evidence-fusion","jev-host-tool-selection-v2","closed-set-abstention","composite-confidence-gate","dependency-diverse-fallback","transient-cleanapis-retry","book-derived-reasoning-protocol-v1"],
+    improvements:["unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","one-time-jev-packet-binding","evidence-backed-cove","evidence-tournament","four-tier-memory-routing","dynamic-capability-mesh-v1","all-plugin-host-routing","lease-ttl-registry","schema-hash-drift-guard","idempotency-key-routing","plugin-output-trust-boundary","minimal-relevant-tool-set","deep-research-evidence-fusion","jev-host-tool-selection-v2","closed-set-abstention","composite-confidence-gate","dependency-aware-evidence-gate","bayesian-reliability-shrinkage","dependency-diverse-fallback","transient-cleanapis-retry","book-derived-reasoning-protocol-v1"],
     access:{auth:"rate-limited-public-broker+optional-oauth2+legacy-bearer",oauthChallenge:"tool-result-meta+resource-401",jwtAlgorithms:["RS256","PS256"],issuer:AUTH0_ISSUER,audience:AUTH0_AUDIENCE,resourceMetadata:OAUTH_METADATA_URL,pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierConfigured,frontierAuthenticatedForThisRequest,frontierAvailableForThisRequest:frontierConfigured,
       rateLimiter:typeof env.THINK_RATE_LIMITER?.limit==="function",modelLimiter:typeof env.THINK_MODEL_LIMITER?.limit==="function",limits:limits(env),browserOrigins:allowedOrigins(env).length},
     routing:{
