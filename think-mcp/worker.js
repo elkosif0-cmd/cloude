@@ -409,7 +409,9 @@ function toolAnnotations(name){
   return {readOnlyHint:true,destructiveHint:false,idempotentHint:deterministic,openWorldHint:external};
 }
 function clientTool(t){
-  const schemes=MODEL_TOOLS.has(t.name)?[{type:"oauth2",scopes:["openid","profile","email"]}]:[{type:"noauth"}];
+  /* /mcp is fail-closed for every tool. Advertise OAuth consistently for deterministic
+     and model-running tools; legacy bearer remains a private transport compatibility path. */
+  const schemes=[{type:"oauth2",scopes:["openid","profile","email"]}];
   const annotations={...toolAnnotations(t.name),...(t.annotations||{})};
   return {...t,annotations,securitySchemes:schemes,_meta:{...(t._meta||{}),securitySchemes:schemes}};
 }
