@@ -459,6 +459,26 @@ test('kosif_route keeps a Jev candidate-set digest stable when the host omits ob
   assert.equal(out.toolDecision.validation.allowed, true, JSON.stringify(out.toolDecision.validation));
 });
 
+test('kosif_route uses a conservative Wilson lower bound and does not count tiny histories as independent evidence', async () => {
+  const e = env();
+  const now = Date.now();
+  const out = await rpcResult(e, call('kosif_route', {
+    task: 'deploy the app safely with Cloudflare',
+    reasoningMode: 'deep',
+    writeIntent: true,
+    availableTools: [
+      { name: 'Cloudflare', connected: true, costClass: 'existing_plan', trustScore: .99, evidenceQuality: .99, schemaHash: 'cf-v1', version: '1', successRate: .99, sampleSize: 10, reversibleHint: true, idempotentHint: true, observedAt: now }
+    ]
+  }));
+  const c = out.toolDecision.candidates.find(x => x.id === 'Cloudflare');
+  assert.ok(c);
+  assert.equal(c.metrics.reliabilityMethod, 'wilson_95_lower_bound');
+  assert.equal(c.metrics.historicalSampleSize, 10);
+  assert.ok(c.metrics.reliability < .99);
+  assert.ok(!c.metrics.independenceGroups.includes('outcome_history'));
+  assert.equal(out.toolDecision.thresholds.minimumHistoryForIndependentSignal, 20);
+});
+
 test('kosif_route quarantines a failed tool and rebuilds the closed fallback set', async () => {
   const e = env();
   const now = Date.now();
