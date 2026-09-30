@@ -36,6 +36,79 @@ const REASONING_PROTOCOL = Object.freeze({
   rule:"Do not manufacture certainty. High confidence must come from independent evidence, live state, and successful verification; otherwise gather evidence or abstain."
 });
 
+const REASONING_MODULES = Object.freeze({
+  core:{
+    source:"smart-thinking+general-verification",
+    rules:[
+      "state the problem, constraints, unknowns, and observable success criteria",
+      "separate evidence from assumptions and interpretation",
+      "generate at least two materially different alternatives when a choice exists",
+      "identify what evidence could change the current conclusion",
+      "verify the result against observable postconditions"
+    ]
+  },
+  biasAudit:{
+    source:"judgment+smart-thinking",
+    rules:[
+      "check overconfidence, confirmation, availability, anchoring, and framing",
+      "actively record evidence against the preferred answer",
+      "do not convert confidence language into probability without calibration data"
+    ]
+  },
+  probabilisticDependency:{
+    source:"probabilistic-graphical-models",
+    rules:[
+      "map dependency groups before counting evidence as independent",
+      "do not double-count signals that share a provider, source, or causal path",
+      "prefer dependency-diverse fallbacks after a shared failure"
+    ]
+  },
+  optimization:{
+    source:"convex-optimization",
+    rules:[
+      "separate hard constraints from soft preferences",
+      "define objective and feasible set before ranking alternatives",
+      "never optimize across a violated safety, permission, schema, or freshness constraint",
+      "use sensitivity thinking: identify which constraint or weight could change the choice"
+    ]
+  },
+  engineering:{
+    source:"pragmatic-programmer+sicp",
+    rules:[
+      "prefer small reversible tracer actions that create fast feedback",
+      "keep components orthogonal, replaceable, and independently testable",
+      "use dispatchable modules instead of hidden coupling",
+      "treat transport success as insufficient until the postcondition is observed"
+    ]
+  },
+  logic:{
+    source:"organon-initial",
+    rules:[
+      "check contradiction, invalid implication, category mistakes, and fallacy risk",
+      "distinguish a claim from the evidence that supports it",
+      "do not infer a conclusion that is stronger than the premises"
+    ]
+  },
+  adversarial:{
+    source:"mythos+conflict-module",
+    rules:[
+      "run a pre-mortem for important decisions",
+      "look for second-order effects, failure cascades, and hidden dependencies",
+      "construct the strongest plausible counterexample before committing"
+    ]
+  }
+});
+
+function reasoningModulesFor(task){
+  const q=text(task,24000);
+  const out=["core","logic"];
+  if(/decid|choice|compare|risk|uncertain|confidence|probab|اختيار|قرار|مقارنة|مخاطر|عدم يقين|ثقة|احتمال/i.test(q)) out.push("biasAudit","probabilisticDependency");
+  if(/optim|objective|constraint|trade.?off|score|rank|cost|budget|أفضل|تحسين|هدف|قيد|مفاضلة|تكلفة|ميزانية/i.test(q)) out.push("optimization");
+  if(/code|program|debug|deploy|architecture|tool|plugin|api|worker|test|كود|برمج|تصحيح|نشر|معمار|أداة|اداة|اختبار/i.test(q)) out.push("engineering");
+  if(/high.?risk|security|payment|credential|failure|attack|adversarial|مخاطر عالية|أمن|دفع|فشل|هجوم/i.test(q)) out.push("adversarial");
+  return Array.from(new Set(out)).map(id=>({id,...REASONING_MODULES[id]}));
+}
+
 const HOST_TOOL_CATALOG = [
   {name:"Acumen by Talarion",lanes:["research"],cost:"existing_plan",priority:100,hints:["blind spot","missing","coverage","what am i missing","نقطة عمياء","ناقص"]},
   {name:"Tavily",lanes:["research"],cost:"existing_plan",priority:92,hints:["search","current","latest","web","بحث","حديث"]},
@@ -395,16 +468,19 @@ function artifact(agent,x){
     agentId:agent.id, source:agent.source||"cloudflare", model:agent.model, role:agent.role, micro:!!agent.micro,
     recommendationId:x?.recommendationId==null?null:text(x.recommendationId,80),
     answer:text(x?.answer,3500), evidence:list(x?.evidence,8), assumptions:list(x?.assumptions,8),
-    risks:list(x?.risks,8), objections:list(x?.objections,8), confidence:clamp(x?.confidence)
+    unknowns:list(x?.unknowns,8), risks:list(x?.risks,8), objections:list(x?.objections,8),
+    disconfirmingEvidence:list(x?.disconfirmingEvidence,8), decisionChangingEvidence:list(x?.decisionChangingEvidence,8),
+    constraintViolations:list(x?.constraintViolations,8), confidence:clamp(x?.confidence)
   };
 }
 function agentPrompt(agent,stage,input,peers){
-  const shape={recommendationId:"option key when options exist, otherwise null",answer:"concise reviewable conclusion",evidence:["facts"],assumptions:["assumptions"],risks:["risks"],objections:["objections"],confidence:0.0};
+  const shape={recommendationId:"option key when options exist, otherwise null",answer:"concise reviewable conclusion",evidence:["observed or sourced support"],assumptions:["assumptions"],unknowns:["material unknowns"],risks:["risks"],objections:["strongest objections"],disconfirmingEvidence:["evidence against the preferred conclusion"],decisionChangingEvidence:["what new evidence would materially change the conclusion"],constraintViolations:["hard constraints violated by any option"],confidence:0.0};
   const stageRule=stage==="independent"?"Work independently. Do not anchor on another model.":stage==="critique"?"Review peer artifacts. Identify material conflicts or unsupported claims and return your revised position.":"Produce the final revised position after criticism.";
   return [
     "You are a member of KOSIF Think.","Role: "+agent.role,stageRule,
     "Apply this explicit reasoning discipline without exposing private chain-of-thought: "+JSON.stringify(REASONING_PROTOCOL),
-    "Be rigorous and concise. Distinguish observation, assumption, uncertainty, and verified evidence.",
+    "Active reasoning modules: "+JSON.stringify(reasoningModulesFor(input.question+" "+input.context)),
+    "Be rigorous and concise. Distinguish observation, assumption, uncertainty, and verified evidence. Record disconfirming evidence instead of only supporting evidence.",
     "Return one valid JSON object only, matching this shape: "+JSON.stringify(shape),
     "Task: "+JSON.stringify({question:input.question,context:input.context,options:input.options,peerArtifacts:peers||[]})
   ].join("\n");
@@ -419,7 +495,7 @@ async function cleanApisChat(env,model,messages,maxTokens=320){
       r=await fetch("https://cleanapis.com/v1/chat/completions",{
         method:"POST",
         headers:{"content-type":"application/json",authorization:"Bearer "+env.cleanapis},
-        body:JSON.stringify({model,messages,max_tokens:maxTokens,response_format:{type:"json_object"}}),
+        body:JSON.stringify(attempt===0?{model,messages,max_tokens:maxTokens,response_format:{type:"json_object"}}:{model,messages,max_tokens:maxTokens}),
         signal:ac.signal
       });
     }catch(e){
@@ -431,7 +507,7 @@ async function cleanApisChat(env,model,messages,maxTokens=320){
     const d=await r.json().catch(()=>({}));
     if(!r.ok){
       lastCode="CLEANAPIS_"+r.status;
-      if(attempt===0&&(r.status===429||r.status>=500)){ await new Promise(resolve=>setTimeout(resolve,120)); continue; }
+      if(attempt===0&&(r.status===400||r.status===422||r.status===429||r.status>=500)){ await new Promise(resolve=>setTimeout(resolve,120)); continue; }
       throw new Error(lastCode);
     }
     const out=d?.choices?.[0]?.message?.content;
@@ -484,7 +560,7 @@ async function callAgent(env,agent,stage,input,peers){
     {role:"user",content:agentPrompt(agent,stage,input,peers)}
   ];
   if(agent.source==="cleanapis"){
-    const raw=await cleanApisChat(env,agent.model,messages,260);
+    const raw=await cleanApisChat(env,agent.model,messages,420);
     return artifact(agent,parseJson(raw));
   }
   const result=await env.AI.run(agent.model,{messages,max_tokens:550,response_format:{type:"json_object"}});
@@ -493,7 +569,7 @@ async function callAgent(env,agent,stage,input,peers){
 async function stage(env,name,agents,input,peers){
   const artifacts=[],failures=[];
   const runOne=async(agent)=>{
-    const p=(peers||[]).filter(x=>x.agentId!==agent.id).map(x=>({agentId:x.agentId,recommendationId:x.recommendationId,answer:text(x.answer,1400),evidence:x.evidence,risks:x.risks,objections:x.objections,confidence:x.confidence}));
+    const p=(peers||[]).filter(x=>x.agentId!==agent.id).map(x=>({agentId:x.agentId,recommendationId:x.recommendationId,answer:text(x.answer,1400),evidence:x.evidence,assumptions:x.assumptions,unknowns:x.unknowns,risks:x.risks,objections:x.objections,disconfirmingEvidence:x.disconfirmingEvidence,decisionChangingEvidence:x.decisionChangingEvidence,confidence:x.confidence}));
     try{artifacts.push(await callAgent(env,agent,name,input,p));}
     catch(e){failures.push({agentId:agent.id,model:agent.model,error:publicError(e)});}
   };
@@ -532,6 +608,7 @@ function evaluateGate(artifacts,options,expectedIds){
     if(c&&c.agreementPercent<80) reasons.push("COUNCIL_AGREEMENT_BELOW_80");
   }else reasons.push("OPEN_ENDED_REQUIRES_REVIEW");
   if(artifacts.some(a=>a.assumptions?.length)) reasons.push("ASSUMPTIONS_REQUIRE_VERIFICATION");
+  if(artifacts.some(a=>a.unknowns?.length)) reasons.push("MATERIAL_UNKNOWNS_REMAIN");
   if(artifacts.some(a=>a.objections?.length)) reasons.push("OBJECTIONS_REQUIRE_REVIEW");
   if(artifacts.some(a=>a.risks?.length)) reasons.push("RISKS_REQUIRE_REVIEW");
   if(artifacts.some(a=>!a.evidence?.length)) reasons.push("EVIDENCE_MISSING");
@@ -821,7 +898,7 @@ function routeTool(env,args){
 
   return {
     version:VERSION,capabilityMeshVersion:CAPABILITY_MESH_VERSION,mode:"host-mediated",directPluginCalls:false,
-    planId,task,lanes,reasoningMode,writeIntent,reasoningProtocol:REASONING_PROTOCOL,
+    planId,task,lanes,reasoningMode,writeIntent,reasoningProtocol:REASONING_PROTOCOL,reasoningModules:reasoningModulesFor(task),
     registryLease:{observedAt,ttlSeconds:inventoryTtlSeconds,expiresAt,rule:"Host must refresh inventory/schema before execution after expiry or when a write target changes."},
     budgetPolicy:{mode:strictFree?"strict_free":"free_or_included_or_existing_plan",autoCostClasses:Array.from(autoCosts),approvalRequired:["mixed","credits","paid","unknown"],rule:"Never execute a paid, credit-based, mixed, or unknown-cost host tool unless the user explicitly approved that tool for this task."},
     useNow,needsApproval,needsAvailabilityCheck,missingConnections,quarantinedFailedTools:Array.from(failed),
@@ -898,6 +975,7 @@ function preflightTool(args){
     version:VERSION,
     mode:"deterministic-preflight",
     reasoningProtocol:REASONING_PROTOCOL,
+    reasoningModules:reasoningModulesFor(question+" "+context),
     modelCalls:false,
     question,
     lanes,
@@ -940,6 +1018,7 @@ async function runThink(env,args){
       version:VERSION,
       mode,
       reasoningProtocol:REASONING_PROTOCOL,
+      reasoningModules:reasoningModulesFor(input.question+" "+input.context),
       orchestrationRequired:true,
       frontierAgents:FRONTIER_AGENTS.map(a=>({id:a.id,model:a.model,role:a.role})),
       instruction:"For Council or Deep, call kosif_agent for the frontier agents, then call kosif_council with the returned artifacts. This avoids a single long-running fan-out request."
@@ -949,7 +1028,7 @@ async function runThink(env,args){
   if(!r.artifacts.length) throw new Error("ALL_FAST_AGENTS_FAILED");
   const c=council(r.artifacts,input.options);
   return {
-    version:VERSION,mode:"fast",backend:"cloudflare-fast",reasoningProtocol:REASONING_PROTOCOL,
+    version:VERSION,mode:"fast",backend:"cloudflare-fast",reasoningProtocol:REASONING_PROTOCOL,reasoningModules:reasoningModulesFor(input.question+" "+input.context),
     agents:FAST_AGENTS.map(a=>({id:a.id,source:a.source,model:a.model,role:a.role})),
     artifacts:r.artifacts,failures:r.failures,council:c,
     preJevGate:evaluateGate(r.artifacts,input.options,FAST_AGENTS.map(a=>a.id)),
@@ -968,10 +1047,10 @@ function sanitizePeer(x){
     recommendationId:x?.recommendationId==null?null:text(x.recommendationId,80),
     answer:text(x?.answer,1800),
     evidence:list(x?.evidence,6),
-    assumptions:list(x?.assumptions,6),
-    risks:list(x?.risks,6),
-    objections:list(x?.objections,6),
-    confidence:clamp(x?.confidence)
+    assumptions:list(x?.assumptions,6),unknowns:list(x?.unknowns,6),
+    risks:list(x?.risks,6),objections:list(x?.objections,6),
+    disconfirmingEvidence:list(x?.disconfirmingEvidence,6),decisionChangingEvidence:list(x?.decisionChangingEvidence,6),
+    constraintViolations:list(x?.constraintViolations,6),confidence:clamp(x?.confidence)
   };
 }
 async function runAgentTool(env,args){
@@ -987,6 +1066,7 @@ async function runAgentTool(env,args){
     version:VERSION,
     stage:stageName,
     agent:{id:agent.id,source:agent.source,model:agent.model,role:agent.role,micro:!!agent.micro},
+    reasoningModules:reasoningModulesFor(input.question+" "+input.context),
     artifact:artifactResult
   };
 }
@@ -999,10 +1079,10 @@ function sanitizeArtifact(x){
     recommendationId:x?.recommendationId==null?null:text(x.recommendationId,80),
     answer:text(x?.answer,4000),
     evidence:list(x?.evidence,8),
-    assumptions:list(x?.assumptions,8),
-    risks:list(x?.risks,8),
-    objections:list(x?.objections,8),
-    confidence:clamp(x?.confidence)
+    assumptions:list(x?.assumptions,8),unknowns:list(x?.unknowns,8),
+    risks:list(x?.risks,8),objections:list(x?.objections,8),
+    disconfirmingEvidence:list(x?.disconfirmingEvidence,8),decisionChangingEvidence:list(x?.decisionChangingEvidence,8),
+    constraintViolations:list(x?.constraintViolations,8),confidence:clamp(x?.confidence)
   };
 }
 function aggregateCouncilTool(args){
@@ -1019,6 +1099,7 @@ function aggregateCouncilTool(args){
   const missing=Array.from(expected).filter(id=>!present.has(id));
   return {
     version:VERSION,
+    reasoningModules:reasoningModulesFor(input.question+" "+input.context),
     artifacts,
     council:c,
     coverage:{present:Array.from(present),missing,frontierTotal:FRONTIER_AGENTS.length},
@@ -1112,8 +1193,10 @@ const ARTIFACT_SCHEMA={
   properties:{
     agentId:{type:"string"},source:{type:"string"},model:{type:"string"},role:{type:"string"},
     recommendationId:{type:["string","null"]},answer:{type:"string"},
-    evidence:{type:"array",items:{type:"string"}},assumptions:{type:"array",items:{type:"string"}},
-    risks:{type:"array",items:{type:"string"}},objections:{type:"array",items:{type:"string"}},confidence:{type:"number"}
+    evidence:{type:"array",items:{type:"string"}},assumptions:{type:"array",items:{type:"string"}},unknowns:{type:"array",items:{type:"string"}},
+    risks:{type:"array",items:{type:"string"}},objections:{type:"array",items:{type:"string"}},
+    disconfirmingEvidence:{type:"array",items:{type:"string"}},decisionChangingEvidence:{type:"array",items:{type:"string"}},
+    constraintViolations:{type:"array",items:{type:"string"}},confidence:{type:"number"}
   },
   required:["agentId","answer","confidence"],
   additionalProperties:true
@@ -1271,6 +1354,7 @@ async function callTool(env,name,args,ctx={}){
     },
     hostToolRouting:{mode:"host-mediated",directPluginCalls:false,routeTool:"kosif_route",catalogSize:HOST_TOOL_CATALOG.length,dynamicToolsSupported:true,capabilityMeshVersion:CAPABILITY_MESH_VERSION,registryMode:"live-host-supplied+lease-ttl",schemaDriftGuard:true,idempotencyRouting:true,minimalRelevantSet:true,jevClosedSetSelection:true,abstentionSupported:true,compositeConfidenceGate:true,failureQuarantine:true,autoCostClasses:Array.from(AUTO_COST_CLASSES),approvalRequired:["mixed","credits","paid","unknown"]},
     reasoningProtocol:REASONING_PROTOCOL,
+    reasoningModules:Object.entries(REASONING_MODULES).map(([id,v])=>({id,source:v.source,rules:v.rules})),
     frontierConfigured,
     frontierAuthenticatedForThisRequest,
     frontierAvailableForThisRequest:frontierConfigured,
