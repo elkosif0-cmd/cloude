@@ -66,7 +66,7 @@ test('the right token: tools/list, then kosif_agent reaches Clean APIs with the 
   const e = env();
   const list = await worker.fetch(req('/mcp', { token: e.KOSIF_THINK_TOKEN }), e);
   assert.equal(list.status, 200);
-  assert.deepEqual((await list.json()).result.tools.map((t) => t.name), ['kosif_preflight', 'kosif_verify_evidence', 'kosif_compare_candidates', 'kosif_agent', 'kosif_council', 'kosif_think', 'kosif_route', 'kosif_think_status']);
+  assert.deepEqual((await list.json()).result.tools.map((t) => t.name), ['kosif_preflight', 'kosif_verify_evidence', 'kosif_calibration_report', 'kosif_compare_candidates', 'kosif_agent', 'kosif_council', 'kosif_think', 'kosif_route', 'kosif_think_status']);
   let sentAuth = null;
   upstream = (url, init) => { sentAuth = init.headers.authorization; return Response.json({ choices: [{ message: { content: '{"answer":"basis appropriate","confidence":0.9}' } }] }); };
   const { r, fetch } = await spent(() => worker.fetch(req('/mcp', { token: e.KOSIF_THINK_TOKEN, body: agentCall }), e));
@@ -322,6 +322,28 @@ test('kosif_route can route future connected tools that are not hardcoded in the
   }), e);
   const out = (await r.json()).result.structuredContent;
   assert.ok(out.useNow.some(x => x.name === 'Future UI Inspector'));
+});
+
+test('kosif_calibration_report measures Jev probability calibration without treating supportIndex as probability', async () => {
+  const e = env();
+  const observations = [];
+  for (let i=0;i<80;i++) observations.push({ id:'good_'+i, toolId:'A', jevProbability:.96, supportIndex:.97, deterministicScore:.91, success:true, executed:true, riskClass:'write' });
+  for (let i=0;i<5;i++) observations.push({ id:'miss_'+i, toolId:'A', jevProbability:.96, supportIndex:.97, deterministicScore:.91, success:false, executed:true, riskClass:'write' });
+  for (let i=0;i<15;i++) observations.push({ id:'low_'+i, toolId:'B', jevProbability:.60, supportIndex:.80, deterministicScore:.78, success:i<9, executed:false, riskClass:'read' });
+  const { r, fetch, ai } = await spent(() => worker.fetch(req('/mcp', { token:e.KOSIF_THINK_TOKEN, body:call('kosif_calibration_report',{ observations, highConfidenceThreshold:.95, bins:10 }) }), e));
+  assert.equal(fetch + ai, 0);
+  const out=(await r.json()).result.structuredContent;
+  assert.equal(out.mode,'empirical_calibration_report');
+  assert.equal(out.observations,100);
+  assert.equal(out.metrics.highConfidenceCount,85);
+  assert.equal(out.metrics.highConfidenceFailures,5);
+  assert.equal(out.metrics.supportIndexCoverage,100);
+  assert.ok(out.metrics.brierScore > 0);
+  assert.ok(out.metrics.expectedCalibrationError >= 0);
+  assert.equal(out.interpretation.supportIndex.includes('not treated as a probability'),true);
+  const toolA=out.tools.find(x=>x.toolId==='A');
+  assert.ok(toolA.wilson95LowerBound < toolA.empiricalSuccessRate);
+  assert.equal(out.falseConfidenceCases.length,5);
 });
 
 test('kosif_route builds a closed Jev tool-choice packet with ABSTAIN and no model spend', async () => {
