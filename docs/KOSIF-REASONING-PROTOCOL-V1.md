@@ -41,15 +41,17 @@ Consequential execution requires all of the following:
 
 - chosen ID belongs to the fresh closed candidate set
 - candidate-set digest matches
-- at least three independent support signals
+- at least three support signals, grouped into at least three independent evidence domains (four for write actions)
 - deterministic support >= 0.82
-- Jev probability for the chosen tool >= 0.92
-- Jev decision confidence >= 0.85
-- conservative composite execution confidence >= 0.90
+- Jev probability for the chosen tool >= 0.95
+- total probability mass left for alternatives <= 0.05
+- Jev decision confidence >= 0.90
+- the selected tool is not more than 0.05 deterministic-support points below the current leader
+- conservative geometric execution-support index >= 0.94
 - cost/permission and human-risk gates pass
 - postcondition verification is available
 
-These are operational gates, not an empirical guarantee that the choice is correct.
+These are operational gates, not an empirical guarantee that the choice is correct. The execution-support index is deliberately a conservative support index, not a claimed calibrated probability of correctness.
 
 ## Failure and substitution
 
