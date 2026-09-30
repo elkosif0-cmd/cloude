@@ -711,6 +711,7 @@ function normalizeAvailableTools(v){
       dependencyGroup:text(x.dependencyGroup,120),
       authState:text(x.authState,60)||((x.connected!==false)?"connected":"not_connected"),
       latencyMs:Number.isFinite(Number(x.latencyMs))?Math.max(0,Number(x.latencyMs)):null,
+      observedAtProvided:Number.isFinite(Number(x.observedAt)),
       observedAt:Number.isFinite(Number(x.observedAt))?Number(x.observedAt):Date.now()
     };
     for(const k of [name,...aliases].map(toolKey).filter(Boolean)) if(!m.has(k)) m.set(k,state);
@@ -848,7 +849,7 @@ function routeTool(env,args){
   const candidateSetHash="tools_"+fnv1a(JSON.stringify({task,lanes,writeIntent,candidates:topDecisionSet.map(x=>[
     x.hostToolName,x.schemaHash,x.version,x.costClass,x.authState,x.trustScore,x.evidenceQuality,x.successRate,x.sampleSize,
     x.semantics?.reversibleHint,x.semantics?.idempotentHint,x.dependencyGroup,
-    availableStateFor({name:x.hostToolName,aliases:[]},available)?.observedAt||null
+    (()=>{const st=availableStateFor({name:x.hostToolName,aliases:[]},available);return st?.observedAtProvided?st.observedAt:null;})()
   ]),failed:Array.from(failed).sort()}));
   const minSignals=3,minIndependenceGroups=writeIntent?4:3,deterministicThreshold=0.82,jevProbabilityThreshold=0.95,jevConfidenceThreshold=0.90,executionThreshold=0.94,maxLeaderGap=0.05,maxAlternativeMass=0.05;
   const topReady=!!top&&top.decision.score>=deterministicThreshold&&top.decision.independentSignals.length>=minSignals&&top.decision.independenceGroups.length>=minIndependenceGroups&&top.decision.schemaConfidence>=0.58&&top.decision.freshness>=0.5;
