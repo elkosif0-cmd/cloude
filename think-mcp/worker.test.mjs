@@ -352,10 +352,53 @@ test('kosif_route rejects out-of-set or low-confidence Jev decisions and accepts
   assert.ok(out.toolDecision.validation.reasons.includes('CHOICE_OUTSIDE_CLOSED_SET'));
   out = await rpcResult(e, call('kosif_route', { ...base, jevDecision: { choice: leader, confidence: .99, probability: .60, candidateSetHash: hash } }));
   assert.equal(out.toolDecision.validation.allowed, false);
-  assert.ok(out.toolDecision.validation.reasons.includes('JEV_PROBABILITY_BELOW_92'));
+  assert.ok(out.toolDecision.validation.reasons.includes('JEV_PROBABILITY_BELOW_95'));
   out = await rpcResult(e, call('kosif_route', { ...base, jevDecision: { choice: leader, confidence: .99, probability: .99, candidateSetHash: hash } }));
   assert.equal(out.toolDecision.validation.allowed, true, JSON.stringify(out.toolDecision.validation));
   assert.equal(out.toolDecision.validation.selectedTool, leader);
+});
+
+test('kosif_route keeps payment and credential actions behind a human checkpoint even with a strong Jev choice', async () => {
+  const e = env();
+  const now = Date.now();
+  const base = {
+    task: 'pay the invoice using Tool A or Tool B',
+    reasoningMode: 'deep',
+    writeIntent: true,
+    availableTools: [
+      { name: 'Tool A', connected: true, costClass: 'included', lanes: ['automation'], trustScore: .99, evidenceQuality: .99, schemaHash: 'a1', version: '1', successRate: .99, sampleSize: 200, reversibleHint: true, idempotentHint: true, observedAt: now, dependencyGroup: 'a' },
+      { name: 'Tool B', connected: true, costClass: 'included', lanes: ['automation'], trustScore: .98, evidenceQuality: .98, schemaHash: 'b1', version: '1', successRate: .98, sampleSize: 200, reversibleHint: true, idempotentHint: true, observedAt: now, dependencyGroup: 'b' }
+    ],
+    preferredTools: ['Tool A','Tool B']
+  };
+  let out = await rpcResult(e, call('kosif_route', base));
+  const hash = out.toolDecision.candidateSetHash;
+  const leader = out.toolDecision.leader;
+  out = await rpcResult(e, call('kosif_route', { ...base, jevDecision: { choice: leader, confidence: .99, probability: .99, candidateSetHash: hash } }));
+  assert.equal(out.toolDecision.validation.allowed, false);
+  assert.ok(out.toolDecision.validation.reasons.includes('HUMAN_CHECKPOINT_REQUIRED'));
+  assert.equal(out.toolDecision.executionGate.requiresHumanCheckpoint, true);
+  out = await rpcResult(e, call('kosif_route', { ...base, humanCheckpointSatisfied: true, jevDecision: { choice: leader, confidence: .99, probability: .99, candidateSetHash: hash } }));
+  assert.equal(out.toolDecision.validation.allowed, true, JSON.stringify(out.toolDecision.validation));
+});
+
+test('kosif_route requires a bound Jev candidate-set digest and rejects stale decisions', async () => {
+  const e = env();
+  const now = Date.now();
+  const base = {
+    task: 'deploy with Cloudflare or Vercel',
+    reasoningMode: 'deep',
+    writeIntent: true,
+    availableTools: [
+      { name: 'Cloudflare', connected: true, costClass: 'existing_plan', trustScore: .99, evidenceQuality: .99, schemaHash: 'cf-v1', version: '1', successRate: .99, sampleSize: 200, reversibleHint: true, idempotentHint: true, observedAt: now },
+      { name: 'Vercel', connected: true, costClass: 'existing_plan', trustScore: .98, evidenceQuality: .98, schemaHash: 've-v1', version: '1', successRate: .98, sampleSize: 200, reversibleHint: true, idempotentHint: true, observedAt: now }
+    ]
+  };
+  let out = await rpcResult(e, call('kosif_route', base));
+  const leader = out.toolDecision.leader;
+  out = await rpcResult(e, call('kosif_route', { ...base, jevDecision: { choice: leader, confidence: .99, probability: .99 } }));
+  assert.equal(out.toolDecision.validation.allowed, false);
+  assert.ok(out.toolDecision.validation.reasons.includes('CANDIDATE_SET_CHANGED'));
 });
 
 test('kosif_route quarantines a failed tool and rebuilds the closed fallback set', async () => {
