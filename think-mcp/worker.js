@@ -229,7 +229,7 @@ const LANE_RULES = [
   ["docs",/(document|pdf|doc\b|sheet|slide|report|مستند|ملف|اكسل|عرض|تقرير)/i],
   ["memory",/(meeting|notes|highlight|library|history|context|اجتماع|ملاحظات|مكتبة|سياق|سابق)/i],
   ["communication",/(email|mail|message|whatsapp|بريد|رسالة|واتساب)/i],
-  ["research",/(research|search|source|verify|latest|current|compare|fact|بحث|ابحث|مصدر|تحقق|أحدث|مقارنة|معلومة)/i]
+  ["research",/(research|search|source|verify|latest|current|compare|fact|بحث|ابحث|مصدر|تحقق|أحدث|مقارنة|معلومة)/i],
   ["crm",/(crm|customer|contact|deal|pipeline|عميل|جهة اتصال|صفقة|مسار مبيعات)/i],
   ["project",/(project|task|issue|board|todo|calendar|مشروع|مهمة|تذكرة|لوحة|تقويم)/i],
   ["spreadsheet",/(spreadsheet|excel|sheet|cell|workbook|جدول|اكسل|شيت|خلية)/i],
