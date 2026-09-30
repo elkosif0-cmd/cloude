@@ -836,7 +836,7 @@ function routeTool(env,args){
   const margin=top?Number((top.decision.score-(runner?.decision.score||0)).toFixed(4)):0;
   const topDecisionSet=eligible.slice(0,4);
   const candidateSetHash="tools_"+fnv1a(JSON.stringify({task,lanes,writeIntent,candidates:topDecisionSet.map(x=>[x.hostToolName,x.schemaHash,x.version,x.decision.score]),failed:Array.from(failed).sort()}));
-  const minSignals=3,minIndependenceGroups=3,deterministicThreshold=0.82,jevProbabilityThreshold=0.95,jevConfidenceThreshold=0.90,executionThreshold=0.90,maxLeaderGap=0.05;
+  const minSignals=3,minIndependenceGroups=writeIntent?4:3,deterministicThreshold=0.82,jevProbabilityThreshold=0.95,jevConfidenceThreshold=0.90,executionThreshold=0.90,maxLeaderGap=0.05,maxAlternativeMass=0.05;
   const topReady=!!top&&top.decision.score>=deterministicThreshold&&top.decision.independentSignals.length>=minSignals&&top.decision.independenceGroups.length>=minIndependenceGroups&&top.decision.schemaConfidence>=0.58&&top.decision.freshness>=0.5;
   const competing=topDecisionSet.length>1;
   const requiresJev=competing&&(writeIntent||reasoningMode!=="fast"||margin<0.16);
@@ -853,17 +853,18 @@ function routeTool(env,args){
     const probs=jd.probabilities&&typeof jd.probabilities==="object"?jd.probabilities:{};
     const probability=Math.max(0,Math.min(1,Number(jd.probability ?? probs[choice] ?? 0)));
     const jevConfidence=Math.max(0,Math.min(1,Number(jd.confidence ?? 0)));
+    const alternativeMass=Math.max(0,Math.min(1,1-probability));
     const chosen=topDecisionSet.find(x=>toolKey(x.hostToolName)===toolKey(choice));
     const packetMatches=!!jd.candidateSetHash&&text(jd.candidateSetHash,120)===candidateSetHash;
     const leaderGap=chosen&&top?Math.max(0,top.decision.score-chosen.decision.score):1;
     const signalCoverage=chosen?Math.min(1,Math.max(0.5,chosen.decision.independenceGroups.length/4)):0;
     const composite=chosen?Math.min(chosen.decision.score,probability,signalCoverage):0;
     const allowed=!!chosen&&choice!=="ABSTAIN"&&packetMatches&&chosen.decision.independentSignals.length>=minSignals&&chosen.decision.independenceGroups.length>=minIndependenceGroups&&
-      chosen.decision.score>=deterministicThreshold&&leaderGap<=maxLeaderGap&&probability>=jevProbabilityThreshold&&jevConfidence>=jevConfidenceThreshold&&composite>=executionThreshold&&
+      chosen.decision.score>=deterministicThreshold&&leaderGap<=maxLeaderGap&&probability>=jevProbabilityThreshold&&alternativeMass<=maxAlternativeMass&&jevConfidence>=jevConfidenceThreshold&&composite>=executionThreshold&&
       (!requiresHumanCheckpoint||humanCheckpointSatisfied);
     jevValidation={
       received:true,choice,packetMatches,probability:Number(probability.toFixed(4)),jevConfidence:Number(jevConfidence.toFixed(4)),
-      leaderGap:Number(leaderGap.toFixed(4)),executionConfidence:Number(composite.toFixed(4)),allowed,
+      leaderGap:Number(leaderGap.toFixed(4)),alternativeMass:Number(alternativeMass.toFixed(4)),executionConfidence:Number(composite.toFixed(4)),allowed,
       confidenceMeaning:"Conservative gated composite, not an empirically calibrated probability of correctness.",
       action:allowed?"execute_selected_tool":(choice==="ABSTAIN"?"abstain":"gather_more_evidence_or_reroute"),
       selectedTool:allowed?chosen.hostToolName:null,
@@ -875,6 +876,7 @@ function routeTool(env,args){
         chosen&&chosen.decision.score<deterministicThreshold?"DETERMINISTIC_SUPPORT_TOO_LOW":null,
         chosen&&leaderGap>maxLeaderGap?"JEV_CHOICE_TOO_FAR_BELOW_DETERMINISTIC_LEADER":null,
         probability<jevProbabilityThreshold?"JEV_PROBABILITY_BELOW_95":null,
+        alternativeMass>maxAlternativeMass?"JEV_ALTERNATIVE_MASS_ABOVE_05":null,
         jevConfidence<jevConfidenceThreshold?"JEV_CONFIDENCE_BELOW_90":null,
         composite<executionThreshold?"COMPOSITE_EXECUTION_CONFIDENCE_BELOW_90":null,
         requiresHumanCheckpoint&&!humanCheckpointSatisfied?"HUMAN_CHECKPOINT_REQUIRED":null
@@ -907,7 +909,7 @@ function routeTool(env,args){
         id:x.hostToolName,name:x.name,score:x.decision.score,metrics:x.decision,dependencyGroup:x.dependencyGroup||"",schemaHash:x.schemaHash,version:x.version
       })),
       leader:top?.hostToolName||null,margin,topReady,requiresJev,
-      thresholds:{deterministic:deterministicThreshold,minSupportSignals:minSignals,minIndependenceGroups,jevProbability:jevProbabilityThreshold,jevConfidence:jevConfidenceThreshold,executionComposite:executionThreshold,maxLeaderGap},
+      thresholds:{deterministic:deterministicThreshold,minSupportSignals:minSignals,minIndependenceGroups,jevProbability:jevProbabilityThreshold,maxAlternativeMass,jevConfidence:jevConfidenceThreshold,executionComposite:executionThreshold,maxLeaderGap},
       jev_payload:requiresJev?{
         tool:"jev_choice",
         state:{task,candidateSetHash,candidates:topDecisionSet.map(x=>({id:x.hostToolName,metrics:x.decision,schemaHash:x.schemaHash,version:x.version}))},
