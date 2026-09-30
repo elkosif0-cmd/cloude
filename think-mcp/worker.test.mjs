@@ -396,6 +396,30 @@ test('kosif_route keeps payment and credential actions behind a human checkpoint
   assert.equal(out.toolDecision.validation.allowed, true, JSON.stringify(out.toolDecision.validation));
 });
 
+test('kosif_route never automates credential or MFA checkpoints even if a caller marks a checkpoint satisfied', async () => {
+  const e = env();
+  const now = Date.now();
+  const base = {
+    task: 'automate the workflow to enter the OTP credential using Tool A or Tool B',
+    reasoningMode: 'deep',
+    writeIntent: true,
+    humanCheckpointSatisfied: true,
+    availableTools: [
+      { name: 'Tool A', connected: true, costClass: 'included', lanes: ['automation'], trustScore: .99, evidenceQuality: .99, schemaHash: 'a1', version: '1', successRate: .99, sampleSize: 200, reversibleHint: true, idempotentHint: true, observedAt: now, dependencyGroup: 'a' },
+      { name: 'Tool B', connected: true, costClass: 'included', lanes: ['automation'], trustScore: .98, evidenceQuality: .98, schemaHash: 'b1', version: '1', successRate: .98, sampleSize: 200, reversibleHint: true, idempotentHint: true, observedAt: now, dependencyGroup: 'b' }
+    ],
+    preferredTools: ['Tool A','Tool B']
+  };
+  let out = await rpcResult(e, call('kosif_route', base));
+  const hash = out.toolDecision.candidateSetHash;
+  const leader = out.toolDecision.leader;
+  out = await rpcResult(e, call('kosif_route', { ...base, jevDecision: { choice: leader, confidence: .99, probability: .99, candidateSetHash: hash } }));
+  assert.equal(out.toolDecision.validation.allowed, false);
+  assert.ok(out.toolDecision.validation.reasons.includes('MANUAL_SECURITY_CHECKPOINT_NOT_AUTOMATABLE'));
+  assert.equal(out.toolDecision.executionGate.manualOnlyCheckpoint, true);
+  assert.equal(out.toolDecision.executionGate.singleCandidateAutoAllowed, false);
+});
+
 test('kosif_route requires a bound Jev candidate-set digest and rejects stale decisions', async () => {
   const e = env();
   const now = Date.now();
