@@ -643,6 +643,8 @@ function routeTool(env,args){
   const approved=new Set((Array.isArray(args?.approvedTools)?args.approvedTools:[]).slice(0,100).map(toolKey).filter(Boolean));
   const preferred=new Set((Array.isArray(args?.preferredTools)?args.preferredTools:[]).slice(0,60).map(toolKey).filter(Boolean));
   const failed=new Set((Array.isArray(args?.failedTools)?args.failedTools:[]).slice(0,80).map(toolKey).filter(Boolean));
+  const failedDependencyGroups=new Set();
+  for(const k of failed){ const st=available.get(k); if(st?.dependencyGroup) failedDependencyGroups.add(st.dependencyGroup); }
   const strictFree=args?.budgetMode==="strict_free";
   const autoCosts=strictFree?new Set(["free","included"]):AUTO_COST_CLASSES;
   const reasoningMode=["fast","council","deep"].includes(args?.reasoningMode)?args.reasoningMode:"fast";
@@ -682,17 +684,19 @@ function routeTool(env,args){
     const costClass=state?state.costClass:t.cost;
     const costFit=autoCosts.has(costClass)||approved.has(toolKey(t.name))||approved.has(toolKey(hostName))?1:0.25;
     const latencyScore=state?.latencyMs==null?0.70:Math.max(0.25,1-Math.min(0.75,state.latencyMs/8000));
+    const dependencyDiversity=state?.dependencyGroup&&failedDependencyGroups.has(state.dependencyGroup)?0.35:1;
     const score=
       capabilityFit*0.25+
-      trust*0.16+
+      trust*0.15+
       schemaConfidence*0.12+
       freshness*0.10+
       reliability*0.10+
       evidenceQuality*0.10+
       reversibility*0.06+
       safety*0.06+
-      costFit*0.03+
-      latencyScore*0.02;
+      costFit*0.02+
+      latencyScore*0.01+
+      dependencyDiversity*0.03;
     const independentSignals=[
       laneHits>0||hintHits>0?"capability":null,
       state?.trustScore!=null?"trust":null,
@@ -706,7 +710,7 @@ function routeTool(env,args){
       decision:{score:Number(score.toFixed(4)),capabilityFit:Number(capabilityFit.toFixed(3)),trust:Number(trust.toFixed(3)),
         schemaConfidence:Number(schemaConfidence.toFixed(3)),freshness:Number(freshness.toFixed(3)),reliability:Number(reliability.toFixed(3)),
         evidenceQuality:Number(evidenceQuality.toFixed(3)),reversibility:Number(reversibility.toFixed(3)),safety:Number(safety.toFixed(3)),
-        costFit:Number(costFit.toFixed(3)),latencyScore:Number(latencyScore.toFixed(3)),independentSignals}};
+        costFit:Number(costFit.toFixed(3)),latencyScore:Number(latencyScore.toFixed(3)),dependencyDiversity:Number(dependencyDiversity.toFixed(3)),independentSignals}};
   }).filter(t=>(t.laneHits>0||t.hintHits>0||preferred.has(toolKey(t.name)))&&!t.failedRoute)
     .sort((a,b)=>b.decision.score-a.decision.score||b.priority-a.priority||a.name.localeCompare(b.name))
     .slice(0,maxTools);
@@ -758,8 +762,9 @@ function routeTool(env,args){
     const probability=Math.max(0,Math.min(1,Number(jd.probability ?? probs[choice] ?? 0)));
     const jevConfidence=Math.max(0,Math.min(1,Number(jd.confidence ?? 0)));
     const chosen=topDecisionSet.find(x=>toolKey(x.hostToolName)===toolKey(choice));
-    const packetMatches=!jd.candidateSetHash||text(jd.candidateSetHash,120)===candidateSetHash;
-    const composite=chosen?Math.min(chosen.decision.score,probability,Math.max(0.5,chosen.decision.independentSignals.length/5)):0;
+    const packetMatches=!!jd.candidateSetHash&&text(jd.candidateSetHash,120)===candidateSetHash;
+    const signalCoverage=chosen?Math.min(1,Math.max(0.5,chosen.decision.independentSignals.length/5)):0;
+    const composite=chosen?Math.min(chosen.decision.score,probability,signalCoverage):0;
     const allowed=!!chosen&&choice!=="ABSTAIN"&&packetMatches&&chosen.decision.independentSignals.length>=minSignals&&
       chosen.decision.score>=deterministicThreshold&&probability>=jevProbabilityThreshold&&jevConfidence>=jevConfidenceThreshold&&composite>=executionThreshold;
     jevValidation={
@@ -828,7 +833,7 @@ function routeTool(env,args){
       preflight:"KOSIF Think reasons first.",
       discover:"Build availableTools from the host's live tool inventory, including exact host names and known cost/permission/schema/trust/freshness/history metadata.",
       route:"Call kosif_route with the task and live availableTools. Never treat the static catalog as installed-state truth.",
-      choose:"When toolDecision.requiresJev is true, call Jev Choice with exactly toolDecision.jev_payload, then call kosif_route again with the same refreshed live inventory plus jevDecision and candidateSetHash. Execute only if toolDecision.validation.allowed is true.",
+      choose:"When toolDecision.requiresJev is true, call Jev Choice with exactly toolDecision.jev_payload, then call kosif_route again with the same refreshed live inventory and jevDecision including candidateSetHash. Execute only if toolDecision.validation.allowed is true.",
       execute:"The ChatGPT host, not this Worker, calls the selected authorized tool. KOSIF Computer remains the sole local browser/device executor.",
       substitute:"On failure or drift, quarantine the failed tool via failedTools, refresh inventory, and rerun selection rather than blindly retrying.",
       verify:"For every side effect, perform a fresh observable read-back/postcondition check and return an execution receipt when the owner supports it.",
