@@ -227,8 +227,8 @@ const BROWSER_JEV_CONTRACT = {
        against DNS rebinding). POST with a JSON body only; bodies over THINK_MAX_BODY_BYTES get 413.
    Nothing returned carries a secret, a token or an upstream error text. */
 const MIN_TOKEN_LENGTH = 32;
-const MODEL_TOOLS = new Set([]);
-const PUBLIC_TOOLS = new Set(["kosif_preflight","kosif_route","kosif_council","kosif_verify_evidence","kosif_compare_candidates","kosif_think_status","kosif_think","kosif_agent"]);
+const MODEL_TOOLS = new Set(["kosif_agent","kosif_think"]);
+const PUBLIC_TOOLS = new Set([]);
 const BASE_HEADERS = { "cache-control":"no-store", "x-content-type-options":"nosniff", "referrer-policy":"no-referrer" };
 const PREFLIGHT_HEADERS = { "access-control-allow-methods":"POST", "access-control-allow-headers":"authorization, content-type, mcp-protocol-version, mcp-session-id", "access-control-max-age":"600" };
 
@@ -1234,7 +1234,7 @@ async function callTool(env,name,args,ctx={}){
     enforcement:"Instruction-level only; the server cannot force host tool invocation.",
     modelIdentity:"Configured provider aliases; underlying model identity is not independently verified.",
     improvements:["unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","one-time-jev-packet-binding","evidence-backed-cove","evidence-tournament","four-tier-memory-routing","dynamic-capability-mesh-v1","all-plugin-host-routing","lease-ttl-registry","schema-hash-drift-guard","idempotency-key-routing","plugin-output-trust-boundary","minimal-relevant-tool-set","deep-research-evidence-fusion","jev-host-tool-selection-v2","closed-set-abstention","composite-confidence-gate","dependency-aware-evidence-gate","bayesian-reliability-shrinkage","dependency-diverse-fallback","transient-cleanapis-retry","book-derived-reasoning-protocol-v1"],
-    access:{auth:"rate-limited-public-broker+optional-oauth2+legacy-bearer",oauthChallenge:"tool-result-meta+resource-401",jwtAlgorithms:["RS256","PS256"],issuer:AUTH0_ISSUER,audience:AUTH0_AUDIENCE,resourceMetadata:OAUTH_METADATA_URL,pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierConfigured,frontierAuthenticatedForThisRequest,frontierAvailableForThisRequest:frontierConfigured,
+    access:{auth:"oauth2-or-legacy-bearer",oauthChallenge:"resource-401",jwtAlgorithms:["RS256","PS256"],issuer:AUTH0_ISSUER,audience:AUTH0_AUDIENCE,resourceMetadata:OAUTH_METADATA_URL,pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierConfigured,frontierAuthenticatedForThisRequest,frontierAvailableForThisRequest:frontierConfigured,
       rateLimiter:typeof env.THINK_RATE_LIMITER?.limit==="function",modelLimiter:typeof env.THINK_MODEL_LIMITER?.limit==="function",limits:limits(env),browserOrigins:allowedOrigins(env).length},
     routing:{
       preflight:"When KOSIF Think is explicitly selected or invoked, run KOSIF first before any substantive answer or downstream tool; simple tasks use fast.",
@@ -1267,8 +1267,42 @@ async function handleMcp(req,env,url){
   const cors=corsFor(origin);
   if(req.method==="OPTIONS") return empty(204,{...cors,...(origin?PREFLIGHT_HEADERS:{}),allow:"POST, OPTIONS"});
   if(req.method!=="POST") return json({error:"method_not_allowed"},405,{...cors,allow:"POST, OPTIONS"});
-  if(!/^application\/json\b/i.test(req.headers.get("content-type")||"")) return json({error:"unsupported_media_type"},415,cors);
 
+  const expected=String(env.KOSIF_THINK_TOKEN||"");
+  const ip=req.headers.get("cf-connecting-ip")||"unknown";
+  const failKey="auth-fail|ip:"+ip;
+  if(windowCount(failKey)>=lim.authFails) return json({error:"too_many_requests"},429,{...cors,"retry-after":"60"});
+
+  const pathMatch=PATH_TOKEN.exec(url.pathname);
+  const presented=bearer(req)||(pathMatch?pathMatch[1]:"");
+  let authContext=null,authed=false;
+
+  if(presented&&expected.length>=MIN_TOKEN_LENGTH){
+    try{
+      authed=await sameSecret(presented,expected);
+      if(authed) authContext={method:"legacy-bearer",sub:"legacy"};
+    }catch(_){authed=false;}
+  }
+  /* Only JWT-shaped bearer values are sent through Auth0 verification. This avoids
+     turning arbitrary bad tokens into external JWKS traffic. */
+  if(!authed&&presented&&presented.split(".").length===3){
+    try{
+      authContext=await verifyAuth0AccessToken(presented);
+      authed=!!authContext;
+    }catch(_){authed=false;}
+  }
+
+  if(!authed){
+    if(expected.length<MIN_TOKEN_LENGTH) return json({error:"service_unavailable"},503,cors);
+    windowHit(failKey,Number.MAX_SAFE_INTEGER);
+    return json({error:"unauthorized"},401,{...cors,"www-authenticate":presented?'Bearer realm="kosif-think", error="invalid_token"':'Bearer realm="kosif-think"'});
+  }
+
+  const caller=await callerKey(authContext?.sub||presented||expected);
+  if(!(await allow(env,"THINK_RATE_LIMITER",caller,lim.rpm)))
+    return json({error:"too_many_requests"},429,{...cors,"retry-after":"60"});
+
+  if(!/^application\/json\b/i.test(req.headers.get("content-type")||"")) return json({error:"unsupported_media_type"},415,cors);
   let raw;
   try{raw=await readBody(req,lim.maxBody);}catch(_){return json({error:"payload_too_large",maxBytes:lim.maxBody},413,cors);}
   let msg;
@@ -1276,60 +1310,22 @@ async function handleMcp(req,env,url){
   if(!msg||typeof msg!=="object"||Array.isArray(msg)||typeof msg.method!=="string") return rpcErr(null,-32600,"Invalid Request",200,cors);
   const id=msg.id;
 
-  const ip=req.headers.get("cf-connecting-ip")||"unknown";
-  const expected=String(env.KOSIF_THINK_TOKEN||"");
-  const pathMatch=PATH_TOKEN.exec(url.pathname);
-  const presented=bearer(req)||(pathMatch?pathMatch[1]:"");
-  let authContext=null,authed=false;
-  if(presented){
-    authContext=await verifyAuth0AccessToken(presented);
-    authed=!!authContext;
-    if(!authed&&expected.length>=MIN_TOKEN_LENGTH){
-      try{
-        authed=await sameSecret(presented,expected);
-        if(authed) authContext={method:"legacy-bearer",sub:"legacy"};
-      }catch(_){authed=false;}
-    }
-  }
-  const failKey="auth-fail|ip:"+ip;
-  if(presented&&!authed){
-    if(windowCount(failKey)>=lim.authFails) return json({error:"too_many_requests"},429,{...cors,"retry-after":"60"});
-    windowHit(failKey,Number.MAX_SAFE_INTEGER);
-  }
-
   if(msg.method==="initialize") return rpc(id,{
     protocolVersion:msg.params?.protocolVersion||"2025-06-18",
     capabilities:{tools:{}},
     serverInfo:{name:"kosif-think",version:VERSION},
-    instructions:"KOSIF Think runs Fast Thinking and rate-limited frontier-agent brokerage server-side. Clean APIs credentials remain secret in Cloudflare and are never returned to the client. When explicitly selected, run KOSIF first. Frontier agent calls are rate-limited per caller and do not require OAuth. For authorized browser/device work, prefer KOSIF Computer and require observable verification. If a result returns jev_payload, call Jev before finalizing."
+    instructions:"KOSIF Think runs Fast Thinking and rate-limited frontier-agent brokerage server-side. Clean APIs credentials remain secret in Cloudflare and are never returned to the client. When explicitly selected, run KOSIF first. For authorized browser/device work, prefer KOSIF Computer and require observable verification. If a result returns jev_payload, call Jev before finalizing."
   },cors);
   if(msg.method.startsWith("notifications/")) return empty(202,cors);
   if(msg.method==="ping") return rpc(id,{},cors);
-
-  if(msg.method==="tools/list"){
-    return rpc(id,{tools:TOOLS.map(clientTool)},cors);
-  }
+  if(msg.method==="tools/list") return rpc(id,{tools:TOOLS.map(clientTool)},cors);
 
   if(msg.method==="tools/call"){
     const name=text(msg.params?.name,80);
-    const isPublic=PUBLIC_TOOLS.has(name);
-    if(MODEL_TOOLS.has(name)&&!authed){
-      const challenge=oauthChallenge("invalid_token","Sign in to run KOSIF Think model tools");
-      return rpcAuth(id,oauthToolError("Authentication required to run KOSIF Think model tools"),challenge,cors);
-    }
-    if(!isPublic){
-      const caller=await callerKey(authContext?.sub||presented);
-      if(!(await allow(env,"THINK_RATE_LIMITER",caller,lim.rpm))) return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
-      if(MODEL_TOOLS.has(name)&&!(await allow(env,"THINK_MODEL_LIMITER",caller,lim.modelRpm)))
-        return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
-    }else{
-      const publicCaller="public:ip:"+ip;
-      if(!(await allow(env,"THINK_RATE_LIMITER",publicCaller,lim.rpm))) return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
-      if(name==="kosif_think"&&!(await allow(env,"THINK_MODEL_LIMITER","public-model:ip:"+ip,Math.min(lim.modelRpm,2)))) return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
-      if(name==="kosif_agent"&&!(await allow(env,"THINK_MODEL_LIMITER","public-frontier:ip:"+ip,Math.min(lim.modelRpm,5)))) return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
-    }
+    if(MODEL_TOOLS.has(name)&&!(await allow(env,"THINK_MODEL_LIMITER",caller,lim.modelRpm)))
+      return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
     try{
-      const result=await callTool(env,name,msg.params?.arguments||{},{authed});
+      const result=await callTool(env,name,msg.params?.arguments||{},{authed:true,authContext});
       return result?rpc(id,result,cors):rpcErr(id,-32602,"Unknown tool",200,cors);
     }catch(e){
       return rpc(id,toolResult({error:publicError(e)},true),cors);
@@ -1337,7 +1333,6 @@ async function handleMcp(req,env,url){
   }
   return rpcErr(id,-32601,"Method not found",200,cors);
 }
-
 export default {
   async fetch(req,env){
     const url=new URL(req.url);
