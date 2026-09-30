@@ -1,0 +1,28 @@
+{
+  "snapshot_date": "2026-09-30",
+  "runtime": {
+    "version": "0.8.3",
+    "capability_mesh": "2.0.1",
+    "worker": "kosif-think-mcp",
+    "endpoint": "https://kosif-think-mcp.kosif199022.workers.dev/mcp"
+  },
+  "mobile_bridge": {
+    "version": "1.4.0",
+    "worker": "wa-kosif-mcp",
+    "endpoint": "https://wa-kosif-mcp.kosif199022.workers.dev/mcp"
+  },
+  "chatgpt_plugin": {
+    "name": "kosif-think",
+    "version": "1.5.3",
+    "plugin_id": "plugins_6ab98e1d109c81918980af27bcd07477",
+    "release_id": "pluginrel_6abd564056408191a6807d6eccacf733"
+  },
+  "pro_plugin": {
+    "name": "kosif-think-pro",
+    "version": "2.7.2",
+    "plugin_id": "plugins_6abd29b907ac8191a457bce773dc7515",
+    "release_id": "pluginrel_6abd56a5e4e88191b2d2086d047aa205"
+  },
+  "branch": "handoff/kosif-think-complete-source-20260930",
+  "secrets_included": false
+}
