@@ -1,0 +1,28 @@
+{
+  "name": "kosif-think",
+  "version": "1.5.3",
+  "description": "Adaptive mobile-first KOSIF Think router with refreshed live MCP discovery for Think tools, auto Fast/Council/Deep selection, Jev gates, verification receipts, self-tests and diagnostics.",
+  "author": {
+    "name": "Kosif"
+  },
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "KOSIF Think",
+        "shortDescription": "Adaptive think, route and verify",
+        "longDescription": "KOSIF Think v1.5.3 refreshes live MCP discovery for kosif_mobile_think, kosif_mobile_capabilities and kosif_mobile_call, including indirect access to kosif_auto and kosif_route when the host does not expose those runtime tools directly, while preserving adaptive Fast/Council/Deep routing, Jev gates, verification receipts, self-tests and diagnostics.",
+        "developerName": "Kosif",
+        "category": "Productivity",
+        "capabilities": [
+          "Interactive"
+        ],
+        "defaultPrompt": [
+          "When KOSIF Think is explicitly selected, call kosif_mobile_think before substantive downstream execution; use auto mode unless the user explicitly forces Fast, Council, or Deep.",
+          "Use kosif_mobile_capabilities when exact live schemas are needed. If kosif_auto or kosif_route is not directly exposed by the current host, call it through kosif_mobile_call; use the same bridge for advanced operations such as kosif_self_test or kosif_diagnostics.",
+          "KOSIF Think never grants permission for side effects by itself; require fresh verification and executor-originated receipts for remote actions."
+        ]
+      }
+    }
+  }
+}
