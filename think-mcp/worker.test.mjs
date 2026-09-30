@@ -66,7 +66,7 @@ test('the right token: tools/list, then kosif_agent reaches Clean APIs with the 
   const e = env();
   const list = await worker.fetch(req('/mcp', { token: e.KOSIF_THINK_TOKEN }), e);
   assert.equal(list.status, 200);
-  assert.deepEqual((await list.json()).result.tools.map((t) => t.name), ['kosif_agent', 'kosif_council', 'kosif_think', 'kosif_route', 'kosif_think_status']);
+  assert.deepEqual((await list.json()).result.tools.map((t) => t.name), ['kosif_preflight', 'kosif_verify_evidence', 'kosif_compare_candidates', 'kosif_agent', 'kosif_council', 'kosif_think', 'kosif_route', 'kosif_think_status']);
   let sentAuth = null;
   upstream = (url, init) => { sentAuth = init.headers.authorization; return Response.json({ choices: [{ message: { content: '{"answer":"basis appropriate","confidence":0.9}' } }] }); };
   const { r, fetch } = await spent(() => worker.fetch(req('/mcp', { token: e.KOSIF_THINK_TOKEN, body: agentCall }), e));
@@ -310,11 +310,78 @@ test('kosif_route can route future connected tools that are not hardcoded in the
   assert.ok(out.useNow.some(x => x.name === 'Future UI Inspector'));
 });
 
+test('kosif_route builds a closed Jev tool-choice packet with ABSTAIN and no model spend', async () => {
+  const e = env();
+  const now = Date.now();
+  const args = {
+    task: 'deploy the app using Cloudflare or Vercel and verify the deployment',
+    reasoningMode: 'deep',
+    writeIntent: true,
+    availableTools: [
+      { name: 'Cloudflare', connected: true, costClass: 'existing_plan', trustScore: .99, evidenceQuality: .98, schemaHash: 'cf-v1', version: '1', successRate: .99, sampleSize: 100, reversibleHint: true, idempotentHint: true, latencyMs: 120, observedAt: now, dependencyGroup: 'cloudflare' },
+      { name: 'Vercel', connected: true, costClass: 'existing_plan', trustScore: .98, evidenceQuality: .97, schemaHash: 've-v1', version: '1', successRate: .98, sampleSize: 100, reversibleHint: true, idempotentHint: true, latencyMs: 130, observedAt: now, dependencyGroup: 'vercel' }
+    ]
+  };
+  const { r, fetch, ai } = await spent(() => worker.fetch(req('/mcp', { token: e.KOSIF_THINK_TOKEN, body: call('kosif_route', args) }), e));
+  assert.equal(fetch + ai, 0, 'routing and packet construction are deterministic');
+  const out = (await r.json()).result.structuredContent;
+  assert.equal(out.toolDecision.mode, 'closed_set_jev_gated');
+  assert.equal(out.toolDecision.requiresJev, true);
+  assert.ok(out.toolDecision.candidates.length >= 2);
+  assert.ok(out.toolDecision.jev_payload.criteria.ABSTAIN);
+  assert.equal(out.toolDecision.jev_payload.instructions.includes('Never invent a tool'), true);
+});
+
+test('kosif_route rejects out-of-set or low-confidence Jev decisions and accepts only a strongly gated choice', async () => {
+  const e = env();
+  const now = Date.now();
+  const base = {
+    task: 'deploy the app using Cloudflare or Vercel and verify the deployment',
+    reasoningMode: 'deep',
+    writeIntent: true,
+    availableTools: [
+      { name: 'Cloudflare', connected: true, costClass: 'existing_plan', trustScore: .99, evidenceQuality: .99, schemaHash: 'cf-v1', version: '1', successRate: .99, sampleSize: 200, reversibleHint: true, idempotentHint: true, latencyMs: 80, observedAt: now, dependencyGroup: 'cloudflare' },
+      { name: 'Vercel', connected: true, costClass: 'existing_plan', trustScore: .98, evidenceQuality: .98, schemaHash: 've-v1', version: '1', successRate: .98, sampleSize: 200, reversibleHint: true, idempotentHint: true, latencyMs: 90, observedAt: now, dependencyGroup: 'vercel' }
+    ]
+  };
+  let out = await rpcResult(e, call('kosif_route', base));
+  const hash = out.toolDecision.candidateSetHash;
+  const leader = out.toolDecision.leader;
+  out = await rpcResult(e, call('kosif_route', { ...base, jevDecision: { choice: 'Imaginary Tool', confidence: .99, probability: .99, candidateSetHash: hash } }));
+  assert.equal(out.toolDecision.validation.allowed, false);
+  assert.ok(out.toolDecision.validation.reasons.includes('CHOICE_OUTSIDE_CLOSED_SET'));
+  out = await rpcResult(e, call('kosif_route', { ...base, jevDecision: { choice: leader, confidence: .99, probability: .60, candidateSetHash: hash } }));
+  assert.equal(out.toolDecision.validation.allowed, false);
+  assert.ok(out.toolDecision.validation.reasons.includes('JEV_PROBABILITY_BELOW_92'));
+  out = await rpcResult(e, call('kosif_route', { ...base, jevDecision: { choice: leader, confidence: .99, probability: .99, candidateSetHash: hash } }));
+  assert.equal(out.toolDecision.validation.allowed, true, JSON.stringify(out.toolDecision.validation));
+  assert.equal(out.toolDecision.validation.selectedTool, leader);
+});
+
+test('kosif_route quarantines a failed tool and rebuilds the closed fallback set', async () => {
+  const e = env();
+  const now = Date.now();
+  const out = await rpcResult(e, call('kosif_route', {
+    task: 'deploy the app using Cloudflare or Vercel',
+    reasoningMode: 'deep',
+    writeIntent: true,
+    failedTools: ['Cloudflare'],
+    availableTools: [
+      { name: 'Cloudflare', connected: true, costClass: 'existing_plan', trustScore: .99, schemaHash: 'cf-v1', version: '1', observedAt: now },
+      { name: 'Vercel', connected: true, costClass: 'existing_plan', trustScore: .97, schemaHash: 've-v1', version: '1', observedAt: now }
+    ]
+  }));
+  assert.ok(out.quarantinedFailedTools.includes('cloudflare'));
+  assert.ok(!out.toolDecision.candidates.some(x => x.id === 'Cloudflare'));
+  assert.ok(out.toolDecision.candidates.some(x => x.id === 'Vercel'));
+});
+
+
 test('kosif_think_status exposes host routing and cost guardrails without claiming direct plugin access', async () => {
   const e = env();
   const r = await worker.fetch(req('/mcp', { token: e.KOSIF_THINK_TOKEN, body: call('kosif_think_status', {}) }), e);
   const out = (await r.json()).result.structuredContent;
-  assert.equal(out.version, '0.5.0');
+  assert.equal(out.version, '0.8.0');
   assert.equal(out.hostToolRouting.mode, 'host-mediated');
   assert.equal(out.hostToolRouting.directPluginCalls, false);
   assert.equal(out.hostToolRouting.routeTool, 'kosif_route');
@@ -351,6 +418,19 @@ test('council: one artifact per known frontier agent, abstentions counted, a con
   assert.equal(r.preJevGate.passed, false);
   assert.ok(r.preJevGate.reasons.includes('MISSING_AGENTS') && r.preJevGate.reasons.includes('COUNCIL_AGREEMENT_BELOW_80'), r.preJevGate.reasons.join(','));
   assert.equal(r.synthesis.finalAnswer, 'keep it', 'the synthesis follows the winning option');
+});
+
+test('frontier agent retries one transient Clean APIs empty response but does not invent an artifact', async () => {
+  const e = env();
+  let attempts = 0;
+  upstream = () => {
+    attempts++;
+    if (attempts === 1) return Response.json({ choices: [{ message: {} }] });
+    return Response.json({ choices: [{ message: { content: '{"answer":"recovered","confidence":0.8}' } }] });
+  };
+  const r = await rpcResult(e, call('kosif_agent', { agent: 'claude', question: 'q' }));
+  assert.equal(attempts, 2);
+  assert.equal(r.artifact.answer, 'recovered');
 });
 
 test('agents: an empty answer or a malformed short answer is a failure, never a made-up artifact', async () => {
