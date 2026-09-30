@@ -1073,7 +1073,7 @@ async function runAgentTool(env,args){
     artifactResult=await callAgent(env,agent,stageName,input,peers);
   }catch(e){
     const code=publicError(e);
-    const retryable=/^(CLEANAPIS_|MICRO_)/.test(code);
+    const retryable=/^(CLEANAPIS_|MICRO_|AGENT_EMPTY_ANSWER$|AGENT_JSON_INVALID$)/.test(code);
     if(!retryable||!env.AI||typeof env.AI.run!=="function") throw e;
     const map={gpt:FAST_AGENTS[0],claude:FAST_AGENTS[1],gemini:FAST_AGENTS[2],mythos:FAST_AGENTS[1],fable:FAST_AGENTS[2]};
     const base=map[agent.id]||FAST_AGENTS[0];
