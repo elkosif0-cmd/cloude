@@ -1403,7 +1403,8 @@ async function handleMcp(req,env,url){
     return json({error:"unauthorized"},401,{...cors,"www-authenticate":presented?'Bearer realm="kosif-think", error="invalid_token"':'Bearer realm="kosif-think"'});
   }
 
-  const caller=await callerKey(authContext?.sub||presented||expected);
+  const callerIdentity=authContext?.method==="legacy-bearer" ? presented : (authContext?.sub||presented||expected);
+  const caller=await callerKey(callerIdentity);
   if(!(await allow(env,"THINK_RATE_LIMITER",caller,lim.rpm)))
     return json({error:"too_many_requests"},429,{...cors,"retry-after":"60"});
 
