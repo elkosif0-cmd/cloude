@@ -415,6 +415,26 @@ test('kosif_route requires a bound Jev candidate-set digest and rejects stale de
   assert.ok(out.toolDecision.validation.reasons.includes('CANDIDATE_SET_CHANGED'));
 });
 
+test('kosif_route keeps a Jev candidate-set digest stable when the host omits observedAt', async () => {
+  const e = env();
+  const base = {
+    task: 'deploy the app using Cloudflare or Vercel',
+    reasoningMode: 'deep',
+    writeIntent: true,
+    availableTools: [
+      { name: 'Cloudflare', connected: true, costClass: 'existing_plan', trustScore: .99, evidenceQuality: .99, schemaHash: 'cf-v1', version: '1', successRate: .99, sampleSize: 200, reversibleHint: true, idempotentHint: true },
+      { name: 'Vercel', connected: true, costClass: 'existing_plan', trustScore: .98, evidenceQuality: .98, schemaHash: 've-v1', version: '1', successRate: .98, sampleSize: 200, reversibleHint: true, idempotentHint: true }
+    ]
+  };
+  let out = await rpcResult(e, call('kosif_route', base));
+  const hash = out.toolDecision.candidateSetHash;
+  const leader = out.toolDecision.leader;
+  await new Promise(resolve => setTimeout(resolve, 2));
+  out = await rpcResult(e, call('kosif_route', { ...base, jevDecision: { choice: leader, confidence: .99, probability: .99, candidateSetHash: hash } }));
+  assert.equal(out.toolDecision.validation.packetMatches, true, JSON.stringify(out.toolDecision.validation));
+  assert.equal(out.toolDecision.validation.allowed, true, JSON.stringify(out.toolDecision.validation));
+});
+
 test('kosif_route quarantines a failed tool and rebuilds the closed fallback set', async () => {
   const e = env();
   const now = Date.now();
