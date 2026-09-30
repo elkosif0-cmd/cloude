@@ -539,10 +539,13 @@ test('kosif_think_status exposes host routing and cost guardrails without claimi
   const e = env();
   const r = await worker.fetch(req('/mcp', { token: e.KOSIF_THINK_TOKEN, body: call('kosif_think_status', {}) }), e);
   const out = (await r.json()).result.structuredContent;
-  assert.equal(out.version, '0.8.0');
+  assert.equal(out.version, '0.8.1');
   assert.equal(out.hostToolRouting.mode, 'host-mediated');
   assert.equal(out.hostToolRouting.directPluginCalls, false);
   assert.equal(out.hostToolRouting.routeTool, 'kosif_route');
+  assert.equal(out.hostToolRouting.routeToolServerAvailable, true);
+  assert.equal(out.hostToolRouting.routeToolHostExposure, 'unknown-to-server');
+  assert.match(out.hostToolRouting.hostExposureRule, /does not prove/i);
   assert.equal(out.hostToolRouting.dynamicToolsSupported, true);
   assert.ok(out.hostToolRouting.catalogSize >= 30);
   assert.deepEqual(out.hostToolRouting.autoCostClasses.sort(), ['existing_plan','free','included']);
@@ -625,4 +628,49 @@ test('persistent or malformed frontier output uses an explicit local fallback in
   assert.equal(zero.artifact.confidence, 0, 'a zero confidence stays zero');
   assert.deepEqual(zero.artifact.evidence, [], 'an insight is not counted as evidence');
   assert.equal((await rpcResult(e, call('kosif_think', { question: 'q', mode: 'turbo' }))).error, 'INVALID_MODE');
+});
+
+
+test('fast mode quarantines numeric answers that contradict independently repeated valid arithmetic evidence', async () => {
+  const models = {
+    '@cf/meta/llama-3.3-70b-instruct-fp8-fast': {
+      answer: '102',
+      evidence: ['The warehouse starts with 120 units', '15% of the units are defective', '10 non-defective units are sold'],
+      assumptions: [], risks: [], objections: [], confidence: 0.95
+    },
+    '@cf/mistralai/mistral-small-3.1-24b-instruct': {
+      answer: '100 non-defective units remain.',
+      evidence: ['15% of 120 units are defective, so 18 units are defective.', '120 - 18 = 102 non-defective units initially.', '102 - 10 = 92 non-defective units remain.'],
+      assumptions: [], risks: [], objections: [], confidence: 0.7
+    },
+    '@cf/meta/llama-4-scout-17b-16e-instruct': {
+      answer: '97',
+      evidence: ['120 * 0.15 = 18 defective units', '120 - 18 = 102 non-defective units initially', '102 - 10 = 92 non-defective units remaining'],
+      assumptions: [], risks: [], objections: [], confidence: 1
+    }
+  };
+  const e = env({
+    AI: { run: async (model) => { calls.ai++; return { response: JSON.stringify(models[model]) }; } }
+  });
+  const out = await rpcResult(e, call('kosif_think', {
+    mode: 'fast',
+    question: 'A warehouse starts with 120 units. Exactly 15% are defective. Then 10 non-defective units are sold. How many non-defective units remain?'
+  }));
+  assert.equal(out.synthesis.finalAnswer, '92');
+  assert.equal(out.synthesis.repairedFromEvidence, true);
+  assert.equal(out.synthesis.evidenceConsistency.canonicalValue, 92);
+  assert.equal(out.synthesis.evidenceConsistency.independentSupports >= 2, true);
+  assert.deepEqual(new Set(out.synthesis.evidenceConsistency.quarantinedAgents), new Set(['solver','skeptic','alternatives']));
+  assert.ok(out.preJevGate.reasons.includes('EVIDENCE_ANSWER_CONTRADICTION'));
+  assert.ok(out.preJevGate.reasons.includes('MODEL_ANSWERS_QUARANTINED'));
+});
+
+test('fast mode preserves legacy synthesis when there is no independently repeated arithmetic conclusion', async () => {
+  const e = env({
+    AI: { run: async (model) => { calls.ai++; return { response: JSON.stringify({ answer: model.includes('llama-3.3') ? 'alpha' : 'beta', evidence: ['qualitative evidence'], confidence: model.includes('llama-3.3') ? 0.9 : 0.7 }) }; } }
+  });
+  const out = await rpcResult(e, call('kosif_think', { mode: 'fast', question: 'Choose a qualitative framing without arithmetic.' }));
+  assert.equal(out.synthesis.repairedFromEvidence, false);
+  assert.equal(out.synthesis.evidenceConsistency.canonicalValue, null);
+  assert.equal(out.synthesis.finalAnswer, 'alpha');
 });
