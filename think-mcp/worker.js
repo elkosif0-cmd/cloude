@@ -1241,7 +1241,10 @@ async function callTool(env,name,args,ctx={}){
   if(name==="kosif_agent") return toolResult(await runAgentTool(env,args),false);
   if(name==="kosif_council") return toolResult(aggregateCouncilTool(args),false);
   if(name==="kosif_think") return toolResult(await runThink(env,args),false);
-  if(name==="kosif_route") return toolResult(routeTool(env,args),false);
+  if(name==="kosif_route"){
+    try{return toolResult(routeTool(env,args),false);}
+    catch(e){console.error("KOSIF_ROUTE_INTERNAL",String(e?.stack||e));throw e;}
+  }
   if(name==="kosif_think_status") {
     const frontierConfigured=!!env.cleanapis && String(env.THINK_FRONTIER_ENABLED||"true").toLowerCase()!=="false";
     const frontierAuthenticatedForThisRequest=!!ctx.authed;
