@@ -1161,6 +1161,84 @@ function aggregateCouncilTool(args){
 }
 
 
+function calibrationReportTool(args){
+  const rows=Array.isArray(args?.observations)?args.observations.slice(0,5000):[];
+  if(!rows.length) throw new Error("OBSERVATIONS_REQUIRED");
+  const highThreshold=Math.max(0.5,Math.min(1,Number(args?.highConfidenceThreshold ?? 0.95)));
+  const bins=Math.max(5,Math.min(20,Math.floor(Number(args?.bins)||10)));
+  const clean=rows.map((x,i)=>{
+    const probability=Math.max(0,Math.min(1,Number(x?.jevProbability)));
+    const outcome=x?.success===true?1:x?.success===false?0:null;
+    const support=Number.isFinite(Number(x?.supportIndex))?Math.max(0,Math.min(1,Number(x.supportIndex))):null;
+    const deterministic=Number.isFinite(Number(x?.deterministicScore))?Math.max(0,Math.min(1,Number(x.deterministicScore))):null;
+    return {
+      id:text(x?.id||`obs_${i+1}`,120),toolId:text(x?.toolId,180),probability,outcome,support,deterministic,
+      executed:x?.executed!==false,riskClass:text(x?.riskClass||"unspecified",80)
+    };
+  }).filter(x=>x.outcome!==null&&Number.isFinite(x.probability));
+
+  if(!clean.length) throw new Error("VALID_OBSERVATIONS_REQUIRED");
+  const n=clean.length;
+  const brier=clean.reduce((s,x)=>s+Math.pow(x.probability-x.outcome,2),0)/n;
+  const bucketRows=[];
+  let ece=0;
+  for(let i=0;i<bins;i++){
+    const lo=i/bins,hi=(i+1)/bins;
+    const xs=clean.filter(x=>x.probability>=lo&&(i===bins-1?x.probability<=hi:x.probability<hi));
+    if(!xs.length) continue;
+    const meanProbability=xs.reduce((s,x)=>s+x.probability,0)/xs.length;
+    const successRate=xs.reduce((s,x)=>s+x.outcome,0)/xs.length;
+    const gap=Math.abs(meanProbability-successRate);
+    ece+=(xs.length/n)*gap;
+    bucketRows.push({
+      lower:Number(lo.toFixed(2)),upper:Number(hi.toFixed(2)),count:xs.length,
+      meanProbability:Number(meanProbability.toFixed(4)),empiricalSuccessRate:Number(successRate.toFixed(4)),
+      calibrationGap:Number(gap.toFixed(4))
+    });
+  }
+  const high=clean.filter(x=>x.probability>=highThreshold);
+  const highFailures=high.filter(x=>x.outcome===0);
+  const executed=clean.filter(x=>x.executed);
+  const supportRows=clean.filter(x=>x.support!=null);
+  const falseConfidence=highFailures.slice(0,50).map(x=>({id:x.id,toolId:x.toolId,jevProbability:x.probability,supportIndex:x.support,riskClass:x.riskClass}));
+  const byTool={};
+  for(const x of clean){
+    const k=x.toolId||"unknown";
+    byTool[k]=byTool[k]||{n:0,successes:0,highN:0,highFailures:0};
+    byTool[k].n++; byTool[k].successes+=x.outcome;
+    if(x.probability>=highThreshold){byTool[k].highN++; if(!x.outcome)byTool[k].highFailures++;}
+  }
+  const toolRows=Object.entries(byTool).map(([toolId,v])=>({
+    toolId,count:v.n,empiricalSuccessRate:Number((v.successes/v.n).toFixed(4)),
+    wilson95LowerBound:Number((wilsonLowerBound(v.successes/v.n,v.n)||0).toFixed(4)),
+    highConfidenceCount:v.highN,highConfidenceFailures:v.highFailures
+  })).sort((a,b)=>b.count-a.count||a.toolId.localeCompare(b.toolId));
+
+  return {
+    version:VERSION,mode:"empirical_calibration_report",observations:n,
+    metrics:{
+      brierScore:Number(brier.toFixed(5)),
+      expectedCalibrationError:Number(ece.toFixed(5)),
+      highConfidenceThreshold:highThreshold,
+      highConfidenceCount:high.length,
+      highConfidenceEmpiricalSuccessRate:high.length?Number(((high.length-highFailures.length)/high.length).toFixed(4)):null,
+      highConfidenceFailures:highFailures.length,
+      executedCount:executed.length,
+      executedEmpiricalSuccessRate:executed.length?Number((executed.reduce((s,x)=>s+x.outcome,0)/executed.length).toFixed(4)):null,
+      supportIndexCoverage:supportRows.length
+    },
+    reliabilityBins:bucketRows,
+    tools:toolRows.slice(0,100),
+    falseConfidenceCases:falseConfidence,
+    interpretation:{
+      jevProbability:"Brier score and ECE evaluate Jev probability against observed binary outcomes.",
+      supportIndex:"supportIndex is not treated as a probability and is not included in Brier/ECE.",
+      thresholdRule:"Do not lower operational gates from this report alone. Require enough representative outcomes, inspect false-confidence cases, and segment by risk/task family before changing thresholds.",
+      dataQuality:n<100?"LOW_SAMPLE_SIZE":"review representativeness and outcome labeling"
+    }
+  };
+}
+
 function verifyEvidenceTool(args){
   const goal=text(args?.goal,12000);
   const claims=Array.isArray(args?.claims)?args.claims:[];
@@ -1282,6 +1360,23 @@ const TOOLS=[
     }
   },
   {
+    name:"kosif_calibration_report",
+    description:"Deterministic empirical calibration report for historical KOSIF routing outcomes. Computes Brier score and reliability/ECE for Jev probabilities, high-confidence failure cases, and per-tool Wilson lower bounds. It never treats the operational support index as a probability.",
+    inputSchema:{
+      type:"object",
+      properties:{
+        observations:{type:"array",minItems:1,maxItems:5000,items:{type:"object",properties:{
+          id:{type:"string"},toolId:{type:"string"},jevProbability:{type:"number",minimum:0,maximum:1},
+          supportIndex:{type:"number",minimum:0,maximum:1},deterministicScore:{type:"number",minimum:0,maximum:1},
+          success:{type:"boolean"},executed:{type:"boolean"},riskClass:{type:"string"}
+        },required:["jevProbability","success"],additionalProperties:false}},
+        highConfidenceThreshold:{type:"number",minimum:0.5,maximum:1},
+        bins:{type:"integer",minimum:5,maximum:20}
+      },
+      required:["observations"],additionalProperties:false
+    }
+  },
+  {
     name:"kosif_compare_candidates",
     description:"Evidence tournament over caller-supplied candidate metrics. Computes deterministic weighted ranking without inventing scores; emits a bounded Jev Choice payload only when candidates are close or metrics are incomplete.",
     inputSchema:{
@@ -1370,6 +1465,7 @@ const TOOLS=[
 async function callTool(env,name,args,ctx={}){
   if(name==="kosif_preflight") return toolResult(preflightTool(args),false);
   if(name==="kosif_verify_evidence") return toolResult(verifyEvidenceTool(args),false);
+  if(name==="kosif_calibration_report") return toolResult(calibrationReportTool(args),false);
   if(name==="kosif_compare_candidates") return toolResult(compareCandidatesTool(args),false);
   if(name==="kosif_agent") return toolResult(await runAgentTool(env,args),false);
   if(name==="kosif_council") return toolResult(aggregateCouncilTool(args),false);
@@ -1385,7 +1481,7 @@ async function callTool(env,name,args,ctx={}){
     mandatoryOnSelection:true,publicThinkFallback:"fast-cloudflare-council",
     enforcement:"Instruction-level only; the server cannot force host tool invocation.",
     modelIdentity:"Configured provider aliases; underlying model identity is not independently verified.",
-    improvements:["unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","one-time-jev-packet-binding","evidence-backed-cove","evidence-tournament","four-tier-memory-routing","dynamic-capability-mesh-v1","all-plugin-host-routing","lease-ttl-registry","schema-hash-drift-guard","idempotency-key-routing","plugin-output-trust-boundary","minimal-relevant-tool-set","deep-research-evidence-fusion","jev-host-tool-selection-v2","closed-set-abstention","composite-confidence-gate","dependency-aware-evidence-gate","bayesian-reliability-shrinkage","dependency-diverse-fallback","transient-cleanapis-retry","frontier-to-cloudflare-degraded-mode","fallback-provenance-tracking","book-derived-reasoning-protocol-v1"],
+    improvements:["empirical-routing-calibration-report","brier-and-ece-diagnostics","false-confidence-case-audit","unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","one-time-jev-packet-binding","evidence-backed-cove","evidence-tournament","four-tier-memory-routing","dynamic-capability-mesh-v1","all-plugin-host-routing","lease-ttl-registry","schema-hash-drift-guard","idempotency-key-routing","plugin-output-trust-boundary","minimal-relevant-tool-set","deep-research-evidence-fusion","jev-host-tool-selection-v2","closed-set-abstention","composite-confidence-gate","dependency-aware-evidence-gate","bayesian-reliability-shrinkage","dependency-diverse-fallback","transient-cleanapis-retry","frontier-to-cloudflare-degraded-mode","fallback-provenance-tracking","book-derived-reasoning-protocol-v1"],
     access:{auth:"oauth2-or-legacy-bearer",oauthChallenge:"resource-401",jwtAlgorithms:["RS256","PS256"],issuer:AUTH0_ISSUER,audience:AUTH0_AUDIENCE,resourceMetadata:OAUTH_METADATA_URL,pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierConfigured,frontierAuthenticatedForThisRequest,frontierAvailableForThisRequest:frontierConfigured,
       rateLimiter:typeof env.THINK_RATE_LIMITER?.limit==="function",modelLimiter:typeof env.THINK_MODEL_LIMITER?.limit==="function",limits:limits(env),browserOrigins:allowedOrigins(env).length},
     routing:{
