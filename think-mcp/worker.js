@@ -686,6 +686,14 @@ function routeLanes(task){
 function toolKey(v){ return text(v,180).toLowerCase().replace(/[_\-./]+/g," ").replace(/[^\p{L}\p{N} ]+/gu," ").replace(/\s+/g," ").trim(); }
 function boolOrNull(v){ return typeof v==="boolean"?v:null; }
 function clampTrust(v){ const n=Number(v); return Number.isFinite(n)?Math.max(0,Math.min(1,n)):null; }
+function wilsonLowerBound(rate,n,z=1.96){
+  const p=Math.max(0,Math.min(1,Number(rate)||0)),N=Math.max(0,Math.floor(Number(n)||0));
+  if(!N) return null;
+  const z2=z*z,den=1+z2/N;
+  const center=p+z2/(2*N);
+  const margin=z*Math.sqrt((p*(1-p)+z2/(4*N))/N);
+  return Math.max(0,Math.min(1,(center-margin)/den));
+}
 function fnv1a(v){ let h=0x811c9dc5; const x=String(v); for(let i=0;i<x.length;i++){h^=x.charCodeAt(i);h=Math.imul(h,0x01000193);} return (h>>>0).toString(16).padStart(8,"0"); }
 function normalizeAvailableTools(v){
   if(!Array.isArray(v)) return new Map();
@@ -768,7 +776,8 @@ function routeTool(env,args){
     const freshness=Math.max(0,Math.min(1,1-(freshnessAge/Math.max(1,inventoryTtlSeconds*1000))));
     const capabilityFit=Math.max(0,Math.min(1,0.22+Math.min(0.48,laneHits*0.24)+Math.min(0.20,hintHits*0.08)+(forced?0.10:0)));
     const schemaConfidence=state?.schemaHash?1:(state?.version?0.82:0.58);
-    const reliability=state?.successRate==null?0.68:Math.max(0,Math.min(1,(state.successRate*state.sampleSize+2)/(state.sampleSize+4)));
+    const reliabilityLowerBound=state?.successRate==null?null:wilsonLowerBound(state.successRate,state.sampleSize);
+    const reliability=reliabilityLowerBound==null?0.68:reliabilityLowerBound;
     const evidenceQuality=state?.evidenceQuality==null?0.65:state.evidenceQuality;
     const reversibility=state?.reversibleHint===true?1:state?.reversibleHint===false?0.35:(state?.idempotentHint===true?0.90:0.68);
     const destructive=state?.destructiveHint===true||state?.verbs?.some(v=>/delete|remove|pay|purchase|transfer|publish|deploy|merge/i.test(v));
@@ -794,7 +803,7 @@ function routeTool(env,args){
       state?.trustScore!=null?"trust":null,
       state?.schemaHash||state?.version?"schema":null,
       state?.observedAt!=null?"freshness":null,
-      state?.successRate!=null&&state?.sampleSize>0?"history":null,
+      state?.successRate!=null&&state?.sampleSize>=20?"history":null,
       state?.evidenceQuality!=null?"evidence_quality":null,
       state?.reversibleHint!=null||state?.idempotentHint!=null?"reversibility":null
     ].filter(Boolean);
@@ -802,12 +811,14 @@ function routeTool(env,args){
       laneHits>0||hintHits>0?"task_fit":null,
       state?.trustScore!=null||state?.evidenceQuality!=null?"provenance":null,
       state?.schemaHash||state?.version||state?.observedAt!=null?"live_state":null,
-      state?.successRate!=null&&state?.sampleSize>0?"outcome_history":null,
+      state?.successRate!=null&&state?.sampleSize>=20?"outcome_history":null,
       state?.reversibleHint!=null||state?.idempotentHint!=null?"execution_safety":null
     ].filter(Boolean);
     return {...t,state,hostName,costClass,failedRoute,laneHits,hintHits,
       decision:{score:Number(score.toFixed(4)),capabilityFit:Number(capabilityFit.toFixed(3)),trust:Number(trust.toFixed(3)),
         schemaConfidence:Number(schemaConfidence.toFixed(3)),freshness:Number(freshness.toFixed(3)),reliability:Number(reliability.toFixed(3)),
+        reliabilityMethod:reliabilityLowerBound==null?"neutral_default":"wilson_95_lower_bound",
+        historicalSampleSize:state?.sampleSize||0,
         evidenceQuality:Number(evidenceQuality.toFixed(3)),reversibility:Number(reversibility.toFixed(3)),safety:Number(safety.toFixed(3)),
         costFit:Number(costFit.toFixed(3)),latencyScore:Number(latencyScore.toFixed(3)),dependencyDiversity:Number(dependencyDiversity.toFixed(3)),
         independentSignals,independenceGroups}};
@@ -925,7 +936,7 @@ function routeTool(env,args){
         id:x.hostToolName,name:x.name,score:x.decision.score,metrics:x.decision,dependencyGroup:x.dependencyGroup||"",schemaHash:x.schemaHash,version:x.version
       })),
       leader:top?.hostToolName||null,margin,topReady,requiresJev,
-      thresholds:{deterministic:deterministicThreshold,minSupportSignals:minSignals,minIndependenceGroups,jevProbability:jevProbabilityThreshold,maxAlternativeMass,jevConfidence:jevConfidenceThreshold,executionComposite:executionThreshold,maxLeaderGap},
+      thresholds:{deterministic:deterministicThreshold,minSupportSignals:minSignals,minIndependenceGroups,minimumHistoryForIndependentSignal:20,jevProbability:jevProbabilityThreshold,maxAlternativeMass,jevConfidence:jevConfidenceThreshold,executionComposite:executionThreshold,maxLeaderGap},
       jev_payload:requiresJev?{
         tool:"jev_choice",
         state:{task,candidateSetHash,candidates:topDecisionSet.map(x=>({id:x.hostToolName,metrics:x.decision,schemaHash:x.schemaHash,version:x.version}))},
@@ -941,6 +952,10 @@ function routeTool(env,args){
         manualOnlyCheckpoint:securityCheckpoint,
         checkpointTypes:[securityCheckpoint?"credential_or_mfa_or_captcha":null,financialCheckpoint?"financial_confirmation":null,irreversibleCheckpoint?"irreversible_action_confirmation":null].filter(Boolean),
         rule:"Jev never grants user authorization. Credentials, MFA/OTP/CAPTCHA and other security checkpoints are completed by the human; financial or irreversible actions require explicit human confirmation before execution."
+      },
+      calibration:{
+        reliability:"Historical success is converted to a 95% Wilson lower bound when sampleSize is supplied; fewer than 20 observations do not count as an independent outcome-history signal.",
+        executionSupport:"The execution support index is an operational gate, not a calibrated probability. Store real outcomes and audit false-positive/false-negative rates before changing thresholds."
       },
       fallbackPolicy:"On tool failure, stale evidence, low trust, or schema drift: add the failed host tool to failedTools, refresh live inventory, rerun kosif_route, and require a fresh Jev decision when more than one fallback remains. Prefer a different dependencyGroup when possible."
     },
