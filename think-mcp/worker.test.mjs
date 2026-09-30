@@ -429,6 +429,13 @@ test('kosif_route quarantines a failed tool and rebuilds the closed fallback set
 });
 
 
+test('preflight selects adaptive book-derived reasoning modules for decision, optimization and engineering tasks', async () => {
+  const e = env();
+  const out = await rpcResult(e, call('kosif_preflight', { question: 'Compare two tools under uncertainty, optimize cost constraints, then test and deploy the code safely.' }));
+  const ids = out.reasoningModules.map(x => x.id);
+  for (const id of ['core','logic','biasAudit','probabilisticDependency','optimization','engineering']) assert.ok(ids.includes(id), id);
+});
+
 test('kosif_think_status exposes host routing and cost guardrails without claiming direct plugin access', async () => {
   const e = env();
   const r = await worker.fetch(req('/mcp', { token: e.KOSIF_THINK_TOKEN, body: call('kosif_think_status', {}) }), e);
@@ -472,25 +479,37 @@ test('council: one artifact per known frontier agent, abstentions counted, a con
   assert.equal(r.synthesis.finalAnswer, 'keep it', 'the synthesis follows the winning option');
 });
 
-test('frontier agent retries one transient Clean APIs empty response but does not invent an artifact', async () => {
+test('frontier agent retries one transient Clean APIs empty response and drops JSON mode on retry', async () => {
   const e = env();
   let attempts = 0;
-  upstream = () => {
+  const bodies = [];
+  upstream = (_url, init) => {
     attempts++;
+    bodies.push(JSON.parse(init.body));
     if (attempts === 1) return Response.json({ choices: [{ message: {} }] });
     return Response.json({ choices: [{ message: { content: '{"answer":"recovered","confidence":0.8}' } }] });
   };
   const r = await rpcResult(e, call('kosif_agent', { agent: 'claude', question: 'q' }));
   assert.equal(attempts, 2);
   assert.equal(r.artifact.answer, 'recovered');
+  assert.ok(bodies[0].response_format);
+  assert.equal(bodies[1].response_format, undefined);
 });
 
-test('agents: an empty answer or a malformed short answer is a failure, never a made-up artifact', async () => {
+test('persistent or malformed frontier output uses an explicit local fallback instead of fabricating the requested model', async () => {
   const e = env();
   upstream = () => Response.json({ choices: [{ message: { content: '{"answer":"","confidence":0.9}' } }] });
-  assert.equal((await rpcResult(e, agentCall)).error, 'AGENT_EMPTY_ANSWER');
+  let r = await rpcResult(e, agentCall);
+  assert.equal(r.artifact.fallback, true);
+  assert.equal(r.artifact.source, 'cloudflare-fallback');
+  assert.equal(r.fallback.from.error, 'AGENT_EMPTY_ANSWER');
+  assert.notEqual(r.artifact.model, r.artifact.requestedModel);
+
   upstream = () => Response.json({ choices: [{ message: { content: 'just prose without the format' } }] });
-  assert.equal((await rpcResult(e, call('kosif_agent', { agent: 'gemini', question: 'q' }))).error, 'MICRO_FORMAT_INVALID');
+  r = await rpcResult(e, call('kosif_agent', { agent: 'gemini', question: 'q' }));
+  assert.equal(r.artifact.fallback, true);
+  assert.equal(r.fallback.from.error, 'MICRO_FORMAT_INVALID');
+
   upstream = () => Response.json({ choices: [{ message: { content: 'NONE|0|a real but unsure insight' } }] });
   const zero = await rpcResult(e, call('kosif_agent', { agent: 'gemini', question: 'q' }));
   assert.equal(zero.artifact.confidence, 0, 'a zero confidence stays zero');
