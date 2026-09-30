@@ -507,6 +507,17 @@ test('kosif_think_status exposes host routing and cost guardrails without claimi
   assert.ok(out.hostToolRouting.approvalRequired.includes('credits'));
 });
 
+test('tools/list advertises OAuth consistently because the MCP endpoint is fail-closed', async () => {
+  const e = env();
+  const r = await worker.fetch(req('/mcp', { token: e.KOSIF_THINK_TOKEN }), e);
+  const tools = (await r.json()).result.tools;
+  assert.ok(tools.length > 0);
+  for (const tool of tools) {
+    assert.deepEqual(tool.securitySchemes, [{ type: 'oauth2', scopes: ['openid','profile','email'] }], tool.name);
+    assert.deepEqual(tool._meta.securitySchemes, tool.securitySchemes, tool.name);
+  }
+});
+
 test('the source carries no credential and every response path sets the security headers', () => {
   const src = readFileSync(new URL('./worker.js', import.meta.url), 'utf8');
   assert.ok(!/sk-[A-Za-z0-9_-]{16,}|Bearer [A-Za-z0-9_-]{20,}/.test(src), 'no key or bearer literal in the source');
