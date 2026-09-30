@@ -341,6 +341,18 @@ The current uploaded `Probability Theory: The Logic of Science` copy appears to 
 
 The active modules are selected per task and are returned by preflight/status so they can be tested instead of remaining hidden prompt text.
 
+### Empirical calibration loop
+
+KOSIF v0.8 also exposes `kosif_calibration_report`. It accepts historical routing observations and computes:
+
+- Brier score for Jev's chosen-option probability against observed binary outcomes;
+- reliability bins and Expected Calibration Error (ECE);
+- empirical success rate above the configured high-confidence threshold;
+- explicit false-confidence cases;
+- per-tool empirical success plus a 95% Wilson lower bound.
+
+The operational `supportIndex` is deliberately excluded from Brier/ECE because it is not a probability. The report is diagnostic: it does not silently lower gates. Threshold changes should be based on enough representative outcomes and reviewed separately by task/risk family.
+
 ### Richer reviewable artifacts
 
 Each full agent artifact can now carry:
