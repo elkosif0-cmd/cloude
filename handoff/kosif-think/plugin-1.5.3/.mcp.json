@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "kosif-think-mobile": {
+      "type": "streamable-http",
+      "url": "https://wa-kosif-mcp.kosif199022.workers.dev/mcp?v=20260930-5",
+      "headers": {}
+    }
+  }
+}
