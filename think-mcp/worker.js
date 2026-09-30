@@ -711,8 +711,8 @@ function normalizeAvailableTools(v){
       dependencyGroup:text(x.dependencyGroup,120),
       authState:text(x.authState,60)||((x.connected!==false)?"connected":"not_connected"),
       latencyMs:Number.isFinite(Number(x.latencyMs))?Math.max(0,Number(x.latencyMs)):null,
-      observedAtProvided:Number.isFinite(Number(x.observedAt)),
-      observedAt:Number.isFinite(Number(x.observedAt))?Number(x.observedAt):Date.now()
+      observedAtProvided:x.observedAt!=null&&Number.isFinite(Number(x.observedAt)),
+      observedAt:x.observedAt!=null&&Number.isFinite(Number(x.observedAt))?Number(x.observedAt):Date.now()
     };
     for(const k of [name,...aliases].map(toolKey).filter(Boolean)) if(!m.has(k)) m.set(k,state);
   }
@@ -876,7 +876,7 @@ function routeTool(env,args){
     const composite=chosen?Math.pow(Math.max(0,chosen.decision.score)*Math.max(0,probability)*Math.max(0,jevConfidence)*Math.max(0,signalCoverage),0.25):0;
     const allowed=!!chosen&&choice!=="ABSTAIN"&&packetMatches&&chosen.decision.independentSignals.length>=minSignals&&chosen.decision.independenceGroups.length>=minIndependenceGroups&&
       chosen.decision.score>=deterministicThreshold&&leaderGap<=maxLeaderGap&&probability>=jevProbabilityThreshold&&alternativeMass<=maxAlternativeMass&&jevConfidence>=jevConfidenceThreshold&&composite>=executionThreshold&&
-      (!requiresHumanCheckpoint||humanCheckpointSatisfied);
+      !securityCheckpoint&&(!requiresHumanCheckpoint||humanCheckpointSatisfied);
     jevValidation={
       received:true,choice,packetMatches,probability:Number(probability.toFixed(4)),jevConfidence:Number(jevConfidence.toFixed(4)),
       leaderGap:Number(leaderGap.toFixed(4)),alternativeMass:Number(alternativeMass.toFixed(4)),executionConfidence:Number(composite.toFixed(4)),allowed,
@@ -894,7 +894,8 @@ function routeTool(env,args){
         alternativeMass>maxAlternativeMass?"JEV_ALTERNATIVE_MASS_ABOVE_05":null,
         jevConfidence<jevConfidenceThreshold?"JEV_CONFIDENCE_BELOW_90":null,
         composite<executionThreshold?"EXECUTION_SUPPORT_INDEX_BELOW_94":null,
-        requiresHumanCheckpoint&&!humanCheckpointSatisfied?"HUMAN_CHECKPOINT_REQUIRED":null
+        securityCheckpoint?"MANUAL_SECURITY_CHECKPOINT_NOT_AUTOMATABLE":null,
+        !securityCheckpoint&&requiresHumanCheckpoint&&!humanCheckpointSatisfied?"HUMAN_CHECKPOINT_REQUIRED":null
       ].filter(Boolean)
     };
   }
@@ -933,7 +934,7 @@ function routeTool(env,args){
       }:null,
       validation:jevValidation,
       executionGate:{
-        singleCandidateAutoAllowed:!requiresJev&&!!top&&topReady&&(!requiresHumanCheckpoint||humanCheckpointSatisfied),
+        singleCandidateAutoAllowed:!requiresJev&&!!top&&topReady&&!securityCheckpoint&&(!requiresHumanCheckpoint||humanCheckpointSatisfied),
         requiresJev,
         requiresHumanCheckpoint,
         humanCheckpointSatisfied,
