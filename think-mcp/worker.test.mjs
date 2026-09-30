@@ -371,7 +371,7 @@ test('kosif_route keeps payment and credential actions behind a human checkpoint
   const e = env();
   const now = Date.now();
   const base = {
-    task: 'pay the invoice using Tool A or Tool B',
+    task: 'automate the workflow to pay the invoice using Tool A or Tool B',
     reasoningMode: 'deep',
     writeIntent: true,
     availableTools: [
