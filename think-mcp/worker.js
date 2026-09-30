@@ -809,7 +809,10 @@ function routeTool(env,args){
         costFit:Number(costFit.toFixed(3)),latencyScore:Number(latencyScore.toFixed(3)),dependencyDiversity:Number(dependencyDiversity.toFixed(3)),
         independentSignals,independenceGroups}};
   }).filter(t=>(t.laneHits>0||t.hintHits>0||preferred.has(toolKey(t.name)))&&!t.failedRoute)
-    .sort((a,b)=>b.decision.score-a.decision.score||b.priority-a.priority||a.name.localeCompare(b.name))
+    .sort((a,b)=>{
+      const av=x=>x.state?(x.state.connected?2:1):0;
+      return av(b)-av(a)||b.decision.score-a.decision.score||b.priority-a.priority||a.name.localeCompare(b.name);
+    })
     .slice(0,maxTools);
 
   const useNow=[],needsApproval=[],needsAvailabilityCheck=[],missingConnections=[];
@@ -840,8 +843,12 @@ function routeTool(env,args){
   const top=eligible[0]||null,runner=eligible[1]||null;
   const margin=top?Number((top.decision.score-(runner?.decision.score||0)).toFixed(4)):0;
   const topDecisionSet=eligible.slice(0,4);
-  const candidateSetHash="tools_"+fnv1a(JSON.stringify({task,lanes,writeIntent,candidates:topDecisionSet.map(x=>[x.hostToolName,x.schemaHash,x.version,x.decision.score]),failed:Array.from(failed).sort()}));
-  const minSignals=3,minIndependenceGroups=writeIntent?4:3,deterministicThreshold=0.82,jevProbabilityThreshold=0.95,jevConfidenceThreshold=0.90,executionThreshold=0.90,maxLeaderGap=0.05,maxAlternativeMass=0.05;
+  const candidateSetHash="tools_"+fnv1a(JSON.stringify({task,lanes,writeIntent,candidates:topDecisionSet.map(x=>[
+    x.hostToolName,x.schemaHash,x.version,x.costClass,x.authState,x.trustScore,x.evidenceQuality,x.successRate,x.sampleSize,
+    x.semantics?.reversibleHint,x.semantics?.idempotentHint,x.dependencyGroup,
+    availableStateFor({name:x.hostToolName,aliases:[]},available)?.observedAt||null
+  ]),failed:Array.from(failed).sort()}));
+  const minSignals=3,minIndependenceGroups=writeIntent?4:3,deterministicThreshold=0.82,jevProbabilityThreshold=0.95,jevConfidenceThreshold=0.90,executionThreshold=0.94,maxLeaderGap=0.05,maxAlternativeMass=0.05;
   const topReady=!!top&&top.decision.score>=deterministicThreshold&&top.decision.independentSignals.length>=minSignals&&top.decision.independenceGroups.length>=minIndependenceGroups&&top.decision.schemaConfidence>=0.58&&top.decision.freshness>=0.5;
   const competing=topDecisionSet.length>1;
   const requiresJev=competing&&(writeIntent||reasoningMode!=="fast"||margin<0.16);
@@ -863,14 +870,14 @@ function routeTool(env,args){
     const packetMatches=!!jd.candidateSetHash&&text(jd.candidateSetHash,120)===candidateSetHash;
     const leaderGap=chosen&&top?Math.max(0,top.decision.score-chosen.decision.score):1;
     const signalCoverage=chosen?Math.min(1,Math.max(0.5,chosen.decision.independenceGroups.length/4)):0;
-    const composite=chosen?Math.min(chosen.decision.score,probability,signalCoverage):0;
+    const composite=chosen?Math.pow(Math.max(0,chosen.decision.score)*Math.max(0,probability)*Math.max(0,jevConfidence)*Math.max(0,signalCoverage),0.25):0;
     const allowed=!!chosen&&choice!=="ABSTAIN"&&packetMatches&&chosen.decision.independentSignals.length>=minSignals&&chosen.decision.independenceGroups.length>=minIndependenceGroups&&
       chosen.decision.score>=deterministicThreshold&&leaderGap<=maxLeaderGap&&probability>=jevProbabilityThreshold&&alternativeMass<=maxAlternativeMass&&jevConfidence>=jevConfidenceThreshold&&composite>=executionThreshold&&
       (!requiresHumanCheckpoint||humanCheckpointSatisfied);
     jevValidation={
       received:true,choice,packetMatches,probability:Number(probability.toFixed(4)),jevConfidence:Number(jevConfidence.toFixed(4)),
       leaderGap:Number(leaderGap.toFixed(4)),alternativeMass:Number(alternativeMass.toFixed(4)),executionConfidence:Number(composite.toFixed(4)),allowed,
-      confidenceMeaning:"Conservative gated composite, not an empirically calibrated probability of correctness.",
+      confidenceMeaning:"Conservative geometric support index across deterministic support, Jev probability, Jev confidence and evidence-group coverage; not an empirically calibrated probability of correctness.",
       action:allowed?"execute_selected_tool":(choice==="ABSTAIN"?"abstain":"gather_more_evidence_or_reroute"),
       selectedTool:allowed?chosen.hostToolName:null,
       reasons:[
@@ -883,7 +890,7 @@ function routeTool(env,args){
         probability<jevProbabilityThreshold?"JEV_PROBABILITY_BELOW_95":null,
         alternativeMass>maxAlternativeMass?"JEV_ALTERNATIVE_MASS_ABOVE_05":null,
         jevConfidence<jevConfidenceThreshold?"JEV_CONFIDENCE_BELOW_90":null,
-        composite<executionThreshold?"COMPOSITE_EXECUTION_CONFIDENCE_BELOW_90":null,
+        composite<executionThreshold?"EXECUTION_SUPPORT_INDEX_BELOW_94":null,
         requiresHumanCheckpoint&&!humanCheckpointSatisfied?"HUMAN_CHECKPOINT_REQUIRED":null
       ].filter(Boolean)
     };
@@ -1073,7 +1080,7 @@ async function runAgentTool(env,args){
     artifactResult=await callAgent(env,agent,stageName,input,peers);
   }catch(e){
     const code=publicError(e);
-    const retryable=/^(CLEANAPIS_|MICRO_|AGENT_EMPTY_ANSWER$|AGENT_JSON_INVALID$)/.test(code);
+    const retryable=/^(?:CLEANAPIS_(?:EMPTY_RESPONSE|NETWORK|TIMEOUT|429|5\d\d|400|422)|MICRO_(?:NETWORK|TIMEOUT|429|5\d\d|FORMAT_INVALID)|AGENT_EMPTY_ANSWER|AGENT_JSON_INVALID)$/.test(code);
     if(!retryable||!env.AI||typeof env.AI.run!=="function") throw e;
     const map={gpt:FAST_AGENTS[0],claude:FAST_AGENTS[1],gemini:FAST_AGENTS[2],mythos:FAST_AGENTS[1],fable:FAST_AGENTS[2]};
     const base=map[agent.id]||FAST_AGENTS[0];
