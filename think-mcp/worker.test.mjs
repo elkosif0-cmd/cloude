@@ -86,7 +86,12 @@ test('an upstream error text is not passed back: only the Worker error code', as
   assert.equal(JSON.parse(t).result.structuredContent.error, 'CLEANAPIS_402');
   upstream = () => { throw new TypeError(`connect ECONNREFUSED 10.0.0.1 ${UPSTREAM_KEY}`); };
   const n = await worker.fetch(req('/mcp', { token: e.KOSIF_THINK_TOKEN, body: agentCall }), e);
-  assert.equal(JSON.parse(await noLeak(n)).result.structuredContent.error, 'CLEANAPIS_NETWORK');
+  const nt = await noLeak(n);
+  assert.ok(!nt.includes('10.0.0.1'), nt);
+  const degraded = JSON.parse(nt).result.structuredContent;
+  assert.equal(degraded.artifact.fallback, true);
+  assert.equal(degraded.artifact.source, 'cloudflare-fallback');
+  assert.equal(degraded.fallback.from.error, 'CLEANAPIS_NETWORK');
 });
 
 test('the path token is off by default and works only when THINK_ALLOW_PATH_TOKEN is "true"', async () => {
