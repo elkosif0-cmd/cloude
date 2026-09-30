@@ -251,7 +251,7 @@ The Worker holds no business data, so the exposure is spending and abuse of the 
 ### Controls
 | Control | Behaviour |
 |---|---|
-| Authentication | `Authorization: Bearer <KOSIF_THINK_TOKEN>`, compared in constant time. `/mcp/<token>` works only when `THINK_ALLOW_PATH_TOKEN = "true"` (for a client that cannot send headers; the token then sits in URLs and logs, so prefer the header). |
+| Authentication | Preferred: Auth0 OAuth2 bearer JWT for the configured issuer/audience. Legacy/private clients may use `Authorization: Bearer <KOSIF_THINK_TOKEN>`, compared in constant time. `/mcp/<token>` works only when `THINK_ALLOW_PATH_TOKEN = "true"` (the token then sits in URLs and logs, so prefer the header). |
 | Fail closed | No `KOSIF_THINK_TOKEN`, or one shorter than 32 characters → `503`, nothing runs. |
 | Unauthorised | `401` with `WWW-Authenticate: Bearer`, a fixed body, no model call. After `THINK_AUTH_FAILS_PER_MIN` failures a minute from one IP → `429` before any token check. |
 | Rate limits | Per caller: `THINK_RPM` requests and `THINK_MODEL_RPM` model-running calls (`kosif_agent`, `kosif_think`) a minute, through the `THINK_RATE_LIMITER` / `THINK_MODEL_LIMITER` rate-limit bindings; a local window takes over if a binding is missing or fails (never fails open). `429` + `Retry-After: 60`. |
@@ -275,3 +275,84 @@ Version 0.4.2 is this access control together with the council rules deployed by
 5. Set a spending limit on the Clean APIs account: it is the only hard cap on what the key can spend.
 
 Rotation: put a new `KOSIF_THINK_TOKEN`, then update the client. If the key itself may have been used by someone else, rotate `cleanapis` at Clean APIs and `wrangler secret put cleanapis` again. For stronger caller identity, put the Worker behind Cloudflare Access with a service token.
+
+
+## KOSIF Think v0.8 — Jev-gated high-confidence tool selection
+
+Version 0.8 changes tool routing from a relevance list into a bounded decision protocol.
+
+### Closed live candidate set
+
+KOSIF never asks Jev to invent a tool. The host supplies the live tool inventory and KOSIF constructs a closed candidate set from tools that are actually observed. Each candidate carries decision evidence including task fit, trust, schema/version, freshness, historical outcomes, evidence quality, reversibility/idempotence, safety, cost/permission compatibility, latency, and dependency group.
+
+The candidate packet is hashed from stable decision-critical state. Jev decisions must echo the packet hash; a stale decision is rejected after schema, authorization, availability, or candidate-state changes.
+
+### Jev is chooser/veto/abstainer, not authority
+
+When material ambiguity remains, KOSIF emits a bounded `jev_choice` packet containing only observed candidate IDs plus `ABSTAIN`.
+
+For consequential writes, execution is gated by all of these operational checks:
+
+- deterministic support >= 0.82;
+- at least 3 support signals and at least 4 evidence-independence groups for writes (3 for reads);
+- Jev probability for the chosen candidate >= 0.95;
+- Jev alternative probability mass <= 0.05;
+- Jev decision confidence >= 0.90;
+- the selected candidate is no more than 0.05 below the deterministic leader;
+- geometric execution-support index >= 0.94;
+- no unsatisfied human checkpoint.
+
+These numbers are **operational gates, not empirically calibrated probabilities of correctness**. Low support means collect more evidence, re-route, or abstain rather than force a choice.
+
+### Evidence dependency
+
+Signals are grouped before they count toward high-confidence execution:
+
+- `task_fit`
+- `provenance`
+- `live_state`
+- `outcome_history`
+- `execution_safety`
+
+This prevents trust score + evidence score from being treated as two independent facts when they come from the same source. Reliability history uses a conservative prior-shrunk estimate rather than trusting a tiny sample as a 100% success rate.
+
+### Replacement and degraded mode
+
+A failed, stale, low-trust, or schema-drifted tool is quarantined for the task. KOSIF refreshes the live inventory and re-runs selection. Fallback scoring prefers a different dependency group.
+
+Frontier-agent degradation is also explicit. Transient Clean APIs empty/network/timeout/429/5xx and malformed model artifacts can fall back to a mapped Cloudflare model. The artifact keeps the requested agent ID but records the **actual source/model, provenance group, requested model, and fallback flag** so the council never pretends the requested frontier model answered. Council readiness flags weak model diversity or fallback domination.
+
+### Human checkpoints
+
+Jev cannot grant authorization. Credentials, passwords, API keys, OTP/MFA, CAPTCHA/security prompts, payments/transfers/purchases, and irreversible deletions/revocations remain behind an explicit human checkpoint. KOSIF can choose a tool for the surrounding workflow, but the sensitive checkpoint is still completed/confirmed by the human.
+
+### Book-derived reasoning modules
+
+The runtime no longer treats books as prompt stuffing. The useful ideas are compiled into explicit modules, artifact fields, routing rules, and tests:
+
+- **Smart Thinking / judgment material**: alternative generation, multiple problem representations, bias audit, uncertainty, disconfirming evidence, and decision-changing evidence.
+- **Probabilistic Graphical Models**: dependency-group reasoning so correlated signals are not counted as independent.
+- **Convex Optimization**: objective vs hard constraints, feasible-set thinking, and sensitivity to decision-changing constraints.
+- **The Pragmatic Programmer**: reversibility, tracer actions, orthogonality, and observable verification.
+- **SICP study material**: dispatchable components, abstraction boundaries, runnable evaluators, and test-first feedback.
+- **Organon (initial extraction)**: contradiction, implication strength, category/fallacy checks.
+
+The current uploaded `Probability Theory: The Logic of Science` copy appears to expose mainly product/testbank material, so no detailed Jaynes-specific rules are promoted into runtime policy from that file yet. The uploaded Code Complete copy is scan-heavy/Chinese, so its deeper construction rules remain queued rather than guessed.
+
+The active modules are selected per task and are returned by preflight/status so they can be tested instead of remaining hidden prompt text.
+
+### Richer reviewable artifacts
+
+Each full agent artifact can now carry:
+
+- evidence;
+- assumptions;
+- material unknowns;
+- risks and objections;
+- disconfirming evidence;
+- decision-changing evidence;
+- hard-constraint violations;
+- confidence;
+- provenance/fallback metadata.
+
+This is deliberately reviewable output, not hidden chain-of-thought.
