@@ -82,16 +82,31 @@ Frontier-agent calls tolerate a single transient empty/network/429/5xx Clean API
 - orthogonality/testability
 - observable verification and localized recovery
 
+**Probabilistic Graphical Models**
+- do not count correlated signals as if they were independent
+- group routing evidence into task-fit, provenance, live-state, outcome-history, and execution-safety domains
+- prefer dependency-diverse fallback routes after a provider failure
+
+**Convex Optimization**
+- make the objective explicit
+- separate hard constraints from preferences
+- optimize only inside the feasible set created by permissions, safety, cost, schema, and freshness constraints
+- keep a human gate for consequential actions even when an automated optimizer ranks a candidate highly
+
+**SICP study material**
+- prefer runnable evaluators and explicit tests over untestable abstractions
+- decompose behavior into dispatchable components that can be swapped and tested independently
+
+**Organon (initial structural extraction)**
+- add an explicit logical-validity / contradiction / fallacy-risk stage before synthesis
+- deeper proposition/syllogism/topical-refutation rules remain for a later extraction pass
+
 ### Queued for deeper extraction in later passes
 
-The following uploaded works are valuable, but several copies are scan-heavy or alternate editions. They should be converted into testable modules only after page-level extraction rather than being guessed from titles:
+The following uploaded works still need deeper page-level extraction before their ideas are promoted into runtime rules:
 
-- Probability Theory: The Logic of Science -> Bayesian evidence update/calibration module
-- Probabilistic Graphical Models -> dependency/conditional-independence reasoning module
-- Convex Optimization -> objective/constraint and feasible-set optimization module
-- Aristotle's Organon -> formal validity, contradiction, categories, and fallacy checks
-- Code Complete -> construction quality, defensive programming, and review module
-- SICP material -> abstraction, decomposition, evaluators, and compositional reasoning
+- Probability Theory: The Logic of Science -> Bayesian evidence update/calibration module (the uploaded copy currently appears to expose mainly product/testbank material)
+- Code Complete -> construction quality, defensive programming, and review module (uploaded copy is scan-heavy/Chinese)
 - The Conflict Thesaurus -> adversarial scenario/obstacle-generation module
 
 ## Required benchmark families
