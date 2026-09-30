@@ -653,7 +653,12 @@ function routeTool(env,args){
   const defaultMax=reasoningMode==="deep"?8:reasoningMode==="council"?7:5;
   const maxTools=Math.max(1,Math.min(20,Number(args?.maxTools)||defaultMax));
   const q=task.toLowerCase();
-  const writeIntent=args?.writeIntent===true||/(send|create|update|edit|write|delete|remove|publish|deploy|commit|merge|upload|post|message|approve|purchase|pay|buy|ارسال|ارسل|انشئ|إنشاء|تعديل|اكتب|حذف|انشر|ادمج|ارفع|وافق|ادفع|اشتري)/i.test(task);
+  const writeIntent=args?.writeIntent===true||/(send|create|update|edit|write|delete|remove|publish|deploy|commit|merge|upload|post|message|approve|purchase|pay|buy|transfer|withdraw|ارسال|ارسل|انشئ|إنشاء|تعديل|اكتب|حذف|انشر|ادمج|ارفع|وافق|ادفع|اشتري|تحويل|سحب)/i.test(task);
+  const securityCheckpoint=/(password|credential|secret|api key|otp|mfa|2fa|captcha|passcode|كلمة مرور|بيانات دخول|مفتاح api|رمز تحقق|تحقق ثنائي|كابتشا)/i.test(task);
+  const financialCheckpoint=/(pay|payment|purchase|buy|transfer|withdraw|checkout|ادفع|دفع|اشتري|شراء|تحويل|سحب|سداد)/i.test(task);
+  const irreversibleCheckpoint=/(delete|remove|revoke|terminate|close account|حذف|إزالة|الغاء صلاحية|إلغاء صلاحية|إنهاء|اغلاق حساب|إغلاق حساب)/i.test(task);
+  const requiresHumanCheckpoint=securityCheckpoint||financialCheckpoint||irreversibleCheckpoint;
+  const humanCheckpointSatisfied=args?.humanCheckpointSatisfied===true;
   const inventoryTtlSeconds=Math.max(10,Math.min(300,Number(args?.inventoryTtlSeconds)||60));
   const observedAt=Date.now(),expiresAt=observedAt+inventoryTtlSeconds*1000;
 
@@ -754,7 +759,7 @@ function routeTool(env,args){
   const margin=top?Number((top.decision.score-(runner?.decision.score||0)).toFixed(4)):0;
   const topDecisionSet=eligible.slice(0,4);
   const candidateSetHash="tools_"+fnv1a(JSON.stringify({task,lanes,writeIntent,candidates:topDecisionSet.map(x=>[x.hostToolName,x.schemaHash,x.version,x.decision.score]),failed:Array.from(failed).sort()}));
-  const minSignals=3,minIndependenceGroups=3,deterministicThreshold=0.82,jevProbabilityThreshold=0.92,jevConfidenceThreshold=0.85,executionThreshold=0.90;
+  const minSignals=3,minIndependenceGroups=3,deterministicThreshold=0.82,jevProbabilityThreshold=0.95,jevConfidenceThreshold=0.90,executionThreshold=0.90,maxLeaderGap=0.05;
   const topReady=!!top&&top.decision.score>=deterministicThreshold&&top.decision.independentSignals.length>=minSignals&&top.decision.independenceGroups.length>=minIndependenceGroups&&top.decision.schemaConfidence>=0.58&&top.decision.freshness>=0.5;
   const competing=topDecisionSet.length>1;
   const requiresJev=competing&&(writeIntent||reasoningMode!=="fast"||margin<0.16);
@@ -773,13 +778,15 @@ function routeTool(env,args){
     const jevConfidence=Math.max(0,Math.min(1,Number(jd.confidence ?? 0)));
     const chosen=topDecisionSet.find(x=>toolKey(x.hostToolName)===toolKey(choice));
     const packetMatches=!!jd.candidateSetHash&&text(jd.candidateSetHash,120)===candidateSetHash;
+    const leaderGap=chosen&&top?Math.max(0,top.decision.score-chosen.decision.score):1;
     const signalCoverage=chosen?Math.min(1,Math.max(0.5,chosen.decision.independenceGroups.length/4)):0;
     const composite=chosen?Math.min(chosen.decision.score,probability,signalCoverage):0;
     const allowed=!!chosen&&choice!=="ABSTAIN"&&packetMatches&&chosen.decision.independentSignals.length>=minSignals&&chosen.decision.independenceGroups.length>=minIndependenceGroups&&
-      chosen.decision.score>=deterministicThreshold&&probability>=jevProbabilityThreshold&&jevConfidence>=jevConfidenceThreshold&&composite>=executionThreshold;
+      chosen.decision.score>=deterministicThreshold&&leaderGap<=maxLeaderGap&&probability>=jevProbabilityThreshold&&jevConfidence>=jevConfidenceThreshold&&composite>=executionThreshold&&
+      (!requiresHumanCheckpoint||humanCheckpointSatisfied);
     jevValidation={
       received:true,choice,packetMatches,probability:Number(probability.toFixed(4)),jevConfidence:Number(jevConfidence.toFixed(4)),
-      executionConfidence:Number(composite.toFixed(4)),allowed,
+      leaderGap:Number(leaderGap.toFixed(4)),executionConfidence:Number(composite.toFixed(4)),allowed,
       confidenceMeaning:"Conservative gated composite, not an empirically calibrated probability of correctness.",
       action:allowed?"execute_selected_tool":(choice==="ABSTAIN"?"abstain":"gather_more_evidence_or_reroute"),
       selectedTool:allowed?chosen.hostToolName:null,
@@ -789,9 +796,11 @@ function routeTool(env,args){
         chosen&&chosen.decision.independentSignals.length<minSignals?"INSUFFICIENT_SUPPORT_SIGNALS":null,
         chosen&&chosen.decision.independenceGroups.length<minIndependenceGroups?"INSUFFICIENT_INDEPENDENCE_GROUPS":null,
         chosen&&chosen.decision.score<deterministicThreshold?"DETERMINISTIC_SUPPORT_TOO_LOW":null,
-        probability<jevProbabilityThreshold?"JEV_PROBABILITY_BELOW_92":null,
-        jevConfidence<jevConfidenceThreshold?"JEV_CONFIDENCE_BELOW_85":null,
-        composite<executionThreshold?"COMPOSITE_EXECUTION_CONFIDENCE_BELOW_90":null
+        chosen&&leaderGap>maxLeaderGap?"JEV_CHOICE_TOO_FAR_BELOW_DETERMINISTIC_LEADER":null,
+        probability<jevProbabilityThreshold?"JEV_PROBABILITY_BELOW_95":null,
+        jevConfidence<jevConfidenceThreshold?"JEV_CONFIDENCE_BELOW_90":null,
+        composite<executionThreshold?"COMPOSITE_EXECUTION_CONFIDENCE_BELOW_90":null,
+        requiresHumanCheckpoint&&!humanCheckpointSatisfied?"HUMAN_CHECKPOINT_REQUIRED":null
       ].filter(Boolean)
     };
   }
@@ -821,7 +830,7 @@ function routeTool(env,args){
         id:x.hostToolName,name:x.name,score:x.decision.score,metrics:x.decision,dependencyGroup:x.dependencyGroup||"",schemaHash:x.schemaHash,version:x.version
       })),
       leader:top?.hostToolName||null,margin,topReady,requiresJev,
-      thresholds:{deterministic:deterministicThreshold,minSupportSignals:minSignals,minIndependenceGroups,jevProbability:jevProbabilityThreshold,jevConfidence:jevConfidenceThreshold,executionComposite:executionThreshold},
+      thresholds:{deterministic:deterministicThreshold,minSupportSignals:minSignals,minIndependenceGroups,jevProbability:jevProbabilityThreshold,jevConfidence:jevConfidenceThreshold,executionComposite:executionThreshold,maxLeaderGap},
       jev_payload:requiresJev?{
         tool:"jev_choice",
         state:{task,candidateSetHash,candidates:topDecisionSet.map(x=>({id:x.hostToolName,metrics:x.decision,schemaHash:x.schemaHash,version:x.version}))},
@@ -829,6 +838,15 @@ function routeTool(env,args){
         criteria
       }:null,
       validation:jevValidation,
+      executionGate:{
+        singleCandidateAutoAllowed:!requiresJev&&!!top&&topReady&&(!requiresHumanCheckpoint||humanCheckpointSatisfied),
+        requiresJev,
+        requiresHumanCheckpoint,
+        humanCheckpointSatisfied,
+        manualOnlyCheckpoint:securityCheckpoint,
+        checkpointTypes:[securityCheckpoint?"credential_or_mfa_or_captcha":null,financialCheckpoint?"financial_confirmation":null,irreversibleCheckpoint?"irreversible_action_confirmation":null].filter(Boolean),
+        rule:"Jev never grants user authorization. Credentials, MFA/OTP/CAPTCHA and other security checkpoints are completed by the human; financial or irreversible actions require explicit human confirmation before execution."
+      },
       fallbackPolicy:"On tool failure, stale evidence, low trust, or schema drift: add the failed host tool to failedTools, refresh live inventory, rerun kosif_route, and require a fresh Jev decision when more than one fallback remains. Prefer a different dependencyGroup when possible."
     },
     capabilityMesh:{
@@ -844,7 +862,7 @@ function routeTool(env,args){
       preflight:"KOSIF Think reasons first.",
       discover:"Build availableTools from the host's live tool inventory, including exact host names and known cost/permission/schema/trust/freshness/history metadata.",
       route:"Call kosif_route with the task and live availableTools. Never treat the static catalog as installed-state truth.",
-      choose:"When toolDecision.requiresJev is true, call Jev Choice with exactly toolDecision.jev_payload, then call kosif_route again with the same refreshed live inventory and jevDecision including candidateSetHash. Execute only if toolDecision.validation.allowed is true.",
+      choose:"When toolDecision.requiresJev is true, call Jev Choice with exactly toolDecision.jev_payload, then call kosif_route again with the same refreshed live inventory and jevDecision including candidateSetHash. Execute only if toolDecision.validation.allowed is true. Jev never satisfies human checkpoints.",
       execute:"The ChatGPT host, not this Worker, calls the selected authorized tool. KOSIF Computer remains the sole local browser/device executor.",
       substitute:"On failure or drift, quarantine the failed tool via failedTools, refresh inventory, and rerun selection rather than blindly retrying.",
       verify:"For every side effect, perform a fresh observable read-back/postcondition check and return an execution receipt when the owner supports it.",
@@ -1202,6 +1220,7 @@ const TOOLS=[
         preferredTools:{type:"array",items:{type:"string"},maxItems:40},
         maxTools:{type:"integer",minimum:1,maximum:20},
         budgetMode:{type:"string",enum:["safe","strict_free"]},reasoningMode:{type:"string",enum:["fast","council","deep"]},writeIntent:{type:"boolean"},inventoryTtlSeconds:{type:"integer",minimum:10,maximum:300},taskId:{type:"string"},
+        humanCheckpointSatisfied:{type:"boolean"},
         failedTools:{type:"array",items:{type:"string"},maxItems:80},
         jevDecision:{type:"object",properties:{choice:{type:"string"},confidence:{type:"number",minimum:0,maximum:1},probability:{type:"number",minimum:0,maximum:1},probabilities:{type:"object",additionalProperties:{type:"number"}},candidateSetHash:{type:"string"}},required:["choice","confidence"],additionalProperties:false}
       },
