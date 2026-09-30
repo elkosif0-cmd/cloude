@@ -466,6 +466,8 @@ function artifact(agent,x){
   if(!text(x?.answer,3500)) throw new Error("AGENT_EMPTY_ANSWER");
   return {
     agentId:agent.id, source:agent.source||"cloudflare", model:agent.model, role:agent.role, micro:!!agent.micro,
+    provenanceGroup:text(x?.provenanceGroup||((agent.source||"cloudflare")+":"+agent.model),180),
+    fallback:x?.fallback===true,requestedModel:text(x?.requestedModel||agent.model,120),
     recommendationId:x?.recommendationId==null?null:text(x.recommendationId,80),
     answer:text(x?.answer,3500), evidence:list(x?.evidence,8), assumptions:list(x?.assumptions,8),
     unknowns:list(x?.unknowns,8), risks:list(x?.risks,8), objections:list(x?.objections,8),
@@ -489,7 +491,7 @@ async function cleanApisChat(env,model,messages,maxTokens=320){
   if(!env.cleanapis)throw new Error("CLEANAPIS_KEY_MISSING");
   let lastCode="CLEANAPIS_FAILED";
   for(let attempt=0;attempt<2;attempt++){
-    const ac=new AbortController(),timer=setTimeout(()=>ac.abort(),25000);
+    const ac=new AbortController(),timer=setTimeout(()=>ac.abort(),12000);
     let r;
     try{
       r=await fetch("https://cleanapis.com/v1/chat/completions",{
@@ -612,6 +614,9 @@ function evaluateGate(artifacts,options,expectedIds){
   if(artifacts.some(a=>a.objections?.length)) reasons.push("OBJECTIONS_REQUIRE_REVIEW");
   if(artifacts.some(a=>a.risks?.length)) reasons.push("RISKS_REQUIRE_REVIEW");
   if(artifacts.some(a=>!a.evidence?.length)) reasons.push("EVIDENCE_MISSING");
+  const modelDiversity=new Set(artifacts.map(a=>a.model).filter(Boolean)).size;
+  if(modelDiversity<Math.min(3,expectedIds.length)) reasons.push("MODEL_DIVERSITY_BELOW_3");
+  if(artifacts.filter(a=>a.fallback===true).length>=3) reasons.push("FALLBACK_DOMINATES_COUNCIL");
   return {passed:reasons.length===0,reasons,missing,
     scope:"Structural readiness only; evidence and model identity are not independently verified.",
     betterAlternativeRisk:null};
@@ -1063,12 +1068,26 @@ async function runAgentTool(env,args){
   const input={question:text(args?.question,12000),context:text(args?.context,24000),options:cleanOptions(args?.options)};
   if(!input.question)throw new Error("QUESTION_REQUIRED");
   const peers=Array.isArray(args?.peers)?args.peers.slice(0,10).map(sanitizePeer).filter(x=>x.agentId):[];
-  const artifactResult=await callAgent(env,agent,stageName,input,peers);
+  let artifactResult,fallbackInfo=null;
+  try{
+    artifactResult=await callAgent(env,agent,stageName,input,peers);
+  }catch(e){
+    const code=publicError(e);
+    const retryable=/^(CLEANAPIS_|MICRO_)/.test(code);
+    if(!retryable||!env.AI||typeof env.AI.run!=="function") throw e;
+    const map={gpt:FAST_AGENTS[0],claude:FAST_AGENTS[1],gemini:FAST_AGENTS[2],mythos:FAST_AGENTS[1],fable:FAST_AGENTS[2]};
+    const base=map[agent.id]||FAST_AGENTS[0];
+    const delegated={...base,id:agent.id,source:"cloudflare-fallback",role:agent.role+" Fallback: preserve the requested reasoning role while clearly using a local backup model."};
+    artifactResult=await callAgent(env,delegated,stageName,input,peers);
+    artifactResult={...artifactResult,fallback:true,requestedModel:agent.model,provenanceGroup:"cloudflare:"+base.model};
+    fallbackInfo={from:{source:agent.source,model:agent.model,error:code},to:{source:"cloudflare",model:base.model},reason:"frontier_provider_degraded"};
+  }
   return {
     version:VERSION,
     stage:stageName,
     agent:{id:agent.id,source:agent.source,model:agent.model,role:agent.role,micro:!!agent.micro},
     reasoningModules:reasoningModulesFor(input.question+" "+input.context),
+    fallback:fallbackInfo,
     artifact:artifactResult
   };
 }
@@ -1078,6 +1097,9 @@ function sanitizeArtifact(x){
     source:text(x?.source,40),
     model:text(x?.model,120),
     role:text(x?.role,500),
+    provenanceGroup:text(x?.provenanceGroup,180),
+    fallback:x?.fallback===true,
+    requestedModel:text(x?.requestedModel,120),
     recommendationId:x?.recommendationId==null?null:text(x.recommendationId,80),
     answer:text(x?.answer,4000),
     evidence:list(x?.evidence,8),
@@ -1104,7 +1126,7 @@ function aggregateCouncilTool(args){
     reasoningModules:reasoningModulesFor(input.question+" "+input.context),
     artifacts,
     council:c,
-    coverage:{present:Array.from(present),missing,frontierTotal:FRONTIER_AGENTS.length},
+    coverage:{present:Array.from(present),missing,frontierTotal:FRONTIER_AGENTS.length,models:Array.from(new Set(artifacts.map(a=>a.model).filter(Boolean))),fallbackAgents:artifacts.filter(a=>a.fallback===true).map(a=>a.agentId)},
     preJevGate:evaluateGate(artifacts,input.options,FRONTIER_AGENTS.map(a=>a.id)),
     synthesis:provisionalSynthesis(artifacts,c),
     jev_payload:jevPayload(input,artifacts,c),
@@ -1193,7 +1215,7 @@ function compareCandidatesTool(args){
 const ARTIFACT_SCHEMA={
   type:"object",
   properties:{
-    agentId:{type:"string"},source:{type:"string"},model:{type:"string"},role:{type:"string"},
+    agentId:{type:"string"},source:{type:"string"},model:{type:"string"},role:{type:"string"},provenanceGroup:{type:"string"},fallback:{type:"boolean"},requestedModel:{type:"string"},
     recommendationId:{type:["string","null"]},answer:{type:"string"},
     evidence:{type:"array",items:{type:"string"}},assumptions:{type:"array",items:{type:"string"}},unknowns:{type:"array",items:{type:"string"}},
     risks:{type:"array",items:{type:"string"}},objections:{type:"array",items:{type:"string"}},
@@ -1337,7 +1359,7 @@ async function callTool(env,name,args,ctx={}){
     mandatoryOnSelection:true,publicThinkFallback:"fast-cloudflare-council",
     enforcement:"Instruction-level only; the server cannot force host tool invocation.",
     modelIdentity:"Configured provider aliases; underlying model identity is not independently verified.",
-    improvements:["unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","one-time-jev-packet-binding","evidence-backed-cove","evidence-tournament","four-tier-memory-routing","dynamic-capability-mesh-v1","all-plugin-host-routing","lease-ttl-registry","schema-hash-drift-guard","idempotency-key-routing","plugin-output-trust-boundary","minimal-relevant-tool-set","deep-research-evidence-fusion","jev-host-tool-selection-v2","closed-set-abstention","composite-confidence-gate","dependency-aware-evidence-gate","bayesian-reliability-shrinkage","dependency-diverse-fallback","transient-cleanapis-retry","book-derived-reasoning-protocol-v1"],
+    improvements:["unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","one-time-jev-packet-binding","evidence-backed-cove","evidence-tournament","four-tier-memory-routing","dynamic-capability-mesh-v1","all-plugin-host-routing","lease-ttl-registry","schema-hash-drift-guard","idempotency-key-routing","plugin-output-trust-boundary","minimal-relevant-tool-set","deep-research-evidence-fusion","jev-host-tool-selection-v2","closed-set-abstention","composite-confidence-gate","dependency-aware-evidence-gate","bayesian-reliability-shrinkage","dependency-diverse-fallback","transient-cleanapis-retry","frontier-to-cloudflare-degraded-mode","fallback-provenance-tracking","book-derived-reasoning-protocol-v1"],
     access:{auth:"oauth2-or-legacy-bearer",oauthChallenge:"resource-401",jwtAlgorithms:["RS256","PS256"],issuer:AUTH0_ISSUER,audience:AUTH0_AUDIENCE,resourceMetadata:OAUTH_METADATA_URL,pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierConfigured,frontierAuthenticatedForThisRequest,frontierAvailableForThisRequest:frontierConfigured,
       rateLimiter:typeof env.THINK_RATE_LIMITER?.limit==="function",modelLimiter:typeof env.THINK_MODEL_LIMITER?.limit==="function",limits:limits(env),browserOrigins:allowedOrigins(env).length},
     routing:{
