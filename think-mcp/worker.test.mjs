@@ -429,6 +429,14 @@ test('kosif_route quarantines a failed tool and rebuilds the closed fallback set
 });
 
 
+test('routing lanes keep research and CRM as separate detectable capabilities', async () => {
+  const e = env();
+  let out = await rpcResult(e, call('kosif_preflight', { question: 'Search current sources and verify the latest facts.' }));
+  assert.ok(out.lanes.includes('research'), JSON.stringify(out.lanes));
+  out = await rpcResult(e, call('kosif_preflight', { question: 'Update the CRM customer deal pipeline.' }));
+  assert.ok(out.lanes.includes('crm'), JSON.stringify(out.lanes));
+});
+
 test('preflight selects adaptive book-derived reasoning modules for decision, optimization and engineering tasks', async () => {
   const e = env();
   const out = await rpcResult(e, call('kosif_preflight', { question: 'Compare two tools under uncertainty, optimize cost constraints, then test and deploy the code safely.' }));
