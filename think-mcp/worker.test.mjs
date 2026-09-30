@@ -214,7 +214,16 @@ test('kosif_think_status (authenticated) reports how access is configured, never
   const t = await noLeak(r);
   assert.ok(!t.includes(e.KOSIF_THINK_TOKEN));
   const access = JSON.parse(t).result.structuredContent.access;
-  assert.deepEqual({ ...access, limits: undefined }, { auth: 'bearer', pathToken: false, frontierEnabled: true, rateLimiter: true, modelLimiter: false, limits: undefined, browserOrigins: 1 });
+  assert.equal(access.auth, 'oauth2-or-legacy-bearer');
+  assert.equal(access.pathToken, false);
+  assert.equal(access.frontierConfigured, true);
+  assert.equal(access.frontierAuthenticatedForThisRequest, true);
+  assert.equal(access.frontierAvailableForThisRequest, true);
+  assert.equal(access.rateLimiter, true);
+  assert.equal(access.modelLimiter, false);
+  assert.equal(access.browserOrigins, 1);
+  assert.ok(Array.isArray(access.jwtAlgorithms) && access.jwtAlgorithms.includes('RS256'));
+  assert.equal(access.audience, 'https://kosif-think-mcp.kosif199022.workers.dev');
 });
 
 
@@ -272,7 +281,7 @@ test('kosif_route never assumes a plugin is connected when the host did not prov
   const out = (await r.json()).result.structuredContent;
   assert.equal(out.useNow.length, 0);
   assert.ok(out.needsAvailabilityCheck.some(x => x.name === 'Legal Data Hunter'));
-  assert.ok(out.hostContract.route.includes('currently connected'));
+  assert.ok(out.hostContract.route.includes('live availableTools'));
 });
 
 test('kosif_route treats an omitted or unknown cost as approval-gated even for a known tool', async () => {
