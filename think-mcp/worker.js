@@ -1,5 +1,5 @@
-const VERSION = "0.8.0";
-const CAPABILITY_MESH_VERSION = "1.1.0";
+const VERSION = "0.8.1";
+const CAPABILITY_MESH_VERSION = "1.1.1";
 const AUTH0_ISSUER = "https://dev-zn5bwigg38b13ui8.us.auth0.com/";
 const AUTH0_AUDIENCE = "https://kosif-think-mcp.kosif199022.workers.dev";
 const AUTH0_JWKS = AUTH0_ISSUER + ".well-known/jwks.json";
@@ -619,7 +619,11 @@ function evaluateGate(artifacts,options,expectedIds){
   const modelDiversity=new Set(artifacts.map(a=>a.model).filter(Boolean)).size;
   if(modelDiversity<Math.min(3,expectedIds.length)) reasons.push("MODEL_DIVERSITY_BELOW_3");
   if(artifacts.filter(a=>a.fallback===true).length>=3) reasons.push("FALLBACK_DOMINATES_COUNCIL");
+  const consistency=evidenceConsistency(artifacts);
+  if(consistency.quarantinedAgents.length) reasons.push("EVIDENCE_ANSWER_CONTRADICTION");
+  if(consistency.canonicalValue!=null&&consistency.quarantinedAgents.length===artifacts.length) reasons.push("MODEL_ANSWERS_QUARANTINED");
   return {passed:reasons.length===0,reasons,missing,
+    evidenceConsistency:consistency,
     scope:"Structural readiness only; evidence and model identity are not independently verified.",
     betterAlternativeRisk:null};
 }
@@ -647,20 +651,119 @@ function council(artifacts,options){
     votes:votes.map(v=>({agentId:v.agentId,optionId:v.recommendationId,confidence:v.confidence}))
   };
 }
+function numberKey(n){
+  if(!Number.isFinite(n)) return null;
+  const v=Math.abs(n)<1e-12?0:Number(n.toFixed(12));
+  return String(v);
+}
+function parseArithmeticAssertion(line){
+  const s=text(line,1600).replace(/,/g,"");
+  const eq=s.lastIndexOf("=");
+  if(eq<0) return null;
+  const left=s.slice(0,eq),right=s.slice(eq+1);
+  const rm=/^\s*(-?\d+(?:\.\d+)?)/.exec(right);
+  if(!rm) return null;
+  const rhs=Number(rm[1]);
+  if(!Number.isFinite(rhs)) return null;
+  let actual=null,expression="";
+  const pct=/(-?\d+(?:\.\d+)?)\s*%\s*(?:of|\*)\s*(-?\d+(?:\.\d+)?)\s*$/i.exec(left);
+  if(pct){
+    actual=(Number(pct[1])/100)*Number(pct[2]);
+    expression=pct[0];
+  }else{
+    const m=/(-?\d+(?:\.\d+)?)\s*([+\-*/])\s*(-?\d+(?:\.\d+)?)\s*$/.exec(left);
+    if(!m) return null;
+    const a=Number(m[1]),b=Number(m[3]);
+    if(!Number.isFinite(a)||!Number.isFinite(b)) return null;
+    if(m[2]==="+") actual=a+b;
+    else if(m[2]==="-") actual=a-b;
+    else if(m[2]==="*") actual=a*b;
+    else if(m[2]==="/"){ if(b===0) return null; actual=a/b; }
+    expression=m[0];
+  }
+  if(!Number.isFinite(actual)) return null;
+  const tol=Math.max(1e-9,Math.abs(rhs)*1e-9);
+  if(Math.abs(actual-rhs)>tol) return null;
+  return {value:rhs,key:numberKey(rhs),expression:text(expression,160),statement:text(line,500)};
+}
+function artifactArithmeticTerminal(a){
+  const assertions=[];
+  for(const row of (a?.evidence||[])){
+    const hit=parseArithmeticAssertion(row);
+    if(hit) assertions.push(hit);
+  }
+  return assertions.length?{...assertions[assertions.length-1],assertions}:null;
+}
+function answerNumbers(answer){
+  return (String(answer||"").match(/-?\d+(?:\.\d+)?/g)||[]).map(Number).filter(Number.isFinite);
+}
+function answerMentionsValue(answer,value){
+  const tol=Math.max(1e-9,Math.abs(value)*1e-9);
+  return answerNumbers(answer).some(n=>Math.abs(n-value)<=tol);
+}
+function evidenceConsistency(artifacts){
+  const terminals=[];
+  for(const a of artifacts){
+    const terminal=artifactArithmeticTerminal(a);
+    if(!terminal) continue;
+    terminals.push({
+      agentId:a.agentId,model:a.model||"",provenanceGroup:a.provenanceGroup||((a.source||"")+":"+(a.model||"")),
+      value:terminal.value,key:terminal.key,assertions:terminal.assertions
+    });
+  }
+  const groups=new Map();
+  for(const x of terminals){
+    if(!groups.has(x.key)) groups.set(x.key,{value:x.value,key:x.key,agents:new Set(),provenance:new Set(),rows:[]});
+    const g=groups.get(x.key);
+    g.agents.add(x.agentId);
+    g.provenance.add(x.provenanceGroup||x.model||x.agentId);
+    g.rows.push(x);
+  }
+  const qualified=Array.from(groups.values())
+    .filter(g=>g.agents.size>=2&&g.provenance.size>=2)
+    .sort((a,b)=>b.agents.size-a.agents.size||b.provenance.size-a.provenance.size);
+  let canonical=null;
+  if(qualified.length===1||!qualified[1]||qualified[0].agents.size>qualified[1].agents.size) canonical=qualified[0]||null;
+  const quarantinedAgents=[];
+  if(canonical){
+    for(const a of artifacts){
+      const nums=answerNumbers(a.answer);
+      if(nums.length&&!answerMentionsValue(a.answer,canonical.value)) quarantinedAgents.push(a.agentId);
+    }
+  }
+  return {
+    checked:true,
+    canonicalValue:canonical?canonical.value:null,
+    canonicalKey:canonical?canonical.key:null,
+    independentSupports:canonical?canonical.provenance.size:0,
+    supportAgents:canonical?Array.from(canonical.agents):[],
+    quarantinedAgents,
+    arithmeticArtifacts:terminals.map(x=>({agentId:x.agentId,value:x.value,assertionCount:x.assertions.length})),
+    rule:"A numeric answer is quarantined only when at least two independently-provenanced artifacts end in the same deterministically valid arithmetic result and the answer omits that result."
+  };
+}
 function provisionalSynthesis(artifacts,c){
+  const consistency=evidenceConsistency(artifacts);
   const ranked=artifacts.slice().sort((a,b)=>b.confidence-a.confidence);
-  const top=(c?.winningOptionId?ranked.find(a=>a.recommendationId===c.winningOptionId):ranked[0])||null;
+  const quarantine=new Set(consistency.quarantinedAgents);
+  const usable=ranked.filter(a=>!quarantine.has(a.agentId));
+  let top=(c?.winningOptionId?usable.find(a=>a.recommendationId===c.winningOptionId):usable[0])||null;
+  const repaired=!top&&consistency.canonicalValue!=null&&quarantine.size===artifacts.length;
   const uncertainty=[];
   for(const a of ranked){
     for(const x of [...(a.assumptions||[]),...(a.risks||[]),...(a.objections||[])]) if(x&&!uncertainty.includes(x)) uncertainty.push(x);
   }
   return {
-    finalAnswer:top?.answer||"",
-    confidence:c?.confidence??top?.confidence??0,
-    confidenceMeaning:"Self-reported, not independently verified.",
+    finalAnswer:repaired?String(consistency.canonicalValue):(top?.answer||""),
+    confidence:repaired?0:(c?.confidence??top?.confidence??0),
+    confidenceMeaning:repaired?"Deterministic arithmetic repair; conflicting model confidence was discarded.":"Self-reported, not independently verified.",
+    evidenceConsistency:consistency,
+    repairedFromEvidence:repaired,
     remainingUncertainty:uncertainty.slice(0,8),
     chair:{source:"chatgpt",model:"caller",pendingJev:true},
-    note:"Provisional only. ChatGPT should reconcile all artifacts with Jev and produce the final answer."
+    note:repaired
+      ?"Provisional answer repaired from independently repeated, deterministically valid arithmetic evidence. Conflicting answer fields were quarantined; Jev/ChatGPT review is still required."
+      :"Provisional only. ChatGPT should reconcile all artifacts with Jev and produce the final answer."
   };
 }
 function jevPayload(input,artifacts,c){
@@ -1481,7 +1584,7 @@ async function callTool(env,name,args,ctx={}){
     mandatoryOnSelection:true,publicThinkFallback:"fast-cloudflare-council",
     enforcement:"Instruction-level only; the server cannot force host tool invocation.",
     modelIdentity:"Configured provider aliases; underlying model identity is not independently verified.",
-    improvements:["empirical-routing-calibration-report","brier-and-ece-diagnostics","false-confidence-case-audit","unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","one-time-jev-packet-binding","evidence-backed-cove","evidence-tournament","four-tier-memory-routing","dynamic-capability-mesh-v1","all-plugin-host-routing","lease-ttl-registry","schema-hash-drift-guard","idempotency-key-routing","plugin-output-trust-boundary","minimal-relevant-tool-set","deep-research-evidence-fusion","jev-host-tool-selection-v2","closed-set-abstention","composite-confidence-gate","dependency-aware-evidence-gate","bayesian-reliability-shrinkage","dependency-diverse-fallback","transient-cleanapis-retry","frontier-to-cloudflare-degraded-mode","fallback-provenance-tracking","book-derived-reasoning-protocol-v1"],
+    improvements:["evidence-answer-consistency-gate","truthful-host-exposure-status","empirical-routing-calibration-report","brier-and-ece-diagnostics","false-confidence-case-audit","unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","one-time-jev-packet-binding","evidence-backed-cove","evidence-tournament","four-tier-memory-routing","dynamic-capability-mesh-v1","all-plugin-host-routing","lease-ttl-registry","schema-hash-drift-guard","idempotency-key-routing","plugin-output-trust-boundary","minimal-relevant-tool-set","deep-research-evidence-fusion","jev-host-tool-selection-v2","closed-set-abstention","composite-confidence-gate","dependency-aware-evidence-gate","bayesian-reliability-shrinkage","dependency-diverse-fallback","transient-cleanapis-retry","frontier-to-cloudflare-degraded-mode","fallback-provenance-tracking","book-derived-reasoning-protocol-v1"],
     access:{auth:"oauth2-or-legacy-bearer",oauthChallenge:"resource-401",jwtAlgorithms:["RS256","PS256"],issuer:AUTH0_ISSUER,audience:AUTH0_AUDIENCE,resourceMetadata:OAUTH_METADATA_URL,pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierConfigured,frontierAuthenticatedForThisRequest,frontierAvailableForThisRequest:frontierConfigured,
       rateLimiter:typeof env.THINK_RATE_LIMITER?.limit==="function",modelLimiter:typeof env.THINK_MODEL_LIMITER?.limit==="function",limits:limits(env),browserOrigins:allowedOrigins(env).length},
     routing:{
@@ -1490,12 +1593,12 @@ async function callTool(env,name,args,ctx={}){
       council:"ChatGPT calls kosif_agent independently for gpt + claude + gemini + mythos + fable, then kosif_council",
       deep:"Same five independent agents; then targeted critique/revision agent calls; then kosif_council",
       finalChair:"Jev review followed by ChatGPT final synthesis",
-      hostTools:"kosif_route plans host-mediated plugin/tool calls; the host executes only useNow and returns evidence to KOSIF.",
+      hostTools:"kosif_route exists on the server for host-mediated planning, but the server cannot prove that the current ChatGPT host exposed it. The caller must verify the live host tool catalog before claiming availability.",
       tinyFish:"Browser/web interaction is routed through kosif_route when available; it is not part of the hidden reasoning bus.",
       kosifComputer:"For authorized device/browser work prefer KOSIF Computer. Use browseragent/browserjev observe and a closed action packet first. If ambiguity remains, Jev chooses only among observed stable candidates; preserve packet_id. KOSIF Computer revalidates the one-time packet, graph revision and candidate set before execution, then verifies/delta-recovers. Use browserremote only for deterministic remote input.",
       browserJevContract:BROWSER_JEV_CONTRACT
     },
-    hostToolRouting:{mode:"host-mediated",directPluginCalls:false,routeTool:"kosif_route",catalogSize:HOST_TOOL_CATALOG.length,dynamicToolsSupported:true,capabilityMeshVersion:CAPABILITY_MESH_VERSION,registryMode:"live-host-supplied+lease-ttl",schemaDriftGuard:true,idempotencyRouting:true,minimalRelevantSet:true,jevClosedSetSelection:true,abstentionSupported:true,compositeConfidenceGate:true,failureQuarantine:true,autoCostClasses:Array.from(AUTO_COST_CLASSES),approvalRequired:["mixed","credits","paid","unknown"]},
+    hostToolRouting:{mode:"host-mediated",directPluginCalls:false,routeTool:"kosif_route",routeToolServerAvailable:TOOLS.some(t=>t.name==="kosif_route"),routeToolHostExposure:"unknown-to-server",hostExposureRule:"Server tool availability does not prove that the current ChatGPT host exposed the tool; verify the caller's live tool catalog separately.",catalogSize:HOST_TOOL_CATALOG.length,dynamicToolsSupported:true,capabilityMeshVersion:CAPABILITY_MESH_VERSION,registryMode:"live-host-supplied+lease-ttl",schemaDriftGuard:true,idempotencyRouting:true,minimalRelevantSet:true,jevClosedSetSelection:true,abstentionSupported:true,compositeConfidenceGate:true,failureQuarantine:true,autoCostClasses:Array.from(AUTO_COST_CLASSES),approvalRequired:["mixed","credits","paid","unknown"]},
     reasoningProtocol:REASONING_PROTOCOL,
     reasoningModules:Object.entries(REASONING_MODULES).map(([id,v])=>({id,source:v.source,rules:v.rules})),
     frontierConfigured,
