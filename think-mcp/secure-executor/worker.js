@@ -1,5 +1,6 @@
 
-const VERSION="1.4.1";
+const VERSION="1.4.2";
+const QA_PROFILE_VERSION="active-values-v2";
 const MODEL="@cf/black-forest-labs/flux-2-klein-9b";
 const QUALITY_MODEL="@cf/black-forest-labs/flux-2-dev";
 const QA_MODEL="@cf/mistralai/mistral-small-3.1-24b-instruct";
@@ -71,17 +72,47 @@ async function runNoTextFocusedJudge(env,model,dataUrl,requestId,resultDigest){
   return {observed:true,model,text_artifacts_present:parsed.text_artifacts_present===true,confidence:Math.max(0,Math.min(1,Number(parsed.confidence||0))),locations:Array.isArray(parsed.locations)?parsed.locations.slice(0,20):[],note:String(parsed.note||"").slice(0,800)};
 }
 
+function qaSceneValueText(sceneSpec={},includeNegativeConstraints=false){
+  if(typeof sceneSpec==="string")return sceneSpec;
+  const values=[];
+  const walk=(value,key="")=>{
+    if(key==="negative_constraints"&&!includeNegativeConstraints)return;
+    if(value===undefined||value===null)return;
+    if(typeof value==="string"){
+      const t=value.trim();
+      if(!t)return;
+      if(/^(?:not applicable|n\/?a|none)(?:\b|\s)/i.test(t))return;
+      if(/^(?:use only|only use).*(?:explicitly requested|requested).*otherwise not applicable/i.test(t))return;
+      values.push(t);
+      return;
+    }
+    if(Array.isArray(value)){for(const v of value)walk(v,key);return;}
+    if(typeof value==="object"){for(const [k,v] of Object.entries(value))walk(v,k);return;}
+    values.push(String(value));
+  };
+  walk(sceneSpec);
+  return values.join(" ");
+}
+function qaStripNegatedClauses(value=""){
+  return String(value)
+    .replace(/\b(?:no|without|avoid|exclude|never)\b[^.!;\n]*/gi," ")
+    .replace(/(?:بدون|من غير|دون|لا يوجد|ليس هناك)[^.!؛\n]*/gi," ")
+    .replace(/\s+/g," ")
+    .trim();
+}
 function artifactQaProfile(sceneSpec={}){
-  const raw=(typeof sceneSpec==="string"?sceneSpec:JSON.stringify(sceneSpec||{})).toLowerCase();
+  const positive=qaStripNegatedClauses(qaSceneValueText(sceneSpec,false)).toLowerCase();
+  const constraintText=qaSceneValueText(sceneSpec,true).toLowerCase();
   const neg=Array.isArray(sceneSpec?.negative_constraints)?sceneSpec.negative_constraints.map(x=>String(x||"").toLowerCase()):[];
-  const has=(re)=>re.test(raw);
+  const has=(re)=>re.test(positive);
   const profile={
+    profile_version:QA_PROFILE_VERSION,
     bird:has(/\b(?:duck|duckling|bird|avian|goose|swan|chicken|eagle|hawk|owl|penguin)s?\b|بطة|بط|طائر|طيور/i),
     dragon:has(/\b(?:dragon|wyvern|drake)s?\b|تنين|تنانين/i),
     fire:has(/\b(?:fire|flame|burning|ember|lava|torch|blaze)s?\b|نار|لهب/i),
     rain:has(/\b(?:rain|storm|downpour|drizzle|wet weather)\b|مطر|عاصفة/i),
-    scale_relation:has(/\b(?:tiny|small|colossal|giant|huge|massive|miniature|scale contrast|size contrast)\b|ضخم|عملاق|صغير/i),
-    human_hand_constraint:neg.some(x=>/no human hands?|no fingers?|no humanoid|impossible .*grip/.test(x))||has(/\bno human hands?\b|\bno fingers?\b|\bno humanoid hands?\b/i)
+    scale_relation:has(/\b(?:colossal|giant|huge|massive|miniature|scale contrast|size contrast|towering|tiny versus|tiny vs)\b|ضخم|عملاق|فرق الحجم|تباين الحجم/i),
+    human_hand_constraint:neg.some(x=>/no human hands?|no fingers?|no humanoid|impossible .*grip/.test(x))||/\bno human hands?\b|\bno fingers?\b|\bno humanoid hands?\b/i.test(constraintText)
   };
   const required=["subject_integrity","anatomy_or_structure","pose_readability","contact_physics","lighting_consistency","shadows","composition","focal_hierarchy","cinematic_depth","visual_storytelling","no_text_artifacts","no_extra_limbs","no_malformed_anatomy","no_graphic_injury","no_watermark_logo"];
   if(profile.bird)required.push("bird_anatomy","feather_detail","no_malformed_bill_wings");
@@ -182,12 +213,12 @@ async function runArtifactVisionQa(env,bytes,mime,resultDigest,requestId,sceneSp
       findings=findings.filter(x=>!/human|humanoid|hand|finger|thumb|wrist|forearm|grip/i.test(String(x)));
       findings.push("FOCUSED_DUAL_VISION_RESOLVED:no_human_hands");
     }
-    const normalized={observed:true,request_id:requestId,result_digest:resultDigest,provider:"cloudflare-workers-ai",model:QA_MODEL,secondary_model:QA_SECONDARY_MODEL,qa_contract_version:"vision_task_aware_v4",active_checks:required,profile,scene_spec_digest:sceneDigest,mime:actualMime,pass,score,primary_score:Math.max(0,Math.min(1,Number(report.score||0))),checks,findings,focused_text_adjudication,focused_human_hand_adjudication};
+    const normalized={observed:true,request_id:requestId,result_digest:resultDigest,provider:"cloudflare-workers-ai",model:QA_MODEL,secondary_model:QA_SECONDARY_MODEL,qa_contract_version:"vision_task_aware_v4",qa_profile_version:QA_PROFILE_VERSION,active_checks:required,profile,scene_spec_digest:sceneDigest,mime:actualMime,pass,score,primary_score:Math.max(0,Math.min(1,Number(report.score||0))),checks,findings,focused_text_adjudication,focused_human_hand_adjudication};
     normalized.report_digest=await sha256HexText(canonical(normalized));
     return normalized;
   }catch(e){
     const err=String(e?.message||e||lastErr||"VISION_QA_PROVIDER_FAILED").slice(0,500);
-    const normalized={observed:true,request_id:requestId,result_digest:resultDigest,provider:"cloudflare-workers-ai",model:QA_MODEL,qa_contract_version:"vision_task_aware_v4",active_checks:required,profile,scene_spec_digest:sceneDigest,mime:actualMime,pass:false,score:0,checks:Object.fromEntries(required.map(k=>[k,false])),findings:["VISION_QA_PROVIDER_FAILED:"+err]};
+    const normalized={observed:true,request_id:requestId,result_digest:resultDigest,provider:"cloudflare-workers-ai",model:QA_MODEL,qa_contract_version:"vision_task_aware_v4",qa_profile_version:QA_PROFILE_VERSION,active_checks:required,profile,scene_spec_digest:sceneDigest,mime:actualMime,pass:false,score:0,checks:Object.fromEntries(required.map(k=>[k,false])),findings:["VISION_QA_PROVIDER_FAILED:"+err]};
     normalized.report_digest=await sha256HexText(canonical(normalized));
     return normalized;
   }
@@ -222,7 +253,7 @@ export default {
 
     if(p==="/health"&&request.method==="GET"){
       const d=await env.DB.prepare("SELECT 1 ok").first();
-      return json({ok:true,service:"kosif-full-pro-secure-executor",version:VERSION,private_service:true,d1:!!d,workers_ai:!!env.AI,provider:"cloudflare-workers-ai",model:MODEL,qa_contract:"vision_task_aware_v4",execution_binding:"execution_contract_digest_v1"});
+      return json({ok:true,service:"kosif-full-pro-secure-executor",version:VERSION,private_service:true,d1:!!d,workers_ai:!!env.AI,provider:"cloudflare-workers-ai",model:MODEL,qa_contract:"vision_task_aware_v4",qa_profile:QA_PROFILE_VERSION,execution_binding:"execution_contract_digest_v1"});
     }
 
     if(p.startsWith("/status/")&&request.method==="GET"){
