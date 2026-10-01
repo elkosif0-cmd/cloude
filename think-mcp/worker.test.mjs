@@ -25,12 +25,12 @@ function req(path,{method='POST',body,headers={},addr}={}){
 const call=(name,args={})=>JSON.stringify({jsonrpc:'2.0',id:7,method:'tools/call',params:{name,arguments:args}});
 async function json(res){return JSON.parse(await res.text());}
 
-test('public health is minimal and reports runtime 0.17.1',async()=>{
+test('public health is minimal and reports runtime 0.17.3',async()=>{
   const r=await worker.fetch(req('/health',{method:'GET'}),env());
   assert.equal(r.status,200);
   const b=await json(r);
   assert.deepEqual(Object.keys(b).sort(),['ok','service','version']);
-  assert.equal(b.version,'0.17.1');
+  assert.equal(b.version,'0.17.3');
   assert.equal(r.headers.get('cache-control'),'no-store');
   assert.equal(r.headers.get('x-content-type-options'),'nosniff');
 });
@@ -135,9 +135,12 @@ test('unknown host availability is not reported as a verified connection',async(
 test('status truthfully reports current provider/runtime and no Mythos',async()=>{
   const e=env();
   const out=(await json(await worker.fetch(req('/mcp',{body:call('kosif_think_status',{})}),e))).result.structuredContent;
-  assert.equal(out.version,'0.17.1');
+  assert.equal(out.version,'0.17.3');
+  assert.equal(out.access?.authPolicyVersion,'public-broker-oauth-v2');
   assert.equal(out.councilProvider,'cloudflare');
   assert.deepEqual(out.frontierAgents.map(x=>x.id),['gpt','claude','gemini','fable']);
+  assert.match(out.routing.deep,/gpt, claude, gemini, fable/);
+  assert.doesNotMatch(out.routing.deep,/five independent/i);
   assert.equal(out.hostToolRouting.directPluginCalls,false);
   assert.equal(out.hostToolRouting.routeToolHostExposure,'unknown-to-server');
   assert.equal(out.fullProGateway.failClosed,true);
@@ -163,7 +166,7 @@ test('source contains no removed Mythos/Clean APIs provider or embedded credenti
 });
 
 test('current visual/governance regression suite is present',()=>{
-  const source=readFileSync(new URL('./regression-0171.test.mjs',import.meta.url),'utf8');
+  const source=readFileSync(new URL('./regression-0173.test.mjs',import.meta.url),'utf8');
   assert.ok(source.includes('execution-binding-v1'));
   assert.ok(source.includes('vision_task_aware_v5'));
 });
