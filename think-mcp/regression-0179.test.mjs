@@ -94,7 +94,8 @@ assert.equal(truth.host_tool_exposure.state,'host-dependent');
 
 const englishProof=thinkMod.parseArithmeticAssertion('7 + 5 equals 12');
 assert.equal(englishProof?.value,12);
-const arabicProof=thinkMod.parseArithmeticAssertion('7 + 5 \\u064a\\u0633\\u0627\\u0648\\u064a 12');
+const arabicEquals=String.fromCharCode(0x64a,0x633,0x627,0x648,0x64a);
+const arabicProof=thinkMod.parseArithmeticAssertion('7 + 5 '+arabicEquals+' 12');
 assert.equal(arabicProof?.value,12);
 const answerTerminal=thinkMod.artifactArithmeticTerminal({answer:'7 + 5 = 12',evidence:[]});
 assert.equal(answerTerminal?.value,12);
