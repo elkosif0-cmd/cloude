@@ -1,4 +1,4 @@
-const VERSION = "0.17.4";
+const VERSION = "0.17.5";
 const AUTH_POLICY_VERSION = "public-broker-oauth-v2";
 const COGNITIVE_GOVERNANCE_VERSION = "attachments-governance-v1";
 const EINSTEIN_PROTOCOL_VERSION = "einstein-attachments-v2";
@@ -1767,7 +1767,7 @@ const TOOLS=[
   },
   {
     name:"kosif_think",
-    description:"Mandatory first-step KOSIF preflight when the user explicitly selects or invokes KOSIF Think. For simple tasks call kosif_think with mode fast before any substantive answer or downstream tool. For frontier Council or Deep work, use kosif_agent + kosif_council so the five Cloudflare role agents return independently.",
+    description:"Mandatory first-step KOSIF preflight when the user explicitly selects or invokes KOSIF Think. For simple tasks call kosif_think with mode fast before any substantive answer or downstream tool. For frontier Council or Deep work, use kosif_agent + kosif_council so the current Cloudflare frontier role agents return independently.",
     inputSchema:{
       type:"object",
       properties:{
@@ -2116,7 +2116,8 @@ async function callTool(env,name,args,ctx={}){
   return null;
 }
 
-const VERSIONED_MCP_PATH = "/mcp/v0.9.3";
+const VERSIONED_MCP_PATH = "/mcp/v0.17.5";
+const LEGACY_VERSIONED_MCP_PATH = "/mcp/v0.9.3";
 const PATH_TOKEN = /^\/mcp\/([^/]+)$/;
 
 async function handleMcp(req,env,url){
@@ -2137,7 +2138,8 @@ async function handleMcp(req,env,url){
 
   const ip=req.headers.get("cf-connecting-ip")||"unknown";
   const expected=String(env.KOSIF_THINK_TOKEN||"");
-  const pathMatch=url.pathname===VERSIONED_MCP_PATH?null:PATH_TOKEN.exec(url.pathname);
+  const isVersionedPath=url.pathname===VERSIONED_MCP_PATH||url.pathname===LEGACY_VERSIONED_MCP_PATH;
+  const pathMatch=isVersionedPath?null:PATH_TOKEN.exec(url.pathname);
   const presented=bearer(req)||(pathMatch?pathMatch[1]:"");
   const failKey="auth-fail|ip:"+ip;
   if(presented&&windowCount(failKey)>=lim.authFails){
@@ -2162,7 +2164,7 @@ async function handleMcp(req,env,url){
     protocolVersion:msg.params?.protocolVersion||"2025-06-18",
     capabilities:{tools:{listChanged:true}},
     serverInfo:{name:"kosif-think",version:VERSION},
-    instructions:"KOSIF Think 0.9.3 exposes durable Full Pro orchestration plus a private Cloudflare Secure Executor. The versioned MCP endpoint /mcp/v0.9.3 exists to force fresh tool discovery when a host caches an older catalog. When explicitly selected, run KOSIF first. For Full Pro image execution, use the Full Pro runtime, secure authorization, kosif_secure_image_execute, and secure artifact QA; direct host-native image generation is not Full Pro. Tool catalogs may change; clients should honor tools.listChanged and refresh tools/list on reconnect."
+    instructions:"KOSIF Think "+VERSION+" exposes durable Full Pro orchestration plus a private Cloudflare Secure Executor. The primary versioned MCP endpoint /mcp/v0.17.5 forces fresh tool discovery; /mcp/v0.9.3 remains compatibility-only. When explicitly selected, run KOSIF first. For Full Pro image execution, use the Full Pro runtime, secure authorization, kosif_secure_image_execute, and secure artifact QA; direct host-native image generation is not Full Pro. Tool catalogs may change; clients should honor tools.listChanged and refresh tools/list on reconnect."
   },cors);
   if(msg.method.startsWith("notifications/")) return empty(202,cors);
   if(msg.method==="ping") return rpc(id,{},cors);
@@ -2188,7 +2190,7 @@ async function handleMcp(req,env,url){
       if(!(await allow(env,"THINK_RATE_LIMITER",publicCaller,lim.rpm))) return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
       if((name==="kosif_think"||name==="kosif_auto")&&!(await allow(env,"THINK_MODEL_LIMITER","public-model:ip:"+ip,Math.min(lim.modelRpm,2)))) return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
       if(name==="kosif_full_pro_execute"&&!(await allow(env,"THINK_MODEL_LIMITER","public-full-pro:ip:"+ip,1))) return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
-      if(name==="kosif_agent"&&!(await allow(env,"THINK_MODEL_LIMITER","public-frontier:ip:"+ip,Math.min(lim.modelRpm,5)))) return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
+      if(name==="kosif_agent"&&!(await allow(env,"THINK_MODEL_LIMITER","public-frontier:ip:"+ip,Math.min(lim.modelRpm,Math.max(1,FRONTIER_AGENTS.length))))) return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
       if(name==="kosif_expert_harvest"&&!(await allow(env,"THINK_MODEL_LIMITER","public-harvest:ip:"+ip,Math.min(lim.modelRpm,2)))) return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
     }
     try{
@@ -4068,7 +4070,7 @@ export default {
       /* public: no configuration, no model list */
       return json({ok:true,service:"KOSIF Think MCP",version:VERSION});
     }
-    if(url.pathname==="/.well-known/oauth-protected-resource"||url.pathname==="/.well-known/oauth-protected-resource/mcp"||url.pathname==="/.well-known/oauth-protected-resource/mcp/v0.9.3"){
+    if(url.pathname==="/.well-known/oauth-protected-resource"||url.pathname==="/.well-known/oauth-protected-resource/mcp"||url.pathname==="/.well-known/oauth-protected-resource/mcp/v0.17.5"||url.pathname==="/.well-known/oauth-protected-resource/mcp/v0.9.3"){
       if(req.method!=="GET"&&req.method!=="HEAD") return json({error:"method_not_allowed"},405,{allow:"GET, HEAD"});
       return json({
         resource:AUTH0_AUDIENCE,
@@ -4079,7 +4081,7 @@ export default {
       });
     }
 
-    const versionedMcp=url.pathname===VERSIONED_MCP_PATH;
+    const versionedMcp=url.pathname===VERSIONED_MCP_PATH||url.pathname===LEGACY_VERSIONED_MCP_PATH;
     const pathToken=!versionedMcp&&PATH_TOKEN.test(url.pathname)&&String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true";
     if(url.pathname!=="/mcp"&&!versionedMcp&&!pathToken) return json({error:"not_found"},404);
     return handleMcp(req,env,url);
