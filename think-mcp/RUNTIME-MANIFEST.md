@@ -45,7 +45,7 @@ ChatGPT plugin releases verified with this runtime:
 
 ## Regression coverage
 
-`think-mcp/regression-0177.test.mjs` protects:
+`think-mcp/regression-0179.test.mjs` protects:
 - no Mythos / no Clean APIs reintroduction;
 - no duck/dragon fixture leakage into generic visual requests;
 - conditional task-aware QA;
