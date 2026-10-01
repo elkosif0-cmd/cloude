@@ -1,4 +1,4 @@
-const VERSION = "0.17.8";
+const VERSION = "0.17.9";
 const AUTH_POLICY_VERSION = "public-broker-oauth-v2";
 const COGNITIVE_GOVERNANCE_VERSION = "attachments-governance-v1";
 const EINSTEIN_PROTOCOL_VERSION = "einstein-attachments-v2";
@@ -2139,7 +2139,7 @@ async function callTool(env,name,args,ctx={}){
     mandatoryOnSelection:true,publicThinkFallback:"fast-cloudflare-council",
     enforcement:"Instruction-level only; the server cannot force host tool invocation.",
     modelIdentity:"Compatibility role IDs are not model identities; actual Cloudflare model IDs are returned per artifact.",
-    improvements:["primary-provider-coverage-gate","safe-upstream-error-classification","configuration-health-separation","full-pro-status-secure-state-fix","mobile-full-pro-compat-bridge-v1","evidence-answer-consistency-gate","truthful-host-exposure-status","adaptive-router-v2","runtime-receipts","ephemeral-diagnostics","frontier-circuit-breaker","deterministic-self-test","frontier-timeout-transparent-fallback","unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","pre-verification-auth-fail-lockout","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","one-time-jev-packet-binding","evidence-backed-cove","evidence-tournament","four-tier-memory-routing","dynamic-capability-mesh-v1","all-plugin-host-routing","lease-ttl-registry","schema-hash-drift-guard","idempotency-key-routing","plugin-output-trust-boundary","minimal-relevant-tool-set","deep-research-evidence-fusion","natural-language-arithmetic-binding"],
+    improvements:["primary-provider-coverage-gate","safe-upstream-error-classification","configuration-health-separation","full-pro-status-secure-state-fix","mobile-full-pro-compat-bridge-v1","evidence-answer-consistency-gate","truthful-host-exposure-status","adaptive-router-v2","runtime-receipts","ephemeral-diagnostics","frontier-circuit-breaker","deterministic-self-test","frontier-timeout-transparent-fallback","unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","pre-verification-auth-fail-lockout","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","one-time-jev-packet-binding","evidence-backed-cove","evidence-tournament","four-tier-memory-routing","dynamic-capability-mesh-v1","all-plugin-host-routing","lease-ttl-registry","schema-hash-drift-guard","idempotency-key-routing","plugin-output-trust-boundary","minimal-relevant-tool-set","deep-research-evidence-fusion","natural-language-arithmetic-binding","versioned-discovery-compat"],
     access:{auth:"rate-limited-public-broker+optional-oauth2+legacy-bearer",authPolicyVersion:AUTH_POLICY_VERSION,authFailLockout:"pre-verification-ip-window",oauthChallenge:"tool-result-meta+resource-401",jwtAlgorithms:["RS256","PS256"],issuer:AUTH0_ISSUER,audience:AUTH0_AUDIENCE,resourceMetadata:OAUTH_METADATA_URL,pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierConfigured,frontierAuthenticatedForThisRequest,frontierAvailableForThisRequest:frontierConfigured,
       rateLimiter:typeof env.THINK_RATE_LIMITER?.limit==="function",modelLimiter:typeof env.THINK_MODEL_LIMITER?.limit==="function",limits:limits(env),browserOrigins:allowedOrigins(env).length},
     routing:{
@@ -2166,7 +2166,8 @@ async function callTool(env,name,args,ctx={}){
   return null;
 }
 
-const VERSIONED_MCP_PATH = "/mcp/v0.17.7";
+const VERSIONED_MCP_PATH = "/mcp/v0.17.9";
+const COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.7";
 const LEGACY_VERSIONED_MCP_PATH = "/mcp/v0.9.3";
 const PATH_TOKEN = /^\/mcp\/([^/]+)$/;
 
@@ -2188,7 +2189,7 @@ async function handleMcp(req,env,url){
 
   const ip=req.headers.get("cf-connecting-ip")||"unknown";
   const expected=String(env.KOSIF_THINK_TOKEN||"");
-  const isVersionedPath=url.pathname===VERSIONED_MCP_PATH||url.pathname===LEGACY_VERSIONED_MCP_PATH;
+  const isVersionedPath=url.pathname===VERSIONED_MCP_PATH||url.pathname===COMPAT_VERSIONED_MCP_PATH||url.pathname===LEGACY_VERSIONED_MCP_PATH;
   const pathMatch=isVersionedPath?null:PATH_TOKEN.exec(url.pathname);
   const presented=bearer(req)||(pathMatch?pathMatch[1]:"");
   const failKey="auth-fail|ip:"+ip;
@@ -2214,7 +2215,7 @@ async function handleMcp(req,env,url){
     protocolVersion:msg.params?.protocolVersion||"2025-06-18",
     capabilities:{tools:{listChanged:true}},
     serverInfo:{name:"kosif-think",version:VERSION},
-    instructions:"KOSIF Think "+VERSION+" exposes durable Full Pro orchestration plus a private Cloudflare Secure Executor. The primary versioned MCP endpoint /mcp/v0.17.7 forces fresh tool discovery; /mcp/v0.9.3 remains compatibility-only. When explicitly selected, run KOSIF first. For Full Pro image execution, use the Full Pro runtime, secure authorization, kosif_secure_image_execute, and secure artifact QA; direct host-native image generation is not Full Pro. Tool catalogs may change; clients should honor tools.listChanged and refresh tools/list on reconnect."
+    instructions:"KOSIF Think "+VERSION+" exposes durable Full Pro orchestration plus a private Cloudflare Secure Executor. The primary versioned MCP endpoint /mcp/v0.17.9 forces fresh tool discovery; /mcp/v0.17.7 and /mcp/v0.9.3 remain compatibility-only. When explicitly selected, run KOSIF first. For Full Pro image execution, use the Full Pro runtime, secure authorization, kosif_secure_image_execute, and secure artifact QA; direct host-native image generation is not Full Pro. Tool catalogs may change; clients should honor tools.listChanged and refresh tools/list on reconnect."
   },cors);
   if(msg.method.startsWith("notifications/")) return empty(202,cors);
   if(msg.method==="ping") return rpc(id,{},cors);
@@ -4120,7 +4121,7 @@ export default {
       /* public: no configuration, no model list */
       return json({ok:true,service:"KOSIF Think MCP",version:VERSION});
     }
-    if(url.pathname==="/.well-known/oauth-protected-resource"||url.pathname==="/.well-known/oauth-protected-resource/mcp"||url.pathname==="/.well-known/oauth-protected-resource/mcp/v0.17.7"||url.pathname==="/.well-known/oauth-protected-resource/mcp/v0.9.3"){
+    if(url.pathname==="/.well-known/oauth-protected-resource"||url.pathname==="/.well-known/oauth-protected-resource/mcp"||url.pathname==="/.well-known/oauth-protected-resource/mcp/v0.17.9"||url.pathname==="/.well-known/oauth-protected-resource/mcp/v0.17.7"||url.pathname==="/.well-known/oauth-protected-resource/mcp/v0.9.3"){
       if(req.method!=="GET"&&req.method!=="HEAD") return json({error:"method_not_allowed"},405,{allow:"GET, HEAD"});
       return json({
         resource:AUTH0_AUDIENCE,
@@ -4131,7 +4132,7 @@ export default {
       });
     }
 
-    const versionedMcp=url.pathname===VERSIONED_MCP_PATH||url.pathname===LEGACY_VERSIONED_MCP_PATH;
+    const versionedMcp=url.pathname===VERSIONED_MCP_PATH||url.pathname===COMPAT_VERSIONED_MCP_PATH||url.pathname===LEGACY_VERSIONED_MCP_PATH;
     const pathToken=!versionedMcp&&PATH_TOKEN.test(url.pathname)&&String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true";
     if(url.pathname!=="/mcp"&&!versionedMcp&&!pathToken) return json({error:"not_found"},404);
     return handleMcp(req,env,url);
