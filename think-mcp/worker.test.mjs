@@ -25,19 +25,19 @@ function req(path,{method='POST',body,headers={},addr}={}){
 const call=(name,args={})=>JSON.stringify({jsonrpc:'2.0',id:7,method:'tools/call',params:{name,arguments:args}});
 async function json(res){return JSON.parse(await res.text());}
 
-test('public health is minimal and reports runtime 0.17.4',async()=>{
+test('public health is minimal and reports runtime 0.17.5',async()=>{
   const r=await worker.fetch(req('/health',{method:'GET'}),env());
   assert.equal(r.status,200);
   const b=await json(r);
   assert.deepEqual(Object.keys(b).sort(),['ok','service','version']);
-  assert.equal(b.version,'0.17.4');
+  assert.equal(b.version,'0.17.5');
   assert.equal(r.headers.get('cache-control'),'no-store');
   assert.equal(r.headers.get('x-content-type-options'),'nosniff');
 });
 
 test('/mcp accepts POST/OPTIONS only and versioned discovery endpoint exists',async()=>{
   const e=env();
-  for(const path of ['/mcp','/mcp/v0.9.3']){
+  for(const path of ['/mcp','/mcp/v0.17.5','/mcp/v0.9.3']){
     assert.equal((await worker.fetch(req(path,{method:'GET'}),e)).status,405);
     assert.equal((await worker.fetch(req(path,{method:'OPTIONS'}),e)).status,204);
     assert.equal((await worker.fetch(req(path),e)).status,200);
@@ -55,6 +55,10 @@ test('tools/list is public discovery and exposes current KOSIF contracts',async(
   const secure=tools.find(t=>t.name==='kosif_secure_image_execute');
   assert.ok(secure);
   assert.equal(secure.securitySchemes?.[0]?.type,'oauth2');
+  const thinkTool=tools.find(t=>t.name==='kosif_think');
+  assert.ok(thinkTool);
+  assert.doesNotMatch(thinkTool.description,/five Cloudflare role agents/i);
+  assert.doesNotMatch(JSON.stringify(tools),/mythos|clean apis|cleanapis/i);
 });
 
 test('protected secure execution fails closed without auth and never touches executor',async()=>{
@@ -148,7 +152,7 @@ test('unknown host availability is not reported as a verified connection',async(
 test('status truthfully reports current provider/runtime and no Mythos',async()=>{
   const e=env();
   const out=(await json(await worker.fetch(req('/mcp',{body:call('kosif_think_status',{})}),e))).result.structuredContent;
-  assert.equal(out.version,'0.17.4');
+  assert.equal(out.version,'0.17.5');
   assert.equal(out.access?.authPolicyVersion,'public-broker-oauth-v2');
   assert.equal(out.access?.authFailLockout,'pre-verification-ip-window');
   assert.equal(out.councilProvider,'cloudflare');
@@ -180,7 +184,7 @@ test('source contains no removed Mythos/Clean APIs provider or embedded credenti
 });
 
 test('current visual/governance regression suite is present',()=>{
-  const source=readFileSync(new URL('./regression-0174.test.mjs',import.meta.url),'utf8');
+  const source=readFileSync(new URL('./regression-0175.test.mjs',import.meta.url),'utf8');
   assert.ok(source.includes('execution-binding-v1'));
   assert.ok(source.includes('vision_task_aware_v5'));
 });
