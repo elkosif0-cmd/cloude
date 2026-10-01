@@ -1,4 +1,4 @@
-const VERSION = "0.17.7";
+const VERSION = "0.17.8";
 const AUTH_POLICY_VERSION = "public-broker-oauth-v2";
 const COGNITIVE_GOVERNANCE_VERSION = "attachments-governance-v1";
 const EINSTEIN_PROTOCOL_VERSION = "einstein-attachments-v2";
@@ -602,10 +602,18 @@ function numberKey(n){
   return String(v);
 }
 function parseArithmeticAssertion(line){
-  const s=text(line,1600).replace(/,/g,"");
-  const eq=s.lastIndexOf("=");
-  if(eq<0) return null;
-  const left=s.slice(0,eq),right=s.slice(eq+1);
+  const s=text(line,1600).replace(/,/g,"").trim();
+  let left="",right="";
+  const symbolic=s.lastIndexOf("=");
+  if(symbolic>=0){
+    left=s.slice(0,symbolic);
+    right=s.slice(symbolic+1);
+  }else{
+    const verbal=/^(.*?)(?:\b(?:equals?|is\s+equal\s+to)\b|(?:يساوي|تساوي))\s*(-?\d+(?:\.\d+)?)/i.exec(s);
+    if(!verbal)return null;
+    left=verbal[1];
+    right=verbal[2];
+  }
   const rm=/^\s*(-?\d+(?:\.\d+)?)/.exec(right);
   if(!rm) return null;
   const rhs=Number(rm[1]);
@@ -633,11 +641,14 @@ function parseArithmeticAssertion(line){
 }
 function artifactArithmeticTerminal(a){
   const assertions=[];
-  for(const row of (a?.evidence||[])){
+  for(const row of [a?.answer,...(a?.evidence||[])]){
     const hit=parseArithmeticAssertion(row);
     if(hit) assertions.push(hit);
   }
-  return assertions.length?{...assertions[assertions.length-1],assertions}:null;
+  if(!assertions.length)return null;
+  const keys=[...new Set(assertions.map(x=>x.key))];
+  if(keys.length!==1)return null;
+  return {...assertions[assertions.length-1],assertions};
 }
 function answerNumbers(answer){
   return (String(answer||"").match(/-?\d+(?:\.\d+)?/g)||[]).map(Number).filter(Number.isFinite);
@@ -2128,7 +2139,7 @@ async function callTool(env,name,args,ctx={}){
     mandatoryOnSelection:true,publicThinkFallback:"fast-cloudflare-council",
     enforcement:"Instruction-level only; the server cannot force host tool invocation.",
     modelIdentity:"Compatibility role IDs are not model identities; actual Cloudflare model IDs are returned per artifact.",
-    improvements:["primary-provider-coverage-gate","safe-upstream-error-classification","configuration-health-separation","full-pro-status-secure-state-fix","mobile-full-pro-compat-bridge-v1","evidence-answer-consistency-gate","truthful-host-exposure-status","adaptive-router-v2","runtime-receipts","ephemeral-diagnostics","frontier-circuit-breaker","deterministic-self-test","frontier-timeout-transparent-fallback","unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","pre-verification-auth-fail-lockout","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","one-time-jev-packet-binding","evidence-backed-cove","evidence-tournament","four-tier-memory-routing","dynamic-capability-mesh-v1","all-plugin-host-routing","lease-ttl-registry","schema-hash-drift-guard","idempotency-key-routing","plugin-output-trust-boundary","minimal-relevant-tool-set","deep-research-evidence-fusion"],
+    improvements:["primary-provider-coverage-gate","safe-upstream-error-classification","configuration-health-separation","full-pro-status-secure-state-fix","mobile-full-pro-compat-bridge-v1","evidence-answer-consistency-gate","truthful-host-exposure-status","adaptive-router-v2","runtime-receipts","ephemeral-diagnostics","frontier-circuit-breaker","deterministic-self-test","frontier-timeout-transparent-fallback","unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","pre-verification-auth-fail-lockout","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","one-time-jev-packet-binding","evidence-backed-cove","evidence-tournament","four-tier-memory-routing","dynamic-capability-mesh-v1","all-plugin-host-routing","lease-ttl-registry","schema-hash-drift-guard","idempotency-key-routing","plugin-output-trust-boundary","minimal-relevant-tool-set","deep-research-evidence-fusion","natural-language-arithmetic-binding"],
     access:{auth:"rate-limited-public-broker+optional-oauth2+legacy-bearer",authPolicyVersion:AUTH_POLICY_VERSION,authFailLockout:"pre-verification-ip-window",oauthChallenge:"tool-result-meta+resource-401",jwtAlgorithms:["RS256","PS256"],issuer:AUTH0_ISSUER,audience:AUTH0_AUDIENCE,resourceMetadata:OAUTH_METADATA_URL,pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierConfigured,frontierAuthenticatedForThisRequest,frontierAvailableForThisRequest:frontierConfigured,
       rateLimiter:typeof env.THINK_RATE_LIMITER?.limit==="function",modelLimiter:typeof env.THINK_MODEL_LIMITER?.limit==="function",limits:limits(env),browserOrigins:allowedOrigins(env).length},
     routing:{
