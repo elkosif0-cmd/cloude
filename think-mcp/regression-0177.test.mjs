@@ -6,7 +6,7 @@ const securePath=process.argv[3]||'think-mcp/secure-executor/worker.js';
 const think=fs.readFileSync(thinkPath,'utf8');
 const secure=fs.readFileSync(securePath,'utf8');
 
-assert.match(think,/const VERSION\s*=\s*"0\.17\.8"/);
+assert.match(think,/const VERSION\s*=\s*"0\.17\.9"/);
 assert.ok(think.includes('attachments-governance-v1'));
 assert.ok(think.includes('einstein-attachments-v2'));
 assert.ok(think.includes('source-taint-v1'));
@@ -15,7 +15,8 @@ assert.ok(think.includes('public-broker-oauth-v2'));
 assert.ok(think.includes('pre-verification-auth-fail-lockout'));
 assert.ok(think.includes('authFailLockout:"pre-verification-ip-window"'));
 assert.ok(think.includes('maxAgents:FRONTIER_AGENTS.length'));
-assert.ok(think.includes('const VERSIONED_MCP_PATH = "/mcp/v0.17.8"'));
+assert.ok(think.includes('const VERSIONED_MCP_PATH = "/mcp/v0.17.9"'));
+assert.ok(think.includes('const COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.7"'));
 assert.ok(think.includes('const LEGACY_VERSIONED_MCP_PATH = "/mcp/v0.9.3"'));
 assert.equal(think.includes('five Cloudflare role agents'),false);
 assert.equal(think.includes('Same five independent agents'),false);
@@ -155,7 +156,7 @@ for(const check of ['bird_anatomy','dragon_anatomy','fire_direction','rain_inter
 
 console.log(JSON.stringify({
   passed:true,
-  runtime:'0.17.8',
+  runtime:'0.17.9',
   secureExecutor:'1.4.3',
   governance:'attachments-governance-v1',
   executionBinding:true,
