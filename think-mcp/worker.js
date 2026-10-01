@@ -566,34 +566,6 @@ function evaluateGate(artifacts,options,expectedIds){
     betterAlternativeRisk:null};
 }
 
-function optionBindingConsistency(artifacts,options){
-  const consistency=evidenceConsistency(artifacts);
-  const canonical=consistency.canonicalValue;
-  const out={checked:false,canonicalValue:canonical,canonicalOptionId:null,quarantinedAgents:[],contradictions:[],rule:"A numeric recommendation is quarantined when independently-proven arithmetic establishes one canonical value and the selected numeric option maps to a different value."};
-  if(canonical==null||!options||typeof options!=="object")return out;
-  const numeric=[];
-  for(const [id,label] of Object.entries(options)){
-    const nums=answerNumbers(String(label||""));
-    if(nums.length===1)numeric.push({id,value:nums[0],label:String(label||"")});
-  }
-  if(numeric.length<2)return out;
-  const tol=Math.max(1e-9,Math.abs(canonical)*1e-9);
-  const matches=numeric.filter(x=>Math.abs(x.value-canonical)<=tol);
-  if(matches.length!==1)return out;
-  out.checked=true;out.canonicalOptionId=matches[0].id;
-  const byId=new Map(numeric.map(x=>[x.id,x]));
-  for(const a of artifacts){
-    const rid=a?.recommendationId;
-    if(!rid||!byId.has(rid))continue;
-    const selected=byId.get(rid);
-    if(Math.abs(selected.value-canonical)>tol){
-      out.quarantinedAgents.push(a.agentId);
-      out.contradictions.push({agentId:a.agentId,recommendationId:rid,selectedValue:selected.value,canonicalValue:canonical,canonicalOptionId:out.canonicalOptionId,answer:text(a.answer,600)});
-    }
-  }
-  return out;
-}
-
 function council(artifacts,options){
   const keys=new Set(Object.keys(options));
   const binding=optionBindingConsistency(artifacts,options);
@@ -715,6 +687,34 @@ function evidenceConsistency(artifacts){
     rule:"A numeric answer is quarantined only when at least two independently-provenanced artifacts end in the same deterministically valid arithmetic result and the answer omits that result."
   };
 }
+function optionBindingConsistency(artifacts,options){
+  const consistency=evidenceConsistency(artifacts);
+  const canonical=consistency.canonicalValue;
+  const out={checked:false,canonicalValue:canonical,canonicalOptionId:null,quarantinedAgents:[],contradictions:[],rule:"A numeric recommendation is quarantined when independently-proven arithmetic establishes one canonical value and the selected numeric option maps to a different value."};
+  if(canonical==null||!options||typeof options!=="object")return out;
+  const numeric=[];
+  for(const [id,label] of Object.entries(options)){
+    const nums=answerNumbers(String(label||""));
+    if(nums.length===1)numeric.push({id,value:nums[0],label:String(label||"")});
+  }
+  if(numeric.length<2)return out;
+  const tol=Math.max(1e-9,Math.abs(canonical)*1e-9);
+  const matches=numeric.filter(x=>Math.abs(x.value-canonical)<=tol);
+  if(matches.length!==1)return out;
+  out.checked=true;out.canonicalOptionId=matches[0].id;
+  const byId=new Map(numeric.map(x=>[x.id,x]));
+  for(const a of artifacts){
+    const rid=a?.recommendationId;
+    if(!rid||!byId.has(rid))continue;
+    const selected=byId.get(rid);
+    if(Math.abs(selected.value-canonical)>tol){
+      out.quarantinedAgents.push(a.agentId);
+      out.contradictions.push({agentId:a.agentId,recommendationId:rid,selectedValue:selected.value,canonicalValue:canonical,canonicalOptionId:out.canonicalOptionId,answer:text(a.answer,600)});
+    }
+  }
+  return out;
+}
+
 function provisionalSynthesis(artifacts,c){
   const consistency=evidenceConsistency(artifacts);
   const binding=c?.optionBindingConsistency||{checked:false,quarantinedAgents:[],contradictions:[]};
