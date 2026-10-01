@@ -1,4 +1,4 @@
-const VERSION = "0.17.5";
+const VERSION = "0.17.6";
 const AUTH_POLICY_VERSION = "public-broker-oauth-v2";
 const COGNITIVE_GOVERNANCE_VERSION = "attachments-governance-v1";
 const EINSTEIN_PROTOCOL_VERSION = "einstein-attachments-v2";
@@ -556,17 +556,50 @@ function evaluateGate(artifacts,options,expectedIds){
   if(artifacts.some(a=>a.risks?.length)) reasons.push("RISKS_REQUIRE_REVIEW");
   if(artifacts.some(a=>!a.evidence?.length)) reasons.push("EVIDENCE_MISSING");
   const consistency=evidenceConsistency(artifacts);
+  const binding=c?.optionBindingConsistency||optionBindingConsistency(artifacts,options);
+  if(binding.quarantinedAgents.length) reasons.push("OPTION_BINDING_CONTRADICTION");
   if(consistency.quarantinedAgents.length) reasons.push("EVIDENCE_ANSWER_CONTRADICTION");
   if(consistency.canonicalValue!=null&&consistency.quarantinedAgents.length===artifacts.length) reasons.push("MODEL_ANSWERS_QUARANTINED");
   return {passed:reasons.length===0,reasons,missing,
-    evidenceConsistency:consistency,
+    evidenceConsistency:consistency,optionBindingConsistency:binding,
     scope:"Structural readiness only; evidence and model identity are not independently verified.",
     betterAlternativeRisk:null};
 }
 
+
+function optionBindingConsistency(artifacts,options){
+  const consistency=evidenceConsistency(artifacts);
+  const canonical=consistency.canonicalValue;
+  const out={checked:false,canonicalValue:canonical,canonicalOptionId:null,quarantinedAgents:[],contradictions:[],rule:"A numeric recommendation is quarantined when independently-proven arithmetic establishes one canonical value and the selected numeric option maps to a different value."};
+  if(canonical==null||!options||typeof options!=="object")return out;
+  const numeric=[];
+  for(const [id,label] of Object.entries(options)){
+    const nums=answerNumbers(String(label||""));
+    if(nums.length===1)numeric.push({id,value:nums[0],label:String(label||"")});
+  }
+  if(numeric.length<2)return out;
+  const tol=Math.max(1e-9,Math.abs(canonical)*1e-9);
+  const matches=numeric.filter(x=>Math.abs(x.value-canonical)<=tol);
+  if(matches.length!==1)return out;
+  out.checked=true;out.canonicalOptionId=matches[0].id;
+  const byId=new Map(numeric.map(x=>[x.id,x]));
+  for(const a of artifacts){
+    const rid=a?.recommendationId;
+    if(!rid||!byId.has(rid))continue;
+    const selected=byId.get(rid);
+    if(Math.abs(selected.value-canonical)>tol){
+      out.quarantinedAgents.push(a.agentId);
+      out.contradictions.push({agentId:a.agentId,recommendationId:rid,selectedValue:selected.value,canonicalValue:canonical,canonicalOptionId:out.canonicalOptionId,answer:text(a.answer,600)});
+    }
+  }
+  return out;
+}
+
 function council(artifacts,options){
   const keys=new Set(Object.keys(options));
-  const votes=artifacts.filter(a=>a.recommendationId&&keys.has(a.recommendationId));
+  const binding=optionBindingConsistency(artifacts,options);
+  const quarantined=new Set(binding.quarantinedAgents);
+  const votes=artifacts.filter(a=>a.recommendationId&&keys.has(a.recommendationId)&&!quarantined.has(a.agentId));
   if(!votes.length) return null;
   const rows=Object.create(null);
   votes.forEach(v=>{
@@ -579,14 +612,20 @@ function council(artifacts,options){
   const tied=!!(second&&Math.abs(first[1].weight-second[1].weight)<1e-9&&first[1].count===second[1].count);
   return {
     winningOptionId:tied?null:first[0],
-    agreementPercent:Math.round((first[1].count/artifacts.length)*10000)/100,
+    agreementPercent:Math.round((first[1].count/votes.length)*10000)/100,
+    rawParticipationAgreementPercent:Math.round((first[1].count/artifacts.length)*10000)/100,
     confidence:Math.round((first[1].totalConfidence/first[1].count)*10000)/10000,
     tied,
-    participatingAgents:artifacts.length, validVotes:votes.length, abstentions:artifacts.length-votes.length,
+    participatingAgents:artifacts.length, validVotes:votes.length,
+    quarantinedVotes:quarantined.size,
+    abstentions:Math.max(0,artifacts.length-votes.length-quarantined.size),
     confidenceMeaning:"Self-reported confidence, not a calibrated probability of correctness.",
-    votes:votes.map(v=>({agentId:v.agentId,optionId:v.recommendationId,confidence:v.confidence}))
+    votes:votes.map(v=>({agentId:v.agentId,optionId:v.recommendationId,confidence:v.confidence})),
+    quarantinedVoteDetails:binding.contradictions,
+    optionBindingConsistency:binding
   };
 }
+
 function numberKey(n){
   if(!Number.isFinite(n)) return null;
   const v=Math.abs(n)<1e-12?0:Number(n.toFixed(12));
@@ -680,8 +719,9 @@ function evidenceConsistency(artifacts){
 }
 function provisionalSynthesis(artifacts,c){
   const consistency=evidenceConsistency(artifacts);
+  const binding=c?.optionBindingConsistency||{checked:false,quarantinedAgents:[],contradictions:[]};
   const ranked=artifacts.slice().sort((a,b)=>b.confidence-a.confidence);
-  const quarantine=new Set(consistency.quarantinedAgents);
+  const quarantine=new Set([...(consistency.quarantinedAgents||[]),...(binding.quarantinedAgents||[])]);
   const usable=ranked.filter(a=>!quarantine.has(a.agentId));
   let top=(c?.winningOptionId?usable.find(a=>a.recommendationId===c.winningOptionId):usable[0])||null;
   const repaired=!top&&consistency.canonicalValue!=null&&quarantine.size===artifacts.length;
@@ -694,6 +734,7 @@ function provisionalSynthesis(artifacts,c){
     confidence:repaired?0:(c?.confidence??top?.confidence??0),
     confidenceMeaning:repaired?"Deterministic arithmetic repair; conflicting model confidence was discarded.":"Self-reported, not independently verified.",
     evidenceConsistency:consistency,
+    optionBindingConsistency:binding,
     repairedFromEvidence:repaired,
     remainingUncertainty:uncertainty.slice(0,8),
     chair:{source:"chatgpt",model:"caller",pendingJev:true},
@@ -702,6 +743,7 @@ function provisionalSynthesis(artifacts,c){
       :"Provisional only. ChatGPT should reconcile all artifacts with Jev and produce the final answer."
   };
 }
+
 function jevPayload(input,artifacts,c){
   const state={question:input.question,context:input.context,artifacts,council:c};
   if(Object.keys(input.options).length>=2){
