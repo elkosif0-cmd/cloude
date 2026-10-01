@@ -248,30 +248,30 @@ Up to version 0.4.0 the deployed Worker (`workers_dev = true`) answered every `P
 
 The Worker holds no business data, so the exposure is spending and abuse of the key (which a provider may then suspend), not a data leak. Review the Clean APIs usage since the Worker was first deployed (2026-09-27 21:42 UTC) for calls that were not yours.
 
-### Controls
+### Controls (0.14.0 — Auth0 OAuth replaced the shared token as the main sign-in)
 | Control | Behaviour |
 |---|---|
-| Authentication | `Authorization: Bearer <KOSIF_THINK_TOKEN>`, compared in constant time. `/mcp/<token>` works only when `THINK_ALLOW_PATH_TOKEN = "true"` (for a client that cannot send headers; the token then sits in URLs and logs, so prefer the header). |
-| Fail closed | No `KOSIF_THINK_TOKEN`, or one shorter than 32 characters → `503`, nothing runs. |
-| Unauthorised | `401` with `WWW-Authenticate: Bearer`, a fixed body, no model call. After `THINK_AUTH_FAILS_PER_MIN` failures a minute from one IP → `429` before any token check. |
-| Rate limits | Per caller: `THINK_RPM` requests and `THINK_MODEL_RPM` model-running calls (`kosif_agent`, `kosif_think`) a minute, through the `THINK_RATE_LIMITER` / `THINK_MODEL_LIMITER` rate-limit bindings; a local window takes over if a binding is missing or fails (never fails open). `429` + `Retry-After: 60`. |
-| Kill switch | `THINK_FRONTIER_ENABLED = "false"` stops every Clean APIs call at once. |
+| Public tools | `kosif_auto`, `kosif_think_status`, `kosif_route`, `kosif_verify_evidence`, `kosif_compare_candidates`, `kosif_agent`, `kosif_council` (and the merged names) answer without a sign-in, rate-limited per IP. |
+| Full Pro tools | `kosif_full_pro_execute` (the gateway added in 0.13.63, public until 0.14.0), the other `kosif_full_pro_*`, `kosif_secure_*`, `kosif_expert_harvest` and `kosif_full_pro_jev_batch` need an Auth0 access token (RS256/PS256, issuer + audience + expiry checked against the tenant JWKS). Without one: `401`, `WWW-Authenticate: Bearer resource_metadata=…` and an `mcp/www_authenticate` tool result, so the host offers the sign-in. Nothing is read, queued or spent. |
+| Full Pro bridge | `kosif_think` / `kosif_auto` context prefixes `KOSIF_FULL_PRO_MOBILE_V1:` (start, canary_start), `…_CANARY_START/STATUS/CANCEL_V1:`, `…_HARVEST_V1:`, `…_JEV_BATCH_V1:` need the same sign-in. The other mobile actions stay bound to the per-request bridge token that only an authenticated start hands out. (Before 0.14.0 these prefixes reached Full Pro with no sign-in.) |
+| Owner allow-list | `KOSIF_OWNER_SUBS` (comma-separated Auth0 user ids, e.g. `auth0|…`, `google-oauth2|…`): when set, any other account that signs up to the tenant is refused. Set it — without it every tenant account passes. |
+| Legacy bearer | `Authorization: Bearer <KOSIF_THINK_TOKEN>` still works for server-to-server callers, compared in constant time, only when the secret has 32+ characters. `/mcp/<token>` only when `THINK_ALLOW_PATH_TOKEN = "true"`. |
+| Failed sign-ins | After `THINK_AUTH_FAILS_PER_MIN` failures a minute from one IP, further wrong tokens get `429`; a valid token still passes. |
+| Rate limits | Per caller (`THINK_RPM`, `THINK_MODEL_RPM`) through the `THINK_RATE_LIMITER` / `THINK_MODEL_LIMITER` bindings; a local window takes over if a binding is missing or fails (never fails open). Public model calls: 2 `kosif_auto`/`kosif_think` and 5 `kosif_agent` a minute per IP. `429` + `Retry-After: 60`. |
+| Write hints | Tools that change Full Pro state carry `readOnlyHint: false` (cancel and bypass also `destructiveHint: true`), so hosts confirm them before running. |
+| Kill switch | `THINK_FRONTIER_ENABLED = "false"` stops every frontier agent call at once. |
 | Methods | `/mcp`: `POST` (+ `OPTIONS` preflight) only, else `405`. `/health`: `GET`/`HEAD` only. |
-| CORS / Origin | No browser origin by default. A request carrying an `Origin` that is not in `THINK_ALLOWED_ORIGINS` → `403` (the MCP HTTP transport rule against DNS rebinding); an allowed origin gets its own origin back, never `*`. |
-| Request size | `Content-Type: application/json` only (`415`); bodies over `THINK_MAX_BODY_BYTES` (default 128 KiB) → `413`, checked on the header and on the bytes actually read. JSON-RPC batches or messages without a method → `-32600`. |
-| No leaks | Public `/health` returns only `ok`, `service`, `version`. Errors carry this Worker's codes only (`CLEANAPIS_402`, `CLEANAPIS_NETWORK`, `AGENT_FAILED` …). `kosif_think_status` (authenticated) shows how access is configured, never a value. |
+| CORS / Origin | No browser origin by default. A request carrying an `Origin` that is not in `THINK_ALLOWED_ORIGINS` → `403`; an allowed origin gets its own origin back, never `*`. |
+| Request size | `Content-Type: application/json` only (`415`); bodies over `THINK_MAX_BODY_BYTES` (default 128 KiB) → `413`. JSON-RPC batches or messages without a method → `-32600`. |
+| No leaks | Public `/health` returns only `ok`, `service`, `version`. Errors carry this Worker's codes only. `kosif_think_status` shows how access is configured (counts and flags), never a value. |
 
-`think-mcp/worker.test.mjs` proves each row (CI step "Test KOSIF Think MCP access control"); run against version 0.4.0 the access tests fail 17 of 18.
+`think-mcp/worker.test.mjs` proves each row (CI step "Test KOSIF Think MCP access control").
 
-Version 0.4.2 is this access control together with the council rules deployed by hand as a separate «0.4.1» (which had no access control): one artifact per known frontier agent, agreement counted over every participating agent, a conservative readiness gate, a synthesis that follows the winning option, and no invented confidence or evidence. Deploying 0.4.2 keeps those rules and closes `/mcp`.
+### One entry point, one status tool (0.14.0)
+`tools/list` shows `kosif_auto` as the only entry point (it replaces `kosif_think` and `kosif_preflight`; `planOnly:true` is the no-model preflight), `kosif_think_status` as the only status tool (it now carries the self-test and the runtime diagnostics that `kosif_self_test` and `kosif_diagnostics` returned) and `kosif_full_pro_execute` as the only way to start Full Pro (it starts or resumes through `kosif_full_pro_start`). The five merged names are no longer listed but stay callable, so existing callers and the mobile bridge keep working.
 
-### Deploying the change (manual; no workflow deploys this Worker)
-1. Make a token and store it as a Worker secret (it is never written in the repository):
-   `printf %s "$(openssl rand -hex 32)" | npx wrangler secret put KOSIF_THINK_TOKEN --config wrangler.think.toml`
-   (64 hex characters: no `/` or `+`, so it also works in `/mcp/<token>`; `printf %s` adds no newline).
-2. Give the same token to the MCP client as `Authorization: Bearer …`. Only if the client cannot send headers, set `THINK_ALLOW_PATH_TOKEN = "true"` and use `/mcp/<token>`.
-3. `npx wrangler deploy --config wrangler.think.toml`
-4. Check: `POST /mcp` without the header → `401`; with it → `200`; `kosif_think_status` → `access`.
-5. Set a spending limit on the Clean APIs account: it is the only hard cap on what the key can spend.
-
-Rotation: put a new `KOSIF_THINK_TOKEN`, then update the client. If the key itself may have been used by someone else, rotate `cleanapis` at Clean APIs and `wrangler secret put cleanapis` again. For stronger caller identity, put the Worker behind Cloudflare Access with a service token.
+### Deploying (manual; no workflow deploys this Worker)
+1. `wrangler.think.toml` carries the live `FULL_PRO_STATE` (KV), `FULL_PRO_QUEUE`, `SECURE_EXECUTOR` and `KOSIF_JEV` bindings (read back from the deployed Worker). The queue consumer is attached on the `kosif-full-pro-jobs` queue itself; check after a deploy that `wrangler queues info kosif-full-pro-jobs` still lists `kosif-think-mcp` as its consumer.
+2. Set the owner allow-list: `npx wrangler secret put KOSIF_OWNER_SUBS --config wrangler.think.toml` (your Auth0 user id from Auth0 → User Management → Users).
+3. A server that calls Full Pro without a user sign-in — the WhatsApp MCP relays `kosif_full_pro_execute` and `kosif_mobile_*` — must send `Authorization: Bearer <KOSIF_THINK_TOKEN>`: put the same value in that Worker's `KOSIF_THINK_TOKEN` secret.
+4. `npx wrangler deploy --config wrangler.think.toml`, then check: a Full Pro tool without a token → `401`; `kosif_think_status` → `access.fullProBridgeRequiresAuth: true`.

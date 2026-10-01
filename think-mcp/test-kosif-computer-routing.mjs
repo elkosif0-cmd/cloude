@@ -11,7 +11,9 @@ assert.match(s,/\["automation",\/\(/);
 assert.match(s,/preferredExecutor:"KOSIF Computer"/);
 assert.match(s,/cognitiveLane:"browserjev"/);
 assert.match(s,/directRemoteLane:"browserremote"/);
-assert.match(s,/needs_jev=true/);
+/* 0.5.9 replaced the needs_jev=true flag with a one-time packet ticket and an explicit Jev step in the sequence */
+assert.match(s,/packetIdRequiredForJev:true/);
+assert.match(s,/"jev_choice_if_needed"/);
 assert.match(s,/require an observable postcondition/i);
 
 console.log("KOSIF Computer/Jev-Browser routing catalog checks passed");
