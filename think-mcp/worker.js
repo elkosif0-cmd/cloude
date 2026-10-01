@@ -1,4 +1,4 @@
-const VERSION = "0.13.60";
+const VERSION = "0.13.61";
 const CAPABILITY_MESH_VERSION = "2.0.1";
 const AUTH0_ISSUER = "https://dev-zn5bwigg38b13ui8.us.auth0.com/";
 const AUTH0_AUDIENCE = "https://kosif-think-mcp.kosif199022.workers.dev";
@@ -1587,7 +1587,7 @@ const TOOLS=[
   {
     name:"kosif_full_pro_jev_batch",
     description:"Execute 1..10 separate Jev decisions through the internal KOSIF Jev service and return one observable receipt per decision. Batching reduces host calls but never merges Jev questions.",
-    inputSchema:{type:"object",properties:{actions:{type:"array",minItems:1,maxItems:10,items:{type:"object",properties:{request_id:{type:"string"},action_id:{type:"string"},expert_id:{type:"string"},packet_id:{type:"string"},question_id:{type:"string"},decision_type:{type:"string",enum:["choice","noul","score"]},state:{},instructions:{},criteria:{},true_criteria:{},false_criteria:{}},required:["request_id","action_id","expert_id","decision_type","instructions"],additionalProperties:false}}},required:["actions"],additionalProperties:false}
+    inputSchema:{type:"object",properties:{actions:{type:"array",minItems:1,maxItems:10,items:{type:"object",properties:{request_id:{type:"string"},action_id:{type:"string"},expert_id:{type:"string"},packet_id:{type:"string"},question_id:{type:"string"},decision_type:{type:"string",enum:["choice","noul","score"]},state:{},instructions:{},criteria:{},true_criteria:{},false_criteria:{}},required:["request_id","action_id","expert_id","decision_type","instructions"],anyOf:[{required:["packet_id"]},{required:["question_id"]}],additionalProperties:false}}},required:["actions"],additionalProperties:false}
   },
   {
     name:"kosif_full_pro_start",
@@ -1603,7 +1603,7 @@ const TOOLS=[
 
   {
     name:"kosif_full_pro_secure_authorize",
-    description:"Authorize the external private Secure Executor only after the durable 167-expert/Jev run is complete and current-request cross-expert, Einstein 7-stage, final-stability and gate receipts are supplied. Computes SceneSpec/state digests server-side.",
+    description:"Authorize the external private Secure Executor only after the durable complete expert/Jev roster (155 general or 167 visual) is complete and current-request cross-expert, Einstein 7-stage, final-stability and gate receipts are supplied. Computes SceneSpec/state digests server-side.",
     inputSchema:{type:"object",properties:{
       request_id:{type:"string"},
       scene_spec:{type:"object"},
