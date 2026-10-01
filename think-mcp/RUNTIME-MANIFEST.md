@@ -27,6 +27,7 @@ ChatGPT plugin releases verified with this runtime:
 - `attachments-governance-v1`: attachment-derived governance integration.
 - `einstein-attachments-v2`: observation → first principles → Gedankenexperiment → observer/frame → unification → simplicity critic → empirical-verification revision.
 - `source-taint-v1`: consensus, clustering or Jev selection cannot upgrade unverified provenance.
+- Option-binding consistency gate: a numeric recommendation that conflicts with an independently established canonical arithmetic value is excluded from council weighting, while raw participation agreement is retained separately.
 - Capability Truth states: `verified`, `measured`, `implemented`, `host-dependent`, `prompt-only`, `simulated`, `historical`, `unavailable`.
 - `execution-binding-v1`: freeze `execution_contract_digest` before authorization and bind it through request → authorization → one-use ticket → execution → receipt.
 - `attachment-cinema-v1`: generic visual grammar; no task fixture may leak into unrelated requests.
