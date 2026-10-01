@@ -17,7 +17,8 @@ assert.ok(think.includes('attachment-cinema-v1'));
 assert.equal(think.includes('Apply this stage to the duck-vs-dragon single frame.'),false);
 
 assert.match(secure,/const VERSION\s*=\s*"1\\.4\\.2"/);
-assert.ok(secure.includes('vision_task_aware_v4'));\nassert.ok(secure.includes('active-values-v2'));
+assert.ok(secure.includes('vision_task_aware_v5'));
+assert.ok(secure.includes('active-values-v3'));\nassert.ok(secure.includes('active-values-v2'));
 assert.ok(secure.includes('execution_contract_digest'));
 assert.ok(secure.includes('EXECUTION_CONTRACT_MISMATCH'));
 assert.equal(secure.includes('const required=["duck_anatomy"'),false);
