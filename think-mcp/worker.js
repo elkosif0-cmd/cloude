@@ -1,4 +1,4 @@
-const VERSION = "0.17.6";
+const VERSION = "0.17.7";
 const AUTH_POLICY_VERSION = "public-broker-oauth-v2";
 const COGNITIVE_GOVERNANCE_VERSION = "attachments-governance-v1";
 const EINSTEIN_PROTOCOL_VERSION = "einstein-attachments-v2";
@@ -2155,7 +2155,7 @@ async function callTool(env,name,args,ctx={}){
   return null;
 }
 
-const VERSIONED_MCP_PATH = "/mcp/v0.17.5";
+const VERSIONED_MCP_PATH = "/mcp/v0.17.7";
 const LEGACY_VERSIONED_MCP_PATH = "/mcp/v0.9.3";
 const PATH_TOKEN = /^\/mcp\/([^/]+)$/;
 
@@ -2203,7 +2203,7 @@ async function handleMcp(req,env,url){
     protocolVersion:msg.params?.protocolVersion||"2025-06-18",
     capabilities:{tools:{listChanged:true}},
     serverInfo:{name:"kosif-think",version:VERSION},
-    instructions:"KOSIF Think "+VERSION+" exposes durable Full Pro orchestration plus a private Cloudflare Secure Executor. The primary versioned MCP endpoint /mcp/v0.17.5 forces fresh tool discovery; /mcp/v0.9.3 remains compatibility-only. When explicitly selected, run KOSIF first. For Full Pro image execution, use the Full Pro runtime, secure authorization, kosif_secure_image_execute, and secure artifact QA; direct host-native image generation is not Full Pro. Tool catalogs may change; clients should honor tools.listChanged and refresh tools/list on reconnect."
+    instructions:"KOSIF Think "+VERSION+" exposes durable Full Pro orchestration plus a private Cloudflare Secure Executor. The primary versioned MCP endpoint /mcp/v0.17.7 forces fresh tool discovery; /mcp/v0.9.3 remains compatibility-only. When explicitly selected, run KOSIF first. For Full Pro image execution, use the Full Pro runtime, secure authorization, kosif_secure_image_execute, and secure artifact QA; direct host-native image generation is not Full Pro. Tool catalogs may change; clients should honor tools.listChanged and refresh tools/list on reconnect."
   },cors);
   if(msg.method.startsWith("notifications/")) return empty(202,cors);
   if(msg.method==="ping") return rpc(id,{},cors);
@@ -4109,7 +4109,7 @@ export default {
       /* public: no configuration, no model list */
       return json({ok:true,service:"KOSIF Think MCP",version:VERSION});
     }
-    if(url.pathname==="/.well-known/oauth-protected-resource"||url.pathname==="/.well-known/oauth-protected-resource/mcp"||url.pathname==="/.well-known/oauth-protected-resource/mcp/v0.17.5"||url.pathname==="/.well-known/oauth-protected-resource/mcp/v0.9.3"){
+    if(url.pathname==="/.well-known/oauth-protected-resource"||url.pathname==="/.well-known/oauth-protected-resource/mcp"||url.pathname==="/.well-known/oauth-protected-resource/mcp/v0.17.7"||url.pathname==="/.well-known/oauth-protected-resource/mcp/v0.9.3"){
       if(req.method!=="GET"&&req.method!=="HEAD") return json({error:"method_not_allowed"},405,{allow:"GET, HEAD"});
       return json({
         resource:AUTH0_AUDIENCE,
