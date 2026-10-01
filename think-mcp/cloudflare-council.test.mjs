@@ -45,12 +45,12 @@ const missing=mod.aggregateCouncilTool({question:'x',artifacts:artifacts.slice(0
 assert.equal(missing.preJevGate.passed,false);
 
 const self=mod.selfTestTool({});
-assert.equal(self.version,'0.17.3');
+assert.equal(self.version,'0.17.4');
 assert.equal(self.allPassed,true);
 
 console.log(JSON.stringify({
   passed:true,
-  runtime:'0.17.3',
+  runtime:'0.17.4',
   roleAliases:mod.FRONTIER_AGENTS.map(a=>a.id),
   models,
   externalFetchCalls:fetchCalls,
