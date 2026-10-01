@@ -1,8 +1,10 @@
+import { authorize, authChallenge, isMetadataPath, protectedResourceMetadata, securitySchemes } from './auth.js';
+
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
 // index.js
-var VERSION = "1.4.1";
+var VERSION = "1.5.0";
 var PUBLIC_BRIDGE = "https://wa-kosif.kosif199022.workers.dev";
 
 // KOSIF THINK MOBILE BRIDGE v2 - adaptive router
@@ -11,11 +13,11 @@ const KOSIF_THINK_ALLOWED = new Set([
   "kosif_preflight","kosif_route","kosif_council","kosif_verify_evidence",
   "kosif_full_pro_execute","kosif_auto","kosif_self_test","kosif_diagnostics","kosif_compare_candidates","kosif_think_status","kosif_think","kosif_agent"
 ]);
-async function callKosifThinkRpc(method, params = {}) {
+async function callKosifThinkRpc(env, method, params = {}) {
   const id = crypto.randomUUID();
   const response = await fetch(KOSIF_THINK_MCP, {
     method: "POST",
-    headers: { "content-type": "application/json", "accept": "application/json" },
+    headers: { "content-type": "application/json", "accept": "application/json", ...(env?.KOSIF_THINK_TOKEN ? { authorization: "Bearer " + env.KOSIF_THINK_TOKEN } : {}) },
     body: JSON.stringify({ jsonrpc: "2.0", id, method, params }),
     signal: AbortSignal.timeout(120000)
   });
@@ -28,15 +30,15 @@ async function callKosifThinkRpc(method, params = {}) {
   }
   return payload?.result;
 }
-async function callKosifThinkTool(toolName, args = {}) {
+async function callKosifThinkTool(env, toolName, args = {}) {
   if (!KOSIF_THINK_ALLOWED.has(toolName)) return toolText("KOSIF_THINK_TOOL_NOT_ALLOWED", true);
-  const result = await callKosifThinkRpc("tools/call", { name: toolName, arguments: args || {} });
+  const result = await callKosifThinkRpc(env, "tools/call", { name: toolName, arguments: args || {} });
   return result || toolText("KOSIF_THINK_EMPTY_RESULT", true);
 }
 
 var STORED = ["cv-ar", "cv-en"];
-function rpc(id, result) {
-  return new Response(JSON.stringify({ jsonrpc: "2.0", id, result }), { headers: { "content-type": "application/json; charset=utf-8" } });
+function rpc(id, result, status = 200, headers = {}) {
+  return new Response(JSON.stringify({ jsonrpc: "2.0", id, result }), { status, headers: { "content-type": "application/json; charset=utf-8", ...headers } });
 }
 __name(rpc, "rpc");
 function err(id, code, message) {
@@ -226,6 +228,24 @@ var TOOLS = [
     inputSchema: schema({ key: keyProp }, ["key"])
   }
 ];
+/* tools that act on the linked account or start paid work; hosts confirm them before running */
+var WRITE_TOOLS = {
+  kosif_full_pro_execute: {},
+  kosif_mobile_call: {},
+  pair_whatsapp: { idempotentHint: false },
+  send_whatsapp_bundle: { idempotentHint: true },
+  send_whatsapp_message: { idempotentHint: true },
+  send_whatsapp_file: { idempotentHint: true },
+  save_whatsapp_contact: { idempotentHint: true, openWorldHint: false },
+  delete_saved_whatsapp_contact: { destructiveHint: true, idempotentHint: true, openWorldHint: false },
+  schedule_whatsapp_message: { idempotentHint: false },
+  schedule_whatsapp_bundle: { idempotentHint: false }
+};
+var annotationsFor = (name) => WRITE_TOOLS[name] ? { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true, ...WRITE_TOOLS[name] } : { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: name === "kosif_mobile_think" };
+/* KOSIF Think publishes kosif_full_pro_execute under the same name; listing it here too gave hosts two tools with one
+   name. It stays callable here, and through kosif_mobile_call. */
+var HIDDEN_TOOLS = new Set(["kosif_full_pro_execute"]);
+var LISTED_TOOLS = TOOLS.filter((t) => !HIDDEN_TOOLS.has(t.name)).map((t) => ({ ...t, annotations: annotationsFor(t.name), securitySchemes, _meta: { securitySchemes } }));
 function sendResult(r, b) {
   const data = { ...b, httpStatus: r.status };
   data.status = b.sent === true ? 'sent' : r.status === 202 ? 'queued' : 'failed';
@@ -239,7 +259,7 @@ var fmtTime = /* @__PURE__ */ __name((ms) => new Date(ms).toISOString().replace(
 async function callTool(env, name, a) {
 
   if (name === "kosif_full_pro_execute") {
-    return await callKosifThinkTool("kosif_full_pro_execute", {
+    return await callKosifThinkTool(env, "kosif_full_pro_execute", {
       request_id: String(a.request_id || ""),
       subject: String(a.subject || ""),
       executor: String(a.executor || "image"),
@@ -252,16 +272,16 @@ async function callTool(env, name, a) {
     if (a.context !== undefined) args.context = String(a.context);
     if (a.options && typeof a.options === "object" && !Array.isArray(a.options)) args.options = a.options;
     const requestedMode = String(a.mode || "auto");
-    if (requestedMode === "auto") return await callKosifThinkTool("kosif_auto", args);
+    if (requestedMode === "auto") return await callKosifThinkTool(env, "kosif_auto", args);
     args.mode = requestedMode;
-    return await callKosifThinkTool("kosif_think", args);
+    return await callKosifThinkTool(env, "kosif_think", args);
   }
   if (name === "kosif_mobile_capabilities") {
-    const result = await callKosifThinkRpc("tools/list", {});
+    const result = await callKosifThinkRpc(env, "tools/list", {});
     return result?.tools ? toolText(JSON.stringify({ tools: result.tools })) : result || toolText("KOSIF_THINK_CAPABILITIES_UNAVAILABLE", true);
   }
   if (name === "kosif_mobile_call") {
-    return await callKosifThinkTool(String(a.tool || ""), a.arguments && typeof a.arguments === "object" ? a.arguments : {});
+    return await callKosifThinkTool(env, String(a.tool || ""), a.arguments && typeof a.arguments === "object" ? a.arguments : {});
   }
 
   const to = a.to === undefined ? undefined : normalizeRecipientInput(a.to);
@@ -377,6 +397,10 @@ var index_default = {
   async fetch(req, env) {
     const url = new URL(req.url);
     if (url.pathname === "/") return new Response("KOSIF WhatsApp MCP online\n");
+    if (isMetadataPath(url.pathname)) {
+      if (req.method !== "GET" && req.method !== "HEAD") return new Response("Method not allowed", { status: 405 });
+      return new Response(JSON.stringify(protectedResourceMetadata(url, env)), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+    }
     if (url.pathname !== "/mcp") return new Response("Not found", { status: 404 });
     if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
     let msg;
@@ -391,8 +415,15 @@ var index_default = {
     }
     if (msg.method === "notifications/initialized") return new Response(null, { status: 202 });
     if (msg.method === "ping") return rpc(id, {});
-    if (msg.method === "tools/list") return rpc(id, { tools: TOOLS });
+    if (msg.method === "tools/list") return rpc(id, { tools: LISTED_TOOLS });
     if (msg.method === "tools/call") {
+      /* every tool acts as the linked WhatsApp account or spends Full Pro budget: only the owner may call one */
+      const auth = await authorize(req, url, env);
+      if (!auth.ok) {
+        if (auth.reason === "owner_not_configured") return err(id, -32001, "KOSIF WhatsApp is locked: set KOSIF_OWNER_SUBS (or WA_MCP_TOKEN) on this Worker.");
+        const c = authChallenge(url, env);
+        return rpc(id, c.result, 401, { "www-authenticate": c.header });
+      }
       try {
         const result = await callTool(env, msg.params?.name, msg.params?.arguments || {});
         return result ? rpc(id, result) : err(id, -32602, "Unknown tool");
