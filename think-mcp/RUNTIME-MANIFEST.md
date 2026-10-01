@@ -12,7 +12,7 @@ Last verified: 2026-10-01
 
 ChatGPT plugin releases verified with this runtime:
 - `kosif think 20 s`: `20.3.9`
-- KOSIF Think provider: `1.8.6`
+- KOSIF Think provider: `1.8.7`
 - `Source kosif think 20 s`: `10.7.9`
 
 ## Current contracts
