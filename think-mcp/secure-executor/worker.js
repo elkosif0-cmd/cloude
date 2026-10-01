@@ -1,5 +1,5 @@
 
-const VERSION="1.4.0";
+const VERSION="1.4.1";
 const MODEL="@cf/black-forest-labs/flux-2-klein-9b";
 const QUALITY_MODEL="@cf/black-forest-labs/flux-2-dev";
 const QA_MODEL="@cf/mistralai/mistral-small-3.1-24b-instruct";
@@ -222,7 +222,7 @@ export default {
 
     if(p==="/health"&&request.method==="GET"){
       const d=await env.DB.prepare("SELECT 1 ok").first();
-      return json({ok:true,service:"kosif-full-pro-secure-executor",version:VERSION,private_service:true,d1:!!d,workers_ai:!!env.AI,provider:"cloudflare-workers-ai",model:MODEL,qa_contract:"vision_task_aware_v4"});
+      return json({ok:true,service:"kosif-full-pro-secure-executor",version:VERSION,private_service:true,d1:!!d,workers_ai:!!env.AI,provider:"cloudflare-workers-ai",model:MODEL,qa_contract:"vision_task_aware_v4",execution_binding:"execution_contract_digest_v1"});
     }
 
     if(p.startsWith("/status/")&&request.method==="GET"){
@@ -337,15 +337,15 @@ export default {
       if(executions>=2)return json({ok:false,error:"QA_REGEN_LIMIT_REACHED",executions},409);
       const now=Date.now();
       await env.DB.prepare("UPDATE requests SET status='AUTHORIZED',updated_at=? WHERE request_id=?").bind(now,b.request_id).run();
-      const ticket={ticket_id:crypto.randomUUID(),request_id:b.request_id,executor:"image",candidate_digest:r.candidate_digest,state_digest:r.state_digest,execution_lock:r.execution_lock,nonce:crypto.randomUUID(),issued_at:now,expires_at:now+300000};
-      await env.DB.prepare("INSERT INTO tickets(ticket_id,request_id,executor,candidate_digest,state_digest,execution_lock,nonce,issued_at,expires_at,consumed) VALUES(?,?,?,?,?,?,?,?,?,0)").bind(ticket.ticket_id,ticket.request_id,ticket.executor,ticket.candidate_digest,ticket.state_digest,ticket.execution_lock,ticket.nonce,ticket.issued_at,ticket.expires_at).run();
+      const ticket={ticket_id:crypto.randomUUID(),request_id:b.request_id,executor:"image",candidate_digest:r.candidate_digest,state_digest:r.state_digest,execution_lock:r.execution_lock,execution_contract_digest:r.execution_contract_digest,nonce:crypto.randomUUID(),issued_at:now,expires_at:now+300000};
+      await env.DB.prepare("INSERT INTO tickets(ticket_id,request_id,executor,candidate_digest,state_digest,execution_lock,execution_contract_digest,nonce,issued_at,expires_at,consumed) VALUES(?,?,?,?,?,?,?,?,?,?,0)").bind(ticket.ticket_id,ticket.request_id,ticket.executor,ticket.candidate_digest,ticket.state_digest,ticket.execution_lock,ticket.execution_contract_digest,ticket.nonce,ticket.issued_at,ticket.expires_at).run();
       await event(env,b.request_id,"QA_REGEN_AUTHORIZED",{failed_result_digest:r.result_digest,qa_report_digest:q.report_digest,ticket_id:ticket.ticket_id,executions_before:executions});
       return json({ok:true,request_id:b.request_id,status:"AUTHORIZED",ticket_id:ticket.ticket_id,expires_at:ticket.expires_at,reason:"qa_text_artifact_regeneration",failed_result_digest:r.result_digest});
     }
 
     if(p==="/runtime/authorize"&&request.method==="POST"){
       const b=await readJson(request);
-      if(!b?.request_id||!b.candidate_digest||!b.state_digest||!b.execution_lock||!proofOk(b.proof))
+      if(!b?.request_id||!b.candidate_digest||!b.state_digest||!b.execution_lock||!b.execution_contract_digest||!proofOk(b.proof))
         return json({ok:false,error:"FULL_PRO_PROOF_INCOMPLETE"},409);
       const r=await getReq(env,b.request_id);
       if(!r) return json({ok:false,error:"NOT_FOUND"},404);
@@ -353,18 +353,18 @@ export default {
       if(["EXECUTED","COMPLETE","EXECUTING"].includes(r.status)) return json({ok:false,error:"ALREADY_EXECUTED"},409);
 
       const now=Date.now();
-      await env.DB.prepare("UPDATE requests SET status='AUTHORIZED',candidate_digest=?,state_digest=?,execution_lock=?,updated_at=? WHERE request_id=?")
-        .bind(b.candidate_digest,b.state_digest,b.execution_lock,now,b.request_id).run();
+      await env.DB.prepare("UPDATE requests SET status='AUTHORIZED',candidate_digest=?,state_digest=?,execution_lock=?,execution_contract_digest=?,updated_at=? WHERE request_id=?")
+        .bind(b.candidate_digest,b.state_digest,b.execution_lock,b.execution_contract_digest,now,b.request_id).run();
 
       const ticket={
         ticket_id:crypto.randomUUID(),request_id:b.request_id,executor:"image",
-        candidate_digest:b.candidate_digest,state_digest:b.state_digest,execution_lock:b.execution_lock,
+        candidate_digest:b.candidate_digest,state_digest:b.state_digest,execution_lock:b.execution_lock,execution_contract_digest:b.execution_contract_digest,
         nonce:crypto.randomUUID(),issued_at:now,expires_at:now+300000
       };
-      await env.DB.prepare("INSERT INTO tickets(ticket_id,request_id,executor,candidate_digest,state_digest,execution_lock,nonce,issued_at,expires_at,consumed) VALUES(?,?,?,?,?,?,?,?,?,0)")
-        .bind(ticket.ticket_id,ticket.request_id,ticket.executor,ticket.candidate_digest,ticket.state_digest,ticket.execution_lock,ticket.nonce,ticket.issued_at,ticket.expires_at).run();
-      await event(env,b.request_id,"AUTHORIZED",{candidate_digest:b.candidate_digest,ticket_id:ticket.ticket_id});
-      return json({ok:true,request_id:b.request_id,status:"AUTHORIZED",ticket_id:ticket.ticket_id,expires_at:ticket.expires_at});
+      await env.DB.prepare("INSERT INTO tickets(ticket_id,request_id,executor,candidate_digest,state_digest,execution_lock,execution_contract_digest,nonce,issued_at,expires_at,consumed) VALUES(?,?,?,?,?,?,?,?,?,?,0)")
+        .bind(ticket.ticket_id,ticket.request_id,ticket.executor,ticket.candidate_digest,ticket.state_digest,ticket.execution_lock,ticket.execution_contract_digest,ticket.nonce,ticket.issued_at,ticket.expires_at).run();
+      await event(env,b.request_id,"AUTHORIZED",{candidate_digest:b.candidate_digest,execution_contract_digest:b.execution_contract_digest,ticket_id:ticket.ticket_id});
+      return json({ok:true,request_id:b.request_id,status:"AUTHORIZED",ticket_id:ticket.ticket_id,expires_at:ticket.expires_at,execution_contract_digest:b.execution_contract_digest});
     }
 
     if(p==="/runtime/artifact-retry"&&request.method==="POST"){
@@ -386,7 +386,7 @@ export default {
       if(attempts>=maxAttempts)return json({ok:false,error:"ARTIFACT_RETRY_LIMIT",attempts,maxAttempts,qa_contract_version:qaContract,failed_checks:failedChecks},409);
       const now=Date.now();
       const ticket={ticket_id:crypto.randomUUID(),request_id:b.request_id,executor:"image",candidate_digest:r.candidate_digest,state_digest:r.state_digest,execution_lock:r.execution_lock,nonce:crypto.randomUUID(),issued_at:now,expires_at:now+300000};
-      await env.DB.prepare("INSERT INTO tickets(ticket_id,request_id,executor,candidate_digest,state_digest,execution_lock,nonce,issued_at,expires_at,consumed) VALUES(?,?,?,?,?,?,?,?,?,0)").bind(ticket.ticket_id,ticket.request_id,ticket.executor,ticket.candidate_digest,ticket.state_digest,ticket.execution_lock,ticket.nonce,ticket.issued_at,ticket.expires_at).run();
+      await env.DB.prepare("INSERT INTO tickets(ticket_id,request_id,executor,candidate_digest,state_digest,execution_lock,execution_contract_digest,nonce,issued_at,expires_at,consumed) VALUES(?,?,?,?,?,?,?,?,?,?,0)").bind(ticket.ticket_id,ticket.request_id,ticket.executor,ticket.candidate_digest,ticket.state_digest,ticket.execution_lock,ticket.execution_contract_digest,ticket.nonce,ticket.issued_at,ticket.expires_at).run();
       const upd=await env.DB.prepare("UPDATE requests SET status='AUTHORIZED',updated_at=? WHERE request_id=? AND status IN ('EXECUTED','COMPLETE')").bind(now,b.request_id).run();
       if(Number(upd.meta?.changes||0)!==1)return json({ok:false,error:"ARTIFACT_RETRY_STATE_RACE"},409);
       await event(env,b.request_id,"ARTIFACT_RETRY_AUTHORIZED",{candidate_digest:r.candidate_digest,prior_result_digest:r.result_digest,qa_report_digest:q.report_digest,failed_checks:failedChecks,attempt:attempts+1,ticket_id:ticket.ticket_id});
@@ -395,13 +395,14 @@ export default {
 
     if(p==="/execute/image"&&request.method==="POST"){
       const b=await readJson(request);
-      if(!b?.request_id||!b.scene_spec) return json({ok:false,error:"INVALID_EXECUTION_REQUEST"},400);
+      if(!b?.request_id||!b.scene_spec||!b.execution_contract_digest) return json({ok:false,error:"INVALID_EXECUTION_REQUEST"},400);
       const r=await getReq(env,b.request_id);
       if(!r) return json({ok:false,error:"NOT_FOUND"},404);
       if(r.status!=="AUTHORIZED") return json({ok:false,error:"NOT_AUTHORIZED",status:r.status},409);
 
       const digest=await sha256HexText(canonical(b.scene_spec));
       if(digest!==r.candidate_digest) return json({ok:false,error:"CANDIDATE_DIGEST_MISMATCH",computed:digest},409);
+      if(String(b.execution_contract_digest||"")!==String(r.execution_contract_digest||"")) return json({ok:false,error:"EXECUTION_CONTRACT_MISMATCH"},409);
 
       const t=await env.DB.prepare("SELECT * FROM tickets WHERE request_id=? AND consumed=0 AND expires_at>=? ORDER BY issued_at DESC LIMIT 1")
         .bind(b.request_id,Date.now()).first();
@@ -410,7 +411,8 @@ export default {
          String(t.executor||"")!=="image"||
          String(t.candidate_digest||"")!==String(r.candidate_digest||"")||
          String(t.state_digest||"")!==String(r.state_digest||"")||
-         String(t.execution_lock||"")!==String(r.execution_lock||"")){
+         String(t.execution_lock||"")!==String(r.execution_lock||"")||
+         String(t.execution_contract_digest||"")!==String(r.execution_contract_digest||"")){
         await event(env,b.request_id,"TICKET_BINDING_MISMATCH",{ticket_id:t.ticket_id});
         return json({ok:false,error:"TICKET_BINDING_MISMATCH"},409);
       }
@@ -480,11 +482,11 @@ export default {
       const qaReceipt=await runArtifactVisionQa(env,out.bytes,out.mime,resultDigest,b.request_id,b.scene_spec);
       await env.DB.prepare("INSERT OR REPLACE INTO artifact_qa_receipts(request_id,result_digest,model,pass,score,report_json,report_digest,created_at) VALUES(?,?,?,?,?,?,?,?)").bind(b.request_id,resultDigest,qaReceipt.model,qaReceipt.pass?1:0,qaReceipt.score,JSON.stringify(qaReceipt),qaReceipt.report_digest,Date.now()).run();
       const providerResultId="cfai_"+resultDigest.slice(0,24);
-      await env.DB.prepare("INSERT INTO executions(request_id,ticket_id,provider,model,result_digest,created_at) VALUES(?,?,?,?,?,?)")
-        .bind(b.request_id,t.ticket_id,"cloudflare-workers-ai",renderModel,resultDigest,Date.now()).run();
+      await env.DB.prepare("INSERT INTO executions(request_id,ticket_id,provider,model,result_digest,execution_contract_digest,created_at) VALUES(?,?,?,?,?,?,?)")
+        .bind(b.request_id,t.ticket_id,"cloudflare-workers-ai",renderModel,resultDigest,r.execution_contract_digest,Date.now()).run();
       await env.DB.prepare("UPDATE requests SET status='EXECUTED',result_digest=?,provider_result_id=?,updated_at=? WHERE request_id=?")
         .bind(resultDigest,providerResultId,Date.now(),b.request_id).run();
-      const receipt={observed:true,request_id:b.request_id,executor:"image",ticket_id:t.ticket_id,candidate_digest:r.candidate_digest,state_digest:r.state_digest,execution_lock:r.execution_lock,provider:"cloudflare-workers-ai",model:renderModel,provider_result_id:providerResultId,result_digest:resultDigest,artifact_qa:{observed:true,model:qaReceipt.model,pass:qaReceipt.pass,score:qaReceipt.score,report_digest:qaReceipt.report_digest}};
+      const receipt={observed:true,request_id:b.request_id,executor:"image",ticket_id:t.ticket_id,candidate_digest:r.candidate_digest,state_digest:r.state_digest,execution_lock:r.execution_lock,execution_contract_digest:r.execution_contract_digest,provider:"cloudflare-workers-ai",model:renderModel,provider_result_id:providerResultId,result_digest:resultDigest,artifact_qa:{observed:true,model:qaReceipt.model,pass:qaReceipt.pass,score:qaReceipt.score,report_digest:qaReceipt.report_digest}};
       await event(env,b.request_id,"EXECUTED",receipt);
       const receipt64=toB64(enc.encode(JSON.stringify(receipt)));
       return new Response(out.bytes,{status:200,headers:{
