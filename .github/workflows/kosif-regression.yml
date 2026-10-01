@@ -26,5 +26,11 @@ jobs:
         run: node --check think-mcp/worker.js
       - name: Syntax check secure executor
         run: node --check think-mcp/secure-executor/worker.js
-      - name: 0.17.3 governance regression
+      - name: Syntax check Jev mirror
+        run: node --check think-mcp/jev/worker.js
+      - name: 0.17.3 governance and execution regression
         run: node think-mcp/regression-0173.test.mjs
+      - name: Current Cloudflare council contract
+        run: node think-mcp/cloudflare-council.test.mjs
+      - name: Current MCP transport and access contracts
+        run: node --test think-mcp/worker.test.mjs
