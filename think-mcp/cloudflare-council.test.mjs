@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
 const source=fs.readFileSync(process.argv[2]||'think-mcp/worker.js','utf8');
-assert.match(source,/const VERSION\s*=\s*"0\.17\.4"/);
+assert.match(source,/const VERSION\s*=\s*"0\.17\.5"/);
 assert.equal(/cleanapis|cleanApis|Clean APIs|CLEANAPIS/.test(source),false,'retired Clean APIs provider must not return');
 assert.equal(/id:\s*"mythos"/i.test(source),false,'retired Mythos role must not return');
 
@@ -45,12 +45,12 @@ const missing=mod.aggregateCouncilTool({question:'x',artifacts:artifacts.slice(0
 assert.equal(missing.preJevGate.passed,false);
 
 const self=mod.selfTestTool({});
-assert.equal(self.version,'0.17.4');
+assert.equal(self.version,'0.17.5');
 assert.equal(self.allPassed,true);
 
 console.log(JSON.stringify({
   passed:true,
-  runtime:'0.17.4',
+  runtime:'0.17.5',
   roleAliases:mod.FRONTIER_AGENTS.map(a=>a.id),
   models,
   externalFetchCalls:fetchCalls,
