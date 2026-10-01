@@ -1,4 +1,4 @@
-const VERSION = "0.17.3";
+const VERSION = "0.17.4";
 const AUTH_POLICY_VERSION = "public-broker-oauth-v2";
 const COGNITIVE_GOVERNANCE_VERSION = "attachments-governance-v1";
 const EINSTEIN_PROTOCOL_VERSION = "einstein-attachments-v2";
@@ -741,13 +741,14 @@ function normalizeAvailableTools(v){
     const lanes=Array.isArray(x.lanes)?x.lanes.slice(0,20).map(y=>text(y,50)).filter(Boolean):[];
     const verbs=Array.isArray(x.verbs)?x.verbs.slice(0,20).map(y=>text(y,40)).filter(Boolean):[];
     const aliases=Array.isArray(x.aliases)?x.aliases.slice(0,20).map(y=>text(y,120)).filter(Boolean):[];
+    const connected=boolOrNull(x.connected);
     const state={
-      name,pluginId:text(x.pluginId||x.appId||"",180),connected:x.connected!==false,costClass:cc,
+      name,pluginId:text(x.pluginId||x.appId||"",180),connected,costClass:cc,
       description:text(x.description,1800),lanes,verbs,aliases,
       readOnlyHint:boolOrNull(x.readOnlyHint),destructiveHint:boolOrNull(x.destructiveHint),
       idempotentHint:boolOrNull(x.idempotentHint),openWorldHint:boolOrNull(x.openWorldHint),
       schemaHash:text(x.schemaHash,160),version:text(x.version,80),trustScore:clampTrust(x.trustScore),
-      authState:text(x.authState,60)||((x.connected!==false)?"connected":"not_connected"),
+      authState:text(x.authState,60)||(connected===true?"connected":connected===false?"not_connected":"unknown"),
       latencyMs:Number.isFinite(Number(x.latencyMs))?Math.max(0,Number(x.latencyMs)):null,
       observedAt:Number.isFinite(Number(x.observedAt))?Number(x.observedAt):Date.now()
     };
