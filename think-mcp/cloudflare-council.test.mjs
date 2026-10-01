@@ -2,12 +2,12 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
 const source=fs.readFileSync(process.argv[2]||'think-mcp/worker.js','utf8');
-assert.match(source,/const VERSION\s*=\s*"0\.17\.5"/);
+assert.match(source,/const VERSION\s*=\s*"0\.17\.6"/);
 assert.equal(/cleanapis|cleanApis|Clean APIs|CLEANAPIS/.test(source),false,'retired Clean APIs provider must not return');
 assert.equal(/id:\s*"mythos"/i.test(source),false,'retired Mythos role must not return');
 
 const mod=await import('data:text/javascript;base64,'+Buffer.from(
-  source+'\nexport {FRONTIER_AGENTS,runAgentTool,aggregateCouncilTool,selfTestTool,TOOLS};'
+  source+'\nexport {FRONTIER_AGENTS,runAgentTool,aggregateCouncilTool,selfTestTool,TOOLS,optionBindingConsistency,council};'
 ).toString('base64'));
 
 assert.deepEqual(mod.FRONTIER_AGENTS.map(a=>a.id),['gpt','claude','gemini','fable']);
@@ -44,13 +44,26 @@ assert.throws(()=>mod.aggregateCouncilTool({question:'x',artifacts:[artifacts[0]
 const missing=mod.aggregateCouncilTool({question:'x',artifacts:artifacts.slice(0,3)});
 assert.equal(missing.preJevGate.passed,false);
 
+
+const bindingArtifacts=[
+  {agentId:'gpt',source:'cloudflare',model:'m1',provenanceGroup:'p1',answer:'42',recommendationId:'correct',evidence:['17+25=42'],assumptions:[],risks:[],objections:[],confidence:0.9},
+  {agentId:'claude',source:'cloudflare',model:'m2',provenanceGroup:'p2',answer:'42',recommendationId:'wrong',evidence:['17+25=42'],assumptions:[],risks:[],objections:[],confidence:0.9},
+  {agentId:'gemini',source:'cloudflare',model:'m3',provenanceGroup:'p3',answer:'42',recommendationId:'correct',evidence:['17+25=42'],assumptions:[],risks:[],objections:[],confidence:0.9}
+];
+const binding=mod.optionBindingConsistency(bindingArtifacts,{correct:'42',wrong:'43'});
+assert.deepEqual(binding.quarantinedAgents,['claude']);
+const bound=mod.council(bindingArtifacts,{correct:'42',wrong:'43'});
+assert.equal(bound.winningOptionId,'correct');
+assert.equal(bound.validVotes,2);
+assert.equal(bound.quarantinedVotes,1);
+
 const self=mod.selfTestTool({});
-assert.equal(self.version,'0.17.5');
+assert.equal(self.version,'0.17.6');
 assert.equal(self.allPassed,true);
 
 console.log(JSON.stringify({
   passed:true,
-  runtime:'0.17.5',
+  runtime:'0.17.6',
   roleAliases:mod.FRONTIER_AGENTS.map(a=>a.id),
   models,
   externalFetchCalls:fetchCalls,
