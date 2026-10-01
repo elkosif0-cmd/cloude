@@ -6,12 +6,14 @@ const securePath=process.argv[3]||'think-mcp/secure-executor/worker.js';
 const think=fs.readFileSync(thinkPath,'utf8');
 const secure=fs.readFileSync(securePath,'utf8');
 
-assert.match(think,/const VERSION\s*=\s*"0\.17\.3"/);
+assert.match(think,/const VERSION\s*=\s*"0\.17\.4"/);
 assert.ok(think.includes('attachments-governance-v1'));
 assert.ok(think.includes('einstein-attachments-v2'));
 assert.ok(think.includes('source-taint-v1'));
 assert.ok(think.includes('execution-binding-v1'));
 assert.ok(think.includes('public-broker-oauth-v2'));
+assert.ok(think.includes('pre-verification-auth-fail-lockout'));
+assert.ok(think.includes('authFailLockout:"pre-verification-ip-window"'));
 assert.ok(think.includes('maxAgents:FRONTIER_AGENTS.length'));
 assert.equal(think.includes('Same five independent agents'),false);
 assert.equal(/id:\s*"mythos"/.test(think),false,'Mythos must not return to frontier catalog');
