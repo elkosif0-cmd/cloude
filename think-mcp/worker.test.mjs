@@ -25,12 +25,12 @@ function req(path,{method='POST',body,headers={},addr}={}){
 const call=(name,args={})=>JSON.stringify({jsonrpc:'2.0',id:7,method:'tools/call',params:{name,arguments:args}});
 async function json(res){return JSON.parse(await res.text());}
 
-test('public health is minimal and reports runtime 0.17.3',async()=>{
+test('public health is minimal and reports runtime 0.17.4',async()=>{
   const r=await worker.fetch(req('/health',{method:'GET'}),env());
   assert.equal(r.status,200);
   const b=await json(r);
   assert.deepEqual(Object.keys(b).sort(),['ok','service','version']);
-  assert.equal(b.version,'0.17.3');
+  assert.equal(b.version,'0.17.4');
   assert.equal(r.headers.get('cache-control'),'no-store');
   assert.equal(r.headers.get('x-content-type-options'),'nosniff');
 });
@@ -107,8 +107,7 @@ test('kosif_route is deterministic host-mediated routing and spends no model cal
     task:'review code and prepare a safe deploy plan',
     availableTools:[
       {name:'GitHub',connected:true,costClass:'existing_plan'},
-      {name:'Cloudflare',connected:true,costClass:'existing_plan'},
-      {name:'Runway',connected:true,costClass:'credits'}
+      {name:'Cloudflare',connected:true,costClass:'existing_plan'}
     ]
   });
   const out=(await json(await worker.fetch(req('/mcp',{body}),e))).result.structuredContent;
@@ -117,8 +116,20 @@ test('kosif_route is deterministic host-mediated routing and spends no model cal
   assert.equal(out.directPluginCalls,false);
   assert.ok(out.useNow.some(x=>x.name==='GitHub'));
   assert.ok(out.useNow.some(x=>x.name==='Cloudflare'));
-  assert.ok(out.needsApproval.some(x=>x.name==='Runway'));
   assert.match(String(out.hostContract?.truthfulness||''),/Never claim/i);
+});
+
+
+test('a relevant credits tool is approval-gated, not silently auto-used',async()=>{
+  const e=env();
+  const body=call('kosif_route',{
+    task:'create and animate a promotional video',
+    preferredTools:['Runway'],
+    availableTools:[{name:'Runway',connected:true,costClass:'credits'}]
+  });
+  const out=(await json(await worker.fetch(req('/mcp',{body}),e))).result.structuredContent;
+  assert.equal(out.useNow.some(x=>x.name==='Runway'),false);
+  assert.ok(out.needsApproval.some(x=>x.name==='Runway'));
 });
 
 test('unknown host availability is not reported as a verified connection',async()=>{
@@ -129,13 +140,15 @@ test('unknown host availability is not reported as a verified connection',async(
   });
   const out=(await json(await worker.fetch(req('/mcp',{body}),e))).result.structuredContent;
   assert.equal(out.useNow.some(x=>x.name==='Figma'),false);
-  assert.ok(out.needsAvailabilityCheck.some(x=>x.name==='Figma')||out.missingConnections.some(x=>x.name==='Figma'));
+  const pending=out.needsAvailabilityCheck.find(x=>x.name==='Figma');
+  assert.ok(pending,'Figma must require a live host availability check');
+  assert.equal(pending.authState,'unknown');
 });
 
 test('status truthfully reports current provider/runtime and no Mythos',async()=>{
   const e=env();
   const out=(await json(await worker.fetch(req('/mcp',{body:call('kosif_think_status',{})}),e))).result.structuredContent;
-  assert.equal(out.version,'0.17.3');
+  assert.equal(out.version,'0.17.4');
   assert.equal(out.access?.authPolicyVersion,'public-broker-oauth-v2');
   assert.equal(out.councilProvider,'cloudflare');
   assert.deepEqual(out.frontierAgents.map(x=>x.id),['gpt','claude','gemini','fable']);
@@ -166,7 +179,7 @@ test('source contains no removed Mythos/Clean APIs provider or embedded credenti
 });
 
 test('current visual/governance regression suite is present',()=>{
-  const source=readFileSync(new URL('./regression-0173.test.mjs',import.meta.url),'utf8');
+  const source=readFileSync(new URL('./regression-0174.test.mjs',import.meta.url),'utf8');
   assert.ok(source.includes('execution-binding-v1'));
   assert.ok(source.includes('vision_task_aware_v5'));
 });
