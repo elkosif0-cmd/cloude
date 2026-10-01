@@ -37,7 +37,7 @@ test('public health is minimal and reports runtime 0.17.6',async()=>{
 
 test('/mcp accepts POST/OPTIONS only and versioned discovery endpoint exists',async()=>{
   const e=env();
-  for(const path of ['/mcp','/mcp/v0.17.6','/mcp/v0.9.3']){
+  for(const path of ['/mcp','/mcp/v0.17.5','/mcp/v0.9.3']){
     assert.equal((await worker.fetch(req(path,{method:'GET'}),e)).status,405);
     assert.equal((await worker.fetch(req(path,{method:'OPTIONS'}),e)).status,204);
     assert.equal((await worker.fetch(req(path),e)).status,200);
