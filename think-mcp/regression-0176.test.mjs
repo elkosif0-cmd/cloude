@@ -15,7 +15,7 @@ assert.ok(think.includes('public-broker-oauth-v2'));
 assert.ok(think.includes('pre-verification-auth-fail-lockout'));
 assert.ok(think.includes('authFailLockout:"pre-verification-ip-window"'));
 assert.ok(think.includes('maxAgents:FRONTIER_AGENTS.length'));
-assert.ok(think.includes('const VERSIONED_MCP_PATH = "/mcp/v0.17.6"'));
+assert.ok(think.includes('const VERSIONED_MCP_PATH = "/mcp/v0.17.5"'));
 assert.ok(think.includes('const LEGACY_VERSIONED_MCP_PATH = "/mcp/v0.9.3"'));
 assert.equal(think.includes('five Cloudflare role agents'),false);
 assert.equal(think.includes('Same five independent agents'),false);
