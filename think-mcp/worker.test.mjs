@@ -150,6 +150,7 @@ test('status truthfully reports current provider/runtime and no Mythos',async()=
   const out=(await json(await worker.fetch(req('/mcp',{body:call('kosif_think_status',{})}),e))).result.structuredContent;
   assert.equal(out.version,'0.17.4');
   assert.equal(out.access?.authPolicyVersion,'public-broker-oauth-v2');
+  assert.equal(out.access?.authFailLockout,'pre-verification-ip-window');
   assert.equal(out.councilProvider,'cloudflare');
   assert.deepEqual(out.frontierAgents.map(x=>x.id),['gpt','claude','gemini','fable']);
   assert.match(out.routing.deep,/gpt, claude, gemini, fable/);
