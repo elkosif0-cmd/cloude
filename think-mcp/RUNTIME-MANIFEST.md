@@ -18,7 +18,7 @@ ChatGPT plugin releases verified with this runtime:
 ## Current contracts
 
 - Council-500 Full Pro remains the one-mode front-door contract.
-- MCP auth policy: `public-broker-oauth-v2`; public broker tools are rate-limited, while protected secure-execution tools require verified OAuth2 or the legacy bearer secret.
+- MCP auth policy: `public-broker-oauth-v2`; public broker tools are rate-limited, protected secure-execution tools require verified OAuth2 or the legacy bearer secret, and repeated invalid credentials trigger the `pre-verification-ip-window` lockout before further bearer verification.
 - Adaptive Council/Deep frontier budgets derive from the live `FRONTIER_AGENTS.length`; no hard-coded five-agent truth claims are allowed.
 - Host connectivity is tri-state: `true`, `false`, or `unknown`. An omitted `connected` field must never be interpreted as a verified connection.
 - Frontier compatibility role aliases are `gpt`, `claude`, `gemini`, and `fable`; the current receipt is authoritative for the actual Cloudflare model.
