@@ -1,4 +1,4 @@
-const VERSION = "0.13.61";
+const VERSION = "0.13.64";
 const CAPABILITY_MESH_VERSION = "2.0.1";
 const AUTH0_ISSUER = "https://dev-zn5bwigg38b13ui8.us.auth0.com/";
 const AUTH0_AUDIENCE = "https://kosif-think-mcp.kosif199022.workers.dev";
@@ -13,7 +13,6 @@ const FRONTIER_AGENTS = [
   { id:"gpt", source:"cloudflare", model:"@cf/meta/llama-3.3-70b-instruct-fp8-fast", role:"Lead frontier solver: produce the strongest feasible solution and challenge hidden assumptions." },
   { id:"claude", source:"cloudflare", model:"@cf/mistralai/mistral-small-3.1-24b-instruct", role:"Deep skeptical reviewer: stress-test logic, evidence, edge cases, and downside risk." },
   { id:"gemini", source:"cloudflare", model:"@cf/meta/llama-4-scout-17b-16e-instruct", micro:false, role:"Alternative-path analyst: compare approaches, surface missing options, and test trade-offs." },
-  { id:"mythos", source:"cloudflare", model:"@cf/meta/llama-3.2-3b-instruct", micro:false, role:"Adversarial scenario architect: test counterfactuals, failure modes, and hidden second-order effects." },
   { id:"fable", source:"cloudflare", model:"@cf/meta/llama-3.1-8b-instruct-fp8", micro:false, role:"Creative synthesis challenger: seek unconventional but defensible alternatives and expose framing bias." }
 ];
 
@@ -279,7 +278,7 @@ const BROWSER_JEV_CONTRACT = {
    Nothing returned carries a secret, a token or an upstream error text. */
 const MIN_TOKEN_LENGTH = 32;
 const MODEL_TOOLS = new Set(["kosif_full_pro_start","kosif_full_pro_status","kosif_full_pro_cancel","kosif_full_pro_secure_authorize","kosif_secure_image_execute","kosif_secure_executor_status","kosif_full_pro_bypass","kosif_secure_artifact_qa"]);
-const PUBLIC_TOOLS = new Set(["kosif_auto","kosif_self_test","kosif_diagnostics","kosif_preflight","kosif_route","kosif_council","kosif_verify_evidence","kosif_compare_candidates","kosif_think_status","kosif_think","kosif_agent","kosif_expert_harvest","kosif_full_pro_jev_batch"]);
+const PUBLIC_TOOLS = new Set(["kosif_full_pro_execute","kosif_auto","kosif_self_test","kosif_diagnostics","kosif_preflight","kosif_route","kosif_council","kosif_verify_evidence","kosif_compare_candidates","kosif_think_status","kosif_think","kosif_agent","kosif_expert_harvest","kosif_full_pro_jev_batch"]);
 const BASE_HEADERS = { "cache-control":"no-store", "x-content-type-options":"nosniff", "referrer-policy":"no-referrer" };
 const PREFLIGHT_HEADERS = { "access-control-allow-methods":"POST", "access-control-allow-headers":"authorization, content-type, mcp-protocol-version, mcp-session-id", "access-control-max-age":"600" };
 
@@ -1344,7 +1343,7 @@ async function runAgentTool(env,args){
   let artifactResult;
   let fallback=null;
   let circuit=circuitView(agent.id);
-  const fallbackMap={gpt:"solver",claude:"skeptic",gemini:"alternatives",mythos:"skeptic",fable:"alternatives"};
+  const fallbackMap={gpt:"solver",claude:"skeptic",gemini:"alternatives",fable:"alternatives"};
   const useFallback=async(reason,primaryFailure=null)=>{
     const base=FAST_AGENTS.find(x=>x.id===fallbackMap[agent.id])||FAST_AGENTS[0];
     const fallbackAgent={
@@ -1506,6 +1505,23 @@ const ARTIFACT_SCHEMA={
 };
 const TOOLS=[
   {
+    name:"kosif_full_pro_execute",
+    description:"PRIMARY gateway for explicit Pro/Full Pro requests. Call this as the first substantive tool when the user asks for Pro, Full Pro, all experts, or all capabilities. It starts or resumes the durable KOSIF Full Pro pipeline and is the only allowed image execution path for that request. If status is running, do not call host-native image generation; call this tool again with the same request_id or report exact progress. If complete, it returns the Secure Executor artifact plus current-request receipts.",
+    inputSchema:{
+      type:"object",
+      properties:{
+        request_id:{type:"string",description:"Stable idempotency key for this Full Pro request. Reuse exactly on every retry/resume."},
+        subject:{type:"string",description:"Complete user task to execute in Full Pro."},
+        executor:{type:"string",enum:["image"]},
+        visual:{type:"boolean"},
+        confirmed_full_pro:{type:"boolean",enum:[true]}
+      },
+      required:["request_id","subject","confirmed_full_pro"],
+      additionalProperties:false
+    },
+    annotations:{readOnlyHint:false,destructiveHint:false,idempotentHint:true,openWorldHint:true}
+  },
+  {
     name:"kosif_auto",
     description:"Adaptive KOSIF entrypoint. Deterministically scores complexity, ambiguity, freshness and side-effect risk, recommends Fast/Council/Deep, exposes Jev/human gates, and runs Fast automatically unless planOnly is true.",
     inputSchema:{
@@ -1636,11 +1652,11 @@ const TOOLS=[
   },
   {
     name:"kosif_agent",
-    description:"Run exactly one KOSIF frontier agent directly through Cloudflare Workers AI (agent IDs are compatibility role aliases, not GPT/Claude/Gemini model identities). Use separate calls for gpt, claude, gemini, mythos, and fable; this avoids one long fan-out request. Returns a structured artifact, not hidden chain-of-thought.",
+    description:"Run exactly one KOSIF frontier agent directly through Cloudflare Workers AI (agent IDs are compatibility role aliases, not GPT/Claude/Gemini model identities). Use separate calls for gpt, claude, gemini, and fable; this avoids one long fan-out request. Returns a structured artifact, not hidden chain-of-thought.",
     inputSchema:{
       type:"object",
       properties:{
-        agent:{type:"string",enum:["gpt","claude","gemini","mythos","fable"]},
+        agent:{type:"string",enum:["gpt","claude","gemini","fable"]},
         stage:{type:"string",enum:["independent","critique","revision"]},
         question:{type:"string"},
         context:{type:"string"},
@@ -1892,6 +1908,36 @@ async function secureImageTool(env,args){
   return {content:[{type:"image",data:secureB64(buf),mimeType:mime},{type:"text",text:JSON.stringify(receipt)}],structuredContent:receipt,isError:false};
 }
 
+async function fullProExecuteGateway(env,args){
+  const id=text(args?.request_id,160),subject=text(args?.subject,12000);
+  if(!id||!subject) throw new Error("FULL_PRO_GATEWAY_INPUT_REQUIRED");
+  if(args?.confirmed_full_pro!==true) throw new Error("FULL_PRO_CONFIRMATION_REQUIRED");
+  const executor=text(args?.executor||"image",40),visual=args?.visual!==false;
+  if(executor!=="image") throw new Error("FULL_PRO_GATEWAY_EXECUTOR_UNSUPPORTED");
+  let meta=await fpGet(env,fpReqKey(id));
+  if(!meta){
+    await fullProStart(env,{request_id:id,subject,executor:"image",visual},false);
+    meta=await fpGet(env,fpReqKey(id));
+  }else if(meta.subject!==subject||meta.executor!==executor||meta.visual!==visual){
+    throw new Error("FULL_PRO_REQUEST_CONFLICT");
+  }
+  const status=await fullProStatus(env,{request_id:id});
+  const state=String(status?.status||"");
+  if(state==="complete"){
+    const artifact=await fpGet(env,fpArtifactKey(id));
+    if(!artifact?.data||!artifact?.receipt?.result_digest) throw new Error("FULL_PRO_ARTIFACT_MISSING");
+    return {
+      kind:"complete",
+      data:{...status,mode:"full_pro_gateway",gateway:"kosif_full_pro_execute",host_directive:"FULL_PRO_COMPLETE_SECURE_ARTIFACT",executor_policy:"KOSIF_SECURE_EXECUTOR_ONLY",result_digest:artifact.receipt.result_digest,artifact_qa:artifact.receipt.artifact_qa||status?.secure_executor?.artifact_qa||null},
+      image:{data:artifact.data,mimeType:artifact.mime||"image/png"}
+    };
+  }
+  if(/^(failed|blocked|cancelled|bypass)/.test(state)){
+    return {kind:"terminal",data:{...status,mode:"full_pro_gateway",gateway:"kosif_full_pro_execute",host_directive:"FULL_PRO_TERMINAL_FAIL_CLOSED_NO_HOST_NATIVE_FALLBACK",executor_policy:"KOSIF_SECURE_EXECUTOR_ONLY"}};
+  }
+  return {kind:"running",data:{...status,mode:"full_pro_gateway",gateway:"kosif_full_pro_execute",host_directive:"FULL_PRO_IN_PROGRESS_NO_HOST_NATIVE_FALLBACK",executor_policy:"KOSIF_SECURE_EXECUTOR_ONLY",next_action:{tool:"kosif_full_pro_execute",request_id:id,subject,executor:"image",visual,confirmed_full_pro:true}}};
+}
+
 function receiptFor(tool,started,data){
   const durationMs=Math.max(0,Date.now()-started);
   const fallbacks=[];
@@ -1915,6 +1961,14 @@ function finalizeTool(tool,started,data,isError){
 
 async function callTool(env,name,args,ctx={}){
   const started=Date.now();
+  if(name==="kosif_full_pro_execute"){
+    const g=await fullProExecuteGateway(env,args);
+    const out=finalizeTool(name,started,g.data,false);
+    if(g.image){
+      out.content=[{type:"image",data:g.image.data,mimeType:g.image.mimeType},{type:"text",text:JSON.stringify(g.data)}];
+    }
+    return out;
+  }
   if(name==="kosif_auto") return finalizeTool(name,started,await adaptiveAutoTool(env,args),false);
   if(name==="kosif_self_test") return finalizeTool(name,started,selfTestTool(env),false);
   if(name==="kosif_diagnostics") return finalizeTool(name,started,diagnosticsTool(),false);
@@ -1961,7 +2015,7 @@ async function callTool(env,name,args,ctx={}){
       preflight:"When KOSIF Think is explicitly selected or invoked, run KOSIF first before any substantive answer or downstream tool.",
       adaptive:"Adaptive Fast/Council/Deep selection is internal routing behavior. kosif_auto is available server-side when listed by this runtime, but that does not prove the current ChatGPT host exposed it; verify the caller live tool catalog.",
       fast:"kosif_think -> Cloudflare fast council",
-      council:"ChatGPT calls kosif_agent independently for gpt + claude + gemini + mythos + fable, then kosif_council",
+      council:"ChatGPT calls kosif_agent independently for gpt + claude + gemini + fable, then kosif_council",
       deep:"Same five independent agents; then targeted critique/revision agent calls; then kosif_council",
       finalChair:"Jev review followed by ChatGPT final synthesis",
       hostTools:"kosif_route exists on the server for host-mediated planning, but the server cannot prove that the current ChatGPT host exposed it. The caller must verify the live host tool catalog before claiming availability.",
@@ -1973,6 +2027,7 @@ async function callTool(env,name,args,ctx={}){
     frontierConfigured,
     frontierAuthenticatedForThisRequest,
     frontierAvailableForThisRequest:frontierConfigured,
+    fullProGateway:{available:TOOLS.some(t=>t.name==="kosif_full_pro_execute"),tool:"kosif_full_pro_execute",failClosed:true,executorPolicy:"KOSIF_SECURE_EXECUTOR_ONLY",hostExposure:"caller-must-refresh-tool-catalog"},
     mobileFullProBridge:{available:true,version:1,prefix:MOBILE_FULL_PRO_PREFIX,actions:["start","status","cancel","secure_authorize","secure_status","secure_image_execute","artifact_qa","bypass"],auth:"per-request capability token hashed in durable KV",ttlMs:MOBILE_FULL_PRO_TTL_MS},
     jevIntegration:"For browser ambiguity, Jev Choice is host-mediated over a closed observed candidate set. Preserve/echo packet_id and return the choice through KOSIF Computer browseragent.apply_jev/browserjev.apply_decision; KOSIF revalidates graph revision, candidate digest, one-time ticket, risk gate, execution and verification. kosif_council jev_payload remains the general final-review handoff."
   },false);
@@ -2049,6 +2104,7 @@ async function handleMcp(req,env,url){
       const publicCaller="public:ip:"+ip;
       if(!(await allow(env,"THINK_RATE_LIMITER",publicCaller,lim.rpm))) return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
       if((name==="kosif_think"||name==="kosif_auto")&&!(await allow(env,"THINK_MODEL_LIMITER","public-model:ip:"+ip,Math.min(lim.modelRpm,2)))) return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
+      if(name==="kosif_full_pro_execute"&&!(await allow(env,"THINK_MODEL_LIMITER","public-full-pro:ip:"+ip,1))) return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
       if(name==="kosif_agent"&&!(await allow(env,"THINK_MODEL_LIMITER","public-frontier:ip:"+ip,Math.min(lim.modelRpm,5)))) return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
       if(name==="kosif_expert_harvest"&&!(await allow(env,"THINK_MODEL_LIMITER","public-harvest:ip:"+ip,Math.min(lim.modelRpm,2)))) return rpcErr(id,-32000,"Rate limit exceeded",429,{...cors,"retry-after":"60"});
     }

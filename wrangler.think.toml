@@ -1,10 +1,32 @@
 name = "kosif-think-mcp"
 main = "think-mcp/worker.js"
 compatibility_date = "2026-09-27"
+preview_urls = true
 workers_dev = true
 
 [ai]
 binding = "AI"
+
+# Full Pro bindings, as deployed (read back from the live Worker on 2026-10-01). A deploy without them removes them
+# and Full Pro stops. The queue's consumer is also kosif-think-mcp (attached on the queue itself; its retry settings
+# live there, so keep them when re-attaching).
+[[kv_namespaces]]
+binding = "FULL_PRO_STATE"
+id = "73018fa44d384876a74210051a7df291"
+
+[[queues.producers]]
+binding = "FULL_PRO_QUEUE"
+queue = "kosif-full-pro-jobs"
+
+[[services]]
+binding = "KOSIF_JEV"
+service = "kosif-jev"
+environment = "production"
+
+[[services]]
+binding = "SECURE_EXECUTOR"
+service = "kosif-full-pro-secure-executor"
+environment = "production"
 
 # /mcp stays closed (503) until the KOSIF_THINK_TOKEN secret holds at least 32 random characters:
 #   npx wrangler secret put KOSIF_THINK_TOKEN --config wrangler.think.toml
