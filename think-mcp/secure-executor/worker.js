@@ -1,6 +1,6 @@
 
-const VERSION="1.4.2";
-const QA_PROFILE_VERSION="active-values-v2";
+const VERSION="1.4.3";
+const QA_PROFILE_VERSION="active-values-v3";
 const MODEL="@cf/black-forest-labs/flux-2-klein-9b";
 const QUALITY_MODEL="@cf/black-forest-labs/flux-2-dev";
 const QA_MODEL="@cf/mistralai/mistral-small-3.1-24b-instruct";
@@ -76,6 +76,7 @@ function qaSceneValueText(sceneSpec={},includeNegativeConstraints=false){
   if(typeof sceneSpec==="string")return sceneSpec;
   const values=[];
   const walk=(value,key="")=>{
+    if(key==="render_prompt")return;
     if(key==="negative_constraints"&&!includeNegativeConstraints)return;
     if(value===undefined||value===null)return;
     if(typeof value==="string"){
@@ -95,8 +96,8 @@ function qaSceneValueText(sceneSpec={},includeNegativeConstraints=false){
 }
 function qaStripNegatedClauses(value=""){
   return String(value)
-    .replace(/\b(?:no|without|avoid|exclude|never)\b[^.!;\n]*/gi," ")
-    .replace(/(?:بدون|من غير|دون|لا يوجد|ليس هناك)[^.!؛\n]*/gi," ")
+    .replace(/\b(?:do\s+not|don't|does\s+not|doesn't|must\s+not|should\s+not|cannot|can't|no|without|avoid|exclude|excluding|never)\b[^.!;\n]*/gi," ")
+    .replace(/(?:بدون|من غير|من دون|دون|لا يوجد|ليس هناك|لا تضع|لا تضف|لا تستخدم|لا يظهر|لا تظهر|ممنوع|تجنب)[^.!؛\n،]*/gi," ")
     .replace(/\s+/g," ")
     .trim();
 }
@@ -213,12 +214,12 @@ async function runArtifactVisionQa(env,bytes,mime,resultDigest,requestId,sceneSp
       findings=findings.filter(x=>!/human|humanoid|hand|finger|thumb|wrist|forearm|grip/i.test(String(x)));
       findings.push("FOCUSED_DUAL_VISION_RESOLVED:no_human_hands");
     }
-    const normalized={observed:true,request_id:requestId,result_digest:resultDigest,provider:"cloudflare-workers-ai",model:QA_MODEL,secondary_model:QA_SECONDARY_MODEL,qa_contract_version:"vision_task_aware_v4",qa_profile_version:QA_PROFILE_VERSION,active_checks:required,profile,scene_spec_digest:sceneDigest,mime:actualMime,pass,score,primary_score:Math.max(0,Math.min(1,Number(report.score||0))),checks,findings,focused_text_adjudication,focused_human_hand_adjudication};
+    const normalized={observed:true,request_id:requestId,result_digest:resultDigest,provider:"cloudflare-workers-ai",model:QA_MODEL,secondary_model:QA_SECONDARY_MODEL,qa_contract_version:"vision_task_aware_v5",qa_profile_version:QA_PROFILE_VERSION,active_checks:required,profile,scene_spec_digest:sceneDigest,mime:actualMime,pass,score,primary_score:Math.max(0,Math.min(1,Number(report.score||0))),checks,findings,focused_text_adjudication,focused_human_hand_adjudication};
     normalized.report_digest=await sha256HexText(canonical(normalized));
     return normalized;
   }catch(e){
     const err=String(e?.message||e||lastErr||"VISION_QA_PROVIDER_FAILED").slice(0,500);
-    const normalized={observed:true,request_id:requestId,result_digest:resultDigest,provider:"cloudflare-workers-ai",model:QA_MODEL,qa_contract_version:"vision_task_aware_v4",qa_profile_version:QA_PROFILE_VERSION,active_checks:required,profile,scene_spec_digest:sceneDigest,mime:actualMime,pass:false,score:0,checks:Object.fromEntries(required.map(k=>[k,false])),findings:["VISION_QA_PROVIDER_FAILED:"+err]};
+    const normalized={observed:true,request_id:requestId,result_digest:resultDigest,provider:"cloudflare-workers-ai",model:QA_MODEL,qa_contract_version:"vision_task_aware_v5",qa_profile_version:QA_PROFILE_VERSION,active_checks:required,profile,scene_spec_digest:sceneDigest,mime:actualMime,pass:false,score:0,checks:Object.fromEntries(required.map(k=>[k,false])),findings:["VISION_QA_PROVIDER_FAILED:"+err]};
     normalized.report_digest=await sha256HexText(canonical(normalized));
     return normalized;
   }
@@ -253,7 +254,7 @@ export default {
 
     if(p==="/health"&&request.method==="GET"){
       const d=await env.DB.prepare("SELECT 1 ok").first();
-      return json({ok:true,service:"kosif-full-pro-secure-executor",version:VERSION,private_service:true,d1:!!d,workers_ai:!!env.AI,provider:"cloudflare-workers-ai",model:MODEL,qa_contract:"vision_task_aware_v4",qa_profile:QA_PROFILE_VERSION,execution_binding:"execution_contract_digest_v1"});
+      return json({ok:true,service:"kosif-full-pro-secure-executor",version:VERSION,private_service:true,d1:!!d,workers_ai:!!env.AI,provider:"cloudflare-workers-ai",model:MODEL,qa_contract:"vision_task_aware_v5",qa_profile:QA_PROFILE_VERSION,execution_binding:"execution_contract_digest_v1"});
     }
 
     if(p.startsWith("/status/")&&request.method==="GET"){
@@ -413,7 +414,7 @@ export default {
       const ex=await env.DB.prepare("SELECT COUNT(*) c FROM executions WHERE request_id=?").bind(b.request_id).first();
       const attempts=Number(ex?.c||0);
       const qaContract=String(report?.qa_contract_version||"");
-      const maxAttempts=((qaContract==="vision_ensemble_v3"||qaContract==="vision_task_aware_v4")&&failedChecks.includes("no_human_hands"))?8:4;
+      const maxAttempts=((qaContract==="vision_ensemble_v3"||qaContract==="vision_task_aware_v4"||qaContract==="vision_task_aware_v5")&&failedChecks.includes("no_human_hands"))?8:4;
       if(attempts>=maxAttempts)return json({ok:false,error:"ARTIFACT_RETRY_LIMIT",attempts,maxAttempts,qa_contract_version:qaContract,failed_checks:failedChecks},409);
       const now=Date.now();
       const ticket={ticket_id:crypto.randomUUID(),request_id:b.request_id,executor:"image",candidate_digest:r.candidate_digest,state_digest:r.state_digest,execution_lock:r.execution_lock,nonce:crypto.randomUUID(),issued_at:now,expires_at:now+300000};
