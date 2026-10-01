@@ -26,5 +26,5 @@ jobs:
         run: node --check think-mcp/worker.js
       - name: Syntax check secure executor
         run: node --check think-mcp/secure-executor/worker.js
-      - name: 0.17.1 governance regression
-        run: node think-mcp/regression-0171.test.mjs
+      - name: 0.17.3 governance regression
+        run: node think-mcp/regression-0173.test.mjs
