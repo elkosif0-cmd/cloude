@@ -6,7 +6,7 @@ const securePath=process.argv[3]||'think-mcp/secure-executor/worker.js';
 const think=fs.readFileSync(thinkPath,'utf8');
 const secure=fs.readFileSync(securePath,'utf8');
 
-assert.match(think,/const VERSION\s*=\s*"0\.17\.7"/);
+assert.match(think,/const VERSION\s*=\s*"0\.17\.8"/);
 assert.ok(think.includes('attachments-governance-v1'));
 assert.ok(think.includes('einstein-attachments-v2'));
 assert.ok(think.includes('source-taint-v1'));
@@ -15,7 +15,7 @@ assert.ok(think.includes('public-broker-oauth-v2'));
 assert.ok(think.includes('pre-verification-auth-fail-lockout'));
 assert.ok(think.includes('authFailLockout:"pre-verification-ip-window"'));
 assert.ok(think.includes('maxAgents:FRONTIER_AGENTS.length'));
-assert.ok(think.includes('const VERSIONED_MCP_PATH = "/mcp/v0.17.7"'));
+assert.ok(think.includes('const VERSIONED_MCP_PATH = "/mcp/v0.17.8"'));
 assert.ok(think.includes('const LEGACY_VERSIONED_MCP_PATH = "/mcp/v0.9.3"'));
 assert.equal(think.includes('five Cloudflare role agents'),false);
 assert.equal(think.includes('Same five independent agents'),false);
@@ -32,7 +32,7 @@ assert.ok(secure.includes('EXECUTION_CONTRACT_MISMATCH'));
 assert.equal(secure.includes('const required=["duck_anatomy"'),false);
 
 const thinkMod=await import('data:text/javascript;base64,'+Buffer.from(
-  think+'\nexport {c500DeterministicSceneSpec,fullProIsDuckDragonTask,fullProBuildExecutionContract,fullProCapabilityTruth,normalizeAvailableTools,optionBindingConsistency,council,evaluateGate};'
+  think+'\nexport {c500DeterministicSceneSpec,fullProIsDuckDragonTask,fullProBuildExecutionContract,fullProCapabilityTruth,normalizeAvailableTools,parseArithmeticAssertion,artifactArithmeticTerminal,optionBindingConsistency,council,evaluateGate};'
 ).toString('base64'));
 
 
@@ -91,6 +91,28 @@ assert.equal(truth.artifact_qa.state,'verified');
 assert.equal(truth.host_tool_exposure.state,'host-dependent');
 
 
+const englishProof=thinkMod.parseArithmeticAssertion('7 + 5 equals 12');
+assert.equal(englishProof?.value,12);
+const answerTerminal=thinkMod.artifactArithmeticTerminal({answer:'7 + 5 = 12',evidence:[]});
+assert.equal(answerTerminal?.value,12);
+const mixedTerminal=thinkMod.artifactArithmeticTerminal({answer:'The correct answer is 12.',evidence:['7 + 5 equals 12']});
+assert.equal(mixedTerminal?.value,12);
+
+const liveBugArtifacts=[
+  {agentId:'gpt',source:'cloudflare',model:'m1',provenanceGroup:'p1',answer:'7 + 5 = 12',recommendationId:'B',evidence:['Basic arithmetic operation'],assumptions:[],risks:[],objections:[],confidence:1},
+  {agentId:'claude',source:'cloudflare',model:'m2',provenanceGroup:'p2',answer:'The correct answer is 12.',recommendationId:'B',evidence:['7 + 5 equals 12'],assumptions:[],risks:[],objections:[],confidence:1},
+  {agentId:'fable',source:'cloudflare',model:'m3',provenanceGroup:'p3',answer:'Basic arithmetic operation',recommendationId:'A',evidence:['Basic addition'],assumptions:[],risks:[],objections:[],confidence:1}
+];
+const liveBinding=thinkMod.optionBindingConsistency(liveBugArtifacts,{A:'10',B:'12',C:'14'});
+assert.equal(liveBinding.checked,true);
+assert.equal(liveBinding.canonicalValue,12);
+assert.equal(liveBinding.canonicalOptionId,'B');
+assert.deepEqual(liveBinding.quarantinedAgents,['fable']);
+const liveCouncil=thinkMod.council(liveBugArtifacts,{A:'10',B:'12',C:'14'});
+assert.equal(liveCouncil.winningOptionId,'B');
+assert.equal(liveCouncil.validVotes,2);
+assert.equal(liveCouncil.quarantinedVotes,1);
+
 const bindingArtifacts=[
   {agentId:'gpt',source:'cloudflare',model:'m1',provenanceGroup:'p1',answer:'42',recommendationId:'correct',evidence:['17+25=42'],assumptions:[],risks:[],objections:[],confidence:0.95},
   {agentId:'claude',source:'cloudflare',model:'m2',provenanceGroup:'p2',answer:'42',recommendationId:'wrong',evidence:['17+25=42'],assumptions:[],risks:[],objections:[],confidence:0.99},
@@ -133,7 +155,7 @@ for(const check of ['bird_anatomy','dragon_anatomy','fire_direction','rain_inter
 
 console.log(JSON.stringify({
   passed:true,
-  runtime:'0.17.7',
+  runtime:'0.17.8',
   secureExecutor:'1.4.3',
   governance:'attachments-governance-v1',
   executionBinding:true,
@@ -143,6 +165,7 @@ console.log(JSON.stringify({
   taskAwareQa:true,
   triStateConnectivity:true,
   optionBindingConsistency:true,
+  naturalLanguageArithmeticBinding:true,
   mythosRemoved:true,
   cleanApisRemoved:true
 }));
