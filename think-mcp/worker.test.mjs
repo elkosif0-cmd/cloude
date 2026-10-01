@@ -184,7 +184,7 @@ test('source contains no removed Mythos/Clean APIs provider or embedded credenti
 });
 
 test('current visual/governance regression suite is present',()=>{
-  const source=readFileSync(new URL('./regression-0177.test.mjs',import.meta.url),'utf8');
+  const source=readFileSync(new URL('./regression-0179.test.mjs',import.meta.url),'utf8');
   assert.ok(source.includes('execution-binding-v1'));
   assert.ok(source.includes('vision_task_aware_v5'));
 });
