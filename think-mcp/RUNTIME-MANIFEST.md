@@ -6,7 +6,7 @@ Last verified: 2026-10-01
 
 | Component | Cloudflare Worker | Live version | GitHub source |
 | --- | --- | ---: | --- |
-| KOSIF Think runtime | `kosif-think-mcp` | `0.17.7` | `think-mcp/worker.js` |
+| KOSIF Think runtime | `kosif-think-mcp` | `0.17.8` | `think-mcp/worker.js` |
 | Secure Executor | `kosif-full-pro-secure-executor` | `1.4.3` | `think-mcp/secure-executor/worker.js` |
 | Jev service | `kosif-jev` | unversioned live worker | `think-mcp/jev/worker.js` |
 
@@ -18,7 +18,7 @@ ChatGPT plugin releases verified with this runtime:
 ## Current contracts
 
 - Council-500 Full Pro remains the one-mode front-door contract.
-- Fresh discovery endpoint: `/mcp/v0.17.7`; `/mcp/v0.9.3` remains compatibility-only.
+- Fresh discovery endpoint: `/mcp/v0.17.8`; `/mcp/v0.9.3` remains compatibility-only.
 - MCP auth policy: `public-broker-oauth-v2`; public broker tools are rate-limited, protected secure-execution tools require verified OAuth2 or the legacy bearer secret, and repeated invalid credentials trigger the `pre-verification-ip-window` lockout before further bearer verification.
 - Adaptive Council/Deep frontier budgets derive from the live `FRONTIER_AGENTS.length`; no hard-coded five-agent truth claims are allowed.
 - Host connectivity is tri-state: `true`, `false`, or `unknown`. An omitted `connected` field must never be interpreted as a verified connection.
@@ -28,6 +28,7 @@ ChatGPT plugin releases verified with this runtime:
 - `einstein-attachments-v2`: observation → first principles → Gedankenexperiment → observer/frame → unification → simplicity critic → empirical-verification revision.
 - `source-taint-v1`: consensus, clustering or Jev selection cannot upgrade unverified provenance.
 - Option-binding consistency gate: a numeric recommendation that conflicts with an independently established canonical arithmetic value is excluded from council weighting, while raw participation agreement is retained separately.
+- Natural-language arithmetic binding: deterministic evidence accepts symbolic `=` plus verbal `equals / is equal to` forms and can use arithmetic assertions from both an agent answer and its evidence; contradictory arithmetic within one artifact is not promoted to a canonical value.
 - Capability Truth states: `verified`, `measured`, `implemented`, `host-dependent`, `prompt-only`, `simulated`, `historical`, `unavailable`.
 - `execution-binding-v1`: freeze `execution_contract_digest` before authorization and bind it through request → authorization → one-use ticket → execution → receipt.
 - `attachment-cinema-v1`: generic visual grammar; no task fixture may leak into unrelated requests.
