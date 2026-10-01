@@ -566,7 +566,6 @@ function evaluateGate(artifacts,options,expectedIds){
     betterAlternativeRisk:null};
 }
 
-
 function optionBindingConsistency(artifacts,options){
   const consistency=evidenceConsistency(artifacts);
   const canonical=consistency.canonicalValue;
@@ -625,7 +624,6 @@ function council(artifacts,options){
     optionBindingConsistency:binding
   };
 }
-
 function numberKey(n){
   if(!Number.isFinite(n)) return null;
   const v=Math.abs(n)<1e-12?0:Number(n.toFixed(12));
@@ -743,7 +741,6 @@ function provisionalSynthesis(artifacts,c){
       :"Provisional only. ChatGPT should reconcile all artifacts with Jev and produce the final answer."
   };
 }
-
 function jevPayload(input,artifacts,c){
   const state={question:input.question,context:input.context,artifacts,council:c};
   if(Object.keys(input.options).length>=2){
