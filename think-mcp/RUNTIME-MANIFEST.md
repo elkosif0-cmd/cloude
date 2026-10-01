@@ -6,14 +6,14 @@ Last verified: 2026-10-01
 
 | Component | Cloudflare Worker | Live version | GitHub source |
 | --- | --- | ---: | --- |
-| KOSIF Think runtime | `kosif-think-mcp` | `0.17.6` | `think-mcp/worker.js` |
+| KOSIF Think runtime | `kosif-think-mcp` | `0.17.7` | `think-mcp/worker.js` |
 | Secure Executor | `kosif-full-pro-secure-executor` | `1.4.3` | `think-mcp/secure-executor/worker.js` |
 | Jev service | `kosif-jev` | unversioned live worker | `think-mcp/jev/worker.js` |
 
 ChatGPT plugin releases verified with this runtime:
-- `kosif think 20 s`: `20.3.8`
-- KOSIF Think provider: `1.8.5`
-- `Source kosif think 20 s`: `10.7.8`
+- `kosif think 20 s`: `20.3.9`
+- KOSIF Think provider: `1.8.6`
+- `Source kosif think 20 s`: `10.7.9`
 
 ## Current contracts
 
@@ -44,7 +44,7 @@ ChatGPT plugin releases verified with this runtime:
 
 ## Regression coverage
 
-`think-mcp/regression-0176.test.mjs` protects:
+`think-mcp/regression-0177.test.mjs` protects:
 - no Mythos / no Clean APIs reintroduction;
 - no duck/dragon fixture leakage into generic visual requests;
 - conditional task-aware QA;
