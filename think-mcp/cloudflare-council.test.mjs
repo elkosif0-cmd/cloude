@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
 const source=fs.readFileSync(process.argv[2]||'think-mcp/worker.js','utf8');
-assert.match(source,/const VERSION\s*=\s*"0\.17\.3"/);
+assert.match(source,/const VERSION\s*=\s*"0\.17\.4"/);
 assert.equal(/cleanapis|cleanApis|Clean APIs|CLEANAPIS/.test(source),false,'retired Clean APIs provider must not return');
 assert.equal(/id:\s*"mythos"/i.test(source),false,'retired Mythos role must not return');
 
