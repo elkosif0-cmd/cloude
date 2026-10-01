@@ -1,4 +1,5 @@
-const VERSION = "0.17.1";
+const VERSION = "0.17.3";
+const AUTH_POLICY_VERSION = "public-broker-oauth-v2";
 const COGNITIVE_GOVERNANCE_VERSION = "attachments-governance-v1";
 const EINSTEIN_PROTOCOL_VERSION = "einstein-attachments-v2";
 const SOURCE_TAINT_POLICY_VERSION = "source-taint-v1";
@@ -294,17 +295,14 @@ const BROWSER_JEV_CONTRACT = {
 };
 
 /* ---- access control ----------------------------------------------------------------------------------------------
-   /mcp spends paid model calls (Workers AI), so it is closed unless the caller proves itself:
-     • KOSIF_THINK_TOKEN (a Worker secret, at least 32 characters) sent as "Authorization: Bearer <token>"; only when
-       THINK_ALLOW_PATH_TOKEN is "true" (for MCP clients that cannot send headers) also as /mcp/<token>. Compared in
-       constant time. With no token configured, or a short one, /mcp answers 503 and runs nothing.
-     • per caller: THINK_RPM requests and THINK_MODEL_RPM model-running tool calls a minute, enforced by the
-       THINK_RATE_LIMITER / THINK_MODEL_LIMITER rate-limit bindings, or by a window in this isolate when they are not
-       bound (or fail); THINK_AUTH_FAILS_PER_MIN failed sign-ins a minute per IP, then 429 without checking the token.
-     • THINK_FRONTIER_ENABLED "false" stops every council agent call (kosif_agent) at once.
-     • browsers only from the origins in THINK_ALLOWED_ORIGINS; any other Origin gets 403 (the MCP transport rule
-       against DNS rebinding). POST with a JSON body only; bodies over THINK_MAX_BODY_BYTES get 413.
-   Nothing returned carries a secret, a token or an upstream error text. */
+   Policy: rate-limited public broker + optional OAuth2 + legacy bearer.
+   PUBLIC_TOOLS are intentionally no-auth but remain CORS restricted, body capped and per-IP rate limited.
+   MODEL_TOOLS require verified OAuth2 or a matching legacy KOSIF_THINK_TOKEN.
+   Invalid presented credentials increment a per-IP one-minute failure window. Once THINK_AUTH_FAILS_PER_MIN is reached,
+   lockout is checked before further bearer verification, so a correct token cannot bypass an active failed-auth lockout.
+   THINK_RATE_LIMITER / THINK_MODEL_LIMITER are used when healthy; local windows are the fail-closed fallback.
+   THINK_FRONTIER_ENABLED=false blocks frontier calls. Secrets and raw provider/runtime errors are never returned.
+-------------------------------------------------------------------------------------------------------------- */
 const MIN_TOKEN_LENGTH = 32;
 const MODEL_TOOLS = new Set(["kosif_full_pro_start","kosif_full_pro_status","kosif_full_pro_cancel","kosif_full_pro_secure_authorize","kosif_secure_image_execute","kosif_secure_executor_status","kosif_full_pro_bypass","kosif_secure_artifact_qa"]);
 const PUBLIC_TOOLS = new Set(["kosif_full_pro_execute","kosif_auto","kosif_self_test","kosif_diagnostics","kosif_preflight","kosif_route","kosif_council","kosif_verify_evidence","kosif_compare_candidates","kosif_think_status","kosif_think","kosif_agent","kosif_expert_harvest","kosif_full_pro_jev_batch"]);
@@ -925,8 +923,8 @@ function adaptiveAssessment(args){
     budget:recommendedMode==="fast"
       ?{latencyMs:15000,maxAgents:3,maxModelRounds:1}
       :recommendedMode==="council"
-        ?{latencyMs:75000,maxAgents:5,maxModelRounds:1}
-        :{latencyMs:150000,maxAgents:5,maxModelRounds:3},
+        ?{latencyMs:75000,maxAgents:FRONTIER_AGENTS.length,maxModelRounds:1}
+        :{latencyMs:150000,maxAgents:FRONTIER_AGENTS.length,maxModelRounds:3},
     jevGate:{required:jevRequired,reason:jevRequired?"AMBIGUITY_OR_HIGH_RISK_DECISION":"NOT_REQUIRED_YET",hostMediated:true},
     humanGate:{required:humanCheckpoint,reason:humanCheckpoint?"PAYMENT_CREDENTIAL_OR_ANTI_BOT_CHECKPOINT":"NONE"},
     rule:"Adaptive mode selection is deterministic and advisory; it never grants permission for side effects."
@@ -2090,15 +2088,15 @@ async function callTool(env,name,args,ctx={}){
     mandatoryOnSelection:true,publicThinkFallback:"fast-cloudflare-council",
     enforcement:"Instruction-level only; the server cannot force host tool invocation.",
     modelIdentity:"Compatibility role IDs are not model identities; actual Cloudflare model IDs are returned per artifact.",
-    improvements:["primary-provider-coverage-gate","safe-upstream-error-classification","configuration-health-separation","full-pro-status-secure-state-fix","mobile-full-pro-compat-bridge-v1","evidence-answer-consistency-gate","truthful-host-exposure-status","adaptive-router-v2","runtime-receipts","ephemeral-diagnostics","frontier-circuit-breaker","deterministic-self-test","frontier-timeout-transparent-fallback","unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","one-time-jev-packet-binding","evidence-backed-cove","evidence-tournament","four-tier-memory-routing","dynamic-capability-mesh-v1","all-plugin-host-routing","lease-ttl-registry","schema-hash-drift-guard","idempotency-key-routing","plugin-output-trust-boundary","minimal-relevant-tool-set","deep-research-evidence-fusion"],
-    access:{auth:"rate-limited-public-broker+optional-oauth2+legacy-bearer",oauthChallenge:"tool-result-meta+resource-401",jwtAlgorithms:["RS256","PS256"],issuer:AUTH0_ISSUER,audience:AUTH0_AUDIENCE,resourceMetadata:OAUTH_METADATA_URL,pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierConfigured,frontierAuthenticatedForThisRequest,frontierAvailableForThisRequest:frontierConfigured,
+    improvements:["primary-provider-coverage-gate","safe-upstream-error-classification","configuration-health-separation","full-pro-status-secure-state-fix","mobile-full-pro-compat-bridge-v1","evidence-answer-consistency-gate","truthful-host-exposure-status","adaptive-router-v2","runtime-receipts","ephemeral-diagnostics","frontier-circuit-breaker","deterministic-self-test","frontier-timeout-transparent-fallback","unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","pre-verification-auth-fail-lockout","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","one-time-jev-packet-binding","evidence-backed-cove","evidence-tournament","four-tier-memory-routing","dynamic-capability-mesh-v1","all-plugin-host-routing","lease-ttl-registry","schema-hash-drift-guard","idempotency-key-routing","plugin-output-trust-boundary","minimal-relevant-tool-set","deep-research-evidence-fusion"],
+    access:{auth:"rate-limited-public-broker+optional-oauth2+legacy-bearer",authPolicyVersion:AUTH_POLICY_VERSION,authFailLockout:"pre-verification-ip-window",oauthChallenge:"tool-result-meta+resource-401",jwtAlgorithms:["RS256","PS256"],issuer:AUTH0_ISSUER,audience:AUTH0_AUDIENCE,resourceMetadata:OAUTH_METADATA_URL,pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierConfigured,frontierAuthenticatedForThisRequest,frontierAvailableForThisRequest:frontierConfigured,
       rateLimiter:typeof env.THINK_RATE_LIMITER?.limit==="function",modelLimiter:typeof env.THINK_MODEL_LIMITER?.limit==="function",limits:limits(env),browserOrigins:allowedOrigins(env).length},
     routing:{
       preflight:"When KOSIF Think is explicitly selected or invoked, run KOSIF first before any substantive answer or downstream tool.",
       adaptive:"Adaptive Fast/Council/Deep selection is internal routing behavior. kosif_auto is available server-side when listed by this runtime, but that does not prove the current ChatGPT host exposed it; verify the caller live tool catalog.",
       fast:"kosif_think -> Cloudflare fast council",
       council:"ChatGPT calls kosif_agent independently for gpt + claude + gemini + fable, then kosif_council",
-      deep:"Same five independent agents; then targeted critique/revision agent calls; then kosif_council",
+      deep:"The current frontier agent set ("+FRONTIER_AGENTS.map(a=>a.id).join(", ")+") runs independently; then targeted critique/revision calls; then kosif_council",
       finalChair:"Jev review followed by ChatGPT final synthesis",
       hostTools:"kosif_route exists on the server for host-mediated planning, but the server cannot prove that the current ChatGPT host exposed it. The caller must verify the live host tool catalog before claiming availability.",
       tinyFish:"Browser/web interaction is routed through kosif_route when available; it is not part of the hidden reasoning bus.",
@@ -2140,6 +2138,10 @@ async function handleMcp(req,env,url){
   const expected=String(env.KOSIF_THINK_TOKEN||"");
   const pathMatch=url.pathname===VERSIONED_MCP_PATH?null:PATH_TOKEN.exec(url.pathname);
   const presented=bearer(req)||(pathMatch?pathMatch[1]:"");
+  const failKey="auth-fail|ip:"+ip;
+  if(presented&&windowCount(failKey)>=lim.authFails){
+    return json({error:"too_many_requests"},429,{...cors,"retry-after":"60","x-kosif-auth-policy":AUTH_POLICY_VERSION});
+  }
   let authContext=null,authed=false;
   if(presented){
     authContext=await verifyAuth0AccessToken(presented);
@@ -2151,9 +2153,7 @@ async function handleMcp(req,env,url){
       }catch(_){authed=false;}
     }
   }
-  const failKey="auth-fail|ip:"+ip;
   if(presented&&!authed){
-    if(windowCount(failKey)>=lim.authFails) return json({error:"too_many_requests"},429,{...cors,"retry-after":"60"});
     windowHit(failKey,Number.MAX_SAFE_INTEGER);
   }
 
