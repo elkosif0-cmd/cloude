@@ -6,7 +6,7 @@ Last verified: 2026-10-01
 
 | Component | Cloudflare Worker | Live version | GitHub source |
 | --- | --- | ---: | --- |
-| KOSIF Think runtime | `kosif-think-mcp` | `0.17.1` | `think-mcp/worker.js` |
+| KOSIF Think runtime | `kosif-think-mcp` | `0.17.3` | `think-mcp/worker.js` |
 | Secure Executor | `kosif-full-pro-secure-executor` | `1.4.3` | `think-mcp/secure-executor/worker.js` |
 | Jev service | `kosif-jev` | unversioned live worker | `think-mcp/jev/worker.js` |
 
@@ -18,6 +18,8 @@ ChatGPT plugin releases verified with this runtime:
 ## Current contracts
 
 - Council-500 Full Pro remains the one-mode front-door contract.
+- MCP auth policy: `public-broker-oauth-v2`; public broker tools are rate-limited, while protected secure-execution tools require verified OAuth2 or the legacy bearer secret.
+- Adaptive Council/Deep frontier budgets derive from the live `FRONTIER_AGENTS.length`; no hard-coded five-agent truth claims are allowed.
 - Frontier compatibility role aliases are `gpt`, `claude`, `gemini`, and `fable`; the current receipt is authoritative for the actual Cloudflare model.
 - Mythos and Clean APIs are retired and must not be reintroduced.
 - `attachments-governance-v1`: attachment-derived governance integration.
@@ -39,7 +41,7 @@ ChatGPT plugin releases verified with this runtime:
 
 ## Regression coverage
 
-`think-mcp/regression-0171.test.mjs` protects:
+`think-mcp/regression-0173.test.mjs` protects:
 - no Mythos / no Clean APIs reintroduction;
 - no duck/dragon fixture leakage into generic visual requests;
 - conditional task-aware QA;
