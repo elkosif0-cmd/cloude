@@ -16,9 +16,9 @@ assert.equal(/cleanapis|clean apis/i.test(think),false,'removed Clean APIs provi
 assert.ok(think.includes('attachment-cinema-v1'));
 assert.equal(think.includes('Apply this stage to the duck-vs-dragon single frame.'),false);
 
-assert.match(secure,/const VERSION\s*=\s*"1\\.4\\.2"/);
+assert.match(secure,/const VERSION\s*=\s*"1\.4\.3"/);
 assert.ok(secure.includes('vision_task_aware_v5'));
-assert.ok(secure.includes('active-values-v3'));\nassert.ok(secure.includes('active-values-v2'));
+assert.ok(secure.includes('active-values-v3'));
 assert.ok(secure.includes('execution_contract_digest'));
 assert.ok(secure.includes('EXECUTION_CONTRACT_MISMATCH'));
 assert.equal(secure.includes('const required=["duck_anatomy"'),false);
@@ -91,7 +91,7 @@ for(const check of ['bird_anatomy','dragon_anatomy','fire_direction','rain_inter
 console.log(JSON.stringify({
   passed:true,
   runtime:'0.17.1',
-  secureExecutor:'1.4.1',
+  secureExecutor:'1.4.3',
   governance:'attachments-governance-v1',
   executionBinding:true,
   capabilityTruth:true,
