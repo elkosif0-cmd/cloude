@@ -1,4 +1,19 @@
-const VERSION = "0.17.0";
+const VERSION = "0.17.1";
+const COGNITIVE_GOVERNANCE_VERSION = "attachments-governance-v1";
+const EINSTEIN_PROTOCOL_VERSION = "einstein-attachments-v2";
+const SOURCE_TAINT_POLICY_VERSION = "source-taint-v1";
+const EXECUTION_CONTRACT_VERSION = "execution-binding-v1";
+const CAPABILITY_TRUTH_STATES = Object.freeze(["verified","measured","implemented","host-dependent","prompt-only","simulated","historical","unavailable"]);
+const FULL_PRO_BUDGETS = Object.freeze({experts:500,semantic_cluster_groups:20,max_stability_revisions:7,artifact_retry_default:4,artifact_retry_human_hand:8});
+const EINSTEIN_STAGE_GUIDANCE = Object.freeze({
+  observation:"Empirical observation first: separate directly observed facts from assumptions and define what later artifact evidence would falsify the plan.",
+  first_principles:"Question hidden assumptions and derive the design from fundamental requirements, constraints, mechanics and user intent.",
+  gedanken:"Run a concrete thought experiment before execution: mentally simulate the scene or system and expose contradictions before they reach the executor.",
+  observer_relativity:"Check the result from multiple frames of reference or viewpoints; for visuals this includes camera perspective, scale and observer-dependent composition.",
+  unification:"Treat interacting elements as one coupled field: camera, lighting, materials, action, environment, tools and constraints must agree rather than optimize independently.",
+  simplicity_critic:"Apply radical simplicity: remove elements or assumptions that do not serve the user goal, while preserving all material constraints and dissent.",
+  revision:"Perform empirical-verification planning: state the observable postconditions, unresolved falsifiers and smallest defensible revision before execution."
+});
 const VISUAL_INTELLIGENCE_VERSION = "attachment-cinema-v1";
 const VISUAL_INTELLIGENCE_PROFILE = Object.freeze({
   prompt_formula:["subject","action","environment","composition","camera","lighting","materials","atmosphere","mood","constraints"],
@@ -1862,7 +1877,7 @@ async function fullProAuditProof(env,meta){
 
 async function secureAuthorizeTool(env,args){
   const id=text(args?.request_id,160);if(!id)throw new Error("FULL_PRO_REQUEST_ID_REQUIRED");
-  const metaForAudit=await fpGet(env,fpReqKey(id));if(!metaForAudit)throw new Error("FULL_PRO_REQUEST_NOT_FOUND");
+  const metaForAudit=await fpGet(env,fpReqKey(id));if(!metaForAudit)throw new Error("FULL_PRO_REQUEST_NOT_FOUND");if(!metaForAudit.execution_contract_digest||!metaForAudit.execution_contract||String(metaForAudit.execution_contract?.candidate_digest||"")!==String(metaForAudit.candidate_digest||""))throw new Error("FULL_PRO_EXECUTION_CONTRACT_MISSING");
   if(metaForAudit.canary)throw new Error("FULL_PRO_EXPERT_PROOF_INCOMPLETE");
   const c500=metaForAudit.council500_mode===true;
   const audit=c500?await c500AuditProof(env,metaForAudit):await fullProAuditProof(env,metaForAudit);
@@ -1885,11 +1900,11 @@ async function secureAuthorizeTool(env,args){
   for(const g of ["deterministic","risk","self_critic","verifier"]){const gr=gateReceipts[g];if(!gr||!secureReceiptObserved(gr,id)||String(gr?.choice||"")!=="pass"||String(gr?.candidate_digest||"")!==candidate_digest||String(gr?.contract_version||"")!=="evidence_rich_v3")throw new Error("FULL_PRO_GATES_INCOMPLETE");}
   const proof=c500?{contract_version:C500_CONTRACT,experts_required:500,experts_validated:audit.experts_validated,expert_outputs_observed:audit.expert_outputs_observed,proposals_observed:audit.proposals_observed,jev_calls_observed:Number(metaForAudit.c500_jev_calls_observed||0),finalists_count:Array.isArray(metaForAudit.c500_finalists)?metaForAudit.c500_finalists.length:0,einstein_stages:7,cross_expert_complete:true,final_stable:true,gates_pass:true,candidate_frozen:true}:{experts_required:audit.experts_required,experts_validated:audit.experts_validated,ideas_validated:audit.ideas_validated,questions_validated:audit.questions_validated,jev_calls_observed:audit.jev_calls_observed,einstein_stages:7,cross_expert_complete:true,final_stable:true,gates_pass:true,candidate_frozen:true};
   const evidenceDigests={cross:await secureSha256Hex(secureCanonical(cross)),einstein:await secureSha256Hex(secureCanonical(ein)),finals:await secureSha256Hex(secureCanonical(finals)),gates:await secureSha256Hex(secureCanonical({choices:gates,receipts:gateReceipts}))};
-  const state_digest=await secureSha256Hex(secureCanonical({request_id:id,proof,evidenceDigests,candidate_digest}));
-  const execution_lock=await secureSha256Hex(id+"|"+candidate_digest+"|"+state_digest+"|kosif-secure-executor-v1");
-  const result=await secureJson(env,"/runtime/authorize",{request_id:id,candidate_digest,state_digest,execution_lock,proof});
-  const meta=await fpGet(env,fpReqKey(id));if(meta){meta.status="secure_authorized";meta.secure_authorization={candidate_digest,state_digest,execution_lock,authorized_at:new Date().toISOString()};meta.updated_at=new Date().toISOString();await fpPut(env,fpReqKey(id),meta);}
-  return {ok:true,request_id:id,status:"secure_authorized",candidate_digest,state_digest,execution_lock,secure_executor:result};
+  const execution_contract_digest=String(metaForAudit.execution_contract_digest);const state_digest=await secureSha256Hex(secureCanonical({request_id:id,proof,evidenceDigests,candidate_digest,execution_contract_digest,governance_version:COGNITIVE_GOVERNANCE_VERSION}));
+  const execution_lock=await secureSha256Hex(id+"|"+candidate_digest+"|"+execution_contract_digest+"|"+state_digest+"|kosif-secure-executor-v2");
+  const result=await secureJson(env,"/runtime/authorize",{request_id:id,candidate_digest,state_digest,execution_lock,execution_contract_digest,proof});
+  const meta=await fpGet(env,fpReqKey(id));if(meta){meta.status="secure_authorized";meta.secure_authorization={candidate_digest,state_digest,execution_lock,execution_contract_digest,authorized_at:new Date().toISOString()};meta.updated_at=new Date().toISOString();await fpPut(env,fpReqKey(id),meta);}
+  return {ok:true,request_id:id,status:"secure_authorized",candidate_digest,state_digest,execution_lock,execution_contract_digest,secure_executor:result};
 }
 
 async function secureStatusTool(env,args){
@@ -1941,9 +1956,10 @@ async function secureImageTool(env,args){
   if(!env.SECURE_EXECUTOR) throw new Error("SECURE_EXECUTOR_BINDING_MISSING");
   const scene=args?.scene_spec;
   if(!scene||typeof scene!=="object"||Array.isArray(scene)) throw new Error("FULL_PRO_SCENESPEC_INVALID");
+  const metaBefore=await fpGet(env,fpReqKey(id));const executionContractDigest=String(metaBefore?.execution_contract_digest||"");if(!executionContractDigest)throw new Error("FULL_PRO_EXECUTION_CONTRACT_MISSING");
   const res=await env.SECURE_EXECUTOR.fetch(new Request("https://secure/execute/image",{
     method:"POST",headers:{"content-type":"application/json"},
-    body:JSON.stringify({request_id:id,scene_spec:scene,width:Number(args?.width||768),height:Number(args?.height||768)})
+    body:JSON.stringify({request_id:id,scene_spec:scene,execution_contract_digest:executionContractDigest,width:Number(args?.width||768),height:Number(args?.height||768)})
   }));
   if(!res.ok){
     let d=null;try{d=await res.json();}catch(_){}
@@ -2503,9 +2519,9 @@ async function c500FinalizerAdvance(env,requestId){
   }
 
   if(!meta.cross_expert_receipt){
-    const prompt=["KOSIF Council-500 convergence. Task: "+meta.subject,"Use the surviving candidates, Jev A choices, challenger dossier, and Jev B score receipts. Produce an evidence-aware synthesis for Einstein. Do not collapse unresolved dissent. Return JSON with keys synthesis, principles, conflicts, blocking_objections, scene_implications, tool_candidates, top_candidate_ids.","Finalists: "+JSON.stringify(meta.c500_finalists),"Challenger: "+JSON.stringify(meta.c500_challenger_receipt.output),"Jev B receipts: "+JSON.stringify(meta.c500_jev_round_b),"Tool arbitration: "+JSON.stringify(meta.c500_tool_arbitration)].join("\n");
+    const prompt=["KOSIF Council-500 convergence. Task: "+meta.subject,"Use the surviving candidates, Jev A choices, challenger dossier, and Jev B score receipts. Produce an evidence-aware synthesis for Einstein. Do not collapse unresolved dissent. Source-taint rule: an unverified, historical, mixed or quarantined source claim stays restricted even if repeated by many experts or selected by Jev; label unsupported external claims as assumptions and do not let them close an authority gate. Return JSON with keys synthesis, principles, conflicts, blocking_objections, scene_implications, tool_candidates, top_candidate_ids, source_taint_notes.","Finalists: "+JSON.stringify(meta.c500_finalists),"Challenger: "+JSON.stringify(meta.c500_challenger_receipt.output),"Jev B receipts: "+JSON.stringify(meta.c500_jev_round_b),"Tool arbitration: "+JSON.stringify(meta.c500_tool_arbitration)].join("\n");
     const m=await fullProModelJson(env,prompt);
-    meta.cross_expert_receipt={observed:true,request_id:requestId,stage:"cross_expert",provider:"cloudflare-workers-ai",model:m.model,output:m.output};
+    meta.cross_expert_receipt={observed:true,request_id:requestId,stage:"cross_expert",provider:"cloudflare-workers-ai",model:m.model,governance_version:COGNITIVE_GOVERNANCE_VERSION,source_taint_policy:SOURCE_TAINT_POLICY_VERSION,output:m.output};meta.source_taint_receipt={observed:true,request_id:requestId,stage:"cross_expert_source_taint",policy_version:SOURCE_TAINT_POLICY_VERSION,rule:"repetition_or_jev_selection_does_not_cleanse_unverified_provenance",notes:Array.isArray(m.output?.source_taint_notes)?m.output.source_taint_notes.slice(0,20):[]};
     meta.cross_expert_complete=true;meta.updated_at=new Date().toISOString();await fpPut(env,fpReqKey(requestId),meta);
     return {reenqueue:true,stage:"c500_cross_expert"};
   }
@@ -2513,10 +2529,10 @@ async function c500FinalizerAdvance(env,requestId){
   const einStages=["observation","first_principles","gedanken","observer_relativity","unification","simplicity_critic","revision"];
   meta.einstein_stage_receipts=Array.isArray(meta.einstein_stage_receipts)?meta.einstein_stage_receipts:[];
   if(meta.einstein_stage_receipts.length<7){
-    const idx=meta.einstein_stage_receipts.length,stage=einStages[idx],prev=idx?meta.einstein_stage_receipts[idx-1].output:meta.cross_expert_receipt.output;
-    const prompt=["KOSIF Einstein Chief Expert method-role, stage: "+stage+".","This is a synthesis method, not impersonation or a claim about Einstein's personal views.","Task: "+meta.subject,"Council synthesis: "+JSON.stringify(meta.cross_expert_receipt.output),"Previous stage: "+JSON.stringify(prev),"Apply the stage generically to the actual task. Preserve constraints, evidence lineage, dissent, feasibility, visual fidelity when relevant, and tool/verification requirements. Return JSON with keys stage, analysis, decisions, candidate_syntheses, scene_implications, tool_implications, blocking_objections."].join("\n");
+    const idx=meta.einstein_stage_receipts.length,stage=einStages[idx],prev=idx?meta.einstein_stage_receipts[idx-1].output:meta.cross_expert_receipt.output,guidance=EINSTEIN_STAGE_GUIDANCE[stage]||"Apply evidence-aware first-principles reasoning.";
+    const prompt=["KOSIF Einstein Chief Expert method-role, stage: "+stage+".","This is a synthesis method, not impersonation or a claim about Einstein's personal views.","Task: "+meta.subject,"Council synthesis: "+JSON.stringify(meta.cross_expert_receipt.output),"Previous stage: "+JSON.stringify(prev),"Protocol version: "+EINSTEIN_PROTOCOL_VERSION+". Stage guidance: "+guidance+" Apply the stage generically to the actual task. Preserve constraints, evidence lineage, dissent, feasibility, visual fidelity when relevant, and tool/verification requirements. Explicitly distinguish observation from assumption and name an observable falsifier or postcondition when relevant. Return JSON with keys stage, analysis, decisions, candidate_syntheses, scene_implications, tool_implications, blocking_objections."].join("\n");
     const m=await fullProModelJson(env,prompt);
-    meta.einstein_stage_receipts.push({observed:true,request_id:requestId,stage,provider:"cloudflare-workers-ai",model:m.model,output:m.output});meta.updated_at=new Date().toISOString();await fpPut(env,fpReqKey(requestId),meta);
+    meta.einstein_stage_receipts.push({observed:true,request_id:requestId,stage,protocol_version:EINSTEIN_PROTOCOL_VERSION,stage_guidance:guidance,provider:"cloudflare-workers-ai",model:m.model,output:m.output});meta.updated_at=new Date().toISOString();await fpPut(env,fpReqKey(requestId),meta);
     return {reenqueue:true,stage:"c500_einstein",index:idx+1};
   }
 
@@ -2533,7 +2549,7 @@ async function c500FinalizerAdvance(env,requestId){
       if(!fullProSceneSpecValid(fallback))throw new Error("C500_SCENESPEC_INVALID");
       m={model:"deterministic-scene-fallback",output:fallback};
     }
-    meta.scene_spec=m.output;meta.candidate_digest=await secureSha256Hex(secureCanonical(m.output));meta.candidate_frozen=true;meta.scene_spec_receipt={observed:true,request_id:requestId,stage:"scene_spec",provider:"cloudflare-workers-ai",model:m.model,output_digest:meta.candidate_digest};meta.updated_at=new Date().toISOString();await fpPut(env,fpReqKey(requestId),meta);
+    meta.scene_spec=m.output;meta.candidate_digest=await secureSha256Hex(secureCanonical(m.output));meta.candidate_frozen=true;meta.scene_spec_receipt={observed:true,request_id:requestId,stage:"scene_spec",provider:"cloudflare-workers-ai",model:m.model,output_digest:meta.candidate_digest};meta.deterministic_validation_receipt={observed:true,request_id:requestId,stage:"scene_spec_deterministic_validation",provider:"kosif-runtime-deterministic",governance_version:COGNITIVE_GOVERNANCE_VERSION,candidate_digest:meta.candidate_digest,scene_schema_valid:fullProSceneSpecValid(m.output),semantic_issues:fullProSceneSemanticIssues(m.output),stability_micro_issues:fullProStabilityMicroIssues(m.output)};meta.updated_at=new Date().toISOString();await fpPut(env,fpReqKey(requestId),meta);
     return {reenqueue:true,stage:"c500_scene_spec_frozen",candidate_digest:meta.candidate_digest};
   }
 
@@ -2563,6 +2579,12 @@ async function c500FinalizerAdvance(env,requestId){
   }
   if(gateNames.some(g=>meta.gate_receipts[g]?.choice!=="pass")){meta.status="blocked_gate";meta.last_error="C500_GATE_BLOCK";meta.updated_at=new Date().toISOString();await fpPut(env,fpReqKey(requestId),meta);return {reenqueue:false,status:meta.status};}
   meta.gates_pass=true;
+
+  if(!meta.execution_contract||String(meta.execution_contract?.candidate_digest||"")!==String(meta.candidate_digest||"")){
+    const built=await fullProBuildExecutionContract(meta);
+    meta.execution_contract=built.contract;meta.execution_contract_digest=built.digest;meta.updated_at=new Date().toISOString();await fpPut(env,fpReqKey(requestId),meta);
+    return {reenqueue:true,stage:"c500_execution_contract_frozen",execution_contract_digest:built.digest,candidate_digest:meta.candidate_digest};
+  }
 
   if(!meta.secure_authorization){
     await secureAuthorizeTool(env,{request_id:requestId,scene_spec:meta.scene_spec,cross_expert_receipts:[meta.cross_expert_receipt],einstein_stage_receipts:meta.einstein_stage_receipts,final_stability_receipts:meta.final_stability_receipts,gates:{deterministic:"pass",risk:"pass",self_critic:"pass",verifier:"pass"},gate_receipts:meta.gate_receipts,blocking_objections:[]});
@@ -2744,6 +2766,30 @@ async function legacyFullProStart(env,args,canaryOnly){
     }
 
 
+function fullProCapabilityTruth(meta,secureExecutor){
+  const completed=Number(secureExecutor?.expert_completions||0),jev=Number(meta?.c500_jev_calls_observed||0),ein=Array.isArray(meta?.einstein_stage_receipts)?meta.einstein_stage_receipts.length:0;
+  const qa=secureExecutor?.artifact_qa;
+  const state=(verified,measured=false,implemented=true)=>verified?"verified":measured?"measured":implemented?"implemented":"unavailable";
+  return {
+    registry_version:"capability-truth-v1",allowed_states:CAPABILITY_TRUTH_STATES,
+    council500:{state:state(completed===500,completed>0),evidence:{experts_completed:completed,experts_required:500}},
+    jev:{state:state(jev>0,false),evidence:{calls_observed:jev}},
+    einstein_method:{state:state(ein===7,ein>0),evidence:{stages_observed:ein,protocol_version:EINSTEIN_PROTOCOL_VERSION}},
+    secure_executor:{state:state(!!secureExecutor?.request,!!secureExecutor&&!secureExecutor?.error),evidence:{status:secureExecutor?.request?.status||null}},
+    artifact_qa:{state:state(qa?.observed===true,qa!=null),evidence:qa?{pass:qa.pass===true,score:Number(qa.score||0),report_digest:qa.report_digest||null}:null},
+    execution_contract:{state:state(!!meta?.execution_contract_digest,!!meta?.candidate_digest),evidence:{contract_digest:meta?.execution_contract_digest||null,candidate_digest:meta?.candidate_digest||null}},
+    host_tool_exposure:{state:"host-dependent",evidence:"server capability does not prove the current ChatGPT host exposed the tool"}
+  };
+}
+async function fullProBuildExecutionContract(meta){
+  const scene=meta?.scene_spec||{},required={};
+  for(const k of ["subject","identity","anatomy","wardrobe","props","world","environment","action","contact_physics","camera","lens","focal_length","aperture","camera_height","angle","dof","composition","lighting","key","fill","rim","kelvin","materials","weather","vfx","color_grade","story","aspect_ratio"]){
+    const v=scene[k];if(v===undefined||v===null)continue;const t=typeof v==="string"?v:JSON.stringify(v);if(/^not applicable/i.test(String(t).trim()))continue;required[k]=v;
+  }
+  const contract={version:EXECUTION_CONTRACT_VERSION,request_id:meta.request_id,user_goal:meta.subject,selected_decision_digest:meta.candidate_digest,candidate_digest:meta.candidate_digest,required_attributes:required,forbidden_attributes:Array.isArray(scene.negative_constraints)?scene.negative_constraints.slice(0,40):[],allowed_flexibility:["tool-specific formatting","stochastic pixel-level variation that does not alter required or forbidden attributes"],executor_type:"image",success_criteria:["candidate digest remains unchanged","one-use secure ticket is consumed exactly once","observable artifact satisfies active task-aware QA checks"],verification_method:"candidate_digest + execution_contract_digest + one-use ticket + vision_task_aware_v4 postcondition QA",decision_provenance:{council500:true,experts_validated:Number(meta.c500_audit?.experts_validated||0),finalists_count:Array.isArray(meta.c500_finalists)?meta.c500_finalists.length:0,jev_calls_observed:Number(meta.c500_jev_calls_observed||0),einstein_stages:Array.isArray(meta.einstein_stage_receipts)?meta.einstein_stage_receipts.length:0,source_taint_policy:SOURCE_TAINT_POLICY_VERSION,governance_version:COGNITIVE_GOVERNANCE_VERSION}};
+  return {contract,digest:await secureSha256Hex(secureCanonical(contract))};
+}
+
 async function fullProStatus(env,args){
   const id=text(args?.request_id,160);if(!id)throw new Error("FULL_PRO_REQUEST_ID_REQUIRED");
   const meta=await fpGet(env,fpReqKey(id));if(!meta)throw new Error("FULL_PRO_REQUEST_NOT_FOUND");
@@ -2752,7 +2798,8 @@ async function fullProStatus(env,args){
   const completed=Number(secure_executor?.expert_completions||0);
   const secureState=String(secure_executor?.request?.status||"");
   const effectiveStatus=secureState==="CANCELLED"?"cancelled":secureState==="BYPASS_DETECTED"?"bypass_detected":secureState==="COMPLETE"?"complete":meta.status;
-  return {ok:true,version:VERSION,mode:"council500_full_pro",contract_version:C500_CONTRACT,visual_intelligence_version:VISUAL_INTELLIGENCE_VERSION,request_id:id,status:effectiveStatus,council500_mode:true,experts_completed:completed,experts_required:500,experts_pending:Math.max(0,500-completed),proposals_observed:completed*3,semantic_cluster_groups:Array.isArray(meta.c500_cluster_receipts)?meta.c500_cluster_receipts.length:0,jev_calls_observed:Number(meta.c500_jev_calls_observed||0),finalists_count:Array.isArray(meta.c500_finalists)?meta.c500_finalists.length:0,cross_expert_complete:meta.cross_expert_complete===true,einstein_stages:Array.isArray(meta.einstein_stage_receipts)?meta.einstein_stage_receipts.length:0,final_stable:meta.final_stable===true,gates_pass:meta.gates_pass===true,candidate_frozen:meta.candidate_frozen===true,candidate_digest:meta.candidate_digest||null,requires_shared_visual:meta.requires_shared_visual===true,shared_visual_verified:meta.shared_visual_verified===true,source_asset_hash:meta.source_asset_hash||null,last_error:meta.last_error||null,started_at:meta.started_at,updated_at:meta.updated_at,secure_executor};
+  const capability_truth=fullProCapabilityTruth(meta,secure_executor);
+  return {ok:true,version:VERSION,mode:"council500_full_pro",contract_version:C500_CONTRACT,visual_intelligence_version:VISUAL_INTELLIGENCE_VERSION,cognitive_governance_version:COGNITIVE_GOVERNANCE_VERSION,einstein_protocol_version:EINSTEIN_PROTOCOL_VERSION,source_taint_policy_version:SOURCE_TAINT_POLICY_VERSION,execution_contract_version:EXECUTION_CONTRACT_VERSION,budgets:FULL_PRO_BUDGETS,capability_truth,execution_contract_digest:meta.execution_contract_digest||null,request_id:id,status:effectiveStatus,council500_mode:true,experts_completed:completed,experts_required:500,experts_pending:Math.max(0,500-completed),proposals_observed:completed*3,semantic_cluster_groups:Array.isArray(meta.c500_cluster_receipts)?meta.c500_cluster_receipts.length:0,jev_calls_observed:Number(meta.c500_jev_calls_observed||0),finalists_count:Array.isArray(meta.c500_finalists)?meta.c500_finalists.length:0,cross_expert_complete:meta.cross_expert_complete===true,einstein_stages:Array.isArray(meta.einstein_stage_receipts)?meta.einstein_stage_receipts.length:0,final_stable:meta.final_stable===true,gates_pass:meta.gates_pass===true,candidate_frozen:meta.candidate_frozen===true,candidate_digest:meta.candidate_digest||null,requires_shared_visual:meta.requires_shared_visual===true,shared_visual_verified:meta.shared_visual_verified===true,source_asset_hash:meta.source_asset_hash||null,last_error:meta.last_error||null,started_at:meta.started_at,updated_at:meta.updated_at,secure_executor};
 }
 async function fullProStart(env,args,canaryOnly){
   if(canaryOnly)return legacyFullProStart(env,args,canaryOnly);
@@ -3359,7 +3406,7 @@ async function fullProFinalizeAdvance(env,requestId,meta){
     }
     const noulRevisionReceipts=(Array.isArray(meta.stability_revision_receipts)?meta.stability_revision_receipts:[]).filter(r=>Array.isArray(r?.prior_stability)&&r.prior_stability.some(x=>x?.method==="noul_v1")).length;
     const noulRevisionCount=Math.max(Number(meta.stability_noul_revision_count||0),noulRevisionReceipts);
-    if(noulRevisionCount>=7){
+    if(noulRevisionCount>=FULL_PRO_BUDGETS.max_stability_revisions){
       meta.status="blocked_final_stability";meta.last_error="FULL_PRO_FINAL_STABILITY_BLOCKED";meta.updated_at=new Date().toISOString();await fpPut(env,fpReqKey(requestId),meta);return {reenqueue:false,status:meta.status};
     }
     const oldDigest=meta.candidate_digest;
