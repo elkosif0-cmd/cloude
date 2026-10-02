@@ -11,9 +11,9 @@ Last verified: 2026-10-02
 | Jev service | `kosif-jev` | unversioned live worker | `think-mcp/jev/worker.js` |
 
 ChatGPT plugin releases verified with this runtime:
-- `kosif think 20 s`: `20.3.11`
-- KOSIF Think provider: `1.8.9`
-- `Source kosif think 20 s`: `10.7.11`
+- `kosif think 20 s`: `20.3.12`
+- KOSIF Think provider: `1.8.10`
+- `Source kosif think 20 s`: `10.7.12`
 
 ## Current contracts
 
