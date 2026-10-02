@@ -1,4 +1,4 @@
-const VERSION = "0.17.10";
+const VERSION = "0.17.11";
 const REVISION_CLOSURE_VERSION = "revision-closure-v1";
 const AUTH_POLICY_VERSION = "public-broker-oauth-v2";
 const COGNITIVE_GOVERNANCE_VERSION = "attachments-governance-v1";
@@ -2168,8 +2168,10 @@ async function callTool(env,name,args,ctx={}){
   return null;
 }
 
-const VERSIONED_MCP_PATH = "/mcp/v0.17.9";
-const COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.7";
+const VERSIONED_MCP_PATH = "/mcp/v0.17.11";
+const COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.10";
+const SECONDARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.9";
+const TERTIARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.7";
 const LEGACY_VERSIONED_MCP_PATH = "/mcp/v0.9.3";
 const PATH_TOKEN = /^\/mcp\/([^/]+)$/;
 
@@ -2191,7 +2193,7 @@ async function handleMcp(req,env,url){
 
   const ip=req.headers.get("cf-connecting-ip")||"unknown";
   const expected=String(env.KOSIF_THINK_TOKEN||"");
-  const isVersionedPath=url.pathname===VERSIONED_MCP_PATH||url.pathname===COMPAT_VERSIONED_MCP_PATH||url.pathname===LEGACY_VERSIONED_MCP_PATH;
+  const isVersionedPath=url.pathname===VERSIONED_MCP_PATH||url.pathname===COMPAT_VERSIONED_MCP_PATH||url.pathname===SECONDARY_COMPAT_VERSIONED_MCP_PATH||url.pathname===TERTIARY_COMPAT_VERSIONED_MCP_PATH||url.pathname===LEGACY_VERSIONED_MCP_PATH;
   const pathMatch=isVersionedPath?null:PATH_TOKEN.exec(url.pathname);
   const presented=bearer(req)||(pathMatch?pathMatch[1]:"");
   const failKey="auth-fail|ip:"+ip;
@@ -2217,7 +2219,7 @@ async function handleMcp(req,env,url){
     protocolVersion:msg.params?.protocolVersion||"2025-06-18",
     capabilities:{tools:{listChanged:true}},
     serverInfo:{name:"kosif-think",version:VERSION},
-    instructions:"KOSIF Think "+VERSION+" exposes durable Full Pro orchestration plus a private Cloudflare Secure Executor. The primary versioned MCP endpoint /mcp/v0.17.9 forces fresh tool discovery; /mcp/v0.17.7 and /mcp/v0.9.3 remain compatibility-only. When explicitly selected, run KOSIF first. For Full Pro image execution, use the Full Pro runtime, secure authorization, kosif_secure_image_execute, and secure artifact QA; direct host-native image generation is not Full Pro. Tool catalogs may change; clients should honor tools.listChanged and refresh tools/list on reconnect."
+    instructions:"KOSIF Think "+VERSION+" exposes durable Full Pro orchestration plus a private Cloudflare Secure Executor. The primary versioned MCP endpoint /mcp/v0.17.11 forces fresh tool discovery; /mcp/v0.17.10, /mcp/v0.17.9, /mcp/v0.17.7 and /mcp/v0.9.3 remain compatibility-only. When explicitly selected, run KOSIF first. For Full Pro image execution, use the Full Pro runtime, secure authorization, kosif_secure_image_execute, and secure artifact QA; direct host-native image generation is not Full Pro. Tool catalogs may change; clients should honor tools.listChanged and refresh tools/list on reconnect."
   },cors);
   if(msg.method.startsWith("notifications/")) return empty(202,cors);
   if(msg.method==="ping") return rpc(id,{},cors);
@@ -4134,7 +4136,7 @@ export default {
       });
     }
 
-    const versionedMcp=url.pathname===VERSIONED_MCP_PATH||url.pathname===COMPAT_VERSIONED_MCP_PATH||url.pathname===LEGACY_VERSIONED_MCP_PATH;
+    const versionedMcp=url.pathname===VERSIONED_MCP_PATH||url.pathname===COMPAT_VERSIONED_MCP_PATH||url.pathname===SECONDARY_COMPAT_VERSIONED_MCP_PATH||url.pathname===TERTIARY_COMPAT_VERSIONED_MCP_PATH||url.pathname===LEGACY_VERSIONED_MCP_PATH;
     const pathToken=!versionedMcp&&PATH_TOKEN.test(url.pathname)&&String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true";
     if(url.pathname!=="/mcp"&&!versionedMcp&&!pathToken) return json({error:"not_found"},404);
     return handleMcp(req,env,url);
