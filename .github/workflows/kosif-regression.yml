@@ -34,3 +34,15 @@ jobs:
         run: node think-mcp/cloudflare-council-01713.test.mjs
       - name: Current MCP transport and access contracts
         run: node --test think-mcp/worker.test.mjs
+      - name: Expert Cognitive Cards v1 deterministic regression
+        run: node think-mcp/cognitive-cards-v1.test.mjs
+      - name: Live/source version guard
+        shell: bash
+        run: |
+          LIVE="$(cat think-mcp/LIVE-RUNTIME-VERSION | tr -d '[:space:]')"
+          SRC="$(sed -n 's/^const VERSION = "\([^"]*\)";/\1/p' think-mcp/worker.js | head -1)"
+          echo "Live runtime target: $LIVE"
+          echo "GitHub worker mirror: $SRC"
+          if [ "$LIVE" != "$SRC" ]; then
+            echo "::warning title=KOSIF live/source drift::Do not deploy think-mcp/worker.js over Cloudflare. Live=$LIVE GitHubMirror=$SRC"
+          fi
