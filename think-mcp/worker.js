@@ -1,4 +1,4 @@
-const VERSION = "0.18.5";
+const VERSION = "0.18.6";
 const REVISION_CLOSURE_VERSION = "revision-closure-v1";
 const AUTH_POLICY_VERSION = "public-broker-oauth-v2";
 const COGNITIVE_GOVERNANCE_VERSION = "attachments-governance-v1";
@@ -2223,7 +2223,7 @@ async function callTool(env,name,args,ctx={}){
     access:{auth:"rate-limited-public-broker+optional-oauth2+legacy-bearer",authPolicyVersion:AUTH_POLICY_VERSION,revisionClosureVersion:REVISION_CLOSURE_VERSION,authFailLockout:"pre-verification-ip-window",oauthChallenge:"tool-result-meta+resource-401",jwtAlgorithms:["RS256","PS256"],issuer:AUTH0_ISSUER,audience:AUTH0_AUDIENCE,resourceMetadata:OAUTH_METADATA_URL,pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierConfigured,frontierAuthenticatedForThisRequest,frontierAvailableForThisRequest:frontierConfigured,
       rateLimiter:typeof env.THINK_RATE_LIMITER?.limit==="function",modelLimiter:typeof env.THINK_MODEL_LIMITER?.limit==="function",limits:limits(env),browserOrigins:allowedOrigins(env).length},
     routing:{
-      preflight:"When KOSIF Think is explicitly selected or invoked, run KOSIF first before any substantive answer or downstream tool.",
+      preflight:"When kosif Do is explicitly selected or invoked, run KOSIF Full Pro first before any substantive answer or downstream tool.",
       adaptive:"Adaptive Fast/Council/Deep selection is internal routing behavior. kosif_auto is available server-side when listed by this runtime, but that does not prove the current ChatGPT host exposed it; verify the caller live tool catalog.",
       fast:"kosif_think -> Cloudflare fast council",
       council:"ChatGPT calls kosif_agent independently for gpt + claude + gemini + fable, then kosif_council",
@@ -2246,10 +2246,10 @@ async function callTool(env,name,args,ctx={}){
   return null;
 }
 
-const VERSIONED_MCP_PATH = "/mcp/v0.18.5";
-const COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.18.4";
-const SECONDARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.18.3";
-const TERTIARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.18.2";
+const VERSIONED_MCP_PATH = "/mcp/v0.18.6";
+const COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.18.5";
+const SECONDARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.18.4";
+const TERTIARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.18.3";
 const LEGACY_VERSIONED_MCP_PATH = "/mcp/v0.9.3";
 const PATH_TOKEN = /^\/mcp\/([^/]+)$/;
 
@@ -4405,13 +4405,13 @@ export default {
       /* public: no configuration, no model list */
       return json({ok:true,service:"KOSIF Think MCP",version:VERSION});
     }
-    if(url.pathname==="/.well-known/oauth-protected-resource"||url.pathname==="/.well-known/oauth-protected-resource/mcp"||url.pathname==="/.well-known/oauth-protected-resource/mcp/v0.17.9"||url.pathname==="/.well-known/oauth-protected-resource/mcp/v0.17.7"||url.pathname==="/.well-known/oauth-protected-resource/mcp/v0.9.3"){
+    if(url.pathname==="/.well-known/oauth-protected-resource"||url.pathname==="/.well-known/oauth-protected-resource/mcp"||url.pathname.startsWith("/.well-known/oauth-protected-resource/mcp/v0.")){
       if(req.method!=="GET"&&req.method!=="HEAD") return json({error:"method_not_allowed"},405,{allow:"GET, HEAD"});
       return json({
         resource:AUTH0_AUDIENCE,
         authorization_servers:[AUTH0_ISSUER],
         scopes_supported:["openid","profile","email"],
-        resource_name:"KOSIF Think MCP",
+        resource_name:"kosif Do MCP",
         bearer_methods_supported:["header"]
       });
     }
