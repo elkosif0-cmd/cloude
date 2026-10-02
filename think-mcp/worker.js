@@ -1,4 +1,5 @@
-const VERSION = "0.17.9";
+const VERSION = "0.17.10";
+const REVISION_CLOSURE_VERSION = "revision-closure-v1";
 const AUTH_POLICY_VERSION = "public-broker-oauth-v2";
 const COGNITIVE_GOVERNANCE_VERSION = "attachments-governance-v1";
 const EINSTEIN_PROTOCOL_VERSION = "einstein-attachments-v2";
@@ -477,9 +478,10 @@ function artifact(agent,x){
 }
 function agentPrompt(agent,stage,input,peers){
   const shape={recommendationId:"option key when options exist, otherwise null",answer:"concise reviewable conclusion",evidence:["facts"],assumptions:["assumptions"],risks:["risks"],objections:["objections"],confidence:0.0};
-  const stageRule=stage==="independent"?"Work independently. Do not anchor on another model.":stage==="critique"?"Review peer artifacts. Identify material conflicts or unsupported claims and return your revised position.":"Produce the final revised position after criticism.";
+  const stageRule=stage==="independent"?"Work independently. Do not anchor on another model.":stage==="critique"?"Review peer artifacts. Identify only material conflicts, unsupported claims, constraint violations, or decision-changing risks. Do not invent new task requirements. Return a critique-aware position.":"Produce the final revised position after criticism under "+REVISION_CLOSURE_VERSION+".";
+  const closureRule=stage==="revision"?"REVISION CLOSURE CONTRACT: preserve the user's explicit positive and negative constraints; do not invent new subjects, props, styles, settings, facts, requirements, or aesthetic details unless directly required to resolve a peer objection or supported by evidence. For every peer objection/risk, either (a) resolve it concretely in the answer/evidence, or (b) keep it in objections/risks ONLY if it remains materially unresolved after revision. Never copy resolved objections/risks forward. If none remain, return empty arrays. assumptions must contain only assumptions still necessary after revision. The revised answer must be executable/reviewable without relying on unresolved peer text.":"";
   return [
-    "You are a member of KOSIF Think.","Role: "+agent.role,stageRule,
+    "You are a member of KOSIF Think.","Role: "+agent.role,stageRule,closureRule,
     "Be rigorous and concise. Do not reveal private chain-of-thought.",
     Object.keys(input.options||{}).length?"recommendationId MUST be one exact option key: "+Object.keys(input.options).join(", ")+"; use null only for genuine abstention.":"No options supplied; recommendationId must be null.",
     "Return one valid JSON object only, matching this shape: "+JSON.stringify(shape),
@@ -2140,7 +2142,7 @@ async function callTool(env,name,args,ctx={}){
     enforcement:"Instruction-level only; the server cannot force host tool invocation.",
     modelIdentity:"Compatibility role IDs are not model identities; actual Cloudflare model IDs are returned per artifact.",
     improvements:["primary-provider-coverage-gate","safe-upstream-error-classification","configuration-health-separation","full-pro-status-secure-state-fix","mobile-full-pro-compat-bridge-v1","evidence-answer-consistency-gate","truthful-host-exposure-status","adaptive-router-v2","runtime-receipts","ephemeral-diagnostics","frontier-circuit-breaker","deterministic-self-test","frontier-timeout-transparent-fallback","unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","pre-verification-auth-fail-lockout","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","one-time-jev-packet-binding","evidence-backed-cove","evidence-tournament","four-tier-memory-routing","dynamic-capability-mesh-v1","all-plugin-host-routing","lease-ttl-registry","schema-hash-drift-guard","idempotency-key-routing","plugin-output-trust-boundary","minimal-relevant-tool-set","deep-research-evidence-fusion","natural-language-arithmetic-binding","versioned-discovery-compat"],
-    access:{auth:"rate-limited-public-broker+optional-oauth2+legacy-bearer",authPolicyVersion:AUTH_POLICY_VERSION,authFailLockout:"pre-verification-ip-window",oauthChallenge:"tool-result-meta+resource-401",jwtAlgorithms:["RS256","PS256"],issuer:AUTH0_ISSUER,audience:AUTH0_AUDIENCE,resourceMetadata:OAUTH_METADATA_URL,pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierConfigured,frontierAuthenticatedForThisRequest,frontierAvailableForThisRequest:frontierConfigured,
+    access:{auth:"rate-limited-public-broker+optional-oauth2+legacy-bearer",authPolicyVersion:AUTH_POLICY_VERSION,revisionClosureVersion:REVISION_CLOSURE_VERSION,authFailLockout:"pre-verification-ip-window",oauthChallenge:"tool-result-meta+resource-401",jwtAlgorithms:["RS256","PS256"],issuer:AUTH0_ISSUER,audience:AUTH0_AUDIENCE,resourceMetadata:OAUTH_METADATA_URL,pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierConfigured,frontierAuthenticatedForThisRequest,frontierAvailableForThisRequest:frontierConfigured,
       rateLimiter:typeof env.THINK_RATE_LIMITER?.limit==="function",modelLimiter:typeof env.THINK_MODEL_LIMITER?.limit==="function",limits:limits(env),browserOrigins:allowedOrigins(env).length},
     routing:{
       preflight:"When KOSIF Think is explicitly selected or invoked, run KOSIF first before any substantive answer or downstream tool.",
