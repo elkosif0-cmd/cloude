@@ -1,10 +1,11 @@
-const VERSION = "0.17.11";
+const VERSION = "0.17.12";
 const REVISION_CLOSURE_VERSION = "revision-closure-v1";
 const AUTH_POLICY_VERSION = "public-broker-oauth-v2";
 const COGNITIVE_GOVERNANCE_VERSION = "attachments-governance-v1";
 const EINSTEIN_PROTOCOL_VERSION = "einstein-attachments-v2";
 const SOURCE_TAINT_POLICY_VERSION = "source-taint-v1";
 const EXECUTION_CONTRACT_VERSION = "execution-binding-v1";
+const DECISION_SENSITIVITY_VERSION = "decision-sensitivity-v1";
 const CAPABILITY_TRUTH_STATES = Object.freeze(["verified","measured","implemented","host-dependent","prompt-only","simulated","historical","unavailable"]);
 const FULL_PRO_BUDGETS = Object.freeze({experts:500,semantic_cluster_groups:20,max_stability_revisions:7,artifact_retry_default:4,artifact_retry_human_hand:8});
 const EINSTEIN_STAGE_GUIDANCE = Object.freeze({
@@ -559,11 +560,13 @@ function evaluateGate(artifacts,options,expectedIds){
   if(artifacts.some(a=>!a.evidence?.length)) reasons.push("EVIDENCE_MISSING");
   const consistency=evidenceConsistency(artifacts);
   const binding=c?.optionBindingConsistency||optionBindingConsistency(artifacts,options);
+  const sensitivity=c?.decisionSensitivity||decisionSensitivity(artifacts,options,binding);
   if(binding.quarantinedAgents.length) reasons.push("OPTION_BINDING_CONTRADICTION");
+  if(sensitivity.checked&&sensitivity.singleVoteFlipCount>0) reasons.push("DECISION_UNSTABLE_UNDER_SINGLE_VOTE_REMOVAL");
   if(consistency.quarantinedAgents.length) reasons.push("EVIDENCE_ANSWER_CONTRADICTION");
   if(consistency.canonicalValue!=null&&consistency.quarantinedAgents.length===artifacts.length) reasons.push("MODEL_ANSWERS_QUARANTINED");
   return {passed:reasons.length===0,reasons,missing,
-    evidenceConsistency:consistency,optionBindingConsistency:binding,
+    evidenceConsistency:consistency,optionBindingConsistency:binding,decisionSensitivity:sensitivity,
     scope:"Structural readiness only; evidence and model identity are not independently verified.",
     betterAlternativeRisk:null};
 }
@@ -571,6 +574,7 @@ function evaluateGate(artifacts,options,expectedIds){
 function council(artifacts,options){
   const keys=new Set(Object.keys(options));
   const binding=optionBindingConsistency(artifacts,options);
+  const sensitivity=decisionSensitivity(artifacts,options,binding);
   const quarantined=new Set(binding.quarantinedAgents);
   const votes=artifacts.filter(a=>a.recommendationId&&keys.has(a.recommendationId)&&!quarantined.has(a.agentId));
   if(!votes.length) return null;
@@ -595,7 +599,8 @@ function council(artifacts,options){
     confidenceMeaning:"Self-reported confidence, not a calibrated probability of correctness.",
     votes:votes.map(v=>({agentId:v.agentId,optionId:v.recommendationId,confidence:v.confidence})),
     quarantinedVoteDetails:binding.contradictions,
-    optionBindingConsistency:binding
+    optionBindingConsistency:binding,
+    decisionSensitivity:sensitivity
   };
 }
 function numberKey(n){
@@ -728,9 +733,32 @@ function optionBindingConsistency(artifacts,options){
   return out;
 }
 
+function decisionSensitivity(artifacts,options,bindingOverride=null){
+  const keys=new Set(Object.keys(options||{}));
+  const binding=bindingOverride||optionBindingConsistency(artifacts,options||{});
+  const quarantined=new Set(binding?.quarantinedAgents||[]);
+  const votes=(artifacts||[]).filter(a=>a?.recommendationId&&keys.has(a.recommendationId)&&!quarantined.has(a.agentId));
+  const rank=(set)=>{
+    if(!set.length)return {winner:null,tied:false,totalWeight:0,normalizedWeightMargin:null};
+    const rows=Object.create(null);
+    for(const v of set){const k=v.recommendationId,w=clamp(v.confidence);rows[k]=rows[k]||{count:0,weight:0};rows[k].count++;rows[k].weight+=w;}
+    const ranked=Object.entries(rows).sort((a,b)=>b[1].weight-a[1].weight||b[1].count-a[1].count||a[0].localeCompare(b[0]));
+    const first=ranked[0],second=ranked[1],totalWeight=ranked.reduce((n,x)=>n+x[1].weight,0);
+    const tied=!!(second&&Math.abs(first[1].weight-second[1].weight)<1e-9&&first[1].count===second[1].count);
+    const margin=totalWeight>0?(first[1].weight-(second?.[1]?.weight||0))/totalWeight:null;
+    return {winner:tied?null:first[0],tied,totalWeight,normalizedWeightMargin:margin==null?null:Math.round(margin*10000)/10000};
+  };
+  const baseline=rank(votes);
+  const base={version:DECISION_SENSITIVITY_VERSION,checked:false,validVotes:votes.length,baselineWinner:baseline.winner,baselineTied:baseline.tied,normalizedWeightMargin:baseline.normalizedWeightMargin,singleVoteFlipCount:0,flipRate:null,stableUnderSingleVoteRemoval:null,perturbations:[],rule:"For option decisions with at least three valid non-quarantined votes, remove each vote once and recompute the weighted winner. Any winner change or tie marks the decision as fragile under a single-vote perturbation."};
+  if(keys.size<2||votes.length<3||!baseline.winner||baseline.tied)return base;
+  const perturbations=votes.map((v,i)=>{const r=rank(votes.filter((_,j)=>j!==i));return {removedAgentId:v.agentId,winner:r.winner,tied:r.tied,normalizedWeightMargin:r.normalizedWeightMargin,flipped:r.winner!==baseline.winner};});
+  const flips=perturbations.filter(x=>x.flipped);
+  return {...base,checked:true,singleVoteFlipCount:flips.length,flipRate:Math.round((flips.length/perturbations.length)*10000)/10000,stableUnderSingleVoteRemoval:flips.length===0,perturbations};
+}
 function provisionalSynthesis(artifacts,c){
   const consistency=evidenceConsistency(artifacts);
   const binding=c?.optionBindingConsistency||{checked:false,quarantinedAgents:[],contradictions:[]};
+  const sensitivity=c?.decisionSensitivity||{version:DECISION_SENSITIVITY_VERSION,checked:false,stableUnderSingleVoteRemoval:null};
   const ranked=artifacts.slice().sort((a,b)=>b.confidence-a.confidence);
   const quarantine=new Set([...(consistency.quarantinedAgents||[]),...(binding.quarantinedAgents||[])]);
   const usable=ranked.filter(a=>!quarantine.has(a.agentId));
@@ -746,6 +774,7 @@ function provisionalSynthesis(artifacts,c){
     confidenceMeaning:repaired?"Deterministic arithmetic repair; conflicting model confidence was discarded.":"Self-reported, not independently verified.",
     evidenceConsistency:consistency,
     optionBindingConsistency:binding,
+    decisionSensitivity:sensitivity,
     repairedFromEvidence:repaired,
     remainingUncertainty:uncertainty.slice(0,8),
     chair:{source:"chatgpt",model:"caller",pendingJev:true},
@@ -2168,10 +2197,10 @@ async function callTool(env,name,args,ctx={}){
   return null;
 }
 
-const VERSIONED_MCP_PATH = "/mcp/v0.17.11";
-const COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.10";
-const SECONDARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.9";
-const TERTIARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.7";
+const VERSIONED_MCP_PATH = "/mcp/v0.17.12";
+const COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.11";
+const SECONDARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.10";
+const TERTIARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.9";
 const LEGACY_VERSIONED_MCP_PATH = "/mcp/v0.9.3";
 const PATH_TOKEN = /^\/mcp\/([^/]+)$/;
 
@@ -2844,7 +2873,7 @@ async function fullProBuildExecutionContract(meta){
   for(const k of ["subject","identity","anatomy","wardrobe","props","world","environment","action","contact_physics","camera","lens","focal_length","aperture","camera_height","angle","dof","composition","lighting","key","fill","rim","kelvin","materials","weather","vfx","color_grade","story","aspect_ratio"]){
     const v=scene[k];if(v===undefined||v===null)continue;const t=typeof v==="string"?v:JSON.stringify(v);if(/^not applicable/i.test(String(t).trim()))continue;required[k]=v;
   }
-  const contract={version:EXECUTION_CONTRACT_VERSION,request_id:meta.request_id,user_goal:meta.subject,selected_decision_digest:meta.candidate_digest,candidate_digest:meta.candidate_digest,required_attributes:required,forbidden_attributes:Array.isArray(scene.negative_constraints)?scene.negative_constraints.slice(0,40):[],allowed_flexibility:["tool-specific formatting","stochastic pixel-level variation that does not alter required or forbidden attributes"],executor_type:"image",success_criteria:["candidate digest remains unchanged","one-use secure ticket is consumed exactly once","observable artifact satisfies active task-aware QA checks"],verification_method:"candidate_digest + execution_contract_digest + one-use ticket + vision_task_aware_v4 postcondition QA",decision_provenance:{council500:true,experts_validated:Number(meta.c500_audit?.experts_validated||0),finalists_count:Array.isArray(meta.c500_finalists)?meta.c500_finalists.length:0,jev_calls_observed:Number(meta.c500_jev_calls_observed||0),einstein_stages:Array.isArray(meta.einstein_stage_receipts)?meta.einstein_stage_receipts.length:0,source_taint_policy:SOURCE_TAINT_POLICY_VERSION,governance_version:COGNITIVE_GOVERNANCE_VERSION}};
+  const contract={version:EXECUTION_CONTRACT_VERSION,request_id:meta.request_id,user_goal:meta.subject,selected_decision_digest:meta.candidate_digest,candidate_digest:meta.candidate_digest,required_attributes:required,forbidden_attributes:Array.isArray(scene.negative_constraints)?scene.negative_constraints.slice(0,40):[],allowed_flexibility:["tool-specific formatting","stochastic pixel-level variation that does not alter required or forbidden attributes"],executor_type:"image",success_criteria:["candidate digest remains unchanged","one-use secure ticket is consumed exactly once","observable artifact satisfies active task-aware QA checks"],verification_method:"candidate_digest + execution_contract_digest + one-use ticket + vision_task_aware_v5 postcondition QA",decision_provenance:{council500:true,experts_validated:Number(meta.c500_audit?.experts_validated||0),finalists_count:Array.isArray(meta.c500_finalists)?meta.c500_finalists.length:0,jev_calls_observed:Number(meta.c500_jev_calls_observed||0),einstein_stages:Array.isArray(meta.einstein_stage_receipts)?meta.einstein_stage_receipts.length:0,source_taint_policy:SOURCE_TAINT_POLICY_VERSION,governance_version:COGNITIVE_GOVERNANCE_VERSION}};
   return {contract,digest:await secureSha256Hex(secureCanonical(contract))};
 }
 
@@ -2857,7 +2886,7 @@ async function fullProStatus(env,args){
   const secureState=String(secure_executor?.request?.status||"");
   const effectiveStatus=secureState==="CANCELLED"?"cancelled":secureState==="BYPASS_DETECTED"?"bypass_detected":secureState==="COMPLETE"?"complete":meta.status;
   const capability_truth=fullProCapabilityTruth(meta,secure_executor);
-  return {ok:true,version:VERSION,mode:"council500_full_pro",contract_version:C500_CONTRACT,visual_intelligence_version:VISUAL_INTELLIGENCE_VERSION,cognitive_governance_version:COGNITIVE_GOVERNANCE_VERSION,einstein_protocol_version:EINSTEIN_PROTOCOL_VERSION,source_taint_policy_version:SOURCE_TAINT_POLICY_VERSION,execution_contract_version:EXECUTION_CONTRACT_VERSION,budgets:FULL_PRO_BUDGETS,capability_truth,execution_contract_digest:meta.execution_contract_digest||null,request_id:id,status:effectiveStatus,council500_mode:true,experts_completed:completed,experts_required:500,experts_pending:Math.max(0,500-completed),proposals_observed:completed*3,semantic_cluster_groups:Array.isArray(meta.c500_cluster_receipts)?meta.c500_cluster_receipts.length:0,jev_calls_observed:Number(meta.c500_jev_calls_observed||0),finalists_count:Array.isArray(meta.c500_finalists)?meta.c500_finalists.length:0,cross_expert_complete:meta.cross_expert_complete===true,einstein_stages:Array.isArray(meta.einstein_stage_receipts)?meta.einstein_stage_receipts.length:0,final_stable:meta.final_stable===true,gates_pass:meta.gates_pass===true,candidate_frozen:meta.candidate_frozen===true,candidate_digest:meta.candidate_digest||null,requires_shared_visual:meta.requires_shared_visual===true,shared_visual_verified:meta.shared_visual_verified===true,source_asset_hash:meta.source_asset_hash||null,last_error:meta.last_error||null,started_at:meta.started_at,updated_at:meta.updated_at,secure_executor};
+  return {ok:true,version:VERSION,mode:"council500_full_pro",contract_version:C500_CONTRACT,visual_intelligence_version:VISUAL_INTELLIGENCE_VERSION,cognitive_governance_version:COGNITIVE_GOVERNANCE_VERSION,einstein_protocol_version:EINSTEIN_PROTOCOL_VERSION,source_taint_policy_version:SOURCE_TAINT_POLICY_VERSION,execution_contract_version:EXECUTION_CONTRACT_VERSION,decision_sensitivity_version:DECISION_SENSITIVITY_VERSION,budgets:FULL_PRO_BUDGETS,capability_truth,execution_contract_digest:meta.execution_contract_digest||null,request_id:id,status:effectiveStatus,council500_mode:true,experts_completed:completed,experts_required:500,experts_pending:Math.max(0,500-completed),proposals_observed:completed*3,semantic_cluster_groups:Array.isArray(meta.c500_cluster_receipts)?meta.c500_cluster_receipts.length:0,jev_calls_observed:Number(meta.c500_jev_calls_observed||0),finalists_count:Array.isArray(meta.c500_finalists)?meta.c500_finalists.length:0,cross_expert_complete:meta.cross_expert_complete===true,einstein_stages:Array.isArray(meta.einstein_stage_receipts)?meta.einstein_stage_receipts.length:0,final_stable:meta.final_stable===true,gates_pass:meta.gates_pass===true,candidate_frozen:meta.candidate_frozen===true,candidate_digest:meta.candidate_digest||null,requires_shared_visual:meta.requires_shared_visual===true,shared_visual_verified:meta.shared_visual_verified===true,source_asset_hash:meta.source_asset_hash||null,last_error:meta.last_error||null,started_at:meta.started_at,updated_at:meta.updated_at,secure_executor};
 }
 async function fullProStart(env,args,canaryOnly){
   if(canaryOnly)return legacyFullProStart(env,args,canaryOnly);
