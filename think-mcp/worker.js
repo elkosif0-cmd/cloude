@@ -1,4 +1,4 @@
-const VERSION = "0.17.12";
+const VERSION = "0.17.13";
 const REVISION_CLOSURE_VERSION = "revision-closure-v1";
 const AUTH_POLICY_VERSION = "public-broker-oauth-v2";
 const COGNITIVE_GOVERNANCE_VERSION = "attachments-governance-v1";
@@ -2170,7 +2170,8 @@ async function callTool(env,name,args,ctx={}){
     mandatoryOnSelection:true,publicThinkFallback:"fast-cloudflare-council",
     enforcement:"Instruction-level only; the server cannot force host tool invocation.",
     modelIdentity:"Compatibility role IDs are not model identities; actual Cloudflare model IDs are returned per artifact.",
-    improvements:["primary-provider-coverage-gate","safe-upstream-error-classification","configuration-health-separation","full-pro-status-secure-state-fix","mobile-full-pro-compat-bridge-v1","evidence-answer-consistency-gate","truthful-host-exposure-status","adaptive-router-v2","runtime-receipts","ephemeral-diagnostics","frontier-circuit-breaker","deterministic-self-test","frontier-timeout-transparent-fallback","unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","pre-verification-auth-fail-lockout","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","one-time-jev-packet-binding","evidence-backed-cove","evidence-tournament","four-tier-memory-routing","dynamic-capability-mesh-v1","all-plugin-host-routing","lease-ttl-registry","schema-hash-drift-guard","idempotency-key-routing","plugin-output-trust-boundary","minimal-relevant-tool-set","deep-research-evidence-fusion","natural-language-arithmetic-binding","versioned-discovery-compat"],
+    governanceContracts:{cognitiveGovernance:COGNITIVE_GOVERNANCE_VERSION,einstein:EINSTEIN_PROTOCOL_VERSION,sourceTaint:SOURCE_TAINT_POLICY_VERSION,executionBinding:EXECUTION_CONTRACT_VERSION,revisionClosure:REVISION_CLOSURE_VERSION,decisionSensitivity:DECISION_SENSITIVITY_VERSION,visualIntelligence:VISUAL_INTELLIGENCE_VERSION,secureVisualQa:"vision_task_aware_v5",qaActivationProfile:"active-values-v3"},
+    improvements:["primary-provider-coverage-gate","safe-upstream-error-classification","configuration-health-separation","full-pro-status-secure-state-fix","mobile-full-pro-compat-bridge-v1","evidence-answer-consistency-gate","truthful-host-exposure-status","adaptive-router-v2","runtime-receipts","ephemeral-diagnostics","frontier-circuit-breaker","deterministic-self-test","frontier-timeout-transparent-fallback","unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","pre-verification-auth-fail-lockout","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","one-time-jev-packet-binding","evidence-backed-cove","evidence-tournament","four-tier-memory-routing","dynamic-capability-mesh-v1","all-plugin-host-routing","lease-ttl-registry","schema-hash-drift-guard","idempotency-key-routing","plugin-output-trust-boundary","minimal-relevant-tool-set","deep-research-evidence-fusion","natural-language-arithmetic-binding","option-binding-consistency","decision-sensitivity-v1","source-taint-v1","execution-binding-v1","revision-closure-v1","attachment-cinema-v1","task-aware-visual-qa-v5","versioned-discovery-compat"],
     access:{auth:"rate-limited-public-broker+optional-oauth2+legacy-bearer",authPolicyVersion:AUTH_POLICY_VERSION,revisionClosureVersion:REVISION_CLOSURE_VERSION,authFailLockout:"pre-verification-ip-window",oauthChallenge:"tool-result-meta+resource-401",jwtAlgorithms:["RS256","PS256"],issuer:AUTH0_ISSUER,audience:AUTH0_AUDIENCE,resourceMetadata:OAUTH_METADATA_URL,pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierConfigured,frontierAuthenticatedForThisRequest,frontierAvailableForThisRequest:frontierConfigured,
       rateLimiter:typeof env.THINK_RATE_LIMITER?.limit==="function",modelLimiter:typeof env.THINK_MODEL_LIMITER?.limit==="function",limits:limits(env),browserOrigins:allowedOrigins(env).length},
     routing:{
@@ -2197,10 +2198,10 @@ async function callTool(env,name,args,ctx={}){
   return null;
 }
 
-const VERSIONED_MCP_PATH = "/mcp/v0.17.12";
-const COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.11";
-const SECONDARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.10";
-const TERTIARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.9";
+const VERSIONED_MCP_PATH = "/mcp/v0.17.13";
+const COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.12";
+const SECONDARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.11";
+const TERTIARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.10";
 const LEGACY_VERSIONED_MCP_PATH = "/mcp/v0.9.3";
 const PATH_TOKEN = /^\/mcp\/([^/]+)$/;
 
