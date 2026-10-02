@@ -6,19 +6,19 @@ Last verified: 2026-10-02
 
 | Component | Cloudflare Worker | Live version | GitHub source |
 | --- | --- | ---: | --- |
-| KOSIF Think runtime | `kosif-think-mcp` | `0.17.12` | `think-mcp/worker.js` |
+| KOSIF Think runtime | `kosif-think-mcp` | `0.17.13` | `think-mcp/worker.js` |
 | Secure Executor | `kosif-full-pro-secure-executor` | `1.4.3` | `think-mcp/secure-executor/worker.js` |
 | Jev service | `kosif-jev` | unversioned live worker | `think-mcp/jev/worker.js` |
 
 ChatGPT plugin releases verified with this runtime:
-- `kosif think 20 s`: `20.3.12`
-- KOSIF Think provider: `1.8.10`
-- `Source kosif think 20 s`: `10.7.12`
+- `kosif think 20 s`: `20.3.13`
+- KOSIF Think provider: `1.8.11`
+- `Source kosif think 20 s`: `10.7.13`
 
 ## Current contracts
 
 - Council-500 Full Pro remains the one-mode front-door contract.
-- Fresh discovery endpoint: `/mcp/v0.17.12`; `/mcp/v0.17.7` and `/mcp/v0.9.3` remain compatibility-only during client refresh.
+- Fresh discovery endpoint: `/mcp/v0.17.13`; `/mcp/v0.17.7` and `/mcp/v0.9.3` remain compatibility-only during client refresh.
 - MCP auth policy: `public-broker-oauth-v2`; public broker tools are rate-limited, protected secure-execution tools require verified OAuth2 or the legacy bearer secret, and repeated invalid credentials trigger the `pre-verification-ip-window` lockout before further bearer verification.
 - Adaptive Council/Deep frontier budgets derive from the live `FRONTIER_AGENTS.length`; no hard-coded five-agent truth claims are allowed.
 - Host connectivity is tri-state: `true`, `false`, or `unknown`. An omitted `connected` field must never be interpreted as a verified connection.
@@ -47,7 +47,7 @@ ChatGPT plugin releases verified with this runtime:
 
 ## Regression coverage
 
-`think-mcp/regression-01712.test.mjs` protects:
+`think-mcp/regression-01713.test.mjs` protects:
 - no Mythos / no Clean APIs reintroduction;
 - no duck/dragon fixture leakage into generic visual requests;
 - conditional task-aware QA;
