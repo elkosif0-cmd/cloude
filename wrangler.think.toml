@@ -1,29 +1,39 @@
+# Mirrors LIVE kosif-think-mcp settings read from Cloudflare API on 2026-10-03.
+# Secret KOSIF_THINK_TOKEN is intentionally not stored in Git.
 name = "kosif-think-mcp"
 main = "think-mcp/worker.js"
 compatibility_date = "2026-09-27"
 workers_dev = true
+preview_urls = true
 
 [ai]
 binding = "AI"
 
-# /mcp stays closed (503) until the KOSIF_THINK_TOKEN secret holds at least 32 random characters:
-#   npx wrangler secret put KOSIF_THINK_TOKEN --config wrangler.think.toml
-# Council inference uses the AI binding directly. No external council provider secret is required.
-# Access rules and the risk they close: docs/KOSIF-THINK.md → "Access control".
-[vars]
-# browser origins allowed to call /mcp, comma-separated; empty = none (server-side MCP clients send no Origin)
-THINK_ALLOWED_ORIGINS = ""
-# "true" only for an MCP client that cannot send an Authorization header (the token then travels in the URL)
-THINK_ALLOW_PATH_TOKEN = "false"
-# "false" stops every council role agent call at once
-THINK_FRONTIER_ENABLED = "true"
-THINK_MAX_BODY_BYTES = "131072"
-# per caller, per minute; the local fallback used when a rate-limit binding below is missing or fails
-THINK_RPM = "30"
-THINK_MODEL_RPM = "10"
-THINK_AUTH_FAILS_PER_MIN = "20"
+[[kv_namespaces]]
+binding = "FULL_PRO_STATE"
+id = "73018fa44d384876a74210051a7df291"
 
-# Per-caller limits enforced by Cloudflare across instances (Workers Rate Limiting binding).
+[[queues.producers]]
+binding = "FULL_PRO_QUEUE"
+queue = "kosif-full-pro-jobs"
+
+[[queues.consumers]]
+queue = "kosif-full-pro-jobs"
+max_batch_size = 1
+max_batch_timeout = 1
+max_retries = 6
+retry_delay = 5
+
+[[services]]
+binding = "KOSIF_JEV"
+service = "kosif-jev"
+environment = "production"
+
+[[services]]
+binding = "SECURE_EXECUTOR"
+service = "kosif-full-pro-secure-executor"
+environment = "production"
+
 [[ratelimits]]
 name = "THINK_RATE_LIMITER"
 namespace_id = "7301"
@@ -33,3 +43,12 @@ simple = { limit = 30, period = 60 }
 name = "THINK_MODEL_LIMITER"
 namespace_id = "7302"
 simple = { limit = 10, period = 60 }
+
+[vars]
+THINK_ALLOWED_ORIGINS = ""
+THINK_ALLOW_PATH_TOKEN = "false"
+THINK_AUTH_FAILS_PER_MIN = "20"
+THINK_FRONTIER_ENABLED = "true"
+THINK_MAX_BODY_BYTES = "131072"
+THINK_MODEL_RPM = "10"
+THINK_RPM = "30"
