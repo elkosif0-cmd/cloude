@@ -121,7 +121,7 @@ function flush(){while(pending.length&&core()){const [id,d]=pending.shift();try{
 function report(e,where){if(window.SK&&SK.errors)SK.errors.report(e,where);else console.error(where,e)}
 
 /* ---------- safe CSV (no spreadsheet formula injection) ---------- */
-function safeCell(v){let s=v==null?"":String(v);if(/^[=+\-@\t\r]/.test(s))s="'"+s;if(/[",\n\r]/.test(s))s='"'+s.replace(/"/g,'""')+'"';return s}
+function safeCell(v){let s=v==null?"":String(v);if(/^(?:[\t\r\n]|\s*[=+\-@])/.test(s))s="'"+s;if(/[",\n\r]/.test(s))s='"'+s.replace(/"/g,'""')+'"';return s}
 function csv(headers,rows){return "﻿"+[headers,...rows].map(r=>r.map(safeCell).join(",")).join("\r\n")}
 function download(name,blob){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
 function downloadCsv(name,headers,rows){download(name.endsWith(".csv")?name:name+".csv",new Blob([csv(headers,rows)],{type:"text/csv;charset=utf-8"}))}
@@ -136,19 +136,39 @@ function redact(text){
   return s;
 }
 
+/* Shared, nested-safe focus containment. Call the returned release after removing/closing
+   the panel. Capture the invoker before focusing a dialog; never use a global last button. */
+const modalStack=[];
+function modalFocus(root,invoker=document.activeElement){
+  const entry={root},focusable=()=>[...root.querySelectorAll('button,[href],input,select,textarea,[tabindex]')]
+    .filter(el=>!el.disabled&&el.tabIndex>=0&&!el.hidden&&!el.closest('[hidden],[inert]')&&el.getClientRects().length&&getComputedStyle(el).visibility!=="hidden");
+  let released=false;
+  const first=()=>{const items=focusable();if(items.length)items[0].focus({preventScroll:true});else{root.setAttribute("tabindex","-1");root.focus({preventScroll:true})}};
+  const key=e=>{if(modalStack.at(-1)!==entry||e.key!=="Tab")return;const items=focusable(),at=document.activeElement;
+    if(!items.length){e.preventDefault();first();return}
+    if(!root.contains(at)||(e.shiftKey?at===items[0]:at===items.at(-1))){e.preventDefault();(e.shiftKey?items.at(-1):items[0]).focus()}};
+  const contain=e=>{if(modalStack.at(-1)===entry&&!root.contains(e.target))first()};
+  modalStack.push(entry);document.addEventListener("keydown",key,true);document.addEventListener("focusin",contain,true);
+  return()=>{if(released)return;released=true;const top=modalStack.at(-1)===entry,at=modalStack.indexOf(entry);if(at>=0)modalStack.splice(at,1);
+    document.removeEventListener("keydown",key,true);document.removeEventListener("focusin",contain,true);
+    if(top){const target=invoker&&invoker.isConnected?invoker:document.getElementById("pg-title");if(target){if(target===document.getElementById("pg-title"))target.setAttribute("tabindex","-1");try{target.focus({preventScroll:true})}catch{}}}};
+}
+let dialogId=0;
+
 /* ---------- confirm dialog (replaces window.confirm / alert) ---------- */
 function confirmDialog(message,opts={}){
   return new Promise(resolve=>{
-    const prev=document.activeElement;
+    const prev=document.activeElement,id="sk-dialog-"+(++dialogId);
     const w=document.createElement("div");w.className="skd-wrap";w.setAttribute("role","presentation");
-    w.innerHTML='<div class="skd" role="alertdialog" aria-modal="true" aria-labelledby="skd-t"><h3 id="skd-t">'+esc(opts.title||"تأكيد")+'</h3><p>'+esc(message)+'</p><div class="skd-acts">'+
+    w.innerHTML='<div class="skd" role="alertdialog" aria-modal="true" aria-labelledby="'+id+'"><h3 id="'+id+'">'+esc(opts.title||"تأكيد")+'</h3><p>'+esc(message)+'</p><div class="skd-acts">'+
       (opts.alert?'':'<button type="button" class="btn" data-r="0">'+esc(opts.cancel||"إلغاء")+'</button>')+
       '<button type="button" class="btn '+(opts.danger?'danger':'primary')+'" data-r="1">'+esc(opts.ok||(opts.alert?"حسناً":"تأكيد"))+'</button></div></div>';
-    const done=r=>{w.remove();document.removeEventListener("keydown",key,true);try{prev&&prev.focus()}catch{}resolve(r)};
-    const key=e=>{if(e.key==="Escape"){e.preventDefault();e.stopPropagation();done(!!opts.alert)}};
+    let settled=false,release=()=>{};
+    const done=r=>{if(settled)return;settled=true;w.remove();document.removeEventListener("keydown",key,true);release();resolve(r)};
+    const key=e=>{if(e.key==="Escape"&&modalStack.at(-1)?.root===w.querySelector(".skd")){e.preventDefault();e.stopImmediatePropagation();done(!!opts.alert)}};
     w.addEventListener("click",e=>{const b=e.target.closest("[data-r]");if(b)done(b.dataset.r==="1");else if(e.target===w)done(!!opts.alert)});
     document.addEventListener("keydown",key,true);
-    document.body.appendChild(w);
+    document.body.appendChild(w);release=modalFocus(w.querySelector(".skd"),prev);
     (w.querySelector('[data-r="1"]')).focus();
   });
 }
@@ -156,19 +176,20 @@ const notify=(message,opts)=>confirmDialog(message,{...opts,alert:true});
 /* a small form in the same dialog (replaces window.prompt): fields [{key,label,type,value,required,options,min,max,step,hint}] → values or null */
 function formDialog(title,fields,opts={}){
   return new Promise(resolve=>{
-    const prev=document.activeElement;
+    const prev=document.activeElement,id="sk-dialog-"+(++dialogId);
     const w=document.createElement("div");w.className="skd-wrap";w.setAttribute("role","presentation");
-    const field=f=>{const id="skf-"+f.key,v=f.value==null?"":String(f.value),req=f.required?' required':'';
-      const ctl=f.type==="textarea"?'<textarea id="'+id+'" name="'+esc(f.key)+'" rows="3"'+req+'>'+esc(v)+'</textarea>':
-        f.type==="select"?'<select id="'+id+'" name="'+esc(f.key)+'">'+(f.options||[]).map(o=>{const [ov,ol]=Array.isArray(o)?o:[o,o];return '<option value="'+esc(ov)+'"'+(String(ov)===v?' selected':'')+'>'+esc(ol)+'</option>'}).join("")+'</select>':
-        '<input id="'+id+'" name="'+esc(f.key)+'" type="'+(f.type==="number"?"number":"text")+'" value="'+esc(v)+'"'+(f.min!=null?' min="'+f.min+'"':'')+(f.max!=null?' max="'+f.max+'"':'')+(f.step!=null?' step="'+f.step+'"':'')+(f.placeholder?' placeholder="'+esc(f.placeholder)+'"':'')+req+' autocomplete="off">';
-      return '<label class="skd-f" for="'+id+'"><span>'+esc(f.label)+(f.required?' <i aria-hidden="true">*</i>':'')+'</span>'+ctl+(f.hint?'<small>'+esc(f.hint)+'</small>':'')+'</label>'};
-    w.innerHTML='<form class="skd" role="dialog" aria-modal="true" aria-labelledby="skd-t" novalidate><h3 id="skd-t">'+esc(title)+'</h3>'+(opts.message?'<p>'+esc(opts.message)+'</p>':'')+
+    const field=f=>{const fid=id+"-"+esc(f.key),v=f.value==null?"":String(f.value),req=f.required?' required':'';
+      const ctl=f.type==="textarea"?'<textarea id="'+fid+'" name="'+esc(f.key)+'" rows="3"'+req+'>'+esc(v)+'</textarea>':
+        f.type==="select"?'<select id="'+fid+'" name="'+esc(f.key)+'"'+req+'>'+(f.options||[]).map(o=>{const [ov,ol]=Array.isArray(o)?o:[o,o];return '<option value="'+esc(ov)+'"'+(String(ov)===v?' selected':'')+'>'+esc(ol)+'</option>'}).join("")+'</select>':
+        '<input id="'+fid+'" name="'+esc(f.key)+'" type="'+(f.type==="number"?"number":"text")+'" value="'+esc(v)+'"'+(f.min!=null?' min="'+f.min+'"':'')+(f.max!=null?' max="'+f.max+'"':'')+(f.step!=null?' step="'+f.step+'"':'')+(f.placeholder?' placeholder="'+esc(f.placeholder)+'"':'')+req+' autocomplete="off">';
+      return '<label class="skd-f" for="'+fid+'"><span>'+esc(f.label)+(f.required?' <i aria-hidden="true">*</i>':'')+'</span>'+ctl+(f.hint?'<small>'+esc(f.hint)+'</small>':'')+'</label>'};
+    w.innerHTML='<form class="skd" role="dialog" aria-modal="true" aria-labelledby="'+id+'" novalidate><h3 id="'+id+'">'+esc(title)+'</h3>'+(opts.message?'<p>'+esc(opts.message)+'</p>':'')+
       fields.map(field).join("")+'<p class="skd-err" role="alert" hidden></p><div class="skd-acts"><button type="button" class="btn" data-r="0">'+esc(opts.cancel||"إلغاء")+'</button><button type="submit" class="btn '+(opts.danger?'danger':'primary')+'">'+esc(opts.ok||"حفظ")+'</button></div></form>';
     const form=w.querySelector("form"),err=w.querySelector(".skd-err");
-    const done=r=>{w.remove();document.removeEventListener("keydown",key,true);try{prev&&prev.focus()}catch{}resolve(r)};
-    const key=e=>{if(e.key==="Escape"){e.preventDefault();e.stopPropagation();done(null)}};
-    form.addEventListener("submit",e=>{e.preventDefault();const out={};
+    let settled=false,release=()=>{};
+    const done=r=>{if(settled)return;settled=true;w.remove();document.removeEventListener("keydown",key,true);release();resolve(r)};
+    const key=e=>{if(e.key==="Escape"&&modalStack.at(-1)?.root===w.querySelector(".skd")){e.preventDefault();e.stopImmediatePropagation();done(null)}};
+    form.addEventListener("submit",e=>{e.preventDefault();if(settled)return;const out={};
       for(const f of fields){const el=form.elements[f.key],raw=String(el.value).trim();
         if(f.required&&!raw){err.textContent="أكمل: "+f.label;err.hidden=false;el.focus();return}
         if(f.type==="number"&&raw){const n=Number(raw.replace("٫",".").replace(/[٠-٩]/g,x=>"٠١٢٣٤٥٦٧٨٩".indexOf(x)));
@@ -178,7 +199,7 @@ function formDialog(title,fields,opts={}){
       done(out)});
     w.addEventListener("click",e=>{if(e.target.closest('[data-r="0"]')||e.target===w)done(null)});
     document.addEventListener("keydown",key,true);
-    document.body.appendChild(w);
+    document.body.appendChild(w);release=modalFocus(form,prev);
     const first=form.querySelector("input,textarea,select");(first||form.querySelector('[type="submit"]')).focus();
   });
 }
@@ -306,7 +327,7 @@ function brandPrint(w,title){
 function askJev(opts){save("skosif_jev_draft",opts||{});if(core())core().go("jev")}
 
 window.SK={$,$$,esc,num,load,save,money,pct,toast,view,redact,askJev,icon,icons:ICONS,download,
-  confirm:confirmDialog,notify,form:formDialog,brandPrint,org,
+  confirm:confirmDialog,notify,form:formDialog,modalFocus,brandPrint,org,
   print:Object.freeze({options:popts,set:(k,v)=>{const x=popts();x[k]=v;save(PKEY,x)},css:optCSS}),
   csv:Object.freeze({cell:safeCell,build:csv,download:downloadCsv}),
   lock:Object.freeze({now:lockNow,key:LOCK_KEY,touch:()=>{last=Date.now()}}),

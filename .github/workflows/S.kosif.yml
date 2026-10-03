@@ -66,6 +66,11 @@ jobs:
           npm install --no-save --no-package-lock eslint@9 globals@15
           npx eslint ui/core ui/components ui/layouts ui/features
 
+      - name: Test accessible dialogs and spreadsheet export safety
+        run: |
+          npm install --no-save --no-package-lock --prefix /tmp/sqc-ui linkedom@0.18.13
+          NODE_PATH=/tmp/sqc-ui/node_modules node --test tools/sqc_accessibility.test.mjs tools/sqc_csv_safety.test.mjs
+
       - name: Test strict pricing kernel
         working-directory: app
         run: |
@@ -232,11 +237,13 @@ jobs:
 
       - name: UI smoke test (every screen, laptop and phone, demo data)
         run: |
+          SQC_BUILD_MODE=preview python3 build.py
           npm install --no-save --prefix /tmp/pw playwright@1
           npx --prefix /tmp/pw playwright install --with-deps chromium
           (python3 -m http.server 8765 --directory dist >/dev/null 2>&1 &)
           sleep 2
           NODE_PATH=/tmp/pw/node_modules node tools/ui_smoke.mjs http://localhost:8765/app-safe.html
+          NODE_PATH=/tmp/pw/node_modules node tools/sqc_accessibility_e2e.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules node tools/feature_audit.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules node tools/jesim_e2e.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules node tools/assistant_reach.mjs http://localhost:8765/app-safe.html

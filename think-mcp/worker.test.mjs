@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import worker from './worker.js';
 
+const contract=JSON.parse(readFileSync(new URL('./runtime-contract.json',import.meta.url),'utf8'));
 const HOST='https://kosif-think-mcp.example.workers.dev';
 let seq=0;
 const ip=()=>`203.0.113.${(++seq%240)+10}`;
@@ -25,22 +26,26 @@ function req(path,{method='POST',body,headers={},addr}={}){
 const call=(name,args={})=>JSON.stringify({jsonrpc:'2.0',id:7,method:'tools/call',params:{name,arguments:args}});
 async function json(res){return JSON.parse(await res.text());}
 
-test('public health is minimal and reports runtime 0.17.13',async()=>{
+test('public health is minimal and reports the independently pinned source contract',async()=>{
   const r=await worker.fetch(req('/health',{method:'GET'}),env());
   assert.equal(r.status,200);
   const b=await json(r);
   assert.deepEqual(Object.keys(b).sort(),['ok','service','version']);
-  assert.equal(b.version,'0.17.13');
+  assert.equal(contract.sourceVersion,'0.18.6');
+  assert.equal(b.version,contract.sourceVersion);
   assert.equal(r.headers.get('cache-control'),'no-store');
   assert.equal(r.headers.get('x-content-type-options'),'nosniff');
 });
 
 test('/mcp accepts POST/OPTIONS only and versioned discovery endpoint exists',async()=>{
   const e=env();
-  for(const path of ['/mcp','/mcp/v0.17.13','/mcp/v0.17.12','/mcp/v0.17.11','/mcp/v0.17.10','/mcp/v0.9.3']){
+  for(const path of contract.supportedMcpPaths){
     assert.equal((await worker.fetch(req(path,{method:'GET'}),e)).status,405);
     assert.equal((await worker.fetch(req(path,{method:'OPTIONS'}),e)).status,204);
     assert.equal((await worker.fetch(req(path),e)).status,200);
+  }
+  for(const path of contract.retiredMcpPaths){
+    for(const method of ['GET','OPTIONS','POST']) assert.equal((await worker.fetch(req(path,{method}),e)).status,404);
   }
   assert.equal((await worker.fetch(req('/missing',{method:'GET'}),e)).status,404);
 });
@@ -152,7 +157,7 @@ test('unknown host availability is not reported as a verified connection',async(
 test('status truthfully reports current provider/runtime and no Mythos',async()=>{
   const e=env();
   const out=(await json(await worker.fetch(req('/mcp',{body:call('kosif_think_status',{})}),e))).result.structuredContent;
-  assert.equal(out.version,'0.17.13');
+  assert.equal(out.version,contract.sourceVersion);
   assert.equal(out.access?.authPolicyVersion,'public-broker-oauth-v2');
   assert.equal(out.access?.authFailLockout,'pre-verification-ip-window');
   assert.equal(out.access?.revisionClosureVersion,'revision-closure-v1');
