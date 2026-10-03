@@ -29,5 +29,6 @@ let t=0;
 function schedule(){clearTimeout(t);t=setTimeout(()=>{pass(document.getElementById("view"));pass(document.querySelector(".sk-ph"))},120)}
 function boot(){const v=document.getElementById("view");if(!v)return setTimeout(boot,300);new MutationObserver(schedule).observe(v,{childList:true,subtree:true});schedule()}
 boot();
-SK.a11y=Object.freeze({pass});
+const bidi=(value,dir="auto")=>'<bdi dir="'+(["ltr","rtl"].includes(dir)?dir:"auto")+'">'+SK.esc(value)+'</bdi>';
+SK.a11y=Object.freeze({pass,bidi});
 })();

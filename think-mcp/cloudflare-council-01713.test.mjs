@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
 const source=fs.readFileSync(process.argv[2]||'think-mcp/worker.js','utf8');
-assert.match(source,/const VERSION\s*=\s*"0\.17\.13"/);
+assert.match(source,/const VERSION\s*=\s*"0\.18\.6"/);
 assert.equal(/id:\s*"mythos"/i.test(source),false);
 assert.equal(/cleanapis|clean apis/i.test(source),false);
 assert.ok(source.includes('decision-sensitivity-v1'));
@@ -32,7 +32,7 @@ assert.equal(c.winningOptionId,'A');
 assert.equal(c.decisionSensitivity.singleVoteFlipCount,2);
 
 const self=mod.selfTestTool({});
-assert.equal(self.version,'0.17.13');
+assert.equal(self.version,'0.18.6');
 assert.equal(self.allPassed,true);
 
-console.log(JSON.stringify({passed:true,runtime:'0.17.13',frontierAgents:mod.FRONTIER_AGENTS.map(a=>a.id),decisionSensitivity:true}));
+console.log(JSON.stringify({passed:true,runtime:'0.18.6',frontierAgents:mod.FRONTIER_AGENTS.map(a=>a.id),decisionSensitivity:true}));

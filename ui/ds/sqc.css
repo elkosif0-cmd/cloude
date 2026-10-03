@@ -158,3 +158,18 @@ html{overflow-x:hidden}
 /* the open tab shows as open whether its control marks it pressed (aria-pressed) or selected (role=tab, aria-selected) */
 .sk-seg>[aria-selected="true"]{background:var(--sk-surface);color:var(--sk-brand);box-shadow:0 1px 3px rgba(0,0,0,.12)}
 :root[data-look="kosif"] .sk-seg>[aria-selected="true"]{background:var(--sk-brand);color:#fff}
+
+/* Shared readability floor; existing display fonts/themes remain available. */
+body{font-size:max(16px,var(--sk-fs));font-variant-numeric:tabular-nums lining-nums}
+:root:not(#sk-unused) input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),
+:root:not(#sk-unused) select,:root:not(#sk-unused) textarea{font-size:max(16px,var(--sk-fs))!important;max-inline-size:100%;min-inline-size:0}
+bdi,[dir=ltr],a[href^="tel:"],a[href^="mailto:"],.sk-number{unicode-bidi:isolate}
+.skd,.skp,.sk-menu{animation-duration:var(--sk-motion-panel)}
+.btn,.sk-tb-btn,.sk-tb-icon{transition-duration:var(--sk-motion-fast)}
+.skd{max-inline-size:min(560px,calc(100vw - 24px));max-block-size:calc(100dvh - 32px);overflow:auto;overscroll-behavior:contain}
+.skd-acts{flex-wrap:wrap;gap:8px}.skd-acts .btn{min-block-size:44px}
+:focus-visible{outline:3px solid var(--sk-focus);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){
+  :root{--sk-motion-fast:0ms;--sk-motion-panel:0ms;--sk-t:0ms}
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}

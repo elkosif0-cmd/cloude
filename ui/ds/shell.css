@@ -223,7 +223,7 @@ body.skn-locked{overflow:hidden}
 @media (prefers-reduced-motion:reduce){.rail,.nav-btn{transition:none}.sks-skel i{animation:none}}
 
 /* ---------- compact density (Settings › المظهر) ---------- */
-:root[data-density="compact"]{--sk-fs:14px}
+:root[data-density="compact"]{--sk-fs:16px}
 :root[data-density="compact"] .main{gap:var(--sk-3);padding-block:var(--sk-3)}
 :root[data-density="compact"] .card-h{padding:12px 16px 8px}
 :root[data-density="compact"] .card-b{padding:6px 16px 12px}

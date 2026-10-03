@@ -6,7 +6,7 @@ const securePath=process.argv[3]||'think-mcp/secure-executor/worker.js';
 const think=fs.readFileSync(thinkPath,'utf8');
 const secure=fs.readFileSync(securePath,'utf8');
 
-assert.match(think,/const VERSION\s*=\s*"0\.17\.13"/);
+assert.match(think,/const VERSION\s*=\s*"0\.18\.6"/);
 assert.ok(think.includes('attachments-governance-v1'));
 assert.ok(think.includes('einstein-attachments-v2'));
 assert.ok(think.includes('source-taint-v1'));
@@ -22,10 +22,10 @@ assert.ok(think.includes('maxAgents:FRONTIER_AGENTS.length'));
 assert.ok(think.includes('governanceContracts'));
 assert.ok(think.includes('decision-sensitivity-v1'));
 assert.ok(think.includes('task-aware-visual-qa-v5'));
-assert.ok(think.includes('const VERSIONED_MCP_PATH = "/mcp/v0.17.13"'));
-assert.ok(think.includes('const COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.12"'));
-assert.ok(think.includes('const SECONDARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.11"'));
-assert.ok(think.includes('const TERTIARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.17.10"'));
+assert.ok(think.includes('const VERSIONED_MCP_PATH = "/mcp/v0.18.6"'));
+assert.ok(think.includes('const COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.18.5"'));
+assert.ok(think.includes('const SECONDARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.18.4"'));
+assert.ok(think.includes('const TERTIARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.18.3"'));
 assert.ok(think.includes('const LEGACY_VERSIONED_MCP_PATH = "/mcp/v0.9.3"'));
 assert.equal(think.includes('five Cloudflare role agents'),false);
 assert.equal(think.includes('Same five independent agents'),false);
@@ -195,7 +195,7 @@ for(const check of ['bird_anatomy','dragon_anatomy','fire_direction','rain_inter
 
 console.log(JSON.stringify({
   passed:true,
-  runtime:'0.17.13',
+  runtime:'0.18.6',
   secureExecutor:'1.4.3',
   governance:'attachments-governance-v1',
   executionBinding:true,
