@@ -1,0 +1,104 @@
+name: SQC Review Import Guard
+
+on:
+  pull_request:
+    paths:
+      - 'build.py'
+      - 'build_mode.py'
+      - 'ui/core/sk.js'
+      - 'ui/features/tb-review.js'
+      - 'ui/features/ledger.js'
+      - 'ui/features/assistant.js'
+      - 'ui/features/audit-bridge.js'
+      - 'tools/review_import*'
+      - '.github/workflows/sqc-review-import-guard.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  review-import-guard:
+    name: Synthetic review import guard and real browser
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SQC_TESTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout actual PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Record and verify exact checked-out source
+        run: |
+          test "$(git rev-parse HEAD)" = "$SQC_TESTED_SHA"
+          mkdir -p artifacts/review-import
+          python3 - <<'PY'
+          import hashlib,json,os,subprocess
+          from pathlib import Path
+          paths=['ui/features/tb-review.js','ui/features/ledger.js','ui/features/assistant.js','ui/core/sk.js','ui/components/table.js','ui/layouts/shell.js','ui/ds/shell.css','build.py','tools/review_import_guard_e2e.mjs']
+          result={'testedGitSHA':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'expectedGitSHA':os.environ['SQC_TESTED_SHA'],'syntheticOnly':True,'sourceSHA256':{p:hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in paths}}
+          assert result['testedGitSHA']==result['expectedGitSHA']
+          Path('artifacts/review-import/source-head.json').write_text(json.dumps(result,indent=2)+'\n')
+          print(json.dumps(result,indent=2))
+          PY
+      - name: Validate synthetic fixtures and preserved guard/footer/sidebar/unlock regressions
+        run: |
+          node tools/review_import_guard_e2e.mjs --validate
+          node --test tools/review_import_guard.test.mjs tools/trial_balance_footer.test.mjs tools/sidebar_visibility.test.mjs tools/sidebar_lifecycle.test.mjs tools/unlock_runtime.test.mjs
+          node --check tools/review_import_guard_e2e.mjs
+      - name: Build and verify data-free preview
+        env:
+          SQC_BUILD_MODE: preview
+        run: |
+          python3 build.py
+          node --check dist/skosif.js
+          python3 - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          assert not Path('dist/secure').exists(), 'Preview must not contain encrypted private data'
+          app=Path('dist/app-safe.html').read_text()
+          assert 'const SEED_B64 = "";' in app, 'Safe seed marker required'
+          assert 'SEED_RAWS=[{' not in app, 'Private raw catalog must not be present'
+          result={p:hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in ['dist/app-safe.html','dist/skosif.js','dist/skosif.css']}
+          Path('artifacts/review-import/preview-hashes.json').write_text(json.dumps(result,indent=2)+'\n')
+          PY
+      - name: Install existing isolated browser tooling and record resolved versions
+        run: |
+          npm install --no-save --no-package-lock --prefix /tmp/pw playwright@1
+          npx --prefix /tmp/pw playwright install --with-deps chromium
+          node --version | tee artifacts/review-import/node-version.txt
+          NODE_PATH=/tmp/pw/node_modules node -e "console.log('playwright',require('playwright/package.json').version);console.log('playwright-core',require('playwright-core/package.json').version)" | tee artifacts/review-import/playwright-version.txt
+      - name: Test controlled synthetic preview in Chromium
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory dist > /tmp/sqc-review-import-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID"' EXIT
+          python3 - <<'PY'
+          import time,urllib.request
+          for attempt in range(30):
+              try:
+                  with urllib.request.urlopen('http://127.0.0.1:8765/app-safe.html',timeout=1) as response:
+                      assert response.status==200
+                  break
+              except (OSError,AssertionError):
+                  if attempt==29: raise
+                  time.sleep(1)
+          PY
+          NODE_PATH=/tmp/pw/node_modules node tools/review_import_guard_e2e.mjs --ci http://127.0.0.1:8765/app-safe.html
+      - name: Retain synthetic evidence only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: review-import-guard-evidence-${{ github.event.pull_request.head.sha || github.sha }}
+          path: artifacts/review-import/
+          if-no-files-found: warn
+          retention-days: 7
