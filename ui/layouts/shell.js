@@ -10,7 +10,7 @@
 const {$,$$,esc,load,save}=SK;
 const core=()=>window.SKosifCore;
 const PREF_KEY="skosif_prefs";
-const sidebar={ready:false,rail:null,observer:null,narrow:innerWidth<=900,open:false,opener:null,openerMore:false,main:null,mainInert:false,route:false,scrollY:0};
+const sidebar={ready:false,rail:null,observer:null,narrow:innerWidth<=900,open:false,opener:null,openerMore:false,main:null,mainInert:false,route:false,scrollY:0,scrollCaptured:false};
 
 function identityMetadata(){
   const h=document.head;if(!h)return;
@@ -285,7 +285,7 @@ function toggleRail(force){const mini=typeof force==="boolean"?force:prefs().rai
    Mobile actions stay in the core drawer controller; this adapter synchronizes focus and aria. */
 function toggleSidebar(){
   const rail=$("#rail"),button=$(".topbar .menu-btn")||$(".menu-btn");if(!rail)return;
-  if(innerWidth<=900){const opening=!rail.classList.contains("open");if(opening){sidebar.scrollY=window.scrollY;rail.dataset.returnScrollY=String(sidebar.scrollY);if(!sidebar.opener)sidebar.opener=document.activeElement;sidebar.openerMore=!!(sidebar.opener&&sidebar.opener.matches&&sidebar.opener.matches("#skb [data-more]"))}const c=core();if(c)c.act(opening?"rail-open":"rail-close");syncSidebar();return}
+  if(innerWidth<=900){const opening=!rail.classList.contains("open");if(opening){sidebar.scrollY=window.scrollY;sidebar.scrollCaptured=true;rail.dataset.returnScrollY=String(sidebar.scrollY);if(!sidebar.opener)sidebar.opener=document.activeElement;sidebar.openerMore=!!(sidebar.opener&&sidebar.opener.matches&&sidebar.opener.matches("#skb [data-more]"))}const c=core();if(c)c.act(opening?"rail-open":"rail-close");syncSidebar();return}
   const hide=prefs().sidebarHidden!==true;
   if(hide&&rail.contains(document.activeElement)&&button)button.focus({preventScroll:true});
   setPref("sidebarHidden",hide);syncSidebar();
@@ -300,7 +300,7 @@ function syncSidebar(){
   if(!shown&&rail.contains(document.activeElement)&&button&&!sidebar.open)button.focus({preventScroll:true});
   rail.inert=!shown;rail.setAttribute("aria-hidden",String(!shown));
   const opening=open&&!sidebar.open,closing=!open&&sidebar.open;
-  if(opening)sidebar.scrollY=window.scrollY;
+  if(opening&&!sidebar.scrollCaptured){sidebar.scrollY=window.scrollY;sidebar.scrollCaptured=true}
   document.body.classList.toggle("skn-locked",open);
   if(opening){
     sidebar.main=$(".maincol");sidebar.mainInert=!!(sidebar.main&&sidebar.main.inert);
@@ -311,7 +311,7 @@ function syncSidebar(){
     if(sidebar.main)sidebar.main.inert=sidebar.mainInert;
     const liveMore=sidebar.openerMore?$("#skb [data-more]"):null;const target=sidebar.route?$("#pg-title"):(liveMore||(sidebar.opener&&sidebar.opener.isConnected&&!rail.contains(sidebar.opener)?sidebar.opener:button));
     if(target){if(sidebar.route&&!target.hasAttribute("tabindex"))target.setAttribute("tabindex","-1");target.focus({preventScroll:true})}
-    const y=Number(rail.dataset.returnScrollY||sidebar.scrollY||0);delete rail.dataset.returnScrollY;sidebar.main=null;sidebar.opener=null;sidebar.openerMore=false;sidebar.route=false;sidebar.scrollY=0;
+    const y=sidebar.scrollCaptured?sidebar.scrollY:Number(rail.dataset.returnScrollY||0);delete rail.dataset.returnScrollY;sidebar.main=null;sidebar.opener=null;sidebar.openerMore=false;sidebar.route=false;sidebar.scrollY=0;sidebar.scrollCaptured=false;
     if(Number.isFinite(y)&&Math.abs(window.scrollY-y)>1){const se=document.scrollingElement;if(se)se.scrollTop=y;document.documentElement.scrollTop=y;document.body.scrollTop=y;window.scrollTo(0,y)}
   }
   sidebar.open=open;
@@ -486,7 +486,7 @@ function swipe(){
   addEventListener("touchend",e=>{
     if(x0==null)return;const t=e.changedTouches[0],dx=(t.clientX-x0)*(rtl()?-1:1),dy=Math.abs(t.clientY-y0);x0=null;
     if(dy>60)return;const c=core();if(!c)return;
-    if(mode==="open"&&dx>50){sidebar.scrollY=window.scrollY;const r=$("#rail");if(r)r.dataset.returnScrollY=String(sidebar.scrollY);sidebar.opener=null;sidebar.openerMore=false;c.act("rail-open")}else if(mode==="close"&&dx<-60)c.act("rail-close");
+    if(mode==="open"&&dx>50){sidebar.scrollY=window.scrollY;sidebar.scrollCaptured=true;const r=$("#rail");if(r)r.dataset.returnScrollY=String(sidebar.scrollY);sidebar.opener=null;sidebar.openerMore=false;c.act("rail-open")}else if(mode==="close"&&dx<-60)c.act("rail-close");
   },{passive:true});
 }
 /* keyboard hints follow the device: ⌘K on a Mac, Ctrl K on Windows, nothing on an iPhone */
