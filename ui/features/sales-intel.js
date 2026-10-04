@@ -36,7 +36,7 @@ async function load(){
 function compute(){
   if(!raw)return null;const k=raw.key+"|"+st.period+"|"+st.channel;if(res&&resKey===k)return res;
   res=E().salesInsights(raw.lines,raw.customers,{period:st.period,channel:st.channel||undefined});resKey=k;
-  if(!res.empty&&st.channel&&!res.channels.includes(st.channel)){st.channel="";return compute()}
+  if(st.channel&&!res.channels.includes(st.channel)){st.channel="";save();SK.toast("القناة السابقة لم تعد متاحة؛ تُعرض كل القنوات الآن.","warn");return compute()}
   return res;
 }
 
@@ -173,10 +173,11 @@ const hostEl=()=>document.querySelector("[data-si-host]");
 async function paint(reload){
   const my=++seq;
   try{
-    if(!raw||reload){const d=await load();if(my!==seq)return;if(!raw||d.key!==raw.key){raw=d;res=null}}
+    if(!raw||reload){const d=await load();if(my!==seq)return;raw=d;res=null;resKey=""}
     const host=hostEl();if(!host)return;
     const r=compute();if(!r){host.innerHTML="";return}
     const y=window.scrollY;host.innerHTML='<div class="si">'+html(r)+'</div>';host.removeAttribute("aria-busy");
+    document.dispatchEvent(new CustomEvent("sk:sales-insights"));
     if(Math.abs(window.scrollY-y)>2)window.scrollTo(0,y);
   }catch(e){const host=hostEl();if(host)host.innerHTML='<div class="si-empty">تعذّر حساب ذكاء المبيعات — أعد فتح الشاشة.</div>';SK.errors&&SK.errors.report(e,"sales-intel")}
 }
@@ -239,5 +240,5 @@ document.addEventListener("click",e=>{
 document.addEventListener("change",e=>{const s=e.target.closest("[data-si-ch]");if(!s)return;st.channel=s.value;save();repaint()});
 function boot(){const c=window.SKosifCore;if(c&&c.onView)c.onView("salesintel",mount);else setTimeout(boot,300)}
 boot();
-window.SKosifSalesIntel=Object.freeze({result:()=>res,refresh:()=>{raw=null;if(hostEl())paint(true)}});
+window.SKosifSalesIntel=Object.freeze({result:()=>res,context:()=>raw&&res?{result:res,lines:raw.lines}:null,refresh:()=>{raw=null;if(hostEl())paint(true)}});
 })();

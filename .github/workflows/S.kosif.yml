@@ -77,6 +77,8 @@ jobs:
       - name: Test report display and partial receipt boundaries
         run: node --test tools/receipt_boundary.test.mjs tools/alpro-report-display-regression.test.mjs tools/alpro-report-implementation.test.mjs tools/trial_balance_footer.test.mjs
 
+      - name: Test Sales date return cache and spreadsheet boundaries
+        run: node --test tools/sales_forward_port.test.mjs
       - name: Test strict pricing kernel
         working-directory: app
         run: |

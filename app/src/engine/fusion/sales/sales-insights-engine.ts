@@ -19,6 +19,7 @@ export type Tone = 'bad' | 'warn' | 'ok' | 'info';
 const DAY = 86400000;
 const dayT = (d: string) => Date.parse(d.slice(0, 10) + 'T00:00:00Z');
 const isoDay = (t: number) => new Date(t).toISOString().slice(0, 10);
+const validDay = (d: string) => /^\d{4}-\d{2}-\d{2}$/.test(d) && Number.isFinite(dayT(d)) && isoDay(dayT(d)) === d;
 export const dayAdd = (d: string, n: number) => isoDay(dayT(d) + n * DAY);
 export const daysBetween = (a: string, b: string) => Math.round((dayT(b) - dayT(a)) / DAY);
 const weekday = (d: string) => new Date(dayT(d)).getUTCDay();
@@ -47,21 +48,23 @@ export function normalize(lines: InsightLine[]): Line[] {
   const out: Line[] = [];
   lines.forEach((l, i) => {
     const date = String(l.date ?? '').slice(0, 10), amount = Number(l.amount);
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(amount)) return;
+    if (!validDay(date) || !Number.isFinite(amount)) return;
     out.push({ date, amount: Math.round(amount), qty: Number(l.qty) || 0, product: String(l.product ?? '').trim() || 'غير محدد',
       customerId: String(l.customerId ?? ''), invoice: String(l.invoice ?? '') || 'line-' + i, channel: String(l.channel ?? '').trim() || 'غير محدد' });
   });
   return out;
 }
 
-/** lines grouped into orders (one per invoice key), sorted by day */
+/** invoice references are scoped to transaction day, channel and customer; same-day multiline purchases stay together */
+const orderKey = (l: Line) => JSON.stringify([l.invoice, l.date, l.channel, l.customerId]);
+/** lines grouped into dated orders, sorted by day; later credits never move into the original sale's period */
 export function ordersOf(lines: Line[]): Order[] {
   const m = new Map<string, Order>();
   lines.forEach((l) => {
-    let o = m.get(l.invoice);
-    if (!o) { o = { key: l.invoice, date: l.date, customerId: l.customerId, channel: l.channel, amount: 0, qty: 0, items: new Map() }; m.set(l.invoice, o); }
+    const key = orderKey(l);
+    let o = m.get(key);
+    if (!o) { o = { key, date: l.date, customerId: l.customerId, channel: l.channel, amount: 0, qty: 0, items: new Map() }; m.set(key, o); }
     o.amount += l.amount; o.qty += l.qty; o.items.set(l.product, (o.items.get(l.product) ?? 0) + l.amount);
-    if (l.date < o.date) o.date = l.date;
   });
   return [...m.values()].sort((a, b) => a.date.localeCompare(b.date) || a.key.localeCompare(b.key));
 }
@@ -168,7 +171,7 @@ export function segmentOf(r: number, f: number, m: number): SegmentKey {
 export function salesInsights(input: InsightLine[], customers: InsightCustomer[] = [], opts: InsightOpts = {}) {
   const all = normalize(input), channelsAll = [...new Set(all.map((l) => l.channel))].sort((a, b) => a.localeCompare(b, 'ar'));
   const lastSale = all.reduce((a, l) => (l.date > a ? l.date : a), '');
-  const asOf = opts.asOf && lastSale && opts.asOf < lastSale ? opts.asOf : lastSale;
+  const asOf = opts.asOf && validDay(opts.asOf) && lastSale && opts.asOf < lastSale ? opts.asOf : lastSale;
   const L = all.filter((l) => l.date <= asOf && (!opts.channel || l.channel === opts.channel));
   const key: PeriodKey = opts.period && PERIODS[opts.period] ? opts.period : '90';
   if (!L.length) return { empty: true as const, asOf, channels: channelsAll, period: { key, label: PERIODS[key] } };
@@ -180,8 +183,10 @@ export function salesInsights(input: InsightLine[], customers: InsightCustomer[]
 
   const O = ordersOf(L), inCur = (d: string) => d >= from && d <= asOf, inPrev = (d: string) => hasPrev && d >= prevFrom && d <= prevTo;
   const cur = O.filter((o) => inCur(o.date)), prev = O.filter((o) => inPrev(o.date));
+  const purchases = O.filter((o) => o.amount > 0), curPurchases = purchases.filter((o) => inCur(o.date));
+  const purchaseByKey = new Map(purchases.map((o) => [o.key, o]));
   /* a purchase is an order above zero: returns and credit notes never count as a visit */
-  const firstBuy = new Map<string, string>(); O.forEach((o) => { if (o.customerId && o.amount > 0 && !firstBuy.has(o.customerId)) firstBuy.set(o.customerId, o.date); });
+  const firstBuy = new Map<string, string>(); purchases.forEach((o) => { if (o.customerId && !firstBuy.has(o.customerId)) firstBuy.set(o.customerId, o.date); });
 
   /* KPIs with the same measure for the period before */
   const measure = (os: Order[], inside: (d: string) => boolean) => {
@@ -191,7 +196,7 @@ export function salesInsights(input: InsightLine[], customers: InsightCustomer[]
     return { revenue, orders: pos.length, avgOrder: pos.length ? Math.round(pos.reduce((a, o) => a + o.amount, 0) / pos.length) : 0,
       customers: per.size, newCustomers: [...firstBuy.entries()].filter(([, d]) => inside(d)).length,
       repeatRate: per.size ? round([...per.values()].filter((c) => c > 1).length / per.size, 4) : 0,
-      returns: Math.abs(os.filter((o) => o.amount < 0).reduce((a, o) => a + o.amount, 0)), units: os.reduce((a, o) => a + o.qty, 0) };
+      returns: Math.abs(L.filter((l) => inside(l.date) && l.amount < 0).reduce((a, l) => a + l.amount, 0)), units: os.reduce((a, o) => a + o.qty, 0) };
   };
   const mc = measure(cur, inCur), mp = hasPrev ? measure(prev, inPrev) : null;
   const kpis = Object.fromEntries((Object.keys(mc) as (keyof typeof mc)[]).map((k) => [k, delta(mc[k], mp ? mp[k] : null)])) as Record<keyof typeof mc, Delta>;
@@ -203,7 +208,7 @@ export function salesInsights(input: InsightLine[], customers: InsightCustomer[]
   /* weekdays: average per occurrence of that weekday inside the period */
   const wd = DAYS_AR.map((name, i) => ({ i, name, total: 0, orders: 0, days: 0, avg: 0 }));
   trend.labels.forEach((d, i) => { const w = wd[weekday(d)]; w.days++; w.total += trend.values[i]; });
-  cur.forEach((o) => { wd[weekday(o.date)].orders++; });
+  curPurchases.forEach((o) => { wd[weekday(o.date)].orders++; });
   wd.forEach((w) => { w.avg = w.days ? Math.round(w.total / w.days) : 0; });
 
   /* channels and items with their share and their change against the period before */
@@ -212,7 +217,7 @@ export function salesInsights(input: InsightLine[], customers: InsightCustomer[]
     L.forEach((l) => {
       const c = inCur(l.date), p = inPrev(l.date); if (!c && !p) return;
       const k = l[dim], x = m.get(k) ?? { name: k, revenue: 0, prev: 0, qty: 0, orders: new Set<string>() };
-      if (c) { x.revenue += l.amount; x.qty += l.qty; x.orders.add(l.invoice); } else x.prev += l.amount;
+      if (c) { x.revenue += l.amount; x.qty += l.qty; const k = orderKey(l), purchase = purchaseByKey.get(k); if (purchase && (dim === 'channel' || (purchase.items.get(l.product) ?? 0) > 0)) x.orders.add(k); } else x.prev += l.amount;
       m.set(k, x);
     });
     const tot = [...m.values()].reduce((a, x) => a + Math.max(0, x.revenue), 0) || 1;
@@ -229,12 +234,13 @@ export function salesInsights(input: InsightLine[], customers: InsightCustomer[]
   const momentum = { risers: movers.filter((p) => (p.growth as number) >= 10).sort((a, b) => (b.revenue - (b.prev ?? 0)) - (a.revenue - (a.prev ?? 0))).slice(0, 5),
     fallers: movers.filter((p) => (p.growth as number) <= -10).sort((a, b) => (a.revenue - (a.prev ?? 0)) - (b.revenue - (b.prev ?? 0))).slice(0, 5) };
 
-  /* basket affinity over the period's orders: support, confidence both ways and lift */
-  const multi = cur.filter((o) => o.items.size > 1), nOrders = cur.length || 1, itemCount = new Map<string, number>(), pairM = new Map<string, { a: string; b: string; count: number; revenue: number }>();
-  cur.forEach((o) => o.items.forEach((_, k) => itemCount.set(k, (itemCount.get(k) ?? 0) + 1)));
+  /* affinity uses the same positive purchases as the KPI; refunded and zero-net items are not bought together */
+  const baskets = curPurchases.map((o) => ({ ...o, items: new Map([...o.items].filter(([, amount]) => amount > 0)) }));
+  const multi = baskets.filter((o) => o.items.size > 1), nOrders = curPurchases.length || 1, itemCount = new Map<string, number>(), pairM = new Map<string, { a: string; b: string; count: number; revenue: number }>();
+  baskets.forEach((o) => o.items.forEach((_, k) => itemCount.set(k, (itemCount.get(k) ?? 0) + 1)));
   multi.forEach((o) => { const ks = [...o.items.keys()].sort((x, y) => x.localeCompare(y)).slice(0, 15);
     for (let i = 0; i < ks.length; i++) for (let j = i + 1; j < ks.length; j++) { const k = ks[i] + '\u0000' + ks[j], x = pairM.get(k) ?? { a: ks[i], b: ks[j], count: 0, revenue: 0 }; x.count++; x.revenue += o.amount; pairM.set(k, x); } });
-  const minPair = cur.length >= 200 ? 3 : 2;
+  const minPair = curPurchases.length >= 200 ? 3 : 2;
   const pairs = [...pairM.values()].filter((p) => p.count >= minPair).map((p) => { const ca = itemCount.get(p.a) ?? 1, cb = itemCount.get(p.b) ?? 1;
     return { ...p, support: round(p.count / nOrders, 4), confAB: round(p.count / ca, 3), confBA: round(p.count / cb, 3), lift: round((p.count * nOrders) / (ca * cb), 2) }; })
     .sort((x, y) => y.count - x.count || y.lift - x.lift).slice(0, 20);
@@ -274,7 +280,7 @@ export function salesInsights(input: InsightLine[], customers: InsightCustomer[]
       const ids = cohortOf.get(k)!; return round((ids.filter((id) => active.get(id)?.has(m)).length / ids.length) * 100, 1); })) };
 
   /* data quality over every line of the store (not only the period) */
-  const raw = input.length || 1, missingDate = input.filter((l) => !/^\d{4}-\d{2}-\d{2}/.test(String(l.date ?? ''))).length;
+  const raw = input.length || 1, missingDate = input.filter((l) => !validDay(String(l.date ?? '').slice(0, 10))).length;
   const missingCustomer = all.filter((l) => !l.customerId).length, nonPositive = all.filter((l) => l.amount <= 0).length, noProduct = all.filter((l) => l.product === 'غير محدد').length;
   const seen = new Set<string>(); let duplicates = 0;
   input.forEach((l) => { const k = [l.date, l.invoice, l.product, l.amount, l.qty, l.customerId].join('\u0001'); if (l.invoice && seen.has(k)) duplicates++; else seen.add(k); });
@@ -318,7 +324,7 @@ export function salesInsights(input: InsightLine[], customers: InsightCustomer[]
   recs.sort((a, b) => order.indexOf(a.tone) - order.indexOf(b.tone));
 
   return { empty: false as const, asOf, first, period, channels: channelsAll, channel: opts.channel ?? '', kpis, trend, trendPrev, forecast: fc,
-    weekdays: wd, channelMix: channels, products, abc, top10Share, hhi, momentum, pairs, ordersInPeriod: cur.length, multiItemOrders: multi.length,
+    weekdays: wd, channelMix: channels, products, abc, top10Share, hhi, momentum, pairs, ordersInPeriod: curPurchases.length, multiItemOrders: multi.length,
     customers: people, segments, followup, typicalCadence: round(typical, 1), cohorts, quality, health: { score: healthScore, parts: health }, recs: recs.slice(0, 8) };
 }
 export type SalesInsights = ReturnType<typeof salesInsights>;

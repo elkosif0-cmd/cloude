@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { countAr, CUSTOMERS_AR, dayAdd, daysBetween, forecastDaily, ORDERS_AR, quintile, salesInsights, segmentOf, wapeWeekly, type InsightLine } from './sales-insights-engine';
+import { countAr, CUSTOMERS_AR, dayAdd, daysBetween, forecastDaily, ORDERS_AR, normalize, quintile, salesInsights, segmentOf, wapeWeekly, type InsightLine } from './sales-insights-engine';
 
 const L = (date: string, amount: number, extra: Partial<InsightLine> = {}): InsightLine => ({ date, amount, qty: 1, product: 'نعيمي', ...extra });
 /* n consecutive days from `from`, each with value f(day, index) */
@@ -143,5 +143,65 @@ describe('sales insights — RFM, follow-up, baskets and cohorts', () => {
     expect(r.health.parts.map((p) => p.key)).toEqual(['growth', 'stability', 'diversity', 'retention', 'data']);
     expect(r.health.score).toBe(r.health.parts.reduce((a, p) => a + p.points, 0));
     expect(r.recs.some((x) => x.id === 'data')).toBe(true);
+  });
+});
+
+
+describe('sales insights — review edge cases', () => {
+  it('rejects impossible calendar dates, preserves leap days and reports bad dates', () => {
+    expect(normalize(['2026-13-01', '2026-02-30', '2026-02-29'].map((d) => L(d, 100)))).toEqual([]);
+    expect(normalize([L('2024-02-29', 100)]).length).toBe(1);
+    const r = salesInsights([L('2026-02-28', 100), L('2026-02-30', 200), L('2026-03-01', 300)], [], { period: '30' });
+    if (r.empty) throw new Error('empty');
+    expect(r.kpis.revenue.cur).toBe(400);
+    expect(r.trend.values.reduce((a, b) => a + b, 0)).toBe(400);
+    expect(r.quality.missingDate).toBe(1);
+    expect(salesInsights([L('2026-13-01', 100)], [], { period: '30' }).empty).toBe(true);
+  });
+
+  it('uses positive purchases for basket, weekday and visible order counts', () => {
+    for (const amount of [-100, 0]) {
+      const lines = [...Array.from({ length: 3 }, (_, i) => ['A', 'B'].map((product) => L('2026-09-01', amount, { invoice: 'r' + i, product }))).flat(),
+        ...Array.from({ length: 3 }, (_, i) => L('2026-09-01', amount, { invoice: 's' + i, product: 'C' }))];
+      const r = salesInsights(lines, [], { period: '30' });
+      if (r.empty) throw new Error('empty');
+      expect(r.kpis.orders.cur).toBe(0); expect(r.ordersInPeriod).toBe(0);
+      expect(r.weekdays.reduce((a, w) => a + w.orders, 0)).toBe(0);
+      expect(r.pairs).toEqual([]); expect(r.recs.some((x) => x.id === 'bundle')).toBe(false);
+    }
+  });
+
+  it('excludes nonpositive product contributions from a purchased basket and keeps returned money', () => {
+    const lines = Array.from({ length: 3 }, (_, i) => [L('2026-09-01', 200, { invoice: 'p' + i, product: 'A' }),
+      L('2026-09-01', 100, { invoice: 'p' + i, product: 'B' }), L('2026-09-01', -100, { invoice: 'p' + i, product: 'B' }),
+      L('2026-09-01', -50, { invoice: 'p' + i, product: 'C' })]).flat();
+    const r = salesInsights(lines, [], { period: '30' });
+    if (r.empty) throw new Error('empty');
+    expect(r.kpis.orders.cur).toBe(3); expect(r.kpis.revenue.cur).toBe(450); expect(r.kpis.returns.cur).toBe(450);
+    expect(r.multiItemOrders).toBe(0); expect(r.pairs).toEqual([]);
+    expect(r.products.find((p) => p.name === 'C')?.orders).toBe(0);
+  });
+
+  it('keeps later credits in their transaction period without moving the original sale', () => {
+    const r = salesInsights([L('2026-08-31', 1000, { invoice: 'same' }), L('2026-09-10', -200, { invoice: 'same' }),
+      L('2026-09-30', 100, { invoice: 'other' })], [], { period: '30' });
+    if (r.empty) throw new Error('empty');
+    expect(r.kpis.revenue.cur).toBe(-100); expect(r.kpis.revenue.prev).toBe(1000); expect(r.kpis.returns.cur).toBe(200);
+    expect(r.trend.values.reduce((a, b) => a + b, 0)).toBe(r.kpis.revenue.cur);
+    expect(r.products.reduce((a, p) => a + p.revenue, 0)).toBe(r.kpis.revenue.cur);
+    expect(r.channelMix.reduce((a, p) => a + p.revenue, 0)).toBe(r.kpis.revenue.cur);
+  });
+
+  it('scopes reused references by date, channel and customer but preserves ordinary multiline purchases', () => {
+    const r = salesInsights([L('2026-09-01', 100, { invoice: 'same', channel: 'A', customerId: 'one' }),
+      L('2026-09-30', 200, { invoice: 'same', channel: 'A', customerId: 'one' }),
+      L('2026-09-30', 300, { invoice: 'same', channel: 'B', customerId: 'one' }),
+      L('2026-09-30', 400, { invoice: 'same', channel: 'B', customerId: 'two' })], [], { period: '30' });
+    if (r.empty) throw new Error('empty');
+    expect(r.trend.values[0]).toBe(100); expect(r.trend.values.at(-1)).toBe(900); expect(r.kpis.orders.cur).toBe(4);
+    const normal = salesInsights([L('2026-09-30', 100, { invoice: 'one', product: 'A' }),
+      L('2026-09-30', 200, { invoice: 'one', product: 'B' })], [], { period: '30' });
+    if (normal.empty) throw new Error('empty');
+    expect(normal.kpis.orders.cur).toBe(1); expect(normal.kpis.avgOrder.cur).toBe(300);
   });
 });

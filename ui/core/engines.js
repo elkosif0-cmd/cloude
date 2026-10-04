@@ -22795,6 +22795,7 @@ window.SKEngines = (function() {
 	var DAY = 864e5;
 	var dayT = (d) => Date.parse(d.slice(0, 10) + "T00:00:00Z");
 	var isoDay = (t) => new Date(t).toISOString().slice(0, 10);
+	var validDay = (d) => /^\d{4}-\d{2}-\d{2}$/.test(d) && Number.isFinite(dayT(d)) && isoDay(dayT(d)) === d;
 	var dayAdd = (d, n) => isoDay(dayT(d) + n * DAY);
 	var daysBetween$1 = (a, b) => Math.round((dayT(b) - dayT(a)) / DAY);
 	var weekday = (d) => new Date(dayT(d)).getUTCDay();
@@ -22853,7 +22854,7 @@ window.SKEngines = (function() {
 		const out = [];
 		lines.forEach((l, i) => {
 			const date = String(l.date ?? "").slice(0, 10), amount = Number(l.amount);
-			if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(amount)) return;
+			if (!validDay(date) || !Number.isFinite(amount)) return;
 			out.push({
 				date,
 				amount: Math.round(amount),
@@ -22866,14 +22867,22 @@ window.SKEngines = (function() {
 		});
 		return out;
 	}
-	/** lines grouped into orders (one per invoice key), sorted by day */
+	/** invoice references are scoped to transaction day, channel and customer; same-day multiline purchases stay together */
+	var orderKey = (l) => JSON.stringify([
+		l.invoice,
+		l.date,
+		l.channel,
+		l.customerId
+	]);
+	/** lines grouped into dated orders, sorted by day; later credits never move into the original sale's period */
 	function ordersOf(lines) {
 		const m = /* @__PURE__ */ new Map();
 		lines.forEach((l) => {
-			let o = m.get(l.invoice);
+			const key = orderKey(l);
+			let o = m.get(key);
 			if (!o) {
 				o = {
-					key: l.invoice,
+					key,
 					date: l.date,
 					customerId: l.customerId,
 					channel: l.channel,
@@ -22881,12 +22890,11 @@ window.SKEngines = (function() {
 					qty: 0,
 					items: /* @__PURE__ */ new Map()
 				};
-				m.set(l.invoice, o);
+				m.set(key, o);
 			}
 			o.amount += l.amount;
 			o.qty += l.qty;
 			o.items.set(l.product, (o.items.get(l.product) ?? 0) + l.amount);
-			if (l.date < o.date) o.date = l.date;
 		});
 		return [...m.values()].sort((a, b) => a.date.localeCompare(b.date) || a.key.localeCompare(b.key));
 	}
@@ -23137,7 +23145,7 @@ window.SKEngines = (function() {
 	function salesInsights(input, customers = [], opts = {}) {
 		const all = normalize(input), channelsAll = [...new Set(all.map((l) => l.channel))].sort((a, b) => a.localeCompare(b, "ar"));
 		const lastSale = all.reduce((a, l) => l.date > a ? l.date : a, "");
-		const asOf = opts.asOf && lastSale && opts.asOf < lastSale ? opts.asOf : lastSale;
+		const asOf = opts.asOf && validDay(opts.asOf) && lastSale && opts.asOf < lastSale ? opts.asOf : lastSale;
 		const L = all.filter((l) => l.date <= asOf && (!opts.channel || l.channel === opts.channel));
 		const key = opts.period && PERIODS[opts.period] ? opts.period : "90";
 		if (!L.length) return {
@@ -23164,9 +23172,11 @@ window.SKEngines = (function() {
 		};
 		const O = ordersOf(L), inCur = (d) => d >= from && d <= asOf, inPrev = (d) => hasPrev && d >= prevFrom && d <= prevTo;
 		const cur = O.filter((o) => inCur(o.date)), prev = O.filter((o) => inPrev(o.date));
+		const purchases = O.filter((o) => o.amount > 0), curPurchases = purchases.filter((o) => inCur(o.date));
+		const purchaseByKey = new Map(purchases.map((o) => [o.key, o]));
 		const firstBuy = /* @__PURE__ */ new Map();
-		O.forEach((o) => {
-			if (o.customerId && o.amount > 0 && !firstBuy.has(o.customerId)) firstBuy.set(o.customerId, o.date);
+		purchases.forEach((o) => {
+			if (o.customerId && !firstBuy.has(o.customerId)) firstBuy.set(o.customerId, o.date);
 		});
 		const measure = (os, inside) => {
 			const pos = os.filter((o) => o.amount > 0), per = /* @__PURE__ */ new Map();
@@ -23180,7 +23190,7 @@ window.SKEngines = (function() {
 				customers: per.size,
 				newCustomers: [...firstBuy.entries()].filter(([, d]) => inside(d)).length,
 				repeatRate: per.size ? round$1([...per.values()].filter((c) => c > 1).length / per.size, 4) : 0,
-				returns: Math.abs(os.filter((o) => o.amount < 0).reduce((a, o) => a + o.amount, 0)),
+				returns: Math.abs(L.filter((l) => inside(l.date) && l.amount < 0).reduce((a, l) => a + l.amount, 0)),
 				units: os.reduce((a, o) => a + o.qty, 0)
 			};
 		};
@@ -23201,7 +23211,7 @@ window.SKEngines = (function() {
 			w.days++;
 			w.total += trend.values[i];
 		});
-		cur.forEach((o) => {
+		curPurchases.forEach((o) => {
 			wd[weekday(o.date)].orders++;
 		});
 		wd.forEach((w) => {
@@ -23222,7 +23232,8 @@ window.SKEngines = (function() {
 				if (c) {
 					x.revenue += l.amount;
 					x.qty += l.qty;
-					x.orders.add(l.invoice);
+					const k = orderKey(l), purchase = purchaseByKey.get(k);
+					if (purchase && (dim === "channel" || (purchase.items.get(l.product) ?? 0) > 0)) x.orders.add(k);
 				} else x.prev += l.amount;
 				m.set(k, x);
 			});
@@ -23268,8 +23279,12 @@ window.SKEngines = (function() {
 			risers: movers.filter((p) => p.growth >= 10).sort((a, b) => b.revenue - (b.prev ?? 0) - (a.revenue - (a.prev ?? 0))).slice(0, 5),
 			fallers: movers.filter((p) => p.growth <= -10).sort((a, b) => a.revenue - (a.prev ?? 0) - (b.revenue - (b.prev ?? 0))).slice(0, 5)
 		};
-		const multi = cur.filter((o) => o.items.size > 1), nOrders = cur.length || 1, itemCount = /* @__PURE__ */ new Map(), pairM = /* @__PURE__ */ new Map();
-		cur.forEach((o) => o.items.forEach((_, k) => itemCount.set(k, (itemCount.get(k) ?? 0) + 1)));
+		const baskets = curPurchases.map((o) => ({
+			...o,
+			items: new Map([...o.items].filter(([, amount]) => amount > 0))
+		}));
+		const multi = baskets.filter((o) => o.items.size > 1), nOrders = curPurchases.length || 1, itemCount = /* @__PURE__ */ new Map(), pairM = /* @__PURE__ */ new Map();
+		baskets.forEach((o) => o.items.forEach((_, k) => itemCount.set(k, (itemCount.get(k) ?? 0) + 1)));
 		multi.forEach((o) => {
 			const ks = [...o.items.keys()].sort((x, y) => x.localeCompare(y)).slice(0, 15);
 			for (let i = 0; i < ks.length; i++) for (let j = i + 1; j < ks.length; j++) {
@@ -23284,7 +23299,7 @@ window.SKEngines = (function() {
 				pairM.set(k, x);
 			}
 		});
-		const minPair = cur.length >= 200 ? 3 : 2;
+		const minPair = curPurchases.length >= 200 ? 3 : 2;
 		const pairs = [...pairM.values()].filter((p) => p.count >= minPair).map((p) => {
 			const ca = itemCount.get(p.a) ?? 1, cb = itemCount.get(p.b) ?? 1;
 			return {
@@ -23393,7 +23408,7 @@ window.SKEngines = (function() {
 				return round$1(ids.filter((id) => active.get(id)?.has(m)).length / ids.length * 100, 1);
 			}))
 		};
-		const raw = input.length || 1, missingDate = input.filter((l) => !/^\d{4}-\d{2}-\d{2}/.test(String(l.date ?? ""))).length;
+		const raw = input.length || 1, missingDate = input.filter((l) => !validDay(String(l.date ?? "").slice(0, 10))).length;
 		const missingCustomer = all.filter((l) => !l.customerId).length, nonPositive = all.filter((l) => l.amount <= 0).length, noProduct = all.filter((l) => l.product === "غير محدد").length;
 		const seen = /* @__PURE__ */ new Set();
 		let duplicates = 0;
@@ -23573,7 +23588,7 @@ window.SKEngines = (function() {
 			hhi,
 			momentum,
 			pairs,
-			ordersInPeriod: cur.length,
+			ordersInPeriod: curPurchases.length,
 			multiItemOrders: multi.length,
 			customers: people,
 			segments,
