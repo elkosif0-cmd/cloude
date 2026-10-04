@@ -310,7 +310,9 @@ function syncSidebar(){
     const b=document.body;sidebar.bodyStyle={position:b.style.position,top:b.style.top,left:b.style.left,right:b.style.right,width:b.style.width};
     b.classList.add("skn-locked");b.style.position="fixed";b.style.top=(-sidebar.scrollY)+"px";b.style.left="0";b.style.right="0";b.style.width="100%";
   }else if(closing){
-    const b=document.body;b.classList.remove("skn-locked");const s=sidebar.bodyStyle||{};
+    const b=document.body,lockedTop=parseFloat(b.style.top),lockedY=Number.isFinite(lockedTop)?Math.max(0,-lockedTop):sidebar.scrollY;
+    rail.dataset.returnScrollY=String(lockedY);
+    b.classList.remove("skn-locked");const s=sidebar.bodyStyle||{};
     b.style.position=s.position||"";b.style.top=s.top||"";b.style.left=s.left||"";b.style.right=s.right||"";b.style.width=s.width||"";sidebar.bodyStyle=null;
   }else document.body.classList.toggle("skn-locked",open);
   if(opening){
@@ -322,7 +324,7 @@ function syncSidebar(){
     if(sidebar.main)sidebar.main.inert=sidebar.mainInert;
     const liveMore=sidebar.openerMore?$("#skb [data-more]"):null;const target=sidebar.route?$("#pg-title"):(liveMore||(sidebar.opener&&sidebar.opener.isConnected&&!rail.contains(sidebar.opener)?sidebar.opener:button));
     if(target){if(sidebar.route&&!target.hasAttribute("tabindex"))target.setAttribute("tabindex","-1");target.focus({preventScroll:true})}
-    const y=sidebar.scrollCaptured?sidebar.scrollY:Number(rail.dataset.returnScrollY||0);delete rail.dataset.returnScrollY;sidebar.main=null;sidebar.opener=null;sidebar.openerMore=false;sidebar.route=false;sidebar.scrollY=0;sidebar.scrollCaptured=false;
+    const y=Number(rail.dataset.returnScrollY||sidebar.scrollY||0);delete rail.dataset.returnScrollY;sidebar.main=null;sidebar.opener=null;sidebar.openerMore=false;sidebar.route=false;sidebar.scrollY=0;sidebar.scrollCaptured=false;
     /* fixed-body locking keeps the page visually still; unlock, flush layout, then restore the saved document offset. */
     lockPageScroll(false);void document.body.offsetHeight;
     if(Number.isFinite(y)&&Math.abs(window.scrollY-y)>1){const restore=()=>{const se=document.scrollingElement;if(se)se.scrollTop=y;window.scrollTo(0,y)};restore();requestAnimationFrame(restore)}
