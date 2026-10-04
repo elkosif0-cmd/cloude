@@ -25,7 +25,8 @@ function current(){
   const s=space()&&space().current?space().current():null,d=books();
   const id=(s&&s.id)||d.active.companyId||"",rec=d.companies.find(c=>c.id===id)||null;
   const name=clean(rec&&rec.name)||clean(s&&s.name)||"شركتي";
-  const periods=d.periods.filter(p=>p.companyId===id),period=periods.find(p=>p.id===d.active.periodId)||null;
+  /* a period saved without a company (older data, imported books) belongs to the open company */
+  const periods=d.periods.filter(p=>p.companyId===id||!p.companyId),period=periods.find(p=>p.id===d.active.periodId)||null;
   return Object.freeze({id,name,currency:(rec&&rec.currency)||"SAR",country:(rec&&rec.country)||"SA",locked:!!id&&privateId()===id,demo:id===DEMO.id,period,periods});
 }
 /* every company this device knows: the open one first; the private one only while it is the open one */
@@ -76,7 +77,7 @@ function reconcile(){
   const cur=current(),d=books(),changed=[];if(!cur.id||provisional())return changed;
   if(!d.companies.some(c=>c.id===cur.id)){d.rest.companies=[...d.companies,{id:cur.id,name:cur.name,country:cur.country,currency:cur.currency}];changed.push("books-record")}
   if(d.active.companyId!==cur.id){d.rest.active={companyId:cur.id};changed.push("books-active")}
-  else if(d.active.periodId&&!d.periods.some(p=>p.id===d.active.periodId&&p.companyId===cur.id)){d.rest.active={companyId:cur.id};changed.push("books-period")}
+  else if(d.active.periodId&&!d.periods.some(p=>p.id===d.active.periodId&&(p.companyId===cur.id||!p.companyId))){d.rest.active={companyId:cur.id};changed.push("books-period")}
   if(changed.length)save(CO,d.rest);
   if(setOrgName(cur.name))changed.push("business-name");
   return changed;

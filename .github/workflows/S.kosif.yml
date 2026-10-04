@@ -70,7 +70,7 @@ jobs:
         run: node --test tools/unlock_runtime.test.mjs
 
       - name: Test the company gallery (front door) and Sales Intelligence across screens
-        run: node --test tools/company_entry.test.mjs tools/sales_reports.test.mjs
+        run: node --test tools/company_entry.test.mjs tools/company_context.test.mjs tools/crystal_world.test.mjs tools/sales_reports.test.mjs
 
       - name: Test accessible dialogs and spreadsheet export safety
         run: |
