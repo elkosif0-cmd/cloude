@@ -4,7 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0c2340">
+<meta name="description" content="SQC — Smart Quality Control: منصة المراجعة والتأكيد المدعومة بالذكاء الاصطناعي، مع أدوات مساعدة للمحاسب.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SQC">
 <title>SQC — دخول آمن</title>
+<link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="./art/sqc-icon.svg">
 <link rel="icon" type="image/png" href="./icon-192.png">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
@@ -54,6 +59,7 @@ button.submit:disabled{opacity:.65;cursor:default}
 .badge{display:inline-flex;align-items:center;gap:7px;margin:18px auto 0;padding:8px 14px;border-radius:999px;background:#e8f1fe;color:#1668e3;font-size:12px;font-weight:600}
 .badge svg{width:15px;height:15px}
 .slogan{margin-top:14px;font-size:12px;color:#8292a8}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 @media (max-width:820px){
   body{place-items:start center}
   .shell{grid-template-columns:1fr;min-height:0;border-radius:24px}
@@ -73,19 +79,21 @@ button.submit:disabled{opacity:.65;cursor:default}
 </aside>
 <main class="card">
 <div><img class="logo" src="./art/sqc-mark-dark.svg" alt="SQC"><span class="brand-tag">Smart Quality Control</span></div>
-<h1>SQC</h1>
-<p class="sub">منصة المراجعة والتأكيد المدعومة بالذكاء الاصطناعي، مع أدوات مساعدة للمحاسب. أدخل كلمة المرور المشفرة لفتح التطبيق.</p>
-<form id="f">
-<div class="field"><input id="p" type="password" autocomplete="current-password" placeholder="كلمة المرور الآمنة" required autofocus><button class="eye" id="eye" type="button" aria-label="إظهار كلمة المرور"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+<h1 id="login-title">SQC</h1>
+<p class="sub" id="unlock-help">منصة المراجعة والتأكيد المدعومة بالذكاء الاصطناعي، مع أدوات مساعدة للمحاسب. أدخل كلمة المرور المشفرة لفتح التطبيق.</p>
+<form id="f" aria-labelledby="login-title">
+<label class="sr-only" for="p">كلمة المرور الآمنة</label>
+<div class="field"><input id="p" type="password" autocomplete="current-password" placeholder="كلمة المرور الآمنة" aria-describedby="unlock-help" required autofocus><button class="eye" id="eye" type="button" aria-label="إظهار كلمة المرور" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
 <button class="submit" id="go" type="submit">دخول آمن للمنصة</button>
 </form>
-<div class="msg" id="msg"></div><div class="progress" id="progress"></div>
+<div class="msg" id="msg" role="alert" aria-live="assertive" aria-atomic="true"></div><div class="progress" id="progress" role="status" aria-live="polite" aria-atomic="true"></div>
 <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>تشفير متقدم بنظام ChaCha20 و PBKDF2</div><div class="slogan">البيانات تُفك على هذا الجهاز فقط.</div>
 </main>
 </div>
 <script>
 const $=id=>document.getElementById(id);
-$("eye").onclick=()=>{$("p").type=$("p").type==="password"?"text":"password"};
+const eye=$("eye"),pw=$("p");
+eye.onclick=()=>{const reveal=pw.type==="password";pw.type=reveal?"text":"password";eye.setAttribute("aria-pressed",String(reveal));eye.setAttribute("aria-label",reveal?"إخفاء كلمة المرور":"إظهار كلمة المرور")};
 function b64(s){const x=atob(s),a=new Uint8Array(x.length);for(let i=0;i<x.length;i++)a[i]=x.charCodeAt(i);return a}
 function rotl(v,n){return ((v<<n)|(v>>>(32-n)))>>>0}
 function r32(a,o){return (a[o]|a[o+1]<<8|a[o+2]<<16|a[o+3]<<24)>>>0}
