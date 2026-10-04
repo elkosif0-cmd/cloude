@@ -49,7 +49,7 @@ h1{margin:6px 0 4px;font:800 32px/1.1 Montserrat,"Segoe UI",sans-serif;letter-sp
 .field input{width:100%;height:54px;padding:0 54px 0 18px;border:1px solid #d3dce8;border-radius:14px;outline:none;background:#f7f9fc;color:#0b1c33;font:inherit;font-size:16.5px;transition:all .2s ease}
 [dir="rtl"] .field input{padding:0 18px 0 54px}
 .field input:focus{border-color:#1668e3;background:#fff;box-shadow:0 0 0 4px rgba(22,104,227,.14)}
-.eye{position:absolute;top:7px;inset-inline-end:8px;display:grid;place-items:center;width:40px;height:40px;border:0;background:transparent;color:#8292a8;cursor:pointer}
+.eye{position:absolute;top:7px;inset-inline-end:8px;display:grid;place-items:center;width:40px;height:40px;border:0;background:transparent;color:#8292a8;cursor:pointer}\n.eye:focus-visible,button.submit:focus-visible{outline:3px solid #1668e3;outline-offset:3px}
 .eye svg{width:20px;height:20px}
 button.submit{width:100%;height:54px;margin-top:16px;border:0;border-radius:14px;background:linear-gradient(180deg,#2677ee,#1668e3);color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 12px 26px -12px rgba(22,104,227,.8);transition:all .2s ease}
 button.submit:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 16px 30px -12px rgba(22,104,227,.9)}
@@ -83,7 +83,7 @@ button.submit:disabled{opacity:.65;cursor:default}
 <p class="sub" id="unlock-help">منصة المراجعة والتأكيد المدعومة بالذكاء الاصطناعي، مع أدوات مساعدة للمحاسب. أدخل كلمة المرور المشفرة لفتح التطبيق.</p>
 <form id="f" aria-labelledby="login-title">
 <label class="sr-only" for="p">كلمة المرور الآمنة</label>
-<div class="field"><input id="p" type="password" autocomplete="current-password" placeholder="كلمة المرور الآمنة" aria-describedby="unlock-help" required autofocus><button class="eye" id="eye" type="button" aria-label="إظهار كلمة المرور" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+<div class="field"><input id="p" name="password" type="password" autocomplete="current-password" placeholder="كلمة المرور الآمنة" aria-describedby="unlock-help" required autofocus><button class="eye" id="eye" type="button" aria-label="إظهار كلمة المرور" aria-pressed="false" aria-controls="p"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
 <button class="submit" id="go" type="submit">دخول آمن للمنصة</button>
 </form>
 <div class="msg" id="msg" role="alert" aria-live="assertive" aria-atomic="true"></div><div class="progress" id="progress" role="status" aria-live="polite" aria-atomic="true"></div>
@@ -103,7 +103,7 @@ function block(k,c,n){const x=new Uint32Array(16),o=new Uint32Array(16),z=new Ui
 function xor(d,k,n,c=1){const o=new Uint8Array(d.length);let q=0;while(q<d.length){const s=block(k,c++,n),m=Math.min(64,d.length-q);for(let i=0;i<m;i++)o[q+i]=d[q+i]^s[i];q+=m}return o}
 async function loadCipher(meta){const texts=await Promise.all(meta.parts.map((u,i)=>fetch("./"+u,{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error("part "+i);return r.text()})));const arr=texts.map(t=>b64(t.trim()));let total=0;arr.forEach(a=>total+=a.length);const out=new Uint8Array(total);let off=0;for(const a of arr){out.set(a,off);off+=a.length}return out}
 $("f").addEventListener("submit",async e=>{
-e.preventDefault();$("msg").textContent="";$("go").disabled=true;$("progress").textContent="جارٍ التحقق وفك التشفير…";const enteredPassword=$("p").value;
+e.preventDefault();$("msg").textContent="";$("go").disabled=true;$("f").setAttribute("aria-busy","true");$("progress").textContent="جارٍ التحقق وفك التشفير…";const enteredPassword=$("p").value;
 try{
 const meta=await fetch("./secure/crypto.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error("meta");return r.json()});
 const pass=new TextEncoder().encode($("p").value);
@@ -142,7 +142,7 @@ try{
 $("p").value="";
 document.open();document.write(app);document.close();
 }catch(err){console.error(err);$("msg").textContent="كلمة المرور غير صحيحة أو تعذر فتح البيانات.";$("progress").textContent="";$("p").select()}
-finally{const g=$("go");if(g)g.disabled=false}
+finally{const g=$("go");if(g)g.disabled=false;const f=$("f");if(f)f.setAttribute("aria-busy","false")}
 });
 </script>
 </body></html>
