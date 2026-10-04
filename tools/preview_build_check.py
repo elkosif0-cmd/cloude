@@ -66,7 +66,11 @@ def check_preview(tmp, label, samples, placeholders):
     ok(f"{label}: none of {len(samples)} private-block samples is in the dist", hits == 0, f"{hits} found")
     ok(f"{label}: price catalog absent", "SEED_RAWS=[{" not in blob and private_blocks.CATALOG_START not in blob)
     app = (tmp / "dist" / "app-safe.html").read_text(encoding="utf-8")
+    head = app.split("</head>", 1)[0]
     ok(f"{label}: each private block ({len(placeholders)}) is replaced by its placeholder", all(ph in app for ph in placeholders))
+    ok(f"{label}: SQC theme color is canonical", 'name="theme-color" content="#0c2340"' in head)
+    ok(f"{label}: SQC favicon replaces legacy cloud mark", 'href="./art/sqc-icon.svg"' in head and "kosif-cloud.svg" not in head)
+    ok(f"{label}: app shell advertises the PWA manifest", 'rel="manifest" href="./manifest.webmanifest"' in head)
     phones = set(private_blocks.PHONE_RE.findall(blob)) - {f"05000000{i:02d}" for i in range(100)}
     ok(f"{label}: no real mobile numbers", not phones, f"{len(phones)} found")
     index = (tmp / "dist" / "index.html").read_text(encoding="utf-8")
