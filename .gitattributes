@@ -1,0 +1,14 @@
+# Every text file checks out with LF on every OS, so a Windows clone holds the same bytes that CI tests, hashes and
+# builds. With core.autocrlf=true a Windows checkout turned LF into CRLF: the audit report loader then kept its
+# import lines (5 failing tests) and the reviewed unlock-script hash changed (1 failing test).
+* text=auto eol=lf
+*.gz binary
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.pdf binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.xlsx binary
+*.zip binary

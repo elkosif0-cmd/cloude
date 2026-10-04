@@ -75,6 +75,7 @@ def check_preview(tmp, label, samples, placeholders):
     ok(f"{label}: no real mobile numbers", not phones, f"{len(phones)} found")
     index = (tmp / "dist" / "index.html").read_text(encoding="utf-8")
     ok(f"{label}: index is the preview page, not the unlock page", "noindex" in index and "crypto.json" not in index and "app-safe.html" in index)
+    ok(f"{label}: index is the company gallery without the private company", 'id="co-list"' in index and 'data-locked="0"' in index and 'id="f"' not in index and "SQC:AUTH" not in index)
     ok(f"{label}: every path is served noindex", "X-Robots-Tag: noindex" in (tmp / "dist" / "_headers").read_text(encoding="utf-8"))
 
 def main():

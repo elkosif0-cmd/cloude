@@ -379,10 +379,14 @@ document.addEventListener("click",async e=>{
 function overlay(t){const o=document.createElement("div");o.className="skdemo-overlay";o.innerHTML='<div><i></i><b>'+esc(t)+'</b><small>بيانات تجريبية لشركة وهمية — تُمسح بضغطة من الشريط أعلى الشاشة</small></div>';document.body.appendChild(o)}
 
 /* ---------- first run: a brand-new device fills itself once ---------- */
+/* true once the first run has finished on this page load (no fill, or a fill that needed no reload) */
+let settled=false;
 async function boot(){
+  /* the front door may be switching this device to another company right now: that company decides, after its reload */
+  if(window.SKosifSpace&&SKosifSpace.intent){await SKosifSpace.intent();if(SKosifSpace.busy())return}
   const r=reg();
   if(!r.at&&!r.off&&await fresh()){overlay("نجهز بيانات تجريبية لكل الأقسام…");const res=await fill(null,{quiet:true});if(res.done.length){setTimeout(()=>location.reload(),300);return}document.querySelectorAll(".skdemo-overlay").forEach(x=>x.remove())}
-  bar();
+  bar();settled=true;
 }
 /* the paste-based tools show their own worked example while the demo is on (once per visit) */
 const EXAMPLES={smartmatch:["#sk34-sample","#sk34-run"],excelrecon:["#sk33-xlsample","#sk33-xlrun"]},shown=new Set();
@@ -391,5 +395,5 @@ function examples(){const v=window.SKosifCore&&SKosifCore.view(),ex=EXAMPLES[v];
 SK.bus&&SK.bus.on("render",()=>setTimeout(()=>{bar();examples()},0));
 SK.bus&&SK.bus.on("nav",()=>setTimeout(bar,0));
 window.addEventListener("load",()=>setTimeout(()=>boot().catch(e=>SK.errors&&SK.errors.report(e,"demo:boot")),700));
-SK.demo=Object.freeze({status,fill,clear,panel,fresh,active:()=>Object.keys(reg().sections).length>0,sections:()=>SECTIONS.map(s=>({id:s.id,label:s.label,caps:s.caps.slice()})),turnOff:()=>{const r=reg();r.off=true;setReg(r)}});
+SK.demo=Object.freeze({status,fill,clear,panel,fresh,settled:()=>settled,active:()=>Object.keys(reg().sections).length>0,sections:()=>SECTIONS.map(s=>({id:s.id,label:s.label,caps:s.caps.slice()})),turnOff:()=>{const r=reg();r.off=true;setReg(r)}});
 })();

@@ -46,9 +46,12 @@ ok("app shell uses SQC favicon", 'href="./art/sqc-icon.svg"' in app_head and "ko
 ok("app shell advertises manifest", 'rel="manifest" href="./manifest.webmanifest"' in app_head)
 ok("unlock page has audit-first meta description", 'name="description"' in unlock_head and "المراجعة" in unlock_head)
 ok("unlock page advertises manifest", 'rel="manifest" href="./manifest.webmanifest"' in unlock_head)
-ok("unlock password has an explicit label", 'for="p">كلمة المرور الآمنة</label>' in index)
-ok("unlock feedback exposes alert/status semantics", 'id="msg" role="alert"' in index and 'id="progress" role="status"' in index)
-ok("password visibility toggle exposes pressed state", 'id="eye" type="button" aria-label="إظهار كلمة المرور" aria-pressed="false"' in index)
+if 'data-locked="0"' not in index: ok("unlock password has an explicit label", 'for="p">كلمة المرور الآمنة</label>' in index)
+preview_door = 'data-locked="0"' in index
+ok("front door is the company gallery" + (" (preview: no private company)" if preview_door else " with the private company locked"),
+   'id="co-list"' in index and (('id="locked"' not in index and 'id="f"' not in index) if preview_door else ('data-locked="1"' in index and 'id="locked"' in index)))
+if 'data-locked="0"' not in index: ok("unlock feedback exposes alert/status semantics", 'id="msg" role="alert"' in index and 'id="progress" role="status"' in index)
+if 'data-locked="0"' not in index: ok("password visibility toggle exposes pressed state", 'id="eye" type="button" aria-label="إظهار كلمة المرور" aria-pressed="false"' in index)
 ok("root entry is explicitly non-cacheable", re.search(r"(?m)^/$\n\s+Cache-Control:\s*no-cache, no-store, must-revalidate\s*$", headers) is not None)
 ok("manifest is explicitly revalidated", re.search(r"(?m)^/manifest\.webmanifest$\n\s+Cache-Control:\s*no-cache, must-revalidate\s*$", headers) is not None)
 for f in ("app-safe.html", "skosif.css", "skosif.js", "manifest.webmanifest", "index.html"):

@@ -8,7 +8,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="SQC">
-<title>SQC — دخول آمن</title>
+<title>SQC — اختر الشركة</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="./art/sqc-icon.svg">
 <link rel="icon" type="image/png" href="./icon-192.png">
@@ -70,9 +70,36 @@ button.submit:disabled{opacity:.65;cursor:default}
 }
 /* installed laptop window without a title bar: keep a strip to drag the window by */
 @media (display-mode: window-controls-overlay){body::before{content:"";position:fixed;top:0;left:0;right:0;height:env(titlebar-area-height,33px);-webkit-app-region:drag;app-region:drag}}
+
+/* the company gallery */
+[hidden]{display:none!important}
+.card{justify-content:flex-start;padding-top:36px}
+.co-list{display:grid;gap:10px;margin:18px 0 10px;text-align:start}
+.co{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border:1px solid #d3dce8;border-radius:14px;background:#f7f9fc;color:#0b1c33;font:inherit;text-align:start;cursor:pointer;transition:all .18s ease}
+.co:hover{border-color:#1668e3;background:#fff;box-shadow:0 10px 24px -16px rgba(11,31,58,.5)}
+.co:focus-visible{outline:3px solid #1668e3;outline-offset:2px}
+.co.last{border-color:#1668e3;background:#eef4ff}
+.co-ic{display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;border-radius:12px;background:#e8f1fe;color:#1668e3}
+.co.locked .co-ic{background:#0b1f3a;color:#fff}
+.co-ic svg{width:20px;height:20px}
+.co-t{display:grid;gap:2px;min-width:0}.co-t b{font-size:15.5px;overflow-wrap:anywhere}.co-t small{font-size:12px;color:#5a6a80}
+.co-new{display:grid;gap:8px;margin-top:4px}
+.co-add{width:100%;height:46px;border:1px dashed #b8c4d4;border-radius:14px;background:transparent;color:#1668e3;font:inherit;font-size:14.5px;font-weight:700;cursor:pointer}
+.co-add:hover{border-color:#1668e3;background:#f7f9fc}
+.co-add:focus-visible{outline:3px solid #1668e3;outline-offset:2px}
+.co-form{display:grid;gap:8px;padding:12px;border:1px solid #d3dce8;border-radius:14px;background:#fff;text-align:start}
+.co-form input{width:100%;height:46px;padding:0 14px;border:1px solid #d3dce8;border-radius:12px;background:#f7f9fc;font:inherit;font-size:16px;color:#0b1c33}
+.co-form input:focus{outline:none;border-color:#1668e3;background:#fff;box-shadow:0 0 0 4px rgba(22,104,227,.14)}
+.co-form button.submit{height:46px;margin-top:0}
+.linkish{border:0;background:transparent;color:#1668e3;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.linkish:focus-visible{outline:3px solid #1668e3;outline-offset:2px;border-radius:6px}
+.locked h2{margin:0 0 4px;font-size:20px}
+.locked .sub{margin-bottom:16px}
+.co-empty{margin:12px 0;font-size:13px;color:#5a6a80}
+.co-hint{margin:14px 0 0;font-size:12px;line-height:1.7;color:#8292a8}
 </style>
 </head>
-<body>
+<body data-locked="1" data-locked-name="قصيف" data-locked-id="co-private">
 <div class="shell">
 <aside class="visual" aria-hidden="true">
 <div class="wm"><img class="wm-logo" src="./art/sqc-logo.svg" alt="SQC — Smart Quality Control"></div>
@@ -81,16 +108,38 @@ button.submit:disabled{opacity:.65;cursor:default}
 <main class="card">
 <div><img class="logo" src="./art/sqc-mark-dark.svg" alt="SQC"><span class="brand-tag">Smart Quality Control</span></div>
 <h1 id="login-title">SQC</h1>
-<p class="sub" id="unlock-help">منصة المراجعة والتأكيد المدعومة بالذكاء الاصطناعي، مع أدوات مساعدة للمحاسب. أدخل كلمة المرور المشفرة لفتح التطبيق.</p>
-<form id="f" aria-labelledby="login-title">
+<section id="companies" aria-labelledby="co-t">
+<h2 id="co-t" class="sr-only">اختر الشركة</h2>
+<p class="sub" id="entry-help">اختر الشركة التي تعمل عليها الآن. لكل شركة بياناتها وأدواتها كاملة على هذا الجهاز، والشركة الخاصة وحدها تفتح بكلمة مرور.</p>
+<div class="co-list" id="co-list" role="list" aria-label="الشركات"></div>
+<div class="co-new">
+<button type="button" class="co-add" id="co-add">+ شركة جديدة</button>
+<form id="co-form" class="co-form" hidden aria-label="شركة جديدة">
+<label class="sr-only" for="co-name">اسم الشركة</label>
+<input id="co-name" name="company" maxlength="80" autocomplete="organization" placeholder="اسم الشركة الجديدة" required>
+<button class="submit" type="submit">إنشاء الشركة وفتحها</button>
+<button type="button" class="linkish" id="co-cancel">إلغاء</button>
+</form>
+</div>
+<p class="co-hint">منصة المراجعة والتأكيد المدعومة بالذكاء الاصطناعي، مع أدوات مساعدة للمحاسب. تعمل دون اتصال على هذا الجهاز.</p>
+</section>
+<!--SQC:LOCKED:START-->
+<section id="locked" class="locked" hidden aria-labelledby="locked-t">
+<h2 id="locked-t">الشركة الخاصة</h2>
+<p class="sub" id="unlock-help">بيانات هذه الشركة مشفرة ولا تُفك إلا على هذا الجهاز. أدخل كلمة مرور الشركة لفتحها.</p>
+<form id="f" aria-labelledby="locked-t">
 <label class="sr-only" for="p">كلمة المرور الآمنة</label>
-<div class="field"><input id="p" name="password" type="password" autocomplete="current-password" placeholder="كلمة المرور الآمنة" aria-describedby="unlock-help" required autofocus><button class="eye" id="eye" type="button" aria-label="إظهار كلمة المرور" aria-pressed="false" aria-controls="p"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
-<button class="submit" id="go" type="submit">دخول آمن للمنصة</button>
+<div class="field"><input id="p" name="password" type="password" autocomplete="current-password" placeholder="كلمة المرور الآمنة" aria-describedby="unlock-help" required><button class="eye" id="eye" type="button" aria-label="إظهار كلمة المرور" aria-pressed="false" aria-controls="p"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+<button class="submit" id="go" type="submit">فتح الشركة</button>
 </form>
 <div class="msg" id="msg" role="alert" aria-live="assertive" aria-atomic="true"></div><div class="progress" id="progress" role="status" aria-live="polite" aria-atomic="true"></div>
 <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>تشفير متقدم بنظام ChaCha20 و PBKDF2</div><div class="slogan">البيانات تُفك على هذا الجهاز فقط.</div>
+<p><button type="button" class="linkish" id="locked-back">العودة إلى قائمة الشركات</button></p>
+</section>
+<!--SQC:LOCKED:END-->
 </main>
 </div>
+<!--SQC:AUTH:START-->
 <script>
 const $=id=>document.getElementById(id);
 const eye=$("eye"),pw=$("p");
@@ -148,5 +197,65 @@ document.open();document.write(app);document.close();
 }catch(err){console.error(err);$("msg").textContent="كلمة المرور غير صحيحة أو تعذر فتح البيانات.";$("progress").textContent="";$("p").select()}
 finally{const g=$("go");if(g)g.disabled=false;const f=$("f");if(f)f.setAttribute("aria-busy","false")}
 });
+</script>
+<!--SQC:AUTH:END-->
+<script>
+/* The company gallery (SQC's front door). Companies come from the same device stores the app keeps:
+   the accountant's spaces (sqc_helper_users_v1), the books' companies (skosif_companies_v1), the demo company,
+   and — in a production build — the private company, which opens only through the reviewed unlock script above.
+   The choice is handed to the app as a one-time intent (sessionStorage sqc_company_intent); ui/core/helper-space.js
+   applies it on boot. A deep link or a manifest shortcut resumes the last company directly when it needs no password. */
+(()=>{
+"use strict";
+const $=id=>document.getElementById(id);
+const body=document.body,LOCKED=body.dataset.locked==="1",LNAME=body.dataset.lockedName||"الشركة الخاصة",LID=body.dataset.lockedId||"co-private";
+const DEMO={id:"demo-co",name:"شركة الوادي التجريبية للحوم"};
+const INTENT="sqc_company_intent",LAST="sqc_last_company",PRIVATE="sqc_private_space";
+const read=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k)||"null");return v==null?d:v}catch{return d}};
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const when=iso=>{const t=Date.parse(iso||"");return Number.isFinite(t)?new Date(t).toLocaleDateString("ar-SA-u-ca-gregory-nu-latn"):""};
+const I={lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  flask:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6L4 20a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1l-6-11V3"/></svg>',
+  building:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2M10 21v-3h4v3"/></svg>'};
+/* every company this device knows, the private one first and only as the locked card; a space the app marked private
+   never shows as an open card */
+function companies(){
+  const out=[],seen=new Set(),last=read(LAST,null),priv=localStorage.getItem(PRIVATE)||"";
+  if(LOCKED){out.push({id:LID,name:LNAME,locked:true,note:"خاصة · تُفتح بكلمة المرور"});seen.add(LID)}
+  if(priv)seen.add(priv);
+  const users=read("sqc_helper_users_v1",null),u=users&&users.users&&users.users[users.active];
+  if(u&&u.spaces)Object.entries(u.spaces).forEach(([id,s])=>{if(!s||seen.has(id))return;seen.add(id);out.push({id,name:s.name||id,demo:id===DEMO.id,note:id===DEMO.id?"بيانات تجريبية لعرض كل الشاشات":s.at?"آخر عمل "+when(s.at):"شركة على هذا الجهاز"})});
+  (read("skosif_companies_v1",{}).companies||[]).forEach(c=>{if(!c||!c.id||seen.has(c.id))return;seen.add(c.id);out.push({id:c.id,name:c.name||c.id,demo:c.id===DEMO.id,note:c.id===DEMO.id?"بيانات تجريبية لعرض كل الشاشات":"شركة مسجلة في الدفاتر"})});
+  /* the last company opened is always listed, even before its space was recorded */
+  if(last&&!last.locked&&last.id&&!seen.has(last.id)&&last.id!==DEMO.id){seen.add(last.id);out.push({id:last.id,name:last.name||last.id,note:"آخر شركة فُتحت على هذا الجهاز"})}
+  if(!seen.has(DEMO.id))out.push({id:DEMO.id,name:DEMO.name,demo:true,note:"بيانات تجريبية لعرض كل الشاشات"});
+  out.forEach(c=>{c.last=!!last&&last.id===c.id&&!c.locked||!!last&&last.locked&&!!c.locked});
+  return out;
+}
+function paint(){
+  const list=companies();
+  $("co-list").innerHTML=list.map(c=>'<button type="button" class="co'+(c.locked?" locked":"")+(c.last?" last":"")+'" role="listitem" data-id="'+esc(c.id)+'" data-name="'+esc(c.name)+'"'+(c.locked?' data-locked="1"':"")+(c.demo?' data-demo="1"':"")+(c.last?' aria-current="true"':"")+'>'+
+    '<span class="co-ic" aria-hidden="true">'+(c.locked?I.lock:c.demo?I.flask:I.building)+'</span><span class="co-t"><b>'+esc(c.name)+'</b><small>'+esc(c.note)+(c.last?" · آخر شركة فُتحت":"")+'</small></span></button>').join("");
+}
+function go(intent){
+  try{sessionStorage.setItem(INTENT,JSON.stringify(intent));sessionStorage.setItem("sqc_space_chosen","1");sessionStorage.setItem("sqc_helper_user_chosen","1")}catch{}
+  if(!intent.locked)location.href="./app-safe.html"+location.search+location.hash;
+}
+function showLocked(name){const s=$("locked");if(!s)return;$("companies").hidden=true;s.hidden=false;$("locked-t").textContent=name;const p=$("p");if(p&&p.focus)p.focus()}
+$("co-list").addEventListener("click",e=>{
+  const b=e.target.closest("[data-id]");if(!b)return;
+  if(b.dataset.locked){go({id:LID,name:b.dataset.name,locked:true});showLocked(b.dataset.name);return}
+  go({id:b.dataset.id,name:b.dataset.name,demo:!!b.dataset.demo});
+});
+const back=$("locked-back");if(back)back.addEventListener("click",()=>{$("locked").hidden=true;$("companies").hidden=false;try{sessionStorage.removeItem(INTENT)}catch{}});
+$("co-add").addEventListener("click",()=>{$("co-form").hidden=false;$("co-add").hidden=true;const n=$("co-name");if(n&&n.focus)n.focus()});
+$("co-cancel").addEventListener("click",()=>{$("co-form").hidden=true;$("co-add").hidden=false});
+$("co-form").addEventListener("submit",e=>{e.preventDefault();const name=String($("co-name").value||"").trim().slice(0,80);if(!name)return;
+  go({id:"co-"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name,create:true})});
+/* ./?go=… or #sales from a shortcut or a saved link: straight into the last company when it needs no password */
+function resume(){const last=read(LAST,null);if(!last||last.locked||!last.id||!(location.search||location.hash))return false;go({id:last.id,name:last.name||last.id,resume:true});return true}
+if(!resume())paint();
+window.SQCEntry=Object.freeze({companies,paint,go});
+})();
 </script>
 </body></html>

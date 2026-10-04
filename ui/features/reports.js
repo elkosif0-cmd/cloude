@@ -41,11 +41,8 @@ const REAL={loaded:false,loading:false,customers:[],lines:[]};
 function idbAll(store){return new Promise(res=>{let q;try{q=indexedDB.open("aghnam-app-v7")}catch{return res([])}q.onerror=()=>res([]);q.onsuccess=()=>{const db=q.result;if(!db.objectStoreNames.contains(store)){db.close();return res([])}const g=db.transaction(store,"readonly").objectStore(store).getAll();g.onsuccess=()=>{db.close();res(g.result||[])};g.onerror=()=>{db.close();res([])}}})}
 function loadReal(){if(REAL.loaded||REAL.loading)return;REAL.loading=true;Promise.all([idbAll("customers"),idbAll("sales_lines")]).then(([c,l])=>{REAL.customers=c;REAL.lines=l;REAL.loaded=true;REAL.loading=false;if(roots.reports&&roots.reports.isConnected)paintReports()})}
 const lineAmt=l=>Number(l.amountHalalas)?Number(l.amountHalalas)/100:(Number(l.amount)||0);
-const daysSince=d=>{const t=Date.parse(d);return Number.isFinite(t)?Math.floor((Date.now()-t)/86400000):null};
-function churnList(){
-  return REAL.customers.filter(c=>c.lastPurchase).map(c=>{const days=daysSince(c.lastPurchase);return {name:c.name||c.phone||"عميل",phone:c.phone||"",lastOrderDays:days,totalSpent:Number(c.summarySales)||0,orders:Number(c.summaryOrders)||0,status:days>30?"danger":days>14?"warn":"active"}})
-    .filter(c=>c.lastOrderDays!=null).sort((a,b)=>(b.status==="danger")-(a.status==="danger")||b.totalSpent-a.totalSpent).slice(0,40);
-}
+/* the device's calendar day: toISOString() still gives yesterday in Riyadh until 03:00 */
+const localDay=(d=new Date())=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 
 /* ==========================================================================
    Tab 1: Operational P&L HTML & Logic
@@ -335,45 +332,66 @@ function bindVAT(){
 /* ==========================================================================
    Tab 4: Customer Churn Radar & Basket Analysis HTML & Logic
    ========================================================================== */
+/* رادار العملاء المنقطعين — the same stores, mapping and engine as «ذكاء المبيعات» (SKosifSalesIntel.snapshot). Each
+   customer is measured against their own buying rhythm (the median days between their orders), not one fixed
+   14/30-day rule on a stored summary, so this list, the hub's follow-up list and the executive pack always agree. */
+const CH={res:null,loading:false,failed:false};
+function loadChurn(){
+  const si=window.SKosifSalesIntel;if(CH.loading||!si||!si.snapshot)return;
+  CH.loading=true;
+  si.snapshot("90").then(r=>{CH.res=r;CH.failed=false},e=>{CH.failed=true;SK.errors&&SK.errors.report(e,"reports:churn")})
+    .finally(()=>{CH.loading=false;if(repTab==="churn"&&roots.reports&&roots.reports.isConnected)paintReports()});
+}
+const nf0=new Intl.NumberFormat("ar-SA-u-nu-latn",{maximumFractionDigits:0});
+/* a WhatsApp link for a Saudi mobile in any common form (05…, 5…, 9665…, +966…, 00966…) */
+function waLink(phone,text){let d=String(phone||"").replace(/\D/g,"");if(/^00/.test(d))d=d.slice(2);if(/^05\d{8}$/.test(d))d="966"+d.slice(1);else if(/^5\d{8}$/.test(d))d="966"+d;
+  return d.length>=9?"https://wa.me/"+d+(text?"?text="+encodeURIComponent(text):""):""}
 function churnHTML(){
-  if(!REAL.loaded){loadReal();return '<div class="sk-empty">جارٍ قراءة بيانات العملاء…</div>'}
-  const list=churnList();
-  if(!list.length)return '<div class="sk-empty">لا توجد بيانات عملاء بمشتريات مؤرخة بعد. استورد بيانات السوق والمبيعات من «السوق والعملاء».</div>';
-  const danger=list.filter(x=>x.status==="danger"),warn=list.filter(x=>x.status==="warn");
-  const orders=REAL.customers.reduce((a,c)=>a+(Number(c.summaryOrders)||0),0),sales=REAL.customers.reduce((a,c)=>a+(Number(c.summarySales)||0),0);
-  return [
-    '<div class="sk-stack">',
-      '<div class="sk-kpis">',
-        '<div class="sk-kpi bad"><span>منقطعون (أكثر من 30 يوماً)</span><b>'+danger.length+'</b></div>',
-        '<div class="sk-kpi warn"><span>معرّضون للانقطاع (15-30 يوماً)</span><b>'+warn.length+'</b></div>',
-        '<div class="sk-kpi"><span>متوسط قيمة الطلب</span><b>'+(orders?money(sales/orders):'—')+'</b></div>',
-        '<div class="sk-kpi"><span>عملاء بمشتريات مسجلة</span><b>'+REAL.customers.length+'</b></div>',
-      '</div>',
-      '<div class="sk-section-title" style="margin:14px 0 8px;"><b>العملاء الأعلى قيمة المتوقفون عن الشراء</b></div>',
-      '<div>',
-        list.filter(c=>c.status!=="active").map((c,idx)=>'<div class="sk-churn-card"><div><b style="font-size:1.02rem;">'+esc(c.name)+'</b>'+
-          '<div style="font-size:0.8rem;color:var(--ink-2,#666);margin-top:2px;">إجمالي المشتريات: <b>'+money(c.totalSpent)+'</b> | الطلبات: <b>'+c.orders+'</b></div></div>'+
-          '<div style="display:flex;gap:10px;align-items:center;"><span class="sk-churn-status '+c.status+'">'+(c.status==="danger"?"منقطع منذ ":"متوقف منذ ")+c.lastOrderDays+' يوم</span>'+
-          (c.phone?'<button type="button" class="btn sk-churn-reactivate" data-p="'+esc(c.phone)+'" data-n="'+esc(c.name)+'" style="background:#25D366;color:#fff;font-size:0.8rem;padding:5px 10px;">رسالة تنشيط</button>':'')+
-          '</div></div>').join("")||'<div class="sk-empty">لا يوجد عملاء متوقفون حالياً.</div>',
-      '</div>',
-    '</div>'
-  ].join("");
+  if(!window.SKosifSalesIntel||!SKosifSalesIntel.snapshot)return '<div class="sk-empty">رادار العملاء يعتمد على شاشة «ذكاء المبيعات»، ولم تُحمَّل في هذه النسخة.</div>';
+  if(CH.failed)return '<div class="sk-empty">تعذّر حساب الرادار — افتح التبويب مرة أخرى.</div>';
+  if(!CH.res){loadChurn();return '<div class="sk-empty" aria-busy="true">جارٍ قياس إيقاع كل عميل…</div>'}
+  const r=CH.res;
+  if(r.empty)return '<div class="sk-empty">لا توجد مبيعات مؤرخة بعد. استورد العملاء والمبيعات من «العملاء» ليظهر الرادار.</div>';
+  const SEG=Object.fromEntries(SKEngines.sales.salesInsights.SEGMENTS.map(s=>[s.key,s]));
+  const late=r.followup.filter(c=>c.status==="overdue").length,due=r.followup.length-late;
+  const stake=r.followup.reduce((a,c)=>a+c.monthlyValue,0),cant=r.segments.find(s=>s.key==="cantLose");
+  const rows=r.followup.slice(0,40).map(c=>{const s=SEG[c.segment]||{label:c.segment,tone:"info"};
+    return '<tr><td class="s"><b>'+esc(c.name||"بدون اسم")+'</b>'+(c.city?'<small class="sk-churn-city">'+esc(c.city)+'</small>':'')+'</td>'+
+      '<td><span class="sksev '+esc(s.tone)+'">'+esc(s.label)+'</span></td><td class="mono">'+esc(c.last)+'</td><td class="num">'+nf0.format(c.daysSince)+'</td>'+
+      '<td class="num">'+nf0.format(c.cadenceUsed)+(c.personal?'':'*')+'</td>'+
+      '<td>'+(c.status==="overdue"?'<span class="sksev bad">متأخر</span>':'<span class="sksev warn">حان موعده</span>')+'</td>'+
+      '<td class="money">'+nf0.format(Math.round(c.monthlyValue/100))+'</td>'+
+      '<td><span class="sk-churn-acts">'+(waLink(c.phone)?'<button type="button" class="btn sm" data-churn-wa="'+esc(c.id)+'">رسالة تنشيط</button>':'')+
+      '<button type="button" class="btn sm" data-churn-task="'+esc(c.id)+'">+ مهمة</button></span></td></tr>'}).join("");
+  return '<div class="sk-stack">'+
+    '<div class="sk-kpis">'+
+      '<div class="sk-kpi bad"><span>متأخرون عن إيقاعهم</span><b>'+nf0.format(late)+'</b></div>'+
+      '<div class="sk-kpi warn"><span>حان موعدهم</span><b>'+nf0.format(due)+'</b></div>'+
+      '<div class="sk-kpi"><span>قيمتهم الشهرية المتوقعة</span><b>'+money(stake/100)+'</b></div>'+
+      '<div class="sk-kpi"><span>كبار عملاء غابوا</span><b>'+nf0.format(cant?cant.count:0)+'</b></div>'+
+    '</div>'+
+    (rows?'<div class="tw"><table class="t sk-churn"><thead><tr><th class="s">العميل</th><th>الشريحة</th><th>آخر شراء</th><th>منذ (يوم)</th><th>الإيقاع (يوم)</th><th>الحالة</th><th>القيمة الشهرية (ر.س)</th><th class="act">تواصل</th></tr></thead><tbody>'+rows+'</tbody></table></div>'
+      :'<div class="sk-empty">لا أحد متأخر عن إيقاعه المعتاد الآن.</div>')+
+    '<p class="hint">الإيقاع = وسيط الأيام بين طلبات العميل. «متأخر» إذا تجاوز غيابه 1.5 مرة من إيقاعه (وأسبوعاً على الأقل)، و«حان موعده» إذا تجاوز إيقاعه. * عميل بطلب واحد يُقاس بالإيقاع الشائع لعملائك ('+nf0.format(r.typicalCadence)+' يوماً). الترتيب حسب القيمة الشهرية المتوقعة × التأخر، حتى '+esc(r.period.to)+'. القائمة نفسها في «ذكاء المبيعات».</p>'+
+    '<div><button type="button" class="btn" data-churn-go>فتح «ذكاء المبيعات»</button></div>'+
+  '</div>';
 }
 
 function bindChurn(){
-  $$(".sk-churn-reactivate").forEach(b=>{
-    b.onclick=()=>{
-      const biz=(document.getElementById("biz-name")||{}).textContent||"SQC";
-      const msg="مرحباً "+b.dataset.n+"،\nاشتقنا لتعاملكم مع *"+biz.trim()+"*. يسعدنا خدمتكم في طلبكم القادم — تواصلوا معنا بالرد على هذه الرسالة.";
-      const phone=String(b.dataset.p).replace(/\D/g,"").replace(/^0/,"966");
-      window.open("https://wa.me/"+phone+"?text="+encodeURIComponent(msg),"_blank","noopener");
-    };
-  });
+  const body=$("#sk-rep-body");if(!body||!CH.res||CH.res.empty)return;
+  const byId=id=>CH.res.followup.find(c=>c.id===id);
+  body.querySelectorAll("[data-churn-wa]").forEach(b=>b.onclick=()=>{const c=byId(b.dataset.churnWa);if(!c)return;
+    const biz=((document.getElementById("biz-name")||{}).textContent||"SQC").trim();
+    const link=waLink(c.phone,"مرحباً"+(c.name?" "+c.name:"")+"،\nاشتقنا لتعاملكم مع *"+biz+"*. يسعدنا خدمتكم في طلبكم القادم — تواصلوا معنا بالرد على هذه الرسالة.");
+    if(link)window.open(link,"_blank","noopener")});
+  body.querySelectorAll("[data-churn-task]").forEach(b=>b.onclick=()=>{const c=byId(b.dataset.churnTask);if(!c)return;
+    if(!window.SKosifTasks||!SKosifTasks.add){SK.toast("المهام غير متاحة","warn");return}
+    SKosifTasks.add({title:"تواصل مع "+(c.name||"عميل")+(c.phone?" — "+c.phone:"")+" (آخر شراء "+c.last+")",cap:"execreports",priority:c.status==="overdue"?"high":"normal"});SK.toast("أُضيفت إلى المهام","ok")});
+  const go=body.querySelector("[data-churn-go]");if(go)go.onclick=()=>window.SKosifCore&&SKosifCore.go("salesintel");
 }
 
 function eodToday(){
-  const today=new Date().toISOString().slice(0,10),lines=REAL.lines.filter(l=>String(l.date||"").slice(0,10)===today);
+  const today=localDay(),lines=REAL.lines.filter(l=>String(l.date||"").slice(0,10)===today);
   const total=lines.reduce((a,l)=>a+lineAmt(l),0),cust=new Set(lines.map(l=>l.customerId).filter(Boolean)).size,orders=new Set(lines.map(l=>l.ref||l.externalOrderId).filter(Boolean)).size;
   let cold=[];try{cold=JSON.parse(localStorage.getItem("skosif_v38_coldchain"))||[]}catch{}
   const coldToday=cold.filter(c=>String(c.time||"").slice(0,10)===today),breaks=coldToday.filter(c=>Number(c.temp)>4).length;
@@ -524,6 +542,7 @@ function bindAll(){
   $$(".sk-rep-nav button").forEach(b=>{
     b.onclick=()=>{
       repTab=b.dataset.t;
+      if(repTab==="churn"){CH.res=null;CH.failed=false}
       paintReports();
     };
   });
@@ -542,6 +561,7 @@ window.SK.view("execreports",{
   emoji:"",
   render(node){
     roots.reports=node;
+    CH.res=null;CH.failed=false;
     paintReports();
   }
 });

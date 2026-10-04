@@ -1,16 +1,25 @@
 from pathlib import Path
-import base64, gzip, hashlib, json, re, shutil
+import base64, gzip, hashlib, html as htmlmod, json, os, re, shutil
 import private_blocks
 from build_mode import build_mode
 
 MODE=build_mode()  # production, or preview: no private data at all (see build_mode.py)
 
-PREVIEW_INDEX="""<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
-<meta http-equiv="refresh" content="0;url=./app-safe.html"><title>SQC — معاينة</title></head>
-<body style="font-family:system-ui,sans-serif;padding:24px"><p>معاينة SQC ببيانات تجريبية فقط — لا تحتوي أي بيانات خاصة.
-<a href="./app-safe.html">فتح التطبيق</a></p></body></html>
-"""
+# The front door is the company gallery (unlock.html). A production build keeps the private company's locked card
+# and the reviewed unlock script; a preview build has no private data, so both are cut out and the page is noindex.
+PRIVATE_COMPANY_NAME=(os.environ.get("SQC_PRIVATE_COMPANY_NAME") or "قصيف").strip() or "قصيف"
+def entry_page(mode):
+    page=Path("unlock.html").read_text(encoding="utf-8")
+    assert page.count('data-locked-name="قصيف"')==1, "unlock.html: locked company name marker"
+    page=page.replace('data-locked-name="قصيف"','data-locked-name="'+htmlmod.escape(PRIVATE_COMPANY_NAME,quote=True)+'"')
+    if mode=="preview":
+        page,n1=re.subn(r"<!--SQC:LOCKED:START-->.*?<!--SQC:LOCKED:END-->\n?","",page,flags=re.S)
+        page,n2=re.subn(r"<!--SQC:AUTH:START-->.*?<!--SQC:AUTH:END-->\n?","",page,flags=re.S)
+        if n1!=1 or n2!=1: raise SystemExit("unlock.html: SQC:LOCKED / SQC:AUTH markers missing")
+        page=page.replace('data-locked="1"','data-locked="0"',1)
+        page=page.replace('<meta charset="utf-8">','<meta charset="utf-8">\n<meta name="robots" content="noindex,nofollow">',1)
+        if "crypto.json" in page or 'id="f"' in page: raise SystemExit("preview entry page still carries the unlock form")
+    return page
 
 
 out=Path("dist")
@@ -83,11 +92,8 @@ text=head+f'<script src="./skosif.js?v={tag}" defer></script></body>'+tail
 text,private=private_blocks.extract(text)
 if MODE=="preview": private=None  # cut out above; a preview drops the blocks instead of encrypting them
 (out/"app-safe.html").write_text(text,encoding="utf-8")
-if MODE=="preview":
-    # no unlock page: there is nothing to unlock. The app opens on its demo data.
-    (out/"index.html").write_text(PREVIEW_INDEX,encoding="utf-8")
-else:
-    (out/"index.html").write_bytes(Path("unlock.html").read_bytes())
+# the front door: the company gallery, with the private company only in a production build
+(out/"index.html").write_bytes(entry_page(MODE).encode("utf-8"))
 
 for name in ["icon-192.png","icon-512.png","apple-touch-icon.png"]:
     src=Path("payload")/(name+".b64")

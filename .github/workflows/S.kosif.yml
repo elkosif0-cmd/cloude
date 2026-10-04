@@ -69,6 +69,9 @@ jobs:
       - name: Test encrypted login performance and accessibility
         run: node --test tools/unlock_runtime.test.mjs
 
+      - name: Test the company gallery (front door) and Sales Intelligence across screens
+        run: node --test tools/company_entry.test.mjs tools/sales_reports.test.mjs
+
       - name: Test accessible dialogs and spreadsheet export safety
         run: |
           npm install --no-save --no-package-lock --prefix /tmp/sqc-ui linkedom@0.18.13
@@ -266,4 +269,6 @@ jobs:
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/deeplink_e2e.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/restored_e2e.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/advances_e2e.mjs http://localhost:8765/app-safe.html
+          NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/company_entry_e2e.mjs http://localhost:8765/
+          NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/sales_reports_e2e.mjs http://localhost:8765/app-safe.html
 

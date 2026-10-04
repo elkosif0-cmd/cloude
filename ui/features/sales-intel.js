@@ -16,7 +16,8 @@ const sar=h=>nf0.format(Math.round((Number(h)||0)/100));
 const pct=(v,d=0)=>v==null?"—":(Math.round(v*100*10**d)/10**d)+"٪";
 const short=d=>String(d||"").slice(5).replace("-","/");
 const I=()=>SKEngines.sales.salesInsights,orders=n=>I().countAr(n,I().ORDERS_AR),custs=n=>I().countAr(n,I().CUSTOMERS_AR);
-let st=Object.assign({period:"90",channel:""},SK.load(PREF,{}),{seg:"",mode:"follow"});
+/* asOf: the last day analysed ("" = the latest sale). Session only, so a past month-end review never sticks. */
+let st=Object.assign({period:"90",channel:""},SK.load(PREF,{}),{seg:"",mode:"follow",asOf:""});
 let raw=null,res=null,resKey="",seq=0;
 const DL='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>';
 
@@ -31,11 +32,12 @@ async function load(){
     invoice:String(l.source||"")+"|"+String(l.ref||l.externalOrderId||l.id||""),channel:String(l.source||"").trim()}));
   const customers=C.map(c=>({id:String(c.id),name:c.name||"",phone:c.phone||"",city:c.city||""}));
   const key=lines.length+"|"+customers.length+"|"+lines.reduce((a,l)=>l.date>a?l.date:a,"")+"|"+lines.reduce((a,l)=>a+l.amount,0);
-  return {lines,customers,key};
+  const days=E().normalize(lines).map(l=>l.date).sort();
+  return {lines,customers,key,first:days[0]||"",last:days[days.length-1]||""};
 }
 function compute(){
-  if(!raw)return null;const k=raw.key+"|"+st.period+"|"+st.channel;if(res&&resKey===k)return res;
-  res=E().salesInsights(raw.lines,raw.customers,{period:st.period,channel:st.channel||undefined});resKey=k;
+  if(!raw)return null;const k=raw.key+"|"+st.period+"|"+st.channel+"|"+st.asOf;if(res&&resKey===k)return res;
+  res=E().salesInsights(raw.lines,raw.customers,{period:st.period,channel:st.channel||undefined,asOf:st.asOf||undefined});resKey=k;
   if(st.channel&&!res.channels.includes(st.channel)){st.channel="";save();SK.toast("القناة السابقة لم تعد متاحة؛ تُعرض كل القنوات الآن.","warn");return compute()}
   return res;
 }
@@ -49,7 +51,8 @@ const chip=(d,{pp,inverse}={})=>{
 };
 function kpis(r){
   const K=r.kpis,rr=K.repeatRate,ppd=rr.prev==null?null:Math.round((rr.cur-rr.prev)*1000)/10;
-  const card=(label,val,d,how,extra)=>'<div class="si-kpi" title="'+esc(how)+'"><small>'+esc(label)+'</small><b>'+val+'</b><div class="si-kpi-f">'+d+(extra||"")+'</div></div>';
+  /* how each number is computed: shown on hover, keyboard focus and tap (a title tooltip reaches only a mouse) */
+  let n=0;const card=(label,val,d,how,extra)=>{const id="si-how-"+(++n);return '<div class="si-kpi" tabindex="0" aria-describedby="'+id+'"><small>'+esc(label)+'</small><b>'+val+'</b><div class="si-kpi-f">'+d+(extra||"")+'</div><span class="si-how" id="'+id+'" role="tooltip">'+esc(how)+'</span></div>'};
   const v=r.trend.values,step=v.length>120?7:1,spark=[];for(let i=v.length%step;i<v.length;i+=step)spark.push(v.slice(i,i+step).reduce((a,b)=>a+b,0));
   return '<div class="si-kpis">'+
     card("صافي الإيراد",sar(K.revenue.cur)+' <i>ر.س</i>',chip(K.revenue.delta),"مجموع مبالغ سطور البيع في الفترة بعد المرتجعات",SKCharts.spark(spark,{w:92,h:26}))+
@@ -153,6 +156,8 @@ function bar(r){
   const range=r.empty?"":span(p.from,p.to)+(p.prevFrom?' · <span class="si-vs">مقارنة بـ'+span(p.prevFrom,p.prevTo).replace(/^من/,"")+'</span>':' · لا فترة سابقة للمقارنة');
   return '<div class="si-top"><div class="sk-seg si-period" role="group" aria-label="الفترة">'+Object.entries(P).map(([k,l])=>'<button type="button" data-si-period="'+k+'" aria-pressed="'+(st.period===k)+'">'+esc(l)+'</button>').join("")+'</div>'+
     '<label class="si-ch"><span>القناة</span><select data-si-ch aria-label="القناة"><option value="">كل القنوات</option>'+(r.channels||[]).map(c=>'<option'+(c===st.channel?" selected":"")+'>'+esc(c)+'</option>').join("")+'</select></label>'+
+    (raw&&raw.last?'<label class="si-asof"><span>حتى تاريخ</span><input type="date" data-si-asof value="'+esc(p.to||st.asOf||raw.last)+'" min="'+esc(raw.first)+'" max="'+esc(raw.last)+'"></label>'+
+      (st.asOf?'<button type="button" class="btn sm" data-si-asof-reset>العودة إلى آخر يوم مبيعات</button>':''):'')+
     '<div class="si-tools"><button type="button" class="btn sm" data-si-xlsx'+(r.empty?" disabled":"")+'>'+DL+'Excel</button><button type="button" class="btn sm" data-si-print'+(r.empty?" disabled":"")+'>تقرير للطباعة</button></div>'+
     '<p class="si-range">'+range+'</p></div>';
 }
@@ -230,6 +235,7 @@ document.addEventListener("click",e=>{
   if(b.dataset.siMode){st.mode=b.dataset.siMode;repaint();if(b.closest(".si-rec"))setTimeout(()=>{const p=document.querySelector(".si-people");if(p)p.scrollIntoView({behavior:"smooth",block:"start"})},50);return}
   if(b.dataset.siGo){if(window.SKosifCore)SKosifCore.go(b.dataset.siGo);return}
   if(b.dataset.siRtask!=null){if(task("مبيعات: "+b.dataset.siRtask))SK.toast("أُضيفت إلى المهام","ok");return}
+  if(b.hasAttribute("data-si-asof-reset")){st.asOf="";repaint();return}
   const r=res&&!res.empty?res:null;if(!r)return;
   if(b.dataset.siTask!=null){const c=r.customers.find(x=>x.id===b.dataset.siTask);if(c&&task("تواصل مع "+(c.name||"عميل")+(c.phone?" — "+c.phone:"")+" (آخر شراء "+c.last+")"))SK.toast("أُضيفت إلى المهام","ok");return}
   if(b.hasAttribute("data-si-tasks")){const list=st.mode==="seg"&&st.seg?r.customers.filter(c=>c.segment===st.seg).sort((a,z)=>z.revenue-a.revenue):r.followup;let n=0;
@@ -237,8 +243,15 @@ document.addEventListener("click",e=>{
   if(b.hasAttribute("data-si-xlsx")){try{SK.download("SQC-ذكاء-المبيعات-"+r.period.to+".xlsx",SKXlsx.book(workbook(r)))}catch(err){SK.errors&&SK.errors.report(err,"sales-intel:xlsx");SK.toast("تعذّر إنشاء ملف Excel","bad")}return}
   if(b.hasAttribute("data-si-print")){const w=window.open("");if(!w){SK.toast("تعذّر فتح المعاينة","warn");return}w.document.write(report(r));w.document.close();SK.brandPrint(w,"تقرير ذكاء المبيعات");return}
 });
-document.addEventListener("change",e=>{const s=e.target.closest("[data-si-ch]");if(!s)return;st.channel=s.value;save();repaint()});
+document.addEventListener("change",e=>{
+  /* a day before the first sale has nothing to show, and the latest sale is the default: both clamp */
+  const a=e.target.closest("[data-si-asof]");
+  if(a){const v=a.value,f=raw?raw.first:"",l=raw?raw.last:"";st.asOf=!v||!l||v>=l?"":f&&v<f?f:v;repaint();return}
+  const s=e.target.closest("[data-si-ch]");if(!s)return;st.channel=s.value;save();repaint()});
 function boot(){const c=window.SKosifCore;if(c&&c.onView)c.onView("salesintel",mount);else setTimeout(boot,300)}
 boot();
-window.SKosifSalesIntel=Object.freeze({result:()=>res,context:()=>raw&&res?{result:res,lines:raw.lines}:null,refresh:()=>{raw=null;if(hostEl())paint(true)}});
+window.SKosifSalesIntel=Object.freeze({result:()=>res,context:()=>raw&&res?{result:res,lines:raw.lines}:null,refresh:()=>{raw=null;if(hostEl())paint(true)},
+  /* the same stores, mapping and engine for other screens (executive reports, the board pack): read only, fresh data,
+     and never this screen's own period, channel or as-of choice */
+  snapshot:async(period="90",channel="")=>{const d=await load();return E().salesInsights(d.lines,d.customers,{period,channel:channel||undefined})}});
 })();

@@ -10,6 +10,9 @@
 "use strict";
 const {esc,load,save,toast}=SK;
 const REG="sqc_helper_space_v1",ASKED="sqc_space_chosen",USERS="sqc_helper_users_v1",USER_ASKED="sqc_helper_user_chosen",DB="sqc-spaces",APPDB="aghnam-app-v7";
+/* the front door (index.html): its one-time choice, the last company opened, and the space that holds the private
+   company's data (it opens only through the front door's password, never as an open card) */
+const INTENT="sqc_company_intent",LAST="sqc_last_company",PRIVATE="sqc_private_space";
 /* the helper tools' own data — per company */
 const HELPER_KEY=k=>/^aghnam(?!-v12-theme|-pricing-auth|-pricing-pass|-pricing-ui|-typesafe|-v17-runtime|-v19-(leader|tabs|write)|-v21-)/.test(k)&&!/^aghnam_v29_jev_log$/.test(k)
   ||/^skosif_(v3\d|v38)_/.test(k)||/^skosif_(ledger_v1|advances_v1|erp_[a-z_]+|purchasing_v1|followup_v1|inv_[a-z_]+|rep_pl|report_pack_v1|ar_paste|commerce_warm_v1|cost_rules_v1|income_statements_v1|product_flow_v1|ops_[a-z_]+)$/.test(k)
@@ -119,7 +122,9 @@ async function switchTo(id,name,opts={}){
     clearHelperKeys();
     if(snap){Object.entries(snap.ls||{}).forEach(([k,v])=>localStorage.setItem(k,v));await restoreApp(snap.app)}
     else{await restoreApp(null);
-      localStorage.setItem("aghnam-pricing-v3",JSON.stringify({raws:[],boxes:[],exps:[],settings:{biz:name}}))}
+      localStorage.setItem("aghnam-pricing-v3",JSON.stringify({raws:[],boxes:[],exps:[],settings:{biz:name}}));
+      /* a company the owner created starts empty: the demo company fills only itself */
+      if(opts.demo===false)localStorage.setItem("skosif_demo_v1",JSON.stringify({sections:{},at:null,off:true,dismissed:true}))}
     me.spaces[id]={...(me.spaces[id]||{}),name,at:new Date().toISOString()};me.lastSpace=id;setUserReg(ur);
     const r=reg();r.spaces[id]={...(r.spaces[id]||{}),name,at:new Date().toISOString()};r.active=id;setReg(r);
     const cd=load("skosif_companies_v1",{})||{};if((cd.companies||[]).some(c=>c.id===id)){cd.active={companyId:id};if(save("skosif_companies_v1",cd)!==true)scopeTainted=true}
@@ -143,6 +148,7 @@ async function newCompany(){
 /* ---------- the chooser: asked once per session when the helpers are first opened ---------- */
 function options(){
   const u=user(),cur=current(),seen=new Set([cur.id]),list=[{id:cur.id,name:cur.name,note:"البيانات المفتوحة الآن",on:true}];
+  const priv=localStorage.getItem(PRIVATE);if(priv&&priv!==cur.id)seen.add(priv); /* the private company opens from the front door only */
   Object.entries(u.spaces||{}).forEach(([id,s])=>{if(!seen.has(id)){seen.add(id);list.push({id,name:s.name,note:s.at?"آخر عمل "+new Date(s.at).toLocaleDateString("ar-SA-u-ca-gregory-nu-latn"):""})}});
   companies().forEach(c=>{if(!seen.has(c.id)){seen.add(c.id);list.push({id:c.id,name:c.name,note:"شركة متاحة لهذا المحاسب — تبدأ أدواتها فارغة إن لم يعمل عليها من قبل"})}});
   return list;
@@ -219,13 +225,36 @@ function onNav(){if(inHelpers()){banner();sessionStorage.setItem(USER_ASKED,"1")
 function banner(){
   setTimeout(()=>{const v=document.getElementById("view");if(!v||!inHelpers())return;
     let b=v.querySelector(":scope > .sqc-space-bar");const cur=current(),who=user();
-    const html='<span>'+SK.icon("user")+' <b>'+esc(who.name)+'</b> · '+SK.icon("companies")+' <b>'+esc(cur.name)+'</b></span><span class="sqc-space-bar-actions"><button type="button" class="btn sm" data-user-open>تبديل المستخدم</button><button type="button" class="btn sm" data-space-open>تبديل الشركة</button></span>';
+    const html='<span>'+SK.icon("user")+' <b>'+esc(who.name)+'</b> · '+SK.icon("companies")+' <b>'+esc(cur.name)+'</b></span><span class="sqc-space-bar-actions"><button type="button" class="btn sm" data-user-open>تبديل المستخدم</button><button type="button" class="btn sm" data-space-open>تبديل الشركة</button><a class="btn sm" href="./" data-space-door>كل الشركات</a></span>';
     if(!b){b=document.createElement("div");b.className="sqc-space-bar";const d=v.querySelector(":scope > .skn-domain");d?d.after(b):v.prepend(b)}
     if(b.innerHTML!==html)b.innerHTML=html},0);
 }
 document.addEventListener("click",e=>{if(e.target.closest("[data-user-open]"))userChooser();else if(e.target.closest("[data-space-open]"))chooser()});
 SK.bus&&SK.bus.on("nav",()=>setTimeout(onNav,50));
 SK.bus&&SK.bus.on("render",()=>setTimeout(()=>{if(inHelpers())banner()},0));
-window.SKosifSpace=Object.freeze({scopeSnapshot,current,list:options,switchTo,newCompany,choose:chooser,isHelperKey:HELPER_KEY,user,users,createUser,switchUser,newUser,chooseUser:userChooser});
+/* ---------- the front door's choice, applied once per page load ---------- */
+function rememberLast(id,name,locked){try{localStorage.setItem(LAST,JSON.stringify({id,name,locked:!!locked,at:new Date().toISOString()}))}catch{}}
+async function applyIntent(){
+  let it=null;try{it=JSON.parse(sessionStorage.getItem(INTENT)||"null");sessionStorage.removeItem(INTENT)}catch{}
+  if(!it||typeof it!=="object")return false;
+  sessionStorage.setItem(ASKED,"1");sessionStorage.setItem(USER_ASKED,"1");
+  const cur=current();
+  if(it.locked){
+    /* the private company = the data this device already held when it was first opened through the password */
+    let pid=localStorage.getItem(PRIVATE);if(!pid){pid=cur.id;localStorage.setItem(PRIVATE,pid)}
+    const name=String(it.name||"").trim()||cur.name;rememberLast(pid,name,true);
+    if(pid!==cur.id)await switchTo(pid,name);
+    return true;
+  }
+  const id=String(it.id||"").trim(),name=String(it.name||"").trim()||id;if(!id)return false;
+  if(it.create){const cd=load("skosif_companies_v1",{})||{};cd.companies=cd.companies||[];cd.periods=cd.periods||[];
+    if(!cd.companies.some(c=>c&&c.id===id))cd.companies.push({id,name,country:"SA",currency:"SAR"});save("skosif_companies_v1",cd)}
+  rememberLast(id,name,false);
+  if(id!==cur.id)await switchTo(id,name,{fresh:!!it.create,demo:it.create?false:undefined});
+  return true;
+}
+const intentDone=applyIntent().catch(e=>{SK.errors&&SK.errors.report(e,"space:intent");return false});
+window.SKosifSpace=Object.freeze({scopeSnapshot,current,list:options,switchTo,newCompany,choose:chooser,isHelperKey:HELPER_KEY,user,users,createUser,switchUser,newUser,chooseUser:userChooser,
+  busy:()=>busy,intent:()=>intentDone,privateSpace:()=>localStorage.getItem(PRIVATE)||""});
 })();
 

@@ -90,30 +90,10 @@
   border: 1px solid color-mix(in srgb,var(--sk-ok) 35%,var(--sk-line));
 }
 
-/* Customer Churn Radar Card */
-.sk-churn-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 14px;
-  background: var(--surface-2, #fafafa);
-  border: 1px solid var(--line, #eee);
-  border-radius: 10px;
-  margin-bottom: 8px;
-  transition: transform 0.15s ease;
-}
-.sk-churn-card:hover {
-  transform: translateX(-3px);
-}
-.sk-churn-status {
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 10px;
-}
-.sk-churn-status.danger { background: var(--sk-bad-soft); color: var(--sk-bad); }
-.sk-churn-status.warn { background: var(--sk-warn-soft); color: var(--sk-warn); }
-.sk-churn-status.active { background: var(--sk-ok-soft); color: var(--sk-ok); }
+/* Customer churn radar: the sales engine's follow-up list (ui/features/reports.js) */
+.sk-churn td{white-space:nowrap}
+.sk-churn-city{display:block;font-size:var(--sk-fs-2xs);font-weight:600;color:var(--sk-ink-3)}
+.sk-churn-acts{display:inline-flex;flex-wrap:wrap;gap:6px;align-items:center}
 
 /* Executive Report Printable Styling */
 .sk-exec-sheet {
