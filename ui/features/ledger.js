@@ -370,9 +370,14 @@ function postReceipts(d){
     if(r.status!=="RECEIVED"||posted.has("receipt:"+r.id))return;
     if(locked(d,String(r.date||"").slice(0,10))){held++;return}
     const po=(pur.orders||[]).find(o=>o.id===r.orderId);if(!po)return;
+    /* Older receipts retain zero-quantity order lines. Validate before omitting only those lines. */
+    const lines=r.lines.map(l=>({itemId:l.item,quantity:typeof l.qty==="number"||(typeof l.qty==="string"&&l.qty.trim()!=="")?Number(l.qty):NaN}));
+    if(lines.some(l=>!Number.isFinite(l.quantity)||l.quantity<0)){skipped++;return}
+    const received=lines.filter(l=>l.quantity>0);
+    if(!received.length){skipped++;return}
     const bundle=window.SKEngines.procurement.procurementPosting.buildReceiptPosting(
       {id:po.id,number:po.number,date:po.date,dueDate:po.dueDate||po.date,supplierId:po.supplier,status:"OPEN",lines:po.lines.map(l=>({itemId:l.item,quantity:Number(l.qty)||0,unitCostExVat:Number(l.cost)||0,vatRate:Number(l.vat)||0}))},
-      {id:r.id,number:r.id,date:r.date,purchaseOrderId:po.id,status:"DRAFT",lines:r.lines.map(l=>({itemId:l.item,quantity:Number(l.qty)||0}))},
+      {id:r.id,number:r.id,date:r.date,purchaseOrderId:po.id,status:"DRAFT",lines:received},
       {inventoryAccountId:idOf(d,"1300"),inputVatAccountId:idOf(d,"1400"),payableAccountId:idOf(d,"2100")});
     if(!E().ledger.validateJournalEntry(bundle.journal).valid){skipped++;return}
     d.entries.push({...bundle.journal,id:SK.ui.uid("je"),memo:"استلام من "+po.supplier+" — أمر "+po.number,reference:po.number,source:"مشتريات",sourceId:"receipt:"+r.id,party:po.supplier||""});n++;
