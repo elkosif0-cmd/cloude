@@ -111,13 +111,25 @@ function scopeSnapshot(){
   const token=JSON.stringify([scopeEpoch,status,userId,spaceId,entityId,periodId,context]);
   return Object.freeze({status,token,userId,spaceId,entityId,periodId,context});
 }
+/* nothing of a company's own yet: no items, no sales or orders, no journal */
+function blank(snap){
+  if(!snap)return true;const ls=snap.ls||{},app=snap.app||{};
+  const rows=Object.entries(app).some(([n,s])=>n!=="meta"&&s&&s.keys&&s.keys.length);
+  let pricing={};try{pricing=JSON.parse(ls["aghnam-pricing-v3"]||"{}")||{}}catch{}
+  const items=(pricing.raws||[]).length+(pricing.boxes||[]).length;
+  let ledger=null;try{ledger=JSON.parse(ls["skosif_ledger_v1"]||"null")}catch{}
+  const books=ledger&&((ledger.journal||ledger.entries||[]).length||(ledger.accounts||[]).length);
+  return !rows&&!items&&!books&&!ls["skosif_demo_v1"];
+}
 async function switchTo(id,name,opts={}){
   if(busy)return false;const cur=current(),who=user();
   if(id===cur.id&&!opts.fresh){sessionStorage.setItem(ASKED,"1");hideChooser();return true}
   busy=true;scopeBegin();
   try{
-    await putSnap(cur.id,await snapshot(),who.id);
-    const ur=userReg(),me=ur.users[who.id];me.spaces=me.spaces||{};me.spaces[cur.id]={name:cur.name,at:new Date().toISOString()};
+    /* the unnamed data of a brand-new device holds nothing yet: it is left, not listed as a company of its own */
+    const leaving=await snapshot(),drop=cur.id==="space-main"&&blank(leaving);
+    if(!drop)await putSnap(cur.id,leaving,who.id);
+    const ur=userReg(),me=ur.users[who.id];me.spaces=me.spaces||{};if(!drop)me.spaces[cur.id]={name:cur.name,at:new Date().toISOString()};
     const snap=opts.fresh?null:await getSnap(id,who.id);
     clearHelperKeys();
     if(snap){Object.entries(snap.ls||{}).forEach(([k,v])=>localStorage.setItem(k,v));await restoreApp(snap.app)}
@@ -128,7 +140,7 @@ async function switchTo(id,name,opts={}){
     me.spaces[id]={...(me.spaces[id]||{}),name,at:new Date().toISOString()};me.lastSpace=id;setUserReg(ur);
     const r=reg();r.spaces[id]={...(r.spaces[id]||{}),name,at:new Date().toISOString()};r.active=id;setReg(r);
     const cd=load("skosif_companies_v1",{})||{};if((cd.companies||[]).some(c=>c.id===id)){cd.active={companyId:id};if(save("skosif_companies_v1",cd)!==true)scopeTainted=true}
-    sessionStorage.setItem(ASKED,"1");
+    sessionStorage.setItem(ASKED,"1");rememberLast(id,name,localStorage.getItem(PRIVATE)===id);
     SK.audit&&SK.audit.log("helpers",{act:"space",user:who.id,to:id,fresh:!snap});
     toast((snap?"فُتحت بيانات «":"بدأت مساحة جديدة لـ «")+name+"» للمحاسب "+who.name+" — يُعاد تحميل الأدوات…","ok");
     if(opts.reload!==false)setTimeout(()=>location.reload(),600);else busy=false;
@@ -233,6 +245,12 @@ document.addEventListener("click",e=>{if(e.target.closest("[data-user-open]"))us
 SK.bus&&SK.bus.on("nav",()=>setTimeout(onNav,50));
 SK.bus&&SK.bus.on("render",()=>setTimeout(()=>{if(inHelpers())banner()},0));
 /* ---------- the front door's choice, applied once per page load ---------- */
+/* a new name for a space, everywhere this device lists it */
+function rename(id,name){name=String(name||"").trim();if(!id||!name)return false;
+  const ur=userReg();Object.values(ur.users).forEach(u=>{if(u.spaces&&u.spaces[id])u.spaces[id]={...u.spaces[id],name}});setUserReg(ur);
+  const r=reg();if(r.spaces[id]){r.spaces[id]={...r.spaces[id],name};setReg(r)}
+  try{const l=JSON.parse(localStorage.getItem(LAST)||"null");if(l&&l.id===id)localStorage.setItem(LAST,JSON.stringify({...l,name}))}catch{}
+  return true}
 function rememberLast(id,name,locked){try{localStorage.setItem(LAST,JSON.stringify({id,name,locked:!!locked,at:new Date().toISOString()}))}catch{}}
 async function applyIntent(){
   let it=null;try{it=JSON.parse(sessionStorage.getItem(INTENT)||"null");sessionStorage.removeItem(INTENT)}catch{}
@@ -240,10 +258,12 @@ async function applyIntent(){
   sessionStorage.setItem(ASKED,"1");sessionStorage.setItem(USER_ASKED,"1");
   const cur=current();
   if(it.locked){
-    /* the private company = the data this device already held when it was first opened through the password */
-    let pid=localStorage.getItem(PRIVATE);if(!pid){pid=cur.id;localStorage.setItem(PRIVATE,pid)}
+    /* the private company = the data this device held before the front door existed (the space «space-main», open now or
+       kept as a snapshot); a device that never held it gets a space of its own — never the demo or another company's data */
+    let pid=localStorage.getItem(PRIVATE),fresh=false;
+    if(!pid){const known=!!((user().spaces||{})["space-main"]);pid=cur.id==="space-main"||known?"space-main":"space-private";fresh=pid==="space-private";localStorage.setItem(PRIVATE,pid)}
     const name=String(it.name||"").trim()||cur.name;rememberLast(pid,name,true);
-    if(pid!==cur.id)await switchTo(pid,name);
+    if(pid!==cur.id)await switchTo(pid,name,{fresh:fresh&&!(user().spaces||{})[pid],demo:false});
     return true;
   }
   const id=String(it.id||"").trim(),name=String(it.name||"").trim()||id;if(!id)return false;
@@ -255,6 +275,6 @@ async function applyIntent(){
 }
 const intentDone=applyIntent().catch(e=>{SK.errors&&SK.errors.report(e,"space:intent");return false});
 window.SKosifSpace=Object.freeze({scopeSnapshot,current,list:options,switchTo,newCompany,choose:chooser,isHelperKey:HELPER_KEY,user,users,createUser,switchUser,newUser,chooseUser:userChooser,
-  busy:()=>busy,intent:()=>intentDone,privateSpace:()=>localStorage.getItem(PRIVATE)||""});
+  busy:()=>busy,intent:()=>intentDone,privateSpace:()=>localStorage.getItem(PRIVATE)||"",rename});
 })();
 

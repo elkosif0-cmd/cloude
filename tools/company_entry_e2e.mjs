@@ -36,6 +36,19 @@ try {
     check(`${tag}: the demo company carries demo data`, demoState.demo === true);
     check(`${tag}: the last company is remembered`, demoState.last && demoState.last.id === 'demo-co' && demoState.last.locked === false, JSON.stringify(demoState.last));
     check(`${tag}: the intent is consumed`, demoState.intent === null);
+    /* one company everywhere: the rail, the top bar and the books name the open company */
+    const names = async () => page.evaluate(() => ({ space: SKosifSpace.current().name, company: SK.company.current().name, rail: (document.getElementById('biz-name') || {}).textContent, top: (document.querySelector('#sk-tb-co b') || {}).textContent, books: (JSON.parse(localStorage.getItem('skosif_companies_v1') || '{}').active || {}).companyId, id: SKosifSpace.current().id }));
+    await page.evaluate(() => SKosifCore.go('dash'));
+    await page.waitForFunction(() => SK.company && SK.company.ready(), null, { timeout: 30000 });
+    await page.waitForTimeout(500);
+    const n1 = await names();
+    check(`${tag}: rail, top bar and books all name the open company`, n1.rail === 'شركة الوادي التجريبية للحوم' && n1.top === n1.rail && n1.company === n1.rail && n1.books === n1.id, JSON.stringify(n1));
+    await page.evaluate(() => SK.company.rename('شركة الوادي — اسم معدل'));
+    await page.waitForTimeout(800);
+    const n2 = await names();
+    check(`${tag}: renaming the company renames it in the rail, the top bar and the spaces`, n2.rail === 'شركة الوادي — اسم معدل' && n2.top === n2.rail && n2.space === n2.rail, JSON.stringify(n2));
+    await page.evaluate(() => SK.company.rename('شركة الوادي التجريبية للحوم'));
+    await page.waitForTimeout(500);
     await page.evaluate(() => SKosifCore.go('customers'));
     await page.waitForTimeout(600);
     check(`${tag}: the helper screens name the company and link back to the front door`, await page.evaluate(() => { const b = document.querySelector('.sqc-space-bar'); return !!b && b.textContent.includes('شركة الوادي التجريبية للحوم') && !!b.querySelector('[data-space-door][href="./"]'); }));
@@ -55,12 +68,26 @@ try {
     check(`${tag}: the new company is empty, not demo-filled`, fresh.demo === false && fresh.customers === 0, JSON.stringify(fresh));
     check(`${tag}: the new company is registered for the books`, fresh.books === true);
     check(`${tag}: no chooser dialog for the new company`, !fresh.chooser);
+    await page.waitForFunction(() => SK.company && SK.company.ready(), null, { timeout: 30000 });
+    await page.waitForTimeout(500);
+    const n3 = await page.evaluate(() => ({ rail: (document.getElementById('biz-name') || {}).textContent, top: (document.querySelector('#sk-tb-co b') || {}).textContent }));
+    check(`${tag}: the new company's name is in the rail and the top bar`, n3.rail === 'مؤسسة الاختبار للحوم' && n3.top === n3.rail, JSON.stringify(n3));
+    /* switching from the top bar's company menu switches the data, not only a label */
+    await page.evaluate(() => SKosifCore.go('dash'));
+    await page.waitForTimeout(500);
+    await page.click('#sk-tb-co');
+    await page.waitForSelector('.sk-menu [data-m="co"][data-id="demo-co"]', { timeout: 10000 });
+    await page.click('.sk-menu [data-m="co"][data-id="demo-co"]');
+    await page.waitForFunction(() => window.SKosifSpace && SKosifSpace.current().id === 'demo-co', null, { timeout: 60000 }).catch(() => {});
+    await settled(page);
+    const viaTop = await page.evaluate(async () => ({ id: SKosifSpace.current().id, rail: (document.getElementById('biz-name') || {}).textContent, customers: ((r) => r.empty ? 0 : r.customers.length)(await SKosifSalesIntel.snapshot('all')) }));
+    check(`${tag}: the top bar's company menu opens the demo company with its data`, viaTop.id === 'demo-co' && viaTop.rail === 'شركة الوادي التجريبية للحوم' && viaTop.customers === demoCustomers, JSON.stringify(viaTop));
 
     /* 4. back at the door both companies are listed; the demo company comes back with its data */
     await page.goto(base + 'index.html');
     await page.waitForSelector('#co-list .co', { timeout: 30000 });
     const listed = await page.evaluate(() => [...document.querySelectorAll('#co-list .co')].map((b) => [b.dataset.name, b.getAttribute('aria-current') === 'true']));
-    check(`${tag}: both companies are listed and the new one is marked last`, listed.some(([n, l]) => n === 'مؤسسة الاختبار للحوم' && l) && listed.some(([n]) => n === 'شركة الوادي التجريبية للحوم'), JSON.stringify(listed));
+    check(`${tag}: both companies are listed, the last one opened is marked, and no empty phantom company`, listed.some(([n]) => n === 'مؤسسة الاختبار للحوم') && listed.some(([n, l]) => n === 'شركة الوادي التجريبية للحوم' && l) && !listed.some(([n]) => n === 'الشركة الحالية'), JSON.stringify(listed));
     await page.click('#co-list .co[data-id="demo-co"]');
     await page.waitForURL(/app-safe\.html/, { timeout: 30000 });
     await settled(page);
@@ -73,6 +100,22 @@ try {
     await settled(page);
     await page.waitForFunction(() => SKosifCore.view() === 'tbreview', null, { timeout: 30000 }).catch(() => {});
     check(`${tag}: a shortcut resumes the last company on its screen`, await page.evaluate(() => SKosifSpace.current().id === 'demo-co' && SKosifCore.view() === 'tbreview'), await page.evaluate(() => SKosifSpace.current().id + ' ' + SKosifCore.view()));
+    /* 6. the private company never takes over another company's data: on a device that never held it, opening it
+          (simulated here: a preview build has no password page) starts its own empty space */
+    await page.evaluate(() => { sessionStorage.setItem('sqc_company_intent', JSON.stringify({ id: 'co-private', name: 'قصيف', locked: true })); });
+    await page.goto(base + 'app-safe.html');
+    await page.waitForFunction(() => window.SKosifSpace && SKosifSpace.current().id === 'space-private', null, { timeout: 60000 }).catch(() => {});
+    await settled(page);
+    const priv = await page.evaluate(async () => ({ id: SKosifSpace.current().id, bound: localStorage.getItem('sqc_private_space'), demo: SK.demo.active(), customers: ((r) => r.empty ? 0 : r.customers.length)(await SKosifSalesIntel.snapshot('all')), name: SK.company.current().name, inMenu: SK.company.list().filter((c) => c.id === 'demo-co').length }));
+    check(`${tag}: the private company gets its own empty space, never the demo data`, priv.id === 'space-private' && priv.bound === 'space-private' && priv.demo === false && priv.customers === 0 && priv.name === 'قصيف', JSON.stringify(priv));
+    await page.goto(base + 'index.html');
+    await page.waitForSelector('#co-list .co', { timeout: 30000 });
+    check(`${tag}: the private space is not an open card in the gallery`, await page.evaluate(() => ![...document.querySelectorAll('#co-list .co')].some((b) => b.dataset.id === 'space-private')));
+    await page.click('#co-list .co[data-id="demo-co"]');
+    await page.waitForURL(/app-safe\.html/, { timeout: 30000 });
+    await settled(page);
+    const back = await page.evaluate(async () => ({ id: SKosifSpace.current().id, customers: ((r) => r.empty ? 0 : r.customers.length)(await SKosifSalesIntel.snapshot('all')), privInList: SK.company.list().some((c) => c.id === 'space-private' && !c.locked) }));
+    check(`${tag}: the demo company keeps its data and the private one stays locked in the switcher`, back.id === 'demo-co' && back.customers === demoCustomers && !back.privInList, JSON.stringify(back));
     check(`${tag}: no page or console errors`, errs.length === 0, errs.slice(0, 3).join(' | '));
     await ctx.close();
   }

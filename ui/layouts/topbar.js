@@ -27,13 +27,16 @@ const I={
 function profile(){const p=load(PROFILE,{})||{},o=SK.org();return{name:String(p.name||o.preparer||"").trim(),title:String(p.title||"").trim(),firm:String(p.firm||"").trim(),license:String(p.license||"").trim()}}
 function initials(n){const w=String(n||"").trim().split(/\s+/).filter(Boolean);if(!w.length)return "K";const f=s=>s.replace(/^(ال)/,"").charAt(0)||s.charAt(0);return w.length>1?f(w[0])+" "+f(w[1]):f(w[0])}
 const firstName=n=>String(n||"").trim().split(/\s+/)[0]||"";
+/* the open company (SK.company): the same one the rail, the books and every helper screen show */
 function ctx(){
+  if(SK.company){const c=SK.company.current(),cs=SK.company.list();return{cs,ps:c.periods,c,p:c.period}}
   const d=load(CO,{})||{},cs=d.companies||[],ps=d.periods||[],a=d.active||{};
   const c=cs.find(x=>x.id===a.companyId)||cs[0]||null,own=c?ps.filter(x=>x.companyId===c.id):[];
   return{d,cs,ps:own,c,p:own.find(x=>x.id===a.periodId)||null};
 }
 const biz=()=>((document.getElementById("biz-name")||{}).textContent||"").trim()||SK.org().biz||"SQC";
 function setActive(patch){
+  if(SK.company&&!("companyId" in patch)){SK.company.setPeriod(patch.periodId||null);paint();const c=core();if(c)c.go(c.view(),{keepScroll:true});return}
   const d=load(CO,{})||{};d.companies=d.companies||[];d.periods=d.periods||[];d.active=Object.assign({},d.active||{},patch);
   Object.keys(d.active).forEach(k=>{if(d.active[k]==null)delete d.active[k]});
   save(CO,d);SK.bus.emit("company",d.active);paint();
@@ -143,8 +146,9 @@ function openMenu(btn,html,cls){
 }
 function coMenu(btn){
   const x=ctx();
-  const list=x.cs.length?x.cs.map(c=>'<button type="button" role="menuitemradio" aria-checked="'+(x.c&&c.id===x.c.id)+'" data-m="co" data-id="'+esc(c.id)+'"><b>'+esc(c.name)+'</b><small>'+esc(c.currency||"")+'</small></button>').join(""):'<p class="sk-menu-note">لم تُضف شركة بعد. الدفاتر والتقارير تعمل على الشركة النشطة وفترتها.</p>';
-  openMenu(btn,'<div class="sk-menu-h">الشركة النشطة</div>'+list+'<hr><button type="button" data-m="go" data-v="companies">'+SK.icon("companies")+' إدارة الشركات والفترات</button>');
+  const note=c=>c.locked&&!(x.c&&c.id===x.c.id)?"خاصة · بكلمة المرور":c.demo?"بيانات تجريبية":(c.currency||"");
+  const list=x.cs.length?x.cs.map(c=>'<button type="button" role="menuitemradio" aria-checked="'+(x.c&&c.id===x.c.id)+'" data-m="co" data-id="'+esc(c.id)+'"><b>'+esc(c.name)+'</b><small>'+esc(note(c))+'</small></button>').join(""):'<p class="sk-menu-note">لم تُضف شركة بعد. الدفاتر والتقارير تعمل على الشركة النشطة وفترتها.</p>';
+  openMenu(btn,'<div class="sk-menu-h">الشركة المفتوحة — بياناتها على الشاشة</div>'+list+'<hr><button type="button" data-m="go" data-v="companies">'+SK.icon("companies")+' إدارة الشركات والفترات</button><a class="sk-menu-a" role="menuitem" href="./">'+SK.icon("companies")+' كل الشركات (الباب الأمامي)</a>');
 }
 function peMenu(btn){
   const x=ctx();
@@ -202,7 +206,7 @@ function onMenu(e){
   const m=b.dataset.m;
   if(m==="readall"){SKosifNotify.markAll();closeMenu();paint();return}
   closeMenu();
-  if(m==="co")setActive({companyId:b.dataset.id,periodId:null});
+  if(m==="co"){if(SK.company){if(b.dataset.id!==SK.company.current().id)SK.company.open(b.dataset.id)}else setActive({companyId:b.dataset.id,periodId:null})}
   else if(m==="pe")setActive({periodId:b.dataset.id||null});
   else if(m==="go")core().go(b.dataset.v);
   else if(m==="profile")profileDialog();
@@ -218,7 +222,7 @@ addEventListener("scroll",()=>closeMenu(),{passive:true});
 function boot(){
   paint();
   SK.bus.on("data",d=>{if(d&&(d.key===CO||d.key===PROFILE||d.key==="aghnam-pricing-v3"))paint()});
-  SK.bus.on("notify",()=>paint());SK.bus.on("role",()=>paint());SK.bus.on("nav",()=>closeMenu());
+  SK.bus.on("company",()=>paint());SK.bus.on("notify",()=>paint());SK.bus.on("role",()=>paint());SK.bus.on("nav",()=>closeMenu());
   SK.bus.on("theme",()=>paint());
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
