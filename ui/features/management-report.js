@@ -6,6 +6,14 @@ const can=action=>!!(SK.perm&&SK.perm.can("ledger")&&SK.perm.can("ledger",action
 const live=s=>active===s&&!s.closed&&s.dialog.isConnected;
 const control=(s,name)=>s.dialog.querySelector('[data-mr="'+name+'"]');
 const message=(s,text)=>{if(live(s))control(s,"status").textContent=text};
+const focusables=s=>[...s.dialog.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])')].filter(n=>!n.hidden&&n.getClientRects().length);
+function trapFocus(s,e){
+  if(e.key!=="Tab"||!live(s))return;
+  const items=focusables(s);if(!items.length){e.preventDefault();s.dialog.focus({preventScroll:true});return}
+  const first=items[0],last=items[items.length-1],active=document.activeElement;
+  if(e.shiftKey&&(active===first||!s.dialog.contains(active))){e.preventDefault();last.focus({preventScroll:true})}
+  else if(!e.shiftKey&&(active===last||!s.dialog.contains(active))){e.preventDefault();first.focus({preventScroll:true})}
+}
 function buttons(s){if(!live(s))return;control(s,"confirm").disabled=s.busy||!s.capture;control(s,"refresh").disabled=s.busy;for(const b of s.dialog.querySelectorAll('[data-mr-output]'))b.disabled=s.busy||!s.snapshot||!can("export")}
 function invalidate(s,text){s.snapshot=null;control(s,"attest").checked=false;control(s,"preview").replaceChildren();message(s,text);buttons(s)}
 function close(s=active){
@@ -90,7 +98,7 @@ async function open({opener=document.activeElement}={}){
   close();const dialog=document.createElement("dialog");dialog.className="sqc-mr-dialog";dialog.setAttribute("aria-labelledby","sqc-mr-title");
   dialog.innerHTML='<header class="sqc-mr-toolbar"><h2 id="sqc-mr-title">تقرير إداري بالأرصدة</h2><button type="button" class="btn" data-mr="close">إغلاق</button></header><div class="sqc-mr-controls"><p data-mr="context"></p><label class="sqc-mr-attest"><input type="checkbox" data-mr="attest"> أؤكد الشركة والفترة والعملة الظاهرة لهذه النسخة، دون تغيير الدفاتر.</label><div class="sk-actions"><button type="button" class="btn" data-mr="confirm">تأكيد وإعداد المسودة</button><button type="button" class="btn" data-mr="refresh">إعادة الالتقاط</button></div><p class="sqc-mr-status" role="status" aria-live="polite" data-mr="status"></p><div class="sk-actions"><button type="button" class="btn" data-mr-output data-mr="html">تنزيل HTML</button><button type="button" class="btn" data-mr-output data-mr="csv">تنزيل CSV</button><button type="button" class="btn" data-mr-output data-mr="json">تنزيل JSON</button><button type="button" class="btn" data-mr-output data-mr="print">طباعة / PDF</button></div></div><div data-mr="preview"></div>';
   const s={id:++sequence,dialog,opener,closed:false,busy:false,capture:null,snapshot:null,cancellers:new Set(),frame:null};active=s;
-  dialog.addEventListener("cancel",e=>{e.preventDefault();close(s)});dialog.addEventListener("close",()=>close(s));
+  dialog.addEventListener("cancel",e=>{e.preventDefault();close(s)});dialog.addEventListener("close",()=>close(s));dialog.addEventListener("keydown",e=>trapFocus(s,e));
   dialog.addEventListener("click",async e=>{const button=e.target.closest('[data-mr]');if(!button)return;const action=button.dataset.mr;if(action==="close")close(s);else if(action==="refresh"&&!s.busy)await capture(s);else if(action==="confirm")await confirm(s);else if(["csv","json","html","print"].includes(action))await output(s,action)});
   document.body.append(dialog);
   try{dialog.showModal();control(s,"close").focus();await capture(s)}catch{close(s);SK.toast?.("تعذر فتح معاينة التقرير.","bad")}
