@@ -11,7 +11,8 @@ const core=()=>window.SKosifCore;
 const LAUNCH=[["zatca","فاتورة جديدة"],["offers","عرض سعر"],["followup","متابعة العملاء"],["purchasing","أمر شراء"],["catalog","الأسعار"],["inventory","المخزون"],["ledger","قيد محاسبي"],["risks","خطر أو ملاحظة"]];
 const nf=new Intl.NumberFormat("ar-SA-u-nu-latn",{maximumFractionDigits:1});
 const fmt=v=>nf.format(v);
-const today=()=>new Date().toISOString().slice(0,10);
+/* the device's calendar day: toISOString() still gives yesterday in Riyadh until 03:00 */
+const today=(d=new Date())=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 let range=12,trend=null,trendAt=0;
 
 /* ---------- data ---------- */

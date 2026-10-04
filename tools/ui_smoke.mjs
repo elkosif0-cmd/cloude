@@ -18,6 +18,8 @@ for (const [tag, opts] of [['laptop', { viewport: { width: 1440, height: 900 } }
   page.on('console', (m) => { if (m.type() === 'error' && !/ERR_|net::|Failed to load resource|favicon/.test(m.text())) errs.push('console: ' + m.text().slice(0, 200)); });
   page.on('dialog', (d) => d.dismiss());
   await page.goto(url);
+  /* the bundle can take longer than the fixed wait on a busy runner: wait for the app itself first */
+  await page.waitForFunction(() => window.SK && window.SK.demo && window.SKosifCore, null, { timeout: 60000 });
   await page.waitForTimeout(6000);
   await page.waitForLoadState('load');
   await page.waitForTimeout(2500);

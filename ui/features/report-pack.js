@@ -8,18 +8,23 @@
 const {$$,esc,load,save,toast}=SK;
 const core=()=>window.SKosifCore;
 const OPT="skosif_report_pack_v1";
-const SECT=[["summary","الملخص التنفيذي"],["books","الدفاتر والإقفال"],["trend","اتجاهات المبيعات والمشتريات"],["risks","المخاطر"],["findings","الملاحظات المفتوحة"],["decisions","ما يحتاج قراراً"],["tasks","حالة المهام"],["signoff","الاعتماد والتوقيع"]];
+const SECT=[["summary","الملخص التنفيذي"],["books","الدفاتر والإقفال"],["trend","اتجاهات المبيعات والمشتريات"],["sales","ذكاء المبيعات"],["risks","المخاطر"],["findings","الملاحظات المفتوحة"],["decisions","ما يحتاج قراراً"],["tasks","حالة المهام"],["signoff","الاعتماد والتوقيع"]];
 const nf=new Intl.NumberFormat("ar-SA-u-nu-latn",{maximumFractionDigits:1});
 const M=v=>new Intl.NumberFormat("ar-SA-u-nu-latn",{maximumFractionDigits:0}).format(Math.round(v||0))+" ر.س";
 // Isolate formatted numeric values from the surrounding RTL paragraph; keep raw text unchanged.
 const numericValue=v=>{const text=String(v??""),plain=text.replace(/[\u200e\u200f]/g,"");return /^[-−]?\d[\d,.]*(?:٪| ر\.س)?$/.test(plain)?'<bdi dir="ltr">'+esc(text)+'</bdi>':esc(text)};
+/* the sections a choice saved before `seen` existed could know about */
+const FIRST=["summary","trend","risks","findings","decisions","tasks","signoff"];
 const opts=()=>{const o=Object.assign({range:12,sections:SECT.map(s=>s[0]),reviewer:"",approver:""},load(OPT,{})||{});
   /* a section added after the owner saved a choice is shown until they untick it */
-  if(!o.seen||!o.seen.includes("books")){o.sections=[...new Set([...o.sections,"books"])];o.seen=SECT.map(x=>x[0])}return o};
+  const seen=Array.isArray(o.seen)?o.seen:FIRST,fresh=SECT.map(x=>x[0]).filter(k=>!seen.includes(k));
+  if(fresh.length){o.sections=[...new Set([...o.sections,...fresh])];o.seen=SECT.map(x=>x[0])}return o};
+/* the device's calendar day: toISOString() still gives yesterday in Riyadh until 03:00 */
+const localDay=(d=new Date())=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 /* the books at a glance, from the same source as the morning brief and the month-end close */
 function booksHTML(calm=false){
   const l=window.SKosifLedger;if(!l||!l.snapshot().accounts.length)return "";
-  const t=new Date().toISOString().slice(0,10),ar=l.parties("ar",t),ap=l.parties("ap",t),cash=l.balance("1100",t),d=l.snapshot();
+  const t=localDay(),ar=l.parties("ar",t),ap=l.parties("ap",t),cash=l.balance("1100",t),d=l.snapshot();
   const hist=((d.bank||{}).history||[]).map(h=>h.end).sort(),last=hist[hist.length-1];
   const S=window.SKosifClose?SKosifClose.steps():[],A=S.filter(x=>x.st!=="na"),done=A.filter(x=>x.st==="ok").length;
   const late=ar?ar.totals["61-90"]+ar.totals["90+"]:0;
@@ -38,7 +43,7 @@ function booksHTML(calm=false){
 const score=r=>(+r.likelihood||1)*(+r.impact||1);
 function snapshot(){
   const st=core().stats(),tgt=st.target>1?st.target:st.target*100;
-  const tasks=load("skosif_tasks_v1",[])||[],t=new Date().toISOString().slice(0,10);
+  const tasks=load("skosif_tasks_v1",[])||[],t=localDay();
   const R=SKosifMetrics.risks(),open=R.risks.filter(r=>r.status!=="closed");
   return{st,tgt,avg:isFinite(st.avgMargin)?st.avgMargin*100:null,tasks,done:tasks.filter(x=>x.done).length,late:tasks.filter(x=>!x.done&&x.due&&x.due<t),
     risks:R.risks,open,high:open.filter(r=>score(r)>=6),findings:R.findings.filter(f=>f.status!=="resolved")};
@@ -47,7 +52,7 @@ function html(){
   const o=opts(),s=snapshot(),pr=window.SKosifTopbar?SKosifTopbar.profile():{name:""};
   const tile=(l,v,sub)=>'<div class="sk-kpi"><span>'+esc(l)+'</span><b>'+esc(v)+'</b><small>'+esc(sub)+'</small></div>';
   return '<div class="rp">'+
-    '<div class="rp-hero"><div><h3>الحزمة التنفيذية</h3><p>تقرير شامل بنقرة واحدة بترويسة SQC: الغلاف، المؤشرات، الاتجاهات، المخاطر، الملاحظات، القرارات، المهام، والاعتماد — جاهز للطباعة أو الحفظ PDF.</p></div>'+
+    '<div class="rp-hero"><div><h3>الحزمة التنفيذية</h3><p>تقرير شامل بنقرة واحدة بترويسة SQC: الغلاف، المؤشرات، الاتجاهات، ذكاء المبيعات، المخاطر، الملاحظات، القرارات، المهام، والاعتماد — جاهز للطباعة أو الحفظ PDF.</p></div>'+
       '<button type="button" class="btn primary" data-rp="print">'+SK.icon("reports")+' معاينة وطباعة الحزمة</button></div>'+
     '<div class="sk-kpis">'+tile("متوسط هامش البوكسات",s.avg!=null?nf.format(s.avg)+"٪":"—","الهدف "+nf.format(s.tgt)+"٪")+tile("بوكسات بخسارة",nf.format(s.st.loss),"من "+nf.format(s.st.boxes))+
       tile("المهام المنجزة",s.tasks.length?nf.format(s.done/s.tasks.length*100)+"٪":"—",s.late.length+" متأخرة")+tile("مخاطر مرتفعة مفتوحة",nf.format(s.high.length),"من "+nf.format(s.open.length)+" مفتوحة")+tile("ملاحظات مفتوحة",nf.format(s.findings.length),s.findings.filter(f=>f.severity==="high").length+" عالية الأثر")+'</div>'+
@@ -72,6 +77,29 @@ function bind(root){
     save(OPT,o);
   });
 }
+/* «ذكاء المبيعات» from the hub's own stores, mapping and engine (SKosifSalesIntel.snapshot) — the numbers on #sales.
+   A 12-month pack compares the last 12 months with the 12 before; a 6-month pack the last 90 days with the 90 before.
+   No phone numbers: a board document names customers only. */
+async function salesHTML(o,calm){
+  const si=window.SKosifSalesIntel,E=window.SKEngines&&SKEngines.sales&&SKEngines.sales.salesInsights;
+  if(!si||!si.snapshot||!E)return "";
+  const r=await si.snapshot(o.range===12?"365":"90"),v=x=>calm?numericValue(x):esc(x),sar=h=>M((Number(h)||0)/100);
+  if(r.empty)return '<section><h2>ذكاء المبيعات</h2><p class="note">لا توجد مبيعات مستوردة بعد.</p></section>';
+  const K=r.kpis,p=r.period,f=r.forecast,S=Object.fromEntries(E.SEGMENTS.map(s=>[s.key,s.label]));
+  const dt=d=>'<bdi dir="ltr">'+esc(d)+'</bdi>',chg=d=>d==null?"لا فترة سابقة":E.signed(d)+" عن الفترة السابقة";
+  const tiles=[["صافي الإيراد",sar(K.revenue.cur),chg(K.revenue.delta)],["الطلبات",nf.format(K.orders.cur),chg(K.orders.delta)],["متوسط الطلب",sar(K.avgOrder.cur),chg(K.avgOrder.delta)],
+    ["العملاء النشطون",nf.format(K.customers.cur),chg(K.customers.delta)],["نسبة التكرار",Math.round(K.repeatRate.cur*100)+"٪",""],
+    ["التوقع 30 يوماً",f.model?sar(f.total):"—",f.model?"نطاق 80٪: "+sar(f.low)+" – "+sar(f.high):"يحتاج 14 يوماً من المبيعات"],
+    ["صحة المبيعات",r.health.score+" / 100",r.health.parts.map(x=>x.label+" "+x.points).join(" · ")],["جودة البيانات",r.quality.score+"٪",nf.format(r.quality.lines)+" سطراً"]];
+  const TONE={bad:"عاجل",warn:"مهم",ok:"فرصة",info:"للعلم"},SEV={bad:"high",warn:"medium",ok:"low",info:"low"};
+  return '<section><h2>ذكاء المبيعات</h2><p class="note">'+esc(p.label)+': من '+dt(p.from)+' إلى '+dt(p.to)+(p.prevFrom?' · مقارنة بـ '+dt(p.prevFrom)+' – '+dt(p.prevTo):'')+'</p>'+
+    '<div class="rp-k">'+tiles.map(([l,x,sub])=>'<div><span>'+esc(l)+'</span><b>'+v(x)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</div>').join("")+'</div>'+
+    (r.recs.length?'<h3>توصيات محسوبة</h3><table class="rp-table rp-sales-recs"><thead><tr><th scope="col">الأولوية</th><th scope="col">التوصية</th><th scope="col">الرقم</th></tr></thead><tbody>'+
+      r.recs.slice(0,6).map(x=>'<tr><td><span class="sev '+SEV[x.tone]+'">'+TONE[x.tone]+'</span></td><td><b>'+esc(x.title)+'</b><br><small>'+esc(x.body)+'</small></td><td>'+esc(x.metric)+'</td></tr>').join("")+'</tbody></table>':'')+
+    (r.followup.length?'<h3>أولوية التواصل (أعلى 10)</h3><table class="rp-table rp-sales-follow"><thead><tr><th scope="col">العميل</th><th scope="col">الشريحة</th><th scope="col">آخر شراء</th><th scope="col">منذ (يوم)</th><th scope="col">القيمة الشهرية</th></tr></thead><tbody>'+
+      r.followup.slice(0,10).map(c=>'<tr><td>'+esc(c.name||"بدون اسم")+'</td><td>'+esc(S[c.segment]||"")+'</td><td>'+dt(c.last)+'</td><td class="rp-n">'+nf.format(c.daysSince)+'</td><td class="rp-n">'+v(sar(c.monthlyValue))+'</td></tr>').join("")+'</tbody></table>':'<p class="note">لا عملاء متأخرين عن إيقاعهم المعتاد.</p>')+
+    '<p class="note">المصدر: محرك «ذكاء المبيعات» على سطور المبيعات المستوردة — الأرقام نفسها في الشاشة. التوقع إرشادي وليس وعداً.</p></section>';
+}
 /* ---------- the printed pack ---------- */
 const PACK_CSS='.rp-cover{padding:34px 0 18px;text-align:center;break-after:page}.rp-cover h1{margin:40px 0 6px;font-size:32px;color:#0b1f3a}.rp-cover .en{font:700 13px Montserrat,sans-serif;letter-spacing:.2em;color:#1668e3}'+
  '.rp-cover .meta{display:inline-grid;grid-template-columns:auto auto;gap:8px 24px;margin-top:36px;padding:18px 26px;border:1px solid #e4eaf2;border-radius:14px;text-align:start;font-size:13px}.rp-cover .meta span{color:#5a6a80}'+
@@ -94,6 +122,7 @@ const CALM_PACK_CSS='.rp-paper{font-size:14px;line-height:1.65;color:#25242b;fon
  '.rp-paper table{border:0;border-radius:0;border-collapse:collapse;overflow:visible;font-size:14px;table-layout:fixed}.rp-paper th,.rp-paper td{padding:8px 6px;border-bottom:1px solid #dedee4;vertical-align:top;overflow-wrap:anywhere}.rp-paper th{background:#fff!important;color:#4b4a54;border-bottom:1px solid #898793;font-size:12px;font-weight:600}.rp-paper tr:nth-child(even) td{background:#fff}.rp-paper thead{display:table-header-group}.rp-paper tr{break-inside:avoid;page-break-inside:avoid}.rp-paper .rp-n{direction:ltr;unicode-bidi:isolate;text-align:right;font-variant-numeric:tabular-nums}.rp-paper .rp-total td{border-top:2px solid #898793;border-bottom:0;font-weight:700}'+
  '.rp-paper .rp-findings th:first-child{width:12%}.rp-paper .rp-findings th:nth-child(2){width:50%}.rp-paper .rp-findings th:nth-child(3){width:14%}.rp-paper .rp-findings th:nth-child(4){width:10%}.rp-paper .rp-findings th:nth-child(5){width:14%}.rp-paper .rp-decisions th:first-child{width:15%}.rp-paper .rp-decisions th:nth-child(2){width:30%}.rp-paper .rp-decisions th:nth-child(3){width:55%}.rp-paper .rp-tasks th:first-child{width:50%}.rp-paper .rp-tasks th:nth-child(2),.rp-paper .rp-tasks th:nth-child(3){width:25%}'+
  '.rp-paper .rp-risks th:nth-child(2){width:30%}.rp-paper .rp-books th:first-child,.rp-paper .rp-trend th:first-child{width:28%}.rp-paper .two{display:block}.rp-paper .two .skhm{margin-bottom:16px}.rp-paper .note,.rp-paper small,.rp-paper .muted{font-size:12px;color:#64636d;orphans:3;widows:3}.rp-paper .sign{break-inside:avoid}.rp-paper .sign div{border-color:#dedee4;border-radius:6px}.rp-paper .sign span,.rp-paper .sign i{font-size:12px;color:#64636d}.rp-paper .skp-foot{color:#64636d;border-color:#dedee4}'+
+ '.rp-paper .rp-sales-recs th:first-child{width:13%}.rp-paper .rp-sales-recs th:nth-child(2){width:57%}.rp-paper .rp-sales-follow th:first-child{width:30%}.rp-paper .rp-k small{display:block;margin-top:2px}'+
  '@media screen and (max-width:600px){.rp-paper .rp-cover .meta{grid-template-columns:auto minmax(0,1fr)}.rp-paper .rp-k{grid-template-columns:repeat(2,minmax(0,1fr))}.rp-paper .sign{grid-template-columns:minmax(0,1fr)}}';
 async function print(root){
   const o=opts(),w=window.open("","_blank");if(!w){toast("اسمح بالنوافذ المنبثقة لطباعة الحزمة","warn");return}
@@ -115,6 +144,7 @@ async function print(root){
     if(has("trend"))b+='<section><h2>اتجاهات المبيعات والمشتريات</h2>'+SKCharts.bars({width:700,labels:tr.labels,tipLabels:tr.tip,series:[{name:"المبيعات",color:"var(--sk-c1)",values:tr.s},{name:"المشتريات والمصروفات",color:"var(--sk-c2)",values:tr.p.map((v,i)=>v+tr.o[i])}],line:{name:"صافي التدفق",color:"var(--sk-c3)",values:tr.net},height:230})+
       '<table class="rp-table rp-trend"><thead><tr><th scope="col">الشهر</th><th scope="col">المبيعات</th><th scope="col">المشتريات</th><th scope="col">المصروفات</th><th scope="col">الصافي</th></tr></thead><tbody>'+tr.tip.map((m,i)=>'<tr><td>'+esc(m)+'</td><td class="rp-n">'+M(tr.s[i])+'</td><td class="rp-n">'+M(tr.p[i])+'</td><td class="rp-n">'+M(tr.o[i])+'</td><td class="rp-n">'+(tr.net[i]<0?"−":"")+M(Math.abs(tr.net[i]))+'</td></tr>').join("")+
       '<tr class="rp-total"><td><b>الإجمالي</b></td><td class="rp-n"><b>'+M(S)+'</b></td><td class="rp-n"><b>'+M(P)+'</b></td><td class="rp-n"><b>'+M(O)+'</b></td><td class="rp-n"><b>'+(N<0?"−":"")+M(Math.abs(N))+'</b></td></tr></tbody></table><p class="note">المصدر: المبيعات المستوردة، شحنات الموردين، والمصروفات التشغيلية الشهرية المسجلة.</p></section>';
+    if(has("sales"))b+=await salesHTML(o,calm);
     if(has("risks")){const grid=[[0,0,0],[0,0,0],[0,0,0]];s.open.forEach(r=>{grid[(+r.impact||1)-1][(+r.likelihood||1)-1]++});
       const top=s.open.slice().sort((a,c)=>score(c)-score(a)).slice(0,10);
       b+='<section><h2>المخاطر</h2>'+(s.open.length?'<div class="two">'+SKCharts.heatmap(grid)+'<table class="rp-table rp-risks"><thead><tr><th scope="col">الرمز</th><th scope="col">الخطر</th><th scope="col">الفئة</th><th scope="col">الدرجة</th><th scope="col">المسؤول</th><th scope="col">الموعد</th></tr></thead><tbody>'+top.map(r=>'<tr><td>'+esc(r.ref||"")+'</td><td><b>'+esc(r.title)+'</b>'+(r.response?'<br><small>'+esc(r.response)+'</small>':'')+'</td><td>'+esc(r.category||"")+'</td><td class="rp-n">'+score(r)+'</td><td>'+esc(r.owner||"")+'</td><td>'+esc(r.due||"")+'</td></tr>').join("")+'</tbody></table></div>':'<p class="note">لا مخاطر مفتوحة في السجل.</p>')+'</section>'}

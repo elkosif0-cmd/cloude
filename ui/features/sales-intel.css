@@ -5,6 +5,9 @@
 .si-period{flex:0 1 auto}.si-period button{flex:0 0 auto;padding:0 14px;white-space:nowrap}
 .si-ch{display:inline-flex;align-items:center;gap:8px;font-size:var(--sk-fs-xs);font-weight:700;color:var(--sk-ink-2)}
 .si-ch select{min-height:38px;min-width:150px;padding:0 10px;border:1px solid var(--sk-line);border-radius:var(--sk-r-s);background:var(--sk-surface);color:var(--sk-ink);font:inherit;font-size:var(--sk-fs-s)}
+/* the last day analysed: review a past month-end without deleting later sales */
+.si-asof{display:inline-flex;align-items:center;gap:8px;font-size:var(--sk-fs-xs);font-weight:700;color:var(--sk-ink-2)}
+.si-asof input{min-height:38px;padding:0 10px;border:1px solid var(--sk-line);border-radius:var(--sk-r-s);background:var(--sk-surface);color:var(--sk-ink);font:inherit;font-size:var(--sk-fs-s);font-variant-numeric:tabular-nums}
 .si-tools{display:flex;gap:8px;margin-inline-start:auto}.si-tools .btn{display:inline-flex;align-items:center;gap:6px}
 .si-range{flex:1 0 100%;margin:0;font-size:var(--sk-fs-xs);color:var(--sk-ink-3);font-variant-numeric:tabular-nums}.si-range bdi{white-space:nowrap}.si-vs{white-space:normal}
 
@@ -15,6 +18,11 @@
 .si-kpi b i{font-style:normal;font-size:var(--sk-fs-xs);font-weight:600;color:var(--sk-ink-3)}
 .si-kpi-f{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px}
 .si-kpi .skspark{flex:0 0 auto}
+/* how a KPI is computed, on hover, keyboard focus or tap; it floats so the grid never jumps */
+.si-kpi:focus-visible{outline:2px solid var(--sk-brand);outline-offset:2px}
+.si-how{position:absolute;inset-inline:8px;top:calc(100% + 6px);z-index:6;padding:8px 10px;border-radius:var(--sk-r-s);background:var(--sk-ink);color:var(--sk-surface);font-size:var(--sk-fs-2xs);font-weight:600;line-height:1.6;box-shadow:var(--sk-shadow-1);visibility:hidden;opacity:0;pointer-events:none;transition:opacity var(--sk-t) var(--sk-ease),visibility var(--sk-t)}
+.si-kpi:hover .si-how,.si-kpi:focus .si-how,.si-kpi:focus-within .si-how{visibility:visible;opacity:1}
+@media (prefers-reduced-motion:reduce){.si-how{transition:none}}
 .si-d{display:inline-flex;align-items:center;gap:3px;padding:1px 8px;border-radius:var(--sk-r-pill);font-size:var(--sk-fs-2xs);font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
 .si-d.up{background:var(--sk-ok-soft);color:var(--sk-ok)}.si-d.down{background:var(--sk-bad-soft);color:var(--sk-bad)}
 .si-d.flat,.si-d.none{background:var(--sk-surface-3);color:var(--sk-ink-3)}

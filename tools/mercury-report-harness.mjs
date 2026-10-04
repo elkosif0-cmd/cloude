@@ -19,14 +19,16 @@ export function fixture(kind='populated',selected=sections){
   empty
  };
 }
-export async function render(source,f=fixture(),look='kosif',theme='light'){
+// `extra` adds globals (e.g. SKEngines + SKosifSalesIntel) for tests of sections that need them; omitted, the module
+// sees exactly the stores above.
+export async function render(source,f=fixture(),look='kosif',theme='light',extra={}){
  let html='',styles=[],writes=0;const bodyClasses=new Set(),mark={src:'https://sqc.invalid/art/sqc-mark.svg'};
  const document={open(){html=''},write(s){html+=s},close(){},createElement(){return{textContent:''}},head:{appendChild(s){styles.push(s.textContent)}},body:{classList:{add(n){bodyClasses.add(n)}}},querySelector(s){return s==='.skp-band img'?mark:null}};
  const w={document,focus(){},print(){},close(){throw Error('report closed unexpectedly')}};
  const ledger={snapshot:()=>({accounts:f.empty?[]:[{}],bank:{history:[{end:'2026-01-31'}]},lockDate:'2026-01-31'}),parties:()=>({balance:85,unassigned:5,totals:{'61-90':20,'90+':10},rows:[{party:'عميل اختبار',balance:85,aging:{current:20,'1-30':25,'31-60':10,'61-90':20,'90+':10}}]}),balance:()=>150,vat:()=>({q:{label:'فترة اختبار'},settled:false,r:{net:12}})};
  const FixedDate=class extends Date{constructor(...args){super(...(args.length?args:['2026-10-04T12:00:00Z']))}static now(){return Date.parse('2026-10-04T12:00:00Z')}};
  const ctx={console,Intl,Date:FixedDate,location:{href:'https://sqc.invalid/app-safe.html'},setTimeout(){},document:{documentElement:{getAttribute(n){return n==='data-look'?look:n==='data-theme'?theme:null}}},SK:{$$:()=>[],esc,load:(k,d)=>structuredClone(f.stores[k]??d),save(){writes++},toast(){throw Error('unexpected toast')},icon:()=>'',org:()=>({biz:'شركة اختبار SQC',preparer:'مُعد تجريبي'}),brandPrint(){},audit:{log(){}},errors:{report(e){throw e}}},SKosifCore:{stats:()=>structuredClone(f.stats)},SKosifMetrics:{risks:()=>({risks:structuredClone(f.risks),findings:structuredClone(f.findings)}),decisions:()=>structuredClone(f.decisions),trend:async()=>structuredClone(f.trend)},SKCharts:{bars:()=>'<div class="skch">رسم اختبار</div>',heatmap:()=>'<div class="skhm">مصفوفة اختبار</div>'},SKosifLedger:ledger,SKosifClose:{steps:()=>[{st:'ok'},{st:'warn'}]},SKosifTopbar:{profile:()=>({name:'مُعد تجريبي'})},open:()=>w};
- ctx.window=ctx;vm.createContext(ctx);vm.runInContext(source,ctx);const controls=ctx.SKosifReportPack.html();await ctx.SKosifReportPack.print();
+ Object.assign(ctx,extra);ctx.window=ctx;vm.createContext(ctx);vm.runInContext(source,ctx);const controls=ctx.SKosifReportPack.html();await ctx.SKosifReportPack.print();
  return {html,styles,controls,bodyClasses:[...bodyClasses],mark:mark.src,writes};
 }
 export function tables(html){return [...html.matchAll(/<table\b[^>]*>([\s\S]*?)<\/table>/g)].map(t=>[...t[1].matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/g)].map(r=>[...r[1].matchAll(/<t[hd]\b[^>]*>([\s\S]*?)<\/t[hd]>/g)].map(c=>c[1].replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim())))}
