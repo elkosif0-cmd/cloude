@@ -27,6 +27,7 @@ app = (DIST / "app-safe.html").read_text(encoding="utf-8")
 css = (DIST / "skosif.css").read_text(encoding="utf-8")
 index = (DIST / "index.html").read_text(encoding="utf-8")
 manifest = json.loads((DIST / "manifest.webmanifest").read_text(encoding="utf-8"))
+headers = (DIST / "_headers").read_text(encoding="utf-8")
 caps = {c["id"]: c for c in json.loads(Path("ui/core/capabilities.json").read_text(encoding="utf-8"))["capabilities"]}
 
 app_head = app.split("</head>", 1)[0]
@@ -48,6 +49,8 @@ ok("unlock page advertises manifest", 'rel="manifest" href="./manifest.webmanife
 ok("unlock password has an explicit label", 'for="p">كلمة المرور الآمنة</label>' in index)
 ok("unlock feedback exposes alert/status semantics", 'id="msg" role="alert"' in index and 'id="progress" role="status"' in index)
 ok("password visibility toggle exposes pressed state", 'id="eye" type="button" aria-label="إظهار كلمة المرور" aria-pressed="false"' in index)
+ok("root entry is explicitly non-cacheable", re.search(r"(?m)^/$\n\s+Cache-Control:\s*no-cache, no-store, must-revalidate\s*$", headers) is not None)
+ok("manifest is explicitly revalidated", re.search(r"(?m)^/manifest\.webmanifest$\n\s+Cache-Control:\s*no-cache, must-revalidate\s*$", headers) is not None)
 for f in ("app-safe.html", "skosif.css", "skosif.js", "manifest.webmanifest", "index.html"):
     text = (DIST / f).read_text(encoding="utf-8")
     hit = [s for s in SALES_FIRST if s in text]
