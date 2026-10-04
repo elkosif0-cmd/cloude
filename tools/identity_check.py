@@ -38,6 +38,7 @@ ok("page description is audit-first", bool(desc) and "المراجعة" in desc.
 tag = re.search(r'#biz-name::after\{content:"([^"]*)"', css)
 ok("rail tagline is audit-first", bool(tag) and "المراجعة" in tag.group(1) and not any(s in tag.group(1) for s in SALES_FIRST), tag.group(1) if tag else "missing")
 ok("manifest description is audit-first", "المراجعة" in manifest["description"] and not any(s in manifest["description"] for s in SALES_FIRST))
+ok("manifest theme matches canonical SQC navy", manifest.get("theme_color") == "#0c2340", str(manifest.get("theme_color")))
 ok("unlock / landing page carries no sales-first product line", not any(s in index for s in SALES_FIRST))
 ok("app shell uses canonical SQC theme color", 'name="theme-color" content="#0c2340"' in app_head)
 ok("app shell uses SQC favicon", 'href="./art/sqc-icon.svg"' in app_head and "kosif-cloud.svg" not in app_head)
