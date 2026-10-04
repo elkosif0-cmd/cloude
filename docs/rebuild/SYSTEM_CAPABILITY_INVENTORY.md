@@ -24,7 +24,7 @@ Total capabilities: **74** (screens). Cross-cutting capabilities are listed afte
 | `b2bcredit` | ائتمان المطاعم | ui/enterprise.js | الأدوات المساعدة للمحاسب › العملاء والائتمان › يومي | `skosif_v38_ledger` | SKosifCore | Working | Keep |
 | `offers` | العروض والكتالوج | ui/offers.js | الأدوات المساعدة للمحاسب › يومي | `skosif_v32_offers`, `skosif_v32_cart`, `skosif_v32_cols` | SKosifCore | Working | Keep |
 | `operations` | المناسبات والتشغيل | ui/operations.js | الأدوات المساعدة للمحاسب › يومي | `skosif_ops_subscriptions`, `skosif_ops_butcher_shifts`, `skosif_ops_po_history`, `skosif_ops_bbq`, `skosif_ops_aging_chamber` | SKosifCore | Working | Keep |
-| `salesintel` | ذكاء المبيعات | core (v16) | الأدوات المساعدة للمحاسب › ذكاء المبيعات والطلب › يومي | `IDB sales_lines` | SKosifCore, Engine, IndexedDB | Working | Keep |
+| `salesintel` | ذكاء المبيعات | ui/features/sales-intel.js + SKEngines.sales.salesInsights (core v16 fallback) | الأدوات المساعدة للمحاسب › ذكاء المبيعات والطلب › يومي | `IDB sales_lines`, `IDB customers` | SKosifCore, IndexedDB | Working | Keep |
 | `intelligence` | ذكاء العملاء والطلب | core (v18) | الأدوات المساعدة للمحاسب › ذكاء المبيعات والطلب › يومي | `IDB customers`, `IDB sales_lines` | SKosifCore, Engine, IndexedDB | Working | Keep |
 | `economics` | اقتصاديات الطلب | core (v9) | الأدوات المساعدة للمحاسب › ذكاء المبيعات والطلب › يومي | `IDB orders`, `aghnam-econ-fees-v1` | SKosifCore, Engine, IndexedDB | Working | Keep |
 | `inventory` | المخزون | ui/inventory.js + ui/erp-plus.js | الأدوات المساعدة للمحاسب › المخزون والتتبع › يومي | `aghnam_v29_inventory`, `skosif_inv_expiry_batches`, `skosif_erp_inventory_v1` | SKosifCore | Working | Keep |

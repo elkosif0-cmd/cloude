@@ -26,12 +26,13 @@ const kpi=(l,v,s,cls)=>'<div class="skslab-k'+(cls?" "+cls:"")+'"><small>'+esc(l
 
 function pulse(r){
   const d=r.daily,n=Math.min(120,d.labels.length),lab=d.labels.slice(-n).map(x=>x.slice(5)),vals=d.values.slice(-n).map(v=>Math.round(v/100)),ma=r.ma7.slice(-n).map(v=>v==null?null:Math.round(v/100));
-  const f=r.forecast,fl=f.forecast.map((_,i)=>"+"+(i+1));
-  return '<div class="skslab-kpis">'+kpi("توقع 30 يوماً",sar(f.total)+" ر.س","نطاق 80٪: "+sar(f.low)+" – "+sar(f.high))+kpi("ميل الاتجاه اليومي",(f.slope>=0?"+":"")+sar(f.slope)+" ر.س/يوم",f.slope>=0?"الاتجاه صاعد ↑":"الاتجاه هابط ↓ — تدخّل مبكراً",f.slope>=0?"ok":"bad")+
+  /* the same forecast as the hub above (model chosen by a 30-day backtest), so the page never shows two numbers */
+  const I=SKEngines.sales.salesInsights,F=I.forecastDaily(r.daily.values,r.asOf),f={total:F.total,low:F.low,high:F.high,slope:F.slope,forecast:F.daily,basis:F.basis,residStd:F.residStd},fl=f.forecast.map((_,i)=>"+"+(i+1));
+  return '<div class="skslab-kpis">'+kpi("توقع 30 يوماً",sar(f.total)+" ر.س","نطاق 80٪: "+sar(f.low)+" – "+sar(f.high))+kpi("ميل الاتجاه اليومي",(f.slope>=0?"+":"")+sar(f.slope)+" ر.س/يوم",f.slope>0?"الاتجاه صاعد ↑":f.slope<0?"الاتجاه هابط ↓ — تدخّل مبكراً":"مستقر",f.slope>0?"ok":f.slope<0?"bad":"")+
     kpi("آخر شهر",sar((r.monthly.at(-1)||{}).revenue)+" ر.س",(r.monthly.at(-1)||{}).growth==null?"":"النمو "+(r.monthly.at(-1).growth>=0?"+":"")+r.monthly.at(-1).growth+"٪")+'</div>'+
     '<div class="skslab-2"><div><h4>الاتجاه اليومي مع المتوسط المتحرك (7 أيام)</h4>'+SKCharts.line({labels:lab,series:[{name:"المبيعات اليومية",values:vals},{name:"المتوسط المتحرك",values:ma.map(v=>v==null?NaN:v)}],height:220,endLabels:false})+'</div>'+
     '<div><h4>الأداء الشهري والنمو</h4>'+SKCharts.bars({labels:r.monthly.map(m=>m.month.slice(2)),series:[{name:"الإيراد (ر.س)",values:r.monthly.map(m=>Math.round(m.revenue/100))}],height:220})+'<p class="hint">الفواتير شهرياً: '+r.monthly.slice(-6).map(m=>m.month.slice(2)+" "+m.invoices).join(" · ")+'</p>'+'</div></div>'+
-    (f.forecast.length?'<h4>توقع المبيعات — 30 يوماً قادمة</h4>'+SKCharts.line({labels:fl,series:[{name:"التوقع اليومي (ر.س)",values:f.forecast.map(v=>Math.round(v/100))}],height:180,endLabels:false})+'<p class="hint">امتداد خطي لآخر '+f.basis+' يوماً؛ النطاق من تشتت البواقي (الخطأ المعياري '+sar(f.residStd)+' ر.س/يوم). توقع إرشادي وليس وعداً.</p>':'');
+    (f.forecast.length?'<h4>توقع المبيعات — 30 يوماً قادمة</h4>'+SKCharts.line({labels:fl,series:[{name:"التوقع اليومي (ر.س)",values:f.forecast.map(v=>Math.round(v/100))}],height:180,endLabels:false})+'<p class="hint">النموذج: '+esc(F.model?I.MODEL_AR[F.model]:"—")+' على آخر '+f.basis+' يوماً'+(F.wape==null?'':' (خطأ أسبوعي على آخر 30 يوماً '+Math.round(F.wape*100)+'٪)')+'؛ النطاق من تشتت البواقي (الخطأ المعياري '+sar(f.residStd)+' ر.س/يوم). توقع إرشادي وليس وعداً.</p>':'');
 }
 function invoices(r){
   const s=r.invoices;
@@ -89,7 +90,7 @@ async function paint(host){
   const r=await lab();
   if(!r){host.innerHTML='';return}
   const body=tab==="pulse"?pulse(r):tab==="invoices"?invoices(r):tab==="momentum"?race(r):tab==="maps"?await maps():tab==="stats"?stats(r):tab==="profit"?await profit():tab==="tree"?tree():ideas(r);
-  host.innerHTML='<section class="card skslab"><div class="card-h"><div><span class="eyebrow">مستفاد من لوحة التحليل المرفقة</span><h3>مختبر المبيعات</h3><p>فصول تحليلية إضافية على نفس سطور المبيعات — كل رقم من محرك قابل للتكرار.</p></div></div>'+
+  host.innerHTML='<section class="card skslab"><div class="card-h"><div><span class="eyebrow">تحليلات إضافية</span><h3>مختبر المبيعات</h3><p>فصول تحليلية إضافية على نفس سطور المبيعات — كل رقم من محرك قابل للتكرار.</p></div></div>'+
     '<div class="card-b"><div class="sk-seg skslab-tabs" role="tablist">'+TABS.map(([k,l])=>'<button type="button" role="tab" data-slab="'+k+'" aria-pressed="'+(tab===k)+'">'+l+'</button>').join("")+'</div>'+body+'</div></section>';
 }
 function mount(root){
