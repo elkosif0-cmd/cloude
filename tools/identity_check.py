@@ -29,6 +29,9 @@ index = (DIST / "index.html").read_text(encoding="utf-8")
 manifest = json.loads((DIST / "manifest.webmanifest").read_text(encoding="utf-8"))
 caps = {c["id"]: c for c in json.loads(Path("ui/core/capabilities.json").read_text(encoding="utf-8"))["capabilities"]}
 
+app_head = app.split("</head>", 1)[0]
+unlock_head = index.split("</head>", 1)[0]
+
 desc = re.search(r'<meta\s+name=["\']description["\']\s+content="([^"]*)"', app)
 ok("page description exists and names SQC", bool(desc) and desc.group(1).startswith("SQC"))
 ok("page description is audit-first", bool(desc) and "المراجعة" in desc.group(1) and not any(s in desc.group(1) for s in SALES_FIRST), desc.group(1) if desc else "")
@@ -36,6 +39,14 @@ tag = re.search(r'#biz-name::after\{content:"([^"]*)"', css)
 ok("rail tagline is audit-first", bool(tag) and "المراجعة" in tag.group(1) and not any(s in tag.group(1) for s in SALES_FIRST), tag.group(1) if tag else "missing")
 ok("manifest description is audit-first", "المراجعة" in manifest["description"] and not any(s in manifest["description"] for s in SALES_FIRST))
 ok("unlock / landing page carries no sales-first product line", not any(s in index for s in SALES_FIRST))
+ok("app shell uses canonical SQC theme color", 'name="theme-color" content="#0c2340"' in app_head)
+ok("app shell uses SQC favicon", 'href="./art/sqc-icon.svg"' in app_head and "kosif-cloud.svg" not in app_head)
+ok("app shell advertises manifest", 'rel="manifest" href="./manifest.webmanifest"' in app_head)
+ok("unlock page has audit-first meta description", 'name="description"' in unlock_head and "المراجعة" in unlock_head)
+ok("unlock page advertises manifest", 'rel="manifest" href="./manifest.webmanifest"' in unlock_head)
+ok("unlock password has an explicit label", 'for="p">كلمة المرور الآمنة</label>' in index)
+ok("unlock feedback exposes alert/status semantics", 'id="msg" role="alert"' in index and 'id="progress" role="status"' in index)
+ok("password visibility toggle exposes pressed state", 'id="eye" type="button" aria-label="إظهار كلمة المرور" aria-pressed="false"' in index)
 for f in ("app-safe.html", "skosif.css", "skosif.js", "manifest.webmanifest", "index.html"):
     text = (DIST / f).read_text(encoding="utf-8")
     hit = [s for s in SALES_FIRST if s in text]
