@@ -327,7 +327,7 @@ function syncSidebar(){
     const routeClose=sidebar.route||sidebar.openView!==(core()&&core().view());
     const canReturn=el=>!!(el&&el.isConnected&&!el.inert&&!el.hidden&&!el.disabled&&!rail.contains(el)&&el.getClientRects().length&&getComputedStyle(el).visibility!=="hidden"&&!(el.closest&&el.closest("[inert],[hidden]")));
     const liveMore=narrow&&sidebar.openerMore?$("#skb [data-more]"):null;const target=routeClose?$("#pg-title"):(canReturn(liveMore)?liveMore:canReturn(sidebar.opener)?sidebar.opener:button);
-    if(target){if(routeClose&&!target.hasAttribute("tabindex"))target.setAttribute("tabindex","-1");if(!narrow&&target===button){target.focus();const r=target.getBoundingClientRect();if(r.bottom<=0||r.top>=innerHeight||r.right<=0||r.left>=innerWidth)target.scrollIntoView({block:"nearest",inline:"nearest"})}else target.focus({preventScroll:true})}
+    if(target){if(routeClose&&!target.hasAttribute("tabindex"))target.setAttribute("tabindex","-1");if(!narrow&&target===button)target.focus();else target.focus({preventScroll:true})}
     const y=Number(rail.dataset.returnScrollY||sidebar.scrollY||0);delete rail.dataset.returnScrollY;sidebar.main=null;sidebar.opener=null;sidebar.openerMore=false;sidebar.route=false;sidebar.openView=null;sidebar.scrollY=0;sidebar.scrollCaptured=false;
     /* fixed-body locking keeps the page visually still; unlock, flush layout, then restore the saved document offset. */
     lockPageScroll(false);void document.body.offsetHeight;
