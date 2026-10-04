@@ -53,6 +53,8 @@ export function deriveEngagementStage(engagement={}){
   return ENGAGEMENT_STAGES.COMPLETION;
 }
 
+function hasCouncilPositions(round){return Array.isArray(round?.positions)&&round.positions.length>0&&Array.from(round.positions).every(p=>p&&typeof p==='object'&&!Array.isArray(p)&&typeof p.seatId==='string'&&p.seatId.trim()&&['clear','caution','objection','blocked'].includes(p.stance));}
+
 export function engagementBlockers(engagement={}){
   const blockers=[];
   for(const issue of engagement.issues??[]) if(issue.severity==='critical'&&unresolvedIssueStatuses.has(issue.status)) blockers.push({type:'critical_issue',objectId:issue.id,message:issue.title||'مسألة حرجة مفتوحة'});
@@ -60,13 +62,20 @@ export function engagementBlockers(engagement={}){
     if(request.priority==='critical'&&activeRequestStatuses.has(request.status)) blockers.push({type:'critical_request',objectId:request.id,message:request.title||'طلب دليل حرج مفتوح'});
     if(request.status==='unavailable'&&request.priority==='critical') blockers.push({type:'scope_limitation',objectId:request.id,message:`تعذر الحصول على دليل حرج: ${request.title}`});
   }
-  const latest=(engagement.councilRounds??[]).at(-1); for(const conflict of latest?.conflicts??[]) if(!conflict.resolution) blockers.push({type:'council_conflict',objectId:conflict.id,message:conflict.title||'نزاع مهني غير محسوم'});
+  const latest=(engagement.councilRounds??[]).at(-1);
+  if(!latest||latest.status!=='completed') blockers.push({type:'council_incomplete',objectId:latest?.id,message:'لا توجد جولة مجلس مكتملة.'});
+  else if(!hasCouncilPositions(latest)) blockers.push({type:'council_empty',objectId:latest.id,message:'جولة المجلس لا تحتوي على مواقف مراجعة؛ أعد عقد المجلس.'});
+  if(latest&&(['blocked','objections'].includes(latest.verdict)||(Array.isArray(latest.positions)?latest.positions:[]).some(p=>['blocked','objection'].includes(p?.stance))||(latest.blockers??[]).length)) blockers.push({type:'council_blocked',objectId:latest.id,message:latest.verdictText||'توجد موانع أو اعتراضات مفتوحة في آخر جولة مجلس.'});
+  for(const conflict of latest?.conflicts??[]) if(!conflict.resolution) blockers.push({type:'council_conflict',objectId:conflict.id,message:conflict.title||'نزاع مهني غير محسوم'});
   return blockers;
 }
 
 export function reportReadiness(engagement={}){
   const blockers=engagementBlockers(engagement), openRequests=(engagement.requests??[]).filter(r=>activeRequestStatuses.has(r.status)), unresolvedIssues=(engagement.issues??[]).filter(i=>unresolvedIssueStatuses.has(i.status)), undecidedAdjustments=(engagement.adjustments??[]).filter(a=>pendingAdjustmentStatuses.has(a.status)), latest=(engagement.councilRounds??[]).at(-1);
-  const checks={hasDocuments:(engagement.documents??[]).length>0,councilCompleted:Boolean(latest?.status==='completed'),noCriticalBlockers:blockers.length===0,noOpenEvidenceRequests:openRequests.length===0,noUnresolvedIssues:unresolvedIssues.length===0,adjustmentsDecided:undecidedAdjustments.length===0};
+  const evidenceById=new Map((engagement.evidence??[]).map(e=>[e.id,e]));
+  const hasReviewedEvidence=Boolean(latest?.evidenceIds?.length&&latest.evidenceIds.every(id=>['reviewed','sufficient'].includes(evidenceById.get(id)?.reviewStatus)));
+  if(!hasReviewedEvidence) blockers.push({type:'missing_reviewed_evidence',objectId:latest?.id,message:'يلزم دليل مراجع مرتبط بآخر جولة؛ الأدلة مفقودة أو لم تكتمل مراجعتها.'});
+  const checks={hasDocuments:(engagement.documents??[]).length>0,hasReviewedEvidence,councilCompleted:Boolean(latest?.status==='completed'&&hasCouncilPositions(latest)),noCriticalBlockers:blockers.length===0,noOpenEvidenceRequests:openRequests.length===0,noUnresolvedIssues:unresolvedIssues.length===0,adjustmentsDecided:undecidedAdjustments.length===0};
   const values=Object.values(checks), score=Math.round(values.filter(Boolean).length/values.length*100);
   return {ready:values.every(Boolean),score,checks,blockers,openRequests:openRequests.length,unresolvedIssues:unresolvedIssues.length,undecidedAdjustments:undecidedAdjustments.length};
 }
