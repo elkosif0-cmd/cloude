@@ -181,6 +181,9 @@ def scope_selector(sel, root_to):
 def scope_css(css, root_to):
     """Rewrite top-level and @media/@supports selectors; leave @keyframes/@font-face alone."""
     css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+    # Font URLs contain semicolons inside quoted weights. Remove the complete
+    # import, not the first semicolon, before looking for selector blocks.
+    css = re.sub(r"@import\s+(?:url\(\s*(?:\"[^\"]*\"|'[^']*'|[^)]*)\s*\)|\"[^\"]*\"|'[^']*')[^;]*;", "", css, flags=re.I)
     out, i, n = [], 0, len(css)
     while i < n:
         j = css.find("{", i)
@@ -204,6 +207,40 @@ def scope_css(css, root_to):
             out.append(",".join(scope_selector(x, root_to) for x in h.split(",")) + "{" + body + "}")
         i = k
     return "\n".join(x for x in out if x.strip())
+
+STUDIO_READABILITY = """
+/* SQC audit readability: custom properties cross the shadow boundary. */
+.kx-body{font-size:max(16px,var(--sk-fs,16px));line-height:1.65}
+.kx-body :where(p,small,label,td,th){line-height:1.65}
+.kx-body :where(button,input,select,textarea){font-family:inherit;font-size:max(16px,var(--sk-fs,16px))!important;line-height:1.5;min-inline-size:0;max-inline-size:100%}
+.kx-body :where(button,input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select){min-block-size:44px}
+.kx-body :where(.section-head,.top-actions,.ops-actions,.report-publication-toolbar){flex-wrap:wrap;gap:12px}
+.kx-body .workspace-grid{gap:20px;margin-bottom:20px}
+.kx-body .workspace-grid>*{min-width:0}
+.kx-body .stack{gap:12px}
+.kx-body :where(.cash-movement-form,.equity-movement-form,.equity-component-form,.cash-flow-balances,.cash-flow-summary,.ops-form,.spreadsheet-mapping){grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:12px}
+.kx-body :where(.cash-movement-form,.equity-movement-form,.equity-component-form,.cash-flow-balances,.ops-form,.spreadsheet-mapping)>*{min-width:0}
+.kx-body .workspace-overview-strip{grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));overflow:visible}
+.kx-body :where(.panel,.cash-flow-workspace,.statement-workspace){min-width:0}
+.kx-body :where(.statement-lineage-table-wrap,.spreadsheet-preview){max-width:100%;overflow:auto}
+@media(max-width:980px){.kx-body .workspace-grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){
+ .kx-body .panel{padding:16px}
+ .kx-body .lineage-search{grid-template-columns:minmax(0,1fr)}
+ .kx-body :where(.cash-movement-form,.equity-movement-form,.equity-component-form,.ops-form,.spreadsheet-mapping){grid-template-columns:minmax(0,1fr)}
+ .kx-body .ops-form .span-2{grid-column:auto}
+}
+"""
+
+def readable_studio_css(css):
+    """Normalize imported studio text without overriding the user's theme font."""
+    # The upstream universal !important family defeats even the theme bridge.
+    css = re.sub(r"\*\:not\(i\)[^{]*\{font-family:[^}]*\}", "", css)
+    css = re.sub(r"font-family:'Tajawal'[^;}]*!important", "font-family:var(--kx-font,inherit)", css)
+    css = re.sub(r"font-size:\s*(\d+(?:\.\d+)?)px", lambda m: "font-size:13px" if float(m.group(1)) < 13 else m.group(0), css)
+    css = re.sub(r"(font:\s*(?:(?:normal|italic|oblique|small-caps|bold|bolder|lighter|[1-9]00)\s+)*)(\d+(?:\.\d+)?)px",
+                 lambda m: m.group(1) + "13px" if float(m.group(2)) < 13 else m.group(0), css)
+    return css + STUDIO_READABILITY
 
 def module_closure(entries):
     """Every module reachable from the entries through relative imports."""
@@ -248,6 +285,8 @@ def build_app(sub, app):
     css = "\n".join(f"/* {n} */\n" + scope_css((SRC / n).read_text(encoding="utf-8"), root_to) for n in app["css"])
     if inline:
         css += "\n/* inline styles */\n" + scope_css(inline, root_to)
+    if not sub:
+        css = readable_studio_css(css)
     (dst / "app.css").write_text(css + "\n/* S.kosif theme bridge */" + app["bridge"], encoding="utf-8")
     body = html[html.index("<body"):]
     body = body[body.index(">") + 1:body.rindex("</body>")]
