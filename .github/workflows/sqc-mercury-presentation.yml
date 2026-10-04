@@ -1,0 +1,77 @@
+name: SQC Mercury Presentation
+on:
+  pull_request:
+    paths:
+      - 'ui/ds/sqc.css'
+      - 'ui/features/report-pack.js'
+      - 'tools/mercury*'
+      - 'tools/fixtures/mercury*'
+      - '.github/workflows/sqc-mercury-presentation.yml'
+permissions:
+  contents: read
+jobs:
+  presentation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: candidate
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: baseline
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify presentation contracts and build both isolated previews
+        env:
+          SQC_BUILD_MODE: preview
+        run: |
+          cd candidate
+          node --test tools/mercury_ci_contract.test.mjs tools/mercury_report_presentation.test.mjs
+          python3 build.py
+          test ! -d dist/secure
+          cd ../baseline
+          python3 build.py
+          test ! -d dist/secure
+      - name: Install isolated browser and PDF verification tools
+        run: |
+          npm install --no-save --prefix /tmp/pw playwright@1
+          npx --prefix /tmp/pw playwright install --with-deps chromium
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+      - name: Verify actual synthetic UI downloads and PDF
+        env:
+          SQC_TESTED_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory candidate/dist >/tmp/candidate-server.log 2>&1 &
+          CANDIDATE_PID=$!
+          python3 -m http.server 8766 --bind 127.0.0.1 --directory baseline/dist >/tmp/baseline-server.log 2>&1 &
+          BASELINE_PID=$!
+          trap 'kill "$CANDIDATE_PID" "$BASELINE_PID"' EXIT
+          python3 - <<'PY'
+          import time,urllib.request
+          for port in (8765,8766):
+              for attempt in range(30):
+                  try:
+                      with urllib.request.urlopen(f'http://127.0.0.1:{port}/app-safe.html',timeout=1) as r: assert r.status==200
+                      break
+                  except (OSError,AssertionError):
+                      if attempt==29: raise
+                      time.sleep(1)
+          PY
+          cd candidate
+          NODE_PATH=/tmp/pw/node_modules node tools/mercury_ci_e2e.mjs
+      - name: Retain synthetic presentation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mercury-presentation-evidence
+          path: candidate/artifacts/mercury/
+          if-no-files-found: warn
+          retention-days: 7
