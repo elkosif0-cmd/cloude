@@ -61,10 +61,11 @@ test('pack: without the sales hub the pack is unchanged and has no sales heading
   assert.ok(!headings(r.html).includes('ذكاء المبيعات'));
 });
 
-test('pack: no sales yet prints an honest note',async()=>{
+test('pack: no sales yet adds no section, so the pack is unchanged',async()=>{
   const extra={SKEngines,SKosifSalesIntel:{snapshot:async p=>S.salesInsights([],[],{period:p})}};
-  const r=await render(pack,fixture('populated'),'kosif','light',extra);
-  assert.ok(salesSection(r.html).includes('لا توجد مبيعات مستوردة بعد'));
+  const r=await render(pack,fixture('populated'),'kosif','light',extra),base=await render(pack,fixture('populated'));
+  assert.ok(!headings(r.html).includes('ذكاء المبيعات'));
+  assert.equal(r.html,base.html,'identical to a pack without the sales hub');
 });
 
 test('pack: an older saved choice gains the new sections but keeps what the owner unticked',async()=>{

@@ -84,7 +84,8 @@ async function salesHTML(o,calm){
   const si=window.SKosifSalesIntel,E=window.SKEngines&&SKEngines.sales&&SKEngines.sales.salesInsights;
   if(!si||!si.snapshot||!E)return "";
   const r=await si.snapshot(o.range===12?"365":"90"),v=x=>calm?numericValue(x):esc(x),sar=h=>M((Number(h)||0)/100);
-  if(r.empty)return '<section><h2>ذكاء المبيعات</h2><p class="note">لا توجد مبيعات مستوردة بعد.</p></section>';
+  /* no sales yet: no section (the trend section already shows the empty months), so the pack never grows an empty page */
+  if(r.empty)return "";
   const K=r.kpis,p=r.period,f=r.forecast,S=Object.fromEntries(E.SEGMENTS.map(s=>[s.key,s.label]));
   const dt=d=>'<bdi dir="ltr">'+esc(d)+'</bdi>',chg=d=>d==null?"لا فترة سابقة":E.signed(d)+" عن الفترة السابقة";
   const tiles=[["صافي الإيراد",sar(K.revenue.cur),chg(K.revenue.delta)],["الطلبات",nf.format(K.orders.cur),chg(K.orders.delta)],["متوسط الطلب",sar(K.avgOrder.cur),chg(K.avgOrder.delta)],
