@@ -118,7 +118,7 @@
     background:var(--sk-rail-2);color:var(--sk-rail-ink);font-size:var(--sk-fs-xl);cursor:pointer}
   .nav-btn{min-height:46px}
   .topbar{flex-wrap:wrap;gap:var(--sk-2);padding:calc(6px + env(safe-area-inset-top)) var(--sk-3) 6px}
-  .menu-btn{display:inline-grid;place-items:center;width:44px;height:44px;flex:none;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface-2);color:var(--sk-ink);cursor:pointer}
+  .menu-btn{display:inline-grid;place-items:center;width:46px;height:46px;min-width:46px;min-height:46px;box-sizing:border-box;flex:none;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface-2);color:var(--sk-ink);cursor:pointer}
   .menu-btn svg{width:20px;height:20px}
   .topbar .ttl{flex:1 1 0}
   .topbar h2{font-size:18px}
