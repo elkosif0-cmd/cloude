@@ -27,12 +27,18 @@ text=html.decode("utf-8")
 # Product branding: keep business data intact, rename only the application shell.
 text=re.sub(r"<title>[^<]*</title>","<title>SQC — Smart Quality Control</title>",text,count=1,flags=re.I)
 text=re.sub(r'<meta\s+name=["\']apple-mobile-web-app-title["\'][^>]*>', '<meta name="apple-mobile-web-app-title" content="SQC">', text, count=1, flags=re.I)
-text=re.sub(r"<meta\\s+name=['\\\"]theme-color['\\\"][^>]*>", '<meta name="theme-color" content="#0c2340">', text, count=1, flags=re.I)
-text=text.replace("./art/kosif-cloud.svg","./art/sqc-icon.svg")
+text=re.sub(r"<meta\\s+name=['\"]theme-color['\"][^>]*>", '<meta name="theme-color" content="#0c2340">', text, flags=re.I)
 head_end=text.find("</head>")
 if head_end<0: raise SystemExit("Page head close missing")
-if "manifest.webmanifest" not in text[:head_end]:
-    text=text[:head_end]+'<link rel="manifest" href="./manifest.webmanifest">\\n'+text[head_end:]
+head,tail=text[:head_end],text[head_end:]
+# Canonicalize install metadata from the legacy payload. Remove every old icon/manifest link first
+# so browser precedence cannot resurrect favicon-32x32.png, kosif-cloud.svg or manifest.json.
+head=re.sub(r"<link\\b(?=[^>]*\\brel=['\"](?:shortcut\\s+)?icon['\"])[^>]*>\\s*", "", head, flags=re.I)
+head=re.sub(r"<link\\b(?=[^>]*\\brel=['\"]manifest['\"])[^>]*>\\s*", "", head, flags=re.I)
+head += '<link rel="icon" type="image/svg+xml" href="./art/sqc-icon.svg">'
+head += '<link rel="icon" type="image/png" href="./icon-192.png">'
+head += '<link rel="manifest" href="./manifest.webmanifest">'
+text=head+tail
 # Product identity is audit-first SQC; أغنام الوادي is only the demo company, never the product description.
 DESCRIPTION="SQC — Smart Quality Control: منصة المراجعة والتأكيد — ملف المراجعة والأدلة والقوائم والتقارير، مع أدوات مساعدة للمحاسب، تعمل دون اتصال."
 text,nd=re.subn(r'<meta\s+name=["\']description["\'][^>]*>',f'<meta name="description" content="{DESCRIPTION}">',text,count=1,flags=re.I)
