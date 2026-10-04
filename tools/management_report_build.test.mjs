@@ -36,3 +36,27 @@ test('actual A4 account enumeration executes with exact E2E seed bindings',()=>{
  vm.runInNewContext(actualLoop,{seed,keys,assert,text:{stdout:pdfText}});
  assert.throws(()=>vm.runInNewContext(actualLoop,{seed,keys,assert,text:{stdout:pdfText.replace(seed[keys.ledger].accounts[0].code,'MISSING')}}),/exactly once/);
 });
+
+function actualFocusHelper(){
+ const source=fs.readFileSync(new URL('./management_report_e2e.mjs',import.meta.url),'utf8');
+ const helper=source.match(/async function traceDialogFocus\(page,width,reverse=false\)\{[\s\S]*?\n\}/)?.[0];
+ assert.ok(helper,'locate actual bidirectional focus diagnostic');return helper;
+}
+test('actual focus helper performs strict forward and backward twelve-step cycles',async()=>{
+ const writes=[],keys=[],ctx=vm.createContext({assert,fs:{writeFileSync:(...args)=>writes.push(args)},out:'synthetic-evidence'});
+ vm.runInContext(actualFocusHelper(),ctx);
+ const page={keyboard:{press:async key=>keys.push(key)},evaluate:async()=>({inside:true,activePath:'dialog > button',dialogOpen:true,modal:true}),screenshot:async()=>assert.fail('successful focus cycle needs no failure screenshot')};
+ await ctx.traceDialogFocus(page,390);await ctx.traceDialogFocus(page,390,true);
+ assert.deepEqual(keys,[...Array(12).fill('Tab'),...Array(12).fill('Shift+Tab')]);
+ assert.equal(writes.length,24);assert.ok(writes[11][0].endsWith('focus-390-forward.json'));assert.ok(writes[23][0].endsWith('focus-390-backward.json'));
+ assert.equal(JSON.parse(writes[23][1]).trace.length,12);
+});
+test('actual backward focus helper saves active-element trace DOM and screenshot before rejecting escape',async()=>{
+ const writes=[],screenshots=[],keys=[],ctx=vm.createContext({assert,fs:{writeFileSync:(...args)=>writes.push(args)},out:'synthetic-evidence'});
+ vm.runInContext(actualFocusHelper(),ctx);
+ const page={keyboard:{press:async key=>keys.push(key)},evaluate:async()=>({inside:false,activePath:'html > body',activeTag:'BODY',documentHasFocus:false,dialogOpen:true,modal:true,dialogHTML:'<dialog open>synthetic</dialog>'}),screenshot:async opts=>screenshots.push(opts)};
+ await assert.rejects(()=>ctx.traceDialogFocus(page,320,true),/focus left management dialog.*backward/);
+ assert.deepEqual(keys,['Shift+Tab']);assert.ok(writes.some(([path,data])=>path.endsWith('focus-320-backward.json')&&data.includes('html > body')));
+ assert.ok(writes.some(([path,data])=>path.endsWith('focus-320-backward-dialog.html')&&data.includes('<dialog open>')));
+ assert.equal(screenshots.length,1);assert.match(screenshots[0].path,/focus-320-backward-failure\.png$/);
+});
