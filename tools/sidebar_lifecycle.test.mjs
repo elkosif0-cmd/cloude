@@ -64,12 +64,16 @@ async function runBrowser(){
     return{context,page};
   }
   async function scrolledMore(page){
+    const more=page.locator('#skb [data-more]');
     await page.evaluate(()=>window.scrollTo(0,Math.min(500,document.documentElement.scrollHeight-innerHeight)));
-    await frames(page);const y=await page.evaluate(()=>scrollY);assert.ok(y>100,'preview has genuinely scrolled content');
-    await page.locator('#skb [data-more]').click();
+    await more.scrollIntoViewIfNeeded();await frames(page);
+    const visible=await more.evaluate(el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);return r.width>0&&r.height>0&&s.visibility!=='hidden'&&r.bottom>0&&r.top<innerHeight&&r.right>0&&r.left<innerWidth});
+    assert.ok(visible,'More must be visible before the real pointer click');
+    const y=await page.evaluate(()=>scrollY);assert.ok(y>100,'preview has genuinely scrolled content');
+    await more.click();
     await page.waitForFunction(()=>document.querySelector('#rail').classList.contains('open')&&document.body.style.position==='fixed');
     const captured=await page.locator('body').evaluate(el=>-parseFloat(el.style.top));
-    assert.ok(Math.abs(captured-y)<=2,'visible More pointer did not scroll page before opening');return captured;
+    assert.ok(Math.abs(captured-y)<=2,'visible More pointer changed the page offset before locking '+JSON.stringify({before:y,captured}));return captured;
   }
   async function check(name,fn){
     const {context,page}=await open();
