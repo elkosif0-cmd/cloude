@@ -10,7 +10,7 @@
 const {$,$$,esc,load,save}=SK;
 const core=()=>window.SKosifCore;
 const PREF_KEY="skosif_prefs";
-const sidebar={ready:false,rail:null,observer:null,narrow:innerWidth<=900,open:false,opener:null,openerMore:false,main:null,mainInert:false,route:false,scrollY:0,scrollCaptured:false};
+const sidebar={ready:false,rail:null,observer:null,narrow:innerWidth<=900,open:false,opener:null,openerMore:false,main:null,mainInert:false,route:false,scrollY:0,scrollCaptured:false,bodyStyle:null};
 
 function identityMetadata(){
   const h=document.head;if(!h)return;
@@ -301,7 +301,13 @@ function syncSidebar(){
   rail.inert=!shown;rail.setAttribute("aria-hidden",String(!shown));
   const opening=open&&!sidebar.open,closing=!open&&sidebar.open;
   if(opening&&!sidebar.scrollCaptured){sidebar.scrollY=window.scrollY;sidebar.scrollCaptured=true}
-  document.body.classList.toggle("skn-locked",open);
+  if(opening){
+    const b=document.body;sidebar.bodyStyle={position:b.style.position,top:b.style.top,left:b.style.left,right:b.style.right,width:b.style.width};
+    b.classList.add("skn-locked");b.style.position="fixed";b.style.top=(-sidebar.scrollY)+"px";b.style.left="0";b.style.right="0";b.style.width="100%";
+  }else if(closing){
+    const b=document.body;b.classList.remove("skn-locked");const s=sidebar.bodyStyle||{};
+    b.style.position=s.position||"";b.style.top=s.top||"";b.style.left=s.left||"";b.style.right=s.right||"";b.style.width=s.width||"";sidebar.bodyStyle=null;
+  }else document.body.classList.toggle("skn-locked",open);
   if(opening){
     sidebar.main=$(".maincol");sidebar.mainInert=!!(sidebar.main&&sidebar.main.inert);
     sidebar.opener=sidebar.opener&&sidebar.opener.isConnected?sidebar.opener:button;
