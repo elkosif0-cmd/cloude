@@ -16,7 +16,7 @@ const HELPER_KEY=k=>/^aghnam(?!-v12-theme|-pricing-auth|-pricing-pass|-pricing-u
   ||/^sqc_(ptree|geo|jesim|salesup)_/.test(k)||k==="skosif_demo_v1"
   ||/^sales_customer_followup/.test(k); /* the original CRM V8.2 (الأنظمة الأصلية) */
 const reg=()=>{const r=load(REG,{})||{};return{active:r.active||null,spaces:r.spaces||{}}};
-const setReg=r=>save(REG,r);
+const setReg=r=>{const ok=save(REG,r);if(ok!==true)scopeTainted=true;return ok};
 const profileName=()=>{const p=load("skosif_profile_v1",{})||{};return String(p.name||"").trim()||"المحاسب الرئيسي"};
 function userReg(){
   let u=load(USERS,null);
@@ -28,7 +28,7 @@ function userReg(){
   if(!u.active||!u.users[u.active])u.active=Object.keys(u.users)[0];
   return u;
 }
-const setUserReg=u=>save(USERS,u);
+const setUserReg=u=>{const ok=save(USERS,u);if(ok!==true)scopeTainted=true;return ok};
 const user=()=>{const u=userReg();return u.users[u.active]};
 const users=()=>Object.values(userReg().users);
 const enc=v=>new TextEncoder().encode(String(v||""));
@@ -83,11 +83,35 @@ async function getSnap(id,userId=user().id){const db=await spacesDb();let r=awai
 function clearHelperKeys(){const ks=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(HELPER_KEY(k))ks.push(k)}ks.forEach(k=>localStorage.removeItem(k))}
 
 /* ---------- switching ---------- */
-let busy=false;
+let busy=false,scopeEpoch=0,scopeTainted=false,scopeTransitions=0;
+const scopeBegin=()=>{if(scopeTransitions)scopeTainted=true;scopeTransitions++;scopeEpoch++};
+const scopeEnd=()=>{scopeTransitions--;scopeEpoch++};
+/* Read-only report context, not ownership or user attestation. Never initialize user registries here.
+   Taint is conservative for this runtime: a failed/partially acknowledged switch cannot be cleared
+   by selecting a label or by the same-ID fast path. No new persisted binding is introduced. */
+function scopeSnapshot(){
+  const obj=v=>v&&typeof v==="object"&&!Array.isArray(v),id=v=>typeof v==="string"&&v.trim()?v:null;
+  const own=(v,k)=>obj(v)&&k!==null&&Object.prototype.hasOwnProperty.call(v,k);
+  const date=v=>typeof v==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&!Number.isNaN(Date.parse(v+"T00:00:00Z"))&&new Date(v+"T00:00:00Z").toISOString().slice(0,10)===v;
+  let userId=null,spaceId=null,entityId=null,periodId=null,context=null,valid=false;
+  try{
+    const ur=load(USERS,null),r=load(REG,null),cd=load("skosif_companies_v1",null);
+    userId=id(ur&&ur.active);const u=own(ur&&ur.users,userId)?ur.users[userId]:null;
+    spaceId=id(u&&u.lastSpace);entityId=id(cd&&cd.active&&cd.active.companyId);periodId=id(cd&&cd.active&&cd.active.periodId);
+    const cos=obj(cd)&&Array.isArray(cd.companies)?cd.companies.filter(c=>obj(c)&&c.id===entityId):[];
+    const ps=obj(cd)&&Array.isArray(cd.periods)?cd.periods.filter(p=>obj(p)&&p.id===periodId):[];
+    const co=cos.length===1?cos[0]:null,p=ps.length===1?ps[0]:null;
+    valid=!!(obj(u)&&u.id===userId&&own(u.spaces,spaceId)&&obj(u.spaces[spaceId])&&obj(r)&&r.active===spaceId&&own(r.spaces,spaceId)&&obj(r.spaces[spaceId])&&entityId===spaceId&&co&&id(co.name)&&typeof co.currency==="string"&&/^[A-Z]{3}$/.test(co.currency)&&p&&p.companyId===entityId&&date(p.startDate)&&date(p.endDate)&&p.startDate<=p.endDate);
+    if(valid)context=Object.freeze({entityName:co.name,start:p.startDate,end:p.endDate,currency:co.currency});
+  }catch{/* unavailable/corrupt context is not an empty initialized company */}
+  const status=busy||scopeTransitions?"busy":scopeTainted?"tainted":valid?"stable":"unknown";
+  const token=JSON.stringify([scopeEpoch,status,userId,spaceId,entityId,periodId,context]);
+  return Object.freeze({status,token,userId,spaceId,entityId,periodId,context});
+}
 async function switchTo(id,name,opts={}){
   if(busy)return false;const cur=current(),who=user();
   if(id===cur.id&&!opts.fresh){sessionStorage.setItem(ASKED,"1");hideChooser();return true}
-  busy=true;
+  busy=true;scopeBegin();
   try{
     await putSnap(cur.id,await snapshot(),who.id);
     const ur=userReg(),me=ur.users[who.id];me.spaces=me.spaces||{};me.spaces[cur.id]={name:cur.name,at:new Date().toISOString()};
@@ -98,13 +122,14 @@ async function switchTo(id,name,opts={}){
       localStorage.setItem("aghnam-pricing-v3",JSON.stringify({raws:[],boxes:[],exps:[],settings:{biz:name}}))}
     me.spaces[id]={...(me.spaces[id]||{}),name,at:new Date().toISOString()};me.lastSpace=id;setUserReg(ur);
     const r=reg();r.spaces[id]={...(r.spaces[id]||{}),name,at:new Date().toISOString()};r.active=id;setReg(r);
-    const cd=load("skosif_companies_v1",{})||{};if((cd.companies||[]).some(c=>c.id===id)){cd.active={companyId:id};save("skosif_companies_v1",cd)}
+    const cd=load("skosif_companies_v1",{})||{};if((cd.companies||[]).some(c=>c.id===id)){cd.active={companyId:id};if(save("skosif_companies_v1",cd)!==true)scopeTainted=true}
     sessionStorage.setItem(ASKED,"1");
     SK.audit&&SK.audit.log("helpers",{act:"space",user:who.id,to:id,fresh:!snap});
     toast((snap?"فُتحت بيانات «":"بدأت مساحة جديدة لـ «")+name+"» للمحاسب "+who.name+" — يُعاد تحميل الأدوات…","ok");
     if(opts.reload!==false)setTimeout(()=>location.reload(),600);else busy=false;
     return true;
-  }catch(e){busy=false;SK.errors&&SK.errors.report(e,"space");toast("تعذر التبديل: "+e.message,"bad");return false}
+  }catch(e){scopeTainted=true;busy=false;SK.errors&&SK.errors.report(e,"space");toast("تعذر التبديل: "+e.message,"bad");return false}
+  finally{scopeEnd()}
 }
 async function newCompany(){
   const v=await SK.form("شركة جديدة للأدوات المساعدة",[{key:"name",label:"اسم الشركة",required:true,placeholder:"مثال: مؤسسة النخبة للحوم"},
@@ -133,7 +158,7 @@ async function switchUser(id,pin="",opts={}){
   if(busy)return false;const ur=userReg(),target=ur.users[id],from=user(),cur=current();if(!target)return false;
   if(id===from.id){sessionStorage.setItem(USER_ASKED,"1");hideUserChooser();return true}
   if(!await verifyUser(target,pin)){toast("رمز الدخول غير صحيح","bad");return false}
-  busy=true;
+  busy=true;scopeBegin();
   try{
     await putSnap(cur.id,await snapshot(),from.id);
     from.spaces=from.spaces||{};from.spaces[cur.id]={name:cur.name,at:new Date().toISOString()};from.lastSpace=cur.id;
@@ -149,7 +174,8 @@ async function switchUser(id,pin="",opts={}){
     toast("فُتحت أدوات "+target.name+" — البيانات منفصلة على هذا الجهاز","ok");
     if(opts.reload!==false)setTimeout(()=>location.reload(),500);else busy=false;
     return true;
-  }catch(e){busy=false;SK.errors&&SK.errors.report(e,"helper-user");toast("تعذر تبديل المستخدم: "+e.message,"bad");return false}
+  }catch(e){scopeTainted=true;busy=false;SK.errors&&SK.errors.report(e,"helper-user");toast("تعذر تبديل المستخدم: "+e.message,"bad");return false}
+  finally{scopeEnd()}
 }
 async function newUser(){
   const v=await SK.form("مستخدم جديد للأدوات المساعدة",[{key:"name",label:"اسم المحاسب / المستخدم",required:true,placeholder:"مثال: محمود الدسوقي"},
@@ -200,5 +226,6 @@ function banner(){
 document.addEventListener("click",e=>{if(e.target.closest("[data-user-open]"))userChooser();else if(e.target.closest("[data-space-open]"))chooser()});
 SK.bus&&SK.bus.on("nav",()=>setTimeout(onNav,50));
 SK.bus&&SK.bus.on("render",()=>setTimeout(()=>{if(inHelpers())banner()},0));
-window.SKosifSpace=Object.freeze({current,list:options,switchTo,newCompany,choose:chooser,isHelperKey:HELPER_KEY,user,users,createUser,switchUser,newUser,chooseUser:userChooser});
+window.SKosifSpace=Object.freeze({scopeSnapshot,current,list:options,switchTo,newCompany,choose:chooser,isHelperKey:HELPER_KEY,user,users,createUser,switchUser,newUser,chooseUser:userChooser});
 })();
+

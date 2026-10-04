@@ -1,0 +1,81 @@
+name: SQC Management Report Regression
+
+on:
+  pull_request:
+    paths:
+      - 'build.py'
+      - 'ui/core/helper-space.js'
+      - 'ui/core/management-report-model.js'
+      - 'ui/features/ledger.js'
+      - 'ui/features/management-report*'
+      - 'tools/management_report*'
+      - 'tools/fixtures/management-*.json'
+      - '.github/workflows/sqc-management-report.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  management-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test exact snapshot, capture, serializers and UI boundaries
+        run: node --test tools/management_report_*.test.mjs
+      - name: Preserve existing receipt behavior at ledger hook
+        run: node --test tools/receipt_boundary.test.mjs
+      - name: Build data-free preview
+        env:
+          SQC_BUILD_MODE: preview
+        run: python3 build.py
+      - name: Verify actual bundled CSS parity and absence of private seed
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';import assert from 'node:assert/strict';
+          const js=fs.readFileSync('dist/skosif.js','utf8'),m=js.match(/window\.__SK_MANAGEMENT_REPORT_CSS__=("(?:\\.|[^"\\])*");/);
+          assert.ok(m);assert.equal(JSON.parse(m[1]),fs.readFileSync('ui/features/management-report.css','utf8'));
+          assert.equal(fs.existsSync('dist/secure'),false);
+          JS
+      - name: Install isolated browser and PDF verification tools
+        run: |
+          npm install --no-save --prefix /tmp/pw playwright@1
+          npx --prefix /tmp/pw playwright install --with-deps chromium
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+      - name: Verify real viewports, downloaded artifacts and A4 PDF
+        env:
+          SQC_TESTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          python3 -m http.server 8765 --directory dist >/tmp/sqc-management-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID"' EXIT
+          python3 - <<'PY'
+          import time,urllib.request
+          for attempt in range(30):
+              try:
+                  with urllib.request.urlopen('http://localhost:8765/app-safe.html',timeout=1) as response:
+                      assert response.status==200
+                  break
+              except (OSError,AssertionError):
+                  if attempt==29: raise
+                  time.sleep(1)
+          PY
+          NODE_PATH=/tmp/pw/node_modules node tools/management_report_e2e.mjs http://localhost:8765/app-safe.html
+      - name: Retain only synthetic management evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: management-report-evidence
+          path: artifacts/management/
+          if-no-files-found: warn
+          retention-days: 7
