@@ -10,7 +10,7 @@
 const {$,$$,esc,load,save}=SK;
 const core=()=>window.SKosifCore;
 const PREF_KEY="skosif_prefs";
-const sidebar={ready:false,rail:null,observer:null,narrow:innerWidth<=900,open:false,opener:null,openerMore:false,main:null,mainInert:false,route:false,scrollY:0,scrollCaptured:false,bodyStyle:null};
+const sidebar={ready:false,rail:null,observer:null,narrow:innerWidth<=900,open:false,opener:null,openerMore:false,main:null,mainInert:false,route:false,scrollY:0,scrollCaptured:false,bodyStyle:null,restoreEpoch:0,openView:null};
 
 function identityMetadata(){
   const h=document.head;if(!h)return;
@@ -285,7 +285,7 @@ function toggleRail(force){const mini=typeof force==="boolean"?force:prefs().rai
    Mobile actions stay in the core drawer controller; this adapter synchronizes focus and aria. */
 function toggleSidebar(){
   const rail=$("#rail"),button=$(".topbar .menu-btn")||$(".menu-btn");if(!rail)return;
-  if(innerWidth<=900){const opening=!rail.classList.contains("open"),returnY=!opening?(sidebar.scrollCaptured?sidebar.scrollY:Number(rail.dataset.returnScrollY||window.scrollY)):0;if(opening){sidebar.scrollY=window.scrollY;sidebar.scrollCaptured=true;rail.dataset.returnScrollY=String(sidebar.scrollY);if(!sidebar.opener)sidebar.opener=document.activeElement;sidebar.openerMore=!!(sidebar.opener&&sidebar.opener.matches&&sidebar.opener.matches("#skb [data-more]"))}const c=core();if(c)c.act(opening?"rail-open":"rail-close");syncSidebar();if(!opening&&Number.isFinite(returnY)){const se=document.scrollingElement;if(se)se.scrollTop=returnY;document.documentElement.scrollTop=returnY;document.body.scrollTop=returnY;window.scrollTo(0,returnY)}return}
+  if(innerWidth<=900){const opening=!rail.classList.contains("open"),returnY=!opening&&!sidebar.route&&sidebar.openView===(core()&&core().view())?(sidebar.scrollCaptured?sidebar.scrollY:Number(rail.dataset.returnScrollY||window.scrollY)):NaN;if(opening){sidebar.scrollY=window.scrollY;sidebar.scrollCaptured=true;rail.dataset.returnScrollY=String(sidebar.scrollY);if(!sidebar.opener)sidebar.opener=document.activeElement;sidebar.openerMore=!!(sidebar.opener&&sidebar.opener.matches&&sidebar.opener.matches("#skb [data-more]"))}const c=core();if(c)c.act(opening?"rail-open":"rail-close");syncSidebar();if(!opening&&Number.isFinite(returnY)){const se=document.scrollingElement;if(se)se.scrollTop=returnY;document.documentElement.scrollTop=returnY;document.body.scrollTop=returnY;window.scrollTo(0,returnY)}return}
   const hide=prefs().sidebarHidden!==true;
   if(hide&&rail.contains(document.activeElement)&&button)button.focus({preventScroll:true});
   setPref("sidebarHidden",hide);syncSidebar();
@@ -305,6 +305,8 @@ function syncSidebar(){
   if(!shown&&rail.contains(document.activeElement)&&button&&!sidebar.open)button.focus({preventScroll:true});
   rail.inert=!shown;rail.setAttribute("aria-hidden",String(!shown));
   const opening=open&&!sidebar.open,closing=!open&&sidebar.open;
+  if(opening||closing)sidebar.restoreEpoch++;
+  if(opening)sidebar.openView=core()&&core().view();
   if(opening&&!sidebar.scrollCaptured){sidebar.scrollY=window.scrollY;sidebar.scrollCaptured=true}
   if(opening){
     const b=document.body;sidebar.bodyStyle={position:b.style.position,top:b.style.top,left:b.style.left,right:b.style.right,width:b.style.width};
@@ -322,12 +324,14 @@ function syncSidebar(){
     const first=sidebarFocusables(rail)[0];if(first)first.focus({preventScroll:true});
   }else if(closing){
     if(sidebar.main)sidebar.main.inert=sidebar.mainInert;
-    const liveMore=sidebar.openerMore?$("#skb [data-more]"):null;const target=sidebar.route?$("#pg-title"):(liveMore||(sidebar.opener&&sidebar.opener.isConnected&&!rail.contains(sidebar.opener)?sidebar.opener:button));
-    if(target){if(sidebar.route&&!target.hasAttribute("tabindex"))target.setAttribute("tabindex","-1");target.focus({preventScroll:true})}
-    const y=Number(rail.dataset.returnScrollY||sidebar.scrollY||0);delete rail.dataset.returnScrollY;sidebar.main=null;sidebar.opener=null;sidebar.openerMore=false;sidebar.route=false;sidebar.scrollY=0;sidebar.scrollCaptured=false;
+    const routeClose=sidebar.route||sidebar.openView!==(core()&&core().view());
+    const canReturn=el=>!!(el&&el.isConnected&&!el.inert&&!el.hidden&&!el.disabled&&!rail.contains(el)&&el.getClientRects().length&&getComputedStyle(el).visibility!=="hidden"&&!(el.closest&&el.closest("[inert],[hidden]")));
+    const liveMore=narrow&&sidebar.openerMore?$("#skb [data-more]"):null;const target=routeClose?$("#pg-title"):(canReturn(liveMore)?liveMore:canReturn(sidebar.opener)?sidebar.opener:button);
+    if(target){if(routeClose&&!target.hasAttribute("tabindex"))target.setAttribute("tabindex","-1");target.focus({preventScroll:true})}
+    const y=Number(rail.dataset.returnScrollY||sidebar.scrollY||0);delete rail.dataset.returnScrollY;sidebar.main=null;sidebar.opener=null;sidebar.openerMore=false;sidebar.route=false;sidebar.openView=null;sidebar.scrollY=0;sidebar.scrollCaptured=false;
     /* fixed-body locking keeps the page visually still; unlock, flush layout, then restore the saved document offset. */
     lockPageScroll(false);void document.body.offsetHeight;
-    if(Number.isFinite(y)&&Math.abs(window.scrollY-y)>1){const restore=()=>{const se=document.scrollingElement;if(se)se.scrollTop=y;window.scrollTo(0,y)};restore();requestAnimationFrame(restore)}
+    if(!routeClose&&Number.isFinite(y)&&Math.abs(window.scrollY-y)>1){const epoch=sidebar.restoreEpoch,view=core()&&core().view();const restore=()=>{if(epoch!==sidebar.restoreEpoch||rail.classList.contains("open")||(innerWidth<=900)!==narrow||(core()&&core().view())!==view)return;const se=document.scrollingElement;if(se)se.scrollTop=y;window.scrollTo(0,y)};restore();requestAnimationFrame(restore)}
   }
   sidebar.open=open;
 }
@@ -359,7 +363,7 @@ function sidebarEvents(){
     const first=items[0],last=items[items.length-1];if(!rail.contains(document.activeElement)||(e.shiftKey&&document.activeElement===first)||(!e.shiftKey&&document.activeElement===last)){e.preventDefault();(e.shiftKey?last:first).focus()}
   },true);
   addEventListener("resize",()=>{
-    const narrow=innerWidth<=900;if(narrow!==sidebar.narrow){sidebar.narrow=narrow;const c=core(),rail=$("#rail");if(rail&&rail.classList.contains("open")&&c)c.act("rail-close")}
+    const narrow=innerWidth<=900;if(narrow!==sidebar.narrow){sidebar.restoreEpoch++;sidebar.narrow=narrow;const c=core(),rail=$("#rail");if(rail&&rail.classList.contains("open")&&c)c.act("rail-close")}
     syncSidebar();
   },{passive:true});
 }

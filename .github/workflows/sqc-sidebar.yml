@@ -6,6 +6,7 @@ on:
       - 'ui/layouts/shell.js'
       - 'ui/ds/shell.css'
       - 'tools/sidebar_visibility.test.mjs'
+      - 'tools/sidebar_lifecycle.test.mjs'
       - 'tools/sidebar_visibility_e2e.mjs'
       - '.github/workflows/sqc-sidebar.yml'
 
@@ -32,7 +33,7 @@ jobs:
           node-version: '22'
 
       - name: Test sidebar state boundaries
-        run: node --test tools/sidebar_visibility.test.mjs
+        run: node --test tools/sidebar_visibility.test.mjs tools/sidebar_lifecycle.test.mjs
 
       - name: Build data-free preview
         env:
@@ -63,6 +64,7 @@ jobs:
                   time.sleep(1)
           PY
           NODE_PATH=/tmp/pw/node_modules node tools/sidebar_visibility_e2e.mjs http://localhost:8765/app-safe.html
+          NODE_PATH=/tmp/pw/node_modules node tools/sidebar_lifecycle.test.mjs --browser http://localhost:8765/app-safe.html
 
       - name: Keep synthetic sidebar evidence
         if: always()
@@ -72,5 +74,7 @@ jobs:
           path: |
             artifacts/sidebar/*.png
             artifacts/sidebar/results.json
+            artifacts/sidebar/lifecycle-results.json
           if-no-files-found: ignore
           retention-days: 7
+
