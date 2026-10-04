@@ -169,7 +169,7 @@ function confirmDialog(message,opts={}){
     w.addEventListener("click",e=>{const b=e.target.closest("[data-r]");if(b)done(b.dataset.r==="1");else if(e.target===w)done(!!opts.alert)});
     document.addEventListener("keydown",key,true);
     document.body.appendChild(w);release=modalFocus(w.querySelector(".skd"),prev);
-    (w.querySelector('[data-r="1"]')).focus();
+    (w.querySelector(opts.defaultCancel===true&&!opts.alert?'[data-r="0"]':'[data-r="1"]')).focus();
   });
 }
 const notify=(message,opts)=>confirmDialog(message,{...opts,alert:true});

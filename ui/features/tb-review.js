@@ -225,24 +225,65 @@ async function booksTB(){
   const end=p&&p.endDate,eg=co&&co.country==="EG";
   return{text:TI().booksToCsv(rows),source,rows:rows.length,ctx:{company:co?co.name:"",period:p?p.label:"",periodStart:p?p.startDate:"",periodEnd:end||"",country:eg?"EG":"SA"}};
 }
-/* load a trial balance into the review (replaces the current one after confirmation) */
-async function loadTB(text,label,ctx,overrides){
-  const tb=TI().parseTrialBalance(text);if(!tb.ok){toast("لم أتعرف على أعمدة الميزان","bad");return false}
+/* Import-only commit: a save must acknowledge true before any success effects.
+   Old document blobs are deliberately retained; no cross-store rollback or recovery is promised. */
+function commitTB(text,label,ctx,overrides,stillCurrent,tb){
+  try{if(!tb)tb=TI().parseTrialBalance(text)}catch{toast("تعذرت قراءة ميزان المصدر — لم يُستورد الميزان","bad");return false}
+  if(!tb.ok){toast("لم أتعرف على أعمدة الميزان","bad");return false}
+  if(!stillCurrent()){toast("تغيّر ملف المراجعة أو مصدر الميزان — أعد الاستيراد لتأكيد البيانات الحالية","warn");return false}
   const d=st();
-  if(d.tbText&&d.session&&d.session.rounds&&d.session.rounds.length&&!await SK.confirm("توجد مراجعة جارية بجولات المراجع الذكي — استبدالها بميزان «"+label+"»؟",{danger:true,ok:"استبدال"}))return false;
   if(!(ctx&&ctx.corpusId))["corpusId","curSym","taxKind","sector","reportingFramework","auditStandard"].forEach(k=>delete d.ctx[k]);
   Object.entries(ctx||{}).forEach(([k,v])=>{if(v)d.ctx[k]=v});
-  d.tbText=text;d.loadedAt=new Date().toISOString();d.loadedFrom=label||"";fresh(d);if(overrides)d.overrides={...overrides};put(d);await docClear();tab="tb";setup=false;
+  d.tbText=text;d.loadedAt=new Date().toISOString();d.loadedFrom=label||"";
+  const previousConf=confHTML;fresh(d);if(overrides)d.overrides={...overrides};
+  let saved=false;try{saved=save(KEY,d)===true}catch{/* preserve the active stored file on a rejected write */}
+  if(!saved){confHTML=previousConf;toast("لم يُحفظ الميزان — تعذر التخزين المحلي. بقي ملف المراجعة السابق وروابط مستنداته كما هي","bad");return false}
+  cache=null;tab="tb";setup=false;
   SK.audit&&SK.audit.log("tbreview",{act:"import",source:label,accounts:tb.rows.length,balanced:tb.balanced});
   toast("استُلم ميزان "+label+": "+tb.rows.length+" حساباً"+(tb.balanced?"، متزن":" — غير متزن، راجع الفرق"),tb.balanced?"ok":"warn");
   return true;
 }
+/* Other imports retain their existing confirmation boundary; only their save acknowledgement is fixed here. */
+async function loadTB(text,label,ctx,overrides){
+  let tb;try{tb=TI().parseTrialBalance(text)}catch{toast("تعذرت قراءة ميزان المصدر — لم يُستورد الميزان","bad");return false}
+  if(!tb.ok){toast("لم أتعرف على أعمدة الميزان","bad");return false}
+  const target=[localStorage.getItem(KEY),localStorage.getItem(ENG)],d=st();
+  if(d.tbText&&d.session&&d.session.rounds&&d.session.rounds.length&&!await SK.confirm("توجد مراجعة جارية بجولات المراجع الذكي — استبدالها بميزان «"+label+"»؟",{danger:true,ok:"استبدال"}))return false;
+  return commitTB(text,label,ctx,overrides,()=>target[0]===localStorage.getItem(KEY)&&target[1]===localStorage.getItem(ENG),tb);
+}
 /* a company of the research bundle as the client: its published statements as a two-year trial balance, its auditor and year end */
 async function loadCorpus(id){return !!(await openClient(id))}
+/* Pure reads until acceptance. The decision binds review/register/company/period and direct ledger bytes;
+   operational records are read after acceptance, not captured as a cross-store snapshot. */
+const booksImportSnapshot=()=>[KEY,ENG,"skosif_companies_v1","skosif_ledger_v1"].map(k=>localStorage.getItem(k));
+const importPeriod=c=>[c.period||"",c.periodStart||"تاريخ البداية غير محدد",c.periodEnd||"تاريخ النهاية غير محدد"].filter(Boolean).join(" · ");
+function booksImportDisclosure(d,source){
+  const {co,p,kind}=source,c={period:p?p.label:"كل التواريخ",periodStart:p?p.startDate:"",periodEnd:p?p.endDate:""};
+  const existing=!!(d.tbText||d.session||(d.accepted||[]).length||(d.rejected||[]).length||Object.keys(d.overrides||{}).length||["engagement","checklists","exceptions","thOverrides","evidenceMeta","journalSource","journalMeta","letterResponses"].some(k=>d[k]!=null));
+  let message="شركة المصدر: "+(co?co.name:"شركة غير محددة")+"\nالفترة المختارة: "+importPeriod(c)+"\nنوع المصدر: "+kind+"\nملف المراجعة المستهدف: "+(d.ctx.company||"ملف بلا اسم")+"\nفترة الملف المستهدف: "+importPeriod(d.ctx);
+  if(source.operational)message+="\nنطاق السجلات التشغيلية: المبيعات والمشتريات والمدفوعات: "+(source.year?"السنة "+source.year:"كل السنوات")+"؛ لا تُصفّى بالتاريخين المختارين.\nذمم العملاء: الأرصدة الحالية من سجل الآجل، دون تصفية بالفترة.\nالنقدية رصيد موازن محسوب، وليست رصيداً بنكياً فعلياً. الضريبة مشتقة بنسبة 15٪. وقد يشمل الميزان تقدير المصروفات الشهرية عند غياب مدفوعات المصروفات.\nتُقرأ التفاصيل التشغيلية وقت الاستيراد بعد تأكيدك؛ راجع الأرصدة الناتجة قبل اعتمادها.";
+  if(existing){
+    message+="\n\nسيُستبدل ميزان ملف المراجعة الحالي بميزان شركة المصدر وفق النطاق الموضح أعلاه. ستُصفّر جلسة المراجعة وجولاتها وقرارات قبول ورفض التسويات وتصنيفات الحسابات، وتُزال سجلات الارتباط وقوائم الفحص والاستثناءات وتجاوزات حدود الفحص وربط الأدلة والقيود وردود الخطاب المرتبطة بها. لن تبقى روابط مستندات الجلسة السابقة متاحة ضمن المراجعة النشطة. بعض إعدادات الملف تبقى كما هي. لا يوجد تراجع تلقائي مضمون لهذه العملية.";
+    const session=d.session||{},count=v=>Array.isArray(v)?v.length:v==null?0:"غير متاح";
+    message+="\nالجولات: "+count(session.rounds)+" · المستندات المرتبطة: "+count(session.uploads)+" · القبول: "+count(d.accepted)+" · الرفض: "+count(d.rejected);
+  }
+  return{message,options:{title:existing?"استبدال ميزان ملف المراجعة الحالي":"استيراد الميزان إلى المراجعة",danger:existing,ok:existing?"استيراد واستبدال المراجعة":"استيراد الميزان إلى المراجعة",cancel:"إلغاء",defaultCancel:true}};
+}
 async function fromBooks(){
-  const b=await booksTB();
+  let snapshot,source,disclosure;
+  try{
+    snapshot=booksImportSnapshot();const {co,p}=activeCo(),L=window.SKosifLedger,LE=E().finance&&E().finance.ledger,posted=!!(L&&LE&&L.entries().length);
+    source={co,p,operational:!posted,year:p?String(p.endDate||"").slice(0,4):String(new Date().getFullYear()),kind:posted?"الدفاتر المحاسبية":"السجلات التشغيلية (المبيعات والمشتريات والمصروفات والآجل)"};
+    disclosure=booksImportDisclosure(st(),source);
+  }catch{toast("تعذرت قراءة مصدر الميزان أو ملف المراجعة — لم يُستورد الميزان","bad");return false}
+  if(await SK.confirm(disclosure.message,disclosure.options)!==true)return false;
+  const stillCurrent=()=>{try{const now=booksImportSnapshot();return snapshot.every((v,i)=>v===now[i])}catch{return false}};
+  if(!stillCurrent()){toast("تغيّر ملف المراجعة أو مصدر الميزان — أعد الاستيراد لتأكيد البيانات الحالية","warn");return false}
+  let b;try{b=await booksTB()}catch{toast("تعذر بناء ميزان المصدر — لم يُستورد الميزان","bad");return false}
+  if(!stillCurrent()){toast("تغيّر ملف المراجعة أو مصدر الميزان — أعد الاستيراد لتأكيد البيانات الحالية","warn");return false}
   if(!b){toast("لا توجد قيود في الدفاتر المحاسبية ولا مبيعات أو مشتريات مسجلة للفترة","warn");return false}
-  const ok=await loadTB(b.text,b.source,b.ctx);
+  if(b.source!==source.kind){toast("تغيّر نوع مصدر الميزان — أعد الاستيراد لتأكيد المصدر الحالي","warn");return false}
+  const ok=commitTB(b.text,b.source,b.ctx,null,stillCurrent);
   if(ok){if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");else paint()}
   return ok;
 }

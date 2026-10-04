@@ -122,7 +122,7 @@ const TOOLS=[
     run:({title,due,priority})=>{if(!SK.perm.can("tasks"))return{ok:false,text:"دورك لا يسمح بالمهام"};const x=window.SKosifTasks.add({title,due:due||today(),priority:priority||"normal"});return{ok:true,text:"أُضيفت المهمة «"+x.title+"» — استحقاق "+x.due}}},
   {name:"list_tasks",d:"المهام المفتوحة",p:{},run:()=>{const l=window.SKosifTasks.open();return{ok:true,text:l.length?l.slice(0,12).map(x=>"• "+x.title+(x.due?" ("+x.due+")":"")+(x.priority==="high"?" — عالية":"")).join("\n"):"لا مهام مفتوحة"}}},
   {name:"tb_review_from_books",d:"سحب ميزان الشركة النشطة من الدفاتر المحاسبية (أو السجلات التشغيلية) إلى مراجعة الميزان وتحليله بالمعايير",p:{},
-    run:async()=>{if(!window.SKosifTBReview)return{ok:false,text:"مراجعة الميزان غير متاحة"};const ok=await SKosifTBReview.fromBooks();return{ok,text:ok?"استُلم ميزان التطبيق وفُتحت مراجعة الميزان":"لم يُستلم ميزان — لا توجد قيود أو سجلات للفترة"}}},
+    run:async()=>{if(!window.SKosifTBReview)return{ok:false,text:"مراجعة الميزان غير متاحة"};const ok=await SKosifTBReview.fromBooks();return{ok,text:ok?"استُلم ميزان التطبيق وفُتحت مراجعة الميزان":"لم يُستورد الميزان؛ قد يكون السبب الإلغاء أو تعذر قراءة المصدر أو الحفظ"}}},
   {name:"run_action",d:"تشغيل إجراء من لوحة الأوامر: sale (بيع)، item (صنف جديد)، box (بوكس)، backup (نسخة كاملة)، csv (تصدير الأسعار)، journal (قيد)، task، theme، adv، lock (قفل)، keys، rail، install، transfer",p:{action:S("STRING","معرّف الإجراء")},req:["action"],
     run:({action})=>{const C=window.SKosifCommand;const a=C&&C.actions().find(x=>x.id===action||norm(x.t).includes(norm(action)));if(!a)return{ok:false,text:"إجراء غير معروف: "+action};C.run(a.id);return{ok:true,text:"نُفّذ: "+a.t}},danger:a=>/lock|قفل/.test(String(a.action))},
   {name:"click",d:"الضغط على زر أو رابط أو تبويب ظاهر في الشاشة بنصه (مثل: تحليل الميزان، القوائم والتقارير، إضافة، حفظ)",p:{label:S("STRING","نص الزر")},req:["label"],
@@ -141,7 +141,7 @@ async function runTool(name,args){
   const t=byName[name];if(!t)return{ok:false,text:"أداة غير معروفة: "+name};
   args=args||{};
   if(t.danger&&t.danger(args)&&!await SK.confirm("المساعد يطلب: «"+(args.label||args.action||name)+"» — هذا إجراء قد لا يمكن التراجع عنه. تنفيذ؟",{danger:true,ok:"نفّذ"}))return{ok:false,text:"ألغيت التنفيذ بطلبك"};
-  try{const r=await t.run(args);SK.audit&&SK.audit.log("assistant",{tool:name,ok:r.ok});return r}catch(e){return{ok:false,text:"تعذر التنفيذ: "+e.message}}
+  try{const r=await t.run(args);if(name!=="tb_review_from_books"||r.ok)SK.audit&&SK.audit.log("assistant",{tool:name,ok:r.ok});return r}catch(e){return{ok:false,text:"تعذر التنفيذ: "+e.message}}
 }
 
 /* ---------- local understanding (no key needed) ---------- */
