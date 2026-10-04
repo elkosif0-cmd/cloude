@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('../unlock.html', import.meta.url), 'utf8');
@@ -72,4 +73,19 @@ test('entry exposes explicit label, announcements, and unchanged crypto contract
   assert.match(html,/aria-controls="p"/);
   assert.match(script,/iterations:meta\.iterations/);
   assert.match(script,/verify\("HMAC"/);
+});
+
+
+// A literal backslash-n here becomes a CSS type selector n.eye, hiding the focus ring.
+test('password visibility focus outline selects the eye control exactly',()=>{
+  const css=html.match(/<style>([\s\S]*?)<\/style>/)[1];
+  const at=css.indexOf('.eye:focus-visible');
+  assert.ok(at>=0);
+  const selector=css.slice(css.lastIndexOf('}',at)+1,css.indexOf('{',at)).trim();
+  assert.equal(selector,'.eye:focus-visible,button.submit:focus-visible');
+});
+
+// This CSS-only correction must not silently change the reviewed authentication script.
+test('focus-only correction preserves the reviewed authentication script',()=>{
+  assert.equal(createHash('sha256').update(script).digest('hex'),'468532218348a4d0e7907f6a0aa1cc5e7ed29d7fb508ee99640721d6c6952023');
 });
