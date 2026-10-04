@@ -292,6 +292,11 @@ function toggleSidebar(){
 }
 function sidebarFocusables(rail){return [...rail.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el=>!el.closest('[inert],[hidden]')&&el.getClientRects().length)}
 function sidebarModal(){return [...document.querySelectorAll('#pr-modal .modal,.skd-wrap,.skp-wrap.open,.skk-wrap,.sk-menu')].some(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=="hidden")}
+function lockPageScroll(open,y=0){
+  const b=document.body;if(!b)return;
+  if(open){b.style.setProperty("--skn-lock-top","-"+Math.max(0,Number(y)||0)+"px");b.classList.add("skn-locked")}
+  else{b.classList.remove("skn-locked");b.style.removeProperty("--skn-lock-top")}
+}
 function syncSidebar(){
   const rail=$("#rail"),button=$(".topbar .menu-btn")||$(".menu-btn");if(!rail)return;
   const narrow=innerWidth<=900,open=narrow&&rail.classList.contains("open"),hidden=!narrow&&prefs().sidebarHidden===true;
@@ -318,9 +323,9 @@ function syncSidebar(){
     const liveMore=sidebar.openerMore?$("#skb [data-more]"):null;const target=sidebar.route?$("#pg-title"):(liveMore||(sidebar.opener&&sidebar.opener.isConnected&&!rail.contains(sidebar.opener)?sidebar.opener:button));
     if(target){if(sidebar.route&&!target.hasAttribute("tabindex"))target.setAttribute("tabindex","-1");target.focus({preventScroll:true})}
     const y=sidebar.scrollCaptured?sidebar.scrollY:Number(rail.dataset.returnScrollY||0);delete rail.dataset.returnScrollY;sidebar.main=null;sidebar.opener=null;sidebar.openerMore=false;sidebar.route=false;sidebar.scrollY=0;sidebar.scrollCaptured=false;
-    /* Chromium can defer the overflow:hidden -> scrollable transition; force style/layout before restoring. */
-    void document.body.offsetHeight;
-    if(Number.isFinite(y)&&Math.abs(window.scrollY-y)>1){const restore=()=>{const se=document.scrollingElement;if(se)se.scrollTop=y;document.documentElement.scrollTop=y;document.body.scrollTop=y;window.scrollTo(0,y)};restore();requestAnimationFrame(restore)}
+    /* fixed-body locking keeps the page visually still; unlock, flush layout, then restore the saved document offset. */
+    lockPageScroll(false);void document.body.offsetHeight;
+    if(Number.isFinite(y)&&Math.abs(window.scrollY-y)>1){const restore=()=>{const se=document.scrollingElement;if(se)se.scrollTop=y;window.scrollTo(0,y)};restore();requestAnimationFrame(restore)}
   }
   sidebar.open=open;
 }
