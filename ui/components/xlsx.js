@@ -82,10 +82,11 @@ function asNumber(v){
   if(!t||/^0\d/.test(t))return null;const neg=/^\(.*\)$/.test(t);t=t.replace(/[()]/g,"");const pct=/[%٪]$/.test(t);t=t.replace(/[%٪]$/,"");
   if(!/^-?\d+(\.\d+)?$/.test(t))return null;const n=parseFloat(t)*(neg?-1:1);return pct?n/100:n;
 }
+/* text:true forces a whole sheet to text; text:[zero-based column indices] forces only those columns. */
 /* one sheet's XML: right-to-left, bold navy header, frozen first row, numbers as numbers, filter */
 function sheetXml(headers,rows,o={}){
   const all=[headers,...rows],widths=headers.map((h,i)=>Math.min(60,Math.max(8,...all.map(r=>String(r[i]==null?"":r[i]).length+2))));
-  const cell=(v,r,c,head)=>{const ref=colName(c)+(r+1);if(!head&&!o.text){const n=asNumber(v);if(n!==null)return '<c r="'+ref+'"'+(/[%٪]/.test(String(v))?' s="2"':' s="3"')+'><v>'+n+'</v></c>'}
+  const cell=(v,r,c,head)=>{const ref=colName(c)+(r+1);if(!head&&!(Array.isArray(o.text)?o.text.includes(c):o.text)){const n=asNumber(v);if(n!==null)return '<c r="'+ref+'"'+(/[%٪]/.test(String(v))?' s="2"':' s="3"')+'><v>'+n+'</v></c>'}
     return '<c r="'+ref+'" t="inlineStr"'+(head?' s="1"':'')+'><is><t xml:space="preserve">'+xe(v==null?"":v)+'</t></is></c>'};
   return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"'+(o.rtl===false?'':' rightToLeft="1"')+'><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'+
     '<cols>'+widths.map((w,i)=>'<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+(o.wide?Math.max(w,o.wide):w)+'" customWidth="1"/>').join("")+'</cols><sheetData>'+

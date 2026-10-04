@@ -574,17 +574,18 @@
   {
    "id": "salesintel",
    "label": "ذكاء المبيعات",
-   "sub": "اتجاهات المبيعات، وتحليل باريتو، وتصنيف ABC للأصناف، وتقسيم RFM للعملاء (الحداثة والتكرار والقيمة)",
+   "sub": "فترة مقابل الفترة السابقة، توقع 30 يوماً يختار نموذجه باختبار، RFM في تسع شرائح، متابعة حسب إيقاع كل عميل، ABC والزخم، السلال والأفواج",
    "group": "helpers",
    "hubLabel": "ذكاء المبيعات والطلب",
    "tier": "INTELLIGENCE",
-   "module": "core (v16)",
+   "module": "ui/features/sales-intel.js + SKEngines.sales.salesInsights (core v16 fallback)",
    "data": [
-    "IDB sales_lines"
+    "IDB sales_lines",
+    "IDB customers"
    ],
    "legacy": "ذكاء المبيعات",
    "decision": "Keep",
-   "kw": "مبيعات اتجاه باريتو",
+   "kw": "مبيعات اتجاه باريتو rfm شرائح توقع أفواج سلة متابعة عملاء abc",
    "adv": false,
    "en": "Sales Intelligence",
    "feeds": [

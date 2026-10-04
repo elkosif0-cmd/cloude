@@ -15362,7 +15362,7 @@ window.SKEngines = (function() {
 		const n = parseFloat(String(v ?? ""));
 		return Number.isFinite(n) ? n : 0;
 	};
-	var clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+	var clamp$1 = (n, a, b) => Math.min(b, Math.max(a, n));
 	var r2$6 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 	var f2 = (n) => (Math.round(n * 100) / 100).toFixed(2);
 	var pctTxt = (n) => String(Math.round(n * 1e3) / 10) + "%";
@@ -15408,7 +15408,7 @@ window.SKEngines = (function() {
 	var netOf = (c, amt, mode) => mode === "incl" ? amt / (1 + c.v) : amt;
 	var factor = (c, w) => c.yieldM ? 1 / (1 - w) : 1 + w;
 	function rawCost(c, r) {
-		const w = clamp(num(r.waste) / 100, 0, .95), buy = num(r.buy), net = netOf(c, buy, r.vat);
+		const w = clamp$1(num(r.waste) / 100, 0, .95), buy = num(r.buy), net = netOf(c, buy, r.vat);
 		return {
 			w,
 			buy,
@@ -15717,7 +15717,7 @@ window.SKEngines = (function() {
 			const ch = changes[l.key] || {};
 			let unit = l.unitCost, qty = l.qty;
 			if ((l.kind === "raw" || l.kind === "waste") && ch.waste != null && l.baseUnit != null) {
-				const wr = clamp(Number(ch.waste) / 100, 0, .95), f = map.yieldMethod ? 1 / (1 - wr) : 1 + wr;
+				const wr = clamp$1(Number(ch.waste) / 100, 0, .95), f = map.yieldMethod ? 1 / (1 - wr) : 1 + wr;
 				unit = l.kind === "raw" ? l.baseUnit * f : l.baseUnit * (f - 1);
 			}
 			if (ch.unitPct != null) unit *= 1 + Number(ch.unitPct) / 100;
@@ -18625,7 +18625,7 @@ window.SKEngines = (function() {
 		evaluateDecision: () => evaluateDecision,
 		validateDecision: () => validateDecision
 	});
-	function round$3(value) {
+	function round$4(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function evaluateDecision(decision) {
@@ -18643,8 +18643,8 @@ window.SKEngines = (function() {
 			return {
 				optionId: option.id,
 				label: option.label,
-				weightedScore: totalWeight === 0 ? 0 : round$3(weighted / totalWeight),
-				coveragePercent: totalWeight === 0 ? 0 : round$3(covered / totalWeight * 100)
+				weightedScore: totalWeight === 0 ? 0 : round$4(weighted / totalWeight),
+				coveragePercent: totalWeight === 0 ? 0 : round$4(covered / totalWeight * 100)
 			};
 		}).sort((a, b) => b.weightedScore - a.weightedScore || b.coveragePercent - a.coveragePercent || a.label.localeCompare(b.label, "ar"));
 	}
@@ -18774,14 +18774,14 @@ window.SKEngines = (function() {
 		inspectReceiving: () => inspectReceiving,
 		validateReceivingInspection: () => validateReceivingInspection
 	});
-	function round$2(value, digits = 2) {
+	function round$3(value, digits = 2) {
 		const factor = 10 ** digits;
 		return Math.round((value + Number.EPSILON) * factor) / factor;
 	}
 	function inspectReceiving(input) {
 		const invoiced = Math.max(0, input.invoicedKg);
-		const discrepancyKg = round$2(invoiced - Math.max(0, input.actualKg), 3);
-		const discrepancyPercent = invoiced === 0 ? 0 : round$2(Math.abs(discrepancyKg) / invoiced * 100);
+		const discrepancyKg = round$3(invoiced - Math.max(0, input.actualKg), 3);
+		const discrepancyPercent = invoiced === 0 ? 0 : round$3(Math.abs(discrepancyKg) / invoiced * 100);
 		const weightStatus = discrepancyPercent > Math.max(0, input.tolerancePercent) ? "REVIEW" : "OK";
 		const temperatureStatus = input.temperatureC === void 0 ? "NOT_RECORDED" : input.temperatureC > input.maxTemperatureC ? "REVIEW" : "OK";
 		return {
@@ -19886,7 +19886,7 @@ window.SKEngines = (function() {
 			capex: k.capex ? -k.capex.current : null
 		};
 	}
-	var median = (xs) => {
+	var median$1 = (xs) => {
 		const s = [...xs].sort((a, b) => a - b), m = Math.floor(s.length / 2);
 		return s.length % 2 ? s[m] : r2$2((s[m - 1] + s[m]) / 2);
 	};
@@ -19900,7 +19900,7 @@ window.SKEngines = (function() {
 			})).filter((x) => x.value !== null);
 			const vals = peers.map((x) => x.value), you = mine ? mine[m.key] : null;
 			const round = (x) => m.unit === "days" ? Math.round(x) : m.unit === "%" ? r1$2(x) : r2$2(x);
-			const min = vals.length ? Math.min(...vals) : null, max = vals.length ? Math.max(...vals) : null, med = vals.length ? round(median(vals)) : null;
+			const min = vals.length ? Math.min(...vals) : null, max = vals.length ? Math.max(...vals) : null, med = vals.length ? round(median$1(vals)) : null;
 			const position = you === null || min === null || max === null ? "n/a" : you > max ? "above" : you < min ? "below" : "within";
 			const verdict = position === "n/a" || med === null || you === null || m.higherIsBetter === null ? position === "n/a" ? "n/a" : "typical" : Math.abs(you - med) <= Math.abs(med) * .1 ? "typical" : you > med === m.higherIsBetter ? "better" : "weaker";
 			return {
@@ -21903,21 +21903,21 @@ window.SKEngines = (function() {
 		createCustomer: () => createCustomer,
 		inspectCustomers: () => inspectCustomers
 	});
-	function normalize(value) {
+	function normalize$1(value) {
 		return value.trim();
 	}
 	function normalizePhone(value) {
 		return (value ?? "").replace(/\D/g, "");
 	}
 	function createCustomer(input) {
-		const code = normalize(input.code);
+		const code = normalize$1(input.code);
 		return {
 			id: "customer-" + code.toLowerCase().replace(/[^a-z0-9_-]+/gi, "-"),
 			code,
-			name: normalize(input.name),
-			phone: normalize(input.phone ?? "") || void 0,
-			email: normalize(input.email ?? "").toLowerCase() || void 0,
-			city: normalize(input.city ?? "") || void 0,
+			name: normalize$1(input.name),
+			phone: normalize$1(input.phone ?? "") || void 0,
+			email: normalize$1(input.email ?? "").toLowerCase() || void 0,
+			city: normalize$1(input.city ?? "") || void 0,
 			active: true
 		};
 	}
@@ -21997,10 +21997,10 @@ window.SKEngines = (function() {
 		resolveCost: () => resolveCost,
 		salesLab: () => salesLab
 	});
-	var DAY = 864e5;
-	var isoDay = (t) => new Date(t).toISOString().slice(0, 10);
-	var dayT = (d) => Date.parse(d + "T00:00:00Z");
-	var round$1 = (v, p = 2) => {
+	var DAY$1 = 864e5;
+	var isoDay$1 = (t) => new Date(t).toISOString().slice(0, 10);
+	var dayT$1 = (d) => Date.parse(d + "T00:00:00Z");
+	var round$2 = (v, p = 2) => {
 		const f = 10 ** p;
 		return Math.round(v * f) / f;
 	};
@@ -22018,12 +22018,12 @@ window.SKEngines = (function() {
 			values: []
 		};
 		const days = L.map((l) => l.date).sort();
-		const from = dayT(opts.from ?? days[0]), to = dayT(opts.to ?? days[days.length - 1]);
+		const from = dayT$1(opts.from ?? days[0]), to = dayT$1(opts.to ?? days[days.length - 1]);
 		const map = /* @__PURE__ */ new Map();
 		L.forEach((l) => map.set(l.date, (map.get(l.date) ?? 0) + l.amount));
 		const labels = [], values = [];
-		for (let t = from; t <= to; t += DAY) {
-			const d = isoDay(t);
+		for (let t = from; t <= to; t += DAY$1) {
+			const d = isoDay$1(t);
 			labels.push(d);
 			values.push(map.get(d) ?? 0);
 		}
@@ -22061,7 +22061,7 @@ window.SKEngines = (function() {
 				month: k,
 				revenue: x.revenue,
 				invoices: x.inv.size,
-				growth: i && prev ? round$1((x.revenue - prev) / prev * 100, 1) : null
+				growth: i && prev ? round$2((x.revenue - prev) / prev * 100, 1) : null
 			};
 		});
 	}
@@ -22090,9 +22090,9 @@ window.SKEngines = (function() {
 		const forecast = Array.from({ length: horizon }, (_, k) => Math.max(0, Math.round(intercept + slope * (n + k))));
 		const total = forecast.reduce((a, b) => a + b, 0), spread = z * residStd * Math.sqrt(horizon);
 		return {
-			slope: round$1(slope),
-			intercept: round$1(intercept),
-			residStd: round$1(residStd),
+			slope: round$2(slope),
+			intercept: round$2(intercept),
+			residStd: round$2(residStd),
 			forecast,
 			total,
 			low: Math.max(0, Math.round(total - spread)),
@@ -22128,14 +22128,14 @@ window.SKEngines = (function() {
 		const q1 = percentile(s, .25), q3 = percentile(s, .75);
 		return {
 			n,
-			mean: round$1(mean),
-			median: round$1(percentile(s, .5)),
-			std: round$1(std),
-			q1: round$1(q1),
-			q3: round$1(q3),
-			iqr: round$1(q3 - q1),
-			skew: round$1(skew, 3),
-			cv: mean ? round$1(std / mean, 3) : null,
+			mean: round$2(mean),
+			median: round$2(percentile(s, .5)),
+			std: round$2(std),
+			q1: round$2(q1),
+			q3: round$2(q3),
+			iqr: round$2(q3 - q1),
+			skew: round$2(skew, 3),
+			cv: mean ? round$2(std / mean, 3) : null,
 			min: s[0],
 			max: s[n - 1]
 		};
@@ -22151,7 +22151,7 @@ window.SKEngines = (function() {
 			saa += (a[i] - am) ** 2;
 			sbb += (b[i] - bm) ** 2;
 		}
-		return saa && sbb ? round$1(sab / Math.sqrt(saa * sbb), 3) : null;
+		return saa && sbb ? round$2(sab / Math.sqrt(saa * sbb), 3) : null;
 	}
 	/** invoice totals: typical value, the big-deal threshold, a histogram and the price bands that make the revenue */
 	function invoiceStats(lines, bandEdges = [
@@ -22174,7 +22174,7 @@ window.SKEngines = (function() {
 				to: Number.isFinite(to) ? to : null,
 				count: inB.length,
 				revenue: rev,
-				share: revenue ? round$1(rev / revenue, 4) : 0
+				share: revenue ? round$2(rev / revenue, 4) : 0
 			};
 		});
 		const bins = 10, lo = totals[0] ?? 0, hi = totals[n - 1] ?? 0, w = Math.max(1, Math.ceil((hi - lo) / bins));
@@ -22199,10 +22199,10 @@ window.SKEngines = (function() {
 	}
 	/** the momentum race: items whose last-window revenue rose or fell most against the window before */
 	function momentum(lines, asOf, opts = {}) {
-		const w = opts.window ?? 30, minBase = opts.minBase ?? 5e4, top = opts.top ?? 5, end = dayT(asOf);
+		const w = opts.window ?? 30, minBase = opts.minBase ?? 5e4, top = opts.top ?? 5, end = dayT$1(asOf);
 		const cur = /* @__PURE__ */ new Map(), prev = /* @__PURE__ */ new Map();
 		clean(lines).forEach((l) => {
-			const age = (end - dayT(l.date)) / DAY;
+			const age = (end - dayT$1(l.date)) / DAY$1;
 			if (age >= 0 && age < w) cur.set(l.product, (cur.get(l.product) ?? 0) + l.amount);
 			else if (age >= w && age < 2 * w) prev.set(l.product, (prev.get(l.product) ?? 0) + l.amount);
 		});
@@ -22212,7 +22212,7 @@ window.SKEngines = (function() {
 				product,
 				prev: p,
 				cur: c,
-				change: p ? round$1((c - p) / p * 100, 1) : null,
+				change: p ? round$2((c - p) / p * 100, 1) : null,
 				delta: c - p
 			};
 		}).filter((r) => Math.max(r.prev, r.cur) >= minBase);
@@ -22249,15 +22249,15 @@ window.SKEngines = (function() {
 		const byItem = /* @__PURE__ */ new Map();
 		L.forEach((l) => byItem.set(l.product, (byItem.get(l.product) ?? 0) + l.amount));
 		const tot = [...byItem.values()].reduce((a, b) => a + b, 0), shares = [...byItem.values()].sort((a, b) => b - a).map((v) => tot ? v / tot : 0);
-		const top10Share = round$1(shares.slice(0, 10).reduce((a, b) => a + b, 0), 4), hhi = Math.round(shares.reduce((a, s) => a + (s * 100) ** 2, 0));
+		const top10Share = round$2(shares.slice(0, 10).reduce((a, b) => a + b, 0), 4), hhi = Math.round(shares.reduce((a, s) => a + (s * 100) ** 2, 0));
 		const qtyRevenue = pearson(L.map((l) => l.qty), L.map((l) => l.amount));
 		const wd = Array(7).fill(0);
 		daily.labels.forEach((d, i) => {
 			wd[(/* @__PURE__ */ new Date(d + "T00:00:00Z")).getUTCDay()] += daily.values[i];
 		});
-		const end = dayT(asOf), chan = /* @__PURE__ */ new Map();
+		const end = dayT$1(asOf), chan = /* @__PURE__ */ new Map();
 		L.forEach((l) => {
-			const age = (end - dayT(l.date)) / DAY, k = l.channel || "غير محدد", x = chan.get(k) ?? {
+			const age = (end - dayT$1(l.date)) / DAY$1, k = l.channel || "غير محدد", x = chan.get(k) ?? {
 				cur: 0,
 				prev: 0
 			};
@@ -22272,7 +22272,7 @@ window.SKEngines = (function() {
 			s.add(l.invoice || "line-" + i);
 			customers.set(l.customerId, s);
 		});
-		const repeatRate = customers.size ? round$1([...customers.values()].filter((s) => s.size > 1).length / customers.size, 3) : null;
+		const repeatRate = customers.size ? round$2([...customers.values()].filter((s) => s.size > 1).length / customers.size, 3) : null;
 		const monthCv = describe(monthly.map((m) => m.revenue)).cv;
 		return {
 			asOf,
@@ -22296,7 +22296,7 @@ window.SKEngines = (function() {
 				name,
 				cur: x.cur,
 				prev: x.prev,
-				growth: x.prev ? round$1((x.cur - x.prev) / x.prev * 100, 1) : null
+				growth: x.prev ? round$2((x.cur - x.prev) / x.prev * 100, 1) : null
 			})).sort((a, b) => b.cur - a.cur),
 			ideas: growthIdeas({
 				invoices,
@@ -22313,7 +22313,7 @@ window.SKEngines = (function() {
 			})
 		};
 	}
-	var DAYS_AR = [
+	var DAYS_AR$1 = [
 		"الأحد",
 		"الاثنين",
 		"الثلاثاء",
@@ -22352,9 +22352,9 @@ window.SKEngines = (function() {
 		const tw = x.weekdays.reduce((a, b) => a + b, 0), avgD = tw / 7, weakest = x.weekdays.indexOf(Math.min(...x.weekdays));
 		if (tw > 0 && x.weekdays[weakest] < avgD * .8) out.push({
 			id: "slow-day",
-			title: "إنعاش يوم " + DAYS_AR[weakest],
+			title: "إنعاش يوم " + DAYS_AR$1[weakest],
 			body: "عرض خاص أو توصيل مجاني في أضعف أيام الأسبوع يوزّع الطلب ويخفف ضغط أيام الذروة.",
-			metric: "إيراد " + DAYS_AR[weakest] + " أقل من المتوسط بـ" + Math.round((1 - x.weekdays[weakest] / avgD) * 100) + "٪"
+			metric: "إيراد " + DAYS_AR$1[weakest] + " أقل من المتوسط بـ" + Math.round((1 - x.weekdays[weakest] / avgD) * 100) + "٪"
 		});
 		if (x.products.some((p) => /بوكس/.test(p))) out.push({
 			id: "pricing",
@@ -22427,7 +22427,7 @@ window.SKEngines = (function() {
 			return [...m.values()].map((r) => ({
 				...r,
 				gross: r.revenue - r.cost,
-				margin: r.revenue ? round$1((r.revenue - r.cost) / r.revenue, 4) : null
+				margin: r.revenue ? round$2((r.revenue - r.cost) / r.revenue, 4) : null
 			})).sort((a, b) => b.gross - a.gross);
 		};
 		const products = by("product");
@@ -22768,6 +22768,841 @@ window.SKEngines = (function() {
 	}
 	/** A colour step 0–5 for a value against the largest, for the map's legend. */
 	var heat = (v, max) => max <= 0 || v <= 0 ? 0 : Math.min(5, Math.max(1, Math.ceil(v / max * 5)));
+	//#endregion
+	//#region app/src/engine/fusion/sales/sales-insights-engine.ts
+	var sales_insights_engine_exports = /* @__PURE__ */ __exportAll({
+		CUSTOMERS_AR: () => CUSTOMERS_AR,
+		DAYS_AR: () => DAYS_AR,
+		MODEL_AR: () => MODEL_AR,
+		ORDERS_AR: () => ORDERS_AR,
+		PERIODS: () => PERIODS,
+		SEGMENTS: () => SEGMENTS,
+		countAr: () => countAr,
+		dailyTotals: () => dailyTotals,
+		dayAdd: () => dayAdd,
+		daysBetween: () => daysBetween$1,
+		fitModel: () => fitModel,
+		forecastDaily: () => forecastDaily,
+		normalize: () => normalize,
+		ordersOf: () => ordersOf,
+		quintile: () => quintile,
+		salesInsights: () => salesInsights,
+		segmentOf: () => segmentOf,
+		signed: () => signed,
+		wapeDaily: () => wapeDaily,
+		wapeWeekly: () => wapeWeekly
+	});
+	var DAY = 864e5;
+	var dayT = (d) => Date.parse(d.slice(0, 10) + "T00:00:00Z");
+	var isoDay = (t) => new Date(t).toISOString().slice(0, 10);
+	var validDay = (d) => /^\d{4}-\d{2}-\d{2}$/.test(d) && Number.isFinite(dayT(d)) && isoDay(dayT(d)) === d;
+	var dayAdd = (d, n) => isoDay(dayT(d) + n * DAY);
+	var daysBetween$1 = (a, b) => Math.round((dayT(b) - dayT(a)) / DAY);
+	var weekday = (d) => new Date(dayT(d)).getUTCDay();
+	var round$1 = (v, p = 2) => {
+		const f = 10 ** p;
+		return Math.round(v * f) / f;
+	};
+	var pctChange = (cur, prev) => prev == null || prev === 0 ? null : round$1((cur - prev) / Math.abs(prev) * 100, 1);
+	var delta = (cur, prev) => ({
+		cur,
+		prev,
+		delta: pctChange(cur, prev)
+	});
+	var median = (xs) => {
+		if (!xs.length) return 0;
+		const s = [...xs].sort((a, b) => a - b), m = s.length >> 1;
+		return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+	};
+	var clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+	/** an Arabic count with its noun: 1 طلب · 2 طلبان · 3–10 طلبات · 11+ طلباً */
+	function countAr(n, f) {
+		const a = Math.abs(n), r = a % 100;
+		return a === 1 ? f.one : a === 2 ? f.two : r >= 3 && r <= 10 ? n.toLocaleString("en-US") + " " + f.few : n.toLocaleString("en-US") + " " + f.many;
+	}
+	/** a signed percentage that reads correctly inside Arabic text: the LRM keeps «−21.6٪» from showing as «21.6٪-» */
+	var signed = (v) => "‎" + (v > 0 ? "+" : "") + v + "٪";
+	var ORDERS_AR = {
+		one: "طلب واحد",
+		two: "طلبان",
+		few: "طلبات",
+		many: "طلباً"
+	};
+	var CUSTOMERS_AR = {
+		one: "عميل واحد",
+		two: "عميلان",
+		few: "عملاء",
+		many: "عميلاً"
+	};
+	var DAYS_AR = [
+		"الأحد",
+		"الاثنين",
+		"الثلاثاء",
+		"الأربعاء",
+		"الخميس",
+		"الجمعة",
+		"السبت"
+	];
+	var PERIODS = {
+		"30": "آخر 30 يوماً",
+		"90": "آخر 90 يوماً",
+		"365": "آخر 12 شهراً",
+		all: "كل الفترة"
+	};
+	/** valid lines only: an ISO day and a finite amount; empty names become «غير محدد» */
+	function normalize(lines) {
+		const out = [];
+		lines.forEach((l, i) => {
+			const date = String(l.date ?? "").slice(0, 10), amount = Number(l.amount);
+			if (!validDay(date) || !Number.isFinite(amount)) return;
+			out.push({
+				date,
+				amount: Math.round(amount),
+				qty: Number(l.qty) || 0,
+				product: String(l.product ?? "").trim() || "غير محدد",
+				customerId: String(l.customerId ?? ""),
+				invoice: String(l.invoice ?? "") || "line-" + i,
+				channel: String(l.channel ?? "").trim() || "غير محدد"
+			});
+		});
+		return out;
+	}
+	/** invoice references are scoped to transaction day, channel and customer; same-day multiline purchases stay together */
+	var orderKey = (l) => JSON.stringify([
+		l.invoice,
+		l.date,
+		l.channel,
+		l.customerId
+	]);
+	/** lines grouped into dated orders, sorted by day; later credits never move into the original sale's period */
+	function ordersOf(lines) {
+		const m = /* @__PURE__ */ new Map();
+		lines.forEach((l) => {
+			const key = orderKey(l);
+			let o = m.get(key);
+			if (!o) {
+				o = {
+					key,
+					date: l.date,
+					customerId: l.customerId,
+					channel: l.channel,
+					amount: 0,
+					qty: 0,
+					items: /* @__PURE__ */ new Map()
+				};
+				m.set(key, o);
+			}
+			o.amount += l.amount;
+			o.qty += l.qty;
+			o.items.set(l.product, (o.items.get(l.product) ?? 0) + l.amount);
+		});
+		return [...m.values()].sort((a, b) => a.date.localeCompare(b.date) || a.key.localeCompare(b.key));
+	}
+	/** daily totals over [from, to], missing days as 0 */
+	function dailyTotals(orders, from, to) {
+		const map = /* @__PURE__ */ new Map();
+		orders.forEach((o) => {
+			if (o.date >= from && o.date <= to) map.set(o.date, (map.get(o.date) ?? 0) + o.amount);
+		});
+		const labels = [], values = [];
+		for (let t = dayT(from), end = dayT(to); t <= end; t += DAY) {
+			const d = isoDay(t);
+			labels.push(d);
+			values.push(map.get(d) ?? 0);
+		}
+		return {
+			labels,
+			values
+		};
+	}
+	var MODEL_AR = {
+		linear: "اتجاه خطي",
+		seasonal: "اتجاه × نمط أيام الأسبوع",
+		mean: "متوسط آخر 4 أسابيع"
+	};
+	function lsq(y) {
+		const n = y.length, xm = (n - 1) / 2, ym = y.reduce((a, b) => a + b, 0) / n;
+		let sxy = 0, sxx = 0;
+		y.forEach((v, i) => {
+			sxy += (i - xm) * (v - ym);
+			sxx += (i - xm) ** 2;
+		});
+		const slope = sxx ? sxy / sxx : 0;
+		return {
+			slope,
+			intercept: ym - slope * xm
+		};
+	}
+	/** fit one model on `y` (whose first day is `start`) and predict `h` days after it; also return the in-sample fit */
+	function fitModel(model, y, start, h) {
+		const n = y.length;
+		if (model === "mean") {
+			const w = y.slice(-28), m = w.reduce((a, b) => a + b, 0) / Math.max(1, w.length);
+			return {
+				fit: y.map(() => m),
+				pred: Array(h).fill(m),
+				slope: 0
+			};
+		}
+		const { slope, intercept } = lsq(y), trend = (i) => intercept + slope * i;
+		if (model === "linear") return {
+			fit: y.map((_, i) => trend(i)),
+			pred: Array.from({ length: h }, (_, k) => trend(n + k)),
+			slope
+		};
+		const sum = Array(7).fill(0), cnt = Array(7).fill(0);
+		y.forEach((v, i) => {
+			const t = trend(i);
+			if (t > 0) {
+				const w = weekday(dayAdd(start, i));
+				sum[w] += v / t;
+				cnt[w]++;
+			}
+		});
+		const raw = sum.map((s, w) => cnt[w] ? s / cnt[w] : 1), avg = raw.reduce((a, b) => a + b, 0) / 7 || 1, idx = raw.map((r) => r / avg);
+		return {
+			fit: y.map((_, i) => trend(i) * idx[weekday(dayAdd(start, i))]),
+			pred: Array.from({ length: h }, (_, k) => trend(n + k) * idx[weekday(dayAdd(start, n + k))]),
+			slope
+		};
+	}
+	var weekly = (xs) => {
+		const full = Math.max(1, Math.floor(xs.length / 7)), out = Array(full).fill(0);
+		xs.forEach((v, i) => {
+			out[Math.min(full - 1, Math.floor(i / 7))] += v;
+		});
+		return out;
+	};
+	function wapeDaily(a, f) {
+		const s = a.reduce((x, v) => x + Math.abs(v), 0);
+		return s ? round$1(a.reduce((x, v, i) => x + Math.abs(v - Math.max(0, f[i] ?? 0)), 0) / s, 4) : null;
+	}
+	function wapeWeekly(a, f) {
+		const fa = f.map((v) => Math.max(0, v)), A = weekly(a), F = weekly(fa), s = A.reduce((x, v) => x + Math.abs(v), 0);
+		return s ? round$1(A.reduce((x, v, i) => x + Math.abs(v - (F[i] ?? 0)), 0) / s, 4) : null;
+	}
+	/** a 30-day forecast from daily totals ending on `asOf`: each model is fitted on the 90 days before the last 30 and
+	*  scored (WAPE) on those 30; the best one is refitted on the last 90 days. The 80% band uses the in-sample residuals. */
+	function forecastDaily(values, asOf, horizon = 30) {
+		const n = values.length, basis = Math.min(90, n), y = values.slice(n - basis), start = dayAdd(asOf, -(basis - 1));
+		const empty = {
+			model: null,
+			wape: null,
+			candidates: [],
+			totalError: null,
+			labels: [],
+			daily: [],
+			total: 0,
+			low: 0,
+			high: 0,
+			slope: 0,
+			residStd: 0,
+			basis: n
+		};
+		if (n < 14 || !values.some((v) => v)) return empty;
+		let model = "linear";
+		const candidates = [];
+		if (n >= 60) {
+			const hold = values.slice(-30), train = values.slice(0, n - 30).slice(-90), tStart = dayAdd(asOf, -(30 + train.length - 1));
+			[
+				"mean",
+				"linear",
+				"seasonal"
+			].forEach((m) => {
+				const pred = fitModel(m, train, tStart, 30).pred, sa = hold.reduce((x, v) => x + v, 0);
+				candidates.push({
+					model: m,
+					wape: wapeWeekly(hold, pred),
+					daily: wapeDaily(hold, pred),
+					totalError: sa ? round$1(Math.abs(sa - pred.reduce((x, v) => x + Math.max(0, v), 0)) / Math.abs(sa), 4) : null
+				});
+			});
+			const ok = candidates.filter((c) => c.wape != null), best = Math.min(...ok.map((c) => c.wape));
+			const near = ok.filter((c) => c.wape <= best + .02).sort((a, b) => (a.daily ?? 1) - (b.daily ?? 1));
+			if (near.length) model = near[0].model;
+		} else if (n >= 28) model = "seasonal";
+		const f = fitModel(model, y, start, horizon), resid = y.map((v, i) => v - f.fit[i]);
+		const residStd = Math.sqrt(resid.reduce((a, r) => a + r * r, 0) / Math.max(1, y.length - 2));
+		const daily = f.pred.map((v) => Math.max(0, Math.round(v))), total = daily.reduce((a, b) => a + b, 0), spread = 1.2816 * residStd * Math.sqrt(horizon);
+		const chosen = candidates.find((c) => c.model === model);
+		return {
+			model,
+			wape: chosen?.wape ?? null,
+			totalError: chosen?.totalError ?? null,
+			candidates,
+			labels: daily.map((_, k) => dayAdd(asOf, k + 1)),
+			daily,
+			total,
+			low: Math.max(0, Math.round(total - spread)),
+			high: Math.round(total + spread),
+			slope: round$1(f.slope),
+			residStd: round$1(residStd),
+			basis: y.length
+		};
+	}
+	var SEGMENTS = [
+		{
+			key: "champions",
+			label: "الأبطال",
+			tone: "ok",
+			desc: "اشتروا حديثاً وكثيراً وبقيمة عالية",
+			action: "كافئهم واطلب توصيتهم؛ أول من يجرّب الجديد"
+		},
+		{
+			key: "loyal",
+			label: "الأوفياء",
+			tone: "ok",
+			desc: "يشترون بانتظام ومنذ مدة",
+			action: "عروض الترقية والباقات الأكبر"
+		},
+		{
+			key: "potential",
+			label: "واعدون بالولاء",
+			tone: "info",
+			desc: "حديثو الشراء وتكرارهم يتصاعد",
+			action: "برنامج نقاط أو اشتراك أسبوعي"
+		},
+		{
+			key: "newcomers",
+			label: "جدد",
+			tone: "info",
+			desc: "أول طلب حديث",
+			action: "رسالة ترحيب وعرض الطلب الثاني"
+		},
+		{
+			key: "attention",
+			label: "يحتاجون انتباهاً",
+			tone: "warn",
+			desc: "متوسطون في الحداثة والتكرار",
+			action: "عرض محدود المدة قبل أن يبردوا"
+		},
+		{
+			key: "cantLose",
+			label: "لا يجب خسارتهم",
+			tone: "bad",
+			desc: "كانوا من الأعلى قيمة وتكراراً وغابوا",
+			action: "اتصال شخصي اليوم — قيمتهم الأعلى"
+		},
+		{
+			key: "atRisk",
+			label: "معرّضون للفقد",
+			tone: "bad",
+			desc: "اشتروا كثيراً سابقاً وغابوا",
+			action: "حملة استعادة بعرض شخصي"
+		},
+		{
+			key: "hibernating",
+			label: "خاملون",
+			tone: "warn",
+			desc: "قليلو الشراء وغابوا مدة",
+			action: "تذكير خفيف بالعروض الموسمية"
+		},
+		{
+			key: "lost",
+			label: "مفقودون",
+			tone: "info",
+			desc: "آخر شراء بعيد جداً وتكرار منخفض",
+			action: "لا تنفق كثيراً؛ رسالة واحدة"
+		}
+	];
+	/** score 1..5 by the share of values below (ties share the mid-rank) */
+	function quintile(values) {
+		const n = values.length, s = [...values].sort((a, b) => a - b);
+		const lower = (v) => {
+			let lo = 0, hi = n;
+			while (lo < hi) {
+				const m = lo + hi >> 1;
+				if (s[m] < v) lo = m + 1;
+				else hi = m;
+			}
+			return lo;
+		};
+		const upper = (v) => {
+			let lo = 0, hi = n;
+			while (lo < hi) {
+				const m = lo + hi >> 1;
+				if (s[m] <= v) lo = m + 1;
+				else hi = m;
+			}
+			return lo;
+		};
+		return values.map((v) => {
+			const a = lower(v), p = (a + (upper(v) - a) / 2) / Math.max(1, n);
+			return clamp(1 + Math.floor(p * 5), 1, 5);
+		});
+	}
+	function segmentOf(r, f, m) {
+		if (r <= 2 && f >= 4 && m >= 4) return "cantLose";
+		if (r <= 2 && (f >= 3 || m >= 3)) return "atRisk";
+		if (r === 1) return "lost";
+		if (r === 2) return "hibernating";
+		if (r >= 4 && f >= 4 && m >= 4) return "champions";
+		if (f >= 4) return "loyal";
+		if (r >= 4 && f === 1) return "newcomers";
+		if (r >= 4) return "potential";
+		return "attention";
+	}
+	function salesInsights(input, customers = [], opts = {}) {
+		const all = normalize(input), channelsAll = [...new Set(all.map((l) => l.channel))].sort((a, b) => a.localeCompare(b, "ar"));
+		const lastSale = all.reduce((a, l) => l.date > a ? l.date : a, "");
+		const asOf = opts.asOf && validDay(opts.asOf) && lastSale && opts.asOf < lastSale ? opts.asOf : lastSale;
+		const L = all.filter((l) => l.date <= asOf && (!opts.channel || l.channel === opts.channel));
+		const key = opts.period && PERIODS[opts.period] ? opts.period : "90";
+		if (!L.length) return {
+			empty: true,
+			asOf,
+			channels: channelsAll,
+			period: {
+				key,
+				label: PERIODS[key]
+			}
+		};
+		const first = L.reduce((a, l) => l.date < a ? l.date : a, L[0].date);
+		const len = key === "all" ? daysBetween$1(first, asOf) + 1 : Number(key);
+		const from = key === "all" ? first : dayAdd(asOf, -(len - 1));
+		const prevTo = dayAdd(from, -1), prevFrom = dayAdd(from, -len), hasPrev = key !== "all" && first <= prevTo;
+		const period = {
+			key,
+			label: PERIODS[key],
+			from,
+			to: asOf,
+			days: len,
+			prevFrom: hasPrev ? prevFrom : null,
+			prevTo: hasPrev ? prevTo : null
+		};
+		const O = ordersOf(L), inCur = (d) => d >= from && d <= asOf, inPrev = (d) => hasPrev && d >= prevFrom && d <= prevTo;
+		const cur = O.filter((o) => inCur(o.date)), prev = O.filter((o) => inPrev(o.date));
+		const purchases = O.filter((o) => o.amount > 0), curPurchases = purchases.filter((o) => inCur(o.date));
+		const purchaseByKey = new Map(purchases.map((o) => [o.key, o]));
+		const firstBuy = /* @__PURE__ */ new Map();
+		purchases.forEach((o) => {
+			if (o.customerId && !firstBuy.has(o.customerId)) firstBuy.set(o.customerId, o.date);
+		});
+		const measure = (os, inside) => {
+			const pos = os.filter((o) => o.amount > 0), per = /* @__PURE__ */ new Map();
+			pos.forEach((o) => {
+				if (o.customerId) per.set(o.customerId, (per.get(o.customerId) ?? 0) + 1);
+			});
+			return {
+				revenue: os.reduce((a, o) => a + o.amount, 0),
+				orders: pos.length,
+				avgOrder: pos.length ? Math.round(pos.reduce((a, o) => a + o.amount, 0) / pos.length) : 0,
+				customers: per.size,
+				newCustomers: [...firstBuy.entries()].filter(([, d]) => inside(d)).length,
+				repeatRate: per.size ? round$1([...per.values()].filter((c) => c > 1).length / per.size, 4) : 0,
+				returns: Math.abs(L.filter((l) => inside(l.date) && l.amount < 0).reduce((a, l) => a + l.amount, 0)),
+				units: os.reduce((a, o) => a + o.qty, 0)
+			};
+		};
+		const mc = measure(cur, inCur), mp = hasPrev ? measure(prev, inPrev) : null;
+		const kpis = Object.fromEntries(Object.keys(mc).map((k) => [k, delta(mc[k], mp ? mp[k] : null)]));
+		const trend = dailyTotals(cur, from, asOf), trendPrev = hasPrev ? dailyTotals(prev, prevFrom, prevTo).values : null;
+		const fc = forecastDaily(dailyTotals(O, first, asOf).values, asOf, opts.horizon ?? 30);
+		const wd = DAYS_AR.map((name, i) => ({
+			i,
+			name,
+			total: 0,
+			orders: 0,
+			days: 0,
+			avg: 0
+		}));
+		trend.labels.forEach((d, i) => {
+			const w = wd[weekday(d)];
+			w.days++;
+			w.total += trend.values[i];
+		});
+		curPurchases.forEach((o) => {
+			wd[weekday(o.date)].orders++;
+		});
+		wd.forEach((w) => {
+			w.avg = w.days ? Math.round(w.total / w.days) : 0;
+		});
+		const group = (dim) => {
+			const m = /* @__PURE__ */ new Map();
+			L.forEach((l) => {
+				const c = inCur(l.date), p = inPrev(l.date);
+				if (!c && !p) return;
+				const k = l[dim], x = m.get(k) ?? {
+					name: k,
+					revenue: 0,
+					prev: 0,
+					qty: 0,
+					orders: /* @__PURE__ */ new Set()
+				};
+				if (c) {
+					x.revenue += l.amount;
+					x.qty += l.qty;
+					const k = orderKey(l), purchase = purchaseByKey.get(k);
+					if (purchase && (dim === "channel" || (purchase.items.get(l.product) ?? 0) > 0)) x.orders.add(k);
+				} else x.prev += l.amount;
+				m.set(k, x);
+			});
+			const tot = [...m.values()].reduce((a, x) => a + Math.max(0, x.revenue), 0) || 1;
+			return [...m.values()].filter((x) => x.revenue !== 0 || x.prev !== 0).map((x) => ({
+				name: x.name,
+				revenue: x.revenue,
+				prev: hasPrev ? x.prev : null,
+				qty: x.qty,
+				orders: x.orders.size,
+				share: round$1(Math.max(0, x.revenue) / tot, 4),
+				growth: hasPrev ? pctChange(x.revenue, x.prev) : null
+			})).sort((a, b) => b.revenue - a.revenue);
+		};
+		const channels = group("channel");
+		let cum = 0;
+		const products = group("product").map((p) => {
+			const before = cum;
+			cum += p.share;
+			return {
+				...p,
+				cum: round$1(cum, 4),
+				cls: before < .8 ? "A" : before < .95 ? "B" : "C"
+			};
+		});
+		const pos = products.filter((p) => p.revenue > 0);
+		const abc = [
+			"A",
+			"B",
+			"C"
+		].map((c) => {
+			const xs = pos.filter((p) => p.cls === c);
+			return {
+				cls: c,
+				count: xs.length,
+				revenue: xs.reduce((a, p) => a + p.revenue, 0),
+				share: round$1(xs.reduce((a, p) => a + p.share, 0), 4)
+			};
+		});
+		const top10Share = round$1(pos.slice(0, 10).reduce((a, p) => a + p.share, 0), 4), hhi = Math.round(pos.reduce((a, p) => a + (p.share * 100) ** 2, 0));
+		const movers = products.filter((p) => p.growth != null && Math.max(p.revenue, p.prev ?? 0) >= .02 * (mc.revenue || 1));
+		const momentum = {
+			risers: movers.filter((p) => p.growth >= 10).sort((a, b) => b.revenue - (b.prev ?? 0) - (a.revenue - (a.prev ?? 0))).slice(0, 5),
+			fallers: movers.filter((p) => p.growth <= -10).sort((a, b) => a.revenue - (a.prev ?? 0) - (b.revenue - (b.prev ?? 0))).slice(0, 5)
+		};
+		const baskets = curPurchases.map((o) => ({
+			...o,
+			items: new Map([...o.items].filter(([, amount]) => amount > 0))
+		}));
+		const multi = baskets.filter((o) => o.items.size > 1), nOrders = curPurchases.length || 1, itemCount = /* @__PURE__ */ new Map(), pairM = /* @__PURE__ */ new Map();
+		baskets.forEach((o) => o.items.forEach((_, k) => itemCount.set(k, (itemCount.get(k) ?? 0) + 1)));
+		multi.forEach((o) => {
+			const ks = [...o.items.keys()].sort((x, y) => x.localeCompare(y)).slice(0, 15);
+			for (let i = 0; i < ks.length; i++) for (let j = i + 1; j < ks.length; j++) {
+				const k = ks[i] + "\0" + ks[j], x = pairM.get(k) ?? {
+					a: ks[i],
+					b: ks[j],
+					count: 0,
+					revenue: 0
+				};
+				x.count++;
+				x.revenue += o.amount;
+				pairM.set(k, x);
+			}
+		});
+		const minPair = curPurchases.length >= 200 ? 3 : 2;
+		const pairs = [...pairM.values()].filter((p) => p.count >= minPair).map((p) => {
+			const ca = itemCount.get(p.a) ?? 1, cb = itemCount.get(p.b) ?? 1;
+			return {
+				...p,
+				support: round$1(p.count / nOrders, 4),
+				confAB: round$1(p.count / ca, 3),
+				confBA: round$1(p.count / cb, 3),
+				lift: round$1(p.count * nOrders / (ca * cb), 2)
+			};
+		}).sort((x, y) => y.count - x.count || y.lift - x.lift).slice(0, 20);
+		const cmap = new Map(customers.map((c) => [String(c.id), c]));
+		const cs = /* @__PURE__ */ new Map();
+		O.forEach((o) => {
+			if (!o.customerId) return;
+			const x = cs.get(o.customerId) ?? {
+				id: o.customerId,
+				days: /* @__PURE__ */ new Set(),
+				orders: 0,
+				revenue: 0,
+				last: "",
+				first: ""
+			};
+			x.revenue += o.amount;
+			cs.set(o.customerId, x);
+			if (o.amount <= 0) return;
+			x.days.add(o.date);
+			x.orders++;
+			if (o.date > x.last) x.last = o.date;
+			if (!x.first || o.date < x.first) x.first = o.date;
+		});
+		const carr = [...cs.values()].filter((c) => c.orders > 0), R = quintile(carr.map((c) => -daysBetween$1(c.last, asOf))), F = quintile(carr.map((c) => c.orders)), M = quintile(carr.map((c) => c.revenue));
+		const gapsAll = [];
+		const people = carr.map((c, i) => {
+			const ds = [...c.days].sort(), gaps = ds.slice(1).map((d, j) => daysBetween$1(ds[j], d));
+			gapsAll.push(...gaps);
+			const info = cmap.get(c.id) ?? { id: c.id };
+			return {
+				id: c.id,
+				name: info.name ?? "",
+				phone: info.phone ?? "",
+				city: info.city ?? "",
+				orders: c.orders,
+				revenue: c.revenue,
+				first: c.first,
+				last: c.last,
+				daysSince: daysBetween$1(c.last, asOf),
+				avgOrder: Math.round(c.revenue / Math.max(1, c.orders)),
+				cadence: gaps.length ? median(gaps) : null,
+				r: R[i],
+				f: F[i],
+				m: M[i],
+				segment: segmentOf(R[i], F[i], M[i])
+			};
+		});
+		const typical = gapsAll.length ? median(gapsAll) : 30;
+		const followup = people.map((p) => {
+			const cadence = p.cadence ?? typical, ratio = cadence > 0 ? round$1(p.daysSince / cadence, 2) : 0;
+			const status = p.daysSince > Math.max(1.5 * cadence, cadence + 7) ? "overdue" : p.daysSince > cadence ? "due" : "ok";
+			const monthly = Math.round(p.avgOrder * (30 / Math.max(7, cadence)));
+			return {
+				...p,
+				cadenceUsed: round$1(cadence, 1),
+				personal: p.cadence != null,
+				ratio,
+				status,
+				expected: dayAdd(p.last, Math.round(cadence)),
+				monthlyValue: monthly,
+				priority: Math.round(monthly * Math.min(3, ratio))
+			};
+		}).filter((p) => p.status !== "ok" && p.revenue > 0).sort((a, b) => b.priority - a.priority);
+		const totalRev = people.reduce((a, p) => a + Math.max(0, p.revenue), 0) || 1;
+		const segments = SEGMENTS.map((s) => {
+			const xs = people.filter((p) => p.segment === s.key);
+			return {
+				...s,
+				count: xs.length,
+				revenue: xs.reduce((a, p) => a + p.revenue, 0),
+				share: round$1(xs.reduce((a, p) => a + Math.max(0, p.revenue), 0) / totalRev, 4)
+			};
+		});
+		const ym = (d) => d.slice(0, 7), mAdd = (m, k) => {
+			const [y, mo] = m.split("-").map(Number), t = y * 12 + mo - 1 + k;
+			return Math.floor(t / 12) + "-" + String(t % 12 + 1).padStart(2, "0");
+		};
+		const active = /* @__PURE__ */ new Map();
+		O.forEach((o) => {
+			if (!o.customerId || o.amount <= 0) return;
+			const s = active.get(o.customerId) ?? /* @__PURE__ */ new Set();
+			s.add(ym(o.date));
+			active.set(o.customerId, s);
+		});
+		const cohortOf = /* @__PURE__ */ new Map();
+		firstBuy.forEach((d, id) => {
+			const k = ym(d);
+			(cohortOf.get(k) ?? cohortOf.set(k, []).get(k)).push(id);
+		});
+		const cohortKeys = [...cohortOf.keys()].sort().slice(-12), lastM = ym(asOf);
+		const cohorts = {
+			rows: cohortKeys,
+			sizes: cohortKeys.map((k) => cohortOf.get(k).length),
+			cols: Array.from({ length: 7 }, (_, k) => k),
+			values: cohortKeys.map((k) => Array.from({ length: 7 }, (_, j) => {
+				const m = mAdd(k, j);
+				if (m > lastM) return null;
+				const ids = cohortOf.get(k);
+				return round$1(ids.filter((id) => active.get(id)?.has(m)).length / ids.length * 100, 1);
+			}))
+		};
+		const raw = input.length || 1, missingDate = input.filter((l) => !validDay(String(l.date ?? "").slice(0, 10))).length;
+		const missingCustomer = all.filter((l) => !l.customerId).length, nonPositive = all.filter((l) => l.amount <= 0).length, noProduct = all.filter((l) => l.product === "غير محدد").length;
+		const seen = /* @__PURE__ */ new Set();
+		let duplicates = 0;
+		input.forEach((l) => {
+			const k = [
+				l.date,
+				l.invoice,
+				l.product,
+				l.amount,
+				l.qty,
+				l.customerId
+			].join("");
+			if (l.invoice && seen.has(k)) duplicates++;
+			else seen.add(k);
+		});
+		const qualityScore = Math.round(clamp(100 - missingDate / raw * 35 - missingCustomer / raw * 25 - noProduct / raw * 20 - nonPositive / raw * 10 - duplicates / raw * 10, 0, 100));
+		const quality = {
+			lines: input.length,
+			missingDate,
+			missingCustomer,
+			nonPositive,
+			noProduct,
+			duplicates,
+			score: qualityScore
+		};
+		const wk = [];
+		for (let i = trend.values.length; i >= 7; i -= 7) wk.push(trend.values.slice(i - 7, i).reduce((a, b) => a + b, 0));
+		const wm = wk.reduce((a, b) => a + b, 0) / Math.max(1, wk.length), wcv = wk.length > 1 && wm ? Math.sqrt(wk.reduce((a, v) => a + (v - wm) ** 2, 0) / (wk.length - 1)) / Math.abs(wm) : null;
+		const lifeRepeat = people.length ? people.filter((p) => p.orders > 1).length / people.length : 0;
+		const g = kpis.revenue.delta;
+		const health = [
+			{
+				key: "growth",
+				label: "النمو",
+				points: Math.round(g == null ? 10 : clamp(10 + g / 2, 0, 20)),
+				note: g == null ? "لا فترة سابقة للمقارنة" : signed(g) + " عن الفترة السابقة"
+			},
+			{
+				key: "stability",
+				label: "الاستقرار",
+				points: Math.round(wcv == null ? 10 : clamp(20 * (1 - wcv), 0, 20)),
+				note: wcv == null ? "أسابيع غير كافية" : "تذبذب أسبوعي " + Math.round(wcv * 100) + "٪"
+			},
+			{
+				key: "diversity",
+				label: "تنوع الإيراد",
+				points: Math.round(clamp(20 * (1 - (hhi - 1500) / 2500), 0, 20)),
+				note: "مؤشر هيرفندال " + hhi + " · أعلى 10 أصناف " + Math.round(top10Share * 100) + "٪"
+			},
+			{
+				key: "retention",
+				label: "الاحتفاظ",
+				points: Math.round(clamp(lifeRepeat / .6 * 20, 0, 20)),
+				note: Math.round(lifeRepeat * 100) + "٪ من العملاء اشتروا أكثر من مرة"
+			},
+			{
+				key: "data",
+				label: "جودة البيانات",
+				points: Math.round(qualityScore / 5),
+				note: qualityScore + "٪"
+			}
+		];
+		const healthScore = health.reduce((a, h) => a + h.points, 0);
+		const recs = [], sar = (h) => Math.round(h / 100).toLocaleString("en-US"), segN = (k) => segments.find((s) => s.key === k);
+		if (g != null && g <= -5) recs.push({
+			id: "slowdown",
+			tone: "bad",
+			title: "الإيراد يتراجع",
+			body: "ابدأ بالعملاء المعرّضين للفقد والأصناف المتراجعة في هذه الفترة.",
+			metric: signed(g) + " عن الفترة السابقة",
+			seg: "atRisk"
+		});
+		if (segN("cantLose").count) recs.push({
+			id: "cant-lose",
+			tone: "bad",
+			title: segN("cantLose").count === 1 ? "عميل كبير توقف عن الشراء" : segN("cantLose").count + " من كبار العملاء توقفوا",
+			body: "كانوا من الأعلى قيمة وتكراراً — اتصال شخصي اليوم قبل أي حملة عامة.",
+			metric: sar(segN("cantLose").revenue) + (segN("cantLose").count === 1 ? " ر.س مشترياته السابقة" : " ر.س مشترياتهم السابقة"),
+			seg: "cantLose"
+		});
+		const overdue = followup.filter((p) => p.status === "overdue");
+		if (overdue.length) recs.push({
+			id: "overdue",
+			tone: "warn",
+			title: countAr(overdue.length, CUSTOMERS_AR) + (overdue.length === 1 ? " تأخر عن موعده المعتاد" : " تأخروا عن موعدهم المعتاد"),
+			body: "كل عميل يُقاس بإيقاعه الخاص: تأخر أكثر من 1.5 مرة من متوسط الفاصل بين طلباته.",
+			metric: "قيمة شهرية متوقعة " + sar(overdue.reduce((a, p) => a + p.monthlyValue, 0)) + " ر.س",
+			follow: true
+		});
+		if (top10Share > .65 || hhi > 2500) recs.push({
+			id: "concentration",
+			tone: "warn",
+			title: "تركّز الإيراد مرتفع",
+			body: "أمّن مورداً بديلاً للأصناف الأعلى وجرّب صنفين جديدين كل شهر.",
+			metric: "أعلى 10 أصناف " + Math.round(top10Share * 100) + "٪ · HHI " + hhi,
+			go: "productflow"
+		});
+		const nc = kpis.newCustomers;
+		if (nc.delta != null && nc.delta <= -20 && (nc.prev ?? 0) >= 3) recs.push({
+			id: "acquisition",
+			tone: "warn",
+			title: "عملاء جدد أقل",
+			body: "قنوات الاكتساب تبرد — راجع الإعلانات والإحالات والعروض الأولى.",
+			metric: nc.cur + " مقابل " + nc.prev + " في الفترة السابقة"
+		});
+		const fallingCh = channels.find((c) => c.growth != null && c.growth <= -15 && c.share >= .1);
+		if (fallingCh) recs.push({
+			id: "channel",
+			tone: "warn",
+			title: "قناة «" + fallingCh.name + "» تتراجع",
+			body: "حصتها مؤثرة وتراجعت عن الفترة السابقة — افحص التسعير والتوفر وخدمة القناة.",
+			metric: signed(fallingCh.growth) + " · حصة " + Math.round(fallingCh.share * 100) + "٪"
+		});
+		if (g != null && g >= 5) recs.push({
+			id: "momentum",
+			tone: "ok",
+			title: "الزخم موجب",
+			body: "ثبّت التوريد وارفع حدود المخزون للأصناف الصاعدة قبل أن تنفد.",
+			metric: signed(g) + " عن الفترة السابقة",
+			go: "inventory"
+		});
+		const bundle = pairs.filter((p) => p.lift >= 1.2 && p.count >= 3).sort((a, b) => b.lift * b.count - a.lift * a.count)[0];
+		if (bundle) recs.push({
+			id: "bundle",
+			tone: "info",
+			title: "باقة «" + bundle.a + "» + «" + bundle.b + "»",
+			body: "يظهران معاً أكثر من المتوقع بالصدفة — جرّب باقة أو توصية عند الطلب.",
+			metric: countAr(bundle.count, ORDERS_AR) + " · رفع ×" + bundle.lift,
+			go: "offers"
+		});
+		const wdOk = wd.filter((w) => w.days), wdMean = wdOk.reduce((a, w) => a + w.avg, 0) / Math.max(1, wdOk.length), weak = [...wdOk].sort((a, b) => a.avg - b.avg)[0];
+		if (weak && wdMean && weak.avg < wdMean * .8) recs.push({
+			id: "slow-day",
+			tone: "info",
+			title: "يوم " + weak.name + " الأضعف",
+			body: "عرض خاص أو توصيل مجاني فيه يوزّع الطلب ويخفف أيام الذروة.",
+			metric: "متوسطه " + sar(weak.avg) + " ر.س مقابل " + sar(wdMean) + " لبقية الأيام"
+		});
+		if (fc.wape != null && fc.wape > .5) recs.push({
+			id: "forecast",
+			tone: "info",
+			title: "التوقع تقريبي جداً",
+			body: "المبيعات اليومية متقلبة؛ اعتمد على النطاق لا على الرقم الواحد، واقرأ التوقع أسبوعياً.",
+			metric: "خطأ الاختبار " + Math.round(fc.wape * 100) + "٪"
+		});
+		if (qualityScore < 90) recs.push({
+			id: "data",
+			tone: "warn",
+			title: "ارفع جودة بيانات المبيعات",
+			body: "أسطر بلا عميل أو صنف أو مكررة تُضعف كل تحليل في هذه الشاشة.",
+			metric: "جودة " + qualityScore + "٪",
+			go: "smartmatch"
+		});
+		const order = [
+			"bad",
+			"warn",
+			"ok",
+			"info"
+		];
+		recs.sort((a, b) => order.indexOf(a.tone) - order.indexOf(b.tone));
+		return {
+			empty: false,
+			asOf,
+			first,
+			period,
+			channels: channelsAll,
+			channel: opts.channel ?? "",
+			kpis,
+			trend,
+			trendPrev,
+			forecast: fc,
+			weekdays: wd,
+			channelMix: channels,
+			products,
+			abc,
+			top10Share,
+			hhi,
+			momentum,
+			pairs,
+			ordersInPeriod: curPurchases.length,
+			multiItemOrders: multi.length,
+			customers: people,
+			segments,
+			followup,
+			typicalCadence: round$1(typical, 1),
+			cohorts,
+			quality,
+			health: {
+				score: healthScore,
+				parts: health
+			},
+			recs: recs.slice(0, 8)
+		};
+	}
 	//#endregion
 	//#region app/src/engine/fusion/sales/sales-intelligence-engine.ts
 	var sales_intelligence_engine_exports = /* @__PURE__ */ __exportAll({ buildSalesIntelligence: () => buildSalesIntelligence });
@@ -23542,6 +24377,7 @@ window.SKEngines = (function() {
 			salesAnalytics: sales_analytics_engine_exports,
 			sales: sales_engine_exports,
 			salesGeo: sales_geo_engine_exports,
+			salesInsights: sales_insights_engine_exports,
 			salesIntelligence: sales_intelligence_engine_exports,
 			salesPosting: sales_posting_engine_exports,
 			subscription: subscription_engine_exports,
