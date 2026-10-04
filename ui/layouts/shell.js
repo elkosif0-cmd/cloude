@@ -331,7 +331,7 @@ function syncSidebar(){
     const y=Number(rail.dataset.returnScrollY||sidebar.scrollY||0);delete rail.dataset.returnScrollY;sidebar.main=null;sidebar.opener=null;sidebar.openerMore=false;sidebar.route=false;sidebar.openView=null;sidebar.scrollY=0;sidebar.scrollCaptured=false;
     /* fixed-body locking keeps the page visually still; unlock, flush layout, then restore the saved document offset. */
     lockPageScroll(false);void document.body.offsetHeight;
-    if(!routeClose&&Number.isFinite(y)&&Math.abs(window.scrollY-y)>1){const epoch=sidebar.restoreEpoch,view=core()&&core().view();const restore=()=>{if(epoch!==sidebar.restoreEpoch||rail.classList.contains("open")||(innerWidth<=900)!==narrow||(core()&&core().view())!==view)return;const se=document.scrollingElement;if(se)se.scrollTop=y;window.scrollTo(0,y)};restore();requestAnimationFrame(restore)}
+    if(narrow&&!routeClose&&Number.isFinite(y)&&Math.abs(window.scrollY-y)>1){const epoch=sidebar.restoreEpoch,view=core()&&core().view();const restore=()=>{if(epoch!==sidebar.restoreEpoch||rail.classList.contains("open")||(innerWidth<=900)!==narrow||(core()&&core().view())!==view)return;const se=document.scrollingElement;if(se)se.scrollTop=y;window.scrollTo(0,y)};restore();requestAnimationFrame(restore)}
   }
   sidebar.open=open;
 }
