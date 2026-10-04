@@ -1,0 +1,18 @@
+[
+  {
+    "old": "var VERSION = \"0.39.9\";",
+    "new": "var VERSION = \"0.39.10\";"
+  },
+  {
+    "old": "    if (rev < 3) {",
+    "new": "    if (rev < FULL_PRO_BUDGETS.max_stability_revisions) {"
+  },
+  {
+    "old": "      const p = [\"KOSIF A1990 M text stability revision.\",",
+    "new": "      const engineeringTask = Array.isArray(meta.capability_packs) && meta.capability_packs.includes(\"code_release_engineering\");\n      const engineeringRule = engineeringTask ? \"For engineering assessment tasks, expand the bound finalist into concrete implementation requirements: ordered source inspection, a scoped change, regression checks, and an observable release postcondition. State acceptance criteria and blockers. Separate proposed work from observed results: do not claim repository inspection, edits, tests, measured speedups or deployment without executor evidence in the input. Do not merely repeat the task. Preserve data, integrations, authentication and all verification gates. Use the same selected finalist as the source of the plan; other top finalists may supply supporting details, not invented facts.\" : \"\";\n      const p = [\"KOSIF A1990 M text stability revision.\","
+  },
+  {
+    "old": "languageRule, \"The first sentence must directly answer the user's actual question.\", historyRule,",
+    "new": "languageRule, \"The first sentence must directly answer the user's actual question.\", historyRule, engineeringRule,"
+  }
+]
