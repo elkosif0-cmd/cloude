@@ -24,8 +24,12 @@ const I={q:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-wi
   dl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>',
   dense:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>',
   cards:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/></svg>'};
-/* columns that are summed in the totals row: money and quantities, never codes, dates, rates or unit prices */
-const NO_SUM=/رقم|رمز|كود|الكود|تاريخ|date|code|#|%|٪|نسبة|هامش|معدل|متوسط|سعر|السعر|price|rate|margin|الحالة|درجة|ترتيب|المرحلة|السنة|الشهر/i;
+/* columns that are summed in the totals row: money and quantities, never codes, dates, rates, unit prices,
+   phone or ID numbers, or day counts (a header can also opt out with data-sk-nosum) */
+const NO_SUM=/رقم|رمز|كود|الكود|تاريخ|date|code|#|%|٪|نسبة|هامش|معدل|متوسط|سعر|السعر|price|rate|margin|الحالة|درجة|ترتيب|المرحلة|السنة|الشهر|جوال|هاتف|موبايل|phone|mobile|واتساب|whatsapp|iban|آيبان|هوية|سجل تجاري|منذ|الغياب|days since|الإيقاع|\b(?:id|identifier|vat number)\b/i;
+/* long unformatted digits are only an identifier hint when the column has no money/quantity semantics */
+const SUM_VALUE=/مبلغ|المقدار|قيمة|القيمة|إيراد|ايراد|إجمالي|اجمالي|تكلفة|التكلفة|مدين|دائن|رصيد|كمية|الكمية|\b(?:amount|revenue|total|cost|quantity|qty|units|balance|debit|credit)\b|^vat$/i;
+const ID_LIKE=/^\+?\d{9,}$/;
 const norm=s=>String(s||"").toLowerCase().replace(/[ً-ٰٟ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/\s+/g," ").trim();
 function cellText(td){if(!td)return "";const f=td.querySelector("input:not([type=checkbox]):not([type=hidden]),select,textarea");return f?String(f.value||""):td.textContent.trim()}
 function cellValue(td){
@@ -126,9 +130,10 @@ function totals(table,hit,hid){
   const t=table._sktb,hs=headers(table);
   if(t.sum===undefined){
     if(table.tFoot&&!table.tFoot.classList.contains("sktb-sum")){t.sum=null;return}
-    const cols=hs.map((h,i)=>{const txt=h.textContent.trim();if(!i||!txt||NO_SUM.test(txt)||h.classList.contains("act"))return false;
+    const cols=hs.map((h,i)=>{const txt=h.textContent.trim();if(!i||!txt||NO_SUM.test(txt)||h.classList.contains("act")||h.hasAttribute("data-sk-nosum"))return false;
+      const valueColumn=SUM_VALUE.test(txt)||h.classList.contains("money")||t.orig.some(r=>r.cells[i]&&r.cells[i].classList.contains("money"));
       const vals=t.orig.map(r=>cellText(r.cells[i])).filter(v=>v!=="");const nums=vals.map(v=>cellValue({textContent:v,querySelector:()=>null})).filter(v=>v.n!=null&&!/^\d{4}-\d{2}-\d{2}/.test(""));
-      return vals.length>=2&&nums.length>=vals.length*.8&&!vals.some(v=>/[%٪]|^\d{4}-\d{2}/.test(v))});
+      return vals.length>=2&&nums.length>=vals.length*.8&&!vals.some(v=>/[%٪]|^\d{4}-\d{2}/.test(v)||(!valueColumn&&ID_LIKE.test(v.replace(/\s/g,""))))});
     t.sum=cols.some(Boolean)?cols:null;
     if(t.sum){const f=table.createTFoot();f.classList.add("sktb-sum");f.insertRow().innerHTML=hs.map(()=>'<td></td>').join("")}
   }

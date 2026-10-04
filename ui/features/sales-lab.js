@@ -8,7 +8,7 @@
 const {esc}=SK;
 const A=()=>SKEngines.sales.salesAnalytics;
 const sar=h=>SKCharts.compact(Math.round((Number(h)||0)/100));
-let tab="pulse",cache=null;
+let tab="pulse",paintSeq=0;
 const TABS=[["pulse","النبض الزمني"],["invoices","الفواتير والشرائح"],["momentum","سباق الزخم"],["maps","الخرائط الحرارية"],["stats","المختبر الإحصائي"],["profit","الربحية والقنوات"],["tree","شجرة الأصناف"],["ideas","أفكار النمو"]];
 const RK="skosif_cost_rules_v1";let pf="all",pch="";
 
@@ -17,22 +17,28 @@ function lines(){return new Promise(res=>{let q;try{q=indexedDB.open("aghnam-app
     g.onsuccess=()=>{db.close();res((g.result||[]).map(l=>({date:String(l.date||"").slice(0,10),amount:Number.isFinite(+l.amountHalalas)?+l.amountHalalas:Math.round((+l.amount||0)*100),qty:+l.qty||1,product:String(l.descriptionOriginal||l.product||"غير محدد"),customerId:l.customerId||"",invoice:l.ref||l.externalOrderId||"",channel:l.source||""})))};g.onerror=()=>{db.close();res([])}}})}
 
 async function lab(){
-  const L=await lines();if(!L.length)return null;
-  const key=L.length+"|"+L.reduce((a,l)=>l.date>a?l.date:a,"");if(cache&&cache.key===key)return cache.lab;
-  const last=L.reduce((a,l)=>l.date>a?l.date:a,""),today=new Date().toISOString().slice(0,10);
-  const r=A().salesLab(L,last>today?today:last);cache={key,lab:r};return r;
+  const hub=window.SKosifSalesIntel,context=hub&&hub.context?hub.context():null;
+  /* Share the hub forecast, channel and asOf. Keep earlier history for the lab's own 30/30 and 60/60 comparisons. */
+  if(hub&&!context)return null;
+  if(context&&context.result.empty)return null;
+  const R=context&&context.result;
+  const L=context?SKEngines.sales.salesInsights.normalize(context.lines).filter(l=>l.date<=R.asOf&&(!R.channel||l.channel===R.channel)):await lines();
+  if(!L.length)return null;
+  const last=L.reduce((a,l)=>l.date>a?l.date:a,"");
+  const r=A().salesLab(L,R?R.asOf:last);
+  return {...r,forecast:R?R.forecast:null,scope:R?{channel:R.channel,asOf:R.asOf}:null};
 }
 const kpi=(l,v,s,cls)=>'<div class="skslab-k'+(cls?" "+cls:"")+'"><small>'+esc(l)+'</small><b>'+v+'</b>'+(s?'<span>'+s+'</span>':'')+'</div>';
 
 function pulse(r){
   const d=r.daily,n=Math.min(120,d.labels.length),lab=d.labels.slice(-n).map(x=>x.slice(5)),vals=d.values.slice(-n).map(v=>Math.round(v/100)),ma=r.ma7.slice(-n).map(v=>v==null?null:Math.round(v/100));
   /* the same forecast as the hub above (model chosen by a 30-day backtest), so the page never shows two numbers */
-  const I=SKEngines.sales.salesInsights,F=I.forecastDaily(r.daily.values,r.asOf),f={total:F.total,low:F.low,high:F.high,slope:F.slope,forecast:F.daily,basis:F.basis,residStd:F.residStd},fl=f.forecast.map((_,i)=>"+"+(i+1));
-  return '<div class="skslab-kpis">'+kpi("توقع 30 يوماً",sar(f.total)+" ر.س","نطاق 80٪: "+sar(f.low)+" – "+sar(f.high))+kpi("ميل الاتجاه اليومي",(f.slope>=0?"+":"")+sar(f.slope)+" ر.س/يوم",f.slope>0?"الاتجاه صاعد ↑":f.slope<0?"الاتجاه هابط ↓ — تدخّل مبكراً":"مستقر",f.slope>0?"ok":f.slope<0?"bad":"")+
+  const I=SKEngines.sales.salesInsights,F=r.forecast,f=F?{total:F.total,low:F.low,high:F.high,slope:F.slope,forecast:F.daily,basis:F.basis,residStd:F.residStd}:null,fl=f?f.forecast.map((_,i)=>"+"+(i+1)):[];
+  return '<div class="skslab-kpis">'+(f?kpi("توقع 30 يوماً",sar(f.total)+" ر.س","نطاق 80٪: "+sar(f.low)+" – "+sar(f.high))+kpi("ميل الاتجاه اليومي",(f.slope>=0?"+":"")+sar(f.slope)+" ر.س/يوم",f.slope>0?"الاتجاه صاعد ↑":f.slope<0?"الاتجاه هابط ↓ — تدخّل مبكراً":"مستقر",f.slope>0?"ok":f.slope<0?"bad":""):"<p class=\"hint\">التوقع ينتظر نتيجة ذكاء المبيعات.</p>")+
     kpi("آخر شهر",sar((r.monthly.at(-1)||{}).revenue)+" ر.س",(r.monthly.at(-1)||{}).growth==null?"":"النمو "+(r.monthly.at(-1).growth>=0?"+":"")+r.monthly.at(-1).growth+"٪")+'</div>'+
     '<div class="skslab-2"><div><h4>الاتجاه اليومي مع المتوسط المتحرك (7 أيام)</h4>'+SKCharts.line({labels:lab,series:[{name:"المبيعات اليومية",values:vals},{name:"المتوسط المتحرك",values:ma.map(v=>v==null?NaN:v)}],height:220,endLabels:false})+'</div>'+
     '<div><h4>الأداء الشهري والنمو</h4>'+SKCharts.bars({labels:r.monthly.map(m=>m.month.slice(2)),series:[{name:"الإيراد (ر.س)",values:r.monthly.map(m=>Math.round(m.revenue/100))}],height:220})+'<p class="hint">الفواتير شهرياً: '+r.monthly.slice(-6).map(m=>m.month.slice(2)+" "+m.invoices).join(" · ")+'</p>'+'</div></div>'+
-    (f.forecast.length?'<h4>توقع المبيعات — 30 يوماً قادمة</h4>'+SKCharts.line({labels:fl,series:[{name:"التوقع اليومي (ر.س)",values:f.forecast.map(v=>Math.round(v/100))}],height:180,endLabels:false})+'<p class="hint">النموذج: '+esc(F.model?I.MODEL_AR[F.model]:"—")+' على آخر '+f.basis+' يوماً'+(F.wape==null?'':' (خطأ أسبوعي على آخر 30 يوماً '+Math.round(F.wape*100)+'٪)')+'؛ النطاق من تشتت البواقي (الخطأ المعياري '+sar(f.residStd)+' ر.س/يوم). توقع إرشادي وليس وعداً.</p>':'');
+    (f&&f.forecast.length?'<h4>توقع المبيعات — 30 يوماً قادمة</h4>'+SKCharts.line({labels:fl,series:[{name:"التوقع اليومي (ر.س)",values:f.forecast.map(v=>Math.round(v/100))}],height:180,endLabels:false})+'<p class="hint">النموذج: '+esc(F.model?I.MODEL_AR[F.model]:"—")+' على آخر '+f.basis+' يوماً'+(F.wape==null?'':' (خطأ أسبوعي على آخر 30 يوماً '+Math.round(F.wape*100)+'٪)')+'؛ النطاق من تشتت البواقي (الخطأ المعياري '+sar(f.residStd)+' ر.س/يوم). توقع إرشادي وليس وعداً.</p>':'');
 }
 function invoices(r){
   const s=r.invoices;
@@ -87,11 +93,13 @@ function tree(){
     '<div class="sk-actions"><button type="button" class="btn sm" data-slab-treecsv>تصدير الشجرة</button><button type="button" class="btn sm" data-tpl-dl="catalog">قالب الأصناف</button></div>';
 }
 async function paint(host){
-  const r=await lab();
+  const my=++paintSeq,r=await lab();if(my!==paintSeq)return;
   if(!r){host.innerHTML='';return}
   const body=tab==="pulse"?pulse(r):tab==="invoices"?invoices(r):tab==="momentum"?race(r):tab==="maps"?await maps():tab==="stats"?stats(r):tab==="profit"?await profit():tab==="tree"?tree():ideas(r);
+  const scope=r.scope&&["pulse","invoices","momentum","stats","ideas"].includes(tab)?'<p class="hint">هذه التحليلات تستخدم كامل سجل '+esc(r.scope.channel?"القناة «"+r.scope.channel+"»":"كل القنوات")+' حتى '+esc(r.scope.asOf)+'. لكل مقارنة نافذتها الموضحة؛ التوقع مطابق لذكاء المبيعات أعلاه.</p>':"";
+  if(my!==paintSeq)return;
   host.innerHTML='<section class="card skslab"><div class="card-h"><div><span class="eyebrow">تحليلات إضافية</span><h3>مختبر المبيعات</h3><p>فصول تحليلية إضافية على نفس سطور المبيعات — كل رقم من محرك قابل للتكرار.</p></div></div>'+
-    '<div class="card-b"><div class="sk-seg skslab-tabs" role="tablist">'+TABS.map(([k,l])=>'<button type="button" role="tab" data-slab="'+k+'" aria-pressed="'+(tab===k)+'">'+l+'</button>').join("")+'</div>'+body+'</div></section>';
+    '<div class="card-b"><div class="sk-seg skslab-tabs" role="tablist">'+TABS.map(([k,l])=>'<button type="button" role="tab" data-slab="'+k+'" aria-pressed="'+(tab===k)+'">'+l+'</button>').join("")+'</div>'+scope+body+'</div></section>';
 }
 function mount(root){
   let host=root.querySelector(":scope [data-slab-host]");
@@ -110,6 +118,7 @@ document.addEventListener("click",e=>{
   const t=e.target.closest("[data-slab-task]");if(t&&window.SKosifTasks&&SKosifTasks.add){SKosifTasks.add({title:"مبادرة: "+t.dataset.slabTask,cap:"salesintel",priority:"normal"});SK.toast("أُضيفت إلى المهام","ok")}
 });
 document.addEventListener("change",e=>{const c=e.target.closest("[data-slab-ch]");if(c){pch=c.value;const h=document.querySelector("[data-slab-host]");if(h)paint(h)}});
+document.addEventListener("sk:sales-insights",()=>{const h=document.querySelector("[data-slab-host]");if(h)paint(h).catch(e=>SK.errors&&SK.errors.report(e,"sales-lab"))});
 function boot(){const c=window.SKosifCore;if(c&&c.onView)c.onView("salesintel",mount);else setTimeout(boot,300)}
 boot();
 window.SKosifSalesLab=Object.freeze({lab});
