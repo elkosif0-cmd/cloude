@@ -1,0 +1,22 @@
+[
+  {
+    "old": "var VERSION = \"0.39.9\";",
+    "new": "var VERSION = \"0.39.11\";"
+  },
+  {
+    "old": "    if (rev < 3) {",
+    "new": "    if (rev < FULL_PRO_BUDGETS.max_stability_revisions) {"
+  },
+  {
+    "old": "      const p = [\"KOSIF A1990 M text stability revision.\",",
+    "new": "      const engineeringTask = Array.isArray(meta.capability_packs) && meta.capability_packs.includes(\"code_release_engineering\");\n      const engineeringRule = engineeringTask ? \"For engineering assessment tasks, expand the bound finalist into concrete implementation requirements: ordered source inspection, a scoped change, regression checks, and an observable release postcondition. State acceptance criteria and blockers. Separate proposed work from observed results: do not claim repository inspection, edits, tests, measured speedups or deployment without executor evidence in the input. Do not merely repeat the task. Preserve data, integrations, authentication and all verification gates. Use the same selected finalist as the source of the plan; other top finalists may supply supporting details, not invented facts.\" : \"\";\n      const p = [\"KOSIF A1990 M text stability revision.\","
+  },
+  {
+    "old": "languageRule, \"The first sentence must directly answer the user's actual question.\", historyRule,",
+    "new": "languageRule, \"The first sentence must directly answer the user's actual question.\", historyRule, engineeringRule,"
+  },
+  {
+    "old": "      const m = await fullProModelJson(env, p), o = m.output || {}, answer = text(o.answer || o.synthesis || \"\", 12e3);",
+    "new": "      const revisionPrompt = engineeringTask ? [\"KOSIF candidate-bound engineering plan revision.\", \"Task: \" + meta.subject, \"Selected finalist: \" + JSON.stringify(byId[selectedCandidateId] || null), \"Supporting top finalists: \" + JSON.stringify(topIds.map((id) => byId[id]).filter(Boolean).slice(0, 6)), \"Unresolved issues: \" + JSON.stringify({uncertainty: prior.uncertainty, objections: prior.objections}), languageRule, engineeringRule, \"Candidate binding preserves the selected solution direction, not its wording. Expand its inspection and verification proposal into an ordered actionable plan, not a paraphrase. Supply at least four numbered implementation requirements in the answer, each with a concrete acceptance criterion. Include source-of-truth inspection, a scoped RTL/UI fix selected only after inspection, regression verification preserving private data and auth, and release verification against the deployed commit. These are requirements, not claims that work occurred. Explicitly say execution is unverified because there are no executor receipts in this input. Return JSON with answer (the full plan string), evidence (only provided observations), uncertainty, objections, confidence. Do not invent findings or declare the site or Full Mode fixed.\"] .join(\"\\n\") : p;\n      const m = await fullProModelJson(env, revisionPrompt), o = m.output || {}, answer = text(o.answer || o.synthesis || \"\", 12e3);"
+  }
+]
