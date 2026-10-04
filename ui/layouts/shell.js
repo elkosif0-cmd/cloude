@@ -312,7 +312,9 @@ function syncSidebar(){
     const liveMore=sidebar.openerMore?$("#skb [data-more]"):null;const target=sidebar.route?$("#pg-title"):(liveMore||(sidebar.opener&&sidebar.opener.isConnected&&!rail.contains(sidebar.opener)?sidebar.opener:button));
     if(target){if(sidebar.route&&!target.hasAttribute("tabindex"))target.setAttribute("tabindex","-1");target.focus({preventScroll:true})}
     const y=sidebar.scrollCaptured?sidebar.scrollY:Number(rail.dataset.returnScrollY||0);delete rail.dataset.returnScrollY;sidebar.main=null;sidebar.opener=null;sidebar.openerMore=false;sidebar.route=false;sidebar.scrollY=0;sidebar.scrollCaptured=false;
-    if(Number.isFinite(y)&&Math.abs(window.scrollY-y)>1){const se=document.scrollingElement;if(se)se.scrollTop=y;document.documentElement.scrollTop=y;document.body.scrollTop=y;window.scrollTo(0,y)}
+    /* Chromium can defer the overflow:hidden -> scrollable transition; force style/layout before restoring. */
+    void document.body.offsetHeight;
+    if(Number.isFinite(y)&&Math.abs(window.scrollY-y)>1){const restore=()=>{const se=document.scrollingElement;if(se)se.scrollTop=y;document.documentElement.scrollTop=y;document.body.scrollTop=y;window.scrollTo(0,y)};restore();requestAnimationFrame(restore)}
   }
   sidebar.open=open;
 }
