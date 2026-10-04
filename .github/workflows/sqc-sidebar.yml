@@ -1,0 +1,76 @@
+name: SQC Sidebar Regression
+
+on:
+  pull_request:
+    paths:
+      - 'ui/layouts/shell.js'
+      - 'ui/ds/shell.css'
+      - 'tools/sidebar_visibility.test.mjs'
+      - 'tools/sidebar_visibility_e2e.mjs'
+      - '.github/workflows/sqc-sidebar.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  sidebar:
+    name: Sidebar desktop and mobile regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout SQC
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Test sidebar state boundaries
+        run: node --test tools/sidebar_visibility.test.mjs
+
+      - name: Build data-free preview
+        env:
+          SQC_BUILD_MODE: preview
+        run: python3 build.py
+
+      - name: Install existing browser-test tooling
+        run: |
+          npm install --no-save --prefix /tmp/pw playwright@1
+          npx --prefix /tmp/pw playwright install --with-deps chromium
+
+      - name: Test responsive sidebar in Chromium
+        run: |
+          python3 -m http.server 8765 --directory dist >/dev/null 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID"' EXIT
+          python3 - <<'PY'
+          import time
+          import urllib.request
+          for attempt in range(30):
+              try:
+                  with urllib.request.urlopen('http://localhost:8765/app-safe.html', timeout=1) as response:
+                      assert response.status == 200
+                  break
+              except (OSError, AssertionError):
+                  if attempt == 29:
+                      raise
+                  time.sleep(1)
+          PY
+          NODE_PATH=/tmp/pw/node_modules node tools/sidebar_visibility_e2e.mjs http://localhost:8765/app-safe.html
+
+      - name: Keep synthetic sidebar evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sidebar-regression-evidence
+          path: |
+            artifacts/sidebar/*.png
+            artifacts/sidebar/results.json
+          if-no-files-found: ignore
+          retention-days: 7

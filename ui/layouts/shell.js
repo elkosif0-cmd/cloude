@@ -10,6 +10,7 @@
 const {$,$$,esc,load,save}=SK;
 const core=()=>window.SKosifCore;
 const PREF_KEY="skosif_prefs";
+const sidebar={ready:false,rail:null,observer:null,narrow:innerWidth<=900,open:false,opener:null,main:null,mainInert:false,route:false};
 
 function identityMetadata(){
   const h=document.head;if(!h)return;
@@ -125,11 +126,13 @@ function applyPrefs(){
   de.setAttribute("data-look",look.replace(/-night$/,""));
   de.setAttribute("data-theme",mode);de.setAttribute("data-density",p.density==="compact"?"compact":"cozy");
   de.setAttribute("data-rail",p.rail==="mini"?"mini":"full");
+  de.setAttribute("data-sidebar",p.sidebarHidden===true?"hidden":"visible");
   fonts(look);
   applyStudio(de,p,mode);
   try{localStorage.setItem("aghnam-v12-theme",mode)}catch{}
   const bar=getComputedStyle(de).getPropertyValue("--sk-rail").trim()||(mode==="dark"?"#1b140e":"#efe2cc");
   $$('meta[name="theme-color"]').forEach(m=>m.setAttribute("content",bar));
+  if(sidebar.ready)syncSidebar();
 }
 function setPref(k,v){const p=prefs();p[k]=v;save(PREF_KEY,p);applyPrefs()}
 function setLook(l){const p=prefs();if(!LOOKS.some(x=>x[0]===l))l="kosif";p.look=l;if(!DARK.has(l)&&l!=="auto")p.lastLight=l;save(PREF_KEY,p);
@@ -277,7 +280,71 @@ function railToggle(){
 }
 function syncRailBtn(){const b=$("#sk-rail-mini"),mini=prefs().rail==="mini";if(!b)return;
   const t=(mini?"توسيع القائمة":"طيّ القائمة")+(SK.device?" ("+SK.device.keyHint("B")+")":"");b.title=t;b.setAttribute("aria-label",t);b.setAttribute("aria-pressed",String(mini));$("span",b).textContent=mini?"توسيع القائمة":"طيّ القائمة"}
-function toggleRail(force){const mini=typeof force==="boolean"?force:prefs().rail!=="mini";setPref("rail",mini?"mini":"full");syncRailBtn();SK.toast(mini?"قائمة مطويّة — الأيقونات فقط":"قائمة كاملة","info")}
+function toggleRail(force){const mini=typeof force==="boolean"?force:prefs().rail!=="mini";setPref("rail",mini?"mini":"full");syncRailBtn();SK.toast(prefs().sidebarHidden===true&&innerWidth>900?(mini?"القائمة مخفية؛ ستظهر بالأيقونات فقط عند إظهارها":"القائمة مخفية؛ ستظهر كاملة عند إظهارها"):(mini?"قائمة مطويّة — الأيقونات فقط":"قائمة كاملة"),"info")}
+/* Visibility is separate from the established full/mini preference and shortcut.
+   Mobile actions stay in the core drawer controller; this adapter synchronizes focus and aria. */
+function toggleSidebar(){
+  const rail=$("#rail"),button=$(".topbar .menu-btn")||$(".menu-btn");if(!rail)return;
+  if(innerWidth<=900){if(!rail.classList.contains("open"))sidebar.opener=document.activeElement;const c=core();if(c)c.act(rail.classList.contains("open")?"rail-close":"rail-open");syncSidebar();return}
+  const hide=prefs().sidebarHidden!==true;
+  if(hide&&rail.contains(document.activeElement)&&button)button.focus({preventScroll:true});
+  setPref("sidebarHidden",hide);syncSidebar();
+}
+function sidebarFocusables(rail){return [...rail.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el=>!el.closest('[inert],[hidden]')&&el.getClientRects().length)}
+function sidebarModal(){return [...document.querySelectorAll('#pr-modal .modal,.skd-wrap,.skp-wrap.open,.skk-wrap,.sk-menu')].some(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=="hidden")}
+function syncSidebar(){
+  const rail=$("#rail"),button=$(".topbar .menu-btn")||$(".menu-btn");if(!rail)return;
+  const narrow=innerWidth<=900,open=narrow&&rail.classList.contains("open"),hidden=!narrow&&prefs().sidebarHidden===true;
+  const shown=narrow?open:!hidden;
+  if(button){button.setAttribute("aria-controls","rail");button.setAttribute("aria-expanded",String(shown));const label=narrow?(open?"إغلاق قائمة التنقل":"فتح قائمة التنقل"):(hidden?"إظهار القائمة الجانبية":"إخفاء القائمة الجانبية");button.setAttribute("aria-label",label);button.title=label}
+  if(!shown&&rail.contains(document.activeElement)&&button&&!sidebar.open)button.focus({preventScroll:true});
+  rail.inert=!shown;rail.setAttribute("aria-hidden",String(!shown));
+  document.body.classList.toggle("skn-locked",open);
+  if(open&&!sidebar.open){
+    sidebar.main=$(".maincol");sidebar.mainInert=!!(sidebar.main&&sidebar.main.inert);
+    sidebar.opener=sidebar.opener&&sidebar.opener.isConnected?sidebar.opener:button;
+    if(sidebar.main)sidebar.main.inert=true;
+    const first=sidebarFocusables(rail)[0];if(first)first.focus({preventScroll:true});
+  }else if(!open&&sidebar.open){
+    if(sidebar.main)sidebar.main.inert=sidebar.mainInert;
+    const target=sidebar.route?$("#pg-title"):(sidebar.opener&&sidebar.opener.isConnected&&!rail.contains(sidebar.opener)?sidebar.opener:button);
+    if(target){if(sidebar.route&&!target.hasAttribute("tabindex"))target.setAttribute("tabindex","-1");target.focus({preventScroll:true})}
+    sidebar.main=null;sidebar.opener=null;sidebar.route=false;
+  }
+  sidebar.open=open;
+}
+function sidebarControls(){
+  const rail=$("#rail"),button=$(".topbar .menu-btn")||$(".menu-btn");if(!rail)return;
+  if(button&&!button.dataset.sidebarBound){button.dataset.sidebarBound="1";button.addEventListener("click",e=>{e.preventDefault();e.stopImmediatePropagation();toggleSidebar()},true)}
+  if(sidebar.rail!==rail){if(sidebar.observer)sidebar.observer.disconnect();sidebar.rail=rail;sidebar.observer=new MutationObserver(syncSidebar);sidebar.observer.observe(rail,{attributes:true,attributeFilter:["class"]})}
+  sidebar.ready=true;syncSidebar();
+}
+function sidebarEvents(){
+  document.addEventListener("click",e=>{const opener=e.target.closest('.menu-btn,#skb [data-more]');if(opener&&innerWidth<=900&&!sidebar.open)sidebar.opener=opener;if(sidebar.open&&e.target.closest('#rail .nav-btn'))sidebar.route=true},true);
+  document.addEventListener("keydown",e=>{
+    if(!sidebar.open||e.defaultPrevented)return;
+    /* Core's bubbling Escape closes its drawer. Give exported child controllers first refusal. */
+    if(e.key==="Escape"){
+      let close=null;
+      if(window.SKosifCommand&&window.SKosifCommand.isOpen())close=()=>window.SKosifCommand.close();
+      else if(document.querySelector('.skk-wrap')&&window.SKosifKeys)close=()=>window.SKosifKeys.close();
+      else if(document.querySelector('.sk-menu')&&window.SKosifTopbar)close=()=>{window.SKosifTopbar.closeMenu();const first=sidebarFocusables($("#rail"))[0];if(first)first.focus({preventScroll:true})};
+      if(close){e.preventDefault();e.stopImmediatePropagation();close();return}
+    }
+    if(sidebarModal())return;
+    const rail=$("#rail");if(!rail)return;
+    if(e.key==="Escape"){
+      if(e.target.matches&&e.target.matches('.skn-search input')&&e.target.value){e.preventDefault();e.stopImmediatePropagation();e.target.value="";navQ="";filterNav();return}
+      e.preventDefault();e.stopImmediatePropagation();const c=core();if(c)c.act("rail-close");syncSidebar();return;
+    }
+    if(e.key!=="Tab")return;const items=sidebarFocusables(rail);if(!items.length){e.preventDefault();return}
+    const first=items[0],last=items[items.length-1];if(!rail.contains(document.activeElement)||(e.shiftKey&&document.activeElement===first)||(!e.shiftKey&&document.activeElement===last)){e.preventDefault();(e.shiftKey?last:first).focus()}
+  },true);
+  addEventListener("resize",()=>{
+    const narrow=innerWidth<=900;if(narrow!==sidebar.narrow){sidebar.narrow=narrow;const c=core(),rail=$("#rail");if(rail&&rail.classList.contains("open")&&c)c.act("rail-close")}
+    syncSidebar();
+  },{passive:true});
+}
 /* installed on a laptop with the title bar hidden (Window Controls Overlay): a draggable strip */
 function titlebar(){
   const on=document.documentElement.getAttribute("data-display")==="window-controls-overlay";let bar=$("#sk-wco");
@@ -285,7 +352,7 @@ function titlebar(){
   if(!bar){bar=document.createElement("div");bar.id="sk-wco";bar.className="sk-wco";bar.innerHTML='<div class="sk-wco-in"><b>SQC</b><span id="sk-wco-t"></span></div>';document.body.prepend(bar)}
   const c=core(),cap=c&&SK.caps.get(c.view()),t=$("#sk-wco-t");if(t)t.textContent=cap?cap.label:"";
 }
-function paint(){paintNav();paintTop();paintTabs();railToggle();titlebar();if(window.SKosifTopbar)SKosifTopbar.paint()}
+function paint(){paintNav();paintTop();paintTabs();railToggle();titlebar();if(window.SKosifTopbar)SKosifTopbar.paint();sidebarControls()}
 
 /* ---------- permission gate: a screen outside the role shows the no-permission state ---------- */
 function gate(){
@@ -439,7 +506,7 @@ function customerCards(root){
 }
 
 window.SKosifShell=Object.freeze({paint,stripItems,setPref,fonts:()=>FONTS.map(f=>({id:f[0],name:f[1]})),accents:()=>ACCENTS.map(a=>({hex:a[0],name:a[1]})),toggleAppearance,setAppearance,setLook,looks:()=>LOOKS.map(x=>({id:x[0],name:x[1]})),prefs,resolved,
-  toggleRail,tabs:tabIds,setTabs,tabLabel,defaultTabs:()=>TABS.slice(),tabMax:TAB_MAX});
+  toggleRail,toggleSidebar,tabs:tabIds,setTabs,tabLabel,defaultTabs:()=>TABS.slice(),tabMax:TAB_MAX});
 
 function boot(){
   identityMetadata();
@@ -454,7 +521,7 @@ function boot(){
   addEventListener("resize",()=>{if(innerWidth>900){const r=$("#rail");if(r&&r.classList.contains("open")&&c)c.act("rail-close")}},{passive:true});
   addEventListener("online",offline);addEventListener("offline",offline);offline();
   SK.bus.on("device",()=>titlebar());
-  swipe();hints();
+  swipe();hints();sidebarEvents();
   SK.bus.on("role",()=>{lastSig="";paint()});
   paint();gate();updates();
   Object.freeze(window.SK);

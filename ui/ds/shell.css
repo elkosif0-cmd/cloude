@@ -50,7 +50,7 @@
 /* a hub entry shows how many pages it holds (its pages open as tabs) */
 .nav-btn .skn-hubn{margin-inline-start:auto;min-width:20px;padding:0 6px;border-radius:var(--sk-r-pill);background:var(--sk-rail-2);color:var(--sk-rail-mute);font-style:normal;font-size:var(--sk-fs-2xs);font-weight:700;line-height:18px;text-align:center}
 .nav-btn[aria-current="page"] .skn-hubn{color:inherit;opacity:.8}
-:root[data-rail="mini"] .nav-btn .skn-hubn{display:none}
+@media (min-width:901px){:root[data-rail="mini"] .nav-btn .skn-hubn{display:none}}
 
 .status-card{margin-top:var(--sk-3);display:grid;gap:6px;padding:var(--sk-3);border:1px solid var(--sk-line);border-radius:var(--sk-r-l);background:var(--sk-surface);font-size:var(--sk-fs-s);color:var(--sk-ink);flex-shrink:0}
 .status-card .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;color:var(--sk-ink-2)}
@@ -68,7 +68,12 @@
 .topbar h2{font-size:var(--sk-fs-xl);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .topbar .sub{font-size:var(--sk-fs-xs);color:var(--sk-ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .topbar .grow{flex:1}
-.menu-btn{display:none}
+.menu-btn{display:inline-grid;place-items:center;min-width:44px;min-height:44px;flex:none;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface-2);color:var(--sk-ink);cursor:pointer}
+.menu-btn svg{width:20px;height:20px}
+@media (min-width:901px){
+  :root[data-sidebar="hidden"] .app{grid-template-columns:minmax(0,1fr);column-gap:0}
+  :root[data-sidebar="hidden"] #rail{display:none}
+}
 .skt-search{display:inline-flex;align-items:center;gap:var(--sk-2);flex:0 1 300px;min-width:44px;min-height:40px;padding:0 var(--sk-3);border:1px solid var(--sk-line);border-radius:var(--sk-r);
   background:var(--sk-surface-2);color:var(--sk-ink-3);font:inherit;font-size:var(--sk-fs-s);cursor:pointer;text-align:start}
 .skt-search:hover{border-color:var(--sk-brand);color:var(--sk-ink-2)}
@@ -106,12 +111,13 @@
     padding-top:env(safe-area-inset-top);padding-bottom:calc(200px + env(safe-area-inset-bottom));
     transform:translateX(100%);transition:transform .22s var(--sk-ease);box-shadow:var(--sk-shadow-3);visibility:hidden}
   .rail.open{transform:none;visibility:visible}
+  :root[dir="ltr"] .rail:not(.open){transform:translateX(-100%)}
   .scrim.open{display:block;position:fixed;inset:0;z-index:140;background:color-mix(in srgb,#2b1a0f 45%,transparent)}
-  .sk-rail-close{display:grid;place-items:center;position:absolute;top:calc(10px + env(safe-area-inset-top));inset-inline-end:10px;z-index:2;width:40px;height:40px;border:0;border-radius:var(--sk-r);
+  .sk-rail-close{display:grid;place-items:center;position:absolute;top:calc(10px + env(safe-area-inset-top));inset-inline-end:10px;z-index:2;width:44px;height:44px;border:0;border-radius:var(--sk-r);
     background:var(--sk-rail-2);color:var(--sk-rail-ink);font-size:var(--sk-fs-xl);cursor:pointer}
   .nav-btn{min-height:46px}
   .topbar{flex-wrap:wrap;gap:var(--sk-2);padding:calc(6px + env(safe-area-inset-top)) var(--sk-3) 6px}
-  .menu-btn{display:inline-grid;place-items:center;width:42px;height:42px;flex:none;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface-2);color:var(--sk-ink);cursor:pointer}
+  .menu-btn{display:inline-grid;place-items:center;width:44px;height:44px;flex:none;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface-2);color:var(--sk-ink);cursor:pointer}
   .menu-btn svg{width:20px;height:20px}
   .topbar .ttl{flex:1 1 0}
   .topbar h2{font-size:18px}
@@ -457,8 +463,10 @@ body.skn-locked{overflow:hidden}
 .nav .nav-btn.skn-miss{display:none!important}
 .nav .skn-group.skn-none{display:none}
 .nav.skn-searching .skn-ch{visibility:hidden}
-:root[data-rail="mini"] .skn-search,:root[data-rail="mini"] .nav .skn-gh{display:none}
-:root[data-rail="mini"] .nav .skn-group.closed>.nav-btn{display:flex}
+@media (min-width:901px){
+  :root[data-rail="mini"] .skn-search,:root[data-rail="mini"] .nav .skn-gh{display:none}
+  :root[data-rail="mini"] .nav .skn-group.closed>.nav-btn{display:flex}
+}
 @media (prefers-reduced-motion:reduce){.nav .skn-ch{transition:none}}
 /* pricing shortcuts in the page head belong to the pricing screens (catalogue domain) only;
    the below-cost alert stays on the trading domains and leaves audit and system */
