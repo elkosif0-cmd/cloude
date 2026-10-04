@@ -11,7 +11,7 @@ export function fixture(kind='populated',selected=sections){
  const expenses=empty?[0,0]:[3,3];
  return {
   stores:{skosif_report_pack_v1:{range:6,sections:selected,seen:sections,reviewer:'مراجع تجريبي',approver:'معتمد تجريبي'},skosif_tasks_v1:empty?[]:[{title:'مهمة تجريبية طويلة للاختبار فقط',done:false,due:'2026-01-01',priority:'high'},{title:'مكتملة',done:true}],skosif_companies_v1:{companies:[{id:'demo',name:'شركة اختبار SQC'}],active:{companyId:'demo'}}},
-  stats:{target:.25,avgMargin:empty?NaN:.191,loss:empty?0:2,boxes:empty?0:27},
+  stats:{target:.25,avgMargin:empty?NaN:.191,loss:empty?0:2,boxLoss:empty?0:2,boxes:empty?0:27},
   risks:empty?[]:[{ref:'R-001',title:'خطر تجريبي طويل <آمن>',response:'وصف عربي طويل لإثبات التفاف النص في الجدول دون حذف معلومات',category:'تشغيلي',likelihood:3,impact:3,status:'open',owner:'اختبار',due:'2026-12-01'}],
   findings:empty?[]:[{ref:'F-001',title:'ملاحظة اختبار',detail:'تفصيل آمن & ملاحظة',area:'تشغيل',severity:'high',status:'open',owner:'اختبار'}],
   decisions:empty?[]:[{sev:'warn',title:'قرار تجريبي',detail:'لا توجد بيانات شخصية أو عملاء حقيقيون'}],

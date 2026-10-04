@@ -49,7 +49,7 @@ function html(){
   return '<div class="rp">'+
     '<div class="rp-hero"><div><h3>الحزمة التنفيذية</h3><p>تقرير شامل بنقرة واحدة بترويسة SQC: الغلاف، المؤشرات، الاتجاهات، المخاطر، الملاحظات، القرارات، المهام، والاعتماد — جاهز للطباعة أو الحفظ PDF.</p></div>'+
       '<button type="button" class="btn primary" data-rp="print">'+SK.icon("reports")+' معاينة وطباعة الحزمة</button></div>'+
-    '<div class="sk-kpis">'+tile("متوسط هامش البوكسات",s.avg!=null?nf.format(s.avg)+"٪":"—","الهدف "+nf.format(s.tgt)+"٪")+tile("بوكسات بخسارة",nf.format(s.st.loss),"من "+nf.format(s.st.boxes))+
+    '<div class="sk-kpis">'+tile("متوسط هامش البوكسات",s.avg!=null?nf.format(s.avg)+"٪":"—","الهدف "+nf.format(s.tgt)+"٪")+tile("بوكسات بخسارة",nf.format(s.st.boxLoss),"من "+nf.format(s.st.boxes))+
       tile("المهام المنجزة",s.tasks.length?nf.format(s.done/s.tasks.length*100)+"٪":"—",s.late.length+" متأخرة")+tile("مخاطر مرتفعة مفتوحة",nf.format(s.high.length),"من "+nf.format(s.open.length)+" مفتوحة")+tile("ملاحظات مفتوحة",nf.format(s.findings.length),s.findings.filter(f=>f.severity==="high").length+" عالية الأثر")+'</div>'+
     '<div class="rp-opts"><div class="sk-field"><span>الفترة</span><div class="sk-seg" role="group" data-rp-range>'+[6,12].map(n=>'<button type="button" data-v="'+n+'" aria-pressed="'+(o.range===n)+'">آخر '+n+' شهراً</button>').join("")+'</div></div>'+
       '<div class="sk-field"><span>الأقسام</span><div class="rp-sec">'+SECT.map(([k,l])=>'<label class="sk-check"><input type="checkbox" value="'+k+'"'+(o.sections.includes(k)?' checked':'')+'> '+l+'</label>').join("")+'</div></div>'+
@@ -109,7 +109,7 @@ async function print(root){
       '<div class="meta"><span>الفترة</span><b>'+esc(period||"—")+'</b><span>أعدّه</span><b>'+esc(pr.name||org.preparer||"—")+'</b><span>تاريخ الإصدار</span><b>'+esc(new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"}))+'</b>'+(calm?'<span>العملة</span><b>ريال سعودي (ر.س)</b>':'')+'</div><div class="sky"></div></div>';
     if(has("summary"))b+='<section><h2>الملخص التنفيذي</h2><div class="rp-k">'+
       [["المبيعات",M(S)],["المشتريات والمصروفات",M(P+O)],["صافي التدفق",(N<0?"−":"")+M(Math.abs(N)),N<0?"bad":"ok"],["هامش التدفق",S?nf.format(N/S*100)+"٪":"—"],
-       ["متوسط هامش البوكسات",s.avg!=null?nf.format(s.avg)+"٪":"—",s.avg!=null&&s.avg<s.tgt?"bad":"ok"],["بوكسات بخسارة",nf.format(s.st.loss),s.st.loss?"bad":""],["المهام المنجزة",s.tasks.length?nf.format(s.done/s.tasks.length*100)+"٪":"—"],["مخاطر مرتفعة مفتوحة",nf.format(s.high.length),s.high.length?"bad":"ok"]]
+       ["متوسط هامش البوكسات",s.avg!=null?nf.format(s.avg)+"٪":"—",s.avg!=null&&s.avg<s.tgt?"bad":"ok"],["بوكسات بخسارة",nf.format(s.st.boxLoss),s.st.boxLoss?"bad":""],["المهام المنجزة",s.tasks.length?nf.format(s.done/s.tasks.length*100)+"٪":"—"],["مخاطر مرتفعة مفتوحة",nf.format(s.high.length),s.high.length?"bad":"ok"]]
       .map(([l,v,c])=>'<div><span>'+l+'</span><b class="'+(c||"")+'">'+(calm?numericValue(v):esc(v))+'</b></div>').join("")+'</div></section>';
     if(has("books"))b+=booksHTML(calm);
     if(has("trend"))b+='<section><h2>اتجاهات المبيعات والمشتريات</h2>'+SKCharts.bars({width:700,labels:tr.labels,tipLabels:tr.tip,series:[{name:"المبيعات",color:"var(--sk-c1)",values:tr.s},{name:"المشتريات والمصروفات",color:"var(--sk-c2)",values:tr.p.map((v,i)=>v+tr.o[i])}],line:{name:"صافي التدفق",color:"var(--sk-c3)",values:tr.net},height:230})+

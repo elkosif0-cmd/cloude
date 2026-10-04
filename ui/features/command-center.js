@@ -48,8 +48,8 @@ function tiles(){
   const tile=(view,ic,cls,l,v,sub,p)=>'<button type="button" class="skk4-t" data-go="'+view+'"><span class="chip '+cls+'">'+SK.icon(ic)+'</span><span class="tx"><span>'+esc(l)+'</span><b>'+esc(v)+'</b><small>'+esc(sub)+'</small></span>'+(p!=null?C.ring(p,{cls}):'')+'</button>';
   const avg=isFinite(st.avgMargin)?st.avgMargin*100:null;
   out.push(tile("catalog","catalog",avg!=null&&avg<tgt?"warn":"","متوسط هامش البوكسات",avg!=null?fmt(avg)+"٪":"—","الهدف "+fmt(tgt)+"٪",avg!=null&&tgt>0?avg/tgt*100:null));
-  const inT=st.boxes-st.below-st.loss;
-  out.push(tile("builder","builder",st.loss?"bad":"ok","بوكسات ضمن الهدف",st.boxes?fmt(Math.max(0,inT)):"—",st.boxes?"من أصل "+fmt(st.boxes)+(st.loss?" · "+fmt(st.loss)+" بخسارة":""):"لا بوكسات بعد",st.boxes?Math.max(0,inT)/st.boxes*100:null));
+  const inT=st.boxOnTarget;
+  out.push(tile("builder","builder",st.boxLoss?"bad":"ok","بوكسات ضمن الهدف",st.boxes?fmt(Math.max(0,inT)):"—",st.boxes?"من أصل "+fmt(st.boxes)+(st.boxLoss?" · "+fmt(st.boxLoss)+" بخسارة":""):"لا بوكسات بعد",st.boxes?Math.max(0,inT)/st.boxes*100:null));
   const tasks=load("skosif_tasks_v1",[])||[],done=tasks.filter(x=>x.done).length;
   out.push(tile("tasks","tasks","ok","المهام المنجزة",fmt(done),tasks.length?"من أصل "+fmt(tasks.length):"لا مهام بعد",tasks.length?done/tasks.length*100:null));
   const R=risksDb(),open=R.risks.filter(r=>r.status!=="closed"),hi=open.filter(r=>(+r.likelihood||1)*(+r.impact||1)>=6).length;
