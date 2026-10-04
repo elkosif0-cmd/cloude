@@ -1,4 +1,6 @@
 /** SQC V5 — completion room gates. System facts and human professional decisions stay separate. */
+import { reportReadiness } from './engagement-machine.js';
+
 const ACTIVE_REQUESTS=new Set(['draft','requested','received','under-review','partial']);
 const OPEN_ISSUES=new Set(['open','investigating','management-response','challenged']);
 const PENDING_ADJUSTMENTS=new Set(['proposed','challenged','modified']);
@@ -26,8 +28,8 @@ const defs={
 function isAudit(type=''){return['audit','review'].includes(type)}
 function latestDecisions(engagement={}){const map=new Map;for(const d of engagement.completionDecisions||[])map.set(d.checkId,d);return map}
 function systemStatus(id,engagement,ctx){
-  if(id==='COUNCIL_COMPLETED')return engagement.councilRounds?.at(-1)?.status==='completed'?['satisfied','آخر جولة مجلس مكتملة.']:['pending','لا توجد جولة مجلس مكتملة.'];
-  if(id==='EVIDENCE_REQUESTS_CLOSED'){const open=(engagement.requests||[]).filter(r=>ACTIVE_REQUESTS.has(r.status));return open.length?['pending',`${open.length} طلب دليل ما زال مفتوحًا.`]:['satisfied','لا توجد طلبات أدلة مفتوحة.']}
+  if(id==='COUNCIL_COMPLETED'){const readiness=reportReadiness(engagement),blockers=readiness.blockers.filter(b=>b.type.startsWith('council_'));return readiness.checks.councilCompleted&&!blockers.length?['satisfied','آخر جولة مجلس مكتملة وبلا موانع أو اعتراضات مفتوحة.']:['pending','آخر جولة مجلس غير مكتملة أو تحمل موانع أو اعتراضات أو نزاعات غير محسومة.']}
+  if(id==='EVIDENCE_REQUESTS_CLOSED'){if(!reportReadiness(engagement).checks.hasReviewedEvidence)return['pending','يلزم دليل مراجع مرتبط بآخر جولة مجلس.'];const open=(engagement.requests||[]).filter(r=>ACTIVE_REQUESTS.has(r.status));return open.length?['pending',`${open.length} طلب دليل ما زال مفتوحًا.`]:['satisfied','لا توجد طلبات أدلة مفتوحة.']}
   if(id==='ISSUES_RESOLVED'){const open=(engagement.issues||[]).filter(i=>OPEN_ISSUES.has(i.status));return open.length?['pending',`${open.length} قضية ما زالت مفتوحة.`]:['satisfied','كل القضايا مسجلة بحالة محسومة.']}
   if(id==='ADJUSTMENTS_DECIDED'){const pending=(engagement.adjustments||[]).filter(a=>PENDING_ADJUSTMENTS.has(a.status));return pending.length?['pending',`${pending.length} تسوية تنتظر قرارًا بشريًا.`]:['satisfied','لا توجد تسويات معلقة.']}
   if(id==='TRACEABILITY_HEALTH'){const isolated=ctx.traceabilityMetrics?.isolated?.length;if(isolated==null)return['pending','لم يتم احتساب صحة التتبع.'];return isolated?['pending',`${isolated} عنصرًا معزولًا في خريطة التتبع.`]:['satisfied','كل العناصر الداخلة في التقرير مرتبطة في خريطة التتبع.']}
