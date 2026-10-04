@@ -45,6 +45,7 @@ h1{margin:6px 0 4px;font:800 32px/1.1 Montserrat,"Segoe UI",sans-serif;letter-sp
 [dir="rtl"] .field input{padding:0 18px 0 54px}
 .field input:focus{border-color:#1668e3;background:#fff;box-shadow:0 0 0 4px rgba(22,104,227,.14)}
 .eye{position:absolute;top:7px;inset-inline-end:8px;display:grid;place-items:center;width:40px;height:40px;border:0;background:transparent;color:#8292a8;cursor:pointer}
+.eye:focus-visible,button.submit:focus-visible{outline:3px solid #1668e3;outline-offset:3px}
 .eye svg{width:20px;height:20px}
 button.submit{width:100%;height:54px;margin-top:16px;border:0;border-radius:14px;background:linear-gradient(180deg,#2677ee,#1668e3);color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 12px 26px -12px rgba(22,104,227,.8);transition:all .2s ease}
 button.submit:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 16px 30px -12px rgba(22,104,227,.9)}
@@ -76,16 +77,16 @@ button.submit:disabled{opacity:.65;cursor:default}
 <h1>SQC</h1>
 <p class="sub">منصة المراجعة والتأكيد المدعومة بالذكاء الاصطناعي، مع أدوات مساعدة للمحاسب. أدخل كلمة المرور المشفرة لفتح التطبيق.</p>
 <form id="f">
-<div class="field"><input id="p" type="password" autocomplete="current-password" placeholder="كلمة المرور الآمنة" required autofocus><button class="eye" id="eye" type="button" aria-label="إظهار كلمة المرور"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+<div class="field"><input id="p" name="password" aria-label="كلمة المرور الآمنة" aria-describedby="msg" type="password" autocomplete="current-password" placeholder="كلمة المرور الآمنة" required autofocus><button class="eye" id="eye" type="button" aria-label="إظهار كلمة المرور" aria-pressed="false" aria-controls="p"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
 <button class="submit" id="go" type="submit">دخول آمن للمنصة</button>
 </form>
-<div class="msg" id="msg"></div><div class="progress" id="progress"></div>
+<div class="msg" id="msg" role="alert" aria-atomic="true"></div><div class="progress" id="progress" role="status" aria-live="polite" aria-atomic="true"></div>
 <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>تشفير متقدم بنظام ChaCha20 و PBKDF2</div><div class="slogan">البيانات تُفك على هذا الجهاز فقط.</div>
 </main>
 </div>
 <script>
 const $=id=>document.getElementById(id);
-$("eye").onclick=()=>{$("p").type=$("p").type==="password"?"text":"password"};
+$("eye").onclick=()=>{const show=$("p").type==="password";$("p").type=show?"text":"password";$("eye").setAttribute("aria-label",show?"إخفاء كلمة المرور":"إظهار كلمة المرور");$("eye").setAttribute("aria-pressed",String(show))};
 function b64(s){const x=atob(s),a=new Uint8Array(x.length);for(let i=0;i<x.length;i++)a[i]=x.charCodeAt(i);return a}
 function rotl(v,n){return ((v<<n)|(v>>>(32-n)))>>>0}
 function r32(a,o){return (a[o]|a[o+1]<<8|a[o+2]<<16|a[o+3]<<24)>>>0}
@@ -95,13 +96,16 @@ function block(k,c,n){const x=new Uint32Array(16),o=new Uint32Array(16),z=new Ui
 function xor(d,k,n,c=1){const o=new Uint8Array(d.length);let q=0;while(q<d.length){const s=block(k,c++,n),m=Math.min(64,d.length-q);for(let i=0;i<m;i++)o[q+i]=d[q+i]^s[i];q+=m}return o}
 async function loadCipher(meta){const texts=await Promise.all(meta.parts.map((u,i)=>fetch("./"+u,{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error("part "+i);return r.text()})));const arr=texts.map(t=>b64(t.trim()));let total=0;arr.forEach(a=>total+=a.length);const out=new Uint8Array(total);let off=0;for(const a of arr){out.set(a,off);off+=a.length}return out}
 $("f").addEventListener("submit",async e=>{
-e.preventDefault();$("msg").textContent="";$("go").disabled=true;$("progress").textContent="جارٍ التحقق وفك التشفير…";const enteredPassword=$("p").value;
+e.preventDefault();$("msg").textContent="";$("go").disabled=true;$("f").setAttribute("aria-busy","true");$("progress").textContent="جارٍ التحقق وفك التشفير…";const enteredPassword=$("p").value;
 try{
 const meta=await fetch("./secure/crypto.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error("meta");return r.json()});
-const pass=new TextEncoder().encode($("p").value);
+const pass=new TextEncoder().encode(enteredPassword);
 const base=await crypto.subtle.importKey("raw",pass,"PBKDF2",false,["deriveBits"]);
-const bits=await crypto.subtle.deriveBits({name:"PBKDF2",hash:"SHA-256",salt:b64(meta.salt_b64),iterations:meta.iterations},base,512);
-const dk=new Uint8Array(bits),ek=dk.slice(0,32),mk=dk.slice(32),nonce=b64(meta.nonce_b64),ct=await loadCipher(meta);
+const [bits,ct]=await Promise.all([
+  crypto.subtle.deriveBits({name:"PBKDF2",hash:"SHA-256",salt:b64(meta.salt_b64),iterations:meta.iterations},base,512),
+  loadCipher(meta)
+]);
+const dk=new Uint8Array(bits),ek=dk.slice(0,32),mk=dk.slice(32),nonce=b64(meta.nonce_b64);
 $("progress").textContent="جارٍ التحقق من سلامة البيانات…";
 const macKey=await crypto.subtle.importKey("raw",mk,{name:"HMAC",hash:"SHA-256"},false,["verify"]);
 const signed=new Uint8Array(nonce.length+ct.length);signed.set(nonce);signed.set(ct,nonce.length);
@@ -134,7 +138,7 @@ try{
 $("p").value="";
 document.open();document.write(app);document.close();
 }catch(err){console.error(err);$("msg").textContent="كلمة المرور غير صحيحة أو تعذر فتح البيانات.";$("progress").textContent="";$("p").select()}
-finally{const g=$("go");if(g)g.disabled=false}
+finally{const g=$("go");if(g)g.disabled=false;const f=$("f");if(f)f.setAttribute("aria-busy","false")}
 });
 </script>
 </body></html>
