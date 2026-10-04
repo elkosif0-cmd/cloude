@@ -285,7 +285,7 @@ function toggleRail(force){const mini=typeof force==="boolean"?force:prefs().rai
    Mobile actions stay in the core drawer controller; this adapter synchronizes focus and aria. */
 function toggleSidebar(){
   const rail=$("#rail"),button=$(".topbar .menu-btn")||$(".menu-btn");if(!rail)return;
-  if(innerWidth<=900){const opening=!rail.classList.contains("open");if(opening){sidebar.scrollY=window.scrollY;sidebar.scrollCaptured=true;rail.dataset.returnScrollY=String(sidebar.scrollY);if(!sidebar.opener)sidebar.opener=document.activeElement;sidebar.openerMore=!!(sidebar.opener&&sidebar.opener.matches&&sidebar.opener.matches("#skb [data-more]"))}const c=core();if(c)c.act(opening?"rail-open":"rail-close");syncSidebar();return}
+  if(innerWidth<=900){const opening=!rail.classList.contains("open"),returnY=!opening?(sidebar.scrollCaptured?sidebar.scrollY:Number(rail.dataset.returnScrollY||window.scrollY)):0;if(opening){sidebar.scrollY=window.scrollY;sidebar.scrollCaptured=true;rail.dataset.returnScrollY=String(sidebar.scrollY);if(!sidebar.opener)sidebar.opener=document.activeElement;sidebar.openerMore=!!(sidebar.opener&&sidebar.opener.matches&&sidebar.opener.matches("#skb [data-more]"))}const c=core();if(c)c.act(opening?"rail-open":"rail-close");syncSidebar();if(!opening&&Number.isFinite(returnY)){const se=document.scrollingElement;if(se)se.scrollTop=returnY;document.documentElement.scrollTop=returnY;document.body.scrollTop=returnY;window.scrollTo(0,returnY)}return}
   const hide=prefs().sidebarHidden!==true;
   if(hide&&rail.contains(document.activeElement)&&button)button.focus({preventScroll:true});
   setPref("sidebarHidden",hide);syncSidebar();
@@ -346,7 +346,7 @@ function sidebarEvents(){
     const rail=$("#rail");if(!rail)return;
     if(e.key==="Escape"){
       if(e.target.matches&&e.target.matches('.skn-search input')&&e.target.value){e.preventDefault();e.stopImmediatePropagation();e.target.value="";navQ="";filterNav();return}
-      e.preventDefault();e.stopImmediatePropagation();const c=core();if(c)c.act("rail-close");syncSidebar();return;
+      e.preventDefault();e.stopImmediatePropagation();toggleSidebar();return;
     }
     if(e.key!=="Tab")return;const items=sidebarFocusables(rail);if(!items.length){e.preventDefault();return}
     const first=items[0],last=items[items.length-1];if(!rail.contains(document.activeElement)||(e.shiftKey&&document.activeElement===first)||(!e.shiftKey&&document.activeElement===last)){e.preventDefault();(e.shiftKey?last:first).focus()}
@@ -494,7 +494,7 @@ function swipe(){
   addEventListener("touchend",e=>{
     if(x0==null)return;const t=e.changedTouches[0],dx=(t.clientX-x0)*(rtl()?-1:1),dy=Math.abs(t.clientY-y0);x0=null;
     if(dy>60)return;const c=core();if(!c)return;
-    if(mode==="open"&&dx>50){sidebar.scrollY=window.scrollY;sidebar.scrollCaptured=true;const r=$("#rail");if(r)r.dataset.returnScrollY=String(sidebar.scrollY);sidebar.opener=null;sidebar.openerMore=false;c.act("rail-open")}else if(mode==="close"&&dx<-60)c.act("rail-close");
+    if(mode==="open"&&dx>50){sidebar.scrollY=window.scrollY;sidebar.scrollCaptured=true;const r=$("#rail");if(r)r.dataset.returnScrollY=String(sidebar.scrollY);sidebar.opener=null;sidebar.openerMore=false;c.act("rail-open")}else if(mode==="close"&&dx<-60)toggleSidebar();
   },{passive:true});
 }
 /* keyboard hints follow the device: ⌘K on a Mac, Ctrl K on Windows, nothing on an iPhone */
