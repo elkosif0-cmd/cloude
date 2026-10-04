@@ -14,6 +14,19 @@ const fmt=v=>nf.format(v);
 /* the device's calendar day: toISOString() still gives yesterday in Riyadh until 03:00 */
 const today=(d=new Date())=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 let range=12,trend=null,trendAt=0;
+/* the crystal world (ui/art/crystal-world.js, loaded once on first need) behind the company's name */
+let world=null,engine=null;
+function loadEngine(){if(window.SQCCrystal)return Promise.resolve(true);if(engine)return engine;
+  engine=new Promise(res=>{const s=document.createElement("script");s.src="./art/crystal-world.js";s.async=true;s.onload=()=>res(!!window.SQCCrystal);s.onerror=()=>res(false);document.head.appendChild(s)});return engine}
+function dropWorld(){if(world){try{world.destroy()}catch{}world=null}}
+function heroCard(){
+  const name=(window.SK.company&&SK.company.current().name)||(document.getElementById("biz-name")||{}).textContent||"";
+  return '<section class="skc-world" aria-hidden="true"><canvas class="skc-world-c"></canvas><div class="skc-world-tx"><small>SQC · مركز القيادة</small><b>'+esc(name)+'</b></div></section>';
+}
+function mountHero(box){
+  dropWorld();const c=box.querySelector(".skc-world-c");if(!c)return;
+  loadEngine().then(ok=>{if(!ok||!c.isConnected)return;world=window.SQCCrystal.mount(c,{density:.6,interactive:true,scroll:false,seed:20261004});if(world)c.classList.add("on")});
+}
 
 /* ---------- data ---------- */
 function idbAll(store){return new Promise(res=>{let q;try{q=indexedDB.open("aghnam-app-v7")}catch{return res([])}
@@ -145,7 +158,7 @@ function render(root){
   if(!root||!core())return;
   const old=root.querySelector(":scope > .skc");if(old)old.remove();
   const launch=LAUNCH.filter(([id])=>SK.perm.can(id)&&SK.caps.get(id)),can=id=>SK.caps.get(id)&&SK.perm.can(id);
-  const html='<section class="skc skc-luxe" aria-label="مركز القيادة">'+nudge()+tiles()+extras()+
+  const html='<section class="skc skc-luxe" aria-label="مركز القيادة">'+heroCard()+nudge()+tiles()+extras()+
     '<div class="skc-row3">'+trendCard()+(can("risks")?heatCard():'')+'<section class="skc-card"><h3>بنية التدفق<small>Cash Structure</small><button type="button" class="linkish" data-go="cash">التفاصيل</button></h3><div id="skc-structure">'+SK.ui.state.loading({text:""})+'</div></section></div>'+
     '<div class="skc-row3b"><section class="skc-card"><h3>ما يحتاج قراراً الآن<small>Decision Inbox</small><button type="button" class="linkish" data-go="decision">مركز القرار</button></h3>'+inbox()+'</section>'+taskCard()+
       '<section class="skc-card"><h3>النشاطات الحديثة<small>Recent Activity</small>'+(can("archive")?'<button type="button" class="linkish" data-go="archive">الأرشيف</button>':'')+'</h3>'+activity()+'</section></div>'+
@@ -153,7 +166,7 @@ function render(root){
   '</section>';
   root.insertAdjacentHTML("afterbegin",html);
   const box=root.querySelector(":scope > .skc");
-  fillTrend(box);
+  mountHero(box);fillTrend(box);
   box.addEventListener("click",e=>{
     const n=e.target.closest("[data-nudge]");
     if(n){const card=n.closest(".skc-install");if(n.dataset.nudge==="later"){try{localStorage.setItem(NUDGE,String(Date.now()))}catch{}card.remove()}else SK.device.install().then(ok=>{if(ok)card.remove()});return}
@@ -165,6 +178,6 @@ function render(root){
 window.SKosifMetrics=Object.freeze({trend:async n=>series(await loadTrend(),n||12),risks:risksDb,findings:()=>risksDb().findings,decisions:()=>{const rank={critical:0,warn:1,info:2};return[...(core().exceptions()||[]),...ownItems()].sort((a,b)=>rank[a.sev]-rank[b.sev])}});
 /* redraw the trend at the new width (labels keep their real size) */
 let rz=0;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{const b=document.querySelector(".skc-luxe");if(b&&b.isConnected)fillTrend(b)},200)},{passive:true});
-function boot(){const c=core();if(c)c.onView("dash",render)}
+function boot(){const c=core();if(c)c.onView("dash",render);SK.bus&&SK.bus.on("nav",()=>{if(core()&&core().view()!=="dash")dropWorld()})}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
 })();

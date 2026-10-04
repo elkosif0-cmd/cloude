@@ -25,6 +25,14 @@ try {
     await page.waitForSelector('#co-list .co', { timeout: 30000 });
     check(`${tag}: gallery lists the demo company and no locked card`, await page.evaluate(() => { const c = [...document.querySelectorAll('#co-list .co')]; return c.some((b) => b.dataset.id === 'demo-co') && !c.some((b) => b.dataset.locked) && !document.getElementById('f'); }));
     check(`${tag}: gallery has no horizontal overflow`, await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth <= 2));
+    /* the crystal world: mounted after the page painted, animating, sized to the viewport; or absent without WebGL */
+    await page.waitForFunction(() => window.SQCEntry && (SQCEntry.world() || !window.SQCCrystal || document.readyState === 'complete'), null, { timeout: 20000 }).catch(() => {});
+    await page.waitForTimeout(600);
+    const world = await page.evaluate(async () => { const w = SQCEntry.world(); if (!w) return { mounted: false, gl: !!document.createElement('canvas').getContext('webgl') }; const f0 = w.frames(); await new Promise((r) => setTimeout(r, 1000)); const c = document.getElementById('sqc-world'); return { mounted: true, fps: w.frames() - f0, shards: w.shards(), still: w.still(), w: c.width, h: c.height, vw: innerWidth, vh: innerHeight, on: c.classList.contains('on') }; });
+    if (world.mounted) {
+      check(`${tag}: the crystal world animates (≥ 20 fps)`, world.fps >= 20, JSON.stringify(world));
+      check(`${tag}: the world canvas is sized to the viewport`, world.w >= world.vw && world.h >= world.vh && world.on && !world.still, JSON.stringify(world));
+    } else check(`${tag}: no WebGL here, the gallery still works without the world`, !world.gl, JSON.stringify(world));
 
     /* 2. open the demo company: the app boots on it, with no chooser dialog */
     await page.click('#co-list .co[data-id="demo-co"]');
@@ -51,6 +59,13 @@ try {
     await page.waitForTimeout(500);
     await page.evaluate(() => SKosifCore.go('customers'));
     await page.waitForTimeout(600);
+    /* the command center carries the world behind the company's name; leaving the screen frees it */
+    await page.evaluate(() => SKosifCore.go('dash'));
+    await page.waitForFunction(() => document.querySelector('.skc-world-c.on'), null, { timeout: 20000 }).catch(() => {});
+    const hero = await page.evaluate(() => ({ canvas: !!document.querySelector('.skc-world-c'), on: !!document.querySelector('.skc-world-c.on'), name: (document.querySelector('.skc-world-tx b') || {}).textContent }));
+    check(`${tag}: the command center hero shows the world and the company`, hero.canvas && hero.name === 'شركة الوادي التجريبية للحوم' && (hero.on || !(await page.evaluate(() => !!document.createElement('canvas').getContext('webgl')))), JSON.stringify(hero));
+    await page.evaluate(() => SKosifCore.go('customers'));
+    await page.waitForTimeout(400);
     check(`${tag}: the helper screens name the company and link back to the front door`, await page.evaluate(() => { const b = document.querySelector('.sqc-space-bar'); return !!b && b.textContent.includes('شركة الوادي التجريبية للحوم') && !!b.querySelector('[data-space-door][href="./"]'); }));
     const demoCustomers = await page.evaluate(async () => ((r) => r.empty ? 0 : r.customers.length)(await SKosifSalesIntel.snapshot('all')));
     check(`${tag}: demo customers exist`, demoCustomers > 0, String(demoCustomers));
@@ -118,6 +133,17 @@ try {
     check(`${tag}: the demo company keeps its data and the private one stays locked in the switcher`, back.id === 'demo-co' && back.customers === demoCustomers && !back.privInList, JSON.stringify(back));
     check(`${tag}: no page or console errors`, errs.length === 0, errs.slice(0, 3).join(' | '));
     await ctx.close();
+    if (tag === 'laptop') {
+      /* reduced motion: one still frame, no animation loop */
+      const rc = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+      const rp = await rc.newPage();
+      await rp.goto(base + 'index.html');
+      await rp.waitForFunction(() => window.SQCEntry && (SQCEntry.world() || document.readyState === 'complete'), null, { timeout: 20000 }).catch(() => {});
+      await rp.waitForTimeout(500);
+      const still = await rp.evaluate(async () => { const w = SQCEntry.world(); if (!w) return { mounted: false }; const f0 = w.frames(); await new Promise((r) => setTimeout(r, 800)); return { mounted: true, still: w.still(), extra: w.frames() - f0, drew: w.frames() >= 1 }; });
+      if (still.mounted) check('reduced motion: the world draws one still frame and does not animate', still.still && still.drew && still.extra <= 1, JSON.stringify(still));
+      await rc.close();
+    }
   }
 } finally { await browser.close(); }
 if (failures.length) { console.error(failures.join('\n')); process.exit(1); }

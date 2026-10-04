@@ -69,8 +69,11 @@ function setPeriod(periodId){
   SK.bus&&SK.bus.emit("company",d.rest.active);return true;
 }
 /* make the books and the business name follow the open company; returns what it changed */
+/* the unnamed data of a brand-new device (space «space-main» before any company was chosen) is provisional: the demo
+   company or the owner's first company names it; registering it in the books would hide the demo company's own record */
+function provisional(){const cur=current();if(cur.id!=="space-main")return false;const d=books();return !d.companies.some(c=>c.id===cur.id)}
 function reconcile(){
-  const cur=current(),d=books(),changed=[];if(!cur.id)return changed;
+  const cur=current(),d=books(),changed=[];if(!cur.id||provisional())return changed;
   if(!d.companies.some(c=>c.id===cur.id)){d.rest.companies=[...d.companies,{id:cur.id,name:cur.name,country:cur.country,currency:cur.currency}];changed.push("books-record")}
   if(d.active.companyId!==cur.id){d.rest.active={companyId:cur.id};changed.push("books-active")}
   else if(d.active.periodId&&!d.periods.some(p=>p.id===d.active.periodId&&p.companyId===cur.id)){d.rest.active={companyId:cur.id};changed.push("books-period")}
@@ -79,19 +82,19 @@ function reconcile(){
   return changed;
 }
 /* the rail shows the business name the core paints; keep it the company's even before the core's settings catch up */
-function paintRail(){const el=document.getElementById("biz-name"),n=current().name;if(el&&el.textContent!==n)el.textContent=n}
+function paintRail(){if(provisional())return;const el=document.getElementById("biz-name"),n=current().name;if(el&&el.textContent!==n)el.textContent=n}
 let ready=false;
 async function boot(){
   const s=space(),c=window.SKosifCore;
   if(!s||!c||!SK.bus){setTimeout(boot,250);return}
   if(s.intent)await s.intent();
   if(s.busy&&s.busy())return; /* a switch is reloading the page: the next load reconciles */
-  reconcile();ready=true;paintRail();
+  reconcile();ready=true;if(!provisional())paintRail();
   SK.bus.on("render",()=>setTimeout(paintRail,0));
   /* the business renamed in «الإعدادات» renames the company */
   addEventListener("sk:org",e=>{const x=e.detail||{};if(x.f==="biz"&&clean(x.v)&&clean(x.v)!==current().name)rename(x.v)});
   SK.bus.emit("company",{companyId:current().id});
 }
 boot();
-SK.company=Object.freeze({current,list,open,create,rename,setPeriod,reconcile,ready:()=>ready,DEMO});
+SK.company=Object.freeze({current,list,open,create,rename,setPeriod,reconcile,provisional,ready:()=>ready,DEMO});
 })();
