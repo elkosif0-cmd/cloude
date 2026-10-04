@@ -20,8 +20,8 @@ try {
     page.on('console', (m) => { if (m.type() === 'error' && !/ERR_|net::|Failed to load resource|favicon/.test(m.text())) errs.push('console: ' + m.text().slice(0, 200)); });
     page.on('dialog', (d) => d.dismiss());
     await page.goto(url);
-    await page.waitForFunction(() => window.SK && window.SK.demo && window.SKosifCore && window.SKosifSalesIntel, null, { timeout: 60000 });
-    for (let i = 0; i < 120; i++) { if (await page.evaluate(async () => (await SK.demo.status()).filter((x) => x.demo).length >= 10)) break; await page.waitForTimeout(500); }
+    /* a fresh device fills the demo company and reloads once: wait for the page that stays */
+    await page.waitForFunction(() => window.SK && window.SK.demo && SK.demo.settled() && window.SKosifCore && window.SKosifSalesIntel && !document.querySelector('.skdemo-overlay'), null, { timeout: 120000 });
 
     /* the hub: as-of day */
     await page.evaluate(() => SKosifCore.go('salesintel'));
@@ -44,8 +44,14 @@ try {
     check(`${tag}: hub has no horizontal overflow`, (await overflow(page)) <= 2, String(await overflow(page)));
 
     /* the hub: every KPI explains itself to keyboard and screen-reader users */
-    await page.locator('.si-kpi').first().focus();
-    const how = await page.evaluate(() => { const k = document.activeElement, h = k && k.querySelector('.si-how'); return h ? getComputedStyle(h).visibility : 'none'; });
+    /* the hub repaints after a change (and the lab after it): focus the card that stays */
+    let how = 'none';
+    for (let i = 0; i < 6 && how !== 'visible'; i++) {
+      await page.waitForTimeout(300);
+      await page.locator('.si-kpi').first().focus();
+      await page.waitForTimeout(250);
+      how = await page.evaluate(() => { const k = document.activeElement, h = k && k.classList.contains('si-kpi') && k.querySelector('.si-how'); return h ? getComputedStyle(h).visibility : 'none'; });
+    }
     check(`${tag}: a focused KPI shows how it is computed`, how === 'visible', how);
     check(`${tag}: every KPI has an accessible description`, await page.evaluate(() => [...document.querySelectorAll('.si-kpi')].every((k) => { const d = document.getElementById(k.getAttribute('aria-describedby') || ''); return d && d.textContent.trim().length > 10; })));
 

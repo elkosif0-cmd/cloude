@@ -20,7 +20,7 @@
 .si-kpi .skspark{flex:0 0 auto}
 /* how a KPI is computed, on hover, keyboard focus or tap; it floats so the grid never jumps */
 .si-kpi:focus-visible{outline:2px solid var(--sk-brand);outline-offset:2px}
-.si-how{position:absolute;inset-inline:8px;top:calc(100% + 6px);z-index:6;padding:8px 10px;border-radius:var(--sk-r-s);background:var(--sk-ink);color:var(--sk-surface);font-size:var(--sk-fs-2xs);font-weight:600;line-height:1.6;box-shadow:var(--sk-shadow-1);visibility:hidden;opacity:0;pointer-events:none;transition:opacity var(--sk-t) var(--sk-ease),visibility var(--sk-t)}
+.si-how{position:absolute;inset-inline:8px;top:calc(100% + 6px);z-index:6;padding:8px 10px;border-radius:var(--sk-r-s);background:var(--sk-ink);color:var(--sk-surface);font-size:var(--sk-fs-2xs);font-weight:600;line-height:1.6;box-shadow:var(--sk-shadow-1);visibility:hidden;opacity:0;pointer-events:none;transition:opacity var(--sk-t) var(--sk-ease)}
 .si-kpi:hover .si-how,.si-kpi:focus .si-how,.si-kpi:focus-within .si-how{visibility:visible;opacity:1}
 @media (prefers-reduced-motion:reduce){.si-how{transition:none}}
 .si-d{display:inline-flex;align-items:center;gap:3px;padding:1px 8px;border-radius:var(--sk-r-pill);font-size:var(--sk-fs-2xs);font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}

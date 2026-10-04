@@ -47,6 +47,7 @@ ok("app shell advertises manifest", 'rel="manifest" href="./manifest.webmanifest
 ok("unlock page has audit-first meta description", 'name="description"' in unlock_head and "المراجعة" in unlock_head)
 ok("unlock page advertises manifest", 'rel="manifest" href="./manifest.webmanifest"' in unlock_head)
 ok("unlock password has an explicit label", 'for="p">كلمة المرور الآمنة</label>' in index)
+ok("front door is the company gallery with the private company locked", 'id="co-list"' in index and 'data-locked="1"' in index and 'id="locked"' in index)
 ok("unlock feedback exposes alert/status semantics", 'id="msg" role="alert"' in index and 'id="progress" role="status"' in index)
 ok("password visibility toggle exposes pressed state", 'id="eye" type="button" aria-label="إظهار كلمة المرور" aria-pressed="false"' in index)
 ok("root entry is explicitly non-cacheable", re.search(r"(?m)^/$\n\s+Cache-Control:\s*no-cache, no-store, must-revalidate\s*$", headers) is not None)
