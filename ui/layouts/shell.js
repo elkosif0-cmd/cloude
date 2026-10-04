@@ -10,7 +10,7 @@
 const {$,$$,esc,load,save}=SK;
 const core=()=>window.SKosifCore;
 const PREF_KEY="skosif_prefs";
-const sidebar={ready:false,rail:null,observer:null,narrow:innerWidth<=900,open:false,opener:null,main:null,mainInert:false,route:false};
+const sidebar={ready:false,rail:null,observer:null,narrow:innerWidth<=900,open:false,opener:null,main:null,mainInert:false,route:false,scrollY:0};
 
 function identityMetadata(){
   const h=document.head;if(!h)return;
@@ -262,7 +262,7 @@ function paintTabs(){
   let bar=$("#skb");
   if(!bar){
     bar=document.createElement("nav");bar.id="skb";bar.className="skb";bar.setAttribute("aria-label","تنقل سريع");host.appendChild(bar);
-    bar.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.more)c.act("rail-open");else c.go(b.dataset.v)});
+    bar.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.more){sidebar.opener=b;toggleSidebar()}else c.go(b.dataset.v)});
   }
   const cur=c.view(),cap=SK.caps.get(cur),tabs=tabIds().filter(id=>SK.perm.can(id)).map(id=>[id,tabLabel(id)]);
   const html=tabs.map(([id,l])=>'<button type="button" data-v="'+id+'"'+(id===cur?' aria-current="page"':'')+'>'+(SK.icons[id]||c.navIcon(id)||"")+(c.navBadge(id)||"")+'<span>'+esc(l)+'</span></button>').join("")+
@@ -299,17 +299,20 @@ function syncSidebar(){
   if(button){button.setAttribute("aria-controls","rail");button.setAttribute("aria-expanded",String(shown));const label=narrow?(open?"إغلاق قائمة التنقل":"فتح قائمة التنقل"):(hidden?"إظهار القائمة الجانبية":"إخفاء القائمة الجانبية");button.setAttribute("aria-label",label);button.title=label}
   if(!shown&&rail.contains(document.activeElement)&&button&&!sidebar.open)button.focus({preventScroll:true});
   rail.inert=!shown;rail.setAttribute("aria-hidden",String(!shown));
+  const opening=open&&!sidebar.open,closing=!open&&sidebar.open;
+  if(opening)sidebar.scrollY=window.scrollY;
   document.body.classList.toggle("skn-locked",open);
-  if(open&&!sidebar.open){
+  if(opening){
     sidebar.main=$(".maincol");sidebar.mainInert=!!(sidebar.main&&sidebar.main.inert);
     sidebar.opener=sidebar.opener&&sidebar.opener.isConnected?sidebar.opener:button;
     if(sidebar.main)sidebar.main.inert=true;
     const first=sidebarFocusables(rail)[0];if(first)first.focus({preventScroll:true});
-  }else if(!open&&sidebar.open){
+  }else if(closing){
     if(sidebar.main)sidebar.main.inert=sidebar.mainInert;
     const target=sidebar.route?$("#pg-title"):(sidebar.opener&&sidebar.opener.isConnected&&!rail.contains(sidebar.opener)?sidebar.opener:button);
     if(target){if(sidebar.route&&!target.hasAttribute("tabindex"))target.setAttribute("tabindex","-1");target.focus({preventScroll:true})}
-    sidebar.main=null;sidebar.opener=null;sidebar.route=false;
+    const y=sidebar.scrollY;sidebar.main=null;sidebar.opener=null;sidebar.route=false;sidebar.scrollY=0;
+    if(Number.isFinite(y)&&Math.abs(window.scrollY-y)>1)window.scrollTo(0,y);
   }
   sidebar.open=open;
 }
