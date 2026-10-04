@@ -10,7 +10,7 @@
 const {$,$$,esc,load,save}=SK;
 const core=()=>window.SKosifCore;
 const PREF_KEY="skosif_prefs";
-const sidebar={ready:false,rail:null,observer:null,narrow:innerWidth<=900,open:false,opener:null,main:null,mainInert:false,route:false,scrollY:0};
+const sidebar={ready:false,rail:null,observer:null,narrow:innerWidth<=900,open:false,opener:null,openerMore:false,main:null,mainInert:false,route:false,scrollY:0};
 
 function identityMetadata(){
   const h=document.head;if(!h)return;
@@ -262,7 +262,7 @@ function paintTabs(){
   let bar=$("#skb");
   if(!bar){
     bar=document.createElement("nav");bar.id="skb";bar.className="skb";bar.setAttribute("aria-label","تنقل سريع");host.appendChild(bar);
-    bar.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.more){sidebar.opener=b;toggleSidebar()}else c.go(b.dataset.v)});
+    bar.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.more){sidebar.opener=b;sidebar.openerMore=true;toggleSidebar()}else c.go(b.dataset.v)});
   }
   const cur=c.view(),cap=SK.caps.get(cur),tabs=tabIds().filter(id=>SK.perm.can(id)).map(id=>[id,tabLabel(id)]);
   const html=tabs.map(([id,l])=>'<button type="button" data-v="'+id+'"'+(id===cur?' aria-current="page"':'')+'>'+(SK.icons[id]||c.navIcon(id)||"")+(c.navBadge(id)||"")+'<span>'+esc(l)+'</span></button>').join("")+
@@ -285,7 +285,7 @@ function toggleRail(force){const mini=typeof force==="boolean"?force:prefs().rai
    Mobile actions stay in the core drawer controller; this adapter synchronizes focus and aria. */
 function toggleSidebar(){
   const rail=$("#rail"),button=$(".topbar .menu-btn")||$(".menu-btn");if(!rail)return;
-  if(innerWidth<=900){if(!rail.classList.contains("open"))sidebar.opener=document.activeElement;const c=core();if(c)c.act(rail.classList.contains("open")?"rail-close":"rail-open");syncSidebar();return}
+  if(innerWidth<=900){const opening=!rail.classList.contains("open");if(opening){sidebar.scrollY=window.scrollY;if(!sidebar.opener)sidebar.opener=document.activeElement;sidebar.openerMore=!!(sidebar.opener&&sidebar.opener.matches&&sidebar.opener.matches("#skb [data-more]"))}const c=core();if(c)c.act(opening?"rail-open":"rail-close");syncSidebar();return}
   const hide=prefs().sidebarHidden!==true;
   if(hide&&rail.contains(document.activeElement)&&button)button.focus({preventScroll:true});
   setPref("sidebarHidden",hide);syncSidebar();
@@ -309,9 +309,9 @@ function syncSidebar(){
     const first=sidebarFocusables(rail)[0];if(first)first.focus({preventScroll:true});
   }else if(closing){
     if(sidebar.main)sidebar.main.inert=sidebar.mainInert;
-    const target=sidebar.route?$("#pg-title"):(sidebar.opener&&sidebar.opener.isConnected&&!rail.contains(sidebar.opener)?sidebar.opener:button);
+    const liveMore=sidebar.openerMore?$("#skb [data-more]"):null;const target=sidebar.route?$("#pg-title"):(liveMore||(sidebar.opener&&sidebar.opener.isConnected&&!rail.contains(sidebar.opener)?sidebar.opener:button));
     if(target){if(sidebar.route&&!target.hasAttribute("tabindex"))target.setAttribute("tabindex","-1");target.focus({preventScroll:true})}
-    const y=sidebar.scrollY;sidebar.main=null;sidebar.opener=null;sidebar.route=false;sidebar.scrollY=0;
+    const y=sidebar.scrollY;sidebar.main=null;sidebar.opener=null;sidebar.openerMore=false;sidebar.route=false;sidebar.scrollY=0;
     if(Number.isFinite(y)&&Math.abs(window.scrollY-y)>1)window.scrollTo(0,y);
   }
   sidebar.open=open;
@@ -323,7 +323,7 @@ function sidebarControls(){
   sidebar.ready=true;syncSidebar();
 }
 function sidebarEvents(){
-  document.addEventListener("click",e=>{const opener=e.target.closest('.menu-btn,#skb [data-more]');if(opener&&innerWidth<=900&&!sidebar.open)sidebar.opener=opener;if(sidebar.open&&e.target.closest('#rail .nav-btn'))sidebar.route=true},true);
+  document.addEventListener("click",e=>{const opener=e.target.closest('.menu-btn,#skb [data-more]');if(opener&&innerWidth<=900&&!sidebar.open){sidebar.opener=opener;sidebar.openerMore=!!opener.matches("#skb [data-more]")}if(sidebar.open&&e.target.closest('#rail .nav-btn'))sidebar.route=true},true);
   document.addEventListener("keydown",e=>{
     if(!sidebar.open||e.defaultPrevented)return;
     /* Core's bubbling Escape closes its drawer. Give exported child controllers first refusal. */
@@ -486,7 +486,7 @@ function swipe(){
   addEventListener("touchend",e=>{
     if(x0==null)return;const t=e.changedTouches[0],dx=(t.clientX-x0)*(rtl()?-1:1),dy=Math.abs(t.clientY-y0);x0=null;
     if(dy>60)return;const c=core();if(!c)return;
-    if(mode==="open"&&dx>50)c.act("rail-open");else if(mode==="close"&&dx<-60)c.act("rail-close");
+    if(mode==="open"&&dx>50){sidebar.scrollY=window.scrollY;sidebar.opener=null;sidebar.openerMore=false;c.act("rail-open")}else if(mode==="close"&&dx<-60)c.act("rail-close");
   },{passive:true});
 }
 /* keyboard hints follow the device: ⌘K on a Mac, Ctrl K on Windows, nothing on an iPhone */
