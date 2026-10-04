@@ -11,6 +11,18 @@ const {$,$$,esc,load,save}=SK;
 const core=()=>window.SKosifCore;
 const PREF_KEY="skosif_prefs";
 
+function identityMetadata(){
+  const h=document.head;if(!h)return;
+  h.querySelectorAll('link[rel~="icon"]').forEach(x=>x.remove());
+  const icon=document.createElement("link");icon.rel="icon";icon.type="image/svg+xml";icon.href="./art/sqc-icon.svg";h.appendChild(icon);
+  let manifest=h.querySelector('link[rel="manifest"]');
+  if(!manifest){manifest=document.createElement("link");manifest.rel="manifest";h.appendChild(manifest)}
+  manifest.href="./manifest.webmanifest";
+  let theme=h.querySelector('meta[name="theme-color"]');
+  if(!theme){theme=document.createElement("meta");theme.name="theme-color";h.appendChild(theme)}
+  if(!theme.content)theme.content="#0c2340";
+}
+
 /* ---------- preferences: theme (look) + density ----------
    look: kosif (default, the adopted KOSIF identity) | kosif-night | heritage | heritage-night | executive | audit | midnight | notebook | auto */
 const LOOKS=[
@@ -430,6 +442,7 @@ window.SKosifShell=Object.freeze({paint,stripItems,setPref,fonts:()=>FONTS.map(f
   toggleRail,tabs:tabIds,setTabs,tabLabel,defaultTabs:()=>TABS.slice(),tabMax:TAB_MAX});
 
 function boot(){
+  identityMetadata();
   const c=core();
   SK._flush();
   if(c){
