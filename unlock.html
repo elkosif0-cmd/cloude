@@ -106,10 +106,13 @@ $("f").addEventListener("submit",async e=>{
 e.preventDefault();$("msg").textContent="";$("go").disabled=true;$("f").setAttribute("aria-busy","true");$("progress").textContent="جارٍ التحقق وفك التشفير…";const enteredPassword=$("p").value;
 try{
 const meta=await fetch("./secure/crypto.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error("meta");return r.json()});
-const pass=new TextEncoder().encode($("p").value);
+const pass=new TextEncoder().encode(enteredPassword);
 const base=await crypto.subtle.importKey("raw",pass,"PBKDF2",false,["deriveBits"]);
-const bits=await crypto.subtle.deriveBits({name:"PBKDF2",hash:"SHA-256",salt:b64(meta.salt_b64),iterations:meta.iterations},base,512);
-const dk=new Uint8Array(bits),ek=dk.slice(0,32),mk=dk.slice(32),nonce=b64(meta.nonce_b64),ct=await loadCipher(meta);
+const [bits,ct]=await Promise.all([
+  crypto.subtle.deriveBits({name:"PBKDF2",hash:"SHA-256",salt:b64(meta.salt_b64),iterations:meta.iterations},base,512),
+  loadCipher(meta)
+]);
+const dk=new Uint8Array(bits),ek=dk.slice(0,32),mk=dk.slice(32),nonce=b64(meta.nonce_b64);
 $("progress").textContent="جارٍ التحقق من سلامة البيانات…";
 const macKey=await crypto.subtle.importKey("raw",mk,{name:"HMAC",hash:"SHA-256"},false,["verify"]);
 const signed=new Uint8Array(nonce.length+ct.length);signed.set(nonce);signed.set(ct,nonce.length);
