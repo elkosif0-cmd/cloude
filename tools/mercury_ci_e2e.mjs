@@ -24,7 +24,7 @@ async function open(role,kind='populated',width=1280){
  const origin=new URL(urls[role]).origin;
  await context.route('**/*',r=>{const u=r.request().url();const publicFont=u.startsWith('https://fonts.googleapis.com/')||u.startsWith('https://fonts.gstatic.com/');return u.startsWith(origin+'/')||publicFont||u.startsWith('data:')||u.startsWith('blob:')?r.continue():r.abort();});
  await context.addInitScript(seed=>{for(const[k,v]of Object.entries(seed))localStorage.setItem(k,JSON.stringify(v));localStorage.setItem('skosif_demo_v1',JSON.stringify({off:true,sections:{}}));localStorage.setItem('skosif_role_mode',JSON.stringify('admin'));sessionStorage.setItem('sqc_space_chosen','1');sessionStorage.setItem('sqc_helper_user_chosen','1');},seed);
- const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const page=await context.newPage(),errors=[];page.__sqcCase=role+'-'+kind;page.__fontNetwork=[];page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(/^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test(r.url()))page.__fontNetwork.push({url:r.url(),status:r.status()});});page.on('requestfailed',r=>{if(/^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test(r.url()))page.__fontNetwork.push({url:r.url(),failure:r.failure()?.errorText});});
  await page.goto(urls[role],{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.SKosifReportPack&&window.SKosifShell&&window.SKosifMetrics);
  await page.evaluate(data=>{
@@ -46,7 +46,12 @@ async function report(page,expectPlex=true){
  await page.locator('[data-rp="print"]').click();
  await page.frameLocator('.skout-f').locator('.rp-cover').waitFor();
  const frame=await page.locator('.skout-f').elementHandle().then(h=>h.contentFrame());
- if(expectPlex){const fontState=await frame.evaluate(async()=>{await document.fonts.ready;const samples=await Promise.all(['مراجعة','0123456789'].map(text=>document.fonts.load('400 14px \"IBM Plex Sans Arabic\"',text)));return{family:getComputedStyle(document.body).fontFamily,loaded:samples.map(f=>f.length>0&&f.every(x=>x.status==='loaded'))};});
+ if(expectPlex){
+  const before=await frame.evaluate(()=>({sheets:[...document.querySelectorAll('link[rel=stylesheet]')].map(n=>({href:n.href,registered:!!n.sheet})),faces:[...document.fonts].map(f=>({family:f.family,status:f.status}))}));
+  fs.writeFileSync(`${out}/${page.__sqcCase}-font-before.json`,JSON.stringify(before,null,2));
+  try{await frame.waitForFunction(()=>[...document.fonts].some(f=>f.family.replace(/[\"']/g,'')==='IBM Plex Sans Arabic'),null,{timeout:15000});}catch(e){fs.writeFileSync(`${out}/${page.__sqcCase}-font-network.json`,JSON.stringify(page.__fontNetwork,null,2));await page.screenshot({path:`${out}/${page.__sqcCase}-font-failure.png`,fullPage:true});throw e;}
+  const fontState=await frame.evaluate(async()=>{await document.fonts.ready;const samples=await Promise.all(['مراجعة','0123456789'].map(text=>document.fonts.load('400 14px \"IBM Plex Sans Arabic\"',text)));return{family:getComputedStyle(document.body).fontFamily,loaded:samples.map(f=>f.length>0&&f.every(x=>x.status==='loaded'))};});
+ fs.writeFileSync(`${out}/${page.__sqcCase}-font-after.json`,JSON.stringify({fontState,network:page.__fontNetwork},null,2));
  assert.ok(fontState.family.includes('IBM Plex Sans Arabic'),JSON.stringify(fontState));assert.deepEqual(fontState.loaded,[true,true],'Actual Arabic and numeric report fonts must load');}else await frame.evaluate(()=>document.fonts.ready);
  return frame;
 }
