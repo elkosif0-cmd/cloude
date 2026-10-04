@@ -115,9 +115,10 @@ function tbHTML(d){
   const byType={};tb.rows.forEach(r=>{const a=d.accounts.find(x=>x.id===r.accountId);const t=a?a.type:"other";byType[t]=r2((byType[t]||0)+r.balance)});
   return '<section class="card"><div class="card-h"><div><h3>ميزان المراجعة</h3><p>'+(tb.balanced?'<span class="sk-pill good">متزن</span>':'<span class="sk-pill bad">غير متزن</span>')+(p?' — '+esc(p.label):'')+'</p></div><div class="sk-actions"><button type="button" class="btn" data-l="tb-csv">تصدير CSV</button><button type="button" class="btn primary" data-l="to-review">'+SK.icon("tbreview")+' إلى مركز المراجعة</button><button type="button" class="btn" data-l="to-studio">الاستوديو المتقدم</button></div></div><div class="card-b sk-stack">'+
     '<div class="sk-kpis">'+Object.entries(byType).map(([t,v])=>'<div class="sk-kpi"><span>'+esc(TYPES[t]||t)+'</span><b>'+money(Math.abs(v))+'</b></div>').join("")+'</div>'+
+    '<p class="hint" id="lg-tb-total-scope">إجمالي التذييل يشمل جميع حسابات الفترة قبل البحث، ولا يتغير عند تصفية الصفوف أو إخفاء الأعمدة.</p>'+
     '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الحساب</th><th>مدين</th><th>دائن</th><th>رصيد مدين</th><th>رصيد دائن</th></tr></thead><tbody>'+
     tb.rows.map(r=>'<tr><td>'+esc(accName(d,r.accountId))+'</td><td class="n">'+money(r.debit)+'</td><td class="n">'+money(r.credit)+'</td><td class="n">'+(r.balance>0?money(r.balance):"")+'</td><td class="n">'+(r.balance<0?money(-r.balance):"")+'</td></tr>').join("")+
-    '<tr><td><b>الإجمالي</b></td><td class="n"><b>'+money(tb.totals.debit)+'</b></td><td class="n"><b>'+money(tb.totals.credit)+'</b></td><td></td><td></td></tr></tbody></table></div></div></section>';
+    '</tbody><tfoot data-sk-summary-scope="all" aria-describedby="lg-tb-total-scope"><tr><td><b>إجمالي ميزان المراجعة الكامل — جميع حسابات الفترة قبل البحث</b></td><td class="n"><b>'+money(tb.totals.debit)+'</b></td><td class="n"><b>'+money(tb.totals.credit)+'</b></td><td></td><td></td></tr></tfoot></table></div></div></section>';
 }
 /* control accounts against the operational sub-ledgers kept in the app */
 function reconHTML(d){return controlHTML(d)+trailHTML(d)+revReconHTML(d)+bankHTML(d)+countHTML(d)}

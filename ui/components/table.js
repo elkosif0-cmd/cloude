@@ -142,26 +142,36 @@ function totals(table,hit,hid){
   });
   [...row.cells].forEach((c,i)=>c.classList.toggle("sktb-hide",hid.has(i)));
 }
+/* Explicit full-scope screen footers stay separate from filtered account rows.
+   Unmarked and generated footers retain their existing export behavior. */
+function ownedFooterRows(table,idx){
+  const foot=table.tFoot;if(!idx.length||!foot||foot.classList.contains("sktb-sum")||foot.dataset.skSummaryScope!=="all")return[];
+  const count=headers(table).length,rows=[...foot.rows].filter(r=>r.cells.length===count);
+  const values=rows.map(r=>idx.map(i=>cellText(r.cells[i])));
+  /* Keep the scope when the label column is hidden, without overwriting a numeric column. */
+  if(values.length&&!idx.includes(0))values.unshift(idx.map((_,i)=>i===0?cellText(rows[0].cells[0]):""));
+  return values;
+}
 /* the rows and columns an export takes: what the search shows, in the current order, visible columns only */
 function exportData(table){
   const hs=headers(table),{orig,s}=table._sktb,hid=new Set(s.hidden),body=table.tBodies[0];
   const idx=hs.map((h,i)=>i).filter(i=>!hid.has(hs[i].textContent.trim())&&hs[i].textContent.trim()&&!hs[i].classList.contains("act"));
   const q=norm(s.q),rows=[...body.rows].filter(r=>orig.includes(r)&&(!q||norm(r.textContent).includes(q)));
   const name=((core()&&SK.caps.get(core().view())||{}).label||"جدول");
-  return{heads:idx.map(i=>hs[i].textContent.trim()),rows:rows.map(r=>idx.map(i=>cellText(r.cells[i]))),name,idx};
+  return{heads:idx.map(i=>hs[i].textContent.trim()),rows:rows.map(r=>idx.map(i=>cellText(r.cells[i]))),footerRows:ownedFooterRows(table,idx),name,idx};
 }
 const fileName=ext=>"SQC-"+((core()&&core().view())||"table")+"-"+new Date().toISOString().slice(0,10)+"."+ext;
 function exportXlsx(table){
   const x=exportData(table);if(!window.SKXlsx||!SKXlsx.write)return exportCsv(table);
-  SK.download(fileName("xlsx"),SKXlsx.write(x.name,x.heads,x.rows,{rtl:true}));SK.toast("صُدّر "+x.rows.length+" صفاً إلى Excel","ok");
+  SK.download(fileName("xlsx"),SKXlsx.write(x.name,x.heads,x.rows.concat(x.footerRows),{rtl:true}));SK.toast("صُدّر "+x.rows.length+" صفاً إلى Excel","ok");
 }
 async function copyTsv(table){
-  const x=exportData(table),tsv=[x.heads,...x.rows].map(r=>r.map(v=>String(v).replace(/[\t\n]+/g," ")).join("\t")).join("\n");
+  const x=exportData(table),tsv=[x.heads,...x.rows,...x.footerRows].map(r=>r.map(v=>String(v).replace(/[\t\n]+/g," ")).join("\t")).join("\n");
   try{await navigator.clipboard.writeText(tsv);SK.toast("نُسخ "+x.rows.length+" صفاً — الصقها في Excel","ok")}catch{SK.toast("المتصفح منع النسخ — استخدم التصدير","warn")}
 }
 function printTable(table){
   const x=exportData(table),w=window.open("","_blank");if(!w)return SK.toast("اسمح بالنوافذ المنبثقة للطباعة","warn");
-  const sum=table._sktb.sum,foot=sum?'<tfoot><tr>'+x.idx.map((i,j)=>'<td><b>'+esc(j===0?"الإجمالي":sum[i]?table.tFoot.rows[0].cells[i].textContent:"")+'</b></td>').join("")+'</tr></tfoot>':"";
+  const sum=table._sktb.sum,foot=x.footerRows.length?'<tfoot>'+x.footerRows.map(r=>'<tr>'+r.map(v=>'<td><b>'+esc(v)+'</b></td>').join("")+'</tr>').join("")+'</tfoot>':sum?'<tfoot><tr>'+x.idx.map((i,j)=>'<td><b>'+esc(j===0?"الإجمالي":sum[i]?table.tFoot.rows[0].cells[i].textContent:"")+'</b></td>').join("")+'</tr></tfoot>':"";
   w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>'+esc(x.name)+'</title></head><body><table><thead><tr>'+x.heads.map(h=>'<th>'+esc(h)+'</th>').join("")+'</tr></thead><tbody>'+
     x.rows.map(r=>'<tr>'+r.map(v=>'<td>'+esc(v)+'</td>').join("")+'</tr>').join("")+'</tbody>'+foot+'</table><p class="muted">'+x.rows.length+' صفاً'+(table._sktb.s.q?' — مطابقة للبحث «'+esc(table._sktb.s.q)+'»':'')+'</p></body></html>');
   w.document.close();SK.brandPrint(w,x.name);setTimeout(()=>{try{w.focus();w.print()}catch{}},400);
@@ -181,7 +191,7 @@ function exportCsv(table){
   const idx=hs.map((h,i)=>i).filter(i=>!hid.has(hs[i].textContent.trim())&&hs[i].textContent.trim()&&!hs[i].classList.contains("act"));
   const q=norm(s.q),rows=orig.filter(r=>!q||norm(r.textContent).includes(q));
   const name=((core()&&SK.caps.get(core().view())||{}).label||"جدول")+"-"+new Date().toISOString().slice(0,10);
-  SK.csv.download("SQC-"+name,idx.map(i=>hs[i].textContent.trim()),rows.map(r=>idx.map(i=>cellText(r.cells[i]))));
+  SK.csv.download("SQC-"+name,idx.map(i=>hs[i].textContent.trim()),rows.map(r=>idx.map(i=>cellText(r.cells[i]))).concat(ownedFooterRows(table,idx)));
   SK.toast("صُدّر "+rows.length+" صفاً","ok");
 }
 let menu=null;

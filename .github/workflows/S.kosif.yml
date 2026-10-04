@@ -75,7 +75,7 @@ jobs:
           NODE_PATH=/tmp/sqc-ui/node_modules node --test tools/sqc_accessibility.test.mjs tools/sqc_csv_safety.test.mjs
 
       - name: Test report display and partial receipt boundaries
-        run: node --test tools/receipt_boundary.test.mjs tools/alpro-report-display-regression.test.mjs tools/alpro-report-implementation.test.mjs
+        run: node --test tools/receipt_boundary.test.mjs tools/alpro-report-display-regression.test.mjs tools/alpro-report-implementation.test.mjs tools/trial_balance_footer.test.mjs
 
       - name: Test strict pricing kernel
         working-directory: app
@@ -264,3 +264,4 @@ jobs:
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/deeplink_e2e.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/restored_e2e.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/advances_e2e.mjs http://localhost:8765/app-safe.html
+
