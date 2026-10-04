@@ -93,7 +93,10 @@ function bind(root){
     else if(a==="save-rc"){
       if(!SK.ui.validate(root))return;
       const o=d.orders.find(x=>x.id===$("#rc-po",root).value);if(!o)return;
-      const lines=o.lines.map((l,i)=>({item:l.item,qty:n($('[data-rq="'+i+'"]',root).value)}));
+      const received=o.lines.map((l,i)=>({item:l.item,qty:Number($('[data-rq="'+i+'"]',root).value)}));
+      if(received.some(l=>!Number.isFinite(l.qty)||l.qty<0))return toast("أدخل كميات مستلمة صحيحة غير سالبة","warn");
+      const lines=received.filter(l=>l.qty>0);
+      if(!lines.length)return toast("أدخل كمية مستلمة أكبر من صفر لصنف واحد على الأقل","warn");
       const variances=P().procurement.matchReceipt(o.lines.map(l=>({itemId:l.item,orderedQty:l.qty,unitCost:l.cost})),lines.map(l=>({itemId:l.item,receivedQty:l.qty})));
       const input={id:SK.ui.uid("insp"),date:today(),invoicedKg:n($("#rc-inv",root).value),actualKg:n($("#rc-act",root).value),maxTemperatureC:n($("#rc-max",root).value),tolerancePercent:n($("#rc-tol",root).value)};
       const tv=$("#rc-temp",root).value.trim();if(tv!=="")input.temperatureC=n(tv);
