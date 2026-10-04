@@ -5,6 +5,9 @@ on:
       - 'ui/ds/sqc.css'
       - 'ui/features/report-pack.js'
       - 'tools/mercury*'
+      - 'tools/dashboard_box_kpi*'
+      - 'ui/features/command-center.js'
+      - 'payload/index.html.gz.b64.part*'
       - 'tools/fixtures/mercury*'
       - '.github/workflows/sqc-mercury-presentation.yml'
 permissions:
@@ -33,7 +36,7 @@ jobs:
           SQC_BUILD_MODE: preview
         run: |
           cd candidate
-          node --test tools/mercury_ci_contract.test.mjs tools/mercury_report_presentation.test.mjs
+          node --test tools/mercury_ci_contract.test.mjs tools/mercury_report_presentation.test.mjs tools/dashboard_box_kpi.test.mjs
           python3 build.py
           test ! -d dist/secure
           cd ../baseline
@@ -67,6 +70,7 @@ jobs:
           PY
           cd candidate
           NODE_PATH=/tmp/pw/node_modules node tools/mercury_ci_e2e.mjs
+          NODE_PATH=/tmp/pw/node_modules node tools/dashboard_box_kpi_e2e.mjs
       - name: Retain synthetic presentation evidence
         if: always()
         uses: actions/upload-artifact@v4
