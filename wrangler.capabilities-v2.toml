@@ -14,3 +14,8 @@ workers_dev = true
 # TEAM_DOMAIN = "https://<team>.cloudflareaccess.com"
 # POLICY_AUD = "<application-audience>"
 # ALLOWED_ORIGINS = "https://s-kosif.pages.dev"
+
+# Required for the server-side document vault. The API fails closed when this binding is absent.
+# [[r2_buckets]]
+# binding = "DOCUMENTS"
+# bucket_name = "s-kosif-documents"
