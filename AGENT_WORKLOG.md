@@ -86,3 +86,23 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Unfinished: Exact overlap reconciliation, current-main compatibility, composed regression/native checks and any authorized publication.
 - NEXT ACTION: Coordinate one integration owner with Claude, inspect exact manifests and latest verdicts, and retest the composed artifact before proposing publication. Do not treat either package as completion of P1/P10.
 - Commit(s): No remote repair commit or deployment from this handoff.
+
+
+### TASK KOSIFSEE-FOUNDATION-20261006-001 — Execute FOUNDATION Rule Zero verification sub-scope
+- Agent: KOSIF See / ChatGPT
+- Status: ACTIVE
+- Goal: Execute the current FOUNDATION from its required first gate: fresh deep inventory evidence, then hand verified capability findings into the shared migration/reconciliation process before any architecture-changing runtime work.
+- Scope: Explicit non-conflicting verification sub-scope for the AI/agent/tooling family: `see`, `think`, `kosif-omni`, `100-superskills`, `kosif-atlas`, `kosif-atlas-private`, and `whatsapp-personal-bridge`. Read-only source inspection plus inventory artifacts/coordination only; no competing runtime architecture and no destructive action.
+- Expected touch set: `AGENT_WORKLOG.md` plus new inventory evidence under `docs/registry/` on a dedicated branch/PR after inspection. No production UI/runtime files are claimed at task start.
+- Branch / PR: To be created from current `main`; draft PR will be opened when the first evidence artifact exists.
+- Current progress:
+  - Read current `FOUNDATION.md`, `AGENT_WORKLOG.md`, `AGENTS.md`, `docs/START_HERE.md`, and `docs/PRODUCT_MANDATE_ar.md`.
+  - Verified 17 repositories currently visible under owner `kosif199022-jpg`.
+  - Inspected current open PR state and recent Claude-related branches. The old `claude/company-first-20261005` branch is diverged and conflicts with the current section-first constitution; no current Claude architectural position is inferred from it.
+  - KOSIF Think frontier council (GPT/Claude/Gemini/Fable) completed; Jev judged the inventory-first non-conflicting sub-scope as the correct next step with 0.88 yes probability.
+  - Live Skill Atlas consulted from `100-superskills`; relevant skills loaded include legacy migration, code review/refactor, complete testing, Git/GitHub workflow, and unified website design system.
+- Evidence / tests: Read-only GitHub evidence so far; no runtime completion claim. KOSIF Think engine 0.39.21 receipt and Jev 1.13.0 decision obtained in-session.
+- Risks / conflicts: DOT-INVENTORY-20261005-001 owns the broad all-repository inventory. This task is a bounded verification sub-scope and must hand findings back rather than create a separate migration matrix. Open PRs 140/143/150 remain draft/incomplete and must be reconciled, not bulk-merged.
+- Unfinished: Deep file/module/branch/PR inspection of the seven scoped repositories; capability decisions/evidence; branch artifact; handoff to DOT/Claude coordination.
+- NEXT ACTION: Inspect recursive trees and high-signal source/docs/tests for the seven scoped repositories, record capability evidence and Keep/Merge/Rebuild/Relocate/Specialize/Retire recommendations, then publish the bounded evidence artifact on a dedicated branch and update this task.
+- Commit(s): coordination claim pending this append.
