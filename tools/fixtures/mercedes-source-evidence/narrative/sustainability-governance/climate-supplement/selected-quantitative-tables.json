@@ -1,0 +1,934 @@
+[
+  {
+    "id": "MB2025-CL-3379-1",
+    "physical_page": 3379,
+    "printed_page": 139,
+    "title": "Energy production",
+    "units": "GWh",
+    "population_and_measurement": "Own sites; electricity/heat internally used and transferred to third parties",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_cautions": "Energy generated is not energy consumption. Nonrenewable includes CHP; no automatic renewable attribution from external-power contracts.",
+    "rows": [
+      {
+        "label": "Nonrenewable",
+        "values": {
+          "2025": 1153,
+          "2024": 1217
+        }
+      },
+      {
+        "label": "Renewable",
+        "values": {
+          "2025": 86,
+          "2024": 57
+        }
+      },
+      {
+        "label": "Total",
+        "values": {
+          "2025": 1239,
+          "2024": 1274
+        }
+      }
+    ],
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03379.txt"
+  },
+  {
+    "id": "MB2025-CL-3380-2",
+    "physical_page": 3380,
+    "printed_page": 140,
+    "title": "Total energy consumption",
+    "units": "GWh unless row marked percent",
+    "population_and_measurement": "Worldwide energy data; invoices/meters and estimates where unavailable",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_cautions": "Production-specific exclusion of fuels does not apply to this total. Dashes kept as printed; percentage rows not additive with quantities.",
+    "rows": [
+      {
+        "label": "Coal and coal products",
+        "values": {
+          "2025": "–",
+          "2024": "–"
+        }
+      },
+      {
+        "label": "Crude oil and petroleum products",
+        "values": {
+          "2025": 343,
+          "2024": 413
+        }
+      },
+      {
+        "label": "Natural gas",
+        "values": {
+          "2025": 2145,
+          "2024": 2407
+        }
+      },
+      {
+        "label": "Other fossil sources",
+        "values": {
+          "2025": 10,
+          "2024": 10
+        }
+      },
+      {
+        "label": "Purchased electricity/heat/steam/cooling from fossil sources",
+        "values": {
+          "2025": 472,
+          "2024": 460
+        }
+      },
+      {
+        "label": "Total fossil sources",
+        "values": {
+          "2025": 2970,
+          "2024": 3290
+        }
+      },
+      {
+        "label": "Fossil share [%]",
+        "values": {
+          "2025": 53.4,
+          "2024": 55.6
+        }
+      },
+      {
+        "label": "Nuclear sources",
+        "values": {
+          "2025": "–",
+          "2024": "–"
+        }
+      },
+      {
+        "label": "Nuclear share [%]",
+        "values": {
+          "2025": "–",
+          "2024": "–"
+        }
+      },
+      {
+        "label": "Renewable fuel",
+        "values": {
+          "2025": 30,
+          "2024": 33
+        }
+      },
+      {
+        "label": "Purchased electricity/heat/steam/cooling from renewable sources",
+        "values": {
+          "2025": 2502,
+          "2024": 2551
+        }
+      },
+      {
+        "label": "Self-generated nonfuel renewable energy",
+        "values": {
+          "2025": 64,
+          "2024": 42
+        }
+      },
+      {
+        "label": "Total renewable sources",
+        "values": {
+          "2025": 2596,
+          "2024": 2626
+        }
+      },
+      {
+        "label": "Renewable share [%]",
+        "values": {
+          "2025": 46.6,
+          "2024": 44.4
+        }
+      },
+      {
+        "label": "Total energy",
+        "values": {
+          "2025": 5566,
+          "2024": 5916
+        }
+      }
+    ],
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03380.txt"
+  },
+  {
+    "id": "MB2025-CL-3380-3",
+    "physical_page": 3380,
+    "printed_page": 140,
+    "title": "High-climate-impact revenue reconciliation and energy intensity",
+    "units": "EUR million or MWh/EUR million as labeled",
+    "population_and_measurement": "High climate impact sector denominator, not all Group revenue",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_cautions": "Revenue includes activity3.3 scope and specified component/infrastructure/used-goods activities in prose. Footnote references consolidated income-statement Revenue for total.",
+    "rows": [
+      {
+        "label": "High-climate-impact revenue [EURm]",
+        "values": {
+          "2025": 110182,
+          "2024": 121640
+        }
+      },
+      {
+        "label": "Other revenue [EURm]",
+        "values": {
+          "2025": 22032,
+          "2024": 23954
+        }
+      },
+      {
+        "label": "Total revenue [EURm]",
+        "values": {
+          "2025": 132214,
+          "2024": 145594
+        }
+      },
+      {
+        "label": "Energy intensity [MWh/EURm high-impact revenue]",
+        "values": {
+          "2025": 50.5,
+          "2024": 48.6
+        }
+      }
+    ],
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03380.txt"
+  },
+  {
+    "id": "MB2025-CL-3380-4",
+    "physical_page": 3380,
+    "printed_page": 140,
+    "title": "Company-specific production energy",
+    "units": "GWh or MWh/vehicle as labeled",
+    "population_and_measurement": "Production excludes source-defined fuels and self-generated energy transferred",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_cautions": "Without fuels refers operational exclusions discussed physical3379; do not describe production as wholly fossil-fuel-free.",
+    "rows": [
+      {
+        "label": "Production consumption [GWh]",
+        "values": {
+          "2025": 4177,
+          "2024": 4296
+        }
+      },
+      {
+        "label": "Nonrenewable energy transfer to third parties [GWh]",
+        "values": {
+          "2025": 98,
+          "2024": 144
+        }
+      },
+      {
+        "label": "Cars energy/vehicle [MWh/vehicle]",
+        "values": {
+          "2025": 2.7,
+          "2024": 2.65
+        }
+      },
+      {
+        "label": "Vans energy/vehicle [MWh/vehicle]",
+        "values": {
+          "2025": 2.37,
+          "2024": 2.31
+        }
+      }
+    ],
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03380.txt"
+  },
+  {
+    "id": "MB2025-CL-3385-5",
+    "physical_page": 3385,
+    "printed_page": 145,
+    "title": "Group gross GHG emissions",
+    "units": "million tCO2e unless row marked percent",
+    "population_and_measurement": "GHG Protocol; Scope3 includes BBAC/FBAC unit sales, 12 reported categories",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_cautions": "2024 category1 restated +6.7MtCO2e; category2 -2.1MtCO2e. Category14 decrease reflects methodology;2024 not restated because impracticable. n.s. means nonsignificant, not zero. Rounded subcategories need not exactly sum.",
+    "rows": [
+      {
+        "label": "Scope1",
+        "values": {
+          "2025": 0.5,
+          "2024": 0.6
+        }
+      },
+      {
+        "label": "Scope1 under regulated emission trading [%]",
+        "values": {
+          "2025": 78.3,
+          "2024": 77.4
+        }
+      },
+      {
+        "label": "Scope2 location-based",
+        "values": {
+          "2025": 0.9,
+          "2024": 1.0
+        }
+      },
+      {
+        "label": "Scope2 market-based",
+        "values": {
+          "2025": 0.1,
+          "2024": 0.1
+        }
+      },
+      {
+        "label": "Scope3 total",
+        "values": {
+          "2025": 118.8,
+          "2024": 133.5
+        }
+      },
+      {
+        "label": "Category1 purchased goods/services",
+        "values": {
+          "2025": 25.9,
+          "2024": 28.6
+        }
+      },
+      {
+        "label": "Category2 capital goods",
+        "values": {
+          "2025": 1.3,
+          "2024": 0.8
+        }
+      },
+      {
+        "label": "Category3 fuel/energy-related",
+        "values": {
+          "2025": 0.4,
+          "2024": 0.4
+        }
+      },
+      {
+        "label": "Category4 upstream transport/distribution",
+        "values": {
+          "2025": 1.8,
+          "2024": 2.3
+        }
+      },
+      {
+        "label": "Category5 waste",
+        "values": {
+          "2025": 0.2,
+          "2024": 0.1
+        }
+      },
+      {
+        "label": "Category6 business travel",
+        "values": {
+          "2025": 0.04,
+          "2024": 0.1
+        }
+      },
+      {
+        "label": "Category7 employee commuting",
+        "values": {
+          "2025": 0.2,
+          "2024": 0.2
+        }
+      },
+      {
+        "label": "Category8 upstream leased assets",
+        "values": {
+          "2025": "n.s.",
+          "2024": "n.s."
+        }
+      },
+      {
+        "label": "Category9 downstream transportation",
+        "values": {
+          "2025": "n.s.",
+          "2024": "n.s."
+        }
+      },
+      {
+        "label": "Category10 sold-products processing",
+        "values": {
+          "2025": 0.1,
+          "2024": 0.1
+        }
+      },
+      {
+        "label": "Category11 sold-products use",
+        "values": {
+          "2025": 86.5,
+          "2024": 97.0
+        }
+      },
+      {
+        "label": "Category12 end-of-life treatment",
+        "values": {
+          "2025": 1.0,
+          "2024": 1.0
+        }
+      },
+      {
+        "label": "Category13 downstream leased assets",
+        "values": {
+          "2025": "n.s.",
+          "2024": "n.s."
+        }
+      },
+      {
+        "label": "Category14 franchises",
+        "values": {
+          "2025": 1.1,
+          "2024": 2.5
+        }
+      },
+      {
+        "label": "Category15 investments",
+        "values": {
+          "2025": 0.3,
+          "2024": 0.4
+        }
+      },
+      {
+        "label": "Total scopes1–3 location-based",
+        "values": {
+          "2025": 120.2,
+          "2024": 135.1
+        }
+      },
+      {
+        "label": "Total scopes1–3 market-based",
+        "values": {
+          "2025": 119.4,
+          "2024": 134.2
+        }
+      }
+    ],
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03385.txt"
+  },
+  {
+    "id": "MB2025-CL-3385-6",
+    "physical_page": 3385,
+    "printed_page": 145,
+    "title": "Biogenic CO2",
+    "units": "million tCO2",
+    "population_and_measurement": "Separately disclosed biogenic emissions; not same unit as CO2-equivalent GHG totals",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_cautions": "2024 Scope2 actual-value correction +0.002MtCO2. Rounded total may not exactly equal rounded subcomponents.",
+    "rows": [
+      {
+        "label": "Total",
+        "values": {
+          "2025": 5.8,
+          "2024": 7.23
+        }
+      },
+      {
+        "label": "Scope1",
+        "values": {
+          "2025": 0.007,
+          "2024": 0.008
+        }
+      },
+      {
+        "label": "Scope2",
+        "values": {
+          "2025": 0.004,
+          "2024": 0.004
+        }
+      },
+      {
+        "label": "Scope3",
+        "values": {
+          "2025": 5.79,
+          "2024": 7.22
+        }
+      }
+    ],
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03385.txt"
+  },
+  {
+    "id": "MB2025-CL-3385-7",
+    "physical_page": 3385,
+    "printed_page": 145,
+    "title": "GHG intensity",
+    "units": "tCO2e/EUR million",
+    "population_and_measurement": "GHG numerator includes BBAC/FBAC unit sales; IFRS consolidated Revenue denominator",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_cautions": "Do not force emissions into financial consolidation perimeter or treat market/location variants as additive.",
+    "rows": [
+      {
+        "label": "Location-based",
+        "values": {
+          "2025": 909,
+          "2024": 896
+        }
+      },
+      {
+        "label": "Market-based",
+        "values": {
+          "2025": 902,
+          "2024": 890
+        }
+      }
+    ],
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03385.txt"
+  },
+  {
+    "id": "MB2025-CL-3386-8",
+    "physical_page": 3386,
+    "printed_page": 146,
+    "title": "Cars company-specific lifecycle GHG",
+    "units": "Units encoded by column: MtCO2e, MtCO2, tCO2/vehicle",
+    "population_and_measurement": "Annual new-car fleet incl equity-accounted BBAC; selected Scope3 categories; projected lifecycle",
+    "period_columns": [
+      "2025_MtCO2e",
+      "2024_MtCO2e",
+      "2025_MtCO2",
+      "2024_MtCO2",
+      "2025_tCO2_vehicle",
+      "2024_tCO2_vehicle"
+    ],
+    "footnotes_and_cautions": "Production scopes1/2 excludes fuels. Use phase assumes200000km.2024 category1 restated +6MtCO2e,+5.1MtCO2,+2.5tCO2/car. Total excludes other Group Scope3 categories.",
+    "rows": [
+      {
+        "label": "Production scopes1/2 market",
+        "values": {
+          "2025_MtCO2e": 0.3,
+          "2024_MtCO2e": 0.3,
+          "2025_MtCO2": 0.3,
+          "2024_MtCO2": 0.3,
+          "2025_tCO2_vehicle": 0.2,
+          "2024_tCO2_vehicle": 0.2
+        }
+      },
+      {
+        "label": "Scope3 selected",
+        "values": {
+          "2025_MtCO2e": 90.5,
+          "2024_MtCO2e": 101.5,
+          "2025_MtCO2": 82.6,
+          "2024_MtCO2": 93.3,
+          "2025_tCO2_vehicle": 46.5,
+          "2024_tCO2_vehicle": 46.5
+        }
+      },
+      {
+        "label": "Category1 purchased goods/services",
+        "values": {
+          "2025_MtCO2e": 21.9,
+          "2024_MtCO2e": 24.3,
+          "2025_MtCO2": 19.8,
+          "2024_MtCO2": 21.9,
+          "2025_tCO2_vehicle": 11.1,
+          "2024_tCO2_vehicle": 10.9
+        }
+      },
+      {
+        "label": "Category4 transport/distribution",
+        "values": {
+          "2025_MtCO2e": 1.5,
+          "2024_MtCO2e": 2.0,
+          "2025_MtCO2": 1.5,
+          "2024_MtCO2": 2.0,
+          "2025_tCO2_vehicle": 0.9,
+          "2024_tCO2_vehicle": 1.0
+        }
+      },
+      {
+        "label": "Category11 use WtW",
+        "values": {
+          "2025_MtCO2e": 66.3,
+          "2024_MtCO2e": 74.4,
+          "2025_MtCO2": 60.5,
+          "2024_MtCO2": 68.6,
+          "2025_tCO2_vehicle": 34.1,
+          "2024_tCO2_vehicle": 34.2
+        }
+      },
+      {
+        "label": "Category12 end of life",
+        "values": {
+          "2025_MtCO2e": 0.8,
+          "2024_MtCO2e": 0.8,
+          "2025_MtCO2": 0.8,
+          "2024_MtCO2": 0.8,
+          "2025_tCO2_vehicle": 0.4,
+          "2024_tCO2_vehicle": 0.4
+        }
+      },
+      {
+        "label": "Total value chain",
+        "values": {
+          "2025_MtCO2e": 90.8,
+          "2024_MtCO2e": 101.8,
+          "2025_MtCO2": 82.9,
+          "2024_MtCO2": 93.6,
+          "2025_tCO2_vehicle": 46.7,
+          "2024_tCO2_vehicle": 46.7
+        }
+      }
+    ],
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03386.txt"
+  },
+  {
+    "id": "MB2025-CL-3386-9",
+    "physical_page": 3386,
+    "printed_page": 146,
+    "title": "Vans company-specific lifecycle GHG",
+    "units": "Units encoded by column: MtCO2e, MtCO2, tCO2/vehicle",
+    "population_and_measurement": "Annual new-van fleet incl equity-accounted FBAC; selected Scope3 categories; projected lifecycle",
+    "period_columns": [
+      "2025_MtCO2e",
+      "2024_MtCO2e",
+      "2025_MtCO2",
+      "2024_MtCO2",
+      "2025_tCO2_vehicle",
+      "2024_tCO2_vehicle"
+    ],
+    "footnotes_and_cautions": "Production scopes1/2 excludes fuels.2024 category1 restated +0.8MtCO2e,+0.7MtCO2,+1.7tCO2/vehicle. Footnote says per car despite Vans table; preserve vehicle context.",
+    "rows": [
+      {
+        "label": "Production scopes1/2 market",
+        "values": {
+          "2025_MtCO2e": 0.1,
+          "2024_MtCO2e": 0.1,
+          "2025_MtCO2": 0.1,
+          "2024_MtCO2": 0.1,
+          "2025_tCO2_vehicle": 0.3,
+          "2024_tCO2_vehicle": 0.3
+        }
+      },
+      {
+        "label": "Scope3 selected",
+        "values": {
+          "2025_MtCO2e": 24.7,
+          "2024_MtCO2e": 27.5,
+          "2025_MtCO2": 22.2,
+          "2024_MtCO2": 25.0,
+          "2025_tCO2_vehicle": 60.8,
+          "2024_tCO2_vehicle": 61.8
+        }
+      },
+      {
+        "label": "Category1 purchased goods/services",
+        "values": {
+          "2025_MtCO2e": 4.0,
+          "2024_MtCO2e": 4.4,
+          "2025_MtCO2": 3.7,
+          "2024_MtCO2": 4.0,
+          "2025_tCO2_vehicle": 10.1,
+          "2024_tCO2_vehicle": 9.9
+        }
+      },
+      {
+        "label": "Category4 transport/distribution",
+        "values": {
+          "2025_MtCO2e": 0.2,
+          "2024_MtCO2e": 0.3,
+          "2025_MtCO2": 0.2,
+          "2024_MtCO2": 0.3,
+          "2025_tCO2_vehicle": 0.7,
+          "2024_tCO2_vehicle": 0.8
+        }
+      },
+      {
+        "label": "Category10 processing",
+        "values": {
+          "2025_MtCO2e": 0.1,
+          "2024_MtCO2e": 0.1,
+          "2025_MtCO2": 0.1,
+          "2024_MtCO2": 0.1,
+          "2025_tCO2_vehicle": 0.3,
+          "2024_tCO2_vehicle": 0.3
+        }
+      },
+      {
+        "label": "Category11 use WtW",
+        "values": {
+          "2025_MtCO2e": 20.2,
+          "2024_MtCO2e": 22.5,
+          "2025_MtCO2": 18.0,
+          "2024_MtCO2": 20.4,
+          "2025_tCO2_vehicle": 49.2,
+          "2024_tCO2_vehicle": 50.3
+        }
+      },
+      {
+        "label": "Category12 end of life",
+        "values": {
+          "2025_MtCO2e": 0.2,
+          "2024_MtCO2e": 0.2,
+          "2025_MtCO2": 0.2,
+          "2024_MtCO2": 0.2,
+          "2025_tCO2_vehicle": 0.5,
+          "2024_tCO2_vehicle": 0.5
+        }
+      },
+      {
+        "label": "Total value chain",
+        "values": {
+          "2025_MtCO2e": 24.8,
+          "2024_MtCO2e": 27.6,
+          "2025_MtCO2": 22.3,
+          "2024_MtCO2": 25.1,
+          "2025_tCO2_vehicle": 61.1,
+          "2024_tCO2_vehicle": 62.1
+        }
+      }
+    ],
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03386.txt"
+  },
+  {
+    "id": "MB2025-CL-3387-10",
+    "physical_page": 3387,
+    "printed_page": 147,
+    "title": "Company-specific Scope1 and Scope2 information",
+    "units": "1000 tCO2e table title; subset rows explicitly CO2",
+    "population_and_measurement": "Own locations market-based; production excludes fuels",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_cautions": "Keep CO2-versus-CO2e row labels. Third-party-energy emissions concern self-generation not consumed by Group.",
+    "rows": [
+      {
+        "label": "Total Scope1/2 market-based [CO2e]",
+        "values": {
+          "2025": 600,
+          "2024": 684
+        }
+      },
+      {
+        "label": "thereof production CO2",
+        "values": {
+          "2025": 400,
+          "2024": 423
+        }
+      },
+      {
+        "label": "thereof nonrenewable energy transferred CO2",
+        "values": {
+          "2025": 20,
+          "2024": 29
+        }
+      }
+    ],
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03387.txt"
+  },
+  {
+    "id": "MB2025-CL-3387-11",
+    "physical_page": 3387,
+    "printed_page": 147,
+    "title": "European new-fleet average CO2",
+    "units": "g CO2/km",
+    "population_and_measurement": "M1 passenger/N1 LCV; EU,Norway,Iceland; calendar-year registrations",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_cautions": "Reasonable-assurance category expressly marked. Internal figures may differ from final EU because some registration data unavailable; some unit-sales estimates used. Passenger includes smart JV CO2 pool;PHEV recertification/sales mix affects change.",
+    "rows": [
+      {
+        "label": "Passenger cars",
+        "values": {
+          "2025": 106,
+          "2024": 103
+        }
+      },
+      {
+        "label": "Light commercial vehicles",
+        "values": {
+          "2025": 183,
+          "2024": 204
+        }
+      }
+    ],
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03387.txt"
+  },
+  {
+    "id": "MB2025-CL-3387-12",
+    "physical_page": 3387,
+    "printed_page": 147,
+    "title": "US new-fleet GHG",
+    "units": "g CO2/mile",
+    "population_and_measurement": "Passenger cars,light-duty trucks,medium-duty vehicles; model-year production",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_cautions": "Reasonable-assurance category expressly marked. Internal/provisional self-certified test-cycle values with applicable credits;EPA verifies samples. Not directly comparable with EU g/km or calendar registrations.",
+    "rows": [
+      {
+        "label": "Passenger cars",
+        "values": {
+          "2025": 215,
+          "2024": 180
+        }
+      },
+      {
+        "label": "Light-duty trucks",
+        "values": {
+          "2025": 229,
+          "2024": 265
+        }
+      },
+      {
+        "label": "Medium-duty vehicles",
+        "values": {
+          "2025": 396,
+          "2024": 413
+        }
+      }
+    ],
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03387.txt"
+  },
+  {
+    "id": "MB2025-CL-3388-13",
+    "physical_page": 3388,
+    "printed_page": 148,
+    "title": "China imported passenger-fleet consumption",
+    "units": "l/100km",
+    "population_and_measurement": "Mercedes-Benz China Ltd import fleet, not domestically produced cars",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_cautions": "Reasonable-assurance category marked. WLTC ModelName certified values weighted by imports;off-cycle technology credits;internal/provisional data may differ from authorities.",
+    "rows": [
+      {
+        "label": "Imported passenger cars",
+        "values": {
+          "2025": 8.32,
+          "2024": 8.38
+        }
+      }
+    ],
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03388.txt"
+  },
+  {
+    "id": "MB2025-CL-3389-14",
+    "physical_page": 3389,
+    "printed_page": 149,
+    "title": "Carbon credits cancelled",
+    "units": "1000 tCO2e or percent as labeled",
+    "population_and_measurement": "Credits cancelled in reporting year; residual own-location Scope1/2 compensation",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_cautions": "Removal portion90% biogenic/10% technological sinks. Offsets tracked separately from gross targets; EU-origin/Article6 dashes retained. No projects removing/storing GHG within own/upstream/downstream operations during reporting period.",
+    "rows": [
+      {
+        "label": "Total credits [1000tCO2e]",
+        "values": {
+          "2025": 600,
+          "2024": 684
+        }
+      },
+      {
+        "label": "Removal share [%]",
+        "values": {
+          "2025": 6,
+          "2024": 3
+        }
+      },
+      {
+        "label": "Reduction share [%]",
+        "values": {
+          "2025": 94,
+          "2024": 97
+        }
+      },
+      {
+        "label": "Gold Standard share [%]",
+        "values": {
+          "2025": 94,
+          "2024": 97
+        }
+      },
+      {
+        "label": "Puro.Earth share [%]",
+        "values": {
+          "2025": 0.6,
+          "2024": 0.3
+        }
+      },
+      {
+        "label": "Verified Carbon Standard share [%]",
+        "values": {
+          "2025": 5.4,
+          "2024": 2.7
+        }
+      },
+      {
+        "label": "EU project share [%]",
+        "values": {
+          "2025": "–",
+          "2024": "–"
+        }
+      },
+      {
+        "label": "Paris Article6 corresponding-adjustment share [%]",
+        "values": {
+          "2025": "–",
+          "2024": "–"
+        }
+      }
+    ],
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03389.txt"
+  },
+  {
+    "id": "MB2025-CL-3389-15",
+    "physical_page": 3389,
+    "printed_page": 149,
+    "title": "Future contracted carbon-credit cancellations",
+    "units": "1000 tCO2e",
+    "population_and_measurement": "Contractual agreements; total planned until2032 viewed at each reporting year",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_cautions": "Not actual current-year cancellation or a fixed annual forecast;not automatically a balance-sheet liability amount.",
+    "rows": [
+      {
+        "label": "Total until2032",
+        "values": {
+          "2025": 3980,
+          "2024": 4507
+        }
+      }
+    ],
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03389.txt"
+  }
+]

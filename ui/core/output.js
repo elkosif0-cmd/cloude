@@ -55,7 +55,9 @@ function docHTML(d){
   c.querySelectorAll("img[src]").forEach(i=>{try{i.src=new URL(i.getAttribute("src"),location.href).href}catch{}});
   return "<!doctype html>\n"+c.outerHTML;
 }
+function sourceReportDocument(d){return !!d.querySelector?.('[data-source-kind="published-statements"], .rd-source');}
 function tablesOf(d){
+  if(sourceReportDocument(d))return [];
   return [...d.querySelectorAll("table")].filter(t=>t.rows.length>1).map((t,i)=>{
     let h=null,n=t;for(let k=0;k<30&&n;k++){n=n.previousElementSibling||n.parentElement;if(n&&/^H[1-4]$/.test(n.tagName)){h=n.textContent.trim();break}}
     const rows=[...t.rows].map(r=>[...r.cells].map(c=>c.textContent.replace(/\s+/g," ").trim()));
@@ -140,7 +142,7 @@ async function act(a){
   if(a==="print"){css(d);cur.w.__skRealPrint?cur.w.__skRealPrint():cur.w.print();SK.audit&&SK.audit.log("report",{act:"print",title:title.slice(0,60)});return}
   if(a==="word"){const html=docHTML(d).replace("<html",'<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"').replace("<head>",'<head><meta charset="utf-8"><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View></w:WordDocument></xml><![endif]--><style>body{direction:rtl}table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:4px 6px}</style>');
     SK.download(ascii(title)+".doc",new Blob(["﻿"+html],{type:"application/msword"}));SK.audit&&SK.audit.log("report",{act:"word"});return}
-  if(a==="excel"){const t=tablesOf(d);if(!t.length)return toast("لا توجد جداول في هذا المستند","info");SK.download(ascii(title)+".xlsx",SKXlsx.book(t));toast("صُدّر "+t.length+" جدولاً إلى Excel","ok");SK.audit&&SK.audit.log("report",{act:"excel",tables:t.length});return}
+  if(a==="excel"){if(sourceReportDocument(d)){SK.toast("تصدير Excel غير متاح لتقارير المصدر لأنه يفقد بيانات المصدر. استخدم CSV الموثق من نموذج المصدر.","warn");return}const t=tablesOf(d);if(!t.length)return toast("لا توجد جداول في هذا المستند","info");SK.download(ascii(title)+".xlsx",SKXlsx.book(t));toast("صُدّر "+t.length+" جدولاً إلى Excel","ok");SK.audit&&SK.audit.log("report",{act:"excel",tables:t.length});return}
   if(a==="html"){SK.download(ascii(title)+".html",new Blob([docHTML(d)],{type:"text/html;charset=utf-8"}));return}
   if(a==="share"){try{const file=new File([docHTML(d)],slug(title)+".html",{type:"text/html"});if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],title});else await navigator.share({title,text:d.body.innerText.slice(0,3000)})}catch{}return}
   if(a==="window"){const w=realOpen("","_blank");if(!w)return toast("اسمح بالنوافذ المنبثقة","warn");w.document.open();w.document.write(docHTML(d));w.document.close()}

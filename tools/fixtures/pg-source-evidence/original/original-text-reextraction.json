@@ -1,0 +1,26 @@
+[
+  {
+    "page": 2004,
+    "reextractedSha256": "254defe9d371201e11a70ae32c922f1cba75fece34536d4ad3a13394b85174bd",
+    "reviewedSha256": "9712a15206c205dfa62f41a83df8b4a5e729732a0a50ee452e00ab44ac879c5b",
+    "sameAfterPageDelimiter": true
+  },
+  {
+    "page": 2005,
+    "reextractedSha256": "a9cc16855eae3214e9427d97908b107af49fb5f7535c8152acd15e9e8baadcbf",
+    "reviewedSha256": "93e049e76f2ad58f274d1248d342efc195aa2e5b50fd8a4b6915369dd53a6ebf",
+    "sameAfterPageDelimiter": true
+  },
+  {
+    "page": 2006,
+    "reextractedSha256": "654213e98a08dc2b47c1c25c668cfdca3ba9dd42e6f221bb1799289b43ccd853",
+    "reviewedSha256": "deba15efa58fab4f64a5a03964579e2d7bed33e255ffaa3231f174411538cf5b",
+    "sameAfterPageDelimiter": true
+  },
+  {
+    "page": 2007,
+    "reextractedSha256": "a4adcc5c61ef495f1d0cffdf709c759377ee2490c9e82be46d4252193df737ec",
+    "reviewedSha256": "0250a777ca0d3bde94a2560138bec88689e37c97dc94949f1b68da054a6a7e5c",
+    "sameAfterPageDelimiter": true
+  }
+]

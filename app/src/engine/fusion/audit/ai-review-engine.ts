@@ -58,19 +58,20 @@ export const FINAL_SCHEMA = OBJ({
   limitations: ARR(S()), closingStatement: S(),
 }, ['overallOpinion', 'headline', 'summary', 'keyAuditMatters', 'complianceDiscussion', 'adjustments', 'managementLetter', 'closingStatement']);
 
-export type ReviewContext = { company: string; period: string; periodEnd?: string; framework: Framework; currency?: string; activity?: string;
+export type ReferenceOrigin = 'source-only' | 'simulation';
+export type ReviewContext = { sourceKind?: 'published-statements'; company: string; period: string; periodEnd?: string; framework: Framework; currency?: string; activity?: string;
   /** the unit the figures are stated in, when not riyals (a company of the global reports: «مليون دولار أمريكي») */ curSym?: string };
-export type Upload = { requestId: string; fileName: string; mimeType: string; size: number; round: number; data?: string; text?: string };
-export type ReviewedDoc = { requestId: string; fileName: string; verdict: 'مقبول' | 'غير كافٍ' | 'مرفوض'; notes: string; extracted: Record<string, string> };
+export type Upload = { origin?: ReferenceOrigin; requestId: string; fileName: string; mimeType: string; size: number; round: number; data?: string; text?: string };
+export type ReviewedDoc = { origin?: ReferenceOrigin; requestId: string; fileName: string; verdict: 'مقبول' | 'غير كافٍ' | 'مرفوض'; notes: string; extracted: Record<string, string> };
 export type AiAdjustment = Adjustment & { valid: boolean; problems: string[]; newAccounts: string[] };
-export type Round = { no: number; at: string; model: string; status: 'needs_docs' | 'complete'; summary: string; riskScore: number;
+export type Round = { origin?: ReferenceOrigin; no: number; at: string; model: string; status: 'needs_docs' | 'complete'; summary: string; riskScore: number;
   opinions: { reviewer: string; opinion: string }[]; accountStandards: Record<string, { standards: string[]; unknown: string[]; note: string }>;
   findings: Finding[]; requests: DocRequest[]; reviewed: ReviewedDoc[]; adjustments: AiAdjustment[]; guidance: string; warnings: string[];
   /* the audit council (research «مجلس المراجعة الذكي»): the chair's decision, confidences, dissent and the members' verified opinions */
   decision?: 'request_more_evidence' | 'escalate' | 'sufficient'; confidence?: { lineKey: string; assertion: string; value: number }[];
   dissent?: { member: string; note: string; citations: string[] }[]; council?: { size: number; opinions: unknown[]; disagreements: unknown[] } };
-export type Session = { id: string; ctx: ReviewContext; model: string; createdAt: string; rounds: Round[]; uploads: Upload[]; unavailable: string[]; final?: FinalReport };
-export type FinalReport = { at: string; aiOpinion: string; headline: string; summary: string; kams: { title: string; why: string; how: string }[];
+export type Session = { origin?: ReferenceOrigin; id: string; ctx: ReviewContext; model: string; createdAt: string; rounds: Round[]; uploads: Upload[]; unavailable: string[]; final?: FinalReport };
+export type FinalReport = { origin?: ReferenceOrigin; at: string; aiOpinion: string; headline: string; summary: string; kams: { title: string; why: string; how: string }[];
   compliance: { standardCode: string; status: string; discussion: string }[]; adjustments: AiAdjustment[]; letter: { title: string; observation: string; effect?: string; recommendation: string; priority: string }[];
   limitations: string[]; closing: string };
 
@@ -80,7 +81,31 @@ const str = (v: unknown, max = 4000) => String(v ?? '').replace(/\s+/g, ' ').tri
 const arr = <T = unknown>(v: unknown): T[] => (Array.isArray(v) ? (v as T[]) : []);
 
 export function newSession(ctx: ReviewContext, model = DEFAULT_MODEL, now = new Date()): Session {
-  return { id: 'rv-' + now.getTime().toString(36), ctx, model, createdAt: now.toISOString(), rounds: [], uploads: [], unavailable: [] };
+  return { ...(ctx.sourceKind==='published-statements'?{origin:'source-only' as const}:{}),id: 'rv-' + now.getTime().toString(36), ctx, model, createdAt: now.toISOString(), rounds: [], uploads: [], unavailable: [] };
+}
+
+
+const REFERENCE_NOTICE = 'محاكاة أو مرجع مصدر فقط: لم تُنفذ إجراءات تأكيد ولا يُكتسب رأي مراجعة أو إثبات فعالية رقابة.';
+function referenceOrigin(s: Session, tb?: TrialBalance): ReferenceOrigin | undefined {
+  return s.origin || (tb?.sourceKind==='published-statements'||s.ctx.sourceKind==='published-statements'?'source-only':undefined)
+    || s.rounds.find(r=>r.origin)?.origin || s.uploads.find(u=>u.origin)?.origin
+    || ([s.model,...s.rounds.map(r=>r.model)].some(m=>/^محاكاة SQC(?: \(دون مفتاح\))?$/.test(m))?'simulation':undefined);
+}
+function referenceRound(r: Round, origin: ReferenceOrigin): Round {
+  return {...r,origin,status:'needs_docs',summary:REFERENCE_NOTICE,opinions:r.opinions.map(o=>({...o,opinion:REFERENCE_NOTICE})),
+    reviewed:r.reviewed.map(d=>({...d,origin,verdict:'غير كافٍ',notes:REFERENCE_NOTICE,extracted:{}})),
+    accountStandards:{},findings:[],adjustments:[],guidance:REFERENCE_NOTICE,warnings:[REFERENCE_NOTICE],decision:'escalate',confidence:[],dissent:[],council:undefined};
+}
+function referenceFinal(origin: ReferenceOrigin, at: string): FinalReport {
+  return {origin,at,aiOpinion:'لم يُقيّم',headline:'محاكاة أو مرجع مصدر — دون رأي تأكيد',summary:REFERENCE_NOTICE,
+    kams:[],compliance:[],adjustments:[],letter:[],limitations:[REFERENCE_NOTICE],closing:'نتيجة تجريبية أو مرجعية فقط؛ ليست تقرير مراجعة مهنية.'};
+}
+/** A safe view of persisted legacy source rounds. The original record is not promoted
+ *  to professional evidence even if it predates explicit origin metadata. */
+export function referenceSession(s: Session, tb?: TrialBalance): Session {
+  const origin=referenceOrigin(s,tb);if(!origin)return s;
+  return {...s,origin,rounds:s.rounds.map(r=>referenceRound(r,r.origin||origin)),uploads:s.uploads.map(u=>({...u,origin:u.origin||origin})),
+    ...(s.final?{final:referenceFinal(origin,s.final.at)}:{})};
 }
 
 /* ---------- prompts ---------- */
@@ -233,7 +258,7 @@ export function normalizeRound(raw: unknown, s: Session, tb: TrialBalance, model
     const fileName = str(d.fileName, 300), match = up.find((u) => u.fileName === fileName) ?? up.find((u) => fileName && (u.fileName.includes(fileName) || fileName.includes(u.fileName)));
     const verdict = (['مقبول', 'غير كافٍ', 'مرفوض'] as const).find((v) => v === str(d.verdict, 20)) ?? 'غير كافٍ';
     const ex = (d.extracted ?? {}) as Record<string, unknown>;
-    return { requestId: match?.requestId ?? str(d.requestId, 20), fileName: match?.fileName ?? fileName, verdict, notes: str(d.notes, 2000), extracted: Object.fromEntries(Object.entries(ex).map(([k, v]) => [k, str(v, 200)]).filter(([, v]) => v)) };
+    return { ...(match?.origin?{origin:match.origin}:{}),requestId: match?.requestId ?? str(d.requestId, 20), fileName: match?.fileName ?? fileName, verdict, notes: str(d.notes, 2000), extracted: Object.fromEntries(Object.entries(ex).map(([k, v]) => [k, str(v, 200)]).filter(([, v]) => v)) };
   });
   for (const u of up) if (!reviewed.some((d) => d.fileName === u.fileName)) warnings.push(`لم يعلّق المجلس على المستند «${u.fileName}»؛ سيبقى الطلب ${u.requestId} قائماً.`);
   const adjustments = arr(r.proposedAdjustments).slice(0, 15).map((a, i) => adjFrom(a, i, no, tb, 'G'));
@@ -243,15 +268,17 @@ export function normalizeRound(raw: unknown, s: Session, tb: TrialBalance, model
   if (status === 'complete' && newAsks.length) { status = 'needs_docs'; warnings.push('أعلن المجلس الاكتمال مع طلب مستندات جديدة؛ اعتُبرت الجولة غير مكتملة.'); }
   if (status === 'needs_docs' && !requests.length && !outstanding({ ...s, rounds: [...s.rounds] }).length) warnings.push('لا توجد طلبات قائمة؛ يمكن إصدار التقرير النهائي.');
   const score = Number(r.riskScore);
-  return { no, at: now.toISOString(), model, status, summary: str(r.executiveSummary, 4000), riskScore: Number.isFinite(score) ? Math.max(0, Math.min(100, Math.round(score))) : 50,
+  const result: Round = { no, at: now.toISOString(), model, status, summary: str(r.executiveSummary, 4000), riskScore: Number.isFinite(score) ? Math.max(0, Math.min(100, Math.round(score))) : 50,
     opinions: arr<Record<string, unknown>>(r.boardOpinions).map((o) => ({ reviewer: str(o.reviewer, 80), opinion: str(o.opinion, 2000) })).filter((o) => o.opinion),
     accountStandards, findings, requests, reviewed, adjustments, guidance: str(r.nextStepGuidance, 2000), warnings,
     ...(r.decision ? { decision: (['request_more_evidence', 'escalate', 'sufficient'] as const).find((d) => d === str(r.decision, 30)) ?? 'request_more_evidence' } : {}),
     ...(r.confidence ? { confidence: arr<Record<string, unknown>>(r.confidence).map((c) => ({ lineKey: str(c.lineKey, 40), assertion: str(c.assertion, 20), value: Math.max(0, Math.min(1, Number(c.value) || 0)) })).filter((c) => c.lineKey) } : {}),
     ...(r.dissent ? { dissent: arr<Record<string, unknown>>(r.dissent).map((x) => ({ member: str(x.member, 80), note: str(x.note, 800), citations: cite(x.citations, 'رأي مخالف') })).filter((x) => x.note) } : {}) };
+  const origin = r.origin==='simulation'?'simulation':referenceOrigin(s,tb)||reviewed.find(d=>d.origin)?.origin;
+  return origin?referenceRound(result,origin):result;
 }
 
-export function addRound(s: Session, round: Round): Session { return { ...s, rounds: [...s.rounds, round] }; }
+export function addRound(s: Session, round: Round): Session { return { ...s, ...(round.origin?{origin:round.origin}:{}), rounds: [...s.rounds, round] }; }
 export function addUpload(s: Session, u: Omit<Upload, 'round'>): Session { return { ...s, uploads: [...s.uploads, { ...u, round: s.rounds.length + 1 }] }; }
 export function markUnavailable(s: Session, requestId: string): Session { return s.unavailable.includes(requestId) ? s : { ...s, unavailable: [...s.unavailable, requestId] }; }
 
@@ -284,11 +311,12 @@ export function accountStandards(review: Review, s: Session): Record<string, str
 /* ---------- opinion (ISA 450 / 705), derived — never taken from the model ---------- */
 /** Evidence per statement line from the reviewed documents: accepted → 'accepted', insufficient → 'partial'. */
 export function evidenceFromSession(review: Review, s: Session): Record<string, 'accepted' | 'partial'> {
+  if(review.fs.sourceKind==='published-statements'||referenceOrigin(s))return {};
   const reqs = new Map<string, DocRequest>(); s.rounds.forEach((r) => r.requests.forEach((q) => reqs.set(q.id, q)));
   review.requests.forEach((q) => reqs.set(q.id, q));
   const out: Record<string, 'accepted' | 'partial'> = {};
   for (const d of s.rounds.flatMap((r) => r.reviewed)) {
-    const q = reqs.get(d.requestId); if (!q || d.verdict === 'مرفوض') continue;
+    const q = reqs.get(d.requestId); if (!q || d.origin || s.uploads.some(u=>u.origin&&u.fileName===d.fileName) || d.verdict === 'مرفوض') continue;
     const lines = new Set([q.lineKey, ...review.accounts.filter((a) => q.accounts.includes(a.code)).map((a) => a.lineKey)].filter((k): k is string => !!k));
     for (const k of lines) if (d.verdict === 'مقبول') out[k] = 'accepted'; else if (!out[k]) out[k] = 'partial';
   }
@@ -302,6 +330,8 @@ export function mergeEvidence(...maps: Record<string, 'accepted' | 'partial'>[])
   return out;
 }
 export function deriveOpinion(tb: TrialBalance, review: Review, s: Session, accepted: Adjustment[], fieldEvidence: Record<string, 'accepted' | 'partial'> = {}) {
+  const origin=referenceOrigin(s,tb)||(review.fs.sourceKind==='published-statements'?'source-only':undefined);
+  if(origin)return {origin,opinion:'not-assessed' as const,ar:'لم يُقيّم — محاكاة أو مرجع مصدر فقط',isa:'',basis:[REFERENCE_NOTICE],misstatement:0,goingConcern:false,requiresPartner:true};
   const mat = review.materiality, proposed = [...review.adjustments, ...s.rounds.flatMap((r) => r.adjustments.filter((a) => a.valid))];
   const uncorrected = proposed.filter((p) => !accepted.some((a) => a.id === p.id));
   const eff = uncorrected.length ? adjustmentEffect(tb, uncorrected) : { profit: 0, assets: 0, equity: 0 };
@@ -344,6 +374,7 @@ export function buildFinalBody(s: Session, tb: TrialBalance, review: Review, der
 
 export function normalizeFinal(raw: unknown, s: Session, tb: TrialBalance, now = new Date()): FinalReport {
   const r = (raw ?? {}) as Record<string, unknown>;
+  const origin=r.origin==='simulation'?'simulation':referenceOrigin(s,tb);if(origin)return referenceFinal(origin,now.toISOString());
   return { at: now.toISOString(), aiOpinion: str(r.overallOpinion, 40), headline: str(r.headline, 300), summary: str(r.summary, 6000),
     kams: arr<Record<string, unknown>>(r.keyAuditMatters).map((k) => ({ title: str(k.title, 200), why: str(k.why, 2000), how: str(k.how, 2000) })).filter((k) => k.title),
     compliance: arr<Record<string, unknown>>(r.complianceDiscussion).map((c) => ({ standardCode: normalizeCode(str(c.standardCode, 60)) ?? str(c.standardCode, 60), status: str(c.status, 30), discussion: str(c.discussion, 3000) })).filter((c) => c.standardCode),

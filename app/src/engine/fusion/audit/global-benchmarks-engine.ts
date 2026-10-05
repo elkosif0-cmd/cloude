@@ -76,7 +76,7 @@ export const REPORTS: Report[] = [
   R('pepsico-2025', 'PepsiCo, Inc.', 'US', 'fmcg', 'US GAAP', 'PCAOB', 'KPMG LLP', 1990, 'FY2025', 'Annual report + 10-K', 1819, 1962),
   R('pg-2026', 'The Procter & Gamble Company', 'US', 'fmcg', 'US GAAP', 'PCAOB', 'Deloitte & Touche LLP', 1890, 'FY2026', '10-K', 1963, 2043),
   R('homedepot-2025', 'The Home Depot, Inc.', 'US', 'retail', 'US GAAP', 'PCAOB', 'KPMG LLP', 1979, 'FY2025', '10-K', 2044, 2131),
-  R('mcdonalds-2025', "McDonald's Corporation", 'US', 'retail', 'US GAAP', 'PCAOB', '', undefined, 'FY2025', 'Annual report (letter and highlights)', 2132, 2204),
+  R('mcdonalds-2022', 'McDonald’s Corporation', 'US', 'retail', 'US GAAP', 'PCAOB', 'Ernst & Young LLP', 1964, 'FY2022', '2022 Annual Report and Form 10-K', 2132, 2204),
   R('nestle-2025', 'Nestlé Group', 'CH', 'fmcg', 'IFRS', 'ISA', 'Ernst & Young Ltd', undefined, 'FY2025', 'Financial statements', 2205, 2342),
   R('roche-2025', 'Roche Group', 'CH', 'pharma', 'IFRS', 'ISA', 'KPMG AG', undefined, 'FY2025', 'Finance report', 2343, 2539),
   R('novartis-2025', 'Novartis AG', 'CH', 'pharma', 'IFRS', 'ISA', 'KPMG AG', undefined, 'FY2025', 'Annual report', 2540, 2817),

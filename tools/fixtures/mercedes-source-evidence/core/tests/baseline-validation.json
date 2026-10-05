@@ -1,0 +1,2347 @@
+{
+  "valid": true,
+  "errors": [],
+  "checks": [
+    {
+      "check": "income.gross",
+      "year": "2025",
+      "actual": "22333",
+      "computed": "22333",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "income.gross",
+      "year": "2024",
+      "actual": "28576",
+      "computed": "28576",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "income.ebit",
+      "year": "2025",
+      "actual": "5820",
+      "computed": "5820",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "income.ebit",
+      "year": "2024",
+      "actual": "13599",
+      "computed": "13599",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "income.pretax",
+      "year": "2025",
+      "actual": "6284",
+      "computed": "6284",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "income.pretax",
+      "year": "2024",
+      "actual": "14147",
+      "computed": "14147",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "income.net",
+      "year": "2025",
+      "actual": "5331",
+      "computed": "5331",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "income.net",
+      "year": "2024",
+      "actual": "10409",
+      "computed": "10409",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "income.ownership",
+      "year": "2025",
+      "actual": "5331",
+      "computed": "5331",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "income.ownership",
+      "year": "2024",
+      "actual": "10409",
+      "computed": "10409",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "oci.reclassifiable",
+      "year": "2025",
+      "actual": "-1222",
+      "computed": "-1222",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "oci.reclassifiable",
+      "year": "2024",
+      "actual": "-168",
+      "computed": "-168",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "oci.nonreclassifiable",
+      "year": "2025",
+      "actual": "1120",
+      "computed": "1120",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "oci.nonreclassifiable",
+      "year": "2024",
+      "actual": "942",
+      "computed": "942",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "oci.total",
+      "year": "2025",
+      "actual": "-102",
+      "computed": "-102",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "oci.total",
+      "year": "2024",
+      "actual": "774",
+      "computed": "774",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "oci.comprehensive",
+      "year": "2025",
+      "actual": "5229",
+      "computed": "5229",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "oci.comprehensive",
+      "year": "2024",
+      "actual": "11183",
+      "computed": "11183",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "oci.ownership",
+      "year": "2025",
+      "actual": "-102",
+      "computed": "-102",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "oci.ownership",
+      "year": "2024",
+      "actual": "774",
+      "computed": "774",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "comprehensive.ownership",
+      "year": "2025",
+      "actual": "5229",
+      "computed": "5229",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "comprehensive.ownership",
+      "year": "2024",
+      "actual": "11183",
+      "computed": "11183",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "assets.noncurrent",
+      "year": "2025",
+      "actual": "153334",
+      "computed": "153334",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "assets.noncurrent",
+      "year": "2024",
+      "actual": "163243",
+      "computed": "163243",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "assets.current",
+      "year": "2025",
+      "actual": "102132",
+      "computed": "102132",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "assets.current",
+      "year": "2024",
+      "actual": "101767",
+      "computed": "101767",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "assets.total",
+      "year": "2025",
+      "actual": "255466",
+      "computed": "255466",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "assets.total",
+      "year": "2024",
+      "actual": "265010",
+      "computed": "265010",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "equity.parent",
+      "year": "2025",
+      "actual": "93257",
+      "computed": "93257",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "equity.parent",
+      "year": "2024",
+      "actual": "92625",
+      "computed": "92625",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "equity.total",
+      "year": "2025",
+      "actual": "94240",
+      "computed": "94240",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "equity.total",
+      "year": "2024",
+      "actual": "93630",
+      "computed": "93630",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "liabilities.noncurrent",
+      "year": "2025",
+      "actual": "87458",
+      "computed": "87458",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "liabilities.noncurrent",
+      "year": "2024",
+      "actual": "96554",
+      "computed": "96554",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "liabilities.current",
+      "year": "2025",
+      "actual": "73768",
+      "computed": "73768",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "liabilities.current",
+      "year": "2024",
+      "actual": "74826",
+      "computed": "74826",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "balance_sheet.total",
+      "year": "2025",
+      "actual": "255466",
+      "computed": "255466",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "balance_sheet.total",
+      "year": "2024",
+      "actual": "265010",
+      "computed": "265010",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "balance_sheet.identity",
+      "year": "2025",
+      "actual": "255466",
+      "computed": "255466",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "balance_sheet.identity",
+      "year": "2024",
+      "actual": "265010",
+      "computed": "265010",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "cfo",
+      "year": "2025",
+      "actual": "18006",
+      "computed": "18006",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "cfo",
+      "year": "2024",
+      "actual": "17735",
+      "computed": "17735",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "cfi",
+      "year": "2025",
+      "actual": "-9200",
+      "computed": "-9200",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "cfi",
+      "year": "2024",
+      "actual": "-8750",
+      "computed": "-8750",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "cff",
+      "year": "2025",
+      "actual": "-10453",
+      "computed": "-10453",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "cff",
+      "year": "2024",
+      "actual": "-10752",
+      "computed": "-10752",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "cash_change",
+      "year": "2025",
+      "actual": "-2240",
+      "computed": "-2240",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "cash_change",
+      "year": "2024",
+      "actual": "-1456",
+      "computed": "-1456",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "cash_bridge.opening",
+      "year": "2025",
+      "actual": "14511",
+      "computed": "14511",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "cash_bridge.opening",
+      "year": "2024",
+      "actual": "15962",
+      "computed": "15962",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "cash_bridge.closing",
+      "year": "2025",
+      "actual": "12254",
+      "computed": "12254",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "cash_bridge.closing",
+      "year": "2024",
+      "actual": "14511",
+      "computed": "14511",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "cash_balance_sheet",
+      "year": "2025",
+      "actual": "12254",
+      "computed": "12254",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "cash_balance_sheet",
+      "year": "2024",
+      "actual": "14511",
+      "computed": "14511",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "cash_bridge.prior_current_continuity",
+      "year": "2025_to_2024",
+      "actual": "14516",
+      "computed": "14516",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "equity_rollforward.prior_current_continuity",
+      "year": "2025_to_2024",
+      "actual": "93630",
+      "computed": "93630",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "deferred_tax_rollforward.prior_current_continuity",
+      "year": "2025_to_2024",
+      "actual": "-3162",
+      "computed": "-3162",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "ecl_total.prior_current_continuity",
+      "year": "2025_to_2024",
+      "actual": "1105",
+      "computed": "1105",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "cash.total_rollforward",
+      "year": "2025",
+      "actual": "12276",
+      "computed": "12276",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "cash.total_rollforward",
+      "year": "2024",
+      "actual": "14516",
+      "computed": "14516",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "equity.comprehensive",
+      "year": "2025",
+      "actual": "5229",
+      "computed": "5229",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "equity.comprehensive",
+      "year": "2024",
+      "actual": "11183",
+      "computed": "11183",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "equity.rollforward",
+      "year": "2025",
+      "actual": "94240",
+      "computed": "94240",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "equity.rollforward",
+      "year": "2024",
+      "actual": "93630",
+      "computed": "93630",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "equity.rollforward_to_bs",
+      "year": "2025",
+      "actual": "94240",
+      "computed": "94240",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "equity.rollforward_to_bs",
+      "year": "2024",
+      "actual": "93630",
+      "computed": "93630",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "tax.components",
+      "year": "2025",
+      "actual": "-953",
+      "computed": "-953",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "tax.components",
+      "year": "2024",
+      "actual": "-3738",
+      "computed": "-3738",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "tax.deferred_components",
+      "year": "2025",
+      "actual": "278",
+      "computed": "278",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "tax.deferred_components",
+      "year": "2024",
+      "actual": "170",
+      "computed": "170",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "tax.rate_bridge",
+      "year": "2025",
+      "actual": "-953",
+      "computed": "-953",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "tax.rate_bridge",
+      "year": "2024",
+      "actual": "-3738",
+      "computed": "-3738",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "tax.income_statement",
+      "year": "2025",
+      "actual": "-953",
+      "computed": "-953",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "tax.income_statement",
+      "year": "2024",
+      "actual": "-3738",
+      "computed": "-3738",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "deferred_tax.unrecognized",
+      "year": "2025",
+      "actual": "-205",
+      "computed": "-205",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "deferred_tax.unrecognized",
+      "year": "2024",
+      "actual": "-117",
+      "computed": "-117",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "deferred_tax.gross_recognized",
+      "year": "2025",
+      "actual": "14857",
+      "computed": "14857",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "deferred_tax.gross_recognized",
+      "year": "2024",
+      "actual": "16404",
+      "computed": "16404",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "deferred_tax.net_before_offset",
+      "year": "2025",
+      "actual": "-4111",
+      "computed": "-4111",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "deferred_tax.net_before_offset",
+      "year": "2024",
+      "actual": "-3162",
+      "computed": "-3162",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "deferred_tax.net_after_offset",
+      "year": "2025",
+      "actual": "-4111",
+      "computed": "-4111",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "deferred_tax.net_after_offset",
+      "year": "2024",
+      "actual": "-3162",
+      "computed": "-3162",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "deferred_tax.rollforward",
+      "year": "2025",
+      "actual": "-4111",
+      "computed": "-4111",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "deferred_tax.rollforward",
+      "year": "2024",
+      "actual": "-3162",
+      "computed": "-3162",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "deferred_tax.closing",
+      "year": "2025",
+      "actual": "-4111",
+      "computed": "-4111",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "deferred_tax.closing",
+      "year": "2024",
+      "actual": "-3162",
+      "computed": "-3162",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "leases.cost_rollforward",
+      "year": "2025",
+      "actual": "49840",
+      "computed": "49840",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "leases.cost_rollforward",
+      "year": "2024",
+      "actual": "58197",
+      "computed": "58197",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "leases.depreciation_rollforward",
+      "year": "2025",
+      "actual": "10368",
+      "computed": "10368",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "leases.depreciation_rollforward",
+      "year": "2024",
+      "actual": "12977",
+      "computed": "12977",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "leases.net",
+      "year": "2025",
+      "actual": "39472",
+      "computed": "39472",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "leases.net",
+      "year": "2024",
+      "actual": "45220",
+      "computed": "45220",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "leases.bs",
+      "year": "2025",
+      "actual": "39472",
+      "computed": "39472",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "leases.bs",
+      "year": "2024",
+      "actual": "45220",
+      "computed": "45220",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "leases.future_maturity",
+      "year": "2025",
+      "actual": "21442",
+      "computed": "21442",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "leases.future_maturity",
+      "year": "2024",
+      "actual": "20501",
+      "computed": "20501",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.customer",
+      "year": "2025",
+      "actual": "38656",
+      "computed": "38656",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.customer",
+      "year": "2024",
+      "actual": "45639",
+      "computed": "45639",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.dealer",
+      "year": "2025",
+      "actual": "20561",
+      "computed": "20561",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.dealer",
+      "year": "2024",
+      "actual": "23012",
+      "computed": "23012",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.lease",
+      "year": "2025",
+      "actual": "17333",
+      "computed": "17333",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.lease",
+      "year": "2024",
+      "actual": "19432",
+      "computed": "19432",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.residual",
+      "year": "2025",
+      "actual": "724",
+      "computed": "724",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.residual",
+      "year": "2024",
+      "actual": "889",
+      "computed": "889",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.gross",
+      "year": "2025",
+      "actual": "77274",
+      "computed": "77274",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.gross",
+      "year": "2024",
+      "actual": "88972",
+      "computed": "88972",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.allowance",
+      "year": "2025",
+      "actual": "-985",
+      "computed": "-985",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.allowance",
+      "year": "2024",
+      "actual": "-1105",
+      "computed": "-1105",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.net",
+      "year": "2025",
+      "actual": "76289",
+      "computed": "76289",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.net",
+      "year": "2024",
+      "actual": "87867",
+      "computed": "87867",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.gross.current",
+      "year": "2025",
+      "actual": "34764",
+      "computed": "34764",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.gross.current",
+      "year": "2024",
+      "actual": "39753",
+      "computed": "39753",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.net.current",
+      "year": "2025",
+      "actual": "34387",
+      "computed": "34387",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.net.current",
+      "year": "2024",
+      "actual": "39320",
+      "computed": "39320",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.gross.noncurrent",
+      "year": "2025",
+      "actual": "42510",
+      "computed": "42510",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.gross.noncurrent",
+      "year": "2024",
+      "actual": "49219",
+      "computed": "49219",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.net.noncurrent",
+      "year": "2025",
+      "actual": "41902",
+      "computed": "41902",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.net.noncurrent",
+      "year": "2024",
+      "actual": "48547",
+      "computed": "48547",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.gross.total",
+      "year": "2025",
+      "actual": "77274",
+      "computed": "77274",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.gross.total",
+      "year": "2024",
+      "actual": "88972",
+      "computed": "88972",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.net.total",
+      "year": "2025",
+      "actual": "76289",
+      "computed": "76289",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.net.total",
+      "year": "2024",
+      "actual": "87867",
+      "computed": "87867",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "fs.current_bs",
+      "year": "2025",
+      "actual": "34387",
+      "computed": "34387",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "fs.current_bs",
+      "year": "2024",
+      "actual": "39320",
+      "computed": "39320",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "fs.noncurrent_bs",
+      "year": "2025",
+      "actual": "41902",
+      "computed": "41902",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "fs.noncurrent_bs",
+      "year": "2024",
+      "actual": "48547",
+      "computed": "48547",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "finance_lease.maturities",
+      "year": "2025",
+      "actual": "18663",
+      "computed": "18663",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "finance_lease.maturities",
+      "year": "2024",
+      "actual": "20850",
+      "computed": "20850",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "finance_lease.investment",
+      "year": "2025",
+      "actual": "19522",
+      "computed": "19522",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "finance_lease.investment",
+      "year": "2024",
+      "actual": "21737",
+      "computed": "21737",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "finance_lease.gross",
+      "year": "2025",
+      "actual": "17333",
+      "computed": "17333",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "finance_lease.gross",
+      "year": "2024",
+      "actual": "19432",
+      "computed": "19432",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "finance_lease.net",
+      "year": "2025",
+      "actual": "17067",
+      "computed": "17067",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "finance_lease.net",
+      "year": "2024",
+      "actual": "19109",
+      "computed": "19109",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "finance_lease.fs",
+      "year": "2025",
+      "actual": "17333",
+      "computed": "17333",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "finance_lease.fs",
+      "year": "2024",
+      "actual": "19432",
+      "computed": "19432",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "ecl_total.rollforward",
+      "year": "2025",
+      "actual": "1003",
+      "computed": "1003",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl_total.rollforward",
+      "year": "2024",
+      "actual": "1105",
+      "computed": "1105",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl_stage1.rollforward",
+      "year": "2025",
+      "actual": "264",
+      "computed": "264",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl_stage1.rollforward",
+      "year": "2024",
+      "actual": "297",
+      "computed": "297",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl_stage2.rollforward",
+      "year": "2025",
+      "actual": "228",
+      "computed": "228",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl_stage2.rollforward",
+      "year": "2024",
+      "actual": "244",
+      "computed": "244",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl_stage3.rollforward",
+      "year": "2025",
+      "actual": "511",
+      "computed": "511",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl_stage3.rollforward",
+      "year": "2024",
+      "actual": "564",
+      "computed": "564",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl.stage_sum.opening",
+      "year": "2025",
+      "actual": "1105",
+      "computed": "1105",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl.stage_sum.opening",
+      "year": "2024",
+      "actual": "1055",
+      "computed": "1055",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl.stage_sum.additions",
+      "year": "2025",
+      "actual": "244",
+      "computed": "244",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl.stage_sum.additions",
+      "year": "2024",
+      "actual": "293",
+      "computed": "293",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl.stage_sum.remeasurement",
+      "year": "2025",
+      "actual": "388",
+      "computed": "388",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl.stage_sum.remeasurement",
+      "year": "2024",
+      "actual": "361",
+      "computed": "361",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl.stage_sum.utilization",
+      "year": "2025",
+      "actual": "-244",
+      "computed": "-244",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl.stage_sum.utilization",
+      "year": "2024",
+      "actual": "-194",
+      "computed": "-194",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl.stage_sum.reversals",
+      "year": "2025",
+      "actual": "-433",
+      "computed": "-433",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl.stage_sum.reversals",
+      "year": "2024",
+      "actual": "-433",
+      "computed": "-433",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl.stage_sum.transfer_stage1",
+      "year": "2025",
+      "actual": "0",
+      "computed": "0",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl.stage_sum.transfer_stage1",
+      "year": "2024",
+      "actual": "0",
+      "computed": "0",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl.stage_sum.transfer_stage2",
+      "year": "2025",
+      "actual": "0",
+      "computed": "0",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl.stage_sum.transfer_stage2",
+      "year": "2024",
+      "actual": "0",
+      "computed": "0",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl.stage_sum.transfer_stage3",
+      "year": "2025",
+      "actual": "0",
+      "computed": "0",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl.stage_sum.transfer_stage3",
+      "year": "2024",
+      "actual": "0",
+      "computed": "0",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl.stage_sum.fx_other",
+      "year": "2025",
+      "actual": "-57",
+      "computed": "-57",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl.stage_sum.fx_other",
+      "year": "2024",
+      "actual": "23",
+      "computed": "23",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl.stage_sum.closing",
+      "year": "2025",
+      "actual": "1003",
+      "computed": "1003",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "ecl.stage_sum.closing",
+      "year": "2024",
+      "actual": "1105",
+      "computed": "1105",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "credit.stage_sum",
+      "year": "2025",
+      "actual": "77722",
+      "computed": "77722",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "credit.stage_sum",
+      "year": "2024",
+      "actual": "89056",
+      "computed": "89056",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "credit.aging_sum",
+      "year": "2025",
+      "actual": "77722",
+      "computed": "77722",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "credit.aging_sum",
+      "year": "2024",
+      "actual": "89056",
+      "computed": "89056",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segments.revenue.cars",
+      "year": "2025",
+      "actual": "96407",
+      "computed": "96407",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segments.revenue.cars",
+      "year": "2024",
+      "actual": "107761",
+      "computed": "107761",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segments.revenue.vans",
+      "year": "2025",
+      "actual": "17148",
+      "computed": "17148",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segments.revenue.vans",
+      "year": "2024",
+      "actual": "19320",
+      "computed": "19320",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segments.revenue.fs",
+      "year": "2025",
+      "actual": "24625",
+      "computed": "24625",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segments.revenue.fs",
+      "year": "2024",
+      "actual": "25083",
+      "computed": "25083",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segments.revenue_sum",
+      "year": "2025",
+      "actual": "138180",
+      "computed": "138180",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segments.revenue_sum",
+      "year": "2024",
+      "actual": "152164",
+      "computed": "152164",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segments.revenue_bridge",
+      "year": "2025",
+      "actual": "132214",
+      "computed": "132214",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segments.revenue_bridge",
+      "year": "2024",
+      "actual": "145594",
+      "computed": "145594",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segments.revenue_income",
+      "year": "2025",
+      "actual": "132214",
+      "computed": "132214",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "segments.revenue_income",
+      "year": "2024",
+      "actual": "145594",
+      "computed": "145594",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "segments.ebit_sum",
+      "year": "2025",
+      "actual": "5563",
+      "computed": "5563",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segments.ebit_sum",
+      "year": "2024",
+      "actual": "12526",
+      "computed": "12526",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segments.reconciliation",
+      "year": "2025",
+      "actual": "257",
+      "computed": "257",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segments.reconciliation",
+      "year": "2024",
+      "actual": "1073",
+      "computed": "1073",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segments.ebit_bridge",
+      "year": "2025",
+      "actual": "5820",
+      "computed": "5820",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segments.ebit_bridge",
+      "year": "2024",
+      "actual": "13599",
+      "computed": "13599",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segments.ebit_income",
+      "year": "2025",
+      "actual": "5820",
+      "computed": "5820",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "segments.ebit_income",
+      "year": "2024",
+      "actual": "13599",
+      "computed": "13599",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "segment_assets.reconcile",
+      "year": "2025",
+      "actual": "234093",
+      "computed": "234093",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segment_assets.reconcile",
+      "year": "2024",
+      "actual": "244436",
+      "computed": "244436",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segment_assets.unallocated",
+      "year": "2025",
+      "actual": "255466",
+      "computed": "255466",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segment_assets.unallocated",
+      "year": "2024",
+      "actual": "265010",
+      "computed": "265010",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segment_assets.bs",
+      "year": "2025",
+      "actual": "255466",
+      "computed": "255466",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "segment_assets.bs",
+      "year": "2024",
+      "actual": "265010",
+      "computed": "265010",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "segment_liabilities.reconcile",
+      "year": "2025",
+      "actual": "175946",
+      "computed": "175946",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segment_liabilities.reconcile",
+      "year": "2024",
+      "actual": "182939",
+      "computed": "182939",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segment_liabilities.unallocated",
+      "year": "2025",
+      "actual": "255466",
+      "computed": "255466",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segment_liabilities.unallocated",
+      "year": "2024",
+      "actual": "265010",
+      "computed": "265010",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "segment_liabilities.bs",
+      "year": "2025",
+      "actual": "255466",
+      "computed": "255466",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "segment_liabilities.bs",
+      "year": "2024",
+      "actual": "265010",
+      "computed": "265010",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "region.revenue",
+      "year": "2025",
+      "actual": "132214",
+      "computed": "132214",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "region.revenue",
+      "year": "2024",
+      "actual": "145594",
+      "computed": "145594",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "region.income",
+      "year": "2025",
+      "actual": "132214",
+      "computed": "132214",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "region.income",
+      "year": "2024",
+      "actual": "145594",
+      "computed": "145594",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "average_net_assets.segment_sum",
+      "year": "2025",
+      "actual": "53860",
+      "computed": "53860",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "average_net_assets.segment_sum",
+      "year": "2024",
+      "actual": "56530",
+      "computed": "56530",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "average_net_assets.group",
+      "year": "2025",
+      "actual": "58327",
+      "computed": "58327",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "average_net_assets.group",
+      "year": "2024",
+      "actual": "60490",
+      "computed": "60490",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "eps.parent_numerator_weighted_denominator",
+      "year": "2025",
+      "actual": "5.34",
+      "computed": "5.34",
+      "residual": "0.00",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "eps.parent_numerator_weighted_denominator",
+      "year": "2024",
+      "actual": "10.19",
+      "computed": "10.19",
+      "residual": "0.00",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "pension.funded",
+      "year": "2025",
+      "actual": "2640",
+      "computed": "2640",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "pension.funded",
+      "year": "2024",
+      "actual": "951",
+      "computed": "951",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "pension.asset_ceiling",
+      "year": "2025",
+      "actual": "2621",
+      "computed": "2621",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "pension.asset_ceiling",
+      "year": "2024",
+      "actual": "938",
+      "computed": "938",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "pension.gross_net",
+      "year": "2025",
+      "actual": "2621",
+      "computed": "2621",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "pension.gross_net",
+      "year": "2024",
+      "actual": "938",
+      "computed": "938",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "risk_provisions.categories",
+      "year": "2025",
+      "actual": "15458",
+      "computed": "15458",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "risk_provisions.categories",
+      "year": "2024",
+      "actual": "15020",
+      "computed": "15020",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "risk_provisions.maturity",
+      "year": "2025",
+      "actual": "15458",
+      "computed": "15458",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "risk_provisions.maturity",
+      "year": "2024",
+      "actual": "15020",
+      "computed": "15020",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "risk_provisions.current_bs",
+      "year": "2025",
+      "actual": "7846",
+      "computed": "7846",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "risk_provisions.current_bs",
+      "year": "2024",
+      "actual": "7688",
+      "computed": "7688",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "risk_provisions.noncurrent_bs",
+      "year": "2025",
+      "actual": "7612",
+      "computed": "7612",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "risk_provisions.noncurrent_bs",
+      "year": "2024",
+      "actual": "7332",
+      "computed": "7332",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "financing_debt.categories",
+      "year": "2025",
+      "actual": "100006",
+      "computed": "100006",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "financing_debt.categories",
+      "year": "2024",
+      "actual": "112798",
+      "computed": "112798",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "financing_debt.maturity",
+      "year": "2025",
+      "actual": "100006",
+      "computed": "100006",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "financing_debt.maturity",
+      "year": "2024",
+      "actual": "112798",
+      "computed": "112798",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "financing_debt.current_bs",
+      "year": "2025",
+      "actual": "37596",
+      "computed": "37596",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "financing_debt.current_bs",
+      "year": "2024",
+      "actual": "39311",
+      "computed": "39311",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "financing_debt.noncurrent_bs",
+      "year": "2025",
+      "actual": "62410",
+      "computed": "62410",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "financing_debt.noncurrent_bs",
+      "year": "2024",
+      "actual": "73487",
+      "computed": "73487",
+      "residual": "0",
+      "tolerance": "0",
+      "passed": true
+    },
+    {
+      "check": "hierarchy.assets",
+      "year": "2025",
+      "actual": "10713",
+      "computed": "10713",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "hierarchy.assets",
+      "year": "2024",
+      "actual": "9687",
+      "computed": "9687",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "hierarchy.liabilities",
+      "year": "2025",
+      "actual": "447",
+      "computed": "447",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "hierarchy.liabilities",
+      "year": "2024",
+      "actual": "1232",
+      "computed": "1232",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "netting.asset_hypothetical",
+      "year": "2025",
+      "actual": "1715",
+      "computed": "1715",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "netting.asset_hypothetical",
+      "year": "2024",
+      "actual": "674",
+      "computed": "674",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "netting.liability_hypothetical",
+      "year": "2025",
+      "actual": "130",
+      "computed": "130",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "netting.liability_hypothetical",
+      "year": "2024",
+      "actual": "344",
+      "computed": "344",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "contract_refund.contract",
+      "year": "2025",
+      "actual": "6189",
+      "computed": "6189",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "contract_refund.contract",
+      "year": "2024",
+      "actual": "6201",
+      "computed": "6201",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "contract_refund.refund",
+      "year": "2025",
+      "actual": "4708",
+      "computed": "4708",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "contract_refund.refund",
+      "year": "2024",
+      "actual": "5045",
+      "computed": "5045",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "contract_refund.total",
+      "year": "2025",
+      "actual": "10897",
+      "computed": "10897",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "contract_refund.total",
+      "year": "2024",
+      "actual": "11246",
+      "computed": "11246",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "contract_refund.maturity",
+      "year": "2025",
+      "actual": "10897",
+      "computed": "10897",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "contract_refund.maturity",
+      "year": "2024",
+      "actual": "11246",
+      "computed": "11246",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "contingent.total",
+      "year": "2025",
+      "actual": "3156",
+      "computed": "3156",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "contingent.total",
+      "year": "2024",
+      "actual": "2807",
+      "computed": "2807",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "runoff.categories",
+      "year": "2025",
+      "actual": "131532",
+      "computed": "131532",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "runoff.categories",
+      "year": "2024",
+      "actual": "147170",
+      "computed": "147170",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "runoff.maturities",
+      "year": "2025",
+      "actual": "131532",
+      "computed": "131532",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "runoff.maturities",
+      "year": "2024",
+      "actual": "147170",
+      "computed": "147170",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "associate.comprehensive",
+      "year": "2025",
+      "actual": "924",
+      "computed": "924",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "associate.comprehensive",
+      "year": "2024",
+      "actual": "2893",
+      "computed": "2893",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "associate.balance",
+      "year": "2025",
+      "actual": "26031",
+      "computed": "26031",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "associate.balance",
+      "year": "2024",
+      "actual": "28099",
+      "computed": "28099",
+      "residual": "0",
+      "tolerance": "2",
+      "passed": true
+    },
+    {
+      "check": "cash.instruments_vs_statement_presentation",
+      "year": "2025",
+      "actual": "12276",
+      "computed": "12276",
+      "residual": "0",
+      "tolerance": "1",
+      "passed": true
+    },
+    {
+      "check": "cash.instruments_vs_statement_presentation",
+      "year": "2024",
+      "actual": "14517",
+      "computed": "14516",
+      "residual": "1",
+      "tolerance": "1",
+      "passed": true
+    }
+  ],
+  "assurance": "analytical_source_checks_only"
+}

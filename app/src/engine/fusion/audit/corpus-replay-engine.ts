@@ -55,33 +55,12 @@ function corpusSector(id: string): Sector | undefined {
 }
 
 /** Replay the audit of one company of the bundle. */
-export function replayCompany(id: string, opts: { prior?: boolean | 'smoothed'; max?: number } = {}): Replay | null {
-  const t = companyTrialBalance(id);
-  if (!t) return null;
-  const c = t.company, tb = parseTrialBalance(t.csv);
-  const review = reviewTrialBalance(tb, { framework: 'IFRS', currency: t.ctx.curSym, overrides: t.overrides, tax: t.ctx.taxKind as 'zakat' | 'income', unclassified: t.ctx.unclassified });
-  /* no prior at all, the sector's own share (sector-only), or the smoothed prior (sector → standard → all reports); always leave-one-out */
-  const prior = opts.prior === false ? {} : opts.prior === 'smoothed' ? undefined : sectorPrior(c.sector, c.id);
-  const kams = suggestKams({ fs: review.fs, risks: review.risks, materiality: review.materiality.overall, currency: t.ctx.curSym, periodEnd: c.yearEnd, sector: c.sector, max: opts.max ?? 3, sectorPrior: prior,
-    exclude: c.id, standard: REPORT_STD.get(c.id) });
-  const rows = KAMS.filter((k) => k.report === id);
-  const themes = [...new Set(rows.map((k) => k.theme))];
-  const selected = new Set(kams.filter((k) => k.selected).map((k) => k.key)), ranked = new Set(kams.map((k) => k.key));
-  const actual = themes.map((th) => ({ theme: th, ar: THEMES[th].ar, titles: rows.filter((k) => k.theme === th).map((k) => k.title), pages: rows.filter((k) => k.theme === th).map((k) => k.page),
-    found: (selected.has(th) ? 'selected' : ranked.has(th) ? 'ranked' : 'missed') as 'selected' | 'ranked' | 'missed' }));
-  const ours = kams.map((k) => ({ key: k.key, title: k.title, selected: k.selected, score: k.score, matched: themes.includes(k.key as Theme) }));
-  const hit = actual.filter((a) => a.found === 'selected').length, rankedHit = actual.filter((a) => a.found !== 'missed').length;
-  const unit = c.figures.unit === 'crore' ? 1e7 : 1e6;
-  const disc = MATERIALITY.find((m) => m.report === id) ?? null, oursMat = review.materiality.overall / 100;
-  return {
-    id, company: c.company, sector: c.sector, auditor: c.auditor, fy: c.fy, unit: c.unitAr, actual, ours,
-    recall: themes.length ? r2(hit / themes.length) : null, rankedRecall: themes.length ? r2(rankedHit / themes.length) : null,
-    precision: selected.size && themes.length ? r2(ours.filter((o) => o.selected && o.matched).length / selected.size) : null,
-    materiality: { ours: oursMat, benchmark: review.materiality.benchmarkAr, disclosed: disc ? disc.overall / unit : null, disclosedBasis: disc ? disc.basis : null,
-      ratio: disc ? r2(oursMat / (disc.overall / unit)) : null, page: disc ? disc.page : null },
-    requests: review.requests.length, findings: review.findings.length, balanced: t.balanced, structure: structureOf(id),
-  };
+export function replayCompany(_id: string, _opts: { prior?: boolean | 'smoothed'; max?: number } = {}): Replay | null {
+  // A published-company catalog entry, reviewed or pending, cannot establish
+  // an operational audit engagement. Read-only source facts remain elsewhere.
+  return null;
 }
+
 /* the sections SQC's integrated report lays out (the bundle blueprint) against the sections of the company's own report */
 const SQC_SECTIONS = new Set(blueprint().flatMap((p) => p.sections.map((x) => x.key)));
 function structureOf(id: string) {
@@ -103,6 +82,7 @@ export function replayAll(opts: { prior?: boolean | 'smoothed'; max?: number } =
   const mat = list.filter((r) => r.materiality.ratio !== null);
   const st = list.filter((r) => r.structure.theirs), stTheirs = st.reduce((a, r) => a + r.structure.theirs, 0), stCov = st.reduce((a, r) => a + r.structure.covered, 0);
   return {
+    status: list.length?'simulation-only':'unavailable', reason:'Published statement models do not establish an audit engagement or earned assurance.',
     companies: list.length, withKams: withKams.length, kamThemes: actualN,
     recall: actualN ? r2(sel / actualN) : 0, rankedRecall: actualN ? r2(rk / actualN) : 0, precision: oursSel ? r2(oursHit / oursSel) : 0,
     anyMatch: withKams.filter((r) => r.actual.some((a) => a.found === 'selected')).length,

@@ -1,0 +1,47 @@
+{
+  "classification": "Unresolved source presentation or definition questions, not established errors",
+  "items": [
+    {
+      "id": "legal_affairs_meeting_count",
+      "physical_pages": [3253, 3257],
+      "report_pages": [13, 17],
+      "facts": "The narrative says three meetings in 2025, then describes three in-person meetings and one video conference. The attendance table uses a denominator of three for Legal Affairs Committee members.",
+      "independent_review": "Both reviewers visually confirmed the wording and attendance denominator.",
+      "status": "Unresolved wording or classification inconsistency. No corrected count inferred.",
+      "model_rule": "Do not derive a definitive four-meeting total or silently replace the stated three."
+    },
+    {
+      "id": "buyback_average_scope",
+      "physical_pages": [3555],
+      "report_pages": [315],
+      "currency": "EUR",
+      "facts": {"period": "March 2023 through November 2024", "program_count": 2, "shares_million_reported": "107", "purchase_price_million_including_transaction_costs": "6992", "average_price_per_share_reported": "63.62"},
+      "derived": {"reported_shares_times_reported_average_million": "6807.34", "residual_vs_purchase_price_million": "184.66"},
+      "independent_review": "Two reviewers visually confirmed the same values and programme period. Rounding of 107 million alone cannot account for the full residual.",
+      "status": "Unresolved average-price scope or transaction-cost definition. Costs or different averaging scope might explain it, but the source does not quantify a bridge.",
+      "model_rule": "Preserve the reported values. Do not invent fees, infer a corrected share count, or assert a proven report error."
+    },
+    {
+      "id": "prior_cash_one_million",
+      "physical_pages": [3497, 3577, 3582],
+      "report_pages": [257, 337, 342],
+      "currency": "EUR",
+      "unit": "million",
+      "period": "2024-12-31",
+      "facts": {"cash_flow_closing_including_held_for_sale": "14516", "cash_flow_closing_excluding_held_for_sale": "14511", "cash_flow_held_for_sale": "5", "financial_instruments_cash_including_held_for_sale": "14517"},
+      "status": "Unresolved one-million presentation difference; rounding or scope may contribute.",
+      "model_rule": "Keep exact row-specific anchors and permit a one-million cross-presentation residual only on the explicitly identified check. Do not adjust source amounts."
+    },
+    {
+      "id": "prior_credit_exposure_scope",
+      "physical_pages": [3546, 3548, 3577, 3591],
+      "report_pages": [306, 308, 337, 351],
+      "currency": "EUR",
+      "unit": "million",
+      "period": "2024-12-31",
+      "facts": {"balance_sheet_financial_services_net_excluding_held_for_sale": "87867", "financial_instruments_carrying_including_held_for_sale": "87950", "maximum_credit_exposure_table": "87867", "gross_stage_exposure_including_held_for_sale": "89056", "stage_loss_allowances": "1105"},
+      "status": "Maximum-exposure table footnote describes Group amounts including held-for-sale, but its prior FS figure equals the excluding-held-for-sale amount. The instrument and stage-derived net figures also differ by one million.",
+      "model_rule": "Do not force these figures to equality or assume collateral is the explanation; maximum exposure is expressly before collateral. Preserve sources and flag the unresolved boundary."
+    }
+  ]
+}

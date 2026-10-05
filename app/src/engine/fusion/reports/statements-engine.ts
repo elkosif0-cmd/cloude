@@ -1,3 +1,5 @@
+import { reviewedPublishedSource } from './published-source-engine';
+import { buildReplayStatements, reviewedTransportMatches, type ReplayResult } from './source-replay-engine';
 /* Financial statements from a trial balance — the layout of the annual reports of listed companies
    (Almarai, Nestlé, Aramco) under IFRS as endorsed in the Kingdom (SOCPA), IFRS 18-ready:
      • profit or loss in categories: operating → operating profit → investing → profit before
@@ -21,6 +23,13 @@ export type LineDef = {
 
 /* order matters: the first keyword match wins, so specific lines come before general ones */
 export const LINES: LineDef[] = [
+  /* Explicit source-only mappings: no keywords or prefixes, so other clients retain their mapping. */
+  { key:'currentSecurities', ar:'أوراق مالية قابلة للتداول متداولة', en:'Current marketable securities', statement:'sfp', section:'ca', types:['asset'], kws:[], prefixes:[], standards:[], assertions:['العرض'], cf:'investing' },
+  { key:'vendorReceivables', ar:'ذمم موردين غير تجارية', en:'Vendor non-trade receivables', statement:'sfp', section:'ca', types:['asset'], kws:[], prefixes:[], standards:[], assertions:['العرض'], cf:'wc' },
+  { key:'researchDevelopment', ar:'البحث والتطوير', en:'Research and development', statement:'pl', section:'opex', types:['expense'], kws:[], prefixes:[], standards:[], assertions:['العرض'], cf:'none' },
+  { key:'sellingGeneralAdmin', ar:'مصروفات البيع والعمومية والإدارية مجمعة', en:'Selling, general and administrative', statement:'pl', section:'opex', types:['expense'], kws:[], prefixes:[], standards:[], assertions:['العرض'], cf:'none' },
+  { key:'nonOperatingIncome', ar:'دخل أو مصروف آخر غير تشغيلي بالصافي', en:'Other non-operating income/(expense), net', statement:'pl', section:'inv', types:['revenue'], kws:[], prefixes:[], standards:[], assertions:['العرض'], cf:'none' },
+
   /* ---- non-current assets ---- */
   { key: 'rou', ar: 'موجودات حق الاستخدام', en: 'Right-of-use assets', statement: 'sfp', section: 'nca', types: ['asset'], kws: ['حق استخدام', 'حق الاستخدام', 'حق انتفاع', 'right of use', 'right-of-use'], prefixes: [], standards: ['IFRS 16'], assertions: ['الوجود', 'التقييم', 'الحقوق'], cf: 'investing' },
   { key: 'intangibles', ar: 'موجودات غير ملموسة', en: 'Intangible assets', statement: 'sfp', section: 'nca', types: ['asset'], kws: ['غير ملموس', 'برامج', 'تراخيص', 'ترخيص', 'شهره', 'intangible', 'software', 'goodwill'], prefixes: [], standards: ['IAS 38', 'IAS 36'], assertions: ['الوجود', 'التقييم'], cf: 'investing' },
@@ -88,10 +97,15 @@ export type FsLine = { key: string; ar: string; en: string; section: Section; no
   accounts: { code: string; name: string; current: Minor; prior: Minor | null; basis: string }[]; standards: string[]; assertions: string[] };
 export type Row = { key: string; ar: string; en: string; current: Minor; prior: Minor | null; note?: number | null; level: 'line' | 'subtotal' | 'total' | 'heading'; };
 export type FinancialStatements = {
+  sourceKind?: 'published-statements';
+  reconstructionStatus?: {status:'unavailable';reason:string};
+  replay?: ReplayResult;
+  cashFlowStatus?: {status:'unavailable';check:'not-tested';reason:string};
+  soceStatus?: {status:'unavailable';reason:string};
   hasPrior: boolean; lines: FsLine[]; unmapped: { code: string; name: string; balance: Minor }[];
   pl: Row[]; sfp: Row[]; soce: { columns: string[]; rows: { ar: string; values: Minor[] }[] }; cf: Row[] | null;
   keys: Record<string, { current: Minor; prior: Minor | null }>;
-  checks: { balanced: boolean; difference: Minor; priorBalanced: boolean | null; cashTies: boolean | null; cfDifference: Minor | null; mappedPct: number };
+  checks: { balanced: boolean | null; difference: Minor | null; priorBalanced: boolean | null; cashTies: boolean | null; cfDifference: Minor | null; mappedPct: number };
   notes: { no: number; ar: string; en: string; kind: 'policy' | 'line'; lineKey?: string }[];
 };
 
@@ -102,6 +116,8 @@ const present = (l: LineDef, signed: Minor) => (l.section === 'disc' ? -signed :
 const TAX_WORDS = { zakat: { before: 'الربح قبل التمويل والزكاة', pbz: 'الربح قبل الزكاة', payable: 'زكاة مستحقة', paid: 'الزكاة المدفوعة' },
   income: { before: 'الربح قبل التمويل وضريبة الدخل', pbz: 'الربح قبل ضريبة الدخل', payable: 'ضريبة دخل مستحقة', paid: 'ضريبة الدخل المدفوعة' } };
 export function buildStatements(tb: TrialBalance, overrides: Record<string, string> = {}, opts: { tax?: 'zakat' | 'income' } = {}): FinancialStatements {
+  const sourceOnly = tb.sourceKind !== undefined || tb.sourceId !== undefined || tb.sourceTransport !== undefined || tb.sourceReportFormat !== undefined;
+  if(sourceOnly){const source=reviewedPublishedSource(tb.sourceId??'');if(tb.sourceReportFormat||!source||'replay' in source.sourceModel||!reviewedTransportMatches(tb,overrides))return buildReplayStatements(tb,overrides);}
   const TW = TAX_WORDS[opts.tax ?? 'zakat'];
   const hasPrior = tb.hasPrior;
   const acc = new Map<string, FsLine>(); const unmapped: FinancialStatements['unmapped'] = [];
@@ -129,9 +145,9 @@ export function buildStatements(tb: TrialBalance, overrides: Record<string, stri
   const lr = (k: string, sign = 1) => { const d = LINE[k]; return row(k, k === 'zakatPayable' ? TW.payable : d.ar, d.en, sign * v(k), hasPrior ? sign * vp(k) : null); };
   const pl: Row[] = [
     lr('revenue'), lr('cogs', -1), row('gross', 'مجمل الربح', 'Gross profit', pc.gross, pp?.gross ?? null, 'subtotal'),
-    lr('selling', -1), lr('admin', -1), lr('depreciation', -1), lr('impairment', -1), lr('otherIncome'),
+    lr('selling', -1), lr('admin', -1), lr('researchDevelopment', -1), lr('sellingGeneralAdmin', -1), lr('depreciation', -1), lr('impairment', -1), lr('otherIncome'),
     row('operating', 'الربح التشغيلي', 'Operating profit', pc.operating, pp?.operating ?? null, 'subtotal'),
-    lr('investIncome'), row('pbfz', TW.before, 'Profit before financing and zakat', pc.pbfz, pp?.pbfz ?? null, 'subtotal'),
+    lr('investIncome'), lr('nonOperatingIncome'), row('pbfz', TW.before, 'Profit before financing and zakat', pc.pbfz, pp?.pbfz ?? null, 'subtotal'),
     lr('financeCost', -1), row('pbz', TW.pbz, 'Profit before zakat', pc.pbz, pp?.pbz ?? null, 'subtotal'),
     lr('zakatExpense', -1),
     ...(pc.disc || pp?.disc ? [row('continuing', 'الربح من العمليات المستمرة', 'Profit from continuing operations', pc.continuing, pp?.continuing ?? null, 'subtotal'), lr('discontinued')] : []),
@@ -179,7 +195,7 @@ export function buildStatements(tb: TrialBalance, overrides: Record<string, stri
   /* cash flows (indirect) — every position line's movement falls in exactly one activity, so the
      statement reconciles to the movement in cash whenever every account is mapped */
   let cf: Row[] | null = null, cashTies: boolean | null = null, cfDifference: Minor | null = null;
-  if (hasPrior) {
+  if (hasPrior && !sourceOnly) {
     const d = (k: string) => v(k) - vp(k);
     const da = LINES.filter((l) => l.da).reduce((a, l) => a + v(l.key), 0);
     const byRole = (role: CfRole, sign: 1 | -1) => LINES.filter((l) => l.statement === 'sfp' && l.cf === role).map((l) => ({ l, amt: sign * d(l.key) })).filter((x) => x.amt !== 0);
@@ -239,6 +255,20 @@ export function buildStatements(tb: TrialBalance, overrides: Record<string, stri
   for (const k of ['cash', 'receivables', 'inventory', 'payables', 'ppe', 'loansCl', 'loansNcl', 'leaseNcl', 'depreciation', 'selling', 'admin']) put(k, v(k), vp(k));
   if (cf) { put('cfo', cf.find((r) => r.key === 'cf-op')!.current, null); put('capex', cf.filter((r) => r.key === 'cf-inv-ppe' || r.key === 'cf-inv-intangibles').reduce((a, r) => a + r.current, 0), null); }
   const mapped = tb.rows.length ? Math.round(((tb.rows.length - unmapped.length) / tb.rows.length) * 1000) / 10 : 0;
-  return { hasPrior, lines: [...acc.values()], unmapped, pl, sfp, soce, cf, keys,
+  if (sourceOnly) {
+    // Net other income does not establish a separately disclosed financing subtotal.
+    const financingSubtotal=pl.findIndex(r=>r.key==='pbfz');if(financingSubtotal>=0)pl.splice(financingSubtotal,1);delete keys.pbfz;
+    soce.columns=[];soce.rows=[];
+    if(tb.sourceId==='apple-2024')for(const [key,ar,en] of [['capital','أسهم عادية ورأس مال إضافي مدفوع','Common stock and additional paid-in capital'],['reserves','الخسارة الشاملة الأخرى المتراكمة','Accumulated other comprehensive loss']]){const item=sfp.find(r=>r.key===key);if(item){item.ar=ar;item.en=en;}const detail=acc.get(key);if(detail){detail.ar=ar;detail.en=en;}}
+    // Published equity is a closing observation. The adapter removed profit only
+    // because the legacy engine adds it; never display that bridge as retained earnings.
+    const retainedRow=sfp.find(r=>r.key==='retained');
+    if(retainedRow){retainedRow.current+=pc.profit;if(retainedRow.prior!==null)retainedRow.prior+=pp?.profit??0;retainedRow.ar='الأرباح المبقاة أو العجز المتراكم';retainedRow.en='Retained earnings / accumulated deficit';}
+    const resultAt=sfp.findIndex(r=>r.key==='resultYear');if(resultAt>=0)sfp.splice(resultAt,1);
+    for(const key of ['depreciation','selling','admin'])if(!acc.has(key))delete keys[key];
+    for (const l of acc.values()) { l.standards = []; if (l.key === 'zakatExpense') { l.ar='مخصص ضريبة الدخل'; l.en='Provision for income taxes'; } }
+    for (const r of pl) { if (r.key==='zakatExpense') {r.ar='مخصص ضريبة الدخل';r.en='Provision for income taxes';} if (r.key==='pbz') {r.ar='الدخل قبل مخصص ضريبة الدخل';r.en='Income before provision for income taxes';} if (r.key==='pbfz') {r.ar='الدخل قبل التمويل وضريبة الدخل';r.en='Income before financing and income tax';} }
+  }
+  return { ...(sourceOnly ? {sourceKind:'published-statements' as const,soceStatus:{status:'unavailable' as const,reason:'The published statement of changes in equity has not been imported; closing positions do not establish its movements.'},cashFlowStatus:{status:'unavailable' as const,check:'not-tested' as const,reason:'Source cash-flow statement or a complete reviewed bridge has not been imported; balance-sheet movements are not cash flows.'}} : {}), hasPrior, lines: [...acc.values()], unmapped, pl, sfp, soce, cf, keys,
     checks: { balanced: difference === 0, difference, priorBalanced: priorDiff === null ? null : priorDiff === 0, cashTies, cfDifference, mappedPct: mapped }, notes };
 }

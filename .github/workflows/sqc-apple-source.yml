@@ -1,0 +1,150 @@
+name: SQC published-source model boundary
+
+on:
+  pull_request:
+    paths:
+      - 'app/**'
+      - 'ui/**'
+      - 'payload/**'
+      - 'unlock.html'
+      - 'sw.js'
+      - 'manifest.webmanifest'
+      - '_headers'
+      - 'build.py'
+      - 'build_mode.py'
+      - 'private_blocks.py'
+      - 'tools/build_engines.mjs'
+      - 'tools/apple-source-harness.mjs'
+      - 'tools/apple_source*'
+      - 'tools/*source*'
+      - 'tools/fixtures/**'
+      - 'tools/workspace_validation*'
+      - 'tools/fixtures/apple-fy2024-source.json'
+      - 'tools/fixtures/non-apple-statements-baseline.json'
+      - '.github/workflows/sqc-apple-source.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'ui/**'
+      - 'payload/**'
+      - 'unlock.html'
+      - 'sw.js'
+      - 'manifest.webmanifest'
+      - '_headers'
+      - 'build.py'
+      - 'build_mode.py'
+      - 'private_blocks.py'
+      - 'tools/build_engines.mjs'
+      - 'tools/apple-source-harness.mjs'
+      - 'tools/apple_source*'
+      - 'tools/*source*'
+      - 'tools/fixtures/**'
+      - 'tools/workspace_validation*'
+      - 'tools/fixtures/apple-fy2024-source.json'
+      - 'tools/fixtures/non-apple-statements-baseline.json'
+      - '.github/workflows/sqc-apple-source.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apple-source-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-boundary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SQC_TESTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact checked-out head
+        run: |
+          test "$(git rev-parse HEAD)" = "$SQC_TESTED_SHA"
+          mkdir -p artifacts/apple-source
+          git rev-parse HEAD | tee artifacts/apple-source/tested-head.txt
+      - name: Install locked engine tooling without lifecycle scripts
+        working-directory: app
+        run: npm ci --ignore-scripts
+      - name: Check all TypeScript configurations and engine tests
+        run: npm run check --prefix app
+      - name: Verify generated engine is current
+        run: node tools/build_engines.mjs --check
+      - name: Run source, bridge and CI-contract regression gates
+        run: |
+          node --check ui/core/output.js
+          node --check ui/features/tb-review.js
+          node --check ui/features/report-docs.js
+          node --check ui/features/audit-bridge.js
+          node --check tools/apple_source_browser_e2e.mjs
+          set -o pipefail
+          node --experimental-vm-modules --test --test-reporter=tap tools/pg_source_replay.test.mjs tools/home_depot_source_reporting.test.mjs tools/mcdonalds_source_reporting.test.mjs tools/mcdonalds_adapter.test.mjs tools/mercedes_source_replay.test.mjs tools/source_replay_contract.test.mjs tools/apple_source_reporting.test.mjs tools/apple_source_bridge.test.mjs tools/apple_source_ci_contract.test.mjs tools/workspace_validation.test.mjs tools/workspace_validation_contract.test.mjs tools/audit_source_catalog.test.mjs tools/source_report_reimport.test.mjs tools/pending_source_boundary.test.mjs tools/source_preview_excel.test.mjs tools/source_csv_fidelity.test.mjs | tee artifacts/apple-source/node-tests.tap
+          python3 - <<'PYCOUNT'
+          import re
+          from pathlib import Path
+          text=Path('artifacts/apple-source/node-tests.tap').read_text()
+          counts={k:int(v) for k,v in re.findall(r'^# (tests|pass|fail|cancelled|skipped) (\d+)$',text,re.M)}
+          assert counts['tests'] >= 171, counts
+          assert counts['pass']==counts['tests'], counts
+          assert counts['fail']==counts['cancelled']==counts['skipped']==0, counts
+          PYCOUNT
+      - name: Build a data-free preview
+        env:
+          SQC_BUILD_MODE: preview
+        run: |
+          python3 build.py
+          node --check dist/skosif.js
+          python3 - <<'PY'
+          from pathlib import Path
+          assert not Path('dist/secure').exists(), 'Preview cannot include private data'
+          app=Path('dist/app-safe.html').read_text()
+          assert 'const SEED_B64 = "";' in app
+          assert 'SEED_RAWS=[{' not in app
+          PY
+      - name: Install isolated browser tooling
+        run: |
+          npm install --no-save --no-package-lock --prefix /tmp/pw playwright@1.63.0
+          npx --prefix /tmp/pw playwright install --with-deps chromium
+          NODE_PATH=/tmp/pw/node_modules node -e "console.log(require('playwright/package.json').version)" > artifacts/apple-source/playwright-version.txt
+      # Additional company-model native acceptance remains pending; Node/VM replay is not a browser pass.
+      - name: Run actual Apple UI and source-import boundaries in CI only
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory dist > /tmp/apple-source-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID"' EXIT
+          python3 - <<'PY'
+          import time,urllib.request
+          for attempt in range(30):
+              try:
+                  with urllib.request.urlopen('http://127.0.0.1:8765/app-safe.html',timeout=1) as response:
+                      assert response.status==200
+                  break
+              except (OSError,AssertionError):
+                  if attempt==29: raise
+                  time.sleep(1)
+          PY
+          NODE_PATH=/tmp/pw/node_modules node tools/apple_source_browser_e2e.mjs http://127.0.0.1:8765/app-safe.html
+      - name: Retain source-only and synthetic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apple-source-evidence-${{ github.event.pull_request.head.sha || github.sha }}
+          path: artifacts/apple-source/
+          if-no-files-found: warn
+          retention-days: 7

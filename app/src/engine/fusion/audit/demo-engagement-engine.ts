@@ -5,10 +5,9 @@
                   (the engine's requests and the global auditors' opening requests), confidence per risky line
      documents()  what the client sends back for each request: a text document with the figures of the trial
                   balance (the bank confirmation, the stock count, the debtors' confirmations…)
-     round2()     the council reviews them: most accepted, one found insufficient with a follow-up request
-     round3()     the follow-up accepted, evidence sufficient, the round closes «complete»
-     final()      the final report: the engine's derived opinion, the key audit matters, the compliance
-                  discussion, the management letter
+     round2()     a simulated document workflow with a follow-up request; no professional acceptance
+     round3()     the simulated follow-up; assurance remains not assessed
+     final()      a clearly marked simulation result, never an earned opinion or management letter
    Every object is in the shape the AI reviewer returns (ai-review-engine ROUND_SCHEMA / FINAL_SCHEMA), so the same
    normalizeRound / normalizeFinal guard rails apply. The documents say they are demonstration documents. */
 import { formatMinor, type Minor } from '../reports/money-engine';
@@ -16,13 +15,20 @@ import { REVIEWERS } from './ai-review-engine';
 import type { DocRequest, Finding, Review } from './tb-review-engine';
 
 export type DemoCtx = { company: string; periodEnd?: string; currency?: string; auditFirm?: string };
-export type DemoUpload = { requestId: string; fileName: string; text: string };
+export type DemoUpload = { origin: 'simulation'; requestId: string; fileName: string; text: string };
 type Raw = Record<string, unknown>;
+const SIMULATION_NOTICE='محاكاة فقط: المستندات مصطنعة ولا تثبت تنفيذ إجراءات مهنية أو كفاية الأدلة أو استحقاق رأي.';
+function simulationRound(raw: Raw): Raw {
+  const reviewed=Array.isArray(raw.documentsReviewed)?raw.documentsReviewed as Record<string,unknown>[]:[];
+  return {...raw,origin:'simulation',status:'needs_docs',executiveSummary:SIMULATION_NOTICE,
+    boardOpinions:REVIEWERS.map(reviewer=>({reviewer,opinion:SIMULATION_NOTICE})),
+    documentsReviewed:reviewed.map(d=>({...d,origin:'simulation',verdict:'غير كافٍ',notes:SIMULATION_NOTICE,extracted:{}})),
+    findings:[],proposedAdjustments:[],confidence:[],decision:'escalate',nextStepGuidance:SIMULATION_NOTICE};
+}
 
 const SEV_AR: Record<string, string> = { high: 'عالية', medium: 'متوسطة', low: 'منخفضة' };
 const KIND_AR: Record<string, string> = { classification: 'تصنيف', measurement: 'قياس', disclosure: 'إفصاح', completeness: 'اكتمال', analytical: 'تحليلي', fraud: 'غش', 'going-concern': 'استمرارية', balance: 'أخرى' };
 const PRIO: Record<string, number> = { 'عالية': 0, 'متوسطة': 1, 'منخفضة': 2 };
-const OPINION_AR: Record<string, string> = { unmodified: 'غير معدل', qualified: 'متحفظ', adverse: 'عكسي', disclaimer: 'امتناع عن إبداء الرأي' };
 
 function money(m: Minor, cur?: string) { return formatMinor(Math.round(m), { decimals: 0 }) + (cur ? ' ' + cur : ''); }
 function addDays(iso: string | undefined, n: number) {
@@ -49,7 +55,7 @@ export function round1(review: Review, ctx: DemoCtx, extra: DocRequest[] = []): 
   const sig = review.risks.filter((r) => r.significant);
   const mat = review.materiality, cur = ctx.currency;
   const top = review.findings.slice().sort((a, b) => (a.severity === 'high' ? 0 : a.severity === 'medium' ? 1 : 2) - (b.severity === 'high' ? 0 : b.severity === 'medium' ? 1 : 2)).slice(0, 6);
-  return {
+  return simulationRound({
     status: 'needs_docs',
     executiveSummary: `راجع المجلس ميزان «${ctx.company}» (${review.summary.accounts} حساباً) بأهمية نسبية ${money(mat.overall, cur)} على أساس ${mat.benchmarkAr}. ` +
       (sig.length ? `المخاطر الجوهرية: ${sig.map((r) => r.ar).join('، ')}. ` : '') + `طُلب ${reqs.length} مستنداً لتغطيتها قبل إبداء الرأي.`,
@@ -66,7 +72,7 @@ export function round1(review: Review, ctx: DemoCtx, extra: DocRequest[] = []): 
     confidence: sig.map((r) => ({ lineKey: r.lineKey, assertion: assertionOf(r.lineKey), value: 0.35 })),
     decision: 'request_more_evidence',
     nextStepGuidance: 'ارفع المستندات المطلوبة ثم شغّل الجولة التالية.'
-  };
+  });
 }
 
 /* the client's reply to a request: a text document with the trial balance's figures */
@@ -88,7 +94,7 @@ export function documents(review: Review, requests: DocRequest[], ctx: DemoCtx, 
   return requests.map((q) => {
     const key = lineOf(review, q), amt = money(amountOf(review, q), ctx.currency);
     const text = `مستند تجريبي (عرض قدرات SQC) — ليس مستنداً حقيقياً\nإلى: ${ctx.auditFirm || 'المراجع الخارجي'}\nمن: إدارة ${ctx.company}\nالموضوع: ${q.title}\nالتاريخ: ${date}\nالمرجع: DOC-${q.id}-${round}\n\n` + body(key, q.title, amt, ctx, date);
-    return { requestId: q.id, fileName: `${q.id}-${round}-مستند.txt`, text };
+    return { origin:'simulation' as const, requestId: q.id, fileName: `${q.id}-${round}-مستند.txt`, text };
   });
 }
 /* which request the council finds insufficient the first time: the debtors' confirmations when asked, else revenue, else the second */
@@ -102,7 +108,7 @@ export function round2(review: Review, requests: DocRequest[], uploads: DemoUplo
   const date = addDays(ctx.periodEnd, 45);
   const sig = review.risks.filter((r) => r.significant);
   const weakLine = wq ? lineOf(review, wq) : '';
-  return {
+  return simulationRound({
     status: 'needs_docs',
     executiveSummary: `راجع المجلس ${uploads.length} مستنداً: قُبل ${uploads.length - (weak ? 1 : 0)}` + (wq ? `، ووُجد «${wq.title}» غير كافٍ فطُلب استكماله.` : '.'),
     riskScore: Math.max(15, 20 + sig.length * 5),
@@ -120,18 +126,18 @@ export function round2(review: Review, requests: DocRequest[], uploads: DemoUplo
     confidence: sig.map((r) => ({ lineKey: r.lineKey, assertion: assertionOf(r.lineKey), value: r.lineKey === weakLine ? 0.55 : 0.8 })),
     decision: wq ? 'request_more_evidence' : 'sufficient',
     nextStepGuidance: wq ? 'ارفع مستند الاستكمال ثم شغّل الجولة الأخيرة.' : 'الأدلة كافية — أصدر التقرير النهائي.'
-  };
+  });
 }
 /* the reply to the follow-up: the alternative procedure, filed against the follow-up and against the original request it completes */
 export function followUpDocuments(review: Review, original: DocRequest | undefined, follow: DocRequest, ctx: DemoCtx): DemoUpload[] {
   const date = addDays(ctx.periodEnd, 60) || new Date().toISOString().slice(0, 10);
   const text = `مستند تجريبي (عرض قدرات SQC) — ليس مستنداً حقيقياً\nمن: إدارة ${ctx.company}\nالموضوع: ${follow.title}\nالتاريخ: ${date}\n\nالبنود الأربعة التي لم يُرد على مصادقاتها: حُصّلت بالكامل بعد نهاية الفترة (كشوف البنك مرفقة) ` +
     `وفواتيرها وإشعارات تسليمها مطابقة. قيمة البنود: ${money(amountOf(review, follow) * 0.08, ctx.currency)}.`;
-  return [{ requestId: follow.id, fileName: `${follow.id}-استكمال.txt`, text }, ...(original ? [{ requestId: original.id, fileName: `${original.id}-2-مستند-مكمل.txt`, text }] : [])];
+  return [{ origin:'simulation' as const, requestId: follow.id, fileName: `${follow.id}-استكمال.txt`, text }, ...(original ? [{ origin:'simulation' as const, requestId: original.id, fileName: `${original.id}-2-مستند-مكمل.txt`, text }] : [])];
 }
 export function round3(review: Review, uploads: DemoUpload[], ctx: DemoCtx): Raw {
   const sig = review.risks.filter((r) => r.significant);
-  return {
+  return simulationRound({
     status: 'complete',
     executiveSummary: `اكتملت الأدلة: قُبل مستند الاستكمال، وغطت المستندات المقبولة ${sig.length ? 'كل المخاطر الجوهرية' : 'البنود الرئيسية'} لـ«${ctx.company}». الأدلة كافية وملائمة لإبداء الرأي.`,
     riskScore: 15,
@@ -142,20 +148,10 @@ export function round3(review: Review, uploads: DemoUpload[], ctx: DemoCtx): Raw
     confidence: sig.map((r) => ({ lineKey: r.lineKey, assertion: assertionOf(r.lineKey), value: 0.9 })),
     decision: 'sufficient',
     nextStepGuidance: 'أصدر التقرير النهائي.'
-  };
+  });
 }
 export type DemoKam = { title: string; description?: string; why?: string; how: string };
 export function final(review: Review, derived: { opinion: string; ar: string; basis: string[] }, kams: DemoKam[], ctx: DemoCtx): Raw {
-  const letter = review.findings.filter((f) => f.severity !== 'high').slice(0, 5);
-  return {
-    overallOpinion: OPINION_AR[derived.opinion] ?? 'غير معدل',
-    headline: `${derived.ar} على القوائم المالية لـ«${ctx.company}»${ctx.periodEnd ? ' للسنة المنتهية في ' + ctx.periodEnd : ''}`,
-    summary: `أنهى المجلس ثلاث جولات: طلب المستندات، مراجعتها وطلب استكمال واحد، ثم الاكتفاء. ` + derived.basis.join(' '),
-    keyAuditMatters: kams.slice(0, 4).map((k) => ({ title: k.title, why: k.why || k.description || '', how: k.how })),
-    complianceDiscussion: review.compliance.slice(0, 12).map((c) => ({ standardCode: c.code, status: c.status === 'يتطلب أدلة' ? 'ممتثل' : c.status, discussion: c.status === 'يتطلب أدلة' ? 'استُكملت الأدلة المطلوبة في الجولات؛ ' + c.discussion : c.discussion })),
-    adjustments: [],
-    managementLetter: letter.map((f) => ({ title: f.title, observation: f.detail || f.title, effect: f.basis, recommendation: f.action || 'تعزيز الرقابة على البند', priority: SEV_AR[f.severity] ?? 'متوسطة' })),
-    limitations: [],
-    closingStatement: 'مراجعة تجريبية لعرض قدرات SQC: المستندات مولّدة من أرقام الميزان، والرأي مشتق آلياً وفق ISA 705 ويبقى للشريك المسؤول.'
-  };
+  return {origin:'simulation',overallOpinion:'لم يُقيّم',headline:'محاكاة فقط — دون رأي تأكيد',summary:SIMULATION_NOTICE,
+    keyAuditMatters:[],complianceDiscussion:[],adjustments:[],managementLetter:[],limitations:[SIMULATION_NOTICE],closingStatement:SIMULATION_NOTICE};
 }
