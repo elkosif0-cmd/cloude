@@ -92,6 +92,10 @@ async function hashBuffer(buffer){
 }
 const openDb=()=>new Promise((res,rej)=>{const q=indexedDB.open(DOC_DB,1);q.onupgradeneeded=()=>{const db=q.result;if(!db.objectStoreNames.contains(DOC_STORE)){const s=db.createObjectStore(DOC_STORE,{keyPath:"id"});s.createIndex("companyId","companyId",{unique:false})}};q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)});
 async function putDoc(rec){const db=await openDb();await new Promise((res,rej)=>{const tx=db.transaction(DOC_STORE,"readwrite");tx.objectStore(DOC_STORE).put(rec);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)});db.close()}
+async function readDocument(id){
+  const db=await openDb(),rec=await new Promise((res,rej)=>{const tx=db.transaction(DOC_STORE,"readonly"),q=tx.objectStore(DOC_STORE).get(id);q.onsuccess=()=>res(q.result||null);q.onerror=()=>rej(q.error)});db.close();
+  return rec&&rec.companyId===cur().id?rec:null;
+}
 async function deleteDocBlob(id){const db=await openDb();await new Promise((res,rej)=>{const tx=db.transaction(DOC_STORE,"readwrite");tx.objectStore(DOC_STORE).delete(id);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)});db.close()}
 async function ingestFiles(files,sourceGateway="reporting"){
   const c=cur();if(!c.id)throw new Error("اختر شركة أولاً");
@@ -120,6 +124,15 @@ function requestAuditHandoff(id){
   if(!s.auditHandoffs.some(x=>x.documentId===id&&x.status==="pending"))s.auditHandoffs.push({id:uid("handoff"),documentId:id,status:"pending",requestedAt:new Date().toISOString(),requestedBy:"user"});
   commit(s,"audit.handoff.request",{documentId:id,sha256:doc.sha256});return true;
 }
+function auditHandoffs(status=null){
+  const s=state(),docs=Object.fromEntries(s.documents.map(d=>[d.id,d]));
+  return s.auditHandoffs.filter(h=>!status||h.status===status).map(h=>({...h,document:docs[h.documentId]?{...docs[h.documentId]}:null})).filter(h=>h.document);
+}
+function setAuditHandoffStatus(id,status){
+  if(!["pending","received","rejected"].includes(status))throw new Error("حالة تسليم غير معروفة");
+  const s=state(),row=s.auditHandoffs.find(x=>x.id===id);if(!row)return false;
+  row.status=status;row.updatedAt=new Date().toISOString();commit(s,"audit.handoff.status",{handoffId:id,status,documentId:row.documentId});return true;
+}
 function addStandardTrace(input={}){
   const s=state(),row={id:uid("std"),at:new Date().toISOString(),operation:clean(input.operation,120),standard:clean(input.standard,80),source:clean(input.source,500),result:clean(input.result,500),provider:clean(input.provider,80),approved:input.approved===true};
   s.standardTraces.push(row);if(s.standardTraces.length>500)s.standardTraces=s.standardTraces.slice(-500);commit(s,"standard.trace",{id:row.id,standard:row.standard});return row;
@@ -133,5 +146,5 @@ function reportingStatus(){
   const s=state(),target=REPORT_TARGETS[s.reporting.target]||REPORT_TARGETS.full,types=new Set(s.documents.map(d=>d.type));
   return{target:s.reporting.target,label:target.label,requires:target.requires,optional:target.optional,missing:target.requires.filter(x=>!types.has(x)),present:[...types],lastTrialBalance:s.reporting.lastTrialBalance,lastStatements:s.reporting.lastStatements};
 }
-window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,definitions,addDefinition,removeDefinition,installed,setTool,reportingTarget,reportingStatus,inferType,ingestFiles,documents,setDocumentType,removeDocument,requestAuditHandoff,addStandardTrace,saveReportResult});
+window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,definitions,addDefinition,removeDefinition,installed,setTool,reportingTarget,reportingStatus,inferType,ingestFiles,documents,readDocument,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,setAuditHandoffStatus,addStandardTrace,saveReportResult});
 })();
