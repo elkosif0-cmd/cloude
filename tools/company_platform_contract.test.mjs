@@ -10,7 +10,7 @@ const reportingSource=fs.readFileSync(new URL('../ui/features/reporting-intake.j
 const auditSource=fs.readFileSync(new URL('../ui/features/tb-review.js',import.meta.url),'utf8');
 
 function harness(){
-  const store=new Map(),events=[],audit=[];
+  const store=new Map(),events=[],audit=[];let ledgerPosts=0;
   let company={id:'co-a',name:'شركة أ',currency:'SAR',country:'SA'},seq=0;
   const SK={
     load:(k,d)=>store.has(k)?structuredClone(store.get(k)):structuredClone(d),
@@ -22,9 +22,9 @@ function harness(){
     bus:{emit:(...x)=>events.push(x)}
   };
   const context=vm.createContext({window:{},SK,console,Blob,structuredClone,Date,Math,Number,String,Object,Array,Set,JSON,TextEncoder,crypto:webcrypto,indexedDB:{open(){throw new Error('not used')}}});
-  context.window.SK=context.SK=SK;
+  context.window.SK=context.SK=SK;context.window.SKosifLedger={post(){ledgerPosts++;throw new Error('unexpected ledger post')}};
   vm.runInContext(source,context,{filename:'company-platform.js'});
-  return{api:context.window.SKosifCompanyPlatform,store,audit,events,setCompany:v=>{company={...v}},company:()=>({...company})};
+  return{api:context.window.SKosifCompanyPlatform,store,audit,events,setCompany:v=>{company={...v}},company:()=>({...company}),ledgerPosts:()=>ledgerPosts};
 }
 
 test('company profile is explicit, validated and updates company metadata',()=>{
@@ -48,6 +48,26 @@ test('master data is bound to the open company and never leaks by mismatch',()=>
   h.store.set(h.api.key,companyA);
   h.setCompany({id:'co-a',name:'شركة أ',currency:'SAR',country:'SA'});
   assert.equal(h.api.definitions('products').length,1);
+});
+
+test('fixed assets calculate straight-line depreciation deterministically and never auto-post',()=>{
+  const h=harness(),api=h.api;
+  const a=api.addDefinition('fixedAssets',{name:'سيارة تبريد',code:'FA-01',inServiceDate:'2026-01-15',cost:1200,residualValue:0,usefulLifeMonths:12,accountCode:'1501',accumAccount:'1509',expenseAccount:'6201'});
+  const march=api.assetDepreciation(a,'2026-03-31');
+  assert.equal(march.elapsedMonths,3);
+  assert.equal(march.accumulatedMinor,30000);
+  assert.equal(march.carryingMinor,90000);
+  assert.equal(march.currentMonthChargeMinor,10000);
+  const j=api.fixedAssetJournal('2026-03-31');
+  assert.equal(j.totalMinor,10000);
+  assert.equal(j.proposals.length,1);
+  assert.equal(j.proposals[0].ready,true);
+  assert.equal(j.proposals[0].lines[0].debitMinor,10000);
+  assert.equal(j.proposals[0].lines[1].creditMinor,10000);
+  assert.equal(j.authoritative,false);
+  assert.equal(j.requiresHumanPosting,true);
+  assert.equal(h.ledgerPosts(),0);
+  assert.throws(()=>api.addDefinition('fixedAssets',{name:'أصل خاطئ',inServiceDate:'2026-01-01',cost:100,residualValue:120,usefulLifeMonths:12}),/القيمة التخريدية/);
 });
 
 test('independent tools must come from the tools gateway',()=>{
@@ -98,6 +118,7 @@ test('reporting intake supports XLSX, ownership checks and explicit audit transf
   assert.match(reportingSource,/requestAuditHandoff/);
   assert.match(auditSource,/مصادر واردة من مساعد التقارير/);
   assert.match(auditSource,/handoff-import/);
+  assert.match(auditSource,/cp\.readDocument\(h\.documentId\)/);
   assert.match(auditSource,/cp\.markAuditHandoff\(id,"attached",reqId\)/);
 });
 
