@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CAPS = json.loads((ROOT / "ui/core/capabilities.json").read_text(encoding="utf-8"))
 OUT = ROOT / "docs/rebuild"
 groups = {g["id"]: g for g in CAPS["groups"]}
+gateways = {g["id"]: g for g in CAPS.get("gateways", [])}
 caps = CAPS["capabilities"]
 by_id = {c["id"]: c for c in caps}
 
@@ -32,6 +33,10 @@ def roles_for(cid):
     return ", ".join(k for k, r in CAPS["roles"].items() if r["caps"] == "*" or cid in r["caps"])
 
 
+def gateway_label(c):
+    return gateways.get(c.get("gateway"), {}).get("label", "")
+
+
 def inventory():
     rows = ["# SYSTEM CAPABILITY INVENTORY", "",
             "Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do not edit by hand.", "",
@@ -40,7 +45,11 @@ def inventory():
             "|---|---|---|---|---|---|---|---|"]
     for c in caps:
         g = groups[c["group"]]
-        loc = g["label"] + (f" › {hub_label(c)}" if c.get("hub") or is_hub(c) else "") + (" › متقدم" if c.get("adv") else " › يومي")
+        parts = [gateway_label(c), g["label"]]
+        if c.get("hub") or is_hub(c):
+            parts.append(hub_label(c))
+        parts.append("متقدم" if c.get("adv") else "يومي")
+        loc = " › ".join(x for x in parts if x)
         deps = "SKosifCore" + (", Engine" if c["module"].startswith("core") else "") + (", IndexedDB" if any(d.startswith("IDB") for d in c["data"]) else "")
         rows.append(f"| `{c['id']}` | {c['label']} | {c['module']} | {loc} | {', '.join('`'+d+'`' for d in c['data']) or '—'} | {deps} | Working | {c['decision']} |")
     rows += ["", "## Cross-cutting capabilities", "",
@@ -70,21 +79,25 @@ def cap_map():
     for c in caps:
         g = groups[c["group"]]
         hub = f"{hub_label(c)} › " if c.get("hub") or is_hub(c) else ""
-        rows.append(f"| {c['legacy']} | `{c['id']}` | {g['label']} › {hub}{c['label']}{' (advanced)' if c.get('adv') else ''} | {c['tier']} | {roles_for(c['id'])} |")
-    rows += ["", "## Menu: domains and hubs", "",
-             "One menu entry per hub; the pages of a hub open as tabs on top of each other (each keeps its own id, permission and deep link).", "",
-             "| Domain | Menu entry | Pages |", "|---|---|---|"]
-    for g in CAPS["groups"]:
-        for h in [c for c in caps if c["group"] == g["id"] and not c.get("hub")]:
-            pages = [h] + [c for c in caps if c.get("hub") == h["id"]]
-            rows.append(f"| {g['label']} | {hub_label(h)} | " + " · ".join(f"`{p['id']}` {p['label']}" for p in pages) + " |")
+        prefix = (gateway_label(c) + " › ") if gateway_label(c) else ""
+        rows.append(f"| {c['legacy']} | `{c['id']}` | {prefix}{g['label']} › {hub}{c['label']}{' (advanced)' if c.get('adv') else ''} | {c['tier']} | {roles_for(c['id'])} |")
+    rows += ["", "## User-facing gateways → internal domains → hubs", "",
+             "The sidebar exposes the four gateways. The eight historical domains remain an internal compatibility/company-scoping layer; one menu entry is shown per hub and every page keeps its id, permission and deep link.", "",
+             "| Gateway | Internal domain | Menu entry | Pages |", "|---|---|---|---|"]
+    gateway_rows = CAPS.get("gateways", []) or [{"id": "", "label": "—"}]
+    for gw in gateway_rows:
+        for g in CAPS["groups"]:
+            visible = [c for c in caps if c["group"] == g["id"] and not c.get("hub") and (not gw["id"] or c.get("gateway") == gw["id"])]
+            for h in visible:
+                pages = [h] + [c for c in caps if c.get("hub") == h["id"]]
+                rows.append(f"| {gw['label']} | {g['label']} | {hub_label(h)} | " + " · ".join(f"`{p['id']}` {p['label']}" for p in pages) + " |")
     entries = sum(1 for c in caps if not c.get("hub"))
     rows += ["", f"{len(caps)} screens in {entries} menu entries.", "", "## By tier", ""]
     for t, label in CAPS["tiers"].items():
         ids = [c for c in caps if c["tier"] == t]
         rows.append(f"- **{t}** — {label} ({len(ids)}): " + ", ".join(f"`{c['id']}`" for c in ids))
     covered = len(caps)
-    rows += ["", f"Coverage gate: {covered} screens in {len(groups)} domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version."]
+    rows += ["", f"Coverage gate: {covered} screens in {len(gateways) or 0} user-facing gateways and {len(groups)} internal domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version."]
     return "\n".join(rows) + "\n"
 
 
