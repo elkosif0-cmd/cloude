@@ -28,7 +28,7 @@ const REPORT_TARGETS=Object.freeze({
 });
 const clean=(v,n=160)=>String(v==null?"":v).replace(/\s+/g," ").trim().slice(0,n);
 const cur=()=>window.SK&&SK.company&&SK.company.current?SK.company.current():{id:"",name:""};
-const blank=id=>({version:1,companyId:id,profile:{activity:"",country:cur().country||"SA",currency:cur().currency||"SAR",fiscalYearStart:"01-01",taxMode:(cur().country==="EG"?"income":"zakat"),vatNo:"",crNo:"",address:"",notes:""},definitions:Object.fromEntries(Object.keys(TYPES).map(k=>[k,[]])),installedTools:[],documents:[],reporting:{target:"full",lastTrialBalance:null,lastStatements:null,suggestedMeasures:[]},mpms:[],auditHandoffs:[],standardTraces:[],updatedAt:null});
+const blank=id=>({version:1,companyId:id,profile:{activity:"",country:cur().country||"SA",currency:cur().currency||"SAR",fiscalYearStart:"01-01",taxMode:(cur().country==="EG"?"income":"zakat"),vatNo:"",crNo:"",address:"",notes:""},definitions:Object.fromEntries(Object.keys(TYPES).map(k=>[k,[]])),installedTools:[],documents:[],reporting:{target:"full",lastTrialBalance:null,lastStatements:null,suggestedMeasures:[]},mpms:[],lineage:[],auditHandoffs:[],standardTraces:[],updatedAt:null});
 function state(){
   const id=cur().id||"";
   const v=load(KEY,null);
@@ -40,6 +40,7 @@ function state(){
   if(!v.reporting||typeof v.reporting!=="object")v.reporting={target:"full",lastTrialBalance:null,lastStatements:null,suggestedMeasures:[]};
   if(!Array.isArray(v.reporting.suggestedMeasures))v.reporting.suggestedMeasures=[];
   if(!Array.isArray(v.mpms))v.mpms=[];
+  if(!Array.isArray(v.lineage))v.lineage=[];
   if(!Array.isArray(v.auditHandoffs))v.auditHandoffs=[];
   if(!Array.isArray(v.standardTraces))v.standardTraces=[];
   return v;
@@ -62,6 +63,15 @@ function setProfile(input={}){
   if(SK.company&&SK.company.updateMeta)SK.company.updateMeta({country:next.country,currency:next.currency});
   return profile();
 }
+function lineage(limit=100){const a=state().lineage||[];return a.slice(Math.max(0,a.length-Math.max(1,Math.min(1000,Number(limit)||100)))).map(x=>({...x}))}
+function addLineage(input={},targetState=null){
+  const s=targetState||state(),row={id:uid("ln"),companyId:cur().id,at:new Date().toISOString(),fromType:clean(input.fromType,60),fromId:clean(input.fromId,120),toType:clean(input.toType,60),toId:clean(input.toId,120),relation:clean(input.relation,100),sourceHash:clean(input.sourceHash,128),note:clean(input.note,500)};
+  if(!row.fromType||!row.fromId||!row.toType||!row.toId||!row.relation)throw new Error("رابط التتبع غير مكتمل");
+  s.lineage.push(row);if(s.lineage.length>2000)s.lineage=s.lineage.slice(-2000);
+  if(!targetState)commit(s,"lineage.add",{id:row.id,relation:row.relation,fromType:row.fromType,toType:row.toType});
+  return {...row};
+}
+function lineageFor(type,id){type=clean(type,60);id=clean(id,120);return lineage(1000).filter(x=>(x.fromType===type&&x.fromId===id)||(x.toType===type&&x.toId===id))}
 function definitions(type){if(!TYPES[type])return[];return state().definitions[type].map(x=>({...x}))}
 const amountMinor=v=>Math.round((Number(v)||0)*100);
 const isoDate=v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v||""))?String(v):"";
@@ -165,8 +175,9 @@ async function removeDocument(id){
 }
 function requestAuditHandoff(id){
   const s=state(),doc=s.documents.find(x=>x.id===id&&x.companyId===cur().id);if(!doc)throw new Error("المستند غير موجود");
-  if(!s.auditHandoffs.some(x=>x.documentId===id&&x.status==="pending"))s.auditHandoffs.push({id:uid("handoff"),documentId:id,status:"pending",requestedAt:new Date().toISOString(),requestedBy:"user"});
-  commit(s,"audit.handoff.request",{documentId:id,sha256:doc.sha256});return true;
+  let h=s.auditHandoffs.find(x=>x.documentId===id&&x.status==="pending");
+  if(!h){h={id:uid("handoff"),documentId:id,status:"pending",requestedAt:new Date().toISOString(),requestedBy:"user"};s.auditHandoffs.push(h);addLineage({fromType:"document",fromId:id,toType:"audit-handoff",toId:h.id,relation:"submitted-for-audit",sourceHash:doc.sha256,note:doc.name},s)}
+  commit(s,"audit.handoff.request",{documentId:id,handoffId:h.id,sha256:doc.sha256});return true;
 }
 function auditHandoffs(status=null){
   const s=state(),companyId=cur().id,docs=Object.fromEntries(s.documents.filter(d=>d.companyId===companyId).map(d=>[d.id,d]));
@@ -175,16 +186,19 @@ function auditHandoffs(status=null){
 function markAuditHandoff(id,status,requestId=""){
   const allowed=new Set(["pending","attached","dismissed","received","rejected"]);if(!allowed.has(status))throw new Error("حالة التسليم غير صالحة");
   const s=state(),companyId=cur().id,h=s.auditHandoffs.find(x=>x.id===id),doc=h&&s.documents.find(d=>d.id===h.documentId&&d.companyId===companyId);if(!h||!doc)return false;
-  h.status=status;h.requestId=clean(requestId,80);h.updatedAt=new Date().toISOString();commit(s,"audit.handoff."+status,{handoffId:id,documentId:h.documentId,requestId:h.requestId});return true;
+  h.status=status;h.requestId=clean(requestId,80);h.updatedAt=new Date().toISOString();
+  if(status==="attached"&&h.requestId&&!s.lineage.some(x=>x.fromType==="document"&&x.fromId===h.documentId&&x.toType==="pbc-request"&&x.toId===h.requestId))addLineage({fromType:"document",fromId:h.documentId,toType:"pbc-request",toId:h.requestId,relation:"attached-to-pbc",sourceHash:doc.sha256,note:doc.name},s);
+  commit(s,"audit.handoff."+status,{handoffId:id,documentId:h.documentId,requestId:h.requestId});return true;
 }
 function setAuditHandoffStatus(id,status){return markAuditHandoff(id,status)}
 function addStandardTrace(input={}){
   const s=state(),row={id:uid("std"),at:new Date().toISOString(),operation:clean(input.operation,120),standard:clean(input.standard,80),source:clean(input.source,500),result:clean(input.result,500),provider:clean(input.provider,80),approved:input.approved===true};
   s.standardTraces.push(row);if(s.standardTraces.length>500)s.standardTraces=s.standardTraces.slice(-500);commit(s,"standard.trace",{id:row.id,standard:row.standard});return row;
 }
-function saveReportResult(tb,fs,sourceName="",suggestedMeasures=[]){
-  const s=state();s.reporting.lastTrialBalance={at:new Date().toISOString(),sourceName:clean(sourceName,180),rows:tb.rows.length,balanced:!!tb.balanced,errors:tb.errors.length,unclassified:tb.unclassified,difference:String(tb.difference)};
-  s.reporting.lastStatements={at:new Date().toISOString(),mappedPct:fs.checks.mappedPct,balanced:fs.checks.balanced,cashTies:fs.checks.cashTies,unmapped:fs.unmapped.length,keys:Object.fromEntries(Object.entries(fs.keys).map(([k,v])=>[k,{current:String(v.current),prior:v.prior==null?null:String(v.prior)}]))};
+function saveReportResult(tb,fs,sourceName="",suggestedMeasures=[],sourceDocumentId=""){
+  const s=state(),reportRunId=uid("report"),at=new Date().toISOString();s.reporting.lastTrialBalance={reportRunId,at,sourceName:clean(sourceName,180),sourceDocumentId:clean(sourceDocumentId,120),rows:tb.rows.length,balanced:!!tb.balanced,errors:tb.errors.length,unclassified:tb.unclassified,difference:String(tb.difference)};
+  s.reporting.lastStatements={reportRunId,at,mappedPct:fs.checks.mappedPct,balanced:fs.checks.balanced,cashTies:fs.checks.cashTies,unmapped:fs.unmapped.length,keys:Object.fromEntries(Object.entries(fs.keys).map(([k,v])=>[k,{current:String(v.current),prior:v.prior==null?null:String(v.prior)}]))};
+  if(sourceDocumentId){const doc=s.documents.find(d=>d.id===sourceDocumentId&&d.companyId===cur().id);if(doc)addLineage({fromType:"document",fromId:doc.id,toType:"report-run",toId:reportRunId,relation:"generated-financial-statements",sourceHash:doc.sha256,note:doc.name},s)}
   s.reporting.suggestedMeasures=(Array.isArray(suggestedMeasures)?suggestedMeasures:[]).slice(0,20).map(m=>({key:clean(m.key,60),name:clean(m.ar||m.name,120),value:String(m.value??0),prior:m.prior==null?null:String(m.prior),note:clean(m.note,600),
     ifrs18Candidate:m.key==="ebitda",nearestSubtotal:m.key==="ebitda"?"operating":"",rows:(m.rows||[]).slice(0,20).map(r=>({label:clean(r.ar||r.label,160),amount:String(r.amount??0)}))}));
   commit(s,"reporting.generated",{sourceName,rows:tb.rows.length,mappedPct:fs.checks.mappedPct,suggestedMeasures:s.reporting.suggestedMeasures.length});return s.reporting;
@@ -200,7 +214,7 @@ function registerMpm(input={}){
   const existing=s.mpms.find(x=>sourceKey&&x.sourceKey===sourceKey);
   if(existing)throw new Error("هذا المقياس مسجل بالفعل");
   const row={id:uid("mpm"),name,sourceKey,nearestSubtotal,purpose,communicationSource,method:clean(input.method||"مشتق من بيانات القوائم",300),approved:false,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
-  s.mpms.push(row);commit(s,"ifrs18.mpm.register",{id:row.id,sourceKey,nearestSubtotal});return {...row};
+  s.mpms.push(row);const reportRunId=s.reporting.lastStatements?.reportRunId;if(reportRunId)addLineage({fromType:"report-run",fromId:reportRunId,toType:"mpm",toId:row.id,relation:"supports-ifrs18-mpm",note:row.name},s);commit(s,"ifrs18.mpm.register",{id:row.id,sourceKey,nearestSubtotal});return {...row};
 }
 function removeMpm(id){
   const s=state(),before=s.mpms.length;s.mpms=s.mpms.filter(x=>x.id!==id);if(s.mpms.length===before)return false;commit(s,"ifrs18.mpm.remove",{id});return true;
@@ -254,5 +268,5 @@ function searchCompany(query){
   const limited=hits.slice(0,20),text=limited.length?("نتائج داخل «"+c.name+"»:\n"+limited.map(x=>"• "+x.title+(x.detail?" — "+x.detail:"")).join("\n")):"لم أجد نتيجة مطابقة داخل بيانات الشركة الحالية.";
   return{text,matches:limited};
 }
-window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,definitions,addDefinition,removeDefinition,assetDepreciation,fixedAssetSummary,fixedAssetJournal,installed,setTool,reportingTarget,reportingStatus,mpms,registerMpm,removeMpm,approveMpm,mpmReconciliation,mpmSubtotals:()=>MPM_SUBTOTALS,inferType,ingestFiles,documents,readDocument,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,markAuditHandoff,setAuditHandoffStatus,addStandardTrace,saveReportResult,search:searchCompany});
+window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,definitions,addDefinition,removeDefinition,assetDepreciation,fixedAssetSummary,fixedAssetJournal,installed,setTool,reportingTarget,reportingStatus,mpms,registerMpm,removeMpm,approveMpm,mpmReconciliation,mpmSubtotals:()=>MPM_SUBTOTALS,lineage,lineageFor,addLineage,inferType,ingestFiles,documents,readDocument,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,markAuditHandoff,setAuditHandoffStatus,addStandardTrace,saveReportResult,search:searchCompany});
 })();
