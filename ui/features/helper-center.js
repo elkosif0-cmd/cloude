@@ -6,7 +6,7 @@ const {esc}=SK;
 const core=()=>window.SKosifCore;
 /* one node per company studio, read from the registry, plus the decision node; the hubs of a studio are its tools */
 const NOTE={product:"التكلفة، التسعير، البوكسات والتشريح",customer:"الطلبات، العملاء، التحصيل وتحليل الطلب",supply:"المخزون، التتبع، الموردون والشراء",books:"النقد، الذمم، الدفاتر، الحساسية والمخاطر",reports:"التقارير التنفيذية والطباعة والأرشيف"};
-const SECTIONS=()=>[...SK.caps.companyGroups().map(g=>({id:g.id,label:g.label,sub:NOTE[g.id]||"",icon:g.icon,targets:SK.caps.hubsInGroup(g.id).map(c=>c.id)})),
+const SECTIONS=()=>[...SK.caps.companyGroups().map(g=>({id:g.id,label:g.label,sub:NOTE[g.id]||"",icon:g.icon,targets:SK.caps.hubsInGroup(g.id).filter(c=>c.gateway==="tools").map(c=>c.id)})).filter(s=>s.targets.length),
   {id:"decision",label:"القرار والذكاء",sub:"Jev، مجلس القرار، الحساسية والملاحظات",icon:"jev",targets:["jev","council","decision","sensitivity","risks"]}];
 const firstAllowed=s=>(s.targets.map(id=>SK.caps.get(id)).find(c=>c&&SK.perm.can(c.id))||null);
 function point(s,i){
