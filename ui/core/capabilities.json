@@ -221,7 +221,8 @@
     "tasks",
     "risks",
     "notifications",
-    "codex"
+    "codex",
+    "reportingintake"
    ],
    "actions": [
     "view"
