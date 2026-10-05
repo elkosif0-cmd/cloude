@@ -3,7 +3,8 @@
 (()=>{
 "use strict";
 const {esc}=SK;
-const core=()=>window.SKosifCore;
+const core=()=>window.SKosifCore,CP=()=>window.SKosifCompanyPlatform;
+const isInstalled=id=>!!(CP()&&CP().installed(id));
 /* one node per company studio, read from the registry, plus the decision node; the hubs of a studio are its tools */
 const NOTE={product:"التكلفة، التسعير، البوكسات والتشريح",customer:"الطلبات، العملاء، التحصيل وتحليل الطلب",supply:"المخزون، التتبع، الموردون والشراء",books:"النقد، الذمم، الدفاتر، الحساسية والمخاطر",reports:"التقارير التنفيذية والطباعة والأرشيف"};
 const SECTIONS=()=>[...SK.caps.companyGroups().map(g=>({id:g.id,label:g.label,sub:NOTE[g.id]||"",icon:g.icon,targets:SK.caps.hubsInGroup(g.id).filter(c=>c.gateway==="tools").map(c=>c.id)})).filter(s=>s.targets.length),
@@ -23,7 +24,10 @@ function table(){
   return SECTIONS().map(s=>{
     const caps=s.targets.map(id=>SK.caps.get(id)).filter(c=>c&&SK.perm.can(c.id));
     if(!caps.length)return"";
-    return '<section class="card hd-group"><div class="card-h"><div><h3>'+esc(s.label)+'</h3><p>'+esc(s.sub)+'</p></div></div><div class="card-b hd-buttons">'+caps.map(c=>'<button type="button" class="hd-tool" data-hd-go="'+esc(c.id)+'">'+(SK.icons[c.id]||SK.icons.action||"")+'<span><b>'+esc(c.label)+'</b><small>'+esc(c.sub||c.hubLabel||"")+'</small></span></button>').join("")+'</div></section>';
+    return '<section class="card hd-group"><div class="card-h"><div><h3>'+esc(s.label)+'</h3><p>'+esc(s.sub)+'</p></div></div><div class="card-b hd-buttons">'+caps.map(c=>{
+      const on=isInstalled(c.id);
+      return '<div class="hd-tool" data-hd-row="'+esc(c.id)+'"><button type="button" class="linkish" data-hd-go="'+esc(c.id)+'">'+(SK.icons[c.id]||SK.icons.action||"")+'<span><b>'+esc(c.label)+'</b><small>'+esc(c.sub||c.hubLabel||"")+'</small></span></button><button type="button" class="btn sm'+(on?' primary':'')+'" data-hd-toggle="'+esc(c.id)+'" aria-pressed="'+on+'">'+(on?'مضافة للشركة':'أضف للشركة')+'</button></div>';
+    }).join("")+'</div></section>';
   }).join("");
 }
 function render(root){
@@ -32,7 +36,19 @@ function render(root){
   '<div class="hd-grid">'+table()+'</div></div>';
   if(root.dataset.hdBound==="1")return;
   root.dataset.hdBound="1";
-  root.addEventListener("click",e=>{const b=e.target.closest("[data-hd-go]");if(b)core()&&core().go(b.dataset.hdGo)});
+  root.addEventListener("click",async e=>{
+    const toggle=e.target.closest("[data-hd-toggle]");
+    if(toggle&&CP()){const id=toggle.dataset.hdToggle,on=!isInstalled(id);try{CP().setTool(id,on);SK.toast(on?"أضيفت الأداة إلى الشركة":"أزيلت الأداة من الشركة","ok");render(root)}catch(err){SK.toast(err.message,"bad")}return}
+    const b=e.target.closest("[data-hd-go]");
+    if(b){
+      const id=b.dataset.hdGo;
+      if(CP()&&!isInstalled(id)){
+        const add=await SK.confirm("يمكنك استخدام الأداة الآن بدون تغيير إعدادات الشركة. هل تريد إضافتها أيضًا إلى أدوات هذه الشركة؟",{title:"أداة مستقلة",ok:"إضافة وفتح",cancel:"فتح فقط"});
+        if(add)try{CP().setTool(id,true)}catch{}
+      }
+      core()&&core().go(id);
+    }
+  });
 }
 SK.view("helperdesk",{render});
 })();
