@@ -20,7 +20,7 @@ test('actual-browser test is CI-only, source-oracle-bound and scoped to a contro
   assert.match(s,/GITHUB_ACTIONS/);assert.match(s,/SQC_TESTED_SHA/);assert.match(s,/127\.0\.0\.1:8765/);
   assert.match(s,/apple-fy2024-source\.json/);assert.match(s,/f35bbc22c3438262c35b63d226d62b88c3e252a9da054d9b7a4da4093e46e7f5/);
   assert.ok(s.indexOf('GITHUB_ACTIONS')<s.indexOf('chromium.launch'));
-  for(const token of ['data-bundle-add','data-tab="fs"','rd-source','SKosifTBReview.load','sourceModel','data-studio-host'])assert.ok(s.includes(token),token);
+  for(const token of ['data-bundle-add','data-bundle-go','tbr-source-replay','rd-source','getByRole(\'status\')','elementFromPoint','SKosifTBReview.load','sourceModel','data-studio-host'])assert.ok(s.includes(token),token);
 });
 test('CI runs the browser only after pure checks and builds a data-free preview',()=>{
   const y=read('.github/workflows/sqc-apple-source.yml');
@@ -29,5 +29,5 @@ test('CI runs the browser only after pure checks and builds a data-free preview'
   assert.match(y,/--bind 127\.0\.0\.1/);assert.match(y,/trap 'kill/);
   assert.match(y,/playwright@\d+\.\d+\.\d+/);assert.doesNotMatch(y,/playwright@1\s*\n/);
   assert.match(y,/--test-reporter=tap/);assert.match(y,/counts\['tests'\] >= 171/);
-  const s=read('tools/apple_source_browser_e2e.mjs');assert.match(s,/EXPECTED_CHECKS\s*=\s*4/);assert.match(s,/results\.length,EXPECTED_CHECKS/);
+  const s=read('tools/apple_source_browser_e2e.mjs');assert.match(s,/EXPECTED_CHECKS\s*=\s*6/);assert.match(s,/results\.length,EXPECTED_CHECKS/);
 });

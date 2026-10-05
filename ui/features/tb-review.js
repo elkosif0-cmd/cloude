@@ -1095,7 +1095,7 @@ function paint(){
   let c=null;try{c=compute()}catch(e){SK.errors&&SK.errors.report(e,"tbreview");root.innerHTML=hero(null)+'<p class="empty">تعذر تحليل الميزان: '+esc(e.message)+'</p>'+setupHTML(st(),true);return}
   const y=window.scrollY;
   if(!c){root.innerHTML=filesBar()+hero(null)+setupHTML(st(),true)+(window.SKosifAI&&!SKosifAI.ready()?SKosifAI.cardHTML():'');return}
-  if(c.sourceReplay){root.innerHTML='<div class="tbr tbr-source-replay">'+filesBar()+'<h2>عرض القوائم المنشورة من المصدر</h2><p>ليست إعادة إنشاء من قيود أو دفتر أستاذ؛ حالة التأكيد: لم يُقيّم.</p>'+fsTab(c)+'</div>';return;}
+  if(c.sourceOnly){root.innerHTML='<div class="tbr tbr-source-replay">'+filesBar()+'<h2>عرض القوائم المنشورة من المصدر</h2><p>ليست إعادة إنشاء من قيود أو دفتر أستاذ؛ حالة التأكيد: لم يُقيّم.</p>'+fsTab(c)+'</div>';return;}
   if(!ADV[tab]&&!TABS.some(x=>x[0]===tab))tab="tb";
   const conf=tab==="conf"&&CU();
   const body=conf?'<div class="tbc" data-tbc-body aria-busy="true">'+(confHTML.sig===c.sig&&confHTML.h||'<p class="empty">يحسب درجات الثقة والفحوص…</p>')+'</div>':tab==="plan"&&FW()?(AP()?AP().planCard(c)+AP().estCard(c):'')+FW().planTab(c):tab==="close"&&FW()?FW().closeTab(c)+(AP()?AP().gcCard(c):''):tab==="ai"?aiTab(c):tab==="docs"?docsTab(c):tab==="adj"?adjTab(c):tab==="fs"?fsTab(c):tbTab(c);

@@ -176,3 +176,48 @@ test('pending legacy models fail closed while a genuine operational sample retai
   const operational=E.reports.statements.buildStatements(E.reports.tbImport.parseTrialBalance(E.reports.tbImport.SAMPLE_TB_CSV));
   assert.equal(operational.checks.cashTies,true);assert.notEqual(operational.cf,null);
 });
+
+function renderReview(h) {
+  const node={innerHTML:'',querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){},dataset:{}};
+  h.context.scrollTo=()=>{};
+  h.context.__test.setTestRoot(node);
+  return node;
+}
+function assertSourceShell(node,issuer) {
+  assert.match(node.innerHTML,/tbr-source-replay/);
+  assert.match(node.innerHTML,/عرض القوائم المنشورة من المصدر/);
+  assert.ok(node.innerHTML.includes(issuer),issuer);
+  assert.match(node.innerHTML,/data-source-kind="published-statements"/);
+  assert.doesNotMatch(node.innerHTML,/data-tab=|data-a="demo-audit"|tbr-flowmap|data-studio-host/);
+}
+for(const [id,issuer] of [['apple-2024','Apple Inc.'],['pg-2026','Procter'],['homedepot-2025','Home Depot'],['mcdonalds-2022','McDonald'],['mercedes-2025','Mercedes']])
+  test(id+': initial, repeated, saved reopen and deep-linked tabs stay in the source-only shell',async()=>{
+    const h=harness(),W=h.context,node=renderReview(h);
+    const fid=await W.SKosifTBReview.openClient(id);assertSourceShell(node,issuer);
+    W.SKosifTBReview.open('tb');assertSourceShell(node,issuer);
+    W.__test.newFile(W.__test.blank());
+    assert.equal(await W.SKosifTBReview.openClient(id),fid);assertSourceShell(node,issuer);
+    W.__test.newFile(W.__test.blank());W.__test.openFile(fid);assertSourceShell(node,issuer);
+    for(const tab of ['plan','docs','ai','conf','adj','close','fs']){W.SKosifTBReview.open(tab);assertSourceShell(node,issuer);}
+    assert.equal(W.__test.docX(W.__test.compute()).sourceVerified,true);
+    assert.equal(h.state.skosif_tbreview_v1.session,null,'opening never runs a demo audit');
+  });
+test('ordinary trial balance still renders the audit shell after reopening an Apple source file',async()=>{
+  const h=harness(),W=h.context,node=renderReview(h);
+  const apple=await W.SKosifTBReview.openClient('apple-2024');const ordinary=W.__test.newFile(W.__test.blank());
+  await W.SKosifTBReview.load(h.E.reports.tbImport.SAMPLE_TB_CSV,'ordinary-ledger',{company:'Ordinary audit company',country:'SA'});
+  W.__test.openFile(apple);assertSourceShell(node,'Apple Inc.');W.__test.openFile(ordinary);
+  assert.match(node.innerHTML,/data-tab="tb"/);assert.match(node.innerHTML,/data-a="demo-audit"/);assert.doesNotMatch(node.innerHTML,/tbr-source-replay/);
+  assert.equal(W.__test.compute().sourceOnly,false);
+});
+test('blocked source selections preserve the current source screen and edited identity stays unavailable',async()=>{
+  const h=harness(),W=h.context,node=renderReview(h);await W.SKosifTBReview.openClient('apple-2024');
+  const saved=JSON.stringify(h.state.skosif_tbreview_v1);
+  for(const model of h.E.reports.corpusCompanies.auditModelCatalog().filter(x=>!x.openable)){
+    assert.equal(await W.SKosifTBReview.openClient(model.id),null,model.id);
+    assert.equal(JSON.stringify(h.state.skosif_tbreview_v1),saved);assertSourceShell(node,'Apple Inc.');
+  }
+  h.state.skosif_tbreview_v1.ctx.company='Tampered source identity';W.SKosifTBReview.open('tb');
+  assertSourceShell(node,'Apple Inc.');assert.equal(W.__test.docX(W.__test.compute()).sourceVerified,false);
+  assert.doesNotMatch(node.innerHTML,/391,035/);assert.equal(W.__test.sourceCsv(W.__test.compute()),null);
+});

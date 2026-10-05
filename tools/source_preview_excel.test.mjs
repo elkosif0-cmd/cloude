@@ -20,3 +20,13 @@ test('the minimal source Excel guard composes with exact PR137 output without re
  const guarded=code.replace('function tablesOf(d){',helper+'\nfunction tablesOf(d){\n  if(sourceReportDocument(d))return [];').replace('if(a==="excel"){const t=tablesOf(d);','if(a==="excel"){if(sourceReportDocument(d)){SK.toast("تصدير Excel غير متاح لتقارير المصدر لأنه يفقد بيانات المصدر. استخدم CSV الموثق من نموذج المصدر.","warn");return}const t=tablesOf(d);');
  assert.equal(guarded.includes('function sourceReportDocument'),true);for(const source of [true,false]){const o=outputHarness(source?'<article data-source-kind="published-statements"></article>':'ordinary document',guarded);await o.W.__sourceExcelTest.act('excel');assert.equal(o.calls.downloads.length,source?0:1);assert.equal(o.calls.book,source?0:1);}
 });
+
+test('blocked source Excel reports in the preview live region without extracting tables or downloading',async()=>{
+ const code=fs.readFileSync(root+'/ui/core/output.js','utf8'),o=outputHarness('<article data-source-kind="published-statements"></article>'),notice={textContent:''};
+ o.W.__sourceExcelTest.setSession({w:{document:o.doc},wrap:{querySelector:s=>s==='.skout-notice'?notice:null}});
+ await o.W.__sourceExcelTest.act('excel');
+ assert.match(notice.textContent,/Excel.*غير متاح.*CSV/);
+ assert.equal(o.calls.tables,0);assert.equal(o.calls.book,0);assert.equal(o.calls.downloads.length,0);
+ assert.equal(o.calls.toasts.length,0,'modal refusal must not depend on a background toast');
+ assert.match(code,/<p class="skout-notice" role="status" aria-live="polite" aria-atomic="true"><\/p>/);
+});
