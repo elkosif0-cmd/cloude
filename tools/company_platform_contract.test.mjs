@@ -169,7 +169,9 @@ test('capability registry exposes the new company operating surfaces to accounti
   const caps=file.capabilities,by=Object.fromEntries(caps.map(c=>[c.id,c]));
   assert.equal(by.masterdata.gateway,'accounting');
   assert.equal(by.masterdata.company,true);
-  assert.equal(by.reportingintake.gateway,'reporting');
+  /* FOUNDATION §3/§4: reporting is a layer inside accounting, shared with the tools entry — not a fourth gateway */
+  assert.equal(by.reportingintake.gateway,'accounting');
+  assert.ok(by.reportingintake.also.includes('tools'));
   assert.ok(by.reportingintake.data.some(x=>x.includes('skosif-company-documents-v1')));
   assert.ok(file.roles.accountant.caps.includes('masterdata'));
   assert.ok(file.roles.accountant.caps.includes('reportingintake'));

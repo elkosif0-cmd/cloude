@@ -1,4 +1,6 @@
-# معمارية البوابات الأربع — المحاسبة والتقارير والمراجعة والأدوات
+# معمارية المداخل — المحاسبة والمراجعة والأدوات (تاريخياً: البوابات الأربع)
+
+> **محدَّث 2026-10-06 وفق `FOUNDATION.md` §3:** المداخل الرئيسية ثلاثة فقط. بوابة «مساعد القوائم والتقارير» لم تُحذف قدراتها؛ شاشاتها تعيش داخل البرنامج المحاسبي وتُشارَك مع مدخل الأدوات عبر حقل `also` في السجل. ما يلي من هذا الملف وصف تاريخي لقرار البوابات الأربع ومصادره، يُقرأ كمرجع لا كهيكل حالي.
 
 تاريخ التثبيت: 2026-10-05
 
@@ -40,10 +42,9 @@
 
 | البوابة | عدد الشاشات الظاهرة | القدرات |
 |---|---:|---|
-| البرنامج المحاسبي الكامل | 15 | `companies`، `masterdata`، `commerce`، `zatca`، `b2bcredit`، `inventory`، `suppliers`، `purchasing`، `ledger`، `jesim`، `cash`، `receivables`، `advances`، `smartmatch`، `excelrecon`، `companies` |
-| مساعد القوائم والتقارير | 10 | `reportingintake`، `risklab`، `sensitivity`، `benchmarks`، `finance`، `execreports`، `reports`، `exports`، `archive` |
-| نظام المراجعة الذكي | 6 | `tbreview`، `codex`، `auditbench`، `corpuslab`، `auditanalytics`، `auditlab` |
-| الأدوات المساعدة المستقلة | 33 | `dash`، `tasks`، `notifications`، `risks`، `helperdesk`، `decision`، `jev`، `council`، `salesmap`، `customers`، `customerflow`، `followup`، `offers`، `operations`، `salesintel`، `intelligence`، `economics`، `traceability`، `blending`، `culinary`، `carcass`، `yieldlab`، `nrv`، `ptree`، `productflow`، `labels`، `scanner`، `settings`، `devices`، `governance`، `health`، `capabilitiesv2`، `legacyapps` |
+| البرنامج المحاسبي الكامل | 25 | `risklab`، `sensitivity`، `commerce`، `zatca`، `inventory`، `traceability`، `suppliers`، `purchasing`، `ledger`، `jesim`، `cash`، `benchmarks`، `receivables`، `advances`، `finance`، `smartmatch`، `excelrecon`، `reportingintake`، `execreports`، `reports`، `exports`، `archive`، `companies`، `masterdata`، `legacyapps` | مشترك معه: `dash`، `tasks`، `notifications`، `risks`، `decision`، `jev`، `council`، `codex`، `auditbench`، `corpuslab`، `auditlab`، `settings`، `devices`، `governance`، `health`، `capabilitiesv2`
+| المراجعة والتدقيق | 7 | `tbreview`، `auditinbox`، `codex`، `auditbench`، `corpuslab`، `auditanalytics`، `auditlab` | مشترك معه: `dash`، `tasks`، `notifications`، `risks`، `decision`، `jev`، `council`، `settings`، `devices`، `governance`، `health`، `capabilitiesv2`
+| الأدوات المساعدة | 32 | `dash`، `tasks`، `notifications`، `risks`، `helperdesk`، `decision`، `jev`، `council`، `salesmap`، `customers`، `customerflow`، `followup`، `b2bcredit`، `offers`، `operations`، `salesintel`، `intelligence`، `economics`، `blending`، `culinary`، `carcass`، `yieldlab`، `nrv`، `ptree`، `productflow`، `labels`، `scanner`، `settings`، `devices`، `governance`، `health`، `capabilitiesv2` | مشترك معه: `risklab`، `sensitivity`، `inventory`، `traceability`، `suppliers`، `purchasing`، `benchmarks`، `finance`، `reportingintake`، `execreports`، `reports`، `exports`، `archive`، `companies`، `masterdata`، `legacyapps`
 
 ## حدود البيانات والسلطة
 

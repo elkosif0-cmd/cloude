@@ -50,6 +50,8 @@ def inventory():
             parts.append(hub_label(c))
         parts.append("متقدم" if c.get("adv") else "يومي")
         loc = " › ".join(x for x in parts if x)
+        if c.get("also"):
+            loc += " (مشترك مع: " + "، ".join(gateways.get(a, {}).get("label", a) for a in c["also"]) + ")"
         deps = "SKosifCore" + (", Engine" if c["module"].startswith("core") else "") + (", IndexedDB" if any(d.startswith("IDB") for d in c["data"]) else "")
         rows.append(f"| `{c['id']}` | {c['label']} | {c['module']} | {loc} | {', '.join('`'+d+'`' for d in c['data']) or '—'} | {deps} | Working | {c['decision']} |")
     rows += ["", "## Cross-cutting capabilities", "",
@@ -81,23 +83,29 @@ def cap_map():
         hub = f"{hub_label(c)} › " if c.get("hub") or is_hub(c) else ""
         prefix = (gateway_label(c) + " › ") if gateway_label(c) else ""
         rows.append(f"| {c['legacy']} | `{c['id']}` | {prefix}{g['label']} › {hub}{c['label']}{' (advanced)' if c.get('adv') else ''} | {c['tier']} | {roles_for(c['id'])} |")
-    rows += ["", "## User-facing gateways → internal domains → hubs", "",
-             "The sidebar exposes the four gateways. The eight historical domains remain an internal compatibility/company-scoping layer; one menu entry is shown per hub and every page keeps its id, permission and deep link.", "",
-             "| Gateway | Internal domain | Menu entry | Pages |", "|---|---|---|---|"]
+    rows += ["", "## User-facing entries → internal domains → hubs", "",
+             "The front door and the sidebar expose exactly three entries (FOUNDATION §3): the complete accounting program, audit, helper tools. "
+             "Reporting, analysis, Jev and settings are cross-cutting layers: a screen lists the other entries it is shared with (`also`), it is never a fourth gateway. "
+             "The eight historical domains remain an internal compatibility/company-scoping layer; one menu entry is shown per hub and every page keeps its id, permission and deep link.", "",
+             "| Entry | Internal domain | Menu entry | Pages | Shared with |", "|---|---|---|---|---|"]
     gateway_rows = CAPS.get("gateways", []) or [{"id": "", "label": "—"}]
     for gw in gateway_rows:
         for g in CAPS["groups"]:
             visible = [c for c in caps if c["group"] == g["id"] and not c.get("hub") and (not gw["id"] or c.get("gateway") == gw["id"])]
             for h in visible:
                 pages = [h] + [c for c in caps if c.get("hub") == h["id"]]
-                rows.append(f"| {gw['label']} | {g['label']} | {hub_label(h)} | " + " · ".join(f"`{p['id']}` {p['label']}" for p in pages) + " |")
+                shared = "، ".join(gateways.get(a, {}).get("label", a) for a in h.get("also", [])) or "—"
+                rows.append(f"| {gw['label']} | {g['label']} | {hub_label(h)} | " + " · ".join(f"`{p['id']}` {p['label']}" for p in pages) + f" | {shared} |")
+    rows += ["", "## Sectors of the accounting entry (FOUNDATION §3.7)", "", "| Sector | Priority | Scope |", "|---|---|---|"]
+    for s in CAPS.get("sectors", []):
+        rows.append(f"| `{s['id']}` {s['label']} | {'نعم' if s.get('priority') else '—'} | {s.get('sub', '')} |")
     entries = sum(1 for c in caps if not c.get("hub"))
     rows += ["", f"{len(caps)} screens in {entries} menu entries.", "", "## By tier", ""]
     for t, label in CAPS["tiers"].items():
         ids = [c for c in caps if c["tier"] == t]
         rows.append(f"- **{t}** — {label} ({len(ids)}): " + ", ".join(f"`{c['id']}`" for c in ids))
     covered = len(caps)
-    rows += ["", f"Coverage gate: {covered} screens in {len(gateways) or 0} user-facing gateways and {len(groups)} internal domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version."]
+    rows += ["", f"Coverage gate: {covered} screens in {len(gateways) or 0} user-facing entries and {len(groups)} internal domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version."]
     return "\n".join(rows) + "\n"
 
 

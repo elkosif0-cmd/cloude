@@ -467,6 +467,18 @@ body.skn-locked{position:fixed;inset-inline:0;top:var(--skn-lock-top,0px);width:
 .nav.skn-searching .skn-group>.nav-btn{display:flex}
 .nav .nav-btn.skn-miss{display:none!important}
 .nav .skn-group.skn-none{display:none}
+/* the entry switcher on top of the menu (FOUNDATION §3): accounting · audit · tools, the one in force filled */
+.nav .skn-gates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin:2px var(--sk-2) 6px;padding:4px;border-radius:var(--sk-r);background:var(--sk-rail-2)}
+.nav .skn-gate{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:52px;padding:6px 4px;border:0;border-radius:9px;background:transparent;color:var(--sk-rail-mute);font:inherit;font-size:var(--sk-fs-xs);font-weight:700;cursor:pointer;transition:background var(--sk-t) var(--sk-ease),color var(--sk-t) var(--sk-ease)}
+.nav .skn-gate svg{width:18px;height:18px;stroke:currentColor}
+.nav .skn-gate span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav .skn-gate:hover{background:color-mix(in srgb,var(--sk-rail-mute) 14%,transparent);color:var(--sk-rail-ink)}
+.nav .skn-gate[aria-pressed="true"]{background:var(--sk-brand);color:var(--sk-on-brand)}
+.nav .skn-gate:focus-visible{outline:2px solid var(--sk-brand);outline-offset:1px}
+.nav.skn-searching .skn-gates{display:none}
+:root[data-rail="mini"]:not(#x) .nav .skn-gates{grid-template-columns:1fr;gap:2px}
+:root[data-rail="mini"]:not(#x) .nav .skn-gate{min-height:40px}
+:root[data-rail="mini"]:not(#x) .nav .skn-gate span{display:none}
 .nav.skn-searching .skn-ch{visibility:hidden}
 @media (min-width:901px){
   :root[data-rail="mini"] .skn-search,:root[data-rail="mini"] .nav .skn-gh{display:none}
