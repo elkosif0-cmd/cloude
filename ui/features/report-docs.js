@@ -50,8 +50,27 @@ function measures(ms,cur){
 }
 const item=(no,title,body,id)=>'<section class="rd-item" id="'+(id||"")+'"><h3><span>'+esc(no)+'</span>'+esc(title)+'</h3>'+body+'</section>';
 
+/* Published-source output is a separate reference view. It never enters human-assurance
+   or jurisdiction-specific templates; a missing/changed binding is an unavailable report. */
+function sourceDocument(x,kind){
+  const s=x.sourceModel,valid=!!(s&&x.sourceVerified),title={annual:"ملخص القوائم المنشورة",release:"ملخص النتائج من المصدر",notes:"حدود الإيضاحات المتاحة",auditor:"مرجع تقرير المراجع الأصلي",committee:"حالة تقرير لجنة المراجعة",icfr:"حالة تقييم الرقابة الداخلية",peers:"حالة المقارنة"}[kind]||"مرجع المصدر";
+  const identity=s?'<p>'+esc(s.issuer)+' · '+esc(s.accountingBasis)+' · '+esc(s.currency)+' '+esc(s.unit)+' · '+esc(s.scope)+'</p><p>الفترة الحالية: '+esc(s.periodEnd)+' · الفترة المقارنة: '+esc(s.priorPeriodEnd)+'</p><p>'+esc(s.entities)+'</p>':'<p>هوية المصدر والفترات غير متاحة.</p>';
+  const header='<article class="rd-doc rd-source"><header class="rd-h"><small>مرجع مصدر فقط · ليس دفتر أستاذ أو دليل مراجعة'+(x.simulation?' · محاكاة':'')+'</small><h2>'+esc(title)+'</h2>'+identity+'</header>';
+  const attribution=s?'<p class="rd-ref">المصدر: '+esc(s.sourceFile)+' · صفحات '+esc(s.sourcePages.join(", "))+' · SHA-256: '+esc(s.sourceSha256)+'</p>':'';
+  const boundary='<p class="rd-note">هذا عرض محدود لبيانات القوائم المنشورة. لم ينفذ التطبيق إجراءات تأكيد، ولا يصدر رأياً مهنياً أو توقيعاً باسم المراجع الأصلي. الإيضاحات الكاملة والسياسات وقائمة التغيرات في حقوق الملكية غير متاحة في هذا العرض.</p>';
+  if(!valid)return header+'<p class="rd-risk">غير متاح: بيانات النموذج أو هويته لا تطابق المصدر الذي تمت مراجعته. يلزم التحقق من المصدر قبل عرض الأرقام أو نسبتها إلى الشركة.</p>'+attribution+boundary+'</article>';
+  let body='';
+  if(kind==='annual'||kind==='release')body='<h4>قائمة الدخل</h4>'+stmt(x.fs.pl,x.fs.hasPrior,x.cur)+'<h4>المركز المالي</h4>'+stmt(x.fs.sfp,x.fs.hasPrior,x.cur)+
+    '<h4>التدفقات النقدية: غير متاحة في النموذج</h4><p>لم يُستورد بيان التدفقات النقدية أو جسر مكتمل موثق. لم تُختبر مطابقة النقد، ولا تُعرض تدفقات التشغيل أو الإنفاق الرأسمالي أو التدفق الحر والنسب التابعة. بيان المصدر الأصلي موجود في الصفحة 129.</p>';
+  if(kind==='auditor')body='<p>ينسب التقرير الأصلي إلى '+esc(s.auditorReference.name)+' رأياً '+esc(s.auditorReference.opinion)+' مؤرخاً '+esc(s.auditorReference.date)+' على قوائم Apple المحددة في ذلك التقرير. هذا نقل مرجعي عن المراجع الأصلي فقط، وليس استنتاجاً اكتسبه التطبيق.</p><p>صفحات مرجع المراجع الأصلي: '+esc(s.auditorReference.pages.join(", "))+'.</p>';
+  if(kind==='icfr'||kind==='committee')body='<p>الحالة: لم يُقيّم. لا توجد إجراءات تأكيد أو مراجعة بشرية مقدمة لهذا النموذج؛ الجولات والمستندات المحاكية لا تثبت فعالية الرقابة أو اعتماد لجنة المراجعة.</p>';
+  if(kind==='notes'||kind==='peers')body='<p>غير متاح: يلزم نقل ومراجعة البيانات والإيضاحات المطلوبة من المصدر الأصلي. غياب البيانات لا يعني قيمة صفرية أو غياب الالتزام.</p>';
+  return header+body+attribution+boundary+'</article>';
+}
+
 /* ---------- the auditor's report ---------- */
 function auditor(x){
+  if(x.sourceOnly||x.fs&&x.fs.sourceKind==="published-statements")return sourceDocument(x,"auditor");
   const a=R().auditorsReport({company:x.ctx.company,periodEnd:x.periodEnd,framework:x.fw,opinion:x.opinion.opinion,basis:x.opinion.basis,kams:x.kams,goingConcern:x.opinion.goingConcern,approach:x.approach,goingConcernSection:x.goingConcernSection,
     firm:x.ctx.auditFirm,partner:x.ctx.auditPartner,licence:x.ctx.auditLicence,city:x.ctx.auditCity,
     frameworkAr:x.ctx.frameworkAr||undefined,priorPeriodEnd:x.priorPeriodEnd||undefined,since:Number(x.ctx.auditSince)||undefined,countryAr:x.ctx.countryAr||undefined,icfr:x.ctx.reportForm==="US"?true:undefined,
@@ -68,6 +87,7 @@ function auditor(x){
 
 /* ---------- the results release ---------- */
 function release(x){
+  if(x.sourceOnly||x.fs&&x.fs.sourceKind==="published-statements")return sourceDocument(x,"release");
   const r=R().resultsRelease(x.fs,x.ctx.company,x.ctx.period,x.cur),fs=x.fs,hp=fs.hasPrior,k=fs.keys;
   const cond=(rows)=>'<table class="rd-t">'+head(hp?["","السنة الحالية","السنة السابقة","التغير"]:["","المبلغ"],x.cur)+'<tbody>'+rows.map(([ar,key,tot])=>{const c=k[key]?k[key].current:0,p=hp&&k[key]?k[key].prior:null;
     return '<tr class="'+(tot?"tot":"")+'"><td>'+esc(ar)+'</td><td class="n">'+m0(c)+'</td>'+(hp?'<td class="n">'+(p===null?"—":m0(p))+'</td><td class="n">'+chg(p?Math.round((c-p)/Math.abs(p)*1000)/10:null)+'</td>':'')+'</tr>'}).join("")+'</tbody></table>';
@@ -87,6 +107,7 @@ function release(x){
 
 /* ---------- the annual report (10-K form) ---------- */
 function annual(x){
+  if(x.sourceOnly||x.fs&&x.fs.sourceKind==="published-statements")return sourceDocument(x,"annual");
   const fs=x.fs,hp=fs.hasPrior,c=x.c,ctx=x.ctx,cur=x.cur,rv=R();
   const cats=rv.revenueByCategory(fs),ps=rv.productsServices(fs),opx=rv.operatingExpenses(fs),tax=rv.taxProvision(fs,x.fw==="EAS"?"EG":"SA"),liq=rv.liquidity(fs),ms=rv.performanceMeasures(fs);
   const ppe=rv.ppeNote(fs),bsd=rv.balanceSheetDetails(fs),debt=rv.debtNote(fs),rel=rv.resultsRelease(fs,ctx.company,ctx.period,cur);
@@ -154,6 +175,7 @@ function etable(t,cur){
 
 /* ---------- the notes to the financial statements (the full package) ---------- */
 function notes(x){
+  if(x.sourceOnly||x.fs&&x.fs.sourceKind==="published-statements")return sourceDocument(x,"notes");
   const fs=x.fs,hp=fs.hasPrior,cur=x.cur,pk=x.notesPkg,ctx=x.ctx;
   const lineNote=n=>{const l=fs.lines.find(z=>z.key===n.lineKey);if(!l)return "";
     return '<table class="rd-t">'+head(hp?["الحساب","السنة الحالية","السنة السابقة"]:["الحساب","المبلغ"],cur)+'<tbody>'+l.accounts.map(a=>'<tr><td>'+esc(a.name)+' <small class="rd-mono">'+esc(a.code)+'</small></td><td class="n">'+m0(a.current)+'</td>'+(hp?'<td class="n">'+(a.prior===null?"—":m0(a.prior))+'</td>':'')+'</tr>').join("")+
@@ -175,14 +197,16 @@ function govDoc(r,eyebrow){
     r.sections.map(s=>'<section class="rd-sec"><h4>'+esc(s.title)+'</h4>'+s.paragraphs.map(p=>'<p>'+esc(p)+'</p>').join("")+kv(s.table)+'</section>').join("")+
     '<footer class="rd-sign"><div><b>[الاسم]</b><span>[المنصب]</span></div><div><span>[التاريخ]</span></div></footer></article>';
 }
-function committee(x){return govDoc(SKEngines.audit.governance.auditCommitteeReport(x.committee),"مسودة — تعتمدها اللجنة")}
+function committee(x){if(x.sourceOnly||x.fs&&x.fs.sourceKind==="published-statements")return sourceDocument(x,"committee");return govDoc(SKEngines.audit.governance.auditCommitteeReport(x.committee),"مسودة — تعتمدها اللجنة")}
 function icfr(x){
+  if(x.sourceOnly||x.fs&&x.fs.sourceKind==="published-statements")return sourceDocument(x,"icfr");
   const r=SKEngines.audit.governance.icfrReport(x.icfr);
   return govDoc(r,(r.effective?"الرقابة فعالة":"الرقابة غير فعالة")+" — مسودة تعتمدها الإدارة");
 }
 
 /* ---------- global peers: your ratios against eight groups read from the research bundle ---------- */
 function peers(x){
+  if(x.sourceOnly||x.fs&&x.fs.sourceKind==="published-statements")return sourceDocument(x,"peers");
   const P=SKEngines.reports.peerBenchmarks,rows=P.compare(x.fs,{sector:x.peerSector||""});
   const u=(v,unit)=>v===null||v===undefined?"—":unit==="%"?v+"%":unit==="days"?v+" يوم":v+"×";
   const V={better:["أفضل من الوسيط","pos"],weaker:["أضعف من الوسيط","neg"],typical:["قريب من الوسيط",""],"n/a":["—",""]};

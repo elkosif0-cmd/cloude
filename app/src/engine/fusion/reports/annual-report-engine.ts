@@ -99,6 +99,7 @@ export function performanceMeasures(fs: FinancialStatements): Measure[] {
       note: 'على نهج أمازون: يقرّب النقد المتاح بعد مدفوعات الإيجار التي يعرضها IFRS 16 ضمن الأنشطة التمويلية.' });
   }
   const da = line(fs, 'depreciation');
+  if (fs.sourceKind === 'published-statements' && !da) return out;
   const e = (op: Minor, d: Minor) => op + d;
   out.push({ key: 'ebitda', ar: 'الربح قبل الفوائد والزكاة والاستهلاك (EBITDA)', rows: [{ ar: 'الربح التشغيلي', amount: k.operating.current }, { ar: 'الاستهلاك والإطفاء', amount: da?.current ?? 0 }],
     value: e(k.operating.current, da?.current ?? 0), prior: fs.hasPrior ? e(k.operating.prior ?? 0, da?.prior ?? 0) : null,
