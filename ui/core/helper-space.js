@@ -17,7 +17,7 @@ const INTENT="sqc_company_intent",LAST="sqc_last_company",PRIVATE="sqc_private_s
 const HELPER_KEY=k=>/^aghnam(?!-v12-theme|-pricing-auth|-pricing-pass|-pricing-ui|-typesafe|-v17-runtime|-v19-(leader|tabs|write)|-v21-)/.test(k)&&!/^aghnam_v29_jev_log$/.test(k)
   ||/^skosif_(v3\d|v38)_/.test(k)||/^skosif_(ledger_v1|advances_v1|erp_[a-z_]+|purchasing_v1|followup_v1|inv_[a-z_]+|rep_pl|report_pack_v1|ar_paste|commerce_warm_v1|cost_rules_v1|income_statements_v1|product_flow_v1|ops_[a-z_]+)$/.test(k)
   ||/^sqc_(ptree|geo|jesim|salesup)_/.test(k)||k==="skosif_demo_v1"
-  ||/^sales_customer_followup/.test(k); /* the original CRM V8.2 (الأنظمة الأصلية) */
+  ||k==="skosif_company_platform_v1"||/^sales_customer_followup/.test(k); /* the original CRM V8.2 (الأنظمة الأصلية) */
 const reg=()=>{const r=load(REG,{})||{};return{active:r.active||null,spaces:r.spaces||{}}};
 const setReg=r=>{const ok=save(REG,r);if(ok!==true)scopeTainted=true;return ok};
 const profileName=()=>{const p=load("skosif_profile_v1",{})||{};return String(p.name||"").trim()||"المحاسب الرئيسي"};
