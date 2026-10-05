@@ -27,11 +27,12 @@ const REPORT_TARGETS=Object.freeze({
 });
 const clean=(v,n=160)=>String(v==null?"":v).replace(/\s+/g," ").trim().slice(0,n);
 const cur=()=>window.SK&&SK.company&&SK.company.current?SK.company.current():{id:"",name:""};
-const blank=id=>({version:1,companyId:id,definitions:Object.fromEntries(Object.keys(TYPES).map(k=>[k,[]])),installedTools:[],documents:[],reporting:{target:"full",lastTrialBalance:null,lastStatements:null},auditHandoffs:[],standardTraces:[],updatedAt:null});
+const blank=id=>({version:1,companyId:id,profile:{activity:"",country:cur().country||"SA",currency:cur().currency||"SAR",fiscalYearStart:"01-01",taxMode:(cur().country==="EG"?"income":"zakat"),vatNo:"",crNo:"",address:"",notes:""},definitions:Object.fromEntries(Object.keys(TYPES).map(k=>[k,[]])),installedTools:[],documents:[],reporting:{target:"full",lastTrialBalance:null,lastStatements:null},auditHandoffs:[],standardTraces:[],updatedAt:null});
 function state(){
   const id=cur().id||"";
   const v=load(KEY,null);
   if(!v||v.version!==1||v.companyId!==id)return blank(id);
+  if(!v.profile||typeof v.profile!=="object")v.profile=blank(id).profile;
   for(const k of Object.keys(TYPES))if(!Array.isArray(v.definitions?.[k]))(v.definitions||(v.definitions={}))[k]=[];
   if(!Array.isArray(v.installedTools))v.installedTools=[];
   if(!Array.isArray(v.documents))v.documents=[];
@@ -49,6 +50,15 @@ function commit(v,act,payload={}){
   return v;
 }
 function uid(prefix){return SK.ui&&SK.ui.uid?SK.ui.uid(prefix):prefix+"-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,7)}
+function profile(){const c=cur(),p=state().profile||{};return Object.freeze({activity:clean(p.activity),country:clean(p.country||c.country||"SA",3).toUpperCase(),currency:clean(p.currency||c.currency||"SAR",3).toUpperCase(),fiscalYearStart:/^\\d{2}-\\d{2}$/.test(String(p.fiscalYearStart||""))?String(p.fiscalYearStart):"01-01",taxMode:p.taxMode==="income"?"income":"zakat",vatNo:clean(p.vatNo,40),crNo:clean(p.crNo,40),address:clean(p.address,240),notes:clean(p.notes,500)})}
+function setProfile(input={}){
+  const s=state(),p=profile(),next={...p,activity:clean(input.activity??p.activity),country:clean(input.country??p.country,3).toUpperCase(),currency:clean(input.currency??p.currency,3).toUpperCase(),fiscalYearStart:/^\\d{2}-\\d{2}$/.test(String(input.fiscalYearStart??p.fiscalYearStart))?String(input.fiscalYearStart??p.fiscalYearStart):p.fiscalYearStart,taxMode:(input.taxMode??p.taxMode)==="income"?"income":"zakat",vatNo:clean(input.vatNo??p.vatNo,40),crNo:clean(input.crNo??p.crNo,40),address:clean(input.address??p.address,240),notes:clean(input.notes??p.notes,500)};
+  if(!/^[A-Z]{3}$/.test(next.currency))throw new Error("العملة يجب أن تكون رمزًا من 3 أحرف");
+  if(!/^[A-Z]{2,3}$/.test(next.country))throw new Error("رمز الدولة غير صالح");
+  s.profile=next;commit(s,"profile.update",{fields:Object.keys(input)});
+  if(SK.company&&SK.company.updateMeta)SK.company.updateMeta({country:next.country,currency:next.currency});
+  return profile();
+}
 function definitions(type){if(!TYPES[type])return[];return state().definitions[type].map(x=>({...x}))}
 function addDefinition(type,input={}){
   if(!TYPES[type])throw new Error("نوع تعريف غير معروف");
@@ -94,7 +104,13 @@ async function ingestFiles(files,sourceGateway="reporting"){
   if(added.length)commit(s,"documents.ingest",{count:added.length,sourceGateway,hashes:added.map(x=>x.sha256).filter(Boolean)});
   return added;
 }
-function documents(){return state().documents.map(x=>({...x}))}
+function documents(){return state().documents.filter(x=>x.companyId===cur().id).map(x=>({...x}))}
+function setDocumentType(id,type){
+  const allowed=new Set(["trial-balance","general-ledger","bank-statement","aging","inventory","fixed-assets-register","payroll","sales","purchases","tax-document","financial-statements","contract","invoice","other"]);
+  if(!allowed.has(type))throw new Error("نوع المستند غير معروف");
+  const s=state(),doc=s.documents.find(x=>x.id===id&&x.companyId===cur().id);if(!doc)return false;
+  doc.type=type;commit(s,"document.type",{id,type,sha256:doc.sha256});return true;
+}
 async function removeDocument(id){
   const s=state(),doc=s.documents.find(x=>x.id===id);if(!doc)return false;
   await deleteDocBlob(id);s.documents=s.documents.filter(x=>x.id!==id);s.auditHandoffs=s.auditHandoffs.filter(x=>x.documentId!==id);commit(s,"document.remove",{id,sha256:doc.sha256});return true;
@@ -117,5 +133,5 @@ function reportingStatus(){
   const s=state(),target=REPORT_TARGETS[s.reporting.target]||REPORT_TARGETS.full,types=new Set(s.documents.map(d=>d.type));
   return{target:s.reporting.target,label:target.label,requires:target.requires,optional:target.optional,missing:target.requires.filter(x=>!types.has(x)),present:[...types],lastTrialBalance:s.reporting.lastTrialBalance,lastStatements:s.reporting.lastStatements};
 }
-window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,definitions,addDefinition,removeDefinition,installed,setTool,reportingTarget,reportingStatus,inferType,ingestFiles,documents,removeDocument,requestAuditHandoff,addStandardTrace,saveReportResult});
+window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,definitions,addDefinition,removeDefinition,installed,setTool,reportingTarget,reportingStatus,inferType,ingestFiles,documents,setDocumentType,removeDocument,requestAuditHandoff,addStandardTrace,saveReportResult});
 })();
