@@ -30,13 +30,29 @@ function table(){
     }).join("")+'</div></section>';
   }).join("");
 }
+function exceptionQueue(){
+  const cp=CP();if(!cp||!cp.aiExceptions)return"";
+  const open=cp.aiExceptions("open"),history=cp.aiExceptions().filter(x=>x.status!=="open"),sev=x=>x==="high"?"bad":x==="warning"?"warn":"info";
+  const rows=open.slice(-12).reverse();
+  return '<section class="card hd-group"><div class="card-h"><div><span class="eyebrow">AI EXCEPTION QUEUE</span><h3>تنبيهات واقتراحات تحتاج قرارك</h3><p>لا يُنفذ أي اقتراح من هذه القائمة تلقائيًا. القبول يعني «مقبول للمتابعة» فقط.</p></div><span class="sk-pill '+(open.length?"warn":"good")+'">'+open.length+' مفتوح</span></div><div class="card-b">'+
+    (rows.length?'<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>التنبيه</th><th>المصدر</th><th>الثقة</th><th>الإجراء المقترح</th><th></th></tr></thead><tbody>'+
+      rows.map(x=>'<tr><td><span class="sksev '+sev(x.severity)+'">'+esc(x.severity)+'</span><b>'+esc(x.title)+'</b><small>'+esc((x.detail||"").slice(0,220))+'</small></td><td>'+esc(x.source||"AI")+(x.model?'<small>'+esc(x.model)+'</small>':'')+'</td><td class="n">'+(x.confidence==null?'—':Math.round(x.confidence*100)+'%')+'</td><td>'+esc(x.proposedAction||"راجع الاقتراح يدويًا")+'</td><td><button type="button" class="linkish" data-hd-exc="'+esc(x.id)+'" data-hd-status="accepted">مقبول للمتابعة</button> · <button type="button" class="linkish" data-hd-exc="'+esc(x.id)+'" data-hd-status="rejected">رفض</button> · <button type="button" class="linkish" data-hd-exc="'+esc(x.id)+'" data-hd-status="dismissed">إغلاق</button></td></tr>').join("")+
+      '</tbody></table></div>':'<div class="sk-note good">لا توجد تنبيهات AI مفتوحة لهذه الشركة.</div>')+
+    (history.length?'<p class="hint">'+history.length+' قرارًا سابقًا محفوظًا في سجل الشركة.</p>':'')+'</div></section>';
+}
 function render(root){
   root.innerHTML='<div class="hd-shell"><section class="card hd-hero"><div><span class="eyebrow">INDEPENDENT TOOLS</span><h2>الأدوات المساعدة المستقلة</h2><p>قدرات مشتركة يمكن استخدامها أو إضافتها للشركة المفتوحة: التكلفة، المبيعات والعملاء، المخزون والموردون، التحليلات والتقارير والقرار. بيانات كل شركة تبقى في مساحتها، والعمل هنا لا يتحول إلى مستند أو دليل في ملف المراجعة إلا إذا أرفقه المراجع صراحة.</p></div><span class="hd-badge">مستقلة عن ملف المراجعة</span></section>'+
   '<section class="card hd-map"><div class="hd-map-head"><div><h3>قدرات الشركة</h3><p>اختر مجموعة الأدوات؛ كل فرع يقود إلى القدرات المستقلة التابعة له.</p></div></div><div class="hd-canvas">'+lines()+'<div class="hd-center"><span>'+(SK.icons.helperdesk||SK.icons.productflow||"")+'</span><b>الشركة</b><small>أدوات مستقلة</small></div>'+SECTIONS().map(point).join("")+'</div></section>'+
-  '<div class="hd-grid">'+table()+'</div></div>';
+  exceptionQueue()+'<div class="hd-grid">'+table()+'</div></div>';
   if(root.dataset.hdBound==="1")return;
   root.dataset.hdBound="1";
   root.addEventListener("click",async e=>{
+    const ex=e.target.closest("[data-hd-exc]");
+    if(ex&&CP()){
+      const status=ex.dataset.hdStatus,id=ex.dataset.hdExc,row=CP().aiExceptions().find(x=>x.id===id);if(!row)return;
+      let note="";if(status!=="dismissed"){const v=await SK.form(status==="accepted"?"قبول الاقتراح للمتابعة":"رفض الاقتراح",[{key:"note",label:"ملاحظة القرار",type:"textarea",placeholder:"اختياري — سبب القرار أو الإجراء التالي"}],{ok:status==="accepted"?"حفظ كمتابعة":"رفض",message:"هذا القرار لا ينفذ قيدًا أو تعديلًا تلقائيًا."});if(!v)return;note=v.note||""}
+      try{CP().resolveAIException(id,status,note);SK.toast(status==="accepted"?"حُفظ كمقبول للمتابعة فقط":status==="rejected"?"تم رفض الاقتراح":"تم إغلاق التنبيه","ok");render(root)}catch(err){SK.toast(err.message,"bad")}return
+    }
     const toggle=e.target.closest("[data-hd-toggle]");
     if(toggle&&CP()){const id=toggle.dataset.hdToggle,on=!isInstalled(id);try{CP().setTool(id,on);SK.toast(on?"أضيفت الأداة إلى الشركة":"أزيلت الأداة من الشركة","ok");render(root)}catch(err){SK.toast(err.message,"bad")}return}
     const b=e.target.closest("[data-hd-go]");
