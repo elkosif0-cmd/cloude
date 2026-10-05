@@ -50,3 +50,10 @@ test('document metadata lives in D1 while bytes are addressed by R2 object key',
   assert.match(schema,/sha256 TEXT NOT NULL CHECK \(length\(sha256\)=64\)/);
   assert.match(schema,/deleted_at TEXT/);
 });
+
+test('client mirrors document permissions and exposes guarded vault methods',()=>{
+  assert.match(client,/document:list/);assert.match(client,/document:read/);assert.match(client,/document:write/);assert.match(client,/document:delete/);
+  assert.match(client,/uploadDocument:uploadRemoteDocument/);
+  assert.match(client,/raw:true/);
+  assert.match(client,/timeoutMs:45000/);
+});
