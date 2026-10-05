@@ -9,10 +9,12 @@ export async function mount(host, view) {
     fetch(new URL('./markup.html', import.meta.url)).then(r => r.text()),
   ]);
   root.innerHTML = '<style>' + css + '</style><div class="kx-body">' + markup + '</div>';
+  /* a module whose fetch failed once is remembered as failed by the browser's module map, so a retry of the same
+     URL fails at once; every retry asks for a fresh URL (the file is the same) */
   const loadModule = async (path, tries = 3) => {
     for (let i = 0; i < tries; i++) {
-      try { return await import(path); }
-      catch (e) { if (i === tries - 1) throw e; await new Promise(r => setTimeout(r, 200 * (i + 1))); }
+      try { return await import(i ? path + (path.includes('?') ? '&' : '?') + 'retry=' + i : path); }
+      catch (e) { if (i === tries - 1) throw e; await new Promise(r => setTimeout(r, 250 * (i + 1))); }
     }
   };
   await loadModule('./continuous-review.js');
