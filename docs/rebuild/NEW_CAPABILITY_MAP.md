@@ -64,6 +64,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | Grand Fusion reports.exports | `exports` | مساعد القوائم والتقارير › التقارير والبيانات › الطباعة والتصدير › مركز التصدير | UTILITIES | admin, accountant, sales |
 | الأرشيف | `archive` | مساعد القوائم والتقارير › التقارير والبيانات › الأرشيف والأنظمة الأصلية › الأرشيف والتغييرات | MANAGEMENT | admin, accountant |
 | جديد — دمج smart-trial-balance-review (مجلس Gemini والجولات) و kosif-audit-pro (القوائم والتحليل) و Moon (المخاطر والرأي) و SEE (التصنيف والجاهزية) + استوديو KOSIF للمراجعة (تبويب «الاستوديو المتقدم» داخل الملف) | `tbreview` | نظام المراجعة الذكي › المراجعة والمراجعة المالية › مركز المراجعة › ملف المراجعة | CORE | admin, accountant |
+| التصور الموحد 2026 — جسر مساعد التقارير إلى ملف المراجعة | `auditinbox` | نظام المراجعة الذكي › المراجعة والمراجعة المالية › مركز المراجعة › صندوق استلام المراجعة | CORE | admin, accountant |
 | جديد — يحل محل قاعدة معايير smart-trial-balance-review ويكمّل مختبر المعايير | `codex` | نظام المراجعة الذكي › المراجعة والمراجعة المالية › المعايير والمدونة › المدونة المحاسبية والمعايير | MANAGEMENT | admin, accountant, viewer |
 | جديد — من global_financial_and_audit_research_bundle_extended_verified.pdf (12,506 صفحة) | `auditbench` | نظام المراجعة الذكي › المراجعة والمراجعة المالية › المعايير والمدونة › المرجع العالمي للمراجعة | MANAGEMENT | admin |
 | جديد — تشغيل المراجعة على شركات global_financial_and_audit_research_bundle_extended_verified.pdf ومقارنتها بتقارير مراجعيها | `corpuslab` | نظام المراجعة الذكي › المراجعة والمراجعة المالية › المعايير والمدونة › مختبر الشركات العالمية | MANAGEMENT | admin |
@@ -107,7 +108,7 @@ The sidebar exposes the four gateways. The eight historical domains remain an in
 | مساعد القوائم والتقارير | التقارير والبيانات | التقارير التنفيذية | `execreports` التقارير التنفيذية |
 | مساعد القوائم والتقارير | التقارير والبيانات | الطباعة والتصدير | `reports` مركز الطباعة · `exports` مركز التصدير |
 | مساعد القوائم والتقارير | التقارير والبيانات | الأرشيف والأنظمة الأصلية | `archive` الأرشيف والتغييرات · `legacyapps` الأنظمة الأصلية |
-| نظام المراجعة الذكي | المراجعة والمراجعة المالية | مركز المراجعة | `tbreview` ملف المراجعة · `auditdesk` الاستوديو المتقدم · `auditdocs` المستندات والأدلة · `auditissues` الملاحظات والقضايا · `auditcouncil` مجلس المراجعين · `auditfin` القوائم والقيود · `auditreport` التقارير والإصدار · `auditanalytics` التحليل والاختبارات |
+| نظام المراجعة الذكي | المراجعة والمراجعة المالية | مركز المراجعة | `tbreview` ملف المراجعة · `auditinbox` صندوق استلام المراجعة · `auditdesk` الاستوديو المتقدم · `auditdocs` المستندات والأدلة · `auditissues` الملاحظات والقضايا · `auditcouncil` مجلس المراجعين · `auditfin` القوائم والقيود · `auditreport` التقارير والإصدار · `auditanalytics` التحليل والاختبارات |
 | نظام المراجعة الذكي | المراجعة والمراجعة المالية | المعايير والمدونة | `codex` المدونة المحاسبية والمعايير · `auditbench` المرجع العالمي للمراجعة · `corpuslab` مختبر الشركات العالمية · `auditlab` مختبر المعايير والأبحاث |
 | الأدوات المساعدة المستقلة | العام | مركز القيادة | `dash` مركز القيادة |
 | الأدوات المساعدة المستقلة | العام | المهام والإشعارات | `tasks` المهام · `notifications` مركز الإشعارات |
@@ -128,15 +129,15 @@ The sidebar exposes the four gateways. The eight historical domains remain an in
 | الأدوات المساعدة المستقلة | Jev والقرار | مركز القرار | `decision` مركز القرار |
 | الأدوات المساعدة المستقلة | Jev والقرار | Jev ومجلس القرار | `jev` Jev للقرار · `council` مجلس القرار |
 
-77 screens in 37 menu entries.
+78 screens in 37 menu entries.
 
 ## By tier
 
-- **CORE** — العمل اليومي الأساسي (25): `dash`, `notifications`, `salesmap`, `commerce`, `zatca`, `customers`, `customerflow`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `jesim`, `cash`, `receivables`, `advances`, `ptree`, `productflow`, `catalog`, `sim`, `builder`, `reportingintake`, `tbreview`, `masterdata`
+- **CORE** — العمل اليومي الأساسي (26): `dash`, `notifications`, `salesmap`, `commerce`, `zatca`, `customers`, `customerflow`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `jesim`, `cash`, `receivables`, `advances`, `ptree`, `productflow`, `catalog`, `sim`, `builder`, `reportingintake`, `tbreview`, `auditinbox`, `masterdata`
 - **MANAGEMENT** — الإدارة والمتابعة (12): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `benchmarks`, `memo`, `execreports`, `archive`, `codex`, `auditbench`, `corpuslab`
 - **INTELLIGENCE** — التحليل والذكاء (7): `decision`, `jev`, `council`, `salesintel`, `intelligence`, `economics`, `compare`
 - **ADVANCED** — الهندسة المتقدمة (17): `risklab`, `sensitivity`, `carcass`, `yieldlab`, `nrv`, `finance`, `costs`, `kernel`, `analyzer`, `auditdesk`, `auditdocs`, `auditissues`, `auditcouncil`, `auditfin`, `auditreport`, `auditanalytics`, `auditlab`
 - **UTILITIES** — أدوات مساعدة (11): `helperdesk`, `blending`, `culinary`, `labels`, `scanner`, `smartmatch`, `excelrecon`, `reports`, `exports`, `devices`, `legacyapps`
 - **ADMIN** — النظام والإدارة (5): `settings`, `companies`, `governance`, `health`, `capabilitiesv2`
 
-Coverage gate: 77 screens in 4 user-facing gateways and 8 internal domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
+Coverage gate: 78 screens in 4 user-facing gateways and 8 internal domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
