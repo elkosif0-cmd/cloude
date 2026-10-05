@@ -163,6 +163,15 @@ async function ingestFiles(files,sourceGateway="reporting"){
   return added;
 }
 function documents(){return state().documents.filter(x=>x.companyId===cur().id).map(x=>({...x}))}
+function setDocumentRemote(id,remote={}){
+  const s=state(),doc=s.documents.find(x=>x.id===id&&x.companyId===cur().id);if(!doc)return false;
+  const documentId=clean(remote.documentId||remote.id,120),workspaceId=clean(remote.workspaceId||remote.workspace_id,120),sha=clean(remote.sha256||doc.sha256,128);
+  if(!documentId||!workspaceId||!sha)throw new Error("مرجع الخزنة غير مكتمل");
+  if(doc.sha256&&sha!==doc.sha256)throw new Error("بصمة النسخة السحابية لا تطابق الملف المحلي");
+  doc.remote={documentId,workspaceId,sha256:sha,uploadedAt:clean(remote.uploadedAt||remote.uploaded_at||new Date().toISOString(),40)};
+  addLineage({fromType:"document",fromId:id,toType:"cloud-document",toId:documentId,relation:"vault-copy",sourceHash:sha,note:doc.name},s);
+  commit(s,"document.vault",{id,documentId,workspaceId,sha256:sha});return true;
+}
 function setDocumentType(id,type){
   const allowed=new Set(["trial-balance","general-ledger","bank-statement","aging","inventory","fixed-assets-register","payroll","sales","purchases","tax-document","financial-statements","contract","invoice","other"]);
   if(!allowed.has(type))throw new Error("نوع المستند غير معروف");
@@ -268,5 +277,5 @@ function searchCompany(query){
   const limited=hits.slice(0,20),text=limited.length?("نتائج داخل «"+c.name+"»:\n"+limited.map(x=>"• "+x.title+(x.detail?" — "+x.detail:"")).join("\n")):"لم أجد نتيجة مطابقة داخل بيانات الشركة الحالية.";
   return{text,matches:limited};
 }
-window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,definitions,addDefinition,removeDefinition,assetDepreciation,fixedAssetSummary,fixedAssetJournal,installed,setTool,reportingTarget,reportingStatus,mpms,registerMpm,removeMpm,approveMpm,mpmReconciliation,mpmSubtotals:()=>MPM_SUBTOTALS,lineage,lineageFor,addLineage,inferType,ingestFiles,documents,readDocument,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,markAuditHandoff,setAuditHandoffStatus,addStandardTrace,saveReportResult,search:searchCompany});
+window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,definitions,addDefinition,removeDefinition,assetDepreciation,fixedAssetSummary,fixedAssetJournal,installed,setTool,reportingTarget,reportingStatus,mpms,registerMpm,removeMpm,approveMpm,mpmReconciliation,mpmSubtotals:()=>MPM_SUBTOTALS,lineage,lineageFor,addLineage,inferType,ingestFiles,documents,readDocument,setDocumentRemote,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,markAuditHandoff,setAuditHandoffStatus,addStandardTrace,saveReportResult,search:searchCompany});
 })();
