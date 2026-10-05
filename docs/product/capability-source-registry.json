@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-05.v3",
+  "version": "2026-10-05.v4",
   "canonical_repository": "kosif199022-jpg/cloude",
   "portals": [
     "accounting",
@@ -196,7 +196,6 @@
     }
   ],
   "mandatory_gaps": [
-    "fixed-assets",
     "multi-currency-fx",
     "period-close-locks",
     "continuous-close",
@@ -1703,5 +1702,15 @@
       "DataSnipper",
       "MindBridge"
     ]
-  }
+  },
+  "partial_gaps": [
+    "fixed-assets-advanced-lifecycle"
+  ],
+  "implemented_in_unified_financial_os": [
+    "company-master-data",
+    "reporting-intake",
+    "reporting-to-audit-handoff",
+    "company-tool-installation",
+    "fixed-assets-straight-line-foundation"
+  ]
 }
