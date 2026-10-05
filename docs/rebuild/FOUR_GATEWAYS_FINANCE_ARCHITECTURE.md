@@ -40,8 +40,8 @@
 
 | البوابة | عدد الشاشات الظاهرة | القدرات |
 |---|---:|---|
-| البرنامج المحاسبي الكامل | 14 | `commerce`، `zatca`، `b2bcredit`، `inventory`، `suppliers`، `purchasing`، `ledger`، `jesim`، `cash`، `receivables`، `advances`، `smartmatch`، `excelrecon`، `companies` |
-| مساعد القوائم والتقارير | 8 | `risklab`، `sensitivity`، `benchmarks`، `finance`، `execreports`، `reports`، `exports`، `archive` |
+| البرنامج المحاسبي الكامل | 15 | `companies`، `masterdata`، `commerce`، `zatca`، `b2bcredit`، `inventory`، `suppliers`، `purchasing`، `ledger`، `jesim`، `cash`، `receivables`، `advances`، `smartmatch`، `excelrecon`، `companies` |
+| مساعد القوائم والتقارير | 10 | `reportingintake`، `risklab`، `sensitivity`، `benchmarks`، `finance`، `execreports`، `reports`، `exports`، `archive` |
 | نظام المراجعة الذكي | 6 | `tbreview`، `codex`، `auditbench`، `corpuslab`، `auditanalytics`، `auditlab` |
 | الأدوات المساعدة المستقلة | 33 | `dash`، `tasks`، `notifications`، `risks`، `helperdesk`، `decision`، `jev`، `council`، `salesmap`، `customers`، `customerflow`، `followup`، `offers`، `operations`، `salesintel`، `intelligence`، `economics`، `traceability`، `blending`، `culinary`، `carcass`، `yieldlab`، `nrv`، `ptree`، `productflow`، `labels`، `scanner`، `settings`، `devices`، `governance`، `health`، `capabilitiesv2`، `legacyapps` |
 
