@@ -122,7 +122,8 @@
     "tbreview",
     "codex",
     "masterdata",
-    "reportingintake"
+    "reportingintake",
+    "auditinbox"
    ],
    "actions": [
     "view",
@@ -1489,6 +1490,29 @@
     "codex"
    ],
    "gateway": "audit"
+  },
+  {
+   "id": "auditinbox",
+   "label": "صندوق استلام المراجعة",
+   "sub": "استلام صريح للمستندات والميزان المرسلة من مساعد التقارير مع بصمة المصدر دون قبول الدليل تلقائيًا",
+   "group": "audit",
+   "hub": "tbreview",
+   "tier": "CORE",
+   "module": "ui/features/audit-inbox.js + ui/core/company-platform.js",
+   "data": [
+    "skosif_company_platform_v1",
+    "IDB skosif-company-documents-v1"
+   ],
+   "legacy": "التصور الموحد 2026 — جسر مساعد التقارير إلى ملف المراجعة",
+   "decision": "New",
+   "kw": "استلام مراجعة handoff مستند ميزان مراجعة دليل بصمة",
+   "adv": false,
+   "en": "Audit Inbox",
+   "feeds": [
+    "tbreview"
+   ],
+   "gateway": "audit",
+   "company": true
   },
   {
    "id": "codex",
