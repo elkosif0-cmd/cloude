@@ -1,8 +1,6 @@
 # التصور الأساسي الشامل للتطبيق — المرجع الذي يُقاس عليه كل كود ومستودع وقدرة
 
-> نص المالك كما ورد (2026-10-05)؛ الصياغة المنتجية للوكيل الآخر في `docs/product/KOSIF_PLATFORM_VISION_AR.md` وجرده في `docs/product/CAPABILITY_SOURCE_REGISTRY_AR.md`. هذا الملف مرجع ثابت لا يُعاد صياغته؛ القياس عليه في `docs/VISION_GAP_ar.md`،
-> وجرد القدرات عبر كل المستودعات في `docs/registry/CAPABILITY_REGISTRY_ar.md`، والبحث الخارجي في
-> `docs/registry/EXTERNAL_BACKLOG_ar.md`.
+> نص المالك كما ورد (2026-10-05). الصياغة المنتجية وجرد المستودعات الـ17 (§11) للوكيل الآخر في `docs/product/KOSIF_PLATFORM_VISION_AR.md` و`docs/product/CAPABILITY_SOURCE_REGISTRY_AR.md`؛ البحث الخارجي (§12) في `docs/registry/EXTERNAL_BACKLOG_ar.md`. هذا الملف مرجع ثابت لا يُعاد صياغته؛ القياس عليه في `docs/VISION_GAP_ar.md`،
 
 الفكرة ليست إنشاء برنامج محاسبة فقط، ولا برنامج مراجعة فقط، وإنما **منصة مالية ومحاسبية ومراجعة ذكية موحدة** تجمع كل الأعمال والقدرات التي تم تطويرها سابقًا في مستودعات GitHub المختلفة، ثم تعيد تنظيمها داخل تجربة واحدة واضحة.
 
