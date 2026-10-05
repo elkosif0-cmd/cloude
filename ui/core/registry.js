@@ -8,14 +8,17 @@
    searchable and deep-linkable, but not a separate menu entry or hub tab. */
 (()=>{
 "use strict";
-const RAW=window.__SK_CAPS__||{groups:[],capabilities:[],roles:{},tiers:{}};
+const RAW=window.__SK_CAPS__||{gateways:[],groups:[],capabilities:[],roles:{},tiers:{}};
+const gateways=(RAW.gateways||[]).map(g=>Object.freeze({...g}));
+const gwById=Object.fromEntries(gateways.map(g=>[g.id,g]));
 const groups=RAW.groups.map(g=>Object.freeze({...g}));
 const gById=Object.fromEntries(groups.map(g=>[g.id,g]));
 const rawById=Object.fromEntries(RAW.capabilities.map(c=>[c.id,c]));
 const hubOf=c=>c.hub&&rawById[c.hub]?c.hub:c.id;
 const caps=RAW.capabilities.map(c=>{
   const h=hubOf(c),p=rawById[h];
-  return Object.freeze({...c,primary:!c.adv,groupLabel:(gById[c.group]||{}).label||"",company:!!(c.company||(gById[c.group]||{}).company),
+  const gateway=c.gateway||(gById[c.group]||{}).gateway||(gateways[0]||{}).id||"";
+  return Object.freeze({...c,primary:!c.adv,groupLabel:(gById[c.group]||{}).label||"",gateway,gatewayLabel:(gwById[gateway]||{}).label||"",company:!!(c.company||(gById[c.group]||{}).company),
     hub:h,hubLabel:p.hubLabel||p.label,isHub:RAW.capabilities.some(x=>x.hub===c.id)});
 });
 const byId=Object.fromEntries(caps.map(c=>[c.id,c]));
@@ -23,8 +26,13 @@ const byId=Object.fromEntries(caps.map(c=>[c.id,c]));
 const members=id=>{const c=byId[id];if(!c)return[];const h=byId[c.hub];return[h,...caps.filter(x=>x.hub===h.id&&x.id!==h.id&&!x.hidden)]};
 SK.caps=Object.freeze({
   all:()=>caps,
+  gateways:()=>gateways,
+  gateway:gid=>gwById[gid]||null,
   groups:()=>groups,
   group:gid=>gById[gid]||null,
+  groupsInGateway:gid=>groups.filter(g=>caps.some(c=>c.gateway===gid&&c.group===g.id)),
+  inGateway:gid=>caps.filter(c=>c.gateway===gid),
+  hubsInGateway:gid=>caps.filter(c=>c.gateway===gid&&c.hub===c.id&&!c.hidden),
   /* the studios of the open company: their screens carry the company bar and the company chooser */
   companyGroups:()=>groups.filter(g=>g.company),
   get:id=>byId[id]||null,
@@ -37,8 +45,8 @@ SK.caps=Object.freeze({
   siblings:id=>{const c=byId[id];return c?caps.filter(x=>x.group===c.group):[]},
   hub:id=>{const c=byId[id];return c?byId[c.hub]:null},
   members,
-  /* "المبيعات والعملاء › العملاء والائتمان" for a page inside a hub */
-  path:id=>{const c=byId[id];if(!c)return"";return c.groupLabel+(members(id).length>1?" › "+c.hubLabel:"")},
+  /* "البرنامج المحاسبي الكامل › المالية والدفاتر › الدفاتر المحاسبية" */
+  path:id=>{const c=byId[id];if(!c)return"";const p=[c.gatewayLabel,c.groupLabel].filter((x,i,a)=>x&&a.indexOf(x)===i);if(members(id).length>1)p.push(c.hubLabel);return p.join(" › ")},
   advancedIds:()=>caps.filter(c=>!c.primary).map(c=>c.id),
   roles:()=>RAW.roles||{},
   tiers:()=>RAW.tiers||{}

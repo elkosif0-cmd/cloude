@@ -1,12 +1,12 @@
-/* SQC — the company map: the studios of the open company (product, customer, supply, books, reports) and the decision node.
-   Every studio is independent of the audit file; the map is navigation only: opening or using a tool never creates audit evidence automatically. */
+/* SQC — independent helper-tools gateway: reusable company studios (product, customer, supply, books, reports) plus the decision node.
+   Capabilities are shared; company data stays scoped to the open company/workspace. Using a helper never creates audit evidence automatically. */
 (()=>{
 "use strict";
 const {esc}=SK;
 const core=()=>window.SKosifCore;
 /* one node per company studio, read from the registry, plus the decision node; the hubs of a studio are its tools */
 const NOTE={product:"التكلفة، التسعير، البوكسات والتشريح",customer:"الطلبات، العملاء، التحصيل وتحليل الطلب",supply:"المخزون، التتبع، الموردون والشراء",books:"النقد، الذمم، الدفاتر، الحساسية والمخاطر",reports:"التقارير التنفيذية والطباعة والأرشيف"};
-const SECTIONS=()=>[...SK.caps.companyGroups().map(g=>({id:g.id,label:g.label,sub:NOTE[g.id]||"",icon:g.icon,targets:SK.caps.hubsInGroup(g.id).map(c=>c.id)})),
+const SECTIONS=()=>[...SK.caps.companyGroups().map(g=>({id:g.id,label:g.label,sub:NOTE[g.id]||"",icon:g.icon,targets:SK.caps.hubsInGroup(g.id).filter(c=>c.gateway==="tools").map(c=>c.id)})).filter(s=>s.targets.length),
   {id:"decision",label:"القرار والذكاء",sub:"Jev، مجلس القرار، الحساسية والملاحظات",icon:"jev",targets:["jev","council","decision","sensitivity","risks"]}];
 const firstAllowed=s=>(s.targets.map(id=>SK.caps.get(id)).find(c=>c&&SK.perm.can(c.id))||null);
 function point(s,i){
@@ -27,8 +27,8 @@ function table(){
   }).join("");
 }
 function render(root){
-  root.innerHTML='<div class="hd-shell"><section class="card hd-hero"><div><span class="eyebrow">COMPANY MAP</span><h2>خريطة الشركة</h2><p>كل ما يخص الشركة المفتوحة في خمسة استوديوهات: المنتج والتكلفة، المبيعات والعملاء، المخزون والموردون، المالية والدفاتر، التقارير والبيانات؛ والقرار في عقدة سادسة. العمل فيها لا يضيف مستندًا أو دليلاً لملف المراجعة إلا إذا أرفقه المراجع صراحة.</p></div><span class="hd-badge">مستقلة عن ملف المراجعة</span></section>'+
-  '<section class="card hd-map"><div class="hd-map-head"><div><h3>الاستوديوهات</h3><p>اختر الاستوديو من الخريطة؛ كل فرع يقود إلى أدواته.</p></div></div><div class="hd-canvas">'+lines()+'<div class="hd-center"><span>'+(SK.icons.helperdesk||SK.icons.productflow||"")+'</span><b>الشركة</b><small>خمسة استوديوهات</small></div>'+SECTIONS().map(point).join("")+'</div></section>'+
+  root.innerHTML='<div class="hd-shell"><section class="card hd-hero"><div><span class="eyebrow">INDEPENDENT TOOLS</span><h2>الأدوات المساعدة المستقلة</h2><p>قدرات مشتركة يمكن استخدامها أو إضافتها للشركة المفتوحة: التكلفة، المبيعات والعملاء، المخزون والموردون، التحليلات والتقارير والقرار. بيانات كل شركة تبقى في مساحتها، والعمل هنا لا يتحول إلى مستند أو دليل في ملف المراجعة إلا إذا أرفقه المراجع صراحة.</p></div><span class="hd-badge">مستقلة عن ملف المراجعة</span></section>'+
+  '<section class="card hd-map"><div class="hd-map-head"><div><h3>قدرات الشركة</h3><p>اختر مجموعة الأدوات؛ كل فرع يقود إلى القدرات المستقلة التابعة له.</p></div></div><div class="hd-canvas">'+lines()+'<div class="hd-center"><span>'+(SK.icons.helperdesk||SK.icons.productflow||"")+'</span><b>الشركة</b><small>أدوات مستقلة</small></div>'+SECTIONS().map(point).join("")+'</div></section>'+
   '<div class="hd-grid">'+table()+'</div></div>';
   if(root.dataset.hdBound==="1")return;
   root.dataset.hdBound="1";

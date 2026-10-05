@@ -111,6 +111,9 @@ jobs:
       - name: Test KOSIF Think MCP access control (auth, limits, CORS, body size)
         run: node --test think-mcp/worker.test.mjs
 
+      - name: Four-gateway capability contract
+        run: node tools/four_gateway_contract.mjs
+
       - name: Capability docs are in sync with the registry
         run: python3 tools/capability_docs.py --check
 

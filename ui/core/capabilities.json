@@ -1,6 +1,6 @@
 {
- "version": 1,
- "note": "Single source of truth for every S.kosif screen: navigation has eight top-level domains (home, audit, product, customer, supply, books, reports, jev); the five company domains (\"company\": true) are the studios of the open company and carry its company bar; related screens form a hub whose pages open as tabs. There is no separate user-facing daily/advanced switch; legacy primary/advanced metadata is compatibility data only. Command palette, permissions and docs/rebuild/*.md are generated from this file. Edit here only.",
+ "version": 2,
+ "note": "Single source of truth for SQC screens. User-facing navigation is organized under four gateways: the complete accounting program, financial statements & reporting assistant, intelligent multi-round audit system, and independent helper tools. The legacy eight groups remain as internal studios/subgroups for compatibility, company scoping and deep links. Command palette, permissions and rebuild docs are generated from this registry.",
  "tiers": {
   "CORE": "العمل اليومي الأساسي",
   "MANAGEMENT": "الإدارة والمتابعة",
@@ -241,7 +241,8 @@
    "decision": "Rebuild",
    "kw": "الرئيسية لوحة العمل home",
    "adv": false,
-   "en": "Command Center"
+   "en": "Command Center",
+   "gateway": "tools"
   },
   {
    "id": "tasks",
@@ -261,7 +262,8 @@
    "en": "Tasks",
    "feeds": [
     "notifications"
-   ]
+   ],
+   "gateway": "tools"
   },
   {
    "id": "notifications",
@@ -281,7 +283,8 @@
    "decision": "Rebuild",
    "kw": "إشعارات تنبيهات جرس غير مقروءة notifications alerts bell",
    "adv": false,
-   "en": "Notifications"
+   "en": "Notifications",
+   "gateway": "tools"
   },
   {
    "id": "risks",
@@ -301,20 +304,21 @@
    "feeds": [
     "tasks",
     "decision"
-   ]
+   ],
+   "gateway": "tools"
   },
   {
    "id": "helperdesk",
-   "label": "خريطة الشركة",
-   "sub": "استوديوهات الشركة المفتوحة في خريطة واحدة — المنتج والمبيعات والمخزون والدفاتر والتقارير والقرار",
+   "label": "الأدوات المساعدة المستقلة",
+   "sub": "قدرات مستقلة للشركة: تكلفة ومبيعات وعملاء ومخزون وتشغيل وقرار، من دون تحويلها تلقائياً إلى أدلة مراجعة",
    "group": "home",
-   "hubLabel": "خريطة الشركة",
+   "hubLabel": "الأدوات المساعدة المستقلة",
    "tier": "UTILITIES",
    "module": "ui/features/helper-center.js",
    "data": [],
    "legacy": "تنظيم كل الأدوات غير المرتبطة مباشرة بملف المراجعة في مساحة مستقلة",
    "decision": "Rebuild",
-   "kw": "خريطة الشركة أدوات مساعدة محاسب تكاليف مبيعات عملاء مخزون دفاتر مطابقة تحليل Jev تقارير",
+   "kw": "خريطة الشركة أدوات مساعدة محاسب تكاليف مبيعات عملاء مخزون دفاتر مطابقة تحليل Jev تقارير بوابة أدوات مستقلة shared capabilities",
    "adv": false,
    "en": "Company Map",
    "feeds": [
@@ -325,7 +329,8 @@
     "jev",
     "execreports"
    ],
-   "company": true
+   "company": true,
+   "gateway": "tools"
   },
   {
    "id": "decision",
@@ -347,7 +352,8 @@
     "jev",
     "council",
     "tasks"
-   ]
+   ],
+   "gateway": "tools"
   },
   {
    "id": "jev",
@@ -369,7 +375,8 @@
    "en": "Jev Decisions",
    "feeds": [
     "council"
-   ]
+   ],
+   "gateway": "tools"
   },
   {
    "id": "council",
@@ -386,7 +393,8 @@
    "group": "jev",
    "hub": "jev",
    "adv": false,
-   "en": "Decision Council"
+   "en": "Decision Council",
+   "gateway": "tools"
   },
   {
    "id": "risklab",
@@ -403,7 +411,8 @@
    "decision": "Keep",
    "kw": "مخاطر مونت كارلو",
    "adv": false,
-   "en": "Risk & Profit Bridge"
+   "en": "Risk & Profit Bridge",
+   "gateway": "reporting"
   },
   {
    "id": "sensitivity",
@@ -420,7 +429,8 @@
    "decision": "Keep",
    "kw": "حساسية سيناريو",
    "adv": false,
-   "en": "Sensitivity Lab"
+   "en": "Sensitivity Lab",
+   "gateway": "reporting"
   },
   {
    "id": "salesmap",
@@ -442,7 +452,8 @@
    "feeds": [
     "customers",
     "commerce"
-   ]
+   ],
+   "gateway": "tools"
   },
   {
    "id": "commerce",
@@ -468,7 +479,8 @@
     "receivables",
     "salesintel",
     "ledger"
-   ]
+   ],
+   "gateway": "accounting"
   },
   {
    "id": "zatca",
@@ -489,7 +501,8 @@
    "feeds": [
     "commerce",
     "ledger"
-   ]
+   ],
+   "gateway": "accounting"
   },
   {
    "id": "customers",
@@ -514,7 +527,8 @@
     "salesintel",
     "b2bcredit",
     "offers"
-   ]
+   ],
+   "gateway": "tools"
   },
   {
    "id": "customerflow",
@@ -541,7 +555,8 @@
     "followup",
     "receivables",
     "commerce"
-   ]
+   ],
+   "gateway": "tools"
   },
   {
    "id": "followup",
@@ -562,7 +577,8 @@
    "en": "Customer Follow-up",
    "feeds": [
     "tasks"
-   ]
+   ],
+   "gateway": "tools"
   },
   {
    "id": "b2bcredit",
@@ -583,7 +599,8 @@
    "feeds": [
     "receivables",
     "ledger"
-   ]
+   ],
+   "gateway": "tools"
   },
   {
    "id": "offers",
@@ -604,7 +621,8 @@
    "en": "Offers & Catalog",
    "feeds": [
     "commerce"
-   ]
+   ],
+   "gateway": "tools"
   },
   {
    "id": "operations",
@@ -628,7 +646,8 @@
    "feeds": [
     "commerce",
     "inventory"
-   ]
+   ],
+   "gateway": "tools"
   },
   {
    "id": "salesintel",
@@ -652,7 +671,8 @@
     "economics",
     "decision",
     "tasks"
-   ]
+   ],
+   "gateway": "tools"
   },
   {
    "id": "intelligence",
@@ -670,7 +690,8 @@
    "decision": "Keep",
    "kw": "شرائح احتفاظ",
    "adv": false,
-   "en": "Customer & Demand Intelligence"
+   "en": "Customer & Demand Intelligence",
+   "gateway": "tools"
   },
   {
    "id": "economics",
@@ -692,7 +713,8 @@
    "feeds": [
     "sim",
     "catalog"
-   ]
+   ],
+   "gateway": "tools"
   },
   {
    "id": "inventory",
@@ -716,7 +738,8 @@
     "purchasing",
     "traceability",
     "blending"
-   ]
+   ],
+   "gateway": "accounting"
   },
   {
    "id": "traceability",
@@ -737,7 +760,8 @@
    "en": "Traceability & Cold Chain",
    "feeds": [
     "inventory"
-   ]
+   ],
+   "gateway": "accounting"
   },
   {
    "id": "suppliers",
@@ -761,7 +785,8 @@
     "cash",
     "inventory",
     "carcass"
-   ]
+   ],
+   "gateway": "accounting"
   },
   {
    "id": "purchasing",
@@ -782,7 +807,8 @@
    "feeds": [
     "inventory",
     "ledger"
-   ]
+   ],
+   "gateway": "accounting"
   },
   {
    "id": "blending",
@@ -800,7 +826,8 @@
    "en": "Meat Blends",
    "feeds": [
     "catalog"
-   ]
+   ],
+   "gateway": "tools"
   },
   {
    "id": "culinary",
@@ -815,7 +842,8 @@
    "decision": "Keep",
    "kw": "طبخ قطعية",
    "adv": false,
-   "en": "Chef's Guide"
+   "en": "Chef's Guide",
+   "gateway": "tools"
   },
   {
    "id": "carcass",
@@ -835,7 +863,8 @@
     "yieldlab",
     "nrv",
     "catalog"
-   ]
+   ],
+   "gateway": "tools"
   },
   {
    "id": "yieldlab",
@@ -855,7 +884,8 @@
    "en": "Butchery Yield Lab",
    "feeds": [
     "catalog"
-   ]
+   ],
+   "gateway": "tools"
   },
   {
    "id": "nrv",
@@ -875,7 +905,8 @@
    "en": "Carcass Split (NRV)",
    "feeds": [
     "catalog"
-   ]
+   ],
+   "gateway": "tools"
   },
   {
    "id": "ledger",
@@ -895,7 +926,8 @@
    "feeds": [
     "execreports",
     "cash"
-   ]
+   ],
+   "gateway": "accounting"
   },
   {
    "id": "jesim",
@@ -916,7 +948,8 @@
    "en": "Entry Simulator",
    "feeds": [
     "ledger"
-   ]
+   ],
+   "gateway": "accounting"
   },
   {
    "id": "cash",
@@ -937,7 +970,8 @@
    "feeds": [
     "finance",
     "decision"
-   ]
+   ],
+   "gateway": "accounting"
   },
   {
    "id": "benchmarks",
@@ -961,7 +995,8 @@
     "inventory",
     "costs",
     "cash"
-   ]
+   ],
+   "gateway": "reporting"
   },
   {
    "id": "receivables",
@@ -981,7 +1016,8 @@
    "feeds": [
     "cash",
     "ledger"
-   ]
+   ],
+   "gateway": "accounting"
   },
   {
    "id": "advances",
@@ -1002,7 +1038,8 @@
    "feeds": [
     "ledger",
     "receivables"
-   ]
+   ],
+   "gateway": "accounting"
   },
   {
    "id": "finance",
@@ -1018,7 +1055,8 @@
    "decision": "Keep",
    "kw": "تعادل حساسية",
    "adv": false,
-   "en": "Financial Engineering"
+   "en": "Financial Engineering",
+   "gateway": "reporting"
   },
   {
    "id": "ptree",
@@ -1042,7 +1080,8 @@
     "catalog",
     "suppliers",
     "customers"
-   ]
+   ],
+   "gateway": "tools"
   },
   {
    "id": "productflow",
@@ -1066,7 +1105,8 @@
     "builder",
     "sim",
     "memo"
-   ]
+   ],
+   "gateway": "tools"
   },
   {
    "id": "catalog",
@@ -1094,7 +1134,8 @@
     "finance"
    ],
    "hub": "productflow",
-   "hidden": true
+   "hidden": true,
+   "gateway": "tools"
   },
   {
    "id": "costs",
@@ -1116,7 +1157,8 @@
     "catalog",
     "builder"
    ],
-   "hidden": true
+   "hidden": true,
+   "gateway": "tools"
   },
   {
    "id": "sim",
@@ -1138,7 +1180,8 @@
     "memo"
    ],
    "hub": "productflow",
-   "hidden": true
+   "hidden": true,
+   "gateway": "tools"
   },
   {
    "id": "kernel",
@@ -1154,7 +1197,8 @@
    "kw": "محرك تقريب",
    "adv": false,
    "en": "Strict Pricing Kernel",
-   "hidden": true
+   "hidden": true,
+   "gateway": "tools"
   },
   {
    "id": "memo",
@@ -1176,7 +1220,8 @@
     "catalog"
    ],
    "hub": "productflow",
-   "hidden": true
+   "hidden": true,
+   "gateway": "tools"
   },
   {
    "id": "builder",
@@ -1201,7 +1246,8 @@
     "offers"
    ],
    "hub": "productflow",
-   "hidden": true
+   "hidden": true,
+   "gateway": "tools"
   },
   {
    "id": "analyzer",
@@ -1219,7 +1265,8 @@
    "kw": "مكونات دائرة",
    "adv": false,
    "en": "Box Analyzer",
-   "hidden": true
+   "hidden": true,
+   "gateway": "tools"
   },
   {
    "id": "compare",
@@ -1237,7 +1284,8 @@
    "kw": "مقارنة",
    "adv": false,
    "en": "Comparative Analysis",
-   "hidden": true
+   "hidden": true,
+   "gateway": "tools"
   },
   {
    "id": "labels",
@@ -1252,7 +1300,8 @@
    "decision": "Keep",
    "kw": "ملصق باركود ميزان",
    "adv": false,
-   "en": "Scale Labels"
+   "en": "Scale Labels",
+   "gateway": "tools"
   },
   {
    "id": "scanner",
@@ -1269,7 +1318,8 @@
    "decision": "Keep",
    "kw": "باركود كاميرا",
    "adv": false,
-   "en": "Barcode Scanner"
+   "en": "Barcode Scanner",
+   "gateway": "tools"
   },
   {
    "id": "smartmatch",
@@ -1290,7 +1340,8 @@
    "feeds": [
     "customers",
     "catalog"
-   ]
+   ],
+   "gateway": "accounting"
   },
   {
    "id": "excelrecon",
@@ -1308,7 +1359,8 @@
    "en": "Excel Reconciliation",
    "feeds": [
     "catalog"
-   ]
+   ],
+   "gateway": "accounting"
   },
   {
    "id": "execreports",
@@ -1330,7 +1382,8 @@
    "en": "Executive Reports",
    "feeds": [
     "decision"
-   ]
+   ],
+   "gateway": "reporting"
   },
   {
    "id": "reports",
@@ -1348,7 +1401,8 @@
    "decision": "Keep",
    "kw": "طباعة تقرير pdf",
    "adv": false,
-   "en": "Print Center"
+   "en": "Print Center",
+   "gateway": "reporting"
   },
   {
    "id": "exports",
@@ -1365,7 +1419,8 @@
    "group": "reports",
    "hub": "reports",
    "adv": false,
-   "en": "Export Center"
+   "en": "Export Center",
+   "gateway": "reporting"
   },
   {
    "id": "archive",
@@ -1383,7 +1438,8 @@
    "kw": "أرشيف سجل نسخة",
    "adv": false,
    "en": "Archive & Changes",
-   "hubLabel": "الأرشيف والأنظمة الأصلية"
+   "hubLabel": "الأرشيف والأنظمة الأصلية",
+   "gateway": "reporting"
   },
   {
    "id": "tbreview",
@@ -1407,7 +1463,8 @@
     "risks",
     "tasks",
     "codex"
-   ]
+   ],
+   "gateway": "audit"
   },
   {
    "id": "codex",
@@ -1427,7 +1484,8 @@
    "hubLabel": "المعايير والمدونة",
    "feeds": [
     "tbreview"
-   ]
+   ],
+   "gateway": "audit"
   },
   {
    "id": "auditbench",
@@ -1447,7 +1505,8 @@
    "en": "Global Audit Benchmarks",
    "feeds": [
     "tbreview"
-   ]
+   ],
+   "gateway": "audit"
   },
   {
    "id": "corpuslab",
@@ -1468,7 +1527,8 @@
    "feeds": [
     "tbreview",
     "auditbench"
-   ]
+   ],
+   "gateway": "audit"
   },
   {
    "id": "auditdesk",
@@ -1486,7 +1546,8 @@
    "adv": false,
    "en": "Audit Desk",
    "hub": "tbreview",
-   "hidden": true
+   "hidden": true,
+   "gateway": "audit"
   },
   {
    "id": "auditdocs",
@@ -1507,7 +1568,8 @@
    "kw": "دليل مستند ميزان",
    "adv": false,
    "en": "Documents & Evidence",
-   "hidden": true
+   "hidden": true,
+   "gateway": "audit"
   },
   {
    "id": "auditissues",
@@ -1525,7 +1587,8 @@
    "kw": "ملاحظة قضية",
    "adv": false,
    "en": "Findings & Issues",
-   "hidden": true
+   "hidden": true,
+   "gateway": "audit"
   },
   {
    "id": "auditcouncil",
@@ -1543,7 +1606,8 @@
    "kw": "مجلس",
    "adv": false,
    "en": "Reviewers' Council",
-   "hidden": true
+   "hidden": true,
+   "gateway": "audit"
   },
   {
    "id": "auditfin",
@@ -1561,7 +1625,8 @@
    "kw": "قيد قائمة مالية",
    "adv": false,
    "en": "Statements & Entries",
-   "hidden": true
+   "hidden": true,
+   "gateway": "audit"
   },
   {
    "id": "auditreport",
@@ -1579,7 +1644,8 @@
    "kw": "تقرير مراجع",
    "adv": false,
    "en": "Reports & Issuance",
-   "hidden": true
+   "hidden": true,
+   "gateway": "audit"
   },
   {
    "id": "auditanalytics",
@@ -1599,7 +1665,8 @@
    "hub": "tbreview",
    "feeds": [
     "tbreview"
-   ]
+   ],
+   "gateway": "audit"
   },
   {
    "id": "auditlab",
@@ -1616,7 +1683,8 @@
    "decision": "Keep",
    "kw": "معايير مختبر",
    "adv": false,
-   "en": "Standards Lab"
+   "en": "Standards Lab",
+   "gateway": "audit"
   },
   {
    "id": "settings",
@@ -1634,7 +1702,8 @@
    "decision": "Keep",
    "kw": "إعداد نسخة احتياطية مظهر",
    "adv": false,
-   "en": "Settings & Appearance"
+   "en": "Settings & Appearance",
+   "gateway": "tools"
   },
   {
    "id": "devices",
@@ -1653,7 +1722,8 @@
    "decision": "Rebuild",
    "kw": "آيفون ايفون iphone لابتوب laptop ماك mac ويندوز تثبيت نقل مزامنة airdrop اختصارات لوحة مفاتيح شريط سفلي devices sync",
    "adv": false,
-   "en": "Devices & Sync"
+   "en": "Devices & Sync",
+   "gateway": "tools"
   },
   {
    "id": "companies",
@@ -1673,7 +1743,8 @@
    "feeds": [
     "ledger",
     "tbreview"
-   ]
+   ],
+   "gateway": "accounting"
   },
   {
    "id": "governance",
@@ -1691,7 +1762,8 @@
    "decision": "Keep",
    "kw": "حوكمة تدقيق سجل",
    "adv": false,
-   "en": "Governance & Readiness"
+   "en": "Governance & Readiness",
+   "gateway": "tools"
   },
   {
    "id": "health",
@@ -1709,7 +1781,8 @@
    "decision": "Keep",
    "kw": "تشخيص أخطاء",
    "adv": false,
-   "en": "Health & Diagnostics"
+   "en": "Health & Diagnostics",
+   "gateway": "tools"
   },
   {
    "id": "capabilitiesv2",
@@ -1727,7 +1800,8 @@
    "decision": "Keep",
    "kw": "صلاحيات دور سحابة",
    "adv": false,
-   "en": "Permissions & Workspaces"
+   "en": "Permissions & Workspaces",
+   "gateway": "tools"
   },
   {
    "id": "legacyapps",
@@ -1749,7 +1823,34 @@
     "followup",
     "salesintel"
    ],
-   "hub": "archive"
+   "hub": "archive",
+   "gateway": "reporting"
+  }
+ ],
+ "gateways": [
+  {
+   "id": "accounting",
+   "label": "البرنامج المحاسبي الكامل",
+   "icon": "ledger",
+   "sub": "تسجيل وترحيل ودفاتر وأرصدة وذمم ومشتريات ومخزون وضريبة وإقفال ومطابقات"
+  },
+  {
+   "id": "reporting",
+   "label": "مساعد القوائم والتقارير",
+   "icon": "execreports",
+   "sub": "إعداد القوائم والتحليلات والتقارير من بيانات الشركة أو البيانات المرفوعة، مع التصدير والتتبّع"
+  },
+  {
+   "id": "audit",
+   "label": "نظام المراجعة الذكي",
+   "icon": "tbreview",
+   "sub": "ملف مراجعة متعدد الجولات، طلب أدلة، مجلس AI، اختبارات، معايير واعتمادات بشرية"
+  },
+  {
+   "id": "tools",
+   "label": "الأدوات المساعدة المستقلة",
+   "icon": "helperdesk",
+   "sub": "قدرات مستقلة مشتركة يمكن استخدامها أو إضافتها للشركة دون خلطها تلقائياً بملف المراجعة"
   }
  ]
 }

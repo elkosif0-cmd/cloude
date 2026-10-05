@@ -62,7 +62,7 @@ capability inventory, the new information architecture and the rebuild plan.
   (from the Grand Fusion branch); `node tools/build_engines.mjs` compiles them to `ui/core/engines.js`
   (`window.SKEngines`), and CI checks the compiled file is current.
 - `app/` — the strict TypeScript engines and their tests (run in CI).
-- Navigation: four top-level sections, driven by `ui/core/capabilities.json`: **العام · المراجعة والمراجعة المالية · الأدوات المساعدة للمحاسب · Jev والقرار**. Related screens form a hub (`"hub"`/`"hubLabel"`): one menu entry whose pages open as tabs, each keeping its own id, permission and deep link. There is no separate user-facing daily/advanced mode switch; every screen lives under one of the four sections, while compatibility metadata can still mark preferred/default pages. `docs/rebuild/CAPABILITY_COVERAGE_ALL_VERSIONS.md` lists every capability of every past version.
+- Navigation: four top-level gateways from `ui/core/capabilities.json`: **البرنامج المحاسبي الكامل · مساعد القوائم والتقارير · نظام المراجعة الذكي · الأدوات المساعدة المستقلة**. The legacy eight domains remain internal studios for compatibility, company scoping and deep links; the sidebar exposes the four gateways only. Hubs keep their ids, permissions and deep links.
 
 ## KOSIF Luxe
 
