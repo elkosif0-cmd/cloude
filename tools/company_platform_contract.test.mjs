@@ -107,6 +107,24 @@ test('reporting target, result and standard trace remain explicit non-authoritat
   assert.equal(h.api.state().standardTraces.length,1);
 });
 
+test('IFRS 18 MPM registry reconciles a candidate to the nearest statement subtotal and requires human approval',()=>{
+  const h=harness(),api=h.api;
+  api.saveReportResult(
+    {rows:[{code:'4000'}],balanced:true,errors:[],unclassified:0,difference:0},
+    {checks:{mappedPct:100,balanced:true,cashTies:null},unmapped:[],keys:{operating:{current:100000,prior:80000},profit:{current:70000,prior:50000}}},
+    'tb.csv',
+    [{key:'ebitda',ar:'EBITDA',value:120000,prior:90000,note:'مطابقة مع الربح التشغيلي',rows:[{ar:'الربح التشغيلي',amount:100000},{ar:'الإهلاك',amount:20000}]}]
+  );
+  const m=api.registerMpm({name:'EBITDA',sourceKey:'ebitda',nearestSubtotal:'operating',purpose:'قياس الأداء التشغيلي قبل الإهلاك',communicationSource:'بيان النتائج العام'});
+  const r=api.mpmReconciliation(m.id);
+  assert.equal(r.measure.value,'120000');
+  assert.equal(r.nearestValue,'100000');
+  assert.equal(r.difference,'20000');
+  assert.equal(r.humanApproved,false);
+  assert.equal(api.approveMpm(m.id,true),true);
+  assert.equal(api.mpmReconciliation(m.id).humanApproved,true);
+});
+
 test('company switch snapshots include the unified platform key',()=>{
   assert.match(helperSource,/skosif_company_platform_v1/);
 });
