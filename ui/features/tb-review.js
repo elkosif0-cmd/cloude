@@ -523,7 +523,7 @@ async function importCompanyHandoff(id){
   const sel=[...root.querySelectorAll("[data-handoff-request]")].find(x=>x.dataset.handoffRequest===id),reqId=sel&&sel.value;
   if(!reqId)return toast("اختر طلب المراجعة الذي يخدمه المستند","warn");
   try{
-    const rec=await cp.documentRecord(h.documentId);if(!rec||!rec.blob)throw new Error("المصدر لم يعد متاحًا داخل مساحة الشركة");
+    const rec=await cp.readDocument(h.documentId);if(!rec||!rec.blob)throw new Error("المصدر لم يعد متاحًا داخل مساحة الشركة");
     const file=new File([rec.blob],rec.name,{type:rec.mime||rec.blob.type||"application/octet-stream"});
     await upload(reqId,[file]);cp.markAuditHandoff(id,"attached",reqId);toast("نُقل المستند إلى الطلب "+reqId+" — بانتظار المراجعة في الجولة التالية","ok");paint();
   }catch(e){toast(e.message||String(e),"bad")}
