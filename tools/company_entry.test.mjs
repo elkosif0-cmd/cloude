@@ -16,7 +16,7 @@ function page({locked=true,local={},session={},search='',hash=''}={}){
   const el=(id,extra={})=>els[id]||(els[id]={id,innerHTML:'',hidden:false,textContent:'',value:'',focused:false,dataset:{},
     addEventListener(t,fn){(handlers[id+':'+t]=handlers[id+':'+t]||[]).push(fn)},focus(){this.focused=true},...extra});
   ['co-list','co-add','co-form','co-name','co-cancel','companies','locked','locked-t','locked-back','p'].forEach(id=>el(id));
-  const body={dataset:{locked:locked?'1':'0',lockedName:'قصيف',lockedId:'co-private'}};
+  const body={dataset:{locked:locked?'1':'0',lockedName:'تصيف',lockedId:'co-private'}};
   const location={search,hash,href:''};
   const ctx=vm.createContext({console,JSON,Date,Math,String,Number,Object,Map,Set,localStorage:storage(local),sessionStorage:storage(session),location,
     document:{getElementById:id=>els[id]||null,body}});
