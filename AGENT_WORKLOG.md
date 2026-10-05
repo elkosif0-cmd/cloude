@@ -137,3 +137,15 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Acceptance boundary: Proposed synthetic tests are descriptions, not executed results. Preserve existing partial reconciliations and useful implementations; record uninspected paths and defects without claiming an observed production incident.
 - PR #152 checks: The eight-document remote diff and contents are verified. Foundation Guard, Production Build and Windows smoke ended in failure before recorded job steps; logs were unavailable (BlobNotFound), so the cause is unverified and no CI pass is claimed. The configured Cloudflare integration created a successful branch preview automatically. The PR remains draft and unmerged.
 - NEXT ACTION: Finish source-linked audit/storage/posting batches, independently review their claims and proposed acceptance cases, then append a coordinated evidence checkpoint. No runtime publication follows from this log.
+
+### TASK DOT-REPORT-EXTRACTION-20261005-001 — Reports across all accessible repositories
+- Agent: dot
+- Status: ACTIVE
+- Goal: Fulfil the owner's request to inspect every repository and extract its reports into a unified source-linked collection.
+- Scope: The 17 accessible repositories and relevant unmerged branches; ready report documents, templates, generation/export engines, financial/audit/management/operational outputs and print formats. This is a sub-scope of the broad Rule Zero inventory, not a competing product architecture.
+- Expected touch set: Isolated local extraction, catalog and evidence artifacts. No runtime changes, report generation from real customer data, provider calls, public redistribution or source-code execution.
+- Branch / PR: No extraction branch yet. The partial general inventory remains draft PR #152; KOSIFSEE PR #151 remains a related evidence source.
+- Current progress: Reusing pinned repository trees and reviewed reporting findings; separating finished documents, templates, generators, examples and documentation. Existing audit/storage/posting reviews are finishing their bounded batches to supply evidence.
+- Risks / conflicts: A generator is not a finished report. Preserve source units, periods, extracted/inferred/synthetic labels and licensing. Restricted Atlas material, private customer data and credentials are excluded from copying; retain permitted source links and original analysis instead.
+- Unfinished: Complete candidate coverage, deeper reporting-path inspection, safe extraction, duplicate comparison, format/dependency/status verification and delivery.
+- NEXT ACTION: Produce an Arabic report index and machine-readable catalog with exact repository/commit/file provenance, then deliver the permitted extraction bundle with honest working/untested/missing-dependency status.
