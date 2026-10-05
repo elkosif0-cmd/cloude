@@ -10,7 +10,7 @@ function statusHTML(){
   '<label class="sk-field"><span>المخرج المطلوب</span><select id="ri-target">'+Object.entries(targets).map(([id,x])=>'<option value="'+id+'"'+(id===s.target?' selected':'')+'>'+esc(x.label)+'</option>').join("")+'</select></label>'+
   '<div class="sk-note"><b>المطلوب:</b> '+s.requires.map(x=>esc(typeLabel[x]||x)).join("، ")+'<br><b>الناقص الآن:</b> '+(s.missing.length?s.missing.map(x=>esc(typeLabel[x]||x)).join("، "):"لا شيء في الحد الأدنى")+'<br><small>قد يطلب النظام مستندات إضافية لتحسين التدفقات النقدية والإيضاحات والتحليل.</small></div>'+
   '<label class="dropzone"><input id="ri-files" type="file" multiple accept=".csv,.tsv,.txt,.xlsx,.pdf,.doc,.docx,.png,.jpg,.jpeg,.webp"><strong>اسحب أو اختر ملفات الشركة</strong><span>XLSX · CSV · PDF · Word · صور</span><small>تُحفظ بصمة SHA-256 ومصدر الملف. لا يتحول أي ملف إلى دليل مراجعة إلا بأمر صريح.</small></label>'+
-  '<div class="sk-actions"><button type="button" class="btn primary" id="ri-build">بناء القوائم من ميزان CSV/TXT</button><button type="button" class="btn" id="ri-audit">فتح المراجعة الذكية</button></div>'+
+  '<div class="sk-actions"><button type="button" class="btn primary" id="ri-build">بناء القوائم من ميزان CSV/TXT/XLSX</button><button type="button" class="btn" id="ri-audit">فتح المراجعة الذكية</button></div>'+
   lastHTML(s)+'</div></section>';
 }
 function lastHTML(s){
@@ -28,7 +28,7 @@ function docsHTML(){
 function paint(root){root.innerHTML=statusHTML()+docsHTML()}
 async function build(root){
   const docs=CP().documents().filter(d=>d.type==="trial-balance"&&/\.(csv|tsv|txt|xlsx)$/i.test(d.name));
-  if(!docs.length){toast("ارفع ميزان مراجعة CSV/TXT أولًا","warn");return}
+  if(!docs.length){toast("ارفع ميزان مراجعة CSV/TXT/XLSX أولًا","warn");return}
   const pick=docs[docs.length-1];
   try{
     const db=await new Promise((res,rej)=>{const q=indexedDB.open("skosif-company-documents-v1",1);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)}),
@@ -37,7 +37,7 @@ async function build(root){
     const text=/\.xlsx$/i.test(pick.name)?await SKXlsx.toTsv(rec.blob):await rec.blob.text(),tb=SKEngines.reports.tbImport.parseTrialBalance(text);
     if(!tb.ok)throw new Error("لم يمكن قراءة ميزان المراجعة");
     if(!tb.balanced){toast("الميزان غير متزن؛ تم التحليل لكن لن نعرضه كقوائم جاهزة للاعتماد","warn")}
-    const fs=SKEngines.reports.statements.buildStatements(tb,{}, {tax:(SK.company.current().country==="EG"?"income":"zakat")});
+    const fs=SKEngines.reports.statements.buildStatements(tb,{}, {tax:CP().profile().taxMode});
     CP().saveReportResult(tb,fs,pick.name);paint(root);
     toast("تم بناء القوائم حتميًا من "+tb.rows.length+" حسابًا","ok");
   }catch(e){toast(e.message||String(e),"bad")}
