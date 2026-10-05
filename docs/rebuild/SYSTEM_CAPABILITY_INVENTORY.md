@@ -10,7 +10,7 @@ Total capabilities: **75** (screens). Cross-cutting capabilities are listed afte
 | `tasks` | المهام | ui/features/workspace.js | العام › المهام والإشعارات › يومي | `skosif_tasks_v1` | SKosifCore | Working | Rebuild |
 | `notifications` | مركز الإشعارات | ui/features/notifications.js + ui/layouts/topbar.js (الجرس) | العام › المهام والإشعارات › يومي | `skosif_notify_v1`, `skosif_tasks_v1`, `skosif_risks_v1`, `skosif_audit_trail` | SKosifCore | Working | Rebuild |
 | `risks` | المخاطر والملاحظات | ui/features/risks.js + ui/components/charts.js | العام › يومي | `skosif_risks_v1` | SKosifCore | Working | Rebuild |
-| `helperdesk` | خريطة الشركة | ui/features/helper-center.js | العام › يومي | — | SKosifCore | Working | Rebuild |
+| `helperdesk` | الأدوات المساعدة المستقلة | ui/features/helper-center.js | العام › يومي | — | SKosifCore | Working | Rebuild |
 | `decision` | مركز القرار | core (v19.5 + v20.2) | Jev والقرار › يومي | `aghnam-pricing-v3`, `IDB aghnam-app-v7` | SKosifCore, Engine, IndexedDB | Working | Keep |
 | `jev` | Jev للقرار | ui/jev.js | Jev والقرار › Jev ومجلس القرار › يومي | `aghnam_v29_jev_log`, `skosif_jev_draft`, `session aghnamJevSession` | SKosifCore | Working | Keep |
 | `council` | مجلس القرار | ui/features/workspace.js + SKEngines.intelligence | Jev والقرار › Jev ومجلس القرار › يومي | `skosif_council_v1` | SKosifCore | Working | Rebuild |
