@@ -158,8 +158,8 @@ function setDocumentType(id,type){
   doc.type=type;commit(s,"document.type",{id,type,sha256:doc.sha256});return true;
 }
 async function removeDocument(id){
-  const s=state(),doc=s.documents.find(x=>x.id===id);if(!doc)return false;
-  await deleteDocBlob(id);s.documents=s.documents.filter(x=>x.id!==id);s.auditHandoffs=s.auditHandoffs.filter(x=>x.documentId!==id);commit(s,"document.remove",{id,sha256:doc.sha256});return true;
+  const s=state(),companyId=cur().id,doc=s.documents.find(x=>x.id===id&&x.companyId===companyId);if(!doc)return false;
+  await deleteDocBlob(id);s.documents=s.documents.filter(x=>!(x.id===id&&x.companyId===companyId));s.auditHandoffs=s.auditHandoffs.filter(x=>x.documentId!==id);commit(s,"document.remove",{id,sha256:doc.sha256});return true;
 }
 function requestAuditHandoff(id){
   const s=state(),doc=s.documents.find(x=>x.id===id&&x.companyId===cur().id);if(!doc)throw new Error("المستند غير موجود");
@@ -187,6 +187,7 @@ function saveReportResult(tb,fs,sourceName=""){
 }
 function reportingStatus(){
   const s=state(),target=REPORT_TARGETS[s.reporting.target]||REPORT_TARGETS.full,types=new Set(documents().map(d=>d.type));
+  if((s.definitions.fixedAssets||[]).length)types.add("fixed-assets-register");
   return{target:s.reporting.target,label:target.label,requires:target.requires,optional:target.optional,missing:target.requires.filter(x=>!types.has(x)),present:[...types],lastTrialBalance:s.reporting.lastTrialBalance,lastStatements:s.reporting.lastStatements};
 }
 const normSearch=v=>String(v==null?"":v).toLowerCase().replace(/[ً-ٰٟ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/ـ/g,"").replace(/\s+/g," ").trim();
