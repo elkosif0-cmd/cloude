@@ -4,10 +4,26 @@
 const {esc,toast}=SK,CP=()=>window.SKosifCompanyPlatform;
 let active="products";
 const money=v=>v==null||v===""?"—":Number(v).toLocaleString("ar-SA",{maximumFractionDigits:2});
+const minorMoney=v=>(Number(v||0)/100).toLocaleString("ar-SA",{minimumFractionDigits:2,maximumFractionDigits:2});
+const asOfDate=()=>{const c=SK.company&&SK.company.current?SK.company.current():null;return c&&c.period&&c.period.endDate?c.period.endDate:new Date().toISOString().slice(0,10)};
 function categoryButtons(){
   return Object.entries(CP().types()).map(([id,x])=>'<button type="button" class="btn sm" data-md-type="'+id+'" aria-pressed="'+(id===active)+'">'+(SK.icons[x.icon]||"")+esc(x.label)+'</button>').join("");
 }
+function fixedAssetRows(){
+  const asOf=asOfDate(),items=CP().fixedAssetSummary(asOf);
+  if(!items.length)return SK.ui.state.empty("لا توجد أصول ثابتة","أضف الأصل وتاريخ وضعه في الخدمة والعمر الإنتاجي وحسابات الإهلاك.");
+  return '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الأصل</th><th>في الخدمة</th><th>التكلفة</th><th>العمر</th><th>مجمع الإهلاك</th><th>القيمة الدفترية</th><th>إهلاك الشهر</th><th></th></tr></thead><tbody>'+
+    items.map(x=>'<tr><td><b>'+esc((x.code?x.code+" · ":"")+x.name)+'</b><small>'+esc(x.accountCode||"حساب الأصل غير محدد")+'</small></td><td class="n">'+esc(x.inServiceDate)+'</td><td class="n">'+money(x.cost)+'</td><td class="n">'+esc(x.usefulLifeMonths)+' شهر</td><td class="n">'+minorMoney(x.depreciation.accumulatedMinor)+'</td><td class="n">'+minorMoney(x.depreciation.carryingMinor)+'</td><td class="n">'+minorMoney(x.depreciation.currentMonthChargeMinor)+'</td><td><button class="linkish" type="button" data-md-dep="'+esc(x.id)+'">عرض القيد المقترح</button> · <button class="linkish danger" type="button" data-md-del="'+esc(x.id)+'">حذف</button></td></tr>').join("")+
+    '</tbody></table></div>'+fixedAssetJournalCard(asOf);
+}
+function fixedAssetJournalCard(asOf){
+  const j=CP().fixedAssetJournal(asOf),missing=j.proposals.filter(x=>!x.ready).length;
+  return '<div class="sk-note"><b>إهلاك الفترة حتى '+esc(asOf)+':</b> إجمالي قيد الشهر المقترح '+minorMoney(j.totalMinor)+' '+esc(SK.company.current().currency)+
+    (missing?' · <span class="sksev warn">'+missing+' أصل يحتاج حساب مصروف/مجمع إهلاك</span>':'')+
+    '<br><small>القيد مسودة حتمية بالقسط الثابت وفق بيانات الأصل. لا يُرحّل ولا يعتمد تلقائيًا؛ افتح الدفاتر وراجعه قبل التسجيل.</small></div>';
+}
 function rows(){
+  if(active==="fixedAssets")return fixedAssetRows();
   const items=CP().definitions(active);
   if(!items.length)return SK.ui.state.empty("لا توجد تعريفات في هذا القسم","أضف أول عنصر ليصبح متاحًا للحسابات والتقارير والأدوات.");
   return '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الكود</th><th>الاسم</th><th>حساب الربط</th><th>مركز التكلفة</th><th>تكلفة</th><th>بيع</th><th></th></tr></thead><tbody>'+
@@ -36,10 +52,36 @@ function paint(root){
     '<p class="hint">اقتراح AI لا يغيّر الربط تلقائيًا؛ يظهر كاقتراح للمستخدم. الحسابات والترحيل تظل حتمية وتحت اعتماد بشري.</p></div></section>';
 }
 async function add(root){
-  const t=CP().types()[active],fields=[{key:"name",label:"الاسم",required:true},{key:"code",label:"الكود / الرقم"},{key:"accountCode",label:"حساب الربط (اختياري)",placeholder:"مثال: 4101"},{key:"costCenter",label:"مركز التكلفة / المشروع"},{key:"unit",label:"وحدة القياس"},{key:"notes",label:"ملاحظات",type:"textarea"}];
+  const t=CP().types()[active];
+  let fields=[{key:"name",label:"الاسم",required:true},{key:"code",label:"الكود / الرقم"},{key:"accountCode",label:"حساب الربط (اختياري)",placeholder:"مثال: 4101"},{key:"costCenter",label:"مركز التكلفة / المشروع"},{key:"unit",label:"وحدة القياس"},{key:"notes",label:"ملاحظات",type:"textarea"}];
   if(["products","services"].includes(active))fields.splice(4,0,{key:"purchasePrice",label:"سعر الشراء",type:"number"},{key:"cost",label:"التكلفة",type:"number"},{key:"salePrice",label:"سعر البيع",type:"number"},{key:"wastePct",label:"الهدر %",type:"number"},{key:"marginPct",label:"هامش مستهدف %",type:"number"});
-  const v=await SK.form("إضافة "+t.label,fields,{ok:"حفظ التعريف",message:"سيُحفظ داخل مساحة الشركة الحالية ويمكن استخدامه من بقية البوابات."});
+  if(active==="fixedAssets")fields=[
+    {key:"name",label:"اسم الأصل",required:true},{key:"code",label:"رقم / كود الأصل"},{key:"inServiceDate",label:"تاريخ وضع الأصل في الخدمة",type:"date",required:true},
+    {key:"cost",label:"التكلفة",type:"number",required:true},{key:"residualValue",label:"القيمة التخريدية",type:"number",value:"0"},
+    {key:"usefulLifeMonths",label:"العمر الإنتاجي بالأشهر",type:"number",required:true,placeholder:"مثال: 60"},
+    {key:"accountCode",label:"حساب الأصل",placeholder:"مثال: 1501"},{key:"accumAccount",label:"حساب مجمع الإهلاك",placeholder:"مثال: 1509"},
+    {key:"expenseAccount",label:"حساب مصروف الإهلاك",placeholder:"مثال: 6201"},{key:"costCenter",label:"مركز التكلفة / المشروع"},
+    {key:"notes",label:"ملاحظات",type:"textarea"}
+  ];
+  const v=await SK.form("إضافة "+t.label,fields,{ok:"حفظ التعريف",message:active==="fixedAssets"?"يُحسب الإهلاك بالقسط الثابت حتميًا. أي قيد يظهر بعد الحفظ هو مقترح فقط ولا يُرحّل تلقائيًا.":"سيُحفظ داخل مساحة الشركة الحالية ويمكن استخدامه من بقية البوابات."});
   if(!v)return;try{CP().addDefinition(active,v);toast("تمت إضافة "+v.name,"ok");paint(root)}catch(e){toast(e.message,"bad")}
+}
+async function showDepreciationProposal(id){
+  const asOf=asOfDate(),j=CP().fixedAssetJournal(asOf),p=j.proposals.find(x=>x.assetId===id);
+  if(!p){toast("لا يوجد إهلاك مستحق لهذا الأصل في الفترة الحالية","info");return}
+  const text=[
+    "قيد مقترح فقط — لا ترحيل تلقائي",
+    "المعيار المرجعي: "+p.standard,
+    "التاريخ: "+p.date,
+    "البيان: "+p.memo,
+    "",
+    "مدين: "+(p.lines[0].accountCode||"[حدد حساب مصروف الإهلاك]")+" — "+minorMoney(p.lines[0].debitMinor),
+    "دائن: "+(p.lines[1].accountCode||"[حدد حساب مجمع الإهلاك]")+" — "+minorMoney(p.lines[1].creditMinor),
+    "",
+    p.ready?"الحسابات محددة؛ راجع القيد ثم سجله من الدفاتر.":"القيد غير جاهز للتسجيل لأن حساب المصروف أو مجمع الإهلاك غير محدد."
+  ].join("\n");
+  try{CP().addStandardTrace({operation:"fixed-asset-depreciation-proposal",standard:"IAS 16",source:"deterministic straight-line schedule",result:p.memo+" · "+minorMoney(p.amountMinor),approved:false})}catch{}
+  await SK.form("مسودة قيد الإهلاك — "+p.assetName,[{key:"t",label:"المسودة",type:"textarea",value:text}],{ok:"إغلاق",cancel:"إغلاق"});
 }
 async function aiSuggest(id){
   const item=CP().definitions(active).find(x=>x.id===id);if(!item)return;
@@ -61,6 +103,7 @@ function bind(root){
     }
     if(e.target.closest("[data-md-add]")){await add(root);return}
     if(e.target.closest("[data-md-ledger]")){window.SKosifCore&&SKosifCore.go("ledger");return}
+    const dep=e.target.closest("[data-md-dep]");if(dep){await showDepreciationProposal(dep.dataset.mdDep);return}
     const del=e.target.closest("[data-md-del]");if(del&&await SK.confirm("حذف هذا التعريف من الشركة؟",{danger:true,ok:"حذف"})){CP().removeDefinition(active,del.dataset.mdDel);paint(root);return}
     const ai=e.target.closest("[data-md-ai]");if(ai){await aiSuggest(ai.dataset.mdAi)}
   });
