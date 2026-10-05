@@ -208,8 +208,7 @@
     "ai-confidence-exception-queue",
     "client-pbc-portal",
     "server-side-document-vault",
-    "pdf-word-structured-financial-extraction",
-    "per-workspace-sharing-acl"
+    "pdf-word-structured-financial-extraction"
   ],
   "implemented_in_pr_136": [
     "four-gateway-navigation",
@@ -1689,6 +1688,7 @@
     "deterministic-financial-statement-build",
     "explicit-reporting-to-audit-pbc-handoff",
     "standards-aware-journal-draft-review",
-    "77-capability-registry"
+    "77-capability-registry",
+    "server-workspace-security-explicit-access-and-sharing-acl"
   ]
 }
