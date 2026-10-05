@@ -127,12 +127,12 @@ try {
     check(`${tag}: a shortcut resumes the last company on its screen`, await page.evaluate(() => SKosifSpace.current().id === 'demo-co' && SKosifCore.view() === 'tbreview'), await page.evaluate(() => SKosifSpace.current().id + ' ' + SKosifCore.view()));
     /* 6. the private company never takes over another company's data: on a device that never held it, opening it
           (simulated here: a preview build has no password page) starts its own empty space */
-    await page.evaluate(() => { sessionStorage.setItem('sqc_company_intent', JSON.stringify({ id: 'co-private', name: 'قصيف', locked: true })); });
+    await page.evaluate(() => { sessionStorage.setItem('sqc_company_intent', JSON.stringify({ id: 'co-private', name: 'تصيف', locked: true })); });
     await page.goto(base + 'app-safe.html');
     await page.waitForFunction(() => window.SKosifSpace && SKosifSpace.current().id === 'space-private', null, { timeout: 60000 }).catch(() => {});
     await settled(page);
     const priv = await page.evaluate(async () => ({ id: SKosifSpace.current().id, bound: localStorage.getItem('sqc_private_space'), demo: SK.demo.active(), customers: ((r) => r.empty ? 0 : r.customers.length)(await SKosifSalesIntel.snapshot('all')), name: SK.company.current().name, inMenu: SK.company.list().filter((c) => c.id === 'demo-co').length }));
-    check(`${tag}: the private company gets its own empty space, never the demo data`, priv.id === 'space-private' && priv.bound === 'space-private' && priv.demo === false && priv.customers === 0 && priv.name === 'قصيف', JSON.stringify(priv));
+    check(`${tag}: the private company gets its own empty space, never the demo data`, priv.id === 'space-private' && priv.bound === 'space-private' && priv.demo === false && priv.customers === 0 && priv.name === 'تصيف', JSON.stringify(priv));
     await page.goto(base + 'index.html');
     await page.waitForSelector('#co-list .co', { timeout: 30000 });
     check(`${tag}: the private space is not an open card in the gallery`, await page.evaluate(() => ![...document.querySelectorAll('#co-list .co')].some((b) => b.dataset.id === 'space-private')));
