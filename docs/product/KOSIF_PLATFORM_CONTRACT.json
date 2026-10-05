@@ -1,0 +1,158 @@
+{
+  "version": "2026-10-05.v1",
+  "canonical_repository": "kosif199022-jpg/cloude",
+  "principle": "shared capabilities, isolated company data",
+  "gateways": [
+    {
+      "id": "accounting",
+      "label_ar": "البرنامج المحاسبي الكامل",
+      "required_capabilities": [
+        "companies",
+        "masterdata",
+        "ledger"
+      ]
+    },
+    {
+      "id": "reporting",
+      "label_ar": "مساعد القوائم والتقارير",
+      "required_capabilities": [
+        "reportingintake",
+        "execreports"
+      ]
+    },
+    {
+      "id": "audit",
+      "label_ar": "المراجعة الذكية",
+      "required_capabilities": [
+        "tbreview",
+        "auditinbox",
+        "codex"
+      ]
+    },
+    {
+      "id": "tools",
+      "label_ar": "الأدوات المساعدة",
+      "required_capabilities": [
+        "helperdesk",
+        "capabilitiesv2"
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "id": "company-front-door",
+      "status": "implemented",
+      "artifacts": [
+        "unlock.html",
+        "ui/core/company.js",
+        "ui/core/helper-space.js"
+      ]
+    },
+    {
+      "id": "taseef-sensitive-access",
+      "status": "implemented",
+      "artifacts": [
+        "unlock.html",
+        "build.py",
+        "capabilities-v2/worker.js"
+      ]
+    },
+    {
+      "id": "company-data-isolation",
+      "status": "implemented",
+      "artifacts": [
+        "ui/core/helper-space.js",
+        "ui/core/company-platform.js"
+      ]
+    },
+    {
+      "id": "accounting-core",
+      "status": "implemented-v1",
+      "artifacts": [
+        "ui/features/ledger.js",
+        "app/src/engine/fusion/finance"
+      ]
+    },
+    {
+      "id": "company-master-data",
+      "status": "implemented-v1",
+      "artifacts": [
+        "ui/features/master-data.js",
+        "ui/core/company-platform.js"
+      ]
+    },
+    {
+      "id": "reporting-assistant",
+      "status": "implemented-v1",
+      "artifacts": [
+        "ui/features/reporting-intake.js",
+        "app/src/engine/fusion/reports"
+      ]
+    },
+    {
+      "id": "multi-round-audit",
+      "status": "implemented-v1",
+      "artifacts": [
+        "ui/features/tb-review.js",
+        "ui/features/audit-inbox.js",
+        "app/src/engine/fusion/audit"
+      ]
+    },
+    {
+      "id": "independent-tools",
+      "status": "implemented-v1",
+      "artifacts": [
+        "ui/features/helper-center.js",
+        "ui/core/company-platform.js"
+      ]
+    },
+    {
+      "id": "shared-standards-layer",
+      "status": "implemented-v1",
+      "artifacts": [
+        "ui/core/standards.js",
+        "ui/features/codex.js"
+      ]
+    },
+    {
+      "id": "document-lineage",
+      "status": "implemented-v1",
+      "artifacts": [
+        "ui/core/company-platform.js",
+        "ui/features/reporting-intake.js"
+      ]
+    },
+    {
+      "id": "ai-evidence-human-gate",
+      "status": "implemented-v1",
+      "artifacts": [
+        "ui/core/company-platform.js",
+        "ui/features/helper-center.js",
+        "ui/features/ledger.js"
+      ]
+    },
+    {
+      "id": "company-natural-language-search",
+      "status": "implemented-v1",
+      "artifacts": [
+        "ui/features/assistant.js",
+        "ui/core/company-platform.js",
+        "ui/core/standards.js"
+      ]
+    },
+    {
+      "id": "github-capability-registry",
+      "status": "implemented-v1",
+      "artifacts": [
+        "docs/product/capability-source-registry.json",
+        "docs/product/CAPABILITY_SOURCE_REGISTRY_AR.md"
+      ]
+    }
+  ],
+  "authority_boundaries": [
+    "AI suggestions are non-authoritative until a human decision",
+    "audit handoff is not evidence acceptance",
+    "posted journal entries are corrected through controlled reversal/adjustment",
+    "external research backlog is not a shipped capability"
+  ]
+}
