@@ -129,3 +129,11 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Current non-conflicting sub-scopes: Read-only deep tracing of company/engagement storage, backup/restore and asynchronous import ownership; and audit TB parsing/reliance/report gates across audit-pro, Moon, SEE and cloude. Separate evidence batches will not mutate the sealed checkpoint.
 - Unfinished: Remaining file/subtree and branch inspection; rights/dependency checks; best-source comparisons; full migration decisions and acceptance evidence; lead reconciliation. Atlas folder metadata is not installed capability or full semantic review.
 - NEXT ACTION: Continue the two documented deep-review batches and append their source-linked findings to a subsequent reviewed checkpoint. Keep architecture-changing runtime work, repair composition and runtime publication held until the required inventory and lead coordination gates are met.
+
+### UPDATE DOT-INVENTORY-20261005-001 — Posting-contract inspection and checkpoint checks
+- Status: ACTIVE
+- Scope addition: Read-only source-to-posting/GL/TB and reconciliation inspection across cloude finance, sales, procurement and UI call sites, plus the pinned `new` finance-core and ALTAREEQ PR #2 candidates. This is an explicitly separated evidence batch; no product implementation or architectural selection.
+- Expected touch set: New local evidence/contract/coverage artifacts only until reviewed. No runtime file edits, source execution, real company data or provider calls.
+- Acceptance boundary: Proposed synthetic tests are descriptions, not executed results. Preserve existing partial reconciliations and useful implementations; record uninspected paths and defects without claiming an observed production incident.
+- PR #152 checks: The eight-document remote diff and contents are verified. Foundation Guard, Production Build and Windows smoke ended in failure before recorded job steps; logs were unavailable (BlobNotFound), so the cause is unverified and no CI pass is claimed. The configured Cloudflare integration created a successful branch preview automatically. The PR remains draft and unmerged.
+- NEXT ACTION: Finish source-linked audit/storage/posting batches, independently review their claims and proposed acceptance cases, then append a coordinated evidence checkpoint. No runtime publication follows from this log.
