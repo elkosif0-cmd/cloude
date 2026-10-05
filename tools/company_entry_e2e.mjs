@@ -12,6 +12,7 @@ const failures = []; let checks = 0;
 const check = (name, ok, info = '') => { checks++; if (!ok) failures.push(name + (info ? ' — ' + info : '')); };
 const appReady = (page) => page.waitForFunction(() => window.SK && window.SKosifCore && window.SKosifSpace && SK.demo && SK.demo.settled() && !document.querySelector('.skdemo-overlay') && !SKosifSpace.busy(), null, { timeout: 90000 });
 const settled = async (page) => { await appReady(page); await page.waitForTimeout(800); await appReady(page); };
+const overflow = (page) => page.evaluate(() => Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - document.documentElement.clientWidth);
 try {
   for (const [tag, opts] of [['laptop', { viewport: { width: 1440, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }]]) {
     const ctx = await browser.newContext(opts);
