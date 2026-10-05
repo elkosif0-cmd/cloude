@@ -1,17 +1,18 @@
 /* S.kosif — Product Flow Studio + commerce warm start.
-   The product's cost map: the product in the middle, what goes into its cost on one side and its price, margin, VAT
-   and break-even on the other. Every input comes from the pricing record through SKEngines.catalog.costMap (the
-   pricing engine's own formulas), so the map's cost reconciles to the catalogue's. A click on a box opens its formula
-   and its what-if; under the map: what-if, the drivers of the margin, the IAS 2 view and the controls. The source
-   screens stay the truth — the map never writes the pricing record. Custom boxes, positions and the what-if live
-   locally in skosif_product_flow_v1. */
+   The product's cost map on the shared studio shell (SK.studio): the product in the middle, what goes into its cost
+   on one side and its price, margin, VAT and break-even on the other. Every input comes from the pricing record
+   through SKEngines.catalog.costMap (the pricing engine's own formulas), so the map's cost reconciles to the
+   catalogue's. A click on a box opens its formula and its what-if; under the map: what-if, the drivers of the margin,
+   the IAS 2 view and the controls. The source screens stay the truth — the map never writes the pricing record.
+   Custom boxes, positions and the what-if live locally in skosif_product_flow_v1. The studio shell (layout, drag,
+   inspector, tabs) is SK.studio; this module owns only the numbers, the nodes and their details. */
 (()=>{
 "use strict";
 const {$,$$,esc,load,save,toast}=SK;
 const core=()=>window.SKosifCore;
 const CM=()=>window.SKEngines&&SKEngines.catalog&&SKEngines.catalog.costMap;
 const KEY="skosif_product_flow_v1",PRICING="aghnam-pricing-v3",LV=2;
-let root=null,selected="",drag=null,focus="",lastNarrow=null,lastWide=null;
+let root=null,ctl=null,selected="",cur=null;
 const COSTED=["component","packaging","expense"];
 const typeLabel={component:"مكوّن مقترح",packaging:"تعبئة مقترحة",expense:"مصروف مقترح",note:"ملاحظة",cost:"التكلفة",price:"سعر البيع",margin:"الهامش",vat:"الضريبة",breakeven:"نقطة التعادل",
   purchase:"الشراء",waste:"الهدر",raw:"مكوّن خام",box:"بوكس داخلي",overhead:"تكلفة إضافية",dish:"الصحون",other:"أخرى"};
@@ -34,8 +35,10 @@ const nameOf=x=>String(x.name??x.label??x.sku??"صنف");
 function state(){const d=load(KEY,{})||{};return{selected:String(d.selected||""),tab:String(d.tab||"whatif"),products:d.products&&typeof d.products==="object"?d.products:{},classes:d.classes&&typeof d.classes==="object"?d.classes:{}}}
 function put(d){save(KEY,d)}
 function ensureProduct(d,id){if(!d.products[id])d.products[id]={nodes:[],pos:{}};const p=d.products[id];p.nodes=Array.isArray(p.nodes)?p.nodes:[];return p}
-function update(fn){const d=state(),ps=ensureProduct(d,selected);fn(ps,d);put(d);paint()}
+function mutate(fn){const d=state(),ps=ensureProduct(d,selected);fn(ps,d);put(d)}
+function update(fn){mutate(fn);ctl&&ctl.paint()}
 const isDraft=n=>COSTED.includes(n.type)&&n0(n.unitCost)>0;
+const tagOf=n=>n.draft||n.custom?typeLabel[n.type]:n.line?(lineTag[n.type]||typeLabel[n.type]):typeLabel[n.type]||"المنتج";
 
 /* ---- the numbers: the pricing record through the cost-map engine; the catalogue's totals when the record lacks the product ---- */
 function mapFor(x,classes){
@@ -54,13 +57,20 @@ function ctxOf(x,d){
   const checks=E?E.costChecks(m,{catalogCost:m.fallback?null:(x.cost!=null?Number(x.cost):null),drafts:drafts.length}):[];
   return{x,m,ps,w,wi,sc,checks,drafts,E,iv:E?E.inventoryView(m):null,sens:E?E.sensitivity(m):[],ceil:E?E.costCeiling(m):null};
 }
+/* the product of this paint: the selection settled, the context computed once */
+function prepare(){
+  const items=itemList();if(!items.length){cur=null;return null}
+  const d=state();if(!selected||!items.some(x=>itemId(x)===selected))selected=d.selected&&items.some(x=>itemId(x)===d.selected)?d.selected:itemId(items[0]);
+  const x=items.find(i=>itemId(i)===selected)||items[0];selected=itemId(x);if(d.selected!==selected){d.selected=selected;put(d)}
+  cur={items,x,k:ctxOf(x,d)};return cur;
+}
 
-/* ---- nodes and layout ---- */
+/* ---- nodes ---- */
 function buildNodes(k){
   const {x,m,ps,sc}=k,changed=sc&&sc.changed>0,rows=new Map((sc?sc.rows:[]).map(r=>[r.key,r]));
   const alt=(a,b,f)=>changed&&b!=null&&Math.abs(a-b)>0.004?f(b):"";
   const has=new Set((ps.nodes||[]).map(n=>n.type));
-  const nodes=[{id:"product",type:"product",role:"product",label:nameOf(x),value:(m.kind==="box"?"بوكس":"صنف خام")+(m.weight&&m.kind==="box"?" · "+fmt(m.weight,3)+" كجم":"")}];
+  const nodes=[{id:"product",type:"product",role:"center",label:nameOf(x),value:(m.kind==="box"?"بوكس":"صنف خام")+(m.weight&&m.kind==="box"?" · "+fmt(m.weight,3)+" كجم":"")}];
   nodes.push({id:"cost",type:"cost",role:"cost",label:"التكلفة",value:money(m.total),alt:alt(m.total,sc&&sc.total,money)});
   nodes.push({id:"price",type:"price",role:"output",label:"سعر البيع",value:m.hasPrice?money(m.price)+" شامل":"بلا سعر",alt:alt(m.price,sc&&sc.price,money)});
   nodes.push({id:"margin",type:"margin",role:"output",label:"الهامش",band:m.band,value:m.margin!=null?pct(m.margin*100)+" · ربح "+money(m.profit):"—",alt:changed&&sc.deltaMarginPts?pct((sc.margin||0)*100)+" ("+pts(sc.deltaMarginPts)+")":""});
@@ -73,47 +83,19 @@ function buildNodes(k){
   const dAmt=new Map((sc?sc.drafts:[]).map(d=>[d.id,d.amount]));
   (ps.nodes||[]).forEach(n=>{
     if(["cost","price","margin","vat","breakeven"].includes(n.type))return;
-    if(isDraft(n))nodes.push({id:n.id,type:n.type,role:"input",draft:true,custom:n,label:n.label,share:m.total>0?(dAmt.get(n.id)||0)/m.total:0,value:money(dAmt.get(n.id)||0)+" · مقترح"});
-    else nodes.push({id:n.id,type:n.type,role:"note",custom:n,legacy:COSTED.includes(n.type),label:n.label,value:n.value||(COSTED.includes(n.type)?"أضف الكمية والتكلفة ليُحتسب":"")});
+    if(isDraft(n))nodes.push({id:n.id,type:n.type,role:"input",draft:true,custom:n,del:true,label:n.label,share:m.total>0?(dAmt.get(n.id)||0)/m.total:0,value:money(dAmt.get(n.id)||0)+" · مقترح"});
+    else nodes.push({id:n.id,type:n.type,role:"note",custom:n,del:true,legacy:COSTED.includes(n.type),label:n.label,value:n.value||(COSTED.includes(n.type)?"أضف الكمية والتكلفة ليُحتسب":"")});
   });
+  nodes.forEach(n=>{n.tag=tagOf(n)});
   return nodes;
 }
-function spread(j,k,a,b,gap){if(k<=1)return(a+b)/2;const step=Math.min(gap,(b-a)/(k-1));return(a+b)/2+(j-(k-1)/2)*step}
-function layout(nodes,W,narrow){
-  const P={},ins=nodes.filter(n=>n.role==="input"),outs=nodes.filter(n=>n.role==="output"),notes=nodes.filter(n=>n.role==="note");
-  if(!narrow){
-    const H=Math.max(610,ins.length*128+80,outs.length*130+80),xm=Math.min(14,86/W*100),col=k=>100-xm-(100-2*xm)*k/3,gy=128/H*100;
-    ins.forEach((n,i)=>P[n.id]=[col(0),spread(i,ins.length,9,91,gy)]);
-    P.cost=[col(1),notes.length?42:50];P.product=[col(2),notes.length?42:50];
-    outs.forEach((n,i)=>P[n.id]=[col(3),spread(i,outs.length,14,86,Math.max(gy,22))]);
-    notes.forEach((n,i)=>P[n.id]=[spread(i%3,Math.min(3,notes.length-Math.floor(i/3)*3),col(2)-20,col(1)+2,24),84-Math.floor(i/3)*(gy)]);
-    return{P,H};
-  }
-  const two=(list,start,R)=>list.forEach((n,i)=>{const last=i===list.length-1&&i%2===0;P[n.id]=[last?50:(i%2?27:73),(start+Math.floor(i/2)+.5)/R*100]});
-  const ri=Math.ceil(ins.length/2),ro=Math.ceil(outs.length/2),rn=Math.ceil(notes.length/2),R=ri+2+ro+rn;
-  two(ins,0,R);P.cost=[50,(ri+.5)/R*100];P.product=[50,(ri+1.5)/R*100];two(outs,ri+2,R);two(notes,ri+2+ro,R);
-  return{P,H:R*118+24};
-}
-function nodeHtml(n,p){
-  const del=!!n.custom,cls=["pf-node","pf-"+n.type,n.draft?"pf-draft":"",n.legacy?"pf-legacy":"",n.alt?"pf-changed":"",focus===n.id?"pf-focus":"",n.band?"pf-band-"+n.band:""].filter(Boolean).join(" ");
-  const tag=n.draft||n.custom?typeLabel[n.type]:n.line?(lineTag[n.type]||typeLabel[n.type]):typeLabel[n.type]||"المنتج";
-  return '<div class="'+cls+'" data-node="'+esc(n.id)+'" data-x="'+p[0]+'" data-y="'+p[1]+'" style="left:'+p[0]+'%;top:'+p[1]+'%" tabindex="0" role="button" aria-label="'+esc(n.label+" — "+(n.value||""))+'">'+
-    (del?'<button type="button" class="pf-del" data-pf="delete" data-id="'+esc(n.id)+'" aria-label="حذف">×</button>':'')+
-    '<span class="pf-ntag">'+esc(tag)+'</span><b>'+esc(n.label)+'</b>'+(n.value?'<small>'+esc(n.value)+'</small>':'')+(n.sub?'<small class="pf-sub">'+esc(n.sub)+'</small>':'')+
-    (n.alt?'<small class="pf-alt">ماذا لو: '+esc(n.alt)+'</small>':'')+(n.share!=null&&n.role==="input"?'<i class="pf-share" style="--w:'+Math.max(2,Math.round(n.share*100))+'%"></i>':'')+'</div>';
-}
-function edgeOf(n){return n.role==="input"?[n.id,"cost"]:n.role==="cost"?["cost","product"]:n.role==="note"?[n.id,"product"]:n.id==="price"?["product","price"]:n.id==="breakeven"?["cost",n.id]:["price",n.id]}
-function edgesHtml(nodes,pos){
-  return '<svg class="pf-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'+nodes.filter(n=>n.id!=="product").map(n=>{
-    const [a,b]=edgeOf(n),A=pos[a],B=pos[b];if(!A||!B)return"";
-    const w=n.role==="input"?(1.2+Math.min(1,n.share||0)*8).toFixed(1):"1.6",c=n.role==="input"?(n.draft?"pf-e-draft":"pf-e-in"):n.role==="note"?"pf-e-note":"pf-e-out";
-    return '<line class="'+c+'" data-a="'+esc(a)+'" data-b="'+esc(b)+'" x1="'+A[0]+'" y1="'+A[1]+'" x2="'+B[0]+'" y2="'+B[1]+'" style="stroke-width:'+w+'px"/>'}).join("")+'</svg>';
-}
+/* the product's own wiring: inputs feed the cost, the cost feeds the product, the price hangs off the product and
+   the margin and VAT off the price; break-even off the cost */
+function edgeOf(n){return n.role==="center"?null:n.role==="input"?[n.id,"cost"]:n.role==="cost"?["cost","product"]:n.role==="note"?[n.id,"product"]:n.id==="price"?["product","price"]:n.id==="breakeven"?["cost",n.id]:["price",n.id]}
 
-/* ---- side panel: add, inspector, links ---- */
-function group(title,desc,body,open=true){return '<details class="pf-group"'+(open&&innerWidth>900?' open':'')+'><summary><span><b>'+esc(title)+'</b><small>'+esc(desc)+'</small></span><span class="pf-chev">⌄</span></summary><div class="pf-groupb">'+body+'</div></details>'}
+/* ---- side panel: add, links, the new-item form ---- */
 function addButtons(k){
-  const has=new Set((k.ps.nodes||[]).map(n=>n.type)),bad=k.checks.filter(c=>c.level==="bad"||c.level==="warn").length;
+  const {group}=SK.studio,has=new Set((k.ps.nodes||[]).map(n=>n.type)),bad=k.checks.filter(c=>c.level==="bad"||c.level==="warn").length;
   const btn=(t,l,ic,dis)=>'<button type="button" class="pf-add" data-pf="add-type" data-type="'+t+'"'+(dis?' disabled':'')+'>'+SK.icon(ic||"action")+'<span>'+l+'</span></button>';
   const tb=(t,l,ic,badge)=>'<button type="button" class="pf-add" data-pf="tab" data-tab="'+t+'">'+SK.icon(ic)+'<span>'+l+(badge?' <em class="pf-badge">'+badge+'</em>':'')+'</span></button>';
   return group("المؤشرات","أضف ما تريد رؤيته على الخريطة",btn("breakeven","نقطة التعادل","sim",has.has("breakeven"))+btn("vat","الضريبة","zatca",has.has("vat"))+btn("note","ملاحظة","memo"),true)+
@@ -121,9 +103,9 @@ function addButtons(k){
     group("التحليل والرقابة","تحت الخريطة، محسوب من السجل",tb("whatif","ماذا لو","calc")+tb("drivers","ما يحرّك الهامش","sensitivity")+tb("ias2","المخزون IAS 2","nrv")+tb("checks","الرقابة","check",bad),true);
 }
 function linkGroups(){
-  const b=(id,l,ic)=>'<button type="button" class="pf-link" data-pf="go" data-go="'+id+'">'+SK.icon(ic||id)+'<span>'+l+'</span></button>';
-  return group("الشاشات المرتبطة","بدل تكرار الأدوات، افتح الأصل من هنا",b("catalog","الأصناف والأسعار")+b("costs","التكاليف")+b("sim","التسعير")+b("builder","المكونات والبوكسات")+b("memo","اعتماد السعر"),false)+
-    group("تحليل متقدم","الأدوات الدقيقة عند الحاجة فقط",b("kernel","نواة التسعير")+b("analyzer","تحليل المكونات")+b("compare","المقارنة التحليلية"),false);
+  const {group,link}=SK.studio;
+  return group("الشاشات المرتبطة","بدل تكرار الأدوات، افتح الأصل من هنا",link("catalog","الأصناف والأسعار")+link("costs","التكاليف")+link("sim","التسعير")+link("builder","المكونات والبوكسات")+link("memo","اعتماد السعر"),false)+
+    group("تحليل متقدم","الأدوات الدقيقة عند الحاجة فقط",link("kernel","نواة التسعير")+link("analyzer","تحليل المكونات")+link("compare","المقارنة التحليلية"),false);
 }
 const fld=(id,label,val,attrs="")=>'<label class="sk-field"><span>'+label+'</span><input id="'+id+'" value="'+esc(val??"")+'" '+attrs+'></label>';
 function formHtml(){return '<div class="pf-form" id="pf-form" hidden><b class="pf-formt" id="pf-formt">عنصر جديد</b>'+fld("pf-label","الاسم","",'placeholder="مثال: علبة فلين"')+
@@ -132,11 +114,12 @@ function formHtml(){return '<div class="pf-form" id="pf-form" hidden><b class="p
   '<label class="sk-field pf-exp-only"><span>الاحتساب</span><select id="pf-method"><option value="unit">مبلغ للوحدة</option><option value="pct">٪ من تكلفة المكونات</option></select></label></div>'+
   '<label class="sk-field pf-note-only"><span>النص</span><input id="pf-value" placeholder="مثال: يُراجع السعر كل شهر"></label>'+
   '<div class="sk-actions"><button type="button" class="btn primary sm" data-pf="save-node">إضافة للخريطة</button><button type="button" class="btn sm" data-pf="cancel-node">إلغاء</button></div></div>'}
-function formula(list){return list&&list.length?'<ol class="pf-formula">'+list.map(s=>'<li>'+esc(s)+'</li>').join("")+'</ol>':""}
-function kv(rows){return '<dl class="pf-kv">'+rows.filter(Boolean).map(([a,b,c])=>'<div'+(c?' class="'+c+'"':'')+'><dt>'+esc(a)+'</dt><dd>'+b+'</dd></div>').join("")+'</dl>'}
-function inspHtml(k,nodes){
-  const n=nodes.find(z=>z.id===focus);if(!n)return"";
-  const {m,sc,w,E}=k,head='<div class="pf-insph"><span class="pf-ntag">'+esc(n.custom?typeLabel[n.type]:n.line?(lineTag[n.type]||typeLabel[n.type]):typeLabel[n.type]||"المنتج")+'</span><b>'+esc(n.label)+'</b><button type="button" class="pf-x" data-pf="focus-close" aria-label="إغلاق">×</button></div>';
+function sideHtml(){const k=cur&&cur.k;if(!k)return"";return '<div class="pf-sidehead"><b>إضافة إلى الخريطة</b><small>المجموعات مرتبة، والمكرر لا يظهر مرتين.</small></div>'+formHtml()+addButtons(k)+linkGroups()}
+
+/* ---- inspector: the focused box, its formula, its what-if ---- */
+function inspHtml(fid,nodes){
+  const k=cur&&cur.k,n=nodes.find(z=>z.id===fid);if(!k||!n)return"";
+  const {kv,formula,inspHead}=SK.studio,{m,sc,w,E}=k,head=inspHead(tagOf(n),n.label);
   let body="";
   if(n.line){
     const l=n.line,ch=(w.lines||{})[l.key]||{},wi=(key,label,val,ph)=>'<label class="sk-field"><span>'+label+'</span><input data-wi="'+key+'" data-key="'+esc(l.key)+'" value="'+esc(val??"")+'" placeholder="'+esc(ph)+'" inputmode="decimal"></label>';
@@ -178,7 +161,7 @@ function inspHtml(k,nodes){
     body=kv([["النوع",m.kind==="box"?"بوكس":"صنف خام"],m.weight&&m.kind==="box"?["الوزن",fmt(m.weight,3)+" كجم"]:null,m.dishes?["الصحون",fmt(m.dishes,0)]:null,["عدد عناصر التكلفة",String(m.lines.length)],["التصنيف",esc(m.band==="ex"?"ممتاز":m.band==="good"?"جيد":m.band==="low"?"ضعيف":m.band==="loss"?"خسارة":m.band==="by"?"منتج ثانوي":"—")]])+
       (m.fallback?'':'<div class="sk-actions"><button type="button" class="btn sm" data-pf="open-src" data-id="'+esc(m.id)+'">فتح في السجل</button></div>');
   }
-  return '<section class="pf-insp'+(innerWidth>900?'':' card')+'" aria-live="polite">'+head+body+'</section>';
+  return head+body;
 }
 
 /* ---- under the map: what-if, drivers, IAS 2, controls ---- */
@@ -211,38 +194,7 @@ function ias2Html(k){
     row("القيمة الدفترية للوحدة: الأقل منهما (IAS 2.9)",money(iv.carrying))+row("التخفيض المطلوب (IAS 2.28)",iv.writeDown>0?money(iv.writeDown):"لا يوجد",iv.writeDown>0?"pf-bad":"pf-ok")+'</tbody></table>'+
     '<p class="pf-hint">التسعير يستخدم التكلفة الكاملة (بما فيها التوصيل)، أما تقييم المخزون في القوائم فيستخدم تكلفة IAS 2 فقط. غيّر تصنيف أي مصروف من مربعه على الخريطة.</p>';
 }
-function checksHtml(k){
-  if(!k.checks.length)return '<p class="pf-empty">لا توجد ملاحظات.</p>';
-  const ic={bad:"alert",warn:"alert",info:"action",ok:"check"};
-  return '<ul class="pf-checks">'+k.checks.map(c=>'<li class="pf-chk pf-'+c.level+'">'+SK.icon(ic[c.level]||"action")+'<span>'+esc(c.text)+'</span></li>').join("")+'</ul>';
-}
-function analysisHtml(k,tab){
-  const bad=k.checks.filter(c=>c.level==="bad"||c.level==="warn").length;
-  const T=[["whatif","ماذا لو"],["drivers","ما يحرّك الهامش"],["ias2","المخزون IAS 2"],["checks","الرقابة"+(bad?" ("+bad+")":"")]];
-  const body=tab==="drivers"?driversHtml(k):tab==="ias2"?ias2Html(k):tab==="checks"?checksHtml(k):whatIfHtml(k);
-  return '<section class="pf-analysis card" id="pf-analysis"><div class="pf-tabs" role="tablist">'+T.map(([id,l])=>'<button type="button" role="tab" aria-selected="'+(id===tab)+'" class="pf-tab'+(id===tab?" on":"")+'" data-pf="tab" data-tab="'+id+'">'+esc(l)+'</button>').join("")+'</div><div class="pf-tabb">'+body+'</div></section>';
-}
-
-/* ---- paint ---- */
-function isNarrow(){const rw=root.clientWidth||innerWidth;return(innerWidth>900?rw-326:rw)<600}
-function paint(){
-  if(!root)return;const items=itemList();
-  if(!items.length){root.innerHTML=SK.ui.state.empty({icon:"catalog",title:"لا توجد أصناف بعد",text:"أضف أول صنف من سجل الأسعار، ثم ارجع إلى خريطة المنتج لربطه بالتكلفة والبيع والمكونات.",action:"فتح الأصناف",act:"nav",value:"catalog"});return}
-  const d=state();if(!selected||!items.some(x=>itemId(x)===selected))selected=d.selected&&items.some(x=>itemId(x)===d.selected)?d.selected:itemId(items[0]);
-  const x=items.find(i=>itemId(i)===selected)||items[0];selected=itemId(x);if(d.selected!==selected){d.selected=selected;put(d)}
-  const k=ctxOf(x,d),nodes=buildNodes(k),narrow=isNarrow(),wide=innerWidth>900;lastNarrow=narrow;lastWide=wide;
-  if(focus&&!nodes.some(n=>n.id===focus))focus="";
-  const W=Math.max(320,(innerWidth>900?(root.clientWidth||innerWidth)-326:(root.clientWidth||innerWidth))),L=layout(nodes,W,narrow);
-  const saved=k.ps.lv===LV?(narrow?k.ps.posN:k.ps.pos)||{}:{},pos={};
-  nodes.forEach(n=>{const p=saved[n.id];pos[n.id]=p&&Number.isFinite(+p.x)&&Number.isFinite(+p.y)?[+p.x,+p.y]:(L.P[n.id]||[50,50])});
-  const m=k.m,rec=k.checks.find(c=>c.code==="reconciled"||c.code==="unreconciled"),tab=d.tab||"whatif";
-  root.innerHTML='<div class="pf-shell"><section class="pf-head card"><div><span class="pf-eyebrow">PRODUCT COST MAP</span><h2>خريطة المنتج والتكلفة</h2><p>كل مربع محسوب من سجل الأصناف: ما يدخل في التكلفة ثم المنتج ثم السعر والهامش. اضغط أي مربع لترى معادلته وجرّب «ماذا لو» دون تغيير السجل.</p></div><div class="pf-select"><label for="pf-product">المنتج</label><select id="pf-product">'+items.map(i=>'<option value="'+esc(itemId(i))+'"'+(itemId(i)===selected?' selected':'')+'>'+esc(nameOf(i))+(i.kind==="box"?" · بوكس":"")+'</option>').join("")+'</select></div></section>'+
-    '<div class="pf-work"><div class="pf-main"><section class="pf-board card"><div class="pf-boardtop"><div><b>'+esc(nameOf(x))+'</b><small>اسحب المربعات لترتيبها، واضغط أي مربع لتفاصيله</small></div><div class="pf-mini"><span>تكلفة '+money(m.total)+'</span><span>بيع '+(m.hasPrice?money(m.price):"—")+'</span><span class="pf-m-'+esc(m.band)+'">هامش '+(m.margin!=null?pct(m.margin*100):"—")+'</span>'+
-    (rec?'<span class="pf-rec pf-'+rec.level+'" title="'+esc(rec.text)+'">'+(rec.level==="ok"?"✓ مطابق للسجل":"فرق عن السجل")+'</span>':'')+'<button type="button" class="pf-relayout" data-pf="relayout" title="إعادة ترتيب المربعات">ترتيب تلقائي</button></div></div>'+
-    '<div class="pf-canvas" id="pf-canvas" style="min-height:'+L.H+'px">'+edgesHtml(nodes,pos)+nodes.map(n=>nodeHtml(n,pos[n.id])).join("")+'</div></section>'+(wide?'':inspHtml(k,nodes))+analysisHtml(k,tab)+'</div>'+
-    '<aside class="pf-side card">'+(wide?inspHtml(k,nodes):'')+'<div class="pf-sidehead"><b>إضافة إلى الخريطة</b><small>المجموعات مرتبة، والمكرر لا يظهر مرتين.</small></div>'+formHtml()+addButtons(k)+linkGroups()+'</aside></div></div>';
-  bindDrag();
-}
+function tabBody(tab){const k=cur&&cur.k;if(!k)return"";return tab==="drivers"?driversHtml(k):tab==="ias2"?ias2Html(k):tab==="checks"?SK.studio.checks(k.checks):whatIfHtml(k)}
 
 /* ---- actions ---- */
 function addType(type){
@@ -260,7 +212,7 @@ function saveNode(){
   if(COSTED.includes(type)){const unit=numIn($("#pf-unit",f).value);if(unit==null||unit<=0){toast("أدخل تكلفة الوحدة ليدخل العنصر في الحساب","warn");return}
     Object.assign(node,{qty:numIn($("#pf-qty",f).value)||1,unitCost:unit,vat:$("#pf-vat",f).value,method:type==="expense"?$("#pf-method",f).value:"unit"})}
   else node.value=$("#pf-value",f).value.trim();
-  focus=node.id;update(ps=>{ps.nodes.push(node)});toast("أُضيف «"+label+"» إلى الخريطة"+(COSTED.includes(type)?" — أثره في «ماذا لو»":""),"ok");
+  mutate(ps=>{ps.nodes.push(node)});ctl.focus(node.id);toast("أُضيف «"+label+"» إلى الخريطة"+(COSTED.includes(type)?" — أثره في «ماذا لو»":""),"ok");
 }
 function saveEdit(){
   const box=$(".pf-edit",root);if(!box)return;const id=box.dataset.id;
@@ -269,49 +221,51 @@ function saveEdit(){
     if(COSTED.includes(n.type)){const u=numIn(g("#pf-e-unit")?.value),q=numIn(g("#pf-e-qty")?.value);if(u!=null&&u>=0)n.unitCost=u;if(q!=null&&q>0)n.qty=q;n.vat=g("#pf-e-vat")?.value||"excl";if(g("#pf-e-method"))n.method=g("#pf-e-method").value}});
   toast("حُفظ","ok");
 }
-function delNode(id){if(focus===id)focus="";update(ps=>{ps.nodes=ps.nodes.filter(n=>n.id!==id);[ps.pos,ps.posN].forEach(p=>{if(p)delete p[id]})})}
+function delNode(id){mutate(ps=>{ps.nodes=ps.nodes.filter(n=>n.id!==id);[ps.pos,ps.posN].forEach(p=>{if(p)delete p[id]})})}
 function setWhatIf(fn){update(ps=>{ps.whatIf=ps.whatIf||{};fn(ps.whatIf,ps)})}
 function onChange(e){
   const t=e.target;
-  if(t.id==="pf-product"){selected=t.value;focus="";const d=state();d.selected=selected;put(d);paint();return}
   if(t.id==="pf-wi-price"||t.id==="pf-wi-price2"){const v=numIn(t.value);setWhatIf(w=>{if(v&&v>0)w.price=v;else delete w.price});return}
   if(t.id==="pf-wi-cost"){const v=numIn(t.value);setWhatIf(w=>{if(v)w.costPct=v;else delete w.costPct});return}
   if(t.id==="pf-wi-target"){const v=numIn(t.value);setWhatIf(w=>{if(v!=null&&v>=0&&v<95)w.target=v;else delete w.target});return}
   if(t.id==="pf-fixed"){const v=numIn(t.value);update(ps=>{if(v&&v>0)ps.fixed=v;else delete ps.fixed});return}
   if(t.dataset.wi){const key=t.dataset.key,f=t.dataset.wi,v=numIn(t.value);setWhatIf(w=>{w.lines=w.lines||{};const c=w.lines[key]||{};if(v==null||(f==="unitPct"&&v===0))delete c[f];else c[f]=v;if(Object.keys(c).length)w.lines[key]=c;else delete w.lines[key]});return}
-  if(t.dataset.pfCls){const id=t.dataset.pfCls,v=t.value,d=state();d.classes[id]=v;put(d);paint();toast("صُنّف كـ«"+CLS[v]+"» في عرض IAS 2","ok")}
+  if(t.dataset.pfCls){const id=t.dataset.pfCls,v=t.value,d=state();d.classes[id]=v;put(d);ctl.paint();toast("صُنّف كـ«"+CLS[v]+"» في عرض IAS 2","ok")}
 }
-function bind(node){
-  node.addEventListener("change",onChange);
-  node.addEventListener("click",e=>{const b=e.target.closest("[data-pf]");if(!b)return;const a=b.dataset.pf;
-    if(a==="add-type")addType(b.dataset.type);else if(a==="save-node")saveNode();else if(a==="cancel-node"){$("#pf-form",root).hidden=true}
-    else if(a==="delete"){e.stopPropagation();delNode(b.dataset.id)}else if(a==="go")core().go(b.dataset.go)
-    else if(a==="tab"){const d=state();d.tab=b.dataset.tab;put(d);paint();$("#pf-analysis",root)?.scrollIntoView({block:"nearest",behavior:"smooth"})}
-    else if(a==="focus-close"){focus="";paint()}else if(a==="focus"){focus=b.dataset.id;paint()}
-    else if(a==="open-src"){if(!core().openItem||!core().openItem(b.dataset.id))core().go("catalog")}
-    else if(a==="save-edit")saveEdit();else if(a==="wi-reset")update(ps=>{delete ps.whatIf})
-    else if(a==="use-target"){const d=state(),x=itemList().find(i=>itemId(i)===selected);if(!x)return;const k=ctxOf(x,d),p=k.sc&&k.sc.target;if(p)setWhatIf(w=>{w.price=p})}
-    else if(a==="relayout")update(ps=>{ps.lv=LV;if(isNarrow())ps.posN={};else ps.pos={}})});
-  node.addEventListener("keydown",e=>{const n=e.target.closest&&e.target.closest(".pf-node");if(n&&(e.key==="Enter"||e.key===" ")&&e.target===n){e.preventDefault();focus=n.dataset.node;paint();$(".pf-insp",root)?.scrollIntoView({block:"nearest"})}});
-  let t=0;addEventListener("resize",()=>{clearTimeout(t);t=setTimeout(()=>{if(root&&root.isConnected&&$("#pf-canvas",root)&&(isNarrow()!==lastNarrow||(innerWidth>900)!==lastWide))paint()},180)});
+function onAction(a,b){
+  if(a==="add-type")addType(b.dataset.type);else if(a==="save-node")saveNode();else if(a==="cancel-node"){const f=$("#pf-form",root);if(f)f.hidden=true}
+  else if(a==="open-src"){if(!core().openItem||!core().openItem(b.dataset.id))core().go("catalog")}
+  else if(a==="save-edit")saveEdit();else if(a==="wi-reset")update(ps=>{delete ps.whatIf})
+  else if(a==="use-target"){const p=cur&&cur.k.sc&&cur.k.sc.target;if(p)setWhatIf(w=>{w.price=p})}
+  else return false;
+  return true;
 }
-function bindDrag(){
-  const canvas=$("#pf-canvas",root);if(!canvas)return;
-  $$(".pf-node",canvas).forEach(n=>n.addEventListener("pointerdown",e=>{
-    if(e.target.closest(".pf-del")||e.button>0)return;e.preventDefault();n.setPointerCapture&&n.setPointerCapture(e.pointerId);drag={node:n,id:n.dataset.node,pid:e.pointerId,sx:e.clientX,sy:e.clientY,moved:false};
-  }));
-  canvas.addEventListener("pointermove",e=>{if(!drag||e.pointerId!==drag.pid)return;
-    if(!drag.moved&&Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<5)return;drag.moved=true;drag.node.classList.add("dragging");
-    const r=canvas.getBoundingClientRect(),x=Math.max(6,Math.min(94,(e.clientX-r.left)/r.width*100)),y=Math.max(5,Math.min(95,(e.clientY-r.top)/r.height*100));
-    drag.node.style.left=x+"%";drag.node.style.top=y+"%";drag.node.dataset.x=x.toFixed(2);drag.node.dataset.y=y.toFixed(2);
-    const id=CSS.escape(drag.id);$$('.pf-lines line[data-a="'+id+'"]',canvas).forEach(l=>{l.setAttribute("x1",x);l.setAttribute("y1",y)});$$('.pf-lines line[data-b="'+id+'"]',canvas).forEach(l=>{l.setAttribute("x2",x);l.setAttribute("y2",y)})});
-  const end=e=>{if(!drag||e.pointerId!==drag.pid)return;const g=drag;drag=null;g.node.classList.remove("dragging");
-    if(!g.moved){if(e.type==="pointerup"){focus=focus===g.id?"":g.id;paint();if(focus&&innerWidth<=900)$(".pf-insp",root)?.scrollIntoView({block:"nearest",behavior:"smooth"})}return}
-    const narrow=isNarrow(),d=state(),ps=ensureProduct(d,selected);if(ps.lv!==LV){ps.lv=LV;ps.pos={};ps.posN={}}
-    const all={};$$(".pf-node",canvas).forEach(n=>all[n.dataset.node]={x:+n.dataset.x,y:+n.dataset.y});
-    if(narrow)ps.posN=all;else ps.pos=all;put(d)};
-  canvas.addEventListener("pointerup",end);canvas.addEventListener("pointercancel",end);
-}
+
+/* ---- the spec the studio shell draws ---- */
+const SPEC={
+  eyebrow:"PRODUCT COST MAP",title:"خريطة المنتج والتكلفة",lead:"كل مربع محسوب من سجل الأصناف: ما يدخل في التكلفة ثم المنتج ثم السعر والهامش. اضغط أي مربع لترى معادلته وجرّب «ماذا لو» دون تغيير السجل.",
+  subjectLabel:"المنتج",
+  subject(){
+    const c=prepare();
+    if(!c)return{empty:SK.ui.state.empty({icon:"catalog",title:"لا توجد أصناف بعد",text:"أضف أول صنف من سجل الأسعار، ثم ارجع إلى خريطة المنتج لربطه بالتكلفة والبيع والمكونات.",action:"فتح الأصناف",act:"nav",value:"catalog"})};
+    const m=c.k.m,rec=c.k.checks.find(x=>x.code==="reconciled"||x.code==="unreconciled");
+    return{label:nameOf(c.x),sub:"اسحب المربعات لترتيبها، واضغط أي مربع لتفاصيله",pills:'<span>تكلفة '+money(m.total)+'</span><span>بيع '+(m.hasPrice?money(m.price):"—")+'</span><span class="pf-m-'+esc(m.band)+'">هامش '+(m.margin!=null?pct(m.margin*100):"—")+'</span>'+
+      (rec?'<span class="pf-rec pf-'+rec.level+'" title="'+esc(rec.text)+'">'+(rec.level==="ok"?"✓ مطابق للسجل":"فرق عن السجل")+'</span>':'')};
+  },
+  subjects:()=>(cur?cur.items:itemList()).map(i=>({id:itemId(i),name:nameOf(i),note:i.kind==="box"?"بوكس":""})),
+  selected:()=>selected,
+  onSelect(id){selected=String(id||"");const d=state();d.selected=selected;put(d);ctl.paint()},
+  nodes:()=>cur?buildNodes(cur.k):[],
+  edgeOf,inspector:inspHtml,side:sideHtml,
+  tabs:()=>{const bad=cur?cur.k.checks.filter(c=>c.level==="bad"||c.level==="warn").length:0;return[["whatif","ماذا لو"],["drivers","ما يحرّك الهامش"],["ias2","المخزون IAS 2"],["checks","الرقابة"+(bad?" ("+bad+")":"")]]},
+  tab:{get:()=>state().tab||"whatif",set:id=>{const d=state();d.tab=id;put(d)}},
+  tabBody,
+  positions:{get:nr=>{const d=state(),ps=ensureProduct(d,selected);return ps.lv===LV?(nr?ps.posN:ps.pos)||{}:{}},
+    set:(nr,all)=>mutate(ps=>{if(ps.lv!==LV){ps.lv=LV;ps.pos={};ps.posN={}}if(nr)ps.posN=all;else ps.pos=all}),
+    reset:nr=>mutate(ps=>{ps.lv=LV;if(nr)ps.posN={};else ps.pos={}})},
+  onChange,onAction,onDelete:delNode
+};
+
 /* Commerce: the old screen exposes a manual “load full …” action. On first entry we invoke that
    data-loading action once when it is present, then remember the warm start on this device. */
 const WARM="skosif_commerce_warm_v1";
@@ -324,7 +278,7 @@ function warmCommerce(node){
   };
   const ok=tryLoad();if(!ok){setTimeout(()=>{if(!tryLoad())setTimeout(tryLoad,450)},120)}
 }
-SK.view("productflow",{render(node){root=node;if(!node.dataset.bound){bind(node);node.dataset.bound="1"}paint()}});
+SK.view("productflow",{render(node){root=node;ctl=SK.studio.mount(node,SPEC);ctl.paint()}});
 function boot(){const c=core();if(!c||!c.onView){setTimeout(boot,250);return}c.onView("commerce",node=>setTimeout(()=>warmCommerce(node),0))}
 boot();
 })();

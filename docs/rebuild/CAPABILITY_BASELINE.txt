@@ -75,3 +75,4 @@ jesim	محاكي القيود
 benchmarks	المقارنة بالشركات العالمية
 advances	السلف والدفعات المقدمة
 legacyapps	الأنظمة الأصلية
+customerflow	استوديو العميل

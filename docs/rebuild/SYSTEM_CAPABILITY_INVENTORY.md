@@ -2,7 +2,7 @@
 
 Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do not edit by hand.
 
-Total capabilities: **74** (screens). Cross-cutting capabilities are listed after the table.
+Total capabilities: **75** (screens). Cross-cutting capabilities are listed after the table.
 
 | ID | Capability | Module | Current Location | Data Used | Dependencies | Status | Keep/Remove/Merge/Rebuild |
 |---|---|---|---|---|---|---|---|
@@ -20,6 +20,7 @@ Total capabilities: **74** (screens). Cross-cutting capabilities are listed afte
 | `commerce` | الطلبات والتحصيل | core | المبيعات والعملاء › الطلبات والفوترة › يومي | `IDB orders`, `IDB order_items`, `IDB payments`, `IDB ops_orders` | SKosifCore, Engine, IndexedDB | Working | Keep |
 | `zatca` | نقطة البيع والفاتورة الضريبية | ui/enterprise.js | المبيعات والعملاء › الطلبات والفوترة › يومي | `skosif_v32_cart` | SKosifCore | Working | Keep |
 | `customers` | العملاء | core | المبيعات والعملاء › العملاء والائتمان › يومي | `IDB customers`, `IDB sales_lines`, `IDB imports` | SKosifCore, Engine, IndexedDB | Working | Keep |
+| `customerflow` | استوديو العميل | ui/features/customer-flow.js + components/studio.js | المبيعات والعملاء › العملاء والائتمان › يومي | `IDB customers`, `IDB sales_lines`, `IDB orders`, `IDB payments`, `skosif_followup_v1`, `skosif_customer_flow_v1` | SKosifCore, IndexedDB | Working | New |
 | `followup` | متابعة العملاء | ui/features/followup.js | المبيعات والعملاء › العملاء والائتمان › يومي | `skosif_followup_v1`, `IDB customers` | SKosifCore, IndexedDB | Working | Rebuild |
 | `b2bcredit` | ائتمان المطاعم | ui/enterprise.js | المبيعات والعملاء › العملاء والائتمان › يومي | `skosif_v38_ledger` | SKosifCore | Working | Keep |
 | `offers` | العروض والكتالوج | ui/offers.js | المبيعات والعملاء › يومي | `skosif_v32_offers`, `skosif_v32_cart`, `skosif_v32_cols` | SKosifCore | Working | Keep |

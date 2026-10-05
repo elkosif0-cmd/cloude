@@ -21,11 +21,13 @@ const p = await ctx.newPage();
 const errs = []; p.on('pageerror', (e) => errs.push(e.message));
 for (const start of ['first start', 'later start']) {
   await p.goto(URL_, { waitUntil: 'load' });
-  await p.waitForFunction(() => window.SKosifCore && document.querySelector('.topbar') && !document.querySelector('.skdemo-overlay'), undefined, { timeout: 90000 });
-  await p.waitForTimeout(2500);
-  const r = await p.evaluate(() => JSON.parse(sessionStorage.getItem('early_api') || '{}'));
+  /* the first start fills the sample data and reloads; wait until the demo reports itself settled on a booted page, and
+     if a reload still lands in between, wait for the new page and ask again */
+  const booted = () => p.waitForFunction(() => window.SKosifCore && document.querySelector('.topbar') && !document.querySelector('.skdemo-overlay') && (!window.SK || !SK.demo || SK.demo.settled()), undefined, { timeout: 90000 });
+  const settled = async (fn) => { for (let i = 0; i < 4; i++) { await booted(); await p.waitForTimeout(i ? 1500 : 2500); try { return await p.evaluate(fn); } catch (e) { if (i === 3 || !/SKosifCore|Execution context|navigation/.test(String(e.message))) throw e; } } };
+  const r = await settled(() => JSON.parse(sessionStorage.getItem('early_api') || '{}'));
   ok(`${start}: stats(), catalog() and raws() answer before the core has booted`, ['stats', 'catalog', 'raws'].every((k) => r[k] === 'ok'), JSON.stringify(r));
-  ok(`${start}: the core then boots and its stats are real`, await p.evaluate(() => SKosifCore.stats().boxes >= 0 && typeof SKosifCore.stats().target === 'number'));
+  ok(`${start}: the core then boots and its stats are real`, await settled(() => SKosifCore.stats().boxes >= 0 && typeof SKosifCore.stats().target === 'number'));
 }
 ok('no page errors', !errs.length, [...new Set(errs)].slice(0, 3).join(' | '));
 await browser.close();

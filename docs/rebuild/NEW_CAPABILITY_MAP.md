@@ -20,6 +20,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | الطلبات والتحصيل | `commerce` | المبيعات والعملاء › الطلبات والفوترة › الطلبات والتحصيل | CORE | admin, accountant, sales |
 | الفاتورة الضريبية | `zatca` | المبيعات والعملاء › الطلبات والفوترة › نقطة البيع والفاتورة الضريبية | CORE | admin, accountant, sales |
 | السوق والعملاء | `customers` | المبيعات والعملاء › العملاء والائتمان › العملاء | CORE | admin, accountant, sales |
+| تعميم «استوديو المنتج» (البند E من برنامج الشركة أولاً) | `customerflow` | المبيعات والعملاء › العملاء والائتمان › استوديو العميل | CORE | admin, accountant, sales |
 | متابعة العملاء الاحترافية V8.2 (وحدة v25 crm) | `followup` | المبيعات والعملاء › العملاء والائتمان › متابعة العملاء | CORE | admin, accountant, sales |
 | ائتمان المطاعم | `b2bcredit` | المبيعات والعملاء › العملاء والائتمان › ائتمان المطاعم | MANAGEMENT | admin, accountant, sales |
 | العروض والكتالوج | `offers` | المبيعات والعملاء › العروض والكتالوج | CORE | admin, accountant, sales, viewer |
@@ -103,7 +104,7 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | المنتج والتكلفة | الملصقات والباركود | `labels` ملصقات الموازين · `scanner` ماسح الباركود |
 | المبيعات والعملاء | خريطة العملاء والمبيعات | `salesmap` خريطة العملاء وتحليل المبيعات |
 | المبيعات والعملاء | الطلبات والفوترة | `commerce` الطلبات والتحصيل · `zatca` نقطة البيع والفاتورة الضريبية |
-| المبيعات والعملاء | العملاء والائتمان | `customers` العملاء · `followup` متابعة العملاء · `b2bcredit` ائتمان المطاعم |
+| المبيعات والعملاء | العملاء والائتمان | `customers` العملاء · `customerflow` استوديو العميل · `followup` متابعة العملاء · `b2bcredit` ائتمان المطاعم |
 | المبيعات والعملاء | العروض والكتالوج | `offers` العروض والكتالوج |
 | المبيعات والعملاء | المناسبات والتشغيل | `operations` المناسبات والتشغيل |
 | المبيعات والعملاء | ذكاء المبيعات والطلب | `salesintel` ذكاء المبيعات · `intelligence` ذكاء العملاء والطلب · `economics` اقتصاديات الطلب |
@@ -124,15 +125,15 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | Jev والقرار | مركز القرار | `decision` مركز القرار |
 | Jev والقرار | Jev ومجلس القرار | `jev` Jev للقرار · `council` مجلس القرار |
 
-74 screens in 36 menu entries.
+75 screens in 36 menu entries.
 
 ## By tier
 
-- **CORE** — العمل اليومي الأساسي (22): `dash`, `notifications`, `salesmap`, `commerce`, `zatca`, `customers`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `jesim`, `cash`, `receivables`, `advances`, `ptree`, `productflow`, `catalog`, `sim`, `builder`, `tbreview`
+- **CORE** — العمل اليومي الأساسي (23): `dash`, `notifications`, `salesmap`, `commerce`, `zatca`, `customers`, `customerflow`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `jesim`, `cash`, `receivables`, `advances`, `ptree`, `productflow`, `catalog`, `sim`, `builder`, `tbreview`
 - **MANAGEMENT** — الإدارة والمتابعة (12): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `benchmarks`, `memo`, `execreports`, `archive`, `codex`, `auditbench`, `corpuslab`
 - **INTELLIGENCE** — التحليل والذكاء (7): `decision`, `jev`, `council`, `salesintel`, `intelligence`, `economics`, `compare`
 - **ADVANCED** — الهندسة المتقدمة (17): `risklab`, `sensitivity`, `carcass`, `yieldlab`, `nrv`, `finance`, `costs`, `kernel`, `analyzer`, `auditdesk`, `auditdocs`, `auditissues`, `auditcouncil`, `auditfin`, `auditreport`, `auditanalytics`, `auditlab`
 - **UTILITIES** — أدوات مساعدة (11): `helperdesk`, `blending`, `culinary`, `labels`, `scanner`, `smartmatch`, `excelrecon`, `reports`, `exports`, `devices`, `legacyapps`
 - **ADMIN** — النظام والإدارة (5): `settings`, `companies`, `governance`, `health`, `capabilitiesv2`
 
-Coverage gate: 74 screens in 8 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
+Coverage gate: 75 screens in 8 domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.

@@ -1,0 +1,8 @@
+/* Customer Studio — what the customer studio adds on top of the shared studio (components/studio.css):
+   the colours of its node types and the search box in the picker */
+.pf-orders,.pf-payments,.pf-product,.pf-channel{border-inline-start:4px solid var(--sk-info)}
+.pf-payments{border-inline-start-color:var(--sk-ok)}
+.pf-segment,.pf-cadence,.pf-monthly,.pf-receivables,.pf-followup{border-inline-start:4px solid var(--sk-ok)}
+.pf-select #pf-q{margin-bottom:6px}
+.pf-mini .pf-p-ok{background:var(--sk-ok-soft);border-color:var(--sk-ok)}
+.pf-mini .pf-p-info{background:var(--sk-info-soft);border-color:var(--sk-info)}
