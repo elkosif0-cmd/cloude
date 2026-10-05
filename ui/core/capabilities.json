@@ -1,6 +1,6 @@
 {
  "version": 3,
- "note": "Single source of truth for SQC screens. User-facing navigation is organized under four gateways: the complete accounting program, financial statements & reporting assistant, intelligent multi-round audit system, and independent helper tools. The legacy eight groups remain as internal studios/subgroups for compatibility, company scoping and deep links. Command palette, permissions and rebuild docs are generated from this registry.",
+ "note": "Single source of truth for SQC screens. FOUNDATION §3: user-facing navigation has exactly three entries (section first) — the complete accounting program (sector → company), audit, and helper tools. Reporting, analysis, Jev, settings and the standards library are cross-cutting layers: a screen lists the other entries it is shared with in \"also\"; it is never a fourth gateway. The legacy eight groups remain as internal studios/subgroups for compatibility, company scoping and deep links. Command palette, permissions and rebuild docs are generated from this registry.",
  "tiers": {
   "CORE": "العمل اليومي الأساسي",
   "MANAGEMENT": "الإدارة والمتابعة",
@@ -246,7 +246,11 @@
    "kw": "الرئيسية لوحة العمل home",
    "adv": false,
    "en": "Command Center",
-   "gateway": "tools"
+   "gateway": "tools",
+   "also": [
+    "accounting",
+    "audit"
+   ]
   },
   {
    "id": "tasks",
@@ -267,7 +271,11 @@
    "feeds": [
     "notifications"
    ],
-   "gateway": "tools"
+   "gateway": "tools",
+   "also": [
+    "accounting",
+    "audit"
+   ]
   },
   {
    "id": "notifications",
@@ -288,7 +296,11 @@
    "kw": "إشعارات تنبيهات جرس غير مقروءة notifications alerts bell",
    "adv": false,
    "en": "Notifications",
-   "gateway": "tools"
+   "gateway": "tools",
+   "also": [
+    "accounting",
+    "audit"
+   ]
   },
   {
    "id": "risks",
@@ -309,7 +321,11 @@
     "tasks",
     "decision"
    ],
-   "gateway": "tools"
+   "gateway": "tools",
+   "also": [
+    "accounting",
+    "audit"
+   ]
   },
   {
    "id": "helperdesk",
@@ -357,7 +373,11 @@
     "council",
     "tasks"
    ],
-   "gateway": "tools"
+   "gateway": "tools",
+   "also": [
+    "accounting",
+    "audit"
+   ]
   },
   {
    "id": "jev",
@@ -380,7 +400,11 @@
    "feeds": [
     "council"
    ],
-   "gateway": "tools"
+   "gateway": "tools",
+   "also": [
+    "accounting",
+    "audit"
+   ]
   },
   {
    "id": "council",
@@ -398,7 +422,11 @@
    "hub": "jev",
    "adv": false,
    "en": "Decision Council",
-   "gateway": "tools"
+   "gateway": "tools",
+   "also": [
+    "accounting",
+    "audit"
+   ]
   },
   {
    "id": "risklab",
@@ -416,7 +444,10 @@
    "kw": "مخاطر مونت كارلو",
    "adv": false,
    "en": "Risk & Profit Bridge",
-   "gateway": "reporting"
+   "gateway": "accounting",
+   "also": [
+    "tools"
+   ]
   },
   {
    "id": "sensitivity",
@@ -434,7 +465,10 @@
    "kw": "حساسية سيناريو",
    "adv": false,
    "en": "Sensitivity Lab",
-   "gateway": "reporting"
+   "gateway": "accounting",
+   "also": [
+    "tools"
+   ]
   },
   {
    "id": "salesmap",
@@ -743,7 +777,10 @@
     "traceability",
     "blending"
    ],
-   "gateway": "accounting"
+   "gateway": "accounting",
+   "also": [
+    "tools"
+   ]
   },
   {
    "id": "traceability",
@@ -765,7 +802,10 @@
    "feeds": [
     "inventory"
    ],
-   "gateway": "accounting"
+   "gateway": "accounting",
+   "also": [
+    "tools"
+   ]
   },
   {
    "id": "suppliers",
@@ -790,7 +830,10 @@
     "inventory",
     "carcass"
    ],
-   "gateway": "accounting"
+   "gateway": "accounting",
+   "also": [
+    "tools"
+   ]
   },
   {
    "id": "purchasing",
@@ -812,7 +855,10 @@
     "inventory",
     "ledger"
    ],
-   "gateway": "accounting"
+   "gateway": "accounting",
+   "also": [
+    "tools"
+   ]
   },
   {
    "id": "blending",
@@ -1000,7 +1046,10 @@
     "costs",
     "cash"
    ],
-   "gateway": "reporting"
+   "gateway": "accounting",
+   "also": [
+    "tools"
+   ]
   },
   {
    "id": "receivables",
@@ -1060,7 +1109,10 @@
    "kw": "تعادل حساسية",
    "adv": false,
    "en": "Financial Engineering",
-   "gateway": "reporting"
+   "gateway": "accounting",
+   "also": [
+    "tools"
+   ]
   },
   {
    "id": "ptree",
@@ -1386,7 +1438,10 @@
     "execreports",
     "tbreview"
    ],
-   "gateway": "reporting"
+   "gateway": "accounting",
+   "also": [
+    "tools"
+   ]
   },
   {
    "id": "execreports",
@@ -1409,7 +1464,10 @@
    "feeds": [
     "decision"
    ],
-   "gateway": "reporting"
+   "gateway": "accounting",
+   "also": [
+    "tools"
+   ]
   },
   {
    "id": "reports",
@@ -1428,7 +1486,10 @@
    "kw": "طباعة تقرير pdf",
    "adv": false,
    "en": "Print Center",
-   "gateway": "reporting"
+   "gateway": "accounting",
+   "also": [
+    "tools"
+   ]
   },
   {
    "id": "exports",
@@ -1446,7 +1507,10 @@
    "hub": "reports",
    "adv": false,
    "en": "Export Center",
-   "gateway": "reporting"
+   "gateway": "accounting",
+   "also": [
+    "tools"
+   ]
   },
   {
    "id": "archive",
@@ -1465,7 +1529,10 @@
    "adv": false,
    "en": "Archive & Changes",
    "hubLabel": "الأرشيف والأنظمة الأصلية",
-   "gateway": "reporting"
+   "gateway": "accounting",
+   "also": [
+    "tools"
+   ]
   },
   {
    "id": "tbreview",
@@ -1534,7 +1601,10 @@
    "feeds": [
     "tbreview"
    ],
-   "gateway": "audit"
+   "gateway": "audit",
+   "also": [
+    "accounting"
+   ]
   },
   {
    "id": "auditbench",
@@ -1555,7 +1625,10 @@
    "feeds": [
     "tbreview"
    ],
-   "gateway": "audit"
+   "gateway": "audit",
+   "also": [
+    "accounting"
+   ]
   },
   {
    "id": "corpuslab",
@@ -1577,7 +1650,10 @@
     "tbreview",
     "auditbench"
    ],
-   "gateway": "audit"
+   "gateway": "audit",
+   "also": [
+    "accounting"
+   ]
   },
   {
    "id": "auditdesk",
@@ -1733,7 +1809,10 @@
    "kw": "معايير مختبر",
    "adv": false,
    "en": "Standards Lab",
-   "gateway": "audit"
+   "gateway": "audit",
+   "also": [
+    "accounting"
+   ]
   },
   {
    "id": "settings",
@@ -1752,7 +1831,11 @@
    "kw": "إعداد نسخة احتياطية مظهر",
    "adv": false,
    "en": "Settings & Appearance",
-   "gateway": "tools"
+   "gateway": "tools",
+   "also": [
+    "accounting",
+    "audit"
+   ]
   },
   {
    "id": "devices",
@@ -1772,7 +1855,11 @@
    "kw": "آيفون ايفون iphone لابتوب laptop ماك mac ويندوز تثبيت نقل مزامنة airdrop اختصارات لوحة مفاتيح شريط سفلي devices sync",
    "adv": false,
    "en": "Devices & Sync",
-   "gateway": "tools"
+   "gateway": "tools",
+   "also": [
+    "accounting",
+    "audit"
+   ]
   },
   {
    "id": "companies",
@@ -1795,7 +1882,10 @@
     "tbreview"
    ],
    "gateway": "accounting",
-   "hubLabel": "إعداد الشركة والتعريفات"
+   "hubLabel": "إعداد الشركة والتعريفات",
+   "also": [
+    "tools"
+   ]
   },
   {
    "id": "masterdata",
@@ -1820,7 +1910,10 @@
     "suppliers"
    ],
    "gateway": "accounting",
-   "company": true
+   "company": true,
+   "also": [
+    "tools"
+   ]
   },
   {
    "id": "governance",
@@ -1839,7 +1932,11 @@
    "kw": "حوكمة تدقيق سجل",
    "adv": false,
    "en": "Governance & Readiness",
-   "gateway": "tools"
+   "gateway": "tools",
+   "also": [
+    "accounting",
+    "audit"
+   ]
   },
   {
    "id": "health",
@@ -1858,7 +1955,11 @@
    "kw": "تشخيص أخطاء",
    "adv": false,
    "en": "Health & Diagnostics",
-   "gateway": "tools"
+   "gateway": "tools",
+   "also": [
+    "accounting",
+    "audit"
+   ]
   },
   {
    "id": "capabilitiesv2",
@@ -1877,7 +1978,11 @@
    "kw": "صلاحيات دور سحابة",
    "adv": false,
    "en": "Permissions & Workspaces",
-   "gateway": "tools"
+   "gateway": "tools",
+   "also": [
+    "accounting",
+    "audit"
+   ]
   },
   {
    "id": "legacyapps",
@@ -1900,33 +2005,103 @@
     "salesintel"
    ],
    "hub": "archive",
-   "gateway": "reporting"
+   "gateway": "accounting",
+   "also": [
+    "tools"
+   ]
   }
  ],
  "gateways": [
   {
    "id": "accounting",
    "label": "البرنامج المحاسبي الكامل",
+   "short": "المحاسبة",
    "icon": "ledger",
-   "sub": "تسجيل وترحيل ودفاتر وأرصدة وذمم ومشتريات ومخزون وضريبة وإقفال ومطابقات"
-  },
-  {
-   "id": "reporting",
-   "label": "مساعد القوائم والتقارير",
-   "icon": "execreports",
-   "sub": "إعداد القوائم والتحليلات والتقارير من بيانات الشركة أو البيانات المرفوعة، مع التصدير والتتبّع"
+   "home": "ledger",
+   "sub": "القطاع ثم الشركة: دليل الحسابات والقيود والأستاذ والذمم والمخزون والضريبة والإقفال والقوائم والتقارير والتحليل — كلها مترابطة"
   },
   {
    "id": "audit",
-   "label": "نظام المراجعة الذكي",
+   "label": "المراجعة والتدقيق",
+   "short": "المراجعة",
    "icon": "tbreview",
-   "sub": "ملف مراجعة متعدد الجولات، طلب أدلة، مجلس AI، اختبارات، معايير واعتمادات بشرية"
+   "home": "tbreview",
+   "sub": "ملف مراجعة مستقل: ارفع القوائم والميزان والمستندات، جولات المراجعة ومجلس AI وJev، ثم التقرير — وشركات الحزمة المرجعية للمقارنة"
   },
   {
    "id": "tools",
-   "label": "الأدوات المساعدة المستقلة",
+   "label": "الأدوات المساعدة",
+   "short": "الأدوات",
    "icon": "helperdesk",
-   "sub": "قدرات مستقلة مشتركة يمكن استخدامها أو إضافتها للشركة دون خلطها تلقائياً بملف المراجعة"
+   "home": "helperdesk",
+   "sub": "أدوات تعمل مستقلة أو تُركّب داخل شركة: التكاليف والتسعير، العملاء، الموردون والمخزون، المطابقات، التحليل والتنبؤ، Jev"
+  }
+ ],
+ "sectors": [
+  {
+   "id": "health",
+   "label": "المستشفيات والرعاية الصحية",
+   "icon": "health",
+   "priority": true,
+   "sub": "مراكز تكلفة الأقسام، التأمين والمطالبات، الصيدلية والمختبر، تكلفة الحالة"
+  },
+  {
+   "id": "hospitality",
+   "label": "الفنادق والضيافة",
+   "icon": "operations",
+   "priority": true,
+   "sub": "الغرف والإشغال، F&B، الودائع، قنوات الحجز، الإقفال الليلي"
+  },
+  {
+   "id": "construction",
+   "label": "المقاولات والمشروعات",
+   "icon": "builder",
+   "priority": true,
+   "sub": "العقود والمستخلصات ونسب الإنجاز وWIP والمحتجزات"
+  },
+  {
+   "id": "meat",
+   "label": "اللحوم والتجزئة المرتبطة",
+   "icon": "carcass",
+   "priority": true,
+   "sub": "الأوزان والمردود، التقطيع والهدر، الدفعات والتتبع البارد، تكلفة الكيلو"
+  },
+  {
+   "id": "digital",
+   "label": "التسويق الإلكتروني",
+   "icon": "salesintel",
+   "priority": true,
+   "sub": "العملاء والحملات والقنوات، الإنفاق الإعلاني، Retainer، الربحية حسب الحملة"
+  },
+  {
+   "id": "education",
+   "label": "التعليم",
+   "icon": "tasks",
+   "sub": "السنوات والفصول، الرسوم والتحصيل، المنح، ذمم الطلاب"
+  },
+  {
+   "id": "manufacturing",
+   "label": "المصانع",
+   "icon": "kernel",
+   "sub": "BOM وأوامر التشغيل، تحت التشغيل، التكلفة المعيارية والانحرافات"
+  },
+  {
+   "id": "bakery",
+   "label": "المخابز",
+   "icon": "culinary",
+   "sub": "الوصفات ودفعات الإنتاج، المردود والتالف والصلاحية"
+  },
+  {
+   "id": "agriculture",
+   "label": "الزراعة والمزارع",
+   "icon": "yieldlab",
+   "sub": "المواسم والحظائر كمراكز تكلفة، الأعلاف، النفوق، تكلفة الدورة"
+  },
+  {
+   "id": "trade",
+   "label": "التجارة والخدمات العامة",
+   "icon": "commerce",
+   "sub": "فروع ومستودعات، شراء وبيع، هوامش ومخزون وائتمان — وكل نشاط آخر"
   }
  ]
 }

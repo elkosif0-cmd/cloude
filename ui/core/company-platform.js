@@ -130,7 +130,8 @@ function removeDefinition(type,id){
 function installed(id){return state().installedTools.includes(id)}
 function setTool(id,on){
   const cap=SK.caps&&SK.caps.get?SK.caps.get(id):null;
-  if(!cap||cap.gateway!=="tools")throw new Error("الأداة ليست ضمن بوابة الأدوات المستقلة");
+  /* a tool is anything the helper-tools entry offers: its own screens and the screens shared with it (suppliers, inventory, reports…) */
+  if(!cap||!(SK.caps.inGatewayOf?SK.caps.inGatewayOf(cap,"tools"):cap.gateway==="tools"))throw new Error("الأداة ليست ضمن بوابة الأدوات المساعدة");
   const s=state(),set=new Set(s.installedTools);on?set.add(id):set.delete(id);s.installedTools=[...set];
   commit(s,on?"tool.install":"tool.remove",{capabilityId:id});return on;
 }

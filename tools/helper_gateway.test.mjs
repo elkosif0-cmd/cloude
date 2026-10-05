@@ -10,10 +10,14 @@ import test from 'node:test';
 const root = process.env.GATEWAY_SOURCE_ROOT || fileURLToPath(new URL('../', import.meta.url));
 const read = name => fs.readFileSync(path.join(root, name), 'utf8');
 const raw = JSON.parse(read('ui/core/capabilities.json'));
-const positions = { product: [50, 12], customer: [84, 32], decision: [78, 76] };
+/* FOUNDATION §3.3: suppliers, inventory, reports and analysis are tools too (shared with the tools entry through "also") */
+const positions = { product: [50, 12], customer: [84, 32], supply: [78, 76], books: [22, 76], reports: [16, 32], decision: [50, 88] };
 const sectionTargets = {
   product: ['blending', 'carcass', 'ptree', 'productflow', 'labels'],
   customer: ['salesmap', 'customers', 'offers', 'operations', 'salesintel'],
+  supply: ['inventory', 'suppliers'],
+  books: ['risklab', 'benchmarks', 'finance'],
+  reports: ['reportingintake', 'execreports', 'reports', 'archive'],
   decision: ['jev', 'council', 'decision', 'sensitivity', 'risks'],
 };
 const esc = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
@@ -80,13 +84,14 @@ function assertTopology(instance, expected) {
   }
 }
 
-test('all three current helper sections have matching edges', () => {
-  assertTopology(app(), ['product', 'customer', 'decision']);
+const ALL = ['product', 'customer', 'supply', 'books', 'reports', 'decision'];
+test('all six helper sections have matching edges', () => {
+  assertTopology(app(), ALL);
 });
 test('no permitted targets renders no nodes and no edges', () => {
   assertTopology(app({ allowed: [] }), []);
 });
-for (const [section, id] of [['product', 'productflow'], ['customer', 'operations'], ['decision', 'risks']]) {
+for (const [section, id] of [['product', 'productflow'], ['customer', 'operations'], ['supply', 'suppliers'], ['books', 'finance'], ['reports', 'archive'], ['decision', 'risks']]) {
   test(`only ${section} retains its original position and one edge`, () => {
     assertTopology(app({ allowed: [id] }), [section]);
   });
@@ -109,16 +114,16 @@ test('repeat render and role change recompute topology without duplicate click h
   instance.render();
   instance.context.SK.perm.setRole('viewer');
   instance.render();
-  assertTopology(instance, ['product', 'customer', 'decision']);
+  assertTopology(instance, Object.entries(sectionTargets).filter(([, ids]) => ids.some(id => instance.context.SK.perm.can(id))).map(([id]) => id));
   assert.equal(instance.listeners.length, 1);
   instance.listeners[0].fn({ target: { closest: () => ({ dataset: { hdGo: 'productflow' } }) } });
   assert.deepEqual(instance.navigation, ['productflow']);
 });
-test('four gateways and all 75 unique registered capabilities remain navigable by their IDs', () => {
+test('three entries (FOUNDATION §3) and every registered capability remain navigable by their IDs', () => {
   const { SK } = app().context;
-  assert.deepEqual(Array.from(SK.caps.gateways(), g => g.id), ['accounting', 'reporting', 'audit', 'tools']);
-  assert.equal(SK.caps.all().length, 75);
-  assert.equal(new Set(SK.caps.all().map(c => c.id)).size, 75);
+  assert.deepEqual(Array.from(SK.caps.gateways(), g => g.id), ['accounting', 'audit', 'tools']);
+  assert.equal(SK.caps.all().length, raw.capabilities.length);
+  assert.equal(new Set(SK.caps.all().map(c => c.id)).size, raw.capabilities.length);
   for (const cap of raw.capabilities) {
     const actual = SK.caps.get(cap.id);
     assert.ok(actual, `preserved ID ${cap.id}`);

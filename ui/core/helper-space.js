@@ -13,6 +13,11 @@ const REG="sqc_helper_space_v1",ASKED="sqc_space_chosen",USERS="sqc_helper_users
 /* the front door (index.html): its one-time choice, the last company opened, and the space that holds the private
    company's data (it opens only through the front door's password, never as an open card) */
 const INTENT="sqc_company_intent",LAST="sqc_last_company",PRIVATE="sqc_private_space",AFTER="sqc_company_after_open";
+/* the entry chosen at the door (FOUNDATION §3: accounting · audit · tools) and a bundle company chosen at the audit door —
+   read by ui/core/gate.js */
+const GATE="sqc_gate",GATE_CORPUS="sqc_gate_corpus",GATE_PIN="sqc_gate_pin";
+const gateOf=g=>{g=String(g||"");return SK.caps&&SK.caps.gateway&&SK.caps.gateway(g)?g:""};
+const sessionGate=()=>{try{return sessionStorage.getItem(GATE)||""}catch{return ""}};
 /* the helper tools' own data — per company */
 const HELPER_KEY=k=>/^aghnam(?!-v12-theme|-pricing-auth|-pricing-pass|-pricing-ui|-typesafe|-v17-runtime|-v19-(leader|tabs|write)|-v21-)/.test(k)&&!/^aghnam_v29_jev_log$/.test(k)
   ||/^skosif_(v3\d|v38)_/.test(k)||/^skosif_(ledger_v1|advances_v1|erp_[a-z_]+|purchasing_v1|followup_v1|inv_[a-z_]+|rep_pl|report_pack_v1|ar_paste|commerce_warm_v1|cost_rules_v1|income_statements_v1|product_flow_v1|ops_[a-z_]+|company_profile_v1|company_definitions_v1|company_tools_v1|reporting_intake_v1)$/.test(k)
@@ -251,25 +256,38 @@ function rename(id,name){name=String(name||"").trim();if(!id||!name)return false
   const r=reg();if(r.spaces[id]){r.spaces[id]={...r.spaces[id],name};setReg(r)}
   try{const l=JSON.parse(localStorage.getItem(LAST)||"null");if(l&&l.id===id)localStorage.setItem(LAST,JSON.stringify({...l,name}))}catch{}
   return true}
-function rememberLast(id,name,locked){try{localStorage.setItem(LAST,JSON.stringify({id,name,locked:!!locked,at:new Date().toISOString()}))}catch{}}
+/* the last company opened, with the entry it was opened through (the door resumes both) */
+function rememberLast(id,name,locked,gate=sessionGate()){try{localStorage.setItem(LAST,JSON.stringify({id,name,locked:!!locked,gate:gateOf(gate)||undefined,at:new Date().toISOString()}))}catch{}}
 async function applyIntent(){
   let it=null;try{it=JSON.parse(sessionStorage.getItem(INTENT)||"null");sessionStorage.removeItem(INTENT)}catch{}
   if(!it||typeof it!=="object")return false;
   sessionStorage.setItem(ASKED,"1");sessionStorage.setItem(USER_ASKED,"1");
+  /* the entry chosen at the door: the shell paints that section's menu, and its first screen opens — unless the link
+     already names a screen, or the company is new to the accounting entry (its definitions come first, FOUNDATION §3.2) */
+  const gate=gateOf(it.gate);if(gate)sessionStorage.setItem(GATE,gate);
+  if(it.corpus&&gate==="audit")sessionStorage.setItem(GATE_CORPUS,String(it.corpus).slice(0,80));
+  const landing=()=>{if(!gate)return "";if(it.create&&gate==="accounting")return "masterdata";return SK.caps.gatewayHome?SK.caps.gatewayHome(gate):""};
+  /* the landing is pinned: the screen the app restores first (the last one opened, maybe of another section) must not
+     switch the section before the section's own screen arrives (ui/core/gate.js, shell.js) */
+  const land=()=>{if(location.search||location.hash)return;const to=landing();if(to){sessionStorage.setItem(AFTER,to);sessionStorage.setItem(GATE_PIN,to)}};
   const cur=current();
   if(it.locked){
     /* the private company = the data this device held before the front door existed (the space «space-main», open now or
        kept as a snapshot); a device that never held it gets a space of its own — never the demo or another company's data */
     let pid=localStorage.getItem(PRIVATE),fresh=false;
     if(!pid){const known=!!((user().spaces||{})["space-main"]);pid=cur.id==="space-main"||known?"space-main":"space-private";fresh=pid==="space-private";localStorage.setItem(PRIVATE,pid)}
-    const name=String(it.name||"").trim()||cur.name;rememberLast(pid,name,true);
+    const name=String(it.name||"").trim()||cur.name;rememberLast(pid,name,true,gate);land();
     if(pid!==cur.id)await switchTo(pid,name,{fresh:fresh&&!(user().spaces||{})[pid],demo:false});
     return true;
   }
   const id=String(it.id||"").trim(),name=String(it.name||"").trim()||id;if(!id)return false;
-  if(it.create){const cd=load("skosif_companies_v1",{})||{};cd.companies=cd.companies||[];cd.periods=cd.periods||[];
-    if(!cd.companies.some(c=>c&&c.id===id))cd.companies.push({id,name,country:"SA",currency:"SAR"});save("skosif_companies_v1",cd)}
-  rememberLast(id,name,false);
+  /* the sector the company was chosen or created under (FOUNDATION §3.7); a company recorded before sectors existed takes it */
+  const sector=SK.caps&&SK.caps.sector&&SK.caps.sector(it.sector)?String(it.sector):"";
+  const cd=load("skosif_companies_v1",{})||{};cd.companies=cd.companies||[];cd.periods=cd.periods||[];
+  const rec=cd.companies.find(c=>c&&c.id===id);
+  if(it.create&&!rec){cd.companies.push({id,name,country:"SA",currency:"SAR",sector:sector||"trade"});save("skosif_companies_v1",cd)}
+  else if(rec&&sector&&!rec.sector){rec.sector=sector;save("skosif_companies_v1",cd)}
+  rememberLast(id,name,false,gate);land();
   if(id!==cur.id)await switchTo(id,name,{fresh:!!it.create,demo:it.create?false:undefined});
   return true;
 }

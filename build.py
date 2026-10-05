@@ -8,10 +8,21 @@ MODE=build_mode()  # production, or preview: no private data at all (see build_m
 # The front door is the company gallery (unlock.html). A production build keeps the private company's locked card
 # and the reviewed unlock script; a preview build has no private data, so both are cut out and the page is noindex.
 PRIVATE_COMPANY_NAME=(os.environ.get("SQC_PRIVATE_COMPANY_NAME") or "تصيف").strip() or "تصيف"
+# The door's data (FOUNDATION §3): the three entries and the sectors from the capability registry, and the bundle companies
+# the audit entry lists (id, name, sector, country, year — not their trial balances), inlined so the door works offline.
+def entry_data():
+    reg=json.loads(Path("ui/core/capabilities.json").read_text(encoding="utf-8"))
+    bundle=json.loads(Path("ui/data/bundle-clients.json").read_text(encoding="utf-8"))
+    gates=[{k:g[k] for k in ("id","label","short","sub","icon","home") if k in g} for g in reg.get("gateways",[])]
+    corpus=[{"id":c["id"],"company":c.get("company",""),"sector":c.get("sector",""),"country":c.get("countryAr") or c.get("country",""),"fy":c.get("fy","")} for c in bundle.get("clients",[]) if c.get("id")]
+    js=lambda v: json.dumps(v,ensure_ascii=False,separators=(",",":")).replace("</","<\\/")
+    return "window.SQC_GATES="+js(gates)+";window.SQC_SECTORS="+js(reg.get("sectors",[]))+";window.SQC_CORPUS="+js(corpus)+";"
 def entry_page(mode):
     page=Path("unlock.html").read_text(encoding="utf-8")
     assert page.count('data-locked-name="تصيف"')==1, "unlock.html: locked company name marker"
     page=page.replace('data-locked-name="تصيف"','data-locked-name="'+htmlmod.escape(PRIVATE_COMPANY_NAME,quote=True)+'"')
+    page,nd=re.subn(r"/\*SQC:ENTRY-DATA\*/",lambda _:entry_data(),page,count=1)
+    if nd!=1: raise SystemExit("unlock.html: SQC:ENTRY-DATA marker missing")
     if mode=="preview":
         page,n1=re.subn(r"<!--SQC:LOCKED:START-->.*?<!--SQC:LOCKED:END-->\n?","",page,flags=re.S)
         page,n2=re.subn(r"<!--SQC:AUTH:START-->.*?<!--SQC:AUTH:END-->\n?","",page,flags=re.S)
@@ -63,7 +74,7 @@ if nb!=1: raise SystemExit("Rail brand markup missing")
 UI_CSS=["ds/fonts.css","ds/tokens.css","ds/components.css","ds/elements.css","ds/shell.css","ds/luxe.css","components/studio.css",
         "features/offers.css","features/supply.css","features/smartmatch.css","features/meatops.css","features/kernel.css",
         "features/enterprise.css","features/reports.css","features/erp-plus.css","features/operations.css","features/capabilities-v2.css","features/devices.css","features/luxe-screens.css","features/tbreview.css","features/assistant.css","features/accounting-guidance.css","features/audit-bench.css","features/fieldwork.css","features/helper-center.css","features/corpus-lab.css","features/product-tree.css","features/sales-map.css","features/entry-sim.css","features/product-flow.css","features/customer-flow.css","features/pulse.css","features/benchmarks.css","features/advances.css","features/legacy-apps.css","features/management-report.css","features/sales-intel.css","ds/sqc.css"]
-UI_JS=["core/sk.js","core/output.js","core/bus.js","core/errors.js","core/store.js","core/services.js","core/engines.js","core/management-report-model.js","core/registry.js","core/perm.js","core/audit.js","core/device.js","core/ai.js","core/demo.js","core/helper-space.js","core/company.js","core/company-platform.js","core/standards.js","core/templates.js","core/flow.js","core/a11y.js","core/motion.js",
+UI_JS=["core/sk.js","core/output.js","core/bus.js","core/errors.js","core/store.js","core/services.js","core/engines.js","core/management-report-model.js","core/registry.js","core/perm.js","core/audit.js","core/device.js","core/ai.js","core/demo.js","core/helper-space.js","core/company.js","core/company-platform.js","core/gate.js","core/standards.js","core/templates.js","core/flow.js","core/a11y.js","core/motion.js",
        "components/states.js","components/studio.js","layouts/shell.js","layouts/rail-audit.js","layouts/topbar.js","components/palette.js","components/keys.js","components/charts.js","components/table.js","components/xlsx.js","features/command-center.js",
        "features/jev.js","features/offers.js","features/inventory.js","features/supply.js","features/meatops.js","features/smartmatch.js",
        "features/pricing-core.js","features/kernel.js","features/tools.js","features/enterprise.js","features/reports.js","features/report-pack.js",

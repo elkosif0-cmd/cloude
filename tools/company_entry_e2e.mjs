@@ -13,6 +13,16 @@ const check = (name, ok, info = '') => { checks++; if (!ok) failures.push(name +
 const appReady = (page) => page.waitForFunction(() => window.SK && window.SKosifCore && window.SKosifSpace && SK.demo && SK.demo.settled() && !document.querySelector('.skdemo-overlay') && !SKosifSpace.busy(), null, { timeout: 90000 });
 const settled = async (page) => { await appReady(page); await page.waitForTimeout(800); await appReady(page); };
 const overflow = (page) => page.evaluate(() => Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - document.documentElement.clientWidth);
+/* the door (FOUNDATION §3): the section first, then — in accounting — the sector, then the companies of that step */
+const door = async (page, gate, sector) => {
+  await page.goto(base + 'index.html');
+  await page.waitForSelector('#gate-list .gate', { timeout: 30000 });
+  await page.click('#gate-list .gate[data-gate="' + gate + '"]');
+  if (gate === 'accounting') { await page.waitForSelector('#sector-list .sector', { timeout: 10000 }); await page.click('#sector-list .sector[data-sector="' + (sector || 'meat') + '"]'); }
+  await page.waitForFunction(() => !document.getElementById('companies').hidden, null, { timeout: 10000 });
+};
+/* the entry switcher on top of the rail; on a phone the rail is a closed drawer, so the button is pressed by script */
+const press = (page, tag, gate) => tag === 'laptop' ? page.click('#nav .skn-gate[data-gate="' + gate + '"]') : page.evaluate((g) => document.querySelector('#nav .skn-gate[data-gate="' + g + '"]').click(), gate);
 try {
   for (const [tag, opts] of [['laptop', { viewport: { width: 1440, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }]]) {
     const ctx = await browser.newContext(opts);
@@ -21,9 +31,18 @@ try {
     page.on('console', (m) => { if (m.type() === 'error' && !/ERR_|net::|Failed to load resource|favicon/.test(m.text())) errs.push('console: ' + m.text().slice(0, 200)); });
     page.on('dialog', (d) => d.dismiss());
 
-    /* 1. the gallery on a blank device */
+    /* 1. the door on a blank device: the three sections first, then the sector, then the companies of that sector */
     await page.goto(base + 'index.html');
-    await page.waitForSelector('#co-list .co', { timeout: 30000 });
+    await page.waitForSelector('#gate-list .gate', { timeout: 30000 });
+    const doorFirst = await page.evaluate(() => ({ gates: [...document.querySelectorAll('#gate-list .gate')].map((b) => b.dataset.gate), companiesHidden: document.getElementById('companies').hidden, sectorsHidden: document.getElementById('sectors').hidden, title: document.title }));
+    check(`${tag}: the door shows the three sections first and no company`, doorFirst.gates.join('|') === 'accounting|audit|tools' && doorFirst.companiesHidden && doorFirst.sectorsHidden && doorFirst.title === 'SQC — اختر القسم', JSON.stringify(doorFirst));
+    check(`${tag}: the door has no horizontal overflow`, (await overflow(page)) <= 2, String(await overflow(page)));
+    await page.click('#gate-list .gate[data-gate="accounting"]');
+    await page.waitForSelector('#sector-list .sector', { timeout: 10000 });
+    const sectors = await page.evaluate(() => [...document.querySelectorAll('#sector-list .sector')].map((b) => b.dataset.sector));
+    check(`${tag}: accounting asks for the sector first (ten sectors, the priority ones first)`, sectors.length === 10 && sectors.slice(0, 5).join('|') === 'health|hospitality|construction|meat|digital', sectors.join('|'));
+    await page.click('#sector-list .sector[data-sector="meat"]');
+    await page.waitForSelector('#co-list .co', { timeout: 10000 });
     check(`${tag}: gallery lists the demo company and no locked card`, await page.evaluate(() => { const c = [...document.querySelectorAll('#co-list .co')]; return c.some((b) => b.dataset.id === 'demo-co') && !c.some((b) => b.dataset.locked) && !document.getElementById('f'); }));
     check(`${tag}: gallery has no horizontal overflow`, await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth <= 2));
     /* the crystal world: mounted after the page painted, animating, sized to the viewport; or absent without WebGL */
@@ -47,6 +66,19 @@ try {
     check(`${tag}: the demo company carries demo data`, demoState.demo === true);
     check(`${tag}: the last company is remembered`, demoState.last && demoState.last.id === 'demo-co' && demoState.last.locked === false, JSON.stringify(demoState.last));
     check(`${tag}: the intent is consumed`, demoState.intent === null);
+    /* FOUNDATION §3: the menu is the chosen section's alone, with the switcher on top, and the section's first screen opened */
+    const nav1 = await page.evaluate(() => ({ gate: SK.gate.current(), view: SKosifCore.view(), pressed: ((document.querySelector('#nav .skn-gate[aria-pressed="true"]') || {}).dataset || {}).gate, switcher: document.querySelectorAll('#nav .skn-gate').length, groups: [...document.querySelectorAll('#nav .skn-group')].map((g) => g.dataset.g), foreign: [...document.querySelectorAll('#nav .nav-btn')].map((b) => b.dataset.v).filter((id) => !SK.caps.inGatewayOf(SK.caps.get(id), 'accounting')), audit: !!document.querySelector('#nav .nav-btn[data-v="tbreview"]'), sector: SK.company.current().sector }));
+    check(`${tag}: the accounting entry lands on the books with the accounting menu only`, nav1.gate === 'accounting' && nav1.view === 'ledger' && nav1.pressed === 'accounting' && nav1.switcher === 3 && nav1.groups.length > 0 && nav1.foreign.length === 0 && !nav1.audit && nav1.sector === 'meat', JSON.stringify(nav1));
+    await press(page, tag, 'audit');
+    await page.waitForFunction(() => SKosifCore.view() === 'tbreview', null, { timeout: 30000 }).catch(() => {});
+    const nav2 = await page.evaluate(() => ({ gate: SK.gate.current(), view: SKosifCore.view(), foreign: [...document.querySelectorAll('#nav .nav-btn')].map((b) => b.dataset.v).filter((id) => !SK.caps.inGatewayOf(SK.caps.get(id), 'audit')), ledger: !!document.querySelector('#nav .nav-btn[data-v="ledger"]') }));
+    check(`${tag}: the switcher opens the audit entry on the audit file with the audit menu only`, nav2.gate === 'audit' && nav2.view === 'tbreview' && nav2.foreign.length === 0 && !nav2.ledger, JSON.stringify(nav2));
+    await press(page, tag, 'tools');
+    await page.waitForFunction(() => SKosifCore.view() === 'helperdesk', null, { timeout: 30000 }).catch(() => {});
+    check(`${tag}: the switcher opens the tools entry on the tools map (six studios)`, await page.evaluate(() => SK.gate.current() === 'tools' && SKosifCore.view() === 'helperdesk' && document.querySelectorAll('.hd-node').length === 6), await page.evaluate(() => SK.gate.current() + ' ' + SKosifCore.view() + ' ' + document.querySelectorAll('.hd-node').length));
+    await page.evaluate(() => SKosifCore.go('ledger'));
+    await page.waitForTimeout(400);
+    check(`${tag}: opening a screen of another section switches the menu to that section`, await page.evaluate(() => SK.gate.current() === 'accounting' && document.querySelector('#nav .skn-gate[aria-pressed="true"]').dataset.gate === 'accounting'));
     /* one company everywhere: the rail, the top bar and the books name the open company */
     const names = async () => page.evaluate(() => ({ space: SKosifSpace.current().name, company: SK.company.current().name, rail: (document.getElementById('biz-name') || {}).textContent, top: (document.querySelector('#sk-tb-co b') || {}).textContent, books: (JSON.parse(localStorage.getItem('skosif_companies_v1') || '{}').active || {}).companyId, id: SKosifSpace.current().id }));
     await page.evaluate(() => SKosifCore.go('dash'));
@@ -80,8 +112,7 @@ try {
     check(`${tag}: demo customers exist`, demoCustomers > 0, String(demoCustomers));
 
     /* 3. a new company starts empty, on its own */
-    await page.goto(base + 'index.html');
-    await page.waitForSelector('#co-add', { timeout: 30000 });
+    await door(page, 'accounting', 'health');
     await page.click('#co-add');
     await page.fill('#co-name', 'مؤسسة الاختبار للحوم');
     await page.click('#co-form button[type="submit"]');
@@ -92,6 +123,7 @@ try {
     check(`${tag}: the new company is empty, not demo-filled`, fresh.demo === false && fresh.customers === 0, JSON.stringify(fresh));
     check(`${tag}: the new company is registered for the books`, fresh.books === true);
     check(`${tag}: no chooser dialog for the new company`, !fresh.chooser);
+    check(`${tag}: the new company belongs to the sector it was created under and opens on its definitions`, await page.evaluate(() => SK.company.current().sector === 'health' && SKosifCore.view() === 'masterdata' && SK.gate.current() === 'accounting'), await page.evaluate(() => SK.company.current().sector + ' ' + SKosifCore.view() + ' ' + SK.gate.current()));
     await page.waitForFunction(() => SK.company && SK.company.ready(), null, { timeout: 30000 });
     await page.waitForTimeout(500);
     const n3 = await page.evaluate(() => ({ rail: (document.getElementById('biz-name') || {}).textContent, top: (document.querySelector('#sk-tb-co b') || {}).textContent }));
@@ -109,9 +141,21 @@ try {
 
     /* 4. back at the door both companies are listed; the demo company comes back with its data */
     await page.goto(base + 'index.html');
-    await page.waitForSelector('#co-list .co', { timeout: 30000 });
+    await page.waitForSelector('#gate-list .gate', { timeout: 30000 });
+    await page.click('#gate-list .gate[data-gate="accounting"]');
+    await page.waitForSelector('#sector-list .sector', { timeout: 10000 });
+    const counts = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll('#sector-list .sector')].map((b) => [b.dataset.sector, b.querySelector('.sector-n').textContent])));
+    check(`${tag}: each sector counts its own companies (the new one under health, the demo under meat)`, counts.health === '1 شركة' && counts.meat === '1 شركة', JSON.stringify(counts));
+    await page.click('#sector-list .sector[data-sector="health"]');
+    await page.waitForSelector('#co-list .co', { timeout: 10000 });
+    const health = await page.evaluate(() => [...document.querySelectorAll('#co-list .co')].map((b) => b.dataset.name));
+    check(`${tag}: the health sector lists the new company only`, health.length === 1 && health[0] === 'مؤسسة الاختبار للحوم', JSON.stringify(health));
+    await page.click('#co-back');
+    await page.waitForSelector('#sector-list .sector', { timeout: 10000 });
+    await page.click('#sector-list .sector[data-sector="meat"]');
+    await page.waitForSelector('#co-list .co', { timeout: 10000 });
     const listed = await page.evaluate(() => [...document.querySelectorAll('#co-list .co')].map((b) => [b.dataset.name, b.getAttribute('aria-current') === 'true']));
-    check(`${tag}: both companies are listed, the last one opened is marked, and no empty phantom company`, listed.some(([n]) => n === 'مؤسسة الاختبار للحوم') && listed.some(([n, l]) => n === 'شركة الوادي التجريبية للحوم' && l) && !listed.some(([n]) => n === 'الشركة الحالية'), JSON.stringify(listed));
+    check(`${tag}: the meat sector lists the demo company, marked as the last one opened, and no empty phantom company`, listed.length === 1 && listed[0][0] === 'شركة الوادي التجريبية للحوم' && listed[0][1] && !listed.some(([n]) => n === 'الشركة الحالية'), JSON.stringify(listed));
     await page.click('#co-list .co[data-id="demo-co"]');
     await page.waitForURL(/app-safe\.html/, { timeout: 30000 });
     await settled(page);
@@ -125,6 +169,17 @@ try {
     await settled(page);
     await page.waitForFunction(() => SKosifCore.view() === 'tbreview', null, { timeout: 30000 }).catch(() => {});
     check(`${tag}: a shortcut resumes the last company on its screen`, await page.evaluate(() => SKosifSpace.current().id === 'demo-co' && SKosifCore.view() === 'tbreview'), await page.evaluate(() => SKosifSpace.current().id + ' ' + SKosifCore.view()));
+    check(`${tag}: a screen of the audit entry switches the menu to the audit entry`, await page.evaluate(() => SK.gate.current() === 'audit' && !document.querySelector('#nav .nav-btn[data-v="ledger"]')), await page.evaluate(() => SK.gate.current()));
+    /* 5b. the audit door: a new-file card, the companies, the bundle companies and the library; a bundle company opens in the audit file */
+    await door(page, 'audit');
+    check(`${tag}: the audit door lists a new-file card, the companies, the bundle companies and the reference library`, await page.evaluate(() => !!document.querySelector('#co-list [data-audit-new]') && document.querySelectorAll('#corpus .corpus-co').length >= 40 && !!document.querySelector('#corpus a[href^="https://kosif-financial-reference-library"]') && document.getElementById('co-add').hidden), await page.evaluate(() => document.querySelectorAll('#corpus .corpus-co').length));
+    await page.click('#corpus .corpus-co[data-corpus="apple-2024"]');
+    await page.waitForURL(/app-safe\.html/, { timeout: 30000 });
+    await settled(page);
+    /* the audit files live in skosif_engagements_v1 (the open one's state in skosif_tbreview_v1) */
+    await page.waitForFunction(() => SKosifCore.view() === 'tbreview' && (JSON.parse(localStorage.getItem('skosif_engagements_v1') || '{}').list || []).some((f) => f.bundleId === 'apple-2024'), null, { timeout: 60000 }).catch(() => {});
+    const bundle = await page.evaluate(() => ({ gate: SK.gate.current(), view: SKosifCore.view(), file: (JSON.parse(localStorage.getItem('skosif_engagements_v1') || '{}').list || []).some((f) => f.bundleId === 'apple-2024'), company: (SKosifTBReview.rows() || {}).label, corpusLeft: sessionStorage.getItem('sqc_gate_corpus') }));
+    check(`${tag}: a bundle company chosen at the audit door opens as the audit file's client`, bundle.gate === 'audit' && bundle.view === 'tbreview' && bundle.file && bundle.company === 'Apple Inc.' && bundle.corpusLeft === null, JSON.stringify(bundle));
     /* 6. the private company never takes over another company's data: on a device that never held it, opening it
           (simulated here: a preview build has no password page) starts its own empty space */
     await page.evaluate(() => { sessionStorage.setItem('sqc_company_intent', JSON.stringify({ id: 'co-private', name: 'تصيف', locked: true })); });
@@ -133,9 +188,8 @@ try {
     await settled(page);
     const priv = await page.evaluate(async () => ({ id: SKosifSpace.current().id, bound: localStorage.getItem('sqc_private_space'), demo: SK.demo.active(), customers: ((r) => r.empty ? 0 : r.customers.length)(await SKosifSalesIntel.snapshot('all')), name: SK.company.current().name, inMenu: SK.company.list().filter((c) => c.id === 'demo-co').length }));
     check(`${tag}: the private company gets its own empty space, never the demo data`, priv.id === 'space-private' && priv.bound === 'space-private' && priv.demo === false && priv.customers === 0 && priv.name === 'تصيف', JSON.stringify(priv));
-    await page.goto(base + 'index.html');
-    await page.waitForSelector('#co-list .co', { timeout: 30000 });
-    check(`${tag}: the private space is not an open card in the gallery`, await page.evaluate(() => ![...document.querySelectorAll('#co-list .co')].some((b) => b.dataset.id === 'space-private')));
+    await door(page, 'tools');
+    check(`${tag}: the private space is not an open card in the gallery, and the tools door offers a space without a company`, await page.evaluate(() => ![...document.querySelectorAll('#co-list .co')].some((b) => b.dataset.id === 'space-private') && !!document.querySelector('#co-list .co[data-scratch="1"]')));
     await page.click('#co-list .co[data-id="demo-co"]');
     await page.waitForURL(/app-safe\.html/, { timeout: 30000 });
     await settled(page);

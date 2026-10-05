@@ -170,20 +170,23 @@ const navState=()=>{const d=load(NAV_KEY,{})||{};return d.open&&typeof d.open===
 function setNavOpen(g,v){const d=load(NAV_KEY,{})||{};d.open={...(d.open||{}),[g]:v};save(NAV_KEY,d)}
 let navQ="";
 const nq=s=>String(s||"").toLowerCase().replace(/[ً-ٰٟ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").trim();
+/* the menu is the chosen entry's alone (FOUNDATION §3): a switcher for the three entries on top, then that entry's
+   domains with their hubs; a screen reached outside the entry (a deep link, a shortcut) switches the entry to its own */
 function paintNav(){
   const nav=$("#nav");if(!nav||!core())return;
-  const cur=core().view(),open=navState(),gateways=SK.caps.gateways?SK.caps.gateways():[];
+  const cur=core().view(),open=navState(),gateways=SK.caps.gateways?SK.caps.gateways():[],cap=SK.caps.get(cur);
+  let gate=gateways.length&&SK.gate?SK.gate.current():"";
+  if(gate&&cap&&!SK.caps.inGatewayOf(cap,gate)){if(!SK.gate.pinned()){gate=cap.gateway;SK.gate.set(gate,{go:false,silent:true})}}
+  else if(gate&&cap&&SK.gate.pinned()===cur)SK.gate.unpin(); /* the door's section arrived on its first screen */
   let html="";
-  (gateways.length?gateways:SK.caps.groups()).forEach(g=>{
-    const sections=(gateways.length?SK.caps.groupsInGateway(g.id):[g]).map(gr=>{
-      const items=SK.caps.hubsInGroup(gr.id).filter(c=>!gateways.length||c.gateway===g.id).map(c=>[c,hubPages(c.id,cur)]).filter(([,pg])=>pg.length);
-      return[gr,items];
-    }).filter(([,items])=>items.length);
-    const items=sections.flatMap(([,xs])=>xs);
+  if(gate)html+='<div class="skn-gates" role="group" aria-label="القسم" data-gate="'+esc(gate)+'">'+gateways.map(g=>'<button type="button" class="skn-gate" data-gate="'+esc(g.id)+'" aria-pressed="'+(g.id===gate)+'" title="'+esc(g.label)+'">'+(SK.icons[g.icon]||"")+'<span>'+esc(g.short||g.label)+'</span></button>').join("")+'</div>';
+  const domains=gate?SK.caps.groupsInGateway(gate):SK.caps.groups();
+  domains.forEach(gr=>{
+    const items=SK.caps.hubsInGroup(gr.id).filter(c=>!gate||SK.caps.inGatewayOf(c,gate)).map(c=>[c,hubPages(c.id,cur)]).filter(([,pg])=>pg.length);
     if(!items.length)return;
-    const here=items.some(([,pg])=>pg.some(x=>x.id===cur)),isOpen=here||(open[g.id]!==undefined?open[g.id]:g.id==="accounting");
-    const inner=sections.map(([gr,xs])=>'<div class="skn-subgroup" data-sg="'+esc(gr.id)+'">'+(sections.length>1?'<div class="skn-sublabel">'+esc(gr.label)+'</div>':'')+xs.map(([c,pg])=>navButton(c,cur,pg)).join("")+'</div>').join("");
-    html+='<div class="skn-group'+(isOpen?'':' closed')+(here?' here':'')+'" role="group" aria-label="'+esc(g.label)+'" data-g="'+g.id+'"><button type="button" class="nav-group skn-gh" data-g="'+g.id+'" aria-expanded="'+isOpen+'"><span class="skn-gi">'+(SK.icons[g.icon]||"")+'</span><span>'+esc(g.label)+'</span><i class="skn-gc">'+items.length+'</i>'+CHEV+'</button>'+inner+'</div>';
+    const here=items.some(([,pg])=>pg.some(x=>x.id===cur)),isOpen=here||(open[gr.id]!==undefined?open[gr.id]:true);
+    html+='<div class="skn-group'+(isOpen?'':' closed')+(here?' here':'')+'" role="group" aria-label="'+esc(gr.label)+'" data-g="'+esc(gr.id)+'"><button type="button" class="nav-group skn-gh" data-g="'+esc(gr.id)+'" aria-expanded="'+isOpen+'"><span class="skn-gi">'+(SK.icons[gr.icon]||"")+'</span><span>'+esc(gr.label)+'</span><i class="skn-gc">'+items.length+'</i>'+CHEV+'</button>'+
+      '<div class="skn-subgroup" data-sg="'+esc(gr.id)+'">'+items.map(([c,pg])=>navButton(c,cur,pg)).join("")+'</div></div>';
   });
   if(html!==lastSig||!nav.querySelector(".skn-group")){nav.innerHTML=html;lastSig=html}
   navSearch();filterNav();
@@ -209,6 +212,7 @@ function navSearch(){
     if(e.key==="Enter"){const b=$$(".nav-btn",nav).find(x=>!x.classList.contains("skn-miss"));if(b){core().go(b.dataset.v);inp.value="";navQ="";filterNav()}}
   });
   nav.addEventListener("click",e=>{
+    const gb=e.target.closest(".skn-gate");if(gb&&nav.contains(gb)){if(SK.gate)SK.gate.set(gb.dataset.gate,{go:true});return}
     const h=e.target.closest(".skn-gh");if(!h||!nav.contains(h))return;
     const g=h.closest(".skn-group"),closed=g.classList.toggle("closed");h.setAttribute("aria-expanded",String(!closed));setNavOpen(h.dataset.g,!closed);
   });

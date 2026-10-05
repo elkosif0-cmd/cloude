@@ -12,7 +12,7 @@
 (()=>{
 "use strict";
 const {load,save}=SK;
-const CO="skosif_companies_v1",PRIVATE="sqc_private_space",AFTER="sqc_company_after_open",DEMO={id:"demo-co",name:"شركة الوادي التجريبية للحوم"};
+const CO="skosif_companies_v1",PRIVATE="sqc_private_space",AFTER="sqc_company_after_open",DEMO={id:"demo-co",name:"شركة الوادي التجريبية للحوم",sector:"meat"};
 const space=()=>window.SKosifSpace||null;
 function books(){
   const d=load(CO,{})||{};
@@ -27,7 +27,9 @@ function current(){
   const name=clean(rec&&rec.name)||clean(s&&s.name)||"شركتي";
   /* a period saved without a company (older data, imported books) belongs to the open company */
   const periods=d.periods.filter(p=>p.companyId===id||!p.companyId),period=periods.find(p=>p.id===d.active.periodId)||null;
-  return Object.freeze({id,name,currency:(rec&&rec.currency)||"SAR",country:(rec&&rec.country)||"SA",locked:!!id&&privateId()===id,demo:id===DEMO.id,period,periods});
+  /* the sector (FOUNDATION §3.7) is the company's own; the demo company is a meat company; a company recorded before
+     sectors existed is general trade */
+  return Object.freeze({id,name,currency:(rec&&rec.currency)||"SAR",country:(rec&&rec.country)||"SA",sector:(rec&&rec.sector)||(id===DEMO.id?DEMO.sector:"trade"),locked:!!id&&privateId()===id,demo:id===DEMO.id,period,periods});
 }
 /* every company this device knows: the open one first; the private one only while it is the open one */
 function list(){
@@ -47,10 +49,11 @@ async function open(id){
   return space()&&space().switchTo?space().switchTo(id,c.name,{demo:id===DEMO.id?undefined:false}):false;
 }
 /* a new company: registered for the books and opened empty (never filled with demo data) */
-async function create(name,currency="SAR"){
+async function create(name,currency="SAR",sector="trade"){
   name=clean(name);if(!name)throw new Error("اسم الشركة مطلوب");
   const id=SK.ui&&SK.ui.uid?SK.ui.uid("co"):"co-"+Date.now().toString(36);
-  const d=books();d.rest.companies=[...d.companies,{id,name,country:currency==="EGP"?"EG":"SA",currency}];save(CO,d.rest);
+  sector=SK.caps&&SK.caps.sector&&SK.caps.sector(sector)?sector:"trade";
+  const d=books();d.rest.companies=[...d.companies,{id,name,country:currency==="EGP"?"EG":"SA",currency,sector}];save(CO,d.rest);
   try{sessionStorage.setItem(AFTER,"masterdata")}catch{}
   return space()&&space().switchTo?space().switchTo(id,name,{fresh:true,demo:false,after:"masterdata"}):false;
 }
@@ -72,11 +75,12 @@ function setPeriod(periodId){
 }
 function updateMeta(patch={}){
   const cur=current(),d=books(),country=clean(patch.country||cur.country||"SA").toUpperCase().slice(0,3),currency=clean(patch.currency||cur.currency||"SAR").toUpperCase().slice(0,3);
+  const want=clean(patch.sector||cur.sector||"trade"),sector=SK.caps&&SK.caps.sector&&SK.caps.sector(want)?want:cur.sector||"trade";
   let found=false;
-  d.rest.companies=d.companies.map(c=>{if(c.id!==cur.id)return c;found=true;return{...c,country,currency}});
-  if(!found)d.rest.companies.push({id:cur.id,name:cur.name,country,currency});
+  d.rest.companies=d.companies.map(c=>{if(c.id!==cur.id)return c;found=true;return{...c,country,currency,sector}});
+  if(!found)d.rest.companies.push({id:cur.id,name:cur.name,country,currency,sector});
   if(save(CO,d.rest)!==true)return false;
-  SK.bus&&SK.bus.emit("company",{companyId:cur.id,country,currency});
+  SK.bus&&SK.bus.emit("company",{companyId:cur.id,country,currency,sector});
   return true;
 }
 /* make the books and the business name follow the open company; returns what it changed */
