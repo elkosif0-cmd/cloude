@@ -117,3 +117,15 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Tests / receipts: Draft PR #151 head `c4fb6a65a9ca02fbd369642401d01e331f17eef6`; this milestone is documentation/inventory only and makes no runtime-test completion claim.
 - Conflict check: Scope remains subordinate to `DOT-INVENTORY-20261005-001`; findings are for handoff into its shared matrix, not a competing matrix.
 - NEXT ACTION: Continue the staged Atlas/index search and reconcile these findings with the broader accounting/audit repositories before any architecture-changing runtime implementation is proposed.
+
+### UPDATE DOT-INVENTORY-20261005-001 — Independently reviewed partial checkpoint
+- Status: ACTIVE
+- Branch / PR: `docs/rule-zero-checkpoint-20261005-r2` / draft [PR #152](https://github.com/kosif199022-jpg/cloude/pull/152).
+- Commit: `66ed51216c0862c035762a0003f1ed0fe3bfaafe`, based on `d5cd45fe9fe71f628dec23bf987faeece6ac493c`.
+- Milestone: Published eight documentation additions only under `docs/registry/rule-zero-2026-10-05/`. The seven-file reviewed subset and package index preserve 17 accessible repositories, 78 capability IDs, 28 cloude families, and 127 overlapping source-evidence records. These are not 127 unique completed features.
+- Evidence: Independent artifact review passed; source manifest SHA-256 `ebf4d67a69d737c7a75b8dbf8a5ff34c519105186d7840eed3fdbc41b1aa05ab`. All eight remote contents matched their prepared files and the tree diff contains only those additions. No product tests were run as part of the inventory; P0 remains incomplete.
+- Coordination: Read and reconciled KOSIFSEE-FOUNDATION-20261006-001 and PR #151 as a subordinate evidence handoff. Its source findings are retained without creating a rival migration matrix or inferring a current Claude architecture decision.
+- Material findings: Static producer/consumer paths show globally stored tasks/risks feeding company-labelled reports and incomplete backup coverage. Audit parse-error propagation and legacy reliance/final-report boundaries require deeper testing. These are source-supported risks, not observed private-data incidents or proof of all runtime behavior.
+- Current non-conflicting sub-scopes: Read-only deep tracing of company/engagement storage, backup/restore and asynchronous import ownership; and audit TB parsing/reliance/report gates across audit-pro, Moon, SEE and cloude. Separate evidence batches will not mutate the sealed checkpoint.
+- Unfinished: Remaining file/subtree and branch inspection; rights/dependency checks; best-source comparisons; full migration decisions and acceptance evidence; lead reconciliation. Atlas folder metadata is not installed capability or full semantic review.
+- NEXT ACTION: Continue the two documented deep-review batches and append their source-linked findings to a subsequent reviewed checkpoint. Keep architecture-changing runtime work, repair composition and runtime publication held until the required inventory and lead coordination gates are met.
