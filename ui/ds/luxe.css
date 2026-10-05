@@ -339,6 +339,12 @@ table.sktb-dense td,table.sktb-dense th{padding-block:4px!important;font-size:va
 .skmx td{min-width:46px;height:30px;padding:0 4px;border-radius:6px;text-align:center;font-variant-numeric:tabular-nums;color:var(--sk-ink-2);background:color-mix(in srgb,var(--sk-brand) calc(var(--a) * 100%),var(--sk-surface-2))}
 .skmx td.hi{color:var(--sk-on-brand);font-weight:700}
 
+/* ================= identity (docs/design/SQC-IDENTITY-ar.md) =================
+   The screen title is the one dramatic size on a screen (fluid, tight tracking); every interactive element answers
+   keyboard focus with the same ring. */
+:root[data-look="kosif"] .sk-ph h2{font-size:clamp(24px,1.4vw + 17px,32px);font-weight:800;letter-spacing:-.01em;line-height:1.15}
+:root[data-look="kosif"] :is(.btn,.nav-btn,.sk-tb-btn,.sk-tb-icon,.sk-tb-user,.linkish,.co,.co-add,input,select,textarea,[role="tab"],[role="menuitem"],[role="menuitemradio"]):focus-visible{outline:3px solid var(--sk-focus);outline-offset:2px}
+
 /* ================= motion (ui/core/motion.js) =================
    A screen's blocks rise in one after another when it opens; dialogs and menus settle with a short overshoot; toasts
    slide in; buttons answer the press. Opacity and vertical movement only, so nothing ever scrolls sideways.
