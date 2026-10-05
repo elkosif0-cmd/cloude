@@ -1,0 +1,214 @@
+{
+  "version": "2026-10-05.v1",
+  "canonical_repository": "kosif199022-jpg/cloude",
+  "portals": [
+    "accounting_core",
+    "reporting_assistant",
+    "audit",
+    "tools"
+  ],
+  "repositories": [
+    {
+      "repo": "cloude",
+      "class": "product-production",
+      "target": [
+        "accounting_core",
+        "reporting_assistant",
+        "audit",
+        "tools"
+      ],
+      "evidence": [
+        "README.md",
+        "docs/rebuild/SYSTEM_CAPABILITY_INVENTORY.md",
+        "docs/rebuild/CAPABILITY_COVERAGE_ALL_VERSIONS.md"
+      ],
+      "status": "working"
+    },
+    {
+      "repo": "kosif-audit-studio",
+      "class": "product-source",
+      "target": [
+        "audit",
+        "reporting_assistant"
+      ],
+      "evidence": [
+        "README.md",
+        "docs/KOSIF_V5_CONTINUOUS_AUDIT_ARCHITECTURE.md"
+      ],
+      "status": "working-source"
+    },
+    {
+      "repo": "smart-trial-balance-review",
+      "class": "product-source",
+      "target": [
+        "audit",
+        "reporting_assistant"
+      ],
+      "evidence": [
+        "README.md"
+      ],
+      "status": "working-source"
+    },
+    {
+      "repo": "kosif-audit-pro",
+      "class": "product-source",
+      "target": [
+        "audit"
+      ],
+      "evidence": [
+        "README.md"
+      ],
+      "status": "working-source"
+    },
+    {
+      "repo": "new",
+      "class": "architecture-reference",
+      "target": [
+        "accounting_core",
+        "reporting_assistant",
+        "audit",
+        "tools"
+      ],
+      "evidence": [
+        "docs/superpowers/specs/2026-09-04-new-full-platform-design.md",
+        "docs/superpowers/plans/2026-09-04-new-finance-plan.md"
+      ],
+      "status": "design-plan"
+    },
+    {
+      "repo": "see",
+      "class": "cloud-audit-baseline",
+      "target": [
+        "audit"
+      ],
+      "evidence": [
+        "README.md"
+      ],
+      "status": "phase-a"
+    },
+    {
+      "repo": "kosif-omni",
+      "class": "skills-runtime",
+      "target": [
+        "accounting_core",
+        "audit",
+        "tools"
+      ],
+      "evidence": [
+        "README.md",
+        "skills/kosif-audit-ifrs/SKILL.md"
+      ],
+      "status": "supporting"
+    },
+    {
+      "repo": "think",
+      "class": "orchestration",
+      "target": [
+        "tools"
+      ],
+      "evidence": [
+        "README.md"
+      ],
+      "status": "supporting"
+    },
+    {
+      "repo": "kosif-atlas",
+      "class": "skill-library",
+      "target": [
+        "tools"
+      ],
+      "evidence": [
+        "skills/*"
+      ],
+      "status": "library"
+    },
+    {
+      "repo": "kosif-atlas-private",
+      "class": "skill-library",
+      "target": [
+        "tools"
+      ],
+      "evidence": [
+        "skills/*"
+      ],
+      "status": "library"
+    },
+    {
+      "repo": "100-superskills",
+      "class": "curated-skill-library",
+      "target": [
+        "accounting_core",
+        "reporting_assistant",
+        "audit",
+        "tools"
+      ],
+      "evidence": [
+        "DEEP-INDEX.md",
+        "skills/accounting-ifrs-journal/SKILL.md"
+      ],
+      "status": "library"
+    },
+    {
+      "repo": "CLOUDFLARE_API_TOKEN",
+      "class": "historical-duplicate-source",
+      "target": [],
+      "evidence": [
+        ".claude/skills/kosif-think-pro/references/books/accounting-audit.md"
+      ],
+      "status": "review-before-use"
+    },
+    {
+      "repo": "moon",
+      "class": "orchestration-nonfinancial",
+      "target": [],
+      "evidence": [],
+      "status": "supporting-only"
+    },
+    {
+      "repo": "whatsapp-personal-bridge",
+      "class": "communications",
+      "target": [
+        "tools"
+      ],
+      "evidence": [],
+      "status": "supporting-only"
+    },
+    {
+      "repo": "mafateeh-al-tharwa",
+      "class": "nonfinancial-current-scope",
+      "target": [],
+      "evidence": [],
+      "status": "out-of-scope"
+    },
+    {
+      "repo": "mafateeh-al-tharwa2",
+      "class": "nonfinancial-current-scope",
+      "target": [],
+      "evidence": [],
+      "status": "out-of-scope"
+    },
+    {
+      "repo": "-",
+      "class": "unclassified-no-financial-evidence",
+      "target": [],
+      "evidence": [],
+      "status": "out-of-scope"
+    }
+  ],
+  "mandatory_gaps": [
+    "four-portal-navigation",
+    "master-data-definitions",
+    "taseef-server-side-access-control",
+    "fixed-assets",
+    "multi-currency-fx",
+    "period-close-locks",
+    "continuous-close",
+    "ifrs18",
+    "zatca-fatoora-phase2",
+    "server-side-multitenancy",
+    "evidence-graph",
+    "connector-framework",
+    "ai-confidence-exception-queue",
+    "client-pbc-portal"
+  ]
+}
