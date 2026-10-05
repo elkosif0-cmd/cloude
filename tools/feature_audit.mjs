@@ -59,6 +59,9 @@ ok('الاستوديو','استوديو العميل على القالب نفس�
 ok('الاستوديو','أرقام استوديو العميل = أرقام محرك ذكاء المبيعات (الطلبات، الإيراد، الحالة، الشريحة)',await p.evaluate(async()=>{const m=SKosifCustomerFlow.current();if(!m)return false;const r=await SKosifSalesIntel.snapshot('all');const e=r.customers.find(c=>String(c.id)===m.id),f=r.followup.find(c=>String(c.id)===m.id);return !!e&&e.orders===m.person.orders&&e.revenue===m.person.revenue&&e.segment===m.person.segment&&(f?f.status:'ok')===m.person.status}));
 await p.click('.pf-node.pf-r-center');await p.waitForTimeout(400);ok('الاستوديو','الضغط على المربع يفتح مفتّشه بتفاصيله وزرّ الأصل',await p.evaluate(()=>!!document.querySelector('.pf-insp .pf-kv')&&!!document.querySelector('.pf-insp [data-pf="open-customer"]')));
 await p.click('.pf-tab[data-tab="checks"]');await p.waitForTimeout(300);ok('الاستوديو','تبويب الرقابة يعرض ملاحظات محسوبة',await has('.pf-tabb .pf-chk'));
+await go('ledger',1500);await p.click('#view [data-tab="tb"]').catch(()=>{});await p.waitForTimeout(600);
+ok('المالية','الشاشة = المحرك: إجمالي ميزان الدفاتر المعروض هو ميزان الفترة من المحرك على القيود المخزّنة',await p.evaluate(()=>{const d=SKosifLedger.snapshot(),E=SKEngines.finance.ledger;const c=SK.load('skosif_companies_v1',{}),a=c.active||{},per=(c.periods||[]).find(x=>x.id===a.periodId);const re=d.accounts.find(x=>x.code==='3100')||d.accounts.find(x=>/مبق|محتجز/.test(x.name));const tb=per?E.periodTrialBalance(d.entries,id=>(d.accounts.find(x=>x.id===id)||{}).type,{start:per.startDate,end:per.endDate},re?re.id:'__re__'):E.buildTrialBalance(d.entries);const foot=document.querySelector('#view tfoot[data-sk-summary-scope] tr');if(!tb.rows.length)return !!document.querySelector('#view .sks.empty')||!foot;if(!foot)return false;const cells=[...foot.querySelectorAll('td')].map(x=>x.textContent.trim());return cells[1]===SK.money(tb.totals.debit)&&cells[2]===SK.money(tb.totals.credit)&&tb.balanced}));
+await p.click('#view [data-tab="close"]').catch(()=>{});await p.waitForTimeout(300);
 await go('tbreview',1200);ok('هيكل المنتج','دورة المراجعة مرسومة كعقد وأسهم مع حلقة جولات الأدلة',await p.evaluate(()=>document.querySelectorAll('.tbr-flow-node').length===9&&!!document.querySelector('.tbr-flowloop')));
 // ---------- global research bundle: audit benchmarks ----------
 await go('companies',900);
@@ -284,6 +287,8 @@ const PBL=await (async()=>{const fr=p.frames().find(f=>f!==p.mainFrame()&&f.pare
 ok('تقارير المراجعة','خطاب طلب المستندات للعميل بمراحل المراجعة والمواعيد والبدائل، على ترويسة المكتب وشعار SQC',PBL.t&&PBL.stages>=3&&PBL.rows>=15&&PBL.logo);
 await p.keyboard.press('Escape');await p.waitForTimeout(400);
 const ph=await (await b.newContext({viewport:{width:390,height:844},isMobile:true})).newPage();await ph.goto(URL_);await ph.waitForTimeout(5000);
+/* the first start fills the sample data and reloads: wait for the reloaded page to boot and settle */
+await ph.waitForFunction(()=>window.SKosifCore&&document.querySelector('.topbar')&&(!window.SK||!SK.demo||SK.demo.settled()),null,{timeout:90000}).catch(()=>{});await ph.waitForTimeout(800);
 ok('الجولات 1–33','شريط التبويبات السفلي في الآيفون',await ph.evaluate(()=>!!document.querySelector('.skb,.sk-tabbar,[class*="tabbar"]')));
 if(process.argv[3])fs.writeFileSync(process.argv[3],JSON.stringify(R,null,1));
 const miss=R.filter(x=>!x[2]);console.log('TOTAL',R.length,'OK',R.length-miss.length);console.log('MISSING',JSON.stringify(miss));console.log('ERRS',errs.slice(0,5));await b.close();if(miss.length||errs.length)process.exit(1);
