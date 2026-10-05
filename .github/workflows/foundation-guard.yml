@@ -1,0 +1,39 @@
+name: Foundation Guard
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  foundation-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify canonical product charter and agent preflight files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          required_files=(
+            "FOUNDATION.md"
+            "AGENTS.md"
+            "CLAUDE.md"
+            "GEMINI.md"
+            ".github/copilot-instructions.md"
+            ".github/pull_request_template.md"
+          )
+
+          for f in "${required_files[@]}"; do
+            test -s "$f" || { echo "::error::$f is missing or empty"; exit 1; }
+          done
+
+          grep -qi "CANONICAL / MUST READ BEFORE ANY WORK" FOUNDATION.md             || { echo "::error::FOUNDATION.md lost canonical status marker"; exit 1; }
+
+          for f in AGENTS.md CLAUDE.md GEMINI.md .github/copilot-instructions.md; do
+            grep -q "FOUNDATION.md" "$f"               || { echo "::error::$f no longer points agents to FOUNDATION.md"; exit 1; }
+          done
+
+          grep -q "FOUNDATION.md" .github/pull_request_template.md             || { echo "::error::PR template no longer requires foundation acknowledgment"; exit 1; }
+
+          echo "Foundation guard passed."
