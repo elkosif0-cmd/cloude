@@ -19,13 +19,37 @@ function lastHTML(s){
   (f&&f.keys?'<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>المؤشر</th><th>القيمة</th></tr></thead><tbody>'+
   [["الإيرادات","revenue"],["مجمل الربح","gross"],["الربح التشغيلي","operating"],["صافي الربح","profit"],["الأصول","assets"],["الالتزامات","liabilities"],["حقوق الملكية","equity"]].map(([l,k])=>'<tr><td>'+l+'</td><td class="n">'+sarMinor(f.keys[k]?.current)+'</td></tr>').join("")+'</tbody></table></div>':"");
 }
+function mpmHTML(){
+  const st=CP().state(),suggested=st.reporting?.suggestedMeasures||[],registered=CP().mpms(),subs=CP().mpmSubtotals();
+  if(!st.reporting?.lastStatements)return '<section class="card"><div class="card-h"><div><h3>IFRS 18 — مقاييس الأداء المحددة من الإدارة</h3><p>ابنِ القوائم أولًا حتى نستطيع مطابقة المقاييس مع المجاميع.</p></div></div></section>';
+  const regKeys=new Set(registered.map(x=>x.sourceKey));
+  const suggestions=suggested.length?suggested.map(m=>'<div class="tbr-req"><div class="tx"><b>'+esc(m.name)+'</b><small>'+sarMinor(m.value)+' · '+esc(m.note||"")+'</small></div><div class="tbr-req-m">'+
+    (m.ifrs18Candidate?'<span class="sksev warn">مرشح MPM</span>'+(regKeys.has(m.key)?'<span class="sksev ok">مسجل</span>':'<button type="button" class="btn sm" data-ri-mpm-register="'+esc(m.key)+'">سجل كمقياس MPM</button>'):'<span class="sksev info">KPI — ليس MPM تلقائيًا</span>')+'</div></div>').join(""):'<div class="sk-note">لا توجد مقاييس مشتقة من البيانات الحالية.</div>';
+  const rows=registered.length?registered.map(m=>{const r=CP().mpmReconciliation(m.id),diff=r&&r.difference!=null?sarMinor(r.difference):"—";return '<tr><td><b>'+esc(m.name)+'</b><small>'+esc(m.communicationSource)+'</small></td><td>'+esc(r?.nearestLabel||subs[m.nearestSubtotal]||m.nearestSubtotal)+'</td><td class="n">'+(r?.measure?sarMinor(r.measure.value):"—")+'</td><td class="n">'+(r?.nearestValue!=null?sarMinor(r.nearestValue):"—")+'</td><td class="n">'+diff+'</td><td>'+(m.approved?'<span class="sksev ok">معتمد بشريًا</span>':'<span class="sksev warn">مسودة</span>')+'</td><td><button type="button" class="linkish" data-ri-mpm-approve="'+esc(m.id)+'">'+(m.approved?'إلغاء الاعتماد':'اعتماد')+'</button> · <button type="button" class="linkish danger" data-ri-mpm-del="'+esc(m.id)+'">حذف</button></td></tr>'}).join(""):"";
+  return '<section class="card"><div class="card-h"><div><span class="eyebrow">IFRS 18</span><h3>مقاييس الأداء المحددة من الإدارة (MPM)</h3><p>المحرك يقترح فقط. التسجيل يحتاج مصدر استخدام عام وسببًا، ثم تتم المطابقة حتميًا مع أقرب subtotal؛ الاعتماد بشري.</p></div><span class="sk-pill">'+registered.length+' مسجل</span></div><div class="card-b sk-stack">'+
+    '<div class="tbr-reqs">'+suggestions+'</div>'+
+    (rows?'<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>المقياس</th><th>أقرب مجموع IFRS</th><th>المقياس</th><th>المجموع</th><th>فرق المطابقة</th><th>الحالة</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<div class="sk-note">لم تسجل الإدارة MPM بعد.</div>')+
+    '<p class="hint">وجود KPI في تقرير الإدارة لا يجعله تلقائيًا MPM وفق IFRS 18. يجب تقييم تعريف المعيار ونطاق الاتصالات العامة.</p></div></section>';
+}
+async function registerSuggestedMpm(key,root){
+  const st=CP().state(),m=(st.reporting?.suggestedMeasures||[]).find(x=>x.key===key);if(!m)return toast("لم أجد المقياس المقترح","warn");
+  if(!m.ifrs18Candidate)return toast("هذا المقياس ليس مرشح MPM تلقائيًا في هذا المسار","warn");
+  const opts=Object.entries(CP().mpmSubtotals()).map(([id,label])=>[id,label]);
+  const v=await SK.form("تسجيل MPM — "+m.name,[
+    {key:"purpose",label:"لماذا ترى الإدارة أن هذا المقياس يعبّر عن جانب من الأداء؟",type:"textarea",required:true},
+    {key:"communicationSource",label:"أين يُستخدم في الاتصالات العامة؟",placeholder:"مثال: بيان النتائج / عرض المستثمرين",required:true},
+    {key:"nearestSubtotal",label:"أقرب مجموع IFRS للمطابقة",type:"select",value:m.nearestSubtotal||"operating",options:opts}
+  ],{ok:"تسجيل كمسودة",message:"التسجيل لا يعني أن المقياس مستوفٍ تلقائيًا لمتطلبات IFRS 18، ولا يعتمد الإفصاح دون مراجعة بشرية."});
+  if(!v)return;
+  try{CP().registerMpm({name:m.name,sourceKey:m.key,purpose:v.purpose,communicationSource:v.communicationSource,nearestSubtotal:v.nearestSubtotal,method:m.note});toast("سُجل المقياس كمسودة IFRS 18","ok");paint(root)}catch(err){toast(err.message,"bad")}
+}
 function docsHTML(){
   const docs=CP().documents();if(!docs.length)return'<section class="card"><div class="card-b">'+SK.ui.state.empty("لا ملفات مرفوعة","ارفع ملفاتك من البطاقة أعلاه.")+'</div></section>';
   return '<section class="card"><div class="card-h"><div><h3>مصادر الشركة</h3><p>كل ملف يحمل نوعًا وبصمة ومصدرًا. الإرسال للمراجعة اختياري وصريح.</p></div></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الملف</th><th>النوع</th><th>الحجم</th><th>البصمة</th><th></th></tr></thead><tbody>'+
   docs.map(d=>'<tr><td><b>'+esc(d.name)+'</b><small>'+esc(d.importedAt.slice(0,16).replace("T"," "))+'</small></td><td><select data-ri-type="'+d.id+'" aria-label="نوع '+esc(d.name)+'">'+Object.entries(typeLabel).map(([id,label])=>'<option value="'+id+'"'+(id===d.type?' selected':'')+'>'+esc(label)+'</option>').join("")+'</select></td><td class="n">'+Math.ceil(d.size/1024)+' KB</td><td class="n" title="'+esc(d.sha256||"")+'">'+esc((d.sha256||"").slice(0,12)||"—")+'</td><td><button type="button" class="linkish" data-ri-review="'+d.id+'">أرسل للمراجعة</button> · <button type="button" class="linkish danger" data-ri-del="'+d.id+'">حذف</button></td></tr>').join("")+
   '</tbody></table></div></div></section>';
 }
-function paint(root){root.innerHTML=statusHTML()+docsHTML()}
+function paint(root){root.innerHTML=statusHTML()+mpmHTML()+docsHTML()}
 async function build(root){
   const docs=CP().documents().filter(d=>d.type==="trial-balance"&&/\.(csv|tsv|txt|xlsx)$/i.test(d.name));
   if(!docs.length){toast("ارفع ميزان مراجعة CSV/TXT/XLSX أولًا","warn");return}
@@ -38,7 +62,8 @@ async function build(root){
     if(!tb.ok)throw new Error("لم يمكن قراءة ميزان المراجعة");
     if(!tb.balanced){toast("الميزان غير متزن؛ تم التحليل لكن لن نعرضه كقوائم جاهزة للاعتماد","warn")}
     const fs=SKEngines.reports.statements.buildStatements(tb,{}, {tax:CP().profile().taxMode});
-    CP().saveReportResult(tb,fs,pick.name);paint(root);
+    const measures=SKEngines.reports.annualReport&&SKEngines.reports.annualReport.performanceMeasures?SKEngines.reports.annualReport.performanceMeasures(fs):[];
+    CP().saveReportResult(tb,fs,pick.name,measures);paint(root);
     toast("تم بناء القوائم حتميًا من "+tb.rows.length+" حسابًا","ok");
   }catch(e){toast(e.message||String(e),"bad")}
 }
@@ -52,6 +77,9 @@ function bind(root){
   root.addEventListener("click",async e=>{
     if(e.target.closest("#ri-build")){await build(root);return}
     if(e.target.closest("#ri-audit")){window.SKosifCore&&SKosifCore.go("tbreview");return}
+    const reg=e.target.closest("[data-ri-mpm-register]");if(reg){await registerSuggestedMpm(reg.dataset.riMpmRegister,root);return}
+    const app=e.target.closest("[data-ri-mpm-approve]");if(app){const m=CP().mpms().find(x=>x.id===app.dataset.riMpmApprove);if(m){CP().approveMpm(m.id,!m.approved);toast(m.approved?"أُلغي اعتماد المقياس":"اعتمد المستخدم المقياس","ok");paint(root)}return}
+    const md=e.target.closest("[data-ri-mpm-del]");if(md&&await SK.confirm("حذف تعريف MPM من الشركة؟",{danger:true,ok:"حذف"})){CP().removeMpm(md.dataset.riMpmDel);paint(root);return}
     const hand=e.target.closest("[data-ri-review]");if(hand){if(await SK.confirm("إرسال مرجع هذا المستند إلى ملف المراجعة؟ لن يُعتبر دليلًا مقبولًا قبل فحصه واعتماده.",{ok:"إرسال"})){CP().requestAuditHandoff(hand.dataset.riReview);toast("أُضيف إلى قائمة التسليم للمراجعة","ok")}return}
     const del=e.target.closest("[data-ri-del]");if(del&&await SK.confirm("حذف الملف من مخزن هذه الشركة؟",{danger:true,ok:"حذف"})){await CP().removeDocument(del.dataset.riDel);paint(root)}
   });
