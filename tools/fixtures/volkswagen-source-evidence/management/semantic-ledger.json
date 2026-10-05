@@ -1,0 +1,2498 @@
+[
+  {
+    "physical_page": 3655,
+    "printed_page": 4,
+    "source_text_sha256": "78c5ee34b30dc8ac1747086d1fcd9f7769d56580157b3b649444d9d7e9b772fc",
+    "review_status": "semantically_reviewed",
+    "review_depth": "navigation_only",
+    "section": "navigation",
+    "findings": [
+      "Shareholder section contents."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3656,
+    "printed_page": 5,
+    "source_text_sha256": "023544f66742df0361226a22b687eef5c03c2eb23288edbc65e34d16630958c0",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shareholder letter and boards",
+    "findings": [
+      "Letter: approximately EUR 322bn revenue, EUR 8.9bn operating result, automotive cash flow EUR 6.4bn and liquidity EUR 34.5bn. Share performance excludes versus includes dividend: 16% versus 24%."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3657,
+    "printed_page": 6,
+    "source_text_sha256": "d44b355774f069683dea6c39faa5b7aff35d48b1cbca376dabb9d9bba591c9b2",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shareholder letter and boards",
+    "findings": [
+      "Dividend payout 30% excludes Porsche goodwill charge in assessment basis, whereas unadjusted payout 39%; not interchangeable. Planned 50,000 German job reductions and >EUR 6bn annual savings by 2030 are targets."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3658,
+    "printed_page": 7,
+    "source_text_sha256": "9ecc3e21d96ae02585c3b035dced8079d55dd6b044fec859a95ca464d685031a",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shareholder letter and boards",
+    "findings": [
+      "Rivian/Xpeng regional software partnerships, PowerCo cell factory and future 2027 product plans; expected rollout is not current revenue."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3659,
+    "printed_page": 8,
+    "source_text_sha256": "bb2e4b854b0f1a78aa5feb04fac62cf8048dbcb0e48ed06134c75a051b1885c1",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shareholder letter and boards",
+    "findings": [
+      "2030 operating margin ambition 8\u201310%; prospective strategy, not forecast 2026 or achieved 2025."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3660,
+    "printed_page": 9,
+    "source_text_sha256": "b272f11bf081a236d92ea7f32258e72173a3ad8f12f073d95301679d0f4cb3d5",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shareholder letter and boards",
+    "findings": [
+      "Management photo/name/role overview: Blume, Antlitz, Brandst\u00e4tter, D\u00f6ss; report-date scope."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3661,
+    "printed_page": 10,
+    "source_text_sha256": "e789f3e6f08e0ec41e6ae6d38749eed3fcf46b96f5b2e5dfb32d06198e2d7ecc",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shareholder letter and boards",
+    "findings": [
+      "Management photo/name/role continuation: D\u00f6llner, Sch\u00e4fer, Schmall-von Westerholt, Stars."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3662,
+    "printed_page": 11,
+    "source_text_sha256": "5809a77b22454864f6d7d8b9a25efd6df9555c4617fd0029ef5548109491f8b5",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shareholder letter and boards",
+    "findings": [
+      "Supervisory Board describes oversight and eight meetings, 95% member attendance; oversight statement is not independent control-effectiveness assurance."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3663,
+    "printed_page": 12,
+    "source_text_sha256": "bf8b876bf184b4d10f81cc205ecf33abc542b257f15da1a5b7ae81a1bf91a512",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shareholder letter and boards",
+    "findings": [
+      "Four committees; executive 10 meetings, nomination 1, audit 4, mediation none. Committee responsibilities include sustainability."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3664,
+    "printed_page": 13,
+    "source_text_sha256": "70fa7438cae98db36cef0150e5b4b2681915e5e66eb62606235341f77bc6193e",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shareholder letter and boards",
+    "findings": [
+      "2025 supervisory chronology including March 2024-accounts approval and July changes in management/audit committee."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3665,
+    "printed_page": 14,
+    "source_text_sha256": "62875a18a5a57bc96bed7a1c2d608121e0bc73091483436ee1551a2cffec3ae4",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shareholder letter and boards",
+    "findings": [
+      "Attendance matrix includes appointment-period denominators; zero-of-two is distinct dash/not-member. Date-specific board decisions through December."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3666,
+    "printed_page": 15,
+    "source_text_sha256": "936027919c9368f4c3d60b0209320e985027319affcf5b7d61358b5d6cf009a9",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shareholder letter and boards",
+    "findings": [
+      "Conflict recusals for TRATON and diesel; no consent/disclosure-triggering related-party cases under defined statutory threshold; changes in board membership."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3667,
+    "printed_page": 16,
+    "source_text_sha256": "276f1789f691e6b4efde5ebb1a6fceddbea3c7b3b69fe60c9bf5b12e8f2d15ad",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shareholder letter and boards",
+    "findings": [
+      "EY unqualified financial audit and separate nonfinancial review; Supervisory approved statements March 6, 2026. Early-warning-system statutory finding is not blanket ICFR opinion."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3668,
+    "printed_page": 17,
+    "source_text_sha256": "0b19cdc176edc563642b77f66ffd997d72f60b63a19b37b33580a8873a82a70a",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shareholder letter and boards",
+    "findings": [
+      "Sustainability limited overall, reasonable taxonomy/DCI; remuneration content audit; report signed March 6, 2026."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3669,
+    "printed_page": 18,
+    "source_text_sha256": "2d52715e3e5ee3226bc6ecadb5f2ea1d6ef3f99b854435bca15c030a1e529679",
+    "review_status": "semantically_reviewed",
+    "review_depth": "navigation_only",
+    "section": "navigation",
+    "findings": [
+      "Corporate governance section contents."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3670,
+    "printed_page": 19,
+    "source_text_sha256": "78660e980111ae6e666f593597b0f6f922933983ed83fe14b3175dcf2a9150ce",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "Nov 14, 2025 declaration of conformity with specified exceptions; first-appointment length discretion."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3671,
+    "printed_page": 20,
+    "source_text_sha256": "e2b4ec4f6bc4f97927fe64c4b42217817a1028ca1cacaa5c7fbb1198d3ffb975",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "Exceptions for board age, mandate ceilings, election disclosure and IPO bonus variable-remuneration balance; company explanations preserved as assertions."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3672,
+    "printed_page": 21,
+    "source_text_sha256": "d8d481409c795ce418f42765019bb783f75b7604dc6162499e484ec1701f6f35",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "IPO bonus three-year vesting exception now ended; Diess continuing contract and uncertain severance-cap scope still disclosed; no unconditional compliance claim."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3673,
+    "printed_page": 22,
+    "source_text_sha256": "72152121ef7fed62190b45e5f7fd530088cb44b3c145bd9551351df169cdabf5",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "Ten management functions but eight people at year-end; Sport Luxury moves to collective responsibility Jan 2026. Duties/functions are not member count."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3674,
+    "printed_page": 23,
+    "source_text_sha256": "ae974dec0676a483eae78309091b88eece2ef489d9e9d4665afacdd063d3ab93",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "Related-party threshold 1.5% fixed/current assets; procurement checks >EUR 1bn contracts, not blanket disclosure exemption below it."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3675,
+    "printed_page": 24,
+    "source_text_sha256": "9bab337ed88eed28ff5a6b11ae333d87937df44386fbe6307e265b385e9f6687",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "Additional consent for transactions with shareholder holding at least 5% regardless general threshold; conflicts abstain; diversity policy."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3676,
+    "printed_page": 25,
+    "source_text_sha256": "e796fb7cdf5a6124906a1c5ddebee224fd94ebe9aa1ba8f4f90264f92143d0b9",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "Board age normally65, extension to68 by two-thirds; supervisory20 members split10/10, Lower Saxony appoints2 if at least15% ordinary shares."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3677,
+    "printed_page": 26,
+    "source_text_sha256": "10b49ae45f0dd068f6223d58bbe3b09776b27141018a29928f63b7a391877c49",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "Supervisory procedures quorum10, production-site consent two-thirds; ESG officer; company procedures not auditor effectiveness conclusions."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3678,
+    "printed_page": 27,
+    "source_text_sha256": "c814debdaba2bc2b8a143aa56eca24939f93eb6ec3b2e286170059dbb6908db7",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "Executive, nomination, mediation and audit committee scope; audit includes financial and sustainability processes and related-party checks."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3679,
+    "printed_page": 28,
+    "source_text_sha256": "4b37f1d56fd0b7a1c68968f8589e9860691cd8744010b72de0d866f8540ff3f4",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "Independence targets and self-assessment; long tenure family representatives considered independent of company/management despite indicator; not same as independent of controlling shareholder."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3680,
+    "printed_page": 29,
+    "source_text_sha256": "c00da00e73a957b80ff66fa4046f40777dca0bcfe80509a5cda5527de225453f",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "P\u00f6tsch independence explanation despite prior executive transition; skills profile includes automotive/technology/ESG."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3681,
+    "printed_page": 30,
+    "source_text_sha256": "072150f7fcac200fbac1d0f61537de47d6d116ace2a581d5f087ab6b5c0e81c8",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "Finance/accounting/auditing includes sustainability expertise; diversity goals applied to proposals, AGM not bound; collective skills representation claim."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3682,
+    "printed_page": 31,
+    "source_text_sha256": "22bb045f8afd69f383b24be670c4ec671fb3eaf8c6fbf3f530201c17eade1664",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "Qualification matrix visually checked; skills assigned by members self-evaluation and may cover only one subsection, not external certification."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3683,
+    "printed_page": 32,
+    "source_text_sha256": "24bf0713cca32a134f5acc4ef4c4996d7d7073fac43220ed143063d71e787efc",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "Self-evaluation every two years; supervisory women45%; first-management women18.2% versus16.5% target. Parent company active workforce scope."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3684,
+    "printed_page": 33,
+    "source_text_sha256": "5ee9952a4bbba8088b85a51ba13bc861c880974855f884ee40c1e8b51fba2e48",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "Second-level women23.8%; new2028 targets21.3%/27.1%; code/COSO/governance voluntary framework."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3685,
+    "printed_page": 34,
+    "source_text_sha256": "9ce6fc55762dcaf1bffc64b195aaae341c5eab1c336fe39162f637250fb85905",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "Whistleblower, human rights, inclusion commitments; descriptions of systems do not guarantee outcomes."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3686,
+    "printed_page": 35,
+    "source_text_sha256": "06c675db3577cb850cecdd3b51bdc6f7656a43b495c1a6a29bbe7847d791c12f",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "Board appointments at Dec31 or departure; Blume Porsche role endsDec31; group versus external mandates use footnotes."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3687,
+    "printed_page": 36,
+    "source_text_sha256": "19f734200c3184fe7f0469e2c6e724735ce2bff9b1256983af748e4e0a3feed8",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "Kilian departed July4; Sch\u00e4fer HR fromJuly5; row scopes/date differ across members."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3688,
+    "printed_page": 37,
+    "source_text_sha256": "e0d6513b4d92de6fd1d97fee068aa179e12723949e7f093d5f8277af7e212e34",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "Supervisory list includes outgoing/incoming2025 appointments; report lists more individuals than simultaneous20 members."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3689,
+    "printed_page": 38,
+    "source_text_sha256": "1f0fdf69634e8bca4f9fd8aee250bace4e91b865cf0f2088cce6c864138cf860",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "Supervisory profiles and mandates continuation; role and election/delegation terms preserve effective dates."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3690,
+    "printed_page": 39,
+    "source_text_sha256": "d8e126890e49b7f072dd212c4286ec6d1785eeeac10989ecfb5c32862e69dbf8",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "corporate governance",
+    "findings": [
+      "Supervisory committee membership: Wiegand audit chair, Cavallo deputy; employee/shareholder and overlapping roles not additive headcount."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3691,
+    "printed_page": 40,
+    "source_text_sha256": "8a3e2671bd836a935b429c0923f84abd30aefaf7bf2cb4cd0496b881e4cd4a61",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "2024 remuneration system applies active members; Duesmann legacy three-year plan exception. Bonus facts distinct from reported Group financial result."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3692,
+    "printed_page": 41,
+    "source_text_sha256": "527f25e31e586f5d2676e1f588fd147669cf38f68f0753fdf28457e3e84843c7",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Board voluntary remuneration waiver up to five years; previous report approved98.96%; paid versus target remuneration distinction."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3693,
+    "printed_page": 42,
+    "source_text_sha256": "d680e6ed8804124c1294208d140b48f73619d86edb5c1843fcbc24229ec36604",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Annual bonus 50% automotive net cash flow/50% ROS times ESG; eleven-percent gross-cash waiver; Blume50% VW/50% Porsche in2025,100% VW from2026."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3694,
+    "printed_page": 43,
+    "source_text_sha256": "76bb87655b229efed2d749c1f4fad2ab77cf5389f7f674e939656577a560bd15",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Rendered LTI policy states target EUR5.9m/2.5m and250% cap but listed EUR11.8m/5m equals200%; unresolved source cross-field discrepancy, not silently repaired."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3695,
+    "printed_page": 44,
+    "source_text_sha256": "9832c28b996029a3f6080f4311c5a39a39ee383afa8e0829365a9c4e37e1eca8",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Annual overall caps EUR15m chair/8.5m member; cash caps12.5m/7m separate; clawback within3years; dual roles credited/remuneration scope."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3696,
+    "printed_page": 45,
+    "source_text_sha256": "c4360b1f90742b12e1926e540c21378b63e34953154fadbab3d7996157d7dfd4",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Granted definition actual receipt, annual2025 bonus paid after approval included in2025; IAS19 service cost not granted/owed. Preserve convention rather than assuming calendar cash."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3697,
+    "printed_page": 46,
+    "source_text_sha256": "006cb7611393e9793af5f13d9e933b6d78e710fd81bfc59ea856590c5c3ebd27",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Blume combined reported total EUR6,306,458.67 with waiver-493,771.26 separately; Porsche IPO/LTI and pension separate. Table total appears before displayed waiver, compare other pages."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3698,
+    "printed_page": 47,
+    "source_text_sha256": "f1bbcc1521a515e79ab593cf522752e14ee5524f182f81f169cdbe216afba8f7",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Antlitz reported total5,075,339.19 equals positive components and excludes displayed waiver-537,710.60; rendered source verified, unresolved presentation difference."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3699,
+    "printed_page": 48,
+    "source_text_sha256": "fc46e7addb8c6e54910fb67b2ccef8a63c64438e0e0ef5402e17ce8af28c5d32",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Brandst\u00e4tter VCIC percentages90% then75%, assignments and tax law; no LTI payout yet; reported total3,837,923 before separate waiver."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3700,
+    "printed_page": 49,
+    "source_text_sha256": "aee70c224dea5806f064c3b95645ae88d2e516d4d2d5873f443778e8d8187047",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "D\u00f6llner and D\u00f6ss no LTI payout yet; D\u00f6ss75% standard remuneration; totals appear before displayed waiver; outside mandate pay already credited in base, do not add twice."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3701,
+    "printed_page": 50,
+    "source_text_sha256": "c4e238fc0f7dde17efea46919cfd9b744b35d36b3faf3c00933f8738659425f8",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Kilian active-period only Jan1\u2013Jul4, total1,791,959.70; Sch\u00e4fer annual total3,401,649.00; active waiver rows appear excluded from totals."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3702,
+    "printed_page": 51,
+    "source_text_sha256": "294dc078e76f4b65664eedaaf6cb76f8a2a85999aed7b601b269c3ad32df0275",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Schmall total5,630,301.30 and Stars3,401,076; pension amounts separate; no Stars LTI payout; waiver presentation remains unresolved."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3703,
+    "printed_page": 52,
+    "source_text_sha256": "b21ff74dd283e1fd1e57f0281f8c837445f8c09e46aaa9d15c7cb9fa595ea862",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Annual-bonus diagram: equal-weight financial achievement175% and0%; ESG multiplies. Net cash flow threshold2.5 target3.5 max5.6 actual6.4bn; ROS actual2.8% below3.8% minimum."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3704,
+    "printed_page": 53,
+    "source_text_sha256": "780db6b6c79177f181176705c526ce9739c20e4293d1bcda9616d0f35da7eb23",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "ESG factor1.30; DCI46.3tCO2e/vehicle and diversity168points exceed maximum targets. US population exclusions affect diversity denominator; engagement added only2026."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3705,
+    "printed_page": 54,
+    "source_text_sha256": "b44df560c224719375610e83135cee2e9f84d2967a93dd21214da59419fa3aad",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "LTI chart visually distinguishes new250% payout cap versus paid2021\u201324/2022\u201324 plans200% cap and150% EPS maximum; does not resolve2025 policy table monetary-cap discrepancy."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3706,
+    "printed_page": 55,
+    "source_text_sha256": "a1ecefe3c70ac8e5df0e55324673e63dd8f32d1364745f1bc0963d021317c5dd",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Share allocations at grant date by performance cohort; 2025\u201328 total265,364 includes Kilian versus note49 active250,710 different date/population. Prior-program EPS and paid/granted timing."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3707,
+    "printed_page": 56,
+    "source_text_sha256": "a6cfb7de718d63b1269a94610061e914cdbec71e5baaab2a1e148d264e4eec76",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "2025 EPS13.35 gives67% on older2022\u201325 schedule but0% on later cohorts with18 or15 threshold; no one universal EPS-to-award rule."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3708,
+    "printed_page": 57,
+    "source_text_sha256": "e504b1d55dcc3cd4aa11b1c123b60d3e8c5d982b9c19522a4b6c4b89675a510e",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "2025\u201328 EPS minimum15,target24.45,max37.5; historical2021\u201324 reference149.14,close84.13 and actual dividends including special27.82."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3709,
+    "printed_page": 58,
+    "source_text_sha256": "8ee9e92987e7c0e277bef325bf28ad2d2c661e6d67766794cd3d440ab962b893",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Unpaid plans reference-price table includes101.70 with superscript1, not101.701; projected/missing closing price notzero. Policy narrative cap250% reiterated."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3710,
+    "printed_page": 59,
+    "source_text_sha256": "cf9b982026c80a1a53f352aa5d74bb152691da55b82aa0f5c2b0c341ae7b4785",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Termination benefits maximum2years conditions; pensions table present values versus service expense5,110,060.32; no change-control clauses."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3711,
+    "printed_page": 60,
+    "source_text_sha256": "f1280eeb460fefb60b738ea873c875cf1f4456757bdd470b527a8b9f0f52c143",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Pension40%base,Blume50%; Kilian continued contract throughDec9 2026, no lump-sum severance; no clawbacks2025."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3712,
+    "printed_page": 61,
+    "source_text_sha256": "d7cf0f953e641c390c91ff964a30beb004c60196a6abdfa0a13d16ebea341640",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Former members include2025 bonus paid2026 by convention; Aksel2.2296m,Diess7.9323m; pensions separate."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3713,
+    "printed_page": 62,
+    "source_text_sha256": "5ed08da52a50dfd11bf8b8bea6d10d1004d99aa83adae33c768f94e03659ef2e",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Duesmann noncompete1.6875m in footnote separate from total2.6316m table; do not silently assume included. Other retired payments separate."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3714,
+    "printed_page": 63,
+    "source_text_sha256": "7738faf7195822048ab4fb9f69a2c0c6ce1878c6683f97848c0316694fe8ca0a",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Kilian post-Jul4 table explicitly subtracts181,745.77 waiver in total1,560,554.53, unlike active-member tables. Render verified; comparator must preserve both conventions pending clarification."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3715,
+    "printed_page": 64,
+    "source_text_sha256": "b3ff26710dab5e777eae2caaf48b1e15d6d4d8c921ba29b51b325e543a4ea4fb",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Former members Stadler/Werner/Witter: dash versus amounts, no current-member aggregate assumption."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3716,
+    "printed_page": 65,
+    "source_text_sha256": "aac63f74bc424db62037e7a2ea541e742baa82d23875e21a67fc8e8b90900c75",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Pre2016 former members aggregate11.7m,DBO124.6m; remuneration comparison uses parent HGB personnel/FTE and separate Group performance. Peer group mixed automotive/technology/industry."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3717,
+    "printed_page": 66,
+    "source_text_sha256": "f030d40e29cce03f082725371951dbe56fc6c62ac13898281f4d2fddb31a870f",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Percentage changes reflect paid cohort/partial-year changes; parent profit+46.1% while Group profit-44.3%. Not like-for-like individual pay increase inference."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3718,
+    "printed_page": 67,
+    "source_text_sha256": "0259d8f4b6b95ae61d7d8882a8e4d2fa6e96876693327098ca94651a1f7e182e",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Supervisory fixed-only remuneration170k/510k/340k; committee75k multipliers, max2,meeting1k once perday; no remuneration after departure."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3719,
+    "printed_page": 68,
+    "source_text_sha256": "c085e8957da031c559074d46de5ca61b1164c0f049ac0ab921b70a7f83441d01",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Supervisory D&O and incurred expenses; table described actual received; retained statutory convention distinction."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3720,
+    "printed_page": 69,
+    "source_text_sha256": "49973ae1703b468bf2f952470a385c645204a3a974b3910d0ae335dbc52d7efd",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Board pay total5,193,815.07 plus otherGroup board pay2,614,021=7.8078m rounds note49 7.8m; Carnero waived all; donated/transfer obligations not no cost."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3721,
+    "printed_page": 70,
+    "source_text_sha256": "aee2594bf155cc017a0f03a35eeef1c8b6173e29e79da526d02c47acc6f5a487",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "remuneration",
+    "findings": [
+      "Supervisory comparison partial-year new/departed not homogeneous; employee denominator parentFTE and HGB personnel scope."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3722,
+    "printed_page": 71,
+    "source_text_sha256": "598541581a2f63cf18a68d4af1392e3db215f368f76e711905cf5fc22184e1ff",
+    "review_status": "semantically_reviewed",
+    "review_depth": "navigation_only",
+    "section": "navigation",
+    "findings": [
+      "Combined management report contents, including separate HGB parent section."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3723,
+    "printed_page": 72,
+    "source_text_sha256": "c0ffb72dcb2b69ce15acaa1ec3f9f746d57771bc537ae99c139d933d2ab510f9",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "strategy start",
+    "findings": [
+      "Group strategy2024 continued2025; chart three pillars global regional positioning,value-chain skills,strong profitable brands."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3724,
+    "printed_page": 73,
+    "source_text_sha256": "4a321aa3669352efbb5e5612848804f2bb49059d97562c23c8e7703fb4795df6",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "strategy start",
+    "findings": [
+      "Visual9imperatives across customer/potential/fundamentals: portfolio,life cycle,technology;speed/scale,talent,AI;cost,resilience,sustainability."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3725,
+    "printed_page": 74,
+    "source_text_sha256": "d9d8ffbdaa59b4b766f560d78be07fe5ff6bf99a1f09dfff8d431d92d752bbc2",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "strategy start",
+    "findings": [
+      "OKR twice-yearly review; regional profitable portfolio,use-phase services,SDV software first andPowerCo integrated value chain; ambitions not achieved results."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3726,
+    "printed_page": 75,
+    "source_text_sha256": "a900b619e4278da4e644156b1ad48de9316bfb43209293fd1f2a95b7b2faae93",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "strategy management and scope",
+    "findings": [
+      "SSP and PULSE2035 strategy; balance brand autonomy and scale, people skills; future benefits not current recognized assets."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3727,
+    "printed_page": 76,
+    "source_text_sha256": "b3b059303d8209d746692e2c95fa3a7d2e5d74e643636033313b4df2a71cd537",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "strategy management and scope",
+    "findings": [
+      "AI transformation, cost and resilience imperatives; regenerate+ covers nature, people, society and business."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3728,
+    "printed_page": 77,
+    "source_text_sha256": "6b5853db460d72c1355da9a8df6dd6424283ef2a18518544ddec66f428305345",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "strategy management and scope",
+    "findings": [
+      "TOP10 is annual execution priorities, distinct nine strategic imperatives."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3729,
+    "printed_page": 78,
+    "source_text_sha256": "412d010a6de490b26e6590ba971f4969a6a50aeee7c8f25ad84666684d33fc11",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "strategy management and scope",
+    "findings": [
+      "Five-year medium-term planning, monthly budgets and quarterly forecasts; actual-versus-plan must preserve forecast version."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3730,
+    "printed_page": 79,
+    "source_text_sha256": "6eed3cdcd72e4b0f2f7bb0f42b2208baac6d45a5527b5a8edeb6e11c8c3aa804",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "strategy management and scope",
+    "findings": [
+      "Core KPIs explicitly define deliveries incl Chinese JVs, revenue excl JVs, investment ratio R&D+capex, automotive NCF excludes financial investments, net liquidity includes affiliate/JV loans."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3731,
+    "printed_page": 80,
+    "source_text_sha256": "b0e0d137ccc7c7c9421452fe853571c4045d9f52466533219ad6e8facde2dbad",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "strategy management and scope",
+    "findings": [
+      "2030 margin ambition reduced9\u201311% to8\u201310%; actual2.8%; automotive cash conversion122.1%, liquidity10.7% denominator consolidated revenue."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3732,
+    "printed_page": 81,
+    "source_text_sha256": "703ac328d0b0f23944b6fb8b023c185444467e40fdee6231dd22d1e9871f87ed",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "strategy management and scope",
+    "findings": [
+      "Parent legal structure and energy unbundling; year-end workforce602659 excludes China JVs; two automotive reportable segments plusFS."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3733,
+    "printed_page": 82,
+    "source_text_sha256": "c038b334d669944d8796851dfe43aa3ed3ed66b02bf840b8806b90231ed3e9dd",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "strategy management and scope",
+    "findings": [
+      "Visual reporting structure: brand groups and CARIAD/Battery under passenger segment; FS includes mobility/TRATONFS/PorscheBank. Segment and division not interchangeable."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3734,
+    "printed_page": 83,
+    "source_text_sha256": "ba39a2201b290399049b0e17d7ff428c7cd3b113a01d203eb7722162a9d05f37",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "strategy management and scope",
+    "findings": [
+      "Core/Progressive/SportLuxury/Trucks brand-group memberships; independent legal management within Group policies."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3735,
+    "printed_page": 84,
+    "source_text_sha256": "49278ae57478784eb2b81ff19726be7c9f1d82e93acbdb739305543d4544adb9",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "strategy management and scope",
+    "findings": [
+      "Rivian further1bnUSD in2025, up to2.5bn future equity/debt; 12.3% ordinary investment distinct50%JV."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3736,
+    "printed_page": 85,
+    "source_text_sha256": "49f8a7044cdb856c0669182549a818372160ed399db8bf166788130d27c6de33",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "strategy management and scope",
+    "findings": [
+      "Share capital EUR1283315873.28, ordinary295089818 and preferred206205445, EUR2.56 notional; preferred generally nonvoting and extra0.06 dividend."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3737,
+    "printed_page": 86,
+    "source_text_sha256": "14daf9ea16132e4766ab66ba61acbb8a702e3152c7a239d5ea219589003ff938",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "strategy management and scope",
+    "findings": [
+      "Lower Saxony appointment rights at15% ordinary; qualified majority >four-fifths represented capital; supervisory split10/10."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3738,
+    "printed_page": 87,
+    "source_text_sha256": "40e17f200e80ba889e00f55ca4c0b3bf03f9d59276b7d43fce8be542986fa4ab",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "strategy management and scope",
+    "findings": [
+      "Unused authorized preferred issuance227.5mEUR throughMay2028; credit12.5bnEUR change-control call rights and Ford collaboration termination clauses."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3739,
+    "printed_page": 88,
+    "source_text_sha256": "79368d55980112c0321cb8ab74c9731183203ba99e218f93f5b9baabab3a6feb",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "markets deliveries production workforce",
+    "findings": [
+      "Macro2025 discussion and German stagnation as report assumptions/context; not independent current economic lookup."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3740,
+    "printed_page": 89,
+    "source_text_sha256": "a8d3ced9c9f13b8afdfeb65412b60cb5a53adf666e08a00f22d4f4885b2d160d",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "markets deliveries production workforce",
+    "findings": [
+      "Visual GDP growth curves2021\u201325; no exact datapoint labels, do not invent precision from plot."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3741,
+    "printed_page": 90,
+    "source_text_sha256": "f88117b346caf4586748d9b192e3899d9ba8c53eff13f189ddcb5711ad29f676",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "markets deliveries production workforce",
+    "findings": [
+      "Visual FX indices baseDec2024=100, month-end; not annual-average currency table. Rates and commodity trends narrative."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3742,
+    "printed_page": 91,
+    "source_text_sha256": "365913e7403802a9a9eb56f92f1418353dbcb0a86edf0c4e842600762dfcdc20",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "markets deliveries production workforce",
+    "findings": [
+      "Market passenger/LCV distinctions and country differences; North America LCV includes vehicles up to6.35tonnes."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3743,
+    "printed_page": 92,
+    "source_text_sha256": "a68926da3453057782552b7cc3c5831561aab3e551e4a0ae5dda338fb47ea6ba",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "markets deliveries production workforce",
+    "findings": [
+      "World passenger market81841907 (+3.0%), BEVs13254556 major markets only; LCV7715499(-1.1%); subsets not additive with region totals."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3744,
+    "printed_page": 93,
+    "source_text_sha256": "6944785e145fc85e32c1dcc220784ab6481f951b1d3bfe4fd2b4a7b6a2ab9174",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "markets deliveries production workforce",
+    "findings": [
+      "Commercial relevant truck weight definitions versus global market; financial-service contract trend contextual."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3745,
+    "printed_page": 94,
+    "source_text_sha256": "cac0333cce68013a2e55703eebeba586b94efa5672b27229ad1d33d79c5459d9",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "markets deliveries production workforce",
+    "findings": [
+      "Regional FS trends and launched passenger models; ten-brands wording excludes treating all truck subbrands as same count."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3746,
+    "printed_page": 95,
+    "source_text_sha256": "abc92d54c01f6cedc2c4545b1530a1867d0d5f49d036ed20779d36510eba6a9a",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "markets deliveries production workforce",
+    "findings": [
+      "Deliveries8983900 vs9026681; passenger8678334+commercial305566; BEV983120 includes heavyCV andChinaJVs; prior statistics updated."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3747,
+    "printed_page": 96,
+    "source_text_sha256": "6bb49df02293f1aee9550a453450f8e322a370a77369e746cb92f9f3829cad5d",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "markets deliveries production workforce",
+    "findings": [
+      "Monthly deliveries line chart shows relative monthly pattern, no exact labels. Passenger market share10.1%, BEV6.9% assessed markets; regionalBEV denominator includes heavyCV."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3748,
+    "printed_page": 97,
+    "source_text_sha256": "e7adcd792f2e6840546b3750da2658238f12eafd709db866731be49e740c3bca",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "markets deliveries production workforce",
+    "findings": [
+      "Model-range chart groups Tiguan/Tayron1041thousand; passenger German1184588 versus BEV240359 share19.6% uses total inclheavyCV, not passenger denominator."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3749,
+    "printed_page": 98,
+    "source_text_sha256": "b96be79f2cae572e35aa02ce62faf459328bc3749a2d6fbedc4dd5384e68c3e1",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "markets deliveries production workforce",
+    "findings": [
+      "SouthAmerican passenger deliveries596352, Asia3004945; China2692191 excludes heavyCV whileBEV115453 includesheavyCV; geographic/vehicle boundary."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3750,
+    "printed_page": 99,
+    "source_text_sha256": "75391adaa6d55504983ce766e5d68f43bc958be7a9b128c04975472a4624cd6e",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "markets deliveries production workforce",
+    "findings": [
+      "Passenger regional and brand delivery table sums8678334; includes ChinaJVs, prior statistical trends updated."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3751,
+    "printed_page": 100,
+    "source_text_sha256": "2ffccc4f15ee58d06d9cd6a37c6cf265792f3a6eba7a65d1568ffd96d3444aa8",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "markets deliveries production workforce",
+    "findings": [
+      "Commercial deliveries305566 split truck239839,bus34383,TGE31344; regional/brand totals; distinct from VW Commercial Vehicles passenger segment."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3752,
+    "printed_page": 101,
+    "source_text_sha256": "0160f546b886f6bfe148736bf7e4e8e05dcd61e232bb9bf4c96608c06e5a8ecb",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "markets deliveries production workforce",
+    "findings": [
+      "Orders3726240 European passenger and281325 commercial are annual intake not deliveries; FS contracts30.0m includes internationalJVs,11.5m new flow and37.2% penetration denominatormarkets."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3753,
+    "printed_page": 102,
+    "source_text_sha256": "64ffb9e1593784483c7d97e7743abc3558c93579b9fb45cc7a3bdf57597bd5a8",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "markets deliveries production workforce",
+    "findings": [
+      "Sales9022111 versus deliveries8983900; sales exclChina6433789; production8866144 inclChina,6249942 excluding; no treating measures as equal."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3754,
+    "printed_page": 103,
+    "source_text_sha256": "24abe7c18992578f4787d62fc6248e3d54e88299c5e368aa579585ca2396e216",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "markets deliveries production workforce",
+    "findings": [
+      "Average667164 versus yearend662942 inclChina; active628893+passive16925+trainees17124; exclChina602659. Visual segment workforce sums662942."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3755,
+    "printed_page": 104,
+    "source_text_sha256": "bce4219489227186ef2e99baf5998274858bde376ef77dcb04a0cfe51927c3c4",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shares financing and ratings",
+    "findings": [
+      "DAX performance index includes dividends versus sector pure-price index; benchmark return basis differs."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3756,
+    "printed_page": 105,
+    "source_text_sha256": "33ddc2fae51df4e046427a0dc34071b9e7f6d47473129afe236a9a389cd94a40",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shares financing and ratings",
+    "findings": [
+      "Visual price returns ordinary14.1%,preferred16.3%,DAX23.0%,sector-4.3%; prose bothoutperformedDAX conflicts with figures. Totalreturns21.2%/23.9%; onlypreferred exceedsDAX total basis."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3757,
+    "printed_page": 106,
+    "source_text_sha256": "86ee9a5314c1b99cf0103096453f72336c945e67566c7d341a606338008098f0",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shares financing and ratings",
+    "findings": [
+      "Dividend proposed5.20/5.26 and payout39.2% reported versus30% adjusted for Porsche goodwill; proposed not cashpaid2025."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3758,
+    "printed_page": 107,
+    "source_text_sha256": "3588c196007935daaf69338a67dc189173582f310670cd839760d20bc1a086e8",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shares financing and ratings",
+    "findings": [
+      "Subscribed-capital percentages Porsche31.9,LowerSaxony11.8,Qatar10.4 differ voting53.3/20/17; chart total100%."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3759,
+    "printed_page": 108,
+    "source_text_sha256": "0c63e21340eb58949524e27c7bf6a3cde71674d9d730ac8db3d2395545b158e0",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shares financing and ratings",
+    "findings": [
+      "Share table2025 dividend2619 is proposed2026payment, historical year labels underlying years; 2021 excludesIPO special dividend; share counts thousands, capbn, ratios separate units."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3760,
+    "printed_page": 109,
+    "source_text_sha256": "36a6a0f333cdf5670e5a7d71c610a1d706856bbe2c3e74106e1fccbf5025bfda",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shares financing and ratings",
+    "findings": [
+      "Financing structure chart money/capitalmarket instruments CP4/bonds64/ABS32, not allbalance liabilities; issuance currency and nominal versus net cashflows; hybrid called/redeemed differentdates."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3761,
+    "printed_page": 110,
+    "source_text_sha256": "e9f6e6f408c7bc63076ecfe86b29a7f0c6137d34e8eecd4ec238aa6615b2365a",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shares financing and ratings",
+    "findings": [
+      "Authorized CP/bond302.4bn versus used109.6 incl14.1hybrids; ABS used51.4 differs retainedrisk debt36.5bn note34. Lines30.6 total with0.1 drawn; ratings report-date."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3762,
+    "printed_page": 111,
+    "source_text_sha256": "9534b46e3343c91e15543441c010c4c64f9670b9e8f297558ee94dc9b7ba4d16",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "shares financing and ratings",
+    "findings": [
+      "Issuer/agency/short/long/outlook matrix, VWBank differsparent; FitchTRATON blank not zero/unrated conclusion; ESG ratings company-specific scales."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3763,
+    "printed_page": 112,
+    "source_text_sha256": "a50a9d73a50aed1ec5da7e0e0ae78acee6061aa821dbb9e5391bc5babde663ca",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "divisional results and HGB parent",
+    "findings": [
+      "2025 automotive division excludes separate interdivision eliminations; priorrecast. Includes othercompanies and holding/financing beyond two operating segments."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3764,
+    "printed_page": 113,
+    "source_text_sha256": "50d2485d2b5b7cb5c69b72dab7aa5032421f824ec123c39c0d8afc9c3a06fe8b",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "divisional results and HGB parent",
+    "findings": [
+      "Porsche2.0bn project costs versus2.7bn goodwill; tariffs2.9bn, restructuring1.3bn and0.3bn reversal,CO2provision0.5bn; not single adjusted profit calculation by default."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3765,
+    "printed_page": 114,
+    "source_text_sha256": "a83f687b13683beb669c712292ca0ce72888a607e18333d1b6cfff8c64a9c979",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "divisional results and HGB parent",
+    "findings": [
+      "Rivian FVOCI,TRATON NCI sale,Northvolt recycling,diesel0.1bn no longer specialitem; cross-references match consolidatednotes."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3766,
+    "printed_page": 115,
+    "source_text_sha256": "a68d22549feb33c21e304c4601cc520b5992afd9e8fbb1e389b4c3668b9e9c99",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "divisional results and HGB parent",
+    "findings": [
+      "Income division columns require eliminations: revenue290390+62136-30612=321913 rounded; operating5279+3708-119=8868; automotive\u2260Group."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3767,
+    "printed_page": 116,
+    "source_text_sha256": "2fe7dcfcb5846297d010fdda7557eb988920d3d54f4cecd74c0c8e5efab679b6",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "divisional results and HGB parent",
+    "findings": [
+      "Visual segment shares70/12/18 use reporting segment revenues before reconciling, not consolidatedexternal sales. Automotive R&D19.4bn differs GroupP&L R&D18.396bn."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3768,
+    "printed_page": 117,
+    "source_text_sha256": "47b420de617fae93623117196c6135e8c441b5898162c90c04ba7b926fa73597",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "divisional results and HGB parent",
+    "findings": [
+      "Automotive R&D19412,capitalized9343,amortization8365,P&L18434; capratio48.1%; capitalized additions differ cashflow9047, no forced equality."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3769,
+    "printed_page": 118,
+    "source_text_sha256": "59d8a90f16cec6f5e6f2e6855385dab105531c73dbd8f6150d35543344c1834b",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "divisional results and HGB parent",
+    "findings": [
+      "Group grossCF41637 andWC-26628 produceCFO15009; operatinginvestment25060 excludes securities/loans, unlikefullCFI27484."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3770,
+    "printed_page": 119,
+    "source_text_sha256": "c279c5fcf826da56664f03f70487cf0361e8579c49cdc05fef0eac3abedd76d2",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "divisional results and HGB parent",
+    "findings": [
+      "Full divisional cashflow matrix: autoCFO31406,operatingCFI-24961,NCF6445; groupNCF-10051; autonetliq34497,group-178506 aftereliminations;2024recast."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3771,
+    "printed_page": 120,
+    "source_text_sha256": "364761a46bd04770bd237eba3fa1a101f0b72dc329fb11095788f7363c14f316",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "divisional results and HGB parent",
+    "findings": [
+      "Visual autoNCFbridge roundedbn28.7+2.7-15-9-1.5+0.5=6.4; cashconversion6445/5279=122.1%; hybrid1.9bn issue equity untilcalled."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3772,
+    "printed_page": 121,
+    "source_text_sha256": "1e969443e480a756a4c2d7a92c8eced70c4535b08b712d64e08e4a6d55d83a4b",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "divisional results and HGB parent",
+    "findings": [
+      "Autoliquidity ratio denominatorGroup revenue; FSnegativeNCF commonindustry scope. Guarantees/contingencies/commitments distinct categories with possible overlap."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3773,
+    "printed_page": 122,
+    "source_text_sha256": "03e6d7cdd33687b3906296f3e359782cbc9f0d46ace35ae075e5bada80759de2",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "divisional results and HGB parent",
+    "findings": [
+      "BS composition chart independently rounded99.9% liability components; no repair. Automotiveassets419.7bn beforedivisioneliminations."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3774,
+    "printed_page": 123,
+    "source_text_sha256": "d088f7deccb0009b413917f58c337437183ede8d6c7be92abbd348fec990053d",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "divisional results and HGB parent",
+    "findings": [
+      "Divisional balance matrices group644467=auto419684+FS321408-96625; cash and equity similarlyeliminated; row shareholders174002 excludeshybrid14275."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3775,
+    "printed_page": 124,
+    "source_text_sha256": "b8d535f9bbbab56aa7bf7222407bde18a206223edab367d09c24a64d091c9461",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "divisional results and HGB parent",
+    "findings": [
+      "FS43.4% share matches uneliminateddivisionassets denominator741092, notgroup644467. AutomotiveROI6548/135159 includesJV/excludesPPA and assumes30%tax."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3776,
+    "printed_page": 125,
+    "source_text_sha256": "fd42dc99f0c964ee00e5416f703e4188df2b189894ee73ab2c215ee5d4d79cfa",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "divisional results and HGB parent",
+    "findings": [
+      "Forecast version comparison: original2025ROS5.5\u20136.5,latest2\u20133,actual2.8; autoNCForiginal2\u20135/latest~0/actual6.4; distinguish true outperformlatest from originalmiss."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3777,
+    "printed_page": 126,
+    "source_text_sha256": "7375747cd722fc08e814255c55cdae038ced52ab32286cf6e648503e8a1f3f63",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "divisional results and HGB parent",
+    "findings": [
+      "HGB VolkswagenAG parent income sales97968/profit7500 versusGroup321913/6904; retainedprofit3755 includes transfer3750 and broughtforward4."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3778,
+    "printed_page": 127,
+    "source_text_sha256": "1e00e977103827ebe3e6e7b55149f11d3a67cf2436bd1b2fc7cb4b582bd97ff8",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "divisional results and HGB parent",
+    "findings": [
+      "HGB parentassets215015 andequity47133; debt maturities separate fromIFRSclassifications, financialinvestments157.1bn notGroupcash."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3779,
+    "printed_page": 128,
+    "source_text_sha256": "9224d3423541ce67a4b564d9f6e505b9ca5d950a118677ea2b95715852cc2098",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "divisional results and HGB parent",
+    "findings": [
+      "Parent cashfunds-4.0bn includescashpool/on-demanddebt unlikebankbalance9112; exactdividend proposal2619107694.30+reserve1135000000+carry458566.69=3754566260.99."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3780,
+    "printed_page": 129,
+    "source_text_sha256": "07fefcddb9c3ec214398f9414ad33cd2b63b96f6baabe4e64b5f3c3de4eab586",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "divisional results and HGB parent",
+    "findings": [
+      "Parent personnel10990,yearend106123 excludes subsidiaries,training3749; R&D HGB3.5bn versus automotive19412m. Dependentcompany declarationmanagement assertion."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3781,
+    "printed_page": 130,
+    "source_text_sha256": "c558c614e5b02a0395139a6867c4b5a08695694c774298412dfee95e57ff0cff",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "Sustainability strategy and intangible value drivers; nonfinancial general report distinct assurance chapter."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3782,
+    "printed_page": 131,
+    "source_text_sha256": "299f24fb1bc98736c7b98e7fb529887e5008f22c9405e7a9e25a8282ac8dd9e0",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "Regenerate+fourdimensions and UNGC/stakeholder engagement; membership not independent performance verification."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3783,
+    "printed_page": 132,
+    "source_text_sha256": "df0f3bacd155727a5f9bac62b5295297b38f336af0b4b44a4abae13f091f68a3",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "Environmental/ICMS/ICRA and mandatorytraining framework; organizationdescription doesnotprove effectiveness."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3784,
+    "printed_page": 133,
+    "source_text_sha256": "527045110d1b384eb983eecbd66b24f2eb0d29c406b195a90111a141e6a7558b",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "Risk-based anti-corruption/AMLtraining and whistleblower channels; investigations conditional on reviewedindications."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3785,
+    "printed_page": 134,
+    "source_text_sha256": "219b5c664d0a34e7210f361e5e6b375b519888340f2eab686b4c82d3b104f92b",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "Visual whistleblower channels externalombuds and internalonline/phone/app/email/post/inperson; M&A/NCS due diligence extendsnoncontrolledholdings."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3786,
+    "printed_page": 135,
+    "source_text_sha256": "88e8f0e4951b6f612b654bb3b22da5c3fdcc03095f9ad1bf26127b142c586003",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "EU27+2 newpassenger fleet100g/km versus95target,2024 118; ECconfirmationpending; three-year2025\u201327 compensation mechanism."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3787,
+    "printed_page": 136,
+    "source_text_sha256": "66d793b98f8d2e625aa9bb4485c239301b00e67e81e3fe0fbf5f55effb5088b8",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "US modelyear2025 131g/km versus110target, internalpendingEPA; poolincludesnonGroupBugattiRimac,notcalendarEUcomparable."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3788,
+    "printed_page": 137,
+    "source_text_sha256": "b92172b34317ec3f7427a605b7a3031f5399cce6ce8b671acf5e6bb3243a43b1",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "ICE remains alongsideelectrification,softwaregovernanceCARIAD forarchitecture/coretech; automatedversusautonomous milestones."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3789,
+    "printed_page": 138,
+    "source_text_sha256": "26d5d18b4f61a970eb3a4759a137b16e64407dade7ecb34249ab6e235560634c",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "Fordplatformalliance,BoschLevel2/3,ChinaCarizon/Rivian50%JVs; patent7915 annualapplications notgrantedpatents."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3790,
+    "printed_page": 139,
+    "source_text_sha256": "f9ca2584d429a440a2ae5ff68a2b685a1bfe92e1f1293ea7f388255aad0c90e4",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "R&Dyearend62954 inclChinaJV; procurementdigitalizationCatenaX and2030IT rolloutplans."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3791,
+    "printed_page": 140,
+    "source_text_sha256": "85618c1f8cc4c366660293b7dc236679e5a380dc8373796e93aa1ad890a48101",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "Suppliercrisis/semiconductormonitoring and capacityacceptance; fourtechstacks battery,charging,components,platform."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3792,
+    "printed_page": 141,
+    "source_text_sha256": "11efb24a4e1db345ebb38e88d785dc54c82ab6886473572bdc8fcd88663e36da",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "PowerCo firstcellsvalidation2025 butseriesproduction2026; future80%unifiedcellambition notcurrentshare; 9.9%Patriotstake; chargingaccess vsownedpoints."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3793,
+    "printed_page": 142,
+    "source_text_sha256": "1b10164e79708c6f4552007d558288e4425cef086b262c181c695261cb3c6e60",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "Components7.7mICE engines,6mtransmissions,1.2melectricdrives/1.2mbatteries; strategicjobs30%2025; energypilotsnotfullrollout."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3794,
+    "printed_page": 143,
+    "source_text_sha256": "0aa039796690af4ede1fdc08dceabae1fcf8dfa102d4e9899a8836679beb93ed",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "Production8866144 includingJVs; productivity4.3%incl/4.6%exclJVs; 111allsites/67vehicleplants/46projects distinctdenominators."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3795,
+    "printed_page": 144,
+    "source_text_sha256": "de8e1cf87296b74dcb96b346cf18a921c9104dd9d2d654d194b0fbe5b4c204dd",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "Visual mapvehicleplants: Europe30/52%production,Asia18/31%,NA8/8%,SA7/7%,SouthAfrica4/2%; total67plants. EVmanufactured19sites."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3796,
+    "printed_page": 145,
+    "source_text_sha256": "222f100fc3a541729914c9be35631d41b944537b5cee3455214a962e498ddea8",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "ONELogSAP logistics andAIapplications; customerdatarequirements,branding andsalesgovernance."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3797,
+    "printed_page": 146,
+    "source_text_sha256": "4c29fc6ddcc4e951ec6e202692e7558e1962449336d8612448a6a9ec1c487e1d",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "Loyalty/conquest definitions distinct; GermanfleetGroupmarketshare49.8% versus fleet18%allregistrations; europeexGermany28.4%."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3798,
+    "printed_page": 147,
+    "source_text_sha256": "731e093e9805a12d8b064f4bf085d414703a2d69194a1f38669bea0854610a25",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "After-sales aspirationparts24h andAutomotiveSPICEprocess; target/standardnotserviceguarantee."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3799,
+    "printed_page": 148,
+    "source_text_sha256": "be48d59643b19e187e32fd9b800847975cf6a9e44e37246009da904a26aa1c2d",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "Risk-based quality multiple-partyverification,ISO9001/typeapproval andcustomerfeedback; systemauditnotfinancialopinion."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3800,
+    "printed_page": 149,
+    "source_text_sha256": "7a1fd738809ca82eed2808197e54d09d88a268c0a17a5d6738e2a1fece29da0f",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "Visual employeepie regional43%Germany,30%Europeother,15%Asia,7%NA,5%SA; inclJVheadcount662942."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3801,
+    "printed_page": 150,
+    "source_text_sha256": "df56d235f3f99fe8150d222faddd1bc933389e0cdbe6cf9d9b9b38b3e481b6ee",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "Engagementpilot4entitieslate2025,rollout2026; oldopinionindexdiscontinued; traininghoursKPIsuspended2025/26 notzero; strategicHRplanningKPIends2025."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3802,
+    "printed_page": 151,
+    "source_text_sha256": "ddb738471e002cf724ad1dba35a1a2cd42e50dab45597a88cad6a084b8ee15ef",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "Trainees17124yearend; GlobalIT++cross-brandinfrastructure andagileteams; no financialresults implied."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3803,
+    "printed_page": 152,
+    "source_text_sha256": "491f951c61813378169031203dce5eb24699febbe402e28ab7faf0f574ca43ea",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "ITfiveplatforms,softwareinhouseaims,AIeconomicsrelevance; benefits described largelyqualitatively."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3804,
+    "printed_page": 153,
+    "source_text_sha256": "7daecddf570451b04adf2d06c24a3c089e30b2dfd0fd9704295178ed34aa7d69",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "AI usecasesrequirements,Scorpion23markets,LSM; ITsecurityTISAXsupplierrequirementnotunbreachability."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3805,
+    "printed_page": 154,
+    "source_text_sha256": "51409a98bf25e0a763b214cb817650ed48543591bff5ef50d9db79822e38a369",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "value enhancement and technology",
+    "findings": [
+      "UNECE155/ISO27001 certifications recertified2025; no significantpostbalanceevents statement doesnoterase disclosedFeb2026hybridcall."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3806,
+    "printed_page": 155,
+    "source_text_sha256": "fe394a3989496fc2066049ec6cd1312a971f083ec0bc7355427a7f623e7ad463",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "expected developments",
+    "findings": [
+      "2026macroforecast and2027\u201330 stablegrowth assumptions; sourceforecastnotcurrentverifiedoutcome."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3807,
+    "printed_page": 156,
+    "source_text_sha256": "d73e21cae752156cea042cb5a083fbbcc711b0d676dbfd2bccd79a060b9857be",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "expected developments",
+    "findings": [
+      "2026US/China/regionsgrowthforecasts,globalvehicleflat andlatergrowth; riskconditional."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3808,
+    "printed_page": 157,
+    "source_text_sha256": "b0dea5cb9221d8d498698f4f87285f7279323d6e322e5e966dbccbd0660af22e",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "expected developments",
+    "findings": [
+      "NorthAmericaBEVdeclineforecast subsidyassumption; LCVandtruckweight/marketdefinitionspreserved."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3809,
+    "printed_page": 158,
+    "source_text_sha256": "c474c0747158f7787db8ddf02147ee82b5d46e4817f993ab8f938fa2af3e9170",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "expected developments",
+    "findings": [
+      "Financialservicesstructuraltrend,eurocurrencyandinterestrateforecast across2026/2027\u201330; expectationnothedgedrate."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3810,
+    "printed_page": 159,
+    "source_text_sha256": "7a86de2440a8920c977fb641ad503ad9bfc65e7b41063a0c1a2a8bebc6f47076",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "expected developments",
+    "findings": [
+      "Commodity2026priceforecast andmodel-launchplans; futureproductsnot2025sales."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3811,
+    "printed_page": 160,
+    "source_text_sha256": "6835c7992ed93f0d1cd2f4808056eb9c03e6c7f104861026e331e1ade2253ade",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "expected developments",
+    "findings": [
+      "2026 autoinvestmentratio11\u201312%,NCF3\u20136bn,liquidity32\u201334bn,excludesChinaJVinvestments; FSfundingdifferentbusinessmodel."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3812,
+    "printed_page": 161,
+    "source_text_sha256": "59a54bc2ca065fb88b8489102eb6ddc9c6c30c3d41849539b6c5af147de2f611",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "expected developments",
+    "findings": [
+      "Summary2026 regiondemand andriskassumptions; deliveriesexpectedflat; strongconditionality."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3813,
+    "printed_page": 162,
+    "source_text_sha256": "16029b610a7338a83cd944f13189b16b55ae776add2c2f824c97040482362e0b",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "2026 forecast: revenue change 0\u20133%, Group operating margin 4\u20135.5%, automotive investment 11\u201312%, net cash flow EUR 3\u20136bn, net liquidity EUR 32\u201334bn. Assumes current tariff situation persists."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3814,
+    "printed_page": 163,
+    "source_text_sha256": "3743e6240ab0a83d68c308b782bd91f52287b915e1a4645156306fcc2bdca34c",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "COSO-based RMS/ICS and Three Lines; opportunities not recorded in RMS processes. Systems have inherent limits and cannot eliminate every irregularity."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3815,
+    "printed_page": 164,
+    "source_text_sha256": "dfa5a4eb49ad9d99e0b7d4d0575f8ec15ea498ba0dcede625f50f180f48f7919",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Visual Three Lines distinguishes operational management, risk/compliance management and independent internal audit; quarterly Group risk committee."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3816,
+    "printed_page": 165,
+    "source_text_sha256": "50dc779f09147d55ec77b7aa06e18f396b6f6157a0cb810820d41d469ec86d1d",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Visual risk score = Prob score \u00d7 [Mat score + (Rep score + Req score)/2]. Raw criteria 0\u201310; net perspective after mitigation. Escalation score40 or loss>=EUR1bn; reporting includes score>=20. Text high likelihood >50%, plot later labels>=50%, preserve boundary nuance."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3817,
+    "printed_page": 166,
+    "source_text_sha256": "ccb50b10f224801eff20bd3bcab9e4758b1ec78056269cb6d673fa0a3aefee59",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "26 control catalogs; sampled effectiveness testing, internal audit and statutory early-warning check. The external check is not a general ICFR effectiveness opinion."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3818,
+    "printed_page": 167,
+    "source_text_sha256": "f59540458fecd71b484ad28b3030d16a1cd5a248e20985e906d9d916688cf083",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Management reports no indications that RMS/ICS/CMS as a whole ineffective, with inherent limits. This extraneous effectiveness disclosure is excluded from financial audit opinion per physical4307."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3819,
+    "printed_page": 168,
+    "source_text_sha256": "63a9720b365da69b9b96ebace6f2271f1e26adc6a809acbbe964182888dcb106",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Accounting four-eyes/self-evaluation, FACTS consolidation and planning system, multi-level cross-statement validation; describes process, not source-check guarantee."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3820,
+    "printed_page": 169,
+    "source_text_sha256": "63694da9b5fb790e6dd6233fde158ef9d14302ba69985fb4bcb6c99c0a8bb3f5",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Visual risk-category average scores, not maximum individual exposures. R&D high probability/medium impact; macro and financial high/medium; operational/environmental medium/medium; legal medium/high. M&A omitted because no score>=20."
+    ],
+    "visual_verified": true
+  },
+  {
+    "physical_page": 3821,
+    "printed_page": 170,
+    "source_text_sha256": "f8becc50f2a8a799f102830ac2d5b8ce25ba239b34d2054d8b4cfdc9b3e1a23b",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Risk graph only QRP scores>=20; expected risks already in planning, remaining discussion potential deviations. Macro/market high likelihood and medium impact."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3822,
+    "printed_page": 171,
+    "source_text_sha256": "fce319b0f9647c437e41a97dbabc031b0e8109eae11610b2970313e3ac7ec2b7",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Tariff/conflict/competition risks and dependence on key Europe/China markets; conditional loss scenarios not recognized amounts."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3823,
+    "printed_page": 172,
+    "source_text_sha256": "808cf6070dcbccc0a226ab9e7519b9c9cd9b183d20aa1b8dbe824cebade771e5",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "China local competition and digital service preferences; US strategy and subsidies/regulation expected changes, not guarantees of future sales."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3824,
+    "printed_page": 173,
+    "source_text_sha256": "693b5d037e3ae52b396344caaf3d01c29c0dbbb50acaa17e8d3dcc98e5b5c0ee",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Growth-market local-content and homologation constraints; India/Brazil opportunities; no guaranteed return on investments."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3825,
+    "printed_page": 174,
+    "source_text_sha256": "dfb6986e44ab05bfe0bc5e2ee4c977ebd9970d1bab6098828828551da60b2237",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Purchasing power and used-car-price risk; brand overlap/cannibalization can affect margins and brand value."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3826,
+    "printed_page": 175,
+    "source_text_sha256": "788a5d005de34bf9c417c639b7d9ad6c78949ab8a2a64c7e37107682dd41ef5a",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Fleet concentration despite no dependence on single customer; preferences and powertrain economics affect mix and regulatory compliance."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3827,
+    "printed_page": 176,
+    "source_text_sha256": "87dc575be91539ab206eeed574c73dea3d319fed5db26eb7b396ffc5853dc66c",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Government incentive/market timing and commercial vehicle capital-intensity risks; cyclical demand versus production flexibility."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3828,
+    "printed_page": 177,
+    "source_text_sha256": "60a81864472f3049c66663209205a71f4716179591b94f46253a354afe590f9b",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "R&D category high/medium, software and e-mobility time/cost/feasibility/regulatory uncertainty; no assurance that plans deliver."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3829,
+    "printed_page": 178,
+    "source_text_sha256": "776b83ee85c97456315741800d95d12a62cdd36a2e188f2ec87cdcc3cd9104d3",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Partnership/IP risks and modular toolkit contagion across models; synergies accompanied by common-component concentration."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3830,
+    "printed_page": 179,
+    "source_text_sha256": "73bcac08faa4f14937bdac8dee22bd5f2c9fcedbbbcd18c9584c5baa5c875e87",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Operational risk likelihood changed high to medium; damage medium. Procurement and quality key; battery supplier concentration."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3831,
+    "printed_page": 180,
+    "source_text_sha256": "4ebc88d56023ecd7f34b57d04a301ac2d789ac00f897c036884dd839f31301b2",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Supplier insolvency, raw materials and human-rights supply-chain risks; preventive monitoring not guarantee of compliance."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3832,
+    "printed_page": 181,
+    "source_text_sha256": "b902685364704e05433c22b9d0a2ca8b3c68d0247d631fddef5f42e2d14318fe",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Supply-chain standards expressly not assured to always be met; physical climate, infrastructure and business interruption risks."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3833,
+    "printed_page": 182,
+    "source_text_sha256": "171056d6acd13b2f65c9a4b9b985808f0cbfa618fa86e7519175cf46fa8b40ee",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Capacity rigidity, market-demand errors, restructuring/site costs and unregistered-vehicle inventory; turntable flexibility has limits."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3834,
+    "printed_page": 183,
+    "source_text_sha256": "28176fd5cde1bd7327299fe428728606afefd82ed4893419202670a4d8338f9e",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Quality/type approval/recall exposure, shared components amplify; certifications can be lost and recalls occur years after sale."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3835,
+    "printed_page": 184,
+    "source_text_sha256": "3090cf44f2bd1e49ee1c7d24fed9402107e7885974fc9e3499b9e9b638b1e205",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Warranty provisions may be insufficient; APS/CSB and conformity measurements; IT critical operations risk."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3836,
+    "printed_page": 185,
+    "source_text_sha256": "0e8d510b0db6139e4ec2d9b2975e673386d51568cf8b6edf0d5f96244617d773",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Unsupported legacy IT, breach/downtime and security mitigations; in-vehicle safety-critical software risk."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3837,
+    "printed_page": 186,
+    "source_text_sha256": "3b3442b26055d6a71e4cfc1b9244255e17305caac303ee9b0b8381f3db9f3efe",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Connected-vehicle third parties and data/brand reputation; environment/social medium/medium; CO2 and transformation programs prominent."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3838,
+    "printed_page": 187,
+    "source_text_sha256": "433cc1d551bb40fba2e5cf15ba263277b6ecade335a017ef99890197ce54c4cb",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Labor/collective bargaining/skill shortages and environmental rules; global requirements differ."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3839,
+    "printed_page": 188,
+    "source_text_sha256": "f2f2eb9faf3bbd2ae0225c1bb5be7cc3a100f9da70a3bf001cdde6296810815c",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Compliance cost/type approval and distribution/data access rules; market share threshold40% relevant distribution review, not general ownership."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3840,
+    "printed_page": 189,
+    "source_text_sha256": "4943458f98bed8d20dc7ac084723d0c02d6c10f7f008c4ac3c0ed284ac484ff9",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Euro7 prospective dates and UK motor-finance redress uncertainty; legal risk medium likelihood/high impact with diesel primary."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3841,
+    "printed_page": 190,
+    "source_text_sha256": "a39b0c42f57eb29ab56ff78de14d7ce7b16c61e7bc3a322538d5635e65a2dd09",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Claims usually principal only; IP/climate/privacy risks, provisions and insurance may not cover all losses. Diesel chronology begins."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3842,
+    "printed_page": 191,
+    "source_text_sha256": "5763831e1d0cf4dd2af538945e18b109eb659f0da6fdaf041fc6b59e6d7a2b08",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Diesel knowledge chronology stated as company account/legal position; settlement obligations ongoing, not exoneration."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3843,
+    "printed_page": 192,
+    "source_text_sha256": "fa4fdd9ebabbf6b9e982649dadca404fdc88751d41880b3d09a0a05cbf4e5d46",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "German convictions appealed versus Audi final; France2026 indictment contested; distinguish allegation, judgment and finality."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3844,
+    "printed_page": 193,
+    "source_text_sha256": "957f3438d78654553c0a9132542ab44002231776e2e8f7672d7df496b0963f43",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Thermal-window/type-approval cases; nonfinal appeal status and company double-jeopardy position preserved."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3845,
+    "printed_page": 194,
+    "source_text_sha256": "e1b09abe0a0c353010f1036d234c35539800775037140d320cccd23c269d7e17",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Company estimated sanction likelihood<=50%, contingent>=10% when measurable; international customer proceedings and early-stage exposure."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3846,
+    "printed_page": 195,
+    "source_text_sha256": "bf08873000c410bfefb2611c4f80436be6f5d0c3086950b1d607f654356b5ff7",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Dutch partial settlement versus other engines still pending; South Africa/Germany suits; unquantifiable is not zero. Investor case begins."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3847,
+    "printed_page": 196,
+    "source_text_sha256": "7e29b1c270c71ccf79c73f413f114673e1ae4de104fb3bf7ad4274c8d12dc6a9",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Investor claims EUR8.6bn versus no recognized provision under management assessment; contingent threshold10%; model proceedings and ECJ referral unresolved."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3848,
+    "printed_page": 197,
+    "source_text_sha256": "6e251b57d6001e53ba10f1cc9d4b548446135acefe895add07bb7db47193b90c",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Special-audit appeals; diesel provision EUR0.4bn and contingency EUR4bn (investor3.8bn) distinct claim measure. IAS37.92 withheld estimates."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3849,
+    "printed_page": 198,
+    "source_text_sha256": "72e295aefd37a518ea2db41980101f56ab4317f474ddaf31a9dfcef4c6fc3109",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Brazil BRL2.3bn tax risk, Indian customs not quantifiable, dealer refund claims, truck cartel final fine versus follow-on damages."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3850,
+    "printed_page": 199,
+    "source_text_sha256": "4b45acd27c065349bd3412ce8693b4444277062cc41f702d7d1c5b5445336ddc",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Historical SCR fine, current end-of-life vehicle settlements and open investigations; currencies and years separate."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3851,
+    "printed_page": 200,
+    "source_text_sha256": "04d197aa6d8d67edffcf341cef0934ec16da39270c099f3fb8feef677db77765",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Climate appeal/Russia final judgment with enforcement defense; privacy risks and management-system processes."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3852,
+    "printed_page": 201,
+    "source_text_sha256": "cf6c9bdfbdf1183a3b0ec3d90913aa027849b69a7c63b264204970565229267c",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Tax/customs/transfer-pricing estimates; provisions may be insufficient. Financial risk likelihood increased medium to high, impact medium."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3853,
+    "printed_page": 202,
+    "source_text_sha256": "8183215eb22617ff30eb3ff89bee083f1c1f76ce45f8aa79aed4cd9eab7c644d",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Financial hedging horizon and residual risk: currency up to10years, selected commodities varied terms; natural hedges and derivatives not perfect protection."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3854,
+    "printed_page": 203,
+    "source_text_sha256": "d2b90334282f945d8345ba8a98f098dfcdbfdc823da1bbecd29fa4210d2cd232",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Funds/derivatives counterparty risk and liquidity funding; Automotive and FS independent refinancing strategies; rating downgrades may increase costs."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3855,
+    "printed_page": 204,
+    "source_text_sha256": "10631b8bbaf2c0eae834368b29f5f1b08e7c7efdbf2531bd567000bdee8cce41",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Borrower default versus counterparty/issuer risk; residual-value exposure can improve or worsen, not equal credit loss."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3856,
+    "printed_page": 205,
+    "source_text_sha256": "91780aa73041a25e6a0a08a223d3ef51a6861b586bc7b937176a9920e471ff49",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Direct versus dealer-guaranteed indirect residual-value risk; guarantor failure shifts exposure back to Group. FS business depends automotive sales."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3857,
+    "printed_page": 206,
+    "source_text_sha256": "859449416d74342ed6a9e7ce27a1edc515cd917b45684e29e392120814c81315",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "No M&A/strategic partnership risk score>=20 is not absence of risks; JV governance/IP/China strategic exposures described."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3858,
+    "printed_page": 207,
+    "source_text_sha256": "a2622bf6df2fd8d3195d9ae86fd7350fa67dfe37f0a3e0d50866d8bc1ade57fb",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Acquisition due-diligence gaps, integrations, failed synergies, impairment and distressed disposal; mitigation not guarantee."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3859,
+    "printed_page": 208,
+    "source_text_sha256": "3a3b4402343f67b3e2404865332b8256633ab1b2f43e52d2dbd71734fe83d6b4",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "Goodwill/brand/development impairment based estimates; management sees no going-concern threat based available information, not unconditional assurance. Forecast caveat."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3860,
+    "printed_page": 209,
+    "source_text_sha256": "2a4a74688120d29b9ed361081dd7bd52f8967f847c10898ace5c7c55c5685488",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "2026 outlook repeats expected developments; forecasts conditional on geopolitical/trade/raw-material assumptions."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3861,
+    "printed_page": 210,
+    "source_text_sha256": "3485b2819d807bc5a994ed3a28a499ee1a662e87ae314423701628cd2f850c9e",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_read",
+    "section": "outlook and risk systems",
+    "findings": [
+      "2026 KPI projections repeated and signed Feb24,2026; same actual2025 versus future2026 distinctions."
+    ],
+    "visual_verified": false
+  },
+  {
+    "physical_page": 3862,
+    "printed_page": 211,
+    "source_text_sha256": "309beeaf7ac012b20e75094519173a22f82bfd667870208b618d866d29e7d2e0",
+    "review_status": "semantically_reviewed",
+    "review_depth": "navigation_only",
+    "section": "sustainability boundary navigation",
+    "findings": [
+      "Sustainability divider: printed212 general information through453 parent nonfinancial indicators; next reader owns physical3863 onward."
+    ],
+    "visual_verified": false
+  }
+]

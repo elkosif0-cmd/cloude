@@ -221,3 +221,22 @@ test('blocked source selections preserve the current source screen and edited id
   assertSourceShell(node,'Apple Inc.');assert.equal(W.__test.docX(W.__test.compute()).sourceVerified,false);
   assert.doesNotMatch(node.innerHTML,/391,035/);assert.equal(W.__test.sourceCsv(W.__test.compute()),null);
 });
+
+test('reconciled ordinary review keeps main company-document handoff controls',async()=>{
+  const h=harness(),W=h.context,node=renderReview(h);
+  W.SKosifCompanyPlatform={auditHandoffs:()=>[{id:'handoff-1',status:'pending',documentId:'doc-1',document:{name:'Company invoice.pdf',type:'invoice',size:2048,sha256:'abc123'}}]};
+  await W.SKosifTBReview.load(h.E.reports.tbImport.SAMPLE_TB_CSV,'ordinary-ledger',{company:'Company with reporting documents',country:'SA'});
+  W.SKosifTBReview.open('docs');
+  assert.match(node.innerHTML,/مصادر واردة من مساعد التقارير/);
+  assert.match(node.innerHTML,/Company invoice\.pdf/);
+  assert.match(node.innerHTML,/data-a="handoff-import"/);
+  assert.match(node.innerHTML,/data-handoff-request="handoff-1"/);
+  assert.equal(W.__test.compute().sourceOnly,false);
+});
+test('reconciled source-only screen does not expose operational document handoffs',async()=>{
+  const h=harness(),W=h.context,node=renderReview(h);let handoffReads=0;
+  W.SKosifCompanyPlatform={auditHandoffs:()=>{handoffReads++;return [{id:'handoff-1',status:'pending',document:{name:'Company invoice.pdf',type:'invoice',size:2048}}];}};
+  await W.SKosifTBReview.openClient('apple-2024');W.SKosifTBReview.open('docs');
+  assertSourceShell(node,'Apple Inc.');assert.doesNotMatch(node.innerHTML,/Company invoice\.pdf|data-a="handoff-import"/);
+  assert.equal(handoffReads,0,'source reference must not read ordinary company document handoffs');
+});

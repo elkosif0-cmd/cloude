@@ -44,7 +44,7 @@ const F=await p.evaluate(()=>({hub:SK.caps.members('tbreview').map(x=>x.id),hidd
 await p.evaluate(()=>SKosifTBReview.open('docs'));await p.waitForTimeout(1500);
 const FS=await p.evaluate(()=>({adv:!!document.querySelector('.tbr-adv [data-studio-host]'),own:[...document.querySelectorAll('.tbr-tabs [data-tab]')].some(x=>x.dataset.tab==='studio')}));
 ok('المنظومة الواحدة','ملف مراجعة واحد: أدوات الاستوديو داخل تبويبات الملف نفسها بلا قائمة ثانية',F.hidden===6&&FS.adv&&!FS.own);ok('المنظومة الواحدة','التحليل صفحة في مركز المراجعة',F.hub.includes('auditanalytics'));
-ok('المنظومة الواحدة','مسار العمل (يأتي من / يذهب إلى) في كل شاشة',await has('.skflow')&&F.feeds>=30);await p.click('[data-tab="tb"]');await p.waitForTimeout(500);ok('المنظومة الواحدة','الإرسال إلى المهام وسجل الملاحظات',F.flow&&await has('[data-flow-finding]'));
+ok('المنظومة الواحدة','مسار العمل (يأتي من / يذهب إلى) في كل شاشة',await has('.skflow')&&F.feeds>=30);await p.click('.tbr-tabs [data-tab="tb"]');await p.waitForTimeout(500);ok('المنظومة الواحدة','الإرسال إلى المهام وسجل الملاحظات',F.flow&&await has('[data-flow-finding]'));
 await go('dash',1400);ok('المنظومة الواحدة','رحلة العمل في مركز القيادة',await p.waitForFunction(()=>document.querySelectorAll('.skjr li').length===5,null,{timeout:6000}).then(()=>true,()=>false));
 await go('dash',1400);ok('نبض اليوم','بطاقة نبض اليوم تحت الملخص الصباحي: أربع بلاطات (طلبات اليوم، تحصيل اليوم، غير مدفوع، 7 أيام) وقائمة الاتصال وشريط جاهزية الإقفال',await p.waitForFunction(()=>{const s=document.querySelector('#view .skpulse');return !!s&&s.querySelectorAll('.skpulse-t').length===4&&!!s.querySelector('.skpulse-band, .skpulse-cols .skpulse-empty')},null,{timeout:15000}).then(()=>true,()=>false));
 ok('نبض اليوم','أرقام النبض = سجلات النواة ومحرك الإيقاع (دالة نقية)',await p.evaluate(()=>{const P=window.SKosifPulse;if(!P||!P.current())return false;const c=P.current();return typeof c.fig.orders==='number'&&Array.isArray(c.calls)&&(c.close===null||['ready','almost','blocked','atRisk'].includes(c.close.band))}));
@@ -52,7 +52,19 @@ await go('auditanalytics',3500);const A=await p.evaluate(()=>({tabs:document.que
 ok('المنظومة الواحدة','أدوات التحليل بتبويبات التطبيق وبثيمه (صفحاتها وصوتها وأوامرها)',A.tabs>=15&&A.tools===2);
 {const base=(await import('node:fs')).readFileSync(new URL('../docs/rebuild/CAPABILITY_BASELINE.txt',import.meta.url),'utf8').split('\n').filter(l=>l&&!l.startsWith('#')).map(l=>l.split('\t')[0]);
  const have=await p.evaluate(()=>SK.caps.all().map(c=>c.id));ok('عدم ضياع القدرات','قدرات خط الأساس الـ'+base.length+' كلها مسجلة',base.every(id=>have.includes(id))&&have.length>=base.length);}
-await go('helperdesk',900);ok('هيكل المنتج','أربع بوابات رئيسية مع بقاء الاستوديوهات الداخلية للتوافق ونطاق الشركة',await p.evaluate(()=>SK.caps.get('helperdesk')?.company===true&&SK.caps.get('jev')?.group==='jev'&&document.querySelectorAll('.hd-node').length===5&&SK.caps.gateways().map(g=>g.id).join('|')==='accounting|reporting|audit|tools'&&SK.caps.groups().map(g=>g.id).join('|')==='home|audit|product|customer|supply|books|reports|jev'&&SK.caps.companyGroups().map(g=>g.id).join('|')==='product|customer|supply|books|reports'&&SK.caps.get('ledger')?.gateway==='accounting'&&SK.caps.get('execreports')?.gateway==='reporting'&&SK.caps.get('tbreview')?.gateway==='audit'&&SK.caps.get('helperdesk')?.gateway==='tools'&&SK.caps.all().every(c=>!!c.company===(SK.caps.group(c.group).company===true||c.id==='helperdesk'))&&SK.caps.get('legacyapps')?.hub==='archive'&&SK.caps.advancedIds().length===0));
+await go('helperdesk',900);ok('هيكل المنتج','أربع بوابات رئيسية مع بقاء الاستوديوهات الداخلية للتوافق ونطاق الشركة',await p.evaluate(()=>SK.caps.get('helperdesk')?.company===true&&SK.caps.get('jev')?.group==='jev'&&document.querySelectorAll('.hd-node').length===5&&SK.caps.gateways().map(g=>g.id).join('|')==='accounting|reporting|audit|tools'&&SK.caps.groups().map(g=>g.id).join('|')==='home|audit|product|customer|supply|books|reports|jev'&&SK.caps.companyGroups().map(g=>g.id).join('|')==='product|customer|supply|books|reports'&&SK.caps.get('ledger')?.gateway==='accounting'&&SK.caps.get('execreports')?.gateway==='reporting'&&SK.caps.get('tbreview')?.gateway==='audit'&&SK.caps.get('helperdesk')?.gateway==='tools'&&SK.caps.all().every(c=>!!c.company===(SK.caps.group(c.group).company===true||['helperdesk','masterdata'].includes(c.id)))&&SK.caps.get('legacyapps')?.hub==='archive'&&SK.caps.advancedIds().length===0));
+ok('هيكل المنتج','لكل مجموعة أدوات مسموحة عقدة وسهم مطابقان بلا أسهم معلقة',await p.evaluate(()=>{
+  const sections=SK.caps.companyGroups().map(g=>({id:g.id,targets:SK.caps.hubsInGroup(g.id).filter(c=>c.gateway==='tools').map(c=>c.id)})).filter(s=>s.targets.length);
+  sections.push({id:'decision',targets:['jev','council','decision','sensitivity','risks']});
+  const expected=sections.map(s=>({id:s.id,target:s.targets.find(id=>SK.caps.get(id)&&SK.perm.can(id))})).filter(s=>s.target);
+  const nodes=[...document.querySelectorAll('.hd-node')],edges=[...document.querySelectorAll('.hd-lines line')];
+  return nodes.length===expected.length&&edges.length===expected.length&&expected.every((s,i)=>{
+    const n=nodes[i],e=edges[i];
+    return n.dataset.hdSection===s.id&&n.dataset.hdGo===s.target&&e.dataset.hdSection===s.id&&
+      Number(e.getAttribute('x1'))===50&&Number(e.getAttribute('y1'))===50&&
+      Number(e.getAttribute('x2'))===parseFloat(n.style.left)&&Number(e.getAttribute('y2'))===parseFloat(n.style.top);
+  })&&[...document.querySelectorAll('.hd-shell [data-hd-go]')].every(n=>SK.caps.get(n.dataset.hdGo)&&SK.perm.can(n.dataset.hdGo));
+}));
 ok('هيكل المنتج','الأدوات المساعدة تعرض شركتها ومبدّل الشركات',await p.evaluate(()=>!!document.querySelector('.sqc-space-bar [data-space-open]')&&!!window.SKosifSpace));
 ok('هيكل المنتج','الأدوات المساعدة تعرض مستخدم المحاسب وتفصل مساحاته',await p.evaluate(()=>!!document.querySelector('.sqc-space-bar [data-user-open]')&&typeof SKosifSpace.user==='function'&&typeof SKosifSpace.switchUser==='function'&&typeof SKosifSpace.createUser==='function'));
 await go('productflow',1500);ok('الاستوديو','استوديو المنتج يُرسم بمكوّن الاستوديو المشترك (SK.studio): كيان في المركز، مدخلات ومخرجات، مفتّش وتبويبات',await p.evaluate(()=>!!(window.SK&&SK.studio&&SK.studio.mount)&&!!document.querySelector('.pf-canvas .pf-node.pf-r-center')&&document.querySelectorAll('.pf-canvas .pf-node.pf-r-input').length>=1&&document.querySelectorAll('.pf-tab').length===4));
@@ -107,7 +119,7 @@ await p.keyboard.press('Escape');
 // ---------- themes & identity ----------
 ok('الهوية والثيمات','خمسة ثيمات احترافية جديدة',['aurora','vivid','oasis','graphite','onyx'].every(x=>E.looks>=14));
 await p.evaluate(()=>SKosifShell.setLook('oasis'));await p.waitForTimeout(500);
-await go('tbreview',1800);await p.click('[data-tab="fs"]');await p.waitForTimeout(700);await p.click('[data-doc="integrated"]');await p.waitForTimeout(1500);
+await go('tbreview',1800);await p.click('.tbr-tabs [data-tab="fs"]');await p.waitForTimeout(700);await p.click('[data-doc="integrated"]');await p.waitForTimeout(1500);
 const IR=await p.evaluate(()=>({cover:!!document.querySelector('.ir-cover'),secs:document.querySelectorAll('.ir-sec').length,q:!!document.querySelector('.ir-q'),bar:!!document.querySelector('.sqc-nb'),risks:document.querySelectorAll('.ir-rt tbody tr').length,compat:document.querySelectorAll('.ir-compat-t tbody tr').length,
   corpusCompat:SKEngines.reports.globalCorpus.reportCompatibility(['auditor_report','income_statement','balance_sheet']).length,
   prov:window.SKosifAI&&SKosifAI.providers().map(x=>x.id).join(','),check:SKEngines.reports.narrative.verifyNumbers('412.6 مليون',{allowed:[412.6]}).length===0}));

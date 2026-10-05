@@ -47,6 +47,7 @@ labels	ملصقات الموازين
 scanner	ماسح الباركود
 smartmatch	مطابقة المبيعات
 excelrecon	مطابقة الإكسل
+reportingintake	استلام البيانات وإعداد القوائم
 execreports	التقارير التنفيذية
 reports	مركز الطباعة
 exports	مركز التصدير
@@ -66,6 +67,7 @@ auditlab	مختبر المعايير والأبحاث
 settings	الإعدادات والمظهر
 devices	الأجهزة والمزامنة
 companies	الشركات والفترات
+masterdata	التعريفات
 governance	الحوكمة والجاهزية
 health	الصحة والتشخيص
 capabilitiesv2	الصلاحيات ومساحات العمل
@@ -76,3 +78,4 @@ benchmarks	المقارنة بالشركات العالمية
 advances	السلف والدفعات المقدمة
 legacyapps	الأنظمة الأصلية
 customerflow	استوديو العميل
+auditinbox	صندوق استلام المراجعة

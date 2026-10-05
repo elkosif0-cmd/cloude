@@ -7,7 +7,7 @@
 
 | المستودع | النوع | القدرات المثبتة/المهمة | الوجهة |
 |---|---|---|---|
-| `cloude` | مصدر الإنتاج المتكامل | 75 شاشة مسجلة؛ دفتر/COA/قيود/TB/مطابقات/ذمم/VAT/تدفق/تقارير/مراجعة/PBC/أدلة/مجلس/معايير/شركات وصلاحيات | كل البوابات، وهو shell الإنتاج |
+| `cloude` | مصدر الإنتاج المتكامل | 77 شاشة مسجلة؛ دفتر/COA/قيود/TB/مطابقات/ذمم/VAT/تدفق/تقارير/مراجعة/PBC/أدلة/مجلس/معايير/شركات وصلاحيات | كل البوابات، وهو shell الإنتاج |
 | `kosif-audit-studio` | محرك مراجعة متقدم | استيراد TB، BigInt، مخاطر، materiality، sampling، journal tests، PBC، evidence SHA-256، workpapers، council، standards، rounds | المراجعة الذكية |
 | `smart-trial-balance-review` | نموذج جولات مراجعة | Excel/CSV، ربط IFRS، مجلس، طلب مستندات، تقييم كل مستند، جولات حتى الاكتمال، تقرير نهائي | المراجعة + مساعد التقارير |
 | `kosif-audit-pro` | نموذج حوكمة مراجعة | 10 جولات A01-A10، 26 gate، BigInt، PBC مرتبط بخطر/تأكيد/إجراء، lineage، human sign-off | المراجعة الذكية |
@@ -97,20 +97,21 @@
 
 **تم في PR #136:** إعادة تصميم التنقل إلى البوابات الأربع مع إبقاء المجالات الثمانية كطبقة توافق داخلية وحماية معرفات الشاشات والروابط العميقة.
 
-1. تعريفات master data موحدة لكل شركة قبل المحاسبة.
-2. فصل صارم لـ`تصيف` عبر auth/RBAC خادمي، لا password UI فقط.
-3. fixed assets/depreciation كجزء صريح من accounting core.
-4. multi-currency/FX.
-5. period close checklist + locks + close evidence.
-6. continuous reconciliation/close.
-7. IFRS 18-ready statements and disclosures.
-8. ZATCA Fatoora Phase-2 integration and SDK validation.
-9. server-side multi-tenant storage for shared workspaces and real audit data.
-10. evidence graph موحد بين accounting/reporting/audit.
-11. connector framework للبنوك وERP/Drive/email.
-12. confidence + exception queue لمقترحات AI بدل التنفيذ الصامت.
-13. client/PBC portal بصلاحيات محدودة.
-14. canonical Capability Registry يجمع المنتج + المصادر التاريخية + حالة التنفيذ.
+**تم في فرع نظام التشغيل المالي الموحد:** تعريفات الشركة وmaster data، تثبيت الأدوات لكل شركة، XLSX لمساعد التقارير، وتسليم صريح من التقارير إلى طلبات PBC في المراجعة، مع فحص القيد بالمعايير/AI دون ترحيل تلقائي، وسجل أصول ثابتة بإهلاك حتمي وقيد مقترح.
+
+1. نقل خزنة المستندات الحساسة وبيانات التشغيل المشتركة إلى تخزين خادمي معزول؛ RBAC/ACL الخاص بالـWorkspace أصبح موجودًا، بينما بعض بيانات التطبيق المحلية ما زالت تحتاج نقلًا للخادم.
+2. **الأصول الثابتة — أساس منفذ:** سجل أصل داخل التعريفات + القسط الثابت + القيمة الدفترية + قيد إهلاك مقترح بلا ترحيل تلقائي. المتبقي: disposal / impairment / componentisation / change-in-estimate lifecycle.
+3. multi-currency/FX.
+4. period close checklist + locks + close evidence.
+5. continuous reconciliation/close.
+6. IFRS 18-ready statements and disclosures.
+7. ZATCA Fatoora Phase-2 integration and SDK validation.
+8. server-side multi-tenant storage for shared workspaces and real audit data.
+9. evidence graph موحد بين accounting/reporting/audit.
+10. connector framework للبنوك وERP/Drive/email.
+11. confidence + exception queue لمقترحات AI بدل التنفيذ الصامت.
+12. client/PBC portal بصلاحيات محدودة.
+13. canonical Capability Registry يجمع المنتج + المصادر التاريخية + حالة التنفيذ.
 
 ## F. قواعد الدمج
 

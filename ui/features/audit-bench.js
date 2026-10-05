@@ -26,14 +26,14 @@ function tiles(){
   const t=(ic,l,v,sub)=>'<div class="skk4-t"><span class="chip">'+SK.icon(ic)+'</span><span class="tx"><span>'+l+'</span><b>'+v+'</b><small>'+sub+'</small></span></div>';
   return '<div class="skk4 ab-k">'+
     t("reports","التقارير المقروءة",s.reports,nf.format(s.pages)+' صفحة · '+s.countries+' دولة')+
-    t("auditreport","الأمور الرئيسية",s.kams,s.isa+' وفق ISA · '+s.pcaob+' وفق PCAOB')+
+    t("auditreport","الأمور الرئيسية",s.kams,s.sourceAuditStandards.map(g=>g.count+' وفق '+esc(g.label)).join(' · '))+
     t("calc","إفصاحات الأهمية النسبية",s.materiality,'مبالغ وأسس ونسب فعلية')+
     t("governance","المصادر الرسمية",s.sources,'إيداعات وجودة مراجعة ومعايير')+'</div>';
 }
 
 /* ---------- tab 1: the KAM library ---------- */
 function kamsTab(){
-  const stats=G().themeStats(),rows=G().kamLibrary({theme,sector,standard:std,q}),th=theme&&G().THEMES[theme];
+  const stats=G().themeStats(),rows=G().kamLibrary({theme,sector,sourceAuditLabel:std,q}),th=theme&&G().THEMES[theme];
   const secs=[...new Set(G().REPORTS.map(r=>r.sector))];
   return '<section class="card"><div class="card-h"><div><h3>أكثر الموضوعات تكراراً في تقارير المراجعين</h3><p>اضغط موضوعاً لتصفية المكتبة ورؤية النمط المشترك في صياغته ومعالجته.</p></div></div><div class="card-b">'+
       '<div class="ab-themes">'+stats.map(s=>'<button type="button" class="ab-th" data-ab-theme="'+s.theme+'" aria-pressed="'+(theme===s.theme)+'"><b>'+esc(s.ar)+'</b><small>'+s.count+' أمراً · '+s.companies+' شركة</small><i style="width:'+Math.round(s.count/stats[0].count*100)+'%"></i></button>').join("")+'</div>'+
@@ -43,9 +43,9 @@ function kamsTab(){
     '<section class="card"><div class="card-h"><div><h3>المكتبة</h3><p>'+rows.length+' من '+G().KAMS.length+' أمراً — العنوان كما ورد في تقرير المراجع، وبجواره صفحته في الحزمة.</p></div></div><div class="card-b">'+
       '<div class="cdx-bar"><input type="search" data-ab-q placeholder="ابحث: الزكاة، الشهرة، rebates، ECL، اسم الشركة أو المراجع…" value="'+esc(q)+'">'+
       '<select data-ab-sector aria-label="القطاع"><option value="">كل القطاعات</option>'+secs.map(s=>'<option value="'+s+'"'+(sector===s?' selected':'')+'>'+esc(G().SECTOR_AR[s])+'</option>').join("")+'</select>'+
-      '<div class="sk-seg">'+[["","الكل"],["ISA","ISA"],["PCAOB","PCAOB"]].map(([k,l])=>'<button type="button" data-ab-std="'+k+'" aria-pressed="'+(std===k)+'">'+l+'</button>').join("")+'</div></div>'+
+      '<div class="sk-seg">'+[["","الكل"],...G().summary().sourceAuditStandards.map(g=>[g.label,g.label])].map(([k,l])=>'<button type="button" data-ab-std="'+esc(k)+'" aria-pressed="'+(std===k)+'">'+esc(l)+'</button>').join("")+'</div></div>'+
       (rows.length?'<div class="ab-list">'+rows.map(k=>'<article class="ab-kam"><div class="ab-kam-h"><b dir="ltr">'+esc(k.title)+'</b>'+page(k.page)+'</div>'+
-        '<div class="ab-meta"><span class="ab-co">'+esc(k.company)+' · '+esc(k.fy)+'</span><span>'+esc(k.auditor||"المراجع غير مذكور في المقتطف")+'</span><span class="sksev info">'+esc(k.themeAr)+'</span><span class="ab-tag">'+esc(G().SECTOR_AR[k.sector])+'</span><span class="ab-tag">'+STD[k.standard]+'</span></div></article>').join("")+'</div>':'<p class="empty">لا نتائج لهذه التصفية.</p>')+
+        '<div class="ab-meta"><span class="ab-co">'+esc(k.company)+' · '+esc(k.fy)+'</span><span>'+esc(k.auditor||"المراجع غير مذكور في المقتطف")+'</span><span class="sksev info">'+esc(k.themeAr)+'</span><span class="ab-tag">'+esc(G().SECTOR_AR[k.sector])+'</span><span class="ab-tag">'+esc(k.sourceAuditLabel||STD[k.standard])+'</span></div></article>').join("")+'</div>':'<p class="empty">لا نتائج لهذه التصفية.</p>')+
     '</div></section>';
 }
 
@@ -97,7 +97,7 @@ function cosTab(){
     '<section class="card"><div class="card-h"><div><h3>أطول ارتباطات المراجعة</h3><p>كما صرّح بها المراجع في تقريره.</p></div></div><div class="card-b">'+
       SKCharts.hbars({rows:long.map(r=>({label:r.company,sub:r.auditor+' منذ '+r.since,value:yr-r.since})),fmt:v=>v+' سنة',valueLabel:"سنوات الارتباط"})+'</div></section></div>'+
     '<section class="card"><div class="card-h"><div><h3>التقارير في الحزمة</h3><p>'+rows.length+' تقريراً — الإطار المحاسبي ومعيار المراجعة ونطاق الصفحات في ملف الحزمة.</p></div></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table ab-t"><thead><tr><th>الشركة</th><th>الدولة</th><th>القطاع</th><th>الإطار</th><th>المعيار</th><th>المراجع</th><th>الأمور الرئيسية</th><th>الصفحات</th></tr></thead><tbody>'+
-      rows.map(r=>'<tr><td><b>'+esc(r.company)+'</b><small class="ab-sub">'+esc(r.kind)+' · '+esc(r.fy)+'</small></td><td>'+esc(CC[r.country]||r.country)+'</td><td>'+esc(G().SECTOR_AR[r.sector])+'</td><td dir="ltr">'+esc(r.framework)+'</td><td>'+r.standard+'</td><td>'+esc(r.auditor||"—")+(r.since?'<small class="ab-sub">منذ '+r.since+'</small>':'')+'</td><td class="num">'+(count(r.id)||'—')+'</td><td class="num">'+nf.format(r.pages[0])+'–'+nf.format(r.pages[1])+'</td></tr>').join("")+
+      rows.map(r=>'<tr><td><b>'+esc(r.company)+'</b><small class="ab-sub">'+esc(r.kind)+' · '+esc(r.fy)+'</small></td><td>'+esc(CC[r.country]||r.country)+'</td><td>'+esc(G().SECTOR_AR[r.sector])+'</td><td dir="ltr">'+esc(r.framework)+'</td><td>'+esc(r.sourceAuditLabel||r.standard)+'</td><td>'+esc(r.auditor||"—")+(r.since?'<small class="ab-sub">منذ '+r.since+'</small>':'')+'</td><td class="num">'+(count(r.id)||'—')+'</td><td class="num">'+nf.format(r.pages[0])+'–'+nf.format(r.pages[1])+'</td></tr>').join("")+
     '</tbody></table></div></div></section>';
 }
 

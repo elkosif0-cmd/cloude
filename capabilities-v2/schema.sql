@@ -61,3 +61,24 @@ WHEN EXISTS (SELECT 1 FROM workspaces WHERE id=NEW.workspace_id AND archived_at 
 BEGIN
   SELECT RAISE(ABORT,'archived_workspace_is_read_only');
 END;
+
+
+-- Per-workspace access. Existing workspaces without a security row keep tenant-level behavior.
+CREATE TABLE IF NOT EXISTS workspace_security (
+  workspace_id TEXT PRIMARY KEY REFERENCES workspaces(id),
+  tenant_id TEXT NOT NULL REFERENCES tenants(id),
+  access_mode TEXT NOT NULL CHECK (access_mode IN ('tenant','explicit')),
+  sensitivity TEXT NOT NULL CHECK (sensitivity IN ('standard','sensitive')),
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS workspace_security_tenant_idx ON workspace_security(tenant_id,sensitivity);
+
+CREATE TABLE IF NOT EXISTS workspace_access (
+  workspace_id TEXT NOT NULL REFERENCES workspaces(id),
+  tenant_id TEXT NOT NULL REFERENCES tenants(id),
+  subject TEXT NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('owner','partner','manager','senior','viewer')),
+  created_at TEXT NOT NULL,
+  PRIMARY KEY (workspace_id, subject)
+);
+CREATE INDEX IF NOT EXISTS workspace_access_subject_idx ON workspace_access(tenant_id,subject,workspace_id);

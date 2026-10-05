@@ -1,0 +1,72 @@
+Consolidated Financial Statements                                                                                                                        Cash Flow Statement
+
+
+
+
+                               Cash Flow Statement
+                    of the Volkswagen Group for the period January 1 to December 31, 2025
+
+
+€ million                                                                                                                                        2025                    2024
+
+Cash and cash equivalents at beginning of period                                                                                              40,296                  43,522
+Earnings before tax                                                                                                                             9,307                 16,806
+Income taxes paid                                                                                                                              –5,152                 –6,187
+Depreciation and amortization of, and impairment losses on, intangible assets, property, plant and equipment,
+and investment property¹                                                                                                                       16,866                 12,858
+Amortization of and impairment losses on capitalized development costs¹                                                                         8,365                   7,209
+Impairment losses on equity investments¹                                                                                                            38                    710
+Depreciation of and impairment losses on lease assets¹                                                                                         12,203                 11,279
+Gain/loss on disposal of non-current assets and equity investments                                                                                –95                     110
+Share of the result of equity-accounted investments                                                                                               968                   2,362
+Other non-cash expense/income                                                                                                                    –946                     903
+Change in inventories                                                                                                                            –896                 –2,695
+Change in receivables (excluding financial services)                                                                                             –211                 –2,083
+Change in liabilities (excluding financial liabilities)                                                                                         3,165                      52
+Change in provisions                                                                                                                            1,760                   4,247
+Change in lease assets                                                                                                                       –24,166                 –19,358
+Change in financial services receivables                                                                                                       –6,196                 –9,061
+Cash flows from operating activities                                                                                                          15,009                  17,151
+Investments in intangible assets (excluding development costs), property, plant and equipment, and investment
+property                                                                                                                                     –15,299                 –17,202
+Additions to capitalized development costs                                                                                                     –9,047                –10,244
+Acquisition of subsidiaries                                                                                                                      –359                   –284
+Acquisition of other equity investments                                                                                                        –2,106                 –2,152
+Disposal of subsidiaries                                                                                                                            67                  –148
+Disposal of other equity investments                                                                                                              951                     231
+Proceeds from disposal of intangible assets, property, plant and equipment, and investment property                                               733                     947
+Change in investments in securities and time deposits                                                                                          –1,485                   –203
+Change in loans                                                                                                                                  –938                 –2,517
+Cash flows from investing activities                                                                                                         –27,484                 –31,573
+Capital contributions/capital redemptions                                                                                                         420                 –1,144
+Dividends paid                                                                                                                                 –4,460                 –5,779
+Capital transactions with non-controlling interest shareholders                                                                                   352                        –
+Proceeds from issuance of bonds                                                                                                                35,993                 38,420
+Repayments of bonds                                                                                                                          –32,669                 –32,617
+Proceeds from issuance of commercial paper and notes 2                                                                                         27,549                 13,828
+Repayments of commercial paper and notes2                                                                                                    –30,417                 –12,414
+Changes in other financial liabilities2                                                                                                        16,624                 12,179
+Repayments of lease liabilities                                                                                                                –1,476                 –1,334
+Cash flows from financing activities                                                                                                          11,918                  11,140
+Effect of exchange rate changes on cash and cash equivalents                                                                                     –938                      55
+Change of loss allowance within cash and cash equivalents                                                                                            0                       1
+Net change in cash and cash equivalents                                                                                                        –1,495                 –3,226
+Cash and cash equivalents at end of period                                                                                                    38,801                  40,296
+
+
+Cash and cash equivalents at end of period                                                                                                     38,801                 40,296
+Securities and time deposits and loans                                                                                                         47,395                 44,662
+Gross liquidity                                                                                                                               86,197                  84,959
+Total third-party borrowings                                                                                                                –264,703               –254,081
+Net liquidity                                                                                                                               –178,506               –169,122
+
+1 Net of impairment reversals.
+2 As from fiscal year 2025, commercial paper is presented in “Proceeds from issuance/repayments of commercial paper and notes”. In the previous year, it had been presented in
+  “Changes in other financial liabilities”. The prior-year figures were adjusted accordingly.
+
+Explanatory notes on the cash flow statement are presented in the section relating to the cash flow statement.
+
+
+
+
+                                                                                   467

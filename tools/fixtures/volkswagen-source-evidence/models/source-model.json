@@ -1,0 +1,6453 @@
+{
+  "schema_version": 1,
+  "entity": "Volkswagen Group",
+  "parent": "Volkswagen AG",
+  "report_year": 2025,
+  "basis": "IFRS Accounting Standards as adopted by EU",
+  "source_pdf_sha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+  "model_scope": "selected reported statement and note tables, not full transcription",
+  "tables": {
+    "income": {
+      "physical_page": 4112,
+      "printed_page": 461,
+      "source_text_sha256": "f8068e819f6836051c80945b6bf29f37875c519439b020f04df5b608dca0a540",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "consolidated Volkswagen Group",
+      "temporal_type": "annual_flow",
+      "measurement": "reported",
+      "rows": {
+        "revenue": {
+          "label": "Sales revenue",
+          "values": [
+            321913,
+            324656
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "cost": {
+          "label": "Cost of sales",
+          "values": [
+            -270671,
+            -265184
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "gross": {
+          "label": "Gross result",
+          "values": [
+            51243,
+            59472
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "distribution": {
+          "label": "Distribution expenses",
+          "values": [
+            -22804,
+            -22320
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "admin": {
+          "label": "Administrative expenses",
+          "values": [
+            -12541,
+            -12754
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "other_income": {
+          "label": "Other operating income",
+          "values": [
+            13615,
+            14974
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "other_expense": {
+          "label": "Other operating expenses",
+          "values": [
+            -20644,
+            -20312
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "operating": {
+          "label": "Operating result",
+          "values": [
+            8868,
+            19060
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "equity_result": {
+          "label": "Share of the result of equity-accounted investments",
+          "values": [
+            930,
+            375
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "interest_income": {
+          "label": "Interest income",
+          "values": [
+            1824,
+            2419
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "interest_expense": {
+          "label": "Interest expenses",
+          "values": [
+            -3245,
+            -3446
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "other_financial": {
+          "label": "Other financial result",
+          "values": [
+            930,
+            -1602
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "financial": {
+          "label": "Financial result",
+          "values": [
+            439,
+            -2255
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "pretax": {
+          "label": "Earnings before tax",
+          "values": [
+            9307,
+            16806
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "tax": {
+          "label": "Income tax income/expense",
+          "values": [
+            -2403,
+            -4411
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "current_tax": {
+          "label": "Current",
+          "values": [
+            -3837,
+            -5858
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "deferred_tax": {
+          "label": "Deferred",
+          "values": [
+            1434,
+            1447
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "profit": {
+          "label": "Earnings after tax",
+          "values": [
+            6904,
+            12394
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "nci": {
+          "label": "Non-controlling interests",
+          "values": [
+            -419,
+            1043
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "hybrid": {
+          "label": "Volkswagen AG hybrid capital investors",
+          "values": [
+            650,
+            630
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "parent": {
+          "label": "Volkswagen AG shareholders",
+          "values": [
+            6673,
+            10721
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": []
+    },
+    "eps": {
+      "physical_page": 4160,
+      "printed_page": 509,
+      "source_text_sha256": "f60cbadadda12044d99434cea806d8b4d67165bf6b3968ad5a644141ced04c7b",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "unit": "mixed; counts shares, earnings EUR million, EPS EUR",
+      "scope": "consolidated Volkswagen Group",
+      "temporal_type": "annual_flow",
+      "measurement": "reported",
+      "rows": {
+        "ordinary_count": {
+          "label": "Weighted-average ordinary shares",
+          "values": [
+            295089818,
+            295089818
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "shares",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "weighted_average_count",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "preferred_count": {
+          "label": "Weighted-average preferred shares",
+          "values": [
+            206205445,
+            206205445
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "shares",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "weighted_average_count",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "ordinary_earnings": {
+          "label": "Earnings attributable ordinary shares",
+          "values": [
+            3921,
+            6304
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "preferred_earnings": {
+          "label": "Earnings attributable preferred shares",
+          "values": [
+            2752,
+            4417
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "ordinary_eps": {
+          "label": "Basic/diluted ordinary EPS",
+          "values": [
+            13.29,
+            21.36
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR per share",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "preferred_eps": {
+          "label": "Basic/diluted preferred EPS",
+          "values": [
+            13.35,
+            21.42
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR per share",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": [
+        "Preferred shares receive EUR0.06 more dividend; not one uniform EPS for all shares."
+      ]
+    },
+    "assets": {
+      "physical_page": 4115,
+      "printed_page": 464,
+      "source_text_sha256": "1a169b9adddb67326ad3b0ee0fc5283b893bd94882711217d1c38c6f9358d203",
+      "periods": [
+        "2025-12-31",
+        "2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "consolidated Volkswagen Group",
+      "temporal_type": "closing_balance",
+      "measurement": "reported",
+      "rows": {
+        "intangible": {
+          "label": "Intangible assets",
+          "values": [
+            91474,
+            93333
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "ppe": {
+          "label": "Property plant and equipment",
+          "values": [
+            73076,
+            71452
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "lease": {
+          "label": "Lease assets",
+          "values": [
+            82486,
+            73193
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "property": {
+          "label": "Investment property",
+          "values": [
+            609,
+            622
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "equity": {
+          "label": "Equity-accounted investments",
+          "values": [
+            9996,
+            10269
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "other_equity": {
+          "label": "Other equity investments",
+          "values": [
+            7366,
+            5731
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "fs_noncurrent": {
+          "label": "Non-current financial services receivables",
+          "values": [
+            101230,
+            101087
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "financial_noncurrent": {
+          "label": "Non-current other financial assets",
+          "values": [
+            11692,
+            12129
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "other_noncurrent": {
+          "label": "Non-current other receivables",
+          "values": [
+            3651,
+            2868
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "tax_noncurrent": {
+          "label": "Non-current tax receivables",
+          "values": [
+            411,
+            409
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "dta": {
+          "label": "Deferred tax assets",
+          "values": [
+            14611,
+            16581
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "noncurrent": {
+          "label": "Total non-current assets",
+          "values": [
+            396602,
+            387674
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "inventory": {
+          "label": "Inventories",
+          "values": [
+            56042,
+            56720
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "trade": {
+          "label": "Trade receivables",
+          "values": [
+            20760,
+            21130
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "fs_current": {
+          "label": "Current financial services receivables",
+          "values": [
+            70026,
+            68855
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "financial_current": {
+          "label": "Current other financial assets",
+          "values": [
+            20158,
+            18649
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "other_current": {
+          "label": "Current other receivables",
+          "values": [
+            9881,
+            10217
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "tax_current": {
+          "label": "Current tax receivables",
+          "values": [
+            2674,
+            2038
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "securities": {
+          "label": "Marketable securities and time deposits",
+          "values": [
+            29522,
+            27326
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "cash": {
+          "label": "Cash and cash equivalents",
+          "values": [
+            38801,
+            40296
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "current": {
+          "label": "Total current assets",
+          "values": [
+            247865,
+            245231
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "total": {
+          "label": "Total assets",
+          "values": [
+            644467,
+            632905
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": []
+    },
+    "liabilities": {
+      "physical_page": 4116,
+      "printed_page": 465,
+      "source_text_sha256": "c6c53849ae7c86dcc7f7ce93b7ebb606609673ecdb4112a3bf6c715fc68f8145",
+      "periods": [
+        "2025-12-31",
+        "2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "consolidated Volkswagen Group",
+      "temporal_type": "closing_balance",
+      "measurement": "reported",
+      "rows": {
+        "subscribed": {
+          "label": "Subscribed capital",
+          "values": [
+            1283,
+            1283
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "capital": {
+          "label": "Capital reserve",
+          "values": [
+            14551,
+            14551
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "retained": {
+          "label": "Retained earnings",
+          "values": [
+            161357,
+            155130
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "reserves": {
+          "label": "Other reserves",
+          "values": [
+            -3190,
+            -2560
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "hybrid": {
+          "label": "Hybrid capital investors",
+          "values": [
+            14275,
+            13890
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "parent_equity": {
+          "label": "Shareholder and hybrid equity",
+          "values": [
+            188277,
+            182294
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "nci": {
+          "label": "Non-controlling interests",
+          "values": [
+            14777,
+            14437
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "equity": {
+          "label": "Total equity",
+          "values": [
+            203054,
+            196731
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "financial_nc": {
+          "label": "Non-current financial liabilities",
+          "values": [
+            137214,
+            137061
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "other_financial_nc": {
+          "label": "Non-current other financial liabilities",
+          "values": [
+            6422,
+            6548
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "other_nc": {
+          "label": "Non-current other liabilities",
+          "values": [
+            11420,
+            10584
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "dtl": {
+          "label": "Deferred tax liabilities",
+          "values": [
+            9963,
+            10900
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "pension": {
+          "label": "Pension provisions",
+          "values": [
+            22826,
+            27602
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "tax_provision_nc": {
+          "label": "Non-current provisions for taxes",
+          "values": [
+            3367,
+            4084
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "provision_nc": {
+          "label": "Non-current other provisions",
+          "values": [
+            23676,
+            22355
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "noncurrent": {
+          "label": "Total non-current liabilities",
+          "values": [
+            214887,
+            219134
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "financial_c": {
+          "label": "Current financial liabilities",
+          "values": [
+            127489,
+            117020
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "trade": {
+          "label": "Trade payables",
+          "values": [
+            30490,
+            29772
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "tax": {
+          "label": "Tax payables",
+          "values": [
+            497,
+            724
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "other_financial_c": {
+          "label": "Current other financial liabilities",
+          "values": [
+            13643,
+            14364
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "other_c": {
+          "label": "Current other liabilities",
+          "values": [
+            24427,
+            24752
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "tax_provision_c": {
+          "label": "Current provisions for taxes",
+          "values": [
+            1986,
+            1698
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "provision_c": {
+          "label": "Current other provisions",
+          "values": [
+            27993,
+            28709
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "current": {
+          "label": "Total current liabilities",
+          "values": [
+            226525,
+            217039
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "total": {
+          "label": "Total equity and liabilities",
+          "values": [
+            644467,
+            632905
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": []
+    },
+    "cashflow": {
+      "physical_page": 4118,
+      "printed_page": 467,
+      "source_text_sha256": "b0b650697ceb2ca2c803bf7d0760159045de93a45476e763ffdcf1cf2a61bec8",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "consolidated Volkswagen Group",
+      "temporal_type": "annual_flow",
+      "measurement": "reported",
+      "rows": {
+        "opening": {
+          "label": "Cash beginning",
+          "values": [
+            40296,
+            43522
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01",
+            "2024-01-01"
+          ],
+          "temporal_type": "opening_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "pretax": {
+          "label": "Earnings before tax",
+          "values": [
+            9307,
+            16806
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "tax": {
+          "label": "Income taxes paid",
+          "values": [
+            -5152,
+            -6187
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "depreciation": {
+          "label": "Depreciation impairment PPE intangibles investment property",
+          "values": [
+            16866,
+            12858
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "development": {
+          "label": "Amortization impairment development costs",
+          "values": [
+            8365,
+            7209
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "equity_impair": {
+          "label": "Impairment equity investments",
+          "values": [
+            38,
+            710
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "lease_depreciation": {
+          "label": "Lease depreciation impairment",
+          "values": [
+            12203,
+            11279
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "disposal_gain": {
+          "label": "Disposal result",
+          "values": [
+            -95,
+            110
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "equity_adjustment": {
+          "label": "Equity-accounted result adjustment",
+          "values": [
+            968,
+            2362
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "other_noncash": {
+          "label": "Other noncash",
+          "values": [
+            -946,
+            903
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "inventory": {
+          "label": "Change inventories",
+          "values": [
+            -896,
+            -2695
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "receivables": {
+          "label": "Change receivables excluding FS",
+          "values": [
+            -211,
+            -2083
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "liabilities": {
+          "label": "Change liabilities excluding financial",
+          "values": [
+            3165,
+            52
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "provisions": {
+          "label": "Change provisions",
+          "values": [
+            1760,
+            4247
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "lease_change": {
+          "label": "Change lease assets",
+          "values": [
+            -24166,
+            -19358
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "fs_change": {
+          "label": "Change FS receivables",
+          "values": [
+            -6196,
+            -9061
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "cfo": {
+          "label": "Operating cash flow",
+          "values": [
+            15009,
+            17151
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "capex": {
+          "label": "Intangibles PPE property investment",
+          "values": [
+            -15299,
+            -17202
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "capitalized_dev": {
+          "label": "Capitalized development",
+          "values": [
+            -9047,
+            -10244
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "acquire_subs": {
+          "label": "Acquire subsidiaries",
+          "values": [
+            -359,
+            -284
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "acquire_other": {
+          "label": "Acquire other equity",
+          "values": [
+            -2106,
+            -2152
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "dispose_subs": {
+          "label": "Dispose subsidiaries",
+          "values": [
+            67,
+            -148
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "dispose_other": {
+          "label": "Dispose other equity",
+          "values": [
+            951,
+            231
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "dispose_assets": {
+          "label": "Dispose assets",
+          "values": [
+            733,
+            947
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "securities": {
+          "label": "Change securities and deposits",
+          "values": [
+            -1485,
+            -203
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "loans": {
+          "label": "Change loans",
+          "values": [
+            -938,
+            -2517
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "cfi": {
+          "label": "Investing cash flow",
+          "values": [
+            -27484,
+            -31573
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "capital": {
+          "label": "Capital contributions redemptions",
+          "values": [
+            420,
+            -1144
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "dividends": {
+          "label": "Dividends paid",
+          "values": [
+            -4460,
+            -5779
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "nci_transactions": {
+          "label": "NCI capital transactions",
+          "values": [
+            352,
+            null
+          ],
+          "status": [
+            "reported_number",
+            "reported_dash"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "bond_issue": {
+          "label": "Bond proceeds",
+          "values": [
+            35993,
+            38420
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "bond_repay": {
+          "label": "Bond repayments",
+          "values": [
+            -32669,
+            -32617
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "paper_issue": {
+          "label": "Paper and notes proceeds",
+          "values": [
+            27549,
+            13828
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "paper_repay": {
+          "label": "Paper and notes repayments",
+          "values": [
+            -30417,
+            -12414
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "other_debt": {
+          "label": "Other financial liabilities change",
+          "values": [
+            16624,
+            12179
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "lease_repay": {
+          "label": "Lease repayments",
+          "values": [
+            -1476,
+            -1334
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "cff": {
+          "label": "Financing cash flow",
+          "values": [
+            11918,
+            11140
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "fx": {
+          "label": "Cash FX",
+          "values": [
+            -938,
+            55
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "loss_allowance": {
+          "label": "Cash allowance",
+          "values": [
+            0,
+            1
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "change": {
+          "label": "Net change cash",
+          "values": [
+            -1495,
+            -3226
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "closing": {
+          "label": "Cash ending",
+          "values": [
+            38801,
+            40296
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "securities_loans": {
+          "label": "Securities deposits loans",
+          "values": [
+            47395,
+            44662
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "gross_liquidity": {
+          "label": "Gross liquidity",
+          "values": [
+            86197,
+            84959
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "borrowings": {
+          "label": "Third party borrowings",
+          "values": [
+            -264703,
+            -254081
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "net_liquidity": {
+          "label": "Net liquidity",
+          "values": [
+            -178506,
+            -169122
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": [
+        "2024 commercial paper reclassified to same2025 basis. Dash is preserved, only explicitly tagged equation context interprets it as additive no movement."
+      ]
+    },
+    "oci": {
+      "physical_page": 4113,
+      "printed_page": 462,
+      "source_text_sha256": "6be03f8e19f3d5cd1df19cff0a0f2313770c979d5d2967c6b4eeb6d823f2498b",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "consolidated Volkswagen Group",
+      "temporal_type": "annual_flow",
+      "measurement": "reported",
+      "rows": {
+        "profit": {
+          "label": "Earnings after tax",
+          "values": [
+            6904,
+            12394
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "nonreclass": {
+          "label": "Non-reclassifiable items",
+          "values": [
+            4550,
+            1592
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "reclass": {
+          "label": "Reclassifiable items",
+          "values": [
+            -1650,
+            379
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "oci": {
+          "label": "Other comprehensive income",
+          "values": [
+            2900,
+            1971
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "total": {
+          "label": "Total comprehensive income",
+          "values": [
+            9804,
+            14365
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": [
+        "2024 data from physical4114; total columns only."
+      ],
+      "additional_sources": [
+        {
+          "physical_page": 4114,
+          "source_text_sha256": "2ff118fc3436812dcb797b5b717ab95ccb1cb8db4b7d45777eca8747060bfc97"
+        }
+      ]
+    },
+    "equity_rollforward": {
+      "physical_page": 4117,
+      "printed_page": 466,
+      "source_text_sha256": "7b934e982b0c034dcd38bf10163baa1790d65705134af36c5dfba4b073e380fd",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "consolidated Volkswagen Group",
+      "temporal_type": "annual_flow",
+      "measurement": "reported",
+      "rows": {
+        "unadjusted_opening": {
+          "label": "Opening before IAS8",
+          "values": [
+            196731,
+            189912
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01",
+            "2024-01-01"
+          ],
+          "temporal_type": "opening_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "correction": {
+          "label": "IAS8 prior-year correction",
+          "values": [
+            null,
+            -726
+          ],
+          "status": [
+            "reported_dash",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01",
+            "2024-01-01"
+          ],
+          "temporal_type": "opening_balance_adjustment",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "opening": {
+          "label": "Adjusted opening",
+          "values": [
+            196731,
+            189186
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01",
+            "2024-01-01"
+          ],
+          "temporal_type": "opening_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "profit": {
+          "label": "Earnings after tax",
+          "values": [
+            6904,
+            12394
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "oci": {
+          "label": "OCI",
+          "values": [
+            2900,
+            1971
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "capital": {
+          "label": "Capital changes",
+          "values": [
+            428,
+            -1138
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "dividends": {
+          "label": "Dividends",
+          "values": [
+            -4460,
+            -5779
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "ownership": {
+          "label": "Ownership capital transactions",
+          "values": [
+            352,
+            null
+          ],
+          "status": [
+            "reported_number",
+            "reported_dash"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "other": {
+          "label": "Other changes",
+          "values": [
+            199,
+            97
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "closing": {
+          "label": "Closing equity",
+          "values": [
+            203054,
+            196731
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": [
+        "Total equity column only, not a transcription of every equity component."
+      ]
+    },
+    "pension": {
+      "physical_page": 4179,
+      "printed_page": 528,
+      "source_text_sha256": "92d9f36bd984977a8f35530e6a9273224dbf2659e5f2b6343dd1a42638bdf037",
+      "periods": [
+        "2025-12-31",
+        "2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "consolidated Volkswagen Group",
+      "temporal_type": "closing_balance",
+      "measurement": "reported",
+      "rows": {
+        "funded": {
+          "label": "Funded DBO",
+          "values": [
+            24050,
+            24803
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "assets": {
+          "label": "Plan assets",
+          "values": [
+            20060,
+            18108
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "unfunded": {
+          "label": "Unfunded DBO",
+          "values": [
+            18571,
+            20670
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "ceiling": {
+          "label": "IAS19 ceiling",
+          "values": [
+            50,
+            39
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "net": {
+          "label": "Net liability",
+          "values": [
+            22611,
+            27404
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "provision": {
+          "label": "Pension provisions",
+          "values": [
+            22826,
+            27602
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "other_assets": {
+          "label": "Pension assets",
+          "values": [
+            215,
+            198
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": []
+    },
+    "fair_value_other_equity": {
+      "physical_page": 4195,
+      "printed_page": 544,
+      "source_text_sha256": "87fe939e1f89362e6e27cb38e84f61b4177cf6c71c96292d98945596dc0bef73",
+      "periods": [
+        "2025-12-31",
+        "2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "consolidated Volkswagen Group",
+      "temporal_type": "closing_balance",
+      "measurement": "reported",
+      "rows": {
+        "total": {
+          "label": "Other equity investments measured FV",
+          "values": [
+            4328,
+            2460
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "level1": {
+          "label": "Level1",
+          "values": [
+            86,
+            42
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "level2": {
+          "label": "Level2",
+          "values": [
+            3534,
+            1753
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "level3": {
+          "label": "Level3",
+          "values": [
+            708,
+            665
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": [
+        "2024 Level1 visual42 with superscript1; extracted421 is not the number. Level2 visually1753 with footnote1, extracted17531."
+      ],
+      "visual_corrections": [
+        {
+          "year": 2024,
+          "row": "level1",
+          "raw_token": "421",
+          "correct_value": 42,
+          "footnote": "1",
+          "visual": "visuals/physical-4195.png"
+        },
+        {
+          "year": 2024,
+          "row": "level2",
+          "raw_token": "1,7531",
+          "correct_value": 1753,
+          "footnote": "1",
+          "visual": "visuals/physical-4195.png"
+        }
+      ],
+      "comparative_basis": {
+        "2024": "adjusted",
+        "source_footnote": "Certain equity investments reclassified from Level1 to Level2 because they do not have unhindered market access. Prior-year figures adjusted.",
+        "physical_page": 4195
+      }
+    },
+    "lease_liability": {
+      "physical_page": 4189,
+      "printed_page": 538,
+      "source_text_sha256": "39d62a5f41c3a351eb97ff784bfa5c01883a497d0dc91cbea12b237760cdb4c6",
+      "periods": [
+        "2025-12-31",
+        "2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "consolidated Volkswagen Group",
+      "temporal_type": "closing_balance_and_future_contractual_maturities",
+      "measurement": "reported",
+      "rows": {
+        "noncurrent": {
+          "label": "Noncurrent lease liability",
+          "values": [
+            6337,
+            5924
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "current": {
+          "label": "Current lease liability",
+          "values": [
+            1320,
+            1252
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "carrying": {
+          "label": "Lease liability carrying",
+          "values": [
+            7657,
+            7176
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "under1": {
+          "label": "Undiscounted maturity under1year",
+          "values": [
+            1588,
+            1507
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "future_undiscounted_contractual_cashflow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported",
+          "maturity_bucket": "under_one_year"
+        },
+        "one5": {
+          "label": "Undiscounted maturity1\u20135years",
+          "values": [
+            4759,
+            4296
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "future_undiscounted_contractual_cashflow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported",
+          "maturity_bucket": "one_to_five_years"
+        },
+        "over5": {
+          "label": "Undiscounted maturity over5years",
+          "values": [
+            2964,
+            2958
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "future_undiscounted_contractual_cashflow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported",
+          "maturity_bucket": "over_five_years"
+        },
+        "undiscounted": {
+          "label": "Total undiscounted payments",
+          "values": [
+            9311,
+            8760
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "future_undiscounted_contractual_cashflow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported",
+          "maturity_bucket": "all_remaining_terms"
+        }
+      },
+      "notes": [
+        "Carrying liability excludes future interest; future undiscounted cash amounts cannot replace carrying."
+      ]
+    },
+    "finance_lease_investment": {
+      "physical_page": 4191,
+      "printed_page": 540,
+      "source_text_sha256": "6d9533fc2088feb2289fc92f1f6b890017f4cfc15fd108decd3a40d76c036d5b",
+      "periods": [
+        "2025-12-31",
+        "2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "consolidated Volkswagen Group",
+      "temporal_type": "closing_balance",
+      "measurement": "reported",
+      "rows": {
+        "undiscounted": {
+          "label": "Non-discounted lease payments",
+          "values": [
+            75626,
+            73142
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "residual": {
+          "label": "Non-guaranteed residual value",
+          "values": [
+            4092,
+            3783
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "interest": {
+          "label": "Unearned interest income",
+          "values": [
+            -7999,
+            -8033
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "allowance": {
+          "label": "Loss allowance",
+          "values": [
+            -1598,
+            -1414
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "net": {
+          "label": "Net investment",
+          "values": [
+            70122,
+            67478
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": [
+        "Not identical to note16 finance lease receivables70169/67575; preserve difference pending explicit scope bridge."
+      ]
+    },
+    "associate_revenue": {
+      "physical_page": 4131,
+      "printed_page": 480,
+      "source_text_sha256": "d6e18b8f1b108ce80121d5ddbde20998509c9496db27679e14c8265f3218897f",
+      "periods": [
+        "label2025:QuantumScape/Gotion2024-10-01/2025-09-30;Sinotruk2024-07-01/2025-06-30",
+        "label2024:QuantumScape/Gotion2023-10-01/2024-09-30;Sinotruk2023-07-01/2024-06-30"
+      ],
+      "unit": "EUR million",
+      "scope": "100% material associate financial information, not Group consolidated",
+      "temporal_type": "mixed_associate_annual_periods",
+      "measurement": "reported",
+      "rows": {
+        "quantumscape": {
+          "label": "QuantumScape revenue",
+          "values": [
+            null,
+            null
+          ],
+          "status": [
+            "reported_dash",
+            "reported_dash"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2024-10-01/2025-09-30",
+            "2023-10-01/2024-09-30"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "quantumscape standalone100percent associate",
+          "measurement": "reported"
+        },
+        "gotion": {
+          "label": "Gotion revenue",
+          "values": [
+            4797,
+            4347
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2024-10-01/2025-09-30",
+            "2023-10-01/2024-09-30"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "gotion standalone100percent associate",
+          "measurement": "reported"
+        },
+        "sinotruk": {
+          "label": "Sinotruk revenue",
+          "values": [
+            12371,
+            11893
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2024-07-01/2025-06-30",
+            "2023-07-01/2024-06-30"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "sinotruk standalone100percent associate",
+          "measurement": "reported"
+        }
+      },
+      "notes": [
+        "Do not re-date to Group calendar year or aggregate as Group revenue."
+      ]
+    },
+    "segment_revenue": {
+      "physical_page": 4149,
+      "printed_page": 498,
+      "source_text_sha256": "3774e04ef9b691f5bc95c2c825a4be19f61b3360004be1e07abefcfd72a95052",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "reporting-segment revenues including intersegment, eliminated to Group",
+      "temporal_type": "annual_flow",
+      "measurement": "reported",
+      "rows": {
+        "passenger": {
+          "label": "Passenger Cars and Light Commercial Vehicles total revenue",
+          "values": [
+            244484,
+            241526
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "reporting-segment revenues including intersegment, eliminated to Group",
+          "measurement": "reported"
+        },
+        "commercial": {
+          "label": "Commercial Vehicles total revenue",
+          "values": [
+            42540,
+            46183
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "reporting-segment revenues including intersegment, eliminated to Group",
+          "measurement": "reported"
+        },
+        "financial": {
+          "label": "Financial Services total revenue",
+          "values": [
+            62136,
+            58769
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "reporting-segment revenues including intersegment, eliminated to Group",
+          "measurement": "reported"
+        },
+        "segments": {
+          "label": "Total reporting segments",
+          "values": [
+            349160,
+            346478
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "reporting-segment revenues including intersegment, eliminated to Group",
+          "measurement": "reported"
+        },
+        "other": {
+          "label": "Other operating companies",
+          "values": [
+            6487,
+            5906
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "reporting-segment revenues including intersegment, eliminated to Group",
+          "measurement": "reported"
+        },
+        "reconciliation": {
+          "label": "Reconciliation",
+          "values": [
+            -33733,
+            -27728
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "reporting-segment revenues including intersegment, eliminated to Group",
+          "measurement": "reported"
+        },
+        "group": {
+          "label": "Volkswagen Group revenue",
+          "values": [
+            321913,
+            324656
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "reporting-segment revenues including intersegment, eliminated to Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": [
+        "Three reportable segments;2024 recast. Not brand-group or Automotive Division classification."
+      ]
+    },
+    "segment_operating": {
+      "physical_page": 4149,
+      "printed_page": 498,
+      "source_text_sha256": "3774e04ef9b691f5bc95c2c825a4be19f61b3360004be1e07abefcfd72a95052",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "reporting-segment operating result reconciled to Group",
+      "temporal_type": "annual_flow",
+      "measurement": "reported",
+      "rows": {
+        "passenger": {
+          "label": "Passenger operating result",
+          "values": [
+            4966,
+            13656
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "reporting-segment operating result reconciled to Group",
+          "measurement": "reported"
+        },
+        "commercial": {
+          "label": "Commercial operating result",
+          "values": [
+            2417,
+            4218
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "reporting-segment operating result reconciled to Group",
+          "measurement": "reported"
+        },
+        "financial": {
+          "label": "Financial Services operating result",
+          "values": [
+            3708,
+            3119
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "reporting-segment operating result reconciled to Group",
+          "measurement": "reported"
+        },
+        "segments": {
+          "label": "Total reporting segments operating result",
+          "values": [
+            11090,
+            20993
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "reporting-segment operating result reconciled to Group",
+          "measurement": "reported"
+        },
+        "other": {
+          "label": "Other operating companies operating result",
+          "values": [
+            198,
+            359
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "reporting-segment operating result reconciled to Group",
+          "measurement": "reported"
+        },
+        "reconciliation": {
+          "label": "Reconciliation operating result",
+          "values": [
+            -2420,
+            -2291
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "reporting-segment operating result reconciled to Group",
+          "measurement": "reported"
+        },
+        "group": {
+          "label": "Group operating result",
+          "values": [
+            8868,
+            19060
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "reporting-segment operating result reconciled to Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": [
+        "Profit shares from JVs are financial result, not operating result."
+      ]
+    },
+    "revenue_products": {
+      "physical_page": 4151,
+      "printed_page": 500,
+      "source_text_sha256": "0514ca1b26904900589176fdb41907d46f8665b51fb75e96bab95362e427b3c0",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "consolidated Volkswagen Group",
+      "temporal_type": "annual_flow",
+      "measurement": "reported",
+      "rows": {
+        "vehicles": {
+          "label": "Vehicles",
+          "values": [
+            190554,
+            195673
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "parts": {
+          "label": "Genuine parts",
+          "values": [
+            22931,
+            23467
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "used": {
+          "label": "Used vehicles and third-party products",
+          "values": [
+            35796,
+            35161
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "engines": {
+          "label": "Engines powertrains parts",
+          "values": [
+            14350,
+            14995
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "power": {
+          "label": "Power Engineering",
+          "values": [
+            4854,
+            4332
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "motorcycles": {
+          "label": "Motorcycles",
+          "values": [
+            746,
+            831
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "leasing": {
+          "label": "Leasing business",
+          "values": [
+            23088,
+            21011
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "interest": {
+          "label": "Interest and similar income",
+          "values": [
+            13861,
+            14184
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "hedges": {
+          "label": "Hedges sales revenue",
+          "values": [
+            238,
+            -219
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "other": {
+          "label": "Other revenue",
+          "values": [
+            15495,
+            15220
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "total": {
+          "label": "Group sales",
+          "values": [
+            321913,
+            324656
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": []
+    },
+    "chinese_jv_revenue": {
+      "physical_page": 4134,
+      "printed_page": 483,
+      "source_text_sha256": "0fb9761c290e027fcaccd69c2f9a75477d32fac4f3a4a42bb4de6c88e5e8c7e1",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "100% Chinese joint ventures, unconsolidated",
+      "temporal_type": "annual_flow",
+      "measurement": "reported",
+      "rows": {
+        "faw": {
+          "label": "FAW-Volkswagen Automotive Company",
+          "values": [
+            33588,
+            39166
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "100% Chinese joint ventures, unconsolidated",
+          "measurement": "reported"
+        },
+        "saic_auto": {
+          "label": "SAIC-Volkswagen Automotive Company",
+          "values": [
+            14208,
+            17293
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "100% Chinese joint ventures, unconsolidated",
+          "measurement": "reported"
+        },
+        "saic_sales": {
+          "label": "SAIC-Volkswagen Sales Company",
+          "values": [
+            15184,
+            19012
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "100% Chinese joint ventures, unconsolidated",
+          "measurement": "reported"
+        }
+      },
+      "notes": [
+        "SAIC Auto revenue mostly sales to SAIC Sales; no sum as incremental Group revenue. Equity interest FAW40%,SAICAuto50%,SAICSales48%2025/30%2024."
+      ],
+      "aggregation_policy": "not_additive_to_Group_or_across_SAIC_auto_and_sales"
+    },
+    "equity_carrying": {
+      "physical_page": 4168,
+      "printed_page": 517,
+      "source_text_sha256": "b3afa14ee3aa3448833ecdc4960eae1aa1dddd9fd4a3ea33ad440b2f993db594",
+      "periods": [
+        "2025-12-31",
+        "2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "consolidated Volkswagen Group",
+      "temporal_type": "closing_balance",
+      "measurement": "reported",
+      "rows": {
+        "jv": {
+          "label": "Joint ventures",
+          "values": [
+            4983,
+            5698
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "associates": {
+          "label": "Associates",
+          "values": [
+            5013,
+            4571
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "total": {
+          "label": "Equity accounted investments",
+          "values": [
+            9996,
+            10269
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": []
+    },
+    "tax_reconciliation": {
+      "physical_page": 4159,
+      "printed_page": 508,
+      "source_text_sha256": "973edf20da526e8f63cf241e4b52a8334ebf986cada2c5a3a82e2ded3647bcda",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "consolidated Volkswagen Group",
+      "temporal_type": "annual_flow",
+      "measurement": "reported",
+      "rows": {
+        "expected": {
+          "label": "Expected tax at30percent",
+          "values": [
+            2792,
+            5042
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "foreign": {
+          "label": "Different foreign rates",
+          "values": [
+            -497,
+            -528
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "exempt": {
+          "label": "Tax exempt income",
+          "values": [
+            -813,
+            -625
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "nondeductible": {
+          "label": "Nondeductible expense",
+          "values": [
+            1588,
+            773
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "losses": {
+          "label": "Loss carryforwards",
+          "values": [
+            1061,
+            66
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "permanent": {
+          "label": "Permanent differences",
+          "values": [
+            -321,
+            -103
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "credits": {
+          "label": "Tax credits",
+          "values": [
+            -108,
+            -142
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "prior": {
+          "label": "Prior-period",
+          "values": [
+            -709,
+            -477
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "rate_change": {
+          "label": "Rate changes",
+          "values": [
+            -877,
+            119
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "withholding": {
+          "label": "Withholding",
+          "values": [
+            354,
+            374
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "other": {
+          "label": "Other",
+          "values": [
+            -67,
+            -88
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "effective": {
+          "label": "Effective tax expense",
+          "values": [
+            2403,
+            4411
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": []
+    },
+    "intangible_rollforward": {
+      "physical_page": 4161,
+      "printed_page": 510,
+      "source_text_sha256": "bb0deae6bd92013c679c97c5f352767a1a12f079c1ca16512af6a1091937acdd",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "consolidated Volkswagen Group",
+      "temporal_type": "annual_rollforward_and_closing_balance",
+      "measurement": "reported",
+      "rows": {
+        "cost_open": {
+          "label": "Opening cost",
+          "values": [
+            143714,
+            133053
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01",
+            "2024-01-01"
+          ],
+          "temporal_type": "opening_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "cost_fx": {
+          "label": "Cost FX",
+          "values": [
+            -829,
+            157
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "cost_group": {
+          "label": "Cost consolidation",
+          "values": [
+            298,
+            11
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "cost_add": {
+          "label": "Cost additions",
+          "values": [
+            11716,
+            12741
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "cost_transfers": {
+          "label": "Cost transfers",
+          "values": [
+            376,
+            281
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "cost_disposals": {
+          "label": "Cost disposals",
+          "values": [
+            8642,
+            2530
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "cost_close": {
+          "label": "Closing cost",
+          "values": [
+            146633,
+            143714
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "accum_open": {
+          "label": "Opening accumulated depreciation impairment",
+          "values": [
+            50381,
+            43944
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01",
+            "2024-01-01"
+          ],
+          "temporal_type": "opening_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "accum_fx": {
+          "label": "Accumulated FX",
+          "values": [
+            -236,
+            -32
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "accum_group": {
+          "label": "Accumulated consolidation",
+          "values": [
+            32,
+            -8
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "amortization": {
+          "label": "Amortization",
+          "values": [
+            8994,
+            8263
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "impairment": {
+          "label": "Impairment additions",
+          "values": [
+            4288,
+            489
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "accum_transfer": {
+          "label": "Accumulated transfers",
+          "values": [
+            22,
+            18
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "accum_disposal": {
+          "label": "Accumulated disposals",
+          "values": [
+            8322,
+            2292
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "reversal": {
+          "label": "Impairment reversal",
+          "values": [
+            0,
+            1
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "accum_close": {
+          "label": "Closing accumulated",
+          "values": [
+            55159,
+            50381
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "net": {
+          "label": "Intangible NBV",
+          "values": [
+            91474,
+            93333
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": [
+        "Prior-year totals from physical4162; class reallocation109 between development-underway and other intangibles at2025 opening, total unchanged."
+      ],
+      "additional_sources": [
+        {
+          "physical_page": 4162,
+          "source_text_sha256": "6c1b6278f52b4ab53081f7272cfa6823cf9fef0d6c41c41b9d85937992585063"
+        }
+      ]
+    },
+    "provision_rollforward": {
+      "physical_page": 4185,
+      "printed_page": 534,
+      "source_text_sha256": "fce80ea50ed03eaa3ca04583a9886c11015a8a2bfb3deaf4cfe4b51a22e83617",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "consolidated Volkswagen Group",
+      "temporal_type": "annual_rollforward_and_closing_balance",
+      "measurement": "reported",
+      "rows": {
+        "opening": {
+          "label": "Opening other provisions",
+          "values": [
+            51064,
+            46554
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01",
+            "2024-01-01"
+          ],
+          "temporal_type": "opening_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "fx": {
+          "label": "FX",
+          "values": [
+            -1041,
+            221
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "group": {
+          "label": "Consolidation",
+          "values": [
+            37,
+            14
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "utilization": {
+          "label": "Utilization",
+          "values": [
+            21353,
+            18774
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "additions": {
+          "label": "Additions",
+          "values": [
+            27656,
+            27641
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "discount": {
+          "label": "Unwinding and discount change",
+          "values": [
+            305,
+            503
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "reversals": {
+          "label": "Reversals",
+          "values": [
+            5000,
+            5096
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "closing": {
+          "label": "Closing other provisions",
+          "values": [
+            51669,
+            51064
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "current": {
+          "label": "Current provisions",
+          "values": [
+            27993,
+            28709
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "noncurrent": {
+          "label": "Non-current provisions",
+          "values": [
+            23676,
+            22355
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": []
+    },
+    "debt_components": {
+      "physical_page": 4175,
+      "printed_page": 524,
+      "source_text_sha256": "0cf8f1c8f3cf6038673cfecc563b97944a412b16dcc21edaa2942c441895d90d",
+      "periods": [
+        "2025-12-31",
+        "2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "consolidated Volkswagen Group",
+      "temporal_type": "closing_balance",
+      "measurement": "reported",
+      "rows": {
+        "bonds": {
+          "label": "Bonds",
+          "values": [
+            108385,
+            106958
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "paper": {
+          "label": "Commercial paper and notes",
+          "values": [
+            40856,
+            47521
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "banks": {
+          "label": "Banks",
+          "values": [
+            37016,
+            32280
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "deposits": {
+          "label": "Deposits business",
+          "values": [
+            68347,
+            57559
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "loans": {
+          "label": "Loans and miscellaneous",
+          "values": [
+            2443,
+            2587
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "leases": {
+          "label": "Lease liabilities",
+          "values": [
+            7657,
+            7176
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "total": {
+          "label": "Financial liabilities",
+          "values": [
+            264703,
+            254081
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": []
+    },
+    "debt_rollforward": {
+      "physical_page": 4207,
+      "printed_page": 556,
+      "source_text_sha256": "1cfe05d3fcb4aa7f7a3648f73f711f8894417cc7c098ebbf0f2505c6e043142d",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "consolidated Volkswagen Group",
+      "temporal_type": "annual_rollforward_and_closing_balance",
+      "measurement": "reported",
+      "rows": {
+        "opening": {
+          "label": "Opening third-party borrowings",
+          "values": [
+            254081,
+            232813
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01",
+            "2024-01-01"
+          ],
+          "temporal_type": "opening_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "cash": {
+          "label": "Cash-effective changes",
+          "values": [
+            15233,
+            18490
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "fx": {
+          "label": "FX",
+          "values": [
+            -6251,
+            -279
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "group": {
+          "label": "Changes group",
+          "values": [
+            43,
+            211
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "held_for_sale": {
+          "label": "Held for sale",
+          "values": [
+            null,
+            0
+          ],
+          "status": [
+            "reported_dash",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "other": {
+          "label": "Other noncash",
+          "values": [
+            1598,
+            2846
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "closing": {
+          "label": "Closing third-party borrowings",
+          "values": [
+            264703,
+            254081
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": [
+        "2024 commercial paper recast, repayment sign included."
+      ]
+    },
+    "ecl_amortized": {
+      "physical_page": 4210,
+      "printed_page": 559,
+      "source_text_sha256": "cc7fb8394852d2e8af624b713a5439a4de2a64fa2d8d6dd520efb47af21d04fc",
+      "periods": [
+        "2025-12-31",
+        "2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "consolidated Volkswagen Group",
+      "temporal_type": "closing_balance",
+      "measurement": "reported",
+      "rows": {
+        "gross_stage1": {
+          "label": "Gross stage1",
+          "values": [
+            143260,
+            146080
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "gross_stage2": {
+          "label": "Gross stage2",
+          "values": [
+            18137,
+            17540
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "gross_stage3": {
+          "label": "Gross stage3",
+          "values": [
+            3096,
+            2962
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "gross_simplified": {
+          "label": "Gross simplified",
+          "values": [
+            22750,
+            22502
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "gross_stage4": {
+          "label": "Gross acquired-credit-impaired",
+          "values": [
+            511,
+            387
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "gross_total": {
+          "label": "Gross total",
+          "values": [
+            187754,
+            189472
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "allow_stage1": {
+          "label": "Allowance stage1",
+          "values": [
+            1144,
+            1320
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "allow_stage2": {
+          "label": "Allowance stage2",
+          "values": [
+            581,
+            637
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "allow_stage3": {
+          "label": "Allowance stage3",
+          "values": [
+            1255,
+            1473
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "allow_simplified": {
+          "label": "Allowance simplified",
+          "values": [
+            1175,
+            762
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "allow_stage4": {
+          "label": "Allowance acquired-credit-impaired",
+          "values": [
+            159,
+            46
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "allow_total": {
+          "label": "Allowance total",
+          "values": [
+            4314,
+            4238
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "net": {
+          "label": "Amortized financial asset carrying",
+          "values": [
+            183441,
+            185234
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": [
+        "2024 data physical4211; net carrying physical4192. Excludes separate lease/contract gross table; gross not net."
+      ],
+      "additional_sources": [
+        {
+          "physical_page": 4211,
+          "source_text_sha256": "4f8746d857c586bba12d77817d8af8ca0dac3ab7b275e06676667f90b052b7b6"
+        },
+        {
+          "physical_page": 4192,
+          "source_text_sha256": "a9f73b53e56585c2795513b56f7b11f308ce101d5636671f2df9f8a8459e32e6"
+        }
+      ]
+    },
+    "mobility_var": {
+      "physical_page": 4231,
+      "printed_page": 580,
+      "source_text_sha256": "e26ee8b45a18a841864be0947708f3cc120b3ec9b2e5d0f03b4a79d0d7eb54e2",
+      "periods": [
+        "2025-12-31:model99.9percent365days",
+        "2024-12-31:model99percent60days"
+      ],
+      "unit": "EUR million",
+      "scope": "Volkswagen Group Mobility only",
+      "temporal_type": "risk_measurement",
+      "measurement": "reported",
+      "rows": {
+        "interest": {
+          "label": "Interest VaR",
+          "values": [
+            2697,
+            958
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31:model99.9percent365days",
+            "2024-12-31:model99percent60days"
+          ],
+          "temporal_type": "risk_measurement",
+          "scope": "Volkswagen Group Mobility only",
+          "measurement": "reported"
+        },
+        "currency": {
+          "label": "Currency VaR",
+          "values": [
+            2502,
+            191
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31:model99.9percent365days",
+            "2024-12-31:model99percent60days"
+          ],
+          "temporal_type": "risk_measurement",
+          "scope": "Volkswagen Group Mobility only",
+          "measurement": "reported"
+        },
+        "combined": {
+          "label": "Combined VaR",
+          "values": [
+            3987,
+            981
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-12-31:model99.9percent365days",
+            "2024-12-31:model99percent60days"
+          ],
+          "temporal_type": "risk_measurement",
+          "scope": "Volkswagen Group Mobility only",
+          "measurement": "reported"
+        }
+      },
+      "notes": [
+        "Method change at physical4222; raw year-on-year growth is not like-for-like. Combined VaR includes diversification, not sum."
+      ],
+      "additional_sources": [
+        {
+          "physical_page": 4222,
+          "source_text_sha256": "e2beea96e7c80388aac3e431af582b8ca1dce8388b2f728ac6b0536a04941822"
+        }
+      ],
+      "comparability": {
+        "year_on_year_like_for_like": false,
+        "reason": "Confidence and horizon changed;2025 99.9%365days;2024 99%60days."
+      }
+    },
+    "automotive_roi": {
+      "physical_page": 4235,
+      "printed_page": 584,
+      "source_text_sha256": "9c438afadf29e0fe948fb5d0c96483111e46fc47367ba09384aafefe681e7504",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "unit": "EUR million except ROI percent",
+      "scope": "Automotive Division including proportional Chinese JVs excluding PPA",
+      "temporal_type": "annual_flow",
+      "measurement": "reported",
+      "rows": {
+        "profit": {
+          "label": "Operating result after tax",
+          "values": [
+            6548,
+            12842
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "Automotive Division including proportional Chinese JVs excluding PPA",
+          "measurement": "reported"
+        },
+        "capital": {
+          "label": "Average invested capital",
+          "values": [
+            135159,
+            129229
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "average_balance",
+          "scope": "Automotive Division including proportional Chinese JVs excluding PPA",
+          "measurement": "reported"
+        },
+        "roi": {
+          "label": "ROI percent",
+          "values": [
+            4.8,
+            9.9
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "percent",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "Automotive Division including proportional Chinese JVs excluding PPA",
+          "measurement": "reported"
+        }
+      },
+      "notes": [
+        "2024 reporting recast; not consolidated Group ratio."
+      ]
+    },
+    "auditor_fees": {
+      "physical_page": 4249,
+      "printed_page": 598,
+      "source_text_sha256": "d41f6e1844e137aa27ecbf9c486013354d6971c0e78fc65984e51a9793dc79d6",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "unit": "EUR million",
+      "scope": "consolidated Volkswagen Group",
+      "temporal_type": "annual_flow",
+      "measurement": "reported",
+      "rows": {
+        "audit": {
+          "label": "Financial statement audit",
+          "values": [
+            26,
+            30
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "assurance": {
+          "label": "Other assurance",
+          "values": [
+            6,
+            5
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "tax": {
+          "label": "Tax advisory",
+          "values": [
+            null,
+            null
+          ],
+          "status": [
+            "reported_dash",
+            "reported_dash"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "other": {
+          "label": "Other services",
+          "values": [
+            0,
+            1
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        },
+        "total": {
+          "label": "Total EY fees",
+          "values": [
+            32,
+            36
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "scope": "consolidated Volkswagen Group",
+          "measurement": "reported"
+        }
+      },
+      "notes": [
+        "Visual confirms prior assurance5+footnote1 and total36+footnote1, not51/361."
+      ],
+      "visual_corrections": [
+        {
+          "year": 2024,
+          "row": "assurance",
+          "raw_token": "51",
+          "correct_value": 5,
+          "footnote": "1",
+          "visual": "visuals/physical-4249.png"
+        },
+        {
+          "year": 2024,
+          "row": "total",
+          "raw_token": "361",
+          "correct_value": 36,
+          "footnote": "1",
+          "visual": "visuals/physical-4249.png"
+        }
+      ],
+      "comparative_basis": {
+        "2024": "adjusted",
+        "physical_page": 4249
+      }
+    }
+  },
+  "equations": [
+    {
+      "id": "income_gross",
+      "table": "income",
+      "target": "gross",
+      "terms": {
+        "revenue": 1,
+        "cost": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "income_operating",
+      "table": "income",
+      "target": "operating",
+      "terms": {
+        "gross": 1,
+        "distribution": 1,
+        "admin": 1,
+        "other_income": 1,
+        "other_expense": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "income_financial",
+      "table": "income",
+      "target": "financial",
+      "terms": {
+        "equity_result": 1,
+        "interest_income": 1,
+        "interest_expense": 1,
+        "other_financial": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "income_pretax",
+      "table": "income",
+      "target": "pretax",
+      "terms": {
+        "operating": 1,
+        "financial": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "income_tax",
+      "table": "income",
+      "target": "tax",
+      "terms": {
+        "current_tax": 1,
+        "deferred_tax": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "income_profit",
+      "table": "income",
+      "target": "profit",
+      "terms": {
+        "pretax": 1,
+        "tax": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "income_allocation",
+      "table": "income",
+      "target": "profit",
+      "terms": {
+        "parent": 1,
+        "hybrid": 1,
+        "nci": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "assets_noncurrent",
+      "table": "assets",
+      "target": "noncurrent",
+      "terms": {
+        "intangible": 1,
+        "ppe": 1,
+        "lease": 1,
+        "property": 1,
+        "equity": 1,
+        "other_equity": 1,
+        "fs_noncurrent": 1,
+        "financial_noncurrent": 1,
+        "other_noncurrent": 1,
+        "tax_noncurrent": 1,
+        "dta": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 6,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "assets_current",
+      "table": "assets",
+      "target": "current",
+      "terms": {
+        "inventory": 1,
+        "trade": 1,
+        "fs_current": 1,
+        "financial_current": 1,
+        "other_current": 1,
+        "tax_current": 1,
+        "securities": 1,
+        "cash": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 5,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "assets_total",
+      "table": "assets",
+      "target": "total",
+      "terms": {
+        "current": 1,
+        "noncurrent": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "liability_parent",
+      "table": "liabilities",
+      "target": "parent_equity",
+      "terms": {
+        "subscribed": 1,
+        "capital": 1,
+        "retained": 1,
+        "reserves": 1,
+        "hybrid": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 3.0,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "liability_equity",
+      "table": "liabilities",
+      "target": "equity",
+      "terms": {
+        "parent_equity": 1,
+        "nci": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 1.5,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "liability_noncurrent",
+      "table": "liabilities",
+      "target": "noncurrent",
+      "terms": {
+        "financial_nc": 1,
+        "other_financial_nc": 1,
+        "other_nc": 1,
+        "dtl": 1,
+        "pension": 1,
+        "tax_provision_nc": 1,
+        "provision_nc": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 4.0,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "liability_current",
+      "table": "liabilities",
+      "target": "current",
+      "terms": {
+        "financial_c": 1,
+        "trade": 1,
+        "tax": 1,
+        "other_financial_c": 1,
+        "other_c": 1,
+        "tax_provision_c": 1,
+        "provision_c": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 4.0,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "liability_total",
+      "table": "liabilities",
+      "target": "total",
+      "terms": {
+        "equity": 1,
+        "noncurrent": 1,
+        "current": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2.0,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "cfo",
+      "table": "cashflow",
+      "target": "cfo",
+      "terms": {
+        "pretax": 1,
+        "tax": 1,
+        "depreciation": 1,
+        "development": 1,
+        "equity_impair": 1,
+        "lease_depreciation": 1,
+        "disposal_gain": 1,
+        "equity_adjustment": 1,
+        "other_noncash": 1,
+        "inventory": 1,
+        "receivables": 1,
+        "liabilities": 1,
+        "provisions": 1,
+        "lease_change": 1,
+        "fs_change": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 8.0,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "cfi",
+      "table": "cashflow",
+      "target": "cfi",
+      "terms": {
+        "capex": 1,
+        "capitalized_dev": 1,
+        "acquire_subs": 1,
+        "acquire_other": 1,
+        "dispose_subs": 1,
+        "dispose_other": 1,
+        "dispose_assets": 1,
+        "securities": 1,
+        "loans": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 5.0,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "cff",
+      "table": "cashflow",
+      "target": "cff",
+      "terms": {
+        "capital": 1,
+        "dividends": 1,
+        "nci_transactions": 1,
+        "bond_issue": 1,
+        "bond_repay": 1,
+        "paper_issue": 1,
+        "paper_repay": 1,
+        "other_debt": 1,
+        "lease_repay": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 5.0,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "cash_change",
+      "table": "cashflow",
+      "target": "change",
+      "terms": {
+        "cfo": 1,
+        "cfi": 1,
+        "cff": 1,
+        "fx": 1,
+        "loss_allowance": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 3,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "cash_closing",
+      "table": "cashflow",
+      "target": "closing",
+      "terms": {
+        "opening": 1,
+        "change": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "gross_liquidity",
+      "table": "cashflow",
+      "target": "gross_liquidity",
+      "terms": {
+        "closing": 1,
+        "securities_loans": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "net_liquidity",
+      "table": "cashflow",
+      "target": "net_liquidity",
+      "terms": {
+        "gross_liquidity": 1,
+        "borrowings": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "oci_components",
+      "table": "oci",
+      "target": "oci",
+      "terms": {
+        "nonreclass": 1,
+        "reclass": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "oci_total",
+      "table": "oci",
+      "target": "total",
+      "terms": {
+        "profit": 1,
+        "oci": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "equity_opening",
+      "table": "equity_rollforward",
+      "target": "opening",
+      "terms": {
+        "unadjusted_opening": 1,
+        "correction": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "equity_close",
+      "table": "equity_rollforward",
+      "target": "closing",
+      "terms": {
+        "opening": 1,
+        "profit": 1,
+        "oci": 1,
+        "capital": 1,
+        "dividends": 1,
+        "ownership": 1,
+        "other": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 4,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "pension_net",
+      "table": "pension",
+      "target": "net",
+      "terms": {
+        "funded": 1,
+        "assets": -1,
+        "unfunded": 1,
+        "ceiling": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2.5,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "pension_presentation",
+      "table": "pension",
+      "target": "net",
+      "terms": {
+        "provision": 1,
+        "other_assets": -1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "fair_value_levels",
+      "table": "fair_value_other_equity",
+      "target": "total",
+      "terms": {
+        "level1": 1,
+        "level2": 1,
+        "level3": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "lease_carrying",
+      "table": "lease_liability",
+      "target": "carrying",
+      "terms": {
+        "noncurrent": 1,
+        "current": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "lease_undiscounted",
+      "table": "lease_liability",
+      "target": "undiscounted",
+      "terms": {
+        "under1": 1,
+        "one5": 1,
+        "over5": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "finance_lease_net",
+      "table": "finance_lease_investment",
+      "target": "net",
+      "terms": {
+        "undiscounted": 1,
+        "residual": 1,
+        "interest": 1,
+        "allowance": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2.5,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "segment_revenue_total",
+      "table": "segment_revenue",
+      "target": "segments",
+      "terms": {
+        "passenger": 1,
+        "commercial": 1,
+        "financial": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "segment_revenue_group",
+      "table": "segment_revenue",
+      "target": "group",
+      "terms": {
+        "segments": 1,
+        "other": 1,
+        "reconciliation": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "segment_operating_total",
+      "table": "segment_operating",
+      "target": "segments",
+      "terms": {
+        "passenger": 1,
+        "commercial": 1,
+        "financial": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "segment_operating_group",
+      "table": "segment_operating",
+      "target": "group",
+      "terms": {
+        "segments": 1,
+        "other": 1,
+        "reconciliation": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "revenue_products",
+      "table": "revenue_products",
+      "target": "total",
+      "terms": {
+        "vehicles": 1,
+        "parts": 1,
+        "used": 1,
+        "engines": 1,
+        "power": 1,
+        "motorcycles": 1,
+        "leasing": 1,
+        "interest": 1,
+        "hedges": 1,
+        "other": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 5.5,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "equity_carrying",
+      "table": "equity_carrying",
+      "target": "total",
+      "terms": {
+        "jv": 1,
+        "associates": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "effective_tax",
+      "table": "tax_reconciliation",
+      "target": "effective",
+      "terms": {
+        "expected": 1,
+        "foreign": 1,
+        "exempt": 1,
+        "nondeductible": 1,
+        "losses": 1,
+        "permanent": 1,
+        "credits": 1,
+        "prior": 1,
+        "rate_change": 1,
+        "withholding": 1,
+        "other": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 6,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "intangible_cost",
+      "table": "intangible_rollforward",
+      "target": "cost_close",
+      "terms": {
+        "cost_open": 1,
+        "cost_fx": 1,
+        "cost_group": 1,
+        "cost_add": 1,
+        "cost_transfers": 1,
+        "cost_disposals": -1
+      },
+      "columns": null,
+      "absolute_tolerance": 3.5,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "intangible_accum",
+      "table": "intangible_rollforward",
+      "target": "accum_close",
+      "terms": {
+        "accum_open": 1,
+        "accum_fx": 1,
+        "accum_group": 1,
+        "amortization": 1,
+        "impairment": 1,
+        "accum_transfer": 1,
+        "accum_disposal": -1,
+        "reversal": -1
+      },
+      "columns": null,
+      "absolute_tolerance": 4.5,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "intangible_net",
+      "table": "intangible_rollforward",
+      "target": "net",
+      "terms": {
+        "cost_close": 1,
+        "accum_close": -1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "provision_rollforward",
+      "table": "provision_rollforward",
+      "target": "closing",
+      "terms": {
+        "opening": 1,
+        "fx": 1,
+        "group": 1,
+        "utilization": -1,
+        "additions": 1,
+        "discount": 1,
+        "reversals": -1
+      },
+      "columns": null,
+      "absolute_tolerance": 4,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "provision_maturities",
+      "table": "provision_rollforward",
+      "target": "closing",
+      "terms": {
+        "current": 1,
+        "noncurrent": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "debt_components",
+      "table": "debt_components",
+      "target": "total",
+      "terms": {
+        "bonds": 1,
+        "paper": 1,
+        "banks": 1,
+        "deposits": 1,
+        "loans": 1,
+        "leases": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 3.5,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "debt_rollforward",
+      "table": "debt_rollforward",
+      "target": "closing",
+      "terms": {
+        "opening": 1,
+        "cash": 1,
+        "fx": 1,
+        "group": 1,
+        "held_for_sale": 1,
+        "other": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 3.5,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "ecl_gross",
+      "table": "ecl_amortized",
+      "target": "gross_total",
+      "terms": {
+        "gross_stage1": 1,
+        "gross_stage2": 1,
+        "gross_stage3": 1,
+        "gross_simplified": 1,
+        "gross_stage4": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 3,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "ecl_allowance",
+      "table": "ecl_amortized",
+      "target": "allow_total",
+      "terms": {
+        "allow_stage1": 1,
+        "allow_stage2": 1,
+        "allow_stage3": 1,
+        "allow_simplified": 1,
+        "allow_stage4": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 3,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "ecl_net",
+      "table": "ecl_amortized",
+      "target": "net",
+      "terms": {
+        "gross_total": 1,
+        "allow_total": -1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "auditor_fees",
+      "table": "auditor_fees",
+      "target": "total",
+      "terms": {
+        "audit": 1,
+        "assurance": 1,
+        "tax": 1,
+        "other": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2.5,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    }
+  ],
+  "source_exceptions": [
+    {
+      "id": "EX001",
+      "kind": "resolved_extraction",
+      "physical_page": 4195,
+      "detail": "2024 Level1 is42 plus footnote1, not421. Render verifies42+1753+665=2460."
+    },
+    {
+      "id": "EX002",
+      "kind": "unresolved_scope",
+      "pages": [
+        4169,
+        4191
+      ],
+      "detail": "Finance lease receivables70169/67575 differ net investment70122/67478. No fabricated reconciling value."
+    },
+    {
+      "id": "EX003",
+      "kind": "unresolved_scope",
+      "pages": [
+        4155,
+        4189
+      ],
+      "detail": "Lease interest280/266 in financial result versus289/275 lease disclosure; retain exact source values."
+    },
+    {
+      "id": "EX004",
+      "kind": "rounding",
+      "detail": "Ordinary independently rounded sums can differ; equality to reported source remains exact regardless arithmetic tolerance."
+    },
+    {
+      "id": "EX005",
+      "kind": "unresolved_scope",
+      "pages": [
+        4212,
+        4213,
+        4215
+      ],
+      "detail": "Maximum credit risk2024 guarantees/commitments14834=gross14994-allowance160.2025 presented13244 equals gross, while allowance170 exists. Preserve comparison asymmetry, do not rewrite."
+    },
+    {
+      "id": "EX006",
+      "kind": "unresolved_scope",
+      "pages": [
+        4155,
+        4184
+      ],
+      "detail": "2024 pension net interest971 in interest note versus967 pension note;2025 both936. Preserve."
+    }
+  ],
+  "assurance": {
+    "financial": {
+      "level": "reasonable",
+      "opinion": "unqualified",
+      "auditor": "EY GmbH & Co. KG",
+      "date": "2026-03-06",
+      "scope": "2025 consolidated financial statements and specified management report",
+      "pages": [
+        4294,
+        4307
+      ]
+    },
+    "sustainability": {
+      "overall_level": "limited",
+      "reasonable_only": [
+        "EU Taxonomy disclosures",
+        "DCI2024 and2025 named tables",
+        "DCI base-year recalculation2020\u20132024"
+      ],
+      "pages": [
+        4308,
+        4313
+      ],
+      "carbon_certificates": "existence considered; effectiveness not considered"
+    },
+    "remuneration": {
+      "level": "reasonable",
+      "scope": "Sec162 AktG content, excluding extra-statutory appropriateness and market-alignment disclosures",
+      "pages": [
+        4314,
+        4315
+      ]
+    },
+    "icfr_effectiveness_opinion": false,
+    "kam_separate_opinions": false,
+    "esef_pdf_covered": false
+  },
+  "model_revision": 2
+}

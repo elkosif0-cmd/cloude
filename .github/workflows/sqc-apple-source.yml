@@ -19,6 +19,8 @@ on:
       - 'tools/*source*'
       - 'tools/fixtures/**'
       - 'tools/workspace_validation*'
+      - 'tools/preview_build_check.py'
+      - 'tools/preview_phone_boundary.test.mjs'
       - 'tools/fixtures/apple-fy2024-source.json'
       - 'tools/fixtures/non-apple-statements-baseline.json'
       - '.github/workflows/sqc-apple-source.yml'
@@ -41,6 +43,8 @@ on:
       - 'tools/*source*'
       - 'tools/fixtures/**'
       - 'tools/workspace_validation*'
+      - 'tools/preview_build_check.py'
+      - 'tools/preview_phone_boundary.test.mjs'
       - 'tools/fixtures/apple-fy2024-source.json'
       - 'tools/fixtures/non-apple-statements-baseline.json'
       - '.github/workflows/sqc-apple-source.yml'
@@ -94,13 +98,13 @@ jobs:
           node --check ui/features/audit-bridge.js
           node --check tools/apple_source_browser_e2e.mjs
           set -o pipefail
-          node --experimental-vm-modules --test --test-reporter=tap tools/pg_source_replay.test.mjs tools/home_depot_source_reporting.test.mjs tools/mcdonalds_source_reporting.test.mjs tools/mcdonalds_adapter.test.mjs tools/mercedes_source_replay.test.mjs tools/source_replay_contract.test.mjs tools/apple_source_reporting.test.mjs tools/apple_source_bridge.test.mjs tools/apple_source_ci_contract.test.mjs tools/workspace_validation.test.mjs tools/workspace_validation_contract.test.mjs tools/audit_source_catalog.test.mjs tools/source_report_reimport.test.mjs tools/pending_source_boundary.test.mjs tools/source_preview_excel.test.mjs tools/source_csv_fidelity.test.mjs | tee artifacts/apple-source/node-tests.tap
+          node --experimental-vm-modules --test --test-reporter=tap tools/pg_source_replay.test.mjs tools/home_depot_source_reporting.test.mjs tools/mcdonalds_source_reporting.test.mjs tools/mcdonalds_adapter.test.mjs tools/mercedes_source_replay.test.mjs tools/volkswagen_source_replay.test.mjs tools/volkswagen_source_reference.test.mjs tools/source_replay_contract.test.mjs tools/apple_source_reporting.test.mjs tools/apple_source_bridge.test.mjs tools/apple_source_ci_contract.test.mjs tools/workspace_validation.test.mjs tools/workspace_validation_contract.test.mjs tools/audit_source_catalog.test.mjs tools/source_report_reimport.test.mjs tools/pending_source_boundary.test.mjs tools/source_preview_excel.test.mjs tools/source_csv_fidelity.test.mjs tools/preview_phone_boundary.test.mjs | tee artifacts/apple-source/node-tests.tap
           python3 - <<'PYCOUNT'
           import re
           from pathlib import Path
           text=Path('artifacts/apple-source/node-tests.tap').read_text()
           counts={k:int(v) for k,v in re.findall(r'^# (tests|pass|fail|cancelled|skipped) (\d+)$',text,re.M)}
-          assert counts['tests'] >= 171, counts
+          assert counts['tests'] >= 211, counts
           assert counts['pass']==counts['tests'], counts
           assert counts['fail']==counts['cancelled']==counts['skipped']==0, counts
           PYCOUNT

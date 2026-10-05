@@ -15,6 +15,7 @@ export type Theme = 'revenue-deductions' | 'revenue-recognition' | 'credit-losse
   | 'provisions-litigation' | 'fair-value' | 'actuarial' | 'it-controls' | 'complex-transactions' | 'inventory' | 'fraud-override' | 'climate' | 'parent-investments' | 'related-parties';
 
 export type Report = { id: string; company: string; country: string; sector: Sector; framework: string; standard: Standard; auditor: string;
+  /** Disclosed source audit basis, separate from the legacy operational standard classification. */ sourceAuditLabel?: string;
   /** first year of the audit engagement when the report states it */ since?: number; fy: string; kind: string; pages: [number, number] };
 export type Kam = { report: string; title: string; theme: Theme; page: number };
 export type MaterialityCase = { report: string; currency: string; overall: number; basis: string; benchmark: 'profit' | 'cash-flow' | 'ebit';
@@ -58,8 +59,8 @@ export const SOURCES: { name: string; covers: string; url: string; kind: 'filing
 ];
 
 /* ---------- the reports in the bundle (page ranges in the bundle) ---------- */
-const R = (id: string, company: string, country: string, sector: Sector, framework: string, standard: Standard, auditor: string, since: number | undefined, fy: string, kind: string, a: number, b: number): Report =>
-  ({ id, company, country, sector, framework, standard, auditor, ...(since ? { since } : {}), fy, kind, pages: [a, b] });
+const R = (id: string, company: string, country: string, sector: Sector, framework: string, standard: Standard, auditor: string, since: number | undefined, fy: string, kind: string, a: number, b: number, sourceAuditLabel?: string): Report =>
+  ({ id, company, country, sector, framework, standard, auditor, ...(since ? { since } : {}), fy, kind, pages: [a, b], ...(sourceAuditLabel ? { sourceAuditLabel } : {}) });
 export const REPORTS: Report[] = [
   R('amazon-2023', 'Amazon.com, Inc.', 'US', 'retail', 'US GAAP', 'PCAOB', 'Ernst & Young LLP', 1996, 'FY2023', 'Annual report + 10-K', 2, 93),
   R('apple-2024', 'Apple Inc.', 'US', 'tech', 'US GAAP', 'PCAOB', 'Ernst & Young LLP', 2009, 'FY2024', '10-K', 94, 214),
@@ -83,8 +84,8 @@ export const REPORTS: Report[] = [
   R('ubs-2025', 'UBS Group AG', 'CH', 'banking', 'IFRS', 'PCAOB', 'Ernst & Young Ltd', undefined, 'FY2025', 'Annual report', 2818, 3184),
   R('allianz-2025', 'Allianz SE', 'DE', 'insurance', 'IFRS', 'ISA', 'PricewaterhouseCoopers GmbH', undefined, 'FY2025', 'Annual report (extract)', 3185, 3240),
   R('mercedes-2025', 'Mercedes-Benz Group AG', 'DE', 'auto', 'IFRS', 'ISA', 'PricewaterhouseCoopers GmbH', undefined, 'FY2025', 'Annual report', 3241, 3649),
-  R('volkswagen-2025', 'Volkswagen Group', 'DE', 'auto', 'IFRS', 'ISA', 'EY GmbH', undefined, 'FY2025', 'Annual report', 3650, 4323),
-  R('telekom-2025', 'Deutsche Telekom AG', 'DE', 'telecom', 'IFRS', 'ISA', 'Deloitte GmbH', undefined, 'FY2025', 'Annual report', 4324, 4704),
+  R('volkswagen-2025', 'Volkswagen Group', 'DE', 'auto', 'IFRS', 'ISA', 'EY GmbH', undefined, 'FY2025', 'Annual report', 3650, 4322, 'HGB / EU Audit Regulation / IDW'),
+  R('telekom-2025', 'Deutsche Telekom AG', 'DE', 'telecom', 'IFRS', 'ISA', 'Deloitte GmbH', undefined, 'FY2025', 'Annual report', 4323, 4704),
   R('bp-2025', 'BP p.l.c.', 'UK', 'energy', 'IFRS', 'ISA', 'Deloitte LLP', undefined, 'FY2025', 'Annual report and Form 20-F', 4705, 5101),
   R('unilever-2025', 'Unilever PLC', 'UK', 'fmcg', 'IFRS', 'ISA', 'KPMG LLP', 2014, 'FY2025', 'Annual report', 5102, 5385),
   R('astrazeneca-2025', 'AstraZeneca PLC', 'UK', 'pharma', 'IFRS', 'ISA', 'PricewaterhouseCoopers LLP', undefined, 'FY2025', 'Annual report and Form 20-F', 5386, 5698),
@@ -290,13 +291,14 @@ export const SECTOR_AR: Record<Sector, string> = { tech: 'التقنية', retai
 const REPORT: Record<string, Report> = Object.fromEntries(REPORTS.map((r) => [r.id, r]));
 export const reportOf = (id: string) => REPORT[id];
 
-export type KamRow = Kam & { company: string; fy: string; country: string; sector: Sector; standard: Standard; auditor: string; themeAr: string };
-const row = (k: Kam): KamRow => { const r = REPORT[k.report]; return { ...k, company: r.company, fy: r.fy, country: r.country, sector: r.sector, standard: r.standard, auditor: r.auditor, themeAr: THEMES[k.theme].ar }; };
+export type KamRow = Kam & { company: string; fy: string; country: string; sector: Sector; standard: Standard; sourceAuditLabel?: string; auditor: string; themeAr: string };
+const row = (k: Kam): KamRow => { const r = REPORT[k.report]; return { ...k, company: r.company, fy: r.fy, country: r.country, sector: r.sector, standard: r.standard, ...(r.sourceAuditLabel ? { sourceAuditLabel: r.sourceAuditLabel } : {}), auditor: r.auditor, themeAr: THEMES[k.theme].ar }; };
 
-export type KamFilter = { theme?: Theme | ''; sector?: Sector | ''; standard?: Standard | ''; q?: string };
+export type KamFilter = { theme?: Theme | ''; sector?: Sector | ''; standard?: Standard | ''; sourceAuditLabel?: string; q?: string };
 export function kamLibrary(f: KamFilter = {}): KamRow[] {
   const q = (f.q || '').trim().toLowerCase();
   return KAMS.map(row).filter((k) => (!f.theme || k.theme === f.theme) && (!f.sector || k.sector === f.sector) && (!f.standard || k.standard === f.standard)
+    && (!f.sourceAuditLabel || (k.sourceAuditLabel ?? k.standard) === f.sourceAuditLabel)
     && (!q || [k.title, k.company, k.auditor, k.themeAr, THEMES[k.theme].en].some((s) => s.toLowerCase().includes(q))));
 }
 
@@ -395,8 +397,11 @@ export function checkMateriality(input: { benchmark: 'pbz' | 'revenue' | 'assets
 /** Headline numbers for the reference screen. */
 export function summary() {
   const auditors = new Map<string, number>();
+  const sourceCounts = new Map<string, number>();
+  for (const k of KAMS) { const r = REPORT[k.report], label = r.sourceAuditLabel ?? r.standard; sourceCounts.set(label, (sourceCounts.get(label) || 0) + 1); }
   for (const r of REPORTS) { if (!r.auditor) continue; const f = /Ernst|EY/.test(r.auditor) ? 'EY' : /Pricewaterhouse|PwC/.test(r.auditor) ? 'PwC' : /KPMG/.test(r.auditor) ? 'KPMG' : /Deloitte/.test(r.auditor) ? 'Deloitte' : r.auditor; auditors.set(f, (auditors.get(f) || 0) + 1); }
   return { reports: REPORTS.length, pages: BUNDLE.pages, countries: new Set(REPORTS.map((r) => r.country)).size, kams: KAMS.length,
+    sourceAuditStandards: [...sourceCounts].map(([label, count]) => ({ label, count })),
     pcaob: KAMS.filter((k) => REPORT[k.report].standard === 'PCAOB').length, isa: KAMS.filter((k) => REPORT[k.report].standard === 'ISA').length,
     materiality: MATERIALITY.length, sources: SOURCES.length, auditors: [...auditors.entries()].sort((a, b) => b[1] - a[1]) };
 }

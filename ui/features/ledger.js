@@ -12,7 +12,15 @@ const BASIC=[["1100","النقدية والبنوك","asset"],["1200","الذم�
   ["2100","الذمم الدائنة (الموردون)","liability"],["2200","ضريبة القيمة المضافة — مخرجات","liability"],["3000","رأس المال","equity"],["3100","الأرباح المبقاة","equity"],
   ["4000","إيرادات المبيعات","revenue"],["5000","تكلفة المبيعات","expense"],["6100","الرواتب والأجور","expense"],["6200","الإيجار","expense"],["6300","مصروفات تشغيلية أخرى","expense"],["2250","ضريبة القيمة المضافة — صافي مستحق للهيئة","liability"],["5100","فروقات الجرد والهدر","expense"],["4900","إيرادات أخرى","revenue"]];
 const ISSUE={JOURNAL_UNBALANCED:"القيد غير متزن: المدين لا يساوي الدائن",LINE_BOTH_SIDES:"سطر فيه مدين ودائن معاً",LINE_NEGATIVE_AMOUNT:"مبلغ سالب",LINE_ZERO_AMOUNT:"سطر بلا مبلغ"};
-let tab="",draft=null,glAcc="",vatQ="";
+let tab="",draft=null,glAcc="",vatQ="",reviewVersion=0;
+/* A delayed advisory result belongs to one draft and company context. Even an away/back
+   transition invalidates it; no trace, queue record or dialog may outlive that context. */
+const invalidateReview=()=>{reviewVersion++};
+SK.bus?.on?.("company",invalidateReview);
+SK.bus?.on?.("nav",invalidateReview);
+SK.bus?.on?.("company-platform",e=>{if(e?.act==="profile.update")invalidateReview()});
+SK.bus?.on?.("data",e=>{if(e?.key===KEY)invalidateReview()});
+function reviewContext(d){return JSON.stringify({company:SK.company?.current?.()||{},profile:window.SKosifCompanyPlatform?.profile?.()||{},period:period(),draft,accounts:d.accounts,lockDate:d.lockDate})}
 const db=()=>{const d=load(KEY,{})||{};return{...d,accounts:Array.isArray(d.accounts)?d.accounts:[],entries:Array.isArray(d.entries)?d.entries:[],lockDate:typeof d.lockDate==="string"?d.lockDate:""}};
 const locked=(d,date)=>E().ledger.isPeriodLocked(date,d.lockDate);
 /* operations already in the books: a reversed entry frees its operation to be posted again */
@@ -22,6 +30,7 @@ const postedSources=d=>new Set(d.entries.filter(e=>!e.reversedBy).map(e=>e.sourc
    the trail began stay «legacy» until sealed once; entries that appear in storage without passing through here are
    recorded as an integrity event before being sealed. Demo entries never enter the chain. */
 const put=d=>{
+  invalidateReview();
   const CH=E().journalChain;
   if(CH){const now=new Date().toISOString(),stored=(load(KEY,{})||{}).entries||[];
     if(!d.chain){const had=new Set(stored.map(e=>e.id));d.entries.forEach(e=>{if(!e.hash&&!e.demo&&had.has(e.id))e.legacy=true});d.chain={since:now,events:[]}}
@@ -41,6 +50,54 @@ function periodTB(d,p){
   return E().ledger.periodTrialBalance(d.entries,id=>(d.accounts.find(a=>a.id===id)||{}).type,{start:p.startDate,end:p.endDate},re?re.id:"__re__");
 }
 const newDraft=()=>({date:new Date().toISOString().slice(0,10),reference:"",memo:"",lines:[{accountId:"",debit:"",credit:""},{accountId:"",debit:"",credit:""}]});
+function draftEntry(d){
+  return{id:"preview",date:draft.date,reference:String(draft.reference||"").trim(),memo:String(draft.memo||"").trim(),source:"يدوي",
+    lines:draft.lines.filter(l=>l.accountId&&(Number(l.debit)||Number(l.credit))).map(l=>({accountId:l.accountId,debit:r2(l.debit),credit:r2(l.credit)}))};
+}
+async function reviewDraft(d){
+  const version=++reviewVersion,origin=reviewContext(d),company=SK.company?.current?.()||{},
+    aiEnabled=!!(window.SKosifAI&&SKosifAI.ready()),provider=aiEnabled?SKosifAI.provider():"deterministic",model=aiEnabled?(SKosifAI.conf()?.model||""):"",
+    current=()=>!!company.id&&version===reviewVersion&&!!draft&&!window.SKosifSpace?.busy?.()&&origin===reviewContext(d);
+  if(!current())return;
+  const entry=draftEntry(d),v=E().ledger.validateJournalEntry(entry),issues=[...new Set((v.issues||[]).map(i=>ISSUE[i.code]||i.code))];
+  if(entry.lines.length<2)issues.unshift("القيد يحتاج سطرين على الأقل بحسابات ومبالغ");
+  if(locked(d,entry.date))issues.unshift("التاريخ داخل فترة مقفلة حتى "+d.lockDate);
+  let standards=[],det=issues.length?"الفحص الحتمي: "+issues.join(" · "):"الفحص الحتمي: القيد متزن وبنيته صالحة للحفظ.";
+  try{
+    if(!issues.length&&window.SKEngines?.reports?.tbImport&&window.SKEngines?.audit?.tbReview){
+      const rows=entry.lines.map(l=>{const a=d.accounts.find(x=>x.id===l.accountId)||{};return{code:a.code||l.accountId,name:a.name||l.accountId,debit:l.debit,credit:l.credit}});
+      const tb=SKEngines.reports.tbImport.fromRows(rows,{majorUnits:true}),p=window.SKosifCompanyPlatform?.profile?.()||{},fw=p.country==="EG"?"EAS":"IFRS";
+      const rev=SKEngines.audit.tbReview.reviewTrialBalance(tb,{framework:fw,tax:p.taxMode||(fw==="EAS"?"income":"zakat")});
+      standards=[...new Set((rev.accounts||[]).flatMap(a=>(a.standards||[]).map(x=>x.code||x)).filter(Boolean))];
+      if(standards.length)det+="\nالمعايير المرتبطة بالحسابات: "+standards.join("، ")+".";
+    }
+  }catch(err){det+="\nتعذر استخراج ربط المعايير: "+String(err.message||err)}
+  let ai="لم يُشغّل AI؛ يمكنك حفظ القيد بعد اجتياز الفحص الحتمي أو تشغيله بعد ضبط مزود AI.";
+  if(aiEnabled){
+    try{
+      const lines=entry.lines.map(l=>{const a=d.accounts.find(x=>x.id===l.accountId)||{};return (a.code||"")+" "+(a.name||l.accountId)+" | مدين "+l.debit+" | دائن "+l.credit}).join("\n"),
+        prompt="راجع هذا القيد كمساعد محاسبي فقط، ولا تنفذ أو تعدل شيئًا. الشركة: "+(company.name||"")+"؛ الدولة: "+(company.country||"")+"؛ العملة: "+(company.currency||"")+".\nالبيان: "+(entry.memo||"—")+"\n"+lines+"\nالمعايير التي ربطها المحرك الحتمي: "+(standards.join("، ")||"لم يحدد")+".\nاذكر: 1) هل المعالجة منطقية؟ 2) مخاطر أو مستندات ناقصة 3) التصحيح المقترح إن وجد 4) المعيار ذي الصلة. لا تعتبر اقتراحك اعتمادًا أو ترحيلًا.",
+        res=await SKosifAI.generate({contents:[{role:"user",parts:[{text:prompt}]}]},{timeout:90000});
+      if(!current())return;
+      ai=SKEngines.audit.aiReview.extractText(res).text||"لم يرجع AI تفسيرًا.";
+      window.SKosifCompanyPlatform?.addStandardTrace?.({operation:"journal-draft-review",standard:standards.join(", "),source:"deterministic mapping + AI suggestion",result:ai,provider,approved:false});
+    }catch(err){if(!current()||err?.name==="AbortError")return;ai="تعذر فحص AI: "+String(err.message||err)}
+  }
+  if(!current())return;
+  try{
+    const cp=window.SKosifCompanyPlatform,aiRan=aiEnabled,sig=entry.lines.map(l=>[l.accountId,l.debit,l.credit].join(":")).join("|");
+    if(cp&&(issues.length||aiRan))cp.addAIException({
+      source:"journal-draft-review",sourceId:[entry.date,entry.reference,entry.memo,sig].join("|"),
+      dedupeKey:["journal-draft-review",entry.date,entry.reference,entry.memo,sig].join("|"),
+      title:issues.length?"قيد يحتاج تصحيح قبل الحفظ":"ملاحظة AI على قيد مسودة",
+      detail:det+"\n\nتفسير AI:\n"+ai,severity:issues.length?"high":"warning",confidence:issues.length?1:null,
+      evidenceRefs:standards,proposedAction:issues.length?"صحّح مشكلات الفحص الحتمي ثم أعد الفحص قبل الحفظ.":"راجع تفسير AI والمستندات ذات الصلة، ثم اقبل أو ارفض الاقتراح يدويًا.",
+      provider,model
+    });
+  }catch(err){console.warn("AI exception queue",err)}
+  if(!current())return;
+  await SK.form("فحص القيد — اقتراح لا يرحّل ولا يعتمد",[{key:"result",label:"النتيجة",type:"textarea",value:det+"\n\nتفسير AI:\n"+ai}],{ok:"إغلاق",cancel:"إغلاق",message:"الحفظ والترحيل يظلان قرارًا مستقلاً بعد الفحص."});
+}
 
 /* ---------- tabs ---------- */
 function accountsHTML(d){
@@ -69,7 +126,7 @@ function entriesHTML(d){
     '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الحساب</th><th>مدين</th><th>دائن</th><th></th></tr></thead><tbody>'+
       draft.lines.map((l,i)=>'<tr><td><select data-ln="'+i+'" data-f="accountId">'+opt(l.accountId)+'</select></td><td><input data-ln="'+i+'" data-f="debit" inputmode="decimal" value="'+esc(l.debit)+'" style="width:110px"></td><td><input data-ln="'+i+'" data-f="credit" inputmode="decimal" value="'+esc(l.credit)+'" style="width:110px"></td><td>'+(draft.lines.length>2?'<button type="button" class="linkish" data-l="rm-line" data-i="'+i+'">حذف</button>':'')+'</td></tr>').join("")+
       '<tr><td><b>الإجمالي</b></td><td class="n"><b id="lg-td">'+money(td)+'</b></td><td class="n"><b id="lg-tc">'+money(tc)+'</b></td><td id="lg-st">'+(Math.abs(td-tc)<0.005&&td>0?'<span class="sk-pill good">متزن</span>':'<span class="sk-pill warn">فرق '+money(td-tc)+'</span>')+'</td></tr></tbody></table></div>'+
-    '<div class="sk-actions"><button type="button" class="btn" data-l="add-line">إضافة سطر</button><button type="button" class="btn primary" data-l="save-entry">حفظ القيد</button></div>'+
+    '<div class="sk-actions"><button type="button" class="btn" data-l="add-line">إضافة سطر</button><button type="button" class="btn" data-l="review-entry">فحص القيد</button><button type="button" class="btn primary" data-l="save-entry">حفظ القيد</button></div>'+
     '<div class="sk-error" id="lg-err"></div></div></section>'+
     '<section class="card"><div class="card-h"><div><h3>القيود المسجلة</h3><p>'+list.length+' قيداً'+(p?' في الفترة «'+esc(p.label)+'»':'')+'.</p></div></div><div class="card-b">'+
     (list.length?'<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>التاريخ</th><th>المرجع</th><th>البيان</th><th>المبلغ</th><th>المصدر</th><th></th></tr></thead><tbody>'+
@@ -395,17 +452,17 @@ function paint(root){
 }
 function bind(root){
   root.addEventListener("click",async e=>{
-    const t=e.target.closest("[data-tab]");if(t&&t.closest('[data-sk-tabs="ledger"]')){tab=t.dataset.tab;paint(root);return}
+    const t=e.target.closest("[data-tab]");if(t&&t.closest('[data-sk-tabs="ledger"]')){invalidateReview();tab=t.dataset.tab;paint(root);return}
     const b=e.target.closest("[data-l]");if(!b)return;const a=b.dataset.l,d=db();
     if(a==="basic"){BASIC.forEach(([code,name,type])=>{if(!d.accounts.some(x=>x.code===code))d.accounts.push(E().accounts.createAccount({code,name,type}))});put(d);toast("أُنشئ دليل الحسابات الأساسي — عدّله حسب نشاطك","ok")}
     else if(a==="add-acc"){if(!SK.ui.validate(root))return;const acc=E().accounts.createAccount({code:$("#lg-code",root).value,name:$("#lg-name",root).value,type:$("#lg-type",root).value,parentId:$("#lg-parent",root).value});
       if(d.accounts.some(x=>x.code===acc.code))return toast("الرمز مستخدم لحساب آخر","warn");d.accounts.push(acc);put(d);toast("أُضيف الحساب","ok")}
     else if(a==="toggle"){const x=d.accounts.find(y=>y.id===b.dataset.id);if(x){x.active=!x.active;put(d)}}
-    else if(a==="add-line"){draft.lines.push({accountId:"",debit:"",credit:""})}
-    else if(a==="rm-line"){draft.lines.splice(+b.dataset.i,1)}
+    else if(a==="add-line"){invalidateReview();draft.lines.push({accountId:"",debit:"",credit:""})}
+    else if(a==="rm-line"){invalidateReview();draft.lines.splice(+b.dataset.i,1)}
+    else if(a==="review-entry"){await reviewDraft(d);return}
     else if(a==="save-entry"){
-      const entry={id:SK.ui.uid("je"),date:draft.date,reference:draft.reference.trim(),memo:draft.memo.trim(),source:"يدوي",
-        lines:draft.lines.filter(l=>l.accountId&&(Number(l.debit)||Number(l.credit))).map(l=>({accountId:l.accountId,debit:r2(l.debit),credit:r2(l.credit)}))};
+      const entry={...draftEntry(d),id:SK.ui.uid("je")};
       const err=$("#lg-err",root);
       if(entry.lines.length<2){err.textContent="القيد يحتاج سطرين على الأقل بحسابات ومبالغ";return}
       const v=E().ledger.validateJournalEntry(entry);
@@ -510,6 +567,7 @@ function bind(root){
       put(d);paint(root);return}
     if(el.id==="lg-terms"){if(e.type!=="change")return;const v=Math.round(Number(el.value));if(!(v>=0&&v<=365))return;const d=db();d.termsDays=v;put(d);paint(root);return}
     if(!draft)return;
+    if(el.dataset.ln!=null||["lg-date","lg-ref","lg-memo"].includes(el.id))invalidateReview();
     if(el.dataset.ln!=null)draft.lines[+el.dataset.ln][el.dataset.f]=el.value;
     if(el.id==="lg-date")draft.date=el.value;if(el.id==="lg-ref")draft.reference=el.value;if(el.id==="lg-memo")draft.memo=el.value;
     const td=draft.lines.reduce((s,l)=>s+(Number(l.debit)||0),0),tc=draft.lines.reduce((s,l)=>s+(Number(l.credit)||0),0);

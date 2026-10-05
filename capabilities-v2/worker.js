@@ -28,8 +28,8 @@ const WORKSPACE_FORBIDDEN_KEYS = new Set([
 ]);
 
 export const ROLE_PERMISSIONS = Object.freeze({
-  owner: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","integrity:read"]),
-  partner: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","integrity:read"]),
+  owner: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","integrity:read"]),
+  partner: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","integrity:read"]),
   manager: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","integrity:read"]),
   senior: Object.freeze(["providers:read","session:read","workspace:list","workspace:read","workspace:write","integrity:read"]),
   viewer: Object.freeze(["providers:read","session:read","workspace:list","workspace:read","integrity:read"]),
@@ -239,7 +239,8 @@ function validateWorkspaceInput(input) {
   if (!/^[A-Z]{3}$/.test(currency)) return {error:"invalid_currency"};
   if (!/^[A-Za-z0-9._-]{3,80}$/.test(schemaVersion)) return {error:"invalid_schema_version"};
   if (!Number.isFinite(Date.parse(effectiveAt))) return {error:"invalid_effective_at"};
-  return {name,businessYear,currency,schemaVersion,effectiveAt:new Date(effectiveAt).toISOString()};
+  const sensitive = input?.sensitive === true || name.replace(/\s+/g,"") === "تصيف";
+  return {name,businessYear,currency,schemaVersion,effectiveAt:new Date(effectiveAt).toISOString(),sensitive};
 }
 
 async function appendLogValues({workspaceId,actor,action,payload,at,prevHash=GENESIS_HASH}) {
@@ -249,6 +250,21 @@ async function appendLogValues({workspaceId,actor,action,payload,at,prevHash=GEN
 }
 async function workspaceForTenant(db,id,tenantId) {
   return db.prepare("SELECT id,tenant_id,name,business_year,currency,status,schema_version,created_by,created_at,archived_at FROM workspaces WHERE id=?1 AND tenant_id=?2").bind(id,tenantId).first();
+}
+async function workspaceById(db,id) {
+  return db.prepare("SELECT id,tenant_id,name,business_year,currency,status,schema_version,created_by,created_at,archived_at FROM workspaces WHERE id=?1").bind(id).first();
+}
+async function workspaceSecurity(db,id,tenantId) {
+  return db.prepare("SELECT access_mode,sensitivity,created_at FROM workspace_security WHERE workspace_id=?1 AND tenant_id=?2").bind(id,tenantId).first();
+}
+async function workspaceAccessContext(db,id,auth) {
+  const workspace=await workspaceById(db,id);
+  if(!workspace)return null;
+  const tenantRole=workspace.tenant_id===auth.tenantId?await memberRole(db,workspace.tenant_id,auth.subject):null;
+  const security=await workspaceSecurity(db,id,workspace.tenant_id);
+  if((!security||security.access_mode==="tenant")&&tenantRole)return {workspace,tenantId:workspace.tenant_id,role:tenantRole,security};
+  const access=await db.prepare("SELECT role FROM workspace_access WHERE workspace_id=?1 AND tenant_id=?2 AND subject=?3").bind(id,workspace.tenant_id,auth.subject).first();
+  return access?{workspace,tenantId:workspace.tenant_id,role:access.role,security}:null;
 }
 async function latestRevision(db,id,tenantId) {
   return db.prepare("SELECT revision,state_json,state_hash,saved_by,saved_at FROM workspace_revisions WHERE workspace_id=?1 AND tenant_id=?2 ORDER BY revision DESC LIMIT 1").bind(id,tenantId).first();
@@ -268,10 +284,20 @@ async function session(env, auth) {
 async function listWorkspaces(env,auth) {
   const db=requireDatabase(env);
   await ensureTenant(db,auth.tenantId,auth.subject,new Date().toISOString());
-  const role=await memberRole(db,auth.tenantId,auth.subject);
-  if (!authorizeRole(role,"workspace:list")) return jsonResponse({error:"permission_denied"},403);
-  const r=await db.prepare("SELECT id,tenant_id,name,business_year,currency,status,schema_version,created_by,created_at,archived_at FROM workspaces WHERE tenant_id=?1 ORDER BY created_at DESC,id DESC LIMIT 100").bind(auth.tenantId).all();
-  return jsonResponse({workspaces:r.results||[]});
+  const tenantRole=await memberRole(db,auth.tenantId,auth.subject);
+  if (!authorizeRole(tenantRole,"workspace:list")) return jsonResponse({error:"permission_denied"},403);
+  const own=await db.prepare("SELECT id,tenant_id,name,business_year,currency,status,schema_version,created_by,created_at,archived_at FROM workspaces WHERE tenant_id=?1 ORDER BY created_at DESC,id DESC LIMIT 100").bind(auth.tenantId).all();
+  const shared=await db.prepare("SELECT w.id,w.tenant_id,w.name,w.business_year,w.currency,w.status,w.schema_version,w.created_by,w.created_at,w.archived_at FROM workspace_access a JOIN workspaces w ON w.id=a.workspace_id AND w.tenant_id=a.tenant_id WHERE a.subject=?1 AND w.tenant_id<>?2 ORDER BY w.created_at DESC,w.id DESC LIMIT 100").bind(auth.subject,auth.tenantId).all();
+  const candidates=new Map();
+  for(const row of [...(own.results||[]),...(shared.results||[])])if(!candidates.has(row.id))candidates.set(row.id,row);
+  const workspaces=[];
+  for(const row of candidates.values()){
+    const ctx=await workspaceAccessContext(db,row.id,auth);
+    if(!ctx)continue;
+    const security=ctx.security;
+    workspaces.push({...row,workspace_role:ctx.role,sensitivity:security?.sensitivity||"standard",access_mode:security?.access_mode||"tenant",shared_from_tenant:row.tenant_id===auth.tenantId?null:row.tenant_id});
+  }
+  return jsonResponse({workspaces});
 }
 async function createWorkspace(request,env,auth) {
   const contentLength=Number(request.headers.get("content-length")||"0");
@@ -286,18 +312,22 @@ async function createWorkspace(request,env,auth) {
   const log=await appendLogValues({workspaceId:id,actor:auth.subject,action:"workspace.created",payload:{schema_version:v.schemaVersion},at:v.effectiveAt});
   await db.batch([
     db.prepare("INSERT INTO workspaces (id,tenant_id,name,business_year,currency,status,schema_version,created_by,created_at) VALUES (?1,?2,?3,?4,?5,'active',?6,?7,?8)").bind(id,auth.tenantId,v.name,v.businessYear,v.currency,v.schemaVersion,auth.subject,v.effectiveAt),
+    db.prepare("INSERT INTO workspace_security (workspace_id,tenant_id,access_mode,sensitivity,created_at) VALUES (?1,?2,?3,?4,?5)").bind(id,auth.tenantId,v.sensitive?"explicit":"tenant",v.sensitive?"sensitive":"standard",v.effectiveAt),
+    db.prepare("INSERT INTO workspace_access (workspace_id,tenant_id,subject,role,created_at) VALUES (?1,?2,?3,'owner',?4)").bind(id,auth.tenantId,auth.subject,v.effectiveAt),
     db.prepare("INSERT INTO audit_log (workspace_id,actor,action,payload_json,at,canonical_version,prev_hash,entry_hash) VALUES (?1,?2,'workspace.created',?3,?4,?5,?6,?7)").bind(id,auth.subject,log.payloadJson,v.effectiveAt,CANONICAL_VERSION,log.prevHash,log.entryHash),
   ]);
-  return jsonResponse({workspace:await workspaceForTenant(db,id,auth.tenantId),idempotent:false},201);
+  const security=await workspaceSecurity(db,id,auth.tenantId);
+  return jsonResponse({workspace:{...(await workspaceForTenant(db,id,auth.tenantId)),workspace_role:"owner",sensitivity:security?.sensitivity||"standard",access_mode:security?.access_mode||"tenant"},idempotent:false},201);
 }
 async function getWorkspaceMeta(env,auth,id) {
-  const row=await workspaceForTenant(requireDatabase(env),id,auth.tenantId);
-  return row?jsonResponse({workspace:row}):jsonResponse({error:"not_found"},404);
+  const tenantId=auth.workspaceTenantId||auth.tenantId;
+  const row=await workspaceForTenant(requireDatabase(env),id,tenantId);
+  return row?jsonResponse({workspace:{...row,workspace_role:auth.workspaceRole||auth.role}}):jsonResponse({error:"not_found"},404);
 }
 async function getWorkspaceState(env,auth,id) {
-  const db=requireDatabase(env);
-  if(!await workspaceForTenant(db,id,auth.tenantId))return jsonResponse({error:"not_found"},404);
-  return jsonResponse({workspace:revisionResponse(await latestRevision(db,id,auth.tenantId))});
+  const db=requireDatabase(env),tenantId=auth.workspaceTenantId||auth.tenantId;
+  if(!await workspaceForTenant(db,id,tenantId))return jsonResponse({error:"not_found"},404);
+  return jsonResponse({workspace:revisionResponse(await latestRevision(db,id,tenantId))});
 }
 async function saveWorkspaceState(request,env,auth,id) {
   const len=Number(request.headers.get("content-length")||"0"); if(len>196608)return jsonResponse({error:"payload_too_large"},413);
@@ -306,29 +336,45 @@ async function saveWorkspaceState(request,env,auth,id) {
   const normalized=normalizeWorkspaceState(input.state);
   if(normalized.error==="workspace_too_large")return jsonResponse({error:normalized.error,byte_length:normalized.byteLength},413);
   if(normalized.error)return jsonResponse({error:normalized.error,key:normalized.key||null},422);
-  const db=requireDatabase(env),meta=await workspaceForTenant(db,id,auth.tenantId);
+  const db=requireDatabase(env),tenantId=auth.workspaceTenantId||auth.tenantId,meta=await workspaceForTenant(db,id,tenantId);
   if(!meta)return jsonResponse({error:"not_found"},404);
   if(meta.archived_at)return jsonResponse({error:"workspace_archived"},409);
-  const current=await latestRevision(db,id,auth.tenantId),currentRevision=Number(current?.revision||0);
+  const current=await latestRevision(db,id,tenantId),currentRevision=Number(current?.revision||0);
   if(currentRevision!==input.base_revision)return jsonResponse({error:"workspace_revision_conflict",current_revision:currentRevision},409);
   const revision=currentRevision+1,savedAt=new Date().toISOString(),stateHash=await sha256(normalized.stateJson);
   const head=await db.prepare("SELECT entry_hash FROM audit_log WHERE workspace_id=?1 ORDER BY seq DESC LIMIT 1").bind(id).first();
   const log=await appendLogValues({workspaceId:id,actor:auth.subject,action:"workspace.saved",payload:{revision,state_hash:stateHash},at:savedAt,prevHash:head?.entry_hash||GENESIS_HASH});
   try{
     await db.batch([
-      db.prepare("INSERT INTO workspace_revisions (workspace_id,tenant_id,revision,state_json,state_hash,saved_by,saved_at) VALUES (?1,?2,?3,?4,?5,?6,?7)").bind(id,auth.tenantId,revision,normalized.stateJson,stateHash,auth.subject,savedAt),
+      db.prepare("INSERT INTO workspace_revisions (workspace_id,tenant_id,revision,state_json,state_hash,saved_by,saved_at) VALUES (?1,?2,?3,?4,?5,?6,?7)").bind(id,tenantId,revision,normalized.stateJson,stateHash,auth.subject,savedAt),
       db.prepare("INSERT INTO audit_log (workspace_id,actor,action,payload_json,at,canonical_version,prev_hash,entry_hash) VALUES (?1,?2,'workspace.saved',?3,?4,?5,?6,?7)").bind(id,auth.subject,log.payloadJson,savedAt,CANONICAL_VERSION,log.prevHash,log.entryHash),
     ]);
   }catch(error){
-    const refreshed=await latestRevision(db,id,auth.tenantId),rr=Number(refreshed?.revision||0);
+    const refreshed=await latestRevision(db,id,tenantId),rr=Number(refreshed?.revision||0);
     if(rr!==input.base_revision)return jsonResponse({error:"workspace_revision_conflict",current_revision:rr},409);
     if(String(error?.message||"").includes("archived_workspace_is_read_only"))return jsonResponse({error:"workspace_archived"},409);
     throw error;
   }
   return jsonResponse({workspace:{revision,state:normalized.state,state_hash:stateHash,saved_by:auth.subject,saved_at:savedAt}},201);
 }
+async function shareWorkspace(request,env,auth,id) {
+  const db=requireDatabase(env),tenantId=auth.workspaceTenantId||auth.tenantId,meta=await workspaceForTenant(db,id,tenantId);
+  if(!meta)return jsonResponse({error:"not_found"},404);
+  if(!["owner","partner"].includes(auth.workspaceRole))return jsonResponse({error:"permission_denied"},403);
+  let input;try{input=await request.json()}catch{return jsonResponse({error:"invalid_json"},400)}
+  const subject=String(input?.subject||"").trim().toLowerCase(),role=String(input?.role||"viewer").trim();
+  if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(subject)||subject.length>320)return jsonResponse({error:"invalid_subject"},422);
+  if(!["partner","manager","senior","viewer"].includes(role))return jsonResponse({error:"invalid_workspace_role"},422);
+  const at=new Date().toISOString();
+  await db.prepare("INSERT INTO workspace_access (workspace_id,tenant_id,subject,role,created_at) VALUES (?1,?2,?3,?4,?5) ON CONFLICT(workspace_id,subject) DO UPDATE SET role=excluded.role").bind(id,tenantId,subject,role,at).run();
+  const head=await db.prepare("SELECT entry_hash FROM audit_log WHERE workspace_id=?1 ORDER BY seq DESC LIMIT 1").bind(id).first();
+  const log=await appendLogValues({workspaceId:id,actor:auth.subject,action:"workspace.shared",payload:{subject,role},at,prevHash:head?.entry_hash||GENESIS_HASH});
+  await db.prepare("INSERT INTO audit_log (workspace_id,actor,action,payload_json,at,canonical_version,prev_hash,entry_hash) VALUES (?1,?2,'workspace.shared',?3,?4,?5,?6,?7)").bind(id,auth.subject,log.payloadJson,at,CANONICAL_VERSION,log.prevHash,log.entryHash).run();
+  return jsonResponse({shared:true,workspace_id:id,subject,role});
+}
+
 async function archiveWorkspace(request,env,auth,id) {
-  const db=requireDatabase(env),meta=await workspaceForTenant(db,id,auth.tenantId);
+  const db=requireDatabase(env),tenantId=auth.workspaceTenantId||auth.tenantId,meta=await workspaceForTenant(db,id,tenantId);
   if(!meta)return jsonResponse({error:"not_found"},404);
   if(meta.archived_at)return jsonResponse({workspace:meta,idempotent:true});
   let body;try{body=await request.json()}catch{return jsonResponse({error:"invalid_json"},400)}
@@ -337,14 +383,14 @@ async function archiveWorkspace(request,env,auth,id) {
   const at=new Date(atRaw).toISOString(),head=await db.prepare("SELECT entry_hash FROM audit_log WHERE workspace_id=?1 ORDER BY seq DESC LIMIT 1").bind(id).first();
   const log=await appendLogValues({workspaceId:id,actor:auth.subject,action:"workspace.archived",payload:{rationale_ar:rationale},at,prevHash:head?.entry_hash||GENESIS_HASH});
   await db.batch([
-    db.prepare("UPDATE workspaces SET status='archived',archived_at=?1 WHERE id=?2 AND tenant_id=?3 AND archived_at IS NULL").bind(at,id,auth.tenantId),
+    db.prepare("UPDATE workspaces SET status='archived',archived_at=?1 WHERE id=?2 AND tenant_id=?3 AND archived_at IS NULL").bind(at,id,tenantId),
     db.prepare("INSERT INTO audit_log (workspace_id,actor,action,payload_json,at,canonical_version,prev_hash,entry_hash) VALUES (?1,?2,'workspace.archived',?3,?4,?5,?6,?7)").bind(id,auth.subject,log.payloadJson,at,CANONICAL_VERSION,log.prevHash,log.entryHash),
   ]);
-  return jsonResponse({workspace:await workspaceForTenant(db,id,auth.tenantId),idempotent:false});
+  return jsonResponse({workspace:await workspaceForTenant(db,id,tenantId),idempotent:false});
 }
 async function integrityStatus(env,auth,id) {
-  const db=requireDatabase(env);
-  if(!await workspaceForTenant(db,id,auth.tenantId))return jsonResponse({error:"not_found"},404);
+  const db=requireDatabase(env),tenantId=auth.workspaceTenantId||auth.tenantId;
+  if(!await workspaceForTenant(db,id,tenantId))return jsonResponse({error:"not_found"},404);
   const r=await db.prepare("SELECT seq,actor,action,payload_json,at,prev_hash,entry_hash FROM audit_log WHERE workspace_id=?1 ORDER BY seq ASC").bind(id).all();
   let prevHash=GENESIS_HASH;
   for(const row of r.results||[]){
@@ -364,6 +410,7 @@ const routes = [
   ["GET", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/state$/, "workspace:read", "state"],
   ["PUT", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/state$/, "workspace:write", "save"],
   ["POST", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/archive$/, "workspace:archive", "archive"],
+  ["POST", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/share$/, "workspace:share", "share"],
   ["GET", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/integrity$/, "integrity:read", "integrity"],
 ];
 
@@ -386,10 +433,17 @@ async function handleApi(request,env,url) {
     auth.role=role;
     if(action==="list")return addCors(await listWorkspaces(env,auth),request,env);
     if(action==="create")return addCors(await createWorkspace(request,env,auth),request,env);
+    if(["meta","state","save","archive","share","integrity"].includes(action)){
+      const access=await workspaceAccessContext(db,match[1],auth);
+      if(!access)return jsonResponse({error:"not_found"},404,corsHeaders(request,env));
+      if(!authorizeRole(access.role,permission))return jsonResponse({error:"permission_denied"},403,corsHeaders(request,env));
+      auth.workspaceRole=access.role;auth.workspaceTenantId=access.tenantId;
+    }
     if(action==="meta")return addCors(await getWorkspaceMeta(env,auth,match[1]),request,env);
     if(action==="state")return addCors(await getWorkspaceState(env,auth,match[1]),request,env);
     if(action==="save")return addCors(await saveWorkspaceState(request,env,auth,match[1]),request,env);
     if(action==="archive")return addCors(await archiveWorkspace(request,env,auth,match[1]),request,env);
+    if(action==="share")return addCors(await shareWorkspace(request,env,auth,match[1]),request,env);
     if(action==="integrity")return addCors(await integrityStatus(env,auth,match[1]),request,env);
   }catch(error){
     if(error?.message==="database_unavailable")return jsonResponse({error:"database_unavailable"},503,corsHeaders(request,env));

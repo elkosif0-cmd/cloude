@@ -151,16 +151,17 @@ export function corpusCompanies(): CorpusCompany[] {
 export const corpusCompany = (id: string) => corpusCompanies().find((c) => c.id === id) ?? null;
 
 /* Reviewed sources do not need a fabricated FIGURES record to appear in the catalog. */
-type PublishedSourceCompany = Report & {figures?:never;yearEnd:string;unitAr:string;currencyAr:string;sourceOnly:true;sourceKind:'published-statements';periodStart:string;periodEnd:string;priorPeriodEnd:string;frameworkAr:string;countryAr:string;unit:string};
+type PublishedSourceCompany = Omit<Report,'standard'> & {standard:string;figures?:never;yearEnd:string;unitAr:string;currencyAr:string;sourceOnly:true;sourceKind:'published-statements';periodStart:string;periodEnd:string;priorPeriodEnd:string;frameworkAr:string;countryAr:string;unit:string};
 const SOURCE_CATALOG: Array<{id:string;fy:string;sector:Report['sector'];standard:Report['standard'];pages:[number,number]}>=[
  {id:'pg-2026',fy:'FY2026',sector:'fmcg',standard:'PCAOB',pages:[1963,2039]},
  {id:'homedepot-2025',fy:'FY2025',sector:'retail',standard:'PCAOB',pages:[2040,2131]},
  {id:'mcdonalds-2022',fy:'FY2022',sector:'retail',standard:'PCAOB',pages:[2132,2204]},
  {id:'mercedes-2025',fy:'FY2025',sector:'auto',standard:'ISA',pages:[3241,3649]},
+ {id:'volkswagen-2025',fy:'FY2025',sector:'auto',standard:'ISA',pages:[3650,4322]},
 ];
 export function publishedSourceCompanies():PublishedSourceCompany[]{
  return SOURCE_CATALOG.flatMap(meta=>{const source=reviewedPublishedSource(meta.id);if(!source||!('replay' in source.sourceModel))return [];const s=source.sourceModel;
- return [{...meta,company:s.issuer,country:s.issuerCountry,framework:s.accountingBasis,standard:meta.standard,auditor:s.auditorReference.name+' (original source attribution only)',kind:s.report,yearEnd:s.periodEnd,periodStart:s.periodStart,periodEnd:s.periodEnd,priorPeriodEnd:s.priorPeriodEnd,currencyAr:s.currency,unitAr:s.currency+' '+s.unit,unit:s.unit,frameworkAr:s.accountingBasis,countryAr:COUNTRY_AR[s.issuerCountry]??s.issuerCountry,sourceOnly:true as const,sourceKind:'published-statements' as const}];});
+ return [{...meta,standard:'sourceAuditLabel' in s?s.sourceAuditLabel:meta.standard,company:s.issuer,country:s.issuerCountry,framework:s.accountingBasis,auditor:s.auditorReference.name+' (original source attribution only)',kind:s.report,yearEnd:s.periodEnd,periodStart:s.periodStart,periodEnd:s.periodEnd,priorPeriodEnd:s.priorPeriodEnd,currencyAr:s.currency,unitAr:s.currency+' '+s.unit,unit:s.unit,frameworkAr:s.accountingBasis,countryAr:COUNTRY_AR[s.issuerCountry]??s.issuerCountry,sourceOnly:true as const,sourceKind:'published-statements' as const}];});
 }
 export function sourceUnavailableReason(id:string):string|null{
  if(reviewedPublishedSource(id))return null;
@@ -177,7 +178,7 @@ export function auditModelCatalog(){
   const modelStatus:AuditModelStatus=m&&'replay' in m?'source-replayed':m?'partially-supported':NO_STATEMENTS[r.id]?'unavailable':'pending-review';
   const modelStatusAr={'source-replayed':'تمت مراجعة المصدر وعرض قوائمه','partially-supported':'مدعوم جزئياً','pending-review':'بانتظار مراجعة المصدر','unavailable':'غير متاح'}[modelStatus];
   const supportReason=modelStatus==='source-replayed'?'القوائم الأساسية المنشورة مطابقة للمصدر ضمن النطاق المعلن؛ التفاصيل غير المدعومة مذكورة داخل النموذج. لا يمثل ذلك تأكيداً مهنياً.':modelStatus==='partially-supported'?'نموذج Apple يدعم قائمة الدخل والمركز المالي؛ التدفقات النقدية والتغيرات في حقوق الملكية والإيضاحات الكاملة غير متاحة. لا يمثل ذلك تأكيداً مهنياً.':modelStatus==='unavailable'?NO_STATEMENTS[r.id]:'لم تُستكمل مراجعة المصدر ومطابقة مخرجاته؛ لا يُفتح هذا السجل كنموذج منشور تم التحقق منه.';
-  return {...r,company:m?.issuer??r.company,fy:r.fy,modelStatus,modelStatusAr,supportReason,openable:!!m,sourceOnly:!!m,
+  return {...r,standard:m&&'sourceAuditLabel' in m?m.sourceAuditLabel:r.standard,company:m?.issuer??r.company,fy:r.fy,modelStatus,modelStatusAr,supportReason,openable:!!m,sourceOnly:!!m,
    countryAr:COUNTRY_AR[r.country]??r.country,frameworkAr:m?.accountingBasis??r.framework,sectorAr:SECTOR_AR[r.sector],
    unitAr:m?m.currency+' '+m.unit:f?unitAr(f):'',auditor:m?m.auditorReference.name+' (original source reference only)':r.auditor};
  }).sort((a,b)=>order[a.modelStatus]-order[b.modelStatus]);

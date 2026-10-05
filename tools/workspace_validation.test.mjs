@@ -31,7 +31,7 @@ for (const service of [true,false]) {
     const d=h.get(); assert.equal(d.companies.length,3,'valid company must persist without a period-label workaround');
     assert.equal(d.companies[2].name,'Synthetic New Company'); assert.equal(d.companies[2].currency,'EGP'); assert.equal(d.periods.length,0);
     assert.equal(h.field('pe-label').getAttribute('aria-invalid'),null,'unrelated field stays untouched');
-    if(service) { assert.equal(h.transitions.length,1); assert.equal(h.transitions[0].id,d.companies[2].id); assert.deepEqual(plain(h.transitions[0].options),{fresh:true,demo:false}); }
+    if(service) { assert.equal(h.transitions.length,1); assert.equal(h.transitions[0].id,d.companies[2].id); assert.deepEqual(plain(h.transitions[0].options),{fresh:true,demo:false,after:'masterdata'}); }
   });
   test(`empty own company field remains accessible and creates nothing (service ${service})`,async()=>{
     const h=await workspaceHarness({service}), before=h.get(); h.fill({'co-name':'   '}); h.click('add-co');

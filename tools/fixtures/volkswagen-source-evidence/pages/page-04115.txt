@@ -1,0 +1,41 @@
+Consolidated Financial Statements                                                                     Balance Sheet
+
+
+
+
+                                          Balance Sheet
+                                    of the Volkswagen Group as of December 31, 2025
+
+
+€ million                                                                    Note     Dec. 31, 2025    Dec. 31, 2024
+
+Assets
+Non-current assets
+Intangible assets                                                              12          91,474           93,333
+Property, plant and equipment                                               13, 33         73,076           71,452
+Lease assets                                                                14, 33         82,486           73,193
+Investment property                                                            14             609              622
+Equity-accounted investments                                                   15           9,996           10,269
+Other equity investments                                                       15           7,366            5,731
+Financial services receivables                                                 16        101,230          101,087
+Other financial assets                                                         17          11,692           12,129
+Other receivables                                                              18           3,651            2,868
+Tax receivables                                                                19             411              409
+Deferred tax assets                                                            19          14,611           16,581
+                                                                                         396,602          387,674
+Current assets
+Inventories                                                                    20          56,042           56,720
+Trade receivables                                                              21          20,760           21,130
+Financial services receivables                                                 16          70,026           68,855
+Other financial assets                                                         17          20,158           18,649
+Other receivables                                                              18           9,881           10,217
+Tax receivables                                                                19           2,674            2,038
+Marketable securities and time deposits                                        22          29,522           27,326
+Cash and cash equivalents                                                      23          38,801           40,296
+                                                                                         247,865          245,231
+Total assets                                                                             644,467          632,905
+
+
+
+
+                                                         464

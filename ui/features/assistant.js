@@ -93,6 +93,10 @@ const TOOLS=[
   {name:"list_screens",d:"قائمة شاشات التطبيق مجمّعة حسب المجالات",p:{},run:()=>({ok:true,text:SK.caps.groups().map(g=>g.label+": "+SK.caps.hubsInGroup(g.id).map(h=>h.hubLabel).join("، ")).join("\n")})},
   {name:"read_screen",d:"قراءة ما يظهر في الشاشة الحالية: العنوان والمؤشرات والأقسام وأول صفوف الجداول والأزرار المتاحة — استخدمها قبل الإجابة عن أي سؤال عن الأرقام",p:{},run:()=>({ok:true,text:readScreen()})},
   {name:"app_summary",d:"ملخص الأعمال: الشركة والفترة، المهام، ما يحتاج قراراً، أرقام آخر شهر، المخاطر",p:{},run:async()=>({ok:true,text:await appSummary()})},
+  {name:"company_search",d:"بحث وقراءة فقط داخل الشركة الحالية: التعريفات، الموردون والعملاء، المستندات، القيود، نتائج القوائم، الإيرادات والمصروفات والربح والنواقص. استخدمها قبل الإجابة عن سؤال مالي عن الشركة.",p:{query:S("STRING","السؤال أو نص البحث داخل الشركة")},req:["query"],
+    run:({query})=>{const C=window.SKosifCompanyPlatform;if(!C)return{ok:false,text:"طبقة بيانات الشركة غير متاحة"};return{ok:true,text:C.search(query).text}}},
+  {name:"standards_search",d:"البحث في المدونة المحاسبية والمهنية المرتبطة بإطار الشركة (IFRS/IAS/ISA/SOCPA/ZATCA/EAS) وإرجاع السريان والمصدر الرسمي. هذه قراءة مرجعية وليست اعتماداً تلقائياً للمعالجة.",p:{query:S("STRING","المعيار أو الموضوع مثل IFRS 15 أو المخزون أو ISA 500")},req:["query"],
+    run:({query})=>{const SVC=window.SKosifStandards;if(!SVC)return{ok:false,text:"خدمة المعايير غير متاحة"};const r=SVC.explain(query);return{ok:!!r.results.length,text:r.text}}},
   {name:"search",d:"البحث الشامل في العملاء والطلبات والمبيعات",p:{query:S("STRING","نص البحث")},req:["query"],run:({query})=>{core().search(String(query||""));return{ok:true,text:"بحثت عن «"+query+"»"}}},
   {name:"open_item",d:"فتح صنف من الكتالوج بالاسم",p:{name:S("STRING","اسم الصنف")},req:["name"],
     run:({name})=>{let items=[];try{items=(core().catalog().items||[]).filter(i=>i.status!=="archived")}catch{}const it=pick(items,name,"name");if(!it)return{ok:false,text:"لم أجد صنفاً باسم «"+name+"»"};core().openItem(it.id);return{ok:true,text:"فُتح الصنف «"+it.name+"»"}}},
@@ -161,7 +165,11 @@ function localPlan(text){
   const task=text.match(/(?:أضف|اضف|انشئ|أنشئ|سجل|سجّل)\s+مهم[ةه]\s*[:：]?\s*(.+)/);
   if(task){let t=task[1].replace(/[\u064B-\u065F]/g,"").trim(),due=today();if(/غد[اًا]?|بكر[هة]/.test(t)){due=today(1);t=t.replace(/\s*(غد[اًا]?|بكر[هة])\s*/,"")}else if(/اليوم/.test(t))t=t.replace(/\s*اليوم\s*/,"");plan.push(["create_task",{title:t||task[1].trim(),due,priority:/عاجل|مهم[ةه] جدا/.test(t)?"high":"normal"}]);return plan}
   if(/(مهامي|المهام المفتوحه|ما هي المهام|اعرض المهام)/.test(n))plan.push(["list_tasks",{}]);
-  const sr=text.match(/(?:ابحث|بحث|دور|دوّر|فتش)\s+(?:عن|على)\s+(.+)/);if(sr)plan.push(["search",{query:sr[1].trim()}]);
+  const standardsQ=/(ifrs|ias|isa|socpa|zatca|معيار|معايير|الزكاه|الزكاة|ضريبه القيمه|ضريبة القيمة|المخزون.*معيار|الايراد.*معيار|الإيراد.*معيار)/i.test(n);
+  if(standardsQ)plan.push(["standards_search",{query:text}]);
+  const companyQ=/(داخل الشركه|قيود.*مورد|قيود.*عميل|مستندات.*ناقص|ناقص.*مستند|مصروف|مصاريف|ايراد|ارباح|ربح|اصول|التزامات|حقوق الملكيه|فرق.*البنك|ميزان)/.test(n);
+  if(companyQ&&!/(راجع|مراجعه|حلل).*(دفاتر|ميزان التطبيق|ميزان الشركه)/.test(n))plan.push(["company_search",{query:text}]);
+  const sr=text.match(/(?:ابحث|بحث|دور|دوّر|فتش)\s+(?:عن|على)\s+(.+)/);if(sr&&!companyQ)plan.push(["search",{query:sr[1].trim()}]);
   if(/(لخص|ملخص|اقرا|اقرأ|ماذا في|ايش في|شو في|وش في).*(الشاشه|الصفحه|هنا)/.test(n))plan.push(["read_screen",{}]);
   else if(/(ملخص|حاله|وضع)\s+(الاعمال|العمل|التطبيق|الشركه)/.test(n))plan.push(["app_summary",{}]);
   if(/(صدر|تصدير|نزل|حمل).*(اكسل|excel|xlsx)/.test(n))plan.push(["export_table",{format:"xlsx"}]);
@@ -178,7 +186,7 @@ function localPlan(text){
   if(!plan.length&&findScreen(text)&&norm(text).split(" ").length<=4)plan.push(["go_to_screen",{screen:text}]);
   return plan;
 }
-const HELP="أستطيع التحكم في التطبيق كله. جرّب:\n• «افتح مراجعة الميزان» أو أي شاشة\n• «لخّص هذه الشاشة» · «ملخص الأعمال»\n• «ابحث عن 0555…»\n• «صدّر الجدول إلى Excel» · «اطبع»\n• «الوضع الليلي» · «لون زمردي» · «خط القاهرة» · «كبّر الخط» · «تباين عالٍ»\n• «أضف مهمة جرد المخزون غداً» · «مهامي»\n• «راجع ميزان الدفاتر»\n• «اقترح قيد فاتورة كهرباء الفرع 1150» (محاكي القيود)\n• «اضغط تحليل الميزان» · «اكتب شركة الأفق في المنشأة»\nبمفتاح الذكاء الاصطناعي (Gemini أو OpenAI أو Claude) (في مراجعة الميزان ← المراجع الذكي) أفهم الطلبات الحرة والمركبة وأجيب عن أسئلتك من أرقام الشاشة.";
+const HELP="أستطيع التحكم في التطبيق كله. جرّب:\n• «افتح مراجعة الميزان» أو أي شاشة\n• «لخّص هذه الشاشة» · «ملخص الأعمال»\n• «هات القيود المتعلقة بالمورد فلان» · «إيه المستندات الناقصة؟»\n• «ابحث عن 0555…»\n• «صدّر الجدول إلى Excel» · «اطبع»\n• «الوضع الليلي» · «لون زمردي» · «خط القاهرة» · «كبّر الخط» · «تباين عالٍ»\n• «أضف مهمة جرد المخزون غداً» · «مهامي»\n• «راجع ميزان الدفاتر»\n• «اقترح قيد فاتورة كهرباء الفرع 1150» (محاكي القيود)\n• «اضغط تحليل الميزان» · «اكتب شركة الأفق في المنشأة»\nبمفتاح الذكاء الاصطناعي (Gemini أو OpenAI أو Claude) (في مراجعة الميزان ← المراجع الذكي) أفهم الطلبات الحرة والمركبة وأجيب عن أسئلتك من أرقام الشاشة.";
 
 /* ---------- Gemini: function calling over the same tools ---------- */
 function decl(){return TOOLS.map(t=>({name:t.name,description:t.d,parameters:{type:"OBJECT",properties:Object.fromEntries(Object.entries(t.p).map(([k,v])=>[k,{...v}])),...(t.req?{required:t.req}:{})}}))}
@@ -187,7 +195,7 @@ function system(){
   const screens=SK.caps.all().filter(x=>SK.perm.can(x.id)).map(x=>x.id+": "+x.label+(x.hubLabel!==x.label?" ("+x.hubLabel+")":"")).join("\n");
   return "أنت «مساعد SQC» داخل تطبيق SQC (SQC) لإدارة شركة تجارة لحوم ومواشي ومراجعة الحسابات بالمعايير (IFRS وSOCPA ومعايير المحاسبة المصرية). "+
     "تتحكم في التطبيق بالأدوات المتاحة: نفّذ الطلب بالأدوات مباشرة ولا تكتفِ بالشرح، ويمكنك استدعاء عدة أدوات بالتتابع لطلب مركب (مثل: افتح الشاشة ثم اضغط زراً ثم صدّر الجدول). "+
-    "قبل الإجابة عن أي سؤال عن أرقام أو بيانات استدعِ read_screen أو app_summary، ولا تخترع أرقاماً أبداً. "+
+    "قبل الإجابة عن أي سؤال عن أرقام الشاشة استدعِ read_screen، وعن بيانات الشركة/القيود/القوائم/النواقص استدعِ company_search أو app_summary، وعن IFRS/IAS/ISA/SOCPA/ZATCA/EAS أو المعالجة المهنية استدعِ standards_search، ولا تخترع أرقاماً أو متطلبات معيارية أبداً. "+
     "لتعبئة نموذج أو الضغط على زر اقرأ الشاشة أولاً لتعرف أسماء الحقول والأزرار. الإجراءات الهادمة يؤكدها المستخدم بنفسه. "+
     "أجب بالعربية بإيجاز ووضوح وبلهجة المستخدم، واذكر ما نفّذته.\n"+
     "الشاشة الحالية: "+(cap?cap.id+" — "+cap.label:c.view())+" · الدور: "+SK.perm.label()+" · التاريخ: "+today()+"\nالشاشات المتاحة:\n"+screens;
@@ -230,7 +238,7 @@ function paint(){
 async function send(text){
   text=String(text||"").trim();if(!text||busy)return;
   push({role:"user",text});busy=true;paint();
-  const SHORT={read_screen:"قرأت الشاشة",app_summary:"جمعت ملخص الأعمال",list_tasks:"عرضت المهام",list_screens:"عرضت الشاشات"};
+  const SHORT={read_screen:"قرأت الشاشة",app_summary:"جمعت ملخص الأعمال",company_search:"بحثت داخل الشركة",standards_search:"بحثت في المعايير",list_tasks:"عرضت المهام",list_screens:"عرضت الشاشات"};
   const step=(name,r)=>{push({role:"tool",text:r.ok&&SHORT[name]?SHORT[name]:r.text,ok:r.ok,tool:name});paint()};
   let reply="";
   try{
@@ -239,7 +247,7 @@ async function send(text){
     else if(ai){try{reply=await gemini(hist().filter(m=>m.role!=="tool").map(m=>({role:m.role==="user"?"user":"model",text:m.text})),step)}
       catch(e){if(plan.length){for(const [n,a] of plan)step(n,await runTool(n,a));reply="نفّذت ذلك محلياً — تعذر الوصول إلى مزود الذكاء الاصطناعي ("+e.message+")."}else reply="تعذر الوصول إلى مزود الذكاء الاصطناعي: "+e.message}}
     else if(plan.length){const results=[];for(const [n,a] of plan){const r=await runTool(n,a);step(n,r);results.push(r)}
-      const info=plan.find(p=>["read_screen","app_summary","list_tasks","list_screens"].includes(p[0]));reply=info?results[plan.indexOf(info)].text:results.every(r=>r.ok)?"تم.":"لم يكتمل كل شيء — راجع الخطوات أعلاه."}
+      const info=plan.find(p=>["read_screen","app_summary","company_search","list_tasks","list_screens"].includes(p[0]));reply=info?results[plan.indexOf(info)].text:results.every(r=>r.ok)?"تم.":"لم يكتمل كل شيء — راجع الخطوات أعلاه."}
     else reply="لم أفهم الطلب بدون ذكاء اصطناعي. "+HELP.split("\n").slice(0,6).join("\n");
   }finally{busy=false}
   push({role:"model",text:reply});paint();

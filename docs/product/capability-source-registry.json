@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-05.v1",
+  "version": "2026-10-05.v4",
   "canonical_repository": "kosif199022-jpg/cloude",
   "portals": [
     "accounting",
@@ -177,15 +177,57 @@
       "repo": "mafateeh-al-tharwa",
       "class": "nonfinancial-current-scope",
       "target": [],
-      "evidence": [],
-      "status": "out-of-scope"
+      "evidence": [
+        "https://github.com/kosif199022-jpg/mafateeh-al-tharwa/blob/a182735f5523f0b99a046c96416416e6d7760e41/public/reader.html",
+        "https://github.com/kosif199022-jpg/mafateeh-al-tharwa/blob/a182735f5523f0b99a046c96416416e6d7760e41/public/reader-formats.js#L329-L363",
+        "https://github.com/kosif199022-jpg/mafateeh-al-tharwa/blob/a182735f5523f0b99a046c96416416e6d7760e41/public/reader-smart-suite.js#L94-L123",
+        "https://github.com/kosif199022-jpg/mafateeh-al-tharwa/blob/a182735f5523f0b99a046c96416416e6d7760e41/public/reader-smart-suite.js#L140-L150",
+        "https://github.com/kosif199022-jpg/mafateeh-al-tharwa/blob/a182735f5523f0b99a046c96416416e6d7760e41/public/piper-worker.js"
+      ],
+      "status": "out-of-scope",
+      "source_commit": "a182735f5523f0b99a046c96416416e6d7760e41",
+      "capability_summary": "RTL reading/search/annotations and DOCX/EPUB/text export; experimental resumable PDF extraction, page-retrieval questions and speech.",
+      "caveats": "Reuse candidates, not financial engines or integrated accounting/audit features. Runtime and production acceptance unverified; PDF/AI/speech are experimental. Tenant/document authorization, provider consent and rights review are required.",
+      "reference_history": [
+        {
+          "source_commit": "113f9ff9dab16058e9760dfd05435c576ad06d16",
+          "classification": "shared-document-reference-reuse-candidate",
+          "status": "candidate-source-inspected-runtime-unverified",
+          "candidate_targets": [
+            "tools",
+            "reporting"
+          ],
+          "note": "Historical source-inspection proposal only. Current out-of-scope classification is retained; this provenance does not establish integration or runtime acceptance."
+        }
+      ]
     },
     {
       "repo": "mafateeh-al-tharwa2",
       "class": "nonfinancial-current-scope",
       "target": [],
-      "evidence": [],
-      "status": "out-of-scope"
+      "evidence": [
+        "https://github.com/kosif199022-jpg/mafateeh-al-tharwa2/blob/fc8518662be5511cc7b09d5317875a7677a343b1/public/reader.html",
+        "https://github.com/kosif199022-jpg/mafateeh-al-tharwa2/blob/fc8518662be5511cc7b09d5317875a7677a343b1/public/reader-formats.js#L329-L363",
+        "https://github.com/kosif199022-jpg/mafateeh-al-tharwa2/blob/fc8518662be5511cc7b09d5317875a7677a343b1/public/reader-smart-suite.js#L94-L123",
+        "https://github.com/kosif199022-jpg/mafateeh-al-tharwa2/blob/fc8518662be5511cc7b09d5317875a7677a343b1/public/reader-smart-suite.js#L140-L150",
+        "https://github.com/kosif199022-jpg/mafateeh-al-tharwa2/blob/fc8518662be5511cc7b09d5317875a7677a343b1/public/piper-worker.js"
+      ],
+      "status": "out-of-scope",
+      "source_commit": "fc8518662be5511cc7b09d5317875a7677a343b1",
+      "capability_summary": "RTL reading/search/annotations and DOCX/EPUB/text export; experimental resumable PDF extraction, page-retrieval questions and speech.",
+      "caveats": "Reuse candidates, not financial engines or integrated accounting/audit features. Runtime and production acceptance unverified; PDF/AI/speech are experimental. Tenant/document authorization, provider consent and rights review are required.",
+      "reference_history": [
+        {
+          "source_commit": "113f9ff9dab16058e9760dfd05435c576ad06d16",
+          "classification": "shared-document-reference-reuse-candidate",
+          "status": "candidate-source-inspected-runtime-unverified",
+          "candidate_targets": [
+            "tools",
+            "reporting"
+          ],
+          "note": "Historical source-inspection proposal only. Current out-of-scope classification is retained; this provenance does not establish integration or runtime acceptance."
+        }
+      ]
     },
     {
       "repo": "-",
@@ -196,9 +238,6 @@
     }
   ],
   "mandatory_gaps": [
-    "master-data-definitions",
-    "taseef-server-side-access-control",
-    "fixed-assets",
     "multi-currency-fx",
     "period-close-locks",
     "continuous-close",
@@ -208,12 +247,1512 @@
     "evidence-graph",
     "connector-framework",
     "ai-confidence-exception-queue",
-    "client-pbc-portal"
+    "client-pbc-portal",
+    "server-side-document-vault",
+    "pdf-word-structured-financial-extraction"
   ],
   "implemented_in_pr_136": [
     "four-gateway-navigation",
     "capability-gateway-classification",
     "compatibility-preserving-routing",
     "independent-tools-filter"
+  ],
+  "canonical_capabilities": [
+    {
+      "id": "dash",
+      "name_ar": "مركز القيادة",
+      "source_repo": "cloude",
+      "source_module": "core+ui/features/command-center.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": false,
+      "data": [
+        "aghnam-pricing-v3",
+        "IDB aghnam-app-v7"
+      ],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "tasks",
+      "name_ar": "المهام",
+      "source_repo": "cloude",
+      "source_module": "ui/features/workspace.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": false,
+      "data": [
+        "skosif_tasks_v1"
+      ],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "notifications",
+      "name_ar": "مركز الإشعارات",
+      "source_repo": "cloude",
+      "source_module": "ui/features/notifications.js + ui/layouts/topbar.js (الجرس)",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": false,
+      "data": [
+        "skosif_notify_v1",
+        "skosif_tasks_v1",
+        "skosif_risks_v1",
+        "skosif_audit_trail"
+      ],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "risks",
+      "name_ar": "المخاطر والملاحظات",
+      "source_repo": "cloude",
+      "source_module": "ui/features/risks.js + ui/components/charts.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": false,
+      "data": [
+        "skosif_risks_v1"
+      ],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "helperdesk",
+      "name_ar": "الأدوات المساعدة المستقلة",
+      "source_repo": "cloude",
+      "source_module": "ui/features/helper-center.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "decision",
+      "name_ar": "مركز القرار",
+      "source_repo": "cloude",
+      "source_module": "core (v19.5 + v20.2)",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": false,
+      "data": [
+        "aghnam-pricing-v3",
+        "IDB aghnam-app-v7"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "jev",
+      "name_ar": "Jev للقرار",
+      "source_repo": "cloude",
+      "source_module": "ui/jev.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": false,
+      "data": [
+        "aghnam_v29_jev_log",
+        "skosif_jev_draft",
+        "session aghnamJevSession"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "council",
+      "name_ar": "مجلس القرار",
+      "source_repo": "cloude",
+      "source_module": "ui/features/workspace.js + SKEngines.intelligence",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": false,
+      "data": [
+        "skosif_council_v1"
+      ],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "risklab",
+      "name_ar": "المخاطر وجسر الربحية",
+      "source_repo": "cloude",
+      "source_module": "core (v19)",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "reporting",
+      "company_scoped": true,
+      "data": [
+        "aghnam-pricing-v3"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "sensitivity",
+      "name_ar": "مختبر الحساسية",
+      "source_repo": "cloude",
+      "source_module": "ui/tools.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "reporting",
+      "company_scoped": true,
+      "data": [
+        "skosif_v33_decision"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "salesmap",
+      "name_ar": "خريطة العملاء وتحليل المبيعات",
+      "source_repo": "cloude",
+      "source_module": "ui/features/sales-map.js + SKEngines.sales.salesGeo + SKCharts",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "يقرأ IDB aghnam-app-v7 (الطلبات)",
+        "sqc_salesup_v1 (ملف مبيعات مرفوع، لكل شركة)"
+      ],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "commerce",
+      "name_ar": "الطلبات والتحصيل",
+      "source_repo": "cloude",
+      "source_module": "core",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "accounting",
+      "company_scoped": true,
+      "data": [
+        "IDB orders",
+        "IDB order_items",
+        "IDB payments",
+        "IDB ops_orders"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "zatca",
+      "name_ar": "نقطة البيع والفاتورة الضريبية",
+      "source_repo": "cloude",
+      "source_module": "ui/enterprise.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "accounting",
+      "company_scoped": true,
+      "data": [
+        "skosif_v32_cart"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "customers",
+      "name_ar": "العملاء",
+      "source_repo": "cloude",
+      "source_module": "core",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "IDB customers",
+        "IDB sales_lines",
+        "IDB imports"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "customerflow",
+      "name_ar": "استوديو العميل",
+      "source_repo": "cloude",
+      "source_module": "ui/features/customer-flow.js + components/studio.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "IDB customers",
+        "IDB sales_lines",
+        "IDB orders",
+        "IDB payments",
+        "skosif_followup_v1",
+        "skosif_customer_flow_v1"
+      ],
+      "decision": "New"
+    },
+    {
+      "id": "followup",
+      "name_ar": "متابعة العملاء",
+      "source_repo": "cloude",
+      "source_module": "ui/features/followup.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "skosif_followup_v1",
+        "IDB customers"
+      ],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "b2bcredit",
+      "name_ar": "ائتمان المطاعم",
+      "source_repo": "cloude",
+      "source_module": "ui/enterprise.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "skosif_v38_ledger"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "offers",
+      "name_ar": "العروض والكتالوج",
+      "source_repo": "cloude",
+      "source_module": "ui/offers.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "skosif_v32_offers",
+        "skosif_v32_cart",
+        "skosif_v32_cols"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "operations",
+      "name_ar": "المناسبات والتشغيل",
+      "source_repo": "cloude",
+      "source_module": "ui/operations.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "skosif_ops_subscriptions",
+        "skosif_ops_butcher_shifts",
+        "skosif_ops_po_history",
+        "skosif_ops_bbq",
+        "skosif_ops_aging_chamber"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "salesintel",
+      "name_ar": "ذكاء المبيعات",
+      "source_repo": "cloude",
+      "source_module": "ui/features/sales-intel.js + SKEngines.sales.salesInsights (core v16 fallback)",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "IDB sales_lines",
+        "IDB customers"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "intelligence",
+      "name_ar": "ذكاء العملاء والطلب",
+      "source_repo": "cloude",
+      "source_module": "core (v18)",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "IDB customers",
+        "IDB sales_lines"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "economics",
+      "name_ar": "اقتصاديات الطلب",
+      "source_repo": "cloude",
+      "source_module": "core (v9)",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "IDB orders",
+        "aghnam-econ-fees-v1"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "inventory",
+      "name_ar": "المخزون",
+      "source_repo": "cloude",
+      "source_module": "ui/inventory.js + ui/erp-plus.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "accounting",
+      "company_scoped": true,
+      "data": [
+        "aghnam_v29_inventory",
+        "skosif_inv_expiry_batches",
+        "skosif_erp_inventory_v1"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "traceability",
+      "name_ar": "التتبع والتبريد",
+      "source_repo": "cloude",
+      "source_module": "ui/enterprise.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "accounting",
+      "company_scoped": true,
+      "data": [
+        "skosif_v38_batches",
+        "skosif_v38_coldchain"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "suppliers",
+      "name_ar": "الموردون والمشتريات",
+      "source_repo": "cloude",
+      "source_module": "ui/supply.js + ui/erp-plus.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "accounting",
+      "company_scoped": true,
+      "data": [
+        "skosif_v31_supplier_batches",
+        "skosif_erp_payables_v1"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "purchasing",
+      "name_ar": "أوامر الشراء والاستلام",
+      "source_repo": "cloude",
+      "source_module": "ui/features/purchasing.js + SKEngines.procurement",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "accounting",
+      "company_scoped": true,
+      "data": [
+        "skosif_purchasing_v1"
+      ],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "blending",
+      "name_ar": "خلطات اللحوم",
+      "source_repo": "cloude",
+      "source_module": "ui/enterprise.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [],
+      "decision": "Keep"
+    },
+    {
+      "id": "culinary",
+      "name_ar": "دليل الشيف",
+      "source_repo": "cloude",
+      "source_module": "ui/enterprise.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [],
+      "decision": "Keep"
+    },
+    {
+      "id": "carcass",
+      "name_ar": "اقتصاديات الذبيحة",
+      "source_repo": "cloude",
+      "source_module": "ui/meatops.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [],
+      "decision": "Keep"
+    },
+    {
+      "id": "yieldlab",
+      "name_ar": "مختبر الجزارة",
+      "source_repo": "cloude",
+      "source_module": "core (v18)",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "aghnam-v18-yield-trials"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "nrv",
+      "name_ar": "تفكيك الذبيحة NRV",
+      "source_repo": "cloude",
+      "source_module": "core (v19)",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "aghnam-v19-nrv-trials"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "ledger",
+      "name_ar": "الدفاتر المحاسبية",
+      "source_repo": "cloude",
+      "source_module": "ui/features/ledger.js + SKEngines.finance",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "accounting",
+      "company_scoped": true,
+      "data": [
+        "skosif_ledger_v1"
+      ],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "jesim",
+      "name_ar": "محاكي القيود",
+      "source_repo": "cloude",
+      "source_module": "ui/features/entry-sim.js + SKEngines.finance.entryLearner",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "accounting",
+      "company_scoped": true,
+      "data": [
+        "sqc_jesim_v1__<companyId> (ذاكرة موسومة ومعزولة لكل شركة)",
+        "يقرأ skosif_ledger_v1 ويرحّل إليه القيد المعتمد"
+      ],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "cash",
+      "name_ar": "التدفق النقدي",
+      "source_repo": "cloude",
+      "source_module": "ui/supply.js + ui/erp-plus.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "accounting",
+      "company_scoped": true,
+      "data": [
+        "skosif_v31_monthly_opex",
+        "skosif_erp_finance_v1"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "benchmarks",
+      "name_ar": "المقارنة بالشركات العالمية",
+      "source_repo": "cloude",
+      "source_module": "ui/features/benchmarks.js + SKEngines.reports.corpusBenchmarks",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "reporting",
+      "company_scoped": true,
+      "data": [
+        "يقرأ الدفاتر المحاسبية للفترة النشطة (قراءة فقط)",
+        "sqc_bench_v1 (قطاع المقارنة المختار)"
+      ],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "receivables",
+      "name_ar": "الذمم والتحصيل",
+      "source_repo": "cloude",
+      "source_module": "ui/meatops.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "accounting",
+      "company_scoped": true,
+      "data": [
+        "skosif_ar_paste"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "advances",
+      "name_ar": "السلف والدفعات المقدمة",
+      "source_repo": "cloude",
+      "source_module": "ui/features/advances.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "accounting",
+      "company_scoped": true,
+      "data": [
+        "skosif_advances_v1",
+        "skosif_ledger_v1"
+      ],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "finance",
+      "name_ar": "الهندسة المالية",
+      "source_repo": "cloude",
+      "source_module": "core (v18)",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "reporting",
+      "company_scoped": true,
+      "data": [
+        "aghnam-pricing-v3"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "ptree",
+      "name_ar": "شجرة المنتجات",
+      "source_repo": "cloude",
+      "source_module": "ui/features/product-tree.js + SKEngines.catalog.productTree",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "sqc_ptree_v1 (لكل شركة)",
+        "يقرأ aghnam-pricing-v3 و IDB aghnam-app-v7",
+        "يضيف أسعار الموردين إلى skosif_purchasing_v1"
+      ],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "productflow",
+      "name_ar": "استوديو المنتج",
+      "source_repo": "cloude",
+      "source_module": "ui/features/product-flow.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "aghnam-pricing-v3",
+        "skosif_product_flow_v1"
+      ],
+      "decision": "Merge"
+    },
+    {
+      "id": "catalog",
+      "name_ar": "الأصناف والأسعار",
+      "source_repo": "cloude",
+      "source_module": "core",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "aghnam-pricing-v3"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "costs",
+      "name_ar": "التكاليف والمصروفات",
+      "source_repo": "cloude",
+      "source_module": "core",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "aghnam-pricing-v3"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "sim",
+      "name_ar": "التسعير السريع",
+      "source_repo": "cloude",
+      "source_module": "core",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "aghnam-pricing-v3"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "kernel",
+      "name_ar": "نواة التسعير الصارمة",
+      "source_repo": "cloude",
+      "source_module": "ui/kernel.js + ui/pricing-core.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [],
+      "decision": "Keep"
+    },
+    {
+      "id": "memo",
+      "name_ar": "اعتماد الأسعار",
+      "source_repo": "cloude",
+      "source_module": "core",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "aghnam-pricing-v3"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "builder",
+      "name_ar": "البوكسات",
+      "source_repo": "cloude",
+      "source_module": "core",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "aghnam-pricing-v3"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "analyzer",
+      "name_ar": "تحليل البوكس",
+      "source_repo": "cloude",
+      "source_module": "core",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "aghnam-pricing-v3"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "compare",
+      "name_ar": "المقارنة التحليلية",
+      "source_repo": "cloude",
+      "source_module": "core",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "aghnam-pricing-v3"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "labels",
+      "name_ar": "ملصقات الموازين",
+      "source_repo": "cloude",
+      "source_module": "ui/enterprise.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [],
+      "decision": "Keep"
+    },
+    {
+      "id": "scanner",
+      "name_ar": "ماسح الباركود",
+      "source_repo": "cloude",
+      "source_module": "ui/enterprise.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": true,
+      "data": [
+        "skosif_v32_cart"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "smartmatch",
+      "name_ar": "مطابقة المبيعات",
+      "source_repo": "cloude",
+      "source_module": "ui/smartmatch.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "accounting",
+      "company_scoped": true,
+      "data": [
+        "skosif_v34_product_aliases"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "excelrecon",
+      "name_ar": "مطابقة الإكسل",
+      "source_repo": "cloude",
+      "source_module": "ui/tools.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "accounting",
+      "company_scoped": true,
+      "data": [],
+      "decision": "Keep"
+    },
+    {
+      "id": "reportingintake",
+      "name_ar": "استلام البيانات وإعداد القوائم",
+      "source_repo": "cloude",
+      "source_module": "ui/core/company-platform.js + ui/features/reporting-intake.js + SKEngines.reports.{tbImport,statements}",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs",
+        "tools/company_platform_contract.test.mjs"
+      ],
+      "portal": "reporting",
+      "company_scoped": true,
+      "data": [
+        "skosif_company_platform_v1",
+        "IDB skosif-company-documents-v1"
+      ],
+      "decision": "New"
+    },
+    {
+      "id": "execreports",
+      "name_ar": "التقارير التنفيذية",
+      "source_repo": "cloude",
+      "source_module": "ui/reports.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "reporting",
+      "company_scoped": true,
+      "data": [
+        "skosif_rep_pl",
+        "IDB customers",
+        "IDB sales_lines",
+        "skosif_v31_supplier_batches"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "reports",
+      "name_ar": "مركز الطباعة",
+      "source_repo": "cloude",
+      "source_module": "core",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "reporting",
+      "company_scoped": true,
+      "data": [
+        "aghnam-pricing-v3",
+        "aghnam-pricing-prints-v1"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "exports",
+      "name_ar": "مركز التصدير",
+      "source_repo": "cloude",
+      "source_module": "ui/features/workspace.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "reporting",
+      "company_scoped": true,
+      "data": [
+        "كل المفاتيح"
+      ],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "archive",
+      "name_ar": "الأرشيف والتغييرات",
+      "source_repo": "cloude",
+      "source_module": "core",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "reporting",
+      "company_scoped": true,
+      "data": [
+        "aghnam-pricing-v3",
+        "IDB pricing_snapshots"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "tbreview",
+      "name_ar": "ملف المراجعة",
+      "source_repo": "cloude",
+      "source_module": "ui/features/tb-review.js + ui/features/report-docs.js + ui/features/integrated-report.js + ui/core/ai.js + ui/components/xlsx.js + SKEngines.audit.{tbReview,aiReview,aiProviders,documentCheck,governance,fieldwork} + ui/features/tb-fieldwork.js + SKEngines.reports.{tbImport,statements,analysis,notes,peerBenchmarks,narrative,globalCorpus}",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "audit",
+      "company_scoped": false,
+      "data": [
+        "skosif_tbreview_v1",
+        "IDB skosif-tbreview-docs",
+        "skosif_ai_keys (الجهاز فقط)"
+      ],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "auditinbox",
+      "name_ar": "صندوق استلام المراجعة",
+      "source_repo": "cloude",
+      "source_module": "ui/features/audit-inbox.js + ui/core/company-platform.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "audit",
+      "company_scoped": true,
+      "data": [
+        "skosif_company_platform_v1",
+        "IDB skosif-company-documents-v1"
+      ],
+      "decision": "New"
+    },
+    {
+      "id": "codex",
+      "name_ar": "المدونة المحاسبية والمعايير",
+      "source_repo": "cloude",
+      "source_module": "ui/features/codex.js + SKEngines.audit.{codex,standardsUpdate}",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "audit",
+      "company_scoped": false,
+      "data": [
+        "skosif_codex_updates_v1"
+      ],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "auditbench",
+      "name_ar": "المرجع العالمي للمراجعة",
+      "source_repo": "cloude",
+      "source_module": "ui/features/audit-bench.js + SKEngines.audit.{globalBenchmarks,materiality} + SKEngines.reports.{peerBenchmarks,globalCorpus}",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "audit",
+      "company_scoped": false,
+      "data": [
+        "لا بيانات محلية — مرجع ثابت من حزمة البحث العالمية"
+      ],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "corpuslab",
+      "name_ar": "مختبر الشركات العالمية",
+      "source_repo": "cloude",
+      "source_module": "ui/features/corpus-lab.js + SKEngines.reports.corpusCompanies + SKEngines.audit.{corpusReplay,openingRequests,globalBenchmarks}",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "audit",
+      "company_scoped": false,
+      "data": [
+        "لا بيانات محلية — القوائم المنشورة من حزمة البحث العالمية"
+      ],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "auditdesk",
+      "name_ar": "الاستوديو المتقدم",
+      "source_repo": "cloude",
+      "source_module": "ui/audit (v5)",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "audit",
+      "company_scoped": false,
+      "data": [
+        "audit studio IDB"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "auditdocs",
+      "name_ar": "المستندات والأدلة",
+      "source_repo": "cloude",
+      "source_module": "ui/audit (v5) + ui/audit-bridge.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "audit",
+      "company_scoped": false,
+      "data": [
+        "IDB sales_lines",
+        "skosif_v31_supplier_batches",
+        "skosif_erp_finance_v1",
+        "skosif_v38_ledger"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "auditissues",
+      "name_ar": "الملاحظات والقضايا",
+      "source_repo": "cloude",
+      "source_module": "ui/audit (v5)",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "audit",
+      "company_scoped": false,
+      "data": [
+        "audit studio IDB"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "auditcouncil",
+      "name_ar": "مجلس المراجعين",
+      "source_repo": "cloude",
+      "source_module": "ui/audit (v5)",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "audit",
+      "company_scoped": false,
+      "data": [
+        "audit studio IDB"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "auditfin",
+      "name_ar": "القوائم والقيود",
+      "source_repo": "cloude",
+      "source_module": "ui/audit (v5)",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "audit",
+      "company_scoped": false,
+      "data": [
+        "audit studio IDB"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "auditreport",
+      "name_ar": "التقارير والإصدار",
+      "source_repo": "cloude",
+      "source_module": "ui/audit (v5)",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "audit",
+      "company_scoped": false,
+      "data": [
+        "audit studio IDB"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "auditanalytics",
+      "name_ar": "التحليل والاختبارات",
+      "source_repo": "cloude",
+      "source_module": "ui/audit/classic",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "audit",
+      "company_scoped": false,
+      "data": [
+        "audit classic storage"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "auditlab",
+      "name_ar": "مختبر المعايير والأبحاث",
+      "source_repo": "cloude",
+      "source_module": "ui/audit/lab",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "audit",
+      "company_scoped": false,
+      "data": [
+        "audit lab storage"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "settings",
+      "name_ar": "الإعدادات والمظهر",
+      "source_repo": "cloude",
+      "source_module": "core + ui/shell.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": false,
+      "data": [
+        "aghnam-pricing-v3",
+        "skosif_prefs"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "devices",
+      "name_ar": "الأجهزة والمزامنة",
+      "source_repo": "cloude",
+      "source_module": "ui/features/devices.js + ui/core/device.js + ui/components/keys.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": false,
+      "data": [
+        "skosif_prefs",
+        "sk-device-log",
+        "IDB aghnam-app-v7"
+      ],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "companies",
+      "name_ar": "الشركات والفترات",
+      "source_repo": "cloude",
+      "source_module": "ui/features/workspace.js + SKEngines.system",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "accounting",
+      "company_scoped": false,
+      "data": [
+        "skosif_companies_v1"
+      ],
+      "decision": "Rebuild"
+    },
+    {
+      "id": "masterdata",
+      "name_ar": "التعريفات",
+      "source_repo": "cloude",
+      "source_module": "ui/core/company-platform.js + ui/features/master-data.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs",
+        "tools/company_platform_contract.test.mjs"
+      ],
+      "portal": "accounting",
+      "company_scoped": true,
+      "data": [
+        "skosif_company_platform_v1"
+      ],
+      "decision": "New"
+    },
+    {
+      "id": "governance",
+      "name_ar": "الحوكمة والجاهزية",
+      "source_repo": "cloude",
+      "source_module": "core (v18/v19) + ui/core/audit.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": false,
+      "data": [
+        "aghnam-pricing-v3",
+        "skosif_audit_trail"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "health",
+      "name_ar": "الصحة والتشخيص",
+      "source_repo": "cloude",
+      "source_module": "core (v19.8) + ui/jev.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": false,
+      "data": [
+        "aghnam-v17-runtime-errors",
+        "skosif_error_log"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "capabilitiesv2",
+      "name_ar": "الصلاحيات ومساحات العمل",
+      "source_repo": "cloude",
+      "source_module": "ui/capabilities-v2.js + capabilities-v2/worker.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "tools",
+      "company_scoped": false,
+      "data": [
+        "skosif_cap_v2_config",
+        "skosif_cap_v2_local_workspace"
+      ],
+      "decision": "Keep"
+    },
+    {
+      "id": "legacyapps",
+      "name_ar": "الأنظمة الأصلية",
+      "source_repo": "cloude",
+      "source_module": "ui/features/legacy-apps.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "reporting",
+      "company_scoped": true,
+      "data": [
+        "sales_customer_followup_* (CRM V8.2)",
+        "aghnam_alwadi_dashboard_v11 (V31/V33/V40)"
+      ],
+      "decision": "Restore"
+    }
+  ],
+  "implementation_state": {
+    "four_gateway_navigation": "implemented",
+    "master_data_definitions": "implemented-v1",
+    "taseef_protected_front_door": "implemented",
+    "taseef_server_side_explicit_access": "implemented-v1",
+    "per_company_tool_installation": "implemented-v1",
+    "reporting_intake_and_document_hashing": "implemented-v1",
+    "deterministic_tb_to_statements": "implemented-v1",
+    "audit_document_handoff": "partial-explicit-queue",
+    "unified_standards_trace": "implemented-v1"
+  },
+  "implemented_in_pr_140": [
+    "private-company-taseef-label-and-existing-password-gate",
+    "company-profile-and-master-data",
+    "per-company-helper-tool-installation",
+    "reporting-intake-with-sha256-lineage",
+    "trial-balance-csv-tsv-txt-xlsx-ingestion",
+    "deterministic-financial-statement-build",
+    "explicit-reporting-to-audit-pbc-handoff",
+    "standards-aware-journal-draft-review",
+    "77-capability-registry",
+    "server-workspace-security-explicit-access-and-sharing-acl"
+  ],
+  "external_backlog": {
+    "file": "docs/product/EXTERNAL_CAPABILITY_BACKLOG_2026_AR.md",
+    "status": "proposal-only",
+    "sources": [
+      "IFRS Foundation",
+      "ZATCA",
+      "BlackLine",
+      "Workiva",
+      "Caseware",
+      "DataSnipper",
+      "MindBridge"
+    ]
+  },
+  "partial_gaps": [
+    "fixed-assets-advanced-lifecycle"
+  ],
+  "implemented_in_unified_financial_os": [
+    "company-master-data",
+    "reporting-intake",
+    "reporting-to-audit-handoff",
+    "company-tool-installation",
+    "fixed-assets-straight-line-foundation"
   ]
 }

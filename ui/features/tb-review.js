@@ -18,7 +18,7 @@ const FW=()=>window.SKosifFieldwork&&window.SKEngines&&SKEngines.audit.fieldwork
 const E=()=>window.SKEngines,RV=()=>E().audit.tbReview,AI=()=>E().audit.aiReview,DC=()=>E().audit.documentCheck,CX=()=>E().audit.codex,PG=()=>E().audit.programme,DS=()=>E().audit.disclosures;
 const TI=()=>E().reports.tbImport,FS=()=>E().reports.statements,AN=()=>E().reports.analysis,MN=()=>E().reports.money;
 const TABS=[["tb","الميزان والمعايير"],["plan","العمل الميداني"],["ai","جولات المراجعة"],["conf","الثقة والمجلس"],["docs","المستندات"],["adj","التسويات والامتثال"],["close","الإكمال"],["fs","القوائم والتقارير"]];
-const CU=()=>window.SKosifCouncilUI,AP=()=>window.SKosifAuditPractice;
+const CU=()=>window.SKosifCouncilUI,AP=()=>window.SKosifAuditPractice,CP=()=>window.SKosifCompanyPlatform;
 let root=null,tab="tb",filter="all",busy="",abort=null,cache=null,setup=false,fsAfter=true,doc="issue",confHTML={sig:"",h:""},confSeq=0;
 
 /* ---------- state ---------- */
@@ -318,6 +318,8 @@ function compute(){
   const sourceOnly=tb.sourceKind==="published-statements"||hasSourceOrigin||!!reviewedSource;
   if(sourceOnly){tb.sourceKind="published-statements";tb.sourceId=sourceId;}
   const sourceModel=reviewedSource&&reviewedSource.sourceModel;
+  // Source context uses the disclosed basis; normalize the loaded clone, never persisted storage.
+  if(sourceModel&&sourceModel.sourceAuditLabel)d.ctx.auditStandard=sourceModel.sourceAuditLabel;
   const sortedMap=o=>JSON.stringify(Object.entries(o||{}).sort(([a],[b])=>a.localeCompare(b)));
   const sourceVerified=!!(sourceModel&&[d.sourceId,d.bundleId,tb.sourceId,d.ctx.corpusId,d.ctx.sourceModel&&d.ctx.sourceModel.id].filter(v=>v!==undefined&&v!==null&&v!=="").every(v=>v===sourceModel.id)&&[d.sourceKind,d.ctx.sourceKind].filter(v=>v!==undefined).every(v=>v==="published-statements")&&d.tbText===reviewedSource.csv&&sortedMap(d.overrides)===sortedMap(reviewedSource.overrides)&&
     d.ctx.company===sourceModel.issuer&&(!sourceModel.periodStart||d.ctx.periodStart===sourceModel.periodStart)&&d.ctx.periodEnd===sourceModel.periodEnd&&d.ctx.priorPeriodEnd===sourceModel.priorPeriodEnd&&
@@ -547,9 +549,27 @@ function reqRow(q,c){
     (l==="مقبول"?'':'<label class="btn sm" style="cursor:pointer">رفع<input type="file" multiple data-up="'+esc(q.id)+'" accept=".pdf,.png,.jpg,.jpeg,.webp,.csv,.txt,.tsv,.json" hidden></label>'+
       '<button type="button" class="btn sm" data-a="unavail" data-id="'+esc(q.id)+'">'+(s&&s.unavailable.includes(q.id)?'متوفر':'غير متوفر')+'</button>')+'</div></div>';
 }
+function companyHandoffCard(c){
+  const cp=CP();if(!cp||!cp.auditHandoffs)return "";
+  const items=cp.auditHandoffs().filter(h=>h.status==="pending");if(!items.length)return "";
+  const aiReq=c.session?c.session.rounds.flatMap(r=>r.requests||[]):[],reqs=[...new Map([...c.base.requests,...aiReq].map(q=>[q.id,q])).values()];
+  return '<section class="card"><div class="card-h"><div><h3>مصادر واردة من مساعد التقارير</h3><p>هذه ملفات أرسلها المستخدم صراحة من بوابة التقارير. اختر طلب المراجعة الذي تخدمه؛ النقل لا يعني قبول الدليل.</p></div><span class="sksev info">'+items.length+' وارد</span></div><div class="card-b tbr-reqs">'+
+    items.map(h=>{const d=h.document;return '<div class="tbr-req"><div class="tx"><b>📎 '+esc(d.name)+'</b><small>'+esc(d.type)+' · '+Math.max(1,Math.round(d.size/1024))+' ك.ب · SHA-256 '+esc((d.sha256||"").slice(0,12))+'</small></div><div class="tbr-req-m"><select data-handoff-request="'+esc(h.id)+'" aria-label="طلب المراجعة للمستند"><option value="">اختر طلب المراجعة…</option>'+reqs.map(q=>'<option value="'+esc(q.id)+'">'+esc(q.id+' — '+q.title)+'</option>').join("")+'</select><button type="button" class="btn sm" data-a="handoff-import" data-id="'+esc(h.id)+'">إرفاق بالطلب</button></div></div>'}).join("")+
+  '</div></section>';
+}
+async function importCompanyHandoff(id){
+  const cp=CP(),h=cp&&cp.auditHandoffs().find(x=>x.id===id);if(!h)return toast("لم أجد المصدر الوارد","warn");
+  const sel=[...root.querySelectorAll("[data-handoff-request]")].find(x=>x.dataset.handoffRequest===id),reqId=sel&&sel.value;
+  if(!reqId)return toast("اختر طلب المراجعة الذي يخدمه المستند","warn");
+  try{
+    const rec=await cp.readDocument(h.documentId);if(!rec||!rec.blob)throw new Error("المصدر لم يعد متاحًا داخل مساحة الشركة");
+    const file=new File([rec.blob],rec.name,{type:rec.mime||rec.blob.type||"application/octet-stream"});
+    await upload(reqId,[file]);cp.markAuditHandoff(id,"attached",reqId);toast("نُقل المستند إلى الطلب "+reqId+" — بانتظار المراجعة في الجولة التالية","ok");paint();
+  }catch(e){toast(e.message||String(e),"bad")}
+}
 function docsTab(c){
   const s=c.session,gem=s?[...new Map(s.rounds.flatMap(r=>r.requests).map(q=>[q.id,q])).values()]:[];
-  return '<section class="card"><div class="card-h"><div><h3>طلبات المراجع الذكي</h3><p>'+(gem.length?gem.length+' طلباً عبر الجولات. ارفع المستند ثم أرسل الجولة التالية من تبويب «جولات المراجعة».':'تظهر هنا بعد الجولة الأولى.')+'</p></div></div><div class="card-b tbr-reqs">'+(gem.map(q=>reqRow(q,c)).join("")||'<p class="empty">لا طلبات بعد.</p>')+'</div></section>'+
+  return companyHandoffCard(c)+'<section class="card"><div class="card-h"><div><h3>طلبات المراجع الذكي</h3><p>'+(gem.length?gem.length+' طلباً عبر الجولات. ارفع المستند ثم أرسل الجولة التالية من تبويب «جولات المراجعة».':'تظهر هنا بعد الجولة الأولى.')+'</p></div></div><div class="card-b tbr-reqs">'+(gem.map(q=>reqRow(q,c)).join("")||'<p class="empty">لا طلبات بعد.</p>')+'</div></section>'+
     roundTwoCard(c)+
     '<section class="card"><div class="card-h"><div><h3>قائمة المستندات المطلوبة من العميل (PBC)</h3><p>أعدها المحرك الآلي حسب البنود والمخاطر — '+c.base.requests.length+' مستنداً. ما ترفعه هنا يُرسل أيضاً إلى المراجع الذكي في الجولة التالية.</p></div><div class="sk-actions"><button type="button" class="btn primary sm" data-a="pbc-letter">'+SK.icon("reports")+' خطاب طلب المستندات</button><button type="button" class="btn sm" data-a="pbc-csv">تصدير القائمة</button></div></div><div class="card-b tbr-reqs">'+[["planning","التخطيط وفهم المنشأة"],["area","بنود القوائم"],["kam","المناطق الحكمية (الأمور الرئيسية)"],["completion","الإقفال والتقرير"],["",""]].map(([k,l])=>{const qs=c.base.requests.filter(q=>(q.stage||"")===k);return qs.length?(l?'<h4 class="tbr-stage">'+esc(l)+' <small>'+qs.length+'</small></h4>':'')+qs.map(q=>reqRow(q,c)).join(""):""}).join("")+'</div></section>';
 }
@@ -1033,6 +1053,7 @@ function bind(node){
     if(FW()&&e.target.closest("[data-fw-doc],[data-fw-sign],[data-fw-reopen]")){const cc=compute();if(cc&&FW().onClick(e,cc))return}
     const b=e.target.closest("[data-a]");if(!b)return;
     const a=b.dataset.a;
+    if(a==="handoff-import"){await importCompanyHandoff(b.dataset.id);return}
     if(a==="books"){await fromBooks();return}
     if(a==="corpus"){const sel=root.querySelector("[data-corpus]");if(sel&&sel.value)await openClient(sel.value);else toast("اختر شركة من القائمة","warn");return}
     if(a==="demo-audit"){runDemo();return}

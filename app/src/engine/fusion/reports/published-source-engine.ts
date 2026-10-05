@@ -1,3 +1,4 @@
+import { reviewedVolkswagenSource } from './volkswagen-source-engine';
 import { reviewedMercedesSource } from './mercedes-source-engine';
 import { reviewedHomeDepotSource } from './home-depot-source-engine';
 import { reviewedMcDonaldsSource } from './published-mcdonalds-source-engine';
@@ -40,7 +41,7 @@ const APPLE_ROWS: readonly SourceRow[] = [
 ];
 /** A fresh value per caller prevents one open file from relabelling another. */
 export function reviewedPublishedSource(id: string) {
-  if (id !== 'apple-2024') return procterGambleSource(id) ?? reviewedHomeDepotSource(id) ?? reviewedMcDonaldsSource(id) ?? reviewedMercedesSource(id);
+  if (id !== 'apple-2024') return procterGambleSource(id) ?? reviewedHomeDepotSource(id) ?? reviewedMcDonaldsSource(id) ?? reviewedMercedesSource(id) ?? reviewedVolkswagenSource(id);
   const signed = (r: SourceRow, i: 4 | 5) => r[3] ? r[i] : -r[i];
   const csv = [SOURCE_MARKER + id, 'رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة', ...APPLE_ROWS.map(r => {
     const current = signed(r,4); return [r[0],r[1],current > 0 ? current : '',current < 0 ? -current : '',signed(r,5)].join(',');
@@ -60,7 +61,7 @@ export function reviewedPublishedSource(id: string) {
   return {csv,overrides:Object.fromEntries(APPLE_ROWS.map(r=>[r[0],r[2]])),sourceModel};
 }
 
-const REVIEWED_SOURCE_IDS = ['apple-2024','pg-2026','homedepot-2025','mcdonalds-2022','mercedes-2025'] as const;
+const REVIEWED_SOURCE_IDS = ['apple-2024','pg-2026','homedepot-2025','mcdonalds-2022','mercedes-2025','volkswagen-2025'] as const;
 let reviewedCarrierIds:Map<string,string>|undefined;
 /** Lost transport markers never convert a known source carrier into a real ledger. */
 export function identifyReviewedSourceTransport(text:string):string|null{
