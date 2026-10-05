@@ -28,7 +28,7 @@ const REPORT_TARGETS=Object.freeze({
 });
 const clean=(v,n=160)=>String(v==null?"":v).replace(/\s+/g," ").trim().slice(0,n);
 const cur=()=>window.SK&&SK.company&&SK.company.current?SK.company.current():{id:"",name:""};
-const blank=id=>({version:1,companyId:id,profile:{activity:"",country:cur().country||"SA",currency:cur().currency||"SAR",framework:(cur().country==="EG"?"EAS":"IFRS"),fiscalYearStart:"01-01",taxMode:(cur().country==="EG"?"income":"zakat"),vatNo:"",crNo:"",address:"",notes:""},definitions:Object.fromEntries(Object.keys(TYPES).map(k=>[k,[]])),installedTools:[],documents:[],reporting:{target:"full",lastTrialBalance:null,lastStatements:null,suggestedMeasures:[]},mpms:[],lineage:[],auditHandoffs:[],standardTraces:[],updatedAt:null});
+const blank=id=>({version:1,companyId:id,profile:{activity:"",country:cur().country||"SA",currency:cur().currency||"SAR",framework:(cur().country==="EG"?"EAS":"IFRS"),fiscalYearStart:"01-01",taxMode:(cur().country==="EG"?"income":"zakat"),vatNo:"",crNo:"",address:"",notes:""},definitions:Object.fromEntries(Object.keys(TYPES).map(k=>[k,[]])),installedTools:[],documents:[],reporting:{target:"full",lastTrialBalance:null,lastStatements:null,suggestedMeasures:[]},mpms:[],lineage:[],auditHandoffs:[],standardTraces:[],aiExceptions:[],updatedAt:null});
 function state(){
   const id=cur().id||"";
   const v=load(KEY,null);
@@ -43,6 +43,7 @@ function state(){
   if(!Array.isArray(v.lineage))v.lineage=[];
   if(!Array.isArray(v.auditHandoffs))v.auditHandoffs=[];
   if(!Array.isArray(v.standardTraces))v.standardTraces=[];
+  if(!Array.isArray(v.aiExceptions))v.aiExceptions=[];
   return v;
 }
 function commit(v,act,payload={}){
@@ -195,6 +196,32 @@ function addStandardTrace(input={}){
   const s=state(),row={id:uid("std"),at:new Date().toISOString(),operation:clean(input.operation,120),standard:clean(input.standard,80),source:clean(input.source,500),result:clean(input.result,500),provider:clean(input.provider,80),approved:input.approved===true};
   s.standardTraces.push(row);if(s.standardTraces.length>500)s.standardTraces=s.standardTraces.slice(-500);commit(s,"standard.trace",{id:row.id,standard:row.standard});return row;
 }
+function aiExceptions(status=null){
+  const rows=state().aiExceptions||[];
+  return rows.filter(x=>!status||x.status===status).map(x=>({...x,evidenceRefs:[...(x.evidenceRefs||[])]}));
+}
+function addAIException(input={}){
+  const s=state(),allowed=new Set(["info","warning","high"]),confidence=input.confidence==null?null:Number(input.confidence);
+  const source=clean(input.source||"ai",80),sourceId=clean(input.sourceId,180),title=clean(input.title||"اقتراح يحتاج مراجعة",180);
+  if(!title)throw new Error("عنوان الاستثناء مطلوب");
+  const key=clean(input.dedupeKey||[source,sourceId,title].join("|"),260);
+  let row=s.aiExceptions.find(x=>x.status==="open"&&x.dedupeKey===key);
+  const payload={source,sourceId,title,detail:clean(input.detail,2400),severity:allowed.has(input.severity)?input.severity:"warning",
+    confidence:Number.isFinite(confidence)?Math.max(0,Math.min(1,confidence)):null,evidenceRefs:[...new Set((input.evidenceRefs||[]).map(x=>clean(x,120)).filter(Boolean))].slice(0,20),
+    proposedAction:clean(input.proposedAction,800),provider:clean(input.provider,80),model:clean(input.model,120),authoritative:false,requiresHumanDecision:true};
+  if(row){Object.assign(row,payload,{updatedAt:new Date().toISOString()})}
+  else{row={id:uid("aix"),companyId:cur().id,at:new Date().toISOString(),updatedAt:new Date().toISOString(),status:"open",humanNote:"",dedupeKey:key,...payload};s.aiExceptions.push(row)}
+  if(s.aiExceptions.length>500)s.aiExceptions=s.aiExceptions.slice(-500);
+  commit(s,"ai-exception.upsert",{id:row.id,source:row.source,severity:row.severity,status:row.status});
+  return {...row,evidenceRefs:[...(row.evidenceRefs||[])]};
+}
+function resolveAIException(id,status,note=""){
+  const allowed=new Set(["open","accepted","rejected","dismissed"]);if(!allowed.has(status))throw new Error("حالة الاستثناء غير صالحة");
+  const s=state(),row=s.aiExceptions.find(x=>x.id===id&&x.companyId===cur().id);if(!row)return false;
+  row.status=status;row.humanNote=clean(note,1000);row.updatedAt=new Date().toISOString();row.humanDecidedAt=status==="open"?null:new Date().toISOString();
+  commit(s,"ai-exception."+status,{id:row.id,source:row.source});
+  return true;
+}
 function saveReportResult(tb,fs,sourceName="",suggestedMeasures=[],sourceDocumentId=""){
   const s=state(),reportRunId=uid("report"),at=new Date().toISOString();s.reporting.lastTrialBalance={reportRunId,at,sourceName:clean(sourceName,180),sourceDocumentId:clean(sourceDocumentId,120),rows:tb.rows.length,balanced:!!tb.balanced,errors:tb.errors.length,unclassified:tb.unclassified,difference:String(tb.difference)};
   s.reporting.lastStatements={reportRunId,at,mappedPct:fs.checks.mappedPct,balanced:fs.checks.balanced,cashTies:fs.checks.cashTies,unmapped:fs.unmapped.length,keys:Object.fromEntries(Object.entries(fs.keys).map(([k,v])=>[k,{current:String(v.current),prior:v.prior==null?null:String(v.prior)}]))};
@@ -265,8 +292,11 @@ function searchCompany(query){
   for(const key of picked){const v=keys[key];hits.unshift({kind:"financial",id:key,title:labels[key]||key,detail:"الحالي "+minorText(v.current,c.currency)+" · السابق "+(v.prior==null?"لا توجد مقارنة":minorText(v.prior,c.currency))});}
   const rs=reportingStatus();
   if(/ناقص|مطلوب|مستند|وثيق/.test(q))hits.unshift({kind:"reporting",id:"missing",title:"نواقص مساعد التقارير",detail:rs.missing.length?rs.missing.join("، "):"لا توجد نواقص في الحد الأدنى للمخرج المختار"});
+  if(/ai|ذكاء|تنبيه|استثناء|اقتراح|خطا|خطأ|مراجعه|مراجعة/.test(q)){
+    for(const x of aiExceptions("open").slice(-10).reverse())hits.unshift({kind:"ai-exception",id:x.id,title:x.title,detail:[x.severity,x.source,x.proposedAction].filter(Boolean).join(" · ")});
+  }
   const limited=hits.slice(0,20),text=limited.length?("نتائج داخل «"+c.name+"»:\n"+limited.map(x=>"• "+x.title+(x.detail?" — "+x.detail:"")).join("\n")):"لم أجد نتيجة مطابقة داخل بيانات الشركة الحالية.";
   return{text,matches:limited};
 }
-window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,definitions,addDefinition,removeDefinition,assetDepreciation,fixedAssetSummary,fixedAssetJournal,installed,setTool,reportingTarget,reportingStatus,mpms,registerMpm,removeMpm,approveMpm,mpmReconciliation,mpmSubtotals:()=>MPM_SUBTOTALS,lineage,lineageFor,addLineage,inferType,ingestFiles,documents,readDocument,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,markAuditHandoff,setAuditHandoffStatus,addStandardTrace,saveReportResult,search:searchCompany});
+window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,definitions,addDefinition,removeDefinition,assetDepreciation,fixedAssetSummary,fixedAssetJournal,installed,setTool,reportingTarget,reportingStatus,mpms,registerMpm,removeMpm,approveMpm,mpmReconciliation,mpmSubtotals:()=>MPM_SUBTOTALS,lineage,lineageFor,addLineage,inferType,ingestFiles,documents,readDocument,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,markAuditHandoff,setAuditHandoffStatus,addStandardTrace,aiExceptions,addAIException,resolveAIException,saveReportResult,search:searchCompany});
 })();
