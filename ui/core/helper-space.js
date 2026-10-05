@@ -1,5 +1,5 @@
 /* SQC — مساحات الأدوات المساعدة: كل شركة لها بياناتها (window.SKosifSpace).
-   الأدوات المساعدة للمحاسب تعمل كتطبيق مستقل داخل SQC: عند الدخول إليها تختار الشركة التي تعمل عليها (أو شركة جديدة)،
+   استوديوهات الشركة (المنتج، المبيعات، المخزون، الدفاتر، التقارير) تعمل كتطبيق مستقل داخل SQC: عند الدخول إليها تختار الشركة التي تعمل عليها (أو شركة جديدة)،
    فلا يظهر إلا ما يخصها — الأصناف والأسعار والبوكسات، المخزون، الموردون والمشتريات، العملاء والمبيعات والطلبات، الدفاتر،
    الملاحظات والمتابعة، شجرة المنتجات، محاكي القيود.
    الآلية: بيانات الأدوات مخزنة في مفاتيح localStorage معروفة (HELPER_KEY أدناه) وفي قاعدة IndexedDB «aghnam-app-v7».
@@ -221,7 +221,7 @@ function hideChooser(){const w=document.getElementById("sqc-space");if(w)w.remov
 function chooser(){
   if(document.getElementById("sqc-space"))return;
   const w=document.createElement("div");w.id="sqc-space";w.className="skd-wrap";w.setAttribute("role","presentation");
-  w.innerHTML='<div class="skd sqc-space" role="dialog" aria-modal="true" aria-labelledby="sqc-space-t"><span class="eyebrow">ACCOUNTANT HELPERS</span><h3 id="sqc-space-t">الأدوات المساعدة — لأي شركة؟</h3>'+
+  w.innerHTML='<div class="skd sqc-space" role="dialog" aria-modal="true" aria-labelledby="sqc-space-t"><span class="eyebrow">COMPANY</span><h3 id="sqc-space-t">الأدوات المساعدة — لأي شركة؟</h3>'+
     '<p>اختر الشركة التي تعمل على أدواتها الآن. لكل شركة أصنافها ومخزونها ومورّدوها ومبيعاتها وملاحظاتها، منفصلة تماماً عن غيرها وعن ملف المراجعة.</p>'+
     '<div class="sqc-space-list">'+options().map(o=>'<button type="button" class="sqc-space-o'+(o.on?' on':'')+'" data-space="'+esc(o.id)+'" data-name="'+esc(o.name)+'"><b>'+esc(o.name)+'</b><small>'+esc(o.note)+'</small></button>').join("")+'</div>'+
     '<div class="skd-acts"><button type="button" class="btn" data-space-new>+ شركة جديدة</button><button type="button" class="btn primary" data-space="'+esc(current().id)+'" data-name="'+esc(current().name)+'">متابعة مع «'+esc(current().name)+'»</button></div></div>';
@@ -231,7 +231,7 @@ function chooser(){
   document.body.appendChild(w);
   const f=w.querySelector(".skd-acts .primary");f&&f.focus();
 }
-function inHelpers(){const c=window.SKosifCore,cap=c&&SK.caps&&SK.caps.get(c.view());return!!(cap&&cap.group==="helpers")}
+function inHelpers(){const c=window.SKosifCore,cap=c&&SK.caps&&SK.caps.get(c.view());return!!(cap&&cap.company)}
 function onNav(){if(inHelpers()){banner();sessionStorage.setItem(USER_ASKED,"1");if(!sessionStorage.getItem(ASKED))chooser()}else{hideUserChooser();hideChooser()}}
 /* the strip at the top of every helper screen: which company, and the way to change it */
 function banner(){

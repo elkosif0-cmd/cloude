@@ -165,7 +165,6 @@ let lastSig="";
 /* the menu: collapsible domains (icon · name · count), the current screen's domain always open,
    and a filter box above it; open/closed state per device (skosif_nav_v1) */
 const NAV_KEY="skosif_nav_v1";
-const GICON={home:"dash",audit:"tbreview",helpers:"helperdesk",jev:"jev"};
 const CHEV='<svg class="skn-ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
 const navState=()=>{const d=load(NAV_KEY,{})||{};return d.open&&typeof d.open==="object"?d.open:{}};
 function setNavOpen(g,v){const d=load(NAV_KEY,{})||{};d.open={...(d.open||{}),[g]:v};save(NAV_KEY,d)}
@@ -180,7 +179,7 @@ function paintNav(){
     if(!items.length)return;
     const here=items.some(([,pg])=>pg.some(x=>x.id===cur)),isOpen=here||(open[g.id]!==undefined?open[g.id]:g.id==="home");
     html+='<div class="skn-group'+(isOpen?'':' closed')+(here?' here':'')+'" role="group" aria-label="'+esc(g.label)+'" data-g="'+g.id+'">'+
-      '<button type="button" class="nav-group skn-gh" data-g="'+g.id+'" aria-expanded="'+isOpen+'"><span class="skn-gi">'+(SK.icons[GICON[g.id]]||"")+'</span><span>'+esc(g.label)+'</span><i class="skn-gc">'+items.length+'</i>'+CHEV+'</button>'+
+      '<button type="button" class="nav-group skn-gh" data-g="'+g.id+'" aria-expanded="'+isOpen+'"><span class="skn-gi">'+(SK.icons[g.icon]||"")+'</span><span>'+esc(g.label)+'</span><i class="skn-gc">'+items.length+'</i>'+CHEV+'</button>'+
       items.map(([c,pg])=>navButton(c,cur,pg)).join("")+'</div>';
   });
   if(html!==lastSig||!nav.querySelector(".skn-group")){nav.innerHTML=html;lastSig=html}
@@ -219,8 +218,6 @@ function stripItems(id){
   /* «متقدم» only marks an advanced page inside a daily hub */
   const hubAdv=!SK.caps.hub(id).primary;
   if(pages.length>1)return{hub:true,items:pages.map(x=>({id:x.id,go:x.id,label:x.label,primary:x.primary||hubAdv,on:x.id===id}))};
-  /* accountant helpers can be numerous: their center/map is the domain navigation, not a 20-tab strip */
-  if(cap.group==="helpers")return{hub:false,items:[]};
   const items=SK.caps.hubsInGroup(cap.group).map(h=>[h,hubPages(h.id,id)]).filter(([,pg])=>pg.length)
     .map(([h,pg])=>({id:h.id,go:pg[0].id,label:h.hubLabel,primary:h.primary,on:pg.some(x=>x.id===id)}));
   return{hub:false,items};
@@ -249,7 +246,7 @@ function paintTop(){
    picks in «الأجهزة والمزامنة» (prefs.tabs), then «المزيد» opens the drawer. */
 /* default four chosen with Jev (hybrid: daily selling + the new risk screen, p=0.75); notifications live on the bell */
 const TABS=["tbreview","helperdesk","codex","auditbench"];
-const SHORT={dash:"الرئيسية",helperdesk:"الأدوات",tbreview:"المراجعة",codex:"المعايير",auditbench:"المرجع",commerce:"الطلبات",tasks:"المهام",inventory:"المخزون",zatca:"الفاتورة",customers:"العملاء",followup:"المتابعة",offers:"العروض",
+const SHORT={dash:"الرئيسية",helperdesk:"الخريطة",tbreview:"المراجعة",codex:"المعايير",auditbench:"المرجع",commerce:"الطلبات",tasks:"المهام",inventory:"المخزون",zatca:"الفاتورة",customers:"العملاء",followup:"المتابعة",offers:"العروض",
   catalog:"الأسعار",sim:"التسعير",purchasing:"الشراء",suppliers:"الموردون",cash:"النقد",receivables:"الذمم",ledger:"الدفاتر",jev:"Jev",council:"المجلس",
   execreports:"التقارير",scanner:"الماسح",labels:"الملصقات",operations:"المناسبات",b2bcredit:"الائتمان",traceability:"التبريد",decision:"القرار",
   reports:"الطباعة",exports:"التصدير",settings:"الإعدادات",devices:"الأجهزة",memo:"الاعتماد",builder:"البوكسات",risks:"المخاطر",notifications:"الإشعارات"};
