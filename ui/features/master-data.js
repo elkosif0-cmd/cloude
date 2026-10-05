@@ -14,9 +14,23 @@ function rows(){
     items.map(x=>'<tr><td class="n">'+esc(x.code||"—")+'</td><td><b>'+esc(x.name)+'</b>'+(x.notes?'<small class="muted">'+esc(x.notes)+'</small>':"")+'</td><td class="n">'+esc(x.accountCode||"—")+'</td><td>'+esc(x.costCenter||"—")+'</td><td class="n">'+money(x.cost)+'</td><td class="n">'+money(x.salePrice)+'</td><td><button class="linkish" type="button" data-md-ai="'+esc(x.id)+'">اقتراح AI</button> · <button class="linkish danger" type="button" data-md-del="'+esc(x.id)+'">حذف</button></td></tr>').join("")+
     '</tbody></table></div>';
 }
+function profileCard(){
+  const p=CP().profile(),c=SK.company.current();
+  return '<section class="card"><div class="card-h"><div><span class="eyebrow">COMPANY PROFILE</span><h2>تعريف الشركة — '+esc(c.name)+'</h2><p>مرجع موحد تستخدمه المحاسبة والتقارير والمراجعة والمعايير.</p></div><span class="sk-pill">'+esc(p.currency)+'</span></div><div class="card-b sk-stack">'+
+  '<div class="sk-grid2"><label class="sk-field"><span>النشاط</span><input data-md-profile="activity" value="'+esc(p.activity)+'" placeholder="مثال: تجارة مواد غذائية"></label>'+
+  '<label class="sk-field"><span>الدولة</span><input data-md-profile="country" maxlength="3" value="'+esc(p.country)+'"></label>'+
+  '<label class="sk-field"><span>العملة</span><input data-md-profile="currency" maxlength="3" value="'+esc(p.currency)+'"></label>'+
+  '<label class="sk-field"><span>بداية السنة المالية</span><input data-md-profile="fiscalYearStart" maxlength="5" value="'+esc(p.fiscalYearStart)+'" placeholder="01-01"></label>'+
+  '<label class="sk-field"><span>الزكاة / ضريبة الدخل</span><select data-md-profile="taxMode"><option value="zakat"'+(p.taxMode==="zakat"?" selected":"")+'>زكاة</option><option value="income"'+(p.taxMode==="income"?" selected":"")+'>ضريبة دخل</option></select></label>'+
+  '<label class="sk-field"><span>الرقم الضريبي / VAT</span><input data-md-profile="vatNo" value="'+esc(p.vatNo)+'"></label>'+
+  '<label class="sk-field"><span>السجل التجاري</span><input data-md-profile="crNo" value="'+esc(p.crNo)+'"></label>'+
+  '<label class="sk-field"><span>العنوان</span><input data-md-profile="address" value="'+esc(p.address)+'"></label></div>'+
+  '<label class="sk-field"><span>ملاحظات تعريفية</span><textarea data-md-profile="notes" rows="3">'+esc(p.notes)+'</textarea></label>'+
+  '<div class="sk-actions"><button type="button" class="btn primary" data-md-profile-save>حفظ تعريف الشركة</button></div></div></section>';
+}
 function paint(root){
   const c=SK.company&&SK.company.current?SK.company.current():null,t=CP().types()[active];
-  root.innerHTML='<section class="card"><div class="card-h"><div><span class="eyebrow">MASTER DATA</span><h2>التعريفات — '+esc(c?.name||"الشركة")+'</h2><p>عرّف العناصر مرة واحدة، ثم استخدمها في القيود والتقارير والتكاليف والمراجعة. البيانات مرتبطة بالشركة المفتوحة فقط.</p></div><span class="sk-pill">'+esc(t.label)+'</span></div><div class="card-b sk-stack">'+
+  root.innerHTML=profileCard()+'<section class="card"><div class="card-h"><div><span class="eyebrow">MASTER DATA</span><h2>التعريفات — '+esc(c?.name||"الشركة")+'</h2><p>عرّف العناصر مرة واحدة، ثم استخدمها في القيود والتقارير والتكاليف والمراجعة. البيانات مرتبطة بالشركة المفتوحة فقط.</p></div><span class="sk-pill">'+esc(t.label)+'</span></div><div class="card-b sk-stack">'+
     '<div class="sk-actions" role="group" aria-label="أنواع التعريفات">'+categoryButtons()+'</div>'+
     '<div class="sk-actions"><button type="button" class="btn primary" data-md-add>إضافة '+esc(t.label)+'</button><button type="button" class="btn" data-md-ledger>فتح شجرة الحسابات والدفاتر</button></div>'+rows()+
     '<p class="hint">اقتراح AI لا يغيّر الربط تلقائيًا؛ يظهر كاقتراح للمستخدم. الحسابات والترحيل تظل حتمية وتحت اعتماد بشري.</p></div></section>';
@@ -41,6 +55,10 @@ function bind(root){
   if(root.dataset.mdBound==="1")return;root.dataset.mdBound="1";
   root.addEventListener("click",async e=>{
     const type=e.target.closest("[data-md-type]");if(type){active=type.dataset.mdType;paint(root);return}
+    if(e.target.closest("[data-md-profile-save]")){
+      const patch={};root.querySelectorAll("[data-md-profile]").forEach(el=>patch[el.dataset.mdProfile]=el.value);
+      try{CP().setProfile(patch);toast("حُفظ تعريف الشركة","ok");paint(root)}catch(err){toast(err.message,"bad")}return
+    }
     if(e.target.closest("[data-md-add]")){await add(root);return}
     if(e.target.closest("[data-md-ledger]")){window.SKosifCore&&SKosifCore.go("ledger");return}
     const del=e.target.closest("[data-md-del]");if(del&&await SK.confirm("حذف هذا التعريف من الشركة؟",{danger:true,ok:"حذف"})){CP().removeDefinition(active,del.dataset.mdDel);paint(root);return}
