@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-05.v2",
+  "version": "2026-10-05.v3",
   "canonical_repository": "kosif199022-jpg/cloude",
   "portals": [
     "accounting",
@@ -207,9 +207,9 @@
     "connector-framework",
     "ai-confidence-exception-queue",
     "client-pbc-portal",
-    "full-reporting-intake-xlsx-pdf-extraction",
-    "audit-handoff-consumer",
-    "server-side-document-vault"
+    "server-side-document-vault",
+    "pdf-word-structured-financial-extraction",
+    "per-workspace-sharing-acl"
   ],
   "implemented_in_pr_136": [
     "four-gateway-navigation",
@@ -357,7 +357,6 @@
       "state": "working",
       "has_ui": true,
       "verification": [
-        "app/src/engine/fusion/** tests",
         "tools/feature_audit.mjs",
         "tools/ui_smoke.mjs"
       ],
@@ -412,7 +411,6 @@
       "state": "working",
       "has_ui": true,
       "verification": [
-        "app/src/engine/fusion/** tests",
         "tools/feature_audit.mjs",
         "tools/ui_smoke.mjs"
       ],
@@ -593,7 +591,6 @@
       "state": "working",
       "has_ui": true,
       "verification": [
-        "app/src/engine/fusion/** tests",
         "tools/feature_audit.mjs",
         "tools/ui_smoke.mjs"
       ],
@@ -709,7 +706,6 @@
       "state": "working",
       "has_ui": true,
       "verification": [
-        "app/src/engine/fusion/** tests",
         "tools/feature_audit.mjs",
         "tools/ui_smoke.mjs"
       ],
@@ -812,7 +808,6 @@
       "state": "working",
       "has_ui": true,
       "verification": [
-        "app/src/engine/fusion/** tests",
         "tools/feature_audit.mjs",
         "tools/ui_smoke.mjs"
       ],
@@ -831,7 +826,6 @@
       "state": "working",
       "has_ui": true,
       "verification": [
-        "app/src/engine/fusion/** tests",
         "tools/feature_audit.mjs",
         "tools/ui_smoke.mjs"
       ],
@@ -870,7 +864,6 @@
       "state": "working",
       "has_ui": true,
       "verification": [
-        "app/src/engine/fusion/** tests",
         "tools/feature_audit.mjs",
         "tools/ui_smoke.mjs"
       ],
@@ -945,7 +938,6 @@
       "state": "working",
       "has_ui": true,
       "verification": [
-        "app/src/engine/fusion/** tests",
         "tools/feature_audit.mjs",
         "tools/ui_smoke.mjs"
       ],
@@ -1195,9 +1187,9 @@
       "state": "working",
       "has_ui": true,
       "verification": [
-        "app/src/engine/fusion/** tests",
         "tools/feature_audit.mjs",
-        "tools/ui_smoke.mjs"
+        "tools/ui_smoke.mjs",
+        "tools/company_platform_contract.test.mjs"
       ],
       "portal": "reporting",
       "company_scoped": true,
@@ -1292,7 +1284,6 @@
       "state": "working",
       "has_ui": true,
       "verification": [
-        "app/src/engine/fusion/** tests",
         "tools/feature_audit.mjs",
         "tools/ui_smoke.mjs"
       ],
@@ -1306,6 +1297,25 @@
       "decision": "Rebuild"
     },
     {
+      "id": "auditinbox",
+      "name_ar": "صندوق استلام المراجعة",
+      "source_repo": "cloude",
+      "source_module": "ui/features/audit-inbox.js + ui/core/company-platform.js",
+      "state": "working",
+      "has_ui": true,
+      "verification": [
+        "tools/feature_audit.mjs",
+        "tools/ui_smoke.mjs"
+      ],
+      "portal": "audit",
+      "company_scoped": true,
+      "data": [
+        "skosif_company_platform_v1",
+        "IDB skosif-company-documents-v1"
+      ],
+      "decision": "New"
+    },
+    {
       "id": "codex",
       "name_ar": "المدونة المحاسبية والمعايير",
       "source_repo": "cloude",
@@ -1313,7 +1323,6 @@
       "state": "working",
       "has_ui": true,
       "verification": [
-        "app/src/engine/fusion/** tests",
         "tools/feature_audit.mjs",
         "tools/ui_smoke.mjs"
       ],
@@ -1332,7 +1341,6 @@
       "state": "working",
       "has_ui": true,
       "verification": [
-        "app/src/engine/fusion/** tests",
         "tools/feature_audit.mjs",
         "tools/ui_smoke.mjs"
       ],
@@ -1351,7 +1359,6 @@
       "state": "working",
       "has_ui": true,
       "verification": [
-        "app/src/engine/fusion/** tests",
         "tools/feature_audit.mjs",
         "tools/ui_smoke.mjs"
       ],
@@ -1556,7 +1563,6 @@
       "state": "working",
       "has_ui": true,
       "verification": [
-        "app/src/engine/fusion/** tests",
         "tools/feature_audit.mjs",
         "tools/ui_smoke.mjs"
       ],
@@ -1576,7 +1582,8 @@
       "has_ui": true,
       "verification": [
         "tools/feature_audit.mjs",
-        "tools/ui_smoke.mjs"
+        "tools/ui_smoke.mjs",
+        "tools/company_platform_contract.test.mjs"
       ],
       "portal": "accounting",
       "company_scoped": true,
@@ -1672,5 +1679,16 @@
     "deterministic_tb_to_statements": "implemented-v1",
     "audit_document_handoff": "partial-explicit-queue",
     "unified_standards_trace": "implemented-v1"
-  }
+  },
+  "implemented_in_pr_140": [
+    "private-company-taseef-label-and-existing-password-gate",
+    "company-profile-and-master-data",
+    "per-company-helper-tool-installation",
+    "reporting-intake-with-sha256-lineage",
+    "trial-balance-csv-tsv-txt-xlsx-ingestion",
+    "deterministic-financial-statement-build",
+    "explicit-reporting-to-audit-pbc-handoff",
+    "standards-aware-journal-draft-review",
+    "77-capability-registry"
+  ]
 }
