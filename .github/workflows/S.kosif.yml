@@ -70,7 +70,10 @@ jobs:
         run: node --test tools/unlock_runtime.test.mjs tools/door_tokens.test.mjs
 
       - name: Test the company gallery (front door) and Sales Intelligence across screens
-        run: node --test tools/company_entry.test.mjs tools/company_context.test.mjs tools/crystal_world.test.mjs tools/motion.test.mjs tools/identity_audit.test.mjs tools/sales_reports.test.mjs tools/customer_studio.test.mjs tools/company_platform_contract.test.mjs tools/journal_review_contract.test.mjs tools/standards_layer_contract.test.mjs tools/ai_exception_queue_contract.test.mjs
+        run: node --test tools/company_entry.test.mjs tools/company_context.test.mjs tools/crystal_world.test.mjs tools/motion.test.mjs tools/identity_audit.test.mjs tools/sales_reports.test.mjs tools/customer_studio.test.mjs tools/company_platform_contract.test.mjs tools/journal_review_contract.test.mjs tools/standards_layer_contract.test.mjs tools/ai_exception_queue_contract.test.mjs tools/corpus_scorecard.test.mjs
+
+      - name: "P5: every bundle company opened as an audit file reaches the corpus replay; scorecard regression"
+        run: node --test tools/corpus_same_results.test.mjs && node tools/corpus_scorecard.mjs --check
 
       - name: Test server-side company security and sharing contract
         run: node --test capabilities-v2/security-contract.test.mjs
