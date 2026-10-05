@@ -1,0 +1,106 @@
+{
+  "sealed_at_utc": "2026-10-05T22:06:34.397738+00:00",
+  "hash_algorithm": "sha256",
+  "files": [
+    {
+      "file": "ATLAS_DEEP_REVIEW_BATCHES.json",
+      "bytes": 91269,
+      "sha256": "646f42f3302f71e8fa3ef6ced79af15dcfd658d6993c11eafcf70f4ba3a0264e"
+    },
+    {
+      "file": "ATLAS_FOLDER_RELEVANCE_MAP.json",
+      "bytes": 12035758,
+      "sha256": "784c2398529cc7a89caf5e692f0c03e53f0d6518200e58b5b34b8090958ca9ba"
+    },
+    {
+      "file": "ATLAS_RELEVANCE_AND_REVIEW_BATCHES.md",
+      "bytes": 52499,
+      "sha256": "35b3f7b579c679b35f4128996b4914583387c0e4456e1988598b6eee1d874886"
+    },
+    {
+      "file": "ATLAS_RELEVANCE_SUMMARY.json",
+      "bytes": 3088,
+      "sha256": "eb1ad5c04785585fe89581f97bf14c51619e2512fc30d311895b8fcf626bc56f"
+    },
+    {
+      "file": "ATLAS_RETAINED_CANDIDATES.json",
+      "bytes": 3964777,
+      "sha256": "cb27d9d5e1b1bf1ef57addbfe87710032558a32f0bb13430d32dbc7819462dfe"
+    },
+    {
+      "file": "CAPABILITY_MIGRATION_MATRIX.json",
+      "bytes": 1020480,
+      "sha256": "e7166393db79c31b369a60680d7fc594c71bfbc5ce98d77acc16c6e303df1498"
+    },
+    {
+      "file": "CAPABILITY_MIGRATION_MATRIX_AR.md",
+      "bytes": 316806,
+      "sha256": "7b48a4785dc5875fa890bb978a3c23314a4eed6e6e0c1c9e29cba9f3f1260044"
+    },
+    {
+      "file": "CLOUDE_FILE_COVERAGE_AND_DEEP_REVIEW_QUEUE_2026-10-05.json",
+      "bytes": 231182,
+      "sha256": "909bee2fd0bec06acb1b4c47616b84169db72b485c24451f484abe7bcf95cd9c"
+    },
+    {
+      "file": "CLOUDE_SOURCE_RISK_CHAINS_2026-10-05.json",
+      "bytes": 12933,
+      "sha256": "aca0787dd3adad86472e92be54c3a28277901cd573ccdac731665b9768f920cd"
+    },
+    {
+      "file": "COVERAGE_AND_NEXT_BATCHES.json",
+      "bytes": 37099,
+      "sha256": "bdd9631dcdd8ff9a21fb05ff2ea403730a8d07423ef10bd0de6e887da32b0eae"
+    },
+    {
+      "file": "CURRENT_STATE_REPORT_AR.md",
+      "bytes": 28660,
+      "sha256": "616c702079ab982d9f39896b67af31d062a637b842c23f540e70dff81850405a"
+    },
+    {
+      "file": "FILE_LEVEL_COVERAGE.json",
+      "bytes": 1957141,
+      "sha256": "bdecbd236882d942d5549bcdbb4759fa517db0d12ab701e85ab148d7a14ee7cf"
+    },
+    {
+      "file": "NO_CAPABILITY_LOSS_CROSSWALK.json",
+      "bytes": 438897,
+      "sha256": "dd6595daca92c61dadd809ea2a8ceb224d364b1f5752d341437e6bdb4a271ca2"
+    },
+    {
+      "file": "OMNI_WHATSAPP_SOURCE_ENRICHMENT_2026-10-05.json",
+      "bytes": 1839,
+      "sha256": "d2448c81f718797e7a800054c26ca750c5d333ded8146d0426d7aa71c2a6c00c"
+    },
+    {
+      "file": "PR151_SECONDARY_HANDOFF_RECONCILIATION.json",
+      "bytes": 2203,
+      "sha256": "2771b911a6bd0ab3bfcb2e53f7275d31ad9e2550434b24de88d10b947a7dc74f"
+    },
+    {
+      "file": "REPOSITORY_HEADS_AND_ACTIVITY.json",
+      "bytes": 305775,
+      "sha256": "ab8364322b880ec730478692fea34a5e9c52f019253baa55adc8247614b67810"
+    },
+    {
+      "file": "REQUIREMENTS_AND_GATES_ar.md",
+      "bytes": 36592,
+      "sha256": "e1142146ee9ba16a6c68e944834e64353299f1f3356ef851993459e78d3e9364"
+    },
+    {
+      "file": "SEAL_REVISION_LOG.json",
+      "bytes": 803,
+      "sha256": "b68d995baaebabe0241b0e6dde6056b4ec2b5e449513180f83ab7a64c63263bc"
+    },
+    {
+      "file": "UNINSPECTED_PATHS_AND_BRANCHES.json",
+      "bytes": 6059542,
+      "sha256": "0d4a31fbf8e1dda8999feb273f22a065fc16729813fc6b98c09fc70a3c586b0a"
+    },
+    {
+      "file": "VALIDATION.json",
+      "bytes": 3499,
+      "sha256": "0abba7477f4a90c5c959c3b96f3e9a2f8a075b822498fb5629e23fc7c18218d0"
+    }
+  ]
+}
