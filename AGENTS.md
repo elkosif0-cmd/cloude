@@ -1,20 +1,9 @@
-# AGENTS.md — Mandatory preflight for every coding agent
+# اقرأ هذا أولاً
 
-## STOP: read this first
-Before doing **any** work in this repository, read the entire file:
+**ملف إلزامي لأي وكيل أو مساهم:** [`docs/PRODUCT_MANDATE_ar.md`](docs/PRODUCT_MANDATE_ar.md) — هيكل الدخول الذي طلبه المالك (ثلاثة مداخل:
+البرنامج المحاسبي الكامل مع الشركات النموذجية من الحزمة، المراجعة بجولات واختبار «النتائج نفسها»، الأدوات المساعدة)، وأين وصلنا،
+وخطة الإتمام الملزمة M1–M7. نص المالك الأصلي في [`docs/VISION_ar.md`](docs/VISION_ar.md). ما يخالف التكليف لا يُدمج.
 
-**[FOUNDATION.md](./FOUNDATION.md)**
-
-It is the canonical product charter for S.KOSIF and overrides conflicting interpretations in older docs or legacy UI.
-
-### Required behavior
-- Do not plan, code, refactor, delete, redesign, or deploy before reading `FOUNDATION.md`.
-- Preserve the unified-product meaning: accounting + audit + reporting + financial analysis + standards + AI + documents + helper tools.
-- Preserve useful capabilities even when replacing legacy UI/implementation.
-- Never collapse the product into only accounting, only audit, a dashboard, or a chatbot.
-- Respect company/workspace isolation and the protected context of «تصيف».
-- Deterministic financial calculations and verifiable evidence precede AI interpretation.
-- If a user explicitly changes a foundational product rule, update `FOUNDATION.md` first in the same change.
-- For any PR that changes product behavior, confirm the charter was read and explain how the change preserves it.
-
-Also inspect relevant `docs/` and capability registry material before removing or replacing existing features.
+Mandatory for every agent and contributor: read `docs/PRODUCT_MANDATE_ar.md` before changing anything. It fixes the
+three entry modes the owner asked for (full accounting program with the bundle's model companies, audit with rounds and
+the «same results» test, helper tools), the honest status of each, and the binding plan M1–M7.

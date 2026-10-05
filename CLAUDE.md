@@ -1,13 +1,9 @@
-# CLAUDE.md
+# اقرأ هذا أولاً
 
-**MANDATORY FIRST STEP:** Read [FOUNDATION.md](./FOUNDATION.md) completely before analyzing or editing this repository.
+**ملف إلزامي لأي وكيل أو مساهم:** [`docs/PRODUCT_MANDATE_ar.md`](docs/PRODUCT_MANDATE_ar.md) — هيكل الدخول الذي طلبه المالك (ثلاثة مداخل:
+البرنامج المحاسبي الكامل مع الشركات النموذجية من الحزمة، المراجعة بجولات واختبار «النتائج نفسها»، الأدوات المساعدة)، وأين وصلنا،
+وخطة الإتمام الملزمة M1–M7. نص المالك الأصلي في [`docs/VISION_ar.md`](docs/VISION_ar.md). ما يخالف التكليف لا يُدمج.
 
-`FOUNDATION.md` is the canonical product charter for S.KOSIF. Do not infer the product solely from the current UI, old docs, or the task wording. Preserve the unified platform meaning and all non-negotiable constraints defined there.
-
-Before changing or deleting a feature:
-1. Check whether it represents an existing accounting, audit, reporting, analysis, standards, AI, document, or helper capability.
-2. Preserve/re-home the capability unless the user explicitly authorizes removing it.
-3. Respect company isolation and protected «تصيف» data.
-4. Prefer deterministic/verifiable financial logic before AI interpretation.
-
-If an explicit user instruction changes the product foundation, update `FOUNDATION.md` first in the same change.
+Mandatory for every agent and contributor: read `docs/PRODUCT_MANDATE_ar.md` before changing anything. It fixes the
+three entry modes the owner asked for (full accounting program with the bundle's model companies, audit with rounds and
+the «same results» test, helper tools), the honest status of each, and the binding plan M1–M7.
