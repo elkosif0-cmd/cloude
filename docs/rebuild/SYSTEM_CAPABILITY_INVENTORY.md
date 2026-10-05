@@ -2,7 +2,7 @@
 
 Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do not edit by hand.
 
-Total capabilities: **75** (screens). Cross-cutting capabilities are listed after the table.
+Total capabilities: **77** (screens). Cross-cutting capabilities are listed after the table.
 
 | ID | Capability | Module | Current Location | Data Used | Dependencies | Status | Keep/Remove/Merge/Rebuild |
 |---|---|---|---|---|---|---|---|
@@ -58,6 +58,7 @@ Total capabilities: **75** (screens). Cross-cutting capabilities are listed afte
 | `scanner` | ماسح الباركود | ui/enterprise.js | الأدوات المساعدة المستقلة › المنتج والتكلفة › الملصقات والباركود › يومي | `skosif_v32_cart` | SKosifCore | Working | Keep |
 | `smartmatch` | مطابقة المبيعات | ui/smartmatch.js | البرنامج المحاسبي الكامل › المالية والدفاتر › المطابقة › يومي | `skosif_v34_product_aliases` | SKosifCore | Working | Keep |
 | `excelrecon` | مطابقة الإكسل | ui/tools.js | البرنامج المحاسبي الكامل › المالية والدفاتر › المطابقة › يومي | — | SKosifCore | Working | Keep |
+| `reportingintake` | استلام البيانات وإعداد القوائم | ui/core/company-platform.js + ui/features/reporting-intake.js + SKEngines.reports.{tbImport,statements} | مساعد القوائم والتقارير › التقارير والبيانات › يومي | `skosif_company_platform_v1`, `IDB skosif-company-documents-v1` | SKosifCore, IndexedDB | Working | New |
 | `execreports` | التقارير التنفيذية | ui/reports.js | مساعد القوائم والتقارير › التقارير والبيانات › يومي | `skosif_rep_pl`, `IDB customers`, `IDB sales_lines`, `skosif_v31_supplier_batches` | SKosifCore, IndexedDB | Working | Keep |
 | `reports` | مركز الطباعة | core | مساعد القوائم والتقارير › التقارير والبيانات › الطباعة والتصدير › يومي | `aghnam-pricing-v3`, `aghnam-pricing-prints-v1` | SKosifCore, Engine | Working | Keep |
 | `exports` | مركز التصدير | ui/features/workspace.js | مساعد القوائم والتقارير › التقارير والبيانات › الطباعة والتصدير › يومي | `كل المفاتيح` | SKosifCore | Working | Rebuild |
@@ -76,7 +77,8 @@ Total capabilities: **75** (screens). Cross-cutting capabilities are listed afte
 | `auditlab` | مختبر المعايير والأبحاث | ui/audit/lab | نظام المراجعة الذكي › المراجعة والمراجعة المالية › المعايير والمدونة › يومي | `audit lab storage` | SKosifCore | Working | Keep |
 | `settings` | الإعدادات والمظهر | core + ui/shell.js | الأدوات المساعدة المستقلة › العام › الإعدادات والأجهزة › يومي | `aghnam-pricing-v3`, `skosif_prefs` | SKosifCore, Engine | Working | Keep |
 | `devices` | الأجهزة والمزامنة | ui/features/devices.js + ui/core/device.js + ui/components/keys.js | الأدوات المساعدة المستقلة › العام › الإعدادات والأجهزة › يومي | `skosif_prefs`, `sk-device-log`, `IDB aghnam-app-v7` | SKosifCore, IndexedDB | Working | Rebuild |
-| `companies` | الشركات والفترات | ui/features/workspace.js + SKEngines.system | البرنامج المحاسبي الكامل › العام › يومي | `skosif_companies_v1` | SKosifCore | Working | Rebuild |
+| `companies` | الشركات والفترات | ui/features/workspace.js + SKEngines.system | البرنامج المحاسبي الكامل › العام › إعداد الشركة والتعريفات › يومي | `skosif_companies_v1` | SKosifCore | Working | Rebuild |
+| `masterdata` | التعريفات | ui/core/company-platform.js + ui/features/master-data.js | البرنامج المحاسبي الكامل › العام › إعداد الشركة والتعريفات › يومي | `skosif_company_platform_v1` | SKosifCore | Working | New |
 | `governance` | الحوكمة والجاهزية | core (v18/v19) + ui/core/audit.js | الأدوات المساعدة المستقلة › العام › الحوكمة والصلاحيات › يومي | `aghnam-pricing-v3`, `skosif_audit_trail` | SKosifCore, Engine | Working | Keep |
 | `health` | الصحة والتشخيص | core (v19.8) + ui/jev.js | الأدوات المساعدة المستقلة › العام › الحوكمة والصلاحيات › يومي | `aghnam-v17-runtime-errors`, `skosif_error_log` | SKosifCore, Engine | Working | Keep |
 | `capabilitiesv2` | الصلاحيات ومساحات العمل | ui/capabilities-v2.js + capabilities-v2/worker.js | الأدوات المساعدة المستقلة › العام › الحوكمة والصلاحيات › يومي | `skosif_cap_v2_config`, `skosif_cap_v2_local_workspace` | SKosifCore | Working | Keep |
