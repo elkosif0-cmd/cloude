@@ -16,6 +16,9 @@ const WORKSPACE_MAX_BYTES = 131_072;
 const ACCESS_ASSERTION_MAX_BYTES = 16_384;
 const AUTH_HEADER = "oai-authenticated-user-email";
 const ACCESS_ASSERTION_HEADER = "cf-access-jwt-assertion";
+const DOCUMENT_MAX_BYTES = 25 * 1024 * 1024;
+const DOCUMENT_TYPES = new Set(["trial-balance","general-ledger","bank-statement","aging","inventory","fixed-assets-register","payroll","sales","purchases","tax-document","financial-statements","contract","invoice","audit-evidence","other"]);
+const DOCUMENT_MIMES = new Set(["application/pdf","text/plain","text/csv","text/tab-separated-values","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","image/jpeg","image/png","image/webp","application/octet-stream"]);
 
 const WORKSPACE_ALLOWED_KEYS = Object.freeze([
   "version","company","period","ui","theme","layout","preferences","inventorySummary",
@@ -28,11 +31,11 @@ const WORKSPACE_FORBIDDEN_KEYS = new Set([
 ]);
 
 export const ROLE_PERMISSIONS = Object.freeze({
-  owner: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","integrity:read"]),
-  partner: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","integrity:read"]),
-  manager: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","integrity:read"]),
-  senior: Object.freeze(["providers:read","session:read","workspace:list","workspace:read","workspace:write","integrity:read"]),
-  viewer: Object.freeze(["providers:read","session:read","workspace:list","workspace:read","integrity:read"]),
+  owner: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read"]),
+  partner: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read"]),
+  manager: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","document:list","document:read","document:write","integrity:read"]),
+  senior: Object.freeze(["providers:read","session:read","workspace:list","workspace:read","workspace:write","document:list","document:read","document:write","integrity:read"]),
+  viewer: Object.freeze(["providers:read","session:read","workspace:list","workspace:read","document:list","document:read","integrity:read"]),
 });
 
 export function authorizeRole(role, permission) {
@@ -61,7 +64,7 @@ function corsHeaders(request, env) {
     "access-control-allow-origin": origin,
     "access-control-allow-credentials": "true",
     "access-control-allow-headers": "content-type, authorization, cf-access-jwt-assertion",
-    "access-control-allow-methods": "GET, POST, PUT, OPTIONS",
+    "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
     "vary": "Origin",
   };
 }
@@ -197,6 +200,21 @@ async function tenantIdFor(subject) {
 function requireDatabase(env) {
   if (!env?.DB?.prepare || !env?.DB?.batch) throw new Error("database_unavailable");
   return env.DB;
+}
+function requireDocumentBucket(env) {
+  const bucket=env?.DOCUMENTS;
+  if(!bucket?.put||!bucket?.get||!bucket?.delete)throw new Error("document_vault_unavailable");
+  return bucket;
+}
+async function sha256Bytes(buffer) {
+  const digest=await crypto.subtle.digest("SHA-256",buffer);
+  return [...new Uint8Array(digest)].map(byte=>byte.toString(16).padStart(2,"0")).join("");
+}
+function documentMime(request) {
+  return String(request.headers.get("content-type")||"application/octet-stream").split(";")[0].trim().toLowerCase();
+}
+function documentName(url) {
+  return String(url.searchParams.get("name")||"").replace(/[\u0000-\u001f\u007f]/g,"").trim().slice(0,180);
 }
 async function ensureTenant(db, tenantId, subject, at) {
   await db.batch([
@@ -401,6 +419,69 @@ async function integrityStatus(env,auth,id) {
   return jsonResponse({valid:true,broken_seq:null,entries:r.results?.length||0,head_hash:prevHash});
 }
 
+async function documentRow(db,workspaceId,tenantId,documentId,includeDeleted=false) {
+  const sql="SELECT id,workspace_id,tenant_id,name,mime,classification,size_bytes,sha256,source_gateway,uploaded_by,uploaded_at,deleted_at,object_key FROM workspace_documents WHERE id=?1 AND workspace_id=?2 AND tenant_id=?3"+(includeDeleted?"":" AND deleted_at IS NULL");
+  return db.prepare(sql).bind(documentId,workspaceId,tenantId).first();
+}
+function publicDocument(row) {
+  if(!row)return null;
+  return {id:row.id,workspace_id:row.workspace_id,name:row.name,mime:row.mime,classification:row.classification,size_bytes:Number(row.size_bytes),sha256:row.sha256,source_gateway:row.source_gateway,uploaded_by:row.uploaded_by,uploaded_at:row.uploaded_at,deleted_at:row.deleted_at||null};
+}
+async function listDocuments(env,auth,id) {
+  const db=requireDatabase(env),tenantId=auth.workspaceTenantId||auth.tenantId;
+  const rows=await db.prepare("SELECT id,workspace_id,tenant_id,name,mime,classification,size_bytes,sha256,source_gateway,uploaded_by,uploaded_at,deleted_at FROM workspace_documents WHERE workspace_id=?1 AND tenant_id=?2 AND deleted_at IS NULL ORDER BY uploaded_at DESC,id DESC LIMIT 500").bind(id,tenantId).all();
+  return jsonResponse({documents:(rows.results||[]).map(publicDocument),vault:"r2",workspace_id:id});
+}
+async function uploadDocument(request,env,auth,id,url) {
+  const db=requireDatabase(env),tenantId=auth.workspaceTenantId||auth.tenantId,workspace=await workspaceForTenant(db,id,tenantId);
+  if(!workspace)return jsonResponse({error:"not_found"},404);
+  if(workspace.archived_at)return jsonResponse({error:"workspace_archived"},409);
+  const bucket=requireDocumentBucket(env),length=Number(request.headers.get("content-length")||"0");
+  if(length>DOCUMENT_MAX_BYTES)return jsonResponse({error:"document_too_large",max_bytes:DOCUMENT_MAX_BYTES},413);
+  const name=documentName(url),classification=String(url.searchParams.get("classification")||"other").trim(),sourceGateway=String(url.searchParams.get("source_gateway")||"").trim().slice(0,60),mime=documentMime(request);
+  if(!name)return jsonResponse({error:"document_name_required"},422);
+  if(!DOCUMENT_TYPES.has(classification))return jsonResponse({error:"invalid_document_classification"},422);
+  if(!DOCUMENT_MIMES.has(mime))return jsonResponse({error:"unsupported_document_mime"},415);
+  const buffer=await request.arrayBuffer();
+  if(!buffer.byteLength||buffer.byteLength>DOCUMENT_MAX_BYTES)return jsonResponse({error:buffer.byteLength?"document_too_large":"empty_document",max_bytes:DOCUMENT_MAX_BYTES},buffer.byteLength?413:422);
+  const sha=await sha256Bytes(buffer),at=new Date().toISOString(),documentId=await stableId("doc",{workspaceId:id,actor:auth.subject,name,sha,at});
+  const objectKey=`${tenantId}/${id}/${documentId}`;
+  await bucket.put(objectKey,buffer,{httpMetadata:{contentType:mime},customMetadata:{workspace:id,document:documentId,sha256:sha}});
+  const head=await db.prepare("SELECT entry_hash FROM audit_log WHERE workspace_id=?1 ORDER BY seq DESC LIMIT 1").bind(id).first();
+  const log=await appendLogValues({workspaceId:id,actor:auth.subject,action:"document.uploaded",payload:{document_id:documentId,name,mime,classification,size_bytes:buffer.byteLength,sha256:sha},at,prevHash:head?.entry_hash||GENESIS_HASH});
+  try{
+    await db.batch([
+      db.prepare("INSERT INTO workspace_documents (id,workspace_id,tenant_id,object_key,name,mime,classification,size_bytes,sha256,source_gateway,uploaded_by,uploaded_at) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12)").bind(documentId,id,tenantId,objectKey,name,mime,classification,buffer.byteLength,sha,sourceGateway,auth.subject,at),
+      db.prepare("INSERT INTO audit_log (workspace_id,actor,action,payload_json,at,canonical_version,prev_hash,entry_hash) VALUES (?1,?2,'document.uploaded',?3,?4,?5,?6,?7)").bind(id,auth.subject,log.payloadJson,at,CANONICAL_VERSION,log.prevHash,log.entryHash),
+    ]);
+  }catch(error){try{await bucket.delete(objectKey)}catch{}throw error}
+  return jsonResponse({document:publicDocument(await documentRow(db,id,tenantId,documentId)),vault:"r2"},201);
+}
+async function downloadDocument(env,auth,id,documentId) {
+  const db=requireDatabase(env),tenantId=auth.workspaceTenantId||auth.tenantId,row=await documentRow(db,id,tenantId,documentId);
+  if(!row)return jsonResponse({error:"not_found"},404);
+  const bucket=requireDocumentBucket(env),object=await bucket.get(row.object_key);
+  if(!object)return jsonResponse({error:"document_object_missing"},404);
+  const headers=new Headers({"content-type":row.mime,"content-length":String(row.size_bytes),"cache-control":"private, no-store, max-age=0","x-content-type-options":"nosniff","referrer-policy":"no-referrer","content-disposition":`attachment; filename*=UTF-8''${encodeURIComponent(row.name)}`,"x-sqc-document-sha256":row.sha256});
+  return new Response(object.body,{status:200,headers});
+}
+async function deleteDocument(env,auth,id,documentId) {
+  const db=requireDatabase(env),tenantId=auth.workspaceTenantId||auth.tenantId,workspace=await workspaceForTenant(db,id,tenantId);
+  if(!workspace)return jsonResponse({error:"not_found"},404);
+  if(workspace.archived_at)return jsonResponse({error:"workspace_archived"},409);
+  const row=await documentRow(db,id,tenantId,documentId,true);if(!row)return jsonResponse({error:"not_found"},404);
+  if(row.deleted_at)return jsonResponse({deleted:true,idempotent:true,document:publicDocument(row)});
+  const bucket=requireDocumentBucket(env),at=new Date().toISOString();
+  await bucket.delete(row.object_key);
+  const head=await db.prepare("SELECT entry_hash FROM audit_log WHERE workspace_id=?1 ORDER BY seq DESC LIMIT 1").bind(id).first();
+  const log=await appendLogValues({workspaceId:id,actor:auth.subject,action:"document.deleted",payload:{document_id:documentId,sha256:row.sha256},at,prevHash:head?.entry_hash||GENESIS_HASH});
+  await db.batch([
+    db.prepare("UPDATE workspace_documents SET deleted_at=?1 WHERE id=?2 AND workspace_id=?3 AND tenant_id=?4 AND deleted_at IS NULL").bind(at,documentId,id,tenantId),
+    db.prepare("INSERT INTO audit_log (workspace_id,actor,action,payload_json,at,canonical_version,prev_hash,entry_hash) VALUES (?1,?2,'document.deleted',?3,?4,?5,?6,?7)").bind(id,auth.subject,log.payloadJson,at,CANONICAL_VERSION,log.prevHash,log.entryHash),
+  ]);
+  return jsonResponse({deleted:true,idempotent:false,document_id:documentId});
+}
+
 const routes = [
   ["GET", /^\/api\/capabilities-v2\/providers$/, "providers:read", "providers"],
   ["GET", /^\/api\/capabilities-v2\/session$/, "session:read", "session"],
@@ -411,6 +492,10 @@ const routes = [
   ["PUT", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/state$/, "workspace:write", "save"],
   ["POST", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/archive$/, "workspace:archive", "archive"],
   ["POST", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/share$/, "workspace:share", "share"],
+  ["GET", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/documents$/, "document:list", "documents-list"],
+  ["POST", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/documents$/, "document:write", "document-upload"],
+  ["GET", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/documents\/(doc_[a-f0-9]{26})$/, "document:read", "document-download"],
+  ["DELETE", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/documents\/(doc_[a-f0-9]{26})$/, "document:delete", "document-delete"],
   ["GET", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/integrity$/, "integrity:read", "integrity"],
 ];
 
@@ -433,7 +518,7 @@ async function handleApi(request,env,url) {
     auth.role=role;
     if(action==="list")return addCors(await listWorkspaces(env,auth),request,env);
     if(action==="create")return addCors(await createWorkspace(request,env,auth),request,env);
-    if(["meta","state","save","archive","share","integrity"].includes(action)){
+    if(["meta","state","save","archive","share","documents-list","document-upload","document-download","document-delete","integrity"].includes(action)){
       const access=await workspaceAccessContext(db,match[1],auth);
       if(!access)return jsonResponse({error:"not_found"},404,corsHeaders(request,env));
       if(!authorizeRole(access.role,permission))return jsonResponse({error:"permission_denied"},403,corsHeaders(request,env));
@@ -444,9 +529,14 @@ async function handleApi(request,env,url) {
     if(action==="save")return addCors(await saveWorkspaceState(request,env,auth,match[1]),request,env);
     if(action==="archive")return addCors(await archiveWorkspace(request,env,auth,match[1]),request,env);
     if(action==="share")return addCors(await shareWorkspace(request,env,auth,match[1]),request,env);
+    if(action==="documents-list")return addCors(await listDocuments(env,auth,match[1]),request,env);
+    if(action==="document-upload")return addCors(await uploadDocument(request,env,auth,match[1],url),request,env);
+    if(action==="document-download")return addCors(await downloadDocument(env,auth,match[1],match[2]),request,env);
+    if(action==="document-delete")return addCors(await deleteDocument(env,auth,match[1],match[2]),request,env);
     if(action==="integrity")return addCors(await integrityStatus(env,auth,match[1]),request,env);
   }catch(error){
     if(error?.message==="database_unavailable")return jsonResponse({error:"database_unavailable"},503,corsHeaders(request,env));
+    if(error?.message==="document_vault_unavailable")return jsonResponse({error:"document_vault_unavailable"},503,corsHeaders(request,env));
     return jsonResponse({error:"request_failed"},500,corsHeaders(request,env));
   }
   return jsonResponse({error:"route_not_authorized"},403,corsHeaders(request,env));
