@@ -1,0 +1,110 @@
+name: SQC Executive Context Guard
+
+on:
+  pull_request:
+    paths:
+      - 'build.py'
+      - 'build_mode.py'
+      - 'private_blocks.py'
+      - 'ui/core/sk.js'
+      - 'ui/core/output.js'
+      - 'ui/core/bus.js'
+      - 'ui/core/company.js'
+      - 'ui/layouts/topbar.js'
+      - 'ui/layouts/shell.js'
+      - 'ui/core/registry.js'
+      - 'ui/core/capabilities.json'
+      - 'ui/features/helper-center.js'
+      - 'ui/components/xlsx.js'
+      - 'ui/core/helper-space.js'
+      - 'ui/core/management-report-model.js'
+      - 'ui/features/management-report-source.js'
+      - 'ui/features/report-pack.js'
+      - 'ui/ds/sqc.css'
+      - 'tools/report_pack_guard*'
+      - 'tools/report_output_guard*'
+      - 'tools/executive_pack_context_e2e.mjs'
+      - '.github/workflows/sqc-executive-context.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: executive-context-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  executive-context:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SQC_TESTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      SQC_BUILD_MODE: preview
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify exact checkout and pure report boundaries
+        run: |
+          set -euo pipefail
+          test "$GITHUB_ACTIONS" = true
+          test "$(git rev-parse HEAD)" = "$SQC_TESTED_SHA"
+          [[ "$SQC_TESTED_SHA" =~ ^[a-f0-9]{40}$ ]]
+          node --check tools/executive_pack_context_e2e.mjs
+          node --test tools/company_context.test.mjs tools/management_report_scope.test.mjs tools/management_report_source.test.mjs tools/management_report_model.test.mjs tools/report_pack_guard.test.mjs tools/report_output_guard.test.mjs
+      - name: Build data-free preview with no private output folder
+        run: |
+          set -euo pipefail
+          python3 build.py
+          test ! -d dist/secure
+          python3 - <<'PY'
+          from pathlib import Path
+          page=Path('dist/app-safe.html').read_text()
+          assert 'const SEED_B64 = "";' in page
+          front=Path('dist/index.html').read_text()
+          assert 'crypto.json' not in front and 'id="f"' not in front
+          PY
+      - name: Install CI-only pinned browser and PDF tools
+        run: |
+          set -euo pipefail
+          test "$GITHUB_ACTIONS" = true
+          npm install --no-save --prefix /tmp/sqc-executive-pw playwright@1.51.1
+          /tmp/sqc-executive-pw/node_modules/.bin/playwright install --with-deps chromium
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+      - name: Exercise synthetic actual UI, company switches, stale output gates and native PDF
+        run: |
+          set -euo pipefail
+          test "$GITHUB_ACTIONS" = true
+          mkdir -p artifacts/executive-context
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory dist >/tmp/sqc-executive-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          python3 - <<'PY'
+          import time,urllib.request
+          for attempt in range(30):
+              try:
+                  with urllib.request.urlopen('http://127.0.0.1:8765/app-safe.html',timeout=1) as response:
+                      assert response.status==200
+                  break
+              except (OSError,AssertionError):
+                  if attempt==29: raise
+                  time.sleep(1)
+          PY
+          NODE_PATH=/tmp/sqc-executive-pw/node_modules node tools/executive_pack_context_e2e.mjs http://127.0.0.1:8765/app-safe.html
+      - name: Retain only synthetic exact-head acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: executive-context-${{ env.SQC_TESTED_SHA }}
+          path: artifacts/executive-context/
+          if-no-files-found: warn
+          retention-days: 7

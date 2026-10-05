@@ -9,7 +9,9 @@ const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 const num=v=>{const n=Number(String(v??"").replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[٬,\s]/g,"").replace("٫","."));return Number.isFinite(n)?n:0};
 const load=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v??d}catch{return d}};
-const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){if(window.SK&&SK.errors)SK.errors.report(e,"storage:"+k);return false}};
+const saveListeners=new Set();
+const onSave=fn=>{saveListeners.add(fn);return()=>saveListeners.delete(fn)};
+const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){if(window.SK&&SK.errors)SK.errors.report(e,"storage:"+k);return false}finally{for(const fn of saveListeners)try{fn(k)}catch{}}};
 const nf2=new Intl.NumberFormat("ar-SA-u-nu-latn",{minimumFractionDigits:2,maximumFractionDigits:2});
 const money=v=>nf2.format(Number(v)||0)+" ر.س";
 const pct=v=>new Intl.NumberFormat("ar-SA-u-nu-latn",{maximumFractionDigits:1}).format(Number(v)||0)+"٪";
@@ -139,8 +141,10 @@ function redact(text){
 /* Shared, nested-safe focus containment. Call the returned release after removing/closing
    the panel. Capture the invoker before focusing a dialog; never use a global last button. */
 const modalStack=[];
-function modalFocus(root,invoker=document.activeElement){
-  const entry={root},focusable=()=>[...root.querySelectorAll('button,[href],input,select,textarea,[tabindex]')]
+const modalChanged=()=>{for(const entry of [...modalStack])try{if(modalStack.includes(entry))entry.onTopChange?.(entry===modalStack.at(-1),modalStack.at(-1)?.root)}catch{}};
+function modalFocus(root,invoker=document.activeElement,options={}){
+  const layer=root.closest(".skd-wrap,.skp-wrap,.skk-wrap,.skout,.skpres"),previous=modalStack.at(-1);
+  const entry={root,layer,onTopChange:options.onTopChange},focusable=()=>[...root.querySelectorAll('button,[href],input,select,textarea,[tabindex]')]
     .filter(el=>!el.disabled&&el.tabIndex>=0&&!el.hidden&&!el.closest('[hidden],[inert]')&&el.getClientRects().length&&getComputedStyle(el).visibility!=="hidden");
   let released=false;
   const first=()=>{const items=focusable();if(items.length)items[0].focus({preventScroll:true});else{root.setAttribute("tabindex","-1");root.focus({preventScroll:true})}};
@@ -148,10 +152,19 @@ function modalFocus(root,invoker=document.activeElement){
     if(!items.length){e.preventDefault();first();return}
     if(!root.contains(at)||(e.shiftKey?at===items[0]:at===items.at(-1))){e.preventDefault();(e.shiftKey?items.at(-1):items[0]).focus()}};
   const contain=e=>{if(modalStack.at(-1)===entry&&!root.contains(e.target))first()};
-  modalStack.push(entry);document.addEventListener("keydown",key,true);document.addEventListener("focusin",contain,true);
+  /* Embedded documents supply their own cross-document keyboard handling, but
+     participate in the same ownership stack as confirm/form and other panels. */
+  // Only these known registered wrappers receive temporary visual stack ownership.
+  if(layer&&previous?.layer)try{
+    const current=Number.parseFloat(getComputedStyle(layer).zIndex)||0,under=Number.parseFloat(getComputedStyle(previous.layer).zIndex)||0;
+    if(current<=under){const value=layer.style.getPropertyValue("z-index"),priority=layer.style.getPropertyPriority("z-index"),owned=String(under+1);layer.style.setProperty("z-index",owned,priority);entry.z={value,priority,owned}}
+  }catch{}
+  modalStack.push(entry);if(!options.managed){document.addEventListener("keydown",key,true);document.addEventListener("focusin",contain,true)}modalChanged();
   return()=>{if(released)return;released=true;const top=modalStack.at(-1)===entry,at=modalStack.indexOf(entry);if(at>=0)modalStack.splice(at,1);
     document.removeEventListener("keydown",key,true);document.removeEventListener("focusin",contain,true);
-    if(top){const target=invoker&&invoker.isConnected?invoker:document.getElementById("pg-title");if(target){if(target===document.getElementById("pg-title"))target.setAttribute("tabindex","-1");try{target.focus({preventScroll:true})}catch{}}}};
+    if(entry.z&&layer.style.getPropertyValue("z-index")===entry.z.owned&&layer.style.getPropertyPriority("z-index")===entry.z.priority){if(entry.z.value)layer.style.setProperty("z-index",entry.z.value,entry.z.priority);else layer.style.removeProperty("z-index")}
+    modalChanged();
+    if(top&&options.restore!==false){const target=invoker&&invoker.isConnected?invoker:document.getElementById("pg-title");if(target){if(target===document.getElementById("pg-title"))target.setAttribute("tabindex","-1");try{target.focus({preventScroll:true})}catch{}}}};
 }
 let dialogId=0;
 
@@ -253,10 +266,10 @@ function issuer(){
     return{name:String(p.firm||"").trim()||"المراجعة والمراجعة المالية",ids:[p.license?"ترخيص رقم "+esc(p.license):"",p.city?esc(p.city):""].filter(Boolean)}}
   const o=org();return{name:o.biz||"أغنام الوادي",ids:[o.vatNo?"الرقم الضريبي "+esc(o.vatNo):"",o.crNo?"السجل التجاري "+esc(o.crNo):"",o.phone?esc(o.phone):"",o.addr?esc(o.addr):""].filter(Boolean)};
 }
-function letterhead(title){
-  const who=issuer(),o={biz:who.name},base=location.href.replace(/[^/?#]*([?#].*)?$/,"");
+function letterhead(title,identity){
+  const who=identity||issuer(),o={biz:who.name},base=location.href.replace(/[^/?#]*([?#].*)?$/,"");
   const ids=who.ids;
-  const date=esc(new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"}));
+  const date=identity?esc(identity.date):esc(new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"}));
   if(kosifLook())return '<header class="skp-lux"><div class="skp-band"><img src="'+base+'art/sqc-mark.svg" alt=""><div class="skp-mark"><b>SQC</b><span>'+esc(o.biz||"أغنام الوادي")+'</span></div>'+
     '<div class="skp-doc"><b>'+esc(title||"")+'</b><span>'+date+'</span></div></div>'+(ids.length?'<div class="skp-ids">'+ids.map(x=>'<span>'+x+'</span>').join("")+'</div>':'')+'</header>';
   return '<div class="skp-orn" style="background-image:url('+base+'art/ornament.svg)"></div><header class="skp-head"><img src="'+base+'art/ram.svg" alt=""><div class="skp-org"><b>'+esc(o.biz||"أغنام الوادي")+'</b>'+(ids.length?'<span>'+ids.join(" · ")+'</span>':'')+'</div>'+
@@ -302,7 +315,7 @@ function previewBar(w,d){
   /* features add their own styles after brandPrint: the options stay last */
   setTimeout(apply,60);w.addEventListener&&w.addEventListener("load",apply);
 }
-function brandPrint(w,title){
+function brandPrint(w,title,identity){
   try{
     const d=w.document;if(!d||!d.body)return;
     d.querySelectorAll("style").forEach(x=>x.remove());
@@ -310,8 +323,8 @@ function brandPrint(w,title){
     const f=d.createElement("link");f.rel="stylesheet";f.href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Montserrat:wght@800&display=swap";(d.head||d.documentElement).appendChild(f);
     d.documentElement.setAttribute("dir","rtl");
     if(title&&!d.title)d.title=title;
-    d.body.insertAdjacentHTML("afterbegin",letterhead(title||d.title));
-    const pr=preparer();d.body.insertAdjacentHTML("beforeend",'<footer class="skp-foot">'+esc(issuer().name)+' · صدر من '+'SQC — Smart Quality Control · AI-Powered Audit &amp; Assurance'+(pr?' · أعدّه: '+esc(pr):'')+'</footer>');
+    d.body.insertAdjacentHTML("afterbegin",letterhead(title||d.title,identity));
+    const pr=identity?identity.preparer:preparer();d.body.insertAdjacentHTML("beforeend",'<footer class="skp-foot">'+esc(identity?identity.name:issuer().name)+' · صدر من '+'SQC — Smart Quality Control · AI-Powered Audit &amp; Assurance'+(pr?' · أعدّه: '+esc(pr):'')+'</footer>');
     /* in the app's own preview (SK.output) the toolbar lives outside the page */
     if(w.__skEmbedded){if(window.SKCharts&&d.querySelector(".skch-fig,.skch,.skhb")){const cs=d.createElement("style");cs.id="sk-print-charts";cs.textContent=SKCharts.printCSS;(d.head||d.documentElement).appendChild(cs)}
       setTimeout(()=>SK.output&&SK.output.css(d),0);return}
@@ -326,7 +339,7 @@ function brandPrint(w,title){
 
 function askJev(opts){save("skosif_jev_draft",opts||{});if(core())core().go("jev")}
 
-window.SK={$,$$,esc,num,load,save,money,pct,toast,view,redact,askJev,icon,icons:ICONS,download,
+window.SK={$,$$,esc,num,load,save,onSave,money,pct,toast,view,redact,askJev,icon,icons:ICONS,download,
   confirm:confirmDialog,notify,form:formDialog,modalFocus,brandPrint,org,
   print:Object.freeze({options:popts,set:(k,v)=>{const x=popts();x[k]=v;save(PKEY,x)},css:optCSS}),
   csv:Object.freeze({cell:safeCell,build:csv,download:downloadCsv}),

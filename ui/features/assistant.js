@@ -277,9 +277,15 @@ function build(){
   panel.addEventListener("keydown",e=>{if(e.key==="Escape"){e.stopPropagation();toggle(false)}});
   return panel;
 }
+const outputActive=()=>!!document.querySelector(".skout,.skpres");
+let focusTimer=0;
 function toggle(on){
-  build();const open=on===undefined?panel.hidden:on;panel.hidden=!open;document.body.classList.toggle("ska-open",open);
-  if(open){paint();setTimeout(()=>$("textarea",panel).focus(),30)}
+  const open=on===undefined?(!panel||panel.hidden):!!on;
+  // This nonmodal drawer deliberately yields to report/preview modal workflows.
+  if(open&&outputActive())return;
+  clearTimeout(focusTimer);if(!panel&&!open)return;
+  build();panel.hidden=!open;document.body.classList.toggle("ska-open",open);
+  if(open){paint();focusTimer=setTimeout(()=>{if(panel&&!panel.hidden&&!outputActive())$("textarea",panel).focus()},30)}
 }
 addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&(e.code==="KeyJ"||e.key.toLowerCase()==="j")){e.preventDefault();toggle()}});
 function boot(){if(document.body)build()}

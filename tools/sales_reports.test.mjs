@@ -26,47 +26,14 @@ const riyal=h=>nf0.format(Math.round(h/100))+' ر.س';
 const hub=calls=>({SKEngines,SKosifSalesIntel:{snapshot:async(period='90')=>{calls.push(period);return engine(period)}}});
 const salesSection=html=>{const a=html.indexOf('<h2>ذكاء المبيعات</h2>');return a<0?'':html.slice(a,html.indexOf('</section>',a))};
 
-test('pack: a 6-month pack prints the hub engine numbers for the last 90 days',async()=>{
-  const calls=[],r=await render(pack,fixture('populated'),'kosif','light',hub(calls)),res=engine('90'),sec=salesSection(r.html);
-  assert.deepEqual(calls,['90']);
-  assert.ok(headings(r.html).includes('ذكاء المبيعات'));
-  assert.ok(headings(r.html).indexOf('ذكاء المبيعات')>headings(r.html).indexOf('اتجاهات المبيعات والمشتريات'),'after the trend section');
-  assert.ok(sec.includes(riyal(res.kpis.revenue.cur)),'net revenue');
-  assert.ok(sec.includes(res.period.from)&&sec.includes(res.period.to),'period dates');
-  assert.ok(sec.includes(res.health.score+' / 100'));
-  const t=tables(sec);
-  assert.equal(t.length,2,'recommendations and follow-up tables');
-  assert.equal(t[0].length-1,Math.min(6,res.recs.length));
-  assert.deepEqual(t[1].slice(1).map(row=>row[0]),[...res.followup.slice(0,10).map(c=>c.name)]);
-  assert.ok(res.followup.some(c=>c.id==='c6'),'the stopped customer is followed up');
-  assert.ok(!/05\d{8}|9665\d{8}/.test(sec),'a board document carries no phone numbers');
+for(const range of [6,12])test(`pack: legacy ${range}-month choice cannot invoke unbound sales aggregates`,async()=>{
+ const calls=[],f=fixture('populated');f.stores.skosif_report_pack_v1.range=range;
+ const r=await render(pack,f,'kosif','light',hub(calls)),sec=salesSection(r.html);
+ assert.deepEqual(calls,[]);assert.match(sec,/غير متاح/);assert.match(r.html,/2026-01-01/);assert.match(r.html,/2026-12-31/);
+ assert.equal(tables(sec).length,0);assert.doesNotMatch(sec,/05\d{8}|9665\d{8}/);
 });
-
-test('pack: a 12-month pack compares the last 12 months',async()=>{
-  const calls=[],f=fixture('populated');f.stores.skosif_report_pack_v1.range=12;
-  const r=await render(pack,f,'kosif','light',hub(calls));
-  assert.deepEqual(calls,['365']);
-  assert.ok(salesSection(r.html).includes(riyal(engine('365').kpis.revenue.cur)));
-});
-
-test('pack: an unticked sales section is neither computed nor printed',async()=>{
-  const calls=[],f=fixture('populated',sections);f.stores.skosif_report_pack_v1.seen=[...sections,'sales'];
-  const r=await render(pack,f,'kosif','light',hub(calls));
-  assert.deepEqual(calls,[]);assert.ok(!headings(r.html).includes('ذكاء المبيعات'));
-  assert.match(r.controls,/value="sales"> ذكاء المبيعات/);
-});
-
-test('pack: without the sales hub the pack is unchanged and has no sales heading',async()=>{
-  const r=await render(pack,fixture('populated'));
-  assert.ok(!headings(r.html).includes('ذكاء المبيعات'));
-});
-
-test('pack: no sales yet adds no section, so the pack is unchanged',async()=>{
-  const extra={SKEngines,SKosifSalesIntel:{snapshot:async p=>S.salesInsights([],[],{period:p})}};
-  const r=await render(pack,fixture('populated'),'kosif','light',extra),base=await render(pack,fixture('populated'));
-  assert.ok(!headings(r.html).includes('ذكاء المبيعات'));
-  assert.equal(r.html,base.html,'identical to a pack without the sales hub');
-});
+test('pack: unticked sales section is neither consulted nor printed',async()=>{const calls=[],f=fixture('populated',sections);f.stores.skosif_report_pack_v1.seen=[...sections,'sales'];const r=await render(pack,f,'kosif','light',hub(calls));assert.deepEqual(calls,[]);assert.ok(!headings(r.html).includes('ذكاء المبيعات'));assert.match(r.controls,/value="sales"> ذكاء المبيعات/)});
+test('pack: missing or empty sales hub remains explicitly unavailable',async()=>{for(const extra of [{},{SKEngines,SKosifSalesIntel:{snapshot:async()=>{assert.fail('unbound hub must not run')}}}]){const r=await render(pack,fixture('populated'),'kosif','light',extra);assert.match(salesSection(r.html),/غير متاح/);assert.equal(tables(salesSection(r.html)).length,0)}});
 
 test('pack: an older saved choice gains the new sections but keeps what the owner unticked',async()=>{
   const f=fixture('populated');f.stores.skosif_report_pack_v1={range:6,sections:['summary','trend','findings','decisions','tasks','signoff'],reviewer:'',approver:''};
