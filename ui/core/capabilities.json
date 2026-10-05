@@ -80,6 +80,7 @@
     "catalog",
     "commerce",
     "customers",
+    "customerflow",
     "offers",
     "inventory",
     "suppliers",
@@ -170,6 +171,7 @@
     "catalog",
     "commerce",
     "customers",
+    "customerflow",
     "offers",
     "smartmatch",
     "cash",
@@ -512,6 +514,33 @@
     "salesintel",
     "b2bcredit",
     "offers"
+   ]
+  },
+  {
+   "id": "customerflow",
+   "label": "استوديو العميل",
+   "sub": "العميل في المنتصف: الطلبات والمدفوعات والمنتجات من جهة، والشريحة والإيقاع والقيمة والذمم والمتابعة من الجهة الأخرى — بأرقام محركاتها",
+   "group": "customer",
+   "hub": "customers",
+   "tier": "CORE",
+   "module": "ui/features/customer-flow.js + components/studio.js",
+   "data": [
+    "IDB customers",
+    "IDB sales_lines",
+    "IDB orders",
+    "IDB payments",
+    "skosif_followup_v1",
+    "skosif_customer_flow_v1"
+   ],
+   "legacy": "تعميم «استوديو المنتج» (البند E من برنامج الشركة أولاً)",
+   "decision": "New",
+   "kw": "استوديو العميل خريطة العميل rfm إيقاع الشراء ذمم متابعة customer studio",
+   "adv": false,
+   "en": "Customer Studio",
+   "feeds": [
+    "followup",
+    "receivables",
+    "commerce"
    ]
   },
   {
