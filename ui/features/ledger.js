@@ -69,6 +69,17 @@ async function reviewDraft(d){
       window.SKosifCompanyPlatform?.addStandardTrace?.({operation:"journal-draft-review",standard:standards.join(", "),source:"deterministic mapping + AI suggestion",result:ai,provider:SKosifAI.provider(),approved:false});
     }catch(err){ai="تعذر فحص AI: "+String(err.message||err)}
   }
+  try{
+    const cp=window.SKosifCompanyPlatform,aiRan=!!(window.SKosifAI&&SKosifAI.ready()&&!/^لم يُشغّل AI/.test(ai)),sig=entry.lines.map(l=>[l.accountId,l.debit,l.credit].join(":")).join("|");
+    if(cp&&(issues.length||aiRan))cp.addAIException({
+      source:"journal-draft-review",sourceId:[entry.date,entry.reference,entry.memo,sig].join("|"),
+      dedupeKey:["journal-draft-review",entry.date,entry.reference,entry.memo,sig].join("|"),
+      title:issues.length?"قيد يحتاج تصحيح قبل الحفظ":"ملاحظة AI على قيد مسودة",
+      detail:det+"\n\nتفسير AI:\n"+ai,severity:issues.length?"high":"warning",confidence:issues.length?1:null,
+      evidenceRefs:standards,proposedAction:issues.length?"صحّح مشكلات الفحص الحتمي ثم أعد الفحص قبل الحفظ.":"راجع تفسير AI والمستندات ذات الصلة، ثم اقبل أو ارفض الاقتراح يدويًا.",
+      provider:aiRan?SKosifAI.provider():"deterministic",model:aiRan?(SKosifAI.conf()?.model||""):""
+    });
+  }catch(err){console.warn("AI exception queue",err)}
   await SK.form("فحص القيد — اقتراح لا يرحّل ولا يعتمد",[{key:"result",label:"النتيجة",type:"textarea",value:det+"\n\nتفسير AI:\n"+ai}],{ok:"إغلاق",cancel:"إغلاق",message:"الحفظ والترحيل يظلان قرارًا مستقلاً بعد الفحص."});
 }
 
