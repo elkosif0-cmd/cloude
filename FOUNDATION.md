@@ -3,7 +3,7 @@
 >
 > This file defines the non-negotiable product meaning of S.KOSIF.
 > Every human or AI coding agent MUST read this file before planning, editing, refactoring, generating UI, changing architecture, deleting features, or deploying.
-> If another document, old screen, implementation detail, or prior interpretation conflicts with this charter, **this charter wins** unless the user explicitly changes the foundation.
+> This charter defines the unified-platform, security and preservation principles. The latest entry-flow requirements and acceptance plan are its detailed implementation mandate: [docs/PRODUCT_MANDATE_ar.md](docs/PRODUCT_MANDATE_ar.md). Read both. This revision reconciles the owner’s latest three-entry clarification; older four-gateway and company-first descriptions are historical where they conflict. Neither file is proof of completed implementation.
 
 ## 1) الفكرة الأساسية
 
@@ -30,7 +30,7 @@ S.KOSIF **ليس برنامج محاسبة فقط، وليس برنامج مرا
 ## 3) نموذج المنتج
 
 ### 3.1 شاشة الدخول وإدارة الشركات
-أول تجربة للمستخدم تكون اختيار **الشركة / مساحة العمل**.
+أول تجربة للمستخدم تكون اختيار **نوع الدخول: البرنامج المحاسبي الكامل، المراجعة، أو الأدوات المساعدة**. ثم يختار شركة/نموذجًا أو ينشئ شركة داخل المحاسبة؛ أو يختار شركة/ملف مراجعة أو يبدأ باستلام المستندات داخل المراجعة. الأدوات المؤقتة التي لا تقرأ أو تحفظ بيانات شركة يمكن تشغيلها دون شركة؛ بيانات الشركة تتطلب سياقًا وصلاحية قبل الوصول. التقارير والتحليلات خدمات مشتركة داخل المداخل الثلاثة، لا مدخل خارجي رابع.
 
 - تظهر للمستخدم الشركات التي يحق له الدخول إليها.
 - القدرات المشتركة للمنصة يجب أن تكون قابلة للاستخدام مع مختلف الشركات.
@@ -48,7 +48,9 @@ S.KOSIF **ليس برنامج محاسبة فقط، وليس برنامج مرا
 
 بعد ذلك تصبح قدرات المنصة المشتركة متاحة داخل سياق هذه الشركة.
 
-## 4) الأعمدة الرئيسية للمنصة
+## 4) الأعمدة الوظيفية للمنصة
+
+الأقسام A–D التالية قدرات وظيفية وليست أربعة مداخل خارجية. هي تخدم المداخل الثلاثة المحددة في التكليف التفصيلي، مع إعادة استخدام البيانات والمحركات دون نسخ متعارضة.
 
 ### A. نظام محاسبي كامل
 يشمل، بحسب حاجة الشركة، التعريفات المحاسبية، شجرة الحسابات، القيود، الترحيل، الأستاذ، الأرصدة، التسويات، التقارير والقوائم المالية، والتحليلات المرتبطة بها.
@@ -100,7 +102,7 @@ S.KOSIF **ليس برنامج محاسبة فقط، وليس برنامج مرا
 
 قبل أي مهمة تغيّر الكود أو الواجهة أو البيانات أو البنية:
 
-1. اقرأ هذا الملف كاملًا.
+1. اقرأ هذا الملف و[التكليف التفصيلي وخطة القبول](docs/PRODUCT_MANDATE_ar.md).
 2. حدّد أي جزء من المهمة يمس المبادئ أعلاه.
 3. راجع الملفات ذات الصلة في `docs/` وسجل القدرات قبل حذف/استبدال أي وظيفة.
 4. لا تنفّذ تفسيرًا يضيّق المنتج أو يحرفه عن المنصة الموحدة.
@@ -120,4 +122,4 @@ S.KOSIF **ليس برنامج محاسبة فقط، وليس برنامج مرا
 تعتبر المهمة متوافقة عندما تحافظ على **المعنى الموحد للمنصة**، وتضيف أو تحسن قدرة في مكانها الصحيح، وتبقي البيانات والنتائج قابلة للتتبع والتحقق.
 
 ---
-**Canonical priority:** This charter is the first product reference. Older vision/roadmap/rebuild documents provide detail, but cannot override this file unless this file is explicitly updated.
+**Reference hierarchy:** This charter preserves the unified platform, security and capability-preservation foundation; [PRODUCT_MANDATE_ar.md](docs/PRODUCT_MANDATE_ar.md) defines its latest three-entry requirements; [the evidence and acceptance matrix](docs/product/THREE_ENTRY_IMPLEMENTATION_GAPS_AR.md) records tested scope and gaps. Historical documents remain preserved, but their conflicting four-gateway/company-first instructions do not override this reconciled hierarchy. Repository instructions guide participating contributors and agents; they cannot technically force every external agent to read them.

@@ -1,6 +1,6 @@
 # SQC — Smart Quality Control
 
-> **اقرأ أولاً — ملف إلزامي:** [`docs/PRODUCT_MANDATE_ar.md`](docs/PRODUCT_MANDATE_ar.md) — هيكل المنتج الذي طلبه المالك (ثلاثة مداخل)، الحالة الحقيقية، وخطة الإتمام الملزمة. ما يخالفه لا يُدمج.
+> **اقرأ أولاً — ملف إلزامي:** [`docs/PRODUCT_MANDATE_ar.md`](docs/PRODUCT_MANDATE_ar.md) — هيكل المنتج الذي طلبه المالك (ثلاثة مداخل)، متطلبات الهدف وخطة الإتمام M1–M7، مع [مصفوفة أدلة الكود وحدود التنفيذ](docs/product/THREE_ENTRY_IMPLEMENTATION_GAPS_AR.md). التقارير مشتركة داخل المداخل الثلاثة. الالتزام بالوثائق لا يثبت اكتمال التنفيذ.
 
 
 ![SQC — Smart Quality Control · AI-Powered Audit & Assurance Platform](ui/art/sqc-banner.jpg)
@@ -12,10 +12,10 @@ The app was previously named S.kosif / KOSIF; storage keys and file names keep t
 
 - **Any AI provider:** Google Gemini, OpenAI or Anthropic Claude with the user's own key (`audit/ai-providers-engine.ts`,
   `ui/core/ai.js`) runs the review rounds, the reviewers' council, the final report and the report narrative.
-- **The whole research bundle, page by page:** all 12,506 pages of the global financial & audit research bundle are
-  classified into 54 section types; each of the 49 reports' structure and the patterns across them (KAM procedures,
-  principal-risk categories, letter topics, APMs, audit-committee topics, auditor-report elements) live in
-  `reports/global-corpus-engine.ts` and the «الحزمة كاملة» tab of the Global Audit Reference.
+- **Research corpus and reference structures:** `reports/global-corpus-engine.ts` and the «الحزمة كاملة» tab hold
+  corpus metadata and extracted reporting/audit patterns. Historical page, report and section counts are catalog
+  claims, not proof that every page was semantically reviewed or every company model was accepted. Use the
+  per-source coverage/status and the [evidence matrix](docs/product/THREE_ENTRY_IMPLEMENTATION_GAPS_AR.md).
 - **Integrated annual report:** `reports/narrative-engine.ts` + `ui/features/integrated-report.js` write the report to
   that structure — AI-drafted when a key is set, engine-drafted otherwise — check every figure in the prose against the
   company's numbers, and score the report against the bundle. One click runs the whole engagement: round → final
@@ -65,7 +65,7 @@ capability inventory, the new information architecture and the rebuild plan.
   (from the Grand Fusion branch); `node tools/build_engines.mjs` compiles them to `ui/core/engines.js`
   (`window.SKEngines`), and CI checks the compiled file is current.
 - `app/` — the strict TypeScript engines and their tests (run in CI).
-- Navigation: four top-level gateways from `ui/core/capabilities.json`: **البرنامج المحاسبي الكامل · مساعد القوائم والتقارير · نظام المراجعة الذكي · الأدوات المساعدة المستقلة**. The legacy eight domains remain internal studios for compatibility, company scoping and deep links; the sidebar exposes the four gateways only. Hubs keep their ids, permissions and deep links. Company helper snapshots cover selected stores only; audit files, shared tasks/risks, Jev and AI keys are outside those snapshots. Four-gateway navigation does not establish universal company/engagement/document authorization. See `docs/rebuild/FOUR_GATEWAYS_FINANCE_ARCHITECTURE.md` for the evidence and verification limits.
+- Navigation status: the inspected runtime still has four gateway ids in `ui/core/capabilities.json`; this is an implementation gap, not the current product target. The [mandatory product specification](docs/PRODUCT_MANDATE_ar.md) requires three external entries: accounting, audit, and auxiliary tools, with reports shared inside them. Preserve existing capability ids, permissions, company boundaries and deep links during migration. The [older four-gateway architecture](docs/rebuild/FOUR_GATEWAYS_FINANCE_ARCHITECTURE.md) is historical where it conflicts. Company helper snapshots cover selected stores only; they do not prove universal company, engagement, document or conversation isolation.
 
 ## KOSIF Luxe
 
@@ -114,9 +114,11 @@ artwork was generated in Canva and redrawn as vector art):
 
 ## Global research bundle: benchmarks, notes and governance reports
 
-The 12,506-page research bundle (49 annual reports, 10-Ks and 20-Fs from 15 countries, plus 30 official sources) was split
-into 50 parts, read, and turned into working tools; every figure cites its bundle page and is machine-checked against it
-(`docs/research/GLOBAL_RESEARCH_BUNDLE_ar.md`).
+The research corpus supplies report structures, reference facts and benchmark cases. Historical catalog counts and
+page attribution do not establish complete semantic review, full source-model coverage, or independent assurance.
+Verify each fact against its cited source and record missing/partial coverage; see the
+[current evidence matrix](docs/product/THREE_ENTRY_IMPLEMENTATION_GAPS_AR.md). The older research narrative in
+`docs/research/GLOBAL_RESEARCH_BUNDLE_ar.md` is background, not a blanket acceptance certificate.
 
 - **المرجع العالمي للمراجعة** (`auditbench`, in the standards hub): 96 key/critical audit matters by theme and sector, a
   materiality checker against the 7 disclosed cases (including Aramco, SAR 26.25bn = 3.7% of income before tax and zakat),
@@ -148,7 +150,9 @@ in the in-app preview before printing or exporting to PDF, Word, Excel or HTML �
   review, palette actions, and clicking any button or filling any field on the screen. With the user's
   Gemini key it understands free and compound requests by function calling; without it, Arabic commands are
   understood on the device. Destructive steps (delete, clear, lock, restore) always ask first; permissions
-  apply; the chat stays on the device (`skosif_chat_v1`, outside backup and transfer); voice input and read-aloud.
+  apply to the supported actions; voice input and read-aloud are available. Chat history is stored device-wide in
+  `skosif_chat_v1` in the inspected snapshot, and recent messages can enter provider requests. This is a company-context
+  isolation gap under P0, not a claim that conversation data remains only on-device or is separated by company.
 - Theme studio (الإعدادات ← المظهر): typeface (IBM Plex, Tajawal, Cairo, Almarai, Noto Kufi, Readex, Noto
   Naskh, system), text size, accent colour (presets or custom, contrast-corrected for buttons and night),
   corners, high contrast — applied as tokens over any look, so screens, charts and prints follow.
