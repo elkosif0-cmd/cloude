@@ -107,6 +107,30 @@ test('reporting target, result and standard trace remain explicit non-authoritat
   assert.equal(h.api.state().standardTraces.length,1);
 });
 
+test('company lineage links source document to report, MPM and PBC without crossing companies',()=>{
+  const h=harness(),api=h.api,s=api.state();
+  s.documents.push({id:'doc-tb',companyId:'co-a',name:'tb.csv',type:'trial-balance',size:10,sha256:'b'.repeat(64),importedAt:new Date().toISOString()});
+  h.store.set(api.key,structuredClone(s));
+  api.saveReportResult(
+    {rows:[{code:'4000'}],balanced:true,errors:[],unclassified:0,difference:0},
+    {checks:{mappedPct:100,balanced:true,cashTies:null},unmapped:[],keys:{operating:{current:100000,prior:null},profit:{current:70000,prior:null}}},
+    'tb.csv',
+    [{key:'ebitda',ar:'EBITDA',value:120000,prior:null,note:'test',rows:[]}],
+    'doc-tb'
+  );
+  const report=api.state().reporting.lastStatements.reportRunId;
+  assert.ok(api.lineageFor('document','doc-tb').some(x=>x.toType==='report-run'&&x.toId===report));
+  const m=api.registerMpm({name:'EBITDA',sourceKey:'ebitda',nearestSubtotal:'operating',purpose:'تشغيلي',communicationSource:'عرض المستثمرين'});
+  assert.ok(api.lineageFor('mpm',m.id).some(x=>x.fromType==='report-run'&&x.fromId===report));
+  api.requestAuditHandoff('doc-tb');
+  const hand=api.auditHandoffs()[0];api.markAuditHandoff(hand.id,'attached','REQ-7');
+  assert.ok(api.lineageFor('document','doc-tb').some(x=>x.toType==='pbc-request'&&x.toId==='REQ-7'));
+  const companyA=structuredClone(h.store.get(api.key));
+  h.setCompany({id:'co-b',name:'شركة ب',currency:'SAR',country:'SA'});
+  assert.equal(api.lineage().length,0);
+  h.store.set(api.key,companyA);
+});
+
 test('IFRS 18 MPM registry reconciles a candidate to the nearest statement subtotal and requires human approval',()=>{
   const h=harness(),api=h.api;
   api.saveReportResult(
