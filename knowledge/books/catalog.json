@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "description": "Canonical catalog for books and reference material available to S.KOSIF agents.",
+  "books": [],
+  "statuses": {
+    "planned": "Reference planned; file not uploaded yet.",
+    "available": "Reference file is available in the repository.",
+    "external": "Reference is cataloged but stored outside the repository."
+  }
+}
