@@ -118,7 +118,8 @@ try {
 
     /* 5. a shortcut link resumes the last company and opens its screen */
     await page.goto(base + 'index.html?go=tbreview');
-    await page.waitForURL(/app-safe\.html\?go=tbreview/, { timeout: 30000 });
+    /* the app drops ?go= from the address once it has opened the screen, so the query may already be gone */
+    await page.waitForURL(/app-safe\.html/, { timeout: 30000 });
     await settled(page);
     await page.waitForFunction(() => SKosifCore.view() === 'tbreview', null, { timeout: 30000 }).catch(() => {});
     check(`${tag}: a shortcut resumes the last company on its screen`, await page.evaluate(() => SKosifSpace.current().id === 'demo-co' && SKosifCore.view() === 'tbreview'), await page.evaluate(() => SKosifSpace.current().id + ' ' + SKosifCore.view()));

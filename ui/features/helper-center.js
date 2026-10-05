@@ -1,18 +1,13 @@
-/* SQC — Accountant Helper Center.
-   All non-audit operational/accounting utilities live here as helpers, not as part of the audit file.
-   The map is navigation only: opening or using a helper never creates audit evidence automatically. */
+/* SQC — the company map: the studios of the open company (product, customer, supply, books, reports) and the decision node.
+   Every studio is independent of the audit file; the map is navigation only: opening or using a tool never creates audit evidence automatically. */
 (()=>{
 "use strict";
 const {esc}=SK;
 const core=()=>window.SKosifCore;
-const SECTIONS=[
-  {id:"cost",label:"التكاليف والمنتجات",sub:"التكلفة، التسعير، البوكسات والموردون",icon:"productflow",targets:["ptree","productflow","suppliers","purchasing","inventory"]},
-  {id:"sales",label:"المبيعات والعملاء",sub:"الطلبات، العملاء، التحصيل وتحليل الطلب",icon:"commerce",targets:["salesmap","commerce","customers","salesintel","offers"]},
-  {id:"finance",label:"تحليل ومساعدة مالية",sub:"النقد، الذمم، الدفاتر، الحساسية والمخاطر",icon:"ledger",targets:["jesim","ledger","advances","benchmarks","cash","receivables","finance","risklab"]},
-  {id:"recon",label:"المطابقة والبيانات",sub:"مطابقة Excel، المبيعات، الاستيراد والتصدير",icon:"excelrecon",targets:["smartmatch","excelrecon","exports","reports"]},
-  {id:"decision",label:"القرار والذكاء",sub:"Jev، مجلس القرار، الحساسية والملاحظات",icon:"jev",targets:["jev","council","decision","sensitivity","risks"]},
-  {id:"reports",label:"التقارير المساعدة",sub:"التقارير التنفيذية والطباعة والملصقات",icon:"execreports",targets:["execreports","reports","labels","scanner"]}
-];
+/* one node per company studio, read from the registry, plus the decision node; the hubs of a studio are its tools */
+const NOTE={product:"التكلفة، التسعير، البوكسات والتشريح",customer:"الطلبات، العملاء، التحصيل وتحليل الطلب",supply:"المخزون، التتبع، الموردون والشراء",books:"النقد، الذمم، الدفاتر، الحساسية والمخاطر",reports:"التقارير التنفيذية والطباعة والأرشيف"};
+const SECTIONS=()=>[...SK.caps.companyGroups().map(g=>({id:g.id,label:g.label,sub:NOTE[g.id]||"",icon:g.icon,targets:SK.caps.hubsInGroup(g.id).map(c=>c.id)})),
+  {id:"decision",label:"القرار والذكاء",sub:"Jev، مجلس القرار، الحساسية والملاحظات",icon:"jev",targets:["jev","council","decision","sensitivity","risks"]}];
 const firstAllowed=s=>(s.targets.map(id=>SK.caps.get(id)).find(c=>c&&SK.perm.can(c.id))||null);
 function point(s,i){
   const c=firstAllowed(s);if(!c)return"";
@@ -25,15 +20,15 @@ function lines(){
     coords.map(([x,y])=>'<line x1="50" y1="50" x2="'+x+'" y2="'+y+'" marker-end="url(#hd-arrow)"/>').join("")+'</svg>';
 }
 function table(){
-  return SECTIONS.map(s=>{
+  return SECTIONS().map(s=>{
     const caps=s.targets.map(id=>SK.caps.get(id)).filter(c=>c&&SK.perm.can(c.id));
     if(!caps.length)return"";
     return '<section class="card hd-group"><div class="card-h"><div><h3>'+esc(s.label)+'</h3><p>'+esc(s.sub)+'</p></div></div><div class="card-b hd-buttons">'+caps.map(c=>'<button type="button" class="hd-tool" data-hd-go="'+esc(c.id)+'">'+(SK.icons[c.id]||SK.icons.action||"")+'<span><b>'+esc(c.label)+'</b><small>'+esc(c.sub||c.hubLabel||"")+'</small></span></button>').join("")+'</div></section>';
   }).join("");
 }
 function render(root){
-  root.innerHTML='<div class="hd-shell"><section class="card hd-hero"><div><span class="eyebrow">ACCOUNTANT HELPERS</span><h2>أدوات مساعدة للمحاسب</h2><p>التطبيق أساسه المراجعة. هذه الأدوات مستقلة لمساعدة المحاسب في التكلفة والتحليل والمطابقة والقرار؛ استخدامها لا يضيف مستندًا أو دليلاً لملف المراجعة إلا إذا أرفقه المراجع صراحة داخل الارتباط.</p></div><span class="hd-badge">مستقلة عن ملف المراجعة</span></section>'+
-  '<section class="card hd-map"><div class="hd-map-head"><div><h3>خريطة الأدوات</h3><p>اختر المجال من الخريطة؛ كل فرع يقود للأدوات المناسبة.</p></div></div><div class="hd-canvas">'+lines()+'<div class="hd-center"><span>'+(SK.icons.helperdesk||SK.icons.productflow||"")+'</span><b>المحاسب</b><small>أدوات مساعدة</small></div>'+SECTIONS.map(point).join("")+'</div></section>'+
+  root.innerHTML='<div class="hd-shell"><section class="card hd-hero"><div><span class="eyebrow">COMPANY MAP</span><h2>خريطة الشركة</h2><p>كل ما يخص الشركة المفتوحة في خمسة استوديوهات: المنتج والتكلفة، المبيعات والعملاء، المخزون والموردون، المالية والدفاتر، التقارير والبيانات؛ والقرار في عقدة سادسة. العمل فيها لا يضيف مستندًا أو دليلاً لملف المراجعة إلا إذا أرفقه المراجع صراحة.</p></div><span class="hd-badge">مستقلة عن ملف المراجعة</span></section>'+
+  '<section class="card hd-map"><div class="hd-map-head"><div><h3>الاستوديوهات</h3><p>اختر الاستوديو من الخريطة؛ كل فرع يقود إلى أدواته.</p></div></div><div class="hd-canvas">'+lines()+'<div class="hd-center"><span>'+(SK.icons.helperdesk||SK.icons.productflow||"")+'</span><b>الشركة</b><small>خمسة استوديوهات</small></div>'+SECTIONS().map(point).join("")+'</div></section>'+
   '<div class="hd-grid">'+table()+'</div></div>';
   if(root.dataset.hdBound==="1")return;
   root.dataset.hdBound="1";

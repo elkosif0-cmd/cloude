@@ -15,7 +15,7 @@ const rawById=Object.fromEntries(RAW.capabilities.map(c=>[c.id,c]));
 const hubOf=c=>c.hub&&rawById[c.hub]?c.hub:c.id;
 const caps=RAW.capabilities.map(c=>{
   const h=hubOf(c),p=rawById[h];
-  return Object.freeze({...c,primary:!c.adv,groupLabel:(gById[c.group]||{}).label||"",
+  return Object.freeze({...c,primary:!c.adv,groupLabel:(gById[c.group]||{}).label||"",company:!!(c.company||(gById[c.group]||{}).company),
     hub:h,hubLabel:p.hubLabel||p.label,isHub:RAW.capabilities.some(x=>x.hub===c.id)});
 });
 const byId=Object.fromEntries(caps.map(c=>[c.id,c]));
@@ -24,6 +24,9 @@ const members=id=>{const c=byId[id];if(!c)return[];const h=byId[c.hub];return[h,
 SK.caps=Object.freeze({
   all:()=>caps,
   groups:()=>groups,
+  group:gid=>gById[gid]||null,
+  /* the studios of the open company: their screens carry the company bar and the company chooser */
+  companyGroups:()=>groups.filter(g=>g.company),
   get:id=>byId[id]||null,
   inGroup:gid=>caps.filter(c=>c.group===gid),
   /* the menu entries of a domain: one per hub (the parent screen) */
