@@ -213,7 +213,7 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 
 ### TASK CLAUDE-20261006-003 — P5: one company, one set of figures + corpus scorecard and regression matrix
 - Agent: Claude (Lead Development Agent)
-- Status: HANDOFF (PR open; merge deploys production — owner approval)
+- Status: DONE — merged as PR #154 on the owner's explicit instruction in chat on 2026-10-06 («ادمج وكمل»). GitHub jobs were not started (billing); acceptance rests on the local evidence below.
 - Goal: PRODUCT_MANDATE P5 — every bundle company opened from the audit door reaches the corpus replay's results; a per-company scorecard (the auditor's key matters found, materiality against the disclosed figure, report structure) pinned as a regression matrix.
 - Finding that opened the task: on `main` 0 of 47 bundle companies opened from the audit door matched the replay; Allianz, Hon Hai and e& showed materiality ×1000 (bundle-clients rows in thousands under the model's "million" label); Unilever and Sanofi about −30%. Root cause: PR #144 (b92bd4a) reverted PR #134's `ui/features/tb-review.js` changes (verified model + source-only safeguards); `tools/apple_source_*` tests went 9/24 on `main`.
 - Scope: `ui/features/tb-review.js` (replay #134 three-way; bundle companies take the verified model's trial balance/overrides/currency), new tests `tools/corpus_same_results.test.mjs`, scorecard generator + baseline under `docs/registry/corpus/`, workflow wiring.
