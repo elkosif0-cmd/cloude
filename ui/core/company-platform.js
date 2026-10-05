@@ -16,6 +16,7 @@ const TYPES=Object.freeze({
   costCenters:{label:"مراكز التكلفة",icon:"finance"},
   projects:{label:"المشروعات",icon:"operations"},
   units:{label:"وحدات القياس",icon:"labels"},
+  fixedAssets:{label:"الأصول الثابتة",icon:"finance"},
   taxes:{label:"الضرائب",icon:"zatca"}
 });
 const REPORT_TARGETS=Object.freeze({
@@ -60,12 +61,53 @@ function setProfile(input={}){
   return profile();
 }
 function definitions(type){if(!TYPES[type])return[];return state().definitions[type].map(x=>({...x}))}
+const amountMinor=v=>Math.round((Number(v)||0)*100);
+const isoDate=v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v||""))?String(v):"";
 function addDefinition(type,input={}){
   if(!TYPES[type])throw new Error("نوع تعريف غير معروف");
   const name=clean(input.name);if(!name)throw new Error("الاسم مطلوب");
   const s=state(),row={id:uid(type.slice(0,3)),name,code:clean(input.code,48),accountCode:clean(input.accountCode,48),costCenter:clean(input.costCenter,80),unit:clean(input.unit,40),notes:clean(input.notes,500),createdAt:new Date().toISOString()};
   for(const k of ["salePrice","purchasePrice","cost","wastePct","marginPct"])if(input[k]!==undefined&&input[k]!==""&&Number.isFinite(Number(input[k])))row[k]=Number(input[k]);
+  if(type==="fixedAssets"){
+    const cost=Number(input.cost),residual=Number(input.residualValue||0),life=Math.trunc(Number(input.usefulLifeMonths)),start=isoDate(input.inServiceDate||input.acquisitionDate);
+    if(!Number.isFinite(cost)||cost<=0)throw new Error("تكلفة الأصل يجب أن تكون أكبر من صفر");
+    if(!Number.isFinite(residual)||residual<0||residual>cost)throw new Error("القيمة التخريدية يجب أن تكون بين صفر وتكلفة الأصل");
+    if(!Number.isInteger(life)||life<=0||life>1200)throw new Error("العمر الإنتاجي بالأشهر غير صالح");
+    if(!start)throw new Error("تاريخ وضع الأصل في الخدمة مطلوب");
+    Object.assign(row,{cost,residualValue:residual,usefulLifeMonths:life,inServiceDate:start,depreciationMethod:"straight-line",
+      accumAccount:clean(input.accumAccount,48),expenseAccount:clean(input.expenseAccount,48)});
+  }
   s.definitions[type].push(row);commit(s,"definition.add",{type,id:row.id});return row;
+}
+const monthNo=iso=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso||""));return m?(+m[1]*12+(+m[2]-1)):null};
+function assetDepreciation(asset,asOf=new Date().toISOString().slice(0,10)){
+  if(!asset||asset.depreciationMethod!=="straight-line")throw new Error("طريقة الإهلاك غير مدعومة");
+  const start=isoDate(asset.inServiceDate),end=isoDate(asOf);if(!start||!end)throw new Error("تاريخ الإهلاك غير صالح");
+  const cost=amountMinor(asset.cost),residual=amountMinor(asset.residualValue),life=Math.trunc(Number(asset.usefulLifeMonths));
+  if(cost<=0||residual<0||residual>cost||life<=0)throw new Error("بيانات الأصل غير صالحة");
+  const depreciable=cost-residual,startMonth=monthNo(start),endMonth=monthNo(end);
+  let elapsed=end<start?0:Math.max(0,Math.min(life,endMonth-startMonth+1));
+  const accumulated=elapsed>=life?depreciable:Math.round(depreciable*elapsed/life);
+  const before=Math.max(0,elapsed-1),previous=before>=life?depreciable:Math.round(depreciable*before/life);
+  const charge=elapsed?Math.max(0,accumulated-previous):0;
+  return Object.freeze({assetId:asset.id,asOf:end,costMinor:cost,residualMinor:residual,depreciableMinor:depreciable,elapsedMonths:elapsed,
+    usefulLifeMonths:life,remainingMonths:Math.max(0,life-elapsed),accumulatedMinor:accumulated,carryingMinor:cost-accumulated,
+    currentMonthChargeMinor:charge,monthlyApproxMinor:life?Math.round(depreciable/life):0,complete:elapsed>=life});
+}
+function fixedAssetSummary(asOf=new Date().toISOString().slice(0,10)){
+  return definitions("fixedAssets").map(asset=>({...asset,depreciation:assetDepreciation(asset,asOf)}));
+}
+function fixedAssetJournal(asOf=new Date().toISOString().slice(0,10)){
+  const date=isoDate(asOf);if(!date)throw new Error("تاريخ القيد المقترح غير صالح");
+  const proposals=fixedAssetSummary(date).filter(x=>x.depreciation.currentMonthChargeMinor>0).map(asset=>{
+    const amountMinor=asset.depreciation.currentMonthChargeMinor,ready=!!(asset.expenseAccount&&asset.accumAccount);
+    return Object.freeze({assetId:asset.id,assetName:asset.name,date,standard:"IAS 16",method:"straight-line",ready,amountMinor,
+      memo:"إهلاك "+asset.name+" — "+date.slice(0,7),lines:[
+        {accountCode:asset.expenseAccount||"",debitMinor:amountMinor,creditMinor:0},
+        {accountCode:asset.accumAccount||"",debitMinor:0,creditMinor:amountMinor}
+      ]});
+  });
+  return Object.freeze({date,proposals,totalMinor:proposals.reduce((a,x)=>a+x.amountMinor,0),authoritative:false,requiresHumanPosting:true});
 }
 function removeDefinition(type,id){
   if(!TYPES[type])return false;const s=state(),before=s.definitions[type].length;
@@ -180,5 +222,5 @@ function searchCompany(query){
   const limited=hits.slice(0,20),text=limited.length?("نتائج داخل «"+c.name+"»:\n"+limited.map(x=>"• "+x.title+(x.detail?" — "+x.detail:"")).join("\n")):"لم أجد نتيجة مطابقة داخل بيانات الشركة الحالية.";
   return{text,matches:limited};
 }
-window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,definitions,addDefinition,removeDefinition,installed,setTool,reportingTarget,reportingStatus,inferType,ingestFiles,documents,readDocument,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,markAuditHandoff,setAuditHandoffStatus,addStandardTrace,saveReportResult,search:searchCompany});
+window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,definitions,addDefinition,removeDefinition,assetDepreciation,fixedAssetSummary,fixedAssetJournal,installed,setTool,reportingTarget,reportingStatus,inferType,ingestFiles,documents,readDocument,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,markAuditHandoff,setAuditHandoffStatus,addStandardTrace,saveReportResult,search:searchCompany});
 })();
