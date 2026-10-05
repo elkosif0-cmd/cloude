@@ -2,7 +2,7 @@
 
 Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do not edit by hand.
 
-Total capabilities: **77** (screens). Cross-cutting capabilities are listed after the table.
+Total capabilities: **78** (screens). Cross-cutting capabilities are listed after the table.
 
 | ID | Capability | Module | Current Location | Data Used | Dependencies | Status | Keep/Remove/Merge/Rebuild |
 |---|---|---|---|---|---|---|---|
@@ -64,6 +64,7 @@ Total capabilities: **77** (screens). Cross-cutting capabilities are listed afte
 | `exports` | مركز التصدير | ui/features/workspace.js | مساعد القوائم والتقارير › التقارير والبيانات › الطباعة والتصدير › يومي | `كل المفاتيح` | SKosifCore | Working | Rebuild |
 | `archive` | الأرشيف والتغييرات | core | مساعد القوائم والتقارير › التقارير والبيانات › الأرشيف والأنظمة الأصلية › يومي | `aghnam-pricing-v3`, `IDB pricing_snapshots` | SKosifCore, Engine, IndexedDB | Working | Keep |
 | `tbreview` | ملف المراجعة | ui/features/tb-review.js + ui/features/report-docs.js + ui/features/integrated-report.js + ui/core/ai.js + ui/components/xlsx.js + SKEngines.audit.{tbReview,aiReview,aiProviders,documentCheck,governance,fieldwork} + ui/features/tb-fieldwork.js + SKEngines.reports.{tbImport,statements,analysis,notes,peerBenchmarks,narrative,globalCorpus} | نظام المراجعة الذكي › المراجعة والمراجعة المالية › مركز المراجعة › يومي | `skosif_tbreview_v1`, `IDB skosif-tbreview-docs`, `skosif_ai_keys (الجهاز فقط)` | SKosifCore, IndexedDB | Working | Rebuild |
+| `auditinbox` | صندوق استلام المراجعة | ui/features/audit-inbox.js + ui/core/company-platform.js | نظام المراجعة الذكي › المراجعة والمراجعة المالية › مركز المراجعة › يومي | `skosif_company_platform_v1`, `IDB skosif-company-documents-v1` | SKosifCore, IndexedDB | Working | New |
 | `codex` | المدونة المحاسبية والمعايير | ui/features/codex.js + SKEngines.audit.{codex,standardsUpdate} | نظام المراجعة الذكي › المراجعة والمراجعة المالية › المعايير والمدونة › يومي | `skosif_codex_updates_v1` | SKosifCore | Working | Rebuild |
 | `auditbench` | المرجع العالمي للمراجعة | ui/features/audit-bench.js + SKEngines.audit.{globalBenchmarks,materiality} + SKEngines.reports.{peerBenchmarks,globalCorpus} | نظام المراجعة الذكي › المراجعة والمراجعة المالية › المعايير والمدونة › يومي | `لا بيانات محلية — مرجع ثابت من حزمة البحث العالمية` | SKosifCore | Working | Rebuild |
 | `corpuslab` | مختبر الشركات العالمية | ui/features/corpus-lab.js + SKEngines.reports.corpusCompanies + SKEngines.audit.{corpusReplay,openingRequests,globalBenchmarks} | نظام المراجعة الذكي › المراجعة والمراجعة المالية › المعايير والمدونة › يومي | `لا بيانات محلية — القوائم المنشورة من حزمة البحث العالمية` | SKosifCore | Working | Rebuild |
