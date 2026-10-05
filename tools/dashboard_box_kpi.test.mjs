@@ -1,5 +1,6 @@
+import {fileURLToPath} from "node:url";
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';import zlib from 'node:zlib';import vm from 'node:vm';
-const owner=path.resolve(path.dirname(new URL(import.meta.url).pathname),'..');
+const owner=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const root=process.env.KPI_SOURCE_ROOT||(fs.existsSync(path.join(owner,'candidate-main'))?path.join(owner,'candidate-main'):owner);
 const read=f=>fs.readFileSync(path.join(root,f),'utf8');
 function payload(){const dir=path.join(root,'payload');return zlib.gunzipSync(Buffer.from(fs.readdirSync(dir).filter(f=>/^index.html.gz.b64.part/.test(f)).sort().map(f=>fs.readFileSync(path.join(dir,f),'utf8').trim()).join(''),'base64')).toString()}
