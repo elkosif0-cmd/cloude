@@ -69,6 +69,15 @@ function setPeriod(periodId){
   d.rest.active={companyId:cur.id};if(periodId)d.rest.active.periodId=periodId;save(CO,d.rest);
   SK.bus&&SK.bus.emit("company",d.rest.active);return true;
 }
+function updateMeta(patch={}){
+  const cur=current(),d=books(),country=clean(patch.country||cur.country||"SA").toUpperCase().slice(0,3),currency=clean(patch.currency||cur.currency||"SAR").toUpperCase().slice(0,3);
+  let found=false;
+  d.rest.companies=d.companies.map(c=>{if(c.id!==cur.id)return c;found=true;return{...c,country,currency}});
+  if(!found)d.rest.companies.push({id:cur.id,name:cur.name,country,currency});
+  if(save(CO,d.rest)!==true)return false;
+  SK.bus&&SK.bus.emit("company",{companyId:cur.id,country,currency});
+  return true;
+}
 /* make the books and the business name follow the open company; returns what it changed */
 /* the unnamed data of a brand-new device (space «space-main» before any company was chosen) is provisional: the demo
    company or the owner's first company names it; registering it in the books would hide the demo company's own record */
@@ -97,5 +106,5 @@ async function boot(){
   SK.bus.emit("company",{companyId:current().id});
 }
 boot();
-SK.company=Object.freeze({current,list,open,create,rename,setPeriod,reconcile,provisional,ready:()=>ready,DEMO});
+SK.company=Object.freeze({current,list,open,create,rename,setPeriod,updateMeta,reconcile,provisional,ready:()=>ready,DEMO});
 })();
