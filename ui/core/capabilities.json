@@ -1,5 +1,5 @@
 {
- "version": 2,
+ "version": 3,
  "note": "Single source of truth for SQC screens. User-facing navigation is organized under four gateways: the complete accounting program, financial statements & reporting assistant, intelligent multi-round audit system, and independent helper tools. The legacy eight groups remain as internal studios/subgroups for compatibility, company scoping and deep links. Command palette, permissions and rebuild docs are generated from this registry.",
  "tiers": {
   "CORE": "العمل اليومي الأساسي",
@@ -120,7 +120,9 @@
     "council",
     "followup",
     "tbreview",
-    "codex"
+    "codex",
+    "masterdata",
+    "reportingintake"
    ],
    "actions": [
     "view",
@@ -1363,6 +1365,28 @@
    "gateway": "accounting"
   },
   {
+   "id": "reportingintake",
+   "label": "استلام البيانات وإعداد القوائم",
+   "sub": "رفع ميزان المراجعة والدفاتر والمبيعات والمشتريات والمخزون والبنوك وبقية مصادر الشركة وتحديد الناقص قبل إعداد القوائم والتقارير",
+   "group": "reports",
+   "tier": "CORE",
+   "module": "ui/core/company-platform.js + ui/features/reporting-intake.js + SKEngines.reports.{tbImport,statements}",
+   "data": [
+    "skosif_company_platform_v1",
+    "IDB skosif-company-documents-v1"
+   ],
+   "legacy": "التصور الموحد 2026 — مساعد إعداد القوائم من بيانات خارجية",
+   "decision": "New",
+   "kw": "استلام بيانات رفع ميزان مراجعة دفتر أستاذ ملفات excel csv pdf قوائم مالية reporting assistant intake",
+   "adv": false,
+   "en": "Reporting Intake",
+   "feeds": [
+    "execreports",
+    "tbreview"
+   ],
+   "gateway": "reporting"
+  },
+  {
    "id": "execreports",
    "label": "التقارير التنفيذية",
    "sub": "تقارير الدخل والهدر والضريبة وإقفال نهاية اليوم للإدارة",
@@ -1741,8 +1765,34 @@
    "adv": false,
    "en": "Companies & Periods",
    "feeds": [
+    "masterdata",
     "ledger",
     "tbreview"
+   ],
+   "gateway": "accounting",
+   "hubLabel": "إعداد الشركة والتعريفات"
+  },
+  {
+   "id": "masterdata",
+   "label": "التعريفات",
+   "sub": "المنتجات والخدمات والعملاء والموردون والموظفون والفروع والمخازن ومراكز التكلفة والمشروعات ووحدات القياس والضرائب",
+   "group": "home",
+   "hub": "companies",
+   "tier": "CORE",
+   "module": "ui/core/company-platform.js + ui/features/master-data.js",
+   "data": [
+    "skosif_company_platform_v1"
+   ],
+   "legacy": "التصور الموحد 2026 — تعريفات الشركة قبل التسجيل المحاسبي",
+   "decision": "New",
+   "kw": "تعريفات شركة منتجات خدمات عملاء موردين موظفين فروع مخازن مراكز تكلفة مشاريع وحدات قياس ضرائب master data",
+   "adv": false,
+   "en": "Master Data",
+   "feeds": [
+    "ledger",
+    "productflow",
+    "customers",
+    "suppliers"
    ],
    "gateway": "accounting"
   },
