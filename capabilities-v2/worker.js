@@ -386,7 +386,7 @@ async function archiveWorkspace(request,env,auth,id) {
     db.prepare("UPDATE workspaces SET status='archived',archived_at=?1 WHERE id=?2 AND tenant_id=?3 AND archived_at IS NULL").bind(at,id,tenantId),
     db.prepare("INSERT INTO audit_log (workspace_id,actor,action,payload_json,at,canonical_version,prev_hash,entry_hash) VALUES (?1,?2,'workspace.archived',?3,?4,?5,?6,?7)").bind(id,auth.subject,log.payloadJson,at,CANONICAL_VERSION,log.prevHash,log.entryHash),
   ]);
-  return jsonResponse({workspace:await workspaceForTenant(db,id,auth.tenantId),idempotent:false});
+  return jsonResponse({workspace:await workspaceForTenant(db,id,tenantId),idempotent:false});
 }
 async function integrityStatus(env,auth,id) {
   const db=requireDatabase(env),tenantId=auth.workspaceTenantId||auth.tenantId;
