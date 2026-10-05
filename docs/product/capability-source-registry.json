@@ -1690,5 +1690,18 @@
     "standards-aware-journal-draft-review",
     "77-capability-registry",
     "server-workspace-security-explicit-access-and-sharing-acl"
-  ]
+  ],
+  "external_backlog": {
+    "file": "docs/product/EXTERNAL_CAPABILITY_BACKLOG_2026_AR.md",
+    "status": "proposal-only",
+    "sources": [
+      "IFRS Foundation",
+      "ZATCA",
+      "BlackLine",
+      "Workiva",
+      "Caseware",
+      "DataSnipper",
+      "MindBridge"
+    ]
+  }
 }
