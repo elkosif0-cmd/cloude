@@ -26,7 +26,10 @@ const enc=new TextEncoder();
 const nf=new Intl.NumberFormat("ar-SA-u-nu-latn",{maximumFractionDigits:2});
 const money=v=>nf.format(Number(v)||0)+" ر.س";
 const now=()=>new Date().toISOString();
-const cfg=()=>load(CFG_KEY,{apiBase:"",workspaceId:""});
+const companyRef=()=>window.SK&&SK.company&&SK.company.current?SK.company.current():{id:"default",name:"SQC",currency:"SAR"};
+const cfg=()=>{const c=load(CFG_KEY,{apiBase:"",workspaceIds:{}})||{};if(!c.workspaceIds||typeof c.workspaceIds!=="object")c.workspaceIds={};return c};
+const workspaceIdFor=(c=cfg())=>c.workspaceIds?.[companyRef().id]||"";
+const setWorkspaceId=(c,id)=>{c.workspaceIds={...(c.workspaceIds||{}),[companyRef().id]:id};save(CFG_KEY,c);return id};
 const rolePreview=()=>load(ROLE_KEY,"owner");
 const authorizeRole=(role,permission)=>Boolean(PERMISSIONS[role]?.includes(permission));
 
@@ -130,13 +133,13 @@ async function remoteSession(){return api("/api/capabilities-v2/session")}
 async function remoteProviders(){return api("/api/capabilities-v2/providers")}
 async function listRemote(){return api("/api/capabilities-v2/workspaces")}
 async function ensureRemoteWorkspace(){
-  let c=cfg(),id=c.workspaceId;
-  if(id)return id;
-  const list=await listRemote(),first=(list.workspaces||[]).find(x=>!x.archived_at);
-  if(first){c.workspaceId=first.id;save(CFG_KEY,c);return first.id}
-  const name=(document.querySelector("#biz-name")?.textContent||"SQC").trim();
-  const d=await api("/api/capabilities-v2/workspaces",{method:"POST",body:JSON.stringify({name,business_year:new Date().getFullYear(),currency:"SAR",schema_version:"skosif-v3",effective_at:now(),sensitive:name.replace(/\\s+/g,"")==="تصيف"})});
-  c.workspaceId=d.workspace.id;save(CFG_KEY,c);return c.workspaceId;
+  const c=cfg(),known=workspaceIdFor(c);
+  if(known)return known;
+  const company=companyRef(),name=String(company.name||document.querySelector("#biz-name")?.textContent||"SQC").trim(),year=new Date().getFullYear(),currency=String(company.currency||"SAR").toUpperCase();
+  const list=await listRemote(),match=(list.workspaces||[]).find(x=>!x.archived_at&&String(x.name||"").replace(/\s+/g,"")===name.replace(/\s+/g,"")&&Number(x.business_year)===year&&String(x.currency||"").toUpperCase()===currency);
+  if(match)return setWorkspaceId(c,match.id);
+  const d=await api("/api/capabilities-v2/workspaces",{method:"POST",body:JSON.stringify({name,business_year:year,currency,schema_version:"skosif-v3",effective_at:now(),sensitive:name.replace(/\s+/g,"")==="تصيف"})});
+  return setWorkspaceId(c,d.workspace.id);
 }
 async function pushRemote(){
   const id=await ensureRemoteWorkspace(),current=await api("/api/capabilities-v2/workspaces/"+encodeURIComponent(id)+"/state"),base=current.workspace?.revision||0;
@@ -236,8 +239,8 @@ function bind(){
   const rr=$("#skv2-role",root);if(rr)rr.onchange=()=>{save(ROLE_KEY,rr.value);toast("تم تغيير دور المعاينة","info");paint()};
   const ir=$("#skv2-integrity-run",root);if(ir)ir.onclick=async()=>{const r=await verifyLocal(),box=$("#skv2-integrity-result",root);box.innerHTML='<div class="'+(r.valid?"skv2-okbox":"skv2-badbox")+'"><b>'+(r.valid?"السلسلة سليمة":"السلسلة غير سليمة")+'</b><span>'+(r.valid?("عدد الأحداث "+r.entries+" · head "+esc((r.head_hash||"").slice(0,24))+"…"):("الكسر عند #"+r.broken_seq))+'</span></div>'};
   const ac=$("#skv2-audit-csv",root);if(ac)ac.onclick=()=>SK.csv.download("SQC-capabilities-v2-audit",["seq","action","at","prev_hash","entry_hash"],localData().audit.map(x=>[x.seq,x.action,x.at,x.prev_hash,x.entry_hash]));
-  const as=$("#skv2-api-save",root);if(as)as.onclick=()=>{let v=$("#skv2-api-base",root).value.trim().replace(/\/+$/,"");if(v&&!/^https:\/\//i.test(v))return toast("عنوان Worker يجب أن يبدأ بـ https://","err");const c=cfg();c.apiBase=v;c.workspaceId="";save(CFG_KEY,c);testRemote()};
-  const clr=$("#skv2-api-clear",root);if(clr)clr.onclick=()=>{save(CFG_KEY,{apiBase:"",workspaceId:""});state.session=null;state.providers=null;state.remoteError="";toast("تم التحويل إلى الوضع المحلي","info");paint()};
+  const as=$("#skv2-api-save",root);if(as)as.onclick=()=>{let v=$("#skv2-api-base",root).value.trim().replace(/\/+$/,"");if(v&&!/^https:\/\//i.test(v))return toast("عنوان Worker يجب أن يبدأ بـ https://","err");const c=cfg();c.apiBase=v;c.workspaceIds={};save(CFG_KEY,c);testRemote()};
+  const clr=$("#skv2-api-clear",root);if(clr)clr.onclick=()=>{save(CFG_KEY,{apiBase:"",workspaceIds:{}});state.session=null;state.providers=null;state.remoteError="";toast("تم التحويل إلى الوضع المحلي","info");paint()};
 }
 function settingsHook(node){
   if(node.querySelector("#skv2-settings-shortcut"))return;
