@@ -127,7 +127,7 @@ try {
     check(`${tag}: a shortcut resumes the last company on its screen`, await page.evaluate(() => SKosifSpace.current().id === 'demo-co' && SKosifCore.view() === 'tbreview'), await page.evaluate(() => SKosifSpace.current().id + ' ' + SKosifCore.view()));
     /* 6. the private company never takes over another company's data: on a device that never held it, opening it
           (simulated here: a preview build has no password page) starts its own empty space */
-    await page.evaluate(() => { sessionStorage.setItem('sqc_company_intent', JSON.stringify({ id: 'co-private', name: 'قصيف', locked: true })); });
+    await page.evaluate(() => { sessionStorage.setItem('sqc_company_intent', JSON.stringify({ id: 'co-private', name: 'تصيف', locked: true })); });
     await page.goto(base + 'app-safe.html');
     await page.waitForFunction(() => window.SKosifSpace && SKosifSpace.current().id === 'space-private', null, { timeout: 60000 }).catch(() => {});
     await settled(page);
