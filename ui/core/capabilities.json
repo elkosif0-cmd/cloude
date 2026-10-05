@@ -600,7 +600,7 @@
     "receivables",
     "ledger"
    ],
-   "gateway": "accounting"
+   "gateway": "tools"
   },
   {
    "id": "offers",
@@ -761,7 +761,7 @@
    "feeds": [
     "inventory"
    ],
-   "gateway": "tools"
+   "gateway": "accounting"
   },
   {
    "id": "suppliers",
@@ -1824,7 +1824,7 @@
     "salesintel"
    ],
    "hub": "archive",
-   "gateway": "tools"
+   "gateway": "reporting"
   }
  ],
  "gateways": [
