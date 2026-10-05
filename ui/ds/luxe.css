@@ -344,7 +344,8 @@ table.sktb-dense td,table.sktb-dense th{padding-block:4px!important;font-size:va
    slide in; buttons answer the press. Opacity and vertical movement only, so nothing ever scrolls sideways.
    prefers-reduced-motion zeroes the durations in tokens.css and disables the keyframes below. */
 @keyframes sk-view-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@keyframes sk-dialog-in{from{opacity:0;transform:translateY(8px) scale(.975)}to{opacity:1;transform:none}}
+/* rise and fade only: a scale would shrink the dialog's controls for an instant (tap targets must measure ≥ 44px at once) */
+@keyframes sk-dialog-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @keyframes sk-toast-in{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
 #view.sk-enter>*,#view.sk-enter>.sk-view>*{animation:sk-view-in var(--sk-motion-enter) var(--sk-ease-out) both;animation-delay:calc(var(--sk-i,0) * var(--sk-motion-stagger))}
 .skd-wrap .skd{animation:sk-dialog-in 300ms var(--sk-ease-spring) both}
