@@ -1,5 +1,8 @@
 # SQC — Smart Quality Control
 
+> **اقرأ أولاً — ملف إلزامي:** [`docs/PRODUCT_MANDATE_ar.md`](docs/PRODUCT_MANDATE_ar.md) — هيكل المنتج الذي طلبه المالك (ثلاثة مداخل)، الحالة الحقيقية، وخطة الإتمام الملزمة. ما يخالفه لا يُدمج.
+
+
 ![SQC — Smart Quality Control · AI-Powered Audit & Assurance Platform](ui/art/sqc-banner.jpg)
 
 **SQC — Smart Quality Control** · منصة المراجعة والتأكيد المدعومة بالذكاء الاصطناعي (AI-Powered Audit & Assurance Platform).
