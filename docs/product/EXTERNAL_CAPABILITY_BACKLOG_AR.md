@@ -37,7 +37,7 @@
 
 | القدرة المقترحة | الموجود | الفجوة | قرار |
 |---|---|---|---|
-| **Fixed assets register + depreciation** | حسابات PPE وإهلاك في القوائم والمراجعة | سجل أصل تفصيلي، useful life/residual/method، depreciation schedule، disposal/impairment، journal proposal | **Build** داخل accounting، القيد اقتراح حتى اعتماد المستخدم |
+| **Fixed assets register + depreciation** | **منفذ أساسه:** سجل أصل، تاريخ الخدمة، cost/residual/useful life، قسط ثابت، مجمع وقيمة دفترية، وقيد شهري مقترح بلا ترحيل تلقائي | المتبقي: disposal/retirement، impairment، componentisation، تغيير العمر/القيمة كتغيير تقدير، وroll-forward متقدم | **Extend** الأساس المنفذ |
 | **Multi-currency / FX** | عملة أساسية للشركة | transaction currency، rates، realized/unrealized FX، account rate types، remeasurement/translation | **Build later** بعقد بيانات مستقل قبل لمس ledger |
 | **Consolidation / intercompany** | شركات منفصلة فقط | parent/subsidiary tree، ownership، eliminations، CTA، intercompany matching، group FS | **Build after FX** |
 | **Continuous reconciliation / exception workbench** | bank recon، subledger recon، revenue recon، month-close checklist وperiod lock موجودة | تشغيل دوري/مستمر، owner/SLA، exception queue، certifier/reviewer، historical rec roll-forward | **Extend** الموجود؛ لا يُبنى من الصفر |
