@@ -43,13 +43,20 @@ async function registerSuggestedMpm(key,root){
   if(!v)return;
   try{CP().registerMpm({name:m.name,sourceKey:m.key,purpose:v.purpose,communicationSource:v.communicationSource,nearestSubtotal:v.nearestSubtotal,method:m.note});toast("سُجل المقياس كمسودة IFRS 18","ok");paint(root)}catch(err){toast(err.message,"bad")}
 }
+function lineageHTML(){
+  const rows=CP().lineage(30);if(!rows.length)return "";
+  const label=t=>({"document":"مستند","report-run":"تشغيل قوائم","mpm":"MPM","audit-handoff":"تسليم مراجعة","pbc-request":"طلب PBC"}[t]||t);
+  return '<section class="card"><div class="card-h"><div><h3>سجل التتبع</h3><p>روابط مصدر → نتيجة داخل الشركة الحالية. هذا السجل لا يعتمد النتيجة؛ يثبت فقط من أين جاءت وإلى أين انتقلت.</p></div><span class="sk-pill">'+rows.length+' رابط</span></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>من</th><th>العلاقة</th><th>إلى</th><th>الوقت</th></tr></thead><tbody>'+
+    rows.slice().reverse().map(x=>'<tr><td>'+esc(label(x.fromType))+'<small>'+esc(x.fromId)+'</small></td><td>'+esc(x.relation)+(x.sourceHash?'<small>SHA '+esc(x.sourceHash.slice(0,12))+'</small>':'')+'</td><td>'+esc(label(x.toType))+'<small>'+esc(x.toId)+'</small></td><td class="n">'+esc((x.at||"").slice(0,16).replace("T"," "))+'</td></tr>').join("")+
+    '</tbody></table></div></div></section>';
+}
 function docsHTML(){
   const docs=CP().documents();if(!docs.length)return'<section class="card"><div class="card-b">'+SK.ui.state.empty("لا ملفات مرفوعة","ارفع ملفاتك من البطاقة أعلاه.")+'</div></section>';
   return '<section class="card"><div class="card-h"><div><h3>مصادر الشركة</h3><p>كل ملف يحمل نوعًا وبصمة ومصدرًا. الإرسال للمراجعة اختياري وصريح.</p></div></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الملف</th><th>النوع</th><th>الحجم</th><th>البصمة</th><th></th></tr></thead><tbody>'+
   docs.map(d=>'<tr><td><b>'+esc(d.name)+'</b><small>'+esc(d.importedAt.slice(0,16).replace("T"," "))+'</small></td><td><select data-ri-type="'+d.id+'" aria-label="نوع '+esc(d.name)+'">'+Object.entries(typeLabel).map(([id,label])=>'<option value="'+id+'"'+(id===d.type?' selected':'')+'>'+esc(label)+'</option>').join("")+'</select></td><td class="n">'+Math.ceil(d.size/1024)+' KB</td><td class="n" title="'+esc(d.sha256||"")+'">'+esc((d.sha256||"").slice(0,12)||"—")+'</td><td><button type="button" class="linkish" data-ri-review="'+d.id+'">أرسل للمراجعة</button> · <button type="button" class="linkish danger" data-ri-del="'+d.id+'">حذف</button></td></tr>').join("")+
   '</tbody></table></div></div></section>';
 }
-function paint(root){root.innerHTML=statusHTML()+mpmHTML()+docsHTML()}
+function paint(root){root.innerHTML=statusHTML()+mpmHTML()+docsHTML()+lineageHTML()}
 async function build(root){
   const docs=CP().documents().filter(d=>d.type==="trial-balance"&&/\.(csv|tsv|txt|xlsx)$/i.test(d.name));
   if(!docs.length){toast("ارفع ميزان مراجعة CSV/TXT/XLSX أولًا","warn");return}
@@ -63,7 +70,7 @@ async function build(root){
     if(!tb.balanced){toast("الميزان غير متزن؛ تم التحليل لكن لن نعرضه كقوائم جاهزة للاعتماد","warn")}
     const fs=SKEngines.reports.statements.buildStatements(tb,{}, {tax:CP().profile().taxMode});
     const measures=SKEngines.reports.annualReport&&SKEngines.reports.annualReport.performanceMeasures?SKEngines.reports.annualReport.performanceMeasures(fs):[];
-    CP().saveReportResult(tb,fs,pick.name,measures);paint(root);
+    CP().saveReportResult(tb,fs,pick.name,measures,pick.id);paint(root);
     toast("تم بناء القوائم حتميًا من "+tb.rows.length+" حسابًا","ok");
   }catch(e){toast(e.message||String(e),"bad")}
 }
