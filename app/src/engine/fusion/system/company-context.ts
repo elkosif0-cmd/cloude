@@ -22,7 +22,7 @@ export function selectCompany(companies:Company[],periods:FiscalPeriod[],company
   const company=companies.find((item)=>item.id===companyId)??null;
   if(!company)return {company:null,period:null};
   const companyPeriods=periods.filter((item)=>item.companyId===company.id);
-  const period=(periodId?companyPeriods.find((item)=>item.id===periodId):companyPeriods[0])??null;
+  const period=(periodId?companyPeriods.find((item)=>item.id===periodId):null)??null;
   return {company,period};
 }
 

@@ -24273,7 +24273,7 @@ window.SKEngines = (function() {
 		const companyPeriods = periods.filter((item) => item.companyId === company.id);
 		return {
 			company,
-			period: (periodId ? companyPeriods.find((item) => item.id === periodId) : companyPeriods[0]) ?? null
+			period: (periodId ? companyPeriods.find((item) => item.id === periodId) : null) ?? null
 		};
 	}
 	function validatePeriod(period) {
