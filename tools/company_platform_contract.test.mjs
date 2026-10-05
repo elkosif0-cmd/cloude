@@ -7,6 +7,7 @@ import {webcrypto} from 'node:crypto';
 const source=fs.readFileSync(new URL('../ui/core/company-platform.js',import.meta.url),'utf8');
 const helperSource=fs.readFileSync(new URL('../ui/core/helper-space.js',import.meta.url),'utf8');
 const reportingSource=fs.readFileSync(new URL('../ui/features/reporting-intake.js',import.meta.url),'utf8');
+const auditSource=fs.readFileSync(new URL('../ui/features/tb-review.js',import.meta.url),'utf8');
 
 function harness(){
   const store=new Map(),events=[],audit=[];
@@ -56,6 +57,21 @@ test('independent tools must come from the tools gateway',()=>{
   assert.throws(()=>h.api.setTool('ledger',true),/الأداة ليست ضمن بوابة الأدوات/);
 });
 
+test('reporting-to-audit handoff is explicit and remains pending until attached',()=>{
+  const h=harness(),api=h.api,s=api.state();
+  s.documents.push({id:'doc-1',companyId:'co-a',name:'bank.pdf',type:'bank-statement',size:10,sha256:'a'.repeat(64),importedAt:new Date().toISOString()});
+  h.store.set(api.key,structuredClone(s));
+  assert.equal(api.requestAuditHandoff('doc-1'),true);
+  let hand=api.auditHandoffs();
+  assert.equal(hand.length,1);
+  assert.equal(hand[0].status,'pending');
+  assert.equal(hand[0].document.name,'bank.pdf');
+  assert.equal(api.markAuditHandoff(hand[0].id,'attached','PBC-01'),true);
+  hand=api.auditHandoffs();
+  assert.equal(hand[0].status,'attached');
+  assert.equal(hand[0].requestId,'PBC-01');
+});
+
 test('reporting target, result and standard trace remain explicit non-authoritative company state',()=>{
   const h=harness();
   assert.equal(h.api.reportingTarget('cashflow'),true);
@@ -75,10 +91,14 @@ test('company switch snapshots include the unified platform key',()=>{
   assert.match(helperSource,/skosif_company_platform_v1/);
 });
 
-test('reporting intake supports XLSX and checks document ownership before reading bytes',()=>{
+test('reporting intake supports XLSX, ownership checks and explicit audit transfer',()=>{
   assert.match(reportingSource,/SKXlsx\.toTsv/);
   assert.match(reportingSource,/rec\.companyId!==SK\.company\.current\(\)\.id/);
   assert.match(reportingSource,/data-ri-type/);
+  assert.match(reportingSource,/requestAuditHandoff/);
+  assert.match(auditSource,/مصادر واردة من مساعد التقارير/);
+  assert.match(auditSource,/handoff-import/);
+  assert.match(auditSource,/cp\.markAuditHandoff\(id,"attached",reqId\)/);
 });
 
 test('capability registry exposes the new company operating surfaces to accounting roles',()=>{
