@@ -158,6 +158,8 @@ test('reporting intake supports XLSX, ownership checks and explicit audit transf
   assert.match(reportingSource,/rec\.companyId!==SK\.company\.current\(\)\.id/);
   assert.match(reportingSource,/data-ri-type/);
   assert.match(reportingSource,/requestAuditHandoff/);
+  assert.match(reportingSource,/uploadDocument/);
+  assert.match(reportingSource,/setDocumentRemote/);
   assert.match(auditSource,/مصادر واردة من مساعد التقارير/);
   assert.match(auditSource,/handoff-import/);
   assert.match(auditSource,/cp\.readDocument\(h\.documentId\)/);
