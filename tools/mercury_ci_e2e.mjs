@@ -15,6 +15,24 @@ const browser=await chromium.launch({headless:true});
 const hash=p=>createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 const sources=Object.fromEntries(['ui/ds/sqc.css','ui/features/report-pack.js','ui/core/output.js','build.py'].map(p=>[p,hash(p)]));
 async function check(name,fn){try{await fn();results.push({name,status:'pass'});}catch(e){failures.push(name);results.push({name,status:'fail',error:e.stack});console.error(name,e.stack);}fs.writeFileSync(`${out}/results.json`,JSON.stringify({head:process.env.SQC_TESTED_SHA,sources,results,failures},null,2));}
+async function contextState(page){return page.evaluate(()=>{
+ const scope=window.SKosifSpace?.scopeSnapshot?.(),company=window.SK?.company?.current?.(),p=company?.period;
+ return{scope,company:company?{id:company.id,name:company.name,currency:company.currency,period:p?{id:p.id,companyId:p.companyId,startDate:p.startDate,endDate:p.endDate}:null}:null,
+  business:window.SK?.org?.().biz,ready:window.SK?.company?.ready?.(),view:window.SKosifCore?.view?.(),role:window.SK?.perm?.role?.(),previewCount:document.querySelectorAll('.skout').length,
+  notices:[...document.querySelectorAll('.toast,.sk-toast,[role="alert"]')].map(n=>n.textContent.trim()).slice(-8)};
+})}
+async function diagnostics(page,stage,error){
+ const prefix=`${out}/${page.__sqcCase||'unknown'}-${stage}`;
+ let state;try{state=await contextState(page)}catch(e){state={unavailable:e.message}}
+ fs.writeFileSync(prefix+'-context.json',JSON.stringify({stage,error:error?.message,state},null,2));
+ await page.screenshot({path:prefix+'.png',fullPage:true}).catch(()=>{});
+}
+function aligned(state){
+ assert.equal(state.ready,true,'actual company service must be ready');assert.equal(state.scope?.status,'stable','actual helper scope must be stable');
+ assert.equal(state.company.id,state.scope.entityId);assert.equal(state.business,state.scope.context.entityName);assert.equal(state.company.name,state.scope.context.entityName);
+ assert.equal(state.company.period?.id,state.scope.periodId);assert.equal(state.company.period?.companyId,state.company.id);
+ assert.equal(state.company.period.startDate,state.scope.context.start);assert.equal(state.company.period.endDate,state.scope.context.end);assert.equal(state.company.currency,state.scope.context.currency);
+}
 async function open(role,kind='populated',width=1280){
  const data=fixture(kind),seed=managementBrowserSeed();
  const companyName='شركة الاختبارات الاصطناعية';seed.skosif_companies_v1.companies[0].name=companyName;
@@ -26,10 +44,20 @@ async function open(role,kind='populated',width=1280){
  const context=await browser.newContext({viewport:{width,height:1000},locale:'ar-SA',acceptDownloads:true,reducedMotion:'reduce'});
  const origin=new URL(urls[role]).origin;
  await context.route('**/*',r=>{const u=r.request().url();const publicFont=u.startsWith('https://fonts.googleapis.com/')||u.startsWith('https://fonts.gstatic.com/');return u.startsWith(origin+'/')||publicFont||u.startsWith('data:')||u.startsWith('blob:')?r.continue():r.abort();});
- await context.addInitScript(seed=>{for(const[k,v]of Object.entries(seed))localStorage.setItem(k,JSON.stringify(v));localStorage.setItem('skosif_demo_v1',JSON.stringify({off:true,sections:{}}));localStorage.setItem('skosif_role_mode',JSON.stringify('admin'));sessionStorage.setItem('sqc_space_chosen','1');sessionStorage.setItem('sqc_helper_user_chosen','1');},seed);
+ await context.addInitScript(({seed,origin})=>{
+  // A context init script also runs in every preview/print iframe. Seed only
+  // the first real app document; frame creation and reload must never rewrite it.
+  if(window!==window.top||location.origin!==origin||sessionStorage.getItem('sqc_mercury_seeded_v1'))return;
+  for(const[k,v]of Object.entries(seed))localStorage.setItem(k,JSON.stringify(v));
+  localStorage.setItem('skosif_demo_v1',JSON.stringify({off:true,sections:{}}));
+  localStorage.setItem('skosif_role_mode',JSON.stringify('admin'));
+  sessionStorage.setItem('sqc_space_chosen','1');sessionStorage.setItem('sqc_helper_user_chosen','1');
+  sessionStorage.setItem('sqc_mercury_seeded_v1','1');
+ },{seed,origin});
  const page=await context.newPage(),errors=[];page.__sqcCase=role+'-'+kind;page.__fontNetwork=[];page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(/^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test(r.url()))page.__fontNetwork.push({url:r.url(),status:r.status()});});page.on('requestfailed',r=>{if(/^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test(r.url()))page.__fontNetwork.push({url:r.url(),failure:r.failure()?.errorText});});
  await page.goto(urls[role],{waitUntil:'domcontentloaded'});
- await page.waitForFunction(()=>window.SKosifReportPack&&window.SKosifShell&&window.SKosifMetrics);
+ await page.waitForFunction(()=>{const s=window.SKosifSpace?.scopeSnapshot?.();return window.SKosifReportPack&&window.SKosifShell&&window.SKosifMetrics&&window.SK?.company?.ready?.()&&s?.status==='stable'&&window.SK.org().biz===s.context.entityName}).catch(async e=>{await diagnostics(page,'startup',e);throw e});
+ aligned(await contextState(page));
  await page.evaluate(data=>{
   window.SKosifShell.setPref('look','kosif');
   document.documentElement.dataset.theme='light';
@@ -46,8 +74,11 @@ async function open(role,kind='populated',width=1280){
 }
 async function report(page,expectPlex=true){
  await page.evaluate(()=>window.SKosifCore.go('execreports'));
- await page.locator('[data-rp="print"]').click();
- await page.frameLocator('.skout-f').locator('.rp-cover').waitFor();
+ try{
+  aligned(await contextState(page));
+  await page.locator('[data-rp="print"]').click();
+  await page.frameLocator('.skout-f').locator('.rp-cover').waitFor();
+ }catch(e){await diagnostics(page,'report',e);throw e}
  const frame=await page.locator('.skout-f').elementHandle().then(h=>h.contentFrame());
  if(expectPlex){
   const before=await frame.evaluate(()=>({sheets:[...document.querySelectorAll('link[rel=stylesheet]')].map(n=>({href:n.href,registered:!!n.sheet})),faces:[...document.fonts].map(f=>({family:f.family,status:f.status}))}));

@@ -36,12 +36,19 @@ const sources = Object.fromEntries(sourcePaths.map(file => [file, {
   url:`https://github.com/kosif199022-jpg/cloude/blob/${head}/${file}`,
 }]));
 const results = [], artifacts = [], network = [], failures = [];
+const classificationFor=id=>id.startsWith('NEGATIVE CONTROL:')?'negative-control':'acceptance';
+const resultCounts=()=>Object.fromEntries(['acceptance','negative-control'].map(classification=>{
+  const matching=results.filter(r=>r.classification===classification);
+  return [classification,{passed:matching.filter(r=>r.status==='pass').length,failed:matching.filter(r=>r.status==='fail').length,total:matching.length}];
+}));
 const limits = [
   'Synthetic data only. This verifies captured scope consistency, not historical data ownership, privacy certification, professional assurance, or all application modules.',
   'No local browser/server was authorized. This harness runs only in GitHub Actions at the exact recorded head.',
   'Actual SK.company, helper-space, source, output, and report modules are bundled without scope-reader replacements. Async gates wrap real capture/freshness results; IndexedDB failure is an explicit boundary fault injection.',
+  'Unobserved-source boundary faults use the native browser setter captured before bus.js wraps Storage. Every such sink/event requires live preview evidence before issuance; separate tests preserve real eager bus invalidation.',
   'Share recipient is a synthetic navigator sink with no external transmission. Stale print uses a sink counter plus an independent raw beforeprint DOM test.',
   'Headless Chromium PDF is a file-rendering check, not physical printing, native print-dialog UX, Safari/mobile hardware, assistive technology, or native Word/Excel application rendering.',
+  'Named NEGATIVE CONTROL cases intentionally disable a check or remove final beforeprint listeners in isolated contexts. Their unsafe output is a test-oracle witness, never accepted product behavior. Ordinary acceptance retains actual source freshness checks.',
   'Downloaded static files cannot be revoked after delivery. Staleness gates cover issuance and still-open output windows.',
   'SKosifCore.go does not push browser history; app-navigation cancellation is tested separately from a genuine browser Back lifecycle case.',
   'Public Google Fonts requests are allowed; no private source paths, account credentials, or production data are used.',
@@ -50,7 +57,7 @@ function flush() {
   fs.writeFileSync(`${out}/results.json`, JSON.stringify({
     head, run:process.env.GITHUB_RUN_ID || null,
     runUrl:process.env.GITHUB_RUN_ID ? `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}` : null,
-    sources, results, failures, artifacts, blockedNetwork:network, limits,
+    sources, counts:resultCounts(), results, failures, artifacts, blockedNetwork:network, limits,
   }, null, 2));
 }
 function record(file, role) {
@@ -58,8 +65,8 @@ function record(file, role) {
 }
 async function check(id, fn) {
   const start=Date.now();
-  try { const evidence=await fn(); results.push({id,status:'pass',milliseconds:Date.now()-start,evidence}); console.log('PASS',id); }
-  catch(error) { failures.push(id); results.push({id,status:'fail',milliseconds:Date.now()-start,error:error.stack||String(error)}); console.error('FAIL',id,error.stack); }
+  try { const evidence=await fn(); results.push({id,classification:classificationFor(id),status:'pass',milliseconds:Date.now()-start,evidence}); console.log('PASS',id); }
+  catch(error) { failures.push(id); results.push({id,classification:classificationFor(id),status:'fail',milliseconds:Date.now()-start,error:error.stack||String(error)}); console.error('FAIL',id,error.stack); }
   flush();
 }
 flush();
@@ -106,6 +113,16 @@ async function openPage(width=1280, zero=false) {
   });
   await context.addInitScript(seed=>{
     if(window!==window.top)return;
+    // Deliberate fault injection only: preserve the browser's native setter BEFORE bus.js wraps it.
+    // Normal actions still use the real wrapped storage service. Boundary cases use this closure
+    // to test the freshness check itself instead of passing through eager bus invalidation.
+    const nativeSetItem=Storage.prototype.setItem;
+    window.__ciNativeSetterProof=Function.prototype.toString.call(nativeSetItem);
+    window.__ciUnobservedSet=(key,value)=>Reflect.apply(nativeSetItem,localStorage,[key,value]);
+    window.__ciBoundaryWitness=()=>{
+      const f=document.querySelector('.skout-f'),d=f?.contentDocument;
+      return {preview:!!document.querySelector('.skout'),paper:!!d?.querySelector('.rp-cover'),controls:document.querySelectorAll('.skout [data-o]').length};
+    };
     // Preserve the real company switch/reload. Reseeding each navigation would hide it.
     if(!sessionStorage.getItem('sqc-executive-synthetic-seeded')){
       localStorage.clear();for(const [k,v] of Object.entries(seed))localStorage.setItem(k,JSON.stringify(v));
@@ -124,6 +141,7 @@ async function openPage(width=1280, zero=false) {
   page.on('pageerror',e=>errors.push(e.message));
   page.on('download',d=>downloads.push(d));
   await page.goto(url,{waitUntil:'domcontentloaded'});
+  assert.match(await page.evaluate(()=>window.__ciNativeSetterProof),/\[native code\]/,'fault injection must preserve the real browser setter before app wrapping');
   await page.waitForFunction(()=>window.SK?.company?.ready()&&window.SKosifReportPack&&window.SKosifManagementSource&&window.SKosifSpace?.scopeSnapshot().status==='stable');
   await page.evaluate(()=>{SKosifShell.setPref('look','kosif');document.documentElement.dataset.theme='light';SKosifCore.go('execreports')});
   await page.locator('[data-rp="print"]').waitFor({state:'visible'});
@@ -182,7 +200,7 @@ async function noReport(page) {
   assert.equal(await page.locator('.skpres').count(),0);
 }
 async function rawMemo(page, value='Changed source, same counts and totals') {
-  await page.evaluate(({key,value})=>{const d=JSON.parse(localStorage.getItem(key));d.entries[0].memo=value;localStorage.setItem(key,JSON.stringify(d))},{key:K.ledger,value});
+  await page.evaluate(({key,value})=>{const d=JSON.parse(localStorage.getItem(key));d.entries[0].memo=value;window.__ciUnobservedSet(key,JSON.stringify(d))},{key:K.ledger,value});
 }
 async function switchSameDocument(page,co) {
   const result=await page.evaluate(async c=>{
@@ -269,8 +287,19 @@ try {
       const button=page.locator(`[data-o="${action}"]`);assert.equal(await button.count(),1);
       await button.focus();assert.ok(await button.evaluate(b=>b===document.activeElement));
     }
-    const screenshot=`${out}/limited-paper-${width}.png`;await page.screenshot({path:screenshot,fullPage:true});record(screenshot,'valid limited report and controls');
-    const paperShot=`${out}/limited-paper-body-${width}.png`;await frame.locator('body').screenshot({path:paperShot});record(paperShot,'valid limited paper');
+    const geometryStages=[];
+    for(const [stage,selector] of [['top','.rp-cover'],['books','.rp-books'],['provenance','.rp-binding']]){
+      await frame.evaluate(selector=>{const el=document.querySelector(selector);if(!el)throw new Error('Missing screenshot target '+selector);window.scrollTo(0,el.getBoundingClientRect().top+window.scrollY-12)},selector);
+      await page.waitForTimeout(100);
+      const bounds=await page.evaluate(()=>{const rect=n=>{const r=n.getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom}};return{viewport:{width:innerWidth,height:innerHeight,scrollX,scrollY},modal:rect(document.querySelector('.skout')),iframe:rect(document.querySelector('.skout-f'))}});
+      const visible=await frame.evaluate(selector=>{const el=document.querySelector(selector),r=el.getBoundingClientRect();return{scrollY,innerWidth,innerHeight,documentHeight:document.documentElement.scrollHeight,target:{top:r.top,bottom:r.bottom,left:r.left,right:r.right},targetVisible:r.bottom>0&&r.top<innerHeight}},selector);
+      assert.ok(visible.targetVisible,`Internal scroll did not reveal ${stage}`);
+      assert.ok(bounds.iframe.x>=-1&&bounds.iframe.right<=width+1&&bounds.iframe.y>=-1&&bounds.iframe.bottom<=bounds.viewport.height+1,JSON.stringify(bounds));
+      const screenshot=`${out}/limited-viewport-${width}-${stage}.png`;await page.screenshot({path:screenshot,fullPage:false});record(screenshot,`real viewport with preview scrolled to ${stage}`);
+      const frameShot=`${out}/limited-frame-${width}-${stage}.png`;await page.locator('.skout-f').screenshot({path:frameShot});record(frameShot,`iframe viewport at ${stage}; not a full-document image`);
+      geometryStages.push({stage,bounds,visible});
+    }
+    const geometryFile=`${out}/limited-geometry-${width}.json`;fs.writeFileSync(geometryFile,JSON.stringify(geometryStages,null,2));record(geometryFile,'measured modal/iframe bounds and actual internal scroll positions');
     await page.locator('[data-o="close"]').click();await page.locator('.skout').waitFor({state:'detached'});
     assert.deepEqual(env.errors,[],'runtime errors');
     return {build:env.build,geometry,...evidence};
@@ -434,14 +463,29 @@ try {
     return {browserBack:true,browserForward:true,latePreviewAbsent:true};
   }));
 
+  await check('real wrapped localStorage setter immediately invalidates the preview through the bus',()=>withPage(async env=>{
+    const {page}=env;await report(page);
+    const evidence=await page.evaluate(()=>{
+      const d=document.querySelector('.skout-f').contentDocument,before=window.__ciBoundaryWitness();
+      const ledger=JSON.parse(localStorage.getItem('skosif_ledger_v1'));ledger.entries[0].memo='Real observed storage edit';localStorage.setItem('skosif_ledger_v1',JSON.stringify(ledger));
+      return {before,after:window.__ciBoundaryWitness(),oldText:d.documentElement?.textContent||''};
+    });
+    assert.deepEqual(evidence.before,{preview:true,paper:true,controls:8});assert.deepEqual(evidence.after,{preview:false,paper:false,controls:0});assert.equal(evidence.oldText,'');
+    await assertNoSink(env);return {...evidence,usesActualWrappedSetter:true};
+  }));
+
   for(const action of ['print','word','excel','html','share','present','window'])await check(`same-count source mutation blocks stale ${action}`,()=>withPage(async env=>{
     const {page}=env;await report(page);await armPrintCounter(page);
     const before=await page.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_ledger_v1'));return{count:d.entries.length,amounts:d.entries.flatMap(e=>e.lines.map(l=>[l.debit,l.credit]))}});
     // Mutation and click are one JS task: no polling/event invalidation may mask the action boundary.
     await page.evaluate(a=>{
-      const d=JSON.parse(localStorage.getItem('skosif_ledger_v1'));d.entries[0].memo='Same totals changed source';localStorage.setItem('skosif_ledger_v1',JSON.stringify(d));
-      document.querySelector(`[data-o="${a}"]`).click();
+      const d=JSON.parse(localStorage.getItem('skosif_ledger_v1'));d.entries[0].memo='Same totals changed source';window.__ciUnobservedSet('skosif_ledger_v1',JSON.stringify(d));
+      window.__ciActionWitness=window.__ciBoundaryWitness();
+      const button=document.querySelector(`[data-o="${a}"]`);
+      if(!window.__ciActionWitness.paper||!button?.isConnected)throw new Error('Fault did not reach live action boundary');
+      button.click();
     },action);
+    assert.deepEqual(await page.evaluate(()=>window.__ciActionWitness),{preview:true,paper:true,controls:8});
     await assertNoSink(env);
     const after=await page.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_ledger_v1'));return{count:d.entries.length,amounts:d.entries.flatMap(e=>e.lines.map(l=>[l.debit,l.credit]))}});
     assert.deepEqual(after,before);return {sameCountsAndAmounts:true,blocked:action};
@@ -454,14 +498,16 @@ try {
       window.SKosifManagementSource={...actual,checkFresh:async(...args)=>{const checked=await actual.checkFresh(...args);await new Promise(resolve=>window.__ciFreshRelease=resolve);return checked}};
     });
     await page.locator(`[data-o="${action}"]`).click();await page.waitForFunction(()=>!!window.__ciFreshRelease);
-    await rawMemo(page,'Changed only after actual freshness hash completed');await page.evaluate(()=>window.__ciFreshRelease());
+    await rawMemo(page,'Changed only after actual freshness hash completed');
+    assert.deepEqual(await page.evaluate(()=>window.__ciBoundaryWitness()),{preview:true,paper:true,controls:8},'async check must remain pending at a live output boundary');
+    await page.evaluate(()=>window.__ciFreshRelease());
     await assertNoSink(env);return {asyncBoundaryBlocked:action};
   }));
 
   for(const action of ['word','excel','html','share','window'])await check(`source mutation inside real serialization blocks ${action}`,()=>withPage(async env=>{
     const {page}=env;await report(page);await armPrintCounter(page);
     await page.evaluate(a=>{
-      const mutate=()=>{const d=JSON.parse(localStorage.getItem('skosif_ledger_v1'));d.entries[0].memo='Changed inside final serializer';localStorage.setItem('skosif_ledger_v1',JSON.stringify(d))};
+      const mutate=()=>{const d=JSON.parse(localStorage.getItem('skosif_ledger_v1'));d.entries[0].memo='Changed inside final serializer';window.__ciUnobservedSet('skosif_ledger_v1',JSON.stringify(d));window.__ciSerializationWitness=window.__ciBoundaryWitness();if(!window.__ciSerializationWitness.paper)throw new Error('Serializer fault did not reach live boundary')};
       if(a==='excel'){
         const actual=window.SKXlsx;window.SKXlsx={...actual,book:(...args)=>{const file=actual.book(...args);mutate();return file}};
       }else{
@@ -470,7 +516,7 @@ try {
       }
       document.querySelector(`[data-o="${a}"]`).click();
     },action);
-    await assertNoSink(env);return {realSerializationCompleted:true,issuanceBlocked:action};
+    await assertNoSink(env);assert.deepEqual(await page.evaluate(()=>window.__ciSerializationWitness),{preview:true,paper:true,controls:8});return {realSerializationCompleted:true,issuanceBlocked:action};
   }));
 
   await check('beforeprint listener survives actual document.open and removes stale DOM synchronously',()=>withPage(async({page})=>{
@@ -480,25 +526,27 @@ try {
     });
     await report(page);
     const evidence=await page.evaluate(()=>{
-      const w=document.querySelector('.skout-f').contentWindow,d=w.document;
+      const w=document.querySelector('.skout-f').contentWindow,d=w.document,event=new w.Event('beforeprint');
       const before=!!d.querySelector('.rp-cover');
-      const data=JSON.parse(localStorage.getItem('skosif_ledger_v1'));data.entries[0].memo='Raw beforeprint stale source';localStorage.setItem('skosif_ledger_v1',JSON.stringify(data));
-      w.dispatchEvent(new w.Event('beforeprint'));
-      return {before,opens:window.__ciDocumentOpen,early:window.__ciEarlyPrint,remaining:d.documentElement?.textContent||'',preview:!!document.querySelector('.skout')};
+      const data=JSON.parse(localStorage.getItem('skosif_ledger_v1'));data.entries[0].memo='Raw beforeprint stale source';window.__ciUnobservedSet('skosif_ledger_v1',JSON.stringify(data));
+      const atBoundary=window.__ciBoundaryWitness();if(!atBoundary.paper)throw new Error('beforeprint fault invalidated before dispatch');
+      w.dispatchEvent(event);
+      return {before,atBoundary,opens:window.__ciDocumentOpen,early:window.__ciEarlyPrint,remaining:d.documentElement?.textContent||'',preview:!!document.querySelector('.skout')};
     });
-    assert.equal(evidence.before,true);assert.ok(evidence.opens>=1);assert.equal(evidence.early,0,'document.open did not exercise event-reset boundary');
+    assert.equal(evidence.before,true);assert.deepEqual(evidence.atBoundary,{preview:true,paper:true,controls:8});assert.ok(evidence.opens>=1);assert.equal(evidence.early,0,'document.open did not exercise event-reset boundary');
     assert.equal(evidence.remaining,'','stale raw DOM survived beforeprint');assert.equal(evidence.preview,false);return evidence;
   }));
 
   await check('host-window raw beforeprint also invalidates stale embedded paper',()=>withPage(async({page})=>{
     await report(page);
     const evidence=await page.evaluate(()=>{
-      const d=document.querySelector('.skout-f').contentDocument;
-      const source=JSON.parse(localStorage.getItem('skosif_ledger_v1'));source.entries[0].memo='Host beforeprint stale';localStorage.setItem('skosif_ledger_v1',JSON.stringify(source));
-      window.dispatchEvent(new Event('beforeprint'));
-      return {remaining:d.documentElement?.textContent||'',preview:!!document.querySelector('.skout')};
+      const d=document.querySelector('.skout-f').contentDocument,event=new Event('beforeprint');
+      const source=JSON.parse(localStorage.getItem('skosif_ledger_v1'));source.entries[0].memo='Host beforeprint stale';window.__ciUnobservedSet('skosif_ledger_v1',JSON.stringify(source));
+      const atBoundary=window.__ciBoundaryWitness();if(!atBoundary.paper)throw new Error('host beforeprint fault invalidated before dispatch');
+      window.dispatchEvent(event);
+      return {atBoundary,remaining:d.documentElement?.textContent||'',preview:!!document.querySelector('.skout')};
     });
-    assert.equal(evidence.remaining,'');assert.equal(evidence.preview,false);return evidence;
+    assert.deepEqual(evidence.atBoundary,{preview:true,paper:true,controls:8});assert.equal(evidence.remaining,'');assert.equal(evidence.preview,false);return evidence;
   }));
 
   await check('detached native CI window is bound and blanks on raw beforeprint after source mutation',()=>withPage(async({page,context})=>{
@@ -507,11 +555,53 @@ try {
     await popup.locator('.rp-cover').waitFor();assert.equal(clean(await popup.locator('.rp-cover > p').innerText()),A.name);
     await popup.evaluate(()=>{window.opener.__ciDetached=window;window.opener.__ciDetachedDocument=document});
     const evidence=await page.evaluate(()=>{
-      const d=JSON.parse(localStorage.getItem('skosif_ledger_v1'));d.entries[0].memo='Detached stale source';localStorage.setItem('skosif_ledger_v1',JSON.stringify(d));
-      const w=window.__ciDetached;w.dispatchEvent(new w.Event('beforeprint'));
-      return {remaining:window.__ciDetachedDocument.documentElement?.textContent||'',closed:w.closed};
+      const w=window.__ciDetached,event=new w.Event('beforeprint');
+      const d=JSON.parse(localStorage.getItem('skosif_ledger_v1'));d.entries[0].memo='Detached stale source';window.__ciUnobservedSet('skosif_ledger_v1',JSON.stringify(d));
+      const atBoundary={popupLive:!w.closed,paper:!!w.document.querySelector('.rp-cover'),parentPaper:window.__ciBoundaryWitness().paper};
+      if(!atBoundary.popupLive||!atBoundary.paper||!atBoundary.parentPaper)throw new Error('detached beforeprint fault invalidated before dispatch');
+      w.dispatchEvent(event);
+      return {atBoundary,remaining:window.__ciDetachedDocument.documentElement?.textContent||'',closed:w.closed};
     });
-    assert.equal(evidence.remaining,'');assert.equal(evidence.closed,true);await noReport(page);return evidence;
+    assert.deepEqual(evidence.atBoundary,{popupLive:true,paper:true,parentPaper:true});assert.equal(evidence.remaining,'');assert.equal(evidence.closed,true);await noReport(page);return evidence;
+  }));
+
+  await check('NEGATIVE CONTROL: HTML stale-issuance oracle rejects disabled source freshness checks',()=>withPage(async env=>{
+    const {page}=env;const frame=await report(page),oldHash=await frame.locator('meta[name="sqc-source-sha256"]').getAttribute('content');
+    await page.evaluate(()=>{const actual=window.SKosifManagementSource;window.__ciRealSource=actual;window.SKosifManagementSource={...actual,isCurrent:()=>true,checkFresh:async()=>({fresh:true})}});
+    await rawMemo(page,'Intentional negative-control unobserved edit');
+    assert.deepEqual(await page.evaluate(()=>window.__ciBoundaryWitness()),{preview:true,paper:true,controls:8});
+    const changed=await page.evaluate(()=>window.__ciRealSource.capture());assert.equal(changed.ok,true);assert.notEqual(changed.inputHash,oldHash);
+    const pending=page.waitForEvent('download');await page.locator('[data-o="html"]').click();const download=await pending;
+    const file=`${out}/NEGATIVE-CONTROL-stale.html`;await download.saveAs(file);record(file,'intentional checks-disabled mutant output; NOT accepted product output');
+    assert.ok(fs.readFileSync(file,'utf8').includes(oldHash));
+    assert.throws(()=>assert.equal(env.downloads.length,0,'stale download'),{code:'ERR_ASSERTION'},'the positive no-download oracle must reject this mutant');
+    return {classification:'negative-control',mutant:'source freshness checks intentionally disabled',positiveOracleRejected:true,downloads:env.downloads.length};
+  }));
+
+  await check('NEGATIVE CONTROL: raw beforeprint oracle rejects removal of the final post-reset listener',()=>withPage(async({page})=>{
+    await page.evaluate(()=>{
+      const actual=window.open;window.__ciMutantOpens=0;window.__ciMutantListeners=[];
+      window.open=function(...args){
+        const w=actual.apply(this,args),add=w.addEventListener.bind(w),open=w.document.open.bind(w.document);
+        w.document.open=(...args)=>{window.__ciMutantOpens++;return open(...args)};
+        w.addEventListener=(type,callback,...rest)=>{if(type==='beforeprint')window.__ciMutantListeners.push({w,callback,generation:window.__ciMutantOpens});return add(type,callback,...rest)};
+        return w;
+      };
+      window.__ciUnmodifiedSource=window.SKosifManagementSource;
+    });
+    await report(page);
+    const evidence=await page.evaluate(()=>{
+      const w=document.querySelector('.skout-f').contentWindow,d=w.document,event=new w.Event('beforeprint');
+      const final=window.__ciMutantListeners.filter(x=>x.w===w&&x.generation>0);if(!final.length)throw new Error('No post-document.open listener was observed');
+      for(const item of final)w.removeEventListener('beforeprint',item.callback);
+      const source=JSON.parse(localStorage.getItem('skosif_ledger_v1'));source.entries[0].memo='Intentional beforeprint-listener mutant';window.__ciUnobservedSet('skosif_ledger_v1',JSON.stringify(source));
+      const before=window.__ciBoundaryWitness();if(!before.paper)throw new Error('Negative listener control is not live');
+      w.dispatchEvent(event);
+      return {before,after:window.__ciBoundaryWitness(),remaining:d.documentElement?.textContent||'',removedFinalListeners:final.length,opens:window.__ciMutantOpens,sourceUnchanged:window.__ciUnmodifiedSource===window.SKosifManagementSource};
+    });
+    assert.deepEqual(evidence.before,{preview:true,paper:true,controls:8});assert.equal(evidence.sourceUnchanged,true);assert.ok(evidence.opens>=1);assert.ok(evidence.removedFinalListeners>=1);assert.equal(evidence.after.paper,true);
+    assert.throws(()=>assert.equal(evidence.remaining,'','stale raw DOM survived beforeprint'),{code:'ERR_ASSERTION'},'the positive blank-DOM oracle must reject this listener mutant');
+    return {classification:'negative-control',mutant:'only final beforeprint listeners intentionally removed',positiveOracleRejected:true,opens:evidence.opens,removedFinalListeners:evidence.removedFinalListeners};
   }));
 
   await check('active presentation ends when the real company changes',()=>withPage(async({page})=>{
@@ -592,7 +682,7 @@ try {
   });
 } finally {
   await browser.close();
-  const summary=[`# Executive report context acceptance`, ``, `Tested head: ${head}`, ``, `${results.filter(r=>r.status==='pass').length} passed; ${failures.length} failed.`, ``, `## Cases`,...results.map(r=>`- ${r.status.toUpperCase()}: ${r.id}`),``,`## Exact sources`,...Object.entries(sources).map(([name,v])=>`- [${name}](${v.url}) — SHA-256 ${v.sha256}`),``,`## Artifacts`,...artifacts.map(a=>`- [${a.file}](${a.file}): ${a.role}; SHA-256 ${a.sha256}`),``,`## Limits`,...limits.map(l=>`- ${l}`),``].join('\n');
+  const summary=[`# Executive report context acceptance`, ``, `Tested head: ${head}`, ``, `Acceptance: ${resultCounts().acceptance.passed} passed; ${resultCounts().acceptance.failed} failed.`, `Negative controls: ${resultCounts()['negative-control'].passed} detected their intentional mutant; ${resultCounts()['negative-control'].failed} failed. These are not accepted product outputs.`, ``, `## Cases`,...results.map(r=>`- ${r.status.toUpperCase()}: ${r.id}`),``,`## Exact sources`,...Object.entries(sources).map(([name,v])=>`- [${name}](${v.url}) — SHA-256 ${v.sha256}`),``,`## Artifacts`,...artifacts.map(a=>`- [${a.file}](${a.file}): ${a.role}; SHA-256 ${a.sha256}`),``,`## Limits`,...limits.map(l=>`- ${l}`),``].join('\n');
   fs.writeFileSync(`${out}/README.md`,summary);flush();
 }
 if(failures.length)process.exitCode=1;

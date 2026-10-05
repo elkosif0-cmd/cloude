@@ -213,9 +213,35 @@ jobs:
           for marker in ["reverseJournalEntry","isPeriodLocked","splitVatInclusive","priceIncludesVat","weightedAverageCosts","rev-entry","lockHTML",
                          "partyBalances","partyStatement","buildSettlementEntry","buildVatSettlementEntry","cashHTML","data-ledger-open",
                          "matchBankLines","bankReconciliationStatement","bankHTML","stockCountValuation","buildStockCountAdjustment","weightedAverageCostsAsOf",
-                         "SKosifClose","skclose-steps","skbrief","booksHTML","syncStudio","recolorStudio","docAIHTML","tbr-adv"]:
+                         "SKosifClose","skclose-steps","skbrief","syncStudio","recolorStudio","docAIHTML","tbr-adv"]:
               assert marker in js, "ledger control missing: "+marker
           assert 'data-l="del-entry"' not in js, "posted entries are reversed, never deleted"
+          # Executive draft safety: validate the exact modules covered by the behavioral guard tests.
+          # booksHTML was the removed live-ledger executive helper, not a required ledger control.
+          guarded_modules = ["core/sk.js", "core/output.js", "core/management-report-model.js",
+                             "features/management-report-source.js", "features/report-pack.js"]
+          guarded_sources = {}
+          for module in guarded_modules:
+              marker = "/* ---- ui/" + module + " ---- */"
+              source = Path("ui", module).read_text(encoding="utf-8")
+              wrapped = marker + "\ntry{\n" + source + "\n}catch(e){console.error('S.kosif module ui/" + module + " failed to load',e)}"
+              assert js.count(marker) == 1, "guarded module missing or duplicated: " + module
+              assert wrapped in js, "bundled guarded module differs from tested source: " + module
+              guarded_sources[module] = source
+          pack = guarded_sources["features/report-pack.js"]
+          for required in ["source().capture()", "source().checkFresh(s.capture)", "source().isCurrent(s.capture)",
+                           "s.identity=freeze(", "SK.output.guard(w,guard)", "مسودة تنفيذية محدودة",
+                           "sqc-company", "sqc-period", "sqc-source-sha256", "data-rp-unavailable"]:
+              assert required in pack, "executive capture/output binding missing: " + required
+          assert pack.rfind("SK.output.guard(w,guard)") > pack.rfind("w.document.close()"), "final executive guard must follow document.close"
+          for forbidden in ["SKosifMetrics", "SKosifSalesIntel", "SKosifLedger", "skosif_tasks_v1", "skosif_risks_v1"]:
+              assert forbidden not in pack, "unbound executive source returned: " + forbidden
+          for required in ["function capture(", "function checkFresh(", "function isCurrent("]:
+              assert required in guarded_sources["features/management-report-source.js"], "strict source gate missing: " + required
+          for required in ["function guard(w,g)", "function invalidate(w)", "function validSync(s)", "async function valid(s)",
+                           'w.addEventListener("beforeprint",h.beforeprint)', "session.guard&&!validSync(session)"]:
+              assert required in guarded_sources["core/output.js"], "scoped output gate missing: " + required
+          # End executive draft bundle binding.
           # global audit practice from the research bundle, as working tools: the materiality plan and the retrospective review
           # of estimates (fieldwork), going concern and viability (completion), key audit matters drafted from the line risks
           # and the global precedents, and in the books the journal's audit trail (edit log) and the revenue reconciliation
