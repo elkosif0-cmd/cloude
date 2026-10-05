@@ -12,6 +12,7 @@ const failures = []; let checks = 0;
 const check = (name, ok, info = '') => { checks++; if (!ok) failures.push(name + (info ? ' — ' + info : '')); };
 const appReady = (page) => page.waitForFunction(() => window.SK && window.SKosifCore && window.SKosifSpace && SK.demo && SK.demo.settled() && !document.querySelector('.skdemo-overlay') && !SKosifSpace.busy(), null, { timeout: 90000 });
 const settled = async (page) => { await appReady(page); await page.waitForTimeout(800); await appReady(page); };
+const overflow = (page) => page.evaluate(() => Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - document.documentElement.clientWidth);
 try {
   for (const [tag, opts] of [['laptop', { viewport: { width: 1440, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }]]) {
     const ctx = await browser.newContext(opts);
@@ -64,8 +65,14 @@ try {
     await page.waitForFunction(() => document.querySelector('.skc-world-c.on'), null, { timeout: 20000 }).catch(() => {});
     const hero = await page.evaluate(() => ({ canvas: !!document.querySelector('.skc-world-c'), on: !!document.querySelector('.skc-world-c.on'), name: (document.querySelector('.skc-world-tx b') || {}).textContent }));
     check(`${tag}: the command center hero shows the world and the company`, hero.canvas && hero.name === 'شركة الوادي التجريبية للحوم' && (hero.on || !(await page.evaluate(() => !!document.createElement('canvas').getContext('webgl')))), JSON.stringify(hero));
+    /* the motion layer: opening a screen choreographs its blocks (and never scrolls sideways) */
     await page.evaluate(() => SKosifCore.go('customers'));
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(120);
+    const motion = await page.evaluate(() => { const v = document.getElementById('view'); const first = v && v.querySelector(':scope > *:not(.skdemo):not(.sqc-space-bar)'); return { entering: !!v && v.classList.contains('sk-enter'), anim: first ? getComputedStyle(first).animationName : 'none', count: window.SK.motion ? SK.motion.count() : -1 }; });
+    check(`${tag}: a new screen enters with the choreography`, motion.entering && motion.anim === 'sk-view-in' && motion.count >= 1, JSON.stringify(motion));
+    await page.waitForTimeout(1000);
+    check(`${tag}: the choreography marks are cleaned up`, await page.evaluate(() => !document.getElementById('view').classList.contains('sk-enter')));
+    check(`${tag}: no horizontal overflow after the screen entered`, (await overflow(page)) <= 2, String(await overflow(page)));
     check(`${tag}: the helper screens name the company and link back to the front door`, await page.evaluate(() => { const b = document.querySelector('.sqc-space-bar'); return !!b && b.textContent.includes('شركة الوادي التجريبية للحوم') && !!b.querySelector('[data-space-door][href="./"]'); }));
     const demoCustomers = await page.evaluate(async () => ((r) => r.empty ? 0 : r.customers.length)(await SKosifSalesIntel.snapshot('all')));
     check(`${tag}: demo customers exist`, demoCustomers > 0, String(demoCustomers));
@@ -142,6 +149,13 @@ try {
       await rp.waitForTimeout(500);
       const still = await rp.evaluate(async () => { const w = SQCEntry.world(); if (!w) return { mounted: false }; const f0 = w.frames(); await new Promise((r) => setTimeout(r, 800)); return { mounted: true, still: w.still(), extra: w.frames() - f0, drew: w.frames() >= 1 }; });
       if (still.mounted) check('reduced motion: the world draws one still frame and does not animate', still.still && still.drew && still.extra <= 1, JSON.stringify(still));
+      /* reduced motion inside the app: no screen choreography */
+      await rp.evaluate(() => { sessionStorage.setItem('sqc_company_intent', JSON.stringify({ id: 'demo-co', name: 'شركة الوادي التجريبية للحوم', demo: true })); sessionStorage.setItem('sqc_space_chosen', '1'); sessionStorage.setItem('sqc_helper_user_chosen', '1'); });
+      await rp.goto(base + 'app-safe.html');
+      await rp.waitForFunction(() => window.SK && SK.motion && window.SKosifCore && SK.demo && SK.demo.settled(), null, { timeout: 90000 }).catch(() => {});
+      await rp.evaluate(() => SKosifCore.go('customers'));
+      await rp.waitForTimeout(150);
+      check('reduced motion: screens open without the choreography', await rp.evaluate(() => SK.motion.reduced() && SK.motion.count() === 0 && !document.getElementById('view').classList.contains('sk-enter')));
       await rc.close();
     }
   }

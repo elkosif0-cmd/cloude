@@ -1,0 +1,1143 @@
+{
+ "حركة وتفاعل (animation/3D)": [
+  {
+   "score": 10,
+   "id": 204,
+   "plugin": "awwwards-motion",
+   "skill": "awwwards-motion",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/95-awwwards-motion/204-awwwards-motion"
+  },
+  {
+   "score": 5,
+   "id": 8405,
+   "plugin": "webgpu-threejs-tsl",
+   "skill": "webgpu-threejs-tsl",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/2221-webgpu-threejs-tsl/8405-webgpu-threejs-tsl"
+  },
+  {
+   "score": 5,
+   "id": 10332,
+   "plugin": "build-web-data-visualization",
+   "skill": "threejs-data-visualization",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/2690-build-web-data-visualization/10332-threejs-data-visualization"
+  },
+  {
+   "score": 4,
+   "id": 10329,
+   "plugin": "build-web-data-visualization",
+   "skill": "scrollytelling-and-parallax-data-visualization",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/2690-build-web-data-visualization/10329-scrollytelling-and-parallax-data-visuali"
+  },
+  {
+   "score": 4,
+   "id": 10369,
+   "plugin": "game-studio",
+   "skill": "three-webgl-game",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/2696-game-studio/10369-three-webgl-game"
+  },
+  {
+   "score": 3,
+   "id": 10377,
+   "plugin": "hyperframes",
+   "skill": "gsap",
+   "license": "Apache-2.0",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/2702-hyperframes/10377-gsap"
+  },
+  {
+   "score": 3,
+   "id": 14121,
+   "plugin": "ux-design",
+   "skill": "microinteractions",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/3438-ux-design/14121-microinteractions"
+  },
+  {
+   "score": 2,
+   "id": 210,
+   "plugin": "ui-motion",
+   "skill": "scroll-blur-manifesto",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/100-ui-motion/210-scroll-blur-manifesto"
+  },
+  {
+   "score": 2,
+   "id": 211,
+   "plugin": "ui-motion",
+   "skill": "thermal-finger-trail",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/100-ui-motion/211-thermal-finger-trail"
+  },
+  {
+   "score": 2,
+   "id": 621,
+   "plugin": "landing",
+   "skill": "landing",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/196-landing/621-landing"
+  },
+  {
+   "score": 2,
+   "id": 9526,
+   "plugin": "pixel-art",
+   "skill": "scene",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/2460-pixel-art/9526-scene"
+  },
+  {
+   "score": 2,
+   "id": 14124,
+   "plugin": "ux-design",
+   "skill": "top-design",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/3438-ux-design/14124-top-design"
+  }
+ ],
+ "تصميم بصري ونظام تصميم": [
+  {
+   "score": 4,
+   "id": 14122,
+   "plugin": "ux-design",
+   "skill": "refactoring-ui",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/3438-ux-design/14122-refactoring-ui"
+  },
+  {
+   "score": 3,
+   "id": 3728,
+   "plugin": "universal-design-principles",
+   "skill": "aesthetic-usability-effect",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/1503-universal-design-principles/3728-aesthetic-usability-effect"
+  },
+  {
+   "score": 3,
+   "id": 3729,
+   "plugin": "universal-design-principles",
+   "skill": "aesthetics-router",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/1503-universal-design-principles/3729-aesthetics-router"
+  },
+  {
+   "score": 3,
+   "id": 3823,
+   "plugin": "universal-design-principles",
+   "skill": "hierarchy-typographic",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/1503-universal-design-principles/3823-hierarchy-typographic"
+  },
+  {
+   "score": 3,
+   "id": 14126,
+   "plugin": "ux-design",
+   "skill": "web-typography",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/3438-ux-design/14126-web-typography"
+  },
+  {
+   "score": 3,
+   "id": 14313,
+   "plugin": "ui-design",
+   "skill": "visual-design-foundations",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/3529-ui-design/14313-visual-design-foundations"
+  },
+  {
+   "score": 2,
+   "id": 205,
+   "plugin": "design-constraints",
+   "skill": "design-constraints",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/96-design-constraints/205-design-constraints"
+  },
+  {
+   "score": 2,
+   "id": 643,
+   "plugin": "product-skills",
+   "skill": "ui-design-system",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/198-product-skills/643-ui-design-system"
+  },
+  {
+   "score": 2,
+   "id": 905,
+   "plugin": "frontend-design",
+   "skill": "frontend-design",
+   "license": "Apache-2.0",
+   "risk": [],
+   "path": "skills/288-frontend-design/905-frontend-design"
+  },
+  {
+   "score": 2,
+   "id": 3327,
+   "plugin": "stark",
+   "skill": "design-tokens",
+   "license": "Apache-2.0",
+   "risk": [],
+   "path": "skills/1394-stark/3327-design-tokens"
+  },
+  {
+   "score": 2,
+   "id": 3376,
+   "plugin": "frontend-design-skills",
+   "skill": "anthropic-frontend-design",
+   "license": "Apache-2.0",
+   "risk": [],
+   "path": "skills/1420-frontend-design-skills/3376-anthropic-frontend-design"
+  },
+  {
+   "score": 2,
+   "id": 4417,
+   "plugin": "tonone",
+   "skill": "form",
+   "license": "MIT",
+   "risk": [
+    "hooks"
+   ],
+   "path": "skills/1567-tonone/4417-form"
+  }
+ ],
+ "هوية وعلامة": [
+  {
+   "score": 6,
+   "id": 574,
+   "plugin": "marketing-skills",
+   "skill": "brand-guidelines",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/192-marketing-skills/574-brand-guidelines"
+  },
+  {
+   "score": 3,
+   "id": 1018,
+   "plugin": "brand-voice",
+   "skill": "guideline-generation",
+   "license": "Apache-2.0",
+   "risk": [
+    "mcp_server"
+   ],
+   "path": "skills/327-brand-voice/1018-guideline-generation"
+  },
+  {
+   "score": 3,
+   "id": 4419,
+   "plugin": "tonone",
+   "skill": "form-brand",
+   "license": "MIT",
+   "risk": [
+    "hooks"
+   ],
+   "path": "skills/1567-tonone/4419-form-brand"
+  },
+  {
+   "score": 2,
+   "id": 591,
+   "plugin": "marketing-skills",
+   "skill": "marketing-context",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/192-marketing-skills/591-marketing-context"
+  },
+  {
+   "score": 2,
+   "id": 996,
+   "plugin": "marketing",
+   "skill": "brand-review",
+   "license": "Apache-2.0",
+   "risk": [
+    "mcp_server"
+   ],
+   "path": "skills/324-marketing/996-brand-review"
+  },
+  {
+   "score": 2,
+   "id": 1016,
+   "plugin": "brand-voice",
+   "skill": "brand-voice-enforcement",
+   "license": "Apache-2.0",
+   "risk": [
+    "mcp_server"
+   ],
+   "path": "skills/327-brand-voice/1016-brand-voice-enforcement"
+  },
+  {
+   "score": 2,
+   "id": 1017,
+   "plugin": "brand-voice",
+   "skill": "discover-brand",
+   "license": "Apache-2.0",
+   "risk": [
+    "mcp_server"
+   ],
+   "path": "skills/327-brand-voice/1017-discover-brand"
+  },
+  {
+   "score": 2,
+   "id": 4049,
+   "plugin": "digital-marketing-pro",
+   "skill": "import-guidelines",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/1520-digital-marketing-pro/4049-import-guidelines"
+  },
+  {
+   "score": 2,
+   "id": 4837,
+   "plugin": "content-multiplier",
+   "skill": "brand-voice",
+   "license": "MIT",
+   "risk": [
+    "hooks",
+    "scripts"
+   ],
+   "path": "skills/1802-content-multiplier/4837-brand-voice"
+  },
+  {
+   "score": 1,
+   "id": 213,
+   "plugin": "video-skills",
+   "skill": "brand-grid-video",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/101-video-skills/213-brand-grid-video"
+  },
+  {
+   "score": 1,
+   "id": 564,
+   "plugin": "markdown-html-skills",
+   "skill": "design-system",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/191-markdown-html-skills/564-design-system"
+  },
+  {
+   "score": 1,
+   "id": 580,
+   "plugin": "marketing-skills",
+   "skill": "content-creator",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/192-marketing-skills/580-content-creator"
+  }
+ ],
+ "تجربة المستخدم وبنية المعلومات": [
+  {
+   "score": 5,
+   "id": 3328,
+   "plugin": "stark",
+   "skill": "ux-design",
+   "license": "Apache-2.0",
+   "risk": [],
+   "path": "skills/1394-stark/3328-ux-design"
+  },
+  {
+   "score": 5,
+   "id": 14125,
+   "plugin": "ux-design",
+   "skill": "ux-heuristics",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/3438-ux-design/14125-ux-heuristics"
+  },
+  {
+   "score": 4,
+   "id": 598,
+   "plugin": "marketing-skills",
+   "skill": "onboarding-cro",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/192-marketing-skills/598-onboarding-cro"
+  },
+  {
+   "score": 4,
+   "id": 3514,
+   "plugin": "marketing-skills",
+   "skill": "onboarding",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/1446-marketing-skills/3514-onboarding"
+  },
+  {
+   "score": 4,
+   "id": 3728,
+   "plugin": "universal-design-principles",
+   "skill": "aesthetic-usability-effect",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/1503-universal-design-principles/3728-aesthetic-usability-effect"
+  },
+  {
+   "score": 4,
+   "id": 12864,
+   "plugin": "uxd-research",
+   "skill": "uxd-research-heuristic-eval",
+   "license": "Apache-2.0",
+   "risk": [],
+   "path": "skills/3011-uxd-research/12864-uxd-research-heuristic-eval"
+  },
+  {
+   "score": 3,
+   "id": 883,
+   "plugin": "tres-finance-plugin",
+   "skill": "tres-onboarding",
+   "license": "MIT",
+   "risk": [
+    "mcp_server",
+    "scripts"
+   ],
+   "path": "skills/261-tres-finance-plugin/883-tres-onboarding"
+  },
+  {
+   "score": 3,
+   "id": 981,
+   "plugin": "human-resources",
+   "skill": "onboarding",
+   "license": "Apache-2.0",
+   "risk": [
+    "mcp_server"
+   ],
+   "path": "skills/322-human-resources/981-onboarding"
+  },
+  {
+   "score": 3,
+   "id": 2034,
+   "plugin": "brightdata-plugin",
+   "skill": "agent-onboarding",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/895-brightdata-plugin/2034-agent-onboarding"
+  },
+  {
+   "score": 3,
+   "id": 3636,
+   "plugin": "google-cloud-developer",
+   "skill": "google-cloud-recipe-onboarding",
+   "license": "Apache-2.0",
+   "risk": [
+    "mcp_server"
+   ],
+   "path": "skills/1476-google-cloud-developer/3636-google-cloud-recipe-onboarding"
+  },
+  {
+   "score": 3,
+   "id": 3708,
+   "plugin": "aiboarding",
+   "skill": "audit-agent-onboarding",
+   "license": "MIT",
+   "risk": [
+    "hooks"
+   ],
+   "path": "skills/1495-aiboarding/3708-audit-agent-onboarding"
+  },
+  {
+   "score": 3,
+   "id": 3709,
+   "plugin": "aiboarding",
+   "skill": "compress-onboarding",
+   "license": "MIT",
+   "risk": [
+    "hooks"
+   ],
+   "path": "skills/1495-aiboarding/3709-compress-onboarding"
+  }
+ ],
+ "محاسبة ومالية وتدقيق": [
+  {
+   "score": 5,
+   "id": 2916,
+   "plugin": "hledger",
+   "skill": "hledger",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/1236-hledger/2916-hledger"
+  },
+  {
+   "score": 5,
+   "id": 8806,
+   "plugin": "fintech-payments-engineering",
+   "skill": "payment-reconciliation",
+   "license": "MIT",
+   "risk": [
+    "hooks",
+    "scripts"
+   ],
+   "path": "skills/2296-fintech-payments-engineering/8806-payment-reconciliation"
+  },
+  {
+   "score": 4,
+   "id": 881,
+   "plugin": "tres-finance-plugin",
+   "skill": "tres-invoice-bill-matching",
+   "license": "MIT",
+   "risk": [
+    "mcp_server",
+    "scripts"
+   ],
+   "path": "skills/261-tres-finance-plugin/881-tres-invoice-bill-matching"
+  },
+  {
+   "score": 4,
+   "id": 882,
+   "plugin": "tres-finance-plugin",
+   "skill": "tres-ledger-link",
+   "license": "MIT",
+   "risk": [
+    "mcp_server",
+    "scripts"
+   ],
+   "path": "skills/261-tres-finance-plugin/882-tres-ledger-link"
+  },
+  {
+   "score": 4,
+   "id": 975,
+   "plugin": "finance",
+   "skill": "reconciliation",
+   "license": "Apache-2.0",
+   "risk": [
+    "mcp_server"
+   ],
+   "path": "skills/321-finance/975-reconciliation"
+  },
+  {
+   "score": 4,
+   "id": 1152,
+   "plugin": "small-business",
+   "skill": "invoice-chase",
+   "license": "Apache-2.0",
+   "risk": [
+    "mcp_server"
+   ],
+   "path": "skills/335-small-business/1152-invoice-chase"
+  },
+  {
+   "score": 4,
+   "id": 2839,
+   "plugin": "carrel-finance",
+   "skill": "accounting-inbox",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/1196-carrel-finance/2839-accounting-inbox"
+  },
+  {
+   "score": 4,
+   "id": 8794,
+   "plugin": "finance",
+   "skill": "reconciliation-automatch",
+   "license": "MIT",
+   "risk": [
+    "hooks",
+    "scripts"
+   ],
+   "path": "skills/2294-finance/8794-reconciliation-automatch"
+  },
+  {
+   "score": 4,
+   "id": 8795,
+   "plugin": "finance",
+   "skill": "reconciliation-summary",
+   "license": "MIT",
+   "risk": [
+    "hooks",
+    "scripts"
+   ],
+   "path": "skills/2294-finance/8795-reconciliation-summary"
+  },
+  {
+   "score": 4,
+   "id": 14396,
+   "plugin": "xbert-tax-reconciliation",
+   "skill": "tax-reconciliation",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/3584-xbert-tax-reconciliation/14396-tax-reconciliation"
+  },
+  {
+   "score": 3,
+   "id": 826,
+   "plugin": "cupertino",
+   "skill": "cupertino-elevate",
+   "license": "MIT",
+   "risk": [
+    "hooks",
+    "scripts"
+   ],
+   "path": "skills/252-cupertino/826-cupertino-elevate"
+  },
+  {
+   "score": 3,
+   "id": 878,
+   "plugin": "tres-finance-plugin",
+   "skill": "tres-explorer-tx-to-ledger",
+   "license": "MIT",
+   "risk": [
+    "mcp_server",
+    "scripts"
+   ],
+   "path": "skills/261-tres-finance-plugin/878-tres-explorer-tx-to-ledger"
+  }
+ ],
+ "ويب أوفلاين وأداء": [
+  {
+   "score": 4,
+   "id": 52,
+   "plugin": "pwa-expert",
+   "skill": "pwa-development",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/39-pwa-expert/52-pwa-development"
+  },
+  {
+   "score": 4,
+   "id": 147,
+   "plugin": "pwa-expert",
+   "skill": "pwa-development",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/79-pwa-expert/147-pwa-development"
+  },
+  {
+   "score": 4,
+   "id": 148,
+   "plugin": "pwa-expert",
+   "skill": "pwa-scaffold-workflow",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/79-pwa-expert/148-pwa-scaffold-workflow"
+  },
+  {
+   "score": 4,
+   "id": 1752,
+   "plugin": "pwa-builder",
+   "skill": "pwa",
+   "license": "MIT",
+   "risk": [
+    "mcp_server"
+   ],
+   "path": "skills/723-pwa-builder/1752-pwa"
+  },
+  {
+   "score": 3,
+   "id": 145,
+   "plugin": "pwa-expert",
+   "skill": "pwa-audit-workflow",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/79-pwa-expert/145-pwa-audit-workflow"
+  },
+  {
+   "score": 3,
+   "id": 146,
+   "plugin": "pwa-expert",
+   "skill": "pwa-checklist-workflow",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/79-pwa-expert/146-pwa-checklist-workflow"
+  },
+  {
+   "score": 2,
+   "id": 51,
+   "plugin": "platform-engineering",
+   "skill": "platform-engineering",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/37-platform-engineering/51-platform-engineering"
+  },
+  {
+   "score": 2,
+   "id": 141,
+   "plugin": "platform-engineering",
+   "skill": "platform-engineering",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/77-platform-engineering/141-platform-engineering"
+  },
+  {
+   "score": 2,
+   "id": 1975,
+   "plugin": "cloudflare",
+   "skill": "web-perf",
+   "license": "Apache-2.0",
+   "risk": [
+    "mcp_server"
+   ],
+   "path": "skills/883-cloudflare/1975-web-perf"
+  },
+  {
+   "score": 2,
+   "id": 3370,
+   "plugin": "cloudflare-skills",
+   "skill": "web-perf",
+   "license": "Apache-2.0",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/1416-cloudflare-skills/3370-web-perf"
+  },
+  {
+   "score": 2,
+   "id": 3443,
+   "plugin": "web-performance-skills",
+   "skill": "web-performance-optimization",
+   "license": "Apache-2.0",
+   "risk": [
+    "mcp_server"
+   ],
+   "path": "skills/1442-web-performance-skills/3443-web-performance-optimization"
+  },
+  {
+   "score": 2,
+   "id": 8698,
+   "plugin": "desktop-app-engineering",
+   "skill": "desktop-framework-choice",
+   "license": "MIT",
+   "risk": [
+    "hooks",
+    "scripts"
+   ],
+   "path": "skills/2279-desktop-app-engineering/8698-desktop-framework-choice"
+  }
+ ],
+ "عربي واتجاه RTL": [
+  {
+   "score": 5,
+   "id": 8940,
+   "plugin": "localization-i18n-engineering",
+   "skill": "i18n-foundations-and-icu",
+   "license": "MIT",
+   "risk": [
+    "hooks",
+    "scripts"
+   ],
+   "path": "skills/2329-localization-i18n-engineering/8940-i18n-foundations-and-icu"
+  },
+  {
+   "score": 4,
+   "id": 7514,
+   "plugin": "frontend-dev-kit",
+   "skill": "i18n",
+   "license": "MIT",
+   "risk": [
+    "mcp_server"
+   ],
+   "path": "skills/2111-frontend-dev-kit/7514-i18n"
+  },
+  {
+   "score": 4,
+   "id": 8942,
+   "plugin": "localization-i18n-engineering",
+   "skill": "localization-qa-and-pseudo-loc",
+   "license": "MIT",
+   "risk": [
+    "hooks",
+    "scripts"
+   ],
+   "path": "skills/2329-localization-i18n-engineering/8942-localization-qa-and-pseudo-loc"
+  },
+  {
+   "score": 4,
+   "id": 12757,
+   "plugin": "patternfly",
+   "skill": "pf-i18n-audit",
+   "license": "MIT",
+   "risk": [
+    "mcp_server",
+    "scripts"
+   ],
+   "path": "skills/2998-patternfly/12757-pf-i18n-audit"
+  },
+  {
+   "score": 4,
+   "id": 12807,
+   "plugin": "pf-code-review",
+   "skill": "pf-i18n-audit",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/3000-pf-code-review/12807-pf-i18n-audit"
+  },
+  {
+   "score": 3,
+   "id": 1624,
+   "plugin": "i18n-extractor",
+   "skill": "i18n",
+   "license": "MIT",
+   "risk": [
+    "mcp_server"
+   ],
+   "path": "skills/595-i18n-extractor/1624-i18n"
+  },
+  {
+   "score": 3,
+   "id": 11475,
+   "plugin": "i18n-parity",
+   "skill": "i18n-parity-i18n-parity-workflow",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/2825-i18n-parity/11475-i18n-parity-i18n-parity-workflow"
+  },
+  {
+   "score": 3,
+   "id": 11476,
+   "plugin": "i18n-parity",
+   "skill": "i18n-parity",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/2825-i18n-parity/11476-i18n-parity"
+  },
+  {
+   "score": 3,
+   "id": 12112,
+   "plugin": "nuxt-i18n",
+   "skill": "nuxt-i18n",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/2918-nuxt-i18n/12112-nuxt-i18n"
+  },
+  {
+   "score": 3,
+   "id": 12145,
+   "plugin": "portless",
+   "skill": "portless",
+   "license": "Apache-2.0",
+   "risk": [],
+   "path": "skills/2928-portless/12145-portless"
+  },
+  {
+   "score": 3,
+   "id": 12146,
+   "plugin": "portless",
+   "skill": "portless",
+   "license": "Apache-2.0",
+   "risk": [],
+   "path": "skills/2928-portless/12146-portless"
+  },
+  {
+   "score": 3,
+   "id": 12147,
+   "plugin": "portless",
+   "skill": "portless",
+   "license": "Apache-2.0",
+   "risk": [],
+   "path": "skills/2928-portless/12147-portless"
+  }
+ ],
+ "تصوّر بيانات ولوحات": [
+  {
+   "score": 6,
+   "id": 9232,
+   "plugin": "staffing-operations",
+   "skill": "kpi-dashboard-design",
+   "license": "MIT",
+   "risk": [
+    "hooks",
+    "scripts"
+   ],
+   "path": "skills/2385-staffing-operations/9232-kpi-dashboard-design"
+  },
+  {
+   "score": 6,
+   "id": 14162,
+   "plugin": "business-analytics",
+   "skill": "kpi-dashboard-design",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/3455-business-analytics/14162-kpi-dashboard-design"
+  },
+  {
+   "score": 5,
+   "id": 939,
+   "plugin": "data",
+   "skill": "build-dashboard",
+   "license": "Apache-2.0",
+   "risk": [
+    "mcp_server",
+    "scripts"
+   ],
+   "path": "skills/317-data/939-build-dashboard"
+  },
+  {
+   "score": 5,
+   "id": 8731,
+   "plugin": "edtech-partner-success",
+   "skill": "health-report-dashboard",
+   "license": "MIT",
+   "risk": [
+    "hooks",
+    "scripts"
+   ],
+   "path": "skills/2285-edtech-partner-success/8731-health-report-dashboard"
+  },
+  {
+   "score": 5,
+   "id": 10320,
+   "plugin": "build-web-data-visualization",
+   "skill": "d3-data-visualization",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/2690-build-web-data-visualization/10320-d3-data-visualization"
+  },
+  {
+   "score": 5,
+   "id": 12774,
+   "plugin": "patternfly",
+   "skill": "pf-chart-gen",
+   "license": "MIT",
+   "risk": [
+    "mcp_server",
+    "scripts"
+   ],
+   "path": "skills/2998-patternfly/12774-pf-chart-gen"
+  },
+  {
+   "score": 5,
+   "id": 12824,
+   "plugin": "pf-react",
+   "skill": "pf-chart-gen",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/3005-pf-react/12824-pf-chart-gen"
+  },
+  {
+   "score": 4,
+   "id": 3555,
+   "plugin": "monitor",
+   "skill": "cockpit",
+   "license": "MIT",
+   "risk": [
+    "hooks",
+    "scripts"
+   ],
+   "path": "skills/1455-monitor/3555-cockpit"
+  },
+  {
+   "score": 4,
+   "id": 3979,
+   "plugin": "digital-marketing-pro",
+   "skill": "agency-dashboard",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/1520-digital-marketing-pro/3979-agency-dashboard"
+  },
+  {
+   "score": 4,
+   "id": 4036,
+   "plugin": "digital-marketing-pro",
+   "skill": "executive-dashboard",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/1520-digital-marketing-pro/4036-executive-dashboard"
+  },
+  {
+   "score": 4,
+   "id": 4068,
+   "plugin": "digital-marketing-pro",
+   "skill": "live-dashboard",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/1520-digital-marketing-pro/4068-live-dashboard"
+  },
+  {
+   "score": 4,
+   "id": 4452,
+   "plugin": "tonone",
+   "skill": "lens-chart",
+   "license": "MIT",
+   "risk": [
+    "hooks"
+   ],
+   "path": "skills/1567-tonone/4452-lens-chart"
+  }
+ ],
+ "جودة واختبار واجهات": [
+  {
+   "score": 4,
+   "id": 7898,
+   "plugin": "testing-plugin",
+   "skill": "playwright-testing",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/2172-testing-plugin/7898-playwright-testing"
+  },
+  {
+   "score": 4,
+   "id": 13231,
+   "plugin": "accessibility-compliance",
+   "skill": "wcag-audit-patterns",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/3068-accessibility-compliance/13231-wcag-audit-patterns"
+  },
+  {
+   "score": 4,
+   "id": 14136,
+   "plugin": "accessibility-compliance",
+   "skill": "wcag-audit-patterns",
+   "license": "MIT",
+   "risk": [],
+   "path": "skills/3441-accessibility-compliance/14136-wcag-audit-patterns"
+  },
+  {
+   "score": 3,
+   "id": 501,
+   "plugin": "pw",
+   "skill": "playwright-pro",
+   "license": "MIT",
+   "risk": [
+    "hooks",
+    "mcp_server",
+    "scripts"
+   ],
+   "path": "skills/151-pw/501-playwright-pro"
+  },
+  {
+   "score": 3,
+   "id": 2931,
+   "plugin": "playwright",
+   "skill": "playwright",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/1251-playwright/2931-playwright"
+  },
+  {
+   "score": 3,
+   "id": 2979,
+   "plugin": "playwright-kit",
+   "skill": "playwright-authoring",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/1329-playwright-kit/2979-playwright-authoring"
+  },
+  {
+   "score": 3,
+   "id": 2980,
+   "plugin": "playwright-kit",
+   "skill": "playwright-evidence",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/1329-playwright-kit/2980-playwright-evidence"
+  },
+  {
+   "score": 3,
+   "id": 2981,
+   "plugin": "playwright-kit",
+   "skill": "playwright-kit-ops",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/1329-playwright-kit/2981-playwright-kit-ops"
+  },
+  {
+   "score": 3,
+   "id": 2982,
+   "plugin": "playwright-kit",
+   "skill": "playwright-planning",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/1329-playwright-kit/2982-playwright-planning"
+  },
+  {
+   "score": 3,
+   "id": 3164,
+   "plugin": "boss",
+   "skill": "qa/e2e-playwright",
+   "license": "MIT",
+   "risk": [
+    "hooks",
+    "scripts"
+   ],
+   "path": "skills/1369-boss/3164-qa-e2e-playwright"
+  },
+  {
+   "score": 3,
+   "id": 4668,
+   "plugin": "crypto-tax-calculator",
+   "skill": "calculating-crypto-taxes",
+   "license": "MIT",
+   "risk": [
+    "scripts"
+   ],
+   "path": "skills/1663-crypto-tax-calculator/4668-calculating-crypto-taxes"
+  },
+  {
+   "score": 3,
+   "id": 7508,
+   "plugin": "frontend-dev-kit",
+   "skill": "accessibility",
+   "license": "MIT",
+   "risk": [
+    "mcp_server"
+   ],
+   "path": "skills/2111-frontend-dev-kit/7508-accessibility"
+  }
+ ]
+}
