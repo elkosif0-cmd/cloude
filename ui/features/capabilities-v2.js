@@ -12,8 +12,8 @@ const LOCAL_KEY="skosif_cap_v2_local_workspace";
 const ROLE_KEY="skosif_cap_v2_preview_role";
 const MAX_BYTES=131072;
 const PERMISSIONS={
-  owner:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","integrity:read"],
-  partner:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","integrity:read"],
+  owner:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","integrity:read"],
+  partner:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","integrity:read"],
   manager:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","integrity:read"],
   senior:["providers:read","session:read","workspace:list","workspace:read","workspace:write","integrity:read"],
   viewer:["providers:read","session:read","workspace:list","workspace:read","integrity:read"]
@@ -135,12 +135,16 @@ async function ensureRemoteWorkspace(){
   const list=await listRemote(),first=(list.workspaces||[]).find(x=>!x.archived_at);
   if(first){c.workspaceId=first.id;save(CFG_KEY,c);return first.id}
   const name=(document.querySelector("#biz-name")?.textContent||"SQC").trim();
-  const d=await api("/api/capabilities-v2/workspaces",{method:"POST",body:JSON.stringify({name,business_year:new Date().getFullYear(),currency:"SAR",schema_version:"skosif-v2",effective_at:now()})});
+  const d=await api("/api/capabilities-v2/workspaces",{method:"POST",body:JSON.stringify({name,business_year:new Date().getFullYear(),currency:"SAR",schema_version:"skosif-v3",effective_at:now(),sensitive:name.replace(/\\s+/g,"")==="تصيف"})});
   c.workspaceId=d.workspace.id;save(CFG_KEY,c);return c.workspaceId;
 }
 async function pushRemote(){
   const id=await ensureRemoteWorkspace(),current=await api("/api/capabilities-v2/workspaces/"+encodeURIComponent(id)+"/state"),base=current.workspace?.revision||0;
   return api("/api/capabilities-v2/workspaces/"+encodeURIComponent(id)+"/state",{method:"PUT",body:JSON.stringify({base_revision:base,state:safeSummary()})});
+}
+async function shareRemote(subject,role){
+  const id=await ensureRemoteWorkspace();
+  return api("/api/capabilities-v2/workspaces/"+encodeURIComponent(id)+"/share",{method:"POST",body:JSON.stringify({subject,role})});
 }
 
 let root=null,state={tab:"overview",busy:false,session:null,providers:null,remoteError:""};
@@ -165,12 +169,12 @@ function overviewHTML(){
       ].map(x=>'<div><b>'+x[0]+'</b><span>'+x[1]+'</span></div>').join("")+'</div></section>'+
       '<section class="skv2-panel"><h4>Snapshot آمن من SQC</h4><div class="skv2-summary"><div><span>أصناف متابعة</span><b>'+s.inventorySummary.tracked+'</b></div><div><span>تنبيهات إعادة الطلب</span><b>'+s.inventorySummary.reorderAlerts+'</b></div><div><span>صافي التدفق '+esc(s.period.month)+'</span><b>'+money(s.financeSummary.net)+'</b></div><div><span>قوائم دخل محفوظة</span><b>'+s.reporting.savedIncomeStatements+'</b></div></div><p class="skv2-note">لا تُحفظ أسماء العملاء أو الجوالات أو الطلبات الخام أو الأسرار داخل Workspace snapshot.</p></section>'+
     '</div>'+
-    '<div class="skv2-actions"><button class="btn primary" id="skv2-save-local">حفظ Snapshot محلي</button><button class="btn" id="skv2-push" '+(!c.apiBase?'disabled':'')+'>مزامنة إلى D1</button><button class="btn" id="skv2-verify">فحص النزاهة</button></div>'+
+    '<div class="skv2-actions"><button class="btn primary" id="skv2-save-local">حفظ Snapshot محلي</button><button class="btn" id="skv2-push" '+(!c.apiBase?'disabled':'')+'>مزامنة إلى D1</button><button class="btn" id="skv2-share" '+(!c.apiBase||!["owner","partner"].includes(state.session?.session?.role)?'disabled':'')+'>مشاركة الشركة</button><button class="btn" id="skv2-verify">فحص النزاهة</button></div>'+
     (last?'<div class="skv2-last"><span>آخر حفظ محلي</span><b>Revision '+last.revision+'</b><code>'+esc(last.state_hash.slice(0,24))+'…</code><small>'+new Date(last.saved_at).toLocaleString("ar-SA-u-nu-latn")+'</small></div>':'');
 }
 function rolesHTML(){
   const r=state.session?.session?.role||rolePreview(),perms=state.session?.session?.capabilities||PERMISSIONS[r]||[];
-  const names=["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","integrity:read"];
+  const names=["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","integrity:read"];
   return '<div class="skv2-role-head"><div><b>الدور الفعلي</b><span>'+(state.session?badge(true,ROLE_AR[r]||r):badge(false,"معاينة محلية: "+(ROLE_AR[r]||r)) )+'</span></div>'+
     (!state.session?'<label class="sk-field"><span>دور المعاينة</span><select id="skv2-role">'+Object.keys(PERMISSIONS).map(x=>'<option value="'+x+'"'+(r===x?" selected":"")+'>'+ROLE_AR[x]+'</option>').join("")+'</select></label>':'')+'</div>'+
     '<div class="skv2-matrix"><table><thead><tr><th>الصلاحية</th>'+Object.keys(PERMISSIONS).map(x=>'<th>'+ROLE_AR[x]+'</th>').join("")+'</tr></thead><tbody>'+names.map(p=>'<tr><td><code>'+p+'</code></td>'+Object.keys(PERMISSIONS).map(x=>'<td class="'+(authorizeRole(x,p)?"yes":"no")+'">'+(authorizeRole(x,p)?"✓":"—")+'</td>').join("")+'</tr>').join("")+'</tbody></table></div>'+
@@ -227,6 +231,7 @@ function bind(){
   $$("[data-skv2-tab]",root).forEach(b=>b.onclick=()=>{state.tab=b.dataset.skv2Tab;paint()});
   const sl=$("#skv2-save-local",root);if(sl)sl.onclick=async()=>{const r=await saveLocalSnapshot(safeSummary());if(r.error)return toast(r.error,"err");toast("تم حفظ Revision "+r.workspace.revision,"ok");paint()};
   const pv=$("#skv2-push",root);if(pv)pv.onclick=async()=>{pv.disabled=true;try{const r=await pushRemote();toast("تمت المزامنة إلى D1 — Revision "+r.workspace.revision,"ok");await testRemote()}catch(e){toast(e.status===409?"تعارض Revision — أعد المحاولة بعد تحديث الحالة":"فشل المزامنة: "+e.message,"err");pv.disabled=false}};
+  const sh=$("#skv2-share",root);if(sh)sh.onclick=async()=>{const v=await SK.form("مشاركة الشركة",[{key:"subject",label:"بريد المستخدم",type:"email",required:true,placeholder:"user@example.com"},{key:"role",label:"الدور",type:"select",value:"viewer",options:[["partner","شريك"],["manager","مدير"],["senior","محاسب أول"],["viewer","مشاهدة فقط"]]}],{ok:"منح الوصول",message:"في المساحات الحساسة مثل تصيف لن تظهر الشركة للمستخدم أصلًا قبل هذا المنح الصريح."});if(!v)return;sh.disabled=true;try{await shareRemote(v.subject,v.role);toast("تم منح الوصول للشركة","ok")}catch(e){toast("تعذر المشاركة: "+e.message,"err")}finally{sh.disabled=false}};
   const vf=$("#skv2-verify",root);if(vf)vf.onclick=async()=>{const r=await verifyLocal();toast(r.valid?"سلسلة النزاهة سليمة ("+r.entries+")":"اكتُشف كسر عند #"+r.broken_seq,r.valid?"ok":"err")};
   const rr=$("#skv2-role",root);if(rr)rr.onchange=()=>{save(ROLE_KEY,rr.value);toast("تم تغيير دور المعاينة","info");paint()};
   const ir=$("#skv2-integrity-run",root);if(ir)ir.onclick=async()=>{const r=await verifyLocal(),box=$("#skv2-integrity-result",root);box.innerHTML='<div class="'+(r.valid?"skv2-okbox":"skv2-badbox")+'"><b>'+(r.valid?"السلسلة سليمة":"السلسلة غير سليمة")+'</b><span>'+(r.valid?("عدد الأحداث "+r.entries+" · head "+esc((r.head_hash||"").slice(0,24))+"…"):("الكسر عند #"+r.broken_seq))+'</span></div>'};
