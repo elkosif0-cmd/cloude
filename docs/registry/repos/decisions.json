@@ -1,0 +1,511 @@
+{
+ "_note": "القرارات اليدوية لكل مستودع (FOUNDATION §0.0.0 — Capability Migration Matrix). يقرؤها tools/repo_inventory.py ويدمجها في تقرير كل مستودع. القرار: Keep / Merge / Rebuild / Relocate / Specialize / Retire (Retire مع سبب).",
+ "kosif-audit-pro": {
+  "coverage": "عميق — قُرئت محركاته عند الدمج (docs/FUSION_ALL_REPOS_ar.md) وأُعيد مسحه آلياً اليوم",
+  "capabilities": [
+   {
+    "name": "المال الدقيق (BigInt) للميزان والقوائم",
+    "what": "تمثيل المبالغ بوحدات صغرى بلا فقد عشري وتجميعها في ميزان وقوائم",
+    "class": "المراجعة + المحاسبة",
+    "sector": "عام",
+    "state": "منقول",
+    "best": "cloude: app/src/engine/fusion/reports/money-engine.ts",
+    "target": "SKEngines.reports.money",
+    "decision": "Merge (منفذ)",
+    "acceptance": "vitest money-engine",
+    "next": "توحيد عقد الدقة مع ledger-engine (Number بوحدات كبرى) — P2"
+   },
+   {
+    "name": "القوائم المالية والتحليل من الميزان",
+    "what": "بناء المركز المالي والدخل والتدفقات والنسب من ميزان مراجعة مصنف",
+    "class": "المحاسبة (مشترك مع المراجعة والأدوات)",
+    "sector": "عام",
+    "state": "منقول ومختبَر",
+    "best": "cloude: reports/statements-engine.ts, analysis-engine.ts",
+    "target": "SKEngines.reports.statements / analysis",
+    "decision": "Merge (منفذ)",
+    "acceptance": "vitest statements/analysis + bundle_verify",
+    "next": "—"
+   },
+   {
+    "name": "مجلس المراجعين وجولات A01–A10",
+    "what": "ملاحظات مجلس حتمية بأساس رقمي وإجراء لكل ملاحظة، وجولات مراجعة مرقمة",
+    "class": "المراجعة",
+    "sector": "عام",
+    "state": "منقول (الملاحظات)؛ الجولات في ai-review-engine",
+    "best": "cloude: audit/tb-review-engine.ts + ai-review-engine.ts",
+    "target": "ملف المراجعة ← الجولات",
+    "decision": "Merge (منفذ) — التحقق من تغطية A01–A10 واحدة واحدة",
+    "acceptance": "اختبار يقارن قائمة الجولات بالمصدر",
+    "next": "جرد الجولات العشر مقابل programme-engine (P4)"
+   },
+   {
+    "name": "تجميع التحريفات ISA 450 واشتقاق الرأي",
+    "what": "جمع التحريفات غير المصححة ومقارنتها بالأهمية النسبية ثم نوع الرأي",
+    "class": "المراجعة",
+    "sector": "عام",
+    "state": "منقول",
+    "best": "cloude: tb-review-engine deriveOpinion",
+    "target": "SKEngines.audit.tbReview.deriveOpinion",
+    "decision": "Merge (منفذ)",
+    "acceptance": "vitest tb-review",
+    "next": "—"
+   }
+  ]
+ },
+ "smart-trial-balance-review": {
+  "coverage": "عميق — قُرئ عند الدمج وأُعيد مسحه اليوم",
+  "capabilities": [
+   {
+    "name": "مجلس Gemini بثلاثة مراجعين",
+    "what": "ثلاثة أدوار تراجع الميزان بمخطط JSON ملزم وتطلب مستندات",
+    "class": "المراجعة (طبقة AI)",
+    "sector": "عام",
+    "state": "منقول ومُطوَّر",
+    "best": "cloude: audit/ai-review-engine.ts + core/ai.js",
+    "target": "ملف المراجعة ← المجلس",
+    "decision": "Merge (منفذ)",
+    "acceptance": "ai-review-engine.test.ts",
+    "next": "المزود قابل للاستبدال عبر AI Provider Bridge (P7)"
+   },
+   {
+    "name": "دورة طلب ← رفع ← حكم على المستند",
+    "what": "طلبات REQ-n، رفع ملفات، تقييم مقبول/غير كافٍ/مرفوض، جولة جديدة",
+    "class": "المراجعة",
+    "sector": "عام",
+    "state": "منقول",
+    "best": "cloude: audit/document-check-engine.ts + tb-review.js",
+    "target": "ملف المراجعة ← المستندات",
+    "decision": "Merge (منفذ)",
+    "acceptance": "document-check-engine.test.ts",
+    "next": "—"
+   },
+   {
+    "name": "قاعدة المعايير المربوطة بالحسابات",
+    "what": "لكل حساب معاييره ومتطلباته وإفصاحاته",
+    "class": "طبقة مشتركة (المعايير)",
+    "sector": "عام",
+    "state": "منقول وموسع",
+    "best": "cloude: audit/codex-engine.ts + features/codex.js",
+    "target": "المدونة والمعايير (codex)",
+    "decision": "Merge (منفذ)",
+    "acceptance": "codex-engine.test.ts",
+    "next": "—"
+   }
+  ]
+ },
+ "moon": {
+  "coverage": "عميق — قُرئ عند الدمج وأُعيد مسحه اليوم",
+  "capabilities": [
+   {
+    "name": "تقييم المخاطر لكل بند",
+    "what": "درجة خطر من الحجم والتقدير والتغير وفجوة الأدلة والطبيعة",
+    "class": "المراجعة",
+    "sector": "عام",
+    "state": "منقول",
+    "best": "cloude: tb-review-engine (riskScore)",
+    "target": "ملف المراجعة ← المخاطر",
+    "decision": "Merge (منفذ)",
+    "acceptance": "tb-review-engine.test.ts",
+    "next": "—"
+   },
+   {
+    "name": "اختبارات القيود (journal entry testing)",
+    "what": "اختبارات شذوذ على القيود: نهاية الفترة، أرقام مستديرة، مستخدمون غير معتادين",
+    "class": "المراجعة (مشترك مع الأدوات: الرقابة والجودة)",
+    "sector": "عام",
+    "state": "متاح في استوديو التحليل (ui/audit)",
+    "best": "cloude: ui/audit analysis studio",
+    "target": "عائلة الرقابة والجودة في الأدوات + إجراء مراجعة",
+    "decision": "Relocate — شاشة مستقلة في الأدوات تقرأ دفاتر الشركة",
+    "acceptance": "اختبار يشغّل القواعد على دفتر تجريبي",
+    "next": "P6"
+   },
+   {
+    "name": "اشتقاق الرأي ISA 705",
+    "what": "رأي نظيف/متحفظ/معاكس/امتناع من التحريفات والقيود",
+    "class": "المراجعة",
+    "sector": "عام",
+    "state": "منقول",
+    "best": "cloude: deriveOpinion",
+    "target": "التقرير النهائي",
+    "decision": "Merge (منفذ)",
+    "acceptance": "vitest",
+    "next": "—"
+   },
+   {
+    "name": "الاستوديو المالي السينمائي (الواجهة)",
+    "what": "واجهة عرض مالية بحركة وطبقات",
+    "class": "تصميم",
+    "sector": "عام",
+    "state": "لم يُنقل",
+    "best": "moon (ui)",
+    "target": "docs/design (أفكار)",
+    "decision": "Specialize — تُحصد أفكار الحركة فقط؛ المنطق في cloude",
+    "acceptance": "—",
+    "next": "مراجعة بصرية عند P8"
+   }
+  ]
+ },
+ "see": {
+  "coverage": "عميق — قُرئ عند الدمج وأُعيد مسحه اليوم؛ الـPR المفتوح يُفحص في تقرير المستودع",
+  "capabilities": [
+   {
+    "name": "التصنيف والإقرارات لكل فئة",
+    "what": "لكل بند قوائم: المعايير والإقرارات (assertions) ومتطلبات الإفصاح",
+    "class": "المراجعة",
+    "sector": "عام",
+    "state": "منقول",
+    "best": "cloude: statements-engine LINES + codex",
+    "target": "المعايير بجوار كل حساب",
+    "decision": "Merge (منفذ)",
+    "acceptance": "vitest",
+    "next": "—"
+   },
+   {
+    "name": "الجاهزية وإشارات القيود",
+    "what": "درجة جاهزية الملف للمراجعة وإشارات على القيود",
+    "class": "المراجعة",
+    "sector": "عام",
+    "state": "منقول جزئياً",
+    "best": "cloude: tb-review readiness",
+    "target": "ملف المراجعة",
+    "decision": "Merge",
+    "acceptance": "council_readiness.test",
+    "next": "—"
+   },
+   {
+    "name": "بوابة ذكاء بلا اعتماد بشري لا تصدر",
+    "what": "لا يصدر رأي من الذكاء دون اعتماد بشري",
+    "class": "طبقة AI (حوكمة)",
+    "sector": "عام",
+    "state": "منقول كقاعدة",
+    "best": "cloude: governance-engine",
+    "target": "حوكمة الذكاء",
+    "decision": "Merge (منفذ)",
+    "acceptance": "governance tests",
+    "next": "—"
+   }
+  ]
+ },
+ "kosif-audit-studio": {
+  "coverage": "عميق للكود المنقول إلى ui/audit (مولَّد بـ tools/vendor_audit.py)؛ الـPRs والـIssues المفتوحة مفحوصة عناوينها في §11 من تقرير المستودع",
+  "capabilities": [
+   {
+    "name": "مساحة المراجعة v5 (الاستوديو)",
+    "what": "مساحة عمل مراجعة بتبويبات: الجولات، الأدلة، التحليل",
+    "class": "المراجعة",
+    "sector": "عام",
+    "state": "مدمج كوحدات ES في ui/audit",
+    "best": "cloude: ui/audit/**",
+    "target": "ملف المراجعة ← الاستوديو المتقدم",
+    "decision": "Keep (المصدر) + Merge أعمق في ملف المراجعة",
+    "acceptance": "feature_audit (استوديو)",
+    "next": "P4: تبويب واحد لا تطبيق مضمَّن"
+   },
+   {
+    "name": "استوديو التحليل ومختبر المعايير",
+    "what": "تحليلات على الميزان ومختبر لتجربة المعايير",
+    "class": "المراجعة (مشترك مع الأدوات: التحليل)",
+    "sector": "عام",
+    "state": "مدمج",
+    "best": "cloude: ui/audit",
+    "target": "عائلة التحليل",
+    "decision": "Keep",
+    "acceptance": "—",
+    "next": "—"
+   }
+  ]
+ },
+ "new": {
+  "coverage": "عميق — مواصفات نصية قُرئت عند الدمج",
+  "capabilities": [
+   {
+    "name": "الأحداث اللاحقة والاستمرارية (ISA 560/570)",
+    "what": "مواصفة إجراءات الأحداث اللاحقة ومؤشرات الاستمرارية",
+    "class": "المراجعة",
+    "sector": "عام",
+    "state": "منقول إلى المحرك والمدونة",
+    "best": "cloude: tb-review-engine + codex",
+    "target": "ملف المراجعة",
+    "decision": "Merge (منفذ)",
+    "acceptance": "vitest",
+    "next": "—"
+   },
+   {
+    "name": "مجلس الجولات العمياء",
+    "what": "أعضاء يبدون الرأي مستقلين دون رؤية بعضهم ثم تجميع",
+    "class": "المراجعة (AI)",
+    "sector": "عام",
+    "state": "جزئي في ai-review-engine",
+    "best": "cloude",
+    "target": "مجلس المراجعين",
+    "decision": "Merge",
+    "acceptance": "اختبار استقلال الآراء",
+    "next": "P4"
+   },
+   {
+    "name": "مكتبة المعرفة",
+    "what": "مواصفة مكتبة كتب ومراجع يستشيرها الذكاء",
+    "class": "طبقة مشتركة (المعرفة)",
+    "sector": "عام",
+    "state": "غير منفذ — المجلد knowledge/ أُنشئ",
+    "best": "new (المواصفة)",
+    "target": "knowledge/books + قارئ",
+    "decision": "Rebuild",
+    "acceptance": "catalog.json + قارئ",
+    "next": "P9 أو عند طلب المالك"
+   }
+  ]
+ },
+ "mafateeh-al-tharwa": {
+  "coverage": "مرجع — مسح آلي اليوم؛ قارئ الكتب قُرئ عند الدمج",
+  "capabilities": [
+   {
+    "name": "قارئ الكتب",
+    "what": "عرض كتاب فصلاً فصلاً مع بحث",
+    "class": "طبقة مشتركة (المعرفة)",
+    "sector": "عام",
+    "state": "لم يُنقل؛ النمط نفسه في عامل kosif-standards-library",
+    "best": "mafateeh-al-tharwa",
+    "target": "knowledge/books قارئ",
+    "decision": "Rebuild (قارئ المكتبة) — Relocate الفكرة",
+    "acceptance": "فتح كتاب من catalog.json والبحث فيه",
+    "next": "P9"
+   },
+   {
+    "name": "بوابة ذكاء على الخادم بحد معدل",
+    "what": "استدعاء Gemini/OpenAI من الخادم مع تحقق المصدر وحد المعدل",
+    "class": "طبقة AI",
+    "sector": "عام",
+    "state": "نمط رسائل الأخطاء منقول",
+    "best": "cloude: capabilities-v2 provider registry",
+    "target": "AI Provider Bridge",
+    "decision": "Merge (النمط)",
+    "acceptance": "—",
+    "next": "P7"
+   }
+  ]
+ },
+ "mafateeh-al-tharwa2": {
+  "coverage": "مرجع — نسخة ثانية من القارئ",
+  "capabilities": [
+   {
+    "name": "القارئ (نسخة 2)",
+    "what": "كالسابق",
+    "class": "طبقة مشتركة",
+    "sector": "عام",
+    "state": "مكرر",
+    "best": "mafateeh-al-tharwa",
+    "target": "—",
+    "decision": "Merge مع mafateeh-al-tharwa",
+    "acceptance": "—",
+    "next": "—"
+   }
+  ]
+ },
+ "whatsapp-personal-bridge": {
+  "coverage": "عميق — مستقل عمداً (أسرار تشغيل)؛ مسح آلي اليوم",
+  "capabilities": [
+   {
+    "name": "جسر واتساب وعمّال wa-kosif*",
+    "what": "إرسال واستقبال رسائل واتساب عبر عمّال مستقلين برموز اقتران",
+    "class": "خدمة مشتركة (مستقلة)",
+    "sector": "عام",
+    "state": "يعمل مستقلاً؛ PR #96 في cloude (المالك وحده يستدعي الأدوات)",
+    "best": "whatsapp-personal-bridge",
+    "target": "خارج التطبيق؛ يُستدعى من العروض والتقارير",
+    "decision": "Keep (مستقل)",
+    "acceptance": "—",
+    "next": "إغلاق Issues رموز الاقتران المنتهية في cloude (18)"
+   }
+  ]
+ },
+ "-": {
+  "coverage": "عميق — وثيقة رؤية (README)",
+  "capabilities": [
+   {
+    "name": "رؤية «الطريق»",
+    "what": "نص رؤية مبكر",
+    "class": "وثيقة",
+    "sector": "—",
+    "state": "مدمج في docs/VISION_ar.md وROADMAP",
+    "best": "cloude docs",
+    "target": "docs/",
+    "decision": "Retire — السبب: لا كود؛ نصه مدمج",
+    "acceptance": "—",
+    "next": "—"
+   }
+  ]
+ },
+ "CLOUDFLARE_API_TOKEN": {
+  "coverage": "مسح آلي اليوم — القراءة البشرية في تقرير المستودع",
+  "capabilities": []
+ },
+ "think": {
+  "coverage": "عميق للوحدات (117 وحدة Python قُرئ أول تعليق كل منها) — نطاق التحقق النهائي لـ KOSIFSEE-FOUNDATION-20261006-001 (PR #151)؛ هذه توصيات Claude تُسلَّم إليه لا قرارات منافسة",
+  "capabilities": [
+   {
+    "name": "المجلس والاستدلال (Council, ToT, GoT, CoVe, Reflexion, MCTS, Self-Consistency)",
+    "what": "استراتيجيات استدلال فوق ModelClient (Claude/Ollama/OpenAI)",
+    "class": "طبقة AI مشتركة",
+    "sector": "عام",
+    "state": "خارج cloude؛ cloude يستهلك المجلس عبر jev-api وthink-mcp",
+    "best": "think: src/kosif_think/lanes/reasoning/*",
+    "target": "think-mcp (Worker) ← jev-api ← طبقة AI في SQC",
+    "decision": "Relocate — يبقى في think؛ SQC يستهلكه بعقد API فقط، بلا نسخ Python إلى المتصفح",
+    "acceptance": "عقد jev-api الحالي + اختبارات think-mcp",
+    "next": "مطابقة إصدار think-mcp (0.18.x) مع RUNTIME-MANIFEST قبل أي ربط جديد"
+   },
+   {
+    "name": "Guardrails + PII masker + preflight",
+    "what": "حجب البيانات الشخصية وإزالة الحقن قبل إرسال أي نص لنموذج",
+    "class": "طبقة AI مشتركة",
+    "sector": "عام",
+    "state": "غير منقول",
+    "best": "think: core/guardrails.py, core/preflight.py",
+    "target": "طبقة AI في SQC قبل أي استدعاء نموذج",
+    "decision": "Rebuild (JS صغير) — بيانات العملاء (30 ألف عميل في «تصيف») لا تغادر الجهاز بلا حجب",
+    "acceptance": "اختبار: عميل باسم/جوال/هوية ← النص المرسل خالٍ منها",
+    "next": "P6 طبقة AI"
+   },
+   {
+    "name": "Observable verifier + risk gate",
+    "what": "النجاح = أثر ملاحظ لا HTTP 200؛ نقاط تفتيش بشرية للدفع/OTP/الحذف",
+    "class": "حوكمة",
+    "sector": "عام",
+    "state": "المبدأ مطبق في اختبارات SQC",
+    "best": "think: core/verifier.py, core/risk_gate.py",
+    "target": "سياسة القبول في FOUNDATION",
+    "decision": "Keep (مبدأ) — لا كود يُنقل",
+    "acceptance": "—",
+    "next": "—"
+   },
+   {
+    "name": "Excel/Word/PowerPoint OpenXML",
+    "what": "إنشاء xlsx/docx/pptx ونماذج معادلات",
+    "class": "الأدوات المساعدة",
+    "sector": "عام",
+    "state": "SQC لديه تصدير XLSX/PDF خاص به",
+    "best": "cloude: exports + محرك التقارير",
+    "target": "محرك التقارير §3.11.1",
+    "decision": "Keep في think؛ مرجع لمحرك التقارير عند بناء تصدير Word",
+    "acceptance": "—",
+    "next": "مقارنة عند تنفيذ §3.11.1"
+   },
+   {
+    "name": "إحصاء علمي (p-values, t-test, CI, Cohen d)",
+    "what": "تحقق إحصائي من الادعاءات",
+    "class": "المراجعة (تحليلات)",
+    "sector": "عام",
+    "state": "غير منقول",
+    "best": "think: lanes/research/stats_verifier.py",
+    "target": "auditanalytics (العينات وبنفورد)",
+    "decision": "Specialize — يُعاد بناؤه في محرك التحليل عند الحاجة لاختبارات إحصائية للعينات",
+    "acceptance": "اختبار vitest بقيم مرجعية",
+    "next": "P4 المراجعة"
+   },
+   {
+    "name": "Mobile/iOS/Telephony/Voice/WhatsApp/Browser stealth lanes",
+    "what": "تحكم بالهاتف والمكالمات والمتصفح وتخفي ضد كشف البوتات",
+    "class": "خارج نطاق SQC",
+    "sector": "عام",
+    "state": "—",
+    "best": "think: lanes/{mobile,ios,telephony,voice,whatsapp,browser}",
+    "target": "—",
+    "decision": "Keep في think؛ لا يدخل SQC. stealth/anti-bot لا يُستخدم في SQC إطلاقاً (يخالف سياسة الأمان)",
+    "acceptance": "—",
+    "next": "—"
+   },
+   {
+    "name": "PR #6 Pro verification + Council-100 / PR #4 affective cognition / PR #2 integration",
+    "what": "طلبات دمج مفتوحة في think",
+    "class": "طبقة AI",
+    "sector": "عام",
+    "state": "مفتوحة",
+    "best": "think PRs",
+    "target": "—",
+    "decision": "Keep — قرار دمجها لمالك think؛ PR #6 (capability-truth/evidence/ledger) مرشح كمصدر أدلة لـ P6 كما رصده KOSIFSEE",
+    "acceptance": "—",
+    "next": "تسليم لـ KOSIFSEE"
+   }
+  ]
+ },
+ "kosif-omni": {
+  "coverage": "مسح آلي اليوم (منتج مستقل: إضافة Claude/ChatGPT) — القراءة البشرية لأدوات MCP ذات الصلة بالمحاسبة والمراجعة",
+  "capabilities": []
+ },
+ "kosif-atlas": {
+  "coverage": "مسح آلي — مكتبة مهارات مرجعية، لا كود منتج",
+  "capabilities": [
+   {
+    "name": "أطلس المهارات",
+    "what": "14,793 مهارة بتراخيصها وأحكام الأمان",
+    "class": "مرجع",
+    "sector": "—",
+    "state": "مكتبة",
+    "best": "—",
+    "target": "—",
+    "decision": "Keep (مرجع)",
+    "acceptance": "—",
+    "next": "—"
+   }
+  ]
+ },
+ "kosif-atlas-private": {
+  "coverage": "مسح آلي — مرجع خاص لا يُعاد توزيعه",
+  "capabilities": [
+   {
+    "name": "المرجع الخاص للأطلس",
+    "what": "—",
+    "class": "مرجع",
+    "sector": "—",
+    "state": "مكتبة",
+    "best": "—",
+    "target": "—",
+    "decision": "Keep (مرجع)",
+    "acceptance": "—",
+    "next": "—"
+   }
+  ]
+ },
+ "100-superskills": {
+  "coverage": "مسح آلي — مهارات مركبة من الأطلس",
+  "capabilities": [
+   {
+    "name": "108 مهارات + فهرس عميق",
+    "what": "مهارات للمحاسبة والمراجعة والبرمجة مركبة من الأطلس",
+    "class": "مرجع",
+    "sector": "—",
+    "state": "مكتبة",
+    "best": "—",
+    "target": "—",
+    "decision": "Keep (مرجع)",
+    "acceptance": "—",
+    "next": "—"
+   }
+  ]
+ },
+ "_crosscheck_antigravity_20261006": {
+  "source": "تقرير وكيل Antigravity لصقه المالك في المحادثة 2026-10-06 — تحقق Claude منه على النسخ المحلية",
+  "verified": [
+   "وثائق kosif-audit-studio الخمس المذكورة موجودة",
+   "audit-pro/moon/see ARCHITECTURE وما ذُكر معها موجودة",
+   "خطط see الثلاث في docs/superpowers/plans",
+   "think: docs/KOSIF_UNIFIED_SYSTEM_SPEC.md و2026-09-29-kosif-unified-foundation.md (يذكر kosif_manifest.json)",
+   "FOUNDATION §3.11.1 و§3.11.2 (الأخير أضيف في 799d8af)",
+   "المستودع «-» = ALTAREEQ/الطريق: أساس clean-room",
+   "100-superskills: فئة accounting-audit = 955 مهارة في ADVANCED-INDEX.md (فئة مختلطة: من أعلاها kubernetes-operator — ليست 955 مهارة محاسبية خالصة)",
+   "100-superskills: examples/sales-dashboard/sales-dashboard.html لوحة مبيعات عربية RTL (تحمّل خطوط Google — تخالف قاعدة الخطوط المستضافة ذاتياً إن نُقلت)"
+  ],
+  "corrected": [
+   "kosif-atlas: 72,590 ملفاً في الشجرة (لا 37,647)",
+   "عدد الشاشات في السجل 78 (لا 77)",
+   "CLOUDFLARE_API_TOKEN ليس «أرشيف عمال Cloudflare»: يحوي KOSIF Think Pro 3.2 وإضافة ChatGPT؛ لا أسرار حقيقية في HEAD (أنماط regex فقط)",
+   "kosif-atlas-private: 29,325 ملفاً — صحيح، وكشف أن نسخة Claude المحلية كانت ناقصة (حد طول المسار في Windows) فأُصلحت"
+  ],
+  "unverified": [
+   "«تم تبنيه بالكامل في ROADMAP-ar.md» عن الطريق — ROADMAP لا يذكر ALTAREEQ؛ يذكره FUSION_ALL_REPOS_ar.md"
+  ]
+ }
+}
