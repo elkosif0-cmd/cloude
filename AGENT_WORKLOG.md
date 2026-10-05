@@ -149,3 +149,12 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Risks / conflicts: A generator is not a finished report. Preserve source units, periods, extracted/inferred/synthetic labels and licensing. Restricted Atlas material, private customer data and credentials are excluded from copying; retain permitted source links and original analysis instead.
 - Unfinished: Complete candidate coverage, deeper reporting-path inspection, safe extraction, duplicate comparison, format/dependency/status verification and delivery.
 - NEXT ACTION: Produce an Arabic report index and machine-readable catalog with exact repository/commit/file provenance, then deliver the permitted extraction bundle with honest working/untested/missing-dependency status.
+
+### UPDATE DOT-REPORT-EXTRACTION-20261005-001 — Verified extraction delivered
+- Status: HANDOFF
+- Result: Delivered a private extraction ZIP and the two original synthetic PDF/XLSX examples to the owner. No public hosting, runtime deployment, integration or product-code execution occurred.
+- Coverage: 17 repository summaries; 86 overlapping catalog records distinguishing finished artifacts, templates, generators, examples and references; 218 approved exact-source files plus 24 index/evidence/README files. This is bounded reporting-path coverage, not completion of the deep inventory or review of every branch.
+- Evidence: ZIP size 2,052,736 bytes; SHA-256 `1bd3406487ec2b6a0d2aea39cddee305ba65c7939672e1df9e9e7759ca9e9d11`. Independent review verified source hashes, archive members/CRC, 194 pinned citations and eight relative index links.
+- Limits: The 15-page PDF is a synthetic demonstration with a disclosed RTL numeric-order defect. The 12-sheet workbook was inspected without recalculation or native Excel rendering. Legacy HTML .doc/browser-print exports are distinguished from real DOCX/PDF generators. Restricted Atlas material, private CVs, credentials and customer payloads were excluded.
+- Unfinished: Remaining source/branch depth, report-generator execution and financial/visual correctness acceptance, dependency recovery and any coordinated migration into S.KOSIF. Neither the extraction nor a source-file count proves production readiness.
+- NEXT ACTION: Retain the verified catalog as evidence in the broad Rule Zero matrix. Continue independent review of the already prepared posting-contract batch and reconcile the accepted audit/storage findings under lead coordination before proposing runtime changes.
