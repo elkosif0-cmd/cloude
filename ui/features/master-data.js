@@ -36,7 +36,8 @@ function profileCard(){
   '<div class="sk-grid2"><label class="sk-field"><span>النشاط</span><input data-md-profile="activity" value="'+esc(p.activity)+'" placeholder="مثال: تجارة مواد غذائية"></label>'+
   '<label class="sk-field"><span>الدولة</span><input data-md-profile="country" maxlength="3" value="'+esc(p.country)+'"></label>'+
   '<label class="sk-field"><span>العملة</span><input data-md-profile="currency" maxlength="3" value="'+esc(p.currency)+'"></label>'+
-  '<label class="sk-field"><span>بداية السنة المالية</span><input data-md-profile="fiscalYearStart" maxlength="5" value="'+esc(p.fiscalYearStart)+'" placeholder="01-01"></label>'+
+  '<label class="sk-field"><span>إطار التقارير</span><select data-md-profile="framework"><option value="IFRS"'+(p.framework==="IFRS"?" selected":"")+'>IFRS الكاملة</option><option value="SME"'+(p.framework==="SME"?" selected":"")+'>IFRS للمنشآت الصغيرة والمتوسطة</option><option value="EAS"'+(p.framework==="EAS"?" selected":"")+'>معايير المحاسبة المصرية EAS</option></select></label>'+
+   '<label class="sk-field"><span>بداية السنة المالية</span><input data-md-profile="fiscalYearStart" maxlength="5" value="'+esc(p.fiscalYearStart)+'" placeholder="01-01"></label>'+
   '<label class="sk-field"><span>الزكاة / ضريبة الدخل</span><select data-md-profile="taxMode"><option value="zakat"'+(p.taxMode==="zakat"?" selected":"")+'>زكاة</option><option value="income"'+(p.taxMode==="income"?" selected":"")+'>ضريبة دخل</option></select></label>'+
   '<label class="sk-field"><span>الرقم الضريبي / VAT</span><input data-md-profile="vatNo" value="'+esc(p.vatNo)+'"></label>'+
   '<label class="sk-field"><span>السجل التجاري</span><input data-md-profile="crNo" value="'+esc(p.crNo)+'"></label>'+
