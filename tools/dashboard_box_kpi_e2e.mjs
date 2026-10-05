@@ -19,6 +19,9 @@ function pricing(rawLoss){
 try{
  for(const width of [320,390,1280])for(const rawLoss of [false,true]){
   const name=`${width}-raw-loss-${rawLoss}`,context=await browser.newContext({viewport:{width,height:1000},locale:'ar-SA',reducedMotion:'reduce'}),seed=managementBrowserSeed();
+ const companyName='شركة الاختبارات الاصطناعية';seed.skosif_companies_v1.companies[0].name=companyName;
+ for(const user of Object.values(seed.sqc_helper_users_v1.users))for(const space of Object.values(user.spaces))space.name=companyName;
+ for(const space of Object.values(seed.sqc_helper_space_v1.spaces))space.name=companyName;
   seed['aghnam-pricing-v3']=pricing(rawLoss);
   await context.route('**/*',r=>{const u=r.request().url();return u.startsWith('http://127.0.0.1:8765/')||u.startsWith('https://fonts.googleapis.com/')||u.startsWith('https://fonts.gstatic.com/')||u.startsWith('data:')||u.startsWith('blob:')?r.continue():r.abort();});
   await context.addInitScript(seed=>{for(const[k,v]of Object.entries(seed))localStorage.setItem(k,JSON.stringify(v));localStorage.setItem('skosif_demo_v1',JSON.stringify({off:true,sections:{}}));localStorage.setItem('skosif_role_mode',JSON.stringify('admin'));sessionStorage.setItem('sqc_space_chosen','1');sessionStorage.setItem('sqc_helper_user_chosen','1');},seed);
@@ -33,9 +36,9 @@ try{
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
    await page.screenshot({path:`${out}/${name}-dashboard.png`,fullPage:true});
    await page.evaluate(()=>window.SKosifCore.go('execreports'));
-   const reportTile=page.locator('.sk-kpis>div').filter({hasText:'بوكسات بخسارة'});await reportTile.waitFor();assert.equal((await reportTile.locator('b').innerText()).trim(),'1');
+   await page.locator('[data-rp-period]').waitFor();assert.equal(await page.locator('.rp .sk-kpis').count(),0,'Executive controls must not present global KPI as captured facts');
    await page.locator('[data-rp="print"]').click();const frame=page.frameLocator('.skout-f');await frame.locator('.rp-cover').waitFor();
-   assert.equal((await frame.locator('.rp-k>div').filter({hasText:'بوكسات بخسارة'}).locator('b').innerText()).trim(),'1');
+   assert.equal(await frame.locator('.rp-k>div').filter({hasText:'بوكسات بخسارة'}).count(),0);assert.match(await frame.locator('h1').innerText(),/مسودة تنفيذية محدودة/);assert.match(await frame.locator('[data-rp-unavailable]').first().innerText(),/غير متاح/);
    await page.screenshot({path:`${out}/${name}-preview.png`,fullPage:true});await page.locator('[data-o="close"]').click();
    assert.deepEqual(errors,[]);results.push({name,status:'pass',stats});
   }catch(e){results.push({name,status:'fail',error:e.stack});console.error(name,e.stack);}

@@ -89,7 +89,7 @@ function readFacts(options={}){
   const originalScope=model().canonical(before),contextText=model().canonical(contextPayload),inputText=model().canonical({ledger:input.ledger,context:contextPayload}),evidenceText=model().canonical(input.sourceChecks);
   let after;try{after=scopeValue(scopeReader())}catch{fault("SCOPE_CHANGED")}
   if(!scopeValid(after)||model().canonical(after)!==originalScope)fault("SCOPE_CHANGED");
-  return{input,before,scopeReader,capturedAt,originalScope,contextText,inputText,evidenceText};
+  return{input,before,scopeReader,ledgerReader,contextReader,capturedAt,originalScope,contextText,inputText,evidenceText};
 }
 async function capture(options={}){
   try{
@@ -120,5 +120,13 @@ async function checkFresh(expected,options={}){
   }catch(e){return freeze({fresh:false,reason:safeCodes.has(e?.code)?e.code:"SOURCE_INVALID_SHAPE"})}
   return freeze({fresh:true});
 }
-window.SKosifManagementSource=Object.freeze({capture,checkFresh});
+/* A final synchronous boundary check. Only this module's original capture is accepted;
+   no asynchronous hash or mutable replacement model is allowed at native beforeprint. */
+function isCurrent(expected){
+  const prior=captured.get(expected);if(!prior)return false;
+  try{const now=readFacts({scopeReader:prior.scopeReader,ledgerReader:prior.ledgerReader,contextReader:prior.contextReader});
+    return now.originalScope===prior.originalScope&&now.contextText===prior.contextText&&now.inputText===prior.inputText&&now.evidenceText===prior.evidenceText;
+  }catch{return false}
+}
+window.SKosifManagementSource=Object.freeze({capture,checkFresh,isCurrent});
 })();

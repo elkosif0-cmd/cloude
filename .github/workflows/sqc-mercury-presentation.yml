@@ -2,6 +2,15 @@ name: SQC Mercury Presentation
 on:
   pull_request:
     paths:
+      - 'ui/core/sk.js'
+      - 'ui/core/bus.js'
+      - 'ui/core/company.js'
+      - 'ui/core/helper-space.js'
+      - 'ui/core/output.js'
+      - 'ui/core/management-report-model.js'
+      - 'ui/features/management-report-source.js'
+      - 'tools/management_report_fixtures.mjs'
+      - 'tools/report_pack_guard*'
       - 'ui/ds/sqc.css'
       - 'ui/features/report-pack.js'
       - 'tools/mercury*'

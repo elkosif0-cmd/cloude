@@ -11,6 +11,54 @@
 const {esc,toast}=SK;
 const realOpen=window.open.bind(window);
 let cur=null;
+/* Optional report guards are scoped to the exact preview session. Legacy reports
+   do not install one and retain their existing output behavior. */
+const sessions=new WeakMap();
+function live(s){return !!s&&s.active&&(!s.wrap||cur===s)&&!s.w.closed}
+function blank(w){try{const d=w.document;if(d.body)d.body.textContent="";if(d.documentElement)d.documentElement.textContent=""}catch{}}
+function validSync(s){
+  if(!live(s))return false;
+  if(!s.guard)return true;
+  try{if(s.guard.checkSync()===true)return live(s)}catch{}
+  dispose(s);return false;
+}
+async function valid(s){
+  if(!validSync(s))return false;
+  try{if(await s.guard.check()!==true){dispose(s);return false}}catch{dispose(s);return false}
+  return validSync(s);
+}
+function bindGuard(s,w){
+  let h=s.handles.get(w);
+  if(!h){h={print:w.print.bind(w),close:w.close.bind(w)};s.handles.set(w,h);sessions.set(w,s)}
+  w.__skRealPrint=()=>{if(w.closed||!validSync(s))return;try{w.focus();h.print()}catch{}};
+  if(w!==s.w||!s.wrap)w.print=w.__skRealPrint;
+  // This is called only after document.close(), which clears earlier handlers.
+  if(h.beforeprint)w.removeEventListener("beforeprint",h.beforeprint);
+  h.beforeprint=()=>{if(!validSync(s))blank(w)};
+  w.addEventListener("beforeprint",h.beforeprint);
+  if(w===s.w&&!s.wrap){
+    if(h.pagehide)w.removeEventListener("pagehide",h.pagehide);
+    h.pagehide=()=>dispose(s);w.addEventListener("pagehide",h.pagehide);
+  }
+}
+function dispose(s){
+  if(!s||!s.active)return;
+  s.active=false;clearInterval(s.t);
+  if(s.guard){blank(s.w);for(const [w,h]of s.handles){blank(w);if(w!==s.w||!s.wrap)try{h.close()}catch{}}}
+  if(pres&&pres.session===s)endPresent();
+  if(s.wrap)s.wrap.remove();
+  if(cur===s){cur=null;document.documentElement.classList.remove("skout-open")}
+  if(s.guard&&typeof s.guard.onClose==="function")try{s.guard.onClose()}catch{}
+}
+function guard(w,g){
+  if(!w||w.closed||!g||typeof g.checkSync!=="function"||typeof g.check!=="function")return false;
+  let s=sessions.get(w);
+  if(s&&(!live(s)||(s.guard&&s.guardSource!==g)))return false;
+  if(!s){s={w,active:true,handles:new Map()};sessions.set(w,s)}
+  if(!s.guard){s.guardSource=g;s.guard={identity:Object.freeze({...g.identity}),checkSync:g.checkSync,check:g.check,onClose:g.onClose}}
+  bindGuard(s,w);return true;
+}
+function invalidate(w){const s=sessions.get(w);if(!s||!s.guard)return false;dispose(s);return true}
 const slug=t=>String(t||"document").replace(/[^\w؀-ۿ]+/g,"-").replace(/^-|-$/g,"").slice(0,40)||"document";
 const ascii=t=>"SQC-"+((String(t||"").match(/[A-Za-z0-9]+/g)||[]).join("-").slice(0,30)||(window.SKosifCore&&SKosifCore.view())||"document")+"-"+new Date().toISOString().slice(0,10);
 const PAPER_CSS='@media screen{html{background:#dfe4ec!important}body{box-sizing:border-box;width:var(--skout-w,210mm);max-width:calc(100vw - 24px);min-height:var(--skout-h,297mm);margin:18px auto 40px!important;padding:14mm 12mm!important;background:#fff!important;box-shadow:0 14px 40px -12px rgba(11,31,58,.35);border-radius:4px}.skp-bar{display:none!important}}';
@@ -40,16 +88,17 @@ function sheet(){
   wrap.innerHTML=toolbar(SK.print.options())+'<iframe class="skout-f" title="المستند" data-skout="1"></iframe>';
   document.body.appendChild(wrap);document.documentElement.classList.add("skout-open");
   const f=wrap.querySelector("iframe"),w=f.contentWindow;
-  const esc=e=>{if(e.key==="Escape"){e.preventDefault();close()}};
-  const patch=()=>{try{if(!w.__skRealPrint){const rp=w.print.bind(w);w.__skRealPrint=()=>{try{w.focus();rp()}catch{}}}w.print=()=>{};w.close=()=>close();w.__skEmbedded=true;if(w.document&&!w.document.__skEsc){w.document.__skEsc=1;w.document.addEventListener("keydown",esc,true)}}catch{}};
+  const s={wrap,f,w,active:true,handles:new Map()};cur=s;sessions.set(w,s);
+  const esc=e=>{if(e.key==="Escape"){e.preventDefault();close(s)}};
+  const patch=()=>{try{if(!w.__skRealPrint){const rp=w.print.bind(w);s.handles.set(w,{print:rp,close:w.close.bind(w)});w.__skRealPrint=()=>{if(!validSync(s))return;try{w.focus();rp()}catch{}}}w.print=()=>{};w.close=()=>close(s);w.__skEmbedded=true;if(w.document&&!w.document.__skEsc){w.document.__skEsc=1;w.document.addEventListener("keydown",esc,true)}}catch{}};
   patch();
   /* documents the core writes without the letterhead still get the paper and the options */
   let ticks=0;const t=setInterval(()=>{ticks++;try{patch();css(w.document);const title=w.document.title||(w.document.querySelector("h1")||{}).textContent||"مستند";wrap.querySelector(".skout-t").textContent=title}catch{}if(ticks>12)clearInterval(t)},250);
-  cur={wrap,f,w,t};
+  s.t=t;
   setTimeout(()=>{const b=wrap.querySelector('[data-o="print"]');b&&b.focus()},60);
   return w;
 }
-function close(){if(pres)endPresent();if(!cur)return;clearInterval(cur.t);cur.wrap.remove();document.documentElement.classList.remove("skout-open");cur=null}
+function close(s=cur){dispose(s)}
 function docHTML(d){
   const c=d.documentElement.cloneNode(true);c.querySelectorAll("script,.skp-bar,#skout-paper").forEach(x=>x.remove());
   c.querySelectorAll("img[src]").forEach(i=>{try{i.src=new URL(i.getAttribute("src"),location.href).href}catch{}});
@@ -93,11 +142,12 @@ function slidesOf(d){
   if(pre.length&&!shortPre)out.unshift({h:title,nodes:pre});
   return {title,subtitle:shortPre?preText:"",slides:out.filter(x=>x.nodes.some(n=>n.textContent.trim()||n.querySelector("img,table,svg")))};
 }
-function present(){
-  if(!cur)return;
-  const d=cur.w.document,{title,subtitle,slides}=slidesOf(d),base=location.href.replace(/[^/?#]*([?#].*)?$/,""),mark=base+"art/sqc-mark.svg";
-  let biz="";try{biz=(JSON.parse(localStorage.getItem("aghnam-pricing-v3")||"{}").settings||{}).biz||""}catch{}
-  const date=new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"});
+function present(session){
+  if(!validSync(session))return;
+  if(pres)endPresent();
+  const d=session.w.document,{title,subtitle,slides}=slidesOf(d),base=location.href.replace(/[^/?#]*([?#].*)?$/,""),mark=base+"art/sqc-mark.svg";
+  let biz=session.guard?session.guard.identity.name||"":"";if(!session.guard)try{biz=(JSON.parse(localStorage.getItem("aghnam-pricing-v3")||"{}").settings||{}).biz||""}catch{}
+  const date=session.guard?session.guard.identity.date||"":new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"});
   const styles=[...d.querySelectorAll("style,link[rel=stylesheet]")].filter(x=>x.id!=="skout-paper"&&x.id!=="skp-opts").map(x=>x.outerHTML).join("");
   const html='<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">'+styles+'<style>'+PRES_CSS+'</style></head><body>'+
     '<section class="sl t on"><img src="'+mark+'" alt="SQC"><h1>'+esc(title)+'</h1>'+(subtitle?'<p>'+esc(subtitle)+'</p>':biz?'<p>'+esc(biz)+'</p>':'')+'<p>'+esc(date)+'</p></section>'+
@@ -105,45 +155,53 @@ function present(){
   const wrap=document.createElement("div");wrap.className="skpres";wrap.setAttribute("role","dialog");wrap.setAttribute("aria-modal","true");wrap.setAttribute("aria-label","عرض تقديمي: "+title);
   wrap.innerHTML='<iframe class="skpres-f" title="'+esc(title)+'"></iframe><div class="skpres-bar"><button type="button" class="btn sm" data-p="prev" aria-label="الشريحة السابقة">→</button>'+
     '<span class="skpres-n" aria-live="polite"></span><button type="button" class="btn sm" data-p="next" aria-label="الشريحة التالية">←</button><button type="button" class="btn sm" data-p="close" aria-label="إنهاء العرض">إنهاء</button></div>';
+  if(session.guard&&!validSync(session))return;
   document.body.appendChild(wrap);
   const f=wrap.querySelector("iframe");f.srcdoc=html;
-  pres={wrap,f,i:0,n:slides.length+1};
-  const key=e=>{if(!pres)return;const k=e.key;
+  const presentation={wrap,f,i:0,n:slides.length+1,session};pres=presentation;
+  const key=e=>{if(pres!==presentation||!validSync(session))return;const k=e.key;
     if(k==="Escape"){e.preventDefault();e.stopPropagation();return endPresent()}
     if(k==="ArrowLeft"||k==="PageDown"||k===" "){e.preventDefault();go(pres.i+1)}else if(k==="ArrowRight"||k==="PageUp"){e.preventDefault();go(pres.i-1)}
     else if(k==="Home"){e.preventDefault();go(0)}else if(k==="End"){e.preventDefault();go(pres.n-1)}};
   pres.key=key;document.addEventListener("keydown",key,true);
-  f.addEventListener("load",()=>{const fd=f.contentDocument;if(!fd)return;fd.addEventListener("keydown",key,true);
+  f.addEventListener("load",()=>{const fd=f.contentDocument;if(pres!==presentation||!validSync(session)){blank(f.contentWindow);return}if(!fd)return;if(session.guard)bindGuard(session,f.contentWindow);fd.addEventListener("keydown",key,true);
     let x0=null;fd.addEventListener("touchstart",e=>{x0=e.touches[0].clientX},{passive:true});
-    fd.addEventListener("touchend",e=>{if(x0==null)return;const dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)>50)go(pres.i+(dx>0?1:-1))},{passive:true});
+    fd.addEventListener("touchend",e=>{if(x0==null||pres!==presentation||!validSync(session))return;const dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)>50)go(pres.i+(dx>0?1:-1))},{passive:true});
     go(0);try{f.contentWindow.focus()}catch{}});
   try{wrap.requestFullscreen&&wrap.requestFullscreen().catch(()=>{})}catch{}
   SK.audit&&SK.audit.log("report",{act:"present",title:title.slice(0,60)});
 }
 function go(i){
-  if(!pres)return;pres.i=Math.max(0,Math.min(pres.n-1,i));
+  if(!pres||!validSync(pres.session))return;pres.i=Math.max(0,Math.min(pres.n-1,i));
   const fd=pres.f.contentDocument;if(fd)[...fd.querySelectorAll(".sl")].forEach((s,k)=>{s.classList.toggle("on",k===pres.i);if(k===pres.i)s.scrollTop=0});
   pres.wrap.querySelector(".skpres-n").textContent=(pres.i+1)+" من "+pres.n;
   pres.wrap.querySelector('[data-p="prev"]').disabled=pres.i===0;pres.wrap.querySelector('[data-p="next"]').disabled=pres.i===pres.n-1;
 }
 function endPresent(){
   if(!pres)return;document.removeEventListener("keydown",pres.key,true);
+  if(pres.session.guard)blank(pres.f.contentWindow);
   try{if(document.fullscreenElement)document.exitFullscreen().catch(()=>{})}catch{}
   pres.wrap.remove();pres=null;
   const b=cur&&cur.wrap.querySelector('[data-o="present"]');b&&b.focus();
 }
 document.addEventListener("click",e=>{const b=e.target.closest(".skpres [data-p]");if(!b||!pres)return;const p=b.dataset.p;if(p==="close")endPresent();else go(pres.i+(p==="next"?1:-1))});
 async function act(a){
-  if(!cur)return;const d=cur.w.document,title=(d.title||"مستند").trim();
-  if(a==="close")return close();
-  if(a==="present")return present();
-  if(a==="print"){css(d);cur.w.__skRealPrint?cur.w.__skRealPrint():cur.w.print();SK.audit&&SK.audit.log("report",{act:"print",title:title.slice(0,60)});return}
+  if(!cur)return;const session=cur;
+  if(a==="close")return close(session);
+  if(session.guard&&!await valid(session))return;
+  if(!live(session))return;
+  const d=session.w.document,title=(d.title||"مستند").trim();
+  const filename=session.guard?String(session.guard.identity.fileStem||("SQC-"+slug(session.guard.identity.name))).replace(/[\\/:*?"<>|\u0000-\u001f]/g,"-").slice(0,160):ascii(title);
+  if(a==="present")return present(session);
+  if(a==="print"){css(d);session.w.__skRealPrint?session.w.__skRealPrint():session.w.print();SK.audit&&SK.audit.log("report",{act:"print",title:title.slice(0,60)});return}
   if(a==="word"){const html=docHTML(d).replace("<html",'<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"').replace("<head>",'<head><meta charset="utf-8"><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View></w:WordDocument></xml><![endif]--><style>body{direction:rtl}table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:4px 6px}</style>');
-    SK.download(ascii(title)+".doc",new Blob(["﻿"+html],{type:"application/msword"}));SK.audit&&SK.audit.log("report",{act:"word"});return}
-  if(a==="excel"){const t=tablesOf(d);if(!t.length)return toast("لا توجد جداول في هذا المستند","info");SK.download(ascii(title)+".xlsx",SKXlsx.book(t));toast("صُدّر "+t.length+" جدولاً إلى Excel","ok");SK.audit&&SK.audit.log("report",{act:"excel",tables:t.length});return}
-  if(a==="html"){SK.download(ascii(title)+".html",new Blob([docHTML(d)],{type:"text/html;charset=utf-8"}));return}
-  if(a==="share"){try{const file=new File([docHTML(d)],slug(title)+".html",{type:"text/html"});if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],title});else await navigator.share({title,text:d.body.innerText.slice(0,3000)})}catch{}return}
-  if(a==="window"){const w=realOpen("","_blank");if(!w)return toast("اسمح بالنوافذ المنبثقة","warn");w.document.open();w.document.write(docHTML(d));w.document.close()}
+    const blob=new Blob(["﻿"+html],{type:"application/msword"});if(session.guard&&!validSync(session))return;SK.download(filename+".doc",blob);SK.audit&&SK.audit.log("report",{act:"word"});return}
+  if(a==="excel"){const t=tablesOf(d);if(!t.length)return toast("لا توجد جداول في هذا المستند","info");const blob=SKXlsx.book(t);if(session.guard&&!validSync(session))return;SK.download(filename+".xlsx",blob);toast("صُدّر "+t.length+" جدولاً إلى Excel","ok");SK.audit&&SK.audit.log("report",{act:"excel",tables:t.length});return}
+  if(a==="html"){const blob=new Blob([docHTML(d)],{type:"text/html;charset=utf-8"});if(session.guard&&!validSync(session))return;SK.download(filename+".html",blob);return}
+  if(a==="share"){try{const file=new File([docHTML(d)],(session.guard?filename:slug(title))+".html",{type:"text/html"});const fullFile=navigator.canShare&&navigator.canShare({files:[file]});
+    if(session.guard){if(!validSync(session))return;if(!fullFile)return toast("لم تتم المشاركة: الجهاز لا يدعم مشاركة ملف المسودة كاملاً. استخدم تنزيل HTML.","warn")}
+    if(fullFile)await navigator.share({files:[file],title});else await navigator.share({title,text:d.body.innerText.slice(0,3000)})}catch{}return}
+  if(a==="window"){const html=docHTML(d);if(session.guard&&!validSync(session))return;const w=realOpen("","_blank");if(!w)return toast("اسمح بالنوافذ المنبثقة","warn");if(session.guard&&!validSync(session)){w.close();return}w.document.open();w.document.write(html);w.document.close();if(session.guard)bindGuard(session,w)}
 }
 document.addEventListener("click",e=>{const b=e.target.closest(".skout [data-o]");if(b)act(b.dataset.o)});
 document.addEventListener("change",e=>{
@@ -155,11 +213,12 @@ document.addEventListener("input",e=>{if(cur&&e.target.dataset&&e.target.dataset
 document.addEventListener("keydown",e=>{if(cur&&e.key==="Escape"&&!pres){e.preventDefault();close()}},true);
 /* moving to another screen closes the preview */
 addEventListener("sk:nav",()=>close());
+addEventListener("beforeprint",()=>{if(cur&&cur.guard)validSync(cur)});
 /* a blank window.open() (every print in the app) becomes the in-app preview */
 window.open=function(url,target,features){
   const u=url==null?"":String(url);
   if((u===""||u==="about:blank")&&document.body&&SK.print.options().preview!==false)return sheet();
   return realOpen(url,target,features);
 };
-SK.output=Object.freeze({open:sheet,close,css,tables:tablesOf,embedded:w=>!!(w&&w.__skEmbedded)});
+SK.output=Object.freeze({open:sheet,close,guard,invalidate,css,tables:tablesOf,embedded:w=>!!(w&&w.__skEmbedded)});
 })();
