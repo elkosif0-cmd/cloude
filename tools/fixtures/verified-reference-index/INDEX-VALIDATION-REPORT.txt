@@ -1,0 +1,113 @@
+REFERENCE INDEX VALIDATION REPORT
+
+The supplied 12,506-page reference PDF is unchanged. The rebuilt navigation index has 50 report blocks for 46 distinct companies and 15 country/market classifications, plus the reference-resource directory on physical page 1. All 12,506 pages are attributed exactly once; no gaps, overlaps or unassigned pages remain.
+
+REVIEW SCOPE
+All 50 front covers were rendered and visually inspected. Company introductions and report summaries were written in English and Arabic from cited source pages. This pass does not claim to have deeply reviewed all pages. Existing completed source reviews cover P&G (77), Home Depot (92), McDonald’s (73), Mercedes-Benz (409), Volkswagen (673), Deutsche Telekom (382) and BP (396): 2,102 pages in total. Only Apple FY2024 has evidenced partial source review; Apple FY2020 and FY2023 remain introductory inspections. Unilever remains in progress at this snapshot. Other entries are introductory source inspections. These are analytical source reviews, not independent audits or assurance, and do not establish application acceptance.
+
+IMPORTANT CORRECTIONS
+- Panasonic Integrated Report 2024, pages 8370–8443, was absent from the legacy 49-entry catalog.
+- CBA is FY2026, pages 12300–12506, with the year explicitly confirmed by pages 12300–12301; the old FY2025 identifier is retained only as legacy_id.
+- SoftBank’s report is titled 2026 but defines fiscal 2025 as the year ended 31 March 2026.
+- Allianz SE is the parent-company HGB report, not the Group’s consolidated IFRS report.
+- BP ends at 5100. Page 5101 belongs to Unilever as its PDF-version disclaimer; the front cover is 5102.
+- L’Oréal’s 19-page block is an annual-report overview, not complete financial statements.
+- BHP’s filing includes a 2024 legal settlement and technical reports with their own 2022/2024 reporting dates; these are separately identified within document-groups.json.
+- Several first pages are image-only covers: this caused multiple old boundaries to skip genuine cover pages.
+- Page 1’s Arabic text visibly contains missing-glyph boxes. McDonald’s raw extraction contains font-encoding corruption; the completed review used recovered text and visual checks.
+- Country classifications are not all incorporation jurisdictions: Tencent’s principal head office is in Shenzhen, while its incorporation is in the Cayman Islands.
+- Page numbers are physical PDF pages, not printed report page numbers; some physical pages contain two printed pages.
+
+DELIVERABLES
+companies.json: 50 bilingual report records with exact ranges, source pages, scope warnings and review status.
+metadata.json: counts, global scope and page-numbering notices.
+document-groups.json: complete page attribution, directory, Unilever disclaimer and BHP legal/technical subgroups.
+boundary-corrections.json: all 28 legacy entries whose ranges changed.
+validation.json: 20 passing structural/source-integrity checks.
+evidence/source-page-evidence.json: hashes and short boundary/intro source excerpts for 245 cited or boundary pages.
+evidence/all-covers-1.jpg through all-covers-5.jpg: all 50 inspected covers.
+
+CORRECTED OWNERSHIP INDEX
+1–1 | Reporting and auditing resource directory
+2–93 | Amazon.com, Inc. | FY2023 | 92 physical pages | Introductory source inspection
+94–214 | Apple Inc. | FY2024 (ended 2024-09-28) | 121 physical pages | Partial source review
+215–346 | Cisco Systems, Inc. | FY2024 | 132 physical pages | Introductory source inspection
+347–446 | Walmart Inc. | FY2023 (ended 2023-01-31) | 100 physical pages | Introductory source inspection
+447–547 | Adobe Inc. | FY2024 | 101 physical pages | Introductory source inspection
+548–911 | JPMorgan Chase & Co. | FY2023 | 364 physical pages | Introductory source inspection
+912–1016 | Apple Inc. | FY2020 (ended 2020-09-26) | 105 physical pages | Introductory source inspection
+1017–1107 | Amazon.com, Inc. | FY2024 | 91 physical pages | Introductory source inspection
+1108–1187 | Apple Inc. | FY2023 (ended 2023-09-30) | 80 physical pages | Introductory source inspection
+1188–1341 | Berkshire Hathaway Inc. | FY2025 | 154 physical pages | Introductory source inspection
+1342–1705 | JPMorgan Chase & Co. | FY2025 | 364 physical pages | Introductory source inspection
+1706–1818 | Bank of America | FY2025 | 113 physical pages | Introductory source inspection
+1819–1962 | PepsiCo, Inc. | FY2025 | 144 physical pages | Introductory source inspection
+1963–2039 | The Procter & Gamble Company | FY2026 (ended 2026-06-30) | 77 physical pages | Complete source review
+2040–2131 | The Home Depot, Inc. | FY2025 (ended 2026-02-01) | 92 physical pages | Complete source review
+2132–2204 | McDonald’s Corporation | FY2022 | 73 physical pages | Complete source review
+2205–2342 | Nestlé Group | FY2025 | 138 physical pages | Introductory source inspection
+2343–2539 | Roche Group | FY2025 | 197 physical pages | Introductory source inspection
+2540–2804 | Novartis AG | FY2025 | 265 physical pages | Introductory source inspection
+2805–3184 | UBS Group AG | FY2025 | 380 physical pages | Introductory source inspection
+3185–3240 | Allianz SE | FY2025 | 56 physical pages | Introductory source inspection
+3241–3649 | Mercedes-Benz Group AG | FY2025 | 409 physical pages | Complete source review
+3650–4322 | Volkswagen Group | FY2025 | 673 physical pages | Complete source review
+4323–4704 | Deutsche Telekom AG | FY2025 | 382 physical pages | Complete source review
+4705–5100 | BP p.l.c. | FY2025 | 396 physical pages | Complete source review
+5101–5385 | Unilever PLC | FY2025 | 285 physical pages | Source review in progress
+5386–5617 | AstraZeneca PLC | FY2025 | 232 physical pages | Introductory source inspection
+5618–5948 | GSK plc | FY2025 | 331 physical pages | Introductory source inspection
+5949–6320 | HSBC Holdings plc | FY2025 | 372 physical pages | Introductory source inspection
+6321–6986 | TotalEnergies SE | FY2024 | 666 physical pages | Introductory source inspection
+6987–7427 | Airbus SE | FY2023 | 441 physical pages | Introductory source inspection
+7428–7446 | L'Oréal | FY2024 | 19 physical pages | Introductory source inspection
+7447–7746 | Sanofi | FY2025 | 300 physical pages | Introductory source inspection
+7747–8010 | Toyota Motor Corporation | FY2026 (ended 2026-03-31) | 264 physical pages | Introductory source inspection
+8011–8257 | Honda Motor Co., Ltd. | FY2023 (ended 2023-03-31) | 247 physical pages | Introductory source inspection
+8258–8369 | SoftBank Group Corp. | FY2025 (ended 2026-03-31); report 2026 | 112 physical pages | Introductory source inspection
+8370–8443 | Panasonic Holdings Corporation | FY2024 (ended 2024-03-31) | 74 physical pages | Introductory source inspection
+8444–8795 | Mitsubishi UFJ Financial Group | Year ended 2026-03-31 | 352 physical pages | Introductory source inspection
+8796–8914 | Sumitomo Mitsui Financial Group | Year ended 2026-03-31 | 119 physical pages | Introductory source inspection
+8915–9010 | Samsung Electronics | FY2025 | 96 physical pages | Introductory source inspection
+9011–9185 | Hon Hai Precision (Foxconn) | FY2025 | 175 physical pages | Introductory source inspection
+9186–9467 | Tencent Holdings | FY2025 | 282 physical pages | Introductory source inspection
+9468–9614 | Reliance Industries | FY2025–26 | 147 physical pages | Introductory source inspection
+9615–9997 | Infosys Limited | FY2025–26 | 383 physical pages | Introductory source inspection
+9998–10243 | Saudi Arabian Oil Company (Aramco) | FY2025 | 246 physical pages | Introductory source inspection
+10244–10375 | Emirates NBD Bank | FY2025 | 132 physical pages | Introductory source inspection
+10376–10604 | e& (Emirates Telecommunications Group) | FY2025 | 229 physical pages | Introductory source inspection
+10605–10850 | Royal Bank of Canada | FY2025 (ended 2025-10-31) | 246 physical pages | Introductory source inspection
+10851–12299 | BHP Group Limited | FY2025 (ended 2025-06-30) | 1449 physical pages | Introductory source inspection
+12300–12506 | Commonwealth Bank of Australia | FY2026 (ended 2026-06-30) | 207 physical pages | Introductory source inspection
+
+CHANGED LEGACY RANGES
+cisco-2024: 215–348 -> 215–346
+walmart-2023: 349–446 -> 347–446
+jpmorgan-2025: 1342–1706 -> 1342–1705
+bofa-2025: 1707–1818 -> 1706–1818
+pg-2026: 1963–2043 -> 1963–2039
+homedepot-2025: 2044–2131 -> 2040–2131
+novartis-2025: 2540–2817 -> 2540–2804
+ubs-2025: 2818–3184 -> 2805–3184
+bp-2025: 4705–5101 -> 4705–5100
+unilever-2025: 5102–5385 -> 5101–5385
+astrazeneca-2025: 5386–5698 -> 5386–5617
+gsk-2025: 5699–5949 -> 5618–5948
+hsbc-2025: 5950–6321 -> 5949–6320
+totalenergies-2024: 6322–6986 -> 6321–6986
+airbus-2023: 6987–7428 -> 6987–7427
+loreal-2024: 7429–7448 -> 7428–7446
+sanofi-2025: 7449–7746 -> 7447–7746
+softbank-2026: 8258–8443 -> 8258–8369
+smfg-2026: 8796–8915 -> 8796–8914
+samsung-2025: 8916–9017 -> 8915–9010
+honhai-2025: 9018–9185 -> 9011–9185
+tencent-2025: 9186–9468 -> 9186–9467
+reliance-2026: 9469–9615 -> 9468–9614
+infosys-2026: 9616–9998 -> 9615–9997
+aramco-2025: 9999–10244 -> 9998–10243
+emiratesnbd-2025: 10245–10375 -> 10244–10375
+bhp-2025: 10851–12300 -> 10851–12299
+cba-2026: 12301–12506 -> 12300–12506
+
+Parent-verified progress update, 2026-10-05 18:02 UTC: Unilever source package independently rerun and archive hash verified; 8 completed source-review reports cover 2,387 pages. Publication and full Arabic translation remain separate.

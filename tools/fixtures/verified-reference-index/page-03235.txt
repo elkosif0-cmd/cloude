@@ -1,0 +1,48 @@
+D _ Further Information
+
+
+
+
+INDEPENDENT AUDITOR’S REPORT
+To Allianz SE, Munich                                                     Pursuant to § [Article] 322 Abs. [paragraph] 3 Satz [sentence] 1 HGB        In our view, the matters of most significance in our audit were as
+                                                                          [Handelsgesetzbuch: German Commercial Code], we declare that our            follows:
+                                                                          audit has not led to any reservations relating to the legal compliance
+Report on the Audit of the Annual                                         of the annual financial statements and of the management report.            −   Measurement of reserves for loss and loss adjustment expenses
+                                                                                                                                                      −   Measurement of shares in affiliated companies and participations
+Financial Statements and of the
+Management Report                                                         We conducted our audit of the annual financial statements and of            Our presentation of these key audit matters has been structured in
+                                                                          the management report in accordance with § 317 HGB and the EU               each case as follows:
+                                                                          Audit Regulation (No. 537/2014, referred to subsequently as “EU Audit
+We have audited the annual financial statements of Allianz SE,            Regulation“) in compliance with German Generally Accepted                   −   Matter and issue
+Munich, which comprise the balance sheet as at 31 December 2025,          Standards for Financial Statement Audits promulgated by the Institut        −   Audit approach and findings
+and the statement of profit and loss for the financial year from          der Wirtschaftsprüfer [Institute of Public Auditors in Germany] (IDW).      −   Reference to further information
+1 January to 31 December 2025 and notes to the financial statements,      Our responsibilities under those requirements and principles are
+including the presentation of the recognition and measurement             further described in the “Auditor’s Responsibilities for the Audit of the   Hereinafter, we present the key audit matters:
+policies. In addition, we have audited the management report of           Annual Financial Statements and of the Management Report“ section
+Allianz SE, which is combined with the group management report, for       of our auditor’s report. We are independent of the Company in               Measurement of Reserves for Loss and Loss
+the financial year from 1 January to 31 December 2025. In accordance      accordance with the requirements of European law and German                 Adjustment Expenses
+with the German legal requirements, we have not audited the content       commercial and professional law, and we have fulfilled our other
+of those parts of the management report listed in the “Other              German professional responsibilities in accordance with these               Matter and Issue
+Information” section of our auditor’s report.                             requirements. In addition, in accordance with Article 10 (2) point (f) of   In the annual financial statements of the Company, technical
+                                                                          the EU Audit Regulation, we declare that we have not provided non-          provisions (so called “claims provisions”) amounting to € 20,475 mn
+In our opinion, on the basis of the knowledge obtained in the audit,      audit services prohibited under Article 5 (1) of the EU Audit Regulation.   (14.9 % of total assets) are reported under the “Reserves for loss and
+                                                                          We believe that the audit evidence we have obtained is sufficient and       loss adjustment expenses” balance sheet item.
+−    the accompanying annual financial statements comply, in all          appropriate to provide a basis for our audit opinions on the annual              Insurance companies are required to recognize technical
+     material respects, with the requirements of German commercial        financial statements and on the management report.                          provisions to the extent necessary in accordance with reasonable
+     law and give a true and fair view of the assets, liabilities and                                                                                 business judgment to ensure that they can meet their obligations from
+     financial position of the Company as at 31 December 2025 and of                                                                                  insurance contracts on a continuous basis. Defining assumptions for
+     its financial performance for the financial year from 1 January to                                                                               the purpose of measuring the technical provisions requires the
+     31 December 2025 in compliance with German Legally Required          Key audit matters are those matters that, in our professional judgment,     Company’s executive directors, in addition to complying with the
+     Accounting Principles and                                            were of most significance in our audit of the annual financial              requirements of commercial and regulatory law, to make estimations
+−    the accompanying management report as a whole provides               statements for the financial year from 1 January to 31 December 2025.       of future events and to apply appropriate measurement methods. The
+     an appropriate view of the Company’s position. In all material       These matters were addressed in the context of our audit of the annual      gross provision is generally determined on the basis of the cedents’
+     respects, this management report is consistent with the annual       financial statements as a whole, and in forming our audit opinion           information or, in the case of outstanding settlements, on the basis of
+     financial statements, complies with German legal                     thereon; we do not provide a separate audit opinion on these matters.       an estimate. The Company reviews the appropriateness of the
+     requirements and appropriately presents the opportunities                                                                                        cedents’ information and, if necessary, makes appropriate increases to
+     and risks of future development. Our audit opinion on the                                                                                        the amounts.
+     management report does not cover the content of those parts of                                                                                        The methods used to determine the amount of the claims
+     the management report listed in the “Other Information“ section                                                                                  provisions and the calculation parameters are based on judgments
+     of our auditor’s report.                                                                                                                         and assumptions made by the executive directors. This also included
+
+
+49                                                                                                                                                                                                     Annual Report 2025 – Allianz SE

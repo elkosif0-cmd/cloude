@@ -1,5 +1,5 @@
 /* S.kosif — المرجع العالمي للمراجعة (شاشة «auditbench»، صفحة في مجموعة «المعايير والمدونة») + window.SKosifAuditBench.
-   ما قرأناه في حزمة البحث العالمية (12,506 صفحة: التقارير السنوية ونماذج 10-K و20-F لـ49 مجموعة من 15 دولة)
+   ما قرأناه في حزمة البحث العالمية (12,506 صفحة: 50 تقريراً لـ46 شركة ضمن 15 تصنيف دولة أو سوق)
    محوَّلاً إلى أدوات عمل للمراجع — لا أرشيفاً:
    • مكتبة الأمور الرئيسية للمراجعة كما كتبها المراجعون فعلاً (ISA 701 وPCAOB AS 3101) بالموضوع والقطاع والمعيار،
      مع النمط المشترك لسبب اعتبار الأمر رئيسياً وإجراءات معالجته، وكل أمر بصفحته في الحزمة.
@@ -96,25 +96,34 @@ function cosTab(){
       SKCharts.donut(s.auditors.map(([f,n])=>({label:f,value:n})),{center:s.reports,sub:"تقريراً"})+'</div></section>'+
     '<section class="card"><div class="card-h"><div><h3>أطول ارتباطات المراجعة</h3><p>كما صرّح بها المراجع في تقريره.</p></div></div><div class="card-b">'+
       SKCharts.hbars({rows:long.map(r=>({label:r.company,sub:r.auditor+' منذ '+r.since,value:yr-r.since})),fmt:v=>v+' سنة',valueLabel:"سنوات الارتباط"})+'</div></section></div>'+
-    '<section class="card"><div class="card-h"><div><h3>التقارير في الحزمة</h3><p>'+rows.length+' تقريراً — الإطار المحاسبي ومعيار المراجعة ونطاق الصفحات في ملف الحزمة.</p></div></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table ab-t"><thead><tr><th>الشركة</th><th>الدولة</th><th>القطاع</th><th>الإطار</th><th>المعيار</th><th>المراجع</th><th>الأمور الرئيسية</th><th>الصفحات</th></tr></thead><tbody>'+
-      rows.map(r=>'<tr><td><b>'+esc(r.company)+'</b><small class="ab-sub">'+esc(r.kind)+' · '+esc(r.fy)+'</small></td><td>'+esc(CC[r.country]||r.country)+'</td><td>'+esc(G().SECTOR_AR[r.sector])+'</td><td dir="ltr">'+esc(r.framework)+'</td><td>'+esc(r.sourceAuditLabel||r.standard)+'</td><td>'+esc(r.auditor||"—")+(r.since?'<small class="ab-sub">منذ '+r.since+'</small>':'')+'</td><td class="num">'+(count(r.id)||'—')+'</td><td class="num">'+nf.format(r.pages[0])+'–'+nf.format(r.pages[1])+'</td></tr>').join("")+
+    '<section class="card"><div class="card-h"><div><h3>التقارير في الحزمة</h3><p>'+rows.length+' تقريراً — نطاق الصفحات وحالة مراجعة المصدر. بيانات المعايير القديمة لا تعني إعادة التحقق منها في فحص الفهرس الحالي.</p></div></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table ab-t"><thead><tr><th>الشركة</th><th>الدولة / السوق</th><th>القطاع</th><th>الإطار</th><th>المعيار</th><th>المراجع</th><th>الأمور الرئيسية</th><th>الصفحات</th></tr></thead><tbody>'+
+      rows.map(r=>'<tr><td><b>'+esc(r.company)+'</b><small class="ab-sub">'+esc(r.kind)+' · '+esc(r.fy)+'</small><small class="ab-sub">'+esc(r.reference.review_label_ar)+'</small></td><td>'+esc(CC[r.country]||r.country)+'</td><td>'+esc(G().SECTOR_AR[r.sector])+'</td><td dir="ltr">'+esc(r.framework)+'</td><td>'+esc(r.sourceAuditLabel||(r.standard==='unknown'?'غير متحقق منه':r.standard))+'</td><td>'+esc(r.auditor||"—")+(r.since?'<small class="ab-sub">منذ '+r.since+'</small>':'')+'</td><td class="num">'+(count(r.id)||'—')+'</td><td class="num">'+nf.format(r.pages[0])+'–'+nf.format(r.pages[1])+'</td></tr>').join("")+
     '</tbody></table></div></div></section>';
 }
 
 /* ---------- tab 0: the whole bundle, page by page (SKEngines.reports.globalCorpus) ---------- */
 let rep="aramco-2025";
+function referenceScope(report){
+  if(!report)return '';
+  const ref=report.reference;
+  return '<div class="hint ab-reference-scope"><p>'+esc(ref.review_label_ar)+' · '+esc(ref.summary_ar)+'</p>'+
+    '<p>'+esc(ref.introduction_ar)+'</p>'+ref.warnings_ar.map(w=>'<p>'+esc(w)+'</p>').join('')+
+    (report.structureStatus==='not-classified'?'<p>لم تُفهرس أقسام هذا التقرير؛ لا تمثل القائمة الفارغة غياب الإفصاحات.</p>':'<p>أقسام مصنفة تاريخياً؛ لا تعني اكتمال مراجعة المصدر.</p>')+
+    (report.excludedLegacySections.length?'<p>استُبعدت '+report.excludedLegacySections.length+' إحالات أقسام قديمة لأنها تقع خارج نطاق التقرير المصحح؛ يلزم فحصها دلالياً.</p>':'')+'</div>';
+}
 function corpusTab(){
-  const C=SKEngines.reports.globalCorpus,s=C.summary(),bp=C.blueprint(),N=s.reports;
+  const C=SKEngines.reports.globalCorpus,s=C.summary(),bp=C.blueprint(),N=s.sectionStatisticsReports;
+  rep=SKEngines.reports.referenceIndex.canonicalReferenceId(rep);
   const bar=(n,of)=>'<span class="ab-cv"><i style="width:'+Math.round(n/of*100)+'%"></i></span>';
   const list=(title,sub,rows)=>'<section class="card"><div class="card-h"><div><h3>'+title+'</h3><p>'+sub+'</p></div></div><div class="card-b"><table class="ab-ct"><tbody>'+rows+'</tbody></table></div></section>';
   const L=C.reportList(),st=C.reportStructure(rep),R=L.find(r=>r.id===rep);
-  return '<section class="card ab-hero"><div class="card-b"><div><span class="eyebrow">قراءة كاملة لكل صفحة</span><h3>'+nf.format(s.pages)+' صفحة · '+N+' تقريراً · '+s.sectionTypes+' نوعاً من الأقسام</h3>'+
-      '<p>صُنّفت كل صفحة من الحزمة ('+nf.format(s.pagesClassified)+' صفحة) إلى قسمها، وسُجّل أول ظهور لكل قسم في كل تقرير، وعُدّت أنماط الكتابة عبر التقارير كلها. هذه البنية والأنماط هي ما يتبعه المراجع الذكي في SQC حين يكتب التقرير السنوي المتكامل وتقرير المراجع، ويُقاس به التقرير قبل الإصدار.</p></div></div></section>'+
+  return '<section class="card ab-hero"><div class="card-b"><div><span class="eyebrow">فهرس ملكية الصفحات ومراجعة المصدر</span><h3>'+nf.format(s.pages)+' صفحة · '+s.reports+' تقريراً · '+s.distinctCompanies+' شركة · '+s.sectionTypes+' نوعاً من الأقسام</h3>'+
+      '<p>أُسندت جميع الصفحات إلى مصادرها، بما فيها دليل الصفحة 1. اكتملت مراجعة '+s.completeSourceReviewReports+' تقارير ('+nf.format(s.completeSourceReviewPages)+' صفحة). فهرسة الحدود ليست مراجعة كاملة أو قبولاً لنموذج التطبيق.</p><p>إحصاءات الأقسام أدناه تاريخية من '+N+' تقريراً، ولم تُعد مراجعتها دلالياً في فحص الحدود الحالي.</p><p>'+esc(s.scopeAr)+'</p></div></div></section>'+
     '<div class="ab-3">'+bp.map(p=>'<section class="card"><div class="card-h"><div><h3>'+esc(p.ar)+'</h3><p>بترتيب ظهورها الوسيط في التقارير</p></div></div><div class="card-b"><ol class="ab-bp">'+
       p.sections.map(x=>'<li><span>'+esc(x.ar)+'</span>'+bar(x.reports,N)+'<small>'+x.reports+'/'+N+'</small></li>').join("")+'</ol></div></section>').join("")+'</div>'+
     '<section class="card"><div class="card-h"><div><h3>بنية كل تقرير</h3><p>اختر تقريراً لترى أقسامه بالترتيب مع أول صفحة لكل قسم في الحزمة.</p></div>'+
       '<select data-ab-rep aria-label="التقرير">'+L.map(r=>'<option value="'+r.id+'"'+(r.id===rep?' selected':'')+'>'+esc(r.company+" · "+r.fy)+'</option>').join("")+'</select></div>'+
-      '<div class="card-b"><p class="hint">'+(R?esc(R.company)+' — '+esc(R.fw)+' · '+esc(R.fy)+' · الصفحات '+nf.format(R.from)+'–'+nf.format(R.to)+' · '+R.sections+' قسماً':'')+'</p><ol class="ab-rs">'+st.map(x=>'<li><b>'+esc(x.ar)+'</b><small>ص '+nf.format(x.page)+'</small></li>').join("")+'</ol></div></section>'+
+      '<div class="card-b"><p class="hint">'+(R?esc(R.company)+' — '+esc(R.fw)+' · '+esc(R.fy)+' · الصفحات '+nf.format(R.from)+'–'+nf.format(R.to)+' · '+R.sections+' قسماً':'')+'</p>'+referenceScope(R)+'<ol class="ab-rs">'+st.map(x=>'<li><b>'+esc(x.ar)+'</b><small>ص '+nf.format(x.page)+'</small></li>').join("")+'</ol></div></section>'+
     '<div class="ab-2">'+
       list("إجراءات المراجعة تحت الأمور الرئيسية","كم تقريراً يصف كل إجراء في قسم الأمور الرئيسية",C.kamProcedures().slice(0,14).map(x=>'<tr><td><b>'+esc(x.ar)+'</b><small>'+esc(x.text)+'</small></td><td>'+bar(x.reports,N)+'</td><td class="n">'+x.reports+'</td></tr>').join(""))+
       list("فئات المخاطر الرئيسية","عدد التقارير التي تذكر الفئة في صفحات المخاطر",C.riskCatalogue().slice(0,16).map(x=>'<tr><td><b>'+esc(x.ar)+'</b><small>'+esc(x.mitigation)+'</small></td><td>'+bar(x.reports,N)+'</td><td class="n">'+x.reports+'</td></tr>').join(""))+

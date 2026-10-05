@@ -1,15 +1,8 @@
-/* The companies of the research bundle as audit clients — the primary statements of 47 of its 49 reports
-   (global_financial_and_audit_research_bundle_extended_verified.pdf, 12,506 pages), transcribed line by line from the
-   bundle pages cited for each (income statement «is», balance sheet «bs»), current year and comparative.
-   Fresh reviewed source adapters bypass legacy synthesis; McDonald’s FY2022 uses the source-only catalog.
-   The legacy FY2025 McDonald’s ID is misdated and unavailable. L’Oréal has only an overview in the assigned source.
-   Every company becomes a balanced two-year trial balance the engagement file can open, so the whole audit
-   (materiality, risks, key audit matters, the council rounds, the reports) runs on a real published company and
-   can be compared with what its auditor actually reported (audit/corpus-replay-engine.ts).
-   Units: millions of the reporting currency as published (Indian groups: crore, ₹10 million). The statement lines
-   the bundle does not break out are carried in «other» accounts so both years balance; banks put loans in
-   receivables and customer deposits in payables, insurers their claims reserves in provisions. */
+/* Historical numerical extracts remain unchanged. Live model opening is source-only
+ * and gated by reviewedPublishedSource; a catalog entry or completed external source
+ * review is not permission to synthesize an operational trial balance. */
 import { reviewedPublishedSource } from './published-source-engine';
+import { canonicalReferenceId, legacyReferenceId } from './reference-index-engine';
 import { REPORTS, SECTOR_AR, type Report } from '../audit/global-benchmarks-engine';
 
 export type Pair = readonly [current: number, prior: number];
@@ -120,7 +113,7 @@ export const FIGURES: Record<string, Figures> = {
 
 export const NO_STATEMENTS: Record<string, string> = {
   'mcdonalds-2025': 'Supplied pages 2132–2204 contain the complete FY2022 report, not FY2025. No FY2025 source model is verified.',
-  'loreal-2024': 'the bundle carries the overview only (pp. 7429–7448)',
+  'loreal-2024': 'the bundle carries the overview only (pp. 7428–7446)',
 };
 
 /* year ends that are not 31 December */
@@ -128,7 +121,7 @@ const YEAR_END: Record<string, string> = {
   'apple-2024': '2024-09-28', 'apple-2023': '2023-09-30', 'apple-2020': '2020-09-26', 'cisco-2024': '2024-07-27', 'walmart-2023': '2023-01-31',
   'adobe-2024': '2024-11-29', 'pepsico-2025': '2025-12-27', 'pg-2026': '2026-06-30', 'homedepot-2025': '2026-02-01', 'toyota-2026': '2026-03-31',
   'honda-2023': '2023-03-31', 'softbank-2026': '2026-03-31', 'mufg-2026': '2026-03-31', 'smfg-2026': '2026-03-31', 'reliance-2026': '2026-03-31',
-  'infosys-2026': '2026-03-31', 'rbc-2025': '2025-10-31', 'bhp-2025': '2025-06-30', 'cba-2025': '2025-06-30',
+  'infosys-2026': '2026-03-31', 'rbc-2025': '2025-10-31', 'bhp-2025': '2025-06-30', 'cba-2025': '2026-06-30',
 };
 const CURRENCY_AR: Record<string, string> = { USD: 'دولار أمريكي', EUR: 'يورو', CHF: 'فرنك سويسري', GBP: 'جنيه إسترليني', JPY: 'ين ياباني', KRW: 'وون كوري',
   RMB: 'يوان صيني', INR: 'روبية هندية', TWD: 'دولار تايواني', SAR: 'ريال سعودي', AED: 'درهم إماراتي', AUD: 'دولار أسترالي', CAD: 'دولار كندي' };
@@ -143,12 +136,12 @@ const UNIT_SHORT: Record<string, string> = { USD: '$', EUR: '€', GBP: '£', JP
 const unitAr = (f: Figures) => (f.unit === 'crore' ? 'كرور ' : 'مليون ') + (UNIT_SHORT[f.currency] ?? f.currency);
 /** Every company with statements, in bundle order. */
 export function corpusCompanies(): CorpusCompany[] {
-  return REPORTS.filter((r) => FIGURES[r.id]).map((r) => {
-    const f = FIGURES[r.id];
-    return { ...r, figures: f, yearEnd: YEAR_END[r.id] ?? (r.fy.match(/\d{4}/)?.[0] ?? '2025') + '-12-31', unitAr: unitAr(f), currencyAr: CURRENCY_AR[f.currency] ?? f.currency };
+  return REPORTS.filter((r) => FIGURES[legacyReferenceId(r.id)]).map((r) => {
+    const f = FIGURES[legacyReferenceId(r.id)];
+    return { ...r, figures: f, yearEnd: YEAR_END[legacyReferenceId(r.id)] ?? (r.fy.match(/\d{4}/)?.[0] ?? '2025') + '-12-31', unitAr: unitAr(f), currencyAr: CURRENCY_AR[f.currency] ?? f.currency };
   });
 }
-export const corpusCompany = (id: string) => corpusCompanies().find((c) => c.id === id) ?? null;
+export const corpusCompany = (id: string) => corpusCompanies().find((c) => c.id === canonicalReferenceId(id)) ?? null;
 
 /* Reviewed sources do not need a fabricated FIGURES record to appear in the catalog. */
 type PublishedSourceCompany = Omit<Report,'standard'> & {standard:string;figures?:never;yearEnd:string;unitAr:string;currencyAr:string;sourceOnly:true;sourceKind:'published-statements';periodStart:string;periodEnd:string;priorPeriodEnd:string;frameworkAr:string;countryAr:string;unit:string};
@@ -164,6 +157,7 @@ export function publishedSourceCompanies():PublishedSourceCompany[]{
  return [{...meta,standard:'sourceAuditLabel' in s?s.sourceAuditLabel:meta.standard,company:s.issuer,country:s.issuerCountry,framework:s.accountingBasis,auditor:s.auditorReference.name+' (original source attribution only)',kind:s.report,yearEnd:s.periodEnd,periodStart:s.periodStart,periodEnd:s.periodEnd,priorPeriodEnd:s.priorPeriodEnd,currencyAr:s.currency,unitAr:s.currency+' '+s.unit,unit:s.unit,frameworkAr:s.accountingBasis,countryAr:COUNTRY_AR[s.issuerCountry]??s.issuerCountry,sourceOnly:true as const,sourceKind:'published-statements' as const}];});
 }
 export function sourceUnavailableReason(id:string):string|null{
+ id=canonicalReferenceId(id);
  if(reviewedPublishedSource(id))return null;
  if(id==='mcdonalds-2025')return "Supplied pages 2132–2204 are McDonald’s FY2022 annual report with complete statements, not FY2025. No FY2025 model is verified.";
  return NO_STATEMENTS[id]??(REPORTS.some(r=>r.id===id)?'نموذج المصدر بانتظار المراجعة؛ لا يمكن فتحه أو استيراده كميزان تشغيلي أو تكليف تأكيد.':'نموذج المصدر غير متاح أو هويته غير معروفة؛ لا يمكن تحويله إلى ميزان تشغيلي.');
@@ -174,10 +168,10 @@ export type AuditModelStatus='source-replayed'|'partially-supported'|'pending-re
 export function auditModelCatalog(){
  const order:Record<AuditModelStatus,number>={'source-replayed':0,'partially-supported':1,'pending-review':2,'unavailable':3};
  return REPORTS.map(r=>{
-  const source=reviewedPublishedSource(r.id),m=source?.sourceModel,f=FIGURES[r.id];
+  const source=reviewedPublishedSource(r.id),m=source?.sourceModel,f=FIGURES[legacyReferenceId(r.id)];
   const modelStatus:AuditModelStatus=m&&'replay' in m?'source-replayed':m?'partially-supported':NO_STATEMENTS[r.id]?'unavailable':'pending-review';
-  const modelStatusAr={'source-replayed':'تمت مراجعة المصدر وعرض قوائمه','partially-supported':'مدعوم جزئياً','pending-review':'بانتظار مراجعة المصدر','unavailable':'غير متاح'}[modelStatus];
-  const supportReason=modelStatus==='source-replayed'?'القوائم الأساسية المنشورة مطابقة للمصدر ضمن النطاق المعلن؛ التفاصيل غير المدعومة مذكورة داخل النموذج. لا يمثل ذلك تأكيداً مهنياً.':modelStatus==='partially-supported'?'نموذج Apple يدعم قائمة الدخل والمركز المالي؛ التدفقات النقدية والتغيرات في حقوق الملكية والإيضاحات الكاملة غير متاحة. لا يمثل ذلك تأكيداً مهنياً.':modelStatus==='unavailable'?NO_STATEMENTS[r.id]:'لم تُستكمل مراجعة المصدر ومطابقة مخرجاته؛ لا يُفتح هذا السجل كنموذج منشور تم التحقق منه.';
+  const modelStatusAr={'source-replayed':'تمت مراجعة المصدر وعرض قوائمه','partially-supported':'مدعوم جزئياً','pending-review':'بانتظار مراجعة واعتماد نموذج التطبيق','unavailable':'غير متاح'}[modelStatus];
+  const supportReason=modelStatus==='source-replayed'?'القوائم الأساسية المنشورة مطابقة للمصدر ضمن النطاق المعلن؛ التفاصيل غير المدعومة مذكورة داخل النموذج. لا يمثل ذلك تأكيداً مهنياً.':modelStatus==='partially-supported'?'نموذج Apple يدعم قائمة الدخل والمركز المالي؛ التدفقات النقدية والتغيرات في حقوق الملكية والإيضاحات الكاملة غير متاحة. لا يمثل ذلك تأكيداً مهنياً.':modelStatus==='unavailable'?NO_STATEMENTS[r.id]:'نموذج التطبيق بانتظار مراجعة واعتماد مستقلة؛ حالة قراءة المصدر مذكورة منفصلة ولا تسمح بفتح ميزان تشغيلي.';
   return {...r,standard:m&&'sourceAuditLabel' in m?m.sourceAuditLabel:r.standard,company:m?.issuer??r.company,fy:r.fy,modelStatus,modelStatusAr,supportReason,openable:!!m,sourceOnly:!!m,
    countryAr:COUNTRY_AR[r.country]??r.country,frameworkAr:m?.accountingBasis??r.framework,sectorAr:SECTOR_AR[r.sector],
    unitAr:m?m.currency+' '+m.unit:f?unitAr(f):'',auditor:m?m.auditorReference.name+' (original source reference only)':r.auditor};
@@ -262,6 +256,7 @@ function accounts(c: CorpusCompany): Acc[] {
 }
 /** The trial balance as the engagement file imports it (CSV with the prior year), the line of each account, and the engagement context. */
 export function companyTrialBalance(id: string) {
+  id=canonicalReferenceId(id);
   const source=reviewedPublishedSource(id);
   if(!source)return null; // No synthetic operational carrier for pending/unavailable named models.
   if(source&&'replay' in source.sourceModel){

@@ -86,9 +86,41 @@ async function getSnap(id,userId=user().id){const db=await spacesDb();let r=awai
 function clearHelperKeys(){const ks=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(HELPER_KEY(k))ks.push(k)}ks.forEach(k=>localStorage.removeItem(k))}
 
 /* ---------- switching ---------- */
-let busy=false,scopeEpoch=0,scopeTainted=false,scopeTransitions=0;
-const scopeBegin=()=>{if(scopeTransitions)scopeTainted=true;scopeTransitions++;scopeEpoch++};
-const scopeEnd=()=>{scopeTransitions--;scopeEpoch++};
+let busy=false,scopeEpoch=0,scopeTainted=false,scopeTransitions=0,chatLocked=false,chatForeign=false;
+/* A lifecycle generation, not an authentication credential. Other open tabs must reload before
+   using their cached company data after a switch/lock anywhere on this device. */
+const CHAT_GENERATION="sqc_chat_scope_generation_v1";
+let chatGeneration=load(CHAT_GENERATION,null);
+const scopeNotify=()=>{SK.bus&&SK.bus.emit&&SK.bus.emit("scope",{})};
+/* Redundant same-origin notification when a persisted generation cannot be written. No chat,
+   company identity, credentials, or source data is transmitted. Delivery is asynchronous. */
+let chatChannel=null;
+try{if(typeof BroadcastChannel!=="undefined"){chatChannel=new BroadcastChannel("sqc-chat-lifecycle-v1");chatChannel.onmessage=e=>{if(e.data==="invalidate"){chatForeign=true;scopeNotify()}}}}catch{/* persisted generation remains the primary boundary */}
+function advanceChatGeneration(){
+  const next=JSON.stringify([Date.now(),Math.random(),scopeEpoch]);
+  if(save(CHAT_GENERATION,next)!==true)scopeTainted=true;
+  else chatGeneration=next;
+  try{if(chatChannel)chatChannel.postMessage("invalidate")}catch{/* no reliable cross-tab signal if both transports fail */}
+}
+const scopeBegin=()=>{if(scopeTransitions)scopeTainted=true;scopeTransitions++;scopeEpoch++;advanceChatGeneration();scopeNotify()};
+const scopeEnd=()=>{scopeTransitions--;scopeEpoch++;scopeNotify()};
+/* Local-user/company routing only. This is not backend tenant authentication. Unlike report
+   scope, chat does not require an accounting period. Reads never initialize or adopt ownership. */
+function chatScopeSnapshot(){
+  const obj=v=>v&&typeof v==="object"&&!Array.isArray(v),id=v=>typeof v==="string"&&v.trim()?v:null;
+  const own=(v,k)=>obj(v)&&k!==null&&Object.prototype.hasOwnProperty.call(v,k);
+  let userId=null,companyId=null,valid=false,persisted=null;
+  try{
+    const ur=load(USERS,null),r=load(REG,null),cd=load("skosif_companies_v1",null);
+    persisted=load(CHAT_GENERATION,null);userId=id(ur&&ur.active);
+    const u=own(ur&&ur.users,userId)?ur.users[userId]:null;
+    companyId=id(cd&&cd.active&&cd.active.companyId);
+    valid=!!(obj(u)&&u.id===userId&&id(u.lastSpace)===companyId&&own(u.spaces,companyId)&&obj(u.spaces[companyId])&&obj(r)&&r.active===companyId&&own(r.spaces,companyId)&&obj(r.spaces[companyId])&&Array.isArray(cd.companies)&&cd.companies.filter(c=>obj(c)&&c.id===companyId).length===1);
+  }catch{/* fail closed */}
+  const status=chatLocked?"locked":chatForeign||persisted!==chatGeneration?"stale":busy||scopeTransitions?"busy":scopeTainted?"tainted":valid?"stable":"unknown";
+  return Object.freeze({status,userId,companyId,token:JSON.stringify([scopeEpoch,status,userId,companyId,persisted])});
+}
+SK.bus&&SK.bus.on("lock",()=>{chatLocked=true;scopeEpoch++;advanceChatGeneration();scopeNotify()});
 /* Read-only report context, not ownership or user attestation. Never initialize user registries here.
    Taint is conservative for this runtime: a failed/partially acknowledged switch cannot be cleared
    by selecting a label or by the same-ID fast path. No new persisted binding is introduced. */
@@ -274,7 +306,7 @@ async function applyIntent(){
   return true;
 }
 const intentDone=applyIntent().catch(e=>{SK.errors&&SK.errors.report(e,"space:intent");return false});
-window.SKosifSpace=Object.freeze({scopeSnapshot,current,list:options,switchTo,newCompany,choose:chooser,isHelperKey:HELPER_KEY,user,users,createUser,switchUser,newUser,chooseUser:userChooser,
+window.SKosifSpace=Object.freeze({scopeSnapshot,chatScopeSnapshot,current,list:options,switchTo,newCompany,choose:chooser,isHelperKey:HELPER_KEY,user,users,createUser,switchUser,newUser,chooseUser:userChooser,
   busy:()=>busy,intent:()=>intentDone,privateSpace:()=>localStorage.getItem(PRIVATE)||"",rename});
 })();
 

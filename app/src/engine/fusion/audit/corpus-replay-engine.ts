@@ -9,6 +9,7 @@
    • what the engine missed, counted over all companies — the gaps that tell where its judgement differs.
    The sector prior (how often auditors in the same sector reported each theme) is computed leave-one-out: the
    company being replayed never informs its own ranking. */
+import { canonicalReferenceId } from '../reports/reference-index-engine';
 import { KAMS, MATERIALITY, REPORTS, THEMES, type Sector, type Theme } from './global-benchmarks-engine';
 import { reviewTrialBalance } from './tb-review-engine';
 import { suggestKams } from './kam-engine';
@@ -31,7 +32,7 @@ const r2 = (x: number) => Math.round(x * 100) / 100;
 /** How often the auditors of a sector reported each theme (share of that sector's reports with KAMs), leaving one report out. */
 export function sectorPrior(sector: Sector | '', exclude?: string): Partial<Record<Theme, number>> {
   if (!sector) return {};
-  const reports = [...new Set(KAMS.map((k) => k.report))].filter((id) => id !== exclude && corpusSector(id) === sector);
+  const reports = [...new Set(KAMS.map((k) => k.report))].filter((id) => id !== (exclude ? canonicalReferenceId(exclude) : undefined) && corpusSector(id) === sector);
   if (!reports.length) return {};
   const out: Partial<Record<Theme, number>> = {};
   for (const t of Object.keys(THEMES) as Theme[]) {
@@ -42,7 +43,7 @@ export function sectorPrior(sector: Sector | '', exclude?: string): Partial<Reco
 }
 /** How many matters (distinct themes) auditors under a standard report — the mean over the bundle's reports, leaving one out. */
 export function typicalKamCount(standard: 'ISA' | 'PCAOB', exclude?: string): number {
-  const ids = [...new Set(KAMS.map((k) => k.report))].filter((id) => id !== exclude && REPORT_STD.get(id) === standard);
+  const ids = [...new Set(KAMS.map((k) => k.report))].filter((id) => id !== (exclude ? canonicalReferenceId(exclude) : undefined) && REPORT_STD.get(id) === standard);
   if (!ids.length) return 3;
   const mean = ids.reduce((s, id) => s + new Set(KAMS.filter((k) => k.report === id).map((k) => k.theme)).size, 0) / ids.length;
   return Math.max(1, Math.round(mean));

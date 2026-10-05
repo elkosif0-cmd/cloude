@@ -65,22 +65,22 @@ function compatibilityKeys(x){
 }
 function compatibilityTable(x){
   const G=GC(),keys=compatibilityKeys(x),rows=G.reportCompatibility(keys),sum=G.compatibilitySummary(keys),cls=n=>n>=80?"pos":n<55?"neg":"";
-  return '<details class="ir-compat" open><summary><b>اختبار المخرجات مقابل التقارير الـ49</b><span>متوسط التغطية الهيكلية '+sum.averageCoveragePct+'% · ≥80%: '+sum.atLeast80+' · ≥60%: '+sum.atLeast60+'</span></summary>'+
-    '<p class="rd-note">هذا اختبار بنية المخرجات، وليس ادعاء أن منشأتك يجب أن تقلّد شركة بعينها. كل صف يقارن أقسام حزمة SQC الناتجة بأقسام التقرير المنشور فعلياً ويُظهر الفجوات.</p>'+
+  return '<details class="ir-compat" open><summary><b>مقارنة البنية التاريخية ضمن فهرس '+sum.reports+' تقريراً</b><span>متوسط التغطية الهيكلية '+sum.averageCoveragePct+'% · ≥80%: '+sum.atLeast80+' · ≥60%: '+sum.atLeast60+'</span></summary>'+
+    '<p class="rd-note">هذا اختبار بنية المخرجات، وليس ادعاء أن منشأتك يجب أن تقلّد شركة بعينها. تغطي المقارنة الأقسام المصنفة تاريخياً في '+sum.classifiedReports+' تقريراً؛ '+sum.unclassifiedReports+' تقرير لم تُفهرس أقسامه بعد ويُستبعد من متوسط التغطية. لم تُعد مراجعة تصنيف الأقسام في هذا الفحص.</p>'+
     '<div class="ir-compat-wrap"><table class="ir-rt ir-compat-t"><thead><tr><th>الشركة / التقرير</th><th>الإطار</th><th>التغطية</th><th>الموجود</th><th>أبرز الأقسام غير المغطاة</th></tr></thead><tbody>'+
-    rows.map(r=>'<tr><td><b>'+esc(r.company)+'</b><small>'+esc(r.fy)+' · '+esc(r.id)+'</small></td><td>'+esc(r.framework)+'</td><td class="'+cls(r.coveragePct)+'"><b>'+r.coveragePct+'%</b></td><td>'+r.matched+'/'+r.total+'</td><td>'+(r.missingSections.length?esc(r.missingSections.slice(0,5).map(z=>z.ar).join("، "))+(r.missingSections.length>5?' <small>+'+(r.missingSections.length-5)+'</small>':''):'<span class="pos">مغطى هيكلياً</span>')+'</td></tr>').join("")+
+    rows.map(r=>'<tr><td><b>'+esc(r.company)+'</b><small>'+esc(r.fy)+' · '+esc(r.id)+'</small></td><td>'+esc(r.framework)+'</td><td class="'+cls(r.coveragePct)+'"><b>'+(r.structureStatus==='not-classified'?'غير مصنف':r.coveragePct+'%')+'</b></td><td>'+r.matched+'/'+r.total+'</td><td>'+(r.structureStatus==='not-classified'?'لم تُفهرس أقسام هذا التقرير':r.missingSections.length?esc(r.missingSections.slice(0,5).map(z=>z.ar).join("، "))+(r.missingSections.length>5?' <small>+'+(r.missingSections.length-5)+'</small>':''):'<span class="pos">مغطى هيكلياً</span>')+'</td></tr>').join("")+
     '</tbody></table></div></details>';
 }
 
 function appendix(x){
   const q=x.q,narr=x.narr,G=GC(),sum=G.summary(),bp=G.blueprint();
   const ai=Object.values(narr.source||{}).filter(v=>v==="ai").length,tot=Object.keys(narr.source||{}).length;
-  return '<div class="ir-q"><div class="ir-qs"><b>'+q.score+'%</b><small>مطابقة البنية والمحتوى للتقارير العالمية</small></div><div><p>قرأت SQC حزمة البحث كاملة: '+sum.pages.toLocaleString("en-US")+' صفحة من '+sum.reports+' تقريراً سنوياً، وصنّفت '+sum.pagesClassified.toLocaleString("en-US")+' صفحة إلى '+sum.sections+' نوعاً من الأقسام. '+
+  return '<div class="ir-q"><div class="ir-qs"><b>'+q.score+'%</b><small>مطابقة البنية والمحتوى للتقارير العالمية</small></div><div><p>يسند فهرس الحزمة '+sum.pages.toLocaleString("en-US")+' صفحة إلى '+sum.reports+' تقريراً. اكتملت مراجعة المصدر لـ'+sum.completeSourceReviewReports+' تقارير ('+sum.completeSourceReviewPages.toLocaleString("en-US")+' صفحة)؛ الفهرسة ليست مراجعة شاملة أو قبولاً للتطبيق. إحصاءات الأقسام تاريخية ولم تُعد مراجعتها دلالياً. '+
     'تُقاس هذه المسودة بما تحتويه تلك التقارير قسماً قسماً، ويُطابَق كل رقم في السرد مع أرقام المنشأة.</p><p class="ir-src">'+(ai?'صاغ الذكاء الاصطناعي '+ai+' من '+tot+' أقسام'+(narr.model?' ('+esc(narr.model)+(narr.at?' · '+esc(narr.at.slice(0,10)):'')+')':'')+'، والباقي من محرك SQC.':'السرد من محرك SQC (دون ذكاء اصطناعي).')+'</p></div></div>'+
     '<table class="ir-rt ir-qt"><thead><tr><th>المعيار</th><th>النتيجة</th><th>الأساس في الحزمة</th></tr></thead><tbody>'+q.items.map(i=>'<tr><td>'+esc(i.ar)+(i.detail?'<small>'+esc(i.detail)+'</small>':'')+'</td><td class="'+(i.ok?"pos":"neg")+'">'+(i.ok?"✓ مستوفى":"✗ غير مستوفى")+'</td><td>'+esc(i.basis)+'</td></tr>').join("")+'</tbody></table>'+
     (narr.unverified&&narr.unverified.length?'<p class="ir-warn">أرقام لم يمكن تتبعها إلى أرقام المنشأة — تُصحح أو تُحذف قبل الإصدار: '+esc(narr.unverified.map(u=>u.section+': '+u.numbers.join("، ")).join(" | "))+'</p>':'')+
     compatibilityTable(x)+
-    '<h4>البنية المتبعة (من ترتيب الأقسام في التقارير الـ'+sum.reports+')</h4><div class="ir-bp">'+bp.map(p=>'<div><b>'+esc(p.ar)+'</b><ol>'+p.sections.map(s=>'<li>'+esc(s.ar)+' <small>'+s.reports+'/'+sum.reports+'</small></li>').join("")+'</ol></div>').join("")+'</div>';
+    '<h4>البنية المتبعة (من ترتيب الأقسام في التقارير الـ'+sum.sectionStatisticsReports+')</h4><div class="ir-bp">'+bp.map(p=>'<div><b>'+esc(p.ar)+'</b><ol>'+p.sections.map(s=>'<li>'+esc(s.ar)+' <small>'+s.reports+'/'+sum.sectionStatisticsReports+'</small></li>').join("")+'</ol></div>').join("")+'</div>';
 }
 
 function render(x){

@@ -69203,6 +69203,3687 @@ window.SKEngines = (function() {
 		return out;
 	}
 	//#endregion
+	//#region app/src/engine/fusion/reports/source-data/reference-index.ts
+	var REFERENCE_REPORTS = [
+		{
+			"id": "amazon-2023",
+			"company_id": "amazon",
+			"name_en": "Amazon.com, Inc.",
+			"name_ar": "أمازون",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "retail",
+			"sector_en": "Retail and restaurants",
+			"sector_ar": "التجزئة والمطاعم",
+			"fy": "FY2023",
+			"report_year": 2023,
+			"to": 93,
+			"page_count": 92,
+			"cover_page": 2,
+			"document_type_en": "Annual report + 10-K",
+			"introduction_en": "Amazon combines online and physical retail, third-party seller services, advertising, digital content and AWS cloud services.",
+			"introduction_ar": "تجمع أمازون بين تجارة التجزئة الإلكترونية والفعلية وخدمات البائعين والإعلانات والمحتوى الرقمي وخدمات AWS السحابية.",
+			"summary_en": "The 2023 report explains the North America, International and AWS segments alongside the shareholder letter and Form 10-K disclosures.",
+			"summary_ar": "يعرض تقرير 2023 قطاعات أمريكا الشمالية والأسواق الدولية وAWS، إلى جانب رسالة المساهمين وإفصاحات نموذج 10-K.",
+			"selected_source_pages": [
+				2,
+				15,
+				16,
+				17
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 1,
+					"role": "previous_end",
+					"description_en": "End of preceding reference-directory page block."
+				},
+				{
+					"page": 2,
+					"role": "start",
+					"description_en": "Amazon.com, Inc. report cover."
+				},
+				{
+					"page": 93,
+					"role": "end",
+					"description_en": "Last physical page in the Amazon.com, Inc. block."
+				},
+				{
+					"page": 94,
+					"role": "next_start",
+					"description_en": "Start of Apple Inc. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 2
+		},
+		{
+			"id": "apple-2024",
+			"company_id": "apple",
+			"name_en": "Apple Inc.",
+			"name_ar": "آبل",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "tech",
+			"sector_en": "Technology",
+			"sector_ar": "التقنية",
+			"fy": "FY2024 (ended 2024-09-28)",
+			"report_year": 2024,
+			"to": 214,
+			"page_count": 121,
+			"cover_page": 94,
+			"document_type_en": "10-K",
+			"introduction_en": "Apple designs and markets smartphones, computers, tablets, wearables and accessories, with related digital services.",
+			"introduction_ar": "تصمم آبل وتسوق الهواتف الذكية والحواسيب والأجهزة اللوحية والأجهزة القابلة للارتداء والملحقات والخدمات الرقمية المرتبطة بها.",
+			"summary_en": "This Form 10-K covers the year ended September 28, 2024, including products, services, risks, financial statements and attached exhibits.",
+			"summary_ar": "يغطي نموذج 10-K السنة المنتهية في 28 سبتمبر 2024، ويشمل المنتجات والخدمات والمخاطر والقوائم المالية والمرفقات.",
+			"selected_source_pages": [
+				94,
+				96,
+				97,
+				98
+			],
+			"review_status": "partial_source_review",
+			"review_label_en": "Partial source review",
+			"review_label_ar": "مراجعة جزئية للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 93,
+					"role": "previous_end",
+					"description_en": "End of preceding Amazon.com, Inc. block."
+				},
+				{
+					"page": 94,
+					"role": "start",
+					"description_en": "Apple Inc. report cover."
+				},
+				{
+					"page": 214,
+					"role": "end",
+					"description_en": "Last physical page in the Apple Inc. block."
+				},
+				{
+					"page": 215,
+					"role": "next_start",
+					"description_en": "Start of Cisco Systems, Inc. report block."
+				}
+			],
+			"warnings_en": ["Apple FY2024 review work is partial; this status is not a claim of complete semantic review of this filing."],
+			"warnings_ar": ["مراجعة مصدر آبل للسنة المالية 2024 جزئية؛ ولا تعني هذه الحالة اكتمال المراجعة الدلالية لهذا الإفصاح."],
+			"from": 94
+		},
+		{
+			"id": "cisco-2024",
+			"company_id": "cisco",
+			"name_en": "Cisco Systems, Inc.",
+			"name_ar": "سيسكو سيستمز",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "tech",
+			"sector_en": "Technology",
+			"sector_ar": "التقنية",
+			"fy": "FY2024",
+			"report_year": 2024,
+			"to": 346,
+			"page_count": 132,
+			"cover_page": 215,
+			"document_type_en": "Annual report + 10-K",
+			"introduction_en": "Cisco supplies networking, security and observability technology that connects and protects digital infrastructure.",
+			"introduction_ar": "توفر سيسكو تقنيات الشبكات والأمن ومراقبة الأنظمة لربط البنية التحتية الرقمية وحمايتها.",
+			"summary_en": "Its 2024 report discusses the integration of Splunk and priorities in infrastructure, cybersecurity, AI and data, followed by its Form 10-K.",
+			"summary_ar": "يناقش تقرير 2024 دمج سبْلانك وأولويات البنية التحتية والأمن السيبراني والذكاء الاصطناعي والبيانات، ثم يتضمن نموذج 10-K.",
+			"selected_source_pages": [
+				215,
+				216,
+				217,
+				218
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 214,
+					"role": "previous_end",
+					"description_en": "End of preceding Apple Inc. block."
+				},
+				{
+					"page": 215,
+					"role": "start",
+					"description_en": "Cisco Systems, Inc. report cover."
+				},
+				{
+					"page": 346,
+					"role": "end",
+					"description_en": "Last physical page in the Cisco Systems, Inc. block."
+				},
+				{
+					"page": 347,
+					"role": "next_start",
+					"description_en": "Start of Walmart Inc. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 215
+		},
+		{
+			"id": "walmart-2023",
+			"company_id": "walmart",
+			"name_en": "Walmart Inc.",
+			"name_ar": "وولمارت",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "retail",
+			"sector_en": "Retail and restaurants",
+			"sector_ar": "التجزئة والمطاعم",
+			"fy": "FY2023 (ended 2023-01-31)",
+			"report_year": 2023,
+			"to": 446,
+			"page_count": 100,
+			"cover_page": 347,
+			"document_type_en": "Annual report and Form 10-K",
+			"introduction_en": "Walmart is an omnichannel retailer serving customers through stores, clubs and e-commerce.",
+			"introduction_ar": "وولمارت شركة تجزئة متعددة القنوات تخدم العملاء من خلال المتاجر وأندية العضوية والتجارة الإلكترونية.",
+			"summary_en": "The FY2023 report describes Walmart U.S., Walmart International and Sam’s Club, and the everyday-low-price operating approach.",
+			"summary_ar": "يصف تقرير السنة المالية 2023 قطاعات وولمارت الأمريكية والدولية وسامز كلوب، ونهج التشغيل القائم على الأسعار المنخفضة يومياً.",
+			"selected_source_pages": [
+				347,
+				348,
+				349,
+				354
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 346,
+					"role": "previous_end",
+					"description_en": "End of preceding Cisco Systems, Inc. block."
+				},
+				{
+					"page": 347,
+					"role": "start",
+					"description_en": "Walmart Inc. report cover."
+				},
+				{
+					"page": 446,
+					"role": "end",
+					"description_en": "Last physical page in the Walmart Inc. block."
+				},
+				{
+					"page": 447,
+					"role": "next_start",
+					"description_en": "Start of Adobe Inc. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 347
+		},
+		{
+			"id": "adobe-2024",
+			"company_id": "adobe",
+			"name_en": "Adobe Inc.",
+			"name_ar": "أدوبي",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "tech",
+			"sector_en": "Technology",
+			"sector_ar": "التقنية",
+			"fy": "FY2024",
+			"report_year": 2024,
+			"to": 547,
+			"page_count": 101,
+			"cover_page": 447,
+			"document_type_en": "10-K",
+			"introduction_en": "Adobe develops software and services for creative content, digital documents and customer experiences.",
+			"introduction_ar": "تطور أدوبي برمجيات وخدمات للمحتوى الإبداعي والمستندات الرقمية وتجارب العملاء.",
+			"summary_en": "Its FY2024 filing distinguishes Digital Media, Digital Experience, and Publishing and Advertising, including AI-related product development.",
+			"summary_ar": "يميز إفصاح السنة المالية 2024 بين الوسائط الرقمية والتجارب الرقمية والنشر والإعلان، ويتناول تطوير المنتجات المرتبطة بالذكاء الاصطناعي.",
+			"selected_source_pages": [
+				447,
+				449,
+				450
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 446,
+					"role": "previous_end",
+					"description_en": "End of preceding Walmart Inc. block."
+				},
+				{
+					"page": 447,
+					"role": "start",
+					"description_en": "Adobe Inc. report cover."
+				},
+				{
+					"page": 547,
+					"role": "end",
+					"description_en": "Last physical page in the Adobe Inc. block."
+				},
+				{
+					"page": 548,
+					"role": "next_start",
+					"description_en": "Start of JPMorgan Chase & Co. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 447
+		},
+		{
+			"id": "jpmorgan-2023",
+			"company_id": "jpmorgan",
+			"name_en": "JPMorgan Chase & Co.",
+			"name_ar": "جي بي مورغان تشيس",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "banking",
+			"sector_en": "Banking and finance",
+			"sector_ar": "الخدمات المصرفية والمالية",
+			"fy": "FY2023",
+			"report_year": 2023,
+			"to": 911,
+			"page_count": 364,
+			"cover_page": 548,
+			"document_type_en": "Annual report",
+			"introduction_en": "JPMorgan Chase provides consumer and commercial banking, investment banking, payments and asset management under the Chase and J.P. Morgan brands.",
+			"introduction_ar": "يقدم جي بي مورغان تشيس الخدمات المصرفية للأفراد والشركات والخدمات الاستثمارية والمدفوعات وإدارة الأصول تحت علامتي تشيس وجي بي مورغان.",
+			"summary_en": "The 2023 annual report combines shareholder discussion, business-line reviews, risk and capital disclosures, and financial reporting.",
+			"summary_ar": "يجمع التقرير السنوي لعام 2023 بين مناقشة المساهمين ومراجعات خطوط الأعمال وإفصاحات المخاطر ورأس المال والتقارير المالية.",
+			"selected_source_pages": [
+				548,
+				549,
+				552,
+				553
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 547,
+					"role": "previous_end",
+					"description_en": "End of preceding Adobe Inc. block."
+				},
+				{
+					"page": 548,
+					"role": "start",
+					"description_en": "JPMorgan Chase & Co. report cover."
+				},
+				{
+					"page": 911,
+					"role": "end",
+					"description_en": "Last physical page in the JPMorgan Chase & Co. block."
+				},
+				{
+					"page": 912,
+					"role": "next_start",
+					"description_en": "Start of Apple Inc. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 548
+		},
+		{
+			"id": "apple-2020",
+			"company_id": "apple",
+			"name_en": "Apple Inc.",
+			"name_ar": "آبل",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "tech",
+			"sector_en": "Technology",
+			"sector_ar": "التقنية",
+			"fy": "FY2020 (ended 2020-09-26)",
+			"report_year": 2020,
+			"to": 1016,
+			"page_count": 105,
+			"cover_page": 912,
+			"document_type_en": "10-K",
+			"introduction_en": "Apple combines iPhone, Mac, iPad and wearable-device businesses with services such as cloud storage and digital content.",
+			"introduction_ar": "تجمع آبل أعمال آيفون وماك وآيباد والأجهزة القابلة للارتداء مع خدمات مثل التخزين السحابي والمحتوى الرقمي.",
+			"summary_en": "This historical Form 10-K covers the year ended September 26, 2020; its product descriptions and risks belong to that reporting period.",
+			"summary_ar": "يغطي نموذج 10-K التاريخي السنة المنتهية في 26 سبتمبر 2020؛ وتخص أوصاف المنتجات والمخاطر الواردة فيه تلك الفترة.",
+			"selected_source_pages": [
+				912,
+				914,
+				915,
+				916
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 911,
+					"role": "previous_end",
+					"description_en": "End of preceding JPMorgan Chase & Co. block."
+				},
+				{
+					"page": 912,
+					"role": "start",
+					"description_en": "Apple Inc. report cover."
+				},
+				{
+					"page": 1016,
+					"role": "end",
+					"description_en": "Last physical page in the Apple Inc. block."
+				},
+				{
+					"page": 1017,
+					"role": "next_start",
+					"description_en": "Start of Amazon.com, Inc. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 912
+		},
+		{
+			"id": "amazon-2024",
+			"company_id": "amazon",
+			"name_en": "Amazon.com, Inc.",
+			"name_ar": "أمازون",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "retail",
+			"sector_en": "Retail and restaurants",
+			"sector_ar": "التجزئة والمطاعم",
+			"fy": "FY2024",
+			"report_year": 2024,
+			"to": 1107,
+			"page_count": 91,
+			"cover_page": 1017,
+			"document_type_en": "Annual report + 10-K",
+			"introduction_en": "Amazon operates retail stores and marketplaces alongside advertising, subscription, device and AWS cloud businesses.",
+			"introduction_ar": "تدير أمازون متاجر وأسواقاً للتجزئة إلى جانب أعمال الإعلانات والاشتراكات والأجهزة وخدمات AWS السحابية.",
+			"summary_en": "The 2024 report explains its three reporting segments and investment priorities, with the shareholder letter followed by the Form 10-K.",
+			"summary_ar": "يوضح تقرير 2024 قطاعاتها الثلاثة وأولويات الاستثمار، ويتضمن رسالة المساهمين ثم نموذج 10-K.",
+			"selected_source_pages": [
+				1017,
+				1018,
+				1030,
+				1031
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 1016,
+					"role": "previous_end",
+					"description_en": "End of preceding Apple Inc. block."
+				},
+				{
+					"page": 1017,
+					"role": "start",
+					"description_en": "Amazon.com, Inc. report cover."
+				},
+				{
+					"page": 1107,
+					"role": "end",
+					"description_en": "Last physical page in the Amazon.com, Inc. block."
+				},
+				{
+					"page": 1108,
+					"role": "next_start",
+					"description_en": "Start of Apple Inc. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 1017
+		},
+		{
+			"id": "apple-2023",
+			"company_id": "apple",
+			"name_en": "Apple Inc.",
+			"name_ar": "آبل",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "tech",
+			"sector_en": "Technology",
+			"sector_ar": "التقنية",
+			"fy": "FY2023 (ended 2023-09-30)",
+			"report_year": 2023,
+			"to": 1187,
+			"page_count": 80,
+			"cover_page": 1108,
+			"document_type_en": "10-K",
+			"introduction_en": "Apple sells integrated hardware, operating systems and services, including the iPhone, Mac, iPad and wearables.",
+			"introduction_ar": "تبيع آبل منظومة متكاملة من الأجهزة وأنظمة التشغيل والخدمات، تشمل آيفون وماك وآيباد والأجهزة القابلة للارتداء.",
+			"summary_en": "This Form 10-K covers the year ended September 30, 2023 and provides a separate historical reference from the 2020 and 2024 filings.",
+			"summary_ar": "يغطي نموذج 10-K السنة المنتهية في 30 سبتمبر 2023، ويوفر مرجعاً تاريخياً مستقلاً عن إفصاحي 2020 و2024.",
+			"selected_source_pages": [
+				1108,
+				1110,
+				1111,
+				1112
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 1107,
+					"role": "previous_end",
+					"description_en": "End of preceding Amazon.com, Inc. block."
+				},
+				{
+					"page": 1108,
+					"role": "start",
+					"description_en": "Apple Inc. report cover."
+				},
+				{
+					"page": 1187,
+					"role": "end",
+					"description_en": "Last physical page in the Apple Inc. block."
+				},
+				{
+					"page": 1188,
+					"role": "next_start",
+					"description_en": "Start of Berkshire Hathaway Inc. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 1108
+		},
+		{
+			"id": "berkshire-2025",
+			"company_id": "berkshire",
+			"name_en": "Berkshire Hathaway Inc.",
+			"name_ar": "بيركشاير هاثاواي",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "insurance",
+			"sector_en": "Insurance and holdings",
+			"sector_ar": "التأمين والشركات القابضة",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 1341,
+			"page_count": 154,
+			"cover_page": 1188,
+			"document_type_en": "Annual report + 10-K",
+			"introduction_en": "Berkshire Hathaway is a decentralized holding company spanning insurance, freight rail, utilities and energy, manufacturing, services and retail.",
+			"introduction_ar": "بيركشاير هاثاواي شركة قابضة ذات إدارة لامركزية تشمل التأمين والسكك الحديدية والمرافق والطاقة والتصنيع والخدمات والتجزئة.",
+			"summary_en": "The 2025 report pairs the CEO’s letter with a business-by-business Form 10-K and consolidated financial statements.",
+			"summary_ar": "يجمع تقرير 2025 بين رسالة الرئيس التنفيذي ونموذج 10-K الذي يعرض الأعمال المختلفة والقوائم المالية الموحدة.",
+			"selected_source_pages": [
+				1188,
+				1190,
+				1214
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 1187,
+					"role": "previous_end",
+					"description_en": "End of preceding Apple Inc. block."
+				},
+				{
+					"page": 1188,
+					"role": "start",
+					"description_en": "Berkshire Hathaway Inc. report cover."
+				},
+				{
+					"page": 1341,
+					"role": "end",
+					"description_en": "Last physical page in the Berkshire Hathaway Inc. block."
+				},
+				{
+					"page": 1342,
+					"role": "next_start",
+					"description_en": "Start of JPMorgan Chase & Co. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 1188
+		},
+		{
+			"id": "jpmorgan-2025",
+			"company_id": "jpmorgan",
+			"name_en": "JPMorgan Chase & Co.",
+			"name_ar": "جي بي مورغان تشيس",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "banking",
+			"sector_en": "Banking and finance",
+			"sector_ar": "الخدمات المصرفية والمالية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 1705,
+			"page_count": 364,
+			"cover_page": 1342,
+			"document_type_en": "Annual report",
+			"introduction_en": "JPMorgan Chase serves households, businesses and institutions through banking, payments, markets and investment-management services.",
+			"introduction_ar": "يخدم جي بي مورغان تشيس الأفراد والشركات والمؤسسات عبر الخدمات المصرفية والمدفوعات والأسواق وإدارة الاستثمارات.",
+			"summary_en": "The 2025 report includes the combined Commercial & Investment Bank alongside consumer banking and asset and wealth management discussions.",
+			"summary_ar": "يتناول تقرير 2025 قطاع الخدمات المصرفية التجارية والاستثمارية المدمج، إلى جانب الخدمات المصرفية للأفراد وإدارة الأصول والثروات.",
+			"selected_source_pages": [
+				1342,
+				1343,
+				1347,
+				1357
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 1341,
+					"role": "previous_end",
+					"description_en": "End of preceding Berkshire Hathaway Inc. block."
+				},
+				{
+					"page": 1342,
+					"role": "start",
+					"description_en": "JPMorgan Chase & Co. report cover."
+				},
+				{
+					"page": 1705,
+					"role": "end",
+					"description_en": "Last physical page in the JPMorgan Chase & Co. block."
+				},
+				{
+					"page": 1706,
+					"role": "next_start",
+					"description_en": "Start of Bank of America report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 1342
+		},
+		{
+			"id": "bofa-2025",
+			"company_id": "bofa",
+			"name_en": "Bank of America",
+			"name_ar": "بنك أوف أمريكا",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "banking",
+			"sector_en": "Banking and finance",
+			"sector_ar": "الخدمات المصرفية والمالية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 1818,
+			"page_count": 113,
+			"cover_page": 1706,
+			"document_type_en": "Annual report",
+			"introduction_en": "Bank of America provides consumer banking, wealth and investment management, business and corporate banking, and global markets services.",
+			"introduction_ar": "يقدم بنك أوف أمريكا الخدمات المصرفية للأفراد وإدارة الثروات والاستثمارات والخدمات المصرفية للأعمال والشركات وخدمات الأسواق العالمية.",
+			"summary_en": "Its 2025 annual report describes eight client-facing lines of business within four broader segments and combines strategy with financial disclosures.",
+			"summary_ar": "يصف تقريره السنوي لعام 2025 ثمانية خطوط أعمال موجهة للعملاء ضمن أربعة قطاعات أوسع، ويجمع بين الاستراتيجية والإفصاحات المالية.",
+			"selected_source_pages": [
+				1706,
+				1707,
+				1709,
+				1817
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 1705,
+					"role": "previous_end",
+					"description_en": "End of preceding JPMorgan Chase & Co. block."
+				},
+				{
+					"page": 1706,
+					"role": "start",
+					"description_en": "Bank of America report cover (image-only, visually verified)."
+				},
+				{
+					"page": 1818,
+					"role": "end",
+					"description_en": "Last physical page in the Bank of America block."
+				},
+				{
+					"page": 1819,
+					"role": "next_start",
+					"description_en": "Start of PepsiCo, Inc. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 1706
+		},
+		{
+			"id": "pepsico-2025",
+			"company_id": "pepsico",
+			"name_en": "PepsiCo, Inc.",
+			"name_ar": "بيبسيكو",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "fmcg",
+			"sector_en": "Consumer goods",
+			"sector_ar": "السلع الاستهلاكية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 1962,
+			"page_count": 144,
+			"cover_page": 1819,
+			"document_type_en": "Annual report + 10-K",
+			"introduction_en": "PepsiCo makes and markets beverages and convenient foods, with brands including Pepsi-Cola, Gatorade, Lay’s, Doritos and Quaker.",
+			"introduction_ar": "تصنع بيبسيكو وتسوق المشروبات والأغذية الخفيفة، وتشمل علاماتها بيبسي كولا وغاتوريد وليز ودوريتوس وكويكر.",
+			"summary_en": "The 2025 report explains its food and beverage portfolio, geographic businesses, distribution relationships and Form 10-K financial reporting.",
+			"summary_ar": "يوضح تقرير 2025 محفظة الأغذية والمشروبات والأعمال الجغرافية وعلاقات التوزيع والتقارير المالية ضمن نموذج 10-K.",
+			"selected_source_pages": [
+				1819,
+				1820,
+				1828,
+				1829
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 1818,
+					"role": "previous_end",
+					"description_en": "End of preceding Bank of America block."
+				},
+				{
+					"page": 1819,
+					"role": "start",
+					"description_en": "PepsiCo, Inc. report cover."
+				},
+				{
+					"page": 1962,
+					"role": "end",
+					"description_en": "Last physical page in the PepsiCo, Inc. block."
+				},
+				{
+					"page": 1963,
+					"role": "next_start",
+					"description_en": "Start of The Procter & Gamble Company report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 1819
+		},
+		{
+			"id": "pg-2026",
+			"company_id": "pg",
+			"name_en": "The Procter & Gamble Company",
+			"name_ar": "بروكتر آند غامبل",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "fmcg",
+			"sector_en": "Consumer goods",
+			"sector_ar": "السلع الاستهلاكية",
+			"fy": "FY2026 (ended 2026-06-30)",
+			"report_year": 2026,
+			"to": 2039,
+			"page_count": 77,
+			"cover_page": 1963,
+			"document_type_en": "10-K",
+			"introduction_en": "Procter & Gamble manufactures and distributes branded daily-use consumer products across personal, household and family-care categories.",
+			"introduction_ar": "تصنع بروكتر آند غامبل وتوزع منتجات استهلاكية ذات علامات تجارية للاستخدام اليومي في مجالات العناية الشخصية والمنزلية والأسرية.",
+			"summary_en": "The FY2026 Form 10-K has a completed source review, including financial statements, notes and the auditor’s focus on the Gillette intangible asset.",
+			"summary_ar": "اكتملت مراجعة مصدر نموذج 10-K للسنة المالية 2026، بما يشمل القوائم والإيضاحات وتركيز المراجع على أصل جيليت غير الملموس.",
+			"selected_source_pages": [
+				1963,
+				1965,
+				1967,
+				2001
+			],
+			"review_status": "complete_source_review",
+			"review_label_en": "Complete source review",
+			"review_label_ar": "مراجعة المصدر مكتملة",
+			"complete_source_review_page_count": 77,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 1962,
+					"role": "previous_end",
+					"description_en": "End of preceding PepsiCo, Inc. block."
+				},
+				{
+					"page": 1963,
+					"role": "start",
+					"description_en": "The Procter & Gamble Company report cover."
+				},
+				{
+					"page": 2039,
+					"role": "end",
+					"description_en": "Last physical page in the The Procter & Gamble Company block."
+				},
+				{
+					"page": 2040,
+					"role": "next_start",
+					"description_en": "Start of The Home Depot, Inc. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 1963
+		},
+		{
+			"id": "homedepot-2025",
+			"company_id": "homedepot",
+			"name_en": "The Home Depot, Inc.",
+			"name_ar": "هوم ديبوت",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "retail",
+			"sector_en": "Retail and restaurants",
+			"sector_ar": "التجزئة والمطاعم",
+			"fy": "FY2025 (ended 2026-02-01)",
+			"report_year": 2025,
+			"to": 2131,
+			"page_count": 92,
+			"cover_page": 2040,
+			"document_type_en": "Annual report and Form 10-K",
+			"introduction_en": "Home Depot sells home-improvement and building products and provides installation, tool rental and specialist trade-distribution services.",
+			"introduction_ar": "تبيع هوم ديبوت منتجات تحسين المنازل ومواد البناء، وتقدم خدمات التركيب وتأجير الأدوات وتوزيع مستلزمات الحرف المتخصصة.",
+			"summary_en": "The FY2025 source review preserves an important distinction: GMS is included in consolidated financial statements but excluded from that year’s internal-control audit scope.",
+			"summary_ar": "تحافظ مراجعة مصدر السنة المالية 2025 على تمييز مهم: تُدرج GMS في القوائم الموحدة، لكنها مستثناة من نطاق مراجعة الرقابة الداخلية لتلك السنة.",
+			"selected_source_pages": [
+				2040,
+				2044,
+				2048,
+				2084,
+				2085
+			],
+			"review_status": "complete_source_review",
+			"review_label_en": "Complete source review",
+			"review_label_ar": "مراجعة المصدر مكتملة",
+			"complete_source_review_page_count": 92,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 2039,
+					"role": "previous_end",
+					"description_en": "End of preceding The Procter & Gamble Company block."
+				},
+				{
+					"page": 2040,
+					"role": "start",
+					"description_en": "The Home Depot, Inc. report cover."
+				},
+				{
+					"page": 2131,
+					"role": "end",
+					"description_en": "Last physical page in the The Home Depot, Inc. block."
+				},
+				{
+					"page": 2132,
+					"role": "next_start",
+					"description_en": "Start of McDonald’s Corporation report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 2040
+		},
+		{
+			"id": "mcdonalds-2022",
+			"company_id": "mcdonalds",
+			"name_en": "McDonald’s Corporation",
+			"name_ar": "ماكدونالدز",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "retail",
+			"sector_en": "Retail and restaurants",
+			"sector_ar": "التجزئة والمطاعم",
+			"fy": "FY2022",
+			"report_year": 2022,
+			"to": 2204,
+			"page_count": 73,
+			"cover_page": 2132,
+			"document_type_en": "2022 Annual Report and Form 10-K",
+			"introduction_en": "McDonald’s operates and franchises quick-service restaurants through a global network of company-operated and franchised locations.",
+			"introduction_ar": "تدير ماكدونالدز مطاعم الوجبات السريعة وتمنح امتيازاتها عبر شبكة عالمية من الفروع التابعة للشركة وفروع أصحاب الامتياز.",
+			"summary_en": "The FY2022 source review distinguishes restaurant sales, franchise revenue and systemwide sales, alongside the Accelerating the Arches strategy.",
+			"summary_ar": "تميز مراجعة مصدر السنة المالية 2022 بين مبيعات المطاعم وإيرادات الامتياز ومبيعات الشبكة ككل، إلى جانب استراتيجية تسريع نمو الأقواس.",
+			"selected_source_pages": [
+				2132,
+				2133,
+				2134,
+				2139
+			],
+			"review_status": "complete_source_review",
+			"review_label_en": "Complete source review",
+			"review_label_ar": "مراجعة المصدر مكتملة",
+			"complete_source_review_page_count": 73,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 2131,
+					"role": "previous_end",
+					"description_en": "End of preceding The Home Depot, Inc. block."
+				},
+				{
+					"page": 2132,
+					"role": "start",
+					"description_en": "McDonald’s Corporation report cover."
+				},
+				{
+					"page": 2204,
+					"role": "end",
+					"description_en": "Last physical page in the McDonald’s Corporation block."
+				},
+				{
+					"page": 2205,
+					"role": "next_start",
+					"description_en": "Start of Nestlé Group report block."
+				}
+			],
+			"warnings_en": ["Raw PDF text contains font-encoding corruption. The completed source review used recovered text and visual checks."],
+			"warnings_ar": ["يتضمن النص المستخرج من PDF تشوهاً في ترميز الخطوط؛ استخدمت مراجعة المصدر المكتملة نصاً مستعاداً وفحصاً بصرياً."],
+			"from": 2132
+		},
+		{
+			"id": "nestle-2025",
+			"company_id": "nestle",
+			"name_en": "Nestlé Group",
+			"name_ar": "نستله",
+			"country": "CH",
+			"country_en": "Switzerland",
+			"country_ar": "سويسرا",
+			"sector": "fmcg",
+			"sector_en": "Consumer goods",
+			"sector_ar": "السلع الاستهلاكية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 2342,
+			"page_count": 138,
+			"cover_page": 2205,
+			"document_type_en": "Financial statements",
+			"introduction_en": "Nestlé manufactures food, beverages, petcare and nutritional-health products, organized through geographic zones and globally managed businesses.",
+			"introduction_ar": "تصنع نستله الأغذية والمشروبات وأغذية الحيوانات الأليفة ومنتجات الصحة الغذائية، عبر مناطق جغرافية وأعمال تدار عالمياً.",
+			"summary_en": "This volume contains the Group’s 2025 consolidated financial statements and the separate Nestlé S.A. financial statements; it is a financial-statements volume.",
+			"summary_ar": "يتضمن هذا المجلد القوائم المالية الموحدة للمجموعة لعام 2025 والقوائم المنفصلة لشركة نستله إس إيه؛ وهو مجلد مخصص للقوائم المالية.",
+			"selected_source_pages": [
+				2205,
+				2207,
+				2223
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 2204,
+					"role": "previous_end",
+					"description_en": "End of preceding McDonald’s Corporation block."
+				},
+				{
+					"page": 2205,
+					"role": "start",
+					"description_en": "Nestlé Group report cover."
+				},
+				{
+					"page": 2342,
+					"role": "end",
+					"description_en": "Last physical page in the Nestlé Group block."
+				},
+				{
+					"page": 2343,
+					"role": "next_start",
+					"description_en": "Start of Roche Group report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 2205
+		},
+		{
+			"id": "roche-2025",
+			"company_id": "roche",
+			"name_en": "Roche Group",
+			"name_ar": "روش",
+			"country": "CH",
+			"country_en": "Switzerland",
+			"country_ar": "سويسرا",
+			"sector": "pharma",
+			"sector_en": "Pharmaceuticals and healthcare",
+			"sector_ar": "الأدوية والرعاية الصحية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 2539,
+			"page_count": 197,
+			"cover_page": 2343,
+			"document_type_en": "Finance report",
+			"introduction_en": "Roche is a healthcare group with Pharmaceuticals and Diagnostics divisions.",
+			"introduction_ar": "روش مجموعة للرعاية الصحية تضم قطاعي الأدوية والتشخيص.",
+			"summary_en": "The 2025 Finance Report separates divisional performance, IFRS results, core measures and the financial statements of the Group and Roche Holding Ltd.",
+			"summary_ar": "يفصل التقرير المالي لعام 2025 بين أداء القطاعين ونتائج IFRS والمقاييس الأساسية وقوائم المجموعة وقوائم روش القابضة.",
+			"selected_source_pages": [
+				2343,
+				2344,
+				2346,
+				2357
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 2342,
+					"role": "previous_end",
+					"description_en": "End of preceding Nestlé Group block."
+				},
+				{
+					"page": 2343,
+					"role": "start",
+					"description_en": "Roche Group report cover."
+				},
+				{
+					"page": 2539,
+					"role": "end",
+					"description_en": "Last physical page in the Roche Group block."
+				},
+				{
+					"page": 2540,
+					"role": "next_start",
+					"description_en": "Start of Novartis AG report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 2343
+		},
+		{
+			"id": "novartis-2025",
+			"company_id": "novartis",
+			"name_en": "Novartis AG",
+			"name_ar": "نوفارتس",
+			"country": "CH",
+			"country_en": "Switzerland",
+			"country_ar": "سويسرا",
+			"sector": "pharma",
+			"sector_en": "Pharmaceuticals and healthcare",
+			"sector_ar": "الأدوية والرعاية الصحية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 2804,
+			"page_count": 265,
+			"cover_page": 2540,
+			"document_type_en": "Annual report",
+			"introduction_en": "Novartis researches, develops, manufactures and commercializes innovative medicines.",
+			"introduction_ar": "تبحث نوفارتس الأدوية المبتكرة وتطورها وتصنعها وتسوقها.",
+			"summary_en": "Its 2025 annual report describes marketed medicines, the development pipeline, research and intellectual-property risks, and consolidated and parent-company reporting.",
+			"summary_ar": "يصف تقريرها السنوي لعام 2025 الأدوية المسوقة ومحفظة التطوير ومخاطر البحث والملكية الفكرية وتقارير المجموعة والشركة الأم.",
+			"selected_source_pages": [
+				2540,
+				2543,
+				2565
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 2539,
+					"role": "previous_end",
+					"description_en": "End of preceding Roche Group block."
+				},
+				{
+					"page": 2540,
+					"role": "start",
+					"description_en": "Novartis AG report cover."
+				},
+				{
+					"page": 2804,
+					"role": "end",
+					"description_en": "Last physical page in the Novartis AG block."
+				},
+				{
+					"page": 2805,
+					"role": "next_start",
+					"description_en": "Start of UBS Group AG report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 2540
+		},
+		{
+			"id": "ubs-2025",
+			"company_id": "ubs",
+			"name_en": "UBS Group AG",
+			"name_ar": "يو بي إس",
+			"country": "CH",
+			"country_en": "Switzerland",
+			"country_ar": "سويسرا",
+			"sector": "banking",
+			"sector_en": "Banking and finance",
+			"sector_ar": "الخدمات المصرفية والمالية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 3184,
+			"page_count": 380,
+			"cover_page": 2805,
+			"document_type_en": "Annual report",
+			"introduction_en": "UBS combines global wealth management, Swiss personal and corporate banking, asset management and investment banking.",
+			"introduction_ar": "يجمع يو بي إس بين إدارة الثروات العالمية والخدمات المصرفية للأفراد والشركات في سويسرا وإدارة الأصول والخدمات المصرفية الاستثمارية.",
+			"summary_en": "The 2025 report covers the Credit Suisse integration and separately presents Non-core and Legacy activities, alongside risk, capital and financial reporting.",
+			"summary_ar": "يغطي تقرير 2025 دمج كريدي سويس ويعرض الأنشطة غير الأساسية والموروثة بشكل مستقل، إلى جانب المخاطر ورأس المال والتقارير المالية.",
+			"selected_source_pages": [
+				2805,
+				2806,
+				2819,
+				2825
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 2804,
+					"role": "previous_end",
+					"description_en": "End of preceding Novartis AG block."
+				},
+				{
+					"page": 2805,
+					"role": "start",
+					"description_en": "UBS Group AG report cover."
+				},
+				{
+					"page": 3184,
+					"role": "end",
+					"description_en": "Last physical page in the UBS Group AG block."
+				},
+				{
+					"page": 3185,
+					"role": "next_start",
+					"description_en": "Start of Allianz SE report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 2805
+		},
+		{
+			"id": "allianz-2025",
+			"company_id": "allianz",
+			"name_en": "Allianz SE",
+			"name_ar": "أليانز إس إي",
+			"country": "DE",
+			"country_en": "Germany",
+			"country_ar": "ألمانيا",
+			"sector": "insurance",
+			"sector_en": "Insurance and holdings",
+			"sector_ar": "التأمين والشركات القابضة",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 3240,
+			"page_count": 56,
+			"cover_page": 3185,
+			"document_type_en": "Parent-company annual report",
+			"introduction_en": "Allianz SE is the Allianz Group’s holding and reinsurance company, based in Munich.",
+			"introduction_ar": "أليانز إس إي هي الشركة القابضة وشركة إعادة التأمين لمجموعة أليانز، ومقرها ميونيخ.",
+			"summary_en": "This is the parent company’s 2025 annual report under German commercial-law accounting, not the Allianz Group’s consolidated IFRS report.",
+			"summary_ar": "هذا هو التقرير السنوي للشركة الأم لعام 2025 وفق المحاسبة بموجب القانون التجاري الألماني، وليس تقرير مجموعة أليانز الموحد وفق IFRS.",
+			"selected_source_pages": [
+				3185,
+				3186,
+				3204
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 3184,
+					"role": "previous_end",
+					"description_en": "End of preceding UBS Group AG block."
+				},
+				{
+					"page": 3185,
+					"role": "start",
+					"description_en": "Allianz SE report cover."
+				},
+				{
+					"page": 3240,
+					"role": "end",
+					"description_en": "Last physical page in the Allianz SE block."
+				},
+				{
+					"page": 3241,
+					"role": "next_start",
+					"description_en": "Start of Mercedes-Benz Group AG report block."
+				}
+			],
+			"warnings_en": ["Parent-company report under HGB; do not classify this volume as consolidated IFRS."],
+			"warnings_ar": ["تقرير الشركة الأم وفق HGB؛ لا يصنف هذا المجلد كقوائم موحدة وفق IFRS."],
+			"from": 3185
+		},
+		{
+			"id": "mercedes-2025",
+			"company_id": "mercedes",
+			"name_en": "Mercedes-Benz Group AG",
+			"name_ar": "مجموعة مرسيدس بنز",
+			"country": "DE",
+			"country_en": "Germany",
+			"country_ar": "ألمانيا",
+			"sector": "auto",
+			"sector_en": "Automotive",
+			"sector_ar": "السيارات",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 3649,
+			"page_count": 409,
+			"cover_page": 3241,
+			"document_type_en": "Annual report",
+			"introduction_en": "Mercedes-Benz develops and sells premium passenger cars and vans and provides related financial services.",
+			"introduction_ar": "تطور مرسيدس بنز وتبيع سيارات الركوب الفاخرة والمركبات التجارية الخفيفة وتقدم الخدمات المالية المرتبطة بها.",
+			"summary_en": "The completed 2025 source review covers the business divisions, consolidated statements, governance, sustainability statement and condensed parent-company reporting.",
+			"summary_ar": "تغطي مراجعة مصدر 2025 المكتملة قطاعات الأعمال والقوائم الموحدة والحوكمة وبيان الاستدامة والتقارير المختصرة للشركة الأم.",
+			"selected_source_pages": [
+				3241,
+				3242,
+				3243,
+				3262
+			],
+			"review_status": "complete_source_review",
+			"review_label_en": "Complete source review",
+			"review_label_ar": "مراجعة المصدر مكتملة",
+			"complete_source_review_page_count": 409,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 3240,
+					"role": "previous_end",
+					"description_en": "End of preceding Allianz SE block."
+				},
+				{
+					"page": 3241,
+					"role": "start",
+					"description_en": "Mercedes-Benz Group AG report cover."
+				},
+				{
+					"page": 3649,
+					"role": "end",
+					"description_en": "Last physical page in the Mercedes-Benz Group AG block."
+				},
+				{
+					"page": 3650,
+					"role": "next_start",
+					"description_en": "Start of Volkswagen Group report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 3241
+		},
+		{
+			"id": "volkswagen-2025",
+			"company_id": "volkswagen",
+			"name_en": "Volkswagen Group",
+			"name_ar": "مجموعة فولكس فاغن",
+			"country": "DE",
+			"country_en": "Germany",
+			"country_ar": "ألمانيا",
+			"sector": "auto",
+			"sector_en": "Automotive",
+			"sector_ar": "السيارات",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 4322,
+			"page_count": 673,
+			"cover_page": 3650,
+			"document_type_en": "Annual report",
+			"introduction_en": "Volkswagen is a multi-brand vehicle group encompassing passenger cars, commercial vehicles and financial services.",
+			"introduction_ar": "فولكس فاغن مجموعة متعددة العلامات تشمل سيارات الركوب والمركبات التجارية والخدمات المالية.",
+			"summary_en": "The completed 2025 source review distinguishes consolidated reporting, brand and business-field disclosures, the sustainability report and Volkswagen AG’s parent-company information.",
+			"summary_ar": "تميز مراجعة مصدر 2025 المكتملة بين التقارير الموحدة وإفصاحات العلامات ومجالات الأعمال وتقرير الاستدامة ومعلومات الشركة الأم فولكس فاغن إيه جي.",
+			"selected_source_pages": [
+				3650,
+				3652,
+				3732,
+				3733
+			],
+			"review_status": "complete_source_review",
+			"review_label_en": "Complete source review",
+			"review_label_ar": "مراجعة المصدر مكتملة",
+			"complete_source_review_page_count": 673,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 3649,
+					"role": "previous_end",
+					"description_en": "End of preceding Mercedes-Benz Group AG block."
+				},
+				{
+					"page": 3650,
+					"role": "start",
+					"description_en": "Volkswagen Group report cover."
+				},
+				{
+					"page": 4322,
+					"role": "end",
+					"description_en": "Last physical page in the Volkswagen Group block."
+				},
+				{
+					"page": 4323,
+					"role": "next_start",
+					"description_en": "Start of Deutsche Telekom AG report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 3650
+		},
+		{
+			"id": "telekom-2025",
+			"company_id": "telekom",
+			"name_en": "Deutsche Telekom AG",
+			"name_ar": "دويتشه تيليكوم",
+			"country": "DE",
+			"country_en": "Germany",
+			"country_ar": "ألمانيا",
+			"sector": "telecom",
+			"sector_en": "Telecommunications",
+			"sector_ar": "الاتصالات",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 4704,
+			"page_count": 382,
+			"cover_page": 4323,
+			"document_type_en": "Annual report",
+			"introduction_en": "Deutsche Telekom provides mobile, fixed-network, broadband and TV services, plus ICT solutions for business customers.",
+			"introduction_ar": "توفر دويتشه تيليكوم خدمات الهاتف المحمول والشبكات الثابتة والنطاق العريض والتلفزيون، وحلول تقنية المعلومات والاتصالات للشركات.",
+			"summary_en": "The completed FY2025 source review covers international operating segments, network investment, the combined sustainability statement and consolidated financial reporting.",
+			"summary_ar": "تغطي مراجعة مصدر السنة المالية 2025 المكتملة القطاعات التشغيلية الدولية والاستثمار في الشبكات وبيان الاستدامة المشترك والتقارير المالية الموحدة.",
+			"selected_source_pages": [
+				4323,
+				4324,
+				4362,
+				4363
+			],
+			"review_status": "complete_source_review",
+			"review_label_en": "Complete source review",
+			"review_label_ar": "مراجعة المصدر مكتملة",
+			"complete_source_review_page_count": 382,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 4322,
+					"role": "previous_end",
+					"description_en": "End of preceding Volkswagen Group block."
+				},
+				{
+					"page": 4323,
+					"role": "start",
+					"description_en": "Deutsche Telekom AG report cover."
+				},
+				{
+					"page": 4704,
+					"role": "end",
+					"description_en": "Last physical page in the Deutsche Telekom AG block."
+				},
+				{
+					"page": 4705,
+					"role": "next_start",
+					"description_en": "Start of BP p.l.c. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 4323
+		},
+		{
+			"id": "bp-2025",
+			"company_id": "bp",
+			"name_en": "BP p.l.c.",
+			"name_ar": "بي بي",
+			"country": "UK",
+			"country_en": "United Kingdom",
+			"country_ar": "المملكة المتحدة",
+			"sector": "energy",
+			"sector_en": "Energy",
+			"sector_ar": "الطاقة",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 5100,
+			"page_count": 396,
+			"cover_page": 4705,
+			"document_type_en": "Annual report and Form 20-F",
+			"introduction_en": "BP operates across oil and gas production, refining, customer products and selected lower-carbon energy activities.",
+			"introduction_ar": "تعمل بي بي في إنتاج النفط والغاز والتكرير ومنتجات العملاء وبعض أنشطة الطاقة الأقل انبعاثاً للكربون.",
+			"summary_en": "The completed 2025 source review separates reported financial results from alternative measures and covers strategy, risks, reserves and parent-company disclosures.",
+			"summary_ar": "تفصل مراجعة مصدر 2025 المكتملة النتائج المالية المعلنة عن المقاييس البديلة، وتغطي الاستراتيجية والمخاطر والاحتياطيات وإفصاحات الشركة الأم.",
+			"selected_source_pages": [
+				4705,
+				4707,
+				4708,
+				4718
+			],
+			"review_status": "complete_source_review",
+			"review_label_en": "Complete source review",
+			"review_label_ar": "مراجعة المصدر مكتملة",
+			"complete_source_review_page_count": 396,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 4704,
+					"role": "previous_end",
+					"description_en": "End of preceding Deutsche Telekom AG block."
+				},
+				{
+					"page": 4705,
+					"role": "start",
+					"description_en": "BP p.l.c. report cover."
+				},
+				{
+					"page": 5100,
+					"role": "end",
+					"description_en": "Last physical page in the BP p.l.c. block."
+				},
+				{
+					"page": 5101,
+					"role": "next_start",
+					"description_en": "Start of Unilever PLC report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 4705
+		},
+		{
+			"id": "unilever-2025",
+			"company_id": "unilever",
+			"name_en": "Unilever PLC",
+			"name_ar": "يونيليفر",
+			"country": "UK",
+			"country_en": "United Kingdom",
+			"country_ar": "المملكة المتحدة",
+			"sector": "fmcg",
+			"sector_en": "Consumer goods",
+			"sector_ar": "السلع الاستهلاكية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 5385,
+			"page_count": 285,
+			"cover_page": 5102,
+			"document_type_en": "Annual report",
+			"introduction_en": "Unilever is a consumer-goods group focused on Beauty & Wellbeing, Personal Care, Home Care and Foods after the Ice Cream demerger.",
+			"introduction_ar": "يونيليفر مجموعة للسلع الاستهلاكية تركز على الجمال والرفاه والعناية الشخصية والعناية المنزلية والأغذية بعد فصل أعمال المثلجات.",
+			"summary_en": "The 2025 annual report includes the demerger presentation, strategic and governance reports, Group and parent-company accounts, and a sustainability statement. Source review is complete; this does not constitute independent audit assurance.",
+			"summary_ar": "يتضمن التقرير السنوي لعام 2025 عرض عملية الفصل والتقارير الاستراتيجية والحوكمة وحسابات المجموعة والشركة الأم وبيان الاستدامة. اكتملت مراجعة المصدر، ولا يمثل ذلك تأكيدًا مهنيًا مستقلًا.",
+			"selected_source_pages": [
+				5101,
+				5102,
+				5103,
+				5105
+			],
+			"review_status": "complete_source_review",
+			"review_label_en": "Completed source review",
+			"review_label_ar": "مراجعة المصدر مكتملة",
+			"complete_source_review_page_count": 285,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 5100,
+					"role": "previous_end",
+					"description_en": "End of preceding BP p.l.c. block."
+				},
+				{
+					"page": 5101,
+					"role": "start",
+					"description_en": "Unilever annual-report disclaimer."
+				},
+				{
+					"page": 5102,
+					"role": "cover",
+					"description_en": "Unilever front cover."
+				},
+				{
+					"page": 5385,
+					"role": "end",
+					"description_en": "Last physical page in the Unilever PLC block."
+				},
+				{
+					"page": 5386,
+					"role": "next_start",
+					"description_en": "Start of AstraZeneca PLC report block."
+				}
+			],
+			"warnings_en": ["Page 5101 is the Unilever disclaimer; its front cover is page 5102."],
+			"warnings_ar": ["الصفحة 5101 إخلاء مسؤولية يونيليفر؛ وغلافها في الصفحة 5102."],
+			"from": 5101
+		},
+		{
+			"id": "astrazeneca-2025",
+			"company_id": "astrazeneca",
+			"name_en": "AstraZeneca PLC",
+			"name_ar": "أسترازينيكا",
+			"country": "UK",
+			"country_en": "United Kingdom",
+			"country_ar": "المملكة المتحدة",
+			"sector": "pharma",
+			"sector_en": "Pharmaceuticals and healthcare",
+			"sector_ar": "الأدوية والرعاية الصحية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 5617,
+			"page_count": 232,
+			"cover_page": 5386,
+			"document_type_en": "Annual report and Form 20-F",
+			"introduction_en": "AstraZeneca researches, develops and commercializes prescription medicines across oncology, biopharmaceuticals and rare diseases.",
+			"introduction_ar": "تبحث أسترازينيكا الأدوية الموصوفة وتطورها وتسوقها في مجالات الأورام والأدوية الحيوية والأمراض النادرة.",
+			"summary_en": "Its 2025 annual report and Form 20-F information combine scientific and commercial strategy with governance, financial statements and sustainability disclosures.",
+			"summary_ar": "يجمع تقريرها السنوي ومعلومات نموذج 20-F لعام 2025 بين الاستراتيجية العلمية والتجارية والحوكمة والقوائم المالية وإفصاحات الاستدامة.",
+			"selected_source_pages": [
+				5386,
+				5387,
+				5388,
+				5413
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 5385,
+					"role": "previous_end",
+					"description_en": "End of preceding Unilever PLC block."
+				},
+				{
+					"page": 5386,
+					"role": "start",
+					"description_en": "AstraZeneca PLC report cover."
+				},
+				{
+					"page": 5617,
+					"role": "end",
+					"description_en": "Last physical page in the AstraZeneca PLC block."
+				},
+				{
+					"page": 5618,
+					"role": "next_start",
+					"description_en": "Start of GSK plc report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 5386
+		},
+		{
+			"id": "gsk-2025",
+			"company_id": "gsk",
+			"name_en": "GSK plc",
+			"name_ar": "جي إس كيه",
+			"country": "UK",
+			"country_en": "United Kingdom",
+			"country_ar": "المملكة المتحدة",
+			"sector": "pharma",
+			"sector_en": "Pharmaceuticals and healthcare",
+			"sector_ar": "الأدوية والرعاية الصحية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 5948,
+			"page_count": 331,
+			"cover_page": 5618,
+			"document_type_en": "Annual report",
+			"introduction_en": "GSK develops medicines and vaccines, with businesses in specialty medicines, vaccines and general medicines.",
+			"introduction_ar": "تطور جي إس كيه الأدوية واللقاحات، وتشمل أعمالها الأدوية التخصصية واللقاحات والأدوية العامة.",
+			"summary_en": "The 2025 report explains its pipeline-led business model and separates IFRS results from core performance measures.",
+			"summary_ar": "يوضح تقرير 2025 نموذج أعمالها المرتبط بمحفظة الأدوية قيد التطوير، ويفصل نتائج IFRS عن مقاييس الأداء الأساسية.",
+			"selected_source_pages": [
+				5618,
+				5619,
+				5620,
+				5621
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 5617,
+					"role": "previous_end",
+					"description_en": "End of preceding AstraZeneca PLC block."
+				},
+				{
+					"page": 5618,
+					"role": "start",
+					"description_en": "GSK plc report cover (image-only, visually verified)."
+				},
+				{
+					"page": 5948,
+					"role": "end",
+					"description_en": "Last physical page in the GSK plc block."
+				},
+				{
+					"page": 5949,
+					"role": "next_start",
+					"description_en": "Start of HSBC Holdings plc report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 5618
+		},
+		{
+			"id": "hsbc-2025",
+			"company_id": "hsbc",
+			"name_en": "HSBC Holdings plc",
+			"name_ar": "إتش إس بي سي",
+			"country": "UK",
+			"country_en": "United Kingdom",
+			"country_ar": "المملكة المتحدة",
+			"sector": "banking",
+			"sector_en": "Banking and finance",
+			"sector_ar": "الخدمات المصرفية والمالية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 6320,
+			"page_count": 372,
+			"cover_page": 5949,
+			"document_type_en": "Annual report",
+			"introduction_en": "HSBC is an international banking group serving personal, wealth, commercial and institutional customers.",
+			"introduction_ar": "إتش إس بي سي مجموعة مصرفية دولية تخدم عملاء الخدمات الشخصية والثروات والأعمال والمؤسسات.",
+			"summary_en": "The 2025 report describes a four-business structure: Hong Kong, UK, Corporate and Institutional Banking, and International Wealth and Premier Banking.",
+			"summary_ar": "يصف تقرير 2025 هيكلاً من أربعة أعمال: هونغ كونغ والمملكة المتحدة والخدمات المصرفية للشركات والمؤسسات والثروات الدولية والخدمات المصرفية المميزة.",
+			"selected_source_pages": [
+				5949,
+				5950,
+				5954
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 5948,
+					"role": "previous_end",
+					"description_en": "End of preceding GSK plc block."
+				},
+				{
+					"page": 5949,
+					"role": "start",
+					"description_en": "HSBC Holdings plc report cover (image-only, visually verified)."
+				},
+				{
+					"page": 6320,
+					"role": "end",
+					"description_en": "Last physical page in the HSBC Holdings plc block."
+				},
+				{
+					"page": 6321,
+					"role": "next_start",
+					"description_en": "Start of TotalEnergies SE report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 5949
+		},
+		{
+			"id": "totalenergies-2024",
+			"company_id": "totalenergies",
+			"name_en": "TotalEnergies SE",
+			"name_ar": "توتال إنرجيز",
+			"country": "FR",
+			"country_en": "France",
+			"country_ar": "فرنسا",
+			"sector": "energy",
+			"sector_en": "Energy",
+			"sector_ar": "الطاقة",
+			"fy": "FY2024",
+			"report_year": 2024,
+			"to": 6986,
+			"page_count": 666,
+			"cover_page": 6321,
+			"document_type_en": "Form 20-F",
+			"introduction_en": "TotalEnergies produces and markets oil, fuels, natural gas and electricity, including renewable-energy activities.",
+			"introduction_ar": "تنتج توتال إنرجيز وتسوق النفط والوقود والغاز الطبيعي والكهرباء، بما فيها أنشطة الطاقة المتجددة.",
+			"summary_en": "The 2024 Form 20-F includes financial statements and a Universal Registration Document presenting its integrated oil-and-gas and electricity strategy.",
+			"summary_ar": "يتضمن نموذج 20-F لعام 2024 القوائم المالية ووثيقة التسجيل الشاملة التي تعرض استراتيجيتها المتكاملة للنفط والغاز والكهرباء.",
+			"selected_source_pages": [
+				6321,
+				6322,
+				6324,
+				6510,
+				6519
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 6320,
+					"role": "previous_end",
+					"description_en": "End of preceding HSBC Holdings plc block."
+				},
+				{
+					"page": 6321,
+					"role": "start",
+					"description_en": "TotalEnergies SE report cover (image-only, visually verified)."
+				},
+				{
+					"page": 6986,
+					"role": "end",
+					"description_en": "Last physical page in the TotalEnergies SE block."
+				},
+				{
+					"page": 6987,
+					"role": "next_start",
+					"description_en": "Start of Airbus SE report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 6321
+		},
+		{
+			"id": "airbus-2023",
+			"company_id": "airbus",
+			"name_en": "Airbus SE",
+			"name_ar": "إيرباص",
+			"country": "NL",
+			"country_en": "Netherlands",
+			"country_ar": "هولندا",
+			"sector": "industrial",
+			"sector_en": "Industrial technology",
+			"sector_ar": "التقنية الصناعية",
+			"fy": "FY2023",
+			"report_year": 2023,
+			"to": 7427,
+			"page_count": 441,
+			"cover_page": 6987,
+			"document_type_en": "Annual report + URD",
+			"introduction_en": "Airbus develops commercial aircraft, helicopters, and defence and space products and services.",
+			"introduction_ar": "تطور إيرباص الطائرات التجارية والمروحيات ومنتجات وخدمات الدفاع والفضاء.",
+			"summary_en": "The 2023 package combines the annual overview, Universal Registration Document and financial statements, with separate divisional and sustainability discussions.",
+			"summary_ar": "تجمع حزمة 2023 بين العرض السنوي ووثيقة التسجيل الشاملة والقوائم المالية، مع مناقشات مستقلة للقطاعات والاستدامة.",
+			"selected_source_pages": [
+				6987,
+				6988,
+				6989,
+				7003,
+				7004,
+				7005
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 6986,
+					"role": "previous_end",
+					"description_en": "End of preceding TotalEnergies SE block."
+				},
+				{
+					"page": 6987,
+					"role": "start",
+					"description_en": "Airbus SE report cover."
+				},
+				{
+					"page": 7427,
+					"role": "end",
+					"description_en": "Last physical page in the Airbus SE block."
+				},
+				{
+					"page": 7428,
+					"role": "next_start",
+					"description_en": "Start of L'Oréal report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 6987
+		},
+		{
+			"id": "loreal-2024",
+			"company_id": "loreal",
+			"name_en": "L'Oréal",
+			"name_ar": "لوريال",
+			"country": "FR",
+			"country_en": "France",
+			"country_ar": "فرنسا",
+			"sector": "fmcg",
+			"sector_en": "Consumer goods",
+			"sector_ar": "السلع الاستهلاكية",
+			"fy": "FY2024",
+			"report_year": 2024,
+			"to": 7446,
+			"page_count": 19,
+			"cover_page": 7428,
+			"document_type_en": "Annual report (overview)",
+			"introduction_en": "L’Oréal is a beauty-products group operating across product categories, price points and distribution channels.",
+			"introduction_ar": "لوريال مجموعة لمنتجات التجميل تعمل عبر فئات منتجات ومستويات أسعار وقنوات توزيع متعددة.",
+			"summary_en": "This short 2024 “Essentials” overview summarizes strategy, governance and financial and sustainability highlights; it is not a complete financial-statements report.",
+			"summary_ar": "يلخص عرض «الأساسيات» الموجز لعام 2024 الاستراتيجية والحوكمة وأبرز المعلومات المالية والاستدامة؛ ولا يمثل تقريراً كاملاً للقوائم المالية.",
+			"selected_source_pages": [
+				7428,
+				7429,
+				7433,
+				7446
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 7427,
+					"role": "previous_end",
+					"description_en": "End of preceding Airbus SE block."
+				},
+				{
+					"page": 7428,
+					"role": "start",
+					"description_en": "L'Oréal report cover."
+				},
+				{
+					"page": 7446,
+					"role": "end",
+					"description_en": "Last physical page in the L'Oréal block."
+				},
+				{
+					"page": 7447,
+					"role": "next_start",
+					"description_en": "Start of Sanofi report block."
+				}
+			],
+			"warnings_en": ["Short annual-report overview; complete financial statements are not contained in this block."],
+			"warnings_ar": ["عرض سنوي موجز؛ لا يحتوي هذا المقطع على القوائم المالية الكاملة."],
+			"from": 7428
+		},
+		{
+			"id": "sanofi-2025",
+			"company_id": "sanofi",
+			"name_en": "Sanofi",
+			"name_ar": "سانوفي",
+			"country": "FR",
+			"country_en": "France",
+			"country_ar": "فرنسا",
+			"sector": "pharma",
+			"sector_en": "Pharmaceuticals and healthcare",
+			"sector_ar": "الأدوية والرعاية الصحية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 7746,
+			"page_count": 300,
+			"cover_page": 7447,
+			"document_type_en": "Form 20-F",
+			"introduction_en": "Sanofi researches and markets medicines and vaccines, with an emphasis on immune-system science.",
+			"introduction_ar": "تبحث سانوفي الأدوية واللقاحات وتسوقها، مع تركيز على علم الجهاز المناعي.",
+			"summary_en": "The 2025 Form 20-F describes the Biopharma segment, including specialty care, general medicines and vaccines, and the changed presentation following the Opella separation.",
+			"summary_ar": "يصف نموذج 20-F لعام 2025 قطاع الأدوية الحيوية، بما يشمل الرعاية التخصصية والأدوية العامة واللقاحات، وتغير العرض بعد فصل أوبيلا.",
+			"selected_source_pages": [
+				7447,
+				7449,
+				7471,
+				7473
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 7446,
+					"role": "previous_end",
+					"description_en": "End of preceding L'Oréal block."
+				},
+				{
+					"page": 7447,
+					"role": "start",
+					"description_en": "Sanofi report cover (image-only, visually verified)."
+				},
+				{
+					"page": 7746,
+					"role": "end",
+					"description_en": "Last physical page in the Sanofi block."
+				},
+				{
+					"page": 7747,
+					"role": "next_start",
+					"description_en": "Start of Toyota Motor Corporation report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 7447
+		},
+		{
+			"id": "toyota-2026",
+			"company_id": "toyota",
+			"name_en": "Toyota Motor Corporation",
+			"name_ar": "تويوتا موتور",
+			"country": "JP",
+			"country_en": "Japan",
+			"country_ar": "اليابان",
+			"sector": "auto",
+			"sector_en": "Automotive",
+			"sector_ar": "السيارات",
+			"fy": "FY2026 (ended 2026-03-31)",
+			"report_year": 2026,
+			"to": 8010,
+			"page_count": 264,
+			"cover_page": 7747,
+			"document_type_en": "Form 20-F",
+			"introduction_en": "Toyota designs, manufactures and sells vehicles and components and provides financing to dealers and customers.",
+			"introduction_ar": "تصمم تويوتا المركبات والمكونات وتصنعها وتبيعها، وتقدم التمويل للوكلاء والعملاء.",
+			"summary_en": "The Form 20-F for the year ended March 31, 2026 distinguishes automotive, financial-services and other operations.",
+			"summary_ar": "يميز نموذج 20-F للسنة المنتهية في 31 مارس 2026 بين عمليات السيارات والخدمات المالية والعمليات الأخرى.",
+			"selected_source_pages": [
+				7747,
+				7748,
+				7759
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 7746,
+					"role": "previous_end",
+					"description_en": "End of preceding Sanofi block."
+				},
+				{
+					"page": 7747,
+					"role": "start",
+					"description_en": "Toyota Motor Corporation report cover."
+				},
+				{
+					"page": 8010,
+					"role": "end",
+					"description_en": "Last physical page in the Toyota Motor Corporation block."
+				},
+				{
+					"page": 8011,
+					"role": "next_start",
+					"description_en": "Start of Honda Motor Co., Ltd. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 7747
+		},
+		{
+			"id": "honda-2023",
+			"company_id": "honda",
+			"name_en": "Honda Motor Co., Ltd.",
+			"name_ar": "هوندا موتور",
+			"country": "JP",
+			"country_en": "Japan",
+			"country_ar": "اليابان",
+			"sector": "auto",
+			"sector_en": "Automotive",
+			"sector_ar": "السيارات",
+			"fy": "FY2023 (ended 2023-03-31)",
+			"report_year": 2023,
+			"to": 8257,
+			"page_count": 247,
+			"cover_page": 8011,
+			"document_type_en": "Form 20-F",
+			"introduction_en": "Honda operates motorcycle, automobile, financial-services, power-products and other businesses.",
+			"introduction_ar": "تعمل هوندا في الدراجات النارية والسيارات والخدمات المالية ومنتجات الطاقة وغيرها من الأعمال.",
+			"summary_en": "This historical Form 20-F covers the year ended March 31, 2023 and explains business and geographic revenue categories alongside financial and risk disclosures.",
+			"summary_ar": "يغطي نموذج 20-F التاريخي السنة المنتهية في 31 مارس 2023، ويوضح فئات الإيرادات حسب الأعمال والجغرافيا إلى جانب الإفصاحات المالية والمخاطر.",
+			"selected_source_pages": [
+				8011,
+				8012,
+				8021
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 8010,
+					"role": "previous_end",
+					"description_en": "End of preceding Toyota Motor Corporation block."
+				},
+				{
+					"page": 8011,
+					"role": "start",
+					"description_en": "Honda Motor Co., Ltd. report cover."
+				},
+				{
+					"page": 8257,
+					"role": "end",
+					"description_en": "Last physical page in the Honda Motor Co., Ltd. block."
+				},
+				{
+					"page": 8258,
+					"role": "next_start",
+					"description_en": "Start of SoftBank Group Corp. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 8011
+		},
+		{
+			"id": "softbank-2026",
+			"company_id": "softbank",
+			"name_en": "SoftBank Group Corp.",
+			"name_ar": "مجموعة سوفت بنك",
+			"country": "JP",
+			"country_en": "Japan",
+			"country_ar": "اليابان",
+			"sector": "tech",
+			"sector_en": "Technology",
+			"sector_ar": "التقنية",
+			"fy": "FY2025 (ended 2026-03-31); report 2026",
+			"report_year": 2026,
+			"to": 8369,
+			"page_count": 112,
+			"cover_page": 8258,
+			"document_type_en": "Annual report",
+			"introduction_en": "SoftBank Group is a strategic investment holding company with a portfolio of technology businesses, including Arm and the SoftBank Vision Funds.",
+			"introduction_ar": "مجموعة سوفت بنك شركة قابضة للاستثمارات الاستراتيجية تضم محفظة من الأعمال التقنية، منها آرم وصناديق سوفت بنك فيجن.",
+			"summary_en": "The report is titled 2026, but defines fiscal 2025 as the year ended March 31, 2026; it discusses its investment ecosystem, capital model and growth assets.",
+			"summary_ar": "يحمل التقرير عنوان 2026، لكنه يعرف السنة المالية 2025 بأنها المنتهية في 31 مارس 2026؛ ويتناول منظومة الاستثمارات ونموذج رأس المال وأصول النمو.",
+			"selected_source_pages": [
+				8258,
+				8260,
+				8267
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 8257,
+					"role": "previous_end",
+					"description_en": "End of preceding Honda Motor Co., Ltd. block."
+				},
+				{
+					"page": 8258,
+					"role": "start",
+					"description_en": "SoftBank Group Corp. report cover."
+				},
+				{
+					"page": 8369,
+					"role": "end",
+					"description_en": "Last physical page in the SoftBank Group Corp. block."
+				},
+				{
+					"page": 8370,
+					"role": "next_start",
+					"description_en": "Start of Panasonic Holdings Corporation report block."
+				}
+			],
+			"warnings_en": ["Cover/report year 2026 differs from the issuer’s fiscal-year label 2025."],
+			"warnings_ar": ["سنة عنوان التقرير 2026 تختلف عن تسمية الشركة للسنة المالية 2025."],
+			"from": 8258
+		},
+		{
+			"id": "panasonic-2024",
+			"company_id": "panasonic",
+			"name_en": "Panasonic Holdings Corporation",
+			"name_ar": "باناسونيك القابضة",
+			"country": "JP",
+			"country_en": "Japan",
+			"country_ar": "اليابان",
+			"sector": "industrial",
+			"sector_en": "Industrial technology",
+			"sector_ar": "التقنية الصناعية",
+			"fy": "FY2024 (ended 2024-03-31)",
+			"report_year": 2024,
+			"to": 8443,
+			"page_count": 74,
+			"cover_page": 8370,
+			"document_type_en": "Integrated report",
+			"introduction_en": "Panasonic is a diversified technology group with lifestyle, automotive, connected business solutions, industrial and energy operations.",
+			"introduction_ar": "باناسونيك مجموعة تقنية متنوعة تشمل أعمالها المنتجات المنزلية والسيارات وحلول الأعمال المتصلة والصناعة والطاقة.",
+			"summary_en": "The integrated report explains its operating-company structure, business portfolio, capital allocation and sustainability priorities.",
+			"summary_ar": "يعرض التقرير المتكامل هيكل الشركات التشغيلية ومحفظة الأعمال وتخصيص رأس المال وأولويات الاستدامة.",
+			"selected_source_pages": [
+				8370,
+				8371,
+				8372,
+				8373
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 8369,
+					"role": "previous_end",
+					"description_en": "End of preceding SoftBank Group Corp. block."
+				},
+				{
+					"page": 8370,
+					"role": "start",
+					"description_en": "Panasonic Holdings Corporation report cover (image-only, visually verified)."
+				},
+				{
+					"page": 8443,
+					"role": "end",
+					"description_en": "Last physical page in the Panasonic Holdings Corporation block."
+				},
+				{
+					"page": 8444,
+					"role": "next_start",
+					"description_en": "Start of Mitsubishi UFJ Financial Group report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 8370
+		},
+		{
+			"id": "mufg-2026",
+			"company_id": "mufg",
+			"name_en": "Mitsubishi UFJ Financial Group",
+			"name_ar": "مجموعة ميتسوبيشي يو إف جي المالية",
+			"country": "JP",
+			"country_en": "Japan",
+			"country_ar": "اليابان",
+			"sector": "banking",
+			"sector_en": "Banking and finance",
+			"sector_ar": "الخدمات المصرفية والمالية",
+			"fy": "Year ended 2026-03-31",
+			"report_year": 2026,
+			"to": 8795,
+			"page_count": 352,
+			"cover_page": 8444,
+			"document_type_en": "Form 20-F",
+			"introduction_en": "MUFG is a Japanese financial holding group providing commercial and trust banking, securities, cards, asset management and leasing.",
+			"introduction_ar": "إم يو إف جي مجموعة مالية قابضة يابانية تقدم الخدمات المصرفية التجارية وخدمات الأمانات والأوراق المالية والبطاقات وإدارة الأصول والتأجير.",
+			"summary_en": "Its Form 20-F for the year ended March 31, 2026 explains the holding-company structure, international network, regulation and financial reporting.",
+			"summary_ar": "يوضح نموذج 20-F للسنة المنتهية في 31 مارس 2026 هيكل الشركة القابضة والشبكة الدولية والتنظيم والتقارير المالية.",
+			"selected_source_pages": [
+				8444,
+				8445,
+				8462,
+				8464
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 8443,
+					"role": "previous_end",
+					"description_en": "End of preceding Panasonic Holdings Corporation block."
+				},
+				{
+					"page": 8444,
+					"role": "start",
+					"description_en": "Mitsubishi UFJ Financial Group report cover."
+				},
+				{
+					"page": 8795,
+					"role": "end",
+					"description_en": "Last physical page in the Mitsubishi UFJ Financial Group block."
+				},
+				{
+					"page": 8796,
+					"role": "next_start",
+					"description_en": "Start of Sumitomo Mitsui Financial Group report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 8444
+		},
+		{
+			"id": "smfg-2026",
+			"company_id": "smfg",
+			"name_en": "Sumitomo Mitsui Financial Group",
+			"name_ar": "مجموعة سوميتومو ميتسوي المالية",
+			"country": "JP",
+			"country_en": "Japan",
+			"country_ar": "اليابان",
+			"sector": "banking",
+			"sector_en": "Banking and finance",
+			"sector_ar": "الخدمات المصرفية والمالية",
+			"fy": "Year ended 2026-03-31",
+			"report_year": 2026,
+			"to": 8914,
+			"page_count": 119,
+			"cover_page": 8796,
+			"document_type_en": "Consolidated financial statements",
+			"introduction_en": "Sumitomo Mitsui Financial Group organizes its business around wholesale, retail, global and global-markets units.",
+			"introduction_ar": "تنظم مجموعة سوميتومو ميتسوي المالية أعمالها حول وحدات الشركات والأفراد والأعمال الدولية والأسواق العالمية.",
+			"summary_en": "This document contains consolidated financial statements for the year ended March 31, 2026, with notes and an independent auditor’s report.",
+			"summary_ar": "تتضمن هذه الوثيقة القوائم المالية الموحدة للسنة المنتهية في 31 مارس 2026، مع الإيضاحات وتقرير المراجع المستقل.",
+			"selected_source_pages": [
+				8796,
+				8797,
+				8891
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 8795,
+					"role": "previous_end",
+					"description_en": "End of preceding Mitsubishi UFJ Financial Group block."
+				},
+				{
+					"page": 8796,
+					"role": "start",
+					"description_en": "Sumitomo Mitsui Financial Group report cover."
+				},
+				{
+					"page": 8914,
+					"role": "end",
+					"description_en": "Last physical page in the Sumitomo Mitsui Financial Group block."
+				},
+				{
+					"page": 8915,
+					"role": "next_start",
+					"description_en": "Start of Samsung Electronics report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 8796
+		},
+		{
+			"id": "samsung-2025",
+			"company_id": "samsung",
+			"name_en": "Samsung Electronics",
+			"name_ar": "سامسونغ إلكترونيكس",
+			"country": "KR",
+			"country_en": "South Korea",
+			"country_ar": "كوريا الجنوبية",
+			"sector": "tech",
+			"sector_en": "Technology",
+			"sector_ar": "التقنية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 9010,
+			"page_count": 96,
+			"cover_page": 8915,
+			"document_type_en": "Consolidated financial statements",
+			"introduction_en": "Samsung Electronics combines consumer devices and appliances, semiconductors, display panels and Harman’s automotive and audio businesses.",
+			"introduction_ar": "تجمع سامسونغ إلكترونيكس بين الأجهزة والإلكترونيات المنزلية وأشباه الموصلات ولوحات العرض وأعمال هارمان للسيارات والصوتيات.",
+			"summary_en": "The 2025 consolidated financial-statements volume explains the DX, DS, SDC and Harman divisions and includes Korean-IFRS notes and the auditor’s report.",
+			"summary_ar": "يوضح مجلد القوائم الموحدة لعام 2025 قطاعات DX وDS وSDC وهارمان، ويتضمن إيضاحات وفق المعايير الدولية المعتمدة في كوريا وتقرير المراجع.",
+			"selected_source_pages": [
+				8915,
+				8916,
+				8931
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 8914,
+					"role": "previous_end",
+					"description_en": "End of preceding Sumitomo Mitsui Financial Group block."
+				},
+				{
+					"page": 8915,
+					"role": "start",
+					"description_en": "Samsung Electronics report cover."
+				},
+				{
+					"page": 9010,
+					"role": "end",
+					"description_en": "Last physical page in the Samsung Electronics block."
+				},
+				{
+					"page": 9011,
+					"role": "next_start",
+					"description_en": "Start of Hon Hai Precision (Foxconn) report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 8915
+		},
+		{
+			"id": "honhai-2025",
+			"company_id": "honhai",
+			"name_en": "Hon Hai Precision (Foxconn)",
+			"name_ar": "هون هاي للصناعات الدقيقة «فوكسكون»",
+			"country": "TW",
+			"country_en": "Taiwan",
+			"country_ar": "تايوان",
+			"sector": "tech",
+			"sector_en": "Technology",
+			"sector_ar": "التقنية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 9185,
+			"page_count": 175,
+			"cover_page": 9011,
+			"document_type_en": "Annual report",
+			"introduction_en": "Hon Hai, also known as Foxconn, provides electronics manufacturing and technology-platform services across consumer, computing, cloud and component products.",
+			"introduction_ar": "تقدم هون هاي، المعروفة أيضاً بفوكسكون، خدمات تصنيع الإلكترونيات والمنصات التقنية لمنتجات المستهلكين والحوسبة والسحابة والمكونات.",
+			"summary_en": "The 2025 report discusses its manufacturing-platform transformation, AI infrastructure, governance, operations and financial-position analysis.",
+			"summary_ar": "يناقش تقرير 2025 تحولها إلى منصة خدمات تصنيعية والبنية التحتية للذكاء الاصطناعي والحوكمة والعمليات وتحليل المركز المالي.",
+			"selected_source_pages": [
+				9011,
+				9012,
+				9015,
+				9016
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 9010,
+					"role": "previous_end",
+					"description_en": "End of preceding Samsung Electronics block."
+				},
+				{
+					"page": 9011,
+					"role": "start",
+					"description_en": "Hon Hai Precision (Foxconn) report cover (image-only, visually verified)."
+				},
+				{
+					"page": 9185,
+					"role": "end",
+					"description_en": "Last physical page in the Hon Hai Precision (Foxconn) block."
+				},
+				{
+					"page": 9186,
+					"role": "next_start",
+					"description_en": "Start of Tencent Holdings report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 9011
+		},
+		{
+			"id": "tencent-2025",
+			"company_id": "tencent",
+			"name_en": "Tencent Holdings",
+			"name_ar": "تنسنت",
+			"country": "CN",
+			"country_en": "China",
+			"country_ar": "الصين",
+			"sector": "tech",
+			"sector_en": "Technology",
+			"sector_ar": "التقنية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 9467,
+			"page_count": 282,
+			"cover_page": 9186,
+			"document_type_en": "Annual report",
+			"introduction_en": "Tencent operates communication and content platforms, online games, advertising, cloud services and financial-technology-related services.",
+			"introduction_ar": "تدير تنسنت منصات للتواصل والمحتوى والألعاب الإلكترونية والإعلانات والخدمات السحابية والخدمات المرتبطة بالتقنية المالية.",
+			"summary_en": "The 2025 report reviews Weixin/WeChat, games and enterprise services, alongside governance and consolidated financial statements; the company is incorporated in the Cayman Islands.",
+			"summary_ar": "يراجع تقرير 2025 ويشين/ويتشات والألعاب وخدمات الشركات، إلى جانب الحوكمة والقوائم الموحدة؛ والشركة مسجلة في جزر كايمان.",
+			"selected_source_pages": [
+				9186,
+				9188,
+				9190,
+				9191
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 9185,
+					"role": "previous_end",
+					"description_en": "End of preceding Hon Hai Precision (Foxconn) block."
+				},
+				{
+					"page": 9186,
+					"role": "start",
+					"description_en": "Tencent Holdings report cover."
+				},
+				{
+					"page": 9467,
+					"role": "end",
+					"description_en": "Last physical page in the Tencent Holdings block."
+				},
+				{
+					"page": 9468,
+					"role": "next_start",
+					"description_en": "Start of Reliance Industries report block."
+				}
+			],
+			"warnings_en": ["Country filter reflects the Shenzhen head office; legal incorporation is in the Cayman Islands."],
+			"warnings_ar": ["يعكس مرشح الدولة المقر الرئيسي في شنتشن؛ أما التسجيل القانوني ففي جزر كايمان."],
+			"from": 9186
+		},
+		{
+			"id": "reliance-2026",
+			"company_id": "reliance",
+			"name_en": "Reliance Industries",
+			"name_ar": "ريلاينس إندستريز",
+			"country": "IN",
+			"country_en": "India",
+			"country_ar": "الهند",
+			"sector": "energy",
+			"sector_en": "Energy",
+			"sector_ar": "الطاقة",
+			"fy": "FY2025–26",
+			"report_year": 2026,
+			"to": 9614,
+			"page_count": 147,
+			"cover_page": 9468,
+			"document_type_en": "Integrated annual report",
+			"introduction_en": "Reliance Industries operates in energy and materials, retail, digital services, media and entertainment, and newer technology and energy businesses.",
+			"introduction_ar": "تعمل ريلاينس إندستريز في الطاقة والمواد والتجزئة والخدمات الرقمية والإعلام والترفيه وأعمال التقنية والطاقة الجديدة.",
+			"summary_en": "The 2025–26 integrated report combines business and value-creation reviews with governance, sustainability information and standalone and consolidated financial reporting.",
+			"summary_ar": "يجمع التقرير المتكامل لعام 2025–2026 بين مراجعات الأعمال وخلق القيمة والحوكمة ومعلومات الاستدامة والتقارير المالية المنفصلة والموحدة.",
+			"selected_source_pages": [
+				9468,
+				9469,
+				9470
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 9467,
+					"role": "previous_end",
+					"description_en": "End of preceding Tencent Holdings block."
+				},
+				{
+					"page": 9468,
+					"role": "start",
+					"description_en": "Reliance Industries report cover."
+				},
+				{
+					"page": 9614,
+					"role": "end",
+					"description_en": "Last physical page in the Reliance Industries block."
+				},
+				{
+					"page": 9615,
+					"role": "next_start",
+					"description_en": "Start of Infosys Limited report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 9468
+		},
+		{
+			"id": "infosys-2026",
+			"company_id": "infosys",
+			"name_en": "Infosys Limited",
+			"name_ar": "إنفوسيس",
+			"country": "IN",
+			"country_en": "India",
+			"country_ar": "الهند",
+			"sector": "tech",
+			"sector_en": "Technology",
+			"sector_ar": "التقنية",
+			"fy": "FY2025–26",
+			"report_year": 2026,
+			"to": 9997,
+			"page_count": 383,
+			"cover_page": 9615,
+			"document_type_en": "Integrated annual report",
+			"introduction_en": "Infosys provides business consulting and technology services, with an AI-first approach to enterprise transformation.",
+			"introduction_ar": "تقدم إنفوسيس الاستشارات الإدارية والخدمات التقنية، مع نهج يضع الذكاء الاصطناعي في صميم تحول المؤسسات.",
+			"summary_en": "The 2025–26 integrated report presents client transformation examples, strategy and value creation, governance, and standalone and consolidated financial statements.",
+			"summary_ar": "يعرض التقرير المتكامل لعام 2025–2026 أمثلة لتحول العملاء والاستراتيجية وخلق القيمة والحوكمة والقوائم المالية المنفصلة والموحدة.",
+			"selected_source_pages": [
+				9615,
+				9616,
+				9622,
+				9624
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 9614,
+					"role": "previous_end",
+					"description_en": "End of preceding Reliance Industries block."
+				},
+				{
+					"page": 9615,
+					"role": "start",
+					"description_en": "Infosys Limited report cover (image-only, visually verified)."
+				},
+				{
+					"page": 9997,
+					"role": "end",
+					"description_en": "Last physical page in the Infosys Limited block."
+				},
+				{
+					"page": 9998,
+					"role": "next_start",
+					"description_en": "Start of Saudi Arabian Oil Company (Aramco) report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 9615
+		},
+		{
+			"id": "aramco-2025",
+			"company_id": "aramco",
+			"name_en": "Saudi Arabian Oil Company (Aramco)",
+			"name_ar": "أرامكو السعودية",
+			"country": "SA",
+			"country_en": "Saudi Arabia",
+			"country_ar": "السعودية",
+			"sector": "energy",
+			"sector_en": "Energy",
+			"sector_ar": "الطاقة",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 10243,
+			"page_count": 246,
+			"cover_page": 9998,
+			"document_type_en": "Annual report",
+			"introduction_en": "Saudi Aramco is an integrated energy and chemicals company spanning hydrocarbon production, refining and chemicals.",
+			"introduction_ar": "أرامكو السعودية شركة متكاملة للطاقة والكيميائيات تشمل أنشطتها إنتاج الهيدروكربونات والتكرير والكيميائيات.",
+			"summary_en": "Its 2025 report presents the integrated value chain, upstream and downstream activities, risk and governance disclosures, reserves information and consolidated statements.",
+			"summary_ar": "يعرض تقريرها لعام 2025 سلسلة القيمة المتكاملة وأعمال المنبع والمصب وإفصاحات المخاطر والحوكمة ومعلومات الاحتياطيات والقوائم الموحدة.",
+			"selected_source_pages": [
+				9998,
+				9999,
+				1e4,
+				10013
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 9997,
+					"role": "previous_end",
+					"description_en": "End of preceding Infosys Limited block."
+				},
+				{
+					"page": 9998,
+					"role": "start",
+					"description_en": "Saudi Arabian Oil Company (Aramco) report cover (image-only, visually verified)."
+				},
+				{
+					"page": 10243,
+					"role": "end",
+					"description_en": "Last physical page in the Saudi Arabian Oil Company (Aramco) block."
+				},
+				{
+					"page": 10244,
+					"role": "next_start",
+					"description_en": "Start of Emirates NBD Bank report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 9998
+		},
+		{
+			"id": "emiratesnbd-2025",
+			"company_id": "emiratesnbd",
+			"name_en": "Emirates NBD Bank",
+			"name_ar": "بنك الإمارات دبي الوطني",
+			"country": "AE",
+			"country_en": "United Arab Emirates",
+			"country_ar": "الإمارات العربية المتحدة",
+			"sector": "banking",
+			"sector_en": "Banking and finance",
+			"sector_ar": "الخدمات المصرفية والمالية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 10375,
+			"page_count": 132,
+			"cover_page": 10244,
+			"document_type_en": "Annual report",
+			"introduction_en": "Emirates NBD provides retail, wealth, corporate and institutional banking, including Islamic banking and international subsidiaries.",
+			"introduction_ar": "يقدم الإمارات دبي الوطني الخدمات المصرفية للأفراد والثروات والشركات والمؤسسات، بما فيها الخدمات المصرفية الإسلامية والشركات التابعة الدولية.",
+			"summary_en": "The 2025 report explains its regional banking model, Emirates Islamic and DenizBank operations, risk management and consolidated financial statements.",
+			"summary_ar": "يوضح تقرير 2025 نموذجه المصرفي الإقليمي وعمليات الإمارات الإسلامي ودنيز بنك وإدارة المخاطر والقوائم المالية الموحدة.",
+			"selected_source_pages": [
+				10244,
+				10246,
+				10257,
+				10258
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 10243,
+					"role": "previous_end",
+					"description_en": "End of preceding Saudi Arabian Oil Company (Aramco) block."
+				},
+				{
+					"page": 10244,
+					"role": "start",
+					"description_en": "Emirates NBD Bank report cover."
+				},
+				{
+					"page": 10375,
+					"role": "end",
+					"description_en": "Last physical page in the Emirates NBD Bank block."
+				},
+				{
+					"page": 10376,
+					"role": "next_start",
+					"description_en": "Start of e& (Emirates Telecommunications Group) report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 10244
+		},
+		{
+			"id": "eand-2025",
+			"company_id": "eand",
+			"name_en": "e& (Emirates Telecommunications Group)",
+			"name_ar": "إي آند «مجموعة اتصالات»",
+			"country": "AE",
+			"country_en": "United Arab Emirates",
+			"country_ar": "الإمارات العربية المتحدة",
+			"sector": "telecom",
+			"sector_en": "Telecommunications",
+			"sector_ar": "الاتصالات",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 10604,
+			"page_count": 229,
+			"cover_page": 10376,
+			"document_type_en": "Integrated annual report",
+			"introduction_en": "e& combines telecommunications with enterprise digital solutions, consumer digital services and technology investments.",
+			"introduction_ar": "تجمع إي آند بين الاتصالات والحلول الرقمية للمؤسسات والخدمات الرقمية للمستهلكين والاستثمارات التقنية.",
+			"summary_en": "The 2025 integrated report describes five business verticals: e& UAE, international, enterprise, life and capital, followed by sustainability, governance and financial reporting.",
+			"summary_ar": "يصف التقرير المتكامل لعام 2025 خمسة مجالات أعمال: إي آند الإمارات والدولية والمؤسسات والحياة ورأس المال، ثم تقارير الاستدامة والحوكمة والمالية.",
+			"selected_source_pages": [
+				10376,
+				10378,
+				10385,
+				10396
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 10375,
+					"role": "previous_end",
+					"description_en": "End of preceding Emirates NBD Bank block."
+				},
+				{
+					"page": 10376,
+					"role": "start",
+					"description_en": "e& (Emirates Telecommunications Group) report cover."
+				},
+				{
+					"page": 10604,
+					"role": "end",
+					"description_en": "Last physical page in the e& (Emirates Telecommunications Group) block."
+				},
+				{
+					"page": 10605,
+					"role": "next_start",
+					"description_en": "Start of Royal Bank of Canada report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 10376
+		},
+		{
+			"id": "rbc-2025",
+			"company_id": "rbc",
+			"name_en": "Royal Bank of Canada",
+			"name_ar": "رويال بنك أوف كندا",
+			"country": "CA",
+			"country_en": "Canada",
+			"country_ar": "كندا",
+			"sector": "banking",
+			"sector_en": "Banking and finance",
+			"sector_ar": "الخدمات المصرفية والمالية",
+			"fy": "FY2025 (ended 2025-10-31)",
+			"report_year": 2025,
+			"to": 10850,
+			"page_count": 246,
+			"cover_page": 10605,
+			"document_type_en": "Annual report",
+			"introduction_en": "Royal Bank of Canada provides personal and commercial banking, wealth management, insurance and capital-markets services.",
+			"introduction_ar": "يقدم رويال بنك أوف كندا الخدمات المصرفية للأفراد والشركات وإدارة الثروات والتأمين وخدمات أسواق رأس المال.",
+			"summary_en": "The report covers the year ended October 31, 2025 and combines business-segment reviews, risk and capital information with consolidated financial statements.",
+			"summary_ar": "يغطي التقرير السنة المنتهية في 31 أكتوبر 2025، ويجمع مراجعات قطاعات الأعمال ومعلومات المخاطر ورأس المال مع القوائم المالية الموحدة.",
+			"selected_source_pages": [
+				10605,
+				10606,
+				10628,
+				10630
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 10604,
+					"role": "previous_end",
+					"description_en": "End of preceding e& (Emirates Telecommunications Group) block."
+				},
+				{
+					"page": 10605,
+					"role": "start",
+					"description_en": "Royal Bank of Canada report cover."
+				},
+				{
+					"page": 10850,
+					"role": "end",
+					"description_en": "Last physical page in the Royal Bank of Canada block."
+				},
+				{
+					"page": 10851,
+					"role": "next_start",
+					"description_en": "Start of BHP Group Limited report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 10605
+		},
+		{
+			"id": "bhp-2025",
+			"company_id": "bhp",
+			"name_en": "BHP Group Limited",
+			"name_ar": "مجموعة بي إتش بي",
+			"country": "AU",
+			"country_en": "Australia",
+			"country_ar": "أستراليا",
+			"sector": "mining",
+			"sector_en": "Mining and resources",
+			"sector_ar": "التعدين والموارد",
+			"fy": "FY2025 (ended 2025-06-30)",
+			"report_year": 2025,
+			"to": 12299,
+			"page_count": 1449,
+			"cover_page": 10851,
+			"document_type_en": "Form 20-F + S-K 1300 technical reports",
+			"introduction_en": "BHP is a resources group with copper, iron ore and steelmaking-coal operations and potash development projects.",
+			"introduction_ar": "بي إتش بي مجموعة للموارد تشمل عمليات النحاس وخام الحديد وفحم صناعة الصلب ومشروعات تطوير البوتاس.",
+			"summary_en": "The FY2025 Form 20-F bundle also contains the Fundão settlement exhibit and technical reports for Escondida, Western Australia Iron Ore and Jansen, whose own reporting dates differ.",
+			"summary_ar": "تتضمن حزمة نموذج 20-F للسنة المالية 2025 أيضاً ملحق تسوية فونداؤ وتقارير فنية لإسكونديدا وخام حديد غرب أستراليا ويانسن، وتختلف تواريخ تقاريرها الخاصة.",
+			"selected_source_pages": [
+				10851,
+				10852,
+				10862,
+				10866,
+				11221,
+				11665,
+				11885,
+				12138
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 10850,
+					"role": "previous_end",
+					"description_en": "End of preceding Royal Bank of Canada block."
+				},
+				{
+					"page": 10851,
+					"role": "start",
+					"description_en": "BHP Group Limited report cover."
+				},
+				{
+					"page": 12299,
+					"role": "end",
+					"description_en": "Last physical page in the BHP Group Limited block."
+				},
+				{
+					"page": 12300,
+					"role": "next_start",
+					"description_en": "Start of Commonwealth Bank of Australia report block."
+				}
+			],
+			"warnings_en": ["Includes a legal settlement exhibit and technical reports with separate 2022/2024 dates; do not treat every page as FY2025 financial reporting."],
+			"warnings_ar": ["يشمل ملحق تسوية قانونية وتقارير فنية بتواريخ مستقلة في 2022 و2024؛ لا تعامل جميع الصفحات كتقارير مالية للسنة 2025."],
+			"from": 10851
+		},
+		{
+			"id": "cba-2026",
+			"company_id": "cba",
+			"name_en": "Commonwealth Bank of Australia",
+			"name_ar": "بنك الكومنولث الأسترالي",
+			"country": "AU",
+			"country_en": "Australia",
+			"country_ar": "أستراليا",
+			"sector": "banking",
+			"sector_en": "Banking and finance",
+			"sector_ar": "الخدمات المصرفية والمالية",
+			"fy": "FY2026 (ended 2026-06-30)",
+			"report_year": 2026,
+			"to": 12506,
+			"page_count": 207,
+			"cover_page": 12300,
+			"document_type_en": "Annual report",
+			"introduction_en": "Commonwealth Bank provides retail, business and institutional banking, mainly in Australia and New Zealand through its ASB subsidiary.",
+			"introduction_ar": "يقدم بنك الكومنولث الخدمات المصرفية للأفراد والأعمال والمؤسسات، خصوصاً في أستراليا ونيوزيلندا عبر شركته التابعة ASB.",
+			"summary_en": "Despite the old catalog’s FY2025 label, the supplied report explicitly covers the year ended June 30, 2026 and includes business, sustainability, governance and financial reports.",
+			"summary_ar": "رغم تصنيف الفهرس القديم له ضمن السنة المالية 2025، يغطي التقرير المقدم صراحة السنة المنتهية في 30 يونيو 2026، ويتضمن تقارير الأعمال والاستدامة والحوكمة والمالية.",
+			"selected_source_pages": [
+				12300,
+				12301,
+				12303
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 12299,
+					"role": "previous_end",
+					"description_en": "End of preceding BHP Group Limited block."
+				},
+				{
+					"page": 12300,
+					"role": "start",
+					"description_en": "Commonwealth Bank of Australia report cover."
+				},
+				{
+					"page": 12506,
+					"role": "end",
+					"description_en": "Last physical page in the Commonwealth Bank of Australia block."
+				}
+			],
+			"warnings_en": ["Legacy catalog mislabeled this FY2026 report as FY2025."],
+			"warnings_ar": ["صنف الفهرس القديم تقرير السنة المالية 2026 خطأ ضمن السنة المالية 2025."],
+			"from": 12300,
+			"legacy_id": "cba-2025"
+		}
+	];
+	var REFERENCE_METADATA = {
+		"schema_version": 1,
+		"created_at_utc": "2026-10-05T17:14:01.664693+00:00",
+		"source_file": "global_financial_and_audit_research_bundle_extended_verified.pdf",
+		"source_sha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+		"source_bytes": 522178397,
+		"total_physical_pages": 12506,
+		"report_blocks": 50,
+		"distinct_companies": 46,
+		"country_market_classifications": 15,
+		"directory_pages": [1],
+		"company_block_pages": 12505,
+		"complete_source_review_reports": 8,
+		"complete_source_review_pages": 2387,
+		"review_status_counts": {
+			"introductory_source_inspection": 41,
+			"partial_source_review": 1,
+			"complete_source_review": 8
+		},
+		"corrected_report_ranges": 28,
+		"page_numbering_en": "All links and ranges use 1-based physical pages of the supplied PDF, not printed report page numbers. Some PDF pages contain two printed pages.",
+		"page_numbering_ar": "تستخدم جميع الروابط والنطاقات أرقام الصفحات الفعلية لملف PDF بدءاً من 1، لا أرقام صفحات التقارير المطبوعة. تحتوي بعض صفحات PDF على صفحتين مطبوعتين.",
+		"scope_en": "Bilingual introductions and summaries are source-grounded navigation aids, not a full translation. Boundary inspection and introductory reading do not imply complete source review. Completed source review is analytical work, not an independent audit, professional assurance or application acceptance. The supplied compilation has not been independently authenticated against every issuer publication.",
+		"scope_ar": "المقدمات والملخصات الثنائية اللغة أدوات تنقل مستندة إلى المصدر، وليست ترجمة كاملة. لا يعني فحص الحدود والقراءة التعريفية اكتمال مراجعة المصدر. مراجعة المصدر المكتملة عمل تحليلي، وليست تدقيقاً مستقلاً أو تأكيداً مهنياً أو قبولاً للتطبيق. لم تتم مطابقة التجميع المقدم بصورة مستقلة مع جميع منشورات الجهات المصدرة.",
+		"country_basis_en": "Country/market filters use the report’s issuer domicile or principal-head-office classification; Tencent’s Cayman incorporation is separately disclosed."
+	};
+	var REFERENCE_DOCUMENT_GROUPS = [
+		{
+			"id": "reference-directory",
+			"title_en": "Reporting and auditing resource directory",
+			"title_ar": "دليل مصادر التقارير والمراجعة",
+			"from_page": 1,
+			"to_page": 1,
+			"page_count": 1,
+			"type": "reference_directory",
+			"confidence": "high",
+			"warnings_en": ["Arabic text in this source page is rendered/extracted with missing-glyph boxes. English resource names and URLs remain available."],
+			"warnings_ar": ["يظهر النص العربي في هذه الصفحة بمربعات حروف مفقودة؛ وتظل أسماء المصادر الإنجليزية وروابطها متاحة."]
+		},
+		{
+			"id": "amazon-2023",
+			"title_en": "Amazon.com, Inc. — FY2023",
+			"title_ar": "أمازون — FY2023",
+			"from_page": 2,
+			"to_page": 93,
+			"page_count": 92,
+			"type": "company_report",
+			"company_id": "amazon",
+			"confidence": "high"
+		},
+		{
+			"id": "apple-2024",
+			"title_en": "Apple Inc. — FY2024 (ended 2024-09-28)",
+			"title_ar": "آبل — FY2024 (ended 2024-09-28)",
+			"from_page": 94,
+			"to_page": 214,
+			"page_count": 121,
+			"type": "company_report",
+			"company_id": "apple",
+			"confidence": "high"
+		},
+		{
+			"id": "cisco-2024",
+			"title_en": "Cisco Systems, Inc. — FY2024",
+			"title_ar": "سيسكو سيستمز — FY2024",
+			"from_page": 215,
+			"to_page": 346,
+			"page_count": 132,
+			"type": "company_report",
+			"company_id": "cisco",
+			"confidence": "high"
+		},
+		{
+			"id": "walmart-2023",
+			"title_en": "Walmart Inc. — FY2023 (ended 2023-01-31)",
+			"title_ar": "وولمارت — FY2023 (ended 2023-01-31)",
+			"from_page": 347,
+			"to_page": 446,
+			"page_count": 100,
+			"type": "company_report",
+			"company_id": "walmart",
+			"confidence": "high"
+		},
+		{
+			"id": "adobe-2024",
+			"title_en": "Adobe Inc. — FY2024",
+			"title_ar": "أدوبي — FY2024",
+			"from_page": 447,
+			"to_page": 547,
+			"page_count": 101,
+			"type": "company_report",
+			"company_id": "adobe",
+			"confidence": "high"
+		},
+		{
+			"id": "jpmorgan-2023",
+			"title_en": "JPMorgan Chase & Co. — FY2023",
+			"title_ar": "جي بي مورغان تشيس — FY2023",
+			"from_page": 548,
+			"to_page": 911,
+			"page_count": 364,
+			"type": "company_report",
+			"company_id": "jpmorgan",
+			"confidence": "high"
+		},
+		{
+			"id": "apple-2020",
+			"title_en": "Apple Inc. — FY2020 (ended 2020-09-26)",
+			"title_ar": "آبل — FY2020 (ended 2020-09-26)",
+			"from_page": 912,
+			"to_page": 1016,
+			"page_count": 105,
+			"type": "company_report",
+			"company_id": "apple",
+			"confidence": "high"
+		},
+		{
+			"id": "amazon-2024",
+			"title_en": "Amazon.com, Inc. — FY2024",
+			"title_ar": "أمازون — FY2024",
+			"from_page": 1017,
+			"to_page": 1107,
+			"page_count": 91,
+			"type": "company_report",
+			"company_id": "amazon",
+			"confidence": "high"
+		},
+		{
+			"id": "apple-2023",
+			"title_en": "Apple Inc. — FY2023 (ended 2023-09-30)",
+			"title_ar": "آبل — FY2023 (ended 2023-09-30)",
+			"from_page": 1108,
+			"to_page": 1187,
+			"page_count": 80,
+			"type": "company_report",
+			"company_id": "apple",
+			"confidence": "high"
+		},
+		{
+			"id": "berkshire-2025",
+			"title_en": "Berkshire Hathaway Inc. — FY2025",
+			"title_ar": "بيركشاير هاثاواي — FY2025",
+			"from_page": 1188,
+			"to_page": 1341,
+			"page_count": 154,
+			"type": "company_report",
+			"company_id": "berkshire",
+			"confidence": "high"
+		},
+		{
+			"id": "jpmorgan-2025",
+			"title_en": "JPMorgan Chase & Co. — FY2025",
+			"title_ar": "جي بي مورغان تشيس — FY2025",
+			"from_page": 1342,
+			"to_page": 1705,
+			"page_count": 364,
+			"type": "company_report",
+			"company_id": "jpmorgan",
+			"confidence": "high"
+		},
+		{
+			"id": "bofa-2025",
+			"title_en": "Bank of America — FY2025",
+			"title_ar": "بنك أوف أمريكا — FY2025",
+			"from_page": 1706,
+			"to_page": 1818,
+			"page_count": 113,
+			"type": "company_report",
+			"company_id": "bofa",
+			"confidence": "high"
+		},
+		{
+			"id": "pepsico-2025",
+			"title_en": "PepsiCo, Inc. — FY2025",
+			"title_ar": "بيبسيكو — FY2025",
+			"from_page": 1819,
+			"to_page": 1962,
+			"page_count": 144,
+			"type": "company_report",
+			"company_id": "pepsico",
+			"confidence": "high"
+		},
+		{
+			"id": "pg-2026",
+			"title_en": "The Procter & Gamble Company — FY2026 (ended 2026-06-30)",
+			"title_ar": "بروكتر آند غامبل — FY2026 (ended 2026-06-30)",
+			"from_page": 1963,
+			"to_page": 2039,
+			"page_count": 77,
+			"type": "company_report",
+			"company_id": "pg",
+			"confidence": "high"
+		},
+		{
+			"id": "homedepot-2025",
+			"title_en": "The Home Depot, Inc. — FY2025 (ended 2026-02-01)",
+			"title_ar": "هوم ديبوت — FY2025 (ended 2026-02-01)",
+			"from_page": 2040,
+			"to_page": 2131,
+			"page_count": 92,
+			"type": "company_report",
+			"company_id": "homedepot",
+			"confidence": "high"
+		},
+		{
+			"id": "mcdonalds-2022",
+			"title_en": "McDonald’s Corporation — FY2022",
+			"title_ar": "ماكدونالدز — FY2022",
+			"from_page": 2132,
+			"to_page": 2204,
+			"page_count": 73,
+			"type": "company_report",
+			"company_id": "mcdonalds",
+			"confidence": "high"
+		},
+		{
+			"id": "nestle-2025",
+			"title_en": "Nestlé Group — FY2025",
+			"title_ar": "نستله — FY2025",
+			"from_page": 2205,
+			"to_page": 2342,
+			"page_count": 138,
+			"type": "company_report",
+			"company_id": "nestle",
+			"confidence": "high"
+		},
+		{
+			"id": "roche-2025",
+			"title_en": "Roche Group — FY2025",
+			"title_ar": "روش — FY2025",
+			"from_page": 2343,
+			"to_page": 2539,
+			"page_count": 197,
+			"type": "company_report",
+			"company_id": "roche",
+			"confidence": "high"
+		},
+		{
+			"id": "novartis-2025",
+			"title_en": "Novartis AG — FY2025",
+			"title_ar": "نوفارتس — FY2025",
+			"from_page": 2540,
+			"to_page": 2804,
+			"page_count": 265,
+			"type": "company_report",
+			"company_id": "novartis",
+			"confidence": "high"
+		},
+		{
+			"id": "ubs-2025",
+			"title_en": "UBS Group AG — FY2025",
+			"title_ar": "يو بي إس — FY2025",
+			"from_page": 2805,
+			"to_page": 3184,
+			"page_count": 380,
+			"type": "company_report",
+			"company_id": "ubs",
+			"confidence": "high"
+		},
+		{
+			"id": "allianz-2025",
+			"title_en": "Allianz SE — FY2025",
+			"title_ar": "أليانز إس إي — FY2025",
+			"from_page": 3185,
+			"to_page": 3240,
+			"page_count": 56,
+			"type": "company_report",
+			"company_id": "allianz",
+			"confidence": "high"
+		},
+		{
+			"id": "mercedes-2025",
+			"title_en": "Mercedes-Benz Group AG — FY2025",
+			"title_ar": "مجموعة مرسيدس بنز — FY2025",
+			"from_page": 3241,
+			"to_page": 3649,
+			"page_count": 409,
+			"type": "company_report",
+			"company_id": "mercedes",
+			"confidence": "high"
+		},
+		{
+			"id": "volkswagen-2025",
+			"title_en": "Volkswagen Group — FY2025",
+			"title_ar": "مجموعة فولكس فاغن — FY2025",
+			"from_page": 3650,
+			"to_page": 4322,
+			"page_count": 673,
+			"type": "company_report",
+			"company_id": "volkswagen",
+			"confidence": "high"
+		},
+		{
+			"id": "telekom-2025",
+			"title_en": "Deutsche Telekom AG — FY2025",
+			"title_ar": "دويتشه تيليكوم — FY2025",
+			"from_page": 4323,
+			"to_page": 4704,
+			"page_count": 382,
+			"type": "company_report",
+			"company_id": "telekom",
+			"confidence": "high"
+		},
+		{
+			"id": "bp-2025",
+			"title_en": "BP p.l.c. — FY2025",
+			"title_ar": "بي بي — FY2025",
+			"from_page": 4705,
+			"to_page": 5100,
+			"page_count": 396,
+			"type": "company_report",
+			"company_id": "bp",
+			"confidence": "high"
+		},
+		{
+			"id": "unilever-2025",
+			"title_en": "Unilever PLC — FY2025",
+			"title_ar": "يونيليفر — FY2025",
+			"from_page": 5101,
+			"to_page": 5385,
+			"page_count": 285,
+			"type": "company_report",
+			"company_id": "unilever",
+			"confidence": "high",
+			"children": [{
+				"id": "unilever-disclaimer",
+				"title_en": "Unilever PDF-version disclaimer",
+				"title_ar": "إخلاء مسؤولية نسخة يونيليفر بصيغة PDF",
+				"from_page": 5101,
+				"to_page": 5101,
+				"page_count": 1,
+				"type": "issuer_disclaimer"
+			}, {
+				"id": "unilever-report-main",
+				"title_en": "Unilever report from front cover",
+				"title_ar": "تقرير يونيليفر بدءاً من الغلاف",
+				"from_page": 5102,
+				"to_page": 5385,
+				"page_count": 284,
+				"type": "annual_report"
+			}]
+		},
+		{
+			"id": "astrazeneca-2025",
+			"title_en": "AstraZeneca PLC — FY2025",
+			"title_ar": "أسترازينيكا — FY2025",
+			"from_page": 5386,
+			"to_page": 5617,
+			"page_count": 232,
+			"type": "company_report",
+			"company_id": "astrazeneca",
+			"confidence": "high"
+		},
+		{
+			"id": "gsk-2025",
+			"title_en": "GSK plc — FY2025",
+			"title_ar": "جي إس كيه — FY2025",
+			"from_page": 5618,
+			"to_page": 5948,
+			"page_count": 331,
+			"type": "company_report",
+			"company_id": "gsk",
+			"confidence": "high"
+		},
+		{
+			"id": "hsbc-2025",
+			"title_en": "HSBC Holdings plc — FY2025",
+			"title_ar": "إتش إس بي سي — FY2025",
+			"from_page": 5949,
+			"to_page": 6320,
+			"page_count": 372,
+			"type": "company_report",
+			"company_id": "hsbc",
+			"confidence": "high"
+		},
+		{
+			"id": "totalenergies-2024",
+			"title_en": "TotalEnergies SE — FY2024",
+			"title_ar": "توتال إنرجيز — FY2024",
+			"from_page": 6321,
+			"to_page": 6986,
+			"page_count": 666,
+			"type": "company_report",
+			"company_id": "totalenergies",
+			"confidence": "high"
+		},
+		{
+			"id": "airbus-2023",
+			"title_en": "Airbus SE — FY2023",
+			"title_ar": "إيرباص — FY2023",
+			"from_page": 6987,
+			"to_page": 7427,
+			"page_count": 441,
+			"type": "company_report",
+			"company_id": "airbus",
+			"confidence": "high"
+		},
+		{
+			"id": "loreal-2024",
+			"title_en": "L'Oréal — FY2024",
+			"title_ar": "لوريال — FY2024",
+			"from_page": 7428,
+			"to_page": 7446,
+			"page_count": 19,
+			"type": "company_report",
+			"company_id": "loreal",
+			"confidence": "high"
+		},
+		{
+			"id": "sanofi-2025",
+			"title_en": "Sanofi — FY2025",
+			"title_ar": "سانوفي — FY2025",
+			"from_page": 7447,
+			"to_page": 7746,
+			"page_count": 300,
+			"type": "company_report",
+			"company_id": "sanofi",
+			"confidence": "high"
+		},
+		{
+			"id": "toyota-2026",
+			"title_en": "Toyota Motor Corporation — FY2026 (ended 2026-03-31)",
+			"title_ar": "تويوتا موتور — FY2026 (ended 2026-03-31)",
+			"from_page": 7747,
+			"to_page": 8010,
+			"page_count": 264,
+			"type": "company_report",
+			"company_id": "toyota",
+			"confidence": "high"
+		},
+		{
+			"id": "honda-2023",
+			"title_en": "Honda Motor Co., Ltd. — FY2023 (ended 2023-03-31)",
+			"title_ar": "هوندا موتور — FY2023 (ended 2023-03-31)",
+			"from_page": 8011,
+			"to_page": 8257,
+			"page_count": 247,
+			"type": "company_report",
+			"company_id": "honda",
+			"confidence": "high"
+		},
+		{
+			"id": "softbank-2026",
+			"title_en": "SoftBank Group Corp. — FY2025 (ended 2026-03-31); report 2026",
+			"title_ar": "مجموعة سوفت بنك — FY2025 (ended 2026-03-31); report 2026",
+			"from_page": 8258,
+			"to_page": 8369,
+			"page_count": 112,
+			"type": "company_report",
+			"company_id": "softbank",
+			"confidence": "high"
+		},
+		{
+			"id": "panasonic-2024",
+			"title_en": "Panasonic Holdings Corporation — FY2024 (ended 2024-03-31)",
+			"title_ar": "باناسونيك القابضة — FY2024 (ended 2024-03-31)",
+			"from_page": 8370,
+			"to_page": 8443,
+			"page_count": 74,
+			"type": "company_report",
+			"company_id": "panasonic",
+			"confidence": "high"
+		},
+		{
+			"id": "mufg-2026",
+			"title_en": "Mitsubishi UFJ Financial Group — Year ended 2026-03-31",
+			"title_ar": "مجموعة ميتسوبيشي يو إف جي المالية — Year ended 2026-03-31",
+			"from_page": 8444,
+			"to_page": 8795,
+			"page_count": 352,
+			"type": "company_report",
+			"company_id": "mufg",
+			"confidence": "high"
+		},
+		{
+			"id": "smfg-2026",
+			"title_en": "Sumitomo Mitsui Financial Group — Year ended 2026-03-31",
+			"title_ar": "مجموعة سوميتومو ميتسوي المالية — Year ended 2026-03-31",
+			"from_page": 8796,
+			"to_page": 8914,
+			"page_count": 119,
+			"type": "company_report",
+			"company_id": "smfg",
+			"confidence": "high"
+		},
+		{
+			"id": "samsung-2025",
+			"title_en": "Samsung Electronics — FY2025",
+			"title_ar": "سامسونغ إلكترونيكس — FY2025",
+			"from_page": 8915,
+			"to_page": 9010,
+			"page_count": 96,
+			"type": "company_report",
+			"company_id": "samsung",
+			"confidence": "high"
+		},
+		{
+			"id": "honhai-2025",
+			"title_en": "Hon Hai Precision (Foxconn) — FY2025",
+			"title_ar": "هون هاي للصناعات الدقيقة «فوكسكون» — FY2025",
+			"from_page": 9011,
+			"to_page": 9185,
+			"page_count": 175,
+			"type": "company_report",
+			"company_id": "honhai",
+			"confidence": "high"
+		},
+		{
+			"id": "tencent-2025",
+			"title_en": "Tencent Holdings — FY2025",
+			"title_ar": "تنسنت — FY2025",
+			"from_page": 9186,
+			"to_page": 9467,
+			"page_count": 282,
+			"type": "company_report",
+			"company_id": "tencent",
+			"confidence": "high"
+		},
+		{
+			"id": "reliance-2026",
+			"title_en": "Reliance Industries — FY2025–26",
+			"title_ar": "ريلاينس إندستريز — FY2025–26",
+			"from_page": 9468,
+			"to_page": 9614,
+			"page_count": 147,
+			"type": "company_report",
+			"company_id": "reliance",
+			"confidence": "high"
+		},
+		{
+			"id": "infosys-2026",
+			"title_en": "Infosys Limited — FY2025–26",
+			"title_ar": "إنفوسيس — FY2025–26",
+			"from_page": 9615,
+			"to_page": 9997,
+			"page_count": 383,
+			"type": "company_report",
+			"company_id": "infosys",
+			"confidence": "high"
+		},
+		{
+			"id": "aramco-2025",
+			"title_en": "Saudi Arabian Oil Company (Aramco) — FY2025",
+			"title_ar": "أرامكو السعودية — FY2025",
+			"from_page": 9998,
+			"to_page": 10243,
+			"page_count": 246,
+			"type": "company_report",
+			"company_id": "aramco",
+			"confidence": "high"
+		},
+		{
+			"id": "emiratesnbd-2025",
+			"title_en": "Emirates NBD Bank — FY2025",
+			"title_ar": "بنك الإمارات دبي الوطني — FY2025",
+			"from_page": 10244,
+			"to_page": 10375,
+			"page_count": 132,
+			"type": "company_report",
+			"company_id": "emiratesnbd",
+			"confidence": "high"
+		},
+		{
+			"id": "eand-2025",
+			"title_en": "e& (Emirates Telecommunications Group) — FY2025",
+			"title_ar": "إي آند «مجموعة اتصالات» — FY2025",
+			"from_page": 10376,
+			"to_page": 10604,
+			"page_count": 229,
+			"type": "company_report",
+			"company_id": "eand",
+			"confidence": "high"
+		},
+		{
+			"id": "rbc-2025",
+			"title_en": "Royal Bank of Canada — FY2025 (ended 2025-10-31)",
+			"title_ar": "رويال بنك أوف كندا — FY2025 (ended 2025-10-31)",
+			"from_page": 10605,
+			"to_page": 10850,
+			"page_count": 246,
+			"type": "company_report",
+			"company_id": "rbc",
+			"confidence": "high"
+		},
+		{
+			"id": "bhp-2025",
+			"title_en": "BHP Group Limited — FY2025 (ended 2025-06-30)",
+			"title_ar": "مجموعة بي إتش بي — FY2025 (ended 2025-06-30)",
+			"from_page": 10851,
+			"to_page": 12299,
+			"page_count": 1449,
+			"type": "company_filing_with_exhibits",
+			"company_id": "bhp",
+			"confidence": "high",
+			"children": [
+				{
+					"id": "bhp-main-2025",
+					"title_en": "BHP Form 20-F: main report and financial statements",
+					"title_ar": "بي إتش بي: نموذج 20-F والتقرير والقوائم المالية",
+					"from_page": 10851,
+					"to_page": 11210,
+					"page_count": 360,
+					"type": "annual_filing"
+				},
+				{
+					"id": "bhp-early-exhibits",
+					"title_en": "BHP securities and employment exhibits",
+					"title_ar": "بي إتش بي: مرفقات الأوراق المالية والعمل",
+					"from_page": 11211,
+					"to_page": 11220,
+					"page_count": 10,
+					"type": "corporate_exhibits"
+				},
+				{
+					"id": "fundao-settlement-2024",
+					"title_en": "Fundão dam-collapse judicial settlement, 25 October 2024",
+					"title_ar": "التسوية القضائية لانهيار سد فونداؤ، 25 أكتوبر 2024",
+					"from_page": 11221,
+					"to_page": 11627,
+					"page_count": 407,
+					"type": "legal_settlement",
+					"document_date": "2024-10-25",
+					"source_pages": [
+						11221,
+						11227,
+						11627,
+						11628
+					],
+					"scope_en": "Exhibit 4.3 within BHP’s filing; reproduced legal agreement and annexes, not an annual financial report."
+				},
+				{
+					"id": "bhp-other-exhibits",
+					"title_en": "BHP subsidiary list, dealing policy, certifications and consents",
+					"title_ar": "بي إتش بي: قائمة الشركات التابعة وسياسة التداول والشهادات والموافقات",
+					"from_page": 11628,
+					"to_page": 11664,
+					"page_count": 37,
+					"type": "corporate_exhibits"
+				},
+				{
+					"id": "escondida-technical-2022",
+					"title_en": "Escondida technical report summary",
+					"title_ar": "ملخص التقرير الفني لإسكونديدا",
+					"from_page": 11665,
+					"to_page": 11884,
+					"page_count": 220,
+					"type": "technical_report",
+					"report_period": "2022-06-30",
+					"source_pages": [
+						11665,
+						11666,
+						11884
+					],
+					"scope_en": "Report title/footer dates are June 2022; qualified-person signatures/consents in this filing include 2025 dates."
+				},
+				{
+					"id": "waio-technical-2022",
+					"title_en": "Western Australia Iron Ore technical report summary",
+					"title_ar": "ملخص التقرير الفني لخام حديد غرب أستراليا",
+					"from_page": 11885,
+					"to_page": 12137,
+					"page_count": 253,
+					"type": "technical_report",
+					"report_period": "2022-06-30",
+					"source_pages": [
+						11885,
+						11886,
+						12137
+					],
+					"scope_en": "Report title/footer dates are June 2022; qualified-person signatures/consents in this filing include 2025 dates."
+				},
+				{
+					"id": "jansen-technical-2024",
+					"title_en": "Jansen potash project technical report summary",
+					"title_ar": "ملخص التقرير الفني لمشروع يانسن للبوتاس",
+					"from_page": 12138,
+					"to_page": 12299,
+					"page_count": 162,
+					"type": "technical_report",
+					"report_period": "2024-06-30",
+					"source_pages": [
+						12138,
+						12140,
+						12299
+					],
+					"scope_en": "The title states fiscal year ended 30 June 2024; qualified-person signatures include 30 June 2025."
+				}
+			]
+		},
+		{
+			"id": "cba-2026",
+			"title_en": "Commonwealth Bank of Australia — FY2026 (ended 2026-06-30)",
+			"title_ar": "بنك الكومنولث الأسترالي — FY2026 (ended 2026-06-30)",
+			"from_page": 12300,
+			"to_page": 12506,
+			"page_count": 207,
+			"type": "company_report",
+			"company_id": "cba",
+			"confidence": "high"
+		}
+	];
+	var REFERENCE_INPUT_HASHES = {
+		"INDEX-VALIDATION-REPORT.txt": "0465ac7b00759201c3820a4de41a791e739e6ea6afbad164c3c571da95e560d5",
+		"additional-metadata-evidence.json": "5fef9fba79ab655351522a8765a8b7ab323c9981d33c67d541e93c03036ebdc5",
+		"boundary-corrections.json": "3bf29a1b86caf5233ac5240a6fa2dc75a94dea566f9d959fbabfb8442e957f31",
+		"companies.json": "ab7c2d5bdc06c1ba4855d719d44a727f5c7fe75ad2f8717e604435d5c6ba6a81",
+		"document-groups.json": "ff03a62e9ff14d6cd33615819059e66a6ffa3826c4e8e612b34105192e70f6e0",
+		"metadata.json": "1677a961063f5aa05335eae44dd7eb571b1909b72e679bc8f6429fc32328d3a7",
+		"page-03204.txt": "0cb340a7c9a51539e28439e8f38a2613be83ff9e2f85e30237c88d332f9366b2",
+		"page-03235.txt": "b64b23626a09eb3a5f375103641d1750830c5a0fa1328d76590dc1e889614963",
+		"source-page-evidence.json": "e8ed723efb904c0d1c16a7a5ad1fc3f424ed39c234695a99bfdd0b90ebe24740"
+	};
+	//#endregion
+	//#region app/src/engine/fusion/reports/reference-index-engine.ts
+	var reference_index_engine_exports = /* @__PURE__ */ __exportAll({
+		REFERENCE_DOCUMENT_GROUPS: () => REFERENCE_DOCUMENT_GROUPS,
+		REFERENCE_INPUT_HASHES: () => REFERENCE_INPUT_HASHES,
+		REFERENCE_METADATA: () => REFERENCE_METADATA,
+		REFERENCE_REPORTS: () => REFERENCE_REPORTS,
+		canonicalReferenceId: () => canonicalReferenceId,
+		legacyReferenceId: () => legacyReferenceId,
+		referenceReport: () => referenceReport
+	});
+	var byId = /* @__PURE__ */ new Map();
+	for (const report of REFERENCE_REPORTS) {
+		byId.set(report.id, report);
+		if (report.legacy_id) byId.set(report.legacy_id, report);
+	}
+	var referenceReport = (id) => byId.get(id);
+	var canonicalReferenceId = (id) => referenceReport(id)?.id ?? id;
+	var legacyReferenceId = (id) => referenceReport(id)?.legacy_id ?? id;
+	//#endregion
 	//#region app/src/engine/fusion/audit/global-benchmarks-engine.ts
 	var global_benchmarks_engine_exports = /* @__PURE__ */ __exportAll({
 		BUNDLE: () => BUNDLE,
@@ -69423,7 +73104,7 @@ window.SKEngines = (function() {
 		pages: [a, b],
 		...sourceAuditLabel ? { sourceAuditLabel } : {}
 	});
-	var REPORTS = [
+	var LEGACY_REPORTS = [
 		R$1("amazon-2023", "Amazon.com, Inc.", "US", "retail", "US GAAP", "PCAOB", "Ernst & Young LLP", 1996, "FY2023", "Annual report + 10-K", 2, 93),
 		R$1("apple-2024", "Apple Inc.", "US", "tech", "US GAAP", "PCAOB", "Ernst & Young LLP", 2009, "FY2024", "10-K", 94, 214),
 		R$1("cisco-2024", "Cisco Systems, Inc.", "US", "tech", "US GAAP", "PCAOB", "PricewaterhouseCoopers LLP", 1988, "FY2024", "Annual report + 10-K", 215, 348),
@@ -69474,8 +73155,32 @@ window.SKEngines = (function() {
 		R$1("bhp-2025", "BHP Group Limited", "AU", "mining", "IFRS", "PCAOB", "Ernst & Young", void 0, "FY2025", "Form 20-F + S-K 1300 technical reports", 10851, 12300),
 		R$1("cba-2025", "Commonwealth Bank of Australia", "AU", "banking", "AASB (IFRS)", "ISA", "PricewaterhouseCoopers", void 0, "FY2025", "Annual report", 12301, 12506)
 	];
+	/** One verified ownership index feeds every live report catalog. Legacy audit
+	* classification is preserved; disclosed source labels are separate fields. */
+	var REPORTS = REFERENCE_REPORTS.map((reference) => {
+		const report = {
+			...LEGACY_REPORTS.find((r) => r.id === legacyReferenceId(reference.id)) ?? {
+				country: reference.country,
+				sector: reference.sector,
+				framework: "Unknown — not reviewed",
+				standard: "unknown",
+				auditor: ""
+			},
+			id: reference.id,
+			company: reference.name_en,
+			fy: reference.fy,
+			kind: reference.document_type_en,
+			pages: [reference.from, reference.to],
+			reference
+		};
+		if (reference.id === "allianz-2025") {
+			report.framework = "HGB";
+			report.sourceAuditLabel = "HGB / EU Audit Regulation / IDW";
+		}
+		return report;
+	});
 	var K$2 = (report, theme, page, title) => ({
-		report,
+		report: canonicalReferenceId(report),
 		title,
 		theme,
 		page
@@ -69898,7 +73603,7 @@ window.SKEngines = (function() {
 		conglomerate: "المجموعات المتنوعة"
 	};
 	var REPORT = Object.fromEntries(REPORTS.map((r) => [r.id, r]));
-	var reportOf = (id) => REPORT[id];
+	var reportOf = (id) => REPORT[canonicalReferenceId(id)];
 	var row = (k) => {
 		const r = REPORT[k.report];
 		return {
@@ -69958,7 +73663,7 @@ window.SKEngines = (function() {
 	for a sector the bundle does not cover, the share under the same standard, else across all reports. `exclude` leaves one report
 	out, so the bundle can test itself without seeing the answer (the replay measured the plain sector share ranking best). */
 	function themePrior(opts = {}) {
-		const reps = REPORTS.filter((r) => r.id !== opts.exclude && KAMS.some((k) => k.report === r.id));
+		const reps = REPORTS.filter((r) => r.id !== (opts.exclude ? canonicalReferenceId(opts.exclude) : void 0) && KAMS.some((k) => k.report === r.id));
 		const has = (r, t) => KAMS.some((k) => k.report === r.id && k.theme === t);
 		const inSector = reps.filter((r) => opts.sector && r.sector === opts.sector), inStd = reps.filter((r) => opts.standard && r.standard === opts.standard);
 		const pool = inSector.length ? inSector : inStd.length ? inStd : reps;
@@ -74500,7 +78205,7 @@ window.SKEngines = (function() {
 	};
 	var NO_STATEMENTS = {
 		"mcdonalds-2025": "Supplied pages 2132–2204 contain the complete FY2022 report, not FY2025. No FY2025 source model is verified.",
-		"loreal-2024": "the bundle carries the overview only (pp. 7429–7448)"
+		"loreal-2024": "the bundle carries the overview only (pp. 7428–7446)"
 	};
 	var YEAR_END = {
 		"apple-2024": "2024-09-28",
@@ -74521,7 +78226,7 @@ window.SKEngines = (function() {
 		"infosys-2026": "2026-03-31",
 		"rbc-2025": "2025-10-31",
 		"bhp-2025": "2025-06-30",
-		"cba-2025": "2025-06-30"
+		"cba-2025": "2026-06-30"
 	};
 	var CURRENCY_AR = {
 		USD: "دولار أمريكي",
@@ -74587,18 +78292,18 @@ window.SKEngines = (function() {
 	var unitAr = (f) => (f.unit === "crore" ? "كرور " : "مليون ") + (UNIT_SHORT[f.currency] ?? f.currency);
 	/** Every company with statements, in bundle order. */
 	function corpusCompanies() {
-		return REPORTS.filter((r) => FIGURES[r.id]).map((r) => {
-			const f = FIGURES[r.id];
+		return REPORTS.filter((r) => FIGURES[legacyReferenceId(r.id)]).map((r) => {
+			const f = FIGURES[legacyReferenceId(r.id)];
 			return {
 				...r,
 				figures: f,
-				yearEnd: YEAR_END[r.id] ?? (r.fy.match(/\d{4}/)?.[0] ?? "2025") + "-12-31",
+				yearEnd: YEAR_END[legacyReferenceId(r.id)] ?? (r.fy.match(/\d{4}/)?.[0] ?? "2025") + "-12-31",
 				unitAr: unitAr(f),
 				currencyAr: CURRENCY_AR[f.currency] ?? f.currency
 			};
 		});
 	}
-	var corpusCompany = (id) => corpusCompanies().find((c) => c.id === id) ?? null;
+	var corpusCompany = (id) => corpusCompanies().find((c) => c.id === canonicalReferenceId(id)) ?? null;
 	var SOURCE_CATALOG = [
 		{
 			id: "pg-2026",
@@ -74664,6 +78369,7 @@ window.SKEngines = (function() {
 		});
 	}
 	function sourceUnavailableReason(id) {
+		id = canonicalReferenceId(id);
 		if (reviewedPublishedSource(id)) return null;
 		if (id === "mcdonalds-2025") return "Supplied pages 2132–2204 are McDonald’s FY2022 annual report with complete statements, not FY2025. No FY2025 model is verified.";
 		return NO_STATEMENTS[id] ?? (REPORTS.some((r) => r.id === id) ? "نموذج المصدر بانتظار المراجعة؛ لا يمكن فتحه أو استيراده كميزان تشغيلي أو تكليف تأكيد." : "نموذج المصدر غير متاح أو هويته غير معروفة؛ لا يمكن تحويله إلى ميزان تشغيلي.");
@@ -74676,15 +78382,15 @@ window.SKEngines = (function() {
 			"unavailable": 3
 		};
 		return REPORTS.map((r) => {
-			const m = reviewedPublishedSource(r.id)?.sourceModel, f = FIGURES[r.id];
+			const m = reviewedPublishedSource(r.id)?.sourceModel, f = FIGURES[legacyReferenceId(r.id)];
 			const modelStatus = m && "replay" in m ? "source-replayed" : m ? "partially-supported" : NO_STATEMENTS[r.id] ? "unavailable" : "pending-review";
 			const modelStatusAr = {
 				"source-replayed": "تمت مراجعة المصدر وعرض قوائمه",
 				"partially-supported": "مدعوم جزئياً",
-				"pending-review": "بانتظار مراجعة المصدر",
+				"pending-review": "بانتظار مراجعة واعتماد نموذج التطبيق",
 				"unavailable": "غير متاح"
 			}[modelStatus];
-			const supportReason = modelStatus === "source-replayed" ? "القوائم الأساسية المنشورة مطابقة للمصدر ضمن النطاق المعلن؛ التفاصيل غير المدعومة مذكورة داخل النموذج. لا يمثل ذلك تأكيداً مهنياً." : modelStatus === "partially-supported" ? "نموذج Apple يدعم قائمة الدخل والمركز المالي؛ التدفقات النقدية والتغيرات في حقوق الملكية والإيضاحات الكاملة غير متاحة. لا يمثل ذلك تأكيداً مهنياً." : modelStatus === "unavailable" ? NO_STATEMENTS[r.id] : "لم تُستكمل مراجعة المصدر ومطابقة مخرجاته؛ لا يُفتح هذا السجل كنموذج منشور تم التحقق منه.";
+			const supportReason = modelStatus === "source-replayed" ? "القوائم الأساسية المنشورة مطابقة للمصدر ضمن النطاق المعلن؛ التفاصيل غير المدعومة مذكورة داخل النموذج. لا يمثل ذلك تأكيداً مهنياً." : modelStatus === "partially-supported" ? "نموذج Apple يدعم قائمة الدخل والمركز المالي؛ التدفقات النقدية والتغيرات في حقوق الملكية والإيضاحات الكاملة غير متاحة. لا يمثل ذلك تأكيداً مهنياً." : modelStatus === "unavailable" ? NO_STATEMENTS[r.id] : "نموذج التطبيق بانتظار مراجعة واعتماد مستقلة؛ حالة قراءة المصدر مذكورة منفصلة ولا تسمح بفتح ميزان تشغيلي.";
 			return {
 				...r,
 				standard: m && "sourceAuditLabel" in m ? m.sourceAuditLabel : r.standard,
@@ -74779,6 +78485,7 @@ window.SKEngines = (function() {
 	}
 	/** The trial balance as the engagement file imports it (CSV with the prior year), the line of each account, and the engagement context. */
 	function companyTrialBalance(id) {
+		id = canonicalReferenceId(id);
 		const source = reviewedPublishedSource(id);
 		if (!source) return null;
 		if (source && "replay" in source.sourceModel) {
@@ -74904,6 +78611,7 @@ window.SKEngines = (function() {
 		blueprint: () => blueprint,
 		committeeTopics: () => committeeTopics,
 		compatibilitySummary: () => compatibilitySummary,
+		excludedLegacySections: () => excludedLegacySections,
 		kamProcedures: () => kamProcedures,
 		letterTopics: () => letterTopics,
 		reportCompatibility: () => reportCompatibility,
@@ -74914,11 +78622,19 @@ window.SKEngines = (function() {
 		summary: () => summary$1
 	});
 	var CORPUS = {
-		file: "global_financial_and_audit_research_bundle_extended_verified.pdf",
-		pages: 12506,
-		reports: 49,
+		file: REFERENCE_METADATA.source_file,
+		pages: REFERENCE_METADATA.total_physical_pages,
+		reports: REFERENCE_METADATA.report_blocks,
+		distinctCompanies: REFERENCE_METADATA.distinct_companies,
+		pagesAttributed: REFERENCE_METADATA.total_physical_pages,
 		pagesClassified: 12505,
-		sectionTypes: 54
+		sectionTypes: 54,
+		sectionStatisticsReports: 49,
+		sectionStatisticsStatus: "legacy-classification-not-revalidated",
+		completeSourceReviewReports: REFERENCE_METADATA.complete_source_review_reports,
+		completeSourceReviewPages: REFERENCE_METADATA.complete_source_review_pages,
+		scope: REFERENCE_METADATA.scope_en,
+		scopeAr: REFERENCE_METADATA.scope_ar
 	};
 	/** Every section type, in the median order it appears (pos = position through the report, 0 = first page, 1 = last). */
 	var SECTIONS = [
@@ -75621,7 +79337,7 @@ window.SKEngines = (function() {
 		}
 	];
 	/** Each report's own structure: section → first page (contents pages excluded). */
-	var REPORT_MAP = [
+	var LEGACY_REPORT_MAP = [
 		{
 			id: "amazon-2023",
 			c: "Amazon.com, Inc.",
@@ -76064,8 +79780,31 @@ window.SKEngines = (function() {
 			s: "strategy:12302 people:12302 balance_sheet:12302 segment_review:12307 governance:12307 liquidity:12312 risk_management:12328 capital_mgmt:12328 remuneration:12329 principal_risks:12338 chair_letter:12346 sustainability:12346 outlook:12352 market:12360 business_model:12364 credit_risk:12370 dividends:12377 provisions_note:12388 income_statement:12394 equity_statement:12396 tax_note:12396 cash_flow:12397 notes:12398 fin_instruments:12398 ppe_note:12400 employee_benefits:12404 eps:12406 liquidity_risk:12410 intangibles_note:12425 market_risk:12437 subsequent_events:12465 kam:12469 leases_note:12489 estimates:12491"
 		}
 	];
+	var REPORT_MAP = REPORTS.map((report) => ({
+		id: report.id,
+		c: report.company,
+		fy: report.fy,
+		fw: report.framework,
+		from: report.pages[0],
+		to: report.pages[1],
+		reference: report.reference,
+		s: LEGACY_REPORT_MAP.find((r) => r.id === legacyReferenceId(report.id))?.s ?? ""
+	}));
+	/** Preserve raw observations, but do not navigate into a different report after
+	* a verified boundary correction. Their semantics still require source review. */
+	function excludedLegacySections(id) {
+		const r = REPORT_MAP.find((x) => x.id === canonicalReferenceId(id));
+		if (!r?.s) return [];
+		return r.s.split(" ").map((kv) => {
+			const [key, p] = kv.split(":");
+			return {
+				key,
+				page: Number(p)
+			};
+		}).filter((s) => s.page < r.from || s.page > r.to);
+	}
 	function reportStructure(id) {
-		const r = REPORT_MAP.find((x) => x.id === id);
+		const r = REPORT_MAP.find((x) => x.id === canonicalReferenceId(id));
 		if (!r || !r.s) return [];
 		return r.s.split(" ").map((kv) => {
 			const [key, p] = kv.split(":");
@@ -76074,18 +79813,20 @@ window.SKEngines = (function() {
 				ar: SECTIONS.find((s) => s.key === key)?.ar ?? key,
 				page: Number(p)
 			};
-		});
+		}).filter((s) => s.page >= r.from && s.page <= r.to);
 	}
 	var reportIds = () => REPORT_MAP.map((r) => r.id);
-	/** The 49 reports read: company, year, framework and page range in the bundle. */
+	/** All verified report identities, plus explicitly legacy section observations. */
 	var reportList = () => REPORT_MAP.map(({ s: _s, ...r }) => ({
 		...r,
 		company: r.c,
-		sections: _s ? _s.split(" ").length : 0
+		sections: reportStructure(r.id).length,
+		excludedLegacySections: excludedLegacySections(r.id),
+		structureStatus: _s ? "legacy-classification-unverified" : "not-classified"
 	}));
 	/**
-	* Compare a generated SQC report pack with every one of the 49 report structures
-	* read from the global bundle. This is structural coverage only — it never claims
+	* Compare a generated SQC report pack with historical section observations.
+	* A newly indexed report without section classification is explicitly unclassified. This is structural coverage only — it never claims
 	* that a company-specific disclosure is applicable merely because a peer has it.
 	*/
 	function reportCompatibility(generatedKeys) {
@@ -76102,23 +79843,27 @@ window.SKEngines = (function() {
 				framework: r.fw,
 				matched,
 				total,
+				structureStatus: r.s ? "legacy-classification-unverified" : "not-classified",
 				coveragePct: total ? Math.round(matched / total * 100) : 0,
 				matchedSections,
 				missingSections
 			};
 		}).sort((a, b) => b.coveragePct - a.coveragePct || b.total - a.total || a.company.localeCompare(b.company));
 	}
-	/** Aggregate the 49-company compatibility matrix for a generated pack. */
+	/** Aggregate available section observations; unclassified reports are not scored. */
 	function compatibilitySummary(generatedKeys) {
 		const rows = reportCompatibility(generatedKeys);
-		const avg = rows.length ? Math.round(rows.reduce((t, r) => t + r.coveragePct, 0) / rows.length) : 0;
+		const classified = rows.filter((r) => r.structureStatus !== "not-classified");
+		const avg = classified.length ? Math.round(classified.reduce((t, r) => t + r.coveragePct, 0) / classified.length) : 0;
 		return {
 			reports: rows.length,
+			classifiedReports: classified.length,
+			unclassifiedReports: rows.length - classified.length,
 			averageCoveragePct: avg,
 			atLeast80: rows.filter((r) => r.coveragePct >= 80).length,
 			atLeast60: rows.filter((r) => r.coveragePct >= 60).length,
-			best: rows.slice(0, 5),
-			weakest: [...rows].sort((a, b) => a.coveragePct - b.coveragePct || b.total - a.total).slice(0, 5)
+			best: classified.slice(0, 5),
+			weakest: [...classified].sort((a, b) => a.coveragePct - b.coveragePct || b.total - a.total).slice(0, 5)
 		};
 	}
 	var PROC_AR = {
@@ -76930,7 +80675,7 @@ window.SKEngines = (function() {
 	/** How often the auditors of a sector reported each theme (share of that sector's reports with KAMs), leaving one report out. */
 	function sectorPrior(sector, exclude) {
 		if (!sector) return {};
-		const reports = [...new Set(KAMS.map((k) => k.report))].filter((id) => id !== exclude && corpusSector(id) === sector);
+		const reports = [...new Set(KAMS.map((k) => k.report))].filter((id) => id !== (exclude ? canonicalReferenceId(exclude) : void 0) && corpusSector(id) === sector);
 		if (!reports.length) return {};
 		const out = {};
 		for (const t of Object.keys(THEMES)) {
@@ -76941,7 +80686,7 @@ window.SKEngines = (function() {
 	}
 	/** How many matters (distinct themes) auditors under a standard report — the mean over the bundle's reports, leaving one out. */
 	function typicalKamCount(standard, exclude) {
-		const ids = [...new Set(KAMS.map((k) => k.report))].filter((id) => id !== exclude && REPORT_STD.get(id) === standard);
+		const ids = [...new Set(KAMS.map((k) => k.report))].filter((id) => id !== (exclude ? canonicalReferenceId(exclude) : void 0) && REPORT_STD.get(id) === standard);
 		if (!ids.length) return 3;
 		const mean = ids.reduce((s, id) => s + new Set(KAMS.filter((k) => k.report === id).map((k) => k.theme)).size, 0) / ids.length;
 		return Math.max(1, Math.round(mean));
@@ -79183,6 +82928,10 @@ window.SKEngines = (function() {
 	/** The revenue theme carries the presumed risk of fraud (ISA 240.26), so it ranks above an equal line risk. */
 	var FRAUD_THEMES = /* @__PURE__ */ new Set(["revenue-deductions", "revenue-recognition"]);
 	function suggestKams(input) {
+		if (input.exclude) input = {
+			...input,
+			exclude: canonicalReferenceId(input.exclude)
+		};
 		const { fs, materiality } = input, cur = input.currency ?? "ر.س", money = (m) => formatMinor(m, { decimals: 0 }) + " " + cur;
 		const assets = Math.abs(fs.keys.assets.current) || 1;
 		const byKey = /* @__PURE__ */ new Map();
@@ -85828,6 +89577,7 @@ window.SKEngines = (function() {
 		].join(" "))) add(n);
 		for (const x of i.opinion.basis) for (const n of numbersIn(x)) add(n);
 		add(CORPUS.reports);
+		add(CORPUS.sectionStatisticsReports);
 		add(CORPUS.pages);
 		for (const c of riskCatalogue()) add(c.reports);
 		for (const t of letterTopics()) {
@@ -86058,7 +89808,7 @@ window.SKEngines = (function() {
 		const ac = committeeTopics().slice(0, 8).map((x) => x.ar).join("، ");
 		return [
 			`أنت كاتب تقارير سنوية ومراجع قانوني أول في شركة SQC — Smart Quality Control. تكتب بالعربية الفصحى الرصينة سرد تقرير سنوي متكامل وأقسام تقرير المراجع بمستوى التقارير المنشورة عالمياً.`,
-			`قرأنا حزمة البحث كاملة (${CORPUS.pages} صفحة، ${CORPUS.reports} تقريراً سنوياً من أكثر من 30 دولة) وصنّفنا كل صفحة. اتبع البنية والأسلوب المستخلصين منها:`,
+			`فهرس الحزمة يسند ${CORPUS.pages} صفحة إلى ${CORPUS.reports} تقريراً لـ${CORPUS.distinctCompanies} شركة. اكتملت مراجعة المصدر لـ${CORPUS.completeSourceReviewReports} تقارير (${CORPUS.completeSourceReviewPages} صفحة)، وليست تأكيداً مهنياً أو قبولاً للتطبيق. إحصاءات البنية والأسلوب التالية تاريخية من ${CORPUS.sectionStatisticsReports} تقريراً؛ لم تُعد مراجعتها دلالياً في فحص الحدود الحالي. استخدمها استرشادياً ولا تدّع قراءة أو مراجعة شاملة:`,
 			ex,
 			`تغطي رسائل رؤساء المجالس والرؤساء التنفيذيين في الحزمة: ${lt}.`,
 			`إجراءات المراجعة التي يكتبها المراجعون تحت الأمور الرئيسية مرتبة بعدد التقارير: ${kp}.`,
@@ -89717,6 +93467,7 @@ window.SKEngines = (function() {
 			peerBenchmarks: peer_benchmarks_engine_exports,
 			publishedMcdonaldsSource: published_mcdonalds_source_engine_exports,
 			publishedSource: published_source_engine_exports,
+			referenceIndex: reference_index_engine_exports,
 			sampleCompany: sample_company_engine_exports,
 			scenario: scenario_engine_exports,
 			smartMatch: smart_match_engine_exports,

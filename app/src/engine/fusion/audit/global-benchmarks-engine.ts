@@ -9,12 +9,14 @@
      • a comparison of the engagement's materiality choices with the materiality auditors disclosed (ISA 320)
    Materiality and KAM decisions stay with the auditor; a precedent is evidence of practice, not a rule. */
 
+import { REFERENCE_REPORTS, canonicalReferenceId, legacyReferenceId, type ReferenceReport } from '../reports/reference-index-engine';
+
 export type Standard = 'PCAOB' | 'ISA';
 export type Sector = 'tech' | 'retail' | 'fmcg' | 'banking' | 'insurance' | 'pharma' | 'energy' | 'auto' | 'telecom' | 'mining' | 'industrial' | 'conglomerate';
 export type Theme = 'revenue-deductions' | 'revenue-recognition' | 'credit-losses' | 'tax-uncertainty' | 'impairment-intangibles' | 'impairment-assets'
   | 'provisions-litigation' | 'fair-value' | 'actuarial' | 'it-controls' | 'complex-transactions' | 'inventory' | 'fraud-override' | 'climate' | 'parent-investments' | 'related-parties';
 
-export type Report = { id: string; company: string; country: string; sector: Sector; framework: string; standard: Standard; auditor: string;
+export type Report = { id: string; company: string; country: string; sector: Sector; framework: string; standard: Standard | 'unknown'; auditor: string; reference?: ReferenceReport;
   /** Disclosed source audit basis, separate from the legacy operational standard classification. */ sourceAuditLabel?: string;
   /** first year of the audit engagement when the report states it */ since?: number; fy: string; kind: string; pages: [number, number] };
 export type Kam = { report: string; title: string; theme: Theme; page: number };
@@ -61,7 +63,7 @@ export const SOURCES: { name: string; covers: string; url: string; kind: 'filing
 /* ---------- the reports in the bundle (page ranges in the bundle) ---------- */
 const R = (id: string, company: string, country: string, sector: Sector, framework: string, standard: Standard, auditor: string, since: number | undefined, fy: string, kind: string, a: number, b: number, sourceAuditLabel?: string): Report =>
   ({ id, company, country, sector, framework, standard, auditor, ...(since ? { since } : {}), fy, kind, pages: [a, b], ...(sourceAuditLabel ? { sourceAuditLabel } : {}) });
-export const REPORTS: Report[] = [
+const LEGACY_REPORTS: Report[] = [
   R('amazon-2023', 'Amazon.com, Inc.', 'US', 'retail', 'US GAAP', 'PCAOB', 'Ernst & Young LLP', 1996, 'FY2023', 'Annual report + 10-K', 2, 93),
   R('apple-2024', 'Apple Inc.', 'US', 'tech', 'US GAAP', 'PCAOB', 'Ernst & Young LLP', 2009, 'FY2024', '10-K', 94, 214),
   R('cisco-2024', 'Cisco Systems, Inc.', 'US', 'tech', 'US GAAP', 'PCAOB', 'PricewaterhouseCoopers LLP', 1988, 'FY2024', 'Annual report + 10-K', 215, 348),
@@ -114,7 +116,24 @@ export const REPORTS: Report[] = [
 ];
 
 /* ---------- the key / critical audit matters, as titled in each auditor's report ---------- */
-const K = (report: string, theme: Theme, page: number, title: string): Kam => ({ report, title, theme, page });
+/** One verified ownership index feeds every live report catalog. Legacy audit
+ * classification is preserved; disclosed source labels are separate fields. */
+export const REPORTS: Report[] = REFERENCE_REPORTS.map(reference => {
+  const old = LEGACY_REPORTS.find(r => r.id === legacyReferenceId(reference.id));
+  const report: Report = {
+    ...(old ?? {country: reference.country, sector: reference.sector as Sector,
+      framework: 'Unknown — not reviewed', standard: 'unknown' as const, auditor: ''}),
+    id: reference.id, company: reference.name_en, fy: reference.fy,
+    kind: reference.document_type_en, pages: [reference.from, reference.to], reference,
+  };
+  if (reference.id === 'allianz-2025') {
+    report.framework = 'HGB'; // Physical p. 3204: parent-company basis of preparation.
+    report.sourceAuditLabel = 'HGB / EU Audit Regulation / IDW'; // Physical p. 3235.
+  }
+  return report;
+});
+
+const K = (report: string, theme: Theme, page: number, title: string): Kam => ({ report: canonicalReferenceId(report), title, theme, page });
 export const KAMS: Kam[] = [
   K('amazon-2023', 'tax-uncertainty', 49, 'Uncertain Tax Positions'),
   K('amazon-2024', 'tax-uncertainty', 1063, 'Uncertain Tax Positions'),
@@ -289,9 +308,9 @@ export const SECTOR_AR: Record<Sector, string> = { tech: 'التقنية', retai
 
 /* ---------- queries ---------- */
 const REPORT: Record<string, Report> = Object.fromEntries(REPORTS.map((r) => [r.id, r]));
-export const reportOf = (id: string) => REPORT[id];
+export const reportOf = (id: string) => REPORT[canonicalReferenceId(id)];
 
-export type KamRow = Kam & { company: string; fy: string; country: string; sector: Sector; standard: Standard; sourceAuditLabel?: string; auditor: string; themeAr: string };
+export type KamRow = Kam & { company: string; fy: string; country: string; sector: Sector; standard: Report['standard']; sourceAuditLabel?: string; auditor: string; themeAr: string };
 const row = (k: Kam): KamRow => { const r = REPORT[k.report]; return { ...k, company: r.company, fy: r.fy, country: r.country, sector: r.sector, standard: r.standard, ...(r.sourceAuditLabel ? { sourceAuditLabel: r.sourceAuditLabel } : {}), auditor: r.auditor, themeAr: THEMES[k.theme].ar }; };
 
 export type KamFilter = { theme?: Theme | ''; sector?: Sector | ''; standard?: Standard | ''; sourceAuditLabel?: string; q?: string };
@@ -328,7 +347,7 @@ export function sectorFromActivity(activity: string): Sector | '' {
     for a sector the bundle does not cover, the share under the same standard, else across all reports. `exclude` leaves one report
     out, so the bundle can test itself without seeing the answer (the replay measured the plain sector share ranking best). */
 export function themePrior(opts: { sector?: Sector | ''; standard?: Standard | ''; exclude?: string } = {}): Record<Theme, number> {
-  const reps = REPORTS.filter((r) => r.id !== opts.exclude && KAMS.some((k) => k.report === r.id));
+  const reps = REPORTS.filter((r) => r.id !== (opts.exclude ? canonicalReferenceId(opts.exclude) : undefined) && KAMS.some((k) => k.report === r.id));
   const has = (r: Report, t: Theme) => KAMS.some((k) => k.report === r.id && k.theme === t);
   const inSector = reps.filter((r) => opts.sector && r.sector === opts.sector), inStd = reps.filter((r) => opts.standard && r.standard === opts.standard);
   const pool = inSector.length ? inSector : inStd.length ? inStd : reps;

@@ -116,22 +116,19 @@ test('a reference captured before a jurisdiction switch cannot create a misleadi
 
 // Actual local planner -> tool -> send -> paint path, using the actual canonical service.
 // Only the panel's host nodes and storage are synthetic; no AI/network/browser is used.
+import {assistantHarness,chatKey,keys} from './assistant_scope_fixture.mjs';
 function assistantRuntime({providerFailure=false}={}){
-  const h=runtime(),store=new Map(),writes=[];
-  const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const node=()=>({innerHTML:'',textContent:'',classList:{toggle(){}},insertAdjacentHTML(_where,html){this.innerHTML+=html}});
-  const nodes={'.ska-msgs':node(),'.ska-sugg':node(),'.ska-status':node()},panel={dataset:{},nodes};
-  const key=k=>h.W.SK.company.current().id+':'+k;
-  Object.assign(h.W.SK,{$:(sel,root)=>root?.nodes?.[sel]||null,$$:()=>[],esc:escape,
-    load:(k,d)=>structuredClone(store.get(key(k))??d),save:(k,v)=>{writes.push(k);store.set(key(k),structuredClone(v));return true},
-    caps:{get:()=>null,all:()=>[]},perm:{can:()=>true,label:()=> 'test'},audit:{log(){}},toast(){}});
-  h.W.SKosifCore={view:()=> 'masterdata'};
-  h.W.SKosifAI={ready:()=>providerFailure,generate:async()=>{throw new Error('synthetic offline')}};
-  h.W.document={readyState:'loading',addEventListener(){}};h.W.addEventListener=()=>{};
-  vm.runInContext(assistant.replace(/\}\)\(\);\s*$/,'window.__assistantPanelForTest=p=>{panel=p};})();'),h.W);
-  h.W.__assistantPanelForTest(panel);
-  return {...h,writes,send:text=>h.W.SKosifAssistant.send(text),reply:()=>h.W.SK.load('skosif_chat_v1',[]).filter(m=>m.role==='model').at(-1)?.text,
-    html:()=>nodes['.ska-msgs'].innerHTML,rendered:text=>escape(text).replace(/\n/g,'<br>')};
+  const h=assistantHarness({engines:true,provider:providerFailure?async()=>{throw new Error('synthetic offline')}:undefined});
+  const traces=[];h.W.SKosifCompanyPlatform.addStandardTrace=r=>{traces.push(r);return r};
+  const select=profile=>{
+    const u=h.get(keys.users),r=h.get(keys.spaces),cd=h.get(keys.companies);
+    u.users.u1.lastSpace=profile.id;u.users.u1.spaces[profile.id]={name:profile.id};r.active=profile.id;r.spaces[profile.id]={name:profile.id};
+    cd.active={companyId:profile.id};cd.companies=cd.companies.filter(c=>c.id!==profile.id).concat({...profile,name:profile.id,currency:'SAR'});
+    h.set(keys.users,u);h.set(keys.spaces,r);h.set(keys.companies,cd);h.bus('company',{});
+  };
+  select({id:'egypt-company',country:'EG',framework:'EAS'});
+  return {...h,api:h.W.SKosifStandards,traces,select,reply:()=>h.history('u1',h.W.SK.company.current().id).filter(m=>m.role==='model').at(-1)?.text,
+    rendered:text=>h.W.SK.esc(text).replace(/\n/g,'<br>')};
 }
 for(const [name,profile,query] of [
   ['Egypt VAT',{id:'eg',country:'EG',framework:'EAS'},'ZATCA VAT'],
@@ -143,7 +140,7 @@ for(const [name,profile,query] of [
   await h.send(query);
   assert.equal(h.reply(),expected,'tool success must not collapse to a generic Done reply');
   assert.ok(h.html().includes('<div class="ska-m ai">'+h.rendered(expected)+'</div>'),'the canonical details must appear in the actual rendered response');
-  assert.deepEqual([...new Set(h.writes)],['skosif_chat_v1']);assert.equal(h.traces.length,0);
+  assert.deepEqual([...new Set(h.writes)], [chatKey('u1',profile.id)]);assert.equal(h.traces.length,0);
 });
 test('local assistant company switching displays each current jurisdiction record without mixed payloads',async()=>{
   const h=assistantRuntime();

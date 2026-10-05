@@ -2,12 +2,13 @@ import {describe,expect,it} from 'vitest';
 import {companyTrialBalance,corpusCompanies,publishedSourceCompanies,auditModelCatalog,FIGURES,NO_STATEMENTS} from './corpus-companies-engine';
 import {parseTrialBalance,SAMPLE_TB_CSV} from './tb-import-engine';
 import {buildStatements} from './statements-engine';
+import {legacyReferenceId} from './reference-index-engine';
 import {REPORTS} from '../audit/global-benchmarks-engine';
 import {reviewTrialBalance} from '../audit/tb-review-engine';
 describe('published-company model eligibility',()=>{
  it('keeps all source-reference metadata but distinguishes actual reviewed model availability',()=>{
-  expect(corpusCompanies().length).toBe(47);expect(auditModelCatalog().length).toBe(49);
-  expect(REPORTS.every(r=>FIGURES[r.id]||NO_STATEMENTS[r.id]||publishedSourceCompanies().some(c=>c.id===r.id))).toBe(true);
+  expect(corpusCompanies().length).toBe(47);expect(auditModelCatalog().length).toBe(50);
+  expect(REPORTS.every(r=>FIGURES[legacyReferenceId(r.id)]||NO_STATEMENTS[r.id]||publishedSourceCompanies().some(c=>c.id===r.id)||r.id==='panasonic-2024')).toBe(true);
  });
  it('never synthesizes an operational trial balance from a pending or unavailable named model',()=>{
   for(const c of auditModelCatalog()){

@@ -38,3 +38,20 @@ test('no source rows after acceptance produces a truthful failure without mutati
 test('source kind drift aborts rather than quietly switching to operational fallback',async()=>{const h=harness(),b=before(h),{promise}=await pending(h);h.context.SKosifLedger=h.context.window.SKosifLedger={...h.ledger,entries:()=>[]};h.answer(true);assert.equal(await promise,false);noCommit(h,b);assert.ok(h.toasts.some(([t])=>t.includes('تغيّر نوع مصدر')))});
 test('confirmation decision must be literal true, cannot be reused as a truthy authorization',async()=>{for(const value of [undefined,'yes',{confirmed:true}]){const h=harness(),b=before(h);h.SK.confirm=async()=>value;assert.equal(await h.api.fromBooks(),false);noPreAcceptance(h);noCommit(h,b)}});
 test('actual operational confirmation discloses post-acceptance read timing and need to review balances',async()=>{const h=harness({source:'operational'}),{promise,dialog}=await pending(h);assert.ok(dialog.html.includes('تُقرأ التفاصيل التشغيلية وقت الاستيراد بعد تأكيدك؛ راجع الأرصدة الناتجة قبل اعتمادها.'));noPreAcceptance(h);h.answer(false);assert.equal(await promise,false)});
+
+test('assistant caller lifecycle invalidation during approval blocks actual books import',async()=>{
+ const h=harness(),b=before(h);let current=true;const {promise}=await pending(h,()=>h.api.fromBooks(()=>current));current=false;h.answer(true);assert.equal(await promise,false);noCommit(h,b);
+});
+for(const transition of ['lock','company'])test('every books-import caller rechecks local lifecycle after '+transition,async()=>{
+ const h=harness(),b=before(h),{promise}=await pending(h);
+ if(transition==='lock')h.SK.bus.emit('lock',{});else{const u=JSON.parse(h.data.sqc_helper_users_v1);u.users['synthetic-user'].lastSpace='other';h.data.sqc_helper_users_v1=JSON.stringify(u)}
+ h.answer(true);assert.equal(await promise,false);noCommit(h,b);
+});
+for(const transition of ['lock','company'])test('generic assistant books click binds the actual import continuation through '+transition,async()=>{
+ const h=harness(),b=before(h);h.context.SKosifCore.view=()=> 'tbreview';
+ const el={dataset:{a:'books'},textContent:'استيراد يدوي من الأدوات',isConnected:true,offsetParent:{},getClientRects:()=>[{}],closest:()=>null,getAttribute:()=>null,scrollIntoView(){},click(){void h.click('review','books')}};
+ const root={querySelectorAll:()=>[el]};h.ui.doc.querySelector=s=>s==='#view'?root:null;
+ const promise=h.assistant.run('click',{label:'استيراد يدوي من الأدوات'});await tick();assert.ok(h.ui.dialog());
+ if(transition==='lock')h.SK.bus.emit('lock',{});else{const u=JSON.parse(h.data.sqc_helper_users_v1);u.users['synthetic-user'].lastSpace='other';h.data.sqc_helper_users_v1=JSON.stringify(u)}
+ h.answer(true);await tick();assert.equal((await promise).ok,false);noCommit(h,b);
+});

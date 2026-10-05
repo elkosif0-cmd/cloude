@@ -1,7 +1,7 @@
 import {describe,expect,it} from 'vitest';
 import {reportCompatibility,compatibilitySummary,reportIds} from './global-corpus-engine';
 
-describe('49-report output compatibility',()=>{
+describe('50-report navigation with historical structural compatibility',()=>{
   const generated=[
     'highlights','chair_letter','ceo_letter','strategy','mdna','principal_risks','sustainability','outlook',
     'liquidity','risk_management','viability','governance','audit_committee','directors_resp','icfr',
@@ -14,7 +14,7 @@ describe('49-report output compatibility',()=>{
   it('scores every report in the extracted corpus',()=>{
     const rows=reportCompatibility(generated);
     expect(rows).toHaveLength(reportIds().length);
-    expect(rows).toHaveLength(49);
+    expect(rows).toHaveLength(50);
     expect(rows.every(r=>r.coveragePct>=0&&r.coveragePct<=100)).toBe(true);
     expect(rows.filter(r=>r.total>0).length).toBeGreaterThanOrEqual(48);
     expect(rows.some(r=>r.id==='aramco-2025')).toBe(true);
@@ -30,7 +30,7 @@ describe('49-report output compatibility',()=>{
 
   it('summarises compatibility without selecting a single template as authoritative',()=>{
     const s=compatibilitySummary(generated);
-    expect(s.reports).toBe(49);
+    expect(s.reports).toBe(50);
     expect(s.averageCoveragePct).toBeGreaterThan(0);
     expect(s.best).toHaveLength(5);
     expect(s.weakest).toHaveLength(5);

@@ -1,14 +1,16 @@
-/* The whole research bundle, page by page — what an internationally published annual report contains, in what order,
-   and how its auditor, board and committees write. Built by reading every one of the 12,506 pages of
-   global_financial_and_audit_research_bundle_extended_verified.pdf (49 annual reports and filings from 30+ countries):
-   each page was classified into one of 54 section types from its heading zone and body, contents pages were set aside,
-   and the first page of every section was recorded per report. Patterns (audit procedures in KAMs, principal-risk
-   categories, letter topics, alternative performance measures, audit-committee topics, auditor-report elements,
-   viability horizons) were counted over the pages of the matching sections in every report.
-   Used by reports/narrative-engine.ts (what the AI writes and how it is scored) and by the global reference screen.
-   Counts are "reports out of 49 whose pages carry the section", not a judgement of quality. */
+/* Verified ownership index for 50 reports. Historical section observations and
+ * aggregate patterns below came from the old 49-entry classification; the current
+ * boundary/introductory pass does not revalidate their semantics or audit quality. */
+import { REPORTS } from '../audit/global-benchmarks-engine';
+import { REFERENCE_METADATA, canonicalReferenceId, legacyReferenceId } from './reference-index-engine';
 
-export const CORPUS = { file: 'global_financial_and_audit_research_bundle_extended_verified.pdf', pages: 12506, reports: 49, pagesClassified: 12505, sectionTypes: 54 } as const;
+export const CORPUS = { file: REFERENCE_METADATA.source_file, pages: REFERENCE_METADATA.total_physical_pages,
+  reports: REFERENCE_METADATA.report_blocks, distinctCompanies: REFERENCE_METADATA.distinct_companies,
+  pagesAttributed: REFERENCE_METADATA.total_physical_pages, pagesClassified: 12505, sectionTypes: 54,
+  sectionStatisticsReports: 49, sectionStatisticsStatus: 'legacy-classification-not-revalidated',
+  completeSourceReviewReports: REFERENCE_METADATA.complete_source_review_reports,
+  completeSourceReviewPages: REFERENCE_METADATA.complete_source_review_pages,
+  scope: REFERENCE_METADATA.scope_en, scopeAr: REFERENCE_METADATA.scope_ar } as const;
 
 export type Part = 'strategic' | 'governance' | 'financial' | 'other';
 export type SectionStat = { key: string; ar: string; part: Part; reports: number; pos: number; examples: [string, number][] };
@@ -71,7 +73,7 @@ export const SECTIONS: SectionStat[] = [
 ];
 
 /** Each report's own structure: section → first page (contents pages excluded). */
-const REPORT_MAP: { id: string; c: string; fy: string; fw: string; from: number; to: number; s: string }[] = [
+const LEGACY_REPORT_MAP: { id: string; c: string; fy: string; fw: string; from: number; to: number; s: string }[] = [
   { id: 'amazon-2023', c: 'Amazon.com, Inc.', fy: 'FY2023', fw: 'US GAAP', from: 2, to: 93, s: 'chair_letter:3 ceo_letter:11 mdna:15 principal_risks:15 provisions_note:15 governance:18 segment_note:37 leases_note:42 cash_flow:43 liquidity:45 market_risk:45 auditor_report:48 income_statement:48 balance_sheet:48 tax_note:49 intangibles_note:53 equity_statement:54 notes:55 fin_instruments:60 icfr:84 exhibits:91' },
   { id: 'apple-2024', c: 'Apple Inc.', fy: 'FY2024', fw: 'US GAAP', from: 94, to: 214, s: 'mdna:96 principal_risks:96 provisions_note:96 tax_note:121 market_risk:123 income_statement:124 balance_sheet:124 equity_statement:124 employee_benefits:128 cash_flow:129 notes:130 accounting_policies:130 ppe_note:135 leases_note:138 governance:144 auditor_report:144 icfr:146 exhibits:153' },
   { id: 'cisco-2024', c: 'Cisco Systems, Inc.', fy: 'FY2024', fw: 'US GAAP', from: 215, to: 348, s: 'sustainability:216 highlights:217 market:218 strategy:222 people:223 governance:224 remuneration:225 accounting_policies:232 principal_risks:234 mdna:235 intangibles_note:254 tax_note:257 segment_review:267 estimates:268 employee_benefits:277 liquidity:279 balance_sheet:279 leases_note:284 market_risk:285 auditor_report:287 icfr:289 kam:289 income_statement:293 cash_flow:295 notes:297 fin_instruments:300 revenue_note:301 credit_risk:315 provisions_note:325 dividends:328 segment_note:336 exhibits:342 ceo_letter:348' },
@@ -122,25 +124,38 @@ const REPORT_MAP: { id: string; c: string; fy: string; fw: string; from: number;
   { id: 'bhp-2025', c: 'BHP Group Limited', fy: 'FY2025', fw: 'IFRS', from: 10851, to: 12300, s: 'strategy:10853 mdna:10854 principal_risks:10854 provisions_note:10855 chair_letter:10857 ceo_letter:10857 kpis:10857 highlights:10858 non_gaap:10858 governance:10858 remuneration:10859 reserves_tech:10860 outlook:10863 people:10864 dividends:10865 income_statement:10877 balance_sheet:10877 cash_flow:10877 employee_benefits:10892 sustainability:10903 business_model:10952 ppe_note:10971 tax_note:10976 related_parties:11029 leases_note:11035 shareholder_info:11093 risk_management:11100 equity_statement:11134 accounting_policies:11135 estimates:11137 notes:11138 segment_note:11138 eps:11155 intangibles_note:11161 fin_instruments:11178 capital_mgmt:11178 liquidity_risk:11179 credit_risk:11183 market_risk:11184 icfr:11207 auditor_report:11207' },
   { id: 'cba-2025', c: 'Commonwealth Bank of Australia', fy: 'FY2025', fw: 'AASB (IFRS)', from: 12301, to: 12506, s: 'strategy:12302 people:12302 balance_sheet:12302 segment_review:12307 governance:12307 liquidity:12312 risk_management:12328 capital_mgmt:12328 remuneration:12329 principal_risks:12338 chair_letter:12346 sustainability:12346 outlook:12352 market:12360 business_model:12364 credit_risk:12370 dividends:12377 provisions_note:12388 income_statement:12394 equity_statement:12396 tax_note:12396 cash_flow:12397 notes:12398 fin_instruments:12398 ppe_note:12400 employee_benefits:12404 eps:12406 liquidity_risk:12410 intangibles_note:12425 market_risk:12437 subsequent_events:12465 kam:12469 leases_note:12489 estimates:12491' },
 ];
+const REPORT_MAP = REPORTS.map(report => ({
+  id: report.id, c: report.company, fy: report.fy, fw: report.framework,
+  from: report.pages[0], to: report.pages[1], reference: report.reference!,
+  s: LEGACY_REPORT_MAP.find(r => r.id === legacyReferenceId(report.id))?.s ?? '',
+}));
+/** Preserve raw observations, but do not navigate into a different report after
+ * a verified boundary correction. Their semantics still require source review. */
+export function excludedLegacySections(id: string) {
+  const r = REPORT_MAP.find(x => x.id === canonicalReferenceId(id));
+  if (!r?.s) return [];
+  return r.s.split(' ').map(kv => { const [key, p] = kv.split(':'); return {key, page: Number(p)}; })
+    .filter(s => s.page < r.from || s.page > r.to);
+}
 export function reportStructure(id: string): { key: string; ar: string; page: number }[] {
-  const r = REPORT_MAP.find((x) => x.id === id);
+  const r = REPORT_MAP.find((x) => x.id === canonicalReferenceId(id));
   if (!r || !r.s) return [];
-  return r.s.split(' ').map((kv) => { const [key, p] = kv.split(':'); return { key, ar: SECTIONS.find((s) => s.key === key)?.ar ?? key, page: Number(p) }; });
+  return r.s.split(' ').map((kv) => { const [key, p] = kv.split(':'); return { key, ar: SECTIONS.find((s) => s.key === key)?.ar ?? key, page: Number(p) }; }).filter(s => s.page >= r.from && s.page <= r.to);
 }
 export const reportIds = () => REPORT_MAP.map((r) => r.id);
-/** The 49 reports read: company, year, framework and page range in the bundle. */
-export const reportList = () => REPORT_MAP.map(({ s: _s, ...r }) => ({ ...r, company: r.c, sections: _s ? _s.split(' ').length : 0 }));
+/** All verified report identities, plus explicitly legacy section observations. */
+export const reportList = () => REPORT_MAP.map(({ s: _s, ...r }) => ({ ...r, company: r.c, sections: reportStructure(r.id).length, excludedLegacySections: excludedLegacySections(r.id), structureStatus: _s ? 'legacy-classification-unverified' : 'not-classified' }));
 
 export type ReportCompatibility = {
   id:string; company:string; fy:string; framework:string;
-  matched:number; total:number; coveragePct:number;
+  matched:number; total:number; coveragePct:number; structureStatus:string;
   matchedSections:{key:string;ar:string;page:number}[];
   missingSections:{key:string;ar:string;page:number}[];
 };
 
 /**
- * Compare a generated SQC report pack with every one of the 49 report structures
- * read from the global bundle. This is structural coverage only — it never claims
+ * Compare a generated SQC report pack with historical section observations.
+ * A newly indexed report without section classification is explicitly unclassified. This is structural coverage only — it never claims
  * that a company-specific disclosure is applicable merely because a peer has it.
  */
 export function reportCompatibility(generatedKeys:string[]):ReportCompatibility[] {
@@ -151,24 +166,25 @@ export function reportCompatibility(generatedKeys:string[]):ReportCompatibility[
     const missingSections=structure.filter((x)=>!have.has(x.key));
     const total=structure.length,matched=matchedSections.length;
     return {
-      id:r.id,company:r.c,fy:r.fy,framework:r.fw,matched,total,
+      id:r.id,company:r.c,fy:r.fy,framework:r.fw,matched,total,structureStatus:r.s?'legacy-classification-unverified':'not-classified',
       coveragePct:total?Math.round(matched/total*100):0,
       matchedSections,missingSections
     };
   }).sort((a,b)=>b.coveragePct-a.coveragePct||b.total-a.total||a.company.localeCompare(b.company));
 }
 
-/** Aggregate the 49-company compatibility matrix for a generated pack. */
+/** Aggregate available section observations; unclassified reports are not scored. */
 export function compatibilitySummary(generatedKeys:string[]) {
   const rows=reportCompatibility(generatedKeys);
-  const avg=rows.length?Math.round(rows.reduce((t,r)=>t+r.coveragePct,0)/rows.length):0;
+  const classified=rows.filter(r=>r.structureStatus!=='not-classified');
+  const avg=classified.length?Math.round(classified.reduce((t,r)=>t+r.coveragePct,0)/classified.length):0;
   return {
-    reports:rows.length,
+    reports:rows.length, classifiedReports:classified.length, unclassifiedReports:rows.length-classified.length,
     averageCoveragePct:avg,
     atLeast80:rows.filter((r)=>r.coveragePct>=80).length,
     atLeast60:rows.filter((r)=>r.coveragePct>=60).length,
-    best:rows.slice(0,5),
-    weakest:[...rows].sort((a,b)=>a.coveragePct-b.coveragePct||b.total-a.total).slice(0,5)
+    best:classified.slice(0,5),
+    weakest:[...classified].sort((a,b)=>a.coveragePct-b.coveragePct||b.total-a.total).slice(0,5)
   };
 }
 

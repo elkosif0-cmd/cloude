@@ -89,8 +89,8 @@ function bundleList(B){
 }
 function bundleRows(L){
   const have=new Set(reg().list.filter(e=>e.bundleId).map(e=>e.bundleId)),q=pick.q.trim().toLowerCase();
-  const list=L.filter(c=>(!pick.sector||c.sector===pick.sector)&&(!q||[c.company,c.countryAr,c.auditor,c.sectorAr,c.modelStatusAr].join(" ").toLowerCase().includes(q)));
-  return list.length?list.map(c=>'<tr data-model-id="'+esc(c.id)+'" data-model-status="'+esc(c.modelStatus)+'"><td><b>'+esc(c.company)+' — '+esc(c.fy)+'</b><small>'+esc([c.sectorAr,c.countryAr,c.unitAr].filter(Boolean).join(" · "))+'</small><p>'+esc(c.supportReason)+'</p></td><td>'+esc(c.frameworkAr)+'<br><strong>'+esc(c.modelStatusAr)+'</strong></td><td class="tbr-bundle-a">'+
+  const list=L.filter(c=>(!pick.sector||c.sector===pick.sector)&&(!q||[c.company,c.countryAr,c.auditor,c.sectorAr,c.modelStatusAr,c.reference?.review_label_ar].join(" ").toLowerCase().includes(q)));
+  return list.length?list.map(c=>'<tr data-model-id="'+esc(c.id)+'" data-model-status="'+esc(c.modelStatus)+'"><td><b>'+esc(c.company)+' — '+esc(c.fy)+'</b><small>'+esc([c.sectorAr,c.countryAr,c.unitAr].filter(Boolean).join(" · "))+'</small><p>'+esc(c.supportReason)+'</p></td><td>'+esc(c.frameworkAr)+'<br><strong>نموذج التطبيق: '+esc(c.modelStatusAr)+'</strong><small>حالة المصدر: '+esc(c.reference?.review_label_ar||'حالة مراجعة المصدر غير متاحة')+'</small></td><td class="tbr-bundle-a">'+
     (c.openable?'<button type="button" class="btn primary sm" data-bundle-add="'+esc(c.id)+'">'+(c.modelStatus==='partially-supported'?'فتح النموذج الجزئي':'فتح نموذج المصدر')+'</button>'+(have.has(c.id)?'<button type="button" class="btn sm" data-bundle-go="'+esc(c.id)+'">إعادة فتح النموذج المحفوظ</button>':''):'<button type="button" class="btn sm" disabled>'+esc(c.modelStatusAr)+'</button>')+'</td></tr>').join("")
     :'<tr><td colspan="3" class="muted">لا يوجد نموذج بهذا البحث.</td></tr>';
 }
@@ -99,7 +99,7 @@ async function bundlePicker(){
   document.getElementById("tbr-bundle")?.remove();
   const L=bundleList(B),n={};L.forEach(c=>{if(c.sector)n[c.sector]=(n[c.sector]||0)+1});
   const w=document.createElement("div");w.className="skd-wrap";w.id="tbr-bundle";
-  w.innerHTML='<div class="skd tbr-bundle" role="dialog" aria-modal="true" aria-labelledby="tbr-bundle-t"><span class="eyebrow">المراجعة · نماذج المصادر</span><h3 id="tbr-bundle-t">نماذج التقارير المنشورة</h3><small class="muted">'+L.filter(c=>c.modelStatus==='source-replayed').length+' نماذج مطابقة للمصدر · '+L.filter(c=>c.modelStatus==='partially-supported').length+' مدعوم جزئياً · '+L.filter(c=>c.modelStatus==='pending-review').length+' بانتظار المراجعة · '+L.filter(c=>c.modelStatus==='unavailable').length+' غير متاح</small>'+
+  w.innerHTML='<div class="skd tbr-bundle" role="dialog" aria-modal="true" aria-labelledby="tbr-bundle-t"><span class="eyebrow">المراجعة · نماذج المصادر</span><h3 id="tbr-bundle-t">نماذج التقارير المنشورة</h3><small class="muted">'+L.filter(c=>c.modelStatus==='source-replayed').length+' نماذج مطابقة للمصدر · '+L.filter(c=>c.modelStatus==='partially-supported').length+' مدعوم جزئياً · '+L.filter(c=>c.modelStatus==='pending-review').length+' بانتظار اعتماد نموذج التطبيق · '+L.filter(c=>c.modelStatus==='unavailable').length+' غير متاح</small>'+
     '<p>القوائم المنشورة تُعرض كمرجع مصدر بفتراتها ووحداتها الأصلية، وليست دفتر أستاذ أو دليل مراجعة. السجلات الباقية ليست نماذج مكتملة الاختبار؛ تبقى حالتها معلنة ولا تثبت تنفيذ إجراءات تأكيد.</p>'+
     '<div class="tbr-bundle-f"><input type="search" data-bundle-q placeholder="ابحث باسم الشركة أو الدولة أو المراجع" aria-label="بحث في الشركات" value="'+esc(pick.q)+'">'+
     '<select data-bundle-sector aria-label="القطاع"><option value="">كل القطاعات ('+L.length+')</option>'+Object.keys(n).map(k=>'<option value="'+esc(k)+'"'+(k===pick.sector?' selected':'')+'>'+esc((L.find(c=>c.sector===k)||{}).sectorAr||k)+' ('+n[k]+')</option>').join("")+'</select></div>'+
@@ -283,7 +283,11 @@ function booksImportDisclosure(d,source){
   }
   return{message,options:{title:existing?"استبدال ميزان ملف المراجعة الحالي":"استيراد الميزان إلى المراجعة",danger:existing,ok:existing?"استيراد واستبدال المراجعة":"استيراد الميزان إلى المراجعة",cancel:"إلغاء",defaultCancel:true}};
 }
-async function fromBooks(){
+async function fromBooks(contextCurrent=()=>true){
+  const scopeRead=()=>window.SKosifSpace&&SKosifSpace.chatScopeSnapshot?SKosifSpace.chatScopeSnapshot():null;
+  const importScope=scopeRead();
+  const lifecycleCurrent=()=>{try{const now=scopeRead();return!!(contextCurrent()&&importScope&&importScope.status==="stable"&&now&&now.status==="stable"&&now.token===importScope.token)}catch{return false}};
+  if(!lifecycleCurrent()){toast("تعذر تثبيت سياق المستخدم والشركة — افتح المساحة الحالية من جديد قبل الاستيراد","warn");return false}
   let snapshot,source,disclosure;
   try{
     snapshot=booksImportSnapshot();const {co,p}=activeCo(),L=window.SKosifLedger,LE=E().finance&&E().finance.ledger,posted=!!(L&&LE&&L.entries().length);
@@ -291,7 +295,7 @@ async function fromBooks(){
     disclosure=booksImportDisclosure(st(),source);
   }catch{toast("تعذرت قراءة مصدر الميزان أو ملف المراجعة — لم يُستورد الميزان","bad");return false}
   if(await SK.confirm(disclosure.message,disclosure.options)!==true)return false;
-  const stillCurrent=()=>{try{const now=booksImportSnapshot();return snapshot.every((v,i)=>v===now[i])}catch{return false}};
+  const stillCurrent=()=>{try{if(!lifecycleCurrent())return false;const now=booksImportSnapshot();return snapshot.every((v,i)=>v===now[i])}catch{return false}};
   if(!stillCurrent()){toast("تغيّر ملف المراجعة أو مصدر الميزان — أعد الاستيراد لتأكيد البيانات الحالية","warn");return false}
   let b;try{b=await booksTB()}catch{toast("تعذر بناء ميزان المصدر — لم يُستورد الميزان","bad");return false}
   if(!stillCurrent()){toast("تغيّر ملف المراجعة أو مصدر الميزان — أعد الاستيراد لتأكيد البيانات الحالية","warn");return false}
@@ -888,7 +892,7 @@ function corpusPicker(){
   const CC=E().reports.corpusCompanies;if(!CC||!CC.auditModelCatalog)return"";
   const list=CC.auditModelCatalog(),by={};list.forEach(c=>{(by[c.modelStatusAr]=by[c.modelStatusAr]||[]).push(c)});
   return '<span class="tbr-corpus"><select data-corpus aria-label="نموذج تقرير منشور في المراجعة"><option value="">اختر نموذج مصدر بحسب حالة دعمه…</option>'+
-    Object.entries(by).map(([status,models])=>'<optgroup label="'+esc(status)+'">'+models.map(c=>'<option value="'+esc(c.id)+'"'+(c.openable?'':' disabled')+'>'+esc(c.company+' — '+c.fy+' · '+c.modelStatusAr)+'</option>').join('')+'</optgroup>').join('')+
+    Object.entries(by).map(([status,models])=>'<optgroup label="'+esc(status)+'">'+models.map(c=>'<option value="'+esc(c.id)+'"'+(c.openable?'':' disabled')+'>'+esc(c.company+' — '+c.fy+' · نموذج التطبيق: '+c.modelStatusAr+' · حالة المصدر: '+(c.reference?.review_label_ar||'حالة مراجعة المصدر غير متاحة'))+'</option>').join('')+'</optgroup>').join('')+
     '</select><button type="button" class="btn" data-a="corpus" title="افتح البيانات المدعومة كمراجع مصدر؛ ليست قيوداً أو رأياً مهنياً">فتح نموذج المصدر</button></span>';
 }
 function readCtx(d){root.querySelectorAll("[data-ctx]").forEach(i=>{d.ctx[i.dataset.ctx]=i.value.trim()});if(d.ctx.country==="INTL"){d.ctx.framework="IFRS";return d}d.ctx.framework=d.ctx.country==="EG"?"EAS":CX().frameworkApplicability(d.fw||{}).framework;d.ctx.currency=d.ctx.country==="EG"?"الجنيه المصري":"الريال السعودي";return d}
@@ -931,8 +935,8 @@ async function runRound(){
 function narrBar(c){
   const x=docX(c),ready=window.SKosifAI&&SKosifAI.ready(),cf=ready?SKosifAI.conf():null,q=x.q,ai=x.narr&&Object.values(x.narr.source||{}).some(v=>v==="ai");
   const G=E().reports.globalCorpus,sum=G?G.summary():null;
-  return '<section class="card sqc-nb"><div class="card-b"><div class="sqc-nb-h"><div><span class="eyebrow">التقرير السنوي المتكامل — على بنية '+(sum?sum.reports:49)+' تقريراً عالمياً</span>'+
-    '<h3>'+(ai?'صاغه '+esc(x.narr.model||"الذكاء الاصطناعي"):'مسودة محرك SQC')+'</h3><p>قرأت SQC حزمة البحث كاملة ('+(sum?sum.pages.toLocaleString("en-US"):"12,506")+' صفحة) واستخرجت بنية التقارير المنشورة وأسلوب رسائلها ومخاطرها وأمورها الرئيسية. '+
+  return '<section class="card sqc-nb"><div class="card-b"><div class="sqc-nb-h"><div><span class="eyebrow">التقرير السنوي المتكامل — إحصاءات بنية تاريخية من '+(sum?sum.sectionStatisticsReports:49)+' تقريراً عالمياً</span>'+
+    '<h3>'+(ai?'صاغه '+esc(x.narr.model||"الذكاء الاصطناعي"):'مسودة محرك SQC')+'</h3><p>يتضمن فهرس الحزمة '+(sum?sum.reports:50)+' تقريراً ('+(sum?sum.pages.toLocaleString("en-US"):"12,506")+' صفحة). فحص حدود التقارير لا يعني مراجعتها كاملة أو قبول نماذجها؛ إحصاءات البنية التاريخية تحتاج مراجعة مستقلة. '+
     (ready?'يكتب '+esc(cf.label)+' السرد كاملاً بأرقام المنشأة فقط، ثم يُطابَق كل رقم ويُقاس التقرير بالحزمة.':'أضف مفتاح Gemini أو OpenAI أو Claude في «جولات المراجعة» ليكتب الذكاء الاصطناعي السرد؛ المسودة الحالية من المحرك وأرقامها من القوائم.')+'</p>'+
     (x.narrStale?'<p class="tbr-warn">تغيرت الأرقام بعد آخر صياغة — عُرضت مسودة المحرك؛ أعد الصياغة.</p>':'')+
     (x.narr&&x.narr.unverified&&x.narr.unverified.length?'<p class="tbr-warn">'+x.narr.unverified.reduce((a,u)=>a+u.numbers.length,0)+' رقماً في السرد لا يطابق أرقام المنشأة — مذكورة في الملحق.</p>':'')+'</div>'+

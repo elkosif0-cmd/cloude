@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-05T17:14:01.664693+00:00",
+  "source_file": "global_financial_and_audit_research_bundle_extended_verified.pdf",
+  "source_sha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+  "source_bytes": 522178397,
+  "total_physical_pages": 12506,
+  "report_blocks": 50,
+  "distinct_companies": 46,
+  "country_market_classifications": 15,
+  "directory_pages": [
+    1
+  ],
+  "company_block_pages": 12505,
+  "complete_source_review_reports": 8,
+  "complete_source_review_pages": 2387,
+  "review_status_counts": {
+    "introductory_source_inspection": 41,
+    "partial_source_review": 1,
+    "complete_source_review": 8
+  },
+  "corrected_report_ranges": 28,
+  "page_numbering_en": "All links and ranges use 1-based physical pages of the supplied PDF, not printed report page numbers. Some PDF pages contain two printed pages.",
+  "page_numbering_ar": "تستخدم جميع الروابط والنطاقات أرقام الصفحات الفعلية لملف PDF بدءاً من 1، لا أرقام صفحات التقارير المطبوعة. تحتوي بعض صفحات PDF على صفحتين مطبوعتين.",
+  "scope_en": "Bilingual introductions and summaries are source-grounded navigation aids, not a full translation. Boundary inspection and introductory reading do not imply complete source review. Completed source review is analytical work, not an independent audit, professional assurance or application acceptance. The supplied compilation has not been independently authenticated against every issuer publication.",
+  "scope_ar": "المقدمات والملخصات الثنائية اللغة أدوات تنقل مستندة إلى المصدر، وليست ترجمة كاملة. لا يعني فحص الحدود والقراءة التعريفية اكتمال مراجعة المصدر. مراجعة المصدر المكتملة عمل تحليلي، وليست تدقيقاً مستقلاً أو تأكيداً مهنياً أو قبولاً للتطبيق. لم تتم مطابقة التجميع المقدم بصورة مستقلة مع جميع منشورات الجهات المصدرة.",
+  "country_basis_en": "Country/market filters use the report’s issuer domicile or principal-head-office classification; Tencent’s Cayman incorporation is separately disclosed."
+}
