@@ -10,7 +10,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | مهام منصة V40 + مهام CRM V8.2 | `tasks` | العام › المهام والإشعارات › المهام | MANAGEMENT | admin, accountant, warehouse, sales, viewer |
 | جديد — شاشة الإشعارات في تصميم KOSIF | `notifications` | العام › المهام والإشعارات › مركز الإشعارات | CORE | admin, accountant, warehouse, sales, viewer |
 | جديد — شاشة المخاطر والملاحظات في تصميم KOSIF (خريطة المخاطر، توزيع الفئات، أحدث الملاحظات) | `risks` | العام › المخاطر والملاحظات | MANAGEMENT | admin, accountant, warehouse, sales, viewer |
-| تنظيم كل الأدوات غير المرتبطة مباشرة بملف المراجعة في مساحة مستقلة | `helperdesk` | العام › خريطة الشركة | UTILITIES | admin, accountant, warehouse, sales, viewer |
+| تنظيم كل الأدوات غير المرتبطة مباشرة بملف المراجعة في مساحة مستقلة | `helperdesk` | العام › الأدوات المساعدة المستقلة | UTILITIES | admin, accountant, warehouse, sales, viewer |
 | مركز القرار | `decision` | Jev والقرار › مركز القرار | INTELLIGENCE | admin, accountant, sales |
 | Jev للقرار | `jev` | Jev والقرار › Jev ومجلس القرار › Jev للقرار | INTELLIGENCE | admin, accountant, sales |
 | Grand Fusion intelligence.council | `council` | Jev والقرار › Jev ومجلس القرار › مجلس القرار | INTELLIGENCE | admin, accountant, sales |
@@ -91,7 +91,7 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | العام | مركز القيادة | `dash` مركز القيادة |
 | العام | المهام والإشعارات | `tasks` المهام · `notifications` مركز الإشعارات |
 | العام | المخاطر والملاحظات | `risks` المخاطر والملاحظات |
-| العام | خريطة الشركة | `helperdesk` خريطة الشركة |
+| العام | الأدوات المساعدة المستقلة | `helperdesk` الأدوات المساعدة المستقلة |
 | العام | الإعدادات والأجهزة | `settings` الإعدادات والمظهر · `devices` الأجهزة والمزامنة |
 | العام | الشركات والفترات | `companies` الشركات والفترات |
 | العام | الحوكمة والصلاحيات | `governance` الحوكمة والجاهزية · `health` الصحة والتشخيص · `capabilitiesv2` الصلاحيات ومساحات العمل |
