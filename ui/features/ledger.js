@@ -41,6 +41,36 @@ function periodTB(d,p){
   return E().ledger.periodTrialBalance(d.entries,id=>(d.accounts.find(a=>a.id===id)||{}).type,{start:p.startDate,end:p.endDate},re?re.id:"__re__");
 }
 const newDraft=()=>({date:new Date().toISOString().slice(0,10),reference:"",memo:"",lines:[{accountId:"",debit:"",credit:""},{accountId:"",debit:"",credit:""}]});
+function draftEntry(d){
+  return{id:"preview",date:draft.date,reference:String(draft.reference||"").trim(),memo:String(draft.memo||"").trim(),source:"يدوي",
+    lines:draft.lines.filter(l=>l.accountId&&(Number(l.debit)||Number(l.credit))).map(l=>({accountId:l.accountId,debit:r2(l.debit),credit:r2(l.credit)}))};
+}
+async function reviewDraft(d){
+  const entry=draftEntry(d),v=E().ledger.validateJournalEntry(entry),issues=[...new Set((v.issues||[]).map(i=>ISSUE[i.code]||i.code))];
+  if(entry.lines.length<2)issues.unshift("القيد يحتاج سطرين على الأقل بحسابات ومبالغ");
+  if(locked(d,entry.date))issues.unshift("التاريخ داخل فترة مقفلة حتى "+d.lockDate);
+  let standards=[],det=issues.length?"الفحص الحتمي: "+issues.join(" · "):"الفحص الحتمي: القيد متزن وبنيته صالحة للحفظ.";
+  try{
+    if(!issues.length&&window.SKEngines?.reports?.tbImport&&window.SKEngines?.audit?.tbReview){
+      const rows=entry.lines.map(l=>{const a=d.accounts.find(x=>x.id===l.accountId)||{};return{code:a.code||l.accountId,name:a.name||l.accountId,debit:l.debit,credit:l.credit}});
+      const tb=SKEngines.reports.tbImport.fromRows(rows,{majorUnits:true}),p=window.SKosifCompanyPlatform?.profile?.()||{},fw=p.country==="EG"?"EAS":"IFRS";
+      const rev=SKEngines.audit.tbReview.reviewTrialBalance(tb,{framework:fw,tax:p.taxMode||(fw==="EAS"?"income":"zakat")});
+      standards=[...new Set((rev.accounts||[]).flatMap(a=>(a.standards||[]).map(x=>x.code||x)).filter(Boolean))];
+      if(standards.length)det+="\nالمعايير المرتبطة بالحسابات: "+standards.join("، ")+".";
+    }
+  }catch(err){det+="\nتعذر استخراج ربط المعايير: "+String(err.message||err)}
+  let ai="لم يُشغّل AI؛ يمكنك حفظ القيد بعد اجتياز الفحص الحتمي أو تشغيله بعد ضبط مزود AI.";
+  if(window.SKosifAI&&SKosifAI.ready()){
+    try{
+      const lines=entry.lines.map(l=>{const a=d.accounts.find(x=>x.id===l.accountId)||{};return (a.code||"")+" "+(a.name||l.accountId)+" | مدين "+l.debit+" | دائن "+l.credit}).join("\n"),
+        company=SK.company?.current?.()||{},prompt="راجع هذا القيد كمساعد محاسبي فقط، ولا تنفذ أو تعدل شيئًا. الشركة: "+(company.name||"")+"؛ الدولة: "+(company.country||"")+"؛ العملة: "+(company.currency||"")+".\nالبيان: "+(entry.memo||"—")+"\n"+lines+"\nالمعايير التي ربطها المحرك الحتمي: "+(standards.join("، ")||"لم يحدد")+".\nاذكر: 1) هل المعالجة منطقية؟ 2) مخاطر أو مستندات ناقصة 3) التصحيح المقترح إن وجد 4) المعيار ذي الصلة. لا تعتبر اقتراحك اعتمادًا أو ترحيلًا.",
+        res=await SKosifAI.generate({contents:[{role:"user",parts:[{text:prompt}]}]},{timeout:90000});
+      ai=SKEngines.audit.aiReview.extractText(res).text||"لم يرجع AI تفسيرًا.";
+      window.SKosifCompanyPlatform?.addStandardTrace?.({operation:"journal-draft-review",standard:standards.join(", "),source:"deterministic mapping + AI suggestion",result:ai,provider:SKosifAI.provider(),approved:false});
+    }catch(err){ai="تعذر فحص AI: "+String(err.message||err)}
+  }
+  await SK.form("فحص القيد — اقتراح لا يرحّل ولا يعتمد",[{key:"result",label:"النتيجة",type:"textarea",value:det+"\n\nتفسير AI:\n"+ai}],{ok:"إغلاق",cancel:"إغلاق",message:"الحفظ والترحيل يظلان قرارًا مستقلاً بعد الفحص."});
+}
 
 /* ---------- tabs ---------- */
 function accountsHTML(d){
@@ -69,7 +99,7 @@ function entriesHTML(d){
     '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الحساب</th><th>مدين</th><th>دائن</th><th></th></tr></thead><tbody>'+
       draft.lines.map((l,i)=>'<tr><td><select data-ln="'+i+'" data-f="accountId">'+opt(l.accountId)+'</select></td><td><input data-ln="'+i+'" data-f="debit" inputmode="decimal" value="'+esc(l.debit)+'" style="width:110px"></td><td><input data-ln="'+i+'" data-f="credit" inputmode="decimal" value="'+esc(l.credit)+'" style="width:110px"></td><td>'+(draft.lines.length>2?'<button type="button" class="linkish" data-l="rm-line" data-i="'+i+'">حذف</button>':'')+'</td></tr>').join("")+
       '<tr><td><b>الإجمالي</b></td><td class="n"><b id="lg-td">'+money(td)+'</b></td><td class="n"><b id="lg-tc">'+money(tc)+'</b></td><td id="lg-st">'+(Math.abs(td-tc)<0.005&&td>0?'<span class="sk-pill good">متزن</span>':'<span class="sk-pill warn">فرق '+money(td-tc)+'</span>')+'</td></tr></tbody></table></div>'+
-    '<div class="sk-actions"><button type="button" class="btn" data-l="add-line">إضافة سطر</button><button type="button" class="btn primary" data-l="save-entry">حفظ القيد</button></div>'+
+    '<div class="sk-actions"><button type="button" class="btn" data-l="add-line">إضافة سطر</button><button type="button" class="btn" data-l="review-entry">فحص القيد</button><button type="button" class="btn primary" data-l="save-entry">حفظ القيد</button></div>'+
     '<div class="sk-error" id="lg-err"></div></div></section>'+
     '<section class="card"><div class="card-h"><div><h3>القيود المسجلة</h3><p>'+list.length+' قيداً'+(p?' في الفترة «'+esc(p.label)+'»':'')+'.</p></div></div><div class="card-b">'+
     (list.length?'<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>التاريخ</th><th>المرجع</th><th>البيان</th><th>المبلغ</th><th>المصدر</th><th></th></tr></thead><tbody>'+
@@ -403,9 +433,9 @@ function bind(root){
     else if(a==="toggle"){const x=d.accounts.find(y=>y.id===b.dataset.id);if(x){x.active=!x.active;put(d)}}
     else if(a==="add-line"){draft.lines.push({accountId:"",debit:"",credit:""})}
     else if(a==="rm-line"){draft.lines.splice(+b.dataset.i,1)}
+    else if(a==="review-entry"){await reviewDraft(d);return}
     else if(a==="save-entry"){
-      const entry={id:SK.ui.uid("je"),date:draft.date,reference:draft.reference.trim(),memo:draft.memo.trim(),source:"يدوي",
-        lines:draft.lines.filter(l=>l.accountId&&(Number(l.debit)||Number(l.credit))).map(l=>({accountId:l.accountId,debit:r2(l.debit),credit:r2(l.credit)}))};
+      const entry={...draftEntry(d),id:SK.ui.uid("je")};
       const err=$("#lg-err",root);
       if(entry.lines.length<2){err.textContent="القيد يحتاج سطرين على الأقل بحسابات ومبالغ";return}
       const v=E().ledger.validateJournalEntry(entry);

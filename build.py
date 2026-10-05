@@ -7,11 +7,11 @@ MODE=build_mode()  # production, or preview: no private data at all (see build_m
 
 # The front door is the company gallery (unlock.html). A production build keeps the private company's locked card
 # and the reviewed unlock script; a preview build has no private data, so both are cut out and the page is noindex.
-PRIVATE_COMPANY_NAME=(os.environ.get("SQC_PRIVATE_COMPANY_NAME") or "قصيف").strip() or "قصيف"
+PRIVATE_COMPANY_NAME=(os.environ.get("SQC_PRIVATE_COMPANY_NAME") or "تصيف").strip() or "تصيف"
 def entry_page(mode):
     page=Path("unlock.html").read_text(encoding="utf-8")
-    assert page.count('data-locked-name="قصيف"')==1, "unlock.html: locked company name marker"
-    page=page.replace('data-locked-name="قصيف"','data-locked-name="'+htmlmod.escape(PRIVATE_COMPANY_NAME,quote=True)+'"')
+    assert page.count('data-locked-name="تصيف"')==1, "unlock.html: locked company name marker"
+    page=page.replace('data-locked-name="تصيف"','data-locked-name="'+htmlmod.escape(PRIVATE_COMPANY_NAME,quote=True)+'"')
     if mode=="preview":
         page,n1=re.subn(r"<!--SQC:LOCKED:START-->.*?<!--SQC:LOCKED:END-->\n?","",page,flags=re.S)
         page,n2=re.subn(r"<!--SQC:AUTH:START-->.*?<!--SQC:AUTH:END-->\n?","",page,flags=re.S)
@@ -63,12 +63,12 @@ if nb!=1: raise SystemExit("Rail brand markup missing")
 UI_CSS=["ds/fonts.css","ds/tokens.css","ds/components.css","ds/elements.css","ds/shell.css","ds/luxe.css","components/studio.css",
         "features/offers.css","features/supply.css","features/smartmatch.css","features/meatops.css","features/kernel.css",
         "features/enterprise.css","features/reports.css","features/erp-plus.css","features/operations.css","features/capabilities-v2.css","features/devices.css","features/luxe-screens.css","features/tbreview.css","features/assistant.css","features/accounting-guidance.css","features/audit-bench.css","features/fieldwork.css","features/helper-center.css","features/corpus-lab.css","features/product-tree.css","features/sales-map.css","features/entry-sim.css","features/product-flow.css","features/customer-flow.css","features/pulse.css","features/benchmarks.css","features/advances.css","features/legacy-apps.css","features/management-report.css","features/sales-intel.css","ds/sqc.css"]
-UI_JS=["core/sk.js","core/output.js","core/bus.js","core/errors.js","core/store.js","core/services.js","core/engines.js","core/management-report-model.js","core/registry.js","core/perm.js","core/audit.js","core/device.js","core/ai.js","core/demo.js","core/helper-space.js","core/company.js","core/templates.js","core/flow.js","core/a11y.js","core/motion.js",
+UI_JS=["core/sk.js","core/output.js","core/bus.js","core/errors.js","core/store.js","core/services.js","core/engines.js","core/management-report-model.js","core/registry.js","core/perm.js","core/audit.js","core/device.js","core/ai.js","core/demo.js","core/helper-space.js","core/company.js","core/company-platform.js","core/templates.js","core/flow.js","core/a11y.js","core/motion.js",
        "components/states.js","components/studio.js","layouts/shell.js","layouts/rail-audit.js","layouts/topbar.js","components/palette.js","components/keys.js","components/charts.js","components/table.js","components/xlsx.js","features/command-center.js",
        "features/jev.js","features/offers.js","features/inventory.js","features/supply.js","features/meatops.js","features/smartmatch.js",
        "features/pricing-core.js","features/kernel.js","features/tools.js","features/enterprise.js","features/reports.js","features/report-pack.js",
        "features/erp-plus.js","features/operations.js","features/capabilities-v2.js","features/audit-bridge.js",
-       "features/ledger.js","features/management-report-source.js","features/management-report-output.js","features/management-report.js","features/advances.js","features/legacy-apps.js","features/month-close.js","features/purchasing.js","features/workspace.js","features/followup.js","features/devices.js","features/notifications.js","features/risks.js","features/accounting-guidance.js","features/codex.js","features/audit-bench.js","features/report-docs.js","features/integrated-report.js","features/audit-practice.js","features/corpus-lab.js","features/product-tree.js","features/sales-map.js","features/entry-sim.js","features/tb-council.js","features/tb-fieldwork.js","features/tb-review.js","features/sales-intel.js","features/sales-lab.js","features/assistant.js","features/helper-center.js","features/product-flow.js","features/customer-flow.js","features/pulse.js","features/benchmarks.js"]
+       "features/audit-inbox.js","features/ledger.js","features/management-report-source.js","features/management-report-output.js","features/management-report.js","features/advances.js","features/legacy-apps.js","features/month-close.js","features/purchasing.js","features/workspace.js","features/master-data.js","features/reporting-intake.js","features/followup.js","features/devices.js","features/notifications.js","features/risks.js","features/accounting-guidance.js","features/codex.js","features/audit-bench.js","features/report-docs.js","features/integrated-report.js","features/audit-practice.js","features/corpus-lab.js","features/product-tree.js","features/sales-map.js","features/entry-sim.js","features/tb-council.js","features/tb-fieldwork.js","features/tb-review.js","features/sales-intel.js","features/sales-lab.js","features/assistant.js","features/helper-center.js","features/product-flow.js","features/customer-flow.js","features/pulse.js","features/benchmarks.js"]
 listed={Path("ui",n).as_posix() for n in UI_CSS+UI_JS}
 stray=[f.as_posix() for f in Path("ui").glob("*.*") if f.suffix in (".js",".css")]
 stray+=[f.as_posix() for d in ("core","ds","components","layouts","features") for f in Path("ui",d).glob("*.*") if f.suffix in (".js",".css") and f.as_posix() not in listed]

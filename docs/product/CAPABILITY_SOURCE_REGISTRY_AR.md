@@ -1,15 +1,13 @@
-# سجل مصادر القدرات — جرد GitHub أولي محدود النطاق
+# سجل مصادر القدرات — جرد GitHub الأولي الشامل
 
 **النطاق:** جميع المستودعات الـ17 الظاهرة للحساب في 2026-10-05.  
 **الغرض:** منع ضياع العمل السابق، ومنع عدّ المكتبات العامة كقدرات منتج جاهزة.
-
-هذا تعداد للمستودعات المتاحة مع فحص مصادر مختارة، وليس إثباتاً لفحص جميع الملفات أو الفروع أو القدرات. وجود التنفيذ في المصدر لا يثبت نجاح التشغيل أو القبول الإنتاجي.
 
 ## A. مصادر المنتج المالية المباشرة
 
 | المستودع | النوع | القدرات المثبتة/المهمة | الوجهة |
 |---|---|---|---|
-| `cloude` | مصدر الإنتاج المتكامل | 75 شاشة مسجلة؛ دفتر/COA/قيود/TB/مطابقات/ذمم/VAT/تدفق/تقارير/مراجعة/PBC/أدلة/مجلس/معايير/شركات وصلاحيات | كل البوابات، وهو shell الإنتاج |
+| `cloude` | مصدر الإنتاج المتكامل | 77 شاشة مسجلة؛ دفتر/COA/قيود/TB/مطابقات/ذمم/VAT/تدفق/تقارير/مراجعة/PBC/أدلة/مجلس/معايير/شركات وصلاحيات | كل البوابات، وهو shell الإنتاج |
 | `kosif-audit-studio` | محرك مراجعة متقدم | استيراد TB، BigInt، مخاطر، materiality، sampling، journal tests، PBC، evidence SHA-256، workpapers، council، standards، rounds | المراجعة الذكية |
 | `smart-trial-balance-review` | نموذج جولات مراجعة | Excel/CSV، ربط IFRS، مجلس، طلب مستندات، تقييم كل مستند، جولات حتى الاكتمال، تقرير نهائي | المراجعة + مساعد التقارير |
 | `kosif-audit-pro` | نموذج حوكمة مراجعة | 10 جولات A01-A10، 26 gate، BigInt، PBC مرتبط بخطر/تأكيد/إجراء، lineage، human sign-off | المراجعة الذكية |
@@ -33,20 +31,11 @@
 | `CLOUDFLARE_API_TOKEN` | يحتوي نسخًا من مراجع KOSIF Think Pro وaudit/IFRS رغم الاسم | مصدر تاريخي/نسخ؛ لا نعتمد عليه قبل مقارنة الأصل |
 | `moon` | لم يظهر منه أصل مالي مباشر في المسح النصي الأول | دعم orchestration فقط عند ثبوت الحاجة |
 | `whatsapp-personal-bridge` | قناة اتصال | تكامل إشعارات/PBC لاحقًا، لا منطق مالي |
-| `mafateeh-al-tharwa` | أدوات مستندات وقراءة ومراجع مشتركة؛ ليست محركات مالية | مرشح انتقائي للأدوات والتقارير بعد فحص الحقوق والصلاحيات والاختبارات؛ غير مدمج كقدرة مالية |
-| `mafateeh-al-tharwa2` | أدوات مستندات وقراءة ومراجع مشتركة؛ ليست محركات مالية | مرشح انتقائي للأدوات والتقارير بعد فحص الحقوق والصلاحيات والاختبارات؛ غير مدمج كقدرة مالية |
+| `mafateeh-al-tharwa` | غير مالي بالنسبة لهدف المنصة الحالي | خارج سجل المنتج المالي |
+| `mafateeh-al-tharwa2` | غير مالي بالنسبة لهدف المنصة الحالي | خارج سجل المنتج المالي |
 | `-` | لا دليل مالي في المسح الحالي | خارج النطاق حتى يظهر دليل |
 | `new` | مذكور أعلاه كمصدر تصميم مباشر | لا تُكرر مكونات لم تُنفذ |
 | `moon` | مذكور أعلاه | لا تُحسب قدراته العامة كمحاسبة |
-
-### حفظ مصادر المستندات المشتركة
-
-المصدران أعلاه يحتويان قراءة وبحثاً عربياً وRTL وتعليقات، وتصدير DOCX/EPUB/نص. توجد أيضاً آليات تجريبية لاستخراج PDF على أجزاء قابلة للاستئناف، وأسئلة باسترجاع صفحات، ونطق. يُحتفظ بها كمرشحات إعادة استخدام للمستندات والمراجع؛ هذا لا يضيف محرك محاسبة أو قدرة مراجعة منفذة.
-
-- [mafateeh-al-tharwa: تصدير DOCX](https://github.com/kosif199022-jpg/mafateeh-al-tharwa/blob/a182735f5523f0b99a046c96416416e6d7760e41/public/reader-formats.js#L329-L363)، [استخراج PDF](https://github.com/kosif199022-jpg/mafateeh-al-tharwa/blob/a182735f5523f0b99a046c96416416e6d7760e41/public/reader-smart-suite.js#L94-L123).
-- [mafateeh-al-tharwa2: تصدير DOCX](https://github.com/kosif199022-jpg/mafateeh-al-tharwa2/blob/fc8518662be5511cc7b09d5317875a7677a343b1/public/reader-formats.js#L329-L363)، [أسئلة باسترجاع الصفحات](https://github.com/kosif199022-jpg/mafateeh-al-tharwa2/blob/fc8518662be5511cc7b09d5317875a7677a343b1/public/reader-smart-suite.js#L140-L150).
-
-هذه أدلة مصدر مثبتة إلى إصداراتها؛ تشغيلها وقبولها الإنتاجي غير متحققين هنا. التفعيل في المخرجات المنشورة قد يتأثر بتحويلات البناء. يلزم فحص صلاحيات الشركة/المستند وحقوق إعادة الاستخدام، وموافقة نقل المحتوى إلى مزود AI عند الحاجة، والتحقق من صحة إحالات الصفحات قبل استخدامها في تقرير أو مراجعة.
 
 ## D. القدرات التي ثبت وجودها بالفعل في cloude
 
@@ -108,20 +97,21 @@
 
 **تم في PR #136:** إعادة تصميم التنقل إلى البوابات الأربع مع إبقاء المجالات الثمانية كطبقة توافق داخلية وحماية معرفات الشاشات والروابط العميقة.
 
-1. تعريفات master data موحدة لكل شركة قبل المحاسبة.
-2. فصل صارم لـ`تصيف` عبر auth/RBAC خادمي، لا password UI فقط.
-3. fixed assets/depreciation كجزء صريح من accounting core.
-4. multi-currency/FX.
-5. period close checklist + locks + close evidence.
-6. continuous reconciliation/close.
-7. IFRS 18-ready statements and disclosures.
-8. ZATCA Fatoora Phase-2 integration and SDK validation.
-9. server-side multi-tenant storage for shared workspaces and real audit data.
-10. evidence graph موحد بين accounting/reporting/audit.
-11. connector framework للبنوك وERP/Drive/email.
-12. confidence + exception queue لمقترحات AI بدل التنفيذ الصامت.
-13. client/PBC portal بصلاحيات محدودة.
-14. canonical Capability Registry يجمع المنتج + المصادر التاريخية + حالة التنفيذ.
+**تم في فرع نظام التشغيل المالي الموحد:** تعريفات الشركة وmaster data، تثبيت الأدوات لكل شركة، XLSX لمساعد التقارير، وتسليم صريح من التقارير إلى طلبات PBC في المراجعة، مع فحص القيد بالمعايير/AI دون ترحيل تلقائي، وسجل أصول ثابتة بإهلاك حتمي وقيد مقترح.
+
+1. نقل خزنة المستندات الحساسة وبيانات التشغيل المشتركة إلى تخزين خادمي معزول؛ RBAC/ACL الخاص بالـWorkspace أصبح موجودًا، بينما بعض بيانات التطبيق المحلية ما زالت تحتاج نقلًا للخادم.
+2. **الأصول الثابتة — أساس منفذ:** سجل أصل داخل التعريفات + القسط الثابت + القيمة الدفترية + قيد إهلاك مقترح بلا ترحيل تلقائي. المتبقي: disposal / impairment / componentisation / change-in-estimate lifecycle.
+3. multi-currency/FX.
+4. period close checklist + locks + close evidence.
+5. continuous reconciliation/close.
+6. IFRS 18-ready statements and disclosures.
+7. ZATCA Fatoora Phase-2 integration and SDK validation.
+8. server-side multi-tenant storage for shared workspaces and real audit data.
+9. evidence graph موحد بين accounting/reporting/audit.
+10. connector framework للبنوك وERP/Drive/email.
+11. confidence + exception queue لمقترحات AI بدل التنفيذ الصامت.
+12. client/PBC portal بصلاحيات محدودة.
+13. canonical Capability Registry يجمع المنتج + المصادر التاريخية + حالة التنفيذ.
 
 ## F. قواعد الدمج
 

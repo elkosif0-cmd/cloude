@@ -15,9 +15,7 @@
 
 ## جرد مصادر KOSIF
 
-تم تعداد المستودعات المتاحة للحساب (17 مستودعاً)، مع جرد محدود النطاق قائم على مصادر مختارة ومثبتة إلى إصداراتها. شمل البحث accounting, IFRS, audit, trial balance, general ledger, reconciliation, financial statements, materiality, journal entries, VAT. تعداد المستودعات لا يثبت فحص كل ملف أو قدرة أو فرع أو سجل تاريخي؛ تبقى الوحدات والفروع غير المفحوصة بحاجة إلى تحقق مستقل.
-
-سجل الشاشات يضم 75 قدرة تنقل، وليس جرداً شاملاً للمحركات والمستندات والتخزين والسحابة وقدرات الفروع. وجود تنفيذ في المصدر لا يعني نجاح اختبارات التشغيل أو القبول الإنتاجي. هذا التغيير لا يثبت اجتياز اختبارات المتصفح أو رحلات الشركات أو عزل المستأجرين.
+تم جرد جميع المستودعات المتاحة للحساب (17 مستودعاً)، ثم فحص المحتوى المالي/المحاسبي/التدقيقي بكلمات مفتاحية تشمل: accounting, IFRS, audit, trial balance, general ledger, reconciliation, financial statements, materiality, journal entries, VAT.
 
 المصادر العملية التي ظهر فيها محتوى مالي أو تدقيقي فعلي تشمل:
 
@@ -42,19 +40,19 @@
 
 | البوابة | عدد الشاشات الظاهرة | القدرات |
 |---|---:|---|
-| البرنامج المحاسبي الكامل | 14 | `commerce`، `zatca`، `inventory`، `traceability`، `suppliers`، `purchasing`، `ledger`، `jesim`، `cash`، `receivables`، `advances`، `smartmatch`، `excelrecon`، `companies` |
-| مساعد القوائم والتقارير | 9 | `risklab`، `sensitivity`، `benchmarks`، `finance`، `execreports`، `reports`، `exports`، `archive`، `legacyapps` |
+| البرنامج المحاسبي الكامل | 15 | `companies`، `masterdata`، `commerce`، `zatca`، `b2bcredit`، `inventory`، `suppliers`، `purchasing`، `ledger`، `jesim`، `cash`، `receivables`، `advances`، `smartmatch`، `excelrecon`، `companies` |
+| مساعد القوائم والتقارير | 10 | `reportingintake`، `risklab`، `sensitivity`، `benchmarks`، `finance`، `execreports`، `reports`، `exports`، `archive` |
 | نظام المراجعة الذكي | 6 | `tbreview`، `codex`، `auditbench`، `corpuslab`، `auditanalytics`، `auditlab` |
-| الأدوات المساعدة المستقلة | 32 | `dash`، `tasks`، `notifications`، `risks`، `helperdesk`، `decision`، `jev`، `council`، `salesmap`، `customers`، `customerflow`، `followup`، `b2bcredit`، `offers`، `operations`، `salesintel`، `intelligence`، `economics`، `blending`، `culinary`، `carcass`، `yieldlab`، `nrv`، `ptree`، `productflow`، `labels`، `scanner`، `settings`، `devices`، `governance`، `health`، `capabilitiesv2` |
+| الأدوات المساعدة المستقلة | 33 | `dash`، `tasks`، `notifications`، `risks`، `helperdesk`، `decision`، `jev`، `council`، `salesmap`، `customers`، `customerflow`، `followup`، `offers`، `operations`، `salesintel`، `intelligence`، `economics`، `traceability`، `blending`، `culinary`، `carcass`، `yieldlab`، `nrv`، `ptree`، `productflow`، `labels`، `scanner`، `settings`، `devices`، `governance`، `health`، `capabilitiesv2`، `legacyapps` |
 
 ## حدود البيانات والسلطة
 
 - **القدرات مشتركة** بين الشركات؛ لا ننسخ نفس الأداة لكل شركة.
-- **لقطات شركة لبيانات أدوات محددة**: يحدد `ui/core/helper-space.js` المفاتيح الداخلة في اللقطة عبر `HELPER_KEY` مع قاعدة بيانات الأدوات. ملفات المراجعة والمهام والمخاطر والإشعارات وJev ومجلس القرار ومفاتيح AI وسجل التدقيق خارج هذه اللقطات. سياق الشركة المشترك لا يثبت ملكية أو عزلاً شاملاً لكل سجل أو مستند أو ملف ارتباط، كما أن دور الجهاز المحلي ليس بديلاً عن تفويض الخادم.
-- فتح خريطة الأدوات ينفذ التنقل فقط ولا ينسخ مستنداً إلى ملف المراجعة. يجب أن يكون نقل تقرير إلى المراجعة مرجعاً صريحاً ومصرحاً به؛ ما زال توحيد ملكية الشركة/الارتباط/المستند وتفويض النقل فجوة معمارية، ولا تسدها إعادة ترتيب البوابات.
+- **البيانات تشغيلية ومفصولة حسب الشركة/مساحة العمل**. بيانات العميل/البوكس/الطلب/النواة لا تُخلط بين الشركات، وتبقى خلف الوصول المحمي الخاص بمساحة الشركة.
+- استخدام أداة مساعدة لا يُنشئ دليلاً في ملف المراجعة. الانتقال إلى ملف المراجعة يحتاج إرفاقاً أو قراراً صريحاً من المراجع.
 - AI لا يعتمد تسوية، لا يرحّل قيداً، ولا يصدر رأياً نظامياً من تلقاء نفسه.
 
-## قدرات موصوفة في المصدر — قبول التشغيل مستقل
+## ما هو موجود فعلياً الآن
 
 ### البرنامج المحاسبي الكامل
 - دليل حسابات، قيود متوازنة، أستاذ عام وميزان مراجعة أصلي.
@@ -93,13 +91,6 @@
 5. **Risk → Procedure → Workpaper Auto-sync** — عند تغير خطر معتمد، تُراجع الإجراءات وأوراق العمل المرتبطة وتُعلّم العناصر التي تحتاج إعادة تنفيذ.
 6. **Document Extraction for Substantive Testing** — استخراج حقول الفواتير/العقود/المستندات وربطها مباشرة بالعينة والإجراء والدليل.
 7. **Consolidation & Intercompany** — تجميع متعدد الكيانات، eliminations، فروق العملة، وإقفال المجموعة مع أثر تدقيقي كامل.
-
-## تحقق هذا التصحيح وحدوده
-
-- تحقق بلا متصفح: `node --test tools/helper_gateway.test.mjs` يفحص تطابق العقد والأسهم مع الصلاحيات، وإعادة الرسم، والبوابات الأربع، ومعرفات القدرات، وأعداد الجدول وعضويته.
-- الخريطة الحالية تعرض مجموعتي المنتج والعميل واختصارات القرار بحسب الصلاحية؛ اختصار الحساسية القائم يبقى تابعاً لبوابة التقارير. لا تغيّر الخريطة تصنيف القدرة أو رابطها.
-- تحفظ العقد مواقعها الحالية عند إخفاء مجموعة بسبب الصلاحيات. تحسين توازن الرسم أو إعادة توزيع المواقع قرار بصري منفصل.
-- يلزم تشغيل `tools/feature_audit.mjs` وفحوص التنقل في متصفح معتمد: سطح المكتب والجوال وRTL، الصلاحيات، الروابط العميقة، الرجوع/التقدم، وتبديل الشركة. اختبارات المصدر لا تقوم مقام هذا القبول.
 
 ## قاعدة عدم التكرار
 

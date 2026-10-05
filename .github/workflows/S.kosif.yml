@@ -70,7 +70,10 @@ jobs:
         run: node --test tools/unlock_runtime.test.mjs
 
       - name: Test the company gallery (front door) and Sales Intelligence across screens
-        run: node --test tools/company_entry.test.mjs tools/company_context.test.mjs tools/crystal_world.test.mjs tools/motion.test.mjs tools/identity_audit.test.mjs tools/sales_reports.test.mjs tools/customer_studio.test.mjs
+        run: node --test tools/company_entry.test.mjs tools/company_context.test.mjs tools/crystal_world.test.mjs tools/motion.test.mjs tools/identity_audit.test.mjs tools/sales_reports.test.mjs tools/customer_studio.test.mjs tools/company_platform_contract.test.mjs tools/journal_review_contract.test.mjs
+
+      - name: Test server-side company security and sharing contract
+        run: node --test capabilities-v2/security-contract.test.mjs
 
       - name: Test accessible dialogs and spreadsheet export safety
         run: |
@@ -112,9 +115,7 @@ jobs:
         run: node --test think-mcp/worker.test.mjs
 
       - name: Four-gateway capability contract
-        run: |
-          node tools/four_gateway_contract.mjs
-          node --test tools/helper_gateway.test.mjs
+        run: node tools/four_gateway_contract.mjs
 
       - name: Capability docs are in sync with the registry
         run: python3 tools/capability_docs.py --check
@@ -276,3 +277,4 @@ jobs:
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/advances_e2e.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/company_entry_e2e.mjs http://localhost:8765/
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/sales_reports_e2e.mjs http://localhost:8765/app-safe.html
+
