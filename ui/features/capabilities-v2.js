@@ -133,13 +133,17 @@ async function remoteSession(){return api("/api/capabilities-v2/session")}
 async function remoteProviders(){return api("/api/capabilities-v2/providers")}
 async function listRemote(){return api("/api/capabilities-v2/workspaces")}
 async function ensureRemoteWorkspace(){
-  const c=cfg(),known=workspaceIdFor(c);
-  if(known)return known;
-  const company=companyRef(),name=String(company.name||document.querySelector("#biz-name")?.textContent||"SQC").trim(),year=new Date().getFullYear(),currency=String(company.currency||"SAR").toUpperCase();
+  const c=cfg(),known=workspaceIdFor(c),company=companyRef(),name=String(company.name||document.querySelector("#biz-name")?.textContent||"SQC").trim(),year=new Date().getFullYear(),currency=String(company.currency||"SAR").toUpperCase();
+  if(known){
+    if(!state.workspace||state.workspace.id!==known){
+      const list=await listRemote();state.workspace=(list.workspaces||[]).find(x=>x.id===known)||null;
+    }
+    if(state.workspace)return known;
+  }
   const list=await listRemote(),match=(list.workspaces||[]).find(x=>!x.archived_at&&String(x.name||"").replace(/\s+/g,"")===name.replace(/\s+/g,"")&&Number(x.business_year)===year&&String(x.currency||"").toUpperCase()===currency);
-  if(match)return setWorkspaceId(c,match.id);
+  if(match){state.workspace=match;return setWorkspaceId(c,match.id)}
   const d=await api("/api/capabilities-v2/workspaces",{method:"POST",body:JSON.stringify({name,business_year:year,currency,schema_version:"skosif-v3",effective_at:now(),sensitive:name.replace(/\s+/g,"")==="تصيف"})});
-  return setWorkspaceId(c,d.workspace.id);
+  state.workspace=d.workspace||null;return setWorkspaceId(c,d.workspace.id);
 }
 async function pushRemote(){
   const id=await ensureRemoteWorkspace(),current=await api("/api/capabilities-v2/workspaces/"+encodeURIComponent(id)+"/state"),base=current.workspace?.revision||0;
@@ -150,7 +154,8 @@ async function shareRemote(subject,role){
   return api("/api/capabilities-v2/workspaces/"+encodeURIComponent(id)+"/share",{method:"POST",body:JSON.stringify({subject,role})});
 }
 
-let root=null,state={tab:"overview",busy:false,session:null,providers:null,remoteError:""};
+let root=null,state={tab:"overview",busy:false,session:null,providers:null,workspace:null,remoteError:""};
+const workspaceRole=()=>state.workspace?.workspace_role||state.session?.session?.role||rolePreview();
 function badge(ok,label){return '<span class="skv2-badge '+(ok?"ok":"muted")+'">'+esc(label)+'</span>'}
 function overviewHTML(){
   const d=localData(),last=d.revisions[0],c=cfg(),s=safeSummary();
@@ -172,13 +177,14 @@ function overviewHTML(){
       ].map(x=>'<div><b>'+x[0]+'</b><span>'+x[1]+'</span></div>').join("")+'</div></section>'+
       '<section class="skv2-panel"><h4>Snapshot آمن من SQC</h4><div class="skv2-summary"><div><span>أصناف متابعة</span><b>'+s.inventorySummary.tracked+'</b></div><div><span>تنبيهات إعادة الطلب</span><b>'+s.inventorySummary.reorderAlerts+'</b></div><div><span>صافي التدفق '+esc(s.period.month)+'</span><b>'+money(s.financeSummary.net)+'</b></div><div><span>قوائم دخل محفوظة</span><b>'+s.reporting.savedIncomeStatements+'</b></div></div><p class="skv2-note">لا تُحفظ أسماء العملاء أو الجوالات أو الطلبات الخام أو الأسرار داخل Workspace snapshot.</p></section>'+
     '</div>'+
-    '<div class="skv2-actions"><button class="btn primary" id="skv2-save-local">حفظ Snapshot محلي</button><button class="btn" id="skv2-push" '+(!c.apiBase?'disabled':'')+'>مزامنة إلى D1</button><button class="btn" id="skv2-share" '+(!c.apiBase||!["owner","partner"].includes(state.session?.session?.role)?'disabled':'')+'>مشاركة الشركة</button><button class="btn" id="skv2-verify">فحص النزاهة</button></div>'+
+    '<div class="skv2-actions"><button class="btn primary" id="skv2-save-local">حفظ Snapshot محلي</button><button class="btn" id="skv2-push" '+(!c.apiBase?'disabled':'')+'>مزامنة إلى D1</button><button class="btn" id="skv2-share" '+(!c.apiBase||!["owner","partner"].includes(workspaceRole())?'disabled':'')+'>مشاركة الشركة</button><button class="btn" id="skv2-verify">فحص النزاهة</button></div>'+
+    (state.workspace?'<p class="skv2-note">صلاحيتك داخل هذه الشركة: <b>'+esc(ROLE_AR[workspaceRole()]||workspaceRole())+'</b>'+(state.workspace.sensitivity==="sensitive"?' · مساحة حساسة · وصول صريح فقط':'')+'</p>':'')+
     (last?'<div class="skv2-last"><span>آخر حفظ محلي</span><b>Revision '+last.revision+'</b><code>'+esc(last.state_hash.slice(0,24))+'…</code><small>'+new Date(last.saved_at).toLocaleString("ar-SA-u-nu-latn")+'</small></div>':'');
 }
 function rolesHTML(){
-  const r=state.session?.session?.role||rolePreview(),perms=state.session?.session?.capabilities||PERMISSIONS[r]||[];
+  const tenantRole=state.session?.session?.role||rolePreview(),r=workspaceRole(),perms=PERMISSIONS[r]||[];
   const names=["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","integrity:read"];
-  return '<div class="skv2-role-head"><div><b>الدور الفعلي</b><span>'+(state.session?badge(true,ROLE_AR[r]||r):badge(false,"معاينة محلية: "+(ROLE_AR[r]||r)) )+'</span></div>'+
+  return '<div class="skv2-role-head"><div><b>دور الشركة المفتوحة</b><span>'+(state.session?badge(true,ROLE_AR[r]||r):badge(false,"معاينة محلية: "+(ROLE_AR[r]||r)) )+'</span>'+(state.session&&tenantRole!==r?'<small>دور الـtenant: '+esc(ROLE_AR[tenantRole]||tenantRole)+'</small>':'')+'</div>'+
     (!state.session?'<label class="sk-field"><span>دور المعاينة</span><select id="skv2-role">'+Object.keys(PERMISSIONS).map(x=>'<option value="'+x+'"'+(r===x?" selected":"")+'>'+ROLE_AR[x]+'</option>').join("")+'</select></label>':'')+'</div>'+
     '<div class="skv2-matrix"><table><thead><tr><th>الصلاحية</th>'+Object.keys(PERMISSIONS).map(x=>'<th>'+ROLE_AR[x]+'</th>').join("")+'</tr></thead><tbody>'+names.map(p=>'<tr><td><code>'+p+'</code></td>'+Object.keys(PERMISSIONS).map(x=>'<td class="'+(authorizeRole(x,p)?"yes":"no")+'">'+(authorizeRole(x,p)?"✓":"—")+'</td>').join("")+'</tr>').join("")+'</tbody></table></div>'+
     '<div class="skv2-current"><b>الصلاحيات الحالية:</b> '+perms.map(p=>'<code>'+esc(p)+'</code>').join(" ")+'</div>';
@@ -223,10 +229,14 @@ function paint(){
   bind();
 }
 async function testRemote(){
-  state.remoteError="";state.session=null;state.providers=null;paint();
+  state.remoteError="";state.session=null;state.providers=null;state.workspace=null;paint();
   try{
-    const [s,p]=await Promise.all([remoteSession(),remoteProviders()]);
-    state.session=s;state.providers=p;toast("تم الاتصال بـ Capabilities v2","ok");
+    const [sessionData,providerData,workspaceData]=await Promise.all([remoteSession(),remoteProviders(),listRemote()]);
+    state.session=sessionData;state.providers=providerData;
+    const c=cfg(),known=workspaceIdFor(c),company=companyRef(),name=String(company.name||"").replace(/\s+/g,"");
+    state.workspace=(workspaceData.workspaces||[]).find(x=>x.id===known)||((workspaceData.workspaces||[]).find(x=>!x.archived_at&&String(x.name||"").replace(/\s+/g,"")===name))||null;
+    if(state.workspace&&!known)setWorkspaceId(c,state.workspace.id);
+    toast("تم الاتصال بـ Capabilities v2","ok");
   }catch(e){state.remoteError=e.message==="backend_not_configured"?"لم يتم ضبط عنوان Worker":e.message;toast("تعذر الاتصال: "+state.remoteError,"err")}
   paint();
 }
@@ -240,7 +250,7 @@ function bind(){
   const ir=$("#skv2-integrity-run",root);if(ir)ir.onclick=async()=>{const r=await verifyLocal(),box=$("#skv2-integrity-result",root);box.innerHTML='<div class="'+(r.valid?"skv2-okbox":"skv2-badbox")+'"><b>'+(r.valid?"السلسلة سليمة":"السلسلة غير سليمة")+'</b><span>'+(r.valid?("عدد الأحداث "+r.entries+" · head "+esc((r.head_hash||"").slice(0,24))+"…"):("الكسر عند #"+r.broken_seq))+'</span></div>'};
   const ac=$("#skv2-audit-csv",root);if(ac)ac.onclick=()=>SK.csv.download("SQC-capabilities-v2-audit",["seq","action","at","prev_hash","entry_hash"],localData().audit.map(x=>[x.seq,x.action,x.at,x.prev_hash,x.entry_hash]));
   const as=$("#skv2-api-save",root);if(as)as.onclick=()=>{let v=$("#skv2-api-base",root).value.trim().replace(/\/+$/,"");if(v&&!/^https:\/\//i.test(v))return toast("عنوان Worker يجب أن يبدأ بـ https://","err");const c=cfg();c.apiBase=v;c.workspaceIds={};save(CFG_KEY,c);testRemote()};
-  const clr=$("#skv2-api-clear",root);if(clr)clr.onclick=()=>{save(CFG_KEY,{apiBase:"",workspaceIds:{}});state.session=null;state.providers=null;state.remoteError="";toast("تم التحويل إلى الوضع المحلي","info");paint()};
+  const clr=$("#skv2-api-clear",root);if(clr)clr.onclick=()=>{save(CFG_KEY,{apiBase:"",workspaceIds:{}});state.session=null;state.providers=null;state.workspace=null;state.remoteError="";toast("تم التحويل إلى الوضع المحلي","info");paint()};
 }
 function settingsHook(node){
   if(node.querySelector("#skv2-settings-shortcut"))return;
