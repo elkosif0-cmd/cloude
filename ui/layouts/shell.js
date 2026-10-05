@@ -172,15 +172,18 @@ let navQ="";
 const nq=s=>String(s||"").toLowerCase().replace(/[ً-ٰٟ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").trim();
 function paintNav(){
   const nav=$("#nav");if(!nav||!core())return;
-  const cur=core().view(),open=navState();
+  const cur=core().view(),open=navState(),gateways=SK.caps.gateways?SK.caps.gateways():[];
   let html="";
-  SK.caps.groups().forEach(g=>{
-    const items=SK.caps.hubsInGroup(g.id).map(c=>[c,hubPages(c.id,cur)]).filter(([,pg])=>pg.length);
+  (gateways.length?gateways:SK.caps.groups()).forEach(g=>{
+    const sections=(gateways.length?SK.caps.groupsInGateway(g.id):[g]).map(gr=>{
+      const items=SK.caps.hubsInGroup(gr.id).filter(c=>!gateways.length||c.gateway===g.id).map(c=>[c,hubPages(c.id,cur)]).filter(([,pg])=>pg.length);
+      return[gr,items];
+    }).filter(([,items])=>items.length);
+    const items=sections.flatMap(([,xs])=>xs);
     if(!items.length)return;
-    const here=items.some(([,pg])=>pg.some(x=>x.id===cur)),isOpen=here||(open[g.id]!==undefined?open[g.id]:g.id==="home");
-    html+='<div class="skn-group'+(isOpen?'':' closed')+(here?' here':'')+'" role="group" aria-label="'+esc(g.label)+'" data-g="'+g.id+'">'+
-      '<button type="button" class="nav-group skn-gh" data-g="'+g.id+'" aria-expanded="'+isOpen+'"><span class="skn-gi">'+(SK.icons[g.icon]||"")+'</span><span>'+esc(g.label)+'</span><i class="skn-gc">'+items.length+'</i>'+CHEV+'</button>'+
-      items.map(([c,pg])=>navButton(c,cur,pg)).join("")+'</div>';
+    const here=items.some(([,pg])=>pg.some(x=>x.id===cur)),isOpen=here||(open[g.id]!==undefined?open[g.id]:g.id==="accounting");
+    const inner=sections.map(([gr,xs])=>'<div class="skn-subgroup" data-sg="'+esc(gr.id)+'">'+(sections.length>1?'<div class="skn-sublabel">'+esc(gr.label)+'</div>':'')+xs.map(([c,pg])=>navButton(c,cur,pg)).join("")+'</div>').join("");
+    html+='<div class="skn-group'+(isOpen?'':' closed')+(here?' here':'')+'" role="group" aria-label="'+esc(g.label)+'" data-g="'+g.id+'"><button type="button" class="nav-group skn-gh" data-g="'+g.id+'" aria-expanded="'+isOpen+'"><span class="skn-gi">'+(SK.icons[g.icon]||"")+'</span><span>'+esc(g.label)+'</span><i class="skn-gc">'+items.length+'</i>'+CHEV+'</button>'+inner+'</div>';
   });
   if(html!==lastSig||!nav.querySelector(".skn-group")){nav.innerHTML=html;lastSig=html}
   navSearch();filterNav();
