@@ -28,7 +28,7 @@ const REPORT_TARGETS=Object.freeze({
 });
 const clean=(v,n=160)=>String(v==null?"":v).replace(/\s+/g," ").trim().slice(0,n);
 const cur=()=>window.SK&&SK.company&&SK.company.current?SK.company.current():{id:"",name:""};
-const blank=id=>({version:1,companyId:id,profile:{activity:"",country:cur().country||"SA",currency:cur().currency||"SAR",fiscalYearStart:"01-01",taxMode:(cur().country==="EG"?"income":"zakat"),vatNo:"",crNo:"",address:"",notes:""},definitions:Object.fromEntries(Object.keys(TYPES).map(k=>[k,[]])),installedTools:[],documents:[],reporting:{target:"full",lastTrialBalance:null,lastStatements:null},auditHandoffs:[],standardTraces:[],updatedAt:null});
+const blank=id=>({version:1,companyId:id,profile:{activity:"",country:cur().country||"SA",currency:cur().currency||"SAR",fiscalYearStart:"01-01",taxMode:(cur().country==="EG"?"income":"zakat"),vatNo:"",crNo:"",address:"",notes:""},definitions:Object.fromEntries(Object.keys(TYPES).map(k=>[k,[]])),installedTools:[],documents:[],reporting:{target:"full",lastTrialBalance:null,lastStatements:null,suggestedMeasures:[]},mpms:[],auditHandoffs:[],standardTraces:[],updatedAt:null});
 function state(){
   const id=cur().id||"";
   const v=load(KEY,null);
@@ -37,7 +37,9 @@ function state(){
   for(const k of Object.keys(TYPES))if(!Array.isArray(v.definitions?.[k]))(v.definitions||(v.definitions={}))[k]=[];
   if(!Array.isArray(v.installedTools))v.installedTools=[];
   if(!Array.isArray(v.documents))v.documents=[];
-  if(!v.reporting||typeof v.reporting!=="object")v.reporting={target:"full",lastTrialBalance:null,lastStatements:null};
+  if(!v.reporting||typeof v.reporting!=="object")v.reporting={target:"full",lastTrialBalance:null,lastStatements:null,suggestedMeasures:[]};
+  if(!Array.isArray(v.reporting.suggestedMeasures))v.reporting.suggestedMeasures=[];
+  if(!Array.isArray(v.mpms))v.mpms=[];
   if(!Array.isArray(v.auditHandoffs))v.auditHandoffs=[];
   if(!Array.isArray(v.standardTraces))v.standardTraces=[];
   return v;
@@ -180,10 +182,39 @@ function addStandardTrace(input={}){
   const s=state(),row={id:uid("std"),at:new Date().toISOString(),operation:clean(input.operation,120),standard:clean(input.standard,80),source:clean(input.source,500),result:clean(input.result,500),provider:clean(input.provider,80),approved:input.approved===true};
   s.standardTraces.push(row);if(s.standardTraces.length>500)s.standardTraces=s.standardTraces.slice(-500);commit(s,"standard.trace",{id:row.id,standard:row.standard});return row;
 }
-function saveReportResult(tb,fs,sourceName=""){
+function saveReportResult(tb,fs,sourceName="",suggestedMeasures=[]){
   const s=state();s.reporting.lastTrialBalance={at:new Date().toISOString(),sourceName:clean(sourceName,180),rows:tb.rows.length,balanced:!!tb.balanced,errors:tb.errors.length,unclassified:tb.unclassified,difference:String(tb.difference)};
   s.reporting.lastStatements={at:new Date().toISOString(),mappedPct:fs.checks.mappedPct,balanced:fs.checks.balanced,cashTies:fs.checks.cashTies,unmapped:fs.unmapped.length,keys:Object.fromEntries(Object.entries(fs.keys).map(([k,v])=>[k,{current:String(v.current),prior:v.prior==null?null:String(v.prior)}]))};
-  commit(s,"reporting.generated",{sourceName,rows:tb.rows.length,mappedPct:fs.checks.mappedPct});return s.reporting;
+  s.reporting.suggestedMeasures=(Array.isArray(suggestedMeasures)?suggestedMeasures:[]).slice(0,20).map(m=>({key:clean(m.key,60),name:clean(m.ar||m.name,120),value:String(m.value??0),prior:m.prior==null?null:String(m.prior),note:clean(m.note,600),
+    ifrs18Candidate:m.key==="ebitda",nearestSubtotal:m.key==="ebitda"?"operating":"",rows:(m.rows||[]).slice(0,20).map(r=>({label:clean(r.ar||r.label,160),amount:String(r.amount??0)}))}));
+  commit(s,"reporting.generated",{sourceName,rows:tb.rows.length,mappedPct:fs.checks.mappedPct,suggestedMeasures:s.reporting.suggestedMeasures.length});return s.reporting;
+}
+const MPM_SUBTOTALS=Object.freeze({operating:"الربح التشغيلي",pbfz:"الربح قبل التمويل والزكاة/الضريبة",pbz:"الربح قبل الزكاة/الضريبة",profit:"صافي ربح/خسارة الفترة"});
+function mpms(){return state().mpms.map(x=>({...x}))}
+function registerMpm(input={}){
+  const s=state(),name=clean(input.name,120),sourceKey=clean(input.sourceKey,60),nearestSubtotal=clean(input.nearestSubtotal,40),purpose=clean(input.purpose,600),communicationSource=clean(input.communicationSource,300);
+  if(!name)throw new Error("اسم مقياس الأداء مطلوب");
+  if(!Object.hasOwn(MPM_SUBTOTALS,nearestSubtotal))throw new Error("اختر أقرب مجموع IFRS للمطابقة");
+  if(!purpose)throw new Error("سبب استخدام المقياس مطلوب");
+  if(!communicationSource)throw new Error("حدد أين تستخدم الإدارة المقياس في الاتصالات العامة");
+  const existing=s.mpms.find(x=>sourceKey&&x.sourceKey===sourceKey);
+  if(existing)throw new Error("هذا المقياس مسجل بالفعل");
+  const row={id:uid("mpm"),name,sourceKey,nearestSubtotal,purpose,communicationSource,method:clean(input.method||"مشتق من بيانات القوائم",300),approved:false,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+  s.mpms.push(row);commit(s,"ifrs18.mpm.register",{id:row.id,sourceKey,nearestSubtotal});return {...row};
+}
+function removeMpm(id){
+  const s=state(),before=s.mpms.length;s.mpms=s.mpms.filter(x=>x.id!==id);if(s.mpms.length===before)return false;commit(s,"ifrs18.mpm.remove",{id});return true;
+}
+function approveMpm(id,approved=true){
+  const s=state(),row=s.mpms.find(x=>x.id===id);if(!row)return false;row.approved=approved===true;row.updatedAt=new Date().toISOString();
+  commit(s,"ifrs18.mpm.approval",{id,approved:row.approved});addStandardTrace({operation:"ifrs18-mpm-review",standard:"IFRS 18",source:row.communicationSource,result:(row.approved?"approved: ":"draft: ")+row.name,approved:row.approved});return true;
+}
+function mpmReconciliation(id){
+  const s=state(),row=s.mpms.find(x=>x.id===id);if(!row)return null;
+  const measure=(s.reporting.suggestedMeasures||[]).find(x=>x.key===row.sourceKey),subtotal=s.reporting.lastStatements?.keys?.[row.nearestSubtotal]||null;
+  const value=measure?BigInt(measure.value):null,nearest=subtotal?BigInt(subtotal.current):null;
+  return{mpm:{...row},measure:measure?{...measure}:null,nearestLabel:MPM_SUBTOTALS[row.nearestSubtotal],nearestValue:nearest==null?null:String(nearest),difference:value==null||nearest==null?null:String(value-nearest),
+    complete:!!(measure&&subtotal&&row.purpose&&row.communicationSource),humanApproved:row.approved===true};
 }
 function reportingStatus(){
   const s=state(),target=REPORT_TARGETS[s.reporting.target]||REPORT_TARGETS.full,types=new Set(documents().map(d=>d.type));
@@ -223,5 +254,5 @@ function searchCompany(query){
   const limited=hits.slice(0,20),text=limited.length?("نتائج داخل «"+c.name+"»:\n"+limited.map(x=>"• "+x.title+(x.detail?" — "+x.detail:"")).join("\n")):"لم أجد نتيجة مطابقة داخل بيانات الشركة الحالية.";
   return{text,matches:limited};
 }
-window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,definitions,addDefinition,removeDefinition,assetDepreciation,fixedAssetSummary,fixedAssetJournal,installed,setTool,reportingTarget,reportingStatus,inferType,ingestFiles,documents,readDocument,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,markAuditHandoff,setAuditHandoffStatus,addStandardTrace,saveReportResult,search:searchCompany});
+window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,definitions,addDefinition,removeDefinition,assetDepreciation,fixedAssetSummary,fixedAssetJournal,installed,setTool,reportingTarget,reportingStatus,mpms,registerMpm,removeMpm,approveMpm,mpmReconciliation,mpmSubtotals:()=>MPM_SUBTOTALS,inferType,ingestFiles,documents,readDocument,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,markAuditHandoff,setAuditHandoffStatus,addStandardTrace,saveReportResult,search:searchCompany});
 })();
