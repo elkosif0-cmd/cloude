@@ -140,11 +140,18 @@ function redact(text){
 
 /* Shared, nested-safe focus containment. Call the returned release after removing/closing
    the panel. Capture the invoker before focusing a dialog; never use a global last button. */
-const modalStack=[];
+const modalStack=[];/* FOCUS_DIAG_BEGIN */
+// Explicit opt-in, preview-host/public-data-free route only. Console only; no persistence.
+const focusDebug=(()=>{try{const u=new URL(location.href);return u.hostname.endsWith(".s-kosif.pages.dev")&&/^\/app-safe(?:\.html)?$/.test(u.pathname)&&u.searchParams.get("sqcFocusDebug")==="1"}catch{return false}})();
+function traceFocus(event){if(!focusDebug)return;try{
+  const active=document.activeElement,id=active?.id||"";
+  console.info("SQC_FOCUS_DIAG "+JSON.stringify({event,time:typeof performance!=="undefined"?performance.now():Date.now(),focusTag:active?.tagName||null,focusId:/^(skp-inp|skp-o[0-9]+|pg-title)$/.test(id)?id:null,visible:document.visibilityState==="visible",fullscreen:!!document.fullscreenElement,documentFocus:document.hasFocus()}));
+}catch{}}
+/* FOCUS_DIAG_END */
 const modalChanged=()=>{
   for(const entry of [...modalStack])try{
-    const top=modalStack.at(-1),ownedFocus=document.hasFocus?.()!==false&&document.visibilityState!=="hidden";
-    const recover=()=>{if(ownedFocus&&modalStack.at(-1)===top)top?.recover?.()};
+    const top=modalStack.at(-1),ownedFocus=document.hasFocus?.()!==false&&document.visibilityState!=="hidden";/* FOCUS_DIAG_BEGIN */traceFocus(ownedFocus?"core.notify.focus-eligible":"core.notify.focus-ineligible");/* FOCUS_DIAG_END */
+    const recover=()=>{/* FOCUS_DIAG_BEGIN */traceFocus(ownedFocus?"core.recover.token-eligible":"core.recover.token-ineligible");traceFocus(modalStack.at(-1)===top?"core.recover.current-token":"core.recover.stale-token");/* FOCUS_DIAG_END */if(ownedFocus&&modalStack.at(-1)===top)top?.recover?.()};
     if(modalStack.includes(entry))entry.onTopChange?.(entry===top,top?.root,recover);
   }catch{}
 };
@@ -158,13 +165,13 @@ function modalFocus(root,invoker=document.activeElement,options={}){
   const key=e=>{if(modalStack.at(-1)!==entry||e.key!=="Tab")return;const items=focusable(),at=document.activeElement;
     if(!items.length){e.preventDefault();first();return}
     if(!root.contains(at)||(e.shiftKey?at===items[0]:at===items.at(-1))){e.preventDefault();(e.shiftKey?items.at(-1):items[0]).focus()}};
-  const contain=e=>{if(modalStack.at(-1)===entry&&!root.contains(e.target))first()};
+  const contain=e=>{/* FOCUS_DIAG_BEGIN */traceFocus("core.contain.focusin");/* FOCUS_DIAG_END */if(modalStack.at(-1)===entry&&!root.contains(e.target))first()};
   // Fullscreen completion may reset BODY after a new layer acquired focus.
   // Recover only this live registration and never overwrite a meaningful target.
-  entry.recover=()=>{
+  entry.recover=()=>{/* FOCUS_DIAG_BEGIN */traceFocus("core.recover.enter");/* FOCUS_DIAG_END */
     if(released||!root.isConnected||modalStack.at(-1)!==entry||document.hasFocus?.()===false||document.visibilityState==="hidden")return;
-    if(document.activeElement!==document.body&&document.activeElement!==document.documentElement)return;
-    const items=focusable();if(items.includes(lastFocus))lastFocus.focus({preventScroll:true});else first();
+    if(document.activeElement!==document.body&&document.activeElement!==document.documentElement)return;/* FOCUS_DIAG_BEGIN */traceFocus("core.recover.guards-passed");/* FOCUS_DIAG_END */
+    const items=focusable();if(items.includes(lastFocus))lastFocus.focus({preventScroll:true});else first();/* FOCUS_DIAG_BEGIN */traceFocus("core.recover.focus-attempted");/* FOCUS_DIAG_END */
   };
   /* Embedded documents supply their own cross-document keyboard handling, but
      participate in the same ownership stack as confirm/form and other panels. */

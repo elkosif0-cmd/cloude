@@ -91,3 +91,16 @@ test('reentrant modal registration cannot reannounce the previous top as current
  h.context.SK.modalFocus(a,null,{managed:true,restore:false,onTopChange:top=>{if(armed&&!top){armed=false;h.context.SK.modalFocus(c,null,{managed:true,restore:false})}}});armed=true;
  h.context.SK.modalFocus(b,null,{managed:true,restore:false,onTopChange:top=>lastB=top});assert.equal(lastB,false,'new C keeps ownership after outer notifications finish');
 });
+
+// Diagnostic-only candidate: logger stays off outside explicit synthetic preview opt-in.
+for(const module of ['output','sk'])test('focus diagnostic '+module+' gate, allowlisted fields and reversible source',async()=>{
+ const fs=await import('node:fs'),vm=await import('node:vm');const source=fs.readFileSync(new URL('../ui/core/'+module+'.js',import.meta.url),'utf8');
+ const blocks=[...source.matchAll(/\/\* FOCUS_DIAG_BEGIN \*\/(.*?)\/\* FOCUS_DIAG_END \*\//gs)].map(m=>m[1]);const helper=blocks.find(b=>b.includes('function traceFocus'));
+ assert.ok(helper);const logger=helper.slice(0,helper.indexOf('\nif(focusDebug)')<0?helper.length:helper.indexOf('\nif(focusDebug)'));
+ for(const [url,enabled]of [['https://test.s-kosif.pages.dev/app-safe?sqcFocusDebug=1',true],['https://test.s-kosif.pages.dev/app-safe.html?sqcFocusDebug=1',true],['https://test.s-kosif.pages.dev/app-safe',false],['https://s-kosif.pages.dev/app-safe?sqcFocusDebug=1',false],['https://test.s-kosif.pages.dev/secure/?sqcFocusDebug=1',false],['https://example.invalid/app-safe?sqcFocusDebug=1',false]]){
+  const messages=[],context={URL,Date,location:{href:url},document:{activeElement:{tagName:'INPUT',id:'private-company-id',value:'typed confidential value',textContent:'sensitive report'},visibilityState:'visible',fullscreenElement:null,hasFocus:()=>true},console:{info:m=>messages.push(m)}};
+  vm.runInNewContext(logger+';traceFocus("test.event");',context);assert.equal(messages.length,enabled?1:0);
+  if(enabled){const raw=messages[0];assert.ok(raw.startsWith('SQC_FOCUS_DIAG '));const data=JSON.parse(raw.slice('SQC_FOCUS_DIAG '.length));assert.deepEqual(Object.keys(data).sort(),['event','time','focusTag','focusId','visible','fullscreen','documentFocus'].sort());assert.equal(data.focusId,null);assert.ok(!raw.includes('private-company')&&!raw.includes('confidential')&&!raw.includes('sensitive report'))}
+ }
+ const {createHash}=await import("node:crypto");const baseline={output:"296648bd27f61e08b27b10d1fa5c9e01d1e3d797870be741b52bf42c6895d135",sk:"2136b742818ca85e58181042a1a80ef30276ac94ed778f36262c0d4445842d5e"};assert.equal(createHash("sha256").update(source.replace(/\/\* FOCUS_DIAG_BEGIN \*\/.*?\/\* FOCUS_DIAG_END \*\//gs,"")).digest("hex"),baseline[module],"Removing diagnostics reproduces exact original source");
+});

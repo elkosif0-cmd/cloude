@@ -13,7 +13,25 @@ const realOpen=window.open.bind(window);
 let cur=null;
 /* Optional report guards are scoped to the exact preview session. Legacy reports
    do not install one and retain their existing output behavior. */
-const sessions=new WeakMap();
+const sessions=new WeakMap();/* FOCUS_DIAG_BEGIN */
+// Explicit opt-in, preview-host/public-data-free route only. Console only; no persistence.
+const focusDebug=(()=>{try{const u=new URL(location.href);return u.hostname.endsWith(".s-kosif.pages.dev")&&/^\/app-safe(?:\.html)?$/.test(u.pathname)&&u.searchParams.get("sqcFocusDebug")==="1"}catch{return false}})();
+function traceFocus(event){if(!focusDebug)return;try{
+  const active=document.activeElement,id=active?.id||"";
+  console.info("SQC_FOCUS_DIAG "+JSON.stringify({event,time:typeof performance!=="undefined"?performance.now():Date.now(),focusTag:active?.tagName||null,focusId:/^(skp-inp|skp-o[0-9]+|pg-title)$/.test(id)?id:null,visible:document.visibilityState==="visible",fullscreen:!!document.fullscreenElement,documentFocus:document.hasFocus()}));
+}catch{}}
+
+if(focusDebug){
+  for(const type of ["focus","blur"])window.addEventListener(type,()=>traceFocus("window."+type),true);
+  for(const type of ["focusin","focusout","visibilitychange","fullscreenchange"])document.addEventListener(type,()=>traceFocus("document."+type),true);
+  for(const type of ["keydown","keyup"])document.addEventListener(type,e=>{
+    const label=(e.ctrlKey||e.metaKey)&&(e.code==="KeyK"||e.key?.toLowerCase()==="k")?"palette":e.code==="F1"||e.code==="Slash"&&e.shiftKey?"help":null;
+    if(!label)return;traceFocus("key."+label+"."+type);
+    Promise.resolve().then(()=>traceFocus("key."+label+".microtask."+(e.defaultPrevented?"canceled":"uncanceled")));
+    requestAnimationFrame(()=>traceFocus("key."+label+".animation-frame"));
+  },true);
+}
+/* FOCUS_DIAG_END */
 /* Focus belongs to the live preview/presentation only. A detached output window
    is deliberately not a layer in this document. No document-wide aria-hidden. */
 const FOCUSABLE='button,input:not([type="hidden"]),select,textarea,a[href],area[href],summary,iframe,[tabindex],[contenteditable="true"],audio[controls],video[controls]';
@@ -44,11 +62,11 @@ function bindLayerFrame(layer){
     d.removeEventListener("focusin",layer.focus,true);d.addEventListener("focusin",layer.focus,true);
   }catch{}
 }
-function exitLayerFullscreen(layer,recover=layer.recoverTop){try{
+function exitLayerFullscreen(layer,recover=layer.recoverTop){try{/* FOCUS_DIAG_BEGIN */traceFocus("output.exit.enter");/* FOCUS_DIAG_END */
   const element=document.fullscreenElement;if(!layer.exitPromise&&(!element||!layer.wrap.contains(element)))return;
   // Reuse the native transition if a newer modal opens before it settles.
-  if(!layer.exitPromise)layer.exitPromise=Promise.resolve(document.exitFullscreen()).finally(()=>{layer.exitPromise=null});
-  layer.exitPromise.then(()=>{if(!document.fullscreenElement)recover?.()}).catch(()=>{});
+  if(!layer.exitPromise)layer.exitPromise=Promise.resolve(document.exitFullscreen()).finally(()=>{/* FOCUS_DIAG_BEGIN */traceFocus("output.exit.finally");/* FOCUS_DIAG_END */layer.exitPromise=null});/* FOCUS_DIAG_BEGIN */traceFocus("output.exit.request-returned");/* FOCUS_DIAG_END */
+  layer.exitPromise.then(()=>{/* FOCUS_DIAG_BEGIN */traceFocus("output.exit.resolved");/* FOCUS_DIAG_END */if(!document.fullscreenElement)recover?.()}).catch(()=>{/* FOCUS_DIAG_BEGIN */traceFocus("output.exit.rejected");/* FOCUS_DIAG_END */});
 }catch{}}
 /* Persistent palette wrappers may have been background before they became top.
    Release only our oldest recorded inert state, never another owner's original. */
@@ -76,9 +94,9 @@ function startLayer(owner,dismiss){
   layer.hide=()=>{if(!owns())return;for(const node of document.body.children){if(node===layer.wrap||(layer.release&&(node===cur?.wrap||node===pres?.wrap)))continue;const current=node.getAttribute("inert");if(layer.background.has(node)&&current!==null&&current!==""&&current!==layer.background.get(node))continue;if(!layer.background.has(node))layer.background.set(node,current);node.setAttribute("inert","")}};
   layer.wrap.setAttribute("tabindex","-1");
   if(SK.modalFocus)layer.release=SK.modalFocus(layer.wrap,null,{managed:true,restore:false,onTopChange:(top,root,recover)=>{
-    layer.recoverTop=recover;layer.top=top;if(!layer.active)return;
+    layer.recoverTop=recover;layer.top=top;if(!layer.active)return;/* FOCUS_DIAG_BEGIN */traceFocus(top?"output.layer.top":"output.layer.suspended");/* FOCUS_DIAG_END */
     if(!top){revealManagedRoot(root);if(owner.session)exitLayerFullscreen(layer)}
-    if(!top&&!layer.suspended){layer.suspended={inert:layer.wrap.getAttribute("inert")};layer.wrap.setAttribute("inert","")}
+    if(!top&&!layer.suspended){layer.suspended={inert:layer.wrap.getAttribute("inert")};layer.wrap.setAttribute("inert","")}/* FOCUS_DIAG_BEGIN */traceFocus("output.layer.after-inert");/* FOCUS_DIAG_END */
     if(top&&layer.suspended){const {inert}=layer.suspended;delete layer.suspended;if(layer.wrap.getAttribute("inert")===""){if(inert===null)layer.wrap.removeAttribute("inert");else layer.wrap.setAttribute("inert",inert)}}
     if(top&&layer.started)layer.hide();
   }});
@@ -272,7 +290,7 @@ function present(session){
     let x0=null;fd.addEventListener("touchstart",e=>{x0=e.touches[0].clientX},{passive:true});
     fd.addEventListener("touchend",e=>{if(x0==null||pres!==presentation||!validSync(session))return;const dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)>50)go(pres.i+(dx>0?1:-1))},{passive:true});
     go(0);});
-  try{wrap.requestFullscreen&&wrap.requestFullscreen().then(()=>{if(pres!==presentation||presentation.layer.top===false)exitLayerFullscreen(presentation.layer)}).catch(()=>{})}catch{}
+  try{wrap.requestFullscreen&&wrap.requestFullscreen().then(()=>{/* FOCUS_DIAG_BEGIN */traceFocus("output.request-fullscreen.resolved");/* FOCUS_DIAG_END */if(pres!==presentation||presentation.layer.top===false)exitLayerFullscreen(presentation.layer)}).catch(()=>{})}catch{}
   SK.audit&&SK.audit.log("report",{act:"present",title:title.slice(0,60)});
 }
 function go(i){
