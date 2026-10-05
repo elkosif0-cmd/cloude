@@ -12,7 +12,7 @@ const {esc,load,save,toast}=SK;
 const REG="sqc_helper_space_v1",ASKED="sqc_space_chosen",USERS="sqc_helper_users_v1",USER_ASKED="sqc_helper_user_chosen",DB="sqc-spaces",APPDB="aghnam-app-v7";
 /* the front door (index.html): its one-time choice, the last company opened, and the space that holds the private
    company's data (it opens only through the front door's password, never as an open card) */
-const INTENT="sqc_company_intent",LAST="sqc_last_company",PRIVATE="sqc_private_space";
+const INTENT="sqc_company_intent",LAST="sqc_last_company",PRIVATE="sqc_private_space",AFTER="sqc_company_after_open";
 /* the helper tools' own data — per company */
 const HELPER_KEY=k=>/^aghnam(?!-v12-theme|-pricing-auth|-pricing-pass|-pricing-ui|-typesafe|-v17-runtime|-v19-(leader|tabs|write)|-v21-)/.test(k)&&!/^aghnam_v29_jev_log$/.test(k)
   ||/^skosif_(v3\d|v38)_/.test(k)||/^skosif_(ledger_v1|advances_v1|erp_[a-z_]+|purchasing_v1|followup_v1|inv_[a-z_]+|rep_pl|report_pack_v1|ar_paste|commerce_warm_v1|cost_rules_v1|income_statements_v1|product_flow_v1|ops_[a-z_]+|company_profile_v1|company_definitions_v1|company_tools_v1|reporting_intake_v1)$/.test(k)
@@ -122,7 +122,7 @@ function blank(snap){
   return !rows&&!items&&!books&&!ls["skosif_demo_v1"];
 }
 async function switchTo(id,name,opts={}){
-  if(busy)return false;const cur=current(),who=user();
+  if(busy)return false;if(opts.after)sessionStorage.setItem(AFTER,String(opts.after));const cur=current(),who=user();
   if(id===cur.id&&!opts.fresh){sessionStorage.setItem(ASKED,"1");hideChooser();return true}
   busy=true;scopeBegin();
   try{
@@ -154,7 +154,7 @@ async function newCompany(){
   if(!v)return;
   const id=SK.ui&&SK.ui.uid?SK.ui.uid("co"):"co-"+Date.now().toString(36);
   const cd=load("skosif_companies_v1",{})||{};cd.companies=cd.companies||[];cd.periods=cd.periods||[];cd.companies.push({id,name:v.name,country:v.cur==="EGP"?"EG":"SA",currency:v.cur});save("skosif_companies_v1",cd);
-  await switchTo(id,v.name,{fresh:true});
+  await switchTo(id,v.name,{fresh:true,after:"masterdata"});
 }
 
 /* ---------- the chooser: asked once per session when the helpers are first opened ---------- */
