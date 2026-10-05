@@ -248,7 +248,7 @@ function paintTop(){
 /* phones: bottom tab bar — in the page flow (sticky), never over content. Four screens the user
    picks in «الأجهزة والمزامنة» (prefs.tabs), then «المزيد» opens the drawer. */
 /* default four chosen with Jev (hybrid: daily selling + the new risk screen, p=0.75); notifications live on the bell */
-const TABS=["tbreview","helperdesk","codex","auditbench"];
+const TABS=["ledger","execreports","tbreview","helperdesk"];
 const SHORT={dash:"الرئيسية",helperdesk:"الخريطة",tbreview:"المراجعة",codex:"المعايير",auditbench:"المرجع",commerce:"الطلبات",tasks:"المهام",inventory:"المخزون",zatca:"الفاتورة",customers:"العملاء",followup:"المتابعة",offers:"العروض",
   catalog:"الأسعار",sim:"التسعير",purchasing:"الشراء",suppliers:"الموردون",cash:"النقد",receivables:"الذمم",ledger:"الدفاتر",jev:"Jev",council:"المجلس",
   execreports:"التقارير",scanner:"الماسح",labels:"الملصقات",operations:"المناسبات",b2bcredit:"الائتمان",traceability:"التبريد",decision:"القرار",
