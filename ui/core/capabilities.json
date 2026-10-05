@@ -1353,7 +1353,8 @@
    "decision": "Keep",
    "kw": "أرشيف سجل نسخة",
    "adv": false,
-   "en": "Archive & Changes"
+   "en": "Archive & Changes",
+   "hubLabel": "الأرشيف والأنظمة الأصلية"
   },
   {
    "id": "tbreview",

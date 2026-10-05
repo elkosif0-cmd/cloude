@@ -60,7 +60,7 @@ Total capabilities: **74** (screens). Cross-cutting capabilities are listed afte
 | `execreports` | التقارير التنفيذية | ui/reports.js | التقارير والبيانات › يومي | `skosif_rep_pl`, `IDB customers`, `IDB sales_lines`, `skosif_v31_supplier_batches` | SKosifCore, IndexedDB | Working | Keep |
 | `reports` | مركز الطباعة | core | التقارير والبيانات › الطباعة والتصدير › يومي | `aghnam-pricing-v3`, `aghnam-pricing-prints-v1` | SKosifCore, Engine | Working | Keep |
 | `exports` | مركز التصدير | ui/features/workspace.js | التقارير والبيانات › الطباعة والتصدير › يومي | `كل المفاتيح` | SKosifCore | Working | Rebuild |
-| `archive` | الأرشيف والتغييرات | core | التقارير والبيانات › الأرشيف والتغييرات › يومي | `aghnam-pricing-v3`, `IDB pricing_snapshots` | SKosifCore, Engine, IndexedDB | Working | Keep |
+| `archive` | الأرشيف والتغييرات | core | التقارير والبيانات › الأرشيف والأنظمة الأصلية › يومي | `aghnam-pricing-v3`, `IDB pricing_snapshots` | SKosifCore, Engine, IndexedDB | Working | Keep |
 | `tbreview` | ملف المراجعة | ui/features/tb-review.js + ui/features/report-docs.js + ui/features/integrated-report.js + ui/core/ai.js + ui/components/xlsx.js + SKEngines.audit.{tbReview,aiReview,aiProviders,documentCheck,governance,fieldwork} + ui/features/tb-fieldwork.js + SKEngines.reports.{tbImport,statements,analysis,notes,peerBenchmarks,narrative,globalCorpus} | المراجعة والمراجعة المالية › مركز المراجعة › يومي | `skosif_tbreview_v1`, `IDB skosif-tbreview-docs`, `skosif_ai_keys (الجهاز فقط)` | SKosifCore, IndexedDB | Working | Rebuild |
 | `codex` | المدونة المحاسبية والمعايير | ui/features/codex.js + SKEngines.audit.{codex,standardsUpdate} | المراجعة والمراجعة المالية › المعايير والمدونة › يومي | `skosif_codex_updates_v1` | SKosifCore | Working | Rebuild |
 | `auditbench` | المرجع العالمي للمراجعة | ui/features/audit-bench.js + SKEngines.audit.{globalBenchmarks,materiality} + SKEngines.reports.{peerBenchmarks,globalCorpus} | المراجعة والمراجعة المالية › المعايير والمدونة › يومي | `لا بيانات محلية — مرجع ثابت من حزمة البحث العالمية` | SKosifCore | Working | Rebuild |
@@ -79,7 +79,7 @@ Total capabilities: **74** (screens). Cross-cutting capabilities are listed afte
 | `governance` | الحوكمة والجاهزية | core (v18/v19) + ui/core/audit.js | العام › الحوكمة والصلاحيات › يومي | `aghnam-pricing-v3`, `skosif_audit_trail` | SKosifCore, Engine | Working | Keep |
 | `health` | الصحة والتشخيص | core (v19.8) + ui/jev.js | العام › الحوكمة والصلاحيات › يومي | `aghnam-v17-runtime-errors`, `skosif_error_log` | SKosifCore, Engine | Working | Keep |
 | `capabilitiesv2` | الصلاحيات ومساحات العمل | ui/capabilities-v2.js + capabilities-v2/worker.js | العام › الحوكمة والصلاحيات › يومي | `skosif_cap_v2_config`, `skosif_cap_v2_local_workspace` | SKosifCore | Working | Keep |
-| `legacyapps` | الأنظمة الأصلية | ui/features/legacy-apps.js | التقارير والبيانات › الأرشيف والتغييرات › يومي | `sales_customer_followup_* (CRM V8.2)`, `aghnam_alwadi_dashboard_v11 (V31/V33/V40)` | SKosifCore | Working | Restore |
+| `legacyapps` | الأنظمة الأصلية | ui/features/legacy-apps.js | التقارير والبيانات › الأرشيف والأنظمة الأصلية › يومي | `sales_customer_followup_* (CRM V8.2)`, `aghnam_alwadi_dashboard_v11 (V31/V33/V40)` | SKosifCore | Working | Restore |
 
 ## Cross-cutting capabilities
 

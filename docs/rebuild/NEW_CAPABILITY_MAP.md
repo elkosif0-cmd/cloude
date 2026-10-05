@@ -60,7 +60,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | التقارير التنفيذية | `execreports` | التقارير والبيانات › التقارير التنفيذية | MANAGEMENT | admin, accountant, sales, viewer |
 | مركز التقارير | `reports` | التقارير والبيانات › الطباعة والتصدير › مركز الطباعة | UTILITIES | admin, accountant, sales, viewer |
 | Grand Fusion reports.exports | `exports` | التقارير والبيانات › الطباعة والتصدير › مركز التصدير | UTILITIES | admin, accountant, sales |
-| الأرشيف | `archive` | التقارير والبيانات › الأرشيف والتغييرات › الأرشيف والتغييرات | MANAGEMENT | admin, accountant |
+| الأرشيف | `archive` | التقارير والبيانات › الأرشيف والأنظمة الأصلية › الأرشيف والتغييرات | MANAGEMENT | admin, accountant |
 | جديد — دمج smart-trial-balance-review (مجلس Gemini والجولات) و kosif-audit-pro (القوائم والتحليل) و Moon (المخاطر والرأي) و SEE (التصنيف والجاهزية) + استوديو KOSIF للمراجعة (تبويب «الاستوديو المتقدم» داخل الملف) | `tbreview` | المراجعة والمراجعة المالية › مركز المراجعة › ملف المراجعة | CORE | admin, accountant |
 | جديد — يحل محل قاعدة معايير smart-trial-balance-review ويكمّل مختبر المعايير | `codex` | المراجعة والمراجعة المالية › المعايير والمدونة › المدونة المحاسبية والمعايير | MANAGEMENT | admin, accountant, viewer |
 | جديد — من global_financial_and_audit_research_bundle_extended_verified.pdf (12,506 صفحة) | `auditbench` | المراجعة والمراجعة المالية › المعايير والمدونة › المرجع العالمي للمراجعة | MANAGEMENT | admin |
@@ -79,7 +79,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | الحوكمة | `governance` | العام › الحوكمة والصلاحيات › الحوكمة والجاهزية | ADMIN | admin |
 | الصحة والاستثناءات | `health` | العام › الحوكمة والصلاحيات › الصحة والتشخيص | ADMIN | admin |
 | Capabilities v2 | `capabilitiesv2` | العام › الحوكمة والصلاحيات › الصلاحيات ومساحات العمل | ADMIN | admin |
-| التطبيقات المدمجة في إصدار v25 (CRM V8.2، V31، V33، V40) التي حُذفت — مستعادة بعد تنظيف بياناتها | `legacyapps` | التقارير والبيانات › الأرشيف والتغييرات › الأنظمة الأصلية | UTILITIES | admin |
+| التطبيقات المدمجة في إصدار v25 (CRM V8.2، V31، V33، V40) التي حُذفت — مستعادة بعد تنظيف بياناتها | `legacyapps` | التقارير والبيانات › الأرشيف والأنظمة الأصلية › الأنظمة الأصلية | UTILITIES | admin |
 
 ## Menu: domains and hubs
 
@@ -120,7 +120,7 @@ One menu entry per hub; the pages of a hub open as tabs on top of each other (ea
 | المالية والدفاتر | المطابقة | `smartmatch` مطابقة المبيعات · `excelrecon` مطابقة الإكسل |
 | التقارير والبيانات | التقارير التنفيذية | `execreports` التقارير التنفيذية |
 | التقارير والبيانات | الطباعة والتصدير | `reports` مركز الطباعة · `exports` مركز التصدير |
-| التقارير والبيانات | الأرشيف والتغييرات | `archive` الأرشيف والتغييرات · `legacyapps` الأنظمة الأصلية |
+| التقارير والبيانات | الأرشيف والأنظمة الأصلية | `archive` الأرشيف والتغييرات · `legacyapps` الأنظمة الأصلية |
 | Jev والقرار | مركز القرار | `decision` مركز القرار |
 | Jev والقرار | Jev ومجلس القرار | `jev` Jev للقرار · `council` مجلس القرار |
 
