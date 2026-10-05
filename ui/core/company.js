@@ -12,7 +12,7 @@
 (()=>{
 "use strict";
 const {load,save}=SK;
-const CO="skosif_companies_v1",PRIVATE="sqc_private_space",DEMO={id:"demo-co",name:"شركة الوادي التجريبية للحوم"};
+const CO="skosif_companies_v1",PRIVATE="sqc_private_space",AFTER="sqc_company_after_open",DEMO={id:"demo-co",name:"شركة الوادي التجريبية للحوم"};
 const space=()=>window.SKosifSpace||null;
 function books(){
   const d=load(CO,{})||{};
@@ -51,7 +51,8 @@ async function create(name,currency="SAR"){
   name=clean(name);if(!name)throw new Error("اسم الشركة مطلوب");
   const id=SK.ui&&SK.ui.uid?SK.ui.uid("co"):"co-"+Date.now().toString(36);
   const d=books();d.rest.companies=[...d.companies,{id,name,country:currency==="EGP"?"EG":"SA",currency}];save(CO,d.rest);
-  return space()&&space().switchTo?space().switchTo(id,name,{fresh:true,demo:false}):false;
+  try{sessionStorage.setItem(AFTER,"masterdata")}catch{}
+  return space()&&space().switchTo?space().switchTo(id,name,{fresh:true,demo:false,after:"masterdata"}):false;
 }
 function setOrgName(name){const c=window.SKosifCore;return!!(c&&c.setOrg&&c.setOrg("biz",name))}
 /* rename the open company everywhere: the books, the spaces, the business name */
@@ -104,6 +105,7 @@ async function boot(){
   /* the business renamed in «الإعدادات» renames the company */
   addEventListener("sk:org",e=>{const x=e.detail||{};if(x.f==="biz"&&clean(x.v)&&clean(x.v)!==current().name)rename(x.v)});
   SK.bus.emit("company",{companyId:current().id});
+  try{const after=sessionStorage.getItem(AFTER);if(after){sessionStorage.removeItem(AFTER);setTimeout(()=>{const core=window.SKosifCore,cap=SK.caps&&SK.caps.get?SK.caps.get(after):null;if(core&&cap&&(!SK.perm||SK.perm.can(after)))core.go(after)},0)}}catch{}
 }
 boot();
 SK.company=Object.freeze({current,list,open,create,rename,setPeriod,updateMeta,reconcile,provisional,ready:()=>ready,DEMO});
