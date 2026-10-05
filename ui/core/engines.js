@@ -501,6 +501,352 @@ window.SKEngines = (function() {
 		return (h >>> 0).toString(16).padStart(8, "0");
 	}
 	//#endregion
+	//#region app/src/engine/fusion/reports/published-source-engine.ts
+	var published_source_engine_exports = /* @__PURE__ */ __exportAll({
+		SOURCE_MARKER: () => SOURCE_MARKER,
+		reviewedPublishedSource: () => reviewedPublishedSource
+	});
+	var SOURCE_MARKER = "# SQC source-only: ";
+	var APPLE_ROWS = [
+		[
+			"11101",
+			"النقد وما في حكمه — Cash and cash equivalents",
+			"cash",
+			true,
+			29943,
+			29965,
+			"cash",
+			127
+		],
+		[
+			"11901",
+			"أوراق مالية قابلة للتداول متداولة — Marketable securities (current)",
+			"currentSecurities",
+			true,
+			35228,
+			31590,
+			"securities_current",
+			127
+		],
+		[
+			"11201",
+			"ذمم تجارية مدينة بالصافي — Accounts receivable net",
+			"receivables",
+			true,
+			33410,
+			29508,
+			"trade_receivables",
+			127
+		],
+		[
+			"11202",
+			"ذمم موردين غير تجارية — Vendor non-trade receivables",
+			"vendorReceivables",
+			true,
+			32833,
+			31477,
+			"vendor_receivables",
+			127
+		],
+		[
+			"11401",
+			"المخزون — Inventories",
+			"inventory",
+			true,
+			7286,
+			6331,
+			"inventory",
+			127
+		],
+		[
+			"11601",
+			"موجودات متداولة أخرى — Other current assets",
+			"otherCa",
+			true,
+			14287,
+			14695,
+			"other_current_assets",
+			127
+		],
+		[
+			"18001",
+			"أوراق مالية قابلة للتداول غير متداولة — Marketable securities (non-current)",
+			"investments",
+			true,
+			91479,
+			100544,
+			"securities_noncurrent",
+			127
+		],
+		[
+			"15001",
+			"ممتلكات وآلات ومعدات بالصافي — Property plant and equipment net",
+			"ppe",
+			true,
+			45680,
+			43715,
+			"ppe",
+			127
+		],
+		[
+			"19001",
+			"موجودات غير متداولة أخرى — Other non-current assets",
+			"otherNca",
+			true,
+			74834,
+			64758,
+			"other_noncurrent_assets",
+			127
+		],
+		[
+			"20101",
+			"الذمم الدائنة — Accounts payable",
+			"payables",
+			false,
+			68960,
+			62611,
+			"payables",
+			127
+		],
+		[
+			"20201",
+			"مطلوبات متداولة أخرى — Other current liabilities",
+			"otherCl",
+			false,
+			78304,
+			58829,
+			"other_current_liabilities",
+			127
+		],
+		[
+			"20301",
+			"إيرادات مؤجلة متداولة — Deferred revenue",
+			"contractLiab",
+			false,
+			8249,
+			8061,
+			"deferred_revenue_current",
+			127
+		],
+		[
+			"20701",
+			"أوراق تجارية — Commercial paper",
+			"loansCl",
+			false,
+			9967,
+			5985,
+			"commercial_paper",
+			127
+		],
+		[
+			"20702",
+			"دين لأجل متداول — Term debt (current)",
+			"loansCl",
+			false,
+			10912,
+			9822,
+			"term_debt_current",
+			127
+		],
+		[
+			"22201",
+			"دين لأجل غير متداول — Term debt (non-current)",
+			"loansNcl",
+			false,
+			85750,
+			95281,
+			"term_debt_noncurrent",
+			127
+		],
+		[
+			"22202",
+			"مطلوبات غير متداولة أخرى — Other non-current liabilities",
+			"otherNcl",
+			false,
+			45888,
+			49848,
+			"other_noncurrent_liabilities",
+			127
+		],
+		[
+			"31001",
+			"أسهم عادية ورأس مال إضافي مدفوع — Common stock and additional paid-in capital",
+			"capital",
+			false,
+			83276,
+			73812,
+			"common_stock_apic",
+			127
+		],
+		[
+			"33001",
+			"العجز المتراكم بعد استبعاد ربح الفترة لأغراض العرض — Presentation bridge only",
+			"retained",
+			false,
+			-112890,
+			-97209,
+			"accumulated_deficit-minus-net_income",
+			127
+		],
+		[
+			"32001",
+			"الخسارة الشاملة الأخرى المتراكمة — Accumulated other comprehensive loss",
+			"reserves",
+			false,
+			-7172,
+			-11452,
+			"accumulated_oci",
+			127
+		],
+		[
+			"41001",
+			"صافي مبيعات المنتجات — Products net sales",
+			"revenue",
+			false,
+			294866,
+			298085,
+			"revenue_products",
+			125
+		],
+		[
+			"41002",
+			"صافي مبيعات الخدمات — Services net sales",
+			"revenue",
+			false,
+			96169,
+			85200,
+			"revenue_services",
+			125
+		],
+		[
+			"51001",
+			"تكلفة مبيعات المنتجات — Products cost of sales",
+			"cogs",
+			true,
+			185233,
+			189282,
+			"cogs_products",
+			125
+		],
+		[
+			"51002",
+			"تكلفة مبيعات الخدمات — Services cost of sales",
+			"cogs",
+			true,
+			25119,
+			24855,
+			"cogs_services",
+			125
+		],
+		[
+			"53001",
+			"البحث والتطوير — Research and development",
+			"researchDevelopment",
+			true,
+			31370,
+			29915,
+			"research",
+			125
+		],
+		[
+			"52001",
+			"مصروفات البيع والعمومية والإدارية مجمعة — Selling general and administrative",
+			"sellingGeneralAdmin",
+			true,
+			26097,
+			24932,
+			"sga",
+			125
+		],
+		[
+			"48001",
+			"دخل أو مصروف آخر غير تشغيلي بالصافي — Other income/(expense) net",
+			"nonOperatingIncome",
+			false,
+			269,
+			-565,
+			"other_income",
+			125
+		],
+		[
+			"81001",
+			"مخصص ضريبة الدخل — Provision for income taxes",
+			"zakatExpense",
+			true,
+			29749,
+			16741,
+			"income_tax",
+			125
+		]
+	];
+	/** A fresh value per caller prevents one open file from relabelling another. */
+	function reviewedPublishedSource(id) {
+		if (id !== "apple-2024") return null;
+		const signed = (r, i) => r[3] ? r[i] : -r[i];
+		const csv = [
+			SOURCE_MARKER + id,
+			"رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة",
+			...APPLE_ROWS.map((r) => {
+				const current = signed(r, 4);
+				return [
+					r[0],
+					r[1],
+					current > 0 ? current : "",
+					current < 0 ? -current : "",
+					signed(r, 5)
+				].join(",");
+			})
+		].join("\n");
+		const sourceModel = {
+			kind: "published-statements",
+			id,
+			issuer: "Apple Inc.",
+			issuerCountry: "US",
+			report: "2024 Form 10-K",
+			accountingBasis: "US_GAAP",
+			currency: "USD",
+			unit: "million",
+			scope: "consolidated",
+			entities: "Apple Inc. and wholly owned subsidiaries",
+			periodEnd: "2024-09-28",
+			priorPeriodEnd: "2023-09-30",
+			sourceFile: "global_financial_and_audit_research_bundle_extended_verified.pdf",
+			sourceSha256: "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+			sourcePages: [125, 127],
+			facts: APPLE_ROWS.map((r) => ({
+				id: r[6],
+				line: r[2],
+				code: r[0],
+				label: r[1],
+				current: r[4],
+				prior: r[5],
+				sourcePage: r[7],
+				status: r[6].includes("-minus-") ? "derived-presentation" : "reported"
+			})),
+			auditorReference: {
+				name: "Ernst & Young LLP",
+				opinion: "unqualified",
+				date: "2024-11-01",
+				pages: [
+					144,
+					145,
+					146
+				],
+				scope: "Original Apple consolidated financial statements; attributed source reference only"
+			},
+			cashFlow: {
+				status: "unavailable",
+				reason: "source-cash-flow-not-imported",
+				sourcePage: 129
+			}
+		};
+		return {
+			csv,
+			overrides: Object.fromEntries(APPLE_ROWS.map((r) => [r[0], r[2]])),
+			sourceModel
+		};
+	}
+	//#endregion
 	//#region app/src/engine/fusion/reports/tb-import-engine.ts
 	var tb_import_engine_exports = /* @__PURE__ */ __exportAll({
 		NATURE: () => NATURE$1,
@@ -859,7 +1205,9 @@ window.SKEngines = (function() {
 	}
 	/** Parse tabular text into a trial balance. overrides: {accountCode: type} from the user's mapping review. */
 	function parseTrialBalance(text, opts = {}) {
-		const source = String(text ?? "").replace(/^﻿/, "");
+		const raw = String(text ?? "").replace(/^﻿/, "");
+		const marked = raw.split(/\r?\n/).find((l) => l.startsWith(SOURCE_MARKER));
+		const source = raw.split(/\r?\n/).filter((l) => !l.startsWith(SOURCE_MARKER)).join("\n");
 		const lines = source.split(/\r?\n/).filter((l) => l.trim());
 		if (!lines.length) return finish([], [{
 			line: 0,
@@ -913,7 +1261,12 @@ window.SKEngines = (function() {
 			else seen.set(code, lineNo);
 			rows.push(makeRow(lineNo, code, name, debit, credit, prior, opts.overrides?.[code]));
 		});
-		return finish(rows, errors, columns, delimiter);
+		const result = finish(rows, errors, columns, delimiter);
+		return marked ? {
+			...result,
+			sourceKind: "published-statements",
+			sourceId: marked.slice(SOURCE_MARKER.length).trim()
+		} : result;
 	}
 	/** Build a trial balance from rows the app already has (the ledger engine, the audit bridge). */
 	function fromRows(input, opts = {}) {
@@ -2227,6 +2580,71 @@ window.SKEngines = (function() {
 	});
 	var LINES = [
 		{
+			key: "currentSecurities",
+			ar: "أوراق مالية قابلة للتداول متداولة",
+			en: "Current marketable securities",
+			statement: "sfp",
+			section: "ca",
+			types: ["asset"],
+			kws: [],
+			prefixes: [],
+			standards: [],
+			assertions: ["العرض"],
+			cf: "investing"
+		},
+		{
+			key: "vendorReceivables",
+			ar: "ذمم موردين غير تجارية",
+			en: "Vendor non-trade receivables",
+			statement: "sfp",
+			section: "ca",
+			types: ["asset"],
+			kws: [],
+			prefixes: [],
+			standards: [],
+			assertions: ["العرض"],
+			cf: "wc"
+		},
+		{
+			key: "researchDevelopment",
+			ar: "البحث والتطوير",
+			en: "Research and development",
+			statement: "pl",
+			section: "opex",
+			types: ["expense"],
+			kws: [],
+			prefixes: [],
+			standards: [],
+			assertions: ["العرض"],
+			cf: "none"
+		},
+		{
+			key: "sellingGeneralAdmin",
+			ar: "مصروفات البيع والعمومية والإدارية مجمعة",
+			en: "Selling, general and administrative",
+			statement: "pl",
+			section: "opex",
+			types: ["expense"],
+			kws: [],
+			prefixes: [],
+			standards: [],
+			assertions: ["العرض"],
+			cf: "none"
+		},
+		{
+			key: "nonOperatingIncome",
+			ar: "دخل أو مصروف آخر غير تشغيلي بالصافي",
+			en: "Other non-operating income/(expense), net",
+			statement: "pl",
+			section: "inv",
+			types: ["revenue"],
+			kws: [],
+			prefixes: [],
+			standards: [],
+			assertions: ["العرض"],
+			cf: "none"
+		},
+		{
 			key: "rou",
 			ar: "موجودات حق الاستخدام",
 			en: "Right-of-use assets",
@@ -3130,6 +3548,7 @@ window.SKEngines = (function() {
 		}
 	};
 	function buildStatements(tb, overrides = {}, opts = {}) {
+		const sourceOnly = tb.sourceKind === "published-statements";
 		const TW = TAX_WORDS[opts.tax ?? "zakat"];
 		const hasPrior = tb.hasPrior;
 		const acc = /* @__PURE__ */ new Map();
@@ -3211,11 +3630,14 @@ window.SKEngines = (function() {
 			row("gross", "مجمل الربح", "Gross profit", pc.gross, pp?.gross ?? null, "subtotal"),
 			lr("selling", -1),
 			lr("admin", -1),
+			lr("researchDevelopment", -1),
+			lr("sellingGeneralAdmin", -1),
 			lr("depreciation", -1),
 			lr("impairment", -1),
 			lr("otherIncome"),
 			row("operating", "الربح التشغيلي", "Operating profit", pc.operating, pp?.operating ?? null, "subtotal"),
 			lr("investIncome"),
+			lr("nonOperatingIncome"),
 			row("pbfz", TW.before, "Profit before financing and zakat", pc.pbfz, pp?.pbfz ?? null, "subtotal"),
 			lr("financeCost", -1),
 			row("pbz", TW.pbz, "Profit before zakat", pc.pbz, pp?.pbz ?? null, "subtotal"),
@@ -3355,7 +3777,7 @@ window.SKEngines = (function() {
 			]
 		};
 		let cf = null, cashTies = null, cfDifference = null;
-		if (hasPrior) {
+		if (hasPrior && !sourceOnly) {
 			const d = (k) => v(k) - vp(k);
 			const da = LINES.filter((l) => l.da).reduce((a, l) => a + v(l.key), 0);
 			const byRole = (role, sign) => LINES.filter((l) => l.statement === "sfp" && l.cf === role).map((l) => ({
@@ -3521,7 +3943,81 @@ window.SKEngines = (function() {
 			put("capex", cf.filter((r) => r.key === "cf-inv-ppe" || r.key === "cf-inv-intangibles").reduce((a, r) => a + r.current, 0), null);
 		}
 		const mapped = tb.rows.length ? Math.round((tb.rows.length - unmapped.length) / tb.rows.length * 1e3) / 10 : 0;
+		if (sourceOnly) {
+			const financingSubtotal = pl.findIndex((r) => r.key === "pbfz");
+			if (financingSubtotal >= 0) pl.splice(financingSubtotal, 1);
+			delete keys.pbfz;
+			soce.columns = [];
+			soce.rows = [];
+			if (tb.sourceId === "apple-2024") for (const [key, ar, en] of [[
+				"capital",
+				"أسهم عادية ورأس مال إضافي مدفوع",
+				"Common stock and additional paid-in capital"
+			], [
+				"reserves",
+				"الخسارة الشاملة الأخرى المتراكمة",
+				"Accumulated other comprehensive loss"
+			]]) {
+				const item = sfp.find((r) => r.key === key);
+				if (item) {
+					item.ar = ar;
+					item.en = en;
+				}
+				const detail = acc.get(key);
+				if (detail) {
+					detail.ar = ar;
+					detail.en = en;
+				}
+			}
+			const retainedRow = sfp.find((r) => r.key === "retained");
+			if (retainedRow) {
+				retainedRow.current += pc.profit;
+				if (retainedRow.prior !== null) retainedRow.prior += pp?.profit ?? 0;
+				retainedRow.ar = "الأرباح المبقاة أو العجز المتراكم";
+				retainedRow.en = "Retained earnings / accumulated deficit";
+			}
+			const resultAt = sfp.findIndex((r) => r.key === "resultYear");
+			if (resultAt >= 0) sfp.splice(resultAt, 1);
+			for (const key of [
+				"depreciation",
+				"selling",
+				"admin"
+			]) if (!acc.has(key)) delete keys[key];
+			for (const l of acc.values()) {
+				l.standards = [];
+				if (l.key === "zakatExpense") {
+					l.ar = "مخصص ضريبة الدخل";
+					l.en = "Provision for income taxes";
+				}
+			}
+			for (const r of pl) {
+				if (r.key === "zakatExpense") {
+					r.ar = "مخصص ضريبة الدخل";
+					r.en = "Provision for income taxes";
+				}
+				if (r.key === "pbz") {
+					r.ar = "الدخل قبل مخصص ضريبة الدخل";
+					r.en = "Income before provision for income taxes";
+				}
+				if (r.key === "pbfz") {
+					r.ar = "الدخل قبل التمويل وضريبة الدخل";
+					r.en = "Income before financing and income tax";
+				}
+			}
+		}
 		return {
+			...sourceOnly ? {
+				sourceKind: "published-statements",
+				soceStatus: {
+					status: "unavailable",
+					reason: "The published statement of changes in equity has not been imported; closing positions do not establish its movements."
+				},
+				cashFlowStatus: {
+					status: "unavailable",
+					check: "not-tested",
+					reason: "Source cash-flow statement or a complete reviewed bridge has not been imported; balance-sheet movements are not cash flows."
+				}
+			} : {},
 			hasPrior,
 			lines: [...acc.values()],
 			unmapped,
@@ -3894,6 +4390,7 @@ window.SKEngines = (function() {
 	}
 	/** Beneish M-score (8 variables) — needs the prior year. M > −1.78 flags possible earnings manipulation. */
 	function beneishM(fs) {
+		if (fs.sourceKind === "published-statements" && (!fs.keys.cfo || !fs.lines.some((l) => l.key === "depreciation"))) return null;
 		if (!fs.hasPrior) return null;
 		const k = fs.keys, c = (x) => k[x]?.current ?? 0, p = (x) => k[x]?.prior ?? 0;
 		const q = (a, b) => b ? a / b : 1;
@@ -6640,6 +7137,7 @@ window.SKEngines = (function() {
 		outstanding: () => outstanding,
 		parseJsonLoose: () => parseJsonLoose,
 		pendingUploads: () => pendingUploads,
+		referenceSession: () => referenceSession,
 		sessionState: () => sessionState,
 		systemPrompt: () => systemPrompt
 	});
@@ -6952,6 +7450,7 @@ window.SKEngines = (function() {
 	var arr$1 = (v) => Array.isArray(v) ? v : [];
 	function newSession(ctx, model = DEFAULT_MODEL, now = /* @__PURE__ */ new Date()) {
 		return {
+			...ctx.sourceKind === "published-statements" ? { origin: "source-only" } : {},
 			id: "rv-" + now.getTime().toString(36),
 			ctx,
 			model,
@@ -6959,6 +7458,69 @@ window.SKEngines = (function() {
 			rounds: [],
 			uploads: [],
 			unavailable: []
+		};
+	}
+	var REFERENCE_NOTICE = "محاكاة أو مرجع مصدر فقط: لم تُنفذ إجراءات تأكيد ولا يُكتسب رأي مراجعة أو إثبات فعالية رقابة.";
+	function referenceOrigin(s, tb) {
+		return s.origin || (tb?.sourceKind === "published-statements" || s.ctx.sourceKind === "published-statements" ? "source-only" : void 0) || s.rounds.find((r) => r.origin)?.origin || s.uploads.find((u) => u.origin)?.origin || ([s.model, ...s.rounds.map((r) => r.model)].some((m) => /^محاكاة SQC(?: \(دون مفتاح\))?$/.test(m)) ? "simulation" : void 0);
+	}
+	function referenceRound(r, origin) {
+		return {
+			...r,
+			origin,
+			status: "needs_docs",
+			summary: REFERENCE_NOTICE,
+			opinions: r.opinions.map((o) => ({
+				...o,
+				opinion: REFERENCE_NOTICE
+			})),
+			reviewed: r.reviewed.map((d) => ({
+				...d,
+				origin,
+				verdict: "غير كافٍ",
+				notes: REFERENCE_NOTICE,
+				extracted: {}
+			})),
+			accountStandards: {},
+			findings: [],
+			adjustments: [],
+			guidance: REFERENCE_NOTICE,
+			warnings: [REFERENCE_NOTICE],
+			decision: "escalate",
+			confidence: [],
+			dissent: [],
+			council: void 0
+		};
+	}
+	function referenceFinal(origin, at) {
+		return {
+			origin,
+			at,
+			aiOpinion: "لم يُقيّم",
+			headline: "محاكاة أو مرجع مصدر — دون رأي تأكيد",
+			summary: REFERENCE_NOTICE,
+			kams: [],
+			compliance: [],
+			adjustments: [],
+			letter: [],
+			limitations: [REFERENCE_NOTICE],
+			closing: "نتيجة تجريبية أو مرجعية فقط؛ ليست تقرير مراجعة مهنية."
+		};
+	}
+	/** A safe view of persisted legacy source rounds. The original record is not promoted
+	*  to professional evidence even if it predates explicit origin metadata. */
+	function referenceSession(s, tb) {
+		const origin = referenceOrigin(s, tb);
+		if (!origin) return s;
+		return {
+			...s,
+			origin,
+			rounds: s.rounds.map((r) => referenceRound(r, r.origin || origin)),
+			uploads: s.uploads.map((u) => ({
+				...u,
+				origin: u.origin || origin
+			})),
+			...s.final ? { final: referenceFinal(origin, s.final.at) } : {}
 		};
 	}
 	function systemPrompt(ctx) {
@@ -7204,6 +7766,7 @@ window.SKEngines = (function() {
 			].find((v) => v === str$1(d.verdict, 20)) ?? "غير كافٍ";
 			const ex = d.extracted ?? {};
 			return {
+				...match?.origin ? { origin: match.origin } : {},
 				requestId: match?.requestId ?? str$1(d.requestId, 20),
 				fileName: match?.fileName ?? fileName,
 				verdict,
@@ -7225,7 +7788,7 @@ window.SKEngines = (function() {
 			rounds: [...s.rounds]
 		}).length) warnings.push("لا توجد طلبات قائمة؛ يمكن إصدار التقرير النهائي.");
 		const score = Number(r.riskScore);
-		return {
+		const result = {
 			no,
 			at: now.toISOString(),
 			model,
@@ -7259,10 +7822,13 @@ window.SKEngines = (function() {
 				citations: cite(x.citations, "رأي مخالف")
 			})).filter((x) => x.note) } : {}
 		};
+		const origin = r.origin === "simulation" ? "simulation" : referenceOrigin(s, tb) || reviewed.find((d) => d.origin)?.origin;
+		return origin ? referenceRound(result, origin) : result;
 	}
 	function addRound(s, round) {
 		return {
 			...s,
+			...round.origin ? { origin: round.origin } : {},
 			rounds: [...s.rounds, round]
 		};
 	}
@@ -7331,13 +7897,14 @@ window.SKEngines = (function() {
 	}
 	/** Evidence per statement line from the reviewed documents: accepted → 'accepted', insufficient → 'partial'. */
 	function evidenceFromSession(review, s) {
+		if (review.fs.sourceKind === "published-statements" || referenceOrigin(s)) return {};
 		const reqs = /* @__PURE__ */ new Map();
 		s.rounds.forEach((r) => r.requests.forEach((q) => reqs.set(q.id, q)));
 		review.requests.forEach((q) => reqs.set(q.id, q));
 		const out = {};
 		for (const d of s.rounds.flatMap((r) => r.reviewed)) {
 			const q = reqs.get(d.requestId);
-			if (!q || d.verdict === "مرفوض") continue;
+			if (!q || d.origin || s.uploads.some((u) => u.origin && u.fileName === d.fileName) || d.verdict === "مرفوض") continue;
 			const lines = new Set([q.lineKey, ...review.accounts.filter((a) => q.accounts.includes(a.code)).map((a) => a.lineKey)].filter((k) => !!k));
 			for (const k of lines) if (d.verdict === "مقبول") out[k] = "accepted";
 			else if (!out[k]) out[k] = "partial";
@@ -7350,6 +7917,17 @@ window.SKEngines = (function() {
 		return out;
 	}
 	function deriveOpinion(tb, review, s, accepted, fieldEvidence = {}) {
+		const origin = referenceOrigin(s, tb) || (review.fs.sourceKind === "published-statements" ? "source-only" : void 0);
+		if (origin) return {
+			origin,
+			opinion: "not-assessed",
+			ar: "لم يُقيّم — محاكاة أو مرجع مصدر فقط",
+			isa: "",
+			basis: [REFERENCE_NOTICE],
+			misstatement: 0,
+			goingConcern: false,
+			requiresPartner: true
+		};
 		const mat = review.materiality;
 		const uncorrected = [...review.adjustments, ...s.rounds.flatMap((r) => r.adjustments.filter((a) => a.valid))].filter((p) => !accepted.some((a) => a.id === p.id));
 		const eff = uncorrected.length ? adjustmentEffect(tb, uncorrected) : {
@@ -7427,6 +8005,8 @@ window.SKEngines = (function() {
 	}
 	function normalizeFinal(raw, s, tb, now = /* @__PURE__ */ new Date()) {
 		const r = raw ?? {};
+		const origin = r.origin === "simulation" ? "simulation" : referenceOrigin(s, tb);
+		if (origin) return referenceFinal(origin, now.toISOString());
 		return {
 			at: now.toISOString(),
 			aiOpinion: str$1(r.overallOpinion, 40),
@@ -9499,6 +10079,7 @@ window.SKEngines = (function() {
 	function companyTrialBalance(id) {
 		const c = corpusCompany(id);
 		if (!c) return null;
+		const reviewed = reviewedPublishedSource(id);
 		const accs = accounts(c), f = c.figures;
 		const signed = (a, v) => a.side === "dr" ? v : -v;
 		const csv = ["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة", ...accs.map((a) => {
@@ -9513,34 +10094,63 @@ window.SKEngines = (function() {
 		})].join("\n");
 		const overrides = Object.fromEntries(accs.map((a) => [a.code, a.line]));
 		const year = c.yearEnd.slice(0, 4);
+		const ctx = {
+			company: c.company,
+			activity: SECTOR_AR[c.sector] + " (" + SECTOR_EN[c.sector] + ")" + (f.kind === "bank" ? " — بنك" : f.kind === "insurer" ? " — تأمين واستثمار" : ""),
+			sector: c.sector,
+			period: "السنة المالية المنتهية في " + c.yearEnd + " (" + c.fy + ")",
+			periodStart: "",
+			periodEnd: c.yearEnd,
+			legalForm: "شركة مدرجة",
+			registeredOffice: COUNTRY_AR[c.country] ?? c.country,
+			principalPlace: COUNTRY_AR[c.country] ?? c.country,
+			country: c.country === "SA" ? "SA" : "INTL",
+			framework: "IFRS",
+			unclassified: f.kind !== "corporate",
+			currency: c.currencyAr,
+			curSym: c.unitAr,
+			taxKind: c.country === "SA" ? "zakat" : "income",
+			auditFirm: c.auditor || "مراجع المجموعة",
+			auditCity: COUNTRY_AR[c.country] ?? "",
+			corpusId: c.id,
+			reportingFramework: c.framework,
+			auditStandard: c.standard
+		};
+		const balanced = [0, 1].every((i) => Math.abs(accs.reduce((s, a) => s + signed(a, a.v[i]), 0)) < .5);
+		if (reviewed) {
+			const sourceModel = reviewed.sourceModel;
+			return {
+				company: c,
+				csv: reviewed.csv,
+				overrides: reviewed.overrides,
+				ctx: {
+					...ctx,
+					company: sourceModel.issuer,
+					issuerCountry: sourceModel.issuerCountry,
+					periodEnd: sourceModel.periodEnd,
+					priorPeriodEnd: sourceModel.priorPeriodEnd,
+					reportingFramework: sourceModel.accountingBasis,
+					currency: "USD",
+					curSym: "USD million",
+					taxKind: "income",
+					consolidated: true,
+					auditFirm: "",
+					auditCity: "",
+					sourceKind: "published-statements",
+					sourceModel
+				},
+				year,
+				balanced: true,
+				source: "Published statement source: pp. 125, 127; not ledger or audit evidence"
+			};
+		}
 		return {
 			company: c,
 			csv,
 			overrides,
-			ctx: {
-				company: c.company,
-				activity: SECTOR_AR[c.sector] + " (" + SECTOR_EN[c.sector] + ")" + (f.kind === "bank" ? " — بنك" : f.kind === "insurer" ? " — تأمين واستثمار" : ""),
-				sector: c.sector,
-				period: "السنة المالية المنتهية في " + c.yearEnd + " (" + c.fy + ")",
-				periodStart: "",
-				periodEnd: c.yearEnd,
-				legalForm: "شركة مدرجة",
-				registeredOffice: COUNTRY_AR[c.country] ?? c.country,
-				principalPlace: COUNTRY_AR[c.country] ?? c.country,
-				country: c.country === "SA" ? "SA" : "INTL",
-				framework: "IFRS",
-				unclassified: f.kind !== "corporate",
-				currency: c.currencyAr,
-				curSym: c.unitAr,
-				taxKind: c.country === "SA" ? "zakat" : "income",
-				auditFirm: c.auditor || "مراجع المجموعة",
-				auditCity: COUNTRY_AR[c.country] ?? "",
-				corpusId: c.id,
-				reportingFramework: c.framework,
-				auditStandard: c.standard
-			},
+			ctx,
 			year,
-			balanced: [0, 1].every((i) => Math.abs(accs.reduce((s, a) => s + signed(a, a.v[i]), 0)) < .5),
+			balanced,
 			source: "ص " + f.pages.is + " (قائمة الدخل) · ص " + f.pages.bs + " (المركز المالي)"
 		};
 	}
@@ -12335,6 +12945,32 @@ window.SKEngines = (function() {
 		round2: () => round2,
 		round3: () => round3
 	});
+	var SIMULATION_NOTICE = "محاكاة فقط: المستندات مصطنعة ولا تثبت تنفيذ إجراءات مهنية أو كفاية الأدلة أو استحقاق رأي.";
+	function simulationRound(raw) {
+		const reviewed = Array.isArray(raw.documentsReviewed) ? raw.documentsReviewed : [];
+		return {
+			...raw,
+			origin: "simulation",
+			status: "needs_docs",
+			executiveSummary: SIMULATION_NOTICE,
+			boardOpinions: REVIEWERS.map((reviewer) => ({
+				reviewer,
+				opinion: SIMULATION_NOTICE
+			})),
+			documentsReviewed: reviewed.map((d) => ({
+				...d,
+				origin: "simulation",
+				verdict: "غير كافٍ",
+				notes: SIMULATION_NOTICE,
+				extracted: {}
+			})),
+			findings: [],
+			proposedAdjustments: [],
+			confidence: [],
+			decision: "escalate",
+			nextStepGuidance: SIMULATION_NOTICE
+		};
+	}
 	var SEV_AR = {
 		high: "عالية",
 		medium: "متوسطة",
@@ -12354,12 +12990,6 @@ window.SKEngines = (function() {
 		"عالية": 0,
 		"متوسطة": 1,
 		"منخفضة": 2
-	};
-	var OPINION_AR = {
-		unmodified: "غير معدل",
-		qualified: "متحفظ",
-		adverse: "عكسي",
-		disclaimer: "امتناع عن إبداء الرأي"
 	};
 	function money$28(m, cur) {
 		return formatMinor(Math.round(m), { decimals: 0 }) + (cur ? " " + cur : "");
@@ -12387,7 +13017,7 @@ window.SKEngines = (function() {
 		const sig = review.risks.filter((r) => r.significant);
 		const mat = review.materiality, cur = ctx.currency;
 		const top = review.findings.slice().sort((a, b) => (a.severity === "high" ? 0 : a.severity === "medium" ? 1 : 2) - (b.severity === "high" ? 0 : b.severity === "medium" ? 1 : 2)).slice(0, 6);
-		return {
+		return simulationRound({
 			status: "needs_docs",
 			executiveSummary: `راجع المجلس ميزان «${ctx.company}» (${review.summary.accounts} حساباً) بأهمية نسبية ${money$28(mat.overall, cur)} على أساس ${mat.benchmarkAr}. ` + (sig.length ? `المخاطر الجوهرية: ${sig.map((r) => r.ar).join("، ")}. ` : "") + `طُلب ${reqs.length} مستنداً لتغطيتها قبل إبداء الرأي.`,
 			riskScore: Math.min(90, 30 + sig.length * 8 + top.filter((f) => f.severity === "high").length * 6),
@@ -12432,7 +13062,7 @@ window.SKEngines = (function() {
 			})),
 			decision: "request_more_evidence",
 			nextStepGuidance: "ارفع المستندات المطلوبة ثم شغّل الجولة التالية."
-		};
+		});
 	}
 	function body(key, title, amount, ctx, date) {
 		const pe = ctx.periodEnd || "نهاية الفترة";
@@ -12453,6 +13083,7 @@ window.SKEngines = (function() {
 			const key = lineOf(review, q), amt = money$28(amountOf(review, q), ctx.currency);
 			const text = `مستند تجريبي (عرض قدرات SQC) — ليس مستنداً حقيقياً\nإلى: ${ctx.auditFirm || "المراجع الخارجي"}\nمن: إدارة ${ctx.company}\nالموضوع: ${q.title}\nالتاريخ: ${date}\nالمرجع: DOC-${q.id}-${round}\n\n` + body(key, q.title, amt, ctx, date);
 			return {
+				origin: "simulation",
 				requestId: q.id,
 				fileName: `${q.id}-${round}-مستند.txt`,
 				text
@@ -12469,7 +13100,7 @@ window.SKEngines = (function() {
 		const date = addDays$1(ctx.periodEnd, 45);
 		const sig = review.risks.filter((r) => r.significant);
 		const weakLine = wq ? lineOf(review, wq) : "";
-		return {
+		return simulationRound({
 			status: "needs_docs",
 			executiveSummary: `راجع المجلس ${uploads.length} مستنداً: قُبل ${uploads.length - (weak ? 1 : 0)}` + (wq ? `، ووُجد «${wq.title}» غير كافٍ فطُلب استكماله.` : "."),
 			riskScore: Math.max(15, 20 + sig.length * 5),
@@ -12517,16 +13148,18 @@ window.SKEngines = (function() {
 			})),
 			decision: wq ? "request_more_evidence" : "sufficient",
 			nextStepGuidance: wq ? "ارفع مستند الاستكمال ثم شغّل الجولة الأخيرة." : "الأدلة كافية — أصدر التقرير النهائي."
-		};
+		});
 	}
 	function followUpDocuments(review, original, follow, ctx) {
 		const date = addDays$1(ctx.periodEnd, 60) || (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
 		const text = `مستند تجريبي (عرض قدرات SQC) — ليس مستنداً حقيقياً\nمن: إدارة ${ctx.company}\nالموضوع: ${follow.title}\nالتاريخ: ${date}\n\nالبنود الأربعة التي لم يُرد على مصادقاتها: حُصّلت بالكامل بعد نهاية الفترة (كشوف البنك مرفقة) وفواتيرها وإشعارات تسليمها مطابقة. قيمة البنود: ${money$28(amountOf(review, follow) * .08, ctx.currency)}.`;
 		return [{
+			origin: "simulation",
 			requestId: follow.id,
 			fileName: `${follow.id}-استكمال.txt`,
 			text
 		}, ...original ? [{
+			origin: "simulation",
 			requestId: original.id,
 			fileName: `${original.id}-2-مستند-مكمل.txt`,
 			text
@@ -12534,7 +13167,7 @@ window.SKEngines = (function() {
 	}
 	function round3(review, uploads, ctx) {
 		const sig = review.risks.filter((r) => r.significant);
-		return {
+		return simulationRound({
 			status: "complete",
 			executiveSummary: `اكتملت الأدلة: قُبل مستند الاستكمال، وغطت المستندات المقبولة ${sig.length ? "كل المخاطر الجوهرية" : "البنود الرئيسية"} لـ«${ctx.company}». الأدلة كافية وملائمة لإبداء الرأي.`,
 			riskScore: 15,
@@ -12558,34 +13191,20 @@ window.SKEngines = (function() {
 			})),
 			decision: "sufficient",
 			nextStepGuidance: "أصدر التقرير النهائي."
-		};
+		});
 	}
 	function final(review, derived, kams, ctx) {
-		const letter = review.findings.filter((f) => f.severity !== "high").slice(0, 5);
 		return {
-			overallOpinion: OPINION_AR[derived.opinion] ?? "غير معدل",
-			headline: `${derived.ar} على القوائم المالية لـ«${ctx.company}»${ctx.periodEnd ? " للسنة المنتهية في " + ctx.periodEnd : ""}`,
-			summary: `أنهى المجلس ثلاث جولات: طلب المستندات، مراجعتها وطلب استكمال واحد، ثم الاكتفاء. ` + derived.basis.join(" "),
-			keyAuditMatters: kams.slice(0, 4).map((k) => ({
-				title: k.title,
-				why: k.why || k.description || "",
-				how: k.how
-			})),
-			complianceDiscussion: review.compliance.slice(0, 12).map((c) => ({
-				standardCode: c.code,
-				status: c.status === "يتطلب أدلة" ? "ممتثل" : c.status,
-				discussion: c.status === "يتطلب أدلة" ? "استُكملت الأدلة المطلوبة في الجولات؛ " + c.discussion : c.discussion
-			})),
+			origin: "simulation",
+			overallOpinion: "لم يُقيّم",
+			headline: "محاكاة فقط — دون رأي تأكيد",
+			summary: SIMULATION_NOTICE,
+			keyAuditMatters: [],
+			complianceDiscussion: [],
 			adjustments: [],
-			managementLetter: letter.map((f) => ({
-				title: f.title,
-				observation: f.detail || f.title,
-				effect: f.basis,
-				recommendation: f.action || "تعزيز الرقابة على البند",
-				priority: SEV_AR[f.severity] ?? "متوسطة"
-			})),
-			limitations: [],
-			closingStatement: "مراجعة تجريبية لعرض قدرات SQC: المستندات مولّدة من أرقام الميزان، والرأي مشتق آلياً وفق ISA 705 ويبقى للشريك المسؤول."
+			managementLetter: [],
+			limitations: [SIMULATION_NOTICE],
+			closingStatement: SIMULATION_NOTICE
 		};
 	}
 	//#endregion
@@ -19059,6 +19678,7 @@ window.SKEngines = (function() {
 			});
 		}
 		const da = line$1(fs, "depreciation");
+		if (fs.sourceKind === "published-statements" && !da) return out;
 		const e = (op, d) => op + d;
 		out.push({
 			key: "ebitda",
@@ -24363,6 +24983,7 @@ window.SKEngines = (function() {
 			narrative: narrative_engine_exports,
 			notes: notes_engine_exports,
 			peerBenchmarks: peer_benchmarks_engine_exports,
+			publishedSource: published_source_engine_exports,
 			sampleCompany: sample_company_engine_exports,
 			scenario: scenario_engine_exports,
 			smartMatch: smart_match_engine_exports,

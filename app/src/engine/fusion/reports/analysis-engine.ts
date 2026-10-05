@@ -127,6 +127,7 @@ export function altmanZ(fs: FinancialStatements) {
 
 /** Beneish M-score (8 variables) — needs the prior year. M > −1.78 flags possible earnings manipulation. */
 export function beneishM(fs: FinancialStatements) {
+  if (fs.sourceKind === 'published-statements' && (!fs.keys.cfo || !fs.lines.some(l => l.key === 'depreciation'))) return null;
   if (!fs.hasPrior) return null;
   const k = fs.keys, c = (x: string) => k[x]?.current ?? 0, p = (x: string) => k[x]?.prior ?? 0;
   const q = (a: number, b: number) => (b ? a / b : 1);

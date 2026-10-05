@@ -14,6 +14,12 @@ const APPS={
   lab:{path:"./audit/lab/mount.js",label:"مختبر المعايير"}
 };
 const state={};
+// The embedded applications do not yet carry published-source identity, units,
+// comparative dates or non-assurance status. Refuse this transport at each entry.
+function reviewTransport(){try{return window.SKosifTBReview&&SKosifTBReview.rows()}catch{return {sourceOnly:true}}}
+function sourceBlocked(t=reviewTransport()){return !!(t&&(t.sourceOnly||t.sourceKind!==undefined||t.ctx&&(t.ctx.sourceKind!==undefined||t.ctx.sourceModel!==undefined)))}
+function sourceUnavailable(node){if(node)node.innerHTML='<div class="sk-empty" role="status">أدوات الاستوديو غير متاحة لنموذج القوائم المنشورة: انتقل إلى مرجع المصدر. لا يُحوّل هذا النموذج إلى دفتر أستاذ أو تكليف مراجعة.</div>'}
+function sameTransport(t){const now=reviewTransport();return !sourceBlocked(now)&&(!t&&!now||!!t&&!!now&&t.sig===now.sig&&t.label===now.label)}
 /* ---------- one identity: the embedded tools take the chosen theme's colours, type and night mode ----------
    custom properties cross the shadow boundary, so each tool's own variables are pointed at the app's tokens
    (:host raises specificity over the tools' own !important rules); their private sidebars give way to the
@@ -59,13 +65,15 @@ function app(key){
   return state[key]={frame,host,api:null,loading:null,want:"overview"};
 }
 function open(key,node,view,screenId){
+  if(key!=="lab"&&sourceBlocked()){sourceUnavailable(node);return}
   /* the domain strip above (shell) already lists every audit screen: no second hub menu here */
   const a=app(key);a.want=view;
   node.replaceChildren(a.frame);
   if(a.api){a.api.setView(view);if(key==="classic"){feedAnalytics(a);viewsBar(a)}if(key==="studio")syncStudio(a);return}
   if(a.loading)return;
   const wait=document.createElement("div");wait.className="sk-empty kx-wait";wait.textContent="جارٍ تحميل "+APPS[key].label+"…";a.frame.before(wait);
-  a.loading=import(APPS[key].path).then(m=>m.mount(a.host,a.want)).then(api=>{
+  a.loading=import(APPS[key].path).then(m=>{if(key!=="lab"&&sourceBlocked()){sourceUnavailable(node);return null}return m.mount(a.host,a.want)}).then(api=>{
+    if(!api||key!=="lab"&&sourceBlocked()){sourceUnavailable(node);a.loading=null;return}
     a.api=api;if(key==="studio")recolorStudio(a.host.shadowRoot);api.setView(a.want);wait.remove();if(key==="studio")syncStudio(a);
     syncTheme();if(key==="classic"){setTimeout(()=>feedAnalytics(a),400);setTimeout(()=>viewsBar(a),300)}
     try{
@@ -127,7 +135,7 @@ const SCREENS=[
 /* the analytics tools take the engagement's own trial balance (once per version of it) — no second upload */
 let fedSig="";
 function feedAnalytics(a){
-  try{const t=window.SKosifTBReview&&SKosifTBReview.rows();if(!t||t.sig===fedSig)return;
+  try{const t=reviewTransport();if(sourceBlocked(t)||!t||t.sig===fedSig)return;
     const root=a.host.shadowRoot,input=root&&root.getElementById("fileInput");if(!input)return;
     const dt=new DataTransfer();dt.items.add(new File([tbCSV(t.rows)],"SQC-engagement-tb.csv",{type:"text/csv"}));input.files=dt.files;input.dispatchEvent(new Event("change",{bubbles:true}));
     fedSig=t.sig;window.SK.toast("استُلم ميزان ملف المراجعة («"+t.label+"») في أدوات التحليل","info");
@@ -140,9 +148,11 @@ function feedAnalytics(a){
    studio by other means (its cloud session) is never overwritten. */
 const STUDIO_HIDE="#workspaceNavigation,.workspace-navigation,.gateway-strip,#remotePersistenceState,#demoButton,#openSpreadsheetIntake,.eyebrow{display:none!important}";
 const V5="./audit/v5/";
-async function renderStudio(){
+async function renderStudio(expected){
+  if(sourceBlocked()||expected&&!sameTransport(expected))return;
   const m=await Promise.all(["continuous-store","continuous-documents","continuous-council","continuous-issues","continuous-coverage","continuous-statements","continuous-statement-lineage","continuous-reporting",
     "continuous-report-intake","continuous-cash-flow","continuous-equity","continuous-disclosures","continuous-completion","continuous-publication","continuous-trace-inspector","continuous-workspace-navigation","dashboard-suite"].map(n=>import(V5+n+".js")));
+  if(sourceBlocked()||expected&&!sameTransport(expected))return;
   const [st,dc,co,is,cv,sm,sl,rp,ri,cf,eq,di,cp,pb,tr,wn,ds]=m;
   ri.reconcileReportIntake();st.derive();rp.renderNow();dc.renderAnalysisMetrics();dc.renderDocuments();rp.renderRecipe();ri.renderReportIntake();co.renderCouncil();co.renderRequests();is.renderIssues();cv.renderCoverage();
   rp.renderCandidates();rp.renderAdjustments();sm.renderStatements();sl.renderStatementLineage();cf.renderCashFlow();eq.renderEquity();di.renderDisclosures();rp.renderTrace();if(st.store.engagement.reports.length)rp.renderReport();
@@ -153,27 +163,29 @@ let syncSig="",syncing=null;
 function isoCurrency(c,country){const v=String(c||"");return /EGP|مصر|جنيه/i.test(v)||(!v&&country==="EG")?"EGP":/AED|درهم|إمارات/i.test(v)?"AED":/USD|دولار/i.test(v)?"USD":/KWD|كويت/i.test(v)?"KWD":"SAR"}
 function hashId(v){let h=2166136261;for(const ch of String(v)){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0).toString(36).toUpperCase()}
 function yearEnd(p){const m=String(p||"").match(/(19|20)\d{2}/);return (m?m[0]:String(new Date().getFullYear()))+"-12-31"}
-function syncStudio(a){if(syncing)return syncing;syncing=doSync(a).finally(()=>{syncing=null});return syncing}
+function syncStudio(a){if(sourceBlocked())return Promise.resolve();if(syncing)return syncing;syncing=doSync(a).finally(()=>{syncing=null});return syncing}
 async function doSync(a){
   try{
-    const st=await import(V5+"continuous-store.js"),t=window.SKosifTBReview&&SKosifTBReview.rows(),demo=!!(window.SK.demo&&SK.demo.active&&SK.demo.active());
+    const t=reviewTransport();if(sourceBlocked(t))return;
+    const st=await import(V5+"continuous-store.js");if(!sameTransport(t))return;
+    const demo=!!(window.SK.demo&&SK.demo.active&&SK.demo.active());
     const own=String(st.store.engagement.id||"").startsWith("SK-")||window.__skStudioDemo,filled=st.store.engagement.documents.length||st.store.analysis;
     if(filled&&!own)return;
     const root=a.host.shadowRoot,wait=ms=>new Promise(r=>setTimeout(r,ms));
     if(t){
       if(t.sig===syncSig&&own)return;
-      const em=await import(V5+"engagement-machine.js"),docs=await import(V5+"continuous-documents.js"),c=t.ctx||{};
+      const em=await import(V5+"engagement-machine.js"),docs=await import(V5+"continuous-documents.js");if(!sameTransport(t))return;const c=t.ctx||{};
       st.resetEngagement(em.createEngagement({id:"SK-ENG-"+hashId(t.sig||t.label),entity:t.label,period:yearEnd(c.period),jurisdiction:c.country==="EG"?"EG":"SA",framework:c.framework||"IFRS",engagementType:"audit",currency:isoCurrency(c.currency,c.country)}));
       const csv=tbCSV(t.rows);
       st.store.engagement.documents.push({id:"DOC-0001",name:"ميزان الملف — "+t.label+".csv",type:"trial-balance",mime:"text/csv",size:new TextEncoder().encode(csv).length,sha256:"ميزان الملف · "+hashId(csv),version:1,status:"classified",analysisStatus:"ميزان الملف",createdAt:new Date().toISOString()});
       docs.loadTrialBalance(t.rows.map(r=>({code:r[0],name:r[1],debit:Number(r[2]).toFixed(2),credit:Number(r[3]).toFixed(2)})),t.label);
-      syncSig=t.sig;window.__skStudioDemo=false;await renderStudio();
+      syncSig=t.sig;window.__skStudioDemo=false;await renderStudio(t);
     }else if(demo&&!filled){
-      (await import(V5+"continuous-documents.js")).loadDemo();
+      const docs=await import(V5+"continuous-documents.js");if(!sameTransport(t))return;docs.loadDemo();
       st.store.engagement.entity="نموذج استوديو المراجعة — 5000 حساب (بيانات تجريبية)";window.__skStudioDemo=true;
     }else return;
     /* on the demo company every page shows how it works: a council round, a proposed entry and a report draft */
-    if(demo)for(const id of ["runCouncilButton","proposeAdjustmentButton","buildDraftButton"]){const b=root&&root.getElementById(id);if(b){b.click();await wait(600)}}
+    if(demo)for(const id of ["runCouncilButton","proposeAdjustmentButton","buildDraftButton"]){if(!sameTransport(t))return;const b=root&&root.getElementById(id);if(b){b.click();await wait(600)}}
     a.api.setView(a.want);
   }catch(e){console.error("SQC studio sync",e)}
 }
@@ -222,6 +234,7 @@ function mountStudio(node,view){open("studio",node,view||"overview","auditdesk")
 window.SKosifAuditBridge=Object.freeze({buildTB,mountStudio,docAIHTML,syncStudio:()=>state.studio&&state.studio.api?syncStudio(state.studio):null,STUDIO_VIEWS:SCREENS.filter(x=>x[1]==="studio").map(x=>({id:x[0],view:x[2],label:x[3],sub:x[4]}))});
 /* a studio page opened directly (search, deep link, old bookmark) opens the engagement file on the tab that holds it */
 SCREENS.forEach(([id,key,view,title,sub,emoji,icon])=>window.SK.view(id,{title,sub,emoji,adv:true,icon:window.SK.icons[id]||icon,render(node){
+  if(key!=="lab"&&sourceBlocked()){sourceUnavailable(node);return}
   if(key==="studio"&&window.SKosifTBReview&&SKosifTBReview.studio){node.innerHTML='<div class="sk-empty kx-wait">يفتح «ملف المراجعة»…</div>';setTimeout(()=>SKosifTBReview.studio(view),0);return}
   open(key,node,view,id)}}));
 })();

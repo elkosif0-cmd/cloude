@@ -8,6 +8,7 @@
    Units: millions of the reporting currency as published (Indian groups: crore, ₹10 million). The statement lines
    the bundle does not break out are carried in «other» accounts so both years balance; banks put loans in
    receivables and customer deposits in payables, insurers their claims reserves in provisions. */
+import { reviewedPublishedSource } from './published-source-engine';
 import { REPORTS, SECTOR_AR, type Report } from '../audit/global-benchmarks-engine';
 
 export type Pair = readonly [current: number, prior: number];
@@ -228,6 +229,7 @@ function accounts(c: CorpusCompany): Acc[] {
 export function companyTrialBalance(id: string) {
   const c = corpusCompany(id);
   if (!c) return null;
+  const reviewed = reviewedPublishedSource(id);
   const accs = accounts(c), f = c.figures;
   const signed = (a: Acc, v: number) => (a.side === 'dr' ? v : -v);
   const rows = accs.map((a) => {
@@ -245,5 +247,13 @@ export function companyTrialBalance(id: string) {
     auditFirm: c.auditor || 'مراجع المجموعة', auditCity: COUNTRY_AR[c.country] ?? '', corpusId: c.id, reportingFramework: c.framework, auditStandard: c.standard,
   };
   const balanced = [0, 1].every((i) => Math.abs(accs.reduce((s, a) => s + signed(a, a.v[i]), 0)) < 0.5);
+  if (reviewed) {
+    const sourceModel = reviewed.sourceModel;
+    return { company:c, csv:reviewed.csv, overrides:reviewed.overrides, ctx:{...ctx,
+      company:sourceModel.issuer, issuerCountry:sourceModel.issuerCountry, periodEnd:sourceModel.periodEnd,
+      priorPeriodEnd:sourceModel.priorPeriodEnd, reportingFramework:sourceModel.accountingBasis,
+      currency:'USD', curSym:'USD million', taxKind:'income', consolidated:true, auditFirm:'', auditCity:'',
+      sourceKind:'published-statements', sourceModel}, year, balanced:true, source:'Published statement source: pp. 125, 127; not ledger or audit evidence' };
+  }
   return { company: c, csv, overrides, ctx, year, balanced, source: 'ص ' + f.pages.is + ' (قائمة الدخل) · ص ' + f.pages.bs + ' (المركز المالي)' };
 }

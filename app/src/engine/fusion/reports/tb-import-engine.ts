@@ -2,6 +2,7 @@
    CSV / TSV / text pasted from Excel, Arabic or English headers, net-balance or debit/credit
    columns, and an optional prior-year column (net, or prior debit/credit) for comparatives.
    Classification by the chart-of-accounts first digit, then by account-name hints (Moon, SEE). */
+import { SOURCE_MARKER } from './published-source-engine';
 import { normalizeDigits, parseMinor, type Minor } from './money-engine';
 
 export type AccountType = 'asset' | 'liability' | 'equity' | 'revenue' | 'expense' | 'suspense';
@@ -15,6 +16,8 @@ export type TbRow = {
 };
 export type TbError = { line: number; code: 'EMPTY_INPUT' | 'AMOUNT_NOT_NUMERIC' | 'DUPLICATE_ACCOUNT'; message: string };
 export type TrialBalance = {
+  /** Origin survives adjustments and never establishes audit evidence. */
+  sourceKind?: 'published-statements'; sourceId?: string;
   ok: boolean; rows: TbRow[]; errors: TbError[];
   totals: { debit: Minor; credit: Minor }; difference: Minor; balanced: boolean;
   hasPrior: boolean; priorDifference: Minor | null; unclassified: number;
@@ -111,7 +114,9 @@ function finish(rows: TbRow[], errors: TbError[], columns: Record<string, number
 
 /** Parse tabular text into a trial balance. overrides: {accountCode: type} from the user's mapping review. */
 export function parseTrialBalance(text: string, opts: { delimiter?: string; overrides?: Record<string, AccountType> } = {}): TrialBalance {
-  const source = String(text ?? '').replace(/^﻿/, '');
+  const raw = String(text ?? '').replace(/^﻿/, '');
+  const marked = raw.split(/\r?\n/).find(l => l.startsWith(SOURCE_MARKER));
+  const source = raw.split(/\r?\n/).filter(l => !l.startsWith(SOURCE_MARKER)).join('\n');
   const lines = source.split(/\r?\n/).filter((l) => l.trim());
   if (!lines.length) return finish([], [{ line: 0, code: 'EMPTY_INPUT', message: 'لا توجد بيانات للاستيراد' }], {}, ',');
   const delimiter = opts.delimiter || detectDelimiter(source);
@@ -139,7 +144,8 @@ export function parseTrialBalance(text: string, opts: { delimiter?: string; over
     else seen.set(code, lineNo);
     rows.push(makeRow(lineNo, code, name, debit, credit, prior, opts.overrides?.[code]));
   });
-  return finish(rows, errors, columns, delimiter);
+  const result = finish(rows, errors, columns, delimiter);
+  return marked ? {...result,sourceKind:'published-statements',sourceId:marked.slice(SOURCE_MARKER.length).trim()} : result;
 }
 
 /** Build a trial balance from rows the app already has (the ledger engine, the audit bridge). */
