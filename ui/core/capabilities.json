@@ -1,6 +1,6 @@
 {
  "version": 1,
- "note": "Single source of truth for every S.kosif screen: navigation has eight top-level domains (home, audit, product, customer, supply, books, reports, jev); the five company domains (\"company\": true) are the studios of the open company and carry its company bar; related screens form a hub whose pages open as tabs. There is no separate user-facing daily/advanced switch; legacy primary/advanced metadata is compatibility data only. Command palette, permissions and docs/rebuild/*.md are generated from this file. Edit here only.",
+ "note": "Single source of truth for every S.kosif screen. Legacy navigation groups remain for compatibility during the four-portal migration; targetPortal is the canonical destination for the new shell. Command palette, permissions and docs/rebuild/*.md are generated from this file. Edit here only.",
  "tiers": {
   "CORE": "العمل اليومي الأساسي",
   "MANAGEMENT": "الإدارة والمتابعة",
@@ -241,7 +241,8 @@
    "decision": "Rebuild",
    "kw": "الرئيسية لوحة العمل home",
    "adv": false,
-   "en": "Command Center"
+   "en": "Command Center",
+   "targetPortal": "shared"
   },
   {
    "id": "tasks",
@@ -261,7 +262,8 @@
    "en": "Tasks",
    "feeds": [
     "notifications"
-   ]
+   ],
+   "targetPortal": "shared"
   },
   {
    "id": "notifications",
@@ -281,7 +283,8 @@
    "decision": "Rebuild",
    "kw": "إشعارات تنبيهات جرس غير مقروءة notifications alerts bell",
    "adv": false,
-   "en": "Notifications"
+   "en": "Notifications",
+   "targetPortal": "shared"
   },
   {
    "id": "risks",
@@ -301,7 +304,8 @@
    "feeds": [
     "tasks",
     "decision"
-   ]
+   ],
+   "targetPortal": "shared"
   },
   {
    "id": "helperdesk",
@@ -325,7 +329,8 @@
     "jev",
     "execreports"
    ],
-   "company": true
+   "company": true,
+   "targetPortal": "shared"
   },
   {
    "id": "decision",
@@ -347,7 +352,8 @@
     "jev",
     "council",
     "tasks"
-   ]
+   ],
+   "targetPortal": "shared"
   },
   {
    "id": "jev",
@@ -369,7 +375,8 @@
    "en": "Jev Decisions",
    "feeds": [
     "council"
-   ]
+   ],
+   "targetPortal": "shared"
   },
   {
    "id": "council",
@@ -386,7 +393,8 @@
    "group": "jev",
    "hub": "jev",
    "adv": false,
-   "en": "Decision Council"
+   "en": "Decision Council",
+   "targetPortal": "shared"
   },
   {
    "id": "risklab",
@@ -403,7 +411,8 @@
    "decision": "Keep",
    "kw": "مخاطر مونت كارلو",
    "adv": false,
-   "en": "Risk & Profit Bridge"
+   "en": "Risk & Profit Bridge",
+   "targetPortal": "tools"
   },
   {
    "id": "sensitivity",
@@ -420,7 +429,8 @@
    "decision": "Keep",
    "kw": "حساسية سيناريو",
    "adv": false,
-   "en": "Sensitivity Lab"
+   "en": "Sensitivity Lab",
+   "targetPortal": "tools"
   },
   {
    "id": "salesmap",
@@ -442,7 +452,8 @@
    "feeds": [
     "customers",
     "commerce"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "commerce",
@@ -468,7 +479,8 @@
     "receivables",
     "salesintel",
     "ledger"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "zatca",
@@ -489,7 +501,8 @@
    "feeds": [
     "commerce",
     "ledger"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "customers",
@@ -514,7 +527,8 @@
     "salesintel",
     "b2bcredit",
     "offers"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "customerflow",
@@ -541,7 +555,8 @@
     "followup",
     "receivables",
     "commerce"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "followup",
@@ -562,7 +577,8 @@
    "en": "Customer Follow-up",
    "feeds": [
     "tasks"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "b2bcredit",
@@ -583,7 +599,8 @@
    "feeds": [
     "receivables",
     "ledger"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "offers",
@@ -604,7 +621,8 @@
    "en": "Offers & Catalog",
    "feeds": [
     "commerce"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "operations",
@@ -628,7 +646,8 @@
    "feeds": [
     "commerce",
     "inventory"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "salesintel",
@@ -652,7 +671,8 @@
     "economics",
     "decision",
     "tasks"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "intelligence",
@@ -670,7 +690,8 @@
    "decision": "Keep",
    "kw": "شرائح احتفاظ",
    "adv": false,
-   "en": "Customer & Demand Intelligence"
+   "en": "Customer & Demand Intelligence",
+   "targetPortal": "accounting_core"
   },
   {
    "id": "economics",
@@ -692,7 +713,8 @@
    "feeds": [
     "sim",
     "catalog"
-   ]
+   ],
+   "targetPortal": "tools"
   },
   {
    "id": "inventory",
@@ -716,7 +738,8 @@
     "purchasing",
     "traceability",
     "blending"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "traceability",
@@ -737,7 +760,8 @@
    "en": "Traceability & Cold Chain",
    "feeds": [
     "inventory"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "suppliers",
@@ -761,7 +785,8 @@
     "cash",
     "inventory",
     "carcass"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "purchasing",
@@ -782,7 +807,8 @@
    "feeds": [
     "inventory",
     "ledger"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "blending",
@@ -800,7 +826,8 @@
    "en": "Meat Blends",
    "feeds": [
     "catalog"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "culinary",
@@ -815,7 +842,8 @@
    "decision": "Keep",
    "kw": "طبخ قطعية",
    "adv": false,
-   "en": "Chef's Guide"
+   "en": "Chef's Guide",
+   "targetPortal": "accounting_core"
   },
   {
    "id": "carcass",
@@ -835,7 +863,8 @@
     "yieldlab",
     "nrv",
     "catalog"
-   ]
+   ],
+   "targetPortal": "tools"
   },
   {
    "id": "yieldlab",
@@ -855,7 +884,8 @@
    "en": "Butchery Yield Lab",
    "feeds": [
     "catalog"
-   ]
+   ],
+   "targetPortal": "tools"
   },
   {
    "id": "nrv",
@@ -875,7 +905,8 @@
    "en": "Carcass Split (NRV)",
    "feeds": [
     "catalog"
-   ]
+   ],
+   "targetPortal": "tools"
   },
   {
    "id": "ledger",
@@ -895,7 +926,8 @@
    "feeds": [
     "execreports",
     "cash"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "jesim",
@@ -916,7 +948,8 @@
    "en": "Entry Simulator",
    "feeds": [
     "ledger"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "cash",
@@ -937,7 +970,8 @@
    "feeds": [
     "finance",
     "decision"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "benchmarks",
@@ -961,7 +995,8 @@
     "inventory",
     "costs",
     "cash"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "receivables",
@@ -981,7 +1016,8 @@
    "feeds": [
     "cash",
     "ledger"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "advances",
@@ -1002,7 +1038,8 @@
    "feeds": [
     "ledger",
     "receivables"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "finance",
@@ -1018,7 +1055,8 @@
    "decision": "Keep",
    "kw": "تعادل حساسية",
    "adv": false,
-   "en": "Financial Engineering"
+   "en": "Financial Engineering",
+   "targetPortal": "tools"
   },
   {
    "id": "ptree",
@@ -1042,7 +1080,8 @@
     "catalog",
     "suppliers",
     "customers"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "productflow",
@@ -1066,7 +1105,8 @@
     "builder",
     "sim",
     "memo"
-   ]
+   ],
+   "targetPortal": "accounting_core"
   },
   {
    "id": "catalog",
@@ -1094,7 +1134,8 @@
     "finance"
    ],
    "hub": "productflow",
-   "hidden": true
+   "hidden": true,
+   "targetPortal": "accounting_core"
   },
   {
    "id": "costs",
@@ -1116,7 +1157,8 @@
     "catalog",
     "builder"
    ],
-   "hidden": true
+   "hidden": true,
+   "targetPortal": "tools"
   },
   {
    "id": "sim",
@@ -1138,7 +1180,8 @@
     "memo"
    ],
    "hub": "productflow",
-   "hidden": true
+   "hidden": true,
+   "targetPortal": "tools"
   },
   {
    "id": "kernel",
@@ -1154,7 +1197,8 @@
    "kw": "محرك تقريب",
    "adv": false,
    "en": "Strict Pricing Kernel",
-   "hidden": true
+   "hidden": true,
+   "targetPortal": "tools"
   },
   {
    "id": "memo",
@@ -1176,7 +1220,8 @@
     "catalog"
    ],
    "hub": "productflow",
-   "hidden": true
+   "hidden": true,
+   "targetPortal": "accounting_core"
   },
   {
    "id": "builder",
@@ -1201,7 +1246,8 @@
     "offers"
    ],
    "hub": "productflow",
-   "hidden": true
+   "hidden": true,
+   "targetPortal": "tools"
   },
   {
    "id": "analyzer",
@@ -1219,7 +1265,8 @@
    "kw": "مكونات دائرة",
    "adv": false,
    "en": "Box Analyzer",
-   "hidden": true
+   "hidden": true,
+   "targetPortal": "tools"
   },
   {
    "id": "compare",
@@ -1237,7 +1284,8 @@
    "kw": "مقارنة",
    "adv": false,
    "en": "Comparative Analysis",
-   "hidden": true
+   "hidden": true,
+   "targetPortal": "tools"
   },
   {
    "id": "labels",
@@ -1252,7 +1300,8 @@
    "decision": "Keep",
    "kw": "ملصق باركود ميزان",
    "adv": false,
-   "en": "Scale Labels"
+   "en": "Scale Labels",
+   "targetPortal": "accounting_core"
   },
   {
    "id": "scanner",
@@ -1269,7 +1318,8 @@
    "decision": "Keep",
    "kw": "باركود كاميرا",
    "adv": false,
-   "en": "Barcode Scanner"
+   "en": "Barcode Scanner",
+   "targetPortal": "accounting_core"
   },
   {
    "id": "smartmatch",
@@ -1290,7 +1340,8 @@
    "feeds": [
     "customers",
     "catalog"
-   ]
+   ],
+   "targetPortal": "tools"
   },
   {
    "id": "excelrecon",
@@ -1308,7 +1359,8 @@
    "en": "Excel Reconciliation",
    "feeds": [
     "catalog"
-   ]
+   ],
+   "targetPortal": "tools"
   },
   {
    "id": "execreports",
@@ -1330,7 +1382,8 @@
    "en": "Executive Reports",
    "feeds": [
     "decision"
-   ]
+   ],
+   "targetPortal": "reporting_assistant"
   },
   {
    "id": "reports",
@@ -1348,7 +1401,8 @@
    "decision": "Keep",
    "kw": "طباعة تقرير pdf",
    "adv": false,
-   "en": "Print Center"
+   "en": "Print Center",
+   "targetPortal": "reporting_assistant"
   },
   {
    "id": "exports",
@@ -1365,7 +1419,8 @@
    "group": "reports",
    "hub": "reports",
    "adv": false,
-   "en": "Export Center"
+   "en": "Export Center",
+   "targetPortal": "reporting_assistant"
   },
   {
    "id": "archive",
@@ -1383,7 +1438,8 @@
    "kw": "أرشيف سجل نسخة",
    "adv": false,
    "en": "Archive & Changes",
-   "hubLabel": "الأرشيف والأنظمة الأصلية"
+   "hubLabel": "الأرشيف والأنظمة الأصلية",
+   "targetPortal": "reporting_assistant"
   },
   {
    "id": "tbreview",
@@ -1407,7 +1463,8 @@
     "risks",
     "tasks",
     "codex"
-   ]
+   ],
+   "targetPortal": "audit"
   },
   {
    "id": "codex",
@@ -1427,7 +1484,8 @@
    "hubLabel": "المعايير والمدونة",
    "feeds": [
     "tbreview"
-   ]
+   ],
+   "targetPortal": "audit"
   },
   {
    "id": "auditbench",
@@ -1447,7 +1505,8 @@
    "en": "Global Audit Benchmarks",
    "feeds": [
     "tbreview"
-   ]
+   ],
+   "targetPortal": "audit"
   },
   {
    "id": "corpuslab",
@@ -1468,7 +1527,8 @@
    "feeds": [
     "tbreview",
     "auditbench"
-   ]
+   ],
+   "targetPortal": "audit"
   },
   {
    "id": "auditdesk",
@@ -1486,7 +1546,8 @@
    "adv": false,
    "en": "Audit Desk",
    "hub": "tbreview",
-   "hidden": true
+   "hidden": true,
+   "targetPortal": "audit"
   },
   {
    "id": "auditdocs",
@@ -1507,7 +1568,8 @@
    "kw": "دليل مستند ميزان",
    "adv": false,
    "en": "Documents & Evidence",
-   "hidden": true
+   "hidden": true,
+   "targetPortal": "audit"
   },
   {
    "id": "auditissues",
@@ -1525,7 +1587,8 @@
    "kw": "ملاحظة قضية",
    "adv": false,
    "en": "Findings & Issues",
-   "hidden": true
+   "hidden": true,
+   "targetPortal": "audit"
   },
   {
    "id": "auditcouncil",
@@ -1543,7 +1606,8 @@
    "kw": "مجلس",
    "adv": false,
    "en": "Reviewers' Council",
-   "hidden": true
+   "hidden": true,
+   "targetPortal": "audit"
   },
   {
    "id": "auditfin",
@@ -1561,7 +1625,8 @@
    "kw": "قيد قائمة مالية",
    "adv": false,
    "en": "Statements & Entries",
-   "hidden": true
+   "hidden": true,
+   "targetPortal": "audit"
   },
   {
    "id": "auditreport",
@@ -1579,7 +1644,8 @@
    "kw": "تقرير مراجع",
    "adv": false,
    "en": "Reports & Issuance",
-   "hidden": true
+   "hidden": true,
+   "targetPortal": "audit"
   },
   {
    "id": "auditanalytics",
@@ -1599,7 +1665,8 @@
    "hub": "tbreview",
    "feeds": [
     "tbreview"
-   ]
+   ],
+   "targetPortal": "audit"
   },
   {
    "id": "auditlab",
@@ -1616,7 +1683,8 @@
    "decision": "Keep",
    "kw": "معايير مختبر",
    "adv": false,
-   "en": "Standards Lab"
+   "en": "Standards Lab",
+   "targetPortal": "audit"
   },
   {
    "id": "settings",
@@ -1634,7 +1702,8 @@
    "decision": "Keep",
    "kw": "إعداد نسخة احتياطية مظهر",
    "adv": false,
-   "en": "Settings & Appearance"
+   "en": "Settings & Appearance",
+   "targetPortal": "shared"
   },
   {
    "id": "devices",
@@ -1653,7 +1722,8 @@
    "decision": "Rebuild",
    "kw": "آيفون ايفون iphone لابتوب laptop ماك mac ويندوز تثبيت نقل مزامنة airdrop اختصارات لوحة مفاتيح شريط سفلي devices sync",
    "adv": false,
-   "en": "Devices & Sync"
+   "en": "Devices & Sync",
+   "targetPortal": "shared"
   },
   {
    "id": "companies",
@@ -1673,7 +1743,8 @@
    "feeds": [
     "ledger",
     "tbreview"
-   ]
+   ],
+   "targetPortal": "shared"
   },
   {
    "id": "governance",
@@ -1691,7 +1762,8 @@
    "decision": "Keep",
    "kw": "حوكمة تدقيق سجل",
    "adv": false,
-   "en": "Governance & Readiness"
+   "en": "Governance & Readiness",
+   "targetPortal": "shared"
   },
   {
    "id": "health",
@@ -1709,7 +1781,8 @@
    "decision": "Keep",
    "kw": "تشخيص أخطاء",
    "adv": false,
-   "en": "Health & Diagnostics"
+   "en": "Health & Diagnostics",
+   "targetPortal": "shared"
   },
   {
    "id": "capabilitiesv2",
@@ -1727,7 +1800,8 @@
    "decision": "Keep",
    "kw": "صلاحيات دور سحابة",
    "adv": false,
-   "en": "Permissions & Workspaces"
+   "en": "Permissions & Workspaces",
+   "targetPortal": "shared"
   },
   {
    "id": "legacyapps",
@@ -1749,7 +1823,20 @@
     "followup",
     "salesintel"
    ],
-   "hub": "archive"
+   "hub": "archive",
+   "targetPortal": "reporting_assistant"
   }
- ]
+ ],
+ "portalMigration": {
+  "version": "2026-10-05.v1",
+  "mode": "compatibility-first",
+  "note": "Legacy groups remain active during migration. targetPortal is the canonical destination for the new four-portal shell; shared is an internal cross-cutting layer and is not a fifth user-facing portal.",
+  "portals": {
+   "accounting_core": "البرنامج المحاسبي",
+   "reporting_assistant": "مساعد إعداد القوائم والتقارير",
+   "audit": "المراجعة الذكية",
+   "tools": "الأدوات المساعدة",
+   "shared": "طبقة مشتركة داخلية"
+  }
+ }
 }
