@@ -1794,7 +1794,8 @@
     "customers",
     "suppliers"
    ],
-   "gateway": "accounting"
+   "gateway": "accounting",
+   "company": true
   },
   {
    "id": "governance",
