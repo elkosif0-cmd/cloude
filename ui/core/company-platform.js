@@ -124,24 +124,16 @@ function requestAuditHandoff(id){
   if(!s.auditHandoffs.some(x=>x.documentId===id&&x.status==="pending"))s.auditHandoffs.push({id:uid("handoff"),documentId:id,status:"pending",requestedAt:new Date().toISOString(),requestedBy:"user"});
   commit(s,"audit.handoff.request",{documentId:id,sha256:doc.sha256});return true;
 }
-function auditHandoffs(){
-  const s=state(),docs=Object.fromEntries(s.documents.filter(d=>d.companyId===cur().id).map(d=>[d.id,d]));
-  return s.auditHandoffs.filter(h=>docs[h.documentId]).map(h=>({...h,document:{...docs[h.documentId]}}));
+function auditHandoffs(status=null){
+  const s=state(),companyId=cur().id,docs=Object.fromEntries(s.documents.filter(d=>d.companyId===companyId).map(d=>[d.id,d]));
+  return s.auditHandoffs.filter(h=>(!status||h.status===status)&&docs[h.documentId]).map(h=>({...h,document:{...docs[h.documentId]}}));
 }
 function markAuditHandoff(id,status,requestId=""){
-  const allowed=new Set(["pending","attached","dismissed"]);if(!allowed.has(status))throw new Error("حالة التسليم غير صالحة");
-  const s=state(),h=s.auditHandoffs.find(x=>x.id===id);if(!h)return false;
+  const allowed=new Set(["pending","attached","dismissed","received","rejected"]);if(!allowed.has(status))throw new Error("حالة التسليم غير صالحة");
+  const s=state(),companyId=cur().id,h=s.auditHandoffs.find(x=>x.id===id),doc=h&&s.documents.find(d=>d.id===h.documentId&&d.companyId===companyId);if(!h||!doc)return false;
   h.status=status;h.requestId=clean(requestId,80);h.updatedAt=new Date().toISOString();commit(s,"audit.handoff."+status,{handoffId:id,documentId:h.documentId,requestId:h.requestId});return true;
 }
-function auditHandoffs(status=null){
-  const s=state(),docs=Object.fromEntries(s.documents.map(d=>[d.id,d]));
-  return s.auditHandoffs.filter(h=>!status||h.status===status).map(h=>({...h,document:docs[h.documentId]?{...docs[h.documentId]}:null})).filter(h=>h.document);
-}
-function setAuditHandoffStatus(id,status){
-  if(!["pending","received","rejected"].includes(status))throw new Error("حالة تسليم غير معروفة");
-  const s=state(),row=s.auditHandoffs.find(x=>x.id===id);if(!row)return false;
-  row.status=status;row.updatedAt=new Date().toISOString();commit(s,"audit.handoff.status",{handoffId:id,status,documentId:row.documentId});return true;
-}
+function setAuditHandoffStatus(id,status){return markAuditHandoff(id,status)}
 function addStandardTrace(input={}){
   const s=state(),row={id:uid("std"),at:new Date().toISOString(),operation:clean(input.operation,120),standard:clean(input.standard,80),source:clean(input.source,500),result:clean(input.result,500),provider:clean(input.provider,80),approved:input.approved===true};
   s.standardTraces.push(row);if(s.standardTraces.length>500)s.standardTraces=s.standardTraces.slice(-500);commit(s,"standard.trace",{id:row.id,standard:row.standard});return row;
@@ -188,5 +180,5 @@ function searchCompany(query){
   const limited=hits.slice(0,20),text=limited.length?("نتائج داخل «"+c.name+"»:\n"+limited.map(x=>"• "+x.title+(x.detail?" — "+x.detail:"")).join("\n")):"لم أجد نتيجة مطابقة داخل بيانات الشركة الحالية.";
   return{text,matches:limited};
 }
-window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,definitions,addDefinition,removeDefinition,installed,setTool,reportingTarget,reportingStatus,inferType,ingestFiles,documents,readDocument,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,setAuditHandoffStatus,addStandardTrace,saveReportResult,search:searchCompany});
+window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,definitions,addDefinition,removeDefinition,installed,setTool,reportingTarget,reportingStatus,inferType,ingestFiles,documents,readDocument,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,markAuditHandoff,setAuditHandoffStatus,addStandardTrace,saveReportResult,search:searchCompany});
 })();
