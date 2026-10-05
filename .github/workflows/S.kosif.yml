@@ -112,7 +112,9 @@ jobs:
         run: node --test think-mcp/worker.test.mjs
 
       - name: Four-gateway capability contract
-        run: node tools/four_gateway_contract.mjs
+        run: |
+          node tools/four_gateway_contract.mjs
+          node --test tools/helper_gateway.test.mjs
 
       - name: Capability docs are in sync with the registry
         run: python3 tools/capability_docs.py --check
@@ -274,4 +276,3 @@ jobs:
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/advances_e2e.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/company_entry_e2e.mjs http://localhost:8765/
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/sales_reports_e2e.mjs http://localhost:8765/app-safe.html
-

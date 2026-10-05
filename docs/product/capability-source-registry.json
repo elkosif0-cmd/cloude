@@ -175,17 +175,41 @@
     },
     {
       "repo": "mafateeh-al-tharwa",
-      "class": "nonfinancial-current-scope",
-      "target": [],
-      "evidence": [],
-      "status": "out-of-scope"
+      "class": "shared-document-reference-reuse-candidate",
+      "target": [
+        "tools",
+        "reporting"
+      ],
+      "evidence": [
+        "https://github.com/kosif199022-jpg/mafateeh-al-tharwa/blob/a182735f5523f0b99a046c96416416e6d7760e41/public/reader.html",
+        "https://github.com/kosif199022-jpg/mafateeh-al-tharwa/blob/a182735f5523f0b99a046c96416416e6d7760e41/public/reader-formats.js#L329-L363",
+        "https://github.com/kosif199022-jpg/mafateeh-al-tharwa/blob/a182735f5523f0b99a046c96416416e6d7760e41/public/reader-smart-suite.js#L94-L123",
+        "https://github.com/kosif199022-jpg/mafateeh-al-tharwa/blob/a182735f5523f0b99a046c96416416e6d7760e41/public/reader-smart-suite.js#L140-L150",
+        "https://github.com/kosif199022-jpg/mafateeh-al-tharwa/blob/a182735f5523f0b99a046c96416416e6d7760e41/public/piper-worker.js"
+      ],
+      "status": "candidate-source-inspected-runtime-unverified",
+      "source_commit": "a182735f5523f0b99a046c96416416e6d7760e41",
+      "capability_summary": "RTL reading/search/annotations and DOCX/EPUB/text export; experimental resumable PDF extraction, page-retrieval questions and speech.",
+      "caveats": "Reuse candidates, not financial engines or integrated accounting/audit features. Runtime and production acceptance unverified; PDF/AI/speech are experimental. Tenant/document authorization, provider consent and rights review are required."
     },
     {
       "repo": "mafateeh-al-tharwa2",
-      "class": "nonfinancial-current-scope",
-      "target": [],
-      "evidence": [],
-      "status": "out-of-scope"
+      "class": "shared-document-reference-reuse-candidate",
+      "target": [
+        "tools",
+        "reporting"
+      ],
+      "evidence": [
+        "https://github.com/kosif199022-jpg/mafateeh-al-tharwa2/blob/fc8518662be5511cc7b09d5317875a7677a343b1/public/reader.html",
+        "https://github.com/kosif199022-jpg/mafateeh-al-tharwa2/blob/fc8518662be5511cc7b09d5317875a7677a343b1/public/reader-formats.js#L329-L363",
+        "https://github.com/kosif199022-jpg/mafateeh-al-tharwa2/blob/fc8518662be5511cc7b09d5317875a7677a343b1/public/reader-smart-suite.js#L94-L123",
+        "https://github.com/kosif199022-jpg/mafateeh-al-tharwa2/blob/fc8518662be5511cc7b09d5317875a7677a343b1/public/reader-smart-suite.js#L140-L150",
+        "https://github.com/kosif199022-jpg/mafateeh-al-tharwa2/blob/fc8518662be5511cc7b09d5317875a7677a343b1/public/piper-worker.js"
+      ],
+      "status": "candidate-source-inspected-runtime-unverified",
+      "source_commit": "fc8518662be5511cc7b09d5317875a7677a343b1",
+      "capability_summary": "RTL reading/search/annotations and DOCX/EPUB/text export; experimental resumable PDF extraction, page-retrieval questions and speech.",
+      "caveats": "Reuse candidates, not financial engines or integrated accounting/audit features. Runtime and production acceptance unverified; PDF/AI/speech are experimental. Tenant/document authorization, provider consent and rights review are required."
     },
     {
       "repo": "-",
