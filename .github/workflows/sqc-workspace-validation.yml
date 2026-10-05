@@ -1,0 +1,98 @@
+name: SQC Workspace Validation
+
+on:
+  pull_request:
+    paths:
+      - 'build.py'
+      - 'build_mode.py'
+      - 'private_blocks.py'
+      - 'ui/features/workspace.js'
+      - 'ui/components/states.js'
+      - 'ui/core/company.js'
+      - 'ui/core/helper-space.js'
+      - 'ui/core/engines.js'
+      - 'ui/layouts/topbar.js'
+      - 'tools/workspace_validation*'
+      - '.github/workflows/sqc-workspace-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workspace-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  workspace-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SQC_TESTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      SQC_BUILD_MODE: preview
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify exact head and real-handler pure regression tests
+        run: |
+          set -euo pipefail
+          test "$GITHUB_ACTIONS" = true
+          test "$(git rev-parse HEAD)" = "$SQC_TESTED_SHA"
+          [[ "$SQC_TESTED_SHA" =~ ^[a-f0-9]{40}$ ]]
+          node --check ui/features/workspace.js
+          node --check tools/workspace_validation_e2e.mjs
+          node --test tools/workspace_validation*.test.mjs tools/company_context.test.mjs
+      - name: Build and verify data-free preview
+        run: |
+          set -euo pipefail
+          python3 build.py
+          test ! -d dist/secure
+          python3 - <<'PY'
+          from pathlib import Path
+          assert 'const SEED_B64 = "";' in Path('dist/app-safe.html').read_text()
+          front = Path('dist/index.html').read_text()
+          assert 'crypto.json' not in front and 'id="f"' not in front
+          source = Path('ui/features/workspace.js').read_text()
+          assert source in Path('dist/skosif.js').read_text()
+          PY
+      - name: Install isolated CI-only browser
+        run: |
+          set -euo pipefail
+          test "$GITHUB_ACTIONS" = true
+          npm install --no-save --prefix /tmp/sqc-workspace-pw playwright@1.51.1
+          /tmp/sqc-workspace-pw/node_modules/.bin/playwright install --with-deps chromium
+      - name: Create synthetic company and periods through the actual UI
+        run: |
+          set -euo pipefail
+          test "$GITHUB_ACTIONS" = true
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory dist >/tmp/sqc-workspace-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          python3 - <<'PY'
+          import time, urllib.request
+          for attempt in range(30):
+              try:
+                  with urllib.request.urlopen('http://127.0.0.1:8765/index.html', timeout=1) as response:
+                      assert response.status == 200
+                  break
+              except (OSError, AssertionError):
+                  if attempt == 29: raise
+                  time.sleep(1)
+          PY
+          NODE_PATH=/tmp/sqc-workspace-pw/node_modules node tools/workspace_validation_e2e.mjs http://127.0.0.1:8765/
+      - name: Retain synthetic exact-head evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workspace-validation-${{ env.SQC_TESTED_SHA }}
+          path: artifacts/workspace-validation/
+          if-no-files-found: warn
+          retention-days: 7
