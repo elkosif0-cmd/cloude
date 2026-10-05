@@ -245,9 +245,9 @@ async function send(text){
     const ai=window.SKosifAI&&SKosifAI.ready(),plan=localPlan(text);
     if(plan.length&&plan[0].help)reply=HELP;
     else if(ai){try{reply=await gemini(hist().filter(m=>m.role!=="tool").map(m=>({role:m.role==="user"?"user":"model",text:m.text})),step)}
-      catch(e){if(plan.length){for(const [n,a] of plan)step(n,await runTool(n,a));reply="نفّذت ذلك محلياً — تعذر الوصول إلى مزود الذكاء الاصطناعي ("+e.message+")."}else reply="تعذر الوصول إلى مزود الذكاء الاصطناعي: "+e.message}}
+      catch(e){if(plan.length){const references=[];for(const [n,a] of plan){const r=await runTool(n,a);step(n,r);if(n==="standards_search")references.push(r.text)}reply=[...references,"نفّذت ذلك محلياً — تعذر الوصول إلى مزود الذكاء الاصطناعي ("+e.message+")."].join("\n\n")}else reply="تعذر الوصول إلى مزود الذكاء الاصطناعي: "+e.message}}
     else if(plan.length){const results=[];for(const [n,a] of plan){const r=await runTool(n,a);step(n,r);results.push(r)}
-      const info=plan.find(p=>["read_screen","app_summary","company_search","list_tasks","list_screens"].includes(p[0]));reply=info?results[plan.indexOf(info)].text:results.every(r=>r.ok)?"تم.":"لم يكتمل كل شيء — راجع الخطوات أعلاه."}
+      const info=plan.find(p=>["read_screen","app_summary","company_search","standards_search","list_tasks","list_screens"].includes(p[0]));reply=info?results[plan.indexOf(info)].text:results.every(r=>r.ok)?"تم.":"لم يكتمل كل شيء — راجع الخطوات أعلاه."}
     else reply="لم أفهم الطلب بدون ذكاء اصطناعي. "+HELP.split("\n").slice(0,6).join("\n");
   }finally{busy=false}
   push({role:"model",text:reply});paint();

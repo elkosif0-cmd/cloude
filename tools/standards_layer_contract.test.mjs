@@ -113,3 +113,50 @@ test('a reference captured before a jurisdiction switch cannot create a misleadi
   h.select({id:'saudi-company',country:'SA',framework:'IFRS'});
   assert.equal(h.api.trace('stale VAT reference',record,'unavailable'),null);assert.equal(h.traces.length,0);
 });
+
+// Actual local planner -> tool -> send -> paint path, using the actual canonical service.
+// Only the panel's host nodes and storage are synthetic; no AI/network/browser is used.
+function assistantRuntime({providerFailure=false}={}){
+  const h=runtime(),store=new Map(),writes=[];
+  const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const node=()=>({innerHTML:'',textContent:'',classList:{toggle(){}},insertAdjacentHTML(_where,html){this.innerHTML+=html}});
+  const nodes={'.ska-msgs':node(),'.ska-sugg':node(),'.ska-status':node()},panel={dataset:{},nodes};
+  const key=k=>h.W.SK.company.current().id+':'+k;
+  Object.assign(h.W.SK,{$:(sel,root)=>root?.nodes?.[sel]||null,$$:()=>[],esc:escape,
+    load:(k,d)=>structuredClone(store.get(key(k))??d),save:(k,v)=>{writes.push(k);store.set(key(k),structuredClone(v));return true},
+    caps:{get:()=>null,all:()=>[]},perm:{can:()=>true,label:()=> 'test'},audit:{log(){}},toast(){}});
+  h.W.SKosifCore={view:()=> 'masterdata'};
+  h.W.SKosifAI={ready:()=>providerFailure,generate:async()=>{throw new Error('synthetic offline')}};
+  h.W.document={readyState:'loading',addEventListener(){}};h.W.addEventListener=()=>{};
+  vm.runInContext(assistant.replace(/\}\)\(\);\s*$/,'window.__assistantPanelForTest=p=>{panel=p};})();'),h.W);
+  h.W.__assistantPanelForTest(panel);
+  return {...h,writes,send:text=>h.W.SKosifAssistant.send(text),reply:()=>h.W.SK.load('skosif_chat_v1',[]).filter(m=>m.role==='model').at(-1)?.text,
+    html:()=>nodes['.ska-msgs'].innerHTML,rendered:text=>escape(text).replace(/\n/g,'<br>')};
+}
+for(const [name,profile,query] of [
+  ['Egypt VAT',{id:'eg',country:'EG',framework:'EAS'},'ZATCA VAT'],
+  ['EAS presentation',{id:'eg',country:'EG',framework:'EAS'},'IFRS 18'],
+  ['Saudi IFRS',{id:'sa',country:'SA',framework:'IFRS'},'IFRS 18'],
+  ['unavailable SME counterpart',{id:'sme',country:'SA',framework:'SME'},'IAS 2']
+])test('local assistant displays the complete canonical '+name+' result in its reply and rendered panel',async()=>{
+  const h=assistantRuntime();h.select(profile);const expected=h.api.explain(query).text;
+  await h.send(query);
+  assert.equal(h.reply(),expected,'tool success must not collapse to a generic Done reply');
+  assert.ok(h.html().includes('<div class="ska-m ai">'+h.rendered(expected)+'</div>'),'the canonical details must appear in the actual rendered response');
+  assert.deepEqual([...new Set(h.writes)],['skosif_chat_v1']);assert.equal(h.traces.length,0);
+});
+test('local assistant company switching displays each current jurisdiction record without mixed payloads',async()=>{
+  const h=assistantRuntime();
+  for(const profile of [{id:'eg',country:'EG',framework:'EAS'},{id:'sa',country:'SA',framework:'IFRS'},{id:'eg',country:'EG',framework:'EAS'}]){
+    h.select(profile);const expected=h.api.explain('ZATCA VAT').text;await h.send('ZATCA VAT');assert.equal(h.reply(),expected);
+    assert.match(h.reply(),profile.country==='EG'?/14%/:/15%/);assert.doesNotMatch(h.reply(),profile.country==='EG'?/15%|zatca\.gov/i:/14%|eta\.gov/i);
+  }
+  assert.equal(h.traces.length,0);
+});
+test('provider failure retains the canonical standards details in the local fallback reply',async()=>{
+  const h=assistantRuntime({providerFailure:true}),expected=h.api.explain('ZATCA VAT').text;await h.send('ZATCA VAT');
+  assert.ok(h.reply().includes(expected));assert.ok(h.html().includes(h.rendered(expected)));assert.match(h.reply(),/synthetic offline/);assert.equal(h.traces.length,0);
+});
+test('unavailable standards service is displayed rather than a misleading success reply',async()=>{
+  const h=assistantRuntime();vm.runInContext('window.SKosifStandards=null',h.W);assert.equal(vm.runInContext('window.SKosifStandards',h.W),null);await h.send('IFRS 18');assert.equal(h.reply(),'خدمة المعايير غير متاحة');assert.match(h.html(),/خدمة المعايير غير متاحة/);
+});
