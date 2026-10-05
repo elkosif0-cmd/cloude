@@ -32,7 +32,7 @@ const books={companies:[{id:'co-a',name:'شركة ألف',currency:'SAR'},{id:'c
 test('a blank production device offers the locked private company first and the demo company',()=>{
   const g=page();const c=g.cards();
   assert.deepEqual(c.map(x=>[x.id,x.locked,x.demo]),[['co-private',true,false],['demo-co',false,true]]);
-  assert.equal(c[0].name,'قصيف');
+  assert.equal(c[0].name,'تصيف');
   assert.ok(g.els['co-list'].innerHTML.includes('تُفتح بكلمة المرور'));
 });
 
@@ -61,9 +61,9 @@ test('choosing a company hands the app a one-time intent, silences the in-app ch
 test('the private company opens the password section in place and never navigates by itself',()=>{
   const g=page();
   g.click(g.cards()[0]);
-  assert.deepEqual(g.intent(),{id:'co-private',name:'قصيف',locked:true});
+  assert.deepEqual(g.intent(),{id:'co-private',name:'تصيف',locked:true});
   assert.equal(g.location.href,'','only the reviewed unlock script may open the app');
-  assert.equal(g.els.companies.hidden,true);assert.equal(g.els.locked.hidden,false);assert.equal(g.els['locked-t'].textContent,'قصيف');assert.equal(g.els.p.focused,true);
+  assert.equal(g.els.companies.hidden,true);assert.equal(g.els.locked.hidden,false);assert.equal(g.els['locked-t'].textContent,'تصيف');assert.equal(g.els.p.focused,true);
   g.fire('locked-back','click');
   assert.equal(g.intent(),null);assert.equal(g.els.companies.hidden,false);assert.equal(g.els.locked.hidden,true);
 });
@@ -80,7 +80,7 @@ test('a new company is created by name and starts as its own empty space',()=>{
 test('a shortcut or deep link resumes the last company only when it needs no password',()=>{
   const open=page({local:{sqc_last_company:JSON.stringify({id:'co-a',name:'شركة ألف',locked:false})},hash:'#sales'});
   assert.deepEqual(open.intent(),{id:'co-a',name:'شركة ألف',resume:true});assert.equal(open.location.href,'./app-safe.html#sales');
-  const locked=page({local:{sqc_last_company:JSON.stringify({id:'space-main',name:'قصيف',locked:true})},hash:'#sales'});
+  const locked=page({local:{sqc_last_company:JSON.stringify({id:'space-main',name:'تصيف',locked:true})},hash:'#sales'});
   assert.equal(locked.intent(),null);assert.equal(locked.location.href,'');assert.ok(locked.cards()[0].last,'the locked card is marked as the last one');
   const plain=page({local:{sqc_last_company:JSON.stringify({id:'co-a',name:'شركة ألف',locked:false})}});
   assert.equal(plain.intent(),null,'no link: the gallery is shown');assert.ok(plain.cards().find(x=>x.id==='co-a').last);
