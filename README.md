@@ -62,7 +62,7 @@ capability inventory, the new information architecture and the rebuild plan.
   (from the Grand Fusion branch); `node tools/build_engines.mjs` compiles them to `ui/core/engines.js`
   (`window.SKEngines`), and CI checks the compiled file is current.
 - `app/` — the strict TypeScript engines and their tests (run in CI).
-- Navigation: four top-level gateways from `ui/core/capabilities.json`: **البرنامج المحاسبي الكامل · مساعد القوائم والتقارير · نظام المراجعة الذكي · الأدوات المساعدة المستقلة**. The legacy eight domains remain internal studios for compatibility, company scoping and deep links; the sidebar exposes the four gateways only. Hubs keep their ids, permissions and deep links.
+- Navigation: four top-level gateways from `ui/core/capabilities.json`: **البرنامج المحاسبي الكامل · مساعد القوائم والتقارير · نظام المراجعة الذكي · الأدوات المساعدة المستقلة**. The legacy eight domains remain internal studios for compatibility, company scoping and deep links; the sidebar exposes the four gateways only. Hubs keep their ids, permissions and deep links. Company helper snapshots cover selected stores only; audit files, shared tasks/risks, Jev and AI keys are outside those snapshots. Four-gateway navigation does not establish universal company/engagement/document authorization. See `docs/rebuild/FOUR_GATEWAYS_FINANCE_ARCHITECTURE.md` for the evidence and verification limits.
 
 ## KOSIF Luxe
 
