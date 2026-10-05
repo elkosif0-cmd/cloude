@@ -120,9 +120,18 @@ async function removeDocument(id){
   await deleteDocBlob(id);s.documents=s.documents.filter(x=>x.id!==id);s.auditHandoffs=s.auditHandoffs.filter(x=>x.documentId!==id);commit(s,"document.remove",{id,sha256:doc.sha256});return true;
 }
 function requestAuditHandoff(id){
-  const s=state(),doc=s.documents.find(x=>x.id===id);if(!doc)throw new Error("المستند غير موجود");
+  const s=state(),doc=s.documents.find(x=>x.id===id&&x.companyId===cur().id);if(!doc)throw new Error("المستند غير موجود");
   if(!s.auditHandoffs.some(x=>x.documentId===id&&x.status==="pending"))s.auditHandoffs.push({id:uid("handoff"),documentId:id,status:"pending",requestedAt:new Date().toISOString(),requestedBy:"user"});
   commit(s,"audit.handoff.request",{documentId:id,sha256:doc.sha256});return true;
+}
+function auditHandoffs(){
+  const s=state(),docs=Object.fromEntries(s.documents.filter(d=>d.companyId===cur().id).map(d=>[d.id,d]));
+  return s.auditHandoffs.filter(h=>docs[h.documentId]).map(h=>({...h,document:{...docs[h.documentId]}}));
+}
+function markAuditHandoff(id,status,requestId=""){
+  const allowed=new Set(["pending","attached","dismissed"]);if(!allowed.has(status))throw new Error("حالة التسليم غير صالحة");
+  const s=state(),h=s.auditHandoffs.find(x=>x.id===id);if(!h)return false;
+  h.status=status;h.requestId=clean(requestId,80);h.updatedAt=new Date().toISOString();commit(s,"audit.handoff."+status,{handoffId:id,documentId:h.documentId,requestId:h.requestId});return true;
 }
 function auditHandoffs(status=null){
   const s=state(),docs=Object.fromEntries(s.documents.map(d=>[d.id,d]));
