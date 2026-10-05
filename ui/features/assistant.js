@@ -207,7 +207,7 @@ async function gemini(history,onStep,scope,signal){
 
 /* ---------- the chat panel ---------- */
 let panel=null,busy=false,rec=null,currentScope=null,currentRequest=null,locked=false,staleTab=false,chatEpoch=0;
-const SCOPE_MESSAGE="المحادثة متوقفة حتى تفتح شركة ومستخدماً محلياً صالحين. إذا تغيرت المساحة في تبويب آخر، أعد تحميل الصفحة.";
+const SCOPE_MESSAGE="للبدء، افتح مبدّل الشركات وأكّد الشركة المطلوبة. إذا تغيّرت المساحة في تبويب آخر أو تعذر حفظ الاختيار، أعد تحميل الصفحة ثم اختر الشركة.";
 const chatKey=s=>KEY+encodeURIComponent(JSON.stringify([s.userId,s.companyId]));
 function readScope(){
   if(locked||staleTab)return null;
