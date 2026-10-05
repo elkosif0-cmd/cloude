@@ -35,6 +35,10 @@
 .nav{display:flex;flex-direction:column;gap:2px}
 .nav .skn-group{display:flex;flex-direction:column;gap:2px;padding-top:var(--sk-2)}
 .nav .nav-group{display:flex;align-items:center;justify-content:space-between;padding:var(--sk-2) var(--sk-3) 2px;font-size:var(--sk-fs-xs);font-weight:700;color:var(--sk-rail-mute)}
+.nav .skn-subgroup{display:flex;flex-direction:column;gap:2px}
+.nav .skn-subgroup+.skn-subgroup{margin-top:4px}
+.nav .skn-sublabel{padding:6px var(--sk-3) 2px;font-size:10px;font-weight:700;letter-spacing:.02em;color:color-mix(in srgb,var(--sk-rail-mute) 82%,transparent)}
+.skn-group.closed .skn-subgroup{display:none}
 .nav .nav-group .pro{font-size:var(--sk-fs-2xs);padding:0 7px;border-radius:var(--sk-r-pill);background:var(--sk-brand-soft);color:var(--sk-brand)}
 .nav .skn-note{margin:2px var(--sk-3) 4px;font-size:var(--sk-fs-xs);line-height:1.6;color:var(--sk-rail-mute)}
 .nav-btn{display:flex;align-items:center;gap:var(--sk-3);width:100%;min-height:40px;padding:6px var(--sk-3);border:0;border-radius:10px;background:transparent;
