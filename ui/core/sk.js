@@ -141,8 +141,10 @@ function redact(text){
 /* Shared, nested-safe focus containment. Call the returned release after removing/closing
    the panel. Capture the invoker before focusing a dialog; never use a global last button. */
 const modalStack=[];
-function modalFocus(root,invoker=document.activeElement){
-  const entry={root},focusable=()=>[...root.querySelectorAll('button,[href],input,select,textarea,[tabindex]')]
+const modalChanged=()=>{for(const entry of [...modalStack])try{if(modalStack.includes(entry))entry.onTopChange?.(entry===modalStack.at(-1),modalStack.at(-1)?.root)}catch{}};
+function modalFocus(root,invoker=document.activeElement,options={}){
+  const layer=root.closest(".skd-wrap,.skp-wrap,.skk-wrap,.skout,.skpres"),previous=modalStack.at(-1);
+  const entry={root,layer,onTopChange:options.onTopChange},focusable=()=>[...root.querySelectorAll('button,[href],input,select,textarea,[tabindex]')]
     .filter(el=>!el.disabled&&el.tabIndex>=0&&!el.hidden&&!el.closest('[hidden],[inert]')&&el.getClientRects().length&&getComputedStyle(el).visibility!=="hidden");
   let released=false;
   const first=()=>{const items=focusable();if(items.length)items[0].focus({preventScroll:true});else{root.setAttribute("tabindex","-1");root.focus({preventScroll:true})}};
@@ -150,10 +152,19 @@ function modalFocus(root,invoker=document.activeElement){
     if(!items.length){e.preventDefault();first();return}
     if(!root.contains(at)||(e.shiftKey?at===items[0]:at===items.at(-1))){e.preventDefault();(e.shiftKey?items.at(-1):items[0]).focus()}};
   const contain=e=>{if(modalStack.at(-1)===entry&&!root.contains(e.target))first()};
-  modalStack.push(entry);document.addEventListener("keydown",key,true);document.addEventListener("focusin",contain,true);
+  /* Embedded documents supply their own cross-document keyboard handling, but
+     participate in the same ownership stack as confirm/form and other panels. */
+  // Only these known registered wrappers receive temporary visual stack ownership.
+  if(layer&&previous?.layer)try{
+    const current=Number.parseFloat(getComputedStyle(layer).zIndex)||0,under=Number.parseFloat(getComputedStyle(previous.layer).zIndex)||0;
+    if(current<=under){const value=layer.style.getPropertyValue("z-index"),priority=layer.style.getPropertyPriority("z-index"),owned=String(under+1);layer.style.setProperty("z-index",owned,priority);entry.z={value,priority,owned}}
+  }catch{}
+  modalStack.push(entry);if(!options.managed){document.addEventListener("keydown",key,true);document.addEventListener("focusin",contain,true)}modalChanged();
   return()=>{if(released)return;released=true;const top=modalStack.at(-1)===entry,at=modalStack.indexOf(entry);if(at>=0)modalStack.splice(at,1);
     document.removeEventListener("keydown",key,true);document.removeEventListener("focusin",contain,true);
-    if(top){const target=invoker&&invoker.isConnected?invoker:document.getElementById("pg-title");if(target){if(target===document.getElementById("pg-title"))target.setAttribute("tabindex","-1");try{target.focus({preventScroll:true})}catch{}}}};
+    if(entry.z&&layer.style.getPropertyValue("z-index")===entry.z.owned&&layer.style.getPropertyPriority("z-index")===entry.z.priority){if(entry.z.value)layer.style.setProperty("z-index",entry.z.value,entry.z.priority);else layer.style.removeProperty("z-index")}
+    modalChanged();
+    if(top&&options.restore!==false){const target=invoker&&invoker.isConnected?invoker:document.getElementById("pg-title");if(target){if(target===document.getElementById("pg-title"))target.setAttribute("tabindex","-1");try{target.focus({preventScroll:true})}catch{}}}};
 }
 let dialogId=0;
 

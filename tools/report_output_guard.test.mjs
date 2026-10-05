@@ -14,7 +14,7 @@ function harness({preview=true}={}){
     set innerHTML(v){this._html=String(v);this._text=String(v).replace(/<[^>]*>/g,'');this.children=[];
       if(this.className==='skout'||this.className==='skpres'){
         this.frame=new Node('iframe');this.frame.contentWindow=makeWindow();this.frame.contentDocument=this.frame.contentWindow.document;this.appendChild(this.frame);this.controls={};
-        for(const [,key,value]of String(v).matchAll(/data-(o|p)="([^"]+)"/g)){const n=new Node('button');n.dataset[key]=value;n.parentElement=this;this.controls[value]=n;}
+        for(const [,key,value]of String(v).matchAll(/data-(o|p)="([^"]+)"/g)){const n=new Node('button');n.dataset[key]=value;this.appendChild(n);this.controls[value]=n;}
         this.label=new Node('b');
       }
     }get innerHTML(){return this._html;}
@@ -23,7 +23,10 @@ function harness({preview=true}={}){
     get firstElementChild(){return this.children[0]||null;}
     appendChild(n){n.parentElement=this;n.isConnected=true;this.children.push(n);return n;}append(...ns){ns.forEach(n=>this.appendChild(n));}
     remove(){this.isConnected=false;if(this.parentElement)this.parentElement.children=this.parentElement.children.filter(x=>x!==this);}
-    setAttribute(k,v){this.attrs[k]=v;}getAttribute(k){return this.attrs[k];}
+    setAttribute(k,v){this.attrs[k]=String(v);}getAttribute(k){return this.attrs[k]??null;}
+    hasAttribute(k){return Object.hasOwn(this.attrs,k);}removeAttribute(k){delete this.attrs[k];}
+    contains(n){return n===this||this.children.some(c=>c.contains(n));}
+    getClientRects(){return this.hidden?[]:[{}];}
     addEventListener(k,f){(this.listeners[k]??=[]).push(f);}removeEventListener(k,f){this.listeners[k]=(this.listeners[k]||[]).filter(x=>x!==f);}
     dispatch(k,e={}){for(const f of [...this.listeners[k]||[]])f(e);}
     querySelector(s){if(s==='iframe')return this.frame;if(s==='.skout-t'||s==='.skpres-n')return this.label;const match=s.match(/\[data-[op]="([^"]+)"\]/);if(match)return this.controls?.[match[1]];return null;}
