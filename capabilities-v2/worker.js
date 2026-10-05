@@ -28,8 +28,8 @@ const WORKSPACE_FORBIDDEN_KEYS = new Set([
 ]);
 
 export const ROLE_PERMISSIONS = Object.freeze({
-  owner: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","integrity:read"]),
-  partner: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","integrity:read"]),
+  owner: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","integrity:read"]),
+  partner: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","integrity:read"]),
   manager: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","integrity:read"]),
   senior: Object.freeze(["providers:read","session:read","workspace:list","workspace:read","workspace:write","integrity:read"]),
   viewer: Object.freeze(["providers:read","session:read","workspace:list","workspace:read","integrity:read"]),
@@ -239,7 +239,8 @@ function validateWorkspaceInput(input) {
   if (!/^[A-Z]{3}$/.test(currency)) return {error:"invalid_currency"};
   if (!/^[A-Za-z0-9._-]{3,80}$/.test(schemaVersion)) return {error:"invalid_schema_version"};
   if (!Number.isFinite(Date.parse(effectiveAt))) return {error:"invalid_effective_at"};
-  return {name,businessYear,currency,schemaVersion,effectiveAt:new Date(effectiveAt).toISOString()};
+  const sensitive = input?.sensitive === true || name.replace(/\\s+/g,"") === "تصيف";
+  return {name,businessYear,currency,schemaVersion,effectiveAt:new Date(effectiveAt).toISOString(),sensitive};
 }
 
 async function appendLogValues({workspaceId,actor,action,payload,at,prevHash=GENESIS_HASH}) {
@@ -249,6 +250,15 @@ async function appendLogValues({workspaceId,actor,action,payload,at,prevHash=GEN
 }
 async function workspaceForTenant(db,id,tenantId) {
   return db.prepare("SELECT id,tenant_id,name,business_year,currency,status,schema_version,created_by,created_at,archived_at FROM workspaces WHERE id=?1 AND tenant_id=?2").bind(id,tenantId).first();
+}
+async function workspaceSecurity(db,id,tenantId) {
+  return db.prepare("SELECT access_mode,sensitivity,created_at FROM workspace_security WHERE workspace_id=?1 AND tenant_id=?2").bind(id,tenantId).first();
+}
+async function workspaceAccessRole(db,id,tenantId,subject,tenantRole) {
+  const security=await workspaceSecurity(db,id,tenantId);
+  if(!security||security.access_mode==="tenant")return tenantRole;
+  const access=await db.prepare("SELECT role FROM workspace_access WHERE workspace_id=?1 AND tenant_id=?2 AND subject=?3").bind(id,tenantId,subject).first();
+  return access?.role||null;
 }
 async function latestRevision(db,id,tenantId) {
   return db.prepare("SELECT revision,state_json,state_hash,saved_by,saved_at FROM workspace_revisions WHERE workspace_id=?1 AND tenant_id=?2 ORDER BY revision DESC LIMIT 1").bind(id,tenantId).first();
@@ -268,10 +278,17 @@ async function session(env, auth) {
 async function listWorkspaces(env,auth) {
   const db=requireDatabase(env);
   await ensureTenant(db,auth.tenantId,auth.subject,new Date().toISOString());
-  const role=await memberRole(db,auth.tenantId,auth.subject);
-  if (!authorizeRole(role,"workspace:list")) return jsonResponse({error:"permission_denied"},403);
+  const tenantRole=await memberRole(db,auth.tenantId,auth.subject);
+  if (!authorizeRole(tenantRole,"workspace:list")) return jsonResponse({error:"permission_denied"},403);
   const r=await db.prepare("SELECT id,tenant_id,name,business_year,currency,status,schema_version,created_by,created_at,archived_at FROM workspaces WHERE tenant_id=?1 ORDER BY created_at DESC,id DESC LIMIT 100").bind(auth.tenantId).all();
-  return jsonResponse({workspaces:r.results||[]});
+  const workspaces=[];
+  for(const row of r.results||[]){
+    const workspaceRole=await workspaceAccessRole(db,row.id,auth.tenantId,auth.subject,tenantRole);
+    if(!workspaceRole)continue;
+    const security=await workspaceSecurity(db,row.id,auth.tenantId);
+    workspaces.push({...row,workspace_role:workspaceRole,sensitivity:security?.sensitivity||"standard",access_mode:security?.access_mode||"tenant"});
+  }
+  return jsonResponse({workspaces});
 }
 async function createWorkspace(request,env,auth) {
   const contentLength=Number(request.headers.get("content-length")||"0");
@@ -286,9 +303,12 @@ async function createWorkspace(request,env,auth) {
   const log=await appendLogValues({workspaceId:id,actor:auth.subject,action:"workspace.created",payload:{schema_version:v.schemaVersion},at:v.effectiveAt});
   await db.batch([
     db.prepare("INSERT INTO workspaces (id,tenant_id,name,business_year,currency,status,schema_version,created_by,created_at) VALUES (?1,?2,?3,?4,?5,'active',?6,?7,?8)").bind(id,auth.tenantId,v.name,v.businessYear,v.currency,v.schemaVersion,auth.subject,v.effectiveAt),
+    db.prepare("INSERT INTO workspace_security (workspace_id,tenant_id,access_mode,sensitivity,created_at) VALUES (?1,?2,?3,?4,?5)").bind(id,auth.tenantId,v.sensitive?"explicit":"tenant",v.sensitive?"sensitive":"standard",v.effectiveAt),
+    db.prepare("INSERT INTO workspace_access (workspace_id,tenant_id,subject,role,created_at) VALUES (?1,?2,?3,'owner',?4)").bind(id,auth.tenantId,auth.subject,v.effectiveAt),
     db.prepare("INSERT INTO audit_log (workspace_id,actor,action,payload_json,at,canonical_version,prev_hash,entry_hash) VALUES (?1,?2,'workspace.created',?3,?4,?5,?6,?7)").bind(id,auth.subject,log.payloadJson,v.effectiveAt,CANONICAL_VERSION,log.prevHash,log.entryHash),
   ]);
-  return jsonResponse({workspace:await workspaceForTenant(db,id,auth.tenantId),idempotent:false},201);
+  const security=await workspaceSecurity(db,id,auth.tenantId);
+  return jsonResponse({workspace:{...(await workspaceForTenant(db,id,auth.tenantId)),workspace_role:"owner",sensitivity:security?.sensitivity||"standard",access_mode:security?.access_mode||"tenant"},idempotent:false},201);
 }
 async function getWorkspaceMeta(env,auth,id) {
   const row=await workspaceForTenant(requireDatabase(env),id,auth.tenantId);
@@ -327,6 +347,22 @@ async function saveWorkspaceState(request,env,auth,id) {
   }
   return jsonResponse({workspace:{revision,state:normalized.state,state_hash:stateHash,saved_by:auth.subject,saved_at:savedAt}},201);
 }
+async function shareWorkspace(request,env,auth,id) {
+  const db=requireDatabase(env),meta=await workspaceForTenant(db,id,auth.tenantId);
+  if(!meta)return jsonResponse({error:"not_found"},404);
+  if(!["owner","partner"].includes(auth.workspaceRole))return jsonResponse({error:"permission_denied"},403);
+  let input;try{input=await request.json()}catch{return jsonResponse({error:"invalid_json"},400)}
+  const subject=String(input?.subject||"").trim().toLowerCase(),role=String(input?.role||"viewer").trim();
+  if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(subject)||subject.length>320)return jsonResponse({error:"invalid_subject"},422);
+  if(!["partner","manager","senior","viewer"].includes(role))return jsonResponse({error:"invalid_workspace_role"},422);
+  const at=new Date().toISOString();
+  await db.prepare("INSERT INTO workspace_access (workspace_id,tenant_id,subject,role,created_at) VALUES (?1,?2,?3,?4,?5) ON CONFLICT(workspace_id,subject) DO UPDATE SET role=excluded.role").bind(id,auth.tenantId,subject,role,at).run();
+  const head=await db.prepare("SELECT entry_hash FROM audit_log WHERE workspace_id=?1 ORDER BY seq DESC LIMIT 1").bind(id).first();
+  const log=await appendLogValues({workspaceId:id,actor:auth.subject,action:"workspace.shared",payload:{subject,role},at,prevHash:head?.entry_hash||GENESIS_HASH});
+  await db.prepare("INSERT INTO audit_log (workspace_id,actor,action,payload_json,at,canonical_version,prev_hash,entry_hash) VALUES (?1,?2,'workspace.shared',?3,?4,?5,?6,?7)").bind(id,auth.subject,log.payloadJson,at,CANONICAL_VERSION,log.prevHash,log.entryHash).run();
+  return jsonResponse({shared:true,workspace_id:id,subject,role});
+}
+
 async function archiveWorkspace(request,env,auth,id) {
   const db=requireDatabase(env),meta=await workspaceForTenant(db,id,auth.tenantId);
   if(!meta)return jsonResponse({error:"not_found"},404);
@@ -364,6 +400,7 @@ const routes = [
   ["GET", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/state$/, "workspace:read", "state"],
   ["PUT", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/state$/, "workspace:write", "save"],
   ["POST", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/archive$/, "workspace:archive", "archive"],
+  ["POST", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/share$/, "workspace:share", "share"],
   ["GET", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/integrity$/, "integrity:read", "integrity"],
 ];
 
@@ -386,10 +423,17 @@ async function handleApi(request,env,url) {
     auth.role=role;
     if(action==="list")return addCors(await listWorkspaces(env,auth),request,env);
     if(action==="create")return addCors(await createWorkspace(request,env,auth),request,env);
+    if(["meta","state","save","archive","share","integrity"].includes(action)){
+      const workspaceRole=await workspaceAccessRole(db,match[1],auth.tenantId,auth.subject,role);
+      if(!workspaceRole)return jsonResponse({error:"not_found"},404,corsHeaders(request,env));
+      if(!authorizeRole(workspaceRole,permission))return jsonResponse({error:"permission_denied"},403,corsHeaders(request,env));
+      auth.workspaceRole=workspaceRole;
+    }
     if(action==="meta")return addCors(await getWorkspaceMeta(env,auth,match[1]),request,env);
     if(action==="state")return addCors(await getWorkspaceState(env,auth,match[1]),request,env);
     if(action==="save")return addCors(await saveWorkspaceState(request,env,auth,match[1]),request,env);
     if(action==="archive")return addCors(await archiveWorkspace(request,env,auth,match[1]),request,env);
+    if(action==="share")return addCors(await shareWorkspace(request,env,auth,match[1]),request,env);
     if(action==="integrity")return addCors(await integrityStatus(env,auth,match[1]),request,env);
   }catch(error){
     if(error?.message==="database_unavailable")return jsonResponse({error:"database_unavailable"},503,corsHeaders(request,env));
