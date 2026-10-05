@@ -6,7 +6,7 @@ const root=process.env.SQC_OUTPUT_ROOT||path.resolve(import.meta.dirname,'../pre
 const file='.github/workflows/sqc-preview-accessibility.yml';
 const workflow=fs.readFileSync(path.join(root,file),'utf8');
 const packagePath='tools/preview-a11y-tests/';
-const suites=['output_focus_lifecycle.test.mjs','mutation_controls.test.mjs','overlay_integration.test.mjs','workflow_wiring.test.mjs'];
+const suites=['output_focus_lifecycle.test.mjs','mutation_controls.test.mjs','overlay_integration.test.mjs','browser_focus_races.test.mjs','workflow_wiring.test.mjs'];
 const native=packagePath+'preview_keyboard_ci.mjs';
 function globMatches(glob,value){let pattern='';for(let i=0;i<glob.length;i++){if(glob[i]==='*'){if(glob[i+1]==='*'){pattern+='.*';i++;}else pattern+='[^/]*';}else pattern+=glob[i].replace(/[.+?^${}()|[\]\\]/g,'\\$&');}return new RegExp('^'+pattern+'$').test(value);}
 function check(w){

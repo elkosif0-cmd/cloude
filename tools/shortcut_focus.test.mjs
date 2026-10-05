@@ -34,3 +34,11 @@ test('output teardown preserves a later caller-owned inert value on cached palet
 test('resuming output preserves a distinct later caller inert value on its suspended wrapper',async()=>{
  const h=shortcuts();h.button().focus();h.open();const wrap=h.wrap();const child=h.context.SK.confirm('Independent dialog');wrap.setAttribute('inert','later-owner');h.key(h.document,'Escape');await child;assert.equal(wrap.getAttribute('inert'),'later-owner');
 });
+test('completed fullscreen exit recovers actual palette input only after native BODY reset',async()=>{
+ const h=shortcuts();h.open();h.click('present');await h.tick();h.document.fullscreenElement=h.presentation();let settle;h.document.exitFullscreen=()=>new Promise(resolve=>settle=()=>{h.document.fullscreenElement=null;h.document.activeElement=h.document.body;resolve()});
+ command(h).open();const input=h.document.getElementById('skp-inp');assert.ok(h.document.activeElement===input);settle();await h.tick();h.runTimers();assert.ok(h.document.activeElement===input,'fullscreen completion restores the same top palette registration');
+});
+test('newest modal joins a pending fullscreen exit after fullscreenElement already cleared',async()=>{
+ const h=shortcuts();h.open();h.click('present');await h.tick();h.document.fullscreenElement=h.presentation();let settle;h.document.exitFullscreen=()=>{h.document.fullscreenElement=null;return new Promise(resolve=>settle=()=>{h.document.activeElement=h.document.body;resolve()})};
+ command(h).open();keys(h).help();const close=h.document.querySelector('.skk [data-skk-close]');assert.ok(h.document.activeElement===close);settle();await h.tick();assert.ok(h.document.activeElement===close,'newest registration owns recovery of the same native transition');
+});

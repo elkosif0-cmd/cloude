@@ -44,7 +44,12 @@ function bindLayerFrame(layer){
     d.removeEventListener("focusin",layer.focus,true);d.addEventListener("focusin",layer.focus,true);
   }catch{}
 }
-function exitLayerFullscreen(layer){try{const element=document.fullscreenElement;if(element&&layer.wrap.contains(element))document.exitFullscreen().catch(()=>{})}catch{}}
+function exitLayerFullscreen(layer,recover=layer.recoverTop){try{
+  const element=document.fullscreenElement;if(!layer.exitPromise&&(!element||!layer.wrap.contains(element)))return;
+  // Reuse the native transition if a newer modal opens before it settles.
+  if(!layer.exitPromise)layer.exitPromise=Promise.resolve(document.exitFullscreen()).finally(()=>{layer.exitPromise=null});
+  layer.exitPromise.then(()=>{if(!document.fullscreenElement)recover?.()}).catch(()=>{});
+}catch{}}
 /* Persistent palette wrappers may have been background before they became top.
    Release only our oldest recorded inert state, never another owner's original. */
 function revealManagedRoot(root){
@@ -70,8 +75,8 @@ function startLayer(owner,dismiss){
   layer.focus=e=>{if(!owns())return;const target=e.target;if(layer.wrap.contains(target)||target?.ownerDocument===layer.doc)return;focusOn(layer.wrap.querySelector('[data-o="close"],[data-p="close"]'))||focusOn(layer.wrap)};
   layer.hide=()=>{if(!owns())return;for(const node of document.body.children){if(node===layer.wrap||(layer.release&&(node===cur?.wrap||node===pres?.wrap)))continue;const current=node.getAttribute("inert");if(layer.background.has(node)&&current!==null&&current!==""&&current!==layer.background.get(node))continue;if(!layer.background.has(node))layer.background.set(node,current);node.setAttribute("inert","")}};
   layer.wrap.setAttribute("tabindex","-1");
-  if(SK.modalFocus)layer.release=SK.modalFocus(layer.wrap,null,{managed:true,restore:false,onTopChange:(top,root)=>{
-    layer.top=top;if(!layer.active)return;
+  if(SK.modalFocus)layer.release=SK.modalFocus(layer.wrap,null,{managed:true,restore:false,onTopChange:(top,root,recover)=>{
+    layer.recoverTop=recover;layer.top=top;if(!layer.active)return;
     if(!top){revealManagedRoot(root);if(owner.session)exitLayerFullscreen(layer)}
     if(!top&&!layer.suspended){layer.suspended={inert:layer.wrap.getAttribute("inert")};layer.wrap.setAttribute("inert","")}
     if(top&&layer.suspended){const {inert}=layer.suspended;delete layer.suspended;if(layer.wrap.getAttribute("inert")===""){if(inert===null)layer.wrap.removeAttribute("inert");else layer.wrap.setAttribute("inert",inert)}}
@@ -94,7 +99,7 @@ function stopLayer(layer){
   layer.background.clear();layer.release?.();
 }
 function restoreFocus(s,reason,ownedFocus){
-  if(cur||!ownedFocus||document.hasFocus?.()===false||["replacement","navigation","pagehide"].includes(reason))return;
+  if(cur||!ownedFocus||document.hasFocus?.()===false||document.visibilityState==="hidden"||["replacement","navigation","pagehide"].includes(reason))return;
   if(reason==="dismiss"&&s.context!==null&&s.context===focusContext()&&s.opener!==document.body&&s.opener!==document.documentElement&&focusOn(s.opener))return;
   const target=[document.querySelector('#pg-title'),...document.querySelectorAll('#view h1,#view h2,#view [role="status"]'),document.getElementById("view"),...document.querySelectorAll('h1,h2,[role="status"]')].find(available);
   if(!available(target))return;
@@ -135,6 +140,9 @@ function bindGuard(s,w){
 function dispose(s,reason="invalidation"){
   if(!s||!s.active)return;
   const owned=cur===s,focused=document.activeElement,ownedFocus=owned&&(s.wrap?.contains(focused)||pres?.session===s&&pres.wrap.contains(focused));
+  // Move out of the child browsing context before removing its focused iframe.
+  // Otherwise native frame teardown can make hasFocus() false before restoration.
+  if(ownedFocus&&focused?.tagName==="IFRAME"&&document.hasFocus?.()!==false&&document.visibilityState!=="hidden"&&!["replacement","navigation","pagehide"].includes(reason))focusOn(pres?.session===s?pres.wrap:s.wrap);
   s.closeReason=reason;
   s.active=false;clearInterval(s.t);
   if(s.guard){blank(s.w);for(const [w,h]of s.handles){blank(w);if(w!==s.w||!s.wrap)try{h.close()}catch{}}}
@@ -277,7 +285,7 @@ function endPresent(restore=true){
   if(!pres)return;const ended=pres;document.removeEventListener("keydown",pres.key,true);
   stopLayer(pres.layer);
   if(pres.session.guard)blank(pres.f.contentWindow);
-  exitLayerFullscreen(ended.layer);
+  exitLayerFullscreen(ended.layer,cur?.layer?.recoverTop);
   pres.wrap.remove();pres=null;
   if(cur?.active)cur.layer?.hide();
   if(restore&&cur===ended.session&&live(cur)){const b=cur.wrap.querySelector('[data-o="present"]');focusOn(b)||focusOn(cur.wrap)}

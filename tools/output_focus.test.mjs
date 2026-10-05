@@ -74,3 +74,20 @@ test('late fullscreen entry cannot conceal the newer app dialog',async()=>{
  const h=harness({coreDialogs:true});let resolve;const proto=Object.getPrototypeOf(h.document.body);proto.requestFullscreen=function(){const wrap=this;return new Promise(r=>resolve=()=>{h.document.fullscreenElement=wrap;r()})};
  h.open();h.click('present');await h.tick();h.context.SK.confirm('Visible newer child');let exits=0;h.document.exitFullscreen=()=>{exits++;h.document.fullscreenElement=null;return Promise.resolve()};resolve();await h.tick();assert.equal(exits,1);assert.equal(h.document.fullscreenElement,null);
 });
+for(const context of ['guarded','ordinary-unknown-scope'])test('iframe Escape restores context when focused frame removal would drop document focus: '+context,()=>{
+ const h=harness(),opener=h.button(),heading=h.document.createElement('h1');heading.id='pg-title';h.document.body.appendChild(heading);opener.focus();if(context==='ordinary-unknown-scope')h.host.SKosifSpace={scopeSnapshot:()=>({status:'unknown',token:'unknown'})};
+ const w=h.open();if(context==='guarded')h.install(w);let focused=true;h.document.hasFocus=()=>focused;
+ const wrap=h.wrap(),remove=wrap.remove.bind(wrap);wrap.remove=()=>{if(h.document.activeElement===wrap.querySelector('iframe'))focused=false;remove()};
+ h.runTimers({intervals:true});w.document.getElementById('frame-first').focus();w.document.body.focus();h.key(w.document,'Escape');assert.ok(!h.wrap());assert.ok(h.document.activeElement===(context==='guarded'?opener:heading),'safe host target retains document focus through iframe disposal');
+});
+test('closing a background iframe never transfers or restores focus into its inactive document',()=>{
+ const h=harness(),w=h.open();h.install(w);w.document.getElementById('frame-first').focus();w.document.body.focus();h.document.hasFocus=()=>false;const before=h.effects.focus.length;w.close();assert.equal(h.effects.focus.length,before);assert.ok(!h.wrap());
+});
+test('hidden host document never restores focus even if its hasFocus signal lags visibility',()=>{
+ const h=harness(),opener=h.button();opener.focus();h.open();h.document.visibilityState='hidden';h.document.hasFocus=()=>true;const before=h.effects.focus.length;h.api.close();assert.equal(h.effects.focus.length,before);
+});
+test('reentrant modal registration cannot reannounce the previous top as current',()=>{
+ const h=harness({coreDialogs:true}),a=h.document.createElement('div'),b=h.document.createElement('div'),c=h.document.createElement('div');h.document.body.append(a,b,c);let armed=false,lastB=null;
+ h.context.SK.modalFocus(a,null,{managed:true,restore:false,onTopChange:top=>{if(armed&&!top){armed=false;h.context.SK.modalFocus(c,null,{managed:true,restore:false})}}});armed=true;
+ h.context.SK.modalFocus(b,null,{managed:true,restore:false,onTopChange:top=>lastB=top});assert.equal(lastB,false,'new C keeps ownership after outer notifications finish');
+});

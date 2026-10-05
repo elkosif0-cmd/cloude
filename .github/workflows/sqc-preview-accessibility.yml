@@ -62,7 +62,7 @@ jobs:
       - name: Run output guard and named keyboard integration tests
         run: |
           set -euo pipefail
-          node --test tools/report_output_guard.test.mjs tools/output_focus.test.mjs tools/header_names.test.mjs tools/shortcut_focus.test.mjs tools/preview-a11y-tests/output_focus_lifecycle.test.mjs tools/preview-a11y-tests/mutation_controls.test.mjs tools/preview-a11y-tests/overlay_integration.test.mjs tools/preview-a11y-tests/workflow_wiring.test.mjs
+          node --test tools/report_output_guard.test.mjs tools/output_focus.test.mjs tools/header_names.test.mjs tools/shortcut_focus.test.mjs tools/preview-a11y-tests/output_focus_lifecycle.test.mjs tools/preview-a11y-tests/mutation_controls.test.mjs tools/preview-a11y-tests/overlay_integration.test.mjs tools/preview-a11y-tests/workflow_wiring.test.mjs tools/preview-a11y-tests/browser_focus_races.test.mjs
       - name: Install pinned CI-only browser tools
         run: |
           set -euo pipefail

@@ -141,17 +141,31 @@ function redact(text){
 /* Shared, nested-safe focus containment. Call the returned release after removing/closing
    the panel. Capture the invoker before focusing a dialog; never use a global last button. */
 const modalStack=[];
-const modalChanged=()=>{for(const entry of [...modalStack])try{if(modalStack.includes(entry))entry.onTopChange?.(entry===modalStack.at(-1),modalStack.at(-1)?.root)}catch{}};
+const modalChanged=()=>{
+  for(const entry of [...modalStack])try{
+    const top=modalStack.at(-1),ownedFocus=document.hasFocus?.()!==false&&document.visibilityState!=="hidden";
+    const recover=()=>{if(ownedFocus&&modalStack.at(-1)===top)top?.recover?.()};
+    if(modalStack.includes(entry))entry.onTopChange?.(entry===top,top?.root,recover);
+  }catch{}
+};
 function modalFocus(root,invoker=document.activeElement,options={}){
   const layer=root.closest(".skd-wrap,.skp-wrap,.skk-wrap,.skout,.skpres"),previous=modalStack.at(-1);
   const entry={root,layer,onTopChange:options.onTopChange},focusable=()=>[...root.querySelectorAll('button,[href],input,select,textarea,[tabindex]')]
     .filter(el=>!el.disabled&&el.tabIndex>=0&&!el.hidden&&!el.closest('[hidden],[inert]')&&el.getClientRects().length&&getComputedStyle(el).visibility!=="hidden");
-  let released=false;
+  let released=false,lastFocus=null;
+  const remember=e=>{if(modalStack.at(-1)===entry&&root.contains(e.target))lastFocus=e.target};
   const first=()=>{const items=focusable();if(items.length)items[0].focus({preventScroll:true});else{root.setAttribute("tabindex","-1");root.focus({preventScroll:true})}};
   const key=e=>{if(modalStack.at(-1)!==entry||e.key!=="Tab")return;const items=focusable(),at=document.activeElement;
     if(!items.length){e.preventDefault();first();return}
     if(!root.contains(at)||(e.shiftKey?at===items[0]:at===items.at(-1))){e.preventDefault();(e.shiftKey?items.at(-1):items[0]).focus()}};
   const contain=e=>{if(modalStack.at(-1)===entry&&!root.contains(e.target))first()};
+  // Fullscreen completion may reset BODY after a new layer acquired focus.
+  // Recover only this live registration and never overwrite a meaningful target.
+  entry.recover=()=>{
+    if(released||!root.isConnected||modalStack.at(-1)!==entry||document.hasFocus?.()===false||document.visibilityState==="hidden")return;
+    if(document.activeElement!==document.body&&document.activeElement!==document.documentElement)return;
+    const items=focusable();if(items.includes(lastFocus))lastFocus.focus({preventScroll:true});else first();
+  };
   /* Embedded documents supply their own cross-document keyboard handling, but
      participate in the same ownership stack as confirm/form and other panels. */
   // Only these known registered wrappers receive temporary visual stack ownership.
@@ -159,9 +173,9 @@ function modalFocus(root,invoker=document.activeElement,options={}){
     const current=Number.parseFloat(getComputedStyle(layer).zIndex)||0,under=Number.parseFloat(getComputedStyle(previous.layer).zIndex)||0;
     if(current<=under){const value=layer.style.getPropertyValue("z-index"),priority=layer.style.getPropertyPriority("z-index"),owned=String(under+1);layer.style.setProperty("z-index",owned,priority);entry.z={value,priority,owned}}
   }catch{}
-  modalStack.push(entry);if(!options.managed){document.addEventListener("keydown",key,true);document.addEventListener("focusin",contain,true)}modalChanged();
+  modalStack.push(entry);document.addEventListener("focusin",remember,true);if(!options.managed){document.addEventListener("keydown",key,true);document.addEventListener("focusin",contain,true)}modalChanged();
   return()=>{if(released)return;released=true;const top=modalStack.at(-1)===entry,at=modalStack.indexOf(entry);if(at>=0)modalStack.splice(at,1);
-    document.removeEventListener("keydown",key,true);document.removeEventListener("focusin",contain,true);
+    document.removeEventListener("keydown",key,true);document.removeEventListener("focusin",contain,true);document.removeEventListener("focusin",remember,true);
     if(entry.z&&layer.style.getPropertyValue("z-index")===entry.z.owned&&layer.style.getPropertyPriority("z-index")===entry.z.priority){if(entry.z.value)layer.style.setProperty("z-index",entry.z.value,entry.z.priority);else layer.style.removeProperty("z-index")}
     modalChanged();
     if(top&&options.restore!==false){const target=invoker&&invoker.isConnected?invoker:document.getElementById("pg-title");if(target){if(target===document.getElementById("pg-title"))target.setAttribute("tabindex","-1");try{target.focus({preventScroll:true})}catch{}}}};
