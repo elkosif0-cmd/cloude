@@ -290,12 +290,16 @@ const LA=await p.evaluate(()=>({...window.__sqcListenerAudit}));
 ok('ثبات الواجهات','إعادة فتح الشاشات لا تراكم مستمعي الأحداث (مركز الأدوات · شجرة المنتجات · خريطة المبيعات · مختبر الشركات)',LA.pt===0&&LA.sm===0&&LA.cl===0&&LA.hd===0);
 await p.evaluate(()=>{if(window.__sqcListenerAuditOrig)EventTarget.prototype.addEventListener=window.__sqcListenerAuditOrig;delete window.__sqcListenerAuditOrig;delete window.__sqcListenerAudit});
 // ---------- a bundle company walked from the first requests to the report (no AI key) ----------
-await go('tbreview',1200);await p.evaluate(()=>SKosifTBReview.openClient('apple-2024'));await p.waitForTimeout(2500);
+// Amazon, not Apple: Apple is a reviewed published source (PR #134) — simulated rounds stay not-assessed and the PBC letter
+// route cannot imply an engagement for it (tools/apple_source_reporting.test.mjs pins that).
+await go('tbreview',1200);await p.evaluate(()=>SKosifTBReview.openClient('amazon-2024'));await p.waitForTimeout(2500);
 await p.evaluate(()=>SKosifTBReview.demo());
 for(let i=0;i<40;i++){await p.waitForTimeout(600);if(await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}');return !!(d.session&&d.session.final)}))break}
-const DM=await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}'),s=d.session||{rounds:[],uploads:[]};return{co:d.ctx&&d.ctx.company,src:d.source,intl:d.ctx&&d.ctx.country,rounds:s.rounds.map(r=>r.status).join(','),uploads:s.uploads.length,insuff:s.rounds.some(r=>r.reviewed.some(v=>v.verdict==='غير كافٍ')),kams:s.final?s.final.kams.length:0,op:s.final&&s.final.aiOpinion,
+const DM=await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}'),s=d.session||{rounds:[],uploads:[]};return{co:d.ctx&&d.ctx.company,src:d.source,intl:d.ctx&&d.ctx.country,rounds:s.rounds.map(r=>r.status).join(','),uploads:s.uploads.length,insuff:s.rounds.some(r=>r.reviewed.some(v=>v.verdict==='غير كافٍ')),
+  final:!!s.final,sim:!!(s.final&&s.final.origin==='simulation'),earned:!!(s.final&&((s.final.kams||[]).length||s.final.opinion)),notAssessed:!!(s.final&&s.final.aiOpinion==='لم يُقيّم'),
   zak:JSON.stringify(s.rounds.flatMap(r=>r.requests.map(q=>q.title))).match(/الزكاة|زكوي|QR|ZATCA/)}});
-ok('العملاء التجريبيون','شركة عالمية كملف مراجعة كامل دون مفتاح: طلبات ← مستندات ← جولات حتى الاكتفاء ← التقرير النهائي',/Apple/.test(DM.co)&&DM.src==='bundle'&&DM.intl==='INTL'&&DM.rounds==='needs_docs,needs_docs,complete'&&DM.uploads>=5&&DM.insuff&&DM.kams>=1&&!!DM.op&&!DM.zak);
+// PR #134: the keyless walk-through is a labelled simulation — synthetic documents never complete a round or earn an opinion
+ok('العملاء التجريبيون','شركة عالمية كملف مراجعة كامل دون مفتاح: طلبات ← مستندات ← ثلاث جولات ← نتيجة محاكاة موسومة «لم يُقيّم» بلا رأي مكتسب',/Amazon/.test(DM.co)&&DM.src==='bundle'&&DM.intl==='INTL'&&DM.rounds==='needs_docs,needs_docs,needs_docs'&&DM.uploads>=5&&DM.insuff&&DM.final&&DM.sim&&DM.notAssessed&&!DM.earned&&!DM.zak);
 await p.evaluate(()=>SKosifTBReview.open('docs'));await p.waitForTimeout(1000);await p.click('[data-a="pbc-letter"]');await p.waitForTimeout(2500);
 const PBL=await (async()=>{const fr=p.frames().find(f=>f!==p.mainFrame()&&f.parentFrame()===p.mainFrame());return fr?fr.evaluate(()=>({t:document.body.innerText.includes('خطاب طلب المستندات'),stages:document.querySelectorAll('h2').length,rows:document.querySelectorAll('tr').length,logo:!!document.querySelector('.skp-band img,.skp-head img')})):{}})();
 ok('تقارير المراجعة','خطاب طلب المستندات للعميل بمراحل المراجعة والمواعيد والبدائل، على ترويسة المكتب وشعار SQC',PBL.t&&PBL.stages>=3&&PBL.rows>=15&&PBL.logo);

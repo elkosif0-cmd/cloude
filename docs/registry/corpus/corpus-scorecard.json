@@ -1,0 +1,1638 @@
+{
+ "note": "P5 regression matrix — regenerate with node tools/corpus_scorecard.mjs and explain any change in the PR",
+ "totals": {
+  "none": {
+   "companies": 47,
+   "withKams": 43,
+   "kamThemes": 88,
+   "recall": 0.42,
+   "rankedRecall": 0.52,
+   "precision": 0.29,
+   "anyMatch": 32,
+   "structure": 0.97,
+   "missed": [
+    [
+     "provisions-litigation",
+     9
+    ],
+    [
+     "revenue-deductions",
+     8
+    ],
+    [
+     "tax-uncertainty",
+     7
+    ],
+    [
+     "complex-transactions",
+     3
+    ],
+    [
+     "fair-value",
+     3
+    ],
+    [
+     "parent-investments",
+     3
+    ],
+    [
+     "actuarial",
+     2
+    ],
+    [
+     "impairment-intangibles",
+     2
+    ],
+    [
+     "it-controls",
+     2
+    ],
+    [
+     "climate",
+     1
+    ],
+    [
+     "fraud-override",
+     1
+    ],
+    [
+     "related-parties",
+     1
+    ]
+   ]
+  },
+  "sector": {
+   "companies": 47,
+   "withKams": 43,
+   "kamThemes": 88,
+   "recall": 0.58,
+   "rankedRecall": 0.74,
+   "precision": 0.4,
+   "anyMatch": 35,
+   "structure": 0.97,
+   "missed": [
+    [
+     "provisions-litigation",
+     4
+    ],
+    [
+     "complex-transactions",
+     3
+    ],
+    [
+     "fair-value",
+     3
+    ],
+    [
+     "parent-investments",
+     3
+    ],
+    [
+     "actuarial",
+     2
+    ],
+    [
+     "it-controls",
+     2
+    ],
+    [
+     "tax-uncertainty",
+     1
+    ],
+    [
+     "climate",
+     1
+    ],
+    [
+     "fraud-override",
+     1
+    ],
+    [
+     "revenue-deductions",
+     1
+    ],
+    [
+     "impairment-intangibles",
+     1
+    ],
+    [
+     "related-parties",
+     1
+    ]
+   ]
+  },
+  "smoothed": {
+   "companies": 47,
+   "withKams": 43,
+   "kamThemes": 88,
+   "recall": 0.57,
+   "rankedRecall": 0.73,
+   "precision": 0.39,
+   "anyMatch": 35,
+   "structure": 0.97,
+   "missed": [
+    [
+     "provisions-litigation",
+     4
+    ],
+    [
+     "complex-transactions",
+     3
+    ],
+    [
+     "fair-value",
+     3
+    ],
+    [
+     "parent-investments",
+     3
+    ],
+    [
+     "actuarial",
+     2
+    ],
+    [
+     "it-controls",
+     2
+    ],
+    [
+     "tax-uncertainty",
+     1
+    ],
+    [
+     "climate",
+     1
+    ],
+    [
+     "fraud-override",
+     1
+    ],
+    [
+     "impairment-assets",
+     1
+    ],
+    [
+     "revenue-deductions",
+     1
+    ],
+    [
+     "impairment-intangibles",
+     1
+    ],
+    [
+     "related-parties",
+     1
+    ]
+   ]
+  }
+ },
+ "companies": [
+  {
+   "id": "amazon-2023",
+   "company": "Amazon.com, Inc.",
+   "sector": "retail",
+   "auditor": "Ernst & Young LLP",
+   "fy": "FY2023",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "tax-uncertainty": "ranked"
+   },
+   "selected": [
+    "impairment-assets",
+    "revenue-recognition",
+    "inventory"
+   ],
+   "recall": 0,
+   "rankedRecall": 1,
+   "precision": 0,
+   "materiality": {
+    "ours": 1877,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 0.95,
+   "requests": 59,
+   "findings": 2,
+   "recallNoPrior": 0
+  },
+  {
+   "id": "apple-2024",
+   "company": "Apple Inc.",
+   "sector": "tech",
+   "auditor": "Ernst & Young LLP",
+   "fy": "FY2024",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "tax-uncertainty": "selected"
+   },
+   "selected": [
+    "revenue-recognition",
+    "tax-uncertainty",
+    "fair-value"
+   ],
+   "recall": 1,
+   "rankedRecall": 1,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 6174,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 0.94,
+   "requests": 56,
+   "findings": 6,
+   "recallNoPrior": 0
+  },
+  {
+   "id": "cisco-2024",
+   "company": "Cisco Systems, Inc.",
+   "sector": "tech",
+   "auditor": "PricewaterhouseCoopers LLP",
+   "fy": "FY2024",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "revenue-recognition": "selected",
+    "complex-transactions": "missed"
+   },
+   "selected": [
+    "impairment-intangibles",
+    "revenue-recognition",
+    "tax-uncertainty"
+   ],
+   "recall": 0.5,
+   "rankedRecall": 0.5,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 612,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 0.97,
+   "requests": 59,
+   "findings": 8,
+   "recallNoPrior": 0.5
+  },
+  {
+   "id": "walmart-2023",
+   "company": "Walmart Inc.",
+   "sector": "retail",
+   "auditor": "Ernst & Young LLP",
+   "fy": "FY2023",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "provisions-litigation": "missed"
+   },
+   "selected": [
+    "tax-uncertainty",
+    "impairment-assets",
+    "revenue-recognition"
+   ],
+   "recall": 0,
+   "rankedRecall": 0,
+   "precision": 0,
+   "materiality": {
+    "ours": 851,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 0.95,
+   "requests": 58,
+   "findings": 4,
+   "recallNoPrior": 0
+  },
+  {
+   "id": "adobe-2024",
+   "company": "Adobe Inc.",
+   "sector": "tech",
+   "auditor": "KPMG LLP",
+   "fy": "FY2024",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "revenue-recognition": "selected"
+   },
+   "selected": [
+    "revenue-recognition",
+    "impairment-intangibles",
+    "tax-uncertainty"
+   ],
+   "recall": 1,
+   "rankedRecall": 1,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 347,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 0.96,
+   "requests": 56,
+   "findings": 5,
+   "recallNoPrior": 1
+  },
+  {
+   "id": "jpmorgan-2023",
+   "company": "JPMorgan Chase & Co.",
+   "sector": "banking",
+   "auditor": "PricewaterhouseCoopers LLP",
+   "fy": "FY2023",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "credit-losses": "selected",
+    "fair-value": "selected"
+   },
+   "selected": [
+    "credit-losses",
+    "fair-value",
+    "tax-uncertainty"
+   ],
+   "recall": 1,
+   "rankedRecall": 1,
+   "precision": 0.67,
+   "materiality": {
+    "ours": 3081,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 1,
+   "requests": 55,
+   "findings": 2,
+   "recallNoPrior": 1
+  },
+  {
+   "id": "apple-2020",
+   "company": "Apple Inc.",
+   "sector": "tech",
+   "auditor": "Ernst & Young LLP",
+   "fy": "FY2020",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "tax-uncertainty": "ranked"
+   },
+   "selected": [
+    "revenue-recognition",
+    "fair-value",
+    "inventory"
+   ],
+   "recall": 0,
+   "rankedRecall": 1,
+   "precision": 0,
+   "materiality": {
+    "ours": 3355,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 0.96,
+   "requests": 57,
+   "findings": 1,
+   "recallNoPrior": 0
+  },
+  {
+   "id": "amazon-2024",
+   "company": "Amazon.com, Inc.",
+   "sector": "retail",
+   "auditor": "Ernst & Young LLP",
+   "fy": "FY2024",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "tax-uncertainty": "ranked"
+   },
+   "selected": [
+    "impairment-assets",
+    "revenue-recognition",
+    "inventory"
+   ],
+   "recall": 0,
+   "rankedRecall": 1,
+   "precision": 0,
+   "materiality": {
+    "ours": 3426,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 0.95,
+   "requests": 59,
+   "findings": 3,
+   "recallNoPrior": 0
+  },
+  {
+   "id": "apple-2023",
+   "company": "Apple Inc.",
+   "sector": "tech",
+   "auditor": "Ernst & Young LLP",
+   "fy": "FY2023",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "tax-uncertainty": "ranked"
+   },
+   "selected": [
+    "revenue-recognition",
+    "fair-value",
+    "inventory"
+   ],
+   "recall": 0,
+   "rankedRecall": 1,
+   "precision": 0,
+   "materiality": {
+    "ours": 5687,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 0.96,
+   "requests": 57,
+   "findings": 2,
+   "recallNoPrior": 0
+  },
+  {
+   "id": "berkshire-2025",
+   "company": "Berkshire Hathaway Inc.",
+   "sector": "insurance",
+   "auditor": "Deloitte & Touche LLP",
+   "fy": "FY2025",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "actuarial": "missed"
+   },
+   "selected": [
+    "fair-value",
+    "retained",
+    "revenue-recognition"
+   ],
+   "recall": 0,
+   "rankedRecall": 0,
+   "precision": 0,
+   "materiality": {
+    "ours": 4123,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 0.96,
+   "requests": 62,
+   "findings": 1,
+   "recallNoPrior": 0
+  },
+  {
+   "id": "jpmorgan-2025",
+   "company": "JPMorgan Chase & Co.",
+   "sector": "banking",
+   "auditor": "PricewaterhouseCoopers LLP",
+   "fy": "FY2025",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "credit-losses": "selected",
+    "fair-value": "selected"
+   },
+   "selected": [
+    "credit-losses",
+    "fair-value",
+    "otherNca"
+   ],
+   "recall": 1,
+   "rankedRecall": 1,
+   "precision": 0.67,
+   "materiality": {
+    "ours": 3630,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 1,
+   "requests": 55,
+   "findings": 3,
+   "recallNoPrior": 0.5
+  },
+  {
+   "id": "bofa-2025",
+   "company": "Bank of America",
+   "sector": "banking",
+   "auditor": "PricewaterhouseCoopers LLP",
+   "fy": "FY2025",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "credit-losses": "selected"
+   },
+   "selected": [
+    "credit-losses",
+    "fair-value",
+    "payables"
+   ],
+   "recall": 1,
+   "rankedRecall": 1,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 1885,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 1,
+   "requests": 55,
+   "findings": 0,
+   "recallNoPrior": 1
+  },
+  {
+   "id": "pepsico-2025",
+   "company": "PepsiCo, Inc.",
+   "sector": "fmcg",
+   "auditor": "KPMG LLP",
+   "fy": "FY2025",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "tax-uncertainty": "ranked"
+   },
+   "selected": [
+    "revenue-deductions",
+    "impairment-intangibles",
+    "impairment-assets"
+   ],
+   "recall": 0,
+   "rankedRecall": 1,
+   "precision": 0,
+   "materiality": {
+    "ours": 512,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 0.94,
+   "requests": 59,
+   "findings": 2,
+   "recallNoPrior": 0
+  },
+  {
+   "id": "pg-2026",
+   "company": "The Procter & Gamble Company",
+   "sector": "fmcg",
+   "auditor": "Deloitte & Touche LLP",
+   "fy": "FY2026",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "impairment-intangibles": "selected"
+   },
+   "selected": [
+    "revenue-deductions",
+    "impairment-intangibles",
+    "tax-uncertainty"
+   ],
+   "recall": 1,
+   "rankedRecall": 1,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 1019,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 0.96,
+   "requests": 58,
+   "findings": 3,
+   "recallNoPrior": 1
+  },
+  {
+   "id": "homedepot-2025",
+   "company": "The Home Depot, Inc.",
+   "sector": "retail",
+   "auditor": "KPMG LLP",
+   "fy": "FY2025",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "inventory": "ranked"
+   },
+   "selected": [
+    "tax-uncertainty",
+    "revenue-recognition",
+    "impairment-intangibles"
+   ],
+   "recall": 0,
+   "rankedRecall": 1,
+   "precision": 0,
+   "materiality": {
+    "ours": 930,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 0.96,
+   "requests": 58,
+   "findings": 2,
+   "recallNoPrior": 0
+  },
+  {
+   "id": "nestle-2025",
+   "company": "Nestlé Group",
+   "sector": "fmcg",
+   "auditor": "Ernst & Young Ltd",
+   "fy": "FY2025",
+   "unit": "مليون CHF",
+   "balanced": true,
+   "found": {
+    "revenue-deductions": "selected",
+    "impairment-intangibles": "selected"
+   },
+   "selected": [
+    "revenue-deductions",
+    "impairment-intangibles",
+    "tax-uncertainty"
+   ],
+   "recall": 1,
+   "rankedRecall": 1,
+   "precision": 0.67,
+   "materiality": {
+    "ours": 595,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 1,
+   "requests": 64,
+   "findings": 3,
+   "recallNoPrior": 0.5
+  },
+  {
+   "id": "roche-2025",
+   "company": "Roche Group",
+   "sector": "pharma",
+   "auditor": "KPMG AG",
+   "fy": "FY2025",
+   "unit": "مليون CHF",
+   "balanced": true,
+   "found": {
+    "revenue-deductions": "selected",
+    "impairment-intangibles": "selected"
+   },
+   "selected": [
+    "revenue-deductions",
+    "impairment-intangibles",
+    "tax-uncertainty"
+   ],
+   "recall": 1,
+   "rankedRecall": 1,
+   "precision": 0.67,
+   "materiality": {
+    "ours": 849,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 1,
+   "requests": 64,
+   "findings": 0,
+   "recallNoPrior": 0.5
+  },
+  {
+   "id": "novartis-2025",
+   "company": "Novartis AG",
+   "sector": "pharma",
+   "auditor": "KPMG AG",
+   "fy": "FY2025",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "revenue-deductions": "selected"
+   },
+   "selected": [
+    "impairment-intangibles",
+    "revenue-deductions",
+    "tax-uncertainty"
+   ],
+   "recall": 1,
+   "rankedRecall": 1,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 818,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 1,
+   "requests": 59,
+   "findings": 4,
+   "recallNoPrior": 0
+  },
+  {
+   "id": "ubs-2025",
+   "company": "UBS Group AG",
+   "sector": "banking",
+   "auditor": "Ernst & Young Ltd",
+   "fy": "FY2025",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "fair-value": "missed",
+    "credit-losses": "selected",
+    "tax-uncertainty": "missed"
+   },
+   "selected": [
+    "credit-losses",
+    "payables",
+    "otherNca"
+   ],
+   "recall": 0.33,
+   "rankedRecall": 0.33,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 443,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 1,
+   "requests": 54,
+   "findings": 0,
+   "recallNoPrior": 0.33
+  },
+  {
+   "id": "allianz-2025",
+   "company": "Allianz SE",
+   "sector": "insurance",
+   "auditor": "PricewaterhouseCoopers GmbH",
+   "fy": "FY2025",
+   "unit": "مليون €",
+   "balanced": true,
+   "found": {},
+   "selected": [
+    "fair-value",
+    "tax-uncertainty",
+    "credit-losses"
+   ],
+   "recall": null,
+   "rankedRecall": null,
+   "precision": null,
+   "materiality": {
+    "ours": 469,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 1,
+   "requests": 47,
+   "findings": 1,
+   "recallNoPrior": null
+  },
+  {
+   "id": "mercedes-2025",
+   "company": "Mercedes-Benz Group AG",
+   "sector": "auto",
+   "auditor": "PricewaterhouseCoopers GmbH",
+   "fy": "FY2025",
+   "unit": "مليون €",
+   "balanced": true,
+   "found": {},
+   "selected": [
+    "credit-losses",
+    "impairment-assets",
+    "provisions-litigation"
+   ],
+   "recall": null,
+   "rankedRecall": null,
+   "precision": null,
+   "materiality": {
+    "ours": 314,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 1,
+   "requests": 64,
+   "findings": 3,
+   "recallNoPrior": null
+  },
+  {
+   "id": "volkswagen-2025",
+   "company": "Volkswagen Group",
+   "sector": "auto",
+   "auditor": "EY GmbH",
+   "fy": "FY2025",
+   "unit": "مليون €",
+   "balanced": true,
+   "found": {
+    "impairment-intangibles": "ranked",
+    "provisions-litigation": "selected",
+    "impairment-assets": "selected"
+   },
+   "selected": [
+    "credit-losses",
+    "provisions-litigation",
+    "impairment-assets"
+   ],
+   "recall": 0.67,
+   "rankedRecall": 1,
+   "precision": 0.67,
+   "materiality": {
+    "ours": 465,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 0.97,
+   "requests": 64,
+   "findings": 1,
+   "recallNoPrior": 0.33
+  },
+  {
+   "id": "telekom-2025",
+   "company": "Deutsche Telekom AG",
+   "sector": "telecom",
+   "auditor": "Deloitte GmbH",
+   "fy": "FY2025",
+   "unit": "مليون €",
+   "balanced": true,
+   "found": {
+    "revenue-recognition": "selected"
+   },
+   "selected": [
+    "impairment-intangibles",
+    "revenue-recognition",
+    "impairment-assets"
+   ],
+   "recall": 1,
+   "rankedRecall": 1,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 975,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 1,
+   "requests": 64,
+   "findings": 4,
+   "recallNoPrior": 1
+  },
+  {
+   "id": "bp-2025",
+   "company": "BP p.l.c.",
+   "sector": "energy",
+   "auditor": "Deloitte LLP",
+   "fy": "FY2025",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "climate": "missed",
+    "impairment-assets": "selected",
+    "provisions-litigation": "ranked",
+    "fair-value": "ranked",
+    "fraud-override": "missed"
+   },
+   "selected": [
+    "impairment-assets",
+    "revenue-recognition",
+    "impairment-intangibles"
+   ],
+   "recall": 0.2,
+   "rankedRecall": 0.6,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 387,
+    "disclosed": 700,
+    "ratio": 0.55,
+    "page": 4849
+   },
+   "structure": 0.93,
+   "requests": 64,
+   "findings": 3,
+   "recallNoPrior": 0.2
+  },
+  {
+   "id": "unilever-2025",
+   "company": "Unilever PLC",
+   "sector": "fmcg",
+   "auditor": "KPMG LLP",
+   "fy": "FY2025",
+   "unit": "مليون €",
+   "balanced": true,
+   "found": {
+    "revenue-deductions": "selected",
+    "tax-uncertainty": "selected",
+    "complex-transactions": "missed",
+    "parent-investments": "missed"
+   },
+   "selected": [
+    "impairment-intangibles",
+    "revenue-deductions",
+    "tax-uncertainty"
+   ],
+   "recall": 0.5,
+   "rankedRecall": 0.5,
+   "precision": 0.67,
+   "materiality": {
+    "ours": 625,
+    "disclosed": 500,
+    "ratio": 1.25,
+    "page": 5216
+   },
+   "structure": 0.93,
+   "requests": 63,
+   "findings": 8,
+   "recallNoPrior": 0
+  },
+  {
+   "id": "astrazeneca-2025",
+   "company": "AstraZeneca PLC",
+   "sector": "pharma",
+   "auditor": "PricewaterhouseCoopers LLP",
+   "fy": "FY2025",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "revenue-deductions": "selected",
+    "impairment-intangibles": "selected",
+    "provisions-litigation": "missed",
+    "actuarial": "missed",
+    "parent-investments": "missed"
+   },
+   "selected": [
+    "revenue-deductions",
+    "impairment-intangibles",
+    "tax-uncertainty"
+   ],
+   "recall": 0.4,
+   "rankedRecall": 0.4,
+   "precision": 0.67,
+   "materiality": {
+    "ours": 620,
+    "disclosed": 620,
+    "ratio": 1,
+    "page": 5503
+   },
+   "structure": 0.95,
+   "requests": 64,
+   "findings": 6,
+   "recallNoPrior": 0.2
+  },
+  {
+   "id": "gsk-2025",
+   "company": "GSK plc",
+   "sector": "pharma",
+   "auditor": "Deloitte LLP",
+   "fy": "FY2025",
+   "unit": "مليون £",
+   "balanced": true,
+   "found": {
+    "revenue-deductions": "selected",
+    "fair-value": "missed",
+    "impairment-intangibles": "selected",
+    "tax-uncertainty": "selected"
+   },
+   "selected": [
+    "revenue-deductions",
+    "impairment-intangibles",
+    "tax-uncertainty"
+   ],
+   "recall": 0.75,
+   "rankedRecall": 0.75,
+   "precision": 1,
+   "materiality": {
+    "ours": 370,
+    "disclosed": 350,
+    "ratio": 1.06,
+    "page": 5800
+   },
+   "structure": 0.92,
+   "requests": 64,
+   "findings": 4,
+   "recallNoPrior": 0.25
+  },
+  {
+   "id": "hsbc-2025",
+   "company": "HSBC Holdings plc",
+   "sector": "banking",
+   "auditor": "PricewaterhouseCoopers LLP",
+   "fy": "FY2025",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "credit-losses": "selected",
+    "parent-investments": "missed"
+   },
+   "selected": [
+    "credit-losses",
+    "fair-value",
+    "payables"
+   ],
+   "recall": 0.5,
+   "rankedRecall": 0.5,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 1495,
+    "disclosed": 1550,
+    "ratio": 0.96,
+    "page": 6205
+   },
+   "structure": 0.95,
+   "requests": 52,
+   "findings": 0,
+   "recallNoPrior": 0.5
+  },
+  {
+   "id": "totalenergies-2024",
+   "company": "TotalEnergies SE",
+   "sector": "energy",
+   "auditor": "PricewaterhouseCoopers Audit · Ernst & Young Audit",
+   "fy": "FY2024",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "impairment-assets": "selected"
+   },
+   "selected": [
+    "impairment-assets",
+    "revenue-recognition",
+    "fair-value"
+   ],
+   "recall": 1,
+   "rankedRecall": 1,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 1340,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 0.97,
+   "requests": 64,
+   "findings": 0,
+   "recallNoPrior": 1
+  },
+  {
+   "id": "airbus-2023",
+   "company": "Airbus SE",
+   "sector": "industrial",
+   "auditor": "Ernst & Young Accountants LLP",
+   "fy": "FY2023",
+   "unit": "مليون €",
+   "balanced": true,
+   "found": {
+    "revenue-recognition": "selected",
+    "impairment-assets": "ranked",
+    "fair-value": "selected"
+   },
+   "selected": [
+    "revenue-recognition",
+    "inventory",
+    "fair-value"
+   ],
+   "recall": 0.67,
+   "rankedRecall": 1,
+   "precision": 0.67,
+   "materiality": {
+    "ours": 238,
+    "disclosed": 292,
+    "ratio": 0.82,
+    "page": 7375
+   },
+   "structure": 1,
+   "requests": 62,
+   "findings": 3,
+   "recallNoPrior": 0.67
+  },
+  {
+   "id": "sanofi-2025",
+   "company": "Sanofi",
+   "sector": "pharma",
+   "auditor": "PricewaterhouseCoopers Audit · Forvis Mazars",
+   "fy": "FY2025",
+   "unit": "مليون €",
+   "balanced": true,
+   "found": {
+    "impairment-intangibles": "selected",
+    "revenue-deductions": "selected",
+    "tax-uncertainty": "ranked"
+   },
+   "selected": [
+    "impairment-intangibles",
+    "revenue-deductions",
+    "fair-value"
+   ],
+   "recall": 0.67,
+   "rankedRecall": 1,
+   "precision": 0.67,
+   "materiality": {
+    "ours": 445,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 0.96,
+   "requests": 62,
+   "findings": 4,
+   "recallNoPrior": 0.33
+  },
+  {
+   "id": "toyota-2026",
+   "company": "Toyota Motor Corporation",
+   "sector": "auto",
+   "auditor": "PricewaterhouseCoopers Japan LLC",
+   "fy": "FY2026 (Mar)",
+   "unit": "مليون ¥",
+   "balanced": true,
+   "found": {
+    "provisions-litigation": "selected",
+    "credit-losses": "selected"
+   },
+   "selected": [
+    "impairment-assets",
+    "credit-losses",
+    "provisions-litigation"
+   ],
+   "recall": 1,
+   "rankedRecall": 1,
+   "precision": 0.67,
+   "materiality": {
+    "ours": 257650,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 0.97,
+   "requests": 64,
+   "findings": 2,
+   "recallNoPrior": 0.5
+  },
+  {
+   "id": "honda-2023",
+   "company": "Honda Motor Co., Ltd.",
+   "sector": "auto",
+   "auditor": "KPMG AZSA LLC",
+   "fy": "FY2023 (Mar)",
+   "unit": "مليون ¥",
+   "balanced": true,
+   "found": {
+    "provisions-litigation": "selected",
+    "credit-losses": "selected",
+    "impairment-assets": "selected"
+   },
+   "selected": [
+    "provisions-litigation",
+    "credit-losses",
+    "impairment-assets"
+   ],
+   "recall": 1,
+   "rankedRecall": 1,
+   "precision": 1,
+   "materiality": {
+    "ours": 43978,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 0.96,
+   "requests": 64,
+   "findings": 2,
+   "recallNoPrior": 0.67
+  },
+  {
+   "id": "softbank-2026",
+   "company": "SoftBank Group Corp.",
+   "sector": "tech",
+   "auditor": "",
+   "fy": "FY2026 (Mar)",
+   "unit": "مليون ¥",
+   "balanced": true,
+   "found": {},
+   "selected": [
+    "fair-value",
+    "revenue-recognition",
+    "otherNcl"
+   ],
+   "recall": null,
+   "rankedRecall": null,
+   "precision": null,
+   "materiality": {
+    "ours": 306745,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 1,
+   "requests": 52,
+   "findings": 5,
+   "recallNoPrior": null
+  },
+  {
+   "id": "mufg-2026",
+   "company": "Mitsubishi UFJ Financial Group",
+   "sector": "banking",
+   "auditor": "Deloitte Touche Tohmatsu LLC",
+   "fy": "FY2026 (Mar)",
+   "unit": "مليون ¥",
+   "balanced": true,
+   "found": {
+    "credit-losses": "selected"
+   },
+   "selected": [
+    "credit-losses",
+    "fair-value",
+    "otherNca"
+   ],
+   "recall": 1,
+   "rankedRecall": 1,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 125475,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 0.97,
+   "requests": 55,
+   "findings": 2,
+   "recallNoPrior": 1
+  },
+  {
+   "id": "smfg-2026",
+   "company": "Sumitomo Mitsui Financial Group",
+   "sector": "banking",
+   "auditor": "KPMG AZSA LLC",
+   "fy": "FY2026 (Mar)",
+   "unit": "مليون ¥",
+   "balanced": true,
+   "found": {
+    "credit-losses": "selected"
+   },
+   "selected": [
+    "credit-losses",
+    "fair-value",
+    "payables"
+   ],
+   "recall": 1,
+   "rankedRecall": 1,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 112586,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 1,
+   "requests": 55,
+   "findings": 1,
+   "recallNoPrior": 1
+  },
+  {
+   "id": "samsung-2025",
+   "company": "Samsung Electronics",
+   "sector": "tech",
+   "auditor": "",
+   "fy": "FY2025",
+   "unit": "مليون ₩",
+   "balanced": true,
+   "found": {
+    "impairment-assets": "selected",
+    "revenue-deductions": "missed"
+   },
+   "selected": [
+    "revenue-recognition",
+    "impairment-assets",
+    "tax-uncertainty"
+   ],
+   "recall": 0.5,
+   "rankedRecall": 0.5,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 2474074,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 1,
+   "requests": 62,
+   "findings": 3,
+   "recallNoPrior": 0.5
+  },
+  {
+   "id": "honhai-2025",
+   "company": "Hon Hai Precision (Foxconn)",
+   "sector": "tech",
+   "auditor": "PricewaterhouseCoopers Taiwan",
+   "fy": "FY2025",
+   "unit": "مليون TWD",
+   "balanced": true,
+   "found": {},
+   "selected": [
+    "revenue-recognition",
+    "otherCl",
+    "tax-uncertainty"
+   ],
+   "recall": null,
+   "rankedRecall": null,
+   "precision": null,
+   "materiality": {
+    "ours": 14672,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 1,
+   "requests": 39,
+   "findings": 2,
+   "recallNoPrior": null
+  },
+  {
+   "id": "tencent-2025",
+   "company": "Tencent Holdings",
+   "sector": "tech",
+   "auditor": "PricewaterhouseCoopers",
+   "fy": "FY2025",
+   "unit": "مليون RMB",
+   "balanced": true,
+   "found": {
+    "revenue-recognition": "selected",
+    "impairment-intangibles": "missed",
+    "fair-value": "missed"
+   },
+   "selected": [
+    "revenue-recognition",
+    "complex-transactions",
+    "tax-uncertainty"
+   ],
+   "recall": 0.33,
+   "rankedRecall": 0.33,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 13862,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 1,
+   "requests": 57,
+   "findings": 3,
+   "recallNoPrior": 0.67
+  },
+  {
+   "id": "reliance-2026",
+   "company": "Reliance Industries",
+   "sector": "energy",
+   "auditor": "Deloitte Haskins & Sells LLP · Chaturvedi & Shah LLP",
+   "fy": "FY2025-26",
+   "unit": "كرور روبية",
+   "balanced": true,
+   "found": {
+    "provisions-litigation": "ranked",
+    "fair-value": "selected",
+    "it-controls": "missed",
+    "revenue-recognition": "selected"
+   },
+   "selected": [
+    "impairment-assets",
+    "revenue-recognition",
+    "fair-value"
+   ],
+   "recall": 0.5,
+   "rankedRecall": 0.75,
+   "precision": 0.67,
+   "materiality": {
+    "ours": 6165,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 1,
+   "requests": 62,
+   "findings": 4,
+   "recallNoPrior": 0.25
+  },
+  {
+   "id": "infosys-2026",
+   "company": "Infosys Limited",
+   "sector": "tech",
+   "auditor": "Deloitte Haskins & Sells LLP",
+   "fy": "FY2025-26",
+   "unit": "كرور روبية",
+   "balanced": true,
+   "found": {
+    "revenue-recognition": "selected"
+   },
+   "selected": [
+    "revenue-recognition",
+    "tax-uncertainty",
+    "admin"
+   ],
+   "recall": 1,
+   "rankedRecall": 1,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 2000,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 1,
+   "requests": 54,
+   "findings": 1,
+   "recallNoPrior": 1
+  },
+  {
+   "id": "aramco-2025",
+   "company": "Saudi Arabian Oil Company (Aramco)",
+   "sector": "energy",
+   "auditor": "PricewaterhouseCoopers Public Accountants",
+   "fy": "FY2025",
+   "unit": "مليون ريال",
+   "balanced": true,
+   "found": {
+    "impairment-intangibles": "ranked",
+    "impairment-assets": "selected",
+    "complex-transactions": "missed"
+   },
+   "selected": [
+    "impairment-assets",
+    "revenue-recognition",
+    "fair-value"
+   ],
+   "recall": 0.33,
+   "rankedRecall": 0.67,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 35143,
+    "disclosed": 26250,
+    "ratio": 1.34,
+    "page": 10162
+   },
+   "structure": 0.97,
+   "requests": 60,
+   "findings": 3,
+   "recallNoPrior": 0.33
+  },
+  {
+   "id": "emiratesnbd-2025",
+   "company": "Emirates NBD Bank",
+   "sector": "banking",
+   "auditor": "Ernst & Young Middle East",
+   "fy": "FY2025",
+   "unit": "مليون درهم",
+   "balanced": true,
+   "found": {
+    "credit-losses": "selected",
+    "related-parties": "missed"
+   },
+   "selected": [
+    "credit-losses",
+    "fair-value",
+    "payables"
+   ],
+   "recall": 0.5,
+   "rankedRecall": 0.5,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 1492,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 1,
+   "requests": 55,
+   "findings": 1,
+   "recallNoPrior": 0.5
+  },
+  {
+   "id": "eand-2025",
+   "company": "e& (Emirates Telecommunications Group)",
+   "sector": "telecom",
+   "auditor": "Ernst & Young",
+   "fy": "FY2025",
+   "unit": "مليون درهم",
+   "balanced": true,
+   "found": {
+    "revenue-recognition": "selected",
+    "impairment-intangibles": "selected"
+   },
+   "selected": [
+    "revenue-recognition",
+    "impairment-intangibles",
+    "impairment-assets"
+   ],
+   "recall": 1,
+   "rankedRecall": 1,
+   "precision": 0.67,
+   "materiality": {
+    "ours": 1339,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 1,
+   "requests": 61,
+   "findings": 5,
+   "recallNoPrior": 1
+  },
+  {
+   "id": "rbc-2025",
+   "company": "Royal Bank of Canada",
+   "sector": "banking",
+   "auditor": "PricewaterhouseCoopers LLP",
+   "fy": "FY2025",
+   "unit": "مليون C$",
+   "balanced": true,
+   "found": {
+    "credit-losses": "selected",
+    "tax-uncertainty": "ranked"
+   },
+   "selected": [
+    "credit-losses",
+    "fair-value",
+    "payables"
+   ],
+   "recall": 0.5,
+   "rankedRecall": 1,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 1283,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 0.97,
+   "requests": 54,
+   "findings": 2,
+   "recallNoPrior": 0.5
+  },
+  {
+   "id": "bhp-2025",
+   "company": "BHP Group Limited",
+   "sector": "mining",
+   "auditor": "Ernst & Young",
+   "fy": "FY2025",
+   "unit": "مليون $",
+   "balanced": true,
+   "found": {
+    "impairment-assets": "selected",
+    "provisions-litigation": "missed"
+   },
+   "selected": [
+    "impairment-assets",
+    "revenue-recognition",
+    "tax-uncertainty"
+   ],
+   "recall": 0.5,
+   "rankedRecall": 0.5,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 918,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 0.95,
+   "requests": 61,
+   "findings": 3,
+   "recallNoPrior": 0.5
+  },
+  {
+   "id": "cba-2025",
+   "company": "Commonwealth Bank of Australia",
+   "sector": "banking",
+   "auditor": "PricewaterhouseCoopers",
+   "fy": "FY2025",
+   "unit": "مليون A$",
+   "balanced": true,
+   "found": {
+    "credit-losses": "selected",
+    "provisions-litigation": "missed",
+    "it-controls": "missed"
+   },
+   "selected": [
+    "credit-losses",
+    "payables",
+    "tax-uncertainty"
+   ],
+   "recall": 0.33,
+   "rankedRecall": 0.33,
+   "precision": 0.33,
+   "materiality": {
+    "ours": 777,
+    "disclosed": null,
+    "ratio": null,
+    "page": null
+   },
+   "structure": 1,
+   "requests": 53,
+   "findings": 0,
+   "recallNoPrior": 0.33
+  }
+ ]
+}
