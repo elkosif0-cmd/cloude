@@ -143,8 +143,41 @@ function saveReportResult(tb,fs,sourceName=""){
   commit(s,"reporting.generated",{sourceName,rows:tb.rows.length,mappedPct:fs.checks.mappedPct});return s.reporting;
 }
 function reportingStatus(){
-  const s=state(),target=REPORT_TARGETS[s.reporting.target]||REPORT_TARGETS.full,types=new Set(s.documents.map(d=>d.type));
+  const s=state(),target=REPORT_TARGETS[s.reporting.target]||REPORT_TARGETS.full,types=new Set(documents().map(d=>d.type));
   return{target:s.reporting.target,label:target.label,requires:target.requires,optional:target.optional,missing:target.requires.filter(x=>!types.has(x)),present:[...types],lastTrialBalance:s.reporting.lastTrialBalance,lastStatements:s.reporting.lastStatements};
 }
-window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,definitions,addDefinition,removeDefinition,installed,setTool,reportingTarget,reportingStatus,inferType,ingestFiles,documents,readDocument,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,setAuditHandoffStatus,addStandardTrace,saveReportResult});
+const normSearch=v=>String(v==null?"":v).toLowerCase().replace(/[ً-ٰٟ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/ـ/g,"").replace(/\s+/g," ").trim();
+const minorText=(v,currency)=>{
+  try{const n=BigInt(String(v??"0")),neg=n<0n,a=neg?-n:n;return(neg?"-":"")+(a/100n).toLocaleString("en-US")+"."+String(a%100n).padStart(2,"0")+" "+currency}catch{return String(v??"0")+" "+currency}
+};
+function searchCompany(query){
+  const q=normSearch(query),s=state(),c=cur(),hits=[];
+  if(!q)return{text:"اكتب ما تريد البحث عنه داخل الشركة.",matches:[]};
+  const words=q.split(" ").filter(w=>w.length>1),matched=hay=>hay.includes(q)||words.some(w=>w.length>2&&hay.includes(w));
+  for(const [type,label] of Object.entries(TYPES))for(const x of s.definitions[type]||[]){
+    const hay=normSearch([x.name,x.code,x.accountCode,x.costCenter,x.notes].filter(Boolean).join(" "));
+    if(matched(hay))hits.push({kind:"definition",type,label:label.label,id:x.id,title:x.name,detail:[x.code,x.accountCode&&"حساب "+x.accountCode,x.costCenter].filter(Boolean).join(" · ")});
+  }
+  for(const d of documents()){
+    const hay=normSearch([d.name,d.type,d.sourceGateway].join(" "));
+    if(matched(hay))hits.push({kind:"document",id:d.id,title:d.name,detail:(d.type||"other")+" · "+(d.sha256||"").slice(0,12)});
+  }
+  const ledger=load("skosif_ledger_v1",{})||{},accounts=Object.fromEntries((ledger.accounts||[]).map(a=>[a.id,a]));
+  for(const e of ledger.entries||ledger.journal||[]){
+    const lineText=(e.lines||[]).map(l=>{const a=accounts[l.accountId]||{};return[a.code,a.name,l.memo].filter(Boolean).join(" ")}).join(" "),
+      hay=normSearch([e.memo,e.description,e.ref,e.reference,e.date,lineText].filter(Boolean).join(" "));
+    if(matched(hay))hits.push({kind:"journal",id:e.id||"",title:((e.date||"")+" "+(e.memo||e.description||e.ref||"قيد")).trim(),detail:(e.lines||[]).slice(0,4).map(l=>{const a=accounts[l.accountId]||{};return(a.code||"")+" "+(a.name||"")}).join(" · ")});
+  }
+  const financial={"الايرادات":"revenue","ايرادات":"revenue","المبيعات":"revenue","مجمل الربح":"gross","الربح التشغيلي":"operating","صافي الربح":"profit","الربح":"profit","الاصول":"assets","اصول":"assets","الالتزامات":"liabilities","المطلوبات":"liabilities","حقوق الملكيه":"equity","النقد":"cash","العملاء":"receivables","المخزون":"inventory","المصروفات الاداريه":"admin","المصاريف الاداريه":"admin","الاهلاك":"depreciation","تكلفه المبيعات":"cogs"},
+    fs=s.reporting?.lastStatements,keys=fs?.keys||{},picked=[];
+  for(const [word,key] of Object.entries(financial))if(q.includes(normSearch(word))&&keys[key]&&!picked.includes(key))picked.push(key);
+  if(/مصروف|مصاريف|تكلف/.test(q))for(const k of ["cogs","selling","admin","depreciation","finance"])if(keys[k]&&!picked.includes(k))picked.push(k);
+  const labels={revenue:"الإيرادات",gross:"مجمل الربح",operating:"الربح التشغيلي",profit:"صافي الربح",assets:"الأصول",liabilities:"الالتزامات",equity:"حقوق الملكية",cash:"النقد",receivables:"العملاء",inventory:"المخزون",cogs:"تكلفة المبيعات",selling:"مصروفات البيع",admin:"المصروفات الإدارية",depreciation:"الإهلاك",finance:"تكاليف التمويل"};
+  for(const key of picked){const v=keys[key];hits.unshift({kind:"financial",id:key,title:labels[key]||key,detail:"الحالي "+minorText(v.current,c.currency)+" · السابق "+(v.prior==null?"لا توجد مقارنة":minorText(v.prior,c.currency))});}
+  const rs=reportingStatus();
+  if(/ناقص|مطلوب|مستند|وثيق/.test(q))hits.unshift({kind:"reporting",id:"missing",title:"نواقص مساعد التقارير",detail:rs.missing.length?rs.missing.join("، "):"لا توجد نواقص في الحد الأدنى للمخرج المختار"});
+  const limited=hits.slice(0,20),text=limited.length?("نتائج داخل «"+c.name+"»:\n"+limited.map(x=>"• "+x.title+(x.detail?" — "+x.detail:"")).join("\n")):"لم أجد نتيجة مطابقة داخل بيانات الشركة الحالية.";
+  return{text,matches:limited};
+}
+window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,definitions,addDefinition,removeDefinition,installed,setTool,reportingTarget,reportingStatus,inferType,ingestFiles,documents,readDocument,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,setAuditHandoffStatus,addStandardTrace,saveReportResult,search:searchCompany});
 })();
