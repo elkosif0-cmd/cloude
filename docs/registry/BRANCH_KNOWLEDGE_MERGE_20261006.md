@@ -14,7 +14,7 @@
 |---|---|---|---|
 | 1 | PR #143 / `codex/sqc-five-audit-source-models-20261005` | COMPLETE | أكبر حزمة: مصادر، محركات، حماية، اختبارات |
 | 2 | PR #140 / `feat/kosif-unified-financial-os-20261005` | COMPLETE | Company Platform, Master Data, Reporting Intake, Audit Inbox |
-| 3 | PR #169 / `kosifsee/ux-clarity-20261006` | COMPLETE | تنظيم واجهة البوابات وتجربة الأدوات |
+| 3 | PR #169 / `kosifsee/ux-clarity-20261006` | COMPLETE | توضيح البوابات الثلاث وتجربة الأدوات |
 | 4 | PR #170 / `kosifsee/audit-context-separation-20261006` | COMPLETE | فصل سياق المراجعة عن المحاسبة |
 | 5+ | بقية الفروع | QUEUED | تُقرأ واحدًا واحدًا كمصادر معرفة |
 
@@ -70,19 +70,19 @@
 الحالة: **COMPLETE — PR #140 تمت مراجعته واستخلاصه، وأفضل ما فيه موجود بالفعل في خط الأساس الحالي.**
 
 ## PR #169 — بدأ التحليل
-التركيز: وضوح البوابات الأربع، تقليل التداخل البصري، ترتيب الأدوات، وتسلسل الوصول للشركة/القسم بدون فقد قدرات قائمة.
+التركيز: وضوح البوابات الثلاث المعتمدة في FOUNDATION §3، تقليل التداخل البصري، ترتيب الأدوات، وتسلسل الوصول للقسم/المساحة بدون فقد قدرات قائمة.
 
 
 ### PR #169 — نتيجة التنفيذ
 - تم فحص تغييرات واجهة الدخول ومساحة الأدوات واختبارات البوابات.
-- **لم يتم نقل تغييرات `unlock.html`** لأنها تعيد تعريف الدخول على أنه «ثلاثة مداخل»، وهذا يتعارض مع التصور الحالي للمشروع الذي يعتمد أربع أقسام رئيسية؛ نقلها كان سيعيد انحرافًا سبق تصحيحه.
+- تغييرات `unlock.html` في الفرع كانت متسقة مع مبدأ **ثلاثة مداخل** المعتمد حاليًا في FOUNDATION §3، لكن لم ننسخ النسخة القديمة بالجملة لأن `main` كان قد تطور بعدها؛ أخذنا فقط التحسينات الصافية التي لا تستبدل منطقًا أحدث.
 - تم أخذ أفضل فكرة UX من الفرع: **الأداة أولًا، وسياق الشركة اختياري** داخل بوابة الأدوات.
 - تم دمج هذه الفكرة مع النسخة الحالية بدل استبدالها، مع الحفاظ على **AI Exception Queue** والقدرات الأحدث الموجودة في `helper-center.js`.
 - أُضيفت تسميات موجّهة بالمهمة: التكلفة والتسعير، المبيعات والعملاء، المخزون والمشتريات، الدفاتر والتحليل، التقارير والمستندات.
 - أضيف مؤشر واضح لحالة سياق الشركة، وتحسينات وصول/لمس في CSS.
 - أضيف اختبار عقدي يثبت أن بوابة الأدوات تبقى task-first وأن ربط الشركة اختياري.
 
-الحالة: **COMPLETE — أخذنا جوهر UX الأفضل من PR #169 بدون الرجوع إلى نموذج الثلاث بوابات.**
+الحالة: **COMPLETE — أخذنا جوهر UX الأفضل من PR #169 مع الالتزام بنموذج البوابات الثلاث المعتمد حاليًا في الدستور.**
 
 ## PR #170 — بدأ التحليل
 التركيز: فصل سياق المراجعة عن المحاسبة، استقلال ملف المراجعة، ومنع أي ربط ضمني يجعل نتائج الأدوات أو دفاتر المحاسبة دليل مراجعة تلقائيًا.
@@ -178,3 +178,242 @@
 - الحالة: **SUPERSEDED-BY-CURRENT / NO BULK MERGE**.
 
 **خلاصة الدفعة:** لا توجد شفرة ناقصة تستحق النقل من #151–#144 بعد الفحص التفصيلي؛ تم حفظ المعرفة المفيدة وتجنب إعادة إدخال قرارات/نسخ أقدم.
+
+
+## دفعة PR #142 → PR #128 — مراجعة المعرفة والتنفيذ
+
+### PR #142 — External research backlog
+- الملف `docs/registry/EXTERNAL_BACKLOG_ar.md` في `main` **مطابق حرفيًا** لنسخة الفرع.
+- إحالة `docs/VISION_ar.md` إلى الـbacklog موجودة أيضًا.
+- القرار: **VERIFIED-IN-MAIN** — لا نقل إضافي.
+
+### PR #141 — «نبض اليوم» + تحسينات البناء على Windows
+- `ui/features/pulse.js` و`tools/pulse.test.mjs` في `main` **مطابقان حرفيًا** للفرع.
+- `docs/rebuild/PROGRAM_2_ar.md` الحالي ما زال يوثق «نبض اليوم» ورحلة المالية.
+- القرار: **VERIFIED-IN-MAIN** — القدرة لم تضِع.
+
+### PR #139 — تشخيص مشكلة Focus/Fullscreen
+- الفرع كان **تشخيصًا مؤقتًا فقط** ومذكورًا صراحةً أنه لا يجب دمج Logger التشخيصي في الإنتاج.
+- الـinstrumentation القديمة في `output.js` و`sk.js` لم تُستعد عمدًا لأنها logging مؤقتة قد تؤثر على التوقيت.
+- الإصلاحات الفعلية انتقلت لاحقًا عبر #137/#163، واختبارات focus الحالية أوسع.
+- القرار: **RETIRE-DIAGNOSTIC-CODE / KEEP-KNOWLEDGE** — نحتفظ بسبب المشكلة وطريقة القياس كمعرفة، ولا نعيد تفعيل الـdiagnostic في production.
+
+### PR #138 — Helper gateway topology
+- الاختبار الحالي `tools/helper_gateway.test.mjs` أطول وأحدث من نسخة الفرع، ويحتفظ باختبارات topology/permission ثم يضيف فوقها task-first semantics من #169.
+- أي وثائق تربط ذلك بهيكل قديم لا تعلو على FOUNDATION الحالي.
+- القرار: **CURRENT-IS-SUPERSET**.
+
+### PR #137 — Native focus completion
+- الفرع الآن `ahead=0` أمام `main`; لا توجد ملفات ناقصة.
+- مضمونه أُعيد بناؤه أيضًا ضمن #163 على خط أحدث.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #136 — Four-gateway implementation (historical)
+- لا توجد file delta حاليًا؛ الكود الذي بقي صالحًا امتصه main.
+- مفهوم «أربع بوابات» نفسه **تاريخي** ويتعارض مع FOUNDATION §3 الحالي الذي يثبت ثلاث بوابات؛ لا يُعاد فرضه من فرع قديم.
+- القرار: **KNOWLEDGE-EXTRACTED / ARCHITECTURE-SUPERSEDED**.
+
+### PR #135 — Four-portal vision/source registry (historical)
+- سجل مصادر القدرات والأفكار المفيدة استُوعب لاحقًا في سجلات Rule Zero وCapability Migration Matrix.
+- عقد الأربع بوابات لا يُعاد لأنه قرار معماري قديم يخالف الدستور الحالي.
+- القرار: **REGISTRY-KNOWLEDGE-KEPT / PORTAL-CONTRACT-RETIRED**.
+
+### PR #134 — Apple published-source boundary
+- `published-source-engine.ts` الحالي **مطابق حرفيًا** للفرع.
+- اختبارات Apple وfixtures والحواجز ما زالت موجودة في `main`، ثم توسعت لاحقًا بحزمة #143 إلى مصادر أخرى.
+- القرار: **VERIFIED-IN-MAIN / EXTENDED-LATER**.
+
+### PR #133 — Report guards + preview accessibility
+- الفرع `ahead=0` أمام main؛ لا يوجد code delta.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #132 — Workspace validation
+- ملفات workflow والاختبارات موجودة في main؛ `tools/workspace_validation.test.mjs` **مطابق حرفيًا** للفرع.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #131 — Superseded preview accessibility branch
+- كان قد وُسم أصلًا Superseded by #133، ثم أُخذت إصلاحات focus النهائية ضمن #137/#163.
+- لا نعيد النسخة الوسطية لأنها تجمع نسخًا أقدم من workflows/tests.
+- القرار: **SUPERSEDED / NO BULK MERGE**.
+
+### PR #130 و#129 — All-periods company context
+- #129 كان Superseded by #130.
+- منطق الشركة/الفترة انتقل إلى المسار الحالي، بينما إعادة نسخ ملفات `engines.js` القديمة ستتراجع عن محركات أحدث.
+- القرار: **KNOWLEDGE-KEPT / IMPLEMENTATION-SUPERSEDED**.
+
+### PR #128 — Program 2 research + finance journey
+- `app/src/engine/fusion/finance/finance-journey.test.ts` و`tools/bundle_verify.mjs` الحاليان **مطابقان حرفيًا** للفرع.
+- وثائق التحقق للحزمة وبرنامج 2 موجودة في main.
+- القرار: **VERIFIED-IN-MAIN**.
+
+**خلاصة الدفعة:** لم تظهر شفرة صافية أفضل تحتاج نقلًا من #142–#128؛ ما كان صالحًا موجود في main، وما كان تشخيصيًا/معماريًا قديمًا وُثق سبب عدم إعادته بدل تجاهله.
+
+
+## دفعة PR #127 → PR #118 — مراجعة المعرفة والتنفيذ
+
+### PR #127 — Workspace validation (superseded by #132)
+- `tools/workspace_validation.test.mjs` و`ui/features/workspace.js` في `main` مطابقان حرفيًا لنسخة الفرع.
+- الفرع نفسه كان Superseded by #132.
+- القرار: **VERIFIED-IN-MAIN / SUPERSEDED-BY-#132**.
+
+### PR #126 — Fail-closed executive reports (superseded by #133)
+- `tools/report_pack_guard.test.mjs` و`ui/features/report-pack.js` في `main` مطابقان حرفيًا لجوهر الفرع.
+- `report_output_guard.test.mjs` الحالي أوسع من النسخة القديمة؛ لا نعيد harness أقدم.
+- القرار: **CURRENT-IS-SUPERSET / SUPERSEDED-BY-#133**.
+
+### PR #125 — Shared Studio component
+- `ui/components/studio.js` و`customer-flow.js` و`product-flow.js` في `main` مطابقة حرفيًا للفرع.
+- فكرة الاستوديو المشترك محفوظة وتعمل كأساس لتوحيد العرض بدل شاشات متفرقة.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #124 — Five company studios / domain organization
+- الفكرة المفيدة: تجميع القدرات المتقاربة في عائلات/استوديوهات بدل قائمة ضخمة من الشاشات.
+- `registry.js` الحالي أوسع من الفرع ويضيف البوابات والقطاعات والـshared gateways؛ لا يُستبدل بالنسخة الأقدم.
+- `helper-center.js` الحالي أصبح Superset بعد #169: يحتفظ بالتجميع ويضيف task-first + optional company context + AI exception queue.
+- القرار: **KNOWLEDGE-KEPT / CURRENT-IS-SUPERSET**.
+
+### PR #123 — One visual brand
+- `docs/design/SQC-IDENTITY-ar.md` و`ui/ds/sqc.css` في `main` مطابقان حرفيًا للفرع.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #122 — Identity drift ratchet
+- رأس الفرع خلف main وبدون file delta.
+- قواعد الـidentity reference / drift ratchet / focus ring موجودة في خط الإنتاج الحالي.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #121 — Motion layer
+- رأس الفرع خلف main وبدون file delta.
+- طبقة الحركة التي بقيت صالحة موجودة بالفعل في main.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #120 — Period/name hotfix
+- رأس الفرع خلف main وبدون file delta.
+- الإصلاحات absorbed في main.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #119 — One company context + Crystal World
+- `ui/art/crystal-world.js` في main مطابق حرفيًا للفرع؛ الهوية البصرية/العالم البلوري لم تضِع.
+- `ui/core/company.js` الحالي أوسع من نسخة الفرع؛ لا يُستبدل بنسخة أقدم.
+- فكرة «one company context» تُستخدم داخل السياق الذي يحتاج شركة، لكنها لا تعيد فرض company-first على بوابة المنتج لأن FOUNDATION الحالي section-first.
+- القرار: **VISUAL-KEPT / CURRENT-COMPANY-CONTEXT-IS-SUPERSET**.
+
+### PR #118 — Company-first front door + Sales Intelligence in executive reports
+- معمارية **company-first** نفسها superseded بالدستور الحالي: `القسم → الشركة/المساحة`.
+- قدرة «ذكاء المبيعات» الأساسية **لم تضِع**: `salesintel` موجودة في main وتعمل من IDB per-company، و`reports.js` يستخدم نفس المحرك لرادار العملاء.
+- الفرع القديم كان يحقن نتائج `SKosifSalesIntel.snapshot` مباشرة في الحزمة التنفيذية حسب 6/12 شهرًا.
+- الحزمة الحالية أوقفت هذا الربط المباشر عمدًا لأن التقرير التنفيذي الآن fail-closed ومربوط بـimmutable company+period capture؛ مصدر المبيعات التشغيلي لم يكن مربوطًا بنفس الـscope، ولذلك يعرض القسم «غير متاح» بدل خلط شركة/فترة خاطئة.
+- تم سؤال Jev بين أربع بدائل؛ النتيجة **REBUILD_SCOPED (100%)**: نحتفظ بالفكرة ونبني لاحقًا Sales Capture مربوطًا بنفس company+period token/hash قبل السماح بإظهار ذكاء المبيعات داخل التقرير التنفيذي.
+- القرار: **REBUILD_SCOPED — capability preserved, unsafe direct binding not restored.**
+
+الحالة: **COMPLETE — #127 إلى #118 تمت مراجعتها، وأفضل ما فيها إما موجود في main أو موثق كإعادة بناء آمنة بدل إعادة كود أقدم/أخطر.**
+
+
+## دفعة PR #117 → PR #108 — مراجعة المعرفة والتنفيذ
+
+### PR #117 — Council readiness + legacy report guard
+- رأس الفرع خلف `main` وبدون أي file delta.
+- ضوابط fail-closed للمجلس والتقارير غير المربوطة موجودة في الخط الحالي.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #116 — Shared Agent Work Log
+- النسخة الحالية من `AGENTS.md` و`AGENT_WORKLOG.md` أكبر بكثير وتغطي نفس الفكرة مع قواعد أحدث: FOUNDATION-first، Claude lead coordination، Rule Zero inventory، handoff وNEXT ACTION.
+- البند التاريخي company-first داخل worklog القديم لا يُعاد لأنه يخالف FOUNDATION الحالي.
+- القرار: **CURRENT-IS-SUPERSET / HISTORICAL-TASK-SUPERSEDED**.
+
+### PR #115 — Consistent box-only KPI counts
+- رأس الفرع خلف main وبدون file delta.
+- إصلاح اتساق عدّ البوكسات موجود بالفعل.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #114 — Review import guard + preserve docs on failed save
+- رأس الفرع خلف main وبدون file delta.
+- منطق الحماية والحفاظ على المستندات موجود بالفعل.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #113 — Sales date boundaries / returns / refresh / spreadsheet types
+- رأس الفرع خلف main وبدون file delta.
+- الإصلاحات موجودة في مسار Sales Intelligence الحالي.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #112 — Mercury styling for command center/reports
+- رأس الفرع خلف main وبدون file delta.
+- الأسلوب البصري الموحّد الحالي احتفظ بما تم اعتماده منه.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #111 — Verified Sales Intelligence
+- رأس الفرع خلف main وبدون file delta.
+- `salesintel` الحالي ما زال قدرة عاملة، ومحرك `sales-insights-engine.ts` هو مصدر الحقيقة.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #110 — Scoped management report snapshots
+- رأس الفرع خلف main وبدون file delta.
+- الـimmutable company+period capture والحواجز الحالية بُنيت فوق هذا الأساس.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #109 — Trial balance duplicate totals
+- رأس الفرع خلف main وبدون file delta.
+- الإصلاح موجود بالفعل.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #108 — Unlock focus outline
+- رأس الفرع خلف main وبدون file delta.
+- إصلاح الوصول البصري موجود في النسخة الحالية.
+- القرار: **VERIFIED-IN-MAIN**.
+
+الحالة: **COMPLETE — #117 إلى #108 كلها إما موجودة في main أو Superset حالي؛ لا توجد شفرة صافية أفضل تحتاج استعادة.**
+
+
+## دفعة PR #107 → PR #98 — مراجعة المعرفة والتنفيذ
+
+### PR #107 — Reversible sidebar visibility + responsive focus
+- رأس الفرع خلف main وبدون file delta.
+- القدرة موجودة في shell الحالي.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #106 — Login/PWA cache freshness
+- رأس الفرع خلف main وبدون file delta.
+- تحديثات freshness للـPWA والدخول موجودة بالفعل.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #105 — Report state + partial receipt posting
+- رأس الفرع خلف main وبدون file delta.
+- الإصلاحات موجودة في النسخة الحالية.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #104 — PWA theme consistency
+- رأس الفرع خلف main وبدون file delta.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #103 — Audit readability/font consistency
+- رأس الفرع خلف main وبدون file delta.
+- تحسينات القراءة والخطوط امتصها main.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #102 — Secure entry UX + PWA identity
+- رأس الفرع خلف main وبدون file delta.
+- واجهة الدخول الحالية تطورت بعدها مع section-first door وحماية الشركة الخاصة.
+- القرار: **VERIFIED-IN-MAIN / CURRENT-IS-NEWER**.
+
+### PR #101 — Full Pro text revision/engineering prompts
+- رأس الفرع خلف main وبدون file delta.
+- التحديث محفوظ في خط KOSIF Think الحالي.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #100 — Encrypted sign-in performance/accessibility
+- الفرع غير مدمج تاريخيًا لكنه أقدم كثيرًا من `unlock.html` الحالي.
+- أفكاره المفيدة: progress state، `aria-busy`، eye-button semantics، تجنب استخدام كلمة مرور تغيرت أثناء الاشتقاق، وعدم فتح التطبيق عند فشل التحقق.
+- النسخة الحالية من `unlock_runtime.test.mjs` أكبر، و`unlock.html` الحالي أعاد بناء الدخول بالكامل حول القسم/الشركة؛ نسخ النسخة القديمة سيكسر الباب الحالي.
+- القرار: **KNOWLEDGE-KEPT / CURRENT-ENTRY-SUPERSEDES-OLD**.
+
+### PR #99 — Incremental accessible UI + CI contracts
+- رأس الفرع خلف main وبدون file delta.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #98 — Sales Intelligence v2
+- القدرة الأساسية موجودة ومطوّرة في main: المحرك الحالي أكبر واختباراته أوسع.
+- تحسينات النسخة الحالية فوق #98 تشمل: validation أدق للتاريخ، مفتاح الطلب scoped بـinvoice+date+channel+customer لمنع دمج معاملات منفصلة، as-of صحيح، returns على مستوى السطور، متابعة الإيقاع، تحسينات accessibility للـKPIs، وواجهة `snapshot` مشتركة.
+- `sales-intel.css` الحالي أكبر دون فقد قواعد المصدر.
+- `sales-lab.js` الحالي تطور بعد الفرع.
+- القرار: **CURRENT-IS-SUPERSET — لا نعيد نسخة #98 الأقدم.**
+
+الحالة: **COMPLETE — #107 إلى #98 تمت مراجعتها؛ لا توجد شفرة صافية أفضل تحتاج النقل، والمعرفة المفيدة موجودة أو تطورت في main.**
