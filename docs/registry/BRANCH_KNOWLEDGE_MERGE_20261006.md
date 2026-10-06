@@ -594,3 +594,47 @@
 - القرار: **VERIFIED-IN-MAIN / SUPERSEDED-BY-CURRENT-JEV-CONTRACT**.
 
 الحالة: **COMPLETE — #77 إلى #68 تمت مراجعتها، ولا توجد شفرة صافية مفقودة تحتاج نقلًا.**
+
+
+## دفعة PR #67 → PR #58 — مراجعة المعرفة والتنفيذ
+
+### PR #67 — KOSIF Think MCP token auth + rate limits
+- رأس الفرع behind بلا delta؛ auth/rate/CORS/body-size تطورت لاحقًا إلى OAuth + legacy bearer + fail-closed limits.
+- القرار: **VERIFIED-IN-MAIN / CURRENT-IS-SUPERSET**.
+
+### PR #66 / #65 — Preview-safe builds + phone layout guards
+- `build_mode.py` و`tools/revisit_e2e.mjs` في main مطابقان حرفيًا لنسخة الفرع.
+- `preview_build_check.py` و`phone_layout.mjs` الحاليان أكبر وأوسع من النسخ القديمة.
+- قرار: **CURRENT-IS-SUPERSET**.
+
+### PR #64 — Maintenance + four-section navigation (historical)
+- cross-platform build reliability وأجزاء المفاتيح/capabilities امتصها main.
+- مفهوم four-section navigation في هذا الفرع تاريخي؛ FOUNDATION الحالي هو المرجع المعماري ولا نعيد قرارًا قديمًا منه.
+- القرار: **BUILD-KNOWLEDGE-KEPT / NAVIGATION-SUPERSEDED**.
+
+### PR #63 — Global ratio benchmarks
+- رأس الفرع behind بلا delta؛ المقارنات العالمية موجودة وتوسعت لاحقًا عبر corpus/global benchmarks.
+- القرار: **VERIFIED-IN-MAIN / EXTENDED-LATER**.
+
+### PR #62 — Touch target + contrast measurements
+- نسخة `sqc.css` الحالية أكبر بكثير، واختبارات الهاتف/accessibility الحالية أوسع.
+- القرار: **CURRENT-IS-SUPERSET**.
+
+### PR #61 — Assistant reaches every capability
+- `tools/assistant_reach.mjs` في main **مطابق حرفيًا** للفرع؛ عقد عدم ترك قدرات غير قابلة للوصول محفوظ.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #60 — Report presentation mode
+- رأس الفرع behind بلا delta؛ القدرة موجودة.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #59 — Round-2 client document requests
+- رأس الفرع behind بلا delta؛ القدرة موجودة ضمن دورة طلبات المراجعة الحالية.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #58 — 5-agent Clean APIs council + Jev
+- الفكرة الأساسية للمجلس متعدد الوكلاء + Jev تطورت جذريًا: Council-500، cognitive cards، Jev batches، Einstein synthesis، secure execution، receipts.
+- كود Clean APIs القديم لا يُعاد فوق runtime الحالي.
+- القرار: **CONCEPT-KEPT / IMPLEMENTATION-SUPERSEDED**.
+
+الحالة: **COMPLETE — #67 إلى #58 تمت مراجعتها؛ لا توجد قدرة مفقودة تحتاج نقلًا صافيًا.**
