@@ -323,6 +323,110 @@ function postDigitalOp(root,d){
   }catch(e){err.textContent=e.message||String(e);return}
   return true;
 }
+/* ---------- production: the factory's orders and the bakery's batches (finance/production-order-engine) ----------
+   A product's bill of materials (or recipe) gives its standard cost. A factory issues materials into work in progress,
+   absorbs labour and overhead at standard and closes each order into finished goods, scrap and the cost variance; a
+   bakery bakes batches at actual cost and writes off what expires. Orders and batches are read back from their entries. */
+const PO=()=>E().productionOrder;
+const isFactory=()=>{try{return SK.company.current().sector==="manufacturing"}catch{return false}};
+const isBakery=()=>{try{return SK.company.current().sector==="bakery"}catch{return false}};
+const FACTORY_CODES=["1370","1380","1390","5170","5100","6100","6300","5000","2100"],BAKERY_CODES=["1370","1390","5180","6100","5000","2100"];
+function poAccounts(d){return{materialsAccountId:byCode(d,"1370"),wipAccountId:byCode(d,"1380"),finishedAccountId:byCode(d,"1390"),labourAccountId:byCode(d,"6100"),overheadAccountId:byCode(d,"6300"),
+  scrapAccountId:byCode(d,"5100"),varianceAccountId:byCode(d,"5170"),wasteAccountId:byCode(d,"5180"),cogsAccountId:byCode(d,"5000"),payableAccountId:byCode(d,"2100"),inputVatAccountId:byCode(d,"1400")}}
+const prodLive=d=>d.entries.filter(e=>e.production&&!e.reversedBy&&!e.reversalOf);
+function orderState(d,id){const s=PO().emptyOrderState();prodLive(d).filter(e=>e.production.orderId===id).forEach(e=>{const p=e.production;
+  if(p.kind==="issue")s.issuedHalalas+=p.amount;if(p.kind==="absorb")s.absorbedHalalas+=p.labour+p.overhead;
+  if(p.kind==="complete"){s.completedHalalas+=p.good;s.scrapHalalas+=p.scrap;s.goodQty+=p.goodQty;s.scrapQty+=p.scrapQty;s.closed=true}});return s}
+const onHand=(d,code)=>{const v=balanceOf(d,code,"9999-12-31");return Math.round((v||0)*100)};
+function productsHTML(d){
+  const ps=Array.isArray(d.products)?d.products:[],h=v=>money((v||0)/100);
+  const row=i=>'<label class="sk-field"><span>مادة '+i+'</span><input id="pr-m'+i+'" autocomplete="off"></label><label class="sk-field"><span>الكمية للوحدة</span><input id="pr-q'+i+'" inputmode="decimal"></label><label class="sk-field"><span>تكلفة وحدة المادة</span><input id="pr-c'+i+'" inputmode="decimal"></label>';
+  return '<section class="card"><div class="card-h"><div><h3>'+(isBakery()?"وصفة صنف جديد":"منتج وقائمة مواد")+'</h3><p>التكلفة المعيارية للوحدة = المواد حسب '+(isBakery()?"الوصفة":"قائمة المواد")+' + الأجور + التحميل.</p></div></div><div class="card-b"><div class="sk-grid2">'+
+      '<label class="sk-field"><span>'+(isBakery()?"الصنف":"المنتج")+'</span><input id="pr-name" autocomplete="off" data-sk-required></label><label class="sk-field"><span>الوحدة</span><input id="pr-unit" value="'+(isBakery()?"قطعة":"وحدة")+'"></label>'+
+      row(1)+row(2)+row(3)+
+      '<label class="sk-field"><span>أجور للوحدة</span><input id="pr-lab" inputmode="decimal" value="0"></label><label class="sk-field"><span>تحميل صناعي للوحدة</span><input id="pr-oh" inputmode="decimal" value="0"></label></div>'+
+      '<div class="sk-error" id="pr-err" role="alert"></div><div class="sk-actions"><button type="button" class="btn" data-l="pr-new">حفظ</button></div></div></section>'+
+    (ps.length?'<section class="card"><div class="card-h"><div><h3>'+(isBakery()?"الأصناف والوصفات":"المنتجات")+'</h3></div></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table" data-pr-table><thead><tr><th>'+(isBakery()?"الصنف":"المنتج")+'</th><th>المواد</th><th>الأجور</th><th>التحميل</th><th>التكلفة المعيارية</th><th>سعر بهامش 40٪ شامل الضريبة</th></tr></thead><tbody>'+
+      ps.map(p=>{const c=PO().standardCost(p),pr=PO().priceForMargin(c.total,40,SK.vatRate());return '<tr data-product="'+esc(p.name)+'"><td>'+esc(p.name)+'</td><td class="n">'+h(c.materials)+'</td><td class="n">'+h(c.labour)+'</td><td class="n">'+h(c.overhead)+'</td><td class="n"><b>'+h(c.total)+'</b></td><td class="n">'+h(pr.gross)+'</td></tr>'}).join("")+'</tbody></table></div></div></section>':'');
+}
+function saveProduct(root,d){
+  const err=$("#pr-err",root);err.textContent="";
+  const bom=[1,2,3].map(i=>({material:$("#pr-m"+i,root).value.trim(),qtyPerUnit:Number(String($("#pr-q"+i,root).value).replace("٫",".")),unitCostHalalas:halalas($("#pr-c"+i,root).value||0)})).filter(l=>l.material);
+  const p={id:SK.ui.uid("prd"),name:$("#pr-name",root).value.trim(),unit:$("#pr-unit",root).value.trim()||"وحدة",bom,labourPerUnitHalalas:halalas($("#pr-lab",root).value||0),overheadPerUnitHalalas:halalas($("#pr-oh",root).value||0)};
+  if((d.products||[]).some(x=>x.name===p.name)){err.textContent="المنتج «"+p.name+"» مسجّل";return}
+  try{PO().standardCost(p)}catch(e){err.textContent=e.message;return}
+  d.products=[...(d.products||[]),p];put(d);toast("حُفظ "+p.name,"ok");return true;
+}
+function prodOpsHTML(d,kind){
+  const t=today(),ps=Array.isArray(d.products)?d.products:[],popt=ps.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>').join("");
+  const os=Array.isArray(d.orders)?d.orders:[],oopt=os.map(o=>'<option value="'+esc(o.id)+'">'+esc(o.id)+' — '+esc((ps.find(p=>p.id===o.productId)||{}).name||"")+'</option>').join("");
+  const ops=kind==="factory"?'<option value="issue">صرف مواد لأمر</option><option value="absorb">تحميل أجور وتكاليف غير مباشرة</option><option value="complete">إقفال الأمر (تام وهالك)</option><option value="buy">شراء مواد</option><option value="cogs">تكلفة مبيعات (كمية مباعة)</option>':
+    '<option value="batch">دفعة إنتاج</option><option value="waste">تالف ومنتهي الصلاحية</option><option value="buy">شراء مكونات</option><option value="cogs">تكلفة مبيعات (قيمة)</option>';
+  return (kind==="factory"&&ps.length?'<section class="card"><div class="card-h"><div><h3>أمر تشغيل جديد</h3></div></div><div class="card-b"><div class="sk-grid2">'+
+      '<label class="sk-field"><span>المنتج</span><select id="mo-p">'+popt+'</select></label><label class="sk-field"><span>الكمية المخططة</span><input id="mo-q" inputmode="numeric"></label></div>'+
+      '<div class="sk-error" id="mo-err" role="alert"></div><div class="sk-actions"><button type="button" class="btn" data-l="mo-new">فتح الأمر</button></div></div></section>':'')+
+    (ps.length?'<section class="card"><div class="card-h"><div><h3>'+(kind==="factory"?"حركة إنتاج":"دفعة أو حركة")+'</h3></div></div><div class="card-b"><div class="sk-grid2">'+
+      '<label class="sk-field"><span>العملية</span><select id="po-op">'+ops+'</select></label>'+
+      (kind==="factory"?'<label class="sk-field"><span>أمر التشغيل</span><select id="po-o">'+oopt+'</select></label>':'')+
+      '<label class="sk-field"><span>'+(kind==="factory"?"المنتج (لتكلفة المبيعات)":"الصنف")+'</span><select id="po-p">'+popt+'</select></label>'+
+      '<label class="sk-field"><span>المبلغ (مواد/مكونات/تالف/شراء)</span><input id="po-amt" inputmode="decimal"></label>'+
+      '<label class="sk-field"><span>'+(kind==="factory"?"وحدات مشغّلة / تامة / مباعة":"الكمية المخططة")+'</span><input id="po-q" inputmode="decimal"></label>'+
+      '<label class="sk-field"><span>'+(kind==="factory"?"هالك (وحدات)":"الكمية السليمة")+'</span><input id="po-q2" inputmode="decimal"></label>'+
+      (kind==="bakery"?'<label class="sk-field"><span>أجور الخبازين للدفعة</span><input id="po-wage" inputmode="decimal" value="0"></label>':'')+
+      '<label class="sk-field"><span>المورد أو السبب</span><input id="po-who" autocomplete="off"></label>'+
+      '<label class="sk-field"><span>التاريخ</span><input id="po-date" type="date" value="'+t+'"></label></div>'+
+      '<div class="sk-error" id="po-err" role="alert"></div><div class="sk-actions"><button type="button" class="btn primary" data-l="po-post">ترحيل</button></div></div></section>':'');
+}
+function factoryHTML(d){
+  const missing=FACTORY_CODES.filter(c=>!byCode(d,c));
+  if(missing.length)return SK.ui.state.empty({title:"أكمل حسابات قطاع التصنيع",text:"أوامر التشغيل تحتاج الحسابات "+missing.join(" و")+" — أضفها من «دليل الحسابات» › «إضافة حسابات قطاع»."});
+  const h=v=>money((v||0)/100),pct=v=>v==null?"—":v+"٪",ps=d.products||[],os=Array.isArray(d.orders)?d.orders:[];
+  const rows=os.map(o=>{const p=ps.find(x=>x.id===o.productId),s=orderState(d,o.id),actual=s.issuedHalalas+s.absorbedHalalas,stdAll=s.completedHalalas+s.scrapHalalas;/* the standard of what the order produced, as posted: good units at full standard, scrap at its materials */
+    return{o,p,s,actual,k:PO().productionKpis({plannedQty:o.plannedQty,goodQty:s.goodQty,scrapQty:s.scrapQty,actualHalalas:actual,standardHalalas:stdAll})}});
+  return '<p class="hint">المواد تُصرف إلى تحت التشغيل (1380)، والأجور والتحميل الصناعي يُحمّلان بالتكلفة المعيارية، وعند إقفال الأمر يدخل التام المخزون بالتكلفة المعيارية (1390) والهالك (5100) ويُقفل الباقي في الانحرافات (5170) فلا يبقى رصيد تحت التشغيل.</p>'+
+    productsHTML(d)+prodOpsHTML(d,"factory")+
+    (rows.length?'<section class="card"><div class="card-h"><div><h3>أوامر التشغيل</h3><p>من قيود الدفاتر.</p></div></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table" data-mo-table><thead><tr><th>الأمر</th><th>المنتج</th><th>المخطط</th><th>التام</th><th>الهالك</th><th>التكلفة الفعلية</th><th>تكلفة الوحدة</th><th>المردود</th><th>الانحراف</th><th>الحالة</th></tr></thead><tbody>'+
+      rows.map(({o,p,s,actual,k})=>'<tr data-order="'+esc(o.id)+'"><td>'+esc(o.id)+'</td><td>'+esc(p?p.name:"")+'</td><td class="n">'+o.plannedQty+'</td><td class="n">'+s.goodQty+'</td><td class="n">'+s.scrapQty+'</td><td class="n">'+h(actual)+'</td><td class="n">'+(k.unitCostHalalas==null?"—":h(k.unitCostHalalas))+'</td><td class="n">'+pct(k.yieldPct)+'</td><td class="n">'+(s.closed?pct(k.variancePct):"—")+'</td><td>'+(s.closed?"مُقفل":"مفتوح")+'</td></tr>').join("")+
+      '</tbody></table></div></div></section>':'');
+}
+function bakeryHTML(d){
+  const missing=BAKERY_CODES.filter(c=>!byCode(d,c));
+  if(missing.length)return SK.ui.state.empty({title:"أكمل حسابات قطاع المخابز",text:"دفعات الإنتاج تحتاج الحسابات "+missing.join(" و")+" — أضفها من «دليل الحسابات» › «إضافة حسابات قطاع»."});
+  const h=v=>money((v||0)/100),pct=v=>v==null?"—":v+"٪",ps=d.products||[];
+  const bs=prodLive(d).filter(e=>e.production.kind==="batch").map(e=>({e,p:ps.find(x=>x.id===e.production.productId)}));
+  const waste=prodLive(d).filter(e=>e.production.kind==="waste").reduce((s,e)=>s+e.production.amount,0),made=bs.reduce((s,b)=>s+b.e.production.cost,0);
+  return '<p class="hint">الدفعة تُحمَّل بتكلفتها الفعلية (المكونات المستخدمة + أجور الخبازين) على المنتجات الجاهزة (1390)، ويُقاس مردودها مقابل الوصفة، ويُشطب التالف ومنتهي الصلاحية (5180) من المنتجات الجاهزة.</p>'+
+    productsHTML(d)+prodOpsHTML(d,"bakery")+
+    (bs.length?'<section class="card"><div class="card-h"><div><h3>الدفعات</h3><p>نسبة التالف إلى تكلفة الإنتاج: <b data-bk-waste>'+pct(made?Math.round(waste/made*10000)/100:null)+'</b></p></div></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table" data-bk-table><thead><tr><th>التاريخ</th><th>الصنف</th><th>المخطط</th><th>السليم</th><th>المردود</th><th>التكلفة</th><th>تكلفة القطعة</th><th>المعيارية</th><th>سعر بهامش 40٪ شامل الضريبة</th></tr></thead><tbody>'+
+      bs.map(({e,p})=>{const x=e.production,u=Math.round(x.cost/x.goodQty),pr=PO().priceForMargin(u,40,SK.vatRate());return '<tr data-batch="'+esc(e.date)+'"><td>'+esc(e.date)+'</td><td>'+esc(p?p.name:"")+'</td><td class="n">'+x.plannedQty+'</td><td class="n">'+x.goodQty+'</td><td class="n">'+pct(Math.round(x.goodQty/x.plannedQty*10000)/100)+'</td><td class="n">'+h(x.cost)+'</td><td class="n">'+h(u)+'</td><td class="n">'+(p?h(PO().standardCost(p).total):"—")+'</td><td class="n">'+h(pr.gross)+'</td></tr>'}).join("")+
+      '</tbody></table></div></div></section>':'');
+}
+function saveOrder(root,d){
+  const err=$("#mo-err",root);err.textContent="";const q=Math.round(Number($("#mo-q",root).value||0));
+  if(!(q>0)){err.textContent="أدخل الكمية المخططة";return}
+  const o={id:"MO-"+String((d.orders||[]).length+1).padStart(3,"0"),productId:$("#mo-p",root).value,plannedQty:q};
+  d.orders=[...(d.orders||[]),o];put(d);toast("فُتح أمر التشغيل "+o.id,"ok");return true;
+}
+function postProduction(root,d){
+  const err=$("#po-err",root);err.textContent="";
+  const op=$("#po-op",root).value,date=$("#po-date",root).value||today(),id=SK.ui.uid("po"),A=poAccounts(d),amt=halalas($("#po-amt",root).value||0);
+  const q=Number(String($("#po-q",root).value||0).replace("٫",".")),q2=Number(String($("#po-q2",root).value||0).replace("٫",".")),who=$("#po-who",root).value.trim();
+  const p=(d.products||[]).find(x=>x.id===$("#po-p",root).value),oSel=$("#po-o",root),o=oSel?(d.orders||[]).find(x=>x.id===oSel.value):null;
+  try{
+    let r,meta,src="الإنتاج",party;
+    if(op==="buy"){r=PO().materialsPurchaseJournal({id,date,supplier:who,amountHalalas:amt},SK.vatRate(),A);meta={kind:"purchase",amount:amt};src="مشتريات";party=who}
+    else if(op==="issue"){if(!o)throw new Error("اختر أمر التشغيل");r=PO().issueJournal(o,{id,date,amountHalalas:amt,materialsOnHandHalalas:onHand(d,"1370")},A);meta={kind:"issue",orderId:o.id,amount:amt}}
+    else if(op==="absorb"){if(!o)throw new Error("اختر أمر التشغيل");const pr=(d.products||[]).find(x=>x.id===o.productId);r=PO().absorbJournal(o,pr,{id,date,units:q},A);meta={kind:"absorb",orderId:o.id,labour:r.labour,overhead:r.overhead}}
+    else if(op==="complete"){if(!o)throw new Error("اختر أمر التشغيل");const pr=(d.products||[]).find(x=>x.id===o.productId);r=PO().completeJournal(o,pr,orderState(d,o.id),{id,date,goodQty:q,scrapQty:q2},A);meta={kind:"complete",orderId:o.id,good:r.good,scrap:r.scrap,variance:r.variance,goodQty:q,scrapQty:q2}}
+    else if(op==="batch"){if(!p)throw new Error("اختر الصنف");r=PO().batchJournal(p,{id,date,plannedQty:q,goodQty:q2,ingredientsHalalas:amt,wagesHalalas:halalas($("#po-wage",root).value||0),ingredientsOnHandHalalas:onHand(d,"1370")},A);meta={kind:"batch",productId:p.id,plannedQty:q,goodQty:q2,cost:r.cost}}
+    else if(op==="waste"){r=PO().wasteJournal({id,date,amountHalalas:amt,reason:who,finishedOnHandHalalas:onHand(d,"1390")},A);meta={kind:"waste",amount:amt}}
+    else{const value=isFactory()?(p?Math.round(PO().standardCost(p).total*q):0):amt;r=PO().costOfSalesJournal({id,date,amountHalalas:value,finishedOnHandHalalas:onHand(d,"1390"),memo:"تكلفة المبيعات"+(p&&isFactory()?" — "+q+" "+p.unit+" "+p.name:"")},A);meta={kind:"cogs",amount:value}}
+    const out=postEntry({...r.journal,production:meta},{source:src,sourceId:"po:"+id,party});
+    if(!out.ok){err.textContent=out.error;return}
+    toast("رُحّلت حركة الإنتاج","ok");
+  }catch(e){err.textContent=e.message||String(e);return}
+  return true;
+}
 /* ---------- the education pack: terms billed in advance, earned monthly, scholarships, withdrawals, collections ----------
    (finance/tuition-engine) — shown only for a school. A term's state is read back from the entries it posted, so the
    screen and the books cannot disagree. */
@@ -825,9 +929,9 @@ function paint(root){
   /* a company created under a sector receives its pack on first open (FOUNDATION §3.7) */
   try{window.SKosifCompanyPlatform&&SKosifCompanyPlatform.ensureSectorPack()}catch{}
   const d=db(),p=period();if(!tab)tab=d.accounts.length?"close":"accounts";
-  root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],...(isHealth()?[["claims","المطالبات والجهات"]]:[]),...(isConstruction()?[["projects","المشروعات والمستخلصات"]]:[]),...(isHotel()?[["hotel","الغرف والإقفال الليلي"]]:[]),...(isDigital()?[["digital","العملاء والحملات"]]:[]),...(isSchool()?[["tuition","الرسوم الدراسية"]]:[]),["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
+  root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],...(isHealth()?[["claims","المطالبات والجهات"]]:[]),...(isConstruction()?[["projects","المشروعات والمستخلصات"]]:[]),...(isHotel()?[["hotel","الغرف والإقفال الليلي"]]:[]),...(isDigital()?[["digital","العملاء والحملات"]]:[]),...(isSchool()?[["tuition","الرسوم الدراسية"]]:[]),...(isFactory()?[["factory","أوامر التشغيل"]]:[]),...(isBakery()?[["bakery","دفعات الإنتاج"]]:[]),["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
     (p?'<p class="hint">الفترة المالية النشطة: <b>'+esc(p.label)+'</b> ('+esc(p.startDate)+' → '+esc(p.endDate)+') — من «الشركات والفترات».</p>':'')+
-    ({close:closeHTML,accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,claims:claimsHTML,projects:projectsHTML,hotel:hotelHTML,digital:digitalHTML,tuition:tuitionHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
+    ({close:closeHTML,accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,claims:claimsHTML,projects:projectsHTML,hotel:hotelHTML,digital:digitalHTML,tuition:tuitionHTML,factory:factoryHTML,bakery:bakeryHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
 }
 function bind(root){
   root.addEventListener("click",async e=>{
@@ -876,6 +980,9 @@ function bind(root){
     else if(a==="dg-post"){if(postDigitalOp(root,d))paint(root);return}
     else if(a==="tu-new"){if(saveTerm(root,d))paint(root);return}
     else if(a==="tu-post"){if(postTermOp(root,d))paint(root);return}
+    else if(a==="pr-new"){if(saveProduct(root,d))paint(root);return}
+    else if(a==="mo-new"){if(saveOrder(root,d))paint(root);return}
+    else if(a==="po-post"){if(postProduction(root,d))paint(root);return}
     else if(a==="claim-remit"){if(postClaimRemit(root,d))paint(root);return}
     else if(a==="settle"){
       const err=$("#lg-cerr",root);err.textContent="";if(!SK.ui.validate(root))return;

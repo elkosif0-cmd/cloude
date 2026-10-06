@@ -31,6 +31,16 @@ describe('the §3.6 model companies', () => {
     expect(c.balance('1210')).toBe(claimed - settled);
     expect(c.balance('5110')).toBeGreaterThan(0);
   });
+  it('the factory runs one production order a month and the bakery a batch a day, through the production engine', () => {
+    const f = modelBooks('model-manufacturing'), b = modelBooks('model-bakery');
+    expect((f.ledger.orders as { id: string }[]).length).toBe(9);
+    const kinds = (x: typeof f) => [...new Set(x.entries.map((e) => (e.production as { kind?: string } | undefined)?.kind).filter(Boolean))].sort();
+    expect(kinds(f)).toEqual(['absorb', 'cogs', 'complete', 'issue', 'purchase']);
+    expect(kinds(b)).toEqual(['batch', 'cogs', 'purchase', 'waste']);
+    expect(b.entries.filter((e) => (e.production as { kind?: string } | undefined)?.kind === 'batch').length).toBe(273);
+    const variances = f.entries.filter((e) => (e.production as { kind?: string } | undefined)?.kind === 'complete').map((e) => (e.production as { variance: number }).variance);
+    expect(variances.some((v) => v > 0) || variances.some((v) => v < 0)).toBe(true);
+  });
   it('the factory leaves no work in progress and the farm counts its flock', () => {
     expect(checkModelBooks(modelBooks('model-manufacturing')).balance('1380')).toBe(0);
     const f = modelBooks('model-agriculture');
