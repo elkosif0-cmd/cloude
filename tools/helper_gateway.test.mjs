@@ -88,6 +88,18 @@ const ALL = ['product', 'customer', 'supply', 'books', 'reports', 'decision'];
 test('all six helper sections have matching edges', () => {
   assertTopology(app(), ALL);
 });
+test('helper gateway is task-first and company context is explicitly optional', () => {
+  const instance=app(),html=instance.element.innerHTML;
+  assert.match(html,/مساحة الأدوات المساعدة/);
+  assert.match(html,/الأداة أولاً · الشركة اختيارية/);
+  assert.match(html,/ماذا تريد أن تنجز؟/);
+  assert.match(html,/<b>مساحة الأدوات<\/b><small>سياق الشركة اختياري<\/small>/);
+  assert.match(html,/بدون شركة مرتبطة/,'no company object in the harness renders an independent tools context');
+  assert.match(html,/التكلفة والتسعير/);
+  assert.match(html,/المخزون والمشتريات/);
+  assert.doesNotMatch(html,/<h3>قدرات الشركة<\/h3>/);
+  assert.match(html,/title="الربط بالشركة اختياري"/);
+});
 test('no permitted targets renders no nodes and no edges', () => {
   assertTopology(app({ allowed: [] }), []);
 });
