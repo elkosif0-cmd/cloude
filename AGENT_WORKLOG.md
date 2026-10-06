@@ -378,7 +378,7 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 
 ### TASK KOSIFSEE-UX-CLARITY-20261006-001 — Three-gateway UI clarity and helper-space visual hierarchy
 - Agent: KOSIF See / ChatGPT
-- Status: ACTIVE
+- Status: HANDOFF
 - Goal: Reduce user-visible overlap without changing accounting/audit engines, company data, or context-switching semantics.
 - Authority: Owner explicit request in chat on 2026-10-06 to use maximum available KOSIF See thinking/prompt capabilities and execute UI organization improvements.
 - Scope: UI-only, reversible first slice. Make Accounting/Audit/Tools meaning visually explicit; make standalone Audit/Tools actions primary; move company linkage into an optional visual tier; recenter Helper Center on the tool workspace rather than the company.
@@ -390,4 +390,36 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Risks / conflicts: `unlock.html` has historical overlap with admission/startup work; therefore this task changes presentation only and must preserve all data attributes and intent/navigation logic byte-for-byte where possible.
 - Unfinished: implement, run focused tests, inspect diff, open draft PR.
 - NEXT ACTION: patch only the declared UI/test files; reject any change that mutates context ownership or protected auth behavior.
-- Commit(s): pending.
+- Commit(s): branch commits through `08332bedba3183e0aa630191b51633aa4b7d75c1`.
+
+### UPDATE KOSIFSEE-UX-CLARITY-20261006-001 — UI slice implemented and draft review opened
+- Status: HANDOFF
+- Branch / PR: `kosifsee/ux-clarity-20261006` / draft PR #169.
+- Implemented:
+  - Front door now explains the three entry paths without claiming runtime context isolation that the current single `SK.company` service does not yet provide.
+  - Audit visually starts with `ملف مراجعة جديد`; accounting-company cards sit under an explicit optional-linking tier.
+  - Tools visually starts with `فتح الأدوات بدون شركة`; company cards sit under an explicit optional-linking tier.
+  - Helper Center is task-first (`مساحة الأدوات`, `ماذا تريد أن تنجز؟`) and shows company as optional data context.
+  - Gateway-specific document titles and generic ARIA list labeling improve orientation; helper controls retain existing IDs/deep links and receive focus/touch-target improvements.
+- Deterministic in-session verification:
+  - Protected `<!--SQC:AUTH:START-->...<!--SQC:AUTH:END-->` block is byte-identical to `main`.
+  - `ui/core/helper-space.js` SHA is identical to `main`: `16b23f2ce6d5c2b6c5fad9eade8e276aaabb54b7`.
+  - `ui/core/capabilities.json` SHA is identical to `main`: `b92511b81a49825deecb1fe2899f095e51621735`.
+  - Door script and `helper-center.js` both compile successfully via V8 `new Function`.
+  - Repaired one test-harness defect (the first harness failed because `window.SQC_GATES` was not populated); one bounded retry then passed.
+  - Door simulation PASS: Audit title `SQC — ابدأ المراجعة`, Tools title `SQC — مساحة الأدوات`, primary standalone actions precede optional company-linking sections, and the expected help/add labels render.
+  - Helper Center render simulation PASS: registered view, task-first copy, no old `قدرات الشركة` heading, six preserved sections, exactly one click handler, and all 78/78 capability IDs remain present.
+- GitHub Actions limitation:
+  - PR workflows run but fail before any recorded test step; sampled jobs have empty `steps` arrays and no readable logs. Earlier log fetches returned `BlobNotFound`.
+  - Therefore **no CI pass, native-browser pass, production readiness, merge, or deployment is claimed**.
+- Jev:
+  - Initial bounded UI-slice decision: 0.80 yes.
+  - Final handoff-only evidence decision: 0.72 yes; this supports draft review, not merge/deploy.
+- Risks / conflicts:
+  - Current runtime still has one global `SK.company`; this UI slice clarifies journeys but does not implement full context separation.
+  - `unlock.html` remains an overlap-sensitive file; only presentation/gallery code was changed and protected auth/data context code was preserved.
+- NEXT ACTION:
+  - Claude/owner review PR #169 against current lead-development work.
+  - When executable CI/native browser capacity is available, run `tools/company_entry.test.mjs`, `tools/helper_gateway.test.mjs`, unlock-runtime/auth guards, accessibility, and full gateway smoke at PR #169 head.
+  - Do not merge/deploy solely from this handoff evidence.
+
