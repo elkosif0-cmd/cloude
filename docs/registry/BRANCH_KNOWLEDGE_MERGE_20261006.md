@@ -549,3 +549,48 @@
 - القرار: **KNOWLEDGE-KEPT / CURRENT-IS-SUPERSET**.
 
 الحالة: **COMPLETE — #87 إلى #78 تمت مراجعتها؛ لا توجد شفرة صافية أفضل مفقودة، والفرع #81 الذي بدا غير مدمج ثبت أن قدراته الأساسية وصلت إلى main لاحقًا.**
+
+
+## دفعة PR #77 → PR #68 — مراجعة المعرفة والتنفيذ
+
+### PR #77 — Accountant workspaces + optional local PIN
+- رأس الفرع خلف main وبدون file delta.
+- مفهوم workspaces والعزل انتقل لاحقًا إلى `helper-space.js` الحالي بشكل أوسع.
+- القرار: **VERIFIED-IN-MAIN / CURRENT-IS-SUPERSET**.
+
+### PR #76 و#75 — 320px mobile modal actions
+- `tools/modal_actions_e2e.mjs` الحالي **مطابق حرفيًا** لنسخة الفرعين.
+- `tools/phone_layout.mjs` الحالي مطابق لنسخة #75.
+- CSS الحالي تطور بعد الفرع، بينما اختبار 320px ما زال يحمي السلوك المقصود.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #74 و#73 — KOSIF Think host tool router + cost guardrails
+- هذه هي الجذور التاريخية لـ `kosif_route`.
+- runtime الحالي أوسع: live inventory، cost classes، risk checkpoints، dependency groups، candidate tournament، Jev gating، recovery، verification، وCapability Atlas.
+- القرار: **CURRENT-IS-SUPERSET / ROOT-IDEA-PRESERVED**.
+
+### PR #72 — Audit request library + round 2 + presentation + benchmarks + IFRS 18/19
+- رأس الفرع خلف main وبدون file delta.
+- القدرات التي أطلقها هذا الإصدار موجودة في main أو تطورت لاحقًا.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #71 — Audit release bundle + #sales + Think 0.4.2
+- رأس الفرع خلف main وبدون file delta.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #70 — Session-only error banner
+- رأس الفرع خلف main وبدون file delta.
+- فصل أخطاء الجلسة عن سجل التشخيص موجود ضمن shell الحالي.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #69 — Touch targets + status contrast
+- رأس الفرع خلف main وبدون file delta.
+- معايير الوصول تطورت لاحقًا، واختبارات الهاتف الحالية تغطيها.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #68 — Jev public page + scrub bridge errors
+- رأس الفرع خلف main وبدون file delta.
+- منطق Jev/bridge الحالي أحدث.
+- القرار: **VERIFIED-IN-MAIN / SUPERSEDED-BY-CURRENT-JEV-CONTRACT**.
+
+الحالة: **COMPLETE — #77 إلى #68 تمت مراجعتها، ولا توجد شفرة صافية مفقودة تحتاج نقلًا.**
