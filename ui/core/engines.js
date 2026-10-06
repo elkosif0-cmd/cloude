@@ -7545,7 +7545,7 @@ window.SKEngines = (function() {
 			"8) اكتب بالعربية الفصحى المهنية الموجزة. لا تضع أي بيانات خارج مخطط JSON."
 		].join("\n");
 	}
-	var sar$1 = (m) => formatMinor(m, { decimals: 0 });
+	var sar$2 = (m) => formatMinor(m, { decimals: 0 });
 	/** The trial balance and the engine's review, compact enough for one prompt. */
 	function describeReview(tb, review) {
 		const rows = review.accounts.map((a) => [
@@ -7553,21 +7553,21 @@ window.SKEngines = (function() {
 			a.name,
 			TYPE_LABELS[a.type],
 			a.lineAr,
-			sar$1(a.natural),
-			a.prior === null ? "" : sar$1(a.prior),
+			sar$2(a.natural),
+			a.prior === null ? "" : sar$2(a.prior),
 			a.standards.map((s) => s.code).join("+")
 		].join(" | "));
 		const m = review.materiality, k = review.fs.keys;
 		return [
 			"ميزان المراجعة (رقم | اسم | نوع | بند القوائم | الرصيد بطبيعته | السابق | المعايير المقترحة):",
 			...rows,
-			`التوازن: ${tb.balanced ? "متوازن" : "غير متوازن بفرق " + sar$1(tb.difference)}.`,
-			`الأهمية النسبية: ${sar$1(m.overall)} (${m.benchmarkAr} × ${m.rate * 100}%) — التنفيذية ${sar$1(m.performance)} — حد التفاهة ${sar$1(m.trivial)}.`,
-			`الإيرادات ${sar$1(k.revenue.current)} · الربح التشغيلي ${sar$1(k.operating.current)} · صافي الربح ${sar$1(k.profit.current)} · الموجودات ${sar$1(k.assets.current)} · حقوق الملكية ${sar$1(k.equity.current)}.`,
+			`التوازن: ${tb.balanced ? "متوازن" : "غير متوازن بفرق " + sar$2(tb.difference)}.`,
+			`الأهمية النسبية: ${sar$2(m.overall)} (${m.benchmarkAr} × ${m.rate * 100}%) — التنفيذية ${sar$2(m.performance)} — حد التفاهة ${sar$2(m.trivial)}.`,
+			`الإيرادات ${sar$2(k.revenue.current)} · الربح التشغيلي ${sar$2(k.operating.current)} · صافي الربح ${sar$2(k.profit.current)} · الموجودات ${sar$2(k.assets.current)} · حقوق الملكية ${sar$2(k.equity.current)}.`,
 			"ملاحظات المحرك الآلي (أكدها أو فندها):",
 			...review.findings.map((f) => `${f.id} [${f.severity}] ${f.title} — ${f.basis} — ${f.standard}`),
 			"قيود المحرك المقترحة:",
-			...review.adjustments.map((a) => `${a.id} ${a.title}: ` + a.lines.map((l) => `${l.code} ${l.name} م${sar$1(l.debit)} د${sar$1(l.credit)}`).join("؛ "))
+			...review.adjustments.map((a) => `${a.id} ${a.title}: ` + a.lines.map((l) => `${l.code} ${l.name} م${sar$2(l.debit)} د${sar$2(l.credit)}`).join("؛ "))
 		].join("\n");
 	}
 	/** Outstanding requests: asked in any round, not yet accepted, not marked unavailable. */
@@ -7664,7 +7664,7 @@ window.SKEngines = (function() {
 			round
 		};
 		const v = validateAdjustment(a, tb);
-		const problems = [...v.problems, ...v.balanced ? [] : [`القيد غير متوازن: مدين ${sar$1(v.debit)} ودائن ${sar$1(v.credit)}`]];
+		const problems = [...v.problems, ...v.balanced ? [] : [`القيد غير متوازن: مدين ${sar$2(v.debit)} ودائن ${sar$2(v.credit)}`]];
 		return {
 			...a,
 			valid: v.valid,
@@ -7710,7 +7710,7 @@ window.SKEngines = (function() {
 				standard: normalizeCode$1(std) ?? (std || "IAS 1"),
 				title: str$1(f.comment, 160).split(/[.،؛]/)[0] || "ملاحظة",
 				detail: str$1(f.comment, 2e3),
-				basis: amount ? "المبلغ المتأثر " + sar$1(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
+				basis: amount ? "المبلغ المتأثر " + sar$2(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
 				action: str$1(f.recommendation, 1e3),
 				source: "gemini",
 				round: no,
@@ -7943,7 +7943,7 @@ window.SKEngines = (function() {
 		const lineOf = (q) => q.lineKey ?? review.accounts.find((a) => q.accounts.includes(a.code))?.lineKey ?? null;
 		const blockedSig = new Set(unavailHigh.map(lineOf).filter((k) => k && review.risks.some((r) => r.lineKey === k && r.significant)));
 		const basis = [], material = misstatement > mat.overall, pervasive = misstatement > mat.overall * 5, cs = s.ctx.curSym ?? (s.ctx.framework === "EAS" ? "ج.م" : "ر.س");
-		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar$1(misstatement)} ${cs} مقابل أهمية نسبية ${sar$1(mat.overall)} ${cs} (ISA 450).`);
+		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar$2(misstatement)} ${cs} مقابل أهمية نسبية ${sar$2(mat.overall)} ${cs} (ISA 450).`);
 		if (unavailHigh.length) basis.push(`تعذر الحصول على ${unavailHigh.length} مستند عالي الأولوية: ` + unavailHigh.map((q) => q.title).join("، ") + ".");
 		const scopePervasive = unavailHigh.length >= 3 || blockedSig.size >= 3;
 		if (sigUnevidenced) basis.push(`${sigUnevidenced} خطر جوهري دون دليل مقبول بعد؛ يستكمل قبل التوقيع (ISA 330).`);
@@ -18317,6 +18317,158 @@ window.SKEngines = (function() {
 		}).filter((x) => x.account);
 	}
 	//#endregion
+	//#region app/src/engine/fusion/finance/insurance-claims-engine.ts
+	var insurance_claims_engine_exports = /* @__PURE__ */ __exportAll({
+		DEPARTMENT_ACCOUNT: () => DEPARTMENT_ACCOUNT,
+		DEPARTMENT_LABEL: () => DEPARTMENT_LABEL,
+		encounterJournal: () => encounterJournal,
+		payerStats: () => payerStats,
+		remittanceJournal: () => remittanceJournal,
+		splitEncounter: () => splitEncounter
+	});
+	var DEPARTMENT_ACCOUNT = Object.freeze({
+		outpatient: "4010",
+		inpatient: "4020",
+		lab: "4030",
+		pharmacy: "4040"
+	});
+	var DEPARTMENT_LABEL = Object.freeze({
+		outpatient: "العيادات الخارجية",
+		inpatient: "التنويم والعمليات",
+		lab: "المختبر والأشعة",
+		pharmacy: "الصيدلية"
+	});
+	function splitEncounter(e) {
+		if (!Number.isInteger(e.grossHalalas) || e.grossHalalas <= 0) throw new Error("قيمة الزيارة يجب أن تكون أكبر من صفر");
+		if (!(e.department in DEPARTMENT_ACCOUNT)) throw new Error("قسم غير معروف");
+		const payer = String(e.payer ?? "").trim();
+		if (!payer) return {
+			payer: "",
+			payerShare: 0,
+			patientShare: e.grossHalalas
+		};
+		const pct = Math.min(100, Math.max(0, Number(e.coveragePct ?? 100)));
+		let payerShare = Math.round(e.grossHalalas * pct / 100), patientShare = e.grossHalalas - payerShare;
+		const cap = Number(e.copayCapHalalas);
+		if (Number.isInteger(cap) && cap >= 0 && patientShare > cap) {
+			patientShare = cap;
+			payerShare = e.grossHalalas - cap;
+		}
+		return {
+			payer,
+			payerShare,
+			patientShare
+		};
+	}
+	var sar$1 = (h) => h / 100;
+	/** the visit: the patient's share collected, the payer's share claimed (1210, named to the payer), revenue by department */
+	function encounterJournal(e, a) {
+		const s = splitEncounter(e), rev = a.revenueAccountId(DEPARTMENT_ACCOUNT[e.department]);
+		if (!rev) throw new Error("حساب إيراد القسم غير موجود");
+		const lines = [
+			...s.patientShare ? [{
+				accountId: a.cashAccountId,
+				debit: sar$1(s.patientShare),
+				credit: 0,
+				description: "حصة المريض — حالة " + e.caseRef
+			}] : [],
+			...s.payerShare ? [{
+				accountId: a.payerReceivableAccountId,
+				debit: sar$1(s.payerShare),
+				credit: 0,
+				description: "مطالبة " + s.payer + " — حالة " + e.caseRef
+			}] : [],
+			{
+				accountId: rev,
+				debit: 0,
+				credit: sar$1(e.grossHalalas),
+				description: DEPARTMENT_LABEL[e.department] + " — حالة " + e.caseRef
+			}
+		];
+		return {
+			split: s,
+			journal: {
+				id: e.id,
+				date: e.date,
+				reference: e.caseRef,
+				memo: "زيارة " + DEPARTMENT_LABEL[e.department] + (s.payer ? " — " + s.payer : ""),
+				party: s.payer || void 0,
+				lines
+			}
+		};
+	}
+	/** the payer's remittance against its open claims: paid to cash, rejected to the claim-loss account, the receivable reduced by both */
+	function remittanceJournal(r, openHalalas, a) {
+		const payer = String(r.payer || "").trim();
+		if (!payer) throw new Error("حدد الجهة الدافعة");
+		for (const v of [r.paidHalalas, r.rejectedHalalas]) if (!Number.isInteger(v) || v < 0) throw new Error("المبالغ يجب أن تكون أعداداً صحيحة غير سالبة بالهللة");
+		const total = r.paidHalalas + r.rejectedHalalas;
+		if (total <= 0) throw new Error("أدخل المسدَّد أو المرفوض");
+		if (total > openHalalas) throw new Error("التسوية تتجاوز المطالبات القائمة على الجهة");
+		if (r.rejectedHalalas > 0 && !String(r.reason || "").trim()) throw new Error("سبب الرفض مطلوب");
+		const lines = [
+			...r.paidHalalas ? [{
+				accountId: a.cashAccountId,
+				debit: sar$1(r.paidHalalas),
+				credit: 0,
+				description: "سداد " + payer
+			}] : [],
+			...r.rejectedHalalas ? [{
+				accountId: a.rejectionsAccountId,
+				debit: sar$1(r.rejectedHalalas),
+				credit: 0,
+				description: "رفض " + payer + ": " + String(r.reason).trim()
+			}] : [],
+			{
+				accountId: a.payerReceivableAccountId,
+				debit: 0,
+				credit: sar$1(total),
+				description: "تسوية مطالبات " + payer
+			}
+		];
+		return {
+			journal: {
+				id: r.id,
+				date: r.date,
+				reference: r.reference || "REM-" + r.id,
+				memo: "تسوية مطالبات " + payer,
+				party: payer,
+				lines
+			},
+			claim: {
+				payer,
+				paid: r.paidHalalas,
+				rejected: r.rejectedHalalas,
+				reason: String(r.reason || "").trim()
+			}
+		};
+	}
+	/** billed, paid, rejected and the rejection rate per payer — the KPI the health pack is judged by */
+	function payerStats(events) {
+		const by = /* @__PURE__ */ new Map();
+		for (const e of events) {
+			const k = String(e.payer || "").trim();
+			if (!k) continue;
+			const r = by.get(k) ?? {
+				payer: k,
+				billed: 0,
+				paid: 0,
+				rejected: 0
+			};
+			if (e.kind === "claim") r.billed += e.billed ?? 0;
+			else {
+				r.paid += e.paid ?? 0;
+				r.rejected += e.rejected ?? 0;
+			}
+			by.set(k, r);
+		}
+		return [...by.values()].map((r) => ({
+			...r,
+			open: r.billed - r.paid - r.rejected,
+			rejectionRate: r.paid + r.rejected ? Math.round(r.rejected / (r.paid + r.rejected) * 1e4) / 100 : null
+		})).sort((a, b) => b.open - a.open || a.payer.localeCompare(b.payer));
+	}
+	//#endregion
 	//#region app/src/engine/fusion/finance/journal-chain-engine.ts
 	var journal_chain_engine_exports = /* @__PURE__ */ __exportAll({
 		GENESIS: () => GENESIS,
@@ -25704,6 +25856,7 @@ window.SKEngines = (function() {
 			bankReconciliation: bank_reconciliation_engine_exports,
 			cashFlow: cash_flow_engine_exports,
 			entryLearner: entry_learner_engine_exports,
+			insuranceClaims: insurance_claims_engine_exports,
 			journalChain: journal_chain_engine_exports,
 			ledger: ledger_engine_exports,
 			partyLedger: party_ledger_engine_exports,

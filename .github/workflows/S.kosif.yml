@@ -281,5 +281,6 @@ jobs:
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/company_entry_e2e.mjs http://localhost:8765/
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/books_integrity_e2e.mjs http://localhost:8765/app-safe.html
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/meat_pack_e2e.mjs http://localhost:8765/app-safe.html
+          NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/health_pack_e2e.mjs http://localhost:8765/
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/sales_reports_e2e.mjs http://localhost:8765/app-safe.html
 
