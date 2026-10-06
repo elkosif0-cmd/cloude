@@ -2772,6 +2772,31 @@ function c500Persona(eid,version=C500_COGNITIVE_CARD_VERSION){return c500Roster(
 function c500ExpKey(id,eid){return "c500:exp:"+id+":"+eid;}
 function c500ClusterKey(id,idx){return "c500:cluster:"+id+":"+idx;}
 
+async function c500CompletionReconcile(env,meta,secureExecutor){
+  const secureCount=Math.max(0,Math.min(500,Number(secureExecutor?.expert_completions||0)));
+  const auditCount=Math.max(0,Math.min(500,Number(meta?.c500_audit?.experts_validated||0)));
+  let kvCount=0,kvObserved=false,kvError=null;
+  try{
+    if(env?.FULL_PRO_STATE&&typeof env.FULL_PRO_STATE.list==="function"){
+      const prefix="c500:exp:"+String(meta?.request_id||"")+":";
+      let cursor,total=0,loops=0;
+      do{
+        const page=await env.FULL_PRO_STATE.list({prefix,limit:1000,...(cursor?{cursor}:{})});
+        const keys=Array.isArray(page?.keys)?page.keys:[];total+=keys.length;kvObserved=true;
+        cursor=page?.list_complete===false&&page?.cursor?page.cursor:undefined;loops++;
+      }while(cursor&&loops<3&&total<500);
+      kvCount=Math.max(0,Math.min(500,total));
+    }
+  }catch(e){kvError=publicError(e);}
+  const reconciled=Math.max(secureCount,kvCount,auditCount);
+  const values=[secureCount,kvObserved?kvCount:null,auditCount||null].filter(v=>v!==null);
+  const mismatch=values.length>1&&Math.max(...values)!==Math.min(...values);
+  let source="secure_executor";
+  if(auditCount>=secureCount&&auditCount>=kvCount&&auditCount>0)source="audit";
+  else if(kvCount>=secureCount&&kvCount>=auditCount&&kvObserved)source="kv_completion_keys";
+  return {version:"c500-completion-reconcile-v1",secure_executor_count:secureCount,kv_completion_count:kvObserved?kvCount:null,audit_validated_count:auditCount||null,reconciled_count:reconciled,source,mismatch,kv_observed:kvObserved,kv_error:kvError};
+}
+
 function c500AssetKey(id){return "c500:asset:"+id;}
 function c500BytesHex(bytes){return Array.from(bytes,b=>b.toString(16).padStart(2,"0")).join("");}
 function c500BytesBase64(bytes){let out="";for(let i=0;i<bytes.length;i+=32768)out+=String.fromCharCode(...bytes.subarray(i,Math.min(bytes.length,i+32768)));return btoa(out);}
@@ -2806,8 +2831,7 @@ async function c500RunJson(env,persona,meta){
     Array.isArray(card.references)&&card.references.length?"Reference capsules (method memory, NOT factual authority): "+card.references.map(r=>r.title+" ["+r.toolkit.join(", ")+"]").join(" | ")+" Policy: "+card.reference_policy:"Legacy card: no attachment reference capsules.",
     "Use these methods operationally; do not merely repeat their labels. Before finalizing, apply the compensation and report the observable effect in cognitive_check.compensation_applied. For v3 cards: primary_method_applied must explain how the assigned primary method changed the analysis; reference_applied must explicitly name one assigned reference title/key/toolkit item and how it was used; personality_guardrail must explicitly state that the Big Five profile changed only attention/tone/communication and did NOT determine facts, evidence, claims, or the decision."
   ].join(" ");
-  const capabilityRule=a1990CapabilityPrompt(a1990SelectCapabilityPacks(meta.subject,meta.executor));
-  const capabilityRule=a1990CapabilityPrompt(meta.capability_packs);
+  const capabilityRule=a1990CapabilityPrompt(Array.isArray(meta.capability_packs)&&meta.capability_packs.length?meta.capability_packs:a1990SelectCapabilityPacks(meta.subject,meta.executor));
   const prompt=["KOSIF Council-500 independent expert.",capabilityRule,"This is a method role, not impersonation or a claim about private thoughts.","Persona: "+persona.anchor+" | kind: "+(persona.persona_kind||"method_role")+" | field: "+persona.field+" | method: "+persona.method+" | lens: "+persona.lens+" | lens rule: "+persona.lens_rule+" | source lineage: "+persona.source_ref+".",cognitiveRule,"Epistemic discipline: do not invent numbers, studies, sources or quotes. For each proposal classify material claims as confirmed, probable, or hypothesis and give a falsifier/test that could change the recommendation.","Work independently before peer exposure. Do not infer peer conclusions. Do not reveal hidden chain-of-thought.",assetRule,"Return exactly THREE substantively different proposal cards, not paraphrases; then strongest objection, one discriminating test, exact live tool candidates only when useful, calibrated confidence, and the cognitive compensation check.","Output one JSON object only matching: "+JSON.stringify(shape),"TaskPacket: "+meta.subject].join("\n");
   let last=null;
   for(let attempt=0;attempt<2;attempt++){
@@ -3376,11 +3400,12 @@ async function fullProStatus(env,args){
   const meta=await fpGet(env,fpReqKey(id));if(!meta)throw new Error("FULL_PRO_REQUEST_NOT_FOUND");
   if(meta.council500_mode!==true)return legacyFullProStatus(env,args);
   let secure_executor=null;try{secure_executor=await secureGet(env,"/status/"+encodeURIComponent(id));}catch(e){secure_executor={ok:false,error:publicError(e)};}
-  const completed=Number(secure_executor?.expert_completions||0);
+  const completion_reconciliation=await c500CompletionReconcile(env,meta,secure_executor);
+  const completed=completion_reconciliation.reconciled_count;
   const secureState=String(secure_executor?.request?.status||"");
   const effectiveStatus=secureState==="CANCELLED"?"cancelled":secureState==="BYPASS_DETECTED"?"bypass_detected":secureState==="COMPLETE"?"complete":meta.status;
   const capability_truth=fullProCapabilityTruth(meta,secure_executor);
-  return {ok:true,version:VERSION,mode:"council500_full_pro",contract_version:C500_CONTRACT,visual_intelligence_version:VISUAL_INTELLIGENCE_VERSION,cognitive_governance_version:COGNITIVE_GOVERNANCE_VERSION,einstein_protocol_version:EINSTEIN_PROTOCOL_VERSION,source_taint_policy_version:SOURCE_TAINT_POLICY_VERSION,execution_contract_version:EXECUTION_CONTRACT_VERSION,decision_sensitivity_version:DECISION_SENSITIVITY_VERSION,cognitive_cards_version:meta.cognitive_cards_version||null,cognitive_source_digest:meta.cognitive_source_digest||null,cognitive_diversity:meta.c500_audit?.cognitive_diversity||null,budgets:FULL_PRO_BUDGETS,capability_truth,capability_atlas_version:meta.capability_atlas_version||null,capability_packs:Array.isArray(meta.capability_packs)?meta.capability_packs:[],execution_contract_digest:meta.execution_contract_digest||null,request_id:id,status:effectiveStatus,council500_mode:true,experts_completed:completed,experts_required:500,experts_pending:Math.max(0,500-completed),proposals_observed:completed*3,semantic_cluster_groups:Array.isArray(meta.c500_cluster_receipts)?meta.c500_cluster_receipts.length:0,jev_calls_observed:Number(meta.c500_jev_calls_observed||0),finalists_count:Array.isArray(meta.c500_finalists)?meta.c500_finalists.length:0,cross_expert_complete:meta.cross_expert_complete===true,einstein_stages:Array.isArray(meta.einstein_stage_receipts)?meta.einstein_stage_receipts.length:0,final_stable:meta.final_stable===true,gates_pass:meta.gates_pass===true,candidate_frozen:meta.candidate_frozen===true,candidate_digest:meta.candidate_digest||null,requires_shared_visual:meta.requires_shared_visual===true,shared_visual_verified:meta.shared_visual_verified===true,source_asset_hash:meta.source_asset_hash||null,last_error:meta.last_error||null,started_at:meta.started_at,updated_at:meta.updated_at,secure_executor};
+  return {ok:true,version:VERSION,mode:"council500_full_pro",contract_version:C500_CONTRACT,visual_intelligence_version:VISUAL_INTELLIGENCE_VERSION,cognitive_governance_version:COGNITIVE_GOVERNANCE_VERSION,einstein_protocol_version:EINSTEIN_PROTOCOL_VERSION,source_taint_policy_version:SOURCE_TAINT_POLICY_VERSION,execution_contract_version:EXECUTION_CONTRACT_VERSION,decision_sensitivity_version:DECISION_SENSITIVITY_VERSION,cognitive_cards_version:meta.cognitive_cards_version||null,cognitive_source_digest:meta.cognitive_source_digest||null,cognitive_diversity:meta.c500_audit?.cognitive_diversity||null,budgets:FULL_PRO_BUDGETS,capability_truth,capability_atlas_version:meta.capability_atlas_version||null,capability_packs:Array.isArray(meta.capability_packs)?meta.capability_packs:[],completion_reconciliation,execution_contract_digest:meta.execution_contract_digest||null,request_id:id,status:effectiveStatus,council500_mode:true,experts_completed:completed,experts_required:500,experts_pending:Math.max(0,500-completed),proposals_observed:completed*3,semantic_cluster_groups:Array.isArray(meta.c500_cluster_receipts)?meta.c500_cluster_receipts.length:0,jev_calls_observed:Number(meta.c500_jev_calls_observed||0),finalists_count:Array.isArray(meta.c500_finalists)?meta.c500_finalists.length:0,cross_expert_complete:meta.cross_expert_complete===true,einstein_stages:Array.isArray(meta.einstein_stage_receipts)?meta.einstein_stage_receipts.length:0,final_stable:meta.final_stable===true,gates_pass:meta.gates_pass===true,candidate_frozen:meta.candidate_frozen===true,candidate_digest:meta.candidate_digest||null,requires_shared_visual:meta.requires_shared_visual===true,shared_visual_verified:meta.shared_visual_verified===true,source_asset_hash:meta.source_asset_hash||null,last_error:meta.last_error||null,started_at:meta.started_at,updated_at:meta.updated_at,secure_executor};
 }
 async function fullProStart(env,args,canaryOnly){
   if(canaryOnly)return legacyFullProStart(env,args,canaryOnly);
