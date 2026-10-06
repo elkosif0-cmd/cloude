@@ -25,9 +25,9 @@ test('PR97 OAuth offline_access contract is restored without weakening auth',()=
   assert.match(src,/scope="openid profile email offline_access"/);
   assert.match(src,/scopes:\["openid","profile","email","offline_access"\]/);
   assert.match(src,/scopes_supported:\["openid","profile","email","offline_access"\]/);
-  assert.match(src,/const VERSION = "0\.18\.7"/);
-  assert.match(src,/const VERSIONED_MCP_PATH = "\/mcp\/v0\.18\.7"/);
-  assert.match(src,/const COMPAT_VERSIONED_MCP_PATH = "\/mcp\/v0\.18\.6"/);
+  assert.match(src,/const VERSION = "0\.18\.6"/);
+  assert.match(src,/const VERSIONED_MCP_PATH = "\/mcp\/v0\.18\.6"/);
+  assert.match(src,/const COMPAT_VERSIONED_MCP_PATH = "\/mcp\/v0\.18\.5"/);
 });
 
 test('Council-500 completion is reconciled across secure executor, KV receipts and audit validation',()=>{
