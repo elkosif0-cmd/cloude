@@ -31,13 +31,15 @@ function validateSale(e){
 document.addEventListener('click',validateSale,true);
 function pass(root){
   if(!root)return;saleFields(root);
+  /* Compact headers hide the text span; preserve this action's semantic name. */
+  root.querySelectorAll('[data-act="v12-sale-new"]').forEach(b=>b.setAttribute("aria-label","إضافة بيع"));
   root.querySelectorAll("input:not([type=hidden]),select,textarea").forEach(el=>{if(named(el))return;const n=nameFor(el);if(n)el.setAttribute("aria-label",n)});
   root.querySelectorAll("img:not([alt])").forEach(i=>i.setAttribute("alt",""));
   root.querySelectorAll("button:not([aria-label]):not([title])").forEach(b=>{if(!txt(b)){const s=b.querySelector("svg title");b.setAttribute("aria-label",s?txt(s):"زر")}});
 }
 let t=0;
 function schedule(){clearTimeout(t);t=setTimeout(()=>{pass(document.getElementById("view"));pass(document.querySelector(".sk-ph"))},120)}
-function boot(){const v=document.getElementById("view");if(!v)return setTimeout(boot,300);new MutationObserver(schedule).observe(v,{childList:true,subtree:true});if(document.body)new MutationObserver(()=>{const modal=document.getElementById('v12s-customer')?.closest('[role=dialog],.dlg');if(modal)pass(modal)}).observe(document.body,{childList:true,subtree:true});schedule()}
+function boot(){const v=document.getElementById("view");if(!v)return setTimeout(boot,300);new MutationObserver(schedule).observe(v,{childList:true,subtree:true});const hdr=document.getElementById("hdr");if(hdr)new MutationObserver(schedule).observe(hdr,{childList:true,subtree:true});if(document.body)new MutationObserver(()=>{const modal=document.getElementById('v12s-customer')?.closest('[role=dialog],.dlg');if(modal)pass(modal)}).observe(document.body,{childList:true,subtree:true});schedule()}
 boot();
 const bidi=(value,dir="auto")=>'<bdi dir="'+(["ltr","rtl"].includes(dir)?dir:"auto")+'">'+SK.esc(value)+'</bdi>';
 SK.a11y=Object.freeze({pass,bidi});

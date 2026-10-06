@@ -3,9 +3,11 @@ name: SQC Review Import Guard
 on:
   pull_request:
     paths:
+      - 'ui/core/sk.js'
+      - 'ui/core/company.js'
+      - 'ui/core/helper-space.js'
       - 'build.py'
       - 'build_mode.py'
-      - 'ui/core/sk.js'
       - 'ui/features/tb-review.js'
       - 'ui/features/ledger.js'
       - 'ui/features/assistant.js'

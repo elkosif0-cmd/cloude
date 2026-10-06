@@ -3,6 +3,10 @@ name: SQC Management Report Regression
 on:
   pull_request:
     paths:
+      - 'ui/core/sk.js'
+      - 'ui/core/bus.js'
+      - 'ui/core/company.js'
+      - 'ui/core/output.js'
       - 'build.py'
       - 'ui/core/helper-space.js'
       - 'ui/core/management-report-model.js'
