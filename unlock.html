@@ -301,8 +301,6 @@ function companies(){
 }
 /* the companies a section lists: the sector's companies in accounting; every company in audit and tools */
 const listFor=(gate,sector)=>companies().filter(c=>!c.scratch&&(gate!=="accounting"||c.sector===sector));
-/* the company whose space hosts an audit session started from the door: the last one opened, else the demo company */
-function host(){const last=read(LAST,null),all=companies().filter(c=>!c.locked&&!c.scratch);return (last&&all.find(c=>c.id===last.id))||all.find(c=>c.demo)||{...DEMO,demo:true}}
 const known=id=>companies().some(c=>c.id===id);
 function card(c){
   return '<button type="button" class="co'+(c.locked?" locked":"")+(c.last?" last":"")+'" role="listitem" data-id="'+esc(c.id)+'" data-name="'+esc(c.name)+'"'+(c.locked?' data-locked="1"':"")+(c.demo?' data-demo="1"':"")+(c.scratch?' data-scratch="1"':"")+(c.last?' aria-current="true"':"")+'>'+
