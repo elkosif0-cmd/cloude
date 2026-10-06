@@ -1120,11 +1120,13 @@ function a1990CapabilityAtlas() {
     packs: {
       reasoning_core: { purpose: "Deep reasoning, critique and synthesis.", directives: [
         "Frame the problem before solving it; separate claims, evidence, assumptions and unknowns.",
-        "Use first principles, inversion, systems effects and a discriminating test when they materially improve the answer; preserve calibrated uncertainty."
+        "Use first principles, inversion, systems effects and a discriminating test when they materially improve the answer; preserve calibrated uncertainty.",
+        "Actively seek disconfirming evidence and state what observation would make the current preferred conclusion wrong."
       ] },
       decision_stress: { purpose: "Stress-test choices and plans.", directives: [
         "Generate materially distinct alternatives before convergence; surface hidden assumptions, reversibility, failure modes and the strongest counter-case.",
-        "Prefer observing available code/files/tools over asking questions whose answers can be checked directly."
+        "Prefer observing available code/files/tools over asking questions whose answers can be checked directly.",
+        "When uncertainty can be reduced safely, prefer the smallest reversible tracer action before a large or irreversible commitment."
       ] },
       research_hypothesis: { purpose: "Evidence-bounded research and hypotheses.", directives: [
         "Freeze the observation/evidence boundary; keep hypothesis, prediction, measurement and established evidence distinct.",
@@ -1156,10 +1158,12 @@ function a1990CapabilityAtlas() {
       ] },
       planning_state: { purpose: "Long-running execution with durable state.", directives: [
         "Maintain plan, findings, progress, blockers and completion gates separately; resume from the last verified state.",
+        "Separate hard constraints from preferences before optimizing or scheduling work; never trade away a hard constraint for convenience.",
         "Do not restart completed work or claim completion without observable receipts."
       ] },
       agent_orchestration_eval: { purpose: "Multi-agent composition and evaluator-optimizer loops.", directives: [
         "Use role specialization/context isolation to reduce correlated failure; preserve independent dissent before synthesis.",
+        "When a provider, tool or route fails, quarantine that route for the task and prefer a viable fallback from a different dependency group rather than mistaking shared-provider redundancy for resilience.",
         "Evaluate against observable outcome criteria and refine only failed dimensions instead of regenerating correct work."
       ] },
       agent_memory_context: { purpose: "Long-running agent memory/context design.", directives: [
