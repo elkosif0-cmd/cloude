@@ -433,3 +433,25 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - P1.2B must first build a dependency map and compatibility contract before separating ToolWorkspaceContext.
 - Commits: branch through `956c08c70d42bbe21f271f67e476369ac539bb28` plus CI/exclusivity commits `f7c17e7843e3ddbb41fb2ff05dd7efc2161ac51d`, `18ca98d4ed2616485a637c661b0cc93d1b0fefab`, `956c08c70d42bbe21f271f67e476369ac539bb28`.
 - NEXT ACTION: review PR #170; then begin P1.2B Tools dependency mapping from current `main`/accepted Audit base.
+
+
+### TASK KOSIFSEE-TOOLS-CONTEXT-20261006-001 — P1.2B.1 tool-workspace accounting safety boundary
+- Agent: KOSIF See / ChatGPT
+- Status: ACTIVE
+- Authority: Owner explicit “نفذ” instruction; continuation of context-separation work after Audit slice #170.
+- Lead coordination: latest FOUNDATION and AGENT_WORKLOG reviewed. This branch is intentionally stacked on `kosifsee/audit-context-separation-20261006`; Claude has no current claim on ToolWorkspace context separation.
+- Decision record:
+  - Full Context Router + all shared-consumer migration was reviewed by KOSIF Think and judged too risky in one step.
+  - Narrowed safety boundary accepted by Jev with 0.84 yes probability.
+- Goal: an unbound Tools workspace must never become, activate, rename, or update an Accounting company merely because it is the open helper space.
+- Scope:
+  - Persist `kind:"tools"` on independent tool spaces; infer legacy `space-tools` as tool-only.
+  - New Tools workspaces are tool workspaces, not rows in `skosif_companies_v1`.
+  - `ui/core/company.js` must fail closed on accounting mutations/reconciliation while the current helper space is tool-only and unbound.
+  - Preserve current `SK.company` read API shape for compatibility in this slice; shared-consumer migration is deferred.
+  - Explicit selection of a real accounting company from Tools remains the linked-company path.
+  - Add deterministic contracts for no books/company mutation.
+- Expected touch set: `unlock.html`, `ui/core/helper-space.js`, `ui/core/company.js`, focused tests, CI test list, this worklog.
+- Explicit exclusions: shared-module migration (topbar/standards/output/capabilities-v2/command-center), report engines, capability IDs, schemas/migrations, deployment.
+- Risks: legacy independent `space-tools` entries may lack `kind`; detection must be backward compatible and must not misclassify a real accounting company.
+- NEXT ACTION: implement tool-only metadata + accounting mutation guards, then prove books state remains byte-stable under tool workspace open/rename/meta/period attempts.
