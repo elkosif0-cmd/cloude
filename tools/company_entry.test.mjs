@@ -13,7 +13,7 @@ const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
 assert.equal(scripts.length,2,'the reviewed unlock script first, the door second');
 const door=scripts[1];
 assert.ok(door.includes('/*SQC:ENTRY-DATA*/'),'build.py inlines the entry data at the marker');
-assert.match(html,/id="gates-help">ثلاثة مداخل واضحة ومستقلة:/,'the door explains the three independent entry meanings before a company is chosen');
+assert.match(html,/id="gates-help">ثلاثة مداخل واضحة:/,'the door explains the three entry meanings before a company is chosen');
 const CORPUS=[{id:'apple-2024',company:'Apple Inc.',sector:'tech',country:'الولايات المتحدة',fy:'FY2024'},{id:'aramco-2025',company:'Saudi Arabian Oil Company (Aramco)',sector:'energy',country:'السعودية',fy:'FY2025'}];
 const LIBRARY='https://kosif-financial-reference-library.smartsphere152.chatgpt.site/';
 
