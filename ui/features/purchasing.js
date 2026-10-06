@@ -3,6 +3,8 @@
    الترحيل للدفاتر يتم من «الدفاتر المحاسبية › القيود». البيانات: skosif_purchasing_v1. */
 (()=>{
 "use strict";
+/* a new order line starts at the company's VAT rate (SKosifCompanyPlatform.vatPolicy); the line keeps whatever the user types */
+const defVat=()=>{try{const P=window.SKosifCompanyPlatform;return P&&P.vatPolicy?P.vatPolicy().rate:0.15}catch{return 0.15}};
 const {$,esc,load,save,money,toast}=SK;
 const P=()=>window.SKEngines.procurement;
 const KEY="skosif_purchasing_v1";
@@ -25,7 +27,7 @@ const STATUS={OPEN:["مفتوح","warn"],RECEIVED:["مستلم","good"],PARTIAL:
 const pill=s=>{const [l,c]=STATUS[s]||[s,""];return '<span class="sk-pill '+c+'">'+l+'</span>'};
 
 function ordersHTML(d){
-  po=po||{supplier:"",date:today(),dueDate:"",lines:[{item:"",qty:"",cost:"",vat:"0.15"}]};
+  po=po||{supplier:"",date:today(),dueDate:"",lines:[{item:"",qty:"",cost:"",vat:String(defVat())}]};
   const sup=suppliers(d),its=items();
   const total=P().procurement.purchaseOrderValue(po.lines.map(l=>({itemId:l.item,orderedQty:n(l.qty),unitCost:n(l.cost)})));
   return '<datalist id="pu-sup">'+sup.map(s=>'<option value="'+esc(s)+'">').join("")+'</datalist><datalist id="pu-items">'+its.map(s=>'<option value="'+esc(s)+'">').join("")+'</datalist>'+
@@ -77,7 +79,7 @@ function bind(root){
   root.addEventListener("click",async e=>{
     const t=e.target.closest("[data-tab]");if(t&&t.closest('[data-sk-tabs="pur"]')){tab=t.dataset.tab;paint(root);return}
     const b=e.target.closest("[data-p]");if(!b)return;const a=b.dataset.p,d=db();
-    if(a==="add-line")po.lines.push({item:"",qty:"",cost:"",vat:"0.15"});
+    if(a==="add-line")po.lines.push({item:"",qty:"",cost:"",vat:String(defVat())});
     else if(a==="rm")po.lines.splice(+b.dataset.i,1);
     else if(a==="save-po"){
       if(!SK.ui.validate(root))return;

@@ -226,7 +226,7 @@ const SECTIONS=[
     const pur=load("skosif_purchasing_v1",{});(pur.receipts||[]).filter(r=>r.demo).forEach(r=>{const po=(pur.orders||[]).find(o=>o.id===r.orderId);if(!po)return;try{
       const b=E().procurement.procurementPosting.buildReceiptPosting({id:po.id,number:po.number,date:po.date,dueDate:po.dueDate||po.date,supplierId:po.supplier,status:"OPEN",lines:po.lines.map(l=>({itemId:l.item,quantity:+l.qty||0,unitCostExVat:+l.cost||0,vatRate:+l.vat||0}))},
         {id:r.id,number:r.id,date:r.date,purchaseOrderId:po.id,status:"DRAFT",lines:r.lines.map(l=>({itemId:l.item,quantity:+l.qty||0}))},{inventoryAccountId:id("1300"),inputVatAccountId:id("1400"),payableAccountId:id("2100")});
-      entries.push(D({...b.journal,id:"demo-je"+(n++),memo:"استلام من "+po.supplier+" — أمر "+po.number,reference:po.number,source:"مشتريات",sourceId:"receipt:"+r.id}))}catch{}});
+      entries.push(D({...b.journal,id:"demo-je"+(n++),memo:"استلام من "+po.supplier+" — أمر "+po.number,reference:po.number,source:"مشتريات",sourceId:"receipt:"+r.id,party:po.supplier||""}))}catch{}});
     /* a collection from a credit customer and a part payment to a supplier: balances, ageing and statements have a story */
     try{const P=F.partyLedger,cr=man.find(x=>/آجل/.test(x.payment||""));
       if(cr)entries.push(D({...P.buildSettlementEntry({id:"demo-je"+(n++),date:ago(1),kind:"collection",party:cr.customer,amount:r2(cr.amount/2),cashAccountId:id("1100"),controlAccountId:id("1200"),reference:"RCV-DEMO1"}),memo:"تحصيل جزئي من "+cr.customer+" (تحويل بنكي)",source:"تحصيل"}));

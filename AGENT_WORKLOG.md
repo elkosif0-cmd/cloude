@@ -229,3 +229,14 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - feature_audit over three runs on this branch: 144, 144, 143 of 146; every one of the 146 checks passed in at least one run. The alternating ones (morning summary, sales lab, V40 item costs/tree, earlier the letter before the Amazon move) are outside this change — timing flakes of the local runner.
 - Unfinished: reconciling bundle-clients' granular rows to the verified totals; P5 synthetic packs and local AI runs.
 - NEXT ACTION: owner reviews the PR; then P2 accounting integrity (posting contract findings from DOT-INVENTORY's reviewed batches), then P3 sector packs.
+
+### TASK CLAUDE-20261006-004 — P2: the company's VAT policy governs posting + books integrity on the demo company
+- Agent: Claude (Lead Development Agent)
+- Status: DONE — merged on the owner's explicit instruction in chat on 2026-10-06 («ادمج وكمل»); GitHub jobs not started (billing), acceptance on local evidence.
+- Goal: PRODUCT_MANDATE P2 (operation → entry → ledger → trial balance with the same figures). First gap closed here: every sale was posted at a hard-coded 15% whatever the company (Egypt 14%, UAE 5%, a company not registered…); purchase lines defaulted to 15%.
+- Scope: `app/src/engine/fusion/finance/vat-policy-engine.ts` (+test; engines rebuilt), `ui/core/company-platform.js` (profile `vatRegistered`/`vatRate`, `vatPolicy()`), `ui/features/ledger.js` (sale entry + VAT return rate), `ui/features/purchasing.js` (line default), `ui/features/master-data.js` (two fields + the rate in force), `ui/core/demo.js` (demo receipt entries name their supplier, as real postings do), tests `tools/vat_policy_contract.test.mjs`, `tools/books_integrity_e2e.mjs`, workflow wiring.
+- Branch / PR: `claude/p2-ledger-integrity-20261006` from `main` @ 76e7e06.
+- Not changed (recorded): other fixed 15% outside the posting path — `ui/features/enterprise.js` (legacy invoices/WhatsApp text), `offers.js`, `operations.js` pricing, `audit-bridge.js`; they should read the same policy in a follow-up.
+- Evidence: vat-policy 6/6; engines 452/452 (`--check` up to date); vat_policy_contract + company_platform 14/14; workflow node tests 294 pass / 52 fail, the 52 identical on `main` (no new failure); books_integrity_e2e OK; feature_audit 146/146; door 88/88; sales_reports 28/28; advances 26/26 (after one local load timeout).
+- The browser test caught a defect in the first version (selecting «حسب الدولة» did not reset registration: `??` treated null as missing) — fixed and pinned.
+- NEXT ACTION: the remaining fixed 15% outside the posting path (enterprise/offers/operations/audit-bridge) read the same policy; then P2 definitions → purchase/sale pickers; then P3 sector packs (meat first).
