@@ -316,6 +316,7 @@ jobs:
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/digital_pack_e2e.mjs http://localhost:8765/
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/education_pack_e2e.mjs http://localhost:8765/
           NODE_PATH=/tmp/pw/node_modules timeout 900 node tools/production_packs_e2e.mjs http://localhost:8765/
+          NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/agriculture_pack_e2e.mjs http://localhost:8765/
           NODE_PATH=/tmp/pw/node_modules timeout 900 node tools/model_companies_e2e.mjs http://localhost:8765/
           NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/sales_reports_e2e.mjs http://localhost:8765/app-safe.html
 

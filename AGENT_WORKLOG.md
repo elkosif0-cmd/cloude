@@ -499,3 +499,26 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - item-level stock quantities, lots and expiry dates (stock is still valued in riyals per account);
   - recipe costing from live purchase prices.
 - Branch / PR: `claude/production-packs-20261006` from `main` @ ef28e95.
+
+### TASK CLAUDE-20261006-021 — P3 agriculture pack: cycles as cost centres, feed capitalised, births, mortality, sales at average cost, IAS 41
+- Agent: Claude (Lead Development Agent)
+- Status: DONE on merge — the owner's standing instruction in chat («كمل تطوير وراجع الدستور وادمج بنفسك»).
+- Goal: FOUNDATION §3.6 «الزراعة/المزارع: دورات إنتاج/مواسم، حقول/حظائر كمراكز تكلفة، أعلاف/مدخلات، نفوق/هدر، إنتاجية، مخزون حي/زراعي حيث ينطبق، وتكلفة الوحدة/الدورة». The agriculture pack becomes `deep`.
+- Scope:
+  - `app/src/engine/fusion/finance/livestock-engine.ts` (+3 tests):
+    - stocking: 1395, paid or on credit, with input VAT;
+    - feed purchase (1396) and feeding, capitalised 1396 → 1395 and never more than the store holds;
+    - mortality at the average cost per head (5190), with a cause;
+    - a sale: revenue, plus the heads' average cost out of 1395 into 5000, with the customer as party on credit; the last heads take exactly what is left;
+    - IAS 41 `fairValueJournal`: fair value less costs to sell, with the gain or loss in 4950;
+    - `cycleKpis`: cost per head, mortality, birth rate, feed per head, margin.
+  - Agriculture pack adds 4950 «أرباح وخسائر القيمة العادلة للأصول الحيوية».
+  - `ui/features/ledger.js`: a «الدورات والقطعان» tab for farms only. Cycles are kept in `d.cycles`. Births carry no cost, so they're kept in `d.cycleBirths` rather than posted. A cycle's state is read back from its entries.
+  - Model farm (#172) is regenerated through the same engine and meta:
+    - the 2,000-head flock now carries 15% input VAT, so its VAT nets to a refund;
+    - lambing is recorded in `ledger.cycleBirths`;
+    - the flock is remeasured to fair value less costs to sell at 30 September.
+  - The model test now asserts that each closed quarter clears 2200 and 1400, whether the result is a payable or a refund.
+  - `tools/agriculture_pack_e2e.mjs` is in the workflow.
+- Not yet: crop cycles with harvest into agricultural produce (IAS 2 at the point of harvest), bearer plants (IAS 16), several cycles sharing one feed store by allocation.
+- Branch / PR: `claude/agriculture-pack-20261006` from `main` @ e1b9bcc.

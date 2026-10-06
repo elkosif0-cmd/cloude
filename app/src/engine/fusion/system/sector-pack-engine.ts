@@ -76,7 +76,8 @@ export const SECTOR_PACKS: Readonly<Record<string, SectorPack>> = Object.freeze(
     costCenters: ['خطوط الإنتاج', 'الصيانة', 'الجودة'], units: ['وحدة', 'كجم', 'دفعة'], warehouses: ['مخزن الخامات', 'مخزن الإنتاج التام'], tools: ['purchasing', 'inventory', 'ptree'], kpis: ['انحراف التكلفة', 'نسبة الهالك'] }),
   bakery: pack({ id: 'bakery', depth: 'deep', accounts: [['1370', 'مواد ومكونات الإنتاج', 'asset'], ['1390', 'منتجات مخبوزة جاهزة', 'asset'], ['5180', 'التالف ومنتهي الصلاحية', 'expense']],
     costCenters: ['الإنتاج', 'البيع'], units: ['قطعة', 'كجم', 'دفعة'], warehouses: ['مخزن المكونات'], tools: ['purchasing', 'inventory', 'ptree'], kpis: ['مردود الدفعة', 'نسبة التالف'] }),
-  agriculture: pack({ id: 'agriculture', depth: 'base', accounts: [['1395', 'الأصول الحيوية (حيوانات/محاصيل)', 'asset'], ['1396', 'أعلاف ومدخلات زراعية', 'asset'], ['5190', 'النفوق والهدر الزراعي', 'expense']],
+  agriculture: pack({ id: 'agriculture', depth: 'deep', accounts: [['1395', 'الأصول الحيوية (حيوانات/محاصيل)', 'asset'], ['1396', 'أعلاف ومدخلات زراعية', 'asset'], ['5190', 'النفوق والهدر الزراعي', 'expense'],
+    ['4950', 'أرباح وخسائر القيمة العادلة للأصول الحيوية', 'revenue']],
     costCenters: ['الحظائر', 'الحقول', 'المواسم'], units: ['رأس', 'كجم', 'طن', 'دونم'], warehouses: ['مخزن الأعلاف'], tools: ['purchasing', 'inventory'], kpis: ['تكلفة الوحدة للدورة', 'نسبة النفوق'] }),
   trade: pack({ id: 'trade', depth: 'base', accounts: [], costCenters: ['الفروع', 'المستودعات'], units: ['وحدة', 'كرتون'], warehouses: ['المستودع الرئيسي'], tools: ['purchasing', 'inventory'], kpis: ['هامش الربح', 'دوران المخزون'] }),
 });

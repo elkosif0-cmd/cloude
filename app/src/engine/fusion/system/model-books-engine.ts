@@ -11,6 +11,7 @@ import { type AccountType, type PackAccount, sectorPack } from './sector-pack-en
 import { encounterJournal, healthVatTreatment, remittanceJournal, type Department } from '../finance/insurance-claims-engine';
 import * as TU from '../finance/tuition-engine';
 import * as PO from '../finance/production-order-engine';
+import * as LV from '../finance/livestock-engine';
 
 export type ModelLine = { accountId: string; debit: number; credit: number; description?: string };
 export type ModelEntry = { id: string; date: string; reference: string; memo: string; source: string; sourceId: string; party?: string; lines: ModelLine[];
@@ -266,24 +267,37 @@ const SECTOR: Record<string, (c: Ctx) => void> = {
       post(PO.wasteJournal({ id: 'W-' + year + pad(m), date: end(m), amountHalalas: waste, reason: 'انتهاء الصلاحية والتلف', finishedOnHandHalalas: finished }, A).journal, { kind: 'waste', amount: waste }); finished -= waste;
     }
   },
-  /* the sheep farm: a flock bought in January, feed bought and capitalised into the flock, lambs born in February and
-     March, 1.2% mortality a month, sales of 150–200 head a month at the flock's average cost per head */
-  agriculture: ({ year, months, rnd, vary, je, L, sale, purchase, pay, end, vat }) => {
-    let heads = 2000, cost = 2000 * 90_000, owed = 0;
-    je(dayOf(year, 1, 3), 'شراء قطيع أغنام — 2,000 رأس', [L('1395', cost, 0), L('1100', 0, cost)], { source: 'مشتريات', reference: 'FLOCK-' + year, meta: { flock: { heads: 2000 } } });
+  /* the sheep farm, through the agriculture pack's engine (finance/livestock-engine) and with the books screen's meta, so
+     «الدورات والقطعان» reads it: one cycle, a flock of 2,000 head bought in January; feed bought monthly on credit and
+     95% of it capitalised into the flock; lambs born in February and March (no cost: the cost per head falls); 1.2%
+     mortality a month; 150–200 head sold each month at the flock's average cost per head; and at 30 September the flock
+     remeasured to fair value less costs to sell (IAS 41) */
+  agriculture: ({ year, months, rnd, vary, je, pay, end, vat, ledger }) => {
+    const A = { biologicalAccountId: '1395', feedAccountId: '1396', cashAccountId: '1100', receivableAccountId: '1200', payableAccountId: '2100', inputVatAccountId: '1400',
+      outputVatAccountId: '2200', revenueAccountId: '4000', cogsAccountId: '5000', mortalityAccountId: '5190', fairValueAccountId: '4950' };
+    const C: LV.Cycle = { id: 'model-cycle-flock', name: 'القطيع الرئيسي — نعيمي', unit: 'رأس' }, births: { cycleId: string; date: string; heads: number }[] = [];
+    ledger.cycles = [C]; ledger.cycleBirths = births;
+    const post = (j: { date: string; reference: string; memo: string; party?: string; lines: ModelLine[] }, meta: Record<string, unknown>, source: string) =>
+      je(j.date, j.memo, j.lines, { source, reference: j.reference, party: j.party, meta: { livestock: { cycleId: C.id, ...meta } } });
+    const SUP = 'شركة الأعلاف الوطنية', s = LV.emptyCycleState();
+    let owed = 0, feedStore = 0;
+    const st = LV.stockingJournal(C, { id: 'FLOCK-' + year, date: dayOf(year, 1, 3), heads: 2000, amountHalalas: 180_000_000 }, vat, A);
+    post(st.journal, { kind: 'stock', heads: 2000, amount: 180_000_000 }, 'مشتريات'); Object.assign(s, { heads: 2000, bought: 2000, costHalalas: 180_000_000 });
     for (const m of months) {
-      if (owed) pay(dayOf(year, m, 6), 'سداد مورد الأعلاف', '2100', owed, 'PAY-FEED-' + year + pad(m), 'شركة الأعلاف الوطنية');
-      const feed = vary(20_000_000, 0.06); purchase(dayOf(year, m, 2), 'أعلاف شعير وبرسيم', '1396', feed, 'شركة الأعلاف الوطنية', 'PO-FEED-' + year + pad(m)); owed = feed + Math.round(feed * vat);
-      const fed = Math.round(feed * 0.95); cost += fed;
-      /* lambs born in February and March join the flock without a purchase cost: the flock's cost per head falls */
-      const born = m === 2 || m === 3 ? 220 + Math.floor(rnd() * 60) : 0; heads += born;
-      je(end(m), 'تحميل الأعلاف المستهلكة على تكلفة القطيع' + (born ? ' — ومواليد الموسم ' + born + ' رأس' : ''), [L('1395', fed, 0), L('1396', 0, fed)], { source: 'الحظائر', reference: 'FEED-' + year + pad(m), meta: { flock: { born, heads } } });
-      const dead = Math.round(heads * 0.012), deadCost = Math.round((cost / heads) * dead); heads -= dead; cost -= deadCost;
-      je(end(m), 'نفوق ' + dead + ' رأس', [L('5190', deadCost, 0), L('1395', 0, deadCost)], { source: 'الحظائر', reference: 'MORT-' + year + pad(m), meta: { flock: { dead } } });
-      const sold = 150 + Math.floor(rnd() * 50), unit = Math.round(cost / heads), cogs = unit * sold; heads -= sold; cost -= cogs;
-      sale(dayOf(year, m, 20), 'بيع ' + sold + ' رأس', sold * vary(145_000, 0.05), { source: 'مبيعات', reference: 'SALE-' + year + pad(m), meta: { flock: { sold } } });
-      je(dayOf(year, m, 20), 'تكلفة الرؤوس المباعة بمتوسط ' + sar(unit) + ' ريال للرأس', [L('5000', cogs, 0), L('1395', 0, cogs)], { source: 'مبيعات', reference: 'COGS-' + year + pad(m) });
+      if (owed) pay(dayOf(year, m, 6), 'سداد مورد الأعلاف', '2100', owed, 'PAY-FEED-' + year + pad(m), SUP);
+      const feed = vary(20_000_000, 0.06), fp = LV.feedPurchaseJournal({ id: 'PO-FEED-' + year + pad(m), date: dayOf(year, m, 2), supplier: SUP, amountHalalas: feed }, vat, A);
+      post(fp.journal, { kind: 'feedbuy', amount: feed }, 'مشتريات'); feedStore += feed; owed = feed + fp.vat;
+      const fed = Math.round(feed * 0.95), fj = LV.feedingJournal(C, s, { id: 'FEED-' + year + pad(m), date: end(m), amountHalalas: fed, feedOnHandHalalas: feedStore }, A);
+      post(fj.journal, { kind: 'feed', amount: fed }, 'الحظائر'); feedStore -= fed; s.costHalalas += fed; s.feedHalalas += fed;
+      if (m === 2 || m === 3) { const born = 220 + Math.floor(rnd() * 60); births.push({ cycleId: C.id, date: end(m), heads: born }); s.heads += born; s.born += born; }
+      const dead = Math.round(s.heads * 0.012), mj = LV.mortalityJournal(C, s, { id: 'MORT-' + year + pad(m), date: end(m), heads: dead, cause: 'نفوق طبيعي وأمراض' }, A);
+      post(mj.journal, { kind: 'death', heads: dead, cost: mj.cost }, 'الحظائر'); s.heads -= dead; s.dead += dead; s.costHalalas -= mj.cost;
+      const sold = 150 + Math.floor(rnd() * 50), price = sold * vary(145_000, 0.05), sj = LV.saleJournals(C, s, { id: 'SALE-' + year + pad(m), date: dayOf(year, m, 20), heads: sold, amountHalalas: price }, vat, A);
+      post(sj.journal, { kind: 'sale', heads: sold, amount: price, cost: sj.cost }, 'مبيعات'); post(sj.costJournal, { kind: 'salecost', heads: 0, cost: 0 }, 'مبيعات');
+      s.heads -= sold; s.sold += sold; s.costHalalas -= sj.cost; s.revenueHalalas += price; s.cogsHalalas += sj.cost;
     }
+    const fv = LV.fairValueJournal(C, s, { id: 'FV-' + year, date: end(months[months.length - 1]), fairValuePerHeadHalalas: 150_000, costsToSellPerHeadHalalas: 6_000 }, A);
+    post(fv.journal, { kind: 'fv', change: fv.change }, 'معيار 41');
   },
   /* the distributor: purchases on credit paid 85% the month after; sales 55% cash and 45% on credit to named customers,
      collected 80% the month after; a stock count shortage in May and a bad debt written off in August */

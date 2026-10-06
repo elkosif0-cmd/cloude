@@ -16,7 +16,8 @@ describe('the §3.6 model companies', () => {
     expect(rev.reversalOf).toBe(dup.id);
     /* the first two quarters' VAT is closed and paid; the third is still payable at the period end */
     expect(b.entries.filter((e) => e.vatClose).length).toBe(3);
-    expect(c.balance('2250')).toBeLessThanOrEqual(0);
+    /* every quarter closed: output and input VAT are cleared into 2250 (a payable, or a refund for the farm's flock purchase) */
+    expect([c.balance('2200'), c.balance('1400')]).toEqual([0, 0]);
   });
   it('is deterministic', () => {
     expect(JSON.stringify(modelBooks('model-trade'))).toBe(JSON.stringify(modelBooks('model-trade')));
@@ -45,7 +46,8 @@ describe('the §3.6 model companies', () => {
     expect(checkModelBooks(modelBooks('model-manufacturing')).balance('1380')).toBe(0);
     const f = modelBooks('model-agriculture');
     expect(checkModelBooks(f).balance('1395')).toBeGreaterThan(0);
-    expect(f.entries.some((e) => (e.flock as { born?: number } | undefined)?.born)).toBe(true);
+    expect((f.ledger.cycleBirths as { heads: number }[]).length).toBe(2);
+    expect(f.entries.some((e) => (e.livestock as { kind?: string } | undefined)?.kind === 'fv')).toBe(true);
   });
   it('the school defers its fees and earns them month by month', () => {
     const b = modelBooks('model-education'), c = checkModelBooks(b);

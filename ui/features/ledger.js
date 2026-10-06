@@ -323,6 +323,76 @@ function postDigitalOp(root,d){
   }catch(e){err.textContent=e.message||String(e);return}
   return true;
 }
+/* ---------- the agriculture pack: cycles (flocks and fields) as cost centres — stocking, feed, births, deaths, sales, IAS 41 ----------
+   (finance/livestock-engine) — shown only for a farm. A cycle's heads and cost are read back from its entries; births,
+   which carry no cost, are kept beside them (d.cycleBirths). */
+const LV=()=>E().livestock;
+const isFarm=()=>{try{return SK.company.current().sector==="agriculture"}catch{return false}};
+const FARM_CODES=["1100","1200","2100","1395","1396","4000","5000","5190"];
+function lvAccounts(d){return{biologicalAccountId:byCode(d,"1395"),feedAccountId:byCode(d,"1396"),cashAccountId:byCode(d,"1100"),receivableAccountId:byCode(d,"1200"),payableAccountId:byCode(d,"2100"),
+  inputVatAccountId:byCode(d,"1400"),outputVatAccountId:byCode(d,"2200"),revenueAccountId:byCode(d,"4000"),cogsAccountId:byCode(d,"5000"),mortalityAccountId:byCode(d,"5190"),fairValueAccountId:byCode(d,"4950")}}
+function cycleState(d,id){
+  const s=LV().emptyCycleState();
+  d.entries.filter(e=>e.livestock&&e.livestock.cycleId===id&&!e.reversedBy&&!e.reversalOf).forEach(e=>{const x=e.livestock;
+    if(x.kind==="stock"){s.heads+=x.heads;s.bought+=x.heads;s.costHalalas+=x.amount}
+    if(x.kind==="feed"){s.costHalalas+=x.amount;s.feedHalalas+=x.amount}
+    if(x.kind==="death"){s.heads-=x.heads;s.dead+=x.heads;s.costHalalas-=x.cost}
+    if(x.kind==="sale"){s.heads-=x.heads;s.sold+=x.heads;s.costHalalas-=x.cost;s.revenueHalalas+=x.amount;s.cogsHalalas+=x.cost}
+    if(x.kind==="fv"){s.costHalalas+=x.change;s.fairValueHalalas+=x.change}});
+  (Array.isArray(d.cycleBirths)?d.cycleBirths:[]).filter(b=>b.cycleId===id).forEach(b=>{s.heads+=b.heads;s.born+=b.heads});
+  return s;
+}
+function farmHTML(d){
+  const missing=FARM_CODES.filter(c=>!byCode(d,c));
+  if(missing.length)return SK.ui.state.empty({title:"أكمل حسابات قطاع الزراعة",text:"الدورات والقطعان تحتاج الحسابات "+missing.join(" و")+" — أضفها من «دليل الحسابات» › «إضافة حسابات قطاع»."});
+  const t=today(),h=v=>money((v||0)/100),pct=v=>v==null?"—":v+"٪",cs=Array.isArray(d.cycles)?d.cycles:[];
+  const rows=cs.map(c=>{const s=cycleState(d,c.id);return{c,s,k:LV().cycleKpis(s)}});
+  const opts=cs.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>').join("");
+  return '<p class="hint">الدورة (قطيع في حظيرة أو محصول في حقل) مركز تكلفة: الشراء والأعلاف المستهلكة تُرسمل على الأصل الحيوي (1395)، والمواليد تزيد الرؤوس بلا تكلفة فتنخفض تكلفة الرأس، والنفوق (5190) والمبيع (5000) يخرجان بمتوسط تكلفة الرأس. معيار المحاسبة الدولي 41: يُقاس الأصل الحيوي بالقيمة العادلة ناقص تكاليف البيع متى أمكن قياسها بموثوقية (فرق إعادة القياس في 4950)، وإلا يبقى بالتكلفة.</p>'+
+    '<section class="card"><div class="card-h"><div><h3>دورة جديدة</h3></div></div><div class="card-b"><div class="sk-grid2">'+
+      '<label class="sk-field"><span>الدورة (الحظيرة أو الحقل)</span><input id="lv-name" autocomplete="off" data-sk-required placeholder="حظيرة 1 — نعيمي"></label>'+
+      '<label class="sk-field"><span>الوحدة</span><input id="lv-unit" value="رأس"></label></div>'+
+      '<div class="sk-error" id="lv-err" role="alert"></div><div class="sk-actions"><button type="button" class="btn" data-l="lv-new">حفظ الدورة</button></div></div></section>'+
+    (cs.length?'<section class="card"><div class="card-h"><div><h3>حركة على دورة</h3></div></div><div class="card-b"><div class="sk-grid2">'+
+      '<label class="sk-field"><span>الدورة</span><select id="lv-k">'+opts+'</select></label>'+
+      '<label class="sk-field"><span>العملية</span><select id="lv-op"><option value="stock">شراء رؤوس أو بذور</option><option value="feedbuy">شراء أعلاف ومدخلات</option><option value="feed">أعلاف مستهلكة</option><option value="birth">مواليد</option><option value="death">نفوق أو هدر</option><option value="sale">بيع</option><option value="fv">إعادة قياس بالقيمة العادلة (IAS 41)</option></select></label>'+
+      '<label class="sk-field"><span>عدد الرؤوس</span><input id="lv-n" inputmode="numeric"></label>'+
+      '<label class="sk-field"><span>المبلغ</span><input id="lv-amt" inputmode="decimal"></label>'+
+      '<label class="sk-field"><span>المورد أو العميل أو السبب</span><input id="lv-who" autocomplete="off"></label>'+
+      '<label class="sk-field"><span>الدفع</span><select id="lv-pay"><option value="cash">نقداً</option><option value="credit">آجل</option></select></label>'+
+      '<label class="sk-field"><span>القيمة العادلة للرأس</span><input id="lv-fv" inputmode="decimal"></label>'+
+      '<label class="sk-field"><span>تكاليف البيع للرأس</span><input id="lv-cts" inputmode="decimal" value="0"></label>'+
+      '<label class="sk-field"><span>التاريخ</span><input id="lv-date" type="date" value="'+t+'"></label></div>'+
+      '<div class="sk-error" id="lv-err2" role="alert"></div><div class="sk-actions"><button type="button" class="btn primary" data-l="lv-post">ترحيل</button></div></div></section>':'')+
+    (rows.length?'<section class="card"><div class="card-h"><div><h3>الدورات</h3><p>من قيود الدفاتر.</p></div></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table" data-lv-table><thead><tr><th>الدورة</th><th>الرؤوس</th><th>التكلفة</th><th>تكلفة الرأس</th><th>مشتراة</th><th>مواليد</th><th>نافقة</th><th>مباعة</th><th>نسبة النفوق</th><th>أعلاف للرأس</th><th>هامش المبيع</th><th>نسبة الهامش</th></tr></thead><tbody>'+
+      rows.map(({c,s,k})=>'<tr data-cycle="'+esc(c.name)+'"><td>'+esc(c.name)+'</td><td class="n">'+s.heads+'</td><td class="n">'+h(s.costHalalas)+'</td><td class="n"><b>'+h(k.costPerHeadHalalas)+'</b></td><td class="n">'+s.bought+'</td><td class="n">'+s.born+'</td><td class="n">'+s.dead+'</td><td class="n">'+s.sold+'</td><td class="n">'+pct(k.mortalityPct)+'</td><td class="n">'+(k.feedPerHeadHalalas==null?"—":h(k.feedPerHeadHalalas))+'</td><td class="n">'+h(k.marginHalalas)+'</td><td class="n">'+pct(k.marginPct)+'</td></tr>').join("")+
+      '</tbody></table></div></div></section>':'');
+}
+function saveCycle(root,d){
+  const err=$("#lv-err",root);err.textContent="";const name=$("#lv-name",root).value.trim();
+  if(!name){err.textContent="سمِّ الدورة";return}if((d.cycles||[]).some(c=>c.name===name)){err.textContent="الدورة «"+name+"» مسجّلة";return}
+  d.cycles=[...(d.cycles||[]),{id:SK.ui.uid("cyc"),name,unit:$("#lv-unit",root).value.trim()||"رأس"}];put(d);toast("حُفظت "+name,"ok");return true;
+}
+function postCycleOp(root,d){
+  const err=$("#lv-err2",root);err.textContent="";
+  const c=(d.cycles||[]).find(x=>x.id===$("#lv-k",root).value);if(!c){err.textContent="اختر الدورة";return}
+  const op=$("#lv-op",root).value,date=$("#lv-date",root).value||today(),id=SK.ui.uid("lv"),s=cycleState(d,c.id),A=lvAccounts(d);
+  const n=Math.round(Number($("#lv-n",root).value||0)),amt=halalas($("#lv-amt",root).value||0),who=$("#lv-who",root).value.trim(),credit=$("#lv-pay",root).value==="credit";
+  try{
+    if(op==="birth"){if(!(n>0))throw new Error("عدد المواليد غير صالح");d.cycleBirths=[...(d.cycleBirths||[]),{cycleId:c.id,date,heads:n}];put(d);toast("سُجّلت مواليد "+c.name,"ok");return true}
+    const post=(j,meta,src,party)=>{const o=postEntry({...j,livestock:{cycleId:c.id,...meta}},{source:src,sourceId:"lv:"+j.id,party});if(!o.ok)throw new Error(o.error);return o};
+    if(op==="stock"){const r=LV().stockingJournal(c,{id,date,heads:n,amountHalalas:amt,supplier:who,onCredit:credit},SK.vatRate(),A);post(r.journal,{kind:"stock",heads:n,amount:amt},"مشتريات",credit?who:undefined)}
+    else if(op==="feedbuy"){const r=LV().feedPurchaseJournal({id,date,supplier:who,amountHalalas:amt},SK.vatRate(),A);post(r.journal,{kind:"feedbuy",amount:amt},"مشتريات",who)}
+    else if(op==="feed"){const r=LV().feedingJournal(c,s,{id,date,amountHalalas:amt,feedOnHandHalalas:Math.round((balanceOf(d,"1396",date)||0)*100)},A);post(r.journal,{kind:"feed",amount:amt},"الحظائر")}
+    else if(op==="death"){const r=LV().mortalityJournal(c,s,{id,date,heads:n,cause:who},A);post(r.journal,{kind:"death",heads:n,cost:r.cost},"الحظائر")}
+    else if(op==="sale"){const r=LV().saleJournals(c,s,{id,date,heads:n,amountHalalas:amt,customer:who,onCredit:credit},SK.vatRate(),A);
+      post(r.journal,{kind:"sale",heads:n,amount:amt,cost:r.cost},"مبيعات",credit?who:undefined);post(r.costJournal,{kind:"salecost",heads:0,cost:0},"مبيعات")}
+    else{if(!byCode(d,"4950"))throw new Error("إعادة القياس تحتاج حساب 4950 — أضفه من «إضافة حسابات قطاع»");
+      const r=LV().fairValueJournal(c,s,{id,date,fairValuePerHeadHalalas:halalas($("#lv-fv",root).value||0),costsToSellPerHeadHalalas:halalas($("#lv-cts",root).value||0)},A);post(r.journal,{kind:"fv",change:r.change},"معيار 41")}
+    toast("رُحّلت الحركة على "+c.name,"ok");
+  }catch(e){err.textContent=e.message||String(e);return}
+  return true;
+}
 /* ---------- production: the factory's orders and the bakery's batches (finance/production-order-engine) ----------
    A product's bill of materials (or recipe) gives its standard cost. A factory issues materials into work in progress,
    absorbs labour and overhead at standard and closes each order into finished goods, scrap and the cost variance; a
@@ -929,9 +999,9 @@ function paint(root){
   /* a company created under a sector receives its pack on first open (FOUNDATION §3.7) */
   try{window.SKosifCompanyPlatform&&SKosifCompanyPlatform.ensureSectorPack()}catch{}
   const d=db(),p=period();if(!tab)tab=d.accounts.length?"close":"accounts";
-  root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],...(isHealth()?[["claims","المطالبات والجهات"]]:[]),...(isConstruction()?[["projects","المشروعات والمستخلصات"]]:[]),...(isHotel()?[["hotel","الغرف والإقفال الليلي"]]:[]),...(isDigital()?[["digital","العملاء والحملات"]]:[]),...(isSchool()?[["tuition","الرسوم الدراسية"]]:[]),...(isFactory()?[["factory","أوامر التشغيل"]]:[]),...(isBakery()?[["bakery","دفعات الإنتاج"]]:[]),["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
+  root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],...(isHealth()?[["claims","المطالبات والجهات"]]:[]),...(isConstruction()?[["projects","المشروعات والمستخلصات"]]:[]),...(isHotel()?[["hotel","الغرف والإقفال الليلي"]]:[]),...(isDigital()?[["digital","العملاء والحملات"]]:[]),...(isSchool()?[["tuition","الرسوم الدراسية"]]:[]),...(isFactory()?[["factory","أوامر التشغيل"]]:[]),...(isBakery()?[["bakery","دفعات الإنتاج"]]:[]),...(isFarm()?[["farm","الدورات والقطعان"]]:[]),["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
     (p?'<p class="hint">الفترة المالية النشطة: <b>'+esc(p.label)+'</b> ('+esc(p.startDate)+' → '+esc(p.endDate)+') — من «الشركات والفترات».</p>':'')+
-    ({close:closeHTML,accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,claims:claimsHTML,projects:projectsHTML,hotel:hotelHTML,digital:digitalHTML,tuition:tuitionHTML,factory:factoryHTML,bakery:bakeryHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
+    ({close:closeHTML,accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,claims:claimsHTML,projects:projectsHTML,hotel:hotelHTML,digital:digitalHTML,tuition:tuitionHTML,factory:factoryHTML,bakery:bakeryHTML,farm:farmHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
 }
 function bind(root){
   root.addEventListener("click",async e=>{
@@ -983,6 +1053,8 @@ function bind(root){
     else if(a==="pr-new"){if(saveProduct(root,d))paint(root);return}
     else if(a==="mo-new"){if(saveOrder(root,d))paint(root);return}
     else if(a==="po-post"){if(postProduction(root,d))paint(root);return}
+    else if(a==="lv-new"){if(saveCycle(root,d))paint(root);return}
+    else if(a==="lv-post"){if(postCycleOp(root,d))paint(root);return}
     else if(a==="claim-remit"){if(postClaimRemit(root,d))paint(root);return}
     else if(a==="settle"){
       const err=$("#lg-cerr",root);err.textContent="";if(!SK.ui.validate(root))return;
