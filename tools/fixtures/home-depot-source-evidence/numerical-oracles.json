@@ -1,0 +1,3685 @@
+{
+  "schema_version": "2.0",
+  "status": "pass",
+  "model_sha256": "df62613a3f343d6939b914ea76a4c9f1bb408030671519177500a0683a4cc401",
+  "test_count": 233,
+  "passed_count": 233,
+  "failed_count": 0,
+  "arithmetic_execution": "Original 233 arithmetic expressions re-evaluated on unchanged source model",
+  "negative_controls_count": 24,
+  "negative_controls_rejected": 24,
+  "positive_controls_count": 24,
+  "positive_controls_accepted": 24,
+  "tests": [
+    {
+      "id": "balance_sheet.2026-02-01.current_assets",
+      "source_pages": [
+        2086
+      ],
+      "expression": "1*cash_and_equivalents + 1*receivables_net + 1*merchandise_inventory + 1*other_current_assets",
+      "calculated": 34391,
+      "reported_or_expected": 34391,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "balance_sheet.2026-02-01.total_assets",
+      "source_pages": [
+        2086
+      ],
+      "expression": "1*current_assets + 1*net_ppe + 1*operating_lease_rou + 1*goodwill + 1*intangibles_net + 1*other_assets",
+      "calculated": 105095,
+      "reported_or_expected": 105095,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "balance_sheet.2026-02-01.current_liabilities",
+      "source_pages": [
+        2086
+      ],
+      "expression": "1*short_term_debt + 1*accounts_payable + 1*accrued_salaries + 1*sales_tax_payable + 1*deferred_revenue + 1*income_tax_payable + 1*current_long_term_debt + 1*current_operating_leases + 1*other_accrued",
+      "calculated": 32424,
+      "reported_or_expected": 32424,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "balance_sheet.2026-02-01.total_liabilities",
+      "source_pages": [
+        2086
+      ],
+      "expression": "1*current_liabilities + 1*noncurrent_debt + 1*noncurrent_operating_leases + 1*deferred_tax_liabilities + 1*other_longterm_liabilities",
+      "calculated": 92282,
+      "reported_or_expected": 92282,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "balance_sheet.2026-02-01.equity",
+      "source_pages": [
+        2086
+      ],
+      "expression": "1*common_stock + 1*paid_in_capital + 1*retained_earnings + 1*aoci + 1*treasury_stock",
+      "calculated": 12813,
+      "reported_or_expected": 12813,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "balance_sheet.2026-02-01.liabilities_and_equity",
+      "source_pages": [
+        2086
+      ],
+      "expression": "1*total_liabilities + 1*equity",
+      "calculated": 105095,
+      "reported_or_expected": 105095,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "balance_sheet.2025-02-02.current_assets",
+      "source_pages": [
+        2086
+      ],
+      "expression": "1*cash_and_equivalents + 1*receivables_net + 1*merchandise_inventory + 1*other_current_assets",
+      "calculated": 31683,
+      "reported_or_expected": 31683,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "balance_sheet.2025-02-02.total_assets",
+      "source_pages": [
+        2086
+      ],
+      "expression": "1*current_assets + 1*net_ppe + 1*operating_lease_rou + 1*goodwill + 1*intangibles_net + 1*other_assets",
+      "calculated": 96119,
+      "reported_or_expected": 96119,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "balance_sheet.2025-02-02.current_liabilities",
+      "source_pages": [
+        2086
+      ],
+      "expression": "1*short_term_debt + 1*accounts_payable + 1*accrued_salaries + 1*sales_tax_payable + 1*deferred_revenue + 1*income_tax_payable + 1*current_long_term_debt + 1*current_operating_leases + 1*other_accrued",
+      "calculated": 28661,
+      "reported_or_expected": 28661,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "balance_sheet.2025-02-02.total_liabilities",
+      "source_pages": [
+        2086
+      ],
+      "expression": "1*current_liabilities + 1*noncurrent_debt + 1*noncurrent_operating_leases + 1*deferred_tax_liabilities + 1*other_longterm_liabilities",
+      "calculated": 89479,
+      "reported_or_expected": 89479,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "balance_sheet.2025-02-02.equity",
+      "source_pages": [
+        2086
+      ],
+      "expression": "1*common_stock + 1*paid_in_capital + 1*retained_earnings + 1*aoci + 1*treasury_stock",
+      "calculated": 6640,
+      "reported_or_expected": 6640,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "balance_sheet.2025-02-02.liabilities_and_equity",
+      "source_pages": [
+        2086
+      ],
+      "expression": "1*total_liabilities + 1*equity",
+      "calculated": 96119,
+      "reported_or_expected": 96119,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "balance_sheet.2026-02-01.balance",
+      "source_pages": [
+        2086
+      ],
+      "expression": "Assets = liabilities + equity",
+      "calculated": 105095,
+      "reported_or_expected": 105095,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "balance_sheet.2025-02-02.balance",
+      "source_pages": [
+        2086
+      ],
+      "expression": "Assets = liabilities + equity",
+      "calculated": 96119,
+      "reported_or_expected": 96119,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "earnings.FY2025.gross_profit",
+      "source_pages": [
+        2087
+      ],
+      "expression": "1*net_sales + -1*cost_of_sales",
+      "calculated": 54865,
+      "reported_or_expected": 54865,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions, except EPS in USD/share and weighted shares in millions",
+      "pass": true
+    },
+    {
+      "id": "earnings.FY2025.total_operating_expenses",
+      "source_pages": [
+        2087
+      ],
+      "expression": "1*sga + 1*operating_depreciation_amortization",
+      "calculated": 33975,
+      "reported_or_expected": 33975,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions, except EPS in USD/share and weighted shares in millions",
+      "pass": true
+    },
+    {
+      "id": "earnings.FY2025.operating_income",
+      "source_pages": [
+        2087
+      ],
+      "expression": "1*gross_profit + -1*total_operating_expenses",
+      "calculated": 20890,
+      "reported_or_expected": 20890,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions, except EPS in USD/share and weighted shares in millions",
+      "pass": true
+    },
+    {
+      "id": "earnings.FY2025.interest_other_net",
+      "source_pages": [
+        2087
+      ],
+      "expression": "1*interest_income_other_net + 1*interest_expense",
+      "calculated": 2288,
+      "reported_or_expected": 2288,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions, except EPS in USD/share and weighted shares in millions",
+      "pass": true
+    },
+    {
+      "id": "earnings.FY2025.pretax_earnings",
+      "source_pages": [
+        2087
+      ],
+      "expression": "1*operating_income + -1*interest_other_net",
+      "calculated": 18602,
+      "reported_or_expected": 18602,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions, except EPS in USD/share and weighted shares in millions",
+      "pass": true
+    },
+    {
+      "id": "earnings.FY2025.net_earnings",
+      "source_pages": [
+        2087
+      ],
+      "expression": "1*pretax_earnings + -1*income_taxes",
+      "calculated": 14156,
+      "reported_or_expected": 14156,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions, except EPS in USD/share and weighted shares in millions",
+      "pass": true
+    },
+    {
+      "id": "earnings.FY2024.gross_profit",
+      "source_pages": [
+        2087
+      ],
+      "expression": "1*net_sales + -1*cost_of_sales",
+      "calculated": 53308,
+      "reported_or_expected": 53308,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions, except EPS in USD/share and weighted shares in millions",
+      "pass": true
+    },
+    {
+      "id": "earnings.FY2024.total_operating_expenses",
+      "source_pages": [
+        2087
+      ],
+      "expression": "1*sga + 1*operating_depreciation_amortization",
+      "calculated": 31782,
+      "reported_or_expected": 31782,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions, except EPS in USD/share and weighted shares in millions",
+      "pass": true
+    },
+    {
+      "id": "earnings.FY2024.operating_income",
+      "source_pages": [
+        2087
+      ],
+      "expression": "1*gross_profit + -1*total_operating_expenses",
+      "calculated": 21526,
+      "reported_or_expected": 21526,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions, except EPS in USD/share and weighted shares in millions",
+      "pass": true
+    },
+    {
+      "id": "earnings.FY2024.interest_other_net",
+      "source_pages": [
+        2087
+      ],
+      "expression": "1*interest_income_other_net + 1*interest_expense",
+      "calculated": 2120,
+      "reported_or_expected": 2120,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions, except EPS in USD/share and weighted shares in millions",
+      "pass": true
+    },
+    {
+      "id": "earnings.FY2024.pretax_earnings",
+      "source_pages": [
+        2087
+      ],
+      "expression": "1*operating_income + -1*interest_other_net",
+      "calculated": 19406,
+      "reported_or_expected": 19406,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions, except EPS in USD/share and weighted shares in millions",
+      "pass": true
+    },
+    {
+      "id": "earnings.FY2024.net_earnings",
+      "source_pages": [
+        2087
+      ],
+      "expression": "1*pretax_earnings + -1*income_taxes",
+      "calculated": 14806,
+      "reported_or_expected": 14806,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions, except EPS in USD/share and weighted shares in millions",
+      "pass": true
+    },
+    {
+      "id": "earnings.FY2023.gross_profit",
+      "source_pages": [
+        2087
+      ],
+      "expression": "1*net_sales + -1*cost_of_sales",
+      "calculated": 50960,
+      "reported_or_expected": 50960,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions, except EPS in USD/share and weighted shares in millions",
+      "pass": true
+    },
+    {
+      "id": "earnings.FY2023.total_operating_expenses",
+      "source_pages": [
+        2087
+      ],
+      "expression": "1*sga + 1*operating_depreciation_amortization",
+      "calculated": 29271,
+      "reported_or_expected": 29271,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions, except EPS in USD/share and weighted shares in millions",
+      "pass": true
+    },
+    {
+      "id": "earnings.FY2023.operating_income",
+      "source_pages": [
+        2087
+      ],
+      "expression": "1*gross_profit + -1*total_operating_expenses",
+      "calculated": 21689,
+      "reported_or_expected": 21689,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions, except EPS in USD/share and weighted shares in millions",
+      "pass": true
+    },
+    {
+      "id": "earnings.FY2023.interest_other_net",
+      "source_pages": [
+        2087
+      ],
+      "expression": "1*interest_income_other_net + 1*interest_expense",
+      "calculated": 1765,
+      "reported_or_expected": 1765,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions, except EPS in USD/share and weighted shares in millions",
+      "pass": true
+    },
+    {
+      "id": "earnings.FY2023.pretax_earnings",
+      "source_pages": [
+        2087
+      ],
+      "expression": "1*operating_income + -1*interest_other_net",
+      "calculated": 19924,
+      "reported_or_expected": 19924,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions, except EPS in USD/share and weighted shares in millions",
+      "pass": true
+    },
+    {
+      "id": "earnings.FY2023.net_earnings",
+      "source_pages": [
+        2087
+      ],
+      "expression": "1*pretax_earnings + -1*income_taxes",
+      "calculated": 15143,
+      "reported_or_expected": 15143,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions, except EPS in USD/share and weighted shares in millions",
+      "pass": true
+    },
+    {
+      "id": "EPS_rounded_denominator.FY2025.basic",
+      "source_pages": [
+        2087
+      ],
+      "expression": "Reported net earnings / rounded millions weighted shares; tolerance acknowledges denominator rounding",
+      "calculated": 14.255790533736153,
+      "reported_or_expected": 14.26,
+      "difference": -0.0042094663,
+      "tolerance": 0.02,
+      "units": "USD/share",
+      "pass": true
+    },
+    {
+      "id": "EPS_rounded_denominator.FY2025.diluted",
+      "source_pages": [
+        2087
+      ],
+      "expression": "Reported net earnings / rounded millions weighted shares; tolerance acknowledges denominator rounding",
+      "calculated": 14.22713567839196,
+      "reported_or_expected": 14.23,
+      "difference": -0.0028643216,
+      "tolerance": 0.02,
+      "units": "USD/share",
+      "pass": true
+    },
+    {
+      "id": "EPS_rounded_denominator.FY2024.basic",
+      "source_pages": [
+        2087
+      ],
+      "expression": "Reported net earnings / rounded millions weighted shares; tolerance acknowledges denominator rounding",
+      "calculated": 14.955555555555556,
+      "reported_or_expected": 14.96,
+      "difference": -0.0044444444,
+      "tolerance": 0.02,
+      "units": "USD/share",
+      "pass": true
+    },
+    {
+      "id": "EPS_rounded_denominator.FY2024.diluted",
+      "source_pages": [
+        2087
+      ],
+      "expression": "Reported net earnings / rounded millions weighted shares; tolerance acknowledges denominator rounding",
+      "calculated": 14.910372608257804,
+      "reported_or_expected": 14.91,
+      "difference": 0.0003726083,
+      "tolerance": 0.02,
+      "units": "USD/share",
+      "pass": true
+    },
+    {
+      "id": "EPS_rounded_denominator.FY2023.basic",
+      "source_pages": [
+        2087
+      ],
+      "expression": "Reported net earnings / rounded millions weighted shares; tolerance acknowledges denominator rounding",
+      "calculated": 15.158158158158159,
+      "reported_or_expected": 15.16,
+      "difference": -0.0018418418,
+      "tolerance": 0.02,
+      "units": "USD/share",
+      "pass": true
+    },
+    {
+      "id": "EPS_rounded_denominator.FY2023.diluted",
+      "source_pages": [
+        2087
+      ],
+      "expression": "Reported net earnings / rounded millions weighted shares; tolerance acknowledges denominator rounding",
+      "calculated": 15.112774451097804,
+      "reported_or_expected": 15.11,
+      "difference": 0.0027744511,
+      "tolerance": 0.02,
+      "units": "USD/share",
+      "pass": true
+    },
+    {
+      "id": "comprehensive_income.FY2025.total_oci",
+      "source_pages": [
+        2088
+      ],
+      "expression": "1*fx_translation_net_tax + 1*cash_flow_hedges_net_tax + 1*other_net_tax",
+      "calculated": 477,
+      "reported_or_expected": 477,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "comprehensive_income.FY2025.comprehensive_income",
+      "source_pages": [
+        2088
+      ],
+      "expression": "1*net_earnings + 1*total_oci",
+      "calculated": 14633,
+      "reported_or_expected": 14633,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "comprehensive_income.FY2024.total_oci",
+      "source_pages": [
+        2088
+      ],
+      "expression": "1*fx_translation_net_tax + 1*cash_flow_hedges_net_tax + 1*other_net_tax",
+      "calculated": -652,
+      "reported_or_expected": -652,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "comprehensive_income.FY2024.comprehensive_income",
+      "source_pages": [
+        2088
+      ],
+      "expression": "1*net_earnings + 1*total_oci",
+      "calculated": 14154,
+      "reported_or_expected": 14154,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "comprehensive_income.FY2023.total_oci",
+      "source_pages": [
+        2088
+      ],
+      "expression": "1*fx_translation_net_tax + 1*cash_flow_hedges_net_tax + 1*other_net_tax",
+      "calculated": 241,
+      "reported_or_expected": 241,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "comprehensive_income.FY2023.comprehensive_income",
+      "source_pages": [
+        2088
+      ],
+      "expression": "1*net_earnings + 1*total_oci",
+      "calculated": 15384,
+      "reported_or_expected": 15384,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "equity.FY2025.common_end",
+      "source_pages": [
+        2089
+      ],
+      "expression": "1*common_begin + 1*common_issuance",
+      "calculated": 90,
+      "reported_or_expected": 90,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "equity.FY2025.apic_end",
+      "source_pages": [
+        2089
+      ],
+      "expression": "1*apic_begin + 1*employee_stock_net + 1*sbc_equity",
+      "calculated": 14809,
+      "reported_or_expected": 14809,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "equity.FY2025.retained_end",
+      "source_pages": [
+        2089
+      ],
+      "expression": "1*retained_begin + 1*net_earnings + 1*dividends",
+      "calculated": 94537,
+      "reported_or_expected": 94537,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "equity.FY2025.aoci_end",
+      "source_pages": [
+        2089
+      ],
+      "expression": "1*aoci_begin + 1*fx_translation + 1*cash_flow_hedges + 1*other_oci",
+      "calculated": -652,
+      "reported_or_expected": -652,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "equity.FY2025.treasury_end",
+      "source_pages": [
+        2089
+      ],
+      "expression": "1*treasury_begin + 1*treasury_repurchases",
+      "calculated": -95971,
+      "reported_or_expected": -95971,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "equity.FY2025.equity_end",
+      "source_pages": [
+        2089
+      ],
+      "expression": "1*common_end + 1*apic_end + 1*retained_end + 1*aoci_end + 1*treasury_end",
+      "calculated": 12813,
+      "reported_or_expected": 12813,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "equity.FY2024.common_end",
+      "source_pages": [
+        2089
+      ],
+      "expression": "1*common_begin + 1*common_issuance",
+      "calculated": 90,
+      "reported_or_expected": 90,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "equity.FY2024.apic_end",
+      "source_pages": [
+        2089
+      ],
+      "expression": "1*apic_begin + 1*employee_stock_net + 1*sbc_equity",
+      "calculated": 14117,
+      "reported_or_expected": 14117,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "equity.FY2024.retained_end",
+      "source_pages": [
+        2089
+      ],
+      "expression": "1*retained_begin + 1*net_earnings + 1*dividends",
+      "calculated": 89533,
+      "reported_or_expected": 89533,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "equity.FY2024.aoci_end",
+      "source_pages": [
+        2089
+      ],
+      "expression": "1*aoci_begin + 1*fx_translation + 1*cash_flow_hedges + 1*other_oci",
+      "calculated": -1129,
+      "reported_or_expected": -1129,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "equity.FY2024.treasury_end",
+      "source_pages": [
+        2089
+      ],
+      "expression": "1*treasury_begin + 1*treasury_repurchases",
+      "calculated": -95971,
+      "reported_or_expected": -95971,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "equity.FY2024.equity_end",
+      "source_pages": [
+        2089
+      ],
+      "expression": "1*common_end + 1*apic_end + 1*retained_end + 1*aoci_end + 1*treasury_end",
+      "calculated": 6640,
+      "reported_or_expected": 6640,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "equity.FY2023.common_end",
+      "source_pages": [
+        2089
+      ],
+      "expression": "1*common_begin + 1*common_issuance",
+      "calculated": 90,
+      "reported_or_expected": 90,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "equity.FY2023.apic_end",
+      "source_pages": [
+        2089
+      ],
+      "expression": "1*apic_begin + 1*employee_stock_net + 1*sbc_equity",
+      "calculated": 13147,
+      "reported_or_expected": 13147,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "equity.FY2023.retained_end",
+      "source_pages": [
+        2089
+      ],
+      "expression": "1*retained_begin + 1*net_earnings + 1*dividends",
+      "calculated": 83656,
+      "reported_or_expected": 83656,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "equity.FY2023.aoci_end",
+      "source_pages": [
+        2089
+      ],
+      "expression": "1*aoci_begin + 1*fx_translation + 1*cash_flow_hedges + 1*other_oci",
+      "calculated": -477,
+      "reported_or_expected": -477,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "equity.FY2023.treasury_end",
+      "source_pages": [
+        2089
+      ],
+      "expression": "1*treasury_begin + 1*treasury_repurchases",
+      "calculated": -95372,
+      "reported_or_expected": -95372,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "equity.FY2023.equity_end",
+      "source_pages": [
+        2089
+      ],
+      "expression": "1*common_end + 1*apic_end + 1*retained_end + 1*aoci_end + 1*treasury_end",
+      "calculated": 1044,
+      "reported_or_expected": 1044,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "cash_flow.FY2025.operating_cash",
+      "source_pages": [
+        2090
+      ],
+      "expression": "1*net_earnings + 1*da_excluding_intangibles + 1*intangible_amortization + 1*stock_compensation + 1*receivables_change + 1*inventory_change + 1*other_current_assets_change + 1*ap_accrued_change + 1*deferred_revenue_change + 1*tax_payable_change + 1*deferred_tax_change + 1*other_operations",
+      "calculated": 16325,
+      "reported_or_expected": 16325,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "cash_flow.FY2025.investing_cash",
+      "source_pages": [
+        2090
+      ],
+      "expression": "1*capital_expenditure + 1*acquisition_payments_net + 1*other_investing",
+      "calculated": -8980,
+      "reported_or_expected": -8980,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "cash_flow.FY2025.financing_cash",
+      "source_pages": [
+        2090
+      ],
+      "expression": "1*short_debt_proceeds_net + 1*long_debt_proceeds_net_discount + 1*long_debt_repaid + 1*share_repurchases + 1*common_stock_proceeds + 1*dividends + 1*other_financing",
+      "calculated": -7714,
+      "reported_or_expected": -7714,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "cash_flow.FY2025.cash_change_before_fx",
+      "source_pages": [
+        2090
+      ],
+      "expression": "1*operating_cash + 1*investing_cash + 1*financing_cash",
+      "calculated": -369,
+      "reported_or_expected": -369,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "cash_flow.FY2025.cash_end",
+      "source_pages": [
+        2090
+      ],
+      "expression": "1*cash_begin + 1*cash_change_before_fx + 1*cash_fx",
+      "calculated": 1389,
+      "reported_or_expected": 1389,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "cash_flow.FY2024.operating_cash",
+      "source_pages": [
+        2090
+      ],
+      "expression": "1*net_earnings + 1*da_excluding_intangibles + 1*intangible_amortization + 1*stock_compensation + 1*receivables_change + 1*inventory_change + 1*other_current_assets_change + 1*ap_accrued_change + 1*deferred_revenue_change + 1*tax_payable_change + 1*deferred_tax_change + 1*other_operations",
+      "calculated": 19810,
+      "reported_or_expected": 19810,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "cash_flow.FY2024.investing_cash",
+      "source_pages": [
+        2090
+      ],
+      "expression": "1*capital_expenditure + 1*acquisition_payments_net + 1*other_investing",
+      "calculated": -21031,
+      "reported_or_expected": -21031,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "cash_flow.FY2024.financing_cash",
+      "source_pages": [
+        2090
+      ],
+      "expression": "1*short_debt_proceeds_net + 1*long_debt_proceeds_net_discount + 1*long_debt_repaid + 1*share_repurchases + 1*common_stock_proceeds + 1*dividends + 1*other_financing",
+      "calculated": -694,
+      "reported_or_expected": -694,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "cash_flow.FY2024.cash_change_before_fx",
+      "source_pages": [
+        2090
+      ],
+      "expression": "1*operating_cash + 1*investing_cash + 1*financing_cash",
+      "calculated": -1915,
+      "reported_or_expected": -1915,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "cash_flow.FY2024.cash_end",
+      "source_pages": [
+        2090
+      ],
+      "expression": "1*cash_begin + 1*cash_change_before_fx + 1*cash_fx",
+      "calculated": 1659,
+      "reported_or_expected": 1659,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "cash_flow.FY2023.operating_cash",
+      "source_pages": [
+        2090
+      ],
+      "expression": "1*net_earnings + 1*da_excluding_intangibles + 1*intangible_amortization + 1*stock_compensation + 1*receivables_change + 1*inventory_change + 1*other_current_assets_change + 1*ap_accrued_change + 1*deferred_revenue_change + 1*tax_payable_change + 1*deferred_tax_change + 1*other_operations",
+      "calculated": 21172,
+      "reported_or_expected": 21172,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "cash_flow.FY2023.investing_cash",
+      "source_pages": [
+        2090
+      ],
+      "expression": "1*capital_expenditure + 1*acquisition_payments_net + 1*other_investing",
+      "calculated": -4729,
+      "reported_or_expected": -4729,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "cash_flow.FY2023.financing_cash",
+      "source_pages": [
+        2090
+      ],
+      "expression": "1*short_debt_proceeds_net + 1*long_debt_proceeds_net_discount + 1*long_debt_repaid + 1*share_repurchases + 1*common_stock_proceeds + 1*dividends + 1*other_financing",
+      "calculated": -15443,
+      "reported_or_expected": -15443,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "cash_flow.FY2023.cash_change_before_fx",
+      "source_pages": [
+        2090
+      ],
+      "expression": "1*operating_cash + 1*investing_cash + 1*financing_cash",
+      "calculated": 1000,
+      "reported_or_expected": 1000,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "cash_flow.FY2023.cash_end",
+      "source_pages": [
+        2090
+      ],
+      "expression": "1*cash_begin + 1*cash_change_before_fx + 1*cash_fx",
+      "calculated": 3760,
+      "reported_or_expected": 3760,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "crossstatement.cash.2026-02-01",
+      "source_pages": [
+        2086,
+        2090
+      ],
+      "expression": "Closing cashflow balance = balance sheet cash",
+      "calculated": 1389,
+      "reported_or_expected": 1389,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "crossstatement.equity.2026-02-01",
+      "source_pages": [
+        2086,
+        2089
+      ],
+      "expression": "Closing equity rollforward = balance sheet equity",
+      "calculated": 12813,
+      "reported_or_expected": 12813,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "crossstatement.cash.2025-02-02",
+      "source_pages": [
+        2086,
+        2090
+      ],
+      "expression": "Closing cashflow balance = balance sheet cash",
+      "calculated": 1659,
+      "reported_or_expected": 1659,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "crossstatement.equity.2025-02-02",
+      "source_pages": [
+        2086,
+        2089
+      ],
+      "expression": "Closing equity rollforward = balance sheet equity",
+      "calculated": 6640,
+      "reported_or_expected": 6640,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "receivables.2026-02-01.total",
+      "source_pages": [
+        2091
+      ],
+      "expression": "1*card + 1*rebate + 1*customer + 1*other",
+      "calculated": 5597,
+      "reported_or_expected": 5597,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "receivables.2025-02-02.total",
+      "source_pages": [
+        2091
+      ],
+      "expression": "1*card + 1*rebate + 1*customer + 1*other",
+      "calculated": 4903,
+      "reported_or_expected": 4903,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "supplier_finance.FY2025.end",
+      "source_pages": [
+        2094
+      ],
+      "expression": "1*begin + 1*invoices_confirmed + 1*paid",
+      "calculated": 414,
+      "reported_or_expected": 414,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "supplier_finance.FY2024.end",
+      "source_pages": [
+        2094
+      ],
+      "expression": "1*begin + 1*invoices_confirmed + 1*paid",
+      "calculated": 598,
+      "reported_or_expected": 598,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "primary_segment.FY2025.operating_income",
+      "source_pages": [
+        2098
+      ],
+      "expression": "1*sales + -1*cost_of_sales + -1*sga + -1*operating_da",
+      "calculated": 20574,
+      "reported_or_expected": 20574,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "primary_segment.FY2024.operating_income",
+      "source_pages": [
+        2098
+      ],
+      "expression": "1*sales + -1*cost_of_sales + -1*sga + -1*operating_da",
+      "calculated": 21313,
+      "reported_or_expected": 21313,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "primary_segment.FY2023.operating_income",
+      "source_pages": [
+        2098
+      ],
+      "expression": "1*sales + -1*cost_of_sales + -1*sga + -1*operating_da",
+      "calculated": 21689,
+      "reported_or_expected": 21689,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "segment_reconciliation.FY2025.consolidated_sales",
+      "source_pages": [
+        2098,
+        2099
+      ],
+      "expression": "1*primary_sales + 1*other_sales",
+      "calculated": 164683,
+      "reported_or_expected": 164683,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "segment_reconciliation.FY2025.consolidated_operating_income",
+      "source_pages": [
+        2098,
+        2099
+      ],
+      "expression": "1*primary_operating_income + 1*other_operating_income",
+      "calculated": 20890,
+      "reported_or_expected": 20890,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "segment_reconciliation.FY2025.consolidated_da_including_cogs",
+      "source_pages": [
+        2098,
+        2099
+      ],
+      "expression": "1*primary_da_including_cogs + 1*other_da_including_cogs",
+      "calculated": 4059,
+      "reported_or_expected": 4059,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "segment_reconciliation.FY2024.consolidated_sales",
+      "source_pages": [
+        2098,
+        2099
+      ],
+      "expression": "1*primary_sales + 1*other_sales",
+      "calculated": 159514,
+      "reported_or_expected": 159514,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "segment_reconciliation.FY2024.consolidated_operating_income",
+      "source_pages": [
+        2098,
+        2099
+      ],
+      "expression": "1*primary_operating_income + 1*other_operating_income",
+      "calculated": 21526,
+      "reported_or_expected": 21526,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "segment_reconciliation.FY2024.consolidated_da_including_cogs",
+      "source_pages": [
+        2098,
+        2099
+      ],
+      "expression": "1*primary_da_including_cogs + 1*other_da_including_cogs",
+      "calculated": 3708,
+      "reported_or_expected": 3708,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "product_lines.FY2025.primary_sales",
+      "source_pages": [
+        2099
+      ],
+      "expression": "1*building_materials + 1*decor + 1*hardlines",
+      "calculated": 151966,
+      "reported_or_expected": 151966,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "product_lines.FY2025.total",
+      "source_pages": [
+        2099
+      ],
+      "expression": "1*primary_sales + 1*other",
+      "calculated": 164683,
+      "reported_or_expected": 164683,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "product_lines.FY2024.primary_sales",
+      "source_pages": [
+        2099
+      ],
+      "expression": "1*building_materials + 1*decor + 1*hardlines",
+      "calculated": 153108,
+      "reported_or_expected": 153108,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "product_lines.FY2024.total",
+      "source_pages": [
+        2099
+      ],
+      "expression": "1*primary_sales + 1*other",
+      "calculated": 159514,
+      "reported_or_expected": 159514,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "product_lines.FY2023.primary_sales",
+      "source_pages": [
+        2099
+      ],
+      "expression": "1*building_materials + 1*decor + 1*hardlines",
+      "calculated": 152669,
+      "reported_or_expected": 152669,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "product_lines.FY2023.total",
+      "source_pages": [
+        2099
+      ],
+      "expression": "1*primary_sales + 1*other",
+      "calculated": 152669,
+      "reported_or_expected": 152669,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "department_sales.FY2025.primary_total",
+      "source_pages": [
+        2100
+      ],
+      "expression": "1*appliances + 1*bath + 1*building_materials + 1*electrical + 1*flooring + 1*hardware + 1*indoor_garden + 1*kitchen_blinds + 1*lighting + 1*lumber + 1*millwork + 1*outdoor_garden + 1*paint + 1*plumbing + 1*power + 1*storage_organization",
+      "calculated": 151966,
+      "reported_or_expected": 151966,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "department_sales.FY2024.primary_total",
+      "source_pages": [
+        2100
+      ],
+      "expression": "1*appliances + 1*bath + 1*building_materials + 1*electrical + 1*flooring + 1*hardware + 1*indoor_garden + 1*kitchen_blinds + 1*lighting + 1*lumber + 1*millwork + 1*outdoor_garden + 1*paint + 1*plumbing + 1*power + 1*storage_organization",
+      "calculated": 153108,
+      "reported_or_expected": 153108,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "department_sales.FY2023.primary_total",
+      "source_pages": [
+        2100
+      ],
+      "expression": "1*appliances + 1*bath + 1*building_materials + 1*electrical + 1*flooring + 1*hardware + 1*indoor_garden + 1*kitchen_blinds + 1*lighting + 1*lumber + 1*millwork + 1*outdoor_garden + 1*paint + 1*plumbing + 1*power + 1*storage_organization",
+      "calculated": 152669,
+      "reported_or_expected": 152669,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "geographic_sales.FY2025.total",
+      "source_pages": [
+        2100
+      ],
+      "expression": "1*us + 1*outside_us",
+      "calculated": 164683,
+      "reported_or_expected": 164683,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "geographic_sales.FY2024.total",
+      "source_pages": [
+        2100
+      ],
+      "expression": "1*us + 1*outside_us",
+      "calculated": 159514,
+      "reported_or_expected": 159514,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "geographic_sales.FY2023.total",
+      "source_pages": [
+        2100
+      ],
+      "expression": "1*us + 1*outside_us",
+      "calculated": 152669,
+      "reported_or_expected": 152669,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "sales_products_services.FY2025.total",
+      "source_pages": [
+        2100
+      ],
+      "expression": "1*products + 1*services",
+      "calculated": 164683,
+      "reported_or_expected": 164683,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "sales_products_services.FY2024.total",
+      "source_pages": [
+        2100
+      ],
+      "expression": "1*products + 1*services",
+      "calculated": 159514,
+      "reported_or_expected": 159514,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "sales_products_services.FY2023.total",
+      "source_pages": [
+        2100
+      ],
+      "expression": "1*products + 1*services",
+      "calculated": 152669,
+      "reported_or_expected": 152669,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "geographic_ppe.2026-02-01.total",
+      "source_pages": [
+        2099
+      ],
+      "expression": "1*us + 1*outside_us",
+      "calculated": 28021,
+      "reported_or_expected": 28021,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "geographic_ppe.2025-02-02.total",
+      "source_pages": [
+        2099
+      ],
+      "expression": "1*us + 1*outside_us",
+      "calculated": 26702,
+      "reported_or_expected": 26702,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "geographic_ppe.2024-01-28.total",
+      "source_pages": [
+        2099
+      ],
+      "expression": "1*us + 1*outside_us",
+      "calculated": 26154,
+      "reported_or_expected": 26154,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "ppe.2026-02-01.cost",
+      "source_pages": [
+        2101
+      ],
+      "expression": "1*land + 1*buildings + 1*equipment + 1*leasehold_improvements + 1*construction_progress + 1*finance_leases",
+      "calculated": 59467,
+      "reported_or_expected": 59467,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "ppe.2026-02-01.net",
+      "source_pages": [
+        2101
+      ],
+      "expression": "1*cost + 1*accumulated_depreciation",
+      "calculated": 28021,
+      "reported_or_expected": 28021,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "ppe.2025-02-02.cost",
+      "source_pages": [
+        2101
+      ],
+      "expression": "1*land + 1*buildings + 1*equipment + 1*leasehold_improvements + 1*construction_progress + 1*finance_leases",
+      "calculated": 55783,
+      "reported_or_expected": 55783,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "ppe.2025-02-02.net",
+      "source_pages": [
+        2101
+      ],
+      "expression": "1*cost + 1*accumulated_depreciation",
+      "calculated": 26702,
+      "reported_or_expected": 26702,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "lease_balance.2026-02-01.total_assets",
+      "source_pages": [
+        2101
+      ],
+      "expression": "1*op_assets + 1*finance_net_assets",
+      "calculated": 11767,
+      "reported_or_expected": 11767,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "lease_balance.2026-02-01.total_liabilities",
+      "source_pages": [
+        2101
+      ],
+      "expression": "1*op_current_liabilities + 1*finance_current_liabilities + 1*op_noncurrent_liabilities + 1*finance_noncurrent_liabilities",
+      "calculated": 12541,
+      "reported_or_expected": 12541,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "lease_balance.2025-02-02.total_assets",
+      "source_pages": [
+        2101
+      ],
+      "expression": "1*op_assets + 1*finance_net_assets",
+      "calculated": 11230,
+      "reported_or_expected": 11230,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "lease_balance.2025-02-02.total_liabilities",
+      "source_pages": [
+        2101
+      ],
+      "expression": "1*op_current_liabilities + 1*finance_current_liabilities + 1*op_noncurrent_liabilities + 1*finance_noncurrent_liabilities",
+      "calculated": 11928,
+      "reported_or_expected": 11928,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "lease_maturities.operating.total_payments",
+      "source_pages": [
+        2102
+      ],
+      "expression": "1*FY2026 + 1*FY2027 + 1*FY2028 + 1*FY2029 + 1*FY2030 + 1*thereafter",
+      "calculated": 11638,
+      "reported_or_expected": 11638,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "lease_maturities.operating.present_value",
+      "source_pages": [
+        2102
+      ],
+      "expression": "1*total_payments + 1*imputed_interest",
+      "calculated": 9578,
+      "reported_or_expected": 9578,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "lease_maturities.finance.total_payments",
+      "source_pages": [
+        2102
+      ],
+      "expression": "1*FY2026 + 1*FY2027 + 1*FY2028 + 1*FY2029 + 1*FY2030 + 1*thereafter",
+      "calculated": 3591,
+      "reported_or_expected": 3591,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "lease_maturities.finance.present_value",
+      "source_pages": [
+        2102
+      ],
+      "expression": "1*total_payments + 1*imputed_interest",
+      "calculated": 2963,
+      "reported_or_expected": 2963,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "goodwill_rollforward.Primary.2025-02-02",
+      "source_pages": [
+        2103
+      ],
+      "expression": "1*2024-01-28 + 1*FY2024_acquisitions + 1*FY2024_other",
+      "calculated": 8450,
+      "reported_or_expected": 8450,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "goodwill_rollforward.Primary.2026-02-01",
+      "source_pages": [
+        2103
+      ],
+      "expression": "1*2025-02-02 + 1*FY2025_acquisitions + 1*FY2025_other",
+      "calculated": 8564,
+      "reported_or_expected": 8564,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "goodwill_rollforward.Other.2025-02-02",
+      "source_pages": [
+        2103
+      ],
+      "expression": "1*2024-01-28 + 1*FY2024_acquisitions + 1*FY2024_other",
+      "calculated": 11025,
+      "reported_or_expected": 11025,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "goodwill_rollforward.Other.2026-02-01",
+      "source_pages": [
+        2103
+      ],
+      "expression": "1*2025-02-02 + 1*FY2025_acquisitions + 1*FY2025_other",
+      "calculated": 13780,
+      "reported_or_expected": 13780,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "goodwill_rollforward.Consolidated.2025-02-02",
+      "source_pages": [
+        2103
+      ],
+      "expression": "1*2024-01-28 + 1*FY2024_acquisitions + 1*FY2024_other",
+      "calculated": 19475,
+      "reported_or_expected": 19475,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "goodwill_rollforward.Consolidated.2026-02-01",
+      "source_pages": [
+        2103
+      ],
+      "expression": "1*2025-02-02 + 1*FY2025_acquisitions + 1*FY2025_other",
+      "calculated": 22344,
+      "reported_or_expected": 22344,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "intangibles.2026_gross.total",
+      "source_pages": [
+        2103
+      ],
+      "expression": "1*customer_relationships + 1*definite_trade_names + 1*other_definite + 1*indefinite_trade_names",
+      "calculated": 12056,
+      "reported_or_expected": 12056,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "intangibles.2026_accumulated_amortization.total",
+      "source_pages": [
+        2103
+      ],
+      "expression": "1*customer_relationships + 1*definite_trade_names + 1*other_definite + 1*indefinite_trade_names",
+      "calculated": -1727,
+      "reported_or_expected": -1727,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "intangibles.2026_net.total",
+      "source_pages": [
+        2103
+      ],
+      "expression": "1*customer_relationships + 1*definite_trade_names + 1*other_definite + 1*indefinite_trade_names",
+      "calculated": 10329,
+      "reported_or_expected": 10329,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "intangibles.2025_gross.total",
+      "source_pages": [
+        2103
+      ],
+      "expression": "1*customer_relationships + 1*definite_trade_names + 1*other_definite + 1*indefinite_trade_names",
+      "calculated": 10115,
+      "reported_or_expected": 10115,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "intangibles.2025_accumulated_amortization.total",
+      "source_pages": [
+        2103
+      ],
+      "expression": "1*customer_relationships + 1*definite_trade_names + 1*other_definite + 1*indefinite_trade_names",
+      "calculated": -1132,
+      "reported_or_expected": -1132,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "intangibles.2025_net.total",
+      "source_pages": [
+        2103
+      ],
+      "expression": "1*customer_relationships + 1*definite_trade_names + 1*other_definite + 1*indefinite_trade_names",
+      "calculated": 8983,
+      "reported_or_expected": 8983,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "future_intangible_amortization.2026-02-01_estimate.total",
+      "source_pages": [
+        2104
+      ],
+      "expression": "1*FY2026 + 1*FY2027 + 1*FY2028 + 1*FY2029 + 1*FY2030 + 1*thereafter",
+      "calculated": 9680,
+      "reported_or_expected": 9680,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "debt_reconciliation.2026-02-01.total_debt",
+      "source_pages": [
+        2105
+      ],
+      "expression": "1*senior_notes_carrying + 1*finance_leases + 1*other_longterm_debt",
+      "calculated": 51308,
+      "reported_or_expected": 51308,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "debt_reconciliation.2026-02-01.noncurrent",
+      "source_pages": [
+        2105
+      ],
+      "expression": "1*total_debt + 1*current_installments",
+      "calculated": 46341,
+      "reported_or_expected": 46341,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "debt_reconciliation.2025-02-02.total_debt",
+      "source_pages": [
+        2105
+      ],
+      "expression": "1*senior_notes_carrying + 1*finance_leases + 1*other_longterm_debt",
+      "calculated": 53067,
+      "reported_or_expected": 53067,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "debt_reconciliation.2025-02-02.noncurrent",
+      "source_pages": [
+        2105
+      ],
+      "expression": "1*total_debt + 1*current_installments",
+      "calculated": 48485,
+      "reported_or_expected": 48485,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "debt_maturities_ex_leases.2026-02-01.total",
+      "source_pages": [
+        2106
+      ],
+      "expression": "1*FY2026 + 1*FY2027 + 1*FY2028 + 1*FY2029 + 1*FY2030 + 1*thereafter",
+      "calculated": 49397,
+      "reported_or_expected": 49397,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "pretax_geography.FY2025.total",
+      "source_pages": [
+        2107
+      ],
+      "expression": "1*us + 1*foreign",
+      "calculated": 18602,
+      "reported_or_expected": 18602,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "pretax_geography.FY2024.total",
+      "source_pages": [
+        2107
+      ],
+      "expression": "1*us + 1*foreign",
+      "calculated": 19406,
+      "reported_or_expected": 19406,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "pretax_geography.FY2023.total",
+      "source_pages": [
+        2107
+      ],
+      "expression": "1*us + 1*foreign",
+      "calculated": 19924,
+      "reported_or_expected": 19924,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "income_tax_provision.FY2025.current_total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*current_federal + 1*current_state + 1*current_foreign",
+      "calculated": 3951,
+      "reported_or_expected": 3951,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "income_tax_provision.FY2025.deferred_total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*deferred_federal + 1*deferred_state + 1*deferred_foreign",
+      "calculated": 495,
+      "reported_or_expected": 495,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "income_tax_provision.FY2025.federal_total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*current_federal + 1*deferred_federal",
+      "calculated": 3315,
+      "reported_or_expected": 3315,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "income_tax_provision.FY2025.state_total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*current_state + 1*deferred_state",
+      "calculated": 771,
+      "reported_or_expected": 771,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "income_tax_provision.FY2025.foreign_total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*current_foreign + 1*deferred_foreign",
+      "calculated": 360,
+      "reported_or_expected": 360,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "income_tax_provision.FY2025.total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*current_total + 1*deferred_total",
+      "calculated": 4446,
+      "reported_or_expected": 4446,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "income_tax_provision.FY2024.current_total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*current_federal + 1*current_state + 1*current_foreign",
+      "calculated": 4639,
+      "reported_or_expected": 4639,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "income_tax_provision.FY2024.deferred_total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*deferred_federal + 1*deferred_state + 1*deferred_foreign",
+      "calculated": -39,
+      "reported_or_expected": -39,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "income_tax_provision.FY2024.federal_total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*current_federal + 1*deferred_federal",
+      "calculated": 3350,
+      "reported_or_expected": 3350,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "income_tax_provision.FY2024.state_total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*current_state + 1*deferred_state",
+      "calculated": 861,
+      "reported_or_expected": 861,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "income_tax_provision.FY2024.foreign_total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*current_foreign + 1*deferred_foreign",
+      "calculated": 389,
+      "reported_or_expected": 389,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "income_tax_provision.FY2024.total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*current_total + 1*deferred_total",
+      "calculated": 4600,
+      "reported_or_expected": 4600,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "income_tax_provision.FY2023.current_total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*current_federal + 1*current_state + 1*current_foreign",
+      "calculated": 5011,
+      "reported_or_expected": 5011,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "income_tax_provision.FY2023.deferred_total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*deferred_federal + 1*deferred_state + 1*deferred_foreign",
+      "calculated": -230,
+      "reported_or_expected": -230,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "income_tax_provision.FY2023.federal_total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*current_federal + 1*deferred_federal",
+      "calculated": 3536,
+      "reported_or_expected": 3536,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "income_tax_provision.FY2023.state_total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*current_state + 1*deferred_state",
+      "calculated": 894,
+      "reported_or_expected": 894,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "income_tax_provision.FY2023.foreign_total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*current_foreign + 1*deferred_foreign",
+      "calculated": 351,
+      "reported_or_expected": 351,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "income_tax_provision.FY2023.total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*current_total + 1*deferred_total",
+      "calculated": 4781,
+      "reported_or_expected": 4781,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "tax_rate_bridge.FY2025.total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*statutory_21pct + 1*state_local_net_federal + 1*foreign_effects + 1*tax_credits + 1*other",
+      "calculated": 4446,
+      "reported_or_expected": 4446,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "tax_rate_bridge.FY2024.total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*statutory_21pct + 1*state_local_net_federal + 1*foreign_effects + 1*tax_credits + 1*other",
+      "calculated": 4600,
+      "reported_or_expected": 4600,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "tax_rate_bridge.FY2023.total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*statutory_21pct + 1*state_local_net_federal + 1*foreign_effects + 1*tax_credits + 1*other",
+      "calculated": 4781,
+      "reported_or_expected": 4781,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "cash_tax.FY2025.total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*federal + 1*domestic_state_local + 1*foreign",
+      "calculated": 4848,
+      "reported_or_expected": 4848,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "cash_tax.FY2024.total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*federal + 1*domestic_state_local + 1*foreign",
+      "calculated": 3653,
+      "reported_or_expected": 3653,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "cash_tax.FY2023.total",
+      "source_pages": [
+        2108
+      ],
+      "expression": "1*federal + 1*domestic_state_local + 1*foreign",
+      "calculated": 5023,
+      "reported_or_expected": 5023,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "deferred_tax.2026-02-01.dta_total",
+      "source_pages": [
+        2109
+      ],
+      "expression": "1*dta_deferred_compensation + 1*dta_self_insurance + 1*dta_state_tax + 1*dta_nondeductible_reserves + 1*dta_nol + 1*dta_leases + 1*dta_deferred_revenue + 1*dta_other",
+      "calculated": 3916,
+      "reported_or_expected": 3916,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "deferred_tax.2026-02-01.dta_net",
+      "source_pages": [
+        2109
+      ],
+      "expression": "1*dta_total + 1*valuation_allowance",
+      "calculated": 3910,
+      "reported_or_expected": 3910,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "deferred_tax.2026-02-01.dtl_total",
+      "source_pages": [
+        2109
+      ],
+      "expression": "1*dtl_inventory + 1*dtl_ppe + 1*dtl_intangibles_goodwill + 1*dtl_rou + 1*dtl_unremitted + 1*dtl_other",
+      "calculated": -6463,
+      "reported_or_expected": -6463,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "deferred_tax.2026-02-01.net_deferred_tax",
+      "source_pages": [
+        2109
+      ],
+      "expression": "1*dta_net + 1*dtl_total",
+      "calculated": -2553,
+      "reported_or_expected": -2553,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "deferred_tax.2025-02-02.dta_total",
+      "source_pages": [
+        2109
+      ],
+      "expression": "1*dta_deferred_compensation + 1*dta_self_insurance + 1*dta_state_tax + 1*dta_nondeductible_reserves + 1*dta_nol + 1*dta_leases + 1*dta_deferred_revenue + 1*dta_other",
+      "calculated": 3792,
+      "reported_or_expected": 3792,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "deferred_tax.2025-02-02.dta_net",
+      "source_pages": [
+        2109
+      ],
+      "expression": "1*dta_total + 1*valuation_allowance",
+      "calculated": 3788,
+      "reported_or_expected": 3788,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "deferred_tax.2025-02-02.dtl_total",
+      "source_pages": [
+        2109
+      ],
+      "expression": "1*dtl_inventory + 1*dtl_ppe + 1*dtl_intangibles_goodwill + 1*dtl_rou + 1*dtl_unremitted + 1*dtl_other",
+      "calculated": -5481,
+      "reported_or_expected": -5481,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "deferred_tax.2025-02-02.net_deferred_tax",
+      "source_pages": [
+        2109
+      ],
+      "expression": "1*dta_net + 1*dtl_total",
+      "calculated": -1693,
+      "reported_or_expected": -1693,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "unrecognized_tax_benefits.FY2025.end",
+      "source_pages": [
+        2110
+      ],
+      "expression": "1*begin + 1*current_additions + 1*prior_additions + 1*prior_reductions + 1*settlements + 1*statute_expiration",
+      "calculated": 559,
+      "reported_or_expected": 559,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "unrecognized_tax_benefits.FY2024.end",
+      "source_pages": [
+        2110
+      ],
+      "expression": "1*begin + 1*current_additions + 1*prior_additions + 1*prior_reductions + 1*settlements + 1*statute_expiration",
+      "calculated": 627,
+      "reported_or_expected": 627,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "unrecognized_tax_benefits.FY2023.end",
+      "source_pages": [
+        2110
+      ],
+      "expression": "1*begin + 1*current_additions + 1*prior_additions + 1*prior_reductions + 1*settlements + 1*statute_expiration",
+      "calculated": 689,
+      "reported_or_expected": 689,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "common_shares.FY2025.issued_end",
+      "source_pages": [
+        2111
+      ],
+      "expression": "1*issued_begin + 1*employee_net",
+      "calculated": 1802,
+      "reported_or_expected": 1802,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "shares millions except USD dividends per share",
+      "pass": true
+    },
+    {
+      "id": "common_shares.FY2025.treasury_end",
+      "source_pages": [
+        2111
+      ],
+      "expression": "1*treasury_begin + 1*treasury_repurchase",
+      "calculated": -806,
+      "reported_or_expected": -806,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "shares millions except USD dividends per share",
+      "pass": true
+    },
+    {
+      "id": "common_shares.FY2025.outstanding",
+      "source_pages": [
+        2111
+      ],
+      "expression": "1*issued_end + 1*treasury_end",
+      "calculated": 996,
+      "reported_or_expected": 996,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "shares millions except USD dividends per share",
+      "pass": true
+    },
+    {
+      "id": "common_shares.FY2024.issued_end",
+      "source_pages": [
+        2111
+      ],
+      "expression": "1*issued_begin + 1*employee_net",
+      "calculated": 1800,
+      "reported_or_expected": 1800,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "shares millions except USD dividends per share",
+      "pass": true
+    },
+    {
+      "id": "common_shares.FY2024.treasury_end",
+      "source_pages": [
+        2111
+      ],
+      "expression": "1*treasury_begin + 1*treasury_repurchase",
+      "calculated": -806,
+      "reported_or_expected": -806,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "shares millions except USD dividends per share",
+      "pass": true
+    },
+    {
+      "id": "common_shares.FY2024.outstanding",
+      "source_pages": [
+        2111
+      ],
+      "expression": "1*issued_end + 1*treasury_end",
+      "calculated": 994,
+      "reported_or_expected": 994,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "shares millions except USD dividends per share",
+      "pass": true
+    },
+    {
+      "id": "common_shares.FY2023.issued_end",
+      "source_pages": [
+        2111
+      ],
+      "expression": "1*issued_begin + 1*employee_net",
+      "calculated": 1796,
+      "reported_or_expected": 1796,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "shares millions except USD dividends per share",
+      "pass": true
+    },
+    {
+      "id": "common_shares.FY2023.treasury_end",
+      "source_pages": [
+        2111
+      ],
+      "expression": "1*treasury_begin + 1*treasury_repurchase",
+      "calculated": -804,
+      "reported_or_expected": -804,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "shares millions except USD dividends per share",
+      "pass": true
+    },
+    {
+      "id": "common_shares.FY2023.outstanding",
+      "source_pages": [
+        2111
+      ],
+      "expression": "1*issued_end + 1*treasury_end",
+      "calculated": 992,
+      "reported_or_expected": 992,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "shares millions except USD dividends per share",
+      "pass": true
+    },
+    {
+      "id": "stock_compensation.FY2025.after_tax",
+      "source_pages": [
+        2112
+      ],
+      "expression": "1*pretax + 1*tax_benefit",
+      "calculated": 416,
+      "reported_or_expected": 416,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "stock_compensation.FY2024.after_tax",
+      "source_pages": [
+        2112
+      ],
+      "expression": "1*pretax + 1*tax_benefit",
+      "calculated": 352,
+      "reported_or_expected": 352,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "stock_compensation.FY2023.after_tax",
+      "source_pages": [
+        2112
+      ],
+      "expression": "1*pretax + 1*tax_benefit",
+      "calculated": 303,
+      "reported_or_expected": 303,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "weighted_shares.FY2025.diluted",
+      "source_pages": [
+        2116
+      ],
+      "expression": "1*basic + 1*dilutive_awards",
+      "calculated": 995,
+      "reported_or_expected": 995,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "shares millions",
+      "pass": true
+    },
+    {
+      "id": "weighted_shares.FY2024.diluted",
+      "source_pages": [
+        2116
+      ],
+      "expression": "1*basic + 1*dilutive_awards",
+      "calculated": 993,
+      "reported_or_expected": 993,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "shares millions",
+      "pass": true
+    },
+    {
+      "id": "weighted_shares.FY2023.diluted",
+      "source_pages": [
+        2116
+      ],
+      "expression": "1*basic + 1*dilutive_awards",
+      "calculated": 1002,
+      "reported_or_expected": 1002,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "shares millions",
+      "pass": true
+    },
+    {
+      "id": "tax_presentation.2026-02-01",
+      "source_pages": [
+        2109
+      ],
+      "expression": "Jurisdiction-netted DTA + DTL = net deferred tax",
+      "calculated": -2553,
+      "reported_or_expected": -2553,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "tax_presentation.2025-02-02",
+      "source_pages": [
+        2109
+      ],
+      "expression": "Jurisdiction-netted DTA + DTL = net deferred tax",
+      "calculated": -1693,
+      "reported_or_expected": -1693,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "senior_notes.principal_2026",
+      "source_pages": [
+        2105
+      ],
+      "expression": "Sum of 49 disclosed instrument rows",
+      "calculated": 48800,
+      "reported_or_expected": 48800,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "senior_notes.carrying_2026",
+      "source_pages": [
+        2105
+      ],
+      "expression": "Sum of 49 disclosed instrument rows",
+      "calculated": 47748,
+      "reported_or_expected": 47748,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "senior_notes.carrying_2025",
+      "source_pages": [
+        2105
+      ],
+      "expression": "Sum of 49 disclosed instrument rows",
+      "calculated": 49731,
+      "reported_or_expected": 49731,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "acquisition.GMS.assets",
+      "source_pages": [
+        2116,
+        2117,
+        2118
+      ],
+      "expression": "Sum acquisition PPA assets",
+      "calculated": 7186,
+      "reported_or_expected": 7186,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "acquisition.GMS.liabilities",
+      "source_pages": [
+        2116,
+        2117,
+        2118
+      ],
+      "expression": "Sum acquisition PPA liabilities",
+      "calculated": 2105,
+      "reported_or_expected": 2105,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "acquisition.GMS.net_assets",
+      "source_pages": [
+        2116,
+        2117,
+        2118
+      ],
+      "expression": "Assets acquired - liabilities assumed = consideration",
+      "calculated": 5081,
+      "reported_or_expected": 5081,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "acquisition.GMS.intangibles",
+      "source_pages": [
+        2116,
+        2117,
+        2118
+      ],
+      "expression": "Customer relationships + trade names",
+      "calculated": 1800,
+      "reported_or_expected": 1800,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "acquisition.GMS.goodwill",
+      "source_pages": [
+        2116,
+        2117,
+        2118
+      ],
+      "expression": "Consideration - identifiable net assets = goodwill",
+      "calculated": 2610,
+      "reported_or_expected": 2610,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "acquisition.SRS.assets",
+      "source_pages": [
+        2118,
+        2119,
+        2120
+      ],
+      "expression": "Sum acquisition PPA assets",
+      "calculated": 22296,
+      "reported_or_expected": 22296,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "acquisition.SRS.liabilities",
+      "source_pages": [
+        2118,
+        2119,
+        2120
+      ],
+      "expression": "Sum acquisition PPA liabilities",
+      "calculated": 4268,
+      "reported_or_expected": 4268,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "acquisition.SRS.net_assets",
+      "source_pages": [
+        2118,
+        2119,
+        2120
+      ],
+      "expression": "Assets acquired - liabilities assumed = consideration",
+      "calculated": 18028,
+      "reported_or_expected": 18028,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "acquisition.SRS.intangibles",
+      "source_pages": [
+        2118,
+        2119,
+        2120
+      ],
+      "expression": "Customer relationships + trade names",
+      "calculated": 5780,
+      "reported_or_expected": 5780,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "acquisition.SRS.goodwill",
+      "source_pages": [
+        2118,
+        2119,
+        2120
+      ],
+      "expression": "Consideration - identifiable net assets = goodwill",
+      "calculated": 11003,
+      "reported_or_expected": 11003,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "GMS.consideration",
+      "source_pages": [
+        2117
+      ],
+      "expression": "Cash for shares + mandatory debt repayment",
+      "calculated": 5081,
+      "reported_or_expected": 5081,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "SRS.consideration",
+      "source_pages": [
+        2118
+      ],
+      "expression": "Cash consideration + noncash stock consideration",
+      "calculated": 18028,
+      "reported_or_expected": 18028,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "stock_awards.options",
+      "source_pages": [
+        2113,
+        2114,
+        2115
+      ],
+      "expression": "Beginning + grants - exercises/vesting - forfeitures",
+      "calculated": 2156,
+      "reported_or_expected": 2156,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "shares thousands",
+      "pass": true
+    },
+    {
+      "id": "stock_awards.restricted_and_rsu",
+      "source_pages": [
+        2113,
+        2114,
+        2115
+      ],
+      "expression": "Beginning + grants - exercises/vesting - forfeitures",
+      "calculated": 3115,
+      "reported_or_expected": 3115,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "shares thousands",
+      "pass": true
+    },
+    {
+      "id": "stock_awards.performance",
+      "source_pages": [
+        2113,
+        2114,
+        2115
+      ],
+      "expression": "Beginning + grants - exercises/vesting - forfeitures",
+      "calculated": 1443,
+      "reported_or_expected": 1443,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "shares thousands",
+      "pass": true
+    },
+    {
+      "id": "roic.FY2025.operating_income",
+      "source_pages": [
+        2078
+      ],
+      "expression": "1*net_earnings + 1*interest_other_net + 1*tax_provision",
+      "calculated": 20890,
+      "reported_or_expected": 20890,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "roic.FY2025.nopat",
+      "source_pages": [
+        2078
+      ],
+      "expression": "1*operating_income + 1*income_tax_adjustment",
+      "calculated": 15897,
+      "reported_or_expected": 15897,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "roic.FY2024.operating_income",
+      "source_pages": [
+        2078
+      ],
+      "expression": "1*net_earnings + 1*interest_other_net + 1*tax_provision",
+      "calculated": 21526,
+      "reported_or_expected": 21526,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "roic.FY2024.nopat",
+      "source_pages": [
+        2078
+      ],
+      "expression": "1*operating_income + 1*income_tax_adjustment",
+      "calculated": 16424,
+      "reported_or_expected": 16424,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "roic.FY2023.operating_income",
+      "source_pages": [
+        2078
+      ],
+      "expression": "1*net_earnings + 1*interest_other_net + 1*tax_provision",
+      "calculated": 21689,
+      "reported_or_expected": 21689,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "roic.FY2023.nopat",
+      "source_pages": [
+        2078
+      ],
+      "expression": "1*operating_income + 1*income_tax_adjustment",
+      "calculated": 16484,
+      "reported_or_expected": 16484,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "roic_ratio.FY2025",
+      "source_pages": [
+        2078
+      ],
+      "expression": "NOPAT / average debt and equity ×100",
+      "calculated": 25.675937590851827,
+      "reported_or_expected": 25.7,
+      "difference": -0.0240624091,
+      "tolerance": 0.05,
+      "units": "percent",
+      "pass": true
+    },
+    {
+      "id": "roic_ratio.FY2024",
+      "source_pages": [
+        2078
+      ],
+      "expression": "NOPAT / average debt and equity ×100",
+      "calculated": 31.324979496862543,
+      "reported_or_expected": 31.3,
+      "difference": 0.0249794969,
+      "tolerance": 0.05,
+      "units": "percent",
+      "pass": true
+    },
+    {
+      "id": "roic_ratio.FY2023",
+      "source_pages": [
+        2078
+      ],
+      "expression": "NOPAT / average debt and equity ×100",
+      "calculated": 36.66777889000111,
+      "reported_or_expected": 36.7,
+      "difference": -0.03222111,
+      "tolerance": 0.05,
+      "units": "percent",
+      "pass": true
+    },
+    {
+      "id": "roic_denominator.FY2025",
+      "source_pages": [
+        2078,
+        2086
+      ],
+      "expression": "Average beginning/end long-term debt including current + equity",
+      "calculated": 61914.0,
+      "reported_or_expected": 61914,
+      "difference": 0.0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "adjusted_eps.FY2025.adjusted_diluted_eps",
+      "source_pages": [
+        2129
+      ],
+      "expression": "1*gaap_diluted_eps + 1*acquired_intangible_amortization + 1*tax_effect",
+      "calculated": 14.690000000000001,
+      "reported_or_expected": 14.69,
+      "difference": 0.0,
+      "tolerance": 0,
+      "units": "USD per diluted share",
+      "pass": true
+    },
+    {
+      "id": "adjusted_eps.FY2024.adjusted_diluted_eps",
+      "source_pages": [
+        2129
+      ],
+      "expression": "1*gaap_diluted_eps + 1*acquired_intangible_amortization + 1*tax_effect",
+      "calculated": 15.24,
+      "reported_or_expected": 15.24,
+      "difference": 0.0,
+      "tolerance": 0,
+      "units": "USD per diluted share",
+      "pass": true
+    },
+    {
+      "id": "workforce_total",
+      "source_pages": [
+        2055
+      ],
+      "expression": "Geographic workforce sum",
+      "calculated": 472400,
+      "reported_or_expected": 472400,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "people",
+      "pass": true
+    },
+    {
+      "id": "store_total",
+      "source_pages": [
+        2071,
+        2072
+      ],
+      "expression": "U.S. + Canada + Mexico",
+      "calculated": 2359,
+      "reported_or_expected": 2359,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "stores",
+      "pass": true
+    },
+    {
+      "id": "primary_facility_area",
+      "source_pages": [
+        2071
+      ],
+      "expression": "Primary store + distribution + office square footage",
+      "calculated": 354.0,
+      "reported_or_expected": 354.0,
+      "difference": 0.0,
+      "tolerance": 0.0001,
+      "units": "million square feet",
+      "pass": true
+    },
+    {
+      "id": "quarter4_plan_deemed_repurchases",
+      "source_pages": [
+        2074
+      ],
+      "expression": "November + December + year-end period",
+      "calculated": 15706,
+      "reported_or_expected": 15706,
+      "difference": 0,
+      "tolerance": 0,
+      "units": "shares",
+      "pass": true
+    },
+    {
+      "id": "rate_sensitivity",
+      "source_pages": [
+        2082
+      ],
+      "expression": "Floating senior principal ×1 percentage point",
+      "calculated": 54.0,
+      "reported_or_expected": 54,
+      "difference": 0.0,
+      "tolerance": 0,
+      "units": "USD millions",
+      "pass": true
+    },
+    {
+      "id": "lease_total_including_not_commenced",
+      "source_pages": [
+        2080,
+        2102
+      ],
+      "expression": "Undiscounted op + finance + uncommenced; narrative rounded $15.9bn",
+      "calculated": 15904,
+      "reported_or_expected": 15900,
+      "difference": 4,
+      "tolerance": 50,
+      "units": "USD millions",
+      "pass": true
+    }
+  ],
+  "negative_controls": [
+    {
+      "id": "period_fiscal_year",
+      "source_pages": [
+        2046,
+        2091
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "period_end",
+          "field": "value",
+          "expected": "2026-02-01",
+          "actual": "'2025-12-31'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "period_week_count",
+      "source_pages": [
+        2046,
+        2076
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "prior_weeks",
+          "field": "normalized_value",
+          "expected": "53",
+          "actual": "'52'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "period_acquired_full_year",
+      "source_pages": [
+        2117,
+        2118
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "DIMENSION_MISMATCH",
+          "fact_id": "gms_sales",
+          "field": "period_start",
+          "expected": "2025-09-04",
+          "actual": "'2025-02-03'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "unit_sales_billions",
+      "source_pages": [
+        2087
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "sales",
+          "field": "normalized_value",
+          "expected": "164683000000",
+          "actual": "'164683000000000'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "unit_options_millions",
+      "source_pages": [
+        2113
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "options",
+          "field": "normalized_value",
+          "expected": "2156000",
+          "actual": "'2156000000'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "unit_q4_repurchases_millions",
+      "source_pages": [
+        2074
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "q4_deemed_repurchases",
+          "field": "normalized_value",
+          "expected": "15706",
+          "actual": "'15706000000'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "entity_primary_vs_consolidated",
+      "source_pages": [
+        2087
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "DIMENSION_MISMATCH",
+          "fact_id": "sales",
+          "field": "entity_scope",
+          "expected": "consolidated",
+          "actual": "'primary_segment'"
+        },
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "sales",
+          "field": "normalized_value",
+          "expected": "164683000000",
+          "actual": "'151966000000'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "entity_ticket_revenue",
+      "source_pages": [
+        2087
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "DIMENSION_MISMATCH",
+          "fact_id": "sales",
+          "field": "entity_scope",
+          "expected": "consolidated",
+          "actual": "'retail_metrics_excluding_HD_Supply_SRS_GMS'"
+        },
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "sales",
+          "field": "normalized_value",
+          "expected": "164683000000",
+          "actual": "'145031840000'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "gaap_vs_adjusted_eps",
+      "source_pages": [
+        2087
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "DIMENSION_MISMATCH",
+          "fact_id": "gaap_eps",
+          "field": "basis",
+          "expected": "US_GAAP",
+          "actual": "'non_GAAP_adjusted'"
+        },
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "gaap_eps",
+          "field": "normalized_value",
+          "expected": "1423/100",
+          "actual": "'1469/100'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "gaap_vs_nopat",
+      "source_pages": [
+        2087
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "DIMENSION_MISMATCH",
+          "fact_id": "net_earnings",
+          "field": "basis",
+          "expected": "US_GAAP",
+          "actual": "'non_GAAP_NOPAT'"
+        },
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "net_earnings",
+          "field": "normalized_value",
+          "expected": "14156000000",
+          "actual": "'15897000000'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "assurance_gms",
+      "source_pages": [
+        2120,
+        2121
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "gms_icfr",
+          "field": "value",
+          "expected": "excluded",
+          "actual": "'included'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "acquisition_consideration_vs_cash_total",
+      "source_pages": [
+        2117
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "DIMENSION_MISMATCH",
+          "fact_id": "gms_consideration",
+          "field": "basis",
+          "expected": "acquisition_consideration",
+          "actual": "'cash_including_discretionary_financing_repayment'"
+        },
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "gms_consideration",
+          "field": "normalized_value",
+          "expected": "5081000000",
+          "actual": "'5435000000'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "debt_principal_vs_carrying",
+      "source_pages": [
+        2105
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "DIMENSION_MISMATCH",
+          "fact_id": "senior_carrying",
+          "field": "basis",
+          "expected": "net_carrying_amount",
+          "actual": "'principal'"
+        },
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "senior_carrying",
+          "field": "normalized_value",
+          "expected": "47748000000",
+          "actual": "'48800000000'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "debt_fv_vs_carrying",
+      "source_pages": [
+        2105
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "DIMENSION_MISMATCH",
+          "fact_id": "senior_carrying",
+          "field": "basis",
+          "expected": "net_carrying_amount",
+          "actual": "'market_fair_value'"
+        },
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "senior_carrying",
+          "field": "normalized_value",
+          "expected": "47748000000",
+          "actual": "'44653000000'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "lease_discounted_vs_payments",
+      "source_pages": [
+        2102
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "DIMENSION_MISMATCH",
+          "fact_id": "operating_lease_pv",
+          "field": "basis",
+          "expected": "discounted_lease_liability",
+          "actual": "'undiscounted_payments'"
+        },
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "operating_lease_pv",
+          "field": "normalized_value",
+          "expected": "9578000000",
+          "actual": "'11638000000'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "lease_double_count_finance",
+      "source_pages": [
+        2105
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "total_long_debt",
+          "field": "normalized_value",
+          "expected": "51308000000",
+          "actual": "'54271000000'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "cashflow_operating_da_substitution",
+      "source_pages": [
+        2090
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "DIMENSION_MISMATCH",
+          "fact_id": "cf_da_total",
+          "field": "basis",
+          "expected": "cash_flow_DA_total",
+          "actual": "'operating_expense_DA'"
+        },
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "cf_da_total",
+          "field": "normalized_value",
+          "expected": "4121000000",
+          "actual": "'3273000000'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "d_and_a_source_concepts",
+      "source_pages": [
+        2090
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "DIMENSION_MISMATCH",
+          "fact_id": "cf_da_excluding_intangibles",
+          "field": "basis",
+          "expected": "cash_flow_DA_excluding_intangible_amortization",
+          "actual": "'note_depreciation_expense'"
+        },
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "cf_da_excluding_intangibles",
+          "field": "normalized_value",
+          "expected": "3514000000",
+          "actual": "'3452000000'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "stock_comp_source_concepts",
+      "source_pages": [
+        2090
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "DIMENSION_MISMATCH",
+          "fact_id": "cf_sbc",
+          "field": "basis",
+          "expected": "cash_flow_share_compensation",
+          "actual": "'total_share_compensation_expense'"
+        },
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "cf_sbc",
+          "field": "normalized_value",
+          "expected": "522000000",
+          "actual": "'524000000'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "tax_suppression_zero",
+      "source_pages": [
+        2108
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "DIMENSION_MISMATCH",
+          "fact_id": "california_tax",
+          "field": "observability",
+          "expected": "suppressed_below_disclosure_threshold",
+          "actual": "'reported_value'"
+        },
+        {
+          "code": "SUPPRESSED_NOT_NUMERIC",
+          "fact_id": "california_tax",
+          "field": "value",
+          "expected": null,
+          "actual": "0"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "treasury_cash_vs_accrual",
+      "source_pages": [
+        2090
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "DIMENSION_MISMATCH",
+          "fact_id": "prior_repurchases_cash",
+          "field": "basis",
+          "expected": "cash_paid",
+          "actual": "'treasury_stock_cost'"
+        },
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "prior_repurchases_cash",
+          "field": "normalized_value",
+          "expected": "-649000000",
+          "actual": "'-599000000'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "future_vs_actual",
+      "source_pages": [
+        2079
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "DIMENSION_MISMATCH",
+          "fact_id": "capex_forecast",
+          "field": "temporal_status",
+          "expected": "forecast",
+          "actual": "'actual'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "revenue_vs_cash",
+      "source_pages": [
+        2095
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "customer_prepayment",
+          "field": "value",
+          "expected": "deferred_until_possession_or_service_completion",
+          "actual": "'recognized_immediately_as_revenue'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "consolidated_vs_tax_group",
+      "source_pages": [
+        2097
+      ],
+      "validator": "validator.validate_claims",
+      "known_valid_accepted": true,
+      "mutation_rejected": true,
+      "valid_errors": [],
+      "mutation_errors": [
+        {
+          "code": "VALUE_MISMATCH",
+          "fact_id": "tax_group",
+          "field": "value",
+          "expected": "eligible_subsidiaries_only",
+          "actual": "'all_financially_consolidated_subsidiaries'"
+        }
+      ],
+      "pass": true,
+      "applicationResult": "not executed"
+    }
+  ],
+  "interpretation": "These are local source-model arithmetic and typed-boundary tests. No app rejection, app acceptance or independent financial assurance is established. v1 negative controls only compared unequal values and were not executable rejection tests."
+}

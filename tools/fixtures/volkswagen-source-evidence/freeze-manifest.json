@@ -1,0 +1,33 @@
+{
+  "sourcePdfSha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+  "reviewedCoreSha256": "38e5fb89fbfca4ce7089c10346a7d6f7c3cfb7b8af5f56fd7d60d7dad9f1ce38",
+  "primaryOracleSha256": "dd4380bb43f701dd2bf50bdfd6e878f2bcfae00e6a8eaf664a08d3b8f43c24e2",
+  "primaryCells": 776,
+  "ociComponentCells": 280,
+  "equityComponentCells": 264,
+  "coreUnchanged": true,
+  "dashPolicy": "Oracle value null and original dash preserved. Rendering carrier 0 is not proof of numeric zero. Explicit source metadata must survive export.",
+  "files": {
+    "source-exceptions.json": "90c755acd039f460657bb93437fce222f7df4241491326d5f3ffac441e840a70",
+    "primary-source-oracle.json": "dd4380bb43f701dd2bf50bdfd6e878f2bcfae00e6a8eaf664a08d3b8f43c24e2",
+    "semantic-ledger.json": "7f62bcbbec045679e347adb4e27d74f092a7b4aac3e32c02be2de82448204a9b",
+    "coverage-union.json": "e8495a3e854f03d75b51848defb42bf042239c307cf95690ea31fe3374010dcd",
+    "source-manifest.json": "49c500be3f154627a0c28553b91f243ca423321e6f9c0a8b16f990640882f233",
+    "models/source-model.json": "38e5fb89fbfca4ce7089c10346a7d6f7c3cfb7b8af5f56fd7d60d7dad9f1ce38",
+    "models/oracle-lock.json": "c33c378f3e8aef71cc73e956e3133458db07adf76b43bfa05f8655b1ae31c180",
+    "annex/semantic-ledger.json": "50e8cb1c2a919649734aacb4054cfa1d74956e31a6f09621b0c48136402ad9ce",
+    "sustainability-divisions/source-exceptions.json": "60b47401000b97bdd67d858c92bc5e8a7e32eb7ad89f4409640f3cc6b53000e1",
+    "sustainability-divisions/semantic-ledger.json": "6a66f9267374a59ebec8b80907013eeefab281fe2a1579c5671bfe63907e791d",
+    "pages/page-04113.txt": "6be03f8e19f3d5cd1df19cff0a0f2313770c979d5d2967c6b4eeb6d823f2498b",
+    "pages/page-04117.txt": "7b934e982b0c034dcd38bf10163baa1790d65705134af36c5dfba4b073e380fd",
+    "pages/page-04116.txt": "c6c53849ae7c86dcc7f7ce93b7ebb606609673ecdb4112a3bf6c715fc68f8145",
+    "pages/page-04112.txt": "f8068e819f6836051c80945b6bf29f37875c519439b020f04df5b608dca0a540",
+    "pages/page-04115.txt": "1a169b9adddb67326ad3b0ee0fc5283b893bd94882711217d1c38c6f9358d203",
+    "pages/page-04114.txt": "2ff118fc3436812dcb797b5b717ab95ccb1cb8db4b7d45777eca8747060bfc97",
+    "pages/page-04118.txt": "b0b650697ceb2ca2c803bf7d0760159045de93a45476e763ffdcf1cf2a61bec8",
+    "management/semantic-ledger.json": "074f5618bc7381323bff8593026d61bfcc01200229822cb5e219d79bf2326e32",
+    "annex/models/source-model.json": "3d86bcd2222b092e05b951c80480e3d38f040811b95b91129aa3309bef2e786e",
+    "sustainability-divisions/models/source-tables.json": "93774f8a33e0a544f565fea836ee01a84fcd841dbaa815fe0b50764325eb6056",
+    "management/models/source-model.json": "3c7b202c098807a3ab7704c1a3932366c257a429680b0f02feb447780d41920f"
+  }
+}

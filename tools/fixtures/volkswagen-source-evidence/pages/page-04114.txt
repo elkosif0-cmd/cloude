@@ -1,0 +1,70 @@
+Consolidated Financial Statements                                                                                     Statement of Comprehensive Income
+
+
+
+
+            Changes in comprehensive income for the period January 1 to December 31, 2024
+
+
+                                                                                                                                   Income
+                                                                                                               Income      attributable to            Income
+                                                                                                        attributable to   Volkswagen AG       attributable to
+                                                                                                       Volkswagen AG        hybrid capital   non-controlling
+€ million                                                                                      Total     shareholders            investors          interests
+
+Earnings after tax                                                                           12,394           10,721                 630              1,043
+  Pension plan remeasurements recognized in other comprehensive income
+  Pension plan remeasurements recognized in other comprehensive income, before
+  tax                                                                                         2,158             2,086                   –                72
+  Deferred taxes relating to pension plan remeasurements recognized in other
+  comprehensive income                                                                        –514               –497                   –               –17
+Pension plan remeasurements recognized in other comprehensive income, net of tax              1,644             1,589                   –                55
+  Fair value valuation of equity instruments that will not be reclassified to profit or
+  loss
+     Fair value valuation of equity instruments that will not be reclassified to profit or
+     loss, before tax                                                                          –20                –18                   –                 –3
+     Deferred taxes relating to fair value valuation of equity instruments that will not
+     be reclassified to profit or loss                                                           29                28                   –                  1
+  Fair Value valuation of equity instruments that will not be reclassified to profit or
+  loss, net of tax                                                                                8                11                   –                 –2
+  Share of other comprehensive income of equity-accounted investments that will
+  not be reclassified to profit or loss, net of tax                                            –60                –60                   –                  0
+Items that will not be reclassified to profit or loss                                         1,592             1,540                   –                52
+  Exchange differences on translating foreign operations
+     Gains/losses on currency translation recognized in other comprehensive income             893                988                   –               –96
+     Transferred to profit or loss                                                             286                286                   –                  –
+  Exchange differences on translating foreign operations, before tax                          1,179             1,275                   –               –96
+  Deferred taxes relating to exchange differences on translating foreign operations               1                  1                  –                  0
+Exchange differences on translating foreign operations, net of tax                            1,180             1,275                   –               –96
+  Hedging
+     Fair value changes recognized in other comprehensive income (OCI I)                      –622               –453                   –              –169
+     Transferred to profit or loss or inventories (OCI I)                                    –1,072              –957                   –              –114
+  Cash flow hedges (OCI I), before tax                                                       –1,694            –1,410                   –              –284
+  Deferred taxes relating to cash flow hedges (OCI I)                                          490                404                   –                85
+Cash flow hedges (OCI I), net of tax                                                         –1,204            –1,006                   –              –198
+  Fair value changes recognized in other comprehensive income (OCI II)                        –471               –420                   –               –51
+  Transferred to profit or loss or inventories (OCI II)                                       1,121               990                   –               131
+  Cash flow hedges (OCI II), before tax                                                        650                569                   –                81
+  Deferred taxes relating to cash flow hedges (OCI II)                                        –185               –161                   –               –24
+Cash flow hedges (OCI II), net of tax                                                          465                409                   –                56
+  Fair value valuation of debt instruments that may be reclassified to profit or loss
+     Fair value changes recognized in other comprehensive income                                 80                80                   –                  –
+     Transferred to profit or loss                                                               –7                 –7                  –                  –
+  Fair value valuation of debt instruments that may be reclassified to profit or loss,
+  before tax                                                                                     73                73                   –                  –
+  Deferred taxes relating to fair value valuation of debt instruments recognized in
+  other comprehensive income                                                                   –22                –22                   –                  –
+Fair value valuation of debt instruments that may be reclassified to profit or loss, net
+of tax                                                                                           51                51                   –                  –
+Share of other comprehensive income of equity-accounted investments that may be
+reclassified to profit or loss, net of tax                                                    –113               –114                   –                  2
+Items that may be reclassified to profit or loss                                               379                614                   –              –236
+  Other comprehensive income, before tax                                                      2,173             2,401                   –              –228
+  Deferred taxes relating to other comprehensive income                                       –202               –246                   –                45
+Other comprehensive income, net of tax                                                        1,971             2,154                   –              –183
+Total comprehensive income                                                                   14,365           12,875                 630                860
+
+
+
+
+                                                                              463

@@ -1,0 +1,198 @@
+[
+  {
+    "id": "cisco-2024",
+    "old_from": 215,
+    "old_to": 348,
+    "corrected_from": 215,
+    "corrected_to": 346
+  },
+  {
+    "id": "walmart-2023",
+    "old_from": 349,
+    "old_to": 446,
+    "corrected_from": 347,
+    "corrected_to": 446
+  },
+  {
+    "id": "jpmorgan-2025",
+    "old_from": 1342,
+    "old_to": 1706,
+    "corrected_from": 1342,
+    "corrected_to": 1705
+  },
+  {
+    "id": "bofa-2025",
+    "old_from": 1707,
+    "old_to": 1818,
+    "corrected_from": 1706,
+    "corrected_to": 1818
+  },
+  {
+    "id": "pg-2026",
+    "old_from": 1963,
+    "old_to": 2043,
+    "corrected_from": 1963,
+    "corrected_to": 2039
+  },
+  {
+    "id": "homedepot-2025",
+    "old_from": 2044,
+    "old_to": 2131,
+    "corrected_from": 2040,
+    "corrected_to": 2131
+  },
+  {
+    "id": "novartis-2025",
+    "old_from": 2540,
+    "old_to": 2817,
+    "corrected_from": 2540,
+    "corrected_to": 2804
+  },
+  {
+    "id": "ubs-2025",
+    "old_from": 2818,
+    "old_to": 3184,
+    "corrected_from": 2805,
+    "corrected_to": 3184
+  },
+  {
+    "id": "bp-2025",
+    "old_from": 4705,
+    "old_to": 5101,
+    "corrected_from": 4705,
+    "corrected_to": 5100
+  },
+  {
+    "id": "unilever-2025",
+    "old_from": 5102,
+    "old_to": 5385,
+    "corrected_from": 5101,
+    "corrected_to": 5385
+  },
+  {
+    "id": "astrazeneca-2025",
+    "old_from": 5386,
+    "old_to": 5698,
+    "corrected_from": 5386,
+    "corrected_to": 5617
+  },
+  {
+    "id": "gsk-2025",
+    "old_from": 5699,
+    "old_to": 5949,
+    "corrected_from": 5618,
+    "corrected_to": 5948
+  },
+  {
+    "id": "hsbc-2025",
+    "old_from": 5950,
+    "old_to": 6321,
+    "corrected_from": 5949,
+    "corrected_to": 6320
+  },
+  {
+    "id": "totalenergies-2024",
+    "old_from": 6322,
+    "old_to": 6986,
+    "corrected_from": 6321,
+    "corrected_to": 6986
+  },
+  {
+    "id": "airbus-2023",
+    "old_from": 6987,
+    "old_to": 7428,
+    "corrected_from": 6987,
+    "corrected_to": 7427
+  },
+  {
+    "id": "loreal-2024",
+    "old_from": 7429,
+    "old_to": 7448,
+    "corrected_from": 7428,
+    "corrected_to": 7446
+  },
+  {
+    "id": "sanofi-2025",
+    "old_from": 7449,
+    "old_to": 7746,
+    "corrected_from": 7447,
+    "corrected_to": 7746
+  },
+  {
+    "id": "softbank-2026",
+    "old_from": 8258,
+    "old_to": 8443,
+    "corrected_from": 8258,
+    "corrected_to": 8369
+  },
+  {
+    "id": "smfg-2026",
+    "old_from": 8796,
+    "old_to": 8915,
+    "corrected_from": 8796,
+    "corrected_to": 8914
+  },
+  {
+    "id": "samsung-2025",
+    "old_from": 8916,
+    "old_to": 9017,
+    "corrected_from": 8915,
+    "corrected_to": 9010
+  },
+  {
+    "id": "honhai-2025",
+    "old_from": 9018,
+    "old_to": 9185,
+    "corrected_from": 9011,
+    "corrected_to": 9185
+  },
+  {
+    "id": "tencent-2025",
+    "old_from": 9186,
+    "old_to": 9468,
+    "corrected_from": 9186,
+    "corrected_to": 9467
+  },
+  {
+    "id": "reliance-2026",
+    "old_from": 9469,
+    "old_to": 9615,
+    "corrected_from": 9468,
+    "corrected_to": 9614
+  },
+  {
+    "id": "infosys-2026",
+    "old_from": 9616,
+    "old_to": 9998,
+    "corrected_from": 9615,
+    "corrected_to": 9997
+  },
+  {
+    "id": "aramco-2025",
+    "old_from": 9999,
+    "old_to": 10244,
+    "corrected_from": 9998,
+    "corrected_to": 10243
+  },
+  {
+    "id": "emiratesnbd-2025",
+    "old_from": 10245,
+    "old_to": 10375,
+    "corrected_from": 10244,
+    "corrected_to": 10375
+  },
+  {
+    "id": "bhp-2025",
+    "old_from": 10851,
+    "old_to": 12300,
+    "corrected_from": 10851,
+    "corrected_to": 12299
+  },
+  {
+    "id": "cba-2026",
+    "old_from": 12301,
+    "old_to": 12506,
+    "corrected_from": 12300,
+    "corrected_to": 12506
+  }
+]

@@ -1,0 +1,142 @@
+[
+  {
+    "physical_page": 4094,
+    "printed_page": 443,
+    "source_pdf_sha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+    "source_text_sha256": "6662b7fa79d7db8515e111ff306ff3c5be150417b6065a719e6472383f18001c",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_and_visual_read",
+    "visual_verified": true,
+    "visual_path": "visuals/physical-4094.png",
+    "findings": [
+      "Sites17\u201321: Core and Technology; shared names repeat (Radou\u010d,Krkono\u0161e), so do not deduplicate labels. Kassel text count8 has clipped visual glyph; explicit qualification retained.",
+      "Counts use a4500m radius and describe site-associated protected areas; ENCOREratings are potential impact/dependency screening, not observed environmental damage."
+    ]
+  },
+  {
+    "physical_page": 4095,
+    "printed_page": 444,
+    "source_pdf_sha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+    "source_text_sha256": "0733198ca87d0ef620a8b288feb8757750d0f0c400c72f62e4f94132b9a439c6",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_and_visual_read",
+    "visual_verified": true,
+    "visual_path": "visuals/physical-4095.png",
+    "findings": [
+      "Sites22\u201327: component plants versus vehicle plants, disruptionM versusVH assigned per source; counts1,3,1,2,2,7.",
+      "Counts use a4500m radius and describe site-associated protected areas; ENCOREratings are potential impact/dependency screening, not observed environmental damage."
+    ]
+  },
+  {
+    "physical_page": 4096,
+    "printed_page": 445,
+    "source_pdf_sha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+    "source_text_sha256": "d65eb95fcaa630b00b414d3b7ac0d4079f4df8680b2102e14e32c949569dd6ee",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_and_visual_read",
+    "visual_verified": true,
+    "visual_path": "visuals/physical-4096.png",
+    "findings": [
+      "Sites28\u201333: major operating sites29\u201331 versus production; proving-ground activity; noiseVH forNeustadt despite components activity; counts12,3,1,2,2,1.",
+      "Counts use a4500m radius and describe site-associated protected areas; ENCOREratings are potential impact/dependency screening, not observed environmental damage."
+    ]
+  },
+  {
+    "physical_page": 4097,
+    "printed_page": 446,
+    "source_pdf_sha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+    "source_text_sha256": "5382b039e17453eeacfa04cbec67cf4bb62e782d89124c55435b452a97f81819",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_and_visual_read",
+    "visual_verified": true,
+    "visual_path": "visuals/physical-4097.png",
+    "findings": [
+      "Sites34\u201338: Ducati/Porsche/Everllence group scopes; PorscheStuttgart19 protected areas, Weissach2 includes named11subareas, do not substitute11 for2.",
+      "Counts use a4500m radius and describe site-associated protected areas; ENCOREratings are potential impact/dependency screening, not observed environmental damage."
+    ]
+  },
+  {
+    "physical_page": 4098,
+    "printed_page": 447,
+    "source_pdf_sha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+    "source_text_sha256": "5e11790f2ed8e305d359b81b6bf3a0ffcfef0353bd16046b537bd4772b4149f9",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_and_visual_read",
+    "visual_verified": true,
+    "visual_path": "visuals/physical-4098.png",
+    "findings": [
+      "Sites39\u201343 Everllence special-purpose machinery. Frederikshavn count3 versus6 listed bullets unresolved; no silently changing to6. Oberhausen19.",
+      "Counts use a4500m radius and describe site-associated protected areas; ENCOREratings are potential impact/dependency screening, not observed environmental damage."
+    ]
+  },
+  {
+    "physical_page": 4099,
+    "printed_page": 448,
+    "source_pdf_sha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+    "source_text_sha256": "680681b5826da198a8d62709f58f775fc0ab898f6ec883d621e79b21403e809e",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_and_visual_read",
+    "visual_verified": true,
+    "visual_path": "visuals/physical-4099.png",
+    "findings": [
+      "Sites44\u201346 Everllence and China; Tianjin combinesVWPF+VWATJ in one site row; counts5,7,1. Production footprint not legal entity count.",
+      "Counts use a4500m radius and describe site-associated protected areas; ENCOREratings are potential impact/dependency screening, not observed environmental damage."
+    ]
+  },
+  {
+    "physical_page": 4100,
+    "printed_page": 449,
+    "source_pdf_sha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+    "source_text_sha256": "1ba74bc26ba91977c7e1c98f6ef4468e3cf2ba22ff9390aab34b3ead967b9fb0",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_and_visual_read",
+    "visual_verified": true,
+    "visual_path": "visuals/physical-4100.png",
+    "findings": [
+      "Sites47\u201352 TRATON; Gdansk components activity disruptionVH whereasLule\u00e3/MeppelM. Counts1,2,3,3,1,1.",
+      "Counts use a4500m radius and describe site-associated protected areas; ENCOREratings are potential impact/dependency screening, not observed environmental damage."
+    ]
+  },
+  {
+    "physical_page": 4101,
+    "printed_page": 450,
+    "source_pdf_sha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+    "source_text_sha256": "471862c98f12fc1d3c2709fe6155f7e388c5c26f56ac92546e5f15728e6a9f6f",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_and_visual_read",
+    "visual_verified": true,
+    "visual_path": "visuals/physical-4101.png",
+    "findings": [
+      "Sites53\u201357 TRATON; Banovce reports1 protected area but listsDubnicka/Str\u00e1\u017eovsk\u00e9vrchy/Rokos (3bullets); preserve unresolved count/list semantics.",
+      "Counts use a4500m radius and describe site-associated protected areas; ENCOREratings are potential impact/dependency screening, not observed environmental damage."
+    ]
+  },
+  {
+    "physical_page": 4102,
+    "printed_page": 451,
+    "source_pdf_sha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+    "source_text_sha256": "a6c43a3e180464343b27042adac86ab268ecfd61cc3539eb28ad8a70d26c591b",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_and_visual_read",
+    "visual_verified": true,
+    "visual_path": "visuals/physical-4102.png",
+    "findings": [
+      "Sites58\u201362 TRATON Germany/SouthAfrica; counts10,10,1,5,3; long wrapped area names are single bullets, not arbitrary line counts.",
+      "Counts use a4500m radius and describe site-associated protected areas; ENCOREratings are potential impact/dependency screening, not observed environmental damage."
+    ]
+  },
+  {
+    "physical_page": 4103,
+    "printed_page": 452,
+    "source_pdf_sha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+    "source_text_sha256": "bfb157333168ac0c04211135b5cbfb6ba71d9071c22bf036850676af1bcc85a2",
+    "review_status": "semantically_reviewed",
+    "review_depth": "full_page_semantic_and_visual_read",
+    "visual_verified": true,
+    "visual_path": "visuals/physical-4103.png",
+    "findings": [
+      "Sites63\u201368 TRATON includingUSInternational andBrazilResende; counts3,2,4,3,1,2. Geographic categories and manufacturing activity preserved.",
+      "Counts use a4500m radius and describe site-associated protected areas; ENCOREratings are potential impact/dependency screening, not observed environmental damage."
+    ]
+  }
+]

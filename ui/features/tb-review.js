@@ -279,6 +279,14 @@ function booksImportDisclosure(d,source){
   }
   return{message,options:{title:existing?"استبدال ميزان ملف المراجعة الحالي":"استيراد الميزان إلى المراجعة",danger:existing,ok:existing?"استيراد واستبدال المراجعة":"استيراد الميزان إلى المراجعة",cancel:"إلغاء",defaultCancel:true}};
 }
+/* A front-door Audit start creates an engagement owned by Audit itself. It deliberately copies no company, period, ledger or helper-space context. */
+function newEngagement(){
+  const id=newFile(blank(),{source:"user"});
+  SK.audit&&SK.audit.log("tbreview",{act:"new-independent",id});
+  toast("ملف مراجعة مستقل جديد — ارفع الميزان والمستندات، أو اربط بيانات المحاسبة لاحقًا باختيارك","ok");
+  if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");else paint();
+  return id;
+}
 async function fromBooks(){
   let snapshot,source,disclosure;
   try{
@@ -299,7 +307,7 @@ async function fromBooks(){
 }
 /* open the engagement on a tab (and a studio page): used by the studio's own deep links and other screens */
 function openTab(t,view){if(t==="studio")t=Object.keys(ADV).find(k=>ADV[k]===view)||"docs";if(t)tab=t;if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");else paint()}
-window.SKosifTBReview=Object.freeze({fromBooks,loadCorpus,openClient,showcase,picker:()=>bundlePicker(),demo:()=>runDemo(),booksTB,rows:()=>{const c=compute();if(c&&c.sourceOnly)return {sourceOnly:true,sourceKind:"published-statements",rows:[],sig:c.sig,label:c.sourceModel?c.sourceModel.issuer:"source model",ctx:{...c.d.ctx,sourceKind:"published-statements"},unavailableReason:"The embedded studio does not support source provenance; no ledger or audit-evidence transport is permitted."};return c&&c.tb.ok?{rows:studioRows(c),sig:c.sig,label:c.d.ctx.company||"file",ctx:{...c.d.ctx}}:null},load:(text,label,ctx)=>loadTB(text,label,ctx),open:openTab,studio:view=>openTab("studio",view)});
+window.SKosifTBReview=Object.freeze({newEngagement,fromBooks,loadCorpus,openClient,showcase,picker:()=>bundlePicker(),demo:()=>runDemo(),booksTB,rows:()=>{const c=compute();if(c&&c.sourceOnly)return {sourceOnly:true,sourceKind:"published-statements",rows:[],sig:c.sig,label:c.sourceModel?c.sourceModel.issuer:"source model",ctx:{...c.d.ctx,sourceKind:"published-statements"},unavailableReason:"The embedded studio does not support source provenance; no ledger or audit-evidence transport is permitted."};return c&&c.tb.ok?{rows:studioRows(c),sig:c.sig,label:c.d.ctx.company||"file",ctx:{...c.d.ctx}}:null},load:(text,label,ctx)=>loadTB(text,label,ctx),open:openTab,studio:view=>openTab("studio",view)});
 
 /* ---------- computation (memoized) ---------- */
 function compute(){
@@ -1004,7 +1012,7 @@ function bind(node){
   node.addEventListener("click",async e=>{
     const fo=e.target.closest("[data-file-open]");if(fo){openFile(fo.dataset.fileOpen);return}
     const fx=e.target.closest("[data-file-close]");if(fx){closeFile(fx.dataset.fileClose);return}
-    if(e.target.closest("[data-file-new]")){newFile(blank());toast("ملف مراجعة جديد — استلم ميزان الشركة","ok");return}
+    if(e.target.closest("[data-file-new]")){newEngagement();return}
     if(e.target.closest("[data-bundle-open]")){bundlePicker();return}
     const tg=e.target.closest("[data-tour]");if(tg){const [k,v]=tg.dataset.tour.split(":");if(k==="tab"){tab=v;paint()}else if(k==="doc"){tab="fs";doc=v;paint()}else if(window.SKosifCore)SKosifCore.go(v);return}
     if(e.target.closest("[data-tour-hide]")){const d=st();delete d.showcase;put(d);paint();return}

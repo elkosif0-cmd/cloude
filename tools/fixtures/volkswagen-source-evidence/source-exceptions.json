@@ -1,0 +1,50 @@
+[
+  {
+    "id": "EX001",
+    "kind": "resolved_extraction",
+    "physical_page": 4195,
+    "detail": "2024 Level1 is42 plus footnote1, not421. Render verifies42+1753+665=2460."
+  },
+  {
+    "id": "EX002",
+    "kind": "unresolved_scope",
+    "pages": [
+      4169,
+      4191
+    ],
+    "detail": "Finance lease receivables70169/67575 differ net investment70122/67478. No fabricated reconciling value."
+  },
+  {
+    "id": "EX003",
+    "kind": "unresolved_scope",
+    "pages": [
+      4155,
+      4189
+    ],
+    "detail": "Lease interest280/266 in financial result versus289/275 lease disclosure; retain exact source values."
+  },
+  {
+    "id": "EX004",
+    "kind": "rounding",
+    "detail": "Ordinary independently rounded sums can differ; equality to reported source remains exact regardless arithmetic tolerance."
+  },
+  {
+    "id": "EX005",
+    "kind": "unresolved_scope",
+    "pages": [
+      4212,
+      4213,
+      4215
+    ],
+    "detail": "Maximum credit risk2024 guarantees/commitments14834=gross14994-allowance160.2025 presented13244 equals gross, while allowance170 exists. Preserve comparison asymmetry, do not rewrite."
+  },
+  {
+    "id": "EX006",
+    "kind": "unresolved_scope",
+    "pages": [
+      4155,
+      4184
+    ],
+    "detail": "2024 pension net interest971 in interest note versus967 pension note;2025 both936. Preserve."
+  }
+]

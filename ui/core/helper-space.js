@@ -15,7 +15,7 @@ const REG="sqc_helper_space_v1",ASKED="sqc_space_chosen",USERS="sqc_helper_users
 const INTENT="sqc_company_intent",LAST="sqc_last_company",PRIVATE="sqc_private_space",AFTER="sqc_company_after_open";
 /* the entry chosen at the door (FOUNDATION §3: accounting · audit · tools) and a bundle company chosen at the audit door —
    read by ui/core/gate.js */
-const GATE="sqc_gate",GATE_CORPUS="sqc_gate_corpus",GATE_PIN="sqc_gate_pin";
+const GATE="sqc_gate",GATE_CORPUS="sqc_gate_corpus",GATE_AUDIT_NEW="sqc_gate_audit_new",GATE_PIN="sqc_gate_pin";
 const gateOf=g=>{g=String(g||"");return SK.caps&&SK.caps.gateway&&SK.caps.gateway(g)?g:""};
 const sessionGate=()=>{try{return sessionStorage.getItem(GATE)||""}catch{return ""}};
 /* the helper tools' own data — per company */
@@ -421,11 +421,18 @@ async function applyIntent(){
   /* the entry chosen at the door: the shell paints that section's menu, and its first screen opens — unless the link
      already names a screen, or the company is new to the accounting entry (its definitions come first, FOUNDATION §3.2) */
   const gate=gateOf(it.gate);if(gate)sessionStorage.setItem(GATE,gate);
-  if(it.corpus&&gate==="audit")sessionStorage.setItem(GATE_CORPUS,String(it.corpus).slice(0,80));
+  if(gate==="audit"&&it.corpus){sessionStorage.removeItem(GATE_AUDIT_NEW);sessionStorage.setItem(GATE_CORPUS,String(it.corpus).slice(0,80))}
+  else if(gate==="audit"&&it.auditNew){sessionStorage.removeItem(GATE_CORPUS);sessionStorage.setItem(GATE_AUDIT_NEW,"1")}
   const landing=()=>{if(!gate)return "";if(it.create&&gate==="accounting")return "masterdata";return SK.caps.gatewayHome?SK.caps.gatewayHome(gate):""};
   /* the landing is pinned: the screen the app restores first (the last one opened, maybe of another section) must not
      switch the section before the section's own screen arrives (ui/core/gate.js, shell.js) */
   const land=()=>{if(location.search||location.hash)return;const to=landing();if(to){sessionStorage.setItem(AFTER,to);sessionStorage.setItem(GATE_PIN,to)}};
+  /* Independent Audit entry does not claim or switch an accounting/helper company. */
+  if(gate==="audit"&&!it.id&&(it.auditNew||it.corpus)){
+    land();
+    try{sessionStorage.setItem(ASKED,"1");sessionStorage.setItem(USER_ASKED,"1")}catch{}
+    return true;
+  }
   const cur=current();
   if(it.locked){
     sessionStorage.setItem(ASKED,"1");sessionStorage.setItem(USER_ASKED,"1");

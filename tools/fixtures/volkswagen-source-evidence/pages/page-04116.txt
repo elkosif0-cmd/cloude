@@ -1,0 +1,41 @@
+Consolidated Financial Statements                                                                       Balance Sheet
+
+
+
+
+€ million                                                                        Note   Dec. 31, 2025    Dec. 31, 2024
+
+Equity and liabilities
+Equity                                                                            24
+  Subscribed capital                                                                          1,283            1,283
+  Capital reserve                                                                            14,551           14,551
+  Retained earnings                                                                        161,357          155,130
+  Other reserves                                                                             –3,190           –2,560
+  Equity attributable to Volkswagen AG hybrid capital investors                              14,275           13,890
+Equity attributable to Volkswagen AG shareholders and hybrid capital investors             188,277          182,294
+Non-controlling interests                                                                    14,777           14,437
+                                                                                           203,054          196,731
+Non-current liabilities
+Financial liabilities                                                             25       137,214          137,061
+Other financial liabilities                                                       26          6,422            6,548
+Other liabilities                                                                 27         11,420           10,584
+Deferred tax liabilities                                                          28          9,963           10,900
+Provisions for pensions                                                           29         22,826           27,602
+Provisions for taxes                                                              28          3,367            4,084
+Other provisions                                                                  30         23,676           22,355
+                                                                                           214,887          219,134
+Current liabilities
+Financial liabilities                                                             25       127,489          117,020
+Trade payables                                                                    31         30,490           29,772
+Tax payables                                                                      28            497              724
+Other financial liabilities                                                       26         13,643           14,364
+Other liabilities                                                                 27         24,427           24,752
+Provisions for taxes                                                              28          1,986            1,698
+Other provisions                                                                  30         27,993           28,709
+                                                                                           226,525          217,039
+Total equity and liabilities                                                               644,467          632,905
+
+
+
+
+                                                                        465

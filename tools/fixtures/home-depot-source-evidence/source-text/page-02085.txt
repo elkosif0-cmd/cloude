@@ -1,0 +1,35 @@
+Table of Contents
+
+
+
+   We identified the sufficiency of audit evidence over merchandise inventories recorded using the retail inventory
+   method as a critical audit matter. Subjective auditor judgment was required to evaluate the sufficiency of audit
+   evidence obtained primarily due to the highly automated nature of the process to record these merchandise
+   inventories, which involves interfacing significant volumes of data across multiple information technology (IT)
+   systems. IT professionals with specialized skills and knowledge were required to assess the Company's IT
+   systems used in the process to record merchandise inventories under the retail inventory method.
+   The following are the primary procedures we performed to address this critical audit matter. We applied auditor
+   judgment to determine the nature and extent of procedures to be performed over the recording of merchandise
+   inventory recorded using the retail inventory method, including the IT systems, by:
+        •    evaluating the design and testing the operating effectiveness of certain internal controls related to the
+             recording of these merchandise inventories
+        •    involving IT professionals with specialized skills and knowledge who assisted in testing the design and
+             operating effectiveness of certain general IT and application controls used for processing and recording
+             these merchandise inventories
+        •    developing an expectation of certain inputs into the retail inventory method, including retail markups and
+             markdowns, purchases at retail, and purchase discounts, and comparing them to the Company’s inputs
+        •    selecting a sample of inventory transactions and comparing them to supporting documentation, such as
+             vendor invoices, cash payments or vendor agreements
+        •    performing inventory count observation procedures at a selection of locations.
+   We evaluated the sufficiency of audit evidence obtained by assessing the cumulative results of procedures
+   performed, including the appropriateness of the nature and extent of such evidence.
+
+/s/ KPMG LLP
+We have served as the Company’s auditor since 1979.
+Atlanta, Georgia
+March 18, 2026
+
+
+
+
+Fiscal 2025 Form 10-K                                       38

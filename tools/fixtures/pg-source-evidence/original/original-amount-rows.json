@@ -1,0 +1,1383 @@
+[
+  {
+    "statement": "income",
+    "row": "net_sales",
+    "label": "NET SALES",
+    "page": 2004,
+    "lineLabel": "NET SALES",
+    "sourceTokens": [
+      "87,032",
+      "84,284",
+      "84,039"
+    ],
+    "values": [
+      87032.0,
+      84284.0,
+      84039.0
+    ]
+  },
+  {
+    "statement": "income",
+    "row": "cost_of_products_sold",
+    "label": "Cost of products sold",
+    "page": 2004,
+    "lineLabel": "Cost of products sold",
+    "sourceTokens": [
+      "43,362",
+      "41,164",
+      "40,848"
+    ],
+    "values": [
+      43362.0,
+      41164.0,
+      40848.0
+    ]
+  },
+  {
+    "statement": "income",
+    "row": "selling_general_administrative",
+    "label": "Selling, general and administrative expense",
+    "page": 2004,
+    "lineLabel": "Selling, general and administrative expense",
+    "sourceTokens": [
+      "23,922",
+      "22,669",
+      "23,305"
+    ],
+    "values": [
+      23922.0,
+      22669.0,
+      23305.0
+    ]
+  },
+  {
+    "statement": "income",
+    "row": "indefinite_lived_intangible_impairment",
+    "label": "Indefinite-lived intangible asset impairment charge",
+    "page": 2004,
+    "lineLabel": "Indefinite-lived intangible asset impairment charge",
+    "sourceTokens": [
+      "\u2014",
+      "\u2014",
+      "1,341"
+    ],
+    "values": [
+      0,
+      0,
+      1341.0
+    ]
+  },
+  {
+    "statement": "income",
+    "row": "operating_income",
+    "label": "OPERATING INCOME",
+    "page": 2004,
+    "lineLabel": "OPERATING INCOME",
+    "sourceTokens": [
+      "19,748",
+      "20,451",
+      "18,545"
+    ],
+    "values": [
+      19748.0,
+      20451.0,
+      18545.0
+    ]
+  },
+  {
+    "statement": "income",
+    "row": "interest_expense",
+    "label": "Interest expense",
+    "page": 2004,
+    "lineLabel": "Interest expense",
+    "sourceTokens": [
+      "(877)",
+      "(907)",
+      "(925)"
+    ],
+    "values": [
+      -877.0,
+      -907.0,
+      -925.0
+    ]
+  },
+  {
+    "statement": "income",
+    "row": "interest_income",
+    "label": "Interest income",
+    "page": 2004,
+    "lineLabel": "Interest income",
+    "sourceTokens": [
+      "430",
+      "469",
+      "473"
+    ],
+    "values": [
+      430.0,
+      469.0,
+      473.0
+    ]
+  },
+  {
+    "statement": "income",
+    "row": "other_nonoperating_income_net",
+    "label": "Other non-operating income/(expense), net",
+    "page": 2004,
+    "lineLabel": "Other non-operating income/(expense), net",
+    "sourceTokens": [
+      "1,076",
+      "154",
+      "668"
+    ],
+    "values": [
+      1076.0,
+      154.0,
+      668.0
+    ]
+  },
+  {
+    "statement": "income",
+    "row": "earnings_before_tax",
+    "label": "EARNINGS BEFORE INCOME TAXES",
+    "page": 2004,
+    "lineLabel": "EARNINGS BEFORE INCOME TAXES",
+    "sourceTokens": [
+      "20,377",
+      "20,167",
+      "18,761"
+    ],
+    "values": [
+      20377.0,
+      20167.0,
+      18761.0
+    ]
+  },
+  {
+    "statement": "income",
+    "row": "income_tax",
+    "label": "Income taxes",
+    "page": 2004,
+    "lineLabel": "Income taxes",
+    "sourceTokens": [
+      "4,233",
+      "4,102",
+      "3,787"
+    ],
+    "values": [
+      4233.0,
+      4102.0,
+      3787.0
+    ]
+  },
+  {
+    "statement": "income",
+    "row": "net_earnings",
+    "label": "NET EARNINGS",
+    "page": 2004,
+    "lineLabel": "NET EARNINGS",
+    "sourceTokens": [
+      "16,144",
+      "16,065",
+      "14,974"
+    ],
+    "values": [
+      16144.0,
+      16065.0,
+      14974.0
+    ]
+  },
+  {
+    "statement": "income",
+    "row": "earnings_noncontrolling",
+    "label": "Less: Net earnings attributable to noncontrolling interests",
+    "page": 2004,
+    "lineLabel": "Less: Net earnings attributable to noncontrolling interests",
+    "sourceTokens": [
+      "98",
+      "91",
+      "95"
+    ],
+    "values": [
+      98.0,
+      91.0,
+      95.0
+    ]
+  },
+  {
+    "statement": "income",
+    "row": "earnings_attributable_pg",
+    "label": "NET EARNINGS ATTRIBUTABLE TO PROCTER & GAMBLE",
+    "page": 2004,
+    "lineLabel": "NET EARNINGS ATTRIBUTABLE TO PROCTER & GAMBLE",
+    "sourceTokens": [
+      "16,046",
+      "15,974",
+      "14,879"
+    ],
+    "values": [
+      16046.0,
+      15974.0,
+      14879.0
+    ]
+  },
+  {
+    "statement": "income",
+    "row": "basic_eps",
+    "label": "Basic",
+    "page": 2004,
+    "lineLabel": "Basic",
+    "sourceTokens": [
+      "6.75",
+      "6.67",
+      "6.18"
+    ],
+    "values": [
+      6.75,
+      6.67,
+      6.18
+    ]
+  },
+  {
+    "statement": "income",
+    "row": "diluted_eps",
+    "label": "Diluted",
+    "page": 2004,
+    "lineLabel": "Diluted",
+    "sourceTokens": [
+      "6.62",
+      "6.51",
+      "6.02"
+    ],
+    "values": [
+      6.62,
+      6.51,
+      6.02
+    ]
+  },
+  {
+    "statement": "comprehensive_income",
+    "row": "net_earnings",
+    "label": "NET EARNINGS",
+    "page": 2004,
+    "lineLabel": "NET EARNINGS",
+    "sourceTokens": [
+      "16,144",
+      "16,065",
+      "14,974"
+    ],
+    "values": [
+      16144.0,
+      16065.0,
+      14974.0
+    ]
+  },
+  {
+    "statement": "comprehensive_income",
+    "row": "fx_translation_net_of_tax",
+    "label": "Foreign currency translation",
+    "page": 2004,
+    "lineLabel": "(net of tax (benefit)/expense of $129, $(442) and $66, respectively)",
+    "sourceTokens": [
+      "96",
+      "1,143",
+      "(226)"
+    ],
+    "values": [
+      96.0,
+      1143.0,
+      -226.0
+    ]
+  },
+  {
+    "statement": "comprehensive_income",
+    "row": "investment_unrealized_net_of_tax",
+    "label": "Unrealized gains/(losses) on investment securities",
+    "page": 2004,
+    "lineLabel": "(net of tax (benefit)/expense of $1, $(1) and $(1), respectively)",
+    "sourceTokens": [
+      "1",
+      "\u2014",
+      "(3)"
+    ],
+    "values": [
+      1.0,
+      0,
+      -3.0
+    ]
+  },
+  {
+    "statement": "comprehensive_income",
+    "row": "defined_benefit_plans_net_of_tax",
+    "label": "Unrealized gains/(losses) on defined benefit postretirement plans",
+    "page": 2004,
+    "lineLabel": "(net of tax (benefit)/expense of $(81), $(407) and $230, respectively)",
+    "sourceTokens": [
+      "(440)",
+      "(1,390)",
+      "546"
+    ],
+    "values": [
+      -440.0,
+      -1390.0,
+      546.0
+    ]
+  },
+  {
+    "statement": "comprehensive_income",
+    "row": "other_comprehensive_income",
+    "label": "TOTAL OTHER COMPREHENSIVE INCOME/(LOSS), NET OF TAX",
+    "page": 2004,
+    "lineLabel": "TOTAL OTHER COMPREHENSIVE INCOME/(LOSS), NET OF TAX",
+    "sourceTokens": [
+      "(343)",
+      "(248)",
+      "317"
+    ],
+    "values": [
+      -343.0,
+      -248.0,
+      317.0
+    ]
+  },
+  {
+    "statement": "comprehensive_income",
+    "row": "comprehensive_income",
+    "label": "COMPREHENSIVE INCOME",
+    "page": 2004,
+    "lineLabel": "COMPREHENSIVE INCOME",
+    "sourceTokens": [
+      "15,801",
+      "15,817",
+      "15,291"
+    ],
+    "values": [
+      15801.0,
+      15817.0,
+      15291.0
+    ]
+  },
+  {
+    "statement": "comprehensive_income",
+    "row": "comprehensive_income_noncontrolling",
+    "label": "Less: Comprehensive income attributable to noncontrolling interests",
+    "page": 2004,
+    "lineLabel": "Less: Comprehensive income attributable to noncontrolling interests",
+    "sourceTokens": [
+      "77",
+      "87",
+      "92"
+    ],
+    "values": [
+      77.0,
+      87.0,
+      92.0
+    ]
+  },
+  {
+    "statement": "comprehensive_income",
+    "row": "comprehensive_income_attributable_pg",
+    "label": "COMPREHENSIVE INCOME ATTRIBUTABLE TO PROCTER & GAMBLE",
+    "page": 2004,
+    "lineLabel": "GAMBLE",
+    "sourceTokens": [
+      "15,724",
+      "15,730",
+      "15,199"
+    ],
+    "values": [
+      15724.0,
+      15730.0,
+      15199.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "cash_equivalents",
+    "label": "Cash and cash equivalents",
+    "page": 2005,
+    "lineLabel": "Cash and cash equivalents",
+    "sourceTokens": [
+      "9,942",
+      "9,556"
+    ],
+    "values": [
+      9942.0,
+      9556.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "accounts_receivable",
+    "label": "Accounts receivable",
+    "page": 2005,
+    "lineLabel": "Accounts receivable",
+    "sourceTokens": [
+      "6,056",
+      "6,185"
+    ],
+    "values": [
+      6056.0,
+      6185.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "inventory_materials",
+    "label": "Materials and supplies",
+    "page": 2005,
+    "lineLabel": "Materials and supplies",
+    "sourceTokens": [
+      "2,143",
+      "2,022"
+    ],
+    "values": [
+      2143.0,
+      2022.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "inventory_work_in_process",
+    "label": "Work in process",
+    "page": 2005,
+    "lineLabel": "Work in process",
+    "sourceTokens": [
+      "1,105",
+      "1,012"
+    ],
+    "values": [
+      1105.0,
+      1012.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "inventory_finished_goods",
+    "label": "Finished goods",
+    "page": 2005,
+    "lineLabel": "Finished goods",
+    "sourceTokens": [
+      "4,922",
+      "4,516"
+    ],
+    "values": [
+      4922.0,
+      4516.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "inventory_total",
+    "label": "Total inventories",
+    "page": 2005,
+    "lineLabel": "Total inventories",
+    "sourceTokens": [
+      "8,170",
+      "7,551"
+    ],
+    "values": [
+      8170.0,
+      7551.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "prepaid_and_other_current_assets",
+    "label": "Prepaid expenses and other current assets",
+    "page": 2005,
+    "lineLabel": "Prepaid expenses and other current assets",
+    "sourceTokens": [
+      "2,040",
+      "2,100"
+    ],
+    "values": [
+      2040.0,
+      2100.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "current_assets",
+    "label": "TOTAL CURRENT ASSETS",
+    "page": 2005,
+    "lineLabel": "TOTAL CURRENT ASSETS",
+    "sourceTokens": [
+      "26,208",
+      "25,392"
+    ],
+    "values": [
+      26208.0,
+      25392.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "property_plant_equipment_net",
+    "label": "PROPERTY, PLANT AND EQUIPMENT, NET",
+    "page": 2005,
+    "lineLabel": "PROPERTY, PLANT AND EQUIPMENT, NET",
+    "sourceTokens": [
+      "25,360",
+      "23,897"
+    ],
+    "values": [
+      25360.0,
+      23897.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "goodwill",
+    "label": "GOODWILL",
+    "page": 2005,
+    "lineLabel": "GOODWILL",
+    "sourceTokens": [
+      "41,276",
+      "41,650"
+    ],
+    "values": [
+      41276.0,
+      41650.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "intangibles_net",
+    "label": "TRADEMARKS AND OTHER INTANGIBLE ASSETS, NET",
+    "page": 2005,
+    "lineLabel": "TRADEMARKS AND OTHER INTANGIBLE ASSETS, NET",
+    "sourceTokens": [
+      "21,444",
+      "21,910"
+    ],
+    "values": [
+      21444.0,
+      21910.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "other_noncurrent_assets",
+    "label": "OTHER NONCURRENT ASSETS",
+    "page": 2005,
+    "lineLabel": "OTHER NONCURRENT ASSETS",
+    "sourceTokens": [
+      "12,231",
+      "12,381"
+    ],
+    "values": [
+      12231.0,
+      12381.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "total_assets",
+    "label": "TOTAL ASSETS",
+    "page": 2005,
+    "lineLabel": "TOTAL ASSETS",
+    "sourceTokens": [
+      "126,521",
+      "125,231"
+    ],
+    "values": [
+      126521.0,
+      125231.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "accounts_payable",
+    "label": "Accounts payable",
+    "page": 2005,
+    "lineLabel": "Accounts payable",
+    "sourceTokens": [
+      "16,306",
+      "15,227"
+    ],
+    "values": [
+      16306.0,
+      15227.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "accrued_and_other_current_liabilities",
+    "label": "Accrued and other liabilities",
+    "page": 2005,
+    "lineLabel": "Accrued and other liabilities",
+    "sourceTokens": [
+      "11,091",
+      "11,318"
+    ],
+    "values": [
+      11091.0,
+      11318.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "debt_due_one_year",
+    "label": "Debt due within one year",
+    "page": 2005,
+    "lineLabel": "Debt due within one year",
+    "sourceTokens": [
+      "11,296",
+      "9,513"
+    ],
+    "values": [
+      11296.0,
+      9513.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "current_liabilities",
+    "label": "TOTAL CURRENT LIABILITIES",
+    "page": 2005,
+    "lineLabel": "TOTAL CURRENT LIABILITIES",
+    "sourceTokens": [
+      "38,694",
+      "36,058"
+    ],
+    "values": [
+      38694.0,
+      36058.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "longterm_debt",
+    "label": "LONG-TERM DEBT",
+    "page": 2005,
+    "lineLabel": "LONG-TERM DEBT",
+    "sourceTokens": [
+      "22,842",
+      "24,995"
+    ],
+    "values": [
+      22842.0,
+      24995.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "deferred_income_taxes",
+    "label": "DEFERRED INCOME TAXES",
+    "page": 2005,
+    "lineLabel": "DEFERRED INCOME TAXES",
+    "sourceTokens": [
+      "5,760",
+      "5,774"
+    ],
+    "values": [
+      5760.0,
+      5774.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "other_noncurrent_liabilities",
+    "label": "OTHER NONCURRENT LIABILITIES",
+    "page": 2005,
+    "lineLabel": "OTHER NONCURRENT LIABILITIES",
+    "sourceTokens": [
+      "4,914",
+      "6,120"
+    ],
+    "values": [
+      4914.0,
+      6120.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "total_liabilities",
+    "label": "TOTAL LIABILITIES",
+    "page": 2005,
+    "lineLabel": "TOTAL LIABILITIES",
+    "sourceTokens": [
+      "72,210",
+      "72,946"
+    ],
+    "values": [
+      72210.0,
+      72946.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "preferred_class_a",
+    "label": "Convertible Class A preferred stock, stated value $1 per share (600 shares authorized)",
+    "page": 2005,
+    "lineLabel": "Convertible Class A preferred stock, stated value $1 per share (600 shares authorized)",
+    "sourceTokens": [
+      "756",
+      "777"
+    ],
+    "values": [
+      756.0,
+      777.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "preferred_class_b",
+    "label": "Non-Voting Class B preferred stock, stated value $1 per share (200 shares authorized)",
+    "page": 2005,
+    "lineLabel": "Non-Voting Class B preferred stock, stated value $1 per share (200 shares authorized)",
+    "sourceTokens": [
+      "\u2014",
+      "\u2014"
+    ],
+    "values": [
+      0,
+      0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "common_stock",
+    "label": "Common stock, stated value $1 per share (10,000 shares authorized; shares issued: 2026 - 4,009.2, 2025 - 4,009.2)",
+    "page": 2005,
+    "lineLabel": "4,009.2, 2025 - 4,009.2)",
+    "sourceTokens": [
+      "4,009",
+      "4,009"
+    ],
+    "values": [
+      4009.0,
+      4009.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "additional_paid_in_capital",
+    "label": "Additional paid-in capital",
+    "page": 2005,
+    "lineLabel": "Additional paid-in capital",
+    "sourceTokens": [
+      "69,533",
+      "68,770"
+    ],
+    "values": [
+      69533.0,
+      68770.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "esop_debt_retirement_reserve",
+    "label": "Reserve for ESOP debt retirement",
+    "page": 2005,
+    "lineLabel": "Reserve for ESOP debt retirement",
+    "sourceTokens": [
+      "(596)",
+      "(672)"
+    ],
+    "values": [
+      -596.0,
+      -672.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "accumulated_other_comprehensive_loss",
+    "label": "Accumulated other comprehensive loss",
+    "page": 2005,
+    "lineLabel": "Accumulated other comprehensive loss",
+    "sourceTokens": [
+      "(12,465)",
+      "(12,143)"
+    ],
+    "values": [
+      -12465.0,
+      -12143.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "treasury_stock",
+    "label": "Treasury stock (shares held: 2026 -1,685.4; 2025 - 1,667.3)",
+    "page": 2005,
+    "lineLabel": "Treasury stock (shares held: 2026 -1,685.4; 2025 - 1,667.3)",
+    "sourceTokens": [
+      "(143,008)",
+      "(138,702)"
+    ],
+    "values": [
+      -143008.0,
+      -138702.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "retained_earnings",
+    "label": "Retained earnings",
+    "page": 2005,
+    "lineLabel": "Retained earnings",
+    "sourceTokens": [
+      "135,852",
+      "129,973"
+    ],
+    "values": [
+      135852.0,
+      129973.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "noncontrolling_interest",
+    "label": "Noncontrolling interest",
+    "page": 2005,
+    "lineLabel": "Noncontrolling interest",
+    "sourceTokens": [
+      "230",
+      "272"
+    ],
+    "values": [
+      230.0,
+      272.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "total_equity",
+    "label": "TOTAL SHAREHOLDERS' EQUITY",
+    "page": 2005,
+    "lineLabel": "TOTAL SHAREHOLDERS' EQUITY",
+    "sourceTokens": [
+      "54,311",
+      "52,284"
+    ],
+    "values": [
+      54311.0,
+      52284.0
+    ]
+  },
+  {
+    "statement": "balance_sheet",
+    "row": "total_liabilities_equity",
+    "label": "TOTAL LIABILITIES AND SHAREHOLDERS' EQUITY",
+    "page": 2005,
+    "lineLabel": "TOTAL LIABILITIES AND SHAREHOLDERS' EQUITY",
+    "sourceTokens": [
+      "126,521",
+      "125,231"
+    ],
+    "values": [
+      126521.0,
+      125231.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "beginning_cash_equivalents_restricted",
+    "label": "CASH, CASH EQUIVALENTS AND RESTRICTED CASH, BEGINNING OF YEAR",
+    "page": 2007,
+    "lineLabel": "CASH, CASH EQUIVALENTS AND RESTRICTED CASH, BEGINNING OF YEAR",
+    "sourceTokens": [
+      "9,556",
+      "9,482",
+      "8,246"
+    ],
+    "values": [
+      9556.0,
+      9482.0,
+      8246.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "net_earnings",
+    "label": "Net earnings",
+    "page": 2007,
+    "lineLabel": "Net earnings",
+    "sourceTokens": [
+      "16,144",
+      "16,065",
+      "14,974"
+    ],
+    "values": [
+      16144.0,
+      16065.0,
+      14974.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "depreciation_amortization",
+    "label": "Depreciation and amortization",
+    "page": 2007,
+    "lineLabel": "Depreciation and amortization",
+    "sourceTokens": [
+      "3,160",
+      "2,847",
+      "2,896"
+    ],
+    "values": [
+      3160.0,
+      2847.0,
+      2896.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "share_compensation",
+    "label": "Share-based compensation expense",
+    "page": 2007,
+    "lineLabel": "Share-based compensation expense",
+    "sourceTokens": [
+      "524",
+      "476",
+      "562"
+    ],
+    "values": [
+      524.0,
+      476.0,
+      562.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "deferred_income_taxes",
+    "label": "Deferred income taxes",
+    "page": 2007,
+    "lineLabel": "Deferred income taxes",
+    "sourceTokens": [
+      "51",
+      "149",
+      "(244)"
+    ],
+    "values": [
+      51.0,
+      149.0,
+      -244.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "gain_loss_on_sale_assets",
+    "label": "(Gain)/loss on sale of assets",
+    "page": 2007,
+    "lineLabel": "(Gain)/loss on sale of assets",
+    "sourceTokens": [
+      "(351)",
+      "755",
+      "(215)"
+    ],
+    "values": [
+      -351.0,
+      755.0,
+      -215.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "indefinite_intangible_impairment",
+    "label": "Indefinite-lived intangible asset impairment charge",
+    "page": 2007,
+    "lineLabel": "Indefinite-lived intangible asset impairment charge",
+    "sourceTokens": [
+      "\u2014",
+      "\u2014",
+      "1,341"
+    ],
+    "values": [
+      0,
+      0,
+      1341.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "change_accounts_receivable",
+    "label": "Change in accounts receivable",
+    "page": 2007,
+    "lineLabel": "Change in accounts receivable",
+    "sourceTokens": [
+      "84",
+      "45",
+      "(766)"
+    ],
+    "values": [
+      84.0,
+      45.0,
+      -766.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "change_inventories",
+    "label": "Change in inventories",
+    "page": 2007,
+    "lineLabel": "Change in inventories",
+    "sourceTokens": [
+      "(641)",
+      "(324)",
+      "(70)"
+    ],
+    "values": [
+      -641.0,
+      -324.0,
+      -70.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "change_accounts_payable",
+    "label": "Change in accounts payable",
+    "page": 2007,
+    "lineLabel": "Change in accounts payable",
+    "sourceTokens": [
+      "919",
+      "(542)",
+      "878"
+    ],
+    "values": [
+      919.0,
+      -542.0,
+      878.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "other_operating",
+    "label": "Other",
+    "page": 2007,
+    "lineLabel": "Other",
+    "sourceTokens": [
+      "(333)",
+      "(1,653)",
+      "491"
+    ],
+    "values": [
+      -333.0,
+      -1653.0,
+      491.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "operating_cash_flow",
+    "label": "TOTAL OPERATING ACTIVITIES",
+    "page": 2007,
+    "lineLabel": "TOTAL OPERATING ACTIVITIES",
+    "sourceTokens": [
+      "19,556",
+      "17,817",
+      "19,846"
+    ],
+    "values": [
+      19556.0,
+      17817.0,
+      19846.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "capital_expenditure",
+    "label": "Capital expenditures",
+    "page": 2007,
+    "lineLabel": "Capital expenditures",
+    "sourceTokens": [
+      "(4,409)",
+      "(3,773)",
+      "(3,322)"
+    ],
+    "values": [
+      -4409.0,
+      -3773.0,
+      -3322.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "asset_sale_proceeds",
+    "label": "Proceeds from asset sales",
+    "page": 2007,
+    "lineLabel": "Proceeds from asset sales",
+    "sourceTokens": [
+      "508",
+      "107",
+      "346"
+    ],
+    "values": [
+      508.0,
+      107.0,
+      346.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "acquisitions_net_of_cash",
+    "label": "Acquisitions, net of cash acquired",
+    "page": 2007,
+    "lineLabel": "Acquisitions, net of cash acquired",
+    "sourceTokens": [
+      "(85)",
+      "(11)",
+      "(21)"
+    ],
+    "values": [
+      -85.0,
+      -11.0,
+      -21.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "other_investing",
+    "label": "Other investing activity",
+    "page": 2007,
+    "lineLabel": "Other investing activity",
+    "sourceTokens": [
+      "(638)",
+      "(141)",
+      "(507)"
+    ],
+    "values": [
+      -638.0,
+      -141.0,
+      -507.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "investing_cash_flow",
+    "label": "TOTAL INVESTING ACTIVITIES",
+    "page": 2007,
+    "lineLabel": "TOTAL INVESTING ACTIVITIES",
+    "sourceTokens": [
+      "(4,624)",
+      "(3,818)",
+      "(3,504)"
+    ],
+    "values": [
+      -4624.0,
+      -3818.0,
+      -3504.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "dividends_cash",
+    "label": "Dividends to shareholders",
+    "page": 2007,
+    "lineLabel": "Dividends to shareholders",
+    "sourceTokens": [
+      "(10,232)",
+      "(9,872)",
+      "(9,312)"
+    ],
+    "values": [
+      -10232.0,
+      -9872.0,
+      -9312.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "short_debt_additions_gt_three_months",
+    "label": "Additions to short-term debt with original maturities of more than three months",
+    "page": 2007,
+    "lineLabel": "Additions to short-term debt with original maturities of more than three months",
+    "sourceTokens": [
+      "7,941",
+      "8,020",
+      "3,528"
+    ],
+    "values": [
+      7941.0,
+      8020.0,
+      3528.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "short_debt_reductions_gt_three_months",
+    "label": "Reductions in short-term debt with original maturities of more than three months",
+    "page": 2007,
+    "lineLabel": "Reductions in short-term debt with original maturities of more than three months",
+    "sourceTokens": [
+      "(9,984)",
+      "(6,512)",
+      "(7,689)"
+    ],
+    "values": [
+      -9984.0,
+      -6512.0,
+      -7689.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "other_short_debt_net",
+    "label": "Net additions/(reductions) to other short-term debt",
+    "page": 2007,
+    "lineLabel": "Net additions/(reductions) to other short-term debt",
+    "sourceTokens": [
+      "2,674",
+      "(1,138)",
+      "857"
+    ],
+    "values": [
+      2674.0,
+      -1138.0,
+      857.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "long_debt_additions",
+    "label": "Additions to long-term debt",
+    "page": 2007,
+    "lineLabel": "Additions to long-term debt",
+    "sourceTokens": [
+      "2,652",
+      "2,237",
+      "3,197"
+    ],
+    "values": [
+      2652.0,
+      2237.0,
+      3197.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "long_debt_reductions",
+    "label": "Reductions in long-term debt",
+    "page": 2007,
+    "lineLabel": "Reductions in long-term debt",
+    "sourceTokens": [
+      "(3,390)",
+      "(1,977)",
+      "(2,335)"
+    ],
+    "values": [
+      -3390.0,
+      -1977.0,
+      -2335.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "treasury_stock_cash",
+    "label": "Treasury stock purchases",
+    "page": 2007,
+    "lineLabel": "Treasury stock purchases",
+    "sourceTokens": [
+      "(5,028)",
+      "(6,500)",
+      "(5,006)"
+    ],
+    "values": [
+      -5028.0,
+      -6500.0,
+      -5006.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "stock_options_and_other",
+    "label": "Impact of stock options and other",
+    "page": 2007,
+    "lineLabel": "Impact of stock options and other",
+    "sourceTokens": [
+      "907",
+      "1,707",
+      "1,905"
+    ],
+    "values": [
+      907.0,
+      1707.0,
+      1905.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "financing_cash_flow",
+    "label": "TOTAL FINANCING ACTIVITIES",
+    "page": 2007,
+    "lineLabel": "TOTAL FINANCING ACTIVITIES",
+    "sourceTokens": [
+      "(14,460)",
+      "(14,036)",
+      "(14,855)"
+    ],
+    "values": [
+      -14460.0,
+      -14036.0,
+      -14855.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "fx_effect_cash",
+    "label": "EFFECT OF EXCHANGE RATE CHANGES ON CASH, CASH EQUIVALENTS AND RESTRICTED CASH",
+    "page": 2007,
+    "lineLabel": "AND RESTRICTED CASH",
+    "sourceTokens": [
+      "(86)",
+      "112",
+      "(251)"
+    ],
+    "values": [
+      -86.0,
+      112.0,
+      -251.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "cash_change",
+    "label": "CHANGE IN CASH, CASH EQUIVALENTS AND RESTRICTED CASH",
+    "page": 2007,
+    "lineLabel": "CHANGE IN CASH, CASH EQUIVALENTS AND RESTRICTED CASH",
+    "sourceTokens": [
+      "386",
+      "75",
+      "1,235"
+    ],
+    "values": [
+      386.0,
+      75.0,
+      1235.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "ending_cash_equivalents_restricted",
+    "label": "CASH, CASH EQUIVALENTS AND RESTRICTED CASH, END OF YEAR",
+    "page": 2007,
+    "lineLabel": "CASH, CASH EQUIVALENTS AND RESTRICTED CASH, END OF YEAR",
+    "sourceTokens": [
+      "9,942",
+      "9,556",
+      "9,482"
+    ],
+    "values": [
+      9942.0,
+      9556.0,
+      9482.0
+    ]
+  },
+  {
+    "statement": "cash_flow",
+    "row": "cash_interest_paid",
+    "label": "Cash payments for interest",
+    "page": 2007,
+    "lineLabel": "Cash payments for interest",
+    "sourceTokens": [
+      "866",
+      "896",
+      "878"
+    ],
+    "values": [
+      866.0,
+      896.0,
+      878.0
+    ]
+  }
+]
