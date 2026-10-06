@@ -1,0 +1,57 @@
+Table of Contents
+
+
+
+                                          THE HOME DEPOT, INC.
+                                 CONSOLIDATED STATEMENTS OF CASH FLOWS
+                                                                                   Fiscal           Fiscal          Fiscal
+in millions                                                                        2025             2024             2023
+Cash Flows from Operating Activities:
+Net earnings                                                                   $     14,156     $     14,806    $     15,143
+Reconciliation of net earnings to net cash provided by operating
+ activities:
+  Depreciation and amortization, excluding amortization of
+  intangible assets                                                                   3,514            3,336           3,061
+  Intangible asset amortization                                                         607              425             186
+  Stock-based compensation expense                                                      522              442             380
+  Changes in receivables, net                                                           107              174             134
+  Changes in merchandise inventories                                                 (1,498)            (743)          4,137
+  Changes in other current assets                                                       124               86            (184)
+  Changes in accounts payable and accrued expenses                                   (1,058)             518          (1,411)
+  Changes in deferred revenue                                                           (61)            (165)           (318)
+  Changes in income taxes payable                                                      (698)             809             (25)
+  Changes in deferred income taxes                                                      418               15            (245)
+  Other operating activities                                                            192              107             314
+    Net cash provided by operating activities                                        16,325           19,810          21,172
+
+Cash Flows from Investing Activities:
+Capital expenditures                                                                  (3,679)         (3,485)          (3,226)
+Payments for businesses acquired, net                                                 (5,410)        (17,644)          (1,514)
+Other investing activities                                                               109              98               11
+   Net cash used in investing activities                                              (8,980)        (21,031)          (4,729)
+
+Cash Flows from Financing Activities:
+Proceeds from short-term debt, net                                                     4,148             316               —
+Proceeds from long-term debt, net of discounts                                         2,161          10,010            1,995
+Repayments of long-term debt                                                          (5,040)         (1,536)          (1,271)
+Repurchases of common stock                                                               —             (649)          (7,951)
+Proceeds from sales of common stock                                                      314              395            323
+Cash dividends                                                                        (9,152)          (8,929)        (8,383)
+Other financing activities                                                              (145)            (301)          (156)
+    Net cash used in financing activities                                             (7,714)            (694)       (15,443)
+Change in cash and cash equivalents                                                     (369)          (1,915)         1,000
+Effect of exchange rate changes on cash and cash equivalents                              99             (186)             3
+Cash and cash equivalents at beginning of year                                         1,659            3,760          2,757
+    Cash and cash equivalents at end of year                                   $       1,389 $          1,659 $        3,760
+
+Supplemental Disclosures:
+Cash paid for interest, net of interest capitalized                                   2,405            2,199           1,809
+Non-cash capital expenditures                                                           272              250             364
+Non-cash acquisition purchase consideration (Note 13)                                    —               321              —
+—————
+Fiscal 2025 and fiscal 2023 include 52 weeks. Fiscal 2024 includes 53 weeks.
+See accompanying notes to consolidated financial statements.
+
+
+
+Fiscal 2025 Form 10-K                                          43

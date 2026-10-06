@@ -1,0 +1,200 @@
+[
+  {
+    "id": "CREDITS2024",
+    "title": "Carbon-credit components exceed the reported total",
+    "physical_pages": [
+      3931
+    ],
+    "printed_pages": [
+      280
+    ],
+    "classification": "source arithmetic",
+    "detail": "2024 VERRA4,232,578 +Gold Standard1,844,460 =6,077,038tCO2e; reported total6,076,738. Difference300tonnes, confirmed visually. 2025 components383,784 +296,595 tie680,379.",
+    "required_demo_treatment": "Preserve all source figures. Display the300-tonne unreconciled difference. Never insert a reconciling item or quietly replace the total.",
+    "status": "open source exception; no invented correction"
+  },
+  {
+    "id": "WATER2025",
+    "title": "Group water-consumption bridge does not reconcile",
+    "physical_pages": [
+      3951,
+      3953
+    ],
+    "printed_pages": [
+      300,
+      302
+    ],
+    "classification": "unresolved measurement bridge",
+    "detail": "2025 Group withdrawal19.9 minus discharge12.1 =7.8millionm3, while consumption7.5 is reported. Difference0.3 exceeds rounding interval0.15. The report says consumption is generally the difference; it supplies no sufficient reconciling explanation. Withdrawal/discharge are voluntary and not externally validated.",
+    "required_demo_treatment": "Mark unresolved source/method bridge. Do not imply independently established reporting misstatement or invent leakage/storage adjustments.",
+    "status": "open source exception; no invented correction"
+  },
+  {
+    "id": "WATER2024",
+    "title": "Prior-year Group water bridge does not reconcile",
+    "physical_pages": [
+      3951,
+      3953
+    ],
+    "printed_pages": [
+      300,
+      302
+    ],
+    "classification": "unresolved measurement bridge",
+    "detail": "2024 Group withdrawal21.2 minus discharge13.9 =7.3millionm3, while corrected consumption7.7 is reported. Difference−0.4 exceeds rounding interval0.15.",
+    "required_demo_treatment": "Keep the corrected reported figure7.7 and independently computed7.3 in separate fields. Do not replace either.",
+    "status": "open source exception; no invented correction"
+  },
+  {
+    "id": "WASTE2024TOTAL",
+    "title": "Waste recovery and disposal exceed the reported total",
+    "physical_pages": [
+      3981
+    ],
+    "printed_pages": [
+      330
+    ],
+    "classification": "source arithmetic",
+    "detail": "2024 Group recovery2,185,092 +disposal172,596 =2,357,688tonnes versus reported total2,357,654; difference34tonnes. Whole-tonne display rounding cannot explain the difference. Several rows contain estimates.",
+    "required_demo_treatment": "Report the34-tonne source discrepancy; do not normalize components into a fabricated balancing row.",
+    "status": "open source exception; no invented correction"
+  },
+  {
+    "id": "WASTE2024NONRECYCLED",
+    "title": "Non-recycled waste does not match stated classification",
+    "physical_pages": [
+      3981
+    ],
+    "printed_pages": [
+      330
+    ],
+    "classification": "source arithmetic",
+    "detail": "2024 disposal172,596 +other recovery137,866 =310,462tonnes, but non-recycled waste is310,492. Difference30tonnes. Preparation for reuse is explicitly excluded from non-recycled waste.",
+    "required_demo_treatment": "Retain reported310,492 and the classification-based calculation310,462. Do not equate non-recycled with100%minusrecycling, because preparation for reuse is excluded.",
+    "status": "open source exception; no invented correction"
+  },
+  {
+    "id": "WORKFORCE2024GENDER",
+    "title": "Contract table conflicts with gender table",
+    "physical_pages": [
+      4008,
+      4010
+    ],
+    "printed_pages": [
+      357,
+      359
+    ],
+    "classification": "source cross-table inconsistency",
+    "detail": "2024 contract table Employees row prints not-disclosed0; the dedicated gender table and permanent-contract row print33. The contract-row gender sum is614,049 versus total614,082. Visual inspection confirms the0 is printed in the source.",
+    "required_demo_treatment": "Keep both values and flag33persons. Never silently copy33 into the source table or describe0 as a missing-data marker.",
+    "status": "open source exception; no invented correction"
+  },
+  {
+    "id": "WORKFORCE2025REGION",
+    "title": "Regional table conflicts with map and Group total",
+    "physical_pages": [
+      4010,
+      4011
+    ],
+    "printed_pages": [
+      359,
+      360
+    ],
+    "classification": "source cross-table inconsistency",
+    "detail": "The map prints Europe/other Markets203,499; the adjacent regional table prints203,449. Using the map yields602,659, equal to Group headcount. Using the table yields602,609,50 below Group. This direction was established by executable arithmetic.",
+    "required_demo_treatment": "Retain separate map/table observations and highlight the50-person discrepancy. The map reconciles; the table does not.",
+    "status": "open source exception; no invented correction"
+  },
+  {
+    "id": "CREDITSLABEL",
+    "title": "Carbon-credit table repeats an incompatible row label",
+    "physical_pages": [
+      3931
+    ],
+    "printed_pages": [
+      280
+    ],
+    "classification": "source label ambiguity",
+    "detail": "The source uses exactly “Share of projects to reduce CO2 emissions” for both a0%row and a100%row. The rows between concern biogenic and technological removals. The label duplication is present in the rendered PDF, not just extracted text.",
+    "required_demo_treatment": "Keep raw labels and unique row IDs. Do not silently relabel the first row as removal projects or classify it using assumption.",
+    "status": "open source exception; no invented correction"
+  },
+  {
+    "id": "MANOVERLAP",
+    "title": "MAN light-commercial Scope3 overlap is explicitly disclosed",
+    "physical_pages": [
+      3923,
+      3924
+    ],
+    "printed_pages": [
+      272,
+      273
+    ],
+    "classification": "acknowledged source boundary overlap",
+    "detail": "MAN light-commercial vehicles appear in both Passenger Cars and Commercial Vehicles reporting scopes. The report plans to eliminate the double-counting in the next report; it supplies no amount to remove here.",
+    "required_demo_treatment": "Warn about the known overlap without subtracting a guessed amount. Do not label the three business-area totals an exhaustive partition of Group Scope3.",
+    "status": "open source exception; no invented correction"
+  },
+  {
+    "id": "GHGINTENSITY",
+    "title": "Displayed GHG total cannot directly reproduce intensity",
+    "physical_pages": [
+      3930
+    ],
+    "printed_pages": [
+      279
+    ],
+    "classification": "insufficient scope reconciliation",
+    "detail": "2025 total market GHG887.4milliontCO2e divided by revenue321,913millionEUR gives about2.757kg/EUR, not reported2.3. The intensity excludes operationally controlled companies, while the displayed total has broader scope. A sufficient numerator bridge is not disclosed.",
+    "required_demo_treatment": "Keep2.3 as reported and mark recomputation from displayed total not supported. Do not create an implied excluded-emissions figure from rounded intensity.",
+    "status": "open source exception; no invented correction"
+  },
+  {
+    "id": "INDEXS1TARGETS",
+    "title": "Index swaps two target-section page references",
+    "physical_pages": [
+      4017,
+      4020,
+      4081
+    ],
+    "printed_pages": [
+      366,
+      369,
+      430
+    ],
+    "classification": "source cross-reference inconsistency",
+    "detail": "Printed430 index S1-5 assigns Other work-related rights to366 and Equal treatment/equal opportunities to369. Actual headings are the reverse: Equal treatment on366, Other work-related rights on369. Visual inspection confirms the index values.",
+    "required_demo_treatment": "Store raw index and verified destination separately. Evidence links should resolve to actual sections without falsifying source index content.",
+    "status": "open source exception; no invented correction"
+  },
+  {
+    "id": "PALMELACOUNTRY",
+    "title": "Palmela country printed incorrectly in biodiversity annex",
+    "physical_pages": [
+      4092
+    ],
+    "printed_pages": [
+      441
+    ],
+    "classification": "source geographic inconsistency independently verified",
+    "detail": "The source table prints Great Britain and Northern Ireland in the Palmela column. Independent annex reviewer confirmed visually and corroborated Portugal through official Volkswagen material. See sibling annex/source-exceptions files for evidence and detailed disposition.",
+    "required_demo_treatment": "Preserve printed and corroborated geography separately. Do not use raw country for aggregation without an explicit exception policy.",
+    "status": "open source exception; no invented correction"
+  },
+  {
+    "id": "RAWMATERIALGROUPS",
+    "title": "Count wording and listed strategic material groups differ",
+    "physical_pages": [
+      3974,
+      3975
+    ],
+    "printed_pages": [
+      323,
+      324
+    ],
+    "classification": "source grouping ambiguity",
+    "detail": "Text twice says nine strategic raw-material groups but enumerates ten comma-separated grouped entries when semiconductor materials and recycled materials are each treated as one group. The adjacent graphic distinguishes VW relevance from CRMA status rather than resolving the grouping.",
+    "required_demo_treatment": "Do not infer a definitive count of managed groups from list parsing. Retain the source claim9 with the unresolved enumeration caveat.",
+    "status": "open source exception; no invented correction"
+  }
+]

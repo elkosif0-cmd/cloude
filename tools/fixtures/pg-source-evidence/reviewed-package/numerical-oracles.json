@@ -1,0 +1,3893 @@
+{
+  "sourceSha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+  "sourceIdentity": {
+    "issuer": "The Procter & Gamble Company",
+    "fiscalYearEnd": "2026-06-30",
+    "currency": "USD",
+    "unit": "millions",
+    "basis": "consolidated US GAAP",
+    "sourceSha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802"
+  },
+  "purpose": "Independent arithmetic/identity oracles for a later application-versus-source comparison; no application acceptance is claimed",
+  "roundingPolicy": "Reported whole-million inputs each have half-unit display uncertainty. Bound equals half a reporting unit per operand plus target; fractional EPS/share resolutions explicit. Compatible does not prove source precision or correct a source value. Nonzero residuals remain recorded.",
+  "checks": [
+    {
+      "id": "2026_operating_income",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        87032,
+        -43362,
+        -23922,
+        0
+      ],
+      "sourcePublishedExpected": 19748,
+      "computed": 19748.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_pretax",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        19748,
+        -877,
+        430,
+        1076
+      ],
+      "sourcePublishedExpected": 20377,
+      "computed": 20377.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_net_earnings",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        20377,
+        -4233
+      ],
+      "sourcePublishedExpected": 16144,
+      "computed": 16144.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_attributable",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        16144,
+        -98
+      ],
+      "sourcePublishedExpected": 16046,
+      "computed": 16046.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_OCI",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        96,
+        1,
+        -440
+      ],
+      "sourcePublishedExpected": -343,
+      "computed": -343.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.0,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_comprehensive",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        16144,
+        -343
+      ],
+      "sourcePublishedExpected": 15801,
+      "computed": 15801.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_comprehensive_attributable",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        15801,
+        -77
+      ],
+      "sourcePublishedExpected": 15724,
+      "computed": 15724.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_OCF",
+      "sourcePhysicalPages": [
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        16144,
+        3160,
+        524,
+        51,
+        -351,
+        0,
+        84,
+        -641,
+        919,
+        -333
+      ],
+      "sourcePublishedExpected": 19556,
+      "computed": 19557.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 5.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2026_investing",
+      "sourcePhysicalPages": [
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -4409,
+        508,
+        -85,
+        -638
+      ],
+      "sourcePublishedExpected": -4624,
+      "computed": -4624.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_financing",
+      "sourcePhysicalPages": [
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -10232,
+        7941,
+        -9984,
+        2674,
+        2652,
+        -3390,
+        -5028,
+        907
+      ],
+      "sourcePublishedExpected": -14460,
+      "computed": -14460.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 4.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_cash_change",
+      "sourcePhysicalPages": [
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        19556,
+        -4624,
+        -14460,
+        -86
+      ],
+      "sourcePublishedExpected": 386,
+      "computed": 386.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_cash_bridge",
+      "sourcePhysicalPages": [
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        9556,
+        386
+      ],
+      "sourcePublishedExpected": 9942,
+      "computed": 9942.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_equity_rollforward",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        52284,
+        16144,
+        -343,
+        -9966,
+        -292,
+        -5029,
+        1470,
+        0,
+        168,
+        -125
+      ],
+      "sourcePublishedExpected": 54311,
+      "computed": 54311.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 5.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_basic_numerator",
+      "sourcePhysicalPages": [
+        2019
+      ],
+      "unit": "USD millions",
+      "operands": [
+        16046,
+        -292
+      ],
+      "sourcePublishedExpected": 15754,
+      "computed": 15754.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_diluted_shares",
+      "sourcePhysicalPages": [
+        2019
+      ],
+      "unit": "million shares",
+      "operands": [
+        2333.7,
+        20.5,
+        68.3
+      ],
+      "sourcePublishedExpected": 2422.5,
+      "computed": 2422.5,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 0.2,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_basic_EPS",
+      "sourcePhysicalPages": [
+        2019,
+        2004
+      ],
+      "unit": "USD/share",
+      "sourcePublishedExpected": 6.75,
+      "computed": 6.7506534687406266,
+      "residualComputedMinusSource": 0.000653468740626473,
+      "roundingBound": 0.005,
+      "result": "rounding_compatible"
+    },
+    {
+      "id": "2026_diluted_EPS",
+      "sourcePhysicalPages": [
+        2019,
+        2004
+      ],
+      "unit": "USD/share",
+      "sourcePublishedExpected": 6.62,
+      "computed": 6.623735810113519,
+      "residualComputedMinusSource": 0.0037358101135190917,
+      "roundingBound": 0.005,
+      "result": "rounding_compatible"
+    },
+    {
+      "id": "2026_segments_net_sales",
+      "sourcePhysicalPages": [
+        2011,
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        16023,
+        6918,
+        12456,
+        30314,
+        20401,
+        919
+      ],
+      "sourcePublishedExpected": 87032,
+      "computed": 87031.0,
+      "residualComputedMinusSource": -1.0,
+      "roundingBound": 3.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2026_segments_cost_of_sales",
+      "sourcePhysicalPages": [
+        2011,
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -6397,
+        -2845,
+        -5208,
+        -16428,
+        -11089,
+        -1395
+      ],
+      "sourcePublishedExpected": -43362,
+      "computed": -43362.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 3.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_segments_sga",
+      "sourcePhysicalPages": [
+        2011,
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -6152,
+        -2111,
+        -4087,
+        -6597,
+        -4167,
+        -808
+      ],
+      "sourcePublishedExpected": -23922,
+      "computed": -23922.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 3.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_segments_pretax_income",
+      "sourcePhysicalPages": [
+        2011,
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        3473,
+        1966,
+        3163,
+        7290,
+        5145,
+        -660
+      ],
+      "sourcePublishedExpected": 20377,
+      "computed": 20377.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 3.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_segments_net_earnings",
+      "sourcePhysicalPages": [
+        2011,
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        2672,
+        1529,
+        2404,
+        5632,
+        3930,
+        -23
+      ],
+      "sourcePublishedExpected": 16144,
+      "computed": 16144.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 3.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_segments_depreciation_amortization",
+      "sourcePhysicalPages": [
+        2011,
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        410,
+        320,
+        439,
+        756,
+        835,
+        400
+      ],
+      "sourcePublishedExpected": 3160,
+      "computed": 3160.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 3.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_segments_capital_expenditure",
+      "sourcePhysicalPages": [
+        2011,
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        415,
+        540,
+        592,
+        1250,
+        1520,
+        93
+      ],
+      "sourcePublishedExpected": 4409,
+      "computed": 4410.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 3.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2026_segment_Beauty_pretax",
+      "sourcePhysicalPages": [
+        2011
+      ],
+      "unit": "USD millions",
+      "operands": [
+        16023,
+        -6397,
+        -6152,
+        0
+      ],
+      "sourcePublishedExpected": 3473,
+      "computed": 3474.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 2.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2026_segment_Grooming_pretax",
+      "sourcePhysicalPages": [
+        2011
+      ],
+      "unit": "USD millions",
+      "operands": [
+        6918,
+        -2845,
+        -2111,
+        3
+      ],
+      "sourcePublishedExpected": 1966,
+      "computed": 1965.0,
+      "residualComputedMinusSource": -1.0,
+      "roundingBound": 2.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2026_segment_Health Care_pretax",
+      "sourcePhysicalPages": [
+        2011
+      ],
+      "unit": "USD millions",
+      "operands": [
+        12456,
+        -5208,
+        -4087,
+        2
+      ],
+      "sourcePublishedExpected": 3163,
+      "computed": 3163.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_segment_Fabric & Home Care_pretax",
+      "sourcePhysicalPages": [
+        2011
+      ],
+      "unit": "USD millions",
+      "operands": [
+        30314,
+        -16428,
+        -6597,
+        0
+      ],
+      "sourcePublishedExpected": 7290,
+      "computed": 7289.0,
+      "residualComputedMinusSource": -1.0,
+      "roundingBound": 2.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2026_segment_Baby, Feminine & Family Care_pretax",
+      "sourcePhysicalPages": [
+        2011
+      ],
+      "unit": "USD millions",
+      "operands": [
+        20401,
+        -11089,
+        -4167,
+        0
+      ],
+      "sourcePublishedExpected": 5145,
+      "computed": 5145.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_segment_Corporate_pretax",
+      "sourcePhysicalPages": [
+        2011
+      ],
+      "unit": "USD millions",
+      "operands": [
+        919,
+        -1395,
+        -808,
+        623
+      ],
+      "sourcePublishedExpected": -660,
+      "computed": -661.0,
+      "residualComputedMinusSource": -1.0,
+      "roundingBound": 2.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_operating_income",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        84284,
+        -41164,
+        -22669,
+        0
+      ],
+      "sourcePublishedExpected": 20451,
+      "computed": 20451.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_pretax",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        20451,
+        -907,
+        469,
+        154
+      ],
+      "sourcePublishedExpected": 20167,
+      "computed": 20167.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_net_earnings",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        20167,
+        -4102
+      ],
+      "sourcePublishedExpected": 16065,
+      "computed": 16065.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_attributable",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        16065,
+        -91
+      ],
+      "sourcePublishedExpected": 15974,
+      "computed": 15974.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_OCI",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        1143,
+        0,
+        -1390
+      ],
+      "sourcePublishedExpected": -248,
+      "computed": -247.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 2.0,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_comprehensive",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        16065,
+        -248
+      ],
+      "sourcePublishedExpected": 15817,
+      "computed": 15817.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_comprehensive_attributable",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        15817,
+        -87
+      ],
+      "sourcePublishedExpected": 15730,
+      "computed": 15730.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_OCF",
+      "sourcePhysicalPages": [
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        16065,
+        2847,
+        476,
+        149,
+        755,
+        0,
+        45,
+        -324,
+        -542,
+        -1653
+      ],
+      "sourcePublishedExpected": 17817,
+      "computed": 17818.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 5.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_investing",
+      "sourcePhysicalPages": [
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -3773,
+        107,
+        -11,
+        -141
+      ],
+      "sourcePublishedExpected": -3818,
+      "computed": -3818.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_financing",
+      "sourcePhysicalPages": [
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -9872,
+        8020,
+        -6512,
+        -1138,
+        2237,
+        -1977,
+        -6500,
+        1707
+      ],
+      "sourcePublishedExpected": -14036,
+      "computed": -14035.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 4.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_cash_change",
+      "sourcePhysicalPages": [
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        17817,
+        -3818,
+        -14036,
+        112
+      ],
+      "sourcePublishedExpected": 75,
+      "computed": 75.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_cash_bridge",
+      "sourcePhysicalPages": [
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        9482,
+        75
+      ],
+      "sourcePublishedExpected": 9556,
+      "computed": 9557.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 1.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_equity_rollforward",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        50559,
+        16065,
+        -248,
+        -9606,
+        -291,
+        -6517,
+        2259,
+        0,
+        150,
+        -87
+      ],
+      "sourcePublishedExpected": 52284,
+      "computed": 52284.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 5.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_basic_numerator",
+      "sourcePhysicalPages": [
+        2019
+      ],
+      "unit": "USD millions",
+      "operands": [
+        15974,
+        -291
+      ],
+      "sourcePublishedExpected": 15682,
+      "computed": 15683.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 1.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_diluted_shares",
+      "sourcePhysicalPages": [
+        2019
+      ],
+      "unit": "million shares",
+      "operands": [
+        2350.1,
+        33.3,
+        71.0
+      ],
+      "sourcePublishedExpected": 2454.4,
+      "computed": 2454.4,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 0.2,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_basic_EPS",
+      "sourcePhysicalPages": [
+        2019,
+        2004
+      ],
+      "unit": "USD/share",
+      "sourcePublishedExpected": 6.67,
+      "computed": 6.672907535849538,
+      "residualComputedMinusSource": 0.0029075358495383175,
+      "roundingBound": 0.005,
+      "result": "rounding_compatible"
+    },
+    {
+      "id": "2025_diluted_EPS",
+      "sourcePhysicalPages": [
+        2019,
+        2004
+      ],
+      "unit": "USD/share",
+      "sourcePublishedExpected": 6.51,
+      "computed": 6.508311603650586,
+      "residualComputedMinusSource": -0.0016883963494132986,
+      "roundingBound": 0.005,
+      "result": "rounding_compatible"
+    },
+    {
+      "id": "2025_segments_net_sales",
+      "sourcePhysicalPages": [
+        2012,
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        14964,
+        6662,
+        11998,
+        29617,
+        20248,
+        794
+      ],
+      "sourcePublishedExpected": 84284,
+      "computed": 84283.0,
+      "residualComputedMinusSource": -1.0,
+      "roundingBound": 3.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_segments_cost_of_sales",
+      "sourcePhysicalPages": [
+        2012,
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -5822,
+        -2675,
+        -4974,
+        -15650,
+        -10926,
+        -1118
+      ],
+      "sourcePublishedExpected": -41164,
+      "computed": -41165.0,
+      "residualComputedMinusSource": -1.0,
+      "roundingBound": 3.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_segments_sga",
+      "sourcePhysicalPages": [
+        2012,
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -5687,
+        -2036,
+        -3886,
+        -6509,
+        -4108,
+        -443
+      ],
+      "sourcePublishedExpected": -22669,
+      "computed": -22669.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 3.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_segments_pretax_income",
+      "sourcePhysicalPages": [
+        2012,
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        3454,
+        1952,
+        3149,
+        7459,
+        5214,
+        -1061
+      ],
+      "sourcePublishedExpected": 20167,
+      "computed": 20167.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 3.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_segments_net_earnings",
+      "sourcePhysicalPages": [
+        2012,
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        2715,
+        1577,
+        2440,
+        5848,
+        4013,
+        -527
+      ],
+      "sourcePublishedExpected": 16065,
+      "computed": 16066.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 3.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_segments_depreciation_amortization",
+      "sourcePhysicalPages": [
+        2012,
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        399,
+        313,
+        397,
+        723,
+        814,
+        200
+      ],
+      "sourcePublishedExpected": 2847,
+      "computed": 2846.0,
+      "residualComputedMinusSource": -1.0,
+      "roundingBound": 3.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_segments_capital_expenditure",
+      "sourcePhysicalPages": [
+        2012,
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        328,
+        451,
+        526,
+        1208,
+        1080,
+        180
+      ],
+      "sourcePublishedExpected": 3773,
+      "computed": 3773.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 3.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_segment_Beauty_pretax",
+      "sourcePhysicalPages": [
+        2012
+      ],
+      "unit": "USD millions",
+      "operands": [
+        14964,
+        -5822,
+        -5687,
+        -1
+      ],
+      "sourcePublishedExpected": 3454,
+      "computed": 3454.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_segment_Grooming_pretax",
+      "sourcePhysicalPages": [
+        2012
+      ],
+      "unit": "USD millions",
+      "operands": [
+        6662,
+        -2675,
+        -2036,
+        0
+      ],
+      "sourcePublishedExpected": 1952,
+      "computed": 1951.0,
+      "residualComputedMinusSource": -1.0,
+      "roundingBound": 2.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_segment_Health Care_pretax",
+      "sourcePhysicalPages": [
+        2012
+      ],
+      "unit": "USD millions",
+      "operands": [
+        11998,
+        -4974,
+        -3886,
+        10
+      ],
+      "sourcePublishedExpected": 3149,
+      "computed": 3148.0,
+      "residualComputedMinusSource": -1.0,
+      "roundingBound": 2.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_segment_Fabric & Home Care_pretax",
+      "sourcePhysicalPages": [
+        2012
+      ],
+      "unit": "USD millions",
+      "operands": [
+        29617,
+        -15650,
+        -6509,
+        1
+      ],
+      "sourcePublishedExpected": 7459,
+      "computed": 7459.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_segment_Baby, Feminine & Family Care_pretax",
+      "sourcePhysicalPages": [
+        2012
+      ],
+      "unit": "USD millions",
+      "operands": [
+        20248,
+        -10926,
+        -4108,
+        0
+      ],
+      "sourcePublishedExpected": 5214,
+      "computed": 5214.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_segment_Corporate_pretax",
+      "sourcePhysicalPages": [
+        2012
+      ],
+      "unit": "USD millions",
+      "operands": [
+        794,
+        -1118,
+        -443,
+        -294
+      ],
+      "sourcePublishedExpected": -1061,
+      "computed": -1061.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2024_operating_income",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        84039,
+        -40848,
+        -23305,
+        -1341
+      ],
+      "sourcePublishedExpected": 18545,
+      "computed": 18545.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2024_pretax",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        18545,
+        -925,
+        473,
+        668
+      ],
+      "sourcePublishedExpected": 18761,
+      "computed": 18761.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2024_net_earnings",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        18761,
+        -3787
+      ],
+      "sourcePublishedExpected": 14974,
+      "computed": 14974.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2024_attributable",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        14974,
+        -95
+      ],
+      "sourcePublishedExpected": 14879,
+      "computed": 14879.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2024_OCI",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -226,
+        -3,
+        546
+      ],
+      "sourcePublishedExpected": 317,
+      "computed": 317.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.0,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2024_comprehensive",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        14974,
+        317
+      ],
+      "sourcePublishedExpected": 15291,
+      "computed": 15291.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2024_comprehensive_attributable",
+      "sourcePhysicalPages": [
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        15291,
+        -92
+      ],
+      "sourcePublishedExpected": 15199,
+      "computed": 15199.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2024_OCF",
+      "sourcePhysicalPages": [
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        14974,
+        2896,
+        562,
+        -244,
+        -215,
+        1341,
+        -766,
+        -70,
+        878,
+        491
+      ],
+      "sourcePublishedExpected": 19846,
+      "computed": 19847.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 5.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2024_investing",
+      "sourcePhysicalPages": [
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -3322,
+        346,
+        -21,
+        -507
+      ],
+      "sourcePublishedExpected": -3504,
+      "computed": -3504.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2024_financing",
+      "sourcePhysicalPages": [
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -9312,
+        3528,
+        -7689,
+        857,
+        3197,
+        -2335,
+        -5006,
+        1905
+      ],
+      "sourcePublishedExpected": -14855,
+      "computed": -14855.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 4.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2024_cash_change",
+      "sourcePhysicalPages": [
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        19846,
+        -3504,
+        -14855,
+        -251
+      ],
+      "sourcePublishedExpected": 1235,
+      "computed": 1236.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 2.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2024_cash_bridge",
+      "sourcePhysicalPages": [
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        8246,
+        1235
+      ],
+      "sourcePublishedExpected": 9482,
+      "computed": 9481.0,
+      "residualComputedMinusSource": -1.0,
+      "roundingBound": 1.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2024_equity_rollforward",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        47065,
+        14974,
+        317,
+        -9053,
+        -284,
+        -5014,
+        2478,
+        0,
+        184,
+        -108
+      ],
+      "sourcePublishedExpected": 50559,
+      "computed": 50559.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 5.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2024_basic_numerator",
+      "sourcePhysicalPages": [
+        2019
+      ],
+      "unit": "USD millions",
+      "operands": [
+        14879,
+        -284
+      ],
+      "sourcePublishedExpected": 14595,
+      "computed": 14595.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2024_diluted_shares",
+      "sourcePhysicalPages": [
+        2019
+      ],
+      "unit": "million shares",
+      "operands": [
+        2360.1,
+        38.3,
+        73.6
+      ],
+      "sourcePublishedExpected": 2471.9,
+      "computed": 2472.0,
+      "residualComputedMinusSource": 0.1,
+      "roundingBound": 0.2,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2024_basic_EPS",
+      "sourcePhysicalPages": [
+        2019,
+        2004
+      ],
+      "unit": "USD/share",
+      "sourcePublishedExpected": 6.18,
+      "computed": 6.184059997457735,
+      "residualComputedMinusSource": 0.0040599974577348414,
+      "roundingBound": 0.005,
+      "result": "rounding_compatible"
+    },
+    {
+      "id": "2024_diluted_EPS",
+      "sourcePhysicalPages": [
+        2019,
+        2004
+      ],
+      "unit": "USD/share",
+      "sourcePublishedExpected": 6.02,
+      "computed": 6.019256442412719,
+      "residualComputedMinusSource": -0.0007435575872810388,
+      "roundingBound": 0.005,
+      "result": "rounding_compatible"
+    },
+    {
+      "id": "2024_segments_net_sales",
+      "sourcePhysicalPages": [
+        2012,
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        15220,
+        6654,
+        11793,
+        29495,
+        20277,
+        601
+      ],
+      "sourcePublishedExpected": 84039,
+      "computed": 84040.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 3.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2024_segments_cost_of_sales",
+      "sourcePhysicalPages": [
+        2012,
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -5722,
+        -2711,
+        -4967,
+        -15535,
+        -10831,
+        -1082
+      ],
+      "sourcePublishedExpected": -40848,
+      "computed": -40848.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 3.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2024_segments_sga",
+      "sourcePhysicalPages": [
+        2012,
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -5700,
+        -2105,
+        -3886,
+        -6631,
+        -4198,
+        -784
+      ],
+      "sourcePublishedExpected": -23305,
+      "computed": -23304.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 3.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2024_segments_pretax_income",
+      "sourcePhysicalPages": [
+        2012,
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        3805,
+        1845,
+        2941,
+        7339,
+        5253,
+        -2422
+      ],
+      "sourcePublishedExpected": 18761,
+      "computed": 18761.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 3.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2024_segments_net_earnings",
+      "sourcePhysicalPages": [
+        2012,
+        2004
+      ],
+      "unit": "USD millions",
+      "operands": [
+        2963,
+        1477,
+        2258,
+        5687,
+        4020,
+        -1430
+      ],
+      "sourcePublishedExpected": 14974,
+      "computed": 14975.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 3.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2024_segments_depreciation_amortization",
+      "sourcePhysicalPages": [
+        2012,
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        399,
+        335,
+        381,
+        710,
+        824,
+        247
+      ],
+      "sourcePublishedExpected": 2896,
+      "computed": 2896.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 3.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2024_segments_capital_expenditure",
+      "sourcePhysicalPages": [
+        2012,
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        280,
+        337,
+        524,
+        1076,
+        979,
+        126
+      ],
+      "sourcePublishedExpected": 3322,
+      "computed": 3322.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 3.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2024_segment_Beauty_pretax",
+      "sourcePhysicalPages": [
+        2012
+      ],
+      "unit": "USD millions",
+      "operands": [
+        15220,
+        -5722,
+        -5700,
+        8
+      ],
+      "sourcePublishedExpected": 3805,
+      "computed": 3806.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 2.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2024_segment_Grooming_pretax",
+      "sourcePhysicalPages": [
+        2012
+      ],
+      "unit": "USD millions",
+      "operands": [
+        6654,
+        -2711,
+        -2105,
+        7
+      ],
+      "sourcePublishedExpected": 1845,
+      "computed": 1845.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2024_segment_Health Care_pretax",
+      "sourcePhysicalPages": [
+        2012
+      ],
+      "unit": "USD millions",
+      "operands": [
+        11793,
+        -4967,
+        -3886,
+        1
+      ],
+      "sourcePublishedExpected": 2941,
+      "computed": 2941.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2024_segment_Fabric & Home Care_pretax",
+      "sourcePhysicalPages": [
+        2012
+      ],
+      "unit": "USD millions",
+      "operands": [
+        29495,
+        -15535,
+        -6631,
+        10
+      ],
+      "sourcePublishedExpected": 7339,
+      "computed": 7339.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2024_segment_Baby, Feminine & Family Care_pretax",
+      "sourcePhysicalPages": [
+        2012
+      ],
+      "unit": "USD millions",
+      "operands": [
+        20277,
+        -10831,
+        -4198,
+        6
+      ],
+      "sourcePublishedExpected": 5253,
+      "computed": 5254.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 2.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2024_segment_Corporate_pretax",
+      "sourcePhysicalPages": [
+        2012
+      ],
+      "unit": "USD millions",
+      "operands": [
+        601,
+        -1082,
+        -784,
+        -1156
+      ],
+      "sourcePublishedExpected": -2422,
+      "computed": -2421.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 2.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2026_inventory",
+      "sourcePhysicalPages": [
+        2005
+      ],
+      "unit": "USD millions",
+      "operands": [
+        2143,
+        1105,
+        4922
+      ],
+      "sourcePublishedExpected": 8170,
+      "computed": 8170.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.0,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_current_assets",
+      "sourcePhysicalPages": [
+        2005
+      ],
+      "unit": "USD millions",
+      "operands": [
+        9942,
+        6056,
+        8170,
+        2040
+      ],
+      "sourcePublishedExpected": 26208,
+      "computed": 26208.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_assets",
+      "sourcePhysicalPages": [
+        2005
+      ],
+      "unit": "USD millions",
+      "operands": [
+        26208,
+        25360,
+        41276,
+        21444,
+        12231
+      ],
+      "sourcePublishedExpected": 126521,
+      "computed": 126519.0,
+      "residualComputedMinusSource": -2.0,
+      "roundingBound": 3.0,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2026_current_liabilities",
+      "sourcePhysicalPages": [
+        2005
+      ],
+      "unit": "USD millions",
+      "operands": [
+        16306,
+        11091,
+        11296
+      ],
+      "sourcePublishedExpected": 38694,
+      "computed": 38693.0,
+      "residualComputedMinusSource": -1.0,
+      "roundingBound": 2.0,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2026_liabilities",
+      "sourcePhysicalPages": [
+        2005
+      ],
+      "unit": "USD millions",
+      "operands": [
+        38694,
+        22842,
+        5760,
+        4914
+      ],
+      "sourcePublishedExpected": 72210,
+      "computed": 72210.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_equity",
+      "sourcePhysicalPages": [
+        2005
+      ],
+      "unit": "USD millions",
+      "operands": [
+        756,
+        0,
+        4009,
+        69533,
+        -596,
+        -12465,
+        -143008,
+        135852,
+        230
+      ],
+      "sourcePublishedExpected": 54311,
+      "computed": 54311.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 5.0,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_balance",
+      "sourcePhysicalPages": [
+        2005
+      ],
+      "unit": "USD millions",
+      "operands": [
+        72210,
+        54311
+      ],
+      "sourcePublishedExpected": 126521,
+      "computed": 126521.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_cash_BS_vs_CF",
+      "sourcePhysicalPages": [
+        2005,
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        9942
+      ],
+      "sourcePublishedExpected": 9942,
+      "computed": 9942.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.0,
+      "result": "exact",
+      "note": "Amounts agree; CF label includes restricted cash and must not be silently relabeled."
+    },
+    {
+      "id": "2026_adjusted_FCF",
+      "sourcePhysicalPages": [
+        1997
+      ],
+      "unit": "USD millions",
+      "operands": [
+        19556,
+        -4409,
+        688
+      ],
+      "sourcePublishedExpected": 15835,
+      "computed": 15835.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.0,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_adjusted_earnings_denominator",
+      "sourcePhysicalPages": [
+        1997
+      ],
+      "unit": "USD millions",
+      "operands": [
+        16144,
+        -261
+      ],
+      "sourcePublishedExpected": 15883,
+      "computed": 15883.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_FCF_productivity",
+      "sourcePhysicalPages": [
+        1997
+      ],
+      "unit": "percent",
+      "sourcePublishedExpected": 100,
+      "computed": 99.69779009003337,
+      "roundingBound": 0.5,
+      "residualComputedMinusSource": -0.302209909966631,
+      "result": "rounding_compatible"
+    },
+    {
+      "id": "2026_core_cost_of_sales",
+      "sourcePhysicalPages": [
+        1998
+      ],
+      "unit": "USD millions",
+      "operands": [
+        43362,
+        -436,
+        0
+      ],
+      "sourcePublishedExpected": 42927,
+      "computed": 42926.0,
+      "residualComputedMinusSource": -1.0,
+      "roundingBound": 2.0,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2026_core_sga",
+      "sourcePhysicalPages": [
+        1998
+      ],
+      "unit": "USD millions",
+      "operands": [
+        23922,
+        -313,
+        0
+      ],
+      "sourcePublishedExpected": 23608,
+      "computed": 23609.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 2.0,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2026_core_operating_income",
+      "sourcePhysicalPages": [
+        1998
+      ],
+      "unit": "USD millions",
+      "operands": [
+        19748,
+        749,
+        0
+      ],
+      "sourcePublishedExpected": 20497,
+      "computed": 20497.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.0,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_core_other_nonoperating",
+      "sourcePhysicalPages": [
+        1998
+      ],
+      "unit": "USD millions",
+      "operands": [
+        1076,
+        161,
+        -343
+      ],
+      "sourcePublishedExpected": 894,
+      "computed": 894.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.0,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_core_income_tax",
+      "sourcePhysicalPages": [
+        1998
+      ],
+      "unit": "USD millions",
+      "operands": [
+        4233,
+        6,
+        -81
+      ],
+      "sourcePublishedExpected": 4158,
+      "computed": 4158.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.0,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_core_net_earnings",
+      "sourcePhysicalPages": [
+        1998
+      ],
+      "unit": "USD millions",
+      "operands": [
+        16144,
+        904,
+        -261
+      ],
+      "sourcePublishedExpected": 16786,
+      "computed": 16787.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 2.0,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2026_core_earnings_nci",
+      "sourcePhysicalPages": [
+        1998
+      ],
+      "unit": "USD millions",
+      "operands": [
+        98,
+        1,
+        0
+      ],
+      "sourcePublishedExpected": 98,
+      "computed": 99.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 2.0,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2026_core_earnings_pg",
+      "sourcePhysicalPages": [
+        1998
+      ],
+      "unit": "USD millions",
+      "operands": [
+        16046,
+        903,
+        -261
+      ],
+      "sourcePublishedExpected": 16688,
+      "computed": 16688.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.0,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_core_diluted_eps",
+      "sourcePhysicalPages": [
+        1998
+      ],
+      "unit": "USD/share",
+      "operands": [
+        6.62,
+        0.37,
+        -0.11
+      ],
+      "sourcePublishedExpected": 6.89,
+      "computed": 6.88,
+      "residualComputedMinusSource": -0.01,
+      "roundingBound": 0.02,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2026_note_2012_net",
+      "sourcePhysicalPages": [
+        2012
+      ],
+      "unit": "USD millions",
+      "operands": [
+        57172,
+        -31811
+      ],
+      "sourcePublishedExpected": 25360,
+      "computed": 25361.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 1.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2026_note_2014_closing_reserve",
+      "sourcePhysicalPages": [
+        2014
+      ],
+      "unit": "USD millions",
+      "operands": [
+        189,
+        1230,
+        -1084
+      ],
+      "sourcePublishedExpected": 336,
+      "computed": 335.0,
+      "residualComputedMinusSource": -1.0,
+      "roundingBound": 2.0,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2026_note_2015_closing",
+      "sourcePhysicalPages": [
+        2015
+      ],
+      "unit": "USD millions",
+      "operands": [
+        41650,
+        40,
+        -414
+      ],
+      "sourcePublishedExpected": 41276,
+      "computed": 41276.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.0,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_note_2016_total_net",
+      "sourcePhysicalPages": [
+        2016
+      ],
+      "unit": "USD millions",
+      "operands": [
+        28699,
+        -7255
+      ],
+      "sourcePublishedExpected": 21444,
+      "computed": 21444.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_note_2016_total_tax",
+      "sourcePhysicalPages": [
+        2016
+      ],
+      "unit": "USD millions",
+      "operands": [
+        4182,
+        51
+      ],
+      "sourcePublishedExpected": 4233,
+      "computed": 4233.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_note_2033_closing",
+      "sourcePhysicalPages": [
+        2033
+      ],
+      "unit": "USD millions",
+      "operands": [
+        5790,
+        18110,
+        -17741,
+        16
+      ],
+      "sourcePublishedExpected": 6176,
+      "computed": 6175.0,
+      "residualComputedMinusSource": -1.0,
+      "roundingBound": 2.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2026_current_accruals",
+      "sourcePhysicalPages": [
+        2013
+      ],
+      "unit": "USD millions",
+      "operands": [
+        4141,
+        2043,
+        778,
+        336,
+        301,
+        246,
+        206,
+        3040
+      ],
+      "sourcePublishedExpected": 11091,
+      "computed": 11091.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 4.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_noncurrent_liabilities",
+      "sourcePhysicalPages": [
+        2013
+      ],
+      "unit": "USD millions",
+      "operands": [
+        2204,
+        736,
+        654,
+        641,
+        195,
+        484
+      ],
+      "sourcePublishedExpected": 4914,
+      "computed": 4914.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 3.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_pension_funded",
+      "sourcePhysicalPages": [
+        2022
+      ],
+      "unit": "USD millions",
+      "operands": [
+        12159,
+        -12455
+      ],
+      "sourcePublishedExpected": -296,
+      "computed": -296.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_retiree_funded",
+      "sourcePhysicalPages": [
+        2022
+      ],
+      "unit": "USD millions",
+      "operands": [
+        7166,
+        -3734
+      ],
+      "sourcePublishedExpected": 3432,
+      "computed": 3432.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_current_debt",
+      "sourcePhysicalPages": [
+        2029
+      ],
+      "unit": "USD millions",
+      "operands": [
+        6457,
+        4837,
+        3
+      ],
+      "sourcePublishedExpected": 11296,
+      "computed": 11297.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 2.0,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2026_lease_liability",
+      "sourcePhysicalPages": [
+        2032
+      ],
+      "unit": "USD millions",
+      "operands": [
+        246,
+        641
+      ],
+      "sourcePublishedExpected": 887,
+      "computed": 887.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_inventory",
+      "sourcePhysicalPages": [
+        2005
+      ],
+      "unit": "USD millions",
+      "operands": [
+        2022,
+        1012,
+        4516
+      ],
+      "sourcePublishedExpected": 7551,
+      "computed": 7550.0,
+      "residualComputedMinusSource": -1.0,
+      "roundingBound": 2.0,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_current_assets",
+      "sourcePhysicalPages": [
+        2005
+      ],
+      "unit": "USD millions",
+      "operands": [
+        9556,
+        6185,
+        7551,
+        2100
+      ],
+      "sourcePublishedExpected": 25392,
+      "computed": 25392.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_assets",
+      "sourcePhysicalPages": [
+        2005
+      ],
+      "unit": "USD millions",
+      "operands": [
+        25392,
+        23897,
+        41650,
+        21910,
+        12381
+      ],
+      "sourcePublishedExpected": 125231,
+      "computed": 125230.0,
+      "residualComputedMinusSource": -1.0,
+      "roundingBound": 3.0,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_current_liabilities",
+      "sourcePhysicalPages": [
+        2005
+      ],
+      "unit": "USD millions",
+      "operands": [
+        15227,
+        11318,
+        9513
+      ],
+      "sourcePublishedExpected": 36058,
+      "computed": 36058.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.0,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_liabilities",
+      "sourcePhysicalPages": [
+        2005
+      ],
+      "unit": "USD millions",
+      "operands": [
+        36058,
+        24995,
+        5774,
+        6120
+      ],
+      "sourcePublishedExpected": 72946,
+      "computed": 72947.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 2.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_equity",
+      "sourcePhysicalPages": [
+        2005
+      ],
+      "unit": "USD millions",
+      "operands": [
+        777,
+        0,
+        4009,
+        68770,
+        -672,
+        -12143,
+        -138702,
+        129973,
+        272
+      ],
+      "sourcePublishedExpected": 52284,
+      "computed": 52284.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 5.0,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_balance",
+      "sourcePhysicalPages": [
+        2005
+      ],
+      "unit": "USD millions",
+      "operands": [
+        72946,
+        52284
+      ],
+      "sourcePublishedExpected": 125231,
+      "computed": 125230.0,
+      "residualComputedMinusSource": -1.0,
+      "roundingBound": 1.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_cash_BS_vs_CF",
+      "sourcePhysicalPages": [
+        2005,
+        2007
+      ],
+      "unit": "USD millions",
+      "operands": [
+        9556
+      ],
+      "sourcePublishedExpected": 9556,
+      "computed": 9556.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.0,
+      "result": "exact",
+      "note": "Amounts agree; CF label includes restricted cash and must not be silently relabeled."
+    },
+    {
+      "id": "2025_adjusted_FCF",
+      "sourcePhysicalPages": [
+        1997
+      ],
+      "unit": "USD millions",
+      "operands": [
+        17817,
+        -3773,
+        562
+      ],
+      "sourcePublishedExpected": 14606,
+      "computed": 14606.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.0,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_adjusted_earnings_denominator",
+      "sourcePhysicalPages": [
+        1997
+      ],
+      "unit": "USD millions",
+      "operands": [
+        16065,
+        752
+      ],
+      "sourcePublishedExpected": 16817,
+      "computed": 16817.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_FCF_productivity",
+      "sourcePhysicalPages": [
+        1997
+      ],
+      "unit": "percent",
+      "sourcePublishedExpected": 87,
+      "computed": 86.85258964143426,
+      "roundingBound": 0.5,
+      "residualComputedMinusSource": -0.14741035856573706,
+      "result": "rounding_compatible"
+    },
+    {
+      "id": "2025_core_cost_of_sales",
+      "sourcePhysicalPages": [
+        1999
+      ],
+      "unit": "USD millions",
+      "operands": [
+        41164,
+        20
+      ],
+      "sourcePublishedExpected": 41184,
+      "computed": 41184.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_core_sga",
+      "sourcePhysicalPages": [
+        1999
+      ],
+      "unit": "USD millions",
+      "operands": [
+        22669,
+        -25
+      ],
+      "sourcePublishedExpected": 22643,
+      "computed": 22644.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 1.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_core_operating_income",
+      "sourcePhysicalPages": [
+        1999
+      ],
+      "unit": "USD millions",
+      "operands": [
+        20451,
+        5
+      ],
+      "sourcePublishedExpected": 20456,
+      "computed": 20456.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_core_other_nonoperating",
+      "sourcePhysicalPages": [
+        1999
+      ],
+      "unit": "USD millions",
+      "operands": [
+        154,
+        789
+      ],
+      "sourcePublishedExpected": 943,
+      "computed": 943.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_core_income_tax",
+      "sourcePhysicalPages": [
+        1999
+      ],
+      "unit": "USD millions",
+      "operands": [
+        4102,
+        -7
+      ],
+      "sourcePublishedExpected": 4094,
+      "computed": 4095.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 1.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_core_earnings_pg",
+      "sourcePhysicalPages": [
+        1999
+      ],
+      "unit": "USD millions",
+      "operands": [
+        15974,
+        801
+      ],
+      "sourcePublishedExpected": 16775,
+      "computed": 16775.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_core_diluted_eps",
+      "sourcePhysicalPages": [
+        1999
+      ],
+      "unit": "USD/share",
+      "operands": [
+        6.51,
+        0.33
+      ],
+      "sourcePublishedExpected": 6.83,
+      "computed": 6.84,
+      "residualComputedMinusSource": 0.01,
+      "roundingBound": 0.015,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_note_2012_net",
+      "sourcePhysicalPages": [
+        2012
+      ],
+      "unit": "USD millions",
+      "operands": [
+        54181,
+        -30284
+      ],
+      "sourcePublishedExpected": 23897,
+      "computed": 23897.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_note_2014_closing_reserve",
+      "sourcePhysicalPages": [
+        2014
+      ],
+      "unit": "USD millions",
+      "operands": [
+        166,
+        1114,
+        -1090
+      ],
+      "sourcePublishedExpected": 189,
+      "computed": 190.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 2.0,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_note_2015_closing",
+      "sourcePhysicalPages": [
+        2015
+      ],
+      "unit": "USD millions",
+      "operands": [
+        40303,
+        0,
+        1348
+      ],
+      "sourcePublishedExpected": 41650,
+      "computed": 41651.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 2.0,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_note_2016_total_net",
+      "sourcePhysicalPages": [
+        2016
+      ],
+      "unit": "USD millions",
+      "operands": [
+        28918,
+        -7008
+      ],
+      "sourcePublishedExpected": 21910,
+      "computed": 21910.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_note_2016_total_tax",
+      "sourcePhysicalPages": [
+        2016
+      ],
+      "unit": "USD millions",
+      "operands": [
+        3953,
+        149
+      ],
+      "sourcePublishedExpected": 4102,
+      "computed": 4102.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_note_2033_closing",
+      "sourcePhysicalPages": [
+        2033
+      ],
+      "unit": "USD millions",
+      "operands": [
+        5559,
+        17132,
+        -16999,
+        98
+      ],
+      "sourcePublishedExpected": 5790,
+      "computed": 5790.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_current_accruals",
+      "sourcePhysicalPages": [
+        2013
+      ],
+      "unit": "USD millions",
+      "operands": [
+        3851,
+        2007,
+        1177,
+        189,
+        293,
+        255,
+        627,
+        2920
+      ],
+      "sourcePublishedExpected": 11318,
+      "computed": 11319.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 4.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_noncurrent_liabilities",
+      "sourcePhysicalPages": [
+        2013
+      ],
+      "unit": "USD millions",
+      "operands": [
+        3026,
+        691,
+        701,
+        701,
+        435,
+        566
+      ],
+      "sourcePublishedExpected": 6120,
+      "computed": 6120.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 3.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_pension_funded",
+      "sourcePhysicalPages": [
+        2022
+      ],
+      "unit": "USD millions",
+      "operands": [
+        11672,
+        -13156
+      ],
+      "sourcePublishedExpected": -1484,
+      "computed": -1484.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_retiree_funded",
+      "sourcePhysicalPages": [
+        2022
+      ],
+      "unit": "USD millions",
+      "operands": [
+        7787,
+        -3396
+      ],
+      "sourcePublishedExpected": 4391,
+      "computed": 4391.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2025_current_debt",
+      "sourcePhysicalPages": [
+        2029
+      ],
+      "unit": "USD millions",
+      "operands": [
+        5377,
+        4108,
+        27
+      ],
+      "sourcePublishedExpected": 9513,
+      "computed": 9512.0,
+      "residualComputedMinusSource": -1.0,
+      "roundingBound": 2.0,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2025_lease_liability",
+      "sourcePhysicalPages": [
+        2032
+      ],
+      "unit": "USD millions",
+      "operands": [
+        255,
+        701
+      ],
+      "sourcePublishedExpected": 956,
+      "computed": 956.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_restructuring_segment_display",
+      "sourcePhysicalPages": [
+        2014
+      ],
+      "unit": "USD millions",
+      "operands": [
+        76,
+        47,
+        132,
+        220,
+        201,
+        556
+      ],
+      "sourcePublishedExpected": 1230,
+      "computed": 1232.0,
+      "residualComputedMinusSource": 2.0,
+      "roundingBound": 3.5,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2026_restructuring_expense_location_display",
+      "sourcePhysicalPages": [
+        2013,
+        2014
+      ],
+      "unit": "USD millions",
+      "operands": [
+        606,
+        460,
+        165
+      ],
+      "sourcePublishedExpected": 1230,
+      "computed": 1231.0,
+      "residualComputedMinusSource": 1.0,
+      "roundingBound": 2.0,
+      "result": "rounding_compatible",
+      "note": null
+    },
+    {
+      "id": "2026_tax_position_rollforward",
+      "sourcePhysicalPages": [
+        2017
+      ],
+      "unit": "USD millions",
+      "operands": [
+        634,
+        59,
+        -96,
+        40,
+        -73,
+        -13,
+        -4
+      ],
+      "sourcePublishedExpected": 547,
+      "computed": 547.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 4.0,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_lease_future_cash",
+      "sourcePhysicalPages": [
+        2032
+      ],
+      "unit": "USD millions",
+      "operands": [
+        246,
+        205,
+        171,
+        126,
+        82,
+        198
+      ],
+      "sourcePublishedExpected": 1028,
+      "computed": 1028.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 3.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_lease_discount",
+      "sourcePhysicalPages": [
+        2032
+      ],
+      "unit": "USD millions",
+      "operands": [
+        1028,
+        -141
+      ],
+      "sourcePublishedExpected": 887,
+      "computed": 887.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 1.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_take_or_pay",
+      "sourcePhysicalPages": [
+        2033
+      ],
+      "unit": "USD millions",
+      "operands": [
+        1155,
+        764,
+        602,
+        349,
+        287,
+        494
+      ],
+      "sourcePublishedExpected": 3651,
+      "computed": 3651.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 3.5,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_AOCI_components",
+      "sourcePhysicalPages": [
+        2031
+      ],
+      "unit": "USD millions",
+      "operands": [
+        10,
+        -1216,
+        -11259
+      ],
+      "sourcePublishedExpected": -12465,
+      "computed": -12465.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.0,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2026_AOCI_bridge",
+      "sourcePhysicalPages": [
+        2031,
+        2005
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -12143,
+        -343,
+        21
+      ],
+      "sourcePublishedExpected": -12465,
+      "computed": -12465.0,
+      "residualComputedMinusSource": 0.0,
+      "roundingBound": 2.0,
+      "result": "exact",
+      "note": null
+    },
+    {
+      "id": "2024_equity_component_common_shares_thousands",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "thousand shares",
+      "operands": [
+        2362120,
+        0,
+        0,
+        0,
+        0,
+        -31877,
+        24095,
+        2713,
+        0,
+        0
+      ],
+      "sourcePublishedExpected": 2357051,
+      "computed": 2357051,
+      "residualComputedMinusSource": 0,
+      "roundingBound": 2.5,
+      "result": "exact"
+    },
+    {
+      "id": "2024_equity_component_common_stock",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        4009,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sourcePublishedExpected": 4009,
+      "computed": 4009,
+      "residualComputedMinusSource": 0,
+      "roundingBound": 1.0,
+      "result": "exact"
+    },
+    {
+      "id": "2024_equity_component_preferred_stock",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        819,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        -21,
+        0,
+        0
+      ],
+      "sourcePublishedExpected": 798,
+      "computed": 798,
+      "residualComputedMinusSource": 0,
+      "roundingBound": 1.5,
+      "result": "exact"
+    },
+    {
+      "id": "2024_equity_component_additional_paid_in_capital",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        66556,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1125,
+        3,
+        0,
+        0
+      ],
+      "sourcePublishedExpected": 67684,
+      "computed": 67684,
+      "residualComputedMinusSource": 0,
+      "roundingBound": 2.0,
+      "result": "exact"
+    },
+    {
+      "id": "2024_equity_component_esop_debt_retirement_reserve",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -821,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        85,
+        0
+      ],
+      "sourcePublishedExpected": -737,
+      "computed": -736,
+      "residualComputedMinusSource": 1,
+      "roundingBound": 1.5,
+      "result": "rounding_compatible"
+    },
+    {
+      "id": "2024_equity_component_accumulated_other_comprehensive_income",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -12220,
+        0,
+        320,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sourcePublishedExpected": -11900,
+      "computed": -11900,
+      "residualComputedMinusSource": 0,
+      "roundingBound": 1.5,
+      "result": "exact"
+    },
+    {
+      "id": "2024_equity_component_treasury_stock",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -129736,
+        0,
+        0,
+        0,
+        0,
+        -5014,
+        1353,
+        18,
+        0,
+        0
+      ],
+      "sourcePublishedExpected": -133379,
+      "computed": -133379,
+      "residualComputedMinusSource": 0,
+      "roundingBound": 2.5,
+      "result": "exact"
+    },
+    {
+      "id": "2024_equity_component_retained_earnings",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        118170,
+        14879,
+        0,
+        -9053,
+        -284,
+        0,
+        0,
+        0,
+        99,
+        0
+      ],
+      "sourcePublishedExpected": 123811,
+      "computed": 123811,
+      "residualComputedMinusSource": 0,
+      "roundingBound": 3.0,
+      "result": "exact"
+    },
+    {
+      "id": "2024_equity_component_noncontrolling_interest",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        288,
+        95,
+        -3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        -108
+      ],
+      "sourcePublishedExpected": 272,
+      "computed": 272,
+      "residualComputedMinusSource": 0,
+      "roundingBound": 2.5,
+      "result": "exact"
+    },
+    {
+      "id": "2024_equity_component_total_equity",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        47065,
+        14974,
+        317,
+        -9053,
+        -284,
+        -5014,
+        2478,
+        0,
+        184,
+        -108
+      ],
+      "sourcePublishedExpected": 50559,
+      "computed": 50559,
+      "residualComputedMinusSource": 0,
+      "roundingBound": 5.0,
+      "result": "exact"
+    },
+    {
+      "id": "2025_equity_component_common_shares_thousands",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "thousand shares",
+      "operands": [
+        2357051,
+        0,
+        0,
+        0,
+        0,
+        -38552,
+        20940,
+        2555,
+        0,
+        0
+      ],
+      "sourcePublishedExpected": 2341994,
+      "computed": 2341994,
+      "residualComputedMinusSource": 0,
+      "roundingBound": 2.5,
+      "result": "exact"
+    },
+    {
+      "id": "2025_equity_component_common_stock",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        4009,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sourcePublishedExpected": 4009,
+      "computed": 4009,
+      "residualComputedMinusSource": 0,
+      "roundingBound": 1.0,
+      "result": "exact"
+    },
+    {
+      "id": "2025_equity_component_preferred_stock",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        798,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        -20,
+        0,
+        0
+      ],
+      "sourcePublishedExpected": 777,
+      "computed": 778,
+      "residualComputedMinusSource": 1,
+      "roundingBound": 1.5,
+      "result": "rounding_compatible"
+    },
+    {
+      "id": "2025_equity_component_additional_paid_in_capital",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        67684,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1084,
+        3,
+        0,
+        0
+      ],
+      "sourcePublishedExpected": 68770,
+      "computed": 68771,
+      "residualComputedMinusSource": 1,
+      "roundingBound": 2.0,
+      "result": "rounding_compatible"
+    },
+    {
+      "id": "2025_equity_component_esop_debt_retirement_reserve",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -737,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        64,
+        0
+      ],
+      "sourcePublishedExpected": -672,
+      "computed": -673,
+      "residualComputedMinusSource": -1,
+      "roundingBound": 1.5,
+      "result": "rounding_compatible"
+    },
+    {
+      "id": "2025_equity_component_accumulated_other_comprehensive_income",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -11900,
+        0,
+        -243,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sourcePublishedExpected": -12143,
+      "computed": -12143,
+      "residualComputedMinusSource": 0,
+      "roundingBound": 1.5,
+      "result": "exact"
+    },
+    {
+      "id": "2025_equity_component_treasury_stock",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -133379,
+        0,
+        0,
+        0,
+        0,
+        -6517,
+        1175,
+        18,
+        0,
+        0
+      ],
+      "sourcePublishedExpected": -138702,
+      "computed": -138703,
+      "residualComputedMinusSource": -1,
+      "roundingBound": 2.5,
+      "result": "rounding_compatible"
+    },
+    {
+      "id": "2025_equity_component_retained_earnings",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        123811,
+        15974,
+        0,
+        -9606,
+        -291,
+        0,
+        0,
+        0,
+        86,
+        0
+      ],
+      "sourcePublishedExpected": 129973,
+      "computed": 129974,
+      "residualComputedMinusSource": 1,
+      "roundingBound": 3.0,
+      "result": "rounding_compatible"
+    },
+    {
+      "id": "2025_equity_component_noncontrolling_interest",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        272,
+        91,
+        -4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        -87
+      ],
+      "sourcePublishedExpected": 272,
+      "computed": 272,
+      "residualComputedMinusSource": 0,
+      "roundingBound": 2.5,
+      "result": "exact"
+    },
+    {
+      "id": "2025_equity_component_total_equity",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        50559,
+        16065,
+        -248,
+        -9606,
+        -291,
+        -6517,
+        2259,
+        0,
+        150,
+        -87
+      ],
+      "sourcePublishedExpected": 52284,
+      "computed": 52284,
+      "residualComputedMinusSource": 0,
+      "roundingBound": 5.0,
+      "result": "exact"
+    },
+    {
+      "id": "2026_equity_component_common_shares_thousands",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "thousand shares",
+      "operands": [
+        2341994,
+        0,
+        0,
+        0,
+        0,
+        -33437,
+        12566,
+        2735,
+        0,
+        0
+      ],
+      "sourcePublishedExpected": 2323859,
+      "computed": 2323858,
+      "residualComputedMinusSource": -1,
+      "roundingBound": 2.5,
+      "result": "rounding_compatible"
+    },
+    {
+      "id": "2026_equity_component_common_stock",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        4009,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sourcePublishedExpected": 4009,
+      "computed": 4009,
+      "residualComputedMinusSource": 0,
+      "roundingBound": 1.0,
+      "result": "exact"
+    },
+    {
+      "id": "2026_equity_component_preferred_stock",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        777,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        -22,
+        0,
+        0
+      ],
+      "sourcePublishedExpected": 756,
+      "computed": 755,
+      "residualComputedMinusSource": -1,
+      "roundingBound": 1.5,
+      "result": "rounding_compatible"
+    },
+    {
+      "id": "2026_equity_component_additional_paid_in_capital",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        68770,
+        0,
+        0,
+        0,
+        0,
+        0,
+        764,
+        3,
+        0,
+        -5
+      ],
+      "sourcePublishedExpected": 69533,
+      "computed": 69532,
+      "residualComputedMinusSource": -1,
+      "roundingBound": 2.5,
+      "result": "rounding_compatible"
+    },
+    {
+      "id": "2026_equity_component_esop_debt_retirement_reserve",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -672,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        76,
+        0
+      ],
+      "sourcePublishedExpected": -596,
+      "computed": -596,
+      "residualComputedMinusSource": 0,
+      "roundingBound": 1.5,
+      "result": "exact"
+    },
+    {
+      "id": "2026_equity_component_accumulated_other_comprehensive_income",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -12143,
+        0,
+        -322,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sourcePublishedExpected": -12465,
+      "computed": -12465,
+      "residualComputedMinusSource": 0,
+      "roundingBound": 1.5,
+      "result": "exact"
+    },
+    {
+      "id": "2026_equity_component_treasury_stock",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        -138702,
+        0,
+        0,
+        0,
+        0,
+        -5029,
+        705,
+        19,
+        0,
+        0
+      ],
+      "sourcePublishedExpected": -143008,
+      "computed": -143007,
+      "residualComputedMinusSource": 1,
+      "roundingBound": 2.5,
+      "result": "rounding_compatible"
+    },
+    {
+      "id": "2026_equity_component_retained_earnings",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        129973,
+        16046,
+        0,
+        -9966,
+        -292,
+        0,
+        0,
+        0,
+        91,
+        0
+      ],
+      "sourcePublishedExpected": 135852,
+      "computed": 135852,
+      "residualComputedMinusSource": 0,
+      "roundingBound": 3.0,
+      "result": "exact"
+    },
+    {
+      "id": "2026_equity_component_noncontrolling_interest",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        272,
+        98,
+        -21,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        -119
+      ],
+      "sourcePublishedExpected": 230,
+      "computed": 230,
+      "residualComputedMinusSource": 0,
+      "roundingBound": 2.5,
+      "result": "exact"
+    },
+    {
+      "id": "2026_equity_component_total_equity",
+      "sourcePhysicalPages": [
+        2006
+      ],
+      "unit": "USD millions",
+      "operands": [
+        52284,
+        16144,
+        -343,
+        -9966,
+        -292,
+        -5029,
+        1470,
+        0,
+        168,
+        -125
+      ],
+      "sourcePublishedExpected": 54311,
+      "computed": 54311,
+      "residualComputedMinusSource": 0,
+      "roundingBound": 5.0,
+      "result": "exact"
+    }
+  ],
+  "summary": {
+    "exact": 120,
+    "rounding_compatible": 70,
+    "unresolved_mismatch": 0
+  },
+  "negativeControls": [
+    {
+      "id": "reject_wrong_issuer",
+      "mutation": {
+        "issuer": "The Home Depot, Inc."
+      },
+      "expected": "reject before numeric comparison",
+      "localFixtureResult": "rejected",
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "reject_wrong_fiscalYearEnd",
+      "mutation": {
+        "fiscalYearEnd": "2025-06-30"
+      },
+      "expected": "reject before numeric comparison",
+      "localFixtureResult": "rejected",
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "reject_wrong_currency",
+      "mutation": {
+        "currency": "EUR"
+      },
+      "expected": "reject before numeric comparison",
+      "localFixtureResult": "rejected",
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "reject_wrong_unit",
+      "mutation": {
+        "unit": "billions"
+      },
+      "expected": "reject before numeric comparison",
+      "localFixtureResult": "rejected",
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "reject_wrong_basis",
+      "mutation": {
+        "basis": "parent only"
+      },
+      "expected": "reject before numeric comparison",
+      "localFixtureResult": "rejected",
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "reject_wrong_sourceSha256",
+      "mutation": {
+        "sourceSha256": "stale-source"
+      },
+      "expected": "reject before numeric comparison",
+      "localFixtureResult": "rejected",
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "GAAP_EPS_vs_core",
+      "incorrectSubstitution": 6.89,
+      "sourceExpected": 6.62,
+      "expected": "reject concept mismatch, regardless of approximate magnitude",
+      "localFixtureResult": "different facts; rejected",
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "group_net_vs_attributable",
+      "incorrectSubstitution": 16144,
+      "sourceExpected": 16046,
+      "expected": "reject concept mismatch, regardless of approximate magnitude",
+      "localFixtureResult": "different facts; rejected",
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "OCF_vs_adjusted_FCF",
+      "incorrectSubstitution": 15835,
+      "sourceExpected": 19556,
+      "expected": "reject concept mismatch, regardless of approximate magnitude",
+      "localFixtureResult": "different facts; rejected",
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "derivative_notional_vs_asset",
+      "incorrectSubstitution": 22975,
+      "sourceExpected": 176,
+      "expected": "reject concept mismatch, regardless of approximate magnitude",
+      "localFixtureResult": "different facts; rejected",
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "lease_undiscounted_vs_present_value",
+      "incorrectSubstitution": 1028,
+      "sourceExpected": 887,
+      "expected": "reject concept mismatch, regardless of approximate magnitude",
+      "localFixtureResult": "different facts; rejected",
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "period_end_shares_vs_diluted_average",
+      "incorrectSubstitution": 2323.859,
+      "sourceExpected": 2422.5,
+      "expected": "reject concept mismatch, regardless of approximate magnitude",
+      "localFixtureResult": "different facts; rejected",
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "double_count_SCF",
+      "expected": "Reject adding6176 supplier finance on top ofAP16306; already included",
+      "sourcePhysicalPages": [
+        2033,
+        2005
+      ],
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "Thorne_completed_before_balance_date",
+      "expected": "Reject treating3.8bn announcedAugust4 2026 as completedFY2026 acquisition",
+      "sourcePhysicalPages": [
+        2034
+      ],
+      "applicationResult": "not executed"
+    },
+    {
+      "id": "extend_audit_to_application",
+      "expected": "Reject claims Deloitte assures model or S-Kosif controls",
+      "sourcePhysicalPages": [
+        2001,
+        2003
+      ],
+      "applicationResult": "not executed"
+    }
+  ],
+  "pageIntegrity": {
+    "uniquePageCount": 77,
+    "allSourceTextHashesMatch": true,
+    "exactAssignedRange": true
+  }
+}

@@ -1,0 +1,49 @@
+                                                                                                          The Procter & Gamble Company        41
+
+
+Consolidated Statements of Cash Flows
+Amounts in millions; fiscal years ended June 30                                                         2026            2025           2024
+CASH, CASH EQUIVALENTS AND RESTRICTED CASH, BEGINNING OF YEAR                                      $    9,556      $     9,482    $     8,246
+OPERATING ACTIVITIES (1)
+ Net earnings                                                                                          16,144          16,065         14,974
+ Depreciation and amortization                                                                          3,160           2,847          2,896
+ Share-based compensation expense                                                                         524             476            562
+ Deferred income taxes                                                                                     51             149           (244)
+ (Gain)/loss on sale of assets                                                                           (351)            755           (215)
+ Indefinite-lived intangible asset impairment charge                                                       —               —           1,341
+ Change in accounts receivable                                                                             84              45           (766)
+ Change in inventories                                                                                   (641)           (324)           (70)
+ Change in accounts payable                                                                               919            (542)           878
+ Other                                                                                                   (333)         (1,653)           491
+TOTAL OPERATING ACTIVITIES                                                                             19,556          17,817         19,846
+INVESTING ACTIVITIES
+ Capital expenditures                                                                                   (4,409)         (3,773)        (3,322)
+ Proceeds from asset sales                                                                                 508             107            346
+ Acquisitions, net of cash acquired                                                                        (85)            (11)           (21)
+ Other investing activity                                                                                 (638)           (141)          (507)
+TOTAL INVESTING ACTIVITIES                                                                              (4,624)         (3,818)        (3,504)
+FINANCING ACTIVITIES
+  Dividends to shareholders                                                                            (10,232)         (9,872)        (9,312)
+  Additions to short-term debt with original maturities of more than three months                        7,941           8,020          3,528
+  Reductions in short-term debt with original maturities of more than three months                      (9,984)         (6,512)        (7,689)
+  Net additions/(reductions) to other short-term debt                                                    2,674          (1,138)           857
+  Additions to long-term debt                                                                            2,652           2,237          3,197
+  Reductions in long-term debt                                                                          (3,390)         (1,977)        (2,335)
+ Treasury stock purchases                                                                               (5,028)         (6,500)        (5,006)
+ Impact of stock options and other                                                                         907           1,707          1,905
+TOTAL FINANCING ACTIVITIES                                                                             (14,460)        (14,036)       (14,855)
+EFFECT OF EXCHANGE RATE CHANGES ON CASH, CASH EQUIVALENTS
+AND RESTRICTED CASH                                                                                       (86)             112           (251)
+CHANGE IN CASH, CASH EQUIVALENTS AND RESTRICTED CASH                                                      386               75          1,235
+CASH, CASH EQUIVALENTS AND RESTRICTED CASH, END OF YEAR                                            $    9,942      $     9,556    $     9,482
+
+SUPPLEMENTAL DISCLOSURE
+Cash payments for interest                                                                         $      866      $      896     $      878
+(1)   Certain prior period amounts within Operating Activities have been reclassified for consistency with the current period presentation.
+      These reclassifications had no effect on the previously reported Total Operating Activities.
+
+
+
+
+                                                                                    See accompanying Notes to Consolidated Financial Statements.
+

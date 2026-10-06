@@ -1,0 +1,12 @@
+{
+  "frozenBeforeAdapter": true,
+  "packageSha256": "c871ddf587f724d48654f6ebfecebd071df20bdb30ab04720116748844180792",
+  "files": {
+    "reviewed-package/issuer-model.json": "2a5f3a67336ff1bead2b390a0ac860bc5ab5f0a2ae8484d3811c7f52011153a5",
+    "reviewed-package/numerical-oracles.json": "b4bf995822a5460fb1af17655a84584ab29f5a03e2ff17c4366e0a3a4b91a923",
+    "source-labels.json": "d1384731f7db167f1e51aa48b46d8e339d4866b78fda701092ff67e48c7ba1ba"
+  },
+  "constraint": "Do not regenerate this oracle from adapter code. Earlier six concept inequalities were not executed validator rejections.",
+  "portableSelection": "These exact bytes were frozen before adapter implementation; this fixture selects them without regenerating the oracle.",
+  "originalFreezeSha256": "f74484bf5b2fa0fa7e6e4be65eff75de6a04ffcd3f56b7f2d2d62364ea3fcf7f"
+}

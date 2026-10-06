@@ -1,0 +1,2602 @@
+{
+  "schema_version": 1,
+  "entity": "Volkswagen Group and explicitly separate Volkswagen AG parent",
+  "report_year": 2025,
+  "source_pdf_sha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+  "model_scope": "selected management disclosure comparison models",
+  "tables": {
+    "division_revenue": {
+      "physical_page": 3766,
+      "printed_page": 115,
+      "source_text_sha256": "a68d22549feb33c21e304c4601cc520b5992afd9e8fbb1e389b4c3668b9e9c99",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "rows": {
+        "auto": {
+          "label": "Automotive Division",
+          "values": [
+            290390,
+            290646
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Automotive Division before interdivision eliminations",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "fs": {
+          "label": "Financial Services Division",
+          "values": [
+            62136,
+            58769
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Financial Services Division before interdivision eliminations",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "elimination": {
+          "label": "Interdivision eliminations",
+          "values": [
+            -30612,
+            -24759
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "interdivision consolidation adjustments",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "group": {
+          "label": "Consolidated Volkswagen Group",
+          "values": [
+            321913,
+            324656
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "consolidated Volkswagen Group",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        }
+      },
+      "scope": "explicit division columns reconciled to Group",
+      "unit": "EUR million",
+      "basis": "EU-adopted IFRS management presentation",
+      "notes": [
+        "2024 automotive reporting structure recast to2025; eliminations separate."
+      ]
+    },
+    "division_operating": {
+      "physical_page": 3766,
+      "printed_page": 115,
+      "source_text_sha256": "a68d22549feb33c21e304c4601cc520b5992afd9e8fbb1e389b4c3668b9e9c99",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "rows": {
+        "auto": {
+          "label": "Automotive Division",
+          "values": [
+            5279,
+            16300
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Automotive Division before interdivision eliminations",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "fs": {
+          "label": "Financial Services Division",
+          "values": [
+            3708,
+            3119
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Financial Services Division before interdivision eliminations",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "elimination": {
+          "label": "Interdivision eliminations",
+          "values": [
+            -119,
+            -358
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "interdivision consolidation adjustments",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "group": {
+          "label": "Consolidated Volkswagen Group",
+          "values": [
+            8868,
+            19060
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "consolidated Volkswagen Group",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        }
+      },
+      "scope": "explicit division columns reconciled to Group",
+      "unit": "EUR million",
+      "basis": "EU-adopted IFRS management presentation",
+      "notes": [
+        "2024 automotive reporting structure recast to2025; eliminations separate."
+      ]
+    },
+    "division_cfo": {
+      "physical_page": 3770,
+      "printed_page": 119,
+      "source_text_sha256": "c279c5fcf826da56664f03f70487cf0361e8579c49cdc05fef0eac3abedd76d2",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "rows": {
+        "auto": {
+          "label": "Automotive Division",
+          "values": [
+            31406,
+            34263
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Automotive Division before interdivision eliminations",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "fs": {
+          "label": "Financial Services Division",
+          "values": [
+            -14836,
+            -15832
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Financial Services Division before interdivision eliminations",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "elimination": {
+          "label": "Interdivision eliminations",
+          "values": [
+            -1560,
+            -1280
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "interdivision consolidation adjustments",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "group": {
+          "label": "Consolidated Volkswagen Group",
+          "values": [
+            15009,
+            17151
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "consolidated Volkswagen Group",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        }
+      },
+      "scope": "explicit division columns reconciled to Group",
+      "unit": "EUR million",
+      "basis": "EU-adopted IFRS management presentation",
+      "notes": [
+        "2024 automotive reporting structure recast to2025; eliminations separate."
+      ]
+    },
+    "division_operating_investing": {
+      "physical_page": 3770,
+      "printed_page": 119,
+      "source_text_sha256": "c279c5fcf826da56664f03f70487cf0361e8579c49cdc05fef0eac3abedd76d2",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "rows": {
+        "auto": {
+          "label": "Automotive Division",
+          "values": [
+            -24961,
+            -29077
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Automotive Division before interdivision eliminations",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "fs": {
+          "label": "Financial Services Division",
+          "values": [
+            -513,
+            -883
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Financial Services Division before interdivision eliminations",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "elimination": {
+          "label": "Interdivision eliminations",
+          "values": [
+            414,
+            1107
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "interdivision consolidation adjustments",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "group": {
+          "label": "Consolidated Volkswagen Group",
+          "values": [
+            -25060,
+            -28853
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "consolidated Volkswagen Group",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        }
+      },
+      "scope": "explicit division columns reconciled to Group",
+      "unit": "EUR million",
+      "basis": "EU-adopted IFRS management presentation",
+      "notes": [
+        "2024 automotive reporting structure recast to2025; eliminations separate."
+      ]
+    },
+    "division_net_cashflow": {
+      "physical_page": 3770,
+      "printed_page": 119,
+      "source_text_sha256": "c279c5fcf826da56664f03f70487cf0361e8579c49cdc05fef0eac3abedd76d2",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "rows": {
+        "auto": {
+          "label": "Automotive Division",
+          "values": [
+            6445,
+            5186
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Automotive Division before interdivision eliminations",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "fs": {
+          "label": "Financial Services Division",
+          "values": [
+            -15350,
+            -16715
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Financial Services Division before interdivision eliminations",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "elimination": {
+          "label": "Interdivision eliminations",
+          "values": [
+            -1146,
+            -173
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "interdivision consolidation adjustments",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "group": {
+          "label": "Consolidated Volkswagen Group",
+          "values": [
+            -10051,
+            -11702
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "consolidated Volkswagen Group",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        }
+      },
+      "scope": "explicit division columns reconciled to Group",
+      "unit": "EUR million",
+      "basis": "EU-adopted IFRS management presentation",
+      "notes": [
+        "2024 automotive reporting structure recast to2025; eliminations separate."
+      ]
+    },
+    "division_net_liquidity": {
+      "physical_page": 3770,
+      "printed_page": 119,
+      "source_text_sha256": "c279c5fcf826da56664f03f70487cf0361e8579c49cdc05fef0eac3abedd76d2",
+      "periods": [
+        "2025-12-31",
+        "2024-12-31"
+      ],
+      "rows": {
+        "auto": {
+          "label": "Automotive Division",
+          "values": [
+            34497,
+            34414
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Automotive Division before interdivision eliminations",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "fs": {
+          "label": "Financial Services Division",
+          "values": [
+            -214566,
+            -205188
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Financial Services Division before interdivision eliminations",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "elimination": {
+          "label": "Interdivision eliminations",
+          "values": [
+            1563,
+            1652
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "interdivision consolidation adjustments",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "group": {
+          "label": "Consolidated Volkswagen Group",
+          "values": [
+            -178506,
+            -169122
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "consolidated Volkswagen Group",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        }
+      },
+      "scope": "explicit division columns reconciled to Group",
+      "unit": "EUR million",
+      "basis": "EU-adopted IFRS management presentation",
+      "notes": [
+        "2024 automotive reporting structure recast to2025; eliminations separate."
+      ]
+    },
+    "division_assets": {
+      "physical_page": 3774,
+      "printed_page": 123,
+      "source_text_sha256": "d088f7deccb0009b413917f58c337437183ede8d6c7be92abbd348fec990053d",
+      "periods": [
+        "2025-12-31",
+        "2024-12-31"
+      ],
+      "rows": {
+        "auto": {
+          "label": "Automotive Division",
+          "values": [
+            419684,
+            419772
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Automotive Division before interdivision eliminations",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "fs": {
+          "label": "Financial Services Division",
+          "values": [
+            321408,
+            312224
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Financial Services Division before interdivision eliminations",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "elimination": {
+          "label": "Interdivision eliminations",
+          "values": [
+            -96625,
+            -99091
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "interdivision consolidation adjustments",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "group": {
+          "label": "Consolidated Volkswagen Group",
+          "values": [
+            644467,
+            632905
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "consolidated Volkswagen Group",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        }
+      },
+      "scope": "explicit division columns reconciled to Group",
+      "unit": "EUR million",
+      "basis": "EU-adopted IFRS management presentation",
+      "notes": [
+        "2024 automotive reporting structure recast to2025; eliminations separate."
+      ]
+    },
+    "hgb_income": {
+      "physical_page": 3777,
+      "printed_page": 126,
+      "source_text_sha256": "7375747cd722fc08e814255c55cdae038ced52ab32286cf6e648503e8a1f3f63",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "rows": {
+        "revenue": {
+          "label": "Sales",
+          "values": [
+            97968,
+            94078
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        },
+        "cost": {
+          "label": "Cost of sales",
+          "values": [
+            -88204,
+            -85924
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        },
+        "gross": {
+          "label": "Gross profit",
+          "values": [
+            9764,
+            8154
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        },
+        "dga": {
+          "label": "Distribution general administrative",
+          "values": [
+            -7898,
+            -8023
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        },
+        "other": {
+          "label": "Net other operating result",
+          "values": [
+            882,
+            415
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        },
+        "financial": {
+          "label": "Financial result",
+          "values": [
+            4865,
+            4809
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        },
+        "tax": {
+          "label": "Tax",
+          "values": [
+            -112,
+            -221
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        },
+        "profit": {
+          "label": "Net income",
+          "values": [
+            7500,
+            5133
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        },
+        "brought_forward": {
+          "label": "Retained profits brought forward",
+          "values": [
+            4,
+            1
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-01-01",
+            "2024-01-01"
+          ],
+          "temporal_type": "opening_balance",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        },
+        "reserve": {
+          "label": "Appropriation to reserves",
+          "values": [
+            -3750,
+            -1960
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        },
+        "retained": {
+          "label": "Net retained profits",
+          "values": [
+            3755,
+            3175
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        }
+      },
+      "scope": "Volkswagen AG parent only",
+      "unit": "EUR million",
+      "basis": "German HGB parent condensed",
+      "notes": []
+    },
+    "hgb_balance": {
+      "physical_page": 3778,
+      "printed_page": 127,
+      "source_text_sha256": "1e00e977103827ebe3e6e7b55149f11d3a67cf2436bd1b2fc7cb4b582bd97ff8",
+      "periods": [
+        "2025-12-31",
+        "2024-12-31"
+      ],
+      "rows": {
+        "fixed": {
+          "label": "Fixed assets",
+          "values": [
+            167754,
+            165130
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        },
+        "inventories": {
+          "label": "Inventories",
+          "values": [
+            6505,
+            6842
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        },
+        "receivables": {
+          "label": "Receivables including prepaid",
+          "values": [
+            31644,
+            30776
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        },
+        "cash": {
+          "label": "Cash-in-hand and bank balances",
+          "values": [
+            9112,
+            7326
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        },
+        "assets": {
+          "label": "Total assets",
+          "values": [
+            215015,
+            210073
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        },
+        "equity": {
+          "label": "Equity",
+          "values": [
+            47133,
+            42803
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        },
+        "special": {
+          "label": "Special tax allowable reserves",
+          "values": [
+            17,
+            17
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        },
+        "long": {
+          "label": "Long-term debt",
+          "values": [
+            23470,
+            29169
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        },
+        "medium": {
+          "label": "Medium-term debt",
+          "values": [
+            75005,
+            60580
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        },
+        "short": {
+          "label": "Short-term debt",
+          "values": [
+            69390,
+            77504
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        },
+        "financing": {
+          "label": "Total financing",
+          "values": [
+            215015,
+            210073
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Volkswagen AG parent only",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_balance",
+          "measurement": "reported",
+          "basis": "German HGB parent condensed"
+        }
+      },
+      "scope": "Volkswagen AG parent only",
+      "unit": "EUR million",
+      "basis": "German HGB parent condensed",
+      "notes": []
+    },
+    "automotive_rd": {
+      "physical_page": 3768,
+      "printed_page": 117,
+      "source_text_sha256": "47b420de617fae93623117196c6135e8c441b5898162c90c04ba7b926fa73597",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "rows": {
+        "total": {
+          "label": "Total R&D costs",
+          "values": [
+            19412,
+            21030
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Automotive Division",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "capitalized": {
+          "label": "Capitalized development costs",
+          "values": [
+            9343,
+            10244
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Automotive Division",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "amortization": {
+          "label": "Amortization of capitalized costs",
+          "values": [
+            8365,
+            7209
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Automotive Division",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "pnl": {
+          "label": "R&D recognized in P&L",
+          "values": [
+            18434,
+            17995
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR million",
+          "scope": "Automotive Division",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        }
+      },
+      "scope": "Automotive Division",
+      "unit": "EUR million",
+      "basis": "EU-adopted IFRS management presentation",
+      "notes": [
+        "Prior2024 adjusted; cashflow capitalized development9047 differs additions9343. Group P&L R&D18396 differs Automotive18434."
+      ]
+    },
+    "deliveries": {
+      "physical_page": 3746,
+      "printed_page": 95,
+      "source_text_sha256": "abc92d54c01f6cedc2c4545b1530a1867d0d5f49d036ed20779d36510eba6a9a",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "rows": {
+        "passenger": {
+          "label": "Passenger and light commercial",
+          "values": [
+            8678334,
+            8692465
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "vehicles",
+          "scope": "Volkswagen Group including equity-accounted Chinese JVs",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "commercial": {
+          "label": "Commercial vehicles",
+          "values": [
+            305566,
+            334216
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "vehicles",
+          "scope": "Volkswagen Group including equity-accounted Chinese JVs",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "total": {
+          "label": "Total deliveries",
+          "values": [
+            8983900,
+            9026681
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "vehicles",
+          "scope": "Volkswagen Group including equity-accounted Chinese JVs",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "bev": {
+          "label": "BEV deliveries including heavy commercial",
+          "values": [
+            983120,
+            744571
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "vehicles",
+          "scope": "Volkswagen Group including equity-accounted Chinese JVs",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        }
+      },
+      "scope": "Volkswagen Group including equity-accounted Chinese JVs",
+      "unit": "vehicles",
+      "basis": "EU-adopted IFRS management presentation",
+      "notes": [
+        "Prior figures updated for subsequent statistical trends; deliveries to end customer, not vehicle sales."
+      ]
+    },
+    "sales_production": {
+      "physical_page": 3753,
+      "printed_page": 102,
+      "source_text_sha256": "64ffb9e1593784483c7d97e7743abc3558c93579b9fb45cc7a3bdf57597bd5a8",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "rows": {
+        "sales_incl": {
+          "label": "Vehicle sales including China JVs",
+          "values": [
+            9022111,
+            9036653
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "vehicles",
+          "scope": "Volkswagen Group including equity-accounted Chinese JVs",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "sales_excl": {
+          "label": "Vehicle sales excluding China JVs",
+          "values": [
+            6433789,
+            6294998
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "vehicles",
+          "scope": "Volkswagen Group excluding equity-accounted Chinese JVs",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "production_excl": {
+          "label": "Production excluding China JVs",
+          "values": [
+            6249942,
+            6213442
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "vehicles",
+          "scope": "Volkswagen Group excluding equity-accounted Chinese JVs",
+          "periods": [
+            "2025-01-01/2025-12-31",
+            "2024-01-01/2024-12-31"
+          ],
+          "temporal_type": "annual_flow",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        }
+      },
+      "scope": "Volkswagen Group boundary specified by row",
+      "unit": "vehicles",
+      "basis": "EU-adopted IFRS management presentation",
+      "notes": []
+    },
+    "workforce": {
+      "physical_page": 3800,
+      "printed_page": 149,
+      "source_text_sha256": "7a1fd738809ca82eed2808197e54d09d88a268c0a17a5d6738e2a1fece29da0f",
+      "periods": [
+        "2025-12-31",
+        "2024-12-31"
+      ],
+      "rows": {
+        "incl": {
+          "label": "Year-end total including China JVs",
+          "values": [
+            662942,
+            679472
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "people",
+          "scope": "Group including China JVs",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_headcount",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "excl": {
+          "label": "Year-end total excluding China JVs",
+          "values": [
+            602659,
+            614082
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "people",
+          "scope": "Group excluding China JVs",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_headcount",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "germany": {
+          "label": "Year-end Germany",
+          "values": [
+            284032,
+            293338
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "people",
+          "scope": "Germany Group workforce",
+          "periods": [
+            "2025-12-31",
+            "2024-12-31"
+          ],
+          "temporal_type": "closing_headcount",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        }
+      },
+      "scope": "Volkswagen Group headcount by boundary",
+      "unit": "people",
+      "basis": "EU-adopted IFRS management presentation",
+      "notes": []
+    },
+    "dividend_payout": {
+      "physical_page": 3757,
+      "printed_page": 106,
+      "source_text_sha256": "86ee9a5314c1b99cf0103096453f72336c945e67566c7d341a606338008098f0",
+      "periods": [
+        "2025-01-01/2025-12-31",
+        "2024-01-01/2024-12-31"
+      ],
+      "rows": {
+        "ordinary": {
+          "label": "Dividend per ordinary share",
+          "values": [
+            5.2,
+            6.3
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR per share",
+          "scope": "Volkswagen AG shareholder dividend based Group attributable profit",
+          "periods": [
+            "2025 underlying year; proposed for2026 payment",
+            "2024 underlying year; paid2025"
+          ],
+          "temporal_type": "dividend_proposal_vs_prior_paid",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "preferred": {
+          "label": "Dividend per preferred share",
+          "values": [
+            5.26,
+            6.36
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR per share",
+          "scope": "Volkswagen AG shareholder dividend based Group attributable profit",
+          "periods": [
+            "2025 underlying year; proposed for2026 payment",
+            "2024 underlying year; paid2025"
+          ],
+          "temporal_type": "dividend_proposal_vs_prior_paid",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "reported_payout": {
+          "label": "Unadjusted payout ratio",
+          "values": [
+            39.2,
+            29.6
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "percent",
+          "scope": "Volkswagen AG shareholder dividend based Group attributable profit",
+          "periods": [
+            "2025 underlying year; proposed for2026 payment",
+            "2024 underlying year; paid2025"
+          ],
+          "temporal_type": "dividend_proposal_vs_prior_paid",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        }
+      },
+      "scope": "Volkswagen AG shareholder dividend based Group attributable profit",
+      "unit": "mixed; per-row units required",
+      "basis": "EU-adopted IFRS management presentation",
+      "notes": [
+        "2025 proposed dividend;2024 underlying-year dividend paid2025.2025 adjusted ratio30% excludes Porsche goodwill in assessment base."
+      ]
+    },
+    "forecast2026": {
+      "physical_page": 3813,
+      "printed_page": 162,
+      "source_text_sha256": "16029b610a7338a83cd944f13189b16b55ae776add2c2f824c97040482362e0b",
+      "periods": [
+        "2026 lower bound",
+        "2026 upper bound"
+      ],
+      "rows": {
+        "revenue_growth": {
+          "label": "Group revenue growth forecast",
+          "values": [
+            0,
+            3
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "percent",
+          "scope": "consolidated Volkswagen Group",
+          "periods": [
+            "2026 lower bound",
+            "2026 upper bound"
+          ],
+          "temporal_type": "forecast_interval",
+          "measurement": "forecast",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "ros": {
+          "label": "Group ROS forecast",
+          "values": [
+            4,
+            5.5
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "percent",
+          "scope": "consolidated Volkswagen Group",
+          "periods": [
+            "2026 lower bound",
+            "2026 upper bound"
+          ],
+          "temporal_type": "forecast_interval",
+          "measurement": "forecast",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "investment": {
+          "label": "Automotive investment ratio forecast",
+          "values": [
+            11,
+            12
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "percent",
+          "scope": "Automotive Division",
+          "periods": [
+            "2026 lower bound",
+            "2026 upper bound"
+          ],
+          "temporal_type": "forecast_interval",
+          "measurement": "forecast",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "ncf": {
+          "label": "Automotive net cash flow forecast",
+          "values": [
+            3,
+            6
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR billion",
+          "scope": "Automotive Division",
+          "periods": [
+            "2026 lower bound",
+            "2026 upper bound"
+          ],
+          "temporal_type": "forecast_interval",
+          "measurement": "forecast",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "liquidity": {
+          "label": "Automotive net liquidity forecast",
+          "values": [
+            32,
+            34
+          ],
+          "status": [
+            "reported_number",
+            "reported_number"
+          ],
+          "unit": "EUR billion",
+          "scope": "Automotive Division",
+          "periods": [
+            "2026 lower bound",
+            "2026 upper bound"
+          ],
+          "temporal_type": "forecast_interval",
+          "measurement": "forecast",
+          "basis": "EU-adopted IFRS management presentation"
+        }
+      },
+      "scope": "scope stated by individual row",
+      "unit": "mixed; per-row units required",
+      "basis": "EU-adopted IFRS management presentation",
+      "notes": [
+        "Issued Feb24 2026; assumes prevailing tariff situation persists. Not actual2026."
+      ]
+    },
+    "shareholder_percentages": {
+      "physical_page": 3758,
+      "printed_page": 107,
+      "source_text_sha256": "3588c196007935daaf69338a67dc189173582f310670cd839760d20bc1a086e8",
+      "periods": [
+        "2025-12-31"
+      ],
+      "rows": {
+        "porsche_capital": {
+          "label": "Porsche SE capital share",
+          "values": [
+            31.9
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "percent",
+          "scope": "Volkswagen AG",
+          "periods": [
+            "2025-12-31"
+          ],
+          "temporal_type": "closing_ownership",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation",
+          "denominator": "subscribed capital ordinary plus preferred"
+        },
+        "porsche_vote": {
+          "label": "Porsche SE voting rights",
+          "values": [
+            53.3
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "percent",
+          "scope": "Volkswagen AG",
+          "periods": [
+            "2025-12-31"
+          ],
+          "temporal_type": "closing_ownership",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation",
+          "denominator": "ordinary voting shares only"
+        },
+        "state_capital": {
+          "label": "Lower Saxony capital share",
+          "values": [
+            11.8
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "percent",
+          "scope": "Volkswagen AG",
+          "periods": [
+            "2025-12-31"
+          ],
+          "temporal_type": "closing_ownership",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation",
+          "denominator": "subscribed capital ordinary plus preferred"
+        },
+        "state_vote": {
+          "label": "Lower Saxony voting rights",
+          "values": [
+            20.0
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "percent",
+          "scope": "Volkswagen AG",
+          "periods": [
+            "2025-12-31"
+          ],
+          "temporal_type": "closing_ownership",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation",
+          "denominator": "ordinary voting shares only"
+        },
+        "qatar_capital": {
+          "label": "Qatar capital share",
+          "values": [
+            10.4
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "percent",
+          "scope": "Volkswagen AG",
+          "periods": [
+            "2025-12-31"
+          ],
+          "temporal_type": "closing_ownership",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation",
+          "denominator": "subscribed capital ordinary plus preferred"
+        },
+        "qatar_vote": {
+          "label": "Qatar voting rights",
+          "values": [
+            17.0
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "percent",
+          "scope": "Volkswagen AG",
+          "periods": [
+            "2025-12-31"
+          ],
+          "temporal_type": "closing_ownership",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation",
+          "denominator": "ordinary voting shares only"
+        }
+      },
+      "scope": "Volkswagen AG",
+      "unit": "percent",
+      "basis": "EU-adopted IFRS management presentation",
+      "notes": []
+    },
+    "lti_policy": {
+      "physical_page": 3694,
+      "printed_page": 43,
+      "source_text_sha256": "76bb87655b229efed2d749c1f4fad2ab77cf5389f7f674e939656577a560bd15",
+      "periods": [
+        "2025 policy"
+      ],
+      "rows": {
+        "chair_target": {
+          "label": "Chair target remuneration",
+          "values": [
+            5900000
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "EUR",
+          "scope": "2025 remuneration system at100percent scope of activity",
+          "periods": [
+            "2025 policy"
+          ],
+          "temporal_type": "policy_parameter",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "member_target": {
+          "label": "Member target remuneration",
+          "values": [
+            2500000
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "EUR",
+          "scope": "2025 remuneration system at100percent scope of activity",
+          "periods": [
+            "2025 policy"
+          ],
+          "temporal_type": "policy_parameter",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "cap_percent": {
+          "label": "Stated maximum percent",
+          "values": [
+            250
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "percent",
+          "scope": "2025 remuneration system at100percent scope of activity",
+          "periods": [
+            "2025 policy"
+          ],
+          "temporal_type": "policy_parameter",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "chair_cap": {
+          "label": "Stated chair maximum amount",
+          "values": [
+            11800000
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "EUR",
+          "scope": "2025 remuneration system at100percent scope of activity",
+          "periods": [
+            "2025 policy"
+          ],
+          "temporal_type": "policy_parameter",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "member_cap": {
+          "label": "Stated member maximum amount",
+          "values": [
+            5000000
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "EUR",
+          "scope": "2025 remuneration system at100percent scope of activity",
+          "periods": [
+            "2025 policy"
+          ],
+          "temporal_type": "policy_parameter",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        }
+      },
+      "scope": "2025 remuneration system at100percent scope of activity",
+      "unit": "EUR",
+      "basis": "EU-adopted IFRS management presentation",
+      "notes": [
+        "Open source-consistency question: stated amounts equal200%, while stated percentage is250%; later text distinguishes older paid200% plans/current250% plans. Overall remuneration caps and grant/payment timing also differ. No source correction assumed."
+      ]
+    },
+    "antlitz_remuneration": {
+      "physical_page": 3698,
+      "printed_page": 47,
+      "source_text_sha256": "f1bbcc1521a515e79ab593cf522752e14ee5524f182f81f169cdbe216afba8f7",
+      "periods": [
+        "2025 remuneration report convention"
+      ],
+      "rows": {
+        "base": {
+          "label": "Base salary",
+          "values": [
+            1500000
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "EUR",
+          "scope": "Arno Antlitz remuneration under Sec162 reporting convention",
+          "periods": [
+            "2025 remuneration report convention"
+          ],
+          "temporal_type": "remuneration_disclosure",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "fringe": {
+          "label": "Fringe benefits",
+          "values": [
+            187061
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "EUR",
+          "scope": "Arno Antlitz remuneration under Sec162 reporting convention",
+          "periods": [
+            "2025 remuneration report convention"
+          ],
+          "temporal_type": "remuneration_disclosure",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "bonus": {
+          "label": "Annual bonus",
+          "values": [
+            1716000
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "EUR",
+          "scope": "Arno Antlitz remuneration under Sec162 reporting convention",
+          "periods": [
+            "2025 remuneration report convention"
+          ],
+          "temporal_type": "remuneration_disclosure",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "lti": {
+          "label": "LTI paid for2021\u201324",
+          "values": [
+            1672278.19
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "EUR",
+          "scope": "Arno Antlitz remuneration under Sec162 reporting convention",
+          "periods": [
+            "2025 remuneration report convention"
+          ],
+          "temporal_type": "remuneration_disclosure",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "waiver": {
+          "label": "Amount deducted under waiver",
+          "values": [
+            -537710.6
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "EUR",
+          "scope": "Arno Antlitz remuneration under Sec162 reporting convention",
+          "periods": [
+            "2025 remuneration report convention"
+          ],
+          "temporal_type": "remuneration_disclosure",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "total": {
+          "label": "Reported granted and owed total",
+          "values": [
+            5075339.19
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "EUR",
+          "scope": "Arno Antlitz remuneration under Sec162 reporting convention",
+          "periods": [
+            "2025 remuneration report convention"
+          ],
+          "temporal_type": "remuneration_disclosure",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "pension": {
+          "label": "IAS19 service expense",
+          "values": [
+            607886
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "EUR",
+          "scope": "Arno Antlitz remuneration under Sec162 reporting convention",
+          "periods": [
+            "2025 remuneration report convention"
+          ],
+          "temporal_type": "remuneration_disclosure",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "including_pension": {
+          "label": "Reported total including pension",
+          "values": [
+            5683225.19
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "EUR",
+          "scope": "Arno Antlitz remuneration under Sec162 reporting convention",
+          "periods": [
+            "2025 remuneration report convention"
+          ],
+          "temporal_type": "remuneration_disclosure",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        }
+      },
+      "scope": "Arno Antlitz remuneration under Sec162 reporting convention",
+      "unit": "EUR",
+      "basis": "EU-adopted IFRS management presentation",
+      "notes": [
+        "Reported total equals positive components without displayed waiver; preserve unresolved gross/net/timing presentation. Annual2025 bonus paid2026 is counted as granted2025."
+      ]
+    },
+    "kilian_former_remuneration": {
+      "physical_page": 3714,
+      "printed_page": 63,
+      "source_text_sha256": "7738faf7195822048ab4fb9f69a2c0c6ce1878c6683f97848c0316694fe8ca0a",
+      "periods": [
+        "2025-07-05/2025-12-31 remuneration convention"
+      ],
+      "rows": {
+        "base": {
+          "label": "Base salary",
+          "values": [
+            739726.03
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "EUR",
+          "scope": "Gunnar Kilian former-member portion only",
+          "periods": [
+            "2025-07-05/2025-12-31 remuneration convention"
+          ],
+          "temporal_type": "remuneration_disclosure",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "fringe": {
+          "label": "Fringe benefits",
+          "values": [
+            90066
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "EUR",
+          "scope": "Gunnar Kilian former-member portion only",
+          "periods": [
+            "2025-07-05/2025-12-31 remuneration convention"
+          ],
+          "temporal_type": "remuneration_disclosure",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "bonus": {
+          "label": "Annual bonus",
+          "values": [
+            846246.58
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "EUR",
+          "scope": "Gunnar Kilian former-member portion only",
+          "periods": [
+            "2025-07-05/2025-12-31 remuneration convention"
+          ],
+          "temporal_type": "remuneration_disclosure",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "lti": {
+          "label": "LTI",
+          "values": [
+            66261.7
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "EUR",
+          "scope": "Gunnar Kilian former-member portion only",
+          "periods": [
+            "2025-07-05/2025-12-31 remuneration convention"
+          ],
+          "temporal_type": "remuneration_disclosure",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "waiver": {
+          "label": "Waiver",
+          "values": [
+            -181745.77
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "EUR",
+          "scope": "Gunnar Kilian former-member portion only",
+          "periods": [
+            "2025-07-05/2025-12-31 remuneration convention"
+          ],
+          "temporal_type": "remuneration_disclosure",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "total": {
+          "label": "Reported total",
+          "values": [
+            1560554.53
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "EUR",
+          "scope": "Gunnar Kilian former-member portion only",
+          "periods": [
+            "2025-07-05/2025-12-31 remuneration convention"
+          ],
+          "temporal_type": "remuneration_disclosure",
+          "measurement": "reported",
+          "basis": "EU-adopted IFRS management presentation"
+        }
+      },
+      "scope": "Gunnar Kilian former-member portion only",
+      "unit": "EUR",
+      "basis": "EU-adopted IFRS management presentation",
+      "notes": [
+        "Unlike active-member tables, this total includes displayed waiver deduction. Sum differs byEUR0.01 rounding."
+      ]
+    },
+    "share_returns": {
+      "physical_page": 3756,
+      "printed_page": 105,
+      "source_text_sha256": "33ddc2fae51df4e046427a0dc34071b9e7f6d47473129afe236a9a389cd94a40",
+      "periods": [
+        "2025"
+      ],
+      "rows": {
+        "ordinary_price": {
+          "label": "Ordinary price return",
+          "values": [
+            14.1
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "percent",
+          "scope": "Volkswagen AG ordinary shares",
+          "periods": [
+            "2025"
+          ],
+          "temporal_type": "annual_return",
+          "measurement": "price_return_ex_dividend",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "preferred_price": {
+          "label": "Preferred price return",
+          "values": [
+            16.3
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "percent",
+          "scope": "Volkswagen AG preferred shares",
+          "periods": [
+            "2025"
+          ],
+          "temporal_type": "annual_return",
+          "measurement": "price_return_ex_dividend",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "dax": {
+          "label": "DAX total return performance index",
+          "values": [
+            23.0
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "percent",
+          "scope": "DAX performance index",
+          "periods": [
+            "2025"
+          ],
+          "temporal_type": "annual_return",
+          "measurement": "total_return_dividend_reinvested",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "sector": {
+          "label": "Sector price return",
+          "values": [
+            -4.3
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "percent",
+          "scope": "EURO STOXX Automobiles and Parts price index",
+          "periods": [
+            "2025"
+          ],
+          "temporal_type": "annual_return",
+          "measurement": "price_return_ex_dividend",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "ordinary_total": {
+          "label": "Ordinary total return with dividends",
+          "values": [
+            21.2
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "percent",
+          "scope": "Volkswagen AG ordinary shares",
+          "periods": [
+            "2025"
+          ],
+          "temporal_type": "annual_return",
+          "measurement": "total_return_dividend_reinvested",
+          "basis": "EU-adopted IFRS management presentation"
+        },
+        "preferred_total": {
+          "label": "Preferred total return with dividends",
+          "values": [
+            23.9
+          ],
+          "status": [
+            "reported_number"
+          ],
+          "unit": "percent",
+          "scope": "Volkswagen AG preferred shares",
+          "periods": [
+            "2025"
+          ],
+          "temporal_type": "annual_return",
+          "measurement": "total_return_dividend_reinvested",
+          "basis": "EU-adopted IFRS management presentation"
+        }
+      },
+      "scope": "Volkswagen listed shares and distinct market indices",
+      "unit": "percent",
+      "basis": "EU-adopted IFRS management presentation",
+      "notes": [
+        "Narrative says both outperformedDAX; figures distinguish price and total return and do not support ordinary share outperformance on either basis. Preserve wording/figures as source-consistency issue, no external assertion."
+      ]
+    }
+  },
+  "equations": [
+    {
+      "id": "division_revenue_bridge",
+      "table": "division_revenue",
+      "target": "group",
+      "terms": {
+        "auto": 1,
+        "fs": 1,
+        "elimination": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "division_operating_bridge",
+      "table": "division_operating",
+      "target": "group",
+      "terms": {
+        "auto": 1,
+        "fs": 1,
+        "elimination": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "division_cfo_bridge",
+      "table": "division_cfo",
+      "target": "group",
+      "terms": {
+        "auto": 1,
+        "fs": 1,
+        "elimination": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "division_operating_investing_bridge",
+      "table": "division_operating_investing",
+      "target": "group",
+      "terms": {
+        "auto": 1,
+        "fs": 1,
+        "elimination": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "division_net_cashflow_bridge",
+      "table": "division_net_cashflow",
+      "target": "group",
+      "terms": {
+        "auto": 1,
+        "fs": 1,
+        "elimination": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "division_net_liquidity_bridge",
+      "table": "division_net_liquidity",
+      "target": "group",
+      "terms": {
+        "auto": 1,
+        "fs": 1,
+        "elimination": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "division_assets_bridge",
+      "table": "division_assets",
+      "target": "group",
+      "terms": {
+        "auto": 1,
+        "fs": 1,
+        "elimination": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "hgb_gross",
+      "table": "hgb_income",
+      "target": "gross",
+      "terms": {
+        "revenue": 1,
+        "cost": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "hgb_profit",
+      "table": "hgb_income",
+      "target": "profit",
+      "terms": {
+        "gross": 1,
+        "dga": 1,
+        "other": 1,
+        "financial": 1,
+        "tax": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 3,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "hgb_retained",
+      "table": "hgb_income",
+      "target": "retained",
+      "terms": {
+        "profit": 1,
+        "brought_forward": 1,
+        "reserve": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "hgb_assets",
+      "table": "hgb_balance",
+      "target": "assets",
+      "terms": {
+        "fixed": 1,
+        "inventories": 1,
+        "receivables": 1,
+        "cash": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2.5,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "hgb_financing",
+      "table": "hgb_balance",
+      "target": "financing",
+      "terms": {
+        "equity": 1,
+        "special": 1,
+        "long": 1,
+        "medium": 1,
+        "short": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 3,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "rd_pnl",
+      "table": "automotive_rd",
+      "target": "pnl",
+      "terms": {
+        "total": 1,
+        "capitalized": -1,
+        "amortization": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 2,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "delivery_total",
+      "table": "deliveries",
+      "target": "total",
+      "terms": {
+        "passenger": 1,
+        "commercial": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 0,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "antlitz_pension",
+      "table": "antlitz_remuneration",
+      "target": "including_pension",
+      "terms": {
+        "total": 1,
+        "pension": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 0.02,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    },
+    {
+      "id": "kilian_post_total",
+      "table": "kilian_former_remuneration",
+      "target": "total",
+      "terms": {
+        "base": 1,
+        "fringe": 1,
+        "bonus": 1,
+        "lti": 1,
+        "waiver": 1
+      },
+      "columns": null,
+      "absolute_tolerance": 0.035,
+      "dash_policy": "reported_dash_as_no_additive_movement_only"
+    }
+  ],
+  "source_consistency_questions": [
+    {
+      "id": "LTI_CAP",
+      "pages": [
+        3694,
+        3705,
+        3709
+      ],
+      "classification": "unresolved policy vintage and cap presentation",
+      "do_not_repair": true
+    },
+    {
+      "id": "WAIVER_TOTAL",
+      "pages": [
+        3696,
+        3698,
+        3714
+      ],
+      "classification": "unresolved gross earned/paid and waiver reporting convention",
+      "do_not_repair": true
+    },
+    {
+      "id": "SHARE_BENCHMARK",
+      "pages": [
+        3755,
+        3756
+      ],
+      "classification": "narrative claim versus numeric return basis",
+      "do_not_repair": true
+    }
+  ],
+  "risk_score_definition": {
+    "page": 3816,
+    "formula": "Prob * (Mat + (Rep + Req) / 2)",
+    "criteria_range": [
+      0,
+      10
+    ],
+    "perspective": "net after mitigation",
+    "opportunities_in_RMS": false,
+    "no_material_MA_score_means_no_risk": false,
+    "management_effectiveness_statement_is_independent_assurance": false,
+    "high_likelihood_boundary": {
+      "text": "greater than50percent",
+      "chart": "at least50percent"
+    },
+    "note": "Boundary wording retained; do not silently harmonize."
+  },
+  "cross_core_links": [
+    {
+      "table": "division_revenue",
+      "row": "group",
+      "core_table": "income",
+      "core_row": "revenue"
+    },
+    {
+      "table": "division_operating",
+      "row": "group",
+      "core_table": "income",
+      "core_row": "operating"
+    },
+    {
+      "table": "division_cfo",
+      "row": "group",
+      "core_table": "cashflow",
+      "core_row": "cfo"
+    },
+    {
+      "table": "division_net_liquidity",
+      "row": "group",
+      "core_table": "cashflow",
+      "core_row": "net_liquidity"
+    },
+    {
+      "table": "division_assets",
+      "row": "group",
+      "core_table": "assets",
+      "core_row": "total"
+    }
+  ],
+  "revision": 2
+}
