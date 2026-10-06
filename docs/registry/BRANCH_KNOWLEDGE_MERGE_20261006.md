@@ -450,3 +450,246 @@
 - Workflow الموجود مسبقًا `.github/workflows/wa-deploy.yml` كان يشير أصلًا إلى `whatsapp-bridge` بينما المجلد نفسه مفقود؛ الاسترجاع يعيد الاتساق بين workflow والكود.
 
 الحالة: **COMPLETE — PR #96 functional subsystem recovered as a self-contained authenticated WhatsApp bridge.**
+
+
+## دفعة PR #95 → PR #88 — مراجعة KOSIF Think التاريخية
+
+### PR #95 — Full Pro auth gate + duplicate tool merge
+- الفكرة المفيدة كانت: منع Full Pro bypass عبر auth، وإزالة تضارب اسم أداة Full Pro المكرر.
+- الخط الحالي يحتوي OAuth/Auth0 metadata وحواجز Full Pro أحدث، ويوجد **تعريف واحد فقط** لأداة `kosif_full_pro_execute`.
+- لم نعد دوال auth القديمة (`ownerAllowed/ownerSubs/bridgeNeedsAuth`) لأنها تخص تصميمًا أقدم، بينما العقود الحالية أوسع.
+- القرار: **SECURITY-IDEA-PRESERVED / CURRENT-IS-SUPERSET**.
+
+### PR #94 — Evidence consistency + reasoning protocol
+- الفرع احتوى فكرة مفيدة **لم تكن موجودة في main أو PR #97**: تقرير معايرة تجريبي لاحتمالات Jev مقابل النتائج الفعلية.
+- تم استرجاعها وظيفيًا:
+  - `wilsonLowerBound`.
+  - `calibrationReportTool`.
+  - أداة جديدة `kosif_calibration_report`.
+  - Brier Score + ECE + reliability bins + Wilson lower bound لكل أداة + حالات false-confidence.
+  - قاعدة أمان صريحة: التقرير **لا يخفّض operational gates تلقائيًا**.
+  - اختبار `think-mcp/calibration-report.test.mjs`.
+- بقية reasoning modules القديمة لا تُنسخ لأن Capability Atlas v3 المسترجع من PR #97 أوسع وأحدث.
+- القرار: **FUNCTIONAL EXTRACTION COMPLETE — calibration recovered; older reasoning selector superseded by Capability Atlas.**
+
+### PR #93 — Jev-gated routing + reasoning protocol
+- جوهر routing موجود في `kosif_route` الحالي، مع capability mesh، حواجز المخاطر، Jev، التحقق، وtool inventory أحدث.
+- `reasoningModulesFor` القديم تم تجاوزه بواسطة Capability Atlas v3.
+- calibration المشترك مع #94 تم استرجاع النسخة الأحدث من #94 فقط.
+- القرار: **CURRENT-IS-SUPERSET / KNOWLEDGE-KEPT**.
+
+### PR #92 — Dynamic Capability Mesh
+- `capabilityMesh` موجود في runtime الحالي.
+- لا حاجة لإعادة نسخة 0.7.0 القديمة فوق runtime أحدث.
+- القرار: **VERIFIED-IN-CURRENT**.
+
+### PR #91 — Jev-Browser hardening
+- منطق browser reliability والتحقق اللاحق تطور لاحقًا؛ runtime الحالي يحتوي مسارات التحقق، recovery، وtool routing.
+- القرار: **SUPERSEDED-BY-LATER-RUNTIME**.
+
+### PR #90 — Adaptive settle + rich verification
+- `adaptiveSettle` موجود في runtime الحالي.
+- القرار: **VERIFIED-IN-CURRENT**.
+
+### PR #89 — Deterministic public fallback
+- fallback/preflight logic موجود ومتوسع في runtime الحالي.
+- القرار: **VERIFIED-IN-CURRENT**.
+
+### PR #88 — Evidence verification + candidate tournament
+- `evidenceConsistency` و`candidate_tournament` موجودان في runtime الحالي، مع `optionBindingConsistency` و`decisionSensitivity` كطبقات أحدث.
+- القرار: **CURRENT-IS-SUPERSET**.
+
+الحالة: **COMPLETE — #95 إلى #88 تمت مراجعتها؛ الميزة الصافية الوحيدة التي كانت مفقودة (empirical calibration) تم إحياؤها فعليًا، والباقي موجود أو تطور في runtime الحالي.**
+
+
+## دفعة PR #87 → PR #78 — مراجعة المعرفة والتنفيذ
+
+### PR #87 — Verified Jev browser choice application
+- التغيير كان مرحلة مبكرة من تطبيق قرار Jev على مسار المتصفح.
+- runtime الحالي يحتوي Jev routing + candidate tournament + verification + recovery بصورة أوسع.
+- القرار: **SUPERSEDED-BY-CURRENT-RUNTIME**.
+
+### PR #86 — Complete Jev-Browser capability contract
+- العقد الحالي أوسع ويشمل capability mesh وrisk gates وpostcondition verification.
+- القرار: **CURRENT-IS-SUPERSET**.
+
+### PR #85 — Jev-Browser routing contract
+- نسخة وسيطة مغلقة قبل #86/#87؛ لا يوجد سبب لإعادة منطق أقدم.
+- القرار: **SUPERSEDED**.
+
+### PR #84 — Prefer KOSIF Computer for browser/device routing
+- فكرة تفضيل أداة الكمبيوتر لمسارات الجهاز محفوظة في router الحالي، ومعها اختبارات توجيه أحدث.
+- القرار: **KNOWLEDGE-KEPT / CURRENT-IS-SUPERSET**.
+
+### PR #83 و#82 — Public deterministic preflight + protected model tools
+- نفس الرأس ونفس الفكرة.
+- preflight/fallback/auth موجودة في runtime الحالي بطبقات أحدث.
+- القرار: **VERIFIED-IN-CURRENT**.
+
+### PR #81 — Restored capabilities + safety fixes
+- هذا الفرع غير مدمج تاريخيًا كفرع كامل، لكن الفحص الملفي أظهر أن أفضل ما فيه **وصل إلى main لاحقًا**:
+  - `tools/advances_e2e.mjs` مطابق حرفيًا.
+  - `ui/legacy/v31.html` و`v33.html` و`v40.html` مطابقة حرفيًا.
+  - حزمة vendor المحلية بالكامل (Chart.js / html2canvas / jsPDF / xlsx-js-style) مطابقة حرفيًا، وبالتالي سياسة عدم تحميل third-party scripts من الشبكة محفوظة.
+  - `helper-space.js` و`ledger.js` الحاليان أكبر بكثير من نسخ الفرع ويحتويان معماريات وقدرات أحدث؛ لا يتم استبدالهما.
+  - `demo.js` الحالي أوسع من الفرع.
+- القرار: **CAPABILITIES-VERIFIED-IN-MAIN / CURRENT-IS-SUPERSET**.
+
+### PR #80 — Safe core stats before boot
+- رأس الفرع خلف main وبدون file delta.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #79 — Restore advances/original systems/product cost map
+- رأس الفرع خلف main وبدون file delta؛ القدرات التي استعادها موجودة في النسخة الحالية.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #78 — 43-company showcase
+- رأس الفرع خلف main وبدون file delta.
+- فكرة corpus/showcase companies تطورت لاحقًا في source catalog وaudit corpus.
+- القرار: **KNOWLEDGE-KEPT / CURRENT-IS-SUPERSET**.
+
+الحالة: **COMPLETE — #87 إلى #78 تمت مراجعتها؛ لا توجد شفرة صافية أفضل مفقودة، والفرع #81 الذي بدا غير مدمج ثبت أن قدراته الأساسية وصلت إلى main لاحقًا.**
+
+
+## دفعة PR #77 → PR #68 — مراجعة المعرفة والتنفيذ
+
+### PR #77 — Accountant workspaces + optional local PIN
+- رأس الفرع خلف main وبدون file delta.
+- مفهوم workspaces والعزل انتقل لاحقًا إلى `helper-space.js` الحالي بشكل أوسع.
+- القرار: **VERIFIED-IN-MAIN / CURRENT-IS-SUPERSET**.
+
+### PR #76 و#75 — 320px mobile modal actions
+- `tools/modal_actions_e2e.mjs` الحالي **مطابق حرفيًا** لنسخة الفرعين.
+- `tools/phone_layout.mjs` الحالي مطابق لنسخة #75.
+- CSS الحالي تطور بعد الفرع، بينما اختبار 320px ما زال يحمي السلوك المقصود.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #74 و#73 — KOSIF Think host tool router + cost guardrails
+- هذه هي الجذور التاريخية لـ `kosif_route`.
+- runtime الحالي أوسع: live inventory، cost classes، risk checkpoints، dependency groups، candidate tournament، Jev gating، recovery، verification، وCapability Atlas.
+- القرار: **CURRENT-IS-SUPERSET / ROOT-IDEA-PRESERVED**.
+
+### PR #72 — Audit request library + round 2 + presentation + benchmarks + IFRS 18/19
+- رأس الفرع خلف main وبدون file delta.
+- القدرات التي أطلقها هذا الإصدار موجودة في main أو تطورت لاحقًا.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #71 — Audit release bundle + #sales + Think 0.4.2
+- رأس الفرع خلف main وبدون file delta.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #70 — Session-only error banner
+- رأس الفرع خلف main وبدون file delta.
+- فصل أخطاء الجلسة عن سجل التشخيص موجود ضمن shell الحالي.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #69 — Touch targets + status contrast
+- رأس الفرع خلف main وبدون file delta.
+- معايير الوصول تطورت لاحقًا، واختبارات الهاتف الحالية تغطيها.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #68 — Jev public page + scrub bridge errors
+- رأس الفرع خلف main وبدون file delta.
+- منطق Jev/bridge الحالي أحدث.
+- القرار: **VERIFIED-IN-MAIN / SUPERSEDED-BY-CURRENT-JEV-CONTRACT**.
+
+الحالة: **COMPLETE — #77 إلى #68 تمت مراجعتها، ولا توجد شفرة صافية مفقودة تحتاج نقلًا.**
+
+
+## دفعة PR #67 → PR #58 — مراجعة المعرفة والتنفيذ
+
+### PR #67 — KOSIF Think MCP token auth + rate limits
+- رأس الفرع خلف main وبدون file delta.
+- OAuth/Auth0 + auth gates + rate limits في runtime الحالي أوسع من النسخة التاريخية.
+- القرار: **VERIFIED-IN-CURRENT / SECURITY-SUPERSET**.
+
+### PR #66 و#65 — Preview-safe builds + phone layout gates
+- `build_mode.py` الحالي مطابق حرفيًا للفرع.
+- `tools/revisit_e2e.mjs` مطابق حرفيًا.
+- `preview_build_check.py` و`phone_layout.mjs` الحاليان أكبر من النسخ القديمة.
+- اختبارات modal/phone الحالية أوسع، وCSS الحالي تطور بعدها.
+- القرار: **CURRENT-IS-SUPERSET**.
+
+### PR #64 — Cross-platform build reliability + four-section navigation
+- تحسينات reliability استوعبها build/CI الحالي.
+- جزء «four-section navigation» تاريخي ولا يعلو على FOUNDATION الحالي؛ لا يُعاد فرض معمارية قديمة.
+- القرار: **BUILD-KNOWLEDGE-KEPT / NAVIGATION-SUPERSEDED-BY-FOUNDATION**.
+
+### PR #63 — Global benchmark ratios
+- رأس الفرع خلف main وبدون file delta.
+- global/peer benchmark engines موجودة في main.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #62 — Touch targets + contrast
+- منطق الاختبار الحالي أوسع، و`phone_layout.mjs` تطور بعده.
+- القرار: **CURRENT-IS-SUPERSET**.
+
+### PR #61 — Assistant reach test
+- `tools/assistant_reach.mjs` الحالي مطابق حرفيًا للفرع.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #60 — Report presentation mode
+- رأس الفرع خلف main وبدون file delta.
+- القدرة موجودة في نظام المعاينة/العروض الحالي.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #59 — Round-2 document requests
+- رأس الفرع خلف main وبدون file delta.
+- جولات الطلبات الديناميكية موجودة في المراجعة الحالية.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #58 — 5-agent Clean APIs council + Jev
+- الفكرة القيّمة: **استقلال وجهات النظر عبر نماذج/مزودين مختلفين ثم Jev**.
+- التنفيذ التاريخي عبر Clean APIs لا يُعاد كما هو لأنه أضعف من عقود الهوية/provenance/auth/cost/receipts الحالية.
+- تم سؤال Jev بين restore / ignore / replace / preserve-and-audit؛ القرار كان **PRESERVE_PRINCIPLE_BUILD_AUDITED_ADAPTERS بنسبة 100%**.
+- لذلك تبقى multi-provider independence متطلب قدرة؛ أي adapter مستقبلي لا يُفعّل إلا إذا كان provider/model identity، auth، التكلفة، والreceipts قابلة للتحقق.
+- القرار: **PRINCIPLE-PRESERVED / OLD-PROXY-NOT-RESTORED**.
+
+الحالة: **COMPLETE — #67 إلى #58 تمت مراجعتها، ولا توجد شفرة قديمة أفضل تحتاج نسخًا مباشرًا؛ الفكرة الوحيدة التي تحتاج استمرار معماري هي multi-provider independence عبر adapters موثقة.**
+
+
+## دفعة PR #57 → PR #48 — مراجعة المعرفة والتنفيذ
+
+### PR #57 — Multi-agent KOSIF Think orchestrator + Jev gate
+- `app/src/engine/think/think-engine.ts` و`think-engine.test.ts` في main **مطابقان حرفيًا** للفرع.
+- runtime الحالي أضاف فوقها Council-500، capability atlas، receipts، secure executor وJev batches.
+- القرار: **VERIFIED-IN-MAIN / EXTENDED-LATER**.
+
+### PR #56 — RC evidence (DO NOT MERGE)
+- الفرع نفسه موسوم صراحةً كـRC evidence لا يُدمج بالجملة.
+- `account-opening-engine.ts` الموجود فيه مطابق حرفيًا لـmain، وكذلك إصلاحات Jev والـsimulator انتقلت في PRs اللاحقة.
+- القرار: **EVIDENCE-ONLY / USEFUL-CODE-ALREADY-IN-MAIN**.
+
+### PR #55 — Audit-first SQC identity
+- الهوية التاريخية والـdemo company امتصهما main، لكن أي صياغة product identity قديمة لا تعلو على FOUNDATION الحالي.
+- القرار: **BRAND-KNOWLEDGE-KEPT / FOUNDATION-AUTHORITATIVE**.
+
+### PR #54 — Jev public page + credential scrubbing
+- `tools/jev_page_check.mjs` في main مطابق حرفيًا للفرع؛ الحماية موجودة.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #53 — Phone layout
+- `phone_layout.mjs` الحالي أكبر وأوسع من نسخة الفرع؛ قواعد عدم التمرير الأفقي/الـstartup card/mobile layout محفوظة.
+- القرار: **CURRENT-IS-SUPERSET**.
+
+### PR #52 — Simulator governance: no inferred account types
+- `account-opening-engine.ts` الحالي مطابق للفرع؛ قاعدة عدم اختراع نوع الحساب والقرار الصريح موجودة.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #51 — Idempotent view listeners
+- `feature_audit.mjs` الحالي أكبر بكثير ويغطي الفكرة مع فحوص إضافية؛ إصلاحات الشاشات absorbed في main.
+- القرار: **CURRENT-IS-SUPERSET**.
+
+### PR #50 — Entry simulator / company journal learner
+- `entry-learner-engine.ts` و`entry-learner-engine.test.ts` في main **مطابقان حرفيًا** للفرع.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #49 — Product tree / customer map / sales analysis / item reports
+- رأس الفرع behind بلا delta؛ القدرات موجودة.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #48 — Four sections + company workspace (historical)
+- القدرات التشغيلية انتقلت إلى main، لكن topology «أربع أقسام» في هذا الفرع تاريخي؛ FOUNDATION الحالي يحدد topology المعتمد.
+- القرار: **CAPABILITIES-KEPT / TOPOLOGY-SUPERSEDED**.
+
+الحالة: **COMPLETE — #57 إلى #48 تمت مراجعتها؛ لا توجد شفرة مفقودة تحتاج نقلًا، وأهم المحركات متطابقة حرفيًا مع main.**
