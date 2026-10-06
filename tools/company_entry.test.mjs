@@ -30,13 +30,13 @@ function page({locked=true,local={},session={},search='',hash=''}={}){
   const fire=(id,type,ev={})=>(handlers[id+':'+type]||[]).forEach(fn=>fn({preventDefault(){},...ev}));
   /* a click target whose closest("[data-x]") answers only for the attributes it carries */
   const target=ds=>({target:{closest:sel=>{const a=/\[data-([a-z-]+)\]/.exec(sel);if(!a)return null;const key=a[1].replace(/-([a-z])/g,(_,c)=>c.toUpperCase());return key in ds?{dataset:ds}:null}}});
-  const cards=()=>[...els['co-list'].innerHTML.matchAll(/<button[^>]*data-id="([^"]*)"[^>]*data-name="([^"]*)"([^>]*)>/g)].map(m=>({id:m[1],name:m[2],locked:/data-locked="1"/.test(m[3]),demo:/data-demo="1"/.test(m[3]),scratch:/data-scratch="1"/.test(m[3]),last:/aria-current="true"/.test(m[3])}));
+  const cards=()=>[...els['co-list'].innerHTML.matchAll(/<button[^>]*data-id="([^"]*)"[^>]*data-name="([^"]*)"([^>]*)>/g)].map(m=>({id:m[1],name:m[2],locked:/data-locked="1"/.test(m[3]),demo:/data-demo="1"/.test(m[3]),scratch:/data-scratch="1"/.test(m[3]),last:/aria-current="true"/.test(m[3]),model:/data-model="1"/.test(m[3]),sector:(m[3].match(/data-sector="([^"]*)"/)||[])[1]}));
   const gates=()=>[...els['gate-list'].innerHTML.matchAll(/data-gate="([^"]*)"/g)].map(m=>m[1]);
   const sectors=()=>[...els['sector-list'].innerHTML.matchAll(/data-sector="([^"]*)"[^>]*>[\s\S]*?<i class="sector-n">([^<]*)<\/i>/g)].map(m=>({id:m[1],n:m[2]}));
   const corpus=()=>[...els.corpus.innerHTML.matchAll(/data-corpus="([^"]*)"/g)].map(m=>m[1]);
   const gate=id=>fire('gate-list','click',target({gate:id}));
   const sector=id=>fire('sector-list','click',target({sector:id}));
-  const click=c=>fire('co-list','click',target({id:c.id,name:c.name,...(c.locked?{locked:'1'}:{}),...(c.demo?{demo:'1'}:{}),...(c.scratch?{scratch:'1'}:{})}));
+  const click=c=>fire('co-list','click',target({id:c.id,name:c.name,...(c.locked?{locked:'1'}:{}),...(c.demo?{demo:'1'}:{}),...(c.scratch?{scratch:'1'}:{}),...(c.model?{model:'1',sector:c.sector}:{})}));
   const visible=()=>['gates','sectors','companies','locked'].filter(id=>!els[id].hidden);
   return {ctx,els,location,cards,gates,sectors,corpus,gate,sector,click,fire,target,visible,title:()=>ctx.document.title,
     session:()=>ctx.sessionStorage.dump(),intent:()=>JSON.parse(ctx.sessionStorage.getItem('sqc_company_intent')||'null'),entry:()=>ctx.SQCEntry};
@@ -71,7 +71,7 @@ test('a sector lists its own companies only; the private company only as the loc
   const g=page({local:device});
   g.gate('accounting');g.sector('health');
   assert.deepEqual(g.visible(),['companies']);
-  assert.deepEqual(g.cards().map(c=>c.id),['co-a']);
+  assert.deepEqual(g.cards().map(c=>c.id),['co-a','model-health'],'its own companies, then the sector reference model company (FOUNDATION §3.6)');
   assert.ok(g.els['co-t'].textContent.includes('المستشفيات'));
   g.fire('co-back','click');assert.deepEqual(g.visible(),['sectors'],'back from the companies of a sector returns to the sectors');
   g.sector('meat');
@@ -127,7 +127,21 @@ test('tools lists the spaces and a space without a company; that space is never 
   assert.equal(k.intent().create,false,'a space already on the device is opened, not emptied');
   const a=page({local:known});a.gate('accounting');
   assert.equal(a.sectors().find(s=>s.id==='trade').n,'1 شركة','the tools space is not counted as a general-trade company');
-  a.sector('trade');assert.deepEqual(a.cards().map(x=>x.id),['co-b']);
+  a.sector('trade');assert.deepEqual(a.cards().map(x=>x.id),['co-b','model-trade']);
+});
+
+test('each sector offers its reference model company (FOUNDATION §3.6); opening it creates it once, as a model, under its sector',()=>{
+  const g=page();g.gate('accounting');g.sector('health');
+  const m=g.cards().find(c=>c.id==='model-health');assert.ok(m,'the hospital model is listed under health');
+  assert.ok(g.els['co-list'].innerHTML.includes('data-model="1"'));assert.ok(g.els['co-list'].innerHTML.includes('دورة محاسبية كاملة'));
+  g.click(m);
+  assert.deepEqual(g.intent(),{id:'model-health',name:'مستشفى الشفاء النموذجي',model:true,sector:'health',create:true,gate:'accounting'});
+  const again=page({local:{skosif_companies_v1:JSON.stringify({companies:[{id:'model-health',name:'مستشفى الشفاء النموذجي',sector:'health',model:true}]})}});
+  again.gate('accounting');again.sector('health');
+  assert.deepEqual(again.cards().map(c=>c.id),['model-health'],'an opened model company is listed once');
+  again.click(again.cards()[0]);assert.equal(again.intent().create,false,'a model company already on the device is opened, not regenerated');
+  for(const gate of ['audit','tools']){const x=page();x.gate(gate);assert.ok(!x.cards().some(c=>String(c.id).startsWith('model-')),'models are offered in their sector of the accounting entry only')}
+  const h=page();h.gate('accounting');h.sector('hospitality');assert.equal(h.cards().length,0,'a sector without a model company stays empty');
 });
 
 test('the private company opens the password section in place, carrying the section it was chosen from, and never navigates by itself',()=>{

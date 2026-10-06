@@ -7545,7 +7545,7 @@ window.SKEngines = (function() {
 			"8) اكتب بالعربية الفصحى المهنية الموجزة. لا تضع أي بيانات خارج مخطط JSON."
 		].join("\n");
 	}
-	var sar$5 = (m) => formatMinor(m, { decimals: 0 });
+	var sar$6 = (m) => formatMinor(m, { decimals: 0 });
 	/** The trial balance and the engine's review, compact enough for one prompt. */
 	function describeReview(tb, review) {
 		const rows = review.accounts.map((a) => [
@@ -7553,21 +7553,21 @@ window.SKEngines = (function() {
 			a.name,
 			TYPE_LABELS[a.type],
 			a.lineAr,
-			sar$5(a.natural),
-			a.prior === null ? "" : sar$5(a.prior),
+			sar$6(a.natural),
+			a.prior === null ? "" : sar$6(a.prior),
 			a.standards.map((s) => s.code).join("+")
 		].join(" | "));
 		const m = review.materiality, k = review.fs.keys;
 		return [
 			"ميزان المراجعة (رقم | اسم | نوع | بند القوائم | الرصيد بطبيعته | السابق | المعايير المقترحة):",
 			...rows,
-			`التوازن: ${tb.balanced ? "متوازن" : "غير متوازن بفرق " + sar$5(tb.difference)}.`,
-			`الأهمية النسبية: ${sar$5(m.overall)} (${m.benchmarkAr} × ${m.rate * 100}%) — التنفيذية ${sar$5(m.performance)} — حد التفاهة ${sar$5(m.trivial)}.`,
-			`الإيرادات ${sar$5(k.revenue.current)} · الربح التشغيلي ${sar$5(k.operating.current)} · صافي الربح ${sar$5(k.profit.current)} · الموجودات ${sar$5(k.assets.current)} · حقوق الملكية ${sar$5(k.equity.current)}.`,
+			`التوازن: ${tb.balanced ? "متوازن" : "غير متوازن بفرق " + sar$6(tb.difference)}.`,
+			`الأهمية النسبية: ${sar$6(m.overall)} (${m.benchmarkAr} × ${m.rate * 100}%) — التنفيذية ${sar$6(m.performance)} — حد التفاهة ${sar$6(m.trivial)}.`,
+			`الإيرادات ${sar$6(k.revenue.current)} · الربح التشغيلي ${sar$6(k.operating.current)} · صافي الربح ${sar$6(k.profit.current)} · الموجودات ${sar$6(k.assets.current)} · حقوق الملكية ${sar$6(k.equity.current)}.`,
 			"ملاحظات المحرك الآلي (أكدها أو فندها):",
 			...review.findings.map((f) => `${f.id} [${f.severity}] ${f.title} — ${f.basis} — ${f.standard}`),
 			"قيود المحرك المقترحة:",
-			...review.adjustments.map((a) => `${a.id} ${a.title}: ` + a.lines.map((l) => `${l.code} ${l.name} م${sar$5(l.debit)} د${sar$5(l.credit)}`).join("؛ "))
+			...review.adjustments.map((a) => `${a.id} ${a.title}: ` + a.lines.map((l) => `${l.code} ${l.name} م${sar$6(l.debit)} د${sar$6(l.credit)}`).join("؛ "))
 		].join("\n");
 	}
 	/** Outstanding requests: asked in any round, not yet accepted, not marked unavailable. */
@@ -7664,7 +7664,7 @@ window.SKEngines = (function() {
 			round
 		};
 		const v = validateAdjustment(a, tb);
-		const problems = [...v.problems, ...v.balanced ? [] : [`القيد غير متوازن: مدين ${sar$5(v.debit)} ودائن ${sar$5(v.credit)}`]];
+		const problems = [...v.problems, ...v.balanced ? [] : [`القيد غير متوازن: مدين ${sar$6(v.debit)} ودائن ${sar$6(v.credit)}`]];
 		return {
 			...a,
 			valid: v.valid,
@@ -7710,7 +7710,7 @@ window.SKEngines = (function() {
 				standard: normalizeCode$1(std) ?? (std || "IAS 1"),
 				title: str$1(f.comment, 160).split(/[.،؛]/)[0] || "ملاحظة",
 				detail: str$1(f.comment, 2e3),
-				basis: amount ? "المبلغ المتأثر " + sar$5(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
+				basis: amount ? "المبلغ المتأثر " + sar$6(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
 				action: str$1(f.recommendation, 1e3),
 				source: "gemini",
 				round: no,
@@ -7943,7 +7943,7 @@ window.SKEngines = (function() {
 		const lineOf = (q) => q.lineKey ?? review.accounts.find((a) => q.accounts.includes(a.code))?.lineKey ?? null;
 		const blockedSig = new Set(unavailHigh.map(lineOf).filter((k) => k && review.risks.some((r) => r.lineKey === k && r.significant)));
 		const basis = [], material = misstatement > mat.overall, pervasive = misstatement > mat.overall * 5, cs = s.ctx.curSym ?? (s.ctx.framework === "EAS" ? "ج.م" : "ر.س");
-		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar$5(misstatement)} ${cs} مقابل أهمية نسبية ${sar$5(mat.overall)} ${cs} (ISA 450).`);
+		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar$6(misstatement)} ${cs} مقابل أهمية نسبية ${sar$6(mat.overall)} ${cs} (ISA 450).`);
 		if (unavailHigh.length) basis.push(`تعذر الحصول على ${unavailHigh.length} مستند عالي الأولوية: ` + unavailHigh.map((q) => q.title).join("، ") + ".");
 		const scopePervasive = unavailHigh.length >= 3 || blockedSig.size >= 3;
 		if (sigUnevidenced) basis.push(`${sigUnevidenced} خطر جوهري دون دليل مقبول بعد؛ يستكمل قبل التوقيع (ISA 330).`);
@@ -17536,7 +17536,7 @@ window.SKEngines = (function() {
 		retainerInvoiceJournal: () => retainerInvoiceJournal,
 		retainerSchedule: () => retainerSchedule
 	});
-	var sar$4 = (h) => h / 100;
+	var sar$5 = (h) => h / 100;
 	var MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
 	var addMonths = (m, n) => {
 		const [y, mo] = m.split("-").map(Number);
@@ -17574,20 +17574,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.receivableAccountId,
-						debit: sar$4(total + vat),
+						debit: sar$5(total + vat),
 						credit: 0,
 						description: "فاتورة اشتراك " + r.client
 					},
 					{
 						accountId: a.deferredAccountId,
 						debit: 0,
-						credit: sar$4(total),
+						credit: sar$5(total),
 						description: "إيراد مؤجل — " + r.campaign
 					},
 					...vat ? [{
 						accountId: a.outputVatAccountId,
 						debit: 0,
-						credit: sar$4(vat),
+						credit: sar$5(vat),
 						description: "ضريبة المخرجات"
 					}] : []
 				]
@@ -17610,13 +17610,13 @@ window.SKEngines = (function() {
 				memo: "الاعتراف بإيراد " + r.client + " — " + due.map((m) => m.month).join("، "),
 				lines: [{
 					accountId: a.deferredAccountId,
-					debit: sar$4(amount),
+					debit: sar$5(amount),
 					credit: 0,
 					description: r.campaign
 				}, {
 					accountId: a.revenueAccountId,
 					debit: 0,
-					credit: sar$4(amount),
+					credit: sar$5(amount),
 					description: "إيراد إدارة الحملة — " + r.campaign
 				}]
 			}
@@ -17634,13 +17634,13 @@ window.SKEngines = (function() {
 			party: x.platform,
 			lines: [{
 				accountId: a.mediaCostAccountId,
-				debit: sar$4(x.amountHalalas),
+				debit: sar$5(x.amountHalalas),
 				credit: 0,
 				description: x.campaign
 			}, {
 				accountId: a.platformPayableAccountId,
 				debit: 0,
-				credit: sar$4(x.amountHalalas),
+				credit: sar$5(x.amountHalalas),
 				description: "مستحق " + x.platform
 			}]
 		} };
@@ -17665,20 +17665,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.receivableAccountId,
-						debit: sar$4(amount + vat),
+						debit: sar$5(amount + vat),
 						credit: 0,
 						description: x.client
 					},
 					{
 						accountId: a.revenueAccountId,
 						debit: 0,
-						credit: sar$4(amount),
+						credit: sar$5(amount),
 						description: "إنفاق معاد تحميله — " + x.campaign
 					},
 					...vat ? [{
 						accountId: a.outputVatAccountId,
 						debit: 0,
-						credit: sar$4(vat),
+						credit: sar$5(vat),
 						description: "ضريبة المخرجات"
 					}] : []
 				]
@@ -18497,7 +18497,7 @@ window.SKEngines = (function() {
 		hotelKpis: () => hotelKpis,
 		nightAudit: () => nightAudit
 	});
-	var sar$3 = (h) => h / 100;
+	var sar$4 = (h) => h / 100;
 	var int = (v) => Number.isInteger(v) && v >= 0;
 	/** a guest's deposit ahead of the stay: cash (with its VAT) against the deposits liability */
 	function depositJournal(x, vatRate, a) {
@@ -18516,20 +18516,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.cashAccountId,
-						debit: sar$3(x.amountHalalas + vat),
+						debit: sar$4(x.amountHalalas + vat),
 						credit: 0,
 						description: "عربون " + x.guest
 					},
 					{
 						accountId: a.depositAccountId,
 						debit: 0,
-						credit: sar$3(x.amountHalalas),
+						credit: sar$4(x.amountHalalas),
 						description: "ودائع الحجوزات — " + x.guest
 					},
 					...vat ? [{
 						accountId: a.outputVatAccountId,
 						debit: 0,
-						credit: sar$3(vat),
+						credit: sar$4(vat),
 						description: "ضريبة العربون"
 					}] : []
 				]
@@ -18551,32 +18551,32 @@ window.SKEngines = (function() {
 		const lines = [
 			...applied ? [{
 				accountId: a.depositAccountId,
-				debit: sar$3(applied),
+				debit: sar$4(applied),
 				credit: 0,
 				description: "من عربون " + guest
 			}] : [],
 			...rest ? [{
 				accountId: settle,
-				debit: sar$3(rest),
+				debit: sar$4(rest),
 				credit: 0,
 				description: (x.settleBy === "receivable" ? "على حساب " : "محصّل من ") + guest
 			}] : [],
 			...room ? [{
 				accountId: a.roomRevenueAccountId,
 				debit: 0,
-				credit: sar$3(room),
+				credit: sar$4(room),
 				description: "إيراد الغرف — " + x.roomsSold + " غرفة"
 			}] : [],
 			...fb ? [{
 				accountId: a.fbRevenueAccountId,
 				debit: 0,
-				credit: sar$3(fb),
+				credit: sar$4(fb),
 				description: "الأغذية والمشروبات"
 			}] : [],
 			...vat ? [{
 				accountId: a.outputVatAccountId,
 				debit: 0,
-				credit: sar$3(vat),
+				credit: sar$4(vat),
 				description: "ضريبة المخرجات"
 			}] : []
 		];
@@ -18603,13 +18603,13 @@ window.SKEngines = (function() {
 				party: channel,
 				lines: [{
 					accountId: a.commissionExpenseAccountId,
-					debit: sar$3(commission),
+					debit: sar$4(commission),
 					credit: 0,
 					description: "عمولة " + pct + "٪ من إيراد الغرف"
 				}, {
 					accountId: a.commissionPayableAccountId,
 					debit: 0,
-					credit: sar$3(commission),
+					credit: sar$4(commission),
 					description: "مستحق " + channel
 				}]
 			} : null
@@ -18697,7 +18697,7 @@ window.SKEngines = (function() {
 			patientShare
 		};
 	}
-	var sar$2 = (h) => h / 100;
+	var sar$3 = (h) => h / 100;
 	var VAT_TREATMENT_LABEL = Object.freeze({
 		standard: "خاضعة للنسبة الأساسية",
 		"state-borne": "مواطن سعودي — تتحملها الدولة (فاتورة 0٪)",
@@ -18747,26 +18747,26 @@ window.SKEngines = (function() {
 		const lines = [
 			...s.patientShare ? [{
 				accountId: a.cashAccountId,
-				debit: sar$2(s.patientShare),
+				debit: sar$3(s.patientShare),
 				credit: 0,
 				description: "حصة المريض — حالة " + e.caseRef
 			}] : [],
 			...s.payerShare ? [{
 				accountId: a.payerReceivableAccountId,
-				debit: sar$2(s.payerShare),
+				debit: sar$3(s.payerShare),
 				credit: 0,
 				description: "مطالبة " + s.payer + " — حالة " + e.caseRef
 			}] : [],
 			{
 				accountId: rev,
 				debit: 0,
-				credit: sar$2(e.grossHalalas),
+				credit: sar$3(e.grossHalalas),
 				description: DEPARTMENT_LABEL[e.department] + " — حالة " + e.caseRef
 			},
 			...vatH ? [{
 				accountId: a.outputVatAccountId,
 				debit: 0,
-				credit: sar$2(vatH),
+				credit: sar$3(vatH),
 				description: "ضريبة مخرجات " + Math.round(rate * 1e4) / 100 + "٪ — حالة " + e.caseRef
 			}] : []
 		];
@@ -18799,20 +18799,20 @@ window.SKEngines = (function() {
 		const lines = [
 			...r.paidHalalas ? [{
 				accountId: a.cashAccountId,
-				debit: sar$2(r.paidHalalas),
+				debit: sar$3(r.paidHalalas),
 				credit: 0,
 				description: "سداد " + payer
 			}] : [],
 			...r.rejectedHalalas ? [{
 				accountId: a.rejectionsAccountId,
-				debit: sar$2(r.rejectedHalalas),
+				debit: sar$3(r.rejectedHalalas),
 				credit: 0,
 				description: "رفض " + payer + ": " + String(r.reason).trim()
 			}] : [],
 			{
 				accountId: a.payerReceivableAccountId,
 				debit: 0,
-				credit: sar$2(total),
+				credit: sar$3(total),
 				description: "تسوية مطالبات " + payer
 			}
 		];
@@ -18871,23 +18871,23 @@ window.SKEngines = (function() {
 		if (fee && !doctor) throw new Error("حدد الطبيب");
 		const lines = [...fee ? [{
 			accountId: a.doctorFeesAccountId,
-			debit: sar$2(fee),
+			debit: sar$3(fee),
 			credit: 0,
 			description: "أتعاب " + doctor + " — حالة " + c.caseRef
 		}, {
 			accountId: a.doctorPayableAccountId,
 			debit: 0,
-			credit: sar$2(fee),
+			credit: sar$3(fee),
 			description: "مستحق " + doctor + " — حالة " + c.caseRef
 		}] : [], ...supplies ? [{
 			accountId: a.suppliesCostAccountId,
-			debit: sar$2(supplies),
+			debit: sar$3(supplies),
 			credit: 0,
 			description: "أدوية ومستلزمات — حالة " + c.caseRef
 		}, {
 			accountId: a.pharmacyStockAccountId,
 			debit: 0,
-			credit: sar$2(supplies),
+			credit: sar$3(supplies),
 			description: "صرف من الصيدلية — حالة " + c.caseRef
 		}] : []];
 		return {
@@ -19627,7 +19627,7 @@ window.SKEngines = (function() {
 		projectProfitability: () => projectProfitability,
 		retentionReleaseJournal: () => retentionReleaseJournal
 	});
-	var sar$1 = (h) => h / 100;
+	var sar$2 = (h) => h / 100;
 	var pct$4 = (v) => Math.min(100, Math.max(0, Number(v) || 0));
 	var emptyState = () => ({
 		certifiedHalalas: 0,
@@ -19657,20 +19657,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.cashAccountId,
-						debit: sar$1(x.amountHalalas + vat),
+						debit: sar$2(x.amountHalalas + vat),
 						credit: 0,
 						description: "دفعة مقدمة من " + c.customer
 					},
 					{
 						accountId: a.advanceAccountId,
 						debit: 0,
-						credit: sar$1(x.amountHalalas),
+						credit: sar$2(x.amountHalalas),
 						description: "دفعات مقدمة — " + c.project
 					},
 					...vat ? [{
 						accountId: a.outputVatAccountId,
 						debit: 0,
-						credit: sar$1(vat),
+						credit: sar$2(vat),
 						description: "ضريبة الدفعة المقدمة"
 					}] : []
 				]
@@ -19709,32 +19709,32 @@ window.SKEngines = (function() {
 		const lines = [
 			...r.receivable ? [{
 				accountId: a.receivableAccountId,
-				debit: sar$1(r.receivable),
+				debit: sar$2(r.receivable),
 				credit: 0,
 				description: "مستخلص " + x.id + " — " + c.project
 			}] : [],
 			...r.retention ? [{
 				accountId: a.retentionAccountId,
-				debit: sar$1(r.retention),
+				debit: sar$2(r.retention),
 				credit: 0,
 				description: "محتجزات " + pct$4(c.retentionPct) + "٪"
 			}] : [],
 			...r.recovery ? [{
 				accountId: a.advanceAccountId,
-				debit: sar$1(r.recovery),
+				debit: sar$2(r.recovery),
 				credit: 0,
 				description: "استرداد من الدفعة المقدمة"
 			}] : [],
 			{
 				accountId: a.revenueAccountId,
 				debit: 0,
-				credit: sar$1(r.work),
+				credit: sar$2(r.work),
 				description: "أعمال معتمدة — " + c.project + " (إنجاز " + r.completionPct + "٪)"
 			},
 			...r.vat ? [{
 				accountId: a.outputVatAccountId,
 				debit: 0,
-				credit: sar$1(r.vat),
+				credit: sar$2(r.vat),
 				description: "ضريبة المستخلص"
 			}] : []
 		];
@@ -19768,13 +19768,13 @@ window.SKEngines = (function() {
 				party: c.customer,
 				lines: [{
 					accountId: a.receivableAccountId,
-					debit: sar$1(held),
+					debit: sar$2(held),
 					credit: 0,
 					description: "محتجزات مستحقة السداد"
 				}, {
 					accountId: a.retentionAccountId,
 					debit: 0,
-					credit: sar$1(held),
+					credit: sar$2(held),
 					description: "إفراج عن محتجزات " + c.project
 				}]
 			}
@@ -23841,7 +23841,7 @@ window.SKEngines = (function() {
 		"الجمعة",
 		"السبت"
 	];
-	var sar = (h) => Math.round(h / 100).toLocaleString("en-US");
+	var sar$1 = (h) => Math.round(h / 100).toLocaleString("en-US");
 	/** rule-based growth ideas: each fires only when the numbers call for it, and says which number */
 	function growthIdeas(x) {
 		const out = [];
@@ -23851,8 +23851,8 @@ window.SKEngines = (function() {
 			out.push({
 				id: "voucher",
 				title: "قسيمة الحظ بعد الفاتورة",
-				body: "كل فاتورة فوق " + sar(t) + " ر.س تدخل سحباً أسبوعياً — يرفع متوسط السلة ويحفّز العودة.",
-				metric: "متوسط الفاتورة " + sar(avg) + " ر.س"
+				body: "كل فاتورة فوق " + sar$1(t) + " ر.س تدخل سحباً أسبوعياً — يرفع متوسط السلة ويحفّز العودة.",
+				metric: "متوسط الفاتورة " + sar$1(avg) + " ر.س"
 			});
 		}
 		if (x.repeatRate !== null && x.repeatRate < .45) out.push({
@@ -23901,13 +23901,13 @@ window.SKEngines = (function() {
 			id: "slowdown",
 			title: "كسر موجة التباطؤ",
 			body: "الاتجاه اليومي هابط — حملة استعادة للعملاء الغائبين وعرض محدود المدة قبل نهاية الشهر.",
-			metric: "ميل الاتجاه " + sar(x.slope) + " ر.س/يوم"
+			metric: "ميل الاتجاه " + sar$1(x.slope) + " ر.س/يوم"
 		});
 		else if (x.slope > 0) out.push({
 			id: "growth",
 			title: "ركوب موجة النمو",
 			body: "الاتجاه صاعد — ثبّت التوريد وارفع حدود المخزون للأصناف الصاعدة قبل أن تنفد.",
-			metric: "ميل الاتجاه +" + sar(x.slope) + " ر.س/يوم"
+			metric: "ميل الاتجاه +" + sar$1(x.slope) + " ر.س/يوم"
 		});
 		return out;
 	}
@@ -26478,6 +26478,681 @@ window.SKEngines = (function() {
 		};
 	}
 	//#endregion
+	//#region app/src/engine/fusion/system/model-books-engine.ts
+	var model_books_engine_exports = /* @__PURE__ */ __exportAll({
+		MODEL_COMPANIES: () => MODEL_COMPANIES,
+		checkModelBooks: () => checkModelBooks,
+		modelBooks: () => modelBooks
+	});
+	var MODEL_COMPANIES = Object.freeze([
+		{
+			id: "model-health",
+			sector: "health",
+			name: "مستشفى الشفاء النموذجي",
+			story: "مستشفى بإيراد شهري يتجاوز 11 مليوناً: زيارات يومية لأربعة أقسام، ثلاث شركات تأمين ومطالبات ورفض وتسويات، أتعاب أطباء وصيدلية، وضريبة المواطن والمقيم."
+		},
+		{
+			id: "model-education",
+			sector: "education",
+			name: "مدارس المستقبل النموذجية",
+			story: "مجمع تعليمي بـ1,200 طالب: رسوم فصلين تُفوتر مقدماً وتُكتسب شهرياً، منح وخصومات، تحصيل متدرج ومتأخرات، نقل مدرسي، واسترداد رسوم طالب منسحب."
+		},
+		{
+			id: "model-manufacturing",
+			sector: "manufacturing",
+			name: "مصنع الخليج النموذجي للبلاستيك",
+			story: "مصنع: شراء خامات، صرف للتشغيل، تحميل أجور وتكاليف غير مباشرة، إنتاج تام بالتكلفة المعيارية، هالك وانحرافات، مبيعات آجلة وتحصيل."
+		},
+		{
+			id: "model-bakery",
+			sector: "bakery",
+			name: "مخبز السنابل النموذجي",
+			story: "مخبز: مبيعات نقدية يومية، مكونات وإنتاج شهري، تكلفة المبيعات، تالف ومنتهي الصلاحية، ورواتب الخبازين المحمّلة على الإنتاج."
+		},
+		{
+			id: "model-agriculture",
+			sector: "agriculture",
+			name: "مزرعة الوادي الأخضر النموذجية",
+			story: "مزرعة أغنام: قطيع وأعلاف تُحمَّل على تكلفته، مواليد ونفوق، مبيعات شهرية بتكلفة الرأس المتوسطة."
+		},
+		{
+			id: "model-trade",
+			sector: "trade",
+			name: "شركة النخبة التجارية النموذجية",
+			story: "توزيع تجاري بفرعين: مشتريات آجلة، مبيعات نقدية وآجلة لعملاء بأسمائهم، تحصيل وسداد، جرد بفروقات، ودين معدوم."
+		}
+	]);
+	var EXTRA = [
+		[
+			"2250",
+			"ضريبة القيمة المضافة — صافي مستحق للهيئة",
+			"liability"
+		],
+		[
+			"4900",
+			"إيرادات أخرى",
+			"revenue"
+		],
+		[
+			"5100",
+			"فروقات الجرد والهدر",
+			"expense"
+		]
+	];
+	var pad = (n) => String(n).padStart(2, "0");
+	var dayOf = (y, m, d) => y + "-" + pad(m) + "-" + pad(d);
+	var lastDay = (y, m) => new Date(Date.UTC(y, m, 0)).getUTCDate();
+	var sar = (h) => Math.round(h) / 100;
+	/** a model company's books for `months` months of `year` (default January–September 2026), closed to the last month's end */
+	function modelBooks(id, opts = {}) {
+		const co = MODEL_COMPANIES.find((c) => c.id === id);
+		if (!co) throw new Error("شركة نموذجية غير معروفة: " + id);
+		const year = opts.year ?? 2026, months = Math.min(12, Math.max(3, opts.months ?? 9)), vat = opts.vatRate ?? .15;
+		const accounts = [...sectorPack(co.sector).accounts];
+		for (const a of EXTRA) if (!accounts.some((x) => x[0] === a[0])) accounts.push(a);
+		let seed = [...co.id].reduce((s, ch) => Math.imul(s, 31) + ch.charCodeAt(0) >>> 0, 20260101);
+		const rnd = () => {
+			seed = Math.imul(seed, 1664525) + 1013904223 >>> 0;
+			return seed / 4294967296;
+		};
+		const vary = (h, spread = .1) => Math.round(h * (1 + (rnd() * 2 - 1) * spread));
+		const entries = [];
+		let n = 0;
+		const L = (code, dr, cr, description) => ({
+			accountId: code,
+			debit: sar(dr),
+			credit: sar(cr),
+			...description ? { description } : {}
+		});
+		const je = (date, memo, lines, x = {}) => {
+			const eid = co.id + "-je" + ++n;
+			const e = {
+				id: eid,
+				date,
+				reference: x.reference || "MDL-" + n,
+				memo,
+				source: x.source || "يدوي",
+				sourceId: "model:" + eid,
+				lines: lines.filter((l) => l.debit || l.credit),
+				model: true,
+				...x.party ? { party: x.party } : {},
+				...x.meta || {}
+			};
+			entries.push(e);
+			return e;
+		};
+		const vatOfNet = (net) => Math.round(net * vat);
+		const sale = (date, memo, netH, o = {}) => {
+			const v = Math.round(netH * (o.vatRate ?? vat)), gross = netH + v, cash = Math.round(gross * (o.cashShare ?? 1));
+			return je(date, memo, [
+				L("1100", cash, 0),
+				L("1200", gross - cash, 0, o.party),
+				L(o.revenue || "4000", 0, netH),
+				L("2200", 0, v)
+			], {
+				source: o.source || "مبيعات",
+				reference: o.reference,
+				party: gross - cash ? o.party : void 0,
+				meta: o.meta
+			});
+		};
+		const purchase = (date, memo, stock, netH, supplier, ref) => je(date, memo, [
+			L(stock, netH, 0),
+			L("1400", vatOfNet(netH), 0),
+			L("2100", 0, netH + vatOfNet(netH), supplier)
+		], {
+			source: "مشتريات",
+			reference: ref,
+			party: supplier
+		});
+		const pay = (date, memo, code, h, ref, party) => je(date, memo, [L(code, h, 0, party), L("1100", 0, h)], {
+			source: "سداد",
+			reference: ref,
+			party
+		});
+		const collect = (date, memo, code, h, ref, party) => je(date, memo, [L("1100", h, 0), L(code, 0, h, party)], {
+			source: "تحصيل",
+			reference: ref,
+			party
+		});
+		const end = (m) => dayOf(year, m, lastDay(year, m));
+		const M = Array.from({ length: months }, (_, i) => i + 1);
+		je(dayOf(year, 1, 1), "رأس المال المدفوع", [L("1100", CAPITAL[co.sector], 0), L("3000", 0, CAPITAL[co.sector])], { reference: "CAP-" + year });
+		SECTOR[co.sector]({
+			year,
+			months: M,
+			vat,
+			rnd,
+			vary,
+			je,
+			L,
+			sale,
+			purchase,
+			pay,
+			collect,
+			end,
+			entries,
+			co
+		});
+		const OH = OVERHEAD[co.sector];
+		for (const m of M) {
+			if (OH.payroll) je(end(m), "الرواتب والأجور — " + pad(m) + "/" + year, [L("6100", OH.payroll, 0), L("1100", 0, OH.payroll)], {
+				reference: "PAYR-" + year + pad(m),
+				source: "رواتب"
+			});
+			je(dayOf(year, m, 1), "الإيجار — " + pad(m) + "/" + year, [L("6200", OH.rent, 0), L("1100", 0, OH.rent)], {
+				reference: "RENT-" + year + pad(m),
+				source: "سداد"
+			});
+			const opex = vary(OH.opex, .08);
+			je(end(m), "كهرباء ومياه ومصروفات تشغيل — " + pad(m) + "/" + year, [L("6300", opex, 0), L("1100", 0, opex)], {
+				reference: "OPX-" + year + pad(m),
+				source: "سداد"
+			});
+		}
+		const dup = je(dayOf(year, 3, 2), "الإيجار — 03/" + year + " (مكرر بالخطأ)", [L("6200", OH.rent, 0), L("1100", 0, OH.rent)], {
+			reference: "RENT-" + year + "03-DUP",
+			source: "سداد"
+		});
+		const rev = je(dayOf(year, 3, 5), "عكس قيد إيجار مكرر — اكتُشف في مطابقة البنك", [L("1100", OH.rent, 0), L("6200", 0, OH.rent)], {
+			reference: "REV-" + dup.reference,
+			source: "تصحيح"
+		});
+		dup.reversedBy = rev.id;
+		rev.reversalOf = dup.id;
+		const lock = end(months);
+		for (let q = 0; q * 3 + 3 <= months; q++) {
+			const st = dayOf(year, q * 3 + 1, 1), en = end(q * 3 + 3), inQ = (e) => e.date >= st && e.date <= en;
+			let out = 0, inp = 0;
+			for (const e of entries.filter(inQ)) for (const l of e.lines) {
+				if (l.accountId === "2200") out += Math.round((l.credit - l.debit) * 100);
+				if (l.accountId === "1400") inp += Math.round((l.debit - l.credit) * 100);
+			}
+			if (!out && !inp) continue;
+			const net = out - inp;
+			je(en, "إقفال ضريبة القيمة المضافة — الربع " + (q + 1), [
+				L("2200", out, 0),
+				L("1400", 0, inp),
+				net >= 0 ? L("2250", 0, net) : L("2250", -net, 0)
+			], {
+				reference: "VAT-" + year + "-Q" + (q + 1),
+				source: "ضريبة",
+				meta: { vatClose: { quarter: q + 1 } }
+			});
+			const due = end(q * 3 + 4);
+			if (net > 0 && due <= lock) je(dayOf(year, q * 3 + 4, 25), "سداد ضريبة الربع " + (q + 1) + " للهيئة", [L("2250", net, 0), L("1100", 0, net)], {
+				reference: "ZATCA-" + year + "-Q" + (q + 1),
+				source: "سداد",
+				party: "هيئة الزكاة والضريبة والجمارك"
+			});
+		}
+		entries.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+		return {
+			...co,
+			year,
+			months,
+			accounts,
+			entries,
+			lockDate: lock
+		};
+	}
+	var CAPITAL = {
+		health: 25e8,
+		education: 12e8,
+		manufacturing: 9e8,
+		bakery: 6e7,
+		agriculture: 4e8,
+		trade: 7e8
+	};
+	var OVERHEAD = {
+		health: {
+			payroll: 36e7,
+			rent: 45e6,
+			opex: 38e6
+		},
+		education: {
+			payroll: 19e7,
+			rent: 35e6,
+			opex: 12e6
+		},
+		manufacturing: {
+			payroll: 9e7,
+			rent: 12e6,
+			opex: 4e7
+		},
+		bakery: {
+			payroll: 85e5,
+			rent: 25e5,
+			opex: 3e6
+		},
+		agriculture: {
+			payroll: 6e6,
+			rent: 15e5,
+			opex: 25e5
+		},
+		trade: {
+			payroll: 9e6,
+			rent: 35e5,
+			opex: 2e6
+		}
+	};
+	var SECTOR = {
+		health: ({ year, months, vat, vary, je, L, purchase, pay, end }) => {
+			const DEPTS = [
+				["outpatient", 95e5],
+				["inpatient", 17e6],
+				["lab", 6e6],
+				["pharmacy", 45e5]
+			];
+			const PAYERS = [
+				"بوبا العربية",
+				"التعاونية",
+				"ميدغلف"
+			];
+			const A = {
+				cashAccountId: "1100",
+				payerReceivableAccountId: "1210",
+				revenueAccountId: (c) => c,
+				rejectionsAccountId: "5110",
+				outputVatAccountId: "2200"
+			};
+			const claims = {}, open = {};
+			let lastFees = 0, lastBuy = 0;
+			const citizen = healthVatTreatment({
+				country: "SA",
+				policyRate: vat,
+				category: "citizen"
+			}), resident = healthVatTreatment({
+				country: "SA",
+				policyRate: vat,
+				category: "non-citizen"
+			});
+			for (const m of months) {
+				let clinical = 0, pharmacy = 0;
+				for (let d = 1; d <= lastDay(year, m); d++) {
+					const date = dayOf(year, m, d), payer = PAYERS[(d + m) % 3];
+					for (const [dept, base] of DEPTS) {
+						const day = vary(base, .12), ins = Math.round(day * .7), cash = day - ins, tag = dept.slice(0, 3).toUpperCase() + "-" + date.replace(/-/g, "");
+						for (const [kind, gross, v, py] of [[
+							"A",
+							ins,
+							citizen,
+							payer
+						], [
+							"B",
+							cash,
+							resident,
+							""
+						]]) {
+							const r = encounterJournal({
+								id: "v",
+								date,
+								caseRef: tag + "-" + kind,
+								department: dept,
+								grossHalalas: gross,
+								payer: py || void 0,
+								coveragePct: 85,
+								vat: v
+							}, A);
+							je(date, r.journal.memo + " — " + (kind === "A" ? "المؤمَّن عليهم" : "الدفع النقدي"), r.journal.lines.map(({ accountId, debit, credit }) => ({
+								accountId,
+								debit,
+								credit
+							})), {
+								source: "زيارات",
+								reference: r.journal.reference,
+								party: r.split.payer || void 0,
+								meta: {
+									visit: {
+										caseRef: tag + "-" + kind,
+										gross,
+										vatTreatment: r.vat.treatment,
+										vat: r.vat.amount
+									},
+									...r.split.payer ? { claim: {
+										kind: "claim",
+										payer: r.split.payer,
+										billed: r.split.payerShare
+									} } : {}
+								}
+							});
+							if (r.split.payer) {
+								var _r$split$payer;
+								(claims[_r$split$payer = r.split.payer] ?? (claims[_r$split$payer] = {}))[m] = (claims[r.split.payer][m] ?? 0) + r.split.payerShare;
+								open[r.split.payer] = (open[r.split.payer] ?? 0) + r.split.payerShare;
+							}
+						}
+						if (dept === "pharmacy") pharmacy += day;
+						else clinical += day;
+					}
+				}
+				if (m > 1) for (const p of PAYERS) {
+					const billed = claims[p]?.[m - 1] ?? 0;
+					if (!billed) continue;
+					const paid = Math.round(billed * .94), rejected = Math.round(billed * .03);
+					const r = remittanceJournal({
+						id: "r",
+						date: dayOf(year, m, 20),
+						payer: p,
+						reference: "REM-" + p + "-" + year + pad(m - 1),
+						paidHalalas: paid,
+						rejectedHalalas: rejected,
+						reason: "عدم مطابقة الترميز الطبي"
+					}, open[p], A);
+					open[p] -= paid + rejected;
+					je(r.journal.date, r.journal.memo + " — مطالبات " + pad(m - 1) + "/" + year, r.journal.lines, {
+						source: "تسويات التأمين",
+						reference: r.journal.reference,
+						party: p,
+						meta: { claim: {
+							kind: "remittance",
+							...r.claim
+						} }
+					});
+				}
+				const fees = Math.round(clinical * .15);
+				je(end(m), "أتعاب الأطباء المتعاقدين — " + pad(m) + "/" + year, [L("5210", fees, 0), L("2150", 0, fees, "الأطباء المتعاقدون")], {
+					source: "أتعاب الأطباء",
+					reference: "FEE-" + year + pad(m),
+					party: "الأطباء المتعاقدون"
+				});
+				if (m > 1) pay(dayOf(year, m, 10), "صرف أتعاب الأطباء عن " + pad(m - 1) + "/" + year, "2150", lastFees, "FEEPAY-" + year + pad(m - 1), "الأطباء المتعاقدون");
+				lastFees = fees;
+				const buy = Math.round(pharmacy * .55 + clinical * .06);
+				purchase(dayOf(year, m, 3), "توريد أدوية ومستلزمات طبية", "1360", buy, "شركة التوريدات الطبية الحديثة", "PO-MED-" + year + pad(m));
+				je(end(m), "صرف أدوية ومستلزمات على الحالات", [L("5220", Math.round(buy * .95), 0), L("1360", 0, Math.round(buy * .95))], {
+					source: "الصيدلية",
+					reference: "CONS-" + year + pad(m)
+				});
+				if (m > 1) pay(dayOf(year, m, 15), "سداد شركة التوريدات الطبية", "2100", lastBuy, "PAY-MED-" + year + pad(m), "شركة التوريدات الطبية الحديثة");
+				lastBuy = buy + Math.round(buy * vat);
+				if (m === 6) je(end(m), "فرق جرد الصيدلية (عجز)", [L("5100", 45e5, 0), L("1360", 0, 45e5)], {
+					source: "جرد",
+					reference: "COUNT-" + year + "06"
+				});
+			}
+		},
+		education: ({ year, months, vat, vary, je, L, sale, collect, end }) => {
+			const term = 9e5, residents = 240, citizens = 960;
+			const bill = (m, d, label, span) => {
+				const resV = Math.round(residents * term * vat);
+				je(dayOf(year, m, d), "فوترة رسوم " + label + " — 1200 طالب", [
+					L("1200", 108e7 + resV, 0, "أولياء الأمور"),
+					L("2410", 0, 108e7),
+					L("2200", 0, resV)
+				], {
+					source: "الرسوم الدراسية",
+					reference: "FEES-" + year + pad(m),
+					party: "أولياء الأمور",
+					meta: { tuition: {
+						term: label,
+						citizens,
+						residents,
+						months: span
+					} }
+				});
+				const grant = Math.round(648e5);
+				je(dayOf(year, m, d), "منح وخصومات الإخوة — " + label, [L("5160", grant, 0), L("1200", 0, grant, "أولياء الأمور")], {
+					source: "الرسوم الدراسية",
+					reference: "GRANT-" + year + pad(m),
+					party: "أولياء الأمور"
+				});
+				return {
+					total: 108e7 + resV - grant,
+					monthly: Math.round(108e7 / span.length),
+					span
+				};
+			};
+			const terms = [bill(1, 5, "الفصل الثاني", [
+				1,
+				2,
+				3,
+				4,
+				5
+			]), ...months.includes(8) ? [bill(8, 25, "الفصل الأول", [
+				9,
+				10,
+				11,
+				12
+			])] : []];
+			const due = {};
+			for (const t of terms) {
+				const m0 = t.span[0] === 9 ? 8 : 1;
+				due[m0] = (due[m0] ?? 0) + Math.round(t.total * .6);
+				due[m0 + 1] = (due[m0 + 1] ?? 0) + Math.round(t.total * .3);
+				due[m0 + 3] = (due[m0 + 3] ?? 0) + Math.round(t.total * .05);
+			}
+			for (const m of months) {
+				for (const t of terms) if (t.span.includes(m)) je(end(m), "الاعتراف بإيراد الرسوم — " + pad(m) + "/" + year, [L("2410", t.monthly, 0), L("4090", 0, t.monthly)], {
+					source: "الرسوم الدراسية",
+					reference: "EARN-" + year + pad(m)
+				});
+				if (due[m]) collect(dayOf(year, m, 15), "تحصيل رسوم من أولياء الأمور", "1200", due[m], "COL-" + year + pad(m), "أولياء الأمور");
+				if (m !== 6 && m !== 7) sale(end(m), "النقل المدرسي — 300 طالب", vary(15e6, .03), {
+					revenue: "4900",
+					source: "النقل"
+				});
+				if (m === 2) je(dayOf(year, 2, 10), "استرداد رسوم طالب منسحب (إشعار دائن)", [L("2410", 72e4, 0), L("1200", 0, 72e4, "أولياء الأمور")], {
+					source: "الرسوم الدراسية",
+					reference: "CN-" + year + "02",
+					party: "أولياء الأمور"
+				});
+			}
+		},
+		manufacturing: ({ year, months, vary, je, L, sale, purchase, pay, collect, end, vat }) => {
+			let owed = 0, due = 0;
+			const CUST = [
+				"شركة الأغذية المتحدة",
+				"مصانع العبوات الوطنية",
+				"مجموعة التجزئة الحديثة"
+			];
+			for (const m of months) {
+				if (owed) pay(dayOf(year, m, 12), "سداد مورد الخامات", "2100", Math.round(owed * .9), "PAY-RM-" + year + pad(m), "شركة البتروكيماويات للتوريد");
+				if (due) collect(dayOf(year, m, 18), "تحصيل من العملاء", "1200", Math.round(due * .85), "COL-" + year + pad(m), CUST[m % 3]);
+				const raw = vary(13e7, .06);
+				purchase(dayOf(year, m, 2), "شراء حبيبات بولي إيثيلين", "1370", raw, "شركة البتروكيماويات للتوريد", "PO-RM-" + year + pad(m));
+				owed = raw + Math.round(raw * vat);
+				const issue = Math.round(raw * .96), labour = 6e7, oh = 25e6;
+				je(dayOf(year, m, 5), "صرف خامات لأوامر التشغيل", [L("1380", issue, 0), L("1370", 0, issue)], {
+					source: "الإنتاج",
+					reference: "MI-" + year + pad(m)
+				});
+				je(end(m), "تحميل الأجور المباشرة على الإنتاج", [L("1380", labour, 0), L("6100", 0, labour)], {
+					source: "الإنتاج",
+					reference: "LAB-" + year + pad(m)
+				});
+				je(end(m), "تحميل التكاليف الصناعية غير المباشرة", [L("1380", oh, 0), L("6300", 0, oh)], {
+					source: "الإنتاج",
+					reference: "OH-" + year + pad(m)
+				});
+				const std = vary(205e6, .04), scrap = Math.round(issue * .02), variance = issue + labour + oh - std - scrap;
+				je(end(m), "إنتاج تام بالتكلفة المعيارية", [L("1390", std, 0), L("1380", 0, std)], {
+					source: "الإنتاج",
+					reference: "FG-" + year + pad(m)
+				});
+				je(end(m), "هالك التشغيل", [L("5100", scrap, 0), L("1380", 0, scrap)], {
+					source: "الإنتاج",
+					reference: "SCRAP-" + year + pad(m)
+				});
+				je(end(m), variance >= 0 ? "انحراف تكلفة غير مواتٍ" : "انحراف تكلفة مواتٍ", variance >= 0 ? [L("5170", variance, 0), L("1380", 0, variance)] : [L("1380", -variance, 0), L("5170", 0, -variance)], {
+					source: "الإنتاج",
+					reference: "VAR-" + year + pad(m)
+				});
+				const cogs = Math.round(std * .95), net = Math.round(cogs * 1.38), cust = CUST[m % 3];
+				sale(dayOf(year, m, 25), "مبيعات عبوات — " + cust, net, {
+					cashShare: 0,
+					party: cust,
+					reference: "INV-" + year + pad(m)
+				});
+				due = net + Math.round(net * vat);
+				je(dayOf(year, m, 25), "تكلفة المبيعات", [L("5000", cogs, 0), L("1390", 0, cogs)], {
+					source: "مبيعات",
+					reference: "COGS-" + year + pad(m)
+				});
+			}
+		},
+		bakery: ({ year, months, vary, je, L, sale, purchase, pay, end, vat }) => {
+			let owed = 0;
+			for (const m of months) {
+				if (owed) pay(dayOf(year, m, 8), "سداد مورد الدقيق والمكونات", "2100", owed, "PAY-ING-" + year + pad(m), "المطاحن الأولى");
+				const ing = vary(15e6, .05);
+				purchase(dayOf(year, m, 1), "دقيق وسكر وخميرة ومكونات", "1370", ing, "المطاحن الأولى", "PO-ING-" + year + pad(m));
+				owed = ing + Math.round(ing * vat);
+				for (let d = 1; d <= lastDay(year, m); d++) {
+					const g = vary(18e5, .2), net = Math.round(g / (1 + vat));
+					sale(dayOf(year, m, d), "مبيعات اليوم النقدية", net, {
+						source: "نقاط البيع",
+						reference: "POS-" + dayOf(year, m, d)
+					});
+				}
+				const used = Math.round(ing * .97), wages = 4e6, prod = used + wages;
+				je(end(m), "إنتاج الشهر — مكونات وأجور الخبازين", [
+					L("1390", prod, 0),
+					L("1370", 0, used),
+					L("6100", 0, wages)
+				], {
+					source: "الإنتاج",
+					reference: "BATCH-" + year + pad(m)
+				});
+				je(end(m), "تكلفة المبيعات", [L("5000", Math.round(prod * .88), 0), L("1390", 0, Math.round(prod * .88))], {
+					source: "مبيعات",
+					reference: "COGS-" + year + pad(m)
+				});
+				je(end(m), "تالف ومنتهي الصلاحية", [L("5180", Math.round(prod * .07), 0), L("1390", 0, Math.round(prod * .07))], {
+					source: "الإنتاج",
+					reference: "WASTE-" + year + pad(m)
+				});
+			}
+		},
+		agriculture: ({ year, months, rnd, vary, je, L, sale, purchase, pay, end, vat }) => {
+			let heads = 2e3, cost = 18e7, owed = 0;
+			je(dayOf(year, 1, 3), "شراء قطيع أغنام — 2,000 رأس", [L("1395", cost, 0), L("1100", 0, cost)], {
+				source: "مشتريات",
+				reference: "FLOCK-" + year,
+				meta: { flock: { heads: 2e3 } }
+			});
+			for (const m of months) {
+				if (owed) pay(dayOf(year, m, 6), "سداد مورد الأعلاف", "2100", owed, "PAY-FEED-" + year + pad(m), "شركة الأعلاف الوطنية");
+				const feed = vary(2e7, .06);
+				purchase(dayOf(year, m, 2), "أعلاف شعير وبرسيم", "1396", feed, "شركة الأعلاف الوطنية", "PO-FEED-" + year + pad(m));
+				owed = feed + Math.round(feed * vat);
+				const fed = Math.round(feed * .95);
+				cost += fed;
+				const born = m === 2 || m === 3 ? 220 + Math.floor(rnd() * 60) : 0;
+				heads += born;
+				je(end(m), "تحميل الأعلاف المستهلكة على تكلفة القطيع" + (born ? " — ومواليد الموسم " + born + " رأس" : ""), [L("1395", fed, 0), L("1396", 0, fed)], {
+					source: "الحظائر",
+					reference: "FEED-" + year + pad(m),
+					meta: { flock: {
+						born,
+						heads
+					} }
+				});
+				const dead = Math.round(heads * .012), deadCost = Math.round(cost / heads * dead);
+				heads -= dead;
+				cost -= deadCost;
+				je(end(m), "نفوق " + dead + " رأس", [L("5190", deadCost, 0), L("1395", 0, deadCost)], {
+					source: "الحظائر",
+					reference: "MORT-" + year + pad(m),
+					meta: { flock: { dead } }
+				});
+				const sold = 150 + Math.floor(rnd() * 50), unit = Math.round(cost / heads), cogs = unit * sold;
+				heads -= sold;
+				cost -= cogs;
+				sale(dayOf(year, m, 20), "بيع " + sold + " رأس", sold * vary(145e3, .05), {
+					source: "مبيعات",
+					reference: "SALE-" + year + pad(m),
+					meta: { flock: { sold } }
+				});
+				je(dayOf(year, m, 20), "تكلفة الرؤوس المباعة بمتوسط " + sar(unit) + " ريال للرأس", [L("5000", cogs, 0), L("1395", 0, cogs)], {
+					source: "مبيعات",
+					reference: "COGS-" + year + pad(m)
+				});
+			}
+		},
+		trade: ({ year, months, vary, je, L, sale, purchase, pay, collect, end, vat }) => {
+			const CUST = [
+				"مؤسسة الريان",
+				"شركة الأفق الحديثة",
+				"متاجر الشرق"
+			];
+			let owed = 0;
+			const due = {};
+			for (const m of months) {
+				if (owed) pay(dayOf(year, m, 10), "سداد الموردين", "2100", Math.round(owed * .85), "PAY-" + year + pad(m), "شركة الإلكترونيات المتحدة");
+				for (const c of CUST) if (due[c]) collect(dayOf(year, m, 16), "تحصيل من " + c, "1200", Math.round(due[c] * .8), "COL-" + c + "-" + year + pad(m), c);
+				const buy = vary(16e7, .05);
+				purchase(dayOf(year, m, 3), "شراء أجهزة وإكسسوارات", "1300", buy, "شركة الإلكترونيات المتحدة", "PO-" + year + pad(m));
+				owed = buy + Math.round(buy * vat);
+				let net = 0;
+				for (const [i, c] of CUST.entries()) {
+					const x = vary(25e6, .1);
+					net += x;
+					sale(dayOf(year, m, 12 + i * 5), "مبيعات آجلة — " + c, x, {
+						cashShare: 0,
+						party: c,
+						reference: "INV-" + c + "-" + year + pad(m)
+					});
+					due[c] = x + Math.round(x * vat);
+				}
+				const cash = vary(95e6, .08);
+				net += cash;
+				sale(end(m), "مبيعات نقدية — الفرعان", cash, { reference: "POS-" + year + pad(m) });
+				const cogs = Math.round(net * .76);
+				je(end(m), "تكلفة المبيعات", [L("5000", cogs, 0), L("1300", 0, cogs)], {
+					source: "مبيعات",
+					reference: "COGS-" + year + pad(m)
+				});
+				if (m === 5) je(end(m), "فرق جرد المستودع (عجز)", [L("5100", 185e4, 0), L("1300", 0, 185e4)], {
+					source: "جرد",
+					reference: "COUNT-" + year + "05"
+				});
+				if (m === 8) {
+					const bad = 23e5;
+					je(end(m), "إعدام دين متعثر — متاجر الشرق", [L("6300", bad, 0), L("1200", 0, bad, "متاجر الشرق")], {
+						source: "تسوية",
+						reference: "BAD-" + year + "08",
+						party: "متاجر الشرق"
+					});
+					due["متاجر الشرق"] = Math.max(0, due["متاجر الشرق"] - bad);
+				}
+			}
+		}
+	};
+	/** the checks a model company must pass before it is offered: every entry balances and posts to the chart, the trial
+	balance balances, cash never goes negative at a month end, and the period is closed */
+	function checkModelBooks(b) {
+		const codes = new Set(b.accounts.map((a) => a[0])), issues = [];
+		let dr = 0, cr = 0;
+		for (const e of b.entries) {
+			let d = 0, c = 0;
+			for (const l of e.lines) {
+				if (!codes.has(l.accountId)) issues.push(e.id + ": حساب غير موجود " + l.accountId);
+				d += Math.round(l.debit * 100);
+				c += Math.round(l.credit * 100);
+			}
+			if (d !== c) issues.push(e.id + ": غير متزن");
+			dr += d;
+			cr += c;
+			if (e.date > b.lockDate) issues.push(e.id + ": بعد تاريخ الإقفال");
+		}
+		const bal = (code, upTo) => b.entries.filter((e) => e.date <= upTo).reduce((s, e) => s + e.lines.filter((l) => l.accountId === code).reduce((t, l) => t + Math.round(l.debit * 100) - Math.round(l.credit * 100), 0), 0);
+		for (let m = 1; m <= b.months; m++) {
+			const d = dayOf(b.year, m, lastDay(b.year, m));
+			if (bal("1100", d) < 0) issues.push("النقدية سالبة في " + d);
+		}
+		const type = new Map(b.accounts.map((a) => [a[0], a[2]]));
+		const revenue = b.entries.reduce((s, e) => s + e.lines.filter((l) => type.get(l.accountId) === "revenue").reduce((t, l) => t + Math.round(l.credit * 100) - Math.round(l.debit * 100), 0), 0);
+		return {
+			ok: !issues.length && dr === cr,
+			issues,
+			entries: b.entries.length,
+			trialBalanceHalalas: dr - cr,
+			revenueHalalas: revenue,
+			balance: (code) => bal(code, b.lockDate)
+		};
+	}
+	//#endregion
 	return {
 		audit: {
 			aiProviders: ai_providers_engine_exports,
@@ -26596,6 +27271,7 @@ window.SKEngines = (function() {
 		},
 		system: {
 			companyContext: company_context_exports,
+			modelBooks: model_books_engine_exports,
 			sectorPack: sector_pack_engine_exports
 		}
 	};

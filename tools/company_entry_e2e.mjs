@@ -157,8 +157,10 @@ try {
     check(`${tag}: each sector counts its own companies (the new one under health, the demo under meat)`, counts.health === '1 شركة' && counts.meat === '1 شركة', JSON.stringify(counts));
     await page.click('#sector-list .sector[data-sector="health"]');
     await page.waitForSelector('#co-list .co', { timeout: 10000 });
-    const health = await page.evaluate(() => [...document.querySelectorAll('#co-list .co')].map((b) => b.dataset.name));
+    /* besides the sector's reference model company (FOUNDATION §3.6), always offered at the end of its sector */
+    const health = await page.evaluate(() => [...document.querySelectorAll('#co-list .co:not([data-model])')].map((b) => b.dataset.name));
     check(`${tag}: the health sector lists the new company only`, health.length === 1 && health[0] === 'مؤسسة الاختبار للحوم', JSON.stringify(health));
+    check(`${tag}: and the hospital model company after it`, await page.evaluate(() => { const c = [...document.querySelectorAll('#co-list .co')]; return c.length === 2 && c[1].dataset.id === 'model-health' && c[1].dataset.model === '1'; }));
     await page.click('#co-back');
     await page.waitForSelector('#sector-list .sector', { timeout: 10000 });
     await page.click('#sector-list .sector[data-sector="meat"]');

@@ -299,14 +299,24 @@ function companies(){
   out.forEach(c=>{c.sector=sectorOf(c);c.last=!!last&&last.id===c.id&&!c.locked||!!last&&last.locked&&!!c.locked});
   return out;
 }
-/* the companies a section lists: the sector's companies in accounting; every company in audit and tools */
-const listFor=(gate,sector)=>companies().filter(c=>!c.scratch&&(gate!=="accounting"||c.sector===sector));
+/* the reference model companies (FOUNDATION §3.6, system/model-books-engine): one per sector, already through a full
+   accounting cycle; their books are generated on this device the first time one is opened (ui/core/demo.js) */
+const MODELS=[{id:"model-health",name:"مستشفى الشفاء النموذجي",sector:"health"},{id:"model-education",name:"مدارس المستقبل النموذجية",sector:"education"},
+  {id:"model-manufacturing",name:"مصنع الخليج النموذجي للبلاستيك",sector:"manufacturing"},{id:"model-bakery",name:"مخبز السنابل النموذجي",sector:"bakery"},
+  {id:"model-agriculture",name:"مزرعة الوادي الأخضر النموذجية",sector:"agriculture"},{id:"model-trade",name:"شركة النخبة التجارية النموذجية",sector:"trade"}];
+const MODEL_NOTE="شركة نموذجية — دورة محاسبية كاملة لعام 2026 حتى الإقفال";
+/* the companies a section lists: the sector's companies in accounting (with the sector's model company); every company in audit and tools */
+const listFor=(gate,sector)=>{const L=companies().filter(c=>!c.scratch&&(gate!=="accounting"||c.sector===sector));
+  if(gate!=="accounting")return L;
+  L.forEach(c=>{if(MODELS.some(m=>m.id===c.id)){c.model=true;c.note=MODEL_NOTE}});
+  MODELS.filter(m=>m.sector===sector&&!L.some(c=>c.id===m.id)).forEach(m=>L.push({...m,model:true,note:MODEL_NOTE}));
+  return L};
 /* the company whose space hosts an audit session started from the door: the last one opened, else the demo company */
 function host(){const last=read(LAST,null),all=companies().filter(c=>!c.locked&&!c.scratch);return (last&&all.find(c=>c.id===last.id))||all.find(c=>c.demo)||{...DEMO,demo:true}}
 const known=id=>companies().some(c=>c.id===id);
 function card(c){
-  return '<button type="button" class="co'+(c.locked?" locked":"")+(c.last?" last":"")+'" role="listitem" data-id="'+esc(c.id)+'" data-name="'+esc(c.name)+'"'+(c.locked?' data-locked="1"':"")+(c.demo?' data-demo="1"':"")+(c.scratch?' data-scratch="1"':"")+(c.last?' aria-current="true"':"")+'>'+
-    '<span class="co-ic" aria-hidden="true">'+(c.locked?I.lock:c.demo?I.flask:c.scratch?I.tools:I.building)+'</span><span class="co-t"><b>'+esc(c.name)+'</b><small>'+esc(c.note||"")+(c.last?" · آخر شركة فُتحت":"")+'</small></span></button>';
+  return '<button type="button" class="co'+(c.locked?" locked":"")+(c.last?" last":"")+'" role="listitem" data-id="'+esc(c.id)+'" data-name="'+esc(c.name)+'"'+(c.locked?' data-locked="1"':"")+(c.demo?' data-demo="1"':"")+(c.scratch?' data-scratch="1"':"")+(c.model?' data-model="1" data-sector="'+esc(c.sector)+'"':"")+(c.last?' aria-current="true"':"")+'>'+
+    '<span class="co-ic" aria-hidden="true">'+(c.locked?I.lock:c.demo||c.model?I.flask:c.scratch?I.tools:I.building)+'</span><span class="co-t"><b>'+esc(c.name)+'</b><small>'+esc(c.note||"")+(c.last?" · آخر شركة فُتحت":"")+'</small></span></button>';
 }
 function paintGates(){
   $("gate-list").innerHTML=GATES.map(g=>'<button type="button" class="gate" role="listitem" data-gate="'+esc(g.id)+'"><span class="gate-ic" aria-hidden="true">'+(I[g.id]||I.building)+'</span><span class="gate-t"><b>'+esc(g.label)+'</b><small>'+esc(g.sub||"")+'</small></span></button>').join("");
@@ -332,7 +342,7 @@ function paintCompanies(){
   const cards=list.map(card).join("");
   const extra=gate==="tools"?card({id:SCRATCH.id,name:SCRATCH.name,scratch:true,note:"بلا شركة — الأدوات على مساحة مستقلة"}):
     gate==="audit"?'<button type="button" class="co" role="listitem" data-audit-new="1"><span class="co-ic" aria-hidden="true">'+I.audit+'</span><span class="co-t"><b>ملف مراجعة جديد</b><small>ارفع القوائم أو ميزان المراجعة أو المستندات، ثم تبدأ الجولة الأولى</small></span></button>':"";
-  const empty=gate==="accounting"?"لا شركات في هذا القطاع بعد — أنشئ أول شركة تحته. النماذج المرجعية القطاعية الكاملة تأتي في الموجة P3.":"لا شركات على هذا الجهاز بعد.";
+  const empty=gate==="accounting"?"لا شركات في هذا القطاع بعد — أنشئ أول شركة تحته.":"لا شركات على هذا الجهاز بعد.";
   $("co-list").innerHTML=(gate==="audit"?extra+cards:cards+extra)||'<p class="co-empty">'+empty+'</p>';
   const add=$("co-add");add.hidden=gate==="audit";add.textContent=gate==="tools"?"+ مساحة جديدة":"+ شركة جديدة"+(s.label?" في «"+s.label+"»":"");
   $("co-form").hidden=true;if(!add.hidden)add.hidden=false;
@@ -359,6 +369,7 @@ $("co-list").addEventListener("click",e=>{
   const b=e.target.closest("[data-id]");if(!b)return;
   if(b.dataset.locked){go({id:LID,name:b.dataset.name,locked:true});showLocked(b.dataset.name);return}
   if(b.dataset.scratch){go({id:SCRATCH.id,name:SCRATCH.name,create:!known(SCRATCH.id),scratch:true});return}
+  if(b.dataset.model){const rec=(read("skosif_companies_v1",{}).companies||[]).some(c=>c&&c.id===b.dataset.id);go({id:b.dataset.id,name:b.dataset.name,model:true,sector:b.dataset.sector,create:!rec});return}
   go({id:b.dataset.id,name:b.dataset.name,demo:!!b.dataset.demo});
 });
 $("corpus").addEventListener("click",e=>{const b=e.target.closest("[data-corpus]");if(!b)return;const h=host();go({id:h.id,name:h.name,demo:!!h.demo,gate:"audit",corpus:b.dataset.corpus})});

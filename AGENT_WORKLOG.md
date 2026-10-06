@@ -394,3 +394,30 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Branch / PR: `claude/digital-pack-20261006` from `claude/hospitality-pack-20261006` @ be3074e.
 - Evidence: engines 494/494; node 726 pass / 54 fail (= `main`'s 52 + 2 Windows-only header tests); digital, hotel, construction, health, meat, books OK; door 94/94; advances 26/26; sales 28/28; feature_audit 146/146 (local; GitHub jobs not started — billing).
 - NEXT ACTION: the §3.6 sample companies (a real accounting cycle per sector).
+
+### TASK CLAUDE-20261006-017 — §3.6 reference model companies: a full accounting cycle per sector
+- Agent: Claude (Lead Development Agent)
+- Status: DONE on merge — the owner's standing instruction in chat: «ادمج اي شيء دون الرجوع لي» / «اكمل التطوير دون الرجوع لي ونفذ كل الاصلاحات والدمج».
+- Goal: FOUNDATION §3.6 «نماذج محاسبية افتراضية إلزامية» — companies that have really been through a cycle (operation → entry → ledger → trial balance → receivables / inventory / cost → statements → close), with normal cases, exceptions, adjustments and a corrected error.
+- Scope: `app/src/engine/fusion/system/model-books-engine.ts` (+10 tests): `MODEL_COMPANIES`, `modelBooks(id)` (seeded and deterministic, January–September 2026, closed at 30 September) and `checkModelBooks` (every entry balances and posts to the chart, trial balance zero, cash never negative at a month end, nothing after the close).
+  - Hospital «مستشفى الشفاء النموذجي»: about 11.25 million a month; 2,190 daily department visits through `insurance-claims-engine` (citizens' VAT state-borne, residents' 15%); three payers remitting 94% and rejecting 3% the following month; doctors' fees; pharmacy purchases and consumption; a stock-count shortage.
+  - School «مدارس المستقبل النموذجية»: two terms billed in advance into 2410 and earned monthly into 4090; scholarships 5160; staged collections leaving arrears; transport; a withdrawn student's credit note.
+  - Factory «مصنع الخليج النموذجي للبلاستيك»: raw materials → WIP with labour and overhead absorbed; output at standard; 2% scrap; adverse or favourable variances 5170; no WIP left; credit sales and collections.
+  - Bakery «مخبز السنابل النموذجي»: daily cash sales, monthly batch, cost of sales and 7% waste 5180.
+  - Farm «مزرعة الوادي الأخضر النموذجية»: a flock with feed capitalised, lambing, mortality 5190, sales at the average cost per head.
+  - Trade «شركة النخبة التجارية النموذجية»: purchases on credit, cash and named credit customers, a count shortage and a bad debt.
+  - Every company also has: VAT quarters closed into 2250 (Q1 and Q2 paid, Q3 payable), a duplicated rent entry reversed, and overheads.
+  - The meat sector's model remains the demo company «شركة الوادي التجريبية للحوم».
+- UI:
+  - `unlock.html` lists each sector's model company in that sector of the accounting entry (not in audit or tools).
+  - `helper-space.js` and `company.js` record and expose `model`.
+  - `demo.js` `seedModel()`: the first open of a model company writes its generated books, a closed period and a 2026 financial year, instead of the meat demo. All records are marked demo and model.
+- Tests: `tools/company_entry.test.mjs` updated, plus a model-company test; `tools/model_companies_e2e.mjs` (in the workflow) opens all six from the door.
+- Not yet:
+  - IAS 41 fair value of the flock (held at cost);
+  - fixed assets and depreciation;
+  - payroll sub-ledgers;
+  - a statements pack per model;
+  - a year-end close into retained earnings.
+- Branch / PR: `claude/model-companies-20261006` from `main` @ 9905485.
+- Open PRs from the other agent: #169 (UX clarity) and #170 (independent audit context) were verified together locally (all suites pass except one door test that #169's own card reordering broke; fix found: look up the locked card by its flag). They were not merged: the session's permission classifier refused merging another agent's PR without review. They wait for the owner.

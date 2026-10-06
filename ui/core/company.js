@@ -29,7 +29,7 @@ function current(){
   const periods=d.periods.filter(p=>p.companyId===id||!p.companyId),period=periods.find(p=>p.id===d.active.periodId)||null;
   /* the sector (FOUNDATION §3.7) is the company's own; the demo company is a meat company; a company recorded before
      sectors existed is general trade */
-  return Object.freeze({id,name,currency:(rec&&rec.currency)||"SAR",country:(rec&&rec.country)||"SA",sector:(rec&&rec.sector)||(id===DEMO.id?DEMO.sector:"trade"),packPending:!!(rec&&rec.packPending),locked:!!id&&privateId()===id,demo:id===DEMO.id,period,periods});
+  return Object.freeze({id,name,currency:(rec&&rec.currency)||"SAR",country:(rec&&rec.country)||"SA",sector:(rec&&rec.sector)||(id===DEMO.id?DEMO.sector:"trade"),packPending:!!(rec&&rec.packPending),model:!!(rec&&rec.model),locked:!!id&&privateId()===id,demo:id===DEMO.id,period,periods});
 }
 /* every company this device knows: the open one first; the private one only while it is the open one */
 function list(){
