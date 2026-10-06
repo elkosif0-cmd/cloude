@@ -131,3 +131,50 @@
 - PR #152 — `docs/rule-zero-checkpoint-20261005-r2` — جرد Rule Zero.
 
 الحالة: **VERIFIED-IN-MAIN — لا نقل إضافي، ولا إعادة إدخال لنسخ أقدم.**
+
+
+## دفعة #151 → #144 — نتيجة المراجعة
+
+### PR #151 — Rule Zero inventory
+- رأس الفرع خلف `main` الحالي وبدون أي file delta.
+- الجرد الإلزامي العميق موجود بالفعل في `FOUNDATION.md` الحالي بصورة أوسع.
+- الحالة: **VERIFIED-IN-MAIN**.
+
+### PR #150 وPR #149 — وثائق Product Mandate التاريخية
+- تحتويان أفكارًا مفيدة عن حدود الأدلة، حفظ القدرات، العزل، وعدم تحويل القوائم المنشورة إلى دفاتر معاملات مخترعة.
+- هذه الحدود المفيدة موجودة بالفعل في الدستور/الحماية الحالية وفي Source Replay واختبارات استقلال المراجعة التي تم دمجها.
+- لم تُنسخ تعديلات هيكل الدخول من هذين الفرعين لأنها تعيد فرض تفسير تاريخي لعدد المداخل؛ هذا النوع من القرار لا يُستعاد من فرع قديم أثناء جرد تقني، بل يتبع تعليمات المالك الأحدث وتحديث الدستور المقصود.
+- الحالة: **KNOWLEDGE-EXTRACTED / NO CODE MERGE**.
+
+### PR #148 — AI Exception Queue
+- اختبار `tools/ai_exception_queue_contract.test.mjs` في `main` مطابق للفرع.
+- `company-platform.js` الحالي ما زال يحتوي `aiExceptions` و`addAIException` و`resolveAIException` وحد `requiresHumanDecision:true`.
+- `helper-center.js` الحالي يحتفظ بـ AI EXCEPTION QUEUE وقرارات القبول/الرفض/الإغلاق دون تنفيذ محاسبي تلقائي.
+- الحالة: **VERIFIED-IN-MAIN / CURRENT IS SUPERSET**.
+
+### PR #147 — Standards company layer
+- `main` الحالي يحتوي خدمة `SKosifStandards` والبحث في `searchCodex` وعدم الاعتماد التلقائي.
+- المساعد الحالي يحتوي `standards_search` ويربط `SKosifStandards`.
+- Master Data الحالي يحتوي اختيار إطار IFRS / SME / EAS.
+- النسخ الحالية أوسع من الفرع.
+- الحالة: **VERIFIED-IN-MAIN / CURRENT IS SUPERSET**.
+
+### PR #146 — Audit tab selector fix
+- تم فحص الإصلاح نفسه لا مجرد اسم الفرع.
+- `tools/feature_audit.mjs` الحالي يحتوي بالفعل المحددين الدقيقين:
+  - `.tbr-tabs [data-tab="tb"]`
+  - `.tbr-tabs [data-tab="fs"]`
+- الحالة: **VERIFIED-IN-MAIN**.
+
+### PR #145 — Assistant HELP parse hotfix
+- الإصلاح التاريخي كان تحويل سطر خام داخل `HELP` إلى `\\n`.
+- النسخة الحالية تحتوي النص بصيغة escaped وتبني بنجاح ضمن السلسلة الحالية، كما أنها أحدث بكثير من hotfix.
+- الحالة: **VERIFIED-IN-MAIN**.
+
+### PR #144 — Unified financial OS implementation
+- هذا الفرع هو خط أساس أقدم للمكونات التي راجعناها أيضًا عبر #140.
+- Company Platform / Master Data / Reporting Intake / Audit Inbox / Standards / journal review موجودة في `main` الحالي، وبعضها مطابق وبعضها صار Superset مع VAT Policy وSector Packs وAI Exceptions وتحسينات السياق.
+- إعادة نسخ #144 ستستبدل منطقًا أحدث وتعيد أجزاء قديمة؛ لا توجد فائدة صافية تبرر ذلك.
+- الحالة: **SUPERSEDED-BY-CURRENT / NO BULK MERGE**.
+
+**خلاصة الدفعة:** لا توجد شفرة ناقصة تستحق النقل من #151–#144 بعد الفحص التفصيلي؛ تم حفظ المعرفة المفيدة وتجنب إعادة إدخال قرارات/نسخ أقدم.
