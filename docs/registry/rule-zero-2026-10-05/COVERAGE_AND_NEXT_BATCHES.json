@@ -1,0 +1,860 @@
+{
+  "generated_at_utc": "2026-10-05T22:01:00.738725+00:00",
+  "status": "IN PROGRESS / PARTIAL DEEP INVENTORY; P0 NOT COMPLETE",
+  "authority": {
+    "foundation": "799d8afa959215ab1eed27bd995f35029b98512d",
+    "worklog_coordination": "d5cd45fe9fe71f628dec23bf987faeece6ac493c",
+    "runtime_cut": "206a/a429; governance-only changes thereafter"
+  },
+  "enumeration": {
+    "page_size": 100,
+    "pages": [
+      {
+        "page_offset": 0,
+        "count": 17
+      },
+      {
+        "page_offset": 100,
+        "count": 0
+      }
+    ],
+    "all_returned_repositories": 17
+  },
+  "permission_scope": "Repositories exposed by authenticated GitHub connector owner filter only; cannot claim inaccessible/unlisted repositories inventoried.",
+  "repositories": [
+    {
+      "repository": "kosif199022-jpg/mafateeh-al-tharwa",
+      "default_branch": "main",
+      "snapshot_commit": "a182735f5523f0b99a046c96416416e6d7760e41",
+      "visibility": "public",
+      "overall_status": "PARTIAL DEEP COVERAGE",
+      "recursive_default_tree_complete": true,
+      "tree_entries": 243,
+      "blob_entries": 217,
+      "source_url": "https://github.com/kosif199022-jpg/mafateeh-al-tharwa/tree/a182735f5523f0b99a046c96416416e6d7760e41",
+      "audit_family_coverage": {
+        "repository": "kosif199022-jpg/mafateeh-al-tharwa",
+        "head": "a182735f5523f0b99a046c96416416e6d7760e41",
+        "tree_sha": "9178368182afbcd9d99a727cd6f392ddddb66b1d",
+        "tree_truncated": false,
+        "files": 217,
+        "retrieved_text_files": 15,
+        "tests_in_tree": 8,
+        "branches": 3,
+        "prs": 1,
+        "open_prs": [],
+        "issues_excluding_prs": 0,
+        "license_files": []
+      }
+    },
+    {
+      "repository": "kosif199022-jpg/mafateeh-al-tharwa2",
+      "default_branch": "main",
+      "snapshot_commit": "fc8518662be5511cc7b09d5317875a7677a343b1",
+      "visibility": "public",
+      "overall_status": "PARTIAL DEEP COVERAGE",
+      "recursive_default_tree_complete": true,
+      "tree_entries": 115,
+      "blob_entries": 95,
+      "source_url": "https://github.com/kosif199022-jpg/mafateeh-al-tharwa2/tree/fc8518662be5511cc7b09d5317875a7677a343b1",
+      "audit_family_coverage": {
+        "repository": "kosif199022-jpg/mafateeh-al-tharwa2",
+        "head": "fc8518662be5511cc7b09d5317875a7677a343b1",
+        "tree_sha": "050a2e22c73481325f02bcf0a1f7f9c84fcb0cf0",
+        "tree_truncated": false,
+        "files": 95,
+        "retrieved_text_files": 5,
+        "tests_in_tree": 0,
+        "branches": 2,
+        "prs": 1,
+        "open_prs": [],
+        "issues_excluding_prs": 0,
+        "license_files": []
+      }
+    },
+    {
+      "repository": "kosif199022-jpg/-",
+      "default_branch": "main",
+      "snapshot_commit": "a48db7e95373f72a504ac818a3e361b2f0bdd2e2",
+      "visibility": "public",
+      "overall_status": "PARTIAL DEEP COVERAGE",
+      "recursive_default_tree_complete": true,
+      "tree_entries": 1,
+      "blob_entries": 1,
+      "source_url": "https://github.com/kosif199022-jpg/-/tree/a48db7e95373f72a504ac818a3e361b2f0bdd2e2",
+      "branches": 6,
+      "pull_requests": 3,
+      "open_pull_requests": 2,
+      "non_pr_issues": 1,
+      "source_asset_rows": 3
+    },
+    {
+      "repository": "kosif199022-jpg/CLOUDFLARE_API_TOKEN",
+      "default_branch": "claude/nice-carson-511m0j",
+      "snapshot_commit": "ee1301b05ff9713b26dee827ec86362958354ce2",
+      "visibility": "public",
+      "overall_status": "METADATA/TREE ONLY; CONTENT SECURITY-RESTRICTED",
+      "recursive_default_tree_complete": true,
+      "tree_entries": 225,
+      "blob_entries": 173,
+      "source_url": "https://github.com/kosif199022-jpg/CLOUDFLARE_API_TOKEN/tree/ee1301b05ff9713b26dee827ec86362958354ce2",
+      "branches": 6,
+      "pull_requests": 2,
+      "open_pull_requests": 1,
+      "non_pr_issues": 0,
+      "source_asset_rows": 1
+    },
+    {
+      "repository": "kosif199022-jpg/moon",
+      "default_branch": "main",
+      "snapshot_commit": "52baec7a598ecbfb42db97c2e9e3e6ed852781f5",
+      "visibility": "public",
+      "overall_status": "PARTIAL DEEP COVERAGE",
+      "recursive_default_tree_complete": true,
+      "tree_entries": 68,
+      "blob_entries": 51,
+      "source_url": "https://github.com/kosif199022-jpg/moon/tree/52baec7a598ecbfb42db97c2e9e3e6ed852781f5",
+      "branches": 4,
+      "pull_requests": 3,
+      "open_pull_requests": 0,
+      "non_pr_issues": 0,
+      "source_asset_rows": 3
+    },
+    {
+      "repository": "kosif199022-jpg/kosif-audit-studio",
+      "default_branch": "main",
+      "snapshot_commit": "08aa14289e37c83c861bf4d72467c1d07e36fd32",
+      "visibility": "public",
+      "overall_status": "PARTIAL DEEP COVERAGE",
+      "recursive_default_tree_complete": true,
+      "tree_entries": 228,
+      "blob_entries": 206,
+      "source_url": "https://github.com/kosif199022-jpg/kosif-audit-studio/tree/08aa14289e37c83c861bf4d72467c1d07e36fd32",
+      "audit_family_coverage": {
+        "repository": "kosif199022-jpg/kosif-audit-studio",
+        "head": "08aa14289e37c83c861bf4d72467c1d07e36fd32",
+        "tree_sha": "9c537cf60acfedfe82936556f407d26d86355dd5",
+        "tree_truncated": false,
+        "files": 206,
+        "retrieved_text_files": 40,
+        "tests_in_tree": 43,
+        "branches": 51,
+        "prs": 39,
+        "open_prs": [
+          36,
+          35,
+          34,
+          17,
+          1
+        ],
+        "issues_excluding_prs": 2,
+        "license_files": []
+      }
+    },
+    {
+      "repository": "kosif199022-jpg/smart-trial-balance-review",
+      "default_branch": "main",
+      "snapshot_commit": "9b646fd704b0f5ccf48c8bce7877e96e3783335b",
+      "visibility": "public",
+      "overall_status": "PARTIAL DEEP COVERAGE",
+      "recursive_default_tree_complete": true,
+      "tree_entries": 14,
+      "blob_entries": 11,
+      "source_url": "https://github.com/kosif199022-jpg/smart-trial-balance-review/tree/9b646fd704b0f5ccf48c8bce7877e96e3783335b",
+      "audit_family_coverage": {
+        "repository": "kosif199022-jpg/smart-trial-balance-review",
+        "head": "9b646fd704b0f5ccf48c8bce7877e96e3783335b",
+        "tree_sha": "a55ff51a5cd037cd85339020f8b4691bcc122eb3",
+        "tree_truncated": false,
+        "files": 11,
+        "retrieved_text_files": 8,
+        "tests_in_tree": 0,
+        "branches": 1,
+        "prs": 0,
+        "open_prs": [],
+        "issues_excluding_prs": 0,
+        "license_files": []
+      }
+    },
+    {
+      "repository": "kosif199022-jpg/cloude",
+      "default_branch": "main",
+      "snapshot_commit": "d5cd45fe9fe71f628dec23bf987faeece6ac493c",
+      "visibility": "private",
+      "overall_status": "PARTIAL DEEP COVERAGE",
+      "recursive_default_tree_complete": true,
+      "tree_entries": 757,
+      "blob_entries": 696,
+      "source_url": "https://github.com/kosif199022-jpg/cloude/tree/d5cd45fe9fe71f628dec23bf987faeece6ac493c",
+      "code_evidence_refs": [
+        "206a4da751a6e827b0fcf7386964f6b75a154a16",
+        "a4299d5edf1dfaac9d7fe59fff3a8c493d4763b3"
+      ],
+      "governance_commit": "799d8afa959215ab1eed27bd995f35029b98512d",
+      "note": "Code evidence unchanged through799; ae7 and d5cd coordination-only changes. Original complete tree757entries plus newly added worklog.78catalog IDs;140branch metadata;128all PR metadata;18open issue metadata; bodies excluded.",
+      "branches": 140,
+      "pull_requests": 128,
+      "open_pull_requests": 11,
+      "open_non_pr_issues_metadata": 18
+    },
+    {
+      "repository": "kosif199022-jpg/kosif-audit-pro",
+      "default_branch": "main",
+      "snapshot_commit": "1be540e2b397ea2106b931a0fbde1c174e6558a9",
+      "visibility": "public",
+      "overall_status": "PARTIAL DEEP COVERAGE",
+      "recursive_default_tree_complete": true,
+      "tree_entries": 146,
+      "blob_entries": 124,
+      "source_url": "https://github.com/kosif199022-jpg/kosif-audit-pro/tree/1be540e2b397ea2106b931a0fbde1c174e6558a9",
+      "audit_family_coverage": {
+        "repository": "kosif199022-jpg/kosif-audit-pro",
+        "head": "1be540e2b397ea2106b931a0fbde1c174e6558a9",
+        "tree_sha": "7e7a2e74046249b0877b8eb5bc5b85c566320047",
+        "tree_truncated": false,
+        "files": 124,
+        "retrieved_text_files": 16,
+        "tests_in_tree": 8,
+        "branches": 3,
+        "prs": 2,
+        "open_prs": [],
+        "issues_excluding_prs": 0,
+        "license_files": [
+          "vendor/shadcn-tailwind-4.13.0.LICENSE.md"
+        ]
+      }
+    },
+    {
+      "repository": "kosif199022-jpg/new",
+      "default_branch": "main",
+      "snapshot_commit": "e0a0cc351f6620416a649f62b05d00c83bed5848",
+      "visibility": "public",
+      "overall_status": "PARTIAL DEEP COVERAGE",
+      "recursive_default_tree_complete": true,
+      "tree_entries": 14,
+      "blob_entries": 10,
+      "source_url": "https://github.com/kosif199022-jpg/new/tree/e0a0cc351f6620416a649f62b05d00c83bed5848",
+      "branches": 3,
+      "pull_requests": 0,
+      "open_pull_requests": 0,
+      "non_pr_issues": 0,
+      "source_asset_rows": 3
+    },
+    {
+      "repository": "kosif199022-jpg/see",
+      "default_branch": "main",
+      "snapshot_commit": "158e31cf26db1e6b77c5e068fa26dee64c45753e",
+      "visibility": "public",
+      "overall_status": "PARTIAL DEEP COVERAGE",
+      "recursive_default_tree_complete": true,
+      "tree_entries": 327,
+      "blob_entries": 226,
+      "source_url": "https://github.com/kosif199022-jpg/see/tree/158e31cf26db1e6b77c5e068fa26dee64c45753e",
+      "branches": 7,
+      "pull_requests": 5,
+      "open_pull_requests": 1,
+      "non_pr_issues": 0,
+      "source_asset_rows": 3
+    },
+    {
+      "repository": "kosif199022-jpg/whatsapp-personal-bridge",
+      "default_branch": "main",
+      "snapshot_commit": "85a7562656364040d1e00ea9c12d11f0e16b2160",
+      "visibility": "public",
+      "overall_status": "PARTIAL DEEP COVERAGE",
+      "recursive_default_tree_complete": true,
+      "tree_entries": 8,
+      "blob_entries": 6,
+      "source_url": "https://github.com/kosif199022-jpg/whatsapp-personal-bridge/tree/85a7562656364040d1e00ea9c12d11f0e16b2160",
+      "branches": 3,
+      "pull_requests": 0,
+      "open_pull_requests": 0,
+      "non_pr_issues": 0,
+      "source_asset_rows": 2
+    },
+    {
+      "repository": "kosif199022-jpg/think",
+      "default_branch": "main",
+      "snapshot_commit": "8b0816e3eafe4d78bb8df7baf0a04065572b6431",
+      "visibility": "public",
+      "overall_status": "PARTIAL DEEP COVERAGE",
+      "recursive_default_tree_complete": true,
+      "tree_entries": 165,
+      "blob_entries": 143,
+      "source_url": "https://github.com/kosif199022-jpg/think/tree/8b0816e3eafe4d78bb8df7baf0a04065572b6431",
+      "branches": 6,
+      "pull_requests": 6,
+      "open_pull_requests": 3,
+      "non_pr_issues": 0,
+      "source_asset_rows": 5
+    },
+    {
+      "repository": "kosif199022-jpg/kosif-omni",
+      "default_branch": "main",
+      "snapshot_commit": "af704863595898ed16284f0cebd7a63d365281b0",
+      "visibility": "private",
+      "overall_status": "PARTIAL DEEP COVERAGE",
+      "recursive_default_tree_complete": true,
+      "tree_entries": 583,
+      "blob_entries": 464,
+      "source_url": "https://github.com/kosif199022-jpg/kosif-omni/tree/af704863595898ed16284f0cebd7a63d365281b0",
+      "atlas_coverage": {
+        "branches": [
+          "main",
+          "canary/atlas-tournament-e2e-20261004"
+        ],
+        "prs": 0,
+        "issues": 0,
+        "canary_head": "f1d6d4ba5cf1b081baba1ea97652d423366252fb",
+        "canary_ahead_of_main": 8
+      }
+    },
+    {
+      "repository": "kosif199022-jpg/kosif-atlas-private",
+      "default_branch": "main",
+      "snapshot_commit": "bf923746d42679c1ab3bcf3987dabd952b95415f",
+      "visibility": "private",
+      "overall_status": "PARTIAL DEEP COVERAGE",
+      "recursive_default_tree_complete": false,
+      "tree_entries": null,
+      "blob_entries": null,
+      "source_url": "https://github.com/kosif199022-jpg/kosif-atlas-private/tree/bf923746d42679c1ab3bcf3987dabd952b95415f",
+      "atlas_coverage": {
+        "branches": [
+          "main"
+        ],
+        "prs": 0,
+        "issues": 0
+      },
+      "immediate_plugin_folders": 968,
+      "note": "Immediate roots/plugin folders complete; selected bounded subtrees; remaining nested contents not deeply reviewed."
+    },
+    {
+      "repository": "kosif199022-jpg/kosif-atlas",
+      "default_branch": "main",
+      "snapshot_commit": "7aa515ddad0edfc9f20c7ca84615f6adcb076fb4",
+      "visibility": "public",
+      "overall_status": "PARTIAL DEEP COVERAGE",
+      "recursive_default_tree_complete": false,
+      "tree_entries": null,
+      "blob_entries": null,
+      "source_url": "https://github.com/kosif199022-jpg/kosif-atlas/tree/7aa515ddad0edfc9f20c7ca84615f6adcb076fb4",
+      "atlas_coverage": {
+        "branches": [
+          "main"
+        ],
+        "prs": 0,
+        "issues": 0
+      },
+      "immediate_plugin_folders": 3692,
+      "note": "Immediate roots/plugin folders complete; selected bounded subtrees; remaining nested contents not deeply reviewed."
+    },
+    {
+      "repository": "kosif199022-jpg/100-superskills",
+      "default_branch": "main",
+      "snapshot_commit": "aab8afe5503f49ac6733a629c670eb3e37069a78",
+      "visibility": "public",
+      "overall_status": "PARTIAL DEEP COVERAGE",
+      "recursive_default_tree_complete": true,
+      "tree_entries": 678,
+      "blob_entries": 431,
+      "source_url": "https://github.com/kosif199022-jpg/100-superskills/tree/aab8afe5503f49ac6733a629c670eb3e37069a78",
+      "branches": 1,
+      "pull_requests": 0,
+      "open_pull_requests": 0,
+      "non_pr_issues": 0,
+      "source_asset_rows": 3
+    }
+  ],
+  "code_executed_by_inventory": false,
+  "new_runtime_tests_run": 0,
+  "remote_mutations_by_inventory_workers": 0,
+  "parent_coordination_write": "ae7d97e changed AGENT_WORKLOG only; separately verified by parent",
+  "atlas": {
+    "timestamp_utc": "2026-10-05T21:38:00Z",
+    "charter": "cloude@799d8afa959215ab1eed27bd995f35029b98512d FOUNDATION.md and AGENT_WORKLOG.md; mandate unchanged from206a4da.",
+    "repository_refs": {
+      "kosif-atlas": "7aa515ddad0edfc9f20c7ca84615f6adcb076fb4",
+      "kosif-atlas-private": "bf923746d42679c1ab3bcf3987dabd952b95415f",
+      "kosif-omni": "af704863595898ed16284f0cebd7a63d365281b0"
+    },
+    "read_only": true,
+    "remote_mutations": 0,
+    "untrusted_code_executed": false,
+    "customer_data_or_secrets_read": false,
+    "public_root_entries": 10,
+    "public_plugin_folders": 3692,
+    "public_numeric_plugin_folders": 3635,
+    "public_x_plugin_folders": 56,
+    "public_custom_motion_folders": 1,
+    "private_root_entries": 12,
+    "private_plugin_folders": 968,
+    "omni_tree_entries": 583,
+    "omni_blob_entries": 464,
+    "omni_skill_files": 46,
+    "selected_subtrees": {
+      "atlas_tree__700-permission-matrix.json": {
+        "entries": 3,
+        "truncated": false,
+        "skill_count": 1
+      },
+      "atlas_tree__2260-construction-general-contractor.json": {
+        "entries": 7,
+        "truncated": false,
+        "skill_count": 3
+      },
+      "atlas_tree__2370-report-regeneration.json": {
+        "entries": 63,
+        "truncated": false,
+        "skill_count": 11
+      },
+      "atlas_tree__2322-internal-audit.json": {
+        "entries": 7,
+        "truncated": false,
+        "skill_count": 3
+      },
+      "atlas_tree__95-awwwards-motion.json": {
+        "entries": 3,
+        "truncated": false,
+        "skill_count": 1
+      },
+      "atlas_tree__2330-manufacturing-operations.json": {
+        "entries": 7,
+        "truncated": false,
+        "skill_count": 3
+      },
+      "atlas_tree__2331-marketing-operations.json": {
+        "entries": 13,
+        "truncated": false,
+        "skill_count": 6
+      },
+      "atlas_tree__1633-excel-analyst-pro.json": {
+        "entries": 40,
+        "truncated": false,
+        "skill_count": 4
+      },
+      "atlas_tree__100-ui-motion.json": {
+        "entries": 15,
+        "truncated": false,
+        "skill_count": 3
+      },
+      "atlas_tree__2334-medical-revenue-cycle.json": {
+        "entries": 11,
+        "truncated": false,
+        "skill_count": 5
+      },
+      "atlas_tree__1823-anthropic-pack.json": {
+        "entries": 61,
+        "truncated": false,
+        "skill_count": 30
+      },
+      "atlas_tree__1428-openai-office-skills.json": {
+        "entries": 41,
+        "truncated": false,
+        "skill_count": 4
+      },
+      "atlas_tree__2355-precision-agriculture.json": {
+        "entries": 11,
+        "truncated": false,
+        "skill_count": 5
+      },
+      "atlas_tree__motion-graphics-ar.json": {
+        "entries": 120,
+        "truncated": false,
+        "skill_count": 13
+      },
+      "atlas_tree__2318-hotel-hospitality-operations.json": {
+        "entries": 11,
+        "truncated": false,
+        "skill_count": 5
+      },
+      "atlas_tree__2228-accounting-bookkeeping.json": {
+        "entries": 11,
+        "truncated": false,
+        "skill_count": 5
+      },
+      "private_tree__x1889-document-figures.json": {
+        "entries": 14,
+        "truncated": false,
+        "skill_count": 1
+      },
+      "private_tree__x3829-netsuite-finance-analyst.json": {
+        "entries": 10,
+        "truncated": false,
+        "skill_count": 1
+      },
+      "private_tree__x1908-pdf-extract.json": {
+        "entries": 9,
+        "truncated": false,
+        "skill_count": 1
+      },
+      "private_tree__x4667-finance.json": {
+        "entries": 13,
+        "truncated": false,
+        "skill_count": 6
+      },
+      "private_tree__x1910-pptx-build.json": {
+        "entries": 43,
+        "truncated": false,
+        "skill_count": 1
+      }
+    },
+    "indexed_counts": {
+      "public_copyleft_index_rows": 85,
+      "public_copyleft_plugin_labels": 56,
+      "private_blocked_index_rows": 1016,
+      "private_blocked_plugin_labels": 42,
+      "omni_embedded_skills_claim": 14708,
+      "omni_embedded_plugins_claim": 3635,
+      "omni_tools_readme_claim": 52,
+      "omni_statically_declared_tool_count": 55
+    },
+    "branches_prs_issues": {
+      "kosif-atlas": {
+        "branches": [
+          "main"
+        ],
+        "prs": 0,
+        "issues": 0
+      },
+      "kosif-atlas-private": {
+        "branches": [
+          "main"
+        ],
+        "prs": 0,
+        "issues": 0
+      },
+      "kosif-omni": {
+        "branches": [
+          "main",
+          "canary/atlas-tournament-e2e-20261004"
+        ],
+        "prs": 0,
+        "issues": 0,
+        "canary_head": "f1d6d4ba5cf1b081baba1ea97652d423366252fb",
+        "canary_ahead_of_main": 8
+      }
+    },
+    "verification": "Static JSON/tree counts, source reading and Python AST parsing only; no repository test/script execution. Exact canary GitHub CI result observed separately.",
+    "unavailable_for_inventory": [
+      {
+        "asset": "kosif-atlas/index.csv full contents",
+        "reason": "5.4MB catalog: bounded fetch_file returned empty content; raw CSV fetch returned HTTP400 file may be too large or unsupported. Root metadata retained; full skill-level index not read.",
+        "status": "UNAVAILABLE FOR INVENTORY (connector file-content limitation)"
+      },
+      {
+        "asset": "whole recursive Atlas and private-Atlas trees",
+        "reason": "Coordinator whole-tree calls reported Transport closed. Recovered both nonrecursive roots/skills directory trees and selected recursive subtrees. Unrecovered nested content remains pending, not inventoried."
+      }
+    ],
+    "not_inspected": [
+      "Remaining public/private plugin subtree contents, upstream dependencies and every license",
+      "Private restricted index content (2.3MB CSV/4.3MB JSON), not fetched; only root metadata and selected source folders inspected",
+      "Embedded .kpack binary data, all archived executables, original library archives",
+      "Every Omni skill/reference/script (complete paths inventoried, selective content reads)",
+      "Application integration, installed plugins, live accounting/audit behavior, long RTL reports, sector E2E, company isolation, audit benchmark corpus",
+      "All external upstream branches/issues/PRs and all source license variants",
+      "kosif-atlas/index.json full contents (11.3MB): not fetched after CSV size failure; metadata-only, pending supported bounded retrieval."
+    ],
+    "no_loss_policy": "No Retire decisions. Keep on unreviewed catalog entries means retain evidence/candidate pending evaluation, not accept for production. No claim Rule Zero is exhaustively complete.",
+    "status": "IN PROGRESS / PARTIAL DEEP COVERAGE — NOT P0 COMPLETE",
+    "proposal_authority": "All placement, reuse and best-source decisions are PROPOSALS pending Claude lead/owner reconciliation. No runtime, installation, merge or remote writes made.",
+    "remaining_plugin_subtree_count": 4639,
+    "remaining_plugin_subtrees_file": "remaining_plugin_subtrees.json"
+  },
+  "audit_uninspected": [
+    "Most large legacy app/UI files, knowledge data/catalogues and styles have only tree coverage; no rendered mobile/desktop assessment.",
+    "Studio production WhatsApp/Jev/voice and Cloudflare deployment workflows are not deeply reviewed; security PR36 remains a reuse blocker.",
+    "Other source branches beyond PR1/rebuild samples and eight branch comparisons have only branch/PR metadata coverage; feature-parity decisions remain pending.",
+    "Original reports, reference-library12506-page corpus, bundled book text, MP3 media and customer/source data not retrieved.",
+    "No builds/tests/browser/production endpoints/model calls performed; static implemented-source status never means production-verified.",
+    "No verified hospital/hotel/construction/meat/digital-marketing operational sector pack in the sampled five-repository family.",
+    "No TODO/FIXME literal found in retrieved source samples; absence is not all-repo certification. Documents contain explicit incomplete-server milestones."
+  ],
+  "small_file_manifest": "RULE_ZERO_SMALL_FILE_MANIFEST_2026-10-05.json",
+  "branch_and_pr_scope": {
+    "cloude_branches": 140,
+    "cloude_all_prs": 128,
+    "cloude_open_issues_metadata": 18,
+    "small_repository_branches": 36,
+    "audit_family_branches": 60,
+    "note": "All PR counts are metadata, not code review; cloude non-PR issue bodies returned by collection API before filtering, not analyzed or published. Discussions and full commit histories not comprehensively inventoried."
+  },
+  "unavailable": [
+    {
+      "asset": "kosif-atlas/index.csv full contents",
+      "reason": "5.4MB catalog: bounded fetch_file returned empty content; raw CSV fetch returned HTTP400 file may be too large or unsupported. Root metadata retained; full skill-level index not read.",
+      "status": "UNAVAILABLE FOR INVENTORY (connector file-content limitation)"
+    },
+    {
+      "asset": "whole recursive Atlas and private-Atlas trees",
+      "reason": "Coordinator whole-tree calls reported Transport closed. Recovered both nonrecursive roots/skills directory trees and selected recursive subtrees. Unrecovered nested content remains pending, not inventoried."
+    }
+  ],
+  "next_review_batches": [
+    {
+      "priority": 1,
+      "scope": "cloude company/section data ownership, backup and canonical accounting stores",
+      "sources": [
+        "ui/core/helper-space.js",
+        "ui/features/workspace.js",
+        "ui/reports.js",
+        "ui/erp-plus.js",
+        "company/chat/intake modules"
+      ],
+      "outcome": "Map every read/write/report/export/backup store to owner; identify globals and parallel-ledger paths with exact contracts.",
+      "acceptance": "Two synthetic companies and independent tool/audit contexts remain isolated across async/reload/report/backup/restore; all stores covered.",
+      "stop": "Contract and source trace documented; runtime acceptance remains separate until authorized tests."
+    },
+    {
+      "priority": 2,
+      "scope": "Accounting truth and posting producer contracts",
+      "sources": [
+        "cloude ledger/sales/procurement/tax/cost/master modules",
+        "new finance branch",
+        "ALTAREEQ PR2",
+        "Omni ledger checker",
+        "Moon Money"
+      ],
+      "outcome": "Compare validation/precision/idempotency/reversal/period/company/currency contracts and choose best-source proposal.",
+      "acceptance": "Synthetic operation→journal→GL→TB→statements equality; negative malformed/NaN/currency/duplicate/concurrency tests.",
+      "stop": "Lead-reviewed source comparison and bounded migration slice, not whole-repo merge."
+    },
+    {
+      "priority": 3,
+      "scope": "Backend auth/evidence/session and credential-sensitive candidates",
+      "sources": [
+        "capabilities-v2",
+        "audit-studio worker and PR36",
+        "SEE entry",
+        "CLOUDFLARE_API_TOKEN metadata"
+      ],
+      "outcome": "Document fail-open configuration, tenant enforcement, upload validation, retention and external-data boundaries.",
+      "acceptance": "Missing bindings/unknown identity/cross-tenant access denied; secrets never copied; payload scope and logs validated.",
+      "stop": "Security contract evidence; keep restricted contents quarantined without further authorization."
+    },
+    {
+      "priority": 4,
+      "scope": "Reference corpus and unmerged report/source work",
+      "sources": [
+        "cloude PR143/#140",
+        "historical #37/#38/#40/#41/#45/#46/#72",
+        "audit-studio report benchmark/rebuild",
+        "official financial library"
+      ],
+      "outcome": "Preserve original-page/reviewed-fact/synthetic distinctions; map every known case and coverage gap to prior source work.",
+      "acceptance": "Evidence trace/comparison/scorecard/regression/failure log per reviewed case; no claim entire12506page corpus completed from six cases.",
+      "stop": "Case-level coverage queue and pinned source mapping before new corpus implementation."
+    },
+    {
+      "priority": 5,
+      "scope": "Report cloning, real Office formats and long RTL rendering",
+      "sources": [
+        "Atlas2370 report-regeneration",
+        "audit-studio PR1/rebuild",
+        "cloude output/report modules",
+        "Mafateeh formats",
+        "100-superskills Excel"
+      ],
+      "outcome": "Recover missing dependencies by pinned permitted source; compare preservation of formulas/data/format/print.",
+      "acceptance": "Rendered100–150page genuine fixture, A4/A3, repeat headers, page breaks, RTL, crossrefs and PDF-preview consistency.",
+      "stop": "Source/dependency/rights mapping and explicit render acceptance plan."
+    },
+    {
+      "priority": 6,
+      "scope": "Audit domain loop and human authority",
+      "sources": [
+        "studio V5",
+        "audit-pro gates",
+        "Moon/SEE",
+        "think PR6",
+        "Omni council"
+      ],
+      "outcome": "One source-linked model for evidence insufficiency, PBC rounds, risks, adjustments, dissent, Jev and report issuance.",
+      "acceptance": "No AI self-approval; missing evidence stays visible; role identity trusted; reproducible negative-path fixtures.",
+      "stop": "Lead-reviewed canonical contract proposal; no parallel audit product."
+    },
+    {
+      "priority": 7,
+      "scope": "Open/rebuild branch deltas and no-loss map",
+      "sources": [
+        "all139cloude branch metadata",
+        "PR140/143/133/137/116/4/7/96/150",
+        "studio divergent branches",
+        "new/-/think/Omni branch assets"
+      ],
+      "outcome": "Review distinct capability-bearing changes; canceled139 remains metadata-only and no action.",
+      "acceptance": "Each relevant delta has retained provenance, classification, owner,next action and conflict decision.",
+      "stop": "No meaningful unreviewed delta in the chosen first migration slice; remaining branches stay explicit."
+    },
+    {
+      "priority": 8,
+      "scope": "Sector variants and synthetic reference companies",
+      "sources": [
+        "existing meat/cost/yield engines",
+        "Atlas healthcare/hotel/construction/marketing/manufacturing/agriculture guidance"
+      ],
+      "outcome": "Separate actual accounting code from methodology; map hospital stress model and other mandatory sectors.",
+      "acceptance": "Sector-specific operations/postings/costs; synthetic hospital monthly revenue>10million; no real health/child data.",
+      "stop": "Complete gap/contract matrix for highest-priority sectors; implementation requires lead plan."
+    },
+    {
+      "priority": 9,
+      "scope": "AI provider/context/extension execution governance",
+      "sources": [
+        "think router/verifier",
+        "Omni gateway/runner/canary",
+        "cloude AI/company assistant",
+        "ALTAREEQ MCP"
+      ],
+      "outcome": "Map TTL/schema/scopes/permissions/audit/preview/sandbox/version/rollback and fail-closed receipt verification.",
+      "acceptance": "Expired context/schema mismatch rejected; simulated output labeled; no unrestricted filesystem/database execution.",
+      "stop": "Safe bridge proposal and acceptance suite defined, no credential grants or live calls."
+    },
+    {
+      "priority": 10,
+      "scope": "Knowledge, licenses and selective Atlas expansion",
+      "sources": [
+        "4660retained Atlas folders",
+        "4639uninspected nested subtrees",
+        "100-superskills108skills",
+        "Mafateeh reader",
+        "Omni corpus"
+      ],
+      "outcome": "Prioritize relevant source families, retrieve large indices through supported bounded routes, verify licenses/dependencies.",
+      "acceptance": "Every selected module has source/license/safety/IO/acceptance evidence; unrelated references retained without pretending they are product features.",
+      "stop": "Relevant migration slice fully understood; remaining catalog marked pending without arbitrary omission."
+    },
+    {
+      "priority": 11,
+      "scope": "Unified design tokens/mobile/desktop/print and pending focus fixes",
+      "sources": [
+        "SQC design tokens",
+        "PR133/137",
+        "Omni design helpers",
+        "existing component libraries"
+      ],
+      "outcome": "Map shared tokens/components and documented variants; retain functions while resolving visual drift.",
+      "acceptance": "Visual/component/RTL/responsive/keyboard/reduced-motion/print tests at same artifact; native focus/BFCache evidence distinct from VM.",
+      "stop": "Consistent source contract and lead-approved bounded design migration proposal."
+    }
+  ],
+  "retirement_decisions": 0,
+  "lead_reconciliation": "All incorporation/placement/best-source decisions PROPOSAL; no invented live Claude instruction.",
+  "global_implementation_gate": "This partial checkpoint does not satisfy broad FOUNDATION Rule Zero and does not authorize new architectural/runtime implementation. A reviewed slice is necessary but cannot waive the all-repository inventory gate, current lead reconciliation or required authorization.",
+  "secondary_handoff": {
+    "observed_at": "2026-10-05T21:54:00Z",
+    "coordination_head": "d5cd45fe9fe71f628dec23bf987faeece6ac493c",
+    "worklog_blob": "0f1989c075405c0ecf42fd5279f8d181757016db",
+    "governance_ref": "799d8afa959215ab1eed27bd995f35029b98512d",
+    "pr": {
+      "number": 151,
+      "state": "open",
+      "draft": true,
+      "head": "c4fb6a65a9ca02fbd369642401d01e331f17eef6",
+      "branch": "kosif-see/foundation-rule-zero-20261006",
+      "url": "https://github.com/kosif199022-jpg/cloude/pull/151",
+      "files": [
+        {
+          "sha": "a0ad3d57bca0e4b253bb2730e891e326639e39fc",
+          "filename": "docs/registry/KOSIFSEE_AI_TOOLING_INVENTORY_20261006.md",
+          "status": "added",
+          "additions": 118,
+          "deletions": 0,
+          "blob_url": "https://github.com/kosif199022-jpg/cloude/blob/c4fb6a65a9ca02fbd369642401d01e331f17eef6/docs%2Fregistry%2FKOSIFSEE_AI_TOOLING_INVENTORY_20261006.md"
+        }
+      ]
+    },
+    "handoff_source": "https://github.com/kosif199022-jpg/cloude/blob/c4fb6a65a9ca02fbd369642401d01e331f17eef6/docs/registry/KOSIFSEE_AI_TOOLING_INVENTORY_20261006.md",
+    "reconciliation": [
+      "Seven-repository refs match existing pinned inventory; no main code change.",
+      "Fresh main drift ae7 to d5cd modifies AGENT_WORKLOG only (31additions).",
+      "KOSIFSEE scope explicitly subordinate to DOT; no competing matrix or live Claude assignment inferred.",
+      "Public recursive Atlas truncated in secondary pass, while this pass recovered complete immediate folder census and21bounded subtrees. Both remain partial; neither proves all contents read.",
+      "Private recursive29325file count is secondary report-only; not promoted to independently verified full-tree coverage here.",
+      "Retire/override SEE shell is interpreted as reject conflicting historical authority, not authorize removing capability.",
+      "ThinkPR6/WhatsApp prototype/MCP partial status independently corroborated by sources already inspected.",
+      "Omni WhatsApp policy/idempotency/audit implementation independently re-read before enriching source record."
+    ],
+    "authority": "Published secondary source evidence only. It cannot authorize migration, sending data, new access or external-agent communication."
+  },
+  "atlas_relevance_summary": {
+    "status": "COMPLETE FOLDER-LEVEL RELEVANCE MAP; PARTIAL SOURCE REVIEW; NOT P0 COMPLETE",
+    "as_of_utc": "2026-10-05T21:51:00Z",
+    "repository_refs": {
+      "kosif-atlas": "7aa515ddad0edfc9f20c7ca84615f6adcb076fb4",
+      "kosif-atlas-private": "bf923746d42679c1ab3bcf3987dabd952b95415f",
+      "kosif-omni": "af704863595898ed16284f0cebd7a63d365281b0"
+    },
+    "total_folders": 4660,
+    "primary_groups": {
+      "unknown_or_ancillary": 3920,
+      "ui_accessibility": 76,
+      "ai_permissions": 451,
+      "apparently_unrelated": 57,
+      "report_document": 56,
+      "sector_packs": 43,
+      "financial_accounting": 33,
+      "audit_controls": 24
+    },
+    "multi_category_counts_non_additive": {
+      "ui_accessibility": 91,
+      "ai_permissions": 485,
+      "report_document": 87,
+      "sector_packs": 56,
+      "financial_accounting": 51,
+      "audit_controls": 34
+    },
+    "relevance_status_counts": {
+      "unknown_from_available_metadata": 3514,
+      "ancillary_engineering_support": 406,
+      "candidate_relevant": 683,
+      "apparently_unrelated_to_current_financial_product": 57
+    },
+    "metadata_coverage": {
+      "public_notice_records_matched": 3635,
+      "notice_match_methods": {
+        "exact_name": 3610,
+        "normalized_or_truncated_name": 25
+      },
+      "public_copyleft_index_rows": 85,
+      "private_blocked_index_rows": 1016,
+      "folders_with_read_source_metadata": 20,
+      "bounded_subtrees_enumerated": 21,
+      "full_main_public_index": "UNAVAILABLE FOR INVENTORY via connector size limitation",
+      "private_restricted_index": "not read; remaining private classifications use paths and selected SOURCE metadata",
+      "private_blocked_plugin_folders": 46,
+      "private_blocked_distinct_plugin_labels": 42,
+      "folders_with_more_than_path_metadata": 3743,
+      "path_only_folders": 917
+    },
+    "inference_rules": "Relevance labels are conservative lexical/manual triage of folder names, declared notices and available index/source metadata. Descriptions and directory presence do not prove working functionality. Multiple categories can apply. Every match records its terms and basis; false positives/negatives remain possible.",
+    "do_not_interpret_as": [
+      "All 4,660 folder contents read",
+      "Installed/executed capabilities",
+      "License clearance or security approval",
+      "Application integration or accounting/audit acceptance",
+      "Permission to discard apparently unrelated or unknown assets"
+    ],
+    "inspection_boundary": "21 bounded subtrees enumerated and selected content from earlier pass; no additional plugin code executed or installed. NOTICES metadata adds no content-review claim.",
+    "negative_evidence": "No immediate folder label directly identified a meat/butchery/bakery accounting pack. This is only a name-level observation; uninspected skill contents may contain relevant methods.",
+    "ranked_batch_count": 11,
+    "decisions": "All entries retained as Keep proposals; migration NOT STARTED. Lead/owner reconciles placement and sequencing.",
+    "existing_30_row_handoff": "Unchanged. This map is a supplemental metadata triage artifact, not replacement capability rows."
+  },
+  "cloude_exact_depth": {
+    "tree-metadata-only; content-not-reviewed": 579,
+    "excluded-from-content-read; no private/payload materialization": 20,
+    "fetched-only; deep-reading-not-established": 27,
+    "targeted-static-evidence; see per-family depth; not-full-file-audit": 64,
+    "selected-test-source-read; not-executed": 6
+  },
+  "fresh_owner_recensus": {
+    "observed_at": "2026-10-05T21:54:00Z",
+    "owner": "kosif199022-jpg",
+    "page_size": 100,
+    "page_0_count": 17,
+    "page_100_count": 0,
+    "name_set_unchanged": true
+  }
+}
