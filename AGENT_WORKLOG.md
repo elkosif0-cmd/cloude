@@ -364,3 +364,13 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Evidence: engines 476/476; node 726 pass / 54 fail (= `main`'s 52 + 2 Windows-only header tests); health incl. return rows OK; door 94/94; meat, books OK; advances 26/26; sales 28/28; feature_audit 146/146 — all first attempt.
 - Constitution check (owner asked «ارجع للدستور»): P3 still `base` for hospitality, construction and digital marketing; §3.6 asks for complete sample companies that ran a real accounting cycle (large hospital, school, factory, bakery, farm, trade) — only the meat demo exists today. Planned next: construction (progress billings, retentions, advance recovery, project profitability), then the §3.6 sample companies as their own wave.
 - NEXT ACTION: owner approval to merge.
+
+### TASK CLAUDE-20261006-014 — P3 construction: contracts, advances, progress billings, retentions, project costs
+- Agent: Claude (Lead Development Agent)
+- Status: DONE — merged as PR #167 on the owner's explicit instruction in chat («نفذ»); GitHub jobs not started (billing), acceptance on local evidence.
+- Goal: FOUNDATION §3.7 «عمق قطاع المقاولات» — the contract and its progress billings (المستخلصات), advances and retentions, revenue and cost per project, completion and margin. The construction pack becomes `deep`.
+- Scope: `app/src/engine/fusion/finance/progress-billing-engine.ts` (+6 tests): advance (cash, 2320, VAT), certificate (this period's work = certified to date − last certificate; retention 1220; advance recovery from 2320 capped at the advance left; VAT on the work less the recovery; receivable 1200; revenue 4070; refused above the contract value — a change order first — or without new work), retention release at handover, project profitability (margin, completion by cost, expected margin from the budget). `ui/features/ledger.js`: «المشروعات والمستخلصات» tab for construction companies only — contracts saved in the books, each contract's state read back from its own entries; direct costs (5130 subcontract, 5140 materials) tagged to the project. `tools/construction_pack_e2e.mjs` (new, in the workflow).
+- Not yet: change orders and claims, subcontractor retentions (2310), WIP/contract assets under IFRS 15 when costs run ahead of billing.
+- Branch / PR: `claude/construction-pack-20261006` from `main` @ f1d7106.
+- Evidence: engines 481/481; node 726 pass / 54 fail (= `main`'s 52 + 2 Windows-only header tests); construction, health, meat, books OK; door 94/94; advances 26/26; sales 28/28; feature_audit 146/146 — all first attempt.
+- NEXT ACTION: owner approval to merge; then hospitality and digital marketing packs; then the §3.6 sample companies.
