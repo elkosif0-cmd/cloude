@@ -58,6 +58,27 @@ function uid(prefix){return SK.ui&&SK.ui.uid?SK.ui.uid(prefix):prefix+"-"+Date.n
 /* the VAT policy every posting reads (finance/vat-policy-engine): the country rate unless the profile says otherwise */
 const VR=()=>window.SKEngines&&SKEngines.finance&&SKEngines.finance.vatPolicy;
 function vatPolicy(){const p=profile();return VR()?VR().vatPolicy({country:p.country,vatRegistered:p.vatRegistered,vatRate:p.vatRate}):{registered:true,rate:0.15,source:"country",country:p.country,label:"15%"}}
+/* the sector pack (system/sector-pack-engine): what a company of this sector receives — accounts, cost centers, units,
+   warehouses, tools. Applied once for a company created under a sector (packPending), never silently to an existing one;
+   it only adds what is missing and records what it added. */
+const SP=()=>window.SKEngines&&SKEngines.system&&SKEngines.system.sectorPack;
+function sectorPack(){return SP()?SP().sectorPack(cur().sector):null}
+function applySectorPack(){
+  const P=sectorPack();if(!P)throw new Error("محرك حزم القطاعات غير متاح");
+  const s=state(),names=t=>(s.definitions[t]||[]).map(x=>x.name),L=window.SKosifLedger;
+  const add=SP().packAdditions(P,{accountCodes:L&&L.accounts?L.accounts().map(a=>a.code):[],definitions:{costCenters:names("costCenters"),units:names("units"),warehouses:names("warehouses")},tools:s.installedTools});
+  const now=new Date().toISOString();let defs=0;
+  for(const [type,list] of Object.entries(add.definitions))for(const name of list){s.definitions[type].push({id:uid(type.slice(0,3)),name,code:"",accountCode:"",costCenter:"",unit:"",notes:"من حزمة القطاع",createdAt:now});defs++}
+  const tools=add.tools.filter(id=>{const c=SK.caps&&SK.caps.get?SK.caps.get(id):null;return !!c&&(SK.caps.inGatewayOf?SK.caps.inGatewayOf(c,"tools"):c.gateway==="tools")});
+  s.installedTools=[...new Set([...s.installedTools,...tools])];
+  s.sectorPack={id:P.id,depth:P.depth,at:now,definitions:defs,tools:tools.length};commit(s,"sector-pack.apply",{sector:P.id,definitions:defs,tools:tools.length});
+  /* the books open the pack's missing accounts through their own account-opening rule */
+  let accounts=0;try{if(L&&L.ensureAccounts&&add.accounts.length){L.ensureAccounts(add.accounts.map(a=>[...a]));accounts=add.accounts.length}}catch{}
+  try{if(cur().packPending&&SK.company.updateMeta)SK.company.updateMeta({packPending:false})}catch{}
+  return {sector:P.id,depth:P.depth,accounts,definitions:defs,tools:tools.length};
+}
+/* called by the first screens a new company opens (definitions, books): applies a pending pack once */
+function ensureSectorPack(){try{const c=cur();if(!c.id||!c.packPending||state().sectorPack)return null;return applySectorPack()}catch{return null}}
 function profile(){const c=cur(),p=state().profile||{};return Object.freeze({activity:clean(p.activity),country:clean(p.country||c.country||"SA",3).toUpperCase(),currency:clean(p.currency||c.currency||"SAR",3).toUpperCase(),framework:["IFRS","SME","EAS"].includes(p.framework)?p.framework:(clean(p.country||c.country||"SA",3).toUpperCase()==="EG"?"EAS":"IFRS"),fiscalYearStart:/^\\d{2}-\\d{2}$/.test(String(p.fiscalYearStart||""))?String(p.fiscalYearStart):"01-01",taxMode:p.taxMode==="income"?"income":"zakat",vatRegistered:typeof p.vatRegistered==="boolean"?p.vatRegistered:null,vatRate:VR()&&VR().normalizeRate(p.vatRate)!==null?VR().normalizeRate(p.vatRate):null,vatNo:clean(p.vatNo,40),crNo:clean(p.crNo,40),address:clean(p.address,240),notes:clean(p.notes,500)})}
 function setProfile(input={}){
   const s=state(),p=profile(),next={...p,activity:clean(input.activity??p.activity),country:clean(input.country??p.country,3).toUpperCase(),currency:clean(input.currency??p.currency,3).toUpperCase(),framework:["IFRS","SME","EAS"].includes(input.framework??p.framework)?(input.framework??p.framework):p.framework,fiscalYearStart:/^\\d{2}-\\d{2}$/.test(String(input.fiscalYearStart??p.fiscalYearStart))?String(input.fiscalYearStart??p.fiscalYearStart):p.fiscalYearStart,taxMode:(input.taxMode??p.taxMode)==="income"?"income":"zakat",vatRegistered:"vatRegistered" in input?(typeof input.vatRegistered==="boolean"?input.vatRegistered:null):p.vatRegistered,vatRate:"vatRate" in input?(input.vatRate===null||input.vatRate===""?null:VR().normalizeRate(input.vatRate)):p.vatRate,vatNo:clean(input.vatNo??p.vatNo,40),crNo:clean(input.crNo??p.crNo,40),address:clean(input.address??p.address,240),notes:clean(input.notes??p.notes,500)};
@@ -303,5 +324,5 @@ function searchCompany(query){
   const limited=hits.slice(0,20),text=limited.length?("نتائج داخل «"+c.name+"»:\n"+limited.map(x=>"• "+x.title+(x.detail?" — "+x.detail:"")).join("\n")):"لم أجد نتيجة مطابقة داخل بيانات الشركة الحالية.";
   return{text,matches:limited};
 }
-window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,vatPolicy,definitions,addDefinition,removeDefinition,assetDepreciation,fixedAssetSummary,fixedAssetJournal,installed,setTool,reportingTarget,reportingStatus,mpms,registerMpm,removeMpm,approveMpm,mpmReconciliation,mpmSubtotals:()=>MPM_SUBTOTALS,lineage,lineageFor,addLineage,inferType,ingestFiles,documents,readDocument,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,markAuditHandoff,setAuditHandoffStatus,addStandardTrace,aiExceptions,addAIException,resolveAIException,saveReportResult,search:searchCompany});
+window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,vatPolicy,sectorPack,applySectorPack,ensureSectorPack,definitions,addDefinition,removeDefinition,assetDepreciation,fixedAssetSummary,fixedAssetJournal,installed,setTool,reportingTarget,reportingStatus,mpms,registerMpm,removeMpm,approveMpm,mpmReconciliation,mpmSubtotals:()=>MPM_SUBTOTALS,lineage,lineageFor,addLineage,inferType,ingestFiles,documents,readDocument,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,markAuditHandoff,setAuditHandoffStatus,addStandardTrace,aiExceptions,addAIException,resolveAIException,saveReportResult,search:searchCompany});
 })();

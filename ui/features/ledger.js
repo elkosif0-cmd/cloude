@@ -11,6 +11,9 @@ const TYPES={asset:"أصول",liability:"خصوم",equity:"حقوق ملكية",
 const BASIC=[["1100","النقدية والبنوك","asset"],["1200","الذمم المدينة","asset"],["1300","المخزون","asset"],["1400","ضريبة القيمة المضافة — مدخلات","asset"],
   ["2100","الذمم الدائنة (الموردون)","liability"],["2200","ضريبة القيمة المضافة — مخرجات","liability"],["3000","رأس المال","equity"],["3100","الأرباح المبقاة","equity"],
   ["4000","إيرادات المبيعات","revenue"],["5000","تكلفة المبيعات","expense"],["6100","الرواتب والأجور","expense"],["6200","الإيجار","expense"],["6300","مصروفات تشغيلية أخرى","expense"],["2250","ضريبة القيمة المضافة — صافي مستحق للهيئة","liability"],["5100","فروقات الجرد والهدر","expense"],["4900","إيرادات أخرى","revenue"]];
+/* the chart a company starts from: its sector pack (system/sector-pack-engine) — the base chart plus what the sector posts to */
+const packAccounts=()=>{try{const P=window.SKosifCompanyPlatform&&SKosifCompanyPlatform.sectorPack&&SKosifCompanyPlatform.sectorPack();return P?P.accounts:BASIC}catch{return BASIC}};
+const packLabel=()=>{try{const s=SK.company.current().sector,c=SK.caps&&SK.caps.sector&&SK.caps.sector(s);return c?c.label:""}catch{return ""}};
 const ISSUE={JOURNAL_UNBALANCED:"القيد غير متزن: المدين لا يساوي الدائن",LINE_BOTH_SIDES:"سطر فيه مدين ودائن معاً",LINE_NEGATIVE_AMOUNT:"مبلغ سالب",LINE_ZERO_AMOUNT:"سطر بلا مبلغ"};
 let tab="",draft=null,glAcc="",vatQ="";
 const db=()=>{const d=load(KEY,{})||{};return{...d,accounts:Array.isArray(d.accounts)?d.accounts:[],entries:Array.isArray(d.entries)?d.entries:[],lockDate:typeof d.lockDate==="string"?d.lockDate:""}};
@@ -87,7 +90,7 @@ async function reviewDraft(d){
 function accountsHTML(d){
   const issues=E().accounts.inspectChartOfAccounts(d.accounts);
   return '<section class="card"><div class="card-h"><div><h3>دليل الحسابات</h3><p>'+d.accounts.length+' حساباً. كل قيد يستخدم حسابات من هذا الدليل.</p></div>'+
-    (d.accounts.length?'':'<button type="button" class="btn primary" data-l="basic">إنشاء دليل حسابات أساسي</button>')+'</div><div class="card-b sk-stack">'+
+    (d.accounts.length?(()=>{const miss=packAccounts().filter(([c])=>!d.accounts.some(x=>x.code===c)).length,l=packLabel();return miss&&l?'<button type="button" class="btn" data-l="pack-accounts">إضافة حسابات قطاع «'+esc(l)+'» ('+miss+')</button>':''})():'<button type="button" class="btn primary" data-l="basic">إنشاء دليل حسابات '+(packLabel()?'قطاع «'+esc(packLabel())+'»':'أساسي')+'</button>')+'</div><div class="card-b sk-stack">'+
     (issues.length?'<div class="sk-note warn">ملاحظات على الدليل: '+issues.map(i=>esc(i.code)+" ("+esc(i.accountId)+")").join("، ")+'</div>':'')+
     '<div class="sk-grid2"><label class="sk-field"><span>رمز الحساب</span><input id="lg-code" inputmode="numeric" data-sk-required></label><label class="sk-field"><span>اسم الحساب</span><input id="lg-name" data-sk-required></label>'+
     '<label class="sk-field"><span>النوع</span><select id="lg-type">'+Object.entries(TYPES).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join("")+'</select></label>'+
@@ -431,6 +434,8 @@ function postReceipts(d){
 
 /* ---------- screen ---------- */
 function paint(root){
+  /* a company created under a sector receives its pack on first open (FOUNDATION §3.7) */
+  try{window.SKosifCompanyPlatform&&SKosifCompanyPlatform.ensureSectorPack()}catch{}
   const d=db(),p=period();if(!tab)tab=d.accounts.length?"close":"accounts";
   root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
     (p?'<p class="hint">الفترة المالية النشطة: <b>'+esc(p.label)+'</b> ('+esc(p.startDate)+' → '+esc(p.endDate)+') — من «الشركات والفترات».</p>':'')+
@@ -440,7 +445,7 @@ function bind(root){
   root.addEventListener("click",async e=>{
     const t=e.target.closest("[data-tab]");if(t&&t.closest('[data-sk-tabs="ledger"]')){tab=t.dataset.tab;paint(root);return}
     const b=e.target.closest("[data-l]");if(!b)return;const a=b.dataset.l,d=db();
-    if(a==="basic"){BASIC.forEach(([code,name,type])=>{if(!d.accounts.some(x=>x.code===code))d.accounts.push(E().accounts.createAccount({code,name,type}))});put(d);toast("أُنشئ دليل الحسابات الأساسي — عدّله حسب نشاطك","ok")}
+    if(a==="basic"||a==="pack-accounts"){packAccounts().forEach(([code,name,type])=>{if(!d.accounts.some(x=>x.code===code))d.accounts.push(E().accounts.createAccount({code,name,type}))});put(d);toast("أُنشئ دليل الحسابات الأساسي — عدّله حسب نشاطك","ok")}
     else if(a==="add-acc"){if(!SK.ui.validate(root))return;const acc=E().accounts.createAccount({code:$("#lg-code",root).value,name:$("#lg-name",root).value,type:$("#lg-type",root).value,parentId:$("#lg-parent",root).value});
       if(d.accounts.some(x=>x.code===acc.code))return toast("الرمز مستخدم لحساب آخر","warn");d.accounts.push(acc);put(d);toast("أُضيف الحساب","ok")}
     else if(a==="toggle"){const x=d.accounts.find(y=>y.id===b.dataset.id);if(x){x.active=!x.active;put(d)}}
@@ -596,12 +601,25 @@ function syncSource(prefix,want){
   return out;
 }
 /* the accounts a screen posts to, opened once through the chart's account-opening rule (explicit code, name and type) */
+/* an operational screen posts through here: the entry must balance, its date must be open, and a source posts once */
+function postEntry(journal,meta={}){
+  const d=db(),date=String(journal&&journal.date||"").slice(0,10);
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return {ok:false,error:"تاريخ القيد غير صالح"};
+  if(locked(d,date))return {ok:false,error:"الفترة مقفلة حتى "+d.lockDate};
+  if(meta.sourceId&&postedSources(d).has(meta.sourceId))return {ok:false,error:"رُحّلت هذه العملية من قبل",duplicate:true};
+  const missing=(journal.lines||[]).map(l=>l.accountId).filter(id=>!d.accounts.some(a=>a.id===id));
+  if(missing.length)return {ok:false,error:"حساب غير موجود في الدليل"};
+  const v=E().ledger.validateJournalEntry(journal);if(!v.valid)return {ok:false,error:"القيد غير متزن أو غير صالح",issues:v.issues};
+  const entry={...journal,id:SK.ui.uid("je"),date,source:meta.source||journal.source||"",sourceId:meta.sourceId||"",...(meta.party?{party:meta.party}:{})};
+  d.entries.push(entry);put(d);SK.audit&&SK.audit.log("ledger",{act:"post",source:entry.source,sourceId:entry.sourceId});
+  return {ok:true,id:entry.id};
+}
 function ensureAccounts(list){const d=db(),has=c=>d.accounts.find(x=>String(x.code)===String(c));
   const plan=E().accountOpening.planAccountOpening(d.accounts,list.filter(([code])=>!has(code)).map(([code,name,type])=>({code,name,type})));
   if(!plan.ok)throw new Error("ACCOUNT_OPENING: "+plan.issues.map(i=>i.code+" "+i.reason).join(", "));
   if(plan.accounts.length){d.accounts.push(...plan.accounts);put(d)}
   return Object.fromEntries(list.map(([code])=>[code,has(code).id]))}
-window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().accounts,lockDate:()=>db().lockDate,saleEntry:(d,x)=>saleEntry(d,x,costResolver()),
+window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().accounts,lockDate:()=>db().lockDate,ensureAccounts,postEntry,saleEntry:(d,x)=>saleEntry(d,x,costResolver()),
   open:(t,o={})=>{tab=t||"accounts";if(o.q)vatQ=o.q;window.SKosifCore.go("ledger")},
   /* read-only views of the books for the month-end close, the morning brief and the alerts */
   snapshot:()=>db(),pending:until=>pendingOps(db(),until),parties:(kind,asOf)=>partiesOf(db(),kind,asOf||today()),

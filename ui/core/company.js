@@ -29,7 +29,7 @@ function current(){
   const periods=d.periods.filter(p=>p.companyId===id||!p.companyId),period=periods.find(p=>p.id===d.active.periodId)||null;
   /* the sector (FOUNDATION §3.7) is the company's own; the demo company is a meat company; a company recorded before
      sectors existed is general trade */
-  return Object.freeze({id,name,currency:(rec&&rec.currency)||"SAR",country:(rec&&rec.country)||"SA",sector:(rec&&rec.sector)||(id===DEMO.id?DEMO.sector:"trade"),locked:!!id&&privateId()===id,demo:id===DEMO.id,period,periods});
+  return Object.freeze({id,name,currency:(rec&&rec.currency)||"SAR",country:(rec&&rec.country)||"SA",sector:(rec&&rec.sector)||(id===DEMO.id?DEMO.sector:"trade"),packPending:!!(rec&&rec.packPending),locked:!!id&&privateId()===id,demo:id===DEMO.id,period,periods});
 }
 /* every company this device knows: the open one first; the private one only while it is the open one */
 function list(){
@@ -77,7 +77,7 @@ function updateMeta(patch={}){
   const cur=current(),d=books(),country=clean(patch.country||cur.country||"SA").toUpperCase().slice(0,3),currency=clean(patch.currency||cur.currency||"SAR").toUpperCase().slice(0,3);
   const want=clean(patch.sector||cur.sector||"trade"),sector=SK.caps&&SK.caps.sector&&SK.caps.sector(want)?want:cur.sector||"trade";
   let found=false;
-  d.rest.companies=d.companies.map(c=>{if(c.id!==cur.id)return c;found=true;return{...c,country,currency,sector}});
+  d.rest.companies=d.companies.map(c=>{if(c.id!==cur.id)return c;found=true;return{...c,country,currency,sector,...("packPending" in patch?{packPending:!!patch.packPending}:{})}});
   if(!found)d.rest.companies.push({id:cur.id,name:cur.name,country,currency,sector});
   if(save(CO,d.rest)!==true)return false;
   SK.bus&&SK.bus.emit("company",{companyId:cur.id,country,currency,sector});

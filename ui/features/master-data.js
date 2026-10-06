@@ -49,6 +49,8 @@ function profileCard(){
   '<div class="sk-actions"><button type="button" class="btn primary" data-md-profile-save>حفظ تعريف الشركة</button></div></div></section>';
 }
 function paint(root){
+  /* a company created under a sector receives its pack on first open (FOUNDATION §3.7) */
+  try{window.SKosifCompanyPlatform&&SKosifCompanyPlatform.ensureSectorPack()}catch{}
   const c=SK.company&&SK.company.current?SK.company.current():null,t=CP().types()[active];
   root.innerHTML=profileCard()+'<section class="card"><div class="card-h"><div><span class="eyebrow">MASTER DATA</span><h2>التعريفات — '+esc(c?.name||"الشركة")+'</h2><p>عرّف العناصر مرة واحدة، ثم استخدمها في القيود والتقارير والتكاليف والمراجعة. البيانات مرتبطة بالشركة المفتوحة فقط.</p></div><span class="sk-pill">'+esc(t.label)+'</span></div><div class="card-b sk-stack">'+
     '<div class="sk-actions" role="group" aria-label="أنواع التعريفات">'+categoryButtons()+'</div>'+

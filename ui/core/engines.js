@@ -24654,6 +24654,115 @@ window.SKEngines = (function() {
 		};
 	}
 	//#endregion
+	//#region app/src/engine/fusion/stock/cutting-run-engine.ts
+	var cutting_run_engine_exports = /* @__PURE__ */ __exportAll({
+		allocateExact: () => allocateExact,
+		cuttingRun: () => cuttingRun,
+		cuttingRunJournal: () => cuttingRunJournal
+	});
+	/** largest-remainder allocation: integer shares that sum exactly to total */
+	function allocateExact(total, weights) {
+		const sum = weights.reduce((s, w) => s + Math.max(0, w), 0);
+		if (total <= 0 || sum <= 0) return weights.map(() => 0);
+		const raw = weights.map((w) => Math.max(0, w) / sum * total), out = raw.map(Math.floor);
+		let left = total - out.reduce((s, v) => s + v, 0);
+		raw.map((r, i) => [r - Math.floor(r), i]).sort((a, b) => b[0] - a[0] || a[1] - b[1]).forEach(([, i]) => {
+			if (left > 0) {
+				out[i] += 1;
+				left -= 1;
+			}
+		});
+		return out;
+	}
+	var kg = (v) => Math.round(v * 1e3) / 1e3;
+	function cuttingRun(x) {
+		if (!(x.carcassWeightKg > 0)) throw new Error("وزن الذبيحة يجب أن يكون أكبر من صفر");
+		if (!Number.isInteger(x.carcassCostHalalas) || x.carcassCostHalalas < 0) throw new Error("تكلفة الذبيحة بالهللة يجب أن تكون عدداً صحيحاً غير سالب");
+		const cuts = x.cuts.filter((c) => c.weightKg > 0);
+		if (!cuts.length) throw new Error("أضف قطعة واحدة على الأقل بوزن أكبر من صفر");
+		const byp = (x.byProducts ?? []).filter((b) => b.weightKg > 0);
+		const wasteKg = Math.max(0, x.wasteKg ?? 0), normalKg = kg(x.carcassWeightKg * Math.max(0, x.normalWastePct ?? 3) / 100);
+		const abnormalKg = kg(Math.max(0, wasteKg - normalKg));
+		const abnormalCost = Math.min(x.carcassCostHalalas, Math.round(abnormalKg * x.carcassCostHalalas / x.carcassWeightKg));
+		const bypValues = byp.map((b) => Math.round(b.weightKg * Math.max(0, b.nrvPerKgHalalas)));
+		const bypCap = x.carcassCostHalalas - abnormalCost, bypTotal = Math.min(bypCap, bypValues.reduce((s, v) => s + v, 0));
+		const bypShares = bypTotal === bypValues.reduce((s, v) => s + v, 0) ? bypValues : allocateExact(bypTotal, bypValues);
+		const joint = x.carcassCostHalalas - abnormalCost - bypTotal;
+		const priced = cuts.every((c) => (c.pricePerKgHalalas ?? 0) > 0);
+		const basis = x.basis === "weight" || !priced ? "weight" : "sales-value";
+		const sales = cuts.map((c) => (c.pricePerKgHalalas ?? 0) > 0 ? Math.round(c.weightKg * c.pricePerKgHalalas) : null);
+		const costs = allocateExact(joint, basis === "weight" ? cuts.map((c) => c.weightKg) : sales.map((s) => s ?? 0));
+		const out = cuts.map((c, i) => ({
+			name: c.name,
+			weightKg: kg(c.weightKg),
+			costHalalas: costs[i],
+			costPerKgHalalas: Math.round(costs[i] / c.weightKg),
+			salesValueHalalas: sales[i],
+			marginHalalas: sales[i] === null ? null : sales[i] - costs[i]
+		}));
+		const cutsKg = cuts.reduce((s, c) => s + c.weightKg, 0), bypKg = byp.reduce((s, b) => s + b.weightKg, 0);
+		const total = costs.reduce((s, v) => s + v, 0) + bypShares.reduce((s, v) => s + v, 0) + abnormalCost;
+		return {
+			basis,
+			cuts: out,
+			byProducts: byp.map((b, i) => ({
+				name: b.name,
+				weightKg: kg(b.weightKg),
+				valueHalalas: bypShares[i]
+			})),
+			waste: {
+				kg: kg(wasteKg),
+				normalKg: Math.min(normalKg, kg(wasteKg)),
+				abnormalKg,
+				abnormalCostHalalas: abnormalCost
+			},
+			yieldPct: Math.round(cutsKg / x.carcassWeightKg * 1e4) / 100,
+			unaccountedKg: kg(x.carcassWeightKg - cutsKg - bypKg - wasteKg),
+			balanced: total === x.carcassCostHalalas
+		};
+	}
+	/** the journal of a run, in currency units (2 dp) as the ledger stores them */
+	function cuttingRunJournal(x, a) {
+		const r = cuttingRun(x), sar = (h) => h / 100;
+		const cutsCost = r.cuts.reduce((s, c) => s + c.costHalalas, 0), bypCost = r.byProducts.reduce((s, b) => s + b.valueHalalas, 0);
+		const lines = [
+			...cutsCost ? [{
+				accountId: a.cutsAccountId,
+				debit: sar(cutsCost),
+				credit: 0,
+				description: "قطع جاهزة — " + r.cuts.map((c) => c.name + " " + c.weightKg + "كجم").join("، ")
+			}] : [],
+			...bypCost ? [{
+				accountId: a.byProductsAccountId,
+				debit: sar(bypCost),
+				credit: 0,
+				description: "منتجات ثانوية بصافي القيمة القابلة للتحقق"
+			}] : [],
+			...r.waste.abnormalCostHalalas ? [{
+				accountId: a.abnormalWasteAccountId,
+				debit: sar(r.waste.abnormalCostHalalas),
+				credit: 0,
+				description: "هدر غير طبيعي " + r.waste.abnormalKg + "كجم"
+			}] : [],
+			{
+				accountId: a.carcassAccountId,
+				debit: 0,
+				credit: sar(x.carcassCostHalalas),
+				description: "ذبيحة " + x.carcassWeightKg + "كجم"
+			}
+		];
+		return {
+			run: r,
+			journal: {
+				id: x.id,
+				date: x.date,
+				reference: "CUT-" + x.id,
+				memo: "تشغيلة تقطيع — مردود " + r.yieldPct + "٪",
+				lines
+			}
+		};
+	}
+	//#endregion
 	//#region app/src/engine/fusion/stock/inventory-engine.ts
 	var inventory_engine_exports = /* @__PURE__ */ __exportAll({
 		buildStockCountAdjustment: () => buildStockCountAdjustment,
@@ -24980,6 +25089,564 @@ window.SKEngines = (function() {
 		return Number.isFinite(start) && Number.isFinite(end) && start <= end;
 	}
 	//#endregion
+	//#region app/src/engine/fusion/system/sector-pack-engine.ts
+	var sector_pack_engine_exports = /* @__PURE__ */ __exportAll({
+		BASE_ACCOUNTS: () => BASE_ACCOUNTS,
+		SECTOR_PACKS: () => SECTOR_PACKS,
+		packAdditions: () => packAdditions,
+		sectorPack: () => sectorPack
+	});
+	var BASE_ACCOUNTS = Object.freeze([
+		[
+			"1100",
+			"النقدية والبنوك",
+			"asset"
+		],
+		[
+			"1200",
+			"الذمم المدينة",
+			"asset"
+		],
+		[
+			"1300",
+			"المخزون",
+			"asset"
+		],
+		[
+			"1400",
+			"ضريبة القيمة المضافة — مدخلات",
+			"asset"
+		],
+		[
+			"2100",
+			"الذمم الدائنة (الموردون)",
+			"liability"
+		],
+		[
+			"2200",
+			"ضريبة القيمة المضافة — مخرجات",
+			"liability"
+		],
+		[
+			"3000",
+			"رأس المال",
+			"equity"
+		],
+		[
+			"3100",
+			"الأرباح المبقاة",
+			"equity"
+		],
+		[
+			"4000",
+			"إيرادات المبيعات",
+			"revenue"
+		],
+		[
+			"5000",
+			"تكلفة المبيعات",
+			"expense"
+		],
+		[
+			"6100",
+			"الرواتب والأجور",
+			"expense"
+		],
+		[
+			"6200",
+			"الإيجار",
+			"expense"
+		],
+		[
+			"6300",
+			"مصروفات تشغيلية أخرى",
+			"expense"
+		]
+	]);
+	var pack = (p) => Object.freeze({
+		...p,
+		accounts: Object.freeze([...BASE_ACCOUNTS, ...p.accounts])
+	});
+	var SECTOR_PACKS = Object.freeze({
+		meat: pack({
+			id: "meat",
+			depth: "deep",
+			accounts: [
+				[
+					"1310",
+					"مخزون الذبائح والحيوانات الحية",
+					"asset"
+				],
+				[
+					"1320",
+					"مخزون القطع الجاهزة",
+					"asset"
+				],
+				[
+					"1330",
+					"مخزون المنتجات الثانوية",
+					"asset"
+				],
+				[
+					"1340",
+					"مواد التعبئة والتغليف",
+					"asset"
+				],
+				[
+					"4100",
+					"إيرادات المنتجات الثانوية والجلود",
+					"revenue"
+				],
+				[
+					"5100",
+					"هدر التقطيع غير الطبيعي",
+					"expense"
+				],
+				[
+					"5200",
+					"تكلفة التعبئة والتغليف",
+					"expense"
+				],
+				[
+					"6400",
+					"الذبح والتبريد والنقل المبرد",
+					"expense"
+				]
+			],
+			costCenters: [
+				"الاستلام والذبح",
+				"التقطيع والتحويل",
+				"التعبئة والتغليف",
+				"التخزين المبرد",
+				"البيع والتوصيل"
+			],
+			units: [
+				"كجم",
+				"رأس",
+				"ذبيحة",
+				"قطعة",
+				"كرتون"
+			],
+			warehouses: [
+				"ثلاجة الذبائح",
+				"ثلاجة القطع الجاهزة",
+				"المجمد",
+				"منطقة التعبئة"
+			],
+			tools: [
+				"carcass",
+				"yieldlab",
+				"purchasing",
+				"inventory",
+				"ptree"
+			],
+			kpis: [
+				"مردود الذبيحة (Yield %)",
+				"تكلفة الكيلو لكل قطعة",
+				"نسبة الهدر",
+				"هامش القطعة",
+				"أيام بقاء المخزون المبرد"
+			]
+		}),
+		health: pack({
+			id: "health",
+			depth: "base",
+			accounts: [
+				[
+					"1210",
+					"ذمم شركات التأمين وجهات الدفع",
+					"asset"
+				],
+				[
+					"1360",
+					"مخزون الصيدلية والمستلزمات الطبية",
+					"asset"
+				],
+				[
+					"2150",
+					"أتعاب وعمولات الأطباء المستحقة",
+					"liability"
+				],
+				[
+					"4010",
+					"إيرادات العيادات الخارجية",
+					"revenue"
+				],
+				[
+					"4020",
+					"إيرادات التنويم والعمليات",
+					"revenue"
+				],
+				[
+					"4030",
+					"إيرادات المختبر والأشعة",
+					"revenue"
+				],
+				[
+					"4040",
+					"إيرادات الصيدلية",
+					"revenue"
+				],
+				[
+					"5110",
+					"رفض المطالبات وتسويات التأمين",
+					"expense"
+				]
+			],
+			costCenters: [
+				"العيادات الخارجية",
+				"الطوارئ",
+				"التنويم",
+				"العمليات",
+				"المختبر",
+				"الأشعة",
+				"الصيدلية"
+			],
+			units: [
+				"زيارة",
+				"يوم تنويم",
+				"إجراء",
+				"تحليل",
+				"عبوة"
+			],
+			warehouses: ["مستودع الصيدلية", "مستودع المستلزمات"],
+			tools: ["purchasing", "inventory"],
+			kpis: [
+				"نسبة رفض المطالبات",
+				"تكلفة الحالة",
+				"إيراد السرير",
+				"أعمار ذمم الجهات"
+			]
+		}),
+		hospitality: pack({
+			id: "hospitality",
+			depth: "base",
+			accounts: [
+				[
+					"2300",
+					"ودائع ودفعات الحجوزات المقدمة",
+					"liability"
+				],
+				[
+					"2160",
+					"عمولات قنوات الحجز المستحقة",
+					"liability"
+				],
+				[
+					"4050",
+					"إيرادات الغرف",
+					"revenue"
+				],
+				[
+					"4060",
+					"إيرادات الأغذية والمشروبات",
+					"revenue"
+				],
+				[
+					"5120",
+					"عمولات قنوات الحجز",
+					"expense"
+				]
+			],
+			costCenters: [
+				"الغرف",
+				"الأغذية والمشروبات",
+				"التدبير الفندقي",
+				"الصيانة",
+				"الاستقبال"
+			],
+			units: [
+				"ليلة",
+				"غرفة",
+				"وجبة"
+			],
+			warehouses: ["مخزن الأغذية", "مخزن التدبير الفندقي"],
+			tools: ["purchasing", "inventory"],
+			kpis: [
+				"نسبة الإشغال",
+				"متوسط سعر الغرفة (ADR)",
+				"إيراد الغرفة المتاحة (RevPAR)"
+			]
+		}),
+		construction: pack({
+			id: "construction",
+			depth: "base",
+			accounts: [
+				[
+					"1220",
+					"محتجزات لدى العملاء",
+					"asset"
+				],
+				[
+					"1350",
+					"أعمال تحت التنفيذ (WIP)",
+					"asset"
+				],
+				[
+					"2310",
+					"محتجزات مقاولي الباطن",
+					"liability"
+				],
+				[
+					"2320",
+					"دفعات مقدمة من العملاء",
+					"liability"
+				],
+				[
+					"4070",
+					"إيرادات العقود (المستخلصات)",
+					"revenue"
+				],
+				[
+					"5130",
+					"تكاليف مقاولي الباطن",
+					"expense"
+				],
+				[
+					"5140",
+					"تكاليف المواد بالموقع",
+					"expense"
+				]
+			],
+			costCenters: [
+				"المشروعات",
+				"المعدات",
+				"الإدارة العامة"
+			],
+			units: [
+				"م²",
+				"م³",
+				"طن",
+				"ساعة معدة",
+				"بند"
+			],
+			warehouses: ["مخزن الموقع", "المخزن الرئيسي"],
+			tools: ["purchasing", "inventory"],
+			kpis: [
+				"نسبة الإنجاز",
+				"هامش المشروع المتوقع",
+				"المحتجزات القائمة"
+			]
+		}),
+		digital: pack({
+			id: "digital",
+			depth: "base",
+			accounts: [
+				[
+					"2400",
+					"إيرادات مؤجلة (Retainer مقدّم)",
+					"liability"
+				],
+				[
+					"2170",
+					"مستحقات المنصات الإعلانية",
+					"liability"
+				],
+				[
+					"4080",
+					"إيرادات إدارة الحملات",
+					"revenue"
+				],
+				[
+					"5150",
+					"الإنفاق الإعلاني المعاد تحميله",
+					"expense"
+				]
+			],
+			costCenters: [
+				"الحملات",
+				"المحتوى والإبداع",
+				"المنصات",
+				"خدمة العملاء"
+			],
+			units: [
+				"حملة",
+				"ساعة",
+				"شهر"
+			],
+			warehouses: [],
+			tools: [],
+			kpis: [
+				"تكلفة اكتساب العميل",
+				"ربحية الحملة",
+				"العائد على الإنفاق الإعلاني"
+			]
+		}),
+		education: pack({
+			id: "education",
+			depth: "base",
+			accounts: [
+				[
+					"2410",
+					"رسوم دراسية مقبوضة مقدماً",
+					"liability"
+				],
+				[
+					"4090",
+					"إيرادات الرسوم الدراسية",
+					"revenue"
+				],
+				[
+					"5160",
+					"المنح والخصومات الدراسية",
+					"expense"
+				]
+			],
+			costCenters: [
+				"المراحل الدراسية",
+				"النقل",
+				"الأنشطة"
+			],
+			units: ["طالب", "فصل دراسي"],
+			warehouses: [],
+			tools: [],
+			kpis: ["نسبة التحصيل", "تكلفة الطالب"]
+		}),
+		manufacturing: pack({
+			id: "manufacturing",
+			depth: "base",
+			accounts: [
+				[
+					"1370",
+					"مواد خام",
+					"asset"
+				],
+				[
+					"1380",
+					"إنتاج تحت التشغيل",
+					"asset"
+				],
+				[
+					"1390",
+					"منتج تام",
+					"asset"
+				],
+				[
+					"5170",
+					"انحرافات التكلفة المعيارية",
+					"expense"
+				]
+			],
+			costCenters: [
+				"خطوط الإنتاج",
+				"الصيانة",
+				"الجودة"
+			],
+			units: [
+				"وحدة",
+				"كجم",
+				"دفعة"
+			],
+			warehouses: ["مخزن الخامات", "مخزن الإنتاج التام"],
+			tools: [
+				"purchasing",
+				"inventory",
+				"ptree"
+			],
+			kpis: ["انحراف التكلفة", "نسبة الهالك"]
+		}),
+		bakery: pack({
+			id: "bakery",
+			depth: "base",
+			accounts: [
+				[
+					"1370",
+					"مواد ومكونات الإنتاج",
+					"asset"
+				],
+				[
+					"1390",
+					"منتجات مخبوزة جاهزة",
+					"asset"
+				],
+				[
+					"5180",
+					"التالف ومنتهي الصلاحية",
+					"expense"
+				]
+			],
+			costCenters: ["الإنتاج", "البيع"],
+			units: [
+				"قطعة",
+				"كجم",
+				"دفعة"
+			],
+			warehouses: ["مخزن المكونات"],
+			tools: [
+				"purchasing",
+				"inventory",
+				"ptree"
+			],
+			kpis: ["مردود الدفعة", "نسبة التالف"]
+		}),
+		agriculture: pack({
+			id: "agriculture",
+			depth: "base",
+			accounts: [
+				[
+					"1395",
+					"الأصول الحيوية (حيوانات/محاصيل)",
+					"asset"
+				],
+				[
+					"1396",
+					"أعلاف ومدخلات زراعية",
+					"asset"
+				],
+				[
+					"5190",
+					"النفوق والهدر الزراعي",
+					"expense"
+				]
+			],
+			costCenters: [
+				"الحظائر",
+				"الحقول",
+				"المواسم"
+			],
+			units: [
+				"رأس",
+				"كجم",
+				"طن",
+				"دونم"
+			],
+			warehouses: ["مخزن الأعلاف"],
+			tools: ["purchasing", "inventory"],
+			kpis: ["تكلفة الوحدة للدورة", "نسبة النفوق"]
+		}),
+		trade: pack({
+			id: "trade",
+			depth: "base",
+			accounts: [],
+			costCenters: ["الفروع", "المستودعات"],
+			units: ["وحدة", "كرتون"],
+			warehouses: ["المستودع الرئيسي"],
+			tools: ["purchasing", "inventory"],
+			kpis: ["هامش الربح", "دوران المخزون"]
+		})
+	});
+	/** the pack of a sector; an unknown or empty sector gets the general trade pack */
+	function sectorPack(sector) {
+		return SECTOR_PACKS[String(sector || "")] ?? SECTOR_PACKS.trade;
+	}
+	/** what applying a pack adds to a company that already has some of it — nothing is renamed, retyped or removed */
+	function packAdditions(p, have) {
+		const codes = new Set(have.accountCodes ?? []), defs = have.definitions ?? {}, tools = new Set(have.tools ?? []);
+		const missing = (list, type) => {
+			const got = new Set((defs[type] ?? []).map((x) => x.trim()));
+			return list.filter((n) => !got.has(n));
+		};
+		return {
+			accounts: p.accounts.filter(([code]) => !codes.has(code)),
+			definitions: {
+				costCenters: missing(p.costCenters, "costCenters"),
+				units: missing(p.units, "units"),
+				warehouses: missing(p.warehouses, "warehouses")
+			},
+			tools: p.tools.filter((t) => !tools.has(t))
+		};
+	}
+	//#endregion
 	return {
 		audit: {
 			aiProviders: ai_providers_engine_exports,
@@ -25085,12 +25752,16 @@ window.SKEngines = (function() {
 		},
 		stock: {
 			blending: blending_engine_exports,
+			cuttingRun: cutting_run_engine_exports,
 			inventory: inventory_engine_exports,
 			nrv: nrv_engine_exports,
 			production: production_engine_exports,
 			traceability: traceability_engine_exports,
 			yield: yield_engine_exports
 		},
-		system: { companyContext: company_context_exports }
+		system: {
+			companyContext: company_context_exports,
+			sectorPack: sector_pack_engine_exports
+		}
 	};
 })();
