@@ -7545,7 +7545,7 @@ window.SKEngines = (function() {
 			"8) اكتب بالعربية الفصحى المهنية الموجزة. لا تضع أي بيانات خارج مخطط JSON."
 		].join("\n");
 	}
-	var sar$4 = (m) => formatMinor(m, { decimals: 0 });
+	var sar$5 = (m) => formatMinor(m, { decimals: 0 });
 	/** The trial balance and the engine's review, compact enough for one prompt. */
 	function describeReview(tb, review) {
 		const rows = review.accounts.map((a) => [
@@ -7553,21 +7553,21 @@ window.SKEngines = (function() {
 			a.name,
 			TYPE_LABELS[a.type],
 			a.lineAr,
-			sar$4(a.natural),
-			a.prior === null ? "" : sar$4(a.prior),
+			sar$5(a.natural),
+			a.prior === null ? "" : sar$5(a.prior),
 			a.standards.map((s) => s.code).join("+")
 		].join(" | "));
 		const m = review.materiality, k = review.fs.keys;
 		return [
 			"ميزان المراجعة (رقم | اسم | نوع | بند القوائم | الرصيد بطبيعته | السابق | المعايير المقترحة):",
 			...rows,
-			`التوازن: ${tb.balanced ? "متوازن" : "غير متوازن بفرق " + sar$4(tb.difference)}.`,
-			`الأهمية النسبية: ${sar$4(m.overall)} (${m.benchmarkAr} × ${m.rate * 100}%) — التنفيذية ${sar$4(m.performance)} — حد التفاهة ${sar$4(m.trivial)}.`,
-			`الإيرادات ${sar$4(k.revenue.current)} · الربح التشغيلي ${sar$4(k.operating.current)} · صافي الربح ${sar$4(k.profit.current)} · الموجودات ${sar$4(k.assets.current)} · حقوق الملكية ${sar$4(k.equity.current)}.`,
+			`التوازن: ${tb.balanced ? "متوازن" : "غير متوازن بفرق " + sar$5(tb.difference)}.`,
+			`الأهمية النسبية: ${sar$5(m.overall)} (${m.benchmarkAr} × ${m.rate * 100}%) — التنفيذية ${sar$5(m.performance)} — حد التفاهة ${sar$5(m.trivial)}.`,
+			`الإيرادات ${sar$5(k.revenue.current)} · الربح التشغيلي ${sar$5(k.operating.current)} · صافي الربح ${sar$5(k.profit.current)} · الموجودات ${sar$5(k.assets.current)} · حقوق الملكية ${sar$5(k.equity.current)}.`,
 			"ملاحظات المحرك الآلي (أكدها أو فندها):",
 			...review.findings.map((f) => `${f.id} [${f.severity}] ${f.title} — ${f.basis} — ${f.standard}`),
 			"قيود المحرك المقترحة:",
-			...review.adjustments.map((a) => `${a.id} ${a.title}: ` + a.lines.map((l) => `${l.code} ${l.name} م${sar$4(l.debit)} د${sar$4(l.credit)}`).join("؛ "))
+			...review.adjustments.map((a) => `${a.id} ${a.title}: ` + a.lines.map((l) => `${l.code} ${l.name} م${sar$5(l.debit)} د${sar$5(l.credit)}`).join("؛ "))
 		].join("\n");
 	}
 	/** Outstanding requests: asked in any round, not yet accepted, not marked unavailable. */
@@ -7664,7 +7664,7 @@ window.SKEngines = (function() {
 			round
 		};
 		const v = validateAdjustment(a, tb);
-		const problems = [...v.problems, ...v.balanced ? [] : [`القيد غير متوازن: مدين ${sar$4(v.debit)} ودائن ${sar$4(v.credit)}`]];
+		const problems = [...v.problems, ...v.balanced ? [] : [`القيد غير متوازن: مدين ${sar$5(v.debit)} ودائن ${sar$5(v.credit)}`]];
 		return {
 			...a,
 			valid: v.valid,
@@ -7710,7 +7710,7 @@ window.SKEngines = (function() {
 				standard: normalizeCode$1(std) ?? (std || "IAS 1"),
 				title: str$1(f.comment, 160).split(/[.،؛]/)[0] || "ملاحظة",
 				detail: str$1(f.comment, 2e3),
-				basis: amount ? "المبلغ المتأثر " + sar$4(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
+				basis: amount ? "المبلغ المتأثر " + sar$5(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
 				action: str$1(f.recommendation, 1e3),
 				source: "gemini",
 				round: no,
@@ -7943,7 +7943,7 @@ window.SKEngines = (function() {
 		const lineOf = (q) => q.lineKey ?? review.accounts.find((a) => q.accounts.includes(a.code))?.lineKey ?? null;
 		const blockedSig = new Set(unavailHigh.map(lineOf).filter((k) => k && review.risks.some((r) => r.lineKey === k && r.significant)));
 		const basis = [], material = misstatement > mat.overall, pervasive = misstatement > mat.overall * 5, cs = s.ctx.curSym ?? (s.ctx.framework === "EAS" ? "ج.م" : "ر.س");
-		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar$4(misstatement)} ${cs} مقابل أهمية نسبية ${sar$4(mat.overall)} ${cs} (ISA 450).`);
+		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar$5(misstatement)} ${cs} مقابل أهمية نسبية ${sar$5(mat.overall)} ${cs} (ISA 450).`);
 		if (unavailHigh.length) basis.push(`تعذر الحصول على ${unavailHigh.length} مستند عالي الأولوية: ` + unavailHigh.map((q) => q.title).join("، ") + ".");
 		const scopePervasive = unavailHigh.length >= 3 || blockedSig.size >= 3;
 		if (sigUnevidenced) basis.push(`${sigUnevidenced} خطر جوهري دون دليل مقبول بعد؛ يستكمل قبل التوقيع (ISA 330).`);
@@ -17376,15 +17376,15 @@ window.SKEngines = (function() {
 	};
 	var r2$4 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 	var month = (d) => String(d).slice(0, 7);
-	function addMonths(ym, n) {
+	function addMonths$1(ym, n) {
 		const [y, m] = ym.split("-").map(Number);
 		return new Date(Date.UTC(y, m - 1 + n, 1)).toISOString().slice(0, 7);
 	}
 	/** Equal monthly instalments from the first due month (the month after the advance by default); the last one takes the rounding. */
 	function schedule(a) {
-		const n = Math.max(1, Math.floor(a.installments || 1)), first = a.firstDue ? month(a.firstDue) : addMonths(month(a.date), 1), each = r2$4(a.amount / n);
+		const n = Math.max(1, Math.floor(a.installments || 1)), first = a.firstDue ? month(a.firstDue) : addMonths$1(month(a.date), 1), each = r2$4(a.amount / n);
 		return Array.from({ length: n }, (_, i) => ({
-			month: addMonths(first, i),
+			month: addMonths$1(first, i),
 			due: i === n - 1 ? r2$4(a.amount - each * (n - 1)) : each
 		}));
 	}
@@ -17525,6 +17525,180 @@ window.SKEngines = (function() {
 		if (a.repayments.some((p) => p.date < a.date)) out.push("سداد بتاريخ قبل السلفة");
 		if (a.kind === "employee" && others.some((o) => o.id !== a.id && o.kind === "employee" && o.party === a.party && !o.writtenOff && o.amount - o.repayments.reduce((t, p) => t + p.amount, 0) > .004)) out.push("للموظف سلفة أخرى مفتوحة — تأكد قبل صرف سلفة جديدة");
 		return out;
+	}
+	//#endregion
+	//#region app/src/engine/fusion/finance/agency-engine.ts
+	var agency_engine_exports = /* @__PURE__ */ __exportAll({
+		campaignProfitability: () => campaignProfitability,
+		mediaSpendJournal: () => mediaSpendJournal,
+		rebillJournal: () => rebillJournal,
+		recognitionJournal: () => recognitionJournal,
+		retainerInvoiceJournal: () => retainerInvoiceJournal,
+		retainerSchedule: () => retainerSchedule
+	});
+	var sar$4 = (h) => h / 100;
+	var MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
+	var addMonths = (m, n) => {
+		const [y, mo] = m.split("-").map(Number);
+		const t = y * 12 + (mo - 1) + n;
+		return Math.floor(t / 12) + "-" + String(t % 12 + 1).padStart(2, "0");
+	};
+	function checkRetainer(r) {
+		if (!String(r.client || "").trim() || !String(r.campaign || "").trim()) throw new Error("حدد العميل والحملة");
+		if (!Number.isInteger(r.monthlyHalalas) || r.monthlyHalalas <= 0) throw new Error("قيمة الاشتراك الشهري يجب أن تكون أكبر من صفر");
+		if (!Number.isInteger(r.months) || r.months < 1 || r.months > 36) throw new Error("مدة الاشتراك بين شهر و36 شهراً");
+		if (!MONTH.test(r.startMonth)) throw new Error("شهر البداية غير صالح");
+	}
+	/** the months a retainer covers and what is earned in each */
+	function retainerSchedule(r) {
+		checkRetainer(r);
+		return Array.from({ length: r.months }, (_, i) => ({
+			month: addMonths(r.startMonth, i),
+			amountHalalas: r.monthlyHalalas
+		}));
+	}
+	/** the retainer billed in advance for its whole term: receivable (with VAT) against deferred revenue */
+	function retainerInvoiceJournal(r, x, vatRate, a) {
+		checkRetainer(r);
+		const total = r.monthlyHalalas * r.months, vat = vatRate > 0 ? Math.round(total * vatRate) : 0;
+		if (vat && !a.outputVatAccountId) throw new Error("حساب ضريبة المخرجات غير موجود");
+		return {
+			total,
+			vat,
+			journal: {
+				id: x.id,
+				date: x.date,
+				reference: "RET-" + r.id,
+				memo: "اشتراك " + r.client + " — " + r.campaign + " (" + r.months + " شهر)",
+				party: r.client,
+				lines: [
+					{
+						accountId: a.receivableAccountId,
+						debit: sar$4(total + vat),
+						credit: 0,
+						description: "فاتورة اشتراك " + r.client
+					},
+					{
+						accountId: a.deferredAccountId,
+						debit: 0,
+						credit: sar$4(total),
+						description: "إيراد مؤجل — " + r.campaign
+					},
+					...vat ? [{
+						accountId: a.outputVatAccountId,
+						debit: 0,
+						credit: sar$4(vat),
+						description: "ضريبة المخرجات"
+					}] : []
+				]
+			}
+		};
+	}
+	/** the months served up to `throughMonth` that are not yet recognised: deferred revenue into revenue */
+	function recognitionJournal(r, recognisedMonths, throughMonth, x, a) {
+		if (!MONTH.test(throughMonth)) throw new Error("الشهر غير صالح");
+		const done = new Set(recognisedMonths), due = retainerSchedule(r).filter((s) => s.month <= throughMonth && !done.has(s.month));
+		if (!due.length) throw new Error("لا أشهر مستحقة الاعتراف حتى " + throughMonth);
+		const amount = due.reduce((s, m) => s + m.amountHalalas, 0);
+		return {
+			months: due.map((m) => m.month),
+			amount,
+			journal: {
+				id: x.id,
+				date: x.date,
+				reference: "REC-" + r.id + "-" + throughMonth,
+				memo: "الاعتراف بإيراد " + r.client + " — " + due.map((m) => m.month).join("، "),
+				lines: [{
+					accountId: a.deferredAccountId,
+					debit: sar$4(amount),
+					credit: 0,
+					description: r.campaign
+				}, {
+					accountId: a.revenueAccountId,
+					debit: 0,
+					credit: sar$4(amount),
+					description: "إيراد إدارة الحملة — " + r.campaign
+				}]
+			}
+		};
+	}
+	/** ad spend bought on a platform for a campaign: expensed against the campaign and owed to the platform */
+	function mediaSpendJournal(x, a) {
+		if (!String(x.campaign || "").trim() || !String(x.platform || "").trim()) throw new Error("حدد الحملة والمنصة");
+		if (!Number.isInteger(x.amountHalalas) || x.amountHalalas <= 0) throw new Error("مبلغ الإنفاق يجب أن يكون أكبر من صفر");
+		return { journal: {
+			id: x.id,
+			date: x.date,
+			reference: "ADS-" + x.platform,
+			memo: "إنفاق إعلاني — " + x.campaign + " على " + x.platform,
+			party: x.platform,
+			lines: [{
+				accountId: a.mediaCostAccountId,
+				debit: sar$4(x.amountHalalas),
+				credit: 0,
+				description: x.campaign
+			}, {
+				accountId: a.platformPayableAccountId,
+				debit: 0,
+				credit: sar$4(x.amountHalalas),
+				description: "مستحق " + x.platform
+			}]
+		} };
+	}
+	/** the spend rebilled to the client with the agency's markup (the agency buys the media as principal) */
+	function rebillJournal(x, vatRate, a) {
+		if (!String(x.client || "").trim() || !String(x.campaign || "").trim()) throw new Error("حدد العميل والحملة");
+		if (!Number.isInteger(x.spendHalalas) || x.spendHalalas <= 0) throw new Error("لا إنفاق لإعادة تحميله");
+		const pct = Number(x.markupPct) || 0;
+		if (pct < 0 || pct > 100) throw new Error("نسبة هامش الوكالة بين 0 و100");
+		const amount = x.spendHalalas + Math.round(x.spendHalalas * pct / 100), vat = vatRate > 0 ? Math.round(amount * vatRate) : 0;
+		if (vat && !a.outputVatAccountId) throw new Error("حساب ضريبة المخرجات غير موجود");
+		return {
+			amount,
+			vat,
+			journal: {
+				id: x.id,
+				date: x.date,
+				reference: "RB-" + x.campaign,
+				memo: "إعادة تحميل الإنفاق — " + x.campaign + (pct ? " (+" + pct + "٪)" : ""),
+				party: x.client,
+				lines: [
+					{
+						accountId: a.receivableAccountId,
+						debit: sar$4(amount + vat),
+						credit: 0,
+						description: x.client
+					},
+					{
+						accountId: a.revenueAccountId,
+						debit: 0,
+						credit: sar$4(amount),
+						description: "إنفاق معاد تحميله — " + x.campaign
+					},
+					...vat ? [{
+						accountId: a.outputVatAccountId,
+						debit: 0,
+						credit: sar$4(vat),
+						description: "ضريبة المخرجات"
+					}] : []
+				]
+			}
+		};
+	}
+	/** a campaign's profitability: revenue (retainer earned + rebills) less ad spend. When the client's results are given:
+	ROAS = the client's attributed sales ÷ the ad spend; CAC = what the client paid the agency ÷ the new customers won */
+	function campaignProfitability(rows) {
+		const r2 = (x) => Math.round(x * 100) / 100;
+		return rows.map((c) => {
+			const margin = c.revenueHalalas - c.mediaCostHalalas;
+			return {
+				...c,
+				marginHalalas: margin,
+				marginPct: c.revenueHalalas ? r2(margin / c.revenueHalalas * 100) : null,
+				roas: c.attributedSalesHalalas && c.mediaCostHalalas ? r2(c.attributedSalesHalalas / c.mediaCostHalalas) : null,
+				cacHalalas: c.newCustomers && c.revenueHalalas ? Math.round(c.revenueHalalas / c.newCustomers) : null
+			};
+		});
 	}
 	//#endregion
 	//#region app/src/engine/fusion/finance/bank-reconciliation-engine.ts
@@ -26087,7 +26261,7 @@ window.SKEngines = (function() {
 		}),
 		digital: pack({
 			id: "digital",
-			depth: "base",
+			depth: "deep",
 			accounts: [
 				[
 					"2400",
@@ -26351,6 +26525,7 @@ window.SKEngines = (function() {
 			accountOpening: account_opening_engine_exports,
 			accounts: accounts_engine_exports,
 			advances: advances_engine_exports,
+			agency: agency_engine_exports,
 			bankReconciliation: bank_reconciliation_engine_exports,
 			cashFlow: cash_flow_engine_exports,
 			entryLearner: entry_learner_engine_exports,

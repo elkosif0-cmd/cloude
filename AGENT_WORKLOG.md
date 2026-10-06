@@ -384,3 +384,13 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Branch / PR: `claude/hospitality-pack-20261006` from `main` @ 35f4cec.
 - Evidence: engines 488/488; node 726 pass / 54 fail (= `main`'s 52 + 2 Windows-only header tests); hotel, construction, health, meat, books OK; door 94/94; advances 26/26; sales 28/28; feature_audit 146/146 (local; GitHub jobs not started — billing).
 - NEXT ACTION: owner approval to merge; then the digital-marketing pack; then the §3.6 sample companies.
+
+### TASK CLAUDE-20261006-016 — P3 digital marketing: retainers, deferred revenue, ad spend, rebills, campaign profitability
+- Agent: Claude (Lead Development Agent)
+- Status: DONE on merge — the owner gave a standing instruction in chat to merge without asking («ادمج اي شيء دون الرجوع لي», then «اكمل التطوير دون الرجوع لي ونفذ كل الاصلاحات والدمج»). CLAUDE-20261006-015 (hospitality) merged as PR #168 (9e9e7eb) under the same instruction and is live (bundle `skosif.js?v=490d123c64` carries «الغرف والإقفال الليلي»).
+- Goal: FOUNDATION §3.7 «عمق قطاع التسويق الإلكتروني» — the digital pack becomes `deep`.
+- Scope: `app/src/engine/fusion/finance/agency-engine.ts` (+6 tests): `retainerSchedule`, `retainerInvoiceJournal` (Dr 1200 with VAT / Cr 2400 deferred / Cr 2200), `recognitionJournal` (months served and not yet recognised: Dr 2400 / Cr 4080), `mediaSpendJournal` (Dr 5150 / Cr 2170, the platform as party), `rebillJournal` (spend + agency markup + VAT to the client: Dr 1200 / Cr 4080 / Cr 2200), `campaignProfitability` (margin, ROAS = attributed sales ÷ spend, CAC = what the client paid ÷ new customers). `ui/features/ledger.js` tab «العملاء والحملات» for digital agencies only; each campaign's state is read back from its entries; months recognised once (source id per months); rebill refused beyond the spend not yet rebilled. `tools/digital_pack_e2e.mjs` (in the workflow).
+- Not yet: the agent-vs-principal choice per client (net media revenue), reverse-charge VAT on foreign platforms' invoices, hours/timesheets per campaign, platform settlement in foreign currency.
+- Branch / PR: `claude/digital-pack-20261006` from `claude/hospitality-pack-20261006` @ be3074e.
+- Evidence: engines 494/494; node 726 pass / 54 fail (= `main`'s 52 + 2 Windows-only header tests); digital, hotel, construction, health, meat, books OK; door 94/94; advances 26/26; sales 28/28; feature_audit 146/146 (local; GitHub jobs not started — billing).
+- NEXT ACTION: the §3.6 sample companies (a real accounting cycle per sector).
