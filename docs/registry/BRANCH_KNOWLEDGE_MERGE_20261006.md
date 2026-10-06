@@ -306,3 +306,58 @@
 - القرار: **REBUILD_SCOPED — capability preserved, unsafe direct binding not restored.**
 
 الحالة: **COMPLETE — #127 إلى #118 تمت مراجعتها، وأفضل ما فيها إما موجود في main أو موثق كإعادة بناء آمنة بدل إعادة كود أقدم/أخطر.**
+
+
+## دفعة PR #117 → PR #108 — مراجعة المعرفة والتنفيذ
+
+### PR #117 — Council readiness + legacy report guard
+- رأس الفرع خلف `main` وبدون أي file delta.
+- ضوابط fail-closed للمجلس والتقارير غير المربوطة موجودة في الخط الحالي.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #116 — Shared Agent Work Log
+- النسخة الحالية من `AGENTS.md` و`AGENT_WORKLOG.md` أكبر بكثير وتغطي نفس الفكرة مع قواعد أحدث: FOUNDATION-first، Claude lead coordination، Rule Zero inventory، handoff وNEXT ACTION.
+- البند التاريخي company-first داخل worklog القديم لا يُعاد لأنه يخالف FOUNDATION الحالي.
+- القرار: **CURRENT-IS-SUPERSET / HISTORICAL-TASK-SUPERSEDED**.
+
+### PR #115 — Consistent box-only KPI counts
+- رأس الفرع خلف main وبدون file delta.
+- إصلاح اتساق عدّ البوكسات موجود بالفعل.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #114 — Review import guard + preserve docs on failed save
+- رأس الفرع خلف main وبدون file delta.
+- منطق الحماية والحفاظ على المستندات موجود بالفعل.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #113 — Sales date boundaries / returns / refresh / spreadsheet types
+- رأس الفرع خلف main وبدون file delta.
+- الإصلاحات موجودة في مسار Sales Intelligence الحالي.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #112 — Mercury styling for command center/reports
+- رأس الفرع خلف main وبدون file delta.
+- الأسلوب البصري الموحّد الحالي احتفظ بما تم اعتماده منه.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #111 — Verified Sales Intelligence
+- رأس الفرع خلف main وبدون file delta.
+- `salesintel` الحالي ما زال قدرة عاملة، ومحرك `sales-insights-engine.ts` هو مصدر الحقيقة.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #110 — Scoped management report snapshots
+- رأس الفرع خلف main وبدون file delta.
+- الـimmutable company+period capture والحواجز الحالية بُنيت فوق هذا الأساس.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #109 — Trial balance duplicate totals
+- رأس الفرع خلف main وبدون file delta.
+- الإصلاح موجود بالفعل.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #108 — Unlock focus outline
+- رأس الفرع خلف main وبدون file delta.
+- إصلاح الوصول البصري موجود في النسخة الحالية.
+- القرار: **VERIFIED-IN-MAIN**.
+
+الحالة: **COMPLETE — #117 إلى #108 كلها إما موجودة في main أو Superset حالي؛ لا توجد شفرة صافية أفضل تحتاج استعادة.**
