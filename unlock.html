@@ -105,6 +105,13 @@ button.submit:disabled{opacity:.65;cursor:default}
 .locked .sub{margin-bottom:16px}
 .co-empty{margin:12px 0;font-size:13px;color:#5a6a80}
 .co-hint{margin:14px 0 0;font-size:12px;line-height:1.7;color:#8292a8}
+.co.primary{border-color:var(--sk-brand);background:var(--sk-brand-soft);box-shadow:0 12px 28px -22px rgba(22,104,227,.8)}
+.co.primary:hover{background:var(--sk-surface);box-shadow:var(--sk-shadow-2)}
+.co-choice{margin-inline-start:auto;flex:0 0 auto;padding:5px 9px;border-radius:999px;background:var(--sk-brand);color:var(--sk-on-brand);font-size:11px;font-weight:800;white-space:nowrap}
+.co-section{display:grid;gap:2px;margin:18px 2px 7px;padding-top:13px;border-top:1px solid var(--sk-line);text-align:start}
+.co-section b{font-size:13.5px;color:var(--sk-ink)}
+.co-section small{font-size:11.5px;line-height:1.6;color:var(--sk-ink-3)}
+@media(max-width:560px){.co.primary{align-items:flex-start}.co-choice{font-size:10px;padding:4px 7px}}
 /* the three sections, the sectors and the bundle companies */
 /* door tokens = the KOSIF Luxe look of ui/ds/tokens.css (FOUNDATION §3.11.2: one identity, no local colours);
    tools/door_tokens.test.mjs fails if a value here drifts from that file */
@@ -147,7 +154,7 @@ button.submit:disabled{opacity:.65;cursor:default}
 <h1 id="login-title">SQC</h1>
 <section id="gates" aria-labelledby="gates-t">
 <h2 id="gates-t" class="sr-only">اختر القسم</h2>
-<p class="sub" id="gates-help">اختر القسم الذي تدخل منه. لكل قسم قائمته وشاشته الأولى، والأقسام الثلاثة تقرأ طبقة شركات وبيانات واحدة.</p>
+<p class="sub" id="gates-help">ثلاثة مداخل واضحة ومستقلة: المحاسبة تبدأ بالقطاع ثم الشركة، المراجعة تبدأ بملف مراجعة، والأدوات تبدأ بالأداة. الربط بين الأقسام اختياري ولا يغيّر القسم الآخر تلقائيًا.</p>
 <div class="gate-list" id="gate-list" role="list" aria-label="الأقسام"></div>
 <p class="co-hint">منصة مالية ومحاسبية ومراجعة موحّدة تعمل دون اتصال على هذا الجهاز. الشركة الخاصة وحدها تفتح بكلمة مرور.</p>
 </section>
@@ -305,8 +312,8 @@ const listFor=(gate,sector)=>companies().filter(c=>!c.scratch&&(gate!=="accounti
 function host(){const last=read(LAST,null),all=companies().filter(c=>!c.locked&&!c.scratch);return (last&&all.find(c=>c.id===last.id))||all.find(c=>c.demo)||{...DEMO,demo:true}}
 const known=id=>companies().some(c=>c.id===id);
 function card(c){
-  return '<button type="button" class="co'+(c.locked?" locked":"")+(c.last?" last":"")+'" role="listitem" data-id="'+esc(c.id)+'" data-name="'+esc(c.name)+'"'+(c.locked?' data-locked="1"':"")+(c.demo?' data-demo="1"':"")+(c.scratch?' data-scratch="1"':"")+(c.last?' aria-current="true"':"")+'>'+
-    '<span class="co-ic" aria-hidden="true">'+(c.locked?I.lock:c.demo?I.flask:c.scratch?I.tools:I.building)+'</span><span class="co-t"><b>'+esc(c.name)+'</b><small>'+esc(c.note||"")+(c.last?" · آخر شركة فُتحت":"")+'</small></span></button>';
+  return '<button type="button" class="co'+(c.locked?" locked":"")+(c.last?" last":"")+(c.primary?" primary":"")+'" role="listitem" data-id="'+esc(c.id)+'" data-name="'+esc(c.name)+'"'+(c.locked?' data-locked="1"':"")+(c.demo?' data-demo="1"':"")+(c.scratch?' data-scratch="1"':"")+(c.last?' aria-current="true"':"")+'>'+
+    '<span class="co-ic" aria-hidden="true">'+(c.locked?I.lock:c.demo?I.flask:c.scratch?I.tools:I.building)+'</span><span class="co-t"><b>'+esc(c.name)+'</b><small>'+esc(c.note||"")+(c.last?" · آخر شركة فُتحت":"")+'</small></span>'+(c.primary?'<span class="co-choice">ابدأ هنا</span>':"")+'</button>';
 }
 function paintGates(){
   $("gate-list").innerHTML=GATES.map(g=>'<button type="button" class="gate" role="listitem" data-gate="'+esc(g.id)+'"><span class="gate-ic" aria-hidden="true">'+(I[g.id]||I.building)+'</span><span class="gate-t"><b>'+esc(g.label)+'</b><small>'+esc(g.sub||"")+'</small></span></button>').join("");
@@ -325,19 +332,20 @@ function paintCorpus(){
 }
 function paintCompanies(){
   const gate=state.gate,s=sectorById(state.sector)||{},list=listFor(gate,state.sector);
-  $("co-t").textContent=gate==="accounting"?"شركات قطاع "+(s.label||""):gate==="audit"?"ملفات المراجعة":"مساحات الأدوات";
+  $("co-t").textContent=gate==="accounting"?"شركات قطاع "+(s.label||""):gate==="audit"?"المراجعة — ابدأ بملف مستقل":"الأدوات — ابدأ بمساحة مستقلة";
   $("entry-help").textContent=gate==="accounting"?"شركات قطاع «"+(s.label||"")+"» على هذا الجهاز: افتح شركة أو أنشئ شركة جديدة تحت هذا القطاع. الشركة الخاصة وحدها تفتح بكلمة مرور.":
-    gate==="audit"?"اختر الشركة التي تراجع دفاترها، أو ابدأ ملف مراجعة برفع القوائم والميزان والمستندات، أو افتح شركة من الحزمة المرجعية بميزانها المنشور.":
-    "اختر مساحة العمل التي تعمل أدواتها عليها، أو افتح الأدوات مباشرة دون شركة. لكل مساحة أصنافها وعملاؤها وموردوها ومخزونها، منفصلة عن غيرها.";
+    gate==="audit"?"ابدأ ملف مراجعة مستقل بالقوائم أو ميزان المراجعة أو المستندات. ربط الملف بشركة محاسبية خيار إضافي وليس شرطًا لبدء المراجعة.":
+    "ابدأ الأدوات مباشرة بدون شركة. إذا احتجت بيانات شركة محددة يمكنك ربط مساحة الأدوات بها اختيارياً دون تحويل الأدوات إلى جزء من المحاسبة أو المراجعة.";
   const cards=list.map(card).join("");
-  const extra=gate==="tools"?card({id:SCRATCH.id,name:SCRATCH.name,scratch:true,note:"بلا شركة — الأدوات على مساحة مستقلة"}):
-    gate==="audit"?'<button type="button" class="co" role="listitem" data-audit-new="1"><span class="co-ic" aria-hidden="true">'+I.audit+'</span><span class="co-t"><b>ملف مراجعة جديد</b><small>ارفع القوائم أو ميزان المراجعة أو المستندات، ثم تبدأ الجولة الأولى</small></span></button>':"";
+  const extra=gate==="tools"?card({id:SCRATCH.id,name:"فتح الأدوات بدون شركة",scratch:true,primary:true,note:"مساحة أدوات مستقلة — اربط شركة لاحقًا فقط إذا احتجت بياناتها"}):
+    gate==="audit"?'<button type="button" class="co primary" role="listitem" data-audit-new="1"><span class="co-ic" aria-hidden="true">'+I.audit+'</span><span class="co-t"><b>ملف مراجعة جديد</b><small>ابدأ مستقلًا: ارفع القوائم أو ميزان المراجعة أو المستندات ثم ابدأ الجولة الأولى</small></span><span class="co-choice">ابدأ هنا</span></button>':"";
+  const linked=cards&&gate!=="accounting"?'<div class="co-section" role="presentation"><b>'+(gate==="audit"?"ربط اختياري بشركة محاسبية":"ربط اختياري بشركة")+'</b><small>'+(gate==="audit"?"اختر شركة فقط إذا أردت الاستفادة من دفاترها داخل ملف المراجعة.":"اختر شركة فقط عندما تحتاج الأداة إلى بياناتها؛ ويمكنك البقاء في مساحة أدوات مستقلة.")+'</small></div>'+cards:cards;
   const empty=gate==="accounting"?"لا شركات في هذا القطاع بعد — أنشئ أول شركة تحته. النماذج المرجعية القطاعية الكاملة تأتي في الموجة P3.":"لا شركات على هذا الجهاز بعد.";
-  $("co-list").innerHTML=(gate==="audit"?extra+cards:cards+extra)||'<p class="co-empty">'+empty+'</p>';
-  const add=$("co-add");add.hidden=gate==="audit";add.textContent=gate==="tools"?"+ مساحة جديدة":"+ شركة جديدة"+(s.label?" في «"+s.label+"»":"");
+  $("co-list").innerHTML=(gate==="accounting"?cards:(extra+(linked||"")))||'<p class="co-empty">'+empty+'</p>';
+  const add=$("co-add");add.hidden=gate==="audit";add.textContent=gate==="tools"?"+ مساحة أدوات جديدة":"+ شركة جديدة"+(s.label?" في «"+s.label+"»":"");
   $("co-form").hidden=true;if(!add.hidden)add.hidden=false;
   const cp=$("corpus");cp.hidden=gate!=="audit";if(gate==="audit")paintCorpus();
-  $("co-hint").textContent=gate==="accounting"?"الشركة الجديدة تبدأ بتعريفها وشجرة حساباتها، وتُحمَّل لها بنية قطاعها.":gate==="audit"?"ملف المراجعة مستقل عن دفاتر المحاسبة؛ لا تصبح شركة المحاسبة ملف مراجعة إلا بطلبك.":"استخدام أداة لا يحوّلها إلى دليل مراجعة، ولا يفرض بقية النظام.";
+  $("co-hint").textContent=gate==="accounting"?"الشركة الجديدة تبدأ بتعريفها وشجرة حساباتها، وتُحمَّل لها بنية قطاعها.":gate==="audit"?"الربط اختياري: ملف المراجعة لا يصبح تابعًا لدفاتر المحاسبة، وأي نقل بيانات أو أدلة يظل صريحًا.":"الأدوات بوابة مستقلة؛ ربط شركة يحدد سياق البيانات فقط ولا يغيّر ملكية الأداة أو يحول نتائجها إلى دليل مراجعة.";
 }
 function show(step){
   ["gates","sectors","companies","locked"].forEach(id=>{const el=$(id);if(el)el.hidden=id!==step});state.step=step;
