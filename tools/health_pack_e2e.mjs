@@ -73,6 +73,12 @@ try {
   const tr = await p.evaluate(() => SKosifLedger.entries().filter((e) => e.visit).map((e) => e.visit.vatTreatment));
   ok('every visit records its VAT treatment (state-borne for citizens, standard for the non-Saudi patient)', tr.filter((t) => t === 'state-borne').length === 3 && tr.filter((t) => t === 'standard').length === 1, JSON.stringify(tr));
   ok('the claims tab states the VAT rules and what it does not post', await p.evaluate(() => /تتحمل الدولة/.test((document.querySelector('[data-cl-vat-note]') || {}).textContent || '')));
+  // the VAT return: the citizens' visits in box 2 (state-borne), the non-Saudi visit in box 1 with its VAT
+  await p.evaluate(() => SKosifLedger.open('vat')); await p.waitForTimeout(1000);
+  const vr = await p.evaluate(() => { const row = (n) => { const r = document.querySelector('tr[data-vat-box="' + n + '"]'); return r ? [...r.cells].map((c) => c.textContent.trim()) : null; };
+    const first = [...document.querySelectorAll('.sk-table tbody tr')].find((r) => /^1\./.test(r.cells[0].textContent.trim())); return { b2: row(2), b1: first ? [...first.cells].map((c) => c.textContent.trim()) : null }; });
+  ok('VAT return box 2: the citizens\' private healthcare (500 + 300 + 120), no VAT column', vr.b2 && /920/.test(vr.b2[1]) && vr.b2[2] === '—', JSON.stringify(vr));
+  ok('VAT return box 1: the non-Saudi visit 200 with VAT 30', vr.b1 && /200/.test(vr.b1[1]) && /30/.test(vr.b1[2]), JSON.stringify(vr));
   ok('no page errors', errors.length === 0, errors.slice(0, 3).join(' | '));
 } finally { await browser.close(); }
 

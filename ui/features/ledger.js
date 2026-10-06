@@ -497,6 +497,11 @@ function vatHTML(d){
     '<div class="sk-chips">'+Q.map(x=>'<button type="button" class="chip'+(x.id===q.id?' active':'')+'" data-l="vatq" data-q="'+x.id+'" aria-pressed="'+(x.id===q.id)+'">'+esc(x.label)+'</button>').join("")+'</div>'+
     '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>البند</th><th>المبلغ (بلا ضريبة)</th><th>الضريبة</th></tr></thead><tbody>'+
       '<tr><td>1. المبيعات الخاضعة للنسبة الأساسية ('+SK.vatPct()+')</td><td class="n">'+money(r.salesBase)+'</td><td class="n">'+money(r.outputVat)+'</td></tr>'+
+      /* the health visits by their VAT treatment (insurance-claims-engine): box 2 citizens' private healthcare, 3 zero-rated, 5 exempt */
+      (()=>{const IC=E().insuranceClaims;if(!IC||!IC.healthSalesBoxes)return "";const hb=IC.healthSalesBoxes(d.entries,q.start,q.end);
+        return (hb.citizens?'<tr data-vat-box="2"><td>2. الرعاية الصحية الخاصة للمواطنين (تتحمل الدولة ضريبتها)</td><td class="n">'+money(hb.citizens)+'</td><td class="n">—</td></tr>':'')+
+          (hb.zeroRated?'<tr data-vat-box="3"><td>3. المبيعات المحلية الخاضعة لنسبة الصفر</td><td class="n">'+money(hb.zeroRated)+'</td><td class="n">0</td></tr>':'')+
+          (hb.exempt?'<tr data-vat-box="5"><td>5. المبيعات المعفاة</td><td class="n">'+money(hb.exempt)+'</td><td class="n">—</td></tr>':'')})()+
       '<tr><td>7. المشتريات الخاضعة للنسبة الأساسية ('+SK.vatPct()+')</td><td class="n">'+money(r.purchasesBase)+'</td><td class="n">'+money(r.inputVat)+'</td></tr>'+
       '<tr><td><b>'+(r.net>=0?'صافي الضريبة المستحقة للهيئة':'صافي الضريبة المستردة من الهيئة')+'</b></td><td></td><td class="n"><b>'+money(Math.abs(r.net))+'</b></td></tr></tbody></table></div>'+
     '<p class="hint">'+r.salesEntries+' قيد مبيعات و'+r.purchaseEntries+' قيد مشتريات. القيود المعكوسة تُطرح تلقائياً.</p>'+

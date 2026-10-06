@@ -150,3 +150,19 @@ export function caseCosts(events: CaseEvent[]) {
     return { ...r, cost, margin, marginPct: r.revenue ? Math.round((margin / r.revenue) * 10000) / 100 : null }; })
     .sort((a, b) => a.caseRef.localeCompare(b.caseRef));
 }
+
+/* the health visits on the VAT return (ZATCA form): box 2 private healthcare sales to Saudi citizens (state-borne VAT),
+   box 3 zero-rated domestic sales (qualifying medicines and medical goods), box 5 exempt sales (Egypt's medical services).
+   Amounts are the visits' values before VAT, inside the period; reversed visits are left out. A government provider's
+   visits are outside the scope and are not on the return. */
+export type VisitEntry = { date: string; reversedBy?: string; reversalOf?: string; visit?: { gross?: number; vatTreatment?: VatTreatment } };
+export function healthSalesBoxes(entries: VisitEntry[], start: string, end: string) {
+  const sum = { citizens: 0, zeroRated: 0, exempt: 0, outOfScope: 0 };
+  for (const e of entries) {
+    if (!e.visit || e.reversedBy || e.reversalOf) continue;
+    const d = String(e.date).slice(0, 10); if (d < start || d > end) continue;
+    const g = Number(e.visit.gross) || 0, t = e.visit.vatTreatment;
+    if (t === 'state-borne') sum.citizens += g; else if (t === 'zero') sum.zeroRated += g; else if (t === 'exempt') sum.exempt += g; else if (t === 'out-of-scope') sum.outOfScope += g;
+  }
+  return { citizens: sum.citizens / 100, zeroRated: sum.zeroRated / 100, exempt: sum.exempt / 100, outOfScope: sum.outOfScope / 100 };
+}
