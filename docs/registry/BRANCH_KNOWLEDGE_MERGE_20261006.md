@@ -646,3 +646,50 @@
 - القرار: **PRINCIPLE-PRESERVED / OLD-PROXY-NOT-RESTORED**.
 
 الحالة: **COMPLETE — #67 إلى #58 تمت مراجعتها، ولا توجد شفرة قديمة أفضل تحتاج نسخًا مباشرًا؛ الفكرة الوحيدة التي تحتاج استمرار معماري هي multi-provider independence عبر adapters موثقة.**
+
+
+## دفعة PR #57 → PR #48 — مراجعة المعرفة والتنفيذ
+
+### PR #57 — Multi-agent KOSIF Think orchestrator + Jev gate
+- `app/src/engine/think/think-engine.ts` و`think-engine.test.ts` في main **مطابقان حرفيًا** للفرع.
+- runtime الحالي أضاف فوقها Council-500، capability atlas، receipts، secure executor وJev batches.
+- القرار: **VERIFIED-IN-MAIN / EXTENDED-LATER**.
+
+### PR #56 — RC evidence (DO NOT MERGE)
+- الفرع نفسه موسوم صراحةً كـRC evidence لا يُدمج بالجملة.
+- `account-opening-engine.ts` الموجود فيه مطابق حرفيًا لـmain، وكذلك إصلاحات Jev والـsimulator انتقلت في PRs اللاحقة.
+- القرار: **EVIDENCE-ONLY / USEFUL-CODE-ALREADY-IN-MAIN**.
+
+### PR #55 — Audit-first SQC identity
+- الهوية التاريخية والـdemo company امتصهما main، لكن أي صياغة product identity قديمة لا تعلو على FOUNDATION الحالي.
+- القرار: **BRAND-KNOWLEDGE-KEPT / FOUNDATION-AUTHORITATIVE**.
+
+### PR #54 — Jev public page + credential scrubbing
+- `tools/jev_page_check.mjs` في main مطابق حرفيًا للفرع؛ الحماية موجودة.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #53 — Phone layout
+- `phone_layout.mjs` الحالي أكبر وأوسع من نسخة الفرع؛ قواعد عدم التمرير الأفقي/الـstartup card/mobile layout محفوظة.
+- القرار: **CURRENT-IS-SUPERSET**.
+
+### PR #52 — Simulator governance: no inferred account types
+- `account-opening-engine.ts` الحالي مطابق للفرع؛ قاعدة عدم اختراع نوع الحساب والقرار الصريح موجودة.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #51 — Idempotent view listeners
+- `feature_audit.mjs` الحالي أكبر بكثير ويغطي الفكرة مع فحوص إضافية؛ إصلاحات الشاشات absorbed في main.
+- القرار: **CURRENT-IS-SUPERSET**.
+
+### PR #50 — Entry simulator / company journal learner
+- `entry-learner-engine.ts` و`entry-learner-engine.test.ts` في main **مطابقان حرفيًا** للفرع.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #49 — Product tree / customer map / sales analysis / item reports
+- رأس الفرع behind بلا delta؛ القدرات موجودة.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #48 — Four sections + company workspace (historical)
+- القدرات التشغيلية انتقلت إلى main، لكن topology «أربع أقسام» في هذا الفرع تاريخي؛ FOUNDATION الحالي يحدد topology المعتمد.
+- القرار: **CAPABILITIES-KEPT / TOPOLOGY-SUPERSEDED**.
+
+الحالة: **COMPLETE — #57 إلى #48 تمت مراجعتها؛ لا توجد شفرة مفقودة تحتاج نقلًا، وأهم المحركات متطابقة حرفيًا مع main.**
