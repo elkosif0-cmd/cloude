@@ -118,7 +118,7 @@ jobs:
           npx vitest run src/engine/think
 
       - name: Test KOSIF Think MCP access control (auth, limits, CORS, body size)
-        run: node --test think-mcp/worker.test.mjs
+        run: node --test think-mcp/worker.test.mjs think-mcp/live97-port-contract.test.mjs
 
       - name: Three-entry capability contract (FOUNDATION §3)
         run: node tools/gateway_contract.mjs
