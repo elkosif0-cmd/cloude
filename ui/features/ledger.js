@@ -238,6 +238,68 @@ function partyTable(r,kind,glBal){
     '<p class="hint">'+(r.unassigned?'أرصدة في قيود لا تسمّي '+who+' (ملخصات أو أرصدة افتتاحية): '+money(r.unassigned)+'. ':'')+
     'رصيد الحساب في الأستاذ: '+money(glBal)+(Math.abs(r.balance+r.unassigned-glBal)<0.01?' <span class="sk-pill good">يطابق</span>':' <span class="sk-pill warn">فرق '+money(r.balance+r.unassigned-glBal)+'</span>')+'</p>';
 }
+/* ---------- the health pack: visits, payer claims, remittances and rejections (finance/insurance-claims-engine) ----------
+   shown only for a company of the health sector — the same books behave by sector (FOUNDATION §3.7, P3) */
+const CL=()=>E().insuranceClaims;
+const isHealth=()=>{try{return SK.company.current().sector==="health"}catch{return false}};
+const CLAIM_CODES=["1100","1210","5110","4010","4020","4030","4040"];
+const halalas=v=>Math.round(Number(String(v??"").replace("٫",".").replace(/[٠-٩]/g,x=>"٠١٢٣٤٥٦٧٨٩".indexOf(x)))*100);
+function claimEvents(d){return d.entries.filter(e=>e.claim&&!e.reversedBy&&!e.reversalOf).map(e=>({payer:e.claim.payer,kind:e.claim.kind,billed:e.claim.billed,paid:e.claim.paid,rejected:e.claim.rejected}))}
+function claimsHTML(d){
+  const missing=CLAIM_CODES.filter(c=>!byCode(d,c));
+  if(missing.length)return SK.ui.state.empty({title:"أكمل حسابات قطاع المستشفيات",text:"دورة المطالبات تحتاج الحسابات "+missing.join(" و")+" — أضفها من «دليل الحسابات» › «إضافة حسابات قطاع»."});
+  const t=today(),stats=CL().payerStats(claimEvents(d)),aging=E().partyLedger.partyBalances(d.entries,byCode(d,"1210"),"debit",t,d.termsDays||30);
+  const payers=[...new Set([...(()=>{try{return SKosifCompanyPlatform.definitions("customers").map(x=>x.name)}catch{return[]}})(),...stats.map(s=>s.payer)])];
+  const h=v=>money((v||0)/100),depts=Object.entries(CL().DEPARTMENT_LABEL);
+  return '<p class="hint">المبالغ قبل ضريبة القيمة المضافة: معالجة ضريبة الخدمات الصحية تختلف حسب المريض والخدمة ولا يرحّلها هذا القسم بعد.</p>'+
+    '<section class="card"><div class="card-h"><div><h3>تسجيل زيارة</h3><p>حصة المريض تُحصَّل نقداً، وحصة الجهة الدافعة تُطالب بها (1210 باسم الجهة)، والإيراد حسب القسم.</p></div></div><div class="card-b">'+
+      '<div class="sk-grid2"><label class="sk-field"><span>رقم الحالة</span><input id="cl-case" data-sk-required placeholder="C-1001"></label>'+
+      '<label class="sk-field"><span>القسم</span><select id="cl-dept">'+depts.map(([k,l])=>'<option value="'+k+'">'+esc(l)+'</option>').join("")+'</select></label>'+
+      '<label class="sk-field"><span>قيمة الزيارة</span><input id="cl-gross" inputmode="decimal" data-sk-required></label>'+
+      '<label class="sk-field"><span>الجهة الدافعة (فارغ = المريض يدفع كاملاً)</span><input id="cl-payer" list="cl-payers" autocomplete="off"></label>'+
+      '<label class="sk-field"><span>نسبة التغطية %</span><input id="cl-cov" inputmode="decimal" value="100"></label>'+
+      '<label class="sk-field"><span>حد التحمّل على المريض (اختياري)</span><input id="cl-cap" inputmode="decimal"></label>'+
+      '<label class="sk-field"><span>التاريخ</span><input id="cl-date" type="date" value="'+t+'"></label></div>'+
+      '<datalist id="cl-payers">'+payers.map(n=>'<option value="'+esc(n)+'">').join("")+'</datalist>'+
+      '<div class="sk-error" id="cl-err" role="alert"></div><div class="sk-actions"><button type="button" class="btn primary" data-l="claim-visit">تسجيل الزيارة وترحيلها</button></div></div></section>'+
+    '<section class="card"><div class="card-h"><div><h3>تسوية مطالبات جهة</h3><p>ما تسدده الجهة يدخل النقدية، وما ترفضه يُسجَّل خسارة مطالبات (5110) بسببه — فلا يبقى في 1210 إلا المطالبات القائمة.</p></div></div><div class="card-b">'+
+      '<div class="sk-grid2"><label class="sk-field"><span>الجهة</span><select id="cr-payer">'+stats.filter(s=>s.open>0).map(s=>'<option value="'+esc(s.payer)+'">'+esc(s.payer)+' — قائم '+h(s.open)+'</option>').join("")+'</select></label>'+
+      '<label class="sk-field"><span>المسدَّد</span><input id="cr-paid" inputmode="decimal" value="0"></label>'+
+      '<label class="sk-field"><span>المرفوض</span><input id="cr-rej" inputmode="decimal" value="0"></label>'+
+      '<label class="sk-field"><span>سبب الرفض</span><input id="cr-why" placeholder="خارج التغطية، نقص مستندات…"></label>'+
+      '<label class="sk-field"><span>التاريخ</span><input id="cr-date" type="date" value="'+t+'"></label></div>'+
+      '<div class="sk-error" id="cr-err" role="alert"></div><div class="sk-actions"><button type="button" class="btn" data-l="claim-remit"'+(stats.some(s=>s.open>0)?'':' disabled')+'>ترحيل التسوية</button></div></div></section>'+
+    '<section class="card"><div class="card-h"><div><h3>الجهات الدافعة</h3><p>المطالَب والمسدَّد والمرفوض ونسبة الرفض لكل جهة، وأعمار المطالبات القائمة من الدفاتر.</p></div></div><div class="card-b">'+
+      (stats.length?'<div class="sk-table-wrap"><table class="sk-table" data-cl-payers><thead><tr><th>الجهة</th><th>المطالَب</th><th>المسدَّد</th><th>المرفوض</th><th>نسبة الرفض</th><th>القائم</th><th>أكثر من 60 يوماً</th></tr></thead><tbody>'+
+        stats.map(s=>{const a=aging.rows.find(r=>r.party===s.payer),late=a?(a.aging["61-90"]||0)+(a.aging["90+"]||0):0;
+          return '<tr data-payer="'+esc(s.payer)+'"><td>'+esc(s.payer)+'</td><td class="n">'+h(s.billed)+'</td><td class="n">'+h(s.paid)+'</td><td class="n">'+h(s.rejected)+'</td><td class="n">'+(s.rejectionRate==null?'—':s.rejectionRate+'٪')+'</td><td class="n"><b>'+h(s.open)+'</b></td><td class="n">'+(late?money(late):'')+'</td></tr>'}).join("")+
+        '</tbody></table></div>':SK.ui.state.empty({title:"لا مطالبات بعد",text:"سجّل زيارة تغطيها جهة دافعة."}))+'</div></section>';
+}
+function postClaimVisit(root,d){
+  const err=$("#cl-err",root);err.textContent="";
+  const caseRef=$("#cl-case",root).value.trim(),gross=halalas($("#cl-gross",root).value),payer=$("#cl-payer",root).value.trim(),cap=$("#cl-cap",root).value.trim();
+  if(!caseRef||!(gross>0)){err.textContent="أدخل رقم الحالة وقيمة الزيارة";return}
+  try{
+    const id=SK.ui.uid("visit"),enc={id,date:$("#cl-date",root).value||today(),caseRef,department:$("#cl-dept",root).value,grossHalalas:gross,payer,coveragePct:Number($("#cl-cov",root).value||100),...(cap?{copayCapHalalas:halalas(cap)}:{})};
+    const r=CL().encounterJournal(enc,{cashAccountId:byCode(d,"1100"),payerReceivableAccountId:byCode(d,"1210"),rejectionsAccountId:byCode(d,"5110"),revenueAccountId:c=>byCode(d,c)});
+    const out=postEntry({...r.journal,claim:r.split.payer?{kind:"claim",payer:r.split.payer,billed:r.split.payerShare}:undefined},{source:"زيارات",sourceId:"visit:"+id,party:r.split.payer||undefined});
+    if(!out.ok){err.textContent=out.error;return}
+    toast("رُحّلت الزيارة"+(r.split.payer?" — مطالبة "+r.split.payer+" "+money(r.split.payerShare/100):""),"ok");
+  }catch(e){err.textContent=e.message||String(e);return}
+  return true;
+}
+function postClaimRemit(root,d){
+  const err=$("#cr-err",root);err.textContent="";
+  const payer=$("#cr-payer",root).value,open=(CL().payerStats(claimEvents(d)).find(s=>s.payer===payer)||{open:0}).open;
+  try{
+    const id=SK.ui.uid("rem"),r=CL().remittanceJournal({id,date:$("#cr-date",root).value||today(),payer,paidHalalas:halalas($("#cr-paid",root).value||0),rejectedHalalas:halalas($("#cr-rej",root).value||0),reason:$("#cr-why",root).value},open,
+      {cashAccountId:byCode(d,"1100"),payerReceivableAccountId:byCode(d,"1210"),rejectionsAccountId:byCode(d,"5110"),revenueAccountId:c=>byCode(d,c)});
+    const out=postEntry({...r.journal,claim:{kind:"remittance",payer:r.claim.payer,paid:r.claim.paid,rejected:r.claim.rejected,reason:r.claim.reason}},{source:"تسويات التأمين",sourceId:"remit:"+id,party:payer});
+    if(!out.ok){err.textContent=out.error;return}
+    toast("رُحّلت تسوية "+payer,"ok");
+  }catch(e){err.textContent=e.message||String(e);return}
+  return true;
+}
 function cashHTML(d){
   const ar=byCode(d,"1200"),ap=byCode(d,"2100"),cash=byCode(d,"1100");
   if(!ar||!ap||!cash)return SK.ui.state.empty({title:"أكمل دليل الحسابات",text:"التحصيل والسداد يحتاج الحسابات 1100 و1200 و2100 (أنشئ الدليل الأساسي)."});
@@ -445,9 +507,9 @@ function paint(root){
   /* a company created under a sector receives its pack on first open (FOUNDATION §3.7) */
   try{window.SKosifCompanyPlatform&&SKosifCompanyPlatform.ensureSectorPack()}catch{}
   const d=db(),p=period();if(!tab)tab=d.accounts.length?"close":"accounts";
-  root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
+  root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],...(isHealth()?[["claims","المطالبات والجهات"]]:[]),["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
     (p?'<p class="hint">الفترة المالية النشطة: <b>'+esc(p.label)+'</b> ('+esc(p.startDate)+' → '+esc(p.endDate)+') — من «الشركات والفترات».</p>':'')+
-    ({close:closeHTML,accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
+    ({close:closeHTML,accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,claims:claimsHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
 }
 function bind(root){
   root.addEventListener("click",async e=>{
@@ -487,6 +549,8 @@ function bind(root){
       SK.audit&&SK.audit.log("ledger",{act:"unlock",from:d.lockDate});d.lockDate="";put(d);
     }
     else if(a==="cash-fill"){const k=$("#lg-ck",root),pp=$("#lg-cp",root),am=$("#lg-ca",root);if(k)k.value=b.dataset.kind;if(pp)pp.value=b.dataset.party;if(am){am.value=b.dataset.amt;am.focus();am.select()}return}
+    else if(a==="claim-visit"){if(postClaimVisit(root,d))paint(root);return}
+    else if(a==="claim-remit"){if(postClaimRemit(root,d))paint(root);return}
     else if(a==="settle"){
       const err=$("#lg-cerr",root);err.textContent="";if(!SK.ui.validate(root))return;
       const kind=$("#lg-ck",root).value,party=$("#lg-cp",root).value.trim(),amount=r2(String($("#lg-ca",root).value).replace("٫",".").replace(/[٠-٩]/g,x=>"٠١٢٣٤٥٦٧٨٩".indexOf(x))),date=$("#lg-cd",root).value||today(),method=$("#lg-cm",root).value;
