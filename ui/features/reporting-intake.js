@@ -53,7 +53,7 @@ function lineageHTML(){
 function docsHTML(){
   const docs=CP().documents();if(!docs.length)return'<section class="card"><div class="card-b">'+SK.ui.state.empty("لا ملفات مرفوعة","ارفع ملفاتك من البطاقة أعلاه.")+'</div></section>';
   return '<section class="card"><div class="card-h"><div><h3>مصادر الشركة</h3><p>كل ملف يحمل نوعًا وبصمة ومصدرًا. الإرسال للمراجعة اختياري وصريح.</p></div></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الملف</th><th>النوع</th><th>الحجم</th><th>البصمة</th><th></th></tr></thead><tbody>'+
-  docs.map(d=>'<tr><td><b>'+esc(d.name)+'</b><small>'+esc(d.importedAt.slice(0,16).replace("T"," "))+'</small></td><td><select data-ri-type="'+d.id+'" aria-label="نوع '+esc(d.name)+'">'+Object.entries(typeLabel).map(([id,label])=>'<option value="'+id+'"'+(id===d.type?' selected':'')+'>'+esc(label)+'</option>').join("")+'</select></td><td class="n">'+Math.ceil(d.size/1024)+' KB</td><td class="n" title="'+esc(d.sha256||"")+'">'+esc((d.sha256||"").slice(0,12)||"—")+'</td><td><button type="button" class="linkish" data-ri-review="'+d.id+'">أرسل للمراجعة</button> · <button type="button" class="linkish danger" data-ri-del="'+d.id+'">حذف</button></td></tr>').join("")+
+  docs.map(d=>'<tr><td><b>'+esc(d.name)+'</b><small>'+esc(d.importedAt.slice(0,16).replace("T"," "))+(d.remote?' · خزنة سحابية ✓':'')+'</small></td><td><select data-ri-type="'+d.id+'" aria-label="نوع '+esc(d.name)+'">'+Object.entries(typeLabel).map(([id,label])=>'<option value="'+id+'"'+(id===d.type?' selected':'')+'>'+esc(label)+'</option>').join("")+'</select></td><td class="n">'+Math.ceil(d.size/1024)+' KB</td><td class="n" title="'+esc(d.sha256||"")+'">'+esc((d.sha256||"").slice(0,12)||"—")+'</td><td><button type="button" class="linkish" data-ri-review="'+d.id+'">أرسل للمراجعة</button> · '+(d.remote?'<span class="sksev ok">R2</span>':'<button type="button" class="linkish" data-ri-cloud="'+d.id+'">رفع لخزنة الشركة</button>')+' · <button type="button" class="linkish danger" data-ri-del="'+d.id+'">حذف محلي</button></td></tr>').join("")+
   '</tbody></table></div></div></section>';
 }
 function paint(root){root.innerHTML=statusHTML()+mpmHTML()+docsHTML()+lineageHTML()}
@@ -87,6 +87,19 @@ function bind(root){
     const reg=e.target.closest("[data-ri-mpm-register]");if(reg){await registerSuggestedMpm(reg.dataset.riMpmRegister,root);return}
     const app=e.target.closest("[data-ri-mpm-approve]");if(app){const m=CP().mpms().find(x=>x.id===app.dataset.riMpmApprove);if(m){CP().approveMpm(m.id,!m.approved);toast(m.approved?"أُلغي اعتماد المقياس":"اعتمد المستخدم المقياس","ok");paint(root)}return}
     const md=e.target.closest("[data-ri-mpm-del]");if(md&&await SK.confirm("حذف تعريف MPM من الشركة؟",{danger:true,ok:"حذف"})){CP().removeMpm(md.dataset.riMpmDel);paint(root);return}
+    const cloud=e.target.closest("[data-ri-cloud]");if(cloud){
+      const meta=CP().documents().find(x=>x.id===cloud.dataset.riCloud),v2=window.SKosifCapabilitiesV2;
+      if(!meta||!v2)return toast("مركز الخزنة غير متاح","warn");
+      if(!v2.config().apiBase)return toast("اربط Capabilities v2 Worker أولًا؛ لا يوجد رفع سحابي بدون Backend محمي","warn");
+      if(!await SK.confirm("رفع نسخة من المستند إلى خزنة الشركة السحابية المحكومة بصلاحيات Workspace؟ لا يوجد fallback إذا كانت R2 غير مهيأة.",{ok:"رفع للخزنة"}))return;
+      cloud.disabled=true;try{
+        const rec=await CP().readDocument(meta.id);if(!rec?.blob)throw new Error("تعذر قراءة الملف المحلي");
+        const out=await v2.uploadDocument(rec.blob,{name:meta.name,classification:meta.type,sourceGateway:meta.sourceGateway,mime:meta.mime});
+        if(!out.document?.id||!out.document?.sha256)throw new Error("vault_receipt_missing");
+        CP().setDocumentRemote(meta.id,{documentId:out.document.id,workspaceId:out.document.workspace_id,sha256:out.document.sha256,uploadedAt:out.document.uploaded_at});
+        toast("تم رفع نسخة موثقة إلى خزنة الشركة","ok");paint(root);
+      }catch(err){toast("تعذر الرفع للخزنة: "+(err.message||err),"bad")}finally{cloud.disabled=false}return
+    }
     const hand=e.target.closest("[data-ri-review]");if(hand){if(await SK.confirm("إرسال مرجع هذا المستند إلى ملف المراجعة؟ لن يُعتبر دليلًا مقبولًا قبل فحصه واعتماده.",{ok:"إرسال"})){CP().requestAuditHandoff(hand.dataset.riReview);toast("أُضيف إلى قائمة التسليم للمراجعة","ok")}return}
     const del=e.target.closest("[data-ri-del]");if(del&&await SK.confirm("حذف الملف من مخزن هذه الشركة؟",{danger:true,ok:"حذف"})){await CP().removeDocument(del.dataset.riDel);paint(root)}
   });

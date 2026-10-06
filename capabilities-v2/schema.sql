@@ -82,3 +82,23 @@ CREATE TABLE IF NOT EXISTS workspace_access (
   PRIMARY KEY (workspace_id, subject)
 );
 CREATE INDEX IF NOT EXISTS workspace_access_subject_idx ON workspace_access(tenant_id,subject,workspace_id);
+
+
+-- Sensitive document metadata. File bytes live only in the R2 DOCUMENTS binding.
+CREATE TABLE IF NOT EXISTS workspace_documents (
+  id TEXT PRIMARY KEY,
+  workspace_id TEXT NOT NULL REFERENCES workspaces(id),
+  tenant_id TEXT NOT NULL REFERENCES tenants(id),
+  object_key TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL,
+  mime TEXT NOT NULL,
+  classification TEXT NOT NULL,
+  size_bytes INTEGER NOT NULL CHECK (size_bytes > 0),
+  sha256 TEXT NOT NULL CHECK (length(sha256)=64),
+  source_gateway TEXT NOT NULL DEFAULT '',
+  uploaded_by TEXT NOT NULL,
+  uploaded_at TEXT NOT NULL,
+  deleted_at TEXT
+);
+CREATE INDEX IF NOT EXISTS workspace_documents_workspace_idx ON workspace_documents(workspace_id,tenant_id,uploaded_at DESC);
+CREATE INDEX IF NOT EXISTS workspace_documents_sha_idx ON workspace_documents(workspace_id,sha256);
