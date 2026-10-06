@@ -19404,6 +19404,7 @@ window.SKEngines = (function() {
 		let taxable = 0;
 		let vat = 0;
 		const stockMovements = [];
+		const byAccount = /* @__PURE__ */ new Map();
 		receipt.lines.forEach((received, index) => {
 			const source = orderLines.get(received.itemId);
 			if (!source) throw new Error("UNPLANNED_RECEIPT_ITEM");
@@ -19411,6 +19412,8 @@ window.SKEngines = (function() {
 			if (qty <= 0) throw new Error("RECEIPT_QUANTITY_REQUIRED");
 			const lineTaxable = qty * Math.max(0, source.unitCostExVat);
 			taxable += lineTaxable;
+			const acc = accounts.inventoryAccountFor?.(received.itemId) || accounts.inventoryAccountId;
+			byAccount.set(acc, (byAccount.get(acc) ?? 0) + lineTaxable);
 			vat += lineTaxable * Math.max(0, source.vatRate);
 			stockMovements.push({
 				id: "purchase-stock-" + receipt.id + "-" + index,
@@ -19421,7 +19424,11 @@ window.SKEngines = (function() {
 				unitCost: source.unitCostExVat
 			});
 		});
-		taxable = money$14(taxable);
+		const stock = [...byAccount].map(([accountId, v]) => ({
+			accountId,
+			amount: money$14(v)
+		})).filter((x) => x.amount > 0);
+		taxable = money$14(stock.reduce((s, x) => s + x.amount, 0));
 		vat = money$14(vat);
 		const total = money$14(taxable + vat);
 		if (total <= 0) throw new Error("RECEIPT_TOTAL_MUST_BE_POSITIVE");
@@ -19431,12 +19438,12 @@ window.SKEngines = (function() {
 				date: receipt.date,
 				reference: receipt.number,
 				lines: [
-					{
-						accountId: accounts.inventoryAccountId,
-						debit: taxable,
+					...stock.map((x) => ({
+						accountId: x.accountId,
+						debit: x.amount,
 						credit: 0,
 						description: "استلام مخزون - " + receipt.number
-					},
+					})),
 					...vat > 0 ? [{
 						accountId: accounts.inputVatAccountId,
 						debit: vat,

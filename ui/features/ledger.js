@@ -410,6 +410,14 @@ function postSales(d){
   toast((n?"رُحّلت "+n+" عملية بيع"+(cost?" مع تكلفة مبيعات "+money(cost):""):"لم تُرحّل أي عملية")+(noCost?" — "+noCost+" بلا تكلفة معروفة (أضف التكلفة في أوامر الشراء أو قواعد التكلفة)":"")+
     (held?" — "+held+" في فترة مقفلة":"")+(skipped?" — تُرك "+skipped+" غير مكتمل":""),n&&!skipped&&!noCost&&!held?"ok":"warn");
 }
+/* the meat pack keeps carcasses and live animals (the catalog's raw items) in 1310, apart from other stock in 1300 —
+   only for a meat company whose chart has 1310; every other company receives into 1300 as before */
+function stockAccountFor(d){
+  const c=SK.company&&SK.company.current?SK.company.current():{},acc=byCode(d,"1310");
+  if(c.sector!=="meat"||!acc)return undefined;
+  let raw=new Set();try{raw=new Set((window.SKosifCore.catalog().items||[]).filter(i=>i.kind==="raw").map(i=>ckey(i.name)))}catch{}
+  return item=>raw.has(ckey(item))?acc:undefined;
+}
 function postReceipts(d){
   if(!ensureAcc(d,["1300","1400","2100"]))return;
   const pur=load("skosif_purchasing_v1",{}),posted=postedSources(d);let n=0,skipped=0,held=0;
@@ -425,7 +433,7 @@ function postReceipts(d){
     const bundle=window.SKEngines.procurement.procurementPosting.buildReceiptPosting(
       {id:po.id,number:po.number,date:po.date,dueDate:po.dueDate||po.date,supplierId:po.supplier,status:"OPEN",lines:po.lines.map(l=>({itemId:l.item,quantity:Number(l.qty)||0,unitCostExVat:Number(l.cost)||0,vatRate:Number(l.vat)||0}))},
       {id:r.id,number:r.id,date:r.date,purchaseOrderId:po.id,status:"DRAFT",lines:received},
-      {inventoryAccountId:idOf(d,"1300"),inputVatAccountId:idOf(d,"1400"),payableAccountId:idOf(d,"2100")});
+      {inventoryAccountId:idOf(d,"1300"),inputVatAccountId:idOf(d,"1400"),payableAccountId:idOf(d,"2100"),inventoryAccountFor:stockAccountFor(d)});
     if(!E().ledger.validateJournalEntry(bundle.journal).valid){skipped++;return}
     d.entries.push({...bundle.journal,id:SK.ui.uid("je"),memo:"استلام من "+po.supplier+" — أمر "+po.number,reference:po.number,source:"مشتريات",sourceId:"receipt:"+r.id,party:po.supplier||""});n++;
   }catch{skipped++}});

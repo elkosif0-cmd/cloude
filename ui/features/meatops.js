@@ -131,12 +131,18 @@ function bind(){
    realisable value) and the abnormal waste (beyond the normal-waste tolerance), keeping every halala — IAS 2 joint products */
 const CR=()=>window.SKEngines&&SKEngines.stock&&SKEngines.stock.cuttingRun,L=()=>window.SKosifLedger;
 let runPreview=null;
+/* the carcass account the run credits: 1310 when the books hold carcasses there, else the general stock 1300 */
+function srcOptions(){
+  let in1310=0;try{in1310=Number(L()&&L().balance?L().balance("1310"):0)||0}catch{}
+  const first=in1310>0?"1310":"1300";
+  return [["1310","1310 مخزون الذبائح والحيوانات الحية"],["1300","1300 المخزون"]].map(([v,l])=>'<option value="'+v+'"'+(v===first?' selected':'')+'>'+l+'</option>').join("");
+}
 function postHTML(){
   return '<section class="card sk37-post" id="sk37-post"><div class="card-h"><div><h3>تشغيلة التقطيع في الدفاتر</h3><p>تُحمَّل تكلفة الذبيحة على القطع حسب قيمة البيع النسبية، والمنتجات الثانوية بصافي قيمتها القابلة للتحقق، والهدر الزائد على النسبة الطبيعية مصروفاً — المعيار IAS 2 للمنتجات المشتركة.</p></div></div><div class="card-b sk-stack">'+
     '<div class="sk-grid2"><label class="sk-field"><span>تاريخ التشغيلة</span><input id="sk37-run-date" type="date" value="'+new Date().toISOString().slice(0,10)+'"></label>'+
     '<label class="sk-field"><span>الهدر الفعلي كجم (فارغ = ما لم تفسره القطع)</span><input id="sk37-waste" type="number" step=".01" placeholder="تلقائي"></label>'+
     '<label class="sk-field"><span>الهدر الطبيعي % من الذبيحة</span><input id="sk37-normal" type="number" step=".1" value="3"></label>'+
-    '<label class="sk-field"><span>حساب الذبائح الدائن</span><select id="sk37-src"><option value="1310">1310 مخزون الذبائح والحيوانات الحية</option><option value="1300">1300 المخزون</option></select></label></div>'+
+    '<label class="sk-field"><span>حساب الذبائح الدائن</span><select id="sk37-src">'+srcOptions()+'</select></label></div>'+
     '<div class="sk-actions"><button type="button" id="sk37-run-preview" class="sk-secondary">معاينة التشغيلة</button></div><div id="sk37-run-out"></div></div></section>';
 }
 function runInput(){

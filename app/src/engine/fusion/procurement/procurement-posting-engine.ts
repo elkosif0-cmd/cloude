@@ -32,6 +32,8 @@ export type ProcurementPostingAccounts={
   inventoryAccountId:string;
   inputVatAccountId:string;
   payableAccountId:string;
+  /** the stock account of an item when a sector keeps some goods apart (meat: carcasses → 1310); default inventoryAccountId */
+  inventoryAccountFor?:(itemId:string)=>string|undefined;
 };
 
 export type ReceiptPostingBundle={
@@ -54,6 +56,7 @@ export function buildReceiptPosting(order:PurchaseOrderDocument,receipt:GoodsRec
   let taxable=0;
   let vat=0;
   const stockMovements:StockMovement[]=[];
+  const byAccount=new Map<string,number>();
 
   receipt.lines.forEach((received,index)=>{
     const source=orderLines.get(received.itemId);
@@ -62,6 +65,8 @@ export function buildReceiptPosting(order:PurchaseOrderDocument,receipt:GoodsRec
     if(qty<=0)throw new Error('RECEIPT_QUANTITY_REQUIRED');
     const lineTaxable=qty*Math.max(0,source.unitCostExVat);
     taxable+=lineTaxable;
+    const acc=accounts.inventoryAccountFor?.(received.itemId)||accounts.inventoryAccountId;
+    byAccount.set(acc,(byAccount.get(acc)??0)+lineTaxable);
     vat+=lineTaxable*Math.max(0,source.vatRate);
     stockMovements.push({
       id:'purchase-stock-'+receipt.id+'-'+index,
@@ -73,7 +78,9 @@ export function buildReceiptPosting(order:PurchaseOrderDocument,receipt:GoodsRec
     });
   });
 
-  taxable=money(taxable);
+  /* each stock account carries its own goods, rounded per account; the payable is their sum plus the VAT */
+  const stock=[...byAccount].map(([accountId,v])=>({accountId,amount:money(v)})).filter(x=>x.amount>0);
+  taxable=money(stock.reduce((s,x)=>s+x.amount,0));
   vat=money(vat);
   const total=money(taxable+vat);
   if(total<=0)throw new Error('RECEIPT_TOTAL_MUST_BE_POSITIVE');
@@ -83,7 +90,7 @@ export function buildReceiptPosting(order:PurchaseOrderDocument,receipt:GoodsRec
     date:receipt.date,
     reference:receipt.number,
     lines:[
-      {accountId:accounts.inventoryAccountId,debit:taxable,credit:0,description:'استلام مخزون - '+receipt.number},
+      ...stock.map(x=>({accountId:x.accountId,debit:x.amount,credit:0,description:'استلام مخزون - '+receipt.number})),
       ...(vat>0?[{accountId:accounts.inputVatAccountId,debit:vat,credit:0,description:'ضريبة مدخلات - '+receipt.number}]:[]),
       {accountId:accounts.payableAccountId,debit:0,credit:total,description:'ذمم موردين - '+receipt.number},
     ],
