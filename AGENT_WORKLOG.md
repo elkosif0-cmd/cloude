@@ -555,3 +555,31 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - supplier rebates;
   - per-branch cash accounts.
 - Branch / PR: `claude/trade-pack-20261007` from `main` @ f645381.
+
+### TASK CLAUDE-20261007-002 — Relationship Health / Integration Monitor (FOUNDATION §3.6)
+- Agent: Claude (Lead Development Agent)
+- Status: DONE on merge — the owner's standing instruction in chat («كمل تطوير وراجع الدستور وادمج بنفسك», «اكمل»).
+- Goal: FOUNDATION §3.6 «Relationship Health / Integration Monitor». A broken link must:
+  - raise a clear alert;
+  - name the affected link and the source of the error;
+  - prevent silent corruption of the results;
+  - allow the link to be re-mapped, refreshed and tested;
+  - keep a history of the link's tests.
+  - It is also open in `docs/registry/rule-zero-2026-10-05/REQUIREMENTS_AND_GATES_ar.md` line 115.
+- Scope:
+  - `app/src/engine/fusion/system/relationship-health-engine.ts` (+8 tests: the six model companies are clean, and every rule is exercised). It is pure and changes nothing. Its rules:
+    - **mapping**: definitions whose `accountCode` is not in the chart, and pack accounts that aren't opened;
+    - **posting**: helper-tool operations not yet posted; older than 30 days is a failure;
+    - **reference**: sector meta naming a contract, term, order, product, cycle, retainer or branch that no longer exists; reversed entries are skipped;
+    - **sync**: entries on accounts outside the chart, an operation posted twice (`sourceId`), unbalanced entries;
+    - **party**: receivable or payable lines with no party.
+  - Each finding carries the link, title, source, count, samples and repair.
+  - `ui/features/ledger.js`: a «صحة الروابط» tab for every company:
+    - a status pill and the findings, each with «فتح» to the tab where it is repaired;
+    - «إعادة الفحص وتسجيله» keeps a dated history (`d.rhHistory`, the last 50 runs) and an audit-log line.
+  - `tools/relationship_health_e2e.mjs` is in the workflow.
+- Not yet:
+  - re-mapping in place from the finding;
+  - watching the helper tools' own stores (e.g. a sales record changed after posting);
+  - running the check automatically before the month-end close.
+- Branch / PR: `claude/relationship-health-20261007` from `main` @ 19f3460.

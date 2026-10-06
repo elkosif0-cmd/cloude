@@ -323,6 +323,34 @@ function postDigitalOp(root,d){
   }catch(e){err.textContent=e.message||String(e);return}
   return true;
 }
+/* ---------- relationship health / integration monitor (FOUNDATION §3.6, system/relationship-health-engine) ----------
+   Every link between the books and what feeds them — definitions mapped to accounts, the sector pack's accounts, operations
+   waiting to be posted, sector entries and the objects they name, duplicates, orphans, receivables without a party — is
+   checked; a broken link is named with its source and a repair, and each run is kept in a dated history (d.rhHistory). */
+const RHE=()=>window.SKEngines&&window.SKEngines.system&&window.SKEngines.system.relationshipHealth;
+const RH_LINK={mapping:["الربط بالحسابات","accounts"],posting:["الترحيل","close"],reference:["مراجع القطاع","entries"],sync:["التزامن","entries"],party:["الأطراف","cash"]};
+function rhInput(d){
+  let defs={},pack=[];try{const CPf=window.SKosifCompanyPlatform;defs=CPf.state().definitions||{};const P=CPf.sectorPack();pack=P?P.accounts.map(a=>a[0]):[]}catch{}
+  const has=k=>d.entries.some(e=>e[k]),ids=(arr,meta)=>Array.isArray(arr)?arr.map(o=>typeof o==="string"?o:o.id):(has(meta)?[]:undefined);
+  return{accounts:d.accounts.map(a=>({id:a.id,code:String(a.code),name:a.name})),entries:d.entries,definitions:defs,packCodes:pack,pending:pendingOps(d,today()),asOf:today(),
+    objects:{contract:ids(d.contracts,"contract"),term:ids(d.terms,"tuition"),order:ids(d.orders,"production"),product:ids(d.products,"production"),cycle:ids(d.cycles,"livestock"),retainer:ids(d.retainers,"agency"),branch:Array.isArray(d.branches)?d.branches:(has("trade")?[]:undefined)}};
+}
+function rhOf(d){const R=RHE();if(!R)return null;try{return R.relationshipHealth(rhInput(d))}catch(e){SK.errors&&SK.errors.report(e,"ledger:links");return null}}
+function linksHTML(d){
+  const r=rhOf(d);if(!r)return SK.ui.state.empty({title:"فحص الروابط غير متاح"});
+  const st={ok:["good","سليمة"],warn:["warn","تنبيهات"],fail:["bad","روابط مكسورة"]},hist=Array.isArray(d.rhHistory)?d.rhHistory.slice(-10).reverse():[];
+  return '<section class="card" data-rh data-rh-status="'+r.status+'"><div class="card-h"><div><h3>صحة الروابط</h3><p>الربط بالحسابات، والترحيل، ومراجع بيانات القطاع، والتزامن، والأطراف — '+r.checked+' فحصاً على دفاتر هذه الشركة وما يغذيها.</p></div>'+
+    '<span class="sk-pill '+st[r.status][0]+'" data-rh-pill>'+st[r.status][1]+'</span></div><div class="card-b">'+
+    (r.findings.length?'<div class="sk-table-wrap"><table class="sk-table" data-rh-findings><thead><tr><th>الرابط</th><th>المشكلة</th><th>المصدر</th><th>العدد</th><th>أمثلة</th><th>الإصلاح</th><th></th></tr></thead><tbody>'+
+      r.findings.map(f=>'<tr data-rh-link="'+f.link+'" data-rh-severity="'+f.severity+'"><td><span class="sk-pill '+(f.severity==="fail"?"bad":"warn")+'">'+esc(RH_LINK[f.link][0])+'</span></td><td>'+esc(f.title)+'</td><td>'+esc(f.source)+'</td><td class="n">'+f.count+'</td><td>'+esc((f.sample||[]).join("، "))+'</td><td>'+esc(f.repair)+'</td><td><button type="button" class="btn ghost" data-ledger-open="'+RH_LINK[f.link][1]+'">فتح</button></td></tr>').join("")+
+      '</tbody></table></div>':'<p class="hint" data-rh-clean>كل الروابط سليمة: لا تعريف مربوط بحساب مفقود، ولا عملية تنتظر الترحيل، ولا قيد يشير إلى عنصر محذوف، ولا تكرار أو قيد يتيم، ولا ذمم بلا طرف.</p>')+
+    '<div class="sk-actions"><button type="button" class="btn" data-l="rh-run">إعادة الفحص وتسجيله</button></div>'+
+    (hist.length?'<div class="sk-table-wrap"><table class="sk-table" data-rh-history><thead><tr><th>وقت الفحص</th><th>النتيجة</th><th>مكسورة</th><th>تنبيهات</th></tr></thead><tbody>'+
+      hist.map(x=>'<tr><td>'+esc(String(x.at).replace("T"," ").slice(0,16))+'</td><td>'+esc(st[x.status][1])+'</td><td class="n">'+x.fail+'</td><td class="n">'+x.warn+'</td></tr>').join("")+'</tbody></table></div>':'')+
+    '</div></section>';
+}
+function runLinks(d){const r=rhOf(d);if(!r)return;d.rhHistory=[...(Array.isArray(d.rhHistory)?d.rhHistory:[]),{at:new Date().toISOString(),status:r.status,fail:r.findings.filter(f=>f.severity==="fail").length,warn:r.findings.filter(f=>f.severity==="warn").length}].slice(-50);
+  put(d);SK.audit&&SK.audit.log("ledger",{act:"links-check",status:r.status});toast(r.status==="ok"?"كل الروابط سليمة":"سُجّل الفحص — "+r.findings.length+" ملاحظة",r.status==="ok"?"ok":"warn");return true}
 /* ---------- the general-trade pack: branches and their stock, sales with discounts, margins, turnover, credit limits ----------
    (finance/trade-engine) — shown only for a trading company. Each branch's figures are read back from the entries' trade
    meta; a customer's balance from the receivable lines naming them. */
@@ -1060,9 +1088,9 @@ function paint(root){
   /* a company created under a sector receives its pack on first open (FOUNDATION §3.7) */
   try{window.SKosifCompanyPlatform&&SKosifCompanyPlatform.ensureSectorPack()}catch{}
   const d=db(),p=period();if(!tab)tab=d.accounts.length?"close":"accounts";
-  root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],...(isHealth()?[["claims","المطالبات والجهات"]]:[]),...(isConstruction()?[["projects","المشروعات والمستخلصات"]]:[]),...(isHotel()?[["hotel","الغرف والإقفال الليلي"]]:[]),...(isDigital()?[["digital","العملاء والحملات"]]:[]),...(isSchool()?[["tuition","الرسوم الدراسية"]]:[]),...(isFactory()?[["factory","أوامر التشغيل"]]:[]),...(isBakery()?[["bakery","دفعات الإنتاج"]]:[]),...(isFarm()?[["farm","الدورات والقطعان"]]:[]),...(isTrade()?[["trade","الفروع والهوامش"]]:[]),["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
+  root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],...(isHealth()?[["claims","المطالبات والجهات"]]:[]),...(isConstruction()?[["projects","المشروعات والمستخلصات"]]:[]),...(isHotel()?[["hotel","الغرف والإقفال الليلي"]]:[]),...(isDigital()?[["digital","العملاء والحملات"]]:[]),...(isSchool()?[["tuition","الرسوم الدراسية"]]:[]),...(isFactory()?[["factory","أوامر التشغيل"]]:[]),...(isBakery()?[["bakery","دفعات الإنتاج"]]:[]),...(isFarm()?[["farm","الدورات والقطعان"]]:[]),...(isTrade()?[["trade","الفروع والهوامش"]]:[]),["links","صحة الروابط"],["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
     (p?'<p class="hint">الفترة المالية النشطة: <b>'+esc(p.label)+'</b> ('+esc(p.startDate)+' → '+esc(p.endDate)+') — من «الشركات والفترات».</p>':'')+
-    ({close:closeHTML,accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,claims:claimsHTML,projects:projectsHTML,hotel:hotelHTML,digital:digitalHTML,tuition:tuitionHTML,factory:factoryHTML,bakery:bakeryHTML,farm:farmHTML,trade:tradeHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
+    ({close:closeHTML,accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,claims:claimsHTML,projects:projectsHTML,hotel:hotelHTML,digital:digitalHTML,tuition:tuitionHTML,factory:factoryHTML,bakery:bakeryHTML,farm:farmHTML,trade:tradeHTML,links:linksHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
 }
 function bind(root){
   root.addEventListener("click",async e=>{
@@ -1119,6 +1147,7 @@ function bind(root){
     else if(a==="tr-branch"){if(saveBranch(root,d))paint(root);return}
     else if(a==="tr-limit"){if(saveLimit(root,d))paint(root);return}
     else if(a==="tr-post"){if(postTrade(root,d))paint(root);return}
+    else if(a==="rh-run"){if(runLinks(d))paint(root);return}
     else if(a==="claim-remit"){if(postClaimRemit(root,d))paint(root);return}
     else if(a==="settle"){
       const err=$("#lg-cerr",root);err.textContent="";if(!SK.ui.validate(root))return;
