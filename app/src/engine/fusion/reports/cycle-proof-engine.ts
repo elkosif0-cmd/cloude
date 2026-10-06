@@ -46,8 +46,8 @@ export function cycleProof(input: { accounts: ProofAccount[]; entries: ProofEntr
   const fs = buildStatements(fromRows(rows, { overrides }));
   const unmapped = fs.unmapped.filter((u) => u.balance !== 0);
   steps.push({ id: 'statements', label: 'ميزان المراجعة ← القوائم المالية', status: !fs.checks.balanced ? 'fail' : unmapped.length ? 'warn' : 'ok',
-    detail: !fs.checks.balanced ? 'قائمة المركز المالي غير متوازنة بفرق ' + fs.checks.difference / 100 : unmapped.length ? 'حسابات بلا بند في القوائم: ' + unmapped.map((u) => u.code + ' ' + u.name).join('، ') : 'كل حساب له بند، والمركز المالي متوازن',
-    figures: { mappedPct: fs.checks.mappedPct, difference: fs.checks.difference } });
+    detail: !fs.checks.balanced ? 'قائمة المركز المالي غير متوازنة بفرق ' + (fs.checks.difference ?? 0) / 100 : unmapped.length ? 'حسابات بلا بند في القوائم: ' + unmapped.map((u) => u.code + ' ' + u.name).join('، ') : 'كل حساب له بند، والمركز المالي متوازن',
+    figures: { mappedPct: fs.checks.mappedPct, difference: fs.checks.difference ?? 0 } });
   /* 4. the same numbers in the statements and in the ledger */
   let rev = 0, exp = 0, assets = 0;
   for (const r of tb.rows) { const t = acc.get(r.accountId)?.type, b = h(r.balance); if (t === 'revenue') rev -= b; if (t === 'expense') exp += b; if (t === 'asset') assets += b; }

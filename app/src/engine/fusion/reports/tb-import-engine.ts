@@ -18,6 +18,8 @@ export type TbError = { line: number; code: 'EMPTY_INPUT' | 'AMOUNT_NOT_NUMERIC'
 export type TrialBalance = {
   /** Origin survives adjustments and never establishes audit evidence. */
   sourceKind?: 'published-statements'; sourceId?: string;
+  /** the published source's original text, kept so a replay can prove it is the reviewed source (reports/source-replay-engine) */
+  sourceTransport?: string;
   ok: boolean; rows: TbRow[]; errors: TbError[];
   totals: { debit: Minor; credit: Minor }; difference: Minor; balanced: boolean;
   hasPrior: boolean; priorDifference: Minor | null; unclassified: number;
@@ -145,7 +147,7 @@ export function parseTrialBalance(text: string, opts: { delimiter?: string; over
     rows.push(makeRow(lineNo, code, name, debit, credit, prior, opts.overrides?.[code]));
   });
   const result = finish(rows, errors, columns, delimiter);
-  return marked ? {...result,sourceKind:'published-statements',sourceId:marked.slice(SOURCE_MARKER.length).trim()} : result;
+  return marked ? {...result,sourceKind:'published-statements',sourceId:marked.slice(SOURCE_MARKER.length).trim(),sourceTransport:text} : result;
 }
 
 /** Build a trial balance from rows the app already has (the ledger engine, the audit bridge). */
