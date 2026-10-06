@@ -101,6 +101,7 @@ test('audit lists every company behind a new-file card, the bundle companies, an
   const g=page({local:device});
   g.gate('audit');
   assert.deepEqual(g.visible(),['companies']);
+  assert.equal(g.title(),'SQC — ابدأ المراجعة');
   const auditHtml=g.els['co-list'].innerHTML;
   assert.ok(auditHtml.includes('data-audit-new="1"'));
   assert.ok(auditHtml.includes('class="co primary"'),'new audit is the visually primary action');
@@ -124,6 +125,7 @@ test('audit lists every company behind a new-file card, the bundle companies, an
 test('tools lists the spaces and a space without a company; that space is never a company of a sector',()=>{
   const g=page({local:device});
   g.gate('tools');
+  assert.equal(g.title(),'SQC — مساحة الأدوات');
   const c=g.cards();assert.deepEqual(c.map(x=>x.id),['space-tools','co-private','co-a','co-b','demo-co']);
   const toolsHtml=g.els['co-list'].innerHTML;
   assert.ok(c[0].scratch);assert.ok(toolsHtml.includes('class="co primary"'));assert.ok(toolsHtml.includes('فتح الأدوات بدون شركة'));
