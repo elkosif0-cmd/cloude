@@ -399,6 +399,9 @@ async function verifyAuth0AccessToken(token){
     return {method:"oauth2",sub:String(payload.sub),claims:payload};
   }catch(_){ return null; }
 }
+/* Optional owner allow-list. Unset keeps current OAuth behaviour unchanged. */
+function ownerSubs(env){ return String(env.KOSIF_OWNER_SUBS||"").split(",").map(v=>v.trim()).filter(Boolean); }
+function ownerAllowed(env,sub){ const owners=ownerSubs(env); return !owners.length||owners.includes(String(sub||"")); }
 function oauthChallenge(error="invalid_token",description="Sign in with Auth0 to use KOSIF Think model tools"){
   return 'Bearer resource_metadata="'+OAUTH_METADATA_URL+'", scope="openid profile email offline_access", error="'+error+'", error_description="'+description.replace(/"/g,"")+'"';
 }
@@ -410,7 +413,17 @@ function oauthToolError(description){
     _meta:{"mcp/www_authenticate":[oauthChallenge("invalid_token",description)]}
   };
 }
+const WRITE_TOOL_HINTS=Object.freeze({
+  kosif_full_pro_execute:{destructiveHint:false,idempotentHint:true,openWorldHint:true},
+  kosif_full_pro_start:{destructiveHint:false,idempotentHint:true,openWorldHint:true},
+  kosif_full_pro_cancel:{destructiveHint:true,idempotentHint:true,openWorldHint:false},
+  kosif_full_pro_secure_authorize:{destructiveHint:false,idempotentHint:true,openWorldHint:false},
+  kosif_secure_image_execute:{destructiveHint:false,idempotentHint:false,openWorldHint:true},
+  kosif_full_pro_bypass:{destructiveHint:true,idempotentHint:true,openWorldHint:false},
+  kosif_secure_artifact_qa:{destructiveHint:false,idempotentHint:true,openWorldHint:false}
+});
 function toolAnnotations(name){
+  if(WRITE_TOOL_HINTS[name]) return {readOnlyHint:false,...WRITE_TOOL_HINTS[name]};
   const external=name==="kosif_agent"||name==="kosif_think"||name==="kosif_expert_harvest"||name==="kosif_full_pro_jev_batch";
   const deterministic=!external;
   return {readOnlyHint:true,destructiveHint:false,idempotentHint:deterministic,openWorldHint:external};
@@ -1107,11 +1120,13 @@ function a1990CapabilityAtlas() {
     packs: {
       reasoning_core: { purpose: "Deep reasoning, critique and synthesis.", directives: [
         "Frame the problem before solving it; separate claims, evidence, assumptions and unknowns.",
-        "Use first principles, inversion, systems effects and a discriminating test when they materially improve the answer; preserve calibrated uncertainty."
+        "Use first principles, inversion, systems effects and a discriminating test when they materially improve the answer; preserve calibrated uncertainty.",
+        "Actively seek disconfirming evidence and state what observation would make the current preferred conclusion wrong."
       ] },
       decision_stress: { purpose: "Stress-test choices and plans.", directives: [
         "Generate materially distinct alternatives before convergence; surface hidden assumptions, reversibility, failure modes and the strongest counter-case.",
-        "Prefer observing available code/files/tools over asking questions whose answers can be checked directly."
+        "Prefer observing available code/files/tools over asking questions whose answers can be checked directly.",
+        "When uncertainty can be reduced safely, prefer the smallest reversible tracer action before a large or irreversible commitment."
       ] },
       research_hypothesis: { purpose: "Evidence-bounded research and hypotheses.", directives: [
         "Freeze the observation/evidence boundary; keep hypothesis, prediction, measurement and established evidence distinct.",
@@ -1143,10 +1158,12 @@ function a1990CapabilityAtlas() {
       ] },
       planning_state: { purpose: "Long-running execution with durable state.", directives: [
         "Maintain plan, findings, progress, blockers and completion gates separately; resume from the last verified state.",
+        "Separate hard constraints from preferences before optimizing or scheduling work; never trade away a hard constraint for convenience.",
         "Do not restart completed work or claim completion without observable receipts."
       ] },
       agent_orchestration_eval: { purpose: "Multi-agent composition and evaluator-optimizer loops.", directives: [
         "Use role specialization/context isolation to reduce correlated failure; preserve independent dissent before synthesis.",
+        "When a provider, tool or route fails, quarantine that route for the task and prefer a viable fallback from a different dependency group rather than mistaking shared-provider redundancy for resilience.",
         "Evaluate against observable outcome criteria and refine only failed dimensions instead of regenerating correct work."
       ] },
       agent_memory_context: { purpose: "Long-running agent memory/context design.", directives: [
@@ -1362,6 +1379,15 @@ function preflightTool(args){
 
 
 const MOBILE_FULL_PRO_PREFIX="KOSIF_FULL_PRO_MOBILE_V1:";
+const FULL_PRO_AUTH_REQUIRED="FULL_PRO_AUTH_REQUIRED";
+const FULL_PRO_BRIDGE_PREFIXES=Object.freeze([
+  MOBILE_FULL_PRO_PREFIX,
+  "KOSIF_FULL_PRO_HARVEST_V1:",
+  "KOSIF_FULL_PRO_JEV_BATCH_V1:",
+  "KOSIF_FULL_PRO_CANARY_START_V1:",
+  "KOSIF_FULL_PRO_CANARY_STATUS_V1:",
+  "KOSIF_FULL_PRO_CANARY_CANCEL_V1:"
+]);
 const MOBILE_FULL_PRO_TTL_MS=24*60*60*1000;
 async function mobileBridgeIssue(env,id){
   const meta=await fpGet(env,fpReqKey(id)); if(!meta) throw new Error("FULL_PRO_REQUEST_NOT_FOUND");
@@ -1471,8 +1497,15 @@ async function mobileBridgeControl(env,args){
   throw new Error("FULL_PRO_MOBILE_ACTION_INVALID");
 }
 
-async function runThink(env,args){
+function bridgeNeedsAuth(rawContext){
+  if(!FULL_PRO_BRIDGE_PREFIXES.some(prefix=>rawContext.startsWith(prefix))) return false;
+  if(!rawContext.startsWith(MOBILE_FULL_PRO_PREFIX)) return true;
+  const action=String(parseMobileBridge(rawContext).action||"");
+  return action==="start"||action==="canary_start";
+}
+async function runThink(env,args,ctx={}){
   const rawContext=String(args?.context||"");
+  if(bridgeNeedsAuth(rawContext)&&!ctx.authed) throw new Error(FULL_PRO_AUTH_REQUIRED);
   if(rawContext.startsWith(MOBILE_FULL_PRO_PREFIX)) return await mobileBridgeControl(env,args);
   if(rawContext.startsWith("KOSIF_FULL_PRO_HARVEST_V1:")){
     let bridge; try{bridge=JSON.parse(rawContext.slice("KOSIF_FULL_PRO_HARVEST_V1:".length));}catch(_){throw new Error("HARVEST_BRIDGE_JSON_INVALID");}
@@ -2536,7 +2569,7 @@ async function callTool(env,name,args,ctx={}){
       return out;
     }
   }
-  if(name==="kosif_think") return finalizeTool(name,started,await runThink(env,args),false);
+  if(name==="kosif_think") return finalizeTool(name,started,await runThink(env,args,ctx),false);
   if(name==="kosif_calibration_report") return finalizeTool(name,started,calibrationReportTool(args),false);
   if(name==="kosif_route") return finalizeTool(name,started,routeTool(env,args),false);
   if(name==="kosif_think_status") {
@@ -2553,7 +2586,7 @@ async function callTool(env,name,args,ctx={}){
     governanceContracts:{cognitiveGovernance:COGNITIVE_GOVERNANCE_VERSION,einstein:EINSTEIN_PROTOCOL_VERSION,sourceTaint:SOURCE_TAINT_POLICY_VERSION,executionBinding:EXECUTION_CONTRACT_VERSION,revisionClosure:REVISION_CLOSURE_VERSION,decisionSensitivity:DECISION_SENSITIVITY_VERSION,expertCognitiveCards:C500_COGNITIVE_CARD_VERSION,verifiedSelfImprovement:VERIFIED_SELF_IMPROVEMENT_VERSION,visualIntelligence:VISUAL_INTELLIGENCE_VERSION,secureVisualQa:"vision_task_aware_v5",qaActivationProfile:"active-values-v3"},
     expertCognitiveRoster:c500CognitiveRosterReceipt(c500Roster(C500_COGNITIVE_CARD_VERSION)),
     improvements:["primary-provider-coverage-gate","safe-upstream-error-classification","configuration-health-separation","full-pro-status-secure-state-fix","mobile-full-pro-compat-bridge-v1","evidence-answer-consistency-gate","truthful-host-exposure-status","adaptive-router-v2","runtime-receipts","ephemeral-diagnostics","frontier-circuit-breaker","deterministic-self-test","frontier-timeout-transparent-fallback","unique-agent-votes","abstention-aware-agreement","conservative-readiness-gate","winner-aligned-synthesis","zero-confidence-preserved","access-control","pre-verification-auth-fail-lockout","host-tool-router","cost-consent-guard","jev-browser-host-routing","kosif-computer-preferred-executor","stable-action-graph-contract","verified-finish","cancel-before-side-effect","delta-first-recovery","verified-host-jev-choice-application","one-time-jev-packet-binding","evidence-backed-cove","evidence-tournament","four-tier-memory-routing","dynamic-capability-mesh-v1","all-plugin-host-routing","lease-ttl-registry","schema-hash-drift-guard","idempotency-key-routing","plugin-output-trust-boundary","minimal-relevant-tool-set","deep-research-evidence-fusion","natural-language-arithmetic-binding","option-binding-consistency","decision-sensitivity-v1","source-taint-v1","execution-binding-v1","revision-closure-v1","attachment-cinema-v1","task-aware-visual-qa-v5","verified-self-improvement-v1","expert-cognitive-cards-v1","expert-cognitive-cards-v3","44-thinking-methods","51-domain-roster","expert-big-five-nondiagnostic","expert-reference-capsules","expert-reference-binding","expert-personality-guardrail","expert-source-grounded-methods","expert-blind-spot-compensation","expert-diversity-receipt","epistemic-status-and-falsifier","versioned-discovery-compat"],
-    access:{auth:"rate-limited-public-broker+optional-oauth2+legacy-bearer",authPolicyVersion:AUTH_POLICY_VERSION,revisionClosureVersion:REVISION_CLOSURE_VERSION,authFailLockout:"pre-verification-ip-window",oauthChallenge:"tool-result-meta+resource-401",jwtAlgorithms:["RS256","PS256"],issuer:AUTH0_ISSUER,audience:AUTH0_AUDIENCE,resourceMetadata:OAUTH_METADATA_URL,pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",frontierConfigured,frontierAuthenticatedForThisRequest,frontierAvailableForThisRequest:frontierConfigured,
+    access:{auth:"rate-limited-public-broker+optional-oauth2+legacy-bearer",authPolicyVersion:AUTH_POLICY_VERSION,revisionClosureVersion:REVISION_CLOSURE_VERSION,authFailLockout:"pre-verification-ip-window",oauthChallenge:"tool-result-meta+resource-401",jwtAlgorithms:["RS256","PS256"],issuer:AUTH0_ISSUER,audience:AUTH0_AUDIENCE,resourceMetadata:OAUTH_METADATA_URL,pathToken:String(env.THINK_ALLOW_PATH_TOKEN||"").toLowerCase()==="true",ownerAllowlistConfigured:ownerSubs(env).length>0,ownerAllowlistCount:ownerSubs(env).length,frontierConfigured,frontierAuthenticatedForThisRequest,frontierAvailableForThisRequest:frontierConfigured,
       rateLimiter:typeof env.THINK_RATE_LIMITER?.limit==="function",modelLimiter:typeof env.THINK_MODEL_LIMITER?.limit==="function",limits:limits(env),browserOrigins:allowedOrigins(env).length},
     routing:{
       preflight:"When kosif Do is explicitly selected or invoked, run KOSIF Full Pro first before any substantive answer or downstream tool.",
@@ -2615,6 +2648,7 @@ async function handleMcp(req,env,url){
   let authContext=null,authed=false;
   if(presented){
     authContext=await verifyAuth0AccessToken(presented);
+    if(authContext&&!ownerAllowed(env,authContext.sub)) authContext=null;
     authed=!!authContext;
     if(!authed&&expected.length>=MIN_TOKEN_LENGTH){
       try{
