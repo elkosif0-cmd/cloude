@@ -324,9 +324,13 @@ function brandPrint(w,title){
   }catch(e){report(e,"print")}
 }
 
+/* the open company's VAT rate (SKosifCompanyPlatform.vatPolicy → finance/vat-policy-engine): every screen that prices, posts or
+   prints VAT reads it here instead of a fixed 15%. The fallback only applies before the company platform has loaded. */
+function vatRate(){try{const P=window.SKosifCompanyPlatform;return P&&P.vatPolicy?P.vatPolicy().rate:0.15}catch{return 0.15}}
+const vatPct=()=>Math.round(vatRate()*10000)/100+"٪";
 function askJev(opts){save("skosif_jev_draft",opts||{});if(core())core().go("jev")}
 
-window.SK={$,$$,esc,num,load,save,money,pct,toast,view,redact,askJev,icon,icons:ICONS,download,
+window.SK={$,$$,esc,num,load,save,money,pct,toast,view,redact,askJev,vatRate,vatPct,icon,icons:ICONS,download,
   confirm:confirmDialog,notify,form:formDialog,modalFocus,brandPrint,org,
   print:Object.freeze({options:popts,set:(k,v)=>{const x=popts();x[k]=v;save(PKEY,x)},css:optCSS}),
   csv:Object.freeze({cell:safeCell,build:csv,download:downloadCsv}),

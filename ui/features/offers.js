@@ -38,7 +38,7 @@
     }catch(e){
       console.warn("catalog bridge",e);
     }
-    return {vat:0.15,netBase:true,items:[]};
+    return {vat:SK.vatRate(),netBase:true,items:[]};
   }
 
   function withOffer(it,d,offers){
@@ -263,7 +263,7 @@
       msg.push("🎁 *إجمالي الخصم والتوفير:* −"+sar(totalSavings)+" ر.س");
     }
     msg.push("💳 *المبلغ النهائي المطلوب:* *"+sar(netTotal)+" ر.س*");
-    msg.push("📌 *الأسعار شاملة ضريبة القيمة المضافة (15٪)*");
+    msg.push("📌 *الأسعار شاملة ضريبة القيمة المضافة ("+SK.vatPct()+")*");
 
     if(notes){
       msg.push("");
@@ -476,7 +476,7 @@
             '<div class="k32-preview-box">'+
               '<div class="k32-preview-row"><span>المجموع قبل الخصم:</span><b>'+sar(subtotal)+' ر.س</b></div>'+
               (totalSavings>0?'<div class="k32-preview-row" style="color:var(--k32-wine)"><span>إجمالي الخصم والتوفير:</span><b>−'+sar(totalSavings)+' ر.س</b></div>':'')+
-              '<div class="k32-preview-row"><span>القيمة المضافة (15٪):</span><b>مشمولة بالسعر</b></div>'+
+              '<div class="k32-preview-row"><span>القيمة المضافة ('+SK.vatPct()+'):</span><b>مشمولة بالسعر</b></div>'+
               '<div class="k32-preview-row" style="font-size:16px;color:var(--k32-green)"><span>الإجمالي المستحق:</span><b>'+sar(netTotal)+' ر.س</b></div>'+
             '</div>'+
 
@@ -528,7 +528,7 @@
         '<div class="k32-hero-meta">'+
           '<div class="k32-meta-pill">إجمالي الأصناف: <b>'+items.length+'</b></div>'+
           '<div class="k32-meta-pill">العروض النشطة: <b>'+nOffers+' عرض خاص</b></div>'+
-          '<div class="k32-meta-pill">الضريبة: <b>شامل 15٪</b></div>'+
+          '<div class="k32-meta-pill">الضريبة: <b>شامل '+SK.vatPct()+'</b></div>'+
         '</div>'+
       '</section>'+
 

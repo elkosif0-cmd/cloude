@@ -72,7 +72,7 @@ function zatcaHTML(){
   const now=new Date();
   const invNo="INV-"+now.getFullYear()+String(now.getMonth()+1).padStart(2,"0")+String(now.getDate()).padStart(2,"0")+"-022";
   const subtotal=invoiceItems.reduce((s,x)=>s+x.total,0);
-  const vatAmount=subtotal*0.15;
+  const vatAmount=subtotal*SK.vatRate();
   const grandTotal=subtotal+vatAmount;
 
   if(invoicePayment.method==="all_card"){
@@ -199,7 +199,7 @@ function zatcaHTML(){
         '</table>',
         '<div class="sk38-rcpt-totals">',
           '<div><span>المجموع الخاضع للضريبة:</span><b>'+subtotal.toFixed(2)+' ر.س</b></div>',
-          '<div><span>ضريبة القيمة المضافة (15٪):</span><b>'+vatAmount.toFixed(2)+' ر.س</b></div>',
+          '<div><span>ضريبة القيمة المضافة ('+SK.vatPct()+'):</span><b>'+vatAmount.toFixed(2)+' ر.س</b></div>',
           '<div class="sk38-rcpt-grand"><span>الإجمالي المستحق:</span><b>'+grandTotal.toFixed(2)+' ر.س</b></div>',
         '</div>',
         '<div class="sk38-rcpt-payments">'+
@@ -225,7 +225,7 @@ function updateZatcaQR(){
   const vatNo=$("#sk38-vatno")?.value||"";
   const now=new Date().toISOString().slice(0,19)+"Z";
   const subtotal=invoiceItems.reduce((s,x)=>s+x.total,0);
-  const vatAmount=(subtotal*0.15).toFixed(2);
+  const vatAmount=(subtotal*SK.vatRate()).toFixed(2);
   const grandTotal=(subtotal*1.15).toFixed(2);
   const tlvB64=zatcaTLV(seller,vatNo,now,grandTotal,vatAmount);
   const box=$("#sk38-qrcode-box");
@@ -280,7 +280,7 @@ function decodeAndDisplayTLV(b64){
     '<div>• <b>الرقم الضريبي (Tag 2):</b> <span dir="ltr">'+esc(tags[2])+'</span> '+(vatValid?'<span style="color:var(--sk-ok);">(صحيح 15 رقم)</span>':'<span style="color:var(--sk-bad);">(تنبيه: يجب أن يبدأ وينتهي بـ 3)</span>')+'</div>'+
     '<div>• <b>الوقت والتاريخ (Tag 3):</b> '+esc(tags[3])+'</div>'+
     '<div>• <b>الإجمالي مع الضريبة (Tag 4):</b> '+total.toFixed(2)+' ر.س</div>'+
-    '<div>• <b>مبلغ الضريبة (Tag 5):</b> '+vat.toFixed(2)+' ر.س '+(mathValid?'<span style="color:var(--sk-ok);">(15% دقيقة)</span>':'')+'</div>'+
+    '<div>• <b>مبلغ الضريبة (Tag 5):</b> '+vat.toFixed(2)+' ر.س '+(mathValid?'<span style="color:var(--sk-ok);">('+SK.vatPct()+' دقيقة)</span>':'')+'</div>'+
   '</div>';
 }
 
@@ -314,7 +314,7 @@ function bindZatca(){
     const vatNo=$("#sk38-vatno")?.value||"";
     const now=new Date().toISOString().slice(0,19)+"Z";
     const subtotal=invoiceItems.reduce((s,x)=>s+x.total,0);
-    const vatAmount=(subtotal*0.15).toFixed(2);
+    const vatAmount=(subtotal*SK.vatRate()).toFixed(2);
     const grandTotal=(subtotal*1.15).toFixed(2);
     const tlvB64=zatcaTLV(seller,vatNo,now,grandTotal,vatAmount);
     const ta=$("#sk38-tlv-input");
@@ -376,7 +376,7 @@ function bindZatca(){
     invoiceItems.forEach(it=>{ msg+="• "+it.name+" ("+it.qty+") = "+it.total.toFixed(2)+" ر.س\n"; });
     msg+="--------------------------------\n";
     msg+="*المجموع الخاضع للضريبة:* "+subtotal.toFixed(2)+" ر.س\n";
-    msg+="*ضريبة القيمة المضافة (15٪):* "+(subtotal*0.15).toFixed(2)+" ر.س\n";
+    msg+="*ضريبة القيمة المضافة ("+SK.vatPct()+"):* "+(subtotal*SK.vatRate()).toFixed(2)+" ر.س\n";
     msg+="*الإجمالي المستحق:* "+grandTotal.toFixed(2)+" ر.س\n";
     msg+="--------------------------------\n";
     if(invoicePayment.cardPaid>0)msg+="• سداد مدى / شبكة: "+invoicePayment.cardPaid.toFixed(2)+" ر.س\n";
