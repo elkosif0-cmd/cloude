@@ -13,8 +13,8 @@
 | الترتيب | المصدر | الحالة | سبب الأولوية |
 |---|---|---|---|
 | 1 | PR #143 / `codex/sqc-five-audit-source-models-20261005` | COMPLETE | أكبر حزمة: مصادر، محركات، حماية، اختبارات |
-| 2 | PR #140 / `feat/kosif-unified-financial-os-20261005` | IN_PROGRESS | Company Platform, Master Data, Reporting Intake, Audit Inbox |
-| 3 | PR #169 / `kosifsee/ux-clarity-20261006` | QUEUED | تنظيم واجهة البوابات وتجربة الأدوات |
+| 2 | PR #140 / `feat/kosif-unified-financial-os-20261005` | COMPLETE | Company Platform, Master Data, Reporting Intake, Audit Inbox |
+| 3 | PR #169 / `kosifsee/ux-clarity-20261006` | IN_PROGRESS | تنظيم واجهة البوابات وتجربة الأدوات |
 | 4 | PR #170 / `kosifsee/audit-context-separation-20261006` | QUEUED | فصل سياق المراجعة عن المحاسبة |
 | 5+ | بقية الفروع | QUEUED | تُقرأ واحدًا واحدًا كمصادر معرفة |
 
@@ -56,3 +56,18 @@
 
 ## PR #140 — بدأ التحليل
 المطلوب فحصه: Company Platform، Master Data، Reporting Intake، Audit Inbox، تثبيت الأدوات لكل شركة، Capability Registry والعقود المرتبطة.
+
+
+### PR #140 — نتيجة التنفيذ
+- تمت مقارنة الفرع مع النسخة الحالية بدل نسخه بالكامل.
+- تبين أن المسارات الجوهرية التي كان الفرع يقدمها موجودة بالفعل في النسخة الحالية: `company-platform` و`standards` و`audit-inbox` و`master-data` و`reporting-intake` ومراجعة قيود اليومية.
+- ملفا `audit-inbox.js` و`reporting-intake.js` متطابقان حرفيًا مع النسخة الحالية، وكذلك اختبار `journal_review_contract.test.mjs`.
+- النسخة الحالية من `company-platform.js` أوسع من نسخة PR #140 وتضيف VAT Policy وSector Pack وتسجيل استثناءات AI ومعالجتها، لذلك لم يتم استبدالها بنسخة أقدم.
+- النسخة الحالية من `standards.js` و`master-data.js` أوسع/أحدث، ولذلك تم الاحتفاظ بها.
+- `build.py` الحالي موصل بالفعل للوحدات الخمس الأساسية من PR #140، و`helper-space.js` الحالي يحفظ مفتاح `skosif_company_platform_v1`.
+- النتيجة: **لا توجد شفرة صافية أفضل تحتاج نقلًا من PR #140**؛ القيمة المفيدة منه محفوظة بالفعل في النسخة الحالية، فتم تجنب التراجع أو التكرار.
+
+الحالة: **COMPLETE — PR #140 تمت مراجعته واستخلاصه، وأفضل ما فيه موجود بالفعل في خط الأساس الحالي.**
+
+## PR #169 — بدأ التحليل
+التركيز: وضوح البوابات الأربع، تقليل التداخل البصري، ترتيب الأدوات، وتسلسل الوصول للشركة/القسم بدون فقد قدرات قائمة.
