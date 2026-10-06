@@ -253,7 +253,7 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 
 ### TASK CLAUDE-20261006-006 — P2: the company's definitions feed the purchase and sale pickers
 - Agent: Claude (Lead Development Agent)
-- Status: HANDOFF (PR open; merge deploys production — owner approval)
+- Status: DONE — merged as PR #157 on the owner's explicit instruction in chat on 2026-10-06 («ادمج وكمل»); GitHub jobs not started (billing), acceptance on local evidence.
 - Goal: one master data per company — suppliers, products and customers defined in «التعريفات» are offered where operations are recorded, so the books, statements and ageing name the same parties.
 - Scope: `ui/features/purchasing.js` (supplier and item pickers start with the definitions; a defined product's purchase price is the line's default cost when the supplier has no dated price); `ui/features/definition-pickers.js` (new, in `build.py`): the core sale dialog's customer field (#v12s-customer) gets a suggestion list of defined customers then customers already sold to — attached on focus, no core payload edit; `tools/books_integrity_e2e.mjs` checks all three through the real screens.
 - Branch / PR: `claude/p2-definitions-pickers-20261006` from `main` @ dfd4dd0.
