@@ -15,7 +15,7 @@ function harness(receipts=[]){
   const data={[PUR]:{orders:[order()],receipts:clone(receipts),prices:[]},[LED]:{entries:[],accounts:[['1300','asset'],['1400','asset'],['2100','liability']].map(([code,type])=>({id:'acc-'+code,code,type,name:code,active:true}))}};
   const views={},toasts=[],writes=[];let id=0;
   const root=()=>({dataset:{},listeners:{},fields:{},innerHTML:'',addEventListener(k,f){this.listeners[k]=f},querySelector(q){return this.fields[q]||null}});
-  const SK={load:(k,d)=>clone(k in data?data[k]:d),save:(k,v)=>{writes.push(k);data[k]=clone(v)},esc:x=>String(x??''),money:String,
+  const SK={load:(k,d)=>clone(k in data?data[k]:d),save:(k,v)=>{writes.push(k);data[k]=clone(v)},esc:x=>String(x??''),money:String,vatRate:()=>0.15,vatPct:()=>'15٪',
     toast:(message,type)=>toasts.push({message,type}),$:(q,r)=>r.querySelector(q),view:(k,v)=>views[k]=v,
     ui:{uid:p=>p+'-'+(++id),validate:()=>true,tabs:()=>'',state:{empty:()=>''}}};
   const context=vm.createContext({SK,console,TextEncoder,TextDecoder,Uint8Array,Uint32Array,document:{addEventListener(){}},window:{}});

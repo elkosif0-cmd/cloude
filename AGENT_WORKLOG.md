@@ -240,3 +240,13 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Evidence: vat-policy 6/6; engines 452/452 (`--check` up to date); vat_policy_contract + company_platform 14/14; workflow node tests 294 pass / 52 fail, the 52 identical on `main` (no new failure); books_integrity_e2e OK; feature_audit 146/146; door 88/88; sales_reports 28/28; advances 26/26 (after one local load timeout).
 - The browser test caught a defect in the first version (selecting «حسب الدولة» did not reset registration: `??` treated null as missing) — fixed and pinned.
 - NEXT ACTION: the remaining fixed 15% outside the posting path (enterprise/offers/operations/audit-bridge) read the same policy; then P2 definitions → purchase/sale pickers; then P3 sector packs (meat first).
+
+### TASK CLAUDE-20261006-005 — P2 follow-up: every screen that prices, posts or prints VAT reads the company policy
+- Agent: Claude (Lead Development Agent)
+- Status: DONE — merged on the owner's explicit instruction in chat on 2026-10-06 («ادمج وكمل»); GitHub jobs not started (billing), acceptance on local evidence.
+- Goal: close the follow-up recorded in CLAUDE-20261006-004 — the remaining fixed 15% outside the posting path.
+- Scope: `ui/core/sk.js` (`SK.vatRate()` / `SK.vatPct()` from `SKosifCompanyPlatform.vatPolicy()`); `ledger.js` (VAT return labels and rate warning) and `purchasing.js` (line options: company rate, exempt, and an older line's own rate kept) use it; `enterprise.js` (simplified e-invoice amount, labels, QR tag check text, WhatsApp text), `offers.js` (offer default and texts), `operations.js` (pricing VAT and texts), `audit-bridge.js` (operational trial balance of the open company). Guard: `tools/vat_policy_contract.test.mjs` fails on a fixed 15% tax pattern in these six screens; `tools/receipt_boundary.test.mjs` stub gains `vatRate`.
+- Branch / PR: `claude/vat-policy-everywhere-20261006` from `main` @ 19bc83a.
+- Not changed: «الرقم الضريبي (15 رقم)» is the Saudi VAT-number length, not a rate.
+- Evidence: vat_policy_contract 3/3; workflow node tests 294 pass / 52 fail, identical to `main` (no new failure); books_integrity OK; feature_audit 146/146; door 88/88; sales_reports 28/28; advances 26/26.
+- NEXT ACTION: P2 — company definitions feed the purchase and sale pickers; then P3 sector packs (meat first).

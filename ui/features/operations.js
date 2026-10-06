@@ -64,7 +64,7 @@ function bbqCalc(f){
 
   const margin=Math.min(90,Math.max(5,num(f.marginPct)));
   const targetPrice=totalCost/(1-(margin/100));
-  const vat=targetPrice*0.15;
+  const vat=targetPrice*SK.vatRate();
   const finalPrice=targetPrice+vat;
   const pricePerGuest=finalPrice/guests;
 
@@ -113,7 +113,7 @@ function bbqHTML(){
 
     '<div class="sk-quote-preview">'+
       '<div class="sk-quote-header"><div><b>معاينة عرض السعر للعميل</b><br><small>جاهز للإرسال على واتساب أو الطباعة المباشرة</small></div>'+
-      '<span class="sk-ops-badge good">شامل ضريبة 15٪</span></div>'+
+      '<span class="sk-ops-badge good">شامل ضريبة '+SK.vatPct()+'</span></div>'+
       '<div style="line-height:1.8;font-size:0.9rem;">'+
         '<div><b>اللحم الصافي:</b> '+c.totalRawKg.toFixed(1)+' كجم غنم نعيمي بلدي طازج ذبح اليوم.</div>'+
         '<div><b>الأصناف المقترحة:</b> أوصال متبلة (30%) + كباب طازج مشوي (30%) + ريش فاخرة (25%) + برجر نعيمي (15%).</div>'+
@@ -183,7 +183,7 @@ function bindBBQ(root){
       "🧂 التجهيز: "+(f.marinated?"متبل بخلطة أعشاب وزيت زيتون":"تقطيع نظيف جاهز للشواء")+"\n"+
       "📦 المستلزمات: "+(f.toolsPack?"شامل أسياخ وفحم سنديان وصواني":"اللحوم فقط")+"\n"+
       "━━━━━━━━━━━━━━━━━━━\n"+
-      "💰 إجمالي المبلغ: "+money(c.finalPrice)+" (شامل ضريبة 15٪)\n"+
+      "💰 إجمالي المبلغ: "+money(c.finalPrice)+" (شامل ضريبة "+SK.vatPct()+")\n"+
       "💵 تكلفة الشخص التقديرية: "+money(c.pricePerGuest)+"\n\n"+
       "للتأكيد واعتماد الطلب يرجى الرد على هذه الرسالة."
     );

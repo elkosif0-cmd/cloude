@@ -344,11 +344,11 @@ function vatHTML(d){
   return '<section class="card"><div class="card-h"><div><h3>إقرار ضريبة القيمة المضافة — '+esc(q.label)+'</h3><p>من القيود المرحّلة بين '+esc(q.start)+' و'+esc(q.end)+' بنموذج هيئة الزكاة والضريبة والجمارك. آخر موعد للتقديم: <b>'+esc(q.due)+'</b>.</p></div></div><div class="card-b sk-stack">'+
     '<div class="sk-chips">'+Q.map(x=>'<button type="button" class="chip'+(x.id===q.id?' active':'')+'" data-l="vatq" data-q="'+x.id+'" aria-pressed="'+(x.id===q.id)+'">'+esc(x.label)+'</button>').join("")+'</div>'+
     '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>البند</th><th>المبلغ (بلا ضريبة)</th><th>الضريبة</th></tr></thead><tbody>'+
-      '<tr><td>1. المبيعات الخاضعة للنسبة الأساسية (15%)</td><td class="n">'+money(r.salesBase)+'</td><td class="n">'+money(r.outputVat)+'</td></tr>'+
-      '<tr><td>7. المشتريات الخاضعة للنسبة الأساسية (15%)</td><td class="n">'+money(r.purchasesBase)+'</td><td class="n">'+money(r.inputVat)+'</td></tr>'+
+      '<tr><td>1. المبيعات الخاضعة للنسبة الأساسية ('+SK.vatPct()+')</td><td class="n">'+money(r.salesBase)+'</td><td class="n">'+money(r.outputVat)+'</td></tr>'+
+      '<tr><td>7. المشتريات الخاضعة للنسبة الأساسية ('+SK.vatPct()+')</td><td class="n">'+money(r.purchasesBase)+'</td><td class="n">'+money(r.inputVat)+'</td></tr>'+
       '<tr><td><b>'+(r.net>=0?'صافي الضريبة المستحقة للهيئة':'صافي الضريبة المستردة من الهيئة')+'</b></td><td></td><td class="n"><b>'+money(Math.abs(r.net))+'</b></td></tr></tbody></table></div>'+
     '<p class="hint">'+r.salesEntries+' قيد مبيعات و'+r.purchaseEntries+' قيد مشتريات. القيود المعكوسة تُطرح تلقائياً.</p>'+
-    (r.offRate.length?'<div class="sk-note warn">'+r.offRate.length+' قيد ضريبته لا تساوي 15% من أساسه (مبيعات صفرية أو خطأ إدخال) — راجعها قبل التقديم.</div>':'')+
+    (r.offRate.length?'<div class="sk-note warn">'+r.offRate.length+' قيد ضريبته لا تساوي '+SK.vatPct()+' من أساسه (مبيعات صفرية أو خطأ إدخال) — راجعها قبل التقديم.</div>':'')+
     '<div class="sk-actions"><button type="button" class="btn" data-l="vat-csv">تصدير CSV</button><button type="button" class="btn" data-l="vat-print">طباعة الإقرار</button>'+
       (settled?'<span class="sk-pill good">أُقفلت ضريبة الفترة بقيد '+esc(settled.reference||"")+'</span>':(r.outputVat>0||r.inputVat>0)&&r.outputVat>=0&&r.inputVat>=0?'<button type="button" class="btn primary" data-l="vat-settle">قيد إقفال الضريبة</button>':'')+
     '</div><p class="hint">قيد الإقفال ينقل المخرجات والمدخلات إلى حساب 2250 (صافي المستحق للهيئة)، ومنه يُسجل السداد.</p></div></section>';
@@ -377,7 +377,7 @@ function costResolver(){
 }
 const paidNow=p=>!!p&&!/آجل|اجل|ائتمان|credit/i.test(String(p));
 /* the rate of every sale comes from the company's VAT policy (country rate, the profile's own rate, or none when not registered) */
-const vatRate=()=>{try{const P=window.SKosifCompanyPlatform;return P&&P.vatPolicy?P.vatPolicy().rate:0.15}catch{return 0.15}};
+const vatRate=()=>SK.vatRate();
 /* one sale from «تسجيل بيع» (prices include VAT) as a balanced entry with its cost of sales; shared with the demo company */
 function saleEntry(d,x,costOf,rate=vatRate()){
   const date=String(x.date||"").slice(0,10),qty=Number(x.qty)||1,gross=Number(x.unitPrice)||((Number(x.amount)||0)/qty);if(!(gross>0))return null;

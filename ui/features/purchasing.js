@@ -4,7 +4,10 @@
 (()=>{
 "use strict";
 /* a new order line starts at the company's VAT rate (SKosifCompanyPlatform.vatPolicy); the line keeps whatever the user types */
-const defVat=()=>{try{const P=window.SKosifCompanyPlatform;return P&&P.vatPolicy?P.vatPolicy().rate:0.15}catch{return 0.15}};
+const defVat=()=>SK.vatRate();
+/* the company rate, exempt, and the line's own rate when an older order carries another one (kept, never rewritten) */
+const vatOptions=l=>{const own=String(l.vat??""),vals=[...new Set([String(defVat()),"0",own].filter(v=>v!==""&&Number.isFinite(Number(v))))];
+  return vals.map(v=>'<option value="'+v+'"'+(own===v?" selected":"")+'>'+(v==="0"?"معفى":Math.round(Number(v)*10000)/100+"٪")+'</option>').join("")};
 const {$,esc,load,save,money,toast}=SK;
 const P=()=>window.SKEngines.procurement;
 const KEY="skosif_purchasing_v1";
@@ -35,7 +38,7 @@ function ordersHTML(d){
     '<div class="sk-grid2"><label class="sk-field"><span>المورد</span><input id="pu-supplier" list="pu-sup" value="'+esc(po.supplier)+'" data-sk-required></label><label class="sk-field"><span>تاريخ الأمر</span><input type="date" id="pu-date" value="'+esc(po.date)+'"></label>'+
     '<label class="sk-field"><span>تاريخ التوريد المتوقع</span><input type="date" id="pu-due" value="'+esc(po.dueDate)+'"></label></div>'+
     '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الصنف</th><th>الكمية (كجم)</th><th>تكلفة الوحدة قبل الضريبة</th><th>الضريبة</th><th></th></tr></thead><tbody>'+
-    po.lines.map((l,i)=>'<tr><td><input list="pu-items" data-pl="'+i+'" data-f="item" value="'+esc(l.item)+'"></td><td><input inputmode="decimal" data-pl="'+i+'" data-f="qty" value="'+esc(l.qty)+'" style="width:90px"></td><td><input inputmode="decimal" data-pl="'+i+'" data-f="cost" value="'+esc(l.cost)+'" style="width:110px"></td><td><select data-pl="'+i+'" data-f="vat"><option value="0.15"'+(l.vat==="0.15"?" selected":"")+'>15٪</option><option value="0"'+(l.vat==="0"?" selected":"")+'>معفى</option></select></td><td>'+(po.lines.length>1?'<button type="button" class="linkish" data-p="rm" data-i="'+i+'">حذف</button>':'')+'</td></tr>').join("")+
+    po.lines.map((l,i)=>'<tr><td><input list="pu-items" data-pl="'+i+'" data-f="item" value="'+esc(l.item)+'"></td><td><input inputmode="decimal" data-pl="'+i+'" data-f="qty" value="'+esc(l.qty)+'" style="width:90px"></td><td><input inputmode="decimal" data-pl="'+i+'" data-f="cost" value="'+esc(l.cost)+'" style="width:110px"></td><td><select data-pl="'+i+'" data-f="vat">'+vatOptions(l)+'</select></td><td>'+(po.lines.length>1?'<button type="button" class="linkish" data-p="rm" data-i="'+i+'">حذف</button>':'')+'</td></tr>').join("")+
     '</tbody></table></div><div class="sk-actions"><button type="button" class="btn" data-p="add-line">إضافة سطر</button><b>قيمة الأمر قبل الضريبة: <span id="pu-total">'+money(total)+'</span></b><button type="button" class="btn primary" data-p="save-po">حفظ أمر الشراء</button></div></div></section>'+
   '<section class="card"><div class="card-h"><div><h3>أوامر الشراء</h3><p>'+d.orders.length+' أمراً.</p></div></div><div class="card-b">'+
     (d.orders.length?'<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الرقم</th><th>المورد</th><th>التاريخ</th><th>القيمة</th><th>الحالة</th><th></th></tr></thead><tbody>'+

@@ -12,6 +12,7 @@ function harness(country = 'SA') {
   const store = new Map(); let company = { id: 'co-a', name: 'شركة أ', currency: 'SAR', country }, seq = 0;
   const SK = {
     $: () => null, esc: (s) => String(s ?? ''), money: (v) => String(v), toast: () => {},
+    vatRate: () => context.window.SKosifCompanyPlatform.vatPolicy().rate, // as ui/core/sk.js
     load: (k, d) => store.has(k) ? structuredClone(store.get(k)) : structuredClone(d),
     save: (k, v) => { store.set(k, structuredClone(v)); return true; },
     company: { current: () => ({ ...company }), updateMeta: (patch) => { company = { ...company, ...patch }; return true; } },
@@ -56,7 +57,11 @@ test('a sale posts its VAT at the company rate, and none when the company is not
   assert.equal(r.entry.lines.some((l) => l.accountId === 'account-2200' || l.accountId === 'no-vat'), false);
 });
 
-test('no screen on the posting path keeps a fixed 15%', () => {
-  assert.doesNotMatch(read('ui/features/ledger.js'), /vatRate:0\.15/);
-  assert.doesNotMatch(read('ui/features/purchasing.js'), /vat:"0\.15"/);
+test('no screen that prices, posts or prints VAT keeps a fixed 15%', () => {
+  for (const f of ['ledger', 'purchasing', 'enterprise', 'offers', 'operations', 'audit-bridge']) {
+    const src = read('ui/features/' + f + '.js');
+    assert.doesNotMatch(src, /(subtotal|targetPrice|gross|net)\s*\*\s*0\.15|\b(vatRate|vat|VAT)\s*[:=]\s*0\.15\b|"0\.15"|(ضريبة|المضافة|الأساسية|VAT)[^()<]{0,24}\(15[٪%]\)|شامل (ضريبة )?15[٪%]|تساوي 15%/, f);
+    assert.match(src, /SK\.vatRate\(\)|SK\.vatPct\(\)/, f + ' reads the company rate');
+  }
+  assert.match(read('ui/core/sk.js'), /window\.SK=\{[^}]*vatRate,vatPct,/);
 });
