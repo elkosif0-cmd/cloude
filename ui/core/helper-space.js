@@ -421,8 +421,8 @@ async function applyIntent(){
   /* the entry chosen at the door: the shell paints that section's menu, and its first screen opens — unless the link
      already names a screen, or the company is new to the accounting entry (its definitions come first, FOUNDATION §3.2) */
   const gate=gateOf(it.gate);if(gate)sessionStorage.setItem(GATE,gate);
-  if(it.corpus&&gate==="audit")sessionStorage.setItem(GATE_CORPUS,String(it.corpus).slice(0,80));
-  if(it.auditNew&&gate==="audit")sessionStorage.setItem(GATE_AUDIT_NEW,"1");
+  if(gate==="audit"&&it.corpus){sessionStorage.removeItem(GATE_AUDIT_NEW);sessionStorage.setItem(GATE_CORPUS,String(it.corpus).slice(0,80))}
+  else if(gate==="audit"&&it.auditNew){sessionStorage.removeItem(GATE_CORPUS);sessionStorage.setItem(GATE_AUDIT_NEW,"1")}
   const landing=()=>{if(!gate)return "";if(it.create&&gate==="accounting")return "masterdata";return SK.caps.gatewayHome?SK.caps.gatewayHome(gate):""};
   /* the landing is pinned: the screen the app restores first (the last one opened, maybe of another section) must not
      switch the section before the section's own screen arrives (ui/core/gate.js, shell.js) */
