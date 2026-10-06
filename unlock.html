@@ -356,7 +356,7 @@ $("co-list").addEventListener("click",e=>{
   const n=e.target.closest("[data-audit-new]");if(n){go({gate:"audit",auditNew:true});return}
   const b=e.target.closest("[data-id]");if(!b)return;
   if(b.dataset.locked){go({id:LID,name:b.dataset.name,locked:true});showLocked(b.dataset.name);return}
-  if(b.dataset.scratch){go({id:SCRATCH.id,name:SCRATCH.name,create:!known(SCRATCH.id),scratch:true});return}
+  if(b.dataset.scratch){go({id:SCRATCH.id,name:SCRATCH.name,create:!known(SCRATCH.id),scratch:true,workspace:true});return}
   go({id:b.dataset.id,name:b.dataset.name,demo:!!b.dataset.demo});
 });
 $("corpus").addEventListener("click",e=>{const b=e.target.closest("[data-corpus]");if(!b)return;go({gate:"audit",corpus:b.dataset.corpus})});
@@ -365,7 +365,8 @@ const back=$("locked-back");if(back)back.addEventListener("click",()=>{$("locked
 $("co-add").addEventListener("click",()=>{$("co-form").hidden=false;$("co-add").hidden=true;const n=$("co-name");if(n&&n.focus)n.focus()});
 $("co-cancel").addEventListener("click",()=>{$("co-form").hidden=true;$("co-add").hidden=false});
 $("co-form").addEventListener("submit",e=>{e.preventDefault();const name=String($("co-name").value||"").trim().slice(0,80);if(!name)return;
-  go({id:"co-"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name,create:true})});
+  const workspace=state.gate==="tools",prefix=workspace?"tool-":"co-";
+  go({id:prefix+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name,create:true,...(workspace?{workspace:true}:{})})});
 /* ./?go=… or #sales from a shortcut or a saved link: straight into the last company, in its section, when it needs no password */
 function resume(){const last=read(LAST,null);if(!last||last.locked||!last.id||!(location.search||location.hash))return false;go({id:last.id,name:last.name||last.id,resume:true,gate:gateById(last.gate)?last.gate:undefined});return true}
 if(!resume())show("gates");
