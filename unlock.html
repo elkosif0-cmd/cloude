@@ -355,13 +355,13 @@ $("sector-list").addEventListener("click",e=>{const b=e.target.closest("[data-se
 $("sector-back").addEventListener("click",()=>show("gates"));
 $("co-back").addEventListener("click",()=>show(state.gate==="accounting"?"sectors":"gates"));
 $("co-list").addEventListener("click",e=>{
-  const n=e.target.closest("[data-audit-new]");if(n){const h=host();go({id:h.id,name:h.name,demo:!!h.demo,gate:"audit",fresh:"audit"});return}
+  const n=e.target.closest("[data-audit-new]");if(n){go({gate:"audit",auditNew:true});return}
   const b=e.target.closest("[data-id]");if(!b)return;
   if(b.dataset.locked){go({id:LID,name:b.dataset.name,locked:true});showLocked(b.dataset.name);return}
   if(b.dataset.scratch){go({id:SCRATCH.id,name:SCRATCH.name,create:!known(SCRATCH.id),scratch:true});return}
   go({id:b.dataset.id,name:b.dataset.name,demo:!!b.dataset.demo});
 });
-$("corpus").addEventListener("click",e=>{const b=e.target.closest("[data-corpus]");if(!b)return;const h=host();go({id:h.id,name:h.name,demo:!!h.demo,gate:"audit",corpus:b.dataset.corpus})});
+$("corpus").addEventListener("click",e=>{const b=e.target.closest("[data-corpus]");if(!b)return;go({gate:"audit",corpus:b.dataset.corpus})});
 $("corpus").addEventListener("input",e=>{if(!e.target||e.target.id!=="corpus-q")return;state.q=e.target.value;const box=$("corpus").querySelector(".corpus-list");if(box)box.innerHTML=corpusRows()});
 const back=$("locked-back");if(back)back.addEventListener("click",()=>{$("locked").hidden=true;$("companies").hidden=false;try{sessionStorage.removeItem(INTENT)}catch{}});
 $("co-add").addEventListener("click",()=>{$("co-form").hidden=false;$("co-add").hidden=true;const n=$("co-name");if(n&&n.focus)n.focus()});
