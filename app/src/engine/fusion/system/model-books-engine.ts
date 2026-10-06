@@ -12,6 +12,7 @@ import { encounterJournal, healthVatTreatment, remittanceJournal, type Departmen
 import * as TU from '../finance/tuition-engine';
 import * as PO from '../finance/production-order-engine';
 import * as LV from '../finance/livestock-engine';
+import * as TR from '../finance/trade-engine';
 
 export type ModelLine = { accountId: string; debit: number; credit: number; description?: string };
 export type ModelEntry = { id: string; date: string; reference: string; memo: string; source: string; sourceId: string; party?: string; lines: ModelLine[];
@@ -299,21 +300,42 @@ const SECTOR: Record<string, (c: Ctx) => void> = {
     const fv = LV.fairValueJournal(C, s, { id: 'FV-' + year, date: end(months[months.length - 1]), fairValuePerHeadHalalas: 150_000, costsToSellPerHeadHalalas: 6_000 }, A);
     post(fv.journal, { kind: 'fv', change: fv.change }, 'معيار 41');
   },
-  /* the distributor: purchases on credit paid 85% the month after; sales 55% cash and 45% on credit to named customers,
-     collected 80% the month after; a stock count shortage in May and a bad debt written off in August */
-  trade: ({ year, months, vary, je, L, sale, purchase, pay, collect, end, vat }) => {
-    const CUST = ['مؤسسة الريان', 'شركة الأفق الحديثة', 'متاجر الشرق'];
+  /* the distributor, through the general-trade pack's engine (finance/trade-engine) and with the books screen's meta, so
+     «الفروع والهوامش» reads it: two branches (Riyadh buys, 35% of its purchases transferred to Jeddah), credit sales to
+     three named customers within their credit limits with a 2% trade discount, cash sales with 1%, cost of sales at 76% of
+     net sales out of each branch's stock; purchases paid 85% the month after, customers collected 80% the month after; a
+     stock count shortage at Riyadh in May and a bad debt written off in August */
+  trade: ({ year, months, vary, je, L, pay, collect, end, vat, ledger }) => {
+    const A = { cashAccountId: '1100', receivableAccountId: '1200', payableAccountId: '2100', inventoryAccountId: '1300', inputVatAccountId: '1400', outputVatAccountId: '2200',
+      revenueAccountId: '4000', discountAccountId: '4100', cogsAccountId: '5000' };
+    const RUH = 'الفرع الرئيسي — الرياض', JED = 'فرع جدة', SUP = 'شركة الإلكترونيات المتحدة';
+    const CUST: [string, string][] = [['مؤسسة الريان', RUH], ['شركة الأفق الحديثة', RUH], ['متاجر الشرق', JED]];
+    const limits: Record<string, number> = { 'مؤسسة الريان': 120_000_000, 'شركة الأفق الحديثة': 120_000_000, 'متاجر الشرق': 100_000_000 };
+    ledger.branches = [RUH, JED]; ledger.creditLimits = limits;
+    const stock: Record<string, number> = { [RUH]: 0, [JED]: 0 }, bal: Record<string, number> = {};
+    const post = (j: { date: string; reference: string; memo: string; party?: string; lines: ModelLine[] }, meta: Record<string, unknown>, source: string) =>
+      je(j.date, j.memo, j.lines, { source, reference: j.reference, party: j.party, meta: { trade: meta } });
+    const sell = (date: string, branch: string, gross: number, discPct: number, customer?: string) => {
+      const disc = Math.round(gross * discPct), cost = Math.round((gross - disc) * 0.76);
+      const r = TR.branchSaleJournals({ id: (customer ? 'INV-' : 'POS-') + date.replace(/-/g, '') + '-' + branch.length + (customer ? customer.length : 0), date, branch, customer, onCredit: !!customer, grossHalalas: gross, discountHalalas: disc,
+        costHalalas: cost, branchStockHalalas: stock[branch], customerBalanceHalalas: customer ? bal[customer] ?? 0 : 0, creditLimitHalalas: customer ? limits[customer] : null }, vat, A);
+      post(r.journal, { kind: 'sale', branch, gross, discount: disc, cost }, 'مبيعات'); post(r.costJournal, { kind: 'salecost', branch }, 'مبيعات');
+      stock[branch] -= cost; if (customer) bal[customer] = (bal[customer] ?? 0) + r.total;
+      return r.total;
+    };
     let owed = 0; const due: Record<string, number> = {};
     for (const m of months) {
-      if (owed) pay(dayOf(year, m, 10), 'سداد الموردين', '2100', Math.round(owed * 0.85), 'PAY-' + year + pad(m), 'شركة الإلكترونيات المتحدة');
-      for (const c of CUST) if (due[c]) { collect(dayOf(year, m, 16), 'تحصيل من ' + c, '1200', Math.round(due[c] * 0.8), 'COL-' + c + '-' + year + pad(m), c); }
-      const buy = vary(160_000_000, 0.05); purchase(dayOf(year, m, 3), 'شراء أجهزة وإكسسوارات', '1300', buy, 'شركة الإلكترونيات المتحدة', 'PO-' + year + pad(m)); owed = buy + Math.round(buy * vat);
-      let net = 0;
-      for (const [i, c] of CUST.entries()) { const x = vary(25_000_000, 0.1); net += x; sale(dayOf(year, m, 12 + i * 5), 'مبيعات آجلة — ' + c, x, { cashShare: 0, party: c, reference: 'INV-' + c + '-' + year + pad(m) }); due[c] = x + Math.round(x * vat); }
-      const cash = vary(95_000_000, 0.08); net += cash; sale(end(m), 'مبيعات نقدية — الفرعان', cash, { reference: 'POS-' + year + pad(m) });
-      const cogs = Math.round(net * 0.76); je(end(m), 'تكلفة المبيعات', [L('5000', cogs, 0), L('1300', 0, cogs)], { source: 'مبيعات', reference: 'COGS-' + year + pad(m) });
-      if (m === 5) je(end(m), 'فرق جرد المستودع (عجز)', [L('5100', 1_850_000, 0), L('1300', 0, 1_850_000)], { source: 'جرد', reference: 'COUNT-' + year + '05' });
-      if (m === 8) { const bad = 2_300_000; je(end(m), 'إعدام دين متعثر — متاجر الشرق', [L('6300', bad, 0), L('1200', 0, bad, 'متاجر الشرق')], { source: 'تسوية', reference: 'BAD-' + year + '08', party: 'متاجر الشرق' }); due['متاجر الشرق'] = Math.max(0, due['متاجر الشرق'] - bad); }
+      if (owed) pay(dayOf(year, m, 10), 'سداد الموردين', '2100', Math.round(owed * 0.85), 'PAY-' + year + pad(m), SUP);
+      for (const [c] of CUST) if (due[c]) { const v = Math.round(due[c] * 0.8); collect(dayOf(year, m, 16), 'تحصيل من ' + c, '1200', v, 'COL-' + c + '-' + year + pad(m), c); bal[c] -= v; }
+      const buy = vary(160_000_000, 0.05), pr = TR.branchPurchaseJournal({ id: 'PO-' + year + pad(m), date: dayOf(year, m, 3), branch: RUH, supplier: SUP, amountHalalas: buy }, vat, A);
+      post(pr.journal, { kind: 'purchase', branch: RUH, amount: buy }, 'مشتريات'); stock[RUH] += buy; owed = buy + pr.vat;
+      const moved = Math.round(buy * 0.35), tr = TR.transferJournal({ id: 'TRF-' + year + pad(m), date: dayOf(year, m, 4), from: RUH, to: JED, costHalalas: moved, fromStockHalalas: stock[RUH] }, A);
+      post(tr.journal, { kind: 'transfer', from: RUH, to: JED, amount: moved }, 'تحويل مخزون'); stock[RUH] -= moved; stock[JED] += moved;
+      for (const [i, [c, branch]] of CUST.entries()) due[c] = sell(dayOf(year, m, 12 + i * 5), branch, vary(25_000_000, 0.1), 0.02, c);
+      sell(end(m), RUH, vary(60_000_000, 0.08), 0.01); sell(end(m), JED, vary(35_000_000, 0.08), 0.01);
+      if (m === 5) { je(end(m), 'فرق جرد مستودع الرياض (عجز)', [L('5100', 1_850_000, 0), L('1300', 0, 1_850_000)], { source: 'جرد', reference: 'COUNT-' + year + '05', meta: { trade: { kind: 'adjust', branch: RUH, amount: 1_850_000 } } }); stock[RUH] -= 1_850_000; }
+      if (m === 8) { const bad = 2_300_000; je(end(m), 'إعدام دين متعثر — متاجر الشرق', [L('6300', bad, 0), L('1200', 0, bad, 'متاجر الشرق')], { source: 'تسوية', reference: 'BAD-' + year + '08', party: 'متاجر الشرق' });
+        due['متاجر الشرق'] = Math.max(0, due['متاجر الشرق'] - bad); bal['متاجر الشرق'] -= bad; }
     }
   },
 };

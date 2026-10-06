@@ -23,7 +23,8 @@ describe('sector packs: the same company structure behaves by sector', () => {
     const meat = sectorPack('meat'), health = sectorPack('health'), trade = sectorPack('trade');
     expect(meat.accounts.map((a) => a[0])).not.toEqual(health.accounts.map((a) => a[0]));
     expect(health.accounts.map((a) => a[0])).toContain('1210');
-    expect(trade.accounts).toEqual(BASE_ACCOUNTS);
+    /* general trade adds what its own posting needs: discounts allowed and count differences */
+    expect(trade.accounts.map((a) => a[0])).toEqual([...BASE_ACCOUNTS.map((a) => a[0]), '4100', '5100']);
     expect(sectorPack('unknown')).toBe(trade); expect(sectorPack('')).toBe(trade);
   });
   it('applying a pack only adds what is missing', () => {

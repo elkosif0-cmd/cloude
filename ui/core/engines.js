@@ -1279,7 +1279,7 @@ window.SKEngines = (function() {
 		return [...tb.rows].sort((a, b) => Math.abs(b.balance) - Math.abs(a.balance) || a.code.localeCompare(b.code, "en")).slice(0, limit);
 	}
 	var csvCell = (v) => /[",\n]/.test(v) ? "\"" + v.replace(/"/g, "\"\"") + "\"" : v;
-	var amt = (v) => (Math.round(v * 100) / 100).toFixed(2).replace(/\.00$/, "");
+	var amt$1 = (v) => (Math.round(v * 100) / 100).toFixed(2).replace(/\.00$/, "");
 	/** The app's books as a trial-balance CSV the review reads (رقم الحساب، اسم الحساب، مدين، دائن، السنة السابقة):
 	*  debit balances in مدين, credit balances in دائن, the comparative as one signed column. Zero lines are
 	*  dropped; the prior column appears only when a comparative exists. */
@@ -1288,9 +1288,9 @@ window.SKEngines = (function() {
 		const lines = rows.filter((r) => Math.abs(r.balance) >= .005 || withPrior && Math.abs(r.prior || 0) >= .005).sort((a, b) => a.code.localeCompare(b.code, "en")).map((r) => [
 			csvCell(r.code),
 			csvCell(r.name),
-			r.balance > 0 ? amt(r.balance) : "",
-			r.balance < 0 ? amt(-r.balance) : "",
-			...withPrior ? [amt(r.prior || 0)] : []
+			r.balance > 0 ? amt$1(r.balance) : "",
+			r.balance < 0 ? amt$1(-r.balance) : "",
+			...withPrior ? [amt$1(r.prior || 0)] : []
 		].join(","));
 		return [[
 			"رقم الحساب",
@@ -7546,7 +7546,7 @@ window.SKEngines = (function() {
 			"8) اكتب بالعربية الفصحى المهنية الموجزة. لا تضع أي بيانات خارج مخطط JSON."
 		].join("\n");
 	}
-	var sar$9 = (m) => formatMinor(m, { decimals: 0 });
+	var sar$10 = (m) => formatMinor(m, { decimals: 0 });
 	/** The trial balance and the engine's review, compact enough for one prompt. */
 	function describeReview(tb, review) {
 		const rows = review.accounts.map((a) => [
@@ -7554,21 +7554,21 @@ window.SKEngines = (function() {
 			a.name,
 			TYPE_LABELS[a.type],
 			a.lineAr,
-			sar$9(a.natural),
-			a.prior === null ? "" : sar$9(a.prior),
+			sar$10(a.natural),
+			a.prior === null ? "" : sar$10(a.prior),
 			a.standards.map((s) => s.code).join("+")
 		].join(" | "));
 		const m = review.materiality, k = review.fs.keys;
 		return [
 			"ميزان المراجعة (رقم | اسم | نوع | بند القوائم | الرصيد بطبيعته | السابق | المعايير المقترحة):",
 			...rows,
-			`التوازن: ${tb.balanced ? "متوازن" : "غير متوازن بفرق " + sar$9(tb.difference)}.`,
-			`الأهمية النسبية: ${sar$9(m.overall)} (${m.benchmarkAr} × ${m.rate * 100}%) — التنفيذية ${sar$9(m.performance)} — حد التفاهة ${sar$9(m.trivial)}.`,
-			`الإيرادات ${sar$9(k.revenue.current)} · الربح التشغيلي ${sar$9(k.operating.current)} · صافي الربح ${sar$9(k.profit.current)} · الموجودات ${sar$9(k.assets.current)} · حقوق الملكية ${sar$9(k.equity.current)}.`,
+			`التوازن: ${tb.balanced ? "متوازن" : "غير متوازن بفرق " + sar$10(tb.difference)}.`,
+			`الأهمية النسبية: ${sar$10(m.overall)} (${m.benchmarkAr} × ${m.rate * 100}%) — التنفيذية ${sar$10(m.performance)} — حد التفاهة ${sar$10(m.trivial)}.`,
+			`الإيرادات ${sar$10(k.revenue.current)} · الربح التشغيلي ${sar$10(k.operating.current)} · صافي الربح ${sar$10(k.profit.current)} · الموجودات ${sar$10(k.assets.current)} · حقوق الملكية ${sar$10(k.equity.current)}.`,
 			"ملاحظات المحرك الآلي (أكدها أو فندها):",
 			...review.findings.map((f) => `${f.id} [${f.severity}] ${f.title} — ${f.basis} — ${f.standard}`),
 			"قيود المحرك المقترحة:",
-			...review.adjustments.map((a) => `${a.id} ${a.title}: ` + a.lines.map((l) => `${l.code} ${l.name} م${sar$9(l.debit)} د${sar$9(l.credit)}`).join("؛ "))
+			...review.adjustments.map((a) => `${a.id} ${a.title}: ` + a.lines.map((l) => `${l.code} ${l.name} م${sar$10(l.debit)} د${sar$10(l.credit)}`).join("؛ "))
 		].join("\n");
 	}
 	/** Outstanding requests: asked in any round, not yet accepted, not marked unavailable. */
@@ -7665,7 +7665,7 @@ window.SKEngines = (function() {
 			round
 		};
 		const v = validateAdjustment(a, tb);
-		const problems = [...v.problems, ...v.balanced ? [] : [`القيد غير متوازن: مدين ${sar$9(v.debit)} ودائن ${sar$9(v.credit)}`]];
+		const problems = [...v.problems, ...v.balanced ? [] : [`القيد غير متوازن: مدين ${sar$10(v.debit)} ودائن ${sar$10(v.credit)}`]];
 		return {
 			...a,
 			valid: v.valid,
@@ -7711,7 +7711,7 @@ window.SKEngines = (function() {
 				standard: normalizeCode$1(std) ?? (std || "IAS 1"),
 				title: str$1(f.comment, 160).split(/[.،؛]/)[0] || "ملاحظة",
 				detail: str$1(f.comment, 2e3),
-				basis: amount ? "المبلغ المتأثر " + sar$9(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
+				basis: amount ? "المبلغ المتأثر " + sar$10(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
 				action: str$1(f.recommendation, 1e3),
 				source: "gemini",
 				round: no,
@@ -7944,7 +7944,7 @@ window.SKEngines = (function() {
 		const lineOf = (q) => q.lineKey ?? review.accounts.find((a) => q.accounts.includes(a.code))?.lineKey ?? null;
 		const blockedSig = new Set(unavailHigh.map(lineOf).filter((k) => k && review.risks.some((r) => r.lineKey === k && r.significant)));
 		const basis = [], material = misstatement > mat.overall, pervasive = misstatement > mat.overall * 5, cs = s.ctx.curSym ?? (s.ctx.framework === "EAS" ? "ج.م" : "ر.س");
-		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar$9(misstatement)} ${cs} مقابل أهمية نسبية ${sar$9(mat.overall)} ${cs} (ISA 450).`);
+		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar$10(misstatement)} ${cs} مقابل أهمية نسبية ${sar$10(mat.overall)} ${cs} (ISA 450).`);
 		if (unavailHigh.length) basis.push(`تعذر الحصول على ${unavailHigh.length} مستند عالي الأولوية: ` + unavailHigh.map((q) => q.title).join("، ") + ".");
 		const scopePervasive = unavailHigh.length >= 3 || blockedSig.size >= 3;
 		if (sigUnevidenced) basis.push(`${sigUnevidenced} خطر جوهري دون دليل مقبول بعد؛ يستكمل قبل التوقيع (ISA 330).`);
@@ -17537,7 +17537,7 @@ window.SKEngines = (function() {
 		retainerInvoiceJournal: () => retainerInvoiceJournal,
 		retainerSchedule: () => retainerSchedule
 	});
-	var sar$8 = (h) => h / 100;
+	var sar$9 = (h) => h / 100;
 	var MONTH$1 = /^\d{4}-(0[1-9]|1[0-2])$/;
 	var addMonths$1 = (m, n) => {
 		const [y, mo] = m.split("-").map(Number);
@@ -17575,20 +17575,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.receivableAccountId,
-						debit: sar$8(total + vat),
+						debit: sar$9(total + vat),
 						credit: 0,
 						description: "فاتورة اشتراك " + r.client
 					},
 					{
 						accountId: a.deferredAccountId,
 						debit: 0,
-						credit: sar$8(total),
+						credit: sar$9(total),
 						description: "إيراد مؤجل — " + r.campaign
 					},
 					...vat ? [{
 						accountId: a.outputVatAccountId,
 						debit: 0,
-						credit: sar$8(vat),
+						credit: sar$9(vat),
 						description: "ضريبة المخرجات"
 					}] : []
 				]
@@ -17611,13 +17611,13 @@ window.SKEngines = (function() {
 				memo: "الاعتراف بإيراد " + r.client + " — " + due.map((m) => m.month).join("، "),
 				lines: [{
 					accountId: a.deferredAccountId,
-					debit: sar$8(amount),
+					debit: sar$9(amount),
 					credit: 0,
 					description: r.campaign
 				}, {
 					accountId: a.revenueAccountId,
 					debit: 0,
-					credit: sar$8(amount),
+					credit: sar$9(amount),
 					description: "إيراد إدارة الحملة — " + r.campaign
 				}]
 			}
@@ -17635,13 +17635,13 @@ window.SKEngines = (function() {
 			party: x.platform,
 			lines: [{
 				accountId: a.mediaCostAccountId,
-				debit: sar$8(x.amountHalalas),
+				debit: sar$9(x.amountHalalas),
 				credit: 0,
 				description: x.campaign
 			}, {
 				accountId: a.platformPayableAccountId,
 				debit: 0,
-				credit: sar$8(x.amountHalalas),
+				credit: sar$9(x.amountHalalas),
 				description: "مستحق " + x.platform
 			}]
 		} };
@@ -17666,20 +17666,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.receivableAccountId,
-						debit: sar$8(amount + vat),
+						debit: sar$9(amount + vat),
 						credit: 0,
 						description: x.client
 					},
 					{
 						accountId: a.revenueAccountId,
 						debit: 0,
-						credit: sar$8(amount),
+						credit: sar$9(amount),
 						description: "إنفاق معاد تحميله — " + x.campaign
 					},
 					...vat ? [{
 						accountId: a.outputVatAccountId,
 						debit: 0,
-						credit: sar$8(vat),
+						credit: sar$9(vat),
 						description: "ضريبة المخرجات"
 					}] : []
 				]
@@ -18498,7 +18498,7 @@ window.SKEngines = (function() {
 		hotelKpis: () => hotelKpis,
 		nightAudit: () => nightAudit
 	});
-	var sar$7 = (h) => h / 100;
+	var sar$8 = (h) => h / 100;
 	var int = (v) => Number.isInteger(v) && v >= 0;
 	/** a guest's deposit ahead of the stay: cash (with its VAT) against the deposits liability */
 	function depositJournal(x, vatRate, a) {
@@ -18517,20 +18517,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.cashAccountId,
-						debit: sar$7(x.amountHalalas + vat),
+						debit: sar$8(x.amountHalalas + vat),
 						credit: 0,
 						description: "عربون " + x.guest
 					},
 					{
 						accountId: a.depositAccountId,
 						debit: 0,
-						credit: sar$7(x.amountHalalas),
+						credit: sar$8(x.amountHalalas),
 						description: "ودائع الحجوزات — " + x.guest
 					},
 					...vat ? [{
 						accountId: a.outputVatAccountId,
 						debit: 0,
-						credit: sar$7(vat),
+						credit: sar$8(vat),
 						description: "ضريبة العربون"
 					}] : []
 				]
@@ -18552,32 +18552,32 @@ window.SKEngines = (function() {
 		const lines = [
 			...applied ? [{
 				accountId: a.depositAccountId,
-				debit: sar$7(applied),
+				debit: sar$8(applied),
 				credit: 0,
 				description: "من عربون " + guest
 			}] : [],
 			...rest ? [{
 				accountId: settle,
-				debit: sar$7(rest),
+				debit: sar$8(rest),
 				credit: 0,
 				description: (x.settleBy === "receivable" ? "على حساب " : "محصّل من ") + guest
 			}] : [],
 			...room ? [{
 				accountId: a.roomRevenueAccountId,
 				debit: 0,
-				credit: sar$7(room),
+				credit: sar$8(room),
 				description: "إيراد الغرف — " + x.roomsSold + " غرفة"
 			}] : [],
 			...fb ? [{
 				accountId: a.fbRevenueAccountId,
 				debit: 0,
-				credit: sar$7(fb),
+				credit: sar$8(fb),
 				description: "الأغذية والمشروبات"
 			}] : [],
 			...vat ? [{
 				accountId: a.outputVatAccountId,
 				debit: 0,
-				credit: sar$7(vat),
+				credit: sar$8(vat),
 				description: "ضريبة المخرجات"
 			}] : []
 		];
@@ -18604,13 +18604,13 @@ window.SKEngines = (function() {
 				party: channel,
 				lines: [{
 					accountId: a.commissionExpenseAccountId,
-					debit: sar$7(commission),
+					debit: sar$8(commission),
 					credit: 0,
 					description: "عمولة " + pct + "٪ من إيراد الغرف"
 				}, {
 					accountId: a.commissionPayableAccountId,
 					debit: 0,
-					credit: sar$7(commission),
+					credit: sar$8(commission),
 					description: "مستحق " + channel
 				}]
 			} : null
@@ -18698,7 +18698,7 @@ window.SKEngines = (function() {
 			patientShare
 		};
 	}
-	var sar$6 = (h) => h / 100;
+	var sar$7 = (h) => h / 100;
 	var VAT_TREATMENT_LABEL = Object.freeze({
 		standard: "خاضعة للنسبة الأساسية",
 		"state-borne": "مواطن سعودي — تتحملها الدولة (فاتورة 0٪)",
@@ -18748,26 +18748,26 @@ window.SKEngines = (function() {
 		const lines = [
 			...s.patientShare ? [{
 				accountId: a.cashAccountId,
-				debit: sar$6(s.patientShare),
+				debit: sar$7(s.patientShare),
 				credit: 0,
 				description: "حصة المريض — حالة " + e.caseRef
 			}] : [],
 			...s.payerShare ? [{
 				accountId: a.payerReceivableAccountId,
-				debit: sar$6(s.payerShare),
+				debit: sar$7(s.payerShare),
 				credit: 0,
 				description: "مطالبة " + s.payer + " — حالة " + e.caseRef
 			}] : [],
 			{
 				accountId: rev,
 				debit: 0,
-				credit: sar$6(e.grossHalalas),
+				credit: sar$7(e.grossHalalas),
 				description: DEPARTMENT_LABEL[e.department] + " — حالة " + e.caseRef
 			},
 			...vatH ? [{
 				accountId: a.outputVatAccountId,
 				debit: 0,
-				credit: sar$6(vatH),
+				credit: sar$7(vatH),
 				description: "ضريبة مخرجات " + Math.round(rate * 1e4) / 100 + "٪ — حالة " + e.caseRef
 			}] : []
 		];
@@ -18800,20 +18800,20 @@ window.SKEngines = (function() {
 		const lines = [
 			...r.paidHalalas ? [{
 				accountId: a.cashAccountId,
-				debit: sar$6(r.paidHalalas),
+				debit: sar$7(r.paidHalalas),
 				credit: 0,
 				description: "سداد " + payer
 			}] : [],
 			...r.rejectedHalalas ? [{
 				accountId: a.rejectionsAccountId,
-				debit: sar$6(r.rejectedHalalas),
+				debit: sar$7(r.rejectedHalalas),
 				credit: 0,
 				description: "رفض " + payer + ": " + String(r.reason).trim()
 			}] : [],
 			{
 				accountId: a.payerReceivableAccountId,
 				debit: 0,
-				credit: sar$6(total),
+				credit: sar$7(total),
 				description: "تسوية مطالبات " + payer
 			}
 		];
@@ -18872,23 +18872,23 @@ window.SKEngines = (function() {
 		if (fee && !doctor) throw new Error("حدد الطبيب");
 		const lines = [...fee ? [{
 			accountId: a.doctorFeesAccountId,
-			debit: sar$6(fee),
+			debit: sar$7(fee),
 			credit: 0,
 			description: "أتعاب " + doctor + " — حالة " + c.caseRef
 		}, {
 			accountId: a.doctorPayableAccountId,
 			debit: 0,
-			credit: sar$6(fee),
+			credit: sar$7(fee),
 			description: "مستحق " + doctor + " — حالة " + c.caseRef
 		}] : [], ...supplies ? [{
 			accountId: a.suppliesCostAccountId,
-			debit: sar$6(supplies),
+			debit: sar$7(supplies),
 			credit: 0,
 			description: "أدوية ومستلزمات — حالة " + c.caseRef
 		}, {
 			accountId: a.pharmacyStockAccountId,
 			debit: 0,
-			credit: sar$6(supplies),
+			credit: sar$7(supplies),
 			description: "صرف من الصيدلية — حالة " + c.caseRef
 		}] : []];
 		return {
@@ -19372,7 +19372,7 @@ window.SKEngines = (function() {
 		saleJournals: () => saleJournals,
 		stockingJournal: () => stockingJournal
 	});
-	var sar$5 = (h) => h / 100;
+	var sar$6 = (h) => h / 100;
 	var whole = (n) => Number.isInteger(n) && n > 0;
 	var emptyCycleState = () => ({
 		heads: 0,
@@ -19408,20 +19408,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.biologicalAccountId,
-						debit: sar$5(x.amountHalalas),
+						debit: sar$6(x.amountHalalas),
 						credit: 0,
 						description: c.name
 					},
 					...vat ? [{
 						accountId: a.inputVatAccountId,
-						debit: sar$5(vat),
+						debit: sar$6(vat),
 						credit: 0,
 						description: "ضريبة المدخلات"
 					}] : [],
 					{
 						accountId: pay,
 						debit: 0,
-						credit: sar$5(x.amountHalalas + vat),
+						credit: sar$6(x.amountHalalas + vat),
 						description: x.supplier || "نقداً"
 					}
 				]
@@ -19445,20 +19445,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.feedAccountId,
-						debit: sar$5(x.amountHalalas),
+						debit: sar$6(x.amountHalalas),
 						credit: 0,
 						description: "مخزن الأعلاف"
 					},
 					...vat ? [{
 						accountId: a.inputVatAccountId,
-						debit: sar$5(vat),
+						debit: sar$6(vat),
 						credit: 0,
 						description: "ضريبة المدخلات"
 					}] : [],
 					{
 						accountId: a.payableAccountId,
 						debit: 0,
-						credit: sar$5(x.amountHalalas + vat),
+						credit: sar$6(x.amountHalalas + vat),
 						description: x.supplier
 					}
 				]
@@ -19477,13 +19477,13 @@ window.SKEngines = (function() {
 			memo: "أعلاف مستهلكة — " + c.name,
 			lines: [{
 				accountId: a.biologicalAccountId,
-				debit: sar$5(x.amountHalalas),
+				debit: sar$6(x.amountHalalas),
 				credit: 0,
 				description: c.name
 			}, {
 				accountId: a.feedAccountId,
 				debit: 0,
-				credit: sar$5(x.amountHalalas),
+				credit: sar$6(x.amountHalalas),
 				description: "مخزن الأعلاف"
 			}]
 		} };
@@ -19502,13 +19502,13 @@ window.SKEngines = (function() {
 				memo: "نفوق " + x.heads + " " + c.unit + " — " + c.name + ": " + x.cause.trim(),
 				lines: [{
 					accountId: a.mortalityAccountId,
-					debit: sar$5(cost),
+					debit: sar$6(cost),
 					credit: 0,
 					description: x.cause.trim()
 				}, {
 					accountId: a.biologicalAccountId,
 					debit: 0,
-					credit: sar$5(cost),
+					credit: sar$6(cost),
 					description: c.name
 				}].filter((l) => l.debit || l.credit)
 			}
@@ -19534,20 +19534,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: to,
-						debit: sar$5(x.amountHalalas + vat),
+						debit: sar$6(x.amountHalalas + vat),
 						credit: 0,
 						description: x.customer || "نقداً"
 					},
 					{
 						accountId: a.revenueAccountId,
 						debit: 0,
-						credit: sar$5(x.amountHalalas),
+						credit: sar$6(x.amountHalalas),
 						description: c.name
 					},
 					...vat ? [{
 						accountId: a.outputVatAccountId,
 						debit: 0,
-						credit: sar$5(vat),
+						credit: sar$6(vat),
 						description: "ضريبة المخرجات"
 					}] : []
 				]
@@ -19556,16 +19556,16 @@ window.SKEngines = (function() {
 				id: x.id + "-c",
 				date: x.date,
 				reference: "COGS-" + c.id,
-				memo: "تكلفة " + x.heads + " " + c.unit + " مباعة بمتوسط " + sar$5(costPerHead(s)),
+				memo: "تكلفة " + x.heads + " " + c.unit + " مباعة بمتوسط " + sar$6(costPerHead(s)),
 				lines: [{
 					accountId: a.cogsAccountId,
-					debit: sar$5(cost),
+					debit: sar$6(cost),
 					credit: 0,
 					description: c.name
 				}, {
 					accountId: a.biologicalAccountId,
 					debit: 0,
-					credit: sar$5(cost),
+					credit: sar$6(cost),
 					description: c.name
 				}]
 			}
@@ -19589,23 +19589,23 @@ window.SKEngines = (function() {
 				memo: "إعادة قياس " + c.name + " بالقيمة العادلة ناقص تكاليف البيع (معيار المحاسبة الدولي 41)",
 				lines: change > 0 ? [{
 					accountId: a.biologicalAccountId,
-					debit: sar$5(change),
+					debit: sar$6(change),
 					credit: 0,
 					description: s.heads + " " + c.unit
 				}, {
 					accountId: a.fairValueAccountId,
 					debit: 0,
-					credit: sar$5(change),
+					credit: sar$6(change),
 					description: "ربح إعادة القياس"
 				}] : [{
 					accountId: a.fairValueAccountId,
-					debit: sar$5(-change),
+					debit: sar$6(-change),
 					credit: 0,
 					description: "خسارة إعادة القياس"
 				}, {
 					accountId: a.biologicalAccountId,
 					debit: 0,
-					credit: sar$5(-change),
+					credit: sar$6(-change),
 					description: s.heads + " " + c.unit
 				}]
 			}
@@ -19898,7 +19898,7 @@ window.SKEngines = (function() {
 		standardCost: () => standardCost,
 		wasteJournal: () => wasteJournal
 	});
-	var sar$4 = (h) => h / 100;
+	var sar$5 = (h) => h / 100;
 	var pos = (v) => Number.isFinite(v) && v > 0;
 	var emptyOrderState = () => ({
 		issuedHalalas: 0,
@@ -19941,20 +19941,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.materialsAccountId,
-						debit: sar$4(x.amountHalalas),
+						debit: sar$5(x.amountHalalas),
 						credit: 0,
 						description: "مواد ومكونات"
 					},
 					...vat ? [{
 						accountId: a.inputVatAccountId,
-						debit: sar$4(vat),
+						debit: sar$5(vat),
 						credit: 0,
 						description: "ضريبة المدخلات"
 					}] : [],
 					{
 						accountId: a.payableAccountId,
 						debit: 0,
-						credit: sar$4(x.amountHalalas + vat),
+						credit: sar$5(x.amountHalalas + vat),
 						description: x.supplier
 					}
 				]
@@ -19973,13 +19973,13 @@ window.SKEngines = (function() {
 			memo: "صرف مواد لأمر التشغيل " + o.id,
 			lines: [{
 				accountId: a.wipAccountId,
-				debit: sar$4(x.amountHalalas),
+				debit: sar$5(x.amountHalalas),
 				credit: 0,
 				description: "أمر " + o.id
 			}, {
 				accountId: a.materialsAccountId,
 				debit: 0,
-				credit: sar$4(x.amountHalalas),
+				credit: sar$5(x.amountHalalas),
 				description: "مخزن المواد"
 			}]
 		} };
@@ -20001,20 +20001,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.wipAccountId,
-						debit: sar$4(labour + overhead),
+						debit: sar$5(labour + overhead),
 						credit: 0,
 						description: x.units + " " + p.unit
 					},
 					...labour ? [{
 						accountId: a.labourAccountId,
 						debit: 0,
-						credit: sar$4(labour),
+						credit: sar$5(labour),
 						description: "أجور محمّلة"
 					}] : [],
 					...overhead ? [{
 						accountId: a.overheadAccountId,
 						debit: 0,
-						credit: sar$4(overhead),
+						credit: sar$5(overhead),
 						description: "تحميل صناعي"
 					}] : []
 				]
@@ -20043,32 +20043,32 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.finishedAccountId,
-						debit: sar$4(good),
+						debit: sar$5(good),
 						credit: 0,
 						description: x.goodQty + " " + p.unit + " بالتكلفة المعيارية"
 					},
 					...scrap ? [{
 						accountId: a.scrapAccountId,
-						debit: sar$4(scrap),
+						debit: sar$5(scrap),
 						credit: 0,
 						description: "هالك " + x.scrapQty + " " + p.unit
 					}] : [],
 					...variance > 0 ? [{
 						accountId: a.varianceAccountId,
-						debit: sar$4(variance),
+						debit: sar$5(variance),
 						credit: 0,
 						description: "انحراف غير مواتٍ"
 					}] : [],
 					{
 						accountId: a.wipAccountId,
 						debit: 0,
-						credit: sar$4(wip),
+						credit: sar$5(wip),
 						description: "إقفال تحت التشغيل"
 					},
 					...variance < 0 ? [{
 						accountId: a.varianceAccountId,
 						debit: 0,
-						credit: sar$4(-variance),
+						credit: sar$5(-variance),
 						description: "انحراف مواتٍ"
 					}] : []
 				].filter((l) => l.debit || l.credit)
@@ -20095,20 +20095,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.finishedAccountId,
-						debit: sar$4(cost),
+						debit: sar$5(cost),
 						credit: 0,
 						description: x.goodQty + " " + p.unit + " " + p.name
 					},
 					{
 						accountId: a.materialsAccountId,
 						debit: 0,
-						credit: sar$4(x.ingredientsHalalas),
+						credit: sar$5(x.ingredientsHalalas),
 						description: "مكونات"
 					},
 					...x.wagesHalalas ? [{
 						accountId: a.labourAccountId,
 						debit: 0,
-						credit: sar$4(x.wagesHalalas),
+						credit: sar$5(x.wagesHalalas),
 						description: "أجور الخبازين المحمّلة"
 					}] : []
 				]
@@ -20128,13 +20128,13 @@ window.SKEngines = (function() {
 			memo: "تالف — " + x.reason.trim(),
 			lines: [{
 				accountId: a.wasteAccountId,
-				debit: sar$4(x.amountHalalas),
+				debit: sar$5(x.amountHalalas),
 				credit: 0,
 				description: x.reason.trim()
 			}, {
 				accountId: a.finishedAccountId,
 				debit: 0,
-				credit: sar$4(x.amountHalalas),
+				credit: sar$5(x.amountHalalas),
 				description: "منتجات جاهزة"
 			}]
 		} };
@@ -20150,13 +20150,13 @@ window.SKEngines = (function() {
 			memo: x.memo || "تكلفة المبيعات",
 			lines: [{
 				accountId: a.cogsAccountId,
-				debit: sar$4(x.amountHalalas),
+				debit: sar$5(x.amountHalalas),
 				credit: 0,
 				description: "تكلفة المبيعات"
 			}, {
 				accountId: a.finishedAccountId,
 				debit: 0,
-				credit: sar$4(x.amountHalalas),
+				credit: sar$5(x.amountHalalas),
 				description: "منتجات جاهزة"
 			}]
 		} };
@@ -20189,7 +20189,7 @@ window.SKEngines = (function() {
 		projectProfitability: () => projectProfitability,
 		retentionReleaseJournal: () => retentionReleaseJournal
 	});
-	var sar$3 = (h) => h / 100;
+	var sar$4 = (h) => h / 100;
 	var pct$4 = (v) => Math.min(100, Math.max(0, Number(v) || 0));
 	var emptyState = () => ({
 		certifiedHalalas: 0,
@@ -20219,20 +20219,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.cashAccountId,
-						debit: sar$3(x.amountHalalas + vat),
+						debit: sar$4(x.amountHalalas + vat),
 						credit: 0,
 						description: "دفعة مقدمة من " + c.customer
 					},
 					{
 						accountId: a.advanceAccountId,
 						debit: 0,
-						credit: sar$3(x.amountHalalas),
+						credit: sar$4(x.amountHalalas),
 						description: "دفعات مقدمة — " + c.project
 					},
 					...vat ? [{
 						accountId: a.outputVatAccountId,
 						debit: 0,
-						credit: sar$3(vat),
+						credit: sar$4(vat),
 						description: "ضريبة الدفعة المقدمة"
 					}] : []
 				]
@@ -20271,32 +20271,32 @@ window.SKEngines = (function() {
 		const lines = [
 			...r.receivable ? [{
 				accountId: a.receivableAccountId,
-				debit: sar$3(r.receivable),
+				debit: sar$4(r.receivable),
 				credit: 0,
 				description: "مستخلص " + x.id + " — " + c.project
 			}] : [],
 			...r.retention ? [{
 				accountId: a.retentionAccountId,
-				debit: sar$3(r.retention),
+				debit: sar$4(r.retention),
 				credit: 0,
 				description: "محتجزات " + pct$4(c.retentionPct) + "٪"
 			}] : [],
 			...r.recovery ? [{
 				accountId: a.advanceAccountId,
-				debit: sar$3(r.recovery),
+				debit: sar$4(r.recovery),
 				credit: 0,
 				description: "استرداد من الدفعة المقدمة"
 			}] : [],
 			{
 				accountId: a.revenueAccountId,
 				debit: 0,
-				credit: sar$3(r.work),
+				credit: sar$4(r.work),
 				description: "أعمال معتمدة — " + c.project + " (إنجاز " + r.completionPct + "٪)"
 			},
 			...r.vat ? [{
 				accountId: a.outputVatAccountId,
 				debit: 0,
-				credit: sar$3(r.vat),
+				credit: sar$4(r.vat),
 				description: "ضريبة المستخلص"
 			}] : []
 		];
@@ -20330,13 +20330,13 @@ window.SKEngines = (function() {
 				party: c.customer,
 				lines: [{
 					accountId: a.receivableAccountId,
-					debit: sar$3(held),
+					debit: sar$4(held),
 					credit: 0,
 					description: "محتجزات مستحقة السداد"
 				}, {
 					accountId: a.retentionAccountId,
 					debit: 0,
-					credit: sar$3(held),
+					credit: sar$4(held),
 					description: "إفراج عن محتجزات " + c.project
 				}]
 			}
@@ -20406,6 +20406,220 @@ window.SKEngines = (function() {
 			subledgerBalance,
 			difference,
 			matched: Math.abs(difference) <= tolerance
+		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/finance/trade-engine.ts
+	var trade_engine_exports = /* @__PURE__ */ __exportAll({
+		branchKpis: () => branchKpis,
+		branchPurchaseJournal: () => branchPurchaseJournal,
+		branchSaleJournals: () => branchSaleJournals,
+		creditPosition: () => creditPosition,
+		transferJournal: () => transferJournal
+	});
+	var sar$3 = (h) => h / 100;
+	var amt = (v, what, zero = false) => {
+		if (!Number.isInteger(v) || v < 0 || !zero && !v) throw new Error(what + " غير صالح");
+		return v;
+	};
+	var named = (v, what) => {
+		const s = String(v ?? "").trim();
+		if (!s) throw new Error(what);
+		return s;
+	};
+	/** stock bought on credit for a branch */
+	function branchPurchaseJournal(x, vatRate, a) {
+		const branch = named(x.branch, "حدد الفرع"), supplier = named(x.supplier, "حدد المورد"), net = amt(x.amountHalalas, "مبلغ الشراء");
+		const vat = vatRate > 0 ? Math.round(net * vatRate) : 0;
+		if (vat && !a.inputVatAccountId) throw new Error("حساب ضريبة المدخلات غير موجود");
+		return {
+			vat,
+			journal: {
+				id: x.id,
+				date: x.date,
+				reference: "PO-" + x.id,
+				memo: "مشتريات " + branch + " — " + supplier,
+				party: supplier,
+				lines: [
+					{
+						accountId: a.inventoryAccountId,
+						debit: sar$3(net),
+						credit: 0,
+						description: "مخزون " + branch
+					},
+					...vat ? [{
+						accountId: a.inputVatAccountId,
+						debit: sar$3(vat),
+						credit: 0,
+						description: "ضريبة المدخلات"
+					}] : [],
+					{
+						accountId: a.payableAccountId,
+						debit: 0,
+						credit: sar$3(net + vat),
+						description: supplier
+					}
+				]
+			}
+		};
+	}
+	/** a branch's sale: gross price less a discount (4100), VAT on what is charged, cash or on credit within the customer's
+	limit; and its cost out of the branch's stock */
+	function branchSaleJournals(x, vatRate, a) {
+		const branch = named(x.branch, "حدد الفرع"), gross = amt(x.grossHalalas, "مبلغ البيع"), disc = amt(x.discountHalalas ?? 0, "الخصم", true), cost = amt(x.costHalalas, "تكلفة البضاعة المباعة");
+		if (disc >= gross) throw new Error("الخصم لا يجوز أن يبلغ قيمة البيع");
+		if (disc && !a.discountAccountId) throw new Error("حساب خصومات المبيعات غير موجود");
+		if (cost > x.branchStockHalalas) throw new Error("تكلفة المبيع أكثر من مخزون " + branch);
+		const net = gross - disc, vat = vatRate > 0 ? Math.round(net * vatRate) : 0, total = net + vat;
+		if (vat && !a.outputVatAccountId) throw new Error("حساب ضريبة المخرجات غير موجود");
+		let customer = "";
+		if (x.onCredit) {
+			customer = named(x.customer, "البيع الآجل يحتاج اسم العميل");
+			const limit = x.creditLimitHalalas;
+			if (limit == null) throw new Error("لا حد ائتمان مسجل للعميل " + customer + " — سجّل حده أولاً");
+			const after = (x.customerBalanceHalalas ?? 0) + total;
+			if (after > limit) throw new Error("البيع يتجاوز حد ائتمان " + customer + ": الرصيد بعده " + sar$3(after) + " والحد " + sar$3(limit));
+		}
+		const to = x.onCredit ? a.receivableAccountId : a.cashAccountId;
+		return {
+			net,
+			vat,
+			total,
+			journal: {
+				id: x.id,
+				date: x.date,
+				reference: "INV-" + x.id,
+				memo: "مبيعات " + branch + (customer ? " — " + customer : " — نقداً"),
+				party: customer || void 0,
+				lines: [
+					{
+						accountId: to,
+						debit: sar$3(total),
+						credit: 0,
+						description: customer || "نقداً"
+					},
+					...disc ? [{
+						accountId: a.discountAccountId,
+						debit: sar$3(disc),
+						credit: 0,
+						description: "خصم مسموح به"
+					}] : [],
+					{
+						accountId: a.revenueAccountId,
+						debit: 0,
+						credit: sar$3(gross),
+						description: "مبيعات " + branch
+					},
+					...vat ? [{
+						accountId: a.outputVatAccountId,
+						debit: 0,
+						credit: sar$3(vat),
+						description: "ضريبة المخرجات"
+					}] : []
+				]
+			},
+			costJournal: {
+				id: x.id + "-c",
+				date: x.date,
+				reference: "COGS-" + x.id,
+				memo: "تكلفة مبيعات " + branch,
+				lines: [{
+					accountId: a.cogsAccountId,
+					debit: sar$3(cost),
+					credit: 0,
+					description: branch
+				}, {
+					accountId: a.inventoryAccountId,
+					debit: 0,
+					credit: sar$3(cost),
+					description: "مخزون " + branch
+				}]
+			}
+		};
+	}
+	/** stock moved between branches at cost: the books' total does not change, each branch's stock does */
+	function transferJournal(x, a) {
+		const from = named(x.from, "حدد الفرع المحوِّل"), to = named(x.to, "حدد الفرع المستلم"), cost = amt(x.costHalalas, "قيمة التحويل");
+		if (from === to) throw new Error("الفرعان متماثلان");
+		if (cost > x.fromStockHalalas) throw new Error("قيمة التحويل أكثر من مخزون " + from);
+		return { journal: {
+			id: x.id,
+			date: x.date,
+			reference: "TRF-" + x.id,
+			memo: "تحويل مخزون من " + from + " إلى " + to,
+			lines: [{
+				accountId: a.inventoryAccountId,
+				debit: sar$3(cost),
+				credit: 0,
+				description: "مخزون " + to
+			}, {
+				accountId: a.inventoryAccountId,
+				debit: 0,
+				credit: sar$3(cost),
+				description: "مخزون " + from
+			}]
+		} };
+	}
+	/** each branch's figures from its moves: stock, sales, discounts, gross margin, discount rate and stock turnover */
+	function branchKpis(moves) {
+		const by = /* @__PURE__ */ new Map();
+		const get = (b) => {
+			let r = by.get(b);
+			if (!r) {
+				r = {
+					branch: b,
+					purchases: 0,
+					gross: 0,
+					discounts: 0,
+					cogs: 0,
+					stock: 0
+				};
+				by.set(b, r);
+			}
+			return r;
+		};
+		for (const m of moves) {
+			const r = get(m.branch);
+			if (m.kind === "purchase") {
+				r.purchases += m.amount ?? 0;
+				r.stock += m.amount ?? 0;
+			}
+			if (m.kind === "sale") {
+				r.gross += m.gross ?? 0;
+				r.discounts += m.discount ?? 0;
+				r.cogs += m.cost ?? 0;
+				r.stock -= m.cost ?? 0;
+			}
+			if (m.kind === "transfer-in") r.stock += m.amount ?? 0;
+			if (m.kind === "transfer-out" || m.kind === "adjust") r.stock -= m.amount ?? 0;
+		}
+		const r2 = (v) => Math.round(v * 100) / 100;
+		return [...by.values()].map((r) => {
+			const net = r.gross - r.discounts, margin = net - r.cogs;
+			return {
+				...r,
+				net,
+				margin,
+				marginPct: net ? r2(margin / net * 100) : null,
+				discountPct: r.gross ? r2(r.discounts / r.gross * 100) : null,
+				turnover: r.stock > 0 ? r2(r.cogs / r.stock) : null
+			};
+		}).sort((a, b) => b.net - a.net);
+	}
+	/** a customer's position against the credit limit */
+	function creditPosition(balanceHalalas, limitHalalas) {
+		if (limitHalalas == null) return {
+			limit: null,
+			available: null,
+			usedPct: null,
+			over: false
+		};
+		const r2 = (v) => Math.round(v * 100) / 100;
+		return {
+			limit: limitHalalas,
+			available: limitHalalas - balanceHalalas,
+			usedPct: limitHalalas ? r2(balanceHalalas / limitHalalas * 100) : null,
+			over: balanceHalalas > limitHalalas
 		};
 	}
 	//#endregion
@@ -92773,8 +92987,16 @@ window.SKEngines = (function() {
 		}),
 		trade: pack({
 			id: "trade",
-			depth: "base",
-			accounts: [],
+			depth: "deep",
+			accounts: [[
+				"4100",
+				"خصومات المبيعات المسموح بها",
+				"revenue"
+			], [
+				"5100",
+				"فروقات الجرد والهدر",
+				"expense"
+			]],
 			costCenters: ["الفروع", "المستودعات"],
 			units: ["وحدة", "كرتون"],
 			warehouses: ["المستودع الرئيسي"],
@@ -93707,43 +93929,125 @@ window.SKEngines = (function() {
 				change: fv.change
 			}, "معيار 41");
 		},
-		trade: ({ year, months, vary, je, L, sale, purchase, pay, collect, end, vat }) => {
+		trade: ({ year, months, vary, je, L, pay, collect, end, vat, ledger }) => {
+			const A = {
+				cashAccountId: "1100",
+				receivableAccountId: "1200",
+				payableAccountId: "2100",
+				inventoryAccountId: "1300",
+				inputVatAccountId: "1400",
+				outputVatAccountId: "2200",
+				revenueAccountId: "4000",
+				discountAccountId: "4100",
+				cogsAccountId: "5000"
+			};
+			const RUH = "الفرع الرئيسي — الرياض", JED = "فرع جدة", SUP = "شركة الإلكترونيات المتحدة";
 			const CUST = [
-				"مؤسسة الريان",
-				"شركة الأفق الحديثة",
-				"متاجر الشرق"
+				["مؤسسة الريان", RUH],
+				["شركة الأفق الحديثة", RUH],
+				["متاجر الشرق", JED]
 			];
+			const limits = {
+				"مؤسسة الريان": 12e7,
+				"شركة الأفق الحديثة": 12e7,
+				"متاجر الشرق": 1e8
+			};
+			ledger.branches = [RUH, JED];
+			ledger.creditLimits = limits;
+			const stock = {
+				[RUH]: 0,
+				[JED]: 0
+			}, bal = {};
+			const post = (j, meta, source) => je(j.date, j.memo, j.lines, {
+				source,
+				reference: j.reference,
+				party: j.party,
+				meta: { trade: meta }
+			});
+			const sell = (date, branch, gross, discPct, customer) => {
+				const disc = Math.round(gross * discPct), cost = Math.round((gross - disc) * .76);
+				const r = branchSaleJournals({
+					id: (customer ? "INV-" : "POS-") + date.replace(/-/g, "") + "-" + branch.length + (customer ? customer.length : 0),
+					date,
+					branch,
+					customer,
+					onCredit: !!customer,
+					grossHalalas: gross,
+					discountHalalas: disc,
+					costHalalas: cost,
+					branchStockHalalas: stock[branch],
+					customerBalanceHalalas: customer ? bal[customer] ?? 0 : 0,
+					creditLimitHalalas: customer ? limits[customer] : null
+				}, vat, A);
+				post(r.journal, {
+					kind: "sale",
+					branch,
+					gross,
+					discount: disc,
+					cost
+				}, "مبيعات");
+				post(r.costJournal, {
+					kind: "salecost",
+					branch
+				}, "مبيعات");
+				stock[branch] -= cost;
+				if (customer) bal[customer] = (bal[customer] ?? 0) + r.total;
+				return r.total;
+			};
 			let owed = 0;
 			const due = {};
 			for (const m of months) {
-				if (owed) pay(dayOf(year, m, 10), "سداد الموردين", "2100", Math.round(owed * .85), "PAY-" + year + pad(m), "شركة الإلكترونيات المتحدة");
-				for (const c of CUST) if (due[c]) collect(dayOf(year, m, 16), "تحصيل من " + c, "1200", Math.round(due[c] * .8), "COL-" + c + "-" + year + pad(m), c);
-				const buy = vary(16e7, .05);
-				purchase(dayOf(year, m, 3), "شراء أجهزة وإكسسوارات", "1300", buy, "شركة الإلكترونيات المتحدة", "PO-" + year + pad(m));
-				owed = buy + Math.round(buy * vat);
-				let net = 0;
-				for (const [i, c] of CUST.entries()) {
-					const x = vary(25e6, .1);
-					net += x;
-					sale(dayOf(year, m, 12 + i * 5), "مبيعات آجلة — " + c, x, {
-						cashShare: 0,
-						party: c,
-						reference: "INV-" + c + "-" + year + pad(m)
-					});
-					due[c] = x + Math.round(x * vat);
+				if (owed) pay(dayOf(year, m, 10), "سداد الموردين", "2100", Math.round(owed * .85), "PAY-" + year + pad(m), SUP);
+				for (const [c] of CUST) if (due[c]) {
+					const v = Math.round(due[c] * .8);
+					collect(dayOf(year, m, 16), "تحصيل من " + c, "1200", v, "COL-" + c + "-" + year + pad(m), c);
+					bal[c] -= v;
 				}
-				const cash = vary(95e6, .08);
-				net += cash;
-				sale(end(m), "مبيعات نقدية — الفرعان", cash, { reference: "POS-" + year + pad(m) });
-				const cogs = Math.round(net * .76);
-				je(end(m), "تكلفة المبيعات", [L("5000", cogs, 0), L("1300", 0, cogs)], {
-					source: "مبيعات",
-					reference: "COGS-" + year + pad(m)
-				});
-				if (m === 5) je(end(m), "فرق جرد المستودع (عجز)", [L("5100", 185e4, 0), L("1300", 0, 185e4)], {
-					source: "جرد",
-					reference: "COUNT-" + year + "05"
-				});
+				const buy = vary(16e7, .05), pr = branchPurchaseJournal({
+					id: "PO-" + year + pad(m),
+					date: dayOf(year, m, 3),
+					branch: RUH,
+					supplier: SUP,
+					amountHalalas: buy
+				}, vat, A);
+				post(pr.journal, {
+					kind: "purchase",
+					branch: RUH,
+					amount: buy
+				}, "مشتريات");
+				stock[RUH] += buy;
+				owed = buy + pr.vat;
+				const moved = Math.round(buy * .35);
+				post(transferJournal({
+					id: "TRF-" + year + pad(m),
+					date: dayOf(year, m, 4),
+					from: RUH,
+					to: JED,
+					costHalalas: moved,
+					fromStockHalalas: stock[RUH]
+				}, A).journal, {
+					kind: "transfer",
+					from: RUH,
+					to: JED,
+					amount: moved
+				}, "تحويل مخزون");
+				stock[RUH] -= moved;
+				stock[JED] += moved;
+				for (const [i, [c, branch]] of CUST.entries()) due[c] = sell(dayOf(year, m, 12 + i * 5), branch, vary(25e6, .1), .02, c);
+				sell(end(m), RUH, vary(6e7, .08), .01);
+				sell(end(m), JED, vary(35e6, .08), .01);
+				if (m === 5) {
+					je(end(m), "فرق جرد مستودع الرياض (عجز)", [L("5100", 185e4, 0), L("1300", 0, 185e4)], {
+						source: "جرد",
+						reference: "COUNT-" + year + "05",
+						meta: { trade: {
+							kind: "adjust",
+							branch: RUH,
+							amount: 185e4
+						} }
+					});
+					stock[RUH] -= 185e4;
+				}
 				if (m === 8) {
 					const bad = 23e5;
 					je(end(m), "إعدام دين متعثر — متاجر الشرق", [L("6300", bad, 0), L("1200", 0, bad, "متاجر الشرق")], {
@@ -93752,6 +94056,7 @@ window.SKEngines = (function() {
 						party: "متاجر الشرق"
 					});
 					due["متاجر الشرق"] = Math.max(0, due["متاجر الشرق"] - bad);
+					bal["متاجر الشرق"] -= bad;
 				}
 			}
 		}
@@ -93852,6 +94157,7 @@ window.SKEngines = (function() {
 			progressBilling: progress_billing_engine_exports,
 			receivables: receivables_engine_exports,
 			reconciliation: reconciliation_engine_exports,
+			trade: trade_engine_exports,
 			trialBalance: trial_balance_engine_exports,
 			tuition: tuition_engine_exports,
 			vatPolicy: vat_policy_engine_exports,

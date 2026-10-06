@@ -79,7 +79,7 @@ export const SECTOR_PACKS: Readonly<Record<string, SectorPack>> = Object.freeze(
   agriculture: pack({ id: 'agriculture', depth: 'deep', accounts: [['1395', 'الأصول الحيوية (حيوانات/محاصيل)', 'asset'], ['1396', 'أعلاف ومدخلات زراعية', 'asset'], ['5190', 'النفوق والهدر الزراعي', 'expense'],
     ['4950', 'أرباح وخسائر القيمة العادلة للأصول الحيوية', 'revenue']],
     costCenters: ['الحظائر', 'الحقول', 'المواسم'], units: ['رأس', 'كجم', 'طن', 'دونم'], warehouses: ['مخزن الأعلاف'], tools: ['purchasing', 'inventory'], kpis: ['تكلفة الوحدة للدورة', 'نسبة النفوق'] }),
-  trade: pack({ id: 'trade', depth: 'base', accounts: [], costCenters: ['الفروع', 'المستودعات'], units: ['وحدة', 'كرتون'], warehouses: ['المستودع الرئيسي'], tools: ['purchasing', 'inventory'], kpis: ['هامش الربح', 'دوران المخزون'] }),
+  trade: pack({ id: 'trade', depth: 'deep', accounts: [['4100', 'خصومات المبيعات المسموح بها', 'revenue'], ['5100', 'فروقات الجرد والهدر', 'expense']], costCenters: ['الفروع', 'المستودعات'], units: ['وحدة', 'كرتون'], warehouses: ['المستودع الرئيسي'], tools: ['purchasing', 'inventory'], kpis: ['هامش الربح', 'دوران المخزون'] }),
 });
 
 /** the pack of a sector; an unknown or empty sector gets the general trade pack */

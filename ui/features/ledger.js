@@ -323,6 +323,67 @@ function postDigitalOp(root,d){
   }catch(e){err.textContent=e.message||String(e);return}
   return true;
 }
+/* ---------- the general-trade pack: branches and their stock, sales with discounts, margins, turnover, credit limits ----------
+   (finance/trade-engine) — shown only for a trading company. Each branch's figures are read back from the entries' trade
+   meta; a customer's balance from the receivable lines naming them. */
+const TR=()=>E().trade;
+const isTrade=()=>{try{return SK.company.current().sector==="trade"}catch{return false}};
+const TRADE_CODES=["1100","1200","2100","1300","4000","4100","5000"];
+function trAccounts(d){return{cashAccountId:byCode(d,"1100"),receivableAccountId:byCode(d,"1200"),payableAccountId:byCode(d,"2100"),inventoryAccountId:byCode(d,"1300"),inputVatAccountId:byCode(d,"1400"),
+  outputVatAccountId:byCode(d,"2200"),revenueAccountId:byCode(d,"4000"),discountAccountId:byCode(d,"4100"),cogsAccountId:byCode(d,"5000")}}
+function tradeMoves(d){const mv=[];d.entries.filter(e=>e.trade&&!e.reversedBy&&!e.reversalOf).forEach(e=>{const t=e.trade;
+  if(t.kind==="purchase")mv.push({branch:t.branch,kind:"purchase",amount:t.amount});
+  if(t.kind==="sale")mv.push({branch:t.branch,kind:"sale",gross:t.gross,discount:t.discount,cost:t.cost});
+  if(t.kind==="transfer"){mv.push({branch:t.from,kind:"transfer-out",amount:t.amount});mv.push({branch:t.to,kind:"transfer-in",amount:t.amount})}
+  if(t.kind==="adjust")mv.push({branch:t.branch,kind:"adjust",amount:t.amount})});return mv}
+const branchStock=(d,b)=>{const k=TR().branchKpis(tradeMoves(d)).find(x=>x.branch===b);return k?k.stock:0};
+function customerBalance(d,name){const id=byCode(d,"1200");let h=0;d.entries.filter(e=>e.party===name).forEach(e=>e.lines.forEach(l=>{if(l.accountId===id)h+=Math.round(l.debit*100)-Math.round(l.credit*100)}));return h}
+function tradeHTML(d){
+  const missing=TRADE_CODES.filter(c=>!byCode(d,c));
+  if(missing.length)return SK.ui.state.empty({title:"أكمل حسابات قطاع التجارة",text:"الفروع والهوامش تحتاج الحسابات "+missing.join(" و")+" — أضفها من «دليل الحسابات» › «إضافة حسابات قطاع»."});
+  const t=today(),h=v=>money((v||0)/100),pct=v=>v==null?"—":v+"٪",bs=Array.isArray(d.branches)?d.branches:[],lim=d.creditLimits||{};
+  const k=TR().branchKpis(tradeMoves(d)),bopt=bs.map(b=>'<option value="'+esc(b)+'">'+esc(b)+'</option>').join("");
+  const custs=Object.keys(lim).map(c=>({c,bal:customerBalance(d,c),p:TR().creditPosition(customerBalance(d,c),lim[c])}));
+  return '<p class="hint">كل شراء وبيع وتحويل مخزون يُنسب إلى فرع، فلكل فرع مبيعاته وخصوماته ومجمل ربحه ومخزونه ودورانه. الخصم المسموح به يظهر مقابل إجمالي المبيعات (4100)، والبيع الآجل يُرفض إن تجاوز حد ائتمان العميل.</p>'+
+    '<section class="card"><div class="card-h"><div><h3>الفروع وحدود الائتمان</h3></div></div><div class="card-b"><div class="sk-grid2">'+
+      '<label class="sk-field"><span>فرع أو مستودع جديد</span><input id="tr-branch" autocomplete="off"></label><div class="sk-actions"><button type="button" class="btn" data-l="tr-branch">إضافة الفرع</button></div>'+
+      '<label class="sk-field"><span>العميل</span><input id="tr-cust" autocomplete="off"></label><label class="sk-field"><span>حد الائتمان</span><input id="tr-limit" inputmode="decimal"></label></div>'+
+      '<div class="sk-error" id="tr-err0" role="alert"></div><div class="sk-actions"><button type="button" class="btn" data-l="tr-limit">حفظ حد الائتمان</button></div></div></section>'+
+    (bs.length?'<section class="card"><div class="card-h"><div><h3>حركة فرع</h3></div></div><div class="card-b"><div class="sk-grid2">'+
+      '<label class="sk-field"><span>العملية</span><select id="tr-op"><option value="sale">بيع</option><option value="purchase">شراء</option><option value="transfer">تحويل مخزون بين الفروع</option></select></label>'+
+      '<label class="sk-field"><span>الفرع</span><select id="tr-b">'+bopt+'</select></label>'+
+      '<label class="sk-field"><span>إلى الفرع (للتحويل)</span><select id="tr-b2">'+bopt+'</select></label>'+
+      '<label class="sk-field"><span>المورد أو العميل</span><input id="tr-who" autocomplete="off"></label>'+
+      '<label class="sk-field"><span>الدفع</span><select id="tr-pay"><option value="cash">نقداً</option><option value="credit">آجل</option></select></label>'+
+      '<label class="sk-field"><span>المبلغ (الشراء أو إجمالي البيع أو قيمة التحويل)</span><input id="tr-amt" inputmode="decimal"></label>'+
+      '<label class="sk-field"><span>الخصم</span><input id="tr-disc" inputmode="decimal" value="0"></label>'+
+      '<label class="sk-field"><span>تكلفة البضاعة المباعة</span><input id="tr-cost" inputmode="decimal"></label>'+
+      '<label class="sk-field"><span>التاريخ</span><input id="tr-date" type="date" value="'+t+'"></label></div>'+
+      '<div class="sk-error" id="tr-err" role="alert"></div><div class="sk-actions"><button type="button" class="btn primary" data-l="tr-post">ترحيل</button></div></div></section>':'')+
+    (k.length?'<section class="card"><div class="card-h"><div><h3>الفروع</h3><p>من قيود الدفاتر.</p></div></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table" data-tr-branches><thead><tr><th>الفرع</th><th>المخزون</th><th>المشتريات</th><th>صافي المبيعات</th><th>الخصومات</th><th>نسبة الخصم</th><th>مجمل الربح</th><th>هامش الربح</th><th>دوران المخزون</th></tr></thead><tbody>'+
+      k.map(r=>'<tr data-branch="'+esc(r.branch)+'"><td>'+esc(r.branch)+'</td><td class="n">'+h(r.stock)+'</td><td class="n">'+h(r.purchases)+'</td><td class="n"><b>'+h(r.net)+'</b></td><td class="n">'+h(r.discounts)+'</td><td class="n">'+pct(r.discountPct)+'</td><td class="n">'+h(r.margin)+'</td><td class="n">'+pct(r.marginPct)+'</td><td class="n">'+(r.turnover==null?"—":r.turnover+"×")+'</td></tr>').join("")+'</tbody></table></div></div></section>':'')+
+    (custs.length?'<section class="card"><div class="card-h"><div><h3>ائتمان العملاء</h3></div></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table" data-tr-credit><thead><tr><th>العميل</th><th>الرصيد</th><th>الحد</th><th>المتاح</th><th>المستخدم</th></tr></thead><tbody>'+
+      custs.map(({c,bal,p})=>'<tr data-customer="'+esc(c)+'"'+(p.over?' class="bad"':'')+'><td>'+esc(c)+'</td><td class="n">'+h(bal)+'</td><td class="n">'+h(p.limit)+'</td><td class="n">'+h(p.available)+'</td><td class="n">'+pct(p.usedPct)+'</td></tr>').join("")+'</tbody></table></div></div></section>':'');
+}
+function saveBranch(root,d){const err=$("#tr-err0",root);err.textContent="";const b=$("#tr-branch",root).value.trim();if(!b){err.textContent="سمِّ الفرع";return}
+  if((d.branches||[]).includes(b)){err.textContent="الفرع مسجّل";return}d.branches=[...(d.branches||[]),b];put(d);toast("أُضيف "+b,"ok");return true}
+function saveLimit(root,d){const err=$("#tr-err0",root);err.textContent="";const c=$("#tr-cust",root).value.trim(),v=halalas($("#tr-limit",root).value||0);
+  if(!c||!(v>=0)){err.textContent="أدخل العميل وحد الائتمان";return}d.creditLimits={...(d.creditLimits||{}),[c]:v};put(d);toast("حُفظ حد ائتمان "+c,"ok");return true}
+function postTrade(root,d){
+  const err=$("#tr-err",root);err.textContent="";
+  const op=$("#tr-op",root).value,b=$("#tr-b",root).value,date=$("#tr-date",root).value||today(),id=SK.ui.uid("tr"),A=trAccounts(d),who=$("#tr-who",root).value.trim(),amt=halalas($("#tr-amt",root).value||0);
+  try{
+    const post=(j,meta,src,party)=>{const o=postEntry({...j,trade:meta},{source:src,sourceId:"tr:"+j.id,party});if(!o.ok)throw new Error(o.error)};
+    if(op==="purchase"){const r=TR().branchPurchaseJournal({id,date,branch:b,supplier:who,amountHalalas:amt},SK.vatRate(),A);post(r.journal,{kind:"purchase",branch:b,amount:amt},"مشتريات",who)}
+    else if(op==="transfer"){const to=$("#tr-b2",root).value,r=TR().transferJournal({id,date,from:b,to,costHalalas:amt,fromStockHalalas:branchStock(d,b)},A);post(r.journal,{kind:"transfer",from:b,to,amount:amt},"تحويل مخزون")}
+    else{const credit=$("#tr-pay",root).value==="credit",disc=halalas($("#tr-disc",root).value||0),cost=halalas($("#tr-cost",root).value||0);
+      const r=TR().branchSaleJournals({id,date,branch:b,customer:who,onCredit:credit,grossHalalas:amt,discountHalalas:disc,costHalalas:cost,branchStockHalalas:branchStock(d,b),
+        customerBalanceHalalas:credit?customerBalance(d,who):0,creditLimitHalalas:credit?((d.creditLimits||{})[who]??null):null},SK.vatRate(),A);
+      post(r.journal,{kind:"sale",branch:b,gross:amt,discount:disc,cost},"مبيعات",credit?who:undefined);post(r.costJournal,{kind:"salecost",branch:b},"مبيعات")}
+    toast("رُحّلت الحركة","ok");
+  }catch(e){err.textContent=e.message||String(e);return}
+  return true;
+}
 /* ---------- the agriculture pack: cycles (flocks and fields) as cost centres — stocking, feed, births, deaths, sales, IAS 41 ----------
    (finance/livestock-engine) — shown only for a farm. A cycle's heads and cost are read back from its entries; births,
    which carry no cost, are kept beside them (d.cycleBirths). */
@@ -999,9 +1060,9 @@ function paint(root){
   /* a company created under a sector receives its pack on first open (FOUNDATION §3.7) */
   try{window.SKosifCompanyPlatform&&SKosifCompanyPlatform.ensureSectorPack()}catch{}
   const d=db(),p=period();if(!tab)tab=d.accounts.length?"close":"accounts";
-  root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],...(isHealth()?[["claims","المطالبات والجهات"]]:[]),...(isConstruction()?[["projects","المشروعات والمستخلصات"]]:[]),...(isHotel()?[["hotel","الغرف والإقفال الليلي"]]:[]),...(isDigital()?[["digital","العملاء والحملات"]]:[]),...(isSchool()?[["tuition","الرسوم الدراسية"]]:[]),...(isFactory()?[["factory","أوامر التشغيل"]]:[]),...(isBakery()?[["bakery","دفعات الإنتاج"]]:[]),...(isFarm()?[["farm","الدورات والقطعان"]]:[]),["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
+  root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],...(isHealth()?[["claims","المطالبات والجهات"]]:[]),...(isConstruction()?[["projects","المشروعات والمستخلصات"]]:[]),...(isHotel()?[["hotel","الغرف والإقفال الليلي"]]:[]),...(isDigital()?[["digital","العملاء والحملات"]]:[]),...(isSchool()?[["tuition","الرسوم الدراسية"]]:[]),...(isFactory()?[["factory","أوامر التشغيل"]]:[]),...(isBakery()?[["bakery","دفعات الإنتاج"]]:[]),...(isFarm()?[["farm","الدورات والقطعان"]]:[]),...(isTrade()?[["trade","الفروع والهوامش"]]:[]),["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
     (p?'<p class="hint">الفترة المالية النشطة: <b>'+esc(p.label)+'</b> ('+esc(p.startDate)+' → '+esc(p.endDate)+') — من «الشركات والفترات».</p>':'')+
-    ({close:closeHTML,accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,claims:claimsHTML,projects:projectsHTML,hotel:hotelHTML,digital:digitalHTML,tuition:tuitionHTML,factory:factoryHTML,bakery:bakeryHTML,farm:farmHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
+    ({close:closeHTML,accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,claims:claimsHTML,projects:projectsHTML,hotel:hotelHTML,digital:digitalHTML,tuition:tuitionHTML,factory:factoryHTML,bakery:bakeryHTML,farm:farmHTML,trade:tradeHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
 }
 function bind(root){
   root.addEventListener("click",async e=>{
@@ -1055,6 +1116,9 @@ function bind(root){
     else if(a==="po-post"){if(postProduction(root,d))paint(root);return}
     else if(a==="lv-new"){if(saveCycle(root,d))paint(root);return}
     else if(a==="lv-post"){if(postCycleOp(root,d))paint(root);return}
+    else if(a==="tr-branch"){if(saveBranch(root,d))paint(root);return}
+    else if(a==="tr-limit"){if(saveLimit(root,d))paint(root);return}
+    else if(a==="tr-post"){if(postTrade(root,d))paint(root);return}
     else if(a==="claim-remit"){if(postClaimRemit(root,d))paint(root);return}
     else if(a==="settle"){
       const err=$("#lg-cerr",root);err.textContent="";if(!SK.ui.validate(root))return;
