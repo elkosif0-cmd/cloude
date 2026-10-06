@@ -1,0 +1,8 @@
+{
+  "source_model_sha256": "38e5fb89fbfca4ce7089c10346a7d6f7c3cfb7b8af5f56fd7d60d7dad9f1ce38",
+  "status": "v2_locked; semantic metadata corrections; no reported-value changes",
+  "supersedes": "d908844b203f90cf72fa7985f799db940f5e735b13d3991ec911ba4c6a4325a0",
+  "cells": 536,
+  "reviewed_pages": 217,
+  "unreviewed_pages": 456
+}

@@ -1,0 +1,37 @@
+{
+  "source_pdf": "/workspace/scratch/f8d5926b2904/financial-reference-recovery/global_financial_and_audit_research_bundle_extended_verified.pdf",
+  "sha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+  "company": "Volkswagen Group",
+  "legal_parent": "Volkswagen Aktiengesellschaft",
+  "title": "Annual Report 2025",
+  "report_year": 2025,
+  "physical_range": [
+    3650,
+    4322
+  ],
+  "page_count": 673,
+  "printed_page_offset": 3651,
+  "boundaries": {
+    "cover_visual": "visuals/physical-3650.png",
+    "imprint_visual": "visuals/physical-4322.png",
+    "following_cover_visual": "visuals/physical-4323.png",
+    "following_report": "Deutsche Telekom 2025"
+  },
+  "basis": "IFRS Accounting Standards adopted by the EU plus applicable German commercial law; consolidated; euros millions unless stated otherwise",
+  "origin": "Fresh rebuilt source review; no historical completion counts inherited.",
+  "limitations": [
+    "Source text indexing is not semantic review.",
+    "Local-byte source provenance is not independent official-publisher authentication.",
+    "This analytical review is not an audit, assurance engagement, or app acceptance."
+  ],
+  "delegated_ranges": [
+    [
+      3655,
+      3862
+    ],
+    [
+      3863,
+      4110
+    ]
+  ]
+}

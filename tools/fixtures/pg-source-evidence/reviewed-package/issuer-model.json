@@ -1,0 +1,2486 @@
+{
+  "schemaVersion": "1.0",
+  "modelType": "source-published financial statement and note fixture, not transaction journal",
+  "issuer": "The Procter & Gamble Company",
+  "issuerScope": "Registrant and controlled subsidiaries; intercompany balances and transactions eliminated",
+  "fiscalYearEnd": "2026-06-30",
+  "fiscalYearLabel": 2026,
+  "comparativeFiscalYears": [
+    2025,
+    2024
+  ],
+  "currency": "USD",
+  "defaultUnit": "millions except per-share amounts and explicit share counts",
+  "accountingBasis": "US GAAP",
+  "source": {
+    "bundleSha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+    "physicalPages": [
+      1963,
+      2039
+    ],
+    "coverPhysicalPage": 1963,
+    "financialStatementPhysicalPages": [
+      2004,
+      2005,
+      2006,
+      2007
+    ],
+    "notePhysicalPages": [
+      2008,
+      2034
+    ],
+    "signatureDate": "2026-08-04"
+  },
+  "coverage": "77/77 physical pages freshly reviewed, 75 text-bearing and 2 visually blank; prior historical coverage not reconstructed",
+  "appAcceptance": "not performed; this deliverable establishes independent source facts only",
+  "statements": {
+    "income": {
+      "sourcePhysicalPage": 2004,
+      "printedPage": 38,
+      "periods": [
+        2026,
+        2025,
+        2024
+      ],
+      "unit": "USD millions",
+      "basis": "consolidated US GAAP",
+      "rows": {
+        "net_sales": {
+          "2026": 87032,
+          "2025": 84284,
+          "2024": 84039
+        },
+        "cost_of_products_sold": {
+          "2026": 43362,
+          "2025": 41164,
+          "2024": 40848
+        },
+        "selling_general_administrative": {
+          "2026": 23922,
+          "2025": 22669,
+          "2024": 23305
+        },
+        "indefinite_lived_intangible_impairment": {
+          "2026": 0,
+          "2025": 0,
+          "2024": 1341
+        },
+        "operating_income": {
+          "2026": 19748,
+          "2025": 20451,
+          "2024": 18545
+        },
+        "interest_expense": {
+          "2026": -877,
+          "2025": -907,
+          "2024": -925
+        },
+        "interest_income": {
+          "2026": 430,
+          "2025": 469,
+          "2024": 473
+        },
+        "other_nonoperating_income_net": {
+          "2026": 1076,
+          "2025": 154,
+          "2024": 668
+        },
+        "earnings_before_tax": {
+          "2026": 20377,
+          "2025": 20167,
+          "2024": 18761
+        },
+        "income_tax": {
+          "2026": 4233,
+          "2025": 4102,
+          "2024": 3787
+        },
+        "net_earnings": {
+          "2026": 16144,
+          "2025": 16065,
+          "2024": 14974
+        },
+        "earnings_noncontrolling": {
+          "2026": 98,
+          "2025": 91,
+          "2024": 95
+        },
+        "earnings_attributable_pg": {
+          "2026": 16046,
+          "2025": 15974,
+          "2024": 14879
+        },
+        "basic_eps": {
+          "2026": 6.75,
+          "2025": 6.67,
+          "2024": 6.18
+        },
+        "diluted_eps": {
+          "2026": 6.62,
+          "2025": 6.51,
+          "2024": 6.02
+        }
+      },
+      "rowUnitOverrides": {
+        "basic_eps": "USD per common share",
+        "diluted_eps": "USD per common share"
+      }
+    },
+    "comprehensive_income": {
+      "sourcePhysicalPage": 2004,
+      "printedPage": 38,
+      "periods": [
+        2026,
+        2025,
+        2024
+      ],
+      "unit": "USD millions",
+      "basis": "consolidated US GAAP",
+      "rows": {
+        "net_earnings": {
+          "2026": 16144,
+          "2025": 16065,
+          "2024": 14974
+        },
+        "fx_translation_net_of_tax": {
+          "2026": 96,
+          "2025": 1143,
+          "2024": -226
+        },
+        "investment_unrealized_net_of_tax": {
+          "2026": 1,
+          "2025": 0,
+          "2024": -3
+        },
+        "defined_benefit_plans_net_of_tax": {
+          "2026": -440,
+          "2025": -1390,
+          "2024": 546
+        },
+        "other_comprehensive_income": {
+          "2026": -343,
+          "2025": -248,
+          "2024": 317
+        },
+        "comprehensive_income": {
+          "2026": 15801,
+          "2025": 15817,
+          "2024": 15291
+        },
+        "comprehensive_income_noncontrolling": {
+          "2026": 77,
+          "2025": 87,
+          "2024": 92
+        },
+        "comprehensive_income_attributable_pg": {
+          "2026": 15724,
+          "2025": 15730,
+          "2024": 15199
+        }
+      }
+    },
+    "balance_sheet": {
+      "sourcePhysicalPage": 2005,
+      "printedPage": 39,
+      "periods": [
+        2026,
+        2025
+      ],
+      "unit": "USD millions",
+      "basis": "consolidated US GAAP",
+      "rows": {
+        "cash_equivalents": {
+          "2026": 9942,
+          "2025": 9556
+        },
+        "accounts_receivable": {
+          "2026": 6056,
+          "2025": 6185
+        },
+        "inventory_materials": {
+          "2026": 2143,
+          "2025": 2022
+        },
+        "inventory_work_in_process": {
+          "2026": 1105,
+          "2025": 1012
+        },
+        "inventory_finished_goods": {
+          "2026": 4922,
+          "2025": 4516
+        },
+        "inventory_total": {
+          "2026": 8170,
+          "2025": 7551
+        },
+        "prepaid_and_other_current_assets": {
+          "2026": 2040,
+          "2025": 2100
+        },
+        "current_assets": {
+          "2026": 26208,
+          "2025": 25392
+        },
+        "property_plant_equipment_net": {
+          "2026": 25360,
+          "2025": 23897
+        },
+        "goodwill": {
+          "2026": 41276,
+          "2025": 41650
+        },
+        "intangibles_net": {
+          "2026": 21444,
+          "2025": 21910
+        },
+        "other_noncurrent_assets": {
+          "2026": 12231,
+          "2025": 12381
+        },
+        "total_assets": {
+          "2026": 126521,
+          "2025": 125231
+        },
+        "accounts_payable": {
+          "2026": 16306,
+          "2025": 15227
+        },
+        "accrued_and_other_current_liabilities": {
+          "2026": 11091,
+          "2025": 11318
+        },
+        "debt_due_one_year": {
+          "2026": 11296,
+          "2025": 9513
+        },
+        "current_liabilities": {
+          "2026": 38694,
+          "2025": 36058
+        },
+        "longterm_debt": {
+          "2026": 22842,
+          "2025": 24995
+        },
+        "deferred_income_taxes": {
+          "2026": 5760,
+          "2025": 5774
+        },
+        "other_noncurrent_liabilities": {
+          "2026": 4914,
+          "2025": 6120
+        },
+        "total_liabilities": {
+          "2026": 72210,
+          "2025": 72946
+        },
+        "preferred_class_a": {
+          "2026": 756,
+          "2025": 777
+        },
+        "preferred_class_b": {
+          "2026": 0,
+          "2025": 0
+        },
+        "common_stock": {
+          "2026": 4009,
+          "2025": 4009
+        },
+        "additional_paid_in_capital": {
+          "2026": 69533,
+          "2025": 68770
+        },
+        "esop_debt_retirement_reserve": {
+          "2026": -596,
+          "2025": -672
+        },
+        "accumulated_other_comprehensive_loss": {
+          "2026": -12465,
+          "2025": -12143
+        },
+        "treasury_stock": {
+          "2026": -143008,
+          "2025": -138702
+        },
+        "retained_earnings": {
+          "2026": 135852,
+          "2025": 129973
+        },
+        "noncontrolling_interest": {
+          "2026": 230,
+          "2025": 272
+        },
+        "total_equity": {
+          "2026": 54311,
+          "2025": 52284
+        },
+        "total_liabilities_equity": {
+          "2026": 126521,
+          "2025": 125231
+        }
+      }
+    },
+    "cash_flow": {
+      "sourcePhysicalPage": 2007,
+      "printedPage": 41,
+      "periods": [
+        2026,
+        2025,
+        2024
+      ],
+      "unit": "USD millions",
+      "basis": "consolidated US GAAP",
+      "rows": {
+        "beginning_cash_equivalents_restricted": {
+          "2026": 9556,
+          "2025": 9482,
+          "2024": 8246
+        },
+        "net_earnings": {
+          "2026": 16144,
+          "2025": 16065,
+          "2024": 14974
+        },
+        "depreciation_amortization": {
+          "2026": 3160,
+          "2025": 2847,
+          "2024": 2896
+        },
+        "share_compensation": {
+          "2026": 524,
+          "2025": 476,
+          "2024": 562
+        },
+        "deferred_income_taxes": {
+          "2026": 51,
+          "2025": 149,
+          "2024": -244
+        },
+        "gain_loss_on_sale_assets": {
+          "2026": -351,
+          "2025": 755,
+          "2024": -215
+        },
+        "indefinite_intangible_impairment": {
+          "2026": 0,
+          "2025": 0,
+          "2024": 1341
+        },
+        "change_accounts_receivable": {
+          "2026": 84,
+          "2025": 45,
+          "2024": -766
+        },
+        "change_inventories": {
+          "2026": -641,
+          "2025": -324,
+          "2024": -70
+        },
+        "change_accounts_payable": {
+          "2026": 919,
+          "2025": -542,
+          "2024": 878
+        },
+        "other_operating": {
+          "2026": -333,
+          "2025": -1653,
+          "2024": 491
+        },
+        "operating_cash_flow": {
+          "2026": 19556,
+          "2025": 17817,
+          "2024": 19846
+        },
+        "capital_expenditure": {
+          "2026": -4409,
+          "2025": -3773,
+          "2024": -3322
+        },
+        "asset_sale_proceeds": {
+          "2026": 508,
+          "2025": 107,
+          "2024": 346
+        },
+        "acquisitions_net_of_cash": {
+          "2026": -85,
+          "2025": -11,
+          "2024": -21
+        },
+        "other_investing": {
+          "2026": -638,
+          "2025": -141,
+          "2024": -507
+        },
+        "investing_cash_flow": {
+          "2026": -4624,
+          "2025": -3818,
+          "2024": -3504
+        },
+        "dividends_cash": {
+          "2026": -10232,
+          "2025": -9872,
+          "2024": -9312
+        },
+        "short_debt_additions_gt_three_months": {
+          "2026": 7941,
+          "2025": 8020,
+          "2024": 3528
+        },
+        "short_debt_reductions_gt_three_months": {
+          "2026": -9984,
+          "2025": -6512,
+          "2024": -7689
+        },
+        "other_short_debt_net": {
+          "2026": 2674,
+          "2025": -1138,
+          "2024": 857
+        },
+        "long_debt_additions": {
+          "2026": 2652,
+          "2025": 2237,
+          "2024": 3197
+        },
+        "long_debt_reductions": {
+          "2026": -3390,
+          "2025": -1977,
+          "2024": -2335
+        },
+        "treasury_stock_cash": {
+          "2026": -5028,
+          "2025": -6500,
+          "2024": -5006
+        },
+        "stock_options_and_other": {
+          "2026": 907,
+          "2025": 1707,
+          "2024": 1905
+        },
+        "financing_cash_flow": {
+          "2026": -14460,
+          "2025": -14036,
+          "2024": -14855
+        },
+        "fx_effect_cash": {
+          "2026": -86,
+          "2025": 112,
+          "2024": -251
+        },
+        "cash_change": {
+          "2026": 386,
+          "2025": 75,
+          "2024": 1235
+        },
+        "ending_cash_equivalents_restricted": {
+          "2026": 9942,
+          "2025": 9556,
+          "2024": 9482
+        },
+        "cash_interest_paid": {
+          "2026": 866,
+          "2025": 896,
+          "2024": 878
+        }
+      },
+      "presentationNotes": [
+        "Indirect method",
+        "Certain prior-year operating lines reclassified; total operating cash flow unchanged.",
+        "Cash statement includes restricted cash; balance sheet title cash and equivalents. Values equal at shown dates but labels must remain distinct."
+      ]
+    },
+    "equity_rollforward_total": {
+      "sourcePhysicalPage": 2006,
+      "printedPage": 40,
+      "periods": [
+        2026,
+        2025,
+        2024
+      ],
+      "unit": "USD millions",
+      "basis": "consolidated US GAAP",
+      "rows": {
+        "opening_total_equity": {
+          "2026": 52284,
+          "2025": 50559,
+          "2024": 47065
+        },
+        "net_earnings": {
+          "2026": 16144,
+          "2025": 16065,
+          "2024": 14974
+        },
+        "other_comprehensive_income": {
+          "2026": -343,
+          "2025": -248,
+          "2024": 317
+        },
+        "common_dividends_declared": {
+          "2026": -9966,
+          "2025": -9606,
+          "2024": -9053
+        },
+        "preferred_dividends_declared": {
+          "2026": -292,
+          "2025": -291,
+          "2024": -284
+        },
+        "treasury_purchases": {
+          "2026": -5029,
+          "2025": -6517,
+          "2024": -5014
+        },
+        "employee_plans": {
+          "2026": 1470,
+          "2025": 2259,
+          "2024": 2478
+        },
+        "preferred_conversions": {
+          "2026": 0,
+          "2025": 0,
+          "2024": 0
+        },
+        "esop_impacts": {
+          "2026": 168,
+          "2025": 150,
+          "2024": 184
+        },
+        "noncontrolling_interest_net": {
+          "2026": -125,
+          "2025": -87,
+          "2024": -108
+        },
+        "closing_total_equity": {
+          "2026": 54311,
+          "2025": 52284,
+          "2024": 50559
+        },
+        "dividends_per_common_share": {
+          "2026": 4.2589,
+          "2025": 4.0763,
+          "2024": 3.8286
+        },
+        "common_shares_outstanding_thousands": {
+          "2026": 2323859,
+          "2025": 2341994,
+          "2024": 2357051
+        }
+      },
+      "rowUnitOverrides": {
+        "dividends_per_common_share": "USD per share",
+        "common_shares_outstanding_thousands": "thousand shares"
+      }
+    },
+    "equity_components": {
+      "sourcePhysicalPage": 2006,
+      "printedPage": 40,
+      "unit": "USD millions, common shares in thousands",
+      "basis": "consolidated US GAAP",
+      "nullMeaning": "blank source cell, not a reconstructed transaction; treat as no displayed movement solely for arithmetic",
+      "columns": [
+        "common_shares_thousands",
+        "common_stock",
+        "preferred_stock",
+        "additional_paid_in_capital",
+        "esop_debt_retirement_reserve",
+        "accumulated_other_comprehensive_income",
+        "treasury_stock",
+        "retained_earnings",
+        "noncontrolling_interest",
+        "total_equity"
+      ],
+      "periods": {
+        "2024": {
+          "rows": [
+            {
+              "label": "Opening balance June30 2023",
+              "values": {
+                "common_shares_thousands": 2362120,
+                "common_stock": 4009,
+                "preferred_stock": 819,
+                "additional_paid_in_capital": 66556,
+                "esop_debt_retirement_reserve": -821,
+                "accumulated_other_comprehensive_income": -12220,
+                "treasury_stock": -129736,
+                "retained_earnings": 118170,
+                "noncontrolling_interest": 288,
+                "total_equity": 47065
+              }
+            },
+            {
+              "label": "Net earnings",
+              "values": {
+                "common_shares_thousands": null,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": null,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": null,
+                "retained_earnings": 14879,
+                "noncontrolling_interest": 95,
+                "total_equity": 14974
+              }
+            },
+            {
+              "label": "Other comprehensive income",
+              "values": {
+                "common_shares_thousands": null,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": null,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": 320,
+                "treasury_stock": null,
+                "retained_earnings": null,
+                "noncontrolling_interest": -3,
+                "total_equity": 317
+              }
+            },
+            {
+              "label": "Common dividends",
+              "values": {
+                "common_shares_thousands": null,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": null,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": null,
+                "retained_earnings": -9053,
+                "noncontrolling_interest": null,
+                "total_equity": -9053
+              }
+            },
+            {
+              "label": "Preferred dividends",
+              "values": {
+                "common_shares_thousands": null,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": null,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": null,
+                "retained_earnings": -284,
+                "noncontrolling_interest": null,
+                "total_equity": -284
+              }
+            },
+            {
+              "label": "Treasury stock purchases",
+              "values": {
+                "common_shares_thousands": -31877,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": null,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": -5014,
+                "retained_earnings": null,
+                "noncontrolling_interest": null,
+                "total_equity": -5014
+              }
+            },
+            {
+              "label": "Employee stock plans",
+              "values": {
+                "common_shares_thousands": 24095,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": 1125,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": 1353,
+                "retained_earnings": null,
+                "noncontrolling_interest": null,
+                "total_equity": 2478
+              }
+            },
+            {
+              "label": "Preferred stock conversions",
+              "values": {
+                "common_shares_thousands": 2713,
+                "common_stock": null,
+                "preferred_stock": -21,
+                "additional_paid_in_capital": 3,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": 18,
+                "retained_earnings": null,
+                "noncontrolling_interest": null,
+                "total_equity": 0
+              }
+            },
+            {
+              "label": "ESOP debt impacts",
+              "values": {
+                "common_shares_thousands": null,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": null,
+                "esop_debt_retirement_reserve": 85,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": null,
+                "retained_earnings": 99,
+                "noncontrolling_interest": null,
+                "total_equity": 184
+              }
+            },
+            {
+              "label": "Noncontrolling interest, net",
+              "values": {
+                "common_shares_thousands": null,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": 0,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": null,
+                "retained_earnings": null,
+                "noncontrolling_interest": -108,
+                "total_equity": -108
+              }
+            },
+            {
+              "label": "Closing balance June30 2024",
+              "values": {
+                "common_shares_thousands": 2357051,
+                "common_stock": 4009,
+                "preferred_stock": 798,
+                "additional_paid_in_capital": 67684,
+                "esop_debt_retirement_reserve": -737,
+                "accumulated_other_comprehensive_income": -11900,
+                "treasury_stock": -133379,
+                "retained_earnings": 123811,
+                "noncontrolling_interest": 272,
+                "total_equity": 50559
+              }
+            }
+          ]
+        },
+        "2025": {
+          "rows": [
+            {
+              "label": "Opening balance June30 2024",
+              "values": {
+                "common_shares_thousands": 2357051,
+                "common_stock": 4009,
+                "preferred_stock": 798,
+                "additional_paid_in_capital": 67684,
+                "esop_debt_retirement_reserve": -737,
+                "accumulated_other_comprehensive_income": -11900,
+                "treasury_stock": -133379,
+                "retained_earnings": 123811,
+                "noncontrolling_interest": 272,
+                "total_equity": 50559
+              }
+            },
+            {
+              "label": "Net earnings",
+              "values": {
+                "common_shares_thousands": null,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": null,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": null,
+                "retained_earnings": 15974,
+                "noncontrolling_interest": 91,
+                "total_equity": 16065
+              }
+            },
+            {
+              "label": "Other comprehensive income",
+              "values": {
+                "common_shares_thousands": null,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": null,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": -243,
+                "treasury_stock": null,
+                "retained_earnings": null,
+                "noncontrolling_interest": -4,
+                "total_equity": -248
+              }
+            },
+            {
+              "label": "Common dividends",
+              "values": {
+                "common_shares_thousands": null,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": null,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": null,
+                "retained_earnings": -9606,
+                "noncontrolling_interest": null,
+                "total_equity": -9606
+              }
+            },
+            {
+              "label": "Preferred dividends",
+              "values": {
+                "common_shares_thousands": null,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": null,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": null,
+                "retained_earnings": -291,
+                "noncontrolling_interest": null,
+                "total_equity": -291
+              }
+            },
+            {
+              "label": "Treasury stock purchases",
+              "values": {
+                "common_shares_thousands": -38552,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": null,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": -6517,
+                "retained_earnings": null,
+                "noncontrolling_interest": null,
+                "total_equity": -6517
+              }
+            },
+            {
+              "label": "Employee stock plans",
+              "values": {
+                "common_shares_thousands": 20940,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": 1084,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": 1175,
+                "retained_earnings": null,
+                "noncontrolling_interest": null,
+                "total_equity": 2259
+              }
+            },
+            {
+              "label": "Preferred stock conversions",
+              "values": {
+                "common_shares_thousands": 2555,
+                "common_stock": null,
+                "preferred_stock": -20,
+                "additional_paid_in_capital": 3,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": 18,
+                "retained_earnings": null,
+                "noncontrolling_interest": null,
+                "total_equity": 0
+              }
+            },
+            {
+              "label": "ESOP debt impacts",
+              "values": {
+                "common_shares_thousands": null,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": null,
+                "esop_debt_retirement_reserve": 64,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": null,
+                "retained_earnings": 86,
+                "noncontrolling_interest": null,
+                "total_equity": 150
+              }
+            },
+            {
+              "label": "Noncontrolling interest, net",
+              "values": {
+                "common_shares_thousands": null,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": 0,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": null,
+                "retained_earnings": null,
+                "noncontrolling_interest": -87,
+                "total_equity": -87
+              }
+            },
+            {
+              "label": "Closing balance June30 2025",
+              "values": {
+                "common_shares_thousands": 2341994,
+                "common_stock": 4009,
+                "preferred_stock": 777,
+                "additional_paid_in_capital": 68770,
+                "esop_debt_retirement_reserve": -672,
+                "accumulated_other_comprehensive_income": -12143,
+                "treasury_stock": -138702,
+                "retained_earnings": 129973,
+                "noncontrolling_interest": 272,
+                "total_equity": 52284
+              }
+            }
+          ]
+        },
+        "2026": {
+          "rows": [
+            {
+              "label": "Opening balance June30 2025",
+              "values": {
+                "common_shares_thousands": 2341994,
+                "common_stock": 4009,
+                "preferred_stock": 777,
+                "additional_paid_in_capital": 68770,
+                "esop_debt_retirement_reserve": -672,
+                "accumulated_other_comprehensive_income": -12143,
+                "treasury_stock": -138702,
+                "retained_earnings": 129973,
+                "noncontrolling_interest": 272,
+                "total_equity": 52284
+              }
+            },
+            {
+              "label": "Net earnings",
+              "values": {
+                "common_shares_thousands": null,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": null,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": null,
+                "retained_earnings": 16046,
+                "noncontrolling_interest": 98,
+                "total_equity": 16144
+              }
+            },
+            {
+              "label": "Other comprehensive income",
+              "values": {
+                "common_shares_thousands": null,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": null,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": -322,
+                "treasury_stock": null,
+                "retained_earnings": null,
+                "noncontrolling_interest": -21,
+                "total_equity": -343
+              }
+            },
+            {
+              "label": "Common dividends",
+              "values": {
+                "common_shares_thousands": null,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": null,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": null,
+                "retained_earnings": -9966,
+                "noncontrolling_interest": null,
+                "total_equity": -9966
+              }
+            },
+            {
+              "label": "Preferred dividends",
+              "values": {
+                "common_shares_thousands": null,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": null,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": null,
+                "retained_earnings": -292,
+                "noncontrolling_interest": null,
+                "total_equity": -292
+              }
+            },
+            {
+              "label": "Treasury stock purchases",
+              "values": {
+                "common_shares_thousands": -33437,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": null,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": -5029,
+                "retained_earnings": null,
+                "noncontrolling_interest": null,
+                "total_equity": -5029
+              }
+            },
+            {
+              "label": "Employee stock plans",
+              "values": {
+                "common_shares_thousands": 12566,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": 764,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": 705,
+                "retained_earnings": null,
+                "noncontrolling_interest": null,
+                "total_equity": 1470
+              }
+            },
+            {
+              "label": "Preferred stock conversions",
+              "values": {
+                "common_shares_thousands": 2735,
+                "common_stock": null,
+                "preferred_stock": -22,
+                "additional_paid_in_capital": 3,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": 19,
+                "retained_earnings": null,
+                "noncontrolling_interest": null,
+                "total_equity": 0
+              }
+            },
+            {
+              "label": "ESOP debt impacts",
+              "values": {
+                "common_shares_thousands": null,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": null,
+                "esop_debt_retirement_reserve": 76,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": null,
+                "retained_earnings": 91,
+                "noncontrolling_interest": null,
+                "total_equity": 168
+              }
+            },
+            {
+              "label": "Noncontrolling interest, net",
+              "values": {
+                "common_shares_thousands": null,
+                "common_stock": null,
+                "preferred_stock": null,
+                "additional_paid_in_capital": -5,
+                "esop_debt_retirement_reserve": null,
+                "accumulated_other_comprehensive_income": null,
+                "treasury_stock": null,
+                "retained_earnings": null,
+                "noncontrolling_interest": -119,
+                "total_equity": -125
+              }
+            },
+            {
+              "label": "Closing balance June30 2026",
+              "values": {
+                "common_shares_thousands": 2323859,
+                "common_stock": 4009,
+                "preferred_stock": 756,
+                "additional_paid_in_capital": 69533,
+                "esop_debt_retirement_reserve": -596,
+                "accumulated_other_comprehensive_income": -12465,
+                "treasury_stock": -143008,
+                "retained_earnings": 135852,
+                "noncontrolling_interest": 230,
+                "total_equity": 54311
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "earnings_per_share": {
+    "sourcePhysicalPage": 2019,
+    "printedPage": 53,
+    "periods": [
+      2026,
+      2025,
+      2024
+    ],
+    "unit": "earnings USD millions; shares millions; EPS USD/share",
+    "basis": "consolidated US GAAP",
+    "rows": {
+      "diluted_earnings_numerator": {
+        "2026": 16046,
+        "2025": 15974,
+        "2024": 14879
+      },
+      "preferred_dividends": {
+        "2026": 292,
+        "2025": 291,
+        "2024": 284
+      },
+      "basic_earnings_numerator": {
+        "2026": 15754,
+        "2025": 15682,
+        "2024": 14595
+      },
+      "basic_weighted_average_shares": {
+        "2026": 2333.7,
+        "2025": 2350.1,
+        "2024": 2360.1
+      },
+      "stock_options_and_unvested_awards": {
+        "2026": 20.5,
+        "2025": 33.3,
+        "2024": 38.3
+      },
+      "convertible_preferred_shares": {
+        "2026": 68.3,
+        "2025": 71.0,
+        "2024": 73.6
+      },
+      "diluted_weighted_average_shares": {
+        "2026": 2422.5,
+        "2025": 2454.4,
+        "2024": 2471.9
+      },
+      "excluded_antidilutive_options": {
+        "2026": 20,
+        "2025": 6,
+        "2024": 4
+      },
+      "basic_eps": {
+        "2026": 6.75,
+        "2025": 6.67,
+        "2024": 6.18
+      },
+      "diluted_eps": {
+        "2026": 6.62,
+        "2025": 6.51,
+        "2024": 6.02
+      }
+    }
+  },
+  "segments": {
+    "names": [
+      "Beauty",
+      "Grooming",
+      "Health Care",
+      "Fabric & Home Care",
+      "Baby, Feminine & Family Care",
+      "Corporate"
+    ],
+    "basis": "Management segment results with blended statutory taxes; Corporate reconciles US GAAP, includes restructuring and nonoperating items. Segment capex accrual-basis; Corporate includes cash-basis reconciliation. No segment assets disclosed.",
+    "periods": {
+      "2026": {
+        "sourcePhysicalPage": 2011,
+        "unit": "USD millions",
+        "rows": {
+          "net_sales": {
+            "Beauty": 16023,
+            "Grooming": 6918,
+            "Health Care": 12456,
+            "Fabric & Home Care": 30314,
+            "Baby, Feminine & Family Care": 20401,
+            "Corporate": 919
+          },
+          "cost_of_sales": {
+            "Beauty": -6397,
+            "Grooming": -2845,
+            "Health Care": -5208,
+            "Fabric & Home Care": -16428,
+            "Baby, Feminine & Family Care": -11089,
+            "Corporate": -1395
+          },
+          "sga": {
+            "Beauty": -6152,
+            "Grooming": -2111,
+            "Health Care": -4087,
+            "Fabric & Home Care": -6597,
+            "Baby, Feminine & Family Care": -4167,
+            "Corporate": -808
+          },
+          "other_segment_items": {
+            "Beauty": 0,
+            "Grooming": 3,
+            "Health Care": 2,
+            "Fabric & Home Care": 0,
+            "Baby, Feminine & Family Care": 0,
+            "Corporate": 623
+          },
+          "pretax_income": {
+            "Beauty": 3473,
+            "Grooming": 1966,
+            "Health Care": 3163,
+            "Fabric & Home Care": 7290,
+            "Baby, Feminine & Family Care": 5145,
+            "Corporate": -660
+          },
+          "net_earnings": {
+            "Beauty": 2672,
+            "Grooming": 1529,
+            "Health Care": 2404,
+            "Fabric & Home Care": 5632,
+            "Baby, Feminine & Family Care": 3930,
+            "Corporate": -23
+          },
+          "depreciation_amortization": {
+            "Beauty": 410,
+            "Grooming": 320,
+            "Health Care": 439,
+            "Fabric & Home Care": 756,
+            "Baby, Feminine & Family Care": 835,
+            "Corporate": 400
+          },
+          "capital_expenditure": {
+            "Beauty": 415,
+            "Grooming": 540,
+            "Health Care": 592,
+            "Fabric & Home Care": 1250,
+            "Baby, Feminine & Family Care": 1520,
+            "Corporate": 93
+          }
+        }
+      },
+      "2025": {
+        "sourcePhysicalPage": 2012,
+        "unit": "USD millions",
+        "rows": {
+          "net_sales": {
+            "Beauty": 14964,
+            "Grooming": 6662,
+            "Health Care": 11998,
+            "Fabric & Home Care": 29617,
+            "Baby, Feminine & Family Care": 20248,
+            "Corporate": 794
+          },
+          "cost_of_sales": {
+            "Beauty": -5822,
+            "Grooming": -2675,
+            "Health Care": -4974,
+            "Fabric & Home Care": -15650,
+            "Baby, Feminine & Family Care": -10926,
+            "Corporate": -1118
+          },
+          "sga": {
+            "Beauty": -5687,
+            "Grooming": -2036,
+            "Health Care": -3886,
+            "Fabric & Home Care": -6509,
+            "Baby, Feminine & Family Care": -4108,
+            "Corporate": -443
+          },
+          "other_segment_items": {
+            "Beauty": -1,
+            "Grooming": 0,
+            "Health Care": 10,
+            "Fabric & Home Care": 1,
+            "Baby, Feminine & Family Care": 0,
+            "Corporate": -294
+          },
+          "pretax_income": {
+            "Beauty": 3454,
+            "Grooming": 1952,
+            "Health Care": 3149,
+            "Fabric & Home Care": 7459,
+            "Baby, Feminine & Family Care": 5214,
+            "Corporate": -1061
+          },
+          "net_earnings": {
+            "Beauty": 2715,
+            "Grooming": 1577,
+            "Health Care": 2440,
+            "Fabric & Home Care": 5848,
+            "Baby, Feminine & Family Care": 4013,
+            "Corporate": -527
+          },
+          "depreciation_amortization": {
+            "Beauty": 399,
+            "Grooming": 313,
+            "Health Care": 397,
+            "Fabric & Home Care": 723,
+            "Baby, Feminine & Family Care": 814,
+            "Corporate": 200
+          },
+          "capital_expenditure": {
+            "Beauty": 328,
+            "Grooming": 451,
+            "Health Care": 526,
+            "Fabric & Home Care": 1208,
+            "Baby, Feminine & Family Care": 1080,
+            "Corporate": 180
+          }
+        }
+      },
+      "2024": {
+        "sourcePhysicalPage": 2012,
+        "unit": "USD millions",
+        "rows": {
+          "net_sales": {
+            "Beauty": 15220,
+            "Grooming": 6654,
+            "Health Care": 11793,
+            "Fabric & Home Care": 29495,
+            "Baby, Feminine & Family Care": 20277,
+            "Corporate": 601
+          },
+          "cost_of_sales": {
+            "Beauty": -5722,
+            "Grooming": -2711,
+            "Health Care": -4967,
+            "Fabric & Home Care": -15535,
+            "Baby, Feminine & Family Care": -10831,
+            "Corporate": -1082
+          },
+          "sga": {
+            "Beauty": -5700,
+            "Grooming": -2105,
+            "Health Care": -3886,
+            "Fabric & Home Care": -6631,
+            "Baby, Feminine & Family Care": -4198,
+            "Corporate": -784
+          },
+          "other_segment_items": {
+            "Beauty": 8,
+            "Grooming": 7,
+            "Health Care": 1,
+            "Fabric & Home Care": 10,
+            "Baby, Feminine & Family Care": 6,
+            "Corporate": -1156
+          },
+          "pretax_income": {
+            "Beauty": 3805,
+            "Grooming": 1845,
+            "Health Care": 2941,
+            "Fabric & Home Care": 7339,
+            "Baby, Feminine & Family Care": 5253,
+            "Corporate": -2422
+          },
+          "net_earnings": {
+            "Beauty": 2963,
+            "Grooming": 1477,
+            "Health Care": 2258,
+            "Fabric & Home Care": 5687,
+            "Baby, Feminine & Family Care": 4020,
+            "Corporate": -1430
+          },
+          "depreciation_amortization": {
+            "Beauty": 399,
+            "Grooming": 335,
+            "Health Care": 381,
+            "Fabric & Home Care": 710,
+            "Baby, Feminine & Family Care": 824,
+            "Corporate": 247
+          },
+          "capital_expenditure": {
+            "Beauty": 280,
+            "Grooming": 337,
+            "Health Care": 524,
+            "Fabric & Home Care": 1076,
+            "Baby, Feminine & Family Care": 979,
+            "Corporate": 126
+          }
+        }
+      }
+    }
+  },
+  "geographic": {
+    "sourcePhysicalPage": 2011,
+    "printedPage": 45,
+    "periods": [
+      2026,
+      2025,
+      2024
+    ],
+    "unit": "USD billions",
+    "basis": "consolidated US GAAP",
+    "rows": {
+      "us_sales": {
+        "2026": 41.7,
+        "2025": 41.6,
+        "2024": 40.5
+      },
+      "international_sales": {
+        "2026": 45.3,
+        "2025": 42.7,
+        "2024": 43.5
+      },
+      "us_ppe": {
+        "2026": 13.9,
+        "2025": 12.6,
+        "2024": 12.0
+      },
+      "international_ppe": {
+        "2026": 11.5,
+        "2025": 11.3,
+        "2024": 10.2
+      }
+    }
+  },
+  "non_gaap": {
+    "warning": "Supplemental management measures; not substitutes for US GAAP, not necessarily comparable to other issuers; do not extend financial-statement audit opinion to these schedules.",
+    "free_cash_flow": {
+      "sourcePhysicalPage": 1997,
+      "printedPage": 31,
+      "periods": [
+        2026,
+        2025
+      ],
+      "unit": "USD millions",
+      "basis": "non-GAAP reconciliation",
+      "rows": {
+        "operating_cash_flow": {
+          "2026": 19556,
+          "2025": 17817
+        },
+        "capital_spending": {
+          "2026": -4409,
+          "2025": -3773
+        },
+        "transition_tax_payment_addback": {
+          "2026": 688,
+          "2025": 562
+        },
+        "adjusted_free_cash_flow": {
+          "2026": 15835,
+          "2025": 14606
+        },
+        "net_earnings": {
+          "2026": 16144,
+          "2025": 16065
+        },
+        "earnings_adjustment": {
+          "2026": -261,
+          "2025": 752
+        },
+        "adjusted_earnings_denominator": {
+          "2026": 15883,
+          "2025": 16817
+        },
+        "published_productivity_percent": {
+          "2026": 100,
+          "2025": 87
+        }
+      }
+    },
+    "core_2026": {
+      "sourcePhysicalPage": 1998,
+      "columns": [
+        "GAAP",
+        "incremental_restructuring_adjustment",
+        "Glad_gain_adjustment",
+        "core_non_GAAP"
+      ],
+      "unit": "USD millions except EPS",
+      "rows": {
+        "cost_of_sales": [
+          43362,
+          -436,
+          0,
+          42927
+        ],
+        "sga": [
+          23922,
+          -313,
+          0,
+          23608
+        ],
+        "operating_income": [
+          19748,
+          749,
+          0,
+          20497
+        ],
+        "other_nonoperating": [
+          1076,
+          161,
+          -343,
+          894
+        ],
+        "income_tax": [
+          4233,
+          6,
+          -81,
+          4158
+        ],
+        "net_earnings": [
+          16144,
+          904,
+          -261,
+          16786
+        ],
+        "earnings_nci": [
+          98,
+          1,
+          0,
+          98
+        ],
+        "earnings_pg": [
+          16046,
+          903,
+          -261,
+          16688
+        ],
+        "diluted_eps": [
+          6.62,
+          0.37,
+          -0.11,
+          6.89
+        ]
+      }
+    },
+    "core_2025": {
+      "sourcePhysicalPage": 1999,
+      "columns": [
+        "GAAP",
+        "incremental_restructuring_adjustment",
+        "core_non_GAAP"
+      ],
+      "unit": "USD millions except EPS",
+      "rows": {
+        "cost_of_sales": [
+          41164,
+          20,
+          41184
+        ],
+        "sga": [
+          22669,
+          -25,
+          22643
+        ],
+        "operating_income": [
+          20451,
+          5,
+          20456
+        ],
+        "other_nonoperating": [
+          154,
+          789,
+          943
+        ],
+        "income_tax": [
+          4102,
+          -7,
+          4094
+        ],
+        "earnings_pg": [
+          15974,
+          801,
+          16775
+        ],
+        "diluted_eps": [
+          6.51,
+          0.33,
+          6.83
+        ]
+      }
+    }
+  },
+  "notes": {
+    "1_accounting": {
+      "sourcePhysicalPages": [
+        2008,
+        2009,
+        2010
+      ],
+      "revenue": "Single point-in-time performance obligation on shipment or receipt; net returns, taxes collected and trade promotions",
+      "inventory": "FIFO lower of cost/net realizable value for products; average cost spare parts",
+      "depreciation": "Straight line; buildings40years, manufacturing equipment generally3\u201320years, computers/software3\u20135years",
+      "intangibles": "Indefinite brands/goodwill no amortization; annual impairment. Determinable brands/customer relationships generally5\u201330years",
+      "cashflow": "Net investment hedges investing; nonqualifying intercompany financing currency instruments financing; other derivatives and income taxes operating",
+      "income_tax_disclosure_standard": "ASU2023-09 adopted2025-07-01, retrospective all presented periods",
+      "unadopted_standards": [
+        "ASU2024-03 FY2028/interimsFY2029",
+        "ASU2025-06 FY2029",
+        "ASU2025-10 FY2030"
+      ],
+      "research_development_billions": {
+        "2026": 2.1,
+        "2025": 2.1,
+        "2024": 2.0
+      },
+      "advertising_billions": {
+        "2026": 10.2,
+        "2025": 9.2,
+        "2024": 9.6
+      }
+    },
+    "2_segments": {
+      "sourcePhysicalPages": [
+        2010,
+        2011,
+        2012
+      ],
+      "detail": "See segments and geographic structured tables. Five reportable and11 operating segments. Walmart about16% consolidated sales2026\u20132024; no other customer/country exceptUS above10%."
+    },
+    "3_supplemental": {
+      "sourcePhysicalPages": [
+        2012,
+        2013,
+        2014
+      ],
+      "ppe": {
+        "sourcePhysicalPage": 2012,
+        "printedPage": 46,
+        "periods": [
+          2026,
+          2025
+        ],
+        "unit": "USD millions",
+        "basis": "consolidated US GAAP",
+        "rows": {
+          "machinery": {
+            "2026": 42001,
+            "2025": 40077
+          },
+          "buildings": {
+            "2026": 9760,
+            "2025": 9190
+          },
+          "construction": {
+            "2026": 4448,
+            "2025": 3935
+          },
+          "land": {
+            "2026": 963,
+            "2025": 979
+          },
+          "gross": {
+            "2026": 57172,
+            "2025": 54181
+          },
+          "accumulated_depreciation": {
+            "2026": -31811,
+            "2025": -30284
+          },
+          "net": {
+            "2026": 25360,
+            "2025": 23897
+          }
+        }
+      },
+      "current_accruals": {
+        "sourcePhysicalPage": 2013,
+        "printedPage": 47,
+        "periods": [
+          2026,
+          2025
+        ],
+        "unit": "USD millions",
+        "basis": "consolidated US GAAP",
+        "rows": {
+          "marketing": {
+            "2026": 4141,
+            "2025": 3851
+          },
+          "compensation": {
+            "2026": 2043,
+            "2025": 2007
+          },
+          "taxes": {
+            "2026": 778,
+            "2025": 1177
+          },
+          "restructuring": {
+            "2026": 336,
+            "2025": 189
+          },
+          "interest": {
+            "2026": 301,
+            "2025": 293
+          },
+          "lease": {
+            "2026": 246,
+            "2025": 255
+          },
+          "derivatives": {
+            "2026": 206,
+            "2025": 627
+          },
+          "other": {
+            "2026": 3040,
+            "2025": 2920
+          },
+          "total": {
+            "2026": 11091,
+            "2025": 11318
+          }
+        }
+      },
+      "noncurrent_liabilities": {
+        "sourcePhysicalPage": 2013,
+        "printedPage": 47,
+        "periods": [
+          2026,
+          2025
+        ],
+        "unit": "USD millions",
+        "basis": "consolidated US GAAP",
+        "rows": {
+          "pension": {
+            "2026": 2204,
+            "2025": 3026
+          },
+          "other_retiree": {
+            "2026": 736,
+            "2025": 691
+          },
+          "uncertain_tax": {
+            "2026": 654,
+            "2025": 701
+          },
+          "leases": {
+            "2026": 641,
+            "2025": 701
+          },
+          "derivatives": {
+            "2026": 195,
+            "2025": 435
+          },
+          "other": {
+            "2026": 484,
+            "2025": 566
+          },
+          "total": {
+            "2026": 4914,
+            "2025": 6120
+          }
+        }
+      },
+      "restructuring": {
+        "sourcePhysicalPage": 2014,
+        "printedPage": 48,
+        "periods": [
+          2026,
+          2025
+        ],
+        "unit": "USD millions",
+        "basis": "consolidated US GAAP",
+        "rows": {
+          "opening_reserve": {
+            "2026": 189,
+            "2025": 166
+          },
+          "cost_incurred": {
+            "2026": 1230,
+            "2025": 1114
+          },
+          "cost_settled": {
+            "2026": -1084,
+            "2025": -1090
+          },
+          "closing_reserve": {
+            "2026": 336,
+            "2025": 189
+          }
+        }
+      },
+      "restructuring_2026_by_type": {
+        "separation": 608,
+        "asset_related": 231,
+        "other": 391
+      },
+      "restructuring_2026_by_segment": [
+        76,
+        47,
+        132,
+        220,
+        201,
+        556
+      ],
+      "2026_expense_locations_from_narrative": {
+        "cost_of_sales": 606,
+        "sga": 460,
+        "nonoperating": 165
+      },
+      "pakistan_liquidation_fx_2026": 131,
+      "argentina_liquidation_fx_2025": 752,
+      "productivity_plan": "FY2026\u201327 $1.5\u20132.0bn pretax, up to7000 nonmanufacturing role reductions; overhalf costsFY2026"
+    },
+    "4_goodwill_intangibles": {
+      "sourcePhysicalPages": [
+        2015,
+        2016
+      ],
+      "goodwill_rollforward": {
+        "sourcePhysicalPage": 2015,
+        "printedPage": 49,
+        "periods": [
+          2026,
+          2025
+        ],
+        "unit": "USD millions",
+        "basis": "consolidated US GAAP",
+        "rows": {
+          "opening": {
+            "2026": 41650,
+            "2025": 40303
+          },
+          "acquisition": {
+            "2026": 40,
+            "2025": 0
+          },
+          "translation_other": {
+            "2026": -414,
+            "2025": 1348
+          },
+          "closing": {
+            "2026": 41276,
+            "2025": 41650
+          }
+        }
+      },
+      "goodwill_2026_by_segment": {
+        "Beauty": 14073,
+        "Grooming": 12887,
+        "Health Care": 7884,
+        "Fabric & Home Care": 1838,
+        "Baby, Feminine & Family Care": 4595
+      },
+      "grooming_accumulated_impairment_billions": 7.9,
+      "intangibles": {
+        "sourcePhysicalPage": 2016,
+        "printedPage": 50,
+        "periods": [
+          2026,
+          2025
+        ],
+        "unit": "USD millions",
+        "basis": "consolidated US GAAP",
+        "rows": {
+          "determinable_gross": {
+            "2026": 9164,
+            "2025": 9204
+          },
+          "accumulated_amortization": {
+            "2026": -7255,
+            "2025": -7008
+          },
+          "indefinite_brands": {
+            "2026": 19535,
+            "2025": 19714
+          },
+          "total_gross": {
+            "2026": 28699,
+            "2025": 28918
+          },
+          "total_net": {
+            "2026": 21444,
+            "2025": 21910
+          }
+        }
+      },
+      "amortization_expense": {
+        "2026": 308,
+        "2025": 320,
+        "2024": 338
+      },
+      "amortization_estimate_2027_2031": [
+        297,
+        256,
+        206,
+        181,
+        166
+      ],
+      "gillette_brand_carrying_2026_billions": 12.8,
+      "gillette_impairment_2024": 1341,
+      "gillette_fair_value_sensitivity_page": 1996
+    },
+    "5_taxes": {
+      "sourcePhysicalPages": [
+        2016,
+        2017,
+        2018
+      ],
+      "expense": {
+        "sourcePhysicalPage": 2016,
+        "printedPage": 50,
+        "periods": [
+          2026,
+          2025,
+          2024
+        ],
+        "unit": "USD millions",
+        "basis": "consolidated US GAAP",
+        "rows": {
+          "us_pretax": {
+            "2026": 13728,
+            "2025": 13911,
+            "2024": 12246
+          },
+          "international_pretax": {
+            "2026": 6649,
+            "2025": 6256,
+            "2024": 6515
+          },
+          "total_pretax": {
+            "2026": 20377,
+            "2025": 20167,
+            "2024": 18761
+          },
+          "current_tax": {
+            "2026": 4182,
+            "2025": 3953,
+            "2024": 4031
+          },
+          "deferred_tax": {
+            "2026": 51,
+            "2025": 149,
+            "2024": -244
+          },
+          "total_tax": {
+            "2026": 4233,
+            "2025": 4102,
+            "2024": 3787
+          }
+        }
+      },
+      "cash_paid": {
+        "2026": 4678,
+        "2025": 4554,
+        "2024": 4363
+      },
+      "effective_rate_percent": {
+        "2026": 20.8,
+        "2025": 20.3,
+        "2024": 20.2
+      },
+      "uncertain_positions_2026": {
+        "opening": 634,
+        "prior_increase": 59,
+        "prior_decrease": -96,
+        "current_increase": 40,
+        "settlement": -73,
+        "lapse": -13,
+        "translation": -4,
+        "closing": 547,
+        "could_affect_rate": 438,
+        "interest_excluded": 142,
+        "penalties_excluded": 48
+      },
+      "deferred_assets_2026": 4927,
+      "deferred_liabilities_2026": 9106,
+      "valuation_allowance_2026": 330,
+      "net_operating_losses_2026_billions": 1.6,
+      "indefinite_carryforward_billions": 1.5
+    },
+    "6_eps": {
+      "sourcePhysicalPages": [
+        2018,
+        2019
+      ],
+      "detail": "See earnings_per_share table. Basic preferred dividends deducted; diluted assumed preferred conversion. Period-end shares are not EPS weighted averages."
+    },
+    "7_share_compensation": {
+      "sourcePhysicalPages": [
+        2019,
+        2020,
+        2021
+      ],
+      "expense": {
+        "2026": 524,
+        "2025": 476,
+        "2024": 562
+      },
+      "tax_benefit": {
+        "2026": 92,
+        "2025": 85,
+        "2024": 103
+      },
+      "options_2026_thousands": {
+        "opening": 96621,
+        "granted": 8769,
+        "exercised": -10188,
+        "forfeited": -657,
+        "closing": 94544,
+        "exercisable": 69692
+      },
+      "RSU_2026_thousands": {
+        "opening": 3361,
+        "granted": 1704,
+        "vested": -1556,
+        "forfeited": -114,
+        "closing": 3396
+      },
+      "PSU_2026_thousands": {
+        "opening": 924,
+        "granted": 585,
+        "vested": -506,
+        "forfeited": -30,
+        "closing": 973
+      },
+      "unrecognized_option_cost": 188,
+      "unrecognized_unit_cost": 250,
+      "remaining_recognition_years": 1.6,
+      "available_grant_shares_millions": 213,
+      "valuation": "Lattice stock options; Monte Carlo PSUs",
+      "2026_option_assumptions": {
+        "weighted_rate_percent": 4.1,
+        "dividend_yield_percent": 2.7,
+        "volatility_percent": 19,
+        "expected_life_years": 8.8
+      }
+    },
+    "8_benefits_esop": {
+      "sourcePhysicalPages": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025,
+        2026
+      ],
+      "funding": {
+        "sourcePhysicalPage": 2022,
+        "printedPage": 56,
+        "periods": [
+          2026,
+          2025
+        ],
+        "unit": "USD millions",
+        "basis": "consolidated US GAAP",
+        "rows": {
+          "pension_obligation": {
+            "2026": 12455,
+            "2025": 13156
+          },
+          "pension_assets": {
+            "2026": 12159,
+            "2025": 11672
+          },
+          "pension_funded_status": {
+            "2026": -296,
+            "2025": -1484
+          },
+          "retiree_obligation": {
+            "2026": 3734,
+            "2025": 3396
+          },
+          "retiree_assets": {
+            "2026": 7166,
+            "2025": 7787
+          },
+          "retiree_funded_status": {
+            "2026": 3432,
+            "2025": 4391
+          }
+        }
+      },
+      "net_periodic_cost": {
+        "sourcePhysicalPage": 2023,
+        "printedPage": 57,
+        "periods": [
+          2026,
+          2025,
+          2024
+        ],
+        "unit": "USD millions",
+        "basis": "consolidated US GAAP",
+        "rows": {
+          "pension": {
+            "2026": 114,
+            "2025": 126,
+            "2024": 203
+          },
+          "retiree": {
+            "2026": -607,
+            "2025": -721,
+            "2024": -623
+          }
+        }
+      },
+      "2026_obligation_discount_percent": {
+        "pension": 4.6,
+        "retiree": 6.0
+      },
+      "2026_expense_discount_percent": {
+        "pension": 4.2,
+        "retiree": 5.9
+      },
+      "2026_expected_return_percent": {
+        "pension": 6.0,
+        "retiree": 8.5
+      },
+      "2027_company_funding_estimate": {
+        "pension": 200,
+        "retiree": 59
+      },
+      "2027_participant_payments_estimate": {
+        "pension": 712,
+        "retiree": 215
+      },
+      "series_B_2026_thousand_shares": {
+        "allocated": 36365,
+        "unallocated": 12277,
+        "total": 48642
+      },
+      "ESOP_internal_advance_2026": 596,
+      "detail": "SeriesA debt and company advances paid; SeriesB external debt repaid2021, internal advance recorded contraequity. Other-retiree assets mostly company shares. Plan assets not freely available corporate cash."
+    },
+    "9_financial_instruments": {
+      "sourcePhysicalPages": [
+        2026,
+        2027,
+        2028
+      ],
+      "derivatives": {
+        "sourcePhysicalPage": 2028,
+        "printedPage": 62,
+        "periods": [
+          2026,
+          2025
+        ],
+        "unit": "USD millions",
+        "basis": "consolidated US GAAP",
+        "rows": {
+          "notional": {
+            "2026": 22975,
+            "2025": 18730
+          },
+          "fair_value_assets": {
+            "2026": 176,
+            "2025": 19
+          },
+          "fair_value_liabilities": {
+            "2026": -401,
+            "2025": -1062
+          },
+          "fair_value_interest_notional": {
+            "2026": 5241,
+            "2025": 3280
+          },
+          "net_investment_notional": {
+            "2026": 13587,
+            "2025": 11874
+          },
+          "nonqualified_fx_notional": {
+            "2026": 4146,
+            "2025": 3576
+          }
+        }
+      },
+      "cash_equivalents_billions": {
+        "2026": 8.7,
+        "2025": 8.3
+      },
+      "longterm_debt_fair_value_billions_including_current": {
+        "2026": 28.3,
+        "2025": 29.5
+      },
+      "net_investment_debt_2026_billions": 12.0,
+      "commodity_hedges": "None2026/2025",
+      "classification": "Derivative fair valuesLevel2; debtfairvalue disclosure is not carrying value; notional not asset/liability amount."
+    },
+    "10_debt": {
+      "sourcePhysicalPages": [
+        2029,
+        2030,
+        2031
+      ],
+      "debt": {
+        "sourcePhysicalPage": 2029,
+        "printedPage": 63,
+        "periods": [
+          2026,
+          2025
+        ],
+        "unit": "USD millions",
+        "basis": "consolidated US GAAP",
+        "rows": {
+          "current_longterm": {
+            "2026": 6457,
+            "2025": 5377
+          },
+          "commercial_paper": {
+            "2026": 4837,
+            "2025": 4108
+          },
+          "other_current": {
+            "2026": 3,
+            "2025": 27
+          },
+          "total_current": {
+            "2026": 11296,
+            "2025": 9513
+          },
+          "longterm_excluding_current": {
+            "2026": 22842,
+            "2025": 24995
+          }
+        }
+      },
+      "maturities_2027_2031": [
+        6457,
+        2123,
+        1993,
+        3939,
+        2275
+      ],
+      "undrawn_bank_facilities": {
+        "total": 8000,
+        "five_year_to_2030_10": 3200,
+        "364_day_to_2026_10": 4800
+      },
+      "current_rate_percent": {
+        "2026": 3.3,
+        "2025": 3.0
+      },
+      "longterm_rate_percent": {
+        "2026": 3.3,
+        "2025": 3.3
+      }
+    },
+    "11_aoci": {
+      "sourcePhysicalPages": [
+        2031
+      ],
+      "2026_components": {
+        "investment": 10,
+        "retirement": -1216,
+        "fx": -11259,
+        "total": -12465
+      },
+      "2025_total": -12143,
+      "2026_total_OCI": -343,
+      "2026_NCI_OCI": -21,
+      "detail": "Parent AOCI, excludes NCI. PakistanFX131 reclassified to earnings; Argentina752 inFY2025."
+    },
+    "12_leases": {
+      "sourcePhysicalPages": [
+        2031,
+        2032
+      ],
+      "balances": {
+        "sourcePhysicalPage": 2032,
+        "printedPage": 66,
+        "periods": [
+          2026,
+          2025
+        ],
+        "unit": "USD millions",
+        "basis": "consolidated US GAAP",
+        "rows": {
+          "rou_assets": {
+            "2026": 846,
+            "2025": 925
+          },
+          "current_liability": {
+            "2026": 246,
+            "2025": 255
+          },
+          "noncurrent_liability": {
+            "2026": 641,
+            "2025": 701
+          },
+          "total_liability": {
+            "2026": 887,
+            "2025": 956
+          }
+        }
+      },
+      "operating_cost_2026": 275,
+      "variable_cost_2026": 85,
+      "total_cost_2026": 361,
+      "future_payments_2027_2031_thereafter": [
+        246,
+        205,
+        171,
+        126,
+        82,
+        198
+      ],
+      "undiscounted_payments": 1028,
+      "interest_deduction": 141,
+      "cash_paid_2026": 273,
+      "new_rou_2026": 168,
+      "weighted_term_years": 6,
+      "discount_percent": 5.6,
+      "scope": "No material finance lease/sublease; shortterm<=12monthsexcluded; variable costs excluded lease liability."
+    },
+    "13_commitments": {
+      "sourcePhysicalPages": [
+        2032,
+        2033
+      ],
+      "take_or_pay_2027_2031_thereafter": [
+        1155,
+        764,
+        602,
+        349,
+        287,
+        494
+      ],
+      "total": 3651,
+      "detail": "Indemnity maximum often not estimable. Routine supplier/customer loan guarantees immaterial; no materially impactful offbalance financing/VIE; litigation/environmental outcome not expected materially adverse, uncertainty retained."
+    },
+    "14_supplier_finance": {
+      "sourcePhysicalPages": [
+        2033
+      ],
+      "rollforward": {
+        "sourcePhysicalPage": 2033,
+        "printedPage": 67,
+        "periods": [
+          2026,
+          2025
+        ],
+        "unit": "USD millions",
+        "basis": "consolidated US GAAP",
+        "rows": {
+          "opening": {
+            "2026": 5790,
+            "2025": 5559
+          },
+          "confirmed": {
+            "2026": 18110,
+            "2025": 17132
+          },
+          "paid": {
+            "2026": -17741,
+            "2025": -16999
+          },
+          "translation": {
+            "2026": 16,
+            "2025": 98
+          },
+          "closing": {
+            "2026": 6176,
+            "2025": 5790
+          }
+        }
+      },
+      "classification": "Accounts payable, operating cashflow; already included in AP, no double count; no company guarantee. Payment terms60\u2013180days."
+    },
+    "15_subsequent_event": {
+      "sourcePhysicalPages": [
+        2034
+      ],
+      "target": "Thorne",
+      "agreement_date": "2026-08-04",
+      "purchase_price_USD_billions": 3.8,
+      "expected_close": "FY2027Q2, subject to regulatory approval/customary closing conditions",
+      "recognized_acquisition_at_2026_06_30": false
+    }
+  },
+  "assurance": {
+    "auditor": "Deloitte & Touche LLP",
+    "audit_report_date": "2026-08-04",
+    "financial_report_pages": [
+      2001,
+      2002
+    ],
+    "financial_opinion": "unqualified; fairly presented in all material respects under US GAAP",
+    "financial_scope": "Consolidated balance sheets as of2026-06-30 and2025-06-30; earnings,comprehensive income,equity,cashflow and notes for three years ended2026-06-30",
+    "standards": "PCAOB (United States)",
+    "ICFR_report_page": 2003,
+    "ICFR_date": "2026-06-30",
+    "ICFR_framework": "COSO Internal Control \u2013 Integrated Framework2013",
+    "ICFR_opinion": "effective in all material respects",
+    "critical_audit_matter": {
+      "topic": "Gillette indefinite-lived brand valuation",
+      "pages": [
+        2001,
+        2002
+      ],
+      "carrying_USD_billions": 12.8,
+      "valuation_date": "2025-10-01",
+      "procedures": [
+        "Controls over valuation and assumptions",
+        "Backtesting forecast net sales",
+        "Compared forecast to historical/internal/external information",
+        "Valuation specialists and independent discount range"
+      ],
+      "separate_opinion": false
+    },
+    "boundaries": [
+      "Reasonable not absolute assurance",
+      "Opinion does not authenticate entire bundled compilation or independently verify current SEC filing authenticity",
+      "No extension to MD&A/nonGAAP, future projections, external incorporated exhibits, S-Kosif application, generated model or transaction ledger",
+      "No parent-only statements presented"
+    ]
+  },
+  "source_exceptions": [
+    {
+      "id": "rounding",
+      "pages": [
+        1982,
+        1998,
+        1999,
+        2004,
+        2005,
+        2006,
+        2007,
+        2011,
+        2012,
+        2014,
+        2017,
+        2019,
+        2020,
+        2021,
+        2022,
+        2031,
+        2032,
+        2033
+      ],
+      "finding": "Displayed rounded figures sometimes do not crossfoot. Source MD&A explicitly warns rows/columns may not add from rounding. Numerical oracles retain residuals; no balancing plugs."
+    },
+    {
+      "id": "equity_clipping",
+      "pages": [
+        2006
+      ],
+      "finding": "Rendered source clips balance-year labels; text layer contains years. Amounts and sequence remain readable."
+    },
+    {
+      "id": "option_scope_gap",
+      "pages": [
+        2020,
+        2035
+      ],
+      "finding": "Note7 closing options94,544 thousand versus PartIII options/SAR94,554,254 shares. Distinct titles/scope; 10,254-share difference is not a rounding-only reconciliation. Do not silently equate; source has no explicit bridge."
+    },
+    {
+      "id": "debt_basis_gap",
+      "pages": [
+        1993,
+        2029,
+        2030
+      ],
+      "finding": "Contractual commitment debt34,490 differs from balance carrying current11,296 pluslongterm22,842=34,138. Different presentation bases; do not force-match without underlying adjustment bridge."
+    },
+    {
+      "id": "hidden_text_artifacts",
+      "pages": [
+        1963
+      ],
+      "finding": "TRUE/False text artifacts absent from visible cover; visual content governs."
+    },
+    {
+      "id": "external_documents",
+      "pages": [
+        2034,
+        2035,
+        2036,
+        2037,
+        2038
+      ],
+      "finding": "2026 proxy and most exhibits incorporated by reference are not in this assigned report range; index review is not underlying-document review."
+    }
+  ],
+  "comparison_requirements": [
+    "Require exact issuer, consolidated scope, USGAAP, fiscal2026-06-30 and USDmillion identity before matching values.",
+    "Separate2025 comparatives from current2026; do not relabel source to app year.",
+    "Compare full statements before extending to notes.",
+    "Distinguish netearnings16144 from attributable16046 and basicEPSnumerator15754.",
+    "Preserve equity and cashflow sign conventions.",
+    "Separate GAAPdilutedEPS6.62 from core6.89, and OCF19556 from adjustedFCF15835.",
+    "Use published amounts as oracles; tolerance only documented rounding residuals, not material mismatch correction.",
+    "No inference of underlying transaction ledger or synthetic journals.",
+    "Publish/display source exceptions and assurance limits with any app comparison."
+  ],
+  "digitizationScope": {
+    "primaryStatements": "All displayed income, comprehensive income, balance sheet and cashflow rows, plus total and component equity rollforwards.",
+    "notes": "All15 note topics reviewed; key numeric tables structured; complete original page text and financial-note renderings included for remaining detailed rows.",
+    "notCreated": "Raw journals, source transaction ledgers, invented postings, app fixture installation or actual app-acceptance results."
+  }
+}

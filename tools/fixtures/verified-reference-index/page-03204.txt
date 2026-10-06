@@ -1,0 +1,44 @@
+C _ Financial Statements of Allianz SE
+
+
+
+
+NOTES TO THE FINANCIAL STATEMENTS
+NATURE OF OPERATIONS AND BASIS OF PREPARATION
+                                                                                                                                                          All amounts in these financial statements are presented in
+Allianz SE, the holding and reinsurance company of the Allianz               Our financial statements and the management report have been             thousands of euro (€ thou), unless otherwise stated.
+Group, is located at Königinstraße 28, 80802 Munich, and registered          prepared in accordance with the regulations of the German
+in the Commercial Register of the municipal court in Munich under            Commercial Code (HGB), the German Stock Corporation Act (AktG),
+HRB 164232, and is publicly listed.                                          the Law on the Supervision of Insurance Enterprises (VAG), and the
+     The annual financial statements of Allianz SE and the consolidated      Government Order on the External Accounting Requirements of
+financial statements of the Allianz Group are published digitally in the     Insurance Enterprises (RechVersV).
+company register (“Unternehmensregister”).
+
+
+
+
+ACCOUNTING, VALUATION, AND CALCULATION METHODS
+                                                                                                                                                      the reporting date, the strict lower of cost or market value principle is
+Intangible assets are recorded at acquisition or construction cost less                                                                               applied.
+depreciation. They are amortized on a straight-line basis over a useful
+life of generally three to five years. In case of a permanent impairment,    Shares in affiliated enterprises and participations
+an unscheduled write-down is recognized. The internally generated            These are recorded at cost less impairments, in accordance with
+intangible assets are capitalized based on the capitalization option         § 341b (1) of the German Commercial Code in conjunction with             Stocks, interests in funds, debt securities and other
+in accordance with § 248 (2) sentence 1 of the German Commercial             § 253 (3) sentence 5 of the German Commercial Code.                      fixed and variable income securities, miscellaneous
+Code.                                                                             Impairments are measured either as the difference between the       investments
+                                                                             acquisition cost and the respective value, in accordance with IDW RS     These items are generally valued in accordance with § 341b (2) of the
+                                                                             HFA 10 in conjunction with IDW S1, or as the difference between the      German Commercial Code in conjunction with § 253 (1), (4), and (5) of
+                                                                             acquisition cost and the lower share price as of 31 December 2025, or    the German Commercial Code, using either the acquisition cost or the
+                                                                             in some cases as the difference between the acquisition cost and the     stock exchange or market value on the balance sheet date, whichever
+These items are recorded at acquisition or construction cost less            net asset value.                                                         is lower. We calculate the acquisition cost by averaging the different
+depreciation in accordance with § 253 (1) sentence 1 of the German                Wherever the market value on the balance sheet date is higher       acquisition costs for securities of the same type.
+Commercial Code in conjunction with § 341b (1) sentence 1 of the             than the previous year’s valuation, the value is written up to no more
+German Commercial Code. Depreciation is mainly measured using a              than the historical acquisition cost.                                    Registered bonds, debentures, and loans
+straight-line method according to ordinary useful life. The useful life of                                                                            These items are recorded at cost less impairments in accordance with
+newly acquired properties is based on the remaining useful life in           Loans in affiliated enterprises and participations                       § 253 (3) sentence 5 of the German Commercial Code. In accordance
+the purchase report. For all other assets, we use tax depreciation           These items are normally recorded at cost less impairments, in           with § 341c of the German Commercial Code, amortized cost
+tables. In case of a permanent impairment, the values of these items         accordance with § 253 (3) sentence 5 of the German Commercial            accounting is applied and the difference between acquisition cost and
+are adjusted through unscheduled write-downs.                                Code. However, when converting foreign currency loans into euro at
+
+
+18                                                                                                                                                                                                   Annual Report 2025 – Allianz SE

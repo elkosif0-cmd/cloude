@@ -1,0 +1,865 @@
+{
+  "issuer": "The Home Depot, Inc.",
+  "source": {
+    "pdf": "global_financial_and_audit_research_bundle_extended_verified.pdf",
+    "sha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+    "physical_pages_total": 12506,
+    "review_range": [
+      2040,
+      2131
+    ],
+    "hash_verified": true
+  },
+  "entity_scope": "The Home Depot, Inc. and consolidated subsidiaries",
+  "basis": "U.S. GAAP",
+  "reporting_currency": "USD",
+  "units_default": "millions except per-share data",
+  "periods": {
+    "2025": {
+      "end": "2026-02-01",
+      "weeks": 52
+    },
+    "2024": {
+      "end": "2025-02-02",
+      "weeks": 53
+    },
+    "2023": {
+      "end": "2024-01-28",
+      "weeks": 52
+    }
+  },
+  "assurance": {
+    "auditor": "KPMG LLP",
+    "auditor_since": 1979,
+    "report_date": "2026-03-18",
+    "financial_statements_opinion": "unqualified; U.S. GAAP consolidated two balance sheet dates and three fiscal years",
+    "icfr_opinion": "effective in all material respects under COSO 2013",
+    "icfr_exception": "GMS excluded from management and KPMG ICFR assessment, approximately 3% consolidated assets excluding goodwill and intangibles, and 1% net sales; GMS included in consolidated financial statements",
+    "source_pages": [
+      2084,
+      2085,
+      2120,
+      2121
+    ]
+  },
+  "statements": {
+    "balance_sheet": {
+      "source_pages": [
+        2086
+      ],
+      "columns": [
+        "2026-02-01",
+        "2025-02-02"
+      ],
+      "units": "USD millions",
+      "entity_scope": "The Home Depot, Inc. and consolidated subsidiaries",
+      "basis": "U.S. GAAP",
+      "rows": {
+        "cash_and_equivalents": [
+          1389,
+          1659
+        ],
+        "receivables_net": [
+          5597,
+          4903
+        ],
+        "merchandise_inventory": [
+          25817,
+          23451
+        ],
+        "other_current_assets": [
+          1588,
+          1670
+        ],
+        "current_assets": [
+          34391,
+          31683
+        ],
+        "net_ppe": [
+          28021,
+          26702
+        ],
+        "operating_lease_rou": [
+          9204,
+          8592
+        ],
+        "goodwill": [
+          22344,
+          19475
+        ],
+        "intangibles_net": [
+          10329,
+          8983
+        ],
+        "other_assets": [
+          806,
+          684
+        ],
+        "total_assets": [
+          105095,
+          96119
+        ],
+        "short_term_debt": [
+          4464,
+          316
+        ],
+        "accounts_payable": [
+          11491,
+          11938
+        ],
+        "accrued_salaries": [
+          2529,
+          2315
+        ],
+        "sales_tax_payable": [
+          508,
+          628
+        ],
+        "deferred_revenue": [
+          2575,
+          2610
+        ],
+        "income_tax_payable": [
+          114,
+          832
+        ],
+        "current_long_term_debt": [
+          4967,
+          4582
+        ],
+        "current_operating_leases": [
+          1418,
+          1274
+        ],
+        "other_accrued": [
+          4358,
+          4166
+        ],
+        "current_liabilities": [
+          32424,
+          28661
+        ],
+        "noncurrent_debt": [
+          46341,
+          48485
+        ],
+        "noncurrent_operating_leases": [
+          8160,
+          7633
+        ],
+        "deferred_tax_liabilities": [
+          2845,
+          1962
+        ],
+        "other_longterm_liabilities": [
+          2512,
+          2738
+        ],
+        "total_liabilities": [
+          92282,
+          89479
+        ],
+        "common_stock": [
+          90,
+          90
+        ],
+        "paid_in_capital": [
+          14809,
+          14117
+        ],
+        "retained_earnings": [
+          94537,
+          89533
+        ],
+        "aoci": [
+          -652,
+          -1129
+        ],
+        "treasury_stock": [
+          -95971,
+          -95971
+        ],
+        "equity": [
+          12813,
+          6640
+        ],
+        "liabilities_and_equity": [
+          105095,
+          96119
+        ]
+      }
+    },
+    "earnings": {
+      "source_pages": [
+        2087
+      ],
+      "columns": [
+        "FY2025",
+        "FY2024",
+        "FY2023"
+      ],
+      "units": "USD millions, except EPS in USD/share and weighted shares in millions",
+      "entity_scope": "The Home Depot, Inc. and consolidated subsidiaries",
+      "basis": "U.S. GAAP",
+      "rows": {
+        "net_sales": [
+          164683,
+          159514,
+          152669
+        ],
+        "cost_of_sales": [
+          109818,
+          106206,
+          101709
+        ],
+        "gross_profit": [
+          54865,
+          53308,
+          50960
+        ],
+        "sga": [
+          30702,
+          28748,
+          26598
+        ],
+        "operating_depreciation_amortization": [
+          3273,
+          3034,
+          2673
+        ],
+        "total_operating_expenses": [
+          33975,
+          31782,
+          29271
+        ],
+        "operating_income": [
+          20890,
+          21526,
+          21689
+        ],
+        "interest_income_other_net": [
+          -124,
+          -201,
+          -178
+        ],
+        "interest_expense": [
+          2412,
+          2321,
+          1943
+        ],
+        "interest_other_net": [
+          2288,
+          2120,
+          1765
+        ],
+        "pretax_earnings": [
+          18602,
+          19406,
+          19924
+        ],
+        "income_taxes": [
+          4446,
+          4600,
+          4781
+        ],
+        "net_earnings": [
+          14156,
+          14806,
+          15143
+        ],
+        "basic_weighted_shares_millions": [
+          993,
+          990,
+          999
+        ],
+        "basic_eps_USD": [
+          14.26,
+          14.96,
+          15.16
+        ],
+        "diluted_weighted_shares_millions": [
+          995,
+          993,
+          1002
+        ],
+        "diluted_eps_USD": [
+          14.23,
+          14.91,
+          15.11
+        ]
+      }
+    },
+    "comprehensive_income": {
+      "source_pages": [
+        2088
+      ],
+      "columns": [
+        "FY2025",
+        "FY2024",
+        "FY2023"
+      ],
+      "units": "USD millions",
+      "entity_scope": "The Home Depot, Inc. and consolidated subsidiaries",
+      "basis": "U.S. GAAP",
+      "rows": {
+        "net_earnings": [
+          14156,
+          14806,
+          15143
+        ],
+        "fx_translation_net_tax": [
+          469,
+          -605,
+          232
+        ],
+        "cash_flow_hedges_net_tax": [
+          11,
+          -45,
+          8
+        ],
+        "other_net_tax": [
+          -3,
+          -2,
+          1
+        ],
+        "total_oci": [
+          477,
+          -652,
+          241
+        ],
+        "comprehensive_income": [
+          14633,
+          14154,
+          15384
+        ]
+      }
+    },
+    "equity_rollforward": {
+      "source_pages": [
+        2089
+      ],
+      "columns": [
+        "FY2025",
+        "FY2024",
+        "FY2023"
+      ],
+      "units": "USD millions",
+      "entity_scope": "The Home Depot, Inc. and consolidated subsidiaries",
+      "basis": "U.S. GAAP",
+      "rows": {
+        "common_begin": [
+          90,
+          90,
+          90
+        ],
+        "common_issuance": [
+          0,
+          0,
+          0
+        ],
+        "common_end": [
+          90,
+          90,
+          90
+        ],
+        "apic_begin": [
+          14117,
+          13147,
+          12592
+        ],
+        "employee_stock_net": [
+          170,
+          530,
+          175
+        ],
+        "sbc_equity": [
+          522,
+          440,
+          380
+        ],
+        "apic_end": [
+          14809,
+          14117,
+          13147
+        ],
+        "retained_begin": [
+          89533,
+          83656,
+          76896
+        ],
+        "net_earnings": [
+          14156,
+          14806,
+          15143
+        ],
+        "dividends": [
+          -9152,
+          -8929,
+          -8383
+        ],
+        "retained_end": [
+          94537,
+          89533,
+          83656
+        ],
+        "aoci_begin": [
+          -1129,
+          -477,
+          -718
+        ],
+        "fx_translation": [
+          469,
+          -605,
+          232
+        ],
+        "cash_flow_hedges": [
+          11,
+          -45,
+          8
+        ],
+        "other_oci": [
+          -3,
+          -2,
+          1
+        ],
+        "aoci_end": [
+          -652,
+          -1129,
+          -477
+        ],
+        "treasury_begin": [
+          -95971,
+          -95372,
+          -87298
+        ],
+        "treasury_repurchases": [
+          0,
+          -599,
+          -8074
+        ],
+        "treasury_end": [
+          -95971,
+          -95971,
+          -95372
+        ],
+        "equity_end": [
+          12813,
+          6640,
+          1044
+        ]
+      }
+    },
+    "cash_flows": {
+      "source_pages": [
+        2090
+      ],
+      "columns": [
+        "FY2025",
+        "FY2024",
+        "FY2023"
+      ],
+      "units": "USD millions",
+      "entity_scope": "The Home Depot, Inc. and consolidated subsidiaries",
+      "basis": "U.S. GAAP",
+      "rows": {
+        "net_earnings": [
+          14156,
+          14806,
+          15143
+        ],
+        "da_excluding_intangibles": [
+          3514,
+          3336,
+          3061
+        ],
+        "intangible_amortization": [
+          607,
+          425,
+          186
+        ],
+        "stock_compensation": [
+          522,
+          442,
+          380
+        ],
+        "receivables_change": [
+          107,
+          174,
+          134
+        ],
+        "inventory_change": [
+          -1498,
+          -743,
+          4137
+        ],
+        "other_current_assets_change": [
+          124,
+          86,
+          -184
+        ],
+        "ap_accrued_change": [
+          -1058,
+          518,
+          -1411
+        ],
+        "deferred_revenue_change": [
+          -61,
+          -165,
+          -318
+        ],
+        "tax_payable_change": [
+          -698,
+          809,
+          -25
+        ],
+        "deferred_tax_change": [
+          418,
+          15,
+          -245
+        ],
+        "other_operations": [
+          192,
+          107,
+          314
+        ],
+        "operating_cash": [
+          16325,
+          19810,
+          21172
+        ],
+        "capital_expenditure": [
+          -3679,
+          -3485,
+          -3226
+        ],
+        "acquisition_payments_net": [
+          -5410,
+          -17644,
+          -1514
+        ],
+        "other_investing": [
+          109,
+          98,
+          11
+        ],
+        "investing_cash": [
+          -8980,
+          -21031,
+          -4729
+        ],
+        "short_debt_proceeds_net": [
+          4148,
+          316,
+          0
+        ],
+        "long_debt_proceeds_net_discount": [
+          2161,
+          10010,
+          1995
+        ],
+        "long_debt_repaid": [
+          -5040,
+          -1536,
+          -1271
+        ],
+        "share_repurchases": [
+          0,
+          -649,
+          -7951
+        ],
+        "common_stock_proceeds": [
+          314,
+          395,
+          323
+        ],
+        "dividends": [
+          -9152,
+          -8929,
+          -8383
+        ],
+        "other_financing": [
+          -145,
+          -301,
+          -156
+        ],
+        "financing_cash": [
+          -7714,
+          -694,
+          -15443
+        ],
+        "cash_change_before_fx": [
+          -369,
+          -1915,
+          1000
+        ],
+        "cash_fx": [
+          99,
+          -186,
+          3
+        ],
+        "cash_begin": [
+          1659,
+          3760,
+          2757
+        ],
+        "cash_end": [
+          1389,
+          1659,
+          3760
+        ],
+        "cash_interest_net_capitalized": [
+          2405,
+          2199,
+          1809
+        ],
+        "noncash_capex": [
+          272,
+          250,
+          364
+        ],
+        "noncash_acquisition_consideration": [
+          0,
+          321,
+          0
+        ]
+      }
+    }
+  },
+  "limitations_and_exceptions": [
+    {
+      "type": "external_content_not_in_range",
+      "pages": [
+        2122,
+        2123,
+        2124,
+        2125,
+        2126,
+        2127
+      ],
+      "detail": "Proxy-incorporated compensation, ownership, related-party/governance detail and accountant fees, and most referenced exhibits are not reproduced in pages2040–2131. Index references read; external contents not claimed reviewed."
+    },
+    {
+      "type": "assurance_scope",
+      "pages": [
+        2120,
+        2121
+      ],
+      "detail": "GMS excluded from ICFR assessment/audit only. Do not remove from audited consolidated financial statements or imply clean ICFR covers GMS."
+    },
+    {
+      "type": "measurement_preliminary",
+      "pages": [
+        2117,
+        2118
+      ],
+      "detail": "GMS PPA remains preliminary; exact final allocations not supplied."
+    },
+    {
+      "type": "rounding_and_undefined_derivation",
+      "pages": [
+        2087,
+        2090,
+        2098,
+        2101,
+        2112
+      ],
+      "detail": "EPS denominators shown in whole millions. Cashflow D&A excluding intangibles3514 differs Note3 depreciation3452 by62 in FY2025 (2024:53;2023:41); source does not bridge this difference. SBC total expense524 differs CF/equity522 in2025; preserve distinct source concepts rather than inventing a reconciliation."
+    },
+    {
+      "type": "not_transaction_ledger",
+      "detail": "Annual-report aggregates and policies do not establish underlying journal entries, invoices, transaction chronology or complete subsidiary trial balances. No synthetic business transactions generated."
+    },
+    {
+      "type": "not_current_advice",
+      "detail": "Historical source model as reported March18,2026; no subsequent developments or current law independently checked."
+    }
+  ],
+  "review_package_sha256": "c93086c15c05512097398d019a988ef4acb400b5f3f8d6518d010f35937ffaed",
+  "issuer_model_sha256": "df62613a3f343d6939b914ea76a4c9f1bb408030671519177500a0683a4cc401",
+  "frozen_from": "Reviewed package v2 and directly checked source text/visuals pp. 2084–2090 and 2120–2121; not application output.",
+  "source_text_sha256": {
+    "2084": "f3d6d751c3265637a69f382d06f22192d4fd80aa598a09f4add5c1d45fc520d0",
+    "2085": "cb75c7525d1a868bcd064113a50fc14607c3876ef5e5ff765b5ed7fda8b965f6",
+    "2086": "e197ae93b6bd4ee466c1aaadb9c280f3db56aa26656ec119eef8f3797ee6e2a1",
+    "2087": "2b02e3f2aed31276e1f095cec3ef7d364967cea1dc51a8f5d96fd8939e929753",
+    "2088": "7079b091f1d51b46e5770e331ed1b6224f355a7389599b800284ef0d3af42c41",
+    "2089": "e16d29d13beff595a1486db6a851a213d679008ba66d8bf2e5eca2710f4d8482",
+    "2090": "1ab2e615aa82d40a680ee1a6bf477fcd57a03c2d9b24e1bd6d18edb3f5cbf1be",
+    "2120": "d48961078979fe0465bcf840eb686488be57d55105e15e3e6eb0ec838ca4f678",
+    "2121": "f9890fecdb919cefb24527955b04a314330dd01b976ca99292e3273109d87c53"
+  },
+  "balance_bindings": {
+    "cash": [
+      "cash_and_equivalents",
+      "Cash and cash equivalents",
+      "ca"
+    ],
+    "receivables": [
+      "receivables_net",
+      "Receivables, net",
+      "ca"
+    ],
+    "inventory": [
+      "merchandise_inventory",
+      "Merchandise inventories",
+      "ca"
+    ],
+    "otherCa": [
+      "other_current_assets",
+      "Other current assets",
+      "ca"
+    ],
+    "ppe": [
+      "net_ppe",
+      "Net property and equipment",
+      "nca"
+    ],
+    "rou": [
+      "operating_lease_rou",
+      "Operating lease right-of-use assets",
+      "nca"
+    ],
+    "goodwill": [
+      "goodwill",
+      "Goodwill",
+      "nca"
+    ],
+    "intangibles": [
+      "intangibles_net",
+      "Intangible assets, net",
+      "nca"
+    ],
+    "otherNca": [
+      "other_assets",
+      "Other assets",
+      "nca"
+    ],
+    "shortTermDebt": [
+      "short_term_debt",
+      "Short-term debt",
+      "cl"
+    ],
+    "payables": [
+      "accounts_payable",
+      "Accounts payable",
+      "cl"
+    ],
+    "accruedSalaries": [
+      "accrued_salaries",
+      "Accrued salaries and related expenses",
+      "cl"
+    ],
+    "salesTaxPayable": [
+      "sales_tax_payable",
+      "Sales taxes payable",
+      "cl"
+    ],
+    "contractLiab": [
+      "deferred_revenue",
+      "Deferred revenue",
+      "cl"
+    ],
+    "zakatPayable": [
+      "income_tax_payable",
+      "Income taxes payable",
+      "cl"
+    ],
+    "currentLongTermDebt": [
+      "current_long_term_debt",
+      "Current installments of long-term debt",
+      "cl"
+    ],
+    "leaseCl": [
+      "current_operating_leases",
+      "Current operating lease liabilities",
+      "cl"
+    ],
+    "accruals": [
+      "other_accrued",
+      "Other accrued expenses",
+      "cl"
+    ],
+    "loansNcl": [
+      "noncurrent_debt",
+      "Long-term debt, excluding current installments",
+      "ncl"
+    ],
+    "leaseNcl": [
+      "noncurrent_operating_leases",
+      "Long-term operating lease liabilities",
+      "ncl"
+    ],
+    "deferredIncomeTaxes": [
+      "deferred_tax_liabilities",
+      "Deferred income taxes",
+      "ncl"
+    ],
+    "otherNcl": [
+      "other_longterm_liabilities",
+      "Other long-term liabilities",
+      "ncl"
+    ],
+    "capital": [
+      "common_stock",
+      "Common stock",
+      "eq"
+    ],
+    "paidInCapital": [
+      "paid_in_capital",
+      "Paid-in capital",
+      "eq"
+    ],
+    "retained": [
+      "retained_earnings",
+      "Retained earnings",
+      "eq"
+    ],
+    "reserves": [
+      "aoci",
+      "Accumulated other comprehensive loss",
+      "eq"
+    ],
+    "treasuryStock": [
+      "treasury_stock",
+      "Treasury stock, at cost",
+      "eq"
+    ]
+  },
+  "earnings_bindings": {
+    "revenue": [
+      "net_sales",
+      "Net sales",
+      1
+    ],
+    "cogs": [
+      "cost_of_sales",
+      "Cost of sales",
+      -1
+    ],
+    "sellingGeneralAdmin": [
+      "sga",
+      "Selling, general and administrative",
+      -1
+    ],
+    "depreciation": [
+      "operating_depreciation_amortization",
+      "Depreciation and amortization",
+      -1
+    ],
+    "interestIncomeOther": [
+      "interest_income_other_net",
+      "Interest income and other, net",
+      -1
+    ],
+    "financeCost": [
+      "interest_expense",
+      "Interest expense",
+      -1
+    ],
+    "zakatExpense": [
+      "income_taxes",
+      "Provision for income taxes",
+      -1
+    ]
+  }
+}

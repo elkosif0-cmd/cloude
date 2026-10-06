@@ -1,0 +1,3948 @@
+{
+  "income": {
+    "columns": [
+      "2025",
+      "2024"
+    ],
+    "rows": [
+      {
+        "label": "Sales revenue",
+        "values": [
+          321913.0,
+          324656.0
+        ],
+        "displays": [
+          "321,913",
+          "324,656"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 12,
+        "sourceLineSha256": "5828804d88196e5c3493868388e210cbcb716bf561614fe99b1f0ac5c4eef0ba",
+        "id": "revenue"
+      },
+      {
+        "label": "Cost of sales",
+        "values": [
+          -270671.0,
+          -265184.0
+        ],
+        "displays": [
+          "–270,671",
+          "–265,184"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 13,
+        "sourceLineSha256": "e2b8932c4ed9a3e0d6c4ed328291f5a4311c345a4535b4ace43d9d2d15df58e8",
+        "id": "cost"
+      },
+      {
+        "label": "Gross result",
+        "values": [
+          51243.0,
+          59472.0
+        ],
+        "displays": [
+          "51,243",
+          "59,472"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 14,
+        "sourceLineSha256": "c5f0b21e422cbbdab03af76c44f1bddcb15f2f17294f955179f4add1be036d3f",
+        "id": "gross"
+      },
+      {
+        "label": "Distribution expenses",
+        "values": [
+          -22804.0,
+          -22320.0
+        ],
+        "displays": [
+          "–22,804",
+          "–22,320"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 15,
+        "sourceLineSha256": "7237734c9f1a46b9b8138a85d35285ae732a63ee223e532f1ffe5019103a87e8",
+        "id": "distribution"
+      },
+      {
+        "label": "Administrative expenses",
+        "values": [
+          -12541.0,
+          -12754.0
+        ],
+        "displays": [
+          "–12,541",
+          "–12,754"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 16,
+        "sourceLineSha256": "82007cc5a8c743007c403fb17f1440016c0deecdd897a6443f7aaa5616770a4b",
+        "id": "admin"
+      },
+      {
+        "label": "Other operating income",
+        "values": [
+          13615.0,
+          14974.0
+        ],
+        "displays": [
+          "13,615",
+          "14,974"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 17,
+        "sourceLineSha256": "a8f3e0096d1e18e48e6ce0ef9a8e640699c73160bafcefc39feb3c4dbc803e42",
+        "id": "other_income"
+      },
+      {
+        "label": "Other operating expenses",
+        "values": [
+          -20644.0,
+          -20312.0
+        ],
+        "displays": [
+          "–20,644",
+          "–20,312"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 18,
+        "sourceLineSha256": "c400f50a4f96c0a88d846eabf45418b5dd9402f8d11387c982e67ade60064938",
+        "id": "other_expense"
+      },
+      {
+        "label": "Operating result",
+        "values": [
+          8868.0,
+          19060.0
+        ],
+        "displays": [
+          "8,868",
+          "19,060"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 19,
+        "sourceLineSha256": "859b76291b782233c744d1a6458fe8f65bb6d6d89aaf8c9fdb0562f958a90474",
+        "id": "operating"
+      },
+      {
+        "label": "Share of the result of equity-accounted investments",
+        "values": [
+          930.0,
+          375.0
+        ],
+        "displays": [
+          "930",
+          "375"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 20,
+        "sourceLineSha256": "42482000151ce9faaa453b45a9c970c97ac179be088b10fa1c94b8d40765c271",
+        "id": "equity_result"
+      },
+      {
+        "label": "Interest income",
+        "values": [
+          1824.0,
+          2419.0
+        ],
+        "displays": [
+          "1,824",
+          "2,419"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 21,
+        "sourceLineSha256": "750b2eb2b5b077b787dff2945f7228becf7323bf763dfb56963af18a2ea95aea",
+        "id": "interest_income"
+      },
+      {
+        "label": "Interest expenses",
+        "values": [
+          -3245.0,
+          -3446.0
+        ],
+        "displays": [
+          "–3,245",
+          "–3,446"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 22,
+        "sourceLineSha256": "9fab850c683febc52187e5ce7786b669aa519626aed92e12adaba6d7924c6ac0",
+        "id": "interest_expense"
+      },
+      {
+        "label": "Other financial result",
+        "values": [
+          930.0,
+          -1602.0
+        ],
+        "displays": [
+          "930",
+          "–1,602"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 23,
+        "sourceLineSha256": "7962dcf167b3ec12b17fcd02ec14233306769eb4725555df37656876a3269a1a",
+        "id": "other_financial"
+      },
+      {
+        "label": "Financial result",
+        "values": [
+          439.0,
+          -2255.0
+        ],
+        "displays": [
+          "439",
+          "–2,255"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 24,
+        "sourceLineSha256": "f6ad2dbcd37bd139206d4c9c273ee9bf59df4fde1bd076061d26ec396d6d8410",
+        "id": "financial"
+      },
+      {
+        "label": "Earnings before tax",
+        "values": [
+          9307.0,
+          16806.0
+        ],
+        "displays": [
+          "9,307",
+          "16,806"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 25,
+        "sourceLineSha256": "11aa19bd3ce3bcc679beeff8967f7d2f33a0de711bef66fb73e9a70445bd00fc",
+        "id": "pretax"
+      },
+      {
+        "label": "Income tax income/expense",
+        "values": [
+          -2403.0,
+          -4411.0
+        ],
+        "displays": [
+          "–2,403",
+          "–4,411"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 26,
+        "sourceLineSha256": "d5946322373d8348a5e0d33e2e9868b9393e7edbd9d4990c721b3eb1fe692155",
+        "id": "tax"
+      },
+      {
+        "label": "Current",
+        "values": [
+          -3837.0,
+          -5858.0
+        ],
+        "displays": [
+          "–3,837",
+          "–5,858"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 27,
+        "sourceLineSha256": "db0d94b217b9d17f1ba79d5b85403ddf09130af29e82aa65294f737831d32657",
+        "id": "current_tax"
+      },
+      {
+        "label": "Deferred",
+        "values": [
+          1434.0,
+          1447.0
+        ],
+        "displays": [
+          "1,434",
+          "1,447"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 28,
+        "sourceLineSha256": "83556f808082c161eaf1eab5c6cf013fe71656cd0dff8c03a0d2def57188db65",
+        "id": "deferred_tax"
+      },
+      {
+        "label": "Earnings after tax",
+        "values": [
+          6904.0,
+          12394.0
+        ],
+        "displays": [
+          "6,904",
+          "12,394"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 29,
+        "sourceLineSha256": "14f9e5ab2d63d16080e8809623d76a9ed351921a3ab6784b52845941fdf67a38",
+        "id": "profit"
+      },
+      {
+        "label": "Non-controlling interests",
+        "values": [
+          -419.0,
+          1043.0
+        ],
+        "displays": [
+          "–419",
+          "1,043"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 31,
+        "sourceLineSha256": "c0ecfb6319a026dac2f09a20a16b2c4943bbbb7d22c5a784970bc287c90e1b81",
+        "id": "nci"
+      },
+      {
+        "label": "Volkswagen AG hybrid capital investors",
+        "values": [
+          650.0,
+          630.0
+        ],
+        "displays": [
+          "650",
+          "630"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 32,
+        "sourceLineSha256": "cd81fb28445e6bf2454b4cb269febcca571f94348abfe1bc8a5c1badb977085a",
+        "id": "hybrid"
+      },
+      {
+        "label": "Volkswagen AG shareholders",
+        "values": [
+          6673.0,
+          10721.0
+        ],
+        "displays": [
+          "6,673",
+          "10,721"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 33,
+        "sourceLineSha256": "46d07fccc647e9fa42d62e0e3600f24a4f87254f1d2dc02514b366f22639182b",
+        "id": "parent"
+      }
+    ]
+  },
+  "eps": {
+    "columns": [
+      "2025",
+      "2024"
+    ],
+    "rows": [
+      {
+        "label": "Basic/diluted earnings per ordinary share in €",
+        "values": [
+          13.29,
+          21.36
+        ],
+        "displays": [
+          "13.29",
+          "21.36"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 36,
+        "sourceLineSha256": "9ebc79708e686b3f53dde8628e560033c7b42fd8d2fa4589a670ac3239a8d9a1",
+        "id": "ordinary_eps"
+      },
+      {
+        "label": "Basic/diluted earnings per preferred share in €",
+        "values": [
+          13.35,
+          21.42
+        ],
+        "displays": [
+          "13.35",
+          "21.42"
+        ],
+        "sourcePage": 4112,
+        "sourceLine": 37,
+        "sourceLineSha256": "1be8618310c3d6f56678767071f4dee2a39a628f48079429408b6bd834f48400",
+        "id": "preferred_eps"
+      }
+    ]
+  },
+  "oci_2025": {
+    "columns": [
+      "total",
+      "shareholders",
+      "hybrid",
+      "nci"
+    ],
+    "rows": [
+      {
+        "label": "Earnings after tax",
+        "values": [
+          6904.0,
+          6673.0,
+          650.0,
+          -419.0
+        ],
+        "displays": [
+          "6,904",
+          "6,673",
+          "650",
+          "–419"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 17,
+        "sourceLineSha256": "59f88629f2e38d85ebbc6f7758bff6fbf8cefc027db211358d70cc3f0efa2af0",
+        "id": "profit"
+      },
+      {
+        "label": "Pension plan remeasurements recognized in other comprehensive income, before tax",
+        "values": [
+          4782.0,
+          4566.0,
+          null,
+          216.0
+        ],
+        "displays": [
+          "4,782",
+          "4,566",
+          "–",
+          "216"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 20,
+        "sourceLineSha256": "00cdfa4948b717d3cf35e6269aa15195b95e15bae7874831039c96b6f5ca0231",
+        "id": "pension_before"
+      },
+      {
+        "label": "Deferred taxes relating to pension plan remeasurements recognized in other comprehensive income",
+        "values": [
+          -1404.0,
+          -1351.0,
+          null,
+          -53.0
+        ],
+        "displays": [
+          "–1,404",
+          "–1,351",
+          "–",
+          "–53"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 22,
+        "sourceLineSha256": "adee31d1156d2a830c74bd7f3edbd10d2bc4322e5fbf01bacd24f765d5bc3ad3",
+        "id": "pension_tax"
+      },
+      {
+        "label": "Pension plan remeasurements recognized in other comprehensive income, net of tax",
+        "values": [
+          3378.0,
+          3216.0,
+          null,
+          162.0
+        ],
+        "displays": [
+          "3,378",
+          "3,216",
+          "–",
+          "162"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 23,
+        "sourceLineSha256": "18f827de123d5a7845d1ca26855acbb8a0c4b53b28f9597503bd798dcd4355c9",
+        "id": "pension_net"
+      },
+      {
+        "label": "Fair value valuation of equity instruments that will not be reclassified to profit or loss, before tax",
+        "values": [
+          1441.0,
+          1377.0,
+          null,
+          64.0
+        ],
+        "displays": [
+          "1,441",
+          "1,377",
+          "–",
+          "64"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 27,
+        "sourceLineSha256": "45c2d79d30a6e272429233ad4045fbcde8aaad78e592facfcd74451d98c3c2a8",
+        "id": "equity_before"
+      },
+      {
+        "label": "Deferred taxes relating to fair value valuation of equity instruments that will not be reclassified to profit or loss",
+        "values": [
+          -264.0,
+          -263.0,
+          null,
+          -1.0
+        ],
+        "displays": [
+          "–264",
+          "–263",
+          "–",
+          "–1"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 29,
+        "sourceLineSha256": "0a99b1a20a8c3c6f58c78b51de517cb98bf1dc00a4a1e477d34bbaffdf63775e",
+        "id": "equity_tax"
+      },
+      {
+        "label": "Fair value valuation of equity instruments that will not be reclassified to profit or loss, net of tax",
+        "values": [
+          1177.0,
+          1114.0,
+          null,
+          63.0
+        ],
+        "displays": [
+          "1,177",
+          "1,114",
+          "–",
+          "63"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 31,
+        "sourceLineSha256": "aac2485809f2117785c1b331a0084fc2013a75fd4b5d69573a5a6820e6fb2f7e",
+        "id": "equity_net"
+      },
+      {
+        "label": "Share of other comprehensive income of equity-accounted investments that will not be reclassified to profit or loss, net of tax",
+        "values": [
+          -5.0,
+          -5.0,
+          null,
+          0.0
+        ],
+        "displays": [
+          "–5",
+          "–5",
+          "–",
+          "0"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 33,
+        "sourceLineSha256": "22ab91742fa2411ccca501ab30ab248b0e0bbd6fb24ccd843aebb471059f7b07",
+        "id": "associate_nonreclass"
+      },
+      {
+        "label": "Items that will not be reclassified to profit or loss",
+        "values": [
+          4550.0,
+          4325.0,
+          null,
+          225.0
+        ],
+        "displays": [
+          "4,550",
+          "4,325",
+          "–",
+          "225"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 34,
+        "sourceLineSha256": "d05c7c9785480abaa62281bf95463f0e5c4f733e30003d828b097d746dfb085b",
+        "id": "nonreclass"
+      },
+      {
+        "label": "Gains/losses on currency translation recognized in other comprehensive income",
+        "values": [
+          -3371.0,
+          -3255.0,
+          null,
+          -116.0
+        ],
+        "displays": [
+          "–3,371",
+          "–3,255",
+          "–",
+          "–116"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 36,
+        "sourceLineSha256": "50e54acd5a405def38239376ce21155bdd2fe613bcd253b487deabffe6349b96",
+        "id": "fx_gains"
+      },
+      {
+        "label": "Transferred to profit or loss",
+        "values": [
+          36.0,
+          36.0,
+          null,
+          null
+        ],
+        "displays": [
+          "36",
+          "36",
+          "–",
+          "–"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 37,
+        "sourceLineSha256": "057ec77247c4ead00bf69f1f568cf47af6a503dbd84dfeb49750ed5c3c1fb6c7",
+        "id": "fx_reclassified"
+      },
+      {
+        "label": "Exchange differences on translating foreign operations, before tax",
+        "values": [
+          -3334.0,
+          -3219.0,
+          null,
+          -116.0
+        ],
+        "displays": [
+          "–3,334",
+          "–3,219",
+          "–",
+          "–116"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 38,
+        "sourceLineSha256": "bec216d215080720386fe5384c52b0d4be8e4ac532537338aaca2b3fa6da5c43",
+        "id": "fx_before"
+      },
+      {
+        "label": "Deferred taxes relating to exchange differences on translating foreign operations",
+        "values": [
+          1.0,
+          0.0,
+          null,
+          1.0
+        ],
+        "displays": [
+          "1",
+          "0",
+          "–",
+          "1"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 39,
+        "sourceLineSha256": "20e0e0d011ff0c5f462ec8741eeec6b49da7a6d50e51c74b97a46a1517abe7c4",
+        "id": "fx_tax"
+      },
+      {
+        "label": "Exchange differences on translating foreign operations, net of tax",
+        "values": [
+          -3333.0,
+          -3219.0,
+          null,
+          -115.0
+        ],
+        "displays": [
+          "–3,333",
+          "–3,219",
+          "–",
+          "–115"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 40,
+        "sourceLineSha256": "e31d47a2f4b4bbc1f45dc951445bb523812f09105c4323bcf931497534d78efd",
+        "id": "fx_net"
+      },
+      {
+        "label": "Fair value changes recognized in other comprehensive income (OCI I)",
+        "values": [
+          3619.0,
+          2958.0,
+          null,
+          661.0
+        ],
+        "displays": [
+          "3,619",
+          "2,958",
+          "–",
+          "661"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 42,
+        "sourceLineSha256": "820d76e233b0594d0e530751862eee068685f17ff064bd469bfcf485e7ecab6c",
+        "id": "hedge1_fair"
+      },
+      {
+        "label": "Transferred to profit or loss or inventories (OCI I)",
+        "values": [
+          -1384.0,
+          -1165.0,
+          null,
+          -218.0
+        ],
+        "displays": [
+          "–1,384",
+          "–1,165",
+          "–",
+          "–218"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 43,
+        "sourceLineSha256": "3fa222abf7751bb66fb48f6943dac128e17d5567ad46d263fc801647b6473763",
+        "id": "hedge1_transfer"
+      },
+      {
+        "label": "Cash flow hedges (OCI I), before tax",
+        "values": [
+          2235.0,
+          1793.0,
+          null,
+          442.0
+        ],
+        "displays": [
+          "2,235",
+          "1,793",
+          "–",
+          "442"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 44,
+        "sourceLineSha256": "6e9a22d426abfb3874ff4b1d19f4d9fd8446aee466cca76660e70c5543ff8290",
+        "id": "hedge1_before"
+      },
+      {
+        "label": "Deferred taxes relating to cash flow hedges (OCI I)",
+        "values": [
+          -617.0,
+          -493.0,
+          null,
+          -124.0
+        ],
+        "displays": [
+          "–617",
+          "–493",
+          "–",
+          "–124"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 45,
+        "sourceLineSha256": "3665e3da6e23e38e78887dfe842acfd57384f3197f9e91510a6392fdad81ec8f",
+        "id": "hedge1_tax"
+      },
+      {
+        "label": "Cash flow hedges (OCI I), net of tax",
+        "values": [
+          1619.0,
+          1300.0,
+          null,
+          318.0
+        ],
+        "displays": [
+          "1,619",
+          "1,300",
+          "–",
+          "318"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 46,
+        "sourceLineSha256": "fdb9cb7a097ec0f20788e7274d8c3f08056f1a514fc038d2b00157c47ecd706e",
+        "id": "hedge1_net"
+      },
+      {
+        "label": "Fair value changes recognized in other comprehensive income (OCI II)",
+        "values": [
+          -475.0,
+          -379.0,
+          null,
+          -96.0
+        ],
+        "displays": [
+          "–475",
+          "–379",
+          "–",
+          "–96"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 47,
+        "sourceLineSha256": "a00596e54a37dc8e8e54bb505714c752e6ddb4725c4dd7f3b7ceaa9679fcae6a",
+        "id": "hedge2_fair"
+      },
+      {
+        "label": "Transferred to profit or loss or inventories (OCI II)",
+        "values": [
+          761.0,
+          669.0,
+          null,
+          92.0
+        ],
+        "displays": [
+          "761",
+          "669",
+          "–",
+          "92"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 48,
+        "sourceLineSha256": "b08a80b178138aa892cf32133c5a66ed18d04f0176eabd280cfa229161e8c6a2",
+        "id": "hedge2_transfer"
+      },
+      {
+        "label": "Cash flow hedges (OCI II), before tax",
+        "values": [
+          286.0,
+          290.0,
+          null,
+          -4.0
+        ],
+        "displays": [
+          "286",
+          "290",
+          "–",
+          "–4"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 49,
+        "sourceLineSha256": "b9dba0c978c10655687a03c63eca5423974c85cb05b0e8387270b40b3be18989",
+        "id": "hedge2_before"
+      },
+      {
+        "label": "Deferred taxes relating to cash flow hedges (OCI II)",
+        "values": [
+          -90.0,
+          -89.0,
+          null,
+          -1.0
+        ],
+        "displays": [
+          "–90",
+          "–89",
+          "–",
+          "–1"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 50,
+        "sourceLineSha256": "77f75848eb625ac27032b7415a755fc6d2e4ac269ce7793c36a3575e6347ac35",
+        "id": "hedge2_tax"
+      },
+      {
+        "label": "Cash flow hedges (OCI II), net of tax",
+        "values": [
+          197.0,
+          201.0,
+          null,
+          -5.0
+        ],
+        "displays": [
+          "197",
+          "201",
+          "–",
+          "–5"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 51,
+        "sourceLineSha256": "92832743c9d4a8b81d9887b1560d3f4a99bd00337c44f11da86bbb12db81b1f3",
+        "id": "hedge2_net"
+      },
+      {
+        "label": "Fair value changes recognized in other comprehensive income",
+        "values": [
+          68.0,
+          68.0,
+          null,
+          null
+        ],
+        "displays": [
+          "68",
+          "68",
+          "–",
+          "–"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 53,
+        "sourceLineSha256": "f20febd70e48f6e3b6e90370f1582dea5374e3d9acd651c80bba473217279164",
+        "id": "debt_fair"
+      },
+      {
+        "label": "Transferred to profit or loss",
+        "values": [
+          -9.0,
+          -9.0,
+          null,
+          null
+        ],
+        "displays": [
+          "–9",
+          "–9",
+          "–",
+          "–"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 54,
+        "sourceLineSha256": "3eabe3fdcadc90af1b00f96d1e867a634ee58f3eea9397c562148fdac87f3c03",
+        "id": "debt_transfer"
+      },
+      {
+        "label": "Fair value valuation of debt instruments that may be reclassified to profit or loss, before tax",
+        "values": [
+          59.0,
+          59.0,
+          null,
+          null
+        ],
+        "displays": [
+          "59",
+          "59",
+          "–",
+          "–"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 56,
+        "sourceLineSha256": "3609cf96d32a2fc3104bab59d4e0c05db51a7aa041bee348097bd60056c4feb5",
+        "id": "debt_before"
+      },
+      {
+        "label": "Deferred taxes relating to fair value valuation of debt instruments recognized in other comprehensive income",
+        "values": [
+          -19.0,
+          -19.0,
+          null,
+          null
+        ],
+        "displays": [
+          "–19",
+          "–19",
+          "–",
+          "–"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 58,
+        "sourceLineSha256": "8dc3dab33e3ef15006c8a2b3eeb8dcfe6bfbd8294a288697f3c92072897b9500",
+        "id": "debt_tax"
+      },
+      {
+        "label": "Fair value valuation of debt instruments that may be reclassified to profit or loss, net of tax",
+        "values": [
+          40.0,
+          40.0,
+          null,
+          null
+        ],
+        "displays": [
+          "40",
+          "40",
+          "–",
+          "–"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 60,
+        "sourceLineSha256": "7c5f5136cc3d00592e19a677d17de64e295cada983b0c47f1657b8e7d8a7d9de",
+        "id": "debt_net"
+      },
+      {
+        "label": "Share of other comprehensive income of equity-accounted investments that may be reclassified to profit or loss, net of tax",
+        "values": [
+          -172.0,
+          -156.0,
+          null,
+          -16.0
+        ],
+        "displays": [
+          "–172",
+          "–156",
+          "–",
+          "–16"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 62,
+        "sourceLineSha256": "bd76b24f2ca73c74472547ef785ccd82569e600aa11eb87829b711ef91a90ef3",
+        "id": "associate_reclass"
+      },
+      {
+        "label": "Items that may be reclassified to profit or loss",
+        "values": [
+          -1650.0,
+          -1833.0,
+          null,
+          183.0
+        ],
+        "displays": [
+          "–1,650",
+          "–1,833",
+          "–",
+          "183"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 63,
+        "sourceLineSha256": "8f0082ccde06056bcd398cd538386739bea225d61d36278f1ad5129b379fa8d4",
+        "id": "reclass"
+      },
+      {
+        "label": "Other comprehensive income, before tax",
+        "values": [
+          5292.0,
+          4706.0,
+          null,
+          586.0
+        ],
+        "displays": [
+          "5,292",
+          "4,706",
+          "–",
+          "586"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 64,
+        "sourceLineSha256": "8e46c1c23739e5a59432aa92d10de913fc6e6b8aed4eb8f183400e2e85530be6",
+        "id": "oci_before"
+      },
+      {
+        "label": "Deferred taxes relating to other comprehensive income",
+        "values": [
+          -2393.0,
+          -2214.0,
+          null,
+          -178.0
+        ],
+        "displays": [
+          "–2,393",
+          "–2,214",
+          "–",
+          "–178"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 65,
+        "sourceLineSha256": "45608e7119a73d07160862b2647dda75a3813db9dfc481391dbe19715499d21d",
+        "id": "oci_tax"
+      },
+      {
+        "label": "Other comprehensive income, net of tax",
+        "values": [
+          2900.0,
+          2492.0,
+          null,
+          408.0
+        ],
+        "displays": [
+          "2,900",
+          "2,492",
+          "–",
+          "408"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 66,
+        "sourceLineSha256": "3ebe9ecf79a2bdf23c1a8352db3130f1684c2671a3d44bc5d9413122fe9015dc",
+        "id": "oci"
+      },
+      {
+        "label": "Total comprehensive income",
+        "values": [
+          9804.0,
+          9165.0,
+          650.0,
+          -11.0
+        ],
+        "displays": [
+          "9,804",
+          "9,165",
+          "650",
+          "–11"
+        ],
+        "sourcePage": 4113,
+        "sourceLine": 67,
+        "sourceLineSha256": "3bf456eda1e1031cf8a00611bfd17000deb13a22f40804e6dbdd99dab4cf21e8",
+        "id": "total"
+      }
+    ]
+  },
+  "oci_2024": {
+    "columns": [
+      "total",
+      "shareholders",
+      "hybrid",
+      "nci"
+    ],
+    "rows": [
+      {
+        "label": "Earnings after tax",
+        "values": [
+          12394.0,
+          10721.0,
+          630.0,
+          1043.0
+        ],
+        "displays": [
+          "12,394",
+          "10,721",
+          "630",
+          "1,043"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 15,
+        "sourceLineSha256": "8a7d019a4710553189aa489db068fd56018e49402b573f069b338bb1fb8ad517",
+        "id": "profit"
+      },
+      {
+        "label": "Pension plan remeasurements recognized in other comprehensive income, before tax",
+        "values": [
+          2158.0,
+          2086.0,
+          null,
+          72.0
+        ],
+        "displays": [
+          "2,158",
+          "2,086",
+          "–",
+          "72"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 18,
+        "sourceLineSha256": "d83ba75aded821eede6c80e6c8aa69ce0d8ed552af4611c57657c092101ec907",
+        "id": "pension_before"
+      },
+      {
+        "label": "Deferred taxes relating to pension plan remeasurements recognized in other comprehensive income",
+        "values": [
+          -514.0,
+          -497.0,
+          null,
+          -17.0
+        ],
+        "displays": [
+          "–514",
+          "–497",
+          "–",
+          "–17"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 20,
+        "sourceLineSha256": "3e8311dc3ff11163df96c1e799159d1420bcd911e7ec960e14b99b0a80f7e341",
+        "id": "pension_tax"
+      },
+      {
+        "label": "Pension plan remeasurements recognized in other comprehensive income, net of tax",
+        "values": [
+          1644.0,
+          1589.0,
+          null,
+          55.0
+        ],
+        "displays": [
+          "1,644",
+          "1,589",
+          "–",
+          "55"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 21,
+        "sourceLineSha256": "b1e855973f6b2f59716ff4e4300c957931821285e9465dc2e4a87ffa153bc0be",
+        "id": "pension_net"
+      },
+      {
+        "label": "Fair value valuation of equity instruments that will not be reclassified to profit or loss, before tax",
+        "values": [
+          -20.0,
+          -18.0,
+          null,
+          -3.0
+        ],
+        "displays": [
+          "–20",
+          "–18",
+          "–",
+          "–3"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 25,
+        "sourceLineSha256": "b6389768c393f7ee68e51331d4ba73623ae53b0fdf1d727b724d121085d4771a",
+        "id": "equity_before"
+      },
+      {
+        "label": "Deferred taxes relating to fair value valuation of equity instruments that will not be reclassified to profit or loss",
+        "values": [
+          29.0,
+          28.0,
+          null,
+          1.0
+        ],
+        "displays": [
+          "29",
+          "28",
+          "–",
+          "1"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 27,
+        "sourceLineSha256": "fd1dd33655a1c58c7fab3bef370d119a272bf567f885c53487f227b24d419beb",
+        "id": "equity_tax"
+      },
+      {
+        "label": "Fair Value valuation of equity instruments that will not be reclassified to profit or loss, net of tax",
+        "values": [
+          8.0,
+          11.0,
+          null,
+          -2.0
+        ],
+        "displays": [
+          "8",
+          "11",
+          "–",
+          "–2"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 29,
+        "sourceLineSha256": "ac746b10be437f85af741c6d22a92f0a5473a6b3378693a274f210714e8c8b86",
+        "id": "equity_net"
+      },
+      {
+        "label": "Share of other comprehensive income of equity-accounted investments that will not be reclassified to profit or loss, net of tax",
+        "values": [
+          -60.0,
+          -60.0,
+          null,
+          0.0
+        ],
+        "displays": [
+          "–60",
+          "–60",
+          "–",
+          "0"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 31,
+        "sourceLineSha256": "4897557ed56f641526c152d88e93de18ffd30ddb5824ac9ce30b10ad2c7e01e2",
+        "id": "associate_nonreclass"
+      },
+      {
+        "label": "Items that will not be reclassified to profit or loss",
+        "values": [
+          1592.0,
+          1540.0,
+          null,
+          52.0
+        ],
+        "displays": [
+          "1,592",
+          "1,540",
+          "–",
+          "52"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 32,
+        "sourceLineSha256": "b1a1f2d5ae10e0a10e963d981b649b5946d8fef6ace12791f6c1b0073d1a23f2",
+        "id": "nonreclass"
+      },
+      {
+        "label": "Gains/losses on currency translation recognized in other comprehensive income",
+        "values": [
+          893.0,
+          988.0,
+          null,
+          -96.0
+        ],
+        "displays": [
+          "893",
+          "988",
+          "–",
+          "–96"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 34,
+        "sourceLineSha256": "5d558dab1534f926086ccab698b9b5b8f37f6499491388848a436d0ad98c645d",
+        "id": "fx_gains"
+      },
+      {
+        "label": "Transferred to profit or loss",
+        "values": [
+          286.0,
+          286.0,
+          null,
+          null
+        ],
+        "displays": [
+          "286",
+          "286",
+          "–",
+          "–"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 35,
+        "sourceLineSha256": "a3409f2ebd6e8d2d0c05c8253392fd9bafa186a4701645257f3eddcd621b6f51",
+        "id": "fx_reclassified"
+      },
+      {
+        "label": "Exchange differences on translating foreign operations, before tax",
+        "values": [
+          1179.0,
+          1275.0,
+          null,
+          -96.0
+        ],
+        "displays": [
+          "1,179",
+          "1,275",
+          "–",
+          "–96"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 36,
+        "sourceLineSha256": "9b353ed56805420f7838bef20c09eec56980f4bba684d421a529c08ac0bcbf26",
+        "id": "fx_before"
+      },
+      {
+        "label": "Deferred taxes relating to exchange differences on translating foreign operations",
+        "values": [
+          1.0,
+          1.0,
+          null,
+          0.0
+        ],
+        "displays": [
+          "1",
+          "1",
+          "–",
+          "0"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 37,
+        "sourceLineSha256": "756701ad18f1062e26548b0b9431b9ba95dc88b0a8290debc9582a3c205c5d3d",
+        "id": "fx_tax"
+      },
+      {
+        "label": "Exchange differences on translating foreign operations, net of tax",
+        "values": [
+          1180.0,
+          1275.0,
+          null,
+          -96.0
+        ],
+        "displays": [
+          "1,180",
+          "1,275",
+          "–",
+          "–96"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 38,
+        "sourceLineSha256": "29f4f342373d9a24393338ab7a31cecf00d6ec47cf381ae90b0f99115d362188",
+        "id": "fx_net"
+      },
+      {
+        "label": "Fair value changes recognized in other comprehensive income (OCI I)",
+        "values": [
+          -622.0,
+          -453.0,
+          null,
+          -169.0
+        ],
+        "displays": [
+          "–622",
+          "–453",
+          "–",
+          "–169"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 40,
+        "sourceLineSha256": "83dea0c583dcb5fee98e99a529774d03320e39750a9e613eff8f6469d43186ad",
+        "id": "hedge1_fair"
+      },
+      {
+        "label": "Transferred to profit or loss or inventories (OCI I)",
+        "values": [
+          -1072.0,
+          -957.0,
+          null,
+          -114.0
+        ],
+        "displays": [
+          "–1,072",
+          "–957",
+          "–",
+          "–114"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 41,
+        "sourceLineSha256": "9fbd7f951b4d4dfe71a46af0d3ae55a615be5151ab76b2226354ecc78952bcd1",
+        "id": "hedge1_transfer"
+      },
+      {
+        "label": "Cash flow hedges (OCI I), before tax",
+        "values": [
+          -1694.0,
+          -1410.0,
+          null,
+          -284.0
+        ],
+        "displays": [
+          "–1,694",
+          "–1,410",
+          "–",
+          "–284"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 42,
+        "sourceLineSha256": "ffa0732179b0da9606e7725227b3036fc0cf83508cc1344e42e78d4f59e73ee4",
+        "id": "hedge1_before"
+      },
+      {
+        "label": "Deferred taxes relating to cash flow hedges (OCI I)",
+        "values": [
+          490.0,
+          404.0,
+          null,
+          85.0
+        ],
+        "displays": [
+          "490",
+          "404",
+          "–",
+          "85"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 43,
+        "sourceLineSha256": "6692ea655d17ae2ced537c4df917de9bafeb87e4e08cfe9fd4ae8124afb6ecc0",
+        "id": "hedge1_tax"
+      },
+      {
+        "label": "Cash flow hedges (OCI I), net of tax",
+        "values": [
+          -1204.0,
+          -1006.0,
+          null,
+          -198.0
+        ],
+        "displays": [
+          "–1,204",
+          "–1,006",
+          "–",
+          "–198"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 44,
+        "sourceLineSha256": "93b0b0dc17dcaf00afdb2c80bef2408ca9c39ebae6f18305b0140a6dba88b707",
+        "id": "hedge1_net"
+      },
+      {
+        "label": "Fair value changes recognized in other comprehensive income (OCI II)",
+        "values": [
+          -471.0,
+          -420.0,
+          null,
+          -51.0
+        ],
+        "displays": [
+          "–471",
+          "–420",
+          "–",
+          "–51"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 45,
+        "sourceLineSha256": "86116088242845eb4e554a6a94b0c97c84b12ee33c21dc8d6f96e10576da80ec",
+        "id": "hedge2_fair"
+      },
+      {
+        "label": "Transferred to profit or loss or inventories (OCI II)",
+        "values": [
+          1121.0,
+          990.0,
+          null,
+          131.0
+        ],
+        "displays": [
+          "1,121",
+          "990",
+          "–",
+          "131"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 46,
+        "sourceLineSha256": "b1d5ca4175f5eb923ef773e1959861a1a48222942ccbc0a5233b10fc242faf13",
+        "id": "hedge2_transfer"
+      },
+      {
+        "label": "Cash flow hedges (OCI II), before tax",
+        "values": [
+          650.0,
+          569.0,
+          null,
+          81.0
+        ],
+        "displays": [
+          "650",
+          "569",
+          "–",
+          "81"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 47,
+        "sourceLineSha256": "b5c96758f3cd24de8e37de39da9622926dfcc10b6fb04122bef1980b867a7aad",
+        "id": "hedge2_before"
+      },
+      {
+        "label": "Deferred taxes relating to cash flow hedges (OCI II)",
+        "values": [
+          -185.0,
+          -161.0,
+          null,
+          -24.0
+        ],
+        "displays": [
+          "–185",
+          "–161",
+          "–",
+          "–24"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 48,
+        "sourceLineSha256": "bdf1a48c7188b9d5c0d4931fd7b5c4ffe62aa3fbef6addd6e23f38d7f6432d8c",
+        "id": "hedge2_tax"
+      },
+      {
+        "label": "Cash flow hedges (OCI II), net of tax",
+        "values": [
+          465.0,
+          409.0,
+          null,
+          56.0
+        ],
+        "displays": [
+          "465",
+          "409",
+          "–",
+          "56"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 49,
+        "sourceLineSha256": "f37d16ea1ceda65740f4085b1f155d37a2cc6b7c29a32b1e2dacbbda5a5227c1",
+        "id": "hedge2_net"
+      },
+      {
+        "label": "Fair value changes recognized in other comprehensive income",
+        "values": [
+          80.0,
+          80.0,
+          null,
+          null
+        ],
+        "displays": [
+          "80",
+          "80",
+          "–",
+          "–"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 51,
+        "sourceLineSha256": "0878ded56143c6c69d0185cca7244c6170a7243df31642a50b5da76e5fb4b681",
+        "id": "debt_fair"
+      },
+      {
+        "label": "Transferred to profit or loss",
+        "values": [
+          -7.0,
+          -7.0,
+          null,
+          null
+        ],
+        "displays": [
+          "–7",
+          "–7",
+          "–",
+          "–"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 52,
+        "sourceLineSha256": "ed6eff9a3d8b7e71121f40dccfba63d152739edfff23c9ed39b5c60160ea72a1",
+        "id": "debt_transfer"
+      },
+      {
+        "label": "Fair value valuation of debt instruments that may be reclassified to profit or loss, before tax",
+        "values": [
+          73.0,
+          73.0,
+          null,
+          null
+        ],
+        "displays": [
+          "73",
+          "73",
+          "–",
+          "–"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 54,
+        "sourceLineSha256": "b400531f91ea4206f0905ca2002b43ca014a6a71e60e6401696e814f9739baeb",
+        "id": "debt_before"
+      },
+      {
+        "label": "Deferred taxes relating to fair value valuation of debt instruments recognized in other comprehensive income",
+        "values": [
+          -22.0,
+          -22.0,
+          null,
+          null
+        ],
+        "displays": [
+          "–22",
+          "–22",
+          "–",
+          "–"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 56,
+        "sourceLineSha256": "e9558f9db3476c3e5f5b8750a4ff5ccb81f7f6d64b5c3162be27003b6dd07358",
+        "id": "debt_tax"
+      },
+      {
+        "label": "Fair value valuation of debt instruments that may be reclassified to profit or loss, net of tax",
+        "values": [
+          51.0,
+          51.0,
+          null,
+          null
+        ],
+        "displays": [
+          "51",
+          "51",
+          "–",
+          "–"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 58,
+        "sourceLineSha256": "d24e71867d5bd7b1c3df80b8b256ed0811e3e10c8ec44ec9ada648fd40635ddf",
+        "id": "debt_net"
+      },
+      {
+        "label": "Share of other comprehensive income of equity-accounted investments that may be reclassified to profit or loss, net of tax",
+        "values": [
+          -113.0,
+          -114.0,
+          null,
+          2.0
+        ],
+        "displays": [
+          "–113",
+          "–114",
+          "–",
+          "2"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 60,
+        "sourceLineSha256": "724d36d726b9a1a8e19f14c4e89f267974aa4b1ce46816beee85cc09fc51b1c7",
+        "id": "associate_reclass"
+      },
+      {
+        "label": "Items that may be reclassified to profit or loss",
+        "values": [
+          379.0,
+          614.0,
+          null,
+          -236.0
+        ],
+        "displays": [
+          "379",
+          "614",
+          "–",
+          "–236"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 61,
+        "sourceLineSha256": "64efb13a05bc0d498c7a39341e274a49f53e8b9da0b19ffbebc04308eb945841",
+        "id": "reclass"
+      },
+      {
+        "label": "Other comprehensive income, before tax",
+        "values": [
+          2173.0,
+          2401.0,
+          null,
+          -228.0
+        ],
+        "displays": [
+          "2,173",
+          "2,401",
+          "–",
+          "–228"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 62,
+        "sourceLineSha256": "ef41d181c01e4f6961f71fab93e7be3712903f07654df497b03b70ea8a3f4edc",
+        "id": "oci_before"
+      },
+      {
+        "label": "Deferred taxes relating to other comprehensive income",
+        "values": [
+          -202.0,
+          -246.0,
+          null,
+          45.0
+        ],
+        "displays": [
+          "–202",
+          "–246",
+          "–",
+          "45"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 63,
+        "sourceLineSha256": "6e527c3576083b5fc378f2e42d449a5f9d99608e5685f938e6ed4280986dfb3f",
+        "id": "oci_tax"
+      },
+      {
+        "label": "Other comprehensive income, net of tax",
+        "values": [
+          1971.0,
+          2154.0,
+          null,
+          -183.0
+        ],
+        "displays": [
+          "1,971",
+          "2,154",
+          "–",
+          "–183"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 64,
+        "sourceLineSha256": "baea4146b6b6a8c6632e0fb25e4ecf310f9ee825cdc29d72794ef3eecf190172",
+        "id": "oci"
+      },
+      {
+        "label": "Total comprehensive income",
+        "values": [
+          14365.0,
+          12875.0,
+          630.0,
+          860.0
+        ],
+        "displays": [
+          "14,365",
+          "12,875",
+          "630",
+          "860"
+        ],
+        "sourcePage": 4114,
+        "sourceLine": 65,
+        "sourceLineSha256": "23f9eaccd64081f99690ebe3e5d391d100c9aebd468b07a9af94af492fbb27ca",
+        "id": "total"
+      }
+    ]
+  },
+  "assets": {
+    "columns": [
+      "2025",
+      "2024"
+    ],
+    "rows": [
+      {
+        "label": "Intangible assets",
+        "values": [
+          91474.0,
+          93333.0
+        ],
+        "displays": [
+          "91,474",
+          "93,333"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 14,
+        "sourceLineSha256": "f90bb2530d8d28288ca8c984e4d3025476cee339e1f1b35c83f89a40cc2dcd48",
+        "id": "intangible"
+      },
+      {
+        "label": "Property, plant and equipment",
+        "values": [
+          73076.0,
+          71452.0
+        ],
+        "displays": [
+          "73,076",
+          "71,452"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 15,
+        "sourceLineSha256": "ea383e8367ee8250a88087387f764eaed0e09ebc46ab59b24ea38b2b05d9227a",
+        "id": "ppe"
+      },
+      {
+        "label": "Lease assets",
+        "values": [
+          82486.0,
+          73193.0
+        ],
+        "displays": [
+          "82,486",
+          "73,193"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 16,
+        "sourceLineSha256": "cf0b7625ff64208077ad3a1303388826224d68d7781b4dacbe5bb2faa0db32f0",
+        "id": "lease"
+      },
+      {
+        "label": "Investment property",
+        "values": [
+          609.0,
+          622.0
+        ],
+        "displays": [
+          "609",
+          "622"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 17,
+        "sourceLineSha256": "380b382ccd792e92496b8b1f17edcb0e2cde71080bb90d44398c1e6591c78c06",
+        "id": "property"
+      },
+      {
+        "label": "Equity-accounted investments",
+        "values": [
+          9996.0,
+          10269.0
+        ],
+        "displays": [
+          "9,996",
+          "10,269"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 18,
+        "sourceLineSha256": "a95bc61b52959164907980c17c3b4be501e2abb88be890ca9996d4a6015ca5dd",
+        "id": "equity"
+      },
+      {
+        "label": "Other equity investments",
+        "values": [
+          7366.0,
+          5731.0
+        ],
+        "displays": [
+          "7,366",
+          "5,731"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 19,
+        "sourceLineSha256": "f70667a1c32f632fbce475f4a82804f4982822ad76db87d79ee31f55e47149c7",
+        "id": "other_equity"
+      },
+      {
+        "label": "Financial services receivables",
+        "values": [
+          101230.0,
+          101087.0
+        ],
+        "displays": [
+          "101,230",
+          "101,087"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 20,
+        "sourceLineSha256": "da98bd58c2042c2bd991bd04f699e2cc86556c58f4a2e805fd9006d70af9b463",
+        "id": "fs_noncurrent"
+      },
+      {
+        "label": "Other financial assets",
+        "values": [
+          11692.0,
+          12129.0
+        ],
+        "displays": [
+          "11,692",
+          "12,129"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 21,
+        "sourceLineSha256": "177c381d079c129a17ba74091d72db028f85589c2537f0f65713d669d0f1a2a5",
+        "id": "financial_noncurrent"
+      },
+      {
+        "label": "Other receivables",
+        "values": [
+          3651.0,
+          2868.0
+        ],
+        "displays": [
+          "3,651",
+          "2,868"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 22,
+        "sourceLineSha256": "75f0de5955f73f58feff6011122c313dff4fc806d70145345d0a2d57b2161ff7",
+        "id": "other_noncurrent"
+      },
+      {
+        "label": "Tax receivables",
+        "values": [
+          411.0,
+          409.0
+        ],
+        "displays": [
+          "411",
+          "409"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 23,
+        "sourceLineSha256": "accb6a10d074b27d4a0571b18655d772bfa6dbff9daa3fedd208ab8e8958ac08",
+        "id": "tax_noncurrent"
+      },
+      {
+        "label": "Deferred tax assets",
+        "values": [
+          14611.0,
+          16581.0
+        ],
+        "displays": [
+          "14,611",
+          "16,581"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 24,
+        "sourceLineSha256": "87c8a1c567b791a7cb21ac2d46d43ee4f188e18777d5016198db3d5edbda83d5",
+        "id": "dta"
+      },
+      {
+        "label": "Non-current assets",
+        "values": [
+          396602.0,
+          387674.0
+        ],
+        "displays": [
+          "396,602",
+          "387,674"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 25,
+        "sourceLineSha256": "dd31e7637b8ad728039c3b468c6a494fcdbdec7daf83ae0b6efa3df226afbfab",
+        "id": "noncurrent",
+        "sourceLabel": "",
+        "context": "Unlabeled reported subtotal; the label repeats its exact source section heading."
+      },
+      {
+        "label": "Inventories",
+        "values": [
+          56042.0,
+          56720.0
+        ],
+        "displays": [
+          "56,042",
+          "56,720"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 27,
+        "sourceLineSha256": "fd0287bec7342b92ef51fa7f757bf1a6934d269ef4908b1937d9abb00a5c2500",
+        "id": "inventory"
+      },
+      {
+        "label": "Trade receivables",
+        "values": [
+          20760.0,
+          21130.0
+        ],
+        "displays": [
+          "20,760",
+          "21,130"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 28,
+        "sourceLineSha256": "b3ad55edde05c8bd0bdb8614860ca80cd036934f4dccb51bc998822ccb0e2037",
+        "id": "trade"
+      },
+      {
+        "label": "Financial services receivables",
+        "values": [
+          70026.0,
+          68855.0
+        ],
+        "displays": [
+          "70,026",
+          "68,855"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 29,
+        "sourceLineSha256": "7b5c522c241361c31b1309876e51d8a653e75afda4bca550ba406419e20834c5",
+        "id": "fs_current"
+      },
+      {
+        "label": "Other financial assets",
+        "values": [
+          20158.0,
+          18649.0
+        ],
+        "displays": [
+          "20,158",
+          "18,649"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 30,
+        "sourceLineSha256": "89726ad733fca465f11ce0eba75ea708f76cae895c9c4ce328245bd755b8a92f",
+        "id": "financial_current"
+      },
+      {
+        "label": "Other receivables",
+        "values": [
+          9881.0,
+          10217.0
+        ],
+        "displays": [
+          "9,881",
+          "10,217"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 31,
+        "sourceLineSha256": "b33c64d9835b444247ab7f142b9f75e30d48c18ae4403ad65e0cbbfdcd2e3743",
+        "id": "other_current"
+      },
+      {
+        "label": "Tax receivables",
+        "values": [
+          2674.0,
+          2038.0
+        ],
+        "displays": [
+          "2,674",
+          "2,038"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 32,
+        "sourceLineSha256": "e5d600d72d89e79e0672170a9da98ac0d25f41b6f0a8d90a82ea52ac5ce99cb4",
+        "id": "tax_current"
+      },
+      {
+        "label": "Marketable securities and time deposits",
+        "values": [
+          29522.0,
+          27326.0
+        ],
+        "displays": [
+          "29,522",
+          "27,326"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 33,
+        "sourceLineSha256": "c300268530979bd3399e4251d8e11b050123221cb5cb6db1892cdc01e6156447",
+        "id": "securities"
+      },
+      {
+        "label": "Cash and cash equivalents",
+        "values": [
+          38801.0,
+          40296.0
+        ],
+        "displays": [
+          "38,801",
+          "40,296"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 34,
+        "sourceLineSha256": "41ffee5a9cba410e55b7567087174c285a019baad797aed832b2e98a1fa1f214",
+        "id": "cash"
+      },
+      {
+        "label": "Current assets",
+        "values": [
+          247865.0,
+          245231.0
+        ],
+        "displays": [
+          "247,865",
+          "245,231"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 35,
+        "sourceLineSha256": "885a7d79af23b42710dd70fd84c164112ff773e51b739e2fdf35f3cb0f43a5fe",
+        "id": "current",
+        "sourceLabel": "",
+        "context": "Unlabeled reported subtotal; the label repeats its exact source section heading."
+      },
+      {
+        "label": "Total assets",
+        "values": [
+          644467.0,
+          632905.0
+        ],
+        "displays": [
+          "644,467",
+          "632,905"
+        ],
+        "sourcePage": 4115,
+        "sourceLine": 36,
+        "sourceLineSha256": "8961f2bffc5677bcccb0b7d09cce8c0eadae27d41696224bc8a5acd154c71710",
+        "id": "total"
+      }
+    ]
+  },
+  "liabilities": {
+    "columns": [
+      "2025",
+      "2024"
+    ],
+    "rows": [
+      {
+        "label": "Subscribed capital",
+        "values": [
+          1283.0,
+          1283.0
+        ],
+        "displays": [
+          "1,283",
+          "1,283"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 10,
+        "sourceLineSha256": "184c57f261765016002b794e1117f93406bbc29ae03e492252708c59676ff808",
+        "id": "subscribed"
+      },
+      {
+        "label": "Capital reserve",
+        "values": [
+          14551.0,
+          14551.0
+        ],
+        "displays": [
+          "14,551",
+          "14,551"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 11,
+        "sourceLineSha256": "1550f0851a9f0cb725e8131cf20d2f8cda895b2d61228f4b91edc955a1bf58d9",
+        "id": "capital"
+      },
+      {
+        "label": "Retained earnings",
+        "values": [
+          161357.0,
+          155130.0
+        ],
+        "displays": [
+          "161,357",
+          "155,130"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 12,
+        "sourceLineSha256": "c49c012eeeb3693e4ed2c785860c6660d64641396caef269e6f46d9fb60a23fb",
+        "id": "retained"
+      },
+      {
+        "label": "Other reserves",
+        "values": [
+          -3190.0,
+          -2560.0
+        ],
+        "displays": [
+          "–3,190",
+          "–2,560"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 13,
+        "sourceLineSha256": "a06d1474caa35abdcc1975aa0f80d20c529039a463e0c5e4a1191f3391947554",
+        "id": "reserves"
+      },
+      {
+        "label": "Equity attributable to Volkswagen AG hybrid capital investors",
+        "values": [
+          14275.0,
+          13890.0
+        ],
+        "displays": [
+          "14,275",
+          "13,890"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 14,
+        "sourceLineSha256": "8aff3741abdf0fcc3d7ea9f19885083d2795efacde0e85d44bfd8ab1db3ea853",
+        "id": "hybrid"
+      },
+      {
+        "label": "Equity attributable to Volkswagen AG shareholders and hybrid capital investors",
+        "values": [
+          188277.0,
+          182294.0
+        ],
+        "displays": [
+          "188,277",
+          "182,294"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 15,
+        "sourceLineSha256": "48de3bb87036914d81ac3677cebc4d6172a001ac0307f2c76949138e1c489a2a",
+        "id": "parent_equity"
+      },
+      {
+        "label": "Non-controlling interests",
+        "values": [
+          14777.0,
+          14437.0
+        ],
+        "displays": [
+          "14,777",
+          "14,437"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 16,
+        "sourceLineSha256": "604951d4665b5c8690d76ef0b2433a92a8b565a5354a9c6e25162a81d9fd21da",
+        "id": "nci"
+      },
+      {
+        "label": "Equity",
+        "values": [
+          203054.0,
+          196731.0
+        ],
+        "displays": [
+          "203,054",
+          "196,731"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 17,
+        "sourceLineSha256": "1f31a2c1f964842a6e7ac4a5b77244b645cf35d19df4295447252b063ba4a8ff",
+        "id": "equity",
+        "sourceLabel": "",
+        "context": "Unlabeled reported subtotal; the label repeats its exact source section heading."
+      },
+      {
+        "label": "Financial liabilities",
+        "values": [
+          137214.0,
+          137061.0
+        ],
+        "displays": [
+          "137,214",
+          "137,061"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 19,
+        "sourceLineSha256": "8e6da17510cdc036b5fa70a78f1089e6a0452bf6e7221e2dc70c072aaedd59a8",
+        "id": "financial_nc"
+      },
+      {
+        "label": "Other financial liabilities",
+        "values": [
+          6422.0,
+          6548.0
+        ],
+        "displays": [
+          "6,422",
+          "6,548"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 20,
+        "sourceLineSha256": "d352881f96db4bb759a1eb340fc78840ecfc88062f20e4e8fc20575bfee41b8b",
+        "id": "other_financial_nc"
+      },
+      {
+        "label": "Other liabilities",
+        "values": [
+          11420.0,
+          10584.0
+        ],
+        "displays": [
+          "11,420",
+          "10,584"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 21,
+        "sourceLineSha256": "4dcf435016d35a6a2a28f0b912f93dd106e88b7278d874e84d8c21184f0e7cd4",
+        "id": "other_nc"
+      },
+      {
+        "label": "Deferred tax liabilities",
+        "values": [
+          9963.0,
+          10900.0
+        ],
+        "displays": [
+          "9,963",
+          "10,900"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 22,
+        "sourceLineSha256": "ccdc49b5437b6d685fba184e4c1f19ac33255f45a0ec2285ec5435039c6f97f7",
+        "id": "dtl"
+      },
+      {
+        "label": "Provisions for pensions",
+        "values": [
+          22826.0,
+          27602.0
+        ],
+        "displays": [
+          "22,826",
+          "27,602"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 23,
+        "sourceLineSha256": "358212e572dafac43a25f34c60042350e6c45a2686e2e0cd3eb34de4ea1e35e5",
+        "id": "pension"
+      },
+      {
+        "label": "Provisions for taxes",
+        "values": [
+          3367.0,
+          4084.0
+        ],
+        "displays": [
+          "3,367",
+          "4,084"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 24,
+        "sourceLineSha256": "2d68cc15f7e76729557b1fcb429a5964a816fe5030fd4431066b86e345971c1a",
+        "id": "tax_provision_nc"
+      },
+      {
+        "label": "Other provisions",
+        "values": [
+          23676.0,
+          22355.0
+        ],
+        "displays": [
+          "23,676",
+          "22,355"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 25,
+        "sourceLineSha256": "9d28ec911359020c540d4d7e36083f8cd3723b0f272fedc894b80e926e5557b8",
+        "id": "provision_nc"
+      },
+      {
+        "label": "Non-current liabilities",
+        "values": [
+          214887.0,
+          219134.0
+        ],
+        "displays": [
+          "214,887",
+          "219,134"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 26,
+        "sourceLineSha256": "6e3d8978a144d89c9581c99e829ebb30aa542adb721dca9f6d150d841e4b6e80",
+        "id": "noncurrent",
+        "sourceLabel": "",
+        "context": "Unlabeled reported subtotal; the label repeats its exact source section heading."
+      },
+      {
+        "label": "Financial liabilities",
+        "values": [
+          127489.0,
+          117020.0
+        ],
+        "displays": [
+          "127,489",
+          "117,020"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 28,
+        "sourceLineSha256": "322652c6548370ce46bab4e0bddbe6ef55b105052e70e5520563e27c03bd27f1",
+        "id": "financial_c"
+      },
+      {
+        "label": "Trade payables",
+        "values": [
+          30490.0,
+          29772.0
+        ],
+        "displays": [
+          "30,490",
+          "29,772"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 29,
+        "sourceLineSha256": "6f3e0fd0dba27bb26b68be657fa54db634c517c5c9b267050c2d32ad837b08a2",
+        "id": "trade"
+      },
+      {
+        "label": "Tax payables",
+        "values": [
+          497.0,
+          724.0
+        ],
+        "displays": [
+          "497",
+          "724"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 30,
+        "sourceLineSha256": "38db69174feac227e71b323dc9323f8253d09f9a4019617db109f39a52c1c421",
+        "id": "tax"
+      },
+      {
+        "label": "Other financial liabilities",
+        "values": [
+          13643.0,
+          14364.0
+        ],
+        "displays": [
+          "13,643",
+          "14,364"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 31,
+        "sourceLineSha256": "808b8d82eb917da06065f42fb677875e61cc98f21a900c1728a90ec0dfae414f",
+        "id": "other_financial_c"
+      },
+      {
+        "label": "Other liabilities",
+        "values": [
+          24427.0,
+          24752.0
+        ],
+        "displays": [
+          "24,427",
+          "24,752"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 32,
+        "sourceLineSha256": "574bb8baacc95e07d2becd38025af589fef06f568316ddaf205a3987dc75ad5a",
+        "id": "other_c"
+      },
+      {
+        "label": "Provisions for taxes",
+        "values": [
+          1986.0,
+          1698.0
+        ],
+        "displays": [
+          "1,986",
+          "1,698"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 33,
+        "sourceLineSha256": "b9aeeda5bea84264afe8a104e223efdfbc74df42b8614d31d698178d44f2166b",
+        "id": "tax_provision_c"
+      },
+      {
+        "label": "Other provisions",
+        "values": [
+          27993.0,
+          28709.0
+        ],
+        "displays": [
+          "27,993",
+          "28,709"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 34,
+        "sourceLineSha256": "d0da0bb2db0d6a4099705601301db186e863415475156387b4a88b48b83bad99",
+        "id": "provision_c"
+      },
+      {
+        "label": "Current liabilities",
+        "values": [
+          226525.0,
+          217039.0
+        ],
+        "displays": [
+          "226,525",
+          "217,039"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 35,
+        "sourceLineSha256": "473091b161315d3d59d70a999464e044e80910aca12f702cf50a112917d23727",
+        "id": "current",
+        "sourceLabel": "",
+        "context": "Unlabeled reported subtotal; the label repeats its exact source section heading."
+      },
+      {
+        "label": "Total equity and liabilities",
+        "values": [
+          644467.0,
+          632905.0
+        ],
+        "displays": [
+          "644,467",
+          "632,905"
+        ],
+        "sourcePage": 4116,
+        "sourceLine": 36,
+        "sourceLineSha256": "ed75b6da45604208f4223fffba7f25e4c891386be96d4d2b8b3bd6b159a27016",
+        "id": "total"
+      }
+    ]
+  },
+  "equity_2024": {
+    "columns": [
+      "subscribed",
+      "capital",
+      "retained",
+      "currency",
+      "hedge1",
+      "hedge2",
+      "equity_debt",
+      "equity_accounted",
+      "hybrid",
+      "parent_and_hybrid",
+      "nci",
+      "total"
+    ],
+    "rows": [
+      {
+        "label": "Balance at Jan. 1, 2024",
+        "values": [
+          1283.0,
+          14551.0,
+          147830.0,
+          -3431.0,
+          1472.0,
+          -676.0,
+          -966.0,
+          476.0,
+          15155.0,
+          175694.0,
+          14218.0,
+          189912.0
+        ],
+        "displays": [
+          "1,283",
+          "14,551",
+          "147,830",
+          "–3,431",
+          "1,472",
+          "–676",
+          "–966",
+          "476",
+          "15,155",
+          "175,694",
+          "14,218",
+          "189,912"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 22,
+        "sourceLineSha256": "1186575069d518225b6ea544726e30525a943faf14e03fbdc3d073b121a85b49",
+        "id": "unadjusted_opening"
+      },
+      {
+        "label": "Prior-year corrections in accordance with IAS 8",
+        "values": [
+          null,
+          null,
+          -726.0,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          -726.0,
+          null,
+          -726.0
+        ],
+        "displays": [
+          "–",
+          "–",
+          "–726",
+          "–",
+          "–",
+          "–",
+          "–",
+          "–",
+          "–",
+          "–726",
+          "–",
+          "–726"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 24,
+        "sourceLineSha256": "0047a0f135a10443b412923175d94081e7a21e589520b9b9dcebf3a96aac3f5a",
+        "id": "correction"
+      },
+      {
+        "label": "Adjusted balance at Jan. 1, 2024",
+        "values": [
+          1283.0,
+          14551.0,
+          147104.0,
+          -3431.0,
+          1472.0,
+          -676.0,
+          -966.0,
+          476.0,
+          15155.0,
+          174968.0,
+          14218.0,
+          189186.0
+        ],
+        "displays": [
+          "1,283",
+          "14,551",
+          "147,104",
+          "–3,431",
+          "1,472",
+          "–676",
+          "–966",
+          "476",
+          "15,155",
+          "174,968",
+          "14,218",
+          "189,186"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 25,
+        "sourceLineSha256": "46f4cc6da2cfbb8331285a2c6cc84c06c954c108d4e64f10d039f0c576cf3c5c",
+        "id": "opening"
+      },
+      {
+        "label": "Earnings after tax",
+        "values": [
+          null,
+          null,
+          10721.0,
+          null,
+          null,
+          null,
+          null,
+          null,
+          630.0,
+          11351.0,
+          1043.0,
+          12394.0
+        ],
+        "displays": [
+          "–",
+          "–",
+          "10,721",
+          "–",
+          "–",
+          "–",
+          "–",
+          "–",
+          "630",
+          "11,351",
+          "1,043",
+          "12,394"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 26,
+        "sourceLineSha256": "46b1b90010b7b5e7b7de2ea577193b2d8473b02f38797977fdcd8d60ae7e76ca",
+        "id": "profit"
+      },
+      {
+        "label": "Other comprehensive income, net of tax",
+        "values": [
+          null,
+          null,
+          1589.0,
+          1275.0,
+          -1006.0,
+          409.0,
+          61.0,
+          -174.0,
+          null,
+          2154.0,
+          -183.0,
+          1971.0
+        ],
+        "displays": [
+          "–",
+          "–",
+          "1,589",
+          "1,275",
+          "–1,006",
+          "409",
+          "61",
+          "–174",
+          "–",
+          "2,154",
+          "–183",
+          "1,971"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 27,
+        "sourceLineSha256": "1331739e674b510604ddf6d1b53c2707f8c93a1db08ab737f4f6c54d365412f9",
+        "id": "oci"
+      },
+      {
+        "label": "Total comprehensive income",
+        "values": [
+          null,
+          null,
+          12310.0,
+          1275.0,
+          -1006.0,
+          409.0,
+          61.0,
+          -174.0,
+          630.0,
+          13505.0,
+          860.0,
+          14365.0
+        ],
+        "displays": [
+          "–",
+          "–",
+          "12,310",
+          "1,275",
+          "–1,006",
+          "409",
+          "61",
+          "–174",
+          "630",
+          "13,505",
+          "860",
+          "14,365"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 28,
+        "sourceLineSha256": "1159f7c6ee559fe13415d28236c079550e1df14c15bbfb1710beb8083b2df105",
+        "id": "comprehensive"
+      },
+      {
+        "label": "Disposal of equity instruments",
+        "values": [
+          null,
+          null,
+          1.0,
+          null,
+          null,
+          null,
+          -1.0,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "displays": [
+          "–",
+          "–",
+          "1",
+          "–",
+          "–",
+          "–",
+          "–1",
+          "–",
+          "–",
+          "–",
+          "–",
+          "–"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 29,
+        "sourceLineSha256": "a956dc8af5af7d58663c298807c3bde1c5ade52d78d411d822ce606bdae9a003",
+        "id": "disposal"
+      },
+      {
+        "label": "Capital increases/Capital decreases",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          -1244.0,
+          -1244.0,
+          106.0,
+          -1138.0
+        ],
+        "displays": [
+          "–",
+          "–",
+          "–",
+          "–",
+          "–",
+          "–",
+          "–",
+          "–",
+          "–1,244",
+          "–1,244",
+          "106",
+          "–1,138"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 30,
+        "sourceLineSha256": "c00334461e13cddb495eb84a4f9bfaafcc6d98a656ff6d2059c20a94ec7665d3",
+        "id": "capital"
+      },
+      {
+        "label": "Dividends payment",
+        "values": [
+          null,
+          null,
+          -4524.0,
+          null,
+          null,
+          null,
+          null,
+          null,
+          -651.0,
+          -5175.0,
+          -604.0,
+          -5779.0
+        ],
+        "displays": [
+          "–",
+          "–",
+          "–4,524",
+          "–",
+          "–",
+          "–",
+          "–",
+          "–",
+          "–651",
+          "–5,175",
+          "–604",
+          "–5,779"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 31,
+        "sourceLineSha256": "0a9c0b6d71c1fb40a17167f4d308830af7c53d690a2827cc74c0734d9b4a7f85",
+        "id": "dividends"
+      },
+      {
+        "label": "Capital transactions involving a change in ownership interest",
+        "values": [
+          null,
+          null,
+          -4.0,
+          0.0,
+          null,
+          null,
+          null,
+          null,
+          null,
+          -4.0,
+          4.0,
+          null
+        ],
+        "displays": [
+          "–",
+          "–",
+          "–4",
+          "0",
+          "–",
+          "–",
+          "–",
+          "–",
+          "–",
+          "–4",
+          "4",
+          "–"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 33,
+        "sourceLineSha256": "3013b544f861b5e8e8f3aa288e732fc33e350b91bd4b1fd7f22b4a27dd86f565",
+        "id": "ownership"
+      },
+      {
+        "label": "Other changes",
+        "values": [
+          null,
+          null,
+          243.0,
+          null,
+          null,
+          null,
+          null,
+          1.0,
+          null,
+          244.0,
+          -147.0,
+          97.0
+        ],
+        "displays": [
+          "–",
+          "–",
+          "243",
+          "–",
+          "–",
+          "–",
+          "–",
+          "1",
+          "–",
+          "244",
+          "–147",
+          "97"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 34,
+        "sourceLineSha256": "b1198894fc1179f60782ace3db2f8ed8aa9459d92719197eda09f76d8cd999cc",
+        "id": "other"
+      },
+      {
+        "label": "Balance at Dec. 31, 2024",
+        "values": [
+          1283.0,
+          14551.0,
+          155130.0,
+          -2156.0,
+          466.0,
+          -267.0,
+          -906.0,
+          303.0,
+          13890.0,
+          182294.0,
+          14437.0,
+          196731.0
+        ],
+        "displays": [
+          "1,283",
+          "14,551",
+          "155,130",
+          "–2,156",
+          "466",
+          "–267",
+          "–906",
+          "303",
+          "13,890",
+          "182,294",
+          "14,437",
+          "196,731"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 35,
+        "sourceLineSha256": "84ac116e782f24b228117ec444c03a329b63c1f79c09c643d46392fd64da3dac",
+        "id": "closing"
+      }
+    ]
+  },
+  "equity_2025": {
+    "columns": [
+      "subscribed",
+      "capital",
+      "retained",
+      "currency",
+      "hedge1",
+      "hedge2",
+      "equity_debt",
+      "equity_accounted",
+      "hybrid",
+      "parent_and_hybrid",
+      "nci",
+      "total"
+    ],
+    "rows": [
+      {
+        "label": "Balance at Jan. 1, 2025",
+        "values": [
+          1283.0,
+          14551.0,
+          155130.0,
+          -2156.0,
+          466.0,
+          -267.0,
+          -906.0,
+          303.0,
+          13890.0,
+          182294.0,
+          14437.0,
+          196731.0
+        ],
+        "displays": [
+          "1,283",
+          "14,551",
+          "155,130",
+          "–2,156",
+          "466",
+          "–267",
+          "–906",
+          "303",
+          "13,890",
+          "182,294",
+          "14,437",
+          "196,731"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 38,
+        "sourceLineSha256": "900d925bc750ddabf5249d7aca0e044cf2ac9238a335d5dee09aad31e187e394",
+        "id": "opening"
+      },
+      {
+        "label": "Earnings after tax",
+        "values": [
+          null,
+          null,
+          6673.0,
+          null,
+          null,
+          null,
+          null,
+          null,
+          650.0,
+          7323.0,
+          -419.0,
+          6904.0
+        ],
+        "displays": [
+          "–",
+          "–",
+          "6,673",
+          "–",
+          "–",
+          "–",
+          "–",
+          "–",
+          "650",
+          "7,323",
+          "–419",
+          "6,904"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 39,
+        "sourceLineSha256": "ae198663c5af39246787f0922fd17f94771593ec2410671b7b3057d21ff77e4e",
+        "id": "profit"
+      },
+      {
+        "label": "Other comprehensive income, net of tax",
+        "values": [
+          null,
+          null,
+          3216.0,
+          -3219.0,
+          1300.0,
+          201.0,
+          1154.0,
+          -161.0,
+          null,
+          2492.0,
+          408.0,
+          2900.0
+        ],
+        "displays": [
+          "–",
+          "–",
+          "3,216",
+          "–3,219",
+          "1,300",
+          "201",
+          "1,154",
+          "–161",
+          "–",
+          "2,492",
+          "408",
+          "2,900"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 40,
+        "sourceLineSha256": "d0fccbb8cfd1793af5c7f749d7f34e3d140f516c29cfe187269d4680a2377b89",
+        "id": "oci"
+      },
+      {
+        "label": "Total comprehensive income",
+        "values": [
+          null,
+          null,
+          9888.0,
+          -3219.0,
+          1300.0,
+          201.0,
+          1154.0,
+          -161.0,
+          650.0,
+          9815.0,
+          -11.0,
+          9804.0
+        ],
+        "displays": [
+          "–",
+          "–",
+          "9,888",
+          "–3,219",
+          "1,300",
+          "201",
+          "1,154",
+          "–161",
+          "650",
+          "9,815",
+          "–11",
+          "9,804"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 41,
+        "sourceLineSha256": "6f6922d517a25a83447e9b13436a41db19fca3383eea7efab167ba03c6d17ff9",
+        "id": "comprehensive"
+      },
+      {
+        "label": "Disposal of equity instruments",
+        "values": [
+          null,
+          null,
+          -31.0,
+          null,
+          null,
+          null,
+          31.0,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "displays": [
+          "–",
+          "–",
+          "–31",
+          "–",
+          "–",
+          "–",
+          "31",
+          "–",
+          "–",
+          "–",
+          "–",
+          "–"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 42,
+        "sourceLineSha256": "70e642f237af0c3cd74bb1115d5057dcc53a677598951e6a129671161a58ef1a",
+        "id": "disposal"
+      },
+      {
+        "label": "Capital increases/Capital decreases",
+        "values": [
+          null,
+          null,
+          0.0,
+          null,
+          null,
+          null,
+          null,
+          null,
+          400.0,
+          400.0,
+          29.0,
+          428.0
+        ],
+        "displays": [
+          "–",
+          "–",
+          "0",
+          "–",
+          "–",
+          "–",
+          "–",
+          "–",
+          "400",
+          "400",
+          "29",
+          "428"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 43,
+        "sourceLineSha256": "0c5a8d178fa881d943f6488a53eee0a150979cda3ef35c746f13b291d9b6ba33",
+        "id": "capital"
+      },
+      {
+        "label": "Dividends payment",
+        "values": [
+          null,
+          null,
+          -3171.0,
+          null,
+          null,
+          null,
+          null,
+          null,
+          -664.0,
+          -3835.0,
+          -625.0,
+          -4460.0
+        ],
+        "displays": [
+          "–",
+          "–",
+          "–3,171",
+          "–",
+          "–",
+          "–",
+          "–",
+          "–",
+          "–664",
+          "–3,835",
+          "–625",
+          "–4,460"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 44,
+        "sourceLineSha256": "8e097d44f5c6ac9829efb04d014a5e7b25b9274a93fdd93f5a6e1adc5adcb7b8",
+        "id": "dividends"
+      },
+      {
+        "label": "Capital transactions involving a change in ownership interest",
+        "values": [
+          null,
+          null,
+          -430.0,
+          48.0,
+          0.0,
+          0.0,
+          14.0,
+          0.0,
+          null,
+          -367.0,
+          719.0,
+          352.0
+        ],
+        "displays": [
+          "–",
+          "–",
+          "–430",
+          "48",
+          "0",
+          "0",
+          "14",
+          "0",
+          "–",
+          "–367",
+          "719",
+          "352"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 46,
+        "sourceLineSha256": "0b1d1f75d63be7bae6826ed5ba607978a98cea0fb79bd0cf0e01debb4fe4dbf0",
+        "id": "ownership"
+      },
+      {
+        "label": "Other changes",
+        "values": [
+          null,
+          null,
+          -30.0,
+          null,
+          null,
+          null,
+          null,
+          1.0,
+          null,
+          -30.0,
+          229.0,
+          199.0
+        ],
+        "displays": [
+          "–",
+          "–",
+          "–30",
+          "–",
+          "–",
+          "–",
+          "–",
+          "1",
+          "–",
+          "–30",
+          "229",
+          "199"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 47,
+        "sourceLineSha256": "049ba0b52aed89a1857fb933e4b08bcb5d31cd367f20b3b1f907bfe4f3f03a3f",
+        "id": "other"
+      },
+      {
+        "label": "Balance at Dec. 31, 2025",
+        "values": [
+          1283.0,
+          14551.0,
+          161357.0,
+          -5326.0,
+          1766.0,
+          -66.0,
+          293.0,
+          142.0,
+          14275.0,
+          188277.0,
+          14777.0,
+          203054.0
+        ],
+        "displays": [
+          "1,283",
+          "14,551",
+          "161,357",
+          "–5,326",
+          "1,766",
+          "–66",
+          "293",
+          "142",
+          "14,275",
+          "188,277",
+          "14,777",
+          "203,054"
+        ],
+        "sourcePage": 4117,
+        "sourceLine": 48,
+        "sourceLineSha256": "9e1680ac055cce9aabe38719d98a756bec47ab2052de7dc049a22262c71b029b",
+        "id": "closing"
+      }
+    ]
+  },
+  "cashflow": {
+    "columns": [
+      "2025",
+      "2024"
+    ],
+    "rows": [
+      {
+        "label": "Cash and cash equivalents at beginning of period",
+        "values": [
+          40296.0,
+          43522.0
+        ],
+        "displays": [
+          "40,296",
+          "43,522"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 12,
+        "sourceLineSha256": "99571d3172576f05c462619cb1c3439c65fd2a46f615955e78279c1b33727a71",
+        "id": "opening"
+      },
+      {
+        "label": "Earnings before tax",
+        "values": [
+          9307.0,
+          16806.0
+        ],
+        "displays": [
+          "9,307",
+          "16,806"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 13,
+        "sourceLineSha256": "f0ac655ec669155dc6fcc467aaf804b38aef93805cbc28597b429a406322713e",
+        "id": "pretax"
+      },
+      {
+        "label": "Income taxes paid",
+        "values": [
+          -5152.0,
+          -6187.0
+        ],
+        "displays": [
+          "–5,152",
+          "–6,187"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 14,
+        "sourceLineSha256": "64d29a4e587e7f14de7d0f0deff50def9a0b73adc44b8ca6f8cdf8e824e00c71",
+        "id": "tax"
+      },
+      {
+        "label": "Depreciation and amortization of, and impairment losses on, intangible assets, property, plant and equipment, and investment property¹",
+        "values": [
+          16866.0,
+          12858.0
+        ],
+        "displays": [
+          "16,866",
+          "12,858"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 16,
+        "sourceLineSha256": "f74c7fffa5f7ac072de24b518a71642527e735dffe62edd861d29c72ec7dab8a",
+        "id": "depreciation"
+      },
+      {
+        "label": "Amortization of and impairment losses on capitalized development costs¹",
+        "values": [
+          8365.0,
+          7209.0
+        ],
+        "displays": [
+          "8,365",
+          "7,209"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 17,
+        "sourceLineSha256": "cc8ab2ddd6c4de1aa537679d3188d1e61a9af6ca981bc8e15042fef0585a1f1c",
+        "id": "development"
+      },
+      {
+        "label": "Impairment losses on equity investments¹",
+        "values": [
+          38.0,
+          710.0
+        ],
+        "displays": [
+          "38",
+          "710"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 18,
+        "sourceLineSha256": "0de6b51d3f36e044b0c073d7572c1d7391d376fb2898a9c77c3f59b95e69b53d",
+        "id": "equity_impair"
+      },
+      {
+        "label": "Depreciation of and impairment losses on lease assets¹",
+        "values": [
+          12203.0,
+          11279.0
+        ],
+        "displays": [
+          "12,203",
+          "11,279"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 19,
+        "sourceLineSha256": "06635e0e7544f74a75a1c0cff340bcc73bb3721cc6cc62801428838c821fe8d2",
+        "id": "lease_depreciation"
+      },
+      {
+        "label": "Gain/loss on disposal of non-current assets and equity investments",
+        "values": [
+          -95.0,
+          110.0
+        ],
+        "displays": [
+          "–95",
+          "110"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 20,
+        "sourceLineSha256": "3361f31ef7a1675340b5d54dab36756e46230e4df4447635f713441b7eebaa8d",
+        "id": "disposal_gain"
+      },
+      {
+        "label": "Share of the result of equity-accounted investments",
+        "values": [
+          968.0,
+          2362.0
+        ],
+        "displays": [
+          "968",
+          "2,362"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 21,
+        "sourceLineSha256": "d7b2803ff8c643b0ed618ca17a2324811e75a22e77992de08dce239e94d2f5e7",
+        "id": "equity_adjustment"
+      },
+      {
+        "label": "Other non-cash expense/income",
+        "values": [
+          -946.0,
+          903.0
+        ],
+        "displays": [
+          "–946",
+          "903"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 22,
+        "sourceLineSha256": "a0e52d6044b6e730bcc5603e0eb71a6295bcb96084cadc580c1db54ceb6c4d85",
+        "id": "other_noncash"
+      },
+      {
+        "label": "Change in inventories",
+        "values": [
+          -896.0,
+          -2695.0
+        ],
+        "displays": [
+          "–896",
+          "–2,695"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 23,
+        "sourceLineSha256": "34db97cfe6df25bc14901cf8ac4ee20ed2d479cb7d2678e5e8bfda200681d7fe",
+        "id": "inventory"
+      },
+      {
+        "label": "Change in receivables (excluding financial services)",
+        "values": [
+          -211.0,
+          -2083.0
+        ],
+        "displays": [
+          "–211",
+          "–2,083"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 24,
+        "sourceLineSha256": "b39edbfed30a8e7b86880f355482c80cdcbb1cabb1eaf1b297547aa34399b004",
+        "id": "receivables"
+      },
+      {
+        "label": "Change in liabilities (excluding financial liabilities)",
+        "values": [
+          3165.0,
+          52.0
+        ],
+        "displays": [
+          "3,165",
+          "52"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 25,
+        "sourceLineSha256": "59f4b672097c82b294c74bcefee22b51abd7b76f979efa61e1825484a7ea0821",
+        "id": "liabilities"
+      },
+      {
+        "label": "Change in provisions",
+        "values": [
+          1760.0,
+          4247.0
+        ],
+        "displays": [
+          "1,760",
+          "4,247"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 26,
+        "sourceLineSha256": "1268b9c66ca860eaa565c5d7056a8f46e48f810be4f2bc5fe0cd95b1015ea955",
+        "id": "provisions"
+      },
+      {
+        "label": "Change in lease assets",
+        "values": [
+          -24166.0,
+          -19358.0
+        ],
+        "displays": [
+          "–24,166",
+          "–19,358"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 27,
+        "sourceLineSha256": "7d260d8c410a5ab121b0bb9f64f8ff7a40a7e105fd215045cac22a87565bc8b3",
+        "id": "lease_change"
+      },
+      {
+        "label": "Change in financial services receivables",
+        "values": [
+          -6196.0,
+          -9061.0
+        ],
+        "displays": [
+          "–6,196",
+          "–9,061"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 28,
+        "sourceLineSha256": "e7c2d99fb5542fe7531be27e1bbbc5c0d05d36e1e011231deb7b77fe9f2733dd",
+        "id": "fs_change"
+      },
+      {
+        "label": "Cash flows from operating activities",
+        "values": [
+          15009.0,
+          17151.0
+        ],
+        "displays": [
+          "15,009",
+          "17,151"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 29,
+        "sourceLineSha256": "b7fe320d971baf35de14a358a34133b112ed059ff600a81caabd7c2b405cf213",
+        "id": "cfo"
+      },
+      {
+        "label": "Investments in intangible assets (excluding development costs), property, plant and equipment, and investment property",
+        "values": [
+          -15299.0,
+          -17202.0
+        ],
+        "displays": [
+          "–15,299",
+          "–17,202"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 31,
+        "sourceLineSha256": "d210a2ad27311fa90c221eb007db1c28261a7ba8aff379755804381ca7ea7170",
+        "id": "capex"
+      },
+      {
+        "label": "Additions to capitalized development costs",
+        "values": [
+          -9047.0,
+          -10244.0
+        ],
+        "displays": [
+          "–9,047",
+          "–10,244"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 32,
+        "sourceLineSha256": "0e02f286c0f34157dc5077933f687c239b4d66bf227b280d2de1c3f50de7caec",
+        "id": "capitalized_dev"
+      },
+      {
+        "label": "Acquisition of subsidiaries",
+        "values": [
+          -359.0,
+          -284.0
+        ],
+        "displays": [
+          "–359",
+          "–284"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 33,
+        "sourceLineSha256": "9cd6815d599d4849e3bd04a7e3c2a613d23ce44341671895c5459b471b265682",
+        "id": "acquire_subs"
+      },
+      {
+        "label": "Acquisition of other equity investments",
+        "values": [
+          -2106.0,
+          -2152.0
+        ],
+        "displays": [
+          "–2,106",
+          "–2,152"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 34,
+        "sourceLineSha256": "3ce69fa0a0316c9bc9d1e86438fdcc6331aafb7bf3b108d6658240db80c962ab",
+        "id": "acquire_other"
+      },
+      {
+        "label": "Disposal of subsidiaries",
+        "values": [
+          67.0,
+          -148.0
+        ],
+        "displays": [
+          "67",
+          "–148"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 35,
+        "sourceLineSha256": "f23adf9fe872a463ccf28f9663b43bf85e5d27e8aae0e45bc35f62a917e7466a",
+        "id": "dispose_subs"
+      },
+      {
+        "label": "Disposal of other equity investments",
+        "values": [
+          951.0,
+          231.0
+        ],
+        "displays": [
+          "951",
+          "231"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 36,
+        "sourceLineSha256": "112e03985415bb9ea689df6b3942108f9c8b8eb14fed481b65eb33ce2eafaf38",
+        "id": "dispose_other"
+      },
+      {
+        "label": "Proceeds from disposal of intangible assets, property, plant and equipment, and investment property",
+        "values": [
+          733.0,
+          947.0
+        ],
+        "displays": [
+          "733",
+          "947"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 37,
+        "sourceLineSha256": "49aaccf0fe15d103c7f3483c6497aa851fb21146f5630466dedbb56ca22da424",
+        "id": "dispose_assets"
+      },
+      {
+        "label": "Change in investments in securities and time deposits",
+        "values": [
+          -1485.0,
+          -203.0
+        ],
+        "displays": [
+          "–1,485",
+          "–203"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 38,
+        "sourceLineSha256": "3d427c5b8878ac4935fda961bfe46af8bddeffd9d051c67e18a31965bc5613a0",
+        "id": "securities"
+      },
+      {
+        "label": "Change in loans",
+        "values": [
+          -938.0,
+          -2517.0
+        ],
+        "displays": [
+          "–938",
+          "–2,517"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 39,
+        "sourceLineSha256": "6f0e68f05e41191f07959640dbd5fd68697e1357e33de30c10dca8ae280d6518",
+        "id": "loans"
+      },
+      {
+        "label": "Cash flows from investing activities",
+        "values": [
+          -27484.0,
+          -31573.0
+        ],
+        "displays": [
+          "–27,484",
+          "–31,573"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 40,
+        "sourceLineSha256": "5203f5c18a9ed87443623a419214aa1184ff20082f3292b1ca5726f831cc567f",
+        "id": "cfi"
+      },
+      {
+        "label": "Capital contributions/capital redemptions",
+        "values": [
+          420.0,
+          -1144.0
+        ],
+        "displays": [
+          "420",
+          "–1,144"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 41,
+        "sourceLineSha256": "cd18bbc1d503b2e182d317a53aafb75622fe558fbff4ed513c5f60df50c2d5a3",
+        "id": "capital"
+      },
+      {
+        "label": "Dividends paid",
+        "values": [
+          -4460.0,
+          -5779.0
+        ],
+        "displays": [
+          "–4,460",
+          "–5,779"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 42,
+        "sourceLineSha256": "187eb0ed58b21b7ee2a1a6946f02ebbaa82bde914b16db2acc0281c2d310fb73",
+        "id": "dividends"
+      },
+      {
+        "label": "Capital transactions with non-controlling interest shareholders",
+        "values": [
+          352.0,
+          null
+        ],
+        "displays": [
+          "352",
+          "–"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 43,
+        "sourceLineSha256": "0e48fdfad00a5b4f624f33f39afe64ee9f102aa1fd9472bb403e84094d0154cd",
+        "id": "nci_transactions"
+      },
+      {
+        "label": "Proceeds from issuance of bonds",
+        "values": [
+          35993.0,
+          38420.0
+        ],
+        "displays": [
+          "35,993",
+          "38,420"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 44,
+        "sourceLineSha256": "2793eaebcc2a50012c0706d9751a391e5ebb17e6eeab696186b2533db384cf4b",
+        "id": "bond_issue"
+      },
+      {
+        "label": "Repayments of bonds",
+        "values": [
+          -32669.0,
+          -32617.0
+        ],
+        "displays": [
+          "–32,669",
+          "–32,617"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 45,
+        "sourceLineSha256": "cf1bf27c916c3d4a0569d1ec330ed7cd4e208094af03efffa6a91f644fcfd5e5",
+        "id": "bond_repay"
+      },
+      {
+        "label": "Proceeds from issuance of commercial paper and notes 2",
+        "values": [
+          27549.0,
+          13828.0
+        ],
+        "displays": [
+          "27,549",
+          "13,828"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 46,
+        "sourceLineSha256": "6958cf89f9d46e54d5508aa62462198781992df70358a4372b0c0af3f2d8953b",
+        "id": "paper_issue"
+      },
+      {
+        "label": "Repayments of commercial paper and notes2",
+        "values": [
+          -30417.0,
+          -12414.0
+        ],
+        "displays": [
+          "–30,417",
+          "–12,414"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 47,
+        "sourceLineSha256": "31ec2e240c5692616810fb9b8c44b855e35c1d0fcc82cbb5c4ce0bbff00a6fcb",
+        "id": "paper_repay"
+      },
+      {
+        "label": "Changes in other financial liabilities2",
+        "values": [
+          16624.0,
+          12179.0
+        ],
+        "displays": [
+          "16,624",
+          "12,179"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 48,
+        "sourceLineSha256": "007a5a93123d10e8c482bd088a4456b130faaf05ffa61f8f07ab968f9c6e153f",
+        "id": "other_debt"
+      },
+      {
+        "label": "Repayments of lease liabilities",
+        "values": [
+          -1476.0,
+          -1334.0
+        ],
+        "displays": [
+          "–1,476",
+          "–1,334"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 49,
+        "sourceLineSha256": "7232f24bff0411602948e244c9aacb7c00a2881f3d52234c2191865be5b3128a",
+        "id": "lease_repay"
+      },
+      {
+        "label": "Cash flows from financing activities",
+        "values": [
+          11918.0,
+          11140.0
+        ],
+        "displays": [
+          "11,918",
+          "11,140"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 50,
+        "sourceLineSha256": "8000e864764ac07259fb4f9428df9182f08272d80c5310a7e94325c0bc0a2264",
+        "id": "cff"
+      },
+      {
+        "label": "Effect of exchange rate changes on cash and cash equivalents",
+        "values": [
+          -938.0,
+          55.0
+        ],
+        "displays": [
+          "–938",
+          "55"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 51,
+        "sourceLineSha256": "c5804ee7ba0e6f07930c777172fc8c9b79121606b7b18bf66a7c638a8b5b2638",
+        "id": "fx"
+      },
+      {
+        "label": "Change of loss allowance within cash and cash equivalents",
+        "values": [
+          0.0,
+          1.0
+        ],
+        "displays": [
+          "0",
+          "1"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 52,
+        "sourceLineSha256": "ef19d5622db788aa1d50b6d9f2b953d03bf1472cbeb14f65905d8b9452c57f92",
+        "id": "loss_allowance"
+      },
+      {
+        "label": "Net change in cash and cash equivalents",
+        "values": [
+          -1495.0,
+          -3226.0
+        ],
+        "displays": [
+          "–1,495",
+          "–3,226"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 53,
+        "sourceLineSha256": "17db96592847226ba1f29bb7c6475bd2fe130dc980d545b7a4eeae66bdbfb660",
+        "id": "change"
+      },
+      {
+        "label": "Cash and cash equivalents at end of period",
+        "values": [
+          38801.0,
+          40296.0
+        ],
+        "displays": [
+          "38,801",
+          "40,296"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 54,
+        "sourceLineSha256": "76d4742fb65107174301a29610930ba00b1870b253e282806a0ed0dda22f35a1",
+        "id": "closing"
+      },
+      {
+        "label": "Cash and cash equivalents at end of period",
+        "values": [
+          38801.0,
+          40296.0
+        ],
+        "displays": [
+          "38,801",
+          "40,296"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 57,
+        "sourceLineSha256": "431596fc69a6ea27997d558b1ee7712aa9596e48e3b2924d10ecd2c39f68e1bf",
+        "id": "closing_liquidity"
+      },
+      {
+        "label": "Securities and time deposits and loans",
+        "values": [
+          47395.0,
+          44662.0
+        ],
+        "displays": [
+          "47,395",
+          "44,662"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 58,
+        "sourceLineSha256": "434c9f30a717538173e35d13405719947850e1815ea5aeb157b7f237945808b8",
+        "id": "securities_loans"
+      },
+      {
+        "label": "Gross liquidity",
+        "values": [
+          86197.0,
+          84959.0
+        ],
+        "displays": [
+          "86,197",
+          "84,959"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 59,
+        "sourceLineSha256": "975468afdcbe20aab48e393565b7e60276adbe282c9af91d12732f2a4d5efa7e",
+        "id": "gross_liquidity"
+      },
+      {
+        "label": "Total third-party borrowings",
+        "values": [
+          -264703.0,
+          -254081.0
+        ],
+        "displays": [
+          "–264,703",
+          "–254,081"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 60,
+        "sourceLineSha256": "d97ec4522d532aa8912b63ec6cc521e00f4bbed441bc8b20679d3c78274b7f36",
+        "id": "borrowings"
+      },
+      {
+        "label": "Net liquidity",
+        "values": [
+          -178506.0,
+          -169122.0
+        ],
+        "displays": [
+          "–178,506",
+          "–169,122"
+        ],
+        "sourcePage": 4118,
+        "sourceLine": 61,
+        "sourceLineSha256": "41940edc8141a40e599b076616e064bc4552d4fc87e6b1d9b5de8caa0d112446",
+        "id": "net_liquidity"
+      }
+    ]
+  }
+}
