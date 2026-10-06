@@ -35,15 +35,43 @@ export type ClaimAccounts = { cashAccountId: string; payerReceivableAccountId: s
 const sar = (h: number) => h / 100;
 
 /** the visit: the patient's share collected, the payer's share claimed (1210, named to the payer), revenue by department */
-export function encounterJournal(e: Encounter, a: ClaimAccounts) {
-  const s = splitEncounter(e), rev = a.revenueAccountId(DEPARTMENT_ACCOUNT[e.department]);
+/* VAT on a visit (the health pack). Saudi Arabia — private healthcare is standard-rated for non-Saudi patients; for Saudi
+   citizens the state bears the VAT and the provider issues a 0% invoice; qualifying medicines and medical goods listed by the
+   MOH/SFDA are zero-rated; a government provider's services are outside the scope. Egypt — medical services are exempt
+   (VAT Law 67/2016). Elsewhere the company's own rate applies and its healthcare exemptions must be checked. How the
+   state-borne VAT of Saudi citizens is reported or reimbursed is not posted here: the visit records its category. */
+export type PatientCategory = 'non-citizen' | 'citizen' | 'qualifying-goods' | 'government';
+export type VatTreatment = 'standard' | 'state-borne' | 'zero' | 'out-of-scope' | 'exempt' | 'none';
+export const VAT_TREATMENT_LABEL: Readonly<Record<VatTreatment, string>> = Object.freeze({
+  standard: 'خاضعة للنسبة الأساسية', 'state-borne': 'مواطن سعودي — تتحملها الدولة (فاتورة 0٪)', zero: 'أدوية ومستلزمات مؤهلة — نسبة صفرية',
+  'out-of-scope': 'مقدّم حكومي — خارج نطاق الضريبة', exempt: 'خدمات طبية معفاة', none: 'الشركة غير مسجلة — بلا ضريبة' });
+
+export function healthVatTreatment(o: { country?: string; policyRate?: number; category?: PatientCategory }): { treatment: VatTreatment; rate: number } {
+  const rate = Number(o.policyRate) > 0 ? Number(o.policyRate) : 0, country = String(o.country || '').toUpperCase();
+  if (!rate) return { treatment: 'none', rate: 0 };
+  if (country === 'EG') return { treatment: 'exempt', rate: 0 };
+  if (country === 'SA') {
+    if (o.category === 'citizen') return { treatment: 'state-borne', rate: 0 };
+    if (o.category === 'qualifying-goods') return { treatment: 'zero', rate: 0 };
+    if (o.category === 'government') return { treatment: 'out-of-scope', rate: 0 };
+  }
+  return { treatment: 'standard', rate };
+}
+
+export function encounterJournal(e: Encounter & { vat?: { treatment: VatTreatment; rate: number } }, a: ClaimAccounts & { outputVatAccountId?: string }) {
+  const rev = a.revenueAccountId(DEPARTMENT_ACCOUNT[e.department]);
   if (!rev) throw new Error('حساب إيراد القسم غير موجود');
+  const rate = e.vat && e.vat.treatment === 'standard' && e.vat.rate > 0 ? e.vat.rate : 0;
+  if (rate && !a.outputVatAccountId) throw new Error('حساب ضريبة المخرجات غير موجود');
+  /* the patient and the payer share the bill as it is invoiced, VAT included; the co-payment cap applies to that total */
+  const vatH = Math.round(e.grossHalalas * rate), s = splitEncounter({ ...e, grossHalalas: e.grossHalalas + vatH });
   const lines = [
     ...(s.patientShare ? [{ accountId: a.cashAccountId, debit: sar(s.patientShare), credit: 0, description: 'حصة المريض — حالة ' + e.caseRef }] : []),
     ...(s.payerShare ? [{ accountId: a.payerReceivableAccountId, debit: sar(s.payerShare), credit: 0, description: 'مطالبة ' + s.payer + ' — حالة ' + e.caseRef }] : []),
     { accountId: rev, debit: 0, credit: sar(e.grossHalalas), description: DEPARTMENT_LABEL[e.department] + ' — حالة ' + e.caseRef },
+    ...(vatH ? [{ accountId: a.outputVatAccountId as string, debit: 0, credit: sar(vatH), description: 'ضريبة مخرجات ' + Math.round(rate * 10000) / 100 + '٪ — حالة ' + e.caseRef }] : []),
   ];
-  return { split: s, journal: { id: e.id, date: e.date, reference: e.caseRef, memo: 'زيارة ' + DEPARTMENT_LABEL[e.department] + (s.payer ? ' — ' + s.payer : ''), party: s.payer || undefined, lines } };
+  return { split: s, vat: { treatment: e.vat?.treatment ?? 'none', rate, amount: vatH }, journal: { id: e.id, date: e.date, reference: e.caseRef, memo: 'زيارة ' + DEPARTMENT_LABEL[e.department] + (s.payer ? ' — ' + s.payer : ''), party: s.payer || undefined, lines } };
 }
 
 export type Remittance = { id: string; date: string; payer: string; reference?: string; paidHalalas: number; rejectedHalalas: number; reason?: string };

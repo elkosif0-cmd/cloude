@@ -32,9 +32,10 @@ try {
   await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p); await p.waitForTimeout(800);
   await p.evaluate(() => SKosifLedger.open('claims')); await p.waitForTimeout(1000);
   ok('a health company has the claims tab, with its pack accounts', await p.evaluate(() => !!document.querySelector('[data-sk-tabs="ledger"] [data-tab="claims"]') && !!document.getElementById('cl-case')), await p.evaluate(() => SK.company.current().sector + ' ' + SKosifLedger.accounts().map((a) => a.code).join(',')));
-  const visit = async (caseRef, dept, gross, payer, cov, doc = '', fee = '', sup = '') => {
+  // the earlier visits are Saudi citizens (state-borne VAT, a 0% invoice); a standard-rated visit is checked at the end
+  const visit = async (caseRef, dept, gross, payer, cov, doc = '', fee = '', sup = '', cat = 'citizen') => {
     await p.fill('#cl-case', caseRef); await p.selectOption('#cl-dept', dept); await p.fill('#cl-gross', gross); await p.fill('#cl-payer', payer); await p.fill('#cl-cov', cov);
-    await p.fill('#cl-doc', doc); await p.fill('#cl-fee', fee); await p.fill('#cl-sup', sup);
+    await p.fill('#cl-doc', doc); await p.fill('#cl-fee', fee); await p.fill('#cl-sup', sup); await p.selectOption('#cl-cat', cat);
     await p.click('[data-l="claim-visit"]'); await p.waitForTimeout(600);
   };
   // the cost of a case: supplies cannot leave a pharmacy that does not hold them
@@ -64,6 +65,14 @@ try {
   ok('the payer table: billed, paid, rejected, a 21.43% rejection rate, nothing open', row && /700/.test(row[1]) && /550/.test(row[2]) && /150/.test(row[3]) && row[4] === '21.43٪' && /0/.test(row[5]), JSON.stringify(row));
   const tb = await p.evaluate(() => { const g = SKEngines.finance.ledger.buildGeneralLedger(SKosifLedger.entries()); return Math.round((g.reduce((s, x) => s + x.debit, 0) - g.reduce((s, x) => s + x.credit, 0)) * 100); });
   ok('the books stay balanced', tb === 0, String(tb));
+  // VAT on healthcare: a non-Saudi patient's visit is standard-rated (15% in this Saudi company), shared 50/50 with the payer
+  const b3 = await B(['2200', '4010', '1210', '1100']);
+  await visit('C-1004', 'outpatient', '200', 'تأمين ب', '50', '', '', '', 'non-citizen');
+  const b4 = await B(['2200', '4010', '1210', '1100']), dlt = (k) => Math.round((b4[k] - b3[k]) * 100) / 100;
+  ok('a non-Saudi visit: revenue 200 before VAT, output VAT 30, the 230 shared 115 / 115', dlt('4010') === -200 && dlt('2200') === -30 && dlt('1210') === 115 && dlt('1100') === 115, JSON.stringify({ b3, b4 }));
+  const tr = await p.evaluate(() => SKosifLedger.entries().filter((e) => e.visit).map((e) => e.visit.vatTreatment));
+  ok('every visit records its VAT treatment (state-borne for citizens, standard for the non-Saudi patient)', tr.filter((t) => t === 'state-borne').length === 3 && tr.filter((t) => t === 'standard').length === 1, JSON.stringify(tr));
+  ok('the claims tab states the VAT rules and what it does not post', await p.evaluate(() => /تتحمل الدولة/.test((document.querySelector('[data-cl-vat-note]') || {}).textContent || '')));
   ok('no page errors', errors.length === 0, errors.slice(0, 3).join(' | '));
 } finally { await browser.close(); }
 

@@ -342,3 +342,14 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Branch / PR: `claude/health-case-cost-20261006` from `main` @ 047373e.
 - Evidence: engines 473/473; node 726 pass / 54 fail (= `main`'s 52 + 2 Windows-only header tests); health (incl. case cost) OK; door 94/94; meat, books OK; advances 26/26; sales 28/28; feature_audit 146/146 — all first attempt.
 - NEXT ACTION: owner approval to merge; then healthcare VAT, then deepen hospitality/construction/digital packs.
+
+### TASK CLAUDE-20261006-012 — P3 health: VAT on healthcare visits
+- Agent: Claude (Lead Development Agent)
+- Status: HANDOFF (PR open; merge deploys production — owner approval)
+- Goal: close the limit recorded in CLAUDE-20261006-009 (claims amounts were before VAT).
+- Sources checked (web, 2026-10-06): Saudi Arabia — private healthcare standard-rated for non-Saudi patients; for Saudi citizens the state bears the VAT and the provider issues a 0% invoice (Royal Order); qualifying medicines and medical goods listed by MOH/SFDA zero-rated; government providers outside the scope. Egypt — medical services exempt (VAT Law 67/2016). The official ZATCA healthcare guideline URL returned 404; the reimbursement/reporting mechanism of the citizens' state-borne VAT is not posted and is stated on the screen as to be confirmed with the company's tax adviser.
+- Scope: `finance/insurance-claims-engine.ts`: `healthVatTreatment` (country × VAT policy × patient category), `encounterJournal` posts output VAT on standard-rated visits and shares the VAT-inclusive bill (co-payment cap on the total) + tests; claims tab: patient category, treatment from the company's country and `SK.vatRate()`, 2200 required only when taxable, the treatment recorded on each visit, a note of the rules; `tools/health_pack_e2e.mjs` (citizen visits keep their figures; a non-Saudi visit posts VAT 30 on 200, 115/115).
+- Not yet: zero-rated / state-borne sales are recorded per visit but not yet laid out as separate boxes of the VAT return.
+- Branch / PR: `claude/health-vat-20261006` from `main` @ ef5c967.
+- Evidence: engines 475/475; node 726 pass / 54 fail (= `main`'s 52 + 2 Windows-only header tests); health incl. VAT OK; door 94/94; meat, books OK; advances 26/26; sales 28/28; feature_audit 146/146 — all first attempt.
+- NEXT ACTION: owner approval to merge; then zero-rated/state-borne boxes on the VAT return; then deepen hospitality/construction/digital.

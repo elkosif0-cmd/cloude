@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { caseCostJournal, caseCosts, doctorFee, encounterJournal, payerStats, remittanceJournal, splitEncounter } from './insurance-claims-engine';
+import { caseCostJournal, caseCosts, doctorFee, encounterJournal, healthVatTreatment, payerStats, remittanceJournal, splitEncounter } from './insurance-claims-engine';
 import { validateJournalEntry } from './ledger-engine';
 
 const A = { cashAccountId: 'a1100', payerReceivableAccountId: 'a1210', rejectionsAccountId: 'a5110', revenueAccountId: (c: string) => 'a' + c };
@@ -63,6 +63,26 @@ describe('the health pack claim cycle', () => {
       { caseRef: 'C-1', revenue: 50_000, fee: 15_000, supplies: 4_500, cost: 19_500, margin: 30_500, marginPct: 61 },
       { caseRef: 'C-2', revenue: 30_000, fee: 0, supplies: 0, cost: 0, margin: 30_000, marginPct: 100 },
     ]);
+  });
+  it('decides the VAT treatment of a visit by country, registration and patient category', () => {
+    expect(healthVatTreatment({ country: 'SA', policyRate: 0.15, category: 'non-citizen' })).toEqual({ treatment: 'standard', rate: 0.15 });
+    expect(healthVatTreatment({ country: 'SA', policyRate: 0.15, category: 'citizen' })).toEqual({ treatment: 'state-borne', rate: 0 });
+    expect(healthVatTreatment({ country: 'SA', policyRate: 0.15, category: 'qualifying-goods' })).toEqual({ treatment: 'zero', rate: 0 });
+    expect(healthVatTreatment({ country: 'SA', policyRate: 0.15, category: 'government' })).toEqual({ treatment: 'out-of-scope', rate: 0 });
+    expect(healthVatTreatment({ country: 'EG', policyRate: 0.14, category: 'non-citizen' })).toEqual({ treatment: 'exempt', rate: 0 });
+    expect(healthVatTreatment({ country: 'SA', policyRate: 0, category: 'non-citizen' })).toEqual({ treatment: 'none', rate: 0 });
+    expect(healthVatTreatment({ country: 'AE', policyRate: 0.05 })).toEqual({ treatment: 'standard', rate: 0.05 });
+  });
+  it('a standard-rated visit posts output VAT and shares the VAT-inclusive bill between patient and payer', () => {
+    const r = encounterJournal({ ...visit, vat: { treatment: 'standard', rate: 0.15 } }, { ...A, outputVatAccountId: 'a2200' });
+    expect(validateJournalEntry(r.journal).valid).toBe(true);
+    // 500 + 75 VAT = 575; payer 80% = 460, patient 115
+    expect(by(r.journal.lines, 'a4010')).toBe(-500); expect(by(r.journal.lines, 'a2200')).toBe(-75);
+    expect(by(r.journal.lines, 'a1210')).toBe(460); expect(by(r.journal.lines, 'a1100')).toBe(115);
+    expect(r.vat).toEqual({ treatment: 'standard', rate: 0.15, amount: 7_500 });
+    const citizen = encounterJournal({ ...visit, vat: { treatment: 'state-borne', rate: 0 } }, A);
+    expect(citizen.journal.lines.some((l) => l.accountId === 'a2200')).toBe(false); expect(by(citizen.journal.lines, 'a1210')).toBe(400);
+    expect(() => encounterJournal({ ...visit, vat: { treatment: 'standard', rate: 0.15 } }, A)).toThrow(/ضريبة المخرجات/);
   });
   it('rejects a visit without a value or with an unknown department', () => {
     expect(() => splitEncounter({ ...visit, grossHalalas: 0 })).toThrow();
