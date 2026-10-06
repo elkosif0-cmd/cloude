@@ -9,12 +9,14 @@
 
 import { type AccountType, type PackAccount, sectorPack } from './sector-pack-engine';
 import { encounterJournal, healthVatTreatment, remittanceJournal, type Department } from '../finance/insurance-claims-engine';
+import * as TU from '../finance/tuition-engine';
 
 export type ModelLine = { accountId: string; debit: number; credit: number; description?: string };
 export type ModelEntry = { id: string; date: string; reference: string; memo: string; source: string; sourceId: string; party?: string; lines: ModelLine[];
   model: true; reversedBy?: string; reversalOf?: string; [meta: string]: unknown };
 export type ModelCompany = { id: string; sector: string; name: string; story: string };
-export type ModelBooks = ModelCompany & { year: number; months: number; accounts: PackAccount[]; entries: ModelEntry[]; lockDate: string };
+/** `ledger` holds what the books screen keeps beside the entries (the school's terms), written with them on first open */
+export type ModelBooks = ModelCompany & { year: number; months: number; accounts: PackAccount[]; entries: ModelEntry[]; lockDate: string; ledger: Record<string, unknown> };
 
 export const MODEL_COMPANIES: readonly ModelCompany[] = Object.freeze([
   { id: 'model-health', sector: 'health', name: 'مستشفى الشفاء النموذجي', story: 'مستشفى بإيراد شهري يتجاوز 11 مليوناً: زيارات يومية لأربعة أقسام، ثلاث شركات تأمين ومطالبات ورفض وتسويات، أتعاب أطباء وصيدلية، وضريبة المواطن والمقيم.' },
@@ -62,7 +64,8 @@ export function modelBooks(id: string, opts: { year?: number; months?: number; v
   const M = Array.from({ length: months }, (_, i) => i + 1);
 
   je(dayOf(year, 1, 1), 'رأس المال المدفوع', [L('1100', CAPITAL[co.sector], 0), L('3000', 0, CAPITAL[co.sector])], { reference: 'CAP-' + year });
-  SECTOR[co.sector]({ year, months: M, vat, rnd, vary, je, L, sale, purchase, pay, collect, end, entries, co });
+  const ledger: Record<string, unknown> = {};
+  SECTOR[co.sector]({ year, months: M, vat, rnd, vary, je, L, sale, purchase, pay, collect, end, entries, co, ledger });
 
   /* the overheads every company carries; one month's rent is posted twice by mistake and corrected by a reversal */
   const OH = OVERHEAD[co.sector];
@@ -90,7 +93,7 @@ export function modelBooks(id: string, opts: { year?: number; months?: number; v
     if (net > 0 && due <= lock) je(dayOf(year, q * 3 + 4, 25), 'سداد ضريبة الربع ' + (q + 1) + ' للهيئة', [L('2250', net, 0), L('1100', 0, net)], { reference: 'ZATCA-' + year + '-Q' + (q + 1), source: 'سداد', party: 'هيئة الزكاة والضريبة والجمارك' });
   }
   entries.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
-  return { ...co, year, months, accounts, entries, lockDate: lock };
+  return { ...co, year, months, accounts, entries, lockDate: lock, ledger };
 }
 
 const CAPITAL: Record<string, number> = { health: 2_500_000_000, education: 1_200_000_000, manufacturing: 900_000_000, bakery: 60_000_000, agriculture: 400_000_000, trade: 700_000_000 };
@@ -100,7 +103,7 @@ const OVERHEAD: Record<string, { payroll: number; rent: number; opex: number }> 
   agriculture: { payroll: 6_000_000, rent: 1_500_000, opex: 2_500_000 }, trade: { payroll: 9_000_000, rent: 3_500_000, opex: 2_000_000 },
 };
 
-type Ctx = { year: number; months: number[]; vat: number; rnd: () => number; vary: (h: number, s?: number) => number; co: ModelCompany; entries: ModelEntry[];
+type Ctx = { year: number; months: number[]; vat: number; rnd: () => number; vary: (h: number, s?: number) => number; co: ModelCompany; entries: ModelEntry[]; ledger: Record<string, unknown>;
   je: (date: string, memo: string, lines: ModelLine[], x?: { source?: string; reference?: string; party?: string; meta?: Record<string, unknown> }) => ModelEntry;
   L: (code: string, dr: number, cr: number, d?: string) => ModelLine; end: (m: number) => string;
   sale: (date: string, memo: string, netH: number, o?: { revenue?: string; cashShare?: number; party?: string; source?: string; reference?: string; vatRate?: number; meta?: Record<string, unknown> }) => ModelEntry;
@@ -155,27 +158,48 @@ const SECTOR: Record<string, (c: Ctx) => void> = {
       if (m === 6) je(end(m), 'فرق جرد الصيدلية (عجز)', [L('5100', 4_500_000, 0), L('1360', 0, 4_500_000)], { source: 'جرد', reference: 'COUNT-' + year + '06' });
     }
   },
-  /* the school: term 2 (January–May) billed on 5 January and term 1 of the new year (September–December) on 25 August;
-     citizens' tuition carries VAT borne by the state (0% on the invoice), residents' 15%; 6% scholarships; collections
-     60% in the billing month, 30% the month after, 5% later; a withdrawn student's fees refunded in February */
-  education: ({ year, months, vat, vary, je, L, sale, collect, end }) => {
-    const students = 1200, term = 900_000, residents = 240, citizens = students - residents;
-    const bill = (m: number, d: number, label: string, span: number[]) => {
-      const citH = citizens * term, resH = residents * term, resV = Math.round(resH * vat);
-      je(dayOf(year, m, d), 'فوترة رسوم ' + label + ' — ' + students + ' طالب', [L('1200', citH + resH + resV, 0, 'أولياء الأمور'), L('2410', 0, citH + resH), L('2200', 0, resV)], { source: 'الرسوم الدراسية', reference: 'FEES-' + year + pad(m), party: 'أولياء الأمور',
-        meta: { tuition: { term: label, citizens, residents, months: span } } });
-      const grant = Math.round((citH + resH) * 0.06);
-      je(dayOf(year, m, d), 'منح وخصومات الإخوة — ' + label, [L('5160', grant, 0), L('1200', 0, grant, 'أولياء الأمور')], { source: 'الرسوم الدراسية', reference: 'GRANT-' + year + pad(m), party: 'أولياء الأمور' });
-      return { total: citH + resH + resV - grant, monthly: Math.round((citH + resH) / span.length), span };
+  /* the school, through the education pack's own engine (finance/tuition-engine) and with the books screen's meta, so the
+     «الرسوم الدراسية» tab reads it: term 2 (January–May) billed on 5 January and term 1 of the new year (September–December)
+     on 25 August, 960 citizens (VAT borne by the state) and 240 residents (15%); a 6% sibling-and-scholarship discount;
+     two residents withdrawing from March; each month earned at its end; collections of 60% in the billing month, 30% the
+     month after and 5% three months on; school transport */
+  education: ({ year, months, vary, je, sale, end, vat, ledger }) => {
+    const A = { receivableAccountId: '1200', cashAccountId: '1100', deferredAccountId: '2410', revenueAccountId: '4090', discountAccountId: '5160', outputVatAccountId: '2200' };
+    const V = { country: 'SA', policyRate: vat };
+    const terms: TU.Term[] = [{ id: 'model-term-2026-2', label: 'الفصل الثاني 2026', startMonth: year + '-01', months: 5, feeHalalas: 900_000, citizens: 960, residents: 240 }];
+    if (months.includes(8)) terms.push({ id: 'model-term-2026-27-1', label: 'الفصل الأول 2026-2027', startMonth: year + '-09', months: 4, feeHalalas: 900_000, citizens: 960, residents: 240 });
+    ledger.terms = terms;
+    const st = new Map(terms.map((t) => [t.id, TU.emptyTermState()]));
+    const post = (t: TU.Term, j: { date: string; reference: string; memo: string; party?: string; lines: ModelLine[] }, meta: Record<string, unknown>, source: string) =>
+      je(j.date, j.memo, j.lines, { source, reference: j.reference, party: j.party, meta: { tuition: { termId: t.id, ...meta } } });
+    const bill = (t: TU.Term, date: string) => {
+      const s = st.get(t.id)!, r = TU.termInvoiceJournal(t, { id: 'i', date, ...V }, A);
+      post(t, r.journal, { kind: 'invoice', fees: r.fees, vat: r.vat }, 'الرسوم الدراسية'); s.openHalalas += r.fees + r.vat;
+      const amt = Math.round(r.fees * 0.06), d = TU.discountJournal(t, s, { id: 'd', date, category: 'citizen', amountHalalas: amt, reason: 'خصم الإخوة والمنح', ...V }, A);
+      post(t, d.journal, { kind: 'discount', amount: amt, vat: d.vat }, 'المنح والخصومات'); s.discountHalalas += amt; s.openHalalas -= amt + d.vat;
+      return s.openHalalas;
     };
-    const terms = [bill(1, 5, 'الفصل الثاني', [1, 2, 3, 4, 5]), ...(months.includes(8) ? [bill(8, 25, 'الفصل الأول', [9, 10, 11, 12])] : [])];
-    const due: Record<number, number> = {};
-    for (const t of terms) { const m0 = t.span[0] === 9 ? 8 : 1; due[m0] = (due[m0] ?? 0) + Math.round(t.total * 0.6); due[m0 + 1] = (due[m0 + 1] ?? 0) + Math.round(t.total * 0.3); due[m0 + 3] = (due[m0 + 3] ?? 0) + Math.round(t.total * 0.05); }
+    const collect = (t: TU.Term, date: string, amount: number) => {
+      const s = st.get(t.id)!, a = Math.min(amount, s.openHalalas); if (a <= 0) return;
+      post(t, TU.collectionJournal(t, s, { id: 'c', date, amountHalalas: a }, A).journal, { kind: 'collect', amount: a }, 'تحصيل الرسوم');
+      s.collectedHalalas += a; s.openHalalas -= a;
+    };
+    const plan: Record<number, [TU.Term, number][]> = {};
+    const due = (m: number, t: TU.Term, h: number) => { (plan[m] ??= []).push([t, h]); };
     for (const m of months) {
-      for (const t of terms) if (t.span.includes(m)) je(end(m), 'الاعتراف بإيراد الرسوم — ' + pad(m) + '/' + year, [L('2410', t.monthly, 0), L('4090', 0, t.monthly)], { source: 'الرسوم الدراسية', reference: 'EARN-' + year + pad(m) });
-      if (due[m]) collect(dayOf(year, m, 15), 'تحصيل رسوم من أولياء الأمور', '1200', due[m], 'COL-' + year + pad(m), 'أولياء الأمور');
+      for (const t of terms) {
+        const m0 = Number(t.startMonth.slice(5)) === 9 ? 8 : 1;
+        if (m === m0) { const open = bill(t, dayOf(year, m, m0 === 1 ? 5 : 25)); due(m, t, Math.round(open * 0.6)); due(m + 1, t, Math.round(open * 0.3)); due(m + 3, t, Math.round(open * 0.05)); }
+      }
+      if (m === 2) { const t = terms[0], s = st.get(t.id)!, w = TU.withdrawalJournal(t, s, { id: 'w', date: dayOf(year, 2, 10), category: 'resident', students: 2, fromMonth: year + '-03', ...V }, A);
+        post(t, w.journal, { kind: 'withdraw', category: 'resident', students: 2, credit: w.credit, vat: w.vat }, 'انسحاب طلاب');
+        s.creditedHalalas += w.credit; s.withdrawnResidents += 2; s.openHalalas -= w.credit + w.vat; }
+      for (const [t, h] of plan[m] ?? []) collect(t, dayOf(year, m, 15), h);
+      for (const t of terms) { const s = st.get(t.id)!, ym = year + '-' + pad(m);
+        if (!TU.termMonths(t).includes(ym) || s.recognisedMonths.includes(ym)) continue;
+        const r = TU.recognitionJournal(t, s, ym, { id: 'e', date: end(m) }, A);
+        post(t, r.journal, { kind: 'earn', months: r.months, amount: r.amount }, 'الرسوم الدراسية'); s.recognisedMonths.push(...r.months); s.recognisedHalalas += r.amount; }
       if (m !== 6 && m !== 7) sale(end(m), 'النقل المدرسي — 300 طالب', vary(15_000_000, 0.03), { revenue: '4900', source: 'النقل' });
-      if (m === 2) je(dayOf(year, 2, 10), 'استرداد رسوم طالب منسحب (إشعار دائن)', [L('2410', 720_000, 0), L('1200', 0, 720_000, 'أولياء الأمور')], { source: 'الرسوم الدراسية', reference: 'CN-' + year + '02', party: 'أولياء الأمور' });
     }
   },
   /* the factory: raw materials bought on credit, issued to production with direct labour and overhead absorbed; output at

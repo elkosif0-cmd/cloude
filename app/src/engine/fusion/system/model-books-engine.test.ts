@@ -38,7 +38,11 @@ describe('the §3.6 model companies', () => {
     expect(f.entries.some((e) => (e.flock as { born?: number } | undefined)?.born)).toBe(true);
   });
   it('the school defers its fees and earns them month by month', () => {
-    const c = checkModelBooks(modelBooks('model-education'));
+    const b = modelBooks('model-education'), c = checkModelBooks(b);
+    /* through the education pack's engine, with the terms the books screen reads */
+    expect((b.ledger.terms as { id: string }[]).map((t) => t.id)).toEqual(['model-term-2026-2', 'model-term-2026-27-1']);
+    const kinds = new Set(b.entries.map((e) => (e.tuition as { kind?: string } | undefined)?.kind).filter(Boolean));
+    expect([...kinds].sort()).toEqual(['collect', 'discount', 'earn', 'invoice', 'withdraw']);
     expect(c.balance('4090')).toBeLessThan(0);
     expect(c.balance('2410')).toBeLessThan(0);
   });

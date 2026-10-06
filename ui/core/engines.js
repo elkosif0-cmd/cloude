@@ -7545,7 +7545,7 @@ window.SKEngines = (function() {
 			"8) اكتب بالعربية الفصحى المهنية الموجزة. لا تضع أي بيانات خارج مخطط JSON."
 		].join("\n");
 	}
-	var sar$6 = (m) => formatMinor(m, { decimals: 0 });
+	var sar$7 = (m) => formatMinor(m, { decimals: 0 });
 	/** The trial balance and the engine's review, compact enough for one prompt. */
 	function describeReview(tb, review) {
 		const rows = review.accounts.map((a) => [
@@ -7553,21 +7553,21 @@ window.SKEngines = (function() {
 			a.name,
 			TYPE_LABELS[a.type],
 			a.lineAr,
-			sar$6(a.natural),
-			a.prior === null ? "" : sar$6(a.prior),
+			sar$7(a.natural),
+			a.prior === null ? "" : sar$7(a.prior),
 			a.standards.map((s) => s.code).join("+")
 		].join(" | "));
 		const m = review.materiality, k = review.fs.keys;
 		return [
 			"ميزان المراجعة (رقم | اسم | نوع | بند القوائم | الرصيد بطبيعته | السابق | المعايير المقترحة):",
 			...rows,
-			`التوازن: ${tb.balanced ? "متوازن" : "غير متوازن بفرق " + sar$6(tb.difference)}.`,
-			`الأهمية النسبية: ${sar$6(m.overall)} (${m.benchmarkAr} × ${m.rate * 100}%) — التنفيذية ${sar$6(m.performance)} — حد التفاهة ${sar$6(m.trivial)}.`,
-			`الإيرادات ${sar$6(k.revenue.current)} · الربح التشغيلي ${sar$6(k.operating.current)} · صافي الربح ${sar$6(k.profit.current)} · الموجودات ${sar$6(k.assets.current)} · حقوق الملكية ${sar$6(k.equity.current)}.`,
+			`التوازن: ${tb.balanced ? "متوازن" : "غير متوازن بفرق " + sar$7(tb.difference)}.`,
+			`الأهمية النسبية: ${sar$7(m.overall)} (${m.benchmarkAr} × ${m.rate * 100}%) — التنفيذية ${sar$7(m.performance)} — حد التفاهة ${sar$7(m.trivial)}.`,
+			`الإيرادات ${sar$7(k.revenue.current)} · الربح التشغيلي ${sar$7(k.operating.current)} · صافي الربح ${sar$7(k.profit.current)} · الموجودات ${sar$7(k.assets.current)} · حقوق الملكية ${sar$7(k.equity.current)}.`,
 			"ملاحظات المحرك الآلي (أكدها أو فندها):",
 			...review.findings.map((f) => `${f.id} [${f.severity}] ${f.title} — ${f.basis} — ${f.standard}`),
 			"قيود المحرك المقترحة:",
-			...review.adjustments.map((a) => `${a.id} ${a.title}: ` + a.lines.map((l) => `${l.code} ${l.name} م${sar$6(l.debit)} د${sar$6(l.credit)}`).join("؛ "))
+			...review.adjustments.map((a) => `${a.id} ${a.title}: ` + a.lines.map((l) => `${l.code} ${l.name} م${sar$7(l.debit)} د${sar$7(l.credit)}`).join("؛ "))
 		].join("\n");
 	}
 	/** Outstanding requests: asked in any round, not yet accepted, not marked unavailable. */
@@ -7664,7 +7664,7 @@ window.SKEngines = (function() {
 			round
 		};
 		const v = validateAdjustment(a, tb);
-		const problems = [...v.problems, ...v.balanced ? [] : [`القيد غير متوازن: مدين ${sar$6(v.debit)} ودائن ${sar$6(v.credit)}`]];
+		const problems = [...v.problems, ...v.balanced ? [] : [`القيد غير متوازن: مدين ${sar$7(v.debit)} ودائن ${sar$7(v.credit)}`]];
 		return {
 			...a,
 			valid: v.valid,
@@ -7710,7 +7710,7 @@ window.SKEngines = (function() {
 				standard: normalizeCode$1(std) ?? (std || "IAS 1"),
 				title: str$1(f.comment, 160).split(/[.،؛]/)[0] || "ملاحظة",
 				detail: str$1(f.comment, 2e3),
-				basis: amount ? "المبلغ المتأثر " + sar$6(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
+				basis: amount ? "المبلغ المتأثر " + sar$7(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
 				action: str$1(f.recommendation, 1e3),
 				source: "gemini",
 				round: no,
@@ -7943,7 +7943,7 @@ window.SKEngines = (function() {
 		const lineOf = (q) => q.lineKey ?? review.accounts.find((a) => q.accounts.includes(a.code))?.lineKey ?? null;
 		const blockedSig = new Set(unavailHigh.map(lineOf).filter((k) => k && review.risks.some((r) => r.lineKey === k && r.significant)));
 		const basis = [], material = misstatement > mat.overall, pervasive = misstatement > mat.overall * 5, cs = s.ctx.curSym ?? (s.ctx.framework === "EAS" ? "ج.م" : "ر.س");
-		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar$6(misstatement)} ${cs} مقابل أهمية نسبية ${sar$6(mat.overall)} ${cs} (ISA 450).`);
+		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar$7(misstatement)} ${cs} مقابل أهمية نسبية ${sar$7(mat.overall)} ${cs} (ISA 450).`);
 		if (unavailHigh.length) basis.push(`تعذر الحصول على ${unavailHigh.length} مستند عالي الأولوية: ` + unavailHigh.map((q) => q.title).join("، ") + ".");
 		const scopePervasive = unavailHigh.length >= 3 || blockedSig.size >= 3;
 		if (sigUnevidenced) basis.push(`${sigUnevidenced} خطر جوهري دون دليل مقبول بعد؛ يستكمل قبل التوقيع (ISA 330).`);
@@ -17376,15 +17376,15 @@ window.SKEngines = (function() {
 	};
 	var r2$4 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 	var month = (d) => String(d).slice(0, 7);
-	function addMonths$1(ym, n) {
+	function addMonths$2(ym, n) {
 		const [y, m] = ym.split("-").map(Number);
 		return new Date(Date.UTC(y, m - 1 + n, 1)).toISOString().slice(0, 7);
 	}
 	/** Equal monthly instalments from the first due month (the month after the advance by default); the last one takes the rounding. */
 	function schedule(a) {
-		const n = Math.max(1, Math.floor(a.installments || 1)), first = a.firstDue ? month(a.firstDue) : addMonths$1(month(a.date), 1), each = r2$4(a.amount / n);
+		const n = Math.max(1, Math.floor(a.installments || 1)), first = a.firstDue ? month(a.firstDue) : addMonths$2(month(a.date), 1), each = r2$4(a.amount / n);
 		return Array.from({ length: n }, (_, i) => ({
-			month: addMonths$1(first, i),
+			month: addMonths$2(first, i),
 			due: i === n - 1 ? r2$4(a.amount - each * (n - 1)) : each
 		}));
 	}
@@ -17532,13 +17532,13 @@ window.SKEngines = (function() {
 		campaignProfitability: () => campaignProfitability,
 		mediaSpendJournal: () => mediaSpendJournal,
 		rebillJournal: () => rebillJournal,
-		recognitionJournal: () => recognitionJournal,
+		recognitionJournal: () => recognitionJournal$1,
 		retainerInvoiceJournal: () => retainerInvoiceJournal,
 		retainerSchedule: () => retainerSchedule
 	});
-	var sar$5 = (h) => h / 100;
-	var MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
-	var addMonths = (m, n) => {
+	var sar$6 = (h) => h / 100;
+	var MONTH$1 = /^\d{4}-(0[1-9]|1[0-2])$/;
+	var addMonths$1 = (m, n) => {
 		const [y, mo] = m.split("-").map(Number);
 		const t = y * 12 + (mo - 1) + n;
 		return Math.floor(t / 12) + "-" + String(t % 12 + 1).padStart(2, "0");
@@ -17547,13 +17547,13 @@ window.SKEngines = (function() {
 		if (!String(r.client || "").trim() || !String(r.campaign || "").trim()) throw new Error("حدد العميل والحملة");
 		if (!Number.isInteger(r.monthlyHalalas) || r.monthlyHalalas <= 0) throw new Error("قيمة الاشتراك الشهري يجب أن تكون أكبر من صفر");
 		if (!Number.isInteger(r.months) || r.months < 1 || r.months > 36) throw new Error("مدة الاشتراك بين شهر و36 شهراً");
-		if (!MONTH.test(r.startMonth)) throw new Error("شهر البداية غير صالح");
+		if (!MONTH$1.test(r.startMonth)) throw new Error("شهر البداية غير صالح");
 	}
 	/** the months a retainer covers and what is earned in each */
 	function retainerSchedule(r) {
 		checkRetainer(r);
 		return Array.from({ length: r.months }, (_, i) => ({
-			month: addMonths(r.startMonth, i),
+			month: addMonths$1(r.startMonth, i),
 			amountHalalas: r.monthlyHalalas
 		}));
 	}
@@ -17574,20 +17574,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.receivableAccountId,
-						debit: sar$5(total + vat),
+						debit: sar$6(total + vat),
 						credit: 0,
 						description: "فاتورة اشتراك " + r.client
 					},
 					{
 						accountId: a.deferredAccountId,
 						debit: 0,
-						credit: sar$5(total),
+						credit: sar$6(total),
 						description: "إيراد مؤجل — " + r.campaign
 					},
 					...vat ? [{
 						accountId: a.outputVatAccountId,
 						debit: 0,
-						credit: sar$5(vat),
+						credit: sar$6(vat),
 						description: "ضريبة المخرجات"
 					}] : []
 				]
@@ -17595,8 +17595,8 @@ window.SKEngines = (function() {
 		};
 	}
 	/** the months served up to `throughMonth` that are not yet recognised: deferred revenue into revenue */
-	function recognitionJournal(r, recognisedMonths, throughMonth, x, a) {
-		if (!MONTH.test(throughMonth)) throw new Error("الشهر غير صالح");
+	function recognitionJournal$1(r, recognisedMonths, throughMonth, x, a) {
+		if (!MONTH$1.test(throughMonth)) throw new Error("الشهر غير صالح");
 		const done = new Set(recognisedMonths), due = retainerSchedule(r).filter((s) => s.month <= throughMonth && !done.has(s.month));
 		if (!due.length) throw new Error("لا أشهر مستحقة الاعتراف حتى " + throughMonth);
 		const amount = due.reduce((s, m) => s + m.amountHalalas, 0);
@@ -17610,13 +17610,13 @@ window.SKEngines = (function() {
 				memo: "الاعتراف بإيراد " + r.client + " — " + due.map((m) => m.month).join("، "),
 				lines: [{
 					accountId: a.deferredAccountId,
-					debit: sar$5(amount),
+					debit: sar$6(amount),
 					credit: 0,
 					description: r.campaign
 				}, {
 					accountId: a.revenueAccountId,
 					debit: 0,
-					credit: sar$5(amount),
+					credit: sar$6(amount),
 					description: "إيراد إدارة الحملة — " + r.campaign
 				}]
 			}
@@ -17634,13 +17634,13 @@ window.SKEngines = (function() {
 			party: x.platform,
 			lines: [{
 				accountId: a.mediaCostAccountId,
-				debit: sar$5(x.amountHalalas),
+				debit: sar$6(x.amountHalalas),
 				credit: 0,
 				description: x.campaign
 			}, {
 				accountId: a.platformPayableAccountId,
 				debit: 0,
-				credit: sar$5(x.amountHalalas),
+				credit: sar$6(x.amountHalalas),
 				description: "مستحق " + x.platform
 			}]
 		} };
@@ -17665,20 +17665,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.receivableAccountId,
-						debit: sar$5(amount + vat),
+						debit: sar$6(amount + vat),
 						credit: 0,
 						description: x.client
 					},
 					{
 						accountId: a.revenueAccountId,
 						debit: 0,
-						credit: sar$5(amount),
+						credit: sar$6(amount),
 						description: "إنفاق معاد تحميله — " + x.campaign
 					},
 					...vat ? [{
 						accountId: a.outputVatAccountId,
 						debit: 0,
-						credit: sar$5(vat),
+						credit: sar$6(vat),
 						description: "ضريبة المخرجات"
 					}] : []
 				]
@@ -18497,7 +18497,7 @@ window.SKEngines = (function() {
 		hotelKpis: () => hotelKpis,
 		nightAudit: () => nightAudit
 	});
-	var sar$4 = (h) => h / 100;
+	var sar$5 = (h) => h / 100;
 	var int = (v) => Number.isInteger(v) && v >= 0;
 	/** a guest's deposit ahead of the stay: cash (with its VAT) against the deposits liability */
 	function depositJournal(x, vatRate, a) {
@@ -18516,20 +18516,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.cashAccountId,
-						debit: sar$4(x.amountHalalas + vat),
+						debit: sar$5(x.amountHalalas + vat),
 						credit: 0,
 						description: "عربون " + x.guest
 					},
 					{
 						accountId: a.depositAccountId,
 						debit: 0,
-						credit: sar$4(x.amountHalalas),
+						credit: sar$5(x.amountHalalas),
 						description: "ودائع الحجوزات — " + x.guest
 					},
 					...vat ? [{
 						accountId: a.outputVatAccountId,
 						debit: 0,
-						credit: sar$4(vat),
+						credit: sar$5(vat),
 						description: "ضريبة العربون"
 					}] : []
 				]
@@ -18551,32 +18551,32 @@ window.SKEngines = (function() {
 		const lines = [
 			...applied ? [{
 				accountId: a.depositAccountId,
-				debit: sar$4(applied),
+				debit: sar$5(applied),
 				credit: 0,
 				description: "من عربون " + guest
 			}] : [],
 			...rest ? [{
 				accountId: settle,
-				debit: sar$4(rest),
+				debit: sar$5(rest),
 				credit: 0,
 				description: (x.settleBy === "receivable" ? "على حساب " : "محصّل من ") + guest
 			}] : [],
 			...room ? [{
 				accountId: a.roomRevenueAccountId,
 				debit: 0,
-				credit: sar$4(room),
+				credit: sar$5(room),
 				description: "إيراد الغرف — " + x.roomsSold + " غرفة"
 			}] : [],
 			...fb ? [{
 				accountId: a.fbRevenueAccountId,
 				debit: 0,
-				credit: sar$4(fb),
+				credit: sar$5(fb),
 				description: "الأغذية والمشروبات"
 			}] : [],
 			...vat ? [{
 				accountId: a.outputVatAccountId,
 				debit: 0,
-				credit: sar$4(vat),
+				credit: sar$5(vat),
 				description: "ضريبة المخرجات"
 			}] : []
 		];
@@ -18603,13 +18603,13 @@ window.SKEngines = (function() {
 				party: channel,
 				lines: [{
 					accountId: a.commissionExpenseAccountId,
-					debit: sar$4(commission),
+					debit: sar$5(commission),
 					credit: 0,
 					description: "عمولة " + pct + "٪ من إيراد الغرف"
 				}, {
 					accountId: a.commissionPayableAccountId,
 					debit: 0,
-					credit: sar$4(commission),
+					credit: sar$5(commission),
 					description: "مستحق " + channel
 				}]
 			} : null
@@ -18697,7 +18697,7 @@ window.SKEngines = (function() {
 			patientShare
 		};
 	}
-	var sar$3 = (h) => h / 100;
+	var sar$4 = (h) => h / 100;
 	var VAT_TREATMENT_LABEL = Object.freeze({
 		standard: "خاضعة للنسبة الأساسية",
 		"state-borne": "مواطن سعودي — تتحملها الدولة (فاتورة 0٪)",
@@ -18747,26 +18747,26 @@ window.SKEngines = (function() {
 		const lines = [
 			...s.patientShare ? [{
 				accountId: a.cashAccountId,
-				debit: sar$3(s.patientShare),
+				debit: sar$4(s.patientShare),
 				credit: 0,
 				description: "حصة المريض — حالة " + e.caseRef
 			}] : [],
 			...s.payerShare ? [{
 				accountId: a.payerReceivableAccountId,
-				debit: sar$3(s.payerShare),
+				debit: sar$4(s.payerShare),
 				credit: 0,
 				description: "مطالبة " + s.payer + " — حالة " + e.caseRef
 			}] : [],
 			{
 				accountId: rev,
 				debit: 0,
-				credit: sar$3(e.grossHalalas),
+				credit: sar$4(e.grossHalalas),
 				description: DEPARTMENT_LABEL[e.department] + " — حالة " + e.caseRef
 			},
 			...vatH ? [{
 				accountId: a.outputVatAccountId,
 				debit: 0,
-				credit: sar$3(vatH),
+				credit: sar$4(vatH),
 				description: "ضريبة مخرجات " + Math.round(rate * 1e4) / 100 + "٪ — حالة " + e.caseRef
 			}] : []
 		];
@@ -18799,20 +18799,20 @@ window.SKEngines = (function() {
 		const lines = [
 			...r.paidHalalas ? [{
 				accountId: a.cashAccountId,
-				debit: sar$3(r.paidHalalas),
+				debit: sar$4(r.paidHalalas),
 				credit: 0,
 				description: "سداد " + payer
 			}] : [],
 			...r.rejectedHalalas ? [{
 				accountId: a.rejectionsAccountId,
-				debit: sar$3(r.rejectedHalalas),
+				debit: sar$4(r.rejectedHalalas),
 				credit: 0,
 				description: "رفض " + payer + ": " + String(r.reason).trim()
 			}] : [],
 			{
 				accountId: a.payerReceivableAccountId,
 				debit: 0,
-				credit: sar$3(total),
+				credit: sar$4(total),
 				description: "تسوية مطالبات " + payer
 			}
 		];
@@ -18871,23 +18871,23 @@ window.SKEngines = (function() {
 		if (fee && !doctor) throw new Error("حدد الطبيب");
 		const lines = [...fee ? [{
 			accountId: a.doctorFeesAccountId,
-			debit: sar$3(fee),
+			debit: sar$4(fee),
 			credit: 0,
 			description: "أتعاب " + doctor + " — حالة " + c.caseRef
 		}, {
 			accountId: a.doctorPayableAccountId,
 			debit: 0,
-			credit: sar$3(fee),
+			credit: sar$4(fee),
 			description: "مستحق " + doctor + " — حالة " + c.caseRef
 		}] : [], ...supplies ? [{
 			accountId: a.suppliesCostAccountId,
-			debit: sar$3(supplies),
+			debit: sar$4(supplies),
 			credit: 0,
 			description: "أدوية ومستلزمات — حالة " + c.caseRef
 		}, {
 			accountId: a.pharmacyStockAccountId,
 			debit: 0,
-			credit: sar$3(supplies),
+			credit: sar$4(supplies),
 			description: "صرف من الصيدلية — حالة " + c.caseRef
 		}] : []];
 		return {
@@ -19627,7 +19627,7 @@ window.SKEngines = (function() {
 		projectProfitability: () => projectProfitability,
 		retentionReleaseJournal: () => retentionReleaseJournal
 	});
-	var sar$2 = (h) => h / 100;
+	var sar$3 = (h) => h / 100;
 	var pct$4 = (v) => Math.min(100, Math.max(0, Number(v) || 0));
 	var emptyState = () => ({
 		certifiedHalalas: 0,
@@ -19657,20 +19657,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.cashAccountId,
-						debit: sar$2(x.amountHalalas + vat),
+						debit: sar$3(x.amountHalalas + vat),
 						credit: 0,
 						description: "دفعة مقدمة من " + c.customer
 					},
 					{
 						accountId: a.advanceAccountId,
 						debit: 0,
-						credit: sar$2(x.amountHalalas),
+						credit: sar$3(x.amountHalalas),
 						description: "دفعات مقدمة — " + c.project
 					},
 					...vat ? [{
 						accountId: a.outputVatAccountId,
 						debit: 0,
-						credit: sar$2(vat),
+						credit: sar$3(vat),
 						description: "ضريبة الدفعة المقدمة"
 					}] : []
 				]
@@ -19709,32 +19709,32 @@ window.SKEngines = (function() {
 		const lines = [
 			...r.receivable ? [{
 				accountId: a.receivableAccountId,
-				debit: sar$2(r.receivable),
+				debit: sar$3(r.receivable),
 				credit: 0,
 				description: "مستخلص " + x.id + " — " + c.project
 			}] : [],
 			...r.retention ? [{
 				accountId: a.retentionAccountId,
-				debit: sar$2(r.retention),
+				debit: sar$3(r.retention),
 				credit: 0,
 				description: "محتجزات " + pct$4(c.retentionPct) + "٪"
 			}] : [],
 			...r.recovery ? [{
 				accountId: a.advanceAccountId,
-				debit: sar$2(r.recovery),
+				debit: sar$3(r.recovery),
 				credit: 0,
 				description: "استرداد من الدفعة المقدمة"
 			}] : [],
 			{
 				accountId: a.revenueAccountId,
 				debit: 0,
-				credit: sar$2(r.work),
+				credit: sar$3(r.work),
 				description: "أعمال معتمدة — " + c.project + " (إنجاز " + r.completionPct + "٪)"
 			},
 			...r.vat ? [{
 				accountId: a.outputVatAccountId,
 				debit: 0,
-				credit: sar$2(r.vat),
+				credit: sar$3(r.vat),
 				description: "ضريبة المستخلص"
 			}] : []
 		];
@@ -19768,13 +19768,13 @@ window.SKEngines = (function() {
 				party: c.customer,
 				lines: [{
 					accountId: a.receivableAccountId,
-					debit: sar$2(held),
+					debit: sar$3(held),
 					credit: 0,
 					description: "محتجزات مستحقة السداد"
 				}, {
 					accountId: a.retentionAccountId,
 					debit: 0,
-					credit: sar$2(held),
+					credit: sar$3(held),
 					description: "إفراج عن محتجزات " + c.project
 				}]
 			}
@@ -19916,6 +19916,287 @@ window.SKEngines = (function() {
 			absoluteChange: money$16(current - prior),
 			newAccount: prior === 0 && current !== 0,
 			vanishedAccount: prior !== 0 && current === 0
+		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/finance/tuition-engine.ts
+	var tuition_engine_exports = /* @__PURE__ */ __exportAll({
+		collectionJournal: () => collectionJournal,
+		deferredLeft: () => deferredLeft,
+		discountJournal: () => discountJournal,
+		emptyTermState: () => emptyTermState,
+		recognitionJournal: () => recognitionJournal,
+		termInvoiceJournal: () => termInvoiceJournal,
+		termMonths: () => termMonths,
+		termSummary: () => termSummary,
+		tuitionVat: () => tuitionVat,
+		withdrawalJournal: () => withdrawalJournal
+	});
+	var sar$2 = (h) => h / 100;
+	var MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
+	var addMonths = (m, n) => {
+		const [y, mo] = m.split("-").map(Number);
+		const t = y * 12 + (mo - 1) + n;
+		return Math.floor(t / 12) + "-" + String(t % 12 + 1).padStart(2, "0");
+	};
+	var emptyTermState = () => ({
+		recognisedMonths: [],
+		recognisedHalalas: 0,
+		discountHalalas: 0,
+		creditedHalalas: 0,
+		withdrawnCitizens: 0,
+		withdrawnResidents: 0,
+		collectedHalalas: 0,
+		openHalalas: 0
+	});
+	function tuitionVat(o) {
+		const rate = Number(o.policyRate) > 0 ? Number(o.policyRate) : 0, country = String(o.country || "").toUpperCase();
+		if (!rate) return {
+			treatment: "none",
+			rate: 0
+		};
+		if (country === "EG") return {
+			treatment: "exempt",
+			rate: 0
+		};
+		if (country === "SA" && o.category === "citizen") return {
+			treatment: "state-borne",
+			rate: 0
+		};
+		return {
+			treatment: "standard",
+			rate
+		};
+	}
+	function check(t) {
+		if (!String(t.label || "").trim()) throw new Error("سمِّ الفصل الدراسي");
+		if (!MONTH.test(t.startMonth)) throw new Error("شهر بداية الفصل غير صالح");
+		if (!Number.isInteger(t.months) || t.months < 1 || t.months > 12) throw new Error("مدة الفصل بين شهر و12 شهراً");
+		if (!Number.isInteger(t.feeHalalas) || t.feeHalalas <= 0) throw new Error("رسوم الطالب للفصل يجب أن تكون أكبر من صفر");
+		for (const n of [t.citizens, t.residents]) if (!Number.isInteger(n) || n < 0) throw new Error("عدد الطلاب غير صالح");
+		if (t.citizens + t.residents <= 0) throw new Error("لا طلاب في الفصل");
+	}
+	/** the months a term is taught */
+	var termMonths = (t) => {
+		check(t);
+		return Array.from({ length: t.months }, (_, i) => addMonths(t.startMonth, i));
+	};
+	/** the term's fees still to be earned: billed, less discounts and credits, less what is already revenue */
+	var deferredLeft = (t, s) => (t.citizens + t.residents) * t.feeHalalas - s.discountHalalas - s.creditedHalalas - s.recognisedHalalas;
+	/** the term billed in advance: each category's fees with its own VAT, all deferred until taught */
+	function termInvoiceJournal(t, x, a) {
+		check(t);
+		const parts = ["citizen", "resident"].map((category) => {
+			const n = category === "citizen" ? t.citizens : t.residents, fees = n * t.feeHalalas, v = tuitionVat({
+				...x,
+				category
+			});
+			return {
+				category,
+				students: n,
+				fees,
+				vat: Math.round(fees * v.rate),
+				treatment: v.treatment
+			};
+		}).filter((p) => p.students);
+		const fees = parts.reduce((s, p) => s + p.fees, 0), vat = parts.reduce((s, p) => s + p.vat, 0);
+		if (vat && !a.outputVatAccountId) throw new Error("حساب ضريبة المخرجات غير موجود");
+		return {
+			fees,
+			vat,
+			parts,
+			journal: {
+				id: x.id,
+				date: x.date,
+				reference: "FEES-" + t.id,
+				memo: "فوترة رسوم " + t.label + " — " + (t.citizens + t.residents) + " طالب",
+				party: t.label,
+				lines: [
+					{
+						accountId: a.receivableAccountId,
+						debit: sar$2(fees + vat),
+						credit: 0,
+						description: "أولياء الأمور — " + t.label
+					},
+					{
+						accountId: a.deferredAccountId,
+						debit: 0,
+						credit: sar$2(fees),
+						description: "رسوم مقبوضة مقدماً — " + t.label
+					},
+					...vat ? [{
+						accountId: a.outputVatAccountId,
+						debit: 0,
+						credit: sar$2(vat),
+						description: "ضريبة رسوم غير السعوديين"
+					}] : []
+				]
+			}
+		};
+	}
+	/** the months taught up to `throughMonth` and not yet recognised: what is left deferred is spread over the months left, so a
+	discount or a withdrawal during the term lowers the months after it, and the last month takes the remainder */
+	function recognitionJournal(t, s, throughMonth, x, a) {
+		if (!MONTH.test(throughMonth)) throw new Error("الشهر غير صالح");
+		const done = new Set(s.recognisedMonths), left = termMonths(t).filter((m) => !done.has(m)), due = left.filter((m) => m <= throughMonth);
+		if (!due.length) throw new Error("لا أشهر مستحقة الاعتراف حتى " + throughMonth);
+		const remaining = deferredLeft(t, s), amount = due.length === left.length ? remaining : Math.floor(remaining / left.length) * due.length;
+		return {
+			months: due,
+			amount,
+			journal: {
+				id: x.id,
+				date: x.date,
+				reference: "EARN-" + t.id + "-" + throughMonth,
+				memo: "الاعتراف بإيراد رسوم " + t.label + " — " + due.join("، "),
+				lines: [{
+					accountId: a.deferredAccountId,
+					debit: sar$2(amount),
+					credit: 0,
+					description: t.label
+				}, {
+					accountId: a.revenueAccountId,
+					debit: 0,
+					credit: sar$2(amount),
+					description: "إيرادات الرسوم — " + t.label
+				}]
+			}
+		};
+	}
+	/** a scholarship or sibling discount on fees not yet earned: an expense of the school, a lower bill for the parents (a
+	resident's discount takes its VAT with it), and less left deferred */
+	function discountJournal(t, s, x, a) {
+		check(t);
+		if (!Number.isInteger(x.amountHalalas) || x.amountHalalas <= 0) throw new Error("قيمة المنحة أو الخصم يجب أن تكون أكبر من صفر");
+		if (!String(x.reason || "").trim()) throw new Error("سبب المنحة أو الخصم مطلوب");
+		if (x.amountHalalas > deferredLeft(t, s)) throw new Error("الخصم يتجاوز رسوم الفصل التي لم تُكتسب بعد");
+		const vat = Math.round(x.amountHalalas * tuitionVat({ ...x }).rate);
+		if (vat && !a.outputVatAccountId) throw new Error("حساب ضريبة المخرجات غير موجود");
+		return {
+			vat,
+			journal: {
+				id: x.id,
+				date: x.date,
+				reference: "GRANT-" + t.id,
+				memo: "منحة/خصم — " + t.label + ": " + x.reason.trim(),
+				party: t.label,
+				lines: [
+					{
+						accountId: a.deferredAccountId,
+						debit: sar$2(x.amountHalalas),
+						credit: 0,
+						description: "رسوم لن تُكتسب — " + x.reason.trim()
+					},
+					...vat ? [{
+						accountId: a.outputVatAccountId,
+						debit: sar$2(vat),
+						credit: 0,
+						description: "ضريبة الخصم"
+					}] : [],
+					{
+						accountId: a.receivableAccountId,
+						debit: 0,
+						credit: sar$2(x.amountHalalas + vat),
+						description: "أولياء الأمور — " + t.label
+					},
+					{
+						accountId: a.discountAccountId,
+						debit: sar$2(x.amountHalalas),
+						credit: 0,
+						description: x.reason.trim()
+					},
+					{
+						accountId: a.revenueAccountId,
+						debit: 0,
+						credit: sar$2(x.amountHalalas),
+						description: "إجمالي الرسوم قبل المنحة"
+					}
+				]
+			}
+		};
+	}
+	/** students who withdraw: the fees of the months not yet taught are credited back (a credit note), with their VAT */
+	function withdrawalJournal(t, s, x, a) {
+		const all = termMonths(t);
+		if (!Number.isInteger(x.students) || x.students <= 0) throw new Error("عدد الطلاب المنسحبين غير صالح");
+		const enrolled = x.category === "citizen" ? t.citizens - s.withdrawnCitizens : t.residents - s.withdrawnResidents;
+		if (x.students > enrolled) throw new Error("المنسحبون أكثر من المسجلين في هذه الفئة");
+		if (!MONTH.test(x.fromMonth) || !all.includes(x.fromMonth)) throw new Error("شهر الانسحاب خارج الفصل");
+		if (s.recognisedMonths.includes(x.fromMonth)) throw new Error("شهر الانسحاب اعتُرف بإيراده — الانسحاب من الشهر التالي");
+		const unearned = all.filter((m) => m >= x.fromMonth).length, credit = Math.min(deferredLeft(t, s), Math.round(x.students * t.feeHalalas * unearned / t.months));
+		const vat = Math.round(credit * tuitionVat({ ...x }).rate);
+		if (vat && !a.outputVatAccountId) throw new Error("حساب ضريبة المخرجات غير موجود");
+		return {
+			credit,
+			vat,
+			months: unearned,
+			journal: {
+				id: x.id,
+				date: x.date,
+				reference: "CN-" + t.id,
+				memo: "انسحاب " + x.students + " طالب من " + t.label + " — إشعار دائن عن " + unearned + " شهر",
+				party: t.label,
+				lines: [
+					{
+						accountId: a.deferredAccountId,
+						debit: sar$2(credit),
+						credit: 0,
+						description: "رسوم لم تُكتسب"
+					},
+					...vat ? [{
+						accountId: a.outputVatAccountId,
+						debit: sar$2(vat),
+						credit: 0,
+						description: "ضريبة الإشعار الدائن"
+					}] : [],
+					{
+						accountId: a.receivableAccountId,
+						debit: 0,
+						credit: sar$2(credit + vat),
+						description: "أولياء الأمور — " + t.label
+					}
+				]
+			}
+		};
+	}
+	/** fees collected from the parents, never more than they owe for the term */
+	function collectionJournal(t, s, x, a) {
+		if (!Number.isInteger(x.amountHalalas) || x.amountHalalas <= 0) throw new Error("مبلغ التحصيل يجب أن يكون أكبر من صفر");
+		if (x.amountHalalas > s.openHalalas) throw new Error("التحصيل يتجاوز المستحق على أولياء أمور " + t.label);
+		return { journal: {
+			id: x.id,
+			date: x.date,
+			reference: "COL-" + t.id,
+			memo: "تحصيل رسوم — " + t.label,
+			party: t.label,
+			lines: [{
+				accountId: a.cashAccountId,
+				debit: sar$2(x.amountHalalas),
+				credit: 0,
+				description: t.label
+			}, {
+				accountId: a.receivableAccountId,
+				debit: 0,
+				credit: sar$2(x.amountHalalas),
+				description: "أولياء الأمور — " + t.label
+			}]
+		} };
+	}
+	/** a term's figures: students enrolled, earned, deferred left, collected, open, collection rate, revenue per student */
+	function termSummary(t, s) {
+		const students = t.citizens + t.residents - s.withdrawnCitizens - s.withdrawnResidents, r2 = (v) => Math.round(v * 100) / 100;
+		const due = s.collectedHalalas + s.openHalalas;
+		return {
+			students,
+			gross: (t.citizens + t.residents) * t.feeHalalas,
+			discounts: s.discountHalalas,
+			credited: s.creditedHalalas,
+			earned: s.recognisedHalalas,
+			deferred: deferredLeft(t, s),
+			collected: s.collectedHalalas,
+			open: s.openHalalas,
+			collectionPct: due > 0 ? r2(s.collectedHalalas / due * 100) : null,
+			revenuePerStudent: students ? Math.round(s.recognisedHalalas / students) : null
 		};
 	}
 	//#endregion
@@ -26450,7 +26731,7 @@ window.SKEngines = (function() {
 		}),
 		education: pack({
 			id: "education",
-			depth: "base",
+			depth: "deep",
 			accounts: [
 				[
 					"2410",
@@ -26763,6 +27044,7 @@ window.SKEngines = (function() {
 		const end = (m) => dayOf(year, m, lastDay(year, m));
 		const M = Array.from({ length: months }, (_, i) => i + 1);
 		je(dayOf(year, 1, 1), "رأس المال المدفوع", [L("1100", CAPITAL[co.sector], 0), L("3000", 0, CAPITAL[co.sector])], { reference: "CAP-" + year });
+		const ledger = {};
 		SECTOR[co.sector]({
 			year,
 			months: M,
@@ -26777,7 +27059,8 @@ window.SKEngines = (function() {
 			collect,
 			end,
 			entries,
-			co
+			co,
+			ledger
 		});
 		const OH = OVERHEAD[co.sector];
 		for (const m of M) {
@@ -26838,7 +27121,8 @@ window.SKEngines = (function() {
 			months,
 			accounts,
 			entries,
-			lockDate: lock
+			lockDate: lock,
+			ledger
 		};
 	}
 	var CAPITAL = {
@@ -27017,70 +27301,144 @@ window.SKEngines = (function() {
 				});
 			}
 		},
-		education: ({ year, months, vat, vary, je, L, sale, collect, end }) => {
-			const term = 9e5, residents = 240, citizens = 960;
-			const bill = (m, d, label, span) => {
-				const resV = Math.round(residents * term * vat);
-				je(dayOf(year, m, d), "فوترة رسوم " + label + " — 1200 طالب", [
-					L("1200", 108e7 + resV, 0, "أولياء الأمور"),
-					L("2410", 0, 108e7),
-					L("2200", 0, resV)
-				], {
-					source: "الرسوم الدراسية",
-					reference: "FEES-" + year + pad(m),
-					party: "أولياء الأمور",
-					meta: { tuition: {
-						term: label,
-						citizens,
-						residents,
-						months: span
-					} }
-				});
-				const grant = Math.round(648e5);
-				je(dayOf(year, m, d), "منح وخصومات الإخوة — " + label, [L("5160", grant, 0), L("1200", 0, grant, "أولياء الأمور")], {
-					source: "الرسوم الدراسية",
-					reference: "GRANT-" + year + pad(m),
-					party: "أولياء الأمور"
-				});
-				return {
-					total: 108e7 + resV - grant,
-					monthly: Math.round(108e7 / span.length),
-					span
-				};
+		education: ({ year, months, vary, je, sale, end, vat, ledger }) => {
+			const A = {
+				receivableAccountId: "1200",
+				cashAccountId: "1100",
+				deferredAccountId: "2410",
+				revenueAccountId: "4090",
+				discountAccountId: "5160",
+				outputVatAccountId: "2200"
 			};
-			const terms = [bill(1, 5, "الفصل الثاني", [
-				1,
-				2,
-				3,
-				4,
-				5
-			]), ...months.includes(8) ? [bill(8, 25, "الفصل الأول", [
-				9,
-				10,
-				11,
-				12
-			])] : []];
-			const due = {};
-			for (const t of terms) {
-				const m0 = t.span[0] === 9 ? 8 : 1;
-				due[m0] = (due[m0] ?? 0) + Math.round(t.total * .6);
-				due[m0 + 1] = (due[m0 + 1] ?? 0) + Math.round(t.total * .3);
-				due[m0 + 3] = (due[m0 + 3] ?? 0) + Math.round(t.total * .05);
-			}
+			const V = {
+				country: "SA",
+				policyRate: vat
+			};
+			const terms = [{
+				id: "model-term-2026-2",
+				label: "الفصل الثاني 2026",
+				startMonth: year + "-01",
+				months: 5,
+				feeHalalas: 9e5,
+				citizens: 960,
+				residents: 240
+			}];
+			if (months.includes(8)) terms.push({
+				id: "model-term-2026-27-1",
+				label: "الفصل الأول 2026-2027",
+				startMonth: year + "-09",
+				months: 4,
+				feeHalalas: 9e5,
+				citizens: 960,
+				residents: 240
+			});
+			ledger.terms = terms;
+			const st = new Map(terms.map((t) => [t.id, emptyTermState()]));
+			const post = (t, j, meta, source) => je(j.date, j.memo, j.lines, {
+				source,
+				reference: j.reference,
+				party: j.party,
+				meta: { tuition: {
+					termId: t.id,
+					...meta
+				} }
+			});
+			const bill = (t, date) => {
+				const s = st.get(t.id), r = termInvoiceJournal(t, {
+					id: "i",
+					date,
+					...V
+				}, A);
+				post(t, r.journal, {
+					kind: "invoice",
+					fees: r.fees,
+					vat: r.vat
+				}, "الرسوم الدراسية");
+				s.openHalalas += r.fees + r.vat;
+				const amt = Math.round(r.fees * .06), d = discountJournal(t, s, {
+					id: "d",
+					date,
+					category: "citizen",
+					amountHalalas: amt,
+					reason: "خصم الإخوة والمنح",
+					...V
+				}, A);
+				post(t, d.journal, {
+					kind: "discount",
+					amount: amt,
+					vat: d.vat
+				}, "المنح والخصومات");
+				s.discountHalalas += amt;
+				s.openHalalas -= amt + d.vat;
+				return s.openHalalas;
+			};
+			const collect = (t, date, amount) => {
+				const s = st.get(t.id), a = Math.min(amount, s.openHalalas);
+				if (a <= 0) return;
+				post(t, collectionJournal(t, s, {
+					id: "c",
+					date,
+					amountHalalas: a
+				}, A).journal, {
+					kind: "collect",
+					amount: a
+				}, "تحصيل الرسوم");
+				s.collectedHalalas += a;
+				s.openHalalas -= a;
+			};
+			const plan = {};
+			const due = (m, t, h) => {
+				(plan[m] ?? (plan[m] = [])).push([t, h]);
+			};
 			for (const m of months) {
-				for (const t of terms) if (t.span.includes(m)) je(end(m), "الاعتراف بإيراد الرسوم — " + pad(m) + "/" + year, [L("2410", t.monthly, 0), L("4090", 0, t.monthly)], {
-					source: "الرسوم الدراسية",
-					reference: "EARN-" + year + pad(m)
-				});
-				if (due[m]) collect(dayOf(year, m, 15), "تحصيل رسوم من أولياء الأمور", "1200", due[m], "COL-" + year + pad(m), "أولياء الأمور");
+				for (const t of terms) {
+					const m0 = Number(t.startMonth.slice(5)) === 9 ? 8 : 1;
+					if (m === m0) {
+						const open = bill(t, dayOf(year, m, m0 === 1 ? 5 : 25));
+						due(m, t, Math.round(open * .6));
+						due(m + 1, t, Math.round(open * .3));
+						due(m + 3, t, Math.round(open * .05));
+					}
+				}
+				if (m === 2) {
+					const t = terms[0], s = st.get(t.id), w = withdrawalJournal(t, s, {
+						id: "w",
+						date: dayOf(year, 2, 10),
+						category: "resident",
+						students: 2,
+						fromMonth: year + "-03",
+						...V
+					}, A);
+					post(t, w.journal, {
+						kind: "withdraw",
+						category: "resident",
+						students: 2,
+						credit: w.credit,
+						vat: w.vat
+					}, "انسحاب طلاب");
+					s.creditedHalalas += w.credit;
+					s.withdrawnResidents += 2;
+					s.openHalalas -= w.credit + w.vat;
+				}
+				for (const [t, h] of plan[m] ?? []) collect(t, dayOf(year, m, 15), h);
+				for (const t of terms) {
+					const s = st.get(t.id), ym = year + "-" + pad(m);
+					if (!termMonths(t).includes(ym) || s.recognisedMonths.includes(ym)) continue;
+					const r = recognitionJournal(t, s, ym, {
+						id: "e",
+						date: end(m)
+					}, A);
+					post(t, r.journal, {
+						kind: "earn",
+						months: r.months,
+						amount: r.amount
+					}, "الرسوم الدراسية");
+					s.recognisedMonths.push(...r.months);
+					s.recognisedHalalas += r.amount;
+				}
 				if (m !== 6 && m !== 7) sale(end(m), "النقل المدرسي — 300 طالب", vary(15e6, .03), {
 					revenue: "4900",
 					source: "النقل"
-				});
-				if (m === 2) je(dayOf(year, 2, 10), "استرداد رسوم طالب منسحب (إشعار دائن)", [L("2410", 72e4, 0), L("1200", 0, 72e4, "أولياء الأمور")], {
-					source: "الرسوم الدراسية",
-					reference: "CN-" + year + "02",
-					party: "أولياء الأمور"
 				});
 			}
 		},
@@ -27359,6 +27717,7 @@ window.SKEngines = (function() {
 			receivables: receivables_engine_exports,
 			reconciliation: reconciliation_engine_exports,
 			trialBalance: trial_balance_engine_exports,
+			tuition: tuition_engine_exports,
 			vatPolicy: vat_policy_engine_exports,
 			vatReturn: vat_return_engine_exports
 		},

@@ -70,7 +70,7 @@ export const SECTOR_PACKS: Readonly<Record<string, SectorPack>> = Object.freeze(
     costCenters: ['الحملات', 'المحتوى والإبداع', 'المنصات', 'خدمة العملاء'], units: ['حملة', 'ساعة', 'شهر'], warehouses: [],
     tools: [], kpis: ['تكلفة اكتساب العميل', 'ربحية الحملة', 'العائد على الإنفاق الإعلاني'],
   }),
-  education: pack({ id: 'education', depth: 'base', accounts: [['2410', 'رسوم دراسية مقبوضة مقدماً', 'liability'], ['4090', 'إيرادات الرسوم الدراسية', 'revenue'], ['5160', 'المنح والخصومات الدراسية', 'expense']],
+  education: pack({ id: 'education', depth: 'deep', accounts: [['2410', 'رسوم دراسية مقبوضة مقدماً', 'liability'], ['4090', 'إيرادات الرسوم الدراسية', 'revenue'], ['5160', 'المنح والخصومات الدراسية', 'expense']],
     costCenters: ['المراحل الدراسية', 'النقل', 'الأنشطة'], units: ['طالب', 'فصل دراسي'], warehouses: [], tools: [], kpis: ['نسبة التحصيل', 'تكلفة الطالب'] }),
   manufacturing: pack({ id: 'manufacturing', depth: 'base', accounts: [['1370', 'مواد خام', 'asset'], ['1380', 'إنتاج تحت التشغيل', 'asset'], ['1390', 'منتج تام', 'asset'], ['5170', 'انحرافات التكلفة المعيارية', 'expense']],
     costCenters: ['خطوط الإنتاج', 'الصيانة', 'الجودة'], units: ['وحدة', 'كجم', 'دفعة'], warehouses: ['مخزن الخامات', 'مخزن الإنتاج التام'], tools: ['purchasing', 'inventory', 'ptree'], kpis: ['انحراف التكلفة', 'نسبة الهالك'] }),
