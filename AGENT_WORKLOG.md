@@ -374,3 +374,20 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Branch / PR: `claude/construction-pack-20261006` from `main` @ f1d7106.
 - Evidence: engines 481/481; node 726 pass / 54 fail (= `main`'s 52 + 2 Windows-only header tests); construction, health, meat, books OK; door 94/94; advances 26/26; sales 28/28; feature_audit 146/146 — all first attempt.
 - NEXT ACTION: owner approval to merge; then hospitality and digital marketing packs; then the §3.6 sample companies.
+
+
+### TASK KOSIFSEE-UX-CLARITY-20261006-001 — Three-gateway UI clarity and helper-space visual hierarchy
+- Agent: KOSIF See / ChatGPT
+- Status: ACTIVE
+- Goal: Reduce user-visible overlap without changing accounting/audit engines, company data, or context-switching semantics.
+- Authority: Owner explicit request in chat on 2026-10-06 to use maximum available KOSIF See thinking/prompt capabilities and execute UI organization improvements.
+- Scope: UI-only, reversible first slice. Make Accounting/Audit/Tools meaning visually explicit; make standalone Audit/Tools actions primary; move company linkage into an optional visual tier; recenter Helper Center on the tool workspace rather than the company.
+- Expected touch set: `unlock.html` presentation/gallery markup/CSS only (protected auth block and switching logic preserved), `ui/features/helper-center.js`, `ui/features/helper-center.css`, `tools/company_entry.test.mjs`, `tools/helper_gateway.test.mjs`, this worklog.
+- Explicit exclusions: `ui/core/helper-space.js`, `ui/core/company.js`, ledgers, audit engines, protected unlock authentication/decryption, data schemas, migrations, capability IDs/deep links, deployment.
+- Branch / PR: `kosifsee/ux-clarity-20261006`; draft PR after deterministic tests.
+- Current progress: FOUNDATION and latest worklog re-read; active DOT inventory/safety scopes checked. KOSIF Think deepest host-exposed Council/Deep route used because the server advertises Full Pro but `kosif_full_pro_execute` is not host-exposed in this chat. Jev supports this bounded UI-only slice with 0.80 yes probability.
+- Evidence / tests: pending source tests after patch.
+- Risks / conflicts: `unlock.html` has historical overlap with admission/startup work; therefore this task changes presentation only and must preserve all data attributes and intent/navigation logic byte-for-byte where possible.
+- Unfinished: implement, run focused tests, inspect diff, open draft PR.
+- NEXT ACTION: patch only the declared UI/test files; reject any change that mutates context ownership or protected auth behavior.
+- Commit(s): pending.
