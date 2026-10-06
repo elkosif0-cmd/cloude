@@ -247,3 +247,62 @@
 - القرار: **VERIFIED-IN-MAIN**.
 
 **خلاصة الدفعة:** لم تظهر شفرة صافية أفضل تحتاج نقلًا من #142–#128؛ ما كان صالحًا موجود في main، وما كان تشخيصيًا/معماريًا قديمًا وُثق سبب عدم إعادته بدل تجاهله.
+
+
+## دفعة PR #127 → PR #118 — مراجعة المعرفة والتنفيذ
+
+### PR #127 — Workspace validation (superseded by #132)
+- `tools/workspace_validation.test.mjs` و`ui/features/workspace.js` في `main` مطابقان حرفيًا لنسخة الفرع.
+- الفرع نفسه كان Superseded by #132.
+- القرار: **VERIFIED-IN-MAIN / SUPERSEDED-BY-#132**.
+
+### PR #126 — Fail-closed executive reports (superseded by #133)
+- `tools/report_pack_guard.test.mjs` و`ui/features/report-pack.js` في `main` مطابقان حرفيًا لجوهر الفرع.
+- `report_output_guard.test.mjs` الحالي أوسع من النسخة القديمة؛ لا نعيد harness أقدم.
+- القرار: **CURRENT-IS-SUPERSET / SUPERSEDED-BY-#133**.
+
+### PR #125 — Shared Studio component
+- `ui/components/studio.js` و`customer-flow.js` و`product-flow.js` في `main` مطابقة حرفيًا للفرع.
+- فكرة الاستوديو المشترك محفوظة وتعمل كأساس لتوحيد العرض بدل شاشات متفرقة.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #124 — Five company studios / domain organization
+- الفكرة المفيدة: تجميع القدرات المتقاربة في عائلات/استوديوهات بدل قائمة ضخمة من الشاشات.
+- `registry.js` الحالي أوسع من الفرع ويضيف البوابات والقطاعات والـshared gateways؛ لا يُستبدل بالنسخة الأقدم.
+- `helper-center.js` الحالي أصبح Superset بعد #169: يحتفظ بالتجميع ويضيف task-first + optional company context + AI exception queue.
+- القرار: **KNOWLEDGE-KEPT / CURRENT-IS-SUPERSET**.
+
+### PR #123 — One visual brand
+- `docs/design/SQC-IDENTITY-ar.md` و`ui/ds/sqc.css` في `main` مطابقان حرفيًا للفرع.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #122 — Identity drift ratchet
+- رأس الفرع خلف main وبدون file delta.
+- قواعد الـidentity reference / drift ratchet / focus ring موجودة في خط الإنتاج الحالي.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #121 — Motion layer
+- رأس الفرع خلف main وبدون file delta.
+- طبقة الحركة التي بقيت صالحة موجودة بالفعل في main.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #120 — Period/name hotfix
+- رأس الفرع خلف main وبدون file delta.
+- الإصلاحات absorbed في main.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #119 — One company context + Crystal World
+- `ui/art/crystal-world.js` في main مطابق حرفيًا للفرع؛ الهوية البصرية/العالم البلوري لم تضِع.
+- `ui/core/company.js` الحالي أوسع من نسخة الفرع؛ لا يُستبدل بنسخة أقدم.
+- فكرة «one company context» تُستخدم داخل السياق الذي يحتاج شركة، لكنها لا تعيد فرض company-first على بوابة المنتج لأن FOUNDATION الحالي section-first.
+- القرار: **VISUAL-KEPT / CURRENT-COMPANY-CONTEXT-IS-SUPERSET**.
+
+### PR #118 — Company-first front door + Sales Intelligence in executive reports
+- معمارية **company-first** نفسها superseded بالدستور الحالي: `القسم → الشركة/المساحة`.
+- قدرة «ذكاء المبيعات» الأساسية **لم تضِع**: `salesintel` موجودة في main وتعمل من IDB per-company، و`reports.js` يستخدم نفس المحرك لرادار العملاء.
+- الفرع القديم كان يحقن نتائج `SKosifSalesIntel.snapshot` مباشرة في الحزمة التنفيذية حسب 6/12 شهرًا.
+- الحزمة الحالية أوقفت هذا الربط المباشر عمدًا لأن التقرير التنفيذي الآن fail-closed ومربوط بـimmutable company+period capture؛ مصدر المبيعات التشغيلي لم يكن مربوطًا بنفس الـscope، ولذلك يعرض القسم «غير متاح» بدل خلط شركة/فترة خاطئة.
+- تم سؤال Jev بين أربع بدائل؛ النتيجة **REBUILD_SCOPED (100%)**: نحتفظ بالفكرة ونبني لاحقًا Sales Capture مربوطًا بنفس company+period token/hash قبل السماح بإظهار ذكاء المبيعات داخل التقرير التنفيذي.
+- القرار: **REBUILD_SCOPED — capability preserved, unsafe direct binding not restored.**
+
+الحالة: **COMPLETE — #127 إلى #118 تمت مراجعتها، وأفضل ما فيها إما موجود في main أو موثق كإعادة بناء آمنة بدل إعادة كود أقدم/أخطر.**
