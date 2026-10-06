@@ -374,3 +374,13 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Branch / PR: `claude/construction-pack-20261006` from `main` @ f1d7106.
 - Evidence: engines 481/481; node 726 pass / 54 fail (= `main`'s 52 + 2 Windows-only header tests); construction, health, meat, books OK; door 94/94; advances 26/26; sales 28/28; feature_audit 146/146 — all first attempt.
 - NEXT ACTION: owner approval to merge; then hospitality and digital marketing packs; then the §3.6 sample companies.
+
+### TASK CLAUDE-20261006-015 — P3 hospitality: deposits, the night audit, channel commissions, occupancy / ADR / RevPAR
+- Agent: Claude (Lead Development Agent)
+- Status: HANDOFF (PR open; merge deploys production — owner approval)
+- Goal: FOUNDATION §3.7 «عمق قطاع الفنادق» — the hospitality pack becomes `deep`: its own posting, not just accounts and labels.
+- Scope: `app/src/engine/fusion/finance/hotel-engine.ts` (+6 tests): `depositJournal` (cash with VAT / 2300 / 2200); `nightAudit` (settled from the guest's deposit left first, VAT only on the rest, then cash 1100 or receivable 1200 with the guest or channel as party; rooms 4050, F&B 4060) and the channel commission (Dr 5120 / Cr 2160 on room revenue); `hotelKpis` (occupancy, ADR, RevPAR, share by channel). `ui/features/ledger.js` tab «الغرف والإقفال الليلي» for hospitality companies only; deposits left and KPIs are read back from the posted entries; the hotel's room count is remembered. `tools/hotel_pack_e2e.mjs` (in the workflow).
+- Not yet: room types and rate plans, no-shows / cancellation fees against deposits, city/tourism levies, a room-status board.
+- Branch / PR: `claude/hospitality-pack-20261006` from `main` @ 35f4cec.
+- Evidence: engines 488/488; node 726 pass / 54 fail (= `main`'s 52 + 2 Windows-only header tests); hotel, construction, health, meat, books OK; door 94/94; advances 26/26; sales 28/28; feature_audit 146/146 (local; GitHub jobs not started — billing).
+- NEXT ACTION: owner approval to merge; then the digital-marketing pack; then the §3.6 sample companies.
