@@ -18321,10 +18321,12 @@ window.SKEngines = (function() {
 	var insurance_claims_engine_exports = /* @__PURE__ */ __exportAll({
 		DEPARTMENT_ACCOUNT: () => DEPARTMENT_ACCOUNT,
 		DEPARTMENT_LABEL: () => DEPARTMENT_LABEL,
+		VAT_TREATMENT_LABEL: () => VAT_TREATMENT_LABEL,
 		caseCostJournal: () => caseCostJournal,
 		caseCosts: () => caseCosts,
 		doctorFee: () => doctorFee,
 		encounterJournal: () => encounterJournal,
+		healthVatTreatment: () => healthVatTreatment,
 		payerStats: () => payerStats,
 		remittanceJournal: () => remittanceJournal,
 		splitEncounter: () => splitEncounter
@@ -18364,10 +18366,52 @@ window.SKEngines = (function() {
 		};
 	}
 	var sar$1 = (h) => h / 100;
-	/** the visit: the patient's share collected, the payer's share claimed (1210, named to the payer), revenue by department */
+	var VAT_TREATMENT_LABEL = Object.freeze({
+		standard: "خاضعة للنسبة الأساسية",
+		"state-borne": "مواطن سعودي — تتحملها الدولة (فاتورة 0٪)",
+		zero: "أدوية ومستلزمات مؤهلة — نسبة صفرية",
+		"out-of-scope": "مقدّم حكومي — خارج نطاق الضريبة",
+		exempt: "خدمات طبية معفاة",
+		none: "الشركة غير مسجلة — بلا ضريبة"
+	});
+	function healthVatTreatment(o) {
+		const rate = Number(o.policyRate) > 0 ? Number(o.policyRate) : 0, country = String(o.country || "").toUpperCase();
+		if (!rate) return {
+			treatment: "none",
+			rate: 0
+		};
+		if (country === "EG") return {
+			treatment: "exempt",
+			rate: 0
+		};
+		if (country === "SA") {
+			if (o.category === "citizen") return {
+				treatment: "state-borne",
+				rate: 0
+			};
+			if (o.category === "qualifying-goods") return {
+				treatment: "zero",
+				rate: 0
+			};
+			if (o.category === "government") return {
+				treatment: "out-of-scope",
+				rate: 0
+			};
+		}
+		return {
+			treatment: "standard",
+			rate
+		};
+	}
 	function encounterJournal(e, a) {
-		const s = splitEncounter(e), rev = a.revenueAccountId(DEPARTMENT_ACCOUNT[e.department]);
+		const rev = a.revenueAccountId(DEPARTMENT_ACCOUNT[e.department]);
 		if (!rev) throw new Error("حساب إيراد القسم غير موجود");
+		const rate = e.vat && e.vat.treatment === "standard" && e.vat.rate > 0 ? e.vat.rate : 0;
+		if (rate && !a.outputVatAccountId) throw new Error("حساب ضريبة المخرجات غير موجود");
+		const vatH = Math.round(e.grossHalalas * rate), s = splitEncounter({
+			...e,
+			grossHalalas: e.grossHalalas + vatH
+		});
 		const lines = [
 			...s.patientShare ? [{
 				accountId: a.cashAccountId,
@@ -18386,10 +18430,21 @@ window.SKEngines = (function() {
 				debit: 0,
 				credit: sar$1(e.grossHalalas),
 				description: DEPARTMENT_LABEL[e.department] + " — حالة " + e.caseRef
-			}
+			},
+			...vatH ? [{
+				accountId: a.outputVatAccountId,
+				debit: 0,
+				credit: sar$1(vatH),
+				description: "ضريبة مخرجات " + Math.round(rate * 1e4) / 100 + "٪ — حالة " + e.caseRef
+			}] : []
 		];
 		return {
 			split: s,
+			vat: {
+				treatment: e.vat?.treatment ?? "none",
+				rate,
+				amount: vatH
+			},
 			journal: {
 				id: e.id,
 				date: e.date,

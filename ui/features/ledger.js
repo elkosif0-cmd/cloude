@@ -252,7 +252,7 @@ function claimsHTML(d){
   const t=today(),stats=CL().payerStats(claimEvents(d)),aging=E().partyLedger.partyBalances(d.entries,byCode(d,"1210"),"debit",t,d.termsDays||30);
   const payers=[...new Set([...(()=>{try{return SKosifCompanyPlatform.definitions("customers").map(x=>x.name)}catch{return[]}})(),...stats.map(s=>s.payer)])];
   const h=v=>money((v||0)/100),depts=Object.entries(CL().DEPARTMENT_LABEL);
-  return '<p class="hint">المبالغ قبل ضريبة القيمة المضافة: معالجة ضريبة الخدمات الصحية تختلف حسب المريض والخدمة ولا يرحّلها هذا القسم بعد.</p>'+
+  return '<p class="hint" data-cl-vat-note>قيمة الزيارة قبل الضريبة. في السعودية: غير السعودي بالنسبة الأساسية، والمواطن تتحمل الدولة ضريبته (فاتورة 0٪)، والأدوية المؤهلة بنسبة صفرية، والمقدّم الحكومي خارج النطاق؛ وفي مصر الخدمات الطبية معفاة. آلية الإقرار عن ضريبة المواطنين التي تتحملها الدولة لا يرحّلها هذا القسم — تُسجَّل فئة كل زيارة، ويُؤكَّد الإجراء مع المستشار الضريبي للشركة.</p>'+
     '<section class="card"><div class="card-h"><div><h3>تسجيل زيارة</h3><p>حصة المريض تُحصَّل نقداً، وحصة الجهة الدافعة تُطالب بها (1210 باسم الجهة)، والإيراد حسب القسم.</p></div></div><div class="card-b">'+
       '<div class="sk-grid2"><label class="sk-field"><span>رقم الحالة</span><input id="cl-case" data-sk-required placeholder="C-1001"></label>'+
       '<label class="sk-field"><span>القسم</span><select id="cl-dept">'+depts.map(([k,l])=>'<option value="'+k+'">'+esc(l)+'</option>').join("")+'</select></label>'+
@@ -261,6 +261,7 @@ function claimsHTML(d){
       '<label class="sk-field"><span>نسبة التغطية %</span><input id="cl-cov" inputmode="decimal" value="100"></label>'+
       '<label class="sk-field"><span>حد التحمّل على المريض (اختياري)</span><input id="cl-cap" inputmode="decimal"></label>'+
       '<label class="sk-field"><span>التاريخ</span><input id="cl-date" type="date" value="'+t+'"></label>'+
+      '<label class="sk-field"><span>فئة المريض للضريبة</span><select id="cl-cat"><option value="non-citizen">غير سعودي</option><option value="citizen">مواطن سعودي</option><option value="qualifying-goods">أدوية ومستلزمات مؤهلة</option><option value="government">مقدّم حكومي</option></select></label>'+
       '<label class="sk-field"><span>الطبيب (اختياري)</span><input id="cl-doc" list="cl-docs" autocomplete="off"></label>'+
       '<label class="sk-field"><span>أتعاب الطبيب % من الزيارة</span><input id="cl-fee" inputmode="decimal" placeholder="0"></label>'+
       '<label class="sk-field"><span>أدوية ومستلزمات مصروفة (تكلفة)</span><input id="cl-sup" inputmode="decimal" placeholder="0"></label></div>'+
@@ -289,13 +290,16 @@ function postClaimVisit(root,d){
   if(!caseRef||!(gross>0)){err.textContent="أدخل رقم الحالة وقيمة الزيارة";return}
   try{
     const id=SK.ui.uid("visit"),enc={id,date:$("#cl-date",root).value||today(),caseRef,department:$("#cl-dept",root).value,grossHalalas:gross,payer,coveragePct:Number($("#cl-cov",root).value||100),...(cap?{copayCapHalalas:halalas(cap)}:{})};
-    const r=CL().encounterJournal(enc,{cashAccountId:byCode(d,"1100"),payerReceivableAccountId:byCode(d,"1210"),rejectionsAccountId:byCode(d,"5110"),revenueAccountId:c=>byCode(d,c)});
+    let country="SA";try{country=SKosifCompanyPlatform.profile().country||SK.company.current().country||"SA"}catch{}
+    enc.vat=CL().healthVatTreatment({country,policyRate:SK.vatRate(),category:$("#cl-cat",root).value});
+    if(enc.vat.rate>0&&!byCode(d,"2200")){err.textContent="الزيارة الخاضعة للضريبة تحتاج حساب ضريبة المخرجات 2200";return}
+    const r=CL().encounterJournal(enc,{cashAccountId:byCode(d,"1100"),payerReceivableAccountId:byCode(d,"1210"),rejectionsAccountId:byCode(d,"5110"),revenueAccountId:c=>byCode(d,c),outputVatAccountId:byCode(d,"2200")});
     const doc=$("#cl-doc",root).value.trim(),feePct=Number(String($("#cl-fee",root).value||"0").replace("٫",".")),sup=halalas($("#cl-sup",root).value||0);
     if((feePct>0&&!doc)||(doc&&!(feePct>0)&&!(sup>0))){err.textContent=feePct>0?"حدد الطبيب لأتعابه":"أدخل نسبة أتعاب الطبيب أو تكلفة المستلزمات";return}
     if((feePct>0||sup>0)&&CASE_CODES.some(c=>!byCode(d,c))){err.textContent="تكلفة الحالة تحتاج الحسابات "+CASE_CODES.join(" و")+" — أضفها من «دليل الحسابات»";return}
     /* supplies leave the pharmacy stock: never more than it holds on the visit's date */
     if(sup>0){const held=Math.round((balanceOf(d,"1360",enc.date)||0)*100);if(sup>held){err.textContent="رصيد مخزون الصيدلية ("+money(held/100)+") لا يكفي لصرف "+money(sup/100)+" — سجّل الشراء أولاً";return}}
-    const out=postEntry({...r.journal,visit:{caseRef,gross},claim:r.split.payer?{kind:"claim",payer:r.split.payer,billed:r.split.payerShare}:undefined},{source:"زيارات",sourceId:"visit:"+id,party:r.split.payer||undefined});
+    const out=postEntry({...r.journal,visit:{caseRef,gross,vatTreatment:r.vat.treatment,vat:r.vat.amount},claim:r.split.payer?{kind:"claim",payer:r.split.payer,billed:r.split.payerShare}:undefined},{source:"زيارات",sourceId:"visit:"+id,party:r.split.payer||undefined});
     if(!out.ok){err.textContent=out.error;return}
     const cc=CL().caseCostJournal({id:"cost-"+id,date:enc.date,caseRef,doctor:doc,feePct,suppliesHalalas:sup},gross,{doctorFeesAccountId:byCode(d,"5210"),doctorPayableAccountId:byCode(d,"2150"),suppliesCostAccountId:byCode(d,"5220"),pharmacyStockAccountId:byCode(d,"1360")});
     if(cc){const o2=postEntry({...cc.journal,caseCost:{caseRef,fee:cc.fee,supplies:cc.supplies,doctor:doc}},{source:"تكلفة الحالات",sourceId:"case:"+id,party:doc||undefined});if(!o2.ok){err.textContent="رُحّلت الزيارة، وتعذر ترحيل تكلفتها: "+o2.error;return}}
