@@ -60,6 +60,31 @@ try {
   ok('not registered: no output VAT', P.none === 0, String(P.none));
   ok('the profile is restored', P.restored === 0.15, String(P.restored));
 
+  // the company's definitions feed the pickers: a defined supplier and product in the purchase order (the product's purchase
+  // price as the default cost), a defined customer in the core sale dialog
+  await p.evaluate(() => { const CP = SKosifCompanyPlatform;
+    CP.addDefinition('suppliers', { name: 'مورد من التعريفات' }); CP.addDefinition('products', { name: 'صنف من التعريفات', purchasePrice: 42 }); CP.addDefinition('customers', { name: 'عميل من التعريفات' }); });
+  await p.evaluate(() => SKosifCore.go('purchasing')); await p.waitForTimeout(1200);
+  const PU = await p.evaluate(() => {
+    const opts = (id) => [...document.querySelectorAll('#' + id + ' option')].map((o) => o.value);
+    const item = document.querySelector('[data-pl="0"][data-f="item"]'), cost = () => (document.querySelector('[data-pl="0"][data-f="cost"]') || {}).value;
+    if (item) { item.value = 'صنف من التعريفات'; item.dispatchEvent(new Event('input', { bubbles: true })); }
+    return { sup: opts('pu-sup').includes('مورد من التعريفات'), item: opts('pu-items').includes('صنف من التعريفات'), cost: cost() };
+  });
+  ok('a defined supplier and product appear in the purchase order pickers', PU.sup && PU.item, JSON.stringify(PU));
+  ok("a defined product's purchase price fills the line cost", PU.cost === '42', JSON.stringify(PU));
+  await p.evaluate(() => SKosifCore.go('dash')); await p.waitForTimeout(800);
+  const SA = await p.evaluate(async () => {
+    const b = document.querySelector('[data-act="v12-sale-new"]'); if (b) b.click(); await new Promise((r) => setTimeout(r, 700));
+    const f = document.getElementById('v12s-customer'); if (!f) return { open: false };
+    f.focus(); f.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    const dl = document.getElementById(f.getAttribute('list') || '-');
+    const out = { open: true, list: f.getAttribute('list'), has: !!dl && [...dl.options].some((o) => o.value === 'عميل من التعريفات') };
+    const x = document.querySelector('.dlg [data-act="close"], [aria-label="إغلاق النافذة"]'); if (x) x.click();
+    return out;
+  });
+  ok('a defined customer is suggested in the sale dialog', SA.open && SA.has, JSON.stringify(SA));
+
   await p.evaluate(() => SKosifCore.go('masterdata')); await p.waitForTimeout(1200);
   const form = await p.evaluate(() => ({ reg: !!document.querySelector('[data-md-profile="vatRegistered"]'), rate: !!document.querySelector('[data-md-profile="vatRate"]'), hint: (document.querySelector('[data-md-vat-policy]') || {}).textContent || '' }));
   ok('the company form carries the VAT registration and rate', form.reg && form.rate && /15%/.test(form.hint), JSON.stringify(form));
