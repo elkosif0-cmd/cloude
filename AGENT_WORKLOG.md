@@ -384,3 +384,24 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Branch / PR: `claude/hospitality-pack-20261006` from `main` @ 35f4cec.
 - Evidence: engines 488/488; node 726 pass / 54 fail (= `main`'s 52 + 2 Windows-only header tests); hotel, construction, health, meat, books OK; door 94/94; advances 26/26; sales 28/28; feature_audit 146/146 (local; GitHub jobs not started — billing).
 - NEXT ACTION: owner approval to merge; then the digital-marketing pack; then the §3.6 sample companies.
+
+
+### TASK KOSIFSEE-AUDIT-CONTEXT-20261006-001 — P1.2A independent Audit context without accounting-company switch
+- Agent: KOSIF See / ChatGPT
+- Status: ACTIVE
+- Authority: Owner explicit instruction in chat on 2026-10-06 to execute the next context-separation step.
+- Foundation alignment: Accounting remains Sector → Company; Audit may start independently; importing/linking Accounting data into Audit must be explicit; Tools separation is deferred until its SK.company dependencies are mapped and tested.
+- Lead coordination: Re-read latest FOUNDATION.md and AGENT_WORKLOG.md. Claude P1 three-entry front door is merged; no current Claude task claims Audit-context separation. DOT inventory/report work is read-only and non-conflicting.
+- Decision evidence: KOSIF Think deep council favored two slices (Audit first, Tools second); Jev yes probability 0.72 for executing Audit-first now.
+- Scope:
+  - Stop «ملف مراجعة جديد» from selecting/switching a host accounting company.
+  - Stop reference-corpus Audit entry from switching a host accounting company.
+  - Preserve explicit company selection under Audit as an intentional link/import context.
+  - Add a one-shot Audit-new intent consumed after the Audit screen is ready.
+  - Remove gate.js's unnecessary dependency on SK.company.ready for corpus loading.
+  - Export a bounded `SKosifTBReview.newEngagement()` operation using the existing engagement register/blank state.
+- Expected touch set: `unlock.html`, `ui/core/helper-space.js`, `ui/core/gate.js`, `ui/features/tb-review.js`, focused tests, this worklog.
+- Explicit exclusions: `ui/core/company.js`, accounting ledgers/sector packs, tool-workspace switching semantics, schemas/migrations, capability IDs, protected AUTH block, deployment.
+- Branch / PR: `kosifsee/audit-context-separation-20261006`; draft PR after deterministic verification.
+- Risks: Audit UI and books-import features still intentionally read Accounting data when the user explicitly asks to import it. This task must not silently rewrite or clear the current accounting company.
+- NEXT ACTION: implement one-shot audit intent + engagement creation, then prove accounting active company and SKosifSpace remain unchanged for independent Audit/corpus entry.
