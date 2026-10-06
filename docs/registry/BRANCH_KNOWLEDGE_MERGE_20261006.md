@@ -455,22 +455,28 @@
 ## دفعة PR #95 → PR #88 — مراجعة KOSIF Think التاريخية
 
 ### PR #95 — Full Pro auth gate + duplicate tool merge
-- الفكرة المفيدة كانت: منع Full Pro bypass عبر auth، وإزالة تضارب اسم أداة Full Pro المكرر.
-- الخط الحالي يحتوي OAuth/Auth0 metadata وحواجز Full Pro أحدث، ويوجد **تعريف واحد فقط** لأداة `kosif_full_pro_execute`.
-- لم نعد دوال auth القديمة (`ownerAllowed/ownerSubs/bridgeNeedsAuth`) لأنها تخص تصميمًا أقدم، بينما العقود الحالية أوسع.
-- القرار: **SECURITY-IDEA-PRESERVED / CURRENT-IS-SUPERSET**.
+- بالمراجعة الأعمق ظهر أن الفرع يحتوي **ثلاث قدرات أمنية صافية لم تكن موجودة في main** رغم أن runtime الحالي أحدث في بقية الأجزاء.
+- تم سؤال Jev عن: overwrite / تجاهل / توثيق فقط / selective security port؛ القرار كان **SELECTIVE_SECURITY_PORT بنسبة 100%**.
+- تم دمج الآتي فوق runtime الحالي بدون استبداله:
+  - `KOSIF_OWNER_SUBS` كـallow-list اختياري لمستخدمي Auth0؛ إذا لم يُضبط يبقى السلوك الحالي كما هو.
+  - `bridgeNeedsAuth`: أي Full Pro start/canary أو bridge حساس لا يستطيع المرور عبر `kosif_think` العام بدون مصادقة؛ mobile follow-up يبقى مربوطًا بتوكن الطلب.
+  - `WRITE_TOOL_HINTS`: أدوات Full Pro التي تغيّر حالة أصبحت تُعلن `readOnlyHint:false` مع destructive/idempotency صحيحين.
+  - status يعرض فقط هل owner allow-list مفعلة وعدد العناصر، ولا يكشف الهويات.
+- أضيف اختبار `think-mcp/pr95-security-port.test.mjs`.
+- القرار: **FUNCTIONAL SECURITY EXTRACTION COMPLETE — current runtime preserved + missing security controls restored.**
 
 ### PR #94 — Evidence consistency + reasoning protocol
-- الفرع احتوى فكرة مفيدة **لم تكن موجودة في main أو PR #97**: تقرير معايرة تجريبي لاحتمالات Jev مقابل النتائج الفعلية.
-- تم استرجاعها وظيفيًا:
-  - `wilsonLowerBound`.
-  - `calibrationReportTool`.
-  - أداة جديدة `kosif_calibration_report`.
-  - Brier Score + ECE + reliability bins + Wilson lower bound لكل أداة + حالات false-confidence.
-  - قاعدة أمان صريحة: التقرير **لا يخفّض operational gates تلقائيًا**.
-  - اختبار `think-mcp/calibration-report.test.mjs`.
-- بقية reasoning modules القديمة لا تُنسخ لأن Capability Atlas v3 المسترجع من PR #97 أوسع وأحدث.
-- القرار: **FUNCTIONAL EXTRACTION COMPLETE — calibration recovered; older reasoning selector superseded by Capability Atlas.**
+- تقرير المعايرة التجريبي الموجود في الفرع تم استرجاعه بالفعل في main: `wilsonLowerBound` + `calibrationReportTool` + `kosif_calibration_report` + Brier/ECE/reliability bins، مع عدم خفض operational gates تلقائيًا.
+- عند مقارنة بروتوكول التفكير القديم مع Capability Atlas v3 ظهر أن أغلبه موجود أو أوسع حاليًا، لكن بقيت أربع أفكار مفيدة ناقصة بصياغة تشغيلية واضحة.
+- تم سؤال Jev عن restore whole / ignore / archive / selective merge؛ القرار كان **SELECTIVE_METHOD_MERGE (99%)**.
+- تم دمج الأفكار الناقصة داخل Capability Atlas الحالي:
+  - البحث النشط عن **disconfirming evidence** وتحديد الملاحظة التي تُسقط الاستنتاج المفضل.
+  - استخدام **أصغر tracer action قابل للعكس** قبل التزام كبير عندما يقلل عدم اليقين.
+  - فصل **hard constraints** عن preferences قبل التحسين أو الجدولة.
+  - عند فشل provider/tool/route، تفضيل fallback من **dependency group مختلف** بدل وهم التكرار داخل نفس الاعتماد.
+- لم تتم إعادة `cleanApisChat/cleanApisMicro` أو مزودات قديمة؛ current provider/runtime truth يبقى هو المرجع.
+- أضيف اختبار `think-mcp/pr94-reasoning-port.test.mjs`.
+- القرار: **FUNCTIONAL EXTRACTION COMPLETE — calibration + missing reasoning methods preserved; stale transport retired.**
 
 ### PR #93 — Jev-gated routing + reasoning protocol
 - جوهر routing موجود في `kosif_route` الحالي، مع capability mesh، حواجز المخاطر، Jev، التحقق، وtool inventory أحدث.
