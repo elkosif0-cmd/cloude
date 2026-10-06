@@ -391,7 +391,7 @@ async function seedModel(co){
   b.accounts.forEach(([code,name,type])=>{if(!accounts.some(a=>a.code===code))accounts.push(D({...F.accounts.createAccount({code,name,type}),model:true}))});
   const id=c=>(accounts.find(a=>a.code===c)||{}).id;
   const entries=b.entries.map(e=>D({...e,lines:e.lines.map(l=>({...l,accountId:id(l.accountId)}))}));
-  save("skosif_ledger_v1",{...d,accounts,entries,lockDate:b.lockDate});
+  save("skosif_ledger_v1",{...d,...(b.ledger||{}),accounts,entries,lockDate:b.lockDate});
   const cd=load("skosif_companies_v1",{})||{};cd.companies=cd.companies||[];cd.periods=cd.periods||[];const pid="model-p-"+co.id+"-"+b.year;
   if(!cd.periods.some(p=>p.id===pid))cd.periods.push(D({id:pid,companyId:co.id,label:String(b.year),startDate:b.year+"-01-01",endDate:b.year+"-12-31"}));
   cd.active={...(cd.active||{}),companyId:co.id,periodId:pid};save("skosif_companies_v1",cd);

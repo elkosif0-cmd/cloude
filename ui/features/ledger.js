@@ -323,6 +323,85 @@ function postDigitalOp(root,d){
   }catch(e){err.textContent=e.message||String(e);return}
   return true;
 }
+/* ---------- the education pack: terms billed in advance, earned monthly, scholarships, withdrawals, collections ----------
+   (finance/tuition-engine) — shown only for a school. A term's state is read back from the entries it posted, so the
+   screen and the books cannot disagree. */
+const TU=()=>E().tuition;
+const isSchool=()=>{try{return SK.company.current().sector==="education"}catch{return false}};
+const SCHOOL_CODES=["1100","1200","2410","4090","5160"];
+const tuVat=()=>{let country="SA";try{country=SKosifCompanyPlatform.profile().country||SK.company.current().country||"SA"}catch{}return{country,policyRate:SK.vatRate()}};
+function tuAccounts(d){return{receivableAccountId:byCode(d,"1200"),cashAccountId:byCode(d,"1100"),deferredAccountId:byCode(d,"2410"),revenueAccountId:byCode(d,"4090"),discountAccountId:byCode(d,"5160"),outputVatAccountId:byCode(d,"2200")}}
+function termState(d,id){
+  const s=TU().emptyTermState();
+  d.entries.filter(e=>e.tuition&&e.tuition.termId===id&&!e.reversedBy&&!e.reversalOf).forEach(e=>{const t=e.tuition;
+    if(t.kind==="invoice")s.openHalalas+=t.fees+t.vat;
+    if(t.kind==="earn"){s.recognisedHalalas+=t.amount;s.recognisedMonths.push(...t.months)}
+    if(t.kind==="discount"){s.discountHalalas+=t.amount;s.openHalalas-=t.amount+t.vat}
+    if(t.kind==="withdraw"){s.creditedHalalas+=t.credit;s.openHalalas-=t.credit+t.vat;if(t.category==="citizen")s.withdrawnCitizens+=t.students;else s.withdrawnResidents+=t.students}
+    if(t.kind==="collect"){s.collectedHalalas+=t.amount;s.openHalalas-=t.amount}});
+  return s;
+}
+function tuitionHTML(d){
+  const missing=SCHOOL_CODES.filter(c=>!byCode(d,c));
+  if(missing.length)return SK.ui.state.empty({title:"أكمل حسابات قطاع التعليم",text:"الرسوم الدراسية تحتاج الحسابات "+missing.join(" و")+" — أضفها من «دليل الحسابات» › «إضافة حسابات قطاع»."});
+  const t=today(),h=v=>money((v||0)/100),ts=Array.isArray(d.terms)?d.terms:[],pct=v=>v==null?"—":v+"٪";
+  const rows=ts.map(x=>({x,m:TU().termSummary(x,termState(d,x.id))}));
+  const opts=ts.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.label)+'</option>').join("");
+  return '<p class="hint" data-tu-vat-note>رسوم الفصل تُفوتر مقدماً إيراداً مؤجلاً (2410) وتُكتسب شهراً بشهر مع التدريس (4090). المنح والخصومات (5160) تُخفض ما لم يُكتسب بعد، والانسحاب يُرد عنه ما لم يُدرَّس بإشعار دائن. الضريبة بحسب الطالب: في السعودية تتحمل الدولة ضريبة التعليم الأهلي للمواطن (فاتورة 0٪) ويخضع غير السعودي للنسبة الأساسية، وفي مصر الخدمات التعليمية معفاة — تأكّد من آلية الإقرار مع مستشار الشركة الضريبي.</p>'+
+    '<section class="card"><div class="card-h"><div><h3>فصل دراسي جديد</h3></div></div><div class="card-b"><div class="sk-grid2">'+
+      '<label class="sk-field"><span>الفصل</span><input id="tu-label" autocomplete="off" data-sk-required placeholder="الفصل الثاني 2026"></label>'+
+      '<label class="sk-field"><span>شهر البداية</span><input id="tu-start" type="month" value="'+t.slice(0,7)+'"></label>'+
+      '<label class="sk-field"><span>عدد الأشهر</span><input id="tu-months" inputmode="numeric" value="5"></label>'+
+      '<label class="sk-field"><span>رسوم الطالب للفصل (قبل الضريبة)</span><input id="tu-fee" inputmode="decimal" data-sk-required></label>'+
+      '<label class="sk-field"><span>طلاب سعوديون</span><input id="tu-cit" inputmode="numeric" value="0"></label>'+
+      '<label class="sk-field"><span>طلاب غير سعوديين</span><input id="tu-res" inputmode="numeric" value="0"></label>'+
+      '<label class="sk-field"><span>تاريخ الفاتورة</span><input id="tu-date" type="date" value="'+t+'"></label></div>'+
+      '<div class="sk-error" id="tu-err" role="alert"></div><div class="sk-actions"><button type="button" class="btn primary" data-l="tu-new">حفظ وفوترة الفصل</button></div></div></section>'+
+    (ts.length?'<section class="card"><div class="card-h"><div><h3>حركة على فصل</h3></div></div><div class="card-b"><div class="sk-grid2">'+
+      '<label class="sk-field"><span>الفصل</span><select id="tu-k">'+opts+'</select></label>'+
+      '<label class="sk-field"><span>العملية</span><select id="tu-op"><option value="earn">الاعتراف بالإيراد حتى شهر</option><option value="collect">تحصيل من أولياء الأمور</option><option value="discount">منحة أو خصم</option><option value="withdraw">انسحاب طلاب</option></select></label>'+
+      '<label class="sk-field"><span>الشهر (للاعتراف أو الانسحاب)</span><input id="tu-month" type="month" value="'+t.slice(0,7)+'"></label>'+
+      '<label class="sk-field"><span>المبلغ (للتحصيل أو المنحة)</span><input id="tu-amt" inputmode="decimal"></label>'+
+      '<label class="sk-field"><span>فئة الطالب</span><select id="tu-cat"><option value="citizen">سعودي</option><option value="resident">غير سعودي</option></select></label>'+
+      '<label class="sk-field"><span>عدد المنسحبين</span><input id="tu-n" inputmode="numeric"></label>'+
+      '<label class="sk-field"><span>سبب المنحة أو الخصم</span><input id="tu-reason" autocomplete="off" placeholder="خصم الإخوة، منحة تفوق…"></label>'+
+      '<label class="sk-field"><span>التاريخ</span><input id="tu-date2" type="date" value="'+t+'"></label></div>'+
+      '<div class="sk-error" id="tu-err2" role="alert"></div><div class="sk-actions"><button type="button" class="btn" data-l="tu-post">ترحيل</button></div></div></section>':'')+
+    (rows.length?'<section class="card"><div class="card-h"><div><h3>الفصول الدراسية</h3><p>من قيود الدفاتر: المكتسب والمؤجل والمحصل والمستحق ونسبة التحصيل.</p></div></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table" data-tu-table><thead><tr><th>الفصل</th><th>الطلاب</th><th>إجمالي الرسوم</th><th>منح وخصومات</th><th>إشعارات دائنة</th><th>المكتسب</th><th>المؤجل</th><th>المحصّل</th><th>المستحق</th><th>نسبة التحصيل</th><th>الإيراد لكل طالب</th></tr></thead><tbody>'+
+      rows.map(({x,m})=>'<tr data-term="'+esc(x.label)+'"><td>'+esc(x.label)+'</td><td class="n">'+m.students+'</td><td class="n">'+h(m.gross)+'</td><td class="n">'+h(m.discounts)+'</td><td class="n">'+h(m.credited)+'</td><td class="n"><b>'+h(m.earned)+'</b></td><td class="n">'+h(m.deferred)+'</td><td class="n">'+h(m.collected)+'</td><td class="n">'+h(m.open)+'</td><td class="n">'+pct(m.collectionPct)+'</td><td class="n">'+(m.revenuePerStudent==null?"—":h(m.revenuePerStudent))+'</td></tr>').join("")+
+      '</tbody></table></div></div></section>':'');
+}
+function saveTerm(root,d){
+  const err=$("#tu-err",root);err.textContent="";
+  const x={id:SK.ui.uid("term"),label:$("#tu-label",root).value.trim(),startMonth:$("#tu-start",root).value,months:Math.round(Number($("#tu-months",root).value||0)),feeHalalas:halalas($("#tu-fee",root).value||0),
+    citizens:Math.round(Number($("#tu-cit",root).value||0)),residents:Math.round(Number($("#tu-res",root).value||0))};
+  if((d.terms||[]).some(o=>o.label===x.label)){err.textContent="للفصل «"+x.label+"» فاتورة مسجّلة";return}
+  const id=SK.ui.uid("tu"),date=$("#tu-date",root).value||today();
+  try{const r=TU().termInvoiceJournal(x,{id,date,...tuVat()},tuAccounts(d));
+    const out=postEntry({...r.journal,tuition:{termId:x.id,kind:"invoice",fees:r.fees,vat:r.vat}},{source:"الرسوم الدراسية",sourceId:"tu:"+id,party:x.label});
+    if(!out.ok){err.textContent=out.error;return}
+    d=db();d.terms=[...(d.terms||[]),x];put(d);toast("فُوترت رسوم "+x.label,"ok")}catch(e){err.textContent=e.message||String(e);return}
+  return true;
+}
+function postTermOp(root,d){
+  const err=$("#tu-err2",root);err.textContent="";
+  const x=(d.terms||[]).find(o=>o.id===$("#tu-k",root).value);if(!x){err.textContent="اختر الفصل";return}
+  const op=$("#tu-op",root).value,date=$("#tu-date2",root).value||today(),id=SK.ui.uid("tu"),s=termState(d,x.id),A=tuAccounts(d),cat=$("#tu-cat",root).value;
+  try{
+    let out;
+    if(op==="earn"){const r=TU().recognitionJournal(x,s,$("#tu-month",root).value,{id,date},A);
+      out=postEntry({...r.journal,tuition:{termId:x.id,kind:"earn",months:r.months,amount:r.amount}},{source:"الرسوم الدراسية",sourceId:"tu:"+x.id+":"+r.months.join(",")})}
+    else if(op==="collect"){const amt=halalas($("#tu-amt",root).value||0),r=TU().collectionJournal(x,s,{id,date,amountHalalas:amt},A);
+      out=postEntry({...r.journal,tuition:{termId:x.id,kind:"collect",amount:amt}},{source:"تحصيل الرسوم",sourceId:"tu:"+id,party:x.label})}
+    else if(op==="discount"){const amt=halalas($("#tu-amt",root).value||0),r=TU().discountJournal(x,s,{id,date,category:cat,amountHalalas:amt,reason:$("#tu-reason",root).value,...tuVat()},A);
+      out=postEntry({...r.journal,tuition:{termId:x.id,kind:"discount",amount:amt,vat:r.vat}},{source:"المنح والخصومات",sourceId:"tu:"+id,party:x.label})}
+    else{const r=TU().withdrawalJournal(x,s,{id,date,category:cat,students:Math.round(Number($("#tu-n",root).value||0)),fromMonth:$("#tu-month",root).value,...tuVat()},A);
+      out=postEntry({...r.journal,tuition:{termId:x.id,kind:"withdraw",category:cat,students:Math.round(Number($("#tu-n",root).value||0)),credit:r.credit,vat:r.vat}},{source:"انسحاب طلاب",sourceId:"tu:"+id,party:x.label})}
+    if(!out.ok){err.textContent=out.error;return}
+    toast("رُحّلت الحركة على "+x.label,"ok");
+  }catch(e){err.textContent=e.message||String(e);return}
+  return true;
+}
 /* ---------- the hospitality pack: deposits, the night audit, booking channels' commissions, occupancy / ADR / RevPAR ----------
    (finance/hotel-engine) — shown only for a hotel. A guest's deposit left and the KPIs are read back from the entries
    posted, so the screen and the books cannot disagree. */
@@ -746,9 +825,9 @@ function paint(root){
   /* a company created under a sector receives its pack on first open (FOUNDATION §3.7) */
   try{window.SKosifCompanyPlatform&&SKosifCompanyPlatform.ensureSectorPack()}catch{}
   const d=db(),p=period();if(!tab)tab=d.accounts.length?"close":"accounts";
-  root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],...(isHealth()?[["claims","المطالبات والجهات"]]:[]),...(isConstruction()?[["projects","المشروعات والمستخلصات"]]:[]),...(isHotel()?[["hotel","الغرف والإقفال الليلي"]]:[]),...(isDigital()?[["digital","العملاء والحملات"]]:[]),["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
+  root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],...(isHealth()?[["claims","المطالبات والجهات"]]:[]),...(isConstruction()?[["projects","المشروعات والمستخلصات"]]:[]),...(isHotel()?[["hotel","الغرف والإقفال الليلي"]]:[]),...(isDigital()?[["digital","العملاء والحملات"]]:[]),...(isSchool()?[["tuition","الرسوم الدراسية"]]:[]),["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
     (p?'<p class="hint">الفترة المالية النشطة: <b>'+esc(p.label)+'</b> ('+esc(p.startDate)+' → '+esc(p.endDate)+') — من «الشركات والفترات».</p>':'')+
-    ({close:closeHTML,accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,claims:claimsHTML,projects:projectsHTML,hotel:hotelHTML,digital:digitalHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
+    ({close:closeHTML,accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,claims:claimsHTML,projects:projectsHTML,hotel:hotelHTML,digital:digitalHTML,tuition:tuitionHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
 }
 function bind(root){
   root.addEventListener("click",async e=>{
@@ -795,6 +874,8 @@ function bind(root){
     else if(a==="ht-night"){if(postNightAudit(root,d))paint(root);return}
     else if(a==="dg-new"){if(saveRetainer(root,d))paint(root);return}
     else if(a==="dg-post"){if(postDigitalOp(root,d))paint(root);return}
+    else if(a==="tu-new"){if(saveTerm(root,d))paint(root);return}
+    else if(a==="tu-post"){if(postTermOp(root,d))paint(root);return}
     else if(a==="claim-remit"){if(postClaimRemit(root,d))paint(root);return}
     else if(a==="settle"){
       const err=$("#lg-cerr",root);err.textContent="";if(!SK.ui.validate(root))return;

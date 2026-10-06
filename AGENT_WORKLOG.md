@@ -438,3 +438,30 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - `tools/model_companies_e2e.mjs` now requires all six steps green on each of the six model companies; all six were green on the first run (100% of accounts mapped).
 - Not yet: a click from a statement line to its accounts and entries in the UI (the engine's notes already list them); cash-flow tie-out with a prior year.
 - Branch / PR: `claude/cycle-proof-20261006` from `main` @ cb1d0a1.
+
+### TASK CLAUDE-20261006-019 — P3 education pack: terms billed in advance, earned monthly, scholarships, withdrawals, collections
+- Agent: Claude (Lead Development Agent)
+- Status: DONE on merge — the owner's standing instruction in chat («كمل تطوير وراجع الدستور وادمج بنفسك», then «كمل» / «طوره»).
+- Goal: FOUNDATION §3.6 «المدارس: … رسوم وتحصيل، خصومات ومنح، ذمم الطلاب/أولياء الأمور … وإيراد مؤجل/مكتسب وفق السياسة» — the education pack becomes `deep`.
+- VAT, already sourced for the health pack (CLAUDE-20261006-012):
+  - Saudi Arabia: the state bears the VAT on citizens' private education and healthcare (Royal Order, 2018), so the invoice shows 0%; residents pay the standard rate.
+  - Egypt: educational services are exempt under VAT Law 67/2016.
+  - The screen's note tells the company to confirm the return mechanism with its tax adviser.
+- Scope:
+  - `app/src/engine/fusion/finance/tuition-engine.ts` (+5 tests):
+    - `tuitionVat`;
+    - `termInvoiceJournal`: Dr 1200, with the term as party / Cr 2410 / Cr 2200 on residents only;
+    - `recognitionJournal`: the deferred amount left is spread over the months left, the last month takes the remainder, and no month is recognised twice;
+    - `discountJournal`: Dr 2410 / Cr 1200 with its VAT, and the gross fee is shown as 4090 against 5160 scholarships;
+    - `withdrawalJournal`: a credit note for the months not yet taught;
+    - `collectionJournal`: never more than the parents owe;
+    - `termSummary`: collection rate and revenue per student.
+  - `ui/features/ledger.js`: a «الرسوم الدراسية» tab for schools only. Terms are kept in the books (`d.terms`), and each term's state is read back from its entries.
+  - The model school (#172) is regenerated through the same engine with the same meta, so the tab shows its two terms. `ModelBooks.ledger` carries the terms, and `demo.js` writes them with the entries.
+  - `tools/education_pack_e2e.mjs` is added to the workflow.
+- Not yet:
+  - per-student or per-family accounts (the parents are aggregated per term);
+  - instalment plans with due dates;
+  - transport and activities as their own fee lines;
+  - expected credit losses on old arrears.
+- Branch / PR: `claude/education-pack-20261006` from `main` @ 227a88e.
