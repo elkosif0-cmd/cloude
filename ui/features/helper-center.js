@@ -6,13 +6,13 @@ const {esc}=SK;
 const core=()=>window.SKosifCore,CP=()=>window.SKosifCompanyPlatform;
 const isInstalled=id=>!!(CP()&&CP().installed(id));
 /* one node per company studio, read from the registry, plus the decision node; the hubs of a studio are its tools */
-const NOTE={product:"التكلفة، التسعير، البوكسات والتشريح",customer:"الطلبات، العملاء، التحصيل وتحليل الطلب",supply:"المخزون، التتبع، الموردون والشراء",books:"المقارنة العالمية، الهندسة المالية، المخاطر والحساسية",reports:"استلام البيانات، التقارير التنفيذية، الطباعة والأرشيف"};
-/* the tools of a studio: the screens the helper-tools entry owns or is shared with (FOUNDATION §3.3: suppliers, inventory, reports and analysis are tools too) */
-const SECTIONS=()=>[...SK.caps.companyGroups().map(g=>({id:g.id,label:g.label,sub:NOTE[g.id]||"",icon:g.icon,targets:SK.caps.hubsInGroup(g.id).filter(c=>SK.caps.inGatewayOf(c,"tools")).map(c=>c.id)})).filter(s=>s.targets.length),
-  {id:"decision",label:"القرار والذكاء",sub:"Jev، مجلس القرار، الحساسية والملاحظات",icon:"jev",targets:["jev","council","decision","sensitivity","risks"]}];
+const NOTE={product:"احسب التكلفة، سعّر المنتجات، وحلّل المردود",customer:"حلّل المبيعات والعملاء والتحصيل والطلبات",supply:"طابق المخزون والموردين والمشتريات والتتبع",books:"استخدم الدفاتر والتحليل والمقارنات والمخاطر والحساسية",reports:"استلم البيانات وأنشئ التقارير والطباعة والأرشيف"};
+const LABEL={product:"التكلفة والتسعير",customer:"المبيعات والعملاء",supply:"المخزون والمشتريات",books:"الدفاتر والتحليل",reports:"التقارير والمستندات"};
+/* One task-oriented map. Company context is optional metadata, never the identity of the Tools gateway. */
+const SECTIONS=()=>[...SK.caps.companyGroups().map(g=>({id:g.id,label:LABEL[g.id]||g.label,sub:NOTE[g.id]||"",icon:g.icon,targets:SK.caps.hubsInGroup(g.id).filter(c=>SK.caps.inGatewayOf(c,"tools")).map(c=>c.id)})).filter(s=>s.targets.length),
+  {id:"decision",label:"القرار والذكاء",sub:"استخدم Jev ومجلس القرار والحساسية والملاحظات",icon:"jev",targets:["jev","council","decision","sensitivity","risks"]}];
 const firstAllowed=s=>(s.targets.map(id=>SK.caps.get(id)).find(c=>c&&SK.perm.can(c.id))||null);
-/* six places around the company: a studio keeps its place whatever the role may open, and a studio the role may not
-   open draws neither its node nor its line */
+/* Six stable places around the tools workspace. Permission changes hide a node and its line together. */
 const POS=[[50,12],[84,32],[78,76],[22,76],[16,32],[50,88]];
 function point(s,i){
   const c=firstAllowed(s);if(!c)return"";
@@ -29,7 +29,7 @@ function table(){
     if(!caps.length)return"";
     return '<section class="card hd-group"><div class="card-h"><div><h3>'+esc(s.label)+'</h3><p>'+esc(s.sub)+'</p></div></div><div class="card-b hd-buttons">'+caps.map(c=>{
       const on=isInstalled(c.id);
-      return '<div class="hd-tool" data-hd-row="'+esc(c.id)+'"><button type="button" class="linkish" data-hd-go="'+esc(c.id)+'">'+(SK.icons[c.id]||SK.icons.action||"")+'<span><b>'+esc(c.label)+'</b><small>'+esc(c.sub||c.hubLabel||"")+'</small></span></button><button type="button" class="btn sm'+(on?' primary':'')+'" data-hd-toggle="'+esc(c.id)+'" aria-pressed="'+on+'">'+(on?'مضافة للشركة':'أضف للشركة')+'</button></div>';
+      return '<div class="hd-tool" data-hd-row="'+esc(c.id)+'"><button type="button" class="linkish" data-hd-go="'+esc(c.id)+'">'+(SK.icons[c.id]||SK.icons.action||"")+'<span><b>'+esc(c.label)+'</b><small>'+esc(c.sub||c.hubLabel||"")+'</small></span></button><button type="button" class="btn sm'+(on?' primary':'')+'" data-hd-toggle="'+esc(c.id)+'" aria-pressed="'+on+'" title="الربط بالشركة اختياري">'+(on?'مرتبطة بالشركة':'اربط بالشركة')+'</button></div>';
     }).join("")+'</div></section>';
   }).join("");
 }
@@ -43,10 +43,15 @@ function exceptionQueue(){
       '</tbody></table></div>':'<div class="sk-note good">لا توجد تنبيهات AI مفتوحة لهذه الشركة.</div>')+
     (history.length?'<p class="hint">'+history.length+' قرارًا سابقًا محفوظًا في سجل الشركة.</p>':'')+'</div></section>';
 }
+function contextBadge(){
+  const c=SK.company&&SK.company.current?SK.company.current():null,name=c&&c.name?String(c.name):"";
+  const independent=!c||!c.id||c.id==="space-tools"||/مساحة الأدوات/.test(name);
+  return independent?'<span class="hd-context neutral">بدون شركة مرتبطة</span>':'<span class="hd-context">سياق بيانات اختياري: <b>'+esc(name)+'</b></span>';
+}
 function render(root){
   const S=SECTIONS();
-  root.innerHTML='<div class="hd-shell"><section class="card hd-hero"><div><span class="eyebrow">INDEPENDENT TOOLS</span><h2>الأدوات المساعدة المستقلة</h2><p>قدرات مشتركة يمكن استخدامها أو إضافتها للشركة المفتوحة: التكلفة، المبيعات والعملاء، المخزون والموردون، التحليلات والتقارير والقرار. بيانات كل شركة تبقى في مساحتها، والعمل هنا لا يتحول إلى مستند أو دليل في ملف المراجعة إلا إذا أرفقه المراجع صراحة.</p></div><span class="hd-badge">مستقلة عن ملف المراجعة</span></section>'+
-  '<section class="card hd-map"><div class="hd-map-head"><div><h3>قدرات الشركة</h3><p>اختر مجموعة الأدوات؛ كل فرع يقود إلى القدرات المستقلة التابعة له.</p></div></div><div class="hd-canvas">'+lines(S)+'<div class="hd-center"><span>'+(SK.icons.helperdesk||SK.icons.productflow||"")+'</span><b>الشركة</b><small>أدوات مستقلة</small></div>'+S.map(point).join("")+'</div></section>'+
+  root.innerHTML='<div class="hd-shell"><section class="card hd-hero"><div><span class="eyebrow">INDEPENDENT TOOLS</span><h2>مساحة الأدوات المساعدة</h2><p>ابدأ بالأداة التي تحتاجها أولاً. تعمل الأدوات كبوابة مستقلة، ويمكن ربط مساحة العمل بشركة فقط عندما تحتاج بياناتها. هذا الربط لا يحوّل الأداة إلى جزء من المحاسبة ولا يجعل نتائجها دليل مراجعة تلقائيًا.</p><div class="hd-context-row">'+contextBadge()+'</div></div><span class="hd-badge">الأداة أولاً · الشركة اختيارية</span></section>'+
+  '<section class="card hd-map"><div class="hd-map-head"><div><h3>ماذا تريد أن تنجز؟</h3><p>اختر نوع المهمة؛ كل فرع يفتح الأدوات المناسبة مباشرة مع الحفاظ على نفس الروابط والصلاحيات.</p></div></div><div class="hd-canvas">'+lines(S)+'<div class="hd-center"><span>'+(SK.icons.helperdesk||SK.icons.productflow||"")+'</span><b>مساحة الأدوات</b><small>سياق الشركة اختياري</small></div>'+S.map(point).join("")+'</div></section>'+
   exceptionQueue()+'<div class="hd-grid">'+table()+'</div></div>';
   if(root.dataset.hdBound==="1")return;
   root.dataset.hdBound="1";
