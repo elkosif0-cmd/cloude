@@ -14,8 +14,10 @@ test('PR97 selective port keeps A1990 Capability Atlas v3 active',()=>{
     'tool_interface_design','parallel_execution','verification_completion'
   ]) assert.match(src,new RegExp('\\b'+pack+'\\b'));
   assert.match(src,/capabilityAtlas:\{version:A1990_CAPABILITY_ATLAS_VERSION,packs:capabilityPacks,prompt:a1990CapabilityPrompt\(capabilityPacks\)\}/);
-  assert.match(src,/const capabilityRule=a1990CapabilityPrompt\(a1990SelectCapabilityPacks\(meta\.subject,meta\.executor\)\)/);
+  assert.match(src,/const capabilityRule=a1990CapabilityPrompt\(Array\.isArray\(meta\.capability_packs\).*a1990SelectCapabilityPacks\(meta\.subject,meta\.executor\)\)/);
   assert.match(src,/const capability_packs=a1990SelectCapabilityPacks\(subject,executor\),capability_atlas_version=A1990_CAPABILITY_ATLAS_VERSION/);
+  assert.match(src,/name:"kosif_capability_route"/);
+  assert.match(src,/mode:"a1990_capability_route"/);
   assert.doesNotMatch(src.slice(src.indexOf('const A1990_CAPABILITY_ATLAS_VERSION='),src.indexOf('function preflightTool(args){')),/__name\d*\(/);
 });
 
