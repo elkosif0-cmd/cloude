@@ -345,7 +345,7 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 
 ### TASK CLAUDE-20261006-012 — P3 health: VAT on healthcare visits
 - Agent: Claude (Lead Development Agent)
-- Status: HANDOFF (PR open; merge deploys production — owner approval)
+- Status: DONE — merged as PR #165 on the owner's explicit instruction in chat («ادمج وكمل»); GitHub jobs not started (billing), acceptance on local evidence.
 - Goal: close the limit recorded in CLAUDE-20261006-009 (claims amounts were before VAT).
 - Sources checked (web, 2026-10-06): Saudi Arabia — private healthcare standard-rated for non-Saudi patients; for Saudi citizens the state bears the VAT and the provider issues a 0% invoice (Royal Order); qualifying medicines and medical goods listed by MOH/SFDA zero-rated; government providers outside the scope. Egypt — medical services exempt (VAT Law 67/2016). The official ZATCA healthcare guideline URL returned 404; the reimbursement/reporting mechanism of the citizens' state-borne VAT is not posted and is stated on the screen as to be confirmed with the company's tax adviser.
 - Scope: `finance/insurance-claims-engine.ts`: `healthVatTreatment` (country × VAT policy × patient category), `encounterJournal` posts output VAT on standard-rated visits and shares the VAT-inclusive bill (co-payment cap on the total) + tests; claims tab: patient category, treatment from the company's country and `SK.vatRate()`, 2200 required only when taxable, the treatment recorded on each visit, a note of the rules; `tools/health_pack_e2e.mjs` (citizen visits keep their figures; a non-Saudi visit posts VAT 30 on 200, 115/115).
