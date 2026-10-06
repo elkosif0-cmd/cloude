@@ -4062,7 +4062,7 @@ window.SKEngines = (function() {
 		const x = div$1(a, b);
 		return x === null ? null : r2$9(x);
 	};
-	var days$2 = (a, b) => {
+	var days$3 = (a, b) => {
 		const x = div$1(a, b);
 		return x === null ? null : Math.round(x * 365);
 	};
@@ -4107,9 +4107,9 @@ window.SKEngines = (function() {
 			roa: pctOf(s.profit, avg(s.assets, p?.assets)),
 			roe: pctOf(s.profit, avg(s.equity, p?.equity)),
 			roce: pctOf(s.operating, avg(s.assets - s.cl, p ? p.assets - p.cl : void 0)),
-			dso: days$2(s.receivables, s.revenue),
-			dio: days$2(s.inventory, s.cogs),
-			dpo: days$2(s.payables, s.cogs),
+			dso: days$3(s.receivables, s.revenue),
+			dio: days$3(s.inventory, s.cogs),
+			dpo: days$3(s.payables, s.cogs),
 			assetTurnover: times(s.revenue, avg(s.assets, p?.assets)),
 			debtToEquity: times(s.debt, s.equity),
 			gearing: pctOf(netDebt, netDebt + s.equity),
@@ -17711,7 +17711,7 @@ window.SKEngines = (function() {
 	function money$22(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
-	function days$1(a, b) {
+	function days$2(a, b) {
 		const x = Date.parse(String(a).slice(0, 10) + "T00:00:00Z"), y = Date.parse(String(b).slice(0, 10) + "T00:00:00Z");
 		return Number.isFinite(x) && Number.isFinite(y) ? Math.round(Math.abs(x - y) / 864e5) : Number.POSITIVE_INFINITY;
 	}
@@ -17743,7 +17743,7 @@ window.SKEngines = (function() {
 			matches.push({
 				bankId: b.id,
 				bookId: k.id,
-				days: days$1(b.date, k.date),
+				days: days$2(b.date, k.date),
 				manual: true
 			});
 		}
@@ -17753,7 +17753,7 @@ window.SKEngines = (function() {
 			let best = null, bestScore = Number.POSITIVE_INFINITY;
 			for (const k of book) {
 				if (usedBook.has(k.id) || money$22(k.amount) !== money$22(b.amount)) continue;
-				const d = days$1(b.date, k.date);
+				const d = days$2(b.date, k.date);
 				if (d > windowDays) continue;
 				const score = d - (b.reference && norm(b.reference) === norm(k.reference) ? 100 : 0);
 				if (score < bestScore) {
@@ -17767,7 +17767,7 @@ window.SKEngines = (function() {
 				matches.push({
 					bankId: b.id,
 					bookId: best.id,
-					days: days$1(b.date, best.date),
+					days: days$2(b.date, best.date),
 					manual: false
 				});
 			}
@@ -19846,7 +19846,7 @@ window.SKEngines = (function() {
 	function money$18(v) {
 		return Math.round((v + Number.EPSILON) * 100) / 100;
 	}
-	function days(fromIso, toIso) {
+	function days$1(fromIso, toIso) {
 		const from = Date.parse(fromIso + "T00:00:00Z"), to = Date.parse(toIso + "T00:00:00Z");
 		if (!Number.isFinite(from) || !Number.isFinite(to)) return 0;
 		return Math.max(0, Math.floor((to - from) / 864e5));
@@ -19861,7 +19861,7 @@ window.SKEngines = (function() {
 	function agePayables(invoices, asOfDate) {
 		const rows = invoices.map((invoice) => {
 			const outstanding = money$18(Math.max(0, invoice.amount - invoice.paid));
-			const daysPastDue = outstanding === 0 ? 0 : days(invoice.dueDate, asOfDate);
+			const daysPastDue = outstanding === 0 ? 0 : days$1(invoice.dueDate, asOfDate);
 			return {
 				...invoice,
 				outstanding,
@@ -94095,6 +94095,171 @@ window.SKEngines = (function() {
 		};
 	}
 	//#endregion
+	//#region app/src/engine/fusion/system/relationship-health-engine.ts
+	var relationship_health_engine_exports = /* @__PURE__ */ __exportAll({ relationshipHealth: () => relationshipHealth });
+	var REF = [
+		{
+			meta: "contract",
+			field: "id",
+			kind: "contract",
+			label: "عقد مقاولات"
+		},
+		{
+			meta: "tuition",
+			field: "termId",
+			kind: "term",
+			label: "فصل دراسي"
+		},
+		{
+			meta: "production",
+			field: "orderId",
+			kind: "order",
+			label: "أمر تشغيل"
+		},
+		{
+			meta: "production",
+			field: "productId",
+			kind: "product",
+			label: "منتج أو وصفة"
+		},
+		{
+			meta: "livestock",
+			field: "cycleId",
+			kind: "cycle",
+			label: "دورة زراعية"
+		},
+		{
+			meta: "agency",
+			field: "retainerId",
+			kind: "retainer",
+			label: "اشتراك عميل"
+		},
+		{
+			meta: "trade",
+			field: "branch",
+			kind: "branch",
+			label: "فرع"
+		}
+	];
+	var CONTROL = /* @__PURE__ */ new Set([
+		"1200",
+		"1210",
+		"2100",
+		"2150",
+		"2160",
+		"2170"
+	]);
+	var days = (a, b) => Math.round((Date.parse(b + "T00:00:00Z") - Date.parse(a + "T00:00:00Z")) / 864e5);
+	function relationshipHealth(x) {
+		const findings = [], byId = new Map(x.accounts.map((a) => [a.id, a])), codes = new Set(x.accounts.map((a) => String(a.code)));
+		const add = (f) => {
+			if (f.count) findings.push(f);
+		};
+		const badDefs = [];
+		for (const [type, list] of Object.entries(x.definitions ?? {})) for (const d of list) if (d.accountCode && !codes.has(String(d.accountCode))) badDefs.push(d.name + " → " + d.accountCode + " (" + type + ")");
+		add({
+			link: "mapping",
+			severity: "fail",
+			title: "تعريفات مربوطة بحسابات غير موجودة في الدليل",
+			source: "التعريفات الأساسية للشركة",
+			count: badDefs.length,
+			repair: "أعد ربط التعريف بحساب قائم أو افتح الحساب من «دليل الحسابات»",
+			sample: badDefs.slice(0, 5)
+		});
+		const missingPack = (x.packCodes ?? []).filter((c) => !codes.has(String(c)));
+		add({
+			link: "mapping",
+			severity: "warn",
+			title: "حسابات حزمة القطاع غير مفتوحة",
+			source: "حزمة القطاع",
+			count: missingPack.length,
+			repair: "أضفها من «دليل الحسابات» › «إضافة حسابات قطاع»",
+			sample: missingPack.slice(0, 8)
+		});
+		const p = x.pending ?? {
+			total: 0,
+			oldest: null
+		}, age = p.oldest ? days(p.oldest, x.asOf) : 0;
+		add({
+			link: "posting",
+			severity: age > (x.staleDays ?? 30) ? "fail" : "warn",
+			title: "عمليات مسجلة في الأدوات ولم تُرحّل إلى الدفاتر",
+			source: "المبيعات والاستلام",
+			count: p.total,
+			repair: "رحّلها من «الإقفال الشهري» قبل إقفال الفترة",
+			sample: p.oldest ? ["أقدمها " + p.oldest + " (" + age + " يوماً)"] : []
+		});
+		const live = x.entries.filter((e) => !e.reversedBy && !e.reversalOf);
+		for (const r of REF) {
+			const known = x.objects?.[r.kind];
+			if (!known) continue;
+			const set = new Set(known), broken = [];
+			for (const e of live) {
+				const m = e[r.meta], v = m && m[r.field];
+				if (typeof v === "string" && v && !set.has(v)) broken.push(e.date + " " + v);
+			}
+			add({
+				link: "reference",
+				severity: "fail",
+				title: "قيود تشير إلى " + r.label + " غير موجود",
+				source: "بيانات القطاع (" + r.meta + ")",
+				count: broken.length,
+				repair: "استعد " + r.label + " المحذوف أو اعكس القيود المرتبطة به",
+				sample: broken.slice(0, 5)
+			});
+		}
+		const orphan = x.entries.filter((e) => e.lines.some((l) => !byId.has(l.accountId))).map((e) => e.date + " " + e.id);
+		add({
+			link: "sync",
+			severity: "fail",
+			title: "قيود على حسابات خارج الدليل",
+			source: "الدفاتر",
+			count: orphan.length,
+			repair: "أعد الحساب المحذوف أو اعكس القيد وأعد ترحيله",
+			sample: orphan.slice(0, 5)
+		});
+		const seen = /* @__PURE__ */ new Map();
+		for (const e of live) if (e.sourceId) seen.set(e.sourceId, (seen.get(e.sourceId) ?? 0) + 1);
+		const dup = [...seen.entries()].filter(([, n]) => n > 1).map(([k, n]) => k + " ×" + n);
+		add({
+			link: "sync",
+			severity: "fail",
+			title: "عملية مرحّلة أكثر من مرة",
+			source: "مصدر العملية (sourceId)",
+			count: dup.length,
+			repair: "اعكس القيد المكرر",
+			sample: dup.slice(0, 5)
+		});
+		const unbalanced = x.entries.filter((e) => Math.round(e.lines.reduce((s, l) => s + l.debit - l.credit, 0) * 100) !== 0).map((e) => e.date + " " + e.id);
+		add({
+			link: "sync",
+			severity: "fail",
+			title: "قيود غير متزنة",
+			source: "الدفاتر",
+			count: unbalanced.length,
+			repair: "اعكس القيد وأعد إدخاله متزناً",
+			sample: unbalanced.slice(0, 5)
+		});
+		const noParty = live.filter((e) => !String(e.party || "").trim() && e.lines.some((l) => {
+			const a = byId.get(l.accountId);
+			return !!a && CONTROL.has(String(a.code)) && (l.debit || l.credit);
+		})).map((e) => e.date + " " + e.id);
+		add({
+			link: "party",
+			severity: "warn",
+			title: "حركات ذمم بلا طرف (عميل أو مورد)",
+			source: "الذمم المدينة والدائنة",
+			count: noParty.length,
+			repair: "حدد الطرف حتى تظهر في الأعمار وكشوف الحساب",
+			sample: noParty.slice(0, 5)
+		});
+		return {
+			status: findings.some((f) => f.severity === "fail") ? "fail" : findings.length ? "warn" : "ok",
+			findings,
+			checked: 5 + REF.filter((r) => x.objects?.[r.kind]).length
+		};
+	}
+	//#endregion
 	return {
 		audit: {
 			aiProviders: ai_providers_engine_exports,
@@ -94225,6 +94390,7 @@ window.SKEngines = (function() {
 		system: {
 			companyContext: company_context_exports,
 			modelBooks: model_books_engine_exports,
+			relationshipHealth: relationship_health_engine_exports,
 			sectorPack: sector_pack_engine_exports
 		}
 	};
