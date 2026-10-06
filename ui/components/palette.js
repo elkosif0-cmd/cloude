@@ -100,19 +100,23 @@ function paint(scroll){
   if(scroll){const el=list.querySelector('[aria-selected="true"]');el&&el.scrollIntoView({block:"nearest"})}
 }
 function togglePin(){const r=rows[sel];if(!r||!r.pin)return;let P=pins();if(P.includes(r.pin)){P=P.filter(x=>x!==r.pin);SK.toast("أُلغي التثبيت","info")}else{P.unshift(r.pin);SK.toast("ثُبّت الصنف ★","ok")}save(PIN_KEY,P.slice(0,40));fill(inp.value)}
-let prevFocus=null;
+let releaseFocus=null,top=true;
 function open(initial){
   if(document.querySelector("#pr-modal .modal"))return;
   if(!wrap)build();
-  prevFocus=document.activeElement;
-  wrap.classList.add("open");inp.value=initial||"";fill(inp.value);inp.focus();
+  if(isOpen()){if(top){if(initial!==undefined){inp.value=initial||"";fill(inp.value)}inp.focus()}return}
+  const opener=document.activeElement;wrap.classList.add("open");
+  releaseFocus=SK.modalFocus(wrap.querySelector(".skp"),opener,{onTopChange:value=>{top=value}});
+  inp.value=initial||"";fill(inp.value);inp.focus();
 }
-function close(){if(!wrap)return;wrap.classList.remove("open");try{prevFocus&&prevFocus.focus()}catch{}}
+function close(){if(!isOpen())return;wrap.classList.remove("open");const release=releaseFocus;releaseFocus=null;release?.()}
 function run(){const r=rows[sel];if(!r)return;close();if(r.ref)remember(r.ref);setTimeout(()=>{try{r.run()}catch(e){SK.errors.report(e,"palette")}},30)}
 const isOpen=()=>!!(wrap&&wrap.classList.contains("open"));
 
 document.addEventListener("keydown",e=>{
   const k=String(e.key||"").toLowerCase(),t=e.target;
+  if(isOpen()&&!top)return;
+  if(isOpen()&&e.key==="Escape"){e.preventDefault();e.stopImmediatePropagation();close();return}
   const typing=t&&(t.isContentEditable||/^(input|textarea|select)$/i.test(t.tagName));
   /* e.code keeps the shortcuts on the same keys with an Arabic keyboard layout */
   if((e.ctrlKey||e.metaKey)&&(k==="k"||e.code==="KeyK")){e.preventDefault();e.stopPropagation();isOpen()?close():open();return}

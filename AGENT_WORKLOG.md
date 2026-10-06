@@ -317,3 +317,12 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Branch / PR: `claude/p3-health-claims-20261006` from `main` @ 3a13930.
 - Evidence: engines 471/471; workflow node tests 294 pass / 52 fail, the same failure set as `main`; health_pack_e2e, meat_pack_e2e, books OK; advances 26/26; sales 28/28; door 94/94; feature_audit 146/146 — all on the first attempt.
 - NEXT ACTION: healthcare VAT treatment; doctors' commissions and case cost; then deepen hospitality/construction/digital packs.
+
+### TASK CLAUDE-20261006-010 — Owner-ordered review of all open PRs; rebuild of #133 + #137 on current main
+- Agent: Claude (Lead Development Agent)
+- Status: ACTIVE
+- Owner instruction (chat, 2026-10-06): review every open PR, then «كل شيء» — rebuild and merge #133 + #137, merge #151 and #152, close #116 #139 #150 #7 #4, extract the document vault from #140 and the safety fixes from #143 for review before merge.
+- Done so far: closed #116 (superseded by AGENT_WORKLOG.md), #139 (diagnostic, DO NOT MERGE), #150 (door implemented in #153; older FOUNDATION edits), #7 and #4 (superseded reconstruction) — branches kept, each with a comment. Merged docs-only #151 (a6abc87) and #152 (d0056fa) after a secret scan.
+- Security finding (#96): the live `wa-kosif-mcp` answers `initialize` as version 1.4.1 and has no protected-resource metadata (404) — the 1.5.0 owner-only gate in #96 (base: a feature branch, not main) is not deployed. Per #96 itself, 1.4.1 runs tool calls without checking the caller. Deployment needs the owner's Auth0 API and Worker secrets; reported to the owner with an interim mitigation (unlink or pause the Worker). No tool was called during the check.
+- This branch: `claude/report-a11y-rebuilt-20261006` = `main` + `codex/sqc-native-focus-completion-20261005` (contains #133). One conflict, `ui/core/sk.js` export line: kept both `onSave` (#133) and `vatRate,vatPct` (#156).
+- NEXT ACTION: full suites; PR; merge on the owner's approval; close #133/#137 as carried; then the #140 vault and #143 safety extractions as separate PRs for review.

@@ -72,7 +72,7 @@ function build(){
     '<button type="button" class="sk-tb-btn sk-tb-pe" id="sk-tb-pe" data-sktb="pe" aria-haspopup="menu"><span class="ic">'+I.calendar+'</span><span class="tx"><b></b></span>'+I.chev+'</button></div>');
   const bell=mk('<button type="button" class="sk-tb-icon" id="sk-tb-bell" data-sktb="bell" aria-label="الإشعارات">'+I.bell+'<span class="dot" hidden></span></button>');
   const theme=mk('<button type="button" class="sk-tb-icon" id="sk-tb-theme" data-sktb="theme" aria-label="تبديل المظهر">'+I.moon+'</button>');
-  const user=mk('<button type="button" class="sk-tb-user" id="sk-tb-user" data-sktb="user" aria-haspopup="menu"><span class="sk-av" aria-hidden="true"></span><span class="tx"><b></b><small></small></span></button>');
+  const user=mk('<button type="button" class="sk-tb-user" id="sk-tb-user" data-sktb="user" aria-haspopup="menu" aria-label="قائمة المستخدم"><span class="sk-av" aria-hidden="true"></span><span class="tx"><b></b><small></small></span></button>');
   (menu||bar.firstChild).after(brand);brand.after(ctxBox);
   if(search)ctxBox.after(search);
   if(grow)(search||ctxBox).after(grow);
@@ -126,7 +126,7 @@ function paint(){
   }
   /* user */
   const u=$("#sk-tb-user");
-  if(u){$(".sk-av",u).textContent=initials(pr.name);$("b",u).textContent=pr.name||"أضف اسمك";$("small",u).textContent=pr.title||SK.perm.label()}
+  if(u){u.setAttribute("aria-label","قائمة المستخدم"+(pr.name?": "+pr.name:""));$(".sk-av",u).textContent=initials(pr.name);$("b",u).textContent=pr.name||"أضف اسمك";$("small",u).textContent=pr.title||SK.perm.label()}
 }
 
 /* ---------- menus ---------- */
