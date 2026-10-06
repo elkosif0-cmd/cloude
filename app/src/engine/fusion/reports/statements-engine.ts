@@ -9,6 +9,7 @@
    Built on the line maps of kosif-audit-pro (statements.mjs) and SEE (classification: standards and
    assertions per account family). Deterministic; no model involved. Amounts in halalas. */
 import { type Minor } from './money-engine';
+import type { ReplayResult } from './source-replay-engine';
 import { norm, type AccountType, type TrialBalance, type TbRow } from './tb-import-engine';
 
 export type Statement = 'sfp' | 'pl';
@@ -98,10 +99,13 @@ export type FinancialStatements = {
   sourceKind?: 'published-statements';
   cashFlowStatus?: {status:'unavailable';check:'not-tested';reason:string};
   soceStatus?: {status:'unavailable';reason:string};
+  /* a published-statement replay (reports/source-replay-engine) is not a reconstruction: its balance checks are not tested (null) */
+  reconstructionStatus?: {status:'unavailable';reason:string};
+  replay?: ReplayResult;
   hasPrior: boolean; lines: FsLine[]; unmapped: { code: string; name: string; balance: Minor }[];
   pl: Row[]; sfp: Row[]; soce: { columns: string[]; rows: { ar: string; values: Minor[] }[] }; cf: Row[] | null;
   keys: Record<string, { current: Minor; prior: Minor | null }>;
-  checks: { balanced: boolean; difference: Minor; priorBalanced: boolean | null; cashTies: boolean | null; cfDifference: Minor | null; mappedPct: number };
+  checks: { balanced: boolean | null; difference: Minor | null; priorBalanced: boolean | null; cashTies: boolean | null; cfDifference: Minor | null; mappedPct: number };
   notes: { no: number; ar: string; en: string; kind: 'policy' | 'line'; lineKey?: string }[];
 };
 
