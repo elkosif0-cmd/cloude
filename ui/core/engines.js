@@ -21651,6 +21651,151 @@ window.SKEngines = (function() {
 		};
 	}
 	//#endregion
+	//#region app/src/engine/fusion/reports/cycle-proof-engine.ts
+	var cycle_proof_engine_exports = /* @__PURE__ */ __exportAll({
+		CONTROL_CODES: () => CONTROL_CODES,
+		cycleProof: () => cycleProof
+	});
+	var h = (v) => Math.round(v * 100);
+	var TYPES = /* @__PURE__ */ new Set([
+		"asset",
+		"liability",
+		"equity",
+		"revenue",
+		"expense"
+	]);
+	/** control accounts reconciled to their parties, when the company has them */
+	var CONTROL_CODES = [
+		"1200",
+		"1210",
+		"2100",
+		"2150",
+		"2160",
+		"2170"
+	];
+	function cycleProof(input) {
+		const acc = new Map(input.accounts.map((a) => [a.id, a])), entries = input.entries.filter((e) => String(e.date).slice(0, 10) <= input.end);
+		const steps = [];
+		let unbalanced = 0, orphan = 0, traced = 0;
+		for (const e of entries) {
+			const d = e.lines.reduce((s, l) => s + h(l.debit), 0);
+			if (d !== e.lines.reduce((s, l) => s + h(l.credit), 0) || !d) unbalanced++;
+			if (e.lines.some((l) => !acc.has(l.accountId))) orphan++;
+			if (String(e.sourceId || "").trim() || String(e.source || "").trim()) traced++;
+		}
+		steps.push({
+			id: "entries",
+			label: "العمليات ← القيود",
+			status: unbalanced || orphan ? "fail" : traced === entries.length ? "ok" : "warn",
+			detail: unbalanced || orphan ? unbalanced + " قيد غير متزن و" + orphan + " قيد على حساب خارج الدليل" : traced + " من " + entries.length + " قيداً تحمل مصدر العملية",
+			figures: {
+				entries: entries.length,
+				traced,
+				unbalanced,
+				orphan
+			}
+		});
+		const tb = buildTrialBalance(entries), dr = h(tb.totals.debit), cr = h(tb.totals.credit);
+		steps.push({
+			id: "ledger",
+			label: "القيود ← الأستاذ ← ميزان المراجعة",
+			status: dr === cr ? "ok" : "fail",
+			detail: dr === cr ? "الميزان متزن" : "فرق الميزان " + (dr - cr) / 100,
+			figures: {
+				debit: dr,
+				credit: cr
+			}
+		});
+		const rows = tb.rows.map((r) => {
+			const a = acc.get(r.accountId);
+			return {
+				code: a ? a.code : r.accountId,
+				name: a ? a.name : r.accountId,
+				debit: r.debit,
+				credit: r.credit
+			};
+		});
+		const overrides = {};
+		for (const r of tb.rows) {
+			const a = acc.get(r.accountId);
+			if (a && TYPES.has(a.type)) overrides[a.code] = a.type;
+		}
+		const fs = buildStatements(fromRows(rows, { overrides }));
+		const unmapped = fs.unmapped.filter((u) => u.balance !== 0);
+		steps.push({
+			id: "statements",
+			label: "ميزان المراجعة ← القوائم المالية",
+			status: !fs.checks.balanced ? "fail" : unmapped.length ? "warn" : "ok",
+			detail: !fs.checks.balanced ? "قائمة المركز المالي غير متوازنة بفرق " + fs.checks.difference / 100 : unmapped.length ? "حسابات بلا بند في القوائم: " + unmapped.map((u) => u.code + " " + u.name).join("، ") : "كل حساب له بند، والمركز المالي متوازن",
+			figures: {
+				mappedPct: fs.checks.mappedPct,
+				difference: fs.checks.difference
+			}
+		});
+		let rev = 0, exp = 0, assets = 0;
+		for (const r of tb.rows) {
+			const t = acc.get(r.accountId)?.type, b = h(r.balance);
+			if (t === "revenue") rev -= b;
+			if (t === "expense") exp += b;
+			if (t === "asset") assets += b;
+		}
+		const plProfit = fs.pl.find((r) => r.key === "profit")?.current ?? 0, sfpAssets = fs.sfp.find((r) => r.key === "assets")?.current ?? 0;
+		const same = plProfit === rev - exp && sfpAssets === assets;
+		steps.push({
+			id: "same",
+			label: "الأرقام نفسها في القوائم والدفاتر",
+			status: same ? "ok" : "fail",
+			detail: same ? "صافي الربح " + plProfit / 100 + " ومجموع الموجودات " + sfpAssets / 100 + " كما في الدفاتر" : "القوائم: ربح " + plProfit / 100 + " وموجودات " + sfpAssets / 100 + " — الدفاتر: ربح " + (rev - exp) / 100 + " وموجودات " + assets / 100,
+			figures: {
+				profit: plProfit,
+				ledgerProfit: rev - exp,
+				assets: sfpAssets,
+				ledgerAssets: assets
+			}
+		});
+		const codes = new Set(input.controls ?? CONTROL_CODES), byCode = new Map(input.accounts.map((a) => [a.code, a.id]));
+		const ctl = [];
+		let unassigned = 0, gap = 0;
+		for (const code of codes) {
+			const id = byCode.get(code);
+			if (!id) continue;
+			let total = 0, parties = 0, none = 0;
+			for (const e of entries) for (const l of e.lines) if (l.accountId === id) {
+				const v = h(l.debit) - h(l.credit);
+				total += v;
+				if (String(e.party || "").trim()) parties += v;
+				else none += v;
+			}
+			if (!total && !none) continue;
+			if (none) unassigned++;
+			if (parties + none !== total) gap++;
+			ctl.push(code + ": " + total / 100 + (none ? " (منها " + none / 100 + " بلا طرف)" : ""));
+		}
+		steps.push({
+			id: "subledgers",
+			label: "الذمم والأطراف ← حسابات المراقبة",
+			status: gap ? "fail" : unassigned ? "warn" : "ok",
+			detail: ctl.length ? ctl.join(" · ") : "لا حسابات مراقبة بأرصدة",
+			figures: {
+				controls: ctl.length,
+				unassigned
+			}
+		});
+		const closed = !!input.lockDate && input.lockDate >= input.end;
+		steps.push({
+			id: "close",
+			label: "الإقفال",
+			status: closed ? "ok" : "warn",
+			detail: closed ? "الفترة مقفلة حتى " + input.lockDate : input.lockDate ? "مقفلة حتى " + input.lockDate + " فقط" : "الفترة غير مقفلة"
+		});
+		return {
+			ok: steps.every((s) => s.status !== "fail"),
+			steps,
+			profitHalalas: plProfit,
+			statements: fs
+		};
+	}
+	//#endregion
 	//#region app/src/engine/fusion/reports/smart-match-engine.ts
 	var smart_match_engine_exports = /* @__PURE__ */ __exportAll({
 		bestCatalogMatch: () => bestCatalogMatch,
@@ -27232,6 +27377,7 @@ window.SKEngines = (function() {
 			annualReport: annual_report_engine_exports,
 			corpusBenchmarks: corpus_benchmarks_engine_exports,
 			corpusCompanies: corpus_companies_engine_exports,
+			cycleProof: cycle_proof_engine_exports,
 			excelRecon: excel_recon_engine_exports,
 			export: export_engine_exports,
 			globalCorpus: global_corpus_engine_exports,

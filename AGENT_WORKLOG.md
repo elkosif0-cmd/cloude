@@ -421,3 +421,20 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - a year-end close into retained earnings.
 - Branch / PR: `claude/model-companies-20261006` from `main` @ 9905485.
 - Open PRs from the other agent: #169 (UX clarity) and #170 (independent audit context) were verified together locally (all suites pass except one door test that #169's own card reordering broke; fix found: look up the locked card by its flag). They were not merged: the session's permission classifier refused merging another agent's PR without review. They wait for the owner.
+
+### TASK CLAUDE-20261006-018 — P2 accounting-cycle proof on every company's own books
+- Agent: Claude (Lead Development Agent)
+- Status: DONE on merge — the owner's standing instruction in chat: «كمل تطوير وراجع الدستور وادمج بنفسك».
+- Goal: PRODUCT_MANDATE P2 acceptance «عملية → قيد → أستاذ → ميزان → قوائم بالأرقام نفسها», and FOUNDATION §3.6's chain through to the close, proven on the books rather than asserted.
+- Scope:
+  - `app/src/engine/fusion/reports/cycle-proof-engine.ts` (+8 tests) checks six steps:
+    1. operations → entries: balanced, inside the chart, carrying their operation's source;
+    2. ledger → trial balance: debits equal credits;
+    3. trial balance → statements: every account lands on a line, and the financial position balances, using the chart's own account types;
+    4. the same numbers: the statements' profit equals ledger revenue minus expenses, and total assets equal the ledger's assets;
+    5. sub-ledgers: each control account (1200, 1210, 2100, 2150, 2160, 2170) equals its parties, and lines without a party are named;
+    6. the close.
+  - The books' close tab has a «إثبات الدورة المحاسبية» card with a date. `SKosifLedger.proof(end)` is the same check, read-only.
+  - `tools/model_companies_e2e.mjs` now requires all six steps green on each of the six model companies; all six were green on the first run (100% of accounts mapped).
+- Not yet: a click from a statement line to its accounts and entries in the UI (the engine's notes already list them); cash-flow tie-out with a prior year.
+- Branch / PR: `claude/cycle-proof-20261006` from `main` @ cb1d0a1.
