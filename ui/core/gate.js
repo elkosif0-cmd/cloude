@@ -6,7 +6,7 @@
    (sqc_gate_corpus) is opened as the audit file's client once the company and the audit screen are ready. */
 (()=>{
 "use strict";
-const KEY="sqc_gate",CORPUS="sqc_gate_corpus",PIN="sqc_gate_pin";
+const KEY="sqc_gate",CORPUS="sqc_gate_corpus",AUDIT_NEW="sqc_gate_audit_new",PIN="sqc_gate_pin";
 /* pinned: the door chose the section and its first screen (the pin's value) is still on its way; the screens the app
    paints meanwhile — the default one, then the last one opened, maybe of another section — must not switch the section
    (ui/core/helper-space.js sets it; the shell clears it when that screen arrives; a landing that never arrives, e.g. a
@@ -32,19 +32,28 @@ function set(g,opts={}){
   return true;
 }
 const label=g=>(SK.caps.gateway(g)||{}).label||"";
-/* the bundle company chosen at the audit door: left in place while a company switch is reloading the page */
-function corpus(){
-  let id="";try{id=sessionStorage.getItem(CORPUS)||""}catch{}if(!id)return;
+/* Independent Audit commands wait only for the Audit module itself. They never require or switch an accounting/helper company. */
+function auditNew(){
+  let pending="";try{pending=sessionStorage.getItem(AUDIT_NEW)||""}catch{}if(!pending)return;
   let tries=0;
   const t=()=>{
-    const S=window.SKosifSpace;if(S&&S.busy&&S.busy())return;
-    const R=window.SKosifTBReview,ready=SK.company&&SK.company.ready&&SK.company.ready();
-    if(R&&R.loadCorpus&&ready){try{sessionStorage.removeItem(CORPUS)}catch{}R.loadCorpus(id);return}
+    const R=window.SKosifTBReview;
+    if(R&&R.newEngagement){try{sessionStorage.removeItem(AUDIT_NEW)}catch{}R.newEngagement();return}
     if(++tries<160)setTimeout(t,250);
   };
   t();
 }
-SK.gate=Object.freeze({current,set,label,valid,ofView,pinned,unpin,list:()=>SK.caps.gateways(),home:g=>SK.caps.gatewayHome(g||current()),KEY,CORPUS,PIN});
-const boot=()=>{watchPin();corpus()};
+function corpus(){
+  let id="";try{id=sessionStorage.getItem(CORPUS)||""}catch{}if(!id)return;
+  let tries=0;
+  const t=()=>{
+    const R=window.SKosifTBReview;
+    if(R&&R.loadCorpus){try{sessionStorage.removeItem(CORPUS)}catch{}R.loadCorpus(id);return}
+    if(++tries<160)setTimeout(t,250);
+  };
+  t();
+}
+SK.gate=Object.freeze({current,set,label,valid,ofView,pinned,unpin,list:()=>SK.caps.gateways(),home:g=>SK.caps.gatewayHome(g||current()),KEY,CORPUS,AUDIT_NEW,PIN});
+const boot=()=>{watchPin();auditNew();corpus()};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
 })();
