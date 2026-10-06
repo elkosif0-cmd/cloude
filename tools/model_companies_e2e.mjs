@@ -1,7 +1,8 @@
 // FOUNDATION §3.6 «نماذج محاسبية افتراضية إلزامية» — every sector's reference model company opens from the front door with
 // books that have really been through a cycle: the entries the engine generates (and nothing of the meat demo company),
 // a balanced trial balance, the period closed at 30 September 2026 with a 2026 financial year, VAT quarters closed, and
-// the sector's own screen reading the entries (the hospital's payers, the school's deferred fees, the factory's WIP).
+// the sector's own screen reading the entries (the hospital's payers, the school's deferred fees, the factory's WIP), and
+// the close tab's cycle proof green on every step (PRODUCT_MANDATE P2).
 //   node tools/model_companies_e2e.mjs http://127.0.0.1:8765/
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -33,6 +34,10 @@ try {
     ok(id + ': opened as a model company of its sector with its 2026 year', r.co === id && r.sector === sector && r.model && r.period === '2026', JSON.stringify(r));
     ok(id + ': every generated entry is in the books, none of the meat demo', r.entries === r.want && r.meatDemo === 0 && r.orphan === 0, JSON.stringify(r));
     ok(id + ': the trial balance balances, closed to 30 September, three VAT quarters closed', r.tb === 0 && r.lock === '2026-09-30' && r.vatClosed === 3, JSON.stringify(r));
+    /* PRODUCT_MANDATE P2: operation → entry → ledger → trial balance → statements with the same numbers → sub-ledgers → close */
+    await p.evaluate(() => SKosifLedger.open('close')); await p.waitForTimeout(1500);
+    const proof = await p.evaluate(() => { const c = document.querySelector('[data-proof]'); return c ? { ok: c.dataset.proofOk, steps: [...c.querySelectorAll('tr[data-step]')].map((r) => r.dataset.step + ':' + r.dataset.status + (r.dataset.status === 'ok' ? '' : ' ' + r.cells[2].textContent)) } : null; });
+    ok(id + ': the close tab proves the cycle — all six steps green', proof && proof.ok === '1' && proof.steps.length === 6 && proof.steps.every((x) => /:ok$/.test(x)), JSON.stringify(proof));
     await p.evaluate(() => SKosifLedger.open('tb')); await p.waitForTimeout(1200);
     ok(id + ': the trial balance screen renders', await p.evaluate(() => !!document.querySelector('.sk-table') ), '');
     if (id === 'model-health') {

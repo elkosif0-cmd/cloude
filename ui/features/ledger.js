@@ -873,6 +873,7 @@ function bind(root){
       else if(el.id==="lg-cntd")d.count={...(d.count||{}),date:el.value||today()};
       else{const q={...((d.count||{}).qty||{})},v=String(el.value).trim();if(v==="")delete q[el.dataset.cnt];else q[el.dataset.cnt]=Number(v.replace("٫",".").replace(/[٠-٩]/g,x=>"٠١٢٣٤٥٦٧٨٩".indexOf(x)))||0;d.count={...(d.count||{}),qty:q}}
       put(d);paint(root);return}
+    if(el.id==="proof-end"){if(e.type!=="change")return;proofEnd=/^\d{4}-\d{2}-\d{2}$/.test(el.value)?el.value:"";paint(root);return}
     if(el.id==="lg-terms"){if(e.type!=="change")return;const v=Math.round(Number(el.value));if(!(v>=0&&v<=365))return;const d=db();d.termsDays=v;put(d);paint(root);return}
     if(!draft)return;
     if(el.dataset.ln!=null)draft.lines[+el.dataset.ln][el.dataset.f]=el.value;
@@ -886,7 +887,21 @@ function bind(root){
 }
 SK.view("ledger",{render(node){if(!node.dataset.bound){bind(node);node.dataset.bound="1"}paint(node)}});
 /* the month-end close lives in month-close.js; it reads the books through the api below */
-function closeHTML(){return window.SKosifClose?SKosifClose.html():SK.ui.state.empty({title:"الإقفال الشهري غير متاح"})}
+function closeHTML(d){return (window.SKosifClose?SKosifClose.html():SK.ui.state.empty({title:"الإقفال الشهري غير متاح"}))+proofHTML(d)}
+/* the accounting-cycle proof (PRODUCT_MANDATE P2, reports/cycle-proof-engine): operation → entry → ledger → trial balance →
+   statements with the same numbers → sub-ledgers → close, run on these books up to the last closed date (or today) */
+let proofEnd="";
+function proofOf(d,end){const R=window.SKEngines&&window.SKEngines.reports,CP=R&&R.cycleProof;if(!CP||!d.entries.length)return null;
+  try{return CP.cycleProof({accounts:d.accounts.map(a=>({id:a.id,code:String(a.code),name:a.name,type:a.type})),entries:d.entries,end:end||d.lockDate||today(),lockDate:d.lockDate||null})}
+  catch(e){SK.errors&&SK.errors.report(e,"ledger:proof");return null}}
+function proofHTML(d){
+  const end=proofEnd||d.lockDate||today(),p=proofOf(d,end);if(!p)return "";
+  const ic={ok:"✓",warn:"!",fail:"✗"},cls={ok:"good",warn:"warn",fail:"bad"};
+  return '<section class="card" data-proof data-proof-ok="'+(p.ok?1:0)+'"><div class="card-h"><div><h3>إثبات الدورة المحاسبية</h3><p>عملية ← قيد ← أستاذ ← ميزان ← قوائم بالأرقام نفسها ← ذمم ← إقفال، على دفاتر هذه الشركة.</p></div>'+
+    '<label class="sk-field"><span>حتى تاريخ</span><input type="date" id="proof-end" value="'+esc(end)+'"></label></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table"><tbody>'+
+    p.steps.map(s=>'<tr data-step="'+esc(s.id)+'" data-status="'+s.status+'"><td><span class="sk-pill '+cls[s.status]+'" aria-label="'+(s.status==="ok"?"سليم":s.status==="warn"?"تنبيه":"خلل")+'">'+ic[s.status]+'</span></td><td><b>'+esc(s.label)+'</b></td><td>'+esc(s.detail)+'</td></tr>').join("")+
+    '</tbody></table></div><p class="hint">صافي الربح في القوائم: <b data-proof-profit>'+money(p.profitHalalas/100)+'</b> — يطابق الإيرادات ناقص المصروفات في الدفاتر'+(p.steps.find(s=>s.id==="same").status==="ok"?"":" (لا يطابق)")+'.</p></div></section>';
+}
 function pendingOps(d,until){
   const posted=postedSources(d),u=until||"9999-12-31",pur=load("skosif_purchasing_v1",{});
   const sales=(load("aghnam-v12-manual-sales",[])||[]).filter(x=>x&&x.id&&!posted.has("sale:"+x.id)&&String(x.date||"").slice(0,10)<=u);
@@ -939,7 +954,7 @@ function ensureAccounts(list){const d=db(),has=c=>d.accounts.find(x=>String(x.co
 window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().accounts,lockDate:()=>db().lockDate,ensureAccounts,postEntry,saleEntry:(d,x)=>saleEntry(d,x,costResolver()),
   open:(t,o={})=>{tab=t||"accounts";if(o.q)vatQ=o.q;window.SKosifCore.go("ledger")},
   /* read-only views of the books for the month-end close, the morning brief and the alerts */
-  snapshot:()=>db(),pending:until=>pendingOps(db(),until),parties:(kind,asOf)=>partiesOf(db(),kind,asOf||today()),
+  snapshot:()=>db(),proof:end=>proofOf(db(),end),pending:until=>pendingOps(db(),until),parties:(kind,asOf)=>partiesOf(db(),kind,asOf||today()),
   vat:qid=>vatCalc(db(),qid),quarters:y=>quarters(y),balance:(code,asOf)=>balanceOf(db(),code,asOf||today()),
   trialBalance:end=>E().ledger.buildTrialBalance(db().entries.filter(e=>String(e.date).slice(0,10)<=end)),
   lockTo:date=>{const d=db();if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||(d.lockDate&&d.lockDate>=date))return false;d.lockDate=date;put(d);SK.audit&&SK.audit.log("ledger",{act:"lock",to:date});return true},
