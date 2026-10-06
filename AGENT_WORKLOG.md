@@ -299,3 +299,11 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Risks / conflicts: None. Zero changes to cryptographic boundaries or sensitive markers.
 - NEXT ACTION: Push to `origin/main` for immediate Cloudflare Pages live deployment to https://s-kosif.pages.dev/.
 
+### TASK CLAUDE-20261006-008 — P3 meat: carcass receipts in 1310, the cutting run credits the stock that holds them
+- Agent: Claude (Lead Development Agent)
+- Status: DONE — merged on the owner's explicit instruction in chat on 2026-10-06 («ادمج واكمل»); GitHub jobs not started (billing), acceptance on local evidence.
+- Goal: close CLAUDE-20261006-007's next action — the meat pack keeps carcasses and live animals apart from other stock.
+- Scope: `procurement/procurement-posting-engine.ts` optional `inventoryAccountFor(itemId)` (one debit per stock account, rounded per account; payable unchanged; default behaviour identical) + test; `ui/features/ledger.js` receipts of the catalog's raw items post to 1310 for a meat company whose chart has 1310 (every other company unchanged); `ui/features/meatops.js` the run credits 1310 when it holds a balance, else 1300 (no negative carcass account); `tools/meat_pack_e2e.mjs` receipt split check.
+- Branch / PR: `claude/meat-receipts-1310-20261006` from `main` @ 7dbb529.
+- Evidence: engines 465/465; workflow node tests 294 pass / 52 fail, identical to `main`; meat_pack_e2e OK (receipt: 1310 1,400.00 · 1300 30.00 · VAT 214.50 · suppliers 1,644.50); books OK; sales 28/28; advances 26/26; door 94/94 (after one local load timeout); feature_audit 146/146.
+- NEXT ACTION: deepen the hospital pack (insurance claims, rejections, case cost, revenue by department).

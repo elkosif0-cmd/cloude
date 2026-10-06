@@ -40,7 +40,8 @@ try {
     return { posted: true, valid: SKEngines.finance.ledger.validateJournalEntry(e).valid, by, sourceId: e.sourceId, tbBalanced: Math.abs(dr - cr) < 0.005, codes: ['1310', '1320', '1330', '5100'].every((c) => A.some((a) => a.code === c)) };
   });
   ok('the run is posted as one balanced entry', E.posted && E.valid, JSON.stringify(E));
-  ok('the carcass cost leaves 1310 and is fully assigned', E.by && E.by['1310'] === -1450 && Math.round(((E.by['1320'] || 0) + (E.by['1330'] || 0) + (E.by['5100'] || 0)) * 100) === 145000, JSON.stringify(E.by));
+  // the demo's books hold its carcasses in the general stock (1310 is empty), so the run credits 1300 by default
+  ok('the carcass cost leaves the stock that holds it and is fully assigned', E.by && E.by['1300'] === -1450 && !E.by['1310'] && Math.round(((E.by['1320'] || 0) + (E.by['1330'] || 0) + (E.by['5100'] || 0)) * 100) === 145000, JSON.stringify(E.by));
   // offal 2.88 kg × 25 = 72 at NRV; waste 1.2 kg within 3% of 24 kg (0.72) → 0.48 kg abnormal × 1450/24 = 29.00
   ok('by-products at net realisable value and abnormal waste beyond the tolerance', E.by && E.by['1330'] === 72 && E.by['5100'] === 29, JSON.stringify(E.by));
   ok('the meat accounts were opened in the chart', E.codes);
@@ -50,6 +51,18 @@ try {
   ok('exactly one entry was added', (await p.evaluate(() => SKosifLedger.entries().length)) === before + 1);
   const bad = await p.evaluate(() => { const d = SKosifLedger.snapshot(), id = d.accounts[0].id; return SKosifLedger.postEntry({ date: '2026-01-01', lines: [{ accountId: id, debit: 10, credit: 0 }, { accountId: id, debit: 0, credit: 9 }] }, { sourceId: 'test:unbalanced' }); });
   ok('an unbalanced entry is refused', bad.ok === false, JSON.stringify(bad));
+  // with 1310 in the chart, a carcass received from a supplier goes to 1310 — other goods stay in 1300
+  await p.evaluate(() => {
+    const raw = (SKosifCore.catalog().items || []).find((i) => i.kind === 'raw').name, t = new Date().toISOString().slice(0, 10), pur = SK.load('skosif_purchasing_v1', {}) || {};
+    pur.orders = [...(pur.orders || []), { id: 'e2e-po', number: 'PO-E2E', supplier: 'مورد الاختبار', date: t, dueDate: t, status: 'OPEN', lines: [{ item: raw, qty: '2', cost: '700', vat: '0.15' }, { item: 'صواني تغليف', qty: '10', cost: '3', vat: '0.15' }] }];
+    pur.receipts = [...(pur.receipts || []), { id: 'e2e-rc', orderId: 'e2e-po', date: t, status: 'RECEIVED', lines: [{ item: raw, qty: 2 }, { item: 'صواني تغليف', qty: 10 }] }];
+    SK.save('skosif_purchasing_v1', pur); SKosifLedger.open('entries');
+  });
+  await p.waitForTimeout(1200);
+  await p.click('[data-l="post-receipts"]'); await p.waitForTimeout(800);
+  const R = await p.evaluate(() => { const d = SKosifLedger.snapshot(), e = d.entries.find((x) => x.sourceId === 'receipt:e2e-rc'), code = (id) => (d.accounts.find((a) => a.id === id) || {}).code;
+    return e ? Object.fromEntries(e.lines.map((l) => [code(l.accountId), Math.round((l.debit - l.credit) * 100) / 100])) : null; });
+  ok('a received carcass goes to 1310, packaging to 1300, the supplier owed the total', R && R['1310'] === 1400 && R['1300'] === 30 && R['1400'] === 214.5 && R['2100'] === -1644.5, JSON.stringify(R));
   ok('no page errors', errors.length === 0, errors.slice(0, 3).join(' | '));
 } finally { await browser.close(); }
 
