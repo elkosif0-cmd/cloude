@@ -12,11 +12,11 @@ const LOCAL_KEY="skosif_cap_v2_local_workspace";
 const ROLE_KEY="skosif_cap_v2_preview_role";
 const MAX_BYTES=131072;
 const PERMISSIONS={
-  owner:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","integrity:read"],
-  partner:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","integrity:read"],
-  manager:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","integrity:read"],
-  senior:["providers:read","session:read","workspace:list","workspace:read","workspace:write","integrity:read"],
-  viewer:["providers:read","session:read","workspace:list","workspace:read","integrity:read"]
+  owner:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read"],
+  partner:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read"],
+  manager:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","document:list","document:read","document:write","integrity:read"],
+  senior:["providers:read","session:read","workspace:list","workspace:read","workspace:write","document:list","document:read","document:write","integrity:read"],
+  viewer:["providers:read","session:read","workspace:list","workspace:read","document:list","document:read","integrity:read"]
 };
 const ROLE_AR={owner:"مالك",partner:"شريك",manager:"مدير",senior:"مسؤول أول",viewer:"مشاهدة فقط"};
 const ALLOWED=["version","company","period","ui","theme","layout","preferences","inventorySummary","financeSummary","reporting","approvals","notes","alerts","jev","sourceRefs"];
@@ -121,9 +121,10 @@ function apiUrl(path){
 }
 async function api(path,options={}){
   const c=cfg();if(!c.apiBase)throw new Error("backend_not_configured");
-  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
+  const {raw=false,timeoutMs=8000,headers={},...fetchOptions}=options;
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);
   try{
-    const r=await fetch(apiUrl(path),{credentials:"include",cache:"no-store",...options,headers:{"content-type":"application/json",...(options.headers||{})},signal:controller.signal});
+    const r=await fetch(apiUrl(path),{credentials:"include",cache:"no-store",...fetchOptions,headers:{...(raw?{}:{"content-type":"application/json"}),...headers},signal:controller.signal});
     const d=await r.json().catch(()=>({}));
     if(!r.ok){const e=new Error(d.error||("HTTP "+r.status));e.status=r.status;e.data=d;throw e}
     return d;
@@ -153,6 +154,20 @@ async function shareRemote(subject,role){
   const id=await ensureRemoteWorkspace();
   return api("/api/capabilities-v2/workspaces/"+encodeURIComponent(id)+"/share",{method:"POST",body:JSON.stringify({subject,role})});
 }
+async function listRemoteDocuments(){
+  const id=await ensureRemoteWorkspace();
+  return api("/api/capabilities-v2/workspaces/"+encodeURIComponent(id)+"/documents",{timeoutMs:15000});
+}
+async function uploadRemoteDocument(blob,meta={}){
+  if(!(blob instanceof Blob)||!blob.size)throw new Error("empty_document");
+  const id=await ensureRemoteWorkspace(),name=String(meta.name||"document").slice(0,180),classification=String(meta.classification||"other").slice(0,80),source=String(meta.sourceGateway||"reporting").slice(0,60);
+  const q=new URLSearchParams({name,classification,source_gateway:source});
+  return api("/api/capabilities-v2/workspaces/"+encodeURIComponent(id)+"/documents?"+q.toString(),{method:"POST",body:blob,raw:true,timeoutMs:45000,headers:{"content-type":blob.type||meta.mime||"application/octet-stream"}});
+}
+async function deleteRemoteDocument(documentId){
+  const id=await ensureRemoteWorkspace();
+  return api("/api/capabilities-v2/workspaces/"+encodeURIComponent(id)+"/documents/"+encodeURIComponent(documentId),{method:"DELETE",timeoutMs:15000});
+}
 
 let root=null,state={tab:"overview",busy:false,session:null,providers:null,workspace:null,remoteError:""};
 const workspaceRole=()=>state.workspace?.workspace_role||state.session?.session?.role||rolePreview();
@@ -173,7 +188,8 @@ function overviewHTML(){
         ["Provider registry","SQC + Jev + Gemini + OpenAI + Claude"],
         ["Tenant isolation","عزل كل مساحة ومستخدم"],
         ["Archive guard","الأرشيف يجعل المساحة للقراءة فقط"],
-        ["Safe state","حظر الأسرار والبيانات الخام الحساسة"]
+        ["Safe state","حظر الأسرار والبيانات الخام الحساسة"],
+        ["Document vault","D1 metadata + R2 bytes + Workspace ACL"]
       ].map(x=>'<div><b>'+x[0]+'</b><span>'+x[1]+'</span></div>').join("")+'</div></section>'+
       '<section class="skv2-panel"><h4>Snapshot آمن من SQC</h4><div class="skv2-summary"><div><span>أصناف متابعة</span><b>'+s.inventorySummary.tracked+'</b></div><div><span>تنبيهات إعادة الطلب</span><b>'+s.inventorySummary.reorderAlerts+'</b></div><div><span>صافي التدفق '+esc(s.period.month)+'</span><b>'+money(s.financeSummary.net)+'</b></div><div><span>قوائم دخل محفوظة</span><b>'+s.reporting.savedIncomeStatements+'</b></div></div><p class="skv2-note">لا تُحفظ أسماء العملاء أو الجوالات أو الطلبات الخام أو الأسرار داخل Workspace snapshot.</p></section>'+
     '</div>'+
@@ -183,7 +199,7 @@ function overviewHTML(){
 }
 function rolesHTML(){
   const tenantRole=state.session?.session?.role||rolePreview(),r=workspaceRole(),perms=PERMISSIONS[r]||[];
-  const names=["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","integrity:read"];
+  const names=["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read"];
   return '<div class="skv2-role-head"><div><b>دور الشركة المفتوحة</b><span>'+(state.session?badge(true,ROLE_AR[r]||r):badge(false,"معاينة محلية: "+(ROLE_AR[r]||r)) )+'</span>'+(state.session&&tenantRole!==r?'<small>دور الـtenant: '+esc(ROLE_AR[tenantRole]||tenantRole)+'</small>':'')+'</div>'+
     (!state.session?'<label class="sk-field"><span>دور المعاينة</span><select id="skv2-role">'+Object.keys(PERMISSIONS).map(x=>'<option value="'+x+'"'+(r===x?" selected":"")+'>'+ROLE_AR[x]+'</option>').join("")+'</select></label>':'')+'</div>'+
     '<div class="skv2-matrix"><table><thead><tr><th>الصلاحية</th>'+Object.keys(PERMISSIONS).map(x=>'<th>'+ROLE_AR[x]+'</th>').join("")+'</tr></thead><tbody>'+names.map(p=>'<tr><td><code>'+p+'</code></td>'+Object.keys(PERMISSIONS).map(x=>'<td class="'+(authorizeRole(x,p)?"yes":"no")+'">'+(authorizeRole(x,p)?"✓":"—")+'</td>').join("")+'</tr>').join("")+'</tbody></table></div>'+
@@ -266,6 +282,11 @@ window.SKosifCapabilitiesV2=Object.freeze({
   safeSummary,
   saveLocalSnapshot,
   verifyLocal,
+  ensureRemoteWorkspace,
+  listDocuments:listRemoteDocuments,
+  uploadDocument:uploadRemoteDocument,
+  deleteDocument:deleteRemoteDocument,
+  workspaceId:()=>workspaceIdFor(cfg()),
   config:()=>({...cfg()})
 });
 })();

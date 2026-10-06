@@ -32,3 +32,28 @@ test('client sharing UI is gated by the role inside the current workspace',()=>{
   assert.match(client,/صلاحيتك داخل هذه الشركة/);
   assert.match(client,/state\.workspace\.sensitivity==="sensitive"/);
 });
+
+
+test('document vault is workspace-ACL protected and fails closed without R2',()=>{
+  for(const marker of ['document:list','document:read','document:write','document:delete','requireDocumentBucket','document_vault_unavailable','workspace_documents','DOCUMENT_MAX_BYTES','sha256Bytes']) assert.ok(worker.includes(marker),marker);
+  assert.match(worker,/if\(workspace\.archived_at\)return jsonResponse\(\{error:"workspace_archived"\},409\)/);
+  assert.match(worker,/rec|R2|DOCUMENTS/i);
+  const owner=worker.match(/owner: Object\.freeze\(\[([^\]]+)\]\)/)?.[1]||'';
+  const viewer=worker.match(/viewer: Object\.freeze\(\[([^\]]+)\]\)/)?.[1]||'';
+  assert.match(owner,/document:delete/);
+  assert.match(viewer,/document:read/);
+  assert.doesNotMatch(viewer,/document:write|document:delete/);
+});
+test('document metadata lives in D1 while bytes are addressed by R2 object key',()=>{
+  assert.match(schema,/CREATE TABLE IF NOT EXISTS workspace_documents/);
+  assert.match(schema,/object_key TEXT NOT NULL UNIQUE/);
+  assert.match(schema,/sha256 TEXT NOT NULL CHECK \(length\(sha256\)=64\)/);
+  assert.match(schema,/deleted_at TEXT/);
+});
+
+test('client mirrors document permissions and exposes guarded vault methods',()=>{
+  assert.match(client,/document:list/);assert.match(client,/document:read/);assert.match(client,/document:write/);assert.match(client,/document:delete/);
+  assert.match(client,/uploadDocument:uploadRemoteDocument/);
+  assert.match(client,/raw:true/);
+  assert.match(client,/timeoutMs:45000/);
+});
