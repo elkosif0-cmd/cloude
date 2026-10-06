@@ -450,3 +450,53 @@
 - Workflow الموجود مسبقًا `.github/workflows/wa-deploy.yml` كان يشير أصلًا إلى `whatsapp-bridge` بينما المجلد نفسه مفقود؛ الاسترجاع يعيد الاتساق بين workflow والكود.
 
 الحالة: **COMPLETE — PR #96 functional subsystem recovered as a self-contained authenticated WhatsApp bridge.**
+
+
+## دفعة PR #95 → PR #88 — مراجعة KOSIF Think التاريخية
+
+### PR #95 — Full Pro auth gate + duplicate tool merge
+- الفكرة المفيدة كانت: منع Full Pro bypass عبر auth، وإزالة تضارب اسم أداة Full Pro المكرر.
+- الخط الحالي يحتوي OAuth/Auth0 metadata وحواجز Full Pro أحدث، ويوجد **تعريف واحد فقط** لأداة `kosif_full_pro_execute`.
+- لم نعد دوال auth القديمة (`ownerAllowed/ownerSubs/bridgeNeedsAuth`) لأنها تخص تصميمًا أقدم، بينما العقود الحالية أوسع.
+- القرار: **SECURITY-IDEA-PRESERVED / CURRENT-IS-SUPERSET**.
+
+### PR #94 — Evidence consistency + reasoning protocol
+- الفرع احتوى فكرة مفيدة **لم تكن موجودة في main أو PR #97**: تقرير معايرة تجريبي لاحتمالات Jev مقابل النتائج الفعلية.
+- تم استرجاعها وظيفيًا:
+  - `wilsonLowerBound`.
+  - `calibrationReportTool`.
+  - أداة جديدة `kosif_calibration_report`.
+  - Brier Score + ECE + reliability bins + Wilson lower bound لكل أداة + حالات false-confidence.
+  - قاعدة أمان صريحة: التقرير **لا يخفّض operational gates تلقائيًا**.
+  - اختبار `think-mcp/calibration-report.test.mjs`.
+- بقية reasoning modules القديمة لا تُنسخ لأن Capability Atlas v3 المسترجع من PR #97 أوسع وأحدث.
+- القرار: **FUNCTIONAL EXTRACTION COMPLETE — calibration recovered; older reasoning selector superseded by Capability Atlas.**
+
+### PR #93 — Jev-gated routing + reasoning protocol
+- جوهر routing موجود في `kosif_route` الحالي، مع capability mesh، حواجز المخاطر، Jev، التحقق، وtool inventory أحدث.
+- `reasoningModulesFor` القديم تم تجاوزه بواسطة Capability Atlas v3.
+- calibration المشترك مع #94 تم استرجاع النسخة الأحدث من #94 فقط.
+- القرار: **CURRENT-IS-SUPERSET / KNOWLEDGE-KEPT**.
+
+### PR #92 — Dynamic Capability Mesh
+- `capabilityMesh` موجود في runtime الحالي.
+- لا حاجة لإعادة نسخة 0.7.0 القديمة فوق runtime أحدث.
+- القرار: **VERIFIED-IN-CURRENT**.
+
+### PR #91 — Jev-Browser hardening
+- منطق browser reliability والتحقق اللاحق تطور لاحقًا؛ runtime الحالي يحتوي مسارات التحقق، recovery، وtool routing.
+- القرار: **SUPERSEDED-BY-LATER-RUNTIME**.
+
+### PR #90 — Adaptive settle + rich verification
+- `adaptiveSettle` موجود في runtime الحالي.
+- القرار: **VERIFIED-IN-CURRENT**.
+
+### PR #89 — Deterministic public fallback
+- fallback/preflight logic موجود ومتوسع في runtime الحالي.
+- القرار: **VERIFIED-IN-CURRENT**.
+
+### PR #88 — Evidence verification + candidate tournament
+- `evidenceConsistency` و`candidate_tournament` موجودان في runtime الحالي، مع `optionBindingConsistency` و`decisionSensitivity` كطبقات أحدث.
+- القرار: **CURRENT-IS-SUPERSET**.
+
+الحالة: **COMPLETE — #95 إلى #88 تمت مراجعتها؛ الميزة الصافية الوحيدة التي كانت مفقودة (empirical calibration) تم إحياؤها فعليًا، والباقي موجود أو تطور في runtime الحالي.**
