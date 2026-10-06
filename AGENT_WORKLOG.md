@@ -336,7 +336,7 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 
 ### TASK CLAUDE-20261006-011 — P3 health: doctors' fees and the cost of a case
 - Agent: Claude (Lead Development Agent)
-- Status: HANDOFF (PR open; merge deploys production — owner approval)
+- Status: DONE — merged as PR #164 on the owner's explicit instruction in chat («ادمج ومل»); GitHub jobs not started (billing), acceptance on local evidence.
 - Goal: FOUNDATION §3.7 «عمق قطاع المستشفيات» — doctors and commissions, case cost. The health pack becomes `deep`.
 - Scope: `system/sector-pack-engine.ts` health pack: `deep`, accounts 5210 (doctors' fees) and 5220 (medicines and supplies used); `finance/insurance-claims-engine.ts`: `doctorFee` (share or fixed, capped at the visit), `caseCostJournal` (Dr 5210 / Cr 2150 named to the doctor; Dr 5220 / Cr 1360), `caseCosts` (revenue, fee, supplies, margin per case) + tests; `ui/features/ledger.js` claims tab: doctor, fee %, supplies on the visit form, a second entry named to the doctor, a «تكلفة الحالة» table, supplies refused beyond the pharmacy stock; `tools/health_pack_e2e.mjs` extended.
 - Branch / PR: `claude/health-case-cost-20261006` from `main` @ 047373e.
