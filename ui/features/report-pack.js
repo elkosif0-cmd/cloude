@@ -1,107 +1,78 @@
-/* S.kosif — الحزمة التنفيذية (window.SKosifReportPack): تقرير مجلس إدارة بنقرة واحدة.
-   أول تبويب في «التقارير التنفيذية». يجمع في وثيقة واحدة مطبوعة بترويسة KOSIF (أو PDF من
-   نافذة الطباعة): الغلاف · الملخص التنفيذي · اتجاهات المبيعات والمشتريات (رسم + جدول شهري) ·
-   خريطة المخاطر وأعلى المخاطر · الملاحظات المفتوحة · ما يحتاج قراراً · حالة المهام · الاعتماد.
-   الأرقام نفسها التي يعرضها مركز القيادة (window.SKosifMetrics) — لا أرقام مضافة. */
+/* SQC executive pack: limited read-only management-ledger draft.
+   Operational/global stores are deliberately unavailable until they can bind an immutable scope.
+   Captured scope consistency does not establish historical ownership or professional assurance. */
 (()=>{
 "use strict";
 const {$$,esc,load,save,toast}=SK;
-const core=()=>window.SKosifCore;
 const OPT="skosif_report_pack_v1";
 const SECT=[["summary","الملخص التنفيذي"],["books","الدفاتر والإقفال"],["trend","اتجاهات المبيعات والمشتريات"],["sales","ذكاء المبيعات"],["risks","المخاطر"],["findings","الملاحظات المفتوحة"],["decisions","ما يحتاج قراراً"],["tasks","حالة المهام"],["signoff","الاعتماد والتوقيع"]];
-const nf=new Intl.NumberFormat("ar-SA-u-nu-latn",{maximumFractionDigits:1});
-const M=v=>new Intl.NumberFormat("ar-SA-u-nu-latn",{maximumFractionDigits:0}).format(Math.round(v||0))+" ر.س";
-// Isolate formatted numeric values from the surrounding RTL paragraph; keep raw text unchanged.
-const numericValue=v=>{const text=String(v??""),plain=text.replace(/[\u200e\u200f]/g,"");return /^[-−]?\d[\d,.]*(?:٪| ر\.س)?$/.test(plain)?'<bdi dir="ltr">'+esc(text)+'</bdi>':esc(text)};
-/* the sections a choice saved before `seen` existed could know about */
 const FIRST=["summary","trend","risks","findings","decisions","tasks","signoff"];
-const opts=()=>{const o=Object.assign({range:12,sections:SECT.map(s=>s[0]),reviewer:"",approver:""},load(OPT,{})||{});
-  /* a section added after the owner saved a choice is shown until they untick it */
-  const seen=Array.isArray(o.seen)?o.seen:FIRST,fresh=SECT.map(x=>x[0]).filter(k=>!seen.includes(k));
-  if(fresh.length){o.sections=[...new Set([...o.sections,...fresh])];o.seen=SECT.map(x=>x[0])}return o};
-/* the device's calendar day: toISOString() still gives yesterday in Riyadh until 03:00 */
-const localDay=(d=new Date())=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
-/* the books at a glance, from the same source as the morning brief and the month-end close */
-function booksHTML(calm=false){
-  const l=window.SKosifLedger;if(!l||!l.snapshot().accounts.length)return "";
-  const t=localDay(),ar=l.parties("ar",t),ap=l.parties("ap",t),cash=l.balance("1100",t),d=l.snapshot();
-  const hist=((d.bank||{}).history||[]).map(h=>h.end).sort(),last=hist[hist.length-1];
-  const S=window.SKosifClose?SKosifClose.steps():[],A=S.filter(x=>x.st!=="na"),done=A.filter(x=>x.st==="ok").length;
-  const late=ar?ar.totals["61-90"]+ar.totals["90+"]:0;
-  const q=(()=>{const n=new Date(),k=Math.floor(n.getUTCMonth()/3);return k?n.getUTCFullYear()+"-Q"+k:(n.getUTCFullYear()-1)+"-Q4"})(),v=l.vat(q);
-  const tiles=[["النقدية والبنوك",cash==null?"—":M(cash)],["مستحق من العملاء",ar?M(ar.balance+ar.unassigned):"—",late?"bad":""],["منه متأخر أكثر من 60 يوماً",M(late),late?"bad":"ok"],
-    ["مستحق للموردين",ap?M(ap.balance+ap.unassigned):"—"],["ضريبة "+(v?v.q.label:"الربع"),v?(v.settled?"أُقفلت":M(Math.abs(v.r.net))+(v.r.net>=0?" مستحقة":" مستردة")):"—",v&&!v.settled?"bad":"ok"],
-    ["آخر مطابقة بنكية",last||"لم تُعتمد",last?"":"bad"],["الإقفال الشهري",A.length?done+" من "+A.length+" خطوات":"—",done===A.length?"ok":""],["الفترة مقفلة حتى",d.lockDate||"—"]];
-  /* the journal's audit trail and the revenue reconciliation (research: Reliance/Infosys edit log; e& revenue tie-out) */
-  const tr=l.trail?l.trail():null,rr=l.revenueRecon?l.revenueRecon():null;
-  if(tr&&tr.total)tiles.push(["سجل التعديلات",tr.ok?(tr.legacy?"سليم — "+tr.legacy+" سابق للتفعيل":"سليم — "+tr.sealed+" قيداً مختوماً"):"يحتاج مراجعة",tr.ok?"ok":"bad"]);
-  if(rr&&(rr.rows.length||rr.unposted.length))tiles.push(["مطابقة الإيرادات",rr.reconciled?"مطابقة":(rr.unposted.length?rr.unposted.length+" بيع غير مرحّل":"فرق "+M(rr.diff/100)),rr.reconciled?"ok":"bad"]);
-  const top=ar?ar.rows.filter(r=>r.balance>0.004).slice(0,6):[];
-  return '<section><h2>الدفاتر والإقفال</h2><div class="rp-k">'+tiles.map(([k,val,c])=>'<div><span>'+esc(k)+'</span><b class="'+(c||"")+'">'+(calm?numericValue(val):esc(val))+'</b></div>').join("")+'</div>'+
-    (top.length?'<table class="rp-table rp-books"><thead><tr><th scope="col">العميل</th><th scope="col">الرصيد</th><th scope="col">غير مستحق</th><th scope="col">1–60 يوماً</th><th scope="col">أكثر من 60</th></tr></thead><tbody>'+top.map(r=>'<tr><td>'+esc(r.party)+'</td><td class="rp-n">'+M(r.balance)+'</td><td class="rp-n">'+M(r.aging.current)+'</td><td class="rp-n">'+M(r.aging["1-30"]+r.aging["31-60"])+'</td><td class="rp-n">'+M(r.aging["61-90"]+r.aging["90+"])+'</td></tr>').join("")+'</tbody></table>':'')+'</section>';
+const opts=()=>{const raw=load(OPT,{})||{},o={sections:SECT.map(s=>s[0]),reviewer:"",approver:"",...raw};
+  const seen=Array.isArray(o.seen)?o.seen:FIRST,chosen=Array.isArray(o.sections)?o.sections:[];
+  o.sections=SECT.map(s=>s[0]).filter(k=>chosen.includes(k)||!seen.includes(k));return o};
+const source=()=>window.SKosifManagementSource,model=()=>window.SKosifManagementModel;
+const scope=()=>window.SKosifSpace?.scopeSnapshot?.();
+const can=action=>!!(SK.perm?.can("execreports")&&SK.perm.can("ledger")&&SK.perm.can("execreports",action)&&SK.perm.can("ledger",action));
+const freeze=v=>{if(v&&typeof v==="object"){Object.values(v).forEach(freeze);Object.freeze(v)}return v};
+const text=v=>typeof v==="string"?v:"";
+let revision=0,sequence=0,active=null;
+const WATCH=new Set(["skosif_ledger_v1","skosif_companies_v1","sqc_helper_space_v1","sqc_helper_users_v1","aghnam-pricing-v3","skosif_profile_v1"]);
+function invalidate(){revision++;if(active){active.stale=true;SK.output?.invalidate(active.w)}}
+SK.onSave?.(key=>{if(WATCH.has(key))invalidate()});
+SK.bus?.on("data",e=>{if(WATCH.has(e?.key))invalidate()});
+for(const event of ["company","restore","role"])SK.bus?.on(event,invalidate);
+addEventListener("storage",e=>{if(e.key===null||WATCH.has(e.key))invalidate()});
+addEventListener("sk:org",invalidate);
+/* A BFCache return must never resume a captured draft from a previous document visit. */
+addEventListener("pagehide",invalidate);
+function identityValue(){
+  const s=scope(),o=SK.org(),p=load("skosif_profile_v1",{})||{};
+  if(s?.status!=="stable"||text(o.biz).trim()!==s.context.entityName)throw new Error("IDENTITY_SCOPE_MISMATCH");
+  return {name:s.context.entityName,fileStem:"SQC-executive-"+encodeURIComponent(s.entityId)+"-"+s.context.start+"-"+s.context.end,preparer:text(p.name)?text(p.name)+(text(p.title)?" — "+text(p.title):""):text(o.preparer),
+    ids:[o.vatNo?"الرقم الضريبي "+esc(o.vatNo):"",o.crNo?"السجل التجاري "+esc(o.crNo):"",o.phone?esc(o.phone):"",o.addr?esc(o.addr):""].filter(Boolean)};
 }
-const score=r=>(+r.likelihood||1)*(+r.impact||1);
-function snapshot(){
-  const st=core().stats(),tgt=st.target>1?st.target:st.target*100;
-  const tasks=load("skosif_tasks_v1",[])||[],t=localDay();
-  const R=SKosifMetrics.risks(),open=R.risks.filter(r=>r.status!=="closed");
-  return{st,tgt,avg:isFinite(st.avgMargin)?st.avgMargin*100:null,tasks,done:tasks.filter(x=>x.done).length,late:tasks.filter(x=>!x.done&&x.due&&x.due<t),
-    risks:R.risks,open,high:open.filter(r=>score(r)>=6),findings:R.findings.filter(f=>f.status!=="resolved")};
+const current=s=>active===s&&!s.closed&&!s.stale&&!s.w.closed&&s.revision===revision;
+function sync(s){
+  if(!current(s)||!s.capture||!can("export"))return false;
+  try{return model().canonical(identityValue())===s.identityText&&source().isCurrent(s.capture)}catch{return false}
 }
+async function fresh(s){
+  if(!sync(s))return false;
+  try{const f=await source().checkFresh(s.capture);return f.fresh&&sync(s)}catch{return false}
+}
+function close(s){if(!s||s.closed)return;s.closed=true;if(active===s)active=null;try{s.w.close()}catch{}}
 function html(){
-  const o=opts(),s=snapshot(),pr=window.SKosifTopbar?SKosifTopbar.profile():{name:""};
-  const tile=(l,v,sub)=>'<div class="sk-kpi"><span>'+esc(l)+'</span><b>'+esc(v)+'</b><small>'+esc(sub)+'</small></div>';
-  return '<div class="rp">'+
-    '<div class="rp-hero"><div><h3>الحزمة التنفيذية</h3><p>تقرير شامل بنقرة واحدة بترويسة SQC: الغلاف، المؤشرات، الاتجاهات، ذكاء المبيعات، المخاطر، الملاحظات، القرارات، المهام، والاعتماد — جاهز للطباعة أو الحفظ PDF.</p></div>'+
-      '<button type="button" class="btn primary" data-rp="print">'+SK.icon("reports")+' معاينة وطباعة الحزمة</button></div>'+
-    '<div class="sk-kpis">'+tile("متوسط هامش البوكسات",s.avg!=null?nf.format(s.avg)+"٪":"—","الهدف "+nf.format(s.tgt)+"٪")+tile("بوكسات بخسارة",nf.format(s.st.boxLoss),"من "+nf.format(s.st.boxes))+
-      tile("المهام المنجزة",s.tasks.length?nf.format(s.done/s.tasks.length*100)+"٪":"—",s.late.length+" متأخرة")+tile("مخاطر مرتفعة مفتوحة",nf.format(s.high.length),"من "+nf.format(s.open.length)+" مفتوحة")+tile("ملاحظات مفتوحة",nf.format(s.findings.length),s.findings.filter(f=>f.severity==="high").length+" عالية الأثر")+'</div>'+
-    '<div class="rp-opts"><div class="sk-field"><span>الفترة</span><div class="sk-seg" role="group" data-rp-range>'+[6,12].map(n=>'<button type="button" data-v="'+n+'" aria-pressed="'+(o.range===n)+'">آخر '+n+' شهراً</button>').join("")+'</div></div>'+
-      '<div class="sk-field"><span>الأقسام</span><div class="rp-sec">'+SECT.map(([k,l])=>'<label class="sk-check"><input type="checkbox" value="'+k+'"'+(o.sections.includes(k)?' checked':'')+'> '+l+'</label>').join("")+'</div></div>'+
-      '<div class="sk-grid2"><label class="sk-field"><span>أعدّه</span><input value="'+esc(pr.name||SK.org().preparer||"")+'" disabled title="من قائمة المستخدم أعلى التطبيق"></label><label class="sk-field"><span>راجعه</span><input id="rp-rev" value="'+esc(o.reviewer)+'"></label></div>'+
-      '<label class="sk-field"><span>اعتمده</span><input id="rp-app" value="'+esc(o.approver)+'" placeholder="اسم المدير أو الشريك المعتمد"></label></div>'+
-  '</div>';
+  const o=opts(),s=scope(),c=s?.status==="stable"?s.context:null;
+  return '<div class="rp"><div class="rp-hero"><div><h3>الحزمة التنفيذية</h3><p>مسودة تنفيذية محدودة من الدفاتر الملتقطة للشركة والفترة المحددتين. الأقسام التشغيلية غير المتحققة تظهر غير متاحة.</p></div><button type="button" class="btn primary" data-rp="print">'+SK.icon("reports")+' معاينة المسودة</button></div>'+
+    '<p class="note" data-rp-period>'+(c?esc(c.entityName)+" · "+esc(c.start)+" — "+esc(c.end)+" · "+esc(c.currency):'اختر شركة وفترة مالية صريحتين قبل إنشاء المسودة.')+'</p>'+
+    '<div class="rp-opts"><div class="sk-field"><span>الأقسام</span><div class="rp-sec">'+SECT.map(([k,l])=>'<label class="sk-check"><input type="checkbox" value="'+k+'"'+(o.sections.includes(k)?' checked':'')+'> '+l+'</label>').join("")+'</div></div>'+
+    '<div class="sk-grid2"><label class="sk-field"><span>راجعه</span><input id="rp-rev" value="'+esc(o.reviewer)+'"></label><label class="sk-field"><span>اعتمده</span><input id="rp-app" value="'+esc(o.approver)+'"></label></div></div></div>';
 }
 function bind(root){
   if(!root)return;
-  root.addEventListener("click",e=>{
-    const r=e.target.closest("[data-rp-range] button");
-    if(r){const o=opts();o.range=+r.dataset.v;save(OPT,o);$$("[data-rp-range] button",root).forEach(b=>b.setAttribute("aria-pressed",String(b===r)));return}
-    if(e.target.closest('[data-rp="print"]'))print(root);
-  });
-  root.addEventListener("change",e=>{
-    const o=opts();
+  root.addEventListener("click",e=>{if(e.target.closest('[data-rp="print"]'))print()});
+  root.addEventListener("change",e=>{const o=opts();
     if(e.target.matches(".rp-sec input"))o.sections=$$(".rp-sec input:checked",root).map(x=>x.value);
     if(e.target.id==="rp-rev")o.reviewer=e.target.value.trim();
     if(e.target.id==="rp-app")o.approver=e.target.value.trim();
-    save(OPT,o);
+    o.seen=SECT.map(x=>x[0]);save(OPT,o);
   });
 }
-/* «ذكاء المبيعات» from the hub's own stores, mapping and engine (SKosifSalesIntel.snapshot) — the numbers on #sales.
-   A 12-month pack compares the last 12 months with the 12 before; a 6-month pack the last 90 days with the 90 before.
-   No phone numbers: a board document names customers only. */
-async function salesHTML(o,calm){
-  const si=window.SKosifSalesIntel,E=window.SKEngines&&SKEngines.sales&&SKEngines.sales.salesInsights;
-  if(!si||!si.snapshot||!E)return "";
-  const r=await si.snapshot(o.range===12?"365":"90"),v=x=>calm?numericValue(x):esc(x),sar=h=>M((Number(h)||0)/100);
-  /* no sales yet: no section (the trend section already shows the empty months), so the pack never grows an empty page */
-  if(r.empty)return "";
-  const K=r.kpis,p=r.period,f=r.forecast,S=Object.fromEntries(E.SEGMENTS.map(s=>[s.key,s.label]));
-  const dt=d=>'<bdi dir="ltr">'+esc(d)+'</bdi>',chg=d=>d==null?"لا فترة سابقة":E.signed(d)+" عن الفترة السابقة";
-  const tiles=[["صافي الإيراد",sar(K.revenue.cur),chg(K.revenue.delta)],["الطلبات",nf.format(K.orders.cur),chg(K.orders.delta)],["متوسط الطلب",sar(K.avgOrder.cur),chg(K.avgOrder.delta)],
-    ["العملاء النشطون",nf.format(K.customers.cur),chg(K.customers.delta)],["نسبة التكرار",Math.round(K.repeatRate.cur*100)+"٪",""],
-    ["التوقع 30 يوماً",f.model?sar(f.total):"—",f.model?"نطاق 80٪: "+sar(f.low)+" – "+sar(f.high):"يحتاج 14 يوماً من المبيعات"],
-    ["صحة المبيعات",r.health.score+" / 100",r.health.parts.map(x=>x.label+" "+x.points).join(" · ")],["جودة البيانات",r.quality.score+"٪",nf.format(r.quality.lines)+" سطراً"]];
-  const TONE={bad:"عاجل",warn:"مهم",ok:"فرصة",info:"للعلم"},SEV={bad:"high",warn:"medium",ok:"low",info:"low"};
-  return '<section><h2>ذكاء المبيعات</h2><p class="note">'+esc(p.label)+': من '+dt(p.from)+' إلى '+dt(p.to)+(p.prevFrom?' · مقارنة بـ '+dt(p.prevFrom)+' – '+dt(p.prevTo):'')+'</p>'+
-    '<div class="rp-k">'+tiles.map(([l,x,sub])=>'<div><span>'+esc(l)+'</span><b>'+v(x)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</div>').join("")+'</div>'+
-    (r.recs.length?'<h3>توصيات محسوبة</h3><table class="rp-table rp-sales-recs"><thead><tr><th scope="col">الأولوية</th><th scope="col">التوصية</th><th scope="col">الرقم</th></tr></thead><tbody>'+
-      r.recs.slice(0,6).map(x=>'<tr><td><span class="sev '+SEV[x.tone]+'">'+TONE[x.tone]+'</span></td><td><b>'+esc(x.title)+'</b><br><small>'+esc(x.body)+'</small></td><td>'+esc(x.metric)+'</td></tr>').join("")+'</tbody></table>':'')+
-    (r.followup.length?'<h3>أولوية التواصل (أعلى 10)</h3><table class="rp-table rp-sales-follow"><thead><tr><th scope="col">العميل</th><th scope="col">الشريحة</th><th scope="col">آخر شراء</th><th scope="col">منذ (يوم)</th><th scope="col">القيمة الشهرية</th></tr></thead><tbody>'+
-      r.followup.slice(0,10).map(c=>'<tr><td>'+esc(c.name||"بدون اسم")+'</td><td>'+esc(S[c.segment]||"")+'</td><td>'+dt(c.last)+'</td><td class="rp-n">'+nf.format(c.daysSince)+'</td><td class="rp-n">'+v(sar(c.monthlyValue))+'</td></tr>').join("")+'</tbody></table>':'<p class="note">لا عملاء متأخرين عن إيقاعهم المعتاد.</p>')+
-    '<p class="note">المصدر: محرك «ذكاء المبيعات» على سطور المبيعات المستوردة — الأرقام نفسها في الشاشة. التوقع إرشادي وليس وعداً.</p></section>';
+const money=(minor,currency)=>{const n=BigInt(minor),abs=n<0n?-n:n;return(n<0n?"−":"")+(abs/100n).toLocaleString("en-US")+"."+(abs%100n).toString().padStart(2,"0")+" "+currency};
+const value=(v,calm)=>calm?'<bdi dir="ltr">'+esc(v)+'</bdi>':esc(v);
+const unavailable=label=>'<section data-rp-unavailable><h2>'+esc(label)+'</h2><p class="note">غير متاح في هذه المسودة: لا يوجد مصدر مثبت لهذه الشركة والفترة لهذا القسم. لا يعني ذلك أن الرصيد أو العدد صفر.</p></section>';
+function body(s,built){
+  const c=s.capture.input.context,o=s.options,calm=s.calm,has=k=>o.sections.includes(k),m=built.model;
+  const val=n=>value(money(n,c.currency),calm);
+  let b='<div class="rp-cover"><div class="en">LIMITED EXECUTIVE DRAFT</div><h1>مسودة تنفيذية محدودة</h1><p>'+esc(c.entityName)+'</p><div class="meta"><span>الفترة المالية المختارة</span><b>'+esc(c.start)+" — "+esc(c.end)+'</b><span>العملة</span><b>'+esc(c.currency)+'</b><span>أعدّه</span><b>'+esc(s.identity.preparer||"—")+'</b><span>تاريخ الالتقاط</span><b>'+esc(s.capture.capturedAt)+'</b></div><div class="sky"></div></div>'+
+    '<p class="note">النطاق: الدفاتر الملتقطة فقط. هذه مسودة إدارية وليست تقرير مراجعة أو اعتمادًا مهنيًا، ولا تثبت ملكية تاريخية للبيانات. اكتمال المبيعات والمقبوضات والعهد والوحدات الأخرى لم يُختبر.</p>';
+  if(has("summary"))b+=m.summary?'<section><h2>الملخص التنفيذي</h2><p class="note">نتائج الفترة من قيود الدفاتر، وليست تدفقات نقدية أو مجاميع مبيعات تشغيلية.</p><div class="rp-k">'+[["إيرادات الدفاتر",m.summary.revenueMinor],["مصروفات الدفاتر",m.summary.expenseMinor],["نتيجة الدفاتر",m.summary.resultMinor]].map(([label,n])=>'<div><span>'+label+'</span><b>'+val(n)+'</b></div>').join("")+'</div></section>':unavailable("الملخص التنفيذي");
+  if(has("books"))b+='<section><h2>الدفاتر والإقفال</h2><p class="note">أرصدة الدفاتر في '+esc(c.end)+'، بما فيها الأرصدة السابقة. حالة الإقفال والمطابقة البنكية والضريبة غير متاحة في هذه المسودة.</p><table class="rp-table rp-books"><thead><tr><th scope="col">الحساب</th><th scope="col">مدين</th><th scope="col">دائن</th></tr></thead><tbody>'+m.rows.map(r=>'<tr><td>'+esc(r.code+" "+r.label)+'</td><td class="rp-n">'+val(r.closingDebitMinor)+'</td><td class="rp-n">'+val(r.closingCreditMinor)+'</td></tr>').join("")+'<tr class="rp-total"><td>الإجمالي</td><td class="rp-n">'+val(m.totals.closingDebitMinor)+'</td><td class="rp-n">'+val(m.totals.closingCreditMinor)+'</td></tr></tbody></table></section>';
+  for(const [k,label] of SECT)if(!["summary","books","signoff"].includes(k)&&has(k))b+=unavailable(label);
+  if(has("signoff"))b+='<section><h2>الاعتماد والتوقيع</h2><p class="note">حقول مراجعة المسودة فقط؛ إدراج الأسماء لا يعني اعتمادًا أو إصدارًا.</p><div class="sign">'+[["أعدّه",s.identity.preparer],["راجعه",o.reviewer],["اعتمده",o.approver]].map(([l,v])=>'<div><span>'+l+'</span><b>'+esc(v||" ")+'</b><i>التوقيع والتاريخ</i></div>').join("")+'</div></section>';
+  const provenance=[["الشركة",c.entityName],["معرّف الشركة",c.entityId],["بداية الفترة",c.start],["نهاية الفترة",c.end],["العملة",c.currency],["تاريخ الالتقاط",s.capture.capturedAt],["SHA-256 الدفاتر",s.capture.inputHash],["SHA-256 النطاق",s.capture.contextHash]];
+  return b+'<table class="rp-table rp-binding" data-rp-binding><thead><tr><th scope="col">نطاق المسودة</th><th scope="col">القيمة الملتقطة</th></tr></thead><tbody>'+provenance.map(([k,v])=>'<tr><td>'+esc(k)+'</td><td>'+esc(v)+'</td></tr>').join("")+'</tbody></table>';
 }
-/* ---------- the printed pack ---------- */
 const PACK_CSS='.rp-cover{padding:34px 0 18px;text-align:center;break-after:page}.rp-cover h1{margin:40px 0 6px;font-size:32px;color:#0b1f3a}.rp-cover .en{font:700 13px Montserrat,sans-serif;letter-spacing:.2em;color:#1668e3}'+
  '.rp-cover .meta{display:inline-grid;grid-template-columns:auto auto;gap:8px 24px;margin-top:36px;padding:18px 26px;border:1px solid #e4eaf2;border-radius:14px;text-align:start;font-size:13px}.rp-cover .meta span{color:#5a6a80}'+
  '.rp-cover .sky{height:170px;margin:26px 0 0;border-radius:18px;background:#0b1f3a url(ART) center/cover no-repeat}'+
@@ -125,42 +96,34 @@ const CALM_PACK_CSS='.rp-paper{font-size:14px;line-height:1.65;color:#25242b;fon
  '.rp-paper .rp-risks th:nth-child(2){width:30%}.rp-paper .rp-books th:first-child,.rp-paper .rp-trend th:first-child{width:28%}.rp-paper .two{display:block}.rp-paper .two .skhm{margin-bottom:16px}.rp-paper .note,.rp-paper small,.rp-paper .muted{font-size:12px;color:#64636d;orphans:3;widows:3}.rp-paper .sign{break-inside:avoid}.rp-paper .sign div{border-color:#dedee4;border-radius:6px}.rp-paper .sign span,.rp-paper .sign i{font-size:12px;color:#64636d}.rp-paper .skp-foot{color:#64636d;border-color:#dedee4}'+
  '.rp-paper .rp-sales-recs th:first-child{width:13%}.rp-paper .rp-sales-recs th:nth-child(2){width:57%}.rp-paper .rp-sales-follow th:first-child{width:30%}.rp-paper .rp-k small{display:block;margin-top:2px}'+
  '@media screen and (max-width:600px){.rp-paper .rp-cover .meta{grid-template-columns:auto minmax(0,1fr)}.rp-paper .rp-k{grid-template-columns:repeat(2,minmax(0,1fr))}.rp-paper .sign{grid-template-columns:minmax(0,1fr)}}';
-async function print(root){
-  const o=opts(),w=window.open("","_blank");if(!w){toast("اسمح بالنوافذ المنبثقة لطباعة الحزمة","warn");return}
-  w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>التقرير التنفيذي</title></head><body><p style="font-family:sans-serif;padding:20px">جارٍ تجهيز الحزمة…</p></body></html>');
+async function print(){
+  if(!can("view")||!can("export")){toast("صلاحية عرض الدفاتر والتقرير أو التصدير غير متاحة.","warn");return}
+  if(!source()?.capture||!source()?.isCurrent||!SK.output?.guard||!SK.onSave){toast("تعذر تثبيت نطاق التقرير. أعد تحميل التطبيق.","warn");return}
+  close(active);
+  let identity;try{identity=identityValue()}catch{toast("تعذر تثبيت الشركة والفترة وهوية الترويسة. أعد اختيار النطاق.","warn");return}
+  const w=window.open("","_blank");if(!w){toast("اسمح بمعاينة التقرير","warn");return}
+  const s={id:++sequence,w,revision,closed:false,stale:false,capture:null,options:freeze(opts()),calm:document.documentElement.getAttribute("data-look")==="kosif"&&document.documentElement.getAttribute("data-theme")==="light"};active=s;
+  s.identityText=model().canonical(identity);s.identity=freeze({...identity,date:new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"})});
+  const guard={identity:s.identity,checkSync:()=>sync(s),check:()=>fresh(s),onClose:()=>{s.closed=true;if(active===s)active=null}};
+  w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>جارٍ التقاط المسودة</title></head><body><p>جارٍ التحقق من نطاق الشركة والدفاتر…</p></body></html>');w.document.close();
+  if(!SK.output.guard(w,guard)){close(s);return}
   try{
-    const s=snapshot(),tr=await SKosifMetrics.trend(o.range),has=k=>o.sections.includes(k),org=SK.org(),pr=window.SKosifTopbar?SKosifTopbar.profile():{name:""};
-    const cd=load("skosif_companies_v1",{})||{},cs=cd.companies||[],co=cs.find(c=>c.id===(cd.active||{}).companyId)||cs[0];
-    const period=tr.tip.length?tr.tip[0]+" – "+tr.tip[tr.tip.length-1]:"";
-    const S=tr.s.reduce((a,b)=>a+b,0),P=tr.p.reduce((a,b)=>a+b,0),O=tr.o.reduce((a,b)=>a+b,0),N=S-P-O;
+    const captured=await source().capture();if(!current(s))return;
+    if(!captured.ok)throw new Error("CAPTURE_UNAVAILABLE");s.capture=captured;
+    if(captured.input.context.entityName!==s.identity.name||!await fresh(s))throw new Error("CAPTURE_STALE");
+    const built=model().build(captured.input);if(!built.ok)throw new Error("LEDGER_UNAVAILABLE");
+    const content=body(s,built);if(!sync(s))throw new Error("CAPTURE_STALE");
     const base=location.href.replace(/[^/?#]*([?#].*)?$/,"");
-    const calm=document.documentElement.getAttribute("data-look")==="kosif"&&document.documentElement.getAttribute("data-theme")==="light";
-    let b='<div class="rp-cover"><div class="en">EXECUTIVE REPORT</div><h1>التقرير التنفيذي</h1><p>'+esc(co?co.name:(org.biz||"أغنام الوادي"))+'</p>'+
-      '<div class="meta"><span>الفترة</span><b>'+esc(period||"—")+'</b><span>أعدّه</span><b>'+esc(pr.name||org.preparer||"—")+'</b><span>تاريخ الإصدار</span><b>'+esc(new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"}))+'</b>'+(calm?'<span>العملة</span><b>ريال سعودي (ر.س)</b>':'')+'</div><div class="sky"></div></div>';
-    if(has("summary"))b+='<section><h2>الملخص التنفيذي</h2><div class="rp-k">'+
-      [["المبيعات",M(S)],["المشتريات والمصروفات",M(P+O)],["صافي التدفق",(N<0?"−":"")+M(Math.abs(N)),N<0?"bad":"ok"],["هامش التدفق",S?nf.format(N/S*100)+"٪":"—"],
-       ["متوسط هامش البوكسات",s.avg!=null?nf.format(s.avg)+"٪":"—",s.avg!=null&&s.avg<s.tgt?"bad":"ok"],["بوكسات بخسارة",nf.format(s.st.boxLoss),s.st.boxLoss?"bad":""],["المهام المنجزة",s.tasks.length?nf.format(s.done/s.tasks.length*100)+"٪":"—"],["مخاطر مرتفعة مفتوحة",nf.format(s.high.length),s.high.length?"bad":"ok"]]
-      .map(([l,v,c])=>'<div><span>'+l+'</span><b class="'+(c||"")+'">'+(calm?numericValue(v):esc(v))+'</b></div>').join("")+'</div></section>';
-    if(has("books"))b+=booksHTML(calm);
-    if(has("trend"))b+='<section><h2>اتجاهات المبيعات والمشتريات</h2>'+SKCharts.bars({width:700,labels:tr.labels,tipLabels:tr.tip,series:[{name:"المبيعات",color:"var(--sk-c1)",values:tr.s},{name:"المشتريات والمصروفات",color:"var(--sk-c2)",values:tr.p.map((v,i)=>v+tr.o[i])}],line:{name:"صافي التدفق",color:"var(--sk-c3)",values:tr.net},height:230})+
-      '<table class="rp-table rp-trend"><thead><tr><th scope="col">الشهر</th><th scope="col">المبيعات</th><th scope="col">المشتريات</th><th scope="col">المصروفات</th><th scope="col">الصافي</th></tr></thead><tbody>'+tr.tip.map((m,i)=>'<tr><td>'+esc(m)+'</td><td class="rp-n">'+M(tr.s[i])+'</td><td class="rp-n">'+M(tr.p[i])+'</td><td class="rp-n">'+M(tr.o[i])+'</td><td class="rp-n">'+(tr.net[i]<0?"−":"")+M(Math.abs(tr.net[i]))+'</td></tr>').join("")+
-      '<tr class="rp-total"><td><b>الإجمالي</b></td><td class="rp-n"><b>'+M(S)+'</b></td><td class="rp-n"><b>'+M(P)+'</b></td><td class="rp-n"><b>'+M(O)+'</b></td><td class="rp-n"><b>'+(N<0?"−":"")+M(Math.abs(N))+'</b></td></tr></tbody></table><p class="note">المصدر: المبيعات المستوردة، شحنات الموردين، والمصروفات التشغيلية الشهرية المسجلة.</p></section>';
-    if(has("sales"))b+=await salesHTML(o,calm);
-    if(has("risks")){const grid=[[0,0,0],[0,0,0],[0,0,0]];s.open.forEach(r=>{grid[(+r.impact||1)-1][(+r.likelihood||1)-1]++});
-      const top=s.open.slice().sort((a,c)=>score(c)-score(a)).slice(0,10);
-      b+='<section><h2>المخاطر</h2>'+(s.open.length?'<div class="two">'+SKCharts.heatmap(grid)+'<table class="rp-table rp-risks"><thead><tr><th scope="col">الرمز</th><th scope="col">الخطر</th><th scope="col">الفئة</th><th scope="col">الدرجة</th><th scope="col">المسؤول</th><th scope="col">الموعد</th></tr></thead><tbody>'+top.map(r=>'<tr><td>'+esc(r.ref||"")+'</td><td><b>'+esc(r.title)+'</b>'+(r.response?'<br><small>'+esc(r.response)+'</small>':'')+'</td><td>'+esc(r.category||"")+'</td><td class="rp-n">'+score(r)+'</td><td>'+esc(r.owner||"")+'</td><td>'+esc(r.due||"")+'</td></tr>').join("")+'</tbody></table></div>':'<p class="note">لا مخاطر مفتوحة في السجل.</p>')+'</section>'}
-    if(has("findings"))b+='<section><h2>الملاحظات المفتوحة</h2>'+(s.findings.length?'<table class="rp-table rp-findings"><thead><tr><th scope="col">الرقم</th><th scope="col">الملاحظة</th><th scope="col">المجال</th><th scope="col">الأثر</th><th scope="col">المسؤول</th></tr></thead><tbody>'+s.findings.slice().sort((a,c)=>({high:0,medium:1,low:2}[a.severity]-{high:0,medium:1,low:2}[c.severity])).map(f=>'<tr><td>'+esc(f.ref||"")+'</td><td><b>'+esc(f.title)+'</b>'+(f.detail?'<br><small>'+esc(f.detail)+'</small>':'')+'</td><td>'+esc(f.area||"")+'</td><td><span class="sev '+esc(f.severity||"medium")+'">'+({high:"عالي",medium:"متوسطة",low:"منخفض"}[f.severity]||"متوسطة")+'</span></td><td>'+esc(f.owner||"")+'</td></tr>').join("")+'</tbody></table>':'<p class="note">لا ملاحظات مفتوحة.</p>')+'</section>';
-    if(has("decisions")){const d=SKosifMetrics.decisions().slice(0,10);b+='<section><h2>ما يحتاج قراراً</h2>'+(d.length?'<table class="rp-table rp-decisions"><thead><tr><th scope="col">الأولوية</th><th scope="col">البند</th><th scope="col">التفاصيل</th></tr></thead><tbody>'+d.map(x=>'<tr><td><span class="sev '+(x.sev==="critical"?"high":x.sev==="warn"?"medium":"low")+'">'+(x.sev==="critical"?"عالية":x.sev==="warn"?"متوسطة":"منخفضة")+'</span></td><td><b>'+esc(x.title)+'</b></td><td>'+esc(x.detail||"")+'</td></tr>').join("")+'</tbody></table>':'<p class="note">لا شيء يحتاج قراراً — كل المؤشرات ضمن الحدود.</p>')+'</section>'}
-    if(has("tasks"))b+='<section><h2>حالة المهام</h2><div class="rp-k"><div><span>إجمالي المهام</span><b>'+s.tasks.length+'</b></div><div><span>منجزة</span><b class="ok">'+s.done+'</b></div><div><span>مفتوحة</span><b>'+(s.tasks.length-s.done-s.late.length)+'</b></div><div><span>متأخرة</span><b class="'+(s.late.length?"bad":"")+'">'+s.late.length+'</b></div></div>'+
-      (s.late.length?'<table class="rp-table rp-tasks" style="margin-top:8px"><thead><tr><th scope="col">المهمة المتأخرة</th><th scope="col">الاستحقاق</th><th scope="col">الأولوية</th></tr></thead><tbody>'+s.late.map(t=>'<tr><td>'+esc(t.title)+'</td><td>'+esc(t.due)+'</td><td>'+(t.priority==="high"?"عالية":"عادية")+'</td></tr>').join("")+'</tbody></table>':'')+'</section>';
-    if(has("signoff"))b+='<section><h2>الاعتماد والتوقيع</h2><div class="sign"><div><span>أعدّه</span><b>'+esc(pr.name||org.preparer||" ")+'</b><i>التوقيع والتاريخ</i></div><div><span>راجعه</span><b>'+esc(o.reviewer||" ")+'</b><i>التوقيع والتاريخ</i></div><div><span>اعتمده</span><b>'+esc(o.approver||" ")+'</b><i>التوقيع والتاريخ</i></div></div></section>';
-    w.document.open();w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>التقرير التنفيذي</title></head><body>'+b+'</body></html>');w.document.close();
-    SK.brandPrint(w,"التقرير التنفيذي");
-    if(calm){w.document.body.classList.add("rp-paper");const mark=w.document.querySelector(".skp-band img");if(mark)mark.src=base+"art/sqc-mark-dark.svg";}
-    const st=w.document.createElement("style");st.textContent=PACK_CSS.replace("ART",base+"art/kosif-sky.svg")+(calm?CALM_PACK_CSS:"");w.document.head.appendChild(st);
-    SK.audit&&SK.audit.log("report",{act:"executive-pack"});
-    setTimeout(()=>{try{w.focus();w.print()}catch{}},700);
-  }catch(e){try{w.close()}catch{}SK.errors.report(e,"report-pack")}
+    w.document.open();w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>مسودة تنفيذية محدودة — '+esc(s.identity.name)+'</title><meta name="sqc-company" content="'+esc(captured.input.context.entityId)+'"><meta name="sqc-period" content="'+esc(captured.input.context.start+"/"+captured.input.context.end)+'"><meta name="sqc-source-sha256" content="'+esc(captured.inputHash)+'"></head><body>'+content+'</body></html>');w.document.close();
+    SK.brandPrint(w,"مسودة تنفيذية محدودة",s.identity);
+    if(s.calm){w.document.body.classList.add("rp-paper");const mark=w.document.querySelector(".skp-band img");if(mark)mark.src=base+"art/sqc-mark-dark.svg"}
+    const st=w.document.createElement("style");st.textContent=PACK_CSS.replace("ART",base+"art/kosif-sky.svg")+(s.calm?CALM_PACK_CSS:"");w.document.head.appendChild(st);
+    /* document.open clears event listeners: the output guard is installed only after final close/branding. */
+    if(!SK.output.guard(w,guard)){close(s);return}
+    if(!sync(s)){SK.output.invalidate(w);return}
+    SK.audit?.log("report",{act:"executive-pack-limited"});
+  }catch{if(current(s)){toast("تعذر إنشاء المسودة: تحقق من الشركة والفترة والعملة وسلامة الدفاتر، ثم أعد الالتقاط.","warn");close(s)}}
+  finally{if((s.stale||s.closed||active!==s)&&!w.closed)close(s)}
 }
-window.SKosifReportPack=Object.freeze({html,bind,print:()=>print()});
+window.SKosifReportPack=Object.freeze({html,bind,print});
 })();

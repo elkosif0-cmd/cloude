@@ -37,7 +37,7 @@ function sibling(step){
 }
 
 /* ---------- the help sheet ---------- */
-let sheet=null,prevFocus=null;
+let sheet=null,releaseFocus=null,top=true;
 const k=(...keys)=>'<span>'+keys.map(x=>'<kbd>'+esc(x)+'</kbd>').join("")+'</span>';
 function sheetHTML(){
   const d=SK.device||{mod:"Ctrl",apple:false,os:""},M=d.mod,alt=d.apple?"⌥":"Alt";
@@ -57,20 +57,20 @@ function sheetHTML(){
     '</section></div></div>';
 }
 function help(){
-  if(sheet){close();return}
-  prevFocus=document.activeElement;
+  if(sheet){if(top)close();return}
+  const opener=document.activeElement;
   sheet=document.createElement("div");sheet.className="skk-wrap";sheet.innerHTML=sheetHTML();
   sheet.addEventListener("click",e=>{if(e.target===sheet||e.target.closest("[data-skk-close]"))close()});
-  document.body.appendChild(sheet);sheet.querySelector("[data-skk-close]").focus();
+  document.body.appendChild(sheet);releaseFocus=SK.modalFocus(sheet.querySelector(".skk"),opener,{onTopChange:value=>{top=value}});sheet.querySelector("[data-skk-close]").focus();
 }
-function close(){if(!sheet)return;sheet.remove();sheet=null;try{prevFocus&&prevFocus.focus()}catch{}}
+function close(){if(!sheet)return;sheet.remove();sheet=null;const release=releaseFocus;releaseFocus=null;release?.()}
 
 /* ---------- key handling ---------- */
 let gAt=0;
 document.addEventListener("keydown",e=>{
   if(e.defaultPrevented||!core())return;
   const code=e.code||"",mod=e.ctrlKey||e.metaKey;
-  if(sheet){if(e.key==="Escape"){e.preventDefault();e.stopPropagation();close()}return}
+  if(sheet){if(top&&e.key==="Escape"){e.preventDefault();e.stopImmediatePropagation();close()}return}
   if(mod&&!e.altKey&&!e.shiftKey&&code==="KeyB"&&!(e.target&&e.target.isContentEditable)){if(innerWidth>900&&window.SKosifShell){e.preventDefault();SKosifShell.toggleRail()}return}
   if(mod&&!e.altKey&&e.shiftKey&&code==="KeyL"&&!typing(e.target)){if(window.SKosifShell){e.preventDefault();SKosifShell.toggleAppearance()}return}
   if(mod||typing(e.target)||busy())return;
