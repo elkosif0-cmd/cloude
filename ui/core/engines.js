@@ -1265,7 +1265,8 @@ window.SKEngines = (function() {
 		return marked ? {
 			...result,
 			sourceKind: "published-statements",
-			sourceId: marked.slice(SOURCE_MARKER$1.length).trim()
+			sourceId: marked.slice(SOURCE_MARKER$1.length).trim(),
+			sourceTransport: text
 		} : result;
 	}
 	/** Build a trial balance from rows the app already has (the ledger engine, the audit bridge). */
@@ -4794,8 +4795,8 @@ window.SKEngines = (function() {
 		R$1("ubs-2025", "UBS Group AG", "CH", "banking", "IFRS", "PCAOB", "Ernst & Young Ltd", void 0, "FY2025", "Annual report", 2818, 3184),
 		R$1("allianz-2025", "Allianz SE", "DE", "insurance", "IFRS", "ISA", "PricewaterhouseCoopers GmbH", void 0, "FY2025", "Annual report (extract)", 3185, 3240),
 		R$1("mercedes-2025", "Mercedes-Benz Group AG", "DE", "auto", "IFRS", "ISA", "PricewaterhouseCoopers GmbH", void 0, "FY2025", "Annual report", 3241, 3649),
-		R$1("volkswagen-2025", "Volkswagen Group", "DE", "auto", "IFRS", "ISA", "EY GmbH", void 0, "FY2025", "Annual report", 3650, 4323),
-		R$1("telekom-2025", "Deutsche Telekom AG", "DE", "telecom", "IFRS", "ISA", "Deloitte GmbH", void 0, "FY2025", "Annual report", 4324, 4704),
+		R$1("volkswagen-2025", "Volkswagen Group", "DE", "auto", "IFRS", "ISA", "EY GmbH", void 0, "FY2025", "Annual report", 3650, 4322),
+		R$1("telekom-2025", "Deutsche Telekom AG", "DE", "telecom", "IFRS", "ISA", "Deloitte GmbH", void 0, "FY2025", "Annual report", 4323, 4704),
 		R$1("bp-2025", "BP p.l.c.", "UK", "energy", "IFRS", "ISA", "Deloitte LLP", void 0, "FY2025", "Annual report and Form 20-F", 4705, 5101),
 		R$1("unilever-2025", "Unilever PLC", "UK", "fmcg", "IFRS", "ISA", "KPMG LLP", 2014, "FY2025", "Annual report", 5102, 5385),
 		R$1("astrazeneca-2025", "AstraZeneca PLC", "UK", "pharma", "IFRS", "ISA", "PricewaterhouseCoopers LLP", void 0, "FY2025", "Annual report and Form 20-F", 5386, 5698),
@@ -11090,7 +11091,7 @@ window.SKEngines = (function() {
 			fy: "FY2025",
 			fw: "IFRS",
 			from: 3650,
-			to: 4323,
+			to: 4322,
 			s: "highlights:3651 kpis:3652 sustainability:3652 governance:3652 remuneration:3652 intangibles_note:3657 related_parties:3675 people:3676 risk_management:3681 provisions_note:3695 employee_benefits:3710 mdna:3722 outlook:3722 market:3739 shareholder_info:3756 tax_note:3767 cash_flow:3770 balance_sheet:3774 ppe_note:3778 strategy:3829 fin_instruments:3853 credit_risk:3855 business_model:3876 eps:3877 dividends:3877 leases_note:3990 income_statement:4111 segment_note:4111 equity_statement:4117 market_risk:4170 liquidity_risk:4189 capital_banking:4235 subsequent_events:4250 directors_resp:4293 auditor_report:4294 kam:4299"
 		},
 		{
@@ -11098,7 +11099,7 @@ window.SKEngines = (function() {
 			c: "Deutsche Telekom AG",
 			fy: "FY2025",
 			fw: "IFRS",
-			from: 4324,
+			from: 4323,
 			to: 4704,
 			s: "chair_letter:4324 highlights:4324 mdna:4324 sustainability:4331 governance:4331 kpis:4332 remuneration:4338 balance_sheet:4363 strategy:4365 segment_note:4365 business_model:4371 eps:4378 ppe_note:4380 intangibles_note:4380 leases_note:4380 dividends:4390 notes:4394 tax_note:4399 cash_flow:4400 outlook:4405 segment_review:4418 people:4426 risk_management:4430 principal_risks:4450 provisions_note:4472 market:4508 fin_instruments:4528 credit_risk:4528 liquidity_risk:4528 market_risk:4528 accounting_policies:4549 income_statement:4550 employee_benefits:4553 revenue_note:4579 subsequent_events:4682 directors_resp:4684 kam:4686 going_concern:4688"
 		},
@@ -22007,10 +22008,10 @@ window.SKEngines = (function() {
 			id: "statements",
 			label: "ميزان المراجعة ← القوائم المالية",
 			status: !fs.checks.balanced ? "fail" : unmapped.length ? "warn" : "ok",
-			detail: !fs.checks.balanced ? "قائمة المركز المالي غير متوازنة بفرق " + fs.checks.difference / 100 : unmapped.length ? "حسابات بلا بند في القوائم: " + unmapped.map((u) => u.code + " " + u.name).join("، ") : "كل حساب له بند، والمركز المالي متوازن",
+			detail: !fs.checks.balanced ? "قائمة المركز المالي غير متوازنة بفرق " + (fs.checks.difference ?? 0) / 100 : unmapped.length ? "حسابات بلا بند في القوائم: " + unmapped.map((u) => u.code + " " + u.name).join("، ") : "كل حساب له بند، والمركز المالي متوازن",
 			figures: {
 				mappedPct: fs.checks.mappedPct,
-				difference: fs.checks.difference
+				difference: fs.checks.difference ?? 0
 			}
 		});
 		let rev = 0, exp = 0, assets = 0;
