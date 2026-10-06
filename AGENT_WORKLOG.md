@@ -353,3 +353,12 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Branch / PR: `claude/health-vat-20261006` from `main` @ ef5c967.
 - Evidence: engines 475/475; node 726 pass / 54 fail (= `main`'s 52 + 2 Windows-only header tests); health incl. VAT OK; door 94/94; meat, books OK; advances 26/26; sales 28/28; feature_audit 146/146 — all first attempt.
 - NEXT ACTION: owner approval to merge; then zero-rated/state-borne boxes on the VAT return; then deepen hospitality/construction/digital.
+
+### TASK CLAUDE-20261006-013 — VAT return: the health visits in boxes 2, 3 and 5
+- Agent: Claude (Lead Development Agent)
+- Status: ACTIVE
+- Goal: close CLAUDE-20261006-012's open item — zero-rated / state-borne / exempt visits laid out on the return.
+- Source (web, 2026-10-06): the ZATCA VAT return sales section — 1 standard-rated sales, 2 private healthcare / private education / first house sales to citizens, 3 zero-rated domestic sales, 4 exports, 5 exempt sales (Zoho, Tally, Wafeq guides).
+- Scope: `finance/insurance-claims-engine.ts` `healthSalesBoxes(entries, start, end)` (+test); `ui/features/ledger.js` VAT return rows 2 / 3 / 5 when they carry an amount (box 2 has no VAT column: the state bears it); `tools/health_pack_e2e.mjs` (box 2 = 920, box 1 = 200 / 30).
+- Branch / PR: `claude/vat-return-boxes-20261006` from `main` @ f1d7106.
+- NEXT ACTION: suites, PR, owner approval to merge.
