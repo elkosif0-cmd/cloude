@@ -811,6 +811,15 @@ function routeLanes(task){
 function toolKey(v){ return text(v,180).toLowerCase().replace(/[_\-./]+/g," ").replace(/[^\p{L}\p{N} ]+/gu," ").replace(/\s+/g," ").trim(); }
 function boolOrNull(v){ return typeof v==="boolean"?v:null; }
 function clampTrust(v){ const n=Number(v); return Number.isFinite(n)?Math.max(0,Math.min(1,n)):null; }
+function wilsonLowerBound(rate,n,z=1.96){
+  const p=Math.max(0,Math.min(1,Number(rate)||0)),N=Math.max(0,Math.floor(Number(n)||0));
+  if(!N) return null;
+  const z2=z*z,den=1+z2/N;
+  const center=p+z2/(2*N);
+  const margin=z*Math.sqrt((p*(1-p)+z2/(4*N))/N);
+  return Math.max(0,Math.min(1,(center-margin)/den));
+}
+
 function fnv1a(v){ let h=0x811c9dc5; const x=String(v); for(let i=0;i<x.length;i++){h^=x.charCodeAt(i);h=Math.imul(h,0x01000193);} return (h>>>0).toString(16).padStart(8,"0"); }
 function normalizeAvailableTools(v){
   if(!Array.isArray(v)) return new Map();
@@ -1841,6 +1850,84 @@ function aggregateCouncilTool(args){
 }
 
 
+function calibrationReportTool(args){
+  const rows=Array.isArray(args?.observations)?args.observations.slice(0,5000):[];
+  if(!rows.length) throw new Error("OBSERVATIONS_REQUIRED");
+  const highThreshold=Math.max(0.5,Math.min(1,Number(args?.highConfidenceThreshold ?? 0.95)));
+  const bins=Math.max(5,Math.min(20,Math.floor(Number(args?.bins)||10)));
+  const clean=rows.map((x,i)=>{
+    const probability=Math.max(0,Math.min(1,Number(x?.jevProbability)));
+    const outcome=x?.success===true?1:x?.success===false?0:null;
+    const support=Number.isFinite(Number(x?.supportIndex))?Math.max(0,Math.min(1,Number(x.supportIndex))):null;
+    const deterministic=Number.isFinite(Number(x?.deterministicScore))?Math.max(0,Math.min(1,Number(x.deterministicScore))):null;
+    return {
+      id:text(x?.id||`obs_${i+1}`,120),toolId:text(x?.toolId,180),probability,outcome,support,deterministic,
+      executed:x?.executed!==false,riskClass:text(x?.riskClass||"unspecified",80)
+    };
+  }).filter(x=>x.outcome!==null&&Number.isFinite(x.probability));
+
+  if(!clean.length) throw new Error("VALID_OBSERVATIONS_REQUIRED");
+  const n=clean.length;
+  const brier=clean.reduce((s,x)=>s+Math.pow(x.probability-x.outcome,2),0)/n;
+  const bucketRows=[];
+  let ece=0;
+  for(let i=0;i<bins;i++){
+    const lo=i/bins,hi=(i+1)/bins;
+    const xs=clean.filter(x=>x.probability>=lo&&(i===bins-1?x.probability<=hi:x.probability<hi));
+    if(!xs.length) continue;
+    const meanProbability=xs.reduce((s,x)=>s+x.probability,0)/xs.length;
+    const successRate=xs.reduce((s,x)=>s+x.outcome,0)/xs.length;
+    const gap=Math.abs(meanProbability-successRate);
+    ece+=(xs.length/n)*gap;
+    bucketRows.push({
+      lower:Number(lo.toFixed(2)),upper:Number(hi.toFixed(2)),count:xs.length,
+      meanProbability:Number(meanProbability.toFixed(4)),empiricalSuccessRate:Number(successRate.toFixed(4)),
+      calibrationGap:Number(gap.toFixed(4))
+    });
+  }
+  const high=clean.filter(x=>x.probability>=highThreshold);
+  const highFailures=high.filter(x=>x.outcome===0);
+  const executed=clean.filter(x=>x.executed);
+  const supportRows=clean.filter(x=>x.support!=null);
+  const falseConfidence=highFailures.slice(0,50).map(x=>({id:x.id,toolId:x.toolId,jevProbability:x.probability,supportIndex:x.support,riskClass:x.riskClass}));
+  const byTool={};
+  for(const x of clean){
+    const k=x.toolId||"unknown";
+    byTool[k]=byTool[k]||{n:0,successes:0,highN:0,highFailures:0};
+    byTool[k].n++; byTool[k].successes+=x.outcome;
+    if(x.probability>=highThreshold){byTool[k].highN++; if(!x.outcome)byTool[k].highFailures++;}
+  }
+  const toolRows=Object.entries(byTool).map(([toolId,v])=>({
+    toolId,count:v.n,empiricalSuccessRate:Number((v.successes/v.n).toFixed(4)),
+    wilson95LowerBound:Number((wilsonLowerBound(v.successes/v.n,v.n)||0).toFixed(4)),
+    highConfidenceCount:v.highN,highConfidenceFailures:v.highFailures
+  })).sort((a,b)=>b.count-a.count||a.toolId.localeCompare(b.toolId));
+
+  return {
+    version:VERSION,mode:"empirical_calibration_report",observations:n,
+    metrics:{
+      brierScore:Number(brier.toFixed(5)),
+      expectedCalibrationError:Number(ece.toFixed(5)),
+      highConfidenceThreshold:highThreshold,
+      highConfidenceCount:high.length,
+      highConfidenceEmpiricalSuccessRate:high.length?Number(((high.length-highFailures.length)/high.length).toFixed(4)):null,
+      highConfidenceFailures:highFailures.length,
+      executedCount:executed.length,
+      executedEmpiricalSuccessRate:executed.length?Number((executed.reduce((s,x)=>s+x.outcome,0)/executed.length).toFixed(4)):null,
+      supportIndexCoverage:supportRows.length
+    },
+    reliabilityBins:bucketRows,
+    tools:toolRows.slice(0,100),
+    falseConfidenceCases:falseConfidence,
+    interpretation:{
+      jevProbability:"Brier score and ECE evaluate Jev probability against observed binary outcomes.",
+      supportIndex:"supportIndex is not treated as a probability and is not included in Brier/ECE.",
+      thresholdRule:"Do not lower operational gates from this report alone. Require enough representative outcomes, inspect false-confidence cases, and segment by risk/task family before changing thresholds.",
+      dataQuality:n<100?"LOW_SAMPLE_SIZE":"review representativeness and outcome labeling"
+    }
+  };
+}
+
 function verifyEvidenceTool(args){
   const goal=text(args?.goal,12000);
   const claims=Array.isArray(args?.claims)?args.claims:[];
@@ -2146,6 +2233,11 @@ const TOOLS=[
     }
   },
   {
+    name:"kosif_calibration_report",
+    description:"Measure empirical calibration of observed Jev probabilities against binary outcomes. Returns Brier score, expected calibration error, reliability bins, Wilson lower bounds by tool, and false-confidence cases. It never changes gates automatically.",
+    inputSchema:{type:"object",properties:{observations:{type:"array",minItems:1,maxItems:5000,items:{type:"object",properties:{id:{type:"string"},toolId:{type:"string"},jevProbability:{type:"number",minimum:0,maximum:1},success:{type:"boolean"},supportIndex:{type:"number",minimum:0,maximum:1},deterministicScore:{type:"number",minimum:0,maximum:1},executed:{type:"boolean"},riskClass:{type:"string"}},required:["jevProbability","success"],additionalProperties:false}},highConfidenceThreshold:{type:"number",minimum:0.5,maximum:1},bins:{type:"integer",minimum:5,maximum:20}},required:["observations"],additionalProperties:false}
+  },
+  {
     name:"kosif_route",
     description:"Plan host-side tool/plugin usage after KOSIF reasoning. This Worker does not call host plugins directly. The host passes connected tools and cost classes; free, included, or existing-plan tools may be used automatically, while mixed/credit/paid/unknown-cost tools require explicit user approval.",
     inputSchema:{
@@ -2445,6 +2537,7 @@ async function callTool(env,name,args,ctx={}){
     }
   }
   if(name==="kosif_think") return finalizeTool(name,started,await runThink(env,args),false);
+  if(name==="kosif_calibration_report") return finalizeTool(name,started,calibrationReportTool(args),false);
   if(name==="kosif_route") return finalizeTool(name,started,routeTool(env,args),false);
   if(name==="kosif_think_status") {
     const frontierConfigured=typeof env.AI?.run==="function" && String(env.THINK_FRONTIER_ENABLED||"true").toLowerCase()!=="false";
