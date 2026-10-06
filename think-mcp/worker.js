@@ -1,4 +1,4 @@
-const VERSION = "0.18.7";
+const VERSION = "0.18.6";
 const REVISION_CLOSURE_VERSION = "revision-closure-v1";
 const AUTH_POLICY_VERSION = "public-broker-oauth-v2";
 const COGNITIVE_GOVERNANCE_VERSION = "attachments-governance-v1";
@@ -2487,8 +2487,8 @@ async function callTool(env,name,args,ctx={}){
   return null;
 }
 
-const VERSIONED_MCP_PATH = "/mcp/v0.18.7";
-const COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.18.6";
+const VERSIONED_MCP_PATH = "/mcp/v0.18.6";
+const COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.18.5";
 const SECONDARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.18.5";
 const TERTIARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.18.4";
 const LEGACY_VERSIONED_MCP_PATH = "/mcp/v0.9.3";
