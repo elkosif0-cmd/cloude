@@ -51,7 +51,7 @@ export const SECTOR_PACKS: Readonly<Record<string, SectorPack>> = Object.freeze(
     tools: ['purchasing', 'inventory'], kpis: ['نسبة رفض المطالبات', 'تكلفة الحالة', 'إيراد السرير', 'أعمار ذمم الجهات'],
   }),
   hospitality: pack({
-    id: 'hospitality', depth: 'base',
+    id: 'hospitality', depth: 'deep',
     accounts: [['2300', 'ودائع ودفعات الحجوزات المقدمة', 'liability'], ['2160', 'عمولات قنوات الحجز المستحقة', 'liability'], ['4050', 'إيرادات الغرف', 'revenue'], ['4060', 'إيرادات الأغذية والمشروبات', 'revenue'], ['5120', 'عمولات قنوات الحجز', 'expense']],
     costCenters: ['الغرف', 'الأغذية والمشروبات', 'التدبير الفندقي', 'الصيانة', 'الاستقبال'],
     units: ['ليلة', 'غرفة', 'وجبة'], warehouses: ['مخزن الأغذية', 'مخزن التدبير الفندقي'], tools: ['purchasing', 'inventory'],

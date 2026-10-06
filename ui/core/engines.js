@@ -7545,7 +7545,7 @@ window.SKEngines = (function() {
 			"8) اكتب بالعربية الفصحى المهنية الموجزة. لا تضع أي بيانات خارج مخطط JSON."
 		].join("\n");
 	}
-	var sar$3 = (m) => formatMinor(m, { decimals: 0 });
+	var sar$4 = (m) => formatMinor(m, { decimals: 0 });
 	/** The trial balance and the engine's review, compact enough for one prompt. */
 	function describeReview(tb, review) {
 		const rows = review.accounts.map((a) => [
@@ -7553,21 +7553,21 @@ window.SKEngines = (function() {
 			a.name,
 			TYPE_LABELS[a.type],
 			a.lineAr,
-			sar$3(a.natural),
-			a.prior === null ? "" : sar$3(a.prior),
+			sar$4(a.natural),
+			a.prior === null ? "" : sar$4(a.prior),
 			a.standards.map((s) => s.code).join("+")
 		].join(" | "));
 		const m = review.materiality, k = review.fs.keys;
 		return [
 			"ميزان المراجعة (رقم | اسم | نوع | بند القوائم | الرصيد بطبيعته | السابق | المعايير المقترحة):",
 			...rows,
-			`التوازن: ${tb.balanced ? "متوازن" : "غير متوازن بفرق " + sar$3(tb.difference)}.`,
-			`الأهمية النسبية: ${sar$3(m.overall)} (${m.benchmarkAr} × ${m.rate * 100}%) — التنفيذية ${sar$3(m.performance)} — حد التفاهة ${sar$3(m.trivial)}.`,
-			`الإيرادات ${sar$3(k.revenue.current)} · الربح التشغيلي ${sar$3(k.operating.current)} · صافي الربح ${sar$3(k.profit.current)} · الموجودات ${sar$3(k.assets.current)} · حقوق الملكية ${sar$3(k.equity.current)}.`,
+			`التوازن: ${tb.balanced ? "متوازن" : "غير متوازن بفرق " + sar$4(tb.difference)}.`,
+			`الأهمية النسبية: ${sar$4(m.overall)} (${m.benchmarkAr} × ${m.rate * 100}%) — التنفيذية ${sar$4(m.performance)} — حد التفاهة ${sar$4(m.trivial)}.`,
+			`الإيرادات ${sar$4(k.revenue.current)} · الربح التشغيلي ${sar$4(k.operating.current)} · صافي الربح ${sar$4(k.profit.current)} · الموجودات ${sar$4(k.assets.current)} · حقوق الملكية ${sar$4(k.equity.current)}.`,
 			"ملاحظات المحرك الآلي (أكدها أو فندها):",
 			...review.findings.map((f) => `${f.id} [${f.severity}] ${f.title} — ${f.basis} — ${f.standard}`),
 			"قيود المحرك المقترحة:",
-			...review.adjustments.map((a) => `${a.id} ${a.title}: ` + a.lines.map((l) => `${l.code} ${l.name} م${sar$3(l.debit)} د${sar$3(l.credit)}`).join("؛ "))
+			...review.adjustments.map((a) => `${a.id} ${a.title}: ` + a.lines.map((l) => `${l.code} ${l.name} م${sar$4(l.debit)} د${sar$4(l.credit)}`).join("؛ "))
 		].join("\n");
 	}
 	/** Outstanding requests: asked in any round, not yet accepted, not marked unavailable. */
@@ -7664,7 +7664,7 @@ window.SKEngines = (function() {
 			round
 		};
 		const v = validateAdjustment(a, tb);
-		const problems = [...v.problems, ...v.balanced ? [] : [`القيد غير متوازن: مدين ${sar$3(v.debit)} ودائن ${sar$3(v.credit)}`]];
+		const problems = [...v.problems, ...v.balanced ? [] : [`القيد غير متوازن: مدين ${sar$4(v.debit)} ودائن ${sar$4(v.credit)}`]];
 		return {
 			...a,
 			valid: v.valid,
@@ -7710,7 +7710,7 @@ window.SKEngines = (function() {
 				standard: normalizeCode$1(std) ?? (std || "IAS 1"),
 				title: str$1(f.comment, 160).split(/[.،؛]/)[0] || "ملاحظة",
 				detail: str$1(f.comment, 2e3),
-				basis: amount ? "المبلغ المتأثر " + sar$3(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
+				basis: amount ? "المبلغ المتأثر " + sar$4(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
 				action: str$1(f.recommendation, 1e3),
 				source: "gemini",
 				round: no,
@@ -7943,7 +7943,7 @@ window.SKEngines = (function() {
 		const lineOf = (q) => q.lineKey ?? review.accounts.find((a) => q.accounts.includes(a.code))?.lineKey ?? null;
 		const blockedSig = new Set(unavailHigh.map(lineOf).filter((k) => k && review.risks.some((r) => r.lineKey === k && r.significant)));
 		const basis = [], material = misstatement > mat.overall, pervasive = misstatement > mat.overall * 5, cs = s.ctx.curSym ?? (s.ctx.framework === "EAS" ? "ج.م" : "ر.س");
-		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar$3(misstatement)} ${cs} مقابل أهمية نسبية ${sar$3(mat.overall)} ${cs} (ISA 450).`);
+		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar$4(misstatement)} ${cs} مقابل أهمية نسبية ${sar$4(mat.overall)} ${cs} (ISA 450).`);
 		if (unavailHigh.length) basis.push(`تعذر الحصول على ${unavailHigh.length} مستند عالي الأولوية: ` + unavailHigh.map((q) => q.title).join("، ") + ".");
 		const scopePervasive = unavailHigh.length >= 3 || blockedSig.size >= 3;
 		if (sigUnevidenced) basis.push(`${sigUnevidenced} خطر جوهري دون دليل مقبول بعد؛ يستكمل قبل التوقيع (ISA 330).`);
@@ -18317,6 +18317,163 @@ window.SKEngines = (function() {
 		}).filter((x) => x.account);
 	}
 	//#endregion
+	//#region app/src/engine/fusion/finance/hotel-engine.ts
+	var hotel_engine_exports = /* @__PURE__ */ __exportAll({
+		depositJournal: () => depositJournal,
+		hotelKpis: () => hotelKpis,
+		nightAudit: () => nightAudit
+	});
+	var sar$3 = (h) => h / 100;
+	var int = (v) => Number.isInteger(v) && v >= 0;
+	/** a guest's deposit ahead of the stay: cash (with its VAT) against the deposits liability */
+	function depositJournal(x, vatRate, a) {
+		if (!String(x.guest || "").trim()) throw new Error("حدد الضيف أو الحجز");
+		if (!Number.isInteger(x.amountHalalas) || x.amountHalalas <= 0) throw new Error("مبلغ العربون يجب أن يكون أكبر من صفر");
+		const vat = vatRate > 0 ? Math.round(x.amountHalalas * vatRate) : 0;
+		if (vat && !a.outputVatAccountId) throw new Error("حساب ضريبة المخرجات غير موجود");
+		return {
+			vat,
+			journal: {
+				id: x.id,
+				date: x.date,
+				reference: "DEP-" + x.id,
+				memo: "عربون حجز — " + x.guest,
+				party: x.guest,
+				lines: [
+					{
+						accountId: a.cashAccountId,
+						debit: sar$3(x.amountHalalas + vat),
+						credit: 0,
+						description: "عربون " + x.guest
+					},
+					{
+						accountId: a.depositAccountId,
+						debit: 0,
+						credit: sar$3(x.amountHalalas),
+						description: "ودائع الحجوزات — " + x.guest
+					},
+					...vat ? [{
+						accountId: a.outputVatAccountId,
+						debit: 0,
+						credit: sar$3(vat),
+						description: "ضريبة العربون"
+					}] : []
+				]
+			}
+		};
+	}
+	/** one night audit line (a guest, a group or a channel's sales for the day): deposit first, VAT on the rest, then cash or receivable */
+	function nightAudit(x, vatRate, a) {
+		const guest = String(x.guest || "").trim();
+		if (!guest) throw new Error("حدد الضيف أو الحجز");
+		if (!Number.isInteger(x.roomsSold) || x.roomsSold < 0) throw new Error("عدد الغرف المباعة غير صالح");
+		if (!int(x.roomRevenueHalalas) || !int(x.fbRevenueHalalas ?? 0)) throw new Error("الإيرادات يجب أن تكون أعداداً صحيحة غير سالبة بالهللة");
+		const room = x.roomRevenueHalalas, fb = x.fbRevenueHalalas ?? 0, revenue = room + fb;
+		if (revenue <= 0) throw new Error("لا إيراد في هذه الليلة");
+		const applied = Math.min(Math.max(0, x.depositLeftHalalas ?? 0), revenue);
+		const vat = vatRate > 0 ? Math.round((revenue - applied) * vatRate) : 0;
+		if (vat && !a.outputVatAccountId) throw new Error("حساب ضريبة المخرجات غير موجود");
+		const rest = revenue - applied + vat, settle = x.settleBy === "receivable" ? a.receivableAccountId : a.cashAccountId;
+		const lines = [
+			...applied ? [{
+				accountId: a.depositAccountId,
+				debit: sar$3(applied),
+				credit: 0,
+				description: "من عربون " + guest
+			}] : [],
+			...rest ? [{
+				accountId: settle,
+				debit: sar$3(rest),
+				credit: 0,
+				description: (x.settleBy === "receivable" ? "على حساب " : "محصّل من ") + guest
+			}] : [],
+			...room ? [{
+				accountId: a.roomRevenueAccountId,
+				debit: 0,
+				credit: sar$3(room),
+				description: "إيراد الغرف — " + x.roomsSold + " غرفة"
+			}] : [],
+			...fb ? [{
+				accountId: a.fbRevenueAccountId,
+				debit: 0,
+				credit: sar$3(fb),
+				description: "الأغذية والمشروبات"
+			}] : [],
+			...vat ? [{
+				accountId: a.outputVatAccountId,
+				debit: 0,
+				credit: sar$3(vat),
+				description: "ضريبة المخرجات"
+			}] : []
+		];
+		const channel = String(x.channel || "").trim(), pct = Math.min(100, Math.max(0, Number(x.commissionPct) || 0));
+		const commission = channel && pct ? Math.round(room * pct / 100) : 0;
+		return {
+			applied,
+			vat,
+			rest,
+			commission,
+			journal: {
+				id: x.id,
+				date: x.date,
+				reference: "NA-" + x.date,
+				memo: "الإقفال الليلي " + x.date + " — " + guest + (channel ? " (" + channel + ")" : ""),
+				party: x.settleBy === "receivable" ? guest : void 0,
+				lines
+			},
+			commissionJournal: commission ? {
+				id: x.id + "-c",
+				date: x.date,
+				reference: "COM-" + x.date,
+				memo: "عمولة " + channel + " — " + x.date,
+				party: channel,
+				lines: [{
+					accountId: a.commissionExpenseAccountId,
+					debit: sar$3(commission),
+					credit: 0,
+					description: "عمولة " + pct + "٪ من إيراد الغرف"
+				}, {
+					accountId: a.commissionPayableAccountId,
+					debit: 0,
+					credit: sar$3(commission),
+					description: "مستحق " + channel
+				}]
+			} : null
+		};
+	}
+	/** occupancy, ADR and RevPAR overall and by channel */
+	function hotelKpis(nights) {
+		const avail = /* @__PURE__ */ new Map();
+		let sold = 0, rev = 0;
+		const byChannel = /* @__PURE__ */ new Map();
+		for (const n of nights) {
+			avail.set(n.date, Math.max(avail.get(n.date) ?? 0, n.roomsAvailable || 0));
+			sold += n.roomsSold || 0;
+			rev += n.roomRevenueHalalas || 0;
+			const k = String(n.channel || "مباشر").trim() || "مباشر", c = byChannel.get(k) ?? {
+				channel: k,
+				roomsSold: 0,
+				roomRevenueHalalas: 0
+			};
+			c.roomsSold += n.roomsSold || 0;
+			c.roomRevenueHalalas += n.roomRevenueHalalas || 0;
+			byChannel.set(k, c);
+		}
+		const available = [...avail.values()].reduce((s, v) => s + v, 0), r2 = (x) => Math.round(x * 100) / 100;
+		return {
+			roomsAvailable: available,
+			roomsSold: sold,
+			roomRevenueHalalas: rev,
+			occupancyPct: available ? r2(sold / available * 100) : null,
+			adrHalalas: sold ? Math.round(rev / sold) : null,
+			revparHalalas: available ? Math.round(rev / available) : null,
+			channels: [...byChannel.values()].map((c) => ({
+				...c,
+				sharePct: rev ? r2(c.roomRevenueHalalas / rev * 100) : null
+			})).sort((a, b) => b.roomRevenueHalalas - a.roomRevenueHalalas)
+		};
+	}
+	//#endregion
 	//#region app/src/engine/fusion/finance/insurance-claims-engine.ts
 	var insurance_claims_engine_exports = /* @__PURE__ */ __exportAll({
 		DEPARTMENT_ACCOUNT: () => DEPARTMENT_ACCOUNT,
@@ -25820,7 +25977,7 @@ window.SKEngines = (function() {
 		}),
 		hospitality: pack({
 			id: "hospitality",
-			depth: "base",
+			depth: "deep",
 			accounts: [
 				[
 					"2300",
@@ -26197,6 +26354,7 @@ window.SKEngines = (function() {
 			bankReconciliation: bank_reconciliation_engine_exports,
 			cashFlow: cash_flow_engine_exports,
 			entryLearner: entry_learner_engine_exports,
+			hotel: hotel_engine_exports,
 			insuranceClaims: insurance_claims_engine_exports,
 			journalChain: journal_chain_engine_exports,
 			ledger: ledger_engine_exports,

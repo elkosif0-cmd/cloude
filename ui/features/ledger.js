@@ -246,6 +246,76 @@ const CLAIM_CODES=["1100","1210","5110","4010","4020","4030","4040"],CASE_CODES=
 const halalas=v=>Math.round(Number(String(v??"").replace("٫",".").replace(/[٠-٩]/g,x=>"٠١٢٣٤٥٦٧٨٩".indexOf(x)))*100);
 function caseEvents(d){return d.entries.filter(e=>!e.reversedBy&&!e.reversalOf&&(e.visit||e.caseCost)).map(e=>e.visit?{caseRef:e.visit.caseRef,revenue:e.visit.gross}:{caseRef:e.caseCost.caseRef,fee:e.caseCost.fee,supplies:e.caseCost.supplies})}
 function claimEvents(d){return d.entries.filter(e=>e.claim&&!e.reversedBy&&!e.reversalOf).map(e=>({payer:e.claim.payer,kind:e.claim.kind,billed:e.claim.billed,paid:e.claim.paid,rejected:e.claim.rejected}))}
+/* ---------- the hospitality pack: deposits, the night audit, booking channels' commissions, occupancy / ADR / RevPAR ----------
+   (finance/hotel-engine) — shown only for a hotel. A guest's deposit left and the KPIs are read back from the entries
+   posted, so the screen and the books cannot disagree. */
+const HT=()=>E().hotel;
+const isHotel=()=>{try{return SK.company.current().sector==="hospitality"}catch{return false}};
+const HOTEL_CODES=["1100","1200","2300","2160","4050","4060","5120"];
+const hotelLive=d=>d.entries.filter(e=>e.hotel&&!e.reversedBy&&!e.reversalOf);
+function depositLeft(d,guest){let h=0;hotelLive(d).filter(e=>e.hotel.guest===guest).forEach(e=>{if(e.hotel.kind==="deposit")h+=e.hotel.amount;if(e.hotel.kind==="night")h-=e.hotel.applied||0});return h}
+function hotelAccounts(d){return{cashAccountId:byCode(d,"1100"),receivableAccountId:byCode(d,"1200"),depositAccountId:byCode(d,"2300"),roomRevenueAccountId:byCode(d,"4050"),fbRevenueAccountId:byCode(d,"4060"),outputVatAccountId:byCode(d,"2200"),commissionExpenseAccountId:byCode(d,"5120"),commissionPayableAccountId:byCode(d,"2160")}}
+function hotelHTML(d){
+  const missing=HOTEL_CODES.filter(c=>!byCode(d,c));
+  if(missing.length)return SK.ui.state.empty({title:"أكمل حسابات قطاع الفنادق",text:"الغرف والإقفال الليلي تحتاج الحسابات "+missing.join(" و")+" — أضفها من «دليل الحسابات» › «إضافة حسابات قطاع»."});
+  const t=today(),h=v=>money((v||0)/100),rooms=(d.hotel&&d.hotel.rooms)||"";
+  const nights=hotelLive(d).filter(e=>e.hotel.kind==="night"),k=HT().hotelKpis(nights.map(e=>({date:e.date,roomsAvailable:e.hotel.roomsAvailable||0,roomsSold:e.hotel.roomsSold,roomRevenueHalalas:e.hotel.room,channel:e.hotel.channel})));
+  const guests=[...new Set(hotelLive(d).filter(e=>e.hotel.kind==="deposit").map(e=>e.hotel.guest))].map(g=>({g,left:depositLeft(d,g)}));
+  const pct=v=>v==null?"—":v+"٪";
+  return '<p class="hint">العربون التزام (2300) تُحتسب ضريبته عند قبضه؛ في الإقفال الليلي يُسوّى الإيراد من العربون القائم أولاً ثم تُحتسب الضريبة على الباقي فقط ويُحصّل نقداً أو يُقيّد على حساب الضيف أو القناة. عمولة القناة نسبة من إيراد غرفها: مصروف (5120) ومستحق للقناة (2160).</p>'+
+    '<section class="card"><div class="card-h"><div><h3>مؤشرات الفندق</h3><p>من قيود الإقفال الليلي.</p></div></div><div class="card-b"><div class="sk-grid2" data-ht-kpis>'+
+      '<div><span>الغرف المتاحة (ليالٍ)</span><b data-kpi="avail">'+k.roomsAvailable+'</b></div><div><span>الغرف المباعة</span><b data-kpi="sold">'+k.roomsSold+'</b></div>'+
+      '<div><span>نسبة الإشغال</span><b data-kpi="occ">'+pct(k.occupancyPct)+'</b></div><div><span>متوسط سعر الغرفة (ADR)</span><b data-kpi="adr">'+(k.adrHalalas==null?"—":h(k.adrHalalas))+'</b></div>'+
+      '<div><span>إيراد الغرفة المتاحة (RevPAR)</span><b data-kpi="revpar">'+(k.revparHalalas==null?"—":h(k.revparHalalas))+'</b></div><div><span>إيراد الغرف</span><b>'+h(k.roomRevenueHalalas)+'</b></div></div>'+
+      (k.channels.length?'<div class="sk-table-wrap"><table class="sk-table" data-ht-channels><thead><tr><th>القناة</th><th>الغرف المباعة</th><th>إيراد الغرف</th><th>الحصة</th></tr></thead><tbody>'+
+        k.channels.map(c=>'<tr data-channel="'+esc(c.channel)+'"><td>'+esc(c.channel)+'</td><td class="n">'+c.roomsSold+'</td><td class="n">'+h(c.roomRevenueHalalas)+'</td><td class="n">'+pct(c.sharePct)+'</td></tr>').join("")+'</tbody></table></div>':'')+
+    '</div></section>'+
+    '<section class="card"><div class="card-h"><div><h3>عربون حجز</h3></div></div><div class="card-b"><div class="sk-grid2">'+
+      '<label class="sk-field"><span>الضيف أو رقم الحجز</span><input id="ht-dguest" autocomplete="off" data-sk-required></label>'+
+      '<label class="sk-field"><span>المبلغ قبل الضريبة</span><input id="ht-damt" inputmode="decimal" data-sk-required></label>'+
+      '<label class="sk-field"><span>التاريخ</span><input id="ht-ddate" type="date" value="'+t+'"></label></div>'+
+      '<div class="sk-error" id="ht-err" role="alert"></div><div class="sk-actions"><button type="button" class="btn" data-l="ht-dep">ترحيل العربون</button></div></div></section>'+
+    '<section class="card"><div class="card-h"><div><h3>الإقفال الليلي</h3></div></div><div class="card-b"><div class="sk-grid2">'+
+      '<label class="sk-field"><span>الضيف أو الحجز أو القناة</span><input id="ht-guest" list="ht-guests" autocomplete="off" data-sk-required></label>'+
+      '<label class="sk-field"><span>الغرف المتاحة في الفندق</span><input id="ht-avail" inputmode="numeric" value="'+esc(String(rooms))+'"></label>'+
+      '<label class="sk-field"><span>الغرف المباعة</span><input id="ht-sold" inputmode="numeric" value="1"></label>'+
+      '<label class="sk-field"><span>إيراد الغرف</span><input id="ht-room" inputmode="decimal"></label>'+
+      '<label class="sk-field"><span>الأغذية والمشروبات</span><input id="ht-fb" inputmode="decimal" value="0"></label>'+
+      '<label class="sk-field"><span>التسوية</span><select id="ht-settle"><option value="cash">نقداً عند المغادرة</option><option value="receivable">على الحساب (ذمم)</option></select></label>'+
+      '<label class="sk-field"><span>قناة الحجز (اختياري)</span><input id="ht-ch" list="ht-chs" autocomplete="off"></label>'+
+      '<label class="sk-field"><span>عمولة القناة %</span><input id="ht-pct" inputmode="decimal" value="0"></label>'+
+      '<label class="sk-field"><span>التاريخ</span><input id="ht-date" type="date" value="'+t+'"></label></div>'+
+      '<datalist id="ht-guests">'+guests.filter(x=>x.left>0).map(x=>'<option value="'+esc(x.g)+'">').join("")+'</datalist>'+
+      '<datalist id="ht-chs"><option value="Booking.com"><option value="Expedia"><option value="Agoda"><option value="Airbnb"></datalist>'+
+      '<div class="sk-error" id="ht-err2" role="alert"></div><div class="sk-actions"><button type="button" class="btn primary" data-l="ht-night">ترحيل الإقفال الليلي</button></div></div></section>'+
+    (guests.length?'<section class="card"><div class="card-h"><div><h3>العرابين</h3><p>العربون القائم لكل ضيف بعد ما سُوّي منه في الإقفال الليلي.</p></div></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table" data-ht-deposits><thead><tr><th>الضيف</th><th>العربون القائم</th></tr></thead><tbody>'+
+      guests.map(x=>'<tr data-guest="'+esc(x.g)+'"><td>'+esc(x.g)+'</td><td class="n">'+h(x.left)+'</td></tr>').join("")+'</tbody></table></div></div></section>':'');
+}
+function postHotelDeposit(root,d){
+  const err=$("#ht-err",root);err.textContent="";
+  const guest=$("#ht-dguest",root).value.trim(),amt=halalas($("#ht-damt",root).value||0),date=$("#ht-ddate",root).value||today(),id=SK.ui.uid("ht");
+  try{const r=HT().depositJournal({id,date,guest,amountHalalas:amt},SK.vatRate(),hotelAccounts(d));
+    const out=postEntry({...r.journal,hotel:{kind:"deposit",guest,amount:amt}},{source:"الفندق",sourceId:"ht:"+id,party:guest});
+    if(!out.ok){err.textContent=out.error;return}toast("رُحّل عربون "+guest,"ok")}catch(e){err.textContent=e.message||String(e);return}
+  return true;
+}
+function postNightAudit(root,d){
+  const err=$("#ht-err2",root);err.textContent="";
+  const guest=$("#ht-guest",root).value.trim(),avail=Math.round(Number($("#ht-avail",root).value||0)),sold=Math.round(Number($("#ht-sold",root).value||0));
+  const room=halalas($("#ht-room",root).value||0),fb=halalas($("#ht-fb",root).value||0),settleBy=$("#ht-settle",root).value,channel=$("#ht-ch",root).value.trim(),commissionPct=Number($("#ht-pct",root).value||0);
+  const date=$("#ht-date",root).value||today(),id=SK.ui.uid("ht");
+  if(!(avail>0)){err.textContent="أدخل عدد الغرف المتاحة في الفندق";return}
+  if(sold>avail){err.textContent="الغرف المباعة أكثر من المتاحة";return}
+  try{
+    const r=HT().nightAudit({id,date,guest,roomsSold:sold,roomRevenueHalalas:room,fbRevenueHalalas:fb,settleBy,depositLeftHalalas:depositLeft(d,guest),channel,commissionPct},SK.vatRate(),hotelAccounts(d));
+    const out=postEntry({...r.journal,hotel:{kind:"night",guest,roomsAvailable:avail,roomsSold:sold,room,fb,applied:r.applied,channel:channel||undefined}},{source:"الإقفال الليلي",sourceId:"ht:"+id,party:settleBy==="receivable"?guest:undefined});
+    if(!out.ok){err.textContent=out.error;return}
+    if(r.commissionJournal){const c=postEntry({...r.commissionJournal,hotel:{kind:"commission",guest,channel,amount:r.commission}},{source:"عمولات القنوات",sourceId:"ht:"+id+"-c",party:channel});if(!c.ok){err.textContent=c.error;return}}
+    d=db();d.hotel={...(d.hotel||{}),rooms:avail};put(d);
+    toast("رُحّل الإقفال الليلي "+date,"ok");
+  }catch(e){err.textContent=e.message||String(e);return}
+  return true;
+}
 /* ---------- the construction pack: contracts, advances, progress billings, retentions, project costs ----------
    (finance/progress-billing-engine) — shown only for a construction company. A contract's state is read back from the
    entries it posted, so the screen and the books cannot disagree. */
@@ -599,9 +669,9 @@ function paint(root){
   /* a company created under a sector receives its pack on first open (FOUNDATION §3.7) */
   try{window.SKosifCompanyPlatform&&SKosifCompanyPlatform.ensureSectorPack()}catch{}
   const d=db(),p=period();if(!tab)tab=d.accounts.length?"close":"accounts";
-  root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],...(isHealth()?[["claims","المطالبات والجهات"]]:[]),...(isConstruction()?[["projects","المشروعات والمستخلصات"]]:[]),["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
+  root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],...(isHealth()?[["claims","المطالبات والجهات"]]:[]),...(isConstruction()?[["projects","المشروعات والمستخلصات"]]:[]),...(isHotel()?[["hotel","الغرف والإقفال الليلي"]]:[]),["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
     (p?'<p class="hint">الفترة المالية النشطة: <b>'+esc(p.label)+'</b> ('+esc(p.startDate)+' → '+esc(p.endDate)+') — من «الشركات والفترات».</p>':'')+
-    ({close:closeHTML,accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,claims:claimsHTML,projects:projectsHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
+    ({close:closeHTML,accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,claims:claimsHTML,projects:projectsHTML,hotel:hotelHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
 }
 function bind(root){
   root.addEventListener("click",async e=>{
@@ -644,6 +714,8 @@ function bind(root){
     else if(a==="claim-visit"){if(postClaimVisit(root,d))paint(root);return}
     else if(a==="pj-new"){if(saveContract(root,d))paint(root);return}
     else if(a==="pj-post"){if(postProjectOp(root,d))paint(root);return}
+    else if(a==="ht-dep"){if(postHotelDeposit(root,d))paint(root);return}
+    else if(a==="ht-night"){if(postNightAudit(root,d))paint(root);return}
     else if(a==="claim-remit"){if(postClaimRemit(root,d))paint(root);return}
     else if(a==="settle"){
       const err=$("#lg-cerr",root);err.textContent="";if(!SK.ui.validate(root))return;
