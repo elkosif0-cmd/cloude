@@ -500,3 +500,52 @@
 - القرار: **CURRENT-IS-SUPERSET**.
 
 الحالة: **COMPLETE — #95 إلى #88 تمت مراجعتها؛ الميزة الصافية الوحيدة التي كانت مفقودة (empirical calibration) تم إحياؤها فعليًا، والباقي موجود أو تطور في runtime الحالي.**
+
+
+## دفعة PR #87 → PR #78 — مراجعة المعرفة والتنفيذ
+
+### PR #87 — Verified Jev browser choice application
+- التغيير كان مرحلة مبكرة من تطبيق قرار Jev على مسار المتصفح.
+- runtime الحالي يحتوي Jev routing + candidate tournament + verification + recovery بصورة أوسع.
+- القرار: **SUPERSEDED-BY-CURRENT-RUNTIME**.
+
+### PR #86 — Complete Jev-Browser capability contract
+- العقد الحالي أوسع ويشمل capability mesh وrisk gates وpostcondition verification.
+- القرار: **CURRENT-IS-SUPERSET**.
+
+### PR #85 — Jev-Browser routing contract
+- نسخة وسيطة مغلقة قبل #86/#87؛ لا يوجد سبب لإعادة منطق أقدم.
+- القرار: **SUPERSEDED**.
+
+### PR #84 — Prefer KOSIF Computer for browser/device routing
+- فكرة تفضيل أداة الكمبيوتر لمسارات الجهاز محفوظة في router الحالي، ومعها اختبارات توجيه أحدث.
+- القرار: **KNOWLEDGE-KEPT / CURRENT-IS-SUPERSET**.
+
+### PR #83 و#82 — Public deterministic preflight + protected model tools
+- نفس الرأس ونفس الفكرة.
+- preflight/fallback/auth موجودة في runtime الحالي بطبقات أحدث.
+- القرار: **VERIFIED-IN-CURRENT**.
+
+### PR #81 — Restored capabilities + safety fixes
+- هذا الفرع غير مدمج تاريخيًا كفرع كامل، لكن الفحص الملفي أظهر أن أفضل ما فيه **وصل إلى main لاحقًا**:
+  - `tools/advances_e2e.mjs` مطابق حرفيًا.
+  - `ui/legacy/v31.html` و`v33.html` و`v40.html` مطابقة حرفيًا.
+  - حزمة vendor المحلية بالكامل (Chart.js / html2canvas / jsPDF / xlsx-js-style) مطابقة حرفيًا، وبالتالي سياسة عدم تحميل third-party scripts من الشبكة محفوظة.
+  - `helper-space.js` و`ledger.js` الحاليان أكبر بكثير من نسخ الفرع ويحتويان معماريات وقدرات أحدث؛ لا يتم استبدالهما.
+  - `demo.js` الحالي أوسع من الفرع.
+- القرار: **CAPABILITIES-VERIFIED-IN-MAIN / CURRENT-IS-SUPERSET**.
+
+### PR #80 — Safe core stats before boot
+- رأس الفرع خلف main وبدون file delta.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #79 — Restore advances/original systems/product cost map
+- رأس الفرع خلف main وبدون file delta؛ القدرات التي استعادها موجودة في النسخة الحالية.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #78 — 43-company showcase
+- رأس الفرع خلف main وبدون file delta.
+- فكرة corpus/showcase companies تطورت لاحقًا في source catalog وaudit corpus.
+- القرار: **KNOWLEDGE-KEPT / CURRENT-IS-SUPERSET**.
+
+الحالة: **COMPLETE — #87 إلى #78 تمت مراجعتها؛ لا توجد شفرة صافية أفضل مفقودة، والفرع #81 الذي بدا غير مدمج ثبت أن قدراته الأساسية وصلت إلى main لاحقًا.**
