@@ -1,0 +1,31 @@
+name: KOSIF WhatsApp Bridge CI
+
+on:
+  push:
+    branches:
+      - claude/whatsapp-integration-messaging-mvdnxr
+      - codex/kosif-whatsapp-vnext-20260926
+    paths:
+      - "whatsapp-bridge/**"
+      - ".github/workflows/wa-bridge-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: whatsapp-bridge
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: whatsapp-bridge/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test

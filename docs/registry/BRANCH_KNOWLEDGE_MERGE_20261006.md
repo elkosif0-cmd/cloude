@@ -433,3 +433,20 @@
 - **لم يتم overwrite** لملف runtime 0.27.3 المجمّع؛ بقية الأنظمة الفريدة فيه (Host Image QA / Render Packet / completion reconcile / recovery / archive / C500 validators) تبقى عناصر مراجعة تالية داخل نفس مصدر المعرفة، وتُنقل فقط كـslices مستقلة عند التحقق من عدم تعارضها مع main.
 
 الحالة: **PR #97 — PARTIAL FUNCTIONAL EXTRACTION COMPLETE (Capability Atlas slice merged to integration); remaining unique subsystems queued for selective extraction, not blind overwrite.**
+
+
+## PR #96 — KOSIF WhatsApp MCP 1.5.0 — نتيجة التنفيذ
+- الفرع احتوى قدرة كاملة **غير موجودة في main وقت الفحص**: مجلد `whatsapp-bridge/` كامل + CI مستقل.
+- تم استرجاع **25 ملفًا** كوحدة مستقلة بدل نسخ أجزاء متناثرة.
+- القدرات المسترجعة تشمل:
+  - Bridge runtime وcontainer.
+  - MCP Worker.
+  - Dispatch Worker وQueue Consumer.
+  - Skill package لرسائل WhatsApp.
+  - اختبارات bridge وMCP auth.
+  - ملفات Wrangler وTypeScript وCI.
+- أهم تحسين أمني محفوظ من الفرع: **Owner-only authorization**؛ الأدوات تفشل مغلقة إذا لم يوجد Auth0 owner token أو shared server token صالح.
+- لم يتم تغيير بوابات التطبيق المحاسبي أو FOUNDATION؛ هذه قدرة تكامل خارجية مستقلة تُربط من طبقة الأدوات عند الحاجة.
+- Workflow الموجود مسبقًا `.github/workflows/wa-deploy.yml` كان يشير أصلًا إلى `whatsapp-bridge` بينما المجلد نفسه مفقود؛ الاسترجاع يعيد الاتساق بين workflow والكود.
+
+الحالة: **COMPLETE — PR #96 functional subsystem recovered as a self-contained authenticated WhatsApp bridge.**
