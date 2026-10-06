@@ -242,8 +242,9 @@ function partyTable(r,kind,glBal){
    shown only for a company of the health sector — the same books behave by sector (FOUNDATION §3.7, P3) */
 const CL=()=>E().insuranceClaims;
 const isHealth=()=>{try{return SK.company.current().sector==="health"}catch{return false}};
-const CLAIM_CODES=["1100","1210","5110","4010","4020","4030","4040"];
+const CLAIM_CODES=["1100","1210","5110","4010","4020","4030","4040"],CASE_CODES=["2150","1360","5210","5220"];
 const halalas=v=>Math.round(Number(String(v??"").replace("٫",".").replace(/[٠-٩]/g,x=>"٠١٢٣٤٥٦٧٨٩".indexOf(x)))*100);
+function caseEvents(d){return d.entries.filter(e=>!e.reversedBy&&!e.reversalOf&&(e.visit||e.caseCost)).map(e=>e.visit?{caseRef:e.visit.caseRef,revenue:e.visit.gross}:{caseRef:e.caseCost.caseRef,fee:e.caseCost.fee,supplies:e.caseCost.supplies})}
 function claimEvents(d){return d.entries.filter(e=>e.claim&&!e.reversedBy&&!e.reversalOf).map(e=>({payer:e.claim.payer,kind:e.claim.kind,billed:e.claim.billed,paid:e.claim.paid,rejected:e.claim.rejected}))}
 function claimsHTML(d){
   const missing=CLAIM_CODES.filter(c=>!byCode(d,c));
@@ -259,7 +260,11 @@ function claimsHTML(d){
       '<label class="sk-field"><span>الجهة الدافعة (فارغ = المريض يدفع كاملاً)</span><input id="cl-payer" list="cl-payers" autocomplete="off"></label>'+
       '<label class="sk-field"><span>نسبة التغطية %</span><input id="cl-cov" inputmode="decimal" value="100"></label>'+
       '<label class="sk-field"><span>حد التحمّل على المريض (اختياري)</span><input id="cl-cap" inputmode="decimal"></label>'+
-      '<label class="sk-field"><span>التاريخ</span><input id="cl-date" type="date" value="'+t+'"></label></div>'+
+      '<label class="sk-field"><span>التاريخ</span><input id="cl-date" type="date" value="'+t+'"></label>'+
+      '<label class="sk-field"><span>الطبيب (اختياري)</span><input id="cl-doc" list="cl-docs" autocomplete="off"></label>'+
+      '<label class="sk-field"><span>أتعاب الطبيب % من الزيارة</span><input id="cl-fee" inputmode="decimal" placeholder="0"></label>'+
+      '<label class="sk-field"><span>أدوية ومستلزمات مصروفة (تكلفة)</span><input id="cl-sup" inputmode="decimal" placeholder="0"></label></div>'+
+      '<datalist id="cl-docs">'+(()=>{try{return SKosifCompanyPlatform.definitions("employees").map(x=>'<option value="'+esc(x.name)+'">').join("")}catch{return""}})()+'</datalist>'+
       '<datalist id="cl-payers">'+payers.map(n=>'<option value="'+esc(n)+'">').join("")+'</datalist>'+
       '<div class="sk-error" id="cl-err" role="alert"></div><div class="sk-actions"><button type="button" class="btn primary" data-l="claim-visit">تسجيل الزيارة وترحيلها</button></div></div></section>'+
     '<section class="card"><div class="card-h"><div><h3>تسوية مطالبات جهة</h3><p>ما تسدده الجهة يدخل النقدية، وما ترفضه يُسجَّل خسارة مطالبات (5110) بسببه — فلا يبقى في 1210 إلا المطالبات القائمة.</p></div></div><div class="card-b">'+
@@ -273,7 +278,10 @@ function claimsHTML(d){
       (stats.length?'<div class="sk-table-wrap"><table class="sk-table" data-cl-payers><thead><tr><th>الجهة</th><th>المطالَب</th><th>المسدَّد</th><th>المرفوض</th><th>نسبة الرفض</th><th>القائم</th><th>أكثر من 60 يوماً</th></tr></thead><tbody>'+
         stats.map(s=>{const a=aging.rows.find(r=>r.party===s.payer),late=a?(a.aging["61-90"]||0)+(a.aging["90+"]||0):0;
           return '<tr data-payer="'+esc(s.payer)+'"><td>'+esc(s.payer)+'</td><td class="n">'+h(s.billed)+'</td><td class="n">'+h(s.paid)+'</td><td class="n">'+h(s.rejected)+'</td><td class="n">'+(s.rejectionRate==null?'—':s.rejectionRate+'٪')+'</td><td class="n"><b>'+h(s.open)+'</b></td><td class="n">'+(late?money(late):'')+'</td></tr>'}).join("")+
-        '</tbody></table></div>':SK.ui.state.empty({title:"لا مطالبات بعد",text:"سجّل زيارة تغطيها جهة دافعة."}))+'</div></section>';
+        '</tbody></table></div>':SK.ui.state.empty({title:"لا مطالبات بعد",text:"سجّل زيارة تغطيها جهة دافعة."}))+'</div></section>'+
+    (()=>{const cs=CL().caseCosts(caseEvents(d));if(!cs.length)return "";
+      return '<section class="card"><div class="card-h"><div><h3>تكلفة الحالة</h3><p>إيراد كل حالة مقابل أتعاب الطبيب والأدوية والمستلزمات المصروفة لها، وهامشها — من قيود الدفاتر نفسها.</p></div></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table" data-cl-cases><thead><tr><th>الحالة</th><th>الإيراد</th><th>أتعاب الطبيب</th><th>أدوية ومستلزمات</th><th>الهامش</th><th>%</th></tr></thead><tbody>'+
+        cs.map(c=>'<tr data-case="'+esc(c.caseRef)+'"><td>'+esc(c.caseRef)+'</td><td class="n">'+h(c.revenue)+'</td><td class="n">'+h(c.fee)+'</td><td class="n">'+h(c.supplies)+'</td><td class="n"><b>'+h(c.margin)+'</b></td><td class="n">'+(c.marginPct==null?'—':c.marginPct+'٪')+'</td></tr>').join("")+'</tbody></table></div></div></section>'})();
 }
 function postClaimVisit(root,d){
   const err=$("#cl-err",root);err.textContent="";
@@ -282,8 +290,15 @@ function postClaimVisit(root,d){
   try{
     const id=SK.ui.uid("visit"),enc={id,date:$("#cl-date",root).value||today(),caseRef,department:$("#cl-dept",root).value,grossHalalas:gross,payer,coveragePct:Number($("#cl-cov",root).value||100),...(cap?{copayCapHalalas:halalas(cap)}:{})};
     const r=CL().encounterJournal(enc,{cashAccountId:byCode(d,"1100"),payerReceivableAccountId:byCode(d,"1210"),rejectionsAccountId:byCode(d,"5110"),revenueAccountId:c=>byCode(d,c)});
-    const out=postEntry({...r.journal,claim:r.split.payer?{kind:"claim",payer:r.split.payer,billed:r.split.payerShare}:undefined},{source:"زيارات",sourceId:"visit:"+id,party:r.split.payer||undefined});
+    const doc=$("#cl-doc",root).value.trim(),feePct=Number(String($("#cl-fee",root).value||"0").replace("٫",".")),sup=halalas($("#cl-sup",root).value||0);
+    if((feePct>0&&!doc)||(doc&&!(feePct>0)&&!(sup>0))){err.textContent=feePct>0?"حدد الطبيب لأتعابه":"أدخل نسبة أتعاب الطبيب أو تكلفة المستلزمات";return}
+    if((feePct>0||sup>0)&&CASE_CODES.some(c=>!byCode(d,c))){err.textContent="تكلفة الحالة تحتاج الحسابات "+CASE_CODES.join(" و")+" — أضفها من «دليل الحسابات»";return}
+    /* supplies leave the pharmacy stock: never more than it holds on the visit's date */
+    if(sup>0){const held=Math.round((balanceOf(d,"1360",enc.date)||0)*100);if(sup>held){err.textContent="رصيد مخزون الصيدلية ("+money(held/100)+") لا يكفي لصرف "+money(sup/100)+" — سجّل الشراء أولاً";return}}
+    const out=postEntry({...r.journal,visit:{caseRef,gross},claim:r.split.payer?{kind:"claim",payer:r.split.payer,billed:r.split.payerShare}:undefined},{source:"زيارات",sourceId:"visit:"+id,party:r.split.payer||undefined});
     if(!out.ok){err.textContent=out.error;return}
+    const cc=CL().caseCostJournal({id:"cost-"+id,date:enc.date,caseRef,doctor:doc,feePct,suppliesHalalas:sup},gross,{doctorFeesAccountId:byCode(d,"5210"),doctorPayableAccountId:byCode(d,"2150"),suppliesCostAccountId:byCode(d,"5220"),pharmacyStockAccountId:byCode(d,"1360")});
+    if(cc){const o2=postEntry({...cc.journal,caseCost:{caseRef,fee:cc.fee,supplies:cc.supplies,doctor:doc}},{source:"تكلفة الحالات",sourceId:"case:"+id,party:doc||undefined});if(!o2.ok){err.textContent="رُحّلت الزيارة، وتعذر ترحيل تكلفتها: "+o2.error;return}}
     toast("رُحّلت الزيارة"+(r.split.payer?" — مطالبة "+r.split.payer+" "+money(r.split.payerShare/100):""),"ok");
   }catch(e){err.textContent=e.message||String(e);return}
   return true;
