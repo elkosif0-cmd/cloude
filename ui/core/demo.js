@@ -378,12 +378,36 @@ document.addEventListener("click",async e=>{
 });
 function overlay(t){const o=document.createElement("div");o.className="skdemo-overlay";o.innerHTML='<div><i></i><b>'+esc(t)+'</b><small>بيانات تجريبية لشركة وهمية — تُمسح بضغطة من الشريط أعلى الشاشة</small></div>';document.body.appendChild(o)}
 
+/* ---------- a reference model company (FOUNDATION §3.6): its own books, generated once ----------
+   system/model-books-engine builds the year from the sector's pack and posting engines (a seeded generator: the same books
+   on every device); the accounts are opened by code, the entries keep their meta (visits, claims, tuition, flock…) so the
+   sector screens read them, the period is closed at its last month, and a financial year is recorded for the company.
+   Every record is marked demo and model: synthetic data, cleared like the rest of the demo data. */
+async function seedModel(co){
+  const d=load("skosif_ledger_v1",{})||{};if((d.entries||[]).length)return false;
+  const MB=E()&&E().system&&E().system.modelBooks;if(!MB)return false;
+  let b;try{b=MB.modelBooks(co.id)}catch(e){SK.errors&&SK.errors.report(e,"model:"+co.id);return false}
+  const F=E().finance,accounts=[...(d.accounts||[])];
+  b.accounts.forEach(([code,name,type])=>{if(!accounts.some(a=>a.code===code))accounts.push(D({...F.accounts.createAccount({code,name,type}),model:true}))});
+  const id=c=>(accounts.find(a=>a.code===c)||{}).id;
+  const entries=b.entries.map(e=>D({...e,lines:e.lines.map(l=>({...l,accountId:id(l.accountId)}))}));
+  save("skosif_ledger_v1",{...d,accounts,entries,lockDate:b.lockDate});
+  const cd=load("skosif_companies_v1",{})||{};cd.companies=cd.companies||[];cd.periods=cd.periods||[];const pid="model-p-"+co.id+"-"+b.year;
+  if(!cd.periods.some(p=>p.id===pid))cd.periods.push(D({id:pid,companyId:co.id,label:String(b.year),startDate:b.year+"-01-01",endDate:b.year+"-12-31"}));
+  cd.active={...(cd.active||{}),companyId:co.id,periodId:pid};save("skosif_companies_v1",cd);
+  SK.audit&&SK.audit.log("model",{act:"seed",company:co.id,entries:entries.length});
+  return true;
+}
+
 /* ---------- first run: a brand-new device fills itself once ---------- */
 /* true once the first run has finished on this page load (no fill, or a fill that needed no reload) */
 let settled=false;
 async function boot(){
   /* the front door may be switching this device to another company right now: that company decides, after its reload */
   if(window.SKosifSpace&&SKosifSpace.intent){await SKosifSpace.intent();if(SKosifSpace.busy())return}
+  /* a model company is filled from its own books, never with the meat demo company's data */
+  const co=SK.company&&SK.company.current?SK.company.current():null;
+  if(co&&co.model){if(await seedModel(co)){setTimeout(()=>location.reload(),200);return}bar();settled=true;return}
   const r=reg();
   if(!r.at&&!r.off&&await fresh()){overlay("نجهز بيانات تجريبية لكل الأقسام…");const res=await fill(null,{quiet:true});if(res.done.length){setTimeout(()=>location.reload(),300);return}document.querySelectorAll(".skdemo-overlay").forEach(x=>x.remove())}
   bar();settled=true;
