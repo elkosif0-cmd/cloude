@@ -285,7 +285,7 @@ async function applyIntent(){
   const sector=SK.caps&&SK.caps.sector&&SK.caps.sector(it.sector)?String(it.sector):"";
   const cd=load("skosif_companies_v1",{})||{};cd.companies=cd.companies||[];cd.periods=cd.periods||[];
   const rec=cd.companies.find(c=>c&&c.id===id);
-  if(it.create&&!rec){cd.companies.push({id,name,country:"SA",currency:"SAR",sector:sector||"trade"});save("skosif_companies_v1",cd)}
+  if(it.create&&!rec){cd.companies.push({id,name,country:"SA",currency:"SAR",sector:sector||"trade",packPending:true});save("skosif_companies_v1",cd)}
   else if(rec&&sector&&!rec.sector){rec.sector=sector;save("skosif_companies_v1",cd)}
   rememberLast(id,name,false,gate);land();
   if(id!==cur.id)await switchTo(id,name,{fresh:!!it.create,demo:it.create?false:undefined});

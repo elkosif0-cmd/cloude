@@ -126,6 +126,15 @@ try {
     check(`${tag}: the new company belongs to the sector it was created under and opens on its definitions`, await page.evaluate(() => SK.company.current().sector === 'health' && SKosifCore.view() === 'masterdata' && SK.gate.current() === 'accounting'), await page.evaluate(() => SK.company.current().sector + ' ' + SKosifCore.view() + ' ' + SK.gate.current()));
     await page.waitForFunction(() => SK.company && SK.company.ready(), null, { timeout: 30000 });
     await page.waitForTimeout(500);
+    /* the sector pack (P3): the company created under health received its accounts, cost centers and units — once */
+    const packOf = () => page.evaluate(() => { const CP = SKosifCompanyPlatform, s = CP.state(), codes = SKosifLedger.accounts().map((a) => a.code);
+      return { pack: s.sectorPack && s.sectorPack.id, pending: SK.company.current().packPending, insurance: codes.includes('1210'), meat: codes.includes('1310'), base: codes.includes('1100'),
+        accounts: codes.length, er: s.definitions.costCenters.some((x) => x.name === 'الطوارئ'), units: s.definitions.units.map((x) => x.name), costCenters: s.definitions.costCenters.length }; });
+    const pk = await packOf();
+    check(`${tag}: a company created under health receives the health pack (insurance receivables, departments as cost centers)`, pk.pack === 'health' && pk.pending === false && pk.insurance && pk.base && !pk.meat && pk.er && pk.units.includes('زيارة'), JSON.stringify(pk));
+    await page.evaluate(() => SKosifCore.go('ledger')); await page.waitForTimeout(800); await page.evaluate(() => SKosifCore.go('masterdata')); await page.waitForTimeout(800);
+    const pk2 = await packOf();
+    check(`${tag}: the pack is applied once — reopening adds nothing`, pk2.accounts === pk.accounts && pk2.costCenters === pk.costCenters, JSON.stringify([pk.accounts, pk2.accounts, pk.costCenters, pk2.costCenters]));
     const n3 = await page.evaluate(() => ({ rail: (document.getElementById('biz-name') || {}).textContent, top: (document.querySelector('#sk-tb-co b') || {}).textContent }));
     check(`${tag}: the new company's name is in the rail and the top bar`, n3.rail === 'مؤسسة الاختبار للحوم' && n3.top === n3.rail, JSON.stringify(n3));
     /* switching from the top bar's company menu switches the data, not only a label */
@@ -195,6 +204,7 @@ try {
     await settled(page);
     const back = await page.evaluate(async () => ({ id: SKosifSpace.current().id, customers: ((r) => r.empty ? 0 : r.customers.length)(await SKosifSalesIntel.snapshot('all')), privInList: SK.company.list().some((c) => c.id === 'space-private' && !c.locked) }));
     check(`${tag}: the demo company keeps its data and the private one stays locked in the switcher`, back.id === 'demo-co' && back.customers === demoCustomers && !back.privInList, JSON.stringify(back));
+    check(`${tag}: an existing company never receives a pack on its own (the demo stays as it was)`, await page.evaluate(() => !SKosifCompanyPlatform.state().sectorPack && SK.company.current().packPending === false), await page.evaluate(() => JSON.stringify(SKosifCompanyPlatform.state().sectorPack || null)));
     check(`${tag}: no page or console errors`, errs.length === 0, errs.slice(0, 3).join(' | '));
     await ctx.close();
     if (tag === 'laptop') {

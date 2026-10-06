@@ -9,19 +9,19 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&
 const CARCASS_PRESETS=[
   {name:"خروف نعيمي بلدي فاخر",cuts:[
     {name:"فخذ نعيمي كامل",yield:28},{name:"كتف نعيمي طازج",yield:22},{name:"ريش كستليتة",yield:18},
-    {name:"مفروم/رقبة وتشفيه",yield:20},{name:"أحشاء وكبده ورأس",yield:12}
+    {name:"مفروم/رقبة وتشفيه",yield:20},{name:"أحشاء وكبده ورأس",yield:12,byp:true}
   ]},
   {name:"خروف حري حجازي",cuts:[
     {name:"فخذ حري",yield:27},{name:"كتف حري",yield:23},{name:"ريش حري",yield:19},
-    {name:"مفروم وتشفية",yield:19},{name:"أحشاء ومعاليق",yield:12}
+    {name:"مفروم وتشفية",yield:19},{name:"أحشاء ومعاليق",yield:12,byp:true}
   ]},
   {name:"تيس بلدي عارضي",cuts:[
     {name:"فخذ تيس",yield:29},{name:"كتف تيس",yield:23},{name:"أضلاع وجنب",yield:18},
-    {name:"تشفية ورقبة",yield:18},{name:"سقط ورأس",yield:12}
+    {name:"تشفية ورقبة",yield:18},{name:"سقط ورأس",yield:12,byp:true}
   ]},
   {name:"عجل بلدي تسمين",cuts:[
     {name:"أفخاذ وتوب سايد",yield:32},{name:"كتف وموزات",yield:24},{name:"ريب آي وتندرلوين",yield:16},
-    {name:"صدر وبريسكت ومفروم",yield:18},{name:"عظم ودهن وأحشاء",yield:10}
+    {name:"صدر وبريسكت ومفروم",yield:18},{name:"عظم ودهن وأحشاء",yield:10,byp:true}
   ]}
 ];
 
@@ -64,8 +64,8 @@ function carcassHTML(){
     '</svg>'+
   '</div>'+
   '<div class="sk-section-title"><b>القطعيات ونسب العائد (Carcass Yield)</b><span>المجموع لا يلزم أن يكون 100٪؛ التوزيع يطبع نسب العائد تلقائيًا</span></div>'+
-  '<div id="sk37-cuts">'+cuts.map((x,i)=>'<div class="sk37-cut"><input data-n="'+i+'" value="'+esc(x.name)+'"><input type="number" step=".1" data-y="'+i+'" value="'+x.yield+'"><input type="number" step=".01" data-p="'+i+'" value="'+x.price+'" placeholder="سعر بيع/كجم"><button data-d="'+i+'">×</button></div>').join("")+'</div>'+
-  '<div class="sk-actions"><button id="sk37-add" class="sk-secondary">+ قطعة</button><button id="sk37-run" class="sk-primary">احسب الاقتصاديات</button><button id="sk37-print" class="sk-secondary">أمر تشغيل التشفية</button></div><div id="sk37-result"></div>';
+  '<div id="sk37-cuts">'+cuts.map((x,i)=>'<div class="sk37-cut"><input data-n="'+i+'" value="'+esc(x.name)+'"><input type="number" step=".1" data-y="'+i+'" value="'+x.yield+'"><input type="number" step=".01" data-p="'+i+'" value="'+x.price+'" placeholder="سعر بيع/كجم"><label class="sk37-byp" title="منتج ثانوي: يُقاس بصافي القيمة القابلة للتحقق ويُخصم من تكلفة الذبيحة"><input type="checkbox" data-b="'+i+'"'+(x.byp?' checked':'')+'>ثانوي</label><button data-d="'+i+'">×</button></div>').join("")+'</div>'+
+  '<div class="sk-actions"><button id="sk37-add" class="sk-secondary">+ قطعة</button><button id="sk37-run" class="sk-primary">احسب الاقتصاديات</button><button id="sk37-print" class="sk-secondary">أمر تشغيل التشفية</button></div><div id="sk37-result"></div>'+postHTML();
 }
 function arHTML(){
   return '<p class="sk37-note">الصق: العميل، التاريخ، إجمالي الفاتورة، المدفوع. سيحسب الرصيد = الفاتورة − المدفوع ثم يوزعه على أعمار الذمم.</p>'+
@@ -100,6 +100,8 @@ function bind(){
   $$("[data-y]").forEach(x=>x.oninput=()=>cuts[+x.dataset.y].yield=num(x.value));
   $$("[data-p]").forEach(x=>x.oninput=()=>cuts[+x.dataset.p].price=num(x.value));
   $$("[data-d]").forEach(x=>x.onclick=()=>{cuts.splice(+x.dataset.d,1);paintCarcass()});
+  $$("[data-b]").forEach(x=>x.onchange=()=>{cuts[+x.dataset.b].byp=x.checked});
+  $("#sk37-run-preview")?.addEventListener("click",previewRun);
   $("#sk37-add")?.addEventListener("click",()=>{cuts.push({name:"قطعة جديدة",yield:0,price:0});paintCarcass()});
   $("#sk37-run")?.addEventListener("click",runCarcass);
   $("#sk37-print")?.addEventListener("click",()=>{
@@ -123,6 +125,55 @@ function bind(){
     w.document.close();SK.brandPrint(w);
   });
   $("#sk37-ar-run")?.addEventListener("click",()=>{arText=$("#sk37-ar").value;try{localStorage.setItem(AR_KEY,arText)}catch{}runAR()});
+}
+/* ---------- the cutting run in the books (stock/cutting-run-engine, the meat sector pack) ----------
+   the carcass cost leaves the carcass account and enters the cuts (by relative sales value), the by-products (at net
+   realisable value) and the abnormal waste (beyond the normal-waste tolerance), keeping every halala — IAS 2 joint products */
+const CR=()=>window.SKEngines&&SKEngines.stock&&SKEngines.stock.cuttingRun,L=()=>window.SKosifLedger;
+let runPreview=null;
+function postHTML(){
+  return '<section class="card sk37-post" id="sk37-post"><div class="card-h"><div><h3>تشغيلة التقطيع في الدفاتر</h3><p>تُحمَّل تكلفة الذبيحة على القطع حسب قيمة البيع النسبية، والمنتجات الثانوية بصافي قيمتها القابلة للتحقق، والهدر الزائد على النسبة الطبيعية مصروفاً — المعيار IAS 2 للمنتجات المشتركة.</p></div></div><div class="card-b sk-stack">'+
+    '<div class="sk-grid2"><label class="sk-field"><span>تاريخ التشغيلة</span><input id="sk37-run-date" type="date" value="'+new Date().toISOString().slice(0,10)+'"></label>'+
+    '<label class="sk-field"><span>الهدر الفعلي كجم (فارغ = ما لم تفسره القطع)</span><input id="sk37-waste" type="number" step=".01" placeholder="تلقائي"></label>'+
+    '<label class="sk-field"><span>الهدر الطبيعي % من الذبيحة</span><input id="sk37-normal" type="number" step=".1" value="3"></label>'+
+    '<label class="sk-field"><span>حساب الذبائح الدائن</span><select id="sk37-src"><option value="1310">1310 مخزون الذبائح والحيوانات الحية</option><option value="1300">1300 المخزون</option></select></label></div>'+
+    '<div class="sk-actions"><button type="button" id="sk37-run-preview" class="sk-secondary">معاينة التشغيلة</button></div><div id="sk37-run-out"></div></div></section>';
+}
+function runInput(){
+  const car=num($("#sk37-carcass").value),cost=num($("#sk37-cost").value),h=v=>Math.round(v*100);
+  const rows=cuts.map(c=>({name:c.name,weightKg:Math.round(car*Math.max(0,c.yield)/100*1000)/1000,price:Math.max(0,c.price||0),byp:!!c.byp}));
+  const main=rows.filter(r=>!r.byp),byp=rows.filter(r=>r.byp),explained=rows.reduce((s,r)=>s+r.weightKg,0);
+  const w=$("#sk37-waste").value.trim()===""?Math.max(0,Math.round((car-explained)*1000)/1000):Math.max(0,num($("#sk37-waste").value));
+  return {id:SK.ui&&SK.ui.uid?SK.ui.uid("cut"):"cut-"+Date.now().toString(36),date:$("#sk37-run-date").value,carcassWeightKg:car,carcassCostHalalas:h(cost),
+    cuts:main.map(r=>({name:r.name,weightKg:r.weightKg,...(r.price>0?{pricePerKgHalalas:h(r.price)}:{})})),
+    byProducts:byp.map(r=>({name:r.name,weightKg:r.weightKg,nrvPerKgHalalas:h(r.price)})),wasteKg:w,normalWastePct:Math.max(0,num($("#sk37-normal").value))};
+}
+function previewRun(){
+  const out=$("#sk37-run-out");if(!CR()){out.innerHTML='<div class="sk37-bad">محرك تشغيلة التقطيع غير متاح.</div>';return}
+  try{
+    const x=runInput(),r=CR().cuttingRun(x),m=v=>money(v/100);runPreview=x;
+    out.innerHTML='<div class="sk-kpis sk37-kpis"><div class="sk-kpi"><span>مردود القطع</span><b>'+r.yieldPct.toFixed(1)+'٪</b></div><div class="sk-kpi"><span>أساس التحميل</span><b>'+(r.basis==="weight"?"الوزن":"قيمة البيع النسبية")+'</b></div>'+
+      '<div class="sk-kpi"><span>هدر غير طبيعي</span><b>'+r.waste.abnormalKg+' كجم · '+m(r.waste.abnormalCostHalalas)+'</b></div><div class="sk-kpi"><span>وزن غير مفسَّر</span><b>'+r.unaccountedKg+' كجم</b></div></div>'+
+      '<div class="sk-table-wrap"><table class="sk-table" data-sk-plain><thead><tr><th>البند</th><th>الوزن</th><th>التكلفة في الدفاتر</th><th>تكلفة الكيلو</th><th>هامش البيع</th></tr></thead><tbody>'+
+      r.cuts.map(c=>'<tr><td>'+esc(c.name)+'</td><td>'+c.weightKg+'</td><td>'+m(c.costHalalas)+'</td><td>'+m(c.costPerKgHalalas)+'</td><td class="'+((c.marginHalalas||0)<0?"sk37-neg":"sk37-pos")+'">'+(c.marginHalalas==null?"—":m(c.marginHalalas))+'</td></tr>').join("")+
+      r.byProducts.map(b=>'<tr><td>'+esc(b.name)+' <small>(ثانوي)</small></td><td>'+b.weightKg+'</td><td>'+m(b.valueHalalas)+'</td><td>—</td><td>—</td></tr>').join("")+
+      '</tbody></table></div>'+(r.balanced?'':'<div class="sk37-bad">التوزيع لا يطابق تكلفة الذبيحة.</div>')+
+      (Math.abs(r.unaccountedKg)>0.05?'<p class="sk37-note">وزن غير مفسَّر: راجع الأوزان أو أدخل الهدر الفعلي قبل الترحيل.</p>':'')+
+      (r.unaccountedKg<-0.05?'<div class="sk37-bad">مجموع الأوزان يتجاوز وزن الذبيحة بـ '+(-r.unaccountedKg)+' كجم — صحّح نسب العائد أو الهدر قبل الترحيل.</div>':'')+
+      '<div class="sk-actions"><button type="button" id="sk37-run-post" class="sk-primary"'+(r.balanced&&r.unaccountedKg>=-0.05?'':' disabled')+'>ترحيل التشغيلة إلى الدفاتر</button></div>';
+    $("#sk37-run-post")?.addEventListener("click",postRun);
+  }catch(e){out.innerHTML='<div class="sk37-bad">'+esc(e.message||String(e))+'</div>';runPreview=null}
+}
+function postRun(){
+  const x=runPreview;if(!x||!L()||!L().postEntry)return;
+  const P=window.SKEngines.system.sectorPack.sectorPack("meat"),want=P.accounts.filter(a=>["1300","1310","1320","1330","5100"].includes(a[0])).map(a=>[...a]);
+  let ids;try{ids=L().ensureAccounts(want)}catch(e){SK.toast("تعذر فتح حسابات التشغيلة: "+(e.message||e),"bad");return}
+  const src=$("#sk37-src").value==="1300"?ids["1300"]:ids["1310"];
+  const {journal}=CR().cuttingRunJournal(x,{carcassAccountId:src,cutsAccountId:ids["1320"],byProductsAccountId:ids["1330"],abnormalWasteAccountId:ids["5100"]});
+  const r=L().postEntry(journal,{source:"تقطيع",sourceId:"cut:"+x.id});
+  if(!r.ok){SK.toast(r.error,r.duplicate?"info":"bad");return}
+  SK.toast("رُحّلت تشغيلة التقطيع — مردود "+CR().cuttingRun(x).yieldPct.toFixed(1)+"٪","ok");runPreview=null;
+  const b=$("#sk37-run-post");if(b){b.disabled=true;b.textContent="رُحّلت ✓"}
 }
 function runCarcass(){
   const live=num($("#sk37-live").value),car=num($("#sk37-carcass").value),cost=num($("#sk37-cost").value),target=num($("#sk37-target").value);

@@ -1,5 +1,8 @@
 /* S.kosif — اقتصاديات الذبيحة وأعمار الذمم */
-.sk37-cut{display:grid;grid-template-columns:1.3fr .6fr .8fr 40px;gap:8px;margin:8px 0}
+.sk37-cut{display:grid;grid-template-columns:1.3fr .6fr .8fr auto 40px;gap:8px;margin:8px 0;align-items:center}
+.sk37-byp{display:flex;align-items:center;gap:4px;font-size:var(--sk-fs-xs);color:var(--ink-3);white-space:nowrap}
+.sk37-post{margin-top:12px}
+#sk37-run-out{display:flex;flex-direction:column;gap:12px}
 .sk37-cut input{min-height:42px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:0 10px;font:inherit;font-size:var(--sk-fs-s)}
 .sk37-cut button{border:0;border-radius:10px;background:color-mix(in srgb,var(--sk-bad) 12%,var(--surface));color:var(--sk-bad);font-weight:900;cursor:pointer}
 .sk37-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}

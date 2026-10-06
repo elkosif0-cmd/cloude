@@ -260,3 +260,18 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Not changed: the core sale dialog's product picker is the core catalog (items with prices); defined products without a selling price are not added there.
 - Evidence: workflow node tests 294 pass / 52 fail, identical to `main` (no new failure); books_integrity_e2e OK incl. the three picker checks; feature_audit 146/146; door 88/88; sales_reports 28/28; advances 26/26.
 - NEXT ACTION: owner approval to merge; then P3 sector packs (meat first).
+
+### TASK CLAUDE-20261006-007 — P3: sector packs (the company structure follows its sector) + the meat cutting run in the books
+- Agent: Claude (Lead Development Agent)
+- Status: DONE — merged on the owner's explicit instruction in chat on 2026-10-06 («ادمج وكمل»); GitHub jobs not started (billing), acceptance on local evidence.
+- Goal: PRODUCT_MANDATE P3 acceptance — «the same capability behaves by Sector Pack, not just renamed labels». FOUNDATION §3.7 step 4: a company created under a sector receives the sector's accounting structure; §3.7 «عمق قطاع اللحوم»: yield, cutting and conversion, waste and by-products, cost per kilo.
+- Scope:
+  - `app/src/engine/fusion/system/sector-pack-engine.ts` (+test): a pack for each of the 10 registry sectors on the same base chart — accounts, cost centers, units, warehouses, tools, KPIs; `depth` deep (meat) / base (others, deepened wave by wave); `packAdditions` adds only what is missing.
+  - `app/src/engine/fusion/stock/cutting-run-engine.ts` (+test): IAS 2 joint products — by-products at NRV deducted from the joint cost, main cuts by relative sales value (weight when unpriced), abnormal waste beyond the normal tolerance expensed; halala-exact (largest remainder); `cuttingRunJournal` → Dr 1320 cuts, Dr 1330 by-products, Dr 5100 abnormal waste, Cr 1310 carcass.
+  - `ui/core/company-platform.js` (`sectorPack`, `applySectorPack`, `ensureSectorPack`), `ui/core/company.js` (`packPending`), `ui/core/helper-space.js` (a created company is marked pending), `ui/features/master-data.js` + `ledger.js` (apply once on first open; the chart button builds the sector's chart; «إضافة حسابات قطاع …» for existing companies — never automatic for them), `ledger.js` `postEntry` (balanced, open period, once per source, accounts must exist) exported with the existing `ensureAccounts`.
+  - `ui/features/meatops.js` + `.css`: by-product flag per cut (presets mark offal/head/bone), «تشغيلة التقطيع في الدفاتر» (preview from the engine, posting blocked when weights exceed the carcass).
+  - Tests: engines 12 new; `tools/company_entry_e2e.mjs` +3 checks ×2 viewports (health pack applied once; demo untouched); `tools/meat_pack_e2e.mjs` (new, in the workflow).
+- Branch / PR: `claude/p3-meat-pack-20261006` from `main` @ c449d50.
+- Not yet: carcass purchases still receive into 1300 unless the user picks the account (receipt → 1310 by item type is the next step); the other priority sectors are `base` depth.
+- Evidence: engines 464/464 (12 new, `--check` up to date); workflow node tests 294 pass / 52 fail, identical to `main`; meat_pack_e2e OK (1,450.00 → cuts 1,349.00 + offal 72.00 + abnormal waste 29.00; refused twice / over-weight / unbalanced); door 94/94; feature_audit 146/146; books OK; sales 28/28; advances 26/26.
+- NEXT ACTION: carcass receipts → 1310 by item type; deepen the hospital pack.
