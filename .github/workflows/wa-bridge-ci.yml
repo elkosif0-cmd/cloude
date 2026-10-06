@@ -3,8 +3,13 @@ name: KOSIF WhatsApp Bridge CI
 on:
   push:
     branches:
+      - main
+      - integration/all-work-20261006
       - claude/whatsapp-integration-messaging-mvdnxr
       - codex/kosif-whatsapp-vnext-20260926
+  pull_request:
+    branches:
+      - main
     paths:
       - "whatsapp-bridge/**"
       - ".github/workflows/wa-bridge-ci.yml"
