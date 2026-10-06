@@ -594,3 +594,55 @@
 - القرار: **VERIFIED-IN-MAIN / SUPERSEDED-BY-CURRENT-JEV-CONTRACT**.
 
 الحالة: **COMPLETE — #77 إلى #68 تمت مراجعتها، ولا توجد شفرة صافية مفقودة تحتاج نقلًا.**
+
+
+## دفعة PR #67 → PR #58 — مراجعة المعرفة والتنفيذ
+
+### PR #67 — KOSIF Think MCP token auth + rate limits
+- رأس الفرع خلف main وبدون file delta.
+- OAuth/Auth0 + auth gates + rate limits في runtime الحالي أوسع من النسخة التاريخية.
+- القرار: **VERIFIED-IN-CURRENT / SECURITY-SUPERSET**.
+
+### PR #66 و#65 — Preview-safe builds + phone layout gates
+- `build_mode.py` الحالي مطابق حرفيًا للفرع.
+- `tools/revisit_e2e.mjs` مطابق حرفيًا.
+- `preview_build_check.py` و`phone_layout.mjs` الحاليان أكبر من النسخ القديمة.
+- اختبارات modal/phone الحالية أوسع، وCSS الحالي تطور بعدها.
+- القرار: **CURRENT-IS-SUPERSET**.
+
+### PR #64 — Cross-platform build reliability + four-section navigation
+- تحسينات reliability استوعبها build/CI الحالي.
+- جزء «four-section navigation» تاريخي ولا يعلو على FOUNDATION الحالي؛ لا يُعاد فرض معمارية قديمة.
+- القرار: **BUILD-KNOWLEDGE-KEPT / NAVIGATION-SUPERSEDED-BY-FOUNDATION**.
+
+### PR #63 — Global benchmark ratios
+- رأس الفرع خلف main وبدون file delta.
+- global/peer benchmark engines موجودة في main.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #62 — Touch targets + contrast
+- منطق الاختبار الحالي أوسع، و`phone_layout.mjs` تطور بعده.
+- القرار: **CURRENT-IS-SUPERSET**.
+
+### PR #61 — Assistant reach test
+- `tools/assistant_reach.mjs` الحالي مطابق حرفيًا للفرع.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #60 — Report presentation mode
+- رأس الفرع خلف main وبدون file delta.
+- القدرة موجودة في نظام المعاينة/العروض الحالي.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #59 — Round-2 document requests
+- رأس الفرع خلف main وبدون file delta.
+- جولات الطلبات الديناميكية موجودة في المراجعة الحالية.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #58 — 5-agent Clean APIs council + Jev
+- الفكرة القيّمة: **استقلال وجهات النظر عبر نماذج/مزودين مختلفين ثم Jev**.
+- التنفيذ التاريخي عبر Clean APIs لا يُعاد كما هو لأنه أضعف من عقود الهوية/provenance/auth/cost/receipts الحالية.
+- تم سؤال Jev بين restore / ignore / replace / preserve-and-audit؛ القرار كان **PRESERVE_PRINCIPLE_BUILD_AUDITED_ADAPTERS بنسبة 100%**.
+- لذلك تبقى multi-provider independence متطلب قدرة؛ أي adapter مستقبلي لا يُفعّل إلا إذا كان provider/model identity، auth، التكلفة، والreceipts قابلة للتحقق.
+- القرار: **PRINCIPLE-PRESERVED / OLD-PROXY-NOT-RESTORED**.
+
+الحالة: **COMPLETE — #67 إلى #58 تمت مراجعتها، ولا توجد شفرة قديمة أفضل تحتاج نسخًا مباشرًا؛ الفكرة الوحيدة التي تحتاج استمرار معماري هي multi-provider independence عبر adapters موثقة.**
