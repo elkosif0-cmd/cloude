@@ -500,3 +500,41 @@
 - القرار: **CURRENT-IS-SUPERSET**.
 
 الحالة: **COMPLETE — #95 إلى #88 تمت مراجعتها؛ الميزة الصافية الوحيدة التي كانت مفقودة (empirical calibration) تم إحياؤها فعليًا، والباقي موجود أو تطور في runtime الحالي.**
+
+
+## دفعة PR #87 → PR #78 — مراجعة المعرفة والتنفيذ
+
+### PR #87 — Verified Jev browser choice application
+- الفكرة المركزية: observe/action-space → Jev فقط عند الغموض → apply decision → verify → recover.
+- هذه الفكرة موجودة حاليًا في `BROWSER_JEV_CONTRACT` داخل main مع تحسينات إضافية: adaptive settle، one-time decision ticket، candidate digest، multilingual risk gates، recovery budgets، observable postconditions.
+- القرار: **CURRENT-IS-SUPERSET**.
+
+### PR #86 / #85 / #84 — Jev-Browser routing contract + KOSIF Computer preference
+- التنفيذ الحالي يحتفظ بـKOSIF Computer كمنفذ الجهاز/المتصفح المفضل، ويمنع Jev من منح صلاحية للأفعال عالية المخاطر.
+- human checkpoints الحالية تشمل CAPTCHA وOTP/MFA والدفع والبيانات الأمنية.
+- النسخ القديمة تعتمد Clean APIs ومسارات runtime قديمة؛ لا تُعاد فوق runtime الحالي.
+- القرار: **KNOWLEDGE-ABSORBED / CURRENT-IS-SUPERSET**.
+
+### PR #83 / #82 — Public deterministic preflight + protected model tools
+- حماية auth/rate/CORS/body-size والنماذج موجودة الآن بعقود أحدث، مع OAuth + legacy bearer وحواجز إضافية.
+- القرار: **CURRENT-IS-SUPERSET**.
+
+### PR #81 — Restored capabilities + safety
+- `tools/advances_e2e.mjs` في main **مطابق حرفيًا** للفرع؛ قدرة advances لم تضِع.
+- vendor assets المحلية (Chart.js / jsPDF وغيرها) موجودة بالفعل في main بنفس blobs؛ فكرة عدم الاعتماد على third-party scripts محفوظة.
+- `demo.js` و`ledger.js` الحاليان أوسع بكثير من النسخة القديمة.
+- القرار: **VERIFIED-IN-MAIN / CURRENT-IS-SUPERSET**.
+
+### PR #80 — Safe core stats before boot
+- رأس الفرع behind بدون delta؛ الإصلاح موجود في main.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #79 — Restore advances/original systems/product cost map
+- رأس الفرع behind بدون delta؛ القدرات المسترجعة دخلت main بالفعل.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #78 — Bundle company showcase
+- رأس الفرع behind بدون delta؛ منطق corpus/showcase تطور لاحقًا إلى source replay وscorecard واختبارات أوسع.
+- القرار: **VERIFIED-IN-MAIN / EXTENDED-LATER**.
+
+الحالة: **COMPLETE — #87 إلى #78 تمت مراجعتها؛ لا يوجد كود أفضل ناقص، وأفكار Jev/Computer/advances/vendor safety موجودة حاليًا في main بشكل مساوي أو أقوى.**
