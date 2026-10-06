@@ -361,3 +361,59 @@
 - القرار: **VERIFIED-IN-MAIN**.
 
 الحالة: **COMPLETE — #117 إلى #108 كلها إما موجودة في main أو Superset حالي؛ لا توجد شفرة صافية أفضل تحتاج استعادة.**
+
+
+## دفعة PR #107 → PR #98 — مراجعة المعرفة والتنفيذ
+
+### PR #107 — Reversible sidebar visibility + responsive focus
+- رأس الفرع خلف main وبدون file delta.
+- القدرة موجودة في shell الحالي.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #106 — Login/PWA cache freshness
+- رأس الفرع خلف main وبدون file delta.
+- تحديثات freshness للـPWA والدخول موجودة بالفعل.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #105 — Report state + partial receipt posting
+- رأس الفرع خلف main وبدون file delta.
+- الإصلاحات موجودة في النسخة الحالية.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #104 — PWA theme consistency
+- رأس الفرع خلف main وبدون file delta.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #103 — Audit readability/font consistency
+- رأس الفرع خلف main وبدون file delta.
+- تحسينات القراءة والخطوط امتصها main.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #102 — Secure entry UX + PWA identity
+- رأس الفرع خلف main وبدون file delta.
+- واجهة الدخول الحالية تطورت بعدها مع section-first door وحماية الشركة الخاصة.
+- القرار: **VERIFIED-IN-MAIN / CURRENT-IS-NEWER**.
+
+### PR #101 — Full Pro text revision/engineering prompts
+- رأس الفرع خلف main وبدون file delta.
+- التحديث محفوظ في خط KOSIF Think الحالي.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #100 — Encrypted sign-in performance/accessibility
+- الفرع غير مدمج تاريخيًا لكنه أقدم كثيرًا من `unlock.html` الحالي.
+- أفكاره المفيدة: progress state، `aria-busy`، eye-button semantics، تجنب استخدام كلمة مرور تغيرت أثناء الاشتقاق، وعدم فتح التطبيق عند فشل التحقق.
+- النسخة الحالية من `unlock_runtime.test.mjs` أكبر، و`unlock.html` الحالي أعاد بناء الدخول بالكامل حول القسم/الشركة؛ نسخ النسخة القديمة سيكسر الباب الحالي.
+- القرار: **KNOWLEDGE-KEPT / CURRENT-ENTRY-SUPERSEDES-OLD**.
+
+### PR #99 — Incremental accessible UI + CI contracts
+- رأس الفرع خلف main وبدون file delta.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #98 — Sales Intelligence v2
+- القدرة الأساسية موجودة ومطوّرة في main: المحرك الحالي أكبر واختباراته أوسع.
+- تحسينات النسخة الحالية فوق #98 تشمل: validation أدق للتاريخ، مفتاح الطلب scoped بـinvoice+date+channel+customer لمنع دمج معاملات منفصلة، as-of صحيح، returns على مستوى السطور، متابعة الإيقاع، تحسينات accessibility للـKPIs، وواجهة `snapshot` مشتركة.
+- `sales-intel.css` الحالي أكبر دون فقد قواعد المصدر.
+- `sales-lab.js` الحالي تطور بعد الفرع.
+- القرار: **CURRENT-IS-SUPERSET — لا نعيد نسخة #98 الأقدم.**
+
+الحالة: **COMPLETE — #107 إلى #98 تمت مراجعتها؛ لا توجد شفرة صافية أفضل تحتاج النقل، والمعرفة المفيدة موجودة أو تطورت في main.**
