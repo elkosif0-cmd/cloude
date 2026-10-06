@@ -167,7 +167,7 @@ button.submit:disabled{opacity:.65;cursor:default}
 <section id="companies" hidden aria-labelledby="co-t">
 <h2 id="co-t" class="sr-only">اختر الشركة</h2>
 <p class="sub" id="entry-help"></p>
-<div class="co-list" id="co-list" role="list" aria-label="الشركات"></div>
+<div class="co-list" id="co-list" role="list" aria-label="خيارات القسم"></div>
 <div class="co-new">
 <button type="button" class="co-add" id="co-add">+ شركة جديدة</button>
 <form id="co-form" class="co-form" hidden aria-label="شركة جديدة">
@@ -339,7 +339,7 @@ function paintCompanies(){
   const cards=list.map(card).join("");
   const extra=gate==="tools"?card({id:SCRATCH.id,name:"فتح الأدوات بدون شركة",scratch:true,primary:true,note:"مساحة أدوات مستقلة — اربط شركة لاحقًا فقط إذا احتجت بياناتها"}):
     gate==="audit"?'<button type="button" class="co primary" role="listitem" data-audit-new="1"><span class="co-ic" aria-hidden="true">'+I.audit+'</span><span class="co-t"><b>ملف مراجعة جديد</b><small>ابدأ مستقلًا: ارفع القوائم أو ميزان المراجعة أو المستندات ثم ابدأ الجولة الأولى</small></span><span class="co-choice">ابدأ هنا</span></button>':"";
-  const linked=cards&&gate!=="accounting"?'<div class="co-section" role="presentation"><b>'+(gate==="audit"?"ربط اختياري بشركة محاسبية":"ربط اختياري بشركة")+'</b><small>'+(gate==="audit"?"اختر شركة فقط إذا أردت الاستفادة من دفاترها داخل ملف المراجعة.":"اختر شركة فقط عندما تحتاج الأداة إلى بياناتها؛ ويمكنك البقاء في مساحة أدوات مستقلة.")+'</small></div>'+cards:cards;
+  const linked=cards&&gate!=="accounting"?'<div class="co-section" role="listitem"><b>'+(gate==="audit"?"ربط اختياري بشركة محاسبية":"ربط اختياري بشركة")+'</b><small>'+(gate==="audit"?"اختر شركة فقط إذا أردت الاستفادة من دفاترها داخل ملف المراجعة.":"اختر شركة فقط عندما تحتاج الأداة إلى بياناتها؛ ويمكنك البقاء في مساحة أدوات مستقلة.")+'</small></div>'+cards:cards;
   const empty=gate==="accounting"?"لا شركات في هذا القطاع بعد — أنشئ أول شركة تحته. النماذج المرجعية القطاعية الكاملة تأتي في الموجة P3.":"لا شركات على هذا الجهاز بعد.";
   $("co-list").innerHTML=(gate==="accounting"?cards:(extra+(linked||"")))||'<p class="co-empty">'+empty+'</p>';
   const add=$("co-add");add.hidden=gate==="audit";add.textContent=gate==="tools"?"+ مساحة أدوات جديدة":"+ شركة جديدة"+(s.label?" في «"+s.label+"»":"");
@@ -350,7 +350,7 @@ function paintCompanies(){
 function show(step){
   ["gates","sectors","companies","locked"].forEach(id=>{const el=$(id);if(el)el.hidden=id!==step});state.step=step;
   if(step==="gates")paintGates();else if(step==="sectors")paintSectors();else if(step==="companies")paintCompanies();
-  const t={gates:"SQC — اختر القسم",sectors:"SQC — اختر القطاع",companies:"SQC — اختر الشركة"}[step];if(t)document.title=t;
+  const t=step==="companies"?(state.gate==="accounting"?"SQC — اختر الشركة":state.gate==="audit"?"SQC — ابدأ المراجعة":"SQC — مساحة الأدوات"):{gates:"SQC — اختر القسم",sectors:"SQC — اختر القطاع"}[step];if(t)document.title=t;
 }
 function go(intent){
   const it={...intent};if(state.gate&&!it.gate)it.gate=state.gate;if(it.gate==="accounting"&&state.sector&&!it.sector&&!it.locked)it.sector=state.sector;
