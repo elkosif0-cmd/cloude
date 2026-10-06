@@ -13,6 +13,7 @@ const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
 assert.equal(scripts.length,2,'the reviewed unlock script first, the door second');
 const door=scripts[1];
 assert.ok(door.includes('/*SQC:ENTRY-DATA*/'),'build.py inlines the entry data at the marker');
+assert.match(html,/id="gates-help">ثلاثة مداخل واضحة ومستقلة:/,'the door explains the three independent entry meanings before a company is chosen');
 const CORPUS=[{id:'apple-2024',company:'Apple Inc.',sector:'tech',country:'الولايات المتحدة',fy:'FY2024'},{id:'aramco-2025',company:'Saudi Arabian Oil Company (Aramco)',sector:'energy',country:'السعودية',fy:'FY2025'}];
 const LIBRARY='https://kosif-financial-reference-library.smartsphere152.chatgpt.site/';
 
@@ -100,7 +101,12 @@ test('audit lists every company behind a new-file card, the bundle companies, an
   const g=page({local:device});
   g.gate('audit');
   assert.deepEqual(g.visible(),['companies']);
-  assert.ok(g.els['co-list'].innerHTML.includes('data-audit-new="1"'));
+  const auditHtml=g.els['co-list'].innerHTML;
+  assert.ok(auditHtml.includes('data-audit-new="1"'));
+  assert.ok(auditHtml.includes('class="co primary"'),'new audit is the visually primary action');
+  assert.ok(auditHtml.includes('ربط اختياري بشركة محاسبية'));
+  assert.ok(auditHtml.indexOf('data-audit-new="1"')<auditHtml.indexOf('ربط اختياري بشركة محاسبية'),'independent audit action comes before optional company linking');
+  assert.ok(g.els['entry-help'].textContent.includes('ابدأ ملف مراجعة مستقل'));
   assert.deepEqual(g.cards().map(c=>c.id),['co-private','co-a','co-b','demo-co']);
   assert.equal(g.els['co-add'].hidden,true);assert.equal(g.els.corpus.hidden,false);
   assert.deepEqual(g.corpus(),['apple-2024','aramco-2025']);
@@ -118,9 +124,14 @@ test('audit lists every company behind a new-file card, the bundle companies, an
 test('tools lists the spaces and a space without a company; that space is never a company of a sector',()=>{
   const g=page({local:device});
   g.gate('tools');
-  const c=g.cards();assert.deepEqual(c.map(x=>x.id),['co-private','co-a','co-b','demo-co','space-tools']);
-  assert.ok(c[4].scratch);assert.ok(g.els['co-add'].textContent.includes('مساحة جديدة'));
-  g.click(c[4]);
+  const c=g.cards();assert.deepEqual(c.map(x=>x.id),['space-tools','co-private','co-a','co-b','demo-co']);
+  const toolsHtml=g.els['co-list'].innerHTML;
+  assert.ok(c[0].scratch);assert.ok(toolsHtml.includes('class="co primary"'));assert.ok(toolsHtml.includes('فتح الأدوات بدون شركة'));
+  assert.ok(toolsHtml.includes('ربط اختياري بشركة'));
+  assert.ok(toolsHtml.indexOf('data-scratch="1"')<toolsHtml.indexOf('ربط اختياري بشركة'),'independent tools action comes before optional company linking');
+  assert.ok(g.els['entry-help'].textContent.includes('ابدأ الأدوات مباشرة بدون شركة'));
+  assert.ok(g.els['co-add'].textContent.includes('مساحة أدوات جديدة'));
+  g.click(c[0]);
   assert.deepEqual(g.intent(),{id:'space-tools',name:'مساحة الأدوات المستقلة',create:true,scratch:true,gate:'tools'});
   const known={...device,sqc_helper_users_v1:JSON.stringify({active:'user-main',users:{'user-main':{id:'user-main',name:'المحاسب',spaces:{'space-tools':{name:'مساحة الأدوات المستقلة',at:'2026-10-02T10:00:00Z'}}}}})};
   const k=page({local:known});k.gate('tools');k.click(k.cards().find(x=>x.scratch));
