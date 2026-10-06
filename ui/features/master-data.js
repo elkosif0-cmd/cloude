@@ -40,6 +40,9 @@ function profileCard(){
    '<label class="sk-field"><span>بداية السنة المالية</span><input data-md-profile="fiscalYearStart" maxlength="5" value="'+esc(p.fiscalYearStart)+'" placeholder="01-01"></label>'+
   '<label class="sk-field"><span>الزكاة / ضريبة الدخل</span><select data-md-profile="taxMode"><option value="zakat"'+(p.taxMode==="zakat"?" selected":"")+'>زكاة</option><option value="income"'+(p.taxMode==="income"?" selected":"")+'>ضريبة دخل</option></select></label>'+
   '<label class="sk-field"><span>الرقم الضريبي / VAT</span><input data-md-profile="vatNo" value="'+esc(p.vatNo)+'"></label>'+
+  '<label class="sk-field"><span>التسجيل في ضريبة القيمة المضافة</span><select data-md-profile="vatRegistered"><option value=""'+(p.vatRegistered==null?" selected":"")+'>حسب الدولة</option><option value="yes"'+(p.vatRegistered===true?" selected":"")+'>مسجلة</option><option value="no"'+(p.vatRegistered===false?" selected":"")+'>غير مسجلة</option></select></label>'+
+  '<label class="sk-field"><span>نسبة الضريبة % (فارغ = نسبة الدولة)</span><input data-md-profile="vatRate" inputmode="decimal" value="'+(p.vatRate==null?"":esc(String(Math.round(p.vatRate*10000)/100)))+'" placeholder="'+esc(String(Math.round(((window.SKEngines&&SKEngines.finance.vatPolicy&&SKEngines.finance.vatPolicy.STANDARD_RATES[p.country])||0)*10000)/100))+'"></label>'+
+  '<p class="hint" data-md-vat-policy>تُرحَّل المبيعات والمشتريات بنسبة: <b>'+esc(CP().vatPolicy().label)+'</b></p>'+
   '<label class="sk-field"><span>السجل التجاري</span><input data-md-profile="crNo" value="'+esc(p.crNo)+'"></label>'+
   '<label class="sk-field"><span>العنوان</span><input data-md-profile="address" value="'+esc(p.address)+'"></label></div>'+
   '<label class="sk-field"><span>ملاحظات تعريفية</span><textarea data-md-profile="notes" rows="3">'+esc(p.notes)+'</textarea></label>'+
@@ -100,6 +103,7 @@ function bind(root){
     const type=e.target.closest("[data-md-type]");if(type){active=type.dataset.mdType;paint(root);return}
     if(e.target.closest("[data-md-profile-save]")){
       const patch={};root.querySelectorAll("[data-md-profile]").forEach(el=>patch[el.dataset.mdProfile]=el.value);
+      patch.vatRegistered=patch.vatRegistered==="yes"?true:patch.vatRegistered==="no"?false:null;if(String(patch.vatRate||"").trim()==="")patch.vatRate=null;
       try{CP().setProfile(patch);toast("حُفظ تعريف الشركة","ok");paint(root)}catch(err){toast(err.message,"bad")}return
     }
     if(e.target.closest("[data-md-add]")){await add(root);return}

@@ -333,7 +333,7 @@ function quarters(year){
 function vatCalc(d,qid){
   const out=byCode(d,"2200"),inp=byCode(d,"1400");if(!out||!inp)return null;
   const want=qid||vatQ,Q=quarters(want&&want.slice(0,4)),t=today(),q=Q.find(x=>x.id===want)||Q.find(x=>x.id.includes("Q")&&t>=x.start&&t<=x.end)||Q[0];
-  const r=E().vatReturn.vatReturn({entries:d.entries,start:q.start,end:q.end,outputVatAccountId:out,inputVatAccountId:inp,
+  const r=E().vatReturn.vatReturn({entries:d.entries,start:q.start,end:q.end,outputVatAccountId:out,inputVatAccountId:inp,rate:vatRate()||undefined,
     typeOf:id=>(d.accounts.find(a=>a.id===id)||{}).type,controlAccountIds:["1100","1200","2100","2250"].map(c=>byCode(d,c)).filter(Boolean)});
   return {Q,q,r,out,inp,settled:d.entries.find(e=>e.sourceId==="vat:"+q.id&&!e.reversedBy)};
 }
@@ -376,13 +376,15 @@ function costResolver(){
     if(r&&Number(r.cost)>0)return Number(r.cost);return cat.get(k)||all[k]||null};
 }
 const paidNow=p=>!!p&&!/آجل|اجل|ائتمان|credit/i.test(String(p));
+/* the rate of every sale comes from the company's VAT policy (country rate, the profile's own rate, or none when not registered) */
+const vatRate=()=>{try{const P=window.SKosifCompanyPlatform;return P&&P.vatPolicy?P.vatPolicy().rate:0.15}catch{return 0.15}};
 /* one sale from «تسجيل بيع» (prices include VAT) as a balanced entry with its cost of sales; shared with the demo company */
-function saleEntry(d,x,costOf){
+function saleEntry(d,x,costOf,rate=vatRate()){
   const date=String(x.date||"").slice(0,10),qty=Number(x.qty)||1,gross=Number(x.unitPrice)||((Number(x.amount)||0)/qty);if(!(gross>0))return null;
   const withCost=d.accounts.some(a=>a.code==="5000")&&d.accounts.some(a=>a.code==="1300");
   const b=window.SKEngines.sales.salesPosting.buildSalesPosting({id:x.id,number:x.id,date,dueDate:date,customerId:x.customer||x.phone||"عميل",status:"DRAFT",
-      lines:[{itemId:x.item||"بيع",quantity:qty,unitPrice:gross,vatRate:0.15,priceIncludesVat:true}]},
-    {receivableAccountId:idOf(d,"1200"),revenueAccountId:idOf(d,"4000"),vatPayableAccountId:idOf(d,"2200")},
+      lines:[{itemId:x.item||"بيع",quantity:qty,unitPrice:gross,vatRate:rate,priceIncludesVat:true}]},
+    {receivableAccountId:idOf(d,"1200"),revenueAccountId:idOf(d,"4000"),vatPayableAccountId:rate>0?idOf(d,"2200"):"no-vat"},
     withCost?{cogsAccountId:idOf(d,"5000"),inventoryAccountId:idOf(d,"1300"),unitCost:id=>costOf(id,date,x.category)}:undefined);
   const party=x.customer||x.phone||"عميل",lines=b.journal.lines.slice();
   /* paid at the till (cash, mada, transfer): collected in the same entry, so only credit sales stay in receivables */
@@ -393,12 +395,12 @@ function saleEntry(d,x,costOf){
   return {entry:{...journal,id:SK.ui.uid("je"),memo:"بيع: "+(x.item||"")+" — "+(x.customer||""),reference:x.id,source:"مبيعات",sourceId:"sale:"+x.id,party},cost:b.cost,uncosted:b.uncosted.length>0};
 }
 function postSales(d){
-  if(!ensureAcc(d,["1200","4000","2200"]))return;
+  const rate=vatRate();if(!ensureAcc(d,rate>0?["1200","4000","2200"]:["1200","4000"]))return;
   const posted=postedSources(d),costOf=costResolver();let n=0,skipped=0,held=0,noCost=0,cost=0;
   (load("aghnam-v12-manual-sales",[])||[]).forEach(x=>{try{
     if(!x||!x.id||posted.has("sale:"+x.id))return;
     if(locked(d,String(x.date||"").slice(0,10))){held++;return}
-    const r=saleEntry(d,x,costOf);if(!r){skipped++;return}
+    const r=saleEntry(d,x,costOf,rate);if(!r){skipped++;return}
     d.entries.push(r.entry);cost+=r.cost;if(r.uncosted)noCost++;n++;
   }catch{skipped++}});
   put(d);

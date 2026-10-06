@@ -411,7 +411,7 @@ window.SKEngines = (function() {
 		fromMajor: () => fromMajor,
 		normalizeDigits: () => normalizeDigits,
 		parseMinor: () => parseMinor,
-		pct: () => pct$4,
+		pct: () => pct$5,
 		ratio: () => ratio,
 		sum: () => sum,
 		toMajor: () => toMajor
@@ -463,7 +463,7 @@ window.SKEngines = (function() {
 		return v < 0 ? -Math.round(-v) : Math.round(v);
 	}
 	/** percentage (numerator / denominator × 100), rounded; null when the denominator is zero. */
-	function pct$4(numerator, denominator, digits = 1) {
+	function pct$5(numerator, denominator, digits = 1) {
 		if (!denominator) return null;
 		const f = 10 ** digits;
 		return Math.round(numerator / denominator * 100 * f) / f;
@@ -14322,7 +14322,7 @@ window.SKEngines = (function() {
 		icfrReport: () => icfrReport
 	});
 	var money$27 = (v, cur) => `${Math.round(v / 100).toLocaleString("en")} ${cur}`;
-	var pct$3 = (v) => `${Math.round(v * 1e3) / 10}%`;
+	var pct$4 = (v) => `${Math.round(v * 1e3) / 10}%`;
 	var RATIONALE = {
 		pbz: "الربح قبل الزكاة مقياس مهم لمستخدمي القوائم المالية وأساس مقبول عموماً للمنشآت الهادفة للربح.",
 		revenue: "اخترنا الإيرادات أساساً لأن الربح متذبذب أو منخفض نسبةً إلى حجم النشاط، والإيرادات أكثر استقراراً وتعبيراً عن حجم المنشأة.",
@@ -14335,7 +14335,7 @@ window.SKEngines = (function() {
 		return {
 			title: "نهجنا في المراجعة",
 			paragraphs: [
-				`حددنا الأهمية النسبية للقوائم المالية ككل بمبلغ ${money$27(m.overall, cur)}، بنسبة ${pct$3(rate)} من ${benchmarkAr}.`,
+				`حددنا الأهمية النسبية للقوائم المالية ككل بمبلغ ${money$27(m.overall, cur)}، بنسبة ${pct$4(rate)} من ${benchmarkAr}.`,
 				`واتفقنا مع المكلفين بالحوكمة على أن نبلغهم بالتحريفات التي تتجاوز ${money$27(m.trivial, cur)}، وبما يقل عنها إن استدعت أسباب نوعية ذلك.`,
 				i.components ? `النطاق: ${i.components}.` : "النطاق: مراجعة كاملة للمنشأة، وصُممت الإجراءات لكل بند جوهري على ضوء تقييم مخاطر التحريف الجوهري فيه.",
 				...i.kamTitles.length ? [`الأمور الرئيسية للمراجعة: ${i.kamTitles.join("؛ ")}.`] : [],
@@ -14345,10 +14345,10 @@ window.SKEngines = (function() {
 				columns: ["", ""],
 				rows: [
 					["الأهمية النسبية العامة", money$27(m.overall, cur)],
-					["كيف حددناها", `${pct$3(rate)} من ${benchmarkAr} (${money$27(m.base, cur)})`],
+					["كيف حددناها", `${pct$4(rate)} من ${benchmarkAr} (${money$27(m.base, cur)})`],
 					["مبرر الأساس المختار", RATIONALE[m.benchmark]],
-					["الأهمية النسبية التنفيذية", `${money$27(m.performance, cur)} (${pct$3(m.overall ? m.performance / m.overall : 0)} من الأهمية العامة)`],
-					["حد الإبلاغ للمكلفين بالحوكمة", `${money$27(m.trivial, cur)} (${pct$3(m.overall ? m.trivial / m.overall : 0)} من الأهمية العامة)`]
+					["الأهمية النسبية التنفيذية", `${money$27(m.performance, cur)} (${pct$4(m.overall ? m.performance / m.overall : 0)} من الأهمية العامة)`],
+					["حد الإبلاغ للمكلفين بالحوكمة", `${money$27(m.trivial, cur)} (${pct$4(m.overall ? m.trivial / m.overall : 0)} من الأهمية العامة)`]
 				]
 			}
 		};
@@ -19102,6 +19102,84 @@ window.SKEngines = (function() {
 			absoluteChange: money$16(current - prior),
 			newAccount: prior === 0 && current !== 0,
 			vanishedAccount: prior !== 0 && current === 0
+		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/finance/vat-policy-engine.ts
+	var vat_policy_engine_exports = /* @__PURE__ */ __exportAll({
+		STANDARD_RATES: () => STANDARD_RATES,
+		normalizeRate: () => normalizeRate,
+		splitInclusive: () => splitInclusive,
+		vatPolicy: () => vatPolicy
+	});
+	var STANDARD_RATES = Object.freeze({
+		SA: .15,
+		EG: .14,
+		BH: .1,
+		AE: .05,
+		OM: .05,
+		KW: 0,
+		QA: 0
+	});
+	var pct$3 = (r) => Math.round(r * 1e4) / 100 + "%";
+	/** a profile rate is a fraction between 0 and 1 (0.15), or a percentage above 1 (15); anything else is ignored */
+	function normalizeRate(v) {
+		const n = typeof v === "string" && v.trim() !== "" ? Number(v) : typeof v === "number" ? v : NaN;
+		if (!Number.isFinite(n) || n < 0) return null;
+		const r = n > 1 ? n / 100 : n;
+		return r <= 1 ? Math.round(r * 1e4) / 1e4 : null;
+	}
+	function vatPolicy(input = {}) {
+		const country = String(input.country || "").trim().toUpperCase();
+		const table = Object.prototype.hasOwnProperty.call(STANDARD_RATES, country) ? STANDARD_RATES[country] : null;
+		if (input.vatRegistered === false) return {
+			registered: false,
+			rate: 0,
+			source: "none",
+			country,
+			label: "غير مسجلة في ضريبة القيمة المضافة"
+		};
+		const own = normalizeRate(input.vatRate);
+		if (own !== null) return {
+			registered: own > 0,
+			rate: own,
+			source: "profile",
+			country,
+			label: "نسبة ملف الشركة " + pct$3(own)
+		};
+		if (table === null) return {
+			registered: false,
+			rate: 0,
+			source: "none",
+			country,
+			label: "لا نسبة معروفة لهذه الدولة — حددها في ملف الشركة"
+		};
+		if (table === 0) return {
+			registered: false,
+			rate: 0,
+			source: "none",
+			country,
+			label: "لا ضريبة قيمة مضافة في هذه الدولة"
+		};
+		return {
+			registered: true,
+			rate: table,
+			source: "country",
+			country,
+			label: "النسبة الأساسية للدولة " + pct$3(table)
+		};
+	}
+	/** the tax in a VAT-inclusive amount and the amount before it, rounded to the halala/piastre */
+	function splitInclusive(gross, rate) {
+		const r2 = (x) => Math.round((x + Number.EPSILON) * 100) / 100;
+		if (!(rate > 0)) return {
+			net: r2(gross),
+			vat: 0
+		};
+		const net = r2(gross / (1 + rate));
+		return {
+			net,
+			vat: r2(gross - net)
 		};
 	}
 	//#endregion
@@ -24959,6 +25037,7 @@ window.SKEngines = (function() {
 			receivables: receivables_engine_exports,
 			reconciliation: reconciliation_engine_exports,
 			trialBalance: trial_balance_engine_exports,
+			vatPolicy: vat_policy_engine_exports,
 			vatReturn: vat_return_engine_exports
 		},
 		intelligence: {
