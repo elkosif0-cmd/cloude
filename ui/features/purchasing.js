@@ -16,12 +16,17 @@ const db=()=>{const d=load(KEY,{});return{orders:d.orders||[],receipts:d.receipt
 const put=d=>save(KEY,d);
 const today=()=>new Date().toISOString().slice(0,10);
 const n=v=>Number(v)||0;
+/* the company's own definitions (التعريفات) feed the pickers first — FOUNDATION P2: one master data for the company */
+const defs=type=>{try{const P=window.SKosifCompanyPlatform;return P&&P.definitions?P.definitions(type):[]}catch{return[]}};
 function suppliers(d){
-  const s=new Set(d.orders.map(o=>o.supplier).concat(d.prices.map(p=>p.supplier)));
+  const s=new Set(defs("suppliers").map(x=>x.name).concat(d.orders.map(o=>o.supplier),d.prices.map(p=>p.supplier)));
   (load("skosif_v31_supplier_batches",[])||[]).forEach(b=>b&&b.supplier&&s.add(b.supplier));
   return [...s].filter(Boolean).sort((a,b)=>a.localeCompare(b,"ar"));
 }
-function items(){try{return(window.SKosifCore.catalog().items||[]).filter(i=>i.kind==="raw").map(i=>i.name)}catch{return[]}}
+function items(){let cat=[];try{cat=(window.SKosifCore.catalog().items||[]).filter(i=>i.kind==="raw").map(i=>i.name)}catch{}
+  return [...new Set(defs("products").map(x=>x.name).concat(cat))].filter(Boolean)}
+/* the purchase price of a defined product: the default cost when the supplier has no dated price */
+function definedCost(item){const p=defs("products").find(x=>x.name===item);const v=p&&(p.purchasePrice??p.cost);return Number(v)>0?Number(v):null}
 /* the supplier price valid on a date (latest start wins) */
 function priceFor(d,supplier,item,date){
   return d.prices.filter(p=>p.supplier===supplier&&p.item===item&&p.from<=date&&(!p.to||p.to>=date)).sort((a,b)=>b.from.localeCompare(a.from))[0]||null;
@@ -126,7 +131,7 @@ function bind(root){
   root.addEventListener("input",e=>{
     const el=e.target;if(!po)return;
     if(el.dataset.pl!=null){const l=po.lines[+el.dataset.pl];l[el.dataset.f]=el.value;
-      if(el.dataset.f==="item"&&!l.cost){const pr=priceFor(db(),po.supplier.trim(),el.value.trim(),po.date);if(pr){l.cost=String(pr.price);const c=root.querySelector('[data-pl="'+el.dataset.pl+'"][data-f="cost"]');if(c)c.value=l.cost}}}
+      if(el.dataset.f==="item"&&!l.cost){const pr=priceFor(db(),po.supplier.trim(),el.value.trim(),po.date);const dc=pr?null:definedCost(el.value.trim());if(pr||dc){l.cost=String(pr?pr.price:dc);const c=root.querySelector('[data-pl="'+el.dataset.pl+'"][data-f="cost"]');if(c)c.value=l.cost}}}
     if(el.id==="pu-supplier")po.supplier=el.value;if(el.id==="pu-date")po.date=el.value;if(el.id==="pu-due")po.dueDate=el.value;
     const tot=root.querySelector("#pu-total");if(tot&&po)tot.textContent=money(P().procurement.purchaseOrderValue(po.lines.map(l=>({itemId:l.item,orderedQty:n(l.qty),unitCost:n(l.cost)}))));
   });

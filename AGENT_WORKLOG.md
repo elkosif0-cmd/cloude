@@ -250,3 +250,13 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Not changed: «الرقم الضريبي (15 رقم)» is the Saudi VAT-number length, not a rate.
 - Evidence: vat_policy_contract 3/3; workflow node tests 294 pass / 52 fail, identical to `main` (no new failure); books_integrity OK; feature_audit 146/146; door 88/88; sales_reports 28/28; advances 26/26.
 - NEXT ACTION: P2 — company definitions feed the purchase and sale pickers; then P3 sector packs (meat first).
+
+### TASK CLAUDE-20261006-006 — P2: the company's definitions feed the purchase and sale pickers
+- Agent: Claude (Lead Development Agent)
+- Status: DONE — merged as PR #157 on the owner's explicit instruction in chat on 2026-10-06 («ادمج وكمل»); GitHub jobs not started (billing), acceptance on local evidence.
+- Goal: one master data per company — suppliers, products and customers defined in «التعريفات» are offered where operations are recorded, so the books, statements and ageing name the same parties.
+- Scope: `ui/features/purchasing.js` (supplier and item pickers start with the definitions; a defined product's purchase price is the line's default cost when the supplier has no dated price); `ui/features/definition-pickers.js` (new, in `build.py`): the core sale dialog's customer field (#v12s-customer) gets a suggestion list of defined customers then customers already sold to — attached on focus, no core payload edit; `tools/books_integrity_e2e.mjs` checks all three through the real screens.
+- Branch / PR: `claude/p2-definitions-pickers-20261006` from `main` @ dfd4dd0.
+- Not changed: the core sale dialog's product picker is the core catalog (items with prices); defined products without a selling price are not added there.
+- Evidence: workflow node tests 294 pass / 52 fail, identical to `main` (no new failure); books_integrity_e2e OK incl. the three picker checks; feature_audit 146/146; door 88/88; sales_reports 28/28; advances 26/26.
+- NEXT ACTION: owner approval to merge; then P3 sector packs (meat first).
