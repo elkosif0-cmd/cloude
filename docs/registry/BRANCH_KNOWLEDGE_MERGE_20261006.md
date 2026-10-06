@@ -12,8 +12,8 @@
 ## ترتيب الدفعة الأولى
 | الترتيب | المصدر | الحالة | سبب الأولوية |
 |---|---|---|---|
-| 1 | PR #143 / `codex/sqc-five-audit-source-models-20261005` | IN_PROGRESS | أكبر حزمة: مصادر، محركات، حماية، اختبارات |
-| 2 | PR #140 / `feat/kosif-unified-financial-os-20261005` | QUEUED | Company Platform, Master Data, Reporting Intake, Audit Inbox |
+| 1 | PR #143 / `codex/sqc-five-audit-source-models-20261005` | COMPLETE | أكبر حزمة: مصادر، محركات، حماية، اختبارات |
+| 2 | PR #140 / `feat/kosif-unified-financial-os-20261005` | IN_PROGRESS | Company Platform, Master Data, Reporting Intake, Audit Inbox |
 | 3 | PR #169 / `kosifsee/ux-clarity-20261006` | QUEUED | تنظيم واجهة البوابات وتجربة الأدوات |
 | 4 | PR #170 / `kosifsee/audit-context-separation-20261006` | QUEUED | فصل سياق المراجعة عن المحاسبة |
 | 5+ | بقية الفروع | QUEUED | تُقرأ واحدًا واحدًا كمصادر معرفة |
@@ -41,3 +41,18 @@
 - طبقة المراجعة والتقارير المرتبطة بالمصادر.
 
 الحالة: التحليل العميق جارٍ؛ لا يوجد قرار نسخ أعمى أو رفض جماعي.
+
+
+### PR #143 — نتيجة التنفيذ
+- تمت القراءة كمصدر معرفة، وليس كدمج فرع كامل.
+- ثبت أن وثيقتي Company Chat Isolation وPublic Demo Admission موجودتان أصلًا في main بالمحتوى نفسه؛ لم تُكررا.
+- تم استرجاع **110 ملفات** من حزمة المصادر الموثقة: محركات + source-data + fixtures + اختبارات fidelity/replay.
+- تمت إضافة/استرجاع محركات: Home Depot، Mercedes-Benz، McDonald's، Volkswagen، Reference Index، Source Replay، وP&G source package.
+- تم توصيل **6 محركات مصادر** إضافية داخل `app/src/engine/fusion/index.ts` مع الحفاظ على محركات main الأحدث.
+- تحقق وجود الملفات الأساسية على فرع التكامل بعد النقل.
+- ما لم يُنسخ: أي ملف قديم كان سيستبدل منطقًا أحدث في main بلا فائدة إضافية.
+
+الحالة: **COMPLETE — المعرفة المفيدة من PR #143 نُقلت إلى فرع التكامل.**
+
+## PR #140 — بدأ التحليل
+المطلوب فحصه: Company Platform، Master Data، Reporting Intake، Audit Inbox، تثبيت الأدوات لكل شركة، Capability Registry والعقود المرتبطة.
