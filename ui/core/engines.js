@@ -7546,7 +7546,7 @@ window.SKEngines = (function() {
 			"8) اكتب بالعربية الفصحى المهنية الموجزة. لا تضع أي بيانات خارج مخطط JSON."
 		].join("\n");
 	}
-	var sar$8 = (m) => formatMinor(m, { decimals: 0 });
+	var sar$9 = (m) => formatMinor(m, { decimals: 0 });
 	/** The trial balance and the engine's review, compact enough for one prompt. */
 	function describeReview(tb, review) {
 		const rows = review.accounts.map((a) => [
@@ -7554,21 +7554,21 @@ window.SKEngines = (function() {
 			a.name,
 			TYPE_LABELS[a.type],
 			a.lineAr,
-			sar$8(a.natural),
-			a.prior === null ? "" : sar$8(a.prior),
+			sar$9(a.natural),
+			a.prior === null ? "" : sar$9(a.prior),
 			a.standards.map((s) => s.code).join("+")
 		].join(" | "));
 		const m = review.materiality, k = review.fs.keys;
 		return [
 			"ميزان المراجعة (رقم | اسم | نوع | بند القوائم | الرصيد بطبيعته | السابق | المعايير المقترحة):",
 			...rows,
-			`التوازن: ${tb.balanced ? "متوازن" : "غير متوازن بفرق " + sar$8(tb.difference)}.`,
-			`الأهمية النسبية: ${sar$8(m.overall)} (${m.benchmarkAr} × ${m.rate * 100}%) — التنفيذية ${sar$8(m.performance)} — حد التفاهة ${sar$8(m.trivial)}.`,
-			`الإيرادات ${sar$8(k.revenue.current)} · الربح التشغيلي ${sar$8(k.operating.current)} · صافي الربح ${sar$8(k.profit.current)} · الموجودات ${sar$8(k.assets.current)} · حقوق الملكية ${sar$8(k.equity.current)}.`,
+			`التوازن: ${tb.balanced ? "متوازن" : "غير متوازن بفرق " + sar$9(tb.difference)}.`,
+			`الأهمية النسبية: ${sar$9(m.overall)} (${m.benchmarkAr} × ${m.rate * 100}%) — التنفيذية ${sar$9(m.performance)} — حد التفاهة ${sar$9(m.trivial)}.`,
+			`الإيرادات ${sar$9(k.revenue.current)} · الربح التشغيلي ${sar$9(k.operating.current)} · صافي الربح ${sar$9(k.profit.current)} · الموجودات ${sar$9(k.assets.current)} · حقوق الملكية ${sar$9(k.equity.current)}.`,
 			"ملاحظات المحرك الآلي (أكدها أو فندها):",
 			...review.findings.map((f) => `${f.id} [${f.severity}] ${f.title} — ${f.basis} — ${f.standard}`),
 			"قيود المحرك المقترحة:",
-			...review.adjustments.map((a) => `${a.id} ${a.title}: ` + a.lines.map((l) => `${l.code} ${l.name} م${sar$8(l.debit)} د${sar$8(l.credit)}`).join("؛ "))
+			...review.adjustments.map((a) => `${a.id} ${a.title}: ` + a.lines.map((l) => `${l.code} ${l.name} م${sar$9(l.debit)} د${sar$9(l.credit)}`).join("؛ "))
 		].join("\n");
 	}
 	/** Outstanding requests: asked in any round, not yet accepted, not marked unavailable. */
@@ -7665,7 +7665,7 @@ window.SKEngines = (function() {
 			round
 		};
 		const v = validateAdjustment(a, tb);
-		const problems = [...v.problems, ...v.balanced ? [] : [`القيد غير متوازن: مدين ${sar$8(v.debit)} ودائن ${sar$8(v.credit)}`]];
+		const problems = [...v.problems, ...v.balanced ? [] : [`القيد غير متوازن: مدين ${sar$9(v.debit)} ودائن ${sar$9(v.credit)}`]];
 		return {
 			...a,
 			valid: v.valid,
@@ -7711,7 +7711,7 @@ window.SKEngines = (function() {
 				standard: normalizeCode$1(std) ?? (std || "IAS 1"),
 				title: str$1(f.comment, 160).split(/[.،؛]/)[0] || "ملاحظة",
 				detail: str$1(f.comment, 2e3),
-				basis: amount ? "المبلغ المتأثر " + sar$8(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
+				basis: amount ? "المبلغ المتأثر " + sar$9(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
 				action: str$1(f.recommendation, 1e3),
 				source: "gemini",
 				round: no,
@@ -7944,7 +7944,7 @@ window.SKEngines = (function() {
 		const lineOf = (q) => q.lineKey ?? review.accounts.find((a) => q.accounts.includes(a.code))?.lineKey ?? null;
 		const blockedSig = new Set(unavailHigh.map(lineOf).filter((k) => k && review.risks.some((r) => r.lineKey === k && r.significant)));
 		const basis = [], material = misstatement > mat.overall, pervasive = misstatement > mat.overall * 5, cs = s.ctx.curSym ?? (s.ctx.framework === "EAS" ? "ج.م" : "ر.س");
-		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar$8(misstatement)} ${cs} مقابل أهمية نسبية ${sar$8(mat.overall)} ${cs} (ISA 450).`);
+		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar$9(misstatement)} ${cs} مقابل أهمية نسبية ${sar$9(mat.overall)} ${cs} (ISA 450).`);
 		if (unavailHigh.length) basis.push(`تعذر الحصول على ${unavailHigh.length} مستند عالي الأولوية: ` + unavailHigh.map((q) => q.title).join("، ") + ".");
 		const scopePervasive = unavailHigh.length >= 3 || blockedSig.size >= 3;
 		if (sigUnevidenced) basis.push(`${sigUnevidenced} خطر جوهري دون دليل مقبول بعد؛ يستكمل قبل التوقيع (ISA 330).`);
@@ -17537,7 +17537,7 @@ window.SKEngines = (function() {
 		retainerInvoiceJournal: () => retainerInvoiceJournal,
 		retainerSchedule: () => retainerSchedule
 	});
-	var sar$7 = (h) => h / 100;
+	var sar$8 = (h) => h / 100;
 	var MONTH$1 = /^\d{4}-(0[1-9]|1[0-2])$/;
 	var addMonths$1 = (m, n) => {
 		const [y, mo] = m.split("-").map(Number);
@@ -17575,20 +17575,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.receivableAccountId,
-						debit: sar$7(total + vat),
+						debit: sar$8(total + vat),
 						credit: 0,
 						description: "فاتورة اشتراك " + r.client
 					},
 					{
 						accountId: a.deferredAccountId,
 						debit: 0,
-						credit: sar$7(total),
+						credit: sar$8(total),
 						description: "إيراد مؤجل — " + r.campaign
 					},
 					...vat ? [{
 						accountId: a.outputVatAccountId,
 						debit: 0,
-						credit: sar$7(vat),
+						credit: sar$8(vat),
 						description: "ضريبة المخرجات"
 					}] : []
 				]
@@ -17611,13 +17611,13 @@ window.SKEngines = (function() {
 				memo: "الاعتراف بإيراد " + r.client + " — " + due.map((m) => m.month).join("، "),
 				lines: [{
 					accountId: a.deferredAccountId,
-					debit: sar$7(amount),
+					debit: sar$8(amount),
 					credit: 0,
 					description: r.campaign
 				}, {
 					accountId: a.revenueAccountId,
 					debit: 0,
-					credit: sar$7(amount),
+					credit: sar$8(amount),
 					description: "إيراد إدارة الحملة — " + r.campaign
 				}]
 			}
@@ -17635,13 +17635,13 @@ window.SKEngines = (function() {
 			party: x.platform,
 			lines: [{
 				accountId: a.mediaCostAccountId,
-				debit: sar$7(x.amountHalalas),
+				debit: sar$8(x.amountHalalas),
 				credit: 0,
 				description: x.campaign
 			}, {
 				accountId: a.platformPayableAccountId,
 				debit: 0,
-				credit: sar$7(x.amountHalalas),
+				credit: sar$8(x.amountHalalas),
 				description: "مستحق " + x.platform
 			}]
 		} };
@@ -17666,20 +17666,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.receivableAccountId,
-						debit: sar$7(amount + vat),
+						debit: sar$8(amount + vat),
 						credit: 0,
 						description: x.client
 					},
 					{
 						accountId: a.revenueAccountId,
 						debit: 0,
-						credit: sar$7(amount),
+						credit: sar$8(amount),
 						description: "إنفاق معاد تحميله — " + x.campaign
 					},
 					...vat ? [{
 						accountId: a.outputVatAccountId,
 						debit: 0,
-						credit: sar$7(vat),
+						credit: sar$8(vat),
 						description: "ضريبة المخرجات"
 					}] : []
 				]
@@ -18498,7 +18498,7 @@ window.SKEngines = (function() {
 		hotelKpis: () => hotelKpis,
 		nightAudit: () => nightAudit
 	});
-	var sar$6 = (h) => h / 100;
+	var sar$7 = (h) => h / 100;
 	var int = (v) => Number.isInteger(v) && v >= 0;
 	/** a guest's deposit ahead of the stay: cash (with its VAT) against the deposits liability */
 	function depositJournal(x, vatRate, a) {
@@ -18517,20 +18517,20 @@ window.SKEngines = (function() {
 				lines: [
 					{
 						accountId: a.cashAccountId,
-						debit: sar$6(x.amountHalalas + vat),
+						debit: sar$7(x.amountHalalas + vat),
 						credit: 0,
 						description: "عربون " + x.guest
 					},
 					{
 						accountId: a.depositAccountId,
 						debit: 0,
-						credit: sar$6(x.amountHalalas),
+						credit: sar$7(x.amountHalalas),
 						description: "ودائع الحجوزات — " + x.guest
 					},
 					...vat ? [{
 						accountId: a.outputVatAccountId,
 						debit: 0,
-						credit: sar$6(vat),
+						credit: sar$7(vat),
 						description: "ضريبة العربون"
 					}] : []
 				]
@@ -18552,32 +18552,32 @@ window.SKEngines = (function() {
 		const lines = [
 			...applied ? [{
 				accountId: a.depositAccountId,
-				debit: sar$6(applied),
+				debit: sar$7(applied),
 				credit: 0,
 				description: "من عربون " + guest
 			}] : [],
 			...rest ? [{
 				accountId: settle,
-				debit: sar$6(rest),
+				debit: sar$7(rest),
 				credit: 0,
 				description: (x.settleBy === "receivable" ? "على حساب " : "محصّل من ") + guest
 			}] : [],
 			...room ? [{
 				accountId: a.roomRevenueAccountId,
 				debit: 0,
-				credit: sar$6(room),
+				credit: sar$7(room),
 				description: "إيراد الغرف — " + x.roomsSold + " غرفة"
 			}] : [],
 			...fb ? [{
 				accountId: a.fbRevenueAccountId,
 				debit: 0,
-				credit: sar$6(fb),
+				credit: sar$7(fb),
 				description: "الأغذية والمشروبات"
 			}] : [],
 			...vat ? [{
 				accountId: a.outputVatAccountId,
 				debit: 0,
-				credit: sar$6(vat),
+				credit: sar$7(vat),
 				description: "ضريبة المخرجات"
 			}] : []
 		];
@@ -18604,13 +18604,13 @@ window.SKEngines = (function() {
 				party: channel,
 				lines: [{
 					accountId: a.commissionExpenseAccountId,
-					debit: sar$6(commission),
+					debit: sar$7(commission),
 					credit: 0,
 					description: "عمولة " + pct + "٪ من إيراد الغرف"
 				}, {
 					accountId: a.commissionPayableAccountId,
 					debit: 0,
-					credit: sar$6(commission),
+					credit: sar$7(commission),
 					description: "مستحق " + channel
 				}]
 			} : null
@@ -18698,7 +18698,7 @@ window.SKEngines = (function() {
 			patientShare
 		};
 	}
-	var sar$5 = (h) => h / 100;
+	var sar$6 = (h) => h / 100;
 	var VAT_TREATMENT_LABEL = Object.freeze({
 		standard: "خاضعة للنسبة الأساسية",
 		"state-borne": "مواطن سعودي — تتحملها الدولة (فاتورة 0٪)",
@@ -18748,26 +18748,26 @@ window.SKEngines = (function() {
 		const lines = [
 			...s.patientShare ? [{
 				accountId: a.cashAccountId,
-				debit: sar$5(s.patientShare),
+				debit: sar$6(s.patientShare),
 				credit: 0,
 				description: "حصة المريض — حالة " + e.caseRef
 			}] : [],
 			...s.payerShare ? [{
 				accountId: a.payerReceivableAccountId,
-				debit: sar$5(s.payerShare),
+				debit: sar$6(s.payerShare),
 				credit: 0,
 				description: "مطالبة " + s.payer + " — حالة " + e.caseRef
 			}] : [],
 			{
 				accountId: rev,
 				debit: 0,
-				credit: sar$5(e.grossHalalas),
+				credit: sar$6(e.grossHalalas),
 				description: DEPARTMENT_LABEL[e.department] + " — حالة " + e.caseRef
 			},
 			...vatH ? [{
 				accountId: a.outputVatAccountId,
 				debit: 0,
-				credit: sar$5(vatH),
+				credit: sar$6(vatH),
 				description: "ضريبة مخرجات " + Math.round(rate * 1e4) / 100 + "٪ — حالة " + e.caseRef
 			}] : []
 		];
@@ -18800,20 +18800,20 @@ window.SKEngines = (function() {
 		const lines = [
 			...r.paidHalalas ? [{
 				accountId: a.cashAccountId,
-				debit: sar$5(r.paidHalalas),
+				debit: sar$6(r.paidHalalas),
 				credit: 0,
 				description: "سداد " + payer
 			}] : [],
 			...r.rejectedHalalas ? [{
 				accountId: a.rejectionsAccountId,
-				debit: sar$5(r.rejectedHalalas),
+				debit: sar$6(r.rejectedHalalas),
 				credit: 0,
 				description: "رفض " + payer + ": " + String(r.reason).trim()
 			}] : [],
 			{
 				accountId: a.payerReceivableAccountId,
 				debit: 0,
-				credit: sar$5(total),
+				credit: sar$6(total),
 				description: "تسوية مطالبات " + payer
 			}
 		];
@@ -18872,23 +18872,23 @@ window.SKEngines = (function() {
 		if (fee && !doctor) throw new Error("حدد الطبيب");
 		const lines = [...fee ? [{
 			accountId: a.doctorFeesAccountId,
-			debit: sar$5(fee),
+			debit: sar$6(fee),
 			credit: 0,
 			description: "أتعاب " + doctor + " — حالة " + c.caseRef
 		}, {
 			accountId: a.doctorPayableAccountId,
 			debit: 0,
-			credit: sar$5(fee),
+			credit: sar$6(fee),
 			description: "مستحق " + doctor + " — حالة " + c.caseRef
 		}] : [], ...supplies ? [{
 			accountId: a.suppliesCostAccountId,
-			debit: sar$5(supplies),
+			debit: sar$6(supplies),
 			credit: 0,
 			description: "أدوية ومستلزمات — حالة " + c.caseRef
 		}, {
 			accountId: a.pharmacyStockAccountId,
 			debit: 0,
-			credit: sar$5(supplies),
+			credit: sar$6(supplies),
 			description: "صرف من الصيدلية — حالة " + c.caseRef
 		}] : []];
 		return {
@@ -19358,6 +19358,271 @@ window.SKEngines = (function() {
 	function isPeriodLocked(date, lockDate) {
 		if (!lockDate || !/^\d{4}-\d{2}-\d{2}/.test(lockDate)) return false;
 		return String(date || "").slice(0, 10) <= lockDate.slice(0, 10);
+	}
+	//#endregion
+	//#region app/src/engine/fusion/finance/livestock-engine.ts
+	var livestock_engine_exports = /* @__PURE__ */ __exportAll({
+		costPerHead: () => costPerHead,
+		cycleKpis: () => cycleKpis,
+		emptyCycleState: () => emptyCycleState,
+		fairValueJournal: () => fairValueJournal,
+		feedPurchaseJournal: () => feedPurchaseJournal,
+		feedingJournal: () => feedingJournal,
+		mortalityJournal: () => mortalityJournal,
+		saleJournals: () => saleJournals,
+		stockingJournal: () => stockingJournal
+	});
+	var sar$5 = (h) => h / 100;
+	var whole = (n) => Number.isInteger(n) && n > 0;
+	var emptyCycleState = () => ({
+		heads: 0,
+		costHalalas: 0,
+		bought: 0,
+		born: 0,
+		dead: 0,
+		sold: 0,
+		feedHalalas: 0,
+		revenueHalalas: 0,
+		cogsHalalas: 0,
+		fairValueHalalas: 0
+	});
+	/** the carrying amount per head, the basis of every head that leaves the cycle */
+	var costPerHead = (s) => s.heads > 0 ? Math.round(s.costHalalas / s.heads) : 0;
+	var out = (s, n) => n === s.heads ? s.costHalalas : costPerHead(s) * n;
+	/** animals (or seed and seedlings) bought into the cycle, paid or on credit */
+	function stockingJournal(c, x, vatRate, a) {
+		if (!whole(x.heads)) throw new Error("عدد الرؤوس غير صالح");
+		if (!Number.isInteger(x.amountHalalas) || x.amountHalalas <= 0) throw new Error("قيمة الشراء يجب أن تكون أكبر من صفر");
+		const vat = vatRate > 0 ? Math.round(x.amountHalalas * vatRate) : 0;
+		if (vat && !a.inputVatAccountId) throw new Error("حساب ضريبة المدخلات غير موجود");
+		if (x.onCredit && (!a.payableAccountId || !String(x.supplier || "").trim())) throw new Error("الشراء الآجل يحتاج المورد وحساب الموردين");
+		const pay = x.onCredit ? a.payableAccountId : a.cashAccountId;
+		return {
+			vat,
+			journal: {
+				id: x.id,
+				date: x.date,
+				reference: "STOCK-" + c.id,
+				memo: "شراء " + x.heads + " " + c.unit + " — " + c.name,
+				party: x.onCredit ? x.supplier : void 0,
+				lines: [
+					{
+						accountId: a.biologicalAccountId,
+						debit: sar$5(x.amountHalalas),
+						credit: 0,
+						description: c.name
+					},
+					...vat ? [{
+						accountId: a.inputVatAccountId,
+						debit: sar$5(vat),
+						credit: 0,
+						description: "ضريبة المدخلات"
+					}] : [],
+					{
+						accountId: pay,
+						debit: 0,
+						credit: sar$5(x.amountHalalas + vat),
+						description: x.supplier || "نقداً"
+					}
+				]
+			}
+		};
+	}
+	/** feed and inputs bought into the feed store on credit */
+	function feedPurchaseJournal(x, vatRate, a) {
+		if (!String(x.supplier || "").trim() || !a.payableAccountId) throw new Error("حدد مورد الأعلاف");
+		if (!Number.isInteger(x.amountHalalas) || x.amountHalalas <= 0) throw new Error("قيمة الأعلاف يجب أن تكون أكبر من صفر");
+		const vat = vatRate > 0 ? Math.round(x.amountHalalas * vatRate) : 0;
+		if (vat && !a.inputVatAccountId) throw new Error("حساب ضريبة المدخلات غير موجود");
+		return {
+			vat,
+			journal: {
+				id: x.id,
+				date: x.date,
+				reference: "FEEDPO-" + x.id,
+				memo: "شراء أعلاف ومدخلات — " + x.supplier,
+				party: x.supplier,
+				lines: [
+					{
+						accountId: a.feedAccountId,
+						debit: sar$5(x.amountHalalas),
+						credit: 0,
+						description: "مخزن الأعلاف"
+					},
+					...vat ? [{
+						accountId: a.inputVatAccountId,
+						debit: sar$5(vat),
+						credit: 0,
+						description: "ضريبة المدخلات"
+					}] : [],
+					{
+						accountId: a.payableAccountId,
+						debit: 0,
+						credit: sar$5(x.amountHalalas + vat),
+						description: x.supplier
+					}
+				]
+			}
+		};
+	}
+	/** feed consumed by a cycle, capitalised into its cost (never more than the feed store holds) */
+	function feedingJournal(c, s, x, a) {
+		if (s.heads <= 0) throw new Error("لا رؤوس في " + c.name);
+		if (!Number.isInteger(x.amountHalalas) || x.amountHalalas <= 0) throw new Error("قيمة الأعلاف المستهلكة يجب أن تكون أكبر من صفر");
+		if (x.amountHalalas > x.feedOnHandHalalas) throw new Error("الأعلاف المستهلكة أكثر من رصيد مخزن الأعلاف");
+		return { journal: {
+			id: x.id,
+			date: x.date,
+			reference: "FEED-" + c.id,
+			memo: "أعلاف مستهلكة — " + c.name,
+			lines: [{
+				accountId: a.biologicalAccountId,
+				debit: sar$5(x.amountHalalas),
+				credit: 0,
+				description: c.name
+			}, {
+				accountId: a.feedAccountId,
+				debit: 0,
+				credit: sar$5(x.amountHalalas),
+				description: "مخزن الأعلاف"
+			}]
+		} };
+	}
+	/** deaths or losses: written off at the average cost per head */
+	function mortalityJournal(c, s, x, a) {
+		if (!whole(x.heads) || x.heads > s.heads) throw new Error("عدد النافق أكثر من رؤوس " + c.name);
+		if (!String(x.cause || "").trim()) throw new Error("سبب النفوق أو الهدر مطلوب");
+		const cost = out(s, x.heads);
+		return {
+			cost,
+			journal: {
+				id: x.id,
+				date: x.date,
+				reference: "MORT-" + c.id,
+				memo: "نفوق " + x.heads + " " + c.unit + " — " + c.name + ": " + x.cause.trim(),
+				lines: [{
+					accountId: a.mortalityAccountId,
+					debit: sar$5(cost),
+					credit: 0,
+					description: x.cause.trim()
+				}, {
+					accountId: a.biologicalAccountId,
+					debit: 0,
+					credit: sar$5(cost),
+					description: c.name
+				}].filter((l) => l.debit || l.credit)
+			}
+		};
+	}
+	/** a sale: the revenue (cash or to a named customer) and the heads' average cost out of the cycle */
+	function saleJournals(c, s, x, vatRate, a) {
+		if (!whole(x.heads) || x.heads > s.heads) throw new Error("الرؤوس المباعة أكثر من رؤوس " + c.name);
+		if (!Number.isInteger(x.amountHalalas) || x.amountHalalas <= 0) throw new Error("قيمة البيع يجب أن تكون أكبر من صفر");
+		if (x.onCredit && !String(x.customer || "").trim()) throw new Error("البيع الآجل يحتاج اسم العميل");
+		const vat = vatRate > 0 ? Math.round(x.amountHalalas * vatRate) : 0;
+		if (vat && !a.outputVatAccountId) throw new Error("حساب ضريبة المخرجات غير موجود");
+		const cost = out(s, x.heads), to = x.onCredit ? a.receivableAccountId : a.cashAccountId;
+		return {
+			vat,
+			cost,
+			journal: {
+				id: x.id,
+				date: x.date,
+				reference: "SALE-" + c.id,
+				memo: "بيع " + x.heads + " " + c.unit + " — " + c.name,
+				party: x.onCredit ? x.customer : void 0,
+				lines: [
+					{
+						accountId: to,
+						debit: sar$5(x.amountHalalas + vat),
+						credit: 0,
+						description: x.customer || "نقداً"
+					},
+					{
+						accountId: a.revenueAccountId,
+						debit: 0,
+						credit: sar$5(x.amountHalalas),
+						description: c.name
+					},
+					...vat ? [{
+						accountId: a.outputVatAccountId,
+						debit: 0,
+						credit: sar$5(vat),
+						description: "ضريبة المخرجات"
+					}] : []
+				]
+			},
+			costJournal: {
+				id: x.id + "-c",
+				date: x.date,
+				reference: "COGS-" + c.id,
+				memo: "تكلفة " + x.heads + " " + c.unit + " مباعة بمتوسط " + sar$5(costPerHead(s)),
+				lines: [{
+					accountId: a.cogsAccountId,
+					debit: sar$5(cost),
+					credit: 0,
+					description: c.name
+				}, {
+					accountId: a.biologicalAccountId,
+					debit: 0,
+					credit: sar$5(cost),
+					description: c.name
+				}]
+			}
+		};
+	}
+	/** IAS 41: the cycle remeasured to fair value less costs to sell per head; the change is a gain or a loss of the period */
+	function fairValueJournal(c, s, x, a) {
+		if (!a.fairValueAccountId) throw new Error("حساب أرباح وخسائر القيمة العادلة للأصول الحيوية غير موجود");
+		if (s.heads <= 0) throw new Error("لا رؤوس في " + c.name);
+		for (const v of [x.fairValuePerHeadHalalas, x.costsToSellPerHeadHalalas]) if (!Number.isInteger(v) || v < 0) throw new Error("القيمة العادلة أو تكاليف البيع غير صالحة");
+		const target = (x.fairValuePerHeadHalalas - x.costsToSellPerHeadHalalas) * s.heads, change = target - s.costHalalas;
+		if (target < 0) throw new Error("تكاليف البيع أكبر من القيمة العادلة");
+		if (!change) throw new Error("القيمة الدفترية تساوي القيمة العادلة ناقص تكاليف البيع");
+		return {
+			change,
+			target,
+			journal: {
+				id: x.id,
+				date: x.date,
+				reference: "FV-" + c.id,
+				memo: "إعادة قياس " + c.name + " بالقيمة العادلة ناقص تكاليف البيع (معيار المحاسبة الدولي 41)",
+				lines: change > 0 ? [{
+					accountId: a.biologicalAccountId,
+					debit: sar$5(change),
+					credit: 0,
+					description: s.heads + " " + c.unit
+				}, {
+					accountId: a.fairValueAccountId,
+					debit: 0,
+					credit: sar$5(change),
+					description: "ربح إعادة القياس"
+				}] : [{
+					accountId: a.fairValueAccountId,
+					debit: sar$5(-change),
+					credit: 0,
+					description: "خسارة إعادة القياس"
+				}, {
+					accountId: a.biologicalAccountId,
+					debit: 0,
+					credit: sar$5(-change),
+					description: s.heads + " " + c.unit
+				}]
+			}
+		};
+	}
+	/** a cycle's KPIs: heads, cost per head, mortality and birth rates, feed per head, margin on what was sold */
+	function cycleKpis(s) {
+		const r2 = (v) => Math.round(v * 100) / 100, base = s.bought + s.born;
+		return {
+			heads: s.heads,
+			costPerHeadHalalas: costPerHead(s),
+			mortalityPct: base ? r2(s.dead / base * 100) : null,
+			birthPct: s.bought ? r2(s.born / s.bought * 100) : null,
+			feedPerHeadHalalas: base ? Math.round(s.feedHalalas / base) : null,
+			marginHalalas: s.revenueHalalas - s.cogsHalalas,
+			marginPct: s.revenueHalalas ? r2((s.revenueHalalas - s.cogsHalalas) / s.revenueHalalas * 100) : null
+		};
 	}
 	//#endregion
 	//#region app/src/engine/fusion/finance/receivables-engine.ts
@@ -92468,7 +92733,7 @@ window.SKEngines = (function() {
 		}),
 		agriculture: pack({
 			id: "agriculture",
-			depth: "base",
+			depth: "deep",
 			accounts: [
 				[
 					"1395",
@@ -92484,6 +92749,11 @@ window.SKEngines = (function() {
 					"5190",
 					"النفوق والهدر الزراعي",
 					"expense"
+				],
+				[
+					"4950",
+					"أرباح وخسائر القيمة العادلة للأصول الحيوية",
+					"revenue"
 				]
 			],
 			costCenters: [
@@ -93305,51 +93575,137 @@ window.SKEngines = (function() {
 				finished -= waste;
 			}
 		},
-		agriculture: ({ year, months, rnd, vary, je, L, sale, purchase, pay, end, vat }) => {
-			let heads = 2e3, cost = 18e7, owed = 0;
-			je(dayOf(year, 1, 3), "شراء قطيع أغنام — 2,000 رأس", [L("1395", cost, 0), L("1100", 0, cost)], {
-				source: "مشتريات",
-				reference: "FLOCK-" + year,
-				meta: { flock: { heads: 2e3 } }
+		agriculture: ({ year, months, rnd, vary, je, pay, end, vat, ledger }) => {
+			const A = {
+				biologicalAccountId: "1395",
+				feedAccountId: "1396",
+				cashAccountId: "1100",
+				receivableAccountId: "1200",
+				payableAccountId: "2100",
+				inputVatAccountId: "1400",
+				outputVatAccountId: "2200",
+				revenueAccountId: "4000",
+				cogsAccountId: "5000",
+				mortalityAccountId: "5190",
+				fairValueAccountId: "4950"
+			};
+			const C = {
+				id: "model-cycle-flock",
+				name: "القطيع الرئيسي — نعيمي",
+				unit: "رأس"
+			}, births = [];
+			ledger.cycles = [C];
+			ledger.cycleBirths = births;
+			const post = (j, meta, source) => je(j.date, j.memo, j.lines, {
+				source,
+				reference: j.reference,
+				party: j.party,
+				meta: { livestock: {
+					cycleId: C.id,
+					...meta
+				} }
+			});
+			const SUP = "شركة الأعلاف الوطنية", s = emptyCycleState();
+			let owed = 0, feedStore = 0;
+			post(stockingJournal(C, {
+				id: "FLOCK-" + year,
+				date: dayOf(year, 1, 3),
+				heads: 2e3,
+				amountHalalas: 18e7
+			}, vat, A).journal, {
+				kind: "stock",
+				heads: 2e3,
+				amount: 18e7
+			}, "مشتريات");
+			Object.assign(s, {
+				heads: 2e3,
+				bought: 2e3,
+				costHalalas: 18e7
 			});
 			for (const m of months) {
-				if (owed) pay(dayOf(year, m, 6), "سداد مورد الأعلاف", "2100", owed, "PAY-FEED-" + year + pad(m), "شركة الأعلاف الوطنية");
-				const feed = vary(2e7, .06);
-				purchase(dayOf(year, m, 2), "أعلاف شعير وبرسيم", "1396", feed, "شركة الأعلاف الوطنية", "PO-FEED-" + year + pad(m));
-				owed = feed + Math.round(feed * vat);
+				if (owed) pay(dayOf(year, m, 6), "سداد مورد الأعلاف", "2100", owed, "PAY-FEED-" + year + pad(m), SUP);
+				const feed = vary(2e7, .06), fp = feedPurchaseJournal({
+					id: "PO-FEED-" + year + pad(m),
+					date: dayOf(year, m, 2),
+					supplier: SUP,
+					amountHalalas: feed
+				}, vat, A);
+				post(fp.journal, {
+					kind: "feedbuy",
+					amount: feed
+				}, "مشتريات");
+				feedStore += feed;
+				owed = feed + fp.vat;
 				const fed = Math.round(feed * .95);
-				cost += fed;
-				const born = m === 2 || m === 3 ? 220 + Math.floor(rnd() * 60) : 0;
-				heads += born;
-				je(end(m), "تحميل الأعلاف المستهلكة على تكلفة القطيع" + (born ? " — ومواليد الموسم " + born + " رأس" : ""), [L("1395", fed, 0), L("1396", 0, fed)], {
-					source: "الحظائر",
-					reference: "FEED-" + year + pad(m),
-					meta: { flock: {
-						born,
-						heads
-					} }
-				});
-				const dead = Math.round(heads * .012), deadCost = Math.round(cost / heads * dead);
-				heads -= dead;
-				cost -= deadCost;
-				je(end(m), "نفوق " + dead + " رأس", [L("5190", deadCost, 0), L("1395", 0, deadCost)], {
-					source: "الحظائر",
-					reference: "MORT-" + year + pad(m),
-					meta: { flock: { dead } }
-				});
-				const sold = 150 + Math.floor(rnd() * 50), unit = Math.round(cost / heads), cogs = unit * sold;
-				heads -= sold;
-				cost -= cogs;
-				sale(dayOf(year, m, 20), "بيع " + sold + " رأس", sold * vary(145e3, .05), {
-					source: "مبيعات",
-					reference: "SALE-" + year + pad(m),
-					meta: { flock: { sold } }
-				});
-				je(dayOf(year, m, 20), "تكلفة الرؤوس المباعة بمتوسط " + sar(unit) + " ريال للرأس", [L("5000", cogs, 0), L("1395", 0, cogs)], {
-					source: "مبيعات",
-					reference: "COGS-" + year + pad(m)
-				});
+				post(feedingJournal(C, s, {
+					id: "FEED-" + year + pad(m),
+					date: end(m),
+					amountHalalas: fed,
+					feedOnHandHalalas: feedStore
+				}, A).journal, {
+					kind: "feed",
+					amount: fed
+				}, "الحظائر");
+				feedStore -= fed;
+				s.costHalalas += fed;
+				s.feedHalalas += fed;
+				if (m === 2 || m === 3) {
+					const born = 220 + Math.floor(rnd() * 60);
+					births.push({
+						cycleId: C.id,
+						date: end(m),
+						heads: born
+					});
+					s.heads += born;
+					s.born += born;
+				}
+				const dead = Math.round(s.heads * .012), mj = mortalityJournal(C, s, {
+					id: "MORT-" + year + pad(m),
+					date: end(m),
+					heads: dead,
+					cause: "نفوق طبيعي وأمراض"
+				}, A);
+				post(mj.journal, {
+					kind: "death",
+					heads: dead,
+					cost: mj.cost
+				}, "الحظائر");
+				s.heads -= dead;
+				s.dead += dead;
+				s.costHalalas -= mj.cost;
+				const sold = 150 + Math.floor(rnd() * 50), price = sold * vary(145e3, .05), sj = saleJournals(C, s, {
+					id: "SALE-" + year + pad(m),
+					date: dayOf(year, m, 20),
+					heads: sold,
+					amountHalalas: price
+				}, vat, A);
+				post(sj.journal, {
+					kind: "sale",
+					heads: sold,
+					amount: price,
+					cost: sj.cost
+				}, "مبيعات");
+				post(sj.costJournal, {
+					kind: "salecost",
+					heads: 0,
+					cost: 0
+				}, "مبيعات");
+				s.heads -= sold;
+				s.sold += sold;
+				s.costHalalas -= sj.cost;
+				s.revenueHalalas += price;
+				s.cogsHalalas += sj.cost;
 			}
+			const fv = fairValueJournal(C, s, {
+				id: "FV-" + year,
+				date: end(months[months.length - 1]),
+				fairValuePerHeadHalalas: 15e4,
+				costsToSellPerHeadHalalas: 6e3
+			}, A);
+			post(fv.journal, {
+				kind: "fv",
+				change: fv.change
+			}, "معيار 41");
 		},
 		trade: ({ year, months, vary, je, L, sale, purchase, pay, collect, end, vat }) => {
 			const CUST = [
@@ -93489,6 +93845,7 @@ window.SKEngines = (function() {
 			insuranceClaims: insurance_claims_engine_exports,
 			journalChain: journal_chain_engine_exports,
 			ledger: ledger_engine_exports,
+			livestock: livestock_engine_exports,
 			partyLedger: party_ledger_engine_exports,
 			payables: payables_engine_exports,
 			productionOrder: production_order_engine_exports,
