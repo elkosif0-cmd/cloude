@@ -417,3 +417,19 @@
 - القرار: **CURRENT-IS-SUPERSET — لا نعيد نسخة #98 الأقدم.**
 
 الحالة: **COMPLETE — #107 إلى #98 تمت مراجعتها؛ لا توجد شفرة صافية أفضل تحتاج النقل، والمعرفة المفيدة موجودة أو تطورت في main.**
+
+
+## PR #97 — KOSIF Think live runtime 0.27.3 — نتيجة التنفيذ
+- هذا الفرع **ليس مجرد نسخة أقدم**: يحتوي Runtime live أكبر بكثير من `main`، مع 49 دالة/مسارًا غير موجودة بالاسم في خط الأساس عند الفحص.
+- في المقابل، `main` يحتوي وظائف وعقودًا أحدث/مختلفة خاصة به؛ لذلك استبدال `worker.js` بالكامل كان سيخاطر بفقد قدرات حالية.
+- تم سؤال Jev عن الاستراتيجية بين: overwrite / keep-main / archive-only / selective-port؛ القرار كان **SELECTIVE_PORT بنسبة 100%**.
+- أول Slice نُقل وظيفيًا من #97:
+  - **A1990 Capability Atlas v3** ومصادره/حزم طرق التفكير.
+  - اختيار حزم القدرات تلقائيًا حسب موضوع الطلب ونوع المنفذ.
+  - حقن الحزم المختارة داخل كل خبير من Council-500، بحيث تتحول المهارات القديمة إلى قيود/طرق عمل فعلية وليست مجرد فهرس.
+  - حفظ `capability_atlas_version` و`capability_packs` داخل حالة الطلب وإظهارها في status كإيصال.
+  - إضافة أداة `kosif_capability_route` لعرض الحزم المختارة قبل التنفيذ بدون ادعاء تشغيل أدوات خارجية.
+  - إضافة اختبار `think-mcp/capability-atlas.test.mjs` يقفل هذا الربط ويمنع ضياعه لاحقًا.
+- **لم يتم overwrite** لملف runtime 0.27.3 المجمّع؛ بقية الأنظمة الفريدة فيه (Host Image QA / Render Packet / completion reconcile / recovery / archive / C500 validators) تبقى عناصر مراجعة تالية داخل نفس مصدر المعرفة، وتُنقل فقط كـslices مستقلة عند التحقق من عدم تعارضها مع main.
+
+الحالة: **PR #97 — PARTIAL FUNCTIONAL EXTRACTION COMPLETE (Capability Atlas slice merged to integration); remaining unique subsystems queued for selective extraction, not blind overwrite.**
