@@ -25,8 +25,8 @@ const jsonSeed={
 };
 const encodedSeed=()=>Object.fromEntries(Object.entries(jsonSeed).map(([k,v])=>[k,JSON.stringify(v)]));
 
-async function helperIntent(intent) {
-  const localStorage=storage(encodedSeed()),sessionStorage=storage({sqc_company_intent:JSON.stringify(intent)});
+async function helperIntent(intent,extraSession={}) {
+  const localStorage=storage(encodedSeed()),sessionStorage=storage({...extraSession,sqc_company_intent:JSON.stringify(intent)});
   let indexedOpens=0;
   const indexedDB={databases:async()=>[],open(){indexedOpens++;throw new Error('independent Audit intent must not open IndexedDB')}};
   const busHandlers={};
@@ -53,13 +53,14 @@ async function helperIntent(intent) {
 }
 
 test('new Audit engagement intent never switches or snapshots the accounting/helper company', async()=>{
-  const h=await helperIntent({gate:'audit',auditNew:true});
+  const h=await helperIntent({gate:'audit',auditNew:true},{sqc_gate_corpus:'stale-corpus'});
   assert.equal(h.ok,true);
   assert.deepEqual(h.after,h.before,'independent Audit start leaves all local company/helper data byte-equivalent');
   assert.deepEqual(h.localWrites,[],'independent Audit start performs no localStorage ownership/data write');
   assert.equal(h.indexedOpens,0,'independent Audit start never opens helper snapshot IndexedDB');
   assert.equal(h.session.sqc_gate,'audit');
   assert.equal(h.session.sqc_gate_audit_new,'1');
+  assert.equal(h.session.sqc_gate_corpus,undefined,'new Audit clears any stale corpus command');
   assert.equal(h.session.sqc_company_after_open,'tbreview');
   assert.equal(h.session.sqc_gate_pin,'tbreview');
   assert.equal(h.session.sqc_space_chosen,'1');
@@ -67,13 +68,14 @@ test('new Audit engagement intent never switches or snapshots the accounting/hel
 });
 
 test('reference-corpus Audit intent never switches or snapshots the accounting/helper company', async()=>{
-  const h=await helperIntent({gate:'audit',corpus:'apple-2024'});
+  const h=await helperIntent({gate:'audit',corpus:'apple-2024'},{sqc_gate_audit_new:'1'});
   assert.equal(h.ok,true);
   assert.deepEqual(h.after,h.before);
   assert.deepEqual(h.localWrites,[]);
   assert.equal(h.indexedOpens,0);
   assert.equal(h.session.sqc_gate,'audit');
   assert.equal(h.session.sqc_gate_corpus,'apple-2024');
+  assert.equal(h.session.sqc_gate_audit_new,undefined,'corpus Audit clears any stale new-engagement command');
   assert.equal(h.session.sqc_company_after_open,'tbreview');
   assert.equal(h.session.sqc_gate_pin,'tbreview');
 });
