@@ -4,7 +4,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
 // index.js
-var VERSION = "1.5.0";
+var VERSION = "1.5.1";
 var PUBLIC_BRIDGE = "https://wa-kosif.kosif199022.workers.dev";
 
 // KOSIF THINK MOBILE BRIDGE v2 - adaptive router
@@ -214,8 +214,13 @@ var TOOLS = [
   },
   {
     name: "get_whatsapp_delivery_report",
-    description: "Get the unified WhatsApp delivery report: totals and per-recipient status for scheduled and tracked immediate sends (scheduled, sending, sent, partial, failed, cancelled).",
-    inputSchema: schema({ key: keyProp, status: { type: "string", enum: ["all","scheduled","sending","sent","partial","failed","cancelled"], description: "Optional status filter." }, limit: { type: "integer", minimum: 1, maximum: 1000, description: "Default 200." } }, ["key"])
+    description: "Unified receipt-aware report. accepted means WhatsApp transport accepted the message; delivered/read require provider receipt evidence.",
+    inputSchema: schema({ key: keyProp, status: { type: "string", enum: ["all","scheduled","sending","accepted","delivered","read","partial","failed","cancelled"], description: "Optional status filter." }, limit: { type: "integer", minimum: 1, maximum: 1000, description: "Default 200." } }, ["key"])
+  },
+  {
+    name: "diagnose_whatsapp_bridge",
+    description: "Run a non-destructive self-test of session, receipt channel, durable state and stored-file integrity. Sends no WhatsApp message.",
+    inputSchema: schema({ key: keyProp }, ["key"])
   },
   {
     name: "get_whatsapp_job",
@@ -247,11 +252,16 @@ var annotationsFor = (name) => WRITE_TOOLS[name] ? { readOnlyHint: false, destru
 var HIDDEN_TOOLS = new Set(["kosif_full_pro_execute"]);
 var LISTED_TOOLS = TOOLS.filter((t) => !HIDDEN_TOOLS.has(t.name)).map((t) => ({ ...t, annotations: annotationsFor(t.name), securitySchemes, _meta: { securitySchemes } }));
 function sendResult(r, b) {
+  const accepted = r.ok && (b.accepted === true || b.sent === true);
   const data = { ...b, httpStatus: r.status };
-  data.status = b.sent === true ? 'sent' : r.status === 202 ? 'queued' : 'failed';
+  data.status = accepted ? 'accepted' : r.status === 202 ? 'queued' : 'failed';
+  data.deliveryStatus = b.deliveryStatus || (accepted ? 'accepted' : data.status);
   if (b.id) data.messageId = b.id;
   data.messageIds = (b.results || []).filter(x => x.ok && x.id).map(x => x.id);
-  return { content: [{ type: 'text', text: JSON.stringify(data) }], structuredContent: data, isError: !r.ok || b.sent !== true && r.status !== 202 };
+  const label = accepted
+    ? (b.duplicate ? 'already accepted earlier (not sent again)' : 'accepted by WhatsApp transport; delivery/read are not yet confirmed')
+    : (b.error || (r.status === 202 ? 'queued' : 'send failed'));
+  return { content: [{ type: 'text', text: label + '\n' + JSON.stringify(data) }], structuredContent: data, isError: !r.ok || (!accepted && r.status !== 202) };
 }
 const bundleSummary = sendResult;
 const singleSummary = sendResult;
@@ -381,6 +391,11 @@ async function callTool(env, name, a) {
     const r = await callBridge(env, "/delivery-report?" + q, a.key);
     const b = await bodyOf(r);
     return toolText(JSON.stringify(b), !r.ok);
+  }
+  if (name === "diagnose_whatsapp_bridge") {
+    const r = await callBridge(env, "/diagnostics", a.key);
+    const b = await bodyOf(r);
+    return toolText(JSON.stringify(b), !r.ok || b.ok === false, b);
   }
   if (name === "get_whatsapp_job") {
     const r = await callBridge(env, "/jobs/" + encodeURIComponent(String(a.jobKey || "")), a.key);

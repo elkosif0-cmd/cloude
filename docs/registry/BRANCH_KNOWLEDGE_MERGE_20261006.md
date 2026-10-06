@@ -505,7 +505,7 @@
 - `evidenceConsistency` و`candidate_tournament` موجودان في runtime الحالي، مع `optionBindingConsistency` و`decisionSensitivity` كطبقات أحدث.
 - القرار: **CURRENT-IS-SUPERSET**.
 
-الحالة: **COMPLETE — #95 إلى #88 تمت مراجعتها؛ الميزة الصافية الوحيدة التي كانت مفقودة (empirical calibration) تم إحياؤها فعليًا، والباقي موجود أو تطور في runtime الحالي.**
+الحالة: **COMPLETE — #95 إلى #88 تمت مراجعتها؛ تم إحياء empirical calibration، واسترجاع ضوابط PR #95 الأمنية الناقصة، ودمج أربع طرق تفكير صافية من PR #94 داخل Capability Atlas؛ والباقي موجود أو تطور في runtime الحالي.**
 
 
 ## دفعة PR #87 → PR #78 — مراجعة المعرفة والتنفيذ
@@ -699,3 +699,82 @@
 - القرار: **CAPABILITIES-KEPT / TOPOLOGY-SUPERSEDED**.
 
 الحالة: **COMPLETE — #57 إلى #48 تمت مراجعتها؛ لا توجد شفرة مفقودة تحتاج نقلًا، وأهم المحركات متطابقة حرفيًا مع main.**
+
+
+## دفعة PR #47 → PR #38 — مراجعة المعرفة والتنفيذ
+
+### PR #47 — International clients / audit-file status / fewer false findings
+- رأس الفرع خلف `main` وبدون file delta.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #46 — Global-report companies as audit clients
+- رأس الفرع خلف `main` وبدون file delta.
+- Replay للشركات/المصادر تطور لاحقًا إلى corpus/source engines أوسع.
+- القرار: **VERIFIED-IN-MAIN / EXTENDED-LATER**.
+
+### PR #45 — Benchmark SQC output against 49 reports
+- رأس الفرع خلف `main` وبدون file delta.
+- benchmark/corpus scorecards موجودة في الخط الحالي.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #44 — Audit-first / helper separation
+- رأس الفرع خلف `main` وبدون file delta.
+- القدرات التشغيلية موجودة، وأي topology قديم لا يعلو على FOUNDATION الحالي.
+- القرار: **CAPABILITIES-VERIFIED / FOUNDATION-AUTHORITATIVE**.
+
+### PR #43 — WhatsApp vNext: receipts, diagnostics, integrity
+- المراجعة كشفت أن **طبقة bridge الأساسية من #43 محفوظة حرفيًا** في main الحالي:
+  - `whatsapp-bridge/src/index.ts` مطابق حرفيًا.
+  - `workers/dispatch/index.js` مطابق حرفيًا.
+  - `workers/queue-consumer/index.js` مطابق حرفيًا.
+  - `test/bridge.test.mjs` مطابق حرفيًا.
+- لكن MCP Worker الحالي القادم من #96 أضاف owner auth / contacts / KOSIF Think mobile relay، وفي المقابل **فقد جزأين مهمين من دقة #43**:
+  1. كان يصف النقل الناجح بأنه `sent` بدل `accepted` رغم أن `delivered/read` لا يثبتان إلا بوصول provider receipt.
+  2. أسقط أداة `diagnose_whatsapp_bridge` رغم أن endpoint `/diagnostics` ما زال موجودًا في bridge.
+- تم سؤال Jev بين keep PR96 / restore PR43 / doc-only / hybrid؛ القرار كان **HYBRID بنسبة 100%**.
+- تم الدمج الانتقائي:
+  - الإبقاء على owner-only auth وmobile/contact capabilities من #96.
+  - استعادة accepted → delivered → read semantics في MCP.
+  - استعادة `diagnose_whatsapp_bridge` كفحص غير هدّام.
+  - توسيع delivery status filter إلى `accepted/delivered/read`.
+  - تحديث MCP version إلى `1.5.1`.
+  - إضافة `test/mcp-receipt-contract.test.mjs`.
+  - إضافة الاختبار إلى `npm test`، وتوسيع WhatsApp CI ليعمل على main/PRs بدل الفروع التاريخية فقط.
+- القرار: **HYBRID FUNCTIONAL EXTRACTION COMPLETE — PR96 security + PR43 receipt truth.**
+
+### PR #42 — Fonts / readable themes / rail containment / demo company
+- رأس الفرع خلف main وبدون file delta.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #41 — AI audit providers / annual report / fieldwork / report centre
+- رأس الفرع خلف main وبدون file delta.
+- engines/report centre الحالية أوسع.
+- القرار: **VERIFIED-IN-MAIN / EXTENDED-LATER**.
+
+### PR #40 — SOCPA 2025 + global-report workflows
+- رأس الفرع خلف main وبدون file delta.
+- standards/global research workflows موجودة في الخط الحالي.
+- القرار: **VERIFIED-IN-MAIN**.
+
+### PR #39 — Global research round 2
+- رأس الفرع خلف main وبدون file delta.
+- المعرفة انتقلت إلى global research bundle / corpus / source catalog.
+- القرار: **VERIFIED-IN-MAIN / KNOWLEDGE-KEPT**.
+
+### PR #38 — Global audit practice from ~45 annual reports
+- هذا الفرع كان مهمًا لأنه أدخل محركات مراجعة فعلية؛ تمت مقارنته **ملفًا بملف** بدل الاعتماد على merge status.
+- مطابق حرفيًا لـmain:
+  - `estimates-review-engine.ts/test`.
+  - `revenue-recon-engine.ts/test`.
+  - `journal-chain-engine.ts/test`.
+  - `materiality-engine.ts/test`.
+- main الحالي **أوسع** من الفرع في:
+  - `going-concern-engine.ts`: أضاف calibration للـsevere-but-plausible، financial-entity handling، refinance logic، variable-cost calibration؛ واختباره أكبر.
+  - `kam-engine.ts`: أضاف sector priors، report exclusion، standard-aware ranking، weight model، PCAOB-specific limits؛ واختباره الحالي يغطيها.
+  - `tb-review-engine.ts`: أكبر ويحتفظ بفحوص الزكاة، الاستهلاك، EOSB، التمويل، VAT، رأس المال العامل وISA 510؛ بعض IDs/تنظيم الطلبات تغيّر لكن القدرة لم تختف.
+  - `annual-report-engine.ts`: أكثر من ضعف الحجم تقريبًا ويضيف `pcaobReport` و`ukReport` مع بقاء EAS/opinion/disclaimer/going concern/KAM/other-information/auditor-responsibility paths.
+  - `fusion/index.ts` و`feature_audit.mjs` الحاليان أوسع.
+- لذلك نسخ branch كامل كان سيعيد إصدارات أقل نضجًا من محركات موجودة.
+- القرار: **CURRENT-IS-SUPERSET — core audit-engine knowledge from #38 preserved and extended.**
+
+الحالة: **COMPLETE — #47 إلى #38 تمت مراجعتها. الاستخراج الوظيفي الصافي في هذه الدفعة كان Hybrid PR #43 + #96، بينما #38 ثبت ملفيًا أنه موجود أو أوسع في main.**

@@ -3,7 +3,7 @@
   "scripts": {
     "deploy": "wrangler deploy",
     "typecheck": "tsc -p .",
-    "test": "node --test test/bridge.test.mjs test/mcp-auth.test.mjs",
+    "test": "node --test test/bridge.test.mjs test/mcp-auth.test.mjs test/mcp-receipt-contract.test.mjs",
     "deploy:mcp": "wrangler deploy -c workers/mcp/wrangler.jsonc"
   },
   "dependencies": {
