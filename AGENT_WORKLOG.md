@@ -465,3 +465,37 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - transport and activities as their own fee lines;
   - expected credit losses on old arrears.
 - Branch / PR: `claude/education-pack-20261006` from `main` @ 227a88e.
+
+### TASK CLAUDE-20261006-020 — P3 manufacturing and bakery packs: production orders, batches, standard cost, scrap, variances, waste
+- Agent: Claude (Lead Development Agent)
+- Status: DONE on merge — the owner's standing instruction in chat («كمل تطوير وراجع الدستور وادمج بنفسك», «طوره»).
+- Goal: FOUNDATION §3.6:
+  - «المصانع: BOM/وصفات إنتاج، أوامر تشغيل، مواد خام، تحت التشغيل، منتج تام، تكلفة معيارية وفعلية، تحميل صناعي، انحرافات، هالك»;
+  - «المخابز: وصفات ودفعات إنتاج، مواد ومكونات، Yield، هالك وتالف وصلاحية، إنتاج يومي، تكلفة الصنف والتسعير».
+  - Both packs become `deep`.
+- Scope:
+  - `app/src/engine/fusion/finance/production-order-engine.ts` (+5 tests):
+    - `standardCost`: from the bill of materials, plus labour and overhead;
+    - `materialsPurchaseJournal`;
+    - `issueJournal`: 1370 → 1380, never more than the store holds;
+    - `absorbJournal`: labour and overhead absorbed at standard, 6100 / 6300 → 1380;
+    - `completeJournal`: good units to 1390 at standard, scrap to 5100 at its materials cost, and the rest of the order's WIP closed to 5170 (adverse or favourable), so no WIP is left; an order closes once;
+    - `batchJournal`: ingredients plus the bakers' wages into 1390 at actual cost, with yield against the plan;
+    - `wasteJournal` (5180) and `costOfSalesJournal`, never more than on hand;
+    - `productionKpis` and `priceForMargin`.
+  - `ui/features/ledger.js`:
+    - «أوامر التشغيل» for factories: products with their bill of materials, orders and operations, and an orders table showing yield, unit cost and variance %;
+    - «دفعات الإنتاج» for bakeries: recipes, batches, waste and cost of sales, a batches table, the waste ratio, and a price at a 40% margin with VAT;
+    - the state is read back from the entries' `production` meta.
+  - Manufacturing pack: adds 5100 (scrap and count differences), which the factory posts to.
+  - Model factory and model bakery (#172) are regenerated through the same engine:
+    - the factory has 9 monthly orders with variances of both signs;
+    - the bakery has 273 daily batches plus monthly cost of sales and waste;
+    - products and orders are carried in `ModelBooks.ledger`.
+  - `tools/production_packs_e2e.mjs` is in the workflow.
+- Not yet:
+  - multi-level bills of materials and routings;
+  - rework orders;
+  - item-level stock quantities, lots and expiry dates (stock is still valued in riyals per account);
+  - recipe costing from live purchase prices.
+- Branch / PR: `claude/production-packs-20261006` from `main` @ ef28e95.

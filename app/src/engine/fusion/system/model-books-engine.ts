@@ -10,6 +10,7 @@
 import { type AccountType, type PackAccount, sectorPack } from './sector-pack-engine';
 import { encounterJournal, healthVatTreatment, remittanceJournal, type Department } from '../finance/insurance-claims-engine';
 import * as TU from '../finance/tuition-engine';
+import * as PO from '../finance/production-order-engine';
 
 export type ModelLine = { accountId: string; debit: number; credit: number; description?: string };
 export type ModelEntry = { id: string; date: string; reference: string; memo: string; source: string; sourceId: string; party?: string; lines: ModelLine[];
@@ -202,41 +203,67 @@ const SECTOR: Record<string, (c: Ctx) => void> = {
       if (m !== 6 && m !== 7) sale(end(m), 'النقل المدرسي — 300 طالب', vary(15_000_000, 0.03), { revenue: '4900', source: 'النقل' });
     }
   },
-  /* the factory: raw materials bought on credit, issued to production with direct labour and overhead absorbed; output at
-     standard cost, 2% scrap, the rest of the difference a variance (adverse or favourable); credit sales collected 85%
-     the month after; suppliers paid 90% the month after */
-  manufacturing: ({ year, months, vary, je, L, sale, purchase, pay, collect, end, vat }) => {
-    let owed = 0, due = 0;
-    const CUST = ['شركة الأغذية المتحدة', 'مصانع العبوات الوطنية', 'مجموعة التجزئة الحديثة'];
+  /* the factory, through the production engine (finance/production-order-engine) and with the books screen's meta, so
+     «أوامر التشغيل» reads it: one product, a one-litre bottle at a standard 0.85 (polyethylene 0.40, a cap 0.15, labour
+     0.20, overhead 0.10); each month raw material bought on credit and a production order of about 2.4 million bottles —
+     materials issued, labour and overhead absorbed at standard, closed into finished goods with 2% scrap and the cost
+     variance (adverse or favourable) — then credit sales at 38% over standard cost, collected 85% the month after;
+     suppliers paid 90% the month after */
+  manufacturing: ({ year, months, rnd, vary, je, sale, pay, collect, end, vat, ledger }) => {
+    const A = { materialsAccountId: '1370', wipAccountId: '1380', finishedAccountId: '1390', labourAccountId: '6100', overheadAccountId: '6300', scrapAccountId: '5100',
+      varianceAccountId: '5170', cogsAccountId: '5000', payableAccountId: '2100', inputVatAccountId: '1400' };
+    const P: PO.Product = { id: 'model-prd-bottle', name: 'عبوة بلاستيكية 1 لتر', unit: 'عبوة', labourPerUnitHalalas: 20, overheadPerUnitHalalas: 10,
+      bom: [{ material: 'حبيبات بولي إيثيلين', qtyPerUnit: 0.05, unitCostHalalas: 800 }, { material: 'غطاء', qtyPerUnit: 1, unitCostHalalas: 15 }] };
+    const orders: PO.Order[] = []; ledger.products = [P]; ledger.orders = orders;
+    const post = (j: { date: string; reference: string; memo: string; party?: string; lines: ModelLine[] }, meta: Record<string, unknown>, source = 'الإنتاج') =>
+      je(j.date, j.memo, j.lines, { source, reference: j.reference, party: j.party, meta: { production: meta } });
+    const SUP = 'شركة البتروكيماويات للتوريد', CUST = ['شركة الأغذية المتحدة', 'مصانع العبوات الوطنية', 'مجموعة التجزئة الحديثة'];
+    let owed = 0, due = 0, dueParty = '', materials = 0, finished = 0;
     for (const m of months) {
-      if (owed) pay(dayOf(year, m, 12), 'سداد مورد الخامات', '2100', Math.round(owed * 0.9), 'PAY-RM-' + year + pad(m), 'شركة البتروكيماويات للتوريد');
-      if (due) collect(dayOf(year, m, 18), 'تحصيل من العملاء', '1200', Math.round(due * 0.85), 'COL-' + year + pad(m), CUST[m % 3]);
-      const raw = vary(130_000_000, 0.06); purchase(dayOf(year, m, 2), 'شراء حبيبات بولي إيثيلين', '1370', raw, 'شركة البتروكيماويات للتوريد', 'PO-RM-' + year + pad(m)); owed = raw + Math.round(raw * vat);
-      const issue = Math.round(raw * 0.96), labour = 60_000_000, oh = 25_000_000;
-      je(dayOf(year, m, 5), 'صرف خامات لأوامر التشغيل', [L('1380', issue, 0), L('1370', 0, issue)], { source: 'الإنتاج', reference: 'MI-' + year + pad(m) });
-      je(end(m), 'تحميل الأجور المباشرة على الإنتاج', [L('1380', labour, 0), L('6100', 0, labour)], { source: 'الإنتاج', reference: 'LAB-' + year + pad(m) });
-      je(end(m), 'تحميل التكاليف الصناعية غير المباشرة', [L('1380', oh, 0), L('6300', 0, oh)], { source: 'الإنتاج', reference: 'OH-' + year + pad(m) });
-      const std = vary(205_000_000, 0.04), scrap = Math.round(issue * 0.02), variance = issue + labour + oh - std - scrap;
-      je(end(m), 'إنتاج تام بالتكلفة المعيارية', [L('1390', std, 0), L('1380', 0, std)], { source: 'الإنتاج', reference: 'FG-' + year + pad(m) });
-      je(end(m), 'هالك التشغيل', [L('5100', scrap, 0), L('1380', 0, scrap)], { source: 'الإنتاج', reference: 'SCRAP-' + year + pad(m) });
-      je(end(m), variance >= 0 ? 'انحراف تكلفة غير مواتٍ' : 'انحراف تكلفة مواتٍ', variance >= 0 ? [L('5170', variance, 0), L('1380', 0, variance)] : [L('1380', -variance, 0), L('5170', 0, -variance)], { source: 'الإنتاج', reference: 'VAR-' + year + pad(m) });
-      const cogs = Math.round(std * 0.95), net = Math.round(cogs * 1.38), cust = CUST[m % 3];
-      sale(dayOf(year, m, 25), 'مبيعات عبوات — ' + cust, net, { cashShare: 0, party: cust, reference: 'INV-' + year + pad(m) }); due = net + Math.round(net * vat);
-      je(dayOf(year, m, 25), 'تكلفة المبيعات', [L('5000', cogs, 0), L('1390', 0, cogs)], { source: 'مبيعات', reference: 'COGS-' + year + pad(m) });
+      if (owed) pay(dayOf(year, m, 12), 'سداد مورد الخامات', '2100', Math.round(owed * 0.9), 'PAY-RM-' + year + pad(m), SUP);
+      if (due) collect(dayOf(year, m, 18), 'تحصيل من ' + dueParty, '1200', Math.round(due * 0.85), 'COL-' + year + pad(m), dueParty);
+      const raw = vary(130_000_000, 0.06), b = PO.materialsPurchaseJournal({ id: 'PO-RM-' + year + pad(m), date: dayOf(year, m, 2), supplier: SUP, amountHalalas: raw }, vat, A);
+      post(b.journal, { kind: 'purchase', amount: raw }, 'مشتريات'); materials += raw; owed = raw + b.vat;
+      const o: PO.Order = { id: 'MO-' + year + '-' + pad(m), productId: P.id, plannedQty: 2_400_000 }; orders.push(o);
+      const issue = Math.round(raw * 0.96);
+      post(PO.issueJournal(o, { id: 'i', date: dayOf(year, m, 5), amountHalalas: issue, materialsOnHandHalalas: materials }, A).journal, { kind: 'issue', orderId: o.id, amount: issue }); materials -= issue;
+      const made = Math.round(o.plannedQty * (0.97 + rnd() * 0.04)), ab = PO.absorbJournal(o, P, { id: 'a', date: end(m), units: made }, A);
+      post(ab.journal, { kind: 'absorb', orderId: o.id, labour: ab.labour, overhead: ab.overhead });
+      const scrapQty = Math.round(made * 0.02), goodQty = made - scrapQty;
+      const c = PO.completeJournal(o, P, { ...PO.emptyOrderState(), issuedHalalas: issue, absorbedHalalas: ab.labour + ab.overhead }, { id: 'c', date: end(m), goodQty, scrapQty }, A);
+      post(c.journal, { kind: 'complete', orderId: o.id, good: c.good, scrap: c.scrap, variance: c.variance, goodQty, scrapQty }); finished += c.good;
+      const cogs = Math.round(c.good * 0.95), net = Math.round(cogs * 1.38), cust = CUST[m % 3];
+      sale(end(m), 'مبيعات عبوات — ' + cust, net, { cashShare: 0, party: cust, reference: 'INV-' + year + pad(m) }); due = net + Math.round(net * vat); dueParty = cust;
+      post(PO.costOfSalesJournal({ id: 'COGS-' + year + pad(m), date: end(m), amountHalalas: cogs, finishedOnHandHalalas: finished, memo: 'تكلفة المبيعات — ' + cust }, A).journal, { kind: 'cogs', amount: cogs }, 'مبيعات'); finished -= cogs;
     }
   },
-  /* the bakery: daily cash sales (VAT inclusive), monthly ingredients and production with the bakers' wages absorbed,
-     cost of sales 88% and 7% waste of the month's production */
-  bakery: ({ year, months, vary, je, L, sale, purchase, pay, end, vat }) => {
-    let owed = 0;
+  /* the bakery, through the same engine: a recipe (samoli bread at a standard 0.32), ingredients bought monthly on credit,
+     a batch baked every day at actual cost with its yield against the plan, daily cash sales, and at each month end the
+     cost of what was sold (88% of the month's batches) and 7% written off as expired */
+  bakery: ({ year, months, rnd, vary, je, sale, pay, end, vat, ledger }) => {
+    const A = { materialsAccountId: '1370', finishedAccountId: '1390', labourAccountId: '6100', overheadAccountId: '6300', scrapAccountId: '5100', wasteAccountId: '5180',
+      cogsAccountId: '5000', payableAccountId: '2100', inputVatAccountId: '1400' };
+    const P: PO.Product = { id: 'model-prd-bread', name: 'خبز صامولي', unit: 'قطعة', labourPerUnitHalalas: 6, overheadPerUnitHalalas: 2,
+      bom: [{ material: 'دقيق', qtyPerUnit: 0.08, unitCostHalalas: 250 }, { material: 'سكر وخميرة وزيت', qtyPerUnit: 1, unitCostHalalas: 4 }] };
+    ledger.products = [P];
+    const post = (j: { date: string; reference: string; memo: string; party?: string; lines: ModelLine[] }, meta: Record<string, unknown>, source = 'الإنتاج') =>
+      je(j.date, j.memo, j.lines, { source, reference: j.reference, party: j.party, meta: { production: meta } });
+    const SUP = 'المطاحن الأولى';
+    let owed = 0, ingredients = 0, finished = 0;
     for (const m of months) {
-      if (owed) pay(dayOf(year, m, 8), 'سداد مورد الدقيق والمكونات', '2100', owed, 'PAY-ING-' + year + pad(m), 'المطاحن الأولى');
-      const ing = vary(15_000_000, 0.05); purchase(dayOf(year, m, 1), 'دقيق وسكر وخميرة ومكونات', '1370', ing, 'المطاحن الأولى', 'PO-ING-' + year + pad(m)); owed = ing + Math.round(ing * vat);
-      for (let d = 1; d <= lastDay(year, m); d++) { const g = vary(1_800_000, 0.2), net = Math.round(g / (1 + vat)); sale(dayOf(year, m, d), 'مبيعات اليوم النقدية', net, { source: 'نقاط البيع', reference: 'POS-' + dayOf(year, m, d) }); }
-      const used = Math.round(ing * 0.97), wages = 4_000_000, prod = used + wages;
-      je(end(m), 'إنتاج الشهر — مكونات وأجور الخبازين', [L('1390', prod, 0), L('1370', 0, used), L('6100', 0, wages)], { source: 'الإنتاج', reference: 'BATCH-' + year + pad(m) });
-      je(end(m), 'تكلفة المبيعات', [L('5000', Math.round(prod * 0.88), 0), L('1390', 0, Math.round(prod * 0.88))], { source: 'مبيعات', reference: 'COGS-' + year + pad(m) });
-      je(end(m), 'تالف ومنتهي الصلاحية', [L('5180', Math.round(prod * 0.07), 0), L('1390', 0, Math.round(prod * 0.07))], { source: 'الإنتاج', reference: 'WASTE-' + year + pad(m) });
+      if (owed) pay(dayOf(year, m, 8), 'سداد مورد الدقيق والمكونات', '2100', owed, 'PAY-ING-' + year + pad(m), SUP);
+      const ing = vary(16_000_000, 0.04), b = PO.materialsPurchaseJournal({ id: 'PO-ING-' + year + pad(m), date: dayOf(year, m, 1), supplier: SUP, amountHalalas: ing }, vat, A);
+      post(b.journal, { kind: 'purchase', amount: ing }, 'مشتريات'); ingredients += ing; owed = ing + b.vat;
+      let made = 0;
+      for (let d = 1; d <= lastDay(year, m); d++) {
+        const date = dayOf(year, m, d), planned = 19_000, good = Math.round(planned * (0.95 + rnd() * 0.04)), used = Math.min(vary(470_000, 0.06), ingredients);
+        const bt = PO.batchJournal(P, { id: 'B-' + date.replace(/-/g, ''), date, plannedQty: planned, goodQty: good, ingredientsHalalas: used, wagesHalalas: 130_000, ingredientsOnHandHalalas: ingredients }, A);
+        post(bt.journal, { kind: 'batch', productId: P.id, plannedQty: planned, goodQty: good, cost: bt.cost }); ingredients -= used; finished += bt.cost; made += bt.cost;
+        const g = vary(1_800_000, 0.2); sale(date, 'مبيعات اليوم النقدية', Math.round(g / (1 + vat)), { source: 'نقاط البيع', reference: 'POS-' + date });
+      }
+      const cogs = Math.round(made * 0.88), waste = Math.round(made * 0.07);
+      post(PO.costOfSalesJournal({ id: 'COGS-' + year + pad(m), date: end(m), amountHalalas: cogs, finishedOnHandHalalas: finished }, A).journal, { kind: 'cogs', amount: cogs }, 'مبيعات'); finished -= cogs;
+      post(PO.wasteJournal({ id: 'W-' + year + pad(m), date: end(m), amountHalalas: waste, reason: 'انتهاء الصلاحية والتلف', finishedOnHandHalalas: finished }, A).journal, { kind: 'waste', amount: waste }); finished -= waste;
     }
   },
   /* the sheep farm: a flock bought in January, feed bought and capitalised into the flock, lambs born in February and
