@@ -32,16 +32,28 @@ try {
   await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p); await p.waitForTimeout(800);
   await p.evaluate(() => SKosifLedger.open('claims')); await p.waitForTimeout(1000);
   ok('a health company has the claims tab, with its pack accounts', await p.evaluate(() => !!document.querySelector('[data-sk-tabs="ledger"] [data-tab="claims"]') && !!document.getElementById('cl-case')), await p.evaluate(() => SK.company.current().sector + ' ' + SKosifLedger.accounts().map((a) => a.code).join(',')));
-  const visit = async (caseRef, dept, gross, payer, cov) => {
+  const visit = async (caseRef, dept, gross, payer, cov, doc = '', fee = '', sup = '') => {
     await p.fill('#cl-case', caseRef); await p.selectOption('#cl-dept', dept); await p.fill('#cl-gross', gross); await p.fill('#cl-payer', payer); await p.fill('#cl-cov', cov);
+    await p.fill('#cl-doc', doc); await p.fill('#cl-fee', fee); await p.fill('#cl-sup', sup);
     await p.click('[data-l="claim-visit"]'); await p.waitForTimeout(600);
   };
-  await visit('C-1001', 'outpatient', '500', 'تأمين الاختبار', '80');
+  // the cost of a case: supplies cannot leave a pharmacy that does not hold them
+  await visit('C-1001', 'outpatient', '500', 'تأمين الاختبار', '80', 'د. سارة', '30', '45');
+  ok('supplies beyond the pharmacy stock are refused and nothing posts', await p.evaluate(() => /لا يكفي/.test(document.getElementById('cl-err').textContent) && !SKosifLedger.entries().some((e) => e.visit)));
+  await p.evaluate(() => { const A = SKosifLedger.accounts(), id = (c) => A.find((a) => a.code === c).id;
+    return SKosifLedger.postEntry({ date: new Date().toISOString().slice(0, 10), reference: 'PH-1', memo: 'شراء أدوية', lines: [{ accountId: id('1360'), debit: 100, credit: 0 }, { accountId: id('2100'), debit: 0, credit: 100 }] }, { sourceId: 'test:pharmacy-stock' }); });
+  await visit('C-1001', 'outpatient', '500', 'تأمين الاختبار', '80', 'د. سارة', '30', '45');
   await visit('C-1002', 'lab', '300', 'تأمين الاختبار', '100');
   await visit('C-1003', 'pharmacy', '120', '', '100');
   const B = (codes) => p.evaluate((codes) => Object.fromEntries(codes.map((c) => [c, SKosifLedger.balance(c)])), codes);
   const b1 = await B(['1100', '1210', '4010', '4030', '4040']);
   ok('visits: patient shares in cash, payer claims in 1210, revenue by department', b1['1100'] === 220 && b1['1210'] === 700 && b1['4010'] === -500 && b1['4030'] === -300 && b1['4040'] === -120, JSON.stringify(b1));
+  const bc = await B(['5210', '2150', '5220', '1360']);
+  ok("the case cost: the doctor's 30% accrued to the doctor, supplies out of the pharmacy", bc['5210'] === 150 && bc['2150'] === -150 && bc['5220'] === 45 && bc['1360'] === 55, JSON.stringify(bc));
+  const doc = await p.evaluate(() => { const d = SKosifLedger.snapshot(), e = d.entries.find((x) => x.caseCost); return e && e.party; });
+  ok("the case cost entry is named to the doctor, so the doctors' payable ages by doctor", doc === 'د. سارة', String(doc));
+  const cr = await p.evaluate(() => { const r = document.querySelector('[data-cl-cases] tr[data-case="C-1001"]'); return r ? [...r.cells].map((c) => c.textContent.trim()) : null; });
+  ok('the case table: revenue 500, fee 150, supplies 45, margin 305 (61%)', cr && /500/.test(cr[1]) && /150/.test(cr[2]) && /45/.test(cr[3]) && /305/.test(cr[4]) && cr[5] === '61٪', JSON.stringify(cr));
   await p.selectOption('#cr-payer', 'تأمين الاختبار'); await p.fill('#cr-paid', '550'); await p.fill('#cr-rej', '150');
   await p.click('[data-l="claim-remit"]'); await p.waitForTimeout(400);
   ok('a rejection without its reason is refused', await p.evaluate(() => /سبب الرفض/.test(document.getElementById('cr-err').textContent)));

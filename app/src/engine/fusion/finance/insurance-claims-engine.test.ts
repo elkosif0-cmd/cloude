@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { encounterJournal, payerStats, remittanceJournal, splitEncounter } from './insurance-claims-engine';
+import { caseCostJournal, caseCosts, doctorFee, encounterJournal, payerStats, remittanceJournal, splitEncounter } from './insurance-claims-engine';
 import { validateJournalEntry } from './ledger-engine';
 
 const A = { cashAccountId: 'a1100', payerReceivableAccountId: 'a1210', rejectionsAccountId: 'a5110', revenueAccountId: (c: string) => 'a' + c };
@@ -43,6 +43,25 @@ describe('the health pack claim cycle', () => {
     expect(s).toEqual([
       { payer: 'ب', billed: 10_000, paid: 0, rejected: 0, open: 10_000, rejectionRate: null },
       { payer: 'أ', billed: 40_000, paid: 35_000, rejected: 5_000, open: 0, rejectionRate: 12.5 },
+    ]);
+  });
+  it("accrues the doctor's fee to the doctor and takes the supplies out of the pharmacy stock", () => {
+    const C = { doctorFeesAccountId: 'a5210', doctorPayableAccountId: 'a2150', suppliesCostAccountId: 'a5220', pharmacyStockAccountId: 'a1360' };
+    const r = caseCostJournal({ id: 'k1', date: '2026-06-01', caseRef: 'C-1001', doctor: 'د. سارة', feePct: 30, suppliesHalalas: 4_500 }, 50_000, C)!;
+    expect(validateJournalEntry(r.journal).valid).toBe(true);
+    expect(r.journal.party).toBe('د. سارة');
+    expect(by(r.journal.lines, 'a5210')).toBe(150); expect(by(r.journal.lines, 'a2150')).toBe(-150);
+    expect(by(r.journal.lines, 'a5220')).toBe(45); expect(by(r.journal.lines, 'a1360')).toBe(-45);
+    expect(doctorFee(50_000, { feeFixedHalalas: 20_000 })).toBe(20_000);
+    expect(doctorFee(10_000, { feeFixedHalalas: 20_000 })).toBe(10_000);
+    expect(caseCostJournal({ id: 'k2', date: '2026-06-01', caseRef: 'C-1002' }, 50_000, C)).toBeNull();
+    const supOnly = caseCostJournal({ id: 'k3', date: '2026-06-01', caseRef: 'C-1003', suppliesHalalas: 1_000 }, 50_000, C)!;
+    expect(supOnly.fee).toBe(0); expect(supOnly.journal.party).toBeUndefined();
+  });
+  it('reports revenue, cost and margin per case', () => {
+    expect(caseCosts([{ caseRef: 'C-1', revenue: 50_000 }, { caseRef: 'C-1', fee: 15_000, supplies: 4_500 }, { caseRef: 'C-2', revenue: 30_000 }])).toEqual([
+      { caseRef: 'C-1', revenue: 50_000, fee: 15_000, supplies: 4_500, cost: 19_500, margin: 30_500, marginPct: 61 },
+      { caseRef: 'C-2', revenue: 30_000, fee: 0, supplies: 0, cost: 0, margin: 30_000, marginPct: 100 },
     ]);
   });
   it('rejects a visit without a value or with an unknown department', () => {

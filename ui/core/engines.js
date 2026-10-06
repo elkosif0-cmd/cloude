@@ -18321,6 +18321,9 @@ window.SKEngines = (function() {
 	var insurance_claims_engine_exports = /* @__PURE__ */ __exportAll({
 		DEPARTMENT_ACCOUNT: () => DEPARTMENT_ACCOUNT,
 		DEPARTMENT_LABEL: () => DEPARTMENT_LABEL,
+		caseCostJournal: () => caseCostJournal,
+		caseCosts: () => caseCosts,
+		doctorFee: () => doctorFee,
 		encounterJournal: () => encounterJournal,
 		payerStats: () => payerStats,
 		remittanceJournal: () => remittanceJournal,
@@ -18467,6 +18470,78 @@ window.SKEngines = (function() {
 			open: r.billed - r.paid - r.rejected,
 			rejectionRate: r.paid + r.rejected ? Math.round(r.rejected / (r.paid + r.rejected) * 1e4) / 100 : null
 		})).sort((a, b) => b.open - a.open || a.payer.localeCompare(b.payer));
+	}
+	function doctorFee(grossHalalas, c) {
+		const fixed = Number(c.feeFixedHalalas);
+		if (Number.isInteger(fixed) && fixed > 0) return Math.min(fixed, grossHalalas);
+		const pct = Math.min(100, Math.max(0, Number(c.feePct ?? 0)));
+		return Math.round(grossHalalas * pct / 100);
+	}
+	function caseCostJournal(c, grossHalalas, a) {
+		const doctor = String(c.doctor ?? "").trim(), fee = doctor ? doctorFee(grossHalalas, c) : 0;
+		const supplies = Number.isInteger(c.suppliesHalalas) && c.suppliesHalalas > 0 ? c.suppliesHalalas : 0;
+		if (!fee && !supplies) return null;
+		if (fee && !doctor) throw new Error("حدد الطبيب");
+		const lines = [...fee ? [{
+			accountId: a.doctorFeesAccountId,
+			debit: sar$1(fee),
+			credit: 0,
+			description: "أتعاب " + doctor + " — حالة " + c.caseRef
+		}, {
+			accountId: a.doctorPayableAccountId,
+			debit: 0,
+			credit: sar$1(fee),
+			description: "مستحق " + doctor + " — حالة " + c.caseRef
+		}] : [], ...supplies ? [{
+			accountId: a.suppliesCostAccountId,
+			debit: sar$1(supplies),
+			credit: 0,
+			description: "أدوية ومستلزمات — حالة " + c.caseRef
+		}, {
+			accountId: a.pharmacyStockAccountId,
+			debit: 0,
+			credit: sar$1(supplies),
+			description: "صرف من الصيدلية — حالة " + c.caseRef
+		}] : []];
+		return {
+			fee,
+			supplies,
+			journal: {
+				id: c.id,
+				date: c.date,
+				reference: c.caseRef,
+				memo: "تكلفة الحالة " + c.caseRef + (doctor ? " — " + doctor : ""),
+				party: doctor || void 0,
+				lines
+			}
+		};
+	}
+	/** revenue, doctor's fee, supplies and margin per case — the health pack's «تكلفة الحالة» */
+	function caseCosts(events) {
+		const by = /* @__PURE__ */ new Map();
+		for (const e of events) {
+			const k = String(e.caseRef || "").trim();
+			if (!k) continue;
+			const r = by.get(k) ?? {
+				caseRef: k,
+				revenue: 0,
+				fee: 0,
+				supplies: 0
+			};
+			r.revenue += e.revenue ?? 0;
+			r.fee += e.fee ?? 0;
+			r.supplies += e.supplies ?? 0;
+			by.set(k, r);
+		}
+		return [...by.values()].map((r) => {
+			const cost = r.fee + r.supplies, margin = r.revenue - cost;
+			return {
+				...r,
+				cost,
+				margin,
+				marginPct: r.revenue ? Math.round(margin / r.revenue * 1e4) / 100 : null
+			};
+		}).sort((a, b) => a.caseRef.localeCompare(b.caseRef));
 	}
 	//#endregion
 	//#region app/src/engine/fusion/finance/journal-chain-engine.ts
@@ -25409,7 +25484,7 @@ window.SKEngines = (function() {
 		}),
 		health: pack({
 			id: "health",
-			depth: "base",
+			depth: "deep",
 			accounts: [
 				[
 					"1210",
@@ -25449,6 +25524,16 @@ window.SKEngines = (function() {
 				[
 					"5110",
 					"رفض المطالبات وتسويات التأمين",
+					"expense"
+				],
+				[
+					"5210",
+					"أتعاب وعمولات الأطباء",
+					"expense"
+				],
+				[
+					"5220",
+					"تكلفة الأدوية والمستلزمات المصروفة",
 					"expense"
 				]
 			],

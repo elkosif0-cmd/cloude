@@ -79,3 +79,46 @@ export function payerStats(events: ClaimEvent[]) {
   return [...by.values()].map((r) => ({ ...r, open: r.billed - r.paid - r.rejected, rejectionRate: r.paid + r.rejected ? Math.round((r.rejected / (r.paid + r.rejected)) * 10000) / 100 : null }))
     .sort((a, b) => b.open - a.open || a.payer.localeCompare(b.payer));
 }
+
+/* the cost of a case: the doctor's fee (a share of the visit, or a fixed amount) accrued to the doctor (2150, named), and the
+   medicines and supplies used, taken out of the pharmacy stock (1360). One entry per visit, named to the doctor, so the
+   doctors' payable ages by doctor while the payer's claim stays on its own entry. */
+export type CaseCost = { id: string; date: string; caseRef: string; doctor?: string; feePct?: number; feeFixedHalalas?: number; suppliesHalalas?: number };
+export type CaseCostAccounts = { doctorFeesAccountId: string; doctorPayableAccountId: string; suppliesCostAccountId: string; pharmacyStockAccountId: string };
+
+export function doctorFee(grossHalalas: number, c: Pick<CaseCost, 'feePct' | 'feeFixedHalalas'>) {
+  const fixed = Number(c.feeFixedHalalas);
+  if (Number.isInteger(fixed) && fixed > 0) return Math.min(fixed, grossHalalas);
+  const pct = Math.min(100, Math.max(0, Number(c.feePct ?? 0)));
+  return Math.round((grossHalalas * pct) / 100);
+}
+
+export function caseCostJournal(c: CaseCost, grossHalalas: number, a: CaseCostAccounts) {
+  const doctor = String(c.doctor ?? '').trim(), fee = doctor ? doctorFee(grossHalalas, c) : 0;
+  const supplies = Number.isInteger(c.suppliesHalalas) && (c.suppliesHalalas as number) > 0 ? (c.suppliesHalalas as number) : 0;
+  if (!fee && !supplies) return null;
+  if (fee && !doctor) throw new Error('حدد الطبيب');
+  const lines = [
+    ...(fee ? [{ accountId: a.doctorFeesAccountId, debit: sar(fee), credit: 0, description: 'أتعاب ' + doctor + ' — حالة ' + c.caseRef },
+      { accountId: a.doctorPayableAccountId, debit: 0, credit: sar(fee), description: 'مستحق ' + doctor + ' — حالة ' + c.caseRef }] : []),
+    ...(supplies ? [{ accountId: a.suppliesCostAccountId, debit: sar(supplies), credit: 0, description: 'أدوية ومستلزمات — حالة ' + c.caseRef },
+      { accountId: a.pharmacyStockAccountId, debit: 0, credit: sar(supplies), description: 'صرف من الصيدلية — حالة ' + c.caseRef }] : []),
+  ];
+  return { fee, supplies, journal: { id: c.id, date: c.date, reference: c.caseRef, memo: 'تكلفة الحالة ' + c.caseRef + (doctor ? ' — ' + doctor : ''), party: doctor || undefined, lines } };
+}
+
+export type CaseEvent = { caseRef: string; revenue?: number; fee?: number; supplies?: number; rejected?: number };
+
+/** revenue, doctor's fee, supplies and margin per case — the health pack's «تكلفة الحالة» */
+export function caseCosts(events: CaseEvent[]) {
+  const by = new Map<string, { caseRef: string; revenue: number; fee: number; supplies: number }>();
+  for (const e of events) {
+    const k = String(e.caseRef || '').trim(); if (!k) continue;
+    const r = by.get(k) ?? { caseRef: k, revenue: 0, fee: 0, supplies: 0 };
+    r.revenue += e.revenue ?? 0; r.fee += e.fee ?? 0; r.supplies += e.supplies ?? 0;
+    by.set(k, r);
+  }
+  return [...by.values()].map((r) => { const cost = r.fee + r.supplies, margin = r.revenue - cost;
+    return { ...r, cost, margin, marginPct: r.revenue ? Math.round((margin / r.revenue) * 10000) / 100 : null }; })
+    .sort((a, b) => a.caseRef.localeCompare(b.caseRef));
+}
