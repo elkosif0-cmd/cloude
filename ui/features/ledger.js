@@ -246,6 +246,83 @@ const CLAIM_CODES=["1100","1210","5110","4010","4020","4030","4040"],CASE_CODES=
 const halalas=v=>Math.round(Number(String(v??"").replace("٫",".").replace(/[٠-٩]/g,x=>"٠١٢٣٤٥٦٧٨٩".indexOf(x)))*100);
 function caseEvents(d){return d.entries.filter(e=>!e.reversedBy&&!e.reversalOf&&(e.visit||e.caseCost)).map(e=>e.visit?{caseRef:e.visit.caseRef,revenue:e.visit.gross}:{caseRef:e.caseCost.caseRef,fee:e.caseCost.fee,supplies:e.caseCost.supplies})}
 function claimEvents(d){return d.entries.filter(e=>e.claim&&!e.reversedBy&&!e.reversalOf).map(e=>({payer:e.claim.payer,kind:e.claim.kind,billed:e.claim.billed,paid:e.claim.paid,rejected:e.claim.rejected}))}
+/* ---------- the digital-marketing pack: retainers billed in advance and earned monthly, ad spend, rebills, campaign profitability ----------
+   (finance/agency-engine) — shown only for a digital-marketing agency. What each campaign billed, earned, spent and
+   rebilled is read back from the entries posted, so the screen and the books cannot disagree. */
+const AG=()=>E().agency;
+const isDigital=()=>{try{return SK.company.current().sector==="digital"}catch{return false}};
+const DIGITAL_CODES=["1200","2400","4080","2170","5150"];
+function agencyAccounts(d){return{receivableAccountId:byCode(d,"1200"),deferredAccountId:byCode(d,"2400"),revenueAccountId:byCode(d,"4080"),outputVatAccountId:byCode(d,"2200"),mediaCostAccountId:byCode(d,"5150"),platformPayableAccountId:byCode(d,"2170")}}
+function campaignState(d,id){
+  const s={billed:0,recognised:0,months:[],spend:0,rebilledSpend:0,rebillRevenue:0};
+  d.entries.filter(e=>e.agency&&e.agency.retainerId===id&&!e.reversedBy&&!e.reversalOf).forEach(e=>{const g=e.agency;
+    if(g.kind==="invoice")s.billed+=g.amount;
+    if(g.kind==="recognise"){s.recognised+=g.amount;s.months.push(...g.months)}
+    if(g.kind==="spend")s.spend+=g.amount;
+    if(g.kind==="rebill"){s.rebilledSpend+=g.spend;s.rebillRevenue+=g.amount}});
+  return s;
+}
+function digitalHTML(d){
+  const missing=DIGITAL_CODES.filter(c=>!byCode(d,c));
+  if(missing.length)return SK.ui.state.empty({title:"أكمل حسابات قطاع التسويق الإلكتروني",text:"العملاء والحملات تحتاج الحسابات "+missing.join(" و")+" — أضفها من «دليل الحسابات» › «إضافة حسابات قطاع»."});
+  const t=today(),h=v=>money((v||0)/100),rs=Array.isArray(d.retainers)?d.retainers:[],pct=v=>v==null?"—":v+"٪";
+  const rows=rs.map(r=>{const s=campaignState(d,r.id);return{r,s,p:AG().campaignProfitability([{campaign:r.campaign,client:r.client,revenueHalalas:s.recognised+s.rebillRevenue,mediaCostHalalas:s.spend,attributedSalesHalalas:r.attributedSalesHalalas,newCustomers:r.newCustomers}])[0]}});
+  const opts=rs.map(r=>'<option value="'+esc(r.id)+'">'+esc(r.campaign)+' — '+esc(r.client)+'</option>').join("");
+  return '<p class="hint">الاشتراك (Retainer) يُفوتر مقدماً إيراداً مؤجلاً (2400) ويُعترف به شهراً بشهر عند تقديم الخدمة. الإنفاق الإعلاني مستحق للمنصة (2170) ومصروف على الحملة (5150)، ويُعاد تحميله على العميل بهامش الوكالة إيراداً (4080). العائد على الإنفاق = مبيعات العميل المنسوبة ÷ الإنفاق؛ تكلفة اكتساب العميل = ما دفعه العميل للوكالة ÷ العملاء الجدد.</p>'+
+    '<section class="card"><div class="card-h"><div><h3>اشتراك عميل جديد</h3></div></div><div class="card-b"><div class="sk-grid2">'+
+      '<label class="sk-field"><span>العميل</span><input id="dg-client" autocomplete="off" data-sk-required></label>'+
+      '<label class="sk-field"><span>الحملة</span><input id="dg-camp" autocomplete="off" data-sk-required></label>'+
+      '<label class="sk-field"><span>الاشتراك الشهري</span><input id="dg-monthly" inputmode="decimal" data-sk-required></label>'+
+      '<label class="sk-field"><span>عدد الأشهر</span><input id="dg-months" inputmode="numeric" value="3"></label>'+
+      '<label class="sk-field"><span>شهر البداية</span><input id="dg-start" type="month" value="'+t.slice(0,7)+'"></label>'+
+      '<label class="sk-field"><span>تاريخ الفاتورة</span><input id="dg-idate" type="date" value="'+t+'"></label></div>'+
+      '<div class="sk-error" id="dg-err" role="alert"></div><div class="sk-actions"><button type="button" class="btn primary" data-l="dg-new">حفظ وفوترة الاشتراك</button></div></div></section>'+
+    (rs.length?'<section class="card"><div class="card-h"><div><h3>حركة على حملة</h3></div></div><div class="card-b"><div class="sk-grid2">'+
+      '<label class="sk-field"><span>الحملة</span><select id="dg-k">'+opts+'</select></label>'+
+      '<label class="sk-field"><span>العملية</span><select id="dg-op"><option value="recognise">الاعتراف بالإيراد حتى شهر</option><option value="spend">إنفاق إعلاني على منصة</option><option value="rebill">إعادة تحميل الإنفاق على العميل</option><option value="results">نتائج العميل (مبيعات منسوبة وعملاء جدد)</option></select></label>'+
+      '<label class="sk-field"><span>الشهر</span><input id="dg-month" type="month" value="'+t.slice(0,7)+'"></label>'+
+      '<label class="sk-field"><span>المبلغ</span><input id="dg-amt" inputmode="decimal"></label>'+
+      '<label class="sk-field"><span>المنصة</span><input id="dg-plat" list="dg-plats" autocomplete="off"></label>'+
+      '<label class="sk-field"><span>هامش الوكالة %</span><input id="dg-mk" inputmode="decimal" value="0"></label>'+
+      '<label class="sk-field"><span>العملاء الجدد</span><input id="dg-newc" inputmode="numeric"></label>'+
+      '<label class="sk-field"><span>التاريخ</span><input id="dg-date" type="date" value="'+t+'"></label></div>'+
+      '<datalist id="dg-plats"><option value="Meta"><option value="Google Ads"><option value="TikTok"><option value="Snapchat"><option value="X"></datalist>'+
+      '<div class="sk-error" id="dg-err2" role="alert"></div><div class="sk-actions"><button type="button" class="btn" data-l="dg-post">ترحيل</button></div></div></section>':'')+
+    (rows.length?'<section class="card"><div class="card-h"><div><h3>الحملات</h3><p>من قيود الدفاتر: المفوتر والمعترف به والمؤجل والإنفاق وربحية كل حملة.</p></div></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table" data-dg-table><thead><tr><th>الحملة</th><th>العميل</th><th>المفوتر مقدماً</th><th>إيراد معترف به</th><th>مؤجل قائم</th><th>الإنفاق</th><th>إنفاق لم يُحمَّل</th><th>الهامش</th><th>نسبة الهامش</th><th>العائد على الإنفاق</th><th>تكلفة اكتساب العميل</th></tr></thead><tbody>'+
+      rows.map(({r,s,p})=>'<tr data-campaign="'+esc(r.campaign)+'"><td>'+esc(r.campaign)+'</td><td>'+esc(r.client)+'</td><td class="n">'+h(s.billed)+'</td><td class="n">'+h(s.recognised+s.rebillRevenue)+'</td><td class="n">'+h(s.billed-s.recognised)+'</td><td class="n">'+h(s.spend)+'</td><td class="n">'+h(s.spend-s.rebilledSpend)+'</td><td class="n"><b>'+h(p.marginHalalas)+'</b></td><td class="n">'+pct(p.marginPct)+'</td><td class="n">'+(p.roas==null?"—":p.roas+"x")+'</td><td class="n">'+(p.cacHalalas==null?"—":h(p.cacHalalas))+'</td></tr>').join("")+
+      '</tbody></table></div></div></section>':'');
+}
+function saveRetainer(root,d){
+  const err=$("#dg-err",root);err.textContent="";
+  const r={id:SK.ui.uid("ret"),client:$("#dg-client",root).value.trim(),campaign:$("#dg-camp",root).value.trim(),monthlyHalalas:halalas($("#dg-monthly",root).value||0),months:Math.round(Number($("#dg-months",root).value||0)),startMonth:$("#dg-start",root).value};
+  if((d.retainers||[]).some(x=>x.campaign===r.campaign&&x.client===r.client)){err.textContent="للحملة اشتراك مسجّل لهذا العميل";return}
+  const id=SK.ui.uid("dg"),date=$("#dg-idate",root).value||today();
+  try{const j=AG().retainerInvoiceJournal(r,{id,date},SK.vatRate(),agencyAccounts(d));
+    const out=postEntry({...j.journal,agency:{kind:"invoice",retainerId:r.id,campaign:r.campaign,amount:j.total}},{source:"اشتراكات العملاء",sourceId:"dg:"+id,party:r.client});
+    if(!out.ok){err.textContent=out.error;return}
+    d=db();d.retainers=[...(d.retainers||[]),r];put(d);toast("فُوتر اشتراك "+r.client,"ok")}catch(e){err.textContent=e.message||String(e);return}
+  return true;
+}
+function postDigitalOp(root,d){
+  const err=$("#dg-err2",root);err.textContent="";
+  const r=(d.retainers||[]).find(x=>x.id===$("#dg-k",root).value);if(!r){err.textContent="اختر الحملة";return}
+  const op=$("#dg-op",root).value,amt=halalas($("#dg-amt",root).value||0),date=$("#dg-date",root).value||today(),id=SK.ui.uid("dg"),s=campaignState(d,r.id),A=agencyAccounts(d);
+  try{
+    let out;
+    if(op==="results"){const n=Math.round(Number($("#dg-newc",root).value||0));
+      d.retainers=d.retainers.map(x=>x.id===r.id?{...x,attributedSalesHalalas:amt||undefined,newCustomers:n||undefined}:x);put(d);toast("حُفظت نتائج "+r.campaign,"ok");return true}
+    if(op==="recognise"){const j=AG().recognitionJournal(r,s.months,$("#dg-month",root).value,{id,date},A);
+      out=postEntry({...j.journal,agency:{kind:"recognise",retainerId:r.id,campaign:r.campaign,amount:j.amount,months:j.months}},{source:"الاعتراف بالإيراد",sourceId:"dg:"+r.id+":"+j.months.join(",")})}
+    else if(op==="spend"){const plat=$("#dg-plat",root).value.trim(),j=AG().mediaSpendJournal({id,date,campaign:r.campaign,platform:plat,amountHalalas:amt},A);
+      out=postEntry({...j.journal,agency:{kind:"spend",retainerId:r.id,campaign:r.campaign,platform:plat,amount:amt}},{source:"الإنفاق الإعلاني",sourceId:"dg:"+id,party:plat})}
+    else{const left=s.spend-s.rebilledSpend;if(amt>left){err.textContent="الإنفاق غير المحمَّل على هذه الحملة "+money(left/100)+" فقط";return}
+      const j=AG().rebillJournal({id,date,client:r.client,campaign:r.campaign,spendHalalas:amt,markupPct:Number($("#dg-mk",root).value||0)},SK.vatRate(),A);
+      out=postEntry({...j.journal,agency:{kind:"rebill",retainerId:r.id,campaign:r.campaign,spend:amt,amount:j.amount}},{source:"إعادة تحميل الإنفاق",sourceId:"dg:"+id,party:r.client})}
+    if(!out.ok){err.textContent=out.error;return}
+    toast("رُحّلت الحركة على "+r.campaign,"ok");
+  }catch(e){err.textContent=e.message||String(e);return}
+  return true;
+}
 /* ---------- the hospitality pack: deposits, the night audit, booking channels' commissions, occupancy / ADR / RevPAR ----------
    (finance/hotel-engine) — shown only for a hotel. A guest's deposit left and the KPIs are read back from the entries
    posted, so the screen and the books cannot disagree. */
@@ -669,9 +746,9 @@ function paint(root){
   /* a company created under a sector receives its pack on first open (FOUNDATION §3.7) */
   try{window.SKosifCompanyPlatform&&SKosifCompanyPlatform.ensureSectorPack()}catch{}
   const d=db(),p=period();if(!tab)tab=d.accounts.length?"close":"accounts";
-  root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],...(isHealth()?[["claims","المطالبات والجهات"]]:[]),...(isConstruction()?[["projects","المشروعات والمستخلصات"]]:[]),...(isHotel()?[["hotel","الغرف والإقفال الليلي"]]:[]),["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
+  root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],...(isHealth()?[["claims","المطالبات والجهات"]]:[]),...(isConstruction()?[["projects","المشروعات والمستخلصات"]]:[]),...(isHotel()?[["hotel","الغرف والإقفال الليلي"]]:[]),...(isDigital()?[["digital","العملاء والحملات"]]:[]),["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
     (p?'<p class="hint">الفترة المالية النشطة: <b>'+esc(p.label)+'</b> ('+esc(p.startDate)+' → '+esc(p.endDate)+') — من «الشركات والفترات».</p>':'')+
-    ({close:closeHTML,accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,claims:claimsHTML,projects:projectsHTML,hotel:hotelHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
+    ({close:closeHTML,accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,claims:claimsHTML,projects:projectsHTML,hotel:hotelHTML,digital:digitalHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
 }
 function bind(root){
   root.addEventListener("click",async e=>{
@@ -716,6 +793,8 @@ function bind(root){
     else if(a==="pj-post"){if(postProjectOp(root,d))paint(root);return}
     else if(a==="ht-dep"){if(postHotelDeposit(root,d))paint(root);return}
     else if(a==="ht-night"){if(postNightAudit(root,d))paint(root);return}
+    else if(a==="dg-new"){if(saveRetainer(root,d))paint(root);return}
+    else if(a==="dg-post"){if(postDigitalOp(root,d))paint(root);return}
     else if(a==="claim-remit"){if(postClaimRemit(root,d))paint(root);return}
     else if(a==="settle"){
       const err=$("#lg-cerr",root);err.textContent="";if(!SK.ui.validate(root))return;

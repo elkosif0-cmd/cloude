@@ -65,7 +65,7 @@ export const SECTOR_PACKS: Readonly<Record<string, SectorPack>> = Object.freeze(
     tools: ['purchasing', 'inventory'], kpis: ['نسبة الإنجاز', 'هامش المشروع المتوقع', 'المحتجزات القائمة'],
   }),
   digital: pack({
-    id: 'digital', depth: 'base',
+    id: 'digital', depth: 'deep',
     accounts: [['2400', 'إيرادات مؤجلة (Retainer مقدّم)', 'liability'], ['2170', 'مستحقات المنصات الإعلانية', 'liability'], ['4080', 'إيرادات إدارة الحملات', 'revenue'], ['5150', 'الإنفاق الإعلاني المعاد تحميله', 'expense']],
     costCenters: ['الحملات', 'المحتوى والإبداع', 'المنصات', 'خدمة العملاء'], units: ['حملة', 'ساعة', 'شهر'], warehouses: [],
     tools: [], kpis: ['تكلفة اكتساب العميل', 'ربحية الحملة', 'العائد على الإنفاق الإعلاني'],
