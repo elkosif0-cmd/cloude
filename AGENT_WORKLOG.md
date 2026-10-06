@@ -275,3 +275,27 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Not yet: carcass purchases still receive into 1300 unless the user picks the account (receipt → 1310 by item type is the next step); the other priority sectors are `base` depth.
 - Evidence: engines 464/464 (12 new, `--check` up to date); workflow node tests 294 pass / 52 fail, identical to `main`; meat_pack_e2e OK (1,450.00 → cuts 1,349.00 + offal 72.00 + abnormal waste 29.00; refused twice / over-weight / unbalanced); door 94/94; feature_audit 146/146; books OK; sales 28/28; advances 26/26.
 - NEXT ACTION: carcass receipts → 1310 by item type; deepen the hospital pack.
+
+### TASK AGY-DESIGN-RESPONSIVE-20261006-001 — Responsive Modal, Dialog, and Graphic Identity Polish
+- Agent: Antigravity / Google Deepmind
+- Status: DONE
+- Goal: Implement user graphic design request: redraw application dialogs/windows to adapt responsively across Laptop and Mobile viewports, maintaining strict adherence to KOSIF tokens, zero-regression on all 24 gateway/audit tests, and mobile ergonomics (bottom sheet modal behavior).
+- Scope: `ui/ds/luxe.css` responsive modal/dialog graphic enhancements, touch targets, grab handles, and `AGENT_WORKLOG.md`.
+- Expected touch set: `ui/ds/luxe.css`, `AGENT_WORKLOG.md`.
+- Branch / PR: `main`.
+- Current progress:
+  - Redesigned dialogs and windows (`.skd`, `.dlg`, `.modal`) in `ui/ds/luxe.css`: glassmorphic luxury card styling on laptop/desktop with `backdrop-filter: blur(12px) saturate(180%)`, glowing subtle borders, and layered depth shadows.
+  - On mobile/small tablets (<=768px): transformed into native iOS/Android-style bottom sheets (`align-items: flex-end`, `border-radius: var(--sk-r-l) var(--sk-r-l) 0 0`, top grab handle, safe-area bottom padding, 48px touch targets, and 16px input font size preventing iOS viewport zoom).
+  - Passed all design token audit tests with zero regressions, zero !important, and zero off-grid spacing.
+  - Validated all 24 contract and gateway tests on the newly merged `main` (including gateway_contract, vat_policy, company_entry, identity_audit, unlock_runtime).
+- Evidence / tests:
+  - `node --test tools/company_entry.test.mjs`: 10/10 pass.
+  - `node --test tools/door_tokens.test.mjs`: 2/2 pass.
+  - `node --test tools/gateway_contract.mjs`: pass (78 capabilities, 10 sectors).
+  - `node --test tools/identity_audit.test.mjs`: pass (zero regressions against ratchet baseline).
+  - `node --test tools/unlock_runtime.test.mjs`: 5/5 pass.
+  - `node --test tools/vat_policy_contract.test.mjs`: 3/3 pass.
+  - Preview build: 163 entries in `dist/` with zero errors.
+- Risks / conflicts: None. Zero changes to cryptographic boundaries or sensitive markers.
+- NEXT ACTION: Push to `origin/main` for immediate Cloudflare Pages live deployment to https://s-kosif.pages.dev/.
+
