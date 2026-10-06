@@ -233,7 +233,7 @@ function formDialog(title,fields,opts={}){
 
 /* ---------- auto-lock ---------- */
 const LOCK_KEY="skosif_autolock_min";
-function lockNow(){try{sessionStorage.removeItem("aghnamJevSession")}catch{}location.replace("./index.html")}
+function lockNow(){if(window.SK&&SK.bus)SK.bus.emit("lock",{});try{sessionStorage.removeItem("aghnamJevSession")}catch{}location.replace("./index.html")}
 let last=Date.now();
 ["pointerdown","keydown","touchstart","wheel"].forEach(ev=>addEventListener(ev,()=>{last=Date.now()},{passive:true,capture:true}));
 function idleCheck(){const m=num(load(LOCK_KEY,0));if(m>0&&Date.now()-last>m*60000)lockNow()}

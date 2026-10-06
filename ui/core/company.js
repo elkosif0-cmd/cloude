@@ -43,7 +43,8 @@ function list(){
 }
 /* open a company: its data replaces the open one (the app reloads); the private company goes through the front door */
 async function open(id){
-  const cur=current();if(!id||id===cur.id)return true;
+  const cur=current();if(!id)return false;
+  if(id===cur.id)return space()&&space().switchTo?space().switchTo(id,cur.name):false;
   if(id===privateId()){location.href="./";return false}
   const c=list().find(x=>x.id===id);if(!c)return false;
   return space()&&space().switchTo?space().switchTo(id,c.name,{demo:id===DEMO.id?undefined:false}):false;

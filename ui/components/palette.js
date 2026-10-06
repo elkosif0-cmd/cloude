@@ -17,11 +17,16 @@ function calc(q){
 }
 const go=id=>core()&&core().go(id);
 const act=(name,data)=>()=>core()&&core().act(name,data);
+/* The assistant awaits delayed commands and supplies a local-context guard. Ordinary palette
+   callers retain their behavior. Unsupported asynchronous commands need their own integration. */
+const delayedAction=(view,name,data)=>(_q,contextCurrent)=>{
+  go(view);return new Promise(resolve=>setTimeout(()=>{if(contextCurrent&&!contextCurrent()){resolve(false);return}act(name,data)();resolve(true)},150));
+};
 const ACTIONS=[
   {id:"sale",t:"تسجيل عملية بيع",s:"إضافة بيع يدوي إلى مؤشرات المبيعات",ic:"commerce",run:act("v12-sale-new"),perm:["commerce","create"]},
   {id:"pos",t:"فاتورة ضريبية جديدة",s:"نقطة البيع برمز QR",ic:"zatca",run:()=>go("zatca"),perm:["zatca","view"]},
-  {id:"item",t:"إضافة صنف جديد",s:"صنف خام في سجل الأسعار",ic:"catalog",run:()=>{go("catalog");setTimeout(act("item-new",{source:"catalog"}),150)},perm:["catalog","create"]},
-  {id:"box",t:"بناء بوكس جديد",s:"هندسة بوكس ومكوناته",ic:"builder",run:()=>{go("builder");setTimeout(act("bld-new"),150)},perm:["builder","create"]},
+  {id:"item",t:"إضافة صنف جديد",s:"صنف خام في سجل الأسعار",ic:"catalog",run:delayedAction("catalog","item-new",{source:"catalog"}),perm:["catalog","create"]},
+  {id:"box",t:"بناء بوكس جديد",s:"هندسة بوكس ومكوناته",ic:"builder",run:delayedAction("builder","bld-new"),perm:["builder","create"]},
   {id:"search",t:"بحث في العملاء والطلبات",s:"جوال، رقم طلب، وصف مبيعات",ic:"customers",run:q=>core()&&core().search(q||""),perm:["customers","view"]},
   {id:"templates",t:"قوالب الاستيراد",s:"قالب Excel لكل قسم تملؤه ثم تستورده",ic:"exports",run:()=>SK.templates&&SK.templates.panel(),perm:["exports","view"]},
   {id:"demo",t:"البيانات التجريبية",s:"املأ الأقسام الفارغة ببيانات شركة وهمية أو امسحها",ic:"archive",run:()=>SK.demo&&SK.demo.panel(),perm:["settings","view"]},
@@ -129,5 +134,7 @@ document.addEventListener("keydown",e=>{
 document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("[data-sk-palette]")){e.preventDefault();open()}});
 window.SKosifCommand=Object.freeze({open,close,isOpen,
   /* the live assistant runs the same actions */
-  actions:()=>ACTIONS.filter(allowed).map(a=>({id:a.id,t:a.t,s:a.s})),run:(id,q)=>{const a=ACTIONS.find(x=>x.id===id);if(a&&allowed(a)){a.run(q||"");return true}return false}});
+  actions:()=>ACTIONS.filter(allowed).map(a=>({id:a.id,t:a.t,s:a.s})),run:(id,q,contextCurrent)=>{const a=ACTIONS.find(x=>x.id===id);
+    if(!a||!allowed(a)||contextCurrent&&(!contextCurrent()||["backup","install","demo"].includes(id)))return false;
+    const result=a.run(q||"",contextCurrent);return contextCurrent&&result&&typeof result.then==="function"?result.then(v=>v!==false&&contextCurrent()):true}});
 })();

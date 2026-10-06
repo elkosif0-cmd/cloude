@@ -91,9 +91,41 @@ async function getSnap(id,userId=user().id){const db=await spacesDb();let r=awai
 function clearHelperKeys(){const ks=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(HELPER_KEY(k))ks.push(k)}ks.forEach(k=>localStorage.removeItem(k))}
 
 /* ---------- switching ---------- */
-let busy=false,scopeEpoch=0,scopeTainted=false,scopeTransitions=0;
-const scopeBegin=()=>{if(scopeTransitions)scopeTainted=true;scopeTransitions++;scopeEpoch++};
-const scopeEnd=()=>{scopeTransitions--;scopeEpoch++};
+let busy=false,scopeEpoch=0,scopeTainted=false,scopeTransitions=0,chatLocked=false,chatForeign=false;
+/* A lifecycle generation, not an authentication credential. Other open tabs must reload before
+   using their cached company data after a switch/lock anywhere on this device. */
+const CHAT_GENERATION="sqc_chat_scope_generation_v1";
+let chatGeneration=load(CHAT_GENERATION,null);
+const scopeNotify=()=>{SK.bus&&SK.bus.emit&&SK.bus.emit("scope",{})};
+/* Redundant same-origin notification when a persisted generation cannot be written. No chat,
+   company identity, credentials, or source data is transmitted. Delivery is asynchronous. */
+let chatChannel=null;
+try{if(typeof BroadcastChannel!=="undefined"){chatChannel=new BroadcastChannel("sqc-chat-lifecycle-v1");chatChannel.onmessage=e=>{if(e.data==="invalidate"){chatForeign=true;scopeNotify()}}}}catch{/* persisted generation remains the primary boundary */}
+function advanceChatGeneration(){
+  const next=JSON.stringify([Date.now(),Math.random(),scopeEpoch]);
+  if(save(CHAT_GENERATION,next)!==true)scopeTainted=true;
+  else chatGeneration=next;
+  try{if(chatChannel)chatChannel.postMessage("invalidate")}catch{/* no reliable cross-tab signal if both transports fail */}
+}
+const scopeBegin=()=>{if(scopeTransitions)scopeTainted=true;scopeTransitions++;scopeEpoch++;advanceChatGeneration();scopeNotify()};
+const scopeEnd=()=>{scopeTransitions--;scopeEpoch++;scopeNotify()};
+/* Local-user/company routing only. This is not backend tenant authentication. Unlike report
+   scope, chat does not require an accounting period. Reads never initialize or adopt ownership. */
+function chatScopeSnapshot(){
+  const obj=v=>v&&typeof v==="object"&&!Array.isArray(v),id=v=>typeof v==="string"&&v.trim()?v:null;
+  const own=(v,k)=>obj(v)&&k!==null&&Object.prototype.hasOwnProperty.call(v,k);
+  let userId=null,companyId=null,valid=false,persisted=null;
+  try{
+    const ur=load(USERS,null),r=load(REG,null),cd=load("skosif_companies_v1",null);
+    persisted=load(CHAT_GENERATION,null);userId=id(ur&&ur.active);
+    const u=own(ur&&ur.users,userId)?ur.users[userId]:null;
+    companyId=id(cd&&cd.active&&cd.active.companyId);
+    valid=!!(obj(u)&&u.id===userId&&id(u.lastSpace)===companyId&&own(u.spaces,companyId)&&obj(u.spaces[companyId])&&obj(r)&&r.active===companyId&&own(r.spaces,companyId)&&obj(r.spaces[companyId])&&Array.isArray(cd.companies)&&cd.companies.filter(c=>obj(c)&&c.id===companyId).length===1);
+  }catch{/* fail closed */}
+  const status=chatLocked?"locked":chatForeign||persisted!==chatGeneration?"stale":busy||scopeTransitions?"busy":scopeTainted?"tainted":valid?"stable":"unknown";
+  return Object.freeze({status,userId,companyId,token:JSON.stringify([scopeEpoch,status,userId,companyId,persisted])});
+}
+SK.bus&&SK.bus.on("lock",()=>{chatLocked=true;scopeEpoch++;advanceChatGeneration();scopeNotify()});
 /* Read-only report context, not ownership or user attestation. Never initialize user registries here.
    Taint is conservative for this runtime: a failed/partially acknowledged switch cannot be cleared
    by selecting a label or by the same-ID fast path. No new persisted binding is introduced. */
@@ -126,9 +158,134 @@ function blank(snap){
   const books=ledger&&((ledger.journal||ledger.entries||[]).length||(ledger.accounts||[]).length);
   return !rows&&!items&&!books&&!ls["skosif_demo_v1"];
 }
+/* Explicit same-company confirmation is an admission operation, never a read-side migration.
+   Only the canonical, genuinely seeded public demo may bind an initially unregistered local
+   main user. Unknown real/private/legacy datasets require a separate recovery flow. */
+/* Conservative eligibility for unowned public-demo data, not authentication. The company seed
+   marker alone says nothing about other stores. Unknown shapes or non-demo rows require recovery. */
+function demoSnapshotEligible(snap,demo,co){
+  const obj=v=>v&&typeof v==="object"&&!Array.isArray(v),empty=v=>v==null||v===""||Array.isArray(v)&&!v.length||obj(v)&&!Object.keys(v).length;
+  const rows=v=>Array.isArray(v)&&v.every(r=>obj(r)&&r.demo===true);
+  const only=(v,keys)=>obj(v)&&Object.keys(v).every(k=>keys.includes(k));
+  const section=s=>!!(demo.sections&&demo.sections[s]);
+  const arrays={"aghnam-v12-manual-sales":"sales","skosif_v31_supplier_batches":"supply","aghnam_v29_inventory":"stock","skosif_inv_expiry_batches":"stock","skosif_v38_batches":"stock","skosif_v38_coldchain":"stock","skosif_v38_ledger":"credit"};
+  const wrappers={"skosif_erp_finance_v1":["supply","flows"],"skosif_erp_payables_v1":["supply","rows"],"skosif_purchasing_v1":["purchasing","orders","receipts","prices"],"skosif_followup_v1":["followup","records","queue"],"skosif_advances_v1":["advances","advances"]};
+  const data={};for(const [k,raw] of Object.entries(snap.ls||{})){if(k==="skosif_ar_paste")data[k]=raw;else try{data[k]=JSON.parse(raw)}catch{return false}}
+  for(const [k,v] of Object.entries(data)){
+    if(empty(v))continue;
+    if(k==="skosif_demo_v1")continue;
+    if(arrays[k]){if(!rows(v)||v.length&&!section(arrays[k]))return false;continue}
+    if(wrappers[k]){const [s,...fields]=wrappers[k];if(!only(v,[...fields,"seq"])||v.seq!=null&&!Number.isFinite(v.seq))return false;
+      if(fields.some(f=>v[f]!=null&&(!rows(v[f])||v[f].length&&!section(s))))return false;continue}
+    if(k==="skosif_v31_monthly_opex"){if(v!==26500||!demo.opex||!section("supply"))return false;continue}
+    if(k==="skosif_rep_pl"){if(!section("reports")||v.demo!==true)return false;continue}
+    if(k==="skosif_ar_paste"){
+      const names=["مطعم الديرة للمشويات","مطبخ الضيافة الملكية","مطعم نجد الأصيل","مطاعم سفرة الخير","مطعم البحر الأحمر"],lines=v.split("\n");
+      if(!demo.ar||!section("credit")||lines.shift()!=="العميل,التاريخ,المبلغ,المسدد"||lines.length!==names.length||lines.some((line,i)=>{const cells=line.split(",");return cells.length!==4||cells[0]!==names[i]||!/^\d{4}-\d{2}-\d{2}$/.test(cells[1])||cells.slice(2).some(n=>!/^\d+(\.\d+)?$/.test(n))}))return false;continue;
+    }
+    if(k==="skosif_ledger_v1"){
+      if(!only(v,["accounts","entries","bank","lockDate","chain"])||!rows(v.entries||[])||!Array.isArray(v.accounts)||v.lockDate||v.bank&&v.bank.demo!==true||v.chain&&(!only(v.chain,["since","events"])||!Array.isArray(v.chain.events)||v.chain.events.length))return false;
+      if((v.accounts.length||v.entries&&v.entries.length)&&!section("ledger"))return false;
+      const advances=data.skosif_advances_v1,controls={"1150":["سلف الموظفين","asset"],"1160":["دفعات مقدمة للموردين","asset"],"2150":["دفعات مقدمة من العملاء","liability"]};
+      for(const a of v.accounts){if(obj(a)&&a.demo===true)continue;
+        /* Actual advances.post creates these three canonical controls without a demo flag.
+           Accept only their exact generated shape with demo advance provenance and demo entries. */
+        const c=obj(a)&&controls[a.code],linked=(v.entries||[]).some(e=>String(e.sourceId||"").startsWith("advance:")&&(e.lines||[]).some(l=>l.accountId===a.id));
+        if(!c||!section("advances")||!advances||!rows(advances.advances)||!advances.advances.length||!linked||!only(a,["id","code","name","type","active"])||a.id!=="account-"+a.code||a.name!==c[0]||a.type!==c[1]||a.active!==true)return false;
+      }continue;
+    }
+    if(k==="aghnam-pricing-v3"){
+      const fields=["raws","boxes","exps","salesAliases","memos","log","snaps","priceHistory"];
+      if(!only(v,[...fields,"v","settings","memo","reps","meta","seq","yt","categories"])||fields.some(f=>v[f]!=null&&(!rows(v[f])||v[f].length&&!section("catalog"))))return false;
+      const st=v.settings||{};if(!only(st,["vat","waste","base","show","target","excellent","good","round","biz","preparer","logo","vatNo","crNo","phone","addr","vatReviewed","sv"])||st.biz&&st.biz!==co.name&&!(v.meta&&v.meta.source==="excel"&&st.biz==="أغنام الوادي")||["logo","vatNo","crNo","phone","addr"].some(f=>st[f])||st.preparer&&!["فريق التسعير","فريق دراسة التكاليف والتسعير"].includes(st.preparer))return false;
+      if(v.meta&&(!only(v.meta,["created","updated","source"])||!["demo","excel"].includes(v.meta.source)))return false;
+      if(v.seq&&(!obj(v.seq)||Object.values(v.seq).some(n=>!Number.isFinite(n))))return false;
+      if(v.reps&&(!only(v.reps,["prefs","seq","log"])||!empty(v.reps.prefs)||!empty(v.reps.log)))return false;
+      if(v.memo&&(!only(v.memo,["ref","date","reason","items","sign"])||v.memo.reason||!empty(v.memo.items)||!only(v.memo.sign||{},["prepName","prepNotes","finName","finNotes","decision","execName","execNotes"])||Object.entries(v.memo.sign||{}).some(([f,x])=>x&&!(f==="prepName"&&["فريق التسعير","فريق دراسة التكاليف والتسعير"].includes(x))&&!(f==="decision"&&x==="approved"))))return false;
+      if(v.categories!=null&&(!Array.isArray(v.categories)||v.categories.some(c=>!only(c,["id","name","kind","active","createdAt"])||c.active!==true||!/^c\d+$/.test(c.id)||![...(v.raws||[]).map(r=>({name:r.cat,kind:"raw"})),...(v.boxes||[]).map(b=>({name:b.cat,kind:"box"}))].some(x=>x.name===c.name&&x.kind===c.kind))))return false;
+      const factoryYield={src:"r14",inKg:27.2,buy:35,vat:"incl",method:"zero",lines:[{name:"لحم صافي بعد التقطيع",kg:20.43,type:"main",val:0},{name:"عظم بقري",kg:2.7,type:"by",val:7.5},{name:"مخرجات أخرى غير لحم (الخلية AG44)",kg:4.07,type:"waste",val:0}],apply:["r14","r15","r21","r25"]};
+      if(v.yt&&JSON.stringify(v.yt)!==JSON.stringify(factoryYield)&&JSON.stringify(v.yt)!==JSON.stringify({src:"r1",inKg:27.2,buy:52,vat:"incl",method:"zero",lines:[{name:"لحم صافي بعد التقطيع",kg:20.4,type:"main",val:0},{name:"عظم",kg:2.7,type:"by",val:7.5},{name:"مخرجات أخرى",kg:4.1,type:"waste",val:0}],apply:["r1"]}))return false;
+      continue;
+    }
+    return false;
+  }
+  for(const [name,store] of Object.entries(snap.app||{})){
+    if(!store||!Array.isArray(store.vals))return false;
+    if(name==="meta"){if(store.vals.some(v=>!obj(v)||v.key!=="dataset"||!obj(v.value)||v.value.demo!==true))return false}
+    else if(!rows(store.vals)||store.vals.length&&!section("sales"))return false;
+  }
+  return true;
+}
+
+/* Keep one readonly transaction across all app stores. The synchronous handoff validates and
+   binds local selection while that transaction is still active, before queued writers can run.
+   This does not authorize or police later mutations by other app modules. */
+async function admissionSnapshot(handoff){
+  const ls={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(HELPER_KEY(k))ls[k]=localStorage.getItem(k)}
+  if(!await appDbExists())return handoff({ls,app:null});
+  const db=await openDb(APPDB),names=[...db.objectStoreNames];if(!names.length){db.close();return handoff({ls,app:{}})}
+  return new Promise((resolve,reject)=>{
+    const t=db.transaction(names,"readonly"),app={};let left=names.length,handed=false,result;
+    const fail=()=>{db.close();reject(t.error||new Error("تعذرت قراءة لقطة متسقة"))};
+    t.onerror=fail;t.onabort=fail;t.oncomplete=()=>{db.close();if(handed)resolve(result);else reject(new Error("لم تكتمل قراءة اللقطة"))};
+    for(const name of names){const store=t.objectStore(name),keys=[],vals=[];app[name]={inline:store.keyPath!=null,keys,vals};const q=store.openCursor();
+      q.onerror=fail;q.onsuccess=()=>{const cursor=q.result;if(cursor){keys.push(cursor.primaryKey);vals.push(cursor.value);cursor.continue();return}
+        if(--left===0){try{result=handoff({ls,app});handed=true}catch(e){try{t.abort()}catch{}db.close();reject(e)}}};
+    }
+  });
+}
+
+async function confirmCurrentSelection(id){
+  const initial=chatScopeSnapshot();
+  if(initial.status==="stable")return initial.companyId===id;
+  const refuse=()=>{toast("لم يُثبت سياق الشركة. أكّد الشركة التجريبية من مبدّل الشركات؛ البيانات القديمة أو المتعارضة تحتاج مراجعة مستقلة، ثم أعد التحميل.","warn");return false};
+  if(initial.status!=="unknown")return refuse();
+  const obj=v=>v&&typeof v==="object"&&!Array.isArray(v),own=(v,k)=>obj(v)&&Object.prototype.hasOwnProperty.call(v,k);
+  const ur=load(USERS,null),r=load(REG,null),cd=load("skosif_companies_v1",null),demo=load("skosif_demo_v1",null);
+  const me=obj(ur)&&obj(ur.users)&&own(ur.users,ur.active)?ur.users[ur.active]:null;
+  const companies=obj(cd)&&Array.isArray(cd.companies)?cd.companies.filter(c=>obj(c)&&c.id===id):[];
+  const co=companies.length===1?companies[0]:null;
+  if(id!=="demo-co"||localStorage.getItem(PRIVATE)===id||!co||co.demo!==true||typeof co.name!=="string"||!co.name.trim()||!obj(demo)||!obj(demo.sections)||!demo.sections.company||
+    !obj(cd.active)||cd.active.companyId!==id||!obj(me)||me.id!=="user-main"||ur.active!==me.id||!obj(me.spaces)||
+    me.lastSpace!=null&&me.lastSpace!==id||own(me.spaces,id)&&!obj(me.spaces[id])||Object.entries(ur.users).some(([userId,u])=>userId!==me.id&&obj(u)&&(own(u.spaces,id)||u.lastSpace===id))||
+    localStorage.getItem(REG)!==null&&(!obj(r)||!obj(r.spaces)||r.active!=null&&r.active!==id||own(r.spaces,id)&&!obj(r.spaces[id])))return refuse();
+  const contextKeys=[USERS,REG,"skosif_companies_v1","skosif_demo_v1",PRIVATE,CHAT_GENERATION];
+  const contextBytes=contextKeys.map(k=>localStorage.getItem(k)),admissionEpoch=scopeEpoch;
+  const previous=[[USERS,localStorage.getItem(USERS)],[REG,localStorage.getItem(REG)]];
+  const entry={...(me.spaces[id]||{}),name:co.name,at:new Date().toISOString()};
+  const nextUsers={...ur,users:{...ur.users,[me.id]:{...me,lastSpace:id,spaces:{...me.spaces,[id]:entry}}}};
+  const nextReg={...(r||{}),active:id,spaces:{...(r&&r.spaces||{}),[id]:{...(r&&r.spaces[id]||{}),...entry}}};
+  const proposed={[USERS]:JSON.stringify(nextUsers),[REG]:JSON.stringify(nextReg)};
+  const rollback=()=>{scopeTainted=true;for(const [key,value] of previous)try{
+    /* Never overwrite a conflicting peer's new registry with our rollback. */
+    if(localStorage.getItem(key)!==proposed[key])continue;
+    if(value===null)localStorage.removeItem(key);else localStorage.setItem(key,value);
+  }catch{/* remain closed; no success/reload */}};
+  let bound=false;busy=true;scopeNotify();
+  try{
+    const ok=await admissionSnapshot(snap=>{
+      if(scopeEpoch!==admissionEpoch||scopeTransitions||scopeTainted||chatLocked||chatForeign||contextKeys.some((k,i)=>localStorage.getItem(k)!==contextBytes[i])||!demoSnapshotEligible(snap,demo,co))return false;
+      const live={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(HELPER_KEY(k))live[k]=localStorage.getItem(k)}
+      if(Object.keys(live).length!==Object.keys(snap.ls).length||Object.entries(live).some(([k,v])=>snap.ls[k]!==v))return false;
+      scopeBegin();
+      try{
+        if(scopeTainted||load(CHAT_GENERATION,null)!==chatGeneration)throw new Error("تعذر تثبيت جيل السياق");
+        if(setUserReg(nextUsers)!==true||setReg(nextReg)!==true||
+          JSON.stringify(load(USERS,null))!==proposed[USERS]||JSON.stringify(load(REG,null))!==proposed[REG]||
+          load(CHAT_GENERATION,null)!==chatGeneration)throw new Error("تعذر التحقق من حفظ اختيار الشركة");
+        bound=true;return true;
+      }catch(e){rollback();SK.errors&&SK.errors.report(e,"space:confirm");return false}
+      finally{scopeEnd()}
+    });
+    busy=false;scopeNotify();
+    if(!ok||chatScopeSnapshot().status!=="stable")return refuse();
+    return true;
+  }catch(e){if(bound)rollback();busy=false;scopeNotify();SK.errors&&SK.errors.report(e,"space:confirm-read");return refuse()}
+
+}
 async function switchTo(id,name,opts={}){
   if(busy)return false;if(opts.after)sessionStorage.setItem(AFTER,String(opts.after));const cur=current(),who=user();
-  if(id===cur.id&&!opts.fresh){sessionStorage.setItem(ASKED,"1");hideChooser();return true}
+  if(id===cur.id&&!opts.fresh){if(!await confirmCurrentSelection(id))return false;try{sessionStorage.setItem(ASKED,"1")}catch{/* chooser preference is not ownership */}hideChooser();return true}
   busy=true;scopeBegin();
   try{
     /* the unnamed data of a brand-new device holds nothing yet: it is left, not listed as a company of its own */
@@ -179,7 +336,7 @@ async function createUser(name,pin=""){
 }
 async function switchUser(id,pin="",opts={}){
   if(busy)return false;const ur=userReg(),target=ur.users[id],from=user(),cur=current();if(!target)return false;
-  if(id===from.id){sessionStorage.setItem(USER_ASKED,"1");hideUserChooser();return true}
+  if(id===from.id){if(chatScopeSnapshot().status!=="stable"){toast("المستخدم الحالي محدد؛ افتح مبدّل الشركات وأكّد الشركة المطلوبة لإكمال اختيار المساحة.","warn");return false}sessionStorage.setItem(USER_ASKED,"1");hideUserChooser();return true}
   if(!await verifyUser(target,pin)){toast("رمز الدخول غير صحيح","bad");return false}
   busy=true;scopeBegin();
   try{
@@ -261,7 +418,6 @@ function rememberLast(id,name,locked,gate=sessionGate()){try{localStorage.setIte
 async function applyIntent(){
   let it=null;try{it=JSON.parse(sessionStorage.getItem(INTENT)||"null");sessionStorage.removeItem(INTENT)}catch{}
   if(!it||typeof it!=="object")return false;
-  sessionStorage.setItem(ASKED,"1");sessionStorage.setItem(USER_ASKED,"1");
   /* the entry chosen at the door: the shell paints that section's menu, and its first screen opens — unless the link
      already names a screen, or the company is new to the accounting entry (its definitions come first, FOUNDATION §3.2) */
   const gate=gateOf(it.gate);if(gate)sessionStorage.setItem(GATE,gate);
@@ -272,6 +428,7 @@ async function applyIntent(){
   const land=()=>{if(location.search||location.hash)return;const to=landing();if(to){sessionStorage.setItem(AFTER,to);sessionStorage.setItem(GATE_PIN,to)}};
   const cur=current();
   if(it.locked){
+    sessionStorage.setItem(ASKED,"1");sessionStorage.setItem(USER_ASKED,"1");
     /* the private company = the data this device held before the front door existed (the space «space-main», open now or
        kept as a snapshot); a device that never held it gets a space of its own — never the demo or another company's data */
     let pid=localStorage.getItem(PRIVATE),fresh=false;
@@ -287,12 +444,15 @@ async function applyIntent(){
   const rec=cd.companies.find(c=>c&&c.id===id);
   if(it.create&&!rec){cd.companies.push({id,name,country:"SA",currency:"SAR",sector:sector||"trade",packPending:true});save("skosif_companies_v1",cd)}
   else if(rec&&sector&&!rec.sector){rec.sector=sector;save("skosif_companies_v1",cd)}
-  rememberLast(id,name,false,gate);land();
-  if(id!==cur.id)await switchTo(id,name,{fresh:!!it.create,demo:it.create?false:undefined});
-  return true;
+  land();
+  /* explicit selection is an admission, also for the company already open (#143): the switch decides, and only an
+     opened company is remembered or marks the choice as made */
+  const opened=await switchTo(id,name,{fresh:!!it.create,demo:it.create?false:undefined});
+  if(opened){sessionStorage.setItem(USER_ASKED,"1");rememberLast(id,name,false,gate)}
+  return opened;
 }
 const intentDone=applyIntent().catch(e=>{SK.errors&&SK.errors.report(e,"space:intent");return false});
-window.SKosifSpace=Object.freeze({scopeSnapshot,current,list:options,switchTo,newCompany,choose:chooser,isHelperKey:HELPER_KEY,user,users,createUser,switchUser,newUser,chooseUser:userChooser,
+window.SKosifSpace=Object.freeze({scopeSnapshot,chatScopeSnapshot,current,list:options,switchTo,newCompany,choose:chooser,isHelperKey:HELPER_KEY,user,users,createUser,switchUser,newUser,chooseUser:userChooser,
   busy:()=>busy,intent:()=>intentDone,privateSpace:()=>localStorage.getItem(PRIVATE)||"",rename});
 })();
 

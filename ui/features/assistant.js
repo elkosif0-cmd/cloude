@@ -1,20 +1,20 @@
-/* S.kosif — المساعد المباشر (window.SKosifAssistant): محادثة حية تتحكم في التطبيق كله.
+/* S.kosif — المساعد المباشر (window.SKosifAssistant): محادثة محلية منفصلة لكل مستخدم وشركة، بأدوات مرتبطة بالسياق.
    اكتب أو تكلّم: «افتح مراجعة الميزان»، «لخّص هذه الشاشة»، «صدّر الجدول إلى Excel»، «بدّل للوضع
-   الليلي»، «اجعل اللون زمردياً والخط القاهرة»، «أضف مهمة جرد المخزون غداً»، «اضغط تحليل الميزان»…
+   الليلي»، «اجعل اللون زمردياً والخط القاهرة»، «أضف مهمة جرد المخزون غداً»، «راجع ميزان الدفاتر»…
      • أدوات (TOOLS): الانتقال لأي شاشة من السجل، قراءة الشاشة الحالية، البحث، فتح صنف، المظهر (الثيم،
        الوضع الليلي، لون التمييز، الخط، حجم النص، التباين)، الطباعة، تصدير الجداول، اقتراح قيد أي مستند (محاكي القيود)،
-       المهام، ملخص الأعمال، مراجعة ميزان الدفاتر، إجراءات لوحة الأوامر، والضغط على أي زر أو تعبئة أي
-       حقل في الشاشة — فكل ما يفعله المستخدم بيده يفعله المساعد بطلبه.
+       المهام، ملخص الأعمال، مراجعة ميزان الدفاتر، وإجراءات لوحة الأوامر المدعومة. الأزرار العامة
+       وتعبئة الحقول والإجراءات غير الموصولة بحارس سياق تبقى يدوية؛ أدوات التطبيق اليدوية لا تتغير.
      • بمفتاح Gemini (على جهازك فقط): يفهم الطلبات الحرة والمركبة ويستدعي الأدوات بنفسه (function calling)
        ثم يجيب بما حدث؛ بدون مفتاح: أوامر عربية مباشرة تُفهم محلياً.
      • الإجراءات الهادمة (حذف، مسح، قفل، استعادة) تطلب تأكيدك دائماً، والصلاحيات تُحترم.
    ما يُرسل إلى Gemini: رسالتك، ووصف الشاشة إن طلبت قراءتها (بعد إخفاء الأرقام الحساسة). المحادثة تبقى
-   على هذا الجهاز (skosif_chat_v1، خارج النسخة الكاملة والنقل). */
+   على هذا الجهاز في سجل منفصل لكل مستخدم محلي وشركة (skosif_chat_v2). السجل القديم مجهول المالك لا يُقرأ ولا يُنقل تلقائياً. */
 (()=>{
 "use strict";
 const {$,$$,esc,load,save,toast}=SK;
 const core=()=>window.SKosifCore;
-const KEY="skosif_chat_v1",MAX=40;
+const KEY="skosif_chat_v2:",MAX=40;
 const norm=s=>String(s||"").toLowerCase().replace(/[ً-ٰٟ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/ـ/g,"").replace(/[؟?!.,،:؛]/g," ").replace(/\s+/g," ").trim();
 const DANGER=/حذف|مسح|ازاله|إزالة|delete|remove|تفريغ|استعاده|استعادة|reset|اعاده ضبط|إعادة ضبط|قفل|تصفير/i;
 const visible=el=>!!(el&&el.offsetParent!==null&&el.getClientRects().length);
@@ -40,21 +40,6 @@ function findControl(label){
   roots.forEach(r=>actionables(r).forEach(el=>{const t=el.getAttribute("aria-label")||el.title||el.textContent;const s=score(q,t);if(s>bs){bs=s;best=el}}));
   return bs>=40?best:null;
 }
-function findField(label){
-  const q=norm(label),v=$("#view"),m=$("#pr-modal");let best=null,bs=0;
-  [m,v].filter(Boolean).forEach(root=>$$("input:not([type=hidden]):not([type=file]),select,textarea",root).filter(visible).forEach(el=>{
-    const lab=el.closest("label")||(el.id&&root.querySelector('label[for="'+el.id+'"]'));
-    const t=[lab&&lab.textContent,el.getAttribute("aria-label"),el.placeholder,el.name,el.dataset.ctx,el.previousElementSibling&&el.previousElementSibling.textContent].filter(Boolean).join(" ");
-    const s=score(q,t);if(s>bs){bs=s;best=el}}));
-  return bs>=40?best:null;
-}
-function setValue(el,value){
-  if(el.tagName==="SELECT"){const o=[...el.options].find(o=>norm(o.textContent)===norm(value)||o.value===String(value))||[...el.options].find(o=>norm(o.textContent).includes(norm(value)));if(!o)return false;el.value=o.value}
-  else if(el.type==="checkbox"){el.checked=/^(1|true|نعم|صح|فعل)/i.test(String(value))}
-  else{const proto=el.tagName==="TEXTAREA"?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(proto,"value").set.call(el,String(value))}
-  el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}));return true;
-}
-
 /* ---------- what is on the screen, as text (redacted) ---------- */
 function readScreen(){
   const v=$("#view"),c=core(),cap=SK.caps.get(c.view());
@@ -73,12 +58,14 @@ function readScreen(){
   if(buttons.length)out.push("الأزرار المتاحة: "+[...new Set(buttons)].join(" • "));
   return SK.redact(out.join("\n")).slice(0,4000);
 }
-async function appSummary(){
+async function appSummary(scope){
+  requireScope(scope);
   const out=[];
   try{const co=load("skosif_companies_v1",{})||{},a=co.active||{},c=(co.companies||[]).find(x=>x.id===a.companyId),p=(co.periods||[]).find(x=>x.id===a.periodId);out.push("الشركة: "+(c?c.name:(SK.org().biz||"—"))+(p?" · الفترة: "+p.label:""))}catch{}
   try{const all=load("skosif_tasks_v1",[])||[],t=today(),open=all.filter(x=>!x.done);out.push("المهام: "+open.length+" مفتوحة، "+open.filter(x=>x.due&&x.due<t).length+" متأخرة، "+open.filter(x=>x.due===t).length+" مستحقة اليوم")}catch{}
   try{if(window.SKosifMetrics){const d=SKosifMetrics.decisions();out.push("ما يحتاج قراراً: "+d.length+(d.length?" — "+d.slice(0,4).map(x=>x.title||x.t||x.text||"").filter(Boolean).join("؛ "):""));
-    const tr=await SKosifMetrics.trend(3),n=tr.s.length-1,m=v=>SK.money(v);if(n>=0)out.push("آخر شهر ("+tr.tip[n]+"): المبيعات "+m(tr.s[n])+"، المشتريات "+m(tr.p[n])+"، المصروفات "+m(tr.o[n])+"، صافي التدفق "+m(tr.net[n]))}}catch{}
+    const tr=await SKosifMetrics.trend(3);requireScope(scope);const n=tr.s.length-1,m=v=>SK.money(v);if(n>=0)out.push("آخر شهر ("+tr.tip[n]+"): المبيعات "+m(tr.s[n])+"، المشتريات "+m(tr.p[n])+"، المصروفات "+m(tr.o[n])+"، صافي التدفق "+m(tr.net[n]))}}catch{}
+  requireScope(scope);
   try{const r=load("skosif_risks_v1",null);if(r&&Array.isArray(r.risks))out.push("المخاطر المفتوحة: "+r.risks.filter(x=>x.status!=="closed").length)}catch{}
   return SK.redact(out.join("\n"))||"لا بيانات كافية بعد.";
 }
@@ -92,7 +79,7 @@ const TOOLS=[
       core().go(c.id);return{ok:true,text:"فُتحت «"+c.label+"»"+(c.hubLabel!==c.label?" ضمن «"+c.hubLabel+"»":"")}}},
   {name:"list_screens",d:"قائمة شاشات التطبيق مجمّعة حسب المجالات",p:{},run:()=>({ok:true,text:SK.caps.groups().map(g=>g.label+": "+SK.caps.hubsInGroup(g.id).map(h=>h.hubLabel).join("، ")).join("\n")})},
   {name:"read_screen",d:"قراءة ما يظهر في الشاشة الحالية: العنوان والمؤشرات والأقسام وأول صفوف الجداول والأزرار المتاحة — استخدمها قبل الإجابة عن أي سؤال عن الأرقام",p:{},run:()=>({ok:true,text:readScreen()})},
-  {name:"app_summary",d:"ملخص الأعمال: الشركة والفترة، المهام، ما يحتاج قراراً، أرقام آخر شهر، المخاطر",p:{},run:async()=>({ok:true,text:await appSummary()})},
+  {name:"app_summary",d:"ملخص الأعمال: الشركة والفترة، المهام، ما يحتاج قراراً، أرقام آخر شهر، المخاطر",p:{},run:async(_args,scope)=>({ok:true,text:await appSummary(scope)})},
   {name:"company_search",d:"بحث وقراءة فقط داخل الشركة الحالية: التعريفات، الموردون والعملاء، المستندات، القيود، نتائج القوائم، الإيرادات والمصروفات والربح والنواقص. استخدمها قبل الإجابة عن سؤال مالي عن الشركة.",p:{query:S("STRING","السؤال أو نص البحث داخل الشركة")},req:["query"],
     run:({query})=>{const C=window.SKosifCompanyPlatform;if(!C)return{ok:false,text:"طبقة بيانات الشركة غير متاحة"};return{ok:true,text:C.search(query).text}}},
   {name:"standards_search",d:"البحث في المدونة المحاسبية والمهنية المرتبطة بإطار الشركة (IFRS/IAS/ISA/SOCPA/ZATCA/EAS) وإرجاع السريان والمصدر الرسمي. هذه قراءة مرجعية وليست اعتماداً تلقائياً للمعالجة.",p:{query:S("STRING","المعيار أو الموضوع مثل IFRS 15 أو المخزون أو ISA 500")},req:["query"],
@@ -114,38 +101,39 @@ const TOOLS=[
     run:({text,amount})=>{const J=window.SKosifEntrySim;if(!J)return{ok:false,text:"محاكي القيود غير متاح"};if(!SK.perm.can("jesim"))return{ok:false,text:"دورك لا يسمح بمحاكي القيود"};const s=J.suggest(text,amount);J.open(text,amount);
       if(!s.lines.length)return{ok:true,text:s.question||"لم يتعلم المحاكي قيداً مشابهاً بعد — فتحته لتحدد القيد"};
       return{ok:true,text:(s.status==="sure"?"":"غير متأكد ("+Math.round(s.confidence*100)+"٪): ")+s.title+" — "+s.journal+"\n"+s.lines.map(l=>(l.debit?"من ح/ ":"إلى ح/ ")+l.account+" "+l.name+" "+(l.debit||l.credit)).join("\n")+(s.question?"\n"+s.question:"")}}},
-  {name:"print_page",d:"طباعة المستند أو التقرير المعروض في الشاشة الحالية (بمعاينة الطباعة)",p:{},
-    run:()=>{const b=["[data-a=\"print\"]",".sktb-bar [data-t=\"export\"]"].map(s=>$$(s,$("#view")).find(visible))[0]||findControl("طباعة");
-      if(b&&!/sktb/.test(b.className)){b.click();return{ok:true,text:"فُتحت معاينة الطباعة"}}const t=$$("table[data-sktb]",$("#view")).find(visible);if(t&&window.SKosifTable){SKosifTable.printTable(t);return{ok:true,text:"فُتحت طباعة الجدول"}}
-      window.print();return{ok:true,text:"فُتحت نافذة الطباعة"}}},
+  {name:"print_page",d:"فتح نافذة طباعة المتصفح للصفحة الحالية مباشرة، دون تشغيل أزرار طباعة قد تكون غير محكومة بالسياق",p:{},
+    run:()=>{window.print();return{ok:true,text:"فُتحت نافذة طباعة المتصفح؛ لطباعة تقرير مخصص استخدم زر الطباعة يدوياً"}}},
   {name:"export_table",d:"تصدير الجدول الظاهر في الشاشة",p:{format:S("STRING","xlsx | csv | copy | print",{enum:["xlsx","csv","copy","print"]})},req:["format"],
-    run:({format})=>{const t=$$("table[data-sktb]",$("#view")).find(visible);if(!t)return{ok:false,text:"لا يوجد جدول قابل للتصدير في هذه الشاشة"};
-      const T=window.SKosifTable;if(format==="xlsx")T.exportXlsx(t);else if(format==="copy")T.copyTsv(t);else if(format==="print")T.printTable(t);else{const b=t._sktb&&t._sktb.bar;const m=b&&b.querySelector('[data-t="export"]');m&&m.click();setTimeout(()=>{const x=document.querySelector('.sktb-exp [data-x="csv"]');x&&x.click()},60)}
+    run:({format},scope)=>{if(format==="print")return{ok:false,text:"اطبع الجدول يدوياً من زر التصدير؛ المعاينة المؤجلة لا تدعم سياق المساعد بعد."};const t=$$("table[data-sktb]",$("#view")).find(visible);if(!t)return{ok:false,text:"لا يوجد جدول قابل للتصدير في هذه الشاشة"};
+      const T=window.SKosifTable;if(format==="xlsx")T.exportXlsx(t);else if(format==="copy")T.copyTsv(t);else{const b=t._sktb&&t._sktb.bar;const m=b&&b.querySelector('[data-t="export"]');m&&m.click();setTimeout(()=>{if(!scopeIsCurrent(scope))return;const x=document.querySelector('.sktb-exp [data-x="csv"]');x&&x.click()},60)}
       return{ok:true,text:{xlsx:"صُدّر الجدول إلى Excel",csv:"صُدّر الجدول CSV",copy:"نُسخ الجدول للحافظة",print:"فُتحت طباعة الجدول"}[format]||"تم"}}},
   {name:"create_task",d:"إضافة مهمة بتاريخ استحقاق وأولوية",p:{title:S("STRING","نص المهمة"),due:S("STRING","YYYY-MM-DD (اختياري)"),priority:S("STRING","high | normal | low",{enum:["high","normal","low"]})},req:["title"],
     run:({title,due,priority})=>{if(!SK.perm.can("tasks"))return{ok:false,text:"دورك لا يسمح بالمهام"};const x=window.SKosifTasks.add({title,due:due||today(),priority:priority||"normal"});return{ok:true,text:"أُضيفت المهمة «"+x.title+"» — استحقاق "+x.due}}},
   {name:"list_tasks",d:"المهام المفتوحة",p:{},run:()=>{const l=window.SKosifTasks.open();return{ok:true,text:l.length?l.slice(0,12).map(x=>"• "+x.title+(x.due?" ("+x.due+")":"")+(x.priority==="high"?" — عالية":"")).join("\n"):"لا مهام مفتوحة"}}},
   {name:"tb_review_from_books",d:"سحب ميزان الشركة النشطة من الدفاتر المحاسبية (أو السجلات التشغيلية) إلى مراجعة الميزان وتحليله بالمعايير",p:{},
-    run:async()=>{if(!window.SKosifTBReview)return{ok:false,text:"مراجعة الميزان غير متاحة"};const ok=await SKosifTBReview.fromBooks();return{ok,text:ok?"استُلم ميزان التطبيق وفُتحت مراجعة الميزان":"لم يُستورد الميزان؛ قد يكون السبب الإلغاء أو تعذر قراءة المصدر أو الحفظ"}}},
+    run:async(_args,scope)=>{if(!window.SKosifTBReview)return{ok:false,text:"مراجعة الميزان غير متاحة"};const ok=await SKosifTBReview.fromBooks(()=>scopeIsCurrent(scope));return{ok,text:ok?"استُلم ميزان التطبيق وفُتحت مراجعة الميزان":"لم يُستورد الميزان؛ قد يكون السبب الإلغاء أو تعذر قراءة المصدر أو الحفظ"}}},
   {name:"run_action",d:"تشغيل إجراء من لوحة الأوامر: sale (بيع)، item (صنف جديد)، box (بوكس)، backup (نسخة كاملة)، csv (تصدير الأسعار)، journal (قيد)، task، theme، adv، lock (قفل)، keys، rail، install، transfer",p:{action:S("STRING","معرّف الإجراء")},req:["action"],
-    run:({action})=>{const C=window.SKosifCommand;const a=C&&C.actions().find(x=>x.id===action||norm(x.t).includes(norm(action)));if(!a)return{ok:false,text:"إجراء غير معروف: "+action};C.run(a.id);return{ok:true,text:"نُفّذ: "+a.t}},danger:a=>/lock|قفل/.test(String(a.action))},
-  {name:"click",d:"الضغط على زر أو رابط أو تبويب ظاهر في الشاشة بنصه (مثل: تحليل الميزان، القوائم والتقارير، إضافة، حفظ)",p:{label:S("STRING","نص الزر")},req:["label"],
-    run:async({label})=>{const el=findControl(label);if(!el)return{ok:false,text:"لم أجد زراً باسم «"+label+"» في هذه الشاشة"};const t=String(el.textContent||el.getAttribute("aria-label")||label).replace(/\s+/g," ").trim().slice(0,40);
+    run:async({action},scope)=>{const C=window.SKosifCommand;const a=C&&C.actions().find(x=>x.id===action||norm(x.t).includes(norm(action)));if(!a)return{ok:false,text:"إجراء غير معروف: "+action};const ok=await C.run(a.id,"",()=>scopeIsCurrent(scope));return{ok:ok===true,text:ok===true?"نُفّذ: "+a.t:"لم يُنفّذ الإجراء؛ تغيّر السياق أو يحتاج إلى تشغيل يدوي آمن."}},danger:a=>/lock|قفل/.test(String(a.action))},
+  {name:"click",d:"تشغيل زر استيراد الميزان إلى المراجعة عبر وصلة محكومة بالسياق؛ الأزرار الأخرى تحتاج ضغطاً يدوياً",p:{label:S("STRING","نص الزر")},req:["label"],
+    run:async({label},scope)=>{const view=core().view(),root=$("#view"),el=findControl(label);if(!el)return{ok:false,text:"لم أجد زراً باسم «"+label+"» في هذه الشاشة"};const t=String(el.textContent||el.getAttribute("aria-label")||label).replace(/\s+/g," ").trim().slice(0,40);
       /* the matched control may be destructive even when the request was not worded so */
       if(DANGER.test(t)&&!DANGER.test(String(label))&&!await SK.confirm("الزر المطابق هو «"+t+"» — إجراء قد لا يمكن التراجع عنه. تنفيذ؟",{danger:true,ok:"نفّذ"}))return{ok:false,text:"ألغيت الضغط بطلبك"};
-      el.scrollIntoView({block:"center"});el.click();return{ok:true,text:"ضغطت «"+t+"»"}},
+      requireScope(scope);if(!el.isConnected||!visible(el)||core().view()!==view||$("#view")!==root||findControl(label)!==el)return{ok:false,text:"تغير الزر أو الشاشة؛ أعد الطلب من الشاشة الحالية"};
+      if(view==="tbreview"&&el.dataset&&el.dataset.a==="books"||view==="ledger"&&el.dataset&&el.dataset.l==="to-review")return runTool("tb_review_from_books",{},scope);
+      return{ok:false,text:"هذا الزر لا يدعم التنفيذ الآمن من المساعد بعد تبديل السياق. اضغطه يدوياً في الشاشة الحالية، أو استخدم «افتح» للانتقال إلى شاشة."}},
     danger:a=>DANGER.test(String(a.label))},
-  {name:"fill_field",d:"تعبئة حقل ظاهر في الشاشة بعنوانه (مثل: المنشأة، الفترة، المهمة، اسم العميل)",p:{label:S("STRING","عنوان الحقل"),value:S("STRING","القيمة")},req:["label","value"],
-    run:({label,value})=>{const el=findField(label);if(!el)return{ok:false,text:"لم أجد حقلاً باسم «"+label+"»"};el.scrollIntoView({block:"center"});return setValue(el,value)?{ok:true,text:"كتبت «"+value+"» في «"+label+"»"}:{ok:false,text:"القيمة غير متاحة في القائمة"}}},
+  {name:"fill_field",d:"تعبئة الحقول العامة تحتاج إدخالاً يدوياً حتى تتوفر وصلة آمنة مرتبطة بسياق الشركة؛ لا يطلق المساعد أحداث input/change غير محكومة.",p:{label:S("STRING","عنوان الحقل"),value:S("STRING","القيمة")},req:["label","value"],
+    run:()=>({ok:false,text:"أدخل القيمة يدوياً في الحقل داخل الشاشة الحالية؛ تعبئة هذا الحقل آلياً لا تدعم متابعة آمنة عند تبديل الشركة بعد."})},
   {name:"scroll_to",d:"التمرير إلى قسم في الشاشة بعنوانه",p:{text:S("STRING","عنوان القسم")},req:["text"],
     run:({text})=>{const q=norm(text);const h=$$("h2,h3,h4",$("#view")).filter(visible).find(x=>norm(x.textContent).includes(q));if(!h)return{ok:false,text:"لم أجد قسماً بعنوان «"+text+"»"};h.scrollIntoView({behavior:"smooth",block:"start"});return{ok:true,text:"انتقلت إلى «"+h.textContent.trim().slice(0,40)+"»"}}}
 ];
 const byName=Object.fromEntries(TOOLS.map(t=>[t.name,t]));
-async function runTool(name,args){
+async function runTool(name,args,scope=syncScope()){
+  if(!scopeIsCurrent(scope))return{ok:false,text:SCOPE_MESSAGE};
   const t=byName[name];if(!t)return{ok:false,text:"أداة غير معروفة: "+name};
   args=args||{};
   if(t.danger&&t.danger(args)&&!await SK.confirm("المساعد يطلب: «"+(args.label||args.action||name)+"» — هذا إجراء قد لا يمكن التراجع عنه. تنفيذ؟",{danger:true,ok:"نفّذ"}))return{ok:false,text:"ألغيت التنفيذ بطلبك"};
-  try{const r=await t.run(args);if(name!=="tb_review_from_books"||r.ok)SK.audit&&SK.audit.log("assistant",{tool:name,ok:r.ok});return r}catch(e){return{ok:false,text:"تعذر التنفيذ: "+e.message}}
+  try{requireScope(scope);const r=await t.run(args,scope);requireScope(scope);if(name!=="tb_review_from_books"||r.ok)SK.audit&&SK.audit.log("assistant",{tool:name,ok:r.ok});return r}catch(e){return{ok:false,text:"تعذر التنفيذ: "+e.message}}
 }
 
 /* ---------- local understanding (no key needed) ---------- */
@@ -186,7 +174,7 @@ function localPlan(text){
   if(!plan.length&&findScreen(text)&&norm(text).split(" ").length<=4)plan.push(["go_to_screen",{screen:text}]);
   return plan;
 }
-const HELP="أستطيع التحكم في التطبيق كله. جرّب:\n• «افتح مراجعة الميزان» أو أي شاشة\n• «لخّص هذه الشاشة» · «ملخص الأعمال»\n• «هات القيود المتعلقة بالمورد فلان» · «إيه المستندات الناقصة؟»\n• «ابحث عن 0555…»\n• «صدّر الجدول إلى Excel» · «اطبع»\n• «الوضع الليلي» · «لون زمردي» · «خط القاهرة» · «كبّر الخط» · «تباين عالٍ»\n• «أضف مهمة جرد المخزون غداً» · «مهامي»\n• «راجع ميزان الدفاتر»\n• «اقترح قيد فاتورة كهرباء الفرع 1150» (محاكي القيود)\n• «اضغط تحليل الميزان» · «اكتب شركة الأفق في المنشأة»\nبمفتاح الذكاء الاصطناعي (Gemini أو OpenAI أو Claude) (في مراجعة الميزان ← المراجع الذكي) أفهم الطلبات الحرة والمركبة وأجيب عن أسئلتك من أرقام الشاشة.";
+const HELP="أستطيع تنفيذ الأدوات المرتبطة بسياق الشركة. الأزرار العامة وتعبئة الحقول وبعض الإجراءات تحتاج تنفيذاً يدوياً. جرّب:\n• «افتح مراجعة الميزان» أو أي شاشة\n• «لخّص هذه الشاشة» · «ملخص الأعمال»\n• «هات القيود المتعلقة بالمورد فلان» · «إيه المستندات الناقصة؟»\n• «ابحث عن 0555…»\n• «صدّر الجدول إلى Excel» · «اطبع»\n• «الوضع الليلي» · «لون زمردي» · «خط القاهرة» · «كبّر الخط» · «تباين عالٍ»\n• «أضف مهمة جرد المخزون غداً» · «مهامي»\n• «راجع ميزان الدفاتر»\n• «اقترح قيد فاتورة كهرباء الفرع 1150» (محاكي القيود)\n• استيراد الميزان إلى المراجعة بعد التأكيد؛ اضغط الأزرار الأخرى وأدخل الحقول يدوياً\nبمفتاح الذكاء الاصطناعي (Gemini أو OpenAI أو Claude) (في مراجعة الميزان ← المراجع الذكي) أفهم الطلبات الحرة والمركبة وأجيب عن أسئلتك من أرقام الشاشة.";
 
 /* ---------- Gemini: function calling over the same tools ---------- */
 function decl(){return TOOLS.map(t=>({name:t.name,description:t.d,parameters:{type:"OBJECT",properties:Object.fromEntries(Object.entries(t.p).map(([k,v])=>[k,{...v}])),...(t.req?{required:t.req}:{})}}))}
@@ -194,31 +182,67 @@ function system(){
   const c=core(),cap=SK.caps.get(c.view());
   const screens=SK.caps.all().filter(x=>SK.perm.can(x.id)).map(x=>x.id+": "+x.label+(x.hubLabel!==x.label?" ("+x.hubLabel+")":"")).join("\n");
   return "أنت «مساعد SQC» داخل تطبيق SQC (SQC) لإدارة شركة تجارة لحوم ومواشي ومراجعة الحسابات بالمعايير (IFRS وSOCPA ومعايير المحاسبة المصرية). "+
-    "تتحكم في التطبيق بالأدوات المتاحة: نفّذ الطلب بالأدوات مباشرة ولا تكتفِ بالشرح، ويمكنك استدعاء عدة أدوات بالتتابع لطلب مركب (مثل: افتح الشاشة ثم اضغط زراً ثم صدّر الجدول). "+
+    "نفّذ الطلب بالأدوات المدعومة المرتبطة بسياق الشركة، ويمكنك استدعاء عدة أدوات بالتتابع. إذا أعادت أداة ok:false فلا تدّع تنفيذ الإجراء؛ اشرح سبب الرفض والتعليمات اليدوية بوضوح. "+
     "قبل الإجابة عن أي سؤال عن أرقام الشاشة استدعِ read_screen، وعن بيانات الشركة/القيود/القوائم/النواقص استدعِ company_search أو app_summary، وعن IFRS/IAS/ISA/SOCPA/ZATCA/EAS أو المعالجة المهنية استدعِ standards_search، ولا تخترع أرقاماً أو متطلبات معيارية أبداً. "+
-    "لتعبئة نموذج أو الضغط على زر اقرأ الشاشة أولاً لتعرف أسماء الحقول والأزرار. الإجراءات الهادمة يؤكدها المستخدم بنفسه. "+
+    "تعبئة الحقول والأزرار العامة والإجراءات التي لا تدعم حارس السياق تُنفّذ يدوياً؛ استخدم فتح الشاشة أو التكاملات المصرح بها فقط. الإجراءات الهادمة يؤكدها المستخدم بنفسه. "+
     "أجب بالعربية بإيجاز ووضوح وبلهجة المستخدم، واذكر ما نفّذته.\n"+
     "الشاشة الحالية: "+(cap?cap.id+" — "+cap.label:c.view())+" · الدور: "+SK.perm.label()+" · التاريخ: "+today()+"\nالشاشات المتاحة:\n"+screens;
 }
-async function gemini(history,onStep){
+async function gemini(history,onStep,scope,signal){
   const contents=history.filter(m=>m.role==="user"||m.role==="model").slice(-12).map(m=>({role:m.role,parts:[{text:m.text}]}));
   for(let step=0;step<6;step++){
-    const res=await SKosifAI.generate({systemInstruction:{parts:[{text:system()}]},contents,tools:[{functionDeclarations:decl()}],toolConfig:{functionCallingConfig:{mode:"AUTO"}},generationConfig:{temperature:0.2}},{timeout:90000});
+    requireScope(scope);
+    const res=await SKosifAI.generate({systemInstruction:{parts:[{text:system()}]},contents,tools:[{functionDeclarations:decl()}],toolConfig:{functionCallingConfig:{mode:"AUTO"}},generationConfig:{temperature:0.2}},{timeout:90000,signal});
+    requireScope(scope);
     const cand=res&&res.candidates&&res.candidates[0],parts=cand&&cand.content&&cand.content.parts||[];
     const calls=parts.filter(p=>p.functionCall);
     if(!calls.length){const t=parts.map(p=>p.text||"").join("").trim();return t||"تم."}
     contents.push({role:"model",parts});
     const out=[];
-    for(const p of calls){const r=await runTool(p.functionCall.name,p.functionCall.args);onStep(p.functionCall.name,r);out.push({functionResponse:{name:p.functionCall.name,response:{ok:r.ok,result:r.text}}});await new Promise(r=>setTimeout(r,250))}
+    for(const p of calls){requireScope(scope);const r=await runTool(p.functionCall.name,p.functionCall.args,scope);requireScope(scope);onStep(p.functionCall.name,r);out.push({functionResponse:{name:p.functionCall.name,response:{ok:r.ok,result:r.text}}});await new Promise(r=>setTimeout(r,250))}
     contents.push({role:"user",parts:out});
   }
   return "نفّذت الخطوات المطلوبة.";
 }
 
 /* ---------- the chat panel ---------- */
-let panel=null,busy=false,rec=null;
-const hist=()=>{const h=load(KEY,[]);return Array.isArray(h)?h:[]};
-const push=m=>{const h=[...hist(),{...m,at:Date.now()}].slice(-MAX);save(KEY,h);return h};
+let panel=null,busy=false,rec=null,currentScope=null,currentRequest=null,locked=false,staleTab=false,chatEpoch=0;
+const SCOPE_MESSAGE="للبدء، افتح مبدّل الشركات وأكّد الشركة المطلوبة. إذا تغيّرت المساحة في تبويب آخر أو تعذر حفظ الاختيار، أعد تحميل الصفحة ثم اختر الشركة.";
+const chatKey=s=>KEY+encodeURIComponent(JSON.stringify([s.userId,s.companyId]));
+function readScope(){
+  if(locked||staleTab)return null;
+  try{const s=window.SKosifSpace&&SKosifSpace.chatScopeSnapshot&&SKosifSpace.chatScopeSnapshot();return s&&s.status==="stable"&&s.userId&&s.companyId?s:null}catch{return null}
+}
+function clearVisible(){
+  chatEpoch++;if(currentRequest&&currentRequest.controller)currentRequest.controller.abort();
+  busy=false;currentRequest=null;
+  if(rec){const old=rec;rec=null;old.onresult=null;old.onend=null;old.onerror=null;try{old.stop()}catch{}}
+  if("speechSynthesis" in window)try{speechSynthesis.cancel()}catch{}
+  if(panel){for(const sel of [".ska-msgs",".ska-sugg"]){const el=$(sel,panel);if(el)el.innerHTML=""}
+    const inp=$("textarea",panel);if(inp){inp.value="";inp.style.height=""}
+    const status=$(".ska-status",panel);if(status)status.textContent=SCOPE_MESSAGE;}
+}
+function syncScope(){
+  const s=readScope();if((s&&s.token)!==(currentScope&&currentScope.token)){clearVisible();currentScope=s}
+  currentScope=s?{...s,chatEpoch}:null;return currentScope;
+}
+function scopeIsCurrent(s){const now=syncScope();return!!(s&&now&&s.token===now.token&&s.chatEpoch===now.chatEpoch)}
+function requireScope(s){if(!scopeIsCurrent(s)){const e=new Error(SCOPE_MESSAGE);e.code="CHAT_SCOPE_CHANGED";throw e}}
+function writableChat(scope){
+  try{const raw=localStorage.getItem(chatKey(scope));if(raw===null)return true;const h=load(chatKey(scope),null);
+    return!!(h&&h.version===2&&h.userId===scope.userId&&h.companyId===scope.companyId&&Array.isArray(h.messages));
+  }catch{return false}
+}
+function hist(scope=syncScope()){
+  if(!scopeIsCurrent(scope))return[];
+  const h=load(chatKey(scope),null);
+  return h&&h.version===2&&h.userId===scope.userId&&h.companyId===scope.companyId&&Array.isArray(h.messages)?h.messages.filter(m=>m&&["user","model","tool"].includes(m.role)&&typeof m.text==="string").slice(-MAX):[];
+}
+function push(m,scope){
+  requireScope(scope);if(!writableChat(scope))throw new Error("السجل المحلي غير صالح أو غير محدد المالك؛ احتُفظ به دون تغيير. يلزم استرداد صريح قبل استخدامه.");const messages=[...hist(scope),{...m,at:Date.now()}].slice(-MAX);
+  if(save(chatKey(scope),{version:2,userId:scope.userId,companyId:scope.companyId,messages})!==true)throw new Error("تعذر حفظ المحادثة المحلية");
+  return messages;
+}
 const I={chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></svg>',
   send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-8-8 18-2-8z"/></svg>',
   mic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
@@ -227,39 +251,43 @@ const I={chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke
 const SUGG=["افتح مراجعة الميزان","لخّص هذه الشاشة","ملخص الأعمال","صدّر الجدول إلى Excel","الوضع الليلي","أضف مهمة جرد المخزون غداً","ماذا تستطيع؟"];
 function md(t){return esc(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\n/g,"<br>")}
 function paint(){
-  if(!panel)return;const box=$(".ska-msgs",panel),h=hist();
+  const scope=syncScope();if(!panel)return;const box=$(".ska-msgs",panel);if(!scope){clearVisible();return}const h=hist(scope);
   box.innerHTML=h.length?h.map(m=>m.role==="tool"?'<div class="ska-step '+(m.ok?"ok":"bad")+'"><i></i>'+esc(m.text)+'</div>':'<div class="ska-m '+(m.role==="user"?"me":"ai")+'">'+md(m.text)+'</div>').join(""):
-    '<div class="ska-hello"><b>أهلاً — أنا مساعد SQC</b><p>أنفّذ ما تطلبه في التطبيق مباشرة: أفتح الشاشات، أقرأ الأرقام، أصدّر وأطبع، أغيّر المظهر، وأضغط الأزرار عنك.</p></div>';
+    '<div class="ska-hello"><b>أهلاً — أنا مساعد SQC</b><p>أنفّذ ما تطلبه في التطبيق مباشرة: أفتح الشاشات، أقرأ الأرقام، أصدّر وأطبع، وأغيّر المظهر. الأزرار العامة وتعبئة الحقول تحتاج تنفيذاً يدوياً حتى تدعم سياق الشركة بأمان.</p></div>';
   if(busy)box.insertAdjacentHTML("beforeend",'<div class="ska-m ai typing"><i></i><i></i><i></i></div>');
   $(".ska-sugg",panel).innerHTML=(h.length>6?[]:SUGG).map(s=>'<button type="button" data-s="'+esc(s)+'">'+esc(s)+'</button>').join("");
   const ai=window.SKosifAI&&SKosifAI.ready();$(".ska-status",panel).textContent=ai?"الذكاء الاصطناعي متصل · يفهم الطلبات الحرة":"أوامر مباشرة · أضف مفتاح الذكاء الاصطناعي (Gemini أو OpenAI أو Claude) للطلبات الحرة";$(".ska-status",panel).classList.toggle("on",!!ai);
   box.scrollTop=box.scrollHeight;
 }
 async function send(text){
-  text=String(text||"").trim();if(!text||busy)return;
-  push({role:"user",text});busy=true;paint();
+  text=String(text||"").trim();const scope=syncScope();if(!scope){paint();toast(SCOPE_MESSAGE,"warn");return}if(!text||busy)return;
+  try{push({role:"user",text},scope)}catch(e){toast(e.message,"warn");return}
+  const request={scope,controller:new AbortController()};currentRequest=request;busy=true;paint();
   const SHORT={read_screen:"قرأت الشاشة",app_summary:"جمعت ملخص الأعمال",company_search:"بحثت داخل الشركة",standards_search:"بحثت في المعايير",list_tasks:"عرضت المهام",list_screens:"عرضت الشاشات"};
-  const step=(name,r)=>{push({role:"tool",text:r.ok&&SHORT[name]?SHORT[name]:r.text,ok:r.ok,tool:name});paint()};
+  const step=(name,r)=>{requireScope(scope);push({role:"tool",text:r.ok&&SHORT[name]?SHORT[name]:r.text,ok:r.ok,tool:name},scope);paint()};
   let reply="";
   try{
     const ai=window.SKosifAI&&SKosifAI.ready(),plan=localPlan(text);
     if(plan.length&&plan[0].help)reply=HELP;
-    else if(ai){try{reply=await gemini(hist().filter(m=>m.role!=="tool").map(m=>({role:m.role==="user"?"user":"model",text:m.text})),step)}
-      catch(e){if(plan.length){for(const [n,a] of plan)step(n,await runTool(n,a));reply="نفّذت ذلك محلياً — تعذر الوصول إلى مزود الذكاء الاصطناعي ("+e.message+")."}else reply="تعذر الوصول إلى مزود الذكاء الاصطناعي: "+e.message}}
-    else if(plan.length){const results=[];for(const [n,a] of plan){const r=await runTool(n,a);step(n,r);results.push(r)}
-      const info=plan.find(p=>["read_screen","app_summary","company_search","list_tasks","list_screens"].includes(p[0]));reply=info?results[plan.indexOf(info)].text:results.every(r=>r.ok)?"تم.":"لم يكتمل كل شيء — راجع الخطوات أعلاه."}
+    else if(ai){try{reply=await gemini(hist(scope).filter(m=>m.role!=="tool").map(m=>({role:m.role==="user"?"user":"model",text:m.text})),step,scope,request.controller.signal)}
+      catch(e){requireScope(scope);if(plan.length){const references=[],results=[];for(const [n,a] of plan){const r=await runTool(n,a,scope);requireScope(scope);step(n,r);results.push(r);if(n==="standards_search")references.push(r.text)}reply=[...references,(results.every(r=>r.ok)?"نفّذت ذلك محلياً":"لم يكتمل التنفيذ المحلي — راجع الخطوات والتعليمات اليدوية أعلاه")+" — تعذر الوصول إلى مزود الذكاء الاصطناعي ("+e.message+")."].join("\n\n")}else reply="تعذر الوصول إلى مزود الذكاء الاصطناعي: "+e.message}}
+    else if(plan.length){const results=[];for(const [n,a] of plan){const r=await runTool(n,a,scope);requireScope(scope);step(n,r);results.push(r)}
+      const info=plan.find(p=>["read_screen","app_summary","company_search","standards_search","list_tasks","list_screens"].includes(p[0]));reply=info?results[plan.indexOf(info)].text:results.every(r=>r.ok)?"تم.":"لم يكتمل كل شيء — راجع الخطوات أعلاه."}
     else reply="لم أفهم الطلب بدون ذكاء اصطناعي. "+HELP.split("\n").slice(0,6).join("\n");
-  }finally{busy=false}
-  push({role:"model",text:reply});paint();
+  }catch(e){if(!scopeIsCurrent(scope))return;reply="تعذر إكمال الطلب: "+e.message}
+  finally{if(currentRequest===request){busy=false;currentRequest=null}}
+  if(!scopeIsCurrent(scope))return;
+  try{push({role:"model",text:reply},scope)}catch(e){toast(e.message,"warn");return}paint();
   if(panel&&panel.dataset.speak==="1"&&"speechSynthesis" in window){try{const u=new SpeechSynthesisUtterance(reply.replace(/[•*]/g,""));u.lang="ar-SA";speechSynthesis.cancel();speechSynthesis.speak(u)}catch{}}
 }
 function voice(btn){
+  const scope=syncScope();if(!scope)return;
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast("المتصفح لا يدعم الإملاء الصوتي","warn");return}
   if(rec){rec.stop();return}
-  rec=new SR();rec.lang="ar-SA";rec.interimResults=true;rec.continuous=false;
+  const recording=rec=new SR();rec.lang="ar-SA";rec.interimResults=true;rec.continuous=false;
   const inp=$("textarea",panel);btn.classList.add("rec");
-  rec.onresult=e=>{inp.value=[...e.results].map(r=>r[0].transcript).join(" ");if(e.results[e.results.length-1].isFinal){const t=inp.value;inp.value="";send(t)}};
-  rec.onend=()=>{btn.classList.remove("rec");rec=null};rec.onerror=()=>{btn.classList.remove("rec");rec=null};
+  rec.onresult=e=>{if(!scopeIsCurrent(scope))return;inp.value=[...e.results].map(r=>r[0].transcript).join(" ");if(e.results[e.results.length-1].isFinal){const t=inp.value;inp.value="";send(t)}};
+  rec.onend=()=>{if(rec!==recording)return;btn.classList.remove("rec");rec=null};rec.onerror=()=>{if(rec!==recording)return;btn.classList.remove("rec");rec=null};
   rec.start();
 }
 function build(){
@@ -280,7 +308,8 @@ function build(){
   panel.addEventListener("click",async e=>{const s=e.target.closest("[data-s]");if(s){send(s.dataset.s);return}
     const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a;
     if(a==="close")toggle(false);else if(a==="mic")voice(b);
-    else if(a==="clear"&&(!hist().length||await SK.confirm("مسح المحادثة من هذا الجهاز؟",{ok:"مسح"}))){save(KEY,[]);paint()}});
+    else if(a==="clear"){const scope=syncScope();if(!scope||!writableChat(scope))return;const approved=!hist(scope).length||await SK.confirm("مسح محادثة المستخدم والشركة الحاليين من هذا الجهاز؟",{ok:"مسح"});
+      if(approved&&scopeIsCurrent(scope)&&writableChat(scope)){clearVisible();if(save(chatKey(scope),{version:2,userId:scope.userId,companyId:scope.companyId,messages:[]})!==true)toast("تعذر مسح المحادثة؛ احتُفظ بالسجل السابق.","warn");paint()}}});
   $(".ska-speak input",panel).addEventListener("change",e=>{panel.dataset.speak=e.target.checked?"1":"";if(!e.target.checked&&"speechSynthesis" in window)speechSynthesis.cancel()});
   panel.addEventListener("keydown",e=>{if(e.key==="Escape"){e.stopPropagation();toggle(false)}});
   return panel;
@@ -296,6 +325,16 @@ function toggle(on){
   if(open){paint();focusTimer=setTimeout(()=>{if(panel&&!panel.hidden&&!outputActive())$("textarea",panel).focus()},30)}
 }
 addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&(e.code==="KeyJ"||e.key.toLowerCase()==="j")){e.preventDefault();toggle()}});
+/* Storage events are cross-tab. Reload is required because other app modules may cache data.
+   Same-tab workspace events clear immediately, before snapshot/restore awaits. */
+const CONTEXT_KEYS=new Set(["sqc_helper_users_v1","sqc_helper_space_v1","skosif_companies_v1","sqc_chat_scope_generation_v1"]);
+addEventListener("storage",e=>{if(e.key===null||CONTEXT_KEYS.has(e.key)){staleTab=true;syncScope();clearVisible()}});
+addEventListener("pagehide",()=>{locked=true;syncScope();clearVisible()});
+SK.bus&&SK.bus.on("scope",()=>{syncScope();paint()});
+SK.bus&&SK.bus.on("company",()=>{syncScope();paint()});
+SK.bus&&SK.bus.on("data",e=>{if(e&&CONTEXT_KEYS.has(e.key)){syncScope();paint()}});
+SK.bus&&SK.bus.on("restore",()=>{staleTab=true;syncScope();clearVisible()});
+SK.bus&&SK.bus.on("lock",()=>{locked=true;syncScope();clearVisible()});
 function boot(){if(document.body)build()}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
 window.SKosifAssistant=Object.freeze({open:()=>toggle(true),close:()=>toggle(false),toggle,send,tools:()=>TOOLS.map(t=>({name:t.name,description:t.d})),run:runTool,plan:localPlan});
