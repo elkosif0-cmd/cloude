@@ -388,7 +388,7 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 
 ### TASK KOSIFSEE-AUDIT-CONTEXT-20261006-001 — P1.2A independent Audit context without accounting-company switch
 - Agent: KOSIF See / ChatGPT
-- Status: ACTIVE
+- Status: HANDOFF
 - Authority: Owner explicit instruction in chat on 2026-10-06 to execute the next context-separation step.
 - Foundation alignment: Accounting remains Sector → Company; Audit may start independently; importing/linking Accounting data into Audit must be explicit; Tools separation is deferred until its SK.company dependencies are mapped and tested.
 - Lead coordination: Re-read latest FOUNDATION.md and AGENT_WORKLOG.md. Claude P1 three-entry front door is merged; no current Claude task claims Audit-context separation. DOT inventory/report work is read-only and non-conflicting.
@@ -404,4 +404,32 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Explicit exclusions: `ui/core/company.js`, accounting ledgers/sector packs, tool-workspace switching semantics, schemas/migrations, capability IDs, protected AUTH block, deployment.
 - Branch / PR: `kosifsee/audit-context-separation-20261006`; draft PR after deterministic verification.
 - Risks: Audit UI and books-import features still intentionally read Accounting data when the user explicitly asks to import it. This task must not silently rewrite or clear the current accounting company.
-- NEXT ACTION: implement one-shot audit intent + engagement creation, then prove accounting active company and SKosifSpace remain unchanged for independent Audit/corpus entry.
+- NEXT ACTION: Claude/owner review draft PR #170. Do not merge/deploy solely from this handoff; native/CI execution is still unavailable.
+
+### UPDATE KOSIFSEE-AUDIT-CONTEXT-20261006-001 — Audit context boundary implemented
+- Status: HANDOFF
+- Draft PR: #170 — `Architecture: separate Audit engagements from accounting company context`.
+- Runtime changes:
+  - Front-door `auditNew` and reference-corpus intents no longer carry a host accounting-company id.
+  - `helper-space.js` consumes those Audit intents before `current()/switchTo()`; no company/helper snapshot is adopted or switched.
+  - Audit commands are mutually exclusive in session storage to avoid stale new-engagement + corpus double dispatch.
+  - `gate.js` dispatches Audit commands based only on `SKosifTBReview`; `SK.company.ready` is no longer a prerequisite.
+  - `SKosifTBReview.newEngagement()` uses the existing engagement register and blank Audit state; Accounting import remains the existing explicit `fromBooks()` path.
+  - The obsolete front-door `host()` selector was removed.
+- Deterministic evidence:
+  - `helper-space.js`, `gate.js`, `tb-review.js`: V8 syntax PASS.
+  - Protected AUTH block in `unlock.html`: byte-identical to `main`.
+  - `ui/core/company.js`: unchanged from `main`.
+  - `ui/core/capabilities.json`: unchanged from `main`.
+  - Synthetic Audit-new intent: success; all seeded company/helper localStorage remained byte-equivalent; 0 localStorage writes; 0 IndexedDB opens; landing/pin = `tbreview`.
+  - Synthetic corpus intent: same no-mutation boundary; corpus id preserved as one-shot session command.
+  - Gate dispatcher invoked `newEngagement()` once and `loadCorpus("apple-2024")` once with no `SK.company` service present, then consumed each command.
+  - Permanent contract: new `tools/audit_context_independence.test.mjs` added to the principal S.kosif CI test command.
+- CI limitation:
+  - GitHub Actions jobs on PR #170 still terminate before any recorded step (`steps: []`), matching the account/billing failure already documented by Claude. Therefore no CI/native-browser pass is claimed.
+- Jev final handoff decision: 0.76 yes for Draft HANDOFF only.
+- Remaining architecture work:
+  - Tools remains intentionally untouched in P1.2A because multiple report/tool modules still read `SK.company` / current books.
+  - P1.2B must first build a dependency map and compatibility contract before separating ToolWorkspaceContext.
+- Commits: branch through `956c08c70d42bbe21f271f67e476369ac539bb28` plus CI/exclusivity commits `f7c17e7843e3ddbb41fb2ff05dd7efc2161ac51d`, `18ca98d4ed2616485a637c661b0cc93d1b0fefab`, `956c08c70d42bbe21f271f67e476369ac539bb28`.
+- NEXT ACTION: review PR #170; then begin P1.2B Tools dependency mapping from current `main`/accepted Audit base.
