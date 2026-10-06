@@ -9,7 +9,7 @@ const DB="aghnam-app-v7",PREFIX=/^(aghnam|skosif|kosif|s_kosif|sales_customer_fo
 const SKIP=new Set(["skosif_error_log","skosif_ai_keys","skosif_chat_v1"]);/* the Gemini key never leaves this device */
 let snapshot=null;
 
-function appKeys(){const out=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&PREFIX.test(k)&&!SKIP.has(k))out.push(k)}return out.sort()}
+function appKeys(){const out=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&PREFIX.test(k)&&!SKIP.has(k)&&!k.startsWith("skosif_chat_v2:"))out.push(k)}return out.sort()}
 function openDb(){
   return new Promise((res,rej)=>{
     if(!("indexedDB" in window))return res(null);
