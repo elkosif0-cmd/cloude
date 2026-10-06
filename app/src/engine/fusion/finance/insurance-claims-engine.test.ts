@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { caseCostJournal, caseCosts, doctorFee, encounterJournal, healthVatTreatment, payerStats, remittanceJournal, splitEncounter } from './insurance-claims-engine';
+import { caseCostJournal, caseCosts, doctorFee, encounterJournal, healthSalesBoxes, healthVatTreatment, payerStats, remittanceJournal, splitEncounter } from './insurance-claims-engine';
 import { validateJournalEntry } from './ledger-engine';
 
 const A = { cashAccountId: 'a1100', payerReceivableAccountId: 'a1210', rejectionsAccountId: 'a5110', revenueAccountId: (c: string) => 'a' + c };
@@ -83,6 +83,14 @@ describe('the health pack claim cycle', () => {
     const citizen = encounterJournal({ ...visit, vat: { treatment: 'state-borne', rate: 0 } }, A);
     expect(citizen.journal.lines.some((l) => l.accountId === 'a2200')).toBe(false); expect(by(citizen.journal.lines, 'a1210')).toBe(400);
     expect(() => encounterJournal({ ...visit, vat: { treatment: 'standard', rate: 0.15 } }, A)).toThrow(/ضريبة المخرجات/);
+  });
+  it('lays the visits out on the VAT return boxes by treatment, inside the period, without reversals', () => {
+    const v = (date: string, gross: number, vatTreatment: string, extra = {}) => ({ date, visit: { gross, vatTreatment: vatTreatment as never }, ...extra });
+    expect(healthSalesBoxes([
+      v('2026-07-02', 50_000, 'state-borne'), v('2026-07-03', 30_000, 'state-borne'), v('2026-07-04', 12_000, 'zero'), v('2026-07-05', 8_000, 'exempt'),
+      v('2026-07-06', 9_000, 'out-of-scope'), v('2026-07-07', 20_000, 'standard'), v('2026-06-30', 99_000, 'state-borne'), v('2026-07-08', 40_000, 'state-borne', { reversedBy: 'x' }),
+      { date: '2026-07-09' },
+    ], '2026-07-01', '2026-09-30')).toEqual({ citizens: 800, zeroRated: 120, exempt: 80, outOfScope: 90 });
   });
   it('rejects a visit without a value or with an unknown department', () => {
     expect(() => splitEncounter({ ...visit, grossHalalas: 0 })).toThrow();

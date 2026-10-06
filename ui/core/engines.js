@@ -18326,6 +18326,7 @@ window.SKEngines = (function() {
 		caseCosts: () => caseCosts,
 		doctorFee: () => doctorFee,
 		encounterJournal: () => encounterJournal,
+		healthSalesBoxes: () => healthSalesBoxes,
 		healthVatTreatment: () => healthVatTreatment,
 		payerStats: () => payerStats,
 		remittanceJournal: () => remittanceJournal,
@@ -18597,6 +18598,30 @@ window.SKEngines = (function() {
 				marginPct: r.revenue ? Math.round(margin / r.revenue * 1e4) / 100 : null
 			};
 		}).sort((a, b) => a.caseRef.localeCompare(b.caseRef));
+	}
+	function healthSalesBoxes(entries, start, end) {
+		const sum = {
+			citizens: 0,
+			zeroRated: 0,
+			exempt: 0,
+			outOfScope: 0
+		};
+		for (const e of entries) {
+			if (!e.visit || e.reversedBy || e.reversalOf) continue;
+			const d = String(e.date).slice(0, 10);
+			if (d < start || d > end) continue;
+			const g = Number(e.visit.gross) || 0, t = e.visit.vatTreatment;
+			if (t === "state-borne") sum.citizens += g;
+			else if (t === "zero") sum.zeroRated += g;
+			else if (t === "exempt") sum.exempt += g;
+			else if (t === "out-of-scope") sum.outOfScope += g;
+		}
+		return {
+			citizens: sum.citizens / 100,
+			zeroRated: sum.zeroRated / 100,
+			exempt: sum.exempt / 100,
+			outOfScope: sum.outOfScope / 100
+		};
 	}
 	//#endregion
 	//#region app/src/engine/fusion/finance/journal-chain-engine.ts
