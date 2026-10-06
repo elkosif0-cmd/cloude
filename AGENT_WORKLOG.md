@@ -310,9 +310,10 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 
 ### TASK CLAUDE-20261006-009 — P3 health: the claims cycle (visits, payer claims, remittances, rejections) in the books
 - Agent: Claude (Lead Development Agent)
-- Status: ACTIVE
+- Status: DONE — merged on the owner's explicit instruction in chat («ادمج»); GitHub jobs not started (billing), acceptance on local evidence.
 - Goal: FOUNDATION §3.7 «عمق قطاع المستشفيات» — payers, claims, rejections and settlements, revenue by department, payer ageing; the same books behave by sector.
 - Scope: `app/src/engine/fusion/finance/insurance-claims-engine.ts` (+6 tests): a visit splits into the patient's share (cash) and the payer's claim (1210, named to the payer, coverage % and co-payment cap), revenue by department (4010 outpatient, 4020 inpatient, 4030 lab/radiology, 4040 pharmacy); a remittance posts paid to cash and rejected to 5110 with its reason, never above the payer's open claims; `payerStats` (billed, paid, rejected, open, rejection rate). `ui/features/ledger.js`: a «المطالبات والجهات» tab shown only for a health company (visit form, remittance form, payer table with ageing from the books), posting through `postEntry`. `tools/health_pack_e2e.mjs` (new, in the workflow).
 - Limits recorded: amounts are before VAT — VAT on healthcare depends on the patient and the service and is not posted by this tab yet; no patient data (a case is a reference number).
 - Branch / PR: `claude/p3-health-claims-20261006` from `main` @ 3a13930.
-- NEXT ACTION: suites, PR, owner approval to merge.
+- Evidence: engines 471/471; workflow node tests 294 pass / 52 fail, the same failure set as `main`; health_pack_e2e, meat_pack_e2e, books OK; advances 26/26; sales 28/28; door 94/94; feature_audit 146/146 — all on the first attempt.
+- NEXT ACTION: healthcare VAT treatment; doctors' commissions and case cost; then deepen hospitality/construction/digital packs.
