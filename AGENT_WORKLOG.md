@@ -522,3 +522,36 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - `tools/agriculture_pack_e2e.mjs` is in the workflow.
 - Not yet: crop cycles with harvest into agricultural produce (IAS 2 at the point of harvest), bearer plants (IAS 16), several cycles sharing one feed store by allocation.
 - Branch / PR: `claude/agriculture-pack-20261006` from `main` @ e1b9bcc.
+
+### TASK CLAUDE-20261007-001 — P3 general-trade pack: branches and their stock, discounts, margins, turnover, credit limits
+- Agent: Claude (Lead Development Agent)
+- Status: DONE on merge — the owner's standing instruction in chat («كمل تطوير وراجع الدستور وادمج بنفسك», then «اكمل»).
+- Goal: FOUNDATION §3.6 «التجارة: فروع ومستودعات، شراء وبيع، تسعير وهوامش، خصومات، مخزون ودوران، عملاء وموردون وائتمان».
+  - With this pack, every sector pack in `SECTOR_PACKS` is `deep`.
+- Scope:
+  - `app/src/engine/fusion/finance/trade-engine.ts` (+4 tests):
+    - `branchPurchaseJournal`: purchases on credit for a branch;
+    - `branchSaleJournals`:
+      - gross sales to 4000, the discount allowed to 4100, VAT on the net, and cost out of the branch's stock;
+      - refused when the cost exceeds the branch's stock;
+      - a credit sale is refused without a limit or beyond it, and names the customer as party;
+    - `transferJournal`: moves stock between branches at cost, with no change to the books' total;
+    - `branchKpis`: stock, net sales, margin, discount rate and stock turnover per branch;
+    - `creditPosition`.
+  - Trade pack adds 4100 «خصومات المبيعات المسموح بها» and 5100.
+  - `ui/features/ledger.js`: a «الفروع والهوامش» tab for trading companies only:
+    - branches (`d.branches`) and credit limits (`d.creditLimits`);
+    - operations: purchase, sale, transfer;
+    - a branch table and a customer-credit table, with over-limit rows flagged.
+  - The model distributor (#172) is regenerated through the same engine:
+    - two branches; Riyadh buys and transfers 35% to Jeddah;
+    - three named customers within their limits, with a 2% trade discount;
+    - cash sales at 1%;
+    - the count shortage and the bad debt are kept.
+  - `tools/trade_pack_e2e.mjs` is in the workflow.
+- Not yet:
+  - item-level stock (quantities, average cost per item, reorder points);
+  - price lists per customer group;
+  - supplier rebates;
+  - per-branch cash accounts.
+- Branch / PR: `claude/trade-pack-20261007` from `main` @ f645381.
