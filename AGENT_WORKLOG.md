@@ -353,3 +353,12 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Branch / PR: `claude/health-vat-20261006` from `main` @ ef5c967.
 - Evidence: engines 475/475; node 726 pass / 54 fail (= `main`'s 52 + 2 Windows-only header tests); health incl. VAT OK; door 94/94; meat, books OK; advances 26/26; sales 28/28; feature_audit 146/146 — all first attempt.
 - NEXT ACTION: owner approval to merge; then zero-rated/state-borne boxes on the VAT return; then deepen hospitality/construction/digital.
+
+### TASK CLAUDE-20261006-014 — P3 construction: contracts, advances, progress billings, retentions, project costs
+- Agent: Claude (Lead Development Agent)
+- Status: ACTIVE
+- Goal: FOUNDATION §3.7 «عمق قطاع المقاولات» — the contract and its progress billings (المستخلصات), advances and retentions, revenue and cost per project, completion and margin. The construction pack becomes `deep`.
+- Scope: `app/src/engine/fusion/finance/progress-billing-engine.ts` (+6 tests): advance (cash, 2320, VAT), certificate (this period's work = certified to date − last certificate; retention 1220; advance recovery from 2320 capped at the advance left; VAT on the work less the recovery; receivable 1200; revenue 4070; refused above the contract value — a change order first — or without new work), retention release at handover, project profitability (margin, completion by cost, expected margin from the budget). `ui/features/ledger.js`: «المشروعات والمستخلصات» tab for construction companies only — contracts saved in the books, each contract's state read back from its own entries; direct costs (5130 subcontract, 5140 materials) tagged to the project. `tools/construction_pack_e2e.mjs` (new, in the workflow).
+- Not yet: change orders and claims, subcontractor retentions (2310), WIP/contract assets under IFRS 15 when costs run ahead of billing.
+- Branch / PR: `claude/construction-pack-20261006` from `main` @ f1d7106.
+- NEXT ACTION: suites, PR, owner approval to merge.

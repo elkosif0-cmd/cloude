@@ -246,6 +246,74 @@ const CLAIM_CODES=["1100","1210","5110","4010","4020","4030","4040"],CASE_CODES=
 const halalas=v=>Math.round(Number(String(v??"").replace("٫",".").replace(/[٠-٩]/g,x=>"٠١٢٣٤٥٦٧٨٩".indexOf(x)))*100);
 function caseEvents(d){return d.entries.filter(e=>!e.reversedBy&&!e.reversalOf&&(e.visit||e.caseCost)).map(e=>e.visit?{caseRef:e.visit.caseRef,revenue:e.visit.gross}:{caseRef:e.caseCost.caseRef,fee:e.caseCost.fee,supplies:e.caseCost.supplies})}
 function claimEvents(d){return d.entries.filter(e=>e.claim&&!e.reversedBy&&!e.reversalOf).map(e=>({payer:e.claim.payer,kind:e.claim.kind,billed:e.claim.billed,paid:e.claim.paid,rejected:e.claim.rejected}))}
+/* ---------- the construction pack: contracts, advances, progress billings, retentions, project costs ----------
+   (finance/progress-billing-engine) — shown only for a construction company. A contract's state is read back from the
+   entries it posted, so the screen and the books cannot disagree. */
+const PB=()=>E().progressBilling;
+const isConstruction=()=>{try{return SK.company.current().sector==="construction"}catch{return false}};
+const PROJ_CODES=["1100","1200","1220","2320","4070","5130","5140","2100"];
+function contractState(d,id){
+  const s=PB().emptyState();
+  d.entries.filter(e=>e.contract&&e.contract.id===id&&!e.reversedBy&&!e.reversalOf).forEach(e=>{const c=e.contract;
+    if(c.kind==="advance")s.advanceReceivedHalalas+=c.amount;
+    if(c.kind==="certificate"){s.certifiedHalalas=Math.max(s.certifiedHalalas,c.toDate);s.advanceRecoveredHalalas+=c.recovery;s.retentionHeldHalalas+=c.retention}
+    if(c.kind==="release")s.retentionReleasedHalalas+=c.released});
+  return s;
+}
+function projectCost(d,project){let h=0;d.entries.filter(e=>e.projectCost&&e.projectCost.project===project&&!e.reversedBy&&!e.reversalOf).forEach(e=>{h+=e.projectCost.amount});return h}
+function projectsHTML(d){
+  const missing=PROJ_CODES.filter(c=>!byCode(d,c));
+  if(missing.length)return SK.ui.state.empty({title:"أكمل حسابات قطاع المقاولات",text:"المشروعات والمستخلصات تحتاج الحسابات "+missing.join(" و")+" — أضفها من «دليل الحسابات» › «إضافة حسابات قطاع»."});
+  const t=today(),cs=Array.isArray(d.contracts)?d.contracts:[],h=v=>money((v||0)/100);
+  const defs=(()=>{try{return SKosifCompanyPlatform.definitions("projects").map(x=>x.name)}catch{return[]}})();
+  const rows=cs.map(c=>{const s=contractState(d,c.id),cost=projectCost(d,c.project);return{c,s,cost,p:PB().projectProfitability([{project:c.project,valueHalalas:c.valueHalalas,budgetCostHalalas:c.budgetCostHalalas,revenueHalalas:s.certifiedHalalas,costHalalas:cost}])[0]}});
+  const opts=cs.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.project)+' — '+esc(c.customer)+'</option>').join("");
+  return '<p class="hint">المستخلص: أعمال الفترة = المعتمد حتى تاريخه − المعتمد في المستخلص السابق؛ يُحجز منها المحتجز (1220) ويُسترد جزء من الدفعة المقدمة (2320)، وتُحسب الضريبة على الأعمال بعد الاسترداد لأن الدفعة المقدمة خضعت للضريبة عند قبضها.</p>'+
+    '<section class="card"><div class="card-h"><div><h3>عقد جديد</h3></div></div><div class="card-b"><div class="sk-grid2">'+
+      '<label class="sk-field"><span>المشروع</span><input id="pj-proj" list="pj-projs" autocomplete="off" data-sk-required></label>'+
+      '<label class="sk-field"><span>العميل</span><input id="pj-cust" autocomplete="off" data-sk-required></label>'+
+      '<label class="sk-field"><span>قيمة العقد</span><input id="pj-val" inputmode="decimal" data-sk-required></label>'+
+      '<label class="sk-field"><span>المحتجز %</span><input id="pj-ret" inputmode="decimal" value="10"></label>'+
+      '<label class="sk-field"><span>استرداد الدفعة المقدمة % من كل مستخلص</span><input id="pj-rec" inputmode="decimal" value="0"></label>'+
+      '<label class="sk-field"><span>التكلفة التقديرية (اختياري)</span><input id="pj-bud" inputmode="decimal"></label></div>'+
+      '<datalist id="pj-projs">'+defs.map(n=>'<option value="'+esc(n)+'">').join("")+'</datalist>'+
+      '<div class="sk-error" id="pj-err" role="alert"></div><div class="sk-actions"><button type="button" class="btn primary" data-l="pj-new">حفظ العقد</button></div></div></section>'+
+    (cs.length?'<section class="card"><div class="card-h"><div><h3>حركة على عقد</h3></div></div><div class="card-b"><div class="sk-grid2">'+
+      '<label class="sk-field"><span>العقد</span><select id="pj-k">'+opts+'</select></label>'+
+      '<label class="sk-field"><span>العملية</span><select id="pj-op"><option value="certificate">مستخلص (المعتمد حتى تاريخه)</option><option value="advance">دفعة مقدمة</option><option value="cost-5130">تكلفة مقاول باطن</option><option value="cost-5140">تكلفة مواد بالموقع</option><option value="release">الإفراج عن المحتجزات</option></select></label>'+
+      '<label class="sk-field"><span>المبلغ</span><input id="pj-amt" inputmode="decimal"></label>'+
+      '<label class="sk-field"><span>التاريخ</span><input id="pj-date" type="date" value="'+t+'"></label></div>'+
+      '<div class="sk-error" id="pj-err2" role="alert"></div><div class="sk-actions"><button type="button" class="btn" data-l="pj-post">ترحيل</button></div></div></section>':'')+
+    (rows.length?'<section class="card"><div class="card-h"><div><h3>العقود والمشروعات</h3><p>من قيود الدفاتر: المعتمد والإنجاز والمحتجزات والدفعة المقدمة القائمة والتكلفة والهامش.</p></div></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table" data-pj-table><thead><tr><th>المشروع</th><th>قيمة العقد</th><th>المعتمد</th><th>الإنجاز</th><th>محتجزات قائمة</th><th>دفعة مقدمة قائمة</th><th>التكلفة</th><th>الهامش</th><th>الإنجاز بالتكلفة</th></tr></thead><tbody>'+
+      rows.map(({c,s,cost,p})=>'<tr data-project="'+esc(c.project)+'"><td>'+esc(c.project)+'</td><td class="n">'+h(c.valueHalalas)+'</td><td class="n">'+h(s.certifiedHalalas)+'</td><td class="n">'+(Math.round(s.certifiedHalalas/c.valueHalalas*10000)/100)+'٪</td><td class="n">'+h(s.retentionHeldHalalas-s.retentionReleasedHalalas)+'</td><td class="n">'+h(s.advanceReceivedHalalas-s.advanceRecoveredHalalas)+'</td><td class="n">'+h(cost)+'</td><td class="n"><b>'+h(p.margin)+'</b></td><td class="n">'+(p.completionByCostPct==null?'—':p.completionByCostPct+'٪')+'</td></tr>').join("")+
+      '</tbody></table></div></div></section>':'');
+}
+function saveContract(root,d){
+  const err=$("#pj-err",root);err.textContent="";
+  const project=$("#pj-proj",root).value.trim(),customer=$("#pj-cust",root).value.trim(),value=halalas($("#pj-val",root).value),bud=$("#pj-bud",root).value.trim();
+  const c={id:SK.ui.uid("ctr"),project,customer,valueHalalas:value,retentionPct:Number($("#pj-ret",root).value||0),advanceRecoveryPct:Number($("#pj-rec",root).value||0),...(bud?{budgetCostHalalas:halalas(bud)}:{})};
+  if(!project||!customer||!(value>0)){err.textContent="أدخل المشروع والعميل وقيمة العقد";return}
+  if((d.contracts||[]).some(x=>x.project===project)){err.textContent="للمشروع عقد مسجّل";return}
+  d.contracts=[...(d.contracts||[]),c];put(d);toast("حُفظ عقد "+project,"ok");return true;
+}
+function postProjectOp(root,d){
+  const err=$("#pj-err2",root);err.textContent="";
+  const c=(d.contracts||[]).find(x=>x.id===$("#pj-k",root).value);if(!c){err.textContent="اختر العقد";return}
+  const op=$("#pj-op",root).value,amt=halalas($("#pj-amt",root).value||0),date=$("#pj-date",root).value||today(),id=SK.ui.uid("pj"),s=contractState(d,c.id);
+  const A={cashAccountId:byCode(d,"1100"),receivableAccountId:byCode(d,"1200"),retentionAccountId:byCode(d,"1220"),advanceAccountId:byCode(d,"2320"),revenueAccountId:byCode(d,"4070"),outputVatAccountId:byCode(d,"2200")};
+  try{
+    let out;
+    if(op==="advance"){const r=PB().advanceJournal(c,{id,date,amountHalalas:amt},SK.vatRate(),A);out=postEntry({...r.journal,contract:{id:c.id,kind:"advance",amount:amt}},{source:"المشروعات",sourceId:"pj:"+id,party:c.customer})}
+    else if(op==="certificate"){const r=PB().certificateJournal(c,s,{id,date,certifiedToDateHalalas:amt},SK.vatRate(),A);out=postEntry({...r.journal,contract:{id:c.id,kind:"certificate",toDate:amt,work:r.work,retention:r.retention,recovery:r.recovery}},{source:"المستخلصات",sourceId:"pj:"+id,party:c.customer})}
+    else if(op==="release"){const r=PB().retentionReleaseJournal(c,s,{id,date},A);out=postEntry({...r.journal,contract:{id:c.id,kind:"release",released:r.released}},{source:"المشروعات",sourceId:"pj:"+id,party:c.customer})}
+    else{const code=op==="cost-5130"?"5130":"5140";if(!(amt>0)){err.textContent="أدخل مبلغ التكلفة";return}
+      out=postEntry({id,date,reference:"COST-"+c.project,memo:(code==="5130"?"مقاول باطن":"مواد بالموقع")+" — "+c.project,projectCost:{project:c.project,amount:amt,account:code},
+        lines:[{accountId:byCode(d,code),debit:amt/100,credit:0,description:c.project},{accountId:byCode(d,"2100"),debit:0,credit:amt/100,description:c.project}]},{source:"تكاليف المشروعات",sourceId:"pj:"+id})}
+    if(!out.ok){err.textContent=out.error;return}
+    toast("رُحّلت الحركة على "+c.project,"ok");
+  }catch(e){err.textContent=e.message||String(e);return}
+  return true;
+}
 function claimsHTML(d){
   const missing=CLAIM_CODES.filter(c=>!byCode(d,c));
   if(missing.length)return SK.ui.state.empty({title:"أكمل حسابات قطاع المستشفيات",text:"دورة المطالبات تحتاج الحسابات "+missing.join(" و")+" — أضفها من «دليل الحسابات» › «إضافة حسابات قطاع»."});
@@ -526,9 +594,9 @@ function paint(root){
   /* a company created under a sector receives its pack on first open (FOUNDATION §3.7) */
   try{window.SKosifCompanyPlatform&&SKosifCompanyPlatform.ensureSectorPack()}catch{}
   const d=db(),p=period();if(!tab)tab=d.accounts.length?"close":"accounts";
-  root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],...(isHealth()?[["claims","المطالبات والجهات"]]:[]),["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
+  root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],...(isHealth()?[["claims","المطالبات والجهات"]]:[]),...(isConstruction()?[["projects","المشروعات والمستخلصات"]]:[]),["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
     (p?'<p class="hint">الفترة المالية النشطة: <b>'+esc(p.label)+'</b> ('+esc(p.startDate)+' → '+esc(p.endDate)+') — من «الشركات والفترات».</p>':'')+
-    ({close:closeHTML,accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,claims:claimsHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
+    ({close:closeHTML,accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,claims:claimsHTML,projects:projectsHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
 }
 function bind(root){
   root.addEventListener("click",async e=>{
@@ -569,6 +637,8 @@ function bind(root){
     }
     else if(a==="cash-fill"){const k=$("#lg-ck",root),pp=$("#lg-cp",root),am=$("#lg-ca",root);if(k)k.value=b.dataset.kind;if(pp)pp.value=b.dataset.party;if(am){am.value=b.dataset.amt;am.focus();am.select()}return}
     else if(a==="claim-visit"){if(postClaimVisit(root,d))paint(root);return}
+    else if(a==="pj-new"){if(saveContract(root,d))paint(root);return}
+    else if(a==="pj-post"){if(postProjectOp(root,d))paint(root);return}
     else if(a==="claim-remit"){if(postClaimRemit(root,d))paint(root);return}
     else if(a==="settle"){
       const err=$("#lg-cerr",root);err.textContent="";if(!SK.ui.validate(root))return;

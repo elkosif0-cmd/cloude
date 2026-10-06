@@ -411,7 +411,7 @@ window.SKEngines = (function() {
 		fromMajor: () => fromMajor,
 		normalizeDigits: () => normalizeDigits,
 		parseMinor: () => parseMinor,
-		pct: () => pct$5,
+		pct: () => pct$6,
 		ratio: () => ratio,
 		sum: () => sum,
 		toMajor: () => toMajor
@@ -463,7 +463,7 @@ window.SKEngines = (function() {
 		return v < 0 ? -Math.round(-v) : Math.round(v);
 	}
 	/** percentage (numerator / denominator × 100), rounded; null when the denominator is zero. */
-	function pct$5(numerator, denominator, digits = 1) {
+	function pct$6(numerator, denominator, digits = 1) {
 		if (!denominator) return null;
 		const f = 10 ** digits;
 		return Math.round(numerator / denominator * 100 * f) / f;
@@ -7545,7 +7545,7 @@ window.SKEngines = (function() {
 			"8) اكتب بالعربية الفصحى المهنية الموجزة. لا تضع أي بيانات خارج مخطط JSON."
 		].join("\n");
 	}
-	var sar$2 = (m) => formatMinor(m, { decimals: 0 });
+	var sar$3 = (m) => formatMinor(m, { decimals: 0 });
 	/** The trial balance and the engine's review, compact enough for one prompt. */
 	function describeReview(tb, review) {
 		const rows = review.accounts.map((a) => [
@@ -7553,21 +7553,21 @@ window.SKEngines = (function() {
 			a.name,
 			TYPE_LABELS[a.type],
 			a.lineAr,
-			sar$2(a.natural),
-			a.prior === null ? "" : sar$2(a.prior),
+			sar$3(a.natural),
+			a.prior === null ? "" : sar$3(a.prior),
 			a.standards.map((s) => s.code).join("+")
 		].join(" | "));
 		const m = review.materiality, k = review.fs.keys;
 		return [
 			"ميزان المراجعة (رقم | اسم | نوع | بند القوائم | الرصيد بطبيعته | السابق | المعايير المقترحة):",
 			...rows,
-			`التوازن: ${tb.balanced ? "متوازن" : "غير متوازن بفرق " + sar$2(tb.difference)}.`,
-			`الأهمية النسبية: ${sar$2(m.overall)} (${m.benchmarkAr} × ${m.rate * 100}%) — التنفيذية ${sar$2(m.performance)} — حد التفاهة ${sar$2(m.trivial)}.`,
-			`الإيرادات ${sar$2(k.revenue.current)} · الربح التشغيلي ${sar$2(k.operating.current)} · صافي الربح ${sar$2(k.profit.current)} · الموجودات ${sar$2(k.assets.current)} · حقوق الملكية ${sar$2(k.equity.current)}.`,
+			`التوازن: ${tb.balanced ? "متوازن" : "غير متوازن بفرق " + sar$3(tb.difference)}.`,
+			`الأهمية النسبية: ${sar$3(m.overall)} (${m.benchmarkAr} × ${m.rate * 100}%) — التنفيذية ${sar$3(m.performance)} — حد التفاهة ${sar$3(m.trivial)}.`,
+			`الإيرادات ${sar$3(k.revenue.current)} · الربح التشغيلي ${sar$3(k.operating.current)} · صافي الربح ${sar$3(k.profit.current)} · الموجودات ${sar$3(k.assets.current)} · حقوق الملكية ${sar$3(k.equity.current)}.`,
 			"ملاحظات المحرك الآلي (أكدها أو فندها):",
 			...review.findings.map((f) => `${f.id} [${f.severity}] ${f.title} — ${f.basis} — ${f.standard}`),
 			"قيود المحرك المقترحة:",
-			...review.adjustments.map((a) => `${a.id} ${a.title}: ` + a.lines.map((l) => `${l.code} ${l.name} م${sar$2(l.debit)} د${sar$2(l.credit)}`).join("؛ "))
+			...review.adjustments.map((a) => `${a.id} ${a.title}: ` + a.lines.map((l) => `${l.code} ${l.name} م${sar$3(l.debit)} د${sar$3(l.credit)}`).join("؛ "))
 		].join("\n");
 	}
 	/** Outstanding requests: asked in any round, not yet accepted, not marked unavailable. */
@@ -7664,7 +7664,7 @@ window.SKEngines = (function() {
 			round
 		};
 		const v = validateAdjustment(a, tb);
-		const problems = [...v.problems, ...v.balanced ? [] : [`القيد غير متوازن: مدين ${sar$2(v.debit)} ودائن ${sar$2(v.credit)}`]];
+		const problems = [...v.problems, ...v.balanced ? [] : [`القيد غير متوازن: مدين ${sar$3(v.debit)} ودائن ${sar$3(v.credit)}`]];
 		return {
 			...a,
 			valid: v.valid,
@@ -7710,7 +7710,7 @@ window.SKEngines = (function() {
 				standard: normalizeCode$1(std) ?? (std || "IAS 1"),
 				title: str$1(f.comment, 160).split(/[.،؛]/)[0] || "ملاحظة",
 				detail: str$1(f.comment, 2e3),
-				basis: amount ? "المبلغ المتأثر " + sar$2(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
+				basis: amount ? "المبلغ المتأثر " + sar$3(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
 				action: str$1(f.recommendation, 1e3),
 				source: "gemini",
 				round: no,
@@ -7943,7 +7943,7 @@ window.SKEngines = (function() {
 		const lineOf = (q) => q.lineKey ?? review.accounts.find((a) => q.accounts.includes(a.code))?.lineKey ?? null;
 		const blockedSig = new Set(unavailHigh.map(lineOf).filter((k) => k && review.risks.some((r) => r.lineKey === k && r.significant)));
 		const basis = [], material = misstatement > mat.overall, pervasive = misstatement > mat.overall * 5, cs = s.ctx.curSym ?? (s.ctx.framework === "EAS" ? "ج.م" : "ر.س");
-		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar$2(misstatement)} ${cs} مقابل أهمية نسبية ${sar$2(mat.overall)} ${cs} (ISA 450).`);
+		if (uncorrected.length) basis.push(`تحريفات غير مصححة (${uncorrected.length} قيد) أثرها ${sar$3(misstatement)} ${cs} مقابل أهمية نسبية ${sar$3(mat.overall)} ${cs} (ISA 450).`);
 		if (unavailHigh.length) basis.push(`تعذر الحصول على ${unavailHigh.length} مستند عالي الأولوية: ` + unavailHigh.map((q) => q.title).join("، ") + ".");
 		const scopePervasive = unavailHigh.length >= 3 || blockedSig.size >= 3;
 		if (sigUnevidenced) basis.push(`${sigUnevidenced} خطر جوهري دون دليل مقبول بعد؛ يستكمل قبل التوقيع (ISA 330).`);
@@ -14322,7 +14322,7 @@ window.SKEngines = (function() {
 		icfrReport: () => icfrReport
 	});
 	var money$27 = (v, cur) => `${Math.round(v / 100).toLocaleString("en")} ${cur}`;
-	var pct$4 = (v) => `${Math.round(v * 1e3) / 10}%`;
+	var pct$5 = (v) => `${Math.round(v * 1e3) / 10}%`;
 	var RATIONALE = {
 		pbz: "الربح قبل الزكاة مقياس مهم لمستخدمي القوائم المالية وأساس مقبول عموماً للمنشآت الهادفة للربح.",
 		revenue: "اخترنا الإيرادات أساساً لأن الربح متذبذب أو منخفض نسبةً إلى حجم النشاط، والإيرادات أكثر استقراراً وتعبيراً عن حجم المنشأة.",
@@ -14335,7 +14335,7 @@ window.SKEngines = (function() {
 		return {
 			title: "نهجنا في المراجعة",
 			paragraphs: [
-				`حددنا الأهمية النسبية للقوائم المالية ككل بمبلغ ${money$27(m.overall, cur)}، بنسبة ${pct$4(rate)} من ${benchmarkAr}.`,
+				`حددنا الأهمية النسبية للقوائم المالية ككل بمبلغ ${money$27(m.overall, cur)}، بنسبة ${pct$5(rate)} من ${benchmarkAr}.`,
 				`واتفقنا مع المكلفين بالحوكمة على أن نبلغهم بالتحريفات التي تتجاوز ${money$27(m.trivial, cur)}، وبما يقل عنها إن استدعت أسباب نوعية ذلك.`,
 				i.components ? `النطاق: ${i.components}.` : "النطاق: مراجعة كاملة للمنشأة، وصُممت الإجراءات لكل بند جوهري على ضوء تقييم مخاطر التحريف الجوهري فيه.",
 				...i.kamTitles.length ? [`الأمور الرئيسية للمراجعة: ${i.kamTitles.join("؛ ")}.`] : [],
@@ -14345,10 +14345,10 @@ window.SKEngines = (function() {
 				columns: ["", ""],
 				rows: [
 					["الأهمية النسبية العامة", money$27(m.overall, cur)],
-					["كيف حددناها", `${pct$4(rate)} من ${benchmarkAr} (${money$27(m.base, cur)})`],
+					["كيف حددناها", `${pct$5(rate)} من ${benchmarkAr} (${money$27(m.base, cur)})`],
 					["مبرر الأساس المختار", RATIONALE[m.benchmark]],
-					["الأهمية النسبية التنفيذية", `${money$27(m.performance, cur)} (${pct$4(m.overall ? m.performance / m.overall : 0)} من الأهمية العامة)`],
-					["حد الإبلاغ للمكلفين بالحوكمة", `${money$27(m.trivial, cur)} (${pct$4(m.overall ? m.trivial / m.overall : 0)} من الأهمية العامة)`]
+					["الأهمية النسبية التنفيذية", `${money$27(m.performance, cur)} (${pct$5(m.overall ? m.performance / m.overall : 0)} من الأهمية العامة)`],
+					["حد الإبلاغ للمكلفين بالحوكمة", `${money$27(m.trivial, cur)} (${pct$5(m.overall ? m.trivial / m.overall : 0)} من الأهمية العامة)`]
 				]
 			}
 		};
@@ -18365,7 +18365,7 @@ window.SKEngines = (function() {
 			patientShare
 		};
 	}
-	var sar$1 = (h) => h / 100;
+	var sar$2 = (h) => h / 100;
 	var VAT_TREATMENT_LABEL = Object.freeze({
 		standard: "خاضعة للنسبة الأساسية",
 		"state-borne": "مواطن سعودي — تتحملها الدولة (فاتورة 0٪)",
@@ -18415,26 +18415,26 @@ window.SKEngines = (function() {
 		const lines = [
 			...s.patientShare ? [{
 				accountId: a.cashAccountId,
-				debit: sar$1(s.patientShare),
+				debit: sar$2(s.patientShare),
 				credit: 0,
 				description: "حصة المريض — حالة " + e.caseRef
 			}] : [],
 			...s.payerShare ? [{
 				accountId: a.payerReceivableAccountId,
-				debit: sar$1(s.payerShare),
+				debit: sar$2(s.payerShare),
 				credit: 0,
 				description: "مطالبة " + s.payer + " — حالة " + e.caseRef
 			}] : [],
 			{
 				accountId: rev,
 				debit: 0,
-				credit: sar$1(e.grossHalalas),
+				credit: sar$2(e.grossHalalas),
 				description: DEPARTMENT_LABEL[e.department] + " — حالة " + e.caseRef
 			},
 			...vatH ? [{
 				accountId: a.outputVatAccountId,
 				debit: 0,
-				credit: sar$1(vatH),
+				credit: sar$2(vatH),
 				description: "ضريبة مخرجات " + Math.round(rate * 1e4) / 100 + "٪ — حالة " + e.caseRef
 			}] : []
 		];
@@ -18467,20 +18467,20 @@ window.SKEngines = (function() {
 		const lines = [
 			...r.paidHalalas ? [{
 				accountId: a.cashAccountId,
-				debit: sar$1(r.paidHalalas),
+				debit: sar$2(r.paidHalalas),
 				credit: 0,
 				description: "سداد " + payer
 			}] : [],
 			...r.rejectedHalalas ? [{
 				accountId: a.rejectionsAccountId,
-				debit: sar$1(r.rejectedHalalas),
+				debit: sar$2(r.rejectedHalalas),
 				credit: 0,
 				description: "رفض " + payer + ": " + String(r.reason).trim()
 			}] : [],
 			{
 				accountId: a.payerReceivableAccountId,
 				debit: 0,
-				credit: sar$1(total),
+				credit: sar$2(total),
 				description: "تسوية مطالبات " + payer
 			}
 		];
@@ -18539,23 +18539,23 @@ window.SKEngines = (function() {
 		if (fee && !doctor) throw new Error("حدد الطبيب");
 		const lines = [...fee ? [{
 			accountId: a.doctorFeesAccountId,
-			debit: sar$1(fee),
+			debit: sar$2(fee),
 			credit: 0,
 			description: "أتعاب " + doctor + " — حالة " + c.caseRef
 		}, {
 			accountId: a.doctorPayableAccountId,
 			debit: 0,
-			credit: sar$1(fee),
+			credit: sar$2(fee),
 			description: "مستحق " + doctor + " — حالة " + c.caseRef
 		}] : [], ...supplies ? [{
 			accountId: a.suppliesCostAccountId,
-			debit: sar$1(supplies),
+			debit: sar$2(supplies),
 			credit: 0,
 			description: "أدوية ومستلزمات — حالة " + c.caseRef
 		}, {
 			accountId: a.pharmacyStockAccountId,
 			debit: 0,
-			credit: sar$1(supplies),
+			credit: sar$2(supplies),
 			description: "صرف من الصيدلية — حالة " + c.caseRef
 		}] : []];
 		return {
@@ -19260,6 +19260,182 @@ window.SKEngines = (function() {
 			totals,
 			outstanding: money$18(rows.reduce((sum, row) => sum + row.outstanding, 0))
 		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/finance/progress-billing-engine.ts
+	var progress_billing_engine_exports = /* @__PURE__ */ __exportAll({
+		advanceJournal: () => advanceJournal,
+		certificate: () => certificate,
+		certificateJournal: () => certificateJournal,
+		emptyState: () => emptyState,
+		projectProfitability: () => projectProfitability,
+		retentionReleaseJournal: () => retentionReleaseJournal
+	});
+	var sar$1 = (h) => h / 100;
+	var pct$4 = (v) => Math.min(100, Math.max(0, Number(v) || 0));
+	var emptyState = () => ({
+		certifiedHalalas: 0,
+		advanceReceivedHalalas: 0,
+		advanceRecoveredHalalas: 0,
+		retentionHeldHalalas: 0,
+		retentionReleasedHalalas: 0
+	});
+	function checkContract(c) {
+		if (!String(c.project || "").trim() || !String(c.customer || "").trim()) throw new Error("حدد المشروع والعميل");
+		if (!Number.isInteger(c.valueHalalas) || c.valueHalalas <= 0) throw new Error("قيمة العقد يجب أن تكون أكبر من صفر");
+	}
+	/** an advance from the customer: cash in, the advance liability (2320), VAT on the advance */
+	function advanceJournal(c, x, vatRate, a) {
+		checkContract(c);
+		if (!Number.isInteger(x.amountHalalas) || x.amountHalalas <= 0) throw new Error("مبلغ الدفعة المقدمة يجب أن يكون أكبر من صفر");
+		const vat = vatRate > 0 ? Math.round(x.amountHalalas * vatRate) : 0;
+		if (vat && !a.outputVatAccountId) throw new Error("حساب ضريبة المخرجات غير موجود");
+		return {
+			vat,
+			journal: {
+				id: x.id,
+				date: x.date,
+				reference: "ADV-" + c.project,
+				memo: "دفعة مقدمة — " + c.project,
+				party: c.customer,
+				lines: [
+					{
+						accountId: a.cashAccountId,
+						debit: sar$1(x.amountHalalas + vat),
+						credit: 0,
+						description: "دفعة مقدمة من " + c.customer
+					},
+					{
+						accountId: a.advanceAccountId,
+						debit: 0,
+						credit: sar$1(x.amountHalalas),
+						description: "دفعات مقدمة — " + c.project
+					},
+					...vat ? [{
+						accountId: a.outputVatAccountId,
+						debit: 0,
+						credit: sar$1(vat),
+						description: "ضريبة الدفعة المقدمة"
+					}] : []
+				]
+			}
+		};
+	}
+	/** a progress certificate: this period's work, the retention held, the advance recovered, VAT, and what the customer owes */
+	function certificate(c, s, x, vatRate) {
+		checkContract(c);
+		if (!Number.isInteger(x.certifiedToDateHalalas) || x.certifiedToDateHalalas < 0) throw new Error("الأعمال المعتمدة حتى تاريخه غير صالحة");
+		if (x.certifiedToDateHalalas > c.valueHalalas) throw new Error("الأعمال المعتمدة تتجاوز قيمة العقد — سجّل أمر التغيير أولاً");
+		const work = x.certifiedToDateHalalas - s.certifiedHalalas;
+		if (work <= 0) throw new Error("لا أعمال جديدة منذ المستخلص السابق");
+		const retention = Math.round(work * pct$4(c.retentionPct) / 100);
+		const advanceLeft = s.advanceReceivedHalalas - s.advanceRecoveredHalalas;
+		const recovery = Math.min(advanceLeft, Math.round(work * pct$4(c.advanceRecoveryPct) / 100));
+		const vat = vatRate > 0 ? Math.round((work - recovery) * vatRate) : 0;
+		return {
+			work,
+			retention,
+			recovery,
+			vat,
+			receivable: work - retention - recovery + vat,
+			completionPct: Math.round(x.certifiedToDateHalalas / c.valueHalalas * 1e4) / 100,
+			next: {
+				...s,
+				certifiedHalalas: x.certifiedToDateHalalas,
+				advanceRecoveredHalalas: s.advanceRecoveredHalalas + recovery,
+				retentionHeldHalalas: s.retentionHeldHalalas + retention
+			}
+		};
+	}
+	function certificateJournal(c, s, x, vatRate, a) {
+		const r = certificate(c, s, x, vatRate);
+		if (r.vat && !a.outputVatAccountId) throw new Error("حساب ضريبة المخرجات غير موجود");
+		const lines = [
+			...r.receivable ? [{
+				accountId: a.receivableAccountId,
+				debit: sar$1(r.receivable),
+				credit: 0,
+				description: "مستخلص " + x.id + " — " + c.project
+			}] : [],
+			...r.retention ? [{
+				accountId: a.retentionAccountId,
+				debit: sar$1(r.retention),
+				credit: 0,
+				description: "محتجزات " + pct$4(c.retentionPct) + "٪"
+			}] : [],
+			...r.recovery ? [{
+				accountId: a.advanceAccountId,
+				debit: sar$1(r.recovery),
+				credit: 0,
+				description: "استرداد من الدفعة المقدمة"
+			}] : [],
+			{
+				accountId: a.revenueAccountId,
+				debit: 0,
+				credit: sar$1(r.work),
+				description: "أعمال معتمدة — " + c.project + " (إنجاز " + r.completionPct + "٪)"
+			},
+			...r.vat ? [{
+				accountId: a.outputVatAccountId,
+				debit: 0,
+				credit: sar$1(r.vat),
+				description: "ضريبة المستخلص"
+			}] : []
+		];
+		return {
+			...r,
+			journal: {
+				id: x.id,
+				date: x.date,
+				reference: "CERT-" + x.id,
+				memo: "مستخلص — " + c.project + " — " + c.customer,
+				party: c.customer,
+				lines
+			}
+		};
+	}
+	/** handover: the retention held is released into the customer's receivable */
+	function retentionReleaseJournal(c, s, x, a) {
+		const held = s.retentionHeldHalalas - s.retentionReleasedHalalas;
+		if (held <= 0) throw new Error("لا محتجزات قائمة على هذا العقد");
+		return {
+			released: held,
+			next: {
+				...s,
+				retentionReleasedHalalas: s.retentionReleasedHalalas + held
+			},
+			journal: {
+				id: x.id,
+				date: x.date,
+				reference: "RET-" + c.project,
+				memo: "الإفراج عن المحتجزات — " + c.project,
+				party: c.customer,
+				lines: [{
+					accountId: a.receivableAccountId,
+					debit: sar$1(held),
+					credit: 0,
+					description: "محتجزات مستحقة السداد"
+				}, {
+					accountId: a.retentionAccountId,
+					debit: 0,
+					credit: sar$1(held),
+					description: "إفراج عن محتجزات " + c.project
+				}]
+			}
+		};
+	}
+	/** margin and completion by cost per project: certified revenue against the direct costs posted to it */
+	function projectProfitability(rows) {
+		return rows.map((r) => {
+			const margin = r.revenueHalalas - r.costHalalas, budget = Number(r.budgetCostHalalas) || 0;
+			return {
+				...r,
+				margin,
+				marginPct: r.revenueHalalas ? Math.round(margin / r.revenueHalalas * 1e4) / 100 : null,
+				completionByCostPct: budget > 0 ? Math.round(r.costHalalas / budget * 1e4) / 100 : null,
+				expectedMarginHalalas: budget > 0 ? r.valueHalalas - budget : null
+			};
+		});
 	}
 	//#endregion
 	//#region app/src/engine/fusion/finance/reconciliation-engine.ts
@@ -25669,7 +25845,7 @@ window.SKEngines = (function() {
 		}),
 		construction: pack({
 			id: "construction",
-			depth: "base",
+			depth: "deep",
 			accounts: [
 				[
 					"1220",
@@ -26001,6 +26177,7 @@ window.SKEngines = (function() {
 			ledger: ledger_engine_exports,
 			partyLedger: party_ledger_engine_exports,
 			payables: payables_engine_exports,
+			progressBilling: progress_billing_engine_exports,
 			receivables: receivables_engine_exports,
 			reconciliation: reconciliation_engine_exports,
 			trialBalance: trial_balance_engine_exports,

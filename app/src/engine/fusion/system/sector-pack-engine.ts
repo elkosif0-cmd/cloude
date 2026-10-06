@@ -58,7 +58,7 @@ export const SECTOR_PACKS: Readonly<Record<string, SectorPack>> = Object.freeze(
     kpis: ['نسبة الإشغال', 'متوسط سعر الغرفة (ADR)', 'إيراد الغرفة المتاحة (RevPAR)'],
   }),
   construction: pack({
-    id: 'construction', depth: 'base',
+    id: 'construction', depth: 'deep',
     accounts: [['1220', 'محتجزات لدى العملاء', 'asset'], ['1350', 'أعمال تحت التنفيذ (WIP)', 'asset'], ['2310', 'محتجزات مقاولي الباطن', 'liability'], ['2320', 'دفعات مقدمة من العملاء', 'liability'],
       ['4070', 'إيرادات العقود (المستخلصات)', 'revenue'], ['5130', 'تكاليف مقاولي الباطن', 'expense'], ['5140', 'تكاليف المواد بالموقع', 'expense']],
     costCenters: ['المشروعات', 'المعدات', 'الإدارة العامة'], units: ['م²', 'م³', 'طن', 'ساعة معدة', 'بند'], warehouses: ['مخزن الموقع', 'المخزن الرئيسي'],
