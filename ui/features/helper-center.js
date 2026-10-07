@@ -57,7 +57,7 @@ function render(root){
   root.innerHTML='<div class="hd-shell"><section class="card hd-hero"><div><span class="eyebrow">أدوات مستقلة</span><h2>مساحة الأدوات المساعدة</h2><p>ابدأ بالأداة التي تحتاجها أولاً. تعمل الأدوات كبوابة مستقلة، ويمكن ربط مساحة العمل بشركة فقط عندما تحتاج بياناتها. هذا الربط لا يحوّل الأداة إلى جزء من المحاسبة ولا يجعل نتائجها دليل مراجعة تلقائيًا.</p><div class="hd-context-row">'+contextBadge()+'</div></div><span class="hd-badge">الأداة أولاً · الشركة اختيارية</span></section>'+
   '<section class="card hd-map"><div class="hd-map-head"><div><h3>ماذا تريد أن تنجز؟</h3><p>اختر نوع المهمة؛ كل فرع يفتح الأدوات المناسبة مباشرة مع الحفاظ على نفس الروابط والصلاحيات.</p></div></div><div class="hd-canvas">'+lines(S)+'<div class="hd-center"><span>'+(SK.icons.helperdesk||SK.icons.productflow||"")+'</span><b>مساحة الأدوات</b><small>سياق الشركة اختياري</small></div>'+S.map(point).join("")+'</div></section>'+
   exceptionQueue()+'<details class="card hd-all"'+(allOpen?' open':'')+'><summary>كل الأدوات وربطها بالشركة <small>'+S.reduce((n,x)=>n+x.targets.length,0)+'</small></summary><div class="hd-grid">'+table()+'</div></details></div>';
-  const all=root.querySelector&&root.querySelector(".hd-all");if(all)all.addEventListener("toggle",()=>{allOpen=all.open});
+  const all=root.querySelector&&root.querySelector(".hd-all");if(all)all.ontoggle=()=>{allOpen=all.open};
   if(root.dataset.hdBound==="1")return;
   root.dataset.hdBound="1";
   root.addEventListener("click",async e=>{
