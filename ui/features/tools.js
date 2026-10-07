@@ -15,7 +15,10 @@ function decisionDefaults(){
   const d=catalog(), boxes=d.items.filter(x=>x.kind==="box"&&x.status!=="archived"&&x.price>0&&x.cost!=null);
   const src=boxes.length?boxes:d.items.filter(x=>x.status!=="archived"&&!x.byProduct&&x.price>0&&x.cost!=null);
   const avg=f=>src.length?src.reduce((a,x)=>a+f(x),0)/src.length:0;
-  return {vol:150,price:Math.round(avg(x=>x.price)*100)/100,cost:Math.round(avg(x=>x.cost)*100)/100,fixed:12000,dc:0,dp:0,dv:1,vat:d.vat,src:boxes.length?"متوسط البوكسات النشطة":"متوسط الأصناف"};
+  /* R11: the fixed costs are the company's own monthly overheads (the pricing tools' «المصروفات التشغيلية الشهرية»), not an
+     invented 12,000 that showed a loss before anything was typed; none recorded → 0 and the note says so */
+  const opex=Math.max(0,Number(load("skosif_v31_monthly_opex",0))||0);
+  return {vol:150,price:Math.round(avg(x=>x.price)*100)/100,cost:Math.round(avg(x=>x.cost)*100)/100,fixed:opex,fixedSrc:opex>0,dc:0,dp:0,dv:1,vat:d.vat,src:boxes.length?"متوسط البوكسات النشطة":"متوسط الأصناف"};
 }
 function decisionHTML(){
   const def=decisionDefaults(), st={...def,...load(DECISION_KEY,{})}, v=def.vat;
@@ -29,7 +32,7 @@ function decisionHTML(){
   const color=x=>x>=0?'rgba(18,183,106,'+(0.12+0.55*x/mx).toFixed(2)+')':'rgba(240,68,56,'+(0.12+0.55*-x/mx).toFixed(2)+')';
   const presets=[["غلاء الأعلاف",15,0,1],["نقص المعروض",25,0,1],["موسم الأضحى",10,5,1.8],["ركود السوق",0,-5,0.8],["إعادة ضبط",0,0,1]];
   return [
-    '<p class="sk-note">الأساس من '+esc(def.src)+' في الكتالوج (سعر البيع شامل الضريبة، التكلفة صافية). عدّل الأرقام لتناسب شهرك.</p>',
+    '<p class="sk-note">الأساس من '+esc(def.src)+' في الكتالوج (سعر البيع شامل الضريبة، التكلفة صافية)'+(def.fixedSrc?'، والمصاريف الثابتة من المصروفات التشغيلية الشهرية المسجّلة':'؛ لا مصاريف ثابتة مسجّلة بعد — أدخلها')+'. عدّل الأرقام لتناسب شهرك.</p>',
     '<div class="sk-grid2">',
       field("sk33-vol","حجم المبيعات الشهري (وحدة)","number","150",'min="0" step="1" value="'+st.vol+'"'),
       field("sk33-price","متوسط سعر البيع (شامل الضريبة)","number","0",'min="0" step="0.01" value="'+st.price+'"'),

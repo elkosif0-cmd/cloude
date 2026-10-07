@@ -68,10 +68,21 @@ function suppliersView(root){
 }
 
 const sts=()=>L(KIS,[]);
+/* R11 (docs/rebuild/HARSH_REVIEW_20261008_ar.md #19): the month as the books have it — sales, cost of sales (5xxx) and the
+   other expenses — so the hand-made statement is checked against the books instead of standing beside them unaware */
+function booksMonth(m){try{const B=window.SKosifLedger,d=B&&B.snapshot();if(!d||!d.accounts.length)return null;
+  const acc=Object.fromEntries(d.accounts.map(a=>[a.id,a]));let sales=0,cogs=0,exp=0,n=0;
+  d.entries.forEach(e=>{if(!String(e.date||"").startsWith(m))return;n++;(e.lines||[]).forEach(l=>{const a=acc[l.accountId];if(!a)return;const dr=N(l.debit),cr=N(l.credit);
+    if(a.type==="revenue")sales+=cr-dr;else if(a.type==="expense"){if(String(a.code||"").startsWith("5"))cogs+=dr-cr;else exp+=dr-cr}})});
+  return n?{sales,cogs,exp,net:sales-cogs-exp}:{empty:true}}catch{return null}}
+function booksStrip(m){const b=booksMonth(m);if(!b)return "";
+  if(b.empty)return '<p class="skx-books">لا قيود في الدفاتر لشهر '+E(m)+'.</p>';
+  return '<div class="skx-books"><span>الدفاتر لشهر '+E(m)+':</span><b>مبيعات '+M(b.sales)+'</b><b>تكلفة المبيعات '+M(b.cogs)+'</b><b>مصاريف '+M(b.exp)+'</b><b>صافي '+M(b.net)+'</b>'+
+    '<button type="button" class="btn sm" id="skx-is-books">خذ المبيعات من الدفاتر</button></div>'}
 function reportsView(root){
   const saved=sts(), opts=items().map(x=>'<option value="'+E(x.id)+'">'+E(x.name||x.id)+'</option>').join("");
   const html='<section class="card skx" id="skx-is"><div class="card-h"><div><h3>حساب قائمة الدخل</h3><p>سجل مبيعات الشهر، المواد المباعة وكمياتها، والمصاريف الأخرى؛ والحساب يتم تلقائياً.</p></div><button class="btn sm" id="skx-is-csv">CSV</button></div><div class="card-b skx-stack">'+
-  '<div class="skx-form"><label>الشهر<input id="skx-is-m" type="month" value="'+MON()+'"></label><label>مبيعات الشهر<input id="skx-is-sales" type="number" min="0" step=".01"></label></div>'+
+  '<div class="skx-form"><label>الشهر<input id="skx-is-m" type="month" value="'+MON()+'"></label><label>مبيعات الشهر<input id="skx-is-sales" type="number" min="0" step=".01"></label></div><div id="skx-is-bk">'+booksStrip(MON())+'</div>'+
   '<div class="skx-grid2"><div class="skx-panel"><div class="skx-title"><b>تكلفة المواد المباعة</b><button class="btn sm" id="skx-m-add">+ صنف</button></div><div id="skx-mats"><div class="skx-line mat"><select>'+opts+'</select><input type="number" class="mqty" min="0" step=".001" placeholder="الكمية"><span class="lt">0.00</span><button class="skx-x">×</button></div></div></div>'+
   '<div class="skx-panel"><div class="skx-title"><b>المصاريف الأخرى</b><button class="btn sm" id="skx-e-add">+ بند</button></div><div id="skx-exps"><div class="skx-line exp"><input class="ename" placeholder="بند المصروف"><input type="number" class="eamt" min="0" step=".01" placeholder="المبلغ"><span></span><button class="skx-x">×</button></div></div></div></div>'+
   '<div class="skx-statement"><div><span>المبيعات</span><b id="p1">0</b></div><div><span>− تكلفة المواد</span><b id="p2">0</b></div><div class="em"><span>= مجمل الربح</span><b id="p3">0</b></div><div><span>− المصاريف الأخرى</span><b id="p4">0</b></div><div class="total"><span>= صافي الربح / الخسارة</span><b id="p5">0</b></div></div><div class="skx-actions"><button class="btn primary" id="skx-is-save">حفظ قائمة الشهر</button><button class="btn" id="skx-is-print">طباعة</button></div>'+
@@ -79,6 +90,8 @@ function reportsView(root){
   if(!add(root,"skx-is",html))return;const b=$("#skx-is",root), it=items();
   const mat=()=>'<div class="skx-line mat"><select>'+opts+'</select><input type="number" class="mqty" min="0" step=".001" placeholder="الكمية"><span class="lt">0.00</span><button class="skx-x">×</button></div>', exp=()=>'<div class="skx-line exp"><input class="ename" placeholder="بند المصروف"><input type="number" class="eamt" min="0" step=".01" placeholder="المبلغ"><span></span><button class="skx-x">×</button></div>';
   function calc(){const sales=N($("#skx-is-sales",b).value);let cogs=0;$$(".mat",b).forEach(r=>{const x=it.find(z=>String(z.id)===String($("select",r).value)),v=N($(".mqty",r).value)*cost(x);cogs+=v;$(".lt",r).textContent=M(v)});let ex=0;$$(".eamt",b).forEach(x=>ex+=N(x.value));const g=sales-cogs,n=g-ex;$("#p1",b).textContent=M(sales);$("#p2",b).textContent=M(cogs);$("#p3",b).textContent=M(g);$("#p4",b).textContent=M(ex);$("#p5",b).textContent=M(n);return {sales,cogs,g,ex,n}}
+  const bindBooks=()=>{const k=$("#skx-is-books",b);if(k)k.onclick=()=>{const x=booksMonth($("#skx-is-m",b).value||MON());if(x&&!x.empty){$("#skx-is-sales",b).value=Math.round(x.sales*100)/100;calc()}}};
+  bindBooks();$("#skx-is-m",b).addEventListener("change",()=>{$("#skx-is-bk",b).innerHTML=booksStrip($("#skx-is-m",b).value||MON());bindBooks()});
   function bindLine(r){$(".skx-x",r).onclick=()=>{r.remove();calc()};$$("input,select",r).forEach(x=>x.oninput=calc)}
   $$(".skx-line",b).forEach(bindLine);$("#skx-is-sales",b).oninput=calc;$("#skx-m-add",b).onclick=()=>{$("#skx-mats",b).insertAdjacentHTML("beforeend",mat());bindLine($("#skx-mats .skx-line:last-child",b));calc()};$("#skx-e-add",b).onclick=()=>{$("#skx-exps",b).insertAdjacentHTML("beforeend",exp());bindLine($("#skx-exps .skx-line:last-child",b));calc()};
   $("#skx-is-save",b).onclick=()=>{const t=calc(),month=$("#skx-is-m",b).value||MON(),materials=$$(".mat",b).map(r=>{const iid=$("select",r).value,x=it.find(z=>String(z.id)===String(iid)),q=N($(".mqty",r).value),uc=cost(x);return {id:iid,name:x?.name||iid,qty:q,unitCost:uc,cost:q*uc}}).filter(x=>x.qty>0), expenses=$$(".exp",b).map(r=>({name:$(".ename",r).value.trim()||"مصروف",amount:N($(".eamt",r).value)})).filter(x=>x.amount>0);let a=sts().filter(x=>x.month!==month);a.unshift({id:id("is"),month,sales:t.sales,cogs:t.cogs,gross:t.g,expenses:t.ex,net:t.n,materials,expenseLines:expenses});S(KIS,a.slice(0,120));toast("تم حفظ قائمة الدخل","ok");b.remove();reportsView(root)};

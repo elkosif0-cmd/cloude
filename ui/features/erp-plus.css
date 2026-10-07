@@ -9,3 +9,7 @@
 .skx-alerts{display:grid;gap:7px}.skx-alert{display:grid;text-align:right;gap:2px;padding:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;cursor:pointer}.skx-alert small{color:var(--brand);font-weight:700}.skx-sim{display:grid;gap:8px}.skx-sim>b{font-size:27px;color:var(--brand)}
 .skx-role{display:flex;gap:7px;flex-wrap:wrap}.skx-role button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 12px;cursor:pointer}.skx-role button.active{background:var(--brand);color:#fff;border-color:var(--brand)}
 
+/* R11: the books' month above the hand-made income statement */
+.skx-books{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sk-2) var(--sk-4);margin:var(--sk-3) 0 0;padding:var(--sk-2) var(--sk-3);border:1px dashed var(--sk-line);border-radius:var(--sk-r);font-size:var(--sk-fs-xs);color:var(--sk-ink-2)}
+.skx-books b{color:var(--sk-ink);font-weight:700}
+.skx-books .btn{margin-inline-start:auto}

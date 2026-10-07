@@ -145,7 +145,7 @@ const SECTIONS=[
   empty:async()=>!arr("skosif_v31_supplier_batches").length,
   seed:async()=>{
     const mn=monthNet(),kg=Math.max(20,Math.round(mn*.62/53/3)),sup=[["مؤسسة المراعي الذهبية","نعيمي طازج",52,8],["شركة الحري للمواشي","حري طازج",64,6],["مزرعة الخرج للأبقار","عجل طازج",44,4]],b=[];
-    months(12).forEach((m,i)=>sup.forEach(([s,item,price,w],k)=>b.push(D({id:"demo-b"+i+"-"+k,date:iso(new Date(m.getFullYear(),m.getMonth(),4+k*7)),supplier:s,itemName:item,qty:int(Math.round(kg*.8),Math.round(kg*1.2)),priceGross:r2(price*between(.95,1.08)),vatIncl:k!==1,agreedWaste:w,actualWaste:r2(w+between(-1.5,3))}))));
+    months(12).forEach((m,i)=>sup.forEach(([s,item,price,w],k)=>b.push(D({id:"demo-b"+i+"-"+k,date:iso(new Date(m.getFullYear(),m.getMonth(),4+k*7)),supplier:s,itemName:item,qty:int(Math.round(kg*.8),Math.round(kg*1.2)),priceGross:r2(price*between(.95,1.08)),vatIncl:k!==1,agreedWaste:w,actualWaste:r2(w+between(-1.5,3)),quality:int(3,5)}))));
     save("skosif_v31_supplier_batches",b);
     if(load("skosif_v31_monthly_opex",null)==null){save("skosif_v31_monthly_opex",DEMO_OPEX);const r=reg();r.opex=true;setReg(r)}
     const f=load("skosif_erp_finance_v1",{flows:[]});if(!(f.flows||[]).length){f.flows=[];months(6).forEach((m,i)=>{const d=iso(new Date(m.getFullYear(),m.getMonth(),27));
