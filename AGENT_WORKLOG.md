@@ -902,3 +902,9 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Scope: on phones the screen's buttons share the title's line (`ui/ds/luxe.css`); `tools/phone_layout.mjs` added to `sqc-browser-suites.yml` (it only ran in S.kosif after a red step); «المخزون والجرد» reads the expiry radar's stock (rows carry `item`, not `name`); the helper desk's full tool list folded under the map.
 - Branch / PR: `claude/r13-phone-head-20261008`.
 
+### TASK CLAUDE-20261008-004 — Harsh review wave R14: the audit studios, the cash log, the suppliers switch
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Scope: audit-bridge BASE keeps hero titles in the card's ink (they were dark on dark in the analytics studio and the research lab — measured with a local Edge probe); formatMoneyMinor defaults to Latin digits (three audit engine copies); research lab eyebrow in Arabic; the cash screen's hand-kept log named for what it is; the cutting-methods table's empty state (build patch); suppliers: one of ranking · comparison · shipment log at a time (3,038 → 1,562 px measured).
+- Branch / PR: `claude/r14-audit-studios-20261008` (stacked on R13).
+
