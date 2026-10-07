@@ -21,7 +21,9 @@ function loadEngine(){if(window.SQCCrystal)return Promise.resolve(true);if(engin
 function dropWorld(){if(world){try{world.destroy()}catch{}world=null}}
 function heroCard(){
   const name=(window.SK.company&&SK.company.current().name)||(document.getElementById("biz-name")||{}).textContent||"";
-  return '<section class="skc-world" aria-hidden="true"><canvas class="skc-world-c"></canvas><div class="skc-world-tx"><small>SQC · مركز القيادة</small><b>'+esc(name)+'</b></div></section>';
+  /* the gold film (ui/art/brand/dashboard.mp4, generated with Higgsfield) under the crystals; the banner is its still */
+  const still=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)||!!(navigator.connection&&navigator.connection.saveData);
+  return '<section class="skc-world" aria-hidden="true">'+(still?'':'<video class="skc-world-v" src="./art/brand/dashboard.mp4" muted loop playsinline autoplay preload="auto"></video>')+'<canvas class="skc-world-c"></canvas><div class="skc-world-tx"><small>SQC · مركز القيادة</small><b>'+esc(name)+'</b></div></section>';
 }
 function mountHero(box){
   dropWorld();const c=box.querySelector(".skc-world-c");if(!c)return;

@@ -740,3 +740,20 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Scope: `.github/workflows/pages-deploy.yml` — while the secret is missing, the built site is uploaded as the artifact `site-dist` (3 days, private repository; it holds only what the site serves, the private company still encrypted). Claude then publishes that exact build with the account's existing wrangler login: `gh run download … --name site-dist` → `wrangler pages deploy dist --project-name s-kosif --branch main`.
 - Once the owner adds the secret, the artifact step stops and Actions deploys by itself.
 - Branch / PR: `claude/deploy-artifact-20261007` from `main` @ f4b87d0.
+
+### TASK CLAUDE-20261007-009 — Higgsfield visuals in the interfaces (navy and gold)
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS → DONE on merge
+- Owner's request in chat: use Higgsfield to make images and motion for the app and update the visual identity fully; navy and gold; «About 10 images + 2 videos»; «Higgsfield استخدم api / Try again»; downloading the generated files approved in chat.
+- Generated on the Higgsfield API platform playground with the owner's balance (no API key): 14 images (Marketing Studio Image 2.0, 2K) and 2 clips (Kling 3.0 Standard, 5 s), $3.79 in all (balance 16.40 → 12.61). Four of the images were added beyond the ten so the ten sectors are complete (hotels, construction, meat, digital marketing = priority sectors).
+- Scope:
+  - `ui/art/brand/` (1.8 MB): mirrored for right-to-left, the door clip graded toward the identity navy.
+  - `unlock.html` (door film in the visual panel, wide screens only, never with reduced motion or saved data; pictures on the three sections and on the ten sector cards; the reviewed AUTH script untouched).
+  - `ui/features/command-center.js` + `luxe-screens.css` (gold film under the crystal world, banner still).
+  - `ui/features/tbreview.css` (audit picture in the audit file hero).
+  - `ui/features/ledger.js` + `luxe-screens.css` (the open company's sector strip above the books).
+  - `sw.js` (video and range requests are not cached).
+  - `tools/brand_art.test.mjs` (in S.kosif.yml).
+  - `docs/design/HIGGSFIELD_VISUALS_ar.md` (provenance, prompts, cost, processing).
+- Identity ratchet: no metric worse.
+- Branch / PR: `claude/higgsfield-visuals-20261007` from `main` @ 1fbd35a.
