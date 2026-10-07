@@ -74,7 +74,8 @@ test('journal review queues issues but retains the no-post/no-authority boundary
 });
 
 test('helper gateway exposes explicit accepted/rejected/dismissed human decisions',()=>{
-  assert.match(helperSource,/AI EXCEPTION QUEUE/);
+  /* the section's label is Arabic since R10 (it read «AI EXCEPTION QUEUE») */
+  assert.match(helperSource,/قائمة الاستثناءات/);
   assert.match(helperSource,/data-hd-exc/);
   assert.match(helperSource,/accepted/);
   assert.match(helperSource,/rejected/);

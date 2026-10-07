@@ -289,9 +289,9 @@ function letterhead(title,identity){
   const who=identity||issuer(),o={biz:who.name},base=location.href.replace(/[^/?#]*([?#].*)?$/,"");
   const ids=who.ids;
   const date=identity?esc(identity.date):esc(new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"}));
-  if(kosifLook())return '<header class="skp-lux"><div class="skp-band"><img src="'+base+'art/sqc-mark.svg" alt=""><div class="skp-mark"><b>SQC</b><span>'+esc((bizName()||"SQC"))+'</span></div>'+
+  if(kosifLook())return '<header class="skp-lux"><div class="skp-band"><img src="'+base+'art/sqc-mark.svg" alt=""><div class="skp-mark"><b>SQC</b><span>'+esc(o.biz||"SQC")+'</span></div>'+
     '<div class="skp-doc"><b>'+esc(title||"")+'</b><span>'+date+'</span></div></div>'+(ids.length?'<div class="skp-ids">'+ids.map(x=>'<span>'+x+'</span>').join("")+'</div>':'')+'</header>';
-  return '<div class="skp-orn" style="background-image:url('+base+'art/ornament.svg)"></div><header class="skp-head"><img src="'+base+'art/ram.svg" alt=""><div class="skp-org"><b>'+esc((bizName()||"SQC"))+'</b>'+(ids.length?'<span>'+ids.join(" · ")+'</span>':'')+'</div>'+
+  return '<div class="skp-orn" style="background-image:url('+base+'art/ornament.svg)"></div><header class="skp-head"><img src="'+base+'art/ram.svg" alt=""><div class="skp-org"><b>'+esc(o.biz||"SQC")+'</b>'+(ids.length?'<span>'+ids.join(" · ")+'</span>':'')+'</div>'+
     '<div class="skp-meta"><b>'+esc(title||"")+'</b>'+date+'</div></header>';
 }
 /* ---------- print preview: every printed document opens with a bar of options first ----------
