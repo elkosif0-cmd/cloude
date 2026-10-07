@@ -784,7 +784,8 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - `ui/ds/luxe.css`: on phones the company/period chips are one slim row (40 px, no second line).
   - Tests reach tabs through the API (`feature_audit`, the sector packs' negative checks, `page_review`).
   - `.github/workflows/sqc-browser-suites.yml` also runs the sector packs, model companies, books integrity, relationship health and sales suites.
-- Branch / PR: `claude/r2-book-families-20261007` from the R1 head.
+- FOUNDATION §3.0 (the owner, 2026-10-07, merged into this branch): rule 7 «the context is always on screen» — the top bar's company button now names the program, the activity (sector) and the company, and the line under every title names the section › domain (`ui/layouts/topbar.js`; the English name moved to the title's tooltip). Rule 11 «a crescent, not a cross, for health» — the health sector picture is being regenerated as a crescent (Higgsfield, one image).
+- Branch / PR: `claude/r2-book-families-20261007` from the R1 head (PR #214; #213 closed as superseded).
 
 ### TASK OWNER-20261007-WORKSPACE-CONSTITUTION — تثبيت نموذج المسار/النشاط/الشركة والـAI
 - Agent: ChatGPT

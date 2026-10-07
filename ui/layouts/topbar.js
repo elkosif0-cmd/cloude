@@ -109,18 +109,21 @@ function paint(){
   if(ic){const h=SK.icon(view);if(ic.dataset.v!==view){ic.innerHTML=h;ic.dataset.v=view}
     /* the books carry the open company's sector picture (ui/art/brand/sector-<id>.webp) in place of the screen icon */
     const sec=sectorOf(cap);if(ic.dataset.sector!==sec){ic.dataset.sector=sec;ic.style.backgroundImage=sec?"url(./art/brand/sector-"+sec+".webp)":"";ic.classList.toggle("has-art",!!sec);ic.title=sec?sectorLabel(sec):""}}
-  if(en)en.textContent=cap&&cap.en||"";
+  /* the line under the title names the section and the domain (rule 7), the English name stays as the title's tooltip */
+  if(en){en.textContent=cap?SK.caps.path(cap.id):"";en.dir="auto";const t=$("#pg-title");if(t)t.title=cap&&cap.en||""}
   const ph=$(".sk-ph");if(ph){ph.dataset.view=view}
   if(view==="dash"){
     const t=$("#pg-title"),s=$("#pg-sub");
     if(t)t.textContent="مرحباً"+(pr.name?" "+firstName(pr.name):" بك")+" 👋";
     const now=new Date(),day=now.toLocaleDateString("ar-SA-u-nu-latn",{weekday:"long"}),greg=now.toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"}),hij=now.toLocaleDateString("ar-SA-u-ca-islamic-umalqura-nu-latn",{day:"numeric",month:"long",year:"numeric"});
     if(s)s.textContent="نظرة شاملة على أعمال "+(x.c?x.c.name:biz())+" · "+day+" "+greg+" · "+hij;
-    if(en)en.textContent="Command Center";
+    if(en)en.textContent=SK.caps.path("dash");
   }
   /* company + period */
   const co=$("#sk-tb-co"),pe=$("#sk-tb-pe");
-  if(co){$("b",co).textContent=x.c?x.c.name:biz();$("small",co).textContent=(x.scope==="audit"?"ملف المراجعة · ":x.scope==="tools"?"مساحة الأدوات · ":"شركة المحاسبة · ")+(x.c?(x.c.currency||"")+(x.cs.length>1?" · "+x.cs.length+" شركات":""):"أضف الشركة والفترات")}
+  /* FOUNDATION §3.0 rule 7 — the context is always on screen: the program, the activity (sector), the company, and the section */
+  if(co){$("b",co).textContent=x.c?x.c.name:biz();const sec=x.scope==="accounting"&&x.c&&x.c.sector?sectorLabel(x.c.sector):"";
+    $("small",co).textContent=(x.scope==="audit"?"المراجعة":x.scope==="tools"?"الأدوات المساعدة":"البرنامج المحاسبي")+(sec?" · "+sec:"")+(x.c?(x.c.currency?" · "+x.c.currency:"")+(x.cs.length>1?" · "+x.cs.length+" شركات":""):" · أضف الشركة والفترات")}
   if(pe){$("b",pe).textContent=x.p?x.p.label:"كل الفترات"}
   /* bell */
   const dot=$("#sk-tb-bell .dot"),n=window.SKosifNotify?SKosifNotify.unread():0;
