@@ -24,7 +24,7 @@ try{
   assert.match(await page.locator('#view').innerText(),/637,959/);
   await page.evaluate(()=>SKosifCore.go('auditreport'));
   await page.locator('[data-canonical-statements]').waitFor();
-  const snapshot=await page.locator('[data-canonical-statements]').innerText();for(const value of ['637,959.00','59,248.00','624,894.00','285,970.00','US GAAP','USD million','amazon-2024','غير صالح للإصدار'])assert.ok(snapshot.includes(value),value);assert.doesNotMatch(snapshot,/IFRS|SOCPA|المملكة العربية السعودية/);assert.equal(await page.locator('.kx-audit-host').count(),0);assert.deepEqual(errors,[]);
+  const snapshot=await page.locator('[data-canonical-statements]').innerText();for(const value of ['637,959.00','59,248.00','624,894.00','285,970.00','US GAAP','USD million','amazon-2024','غير صالح للإصدار'])assert.ok(snapshot.includes(value),value);assert.doesNotMatch(snapshot,/IFRS|SOCPA|المملكة العربية السعودية|الزكاة وضريبة الدخل/);assert.match(snapshot,/تاريخ المقارنة غير موثق/);assert.equal(await page.locator('.kx-audit-host').count(),0);assert.deepEqual(errors,[]);
   console.log(`PASS ${viewport.width}x${viewport.height}: bilingual search, audit context/scale, primary revenue, canonical statement/report preview, no page errors`);
   await context.close();
  }

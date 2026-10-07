@@ -22,11 +22,12 @@ function sourceBlocked(t=reviewTransport()){return !!(t&&(t.mappingUnsupported||
 function canonicalStatementHTML(s){
   const esc=SK.esc,money=v=>Number.isFinite(v)?(v/100).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}):"—";
   const table=(key,title)=>{const before=new Map(s.before[key].map(r=>[r.key,r])),after=new Map(s.after[key].map(r=>[r.key,r])),rows=[...s.after[key]];
-    // Zero lines disappear from the primary model. Preserve both versions in their statement order.
+    // Preserve both versions: zero lines and conditional nonzero subtotals can be omitted from display rows.
     s.before[key].forEach((r,i)=>{if(after.has(r.key))return;const next=s.before[key].slice(i+1).find(x=>rows.some(y=>y.key===x.key)),at=next?rows.findIndex(x=>x.key===next.key):rows.length;rows.splice(at,0,r)});
-    return '<h4>'+title+'</h4><div class="sk-table-wrap"><table class="sk-table" data-sk-plain><thead><tr><th>البند</th><th>قبل التسويات</th><th>بعد التسويات</th><th>الفرق</th><th>الفترة المقارنة</th></tr></thead><tbody>'+rows.map(r=>{
+    const value=(fs,map,r)=>{const displayed=map.get(r.key);if(displayed)return displayed.current;if(r.level==="line")return 0;const subtotal=fs.keys[r.key]?.current;return Number.isFinite(subtotal)?subtotal:null};
+    return '<h4>'+title+'</h4><div class="sk-table-wrap"><table class="sk-table" data-sk-plain><thead><tr><th>البند</th><th>قبل التسويات</th><th>بعد التسويات</th><th>الفرق</th><th>الفترة المقارنة · '+esc(s.priorPeriodEnd||"تاريخ المقارنة غير موثق")+'</th></tr></thead><tbody>'+rows.map(r=>{
     if(r.level==="heading")return '<tr><th colspan="5">'+esc(r.ar)+'</th></tr>';
-    const b=before.get(r.key),a=after.get(r.key),bv=b?b.current:0,av=a?a.current:0;return '<tr><td>'+esc(r.ar)+'</td><td class="num">'+money(bv)+'</td><td class="num">'+money(av)+'</td><td class="num">'+money(av-bv)+'</td><td class="num">'+money(r.prior)+'</td></tr>';
+    const bv=value(s.before,before,r),av=value(s.after,after,r),delta=Number.isFinite(av)&&Number.isFinite(bv)?av-bv:null;return '<tr><td>'+esc(r.ar)+'</td><td class="num">'+money(bv)+'</td><td class="num">'+money(av)+'</td><td class="num">'+money(delta)+'</td><td class="num">'+money(r.prior)+'</td></tr>';
   }).join("")+'</tbody></table></div>'};
   const balance=(label,fs)=>'<p class="'+(fs.checks.balanced?'hint':'tbr-warn')+'">'+label+': '+(fs.checks.balanced?'متوازنة':'غير متوازنة — فرق '+money(fs.checks.difference))+' · الربط: '+esc(fs.checks.mappedPct)+'% · الفترة المقارنة: '+(!fs.hasPrior?'غير متاحة':fs.checks.priorBalanced?'متوازنة':'غير متوازنة')+'</p>';
   const pages=Object.entries(s.provenance.pages).map(([k,v])=>esc(k)+': '+esc(v)).join(' · ');

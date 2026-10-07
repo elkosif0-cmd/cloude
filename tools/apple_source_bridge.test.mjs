@@ -24,7 +24,7 @@ function bridge(h, delayStore) {
     if(name.endsWith('continuous-documents.js'))Object.assign(exports,{loadTrialBalance:(rows,label)=>calls.push({call:'loadTrialBalance',label,rows:plain(rows)}),loadDemo:()=>calls.push({call:'loadDemo'})});
     const mod=new vm.SyntheticModule(Object.keys(exports),function(){for(const[k,v]of Object.entries(exports))this.setExport(k,v);},{context:W,identifier:name});modules.set(name,mod);await mod.link(()=>{});await mod.evaluate();return mod;
   }
-  const code=fs.readFileSync(root+'/ui/features/audit-bridge.js','utf8').replace(/\}\)\(\);\s*$/,'window.__bridgeTest={doSync,feedAnalytics};\n})();');
+  const code=fs.readFileSync(root+'/ui/features/audit-bridge.js','utf8').replace(/\}\)\(\);\s*$/,'window.__bridgeTest={doSync,feedAnalytics,canonicalStatementHTML};\n})();');
   new vm.Script(code,{filename:'actual-audit-bridge.js+closure-visibility',importModuleDynamically:resolver}).runInContext(W);
   const api={host:{shadowRoot:{getElementById:()=>({dispatchEvent:()=>calls.push({call:'dispatchEvent'})})}},want:'report',api:{setView:v=>calls.push({call:'setView',view:v})}};
   return {calls,imports,views,api};
@@ -112,4 +112,35 @@ test('canonical comparison retains cleared rows and zero baselines for introduce
  const row=label=>node.innerHTML.match(new RegExp('<tr><td>'+label+'</td>(.*?)</tr>'))?.[1];
  assert.match(row('تكلفة الإيرادات'),/>-326,288\.00<.*>0\.00<.*>326,288\.00<.*>—</);
  assert.match(row('مصروفات البيع والتوزيع'),/>0\.00<.*>-326,288\.00<.*>-326,288\.00<.*>—</);
+});
+
+for(const direction of ['introduce','clear'])test(`canonical comparison preserves omitted continuing subtotal when discontinued operations ${direction}`,async()=>{
+ const h=harness(),W=h.context;await W.SKosifTBReview.openClient('amazon-2024');const c=W.__test.compute(),base=structuredClone(c.tb);
+ const introduce={id:'synthetic-disc-introduce',lines:[{code:'1101',name:'النقد وما في حكمه',debit:100,credit:0},{code:'4959',name:'العمليات غير المستمرة',debit:0,credit:100}]};
+ const clear={id:'synthetic-disc-clear',lines:[{code:'4959',name:'العمليات غير المستمرة',debit:100,credit:0},{code:'1101',name:'النقد وما في حكمه',debit:0,credit:100}]};
+ const overrides={...c.d.overrides,'4959':'discontinued'},withDisc=h.E.audit.tbReview.applyAdjustments(base,[introduce]);
+ const before=direction==='introduce'?base:withDisc,after=direction==='introduce'?withDisc:h.E.audit.tbReview.applyAdjustments(withDisc,[clear]);
+ c.fsBefore=h.E.reports.statements.buildStatements(before,overrides,{tax:'income'});c.fsAfterAdj=h.E.reports.statements.buildStatements(after,overrides,{tax:'income'});c.accepted=[direction==='introduce'?introduce:clear];
+ assert.equal(c.fsBefore.pl.some(r=>r.key==='continuing'),direction==='clear');assert.equal(c.fsAfterAdj.pl.some(r=>r.key==='continuing'),direction==='introduce');
+ assert.equal(c.fsBefore.keys.continuing.current,5924800);assert.equal(c.fsAfterAdj.keys.continuing.current,5924800);
+ bridge(h);const node={innerHTML:'',replaceChildren(){}};W.SKosifAuditBridge.mountStudio(node,'financials');
+ const row=node.innerHTML.match(/<tr><td>الربح من العمليات المستمرة<\/td>(.*?)<\/tr>/)?.[1];
+ assert.match(row,/>59,248\.00<.*>59,248\.00<.*>0\.00<.*>30,425\.00</);
+ assert.match(node.innerHTML,/غير صالح للإصدار/);assert.doesNotMatch(node.innerHTML,/data-issue|buildDraftButton/);
+});
+
+test('US income-tax labels are neutral and missing comparative date is explicit',async()=>{
+ const h=harness(),W=h.context;await W.SKosifTBReview.openClient('amazon-2024');const c=W.__test.compute(),s=W.SKosifTBReview.rows().canonicalStatements;
+ assert.equal(s.priorPeriodEnd,null,'no date inferred from current year-end');
+ bridge(h);const node={innerHTML:'',replaceChildren(){}};W.SKosifAuditBridge.mountStudio(node,'financials');
+ assert.match(node.innerHTML,/تاريخ المقارنة غير موثق/);assert.doesNotMatch(node.innerHTML,/الزكاة وضريبة الدخل/);assert.match(node.innerHTML,/ضريبة الدخل/);
+ const primary=W.__test.fsStatements(c,{hp:true},c.fsAfterAdj,null,null,'',{});assert.doesNotMatch(primary,/الزكاة وضريبة الدخل/);assert.match(primary,/ضريبة الدخل/);
+ assert.equal(c.fsAfterAdj.lines.find(l=>l.key==='zakatExpense').ar,'الزكاة وضريبة الدخل','engine/source labels are not mutated');
+});
+
+
+test('explicit source comparative date is displayed without deriving a date from the current period',async()=>{
+ const h=harness(),W=h.context;await W.SKosifTBReview.openClient('amazon-2024');bridge(h);
+ const s=structuredClone(W.SKosifTBReview.rows().canonicalStatements);s.priorPeriodEnd='2023-09-30';
+ const html=W.__bridgeTest.canonicalStatementHTML(s);assert.match(html,/الفترة المقارنة · 2023-09-30/);assert.doesNotMatch(html,/2023-12-31|تاريخ المقارنة غير موثق/);
 });

@@ -308,14 +308,20 @@ async function fromBooks(){
 }
 /* open the engagement on a tab (and a studio page): used by the studio's own deep links and other screens */
 function openTab(t,view){if(t==="studio")t=Object.keys(ADV).find(k=>ADV[k]===view)||"docs";if(t)tab=t;if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");else paint()}
+/* Display terminology follows the engagement tax kind without changing engine mappings or amounts. */
+function taxDisplay(fs,c){
+  if(c.d.ctx.taxKind!=="income")return fs;
+  const rows=xs=>xs.map(r=>({...r,ar:r.ar.replaceAll("الزكاة وضريبة الدخل","ضريبة الدخل")}));
+  return {...fs,pl:rows(fs.pl),sfp:rows(fs.sfp),lines:rows(fs.lines),notes:rows(fs.notes)};
+}
 /* The secondary preview shares the primary computed statements; it must never reclassify their account names. */
 function canonicalStatements(c){
   if(!c||c.sourceOnly||!c.d.ctx.corpusId||!Object.keys(c.d.overrides||{}).length)return null;
   const model=E().reports.corpusCompanies.companyTrialBalance(c.d.ctx.corpusId);if(!model)return null;
-  const co=model.company,ctx=c.d.ctx,fig=co.figures||{},copy=fs=>({hasPrior:fs.hasPrior,keys:fs.keys,pl:fs.pl,sfp:fs.sfp,checks:fs.checks,lines:fs.lines.map(l=>({key:l.key,ar:l.ar,accounts:l.accounts}))});
+  const co=model.company,ctx=c.d.ctx,fig=co.figures||{},copy=raw=>{const fs=taxDisplay(raw,c);return {hasPrior:fs.hasPrior,keys:fs.keys,pl:fs.pl,sfp:fs.sfp,checks:fs.checks,lines:fs.lines.map(l=>({key:l.key,ar:l.ar,accounts:l.accounts}))}};
   if(["curSym","currency","reportingFramework"].some(k=>ctx[k]&&ctx[k]!==model.ctx[k]))return null;
   const sorted=o=>JSON.stringify(Object.entries(o||{}).sort(([a],[b])=>a.localeCompare(b)));
-  return JSON.parse(JSON.stringify({version:1,entity:ctx.company,period:ctx.periodEnd||ctx.period,
+  return JSON.parse(JSON.stringify({version:1,entity:ctx.company,period:ctx.periodEnd||ctx.period,priorPeriodEnd:model.ctx.priorPeriodEnd||null,
     framework:ctx.reportingFramework||co.framework||"غير محدد",jurisdiction:ctx.issuerCountry||co.country||"غير محددة",
     currency:fig.currency||ctx.currency||"غير محددة",unit:fig.unit==="m"?"million":fig.unit||"غير محددة",displayUnit:ctx.curSym||ctx.currency||"غير محددة",
     before:copy(c.fsBefore),after:copy(c.fsAfterAdj),acceptedIds:c.accepted.map(a=>a.id),
@@ -784,6 +790,7 @@ function fsAnalysis(c,p,fs,d,f,hl,GROUP){
   '';
 }
 function fsStatements(c,p,fs,d,f,hl,GROUP){
+  fs=taxDisplay(fs,c);
   return ''+
     '<h3 class="tbr-sec">السنة في لمحة</h3><div class="skk4 tbr-hl">'+hl+'</div>'+
     '<div class="tbr-2"><section class="card"><div class="card-h"><div><h3>قائمة الربح أو الخسارة</h3><p>'+(c.d.ctx.country==="INTL"?'عرض تحليلي من الميزان · إطار المصدر: '+esc(c.d.ctx.reportingFramework||"غير محدد")+' — لا يمثل إثبات امتثال أو تقريراً كاملاً وفق إطار المصدر':'عرض IFRS 18: التشغيل ← الاستثمار ← التمويل ← الزكاة')+'</p></div></div><div class="card-b">'+stmt(fs.pl,p.hp)+'</div></section>'+
