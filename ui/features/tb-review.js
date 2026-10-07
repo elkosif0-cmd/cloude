@@ -308,7 +308,28 @@ async function fromBooks(){
 }
 /* open the engagement on a tab (and a studio page): used by the studio's own deep links and other screens */
 function openTab(t,view){if(t==="studio")t=Object.keys(ADV).find(k=>ADV[k]===view)||"docs";if(t)tab=t;if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");else paint()}
-window.SKosifTBReview=Object.freeze({newEngagement,fromBooks,loadCorpus,openClient,showcase,picker:()=>bundlePicker(),demo:()=>runDemo(),booksTB,rows:()=>{const c=compute();if(c&&c.sourceOnly)return {sourceOnly:true,sourceKind:"published-statements",rows:[],sig:c.sig,label:c.sourceModel?c.sourceModel.issuer:"source model",ctx:{...c.d.ctx,sourceKind:"published-statements"},unavailableReason:"The embedded studio does not support source provenance; no ledger or audit-evidence transport is permitted."};return c&&c.tb.ok?{mappingUnsupported:!!(c.d.ctx.corpusId&&Object.keys(c.d.overrides||{}).length),rows:studioRows(c),sig:c.sig,label:c.d.ctx.company||"file",ctx:{...c.d.ctx}}:null},load:(text,label,ctx)=>loadTB(text,label,ctx),open:openTab,studio:view=>openTab("studio",view)});
+/* Display terminology follows the engagement tax kind without changing engine mappings or amounts. */
+function taxDisplay(fs,c){
+  if(c.d.ctx.taxKind!=="income")return fs;
+  const rows=xs=>xs.map(r=>({...r,ar:r.ar.replaceAll("الزكاة وضريبة الدخل","ضريبة الدخل")}));
+  return {...fs,pl:rows(fs.pl),sfp:rows(fs.sfp),lines:rows(fs.lines),notes:rows(fs.notes)};
+}
+/* The secondary preview shares the primary computed statements; it must never reclassify their account names. */
+function canonicalStatements(c){
+  if(!c||c.sourceOnly||!c.d.ctx.corpusId||!Object.keys(c.d.overrides||{}).length)return null;
+  const model=E().reports.corpusCompanies.companyTrialBalance(c.d.ctx.corpusId);if(!model)return null;
+  const co=model.company,ctx=c.d.ctx,fig=co.figures||{},copy=raw=>{const fs=taxDisplay(raw,c);return {hasPrior:fs.hasPrior,keys:fs.keys,pl:fs.pl,sfp:fs.sfp,checks:fs.checks,lines:fs.lines.map(l=>({key:l.key,ar:l.ar,accounts:l.accounts}))}};
+  if(["curSym","currency","reportingFramework"].some(k=>ctx[k]&&ctx[k]!==model.ctx[k]))return null;
+  const sorted=o=>JSON.stringify(Object.entries(o||{}).sort(([a],[b])=>a.localeCompare(b)));
+  return JSON.parse(JSON.stringify({version:1,entity:ctx.company,period:ctx.periodEnd||ctx.period,priorPeriodEnd:model.ctx.priorPeriodEnd||null,
+    framework:ctx.reportingFramework||co.framework||"غير محدد",jurisdiction:ctx.issuerCountry||co.country||"غير محددة",
+    currency:fig.currency||ctx.currency||"غير محددة",unit:fig.unit==="m"?"million":fig.unit||"غير محددة",displayUnit:ctx.curSym||ctx.currency||"غير محددة",
+    before:copy(c.fsBefore),after:copy(c.fsAfterAdj),acceptedIds:c.accepted.map(a=>a.id),
+    provenance:{statementBasis:"primary-computed-model",corpusId:ctx.corpusId,sourceLabel:c.d.loadedFrom||"الحزمة العالمية",pages:fig.pages||{},
+      modifiedFromModel:c.d.tbText!==model.csv||sorted(c.d.overrides)!==sorted(model.overrides),mapping:c.d.overrides},
+    limitation:"عرض تحليلي من ربط الميزان في الملف الرئيسي، وليس نسخة كاملة من التقرير المنشور أو إثبات امتثال للإطار. التقرير الكامل وفق إطار المصدر غير مدعوم هنا؛ غير صالح للإصدار. تبقى التسويات والأدلة والاعتمادات في الملف الرئيسي."}));
+}
+window.SKosifTBReview=Object.freeze({newEngagement,fromBooks,loadCorpus,openClient,showcase,picker:()=>bundlePicker(),demo:()=>runDemo(),booksTB,rows:()=>{const c=compute();if(c&&c.sourceOnly)return {sourceOnly:true,sourceKind:"published-statements",rows:[],sig:c.sig,label:c.sourceModel?c.sourceModel.issuer:"source model",ctx:{...c.d.ctx,sourceKind:"published-statements"},unavailableReason:"The embedded studio does not support source provenance; no ledger or audit-evidence transport is permitted."};return c&&c.tb.ok?{mappingUnsupported:!!(c.d.ctx.corpusId&&Object.keys(c.d.overrides||{}).length),canonicalStatements:canonicalStatements(c),rows:studioRows(c),sig:c.sig,label:c.d.ctx.company||"file",ctx:{...c.d.ctx}}:null},load:(text,label,ctx)=>loadTB(text,label,ctx),open:openTab,studio:view=>openTab("studio",view)});
 
 /* ---------- computation (memoized) ---------- */
 function compute(){
@@ -769,9 +790,10 @@ function fsAnalysis(c,p,fs,d,f,hl,GROUP){
   '';
 }
 function fsStatements(c,p,fs,d,f,hl,GROUP){
+  fs=taxDisplay(fs,c);
   return ''+
     '<h3 class="tbr-sec">السنة في لمحة</h3><div class="skk4 tbr-hl">'+hl+'</div>'+
-    '<div class="tbr-2"><section class="card"><div class="card-h"><div><h3>قائمة الربح أو الخسارة</h3><p>عرض IFRS 18: التشغيل ← الاستثمار ← التمويل ← الزكاة</p></div></div><div class="card-b">'+stmt(fs.pl,p.hp)+'</div></section>'+
+    '<div class="tbr-2"><section class="card"><div class="card-h"><div><h3>قائمة الربح أو الخسارة</h3><p>'+(c.d.ctx.country==="INTL"?'عرض تحليلي من الميزان · إطار المصدر: '+esc(c.d.ctx.reportingFramework||"غير محدد")+' — لا يمثل إثبات امتثال أو تقريراً كاملاً وفق إطار المصدر':'عرض IFRS 18: التشغيل ← الاستثمار ← التمويل ← الزكاة')+'</p></div></div><div class="card-b">'+stmt(fs.pl,p.hp)+'</div></section>'+
       '<section class="card"><div class="card-h"><div><h3>قائمة المركز المالي</h3><p>'+(fs.checks.balanced?'متوازنة':'فرق '+sar(fs.checks.difference))+'</p></div></div><div class="card-b">'+stmt(fs.sfp,p.hp)+'</div></section></div>'+
     '<section class="card"><div class="card-h"><div><h3>قائمة التغيرات في حقوق الملكية</h3></div></div><div class="card-b tbr-tw"><table class="sk-table tbr-fs" data-sk-plain><thead><tr><th></th>'+fs.soce.columns.map(x=>'<th>'+esc(x)+'</th>').join("")+'</tr></thead><tbody>'+fs.soce.rows.map((r,i)=>'<tr class="'+(i===fs.soce.rows.length-1?'total':'')+'"><td>'+esc(r.ar)+'</td>'+r.values.map(v=>'<td class="num">'+m0(v)+'</td>').join("")+'</tr>').join("")+'</tbody></table></div></section>'+
     '<section class="card"><div class="card-h"><div><h3>قائمة التدفقات النقدية (الطريقة غير المباشرة)</h3><p>'+(fs.cf?(fs.checks.cashTies?'تطابق حركة النقد':'فرق '+sar(fs.checks.cfDifference)):'تتطلب أرصدة السنة السابقة')+'</p></div></div><div class="card-b">'+(fs.cf?stmt(fs.cf,false):'<p class="empty">أضف عمود السنة السابقة في الميزان لاشتقاق القائمة.</p>')+'</div></section>'+
@@ -783,6 +805,7 @@ function fsStatements(c,p,fs,d,f,hl,GROUP){
 function policyNote(no,c){
   const ctx=c.d.ctx;
   if(c.sourceOnly)return no===1?(c.sourceModel?c.sourceModel.entities:"هوية المصدر غير متاحة"):no===2?(c.sourceModel?c.sourceModel.accountingBasis+" · "+c.sourceModel.currency+" "+c.sourceModel.unit:"أساس المصدر غير متاح"):"تفاصيل السياسة أو الإيضاح غير متاحة في هذا النموذج؛ تُراجع في التقرير الأصلي. لا يمثل ذلك تأكيداً أو رأياً مهنياً.";
+  if(ctx.country==="INTL"&&no===2)return "إطار المصدر: "+(ctx.reportingFramework||"غير محدد")+" · "+(ctx.countryAr||ctx.issuerCountry||"دولي")+" · "+(ctx.curSym||ctx.currency||"غير محددة")+". عرض تحليلي مشتق من نموذج الميزان؛ لا يمثل تقريراً كاملاً وفق إطار المصدر أو إثبات امتثال. تُراجع السياسات في التقرير الأصلي.";
   return no===1?(ctx.company||"المنشأة")+(ctx.activity?' — '+ctx.activity:'')+'. '+(ctx.period||''):
     no===2&&egypt(c.d)?'أُعدت القوائم وفق معايير المحاسبة المصرية الصادرة بقرارات وزير الاستثمار وتعديلاتها وفي ضوء القوانين واللوائح المصرية السارية، على أساس التكلفة التاريخية ما لم يُذكر خلاف ذلك، وبالجنيه المصري.':
     no===2?'أُعدت القوائم وفق '+(ctx.framework==="SME"?'المعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم':'المعايير الدولية للتقرير المالي')+' المعتمدة في المملكة العربية السعودية والمعايير والإصدارات الأخرى المعتمدة من SOCPA، على أساس التكلفة التاريخية ما لم يُذكر خلاف ذلك، وبالريال السعودي.':
