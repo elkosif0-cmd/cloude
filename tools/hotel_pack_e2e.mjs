@@ -17,12 +17,12 @@ try {
   const door = async (sector) => { await p.goto(base + 'index.html', { waitUntil: 'domcontentloaded', timeout: 90000 }); await p.waitForSelector('#gate-list .gate', { timeout: 30000 });
     await p.click('#gate-list .gate[data-gate="accounting"]'); await p.click('#sector-list .sector[data-sector="' + sector + '"]'); };
   await door('meat'); await p.waitForSelector('#co-list .co[data-id="demo-co"]', { timeout: 10000 }); await p.click('#co-list .co[data-id="demo-co"]');
-  await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p);
+  await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p);
   await p.evaluate(() => SKosifLedger.open('accounts')); await p.waitForTimeout(800);
   ok('a meat company has no hotel tab', await p.evaluate(() => !document.querySelector('[data-sk-tabs="ledger"] [data-tab="hotel"]')));
   await door('hospitality'); await p.waitForFunction(() => !document.getElementById('companies').hidden, null, { timeout: 10000 });
   await p.click('#co-add'); await p.fill('#co-name', 'فندق الاختبار'); await p.click('#co-form button[type="submit"]');
-  await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p); await p.waitForTimeout(800);
+  await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p); await p.waitForTimeout(800);
   await p.evaluate(() => SKosifLedger.open('hotel')); await p.waitForTimeout(1000);
   ok('a hotel has the rooms and night audit tab with its pack accounts', await p.evaluate(() => !!document.getElementById('ht-guest')), await p.evaluate(() => SK.company.current().sector + ' ' + SKosifLedger.accounts().map((a) => a.code).join(',')));
   const B = (codes) => p.evaluate((codes) => Object.fromEntries(codes.map((c) => [c, SKosifLedger.balance(c)])), codes);

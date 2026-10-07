@@ -18,12 +18,12 @@ try {
   const door = async (sector) => { await p.goto(base + 'index.html', { waitUntil: 'domcontentloaded', timeout: 90000 }); await p.waitForSelector('#gate-list .gate', { timeout: 30000 });
     await p.click('#gate-list .gate[data-gate="accounting"]'); await p.click('#sector-list .sector[data-sector="' + sector + '"]'); };
   await door('meat'); await p.waitForSelector('#co-list .co[data-id="demo-co"]', { timeout: 10000 }); await p.click('#co-list .co[data-id="demo-co"]');
-  await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p);
+  await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p);
   await p.evaluate(() => SKosifLedger.open('accounts')); await p.waitForTimeout(800);
   ok('a meat company has no tuition tab', await p.evaluate(() => !document.querySelector('[data-sk-tabs="ledger"] [data-tab="tuition"]')));
   await door('education'); await p.waitForFunction(() => !document.getElementById('companies').hidden, null, { timeout: 10000 });
   await p.click('#co-add'); await p.fill('#co-name', 'مدرسة الاختبار'); await p.click('#co-form button[type="submit"]');
-  await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p); await p.waitForTimeout(800);
+  await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p); await p.waitForTimeout(800);
   await p.evaluate(() => SKosifLedger.open('tuition')); await p.waitForTimeout(1000);
   ok('a school has the tuition tab with its pack accounts and the VAT note', await p.evaluate(() => !!document.getElementById('tu-label') && /تتحمل الدولة/.test(document.querySelector('[data-tu-vat-note]').textContent)),
     await p.evaluate(() => SK.company.current().sector + ' ' + SKosifLedger.accounts().map((a) => a.code).join(',')));
@@ -55,7 +55,7 @@ try {
   ok('the books stay balanced', tb === 0, String(tb));
   /* the model school reads through the same tab */
   await door('education'); await p.waitForSelector('#co-list .co[data-id="model-education"]', { timeout: 10000 }); await p.click('#co-list .co[data-id="model-education"]');
-  await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p); await p.waitForFunction(() => SKosifLedger.entries().length > 0, null, { timeout: 60000 }).catch(() => {});
+  await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p); await p.waitForFunction(() => SKosifLedger.entries().length > 0, null, { timeout: 60000 }).catch(() => {});
   await p.evaluate(() => SKosifLedger.open('tuition')); await p.waitForTimeout(1500);
   const terms = await p.evaluate(() => [...document.querySelectorAll('[data-tu-table] tr[data-term]')].map((r) => [r.dataset.term, r.cells[1].textContent.trim(), r.cells[9].textContent.trim()]));
   ok('the model school shows its two terms, 1,198 students in the first after two withdrawals', terms.length === 2 && terms[0][1] === '1198' && terms[1][1] === '1200', JSON.stringify(terms));

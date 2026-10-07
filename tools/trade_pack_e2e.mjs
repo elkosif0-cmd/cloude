@@ -20,7 +20,7 @@ try {
     await p.click('#gate-list .gate[data-gate="accounting"]'); await p.click('#sector-list .sector[data-sector="' + sector + '"]'); };
   await door('trade'); await p.waitForFunction(() => !document.getElementById('companies').hidden, null, { timeout: 10000 });
   await p.click('#co-add'); await p.fill('#co-name', 'شركة التجارة للاختبار'); await p.click('#co-form button[type="submit"]');
-  await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p); await p.waitForTimeout(800);
+  await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p); await p.waitForTimeout(800);
   await p.evaluate(() => SKosifLedger.open('trade')); await p.waitForTimeout(1000);
   ok('a trading company has the branches tab with 4100', await p.evaluate(() => !!document.getElementById('tr-branch') && SKosifLedger.accounts().some((a) => a.code === '4100')),
     await p.evaluate(() => SK.company.current().sector + ' ' + SKosifLedger.accounts().map((a) => a.code).join(',')));
@@ -53,7 +53,7 @@ try {
   const tb = await p.evaluate(() => { const g = SKEngines.finance.ledger.buildGeneralLedger(SKosifLedger.entries()); return Math.round((g.reduce((s, x) => s + x.debit, 0) - g.reduce((s, x) => s + x.credit, 0)) * 100); });
   ok('the books stay balanced', tb === 0, String(tb));
   await door('trade'); await p.waitForSelector('#co-list .co[data-id="model-trade"]', { timeout: 10000 }); await p.click('#co-list .co[data-id="model-trade"]');
-  await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p); await p.waitForFunction(() => SKosifLedger.entries().length > 0, null, { timeout: 60000 }).catch(() => {});
+  await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p); await p.waitForFunction(() => SKosifLedger.entries().length > 0, null, { timeout: 60000 }).catch(() => {});
   await p.evaluate(() => SKosifLedger.open('trade')); await p.waitForTimeout(1500);
   const m = await p.evaluate(() => ({ branches: document.querySelectorAll('[data-tr-branches] tr[data-branch]').length, customers: document.querySelectorAll('[data-tr-credit] tr[data-customer]').length,
     over: document.querySelectorAll('[data-tr-credit] tr.bad').length }));

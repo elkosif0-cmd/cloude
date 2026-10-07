@@ -583,3 +583,29 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - watching the helper tools' own stores (e.g. a sales record changed after posting);
   - running the check automatically before the month-end close.
 - Branch / PR: `claude/relationship-health-20261007` from `main` @ 19f3460.
+
+### TASK CLAUDE-20261007-003 — Whole-app review and test, on the live site
+- Agent: Claude (Lead Development Agent)
+- Status: DONE on merge — the owner asked in chat: «ادمج وراجع كل شيء في التطبيق واختبره».
+- Merge: nothing of mine was open. The 4 open PRs are drafts:
+  - #169 and #170 were extracted into `main` by the other agent;
+  - #143 and #140 were recovered through the knowledge batches;
+  - merging any of them would bring superseded code back, so they were left as they are.
+- Live test (https://s-kosif.pages.dev, `skosif.js?v=726f7e55cd`, fresh browser contexts with no data of the owner's). All suites pass:
+  - model companies, health, hotel, construction, digital, education, production, agriculture, trade and relationship health;
+  - meat and books;
+  - advances 26/26 and sales 28/28;
+  - `feature_audit` **146/146**.
+  - The door suite asserts the preview build. On production it correctly finds the private company «تصيف» as a locked card in the meat sector.
+  - A separate live check:
+    - the locked card shows only the password form and stays on the door;
+    - a wrong password does not open it;
+    - nothing private sits in localStorage;
+    - the private blocks are encrypted (`crypto.json`).
+  - The live hospital model: 2,287 entries, the cycle proof green on all six steps, link health «سليمة», the error log empty.
+- Fixes found by the review:
+  - `ui/features/ledger.js`: the `SKosifLedger` API object had a duplicate key `ensureAccounts` (eslint `no-dupe-keys`, an error in the lint CI runs); the older duplicate was removed. Same function, so no change in behaviour.
+  - `eslint.config.mjs`: `SKosifCompanyPlatform` was missing from the app globals. `npx eslint ui` now gives 0 errors and 11 warnings, all unused variables in files not touched here.
+  - 11 door-based e2e suites now wait for `/app-safe` as well as `/app-safe.html`. Pages serves the page without the extension, so the same suites run against production.
+- Left for the owner and the other agent: `think-mcp/cloudflare-council-01713` and `regression-01713` fail on `main`. They pin the KOSIF Think worker's route versions (`/mcp/v0.18.4`), which that agent is changing, and they concern a deployed worker contract.
+- Branch / PR: `claude/live-verification-20261007` from `main` @ dafd407.
