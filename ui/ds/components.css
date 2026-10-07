@@ -926,3 +926,7 @@ table.t{width:100%;border-collapse:separate;border-spacing:0;font-size:var(--sk-
 .v202-row.sev-critical{border-color:color-mix(in srgb,var(--ls-mark) 35%,var(--line));background:color-mix(in srgb,var(--ls-soft) 60%,var(--surface))}
 .v202-txt{flex:1;min-width:0}.v202-txt b{display:block;font-size:var(--sk-fs-s)}.v202-txt span{display:block;font-size:var(--sk-fs-xs);color:var(--ink-3);font-weight:600}
 @media(max-width:680px){.v202-row{flex-wrap:wrap}.v202-row .btn{width:100%}}
+/* R11 (#25): the browser's own file picker looked foreign on every intake screen; its button now matches the app's */
+input[type=file]{max-width:100%;font:inherit;font-size:var(--sk-fs-s);color:var(--sk-ink-2)}
+input[type=file]::file-selector-button{min-height:36px;margin-inline-end:var(--sk-2);padding:0 var(--sk-3);border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface-2);color:var(--sk-ink);font:inherit;font-weight:700;cursor:pointer}
+input[type=file]::file-selector-button:hover{background:var(--sk-brand-soft);color:var(--sk-brand)}

@@ -280,9 +280,11 @@ function preparer(){try{const p=JSON.parse(localStorage.getItem("skosif_profile_
 /* who issues the printed page: in the audit section the audit firm (the profile's «المكتب المهني» and licence),
    elsewhere the company open in the helper tools (its name, VAT and CR numbers from the settings) */
 function issuer(){
-  let sec="";try{const c=core();sec=c&&SK.caps?SK.caps.sectionOf(c.view()):""}catch{}
+  /* the open section (R11: this asked SK.caps.sectionOf, which never existed — the error was swallowed and audit pages
+     were signed with the company's name instead of the audit firm) */
+  let sec="";try{sec=SK.gate&&SK.gate.current?SK.gate.current():""}catch{}
   if(sec==="audit"){let p={};try{p=JSON.parse(localStorage.getItem("skosif_profile_v1")||"{}")||{}}catch{}
-    return{name:String(p.firm||"").trim()||"المراجعة والمراجعة المالية",ids:[p.license?"ترخيص رقم "+esc(p.license):"",p.city?esc(p.city):""].filter(Boolean)}}
+    return{name:String(p.firm||"").trim()||"مكتب المراجعة",ids:[p.license?"ترخيص رقم "+esc(p.license):"",p.city?esc(p.city):""].filter(Boolean)}}
   const o=org();return{name:(bizName()||"SQC"),ids:[o.vatNo?"الرقم الضريبي "+esc(o.vatNo):"",o.crNo?"السجل التجاري "+esc(o.crNo):"",o.phone?esc(o.phone):"",o.addr?esc(o.addr):""].filter(Boolean)};
 }
 function letterhead(title,identity){
