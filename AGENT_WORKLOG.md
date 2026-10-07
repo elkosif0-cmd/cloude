@@ -830,3 +830,9 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - `ui/layouts/shell.js`: the sidebar and the phone domain strip read the entry's menu (fallback to the registry groups for an entry without one).
 - Evidence: browser read of the three menus on the preview (10 / 9 / 5 sections, every hub present, no page errors); gateway contract and navigation unit tests unchanged (the one red test is red without R3 too).
 - Branch / PR: `claude/r3-menu-by-constitution-20261007` from the R2 head.
+
+### TASK CLAUDE-20261007-013 — Deep review wave R5: clarity of the registry
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Scope: the 18 screen descriptions longer than 80 characters (up to 215) rewritten to one line in `ui/core/capabilities.json`; each old text moved into the screen's `kw` so the palette and the sidebar filter still find it by those words; `docs/rebuild/SYSTEM_CAPABILITY_INVENTORY.md` and `NEW_CAPABILITY_MAP.md` regenerated (`tools/capability_docs.py`); `tools/registry_clarity.test.mjs` (one-line descriptions, unique labels, distinct menu section names, known screens only) added to S.kosif.yml.
+- Branch / PR: `claude/r5-clarity-20261007` from the R3 head.
