@@ -605,17 +605,26 @@ function bindBlending(){
 /* ==========================================================================
    4. Scale Labels HTML & Logic
    ========================================================================== */
+/* R12 (docs/rebuild/HARSH_REVIEW_20261008_ar.md): the label starts from the open company's first catalog item — it was a
+   fixed «ريب آي عجل بلدي» from «مسلخ شمال الرياض» for every company of every sector */
 let stickerState={
-  name:"ريب آي عجل بلدي فاخر",
-  weight:1.450,
-  unitPrice:95.0,
+  name:"",
+  weight:1,
+  unitPrice:0,
   packDate:new Date().toISOString().slice(0,10),
   expDate:new Date(Date.now()+5*86400000).toISOString().slice(0,10),
-  lot:"LOT-2609-08",
-  origin:"مسلخ شمال الرياض - ذبح محلي معتمد"
+  lot:"LOT-"+new Date().toISOString().slice(2,10).replace(/-/g,""),
+  origin:"",
+  seeded:false
 };
+function seedSticker(){
+  if(stickerState.seeded)return;stickerState.seeded=true;
+  let it=null;try{it=((window.SKosifCore&&SKosifCore.catalog()||{}).items||[]).find(x=>x&&x.name&&x.status!=="archived"&&!x.byProduct&&Number(x.price)>0)||null}catch{it=null}
+  if(it){stickerState.name=String(it.name);stickerState.unitPrice=Math.round(Number(it.price)*100)/100}
+}
 
 function labelsHTML(){
+  seedSticker();const meat=SK.sector&&SK.sector()==="meat";
   const total=stickerState.weight*stickerState.unitPrice;
   const barcode="20"+Math.floor(stickerState.unitPrice).toString().padStart(4,"0")+Math.floor(stickerState.weight*1000).toString().padStart(5,"0");
   const barcodeSVG=code128SVG(barcode,30);
@@ -624,7 +633,7 @@ function labelsHTML(){
     '<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;">',
       '<div style="flex:1 1 340px;">',
         '<div class="sk-grid2">',
-          '<label class="sk-field"><span>اسم القطعية / المنتج</span><input id="sk38-stk-name" value="'+esc(stickerState.name)+'"></label>',
+          '<label class="sk-field"><span>'+(meat?'اسم القطعية / المنتج':'اسم المنتج')+'</span><input id="sk38-stk-name" value="'+esc(stickerState.name)+'"></label>',
           '<label class="sk-field"><span>رقم الشحنة / اللوت (Lot)</span><input id="sk38-stk-lot" value="'+esc(stickerState.lot)+'"></label>',
         '</div>',
         '<div class="sk-grid2">',
@@ -635,7 +644,7 @@ function labelsHTML(){
           '<label class="sk-field"><span>تاريخ التعبئة</span><input id="sk38-stk-pdate" type="date" value="'+stickerState.packDate+'"></label>',
           '<label class="sk-field"><span>تاريخ الانتهاء</span><input id="sk38-stk-edate" type="date" value="'+stickerState.expDate+'"></label>',
         '</div>',
-        '<label class="sk-field" style="margin-bottom:14px;"><span>المسلخ ومصدر الذبح</span><input id="sk38-stk-orig" value="'+esc(stickerState.origin)+'"></label>',
+        '<label class="sk-field" style="margin-bottom:14px;"><span>'+(meat?'المسلخ ومصدر الذبح':'المصدر / المنشأ')+'</span><input id="sk38-stk-orig" value="'+esc(stickerState.origin)+'"></label>',
         '<div><button type="button" id="sk38-print-stk" class="btn btn-pri">طباعة الملصق الحراري (60x40mm)</button></div>',
       '</div>',
       '<div style="flex:0 0 320px;">',
