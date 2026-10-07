@@ -92,7 +92,10 @@ const d = report.filter((r) => r.device === 'desktop' && !r.error);
     avgChromeRowsDesktop: Math.round(d.reduce((a, r) => a + r.rows.length, 0) / d.length * 100) / 100, avgChromeControlsDesktop: mean(d, 'chromeControls'), screensRepeatingSidebar: d.filter((r) => r.navRepeatedInPage.length).length };
   const file = new URL('fixtures/clutter-baseline.json', import.meta.url);
   const base = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : null;
-  const worse = base ? Object.keys(now).filter((k) => now[k] > base[k]) : [];
+  /* pixel metrics carry an 8 px tolerance: the baseline may be recorded on another machine (Windows Edge vs the CI's Linux
+     Chromium render fonts a few pixels apart); counts and row averages carry none */
+  const tol = (k) => (/ContentTop/.test(k) ? 8 : 0);
+  const worse = base ? Object.keys(now).filter((k) => now[k] > base[k] + tol(k)) : [];
   console.log('ratchet:', Object.entries(now).map(([k, v]) => `${k} ${v}${base ? ' (was ' + base[k] + ')' : ''}`).join(' · '));
   if (process.argv.includes('--write-baseline') || !base) fs.writeFileSync(file, JSON.stringify({ ...now, recordedAt: new Date().toISOString().slice(0, 10) }, null, 1) + '\n');
   if (process.argv.includes('--check') && worse.length) { console.error('clutter regression: ' + worse.join(', ')); process.exitCode = 1; }
