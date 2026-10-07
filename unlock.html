@@ -323,7 +323,8 @@ function paintSectors(){
   const all=companies().filter(c=>!c.scratch),n=id=>all.filter(c=>c.sector===id).length;
   $("sector-list").innerHTML=SECTORS.map(s=>'<button type="button" class="sector'+(s.priority?" pri":"")+'" role="listitem" data-sector="'+esc(s.id)+'"><span class="sector-t"><b>'+esc(s.label)+'</b><small>'+esc(s.sub||"")+'</small></span><i class="sector-n">'+(n(s.id)?n(s.id)+" شركة":"لا شركات بعد")+'</i></button>').join("");
 }
-const corpusRows=()=>{const q=state.q.trim().toLowerCase(),L=CORPUS.filter(c=>!q||(c.company+" "+(c.sector||"")+" "+(c.country||"")).toLowerCase().includes(q));
+const searchText=s=>String(s||"").toLowerCase().replace(/[أإآٱ]/g,"ا").replace(/[\u064b-\u065f\u0670]/g,"").replace(/امازون/g,"amazon").trim();
+const corpusRows=()=>{const q=searchText(state.q),L=CORPUS.filter(c=>!q||searchText(c.company+" "+(c.sector||"")+" "+(c.country||"")+" "+(c.fy||"")).includes(q));
   return L.map(c=>'<button type="button" class="corpus-co" role="listitem" data-corpus="'+esc(c.id)+'" data-name="'+esc(c.company)+'"><b>'+esc(c.company)+'</b><small>'+esc([c.country,c.sector,c.fy].filter(Boolean).join(" · "))+'</small></button>').join("")||'<p class="co-empty">لا شركة بهذا البحث.</p>'};
 function paintCorpus(){
   $("corpus").innerHTML='<h3>شركات الحزمة المرجعية <small>'+CORPUS.length+' شركة بميزان مراجعة من قوائمها المنشورة — تُفتح كملف مراجعة وتُقارن بتقرير مراجعها</small></h3>'+

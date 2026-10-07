@@ -58,11 +58,12 @@ function steps(m){
       !ok?(unp.length?unp.length+" بيع غير مرحّل":"فرق "+money(diff/100)):man.length?man.length+" قيد يدوي على الإيرادات — وثّقه":"مطابقة",{tab:"recon",label:"مطابقة الإيرادات"});}
   const r=load("skosif_tbreview_v1",{})||{},sent=!!(r.tbText&&r.loadedAt&&r.loadedAt.slice(0,10)>=end);
   add("review","الإرسال إلى المراجعة","ميزان الشهر في ملف المراجعة (المعايير والمجلس الذكي) — اختياري",sent?"ok":"na",sent?"أُرسل في "+r.loadedAt.slice(0,10):"لم يُرسل ميزان هذا الشهر",{run:"review",label:"إرسال الميزان"});
+  S[S.length-1].optional=true;
   const locked=!!(d.lockDate&&d.lockDate>=end),ready=S[0].st==="ok"&&S.find(x=>x.id==="tb").st==="ok"&&t>end;
   add("lock","إقفال الفترة","بعد الإقفال لا يتغير رقم في الشهر",locked?"ok":ready?"warn":"bad",locked?"مقفلة حتى "+d.lockDate:ready?"جاهز للإقفال":t<=end?"الشهر لم ينته بعد":"رحّل العمليات ووازن الميزان أولاً",{run:"lock",label:"إقفال الشهر",disabled:!ready||locked});
   return S;
 }
-function progress(S){const a=S.filter(x=>x.st!=="na");return{done:a.filter(x=>x.st==="ok").length,of:a.length,next:S.find(x=>x.st!=="ok"&&x.st!=="na")||null}}
+function progress(S){const a=S.filter(x=>!x.optional&&x.st!=="na");return{done:a.filter(x=>x.st==="ok").length,of:a.length,next:a.find(x=>x.st!=="ok")||null}}
 const PILL={ok:["good","تم"],warn:["warn","يحتاج إجراء"],bad:["bad","متوقف"],na:["","لا يلزم"]};
 const btn=(x,cls)=>'<button type="button" class="btn sm'+(cls||"")+'" data-cl="'+(x.act.run||"go")+'" data-go-tab="'+esc(x.act.tab||"")+'" data-q="'+esc(x.act.q||"")+'"'+(x.act.disabled?' disabled':'')+'>'+esc(x.act.label)+'</button>';
 
@@ -71,12 +72,12 @@ function html(){
   month=month||defaultMonth();
   const S=steps(month),P=progress(S),cur=today().slice(0,7),opts=[1,2,3].map(k=>prevMonth(cur,k));if(!opts.includes(month))opts.unshift(month);
   const pct=P.of?Math.round(P.done/P.of*100):0;
-  return '<section class="card skclose"><div class="card-h"><div><h3>إقفال شهر '+esc(label(month))+'</h3><p>ثماني خطوات بالترتيب. حالة كل خطوة من الدفاتر نفسها، والزر يفتح مكان إنجازها.</p></div>'+
+  return '<section class="card skclose"><div class="card-h"><div><h3>إقفال شهر '+esc(label(month))+'</h3><p>'+S.length+' خطوات معروضة: '+P.of+' مطلوبة، و'+(S.length-P.of)+' غير مطلوبة (اختيارية أو لا تنطبق). حالة كل خطوة من الدفاتر نفسها، والزر يفتح مكان إنجازها.</p></div>'+
       '<div class="sk-chips">'+opts.map(x=>'<button type="button" class="chip'+(x===month?' active':'')+'" data-cl="month" data-m="'+x+'" aria-pressed="'+(x===month)+'">'+esc(label(x))+'</button>').join("")+'</div></div>'+
     '<div class="card-b"><div class="skclose-bar" role="progressbar" aria-label="تقدم الإقفال" aria-valuemin="0" aria-valuemax="'+P.of+'" aria-valuenow="'+P.done+'"><span style="width:'+pct+'%"></span></div>'+
     '<p class="hint">'+P.done+' من '+P.of+' خطوات مكتملة'+(P.next?' — التالية: <b>'+esc(P.next.title)+'</b>':' — الشهر مكتمل ومقفل')+'</p>'+
     '<ol class="skclose-steps">'+S.map((x,i)=>'<li class="st-'+x.st+'"><span class="n">'+(i+1)+'</span><div class="tx"><b>'+esc(x.title)+'</b><small>'+esc(x.why)+'</small><span class="note">'+esc(x.note)+'</span></div>'+
-      '<span class="sk-pill '+PILL[x.st][0]+'">'+PILL[x.st][1]+'</span>'+btn(x,x.st==="warn"||x.st==="bad"?" primary":"")+'</li>').join("")+'</ol></div></section>';
+      '<span class="sk-pill '+PILL[x.st][0]+'">'+PILL[x.st][1]+(x.optional?' · اختياري':'')+'</span>'+btn(x,x.st==="warn"||x.st==="bad"?" primary":"")+'</li>').join("")+'</ol></div></section>';
 }
 
 /* ---------- alerts for the bell: what the books say needs attention now ---------- */

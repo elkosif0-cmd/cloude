@@ -46,6 +46,7 @@ async function docClear(){try{const sid=(st().session||{}).id;if(!sid)return;con
 
 /* ---------- the engagement register: several client files on one device ----------
    The open file stays in skosif_tbreview_v1 (every module reads it there); the others wait in skosif_eng_<id>. */
+const searchText=s=>String(s||"").toLowerCase().replace(/[أإآٱ]/g,"ا").replace(/[\u064b-\u065f\u0670]/g,"").replace(/امازون/g,"amazon").trim();
 const ENG="skosif_engagements_v1";
 const reg=()=>{const r=load(ENG,null);return r&&Array.isArray(r.list)?r:{active:"main",list:[]}};
 function register(){
@@ -89,8 +90,8 @@ function bundleList(B){
   return B.clients.map(c=>({...c,sector:by[c.id]||"",sectorAr:SA[by[c.id]]||by[c.id]||""}));
 }
 function bundleRows(L){
-  const have=new Set(reg().list.filter(e=>e.bundleId).map(e=>e.bundleId)),q=pick.q.trim().toLowerCase();
-  const list=L.filter(c=>(!pick.sector||c.sector===pick.sector)&&(!q||[c.company,c.countryAr,c.auditor,c.sectorAr].join(" ").toLowerCase().includes(q)));
+  const have=new Set(reg().list.filter(e=>e.bundleId).map(e=>e.bundleId)),q=searchText(pick.q);
+  const list=L.filter(c=>(!pick.sector||c.sector===pick.sector)&&(!q||searchText([c.company,c.countryAr,c.auditor,c.sectorAr,c.fy].join(" ")).includes(q)));
   return list.length?list.map(c=>'<tr><td><b>'+esc(c.company)+'</b><small>'+esc([c.sectorAr,c.fy,c.countryAr,c.auditor,c.unitAr].filter(Boolean).join(" · "))+'</small></td><td>'+esc(c.frameworkAr)+'</td>'+
     '<td class="tbr-bundle-a"><button type="button" class="btn primary sm" data-bundle-show="'+esc(c.id)+'">عرض القدرات</button>'+
     (have.has(c.id)?'<button type="button" class="btn sm" data-bundle-go="'+esc(c.id)+'">فتح الملف</button>':'<button type="button" class="btn sm" data-bundle-add="'+esc(c.id)+'">ملف فقط</button>')+'</td></tr>').join("")
@@ -307,7 +308,7 @@ async function fromBooks(){
 }
 /* open the engagement on a tab (and a studio page): used by the studio's own deep links and other screens */
 function openTab(t,view){if(t==="studio")t=Object.keys(ADV).find(k=>ADV[k]===view)||"docs";if(t)tab=t;if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");else paint()}
-window.SKosifTBReview=Object.freeze({newEngagement,fromBooks,loadCorpus,openClient,showcase,picker:()=>bundlePicker(),demo:()=>runDemo(),booksTB,rows:()=>{const c=compute();if(c&&c.sourceOnly)return {sourceOnly:true,sourceKind:"published-statements",rows:[],sig:c.sig,label:c.sourceModel?c.sourceModel.issuer:"source model",ctx:{...c.d.ctx,sourceKind:"published-statements"},unavailableReason:"The embedded studio does not support source provenance; no ledger or audit-evidence transport is permitted."};return c&&c.tb.ok?{rows:studioRows(c),sig:c.sig,label:c.d.ctx.company||"file",ctx:{...c.d.ctx}}:null},load:(text,label,ctx)=>loadTB(text,label,ctx),open:openTab,studio:view=>openTab("studio",view)});
+window.SKosifTBReview=Object.freeze({newEngagement,fromBooks,loadCorpus,openClient,showcase,picker:()=>bundlePicker(),demo:()=>runDemo(),booksTB,rows:()=>{const c=compute();if(c&&c.sourceOnly)return {sourceOnly:true,sourceKind:"published-statements",rows:[],sig:c.sig,label:c.sourceModel?c.sourceModel.issuer:"source model",ctx:{...c.d.ctx,sourceKind:"published-statements"},unavailableReason:"The embedded studio does not support source provenance; no ledger or audit-evidence transport is permitted."};return c&&c.tb.ok?{mappingUnsupported:!!(c.d.ctx.corpusId&&Object.keys(c.d.overrides||{}).length),rows:studioRows(c),sig:c.sig,label:c.d.ctx.company||"file",ctx:{...c.d.ctx}}:null},load:(text,label,ctx)=>loadTB(text,label,ctx),open:openTab,studio:view=>openTab("studio",view)});
 
 /* ---------- computation (memoized) ---------- */
 function compute(){

@@ -64,6 +64,13 @@ let invoicePayment={
   cashTendered:0
 };
 
+/* Share the receipt's displayed precision across QR, verification and message totals. */
+function invoiceAmounts(){
+  const raw=invoiceItems.reduce((s,x)=>s+x.total,0);
+  const subtotal=Number(raw.toFixed(2)),vatAmount=Number((raw*SK.vatRate()).toFixed(2));
+  return {subtotal,vatAmount,grandTotal:Number((subtotal+vatAmount).toFixed(2))};
+}
+
 function zatcaHTML(){
   /* seller identity comes from «الإعدادات › هوية المنشأة»; nothing is invented */
   const org=((load("aghnam-pricing-v3",{})||{}).settings)||{};
@@ -71,9 +78,7 @@ function zatcaHTML(){
   const vatNo=String(org.vatNo||"").trim();
   const now=new Date();
   const invNo="INV-"+now.getFullYear()+String(now.getMonth()+1).padStart(2,"0")+String(now.getDate()).padStart(2,"0")+"-022";
-  const subtotal=invoiceItems.reduce((s,x)=>s+x.total,0);
-  const vatAmount=subtotal*SK.vatRate();
-  const grandTotal=subtotal+vatAmount;
+  const {subtotal,vatAmount,grandTotal}=invoiceAmounts();
 
   if(invoicePayment.method==="all_card"){
     invoicePayment.cardPaid=grandTotal;
@@ -224,9 +229,7 @@ function updateZatcaQR(){
   const seller=$("#sk38-seller")?.value||"";
   const vatNo=$("#sk38-vatno")?.value||"";
   const now=new Date().toISOString().slice(0,19)+"Z";
-  const subtotal=invoiceItems.reduce((s,x)=>s+x.total,0);
-  const vatAmount=(subtotal*SK.vatRate()).toFixed(2);
-  const grandTotal=(subtotal*1.15).toFixed(2);
+  const amounts=invoiceAmounts(),vatAmount=amounts.vatAmount.toFixed(2),grandTotal=amounts.grandTotal.toFixed(2);
   const tlvB64=zatcaTLV(seller,vatNo,now,grandTotal,vatAmount);
   const box=$("#sk38-qrcode-box");
   if(box&&window.QRCode){
@@ -271,7 +274,7 @@ function decodeAndDisplayTLV(b64){
   const vatValid=/^3\d{13}3$/.test(tags[2]);
   const total=Number(tags[4])||0;
   const vat=Number(tags[5])||0;
-  const expectedVat=total>0?(total-(total/1.15)):0;
+  const expectedVat=total>0?(total-(total/(1+SK.vatRate()))):0;
   const mathValid=Math.abs(vat-expectedVat)<0.5;
 
   out.innerHTML='<div style="background:var(--sk-surface);border:1px solid color-mix(in srgb,var(--sk-info) 35%,var(--sk-line));padding:10px;border-radius:6px;">'+
@@ -313,9 +316,7 @@ function bindZatca(){
     const seller=$("#sk38-seller")?.value||"";
     const vatNo=$("#sk38-vatno")?.value||"";
     const now=new Date().toISOString().slice(0,19)+"Z";
-    const subtotal=invoiceItems.reduce((s,x)=>s+x.total,0);
-    const vatAmount=(subtotal*SK.vatRate()).toFixed(2);
-    const grandTotal=(subtotal*1.15).toFixed(2);
+    const amounts=invoiceAmounts(),vatAmount=amounts.vatAmount.toFixed(2),grandTotal=amounts.grandTotal.toFixed(2);
     const tlvB64=zatcaTLV(seller,vatNo,now,grandTotal,vatAmount);
     const ta=$("#sk38-tlv-input");
     if(ta)ta.value=tlvB64;
@@ -364,8 +365,7 @@ function bindZatca(){
   $("#sk38-wa-rcpt")?.addEventListener("click",()=>{
     const seller=$("#sk38-seller")?.value||"أغنام الوادي";
     const cust=$("#sk38-cust")?.value||"العميل الكريم";
-    const subtotal=invoiceItems.reduce((s,x)=>s+x.total,0);
-    const grandTotal=subtotal*1.15;
+    const {subtotal,vatAmount,grandTotal}=invoiceAmounts();
     const changeDue=invoicePayment.cashTendered>invoicePayment.cashPaid?(invoicePayment.cashTendered-invoicePayment.cashPaid):0;
     const totalPaid=invoicePayment.cashPaid+invoicePayment.cardPaid+invoicePayment.transferPaid+invoicePayment.creditPaid;
     const remainingDue=Math.max(0,grandTotal-totalPaid);
@@ -376,7 +376,7 @@ function bindZatca(){
     invoiceItems.forEach(it=>{ msg+="• "+it.name+" ("+it.qty+") = "+it.total.toFixed(2)+" ر.س\n"; });
     msg+="--------------------------------\n";
     msg+="*المجموع الخاضع للضريبة:* "+subtotal.toFixed(2)+" ر.س\n";
-    msg+="*ضريبة القيمة المضافة ("+SK.vatPct()+"):* "+(subtotal*SK.vatRate()).toFixed(2)+" ر.س\n";
+    msg+="*ضريبة القيمة المضافة ("+SK.vatPct()+"):* "+vatAmount.toFixed(2)+" ر.س\n";
     msg+="*الإجمالي المستحق:* "+grandTotal.toFixed(2)+" ر.س\n";
     msg+="--------------------------------\n";
     if(invoicePayment.cardPaid>0)msg+="• سداد مدى / شبكة: "+invoicePayment.cardPaid.toFixed(2)+" ر.س\n";

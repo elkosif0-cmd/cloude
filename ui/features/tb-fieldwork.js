@@ -22,8 +22,15 @@ const SRC={line:"",analytical:"تحليلي",fraud:"غش ISA 240",global:"مما
 function model(c){
   const act=c.d.ctx.activity||"",wps=F().workingPapers(c.base,{activity:act}),fd=field(c.d);
   const uncorrected=c.pool.filter(a=>!c.d.accepted.includes(a.id));
+  // Initial requests remain outstanding before any council round. A missing session is not evidence of completion.
+  const rounds=c.session?c.session.rounds:[],requests=new Map();
+  [...c.base.requests,...rounds.flatMap(r=>r.requests||[])].forEach(q=>{if(q.priority==="عالية")requests.set(q.id,q)});
+  const highOpenRequests=[...requests.keys()].filter(id=>{
+    const reviews=rounds.flatMap(r=>r.reviewed||[]).filter(r=>r.requestId===id);
+    return !reviews.length||reviews[reviews.length-1].verdict!=="مقبول";
+  }).length;
   const done=F().completion({papers:wps,signoffs:fd.so,uncorrected:c.derived.misstatement,materiality:c.base.materiality.overall,goingConcernIssue:c.derived.goingConcern,
-    confirmations:fd.conf,kamsDrafted:true,highOpenRequests:c.session?SKEngines.audit.aiReview.outstanding(c.session).filter(q=>q.priority==="عالية").length:0});
+    confirmations:fd.conf,kamsDrafted:true,highOpenRequests});
   return {wps,fd,matrix:F().riskMatrix(c.base,{activity:act}),lead:F().leadSchedules(c.tb,c.accepted,c.d.overrides),uncorrected,done,act};
 }
 const bar=p=>'<span class="fw-bar"><i style="width:'+p+'%"></i></span>';
@@ -70,7 +77,7 @@ function closeTab(c){
     '<section class="card"><div class="card-h"><div><h3>ملخص التحريفات غير المصححة (ISA 450)</h3><p>أثرها المجمع '+m0(c.derived.misstatement)+' مقابل أهمية نسبية '+m0(m.overall)+' وحد ضآلة '+m0(m.trivial)+'.</p></div></div><div class="card-b">'+
       (M.uncorrected.length?'<div class="sk-table-wrap"><table class="sk-table" data-sk-plain><thead><tr><th>القيد</th><th>البيان</th><th>المعيار</th><th>المبلغ</th><th>مقارنة بالأهمية</th></tr></thead><tbody>'+
         M.uncorrected.map(a=>{const amt=a.lines.reduce((t,l)=>t+l.debit,0);return '<tr><td class="mono">'+esc(a.id)+'</td><td>'+esc(a.title)+'</td><td>'+esc(a.standard)+'</td><td class="num">'+m0(amt)+'</td><td><span class="sksev '+(amt>m.overall?"bad":amt>m.trivial?"warn":"ok")+'">'+(amt>m.overall?"جوهري":amt>m.trivial?"فوق حد الضآلة":"ضئيل")+'</span></td></tr>'}).join("")+'</tbody></table></div>'
-        :'<p class="empty">لا تحريفات غير مصححة — كل القيود المقترحة محسومة.</p>')+'</div></section>';
+        :'<p class="empty">لا تحريفات غير مصححة ضمن قيود ملف المراجعة الرئيسي. قيود الاستوديو الثانوي لها سجل مستقل.</p>')+'</div></section>';
 }
 
 /* ---------- documents (opened in the in-app preview) ---------- */

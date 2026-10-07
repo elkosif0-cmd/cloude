@@ -106,7 +106,10 @@ function bind(root){
     if(e.target.closest("[data-md-profile-save]")){
       const patch={};root.querySelectorAll("[data-md-profile]").forEach(el=>patch[el.dataset.mdProfile]=el.value);
       patch.vatRegistered=patch.vatRegistered==="yes"?true:patch.vatRegistered==="no"?false:null;if(String(patch.vatRate||"").trim()==="")patch.vatRate=null;
-      try{CP().setProfile(patch);toast("حُفظ تعريف الشركة","ok");paint(root)}catch(err){toast(err.message,"bad")}return
+      try{
+        // This field is explicitly in percent; the shared API also accepts fractions.
+        if(patch.vatRate!==null){const percent=Number(patch.vatRate);if(!Number.isFinite(percent)||percent<0||percent>100)throw new Error("نسبة الضريبة يجب أن تكون بين 0 و100%");patch.vatRate=percent/100}
+        CP().setProfile(patch);toast("حُفظ تعريف الشركة","ok");paint(root)}catch(err){toast(err.message,"bad")}return
     }
     if(e.target.closest("[data-md-add]")){await add(root);return}
     if(e.target.closest("[data-md-ledger]")){window.SKosifCore&&SKosifCore.go("ledger");return}

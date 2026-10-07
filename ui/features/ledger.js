@@ -150,7 +150,7 @@ function glHTML(d){
   return '<section class="card"><div class="card-h"><div><h3>الأستاذ العام</h3><p>أرصدة الحسابات من القيود المرحّلة'+(p?' — '+esc(p.label):'')+'.</p></div></div><div class="card-b sk-stack">'+
     '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الحساب</th><th>مدين</th><th>دائن</th><th>الرصيد</th></tr></thead><tbody>'+
     rows.map(r=>'<tr'+(r.accountId===sel?' style="background:var(--sk-brand-soft)"':'')+'><td><button type="button" class="linkish" data-l="gl-acc" data-id="'+esc(r.accountId)+'">'+esc(accName(d,r.accountId))+'</button></td><td class="n">'+money(r.debit)+'</td><td class="n">'+money(r.credit)+'</td><td class="n"><b>'+money(r.balance)+'</b></td></tr>').join("")+'</tbody></table></div>'+
-    '<h4 class="sk-h4">حركة: '+esc(accName(d,sel))+'</h4><div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>التاريخ</th><th>المرجع</th><th>البيان</th><th>مدين</th><th>دائن</th><th>الرصيد</th></tr></thead><tbody>'+
+    '<h4 class="sk-h4">حركة: '+esc(accName(d,sel))+'</h4><div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>التاريخ</th><th>المرجع</th><th>البيان</th><th>مدين</th><th>دائن</th><th data-sk-nosum>الرصيد</th></tr></thead><tbody>'+
     moves.map(([e,l,b])=>'<tr><td class="n">'+esc(e.date)+'</td><td>'+esc(e.reference||"")+'</td><td>'+esc(l.description||e.memo||"")+'</td><td class="n">'+(l.debit?money(l.debit):"")+'</td><td class="n">'+(l.credit?money(l.credit):"")+'</td><td class="n">'+money(b)+'</td></tr>').join("")+'</tbody></table></div></div></section>';
 }
 function tbHTML(d){
@@ -192,10 +192,10 @@ function revReconOf(d){
 function revReconHTML(d){
   const x=revReconOf(d);if(!x||(!x.r.rows.length&&!x.r.unposted.length))return "";
   const r=x.r,h=v=>money(v/100);
-  return '<section class="card"><div class="card-h"><div><h3>مطابقة الإيرادات: سجل المبيعات ↔ دفتر الأستاذ</h3><p>كما يفعل مراجعو e& ودويتشه تيليكوم: مطابقة المبيعات المسجلة (بعد الضريبة) مع إيرادات الأستاذ لكل شهر، وحصر القيود اليدوية على الإيرادات، والمبيعات المعكوسة بعد نهاية الفترة (القطع).</p></div><span class="sk-pill '+(r.reconciled?'good':'bad')+'">'+(r.reconciled?'مطابق':'فروقات')+'</span></div><div class="card-b">'+
-    '<div class="sk-table-wrap"><table class="sk-table" data-sk-plain><thead><tr><th>الشهر</th><th>سجل المبيعات</th><th>الأستاذ</th><th>منها قيود أخرى</th><th>الفرق</th></tr></thead><tbody>'+
-    r.rows.map(m=>'<tr><td class="n">'+esc(m.month)+'</td><td class="n">'+h(m.source)+'</td><td class="n">'+h(m.ledger)+'</td><td class="n">'+(m.other?h(m.other):'—')+'</td><td class="n">'+(m.diff?h(m.diff):'✓')+'</td></tr>').join("")+
-    '<tr class="tot"><td>المجموع</td><td class="n">'+h(r.source)+'</td><td class="n">'+h(r.ledger)+'</td><td class="n">'+h(r.otherRevenue)+'</td><td class="n">'+h(r.diff)+'</td></tr></tbody></table></div>'+
+  return '<section class="card"><div class="card-h"><div><h3>مطابقة الإيرادات: سجل المبيعات ↔ دفتر الأستاذ</h3><p>كما يفعل مراجعو e& ودويتشه تيليكوم: مطابقة المبيعات المسجلة (بعد الضريبة) مع إيرادات الأستاذ لكل شهر، وحصر القيود اليدوية على الإيرادات، والمبيعات المعكوسة بعد نهاية الفترة (القطع).</p></div><span class="sk-pill '+(r.reconciled?'good':'bad')+'">'+(r.reconciled?'مطابق بعد استبعاد القيود الأخرى':'فروقات')+'</span></div><div class="card-b">'+
+    '<div class="sk-table-wrap"><table class="sk-table" data-sk-plain><thead><tr><th>الشهر</th><th>سجل المبيعات</th><th>الأستاذ</th><th>منها قيود أخرى</th><th>الفرق قبل القيود الأخرى</th><th>الفرق غير المفسر</th></tr></thead><tbody>'+
+    r.rows.map(m=>'<tr><td class="n">'+esc(m.month)+'</td><td class="n">'+h(m.source)+'</td><td class="n">'+h(m.ledger)+'</td><td class="n">'+(m.other?h(m.other):'—')+'</td><td class="n">'+(m.diff?h(m.diff):'✓')+'</td><td class="n">'+h(m.diff-m.other)+'</td></tr>').join("")+
+    '<tr class="tot"><td>المجموع</td><td class="n">'+h(r.source)+'</td><td class="n">'+h(r.ledger)+'</td><td class="n">'+h(r.otherRevenue)+'</td><td class="n">'+h(r.diff)+'</td><td class="n">'+h(r.diff-r.otherRevenue)+'</td></tr></tbody></table></div>'+
     (r.unposted.length?'<p class="lg-warn">'+r.unposted.length+' عملية بيع لم تُرحّل بعد بمبلغ '+h(r.unposted.reduce((s,u)=>s+u.amount,0))+' — رحّلها من «القيود».</p>':'')+
     (r.manual.length?'<h4>قيود على الإيرادات من غير سجل المبيعات ('+r.manual.length+')</h4><ul class="lg-issues">'+r.manual.slice(0,10).map(m=>'<li>'+esc(m.date)+' · '+esc(m.source)+' · '+esc(m.memo||m.id)+' — <b>'+h(m.amount)+'</b></li>').join("")+'</ul><p class="hint">اطلب مستند كل قيد يدوي على الإيرادات — من أهم اختبارات تجاوز الإدارة للرقابة.</p>':'')+
     (r.reversedAfter.length?'<p class="lg-warn">'+r.reversedAfter.length+' قيد إيراد من داخل الفترة عُكس بعد نهايتها — تحقق من صحة القطع.</p>':'')+
