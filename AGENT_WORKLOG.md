@@ -712,3 +712,23 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - model companies e2e green with the new check.
 - Repository: first change pushed to the transferred repository `elkosif0-cmd/cloude`.
 - Branch / PR: `claude/statement-trace-20261007` from `main` @ d4a3121.
+
+### TASK CLAUDE-20261007-007 — Deploy s-kosif.pages.dev from GitHub Actions after the repository transfer
+- Agent: Claude (Lead Development Agent)
+- Status: DONE on merge; the deploy itself waits for the owner's `CLOUDFLARE_API_TOKEN` secret.
+- Context:
+  - The owner transferred the repository to `elkosif0-cmd/cloude` on 2026-10-07.
+  - The Pages project `s-kosif` stays linked to the old installation on `kosif199022-jpg` (repo id 1352281400), so pushes no longer build.
+  - Cloudflare's own troubleshooting page says a transferred repository must be transferred back or connected to a new project, and a new project changes the pages.dev address.
+- Owner's choice in chat: «Deploy from GitHub Actions».
+- Done in the owner's Chrome, with the owner's explicit approval of the stated permissions: the «Cloudflare Workers and Pages» GitHub app is installed on `elkosif0-cmd`, for `cloude` only.
+- Scope: `.github/workflows/pages-deploy.yml`.
+  - On any push, it runs the same gate the Pages build ran (`cd app && npm install && npm run build`).
+  - `python3 build.py` makes a production build on `main` (with the existing `KOSIF_UNLOCK_PASSWORD` secret, which moved with the transfer) and a preview build elsewhere (no private data).
+  - It runs `wrangler pages deploy dist --project-name s-kosif --branch <branch>`.
+  - The deploy step is skipped with a notice until the secret `CLOUDFLARE_API_TOKEN` (Account · Cloudflare Pages · Edit) exists.
+- GitHub Actions now run on the new account (the old one was blocked by billing).
+- Open, for the owner:
+  - add `CLOUDFLARE_API_TOKEN`;
+  - the Cloudflare account shows an overdue balance ($42.87) with a warning of service interruption.
+- Branch / PR: `claude/pages-deploy-actions-20261007` from `main` @ 9364b03.

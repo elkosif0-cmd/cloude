@@ -1,0 +1,58 @@
+# Deploy the site to the existing Cloudflare Pages project «s-kosif» (https://s-kosif.pages.dev) from GitHub Actions.
+#
+# Why: the repository was transferred to elkosif0-cmd (2026-10-07). Cloudflare Pages cannot follow a transferred repository
+# with its own Git integration (its docs: transfer it back, or create a new project — which would change the pages.dev
+# address). Pages does accept direct uploads to a Git-connected project, so this workflow builds exactly what the Pages
+# build did and uploads it to the same project:
+#   • main            → a production build (the private blocks encrypted with KOSIF_UNLOCK_PASSWORD) → production
+#   • any other branch → a preview build (no private data at all, build_mode.py) → that branch's preview URL
+# It needs the repository secret CLOUDFLARE_API_TOKEN (a Cloudflare API token with «Account · Cloudflare Pages · Edit»).
+# Until that secret exists the deploy step is skipped with a notice, so nothing turns red.
+name: Pages deploy
+
+on:
+  push:
+    branches: ["**"]
+  workflow_dispatch:
+
+concurrency:
+  group: pages-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CLOUDFLARE_ACCOUNT_ID: 9ff3d8494afab356ecbf95a2a231a6b5
+      HAS_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+      BRANCH: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Engines (type check and tests — the same gate the Pages build ran)
+        run: cd app && npm install && npm run build
+      - name: Build the site (production on main, preview elsewhere)
+        env:
+          KOSIF_UNLOCK_PASSWORD: ${{ secrets.KOSIF_UNLOCK_PASSWORD }}
+          SQC_BUILD_MODE: ${{ github.ref_name == 'main' && 'production' || 'preview' }}
+        run: python3 build.py
+      - name: Deploy to Cloudflare Pages (s-kosif)
+        if: env.HAS_TOKEN == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          npx --yes wrangler@4 pages deploy dist --project-name s-kosif --branch "$BRANCH" \
+            --commit-hash "${{ github.sha }}" --commit-message "$(git log -1 --format=%s | head -c 300)" --commit-dirty=true
+      - name: Deploy skipped — no CLOUDFLARE_API_TOKEN secret yet
+        if: env.HAS_TOKEN != 'true'
+        run: echo "::notice::Add the repository secret CLOUDFLARE_API_TOKEN (Cloudflare Pages · Edit) to deploy to s-kosif.pages.dev"
