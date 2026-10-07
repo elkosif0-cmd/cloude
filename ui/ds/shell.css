@@ -722,3 +722,8 @@ body{line-height:1.65;-webkit-font-smoothing:antialiased;text-rendering:optimize
 .lg-warn,.lg-ok{margin:8px 0;padding:9px 12px;border-radius:var(--sk-r-s,8px);font-size:var(--sk-fs-s);line-height:1.7}
 .lg-warn{background:var(--sk-bad-soft);color:var(--sk-ink);border-inline-start:3px solid var(--sk-bad)}
 .lg-ok{background:var(--sk-ok-soft);color:var(--sk-ink);border-inline-start:3px solid var(--sk-ok)}
+
+/* screen tabs (SK.screenTabs, R8): the tab strip under the demo notice; the other tabs' blocks hidden */
+.sk-stabs{margin:0 0 var(--sk-3)}
+.sk-stabs .sk-hub-nav{margin-bottom:0}
+#view [data-st-off]{display:none}

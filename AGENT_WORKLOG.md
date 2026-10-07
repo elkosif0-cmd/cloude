@@ -866,4 +866,5 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - `ui/features/codex.js`: three tabs — المدونة (first) · المساعد التطبيقي · التحديثات (with the pending count); all render, the inactive ones hidden; `SKosifCodex.tab(t)`.
   - `tools/feature_audit.mjs` opens the guidance tab before its checks.
 - Evidence (browser): the lab 16,454 → 6,237 px (−62%), 47 summaries, one opens with its «افتح كملف مراجعة»; codex library first, guidance 944 px, updates one screen; no page errors.
-- Branch / PR: `claude/r8-long-screens-20261007` from `main` @ 228e954.
+  - `ui/core/screen-tabs.js` (new, in build.py): `SK.screenTabs.register(view,{tabs,blocks,tag})` splits a long screen into tabs without touching the modules that render it (blocks tagged by heading, the other tabs' blocks hidden with `data-st-off`, an unnamed block stays on the first tab, later blocks tagged on the next change). First user: «الإعدادات والمظهر» — الشركة والتقارير · الاحتساب والأهداف · المظهر · الصلاحيات والبيانات (4,550 px → the longest tab 2,204, the default 1,678; the appearance studio alone had been 1,700 px at the top).
+- Branch / PR: `claude/r8-long-screens-20261007` from `main` @ 228e954 (PR #220).
