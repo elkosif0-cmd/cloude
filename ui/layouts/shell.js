@@ -244,21 +244,51 @@ function paintTop(){
   const cap=SK.caps.get(c.view());
   const t=$("#pg-title"),cr=$("#pg-crumb");
   document.documentElement.dataset.domain=cap?cap.group:"";
-  if(cap){if(t&&t.textContent!==cap.label)t.textContent=cap.label;if(cr)cr.textContent=SK.caps.path(cap.id)+(cap.primary?"":" · متقدم")}
+  if(cap){
+    if(t&&t.textContent!==cap.label)t.textContent=cap.label;
+    if(cr){
+      const gate=SK.gate?SK.gate.current():"";
+      const gateLabel=SK.gate?SK.gate.label(gate):"";
+      let crumbText=SK.caps.path(cap.id);
+      if(gate==="accounting"&&SK.company){
+        const comp=SK.company.current();
+        const sec=comp&&comp.sector&&SK.caps.sector?SK.caps.sector(comp.sector):null;
+        if(sec&&!crumbText.includes(sec.label)){
+          crumbText=gateLabel+" › "+sec.label+" · "+(comp.name||"")+" › "+(cap.groupLabel||"")+" › "+cap.label;
+        }
+      }
+      cr.textContent=crumbText+(cap.primary?"":" · متقدم");
+    }
+  }
   else if(cr)cr.textContent="";
   document.title=(cap?cap.label:(t&&t.textContent)||"")+" · SQC";
   /* Drawer scroll locking is owned by syncSidebar so it can capture/restore scroll atomically. */
 }
 /* phones: bottom tab bar — in the page flow (sticky), never over content. Four screens the user
    picks in «الأجهزة والمزامنة» (prefs.tabs), then «المزيد» opens the drawer. */
-/* default four chosen with Jev (hybrid: daily selling + the new risk screen, p=0.75); notifications live on the bell */
-const TABS=["ledger","execreports","tbreview","helperdesk"];
-const SHORT={dash:"الرئيسية",helperdesk:"الخريطة",tbreview:"المراجعة",codex:"المعايير",auditbench:"المرجع",commerce:"الطلبات",tasks:"المهام",inventory:"المخزون",zatca:"الفاتورة",customers:"العملاء",followup:"المتابعة",offers:"العروض",
-  catalog:"الأسعار",sim:"التسعير",purchasing:"الشراء",suppliers:"الموردون",cash:"النقد",receivables:"الذمم",ledger:"الدفاتر",jev:"Jev",council:"المجلس",
+/* default tabs are section-aware (FOUNDATION §3): accounting · audit · tools */
+const TABS_BY_GATE={
+  accounting:["ledger","commerce","inventory","execreports"],
+  audit:["tbreview","auditdesk","auditbench","auditcouncil"],
+  tools:["helperdesk","costs","salesintel","decision"]
+};
+const TABS=TABS_BY_GATE.accounting;
+const SHORT={dash:"الرئيسية",helperdesk:"الخريطة",tbreview:"المراجعة",codex:"المعايير",auditbench:"المرجع",auditdesk:"الاستوديو",auditcouncil:"المجلس",commerce:"الطلبات",tasks:"المهام",inventory:"المخزون",zatca:"الفاتورة",customers:"العملاء",followup:"المتابعة",offers:"العروض",
+  catalog:"الأسعار",sim:"التسعير",costs:"التكاليف",salesintel:"المبيعات",purchasing:"الشراء",suppliers:"الموردون",cash:"النقد",receivables:"الذمم",ledger:"الدفاتر",jev:"Jev",council:"المجلس",
   execreports:"التقارير",scanner:"الماسح",labels:"الملصقات",operations:"المناسبات",b2bcredit:"الائتمان",traceability:"التبريد",decision:"القرار",
   reports:"الطباعة",exports:"التصدير",settings:"الإعدادات",devices:"الأجهزة",memo:"الاعتماد",builder:"البوكسات",risks:"المخاطر",notifications:"الإشعارات"};
 const TAB_MAX=4;
-function tabIds(){const p=prefs().tabs;return(Array.isArray(p)&&p.length?p:TABS).filter(id=>SK.caps.get(id)).slice(0,TAB_MAX)}
+function currentGate(){return (typeof SK!=="undefined"&&SK.gate&&SK.gate.current)?SK.gate.current():"accounting"}
+function tabIds(){
+  const g=currentGate();
+  const def=TABS_BY_GATE[g]||TABS_BY_GATE.accounting||TABS;
+  const p=prefs().tabs;
+  if(Array.isArray(p)&&p.length){
+    const inGate=p.filter(id=>{const c=SK.caps&&SK.caps.get?SK.caps.get(id):null;return c&&SK.caps.inGatewayOf&&SK.caps.inGatewayOf(c,g)});
+    if(inGate.length)return inGate.slice(0,TAB_MAX);
+  }
+  return def.filter(id=>!SK.caps||!SK.caps.get||SK.caps.get(id)).slice(0,TAB_MAX);
+}
 function setTabs(ids){const p=prefs();p.tabs=(ids||[]).filter(id=>SK.caps.get(id)).slice(0,TAB_MAX);if(!p.tabs.length)delete p.tabs;save(PREF_KEY,p);paintTabs()}
 const tabLabel=id=>SHORT[id]||(SK.caps.get(id)||{}).label||id;
 function paintTabs(){
@@ -532,7 +562,7 @@ function customerCards(root){
 }
 
 window.SKosifShell=Object.freeze({paint,stripItems,setPref,fonts:()=>FONTS.map(f=>({id:f[0],name:f[1]})),accents:()=>ACCENTS.map(a=>({hex:a[0],name:a[1]})),toggleAppearance,setAppearance,setLook,looks:()=>LOOKS.map(x=>({id:x[0],name:x[1]})),prefs,resolved,
-  toggleRail,toggleSidebar,tabs:tabIds,setTabs,tabLabel,defaultTabs:()=>TABS.slice(),tabMax:TAB_MAX});
+  toggleRail,toggleSidebar,tabs:tabIds,setTabs,tabLabel,defaultTabs:(g)=>(TABS_BY_GATE[g||currentGate()]||TABS_BY_GATE.accounting||TABS).slice(),tabMax:TAB_MAX});
 
 function boot(){
   identityMetadata();
@@ -543,7 +573,7 @@ function boot(){
     c.onView("settings",settingsCards);
     c.onView("customers",customerCards);
   }
-  addEventListener("sk:render",()=>{gate();domainTabs()});
+  addEventListener("sk:render",()=>{gate();domainTabs();paintTabs();paintTop()});
   addEventListener("resize",()=>{if(innerWidth>900){const r=$("#rail");if(r&&r.classList.contains("open")&&c)c.act("rail-close")}},{passive:true});
   addEventListener("online",offline);addEventListener("offline",offline);offline();
   SK.bus.on("device",()=>titlebar());
