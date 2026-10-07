@@ -771,4 +771,5 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - `ui/ds/luxe.css`: the head is 44 px icon, tighter padding.
   - Tests moved with the UI: `feature_audit` (company menu), `company_entry_e2e`, `executive_pack_context_e2e`, `brand_art.test`.
   - `tools/clutter_audit.mjs` ratchet (`tools/fixtures/clutter-baseline.json`, `--check` / `--write-baseline`).
-- Branch / PR: `claude/r1-one-head-20261007` from `main` @ 51306ad.
+- Found on the way (the four late suites timed out on `page.goto … load`): `SQCCrystal.mount` linked its shaders synchronously, and on the owner's machine that link (Intel Iris Xe · ANGLE D3D11) took **38 s** on the main thread this afternoon — the page froze, `load` never came within 30 s. Fix in `ui/art/crystal-world.js`: the programs link in parallel (`KHR_parallel_shader_compile`), the world polls each frame and draws once they are ready, a device whose link blocks long is remembered (`sqc_world_slow`) and keeps its still background. Also `ui/features/command-center.js`: the dashboard film gets its source only after `load` (a media element with a source delays the load event). `company_entry_e2e` reports a world whose shaders are still linking instead of failing it.
+- Branch / PR: `claude/r1-one-head-20261007` from `main` @ 51306ad (PR #213).

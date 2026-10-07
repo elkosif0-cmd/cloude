@@ -68,7 +68,12 @@ vec4 v=uView*vec4(p,1.0);gl_Position=uProj*v;float d=-v.z;gl_PointSize=(1.5+aSiz
 const SFS=`precision mediump float;varying float vA;void main(){vec2 d=gl_PointCoord-0.5;float r=dot(d,d);if(r>0.25)discard;float a=smoothstep(0.25,0.0,r)*vA;gl_FragColor=vec4(0.85,0.95,1.0,a);}`;
 
 function compile(gl,type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){const m=gl.getShaderInfoLog(s);gl.deleteShader(s);throw new Error("shader: "+m)}return s}
-function program(gl,vs,fs){const p=gl.createProgram();gl.attachShader(p,compile(gl,gl.VERTEX_SHADER,vs));gl.attachShader(p,compile(gl,gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error("program: "+gl.getProgramInfoLog(p));return p}
+/* linking is started here and never waited for: reading LINK_STATUS (or any uniform location) before the driver has finished
+   blocks the main thread — on some machines for tens of seconds (an Intel/ANGLE D3D11 compile measured at 38 s on 2026-10-07).
+   With KHR_parallel_shader_compile the world polls COMPLETION_STATUS_KHR each frame and draws once both programs are ready. */
+function link(gl,vs,fs){const p=gl.createProgram();gl.attachShader(p,compile(gl,gl.VERTEX_SHADER,vs));gl.attachShader(p,compile(gl,gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);return p}
+const SLOW_KEY="sqc_world_slow";
+function program(gl,vs,fs){const p=link(gl,vs,fs);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error("program: "+gl.getProgramInfoLog(p));return p}
 
 /* ---------- tiny matrix helpers (column-major, like WebGL) ---------- */
 function perspective(fov,aspect,near,far){const f=1/Math.tan(fov/2),nf=1/(near-far);return new Float32Array([f/aspect,0,0,0,0,f,0,0,0,0,(far+near)*nf,-1,0,0,2*far*near*nf,0])}
@@ -96,14 +101,29 @@ function mount(canvas,opts){
   opts=Object.assign({density:1,interactive:true,scroll:true,still:false,seed:20261005},opts||{});
   let gl=null;try{gl=canvas.getContext("webgl",{antialias:true,alpha:true,premultipliedAlpha:true,powerPreference:"low-power"})||canvas.getContext("experimental-webgl")}catch{gl=null}
   if(!gl)return null;
-  let prog,sprog,buffers=[],snowBuf,snowN=0;
-  try{prog=program(gl,VS,FS);sprog=program(gl,SVS,SFS)}catch(e){return null}
+  try{if(localStorage.getItem(SLOW_KEY))return null}catch{}
+  let prog,sprog,buffers=[],snowBuf,snowN=0,loc=null,sloc=null;
+  const par=gl.getExtension("KHR_parallel_shader_compile"),linkedAt=performance.now();
+  try{prog=link(gl,VS,FS);sprog=link(gl,SVS,SFS)}catch(e){return null}
   const rand=rng(opts.seed);
   const phone=Math.min(innerWidth,innerHeight)<720,cores=navigator.hardwareConcurrency||4,mem=navigator.deviceMemory||4;
   const budget=(phone?14:30)*(cores<=4||mem<=4?0.7:1)*opts.density;
   const N=Math.max(6,Math.round(budget));
+  const items=[];let built=false;
+  /* ready(): both programs linked. With the extension this never blocks; without it the first status read blocks once, and a
+     device where that took long keeps its still background from then on (SLOW_KEY) */
+  function ready(){
+    if(built)return true;
+    if(par&&!(gl.getProgramParameter(prog,par.COMPLETION_STATUS_KHR)&&gl.getProgramParameter(sprog,par.COMPLETION_STATUS_KHR))){
+      if(performance.now()-linkedAt>12000){remember();world.destroy()}return false}
+    const t=performance.now(),ok=gl.getProgramParameter(prog,gl.LINK_STATUS)&&gl.getProgramParameter(sprog,gl.LINK_STATUS);
+    if(performance.now()-t>1500)remember();
+    if(!ok){world.destroy();return false}
+    build();return true;
+  }
+  function remember(){try{localStorage.setItem(SLOW_KEY,"1")}catch{}}
+  function build(){
   /* the shards: one geometry each (a few variants would do, but N is small), scattered in a slab in front of the camera */
-  const items=[];
   for(let i=0;i<N;i++){
     const g=shard(0.35+rand()*0.5,1.2+rand()*2.2,0.45,rand);
     const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,g.pos,gl.STATIC_DRAW);
@@ -118,10 +138,12 @@ function mount(canvas,opts){
   {const n=phone?160:360,a=new Float32Array(n*4);for(let i=0;i<n;i++){a[i*4]=(rand()-.5)*24;a[i*4+1]=(rand()-.5)*16;a[i*4+2]=-(2+rand()*18);a[i*4+3]=rand()}
     snowBuf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,snowBuf);gl.bufferData(gl.ARRAY_BUFFER,a,gl.STATIC_DRAW);snowN=n}
   const U=n=>gl.getUniformLocation(prog,n),A=n=>gl.getAttribLocation(prog,n);
-  const loc={proj:U("uProj"),view:U("uView"),model:U("uModel"),normal:U("uNormal"),eye:U("uEye"),key:U("uKey"),fog:U("uFog"),tint:U("uTint"),time:U("uTime"),glow:U("uGlow"),fogNear:U("uFogNear"),fogFar:U("uFogFar"),aPos:A("aPos"),aNor:A("aNor")};
-  const sloc={proj:gl.getUniformLocation(sprog,"uProj"),view:gl.getUniformLocation(sprog,"uView"),time:gl.getUniformLocation(sprog,"uTime"),dpr:gl.getUniformLocation(sprog,"uDpr"),aPos:gl.getAttribLocation(sprog,"aPos"),aSize:gl.getAttribLocation(sprog,"aSize")};
+  loc={proj:U("uProj"),view:U("uView"),model:U("uModel"),normal:U("uNormal"),eye:U("uEye"),key:U("uKey"),fog:U("uFog"),tint:U("uTint"),time:U("uTime"),glow:U("uGlow"),fogNear:U("uFogNear"),fogFar:U("uFogFar"),aPos:A("aPos"),aNor:A("aNor")};
+  sloc={proj:gl.getUniformLocation(sprog,"uProj"),view:gl.getUniformLocation(sprog,"uView"),time:gl.getUniformLocation(sprog,"uTime"),dpr:gl.getUniformLocation(sprog,"uDpr"),aPos:gl.getAttribLocation(sprog,"aPos"),aSize:gl.getAttribLocation(sprog,"aSize")};
   gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);
   gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
+  built=true;
+  }
 
   const state={mood:MOODS.open,cur:{tint:[1.0,0.9,0.66],fog:[0.03,0.07,0.14],glow:0.6,speed:1},px:0,py:0,tx:0,ty:0,scroll:0,pulse:0,alive:true,visible:true,dpr:1,w:0,h:0,t0:performance.now(),frames:0,last:0};
   let raf=0,still=opts.still||reduce();
@@ -134,6 +156,7 @@ function mount(canvas,opts){
   }
   function frame(now){
     raf=0;if(!state.alive)return;
+    if(!ready()){if(state.alive)raf=requestAnimationFrame(frame);return}
     resize();
     const t=(now-state.t0)/1000;state.frames++;state.last=now;
     /* ease towards the mood and the pointer */
@@ -188,7 +211,7 @@ function mount(canvas,opts){
   mq&&mq.addEventListener&&mq.addEventListener("change",onMq);
   kick();
   const world={
-    canvas,gl,
+    canvas,gl,ready:()=>built,
     setMood(name){state.mood=MOODS[name]||MOODS.open;kick()},
     pulse(k){state.pulse=Math.min(3,(state.pulse||0)+(k==null?1:k));kick()},
     frames:()=>state.frames,still:()=>still,shards:()=>items.length,
