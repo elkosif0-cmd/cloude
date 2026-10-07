@@ -80,6 +80,15 @@ for en,ar in (("System Health · Read Only","فحص للقراءة فقط"),("Sa
               ("Customer & Demand Intelligence","العملاء والطلب"),("Catalog Mapping Domain","ربط الكتالوج")):
   text,ny=re.subn(r'(class="eyebrow">)'+re.escape(en)+'<',lambda m:m.group(1)+ar+'<',text)
   if ny<1: raise SystemExit("Core eyebrow missing: "+en)
+# R11 (#10): «ذكاء العملاء والطلب» segments by recency and frequency, «ذكاء المبيعات» by RFM; both said «أوفياء»,
+# «أبطال», «معرضون للفقد», «خاملون» for different groups (22 loyal customers on one screen, 4 on the next). The core's
+# operational segments get their own words; the RFM names stay with the RFM engine.
+for en,ar in (("champion:['أبطال',","champion:['الأعلى قيمة',"),("loyal:['أوفياء',","loyal:['منتظمون',"),
+              ("risk:['معرضون للفقد',","risk:['غائبون بعد تكرار',"),("dormant:['خاملون',","dormant:['منقطعون',"),
+              ('<div class="d">معرضون للفقد + خاملون</div>','<div class="d">غائبون بعد تكرار + منقطعون</div>')):
+  n=text.count(en)
+  if n!=1: raise SystemExit("Core segment label missing: "+en)
+  text=text.replace(en,ar)
 
 # The UI ships as one stylesheet and one script, in layer order:
 #   design system (ui/ds) → core services (ui/core) → components → layout → features.
