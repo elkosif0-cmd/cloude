@@ -38,7 +38,8 @@ try {
         return { chars: text.trim().length, bad: lines, overflowX: document.documentElement.scrollWidth - window.innerWidth, title: document.title };
       }, BAD.source);
       Object.assign(row, r, { pageErrors: pageErrors.splice(0), consoleErrors: consoleErrors.splice(0).filter((t) => !/favicon|fonts\.g|ERR_BLOCKED_BY_CLIENT/.test(t)) });
-      if (shot) await p.screenshot({ path: path.join(out, device + '-' + shot + '.jpg'), type: 'jpeg', quality: 55 }).catch(() => {});
+      /* PAGE_REVIEW_FULL=1: the whole page on the desktop (for a screen-by-screen review), the first screen on the phone */
+      if (shot) await p.screenshot({ path: path.join(out, device + '-' + shot + '.jpg'), type: 'jpeg', quality: 55, fullPage: process.env.PAGE_REVIEW_FULL === '1' && device === 'desktop' }).catch(() => {});
       report.push(row);
     };
     pageErrors = []; consoleErrors = [];
