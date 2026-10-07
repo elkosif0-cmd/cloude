@@ -308,8 +308,8 @@ body.skn-locked{position:fixed;inset-inline:0;top:var(--skn-lock-top,0px);width:
 :root[data-look="kosif"] .nav-btn{min-height:42px;font-size:15px;color:#dbe6f4;border-radius:10px}
 :root[data-look="kosif"] .nav-btn svg{color:#9fb6d3}
 :root[data-look="kosif"] .nav-btn:hover{background:rgba(255,255,255,.06);color:#fff}
-:root[data-look="kosif"] .nav-btn[aria-current="page"]{background:linear-gradient(90deg,rgba(31,182,224,.08),rgba(31,182,224,.2));color:#fff;font-weight:700;box-shadow:inset -3px 0 0 #3fd0f0}
-:root[data-look="kosif"] .nav-btn[aria-current="page"] svg{color:#3fd0f0}
+:root[data-look="kosif"] .nav-btn[aria-current="page"]{background:linear-gradient(90deg,rgba(31,182,224,.08),rgba(31,182,224,.2));color:#fff;font-weight:700;box-shadow:inset -3px 0 0 #d4af37}
+:root[data-look="kosif"] .nav-btn[aria-current="page"] svg{color:#d4af37}
 :root[data-look="kosif"] .nav-btn .badge{background:var(--sk-brand);color:var(--sk-on-brand)}
 :root[data-look="kosif"] .nav-btn .badge.red{background:#ef4444}
 :root[data-look="kosif"] .nav .skn-note{color:#7f96b5}

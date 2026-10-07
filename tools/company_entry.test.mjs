@@ -106,12 +106,12 @@ test('audit lists every company behind a new-file card, the bundle companies, an
   assert.deepEqual(g.corpus(),['apple-2024','aramco-2025']);
   assert.ok(g.els.corpus.innerHTML.includes(LIBRARY));
   g.fire('corpus','click',g.target({corpus:'apple-2024',name:'Apple Inc.'}));
-  assert.deepEqual(g.intent(),{id:'demo-co',name:'شركة الوادي التجريبية للحوم',demo:true,gate:'audit',corpus:'apple-2024'},'a bundle company opens in the demo company\'s space when none was opened before');
+  assert.deepEqual(g.intent(),{gate:'audit',corpus:'apple-2024'},'a bundle company opens as an Audit engagement without selecting an accounting host');
   g.fire('corpus','input',{target:{id:'corpus-q',value:'aramco'}});
   assert.ok(g.els.corpus.list.innerHTML.includes('aramco-2025')&&!g.els.corpus.list.innerHTML.includes('apple-2024'));
   const h=page({local:{...device,sqc_last_company:JSON.stringify({id:'co-a',name:'مستشفى ألف',locked:false})}});
   h.gate('audit');h.fire('co-list','click',h.target({auditNew:'1'}));
-  assert.deepEqual(h.intent(),{id:'co-a',name:'مستشفى ألف',demo:false,gate:'audit',fresh:'audit'},'a new audit file is hosted by the last company opened');
+  assert.deepEqual(h.intent(),{gate:'audit',auditNew:true},'a new audit file is independent even when another accounting company was last opened');
   g.fire('co-back','click');assert.deepEqual(g.visible(),['gates'],'back from audit returns to the sections');
 });
 

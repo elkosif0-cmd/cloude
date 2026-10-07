@@ -126,7 +126,7 @@ function tbl(t,cur){
 }
 
 const CSS=`
-.ir{--ir-navy:#0b1f3a;--ir-blue:#1668e3;--ir-sky:#7cc4ff;--ir-ink:#14233a;--ir-soft:#f3f7fc}
+.ir{--ir-navy:#0b1f3a;--ir-blue:#13305a;--ir-sky:#7cc4ff;--ir-ink:#14233a;--ir-soft:#f3f7fc}
 .ir-cover{position:relative;overflow:hidden;min-height:420px;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;padding:48px 44px 36px;margin-bottom:26px;border-radius:18px;color:#fff;
   background:radial-gradient(120% 90% at 85% 0%,rgba(124,196,255,.35),transparent 60%),linear-gradient(150deg,#07142a 0%,#0b2a5b 55%,#1557d6 100%)}
 .ir-cover::before{content:"";position:absolute;inset:-40% -20% auto auto;width:520px;height:520px;border-radius:50%;border:60px solid rgba(255,255,255,.05)}

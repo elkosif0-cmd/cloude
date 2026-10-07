@@ -49,12 +49,13 @@ uniform vec3 uEye,uKey,uFog,uTint;uniform float uTime,uGlow,uFogNear,uFogFar;
 void main(){
   vec3 N=normalize(vN),V=normalize(uEye-vP),L=normalize(uKey);
   float ndl=max(dot(N,L),0.0);
-  /* ice: a cold body colour, a sky gradient "reflected" by the facet, a fresnel rim and a sharp key highlight */
-  vec3 ice=mix(vec3(0.10,0.24,0.46),vec3(0.42,0.72,0.98),N.y*0.5+0.5);
-  vec3 sky=mix(vec3(0.05,0.12,0.26),vec3(0.55,0.85,1.0),smoothstep(-0.6,0.9,reflect(-V,N).y));
+  /* the SQC identity (navy and gold): a navy body warming to gold on the upper facets, a navy-to-ivory sky "reflected" by the
+     facet, a gold fresnel rim and a sharp key highlight */
+  vec3 ice=mix(vec3(0.05,0.12,0.24),vec3(0.82,0.66,0.28),N.y*0.5+0.5);
+  vec3 sky=mix(vec3(0.04,0.10,0.20),vec3(0.97,0.92,0.78),smoothstep(-0.6,0.9,reflect(-V,N).y));
   float fres=pow(1.0-max(dot(N,V),0.0),2.6);
   vec3 H=normalize(L+V);float spec=pow(max(dot(N,H),0.0),64.0);
-  vec3 c=ice*(0.35+0.65*ndl)+sky*0.35+vec3(0.6,0.9,1.0)*fres*0.9+vec3(1.0)*spec*0.8;
+  vec3 c=ice*(0.35+0.65*ndl)+sky*0.35+vec3(1.0,0.84,0.42)*fres*0.9+vec3(1.0)*spec*0.8;
   c=mix(c,c*uTint,0.6);
   c+=uTint*uGlow*0.35*fres;
   float fog=smoothstep(uFogNear,uFogFar,vDepth);
@@ -87,9 +88,9 @@ const cross3=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]
 const norm3=a=>{const l=Math.hypot(a[0],a[1],a[2])||1;return[a[0]/l,a[1]/l,a[2]/l]};
 const lerp=(a,b,t)=>a+(b-a)*t;
 
-const MOODS={open:{tint:[0.72,0.9,1.0],fog:[0.035,0.09,0.2],glow:0.6,speed:1},
-  locked:{tint:[0.45,0.6,0.85],fog:[0.03,0.06,0.13],glow:0.25,speed:0.55},
-  unlock:{tint:[1.0,0.98,0.9],fog:[0.08,0.16,0.3],glow:1.6,speed:1.6}};
+const MOODS={open:{tint:[1.0,0.9,0.66],fog:[0.03,0.07,0.14],glow:0.6,speed:1},
+  locked:{tint:[0.78,0.68,0.48],fog:[0.025,0.05,0.1],glow:0.25,speed:0.55},
+  unlock:{tint:[1.0,0.96,0.84],fog:[0.07,0.12,0.22],glow:1.6,speed:1.6}};
 
 function mount(canvas,opts){
   opts=Object.assign({density:1,interactive:true,scroll:true,still:false,seed:20261005},opts||{});
@@ -122,7 +123,7 @@ function mount(canvas,opts){
   gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);
   gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
 
-  const state={mood:MOODS.open,cur:{tint:[0.72,0.9,1.0],fog:[0.035,0.09,0.2],glow:0.6,speed:1},px:0,py:0,tx:0,ty:0,scroll:0,pulse:0,alive:true,visible:true,dpr:1,w:0,h:0,t0:performance.now(),frames:0,last:0};
+  const state={mood:MOODS.open,cur:{tint:[1.0,0.9,0.66],fog:[0.03,0.07,0.14],glow:0.6,speed:1},px:0,py:0,tx:0,ty:0,scroll:0,pulse:0,alive:true,visible:true,dpr:1,w:0,h:0,t0:performance.now(),frames:0,last:0};
   let raf=0,still=opts.still||reduce();
 
   function resize(){

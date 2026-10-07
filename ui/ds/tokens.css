@@ -110,8 +110,8 @@ html.sk-theme-trans .maincol{
    slots 3–5 sit under 3:1 on white, so every chart ships a legend, tooltips and a table view */
 :root{--sk-c1:#2a78d6;--sk-c2:#eb6834;--sk-c3:#1baf7a;--sk-c4:#eda100;--sk-c5:#e87ba4;--sk-c6:#008300;--sk-c7:#4a3aa7;--sk-c8:#e34948}
 :root[data-theme="dark"]{--sk-c1:#3987e5;--sk-c2:#d95926;--sk-c3:#199e70;--sk-c4:#c98500;--sk-c5:#d55181;--sk-c6:#008300;--sk-c7:#9085e9;--sk-c8:#e66767}
-:root[data-look="kosif"]{--sk-c1:#1668e3}
-:root[data-look="kosif"][data-theme="dark"]{--sk-c1:#4a93ff}
+:root[data-look="kosif"]{--sk-c1:#13305a;--sk-c2:#c9a227}
+:root[data-look="kosif"][data-theme="dark"]{--sk-c1:#8fb3e8;--sk-c2:#d4af37}
 
 /* ================= themes =================
    html[data-look] picks a complete visual language; html[data-theme] (light|dark) follows it.
@@ -160,40 +160,48 @@ html.sk-theme-trans .maincol{
    pills, progress rings, and IBM Plex Sans Arabic (chosen with Jev, p=0.99) with tabular figures.
    Default look. */
 :root[data-look="kosif"]{
-  --sk-bg:#f3f6fa;--sk-surface:#ffffff;--sk-surface-2:#f7f9fc;--sk-surface-3:#edf2f8;--sk-line:#e4eaf2;--sk-line-2:#d3dce8;
-  --sk-ink:#0b1c33;--sk-ink-2:#3f5169;--sk-ink-3:#5a6a80;
-  --sk-brand:#1668e3;--sk-brand-2:#22b8e6;--sk-brand-soft:#e8f1fe;--sk-on-brand:#ffffff;
-  --sk-ok:#12884a;--sk-ok-soft:#e4f6eb;--sk-ok-mark:#22b35e;
-  --sk-warn:#b86204;--sk-warn-soft:#fff2dc;--sk-warn-mark:#f5a524;
-  --sk-bad:#d3322a;--sk-bad-soft:#fdebea;--sk-bad-mark:#ef4444;--sk-bad-row:#fff7f6;
-  --sk-info:#1668e3;--sk-info-soft:#e8f1fe;--sk-info-mark:#3b82f6;
+  /* SQC identity 2026-10 (owner's choice in chat): navy and gold — the calm authority of an audit firm's annual report.
+     Navy #0B1F3A carries the rail and the headings, a lighter navy #13305A the buttons and links (distinct from the near-black
+     text), gold #C9A227 the accents (marks, highlights, the active state) and never body text — gold text uses #8A6A0E,
+     which keeps 4.5:1 on ivory. Backgrounds are ivory #F7F4EC with white cards. */
+  --sk-bg:#f7f4ec;--sk-surface:#ffffff;--sk-surface-2:#fbf9f3;--sk-surface-3:#f1ece0;--sk-line:#e8e1d1;--sk-line-2:#d9cfb9;
+  --sk-ink:#111827;--sk-ink-2:#3b4252;--sk-ink-3:#585f6e;
+  --sk-brand:#13305a;--sk-brand-2:#c9a227;--sk-brand-soft:#e9eef6;--sk-on-brand:#ffffff;
+  --sk-navy:#0b1f3a;--sk-gold:#c9a227;--sk-gold-ink:#8a6a0e;--sk-gold-soft:#f6edcf;--sk-ivory:#f7f4ec;
+  --sk-ok:#15803d;--sk-ok-soft:#e6f4ea;--sk-ok-mark:#22a35a;
+  --sk-warn:#b45309;--sk-warn-soft:#fdf1dc;--sk-warn-mark:#e3a008;
+  --sk-bad:#b91c1c;--sk-bad-soft:#fbeaea;--sk-bad-mark:#e5484d;--sk-bad-row:#fff7f6;
+  --sk-info:#1d4f91;--sk-info-soft:#e8eef8;--sk-info-mark:#3567b3;
   --sk-violet:#6b5bd6;--sk-violet-soft:#efedfd;--sk-violet-line:#d9d4f7;
-  --sk-rail:#0b1f3a;--sk-rail-2:rgba(255,255,255,.06);--sk-rail-ink:#e8f0fa;--sk-rail-mute:#8aa0bd;--sk-rail-active:rgba(34,184,230,.14);
-  --sk-grid:#edf1f7;--sk-axis:#d3dbe7;--sk-s1:#22b8e6;--sk-s2:#1668e3;--sk-s3:#22b35e;--sk-focus:#1668e3;
+  --sk-rail:#0b1f3a;--sk-rail-2:rgba(255,255,255,.06);--sk-rail-ink:#eef1f6;--sk-rail-mute:#9aa8bf;--sk-rail-active:rgba(201,162,39,.18);
+  --sk-grid:#efeae0;--sk-axis:#d9cfb9;--sk-s1:#c9a227;--sk-s2:#13305a;--sk-s3:#15803d;--sk-focus:#13305a;
   --sk-font:"IBM Plex Sans Arabic",-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,sans-serif;
   --sk-font-display:"IBM Plex Sans Arabic",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   --sk-font-latin:"Montserrat","IBM Plex Sans Arabic",-apple-system,"Segoe UI",sans-serif;
   --sk-fs-xs:12px;--sk-fs-s:13.5px;--sk-fs:16px;--sk-fs-l:17px;--sk-fs-xl:22px;--sk-fs-2xl:28px;
   --sk-r-s:10px;--sk-r:12px;--sk-r-l:18px;
-  --sk-shadow-1:0 1px 2px rgba(11,28,51,.04),0 12px 32px -24px rgba(11,28,51,.38);
-  --sk-shadow-2:0 18px 40px -22px rgba(11,28,51,.34);
-  --sk-shadow-3:0 32px 80px -28px rgba(11,31,58,.5);
+  --sk-shadow-1:0 1px 2px rgba(11,31,58,.05),0 12px 32px -24px rgba(11,31,58,.36);
+  --sk-shadow-2:0 18px 40px -22px rgba(11,31,58,.32);
+  --sk-shadow-3:0 32px 80px -28px rgba(11,31,58,.48);
   --sk-topbar-h:68px;
   /* luxe extras: gradients and the risk heatmap scale */
-  --sk-grad-brand:linear-gradient(135deg,#22b8e6 0%,#1668e3 55%,#0b1f3a 100%);
-  --sk-grad-rail:linear-gradient(180deg,#0b1f3a 0%,#0d2848 55%,#0a2140 100%);
-  --sk-heat-1:#bfe9cf;--sk-heat-2:#f8e38b;--sk-heat-3:#f8b27e;--sk-heat-4:#f27f7f;
+  --sk-grad-brand:linear-gradient(135deg,#c9a227 0%,#13305a 52%,#0b1f3a 100%);
+  --sk-grad-rail:linear-gradient(180deg,#0b1f3a 0%,#0f2747 55%,#0a1c36 100%);
+  --sk-heat-1:#cfe8d6;--sk-heat-2:#f3e2a6;--sk-heat-3:#f1b98a;--sk-heat-4:#e98a86;
 }
 :root[data-look="kosif"][data-theme="dark"]{
-  --sk-bg:#081427;--sk-surface:#0f2039;--sk-surface-2:#122745;--sk-surface-3:#193153;--sk-line:#1e385c;--sk-line-2:#29496f;
-  --sk-ink:#e9f1fb;--sk-ink-2:#b3c4da;--sk-ink-3:#8499b6;
-  --sk-brand:#4a93ff;--sk-brand-2:#3fd0f0;--sk-brand-soft:#15325a;--sk-on-brand:#06101f;
+  /* dark: gold leads on navy (buttons and the active state), ivory-white text */
+  --sk-bg:#0a1424;--sk-surface:#102038;--sk-surface-2:#13284a;--sk-surface-3:#1a3156;--sk-line:#1f385c;--sk-line-2:#2a4870;
+  --sk-ink:#eef1f6;--sk-ink-2:#b9c4d6;--sk-ink-3:#8a9ab3;
+  --sk-brand:#d4af37;--sk-brand-2:#8fb3e8;--sk-brand-soft:#2a2410;--sk-on-brand:#0b1f3a;
+  --sk-navy:#0b1f3a;--sk-gold:#d4af37;--sk-gold-ink:#e3c25a;--sk-gold-soft:#2a2410;--sk-ivory:#f7f4ec;
   --sk-ok:#5fd394;--sk-ok-soft:#0f2e22;--sk-warn:#f7bd57;--sk-warn-soft:#33260c;--sk-bad:#ff8a80;--sk-bad-soft:#3a1618;--sk-bad-row:#2a1418;
-  --sk-info:#7cb4ff;--sk-info-soft:#132e52;
-  --sk-rail:#061226;--sk-rail-active:rgba(63,208,240,.16);
-  --sk-grid:#1a3254;--sk-axis:#2a4a74;--sk-focus:#4a93ff;
+  --sk-info:#8fb3e8;--sk-info-soft:#132e52;
+  --sk-rail:#06101f;--sk-rail-active:rgba(212,175,55,.18);
+  --sk-grid:#1a3254;--sk-axis:#2a4a74;--sk-focus:#d4af37;--sk-s1:#d4af37;--sk-s2:#8fb3e8;
   --sk-violet:#b3a8ff;--sk-violet-soft:#241f4a;--sk-violet-line:#3a3470;
-  --sk-grad-rail:linear-gradient(180deg,#061226,#08182f);
+  --sk-grad-brand:linear-gradient(135deg,#e3c25a 0%,#d4af37 45%,#8a6a0e 100%);
+  --sk-grad-rail:linear-gradient(180deg,#06101f,#0a1a33);
   --sk-heat-1:#1f5a3b;--sk-heat-2:#6b5a17;--sk-heat-3:#7a4219;--sk-heat-4:#7f2626;
   --sk-shadow-1:0 1px 0 rgba(255,255,255,.03) inset,0 10px 26px -16px rgba(0,0,0,.7);--sk-shadow-2:0 16px 36px -16px rgba(0,0,0,.7);--sk-shadow-3:0 30px 70px -20px rgba(0,0,0,.8);
 }
