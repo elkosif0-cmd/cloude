@@ -98,3 +98,12 @@
 [data-sk-tabs="ledger-family"]{gap:var(--sk-2);margin-bottom:var(--sk-2);padding:0;background:transparent}
 [data-sk-tabs="ledger-family"] .sk-hub-btn{flex:0 0 auto;min-height:36px;padding:0 var(--sk-4);border:1px solid var(--sk-line);border-radius:var(--sk-r-pill);background:var(--sk-surface);box-shadow:none}
 [data-sk-tabs="ledger-family"] .sk-hub-btn.active{border-color:var(--sk-brand);background:var(--sk-brand);color:var(--sk-on-brand)}
+
+/* the command center in four tabs (R7): the tab strip under the demo notice, the other tabs' blocks hidden */
+.skdash-tabs{margin:0 0 var(--sk-3)}
+.skdash-tabs .sk-hub-nav{margin-bottom:0}
+#view[data-dash-tab="today"] [data-dt]:not([data-dt="today"]),
+#view[data-dash-tab="sales"] [data-dt]:not([data-dt="sales"]),
+#view[data-dash-tab="cash"] [data-dt]:not([data-dt="cash"]),
+#view[data-dash-tab="decide"] [data-dt]:not([data-dt="decide"]){display:none}
+#view[data-dash-tab]:not([data-dash-tab="today"]) .skc-world{display:none}

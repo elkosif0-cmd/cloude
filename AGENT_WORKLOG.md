@@ -846,3 +846,12 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - `tools/apple-source-harness.mjs` loads both files.
 - Result: `skosif.js` 5.35 MB → 3.17 MB (−41%), gzipped 1.15 → 0.92 MB; engines 544/544; source tests unchanged (Apple, McDonald's, corpus same-results green; the Volkswagen/Mercedes/Home Depot/pending/reference-catalog files fail identically on main and are in no workflow — one Home Depot case now passes).
 - Branch / PR: `claude/r4-light-bundle-20261007` from the R5 head.
+
+### TASK CLAUDE-20261007-015 — Deep review wave R7: the command center in four tabs
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- R1–R5 + R4 merged as PR #218 (carrying #214, #216, #217) and published: live `skosif.js` 3.33 MB (was 5.6 MB), `data/engines-sources.js` served on demand.
+- Finding: «مركز القيادة» stacked ten blocks from five modules — 5,942 px on a desktop, 11,530 px on a phone; two «quick start» blocks and three decision/recommendation blocks.
+- Scope (`ui/features/command-center.js` + `luxe-screens.css`): a tab strip under the demo notice — اليوم (brief, pulse, hero, KPI tiles, ابدأ عملاً) · المبيعات (the core's sales blocks and its quick actions) · النقد والمخاطر (trend, heat map, cash structure) · القرارات والمهام (journeys, decision inbox, tasks, activity). Blocks are tagged and the other tabs' blocks hidden by CSS, so every module keeps rendering as before; an untagged block stays on اليوم; a MutationObserver re-tags blocks other modules add later; the tab lasts the session.
+- Evidence (browser, demo company): every block tagged, no page errors; اليوم 2,052 px on a desktop (−65%), 3,928 px on a phone (−66%); النقد والمخاطر fits one screen.
+- Branch / PR: `claude/r7-command-center-20261007` from `main` @ 09b8585.
