@@ -820,3 +820,13 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - NEXT ACTION:
   - Commit and push to main.
 
+
+### TASK CLAUDE-20261007-012 — Deep review wave R3: each entry's menu in the constitution's order
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Scope:
+  - `ui/core/capabilities.json`: `gateways[].menu` — accounting in the order of the company cycle (FOUNDATION §3.12: home · setup · entries and books · sales and collection · purchasing and stock · reconciliation · statements and reports · analysis and forecasting · decision and standards · settings), tools in the families of §3.3.1, audit around the audit file (§3.2).
+  - `ui/core/registry.js`: `SK.caps.menu(gid)` (only the entry's own hubs; any hub no section lists lands in «أخرى», so nothing is lost), `SK.caps.section(id,gid)`, and `path(id,gid)` names the section of the entry the user is in.
+  - `ui/layouts/shell.js`: the sidebar and the phone domain strip read the entry's menu (fallback to the registry groups for an entry without one).
+- Evidence: browser read of the three menus on the preview (10 / 9 / 5 sections, every hub present, no page errors); gateway contract and navigation unit tests unchanged (the one red test is red without R3 too).
+- Branch / PR: `claude/r3-menu-by-constitution-20261007` from the R2 head.

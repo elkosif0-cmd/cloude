@@ -2018,7 +2018,104 @@
    "short": "المحاسبة",
    "icon": "ledger",
    "home": "ledger",
-   "sub": "القطاع ثم الشركة: دليل الحسابات والقيود والأستاذ والذمم والمخزون والضريبة والإقفال والقوائم والتقارير والتحليل — كلها مترابطة"
+   "sub": "القطاع ثم الشركة: دليل الحسابات والقيود والأستاذ والذمم والمخزون والضريبة والإقفال والقوائم والتقارير والتحليل — كلها مترابطة",
+   "menu": [
+    {
+     "id": "acc-home",
+     "label": "الرئيسية والمتابعة",
+     "icon": "dash",
+     "hubs": [
+      "dash",
+      "tasks",
+      "risks"
+     ]
+    },
+    {
+     "id": "acc-setup",
+     "label": "الإعداد والتعريفات",
+     "icon": "companies",
+     "hubs": [
+      "companies"
+     ]
+    },
+    {
+     "id": "acc-books",
+     "label": "القيود والدفاتر",
+     "icon": "ledger",
+     "hubs": [
+      "ledger",
+      "jesim",
+      "advances"
+     ]
+    },
+    {
+     "id": "acc-sales",
+     "label": "المبيعات والتحصيل",
+     "icon": "commerce",
+     "hubs": [
+      "commerce",
+      "receivables"
+     ]
+    },
+    {
+     "id": "acc-supply",
+     "label": "المشتريات والمخزون",
+     "icon": "inventory",
+     "hubs": [
+      "suppliers",
+      "inventory"
+     ]
+    },
+    {
+     "id": "acc-close",
+     "label": "التسويات والمطابقة",
+     "icon": "smartmatch",
+     "hubs": [
+      "smartmatch"
+     ]
+    },
+    {
+     "id": "acc-reports",
+     "label": "القوائم والتقارير",
+     "icon": "execreports",
+     "hubs": [
+      "reportingintake",
+      "execreports",
+      "reports",
+      "archive"
+     ]
+    },
+    {
+     "id": "acc-analysis",
+     "label": "التحليل والتنبؤ",
+     "icon": "cash",
+     "hubs": [
+      "cash",
+      "risklab",
+      "finance",
+      "benchmarks"
+     ]
+    },
+    {
+     "id": "acc-decision",
+     "label": "القرار والمعايير",
+     "icon": "jev",
+     "hubs": [
+      "decision",
+      "jev",
+      "codex"
+     ]
+    },
+    {
+     "id": "acc-settings",
+     "label": "الإعدادات والحوكمة",
+     "icon": "settings",
+     "hubs": [
+      "settings",
+      "governance"
+     ]
+    }
+   ]
   },
   {
    "id": "audit",
@@ -2026,7 +2123,53 @@
    "short": "المراجعة",
    "icon": "tbreview",
    "home": "tbreview",
-   "sub": "ملف مراجعة مستقل: ارفع القوائم والميزان والمستندات، جولات المراجعة ومجلس AI وJev، ثم التقرير — وشركات الحزمة المرجعية للمقارنة"
+   "sub": "ملف مراجعة مستقل: ارفع القوائم والميزان والمستندات، جولات المراجعة ومجلس AI وJev، ثم التقرير — وشركات الحزمة المرجعية للمقارنة",
+   "menu": [
+    {
+     "id": "aud-file",
+     "label": "ملف المراجعة",
+     "icon": "tbreview",
+     "hubs": [
+      "tbreview"
+     ]
+    },
+    {
+     "id": "aud-standards",
+     "label": "المعايير والمدونة",
+     "icon": "codex",
+     "hubs": [
+      "codex"
+     ]
+    },
+    {
+     "id": "aud-decision",
+     "label": "المجلس والقرار",
+     "icon": "jev",
+     "hubs": [
+      "jev",
+      "decision"
+     ]
+    },
+    {
+     "id": "aud-home",
+     "label": "المتابعة",
+     "icon": "dash",
+     "hubs": [
+      "dash",
+      "tasks",
+      "risks"
+     ]
+    },
+    {
+     "id": "aud-settings",
+     "label": "الإعدادات والحوكمة",
+     "icon": "settings",
+     "hubs": [
+      "settings",
+      "governance"
+     ]
+    }
+   ]
   },
   {
    "id": "tools",
@@ -2034,7 +2177,100 @@
    "short": "الأدوات",
    "icon": "helperdesk",
    "home": "helperdesk",
-   "sub": "أدوات تعمل مستقلة أو تُركّب داخل شركة: التكاليف والتسعير، العملاء، الموردون والمخزون، المطابقات، التحليل والتنبؤ، Jev"
+   "sub": "أدوات تعمل مستقلة أو تُركّب داخل شركة: التكاليف والتسعير، العملاء، الموردون والمخزون، المطابقات، التحليل والتنبؤ، Jev",
+   "menu": [
+    {
+     "id": "tl-home",
+     "label": "الأدوات والمتابعة",
+     "icon": "helperdesk",
+     "hubs": [
+      "helperdesk",
+      "dash",
+      "tasks"
+     ]
+    },
+    {
+     "id": "tl-costs",
+     "label": "التكاليف والتسعير والإنتاج",
+     "icon": "productflow",
+     "hubs": [
+      "productflow",
+      "ptree",
+      "blending",
+      "carcass",
+      "labels"
+     ]
+    },
+    {
+     "id": "tl-sales",
+     "label": "العملاء والمبيعات",
+     "icon": "customers",
+     "hubs": [
+      "customers",
+      "salesmap",
+      "salesintel",
+      "offers",
+      "operations"
+     ]
+    },
+    {
+     "id": "tl-supply",
+     "label": "المخزون والموردون",
+     "icon": "inventory",
+     "hubs": [
+      "inventory",
+      "suppliers"
+     ]
+    },
+    {
+     "id": "tl-data",
+     "label": "البيانات والملفات",
+     "icon": "reportingintake",
+     "hubs": [
+      "reportingintake",
+      "companies",
+      "archive"
+     ]
+    },
+    {
+     "id": "tl-analysis",
+     "label": "التحليل والتنبؤ",
+     "icon": "finance",
+     "hubs": [
+      "risklab",
+      "finance",
+      "benchmarks"
+     ]
+    },
+    {
+     "id": "tl-reports",
+     "label": "التقارير والطباعة",
+     "icon": "execreports",
+     "hubs": [
+      "execreports",
+      "reports"
+     ]
+    },
+    {
+     "id": "tl-control",
+     "label": "الرقابة والقرار",
+     "icon": "decision",
+     "hubs": [
+      "risks",
+      "decision",
+      "jev",
+      "governance"
+     ]
+    },
+    {
+     "id": "tl-settings",
+     "label": "الإعدادات",
+     "icon": "settings",
+     "hubs": [
+      "settings"
+     ]
+    }
+   ]
   }
  ],
  "sectors": [

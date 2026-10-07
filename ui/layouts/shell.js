@@ -180,9 +180,11 @@ function paintNav(){
   else if(gate&&cap&&SK.gate.pinned()===cur)SK.gate.unpin(); /* the door's section arrived on its first screen */
   let html="";
   if(gate)html+='<div class="skn-gates" role="group" aria-label="القسم" data-gate="'+esc(gate)+'">'+gateways.map(g=>'<button type="button" class="skn-gate" data-gate="'+esc(g.id)+'" aria-pressed="'+(g.id===gate)+'" title="'+esc(g.label)+'">'+(SK.icons[g.icon]||"")+'<span>'+esc(g.short||g.label)+'</span></button>').join("")+'</div>';
-  const domains=gate?SK.caps.groupsInGateway(gate):SK.caps.groups();
+  /* R3: the entry's own menu (the constitution's order) when it declares one, else the registry's groups */
+  const menu=gate&&SK.caps.menu?SK.caps.menu(gate):null;
+  const domains=menu||(gate?SK.caps.groupsInGateway(gate):SK.caps.groups());
   domains.forEach(gr=>{
-    const items=SK.caps.hubsInGroup(gr.id).filter(c=>!gate||SK.caps.inGatewayOf(c,gate)).map(c=>[c,hubPages(c.id,cur)]).filter(([,pg])=>pg.length);
+    const items=(menu?gr.hubs:SK.caps.hubsInGroup(gr.id).filter(c=>!gate||SK.caps.inGatewayOf(c,gate))).map(c=>[c,hubPages(c.id,cur)]).filter(([,pg])=>pg.length);
     if(!items.length)return;
     const here=items.some(([,pg])=>pg.some(x=>x.id===cur)),isOpen=here||(open[gr.id]!==undefined?open[gr.id]:true);
     html+='<div class="skn-group'+(isOpen?'':' closed')+(here?' here':'')+'" role="group" aria-label="'+esc(gr.label)+'" data-g="'+esc(gr.id)+'"><button type="button" class="nav-group skn-gh" data-g="'+esc(gr.id)+'" aria-expanded="'+isOpen+'"><span class="skn-gi">'+(SK.icons[gr.icon]||"")+'</span><span>'+esc(gr.label)+'</span><i class="skn-gc">'+items.length+'</i>'+CHEV+'</button>'+
@@ -225,7 +227,9 @@ function stripItems(id){
   /* «متقدم» only marks an advanced page inside a daily hub */
   const hubAdv=!SK.caps.hub(id).primary;
   if(pages.length>1)return{hub:true,items:pages.map(x=>({id:x.id,go:x.id,label:x.label,primary:x.primary||hubAdv,on:x.id===id}))};
-  const items=SK.caps.hubsInGroup(cap.group).map(h=>[h,hubPages(h.id,id)]).filter(([,pg])=>pg.length)
+  /* the hubs of the screen's menu section in the entry the user is in (R3), else of its group */
+  const gate=SK.gate&&SK.gate.current?SK.gate.current():"",sec=gate&&SK.caps.section?SK.caps.section(id,gate):null;
+  const items=(sec?sec.hubs:SK.caps.hubsInGroup(cap.group)).map(h=>[h,hubPages(h.id,id)]).filter(([,pg])=>pg.length)
     .map(([h,pg])=>({id:h.id,go:pg[0].id,label:h.hubLabel,primary:h.primary,on:pg.some(x=>x.id===id)}));
   return{hub:false,items};
 }
