@@ -609,3 +609,13 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - 11 door-based e2e suites now wait for `/app-safe` as well as `/app-safe.html`. Pages serves the page without the extension, so the same suites run against production.
 - Left for the owner and the other agent: `think-mcp/cloudflare-council-01713` and `regression-01713` fail on `main`. They pin the KOSIF Think worker's route versions (`/mcp/v0.18.4`), which that agent is changing, and they concern a deployed worker contract.
 - Branch / PR: `claude/live-verification-20261007` from `main` @ dafd407.
+
+### TASK CODEX-20261007-UI-REPAIR — bounded financial and context display regressions
+- Agent: Codex
+- Status: ACTIVE
+- Base: main `fb74267d2cc412a7162c78ee37da237ce427581d`; branch `codex/company-context-vat-20261007`.
+- Scope reservation: `ui/features/enterprise.js`, `ui/features/master-data.js`, `ui/features/month-close.js`, `ui/layouts/topbar.js`, `ui/layouts/rail-audit.js`, company-search rendering in `unlock.html`/`ui/features/tb-review.js`, essential focused tests; investigate ledger table footer via shared table renderer before reserving any additional edit. Preserve independent audit/accounting/tools contexts, actual company data, all 78 capabilities, and other owners' changes. No security/startup/admission changes.
+- Governance: read current START_HERE, FOUNDATION, PRODUCT_MANDATE and coordination ledger. No repository .agents/skills found. Current connector listing returns 17 accessible repositories; existing deep-inventory coverage remains partial and is not claimed complete. Reviewed open drafts #170/#169 (already selectively extracted), #143/#140 (source assets); no competing architectural rewrite. PR157 is already merged and purchasing is excluded.
+- Findings: current enterprise QR/tag verification/WhatsApp retain fixed 1.15; master-data still submits percentage text to fraction-or-percent API. New reported context/search, close counts and ledger-footer issues require synthetic reproduction.
+- Plan: write failing behavioral regressions, apply minimal boundary/display fixes, run relevant Node/build/type/lint and isolated browser checks, independent review, then publish. Latest owner authorization allows merge and deployed verification only when checks/protections permit; never bypass CI.
+- NEXT ACTION: reproduce the named defects on this base. Record all failed/blocked checks separately.
