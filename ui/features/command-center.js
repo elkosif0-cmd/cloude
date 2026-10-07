@@ -185,6 +185,30 @@ function render(root){
 window.SKosifMetrics=Object.freeze({trend:async n=>series(await loadTrend(),n||12),risks:risksDb,findings:()=>risksDb().findings,decisions:()=>{const rank={critical:0,warn:1,info:2};return[...(core().exceptions()||[]),...ownItems()].sort((a,b)=>rank[a.sev]-rank[b.sev])}});
 /* redraw the trend at the new width (labels keep their real size) */
 let rz=0;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{const b=document.querySelector(".skc-luxe");if(b&&b.isConnected)fillTrend(b)},200)},{passive:true});
-function boot(){const c=core();if(c)c.onView("dash",render);SK.bus&&SK.bus.on("nav",()=>{if(core()&&core().view()!=="dash")dropWorld()})}
+/* ---------- R7 (docs/rebuild/DEEP_REVIEW_20261007_ar.md): the command center in four tabs ----------
+   The screen gathers blocks from several modules (the month-close brief, the pulse, the journeys, the core's sales blocks and
+   this file's cards) — 5,900 px of scrolling. Each block is tagged with its tab and the other tabs' blocks are hidden by CSS, so
+   every block keeps rendering exactly as before. A block nobody tagged stays on «اليوم»: nothing can disappear. */
+const DTABS=[["today","اليوم"],["sales","المبيعات"],["cash","النقد والمخاطر"],["decide","القرارات والمهام"]];
+const DT_KEY="sqc_dash_tab";
+const BLOCK_TAB=[[".skjr","decide"],[".v12-sales-hero","sales"],[".sales-pulse","sales"],[".bento","sales"],[".bento-2","sales"],[".quick-start","sales"]];
+const SKC_TAB=[[".skc-row3","cash"],[".skc-row3b","decide"]];
+const dtab=()=>{let t="today";try{t=sessionStorage.getItem(DT_KEY)||t}catch{}return DTABS.some(([id])=>id===t)?t:"today"};
+function organize(){
+  const v=document.getElementById("view");if(!v||!core()||core().view()!=="dash"){if(v&&v.dataset.dashTab)delete v.dataset.dashTab;return}
+  for(const el of v.children){if(el.matches(".skdemo,.skn-domain,.skdash-tabs,.skc"))continue;const t=(BLOCK_TAB.find(([s])=>el.matches(s))||[0,"today"])[1];if(el.dataset.dt!==t)el.dataset.dt=t}
+  const skc=v.querySelector(":scope > .skc");if(skc)for(const el of skc.children){const t=(SKC_TAB.find(([s])=>el.matches(s))||[0,"today"])[1];if(el.dataset.dt!==t)el.dataset.dt=t}
+  let bar=v.querySelector(":scope > .skdash-tabs");
+  if(!bar){bar=document.createElement("div");bar.className="skdash-tabs";const demo=v.querySelector(":scope > .skdemo");demo?demo.after(bar):v.prepend(bar)}
+  const cur=dtab(),html=SK.ui.tabs(DTABS,cur,"dash");if(bar.innerHTML!==html)bar.innerHTML=html;
+  if(v.dataset.dashTab!==cur)v.dataset.dashTab=cur;
+}
+let orgT=0;const later=()=>{clearTimeout(orgT);orgT=setTimeout(organize,30)};
+document.addEventListener("click",e=>{const b=e.target.closest('[data-sk-tabs="dash"] [data-tab]');if(!b)return;
+  try{sessionStorage.setItem(DT_KEY,b.dataset.tab)}catch{}organize();const v=document.getElementById("view");if(v&&v.getBoundingClientRect().top<0)v.scrollIntoView({block:"start"})});
+function boot(){const c=core();if(c)c.onView("dash",render);SK.bus&&SK.bus.on("nav",()=>{if(core()&&core().view()!=="dash")dropWorld();later()});
+  SK.bus&&SK.bus.on("render",later);
+  /* the other modules add their blocks after the core renders: re-tag whenever #view's children change on this screen */
+  const v=document.getElementById("view");if(v&&"MutationObserver" in window)new MutationObserver(()=>{if(core()&&core().view()==="dash")later()}).observe(v,{childList:true})}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
 })();
