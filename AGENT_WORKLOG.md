@@ -836,3 +836,13 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Status: IN PROGRESS
 - Scope: the 18 screen descriptions longer than 80 characters (up to 215) rewritten to one line in `ui/core/capabilities.json`; each old text moved into the screen's `kw` so the palette and the sidebar filter still find it by those words; `docs/rebuild/SYSTEM_CAPABILITY_INVENTORY.md` and `NEW_CAPABILITY_MAP.md` regenerated (`tools/capability_docs.py`); `tools/registry_clarity.test.mjs` (one-line descriptions, unique labels, distinct menu section names, known screens only) added to S.kosif.yml.
 - Branch / PR: `claude/r5-clarity-20261007` from the R3 head.
+
+### TASK CLAUDE-20261007-014 — Deep review wave R4: a lighter app bundle
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Finding: `ui/core/engines.js` (3.3 MB, in every page load) carried 2.4 MB of embedded report data for five reviewed published-source adapters (McDonald's 2022, Volkswagen, Mercedes, Home Depot, reference index) that no screen reads — only the source tests do.
+- Scope:
+  - `tools/build_engines.mjs` compiles two files: `ui/core/engines.js` (everything else, plus `SKEngines.loadSources()`) and `ui/data/engines-sources.js` (the five adapters, joining `SKEngines.reports` when loaded; generated entry `app/src/engine/fusion/sources.ts`). `--check` covers both.
+  - `tools/apple-source-harness.mjs` loads both files.
+- Result: `skosif.js` 5.35 MB → 3.17 MB (−41%), gzipped 1.15 → 0.92 MB; engines 544/544; source tests unchanged (Apple, McDonald's, corpus same-results green; the Volkswagen/Mercedes/Home Depot/pending/reference-catalog files fail identically on main and are in no workflow — one Home Depot case now passes).
+- Branch / PR: `claude/r4-light-bundle-20261007` from the R5 head.

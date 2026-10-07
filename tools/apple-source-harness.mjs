@@ -18,6 +18,8 @@ export function harness() {
   context.localStorage = {getItem: k => state[k] ?? null, setItem: (k,v) => {state[k]=v;}, removeItem: k => delete state[k]};
   vm.createContext(context);
   vm.runInContext(read('ui/core/engines.js'), context);
+  /* the reviewed source adapters ship separately since R4 (ui/data/engines-sources.js) and join SKEngines.reports when loaded */
+  vm.runInContext(read('ui/data/engines-sources.js'), context);
   vm.runInContext(read('ui/features/tb-review.js').replace(/\}\)\(\);\s*$/, 'window.__test={compute,docX,openFile,newFile,blank,fsTab,fsStatements,policyNote,aiTab,printLetter,printPbcLetter,printReport,printDoc,sourceCsv:typeof sourceCsv===\'function\'?sourceCsv:null};\n})();'), context);
   vm.runInContext(read('ui/features/report-docs.js'), context);
   return {context, state, documents, E: context.SKEngines};
