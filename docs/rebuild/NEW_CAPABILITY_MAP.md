@@ -11,9 +11,9 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | جديد — شاشة الإشعارات في تصميم KOSIF | `notifications` | الأدوات المساعدة › العام › المهام والإشعارات › مركز الإشعارات | CORE | admin, accountant, warehouse, sales, viewer |
 | جديد — شاشة المخاطر والملاحظات في تصميم KOSIF (خريطة المخاطر، توزيع الفئات، أحدث الملاحظات) | `risks` | الأدوات المساعدة › العام › المخاطر والملاحظات | MANAGEMENT | admin, accountant, warehouse, sales, viewer |
 | تنظيم كل الأدوات غير المرتبطة مباشرة بملف المراجعة في مساحة مستقلة | `helperdesk` | الأدوات المساعدة › العام › الأدوات المساعدة المستقلة | UTILITIES | admin, accountant, warehouse, sales, viewer |
-| مركز القرار | `decision` | الأدوات المساعدة › Jev والقرار › مركز القرار | INTELLIGENCE | admin, accountant, sales |
-| Jev للقرار | `jev` | الأدوات المساعدة › Jev والقرار › Jev ومجلس القرار › Jev للقرار | INTELLIGENCE | admin, accountant, sales |
-| Grand Fusion intelligence.council | `council` | الأدوات المساعدة › Jev والقرار › Jev ومجلس القرار › مجلس القرار | INTELLIGENCE | admin, accountant, sales |
+| مركز القرار | `decision` | الأدوات المساعدة › Jev والقرار › القرار › مركز القرار | INTELLIGENCE | admin, accountant, sales |
+| Jev للقرار | `jev` | الأدوات المساعدة › Jev والقرار › القرار › Jev للقرار | INTELLIGENCE | admin, accountant, sales |
+| Grand Fusion intelligence.council | `council` | الأدوات المساعدة › Jev والقرار › القرار › مجلس القرار | INTELLIGENCE | admin, accountant, sales |
 | المخاطر | `risklab` | البرنامج المحاسبي الكامل › المالية والدفاتر › المخاطر والحساسية › المخاطر وجسر الربحية | ADVANCED | admin |
 | مختبر الحساسية | `sensitivity` | البرنامج المحاسبي الكامل › المالية والدفاتر › المخاطر والحساسية › مختبر الحساسية | ADVANCED | admin, accountant |
 | جديد — خريطة جغرافية للعملاء وتحليل المبيعات وتقرير الصنف | `salesmap` | الأدوات المساعدة › المبيعات والعملاء › خريطة العملاء وتحليل المبيعات | CORE | admin |
@@ -126,8 +126,7 @@ The front door and the sidebar expose exactly three entries (FOUNDATION §3): th
 | الأدوات المساعدة | المبيعات والعملاء | العروض والكتالوج | `offers` العروض والكتالوج | — |
 | الأدوات المساعدة | المبيعات والعملاء | المناسبات والتشغيل | `operations` المناسبات والتشغيل | — |
 | الأدوات المساعدة | المبيعات والعملاء | ذكاء المبيعات والطلب | `salesintel` ذكاء المبيعات · `intelligence` ذكاء العملاء والطلب · `economics` اقتصاديات الطلب | — |
-| الأدوات المساعدة | Jev والقرار | مركز القرار | `decision` مركز القرار | البرنامج المحاسبي الكامل، المراجعة والتدقيق |
-| الأدوات المساعدة | Jev والقرار | Jev ومجلس القرار | `jev` Jev للقرار · `council` مجلس القرار | البرنامج المحاسبي الكامل، المراجعة والتدقيق |
+| الأدوات المساعدة | Jev والقرار | القرار | `decision` مركز القرار · `jev` Jev للقرار · `council` مجلس القرار | البرنامج المحاسبي الكامل، المراجعة والتدقيق |
 
 ## Sectors of the accounting entry (FOUNDATION §3.7)
 
@@ -144,7 +143,7 @@ The front door and the sidebar expose exactly three entries (FOUNDATION §3): th
 | `agriculture` الزراعة والمزارع | — | المواسم والحظائر كمراكز تكلفة، الأعلاف، النفوق، تكلفة الدورة |
 | `trade` التجارة والخدمات العامة | — | فروع ومستودعات، شراء وبيع، هوامش ومخزون وائتمان — وكل نشاط آخر |
 
-78 screens in 37 menu entries.
+78 screens in 36 menu entries.
 
 ## By tier
 

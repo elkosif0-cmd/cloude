@@ -75,7 +75,12 @@ function bindDecision(){
 /* ---------- مطابقة الإكسل ---------- */
 const norm=s=>String(s||"").replace(/[ً-ْـ]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/\s+/g," ").trim().toLowerCase();
 let excelText="", excelVat="net";
+/* R12 (#22): the same reviewed matcher as «مطابقة المبيعات» (SKEngines.reports.smartMatch) with its learned names, so a
+   name that matches there matches here; the exact/contains rule below only runs if the engines did not load */
 function matchItem(name,items){
+  let e=null;try{e=window.SKEngines&&SKEngines.reports&&SKEngines.reports.smartMatch||null}catch{e=null}
+  if(e){const m=e.bestCatalogMatch(String(name||""),items.map(x=>({id:String(x.id),name:String(x.name||""),sku:""})),load("skosif_v34_product_aliases",{})||{});
+    return m.item&&m.score>=50?items.find(x=>String(x.id)===m.item.id)||null:null}
   const n=norm(name); if(!n)return null;
   let hit=items.find(x=>norm(x.name)===n); if(hit)return hit;
   const c=items.filter(x=>{const m=norm(x.name);return m&&(m.includes(n)||n.includes(m))}).sort((a,b)=>norm(b.name).length-norm(a.name).length);

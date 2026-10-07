@@ -116,7 +116,7 @@ function thinkHTML(){
   const r=th.result;
   const cards=r?.artifacts?.map(a=>'<article class="sk-note"><b>'+esc((window.SKosifAI.conf(a.provider)?.label)||a.provider)+' · '+Math.round((a.confidence||0)*100)+'٪</b><div>'+esc(a.answer||"")+'</div>'+(a.risks?.length?'<small>مخاطر: '+esc(a.risks.join(" · "))+'</small>':'')+'</article>').join("")||"";
   const jev=r?.jev?summary(r.jev):null;
-  return '<section class="card" id="kosif-think"><div class="card-h"><div><h3>KOSIF Think</h3><p>مجلس تفكير متعدد Agents: OpenAI + Claude + Gemini، ثم Jev كحاجز قرار.</p></div><span class="chip">'+providers.length+' Agent جاهز</span></div><div class="card-b sk-stack">'+
+  return '<section class="card" id="kosif-think"><div class="card-h"><div><h3>KOSIF Think</h3><p>مجلس تفكير من عدة نماذج ذكاء اصطناعي مُعدّة في «المراجع الذكي»، ثم Jev كحاجز قرار.</p></div><span class="chip">'+providers.length+' Agent جاهز</span></div><div class="card-b sk-stack">'+
     '<div class="seg sk-seg" role="group" aria-label="عمق التفكير">'+["fast","council","deep"].map(m=>'<button type="button" data-th-mode="'+m+'" aria-pressed="'+(th.mode===m)+'">'+({fast:"سريع",council:"مجلس",deep:"عميق"}[m])+'</button>').join("")+'</div>'+
     '<div class="sk-chips">'+(providers.length?providers.map(p=>'<span class="chip">'+esc(window.SKosifAI.conf(p).label)+'</span>').join(""):'<span class="sk-note warn">أضف مفتاحين أو أكثر من إعداد «المراجع الذكي» لتفعيل المجلس متعدد النماذج.</span>')+'</div>'+
     '<label class="sk-field"><span>المسألة أو السؤال</span><textarea id="th-q" rows="4" placeholder="اكتب المسألة التي تريد من المجلس تحليلها...">'+esc(th.q)+'</textarea></label>'+

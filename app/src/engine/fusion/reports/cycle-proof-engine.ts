@@ -13,6 +13,9 @@ import { buildTrialBalance, type JournalEntry } from '../finance/ledger-engine';
 import { fromRows, type AccountType } from './tb-import-engine';
 import { buildStatements } from './statements-engine';
 
+/* amounts in the step texts read like money (15,166.82), not raw division results (15166.82) */
+const amt = (minor: number) => (minor / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
 export type ProofAccount = { id: string; code: string; name: string; type: string };
 export type ProofEntry = JournalEntry & { source?: string; sourceId?: string; party?: string };
 export type ProofStep = { id: string; label: string; status: 'ok' | 'warn' | 'fail'; detail: string; figures?: Record<string, number> };
@@ -38,7 +41,7 @@ export function cycleProof(input: { accounts: ProofAccount[]; entries: ProofEntr
     figures: { entries: entries.length, traced, unbalanced, orphan } });
   /* 2. entries → ledger → trial balance */
   const tb = buildTrialBalance(entries), dr = h(tb.totals.debit), cr = h(tb.totals.credit);
-  steps.push({ id: 'ledger', label: 'القيود ← الأستاذ ← ميزان المراجعة', status: dr === cr ? 'ok' : 'fail', detail: dr === cr ? 'الميزان متزن' : 'فرق الميزان ' + (dr - cr) / 100, figures: { debit: dr, credit: cr } });
+  steps.push({ id: 'ledger', label: 'القيود ← الأستاذ ← ميزان المراجعة', status: dr === cr ? 'ok' : 'fail', detail: dr === cr ? 'الميزان متزن' : 'فرق الميزان ' + amt(dr - cr), figures: { debit: dr, credit: cr } });
   /* 3. trial balance → statements, with the chart's own types (no guessing from names) */
   const rows = tb.rows.map((r) => { const a = acc.get(r.accountId); return { code: a ? a.code : r.accountId, name: a ? a.name : r.accountId, debit: r.debit, credit: r.credit }; });
   const overrides: Record<string, AccountType> = {};
@@ -46,7 +49,7 @@ export function cycleProof(input: { accounts: ProofAccount[]; entries: ProofEntr
   const fs = buildStatements(fromRows(rows, { overrides }));
   const unmapped = fs.unmapped.filter((u) => u.balance !== 0);
   steps.push({ id: 'statements', label: 'ميزان المراجعة ← القوائم المالية', status: !fs.checks.balanced ? 'fail' : unmapped.length ? 'warn' : 'ok',
-    detail: !fs.checks.balanced ? 'قائمة المركز المالي غير متوازنة بفرق ' + (fs.checks.difference ?? 0) / 100 : unmapped.length ? 'حسابات بلا بند في القوائم: ' + unmapped.map((u) => u.code + ' ' + u.name).join('، ') : 'كل حساب له بند، والمركز المالي متوازن',
+    detail: !fs.checks.balanced ? 'قائمة المركز المالي غير متوازنة بفرق ' + amt(fs.checks.difference ?? 0) : unmapped.length ? 'حسابات بلا بند في القوائم: ' + unmapped.map((u) => u.code + ' ' + u.name).join('، ') : 'كل حساب له بند، والمركز المالي متوازن',
     figures: { mappedPct: fs.checks.mappedPct, difference: fs.checks.difference ?? 0 } });
   /* 4. the same numbers in the statements and in the ledger */
   let rev = 0, exp = 0, assets = 0;
@@ -54,7 +57,7 @@ export function cycleProof(input: { accounts: ProofAccount[]; entries: ProofEntr
   const plProfit = fs.pl.find((r) => r.key === 'profit')?.current ?? 0, sfpAssets = fs.sfp.find((r) => r.key === 'assets')?.current ?? 0;
   const same = plProfit === rev - exp && sfpAssets === assets;
   steps.push({ id: 'same', label: 'الأرقام نفسها في القوائم والدفاتر', status: same ? 'ok' : 'fail',
-    detail: same ? 'صافي الربح ' + plProfit / 100 + ' ومجموع الموجودات ' + sfpAssets / 100 + ' كما في الدفاتر' : 'القوائم: ربح ' + plProfit / 100 + ' وموجودات ' + sfpAssets / 100 + ' — الدفاتر: ربح ' + (rev - exp) / 100 + ' وموجودات ' + assets / 100,
+    detail: same ? 'صافي الربح ' + amt(plProfit) + ' ومجموع الموجودات ' + amt(sfpAssets) + ' كما في الدفاتر' : 'القوائم: ربح ' + amt(plProfit) + ' وموجودات ' + amt(sfpAssets) + ' — الدفاتر: ربح ' + amt(rev - exp) + ' وموجودات ' + amt(assets),
     figures: { profit: plProfit, ledgerProfit: rev - exp, assets: sfpAssets, ledgerAssets: assets } });
   /* 5. sub-ledgers: control account = the sum of its parties; lines with no party are named */
   const codes = new Set(input.controls ?? CONTROL_CODES), byCode = new Map(input.accounts.map((a) => [a.code, a.id]));
@@ -66,7 +69,7 @@ export function cycleProof(input: { accounts: ProofAccount[]; entries: ProofEntr
     if (!total && !none) continue;
     if (none) unassigned++;
     if (parties + none !== total) gap++;
-    ctl.push(code + ': ' + total / 100 + (none ? ' (منها ' + none / 100 + ' بلا طرف)' : ''));
+    ctl.push(code + ': ' + amt(total) + (none ? ' (منها ' + amt(none) + ' بلا طرف)' : ''));
   }
   steps.push({ id: 'subledgers', label: 'الذمم والأطراف ← حسابات المراقبة', status: gap ? 'fail' : unassigned ? 'warn' : 'ok',
     detail: ctl.length ? ctl.join(' · ') : 'لا حسابات مراقبة بأرصدة', figures: { controls: ctl.length, unassigned } });

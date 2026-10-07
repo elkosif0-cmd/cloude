@@ -1279,7 +1279,7 @@ window.SKEngines = (function() {
 		return [...tb.rows].sort((a, b) => Math.abs(b.balance) - Math.abs(a.balance) || a.code.localeCompare(b.code, "en")).slice(0, limit);
 	}
 	var csvCell = (v) => /[",\n]/.test(v) ? "\"" + v.replace(/"/g, "\"\"") + "\"" : v;
-	var amt$1 = (v) => (Math.round(v * 100) / 100).toFixed(2).replace(/\.00$/, "");
+	var amt$2 = (v) => (Math.round(v * 100) / 100).toFixed(2).replace(/\.00$/, "");
 	/** The app's books as a trial-balance CSV the review reads (رقم الحساب، اسم الحساب، مدين، دائن، السنة السابقة):
 	*  debit balances in مدين, credit balances in دائن, the comparative as one signed column. Zero lines are
 	*  dropped; the prior column appears only when a comparative exists. */
@@ -1288,9 +1288,9 @@ window.SKEngines = (function() {
 		const lines = rows.filter((r) => Math.abs(r.balance) >= .005 || withPrior && Math.abs(r.prior || 0) >= .005).sort((a, b) => a.code.localeCompare(b.code, "en")).map((r) => [
 			csvCell(r.code),
 			csvCell(r.name),
-			r.balance > 0 ? amt$1(r.balance) : "",
-			r.balance < 0 ? amt$1(-r.balance) : "",
-			...withPrior ? [amt$1(r.prior || 0)] : []
+			r.balance > 0 ? amt$2(r.balance) : "",
+			r.balance < 0 ? amt$2(-r.balance) : "",
+			...withPrior ? [amt$2(r.prior || 0)] : []
 		].join(","));
 		return [[
 			"رقم الحساب",
@@ -20418,7 +20418,7 @@ window.SKEngines = (function() {
 		transferJournal: () => transferJournal
 	});
 	var sar$3 = (h) => h / 100;
-	var amt = (v, what, zero = false) => {
+	var amt$1 = (v, what, zero = false) => {
 		if (!Number.isInteger(v) || v < 0 || !zero && !v) throw new Error(what + " غير صالح");
 		return v;
 	};
@@ -20429,7 +20429,7 @@ window.SKEngines = (function() {
 	};
 	/** stock bought on credit for a branch */
 	function branchPurchaseJournal(x, vatRate, a) {
-		const branch = named(x.branch, "حدد الفرع"), supplier = named(x.supplier, "حدد المورد"), net = amt(x.amountHalalas, "مبلغ الشراء");
+		const branch = named(x.branch, "حدد الفرع"), supplier = named(x.supplier, "حدد المورد"), net = amt$1(x.amountHalalas, "مبلغ الشراء");
 		const vat = vatRate > 0 ? Math.round(net * vatRate) : 0;
 		if (vat && !a.inputVatAccountId) throw new Error("حساب ضريبة المدخلات غير موجود");
 		return {
@@ -20466,7 +20466,7 @@ window.SKEngines = (function() {
 	/** a branch's sale: gross price less a discount (4100), VAT on what is charged, cash or on credit within the customer's
 	limit; and its cost out of the branch's stock */
 	function branchSaleJournals(x, vatRate, a) {
-		const branch = named(x.branch, "حدد الفرع"), gross = amt(x.grossHalalas, "مبلغ البيع"), disc = amt(x.discountHalalas ?? 0, "الخصم", true), cost = amt(x.costHalalas, "تكلفة البضاعة المباعة");
+		const branch = named(x.branch, "حدد الفرع"), gross = amt$1(x.grossHalalas, "مبلغ البيع"), disc = amt$1(x.discountHalalas ?? 0, "الخصم", true), cost = amt$1(x.costHalalas, "تكلفة البضاعة المباعة");
 		if (disc >= gross) throw new Error("الخصم لا يجوز أن يبلغ قيمة البيع");
 		if (disc && !a.discountAccountId) throw new Error("حساب خصومات المبيعات غير موجود");
 		if (cost > x.branchStockHalalas) throw new Error("تكلفة المبيع أكثر من مخزون " + branch);
@@ -20539,7 +20539,7 @@ window.SKEngines = (function() {
 	}
 	/** stock moved between branches at cost: the books' total does not change, each branch's stock does */
 	function transferJournal(x, a) {
-		const from = named(x.from, "حدد الفرع المحوِّل"), to = named(x.to, "حدد الفرع المستلم"), cost = amt(x.costHalalas, "قيمة التحويل");
+		const from = named(x.from, "حدد الفرع المحوِّل"), to = named(x.to, "حدد الفرع المستلم"), cost = amt$1(x.costHalalas, "قيمة التحويل");
 		if (from === to) throw new Error("الفرعان متماثلان");
 		if (cost > x.fromStockHalalas) throw new Error("قيمة التحويل أكثر من مخزون " + from);
 		return { journal: {
@@ -22713,6 +22713,10 @@ window.SKEngines = (function() {
 		CONTROL_CODES: () => CONTROL_CODES,
 		cycleProof: () => cycleProof
 	});
+	var amt = (minor) => (minor / 100).toLocaleString("en-US", {
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2
+	});
 	var h = (v) => Math.round(v * 100);
 	var TYPES = /* @__PURE__ */ new Set([
 		"asset",
@@ -22757,7 +22761,7 @@ window.SKEngines = (function() {
 			id: "ledger",
 			label: "القيود ← الأستاذ ← ميزان المراجعة",
 			status: dr === cr ? "ok" : "fail",
-			detail: dr === cr ? "الميزان متزن" : "فرق الميزان " + (dr - cr) / 100,
+			detail: dr === cr ? "الميزان متزن" : "فرق الميزان " + amt(dr - cr),
 			figures: {
 				debit: dr,
 				credit: cr
@@ -22783,7 +22787,7 @@ window.SKEngines = (function() {
 			id: "statements",
 			label: "ميزان المراجعة ← القوائم المالية",
 			status: !fs.checks.balanced ? "fail" : unmapped.length ? "warn" : "ok",
-			detail: !fs.checks.balanced ? "قائمة المركز المالي غير متوازنة بفرق " + (fs.checks.difference ?? 0) / 100 : unmapped.length ? "حسابات بلا بند في القوائم: " + unmapped.map((u) => u.code + " " + u.name).join("، ") : "كل حساب له بند، والمركز المالي متوازن",
+			detail: !fs.checks.balanced ? "قائمة المركز المالي غير متوازنة بفرق " + amt(fs.checks.difference ?? 0) : unmapped.length ? "حسابات بلا بند في القوائم: " + unmapped.map((u) => u.code + " " + u.name).join("، ") : "كل حساب له بند، والمركز المالي متوازن",
 			figures: {
 				mappedPct: fs.checks.mappedPct,
 				difference: fs.checks.difference ?? 0
@@ -22802,7 +22806,7 @@ window.SKEngines = (function() {
 			id: "same",
 			label: "الأرقام نفسها في القوائم والدفاتر",
 			status: same ? "ok" : "fail",
-			detail: same ? "صافي الربح " + plProfit / 100 + " ومجموع الموجودات " + sfpAssets / 100 + " كما في الدفاتر" : "القوائم: ربح " + plProfit / 100 + " وموجودات " + sfpAssets / 100 + " — الدفاتر: ربح " + (rev - exp) / 100 + " وموجودات " + assets / 100,
+			detail: same ? "صافي الربح " + amt(plProfit) + " ومجموع الموجودات " + amt(sfpAssets) + " كما في الدفاتر" : "القوائم: ربح " + amt(plProfit) + " وموجودات " + amt(sfpAssets) + " — الدفاتر: ربح " + amt(rev - exp) + " وموجودات " + amt(assets),
 			figures: {
 				profit: plProfit,
 				ledgerProfit: rev - exp,
@@ -22826,7 +22830,7 @@ window.SKEngines = (function() {
 			if (!total && !none) continue;
 			if (none) unassigned++;
 			if (parties + none !== total) gap++;
-			ctl.push(code + ": " + total / 100 + (none ? " (منها " + none / 100 + " بلا طرف)" : ""));
+			ctl.push(code + ": " + amt(total) + (none ? " (منها " + amt(none) + " بلا طرف)" : ""));
 		}
 		steps.push({
 			id: "subledgers",

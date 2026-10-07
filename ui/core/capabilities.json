@@ -377,14 +377,14 @@
    "also": [
     "accounting",
     "audit"
-   ]
+   ],
+   "hubLabel": "القرار"
   },
   {
    "id": "jev",
    "label": "Jev للقرار",
    "sub": "قرار منظم من بيانات مجمعة بلا بيانات شخصية",
    "group": "jev",
-   "hubLabel": "Jev ومجلس القرار",
    "tier": "INTELLIGENCE",
    "module": "ui/jev.js",
    "data": [
@@ -404,7 +404,8 @@
    "also": [
     "accounting",
     "audit"
-   ]
+   ],
+   "hub": "decision"
   },
   {
    "id": "council",
@@ -419,7 +420,7 @@
    "decision": "Rebuild",
    "kw": "تصويت مجلس قرار",
    "group": "jev",
-   "hub": "jev",
+   "hub": "decision",
    "adv": false,
    "en": "Decision Council",
    "gateway": "tools",
@@ -2123,7 +2124,6 @@
      "icon": "jev",
      "hubs": [
       "decision",
-      "jev",
       "codex"
      ]
     },
@@ -2167,7 +2167,6 @@
      "label": "المجلس والقرار",
      "icon": "jev",
      "hubs": [
-      "jev",
       "decision"
      ]
     },
@@ -2279,7 +2278,6 @@
      "hubs": [
       "risks",
       "decision",
-      "jev",
       "governance"
      ]
     },
