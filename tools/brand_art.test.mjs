@@ -15,7 +15,7 @@ test('every sector of the accounting entry has its picture', () => {
 });
 
 test('every brand file the door and the screens name exists, and stays light', () => {
-  const sources = ['unlock.html', 'ui/features/command-center.js', 'ui/features/luxe-screens.css', 'ui/features/tbreview.css', 'ui/features/ledger.js'].map(read).join('\n');
+  const sources = ['unlock.html', 'ui/features/command-center.js', 'ui/features/luxe-screens.css', 'ui/features/tbreview.css', 'ui/layouts/topbar.js'].map(read).join('\n');
   const named = new Set([...sources.matchAll(/art\/brand\/([a-z0-9-]+\.(?:webp|mp4))/g)].map((m) => m[1]));
   const gates = read('unlock.html').match(/const GATE_ART=\{([^}]*)\}/)[1];
   for (const m of gates.matchAll(/\["([a-z0-9-]+)"/g)) named.add(m[1] + '.webp');

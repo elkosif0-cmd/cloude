@@ -107,7 +107,10 @@ try {
     await page.waitForTimeout(1000);
     check(`${tag}: the choreography marks are cleaned up`, await page.evaluate(() => !document.getElementById('view').classList.contains('sk-enter')));
     check(`${tag}: no horizontal overflow after the screen entered`, (await overflow(page)) <= 2, String(await overflow(page)));
-    check(`${tag}: the helper screens name the company and link back to the front door`, await page.evaluate(() => { const b = document.querySelector('.sqc-space-bar'); return !!b && b.textContent.includes('شركة الوادي التجريبية للحوم') && !!b.querySelector('[data-space-door][href="./"]'); }));
+    /* R1: the company menu in the top bar names the company and links back to the front door (no strip above the screen) */
+    await page.click('#sk-tb-co'); await page.waitForTimeout(200);
+    check(`${tag}: the company menu names the company and links back to the front door`, await page.evaluate(() => { const b = document.querySelector('.sk-menu'); return !!b && b.textContent.includes('شركة الوادي التجريبية للحوم') && !!b.querySelector('[data-space-door][href="./"]') && !!b.querySelector('[data-space-open]') && !document.querySelector('.sqc-space-bar'); }));
+    await page.keyboard.press('Escape'); await page.waitForTimeout(100);
     const demoCustomers = await page.evaluate(async () => ((r) => r.empty ? 0 : r.customers.length)(await SKosifSalesIntel.snapshot('all')));
     check(`${tag}: demo customers exist`, demoCustomers > 0, String(demoCustomers));
 

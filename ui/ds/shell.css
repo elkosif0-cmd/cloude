@@ -526,6 +526,8 @@ body.skn-locked{position:fixed;inset-inline:0;top:var(--skn-lock-top,0px);width:
 .skdemo>span:not(.skdemo-dot){flex:1 1 280px;min-width:0}
 .skdemo-dot{width:9px;height:9px;border-radius:50%;background:var(--sk-warn-mark);box-shadow:0 0 0 4px color-mix(in srgb,var(--sk-warn-mark) 22%,transparent)}
 .skdemo .btn.sm{min-height:30px}
+/* R1: on a phone the notice is one slim line — the explanation sits in its title, the two actions stay */
+@media (max-width:600px){.skdemo{flex-wrap:nowrap;gap:6px;padding:6px 10px}.skdemo>span:not(.skdemo-dot){display:none}.skdemo b{flex:1 1 auto;white-space:nowrap}}
 .skdemo-x{border:0;background:none;color:var(--sk-ink-3);font-size:18px;line-height:1;cursor:pointer;padding:2px 6px}
 .skdemo-panel{width:min(560px,100%)}
 .skdemo-panel .sk-table-wrap{max-height:52vh;overflow:auto;margin-top:var(--sk-3)}
@@ -621,7 +623,11 @@ body.skn-locked{position:fixed;inset-inline:0;top:var(--skn-lock-top,0px);width:
 :root:is([data-look="najd"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"]) .rail input{background:color-mix(in srgb,var(--sk-rail-ink) 6%,transparent);color:var(--sk-rail-ink);border-color:color-mix(in srgb,var(--sk-rail-ink) 14%,transparent)}
 /* ---------- work flow strip (SK.flow) ---------- */
 .sk-ph{flex-wrap:wrap}
-.skflow{flex-basis:100%;min-width:0;max-width:100%;display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--sk-line)}
+.skflow{flex-basis:100%;min-width:0;max-width:100%;display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-top:8px;padding-top:8px;border-top:1px dashed var(--sk-line)}
+.skflow[hidden]{display:none}
+.skflow-btn{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.skflow-btn svg{width:16px;height:16px}.skflow-btn[aria-expanded="true"]{background:var(--sk-brand-soft);color:var(--sk-brand)}
+/* R1: on wide screens the sidebar already lists the domain's hubs — the strip only shows a hub's own pages */
+@media (min-width:901px){.skn-domain:not(.skn-hubtabs){display:none}}
 .skflow::-webkit-scrollbar{display:none}
 .skflow-l{flex:none;color:var(--sk-ink-3);font-size:var(--sk-fs-xs);font-weight:700;margin-inline:4px 2px}
 .skflow-c{flex:none;display:inline-flex;align-items:center;gap:5px;min-height:28px;padding:0 10px;border:1px solid var(--sk-line);border-radius:999px;background:var(--sk-surface-2);color:var(--sk-ink-2);font:inherit;font-size:var(--sk-fs-xs);font-weight:600;cursor:pointer}

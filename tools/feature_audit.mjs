@@ -65,8 +65,11 @@ ok('هيكل المنتج','لكل مجموعة أدوات مسموحة عقدة
       Number(e.getAttribute('x2'))===parseFloat(n.style.left)&&Number(e.getAttribute('y2'))===parseFloat(n.style.top);
   })&&[...document.querySelectorAll('.hd-shell [data-hd-go]')].every(n=>SK.caps.get(n.dataset.hdGo)&&SK.perm.can(n.dataset.hdGo));
 }));
-ok('هيكل المنتج','الأدوات المساعدة تعرض شركتها ومبدّل الشركات',await p.evaluate(()=>!!document.querySelector('.sqc-space-bar [data-space-open]')&&!!window.SKosifSpace));
-ok('هيكل المنتج','الأدوات المساعدة تعرض مستخدم المحاسب وتفصل مساحاته',await p.evaluate(()=>!!document.querySelector('.sqc-space-bar [data-user-open]')&&typeof SKosifSpace.user==='function'&&typeof SKosifSpace.switchUser==='function'&&typeof SKosifSpace.createUser==='function'));
+/* R1: the company switcher and the accountant's user live in the top bar's company menu, not in a strip above the screen */
+await p.click('#sk-tb-co');await p.waitForTimeout(200);
+ok('هيكل المنتج','الأدوات المساعدة تعرض شركتها ومبدّل الشركات (قائمة الشركة)',await p.evaluate(()=>!!document.querySelector('.sk-menu [data-space-open]')&&!!window.SKosifSpace&&!document.querySelector('.sqc-space-bar')));
+ok('هيكل المنتج','الأدوات المساعدة تعرض مستخدم المحاسب وتفصل مساحاته',await p.evaluate(()=>!!document.querySelector('.sk-menu [data-user-open]')&&typeof SKosifSpace.user==='function'&&typeof SKosifSpace.switchUser==='function'&&typeof SKosifSpace.createUser==='function'));
+await p.keyboard.press('Escape');await p.waitForTimeout(100);
 await go('productflow',1500);ok('الاستوديو','استوديو المنتج يُرسم بمكوّن الاستوديو المشترك (SK.studio): كيان في المركز، مدخلات ومخرجات، مفتّش وتبويبات',await p.evaluate(()=>!!(window.SK&&SK.studio&&SK.studio.mount)&&!!document.querySelector('.pf-canvas .pf-node.pf-r-center')&&document.querySelectorAll('.pf-canvas .pf-node.pf-r-input').length>=1&&document.querySelectorAll('.pf-tab').length===4));
 await go('customerflow',3000);await p.waitForFunction(()=>document.querySelector('.pf-canvas .pf-node.pf-r-center'),null,{timeout:15000}).catch(()=>{});
 ok('الاستوديو','استوديو العميل على القالب نفسه: العميل في المركز، الطلبات والمدفوعات والمنتجات مدخلات، الشريحة والإيقاع والقيمة والذمم والمتابعة مخرجات',await p.evaluate(()=>!!window.SKosifCustomerFlow&&!!document.querySelector('.pf-node.pf-customer.pf-r-center')&&document.querySelectorAll('.pf-node.pf-r-input').length>=3&&document.querySelectorAll('.pf-node.pf-r-output').length===5&&document.querySelectorAll('.pf-tab').length===4&&!!document.querySelector('#pf-q')));

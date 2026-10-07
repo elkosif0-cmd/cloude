@@ -36,16 +36,18 @@
   box-shadow:0 0 0 2px var(--sk-surface),0 0 0 3.5px color-mix(in srgb,var(--sk-brand) 35%,var(--sk-line))}
 
 /* ================= page head ================= */
-.sk-ph{display:flex;align-items:center;justify-content:space-between;gap:var(--sk-3) var(--sk-4);flex-wrap:wrap;width:100%;max-width:1480px;margin:0 auto;padding:var(--sk-5) var(--sk-6) 0}
+.sk-ph{display:flex;align-items:center;justify-content:space-between;gap:var(--sk-2) var(--sk-4);flex-wrap:wrap;width:100%;max-width:1480px;margin:0 auto;padding:var(--sk-4) var(--sk-6) 0}
 .sk-ph .ttl{display:flex;align-items:center;gap:14px;min-width:0;flex:1 1 380px}
-.sk-ph-ic{width:52px;height:52px;flex:none;display:grid;place-items:center;border:1px solid var(--sk-line);border-radius:16px;background:var(--sk-surface);color:var(--sk-brand);box-shadow:var(--sk-shadow-1)}
+.sk-ph-ic{width:44px;height:44px;flex:none;display:grid;place-items:center;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface) center/cover no-repeat;color:var(--sk-brand);box-shadow:var(--sk-shadow-1)}
+.sk-ph-ic.has-art svg{display:none}
 .sk-ph-ic svg{width:26px;height:26px}
 .sk-ph-tx{display:flex;flex-direction:column;min-width:0}
 .sk-ph .skt-crumb{display:none}
 .sk-ph h2{margin:0;font-size:var(--sk-fs-2xl);font-weight:700;line-height:1.25;color:var(--sk-ink);white-space:normal}
 .sk-ph-en{align-self:flex-start;font:600 12.5px/1.5 var(--sk-font-latin);letter-spacing:.02em;color:var(--sk-ink-3)}
 .sk-ph-en:empty{display:none}
-.sk-ph .sub{margin-top:3px;font-size:var(--sk-fs-s);line-height:1.6;color:var(--sk-ink-2);white-space:normal}
+.sk-ph .sub{margin-top:2px;font-size:var(--sk-fs-s);line-height:1.6;color:var(--sk-ink-2);white-space:normal;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
+.sk-ph.sub-open .sub{-webkit-line-clamp:unset;display:block}
 .sk-ph .sub:empty{display:none}
 .sk-ph .hdr{flex:0 1 auto;flex-wrap:wrap;justify-content:flex-end;overflow:visible}
 .sk-ph[data-view="dash"] .sk-ph-ic{display:none}
@@ -68,7 +70,8 @@
   .sk-ph-ic{width:40px;height:40px;border-radius:12px}.sk-ph-ic svg{width:20px;height:20px}
   .sk-ph .sub{font-size:var(--sk-fs-xs)}
   .sk-ph .hdr{order:5;flex:1 0 100%;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto}
-  .sk-ph[data-view="dash"] .sk-ctx{display:flex;order:4;flex:1 0 100%}
+  /* R1: on phones the company and period chips sit in the head of every screen (the only place to switch them there) */
+  .sk-ph .sk-ctx{display:flex;order:4;flex:1 0 100%}
   .sk-ph .sk-ctx .sk-tb-btn{flex:1 1 0;max-width:none}
   .sk-ph .sk-ctx .sk-tb-btn small{display:block}
   .main{padding-top:12px}

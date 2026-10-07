@@ -12,13 +12,22 @@ const core=()=>window.SKosifCore;
 function strip(){
   const ph=document.querySelector(".sk-ph");if(!ph||!SK.caps||!SK.caps.flow)return;
   const v=core()&&core().view(),f=SK.caps.flow(v),can=c=>!c.hidden&&(!SK.perm||SK.perm.can(c.id));
-  const from=f.from.filter(can),to=f.to.filter(can);let el=ph.querySelector(".skflow");
-  if(!from.length&&!to.length){if(el)el.remove();return}
+  const from=f.from.filter(can),to=f.to.filter(can);let el=ph.querySelector(".skflow"),btn=ph.querySelector(".skflow-btn");
+  if(!from.length&&!to.length){if(el)el.remove();if(btn)btn.remove();return}
+  /* the chips stay folded behind one button in the head (R1: one page head, DEEP_REVIEW_20261007); the choice lasts the session */
+  const open=sessionStorage.getItem(FLOW_OPEN)==="1",host=ph.querySelector(".hdr")||ph;
+  if(!btn){btn=document.createElement("button");btn.type="button";btn.className="skflow-btn btn sm";btn.setAttribute("aria-controls","skflow");host.appendChild(btn)}
+  else if(btn.parentElement!==host)host.appendChild(btn);
+  const n=from.length+to.length;if(btn.dataset.n!==String(n)){btn.innerHTML=ICON+'<span>مرتبط</span><i class="sk-pill">'+n+'</i>';btn.dataset.n=String(n)}
+  btn.setAttribute("aria-expanded",String(open));btn.title=open?"إخفاء ما يغذي هذه الشاشة وما تغذيه":"ما يغذي هذه الشاشة وما تغذيه";
   const chip=c=>'<button type="button" class="skflow-c" data-flow-go="'+c.id+'" title="'+esc(c.sub||"")+'">'+(SK.icons[c.id]||"")+'<span>'+esc(c.label)+'</span></button>';
   const h=(from.length?'<span class="skflow-l">يأتي من</span>'+from.slice(0,5).map(chip).join(""):'')+'<span class="skflow-me" aria-current="page">'+esc((SK.caps.get(v)||{}).label||"")+'</span>'+(to.length?'<span class="skflow-l">يذهب إلى</span>'+to.slice(0,6).map(chip).join(""):'');
-  if(!el){el=document.createElement("nav");el.className="skflow";el.setAttribute("aria-label","مسار العمل");ph.appendChild(el)}
+  if(!el){el=document.createElement("nav");el.className="skflow";el.id="skflow";el.setAttribute("aria-label","مسار العمل");ph.appendChild(el)}
   if(el.dataset.v!==v){el.innerHTML=h;el.dataset.v=v}
+  el.hidden=!open;
 }
+const FLOW_OPEN="sqc_flow_open",ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h6m4 0h6"/><circle cx="12" cy="12" r="2"/><path d="m15 8 4 4-4 4M9 8l-4 4 4 4"/></svg>';
+document.addEventListener("click",e=>{const b=e.target.closest(".skflow-btn");if(!b)return;const open=b.getAttribute("aria-expanded")!=="true";sessionStorage.setItem(FLOW_OPEN,open?"1":"0");strip()});
 /* a finding sent to «المخاطر والملاحظات» */
 function toFinding({title,detail,sev,area,cap}){
   const d=Object.assign({risks:[],findings:[]},load("skosif_risks_v1",{})),y=new Date().getFullYear();

@@ -395,14 +395,9 @@ function chooser(){
 }
 function inHelpers(){const c=window.SKosifCore,cap=c&&SK.caps&&SK.caps.get(c.view());return!!(cap&&cap.company)}
 function onNav(){if(inHelpers()){banner();sessionStorage.setItem(USER_ASKED,"1");if(!sessionStorage.getItem(ASKED))chooser()}else{hideUserChooser();hideChooser()}}
-/* the strip at the top of every helper screen: which company, and the way to change it */
-function banner(){
-  setTimeout(()=>{const v=document.getElementById("view");if(!v||!inHelpers())return;
-    let b=v.querySelector(":scope > .sqc-space-bar");const cur=current(),who=user();
-    const html='<span>'+SK.icon("user")+' <b>'+esc(who.name)+'</b> · '+SK.icon("companies")+' <b>'+esc(cur.name)+'</b></span><span class="sqc-space-bar-actions"><button type="button" class="btn sm" data-user-open>تبديل المستخدم</button><button type="button" class="btn sm" data-space-open>تبديل الشركة</button><a class="btn sm" href="./" data-space-door>كل الشركات</a></span>';
-    if(!b){b=document.createElement("div");b.className="sqc-space-bar";const d=v.querySelector(":scope > .skn-domain");d?d.after(b):v.prepend(b)}
-    if(b.innerHTML!==html)b.innerHTML=html},0);
-}
+/* R1 (DEEP_REVIEW_20261007): no strip above the helper screens any more — the company is in the top bar, and «تبديل المستخدم»,
+   «تبديل الشركة» and «كل الشركات» sit in the top bar's company menu (ui/layouts/topbar.js, data-user-open / data-space-open) */
+function banner(){const v=document.getElementById("view"),b=v&&v.querySelector(":scope > .sqc-space-bar");if(b)b.remove()}
 document.addEventListener("click",e=>{if(e.target.closest("[data-user-open]"))userChooser();else if(e.target.closest("[data-space-open]"))chooser()});
 SK.bus&&SK.bus.on("nav",()=>setTimeout(onNav,50));
 SK.bus&&SK.bus.on("render",()=>setTimeout(()=>{if(inHelpers())banner()},0));

@@ -757,3 +757,18 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - `docs/design/HIGGSFIELD_VISUALS_ar.md` (provenance, prompts, cost, processing).
 - Identity ratchet: no metric worse.
 - Branch / PR: `claude/higgsfield-visuals-20261007` from `main` @ 1fbd35a.
+
+### TASK CLAUDE-20261007-010 — Deep review and reorganisation from the roots: R1 «one page head»
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Owner's request in chat: «قم بتحليل عميق جدًا ومراجعة لكل شيء في التطبيق… وأعد تنظيم كل شيء… رتّب كل شيء من الجذور وحلّ الازدحام وسوء التنظيم وعدم الوضوح» then «كمل التطوير والدمج».
+- Review: `docs/rebuild/DEEP_REVIEW_20261007_ar.md` — every number measured (registry, bundle, tests, and the new `tools/clutter_audit.mjs`: content started at 465 px on average on a 900 px desktop and 589 px on an 844 px phone; 4.5 chrome rows per screen; the domain strip echoed the sidebar on all 64 screens, the flow chips on 48, the space bar on 45).
+- R1 scope:
+  - `ui/core/flow.js`: «يأتي من / يذهب إلى» folds behind one «مرتبط» button in the head (session memory).
+  - `ui/core/helper-space.js` + `ui/layouts/topbar.js`: the space bar is gone; «تبديل الشركة», «تبديل المستخدم», «كل الشركات» live in the top bar's company menu; on phones the company/period chips sit in the head of every screen.
+  - `ui/layouts/shell.js` strip: on wide screens only a hub's own pages show (the sidebar already lists the domain's hubs) — CSS in `shell.css`.
+  - `ui/layouts/topbar.js`: the sector picture is the head icon on the books; the description shows one line, a tap opens it. `ui/features/ledger.js`: the sector strip from #212 removed (its picture moved into the head).
+  - `ui/ds/luxe.css`: the head is 44 px icon, tighter padding.
+  - Tests moved with the UI: `feature_audit` (company menu), `company_entry_e2e`, `executive_pack_context_e2e`, `brand_art.test`.
+  - `tools/clutter_audit.mjs` ratchet (`tools/fixtures/clutter-baseline.json`, `--check` / `--write-baseline`).
+- Branch / PR: `claude/r1-one-head-20261007` from `main` @ 51306ad.
