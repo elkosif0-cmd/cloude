@@ -7,7 +7,7 @@ const icon = name => `<svg aria-hidden="true"><use href="#i-${name}"/></svg>`;
 const button = (label, attrs = '', kind = 'secondary') => `<button type="button" class="button ${kind}" ${attrs}>${label}</button>`;
 const refLinks = refs => refs.map(r => `<a class="source-pill" href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${icon('link')}${esc(r.code)}</a>`).join('');
 const priorities = { critical: 'حرجة', high: 'عالية', medium: 'متوسطة', low: 'منخفضة' };
-const dateText = v => v ? new Date(v).toLocaleDateString('ar-SA', { calendar: 'gregory', month: 'short', day: 'numeric' }) : 'بلا موعد';
+const dateText = v => v ? new Date(v).toLocaleDateString('ar-SA-u-ca-gregory-nu-latn', { calendar: 'gregory', month: 'short', day: 'numeric' }) : 'بلا موعد';
 
 export function createStudio({ getContext, getState, updateState, actions, recordEvent, notify }) {
  let selectedTask = null;
@@ -67,7 +67,7 @@ export function createStudio({ getContext, getState, updateState, actions, recor
   <article class="panel methods-panel"><div class="panel-header"><div><span class="eyebrow">طرق عمل أعمق</span><h2>ثلاث عدسات قبل كل استنتاج</h2></div>${icon('target')}</div><div class="method-grid"><div><span>01</span><h3>ابحث عن الدليل المناقض</h3><p>حدد أولًا ما الذي قد يغيّر تفسيرك، ثم صمّم إجراءً لاختباره.</p></div><div><span>02</span><h3>افصل الواقعة عن الفرضية</h3><p>سجّل ما قرأته من المصدر، وما استنتجته، وما يزال مجهولًا.</p></div><div><span>03</span><h3>راجع أثر التغيير</h3><p>عند تغيّر رصيد أو دليل، حدّث الجلسة والمذكرة والخطة المتأثرة.</p></div></div></article>
  </section>`);
 
- $('#view-dashboard').insertAdjacentHTML('afterbegin', `<div class="dashboard-intro"><div><span class="eyebrow">SQC / AUDIT INTELLIGENCE</span><h2>صورة أوضح. قرار أعمق.</h2></div><button class="button secondary" type="button" data-go="agent">${icon('command')} افتح استوديو الإيجنت</button></div>`);
+ $('#view-dashboard').insertAdjacentHTML('afterbegin', `<div class="dashboard-intro"><div><span class="eyebrow">SQC · ذكاء المراجعة</span><h2>صورة أوضح. قرار أعمق.</h2></div><button class="button secondary" type="button" data-go="agent">${icon('command')} افتح استوديو الإيجنت</button></div>`);
  $('#dashboardMetrics').insertAdjacentHTML('afterend', `<div class="dashboard-studio-grid"><article class="panel dashboard-agent-card"><div class="panel-header"><div class="inline-label"><span class="agent-dot"></span><h2>إحاطة الإيجنت</h2></div><span class="tiny-label">من الملف الحالي</span></div><p id="dashboardBrief"></p><div id="dashboardPriority"></div><button type="button" class="text-link" data-go="agent">افتح مساحة التفكير ${icon('route')}</button></article><article class="panel dashboard-work-card"><div class="panel-header"><h2>قائمة عملك</h2><button class="text-link" data-go="workflow">عرض الكل</button></div><div id="dashboardTasks"></div></article></div>`);
  $('#councilOverview').insertAdjacentHTML('beforebegin', `<div id="councilFreshness" class="freshness-banner" hidden></div><div class="council-lens-bar"><span>وجهات نظر مستقلة. ملف واحد.</span><div>${button('صياغة مذكرة تحدٍّ', 'data-studio-action="memo"','ghost small')}${button('تحويل الأولويات إلى خطة', 'data-studio-action="plan"','secondary small')}</div></div>`);
 
@@ -119,7 +119,7 @@ export function createStudio({ getContext, getState, updateState, actions, recor
   const plan = currentPlan(); const tasks = plan?.tasks ?? []; const stale = isStale();
   $('#workflowStale').hidden = !stale;
   $('#workflowStale').innerHTML = `${icon('alert')}<span>تغير مصدر الملف. الخطة السابقة محفوظة؛ حدّث الخطة قبل تسجيل إجراءات جديدة.</span>${button('تحديث الآن','data-studio-action="plan"','secondary small')}`;
-  $('#workflowStats').innerHTML = [['كل الإجراءات', tasks.length],['قيد التنفيذ',tasks.filter(t=>t.status==='active').length],['بانتظار دليل',tasks.filter(t=>t.status==='blocked').length],['أُنجزت',tasks.filter(t=>t.status==='done').length]].map(([label,value],i)=>`<article><span>${label}</span><strong>${value.toLocaleString('ar-SA')}</strong><i class="stat-accent accent-${i}"></i></article>`).join('');
+  $('#workflowStats').innerHTML = [['كل الإجراءات', tasks.length],['قيد التنفيذ',tasks.filter(t=>t.status==='active').length],['بانتظار دليل',tasks.filter(t=>t.status==='blocked').length],['أُنجزت',tasks.filter(t=>t.status==='done').length]].map(([label,value],i)=>`<article><span>${label}</span><strong>${value.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}</strong><i class="stat-accent accent-${i}"></i></article>`).join('');
   const visible = tasks.filter(t=>taskFilter==='all'||t.status===taskFilter);
   $('#workflowBoard').innerHTML = !tasks.length ? `<div class="studio-empty">${icon('route')}<h2>امنح المراجعة مسارًا واضحًا</h2><p>أنشئ خطة من الملف، ثم حدد المسؤول والموعد لكل إجراء.</p>${button('إنشاء خطة العمل','data-studio-action="plan"','primary')}</div>` : visible.length ? `<div class="task-table-heading"><span>الإجراء وسنده</span><span>الأولوية</span><span>المسؤول</span><span>الموعد</span></div>${visible.map(t=>taskRow(t)).join('')}` : '<div class="studio-empty"><h2>لا مهام بهذه الحالة</h2><p>اختر «الكل» للاطلاع على بقية الخطة.</p></div>';
   $('#workflowFootnote').textContent = plan ? `${plan.authority} · ${plan.sourceStamp}${plan.omittedRisks ? ` · أعلى 12 خطرًا معروضًا؛ ${plan.omittedRisks} إضافيًا في سجل المخاطر.` : ''}` : '';
@@ -148,10 +148,10 @@ export function createStudio({ getContext, getState, updateState, actions, recor
   const c = getContext(); const plan = buildActionPlan(c);
   const high = (c.risks??[]).filter(r=>r.status==='open'&&['high','critical'].includes(r.severity)).length;
   $('#agentEntity').textContent = c.engagement?.entity??'ملف الارتباط';
-  $('#agentContextStats').innerHTML = [['حسابات المصدر',c.analysis?.rows?.length??0],['مخاطر عالية مفتوحة',high],['أدلة مسجلة',c.evidence?.length??0]].map(([label,n])=>`<div class="context-stat"><span>${label}</span><strong>${n.toLocaleString('ar-SA')}</strong></div>`).join('');
+  $('#agentContextStats').innerHTML = [['حسابات المصدر',c.analysis?.rows?.length??0],['مخاطر عالية مفتوحة',high],['أدلة مسجلة',c.evidence?.length??0]].map(([label,n])=>`<div class="context-stat"><span>${label}</span><strong>${n.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}</strong></div>`).join('');
   $('#agentStamp').textContent = `حالة المصدر ${contextStamp(c)}`;
   $('#agentNextActions').innerHTML = plan.tasks.slice(0,3).map((t,i)=>`<button class="next-action" type="button" data-go="${esc(t.view)}"><span>${String(i+1).padStart(2,'0')}</span><div><strong>${esc(t.title)}</strong><small>${esc(t.why)}</small></div>${icon('route')}</button>`).join('');
-  $('#dashboardBrief').textContent = c.analysis ? `${high.toLocaleString('ar-SA')} مخاطر عالية أو حرجة تحتاج استجابة. ابدأ بما يغير جودة الملف فعلًا.` : 'كل مراجعة جيدة تبدأ بسؤال صحيح ومصدر واضح. استورد ميزانك أو استكشف البيانات التجريبية.';
+  $('#dashboardBrief').textContent = c.analysis ? `${high.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} مخاطر عالية أو حرجة تحتاج استجابة. ابدأ بما يغير جودة الملف فعلًا.` : 'كل مراجعة جيدة تبدأ بسؤال صحيح ومصدر واضح. استورد ميزانك أو استكشف البيانات التجريبية.';
   $('#dashboardPriority').innerHTML = plan.tasks.slice(0,2).map((t,i)=>`<button class="brief-priority" type="button" data-go="${esc(t.view)}"><span>0${i+1}</span><strong>${esc(t.title)}</strong>${icon('route')}</button>`).join('');
   renderMessages(); renderWorkflow(); renderReferences(); renderCouncilSources();
  }

@@ -69,7 +69,7 @@ const markAll=()=>markRead(items().filter(x=>x.unread).map(x=>x.id));
 function open(id){const x=items().find(i=>i.id===id);if(!x)return;markRead([id]);
   if(x.ledgerTab&&window.SKosifLedger&&SK.perm.can("ledger")){SKosifLedger.open(x.ledgerTab,{q:x.q});return}
   if(x.view&&SK.caps.get(x.view)&&SK.perm.can(x.view))core().go(x.view)}
-const rtf=new Intl.RelativeTimeFormat("ar",{numeric:"auto"});
+const rtf=new Intl.RelativeTimeFormat("ar-u-nu-latn",{numeric:"auto"});
 function ago(ts){const d=(ts-Date.now())/1000,a=Math.abs(d);return a<60?"الآن":a<3600?rtf.format(Math.round(d/60),"minute"):a<86400?rtf.format(Math.round(d/3600),"hour"):rtf.format(Math.round(d/86400),"day")}
 function rowHTML(x){
   return '<button type="button" class="skn-row'+(x.unread?' unread':'')+'" data-nid="'+esc(x.id)+'"><span class="ico '+esc(x.sev==="info"?"":x.sev==="ok"?"ok":x.sev)+'">'+SK.icon(ICON[x.type]||"alert")+'</span>'+

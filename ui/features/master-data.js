@@ -3,8 +3,8 @@
 "use strict";
 const {esc,toast}=SK,CP=()=>window.SKosifCompanyPlatform;
 let active="products";
-const money=v=>v==null||v===""?"—":Number(v).toLocaleString("ar-SA",{maximumFractionDigits:2});
-const minorMoney=v=>(Number(v||0)/100).toLocaleString("ar-SA",{minimumFractionDigits:2,maximumFractionDigits:2});
+const money=v=>v==null||v===""?"—":Number(v).toLocaleString("ar-SA-u-ca-gregory-nu-latn",{maximumFractionDigits:2});
+const minorMoney=v=>(Number(v||0)/100).toLocaleString("ar-SA-u-ca-gregory-nu-latn",{minimumFractionDigits:2,maximumFractionDigits:2});
 const asOfDate=()=>{const c=SK.company&&SK.company.current?SK.company.current():null;return c&&c.period&&c.period.endDate?c.period.endDate:new Date().toISOString().slice(0,10)};
 function categoryButtons(){
   return Object.entries(CP().types()).map(([id,x])=>'<button type="button" class="btn sm" data-md-type="'+id+'" aria-pressed="'+(id===active)+'">'+(SK.icons[x.icon]||"")+esc(x.label)+'</button>').join("");
@@ -22,6 +22,19 @@ function fixedAssetJournalCard(asOf){
     (missing?' · <span class="sksev warn">'+missing+' أصل يحتاج حساب مصروف/مجمع إهلاك</span>':'')+
     '<br><small>القيد مسودة حتمية بالقسط الثابت وفق بيانات الأصل. لا يُرحّل ولا يعتمد تلقائيًا؛ افتح الدفاتر وراجعه قبل التسجيل.</small></div>';
 }
+/* R11 (docs/rebuild/HARSH_REVIEW_20261008_ar.md #9): the pricing catalog's items that are not yet product definitions */
+const norm=v=>String(v||"").replace(/\s+/g," ").trim();
+function catalogMissing(){
+  let list=[];try{list=((window.SKosifCore&&SKosifCore.catalog()||{}).items||[]).filter(x=>x&&x.name&&x.status!=="archived"&&!x.byProduct)}catch{list=[]}
+  const have=new Set(CP().definitions("products").map(x=>norm(x.name)));return list.filter(x=>!have.has(norm(x.name)))}
+function catalogNote(){
+  if(active!=="products")return"";const miss=catalogMissing();if(!miss.length)return"";
+  return '<div class="sk-note md-cat"><b>'+miss.length+' صنفاً في كتالوج التسعير غير معرّف هنا</b> — '+esc(miss.slice(0,6).map(x=>x.name).join("، "))+(miss.length>6?"…":"")+
+    ' <button type="button" class="btn sm primary" data-md-catalog>اعتمدها تعريفات للشركة</button></div>'}
+function adoptCatalog(root){
+  const miss=catalogMissing();let n=0;
+  miss.forEach(x=>{try{CP().addDefinition("products",{name:x.name,unit:x.unit||(x.kind==="box"?"بوكس":"كجم"),cost:Number.isFinite(Number(x.cost))?Number(x.cost):"",salePrice:Number.isFinite(Number(x.price))?Number(x.price):"",notes:"من كتالوج التسعير؛ سعر البيع شامل الضريبة كما في الكتالوج"});n++}catch{}});
+  toast(n?"اعتُمد "+n+" صنفاً تعريفاتٍ للشركة":"لا أصناف جديدة","ok");paint(root)}
 function rows(){
   if(active==="fixedAssets")return fixedAssetRows();
   const items=CP().definitions(active);
@@ -32,7 +45,7 @@ function rows(){
 }
 function profileCard(){
   const p=CP().profile(),c=SK.company.current();
-  return '<section class="card"><div class="card-h"><div><span class="eyebrow">COMPANY PROFILE</span><h2>تعريف الشركة — '+esc(c.name)+'</h2><p>مرجع موحد تستخدمه المحاسبة والتقارير والمراجعة والمعايير.</p></div><span class="sk-pill">'+esc(p.currency)+'</span></div><div class="card-b sk-stack">'+
+  return '<section class="card"><div class="card-h"><div><span class="eyebrow">ملف الشركة</span><h2>تعريف الشركة — '+esc(c.name)+'</h2><p>مرجع موحد تستخدمه المحاسبة والتقارير والمراجعة والمعايير.</p></div><span class="sk-pill">'+esc(p.currency)+'</span></div><div class="card-b sk-stack">'+
   '<div class="sk-grid2"><label class="sk-field"><span>النشاط</span><input data-md-profile="activity" value="'+esc(p.activity)+'" placeholder="مثال: تجارة مواد غذائية"></label>'+
   '<label class="sk-field"><span>الدولة</span><input data-md-profile="country" maxlength="3" value="'+esc(p.country)+'"></label>'+
   '<label class="sk-field"><span>العملة</span><input data-md-profile="currency" maxlength="3" value="'+esc(p.currency)+'"></label>'+
@@ -52,9 +65,9 @@ function paint(root){
   /* a company created under a sector receives its pack on first open (FOUNDATION §3.7) */
   try{window.SKosifCompanyPlatform&&SKosifCompanyPlatform.ensureSectorPack()}catch{}
   const c=SK.company&&SK.company.current?SK.company.current():null,t=CP().types()[active];
-  root.innerHTML=profileCard()+'<section class="card"><div class="card-h"><div><span class="eyebrow">MASTER DATA</span><h2>التعريفات — '+esc(c?.name||"الشركة")+'</h2><p>عرّف العناصر مرة واحدة، ثم استخدمها في القيود والتقارير والتكاليف والمراجعة. البيانات مرتبطة بالشركة المفتوحة فقط.</p></div><span class="sk-pill">'+esc(t.label)+'</span></div><div class="card-b sk-stack">'+
+  root.innerHTML=profileCard()+'<section class="card"><div class="card-h"><div><span class="eyebrow">البيانات الأساسية</span><h2>التعريفات — '+esc(c?.name||"الشركة")+'</h2><p>عرّف العناصر مرة واحدة، ثم استخدمها في القيود والتقارير والتكاليف والمراجعة. البيانات مرتبطة بالشركة المفتوحة فقط.</p></div><span class="sk-pill">'+esc(t.label)+'</span></div><div class="card-b sk-stack">'+
     '<div class="sk-actions" role="group" aria-label="أنواع التعريفات">'+categoryButtons()+'</div>'+
-    '<div class="sk-actions"><button type="button" class="btn primary" data-md-add>إضافة '+esc(t.label)+'</button><button type="button" class="btn" data-md-ledger>فتح شجرة الحسابات والدفاتر</button></div>'+rows()+
+    catalogNote()+'<div class="sk-actions"><button type="button" class="btn primary" data-md-add>إضافة '+esc(t.label)+'</button><button type="button" class="btn" data-md-ledger>فتح شجرة الحسابات والدفاتر</button></div>'+rows()+
     '<p class="hint">اقتراح AI لا يغيّر الربط تلقائيًا؛ يظهر كاقتراح للمستخدم. الحسابات والترحيل تظل حتمية وتحت اعتماد بشري.</p></div></section>';
 }
 async function add(root){
@@ -112,6 +125,7 @@ function bind(root){
         CP().setProfile(patch);toast("حُفظ تعريف الشركة","ok");paint(root)}catch(err){toast(err.message,"bad")}return
     }
     if(e.target.closest("[data-md-add]")){await add(root);return}
+    if(e.target.closest("[data-md-catalog]")){adoptCatalog(root);return}
     if(e.target.closest("[data-md-ledger]")){window.SKosifCore&&SKosifCore.go("ledger");return}
     const dep=e.target.closest("[data-md-dep]");if(dep){await showDepreciationProposal(dep.dataset.mdDep);return}
     const del=e.target.closest("[data-md-del]");if(del&&await SK.confirm("حذف هذا التعريف من الشركة؟",{danger:true,ok:"حذف"})){CP().removeDefinition(active,del.dataset.mdDel);paint(root);return}

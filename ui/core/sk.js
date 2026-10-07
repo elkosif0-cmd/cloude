@@ -245,6 +245,11 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState===
    their ad-hoc <style> blocks are replaced by the heritage print style and the
    letterhead (emblem, business name, VAT/CR numbers from «الإعدادات») is added on top. */
 function org(){try{return(JSON.parse(localStorage.getItem("aghnam-pricing-v3")||"{}").settings)||{}}catch{return{}}}
+/* the name a receipt, a label or a message signs with: the report identity of the open company, else its name — never
+   a fixed name (R10: one business's name was printed on every company's receipts) */
+function bizName(){const b=String(org().biz||"").trim();if(b)return b;try{return(window.SK&&SK.company&&SK.company.current().name)||""}catch{return""}}
+/* the open company's sector ("meat", "bakery"…), for wording that belongs to one sector */
+function sectorNow(){try{return(window.SK&&SK.company&&SK.company.current().sector)||""}catch{return""}}
 const PRINT_CSS='@page{size:A4;margin:12mm}*{box-sizing:border-box}body{margin:0;padding:0 4mm;font-family:"Amiri","Noto Naskh Arabic",Tahoma,serif;color:#2b1a0f;background:#fff;font-size:13.5px;line-height:1.7;direction:rtl}'+
  'h1,h2,h3{font-family:"Aref Ruqaa","Amiri",serif;color:#5b3519;margin:.3em 0}h1{font-size:22px}h2{font-size:18px}h3{font-size:15px}'+
  'table{width:100%;border-collapse:collapse;margin:10px 0}th,td{padding:6px 8px;border-bottom:1px solid #e3d3b8;text-align:right;vertical-align:top}th{background:#f6eddd;color:#5b4330;font-weight:700}'+
@@ -275,18 +280,20 @@ function preparer(){try{const p=JSON.parse(localStorage.getItem("skosif_profile_
 /* who issues the printed page: in the audit section the audit firm (the profile's «المكتب المهني» and licence),
    elsewhere the company open in the helper tools (its name, VAT and CR numbers from the settings) */
 function issuer(){
-  let sec="";try{const c=core();sec=c&&SK.caps?SK.caps.sectionOf(c.view()):""}catch{}
+  /* the open section (R11: this asked SK.caps.sectionOf, which never existed — the error was swallowed and audit pages
+     were signed with the company's name instead of the audit firm) */
+  let sec="";try{sec=SK.gate&&SK.gate.current?SK.gate.current():""}catch{}
   if(sec==="audit"){let p={};try{p=JSON.parse(localStorage.getItem("skosif_profile_v1")||"{}")||{}}catch{}
-    return{name:String(p.firm||"").trim()||"المراجعة والمراجعة المالية",ids:[p.license?"ترخيص رقم "+esc(p.license):"",p.city?esc(p.city):""].filter(Boolean)}}
-  const o=org();return{name:o.biz||"أغنام الوادي",ids:[o.vatNo?"الرقم الضريبي "+esc(o.vatNo):"",o.crNo?"السجل التجاري "+esc(o.crNo):"",o.phone?esc(o.phone):"",o.addr?esc(o.addr):""].filter(Boolean)};
+    return{name:String(p.firm||"").trim()||"مكتب المراجعة",ids:[p.license?"ترخيص رقم "+esc(p.license):"",p.city?esc(p.city):""].filter(Boolean)}}
+  const o=org();return{name:(bizName()||"SQC"),ids:[o.vatNo?"الرقم الضريبي "+esc(o.vatNo):"",o.crNo?"السجل التجاري "+esc(o.crNo):"",o.phone?esc(o.phone):"",o.addr?esc(o.addr):""].filter(Boolean)};
 }
 function letterhead(title,identity){
   const who=identity||issuer(),o={biz:who.name},base=location.href.replace(/[^/?#]*([?#].*)?$/,"");
   const ids=who.ids;
   const date=identity?esc(identity.date):esc(new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"}));
-  if(kosifLook())return '<header class="skp-lux"><div class="skp-band"><img src="'+base+'art/sqc-mark.svg" alt=""><div class="skp-mark"><b>SQC</b><span>'+esc(o.biz||"أغنام الوادي")+'</span></div>'+
+  if(kosifLook())return '<header class="skp-lux"><div class="skp-band"><img src="'+base+'art/sqc-mark.svg" alt=""><div class="skp-mark"><b>SQC</b><span>'+esc(o.biz||"SQC")+'</span></div>'+
     '<div class="skp-doc"><b>'+esc(title||"")+'</b><span>'+date+'</span></div></div>'+(ids.length?'<div class="skp-ids">'+ids.map(x=>'<span>'+x+'</span>').join("")+'</div>':'')+'</header>';
-  return '<div class="skp-orn" style="background-image:url('+base+'art/ornament.svg)"></div><header class="skp-head"><img src="'+base+'art/ram.svg" alt=""><div class="skp-org"><b>'+esc(o.biz||"أغنام الوادي")+'</b>'+(ids.length?'<span>'+ids.join(" · ")+'</span>':'')+'</div>'+
+  return '<div class="skp-orn" style="background-image:url('+base+'art/ornament.svg)"></div><header class="skp-head"><img src="'+base+'art/ram.svg" alt=""><div class="skp-org"><b>'+esc(o.biz||"SQC")+'</b>'+(ids.length?'<span>'+ids.join(" · ")+'</span>':'')+'</div>'+
     '<div class="skp-meta"><b>'+esc(title||"")+'</b>'+date+'</div></header>';
 }
 /* ---------- print preview: every printed document opens with a bar of options first ----------
@@ -358,7 +365,7 @@ const vatPct=()=>Math.round(vatRate()*10000)/100+"٪";
 function askJev(opts){save("skosif_jev_draft",opts||{});if(core())core().go("jev")}
 
 window.SK={$,$$,esc,num,load,save,onSave,money,pct,toast,view,redact,askJev,vatRate,vatPct,icon,icons:ICONS,download,
-  confirm:confirmDialog,notify,form:formDialog,modalFocus,brandPrint,org,
+  confirm:confirmDialog,notify,form:formDialog,modalFocus,brandPrint,org,bizName,sector:sectorNow,
   print:Object.freeze({options:popts,set:(k,v)=>{const x=popts();x[k]=v;save(PKEY,x)},css:optCSS}),
   csv:Object.freeze({cell:safeCell,build:csv,download:downloadCsv}),
   lock:Object.freeze({now:lockNow,key:LOCK_KEY,touch:()=>{last=Date.now()}}),

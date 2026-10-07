@@ -497,6 +497,10 @@ function settingsCards(root){
     '<button type="button" class="btn" id="skx-rb"'+(SK.store.hasSnapshot()?'':' hidden')+'>التراجع عن آخر استعادة</button></div>'+
     '<div id="skx-bk-out" class="hint">'+usageText()+'</div></div></section>';
   root.insertAdjacentHTML("afterbegin",html);
+  /* R11 (docs/rebuild/HARSH_REVIEW_20261008_ar.md #8): in the audit section the core's identity card showed another
+     company's name beside an open audit file; it says whose identity it is, and who signs the audit pages */
+  if(SK.gate&&SK.gate.current&&SK.gate.current()==="audit"){const h=$$("h3",root).find(x=>x.textContent.trim()==="هوية المنشأة والتقارير"),card=h&&h.closest(".card"),head=card&&card.querySelector(".card-h");
+    if(head&&!card.querySelector(".skx-idnote"))head.insertAdjacentHTML("afterend",'<p class="sk-note skx-idnote">هذه هوية المنشأة المفتوحة في البرنامج المحاسبي والأدوات، لا عميل ملف المراجعة. أوراق قسم المراجعة تُوقَّع باسم مكتبك وترخيصه من قائمة المستخدم.</p>')}
   $$("[data-pref]",root).forEach(g=>g.addEventListener("click",e=>{const b=e.target.closest("button[data-v]");if(!b)return;
     setPref(g.dataset.pref,b.dataset.v);SK.toast(b.dataset.v==="compact"?"واجهة مضغوطة":"واجهة مريحة","info");
     $$("button",g).forEach(x=>x.setAttribute("aria-pressed",String(x===b)))}));

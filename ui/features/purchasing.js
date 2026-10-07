@@ -16,6 +16,8 @@ const db=()=>{const d=load(KEY,{});return{orders:d.orders||[],receipts:d.receipt
 const put=d=>save(KEY,d);
 const today=()=>new Date().toISOString().slice(0,10);
 const n=v=>Number(v)||0;
+/* an order's value before VAT, from its lines when it was stored without one (the demo orders showed 0.00) */
+const poValue=o=>Number.isFinite(o.value)&&o.value>0?o.value:(o.lines||[]).reduce((s,l)=>s+n(l.qty)*n(l.cost),0);
 /* the company's own definitions (التعريفات) feed the pickers first — FOUNDATION P2: one master data for the company */
 const defs=type=>{try{const P=window.SKosifCompanyPlatform;return P&&P.definitions?P.definitions(type):[]}catch{return[]}};
 function suppliers(d){
@@ -47,7 +49,7 @@ function ordersHTML(d){
     '</tbody></table></div><div class="sk-actions"><button type="button" class="btn" data-p="add-line">إضافة سطر</button><b>قيمة الأمر قبل الضريبة: <span id="pu-total">'+money(total)+'</span></b><button type="button" class="btn primary" data-p="save-po">حفظ أمر الشراء</button></div></div></section>'+
   '<section class="card"><div class="card-h"><div><h3>أوامر الشراء</h3><p>'+d.orders.length+' أمراً.</p></div></div><div class="card-b">'+
     (d.orders.length?'<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الرقم</th><th>المورد</th><th>التاريخ</th><th>القيمة</th><th>الحالة</th><th></th></tr></thead><tbody>'+
-      d.orders.slice().reverse().map(o=>'<tr><td class="n">'+esc(o.number)+'</td><td>'+esc(o.supplier)+'</td><td class="n">'+esc(o.date)+'</td><td class="n">'+money(o.value)+'</td><td>'+pill(o.status)+'</td><td>'+
+      d.orders.slice().reverse().map(o=>'<tr><td class="n">'+esc(o.number)+'</td><td>'+esc(o.supplier)+'</td><td class="n">'+esc(o.date)+'</td><td class="n">'+money(poValue(o))+'</td><td>'+pill(o.status)+'</td><td>'+
       (o.status==="OPEN"||o.status==="PARTIAL"?'<button type="button" class="linkish" data-p="recv" data-id="'+esc(o.id)+'">استلام</button> · <button type="button" class="linkish" data-p="void" data-id="'+esc(o.id)+'">إلغاء</button>':'')+
       ' · <button type="button" class="linkish" data-p="wa" data-id="'+esc(o.id)+'">واتساب</button></td></tr>').join("")+'</tbody></table></div>':SK.ui.state.empty({title:"لا توجد أوامر شراء بعد"}))+'</div></section>';
 }
@@ -115,7 +117,7 @@ function bind(root){
       d.receipts.push({id:SK.ui.uid("rc"),orderId:o.id,date:today(),lines,variances,inspection,temperature:tv,notes:$("#rc-notes",root).value.trim(),status:"RECEIVED"});
       const short=variances.some(x=>x.status==="SHORT");o.status=short?"PARTIAL":"RECEIVED";
       /* the cold-chain log gets the reading too, so traceability sees it */
-      if(tv!==""){const cold=load("skosif_v38_coldchain",[]);if(Array.isArray(cold)){cold.unshift({time:new Date().toLocaleString("ar-SA"),loc:"استلام — "+o.supplier,temp:n(tv),humidity:"",inspector:"فحص الاستلام"});save("skosif_v38_coldchain",cold.slice(0,500))}}
+      if(tv!==""){const cold=load("skosif_v38_coldchain",[]);if(Array.isArray(cold)){cold.unshift({time:new Date().toLocaleString("ar-SA-u-ca-gregory-nu-latn"),loc:"استلام — "+o.supplier,temp:n(tv),humidity:"",inspector:"فحص الاستلام"});save("skosif_v38_coldchain",cold.slice(0,500))}}
       put(d);toast(inspection.overallStatus==="OK"?"حُفظ الاستلام — مقبول":"حُفظ الاستلام — يحتاج مراجعة ("+(inspection.weightStatus==="REVIEW"?"فرق وزن":"")+(inspection.temperatureStatus==="REVIEW"?" حرارة":"")+")",inspection.overallStatus==="OK"?"ok":"warn");
       recvFor="";
     }

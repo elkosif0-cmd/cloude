@@ -66,11 +66,13 @@
       const qty=list.reduce((a,r)=>a+num(r.qty),0), spend=list.reduce((a,r)=>a+r.totalNet,0);
       const w=(f)=>qty>0?list.reduce((a,r)=>a+f(r)*num(r.qty),0)/qty:0;
       const actual=w(r=>r.actual), agreed=w(r=>r.agreed), usable=list.reduce((a,r)=>a+r.usable,0);
-      const quality=list.reduce((a,r)=>a+num(r.quality),0)/list.length;
+      /* R11: a batch with no quality rating is unrated, not rated zero (unrated batches cost every supplier a quarter of its score) */
+      const rated=list.filter(r=>num(r.quality)>0),quality=rated.length?rated.reduce((a,r)=>a+num(r.quality),0)/rated.length:null;
       const variance=actual-agreed, critical=list.filter(r=>r.status==="critical").length;
       /* الدرجة من 100: مستوى الهدر (4٪ ممتاز ← 12٪ صفر)، الالتزام بالمتفق عليه، الجودة */
       const clamp01=x=>Math.max(0,Math.min(1,x));
-      const score=100*(0.45*clamp01(1-(actual-0.04)/0.08)+0.30*clamp01(1-Math.max(0,variance)/0.02)+0.25*(quality/5));
+      const parts=[[0.45,clamp01(1-(actual-0.04)/0.08)],[0.30,clamp01(1-Math.max(0,variance)/0.02)]];if(quality!=null)parts.push([0.25,quality/5]);
+      const score=100*parts.reduce((a,[wt,v])=>a+wt*v,0)/parts.reduce((a,[wt])=>a+wt,0);
       const tier=score>=90?"A+":score>=80?"A":score>=65?"B":score>=50?"C":"D";
       const risk=critical>=2||variance>0.03?"critical":variance>0.015||actual>0.10?"high":variance>0.005?"moderate":"low";
       return {name,batches:list.length,qty,spend,actual,agreed,variance,usable,quality,score,tier,risk,
@@ -135,7 +137,7 @@
       stats.length?[
         '<h4 class="sk31-h">ترتيب الموردين</h4>',
         '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>المورد</th><th>التصنيف</th><th>الشحنات</th><th>الكمية</th><th>هدر فعلي / متفق</th><th>تكلفة الوحدة الصافية</th><th>الجودة</th><th>المخاطر</th></tr></thead><tbody>',
-        stats.map(s=>'<tr><td><b>'+esc(s.name)+'</b><small class="sk31-sub">'+esc(s.items.join("، "))+'</small></td><td><span class="sk31-tier sk31-t'+s.tier.replace("+","p")+'">'+s.tier+'</span></td><td>'+s.batches+'</td><td>'+qfmt(s.qty,s.unit)+'</td><td>'+pct(s.actual)+' / '+pct(s.agreed)+(s.variance>0.005?' <small class="sk31-bad">+'+pct(s.variance)+'</small>':'')+'</td><td>'+money(s.effCost)+'</td><td>'+s.quality.toFixed(1)+' / 5</td><td><span class="sk31-risk sk31-'+s.risk+'">'+riskAr[s.risk]+'</span></td></tr>').join(""),
+        stats.map(s=>'<tr><td><b>'+esc(s.name)+'</b><small class="sk31-sub">'+esc(s.items.join("، "))+'</small></td><td><span class="sk31-tier sk31-t'+s.tier.replace("+","p")+'">'+s.tier+'</span></td><td>'+s.batches+'</td><td>'+qfmt(s.qty,s.unit)+'</td><td>'+pct(s.actual)+' / '+pct(s.agreed)+(s.variance>0.005?' <small class="sk31-bad">+'+pct(s.variance)+'</small>':'')+'</td><td>'+money(s.effCost)+'</td><td>'+(s.quality==null?'<span class="sk31-sub">غير مقيّم</span>':s.quality.toFixed(1)+' / 5')+'</td><td><span class="sk31-risk sk31-'+s.risk+'">'+riskAr[s.risk]+'</span></td></tr>').join(""),
         '</tbody></table></div>'
       ].join(""):'',
       comp.length?[
@@ -221,7 +223,7 @@
       const d=$("sk31-po-date").value, note=$("sk31-po-note").value.trim();
       return ["السلام عليكم "+($("sk31-po-sup").value.trim()||"")+"،","نرغب بتوريد:",...lines.map(l=>"• "+l),
         d?"موعد التسليم: "+new Date(d+"T12:00").toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{weekday:"long",day:"numeric",month:"long"}):"",
-        note?"ملاحظة: "+note:"","نسبة الهدر حسب المتفق عليه.","مع الشكر — "+"أغنام الوادي"].filter(Boolean).join("\n");
+        note?"ملاحظة: "+note:"","نسبة الهدر حسب المتفق عليه.","مع الشكر — "+SK.bizName()].filter(Boolean).join("\n");
     };
     const upd=()=>{$("sk31-po-preview").value=text()};
     w.querySelectorAll("input,textarea").forEach(el=>el.addEventListener("input",upd));

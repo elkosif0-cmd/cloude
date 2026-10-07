@@ -3,10 +3,10 @@
 "use strict";
 const {esc,toast}=SK,CP=()=>window.SKosifCompanyPlatform;
 const typeLabel={"trial-balance":"ميزان مراجعة","general-ledger":"دفتر أستاذ","bank-statement":"كشف بنك",aging:"أعمار الذمم",inventory:"مخزون","fixed-assets-register":"سجل أصول",payroll:"رواتب",sales:"مبيعات",purchases:"مشتريات","tax-document":"ضريبة/زكاة","financial-statements":"قوائم مالية",contract:"عقد",invoice:"فاتورة",other:"أخرى"};
-const sarMinor=v=>(Number(v||0)/100).toLocaleString("ar-SA",{maximumFractionDigits:2});
+const sarMinor=v=>(Number(v||0)/100).toLocaleString("ar-SA-u-ca-gregory-nu-latn",{maximumFractionDigits:2});
 function statusHTML(){
   const s=CP().reportingStatus(),targets=CP().reportTargets();
-  return '<section class="card"><div class="card-h"><div><span class="eyebrow">REPORTING ASSISTANT</span><h2>مساعد إعداد القوائم والتقارير</h2><p>ارفع بياناتك من أي نظام محاسبي. KOSIF يحدد الناقص، ثم يبني المخرجات من البيانات المتاحة دون اختراع أرقام.</p></div><span class="sk-pill '+(s.missing.length?"warn":"good")+'">'+(s.missing.length?"ناقص "+s.missing.length:"الحد الأدنى مكتمل")+'</span></div><div class="card-b sk-stack">'+
+  return '<section class="card"><div class="card-h"><div><span class="eyebrow">من ملفاتك إلى القوائم</span><h2>مساعد إعداد القوائم والتقارير</h2><p>ارفع بياناتك من أي نظام محاسبي. KOSIF يحدد الناقص، ثم يبني المخرجات من البيانات المتاحة دون اختراع أرقام.</p></div><span class="sk-pill '+(s.missing.length?"warn":"good")+'">'+(s.missing.length?"ناقص "+s.missing.length:"الحد الأدنى مكتمل")+'</span></div><div class="card-b sk-stack">'+
   '<label class="sk-field"><span>المخرج المطلوب</span><select id="ri-target">'+Object.entries(targets).map(([id,x])=>'<option value="'+id+'"'+(id===s.target?' selected':'')+'>'+esc(x.label)+'</option>').join("")+'</select></label>'+
   '<div class="sk-note"><b>المطلوب:</b> '+s.requires.map(x=>esc(typeLabel[x]||x)).join("، ")+'<br><b>الناقص الآن:</b> '+(s.missing.length?s.missing.map(x=>esc(typeLabel[x]||x)).join("، "):"لا شيء في الحد الأدنى")+'<br><small>قد يطلب النظام مستندات إضافية لتحسين التدفقات النقدية والإيضاحات والتحليل.</small></div>'+
   '<label class="dropzone"><input id="ri-files" type="file" multiple accept=".csv,.tsv,.txt,.xlsx,.pdf,.doc,.docx,.png,.jpg,.jpeg,.webp"><strong>اسحب أو اختر ملفات الشركة</strong><span>XLSX · CSV · PDF · Word · صور</span><small>تُحفظ بصمة SHA-256 ومصدر الملف. لا يتحول أي ملف إلى دليل مراجعة إلا بأمر صريح.</small></label>'+

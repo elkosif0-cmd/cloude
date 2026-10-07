@@ -877,3 +877,12 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - «ذكاء العملاء والطلب»: الشرائح والاحتفاظ · مراجعة الأسعار · إعادة التنشيط (2,915 px → the longest tab 1,844).
 - Evidence: browser check on the preview — every card tagged, no page errors.
 - Branch / PR: `claude/r9-screen-tabs-20261007` stacked on R8 (#220).
+
+### TASK CLAUDE-20261008-001 — Harsh review of every screen, wave R10: trust in the numbers
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Owner request: «كمل الدمج وراجع كل شاشات وقدرات وامكانية التطبيق بنقد لازع جداً وانتقاد لكل شيء لكي تقوم بالتطوير».
+- Review: 188 screens captured on a GitHub runner (`sqc-screen-review.yml`, run 37684838237), read one by one; 26 ranked findings in `docs/rebuild/HARSH_REVIEW_20261008_ar.md`.
+- R10 fixes: demo books scaled to the demo's own sales (loss −238,144 → profit 15,814, 13.8%); the open company's name instead of a fixed business name in 12 outputs (`SK.bizName`); no ZATCA QR for an invoice without a valid tax number, seller and lines; receivables from the books first; purchase order values; `sectors` in the registry (7 meat screens offered to meat companies only); the modules' second F-code tab bars removed; Arabic eyebrows (app + legacy core at build); Latin digits and the Gregorian calendar in 77 formatting calls; the butchery note without spreadsheet cells; catalog cards without empty squares; the analytics notice only on its screen; phone path on one line.
+- Evidence: `tools/demo_books_health.test.mjs` (new), bootstrap admission 42/42, VAT/context/CSV display 77/77, receipts and reports 63/63, identity ratchet 3/3; browser suites on the runner.
+- Branch / PR: `claude/r10-harsh-review-20261008` (carries the screen-review workflow from `claude/review-screens-20261007`).

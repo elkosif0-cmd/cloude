@@ -590,9 +590,10 @@ html[data-theme="dark"] .k32 {
 }
 
 /* حاوية صورة المنتج الإيطالية */
+/* R10: a wide band, not a square — the catalog has icons, not photos, and the squares made each card 380 px of empty beige */
 .k32-img {
   position: relative;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 5 / 2;
   border-radius: 12px;
   display: grid;
   place-items: center;

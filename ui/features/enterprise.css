@@ -388,3 +388,6 @@
     box-shadow: none !important;
   }
 }
+/* R10: the receipt says what it lacks instead of printing a QR for an invoice that cannot be valid */
+.sk38-qr-missing{margin:0;padding:var(--sk-2);font-size:var(--sk-fs-xs);line-height:1.6;text-align:center;color:var(--sk-ink-2)}
+.sk38-rcpt-qr-box:has(.sk38-qr-missing){width:auto;height:auto;max-width:220px}

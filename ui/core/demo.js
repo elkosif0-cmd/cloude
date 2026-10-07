@@ -72,6 +72,15 @@ function build(){
   return{customers,orders};
 }
 
+/* R10 (docs/rebuild/HARSH_REVIEW_20261008_ar.md): the demo's size is its own sales — the average month of the orders above,
+   before VAT. Costs, purchases and cash flows are set from it, so the demo company is a believable, profitable shop
+   (fixed costs of 28,200 a month against ~12,000 of sales made it lose ~211,000 in its books). build() is deterministic,
+   so this is the same number in every section. */
+/* the monthly overheads the demo writes for the pricing tools: a fixed figure (the admission check of the demo company
+   recognises it — helper-space.js), about a quarter of the demo's monthly sales like the fixed costs in its books */
+const DEMO_OPEX=2600;
+function monthNet(){const {orders}=build(),by={};orders.filter(o=>!o.canceled).forEach(o=>{const k=o.date.slice(0,7);by[k]=(by[k]||0)+o.total});const v=Object.values(by);return v.length?v.reduce((a,b)=>a+b,0)/v.length/1.15:12000}
+
 /* ---------- the sections ---------- */
 const SECTIONS=[
 {id:"company",label:"الشركة والفترات",caps:["companies"],
@@ -135,14 +144,14 @@ const SECTIONS=[
 {id:"supply",label:"الموردون والتدفق النقدي",caps:["suppliers","cash"],
   empty:async()=>!arr("skosif_v31_supplier_batches").length,
   seed:async()=>{
-    const sup=[["مؤسسة المراعي الذهبية","نعيمي طازج",52,8],["شركة الحري للمواشي","حري طازج",64,6],["مزرعة الخرج للأبقار","عجل طازج",44,4]],b=[];
-    months(12).forEach((m,i)=>sup.forEach(([s,item,price,w],k)=>b.push(D({id:"demo-b"+i+"-"+k,date:iso(new Date(m.getFullYear(),m.getMonth(),4+k*7)),supplier:s,itemName:item,qty:int(180,320),priceGross:r2(price*between(.95,1.08)),vatIncl:k!==1,agreedWaste:w,actualWaste:r2(w+between(-1.5,3))}))));
+    const mn=monthNet(),kg=Math.max(20,Math.round(mn*.62/53/3)),sup=[["مؤسسة المراعي الذهبية","نعيمي طازج",52,8],["شركة الحري للمواشي","حري طازج",64,6],["مزرعة الخرج للأبقار","عجل طازج",44,4]],b=[];
+    months(12).forEach((m,i)=>sup.forEach(([s,item,price,w],k)=>b.push(D({id:"demo-b"+i+"-"+k,date:iso(new Date(m.getFullYear(),m.getMonth(),4+k*7)),supplier:s,itemName:item,qty:int(Math.round(kg*.8),Math.round(kg*1.2)),priceGross:r2(price*between(.95,1.08)),vatIncl:k!==1,agreedWaste:w,actualWaste:r2(w+between(-1.5,3)),quality:int(3,5)}))));
     save("skosif_v31_supplier_batches",b);
-    if(load("skosif_v31_monthly_opex",null)==null){save("skosif_v31_monthly_opex",26500);const r=reg();r.opex=true;setReg(r)}
+    if(load("skosif_v31_monthly_opex",null)==null){save("skosif_v31_monthly_opex",DEMO_OPEX);const r=reg();r.opex=true;setReg(r)}
     const f=load("skosif_erp_finance_v1",{flows:[]});if(!(f.flows||[]).length){f.flows=[];months(6).forEach((m,i)=>{const d=iso(new Date(m.getFullYear(),m.getMonth(),27));
-      [["payment","الرواتب","6100",18000],["payment","الإيجار","6200",6000],["payment","الكهرباء والمياه","6300",1900],["payment","الوقود والتوصيل","6300",2300],["receipt","تحصيل عملاء الآجل","1200",int(9000,14000)]]
+      [["payment","الرواتب","6100",Math.round(mn*.15)],["payment","الإيجار","6200",Math.round(mn*.06)],["payment","الكهرباء والمياه","6300",Math.round(mn*.02)],["payment","الوقود والتوصيل","6300",Math.round(mn*.02)],["receipt","تحصيل عملاء الآجل","1200",int(Math.round(mn*.15),Math.round(mn*.25))]]
         .forEach(([type,category,account,amount],k)=>f.flows.push(D({id:"demo-fl"+i+"-"+k,date:d,type,category,account,amount,ref:"DMO-F"+i+k})))});save("skosif_erp_finance_v1",f)}
-    const ap=load("skosif_erp_payables_v1",{rows:[]});if(!(ap.rows||[]).length){ap.rows=sup.map(([s],k)=>D({id:"demo-ap"+k,supplier:s,ref:"INV-S"+(k+101),due:ago(-10+k*9),amount:int(12000,38000),paid:k===2}));save("skosif_erp_payables_v1",ap)}
+    const ap=load("skosif_erp_payables_v1",{rows:[]});if(!(ap.rows||[]).length){ap.rows=sup.map(([s],k)=>D({id:"demo-ap"+k,supplier:s,ref:"INV-S"+(k+101),due:ago(-10+k*9),amount:int(Math.round(mn*.15),Math.round(mn*.4)),paid:k===2}));save("skosif_erp_payables_v1",ap)}
   },
   clear:async()=>{save("skosif_v31_supplier_batches",dropDemo(arr("skosif_v31_supplier_batches")));const r=reg();if(r.opex){localStorage.removeItem("skosif_v31_monthly_opex");delete r.opex;setReg(r)}
     const f=load("skosif_erp_finance_v1",null);if(f){f.flows=dropDemo(f.flows);save("skosif_erp_finance_v1",f)}const ap=load("skosif_erp_payables_v1",null);if(ap){ap.rows=dropDemo(ap.rows);save("skosif_erp_payables_v1",ap)}}},
@@ -153,7 +162,7 @@ const SECTIONS=[
     const P=E().procurement,d=Object.assign({orders:[],receipts:[],prices:[]},load("skosif_purchasing_v1",{}));
     const L=[[["نعيمي طازج",240,45.2,"0.15"],["كبدة غنم",30,24,"0.15"]],[["حري طازج",180,64,"0"]],[["عجل طازج",260,38.3,"0.15"],["مفروم بقري",90,33,"0.15"]],[["سواكني",150,58,"0"]],[["تيس بلدي",120,53,"0.15"]]];
     L.forEach((lines,i)=>{const date=ago(40-i*8),o=D({id:"demo-po"+i,number:"PO-"+String(9001+i),supplier:["مؤسسة المراعي الذهبية","شركة الحري للمواشي","مزرعة الخرج للأبقار","شركة الحري للمواشي","مؤسسة المراعي الذهبية"][i],date,dueDate:ago(33-i*8),
-      lines:lines.map(([item,qty,cost,vat])=>({item,qty,cost,vat})),status:i<3?"RECEIVED":"OPEN"});d.orders.push(o);
+      lines:lines.map(([item,qty,cost,vat])=>({item,qty,cost,vat})),value:lines.reduce((s,[,qty,cost])=>s+qty*cost,0),status:i<3?"RECEIVED":"OPEN"});d.orders.push(o);
       if(i<3){const got=o.lines.map(l=>({item:l.item,qty:i===1?l.qty-6:l.qty}));let variances=[],inspection={overallStatus:"PASS",temperatureStatus:"PASS",weightStatus:"PASS"};
         try{variances=P.procurement.matchReceipt(o.lines.map(l=>({itemId:l.item,orderedQty:l.qty,unitCost:l.cost})),got.map(l=>({itemId:l.item,receivedQty:l.qty})))}catch{}
         try{const kg=o.lines.reduce((a,l)=>a+l.qty,0);inspection=P.receivingInspection.inspectReceiving({id:"demo-insp"+i,date,invoicedKg:kg,actualKg:i===1?kg-6:kg,maxTemperatureC:4,tolerancePercent:2,temperatureC:i===2?5.1:2.4})}catch{}
@@ -174,7 +183,7 @@ const SECTIONS=[
     if(!arr("skosif_v38_batches").length)save("skosif_v38_batches",[["نعيمي — مزارع القصيم","مسلخ الرياض المركزي",24],["حري — مزارع الجوف","مسلخ الرياض المركزي",18],["عجل — مزرعة الخرج","مسلخ الخرج",6],["سواكني — مستورد","مسلخ جدة",30]]
       .map(([breed,slaughterhouse,count],k)=>D({id:"LOT-"+Y+"-0"+(901+k),breed,slaughterhouse,date:ago(3+k*5),cert:"VET-"+Y+"-"+(4401+k),count,status:"معتمد"})));
     if(!arr("skosif_v38_coldchain").length)save("skosif_v38_coldchain",[["غرفة التبريد 1",1.8,82],["براد الشحن 2",3.4,78],["غرفة التبريد 2",2.1,80],["براد الشحن 1",5.6,75],["ثلاجة العرض",3.9,70],["غرفة التبريد 1",1.6,83]]
-      .map(([loc,temp,humidity],k)=>D({time:new Date(Date.now()-k*5*36e5).toLocaleString("ar-SA"),loc,temp,humidity,inspector:k%2?"سالم":"منيرة"})));
+      .map(([loc,temp,humidity],k)=>D({time:new Date(Date.now()-k*5*36e5).toLocaleString("ar-SA-u-ca-gregory-nu-latn"),loc,temp,humidity,inspector:k%2?"سالم":"منيرة"})));
   },
   clear:async()=>{["aghnam_v29_inventory","skosif_inv_expiry_batches","skosif_v38_batches","skosif_v38_coldchain"].forEach(k=>save(k,dropDemo(arr(k))))}},
 
@@ -203,7 +212,7 @@ const SECTIONS=[
       ["2200","ضريبة القيمة المضافة — مخرجات","liability"],["3000","رأس المال","equity"],["3100","الأرباح المبقاة","equity"],["4000","إيرادات المبيعات","revenue"],["4900","إيرادات أخرى","revenue"],["5000","تكلفة المبيعات","expense"],["6100","الرواتب والأجور","expense"],["6200","الإيجار","expense"],["6300","مصروفات تشغيلية أخرى","expense"]];
     const accounts=BASIC.map(([code,name,type])=>D(F.accounts.createAccount({code,name,type}))),id=c=>accounts.find(a=>a.code===c).id,entries=[];let n=1;
     const je=(date,memo,lines,extra={})=>entries.push(D({id:"demo-je"+(n++),date,reference:extra.reference||"DMO-JE"+n,memo,source:extra.source||"يدوي",...(extra.sourceId?{sourceId:extra.sourceId}:{}),lines:lines.map(([c,dr,cr])=>({accountId:id(c),debit:r2(dr),credit:r2(cr)}))}));
-    je(Y+"-01-01","رأس المال المدفوع",[["1100",350000,0],["3000",0,350000]]);
+    const cap=Math.round(monthNet()*6/1000)*1000;je(Y+"-01-01","رأس المال المدفوع",[["1100",cap,0],["3000",0,cap]]);
     /* monthly: sales summary from the demo orders, purchases, cost of sales, payroll, rent, other */
     const {orders}=build(),byM={};orders.filter(o=>!o.canceled&&o.date.startsWith(String(Y))).forEach(o=>{const k=o.date.slice(0,7);byM[k]=(byM[k]||0)+o.total});
     Object.keys(byM).sort().forEach(k=>{const gross=byM[k],net=r2(gross/1.15),vat=r2(gross-net),end=k+"-28",cogs=r2(net*.62),pur=r2(cogs*1.02);
@@ -211,9 +220,10 @@ const SECTIONS=[
       je(end,"مشتريات الشهر من الموردين",[["1300",pur,0],["1400",pur*.15,0],["2100",0,pur*1.15]],{reference:"PUR-"+k,source:"مشتريات"});
       je(end,"سداد الموردين",[["2100",pur*1.15*.9,0],["1100",0,pur*1.15*.9]],{reference:"PAY-"+k});
       je(end,"تكلفة المبيعات",[["5000",cogs,0],["1300",0,cogs]],{reference:"COGS-"+k});
-      je(end,"الرواتب والأجور",[["6100",18000,0],["1100",0,18000]],{reference:"PAYR-"+k});
-      je(end,"إيجار المحل والمستودع",[["6200",6000,0],["1100",0,6000]],{reference:"RENT-"+k});
-      je(end,"كهرباء ووقود وتغليف",[["6300",4200,0],["1100",0,4200]],{reference:"OPX-"+k});
+      const payr=r2(net*.15),rent=r2(net*.06),opx=r2(net*.04);
+      je(end,"الرواتب والأجور",[["6100",payr,0],["1100",0,payr]],{reference:"PAYR-"+k});
+      je(end,"إيجار المحل والمستودع",[["6200",rent,0],["1100",0,rent]],{reference:"RENT-"+k});
+      je(end,"كهرباء ووقود وتغليف",[["6300",opx,0],["1100",0,opx]],{reference:"OPX-"+k});
       je(end,"تحصيل ذمم العملاء",[["1100",gross*.16,0],["1200",0,gross*.16]],{reference:"COL-"+k});
     });
     /* the direct sales and the goods received, posted by the same engines as the ledger's own buttons */

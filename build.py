@@ -67,6 +67,28 @@ if nd!=1: raise SystemExit("Page description meta missing")
 text,nb=re.subn(r'<div class="brand-mark" aria-hidden="true">.*?</div>\s*<div><h1 id="app-name">[^<]*</h1>',
   '<div class="brand-mark" aria-hidden="true"><img src="./art/sqc-icon.svg" alt="" width="24" height="24"></div>\n        <div><h1 id="app-name">SQC</h1>',text,count=1,flags=re.S)
 if nb!=1: raise SystemExit("Rail brand markup missing")
+# R10 (docs/rebuild/HARSH_REVIEW_20261008_ar.md): the butchery lab's note named the cells of the owner's spreadsheet
+# (AD46, AG44:AG46, AD48); a user reads where the numbers come from, not which cells held them
+text,ny=re.subn(r'القيم الافتراضية مأخوذة من الحسابات الجانبية في ملفك: (<b>27\.2 كجم</b> عجل) \(الخلية AD46\)، و(<b>4\.07 \+ 2\.7 = 6\.77 كجم</b> غير لحم) \(AG44:AG46\)، (والعظم <b>2\.7 كجم × 7\.5</b>) \(AD48\)\.',
+  r'القيم الافتراضية من آخر تجربة تقطيع مسجّلة: \1، و\2، \3.',text,count=1)
+if ny!=1: raise SystemExit("Butchery lab note missing")
+# the core's English eyebrows (a section's small label above its title) read in Arabic like the rest of the app
+for en,ar in (("System Health · Read Only","فحص للقراءة فقط"),("Safe Matching Assistant · v18","مساعد المطابقة الآمنة"),
+              ("Product 360 · التعرض التجاري","المنتج الشامل · التعرض التجاري"),("Order-to-Cash 360","من الطلب إلى التحصيل"),
+              ("Exception Inbox · حتمي · بلا خادم","صندوق الاستثناءات · حتمي · بلا خادم"),("Dry Run قبل الكتابة","تجربة قبل الكتابة"),
+              ("Customer Master · المصدر الخام","سجل العملاء · المصدر الخام"),("Customer & Demand Intelligence · v18","العملاء والطلب"),
+              ("Customer & Demand Intelligence","العملاء والطلب"),("Catalog Mapping Domain","ربط الكتالوج")):
+  text,ny=re.subn(r'(class="eyebrow">)'+re.escape(en)+'<',lambda m:m.group(1)+ar+'<',text)
+  if ny<1: raise SystemExit("Core eyebrow missing: "+en)
+# R11 (#10): «ذكاء العملاء والطلب» segments by recency and frequency, «ذكاء المبيعات» by RFM; both said «أوفياء»,
+# «أبطال», «معرضون للفقد», «خاملون» for different groups (22 loyal customers on one screen, 4 on the next). The core's
+# operational segments get their own words; the RFM names stay with the RFM engine.
+for en,ar in (("champion:['أبطال',","champion:['الأعلى قيمة',"),("loyal:['أوفياء',","loyal:['منتظمون',"),
+              ("risk:['معرضون للفقد',","risk:['غائبون بعد تكرار',"),("dormant:['خاملون',","dormant:['منقطعون',"),
+              ('<div class="d">معرضون للفقد + خاملون</div>','<div class="d">غائبون بعد تكرار + منقطعون</div>')):
+  n=text.count(en)
+  if n!=1: raise SystemExit("Core segment label missing: "+en)
+  text=text.replace(en,ar)
 
 # The UI ships as one stylesheet and one script, in layer order:
 #   design system (ui/ds) → core services (ui/core) → components → layout → features.

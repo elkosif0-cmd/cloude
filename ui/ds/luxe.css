@@ -75,6 +75,8 @@
   .sk-ph .sk-ctx .sk-tb-btn{flex:1 1 0;max-width:none}
   /* the second line names the section and the currency: FOUNDATION §3.0 rule 7 keeps it on phones too */
   .sk-ph .sk-ctx .sk-tb-btn small{display:block}
+  /* R10: the screen's path (rule 7) on one line — it wrapped to two above every screen on phones */
+  .sk-ph-en{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .main{padding-top:12px}
 }
 

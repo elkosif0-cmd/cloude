@@ -5,7 +5,9 @@
    - يقرأ الأسعار حية من محرك التسعير عبر SKosifCore.catalog() */
 (()=>{
   "use strict";
-  const OFFERS_KEY="skosif_v32_offers", CART_KEY="skosif_v32_cart", BIZ="أغنام الوادي", SUBLINE="مختارات الذواقة واللحوم البلدية الفاخرة";
+  const OFFERS_KEY="skosif_v32_offers", CART_KEY="skosif_v32_cart", SUBLINE="مختارات الذواقة";
+  /* the open company signs the catalog (R10: a fixed business name was printed for every company) */
+  const bizNow=()=>SK.bizName()||"المنشأة";
   const $=id=>document.getElementById(id);
   const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
   const nf2=new Intl.NumberFormat("ar-SA-u-nu-latn",{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -79,7 +81,7 @@
     return "مزارع الوادي";
   };
 
-  const PRODUCER = "أغنام الوادي • ذبح وإعداد طازج";
+  const PRODUCER = () => SK.bizName() + (SK.sector() === "meat" ? " • ذبح وإعداد طازج" : "");
 
   const BAND={
     ex:["ممتاز","ex"],
@@ -218,7 +220,7 @@
     const url=URL.createObjectURL(blob);
     const link=document.createElement("a");
     link.href=url;
-    link.download="كتالوج_وعروض_"+BIZ.replace(/\s+/g,"_")+"_"+new Date().toISOString().slice(0,10)+".csv";
+    link.download="كتالوج_وعروض_"+bizNow().replace(/\s+/g,"_")+"_"+new Date().toISOString().slice(0,10)+".csv";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -238,7 +240,7 @@
     const notes=ui.custNotes.trim();
 
     const msg=[
-      "*عرض سعر وطلبية — "+BIZ+"*",
+      "*عرض سعر وطلبية — "+bizNow()+"*",
       "*Gourmet Order Quotation*",
       "─────────────────",
       "*العميل:* "+custName,
@@ -286,7 +288,7 @@
       return;
     }
     const linesTxt=lines.map((l,i)=>(i+1)+". "+l.item.name+" ("+l.qty+"× "+sar(l.item.now||l.item.price)+" ر.س) = "+sar(l.actualPrice)+" ر.س").join("\n");
-    const summary="عرض سعر "+BIZ+"\n"+linesTxt+(totalSavings>0?"\nقبل الخصم: "+sar(subtotal)+" ر.س\nالتوفير: "+sar(totalSavings)+" ر.س":"")+"\nالإجمالي: "+sar(netTotal)+" ر.س (شامل الضريبة)";
+    const summary="عرض سعر "+bizNow()+"\n"+linesTxt+(totalSavings>0?"\nقبل الخصم: "+sar(subtotal)+" ر.س\nالتوفير: "+sar(totalSavings)+" ر.س":"")+"\nالإجمالي: "+sar(netTotal)+" ر.س (شامل الضريبة)";
     navigator.clipboard.writeText(summary).then(()=>{
       toast("تم نسخ تفاصيل عرض السعر إلى الحافظة بنجاح 📋");
     }).catch(()=>{
@@ -309,7 +311,7 @@
         '<i class="k32-kind">'+(it.kind==="box"?"بوكس فاخر":"صنف بلدي")+'</i>'+
         '<span class="k32-origin">'+esc(originTag)+'</span>'+
       '</div>'+
-      '<div class="k32-producer">'+esc(PRODUCER)+'</div>'+
+      '<div class="k32-producer">'+esc(PRODUCER())+'</div>'+
       '<h4>'+esc(it.name)+'</h4>'+
       '<span class="k32-cat-tag">'+esc(it.cat||"منتجات طازجة")+'</span>'+
       '<div class="k32-margin k32-'+b[1]+'">'+
@@ -511,7 +513,7 @@
       /* Hero Banner */
       '<section class="k32-hero">'+
         '<div class="k32-hero-top">'+
-          '<div class="k32-hero-brand"><span>'+esc(BIZ)+'</span></div>'+
+          '<div class="k32-hero-brand"><span>'+esc(bizNow())+'</span></div>'+
           '<div class="k32-hero-actions">'+
             '<button type="button" class="k32-share" id="k32-share"'+(nOffers?'':' disabled')+'>'+
               '<span>عروض الشهر ('+nOffers+')</span>'+
@@ -646,7 +648,7 @@
     }
 
     const lines=[
-      "*قائمة عروض ومختارات "+BIZ+"*",
+      "*قائمة عروض ومختارات "+bizNow()+"*",
       "*Gourmet Monthly Selections*",
       "─────────────────",
       ""

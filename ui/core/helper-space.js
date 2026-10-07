@@ -177,7 +177,7 @@ function demoSnapshotEligible(snap,demo,co){
     if(arrays[k]){if(!rows(v)||v.length&&!section(arrays[k]))return false;continue}
     if(wrappers[k]){const [s,...fields]=wrappers[k];if(!only(v,[...fields,"seq"])||v.seq!=null&&!Number.isFinite(v.seq))return false;
       if(fields.some(f=>v[f]!=null&&(!rows(v[f])||v[f].length&&!section(s))))return false;continue}
-    if(k==="skosif_v31_monthly_opex"){if(v!==26500||!demo.opex||!section("supply"))return false;continue}
+    if(k==="skosif_v31_monthly_opex"){/* the demo's figure: 2600 since R10, 26500 before it */if(v!==2600&&v!==26500||!demo.opex||!section("supply"))return false;continue}
     if(k==="skosif_rep_pl"){if(!section("reports")||v.demo!==true)return false;continue}
     if(k==="skosif_ar_paste"){
       const names=["مطعم الديرة للمشويات","مطبخ الضيافة الملكية","مطعم نجد الأصيل","مطاعم سفرة الخير","مطعم البحر الأحمر"],lines=v.split("\n");
@@ -372,7 +372,7 @@ async function chooseUser(id){const u=userReg().users[id];if(!u)return;let ok=fa
 }
 function userChooser(){
   if(document.getElementById("sqc-user-space"))return;const cur=user(),w=document.createElement("div");w.id="sqc-user-space";w.className="skd-wrap";w.setAttribute("role","presentation");
-  w.innerHTML='<div class="skd sqc-space" role="dialog" aria-modal="true" aria-labelledby="sqc-user-space-t"><span class="eyebrow">ACCOUNTANT WORKSPACES</span><h3 id="sqc-user-space-t">أدوات مَن؟</h3>'+
+  w.innerHTML='<div class="skd sqc-space" role="dialog" aria-modal="true" aria-labelledby="sqc-user-space-t"><span class="eyebrow">مساحات عمل المحاسب</span><h3 id="sqc-user-space-t">أدوات مَن؟</h3>'+
     '<p>اختر المحاسب. كل مستخدم يملك بياناته المستقلة لكل شركة. رمز الدخول اختياري ومحلي على هذا الجهاز فقط.</p><div class="sqc-space-list">'+users().map(u=>'<button type="button" class="sqc-space-o'+(u.id===cur.id?' on':'')+'" data-user="'+esc(u.id)+'"><b>'+esc(u.name)+'</b><small>'+(u.pinHash?'محمي برمز محلي':'بدون رمز')+(u.lastSpace?' · آخر شركة: '+esc((u.spaces[u.lastSpace]||{}).name||''):'')+'</small></button>').join("")+'</div>'+
     '<div class="skd-acts"><button type="button" class="btn" data-user-new>+ مستخدم جديد</button><button type="button" class="btn primary" data-user="'+esc(cur.id)+'">متابعة كـ «'+esc(cur.name)+'»</button></div></div>';
   w.addEventListener("click",e=>{const b=e.target.closest("[data-user]");if(b){chooseUser(b.dataset.user);return}if(e.target.closest("[data-user-new]")){hideUserChooser();newUser();return}
@@ -383,7 +383,7 @@ function hideChooser(){const w=document.getElementById("sqc-space");if(w)w.remov
 function chooser(){
   if(document.getElementById("sqc-space"))return;
   const w=document.createElement("div");w.id="sqc-space";w.className="skd-wrap";w.setAttribute("role","presentation");
-  w.innerHTML='<div class="skd sqc-space" role="dialog" aria-modal="true" aria-labelledby="sqc-space-t"><span class="eyebrow">COMPANY</span><h3 id="sqc-space-t">الأدوات المساعدة — لأي شركة؟</h3>'+
+  w.innerHTML='<div class="skd sqc-space" role="dialog" aria-modal="true" aria-labelledby="sqc-space-t"><span class="eyebrow">الشركة</span><h3 id="sqc-space-t">الأدوات المساعدة — لأي شركة؟</h3>'+
     '<p>اختر الشركة التي تعمل على أدواتها الآن. لكل شركة أصنافها ومخزونها ومورّدوها ومبيعاتها وملاحظاتها، منفصلة تماماً عن غيرها وعن ملف المراجعة.</p>'+
     '<div class="sqc-space-list">'+options().map(o=>'<button type="button" class="sqc-space-o'+(o.on?' on':'')+'" data-space="'+esc(o.id)+'" data-name="'+esc(o.name)+'"><b>'+esc(o.name)+'</b><small>'+esc(o.note)+'</small></button>').join("")+'</div>'+
     '<div class="skd-acts"><button type="button" class="btn" data-space-new>+ شركة جديدة</button><button type="button" class="btn primary" data-space="'+esc(current().id)+'" data-name="'+esc(current().name)+'">متابعة مع «'+esc(current().name)+'»</button></div></div>';
