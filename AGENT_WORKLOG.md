@@ -628,3 +628,18 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Evidence: focused Node tests 97/97 (VAT registered/unregistered rates 0%, 0.5%, 1%, 5%, 15%, invalid values and decimal edges; bridge, context, table); four TypeScript projects and 544 engine tests pass; preview build 163 entries; affected lint 0 errors/4 existing unused-variable warnings; capability docs check passes and all 78 registry entries unchanged. Local isolated Chromium 1365×900 and 390×844 pass bilingual search, audit context/scale, primary Amazon revenue 637,959 and unsupported secondary/report guard without page errors. Independent review passed 79 cases, with requested gate repaint and fixture fix completed; unavailable-request regression added.
 - Broader workflow Node suite: 428/431 passed. Three failures reproduce on untouched main fb74267: company_entry old demo-company expectation; two sqc_accessibility fake modal roots lack closest(). No CI bypass or unrelated fixture repair. Exact-head CI and deployment remain pending.
 - Acceptance limits: this is a bounded repair, not full secondary mapping/US-GAAP report support; manually mapped non-corpus imports remain outside this guard. TLV validation still uses current company policy and existing tolerance, not historical/external-rate inference. Arabic alias covers Amazon, not full transliteration. Browser checks use only isolated public/synthetic data; no live saves, messages, exports or production mutations.
+
+### TASK CLAUDE-20261007-004 — Page-by-page review of the live app in a real browser
+- Agent: Claude (Lead Development Agent)
+- Status: DONE on merge — the owner asked in chat: «راجع التطبيق بفتحه في متصفح راجعه صفحة صفحة».
+- `tools/page_review.mjs` (new; run by hand, not in CI because it takes about 15 minutes) opens screens on a desktop (1400×900) and a phone (390×844):
+  - every visible screen of the registry, in the demo company;
+  - every books tab of the six sector model companies;
+  - per screen it records page errors, console errors, broken values shown to the user (undefined, NaN, null, [object Object], Infinity), horizontal overflow, an empty view, the time taken, and a screenshot.
+- Result on https://s-kosif.pages.dev: **188 screens reviewed (79 distinct)**:
+  - no page errors;
+  - no broken values;
+  - nothing overflowing on the phone;
+  - no empty view.
+  - The 10 "Failed to load resource" console lines came from the test's own font blocking (`SQC_BLOCK_FONTS`). Re-run without it, the same screens fail no request.
+- Branch / PR: `claude/page-review-20261007` from `main` @ fb74267.
