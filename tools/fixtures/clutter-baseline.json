@@ -1,10 +1,10 @@
 {
- "avgContentTopDesktop": 325,
+ "avgContentTopDesktop": 321,
  "maxContentTopDesktop": 348,
- "avgContentTopPhone": 416,
- "avgChromeRowsDesktop": 2.72,
+ "avgContentTopPhone": 410,
+ "avgChromeRowsDesktop": 2.73,
  "avgChromeControlsDesktop": 12,
- "screensRepeatingSidebar": 7,
- "recordedAt": "2026-10-07",
- "recordedOn": "GitHub Actions ubuntu-latest Chromium (SQC Browser Suites, run 37662687329)"
+ "screensRepeatingSidebar": 3,
+ "recordedAt": "2026-10-08",
+ "recordedOn": "GitHub Actions ubuntu-latest Chromium (SQC Browser Suites, run 37695075061): R10–R12 lowered the content top on desktop and phone and the screens repeating the sidebar 7 → 3; «ذكاء المبيعات» gained its tab strip (rows 2.72 → 2.73) in exchange for four short tabs"
 }
