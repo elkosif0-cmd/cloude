@@ -1480,6 +1480,7 @@ async function mobileBridgeControl(env,args){
   }
   const id=text(b.request_id,160); if(!id) throw new Error("FULL_PRO_REQUEST_ID_REQUIRED");
   await mobileBridgeVerify(env,id,b.bridge_token);
+  if(action==="c500_direct_recover") return {...await c500DirectRecover(env,id,b.limit),mobile_bridge_version:1};
   if(action==="status"||action==="canary_status") return {...await fullProStatus(env,{request_id:id}),mobile_bridge_version:1};
   if(action==="c500_finalize_step") return {...await c500FinalizerAdvance(env,id),mobile_bridge_version:1};
   if(action==="cancel"||action==="canary_cancel") return {...await fullProCancel(env,{request_id:id}),mobile_bridge_version:1};
@@ -2606,7 +2607,7 @@ async function callTool(env,name,args,ctx={}){
     frontierAvailableForThisRequest:frontierConfigured,
     fullProGateway:{available:TOOLS.some(t=>t.name==="kosif_full_pro_execute"),tool:"kosif_full_pro_execute",failClosed:true,executorPolicy:"KOSIF_SECURE_EXECUTOR_ONLY",hostExposure:"caller-must-refresh-tool-catalog"},
     a1990CapabilityAtlas:{version:A1990_CAPABILITY_ATLAS_VERSION,sourceFamilies:a1990CapabilityAtlas().source_families,packs:Object.keys(a1990CapabilityAtlas().packs),routing:"task-sensitive automatic selection injected into preflight and Council-500 expert prompts",thirdPartyCodeExecution:false},
-    mobileFullProBridge:{available:true,version:1,prefix:MOBILE_FULL_PRO_PREFIX,actions:["start","resume_step","status","cancel","c500_finalize_step","artifact_get","artifact_retry_step","artifact_qa_recheck","secure_authorize","secure_status","secure_image_execute","artifact_qa","bypass","c500_visual_probe","c500_cognitive_probe","c500_tool_probe"],auth:"per-request capability token hashed in durable KV",ttlMs:MOBILE_FULL_PRO_TTL_MS},
+    mobileFullProBridge:{available:true,version:1,prefix:MOBILE_FULL_PRO_PREFIX,actions:["start","resume_step","status","cancel","c500_finalize_step","artifact_get","artifact_retry_step","artifact_qa_recheck","secure_authorize","secure_status","secure_image_execute","artifact_qa","bypass","c500_visual_probe","c500_cognitive_probe","c500_direct_recover","c500_tool_probe"],auth:"per-request capability token hashed in durable KV",ttlMs:MOBILE_FULL_PRO_TTL_MS},
     jevIntegration:"For browser ambiguity, Jev Choice is host-mediated over a closed observed candidate set. Preserve/echo packet_id and return the choice through KOSIF Computer browseragent.apply_jev/browserjev.apply_decision; KOSIF revalidates graph revision, candidate digest, one-time ticket, risk gate, execution and verification. kosif_council jev_payload remains the general final-review handoff."
   },false);
   }
@@ -2924,6 +2925,29 @@ async function c500CompletionReconcile(env,meta,secureExecutor){
   return {version:"c500-completion-reconcile-v1",secure_executor_count:secureCount,kv_completion_count:kvObserved?kvCount:null,audit_validated_count:auditCount||null,reconciled_count:reconciled,source,mismatch,kv_observed:kvObserved,kv_error:kvError};
 }
 
+async function c500DirectRecover(env,id,limit=50){
+  const meta=await fpGet(env,fpReqKey(id));
+  if(!meta||meta.council500_mode!==true)throw new Error("C500_REQUEST_NOT_FOUND");
+  if(["cancelled","bypass_detected","complete"].includes(String(meta.status||"")))return {ok:true,version:VERSION,mode:"c500_direct_recover",request_id:id,status:meta.status,selected:0,completed_now:0,failed:0,remaining:0};
+  const cap=Math.max(1,Math.min(100,Number(limit)||50)),missing=[];
+  for(let i=0;i<meta.roster.length;i+=25){
+    const ids=meta.roster.slice(i,i+25),rows=await Promise.all(ids.map(eid=>fpGet(env,c500ExpKey(id,eid))));
+    for(let j=0;j<ids.length;j++)if(rows[j]?.c500_complete!==true)missing.push(ids[j]);
+  }
+  const selected=missing.slice(0,cap);
+  if(!selected.length)return {ok:true,version:VERSION,mode:"c500_direct_recover",request_id:id,status:meta.status,selected:0,completed_now:0,failed:0,remaining:0,next:"finalize"};
+  const settled=await Promise.allSettled(selected.map(eid=>c500ExpertAdvance(env,id,eid)));
+  let completedNow=0,duplicateSuppressed=0;const failures=[];
+  for(let i=0;i<settled.length;i++){
+    const row=settled[i],eid=selected[i];
+    if(row.status==="fulfilled"){if(row.value?.stage==="c500_duplicate_suppressed")duplicateSuppressed++;else completedNow++;}
+    else failures.push({expert_id:eid,error:publicError(row.reason)});
+  }
+  let secure={};try{secure=await secureGet(env,"/status/"+encodeURIComponent(id));}catch(e){secure={ok:false,error:publicError(e)};}
+  const completion_reconciliation=await c500CompletionReconcile(env,meta,secure);
+  const observed=Math.max(0,Number(completion_reconciliation.reconciled_count||0));
+  return {ok:failures.length===0,version:VERSION,recovery_version:"inline-c500-recovery-v1",mode:"c500_direct_recover",request_id:id,status:meta.status,selected:selected.length,completed_now:completedNow,duplicate_suppressed:duplicateSuppressed,failed:failures.length,failures:failures.slice(0,20),completion_reconciliation,experts_completed:observed,experts_required:500,remaining:Math.max(0,500-observed)};
+}
 function c500AssetKey(id){return "c500:asset:"+id;}
 function c500BytesHex(bytes){return Array.from(bytes,b=>b.toString(16).padStart(2,"0")).join("");}
 function c500BytesBase64(bytes){let out="";for(let i=0;i<bytes.length;i+=32768)out+=String.fromCharCode(...bytes.subarray(i,Math.min(bytes.length,i+32768)));return btoa(out);}
