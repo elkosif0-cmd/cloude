@@ -855,3 +855,15 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Scope (`ui/features/command-center.js` + `luxe-screens.css`): a tab strip under the demo notice — اليوم (brief, pulse, hero, KPI tiles, ابدأ عملاً) · المبيعات (the core's sales blocks and its quick actions) · النقد والمخاطر (trend, heat map, cash structure) · القرارات والمهام (journeys, decision inbox, tasks, activity). Blocks are tagged and the other tabs' blocks hidden by CSS, so every module keeps rendering as before; an untagged block stays on اليوم; a MutationObserver re-tags blocks other modules add later; the tab lasts the session.
 - Evidence (browser, demo company): every block tagged, no page errors; اليوم 2,052 px on a desktop (−65%), 3,928 px on a phone (−66%); النقد والمخاطر fits one screen.
 - Branch / PR: `claude/r7-command-center-20261007` from `main` @ 09b8585.
+
+### TASK CLAUDE-20261007-016 — Deep review wave R8: the longest screens
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- R7 merged as PR #219 and published (live).
+- Measured on the CI clutter artifact: «مختبر الشركات العالمية» 16,454 px on a desktop / 31,310 px on a phone (47 companies fully open), «المدونة المحاسبية والمعايير» 6,194 / 14,956 px with the library under two large cards.
+- Scope:
+  - `ui/features/corpus-lab.js` + `.css`: one line per company (name, sector, year, auditor, «وجد X من Y» coloured by how many of the auditor's matters SQC found); the matters, SQC's choices and «افتح كملف مراجعة» open under it; opened companies stay open across search and sector repaints.
+  - `ui/features/codex.js`: three tabs — المدونة (first) · المساعد التطبيقي · التحديثات (with the pending count); all render, the inactive ones hidden; `SKosifCodex.tab(t)`.
+  - `tools/feature_audit.mjs` opens the guidance tab before its checks.
+- Evidence (browser): the lab 16,454 → 6,237 px (−62%), 47 summaries, one opens with its «افتح كملف مراجعة»; codex library first, guidance 944 px, updates one screen; no page errors.
+- Branch / PR: `claude/r8-long-screens-20261007` from `main` @ 228e954.

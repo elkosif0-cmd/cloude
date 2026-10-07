@@ -30,3 +30,12 @@
 .cl-k .skk4-t small{white-space:normal}
 .cl-note{display:flex;gap:8px;align-items:center;margin:0;padding:10px 14px;border-radius:12px;background:color-mix(in srgb,var(--sk-brand) 7%,transparent);color:var(--sk-ink-2);font-size:13.5px}
 .cl-note svg{width:18px;height:18px;flex:none;color:var(--sk-brand)}
+
+/* R8: one line per company, opened on tap */
+.cl-co>summary{display:flex;justify-content:space-between;align-items:center;gap:var(--sk-3);cursor:pointer;list-style:none}
+.cl-co>summary::-webkit-details-marker{display:none}
+.cl-co>summary::after{content:"";flex:none;width:8px;height:8px;border-inline-end:2px solid var(--sk-ink-3);border-block-end:2px solid var(--sk-ink-3);transform:rotate(45deg);transition:transform .15s}
+.cl-co[open]>summary::after{transform:rotate(225deg)}
+.cl-co>summary>div{flex:1 1 auto;min-width:0}
+.cl-hit{flex:none}
+.cl-co-b{margin-top:var(--sk-3)}
