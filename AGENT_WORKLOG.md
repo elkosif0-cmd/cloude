@@ -894,3 +894,11 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Scope: «القرار» hub (decision center with Jev and the council as pages; menus list it once; no AI vendor names); smart-match and Excel-recon screens use `SKEngines.reports.smartMatch`; «ذكاء المبيعات» in four screen tabs (feature audit opens the lab tab); the scale label seeded from the company's catalog with sector wording; the receipt's address instead of a slogan; the catalog welcome line by sector; the cycle-proof engine prints money.
 - Evidence: app build 115 files / 544 tests; registry contracts; harsh-review guards; browser suites on the runner.
 - Branch / PR: `claude/r12-capabilities-20261008`.
+
+### TASK CLAUDE-20261008-003 — Harsh review wave R13: the phone head, inventory figures, the helper desk
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- R12 merged as PR #223 (clutter baseline re-recorded from its CI run 37695075061: content top 325→321 desktop, 416→410 phone).
+- Scope: on phones the screen's buttons share the title's line (`ui/ds/luxe.css`); `tools/phone_layout.mjs` added to `sqc-browser-suites.yml` (it only ran in S.kosif after a red step); «المخزون والجرد» reads the expiry radar's stock (rows carry `item`, not `name`); the helper desk's full tool list folded under the map.
+- Branch / PR: `claude/r13-phone-head-20261008`.
+
