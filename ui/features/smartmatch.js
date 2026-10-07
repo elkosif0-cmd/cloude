@@ -14,7 +14,12 @@
 
   /* ---------- Arabic NLP from Jazarti, adapted to current catalog ---------- */
   function normDigits(text){return String(text??"").replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d))}
-  function normalizeArabic(text){
+  /* R12 (docs/rebuild/HARSH_REVIEW_20261008_ar.md #22): the reviewed engine does the matching (SKEngines.reports.smartMatch,
+     with its tests); the copy below only runs if the engines did not load */
+  const SM=()=>{try{return window.SKEngines&&SKEngines.reports&&SKEngines.reports.smartMatch||null}catch{return null}};
+  function normalizeArabic(text){const e=SM();return e?e.normalizeArabic(text):copyNormalize(text)}
+  function similarity(a,b){const e=SM();return e?e.nameSimilarity(String(a??""),String(b??"")):copySimilarity(a,b)}
+  function copyNormalize(text){
     return normDigits(text)
       .replace(/[\u064B-\u065F\u0670\u0640]/g,"")
       .replace(/[أإآٱ]/g,"ا")
@@ -23,8 +28,8 @@
       .replace(/[^\w\s\u0600-\u06FF-]/g," ")
       .replace(/\s+/g," ").trim().toLowerCase();
   }
-  function similarity(a,b){
-    const x=normalizeArabic(a),y=normalizeArabic(b);
+  function copySimilarity(a,b){
+    const x=copyNormalize(a),y=copyNormalize(b);
     if(!x||!y)return 0;
     if(x===y)return 100;
     if(x.includes(y)||y.includes(x)){
