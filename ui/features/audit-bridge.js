@@ -17,8 +17,11 @@ const state={};
 // The embedded applications do not yet carry published-source identity, units,
 // comparative dates or non-assurance status. Refuse this transport at each entry.
 function reviewTransport(){try{return window.SKosifTBReview&&SKosifTBReview.rows()}catch{return {sourceOnly:true}}}
-function sourceBlocked(t=reviewTransport()){return !!(t&&(t.sourceOnly||t.sourceKind!==undefined||t.ctx&&(t.ctx.sourceKind!==undefined||t.ctx.sourceModel!==undefined)))}
-function sourceUnavailable(node){if(node)node.innerHTML='<div class="sk-empty" role="status">أدوات الاستوديو غير متاحة لنموذج القوائم المنشورة: انتقل إلى مرجع المصدر. لا يُحوّل هذا النموذج إلى دفتر أستاذ أو تكليف مراجعة.</div>'}
+function sourceBlocked(t=reviewTransport()){return !!(t&&(t.mappingUnsupported||t.sourceOnly||t.sourceKind!==undefined||t.ctx&&(t.ctx.sourceKind!==undefined||t.ctx.sourceModel!==undefined)))}
+function sourceUnavailable(node){
+  const t=reviewTransport();
+  if(node&&t&&t.mappingUnsupported){node.innerHTML='<div class="sk-empty" role="status">الاستوديو الثانوي غير متاح لهذا الميزان: لا يدعم ربط بنوده المعتمد، وقد يعيد تصنيف الإيرادات والضرائب بصورة مختلفة. استخدم القوائم والتسويات وطلبات الأدلة في ملف المراجعة الرئيسي أعلاه. لم تتغير الأرقام أو المستندات المحفوظة.</div>';return}
+  if(node)node.innerHTML='<div class="sk-empty" role="status">أدوات الاستوديو غير متاحة لنموذج القوائم المنشورة: انتقل إلى مرجع المصدر. لا يُحوّل هذا النموذج إلى دفتر أستاذ أو تكليف مراجعة.</div>'}
 function sameTransport(t){const now=reviewTransport();return !sourceBlocked(now)&&(!t&&!now||!!t&&!!now&&t.sig===now.sig&&t.label===now.label)}
 /* ---------- one identity: the embedded tools take the chosen theme's colours, type and night mode ----------
    custom properties cross the shadow boundary, so each tool's own variables are pointed at the app's tokens

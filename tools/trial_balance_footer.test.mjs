@@ -8,9 +8,9 @@ const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 function fixture(){const accounts=Array.from({length:8},(_,i)=>({id:'a'+i,code:String(1100+i),name:'Account '+i,type:'asset',active:true}));return{accounts,entries:Array.from({length:4},(_,i)=>({id:'j'+i,date:'2026-01-01',lines:[{accountId:'a'+i,debit:100+i,credit:0},{accountId:'a'+(i+4),debit:0,credit:100+i}]}))}}
 function ledger(){
  const d=fixture(),downloads=[],views={};const SK={load:(k,v)=>k==='skosif_ledger_v1'?structuredClone(d):v,save(){throw Error('unexpected write')},$:()=>null,esc,money:x=>Number(x).toFixed(2),toast(){},icon:()=>'',view:(k,v)=>views[k]=v,csv:{download:(...x)=>downloads.push(plain(x))},ui:{tabs:()=>'',state:{empty:()=>''}}};
- const c=vm.createContext({SK,window:{},document:{addEventListener(){}},console});vm.runInContext(read('ui/core/engines.js'),c);vm.runInContext(read('ui/features/ledger.js').replace('window.SKosifLedger=Object.freeze({','window.__tbHTML=tbHTML;window.SKosifLedger=Object.freeze({'),c);
+ const c=vm.createContext({SK,window:{},document:{addEventListener(){}},console});vm.runInContext(read('ui/core/engines.js'),c);c.SKEngines=c.window.SKEngines;vm.runInContext(read('ui/features/ledger.js').replace('window.SKosifLedger=Object.freeze({','window.__revHTML=revReconHTML;window.__glHTML=glHTML;window.__tbHTML=tbHTML;window.SKosifLedger=Object.freeze({'),c);
  const root={dataset:{},innerHTML:'',addEventListener(k,f){this[k]=f}};views.ledger.render(root);
- return{d,html:()=>c.window.__tbHTML(d),csv:async()=>{await root.click({target:{closest:s=>s==='[data-l]'?{dataset:{l:'tb-csv'}}:null}});return downloads.at(-1)}};
+ return{d,rev:()=>c.window.__revHTML(d),gl:()=>c.window.__glHTML(d),html:()=>c.window.__tbHTML(d),csv:async()=>{await root.click({target:{closest:s=>s==='[data-l]'?{dataset:{l:'tb-csv'}}:null}});return downloads.at(-1)}};
 }
 const classes=()=>{const s=new Set();return{contains:x=>s.has(x),add:x=>s.add(x),toggle(x,on){on?s.add(x):s.delete(x)}}};
 const cell=text=>({textContent:String(text),querySelector:()=>null,hasAttribute:()=>false,colSpan:1,rowSpan:1,classList:classes(),setAttribute(){}});
@@ -24,7 +24,7 @@ function fromHtml(html){const block=tag=>html.match(new RegExp('<'+tag+'[^>]*>([
 }
 function component(){let printed='',csv,xlsx,copy;const toasts=[];const SK={$:(s,r)=>s==='.sktb-n'?r.count:null,$$:()=>[],esc,load:()=>({}),save(){},toast:(...x)=>toasts.push(x),caps:{get:()=>({label:'Trial balance'})},csv:{download:(_n,h,r)=>csv=plain({heads:h,rows:r})},download(){},brandPrint(){}};
  const write=(_n,h,r)=>{xlsx=plain({heads:h,rows:r});return{}},win={document:{write:s=>printed+=s,close(){}}};const c=vm.createContext({SK,window:{SKosifCore:{view:()=> 'ledger'},SKXlsx:{write},open:()=>win},SKXlsx:{write},navigator:{clipboard:{writeText:async text=>copy=text}},document:{readyState:'loading',documentElement:{dir:'rtl'},addEventListener(){}},setTimeout(){},clearTimeout(){}});
- vm.runInContext(read('ui/components/table.js').replace('window.SKosifTable=Object.freeze({scan,','window.__table={apply,totals,exportData,exportCsv};window.SKosifTable=Object.freeze({scan,'),c);
+ vm.runInContext(read('ui/components/table.js').replace('window.SKosifTable=Object.freeze({scan,','window.__table={apply,totals,exportData,exportCsv,cellValue};window.SKosifTable=Object.freeze({scan,'),c);
  return{api:c.window.__table,public:c.window.SKosifTable,get printed(){return printed},get csv(){return csv},get xlsx(){return xlsx},get copy(){return copy},toasts};
 }
 test('real trial balance renderer places full total in marked footer, never an account',()=>{const h=ledger(),before=JSON.stringify(h.d),t=fromHtml(h.html());assert.equal(t.tBodies[0].rows.length,8);assert.equal(t.tFoot?.dataset.skSummaryScope,'all');assert.match(t.tFoot.rows[0].cells[0].textContent,/الكامل.*قبل البحث/);assert.equal(t.tFoot.rows[0].cells[1].textContent,'406.00');assert.equal(JSON.stringify(h.d),before)});
@@ -40,3 +40,31 @@ test('ordinary tables retain generated total and export account rows only',()=>{
 test('unbalanced source remains unbalanced with original full totals and unchanged JSON',()=>{const h=ledger();h.d.entries[0].lines[1].credit=105;const before=JSON.stringify(h.d),t=fromHtml(h.html());assert.equal(t.tFoot.rows[0].cells[1].textContent,'406.00');assert.equal(t.tFoot.rows[0].cells[2].textContent,'411.00');assert.equal(JSON.stringify(h.d),before)});
 test('pagination and repeated descending sort never move full footer into account rows',()=>{const h=component(),t=fromHtml('<table><thead><tr><th>الحساب</th><th>مدين</th></tr></thead><tbody>'+Array.from({length:12},(_,i)=>'<tr><td>Account '+i+'</td><td>'+i+'</td></tr>').join('')+'</tbody><tfoot data-sk-summary-scope="all"><tr><td>إجمالي الميزان الكامل قبل البحث</td><td>66</td></tr></tfoot></table>');t._sktb.s.sort={i:1,dir:'desc'};t._sktb.s.page=2;h.api.apply(t);h.api.apply(t);assert.equal(t.tBodies[0].rows.length,12);assert.equal(t.tFoot.rows.length,1);assert.equal(t.tBodies[0].rows.filter(r=>!r.classList.contains('sktb-off')).length,2);const x=h.api.exportData(t);assert.equal(x.rows[0][1],'11');assert.equal(x.rows.length,12);assert.equal(x.footerRows[0][1],'66')});
 test('filtered generic exports preserve matching data plus full scope, with account-only success count',async()=>{const h=component(),t=fromHtml(ledger().html());t._sktb.s.q='Account 0';h.api.apply(t);h.api.exportCsv(t);h.public.exportXlsx(t);await h.public.copyTsv(t);h.public.printTable(t);assert.equal(h.csv.rows.length,2);assert.equal(h.xlsx.rows.length,2);assert.equal(h.csv.rows[0][1],'100.00');assert.equal(h.csv.rows[1][1],'406.00');assert.match(h.toasts[0][0],/1 صف/);assert.match(h.printed,/Account 0/);assert.match(h.printed,/قبل البحث/);assert.doesNotMatch(h.printed,/Account 1/)});
+
+// Regression: display aggregation must retain the sign emitted by the real money formatter.
+test('signed RTL amounts contribute to totals and sort numerically',()=>{
+ const h=component(),money=n=>n.toLocaleString('ar-SA-u-nu-latn',{minimumFractionDigits:2,maximumFractionDigits:2})+' ر.س';
+ const amounts=[1000,1000,1000,1000,1000,1000,2104,-7981.92];
+ const t=fromHtml('<table><thead><tr><th>Name</th><th>المبلغ</th></tr></thead><tbody>'+amounts.map((n,i)=>'<tr><td>Row '+i+'</td><td>'+money(n)+'</td></tr>').join('')+'</tbody></table>');
+ t._sktb.s.sort={i:1,dir:'asc'};h.api.apply(t);assert.equal(t.tFoot.rows[0].cells[1].textContent,'122.08');assert.equal(h.api.cellValue(t.tBodies[0].rows[0].cells[1]).n,-7981.92);
+ for(const value of ['\u200e-7,981.92 ر.س','\u061c-٧٬٩٨١٫٩٢ ر.س','\u2067−7,981.92\u2069 SAR','(7,981.92) ر.س'])assert.equal(h.api.cellValue(cell(value)).n,-7981.92);
+ assert.equal(h.api.cellValue(cell('not an amount')).n,undefined);
+});
+test('general ledger movement balances explicitly opt out of addition',()=>{
+ const h=ledger();const tables=[...h.gl().matchAll(/<table[\s\S]*?<\/table>/g)].map(m=>m[0]);
+ assert.match(tables[1],/<th data-sk-nosum>الرصيد<\/th>/);assert.doesNotMatch(tables[0],/data-sk-nosum/);
+});
+test('non-additive balance stays blank under sorting and filtering while debits sum',()=>{
+ const h=component(),t=fromHtml('<table><thead><tr><th>Name</th><th>مدين</th><th>الرصيد</th></tr></thead><tbody>'+Array.from({length:8},(_,i)=>'<tr><td>Row '+i+'</td><td>10</td><td>'+(i+1)*10+'</td></tr>').join('')+'</tbody></table>');
+ t.tHead.rows[0].cells[2].hasAttribute=k=>k==='data-sk-nosum';
+ for(const q of ['', 'Row 1']){t._sktb.s.q=q;t._sktb.s.sort={i:2,dir:'desc'};h.api.apply(t);assert.equal(t.tFoot.rows[0].cells[2].textContent,'');assert.equal(t.tFoot.rows[0].cells[1].textContent,q?'10':'80')}
+});
+test('pagination arrows have distinct accessible names and valid boundary targets',()=>{
+ const h=component(),t=fromHtml('<table><thead><tr><th>Name</th><th>Amount</th></tr></thead><tbody>'+Array.from({length:31},(_,i)=>'<tr><td>Row '+i+'</td><td>10</td></tr>').join('')+'</tbody></table>');
+ for(const page of [1,2,4]){t._sktb.s.page=page;h.api.apply(t);const html=t._sktb.foot.innerHTML;assert.match(html,/aria-label="الصفحة السابقة"/);assert.match(html,/aria-label="الصفحة التالية"/);assert.doesNotMatch(html,/data-pg="[05]"/);assert.equal((html.match(/aria-label="صفحة 2"/g)||[]).length,page===4?0:1)}
+});
+
+test('revenue reconciliation distinguishes explained journals from unexplained difference',()=>{
+ const h=ledger();h.d.accounts.push({id:'revenue',code:'4000',name:'Revenue',type:'revenue',active:true});h.d.entries.push({id:'r',date:new Date().getFullYear()+'-01-01',source:'manual',lines:[{accountId:'a0',debit:50,credit:0},{accountId:'revenue',debit:0,credit:50}]});
+ const html=h.rev();assert.match(html,/الفرق قبل القيود الأخرى/);assert.match(html,/الفرق غير المفسر/);assert.match(html,/بعد استبعاد القيود الأخرى/);
+});

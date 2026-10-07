@@ -29,10 +29,15 @@ function initials(n){const w=String(n||"").trim().split(/\s+/).filter(Boolean);i
 const firstName=n=>String(n||"").trim().split(/\s+/)[0]||"";
 /* the open company (SK.company): the same one the rail, the books and every helper screen show */
 function ctx(){
-  if(SK.company){const c=SK.company.current(),cs=SK.company.list();return{cs,ps:c.periods,c,p:c.period}}
+  const scope=SK.gate&&SK.gate.current?SK.gate.current():"accounting";
+  if(scope==="audit"){
+    const d=load("skosif_tbreview_v1",{})||{},a=d.ctx||{};
+    return {scope,cs:[],ps:[],c:{name:a.company||"ملف مراجعة بلا اسم",currency:a.curSym||a.currency||""},p:{label:a.periodEnd||a.period||"فترة غير محددة"}};
+  }
+  if(SK.company){const c=SK.company.current(),cs=SK.company.list();return{scope,cs,ps:c.periods,c,p:c.period}}
   const d=load(CO,{})||{},cs=d.companies||[],ps=d.periods||[],a=d.active||{};
   const c=cs.find(x=>x.id===a.companyId)||cs[0]||null,own=c?ps.filter(x=>x.companyId===c.id):[];
-  return{d,cs,ps:own,c,p:own.find(x=>x.id===a.periodId)||null};
+  return{scope,d,cs,ps:own,c,p:own.find(x=>x.id===a.periodId)||null};
 }
 const biz=()=>((document.getElementById("biz-name")||{}).textContent||"").trim()||SK.org().biz||"SQC";
 function setActive(patch){
@@ -109,7 +114,7 @@ function paint(){
   }
   /* company + period */
   const co=$("#sk-tb-co"),pe=$("#sk-tb-pe");
-  if(co){$("b",co).textContent=x.c?x.c.name:biz();$("small",co).textContent=x.c?(x.c.currency||"")+(x.cs.length>1?" · "+x.cs.length+" شركات":""):"أضف الشركة والفترات"}
+  if(co){$("b",co).textContent=x.c?x.c.name:biz();$("small",co).textContent=(x.scope==="audit"?"ملف المراجعة · ":x.scope==="tools"?"مساحة الأدوات · ":"شركة المحاسبة · ")+(x.c?(x.c.currency||"")+(x.cs.length>1?" · "+x.cs.length+" شركات":""):"أضف الشركة والفترات")}
   if(pe){$("b",pe).textContent=x.p?x.p.label:"كل الفترات"}
   /* bell */
   const dot=$("#sk-tb-bell .dot"),n=window.SKosifNotify?SKosifNotify.unread():0;
@@ -146,12 +151,14 @@ function openMenu(btn,html,cls){
 }
 function coMenu(btn){
   const x=ctx();
+  if(x.scope==="audit"){core().go("tbreview");return}
   const note=c=>c.locked&&!(x.c&&c.id===x.c.id)?"خاصة · بكلمة المرور":c.demo?"بيانات تجريبية":(c.currency||"");
   const list=x.cs.length?x.cs.map(c=>'<button type="button" role="menuitemradio" aria-checked="'+(x.c&&c.id===x.c.id)+'" data-m="co" data-id="'+esc(c.id)+'"><b>'+esc(c.name)+'</b><small>'+esc(note(c))+'</small></button>').join(""):'<p class="sk-menu-note">لم تُضف شركة بعد. الدفاتر والتقارير تعمل على الشركة النشطة وفترتها.</p>';
   openMenu(btn,'<div class="sk-menu-h">الشركة المفتوحة — بياناتها على الشاشة</div>'+list+'<hr><button type="button" data-m="go" data-v="companies">'+SK.icon("companies")+' إدارة الشركات والفترات</button><a class="sk-menu-a" role="menuitem" href="./">'+SK.icon("companies")+' كل الشركات (الباب الأمامي)</a>');
 }
 function peMenu(btn){
   const x=ctx();
+  if(x.scope==="audit"){core().go("tbreview");return}
   if(!x.c){openMenu(btn,'<p class="sk-menu-note">أضف شركة أولاً ثم فتراتها المالية.</p><button type="button" data-m="go" data-v="companies">'+SK.icon("companies")+' الشركات والفترات</button>');return}
   const list='<button type="button" role="menuitemradio" aria-checked="'+!x.p+'" data-m="pe" data-id="">كل الفترات</button>'+x.ps.map(p=>'<button type="button" role="menuitemradio" aria-checked="'+(x.p&&p.id===x.p.id)+'" data-m="pe" data-id="'+esc(p.id)+'"><b>'+esc(p.label)+'</b><small dir="ltr">'+esc((p.startDate||"")+" → "+(p.endDate||""))+'</small></button>').join("");
   openMenu(btn,'<div class="sk-menu-h">الفترة المالية — '+esc(x.c.name)+'</div>'+list+'<hr><button type="button" data-m="go" data-v="companies">'+SK.icon("calc")+' إضافة فترة</button>');
@@ -221,8 +228,9 @@ addEventListener("scroll",()=>closeMenu(),{passive:true});
 
 function boot(){
   paint();
-  SK.bus.on("data",d=>{if(d&&(d.key===CO||d.key===PROFILE||d.key==="aghnam-pricing-v3"))paint()});
-  SK.bus.on("company",()=>paint());SK.bus.on("notify",()=>paint());SK.bus.on("role",()=>paint());SK.bus.on("nav",()=>closeMenu());
+  SK.bus.on("data",d=>{if(d&&(d.key===CO||d.key===PROFILE||d.key==="skosif_tbreview_v1"||d.key==="aghnam-pricing-v3"))paint()});
+  SK.bus.on("gate",()=>{closeMenu();paint()});
+  SK.bus.on("company",()=>paint());SK.bus.on("notify",()=>paint());SK.bus.on("role",()=>paint());SK.bus.on("nav",()=>{closeMenu();paint()});
   SK.bus.on("theme",()=>paint());
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();

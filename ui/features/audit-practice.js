@@ -80,6 +80,7 @@ function gcOf(c){
 }
 const gcSection=c=>GC().goingConcernSection(gcOf(c).conclusion,{framework:c.fw});
 function gcCard(c){
+  const unit=esc(c.d.ctx.curSym||c.d.ctx.currency||"عملة الملف");
   const r=gcOf(c),cfg=c.d.gc||{},mits=(cfg.mitigations||[]).concat([{},{}]).slice(0,2),b=r.baseline;
   const cls=r.conclusion==="no-material-uncertainty"?"ok":r.conclusion==="close-call"?"warn":"bad";
   const lab=Array.from({length:12},(_,i)=>"ش"+(i+1)),M=v=>v/100;
@@ -91,8 +92,8 @@ function gcCard(c){
     '<div class="ap-res"><div><small>النقد الافتتاحي</small><b>'+m0(b.openingCash)+'</b><span>متوسط الإيراد الشهري '+m0(b.monthlyRevenue)+'</span></div><div><small>هامش مجمل الربح</small><b>'+pc(b.grossMargin)+'</b><span>التحصيل '+b.dsoDays+' يوماً · السداد '+b.dpoDays+' يوماً</span></div><div><small>التزامات ثابتة شهرية</small><b>'+m0(b.monthlyFixedCosts+b.monthlyDebtService+b.monthlyCapex)+'</b><span>'+(b.zakatDue?'الزكاة '+m0(b.zakatDue.amount)+' في الشهر 4':'لا زكاة مستحقة')+'</span></div></div>'+
     chart+
     '<div class="tbr-tw"><table class="sk-table" data-sk-plain><thead><tr><th>السيناريو</th><th>أدنى نقد</th><th>الشهر</th><th>الهامش مع التسهيلات</th><th>بعد الإجراءات المخففة</th></tr></thead><tbody>'+row(r.base)+r.paths.map(row).join("")+'</tbody></table></div>'+
-    '<h4>التسهيلات والإجراءات المخففة</h4><div class="ap-grid"><label class="sk-field"><span>تسهيلات بنكية غير مستخدمة (ريال)</span><input type="number" min="0" step="1000" data-ap-gc="facilities" value="'+riyal(cfg.facilities)+'"></label></div>'+
-    '<div class="ap-mits">'+mits.map((x,i)=>'<input data-ap-mit="'+i+'" data-f="ar" value="'+esc(x.ar||"")+'" placeholder="'+(["تأجيل مصروفات رأسمالية","دعم من الشركاء"][i])+'"><input type="number" step="1000" data-ap-mit="'+i+'" data-f="monthly" value="'+riyal(x.monthly)+'" placeholder="أثر شهري (ريال)"><label class="checkline"><input type="checkbox" data-ap-mit="'+i+'" data-f="feasible"'+(x.feasible?' checked':'')+'> قابل للتنفيذ وموثق</label>').join("")+'</div>'+
+    '<h4>التسهيلات والإجراءات المخففة</h4><div class="ap-grid"><label class="sk-field"><span>تسهيلات بنكية غير مستخدمة ('+unit+')</span><input type="number" min="0" step="1000" data-ap-gc="facilities" value="'+riyal(cfg.facilities)+'"></label></div>'+
+    '<div class="ap-mits">'+mits.map((x,i)=>'<input data-ap-mit="'+i+'" data-f="ar" value="'+esc(x.ar||"")+'" placeholder="'+(["تأجيل مصروفات رأسمالية","دعم من الشركاء"][i])+'"><input type="number" step="1000" data-ap-mit="'+i+'" data-f="monthly" value="'+riyal(x.monthly)+'" placeholder="أثر شهري ('+unit+')"><label class="checkline"><input type="checkbox" data-ap-mit="'+i+'" data-f="feasible"'+(x.feasible?' checked':'')+'> قابل للتنفيذ وموثق</label>').join("")+'</div>'+
     '<p class="hint">يُعد قسم «الاستنتاجات المتعلقة بالاستمرارية» في تقرير المراجع من هذه النتيجة تلقائياً (ISA 570 المحدث 2024 — يسري على الفترات التي تبدأ من 15 ديسمبر 2026). بعد مراجعة النتيجة أكّد بند الاستمرارية في بوابة الإكمال أعلاه.</p></div></section>';
 }
 

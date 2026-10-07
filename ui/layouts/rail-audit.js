@@ -17,9 +17,9 @@ function snapshot(){
 }
 function rows(){
   const x=snapshot();
-  if(!x.has)return '<div class="row sqc-rs"><span>ملف المراجعة</span><span class="spill">لا ملف مفتوح</span></div><div class="row sqc-rs"><span>ابدأ بميزان مراجعة</span><button type="button" class="btn sm" data-sqc-go="tbreview">فتح</button></div>';
+  if(!x.has)return '<div class="row sqc-rs"><span>ملف المراجعة المستقل</span><span class="spill">لا ملف مفتوح</span></div><div class="row sqc-rs"><span>ابدأ بميزان مراجعة</span><button type="button" class="btn sm" data-sqc-go="tbreview">فتح</button></div>';
   const ready=x.state==="draft-report"||x.state==="approved";
-  return '<div class="row sqc-rs"><span>ملف المراجعة</span><span class="spill '+(ready?"ok":x.state==="awaiting-client"?"bad":"")+'">'+esc(STATE_AR[x.state]||x.state)+'</span></div>'+
+  return '<div class="row sqc-rs"><span>ملف المراجعة المستقل</span><span class="spill '+(ready?"ok":x.state==="awaiting-client"?"bad":"")+'">'+esc(STATE_AR[x.state]||x.state)+'</span></div>'+
     '<div class="row sqc-rs sqc-rs-co"><span title="'+esc(x.company)+'">'+esc(x.company||"منشأة دون اسم")+'</span></div>'+
     '<div class="row sqc-rs"><span>جولات المجلس</span><b>'+x.rounds+'</b></div>'+
     '<div class="row sqc-rs"><span>مستندات معلقة</span><b class="'+(x.open?"red":"")+'">'+x.open+(x.unavailable?' · '+x.unavailable+' غير متوفر':'')+'</b></div>'+

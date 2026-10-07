@@ -48,3 +48,12 @@ test('a source selection during pending studio import cancels the old operationa
   await W.SKosifTBReview.openClient('apple-2024');release();await pending;
   assert.equal(b.calls.some(c=>c.call==='createEngagement'||c.call==='loadTrialBalance'||c.call==='loadDemo'),false);
 });
+
+test('mapped corpus cannot silently enter a classifier that drops its statement mappings',async()=>{
+ const h=harness(),W=h.context;await W.SKosifTBReview.openClient('amazon-2024');const before=JSON.stringify(h.state),b=bridge(h);
+ assert.ok(W.SKosifTBReview.rows().mappingUnsupported,'explicit capability limit, not a source-only conversion');
+ await W.__bridgeTest.doSync(b.api);W.__bridgeTest.feedAnalytics(b.api);
+ const node={innerHTML:'',replaceChildren(){}};W.SKosifAuditBridge.mountStudio(node,'financials');assert.match(node.innerHTML,/تصنيف|ربط/);
+ assert.deepEqual(b.calls,[]);assert.deepEqual(b.imports,[]);assert.equal(JSON.stringify(h.state),before);
+ assert.equal(W.__test.compute().base.fs.keys.revenue.current,63795900,'primary mapped calculation retained');
+});

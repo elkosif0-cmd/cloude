@@ -33,7 +33,7 @@ const ID_LIKE=/^\+?\d{9,}$/;
 const norm=s=>String(s||"").toLowerCase().replace(/[ً-ٰٟ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/\s+/g," ").trim();
 function cellText(td){if(!td)return "";const f=td.querySelector("input:not([type=checkbox]):not([type=hidden]),select,textarea");return f?String(f.value||""):td.textContent.trim()}
 function cellValue(td){
-  const s=cellText(td),t=s.replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[٬,\s]|ر\.س|SAR|ريال/g,"").replace("٫",".").replace("−","-");
+  const s=cellText(td),t=s.replace(/[\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/g,"").replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[٬,\s]|ر\.س|SAR|ريال/g,"").replace("٫",".").replace("−","-");
   const neg=/^\(.*\)$/.test(t),m=t.replace(/[()%٪▲▼+]/g,"").match(/^-?\d+(\.\d+)?/);
   if(m&&m[0].length>=Math.max(1,t.replace(/[()%٪▲▼+-]/g,"").length-2))return{n:(neg?-1:1)*parseFloat(m[0])};
   if(/^\d{4}-\d{2}-\d{2}/.test(s))return{n:Date.parse(s.slice(0,10))};
@@ -114,13 +114,13 @@ function apply(table){
   $(".sktb-n",bar).textContent=(q?hit.length+" من ":"")+orig.length+" صف";
   let pg='';
   if(pages>1){
-    const btn=(p,l,dis,cur)=>'<button type="button" data-pg="'+p+'"'+(dis?' disabled':'')+(cur?' aria-current="page"':'')+' aria-label="صفحة '+p+'">'+l+'</button>';
+    const btn=(p,l,dis,cur,label)=>'<button type="button" data-pg="'+p+'"'+(dis?' disabled':'')+(cur?' aria-current="page"':'')+' aria-label="'+(label||'صفحة '+p)+'">'+l+'</button>';
     const chev=d=>'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+(d?"m9 6 6 6-6 6":"m15 6-6 6 6 6")+'"/></svg>';
     const rtl=document.documentElement.dir!=="ltr";
-    pg+=btn(s.page-1,chev(rtl),s.page<=1);
+    pg+=btn(Math.max(1,s.page-1),chev(rtl),s.page<=1,false,"الصفحة السابقة");
     const win=[...new Set([1,s.page-1,s.page,s.page+1,pages].filter(p=>p>=1&&p<=pages))].sort((a,b)=>a-b);
     win.forEach((p,j)=>{if(j&&p-win[j-1]>1)pg+='<span>…</span>';pg+=btn(p,p,false,p===s.page)});
-    pg+=btn(s.page+1,chev(!rtl),s.page>=pages);
+    pg+=btn(Math.min(pages,s.page+1),chev(!rtl),s.page>=pages,false,"الصفحة التالية");
   }
   foot.innerHTML='<label>عدد الصفوف في الصفحة <select aria-label="عدد الصفوف">'+SIZES.map(n=>'<option value="'+n+'"'+(n===s.size?' selected':'')+'>'+(n||"الكل")+'</option>').join("")+'</select></label>'+
     '<span>'+(hit.length?'عرض '+(from+1)+'–'+to+' من أصل '+hit.length:'لا نتائج مطابقة')+'</span><span class="sktb-pg">'+pg+'</span>';
