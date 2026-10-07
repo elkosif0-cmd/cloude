@@ -123,7 +123,7 @@ function paint(){
   const co=$("#sk-tb-co"),pe=$("#sk-tb-pe");
   /* FOUNDATION §3.0 rule 7 — the context is always on screen: the program, the activity (sector), the company, and the section */
   if(co){$("b",co).textContent=x.c?x.c.name:biz();const sec=x.scope==="accounting"&&x.c&&x.c.sector?sectorLabel(x.c.sector):"";
-    $("small",co).textContent=(x.scope==="audit"?"المراجعة":x.scope==="tools"?"الأدوات المساعدة":"البرنامج المحاسبي")+(sec?" · "+sec:"")+(x.c?(x.c.currency?" · "+x.c.currency:"")+(x.cs.length>1?" · "+x.cs.length+" شركات":""):" · أضف الشركة والفترات")}
+    $("small",co).textContent=(x.scope==="audit"?"ملف المراجعة":x.scope==="tools"?"مساحة الأدوات":"البرنامج المحاسبي")+(sec?" · "+sec:"")+(x.c?(x.c.currency?" · "+x.c.currency:"")+(x.cs.length>1?" · "+x.cs.length+" شركات":""):" · أضف الشركة والفترات")}
   if(pe){$("b",pe).textContent=x.p?x.p.label:"كل الفترات"}
   /* bell */
   const dot=$("#sk-tb-bell .dot"),n=window.SKosifNotify?SKosifNotify.unread():0;
