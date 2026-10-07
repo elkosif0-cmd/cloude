@@ -886,3 +886,11 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - R10 fixes: demo books scaled to the demo's own sales (loss −238,144 → profit 15,814, 13.8%); the open company's name instead of a fixed business name in 12 outputs (`SK.bizName`); no ZATCA QR for an invoice without a valid tax number, seller and lines; receivables from the books first; purchase order values; `sectors` in the registry (7 meat screens offered to meat companies only); the modules' second F-code tab bars removed; Arabic eyebrows (app + legacy core at build); Latin digits and the Gregorian calendar in 77 formatting calls; the butchery note without spreadsheet cells; catalog cards without empty squares; the analytics notice only on its screen; phone path on one line.
 - Evidence: `tools/demo_books_health.test.mjs` (new), bootstrap admission 42/42, VAT/context/CSV display 77/77, receipts and reports 63/63, identity ratchet 3/3; browser suites on the runner.
 - Branch / PR: `claude/r10-harsh-review-20261008` (carries the screen-review workflow from `claude/review-screens-20261007`).
+
+### TASK CLAUDE-20261008-002 — Harsh review wave R12: one decision entry, engines behind the matching screens
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- R10/R11 merged as PR #222 and published (live `skosif.js` 3.34 MB; core patches verified on /app-safe).
+- Scope: «القرار» hub (decision center with Jev and the council as pages; menus list it once; no AI vendor names); smart-match and Excel-recon screens use `SKEngines.reports.smartMatch`; «ذكاء المبيعات» in four screen tabs (feature audit opens the lab tab); the scale label seeded from the company's catalog with sector wording; the receipt's address instead of a slogan; the catalog welcome line by sector; the cycle-proof engine prints money.
+- Evidence: app build 115 files / 544 tests; registry contracts; harsh-review guards; browser suites on the runner.
+- Branch / PR: `claude/r12-capabilities-20261008`.
