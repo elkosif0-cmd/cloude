@@ -87,6 +87,8 @@ function build(){
   if(grow)(search||ctxBox).after(grow);
   bar.append(bell,theme,user);
   bar.addEventListener("click",onClick);ph.addEventListener("click",onClick);
+  /* the description shows one line; a tap opens the rest (R1) */
+  ph.addEventListener("click",e=>{if(e.target.closest(".sk-ph .sub"))ph.classList.toggle("sub-open")});
   built=true;place();
   return true;
 }
@@ -101,26 +103,33 @@ function place(){
 narrow.addEventListener&&narrow.addEventListener("change",place);
 
 /* ---------- paint (every chrome paint) ---------- */
+function sectorOf(cap){try{const c=SK.company.current();return cap&&cap.group==="books"&&c&&c.sector&&SK.caps.sectors().some(s=>s.id===c.sector)?c.sector:""}catch{return ""}}
+function sectorLabel(id){const s=SK.caps.sectors().find(x=>x.id===id);return s?s.label:""}
 function paint(){
   if(!build())return;
   const c=core(),view=c?c.view():"",cap=SK.caps.get(view),pr=profile(),x=ctx();
   /* page head */
   const ic=$(".sk-ph-ic"),en=$(".sk-ph-en");
-  if(ic){const h=SK.icon(view);if(ic.dataset.v!==view){ic.innerHTML=h;ic.dataset.v=view}}
-  if(en)en.textContent=cap&&cap.en||"";
+  if(ic){const h=SK.icon(view);if(ic.dataset.v!==view){ic.innerHTML=h;ic.dataset.v=view}
+    /* the books carry the open company's sector picture (ui/art/brand/sector-<id>.webp) in place of the screen icon */
+    const sec=sectorOf(cap);if(ic.dataset.sector!==sec){ic.dataset.sector=sec;ic.style.backgroundImage=sec?"url(./art/brand/sector-"+sec+".webp)":"";ic.classList.toggle("has-art",!!sec);ic.title=sec?sectorLabel(sec):""}}
+  /* the line under the title names the section and the domain (rule 7), the English name stays as the title's tooltip */
+  if(en){en.textContent=cap?SK.caps.path(cap.id):"";en.dir="auto";const t=$("#pg-title");if(t)t.title=cap&&cap.en||""}
   const ph=$(".sk-ph");if(ph){ph.dataset.view=view}
   if(view==="dash"){
     const t=$("#pg-title"),s=$("#pg-sub");
     if(t)t.textContent="مرحباً"+(pr.name?" "+firstName(pr.name):" بك")+" 👋";
     const now=new Date(),day=now.toLocaleDateString("ar-SA-u-nu-latn",{weekday:"long"}),greg=now.toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"}),hij=now.toLocaleDateString("ar-SA-u-ca-islamic-umalqura-nu-latn",{day:"numeric",month:"long",year:"numeric"});
     if(s)s.textContent="نظرة شاملة على أعمال "+(x.c?x.c.name:biz())+" · "+day+" "+greg+" · "+hij;
-    if(en)en.textContent="Command Center";
+    if(en)en.textContent=SK.caps.path("dash");
   }
   /* company + period */
   const co=$("#sk-tb-co"),pe=$("#sk-tb-pe");
+  /* FOUNDATION §3.0 rule 7 — the context is always on screen: the program, the activity (sector), the company, and the section */
   if(co){
+    const sec=x.scope==="accounting"&&x.c&&x.c.sector?sectorLabel(x.c.sector):"";
     const coName=x.scope==="tools"?(x.c?x.c.name:"مساحة الأدوات"):x.scope==="audit"?(x.c?x.c.name:"ملف المراجعة"):(x.c?x.c.name:biz());
-    const coSub=x.scope==="audit"?"ملف المراجعة · "+(x.c&&x.c.name||"مستقل"):x.scope==="tools"?"مساحة الأدوات · "+(x.c&&x.c.name||"مستقلة"):"شركة المحاسبة · "+(x.c?(x.c.currency||"")+(x.cs.length>1?" · "+x.cs.length+" شركات":""):"أضف الشركة والفترات");
+    const coSub=x.scope==="audit"?"ملف المراجعة"+(x.c&&x.c.currency?" · "+x.c.currency:" · مستقل"):x.scope==="tools"?"مساحة الأدوات · "+(x.c&&x.c.name||"مستقلة"):"البرنامج المحاسبي"+(sec?" · "+sec:"")+(x.c?(x.c.currency?" · "+x.c.currency:"")+(x.cs.length>1?" · "+x.cs.length+" شركات":""):" · أضف الشركة والفترات");
     $("b",co).textContent=coName;
     $("small",co).textContent=coSub;
   }
@@ -164,10 +173,23 @@ function openMenu(btn,html,cls){
 function coMenu(btn){
   const x=ctx();
   if(x.scope==="audit"){core().go("tbreview");return}
-  if(x.scope==="tools"){if(window.SKosifSpace&&SKosifSpace.choose){SKosifSpace.choose();return}}
+  /* the tools entry: its own space (FOUNDATION §3.0 rule 4), never the accounting companies — the menu switches the space, the
+     accountant's user, or goes back to the front door (these replaced the strip above the helper screens, R1) */
+  if(x.scope==="tools"){const who=window.SKosifSpace&&SKosifSpace.user?SKosifSpace.user():null;
+    openMenu(btn,'<div class="sk-menu-h">مساحة الأدوات المفتوحة: '+esc(x.c?x.c.name:"")+'</div>'+
+      '<button type="button" role="menuitem" data-m="space" data-space-open>'+SK.icon("companies")+' تبديل مساحة الأدوات</button>'+
+      '<button type="button" role="menuitem" data-m="spaceuser" data-user-open>'+SK.icon("user")+' تبديل المستخدم'+(who&&who.name?' <small>'+esc(who.name)+'</small>':'')+'</button>'+
+      '<hr><a class="sk-menu-a" role="menuitem" href="./" data-space-door>'+SK.icon("companies")+' كل الشركات (الباب الأمامي)</a>');return}
   const note=c=>c.locked&&!(x.c&&c.id===x.c.id)?"خاصة · بكلمة المرور":c.demo?"بيانات تجريبية":(c.currency||"");
   const list=x.cs.length?x.cs.map(c=>'<button type="button" role="menuitemradio" aria-checked="'+(x.c&&c.id===x.c.id)+'" data-m="co" data-id="'+esc(c.id)+'"><b>'+esc(c.name)+'</b><small>'+esc(note(c))+'</small></button>').join(""):'<p class="sk-menu-note">لم تُضف شركة بعد. الدفاتر والتقارير تعمل على الشركة النشطة وفترتها.</p>';
-  openMenu(btn,'<div class="sk-menu-h">الشركة المفتوحة — بياناتها على الشاشة</div>'+list+'<hr><button type="button" data-m="go" data-v="companies">'+SK.icon("companies")+' إدارة الشركات والفترات</button><a class="sk-menu-a" role="menuitem" href="./">'+SK.icon("companies")+' كل الشركات (الباب الأمامي)</a>');
+  openMenu(btn,'<div class="sk-menu-h">الشركة المفتوحة — بياناتها على الشاشة</div>'+list+(spaceItems())+'<hr><button type="button" data-m="go" data-v="companies">'+SK.icon("companies")+' إدارة الشركات والفترات</button><a class="sk-menu-a" role="menuitem" href="./" data-space-door>'+SK.icon("companies")+' كل الشركات (الباب الأمامي)</a>');
+}
+/* on a company screen of the helper tools: the accountant's user and the tools space, chosen from here (ui/core/helper-space.js listens) */
+function spaceItems(){
+  const cap=SK.caps.get(core().view());if(!cap||!cap.company||!window.SKosifSpace)return "";
+  const who=SKosifSpace.user?SKosifSpace.user():null;
+  return '<hr><button type="button" role="menuitem" data-m="space" data-space-open>'+SK.icon("companies")+' تبديل الشركة (مساحة الأدوات)</button>'+
+    '<button type="button" role="menuitem" data-m="spaceuser" data-user-open>'+SK.icon("user")+' تبديل المستخدم'+(who&&who.name?' <small>'+esc(who.name)+'</small>':'')+'</button>';
 }
 function peMenu(btn){
   const x=ctx();

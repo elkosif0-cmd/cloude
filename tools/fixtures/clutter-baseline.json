@@ -1,0 +1,10 @@
+{
+ "avgContentTopDesktop": 325,
+ "maxContentTopDesktop": 348,
+ "avgContentTopPhone": 416,
+ "avgChromeRowsDesktop": 2.72,
+ "avgChromeControlsDesktop": 12,
+ "screensRepeatingSidebar": 7,
+ "recordedAt": "2026-10-07",
+ "recordedOn": "GitHub Actions ubuntu-latest Chromium (SQC Browser Suites, run 37662687329)"
+}

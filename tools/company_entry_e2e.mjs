@@ -48,8 +48,11 @@ try {
     /* the crystal world: mounted after the page painted, animating, sized to the viewport; or absent without WebGL */
     await page.waitForFunction(() => window.SQCEntry && (SQCEntry.world() || !window.SQCCrystal || document.readyState === 'complete'), null, { timeout: 20000 }).catch(() => {});
     await page.waitForTimeout(600);
-    const world = await page.evaluate(async () => { const w = SQCEntry.world(); if (!w) return { mounted: false, gl: !!document.createElement('canvas').getContext('webgl') }; /* two one-second windows, the better one counts: a shared CI runner draws with software GL and hiccups */ let fps = 0; for (let i = 0; i < 2; i++) { const f0 = w.frames(); await new Promise((r) => setTimeout(r, 1000)); fps = Math.max(fps, w.frames() - f0); } const c = document.getElementById('sqc-world'); return { mounted: true, fps, shards: w.shards(), still: w.still(), w: c.width, h: c.height, vw: innerWidth, vh: innerHeight, on: c.classList.contains('on') }; });
-    if (world.mounted) {
+    const world = await page.evaluate(async () => { const w = SQCEntry.world(); if (!w) return { mounted: false, gl: !!document.createElement('canvas').getContext('webgl') }; /* two one-second windows, the better one counts: a shared CI runner draws with software GL and hiccups */ let fps = 0; for (let i = 0; i < 2; i++) { const f0 = w.frames(); await new Promise((r) => setTimeout(r, 1000)); fps = Math.max(fps, w.frames() - f0); } const c = document.getElementById('sqc-world'); return { mounted: true, ready: !w.ready || w.ready(), fps, shards: w.shards(), still: w.still(), w: c.width, h: c.height, vw: innerWidth, vh: innerHeight, on: c.classList.contains('on') }; });
+    /* the shaders link in parallel; a driver that has not finished within the window is reported, not failed (the world stays
+       a still background until it is ready — an Intel/ANGLE link was measured at 38 s on the owner's machine, 2026-10-07) */
+    if (world.mounted && !world.ready) check(`${tag}: the crystal world is mounted and waits for its shaders without holding the page`, world.on && !world.still, JSON.stringify(world));
+    else if (world.mounted) {
       /* 20 fps on a real GPU; a CI runner has no GPU and only proves the world keeps animating */
       const minFps = process.env.CI ? 12 : 20;
       check(`${tag}: the crystal world animates (≥ ${minFps} fps)`, world.fps >= minFps, JSON.stringify(world));
@@ -107,7 +110,10 @@ try {
     await page.waitForTimeout(1000);
     check(`${tag}: the choreography marks are cleaned up`, await page.evaluate(() => !document.getElementById('view').classList.contains('sk-enter')));
     check(`${tag}: no horizontal overflow after the screen entered`, (await overflow(page)) <= 2, String(await overflow(page)));
-    check(`${tag}: the helper screens name the company and link back to the front door`, await page.evaluate(() => { const b = document.querySelector('.sqc-space-bar'); return !!b && b.textContent.includes('شركة الوادي التجريبية للحوم') && !!b.querySelector('[data-space-door][href="./"]'); }));
+    /* R1: the company menu in the top bar names the company and links back to the front door (no strip above the screen) */
+    await page.click('#sk-tb-co'); await page.waitForTimeout(200);
+    check(`${tag}: the company menu names the company and links back to the front door`, await page.evaluate(() => { const b = document.querySelector('.sk-menu'); return !!b && b.textContent.includes('شركة الوادي التجريبية للحوم') && !!b.querySelector('[data-space-door][href="./"]') && !!b.querySelector('[data-space-open]') && !document.querySelector('.sqc-space-bar'); }));
+    await page.keyboard.press('Escape'); await page.waitForTimeout(100);
     const demoCustomers = await page.evaluate(async () => ((r) => r.empty ? 0 : r.customers.length)(await SKosifSalesIntel.snapshot('all')));
     check(`${tag}: demo customers exist`, demoCustomers > 0, String(demoCustomers));
 
@@ -216,8 +222,8 @@ try {
       await rp.goto(base + 'index.html');
       await rp.waitForFunction(() => window.SQCEntry && (SQCEntry.world() || document.readyState === 'complete'), null, { timeout: 20000 }).catch(() => {});
       await rp.waitForTimeout(500);
-      const still = await rp.evaluate(async () => { const w = SQCEntry.world(); if (!w) return { mounted: false }; const f0 = w.frames(); await new Promise((r) => setTimeout(r, 800)); return { mounted: true, still: w.still(), extra: w.frames() - f0, drew: w.frames() >= 1 }; });
-      if (still.mounted) check('reduced motion: the world draws one still frame and does not animate', still.still && still.drew && still.extra <= 1, JSON.stringify(still));
+      const still = await rp.evaluate(async () => { const w = SQCEntry.world(); if (!w) return { mounted: false }; const f0 = w.frames(); await new Promise((r) => setTimeout(r, 800)); return { mounted: true, ready: !w.ready || w.ready(), still: w.still(), extra: w.frames() - f0, drew: w.frames() >= 1 }; });
+      if (still.mounted && still.ready) check('reduced motion: the world draws one still frame and does not animate', still.still && still.drew && still.extra <= 1, JSON.stringify(still));
       /* reduced motion inside the app: no screen choreography */
       await rp.evaluate(() => { sessionStorage.setItem('sqc_company_intent', JSON.stringify({ id: 'demo-co', name: 'شركة الوادي التجريبية للحوم', demo: true })); sessionStorage.setItem('sqc_space_chosen', '1'); sessionStorage.setItem('sqc_helper_user_chosen', '1'); });
       await rp.goto(base + 'app-safe.html');

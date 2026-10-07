@@ -22,7 +22,7 @@ try {
   await p.waitForSelector('#co-list .co[data-id="demo-co"]', { timeout: 10000 }); await p.click('#co-list .co[data-id="demo-co"]');
   await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p);
   await p.evaluate(() => SKosifLedger.open('accounts')); await p.waitForTimeout(800);
-  ok('a meat company has no claims tab', await p.evaluate(() => !document.querySelector('[data-sk-tabs="ledger"] [data-tab="claims"]')));
+  ok('a meat company has no claims tab', await p.evaluate(() => !SKosifLedger.tabs().includes('claims')));
   // a hospital created under health
   await p.goto(base + 'index.html', { waitUntil: 'domcontentloaded', timeout: 90000 });
   await p.waitForSelector('#gate-list .gate', { timeout: 30000 });

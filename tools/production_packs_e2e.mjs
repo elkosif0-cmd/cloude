@@ -58,7 +58,7 @@ try {
 
   /* ---------- the bakery ---------- */
   await create('bakery', 'مخبز الاختبار', 'bakery');
-  ok('a bakery has the batches tab, and no factory tab', await p.evaluate(() => !!document.getElementById('pr-name') && !document.querySelector('[data-sk-tabs="ledger"] [data-tab="factory"]')));
+  ok('a bakery has the batches tab, and no factory tab', await p.evaluate(() => !!document.getElementById('pr-name') && !SKosifLedger.tabs().includes('factory')));
   await product({ name: 'خبز صامولي', unit: 'قطعة', m1: 'دقيق', q1: '0.2', c1: '3', lab: '0.15', oh: '0.05' });
   await op('buy', { amt: '1000', who: 'المطاحن', date: '2026-07-01' });
   await op('batch', { q: '1000', q2: '950', amt: '600', wage: '200', date: '2026-07-05' });

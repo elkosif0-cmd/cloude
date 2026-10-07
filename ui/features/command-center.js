@@ -23,10 +23,15 @@ function heroCard(){
   const name=(window.SK.company&&SK.company.current().name)||(document.getElementById("biz-name")||{}).textContent||"";
   /* the gold film (ui/art/brand/dashboard.mp4, generated with Higgsfield) under the crystals; the banner is its still */
   const still=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)||!!(navigator.connection&&navigator.connection.saveData);
-  return '<section class="skc-world" aria-hidden="true">'+(still?'':'<video class="skc-world-v" src="./art/brand/dashboard.mp4" muted loop playsinline autoplay preload="auto"></video>')+'<canvas class="skc-world-c"></canvas><div class="skc-world-tx"><small>SQC · مركز القيادة</small><b>'+esc(name)+'</b></div></section>';
+  return '<section class="skc-world" aria-hidden="true">'+(still?'':'<video class="skc-world-v" muted loop playsinline preload="none" data-src="./art/brand/dashboard.mp4"></video>')+'<canvas class="skc-world-c"></canvas><div class="skc-world-tx"><small>SQC · مركز القيادة</small><b>'+esc(name)+'</b></div></section>';
 }
 function mountHero(box){
-  dropWorld();const c=box.querySelector(".skc-world-c");if(!c)return;
+  dropWorld();
+  /* the film starts only after the window has loaded: a media element with a source delays the load event, and the
+     local test server answers no range requests, so the film must never stand between the page and «load» */
+  const v=box.querySelector(".skc-world-v");
+  if(v&&v.dataset.src){const start=()=>{if(!v.isConnected)return;v.src=v.dataset.src;const p=v.play&&v.play();if(p&&p.catch)p.catch(()=>{})};if(document.readyState==="complete")setTimeout(start,0);else addEventListener("load",start,{once:true})}
+  const c=box.querySelector(".skc-world-c");if(!c)return;
   loadEngine().then(ok=>{if(!ok||!c.isConnected)return;world=window.SQCCrystal.mount(c,{density:.6,interactive:true,scroll:false,seed:20261004});if(world)c.classList.add("on")});
 }
 

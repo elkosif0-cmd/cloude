@@ -51,7 +51,7 @@ try {
     /* the books of each sector, in its model company: the sector's own tabs and the shared ones */
     if (device === 'desktop') for (const [sector, id] of [['health', 'model-health'], ['education', 'model-education'], ['manufacturing', 'model-manufacturing'], ['bakery', 'model-bakery'], ['agriculture', 'model-agriculture'], ['trade', 'model-trade']]) {
       await enter(sector, id); await p.waitForFunction(() => SKosifLedger.entries().length > 0, null, { timeout: 60000 }).catch(() => {});
-      const tabs = await p.evaluate(() => { SKosifLedger.open('close'); return null; }).then(() => p.waitForTimeout(1500)).then(() => p.evaluate(() => [...document.querySelectorAll('[data-sk-tabs="ledger"] [data-tab]')].map((t) => t.dataset.tab)));
+      const tabs = await p.evaluate(() => { SKosifLedger.open('close'); return null; }).then(() => p.waitForTimeout(1500)).then(() => p.evaluate(() => SKosifLedger.tabs()));
       for (const tab of tabs) {
         const t0 = Date.now();
         await p.evaluate((t) => SKosifLedger.open(t), tab); await p.waitForTimeout(1300);

@@ -65,17 +65,20 @@ ok('هيكل المنتج','لكل مجموعة أدوات مسموحة عقدة
       Number(e.getAttribute('x2'))===parseFloat(n.style.left)&&Number(e.getAttribute('y2'))===parseFloat(n.style.top);
   })&&[...document.querySelectorAll('.hd-shell [data-hd-go]')].every(n=>SK.caps.get(n.dataset.hdGo)&&SK.perm.can(n.dataset.hdGo));
 }));
-ok('هيكل المنتج','الأدوات المساعدة تعرض شركتها ومبدّل الشركات',await p.evaluate(()=>!!document.querySelector('.sqc-space-bar [data-space-open]')&&!!window.SKosifSpace));
-ok('هيكل المنتج','الأدوات المساعدة تعرض مستخدم المحاسب وتفصل مساحاته',await p.evaluate(()=>!!document.querySelector('.sqc-space-bar [data-user-open]')&&typeof SKosifSpace.user==='function'&&typeof SKosifSpace.switchUser==='function'&&typeof SKosifSpace.createUser==='function'));
+/* R1: the company switcher and the accountant's user live in the top bar's company menu, not in a strip above the screen */
+await p.click('#sk-tb-co');await p.waitForTimeout(200);
+ok('هيكل المنتج','الأدوات المساعدة تعرض شركتها ومبدّل الشركات (قائمة الشركة)',await p.evaluate(()=>!!document.querySelector('.sk-menu [data-space-open]')&&!!window.SKosifSpace&&!document.querySelector('.sqc-space-bar')));
+ok('هيكل المنتج','الأدوات المساعدة تعرض مستخدم المحاسب وتفصل مساحاته',await p.evaluate(()=>!!document.querySelector('.sk-menu [data-user-open]')&&typeof SKosifSpace.user==='function'&&typeof SKosifSpace.switchUser==='function'&&typeof SKosifSpace.createUser==='function'));
+await p.keyboard.press('Escape');await p.waitForTimeout(100);
 await go('productflow',1500);ok('الاستوديو','استوديو المنتج يُرسم بمكوّن الاستوديو المشترك (SK.studio): كيان في المركز، مدخلات ومخرجات، مفتّش وتبويبات',await p.evaluate(()=>!!(window.SK&&SK.studio&&SK.studio.mount)&&!!document.querySelector('.pf-canvas .pf-node.pf-r-center')&&document.querySelectorAll('.pf-canvas .pf-node.pf-r-input').length>=1&&document.querySelectorAll('.pf-tab').length===4));
 await go('customerflow',3000);await p.waitForFunction(()=>document.querySelector('.pf-canvas .pf-node.pf-r-center'),null,{timeout:15000}).catch(()=>{});
 ok('الاستوديو','استوديو العميل على القالب نفسه: العميل في المركز، الطلبات والمدفوعات والمنتجات مدخلات، الشريحة والإيقاع والقيمة والذمم والمتابعة مخرجات',await p.evaluate(()=>!!window.SKosifCustomerFlow&&!!document.querySelector('.pf-node.pf-customer.pf-r-center')&&document.querySelectorAll('.pf-node.pf-r-input').length>=3&&document.querySelectorAll('.pf-node.pf-r-output').length===5&&document.querySelectorAll('.pf-tab').length===4&&!!document.querySelector('#pf-q')));
 ok('الاستوديو','أرقام استوديو العميل = أرقام محرك ذكاء المبيعات (الطلبات، الإيراد، الحالة، الشريحة)',await p.evaluate(async()=>{const m=SKosifCustomerFlow.current();if(!m)return false;const r=await SKosifSalesIntel.snapshot('all');const e=r.customers.find(c=>String(c.id)===m.id),f=r.followup.find(c=>String(c.id)===m.id);return !!e&&e.orders===m.person.orders&&e.revenue===m.person.revenue&&e.segment===m.person.segment&&(f?f.status:'ok')===m.person.status}));
 await p.click('.pf-node.pf-r-center');await p.waitForTimeout(400);ok('الاستوديو','الضغط على المربع يفتح مفتّشه بتفاصيله وزرّ الأصل',await p.evaluate(()=>!!document.querySelector('.pf-insp .pf-kv')&&!!document.querySelector('.pf-insp [data-pf="open-customer"]')));
 await p.click('.pf-tab[data-tab="checks"]');await p.waitForTimeout(300);ok('الاستوديو','تبويب الرقابة يعرض ملاحظات محسوبة',await has('.pf-tabb .pf-chk'));
-await go('ledger',1500);await p.click('#view [data-tab="tb"]').catch(()=>{});await p.waitForTimeout(600);
+await go('ledger',1500);await p.evaluate(()=>SKosifLedger.open('tb'));await p.waitForTimeout(900);
 ok('المالية','الشاشة = المحرك: إجمالي ميزان الدفاتر المعروض هو ميزان الفترة من المحرك على القيود المخزّنة',await p.evaluate(()=>{const d=SKosifLedger.snapshot(),E=SKEngines.finance.ledger;const c=SK.load('skosif_companies_v1',{}),a=c.active||{},per=(c.periods||[]).find(x=>x.id===a.periodId);const re=d.accounts.find(x=>x.code==='3100')||d.accounts.find(x=>/مبق|محتجز/.test(x.name));const tb=per?E.periodTrialBalance(d.entries,id=>(d.accounts.find(x=>x.id===id)||{}).type,{start:per.startDate,end:per.endDate},re?re.id:'__re__'):E.buildTrialBalance(d.entries);const foot=document.querySelector('#view tfoot[data-sk-summary-scope] tr');if(!tb.rows.length)return !!document.querySelector('#view .sks.empty')||!foot;if(!foot)return false;const cells=[...foot.querySelectorAll('td')].map(x=>x.textContent.trim());return cells[1]===SK.money(tb.totals.debit)&&cells[2]===SK.money(tb.totals.credit)&&tb.balanced}));
-await p.click('#view [data-tab="close"]').catch(()=>{});await p.waitForTimeout(300);
+await p.evaluate(()=>SKosifLedger.open('close'));await p.waitForTimeout(600);
 await go('tbreview',1200);ok('هيكل المنتج','دورة المراجعة مرسومة كعقد وأسهم مع حلقة جولات الأدلة',await p.evaluate(()=>document.querySelectorAll('.tbr-flow-node').length===9&&!!document.querySelector('.tbr-flowloop')));
 // ---------- global research bundle: audit benchmarks ----------
 await go('companies',900);
@@ -176,19 +179,19 @@ ok('الجولات 1–33','المدونة المحاسبية والمعايير
 await go('tbreview');await p.click('[data-a="setup"]').catch(()=>{});await p.waitForTimeout(500);ok('الجولات 1–33','الشركات المصرية ومعايير المحاسبة المصرية',await p.evaluate(()=>!!document.querySelector('[data-ctx="country"] option[value="EG"]')));
 // ---------- the books and the working mechanism (rounds 38–41) ----------
 await go('ledger');
-const B=await p.evaluate(()=>{const tabs=[...document.querySelectorAll('[data-sk-tabs="ledger"] [data-tab]')].map(x=>x.dataset.tab);return{tabs,
+const B=await p.evaluate(()=>{const tabs=SKosifLedger.tabs();return{tabs,
   eng:['reverseJournalEntry','isPeriodLocked'].every(k=>typeof SKEngines.finance.ledger[k]==='function')&&typeof SKEngines.sales.sales.splitVatInclusive==='function'&&typeof SKEngines.stock.inventory.weightedAverageCostsAsOf==='function',
   party:typeof SKEngines.finance.partyLedger.partyBalances==='function',vat:typeof SKEngines.finance.vatReturn.vatReturn==='function',bank:typeof SKEngines.finance.bankReconciliation.matchBankLines==='function',
   tpl:SK.templates.list().some(t=>t.id==='bank'),close:!!window.SKosifClose,alerts:!!(window.SKosifClose&&Array.isArray(SKosifClose.alerts()))}});
 ok('الدفاتر وآلية العمل','الإقفال الشهري بخطوات حية (مع سجل التعديلات ومطابقة الإيرادات)',B.tabs.includes('close')&&await p.evaluate(()=>document.querySelectorAll('.skclose-steps li').length>=8&&SKosifClose.steps().some(s=>s.id==='trail')));
 ok('الدفاتر وآلية العمل','تكلفة المبيعات والضريبة الشاملة والعكس بدل الحذف وإقفال الفترة',B.eng&&await p.evaluate(()=>!document.querySelector('[data-l="del-entry"]')));
-await p.click('[data-sk-tabs="ledger"] [data-tab="entries"]');await p.waitForTimeout(400);
+await p.evaluate(()=>SKosifLedger.open('entries'));await p.waitForTimeout(400);
 ok('الدفاتر وآلية العمل','عكس القيد وإقفال الدفاتر في شاشة القيود',await has('[data-l="rev-entry"]')&&await has('#lg-lock'));
-await p.click('[data-sk-tabs="ledger"] [data-tab="cash"]');await p.waitForTimeout(400);
+await p.evaluate(()=>SKosifLedger.open('cash'));await p.waitForTimeout(400);
 ok('الدفاتر وآلية العمل','التحصيل والسداد: أعمار الذمم وكشوف الحساب من الدفاتر',B.party&&await has('[data-l="settle"]')&&await has('[data-l="stmt"]'));
-await p.click('[data-sk-tabs="ledger"] [data-tab="vat"]');await p.waitForTimeout(400);
+await p.evaluate(()=>SKosifLedger.open('vat'));await p.waitForTimeout(400);
 ok('الدفاتر وآلية العمل','إقرار الضريبة ربعاً بربع مع قيد الإقفال',B.vat&&await has('[data-l="vatq"]'));
-await p.click('[data-sk-tabs="ledger"] [data-tab="recon"]');await p.waitForTimeout(500);
+await p.evaluate(()=>SKosifLedger.open('recon'));await p.waitForTimeout(500);
 ok('الدفاتر وآلية العمل','مطابقة البنك بقالب كشف واستيراد',B.bank&&B.tpl&&await has('[data-l="bank-import"]'));
 ok('الدفاتر وآلية العمل','الجرد وتسوية المخزون',await has('#lg-cntd'));
 await go('dash',1800);

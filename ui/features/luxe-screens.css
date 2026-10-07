@@ -93,10 +93,8 @@
 .skslab-tree summary{cursor:pointer;padding:4px 0}.skslab-tree summary small{color:var(--sk-ink-3)}
 .fu-plan{margin:0;padding-inline-start:20px;display:grid;gap:6px;font-weight:600}
 
-/* the books open under the company's sector: its name on the start side, the sector's picture fading in on the far side */
-.lg-sector{position:relative;display:flex;align-items:flex-end;min-height:96px;margin:0 0 var(--sk-3);padding:var(--sk-4) var(--sk-5);border-radius:var(--sk-r-l);overflow:hidden;color:var(--sk-rail-ink,var(--sk-on-brand));background:var(--sk-grad-rail,var(--sk-rail));box-shadow:var(--sk-shadow-1)}
-.lg-sector::after{content:"";position:absolute;inset-block:0;inset-inline-end:0;width:min(48%,360px);background:var(--art) center/cover no-repeat;pointer-events:none;-webkit-mask-image:linear-gradient(to right,var(--sk-ink) 45%,transparent);mask-image:linear-gradient(to right,var(--sk-ink) 45%,transparent)}
-.lg-sector span{position:relative;z-index:1;display:grid;gap:var(--sk-1)}
-.lg-sector small{font-size:var(--sk-fs-xs);font-weight:700;color:var(--sk-gold,var(--sk-brand-2))}
-.lg-sector b{font-size:var(--sk-fs-xl);font-weight:800;line-height:1.25}
-@media (max-width:600px){.lg-sector{min-height:80px;padding:var(--sk-3) var(--sk-4)}.lg-sector b{font-size:var(--sk-fs-l)}}
+
+/* the books: the family strip (R2) is a row of pills above the tabs of the open family */
+[data-sk-tabs="ledger-family"]{gap:var(--sk-2);margin-bottom:var(--sk-2);padding:0;background:transparent}
+[data-sk-tabs="ledger-family"] .sk-hub-btn{flex:0 0 auto;min-height:36px;padding:0 var(--sk-4);border:1px solid var(--sk-line);border-radius:var(--sk-r-pill);background:var(--sk-surface);box-shadow:none}
+[data-sk-tabs="ledger-family"] .sk-hub-btn.active{border-color:var(--sk-brand);background:var(--sk-brand);color:var(--sk-on-brand)}

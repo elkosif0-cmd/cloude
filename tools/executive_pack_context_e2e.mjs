@@ -149,8 +149,9 @@ async function openPage(width=1280, zero=false) {
   // PR124 preserves the route ID but moves it into the company-scoped reports studio.
   // Assert the real registry/banner rather than replacing company recognition in the fixture.
   assert.deepEqual(await page.evaluate(()=>{const cap=SK.caps.get('execreports');return{group:cap.group,company:cap.company,domain:document.documentElement.dataset.domain}}),{group:'reports',company:true,domain:'reports'});
-  await page.locator('.sqc-space-bar').waitFor({state:'visible'});
-  assert.ok((await page.locator('.sqc-space-bar').innerText()).includes(A.name));
+  // R1: the open company is named in the top bar's company button (the strip above the screen is gone)
+  await page.locator('#sk-tb-co').waitFor({state:'visible'});
+  assert.ok((await page.locator('#sk-tb-co').innerText()).includes(A.name));
   const build=await page.locator('meta[name="sqc-build"]').getAttribute('content');assert.match(build,/^[a-f0-9]{10}$/);
   // B is a synthetic IndexedDB snapshot, restored through the actual helper service.
   await page.evaluate(async ({co,book})=>{

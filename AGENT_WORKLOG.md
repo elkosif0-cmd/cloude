@@ -758,6 +758,34 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Identity ratchet: no metric worse.
 - Branch / PR: `claude/higgsfield-visuals-20261007` from `main` @ 1fbd35a.
 
+### TASK CLAUDE-20261007-010 — Deep review and reorganisation from the roots: R1 «one page head»
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Owner's request in chat: «قم بتحليل عميق جدًا ومراجعة لكل شيء في التطبيق… وأعد تنظيم كل شيء… رتّب كل شيء من الجذور وحلّ الازدحام وسوء التنظيم وعدم الوضوح» then «كمل التطوير والدمج».
+- Review: `docs/rebuild/DEEP_REVIEW_20261007_ar.md` — every number measured (registry, bundle, tests, and the new `tools/clutter_audit.mjs`: content started at 465 px on average on a 900 px desktop and 589 px on an 844 px phone; 4.5 chrome rows per screen; the domain strip echoed the sidebar on all 64 screens, the flow chips on 48, the space bar on 45).
+- R1 scope:
+  - `ui/core/flow.js`: «يأتي من / يذهب إلى» folds behind one «مرتبط» button in the head (session memory).
+  - `ui/core/helper-space.js` + `ui/layouts/topbar.js`: the space bar is gone; «تبديل الشركة», «تبديل المستخدم», «كل الشركات» live in the top bar's company menu; on phones the company/period chips sit in the head of every screen.
+  - `ui/layouts/shell.js` strip: on wide screens only a hub's own pages show (the sidebar already lists the domain's hubs) — CSS in `shell.css`.
+  - `ui/layouts/topbar.js`: the sector picture is the head icon on the books; the description shows one line, a tap opens it. `ui/features/ledger.js`: the sector strip from #212 removed (its picture moved into the head).
+  - `ui/ds/luxe.css`: the head is 44 px icon, tighter padding.
+  - Tests moved with the UI: `feature_audit` (company menu), `company_entry_e2e`, `executive_pack_context_e2e`, `brand_art.test`.
+  - `tools/clutter_audit.mjs` ratchet (`tools/fixtures/clutter-baseline.json`, `--check` / `--write-baseline`).
+- Found on the way (the four late suites timed out on `page.goto … load`): `SQCCrystal.mount` linked its shaders synchronously, and on the owner's machine that link (Intel Iris Xe · ANGLE D3D11) took **38 s** on the main thread this afternoon — the page froze, `load` never came within 30 s. Fix in `ui/art/crystal-world.js`: the programs link in parallel (`KHR_parallel_shader_compile`), the world polls each frame and draws once they are ready, a device whose link blocks long is remembered (`sqc_world_slow`) and keeps its still background. Also `ui/features/command-center.js`: the dashboard film gets its source only after `load` (a media element with a source delays the load event). `company_entry_e2e` reports a world whose shaders are still linking instead of failing it.
+- Branch / PR: `claude/r1-one-head-20261007` from `main` @ 51306ad (PR #213).
+
+### TASK CLAUDE-20261007-011 — Deep review wave R2: the books' tabs in families
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- R1 (TASK -010) merged as PR #213 and published; GitHub «SQC Browser Suites» (new workflow, nothing in front of the suites) green on its last commit.
+- Scope:
+  - `ui/features/ledger.js`: the 13–14 tabs sit in four families — الإقفال (close, links) · الدفاتر (accounts, entries, gl, tb) · التشغيل (the sector's tabs, cash) · الضريبة والبنك (vat, recon); the family follows the tab (`open("vat")` lands in its family), each family remembers its last tab; `SKosifLedger.tabs()` / `families()` for tests and the page review.
+  - `ui/features/luxe-screens.css`: the family strip as pills above the tabs (tokens only).
+  - `ui/ds/luxe.css`: on phones the company/period chips are one slim row (40 px, no second line).
+  - Tests reach tabs through the API (`feature_audit`, the sector packs' negative checks, `page_review`).
+  - `.github/workflows/sqc-browser-suites.yml` also runs the sector packs, model companies, books integrity, relationship health and sales suites.
+- FOUNDATION §3.0 (the owner, 2026-10-07, merged into this branch): rule 7 «the context is always on screen» — the top bar's company button now names the program, the activity (sector) and the company, and the line under every title names the section › domain (`ui/layouts/topbar.js`; the English name moved to the title's tooltip). Rule 11 «a crescent, not a cross, for health» — the health sector picture is being regenerated as a crescent (Higgsfield, one image).
+- Branch / PR: `claude/r2-book-families-20261007` from the R1 head (PR #214; #213 closed as superseded).
 
 ### TASK OWNER-20261007-WORKSPACE-CONSTITUTION — تثبيت نموذج المسار/النشاط/الشركة والـAI
 - Agent: ChatGPT
@@ -792,3 +820,29 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - NEXT ACTION:
   - Commit and push to main.
 
+
+### TASK CLAUDE-20261007-012 — Deep review wave R3: each entry's menu in the constitution's order
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Scope:
+  - `ui/core/capabilities.json`: `gateways[].menu` — accounting in the order of the company cycle (FOUNDATION §3.12: home · setup · entries and books · sales and collection · purchasing and stock · reconciliation · statements and reports · analysis and forecasting · decision and standards · settings), tools in the families of §3.3.1, audit around the audit file (§3.2).
+  - `ui/core/registry.js`: `SK.caps.menu(gid)` (only the entry's own hubs; any hub no section lists lands in «أخرى», so nothing is lost), `SK.caps.section(id,gid)`, and `path(id,gid)` names the section of the entry the user is in.
+  - `ui/layouts/shell.js`: the sidebar and the phone domain strip read the entry's menu (fallback to the registry groups for an entry without one).
+- Evidence: browser read of the three menus on the preview (10 / 9 / 5 sections, every hub present, no page errors); gateway contract and navigation unit tests unchanged (the one red test is red without R3 too).
+- Branch / PR: `claude/r3-menu-by-constitution-20261007` from the R2 head.
+
+### TASK CLAUDE-20261007-013 — Deep review wave R5: clarity of the registry
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Scope: the 18 screen descriptions longer than 80 characters (up to 215) rewritten to one line in `ui/core/capabilities.json`; each old text moved into the screen's `kw` so the palette and the sidebar filter still find it by those words; `docs/rebuild/SYSTEM_CAPABILITY_INVENTORY.md` and `NEW_CAPABILITY_MAP.md` regenerated (`tools/capability_docs.py`); `tools/registry_clarity.test.mjs` (one-line descriptions, unique labels, distinct menu section names, known screens only) added to S.kosif.yml.
+- Branch / PR: `claude/r5-clarity-20261007` from the R3 head.
+
+### TASK CLAUDE-20261007-014 — Deep review wave R4: a lighter app bundle
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Finding: `ui/core/engines.js` (3.3 MB, in every page load) carried 2.4 MB of embedded report data for five reviewed published-source adapters (McDonald's 2022, Volkswagen, Mercedes, Home Depot, reference index) that no screen reads — only the source tests do.
+- Scope:
+  - `tools/build_engines.mjs` compiles two files: `ui/core/engines.js` (everything else, plus `SKEngines.loadSources()`) and `ui/data/engines-sources.js` (the five adapters, joining `SKEngines.reports` when loaded; generated entry `app/src/engine/fusion/sources.ts`). `--check` covers both.
+  - `tools/apple-source-harness.mjs` loads both files.
+- Result: `skosif.js` 5.35 MB → 3.17 MB (−41%), gzipped 1.15 → 0.92 MB; engines 544/544; source tests unchanged (Apple, McDonald's, corpus same-results green; the Volkswagen/Mercedes/Home Depot/pending/reference-catalog files fail identically on main and are in no workflow — one Home Depot case now passes).
+- Branch / PR: `claude/r4-light-bundle-20261007` from the R5 head.

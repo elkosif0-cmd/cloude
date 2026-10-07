@@ -20,7 +20,7 @@ try {
   await door('meat'); await p.waitForSelector('#co-list .co[data-id="demo-co"]', { timeout: 10000 }); await p.click('#co-list .co[data-id="demo-co"]');
   await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p);
   await p.evaluate(() => SKosifLedger.open('accounts')); await p.waitForTimeout(800);
-  ok('a meat company has no projects tab', await p.evaluate(() => !document.querySelector('[data-sk-tabs="ledger"] [data-tab="projects"]')));
+  ok('a meat company has no projects tab', await p.evaluate(() => !SKosifLedger.tabs().includes('projects')));
   await door('construction'); await p.waitForFunction(() => !document.getElementById('companies').hidden, null, { timeout: 10000 });
   await p.click('#co-add'); await p.fill('#co-name', 'شركة المقاولات للاختبار'); await p.click('#co-form button[type="submit"]');
   await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p); await p.waitForTimeout(800);

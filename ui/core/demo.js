@@ -356,7 +356,7 @@ function bar(){
   const r=reg(),on=Object.keys(r.sections),cur=window.SKosifCore&&SKosifCore.view();
   const mine=SECTIONS.filter(s=>on.includes(s.id)&&s.caps.includes(cur));
   if(!on.length||r.hideBar){if(old)old.remove();return}
-  const h='<div class="skdemo" role="status"><span class="skdemo-dot" aria-hidden="true"></span><b>بيانات تجريبية</b><span>'+(mine.length?'هذه الشاشة تعرض بيانات تجريبية ('+esc(mine.map(s=>s.label).join("، "))+')':on.length+' أقسام تعمل ببيانات تجريبية')+' — شركة وهمية لعرض عمل التطبيق، وسجلاتك الحقيقية لا تُمس.</span>'+
+  const h='<div class="skdemo" role="status" title="'+esc(mine.length?'هذه الشاشة تعرض بيانات تجريبية ('+mine.map(s=>s.label).join('، ')+')':on.length+' أقسام تعمل ببيانات تجريبية')+'"><span class="skdemo-dot" aria-hidden="true"></span><b>بيانات تجريبية</b><span>'+(mine.length?'هذه الشاشة تعرض بيانات تجريبية ('+esc(mine.map(s=>s.label).join("، "))+')':on.length+' أقسام تعمل ببيانات تجريبية')+' — شركة وهمية لعرض عمل التطبيق، وسجلاتك الحقيقية لا تُمس.</span>'+
     '<button type="button" class="btn sm" data-demo="panel">إدارة</button><button type="button" class="btn sm danger" data-demo="clear">مسح التجريبية</button><button type="button" class="skdemo-x" data-demo="hide" aria-label="إخفاء الشريط">×</button></div>';
   if(old){if(old.outerHTML!==h)old.outerHTML=h}else v.insertAdjacentHTML("afterbegin",h);
 }
