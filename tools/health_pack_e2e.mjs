@@ -20,7 +20,7 @@ try {
   await p.waitForSelector('#gate-list .gate', { timeout: 30000 });
   await p.click('#gate-list .gate[data-gate="accounting"]'); await p.click('#sector-list .sector[data-sector="meat"]');
   await p.waitForSelector('#co-list .co[data-id="demo-co"]', { timeout: 10000 }); await p.click('#co-list .co[data-id="demo-co"]');
-  await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p);
+  await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p);
   await p.evaluate(() => SKosifLedger.open('accounts')); await p.waitForTimeout(800);
   ok('a meat company has no claims tab', await p.evaluate(() => !document.querySelector('[data-sk-tabs="ledger"] [data-tab="claims"]')));
   // a hospital created under health
@@ -29,7 +29,7 @@ try {
   await p.click('#gate-list .gate[data-gate="accounting"]'); await p.click('#sector-list .sector[data-sector="health"]');
   await p.waitForFunction(() => !document.getElementById('companies').hidden, null, { timeout: 10000 });
   await p.click('#co-add'); await p.fill('#co-name', 'مستشفى الاختبار'); await p.click('#co-form button[type="submit"]');
-  await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p); await p.waitForTimeout(800);
+  await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p); await p.waitForTimeout(800);
   await p.evaluate(() => SKosifLedger.open('claims')); await p.waitForTimeout(1000);
   ok('a health company has the claims tab, with its pack accounts', await p.evaluate(() => !!document.querySelector('[data-sk-tabs="ledger"] [data-tab="claims"]') && !!document.getElementById('cl-case')), await p.evaluate(() => SK.company.current().sector + ' ' + SKosifLedger.accounts().map((a) => a.code).join(',')));
   // the earlier visits are Saudi citizens (state-borne VAT, a 0% invoice); a standard-rated visit is checked at the end

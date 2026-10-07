@@ -18,12 +18,12 @@ try {
   const door = async (sector) => { await p.goto(base + 'index.html', { waitUntil: 'domcontentloaded', timeout: 90000 }); await p.waitForSelector('#gate-list .gate', { timeout: 30000 });
     await p.click('#gate-list .gate[data-gate="accounting"]'); await p.click('#sector-list .sector[data-sector="' + sector + '"]'); };
   await door('meat'); await p.waitForSelector('#co-list .co[data-id="demo-co"]', { timeout: 10000 }); await p.click('#co-list .co[data-id="demo-co"]');
-  await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p);
+  await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p);
   await p.evaluate(() => SKosifLedger.open('accounts')); await p.waitForTimeout(800);
   ok('a meat company has no campaigns tab', await p.evaluate(() => !document.querySelector('[data-sk-tabs="ledger"] [data-tab="digital"]')));
   await door('digital'); await p.waitForFunction(() => !document.getElementById('companies').hidden, null, { timeout: 10000 });
   await p.click('#co-add'); await p.fill('#co-name', 'وكالة التسويق للاختبار'); await p.click('#co-form button[type="submit"]');
-  await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p); await p.waitForTimeout(800);
+  await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p); await p.waitForTimeout(800);
   await p.evaluate(() => SKosifLedger.open('digital')); await p.waitForTimeout(1000);
   ok('an agency has the clients and campaigns tab with its pack accounts', await p.evaluate(() => !!document.getElementById('dg-client')), await p.evaluate(() => SK.company.current().sector + ' ' + SKosifLedger.accounts().map((a) => a.code).join(',')));
   const B = (codes) => p.evaluate((codes) => Object.fromEntries(codes.map((c) => [c, SKosifLedger.balance(c, '2027-12-31')])), codes);

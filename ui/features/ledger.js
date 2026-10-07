@@ -1341,5 +1341,5 @@ window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().ac
     if(locked(d,entry.date))return{ok:false,code:"LOCKED_PERIOD",error:"التاريخ داخل فترة مقفلة (حتى "+d.lockDate+")"};
     d.accounts.push(...staged);d.entries.push(entry);put(d);SK.audit&&SK.audit.log("ledger",{act:"post",source:entry.source,createdAccounts:staged.map(a=>a.code)});
     return{ok:true,id:entry.id,createdAccounts:staged.map(a=>({id:a.id,code:a.code,name:a.name}))}},
-  sync:(prefix,want)=>syncSource(prefix,want),ensureAccounts,locked:date=>locked(db(),date)});
+  sync:(prefix,want)=>syncSource(prefix,want),locked:date=>locked(db(),date)});
 })();

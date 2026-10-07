@@ -18,12 +18,12 @@ try {
   const door = async (sector) => { await p.goto(base + 'index.html', { waitUntil: 'domcontentloaded', timeout: 90000 }); await p.waitForSelector('#gate-list .gate', { timeout: 30000 });
     await p.click('#gate-list .gate[data-gate="accounting"]'); await p.click('#sector-list .sector[data-sector="' + sector + '"]'); };
   await door('meat'); await p.waitForSelector('#co-list .co[data-id="demo-co"]', { timeout: 10000 }); await p.click('#co-list .co[data-id="demo-co"]');
-  await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p);
+  await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p);
   await p.evaluate(() => SKosifLedger.open('accounts')); await p.waitForTimeout(800);
   ok('a meat company has no projects tab', await p.evaluate(() => !document.querySelector('[data-sk-tabs="ledger"] [data-tab="projects"]')));
   await door('construction'); await p.waitForFunction(() => !document.getElementById('companies').hidden, null, { timeout: 10000 });
   await p.click('#co-add'); await p.fill('#co-name', 'شركة المقاولات للاختبار'); await p.click('#co-form button[type="submit"]');
-  await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p); await p.waitForTimeout(800);
+  await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p); await p.waitForTimeout(800);
   await p.evaluate(() => SKosifLedger.open('projects')); await p.waitForTimeout(1000);
   ok('a construction company has the projects tab with its pack accounts', await p.evaluate(() => !!document.getElementById('pj-proj')), await p.evaluate(() => SK.company.current().sector + ' ' + SKosifLedger.accounts().map((a) => a.code).join(',')));
   await p.fill('#pj-proj', 'برج الواحة'); await p.fill('#pj-cust', 'شركة التطوير'); await p.fill('#pj-val', '1000000'); await p.fill('#pj-ret', '10'); await p.fill('#pj-rec', '20'); await p.fill('#pj-bud', '800000');

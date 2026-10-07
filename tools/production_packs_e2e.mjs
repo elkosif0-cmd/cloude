@@ -22,7 +22,7 @@ try {
     await p.click('#gate-list .gate[data-gate="accounting"]'); await p.click('#sector-list .sector[data-sector="' + sector + '"]'); };
   const create = async (sector, name, tab) => { await door(sector); await p.waitForFunction(() => !document.getElementById('companies').hidden, null, { timeout: 10000 });
     await p.click('#co-add'); await p.fill('#co-name', name); await p.click('#co-form button[type="submit"]');
-    await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p); await p.waitForTimeout(800); await p.evaluate((t) => SKosifLedger.open(t), tab); await p.waitForTimeout(1000); };
+    await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p); await p.waitForTimeout(800); await p.evaluate((t) => SKosifLedger.open(t), tab); await p.waitForTimeout(1000); };
   const B = (codes) => p.evaluate((codes) => Object.fromEntries(codes.map((c) => [c, SKosifLedger.balance(c, '2026-12-31')])), codes);
   const product = async (o) => { for (const [k, v] of Object.entries(o)) await p.fill('#pr-' + k, v); await p.click('[data-l="pr-new"]'); await p.waitForTimeout(700); };
   const op = async (kind, o) => { await p.selectOption('#po-op', kind); for (const [k, v] of Object.entries(o)) await p.fill('#po-' + k, v); await p.click('[data-l="po-post"]'); await p.waitForTimeout(700); };
@@ -78,7 +78,7 @@ try {
   /* ---------- the model companies read through the same tabs ---------- */
   for (const [id, sector, tab, sel, n] of [['model-manufacturing', 'manufacturing', 'factory', '[data-mo-table] tr[data-order]', 9], ['model-bakery', 'bakery', 'bakery', '[data-bk-table] tr[data-batch]', 273]]) {
     await door(sector); await p.waitForSelector('#co-list .co[data-id="' + id + '"]', { timeout: 10000 }); await p.click('#co-list .co[data-id="' + id + '"]');
-    await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p); await p.waitForFunction(() => SKosifLedger.entries().length > 0, null, { timeout: 60000 }).catch(() => {});
+    await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p); await p.waitForFunction(() => SKosifLedger.entries().length > 0, null, { timeout: 60000 }).catch(() => {});
     await p.evaluate((t) => SKosifLedger.open(t), tab); await p.waitForTimeout(2000);
     const rows = await p.evaluate((sel) => document.querySelectorAll(sel).length, sel);
     ok(id + ' shows its ' + n + ' ' + (tab === 'factory' ? 'orders' : 'batches'), rows === n, String(rows));

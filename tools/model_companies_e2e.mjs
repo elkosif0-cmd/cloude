@@ -21,7 +21,7 @@ try {
     await p.goto(base + 'index.html', { waitUntil: 'domcontentloaded', timeout: 90000 }); await p.waitForSelector('#gate-list .gate', { timeout: 30000 });
     await p.click('#gate-list .gate[data-gate="accounting"]'); await p.click('#sector-list .sector[data-sector="' + sector + '"]');
     await p.waitForSelector('#co-list .co[data-id="' + id + '"][data-model="1"]', { timeout: 10000 }); await p.click('#co-list .co[data-id="' + id + '"]');
-    await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p);
+    await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p);
     await p.waitForFunction(() => SKosifLedger.entries().length > 0, null, { timeout: 60000 }).catch(() => {});
     const r = await p.evaluate((id) => {
       const co = SK.company.current(), want = SKEngines.system.modelBooks.modelBooks(id), es = SKosifLedger.entries();

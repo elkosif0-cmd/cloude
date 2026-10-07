@@ -58,7 +58,7 @@ try {
 
     /* 2. open the demo company: the app boots on it, with no chooser dialog */
     await page.click('#co-list .co[data-id="demo-co"]');
-    await page.waitForURL(/app-safe\.html/, { timeout: 30000 });
+    await page.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 });
     await settled(page);
     const demoState = await page.evaluate(async () => ({ id: SKosifSpace.current().id, chooser: !!document.querySelector('#sqc-space,#sqc-user-space'), demo: SK.demo.active(), last: JSON.parse(localStorage.getItem('sqc_last_company') || 'null'), intent: sessionStorage.getItem('sqc_company_intent') }));
     check(`${tag}: the demo company is the open space`, demoState.id === 'demo-co', demoState.id);
@@ -116,7 +116,7 @@ try {
     await page.click('#co-add');
     await page.fill('#co-name', 'مؤسسة الاختبار للحوم');
     await page.click('#co-form button[type="submit"]');
-    await page.waitForURL(/app-safe\.html/, { timeout: 30000 });
+    await page.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 });
     await settled(page);
     const fresh = await page.evaluate(async () => ({ name: SKosifSpace.current().name, demo: SK.demo.active(), customers: ((r) => r.empty ? 0 : r.customers.length)(await SKosifSalesIntel.snapshot('all')), books: (JSON.parse(localStorage.getItem('skosif_companies_v1') || '{}').companies || []).some((c) => c.name === 'مؤسسة الاختبار للحوم'), chooser: !!document.querySelector('#sqc-space,#sqc-user-space') }));
     check(`${tag}: the new company is open by name`, fresh.name === 'مؤسسة الاختبار للحوم', fresh.name);
@@ -168,7 +168,7 @@ try {
     const listed = await page.evaluate(() => [...document.querySelectorAll('#co-list .co')].map((b) => [b.dataset.name, b.getAttribute('aria-current') === 'true']));
     check(`${tag}: the meat sector lists the demo company, marked as the last one opened, and no empty phantom company`, listed.length === 1 && listed[0][0] === 'شركة الوادي التجريبية للحوم' && listed[0][1] && !listed.some(([n]) => n === 'الشركة الحالية'), JSON.stringify(listed));
     await page.click('#co-list .co[data-id="demo-co"]');
-    await page.waitForURL(/app-safe\.html/, { timeout: 30000 });
+    await page.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 });
     await settled(page);
     const again = await page.evaluate(async () => ({ id: SKosifSpace.current().id, demo: SK.demo.active(), customers: ((r) => r.empty ? 0 : r.customers.length)(await SKosifSalesIntel.snapshot('all')) }));
     check(`${tag}: the demo company's data is restored on return`, again.id === 'demo-co' && again.demo === true && again.customers === demoCustomers, JSON.stringify(again));
@@ -176,7 +176,7 @@ try {
     /* 5. a shortcut link resumes the last company and opens its screen */
     await page.goto(base + 'index.html?go=tbreview');
     /* the app drops ?go= from the address once it has opened the screen, so the query may already be gone */
-    await page.waitForURL(/app-safe\.html/, { timeout: 30000 });
+    await page.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 });
     await settled(page);
     await page.waitForFunction(() => SKosifCore.view() === 'tbreview', null, { timeout: 30000 }).catch(() => {});
     check(`${tag}: a shortcut resumes the last company on its screen`, await page.evaluate(() => SKosifSpace.current().id === 'demo-co' && SKosifCore.view() === 'tbreview'), await page.evaluate(() => SKosifSpace.current().id + ' ' + SKosifCore.view()));
@@ -185,7 +185,7 @@ try {
     await door(page, 'audit');
     check(`${tag}: the audit door lists a new-file card, the companies, the bundle companies and the reference library`, await page.evaluate(() => !!document.querySelector('#co-list [data-audit-new]') && document.querySelectorAll('#corpus .corpus-co').length >= 40 && !!document.querySelector('#corpus a[href^="https://kosif-financial-reference-library"]') && document.getElementById('co-add').hidden), await page.evaluate(() => document.querySelectorAll('#corpus .corpus-co').length));
     await page.click('#corpus .corpus-co[data-corpus="apple-2024"]');
-    await page.waitForURL(/app-safe\.html/, { timeout: 30000 });
+    await page.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 });
     await settled(page);
     /* the audit files live in skosif_engagements_v1 (the open one's state in skosif_tbreview_v1) */
     await page.waitForFunction(() => SKosifCore.view() === 'tbreview' && (JSON.parse(localStorage.getItem('skosif_engagements_v1') || '{}').list || []).some((f) => f.bundleId === 'apple-2024'), null, { timeout: 60000 }).catch(() => {});
@@ -202,7 +202,7 @@ try {
     await door(page, 'tools');
     check(`${tag}: the private space is not an open card in the gallery, and the tools door offers a space without a company`, await page.evaluate(() => ![...document.querySelectorAll('#co-list .co')].some((b) => b.dataset.id === 'space-private') && !!document.querySelector('#co-list .co[data-scratch="1"]')));
     await page.click('#co-list .co[data-id="demo-co"]');
-    await page.waitForURL(/app-safe\.html/, { timeout: 30000 });
+    await page.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 });
     await settled(page);
     const back = await page.evaluate(async () => ({ id: SKosifSpace.current().id, customers: ((r) => r.empty ? 0 : r.customers.length)(await SKosifSalesIntel.snapshot('all')), privInList: SK.company.list().some((c) => c.id === 'space-private' && !c.locked) }));
     check(`${tag}: the demo company keeps its data and the private one stays locked in the switcher`, back.id === 'demo-co' && back.customers === demoCustomers && !back.privInList, JSON.stringify(back));

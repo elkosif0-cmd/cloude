@@ -18,7 +18,7 @@ try {
   await p.goto(base + 'index.html', { waitUntil: 'domcontentloaded', timeout: 90000 }); await p.waitForSelector('#gate-list .gate', { timeout: 30000 });
   await p.click('#gate-list .gate[data-gate="accounting"]'); await p.click('#sector-list .sector[data-sector="trade"]');
   await p.waitForSelector('#co-list .co[data-id="model-trade"]', { timeout: 10000 }); await p.click('#co-list .co[data-id="model-trade"]');
-  await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p); await p.waitForFunction(() => SKosifLedger.entries().length > 0, null, { timeout: 60000 }).catch(() => {});
+  await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p); await p.waitForFunction(() => SKosifLedger.entries().length > 0, null, { timeout: 60000 }).catch(() => {});
   const open = async () => { await p.evaluate(() => SKosifLedger.open('links')); await p.waitForTimeout(1200); };
   const view = () => p.evaluate(() => { const c = document.querySelector('[data-rh]'); return c ? { status: c.dataset.rhStatus, clean: !!c.querySelector('[data-rh-clean]'),
     findings: [...c.querySelectorAll('tr[data-rh-link]')].map((r) => ({ link: r.dataset.rhLink, sev: r.dataset.rhSeverity, text: r.textContent })), history: c.querySelectorAll('[data-rh-history] tbody tr').length } : null; });

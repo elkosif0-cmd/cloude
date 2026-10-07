@@ -19,12 +19,12 @@ try {
   const door = async (sector) => { await p.goto(base + 'index.html', { waitUntil: 'domcontentloaded', timeout: 90000 }); await p.waitForSelector('#gate-list .gate', { timeout: 30000 });
     await p.click('#gate-list .gate[data-gate="accounting"]'); await p.click('#sector-list .sector[data-sector="' + sector + '"]'); };
   await door('meat'); await p.waitForSelector('#co-list .co[data-id="demo-co"]', { timeout: 10000 }); await p.click('#co-list .co[data-id="demo-co"]');
-  await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p);
+  await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p);
   await p.evaluate(() => SKosifLedger.open('accounts')); await p.waitForTimeout(800);
   ok('a meat company has no farm tab', await p.evaluate(() => !document.querySelector('[data-sk-tabs="ledger"] [data-tab="farm"]')));
   await door('agriculture'); await p.waitForFunction(() => !document.getElementById('companies').hidden, null, { timeout: 10000 });
   await p.click('#co-add'); await p.fill('#co-name', 'مزرعة الاختبار'); await p.click('#co-form button[type="submit"]');
-  await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p); await p.waitForTimeout(800);
+  await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p); await p.waitForTimeout(800);
   await p.evaluate(() => SKosifLedger.open('farm')); await p.waitForTimeout(1000);
   ok('a farm has the cycles tab with its pack accounts, 4950 included', await p.evaluate(() => !!document.getElementById('lv-name') && SKosifLedger.accounts().some((a) => a.code === '4950')),
     await p.evaluate(() => SK.company.current().sector + ' ' + SKosifLedger.accounts().map((a) => a.code).join(',')));
@@ -59,7 +59,7 @@ try {
   ok('the books stay balanced', tb === 0, String(tb));
   /* the model farm reads through the same tab */
   await door('agriculture'); await p.waitForSelector('#co-list .co[data-id="model-agriculture"]', { timeout: 10000 }); await p.click('#co-list .co[data-id="model-agriculture"]');
-  await p.waitForURL(/app-safe\.html/, { timeout: 30000 }); await ready(p); await p.waitForFunction(() => SKosifLedger.entries().length > 0, null, { timeout: 60000 }).catch(() => {});
+  await p.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 }); await ready(p); await p.waitForFunction(() => SKosifLedger.entries().length > 0, null, { timeout: 60000 }).catch(() => {});
   await p.evaluate(() => SKosifLedger.open('farm')); await p.waitForTimeout(1500);
   const flock = await p.evaluate(() => { const r = document.querySelector('[data-lv-table] tr[data-cycle]'); return r ? [...r.cells].map((c) => c.textContent.trim()) : null; });
   ok('the model farm shows its flock: 2,000 bought, lambs born, deaths and sales', flock && flock[4] === '2000' && Number(flock[5]) > 400 && Number(flock[6]) > 0 && Number(flock[7]) > 1000, JSON.stringify(flock));

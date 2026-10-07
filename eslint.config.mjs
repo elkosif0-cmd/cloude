@@ -1,7 +1,7 @@
 // Lint for the UI modules (plain browser scripts bundled by build.py). Catches the bugs a build cannot: names used out of
 // their scope, duplicate keys, unreachable code, assignments to constants. CI runs it; `npx eslint` runs it locally.
 import globals from "globals";
-const appGlobals = Object.fromEntries(["SK", "SKEngines", "SKosifCore", "SKosifShell", "SKCharts", "SKXlsx", "SKosifAI", "SKosifLedger", "SKosifTBReview",
+const appGlobals = Object.fromEntries(["SK", "SKEngines", "SKosifCore", "SKosifShell", "SKCharts", "SKXlsx", "SKosifAI", "SKosifLedger", "SKosifCompanyPlatform", "SKosifTBReview",
   "SKosifCouncilUI", "SKosifAuditBridge", "SKosifCodex", "SKosifReportDocs", "SKosifIntegrated", "SKosifTasks", "SKosifCommand", "SKServices", "SKosifTopbar", "SKosifNotify",
   "SKosifReportPack", "SKosifMetrics", "SKosifTable", "SKosifKeys", "SKosifAssistant", "SKosifSalesLab", "SKosifSalesIntel", "SKosifSpace", "SKosifClose", "SKosifAuditBench", "SKosifAuditPractice", "SKosifAccountingGuidance", "SKosifFieldwork", "SKosifAdvances"].map((k) => [k, "readonly"]));
 export default [
