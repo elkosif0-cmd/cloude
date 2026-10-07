@@ -785,3 +785,12 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - Tests reach tabs through the API (`feature_audit`, the sector packs' negative checks, `page_review`).
   - `.github/workflows/sqc-browser-suites.yml` also runs the sector packs, model companies, books integrity, relationship health and sales suites.
 - Branch / PR: `claude/r2-book-families-20261007` from the R1 head.
+
+### TASK OWNER-20261007-WORKSPACE-CONSTITUTION — تثبيت نموذج المسار/النشاط/الشركة والـAI
+- Agent: ChatGPT
+- Status: ACTIVE
+- Owner instruction: تثبيت اقتراحات المحادثة الحالية في الدستور الأعلى.
+- Scope: `FOUNDATION.md` أولًا، ثم مزامنة `docs/PRODUCT_MANDATE_ar.md` فقط إذا لزم لمنع تعارض تنفيذي. لا تغيير runtime في هذه المهمة.
+- Rules being canonized: section → sector/activity where applicable → workspace/company → enabled capabilities; workspace ownership by entry scope; strict cross-company/context isolation; sector-specialized accounting/costing/reporting; opt-in helper tools; named or general audit; company-bound AI session through provider/API bridge; unified authorized event stream; server persistence/autosave status; persistent context/navigation; health-sector crescent visual note.
+- Coordination: latest START_HERE/FOUNDATION/PRODUCT_MANDATE/WORKLOG read before edit; FOUNDATION remains highest authority.
+- NEXT ACTION: fetch latest FOUNDATION immediately before write, add canonical section, then reconcile mandate and close this task with commit evidence.
