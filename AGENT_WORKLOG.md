@@ -795,3 +795,28 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Rules being canonized: section → sector/activity where applicable → workspace/company → enabled capabilities; workspace ownership by entry scope; strict cross-company/context isolation; sector-specialized accounting/costing/reporting; opt-in helper tools; named or general audit; company-bound AI session through provider/API bridge; unified authorized event stream; server persistence/autosave status; persistent context/navigation; health-sector crescent visual note.
 - Coordination: latest START_HERE/FOUNDATION/PRODUCT_MANDATE/WORKLOG read before edit; FOUNDATION remains highest authority.
 - NEXT ACTION: fetch latest FOUNDATION immediately before write, add canonical section, then reconcile mandate and close this task with commit evidence.
+
+### TASK ANTIGRAVITY-20261007-001 — Section-First Isolation and Gate-Aware Mobile Navigation (FOUNDATION §3, §3.0)
+- Agent: Antigravity
+- Status: DONE
+- Goal: Enforce strict section separation (Accounting with 10 Sectors, Audit & Assurance, Helper Tools) across mobile navigation, breadcrumbs, topbar context ribbons, and guarantee zero workspace leakage between tools and accounting companies.
+- Scope:
+  - `ui/layouts/shell.js`:
+    - Implemented gate-aware mobile bottom tabs (`TABS_BY_GATE` for `accounting`, `audit`, `tools`).
+    - Made `tabIds()` filter customized tabs dynamically by active gateway (`SK.caps.inGatewayOf(cap, currentGate)`).
+    - Polished `#pg-crumb` top breadcrumbs to display Section + Sector + Company + Studio + Screen without bleeding.
+    - Synchronized mobile tabs and page title breadcrumbs on view render (`sk:render`).
+  - `ui/layouts/topbar.js`:
+    - Handled `tools` scope in `ctx()` so independent tool workspaces reflect cleanly in `#sk-tb-co`.
+    - Hidden accounting period `#sk-tb-pe` in `tools` scope to avoid confusion.
+    - Routed `#sk-tb-co` click in `tools` directly to `SKosifSpace.choose()` (independent space chooser).
+  - `ui/core/helper-space.js`:
+    - Enforced zero context leakage in `applyIntent()`: guarded company registration with `!it.scratch && gate !== "tools"`. Scratch tool workspaces (`space-tools`) never bleed into `skosif_companies_v1`.
+  - `tools/gate_nav_contract.test.mjs`:
+    - Added automated contract test suite validating gateway tab membership, dynamic gate tab resolution, and scratch tool space zero-leakage isolation.
+- Evidence / tests:
+  - `node --test tools/audit_context_independence.test.mjs tools/company_entry.test.mjs tools/door_tokens.test.mjs tools/gateway_contract.mjs tools/identity_audit.test.mjs tools/sidebar_lifecycle.test.mjs tools/unlock_runtime.test.mjs tools/vat_policy_contract.test.mjs tools/gate_nav_contract.test.mjs` passed (44 tests, 0 failures).
+  - Preview build: `python build.py` produced 180 clean entries in `dist/`.
+- NEXT ACTION:
+  - Commit and push to main.
+
