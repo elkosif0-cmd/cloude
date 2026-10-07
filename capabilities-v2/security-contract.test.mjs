@@ -7,10 +7,10 @@ const schema=fs.readFileSync(new URL('../capabilities-v2/schema.sql',import.meta
 const client=fs.readFileSync(new URL('../ui/features/capabilities-v2.js',import.meta.url),'utf8');
 
 test('sensitive company access is explicit and shareable',()=>{
-  for(const marker of ['workspace_security','workspace_access','workspace:share','workspaceAccessRole','shareWorkspace','sensitivity','access_mode']) assert.ok(worker.includes(marker),marker);
+  for(const marker of ['workspace_security','workspace_access','workspace:share','workspaceAccessContext','shareWorkspace','sensitivity','access_mode']) assert.ok(worker.includes(marker),marker);
   assert.match(worker,/name\.replace\(\/\\s\+\/g,""\) === "تصيف"/);
   assert.match(worker,/access_mode==="tenant"/);
-  assert.match(worker,/return access\?\.role\|\|null/);
+  assert.match(worker,/return access\?\{workspace,tenantId:workspace\.tenant_id,role:access\.role,security\}:null/);
 });
 test('D1 schema contains per-workspace security and membership keys',()=>{
   assert.match(schema,/CREATE TABLE IF NOT EXISTS workspace_security/);
