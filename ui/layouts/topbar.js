@@ -129,7 +129,7 @@ function paint(){
   if(co){
     const sec=x.scope==="accounting"&&x.c&&x.c.sector?sectorLabel(x.c.sector):"";
     const coName=x.scope==="tools"?(x.c?x.c.name:"مساحة الأدوات"):x.scope==="audit"?(x.c?x.c.name:"ملف المراجعة"):(x.c?x.c.name:biz());
-    const coSub=x.scope==="audit"?"ملف المراجعة · "+(x.c&&x.c.name||"مستقل"):x.scope==="tools"?"مساحة الأدوات · "+(x.c&&x.c.name||"مستقلة"):"البرنامج المحاسبي"+(sec?" · "+sec:"")+(x.c?(x.c.currency?" · "+x.c.currency:"")+(x.cs.length>1?" · "+x.cs.length+" شركات":""):" · أضف الشركة والفترات");
+    const coSub=x.scope==="audit"?"ملف المراجعة"+(x.c&&x.c.currency?" · "+x.c.currency:" · مستقل"):x.scope==="tools"?"مساحة الأدوات · "+(x.c&&x.c.name||"مستقلة"):"البرنامج المحاسبي"+(sec?" · "+sec:"")+(x.c?(x.c.currency?" · "+x.c.currency:"")+(x.cs.length>1?" · "+x.cs.length+" شركات":""):" · أضف الشركة والفترات");
     $("b",co).textContent=coName;
     $("small",co).textContent=coSub;
   }
