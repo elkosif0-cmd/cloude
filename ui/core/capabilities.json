@@ -685,7 +685,10 @@
     "commerce",
     "inventory"
    ],
-   "gateway": "tools"
+   "gateway": "tools",
+   "sectors": [
+    "meat"
+   ]
   },
   {
    "id": "salesintel",
@@ -805,6 +808,9 @@
    "gateway": "accounting",
    "also": [
     "tools"
+   ],
+   "sectors": [
+    "meat"
    ]
   },
   {
@@ -877,7 +883,10 @@
    "feeds": [
     "catalog"
    ],
-   "gateway": "tools"
+   "gateway": "tools",
+   "sectors": [
+    "meat"
+   ]
   },
   {
    "id": "culinary",
@@ -893,7 +902,10 @@
    "kw": "طبخ قطعية",
    "adv": false,
    "en": "Chef's Guide",
-   "gateway": "tools"
+   "gateway": "tools",
+   "sectors": [
+    "meat"
+   ]
   },
   {
    "id": "carcass",
@@ -914,7 +926,10 @@
     "nrv",
     "catalog"
    ],
-   "gateway": "tools"
+   "gateway": "tools",
+   "sectors": [
+    "meat"
+   ]
   },
   {
    "id": "yieldlab",
@@ -935,7 +950,10 @@
    "feeds": [
     "catalog"
    ],
-   "gateway": "tools"
+   "gateway": "tools",
+   "sectors": [
+    "meat"
+   ]
   },
   {
    "id": "nrv",
@@ -956,7 +974,10 @@
    "feeds": [
     "catalog"
    ],
-   "gateway": "tools"
+   "gateway": "tools",
+   "sectors": [
+    "meat"
+   ]
   },
   {
    "id": "ledger",

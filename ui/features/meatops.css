@@ -19,3 +19,6 @@
 .sk37-cut-part.active{fill:color-mix(in srgb,var(--brand,#8a5a2b) 45%,var(--surface));stroke:var(--brand,#8a5a2b);stroke-width:2.5}
 @media(max-width:760px){.sk37-cut{grid-template-columns:1fr 80px}.sk37-cut input:nth-child(3){grid-column:1}.sk37-kpis{grid-template-columns:1fr 1fr}.sk37-ta{font-size:16px}}
 
+/* R10: «الذمم والتحصيل» — the books' ageing first, an outside file folded underneath */
+.sk37-ext>summary{padding:var(--sk-3) var(--sk-4);font-weight:700;cursor:pointer;color:var(--sk-ink-2)}
+.sk37-ext[open]>summary{border-bottom:1px solid var(--sk-line)}

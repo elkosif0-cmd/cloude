@@ -67,10 +67,32 @@ function carcassHTML(){
   '<div id="sk37-cuts">'+cuts.map((x,i)=>'<div class="sk37-cut"><input data-n="'+i+'" value="'+esc(x.name)+'"><input type="number" step=".1" data-y="'+i+'" value="'+x.yield+'"><input type="number" step=".01" data-p="'+i+'" value="'+x.price+'" placeholder="سعر بيع/كجم"><label class="sk37-byp" title="منتج ثانوي: يُقاس بصافي القيمة القابلة للتحقق ويُخصم من تكلفة الذبيحة"><input type="checkbox" data-b="'+i+'"'+(x.byp?' checked':'')+'>ثانوي</label><button data-d="'+i+'">×</button></div>').join("")+'</div>'+
   '<div class="sk-actions"><button id="sk37-add" class="sk-secondary">+ قطعة</button><button id="sk37-run" class="sk-primary">احسب الاقتصاديات</button><button id="sk37-print" class="sk-secondary">أمر تشغيل التشفية</button></div><div id="sk37-result"></div>'+postHTML();
 }
+/* R10 (docs/rebuild/HARSH_REVIEW_20261008_ar.md): the accounting program's receivables are the books' own — the screen
+   asked for a pasted CSV while the books already held every credit sale (and disagreed with the dashboard). The ageing of
+   the books comes first; analysing an outside file (another system's export) stays, folded underneath. */
+const AR_BUCKETS=[["current","غير مستحق"],["1-30","1–30"],["31-60","31–60"],["61-90","61–90"],["90+","أكثر من 90"]];
+const hasBooks=()=>{try{return!!(window.SKosifLedger&&SKosifLedger.snapshot().accounts.length)}catch{return false}};
+function booksAR(){
+  let r=null;try{const L=window.SKosifLedger;r=L&&L.snapshot().accounts.length?L.parties("ar"):null}catch{r=null}
+  if(!r)return '<section class="card"><div class="card-b"><p class="sk37-note">لا دفاتر لهذه الشركة بعد. أعمار الذمم تُقرأ من المبيعات الآجلة المرحّلة في «الدفاتر المحاسبية»، أو حلّل ملفاً خارجياً أدناه.</p></div></section>';
+  const open=r.rows.filter(x=>Math.abs(x.balance)>0.004).sort((a,b)=>b.balance-a.balance);
+  const late=r.totals["61-90"]+r.totals["90+"],over=r.totals["1-30"]+r.totals["31-60"]+late;
+  return '<section class="card"><div class="card-h"><div><h3>أعمار ذمم العملاء من الدفاتر</h3><p>من المبيعات الآجلة والتحصيلات المرحّلة؛ التحصيل يسدد أقدم الفواتير أولاً.</p></div>'+
+    '<button type="button" class="btn sm" data-ar-books>التحصيل والسداد في الدفاتر</button></div><div class="card-b sk-stack">'+
+    '<div class="sk-kpis sk37-kpis"><div class="sk-kpi"><span>إجمالي الذمم</span><b>'+money(r.balance+r.unassigned)+'</b></div><div class="sk-kpi"><span>غير مستحق</span><b>'+money(r.totals.current)+'</b></div>'+
+    '<div class="sk-kpi"><span>متأخر</span><b>'+money(over)+'</b></div><div class="sk-kpi"><span>فوق 60 يوماً</span><b>'+money(late)+'</b></div></div>'+
+    (open.length?'<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>العميل</th><th>الرصيد</th>'+AR_BUCKETS.map(b=>'<th>'+b[1]+'</th>').join("")+'<th>أقدم مستحق</th></tr></thead><tbody>'+
+      open.map(x=>'<tr><td>'+esc(x.party)+'</td><td class="n"><b>'+money(x.balance)+'</b></td>'+AR_BUCKETS.map(b=>'<td class="n">'+(x.aging[b[0]]?money(x.aging[b[0]]):"")+'</td>').join("")+'<td class="n">'+esc(x.oldestOpen||"—")+'</td></tr>').join("")+
+      '</tbody></table></div>':'<p class="sk37-note">لا أرصدة مفتوحة باسم عميل في الدفاتر.</p>')+
+    (r.unassigned?'<p class="sk37-note">أرصدة في قيود لا تسمّي عميلاً (ملخصات أو أرصدة افتتاحية): '+money(r.unassigned)+'</p>':'')+
+    '</div></section>';
+}
 function arHTML(){
-  return '<p class="sk37-note">الصق: العميل، التاريخ، إجمالي الفاتورة، المدفوع. سيحسب الرصيد = الفاتورة − المدفوع ثم يوزعه على أعمار الذمم.</p>'+
-  '<textarea id="sk37-ar" class="sk37-ta" rows="10" placeholder="عميل أ,2026-09-01,5000,2000">'+esc(arText)+'</textarea>'+
-  '<button id="sk37-ar-run" class="sk-primary">حلل أعمار الذمم</button><div id="sk37-ar-result"></div>';
+  return booksAR()+
+  '<details class="card sk37-ext"'+(hasBooks()?'':' open')+'><summary>تحليل ملف خارجي — الصق كشفاً من نظام آخر</summary><div class="card-b sk-stack">'+
+  '<p class="sk37-note">الصق: العميل، التاريخ، إجمالي الفاتورة، المدفوع. سيحسب الرصيد = الفاتورة − المدفوع ثم يوزعه على أعمار الذمم. لا يُرحَّل شيء إلى الدفاتر.</p>'+
+  '<textarea id="sk37-ar" class="sk37-ta" dir="ltr" rows="8" placeholder="عميل أ,2026-09-01,5000,2000">'+esc(arText)+'</textarea>'+
+  '<button id="sk37-ar-run" class="sk-primary">حلل الملف</button><div id="sk37-ar-result"></div></div></details>';
 }
 function field(id,l,v){return '<label class="sk-field"><span>'+l+'</span><input id="'+id+'" type="number" step=".01" value="'+v+'"></label>'}
 function bind(){
@@ -116,7 +138,7 @@ function bind(){
       '.box{background:#fbf5ea;border:1px solid #e2d8cc;padding:12px;border-radius:8px;margin:12px 0;}'+
       '</style></head><body>'+
       '<h2>أمر تشغيل وتشفية ذبيحة — قسم الجزارة</h2>'+
-      '<div class="box"><b>الوزن الحي:</b> '+live+' كجم | <b>وزن الذبيحة المعلقة:</b> '+car+' كجم | <b>نسبة التصافي:</b> '+dressing(live,car).toFixed(1)+'% | <b>التاريخ:</b> '+new Date().toLocaleDateString("ar-SA")+'</div>'+
+      '<div class="box"><b>الوزن الحي:</b> '+live+' كجم | <b>وزن الذبيحة المعلقة:</b> '+car+' كجم | <b>نسبة التصافي:</b> '+dressing(live,car).toFixed(1)+'% | <b>التاريخ:</b> '+new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn")+'</div>'+
       '<table><thead><tr><th>القطعية</th><th>نسبة العائد %</th><th>الوزن المقدر</th><th>تكلفة الكيلو</th><th>سعر البيع المقترح</th></tr></thead><tbody>'+
       rows.map(r=>'<tr><td><b>'+esc(r.name)+'</b></td><td>'+r.yield.toFixed(1)+'%</td><td>'+r.kg.toFixed(2)+' كجم</td><td>'+money(r.costKg)+'</td><td>'+money(r.price)+'</td></tr>').join("")+
       '</tbody></table>'+
@@ -195,20 +217,13 @@ function runAR(){
   '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>العميل</th><th>التاريخ</th><th>الفاتورة</th><th>المدفوع</th><th>المتبقي</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+esc(r.customer)+'</td><td>'+esc(r.date)+'</td><td>'+money(r.total)+'</td><td>'+money(r.paid)+'</td><td>'+money(r.outstanding)+'</td></tr>').join("")+'</tbody></table></div>';
 }
 const roots={};
-function butcheryHubNav(activeId){
-  const tabs=[
-    {id:"carcass",icon:"",title:"تفكيك وتصافي الذبيحة وعائد القطعيات"},
-    {id:"blending",icon:"",title:"خلط وفرم اللحوم ونسب الدهن (Lean/Fat)"}
-  ];
-  return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-butchery-go="'+t.id+'"><span>'+t.icon+'</span><span>'+t.title+'</span></button>').join("")+'</div>';
-}
 function paintCarcass(){
   const r=roots.carcass;if(!r||!r.isConnected)return;
-  r.innerHTML=butcheryHubNav("carcass")+'<section class="card"><div class="card-b sk-stack">'+carcassHTML()+'</div></section>';
+  r.innerHTML='<section class="card"><div class="card-b sk-stack">'+carcassHTML()+'</div></section>';
   bind();
-  $$("[data-butchery-go]",r).forEach(b=>b.onclick=()=>window.SKosifCore?.go(b.dataset.butcheryGo));
 }
-function paintAR(){const r=roots.ar;if(!r||!r.isConnected)return;r.innerHTML=arHTML();bind();if(arText.trim())runAR()}
+function paintAR(){const r=roots.ar;if(!r||!r.isConnected)return;r.innerHTML=arHTML();bind();
+  const go=r.querySelector("[data-ar-books]");if(go)go.onclick=()=>window.SKosifLedger&&SKosifLedger.open("cash");if(arText.trim())runAR()}
 window.SK.view("receivables",{title:"الذمم والتحصيل",sub:"أعمار الذمم: الرصيد المتبقي لكل عميل موزعاً على فترات التأخير",emoji:"⏳",
   render(node){roots.ar=node;paintAR()}});
 window.SK.view("carcass",{title:"اقتصاديات الذبيحة",sub:"من الوزن الحي إلى القطعيات: التصافي وتوزيع التكلفة والهامش لكل قطعة",emoji:"",adv:true,

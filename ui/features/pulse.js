@@ -76,7 +76,7 @@ function html(d){
       '<div class="sk-actions"><button type="button" class="btn sm" data-pulse-close="1">فتح الإقفال الشهري</button></div>'
     :'<p class="skpulse-empty">الدفاتر لم تُنشأ بعد؛ أنشئ دليل الحسابات لتظهر جاهزية الإقفال.</p>';
   const date=new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{weekday:"long",day:"numeric",month:"long"});
-  return '<section class="skpulse card" aria-label="نبض اليوم"><header><div><span class="eyebrow">TODAY\'S PULSE</span><h3>نبض اليوم</h3></div><span>'+esc(date)+' — من الطلبات والمدفوعات ومحرك الإيقاع والدفاتر</span></header>'+
+  return '<section class="skpulse card" aria-label="نبض اليوم"><header><div><span class="eyebrow">مؤشرات اليوم</span><h3>نبض اليوم</h3></div><span>'+esc(date)+' — من الطلبات والمدفوعات ومحرك الإيقاع والدفاتر</span></header>'+
     '<div class="skpulse-g">'+tiles.join("")+'</div><div class="skpulse-cols"><section><h4>للاتصال اليوم<small>بإيقاع كل عميل</small></h4>'+calls+'</section><section><h4>جاهزية الإقفال<small>'+esc(c&&c.month?c.month:"")+'</small></h4>'+close+'</section></div></section>';
 }
 function mount(root){

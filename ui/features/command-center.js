@@ -133,7 +133,7 @@ const KEYL={"aghnam-pricing-v3":["تحديث الأسعار والإعدادات
   "skosif_companies_v1":["الشركات والفترات","companies"],"skosif_profile_v1":["الملف الشخصي","settings"],"skosif_v32_offers":["عروض الأسعار","offers"],"aghnam_v29_inventory":["المخزون","inventory"],"skosif_v38_coldchain":["قراءة تبريد","traceability"],
   "skosif_v38_batches":["دفعات التتبع","traceability"],"aghnam_v29_jev_log":["قرار من Jev","jev"],"skosif_erp_finance_v1":["حركات مالية","cash"]};
 function activity(){
-  const rtf=window.SKosifNotify?SKosifNotify.ago:(ts=>new Date(ts).toLocaleString("ar"));
+  const rtf=window.SKosifNotify?SKosifNotify.ago:(ts=>new Date(ts).toLocaleString("ar-SA-u-ca-gregory-nu-latn"));
   const ev=(SK.audit.all()||[]).filter(e=>["data","backup","restore","transfer","role"].includes(e.type)&&(e.type!=="data"||KEYL[e.key])).slice(0,6);
   if(!ev.length)return '<div class="skch-empty">يظهر هنا ما تسجله: الأسعار والمهام والشحنات والنسخ الاحتياطية.</div>';
   const lab=e=>e.type==="data"?KEYL[e.key][0]+(e.n>1?" ("+e.n+" مرات)":""):e.type==="backup"?"نسخة كاملة للتطبيق":e.type==="restore"?(e.msg==="rollback"?"تراجع عن استعادة":"استعادة بيانات"):e.type==="transfer"?(e.act==="send"?"إرسال حزمة نقل":"استقبال حزمة نقل"):"تغيير الدور";
@@ -169,7 +169,7 @@ function render(root){
     '<div class="skc-row3">'+trendCard()+(can("risks")?heatCard():'')+'<section class="skc-card"><h3>بنية التدفق<small>Cash Structure</small><button type="button" class="linkish" data-go="cash">التفاصيل</button></h3><div id="skc-structure">'+SK.ui.state.loading({text:""})+'</div></section></div>'+
     '<div class="skc-row3b"><section class="skc-card"><h3>ما يحتاج قراراً الآن<small>Decision Inbox</small><button type="button" class="linkish" data-go="decision">مركز القرار</button></h3>'+inbox()+'</section>'+taskCard()+
       '<section class="skc-card"><h3>النشاطات الحديثة<small>Recent Activity</small>'+(can("archive")?'<button type="button" class="linkish" data-go="archive">الأرشيف</button>':'')+'</h3>'+activity()+'</section></div>'+
-    (launch.length?'<section class="skc-card"><h3>ابدأ عملاً<small>Quick Start</small></h3><div class="skc-launch">'+launch.map(([id,l])=>'<button type="button" data-go="'+id+'">'+SK.icon(id)+'<span>'+esc(l)+'</span></button>').join("")+'</div></section>':'')+
+    (launch.length?'<section class="skc-card"><h3>ابدأ عملاً</h3><div class="skc-launch">'+launch.map(([id,l])=>'<button type="button" data-go="'+id+'">'+SK.icon(id)+'<span>'+esc(l)+'</span></button>').join("")+'</div></section>':'')+
   '</section>';
   root.insertAdjacentHTML("afterbegin",html);
   const box=root.querySelector(":scope > .skc");

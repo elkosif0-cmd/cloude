@@ -80,9 +80,9 @@ function renderSample() {
   const p = state.plan;
   if (!p) return;
   $('#sampleMetrics').innerHTML = [
-    metric('المجتمع', p.metrics.populationCount.toLocaleString('ar-SA')),
-    metric('فحص 100%', p.metrics.certaintyCount.toLocaleString('ar-SA')),
-    metric('العينة المتبقية', p.metrics.residualSampleCount.toLocaleString('ar-SA')),
+    metric('المجتمع', p.metrics.populationCount.toLocaleString('ar-SA-u-ca-gregory-nu-latn')),
+    metric('فحص 100%', p.metrics.certaintyCount.toLocaleString('ar-SA-u-ca-gregory-nu-latn')),
+    metric('العينة المتبقية', p.metrics.residualSampleCount.toLocaleString('ar-SA-u-ca-gregory-nu-latn')),
     metric('التغطية بالقيمة', pct(p.metrics.populationCoveragePct))
   ].join('');
   const rows = [
@@ -91,7 +91,7 @@ function renderSample() {
     ['عتبة الفحص 100%', money(p.parameters.certaintyThresholdMinor), 'كل بند يساويها أو يتجاوزها يدخل طبقة certainty.'],
     ['هدف تغطية المجتمع المتبقي', pct(p.metrics.targetResidualCoveragePct), 'سياسة SQC تتغير مع المخاطر والضوابط والتحريف المتوقع.'],
     ['التغطية الفعلية للمجتمع المتبقي', pct(p.metrics.residualCoveragePct), p.metrics.targetReached ? 'تم بلوغ هدف التغطية.' : 'لم يُبلغ الهدف بسبب سقف العينة؛ يتطلب قرارًا.'],
-    ['قيمة البنود المختارة', money(p.metrics.selectedValueMinor), `${p.metrics.selectedCount.toLocaleString('ar-SA')} بندًا إجمالًا.`],
+    ['قيمة البنود المختارة', money(p.metrics.selectedValueMinor), `${p.metrics.selectedCount.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} بندًا إجمالًا.`],
     ['حالة السقف', p.metrics.capApplied ? 'تم تطبيق الحد الأقصى' : 'لم يقيّد الخطة', p.metrics.capApplied ? 'راجع السقف أو وسّع الاختبار.' : 'امتداد الاختبار حقق سياسة الخطة الحالية.']
   ];
   $('#sampleTable').innerHTML = rows.map((row) => `<tr><td>${esc(row[0])}</td><td>${esc(row[1])}</td><td>${esc(row[2])}</td></tr>`).join('');

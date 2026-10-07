@@ -254,7 +254,7 @@ function formatDate(value) {
   if (!value) return '—';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return String(value);
-  return new Intl.DateTimeFormat('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' }).format(date);
+  return new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn', { year: 'numeric', month: 'short', day: 'numeric' }).format(date);
 }
 
 function severityLabel(value) {
@@ -369,7 +369,7 @@ function setRows(rows, sourceName = 'بيانات مستوردة') {
   });
   saveState();
   renderAll();
-  showToast(`تم تحميل ${runtime.analysis.metrics.accounts.toLocaleString('ar-SA')} حساب وفحص التوازن.`);
+  showToast(`تم تحميل ${runtime.analysis.metrics.accounts.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} حساب وفحص التوازن.`);
 }
 
 function autoSuggestBenchmark() {
@@ -503,18 +503,18 @@ function renderDashboard() {
     fieldwork: 'التنفيذ', evidence: 'جمع المستندات', 'evidence-register': 'فحص الأدلة', review: 'المراجعة', reporting: 'التقرير', archive: 'الأرشفة'
   };
 
-  $('#metricAccounts').textContent = accounts.toLocaleString('ar-SA');
-  $('#metricRisks').textContent = openRisks.length.toLocaleString('ar-SA');
-  $('#metricHighRisks').textContent = `${highRisks.length.toLocaleString('ar-SA')} مرتفعة أو حرجة`;
-  $('#metricWorkpapers').textContent = state.workpapers.length.toLocaleString('ar-SA');
-  $('#metricCompletedWp').textContent = `${completedWp.toLocaleString('ar-SA')} مكتملة`;
-  $('#metricEvidenceGaps').textContent = (graph.risksWithoutEvidence ?? 0).toLocaleString('ar-SA');
+  $('#metricAccounts').textContent = accounts.toLocaleString('ar-SA-u-ca-gregory-nu-latn');
+  $('#metricRisks').textContent = openRisks.length.toLocaleString('ar-SA-u-ca-gregory-nu-latn');
+  $('#metricHighRisks').textContent = `${highRisks.length.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} مرتفعة أو حرجة`;
+  $('#metricWorkpapers').textContent = state.workpapers.length.toLocaleString('ar-SA-u-ca-gregory-nu-latn');
+  $('#metricCompletedWp').textContent = `${completedWp.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} مكتملة`;
+  $('#metricEvidenceGaps').textContent = (graph.risksWithoutEvidence ?? 0).toLocaleString('ar-SA-u-ca-gregory-nu-latn');
   $('#metricEvidenceHealth').textContent = state.evidence.length ? `متوسط جودة ${graph.averageEvidenceScore ?? 0}%` : 'مخاطر بلا دليل مستلم';
   $('#readinessValue').textContent = `${readiness}%`;
   $('#readinessRing').style.setProperty('--progress', `${readiness * 3.6}deg`);
   $('#heroBalanceState').textContent = runtime.analysis ? (runtime.analysis.balanced ? 'متزن حسابيًا' : 'يوجد فرق') : 'بانتظار البيانات';
   $('#heroCoverage').textContent = `${evidenceCoverage}%`;
-  $('#heroJournalState').textContent = journalPending.toLocaleString('ar-SA');
+  $('#heroJournalState').textContent = journalPending.toLocaleString('ar-SA-u-ca-gregory-nu-latn');
   $('#riskBadge').textContent = openRisks.length > 99 ? '99+' : String(openRisks.length);
   $('#journalBadge').textContent = journalPending > 99 ? '99+' : String(journalPending);
   const evidenceAttention = Math.max(Number(graph.risksWithoutEvidence ?? 0), Number(graph.orphanEvidence ?? 0));
@@ -526,7 +526,7 @@ function renderDashboard() {
   $('#nextActionLabel').textContent = actionLabels[nextActionView] ?? 'فتح الخطوة التالية';
 
   const readyGateCount = snapshot.gates.filter((item) => item.status === 'ready').length;
-  $('#dashboardGateSummary').textContent = `${readyGateCount.toLocaleString('ar-SA')} / ${snapshot.gates.length.toLocaleString('ar-SA')}`;
+  $('#dashboardGateSummary').textContent = `${readyGateCount.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} / ${snapshot.gates.length.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}`;
   $('#dashboardGateRail').innerHTML = snapshot.gates.map((item) => `
     <button type="button" class="dashboard-gate" data-status="${e(item.status)}" ${item.actionView ? `data-go="${e(item.actionView)}"` : ''}>
       <strong>${e(item.label)}</strong><span>${e(item.status === 'ready' ? 'جاهز تشغيليًا' : item.status === 'attention' ? 'يحتاج إجراء' : 'محجوب')}</span>
@@ -567,7 +567,7 @@ function renderData() {
   $('#totalDebit').textContent = analysis ? money(analysis.totalDebit) : '—';
   $('#totalCredit').textContent = analysis ? money(analysis.totalCredit) : '—';
   $('#imbalanceValue').textContent = analysis ? money(analysis.imbalance) : '—';
-  $('#rowIssuesCount').textContent = analysis?.rowIssues.length.toLocaleString('ar-SA') ?? '0';
+  $('#rowIssuesCount').textContent = analysis?.rowIssues.length.toLocaleString('ar-SA-u-ca-gregory-nu-latn') ?? '0';
   const chip = $('#balanceChip');
   chip.className = 'status-chip neutral';
   chip.textContent = 'بانتظار ملف';
@@ -599,7 +599,7 @@ function renderAccountsTable() {
       <td class="number">${row.credit ? e(money(row.credit)) : '—'}</td>
       <td><div class="table-tags">${row.standards.map((item) => `<span class="table-tag">${e(item)}</span>`).join('')}</div></td>
     </tr>`).join('') : '<tr><td colspan="6"><div class="empty-state">لا توجد حسابات مطابقة.</div></td></tr>';
-  $('#accountTableSummary').textContent = `${rows.length.toLocaleString('ar-SA')} حساب — ${state.sourceName ?? 'لا يوجد مصدر'}`;
+  $('#accountTableSummary').textContent = `${rows.length.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} حساب — ${state.sourceName ?? 'لا يوجد مصدر'}`;
   $('#accountPage').textContent = `${runtime.accountPage} / ${pageCount}`;
   $('#prevAccounts').disabled = runtime.accountPage <= 1;
   $('#nextAccounts').disabled = runtime.accountPage >= pageCount;
@@ -620,7 +620,7 @@ function renderMateriality() {
     $('#engagementRisk').value = result.risk;
     $('#customRate').value = result.rate;
   }
-  $('#materialityRevisionCount').textContent = `${state.materialityRevisions.length.toLocaleString('ar-SA')} إصدار`;
+  $('#materialityRevisionCount').textContent = `${state.materialityRevisions.length.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} إصدار`;
   $('#materialityRevisionHistory').innerHTML = state.materialityRevisions.length ? [...state.materialityRevisions].reverse().slice(0, 5).map((item) => `
     <div class="compact-item"><span class="status-chip neutral">v${item.version}</span><span><strong>${e(money(BigInt(item.overallMinor ?? 0)))}</strong><span>${e(item.rationale)} · ${e(item.actor)}</span></span><span>${e(formatDate(item.createdAt))}</span></div>`).join('') : '<div class="empty-state compact">لا توجد إصدارات مسجلة.</div>';
   renderSample();
@@ -674,7 +674,7 @@ function renderRisks() {
       <span class="risk-score-bar" aria-hidden="true"></span>
       <span class="risk-main"><h3>${e(risk.title)}</h3><p>${e(risk.accountCode)} — ${e(risk.accountName)} · ${e(risk.category)}</p></span>
       <span class="risk-meta"><strong>${risk.score}</strong><span class="severity-chip ${e(risk.severity)}">${e(severityLabel(risk.severity))}</span><small>${e(statusLabel(risk.status))}</small></span>
-    </button>`).join('') + (allRisks.length > risks.length ? `<div class="empty-state compact">يُعرض أعلى ${risks.length} من ${allRisks.length.toLocaleString('ar-SA')} إشارة. استخدم البحث والتصفية للوصول إلى البقية.</div>` : '') : '<div class="empty-state">لا توجد مخاطر مطابقة للتصفية.</div>';
+    </button>`).join('') + (allRisks.length > risks.length ? `<div class="empty-state compact">يُعرض أعلى ${risks.length} من ${allRisks.length.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} إشارة. استخدم البحث والتصفية للوصول إلى البقية.</div>` : '') : '<div class="empty-state">لا توجد مخاطر مطابقة للتصفية.</div>';
   renderRiskDetail();
   renderFindings();
 }
@@ -714,7 +714,7 @@ function renderFindings() {
       <td dir="ltr">${e(finding.reference || '—')}</td>
       <td><div class="action-cell"><button type="button" data-delete-finding="${e(finding.id)}" aria-label="حذف"><svg><use href="#i-trash"/></svg></button></div></td>
     </tr>`).join('') : '<tr><td colspan="6"><div class="empty-state compact">لا توجد نتائج مسجلة.</div></td></tr>';
-  $('#findingCountChip').textContent = `${state.findings.length.toLocaleString('ar-SA')} نتيجة`;
+  $('#findingCountChip').textContent = `${state.findings.length.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} نتيجة`;
 }
 
 function journalParameters() {
@@ -766,7 +766,7 @@ function runJournalReview(inputRows = null, sourceName = null) {
   });
   saveState();
   renderAll();
-  showToast(`تم فحص ${review.summary.total.toLocaleString('ar-SA')} قيدًا ووضع ${review.summary.flagged.toLocaleString('ar-SA')} في طابور المراجعة.`);
+  showToast(`تم فحص ${review.summary.total.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} قيدًا ووضع ${review.summary.flagged.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} في طابور المراجعة.`);
 }
 
 async function readJournalFile(file) {
@@ -813,10 +813,10 @@ function loadJournalDemo() {
 function renderJournal() {
   const review = runtime.journalReview;
   const summary = review?.summary ?? { total: 0, flagged: 0, highRisk: 0, pendingReview: 0 };
-  $('#journalMetricTotal').textContent = summary.total.toLocaleString('ar-SA');
-  $('#journalMetricFlagged').textContent = summary.flagged.toLocaleString('ar-SA');
-  $('#journalMetricHigh').textContent = summary.highRisk.toLocaleString('ar-SA');
-  $('#journalMetricPending').textContent = summary.pendingReview.toLocaleString('ar-SA');
+  $('#journalMetricTotal').textContent = summary.total.toLocaleString('ar-SA-u-ca-gregory-nu-latn');
+  $('#journalMetricFlagged').textContent = summary.flagged.toLocaleString('ar-SA-u-ca-gregory-nu-latn');
+  $('#journalMetricHigh').textContent = summary.highRisk.toLocaleString('ar-SA-u-ca-gregory-nu-latn');
+  $('#journalMetricPending').textContent = summary.pendingReview.toLocaleString('ar-SA-u-ca-gregory-nu-latn');
   $('#journalSourceChip').className = `status-chip ${review ? 'success' : 'neutral'}`;
   $('#journalSourceChip').textContent = state.journalReview?.sourceName || 'لا يوجد مصدر';
   $('#journalReviewStatus').className = `status-chip ${review ? (summary.pendingReview ? 'warning' : 'success') : 'neutral'}`;
@@ -1012,7 +1012,7 @@ function renderPbc() {
   };
   $('#pbcSummary').innerHTML = [
     ['إجمالي الطلبات', counts.total], ['مطلوب', counts.requested], ['مستلم للفحص', counts.received], ['تمت مراجعته', counts.reviewed]
-  ].map(([label, count]) => `<div><span>${e(label)}</span><strong>${count.toLocaleString('ar-SA')}</strong></div>`).join('');
+  ].map(([label, count]) => `<div><span>${e(label)}</span><strong>${count.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}</strong></div>`).join('');
   const today = new Date().toISOString().slice(0, 10);
   $('#pbcBoard').innerHTML = state.pbc.length ? state.pbc.map((item) => `
     <article class="pbc-card ${item.due < today && !['reviewed'].includes(item.status) ? 'overdue' : ''}">
@@ -1056,10 +1056,10 @@ function renderEvidence() {
   refreshEvidenceScores();
   const metrics = runtime.graph?.metrics ?? {};
   const reviewed = state.evidence.filter((item) => item.status === 'reviewed').length;
-  $('#evidenceMetricTotal').textContent = state.evidence.length.toLocaleString('ar-SA');
-  $('#evidenceMetricReviewed').textContent = reviewed.toLocaleString('ar-SA');
+  $('#evidenceMetricTotal').textContent = state.evidence.length.toLocaleString('ar-SA-u-ca-gregory-nu-latn');
+  $('#evidenceMetricReviewed').textContent = reviewed.toLocaleString('ar-SA-u-ca-gregory-nu-latn');
   $('#evidenceMetricQuality').textContent = `${metrics.averageEvidenceScore ?? 0}%`;
-  $('#evidenceMetricOrphan').textContent = (metrics.orphanEvidence ?? 0).toLocaleString('ar-SA');
+  $('#evidenceMetricOrphan').textContent = (metrics.orphanEvidence ?? 0).toLocaleString('ar-SA-u-ca-gregory-nu-latn');
 
   $('#evidenceTableBody').innerHTML = state.evidence.length ? state.evidence.map((item) => {
     const quality = scoreEvidenceQuality(item);
@@ -1075,7 +1075,7 @@ function renderEvidence() {
   }).join('') : '<tr><td colspan="6"><div class="empty-state compact">لا توجد أدلة مسجلة.</div></td></tr>';
 
   const paths = runtime.risks.slice(0, 16);
-  $('#evidencePathStatus').textContent = `${paths.length.toLocaleString('ar-SA')} مسار`;
+  $('#evidencePathStatus').textContent = `${paths.length.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} مسار`;
   $('#evidencePathList').innerHTML = paths.length ? paths.map((risk) => {
     const workpaper = state.workpapers.find((item) => (item.riskIds ?? []).includes(risk.id));
     const linkedEvidence = state.evidence.filter((item) => (item.riskIds ?? []).includes(risk.id));
@@ -1184,7 +1184,7 @@ function renderReports() {
   $('#reportStatus').textContent = state.approval ? `مراجعة بشرية مسجلة — ${state.approval.reviewer}` : 'مسودة — غير معتمدة';
   const initialChain = verifyAuditEventChain(state.auditEvents);
   $('#auditTrailStatus').className = `status-chip ${initialChain.valid ? 'success' : 'danger'}`;
-  $('#auditTrailStatus').textContent = initialChain.valid ? `${initialChain.checked.toLocaleString('ar-SA')} حدثًا سليمة` : `كسر عند الحدث ${initialChain.brokenAt}`;
+  $('#auditTrailStatus').textContent = initialChain.valid ? `${initialChain.checked.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} حدثًا سليمة` : `كسر عند الحدث ${initialChain.brokenAt}`;
   $('#auditEventList').innerHTML = state.auditEvents.length ? [...state.auditEvents].reverse().slice(0, 10).map((item) => `
     <div class="audit-event"><span class="audit-sequence">#${item.sequence}</span><span><strong>${e(auditEventLabel(item.type))}</strong><small>${e(item.actor)} · ${e(formatDate(item.timestamp))}</small></span><code>${e(item.hash)}</code></div>`).join('') : '<div class="empty-state compact">لا توجد أحداث مسجلة.</div>';
   const high = runtime.risks.filter((risk) => ['critical', 'high'].includes(risk.severity)).length;
@@ -1224,10 +1224,10 @@ function renderReports() {
   $('#reportOpinion').innerHTML = opinion ? `<p><strong>${e(opinion.label)}</strong> — ${e(opinion.standard)}. ${opinion.basis.map((item) => e(item)).join(' ')}${opinion.emphasis ? ` ${e(opinion.emphasis)}` : ''}</p><p class="muted">${state.opinion.decision ? opinionDecisionLabel(state.opinion.decision) : 'مسودة آلية لم يُسجل المراجع موقفًا منها بعد؛ لا تمثل رأي مراجعة.'}</p>` : '';
   const eventChain = verifyAuditEventChain(state.auditEvents);
   $('#reportProvenance').innerHTML = [
-    ['أحداث السجل', state.auditEvents.length.toLocaleString('ar-SA')],
+    ['أحداث السجل', state.auditEvents.length.toLocaleString('ar-SA-u-ca-gregory-nu-latn')],
     ['سلامة السلسلة', eventChain.valid ? 'سليمة' : `كسر عند ${eventChain.brokenAt}`],
-    ['إصدارات الأهمية', state.materialityRevisions.length.toLocaleString('ar-SA')],
-    ['الأدلة المسجلة', state.evidence.length.toLocaleString('ar-SA')],
+    ['إصدارات الأهمية', state.materialityRevisions.length.toLocaleString('ar-SA-u-ca-gregory-nu-latn')],
+    ['الأدلة المسجلة', state.evidence.length.toLocaleString('ar-SA-u-ca-gregory-nu-latn')],
     ['مصدر الميزان', state.sourceName || 'غير مسجل'],
     ['المرجع المحلي', 'SOCPA 2025']
   ].map(([label, value]) => `<div><span>${e(label)}</span><strong>${e(value)}</strong></div>`).join('');
@@ -1238,13 +1238,13 @@ function renderReports() {
 
 function ratioValue(item) {
   if (item.value === null || item.value === undefined) return '—';
-  const number = item.unit === 'يوم' ? Math.round(item.value).toLocaleString('ar-SA') : item.value.toLocaleString('ar-SA', { maximumFractionDigits: 2 });
+  const number = item.unit === 'يوم' ? Math.round(item.value).toLocaleString('ar-SA-u-ca-gregory-nu-latn') : item.value.toLocaleString('ar-SA-u-ca-gregory-nu-latn', { maximumFractionDigits: 2 });
   return item.unit === '%' ? `${number}٪` : item.unit === 'x' ? `${number}×` : `${number} ${item.unit}`;
 }
 
 function statementSection(section, { emphasize = false } = {}) {
   const lines = section.lines.length ? section.lines.map((line) => `
-    <div class="statement-line"><span>${e(line.category)}<small>${line.accounts.toLocaleString('ar-SA')} حساب</small></span><strong class="number ${line.amount < 0n ? 'negative' : ''}">${e(money(line.amount))}</strong></div>`).join('') : '<div class="statement-line muted"><span>لا توجد بنود</span><strong>—</strong></div>';
+    <div class="statement-line"><span>${e(line.category)}<small>${line.accounts.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} حساب</small></span><strong class="number ${line.amount < 0n ? 'negative' : ''}">${e(money(line.amount))}</strong></div>`).join('') : '<div class="statement-line muted"><span>لا توجد بنود</span><strong>—</strong></div>';
   return `<div class="statement-section ${emphasize ? 'emphasize' : ''}"><div class="statement-head"><span>${e(section.label)}</span><strong class="number">${e(money(section.total))}</strong></div>${lines}</div>`;
 }
 
@@ -1252,7 +1252,7 @@ function renderAnalytics() {
   const snapshot = runtime.analytics;
   $('#analyticsEmpty').hidden = Boolean(snapshot);
   $('#analyticsLayout').hidden = !snapshot;
-  $('#analyticsBadge').textContent = snapshot ? snapshot.ratios.filter((item) => ['danger', 'warning'].includes(item.status)).length.toLocaleString('ar-SA') : '0';
+  $('#analyticsBadge').textContent = snapshot ? snapshot.ratios.filter((item) => ['danger', 'warning'].includes(item.status)).length.toLocaleString('ar-SA-u-ca-gregory-nu-latn') : '0';
   if (!snapshot) return;
   const { statements, ratios, benfordBalances, goingConcern, saudi } = snapshot;
   const { sfp, pl, checks, unclassified } = statements;
@@ -1265,7 +1265,7 @@ function renderAnalytics() {
     ['حقوق الملكية', money(sfp.equity.total), ''],
     ['+', '', 'operator'],
     [pl.profit >= 0n ? 'ربح الفترة' : 'خسارة الفترة', money(pl.profit), pl.profit < 0n ? 'negative' : ''],
-    [checks.equationHolds ? '✓ المعادلة محققة' : `فرق ${money(checks.equationDelta)}`, unclassified.count ? `${unclassified.count.toLocaleString('ar-SA')} حساب غير مصنف بصافي ${money(unclassified.net)}` : 'كل الحسابات مصنفة', checks.equationHolds ? 'verdict pass' : 'verdict fail']
+    [checks.equationHolds ? '✓ المعادلة محققة' : `فرق ${money(checks.equationDelta)}`, unclassified.count ? `${unclassified.count.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} حساب غير مصنف بصافي ${money(unclassified.net)}` : 'كل الحسابات مصنفة', checks.equationHolds ? 'verdict pass' : 'verdict fail']
   ].map(([label, value, cls]) => `<div class="equation-cell ${cls}"><span>${e(label)}</span>${value ? `<strong>${e(value)}</strong>` : ''}</div>`).join('');
 
   $('#sfpChip').textContent = `${sfp.currentAssets.count + sfp.nonCurrentAssets.count + sfp.currentLiabilities.count + sfp.nonCurrentLiabilities.count + sfp.equity.count} حساب`;
@@ -1304,11 +1304,11 @@ function renderAnalytics() {
     <div class="benford-legend"><span><i class="bar"></i>ملاحظ</span><span><i class="line"></i>بنفورد المتوقع</span><span><i class="bar hot"></i>انحراف &gt; 3 نقاط</span></div>`;
   $('#benfordChip').className = `status-chip ${{ close: 'success', acceptable: 'success', marginal: 'warning', nonconformity: 'danger', insufficient: 'neutral' }[benfordBalances.conformity]}`;
   $('#benfordChip').textContent = `MAD ${benfordBalances.mad}`;
-  $('#benfordNote').textContent = `${benfordBalances.total.toLocaleString('ar-SA')} قيمة. ${conformityLabel(benfordBalances.conformity)}. أرصدة الميزان تجميعية بطبيعتها؛ الاختبار الأقوى يكون على قيود اليومية أو الفواتير.`;
+  $('#benfordNote').textContent = `${benfordBalances.total.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} قيمة. ${conformityLabel(benfordBalances.conformity)}. أرصدة الميزان تجميعية بطبيعتها؛ الاختبار الأقوى يكون على قيود اليومية أو الفواتير.`;
 
   const hits = goingConcern.filter((item) => item.hit);
   $('#goingConcernChip').className = `status-chip ${hits.length >= 2 ? 'danger' : hits.length ? 'warning' : 'success'}`;
-  $('#goingConcernChip').textContent = `${hits.length.toLocaleString('ar-SA')} من ${goingConcern.length}`;
+  $('#goingConcernChip').textContent = `${hits.length.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} من ${goingConcern.length}`;
   $('#goingConcernList').innerHTML = goingConcern.map((item) => `
     <div class="indicator ${item.hit ? 'hit' : ''}"><svg><use href="#${item.hit ? 'i-alert' : 'i-check'}"/></svg><span>${e(item.label)}<small>${e(item.ref)}</small></span></div>`).join('')
     + `<p class="muted small">المؤشرات لا تعني وجود عدم تأكد جوهري؛ تقييم الإدارة ومدة الاثني عشر شهرًا وخطط التمويل تُفحص في ورقة عمل الاستمرارية.</p>`;
@@ -1318,8 +1318,8 @@ function renderAnalytics() {
       <span class="eyebrow">ضريبة القيمة المضافة — 15٪</span>
       <div class="saudi-rows">
         <div><span>الإيراد × 15٪ (مخرجات متوقعة)</span><strong class="number">${e(money(saudi.vat.expectedOutput))}</strong></div>
-        <div><span>صافي حسابات الضريبة المسجلة (${saudi.vat.accounts.toLocaleString('ar-SA')} حساب)</span><strong class="number">${e(money(saudi.vat.recorded))}</strong></div>
-        <div><span>الفرق</span><strong class="number">${e(money(saudi.vat.variance))}${saudi.vat.variancePct !== null ? ` (${saudi.vat.variancePct.toLocaleString('ar-SA')}٪)` : ''}</strong></div>
+        <div><span>صافي حسابات الضريبة المسجلة (${saudi.vat.accounts.toLocaleString('ar-SA-u-ca-gregory-nu-latn')} حساب)</span><strong class="number">${e(money(saudi.vat.recorded))}</strong></div>
+        <div><span>الفرق</span><strong class="number">${e(money(saudi.vat.variance))}${saudi.vat.variancePct !== null ? ` (${saudi.vat.variancePct.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}٪)` : ''}</strong></div>
       </div>
       <small>${saudi.vat.status === 'no-account' ? 'لم يُعثر على حساب ضريبة القيمة المضافة في الميزان؛ افحص اكتمال دليل الحسابات.' : e(saudi.vat.note)}</small>
     </div>
@@ -1361,7 +1361,7 @@ function renderOpinion() {
     const perfPct = misstatements.overall > 0n ? Number((misstatements.performance * 100n) / misstatements.overall) : 70;
     $('#misstatementMeter').innerHTML = `
       <div class="meter-track"><div class="meter-fill" data-verdict="${e(misstatements.verdict)}" style="width:${pct}%"></div><i class="meter-mark" style="right:${perfPct}%" title="أهمية الأداء"></i><i class="meter-mark overall" style="right:100%" title="الأهمية الإجمالية"></i></div>
-      <div class="meter-labels"><span>التعرض غير المصحح: <strong>${e(money(misstatements.exposure))}</strong>${misstatements.overallRatio !== null ? ` — ${misstatements.overallRatio.toLocaleString('ar-SA')}٪ من الأهمية الإجمالية` : ''}</span><span>أهمية الأداء ${e(money(misstatements.performance))} · الإجمالية ${e(money(misstatements.overall))}</span></div>`;
+      <div class="meter-labels"><span>التعرض غير المصحح: <strong>${e(money(misstatements.exposure))}</strong>${misstatements.overallRatio !== null ? ` — ${misstatements.overallRatio.toLocaleString('ar-SA-u-ca-gregory-nu-latn')}٪ من الأهمية الإجمالية` : ''}</span><span>أهمية الأداء ${e(money(misstatements.performance))} · الإجمالية ${e(money(misstatements.overall))}</span></div>`;
     $('#misstatementBuckets').innerHTML = [
       ['مصححة', misstatements.corrected, 'success'],
       ['غير مصححة ومقيّمة', misstatements.uncorrected, 'warning'],
@@ -1457,7 +1457,7 @@ function exportStatementsCsv() {
 }
 
 function renderKnowledge() {
-  $('#knowledgeCount').textContent = KNOWLEDGE_TRACKS.length.toLocaleString('ar-SA');
+  $('#knowledgeCount').textContent = KNOWLEDGE_TRACKS.length.toLocaleString('ar-SA-u-ca-gregory-nu-latn');
   $('#knowledgeGrid').innerHTML = KNOWLEDGE_TRACKS.map((track) => `
     <article class="knowledge-card">
       <header><span class="eyebrow">${e(track.id)}</span><span class="source-type">${track.type === 'playlist' ? 'قائمة تشغيل' : 'فيديو'} · ${track.status === 'mapped' ? 'مربوط' : 'مفهرس'}</span></header>

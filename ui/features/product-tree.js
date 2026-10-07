@@ -57,7 +57,7 @@ function head(t){
   const costs=t.products.map(p=>PT().productCost(t,p.id)),m=costs.filter(c=>c.margin!=null),avg=m.length?m.reduce((s,c)=>s+c.margin,0)/m.length:null;
   const sup=new Set([...t.suppliers.map(s=>s.supplier),...((t.people||{}).suppliers||[])]).size,cus=new Set([...t.customers.map(c=>c.customer),...((t.people||{}).customers||[])]).size;
   const k=(l,v,s)=>'<div class="sk-kpi"><span>'+l+'</span><b>'+v+'</b>'+(s?'<small>'+s+'</small>':'')+'</div>';
-  return '<section class="card pt-hero"><div class="pt-hero-t"><span class="eyebrow">PRODUCT TREE</span><h2>شجرة المنتجات</h2><p>ابدأ بالمواد الخام (التكلفة والهدر)، ثم المنتجات والبوكسات المكوّنة منها، ثم اربط الموردين والعملاء — جدولاً أو شجرةً أو أسهماً.</p></div>'+
+  return '<section class="card pt-hero"><div class="pt-hero-t"><span class="eyebrow">من الخام إلى العميل</span><h2>شجرة المنتجات</h2><p>ابدأ بالمواد الخام (التكلفة والهدر)، ثم المنتجات والبوكسات المكوّنة منها، ثم اربط الموردين والعملاء — جدولاً أو شجرةً أو أسهماً.</p></div>'+
     '<div class="sk-actions"><button type="button" class="btn" data-pt="sync" title="يضيف المواد والبوكسات الجديدة من «الأصناف والأسعار» وعملاء المنتجات من الطلبات دون حذف ما رسمته">'+SK.icon("sync")+' مزامنة من الأصناف والطلبات</button>'+
     '<button type="button" class="btn" data-pt="add-m">+ مادة خام</button><button type="button" class="btn" data-pt="add-p">+ منتج</button><button type="button" class="btn" data-pt="add-s">+ مورد</button><button type="button" class="btn" data-pt="add-c">+ عميل</button>'+
     '<button type="button" class="btn primary" data-pt="print">'+SK.icon("print")+' تقرير الشجرة</button></div>'+

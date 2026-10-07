@@ -160,7 +160,8 @@ function feedAnalytics(a){
   try{const t=reviewTransport();if(sourceBlocked(t)||!t||t.sig===fedSig)return;
     const root=a.host.shadowRoot,input=root&&root.getElementById("fileInput");if(!input)return;
     const dt=new DataTransfer();dt.items.add(new File([tbCSV(t.rows)],"SQC-engagement-tb.csv",{type:"text/csv"}));input.files=dt.files;input.dispatchEvent(new Event("change",{bubbles:true}));
-    fedSig=t.sig;window.SK.toast("استُلم ميزان ملف المراجعة («"+t.label+"») في أدوات التحليل","info");
+    /* said only on the analytics screen itself: fed in the background, it popped up over whatever screen was open */
+    fedSig=t.sig;if(window.SKosifCore&&SKosifCore.view()==="auditanalytics")window.SK.toast("استُلم ميزان ملف المراجعة («"+t.label+"») في أدوات التحليل","info");
   }catch(e){console.error("SQC analytics feed",e)}
 }
 /* ---------- the studio is part of the engagement file, not a second app ----------

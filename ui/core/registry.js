@@ -29,23 +29,28 @@ const caps=RAW.capabilities.map(c=>{
     hub:h,hubLabel:p.hubLabel||p.label,isHub:RAW.capabilities.some(x=>x.hub===c.id)});
 });
 const byId=Object.fromEntries(caps.map(c=>[c.id,c]));
+/* R10 (docs/rebuild/HARSH_REVIEW_20261008_ar.md): a screen made for some sectors only ("sectors" in the registry, e.g.
+   the carcass lab and the meat blends for meat) is offered only while a company of those sectors is open (FOUNDATION:
+   tools are adapted to the sector); a hub's pages follow their hub. A deep link still opens it. */
+const sectorNow=()=>{try{return(SK.company&&SK.company.current().sector)||""}catch{return""}};
+const fits=c=>{if(!c)return false;const h=byId[c.hub]||c,s=(c.sectors&&c.sectors.length?c.sectors:h.sectors)||[];const now=s.length?sectorNow():"";return!s.length||!now||s.includes(now)};
 /* a screen belongs to an entry when it is the screen's own entry or one it is shared with */
 const inGw=(c,gid)=>!!c&&(c.gateway===gid||c.also.includes(gid));
 /* the pages of a hub: its parent first, then its pages in registry order */
-const members=id=>{const c=byId[id];if(!c)return[];const h=byId[c.hub];return[h,...caps.filter(x=>x.hub===h.id&&x.id!==h.id&&!x.hidden)]};
+const members=id=>{const c=byId[id];if(!c)return[];const h=byId[c.hub];return[h,...caps.filter(x=>x.hub===h.id&&x.id!==h.id&&!x.hidden)].filter(fits)};
 /* R3 (docs/rebuild/DEEP_REVIEW_20261007_ar.md): each entry's menu in the constitution's order, declared on the gateway
    (gateways[].menu = [{id,label,icon,hubs:[hub ids]}]). Only hubs of that entry are kept; a hub of the entry that no
    section lists lands in «أخرى», so the menu can never lose a screen. An entry without a menu falls back to the groups. */
-const hubsOf=gid=>caps.filter(c=>inGw(c,gid)&&c.hub===c.id&&!c.hidden);
+const hubsOf=gid=>caps.filter(c=>inGw(c,gid)&&c.hub===c.id&&!c.hidden&&fits(c));
 const menuCache={};
 function menu(gid){
-  if(menuCache[gid])return menuCache[gid];
+  const key=gid+"|"+sectorNow();if(menuCache[key])return menuCache[key];
   const g=gwById[gid];if(!g||!Array.isArray(g.menu)||!g.menu.length)return null;
   const all=hubsOf(gid),seen=new Set();
   const out=g.menu.map(s=>({id:s.id,label:s.label,icon:s.icon,hubs:(s.hubs||[]).map(id=>byId[id]).filter(c=>c&&all.includes(c)&&!seen.has(c.id)&&seen.add(c.id))})).filter(s=>s.hubs.length);
   const rest=all.filter(c=>!seen.has(c.id));
   if(rest.length)out.push({id:gid+"-more",label:"أخرى",icon:"action",hubs:rest});
-  return(menuCache[gid]=Object.freeze(out.map(s=>Object.freeze({...s,hubs:Object.freeze(s.hubs)}))));
+  return(menuCache[key]=Object.freeze(out.map(s=>Object.freeze({...s,hubs:Object.freeze(s.hubs)}))));
 }
 /* the menu section of a screen in an entry (its hub's section) */
 const sectionOf=(id,gid)=>{const c=byId[id],m=c&&menu(gid);return m?m.find(s=>s.hubs.some(h=>h.id===c.hub))||null:null};
@@ -62,13 +67,15 @@ SK.caps=Object.freeze({
   group:gid=>gById[gid]||null,
   groupsInGateway:gid=>groups.filter(g=>caps.some(c=>inGw(c,gid)&&c.group===g.id)),
   inGateway:gid=>caps.filter(c=>inGw(c,gid)),
-  hubsInGateway:gid=>caps.filter(c=>inGw(c,gid)&&c.hub===c.id&&!c.hidden),
+  hubsInGateway:gid=>caps.filter(c=>inGw(c,gid)&&c.hub===c.id&&!c.hidden&&fits(c)),
   /* the studios of the open company: their screens carry the company bar and the company chooser */
   companyGroups:()=>groups.filter(g=>g.company),
   get:id=>byId[id]||null,
   inGroup:gid=>caps.filter(c=>c.group===gid),
   /* the menu entries of a domain: one per hub (the parent screen) */
-  hubsInGroup:gid=>caps.filter(c=>c.group===gid&&c.hub===c.id&&!c.hidden),
+  hubsInGroup:gid=>caps.filter(c=>c.group===gid&&c.hub===c.id&&!c.hidden&&fits(c)),
+  /* whether a screen is offered to the open company's sector */
+  fits:id=>fits(byId[id]),
   visible:()=>caps.filter(c=>!c.hidden),
   /* the work flow: what feeds a screen and what it feeds ("feeds" in the registry; the inverse is computed) */
   flow:id=>{const c=byId[id];if(!c)return{from:[],to:[]};return{from:caps.filter(x=>(x.feeds||[]).includes(id)),to:(c.feeds||[]).map(f=>byId[f]).filter(Boolean)}},

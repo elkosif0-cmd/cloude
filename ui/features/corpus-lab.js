@@ -60,7 +60,7 @@ function paint(){
   if(!root)return;
   if(!RP()||!OR()){root.innerHTML='<div class="sk-empty">محركات المختبر غير محمّلة.</div>';return}
   const r=run(prior),other=run(!prior);
-  root.innerHTML='<div class="cl-shell"><section class="card cl-hero"><div><span class="eyebrow">GLOBAL REPLAY</span><h2>مختبر الشركات العالمية</h2><p>قوائم '+r.companies+' شركة من التقارير العالمية (12,506 صفحة) مدخلة كموازين مراجعة. يراجعها SQC كما يراجع أي عميل، ثم نقارن ما وصل إليه بما كتبه مراجعها الفعلي.</p></div>'+
+  root.innerHTML='<div class="cl-shell"><section class="card cl-hero"><div><span class="eyebrow">مراجعة عالمية</span><h2>مختبر الشركات العالمية</h2><p>قوائم '+r.companies+' شركة من التقارير العالمية (12,506 صفحة) مدخلة كموازين مراجعة. يراجعها SQC كما يراجع أي عميل، ثم نقارن ما وصل إليه بما كتبه مراجعها الفعلي.</p></div>'+
     '<div class="sk-seg" role="group" aria-label="الترتيب"><button type="button" data-cl-prior="1" aria-pressed="'+prior+'">بخبرة القطاع</button><button type="button" data-cl-prior="0" aria-pressed="'+!prior+'">الأرقام وحدها</button></div></section>'+
     tiles(r,other)+'<p class="cl-note">'+SK.icon("reports")+' شكل التقرير: أقسام تقرير SQC المتكامل تغطي '+pc(r.structure)+' من الأقسام الموجودة في تقارير هذه الشركات نفسها، بترتيبها في الحزمة (الناقص غالباً ملاحق نموذج 10-K وتوقيعاته).</p>'+table(r)+'<div class="cl-grid">'+missedCard(r)+matCard(r)+'</div>'+procCard()+'</div>';
 }

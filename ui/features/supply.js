@@ -221,7 +221,7 @@
       const d=$("sk31-po-date").value, note=$("sk31-po-note").value.trim();
       return ["السلام عليكم "+($("sk31-po-sup").value.trim()||"")+"،","نرغب بتوريد:",...lines.map(l=>"• "+l),
         d?"موعد التسليم: "+new Date(d+"T12:00").toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{weekday:"long",day:"numeric",month:"long"}):"",
-        note?"ملاحظة: "+note:"","نسبة الهدر حسب المتفق عليه.","مع الشكر — "+"أغنام الوادي"].filter(Boolean).join("\n");
+        note?"ملاحظة: "+note:"","نسبة الهدر حسب المتفق عليه.","مع الشكر — "+SK.bizName()].filter(Boolean).join("\n");
     };
     const upd=()=>{$("sk31-po-preview").value=text()};
     w.querySelectorAll("input,textarea").forEach(el=>el.addEventListener("input",upd));

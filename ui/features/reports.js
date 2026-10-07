@@ -131,7 +131,7 @@ function bindPL(){
     const totalOpex=pl.salaries+pl.rent+pl.utilities+pl.logistics+pl.packaging+pl.otherOpex;
     const grossProfit=pl.revenue-pl.cogs-pl.wasteLoss;
     const netProfit=grossProfit-totalOpex;
-    let msg="*📊 تقرير قائمة الدخل والأرباح التشغيلية — أغنام الوادي*\n";
+    let msg="*📊 تقرير قائمة الدخل والأرباح التشغيلية — "+SK.bizName()+"*\n";
     msg+="المبيعات: "+money(pl.revenue)+"\n";
     msg+="تكلفة المشتريات (COGS): "+money(pl.cogs)+"\n";
     msg+="تكلفة الهدر والعظم: "+money(pl.wasteLoss)+"\n";
@@ -220,7 +220,7 @@ function bindYield(){
   $("#sk-yield-wa")?.addEventListener("click",()=>{
     let totalLossSAR=0;
     let msg="*🥩 تقرير تدقيق الهدر والتسرب المالي — صالة التقطيع*\n";
-    msg+="التاريخ: "+new Date().toLocaleDateString("ar-SA")+"\n";
+    msg+="التاريخ: "+new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn")+"\n";
     msg+="--------------------------------\n";
     yieldData().forEach(r=>{
       const diffPct=Math.max(0,r.actWaste-r.stdWaste);
@@ -300,7 +300,7 @@ function bindVAT(){
     const taxablePurchases=pl.cogs+pl.packaging;
     const inputVAT=taxablePurchases*0.15;
     const netVAT=outputVAT-inputVAT;
-    let msg="*🧾 مسودة الإقرار الضريبي — أغنام الوادي (ZATCA)*\n";
+    let msg="*🧾 مسودة الإقرار الضريبي — "+SK.bizName()+" (ZATCA)*\n";
     msg+="الفترة الضريبية: الربع الحالي 2026\n";
     msg+="--------------------------------\n";
     msg+="المبيعات الخاضعة للضريبة: "+money(taxableSales)+"\n";
@@ -515,18 +515,9 @@ function renderContent(){
   return plHTML();
 }
 
-function financeHubNav(activeId){
-  const tabs=[
-    {id:"execreports",icon:"",title:"التقارير التنفيذية والرسوم البيانية"},
-    {id:"b2bcredit",icon:"",title:"ائتمان المطاعم وكشوف الحساب"},
-    {id:"suppliers",icon:"",title:"سجل وتقييم الموردين"}
-  ];
-  return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-finance-go="'+t.id+'"><span>'+t.icon+'</span><span>'+t.title+'</span></button>').join("")+'</div>';
-}
-
 function paintReports(){
   const r=roots.reports; if(!r||!r.isConnected)return;
-  r.innerHTML=financeHubNav("execreports")+[
+  r.innerHTML=[
     '<section class="card">',
       '<div class="card-b sk-reports-wrap">',
         renderNav(),
@@ -534,7 +525,6 @@ function paintReports(){
       '</div>',
     '</section>'
   ].join("");
-  $$("[data-finance-go]",r).forEach(b=>b.onclick=()=>window.SKosifCore?.go(b.dataset.financeGo));
   bindAll();
 }
 

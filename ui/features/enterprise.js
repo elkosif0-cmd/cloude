@@ -192,7 +192,7 @@ function zatcaHTML(){
         '</div>',
         '<div class="sk38-rcpt-meta">',
           '<div><span>رقم الفاتورة:</span><b>'+invNo+'</b></div>',
-          '<div><span>التاريخ والوقت:</span><b>'+now.toLocaleString("ar-SA")+'</b></div>',
+          '<div><span>التاريخ والوقت:</span><b>'+now.toLocaleString("ar-SA-u-ca-gregory-nu-latn")+'</b></div>',
           '<div><span>العميل:</span><b>'+esc($("#sk38-cust")?.value||"مطعم الضيافة")+'</b></div>',
           '<div><span>طريقة الدفع:</span><b>'+esc(payMethodLabel)+'</b></div>',
         '</div>',
@@ -219,7 +219,7 @@ function zatcaHTML(){
           '<div class="sk38-rcpt-qr-box" id="sk38-qrcode-box"></div>',
           '<span>امسح الرمز للتحقق من هيئة الزكاة والضريبة (ZATCA)</span>',
         '</div>',
-        '<div class="sk38-rcpt-footer"><p>شكراً لاختياركم أغنام الوادي</p><p>لحوم بلدية طازجة تذبح يومياً وفق أعلى معايير الجودة والسلامة</p></div>',
+        '<div class="sk38-rcpt-footer"><p>شكراً لتعاملكم مع '+esc(seller||SK.bizName())+'</p></div>',
       '</div>',
     '</div>'
   ].join("");
@@ -230,8 +230,12 @@ function updateZatcaQR(){
   const vatNo=$("#sk38-vatno")?.value||"";
   const now=new Date().toISOString().slice(0,19)+"Z";
   const amounts=invoiceAmounts(),vatAmount=amounts.vatAmount.toFixed(2),grandTotal=amounts.grandTotal.toFixed(2);
-  const tlvB64=zatcaTLV(seller,vatNo,now,grandTotal,vatAmount);
   const box=$("#sk38-qrcode-box");
+  /* R10: no QR for an invoice that cannot be valid — a tax number of 15 digits, a seller and a total are required
+     (the receipt used to carry a QR with an empty tax number and no lines) */
+  const missing=[!/^3\d{13}3$/.test(vatNo.trim())&&"رقم ضريبي من 15 رقماً يبدأ وينتهي بـ3",!seller.trim()&&"اسم المنشأة",!(amounts.grandTotal>0)&&"بند واحد على الأقل"].filter(Boolean);
+  if(box&&missing.length){box.innerHTML='<p class="sk38-qr-missing">لا يُصدر رمز QR بعد — ينقص: '+missing.map(esc).join("، ")+'</p>';return}
+  const tlvB64=zatcaTLV(seller,vatNo,now,grandTotal,vatAmount);
   if(box&&window.QRCode){
     box.innerHTML="";
     try{
@@ -363,7 +367,7 @@ function bindZatca(){
     setTimeout(()=>rcpt.classList.remove("sk38-print-active"),1000);
   });
   $("#sk38-wa-rcpt")?.addEventListener("click",()=>{
-    const seller=$("#sk38-seller")?.value||"أغنام الوادي";
+    const seller=$("#sk38-seller")?.value||SK.bizName();
     const cust=$("#sk38-cust")?.value||"العميل الكريم";
     const {subtotal,vatAmount,grandTotal}=invoiceAmounts();
     const changeDue=invoicePayment.cashTendered>invoicePayment.cashPaid?(invoicePayment.cashTendered-invoicePayment.cashPaid):0;
@@ -371,7 +375,7 @@ function bindZatca(){
     const remainingDue=Math.max(0,grandTotal-totalPaid);
 
     let msg="*🧾 فاتورة ضريبية مبسطة — "+seller+"*\n";
-    msg+="العميل: "+cust+"\nالتاريخ: "+new Date().toLocaleDateString("ar-SA")+"\n";
+    msg+="العميل: "+cust+"\nالتاريخ: "+new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn")+"\n";
     msg+="--------------------------------\n";
     invoiceItems.forEach(it=>{ msg+="• "+it.name+" ("+it.qty+") = "+it.total.toFixed(2)+" ر.س\n"; });
     msg+="--------------------------------\n";
@@ -563,8 +567,8 @@ function bindBlending(){
       '</style></head><body>'+
       '<div style="text-align:center;border-bottom:2px solid #1e3a8a;padding-bottom:10px;margin-bottom:16px;">'+
       '<h2>أمر تشغيل وتحضير دفعة مصنعات لحوم</h2>'+
-      '<div>أغنام الوادي للذبائح واللحوم — قسم التصنيع والتجهيز</div>'+
-      '<b>رقم الباتش: '+batchNo+' | تاريخ التشغيل: '+new Date().toLocaleDateString("ar-SA")+'</b>'+
+      '<div>'+esc(SK.bizName())+' — قسم التصنيع والتجهيز</div>'+
+      '<b>رقم الباتش: '+batchNo+' | تاريخ التشغيل: '+new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn")+'</b>'+
       '</div>'+
       '<div class="grid">'+
       '<div class="box"><b>اسم الخلطة:</b> '+esc(blendState.name)+'<br><b>وزن القطعة / القرص:</b> '+blendState.pieceGrams+' جرام</div>'+
@@ -636,7 +640,7 @@ function labelsHTML(){
       '</div>',
       '<div style="flex:0 0 320px;">',
         '<div class="sk38-stk-view" id="sk38-sticker-printable">',
-          '<div class="sk38-stk-brand"><span>أغنام الوادي • SQC</span><span>ذبح حلال 100٪</span></div>',
+          '<div class="sk38-stk-brand"><span>'+esc(SK.bizName())+'</span>'+(SK.sector()==="meat"?'<span>ذبح حلال 100٪</span>':'')+'</div>',
           '<div class="sk38-stk-name">'+esc(stickerState.name)+'</div>',
           '<div class="sk38-stk-grid">',
             '<div><span>الوزن الصافي</span><b>'+stickerState.weight.toFixed(3)+' كجم</b></div>',
@@ -722,7 +726,7 @@ function bindTraceability(){
     const hum=num($("#sk38-c-hum").value);
     const insp=$("#sk38-c-insp").value;
     const logs=load(COLD_KEY,defaultColdLog);
-    logs.unshift({time:new Date().toLocaleString("ar-SA"),loc,temp,humidity:hum,inspector:insp});
+    logs.unshift({time:new Date().toLocaleString("ar-SA-u-ca-gregory-nu-latn"),loc,temp,humidity:hum,inspector:insp});
     save(COLD_KEY,logs);
     toast("تم تسجيل قراءة سلسلة التبريد بنجاح.");
     paint("traceability");
@@ -730,7 +734,7 @@ function bindTraceability(){
   $("#sk38-wa-trace")?.addEventListener("click",()=>{
     const batches=load(TRACE_KEY,defaultBatches);
     const logs=load(COLD_KEY,defaultColdLog);
-    let msg="*🥩 تقرير سلامة الغذاء وتتبع اللحوم والـ HACCP*\nالتاريخ: "+new Date().toLocaleDateString("ar-SA")+"\n";
+    let msg="*🥩 تقرير سلامة الغذاء وتتبع اللحوم والـ HACCP*\nالتاريخ: "+new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn")+"\n";
     msg+="--------------------------------\n*أحدث الدفعات:*\n";
     batches.slice(0,3).forEach(b=>{ msg+="• "+b.id+" | "+b.breed+" | "+b.slaughterhouse+"\n"; });
     msg+="\n*آخر قراءات التبريد:*\n";
@@ -809,7 +813,7 @@ function bindCulinary(){
         'h2{margin:6px 0;color:#8a5a2b;}table{width:100%;margin:14px 0;border-collapse:collapse;}td{padding:6px;border-bottom:1px solid #eee;text-align:right;}'+
         'b{color:#111;}.temp-box{background:#fef3c7;padding:8px;border-radius:8px;margin:10px 0;border:1px solid #fde68a;font-weight:bold;}'+
         '</style></head><body>'+
-        '<div style="font-size:12px;color:#8a5a2b;font-weight:bold;">مختارات الذواقة — أغنام الوادي</div>'+
+        '<div style="font-size:12px;color:#8a5a2b;font-weight:bold;">'+esc(SK.bizName())+'</div>'+
         '<h2>'+esc(c.name)+'</h2>'+
         '<div class="temp-box">درجة حرارة الطهي المستهدفة: '+esc(c.temp)+'</div>'+
         '<table>'+
@@ -821,7 +825,7 @@ function bindCulinary(){
         '<b>سر تحضير الشيف:</b> '+esc(c.tips)+'<br><br>'+
         '<b>قاعدة ذهبية:</b> اترك اللحم يرتاح بعد خروجه من الشواية أو الفرن مدة 5 إلى 10 دقائق قبل التقطيع لتحافظ القطعة على كامل عصارتها وطراوتها.'+
         '</div>'+
-        '<div style="font-size:11px;color:#888;margin-top:14px;">بالهناء والعافية | أغنام الوادي للذبائح واللحوم الفاخرة</div>'+
+        '<div style="font-size:11px;color:#888;margin-top:14px;">بالهناء والعافية | '+esc(SK.bizName())+'</div>'+
         '<script>window.onload=()=>{window.print();}<\/script></body></html>');
       w.document.close();SK.brandPrint(w);
     };
@@ -975,7 +979,7 @@ function bindB2BCredit(){
   $$(".sk38-wa-stmt").forEach(b=>{
     b.onclick=()=>{
       const name=b.dataset.name, bal=b.dataset.bal;
-      let msg="*كشف حساب وتذكير بالمستحقات المالية*\nالسادة / "+name+"\nتحية طيبة، ونحيطكم علماً بأن الرصيد القائم لحسابكم لدى *أغنام الوادي* هو:\n💰 *"+money(bal)+"*\n\nنأمل التكرم بجدولة السداد.\nشاكرين ومقدرين حسن تعاونكم الدائم.";
+      let msg="*كشف حساب وتذكير بالمستحقات المالية*\nالسادة / "+name+"\nتحية طيبة، ونحيطكم علماً بأن الرصيد القائم لحسابكم لدى *"+SK.bizName()+"* هو:\n💰 *"+money(bal)+"*\n\nنأمل التكرم بجدولة السداد.\nشاكرين ومقدرين حسن تعاونكم الدائم.";
       window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
     };
   });
@@ -984,42 +988,6 @@ function bindB2BCredit(){
 /* ==========================================================================
    Screen Dispatcher & Unified Workspaces Registration
    ========================================================================== */
-function posHubNav(activeId){
-  const tabs=[
-    {id:"zatca",icon:"",title:"فاتورة الكاشير والإيصال (F2)"},
-    {id:"scanner",icon:"",title:"قارئ الباركود بالكاميرا (F4)"},
-    {id:"labels",icon:"",title:"ملصقات الموازين والتغليف (F3)"},
-    {id:"culinary",icon:"",title:"نصائح الشيف والطهي"}
-  ];
-  return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-pos-go="'+t.id+'">'+SK.icon(t.id)+'<span>'+t.title+'</span></button>').join("")+'</div>';
-}
-
-function butcheryHubNav(activeId){
-  const tabs=[
-    {id:"carcass",icon:"",title:"تفكيك وتصافي الذبيحة وعائد القطعيات"},
-    {id:"blending",icon:"",title:"خلط وفرم اللحوم ونسب الدهن (Lean/Fat)"}
-  ];
-  return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-butchery-go="'+t.id+'">'+SK.icon(t.id)+'<span>'+t.title+'</span></button>').join("")+'</div>';
-}
-
-function storageHubNav(activeId){
-  const tabs=[
-    {id:"inventory",icon:"",title:"رادار الصلاحية والمخزون FIFO (F9)"},
-    {id:"operations",icon:"",title:"غرف التعتيق ومناسبات الشواء (F8)"},
-    {id:"traceability",icon:"",title:"مراقبة سلسلة التبريد HACCP"}
-  ];
-  return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-storage-go="'+t.id+'">'+SK.icon(t.id)+'<span>'+t.title+'</span></button>').join("")+'</div>';
-}
-
-function financeHubNav(activeId){
-  const tabs=[
-    {id:"execreports",icon:"",title:"التقارير التنفيذية والرسوم البيانية"},
-    {id:"b2bcredit",icon:"",title:"ائتمان المطاعم وكشوف الحساب"},
-    {id:"suppliers",icon:"",title:"سجل وتقييم الموردين"}
-  ];
-  return '<div class="sk-hub-nav">'+tabs.map(t=>'<button type="button" class="sk-hub-btn '+(t.id===activeId?'active':'')+'" data-finance-go="'+t.id+'">'+SK.icon(t.id)+'<span>'+t.title+'</span></button>').join("")+'</div>';
-}
-
 function paint(id){
   const r=roots[id]; if(!r||!r.isConnected)return;
   if(["zatca","scanner","labels","culinary"].includes(id)){
@@ -1028,27 +996,23 @@ function paint(id){
     else if(id==="scanner"){ html=scannerHTML(); bind=bindScanner; }
     else if(id==="labels"){ html=labelsHTML(); bind=bindLabels; }
     else if(id==="culinary"){ html=culinaryHTML(); bind=bindCulinary; }
-    r.innerHTML=posHubNav(id)+'<section class="card"><div class="card-b sk-stack">'+html+'</div></section>';
+    r.innerHTML='<section class="card"><div class="card-b sk-stack">'+html+'</div></section>';
     if(bind)bind();
-    $$("[data-pos-go]",r).forEach(b=>b.onclick=()=>window.SKosifCore?.go(b.dataset.posGo));
     return;
   }
   if(id==="blending"){
-    r.innerHTML=butcheryHubNav(id)+'<section class="card"><div class="card-b sk-stack">'+blendingHTML()+'</div></section>';
+    r.innerHTML='<section class="card"><div class="card-b sk-stack">'+blendingHTML()+'</div></section>';
     bindBlending();
-    $$("[data-butchery-go]",r).forEach(b=>b.onclick=()=>window.SKosifCore?.go(b.dataset.butcheryGo));
     return;
   }
   if(id==="traceability"){
-    r.innerHTML=storageHubNav(id)+'<section class="card"><div class="card-b sk-stack">'+traceabilityHTML()+'</div></section>';
+    r.innerHTML='<section class="card"><div class="card-b sk-stack">'+traceabilityHTML()+'</div></section>';
     bindTraceability();
-    $$("[data-storage-go]",r).forEach(b=>b.onclick=()=>window.SKosifCore?.go(b.dataset.storageGo));
     return;
   }
   if(id==="b2bcredit"){
-    r.innerHTML=financeHubNav(id)+'<section class="card"><div class="card-b sk-stack">'+b2bcreditHTML()+'</div></section>';
+    r.innerHTML='<section class="card"><div class="card-b sk-stack">'+b2bcreditHTML()+'</div></section>';
     bindB2BCredit();
-    $$("[data-finance-go]",r).forEach(b=>b.onclick=()=>window.SKosifCore?.go(b.dataset.financeGo));
     return;
   }
 }

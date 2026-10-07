@@ -3,8 +3,8 @@
 "use strict";
 const {esc,toast}=SK,CP=()=>window.SKosifCompanyPlatform;
 let active="products";
-const money=v=>v==null||v===""?"—":Number(v).toLocaleString("ar-SA",{maximumFractionDigits:2});
-const minorMoney=v=>(Number(v||0)/100).toLocaleString("ar-SA",{minimumFractionDigits:2,maximumFractionDigits:2});
+const money=v=>v==null||v===""?"—":Number(v).toLocaleString("ar-SA-u-ca-gregory-nu-latn",{maximumFractionDigits:2});
+const minorMoney=v=>(Number(v||0)/100).toLocaleString("ar-SA-u-ca-gregory-nu-latn",{minimumFractionDigits:2,maximumFractionDigits:2});
 const asOfDate=()=>{const c=SK.company&&SK.company.current?SK.company.current():null;return c&&c.period&&c.period.endDate?c.period.endDate:new Date().toISOString().slice(0,10)};
 function categoryButtons(){
   return Object.entries(CP().types()).map(([id,x])=>'<button type="button" class="btn sm" data-md-type="'+id+'" aria-pressed="'+(id===active)+'">'+(SK.icons[x.icon]||"")+esc(x.label)+'</button>').join("");
@@ -32,7 +32,7 @@ function rows(){
 }
 function profileCard(){
   const p=CP().profile(),c=SK.company.current();
-  return '<section class="card"><div class="card-h"><div><span class="eyebrow">COMPANY PROFILE</span><h2>تعريف الشركة — '+esc(c.name)+'</h2><p>مرجع موحد تستخدمه المحاسبة والتقارير والمراجعة والمعايير.</p></div><span class="sk-pill">'+esc(p.currency)+'</span></div><div class="card-b sk-stack">'+
+  return '<section class="card"><div class="card-h"><div><span class="eyebrow">ملف الشركة</span><h2>تعريف الشركة — '+esc(c.name)+'</h2><p>مرجع موحد تستخدمه المحاسبة والتقارير والمراجعة والمعايير.</p></div><span class="sk-pill">'+esc(p.currency)+'</span></div><div class="card-b sk-stack">'+
   '<div class="sk-grid2"><label class="sk-field"><span>النشاط</span><input data-md-profile="activity" value="'+esc(p.activity)+'" placeholder="مثال: تجارة مواد غذائية"></label>'+
   '<label class="sk-field"><span>الدولة</span><input data-md-profile="country" maxlength="3" value="'+esc(p.country)+'"></label>'+
   '<label class="sk-field"><span>العملة</span><input data-md-profile="currency" maxlength="3" value="'+esc(p.currency)+'"></label>'+
@@ -52,7 +52,7 @@ function paint(root){
   /* a company created under a sector receives its pack on first open (FOUNDATION §3.7) */
   try{window.SKosifCompanyPlatform&&SKosifCompanyPlatform.ensureSectorPack()}catch{}
   const c=SK.company&&SK.company.current?SK.company.current():null,t=CP().types()[active];
-  root.innerHTML=profileCard()+'<section class="card"><div class="card-h"><div><span class="eyebrow">MASTER DATA</span><h2>التعريفات — '+esc(c?.name||"الشركة")+'</h2><p>عرّف العناصر مرة واحدة، ثم استخدمها في القيود والتقارير والتكاليف والمراجعة. البيانات مرتبطة بالشركة المفتوحة فقط.</p></div><span class="sk-pill">'+esc(t.label)+'</span></div><div class="card-b sk-stack">'+
+  root.innerHTML=profileCard()+'<section class="card"><div class="card-h"><div><span class="eyebrow">البيانات الأساسية</span><h2>التعريفات — '+esc(c?.name||"الشركة")+'</h2><p>عرّف العناصر مرة واحدة، ثم استخدمها في القيود والتقارير والتكاليف والمراجعة. البيانات مرتبطة بالشركة المفتوحة فقط.</p></div><span class="sk-pill">'+esc(t.label)+'</span></div><div class="card-b sk-stack">'+
     '<div class="sk-actions" role="group" aria-label="أنواع التعريفات">'+categoryButtons()+'</div>'+
     '<div class="sk-actions"><button type="button" class="btn primary" data-md-add>إضافة '+esc(t.label)+'</button><button type="button" class="btn" data-md-ledger>فتح شجرة الحسابات والدفاتر</button></div>'+rows()+
     '<p class="hint">اقتراح AI لا يغيّر الربط تلقائيًا؛ يظهر كاقتراح للمستخدم. الحسابات والترحيل تظل حتمية وتحت اعتماد بشري.</p></div></section>';
