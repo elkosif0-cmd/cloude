@@ -1156,7 +1156,7 @@ html[data-theme="dark"] .k32 {
    (the sepia valley art stays with the heritage looks) */
 :root[data-look="kosif"] .k32{--k32-green:var(--sk-brand);--k32-green-light:var(--sk-brand-soft)}
 :root[data-look="kosif"] .k32-cat-chip.on{background:var(--sk-brand);border-color:var(--sk-brand);color:var(--sk-on-brand)}
-:root[data-look="kosif"]:not(#x) .k32-hero{background:radial-gradient(520px 260px at 10% 115%,rgba(34,184,230,.35),transparent 70%),var(--sk-grad-brand);border:0;color:#fff}
+:root[data-look="kosif"]:not(#x) .k32-hero{background:radial-gradient(520px 260px at 10% 115%,rgba(201,162,39,.35),transparent 70%),var(--sk-grad-brand);border:0;color:#fff}
 :root[data-look="kosif"]:not(#x) .k32-hero::before{display:none}
 :root[data-look="kosif"]:not(#x) .k32-hero h3{color:#fff;font-family:var(--sk-font)}
 :root[data-look="kosif"]:not(#x) .k32-hero p{color:rgba(255,255,255,.86)}
