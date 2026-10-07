@@ -53,6 +53,14 @@ register("devices",{
   blocks:".dv > .card",
   tag:(el,h)=>/شريط الجوال/.test(h)?"phone":/^اللابتوب|لوحة المفاتيح/.test(h)?"laptop":"device"
 });
+/* «ذكاء المبيعات» (5,896 px on a desktop — docs/rebuild/HARSH_REVIEW_20261008_ar.md #24): the period bar stays above the
+   tabs on all of them; the overview (KPIs, forecast, health, recommendations), the customers (RFM, the call list,
+   cohorts), the products and channels (ABC and momentum, channels and weekdays, baskets), and the sales lab */
+register("salesintel",{
+  tabs:[["overview","نظرة عامة"],["customers","العملاء"],["products","الأصناف والقنوات"],["lab","مختبر المبيعات"]],
+  blocks:".card, .si-kpis",
+  tag:(el,h)=>/مختبر المبيعات/.test(h)?"lab":/RFM|قائمة التواصل|أفواج العملاء/.test(h)?"customers":/الأصناف|القنوات|يُشترى معاً/.test(h)?"products":"overview"
+});
 /* «ذكاء العملاء والطلب»: segments and retention, the price-review priority, the reactivation list */
 register("intelligence",{
   tabs:[["segments","الشرائح والاحتفاظ"],["prices","مراجعة الأسعار"],["reactivate","إعادة التنشيط"]],
