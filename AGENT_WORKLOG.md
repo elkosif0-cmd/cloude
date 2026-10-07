@@ -773,3 +773,15 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - `tools/clutter_audit.mjs` ratchet (`tools/fixtures/clutter-baseline.json`, `--check` / `--write-baseline`).
 - Found on the way (the four late suites timed out on `page.goto … load`): `SQCCrystal.mount` linked its shaders synchronously, and on the owner's machine that link (Intel Iris Xe · ANGLE D3D11) took **38 s** on the main thread this afternoon — the page froze, `load` never came within 30 s. Fix in `ui/art/crystal-world.js`: the programs link in parallel (`KHR_parallel_shader_compile`), the world polls each frame and draws once they are ready, a device whose link blocks long is remembered (`sqc_world_slow`) and keeps its still background. Also `ui/features/command-center.js`: the dashboard film gets its source only after `load` (a media element with a source delays the load event). `company_entry_e2e` reports a world whose shaders are still linking instead of failing it.
 - Branch / PR: `claude/r1-one-head-20261007` from `main` @ 51306ad (PR #213).
+
+### TASK CLAUDE-20261007-011 — Deep review wave R2: the books' tabs in families
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- R1 (TASK -010) merged as PR #213 and published; GitHub «SQC Browser Suites» (new workflow, nothing in front of the suites) green on its last commit.
+- Scope:
+  - `ui/features/ledger.js`: the 13–14 tabs sit in four families — الإقفال (close, links) · الدفاتر (accounts, entries, gl, tb) · التشغيل (the sector's tabs, cash) · الضريبة والبنك (vat, recon); the family follows the tab (`open("vat")` lands in its family), each family remembers its last tab; `SKosifLedger.tabs()` / `families()` for tests and the page review.
+  - `ui/features/luxe-screens.css`: the family strip as pills above the tabs (tokens only).
+  - `ui/ds/luxe.css`: on phones the company/period chips are one slim row (40 px, no second line).
+  - Tests reach tabs through the API (`feature_audit`, the sector packs' negative checks, `page_review`).
+  - `.github/workflows/sqc-browser-suites.yml` also runs the sector packs, model companies, books integrity, relationship health and sales suites.
+- Branch / PR: `claude/r2-book-families-20261007` from the R1 head.

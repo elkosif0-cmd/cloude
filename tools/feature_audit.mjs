@@ -179,19 +179,19 @@ ok('الجولات 1–33','المدونة المحاسبية والمعايير
 await go('tbreview');await p.click('[data-a="setup"]').catch(()=>{});await p.waitForTimeout(500);ok('الجولات 1–33','الشركات المصرية ومعايير المحاسبة المصرية',await p.evaluate(()=>!!document.querySelector('[data-ctx="country"] option[value="EG"]')));
 // ---------- the books and the working mechanism (rounds 38–41) ----------
 await go('ledger');
-const B=await p.evaluate(()=>{const tabs=[...document.querySelectorAll('[data-sk-tabs="ledger"] [data-tab]')].map(x=>x.dataset.tab);return{tabs,
+const B=await p.evaluate(()=>{const tabs=SKosifLedger.tabs();return{tabs,
   eng:['reverseJournalEntry','isPeriodLocked'].every(k=>typeof SKEngines.finance.ledger[k]==='function')&&typeof SKEngines.sales.sales.splitVatInclusive==='function'&&typeof SKEngines.stock.inventory.weightedAverageCostsAsOf==='function',
   party:typeof SKEngines.finance.partyLedger.partyBalances==='function',vat:typeof SKEngines.finance.vatReturn.vatReturn==='function',bank:typeof SKEngines.finance.bankReconciliation.matchBankLines==='function',
   tpl:SK.templates.list().some(t=>t.id==='bank'),close:!!window.SKosifClose,alerts:!!(window.SKosifClose&&Array.isArray(SKosifClose.alerts()))}});
 ok('الدفاتر وآلية العمل','الإقفال الشهري بخطوات حية (مع سجل التعديلات ومطابقة الإيرادات)',B.tabs.includes('close')&&await p.evaluate(()=>document.querySelectorAll('.skclose-steps li').length>=8&&SKosifClose.steps().some(s=>s.id==='trail')));
 ok('الدفاتر وآلية العمل','تكلفة المبيعات والضريبة الشاملة والعكس بدل الحذف وإقفال الفترة',B.eng&&await p.evaluate(()=>!document.querySelector('[data-l="del-entry"]')));
-await p.click('[data-sk-tabs="ledger"] [data-tab="entries"]');await p.waitForTimeout(400);
+await p.evaluate(()=>SKosifLedger.open('entries'));await p.waitForTimeout(400);
 ok('الدفاتر وآلية العمل','عكس القيد وإقفال الدفاتر في شاشة القيود',await has('[data-l="rev-entry"]')&&await has('#lg-lock'));
-await p.click('[data-sk-tabs="ledger"] [data-tab="cash"]');await p.waitForTimeout(400);
+await p.evaluate(()=>SKosifLedger.open('cash'));await p.waitForTimeout(400);
 ok('الدفاتر وآلية العمل','التحصيل والسداد: أعمار الذمم وكشوف الحساب من الدفاتر',B.party&&await has('[data-l="settle"]')&&await has('[data-l="stmt"]'));
-await p.click('[data-sk-tabs="ledger"] [data-tab="vat"]');await p.waitForTimeout(400);
+await p.evaluate(()=>SKosifLedger.open('vat'));await p.waitForTimeout(400);
 ok('الدفاتر وآلية العمل','إقرار الضريبة ربعاً بربع مع قيد الإقفال',B.vat&&await has('[data-l="vatq"]'));
-await p.click('[data-sk-tabs="ledger"] [data-tab="recon"]');await p.waitForTimeout(500);
+await p.evaluate(()=>SKosifLedger.open('recon'));await p.waitForTimeout(500);
 ok('الدفاتر وآلية العمل','مطابقة البنك بقالب كشف واستيراد',B.bank&&B.tpl&&await has('[data-l="bank-import"]'));
 ok('الدفاتر وآلية العمل','الجرد وتسوية المخزون',await has('#lg-cntd'));
 await go('dash',1800);

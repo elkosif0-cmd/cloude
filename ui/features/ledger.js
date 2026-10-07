@@ -16,6 +16,16 @@ const packAccounts=()=>{try{const P=window.SKosifCompanyPlatform&&SKosifCompanyP
 const packLabel=()=>{try{const s=SK.company.current().sector,c=SK.caps&&SK.caps.sector&&SK.caps.sector(s);return c?c.label:""}catch{return ""}};
 const ISSUE={JOURNAL_UNBALANCED:"القيد غير متزن: المدين لا يساوي الدائن",LINE_BOTH_SIDES:"سطر فيه مدين ودائن معاً",LINE_NEGATIVE_AMOUNT:"مبلغ سالب",LINE_ZERO_AMOUNT:"سطر بلا مبلغ"};
 let tab="",draft=null,glAcc="",vatQ="";
+/* R2 (docs/rebuild/DEEP_REVIEW_20261007_ar.md): the tabs sit in four families so that no strip carries more than six;
+   the family follows the tab (open("vat") lands in «الضريبة والبنك»), and each family remembers its last tab */
+const lastTab={};
+const SECTOR_TABS=()=>[...(isHealth()?[["claims","المطالبات والجهات"]]:[]),...(isConstruction()?[["projects","المشروعات والمستخلصات"]]:[]),...(isHotel()?[["hotel","الغرف والإقفال الليلي"]]:[]),...(isDigital()?[["digital","العملاء والحملات"]]:[]),...(isSchool()?[["tuition","الرسوم الدراسية"]]:[]),...(isFactory()?[["factory","أوامر التشغيل"]]:[]),...(isBakery()?[["bakery","دفعات الإنتاج"]]:[]),...(isFarm()?[["farm","الدورات والقطعان"]]:[]),...(isTrade()?[["trade","الفروع والهوامش"]]:[])];
+const families=d=>[["close","الإقفال",[["close","الإقفال الشهري"],["links","صحة الروابط"]]],
+  ["books","الدفاتر",[["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["gl","الأستاذ العام"],["tb","ميزان المراجعة"]]],
+  ["ops","التشغيل",[...SECTOR_TABS(),["cash","التحصيل والسداد"]]],
+  ["tax","الضريبة والبنك",[["vat","إقرار الضريبة"],["recon","المطابقة"]]]];
+const familyOf=(fs,t)=>(fs.find(([,,tabs])=>tabs.some(([id])=>id===t))||fs[0]);
+const allTabs=d=>families(d).flatMap(([,,tabs])=>tabs.map(([id])=>id));
 const db=()=>{const d=load(KEY,{})||{};return{...d,accounts:Array.isArray(d.accounts)?d.accounts:[],entries:Array.isArray(d.entries)?d.entries:[],lockDate:typeof d.lockDate==="string"?d.lockDate:""}};
 const locked=(d,date)=>E().ledger.isPeriodLocked(date,d.lockDate);
 /* operations already in the books: a reversed entry frees its operation to be posted again */
@@ -1088,13 +1098,15 @@ function paint(root){
   /* a company created under a sector receives its pack on first open (FOUNDATION §3.7) */
   try{window.SKosifCompanyPlatform&&SKosifCompanyPlatform.ensureSectorPack()}catch{}
   const d=db(),p=period();if(!tab)tab=d.accounts.length?"close":"accounts";
-  root.innerHTML=SK.ui.tabs([["close","الإقفال الشهري"],["accounts","دليل الحسابات",d.accounts.length],["entries","القيود",d.entries.length],["cash","التحصيل والسداد"],...(isHealth()?[["claims","المطالبات والجهات"]]:[]),...(isConstruction()?[["projects","المشروعات والمستخلصات"]]:[]),...(isHotel()?[["hotel","الغرف والإقفال الليلي"]]:[]),...(isDigital()?[["digital","العملاء والحملات"]]:[]),...(isSchool()?[["tuition","الرسوم الدراسية"]]:[]),...(isFactory()?[["factory","أوامر التشغيل"]]:[]),...(isBakery()?[["bakery","دفعات الإنتاج"]]:[]),...(isFarm()?[["farm","الدورات والقطعان"]]:[]),...(isTrade()?[["trade","الفروع والهوامش"]]:[]),["links","صحة الروابط"],["gl","الأستاذ العام"],["tb","ميزان المراجعة"],["vat","إقرار الضريبة"],["recon","المطابقة"]],tab,"ledger")+
+  const fs=families(d);if(!allTabs(d).includes(tab))tab=fs[0][2][0][0];const fam=familyOf(fs,tab);lastTab[fam[0]]=tab;
+  root.innerHTML=SK.ui.tabs(fs.map(([id,label])=>[id,label]),fam[0],"ledger-family")+SK.ui.tabs(fam[2],tab,"ledger")+
     (p?'<p class="hint">الفترة المالية النشطة: <b>'+esc(p.label)+'</b> ('+esc(p.startDate)+' → '+esc(p.endDate)+') — من «الشركات والفترات».</p>':'')+
     ({close:closeHTML,accounts:accountsHTML,entries:entriesHTML,cash:cashHTML,claims:claimsHTML,projects:projectsHTML,hotel:hotelHTML,digital:digitalHTML,tuition:tuitionHTML,factory:factoryHTML,bakery:bakeryHTML,farm:farmHTML,trade:tradeHTML,links:linksHTML,gl:glHTML,tb:tbHTML,vat:vatHTML,recon:reconHTML}[tab]||accountsHTML)(d);
 }
 function bind(root){
   root.addEventListener("click",async e=>{
     const t=e.target.closest("[data-tab]");if(t&&t.closest('[data-sk-tabs="ledger"]')){tab=t.dataset.tab;paint(root);return}
+    if(t&&t.closest('[data-sk-tabs="ledger-family"]')){const f=families(db()).find(([id])=>id===t.dataset.tab);if(f){tab=f[2].some(([id])=>id===lastTab[f[0]])?lastTab[f[0]]:f[2][0][0];paint(root)}return}
     const b=e.target.closest("[data-l]");if(!b)return;const a=b.dataset.l,d=db();
     if(a==="basic"||a==="pack-accounts"){packAccounts().forEach(([code,name,type])=>{if(!d.accounts.some(x=>x.code===code))d.accounts.push(E().accounts.createAccount({code,name,type}))});put(d);toast("أُنشئ دليل الحسابات الأساسي — عدّله حسب نشاطك","ok")}
     else if(a==="add-acc"){if(!SK.ui.validate(root))return;const acc=E().accounts.createAccount({code:$("#lg-code",root).value,name:$("#lg-name",root).value,type:$("#lg-type",root).value,parentId:$("#lg-parent",root).value});
@@ -1317,7 +1329,7 @@ function ensureAccounts(list){const d=db(),has=c=>d.accounts.find(x=>String(x.co
   if(plan.accounts.length){d.accounts.push(...plan.accounts);put(d)}
   return Object.fromEntries(list.map(([code])=>[code,has(code).id]))}
 window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().accounts,lockDate:()=>db().lockDate,ensureAccounts,postEntry,saleEntry:(d,x)=>saleEntry(d,x,costResolver()),
-  open:(t,o={})=>{tab=t||"accounts";if(o.q)vatQ=o.q;window.SKosifCore.go("ledger")},
+  open:(t,o={})=>{tab=t||"accounts";if(o.q)vatQ=o.q;window.SKosifCore.go("ledger")},tabs:()=>allTabs(db()),families:()=>families(db()).map(([id,label,tabs])=>({id,label,tabs:tabs.map(([t])=>t)})),
   /* read-only views of the books for the month-end close, the morning brief and the alerts */
   snapshot:()=>db(),proof:end=>proofOf(db(),end),pending:until=>pendingOps(db(),until),parties:(kind,asOf)=>partiesOf(db(),kind,asOf||today()),
   vat:qid=>vatCalc(db(),qid),quarters:y=>quarters(y),balance:(code,asOf)=>balanceOf(db(),code,asOf||today()),

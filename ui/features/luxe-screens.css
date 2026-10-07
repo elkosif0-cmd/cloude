@@ -93,3 +93,8 @@
 .skslab-tree summary{cursor:pointer;padding:4px 0}.skslab-tree summary small{color:var(--sk-ink-3)}
 .fu-plan{margin:0;padding-inline-start:20px;display:grid;gap:6px;font-weight:600}
 
+
+/* the books: the family strip (R2) is a row of pills above the tabs of the open family */
+[data-sk-tabs="ledger-family"]{gap:var(--sk-2);margin-bottom:var(--sk-2);padding:0;background:transparent}
+[data-sk-tabs="ledger-family"] .sk-hub-btn{flex:0 0 auto;min-height:36px;padding:0 var(--sk-4);border:1px solid var(--sk-line);border-radius:var(--sk-r-pill);background:var(--sk-surface);box-shadow:none}
+[data-sk-tabs="ledger-family"] .sk-hub-btn.active{border-color:var(--sk-brand);background:var(--sk-brand);color:var(--sk-on-brand)}
