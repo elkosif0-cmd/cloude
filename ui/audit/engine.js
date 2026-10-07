@@ -608,6 +608,9 @@ export function detectRisks(inputRows = [], materialityMinor = 0n) {
 }
 
 const JOURNAL_FLAG_DEFINITIONS = Object.freeze({
+  UNBALANCED: { label: 'القيد غير متزن', score: 100, standard: 'ISA 240 / ISA 315' },
+  JUST_BELOW_MATERIALITY: { label: 'أقل مباشرة من الأهمية النسبية', score: 75, standard: 'ISA 320 / ISA 240' },
+  LARGE_AMOUNT: { label: 'قيد مرتفع القيمة', score: 60, standard: 'ISA 240' },
   MANUAL_ENTRY: { label: 'قيد يدوي', score: 25, standard: 'ISA 240' },
   WEEKEND_POSTING: { label: 'ترحيل في عطلة نهاية الأسبوع', score: 18, standard: 'ISA 240' },
   PERIOD_END: { label: 'قيد قرب إقفال الفترة', score: 20, standard: 'ISA 240' },
@@ -635,13 +638,36 @@ function journalValue(item, key) {
   return undefined;
 }
 
+function journalSideMinor(item, side) {
+  const directMinor = item?.[side + 'Minor'];
+  if (directMinor !== undefined && directMinor !== null && directMinor !== '') {
+    try { return absoluteMinor(BigInt(directMinor)); } catch { return 0n; }
+  }
+  if (Array.isArray(item?.lines)) {
+    return item.lines.reduce((sum, line) => sum + absoluteMinor(parseMoneyMinor(line?.[side] ?? 0)), 0n);
+  }
+  return absoluteMinor(parseMoneyMinor(journalValue(item, side) ?? 0));
+}
+
 function journalAmountMinor(item) {
-  if (item?.amountMinor !== undefined) return BigInt(item.amountMinor || 0);
+  if (item?.amountMinor !== undefined) return absoluteMinor(BigInt(item.amountMinor || 0));
   const directAmount = journalValue(item, 'amount');
-  if (directAmount !== undefined && directAmount !== '') return parseMoneyMinor(directAmount);
-  const debit = absoluteMinor(parseMoneyMinor(journalValue(item, 'debit') ?? 0));
-  const credit = absoluteMinor(parseMoneyMinor(journalValue(item, 'credit') ?? 0));
+  if (directAmount !== undefined && directAmount !== '') return absoluteMinor(parseMoneyMinor(directAmount));
+  if (Array.isArray(item?.lines)) {
+    return item.lines.reduce((max, line) => {
+      const debit = absoluteMinor(parseMoneyMinor(line?.debit ?? 0));
+      const credit = absoluteMinor(parseMoneyMinor(line?.credit ?? 0));
+      return debit > max ? debit : credit > max ? credit : max;
+    }, 0n);
+  }
+  const debit = journalSideMinor(item, 'debit');
+  const credit = journalSideMinor(item, 'credit');
   return debit >= credit ? debit : credit;
+}
+
+function journalOptionMinor(value) {
+  if (value === null || value === undefined || value === '') return 0n;
+  try { return absoluteMinor(typeof value === 'bigint' ? value : BigInt(value)); } catch { return 0n; }
 }
 
 function parseIsoDate(value) {
@@ -660,13 +686,33 @@ function journalSeverity(score) {
 export function analyzeJournalEntries(inputEntries = [], {
   periodEnd = null,
   periodEndWindowDays = 5,
-  rareUserMaxEntries = 1
+  rareUserMaxEntries = 1,
+  materialityMinor = 0n,
+  largeAmountMinor = null
 } = {}) {
   const entries = Array.isArray(inputEntries) ? inputEntries : [];
+  const materiality = journalOptionMinor(materialityMinor);
+  const largeAmount = largeAmountMinor === null || largeAmountMinor === undefined || largeAmountMinor === ''
+    ? materiality
+    : journalOptionMinor(largeAmountMinor);
   const userCounts = new Map();
   for (const item of entries) {
     const user = normalizeText(journalValue(item, 'user') ?? 'غير محدد');
     userCounts.set(user, (userCounts.get(user) ?? 0) + 1);
+  }
+
+  const balanceById = new Map();
+  for (let index = 0; index < entries.length; index += 1) {
+    const item = entries[index];
+    const id = String(journalValue(item, 'id') ?? item?.id ?? `JE-${String(index + 1).padStart(5, '0')}`);
+    const hasDebitCredit = Array.isArray(item?.lines)
+      || item?.debitMinor !== undefined || item?.creditMinor !== undefined
+      || journalValue(item, 'debit') !== undefined || journalValue(item, 'credit') !== undefined;
+    if (!hasDebitCredit) continue;
+    const current = balanceById.get(id) ?? { debit: 0n, credit: 0n, firstIndex: index };
+    current.debit += journalSideMinor(item, 'debit');
+    current.credit += journalSideMinor(item, 'credit');
+    balanceById.set(id, current);
   }
 
   const closingDate = parseIsoDate(periodEnd);
@@ -681,15 +727,21 @@ export function analyzeJournalEntries(inputEntries = [], {
     const normalizedUser = normalizeText(user);
     const description = String(journalValue(item, 'description') ?? '').trim();
     const amountMinor = journalAmountMinor(item);
+    const debitMinor = journalSideMinor(item, 'debit');
+    const creditMinor = journalSideMinor(item, 'credit');
     const flagRules = [];
+    const groupedBalance = balanceById.get(id);
 
+    if (groupedBalance && groupedBalance.firstIndex === index && groupedBalance.debit !== groupedBalance.credit) flagRules.push('UNBALANCED');
+    const absoluteAmount = absoluteMinor(amountMinor);
+    if (materiality > 0n && absoluteAmount < materiality && absoluteAmount * 10n >= materiality * 9n) flagRules.push('JUST_BELOW_MATERIALITY');
+    if (largeAmount > 0n && absoluteAmount >= largeAmount) flagRules.push('LARGE_AMOUNT');
     if (/manual|يدوي/.test(source) || item.automatic === false) flagRules.push('MANUAL_ENTRY');
     if (date && [5, 6].includes(date.getUTCDay())) flagRules.push('WEEKEND_POSTING');
     if (date && closingDate) {
       const days = Math.round((closingDate.getTime() - date.getTime()) / 86400000);
       if (days >= 0 && days <= Math.max(0, Number(periodEndWindowDays) || 0)) flagRules.push('PERIOD_END');
     }
-    const absoluteAmount = absoluteMinor(amountMinor);
     if (absoluteAmount >= 1000000n && absoluteAmount % 100000n === 0n) flagRules.push('ROUND_AMOUNT');
     const normalizedDescription = normalizeText(description);
     if (sensitiveTerms.some((term) => normalizedDescription.includes(normalizeText(term)))) flagRules.push('SENSITIVE_TEXT');
@@ -704,6 +756,8 @@ export function analyzeJournalEntries(inputEntries = [], {
       source: String(rawSource),
       description,
       amountMinor,
+      debitMinor,
+      creditMinor,
       score,
       severity: journalSeverity(score),
       flags,
@@ -725,7 +779,9 @@ export function analyzeJournalEntries(inputEntries = [], {
     parameters: {
       periodEnd: closingDate ? String(periodEnd).slice(0, 10) : null,
       periodEndWindowDays: Math.max(0, Number(periodEndWindowDays) || 0),
-      rareUserMaxEntries: Math.max(0, Number(rareUserMaxEntries) || 0)
+      rareUserMaxEntries: Math.max(0, Number(rareUserMaxEntries) || 0),
+      materialityMinor: materiality.toString(),
+      largeAmountMinor: largeAmountMinor === null || largeAmountMinor === undefined || largeAmountMinor === '' ? null : largeAmount.toString()
     },
     humanReviewRequired: flagged.length > reviewed
   };
