@@ -609,3 +609,18 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - 11 door-based e2e suites now wait for `/app-safe` as well as `/app-safe.html`. Pages serves the page without the extension, so the same suites run against production.
 - Left for the owner and the other agent: `think-mcp/cloudflare-council-01713` and `regression-01713` fail on `main`. They pin the KOSIF Think worker's route versions (`/mcp/v0.18.4`), which that agent is changing, and they concern a deployed worker contract.
 - Branch / PR: `claude/live-verification-20261007` from `main` @ dafd407.
+
+### TASK CLAUDE-20261007-004 — Page-by-page review of the live app in a real browser
+- Agent: Claude (Lead Development Agent)
+- Status: DONE on merge — the owner asked in chat: «راجع التطبيق بفتحه في متصفح راجعه صفحة صفحة».
+- `tools/page_review.mjs` (new; run by hand, not in CI because it takes about 15 minutes) opens screens on a desktop (1400×900) and a phone (390×844):
+  - every visible screen of the registry, in the demo company;
+  - every books tab of the six sector model companies;
+  - per screen it records page errors, console errors, broken values shown to the user (undefined, NaN, null, [object Object], Infinity), horizontal overflow, an empty view, the time taken, and a screenshot.
+- Result on https://s-kosif.pages.dev: **188 screens reviewed (79 distinct)**:
+  - no page errors;
+  - no broken values;
+  - nothing overflowing on the phone;
+  - no empty view.
+  - The 10 "Failed to load resource" console lines came from the test's own font blocking (`SQC_BLOCK_FONTS`). Re-run without it, the same screens fail no request.
+- Branch / PR: `claude/page-review-20261007` from `main` @ fb74267.
