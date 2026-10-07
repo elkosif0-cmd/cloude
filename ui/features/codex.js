@@ -198,14 +198,18 @@ function paint(){
   const all=list(),hits=X().searchCodex(q,all).filter(s=>fam==="all"||s.family===fam);
   const counts=Object.keys(FAM).map(k=>[k,all.filter(s=>s.family===k).length]);
   const up=all.filter(s=>s.status==="upcoming");
-  root.innerHTML='<div class="skk4 cdx-k6">'+
+  /* R8 (DEEP_REVIEW_20261007): three tabs — the library first (it was under two large cards), the applied guidance, the
+     official updates; all three render, the other tabs are hidden (the guidance keeps its state when you come back) */
+  root.innerHTML=SK.ui.tabs([["lib","المدونة"],["guide","المساعد التطبيقي"],["updates","التحديثات"+(pendCount()?" ("+pendCount()+")":"")]],pageTab,"codex")+'<div class="cdx-page" data-cdx-page="lib"'+(pageTab==="lib"?'':' hidden')+'><div class="skk4 cdx-k6">'+
       ['IFRS','IAS','ISA','SAUDI','EAS','EGYPT'].map((k,i)=>'<button type="button" class="skk4-t" data-fam="'+k+'"><span class="chip">'+SK.icon(["reports","ledger","check","governance","codex","zatca"][i])+'</span><span class="tx"><span>'+FAM[k]+'</span><b>'+counts.find(c=>c[0]===k)[1]+'</b><small>'+({ISA:"IAASB",SAUDI:"SOCPA · ZATCA · التجارة",EAS:"الهيئة العامة للرقابة المالية",EGYPT:"مصلحة الضرائب · قانون الشركات"}[k]||"IFRS Foundation")+'</small></span></button>').join("")+'</div>'+
     (up.length?'<section class="card cdx-up"><div class="card-b"><b>سريان قادم:</b> '+up.map(s=>'<button type="button" class="std-b '+famCls(s.family)+'" data-std="'+esc(s.code)+'">'+esc(s.code)+'</button> '+esc(s.effective)).join(" · ")+'</div></section>':'')+
-    guidanceCard()+updatesCard()+
     '<section class="card"><div class="card-h"><div><h3>المدونة المحاسبية</h3><p>'+hits.length+' من '+all.length+' معياراً ومتطلباً — اضغط أي بطاقة لتفاصيلها ومصدرها الرسمي.</p></div></div><div class="card-b">'+
       '<div class="cdx-bar"><input type="search" data-cx-q placeholder="ابحث برقم المعيار أو موضوعه: IFRS 16، المخزون، الزكاة…" value="'+esc(q)+'"><div class="sk-seg">'+[["all","الكل"],...Object.entries(FAM)].map(([k,l])=>'<button type="button" data-fam="'+k+'" aria-pressed="'+(fam===k)+'">'+esc(l)+'</button>').join("")+'</div></div>'+
-      '<div class="cdx-grid">'+(hits.map(cardOf).join("")||'<p class="empty">لا نتائج.</p>')+'</div></div></section>';
+      '<div class="cdx-grid">'+(hits.map(cardOf).join("")||'<p class="empty">لا نتائج.</p>')+'</div></div></section></div>'+
+    '<div class="cdx-page" data-cdx-page="guide"'+(pageTab==="guide"?'':' hidden')+'>'+guidanceCard()+'</div>'+
+    '<div class="cdx-page" data-cdx-page="updates"'+(pageTab==="updates"?'':' hidden')+'>'+updatesCard()+'</div>';
 }
+function pendCount(){try{return upd().items.filter(i=>i.status==="pending").length}catch{return 0}}
 async function check(){
   if(busy)return;busy=true;paint();
   try{
@@ -218,8 +222,10 @@ async function check(){
   }catch(e){toast(e.message,"bad")}
   finally{busy=false;paint()}
 }
+let pageTab="lib";
 function bind(node){
   node.addEventListener("click",e=>{
+    const pt=e.target.closest('[data-sk-tabs="codex"] [data-tab]');if(pt){pageTab=pt.dataset.tab;paint();return}
     const gt=e.target.closest("[data-ag-tab]");if(gt){guideTab=gt.dataset.agTab;guideResult=null;paint();return}
     const gm=e.target.closest("[data-ag-mode]");if(gm){guideMode=gm.dataset.agMode;guideResult=null;paint();return}
     if(e.target.closest("[data-ag-run]")){runGuide();return}
@@ -232,6 +238,6 @@ function bind(node){
   });
   node.addEventListener("input",e=>{if(e.target.matches("[data-cx-q]")){q=e.target.value;const pos=e.target.selectionStart;paint();const i=root.querySelector("[data-cx-q]");i.focus();try{i.setSelectionRange(pos,pos)}catch{}}});
 }
-window.SKosifCodex=Object.freeze({open,close,get,list});
+window.SKosifCodex=Object.freeze({open,close,get,list,tab:t=>{if(["lib","guide","updates"].includes(t)){pageTab=t;paint()}}});
 SK.view("codex",{render(node){root=node;if(!node.dataset.bound){bind(node);node.dataset.bound="1"}paint()}});
 })();

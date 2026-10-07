@@ -11,6 +11,7 @@ const {esc}=SK;
 const E=()=>window.SKEngines||{},RP=()=>E().audit.corpusReplay,OR=()=>E().audit.openingRequests,GB=()=>E().audit.globalBenchmarks;
 const nf=new Intl.NumberFormat("en",{maximumFractionDigits:1}),pc=v=>v==null?"—":Math.round(v*100)+"%";
 let root=null,prior=true,q="",sector="",memo={};
+const opened=new Set(); /* the companies the user opened (kept across repaints) */
 const run=p=>memo[p]||(memo[p]=RP().replayAll({prior:p}));
 const FOUND={selected:["وجده SQC","ok"],ranked:["ضمن المرشحين","warn"],missed:["لم يجده","bad"]};
 
@@ -41,11 +42,14 @@ function table(r){
   const rows=r.list.filter(x=>(!sector||x.sector===sector)&&(!q||(x.company+" "+x.auditor).toLowerCase().includes(q.toLowerCase())));
   return '<section class="card"><div class="card-h"><div><h3>الشركات واحدة واحدة</h3><p>أمور المراجع كما وردت في تقريره (بصفحتها) ولون كل منها بما وصل إليه SQC، ثم ما اختاره SQC. «افتح كملف مراجعة» يحمّل الشركة في ملف المراجعة لتكمل الجولات والتقارير عليها.</p></div></div><div class="card-b">'+
     '<div class="cdx-bar"><input type="search" data-cl-q placeholder="ابحث باسم الشركة أو المراجع…" value="'+esc(q)+'"><select data-cl-sector aria-label="القطاع"><option value="">كل القطاعات</option>'+secs.map(s=>'<option value="'+s+'"'+(sector===s?" selected":"")+'>'+esc(G.SECTOR_AR[s])+'</option>').join("")+'</select></div>'+
-    '<div class="cl-list">'+rows.map(x=>'<article class="cl-co"><div class="cl-co-h"><div><b dir="auto">'+esc(x.company)+'</b><small>'+esc(G.SECTOR_AR[x.sector])+' · '+esc(x.fy)+' · '+esc(x.auditor||"المراجع غير مذكور")+'</small></div>'+
-      '<button type="button" class="btn sm" data-cl-open="'+esc(x.id)+'">'+SK.icon("tbreview")+' افتح كملف مراجعة</button></div>'+
+    /* R8 (DEEP_REVIEW_20261007): one line per company — name, sector, year, auditor and what SQC found of the auditor's
+       matters; the matters, SQC's choices and «افتح كملف مراجعة» open under it (the list was 16,000 px fully open) */
+    '<div class="cl-list">'+rows.map(x=>{const hit=x.actual.filter(a=>a.found!=="missed").length;return '<details class="cl-co" data-cl-id="'+esc(x.id)+'"'+(opened.has(x.id)?' open':'')+'><summary class="cl-co-h"><div><b dir="auto">'+esc(x.company)+'</b><small>'+esc(G.SECTOR_AR[x.sector])+' · '+esc(x.fy)+' · '+esc(x.auditor||"المراجع غير مذكور")+'</small></div>'+
+      '<span class="sksev cl-hit '+(!x.actual.length?"info":hit===x.actual.length?"ok":hit?"warn":"bad")+'">'+(x.actual.length?"وجد "+hit+" من "+x.actual.length:"لا أمور رئيسية")+'</span></summary>'+
+      '<div class="cl-co-b"><button type="button" class="btn sm" data-cl-open="'+esc(x.id)+'">'+SK.icon("tbreview")+' افتح كملف مراجعة</button>'+
       '<div class="cl-cols"><div><h4>ما ذكره المراجع</h4>'+(x.actual.length?x.actual.map(a=>'<div class="cl-m"><span class="sksev '+FOUND[a.found][1]+'">'+FOUND[a.found][0]+'</span><span>'+esc(a.ar)+'</span><small dir="ltr" title="'+esc(a.titles.join(" · "))+'">'+esc(a.titles[0])+'</small><span class="ab-pg">ص '+a.pages[0]+'</span></div>').join(""):'<p class="hint">لا أمور رئيسية في مقتطف الحزمة.</p>')+'</div>'+
       '<div><h4>ما اختاره SQC</h4>'+x.ours.filter(o=>o.selected).map(o=>'<div class="cl-m"><span class="sksev '+(o.matched?"ok":"info")+'">'+(o.matched?"ذكره المراجع":"إضافي")+'</span><span>'+esc(o.title)+'</span></div>').join("")+
-      '<small class="hint">الأهمية النسبية: '+nf.format(x.materiality.ours)+' '+esc(x.unit)+' ('+esc(x.materiality.benchmark)+')'+(x.materiality.disclosed?' · المراجع: '+nf.format(x.materiality.disclosed):'')+' · '+x.requests+' طلب مستندات'+(x.structure.theirs?' · شكل التقرير: '+x.structure.covered+'/'+x.structure.theirs+' قسماً':'')+'</small></div></div></article>').join("")+'</div></div></section>';
+      '<small class="hint">الأهمية النسبية: '+nf.format(x.materiality.ours)+' '+esc(x.unit)+' ('+esc(x.materiality.benchmark)+')'+(x.materiality.disclosed?' · المراجع: '+nf.format(x.materiality.disclosed):'')+' · '+x.requests+' طلب مستندات'+(x.structure.theirs?' · شكل التقرير: '+x.structure.covered+'/'+x.structure.theirs+' قسماً':'')+'</small></div></div></div></details>'}).join("")+'</div></div></section>';
 }
 function procCard(){
   const L=OR().procedureLeague().slice(0,10);
@@ -62,6 +66,7 @@ function paint(){
 }
 function render(el){
   root=el;paint();
+  if(el.dataset.clToggle!=="1"){el.dataset.clToggle="1";el.addEventListener("toggle",e=>{const d=e.target;if(!d.matches||!d.matches("details.cl-co"))return;d.open?opened.add(d.dataset.clId):opened.delete(d.dataset.clId)},true)}
   if(el.dataset.clBound==="1")return;
   el.dataset.clBound="1";
   el.addEventListener("click",async e=>{
