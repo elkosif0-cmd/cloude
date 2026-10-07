@@ -79,6 +79,13 @@
   .sk-ph-en{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .main{padding-top:12px}
 }
+/* R13 (docs/rebuild/HARSH_REVIEW_20261008_ar.md #16): on phones the screen's buttons share the title's line — they took a
+   line of their own above every screen, and the head ran ~400 of 812 px before any content */
+@media (max-width:600px){
+  .sk-ph .ttl{order:1;flex:1 1 0;min-width:0}
+  .sk-ph .hdr{order:2;flex:0 1 auto;max-width:56%;flex-wrap:nowrap;overflow-x:auto}
+  .sk-ph h2{font-size:19px}
+}
 
 /* ================= menus (company, period, user, bell) ================= */
 .sk-menu{position:fixed;z-index:430;min-width:250px;max-width:min(380px,calc(100vw - 16px));max-height:min(72dvh,560px);overflow:auto;padding:6px;

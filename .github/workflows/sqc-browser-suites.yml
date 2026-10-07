@@ -53,6 +53,8 @@ jobs:
           for t in meat_pack_e2e.mjs:app-safe.html books_integrity_e2e.mjs:app-safe.html health_pack_e2e.mjs: hotel_pack_e2e.mjs: construction_pack_e2e.mjs: digital_pack_e2e.mjs: education_pack_e2e.mjs: production_packs_e2e.mjs: agriculture_pack_e2e.mjs: trade_pack_e2e.mjs: model_companies_e2e.mjs: relationship_health_e2e.mjs: sales_reports_e2e.mjs:app-safe.html; do
             f=${t%%:*}; path=${t#*:}; echo "== $f"; NODE_PATH=/tmp/pw/node_modules timeout 600 node "tools/$f" "http://localhost:8765/$path"
           done
+      - name: Phone layout (no sideways overflow, no cut labels or buttons)
+        run: NODE_PATH=/tmp/pw/node_modules timeout 1500 node tools/phone_layout.mjs http://localhost:8765/app-safe.html
       - name: Clutter ratchet (content must not start lower than the baseline)
         run: NODE_PATH=/tmp/pw/node_modules node tools/clutter_audit.mjs http://localhost:8765/ artifacts/clutter --check
       - name: Keep the clutter measurements
