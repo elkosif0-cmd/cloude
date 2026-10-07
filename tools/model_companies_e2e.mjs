@@ -38,6 +38,11 @@ try {
     await p.evaluate(() => SKosifLedger.open('close')); await p.waitForTimeout(1500);
     const proof = await p.evaluate(() => { const c = document.querySelector('[data-proof]'); return c ? { ok: c.dataset.proofOk, steps: [...c.querySelectorAll('tr[data-step]')].map((r) => r.dataset.step + ':' + r.dataset.status + (r.dataset.status === 'ok' ? '' : ' ' + r.cells[2].textContent)) } : null; });
     ok(id + ': the close tab proves the cycle — all six steps green', proof && proof.ok === '1' && proof.steps.length === 6 && proof.steps.every((x) => /:ok$/.test(x)), JSON.stringify(proof));
+    /* P2 traceability: a statement line → its accounts → the account's entries in the general ledger */
+    const traced = await p.evaluate(async () => { const box = document.querySelector('[data-proof-trace]'); const b = box && box.querySelector('[data-l="trace-acc"]'); if (!b) return null;
+      box.open = true; const id = b.dataset.id, line = b.closest('tr').dataset.traceLine; b.click(); await new Promise((r) => setTimeout(r, 1500));
+      const row = document.querySelector('[data-l="gl-acc"][data-id="' + id + '"]'); return { line, gl: !!row, selected: !!row && /brand-soft/.test(row.closest('tr').getAttribute('style') || ''), moves: /حركة:/.test(document.body.innerText) }; });
+    ok(id + ': a statement line traces to its account and opens its entries in the general ledger', traced && traced.gl && traced.selected && traced.moves, JSON.stringify(traced));
     await p.evaluate(() => SKosifLedger.open('tb')); await p.waitForTimeout(1200);
     ok(id + ': the trial balance screen renders', await p.evaluate(() => !!document.querySelector('.sk-table') ), '');
     if (id === 'model-health') {

@@ -1212,6 +1212,7 @@ function bind(root){
     else if(a==="post-sales")postSales(d);
     else if(a==="post-receipts")postReceipts(d);
     else if(a==="gl-acc"){glAcc=b.dataset.id}
+    else if(a==="trace-acc"){glAcc=b.dataset.id;tab="gl"}
     else if(a==="management-report"){if(window.SKosifManagementReport)await window.SKosifManagementReport.open({opener:b});return}
     else if(a==="tb-csv"){const tb=periodTB(d,period());SK.csv.download("trial-balance",["رمز الحساب","اسم الحساب","مدين","دائن","الرصيد"],tb.rows.map(r=>{const acc=d.accounts.find(x=>x.id===r.accountId)||(r.accountId==="__re__"?{code:"3199",name:accName(d,"__re__")}:{});return[acc.code||r.accountId,acc.name||"",r.debit,r.credit,r.balance]}));return}
     else if(a==="to-studio"){if(window.SKosifTBReview)SKosifTBReview.studio("documents");else window.SKosifCore.go("auditdocs");return}
@@ -1247,13 +1248,24 @@ let proofEnd="";
 function proofOf(d,end){const R=window.SKEngines&&window.SKEngines.reports,CP=R&&R.cycleProof;if(!CP||!d.entries.length)return null;
   try{return CP.cycleProof({accounts:d.accounts.map(a=>({id:a.id,code:String(a.code),name:a.name,type:a.type})),entries:d.entries,end:end||d.lockDate||today(),lockDate:d.lockDate||null})}
   catch(e){SK.errors&&SK.errors.report(e,"ledger:proof");return null}}
+/* statement line → accounts → entries (PRODUCT_MANDATE P2 «Traceability»): every line of the statements the proof built,
+   with the accounts that make it up; an account opens the general ledger on it, where its entries are listed */
+function proofTraceHTML(d,p){
+  const fs=p.statements;if(!fs||!Array.isArray(fs.lines))return "";
+  const byCode=new Map(d.accounts.map(a=>[String(a.code),a])),h=v=>money((v||0)/100);
+  const lines=fs.lines.filter(l=>l.current&&Array.isArray(l.accounts)&&l.accounts.length);if(!lines.length)return "";
+  return '<details class="sk-trace" data-proof-trace><summary>تتبّع بنود القوائم إلى الحسابات والقيود ('+lines.length+' بنداً)</summary><div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>البند</th><th>القيمة</th><th>الحسابات — اضغط لفتح قيودها في الأستاذ العام</th></tr></thead><tbody>'+
+    lines.map(l=>'<tr data-trace-line="'+esc(l.key)+'"><td>'+esc(l.ar)+'</td><td class="n">'+h(l.current)+'</td><td>'+l.accounts.map(a=>{const acc=byCode.get(String(a.code));
+      return acc?'<button type="button" class="linkish" data-l="trace-acc" data-id="'+esc(acc.id)+'">'+esc(a.code)+' '+esc(acc.name)+'</button>':esc(a.code+' '+(a.name||""))}).join('، ')+'</td></tr>').join("")+
+    '</tbody></table></div></details>';
+}
 function proofHTML(d){
   const end=proofEnd||d.lockDate||today(),p=proofOf(d,end);if(!p)return "";
   const ic={ok:"✓",warn:"!",fail:"✗"},cls={ok:"good",warn:"warn",fail:"bad"};
   return '<section class="card" data-proof data-proof-ok="'+(p.ok?1:0)+'"><div class="card-h"><div><h3>إثبات الدورة المحاسبية</h3><p>عملية ← قيد ← أستاذ ← ميزان ← قوائم بالأرقام نفسها ← ذمم ← إقفال، على دفاتر هذه الشركة.</p></div>'+
     '<label class="sk-field"><span>حتى تاريخ</span><input type="date" id="proof-end" value="'+esc(end)+'"></label></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table"><tbody>'+
     p.steps.map(s=>'<tr data-step="'+esc(s.id)+'" data-status="'+s.status+'"><td><span class="sk-pill '+cls[s.status]+'" aria-label="'+(s.status==="ok"?"سليم":s.status==="warn"?"تنبيه":"خلل")+'">'+ic[s.status]+'</span></td><td><b>'+esc(s.label)+'</b></td><td>'+esc(s.detail)+'</td></tr>').join("")+
-    '</tbody></table></div><p class="hint">صافي الربح في القوائم: <b data-proof-profit>'+money(p.profitHalalas/100)+'</b> — يطابق الإيرادات ناقص المصروفات في الدفاتر'+(p.steps.find(s=>s.id==="same").status==="ok"?"":" (لا يطابق)")+'.</p></div></section>';
+    '</tbody></table></div><p class="hint">صافي الربح في القوائم: <b data-proof-profit>'+money(p.profitHalalas/100)+'</b> — يطابق الإيرادات ناقص المصروفات في الدفاتر'+(p.steps.find(s=>s.id==="same").status==="ok"?"":" (لا يطابق)")+'.</p>'+proofTraceHTML(d,p)+'</div></section>';
 }
 function pendingOps(d,until){
   const posted=postedSources(d),u=until||"9999-12-31",pur=load("skosif_purchasing_v1",{});

@@ -698,3 +698,17 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - door 96/96 and feature_audit 146/146 rerun after the final door changes.
 - Not yet: images and motion from Higgsfield Marketing Studio. The owner chose to sign in in the browser pane; generation waits for that sign-in. The plan (10 images, 2 videos) is in the chat.
 - Branch / PR: `claude/identity-navy-gold-20261007` from `main` @ 0d7ac61.
+
+### TASK CLAUDE-20261007-006 — P2 traceability: statement line → accounts → entries
+- Agent: Claude (Lead Development Agent)
+- Status: DONE on merge — the owner's standing instruction in chat («اكمل العمل والتطوير…», «ادمج كل التعديلات في الموقع»).
+- Goal: PRODUCT_MANDATE P2 «Traceability» — from a number in the statements down to the entries that make it.
+- Scope:
+  - `ui/features/ledger.js`: the cycle-proof card gains «تتبّع بنود القوائم إلى الحسابات والقيود». Each statement line the proof built shows its value and the accounts that make it up. An account opens the general ledger selected on it, with its entries and running balance (`trace-acc` → `glAcc`, tab `gl`).
+  - `tools/model_companies_e2e.mjs`: on each of the six model companies, a statement line's account opens its entries in the general ledger.
+- Evidence:
+  - Pages check 544/544;
+  - node tests: no new failure (the two `sqc_accessibility` modal tests now listed by name are the pre-existing ones recorded in #205; they surface because `linkedom` is on the path);
+  - model companies e2e green with the new check.
+- Repository: first change pushed to the transferred repository `elkosif0-cmd/cloude`.
+- Branch / PR: `claude/statement-trace-20261007` from `main` @ d4a3121.
