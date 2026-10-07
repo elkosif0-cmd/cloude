@@ -1337,6 +1337,7 @@ function preflightTool(args){
   const context=text(args?.context,12000);
   const options=cleanOptions(args?.options);
   const combined=(question+" "+context).toLowerCase();
+  const capabilityPacks=a1990SelectCapabilityPacks(question+" "+context,"");
   const lanes=routeLanes(combined);
   const externalWrite=/(send|email|message|deploy|publish|delete|remove|purchase|pay|buy|merge|commit|upload|submit|create account|api key|token|secret|ارسل|ابعث|انشر|احذف|ادفع|اشتري|ادمج|ارفع|سجل|مفتاح)/i.test(combined);
   const freshEvidence=/(latest|current|today|now|recent|news|price|status|أحدث|حالي|اليوم|الآن|خبر|سعر|حالة)/i.test(combined);
