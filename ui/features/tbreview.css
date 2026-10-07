@@ -8,6 +8,9 @@
 /* hero + steps + tabs */
 .tbr-hero{position:relative;overflow:hidden;display:flex;align-items:flex-start;justify-content:space-between;gap:var(--sk-4);padding:22px 24px;border-radius:var(--sk-r-l);color:#fff;
   background:var(--sk-grad-brand,linear-gradient(135deg,#0b2a5b,#13305a));box-shadow:var(--sk-shadow-2)}
+/* the audit picture (ui/art/brand/audit.webp, generated with Higgsfield) on the far side, under the actions */
+.tbr-hero::before{content:"";position:absolute;inset-block:0;inset-inline-end:0;width:42%;background:url(./art/brand/audit.webp) center/cover no-repeat;opacity:.5;pointer-events:none;-webkit-mask-image:linear-gradient(to right,var(--sk-ink) 30%,transparent);mask-image:linear-gradient(to right,var(--sk-ink) 30%,transparent)}
+.tbr-hero>*{position:relative;z-index:1}
 .tbr-hero::after{content:"";position:absolute;inset:auto -60px -90px auto;width:260px;height:260px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.18),transparent);pointer-events:none}
 .tbr-hero .eyebrow{color:rgba(255,255,255,.75);letter-spacing:.04em}
 .tbr-hero h2{margin:4px 0 2px;font-size:var(--sk-fs-2xl,26px);font-weight:800;color:#fff}

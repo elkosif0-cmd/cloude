@@ -4,7 +4,8 @@
 /* ================= Command Center ================= */
 .skc-luxe{gap:var(--sk-4)}
 /* the crystal world band (ui/art/crystal-world.js) */
-.skc-world{position:relative;height:190px;border-radius:var(--sk-r-l);overflow:hidden;background:radial-gradient(ellipse at 70% 0%,#16406e 0%,#0b1f3a 55%,#061226 100%);box-shadow:var(--sk-shadow-1)}
+.skc-world{position:relative;height:190px;border-radius:var(--sk-r-l);overflow:hidden;background:url(./art/brand/banner.webp) center/cover no-repeat,radial-gradient(ellipse at 70% 0%,#16406e 0%,#0b1f3a 55%,#061226 100%);box-shadow:var(--sk-shadow-1)}
+.skc-world-v{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.85}
 .skc-world-c{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity 1.4s ease}.skc-world-c.on{opacity:1}
 .skc-world-tx{position:absolute;inset-inline-start:22px;bottom:18px;display:grid;gap:4px;color:#fff;text-shadow:0 2px 14px rgba(6,18,38,.8)}
 .skc-world-tx small{font:600 11.5px var(--sk-font-latin);letter-spacing:.14em;color:#9fc3ea}.skc-world-tx b{font-size:26px;font-weight:800;line-height:1.2}
@@ -91,3 +92,11 @@
 .skslab-tree details{margin-bottom:8px;border:1px solid var(--sk-line);border-radius:var(--sk-r);padding:6px 10px;background:var(--sk-surface)}
 .skslab-tree summary{cursor:pointer;padding:4px 0}.skslab-tree summary small{color:var(--sk-ink-3)}
 .fu-plan{margin:0;padding-inline-start:20px;display:grid;gap:6px;font-weight:600}
+
+/* the books open under the company's sector: its name on the start side, the sector's picture fading in on the far side */
+.lg-sector{position:relative;display:flex;align-items:flex-end;min-height:96px;margin:0 0 var(--sk-3);padding:var(--sk-4) var(--sk-5);border-radius:var(--sk-r-l);overflow:hidden;color:var(--sk-rail-ink,var(--sk-on-brand));background:var(--sk-grad-rail,var(--sk-rail));box-shadow:var(--sk-shadow-1)}
+.lg-sector::after{content:"";position:absolute;inset-block:0;inset-inline-end:0;width:min(48%,360px);background:var(--art) center/cover no-repeat;pointer-events:none;-webkit-mask-image:linear-gradient(to right,var(--sk-ink) 45%,transparent);mask-image:linear-gradient(to right,var(--sk-ink) 45%,transparent)}
+.lg-sector span{position:relative;z-index:1;display:grid;gap:var(--sk-1)}
+.lg-sector small{font-size:var(--sk-fs-xs);font-weight:700;color:var(--sk-gold,var(--sk-brand-2))}
+.lg-sector b{font-size:var(--sk-fs-xl);font-weight:800;line-height:1.25}
+@media (max-width:600px){.lg-sector{min-height:80px;padding:var(--sk-3) var(--sk-4)}.lg-sector b{font-size:var(--sk-fs-l)}}

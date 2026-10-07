@@ -79,6 +79,9 @@ button.submit:disabled{opacity:.65;cursor:default}
 @media (max-width:820px){.shell{background:rgba(255,255,255,.9)}.visual{background:linear-gradient(180deg,rgba(11,31,58,.08) 0%,rgba(6,18,38,.5) 100%)}}
 .visual::after{background:linear-gradient(180deg,rgba(6,18,38,0) 30%,rgba(6,18,38,.72))}
 @media (prefers-reduced-motion:reduce){.world{transition:none}}
+/* the door film (generated with Higgsfield, navy and gold): the poster is the still; the clip plays on wide screens only,
+   and never when motion is reduced or data is saved (the script at the end of the door) */
+.visual>.visual-film{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;opacity:.9}
 /* the company gallery */
 [hidden]{display:none!important}
 .card{justify-content:flex-start;padding-top:36px}
@@ -116,6 +119,11 @@ button.submit:disabled{opacity:.65;cursor:default}
 .gate-ic{display:grid;place-items:center;flex:0 0 52px;width:52px;height:52px;border-radius:16px;background:var(--sk-brand);color:var(--sk-on-brand);box-shadow:0 10px 22px -12px color-mix(in srgb,var(--sk-brand) 80%,transparent)}
 .gate-ic svg{width:26px;height:26px}
 .gate-t{display:grid;gap:3px;min-width:0}.gate-t b{font-size:17px}.gate-t small{font-size:12.5px;line-height:1.6;color:var(--sk-ink-3)}
+/* each section carries its picture on the far side, fading into the card */
+.gate{position:relative;overflow:hidden}.gate>span{position:relative;z-index:1}
+.gate.has-art{padding-inline-end:calc(24% + 12px)}
+.gate.has-art::after{content:"";position:absolute;inset-block:0;inset-inline-end:0;width:30%;background:var(--art) var(--art-pos,center)/cover no-repeat;pointer-events:none;-webkit-mask-image:linear-gradient(to right,var(--sk-ink) 35%,transparent);mask-image:linear-gradient(to right,var(--sk-ink) 35%,transparent)}
+.sector-img{display:block;height:64px;margin:-11px -12px 6px;border-radius:13px 13px 0 0;background:var(--sk-brand) var(--art) center/cover no-repeat}
 .sector-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:16px 0 10px;text-align:start}
 .sector{display:flex;flex-direction:column;gap:4px;padding:11px 12px;border:1px solid var(--sk-line-2);border-radius:14px;background:var(--sk-surface-2);color:var(--sk-ink);font:inherit;text-align:start;cursor:pointer;transition:all .18s ease}
 .sector:hover{border-color:var(--sk-brand);background:var(--sk-surface)}
@@ -139,6 +147,7 @@ button.submit:disabled{opacity:.65;cursor:default}
 <canvas id="sqc-world" class="world" aria-hidden="true"></canvas>
 <div class="shell">
 <aside class="visual" aria-hidden="true">
+<video class="visual-film" id="door-film" muted loop playsinline preload="none" poster="./art/brand/door-hero.webp" data-src="./art/brand/door.mp4"></video>
 <div class="wm"><img class="wm-logo" src="./art/sqc-logo.svg" alt="SQC — Smart Quality Control"></div>
 <div class="claim"><h2>رقابة جودة ذكية،<br>مراجعة بمعايير عالمية</h2><p>AI-Powered Audit &amp; Assurance Platform</p><i></i></div>
 </aside>
@@ -282,6 +291,8 @@ const I={lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke
 const state={step:"",gate:null,sector:null,q:""};
 const gateById=id=>GATES.find(g=>g.id===id)||null,sectorById=id=>SECTORS.find(s=>s.id===id)||null;
 /* which sector a company belongs to: its books record, else the demo and private companies' own, else general trade */
+/* the pictures of the three sections (ui/art/brand, generated with Higgsfield): file, position of the crop */
+const GATE_ART={accounting:["report-cover","center 92%"],audit:["audit","center"],tools:["sector-manufacturing","center"]};
 const sectorOf=c=>c.sector&&sectorById(c.sector)?c.sector:c.id===DEMO.id?DEMO.sector:c.locked?LSECTOR:"trade";
 /* every company this device knows, the private one first and only as the locked card; a space the app marked private
    never shows as an open card; the tools' own space is not a company */
@@ -317,11 +328,11 @@ function card(c){
     '<span class="co-ic" aria-hidden="true">'+(c.locked?I.lock:c.demo||c.model?I.flask:c.scratch?I.tools:I.building)+'</span><span class="co-t"><b>'+esc(c.name)+'</b><small>'+esc(c.note||"")+(c.last?" · آخر شركة فُتحت":"")+'</small></span></button>';
 }
 function paintGates(){
-  $("gate-list").innerHTML=GATES.map(g=>'<button type="button" class="gate" role="listitem" data-gate="'+esc(g.id)+'"><span class="gate-ic" aria-hidden="true">'+(I[g.id]||I.building)+'</span><span class="gate-t"><b>'+esc(g.label)+'</b><small>'+esc(g.sub||"")+'</small></span></button>').join("");
+  $("gate-list").innerHTML=GATES.map(g=>'<button type="button" class="gate'+(GATE_ART[g.id]?' has-art" style="--art:url(./art/brand/'+GATE_ART[g.id][0]+'.webp);--art-pos:'+GATE_ART[g.id][1]:'')+'" role="listitem" data-gate="'+esc(g.id)+'"><span class="gate-ic" aria-hidden="true">'+(I[g.id]||I.building)+'</span><span class="gate-t"><b>'+esc(g.label)+'</b><small>'+esc(g.sub||"")+'</small></span></button>').join("");
 }
 function paintSectors(){
   const all=companies().filter(c=>!c.scratch),n=id=>all.filter(c=>c.sector===id).length;
-  $("sector-list").innerHTML=SECTORS.map(s=>'<button type="button" class="sector'+(s.priority?" pri":"")+'" role="listitem" data-sector="'+esc(s.id)+'"><span class="sector-t"><b>'+esc(s.label)+'</b><small>'+esc(s.sub||"")+'</small></span><i class="sector-n">'+(n(s.id)?n(s.id)+" شركة":"لا شركات بعد")+'</i></button>').join("");
+  $("sector-list").innerHTML=SECTORS.map(s=>'<button type="button" class="sector'+(s.priority?" pri":"")+'" role="listitem" data-sector="'+esc(s.id)+'"><span class="sector-img" aria-hidden="true" style="--art:url(./art/brand/sector-'+esc(s.id)+'.webp)"></span><span class="sector-t"><b>'+esc(s.label)+'</b><small>'+esc(s.sub||"")+'</small></span><i class="sector-n">'+(n(s.id)?n(s.id)+" شركة":"لا شركات بعد")+'</i></button>').join("");
 }
 const searchText=s=>String(s||"").toLowerCase().replace(/[أإآٱ]/g,"ا").replace(/[\u064b-\u065f\u0670]/g,"").replace(/امازون/g,"amazon").trim();
 const corpusRows=()=>{const q=searchText(state.q),L=CORPUS.filter(c=>!q||searchText(c.company+" "+(c.sector||"")+" "+(c.country||"")+" "+(c.fy||"")).includes(q));
@@ -381,6 +392,10 @@ $("co-form").addEventListener("submit",e=>{e.preventDefault();const name=String(
 /* ./?go=… or #sales from a shortcut or a saved link: straight into the last company, in its section, when it needs no password */
 function resume(){const last=read(LAST,null);if(!last||last.locked||!last.id||!(location.search||location.hash))return false;go({id:last.id,name:last.name||last.id,resume:true,gate:gateById(last.gate)?last.gate:undefined});return true}
 if(!resume())show("gates");
+/* the door film: wide screens only, never with reduced motion or saved data; the poster stays otherwise */
+(()=>{const v=$("door-film");if(!v||!v.dataset.src)return;const mq=q=>!!(window.matchMedia&&matchMedia(q).matches);
+  if(mq("(prefers-reduced-motion: reduce)")||mq("(max-width: 820px)")||(navigator.connection&&navigator.connection.saveData))return;
+  v.src=v.dataset.src;const p=v.play&&v.play();if(p&&p.catch)p.catch(()=>{})})();
 /* the crystal world: mounted once the engine file has loaded, after the door is on screen */
 let world=null;
 function mountWorld(){if(world||!window.SQCCrystal)return;const c=$("sqc-world");if(!c)return;world=window.SQCCrystal.mount(c,{density:1,interactive:true,scroll:true});if(world){c.classList.add("on");window.SQCWorld=world}}
