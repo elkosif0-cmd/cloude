@@ -7,7 +7,8 @@
 #   • main            → a production build (the private blocks encrypted with KOSIF_UNLOCK_PASSWORD) → production
 #   • any other branch → a preview build (no private data at all, build_mode.py) → that branch's preview URL
 # It needs the repository secret CLOUDFLARE_API_TOKEN (a Cloudflare API token with «Account · Cloudflare Pages · Edit»).
-# Until that secret exists the deploy step is skipped with a notice, so nothing turns red.
+# Until that secret exists the deploy step is skipped with a notice (nothing turns red) and the build is kept as the
+# artifact «site-dist» for a manual `wrangler pages deploy` (see the last step).
 name: Pages deploy
 
 on:
@@ -56,3 +57,17 @@ jobs:
       - name: Deploy skipped — no CLOUDFLARE_API_TOKEN secret yet
         if: env.HAS_TOKEN != 'true'
         run: echo "::notice::Add the repository secret CLOUDFLARE_API_TOKEN (Cloudflare Pages · Edit) to deploy to s-kosif.pages.dev"
+      # Until the secret exists, the built site is kept as a short-lived artifact of this (private) repository, so a person
+      # signed in to Cloudflare can publish exactly this build by hand:
+      #   gh run download <run-id> --repo elkosif0-cmd/cloude --name site-dist --dir dist
+      #   npx wrangler pages deploy dist --project-name s-kosif --branch main
+      # It holds only what the site serves publicly (the private company stays encrypted with KOSIF_UNLOCK_PASSWORD).
+      - name: Keep the built site for a manual deploy
+        if: env.HAS_TOKEN != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-dist
+          path: dist
+          include-hidden-files: true
+          retention-days: 3
+          if-no-files-found: error
