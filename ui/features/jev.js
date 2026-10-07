@@ -119,10 +119,13 @@ function thinkHTML(){
   return '<section class="card" id="kosif-think"><div class="card-h"><div><h3>KOSIF Think</h3><p>مجلس تفكير من عدة نماذج ذكاء اصطناعي مُعدّة في «المراجع الذكي»، ثم Jev كحاجز قرار.</p></div><span class="chip">'+providers.length+' Agent جاهز</span></div><div class="card-b sk-stack">'+
     '<div class="seg sk-seg" role="group" aria-label="عمق التفكير">'+["fast","council","deep"].map(m=>'<button type="button" data-th-mode="'+m+'" aria-pressed="'+(th.mode===m)+'">'+({fast:"سريع",council:"مجلس",deep:"عميق"}[m])+'</button>').join("")+'</div>'+
     '<div class="sk-chips">'+(providers.length?providers.map(p=>'<span class="chip">'+esc(window.SKosifAI.conf(p).label)+'</span>').join(""):'<span class="sk-note warn">أضف مفتاحين أو أكثر من إعداد «المراجع الذكي» لتفعيل المجلس متعدد النماذج.</span>')+'</div>'+
+    /* R14: without configured models the council cannot run — its form folds under one line instead of three empty boxes */
+    '<details class="th-form"'+(providers.length||th.q||r?' open':'')+'><summary>اكتب مسألة للمجلس</summary>'+
     '<label class="sk-field"><span>المسألة أو السؤال</span><textarea id="th-q" rows="4" placeholder="اكتب المسألة التي تريد من المجلس تحليلها...">'+esc(th.q)+'</textarea></label>'+
     '<label class="sk-field"><span>السياق / الحقائق</span><textarea id="th-ctx" rows="4" placeholder="أرقام، قيود، حقائق، أو ملخص مستند...">'+esc(th.ctx)+'</textarea></label>'+
     '<label class="sk-field"><span>بدائل اختيارية — بديل في كل سطر</span><textarea id="th-opts" rows="3" placeholder="خطة أ&#10;خطة ب">'+esc(th.opts)+'</textarea></label>'+
     '<div class="sk-actions"><button type="button" class="btn primary" id="th-run"'+(th.busy?' disabled':'')+'>'+(th.busy?"المجلس يعمل…":"شغّل KOSIF Think")+'</button><button type="button" class="btn" id="th-clear">مسح</button></div>'+
+    '</details>'+
     (th.status?'<div class="sk-note'+(th.status.startsWith("!")?" bad":"")+'">'+esc(th.status.replace(/^!/,""))+'</div>':'')+
     (r?'<div class="sk-result"><span>النتيجة النهائية</span><b>'+esc(r.finalAnswer||"")+'</b><small>الوكلاء الناجحون '+r.artifacts.length+(r.council?" · اتفاق المجلس "+r.council.agreementPercent+"٪":"")+(jev?" · Jev: "+esc(jev.h)+" "+esc(jev.d):"")+' · البوابة: '+(r.gate?.passed?"اجتازت":"مراجعة إضافية")+'</small>'+(r.gate?.reasons?.length?'<div class="sk-note warn">'+esc(r.gate.reasons.join(" · "))+'</div>':'')+'</div><details><summary>نتائج الوكلاء والمخاطر</summary><div class="sk-stack">'+cards+(r.failures?.length?'<div class="sk-note bad">فشل: '+esc(r.failures.map(x=>x.provider+" — "+x.message).join(" | "))+'</div>':'')+'</div></details>':'')+
   '</div></section>';
