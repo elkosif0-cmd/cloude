@@ -732,3 +732,11 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - add `CLOUDFLARE_API_TOKEN`;
   - the Cloudflare account shows an overdue balance ($42.87) with a warning of service interruption.
 - Branch / PR: `claude/pages-deploy-actions-20261007` from `main` @ 9364b03.
+
+### TASK CLAUDE-20261007-008 — Publish main to s-kosif.pages.dev without an API token in the repository
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Context: the owner asked Claude to finish the deploy itself. An API token can only be created and pasted by the owner, so `CLOUDFLARE_API_TOKEN` is still missing and #210's deploy step is skipped.
+- Scope: `.github/workflows/pages-deploy.yml` — while the secret is missing, the built site is uploaded as the artifact `site-dist` (3 days, private repository; it holds only what the site serves, the private company still encrypted). Claude then publishes that exact build with the account's existing wrangler login: `gh run download … --name site-dist` → `wrangler pages deploy dist --project-name s-kosif --branch main`.
+- Once the owner adds the secret, the artifact step stops and Actions deploys by itself.
+- Branch / PR: `claude/deploy-artifact-20261007` from `main` @ f4b87d0.
