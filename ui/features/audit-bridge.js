@@ -18,9 +18,27 @@ const state={};
 // comparative dates or non-assurance status. Refuse this transport at each entry.
 function reviewTransport(){try{return window.SKosifTBReview&&SKosifTBReview.rows()}catch{return {sourceOnly:true}}}
 function sourceBlocked(t=reviewTransport()){return !!(t&&(t.mappingUnsupported||t.sourceOnly||t.sourceKind!==undefined||t.ctx&&(t.ctx.sourceKind!==undefined||t.ctx.sourceModel!==undefined)))}
+/* Read-only mapped-model projection. Never seed the secondary ledger or issue a report from this snapshot. */
+function canonicalStatementHTML(s){
+  const esc=SK.esc,money=v=>Number.isFinite(v)?(v/100).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}):"—";
+  const table=(key,title)=>{const before=new Map(s.before[key].map(r=>[r.key,r])),after=new Map(s.after[key].map(r=>[r.key,r])),rows=[...s.after[key]];
+    // Zero lines disappear from the primary model. Preserve both versions in their statement order.
+    s.before[key].forEach((r,i)=>{if(after.has(r.key))return;const next=s.before[key].slice(i+1).find(x=>rows.some(y=>y.key===x.key)),at=next?rows.findIndex(x=>x.key===next.key):rows.length;rows.splice(at,0,r)});
+    return '<h4>'+title+'</h4><div class="sk-table-wrap"><table class="sk-table" data-sk-plain><thead><tr><th>البند</th><th>قبل التسويات</th><th>بعد التسويات</th><th>الفرق</th><th>الفترة المقارنة</th></tr></thead><tbody>'+rows.map(r=>{
+    if(r.level==="heading")return '<tr><th colspan="5">'+esc(r.ar)+'</th></tr>';
+    const b=before.get(r.key),a=after.get(r.key),bv=b?b.current:0,av=a?a.current:0;return '<tr><td>'+esc(r.ar)+'</td><td class="num">'+money(bv)+'</td><td class="num">'+money(av)+'</td><td class="num">'+money(av-bv)+'</td><td class="num">'+money(r.prior)+'</td></tr>';
+  }).join("")+'</tbody></table></div>'};
+  const balance=(label,fs)=>'<p class="'+(fs.checks.balanced?'hint':'tbr-warn')+'">'+label+': '+(fs.checks.balanced?'متوازنة':'غير متوازنة — فرق '+money(fs.checks.difference))+' · الربط: '+esc(fs.checks.mappedPct)+'% · الفترة المقارنة: '+(!fs.hasPrior?'غير متاحة':fs.checks.priorBalanced?'متوازنة':'غير متوازنة')+'</p>';
+  const pages=Object.entries(s.provenance.pages).map(([k,v])=>esc(k)+': '+esc(v)).join(' · ');
+  return '<section class="card" data-canonical-statements><div class="card-h"><div><h3>القوائم المرجعية من ملف المراجعة الرئيسي</h3><p>'+esc(s.entity)+' · '+esc(s.period)+' · '+esc(s.framework)+' · '+esc(s.jurisdiction)+' · '+esc(s.currency)+' '+esc(s.unit)+' ('+esc(s.displayUnit)+')</p></div></div><div class="card-b">'+
+    '<p class="tbr-warn" role="status">'+esc(s.limitation)+'</p><p>المصدر: '+esc(s.provenance.sourceLabel)+' · '+esc(s.provenance.corpusId)+(pages?' · صفحات الحزمة: '+pages:'')+'</p>'+
+    '<p>'+(s.provenance.modifiedFromModel?'الميزان أو الربط عُدّل عن نموذج الحزمة؛ الأرقام تتبع الملف الحالي.':'الميزان والربط مطابقان لنموذج الحزمة؛ لا يعني ذلك تحققاً مستقلاً من المستند الأصلي.')+' التسويات المعتمدة في الملف الرئيسي: '+esc(s.acceptedIds.join('، ')||'لا توجد')+'. حقوق الملكية المعروضة تشمل نتيجة الفترة.</p>'+
+    balance('قبل التسويات',s.before)+balance('بعد التسويات',s.after)+table('pl','قائمة الربح أو الخسارة')+table('sfp','قائمة المركز المالي')+
+    '<details><summary>تتبع الربط إلى حسابات الملف</summary>'+s.after.lines.map(l=>'<p><b>'+esc(l.ar)+'</b>: '+l.accounts.map(a=>esc(a.code)+' — '+esc(a.name)).join('، ')+'</p>').join('')+'</details></div></section>';
+}
 function sourceUnavailable(node){
   const t=reviewTransport();
-  if(node&&t&&t.mappingUnsupported){node.innerHTML='<div class="sk-empty" role="status">الاستوديو الثانوي غير متاح لهذا الميزان: لا يدعم ربط بنوده المعتمد، وقد يعيد تصنيف الإيرادات والضرائب بصورة مختلفة. استخدم القوائم والتسويات وطلبات الأدلة في ملف المراجعة الرئيسي أعلاه. لم تتغير الأرقام أو المستندات المحفوظة.</div>';return}
+  if(node&&t&&t.mappingUnsupported){if(t.canonicalStatements){node.innerHTML=canonicalStatementHTML(t.canonicalStatements);return}node.innerHTML='<div class="sk-empty" role="status">الاستوديو الثانوي غير متاح لهذا الميزان: لا يدعم ربط بنوده أو بيانات إطار المصدر الحالية، وقد يعيد تصنيف الإيرادات والضرائب بصورة مختلفة. استخدم القوائم والتسويات وطلبات الأدلة في ملف المراجعة الرئيسي أعلاه. لم تتغير الأرقام أو المستندات المحفوظة.</div>';return}
   if(node)node.innerHTML='<div class="sk-empty" role="status">أدوات الاستوديو غير متاحة لنموذج القوائم المنشورة: انتقل إلى مرجع المصدر. لا يُحوّل هذا النموذج إلى دفتر أستاذ أو تكليف مراجعة.</div>'}
 function sameTransport(t){const now=reviewTransport();return !sourceBlocked(now)&&(!t&&!now||!!t&&!!now&&t.sig===now.sig&&t.label===now.label)}
 /* ---------- one identity: the embedded tools take the chosen theme's colours, type and night mode ----------
