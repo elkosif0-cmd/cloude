@@ -657,3 +657,44 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - PR206 independent-review follow-up (active): reproduce and repair conditional nonzero subtotal omission in `audit-bridge.js` comparison only, plus focused bridge regressions. The primary engine suppresses continuing-operations display rows when discontinued operations are zero, while retaining nonzero `keys.continuing`. Missing display row cannot generally mean zero. Reserve canonical subtotal-key lookup; retain zero fallback only for omitted line rows. No source-engine or issuance changes.
 - Review follow-up verified: introduce/clear discontinued operations reproduced false continuing-subtotal deltas, then fixed using canonical subtotal keys; only missing detail lines default to zero, unknown subtotals remain unavailable. Added real accepted-adjustment tests both directions (continuing59,248→59,248, delta0). Comparative column uses explicit source-model priorPeriodEnd when provided; otherwise states date not documented, with no inferred year-end. Income-tax model labels are presentation-only neutral ضريبة الدخل. No engine/source labels or numbers mutated.
 - Follow-up evidence:106/106 focused tests pass (13 bridge cases); independent reviewer12/12 at review time, no blocker; preview build and desktop/phone browser checks pass updated tax/date labels; lint0 errors/1 pre-existing warning. Print/export paths were not browser-tested. No issuance enablement, merge or canonical deployment; prior CI blocker persists pending new-head checks.
+
+### TASK CLAUDE-20261007-005 — The SQC identity in navy and gold (owner's choice)
+- Agent: Claude (Lead Development Agent)
+- Status: DONE on merge — the owner asked in chat for «تحديث الهوية البصرية والوان الموقع بالكامل» and chose «كحلي وذهبي» among four directions.
+- FOUNDATION §3.11.2 requires one identity set through central design tokens; it names no colours, so it needs no change.
+- Tokens, `ui/ds/tokens.css`, `:root[data-look="kosif"]` (the default look):
+  - Light:
+    - navy `#0B1F3A` for the rail and gradients;
+    - navy `#13305A` for buttons, links and focus;
+    - gold `#C9A227` for accents only, and `#8A6A0E` for gold text (4.5:1 on ivory);
+    - ivory `#F7F4EC` background with white cards and warm lines;
+    - semantic green `#15803D`, amber `#B45309`, red `#B91C1C`;
+    - new tokens `--sk-navy`, `--sk-gold`, `--sk-gold-ink`, `--sk-gold-soft`, `--sk-ivory`.
+  - Dark: gold `#D4AF37` leads on navy.
+  - Charts: c1 navy and c2 gold.
+  - The other 10 looks are untouched.
+- The old brand literals (#1668e3, #22b8e6, #0b1c33, #e8f1fe, #4a93ff, #3fd0f0 and their `rgba` forms) were mapped one-for-one in 22 UI files and `unlock.html`, a total of 101 changes. Print, export and report code is included.
+- Front door:
+  - its token copy is synced with the look;
+  - a deep navy sky, an ivory panel and warm borders;
+  - the side panel's sky is now navy to gold;
+  - the reviewed unlock script is byte-identical, which was checked during the edit and by `unlock_runtime.test.mjs`.
+- Art:
+  - `sqc-logo`, `sqc-mark`, `sqc-mark-dark`, `sqc-icon` and `kosif-icon`: a gold «S» and gold accents on navy, with the silver kept;
+  - the wordmark text is constrained to the logo width, fixing a «CONTRO[L]» clip that was there before;
+  - the PNG app icons (192, 512, apple-touch 180) are re-rendered from the new SVG;
+  - the crystal world: navy crystals warming to gold, a gold rim, and navy fog;
+  - the manifest's theme and background colours.
+- Tests:
+  - `door_tokens.test.mjs` passes after the sync;
+  - `mercury_report_presentation` passes 16/16, with its saved baseline mapped the same way;
+  - `identity_audit` is within the ratchet (425 colours = baseline);
+  - `docs/design/SQC-IDENTITY-ar.md` is regenerated, and KOSIF-LUXE.md and DESIGN_SYSTEM.md are noted.
+  - Also fixed: `company_entry.test.mjs` still expected the audit door's pre-#170 intents; it now expects the independent-audit intents that #170's extraction put in the door. That fixes a failure already present on `main`.
+- Evidence:
+  - Pages check 544/544;
+  - node tests 738 pass / 57 fail (one fewer than `main`, none new);
+  - all 17 browser suites green;
+  - door 96/96 and feature_audit 146/146 rerun after the final door changes.
+- Not yet: images and motion from Higgsfield Marketing Studio. The owner chose to sign in in the browser pane; generation waits for that sign-in. The plan (10 images, 2 videos) is in the chat.
+- Branch / PR: `claude/identity-navy-gold-20261007` from `main` @ 0d7ac61.

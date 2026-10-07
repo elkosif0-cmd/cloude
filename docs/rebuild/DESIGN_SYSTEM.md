@@ -4,7 +4,7 @@ One design system, one token architecture, eight complete themes chosen in Setti
 
 | Theme | `html[data-look]` | Mode | Character |
 |---|---|---|---|
-| KOSIF (default) | `kosif` | light | the adopted product identity from the Canva KOSIF mockups: navy rail with the cloud mark and a sky card, white cards with soft shadows, KOSIF blue `#1668e3` + cloud cyan `#1fb6e0`, pill tabs, status pills, progress rings, bottom tab bar on phones, IBM Plex Sans Arabic |
+| KOSIF (default) | `kosif` | light | the adopted product identity from the Canva KOSIF mockups: navy rail with the cloud mark and a sky card, white cards with soft shadows, KOSIF blue `#13305a` + cloud cyan `#1fb6e0`, pill tabs, status pills, progress rings, bottom tab bar on phones, IBM Plex Sans Arabic |
 | KOSIF الليلي | `kosif` + `data-theme=dark` | dark | same identity at night |
 | تراث الوادي | `heritage` | light | parchment, brown ink, valley art, Amiri / Aref Ruqaa |
 | ليل الوادي | `heritage` + `data-theme=dark` | dark | same identity at night |
@@ -91,3 +91,6 @@ The default «KOSIF» look is now the luxe layer from the approved mockups — s
 notification rows, charts, heatmap, donut, KPI tiles, table toolbar, severity pills); every theme gets the
 structure through the tokens, the KOSIF look adds the finish. New tokens: `--sk-heat-1…4`,
 `--sk-grad-brand`, `--sk-grad-rail`, `--sk-font-latin`.
+
+
+> **2026-10 الهوية الكحلية والذهبية** (اختيار المالك في المحادثة): الكحلي `#0B1F3A` للقائمة والعناوين، كحلي أفتح `#13305A` للأزرار والروابط، الذهبي `#C9A227` للإبرازات ونص ذهبي `#8A6A0E` على العاجي `#F7F4EC`؛ وفي الوضع الداكن الذهبي `#D4AF37` على الكحلي. التفاصيل في `ui/ds/tokens.css` (`:root[data-look="kosif"]`).
