@@ -185,7 +185,8 @@ function zatcaHTML(){
       '<div class="sk38-rcpt-view" id="sk38-receipt-printable">',
         '<div class="sk38-rcpt-header">',
           '<h2>'+esc(seller)+'</h2>',
-          '<p>مختارات الذواقة واللحوم البلدية الفاخرة</p>',
+          /* R12: the company's own address, not one business's slogan */
+          (org.addr?'<p>'+esc(org.addr)+'</p>':''),
           '<p>الرقم الضريبي: '+esc(vatNo)+'</p>',
           '<p style="font-weight:bold;margin-top:6px;">فاتورة ضريبية مبسطة</p>',
           '<p>SIMPLIFIED TAX INVOICE</p>',
