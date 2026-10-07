@@ -46,4 +46,17 @@ register("settings",{
   tabs:[["company","الشركة والتقارير"],["calc","الاحتساب والأهداف"],["look","المظهر"],["data","الصلاحيات والبيانات"]],
   tag:(el,h)=>/المظهر|الألوان|الخط/.test(h)?"look":/طريقة الاحتساب|الأهداف|التصنيف/.test(h)?"calc":/الدور|الصلاحيات|نسخة كاملة|البيانات والنسخ|Capabilities|الأجهزة/.test(h)?"data":"company"
 });
+
+/* «الأجهزة والمزامنة»: the bottom-bar picker alone was 850 px of 65 checkboxes between the device and the laptop cards */
+register("devices",{
+  tabs:[["device","هذا الجهاز والنقل"],["phone","شريط الجوال"],["laptop","اللابتوب ولوحة المفاتيح"]],
+  blocks:".dv > .card",
+  tag:(el,h)=>/شريط الجوال/.test(h)?"phone":/^اللابتوب|لوحة المفاتيح/.test(h)?"laptop":"device"
+});
+/* «ذكاء العملاء والطلب»: segments and retention, the price-review priority, the reactivation list */
+register("intelligence",{
+  tabs:[["segments","الشرائح والاحتفاظ"],["prices","مراجعة الأسعار"],["reactivate","إعادة التنشيط"]],
+  blocks:".intel-view > .card, .intel-view > .grid2",
+  tag:(el,h)=>/أولوية مراجعة الأسعار|الأسعار/.test(h)?"prices":/إعادة التنشيط/.test(h)?"reactivate":"segments"
+});
 })();

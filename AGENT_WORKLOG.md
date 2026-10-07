@@ -868,3 +868,12 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Evidence (browser): the lab 16,454 → 6,237 px (−62%), 47 summaries, one opens with its «افتح كملف مراجعة»; codex library first, guidance 944 px, updates one screen; no page errors.
   - `ui/core/screen-tabs.js` (new, in build.py): `SK.screenTabs.register(view,{tabs,blocks,tag})` splits a long screen into tabs without touching the modules that render it (blocks tagged by heading, the other tabs' blocks hidden with `data-st-off`, an unnamed block stays on the first tab, later blocks tagged on the next change). First user: «الإعدادات والمظهر» — الشركة والتقارير · الاحتساب والأهداف · المظهر · الصلاحيات والبيانات (4,550 px → the longest tab 2,204, the default 1,678; the appearance studio alone had been 1,700 px at the top).
 - Branch / PR: `claude/r8-long-screens-20261007` from `main` @ 228e954 (PR #220).
+
+### TASK CLAUDE-20261007-017 — Deep review wave R9: screen tabs on devices and customer intelligence
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Scope: `ui/core/screen-tabs.js` registers two more screens.
+  - «الأجهزة والمزامنة»: هذا الجهاز والنقل · شريط الجوال · اللابتوب ولوحة المفاتيح. The bottom-bar picker alone was 850 px of 65 checkboxes; the default tab is now one screen.
+  - «ذكاء العملاء والطلب»: الشرائح والاحتفاظ · مراجعة الأسعار · إعادة التنشيط (2,915 px → the longest tab 1,844).
+- Evidence: browser check on the preview — every card tagged, no page errors.
+- Branch / PR: `claude/r9-screen-tabs-20261007` stacked on R8 (#220).
