@@ -79,6 +79,13 @@
   .sk-ph-en{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .main{padding-top:12px}
 }
+/* R13 (docs/rebuild/HARSH_REVIEW_20261008_ar.md #16): the head ran ~400 of 812 px on a phone before any content. Putting the
+   screen's buttons on the title's line was tried and measured: four buttons left the title ~90 px and cut «مرتبط». On phones
+   the description line goes instead: the path above it and the section strip below name the screen, and the same
+   description stays in the search and the menu (the registry's «sub»). Measured: the head 167 → 172 px, title on one line */
+@media (max-width:600px){
+  .sk-ph .sub{display:none}
+}
 
 /* ================= menus (company, period, user, bell) ================= */
 .sk-menu{position:fixed;z-index:430;min-width:250px;max-width:min(380px,calc(100vw - 16px));max-height:min(72dvh,560px);overflow:auto;padding:6px;

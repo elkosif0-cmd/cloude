@@ -5,6 +5,9 @@
 const {esc}=SK;
 const core=()=>window.SKosifCore,CP=()=>window.SKosifCompanyPlatform;
 const isInstalled=id=>!!(CP()&&CP().installed(id));
+/* R13 (docs/rebuild/HARSH_REVIEW_20261008_ar.md #23): the map already opens each task's tools; the full list below it repeated
+   the map tool by tool (1,300 px of «اربط بالشركة»). Linking tools to the company is configuration, so the list is folded. */
+let allOpen=false;
 /* one node per company studio, read from the registry, plus the decision node; the hubs of a studio are its tools */
 const NOTE={product:"احسب التكلفة، سعّر المنتجات، وحلّل المردود",customer:"حلّل المبيعات والعملاء والتحصيل والطلبات",supply:"طابق المخزون والموردين والمشتريات والتتبع",books:"استخدم الدفاتر والتحليل والمقارنات والمخاطر والحساسية",reports:"استلم البيانات وأنشئ التقارير والطباعة والأرشيف"};
 const LABEL={product:"التكلفة والتسعير",customer:"المبيعات والعملاء",supply:"المخزون والمشتريات",books:"الدفاتر والتحليل",reports:"التقارير والمستندات"};
@@ -53,7 +56,8 @@ function render(root){
   const S=SECTIONS();
   root.innerHTML='<div class="hd-shell"><section class="card hd-hero"><div><span class="eyebrow">أدوات مستقلة</span><h2>مساحة الأدوات المساعدة</h2><p>ابدأ بالأداة التي تحتاجها أولاً. تعمل الأدوات كبوابة مستقلة، ويمكن ربط مساحة العمل بشركة فقط عندما تحتاج بياناتها. هذا الربط لا يحوّل الأداة إلى جزء من المحاسبة ولا يجعل نتائجها دليل مراجعة تلقائيًا.</p><div class="hd-context-row">'+contextBadge()+'</div></div><span class="hd-badge">الأداة أولاً · الشركة اختيارية</span></section>'+
   '<section class="card hd-map"><div class="hd-map-head"><div><h3>ماذا تريد أن تنجز؟</h3><p>اختر نوع المهمة؛ كل فرع يفتح الأدوات المناسبة مباشرة مع الحفاظ على نفس الروابط والصلاحيات.</p></div></div><div class="hd-canvas">'+lines(S)+'<div class="hd-center"><span>'+(SK.icons.helperdesk||SK.icons.productflow||"")+'</span><b>مساحة الأدوات</b><small>سياق الشركة اختياري</small></div>'+S.map(point).join("")+'</div></section>'+
-  exceptionQueue()+'<div class="hd-grid">'+table()+'</div></div>';
+  exceptionQueue()+'<details class="card hd-all"'+(allOpen?' open':'')+'><summary>كل الأدوات وربطها بالشركة <small>'+S.reduce((n,x)=>n+x.targets.length,0)+'</small></summary><div class="hd-grid">'+table()+'</div></details></div>';
+  const all=root.querySelector&&root.querySelector(".hd-all");if(all)all.ontoggle=()=>{allOpen=all.open};
   if(root.dataset.hdBound==="1")return;
   root.dataset.hdBound="1";
   root.addEventListener("click",async e=>{

@@ -23,9 +23,11 @@ const csv=(name,h,r)=>window.SK?.csv?.download?.(name,h,r);
 
 const KINV="skosif_erp_inventory_v1", KFIN="skosif_erp_finance_v1", KAP="skosif_erp_payables_v1", KIS="skosif_income_statements_v1";
 
+/* R13 (#9): the expiry radar's rows name their item in `item` (not `name`); matched on name only, every item showed 0 —
+   and while no movement or count was ever recorded here, a stored 0 is that miss, so the radar's figure replaces it */
 function inv(){
   const s=L(KINV,{stock:{},reorder:{},moves:[],counts:[]}), old=L("aghnam_v29_inventory",[]), its=items();
-  if(Array.isArray(old))old.forEach(r=>{const x=its.find(i=>String(i.id)===String(r.id)||String(i.name)===String(r.name));if(x){if(s.stock[x.id]==null)s.stock[x.id]=N(r.stock);if(s.reorder[x.id]==null)s.reorder[x.id]=N(r.reorderPoint)}});
+  if(Array.isArray(old))old.forEach(r=>{const x=its.find(i=>String(i.id)===String(r.id)||String(i.name)===String(r.name||r.item));if(x){const fresh=!(s.moves||[]).length&&!(s.counts||[]).length;if(s.stock[x.id]==null||fresh&&!N(s.stock[x.id]))s.stock[x.id]=N(r.stock);if(s.reorder[x.id]==null||fresh&&!N(s.reorder[x.id]))s.reorder[x.id]=N(r.reorderPoint)}});
   its.forEach(x=>{if(s.stock[x.id]==null)s.stock[x.id]=0;if(s.reorder[x.id]==null)s.reorder[x.id]=0});
   return s;
 }

@@ -55,6 +55,11 @@ const THEME={
     "--primary":"--sk-brand","--primary-strong":"--sk-brand","--primary-soft":"--sk-brand-soft","--accent":"--sk-brand-2","--accent-soft":"--sk-info-soft","--danger":"--sk-bad","--danger-soft":"--sk-bad-soft",
     "--warning":"--sk-warn","--warning-soft":"--sk-warn-soft","--success":"--sk-ok","--success-soft":"--sk-ok-soft","--info":"--sk-info","--info-soft":"--sk-info-soft","--critical":"--sk-bad","--shadow-sm":"--sk-shadow-1","--shadow-md":"--sk-shadow-2",
     "--radius-sm":"--sk-r-s","--radius":"--sk-r","--radius-lg":"--sk-r-l","--font":"--sk-font"})+BASE+
+    /* R13 (#2): the shell is a two-track grid (sidebar 248px · workspace); with the sidebar hidden the workspace fell into the
+       248px track and the whole analytics studio ran in a narrow column */
+    ":host .app-shell{display:block!important;grid-template-columns:none!important}"+
+    /* the hero cards sit on the brand gradient: their titles keep the card's own light ink, not the page ink BASE gives every heading */
+    ":host .kx-body .hero-card h1,:host .kx-body .hero-card h2,:host .kx-body .hero-card h3{color:inherit!important}"+
     ":host .sidebar,:host .sidebar-backdrop{display:none!important}:host .workspace{margin:0!important}:host .main-content{padding:8px 0 32px!important;max-width:none!important}",
   studio:TOK({"--bg":"--sk-bg","--surface":"--sk-surface","--surface2":"--sk-surface-2","--line":"--sk-line","--text":"--sk-ink","--muted":"--sk-ink-3","--brand":"--sk-brand","--brand2":"--sk-brand-2",
     "--green":"--sk-ok","--amber":"--sk-warn","--red":"--sk-bad","--blue":"--sk-info","--radius":"--sk-r-l","--kosif-ink":"--sk-ink","--kosif-purple":"--sk-brand","--kosif-purple-2":"--sk-brand-2","--kosif-cream":"--sk-bg","--kosif-line":"--sk-line","--kosif-gold":"--sk-warn-mark"})+BASE+
