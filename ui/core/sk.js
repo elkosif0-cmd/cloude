@@ -149,7 +149,7 @@ const modalChanged=()=>{
   }catch{}
 };
 function modalFocus(root,invoker=document.activeElement,options={}){
-  const layer=root.closest(".skd-wrap,.skp-wrap,.skk-wrap,.skout,.skpres"),previous=modalStack.at(-1);
+  const layer=root.closest?root.closest(".skd-wrap,.skp-wrap,.skk-wrap,.skout,.skpres"):null,previous=modalStack.at(-1);
   const entry={root,layer,onTopChange:options.onTopChange},focusable=()=>[...root.querySelectorAll('button,[href],input,select,textarea,[tabindex]')]
     .filter(el=>!el.disabled&&el.tabIndex>=0&&!el.hidden&&!el.closest('[hidden],[inert]')&&el.getClientRects().length&&getComputedStyle(el).visibility!=="hidden");
   let released=false,lastFocus=null;

@@ -71,12 +71,16 @@ function invoiceAmounts(){
   return {subtotal,vatAmount,grandTotal:Number((subtotal+vatAmount).toFixed(2))};
 }
 
+let invoiceAt="";
 function zatcaHTML(){
   /* seller identity comes from «الإعدادات › هوية المنشأة»; nothing is invented */
   const org=((load("aghnam-pricing-v3",{})||{}).settings)||{};
   const seller=String(org.biz||(document.getElementById("biz-name")||{}).textContent||"").trim();
   const vatNo=String(org.vatNo||"").trim();
   const now=new Date();
+  /* R15: one issue time per drawn invoice — the receipt, its QR and the QR check read it (each read the clock, so the QR
+     and its check could disagree across a second) */
+  invoiceAt=now.toISOString().slice(0,19)+"Z";
   const invNo="INV-"+now.getFullYear()+String(now.getMonth()+1).padStart(2,"0")+String(now.getDate()).padStart(2,"0")+"-022";
   const {subtotal,vatAmount,grandTotal}=invoiceAmounts();
 
@@ -209,7 +213,7 @@ function zatcaHTML(){
           '<div class="sk38-rcpt-grand"><span>الإجمالي المستحق:</span><b>'+grandTotal.toFixed(2)+' ر.س</b></div>',
         '</div>',
         '<div class="sk38-rcpt-payments">'+
-          (invoicePayment.cardPaid>0?'<div><span>مدى / شبكة:</span><b>'+invoicePayment.cardPaid.toFixed(2)+' ر.س '+(invoicePayment.cardRef?'(مرجع: '+invoicePayment.cardRef+')':'')+'</b></div>':'')+
+          (invoicePayment.cardPaid>0?'<div><span>مدى / شبكة:</span><b>'+invoicePayment.cardPaid.toFixed(2)+' ر.س '+(invoicePayment.cardRef?'(مرجع: '+esc(invoicePayment.cardRef)+')':'')+'</b></div>':'')+
           (invoicePayment.cashPaid>0?'<div><span>نقداً:</span><b>'+invoicePayment.cashPaid.toFixed(2)+' ر.س '+(invoicePayment.cashTendered>0?'(المستلم: '+invoicePayment.cashTendered.toFixed(2)+')':'')+'</b></div>':'')+
           (changeDue>0?'<div><span>المتبقي للعميل (فكة):</span><b style="color:var(--sk-ok);">'+changeDue.toFixed(2)+' ر.س</b></div>':'')+
           (invoicePayment.transferPaid>0?'<div><span>تحويل بنكي:</span><b>'+invoicePayment.transferPaid.toFixed(2)+' ر.س</b></div>':'')+
@@ -229,12 +233,14 @@ function zatcaHTML(){
 function updateZatcaQR(){
   const seller=$("#sk38-seller")?.value||"";
   const vatNo=$("#sk38-vatno")?.value||"";
-  const now=new Date().toISOString().slice(0,19)+"Z";
+  const now=invoiceAt||new Date().toISOString().slice(0,19)+"Z";
   const amounts=invoiceAmounts(),vatAmount=amounts.vatAmount.toFixed(2),grandTotal=amounts.grandTotal.toFixed(2);
   const box=$("#sk38-qrcode-box");
   /* R10: no QR for an invoice that cannot be valid — a tax number of 15 digits, a seller and a total are required
      (the receipt used to carry a QR with an empty tax number and no lines) */
-  const missing=[!/^3\d{13}3$/.test(vatNo.trim())&&"رقم ضريبي من 15 رقماً يبدأ وينتهي بـ3",!seller.trim()&&"اسم المنشأة",!(amounts.grandTotal>0)&&"بند واحد على الأقل"].filter(Boolean);
+  const missing=[!/^3\d{13}3$/.test(vatNo.trim())&&"رقم ضريبي من 15 رقماً يبدأ وينتهي بـ3",!seller.trim()&&"اسم المنشأة",!(amounts.grandTotal>0)&&"بند واحد على الأقل",
+    /* R15: a TLV field holds at most 255 bytes (its length is one byte) — a longer name wrapped silently and corrupted the QR */
+    new TextEncoder().encode(seller.trim()).length>255&&"اسم منشأة أقصر (حد الرمز 255 بايتاً)"].filter(Boolean);
   if(box&&missing.length){box.innerHTML='<p class="sk38-qr-missing">لا يُصدر رمز QR بعد — ينقص: '+missing.map(esc).join("، ")+'</p>';return}
   const tlvB64=zatcaTLV(seller,vatNo,now,grandTotal,vatAmount);
   if(box&&window.QRCode){
@@ -320,7 +326,7 @@ function bindZatca(){
   $("#sk38-tlv-load-cur")?.addEventListener("click",()=>{
     const seller=$("#sk38-seller")?.value||"";
     const vatNo=$("#sk38-vatno")?.value||"";
-    const now=new Date().toISOString().slice(0,19)+"Z";
+    const now=invoiceAt||new Date().toISOString().slice(0,19)+"Z";
     const amounts=invoiceAmounts(),vatAmount=amounts.vatAmount.toFixed(2),grandTotal=amounts.grandTotal.toFixed(2);
     const tlvB64=zatcaTLV(seller,vatNo,now,grandTotal,vatAmount);
     const ta=$("#sk38-tlv-input");
