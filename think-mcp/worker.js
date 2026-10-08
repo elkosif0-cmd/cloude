@@ -1336,6 +1336,7 @@ function preflightTool(args){
   if(!question) throw new Error("QUESTION_REQUIRED");
   const context=text(args?.context,12000);
   const options=cleanOptions(args?.options);
+  const capabilityPacks=a1990SelectCapabilityPacks(question+" "+context,""); // the atlas port (bfac62b) used it here without defining it: every preflight threw
   const combined=(question+" "+context).toLowerCase();
   const lanes=routeLanes(combined);
   const externalWrite=/(send|email|message|deploy|publish|delete|remove|purchase|pay|buy|merge|commit|upload|submit|create account|api key|token|secret|ارسل|ابعث|انشر|احذف|ادفع|اشتري|ادمج|ارفع|سجل|مفتاح)/i.test(combined);
@@ -2615,8 +2616,8 @@ async function callTool(env,name,args,ctx={}){
 
 const VERSIONED_MCP_PATH = "/mcp/v0.18.6";
 const COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.18.5";
-const SECONDARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.18.5";
-const TERTIARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.18.4";
+const SECONDARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.18.4";
+const TERTIARY_COMPAT_VERSIONED_MCP_PATH = "/mcp/v0.18.3";
 const LEGACY_VERSIONED_MCP_PATH = "/mcp/v0.9.3";
 const PATH_TOKEN = /^\/mcp\/([^/]+)$/;
 
