@@ -84,3 +84,35 @@ export function reconcileExcelRows(input:{
     };
   });
 }
+
+/* R18 (docs/rebuild/HARSH_REVIEW_20261008_ar.md #22): the cost diagnosis «مطابقة الإكسل» used to compute in the screen
+   (ui/features/tools.js), moved here unchanged so the numbers come from a tested engine. One line of the user's sheet against
+   the matched catalog item: the sheet's cost net of VAT, the gap to the app's true cost (positive = the sheet shows less than
+   the truth), both margins on the company's base, and the most likely cause — the other waste method (adding waste ×(1+w)
+   vs the yield method ÷(1−w); their costs differ by exactly 1/((1−w)(1+w))) or a VAT-inclusive cost typed as net. */
+export type ExcelCostItem={name:string;cost:number;price:number;kind?:string;waste?:number};
+export type ExcelCostDiagnosis={
+  xcNet:number;price:number;gap:number;gapPct:number;excelMargin:number|null;trueMargin:number|null;
+  code:'MATCH'|'UNDER'|'OVER'|'WASTE_EXCEL_ADDS'|'WASTE_EXCEL_DIVIDES'|'VAT_INCLUSIVE';diag:string;
+};
+export function excelCostDiagnosis(input:{
+  excelCost:number;excelPrice?:number|null;vatMode:'net'|'gross';vat:number;item:ExcelCostItem;netBase:boolean;yieldMethod:boolean;tolerance?:number;
+}):ExcelCostDiagnosis{
+  const {excelCost:xc,item:it,vat}=input,tol=input.tolerance??0.003;
+  const xcNet=input.vatMode==='gross'?xc/(1+vat):xc;
+  const price=input.excelPrice&&input.excelPrice>0?input.excelPrice:it.price,pNet=price/(1+vat),base=input.netBase?pNet:price;
+  const gap=it.cost-xcNet,gapPct=xcNet>0?gap/xcNet:0;
+  let code:ExcelCostDiagnosis['code']='MATCH',diag='مطابق';
+  if(Math.abs(gapPct)>tol){
+    code=gap>0?'UNDER':'OVER';
+    diag=gap>0?'إكسل يُظهر تكلفة أقل من الحقيقية':'إكسل يُظهر تكلفة أعلى من الحقيقية';
+    const w=it.kind==='raw'?(Number(it.waste)||0)/100:0;
+    if(w>0){
+      const ratio=1/((1-w)*(1+w)),got=it.cost/xcNet;
+      if(input.yieldMethod&&Math.abs(got-ratio)<0.004){code='WASTE_EXCEL_ADDS';diag='فرق طريقة الهدر: إكسل يضيف الهدر (×(1+هدر)) والتطبيق يقسم على (1−هدر) — إكسل يقلل التكلفة';}
+      if(!input.yieldMethod&&Math.abs(got*ratio-1)<0.004){code='WASTE_EXCEL_DIVIDES';diag='فرق طريقة الهدر: إكسل يقسم على (1−هدر) والتطبيق يضيف الهدر (×(1+هدر))';}
+    }
+    if(input.vatMode==='net'&&Math.abs(xc/(it.cost*(1+vat))-1)<0.01){code='VAT_INCLUSIVE';diag='يبدو أن تكلفة إكسل شاملة الضريبة — غيّر خيار «التكلفة في الملف»';}
+  }
+  return {xcNet,price,gap,gapPct,excelMargin:base>0?(pNet-xcNet)/base:null,trueMargin:base>0?(pNet-it.cost)/base:null,code,diag};
+}
