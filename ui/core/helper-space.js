@@ -18,9 +18,11 @@ const INTENT="sqc_company_intent",LAST="sqc_last_company",PRIVATE="sqc_private_s
 const GATE="sqc_gate",GATE_CORPUS="sqc_gate_corpus",GATE_AUDIT_NEW="sqc_gate_audit_new",GATE_PIN="sqc_gate_pin";
 const gateOf=g=>{g=String(g||"");return SK.caps&&SK.caps.gateway&&SK.caps.gateway(g)?g:""};
 const sessionGate=()=>{try{return sessionStorage.getItem(GATE)||""}catch{return ""}};
-/* the helper tools' own data — per company */
+/* the helper tools' own data — per company. R15 (docs/rebuild/CODE_REVIEW_20261008_ar.md): «erp_[a-z_]+» allowed no digit, so
+   skosif_erp_finance_v1 / _payables_v1 / _inventory_v1 (the cash log, supplier payables, the inventory card) were never
+   swapped and every company saw the same ones; the risk register, the tasks and the council's cases are company data too */
 const HELPER_KEY=k=>/^aghnam(?!-v12-theme|-pricing-auth|-pricing-pass|-pricing-ui|-typesafe|-v17-runtime|-v19-(leader|tabs|write)|-v21-)/.test(k)&&!/^aghnam_v29_jev_log$/.test(k)
-  ||/^skosif_(v3\d|v38)_/.test(k)||/^skosif_(ledger_v1|advances_v1|erp_[a-z_]+|purchasing_v1|followup_v1|inv_[a-z_]+|rep_pl|report_pack_v1|ar_paste|commerce_warm_v1|cost_rules_v1|income_statements_v1|product_flow_v1|ops_[a-z_]+|company_profile_v1|company_definitions_v1|company_tools_v1|reporting_intake_v1)$/.test(k)
+  ||/^skosif_(v3\d|v38)_/.test(k)||/^skosif_(ledger_v1|advances_v1|erp_[a-z0-9_]+|risks_v1|tasks_v1|council_v1|purchasing_v1|followup_v1|inv_[a-z_]+|rep_pl|report_pack_v1|ar_paste|commerce_warm_v1|cost_rules_v1|income_statements_v1|product_flow_v1|ops_[a-z_]+|company_profile_v1|company_definitions_v1|company_tools_v1|reporting_intake_v1)$/.test(k)
   ||/^sqc_(ptree|geo|jesim|salesup)_/.test(k)||k==="skosif_demo_v1"
   ||k==="skosif_company_platform_v1"||/^sales_customer_followup/.test(k); /* the original CRM V8.2 (الأنظمة الأصلية) */
 const reg=()=>{const r=load(REG,{})||{};return{active:r.active||null,spaces:r.spaces||{}}};
@@ -168,8 +170,8 @@ function demoSnapshotEligible(snap,demo,co){
   const rows=v=>Array.isArray(v)&&v.every(r=>obj(r)&&r.demo===true);
   const only=(v,keys)=>obj(v)&&Object.keys(v).every(k=>keys.includes(k));
   const section=s=>!!(demo.sections&&demo.sections[s]);
-  const arrays={"aghnam-v12-manual-sales":"sales","skosif_v31_supplier_batches":"supply","aghnam_v29_inventory":"stock","skosif_inv_expiry_batches":"stock","skosif_v38_batches":"stock","skosif_v38_coldchain":"stock","skosif_v38_ledger":"credit"};
-  const wrappers={"skosif_erp_finance_v1":["supply","flows"],"skosif_erp_payables_v1":["supply","rows"],"skosif_purchasing_v1":["purchasing","orders","receipts","prices"],"skosif_followup_v1":["followup","records","queue"],"skosif_advances_v1":["advances","advances"]};
+  const arrays={"aghnam-v12-manual-sales":"sales","skosif_v31_supplier_batches":"supply","aghnam_v29_inventory":"stock","skosif_inv_expiry_batches":"stock","skosif_v38_batches":"stock","skosif_v38_coldchain":"stock","skosif_v38_ledger":"credit","skosif_tasks_v1":"risks"};
+  const wrappers={"skosif_erp_finance_v1":["supply","flows"],"skosif_erp_payables_v1":["supply","rows"],"skosif_purchasing_v1":["purchasing","orders","receipts","prices"],"skosif_followup_v1":["followup","records","queue"],"skosif_advances_v1":["advances","advances"],"skosif_risks_v1":["risks","risks","findings"],"skosif_council_v1":["decisions","cases"]};
   const data={};for(const [k,raw] of Object.entries(snap.ls||{})){if(k==="skosif_ar_paste")data[k]=raw;else try{data[k]=JSON.parse(raw)}catch{return false}}
   for(const [k,v] of Object.entries(data)){
     if(empty(v))continue;
@@ -178,6 +180,9 @@ function demoSnapshotEligible(snap,demo,co){
     if(wrappers[k]){const [s,...fields]=wrappers[k];if(!only(v,[...fields,"seq"])||v.seq!=null&&!Number.isFinite(v.seq))return false;
       if(fields.some(f=>v[f]!=null&&(!rows(v[f])||v[f].length&&!section(s))))return false;continue}
     if(k==="skosif_v31_monthly_opex"){/* the demo's figure: 2600 since R10, 26500 before it */if(v!==2600&&v!==26500||!demo.opex||!section("supply"))return false;continue}
+    /* the inventory card writes its defaults (stock and reorder points read from the expiry radar) on every visit; recorded
+       movements or counts are the user's own */
+    if(k==="skosif_erp_inventory_v1"){if(!only(v,["stock","reorder","moves","counts"])||(v.moves||[]).length||(v.counts||[]).length)return false;continue}
     if(k==="skosif_rep_pl"){if(!section("reports")||v.demo!==true)return false;continue}
     if(k==="skosif_ar_paste"){
       const names=["مطعم الديرة للمشويات","مطبخ الضيافة الملكية","مطعم نجد الأصيل","مطاعم سفرة الخير","مطعم البحر الأحمر"],lines=v.split("\n");

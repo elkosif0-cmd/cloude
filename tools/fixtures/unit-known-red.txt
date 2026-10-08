@@ -1,0 +1,2 @@
+# Unit test files known to be red on main before the code review (docs/rebuild/CODE_REVIEW_20261008_ar.md).
+# Listed here they are reported but do not fail «SQC Unit Tests (all files)». Remove a line when its file is fixed.
