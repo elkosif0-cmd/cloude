@@ -34,6 +34,7 @@ try{
   await check('actual Apple picker selection and source report',async()=>{
     await page.evaluate(()=>SKosifTBReview.picker());
     await page.locator('[data-bundle-add="apple-2024"]').click();
+    await page.locator('#view .tbr-source-replay').waitFor(); // opening is async (bundle data, the on-demand source adapters)
     assert.equal(await page.locator('#view .tbr-source-replay').count(),1);
     assert.equal(await page.locator('#view [data-tab], #view [data-a="demo-audit"]').count(),0);
     const build=await page.locator('meta[name="sqc-build"]').getAttribute('content');assert.match(build,/^[a-f0-9]{10}$/);

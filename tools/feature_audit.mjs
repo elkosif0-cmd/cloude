@@ -85,13 +85,13 @@ await go('companies',900);
 ok('شركة الواحة','شركة الواحة الذهبية: ميزان 40 حساباً بسنتين وبيانات المنشأة، وزر إضافتها في الشركات',await p.evaluate(()=>{const W=SKEngines.reports.sampleCompany;return !!W&&W.WAHA_TB_CSV.split('\n').length===41&&W.WAHA_CONTEXT.company.includes('الواحة')})&&(await has('[data-w="add-waha"]')||await txt('شركة الواحة')));
 await go('auditbench',1200);
 const CO=await p.evaluate(()=>{const c=SKEngines.reports.globalCorpus,s=c.summary();return{pages:s.pagesClassified,types:s.sectionTypes,bp:document.querySelectorAll('.ab-bp li').length,reps:document.querySelectorAll('[data-ab-rep] option').length,ex:c.EXEMPLARS.length}});
-ok('البحث العالمي','قراءة الحزمة كاملة: كل صفحة مصنفة وبنية كل تقرير',CO.pages>12400&&CO.types>=50&&CO.reps===49&&CO.bp>=30);
+ok('البحث العالمي','قراءة الحزمة كاملة: كل صفحة مصنفة وبنية كل تقرير',CO.pages>12400&&CO.types>=50&&CO.reps===50&&CO.bp>=30);
 ok('البحث العالمي','الصفحات النموذجية لكل قسم يكتبه المراجع الذكي',CO.ex>=8);
 await p.click('[data-ab-tab="kams"]');await p.waitForTimeout(500);
 const GB=await p.evaluate(()=>{const g=SKEngines.audit.globalBenchmarks,s=g.summary();return{reports:s.reports,kams:s.kams,mat:s.materiality,src:s.sources,hub:SK.caps.members('codex').map(x=>x.id).includes('auditbench'),themes:document.querySelectorAll('.ab-th').length,
   aramco:g.MATERIALITY.some(m=>m.report==='aramco-2025'&&m.currency==='SAR'),inTbr:!!window.SKosifAuditBench}});
 ok('البحث العالمي','المرجع العالمي للمراجعة صفحة في «المعايير والمدونة»',GB.hub);
-ok('البحث العالمي','مكتبة الأمور الرئيسية للمراجعة (96 أمراً من 49 تقريراً) بموضوعاتها',GB.reports===49&&GB.kams>=90&&GB.themes>=10);
+ok('البحث العالمي','مكتبة الأمور الرئيسية للمراجعة (96 أمراً من تقارير الحزمة الـ50) بموضوعاتها',GB.reports===50&&GB.kams>=90&&GB.themes>=10);
 ok('البحث العالمي','الأهمية النسبية المفصح عنها بما فيها أرامكو (ريال)',GB.mat===7&&GB.aramco);
 ok('البحث العالمي','المصادر الرسمية الثلاثون',GB.src===30);
 await p.click('[data-ab-tab="mat"]');await p.waitForTimeout(400);ok('البحث العالمي','فحص اختيار الأهمية النسبية مقابل الممارسة',await has('.ab-chk-r'));
@@ -128,7 +128,7 @@ const IR=await p.evaluate(()=>({cover:!!document.querySelector('.ir-cover'),secs
   prov:window.SKosifAI&&SKosifAI.providers().map(x=>x.id).join(','),check:SKEngines.reports.narrative.verifyNumbers('412.6 مليون',{allowed:[412.6]}).length===0}));
 ok('التقرير المتكامل','التقرير السنوي المتكامل على بنية التقارير العالمية (غلاف، رسائل، مخاطر، جدوى، حوكمة، مراجع، قوائم، ملحق مطابقة)',IR.cover&&IR.secs>=15&&IR.q&&IR.bar&&IR.risks>=5);
 ok('التقرير المتكامل','الذكاء الاصطناعي من Gemini أو OpenAI أو Claude مع التحقق من كل رقم',IR.prov==='gemini,openai,anthropic'&&IR.check);
-ok('التقرير المتكامل','اختبار هيكل المخرجات فعلياً مقابل كل التقارير الـ49',IR.compat===49&&IR.corpusCompat===49);
+ok('التقرير المتكامل','اختبار هيكل المخرجات فعلياً مقابل كل التقارير الـ50',IR.compat===50&&IR.corpusCompat===50);
 ok('الهوية والثيمات','هوية SQC واحدة في كل الثيمات',await p.evaluate(()=>getComputedStyle(document.querySelector('.rail #app-name'),'::before').content.includes('SQC')));
 await p.evaluate(()=>SKosifShell.setLook('kosif'));
 /* SQC finish: the interface face is self-hosted and loads; no look lets the rail spill sideways; the SQC mark in every non-heritage look */
@@ -208,7 +208,7 @@ await p.evaluate(()=>SKosifTBReview.loadCorpus('aramco-2025'));await p.waitForTi
 ok('الشركات العالمية','فتح شركة عالمية كملف مراجعة بعملتها ومراجعها وسنتها',await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}');return d.ctx&&d.ctx.corpusId==='aramco-2025'&&/ريال/.test(d.ctx.curSym)&&/Pricewaterhouse/.test(d.ctx.auditFirm)&&(Object.keys(d.overrides||{}).length>10||String(d.tbText||'').split('\n').length>20)}));
 await p.evaluate(()=>SKosifTBReview.open('docs'));await p.waitForTimeout(1500);
 ok('الشركات العالمية','طلبات الجولة الأولى تشمل ما اعتمد عليه مراجعو التقارير العالمية',await txt('مراجعين في التقارير العالمية'));
-ok('الشركات العالمية','شركة دولية: طلبات ضريبة الدخل لا الزكاة ولا فواتير QR',await p.evaluate(()=>SKosifTBReview.loadCorpus('apple-2024')).then(()=>p.waitForTimeout(2500)).then(()=>p.evaluate(()=>SKosifTBReview.open('docs'))).then(()=>p.waitForTimeout(1500)).then(()=>p.evaluate(()=>{const t=document.querySelector('#view').innerText;return /ضريبة الدخل/.test(t)&&!/احتساب الزكاة|رموز QR/.test(t)})));
+ok('الشركات العالمية','شركة دولية: طلبات ضريبة الدخل لا الزكاة ولا فواتير QR',await p.evaluate(()=>SKosifTBReview.loadCorpus('amazon-2023')).then(()=>p.waitForTimeout(2500)).then(()=>p.evaluate(()=>SKosifTBReview.open('docs'))).then(()=>p.waitForTimeout(1500)).then(()=>p.evaluate(()=>{const t=document.querySelector('#view').innerText;return /ضريبة الدخل/.test(t)&&!/احتساب الزكاة|رموز QR/.test(t)})));
 ok('الشركات العالمية','بيانات المراجعة تحفظ إطار الشركة الدولية ولا تقترح معيار المنشآت الصغيرة',await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}');return d.ctx.country==='INTL'&&d.ctx.framework==='IFRS'}));
 ok('هيكل المنتج','بطاقة الشريط الجانبي تعرض حالة ملف المراجعة لا هوامش البوكسات',await p.evaluate(()=>{const c=document.getElementById('status-card');return !!c&&/ملف المراجعة/.test(c.innerText)&&!/هامش البوكسات/.test(c.innerText)}));
 // ---------- the accountant helpers: product tree, customer map, sales analysis ----------

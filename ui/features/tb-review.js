@@ -165,7 +165,8 @@ function tourHTML(c){
    trial balance built from its published statements (line by line), its auditor, year end and report form, and
    the benchmark context (sector, currency, tax, framework, auditing standard) the key matters and requests use */
 async function openClient(id){
-  try{await sources()}catch{}
+  /* the reviewed adapters (ui/data/engines-sources.js) decide how a company opens; no wait once they have joined */
+  if(!(E().reports&&E().reports.volkswagenSource))try{await sources()}catch{}
   /* R16: a company with a reviewed published source opens as its source replay (#143); every other bundle company with
      statements still opens as an audit file from its corpus model, so the file reaches the corpus replay (PRODUCT_MANDATE,
      P5). Only a company with no usable statements stays closed, with the reason. */
