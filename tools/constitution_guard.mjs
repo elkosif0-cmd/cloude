@@ -42,6 +42,14 @@ const STATIC = {
     const src = rd(f), ids = (caps.sectors || []).map((s) => s.id), miss = ids.filter((id) => !src.includes(`'${id}'`) && !src.includes(`"${id}"`) && !src.includes(`${id}:`));
     return [miss.length === 0, miss.length ? `قطاعات بلا حزمة: ${miss.join('، ')}` : `${ids.length} قطاعات لها حزمة`];
   },
+  audit_registry_own() {
+    // AUDIT_ONLY: the audit files' registry (skosif_engagements_v1) is read by the audit file screen alone, so an audit file
+    // never surfaces as a company in the accounting or tools entries
+    const out = execSync('git grep -l "skosif_engagements_v1" -- ui', { cwd: ROOT, encoding: 'utf8' }).trim().split(/\r?\n/).filter(Boolean);
+    const allowed = new Set(['ui/features/tb-review.js']);
+    const extra = out.filter((f) => !allowed.has(f));
+    return [extra.length === 0, extra.length ? `يقرأ سجل ملفات المراجعة خارج المراجعة: ${extra.join('، ')}` : 'سجل ملفات المراجعة تقرؤه شاشة المراجعة وحدها'];
+  },
   context_bar() {
     const t = rd('ui/layouts/topbar.js');
     return [/FOUNDATION §3\.0 rule 7/.test(t) && /sectorLabel\(x\.c\.sector\)/.test(t), 'الشريط يسمّي البرنامج والنشاط والشركة'];
@@ -61,7 +69,7 @@ const STATIC = {
   worklog() {
     const w = has('AGENT_WORKLOG.md') ? rd('AGENT_WORKLOG.md') : '';
     const n = (w.match(/^### TASK /gm) || []).length;
-    return [n > 0, `${n} مهمة مسجلة`];
+    return [n > 0, 'المهام مسجلة في AGENT_WORKLOG.md']; // no count: the committed scorecard must not change with every new task
   },
 };
 

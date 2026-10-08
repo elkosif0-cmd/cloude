@@ -1,0 +1,11 @@
+/* the company's Capability Profile on screen (ui/features/capability-gate.js) — tokens only */
+.skcap-off{opacity:.5}
+.skcap-off:hover,.skcap-off:focus-visible{opacity:.85}
+#view.skcap-locked>:not(.skcap-gate){display:none}
+.skcap-gate{max-width:720px;margin:var(--sk-6) auto;border-color:var(--sk-brand-2)}
+.skcap-gate h3{margin:var(--sk-2) 0}
+.skcap-gate p{color:var(--sk-ink-2);line-height:1.8}
+.hd-profile .card-b{display:grid;gap:var(--sk-3)}
+.hd-prof-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sk-3)}
+.hd-prof-row b{font-size:var(--sk-fs-l)}
+.hd-prof-row .sksev{font-size:var(--sk-fs-xs)}

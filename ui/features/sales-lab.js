@@ -64,7 +64,7 @@ function ideas(r){
   return r.ideas.length?'<div class="skslab-ideas">'+r.ideas.map(i=>'<article><b>'+esc(i.title)+'</b><p>'+esc(i.body)+'</p><small>'+esc(i.metric)+'</small><button type="button" class="linkish" data-slab-task="'+esc(i.title)+'">+ مهمة</button></article>').join("")+'</div>':'<p class="hint">لا تشير الأرقام الحالية إلى مبادرة واضحة.</p>';
 }
 /* ---------- «الربحية والقنوات»: the channel costing chapter (ui/features/channel-profit.js, merged from dashboard v16) ---------- */
-const profit=()=>window.SKosifChannelProfit?SKosifChannelProfit.render():Promise.resolve('<p class="hint">وحدة الربحية غير محمّلة.</p>');
+const profit=()=>window.SKosifChannelProfit?window.SKosifChannelProfit.render():Promise.resolve('<p class="hint">وحدة الربحية غير محمّلة.</p>');
 /* ---------- the item tree with codes: category → items (code, cost, price, margin) ---------- */
 function tree(){
   let items=[];try{items=SKosifCore.catalog().items||[]}catch{}if(!items.length)return '<p class="hint">الكتالوج فارغ.</p>';

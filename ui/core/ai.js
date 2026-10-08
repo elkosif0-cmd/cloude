@@ -38,6 +38,10 @@ function need(id){const c=conf(id);if(!c.key)throw new Error("لم يُضبط م
    becomes this device's model for that provider (a bad key fails at once — no other model would take it) */
 async function generateFor(id,body,opts={}){
   if(!PV().isProvider(id))throw new Error("مزود ذكاء اصطناعي غير معروف.");
+  /* FOUNDATION §3.0‑10: AI is a capability the open company enables («مكتبة الأدوات › ملف قدرات الشركة»); the audit entry works on
+     an audit file, not a company, and is not gated here */
+  const cp=window.SKosifCompanyPlatform,gate=SK.gate&&SK.gate.current?SK.gate.current():"";
+  if(gate!=="audit"&&cp&&cp.aiEnabled&&!cp.aiEnabled()){const e=new Error("الذكاء الاصطناعي غير مفعّل لهذه الشركة — فعّله من «مكتبة الأدوات › ملف قدرات الشركة».");e.code="ai-disabled";throw e}
   const c=need(id),first=opts.model||c.model,tries=[first,...(opts.model?[]:PV().fallbackModels(c.provider,first,c.models))];let last=null;
   for(const model of tries){
     const w=PV().buildRequest(c.provider,body,model,c.key);
