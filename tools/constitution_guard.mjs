@@ -73,7 +73,8 @@ function runTest(file) {
   else {
     const p = spawnSync(process.execPath, ['--test', file], { cwd: ROOT, encoding: 'utf8', timeout: 300000, env: { ...process.env, NODE_NO_WARNINGS: '1' } });
     const out = (p.stdout || '') + (p.stderr || '');
-    const pass = +((out.match(/ℹ pass (\d+)/) || [])[1] || 0), fail = +((out.match(/ℹ fail (\d+)/) || [])[1] || 0);
+    // the summary is «ℹ pass N» under the spec reporter (a terminal) and «# pass N» under TAP (CI, pipes)
+    const pass = +((out.match(/^(?:ℹ|#) pass (\d+)/m) || [])[1] || 0), fail = +((out.match(/^(?:ℹ|#) fail (\d+)/m) || [])[1] || 0);
     r = { ok: p.status === 0 && fail === 0 && pass > 0, pass, fail, note: `${pass} نجح · ${fail} فشل` };
   }
   r.knownRed = knownRed.has(file);
