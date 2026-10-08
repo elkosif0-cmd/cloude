@@ -33,7 +33,7 @@ const sourcePaths = [
 ];
 const sources = Object.fromEntries(sourcePaths.map(file => [file, {
   sha256:sha256(fs.readFileSync(file)),
-  url:`https://github.com/kosif199022-jpg/cloude/blob/${head}/${file}`,
+  url:`https://github.com/${process.env.GITHUB_REPOSITORY||'elkosif0-cmd/cloude'}/blob/${head}/${file}`,
 }]));
 const results = [], artifacts = [], network = [], failures = [];
 const classificationFor=id=>id.startsWith('NEGATIVE CONTROL:')?'negative-control':'acceptance';

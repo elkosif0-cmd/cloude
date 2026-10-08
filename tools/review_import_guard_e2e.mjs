@@ -23,7 +23,11 @@ function fixture(){
     [OTHER]:{ctx:{company:'شركة أخرى (اختبار مصطنع)'},tbText:'OTHER-SYNTHETIC',session:{id:'other-session',uploads:[{requestId:'other',fileName:'other.txt'}]}},
     [CO]:{active:{companyId:'source-co',periodId:'source-period'},companies:[{id:'source-co',name:'شركة المصدر الجديدة (اختبار مصطنع)',country:'SA',currency:'SAR'}],periods:[{id:'source-period',label:'فترة اختبار مصطنعة',startDate:'2026-02-01',endDate:'2026-08-31'}]},
     [LEDGER]:{accounts:[{id:'cash',code:'1100',name:'النقدية',type:'asset',active:true},{id:'capital',code:'3000',name:'رأس المال',type:'equity',active:true}],entries:[{id:'synthetic-entry-1',date:'2026-03-01',reference:'SYNTHETIC',lines:[{accountId:'cash',debit:100,credit:0},{accountId:'capital',debit:0,credit:100}]}]},
-    skosif_demo_v1:{off:true,sections:{}},skosif_role_mode:'admin',skosif_prefs:{font:'system',look:'kosif'}
+    skosif_demo_v1:{off:true,sections:{}},skosif_role_mode:'admin',skosif_prefs:{font:'system',look:'kosif'},
+    /* R17: the import reads the open company's books only inside a stable user/company scope (company isolation); without
+       the helper registry the app correctly refused with «تعذر تثبيت سياق المستخدم والشركة» and no confirmation ever showed */
+    sqc_helper_users_v1:{active:'synthetic-user',users:{'synthetic-user':{id:'synthetic-user',name:'Synthetic',pinHash:null,pinSalt:null,lastSpace:'source-co',spaces:{'source-co':{name:'شركة المصدر الجديدة (اختبار مصطنع)'}}}}},
+    sqc_helper_space_v1:{active:'source-co',spaces:{'source-co':{name:'شركة المصدر الجديدة (اختبار مصطنع)'}}}
   };
   const docs=[['synthetic-old-session|old-request|synthetic-evidence.pdf',{mime:'text/plain',data:'SYNTHETIC-EVIDENCE-ONLY'}],['other-session|other|other.txt',{mime:'text/plain',data:'SYNTHETIC-OTHER-ONLY'}]];
   return{data,docs};

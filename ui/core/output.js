@@ -25,9 +25,13 @@ function available(el){
   if(!el||!el.isConnected||el.disabled||el.getAttribute("aria-disabled")==="true")return false;
   if(el.closest?.('[hidden],[inert],[aria-hidden="true"]')||el.matches?.(':disabled'))return false;
   if(el.getClientRects&&!el.getClientRects().length)return false;
+  /* the closed «خيارات الصفحة» panel keeps layout boxes (content-visibility), so its fields passed as stops and
+     Shift+Tab out of the document went nowhere (R17) */
+  if(inClosedDetails(el)||typeof el.checkVisibility==="function"&&!el.checkVisibility())return false;
   const view=el.ownerDocument?.defaultView,style=view?.getComputedStyle?.(el);
   return !style||style.visibility!=="hidden"&&style.visibility!=="collapse";
 }
+function inClosedDetails(el){for(let d=el.closest?.("details");d;d=d.parentElement?.closest?.("details")){if(!d.open&&!d.querySelector(":scope>summary")?.contains(el))return true}return false}
 function focusOn(el){if(!available(el))return false;try{el.focus();return !el.ownerDocument||el.ownerDocument.activeElement===el}catch{return false}}
 function topLayer(){return pres?.layer||cur?.layer}
 function tabStops(root){
@@ -48,7 +52,11 @@ function exitLayerFullscreen(layer,recover=layer.recoverTop){try{
   const element=document.fullscreenElement;if(!layer.exitPromise&&(!element||!layer.wrap.contains(element)))return;
   // Reuse the native transition if a newer modal opens before it settles.
   if(!layer.exitPromise)layer.exitPromise=Promise.resolve(document.exitFullscreen()).finally(()=>{layer.exitPromise=null});
-  layer.exitPromise.then(()=>{if(!document.fullscreenElement)recover?.()}).catch(()=>{});
+  /* the browser can reset focus to BODY after the promise, when the transition settles: recover again then (R17; recover
+     never overrides a meaningful target, so repeating it is safe) */
+  const settle=()=>{if(document.fullscreenElement)return;recover?.();requestAnimationFrame(()=>requestAnimationFrame(()=>{if(!document.fullscreenElement)recover?.()}))};
+  document.addEventListener("fullscreenchange",settle,{once:true});
+  layer.exitPromise.then(settle).catch(()=>{});
 }catch{}}
 /* Persistent palette wrappers may have been background before they became top.
    Release only our oldest recorded inert state, never another owner's original. */
@@ -251,7 +259,7 @@ function present(session){
   if(!validSync(session))return;
   if(pres)endPresent(false);
   const d=session.w.document,{title,subtitle,slides}=slidesOf(d),base=location.href.replace(/[^/?#]*([?#].*)?$/,""),mark=base+"art/sqc-mark.svg";
-  let biz=session.guard?session.guard.identity.name||"":"";if(!session.guard)try{biz=(JSON.parse(localStorage.getItem("aghnam-pricing-v3")||"{}").settings||{}).biz||""}catch{}
+  let biz=session.guard?session.guard.identity.name||"":"";if(!session.guard)try{biz=(SK.org&&SK.org().biz)||""}catch{}
   const date=session.guard?session.guard.identity.date||"":new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"});
   const styles=[...d.querySelectorAll("style,link[rel=stylesheet]")].filter(x=>x.id!=="skout-paper"&&x.id!=="skp-opts").map(x=>x.outerHTML).join("");
   const html='<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">'+styles+'<style>'+PRES_CSS+'</style></head><body>'+
