@@ -117,10 +117,31 @@ const T=[
   second:["جرد غرفة التبريد","2026-10-01","عادية","المخزون"],
   importRows:rows=>{const P={"عالية":"high","منخفضة":"low"},capOf=l=>{const c=SK.caps.all().find(x=>K(x.label)===K(l)||x.id===l);return c?c.id:""};
     return append("skosif_tasks_v1",rows.map(r=>({id:uid("tk"),title:r.title,due:r.due||today(),priority:P[String(r.priority||"").trim()]||"normal",cap:capOf(r.cap),done:false,at:new Date().toISOString()})))}},
-{id:"costrules",label:"قواعد التكلفة حسب الفترة والقناة",caps:["salesintel"],format:"xlsx",note:"تكلفة الوحدة (كجم أو بوكس) لكل صنف، اختيارياً لقناة بيع محددة ولفترة سريان. تُستخدم في «ذكاء المبيعات › مختبر المبيعات › الربحية والقنوات».",
-  cols:[col("product","الصنف",{req:1,ex:"نعيمي طازج",hint:"كما يظهر في سطور المبيعات"}),col("channel","القناة",{ex:"",hint:"فارغ = كل القنوات"}),col("from","من تاريخ",{ex:"2026-01-01",type:"date"}),col("to","إلى تاريخ",{ex:"",type:"date"}),col("cost","التكلفة للوحدة",{req:1,ex:"48.5",type:"num"})],
-  second:["بوكس الشواء","التطبيق","2026-06-01","","168"],
-  importRows:rows=>{const list=load("skosif_cost_rules_v1",[]);rows.forEach(r=>list.push({id:uid("cr"),product:r.product,channel:r.channel||"",from:r.from||"",to:r.to||"",cost:r.cost,imported:true}));save("skosif_cost_rules_v1",list);return{added:rows.length,rejected:[]}}},
+{id:"costrules",label:"قواعد التكلفة حسب الفترة والقناة",caps:["salesintel"],format:"xlsx",note:"قاعدة لكل صنف، اختيارياً لقناة بيع ولفترة سريان (من–إلى). كل حركة بيع تأخذ القاعدة السارية في تاريخها. المبالغ بالريال: للوحدة (كجم أو بوكس) أو للطلب، والنِسَب من قيمة البيع. أعمدة البنود اختيارية — قاعدة بعمود الشراء وحده تكفي. تطبيق البطاقة/المميز/الشحن: «الكل» أو فارغ (= عند تحقق الشرط في الحركة فقط). تُستخدم في «ذكاء المبيعات › مختبر المبيعات › الربحية والقنوات».",
+  cols:[col("product","الصنف",{req:1,ex:"نعيمي طازج",hint:"كما يظهر في سطور المبيعات",alt:["المنتج","اسم المنتج"]}),col("channel","القناة",{ex:"",hint:"فارغ = كل القنوات",alt:["قناة البيع"]}),col("from","من تاريخ",{ex:"2026-01-01",type:"date"}),col("to","إلى تاريخ",{ex:"",type:"date",alt:["الى تاريخ"]}),
+    col("cost","التكلفة للوحدة",{ex:"48.5",type:"num",hint:"تكلفة الشراء قبل الضريبة",alt:["تكلفة الشراء قبل الضريبة","الشراء"]}),col("vatPct","ضريبة الشراء ٪",{ex:"15",type:"num",alt:["ضريبة الشراء %"]}),col("includeVat","تُضاف الضريبة للتكلفة",{ex:"لا",type:"bool",alt:["إضافة الضريبة للتكلفة"]}),
+    col("packaging","التغليف للوحدة",{ex:"0.5",type:"num",alt:["تغليف للوحدة","التغليف"]}),col("processing","التجهيز للوحدة",{ex:"1",type:"num",alt:["تجهيز للوحدة","التجهيز"]}),col("otherUnit","أخرى للوحدة",{ex:"",type:"num"}),
+    col("platformPct","عمولة المنصة ٪",{ex:"",type:"num",alt:["عمولة المنصة %","سلة %"]}),col("platformFixed","رسوم منصة ثابتة للطلب",{ex:"",type:"num",alt:["رسوم منصة ثابتة"]}),
+    col("cardPct","عمولة البطاقة ٪",{ex:"",type:"num",alt:["عمولة البطاقة %","فيزا %"]}),col("cardMode","تطبيق البطاقة",{ex:"",choices:["","الكل","عند الشرط"]}),col("vipPct","خصم المميز ٪",{ex:"",type:"num",alt:["خصم المميز %"]}),col("vipMode","تطبيق المميز",{ex:"",choices:["","الكل","عند الشرط"]}),
+    col("otherPct","أخرى ٪",{ex:"",type:"num",alt:["أخرى %"]}),col("shipping","الشحن المجاني للطلب",{ex:"",type:"num",alt:["تكلفة الشحن المجاني"]}),col("shippingMode","تطبيق الشحن",{ex:"",choices:["","الكل","عند الشرط"]}),col("note","ملاحظة",{ex:"عقد المورد لشهر يناير"})],
+  second:["بوكس الشواء","التطبيق","2026-06-01","","168","15","لا","2","","","","","","","","","","","",""],
+  importRows:rows=>{const list=load("skosif_cost_rules_v1",[]),M=v=>String(v||"").trim()==="الكل"?"all":"conditional",N=v=>v==null||v===""?undefined:v;
+    rows.forEach(r=>list.push(JSON.parse(JSON.stringify({id:uid("cr"),product:r.product,channel:r.channel||"",from:r.from||"",to:r.to||"",purchase:N(r.cost),vatPct:N(r.vatPct),includeVat:!!r.includeVat,packaging:N(r.packaging),processing:N(r.processing),otherUnit:N(r.otherUnit),
+      platformPct:N(r.platformPct),platformFixed:N(r.platformFixed),cardPct:N(r.cardPct),cardMode:M(r.cardMode),vipPct:N(r.vipPct),vipMode:M(r.vipMode),otherPct:N(r.otherPct),shipping:N(r.shipping),shippingMode:M(r.shippingMode),note:r.note||"",imported:true}))));
+    save("skosif_cost_rules_v1",list);return{added:rows.length,rejected:[]}}},
+{id:"channelsales",label:"مبيعات القنوات (لوحة v16)",caps:["salesintel"],format:"xlsx",note:"صيغة «لوحة المبيعات والتكاليف والأرباح» v16: سطر لكل صنف في كل قناة (المعرض، الجملة، المتجر، هنغرستيشن أو أي قناة أخرى). التكلفة من قواعد التكلفة؛ وإن كان في الملف «التكلفة» أو «مجمل الربح» يُعتمد كما هو. السطر بلا تاريخ يأخذ القواعد المفتوحة فقط. تُحفظ في الشركة المفتوحة ولا تمس مبيعات التطبيق.",
+  cols:[col("date","التاريخ",{ex:"2026-07-01",type:"date",alt:["تاريخ"]}),col("code","كود المنتج",{ex:"AGW-001",alt:["الكود","رمز المنتج"]}),col("product","اسم المنتج",{req:1,ex:"نعيمي كشميري",alt:["المنتج","الصنف"]}),col("category","الفئة",{ex:"ذبائح ولحوم",alt:["التصنيف"]}),
+    col("channel","قناة البيع",{req:1,ex:"المعرض",alt:["القناة"]}),col("qty","الكمية",{req:1,ex:"10",type:"num",alt:["كمية"]}),col("sales","المبيعات",{req:1,ex:"650",type:"num",alt:["قيمة المبيعات"]}),col("vatIn","المبيعات تشمل الضريبة",{ex:"نعم",type:"bool"}),
+    col("profit","مجمل الربح",{ex:"",type:"num",alt:["الربح"]}),col("cost","التكلفة",{ex:"",type:"num"}),col("invoice","رقم الطلب",{ex:"ORD-1001",alt:["مرجع الطلب"]}),col("payment","طريقة الدفع",{ex:"مدى",alt:["وسيلة الدفع"]}),
+    col("customerType","نوع العميل",{ex:"",alt:["تصنيف العميل"]}),col("freeShipping","شحن مجاني",{ex:"",type:"bool"}),col("source","المصدر",{ex:"تقرير يوليو"})],
+  second:["2026-07-01","AGW-005","مفروم بقري","تجهيزات ومصنعات","المتجر","4","260","نعم","","180","ORD-1002","فيزا","مميز","نعم","تقرير يوليو"],
+  importRows:rows=>{const d=load("skosif_channel_lines_v1",null)||{lines:[],catalog:[]},vat=SK.vatRate?SK.vatRate():0.15,cat=new Map((d.catalog||[]).map(c=>[String(c.code),c])),H=v=>v==null||v===""?null:Math.round(Number(v)*100);
+    /* «المبيعات تشمل الضريبة»: missing column = yes; «لا» or an empty cell = net amounts, grossed up so every line is stored VAT-inclusive */
+    rows.forEach(r=>{const inc=r.vatIn!==false,amount=Math.round(Number(r.sales)*100*(inc?1:1+vat));
+      const c=H(r.cost),pr=H(r.profit);
+      d.lines.push({date:r.date||"",code:r.code||"",product:r.product,category:r.category||"",channel:r.channel,qty:Number(r.qty)||0,amount,manualCost:c,profit:c==null?pr:null,invoice:r.invoice||"",paymentMethod:r.payment||"",customerType:r.customerType||"",freeShipping:!!r.freeShipping,source:r.source||"استيراد"});
+      if(r.code&&!cat.has(String(r.code)))cat.set(String(r.code),{code:String(r.code),name:r.product,category:r.category||"",aliases:[]})});
+    d.catalog=[...cat.values()];save("skosif_channel_lines_v1",d);return{added:rows.length,rejected:[]}}},
 {id:"bank",label:"كشف حساب بنكي",caps:["ledger"],format:"xlsx",note:"انسخ سطور كشف البنك كما هي: الوارد والصادر موجبان، والرصيد اختياري (رصيد آخر سطر يصبح رصيد الكشف). يُطابق في «الدفاتر المحاسبية ← المطابقة» مع حساب النقدية والبنوك.",
   cols:[col("date","التاريخ",{req:1,ex:"2026-05-02",type:"date"}),col("description","البيان",{ex:"حوالة واردة من مطعم الوادي"}),col("in","وارد",{ex:"1150",type:"num"}),col("out","صادر",{ex:"",type:"num"}),col("reference","المرجع",{ex:"TRX-88121"}),col("balance","الرصيد",{ex:"48250.75",type:"num"})],
   second:["2026-05-31","رسوم خدمات بنكية","","35","FEE-05","48215.75"],
@@ -163,7 +184,7 @@ async function readRows(file){return /\.xlsx$/i.test(file.name)?await SKXlsx.row
 /* map the sheet's header row onto the template's columns and check every row */
 function check(t,grid){
   if(!grid.length)return{rows:[],errors:["الملف فارغ"]};
-  const head=grid[0].map(K),idx={};t.cols.forEach(c=>{const i=head.indexOf(K(c.h));if(i>=0)idx[c.key]=i});
+  const head=grid[0].map(K),idx={};t.cols.forEach(c=>{const i=[c.h,...(c.alt||[])].map(h=>head.indexOf(K(h))).find(x=>x>=0);if(i!=null)idx[c.key]=i}); /* c.alt: other spellings of the header (the v16 dashboard's files) */
   const miss=t.cols.filter(c=>c.req&&idx[c.key]==null).map(c=>c.h);if(miss.length)return{rows:[],errors:["أعمدة ناقصة: "+miss.join("، ")+" — نزّل القالب ولا تغيّر أسماء الأعمدة"]};
   const rows=[],errors=[];
   grid.slice(1).forEach((r,ri)=>{const o={},why=[];
