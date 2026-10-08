@@ -5248,7 +5248,7 @@ window.SKEngines = (function() {
 	};
 	var REPORT = Object.fromEntries(REPORTS.map((r) => [r.id, r]));
 	var reportOf = (id) => REPORT[id];
-	var row = (k) => {
+	var row$1 = (k) => {
 		const r = REPORT[k.report];
 		return {
 			...k,
@@ -5263,7 +5263,7 @@ window.SKEngines = (function() {
 	};
 	function kamLibrary(f = {}) {
 		const q = (f.q || "").trim().toLowerCase();
-		return KAMS.map(row).filter((k) => (!f.theme || k.theme === f.theme) && (!f.sector || k.sector === f.sector) && (!f.standard || k.standard === f.standard) && (!q || [
+		return KAMS.map(row$1).filter((k) => (!f.theme || k.theme === f.theme) && (!f.sector || k.sector === f.sector) && (!f.standard || k.standard === f.standard) && (!q || [
 			k.title,
 			k.company,
 			k.auditor,
@@ -5323,7 +5323,7 @@ window.SKEngines = (function() {
 	function precedentsFor(lineKey, opts = {}) {
 		const limit = opts.limit ?? 3;
 		return Object.keys(THEMES).filter((t) => THEMES[t].lines.includes(lineKey)).map((t) => {
-			const all = KAMS.filter((k) => k.theme === t).map(row);
+			const all = KAMS.filter((k) => k.theme === t).map(row$1);
 			const ranked = [...all.filter((k) => opts.sector && k.sector === opts.sector), ...all.filter((k) => !opts.sector || k.sector !== opts.sector)];
 			return {
 				theme: t,
@@ -15985,7 +15985,7 @@ window.SKEngines = (function() {
 	var clamp$1 = (n, a, b) => Math.min(b, Math.max(a, n));
 	var r2$6 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 	var f2 = (n) => (Math.round(n * 100) / 100).toFixed(2);
-	var pctTxt = (n) => String(Math.round(n * 1e3) / 10) + "%";
+	var pctTxt$1 = (n) => String(Math.round(n * 1e3) / 10) + "%";
 	/** The pricing engine's rounding policies (nine: …9 from 100 up, …x.90 below; int; half; default: the halala). */
 	function roundPrice(p, mode) {
 		if (!Number.isFinite(p) || p <= 0) return p;
@@ -16131,7 +16131,7 @@ window.SKEngines = (function() {
 				cls: "materials",
 				baseUnit: rc.net,
 				wasteRate: rc.w,
-				formula: ["هدر " + pctTxt(rc.w) + " " + wm, f2(rc.net) + " → " + f2(rc.cost) + " تكلفة الكجم الصالح"]
+				formula: ["هدر " + pctTxt$1(rc.w) + " " + wm, f2(rc.net) + " → " + f2(rc.cost) + " تكلفة الكجم الصالح"]
 			});
 			const p = raw.price;
 			hasPrice = p !== null && p !== void 0 && p !== "" && num(p) > 0;
@@ -16192,7 +16192,7 @@ window.SKEngines = (function() {
 						wasteRate: withW ? rc.w : 0,
 						formula: [
 							(r.vat === "incl" ? "الشراء " + f2(rc.buy) + " شامل ÷ " + vt.toFixed(2) + " = " : "الشراء صافٍ ") + f2(rc.net) + " للكجم",
-							...withW && rc.w > 0 ? ["هدر " + pctTxt(rc.w) + " " + wm + " → " + f2(rc.cost)] : withW ? [] : ["بلا هدر: يُباع كما اشتُري"],
+							...withW && rc.w > 0 ? ["هدر " + pctTxt$1(rc.w) + " " + wm + " → " + f2(rc.cost)] : withW ? [] : ["بلا هدر: يُباع كما اشتُري"],
 							f2(unit) + " × " + q + " كجم = " + f2(unit * q)
 						]
 					});
@@ -16496,12 +16496,12 @@ window.SKEngines = (function() {
 		else if (map.margin != null && map.margin < map.good) out.push({
 			level: "warn",
 			code: "low-margin",
-			text: "الهامش " + pctTxt(map.margin) + " دون حد «جيد» " + pctTxt(map.good)
+			text: "الهامش " + pctTxt$1(map.margin) + " دون حد «جيد» " + pctTxt$1(map.good)
 		});
 		else if (map.margin != null && map.margin < map.targetRate) out.push({
 			level: "info",
 			code: "below-target",
-			text: "الهامش " + pctTxt(map.margin) + " دون المستهدف " + pctTxt(map.targetRate) + "؛ السعر المقترح " + (map.target != null ? money(map.target) : "—")
+			text: "الهامش " + pctTxt$1(map.margin) + " دون المستهدف " + pctTxt$1(map.targetRate) + "؛ السعر المقترح " + (map.target != null ? money(map.target) : "—")
 		});
 		if (map.hasPrice && map.rounding && roundPrice(map.price, map.rounding) !== map.price) out.push({
 			level: "info",
@@ -16518,13 +16518,13 @@ window.SKEngines = (function() {
 		if (highW.length) out.push({
 			level: "warn",
 			code: "waste",
-			text: "هدر مرتفع (> 30%): " + highW.map((l) => l.name + " " + pctTxt(l.wasteRate ?? 0)).join("، ") + " — الهدر غير المعتاد مصروف وليس تكلفة مخزون (IAS 2.16)"
+			text: "هدر مرتفع (> 30%): " + highW.map((l) => l.name + " " + pctTxt$1(l.wasteRate ?? 0)).join("، ") + " — الهدر غير المعتاد مصروف وليس تكلفة مخزون (IAS 2.16)"
 		});
 		const top = [...map.lines].sort((a, b) => b.share - a.share)[0];
 		if (top && top.share >= .8 && map.lines.length > 1) out.push({
 			level: "info",
 			code: "concentration",
-			text: pctTxt(top.share) + " من التكلفة في «" + top.name + "» — أي تغير في سعره ينتقل للهامش مباشرة"
+			text: pctTxt$1(top.share) + " من التكلفة في «" + top.name + "» — أي تغير في سعره ينتقل للهامش مباشرة"
 		});
 		const iv = inventoryView(map);
 		if (iv.writeDown > 0) out.push({
@@ -23716,7 +23716,7 @@ window.SKEngines = (function() {
 			at: meta.at
 		};
 	}
-	var has = (t, rx) => rx.test(t);
+	var has$1 = (t, rx) => rx.test(t);
 	function quality(res, p) {
 		const n = res.narrative, letter = n.chairLetter.paragraphs.join(" ") + " " + n.ceoReview.paragraphs.join(" ");
 		const lt = letterTopics(), share = (k) => lt.find((x) => x.key === k)?.share ?? 0;
@@ -23724,28 +23724,28 @@ window.SKEngines = (function() {
 			{
 				key: "letter-results",
 				ar: "الرسائل تذكر النتائج الرئيسية بالأرقام مقارنة بالسنة السابقة",
-				ok: has(letter, /السابقة|مقارنة|ارتفاع|انخفاض/) && numbersIn(letter).length >= 2,
+				ok: has$1(letter, /السابقة|مقارنة|ارتفاع|انخفاض/) && numbersIn(letter).length >= 2,
 				detail: numbersIn(letter).length + " رقماً في الرسائل",
 				basis: "أرامكو ص 10008 · HSBC ص 5957"
 			},
 			{
 				key: "letter-strategy",
 				ar: "الرسائل تربط الأداء بالاستراتيجية",
-				ok: has(letter, /استراتيج/),
+				ok: has$1(letter, /استراتيج/),
 				detail: "",
 				basis: `${share("strategy")}% من رسائل الحزمة`
 			},
 			{
 				key: "letter-people",
 				ar: "الرسائل تشكر الموظفين والفريق",
-				ok: has(letter, /شكر|الموظف|العاملين|فريق/),
+				ok: has$1(letter, /شكر|الموظف|العاملين|فريق/),
 				detail: "",
 				basis: `${share("people_thanks")}% من رسائل الحزمة`
 			},
 			{
 				key: "letter-outlook",
 				ar: "الرسائل تتضمن نظرة مستقبلية مشروطة",
-				ok: has(letter + " " + n.outlook.paragraphs.join(" "), /تتوقع|نتوقع|المستقبل|القادمة|تعتزم/),
+				ok: has$1(letter + " " + n.outlook.paragraphs.join(" "), /تتوقع|نتوقع|المستقبل|القادمة|تعتزم/),
 				detail: "",
 				basis: `${share("outlook")}% من رسائل الحزمة`
 			},
@@ -23766,14 +23766,14 @@ window.SKEngines = (function() {
 			{
 				key: "mdna",
 				ar: "تحليل الأداء يغطي الإيراد والهامش والربح",
-				ok: has(n.performanceReview.paragraphs.join(" "), /الإيراد/) && has(n.performanceReview.paragraphs.join(" "), /هامش/),
+				ok: has$1(n.performanceReview.paragraphs.join(" "), /الإيراد/) && has$1(n.performanceReview.paragraphs.join(" "), /هامش/),
 				detail: "",
 				basis: "39 تقريراً من 49 فيها تقرير إدارة"
 			},
 			{
 				key: "liquidity",
 				ar: "السيولة والتدفقات النقدية وصافي الدين",
-				ok: has(n.liquidity.paragraphs.join(" "), /النقد|التدفق/),
+				ok: has$1(n.liquidity.paragraphs.join(" "), /النقد|التدفق/),
 				detail: "",
 				basis: "أرامكو ص 10041"
 			},
@@ -24703,6 +24703,421 @@ window.SKEngines = (function() {
 		return {
 			valid: issues.length === 0,
 			issues
+		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/sales/channel-costing-engine.ts
+	var channel_costing_engine_exports = /* @__PURE__ */ __exportAll({
+		COMPONENT_LABELS: () => COMPONENT_LABELS,
+		analyze: () => analyze,
+		costByRule: () => costByRule,
+		findRule: () => findRule,
+		isCardPayment: () => isCardPayment,
+		isVipCustomer: () => isVipCustomer,
+		items: () => items,
+		normalizeChannel: () => normalizeChannel,
+		normalizeText: () => normalizeText,
+		orderShares: () => orderShares,
+		previewRule: () => previewRule,
+		previousPeriod: () => previousPeriod,
+		recommend: () => recommend,
+		resolveFinancial: () => resolveFinancial
+	});
+	var H = 100;
+	var COMPONENTS = [
+		"purchase",
+		"vat",
+		"packaging",
+		"processing",
+		"otherUnit",
+		"platformPct",
+		"platformFixed",
+		"card",
+		"vip",
+		"otherPct",
+		"shipping"
+	];
+	var COMPONENT_LABELS = {
+		purchase: "الشراء",
+		vat: "ضريبة الشراء",
+		packaging: "التغليف",
+		processing: "التجهيز",
+		otherUnit: "أخرى للوحدة",
+		platformPct: "عمولة المنصة",
+		platformFixed: "رسوم المنصة الثابتة",
+		card: "عمولة البطاقة",
+		vip: "خصم المميز",
+		otherPct: "أخرى من المبيعات",
+		shipping: "الشحن المجاني"
+	};
+	var zero = () => ({
+		purchase: 0,
+		vat: 0,
+		packaging: 0,
+		processing: 0,
+		otherUnit: 0,
+		platformPct: 0,
+		platformFixed: 0,
+		card: 0,
+		vip: 0,
+		otherPct: 0,
+		shipping: 0
+	});
+	var n = (v) => {
+		const x = Number(v);
+		return Number.isFinite(x) ? x : 0;
+	};
+	var r4 = (v) => Math.round(v * 1e4) / 1e4;
+	var day = (d) => String(d || "").slice(0, 10);
+	var validDay$1 = (d) => /^\d{4}-\d{2}-\d{2}$/.test(day(d));
+	/** Arabic-aware key: hamzas, taa marbuta and alif maqsura folded, spaces and punctuation dropped */
+	function normalizeText(s) {
+		return String(s ?? "").trim().toLowerCase().replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/[\s_\-/\\().،,:]+/g, "");
+	}
+	var has = (s, words) => {
+		const x = normalizeText(s);
+		return !!x && words.some((w) => x.includes(normalizeText(w)));
+	};
+	var isCardPayment = (v) => has(v, [
+		"فيزا",
+		"visa",
+		"مدى",
+		"mada",
+		"ماستركارد",
+		"mastercard",
+		"بطاقة",
+		"card",
+		"applepay",
+		"ابل باي"
+	]);
+	var isVipCustomer = (v) => has(v, [
+		"مميز",
+		"vip",
+		"خاص",
+		"ذهبي",
+		"premium"
+	]);
+	/** the four channels of the v16 dashboard under one spelling; any other name is kept as it is */
+	function normalizeChannel(s) {
+		const x = normalizeText(s);
+		for (const [name, alts] of [
+			["المعرض", [
+				"المعرض",
+				"معرض",
+				"exhibition",
+				"showroom",
+				"storefront"
+			]],
+			["الجملة", [
+				"الجمله",
+				"جمله",
+				"wholesale"
+			]],
+			["المتجر", [
+				"المتجر",
+				"متجر",
+				"onlinestore",
+				"website",
+				"webstore"
+			]],
+			["هنغرستيشن", [
+				"هنغرستيشن",
+				"هنقرستيشن",
+				"hungerstation",
+				"hunger"
+			]]
+		]) if (alts.some((a) => normalizeText(a) === x)) return name;
+		return String(s ?? "").trim();
+	}
+	/** the rule in force for a sale: same product, its channel or all channels, its date inside the validity */
+	function findRule(rules, line) {
+		const p = normalizeText(line.product), ch = normalizeChannel(line.channel ?? ""), d = day(line.date);
+		const ok = rules.filter((r) => normalizeText(r.product) === p && (!r.channel || normalizeChannel(r.channel) === ch) && (!r.from || !d || r.from <= d) && (!r.to || !d || r.to >= d) && (validDay$1(d) || !r.from && !r.to));
+		ok.sort((a, b) => Number(!!b.channel) - Number(!!a.channel) || String(b.from ?? "").localeCompare(String(a.from ?? "")));
+		return ok[0] ?? null;
+	}
+	/** each line's share of its order (same day, channel and invoice) by amount; a line without an invoice is its own order */
+	function orderShares(lines) {
+		const key = (l) => l.invoice ? `${day(l.date)}|${normalizeChannel(l.channel ?? "")}|${l.invoice}` : "";
+		const sums = /* @__PURE__ */ new Map();
+		lines.forEach((l) => {
+			const k = key(l);
+			if (k) sums.set(k, (sums.get(k) ?? 0) + Math.max(0, n(l.amount)));
+		});
+		return lines.map((l) => {
+			const k = key(l);
+			if (!k) return 1;
+			const t = sums.get(k) ?? 0;
+			return t ? Math.max(0, n(l.amount)) / t : 1;
+		});
+	}
+	/** the cost of one sale under one rule, in halalas, with its components; `force` overrides the card/VIP/shipping conditions (the preview) */
+	function costByRule(line, rule, share = 1, force = null) {
+		const q = n(line.qty), paid = n(line.amount), unit = (v) => Math.round(q * n(v) * H), pct = (v) => Math.round(paid * n(v) / 100);
+		const b = zero();
+		b.purchase = unit(rule.purchase ?? rule.cost);
+		b.vat = rule.includeVat ? Math.round(b.purchase * n(rule.vatPct ?? 15) / 100) : 0;
+		b.packaging = unit(rule.packaging);
+		b.processing = unit(rule.processing);
+		b.otherUnit = unit(rule.otherUnit);
+		b.platformPct = pct(rule.platformPct);
+		b.otherPct = pct(rule.otherPct);
+		b.platformFixed = Math.round(n(rule.platformFixed) * H * share);
+		const card = force ?? (rule.cardMode === "all" || isCardPayment(line.paymentMethod));
+		const vip = force ?? (rule.vipMode === "all" || isVipCustomer(line.customerType));
+		const ship = force ?? (rule.shippingMode === "all" || !!line.freeShipping);
+		b.card = card ? pct(rule.cardPct) : 0;
+		b.vip = vip ? pct(rule.vipPct) : 0;
+		b.shipping = ship ? Math.round(n(rule.shipping) * H * share) : 0;
+		return {
+			cost: COMPONENTS.reduce((a, k) => a + b[k], 0),
+			breakdown: b
+		};
+	}
+	/** what one sale cost, by the order of evidence (imported cost → imported profit → rule → catalog → unknown) */
+	function resolveFinancial(line, rules, share = 1, opts = {}) {
+		const vat = opts.vat ?? .15, net = Math.round(n(line.amount) / (1 + vat));
+		if (line.manualCost != null && Number.isFinite(Number(line.manualCost))) return {
+			known: true,
+			cost: Math.round(n(line.manualCost)),
+			source: "manual"
+		};
+		if (line.profit != null && Number.isFinite(Number(line.profit))) return {
+			known: true,
+			cost: net - Math.round(n(line.profit)),
+			source: "profit"
+		};
+		const rule = findRule(rules, line);
+		if (rule) {
+			const c = costByRule(line, rule, share);
+			return {
+				known: true,
+				cost: c.cost,
+				source: "rule",
+				ruleId: rule.id,
+				breakdown: c.breakdown
+			};
+		}
+		const cat = opts.catalogCost ? opts.catalogCost(line.product) : null;
+		if (cat != null && Number.isFinite(cat)) {
+			const b = zero();
+			b.purchase = Math.round(n(cat) * n(line.qty));
+			return {
+				known: true,
+				cost: b.purchase,
+				source: "catalog",
+				breakdown: b
+			};
+		}
+		return {
+			known: false,
+			cost: 0,
+			source: "none"
+		};
+	}
+	/** a rule's preview: the cost and profit of `qty` units sold for `salesSar` riyals (VAT included), conditions on or off */
+	function previewRule(rule, qty, salesSar, conditions, opts = {}) {
+		const amount = Math.round(n(salesSar) * H), c = costByRule({
+			qty,
+			amount
+		}, rule, 1, conditions), net = Math.round(amount / (1 + (opts.vat ?? .15)));
+		return {
+			amount,
+			net,
+			cost: c.cost,
+			profit: net - c.cost,
+			margin: net ? r4((net - c.cost) / net) : null,
+			perUnit: qty ? Math.round(c.cost / qty) : null,
+			breakdown: c.breakdown
+		};
+	}
+	var row = (key) => ({
+		key,
+		revenue: 0,
+		amount: 0,
+		cost: 0,
+		profit: 0,
+		margin: null,
+		qty: 0,
+		lines: 0,
+		costed: 0,
+		costedRevenue: 0
+	});
+	var close = (r) => ({
+		...r,
+		profit: r.costedRevenue - r.cost,
+		margin: r.costedRevenue ? r4((r.costedRevenue - r.cost) / r.costedRevenue) : null
+	});
+	/** the dashboard: totals, channels, products (with their per-channel quantities and revenue), days, cost components,
+	coverage and rule-based recommendations, for the lines inside the filter. Order shares are taken over all the lines of
+	the period so a filter on one product does not move a shared order fee. Profit is counted only on costed revenue. */
+	function analyze(lines, rules, opts = {}) {
+		const vat = opts.vat ?? .15;
+		const period = !!(opts.from || opts.to);
+		const undatedOut = period ? lines.filter((l) => !validDay$1(l.date)).length : 0;
+		const inPeriod = lines.filter((l) => Number.isFinite(n(l.amount)) && (validDay$1(l.date) ? (!opts.from || day(l.date) >= opts.from) && (!opts.to || day(l.date) <= opts.to) : !period));
+		const shares = orderShares(inPeriod);
+		const chSet = opts.channels && opts.channels.length ? new Set(opts.channels.map(normalizeChannel)) : null;
+		const total = row("الكل"), byCh = /* @__PURE__ */ new Map(), byDay = /* @__PURE__ */ new Map(), comp = zero(), sources = {
+			manual: 0,
+			profit: 0,
+			rule: 0,
+			catalog: 0,
+			none: 0
+		};
+		const byProd = /* @__PURE__ */ new Map();
+		const missing = [];
+		inPeriod.forEach((l, i) => {
+			const ch = normalizeChannel(l.channel ?? "") || "غير محدد";
+			if (chSet && !chSet.has(ch)) return;
+			if (opts.product && normalizeText(l.product) !== normalizeText(opts.product)) return;
+			if (opts.category && (l.category || "") !== opts.category) return;
+			const f = resolveFinancial(l, rules, shares[i], {
+				...opts,
+				vat
+			}), net = Math.round(n(l.amount) / (1 + vat));
+			sources[f.source]++;
+			const add = (r) => {
+				r.revenue += net;
+				r.amount += n(l.amount);
+				r.qty += n(l.qty);
+				r.lines++;
+				if (f.known) {
+					r.cost += f.cost;
+					r.costed++;
+					r.costedRevenue += net;
+				}
+			};
+			add(total);
+			add(byCh.get(ch) ?? (byCh.set(ch, row(ch)), byCh.get(ch)));
+			if (validDay$1(l.date)) add(byDay.get(day(l.date)) ?? (byDay.set(day(l.date), row(day(l.date))), byDay.get(day(l.date))));
+			const pk = l.product || "غير محدد";
+			let p = byProd.get(pk);
+			if (!p) {
+				p = {
+					...row(pk),
+					category: l.category || "",
+					channels: {},
+					breakdown: zero()
+				};
+				byProd.set(pk, p);
+			}
+			add(p);
+			const pc = p.channels[ch] ?? (p.channels[ch] = {
+				qty: 0,
+				revenue: 0
+			});
+			pc.qty += n(l.qty);
+			pc.revenue += net;
+			if (f.breakdown) COMPONENTS.forEach((k) => {
+				comp[k] += f.breakdown[k];
+				p.breakdown[k] += f.breakdown[k];
+			});
+			if (!f.known && missing.length < 200) missing.push(pk);
+		});
+		const T = close(total);
+		const channels = [...byCh.values()].map(close).map((c) => ({
+			...c,
+			share: T.revenue ? r4(c.revenue / T.revenue) : 0
+		})).sort((a, b) => b.revenue - a.revenue);
+		const products = [...byProd.values()].map(close).sort((a, b) => b.revenue - a.revenue);
+		const days = [...byDay.values()].map(close).sort((a, b) => a.key.localeCompare(b.key));
+		const coverage = T.revenue ? r4(T.costedRevenue / T.revenue) : 1;
+		const result = {
+			totals: {
+				...T,
+				coverage,
+				missingLines: T.lines - T.costed,
+				undatedOut
+			},
+			channels,
+			products,
+			days,
+			components: comp,
+			sources,
+			missing: [...new Set(missing)]
+		};
+		return {
+			...result,
+			recommendations: recommend(result)
+		};
+	}
+	/** Arabic counted noun: صنف واحد · صنفان · 3 أصناف · 11 صنفاً */
+	var items = (k) => k === 1 ? "صنف واحد" : k === 2 ? "صنفان" : k >= 3 && k <= 10 ? `${k} أصناف` : `${k} صنفاً`;
+	var pctTxt = (m) => m == null ? "—" : Math.round(m * 1e3) / 10 + "٪";
+	var sarTxt = (h) => Math.round(h / 100).toLocaleString("en-US") + " ر.س";
+	/** rule-based advice from the numbers themselves (no AI): coverage, losses, weak margins, channel gaps, fees, concentration */
+	function recommend(a) {
+		const out = [], T = a.totals;
+		if (!T.lines) return [{
+			tone: "info",
+			tag: "لا توجد بيانات",
+			title: "لا حركات في هذه الفترة",
+			body: "وسّع الفترة أو القنوات، أو استورد سطور المبيعات."
+		}];
+		if (T.coverage < .99) out.push({
+			tone: "warn",
+			tag: "استكمال التكلفة",
+			title: `تغطية التكلفة ${pctTxt(T.coverage)}`,
+			body: `${T.missingLines} حركة بلا تكلفة مطابقة (${a.missing.slice(0, 3).join("، ")}). أضف قاعدة بفترة سريانها قبل الاعتماد على الربح.`
+		});
+		const costed = a.products.filter((p) => p.costed);
+		const losing = costed.filter((p) => p.profit < 0).sort((x, y) => x.profit - y.profit);
+		if (losing.length) {
+			const p = losing[0], need = (p.qty ? p.cost / p.qty : 0) / .85;
+			out.push({
+				tone: "bad",
+				tag: "خسارة",
+				title: `${items(losing.length)} ${losing.length === 1 ? "يبيع" : "تبيع"} بخسارة — ${losing.length === 1 ? "" : "أكبرها "}${p.key}`,
+				body: `خسارة ${sarTxt(-p.profit)}. لهامش 15٪ يلزم سعر صافٍ ≥ ${(need / 100).toFixed(2)} ر.س للوحدة، أو خفض التكلفة.`
+			});
+		}
+		const weak = costed.filter((p) => p.margin != null && p.margin >= 0 && p.margin < .1);
+		if (weak.length) out.push({
+			tone: "warn",
+			tag: "هامش ضعيف",
+			title: `${items(weak.length)} — هامش أقل من 10٪`,
+			body: weak.slice(0, 3).map((p) => `${p.key} ${pctTxt(p.margin)}`).join("، ") + " — راجع السعر أو حجم التغليف والتجهيز."
+		});
+		const chs = a.channels.filter((c) => c.costed && c.margin != null);
+		if (chs.length >= 2) {
+			const best = chs.reduce((x, y) => y.margin > x.margin ? y : x), worst = chs.reduce((x, y) => y.margin < x.margin ? y : x);
+			if (best.key !== worst.key && best.margin - worst.margin >= .05) out.push({
+				tone: "info",
+				tag: "فجوة القنوات",
+				title: `${worst.key} أقل القنوات هامشاً (${pctTxt(worst.margin)})`,
+				body: `مقابل ${best.key} ${pctTxt(best.margin)}. راجع رسوم ${worst.key} وتسعيرها أو وجّه العروض إلى ${best.key}.`
+			});
+		}
+		const fees = a.components.platformPct + a.components.platformFixed + a.components.card + a.components.vip + a.components.shipping + a.components.otherPct;
+		if (T.costedRevenue && fees / T.costedRevenue >= .08) out.push({
+			tone: "warn",
+			tag: "الرسوم",
+			title: `رسوم البيع ${pctTxt(r4(fees / T.costedRevenue))} من الإيراد`,
+			body: `عمولات المنصات والبطاقات والشحن ${sarTxt(fees)}. فاوض على العمولة أو اربط الشحن المجاني بحد أدنى للطلب.`
+		});
+		const top = a.products[0];
+		if (top && T.revenue && top.revenue / T.revenue >= .4) out.push({
+			tone: "info",
+			tag: "التركّز",
+			title: `${top.key} = ${pctTxt(r4(top.revenue / T.revenue))} من الإيراد`,
+			body: "اعتماد كبير على صنف واحد؛ أي تغير في تكلفته أو توفره يحرك الربح كله."
+		});
+		if (!out.length) out.push({
+			tone: "ok",
+			tag: "سليم",
+			title: `الهامش الكلي ${pctTxt(T.margin)}`,
+			body: "كل الحركات مغطاة بالتكلفة ولا أصناف خاسرة أو ضعيفة في هذه الفترة."
+		});
+		return out;
+	}
+	/** the same analysis over the previous period of equal length (for «مقارنة فترتين») */
+	function previousPeriod(from, to) {
+		const a = Date.parse(from + "T00:00:00Z"), b = Date.parse(to + "T00:00:00Z"), len = Math.round((b - a) / 864e5) + 1;
+		const iso = (t) => new Date(t).toISOString().slice(0, 10);
+		return {
+			from: iso(a - len * 864e5),
+			to: iso(a - 864e5)
 		};
 	}
 	//#endregion
@@ -29183,6 +29598,7 @@ window.SKEngines = (function() {
 		},
 		sales: {
 			catering: catering_engine_exports,
+			channelCosting: channel_costing_engine_exports,
 			credit: credit_engine_exports,
 			customers: customers_engine_exports,
 			invoice: invoice_engine_exports,

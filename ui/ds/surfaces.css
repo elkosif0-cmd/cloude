@@ -1,0 +1,45 @@
+/* SQC surfaces v2 — one shape for every card, KPI tile and data table (owner, 2026-10-08: «طوّر الأشكال والجداول والبطاقات»).
+   Loaded last so every screen's own tiles (the home brief, the daily pulse, the stat rows, the lab tiles, the KPI blocks)
+   share one language, drawn from the v16 dashboard the owner attached: a white tile on the mist ground, a soft shadow, a
+   4px accent edge on the reading side coloured by the tile's tone (instead of a thick coloured border), a lift on hover for
+   tiles that open something; cards with the large radius; tables with a tinted head, quiet zebra rows, a clear hover and a
+   bold totals row. Tokens only (FOUNDATION §3.11.2); the kosif look only — the other looks keep their own drawing. */
+:root[data-look="kosif"] :is(.sk-kpi,.skbrief-t,.skpulse-t,.skslab-k,.stat){
+  position:relative;overflow:hidden;border:1px solid var(--sk-line);border-radius:var(--sk-r-l);background:var(--sk-surface);
+  box-shadow:var(--sk-shadow-1);padding-inline-start:calc(var(--sk-4) + 2px);--acc:var(--sk-brand-2)}
+:root[data-look="kosif"] :is(.sk-kpi,.skbrief-t,.skpulse-t,.skslab-k,.stat)::before{
+  content:"";position:absolute;inset-block:var(--sk-3);inset-inline-start:0;width:4px;border-start-end-radius:var(--sk-r-pill);border-end-end-radius:var(--sk-r-pill);background:var(--acc)}
+:root[data-look="kosif"] :is(.sk-kpi,.skbrief-t,.skpulse-t,.skslab-k,.stat):is(.tone-ok,.ok,.good){--acc:var(--sk-ok-mark)}
+:root[data-look="kosif"] :is(.sk-kpi,.skbrief-t,.skpulse-t,.skslab-k,.stat):is(.tone-warn,.warn){--acc:var(--sk-warn-mark)}
+:root[data-look="kosif"] :is(.sk-kpi,.skbrief-t,.skpulse-t,.skslab-k,.stat):is(.tone-bad,.bad){--acc:var(--sk-bad-mark)}
+:root[data-look="kosif"] :is(.sk-kpi,.skbrief-t,.skpulse-t,.skslab-k,.stat):is(.tone-info,.info){--acc:var(--sk-info-mark)}
+:root[data-look="kosif"] .sk-kpi.accent{--acc:var(--sk-brand)}
+/* the tone is in the edge and the figure, not in a flooded background */
+:root[data-look="kosif"] .skpulse-t:is(.tone-warn,.tone-bad){background:var(--sk-surface)}
+:root[data-look="kosif"] :is(.skbrief-t,.skpulse-t).tone-warn b{color:var(--sk-warn)}
+:root[data-look="kosif"] :is(.skbrief-t,.skpulse-t).tone-bad b{color:var(--sk-bad)}
+:root[data-look="kosif"] :is(.sk-kpi,.skbrief-t,.skpulse-t,.skslab-k,.stat) b{font-weight:800;letter-spacing:0}
+/* tiles that open something lift a little and point at their target */
+:root[data-look="kosif"] :is(button.sk-kpi,button.skbrief-t,button.skpulse-t,a.sk-kpi,.skk4-t){
+  transition:transform var(--sk-t) var(--sk-ease-out),box-shadow var(--sk-t) var(--sk-ease-out),border-color var(--sk-t) var(--sk-ease-out)}
+:root[data-look="kosif"] :is(button.sk-kpi,button.skbrief-t,button.skpulse-t,a.sk-kpi,.skk4-t):hover{
+  transform:translateY(-2px);box-shadow:var(--sk-shadow-2);border-color:color-mix(in srgb,var(--sk-brand) 40%,var(--sk-line));background:var(--sk-surface)}
+:root[data-look="kosif"] :is(button.sk-kpi,button.skbrief-t,button.skpulse-t,a.sk-kpi,.skk4-t):focus-visible{outline:3px solid var(--sk-focus);outline-offset:2px}
+:root[data-look="kosif"] :is(button.sk-kpi,button.skbrief-t,button.skpulse-t,a.sk-kpi,.skk4-t):active{transform:translateY(0)}
+
+/* cards: the large radius, a quiet edge and a hairline of the brand on top */
+:root[data-look="kosif"] .card{border-radius:var(--sk-r-l);border-color:var(--sk-line);box-shadow:var(--sk-shadow-1);background:var(--sk-surface)}
+:root[data-look="kosif"] .card-h h3{font-weight:800;letter-spacing:0}
+:root[data-look="kosif"] .card-h .eyebrow{color:var(--sk-brand);font-weight:700}
+
+/* tables: tinted head, zebra, hover, figures aligned, the totals row the table component adds stands out */
+:root[data-look="kosif"] :is(.sk-table-wrap,.tbr-tw,.tw){border-radius:var(--sk-r-l)}
+:root[data-look="kosif"] :is(.t,.sk-table) thead th{background:color-mix(in srgb,var(--sk-brand-soft) 70%,var(--sk-surface));color:var(--sk-ink-2);font-weight:700;border-bottom:1px solid var(--sk-line-2)}
+:root[data-look="kosif"] :is(.t,.sk-table) tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--sk-surface-2) 70%,var(--sk-surface))}
+:root[data-look="kosif"] :is(.t,.sk-table) tbody tr:hover td{background:color-mix(in srgb,var(--sk-brand-soft) 60%,var(--sk-surface))}
+:root[data-look="kosif"] :is(.t,.sk-table) :is(td,th).num{text-align:end}
+:root[data-look="kosif"] :is(.t,.sk-table) :is(tfoot td,tr.sktb-total td,tr.total td){background:var(--sk-surface-2);font-weight:800;border-top:2px solid var(--sk-brand)}
+
+@media (prefers-reduced-motion:reduce){:root[data-look="kosif"] :is(button.sk-kpi,button.skbrief-t,button.skpulse-t,a.sk-kpi,.skk4-t){transition:none}
+  :root[data-look="kosif"] :is(button.sk-kpi,button.skbrief-t,button.skpulse-t,a.sk-kpi,.skk4-t):hover{transform:none}}
+@media print{:root[data-look="kosif"] :is(.sk-kpi,.skbrief-t,.skpulse-t,.skslab-k,.stat,.card){box-shadow:none}}

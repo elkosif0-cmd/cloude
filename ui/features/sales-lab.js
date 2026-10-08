@@ -10,7 +10,6 @@ const A=()=>SKEngines.sales.salesAnalytics;
 const sar=h=>SKCharts.compact(Math.round((Number(h)||0)/100));
 let tab="pulse",paintSeq=0;
 const TABS=[["pulse","النبض الزمني"],["invoices","الفواتير والشرائح"],["momentum","سباق الزخم"],["maps","الخرائط الحرارية"],["stats","المختبر الإحصائي"],["profit","الربحية والقنوات"],["tree","شجرة الأصناف"],["ideas","أفكار النمو"]];
-const RK="skosif_cost_rules_v1";let pf="all",pch="";
 
 function lines(){return new Promise(res=>{let q;try{q=indexedDB.open("aghnam-app-v7")}catch{return res([])}q.onerror=()=>res([]);
   q.onsuccess=()=>{const db=q.result;if(!db.objectStoreNames.contains("sales_lines")){db.close();return res([])}const g=db.transaction("sales_lines").objectStore("sales_lines").getAll();
@@ -64,25 +63,8 @@ function stats(r){
 function ideas(r){
   return r.ideas.length?'<div class="skslab-ideas">'+r.ideas.map(i=>'<article><b>'+esc(i.title)+'</b><p>'+esc(i.body)+'</p><small>'+esc(i.metric)+'</small><button type="button" class="linkish" data-slab-task="'+esc(i.title)+'">+ مهمة</button></article>').join("")+'</div>':'<p class="hint">لا تشير الأرقام الحالية إلى مبادرة واضحة.</p>';
 }
-/* ---------- gross profit with the cost basis by validity period and channel (from the attached management module) ---------- */
-const rules=()=>{const r=SK.load(RK,[]);return Array.isArray(r)?r:[]};
-function catalogCost(){const m=new Map();try{(SKosifCore.catalog().items||[]).forEach(i=>{if(i.cost!=null)m.set(i.name,Math.round(i.cost*100))})}catch{}return m}
-function costFn(){const R=rules().map(r=>({...r,cost:Math.round((+r.cost||0)*100)})),cat=catalogCost();return l=>A().resolveCost(R,l.product,l.channel,l.date,cat.has(l.product)?cat.get(l.product):null)}
-async function profit(){
-  const L=await lines(),f=costFn(),p=A().profitability(L,f),chs=p.channels.map(c=>c.key);if(!pch||!chs.includes(pch))pch=chs[0]||"";
-  const rows=pf==="top"?p.products.filter(x=>x.costed).slice(0,10):pf==="weak"?p.products.filter(x=>p.losing.includes(x.key)||p.weak.includes(x.key)):p.products;
-  const pct=m=>m==null?"—":Math.round(m*1000)/10+"٪";
-  const T=list=>'<div class="tbr-tw"><table class="sk-table" data-sk-plain><thead><tr><th>البند</th><th>الإيراد الصافي</th><th>التكلفة</th><th>مجمل الربح</th><th>الهامش</th><th>الكمية</th></tr></thead><tbody>'+list.map(x=>'<tr><td>'+esc(x.key)+(x.costed?'':' <span class="sksev info">بلا تكلفة</span>')+'</td><td class="num">'+sar(x.revenue)+'</td><td class="num">'+sar(x.cost)+'</td><td class="num"><b class="'+(x.gross<0?"neg":"")+'">'+sar(x.gross)+'</b></td><td class="num"><span class="sksev '+(x.margin==null?"info":x.margin<0?"bad":x.margin<.1?"warn":"ok")+'">'+pct(x.margin)+'</span></td><td class="num">'+SKCharts.compact(x.qty)+'</td></tr>').join("")+'</tbody></table></div>';
-  const R=rules();
-  return '<div class="skslab-kpis">'+kpi("مجمل الربح",sar(p.products.reduce((a,x)=>a+x.gross,0))+" ر.س","الإيراد بعد الضريبة ناقص التكلفة")+kpi("أصناف خاسرة",String(p.losing.length),p.losing.slice(0,2).join("، "),p.losing.length?"bad":"ok")+kpi("هامش ضعيف (<10٪)",String(p.weak.length),p.weak.slice(0,2).join("، "),p.weak.length?"warn":"ok")+kpi("بلا تكلفة",String(p.uncosted.length),p.uncosted.length?"أضف قاعدة تكلفة":"كل الأصناف مسعّرة",p.uncosted.length?"warn":"ok")+'</div>'+
-    '<div class="skslab-2"><div><h4>أداء القنوات</h4>'+SKCharts.hbars({rows:p.channels.map(c=>({label:c.key+" · "+pct(c.margin),value:Math.round(c.gross/100)})),fmt:v=>SKCharts.compact(v)+" ر.س"})+'</div>'+
-      '<div><h4>المنتجات داخل القناة <select data-slab-ch aria-label="القناة">'+chs.map(c=>'<option'+(c===pch?' selected':'')+'>'+esc(c)+'</option>').join("")+'</select></h4>'+T(A().channelProducts(L,pch,f).slice(0,8))+'</div></div>'+
-    '<h4>الترتيب حسب مجمل الربح <span class="sk-seg skslab-pf">'+[["all","الكل"],["top","الأعلى ربحاً"],["weak","الخاسرة والضعيفة"]].map(([k,l])=>'<button type="button" data-slab-pf="'+k+'" aria-pressed="'+(pf===k)+'">'+l+'</button>').join("")+'</span></h4>'+T(rows)+
-    '<h4>قاعدة التكلفة حسب فترة السريان والقناة</h4><p class="hint">التكلفة للوحدة (كجم أو بوكس) بالريال. القاعدة الأدق تغلب: قناة محددة قبل «كل القنوات»، والأحدث سرياناً أولاً؛ وبدون قاعدة تُستخدم تكلفة الصنف المحسوبة في الكتالوج.</p>'+
-    '<div class="tbr-tw"><table class="sk-table" data-sk-plain><thead><tr><th>الصنف</th><th>القناة</th><th>من</th><th>إلى</th><th>التكلفة</th><th></th></tr></thead><tbody>'+R.map(r=>'<tr><td>'+esc(r.product)+'</td><td>'+esc(r.channel||"كل القنوات")+'</td><td class="mono">'+esc(r.from||"—")+'</td><td class="mono">'+esc(r.to||"—")+'</td><td class="num">'+(+r.cost).toFixed(2)+'</td><td><button type="button" class="linkish" data-slab-rdel="'+esc(r.id)+'">حذف</button></td></tr>').join("")+
-      '<tr class="skslab-new"><td><input data-cr="product" list="slab-prods" placeholder="الصنف" aria-label="الصنف"><datalist id="slab-prods">'+p.products.map(x=>'<option value="'+esc(x.key)+'">').join("")+'</datalist></td><td><select data-cr="channel" aria-label="القناة"><option value="">كل القنوات</option>'+chs.map(c=>'<option>'+esc(c)+'</option>').join("")+'</select></td><td><input type="date" data-cr="from" aria-label="من"></td><td><input type="date" data-cr="to" aria-label="إلى"></td><td><input type="number" step="0.01" min="0" data-cr="cost" placeholder="0.00" aria-label="التكلفة"></td><td><button type="button" class="btn sm primary" data-slab-radd>إضافة</button></td></tr></tbody></table></div>'+
-    '<div class="sk-actions"><button type="button" class="btn sm" data-tpl-dl="costrules">تحميل قالب قواعد التكلفة</button><button type="button" class="btn sm" data-tpl-in="costrules">استيراد القواعد</button></div>';
-}
+/* ---------- «الربحية والقنوات»: the channel costing chapter (ui/features/channel-profit.js, merged from dashboard v16) ---------- */
+const profit=()=>window.SKosifChannelProfit?SKosifChannelProfit.render():Promise.resolve('<p class="hint">وحدة الربحية غير محمّلة.</p>');
 /* ---------- the item tree with codes: category → items (code, cost, price, margin) ---------- */
 function tree(){
   let items=[];try{items=SKosifCore.catalog().items||[]}catch{}if(!items.length)return '<p class="hint">الكتالوج فارغ.</p>';
@@ -109,17 +91,11 @@ function mount(root){
 document.addEventListener("click",e=>{
   const b=e.target.closest("[data-slab]");if(b){tab=b.dataset.slab;const h=document.querySelector("[data-slab-host]");if(h)paint(h);return}
   const repaint=()=>{const h=document.querySelector("[data-slab-host]");if(h)paint(h)};
-  const pfb=e.target.closest("[data-slab-pf]");if(pfb){pf=pfb.dataset.slabPf;repaint();return}
-  const rd=e.target.closest("[data-slab-rdel]");if(rd){SK.save(RK,rules().filter(x=>x.id!==rd.dataset.slabRdel));repaint();return}
-  if(e.target.closest("[data-slab-radd]")){const g=k=>{const el=document.querySelector('[data-cr="'+k+'"]');return el?el.value.trim():""};const product=g("product"),cost=Number(g("cost"));
-    if(!product||!(cost>=0)||g("cost")===""){SK.toast("اكتب الصنف والتكلفة","warn");return}if(g("from")&&g("to")&&g("from")>g("to")){SK.toast("تاريخ البداية بعد النهاية","warn");return}
-    SK.save(RK,[...rules(),{id:"cr-"+Date.now().toString(36),product,channel:g("channel"),from:g("from"),to:g("to"),cost}]);SK.toast("أُضيفت قاعدة التكلفة","ok");repaint();return}
   if(e.target.closest("[data-slab-treecsv]")){let items=[];try{items=SKosifCore.catalog().items||[]}catch{}SK.csv.download("SQC-item-tree.csv",["الفئة","الصنف","النوع","التكلفة","السعر","الهامش"],items.map(i=>[i.cat,i.name,i.kind==="box"?"بوكس":"خام",i.cost,i.price,i.margin==null?"":Math.round(i.margin*1000)/10+"%"]));return}
   const t=e.target.closest("[data-slab-task]");if(t&&window.SKosifTasks&&SKosifTasks.add){SKosifTasks.add({title:"مبادرة: "+t.dataset.slabTask,cap:"salesintel",priority:"normal"});SK.toast("أُضيفت إلى المهام","ok")}
 });
-document.addEventListener("change",e=>{const c=e.target.closest("[data-slab-ch]");if(c){pch=c.value;const h=document.querySelector("[data-slab-host]");if(h)paint(h)}});
 document.addEventListener("sk:sales-insights",()=>{const h=document.querySelector("[data-slab-host]");if(h)paint(h).catch(e=>SK.errors&&SK.errors.report(e,"sales-lab"))});
 function boot(){const c=window.SKosifCore;if(c&&c.onView)c.onView("salesintel",mount);else setTimeout(boot,300)}
 boot();
-window.SKosifSalesLab=Object.freeze({lab});
+window.SKosifSalesLab=Object.freeze({lab,repaint:()=>{const h=document.querySelector("[data-slab-host]");if(h)return paint(h).catch(e=>SK.errors&&SK.errors.report(e,"sales-lab"))}});
 })();

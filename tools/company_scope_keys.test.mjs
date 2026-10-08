@@ -17,7 +17,7 @@ const HELPER_KEY = new Function('k', 'return ' + hs.match(/const HELPER_KEY=k=>(
 const COMPANY_DATA = ['aghnam-pricing-v3', 'aghnam-v12-manual-sales', 'aghnam_v29_inventory', 'skosif_ledger_v1', 'skosif_advances_v1',
   'skosif_purchasing_v1', 'skosif_followup_v1', 'skosif_erp_finance_v1', 'skosif_erp_payables_v1', 'skosif_erp_inventory_v1',
   'skosif_risks_v1', 'skosif_tasks_v1', 'skosif_council_v1', 'skosif_v31_supplier_batches', 'skosif_v38_batches',
-  'skosif_company_profile_v1', 'skosif_company_definitions_v1', 'skosif_inv_expiry_batches', 'skosif_ar_paste', 'skosif_company_platform_v1'];
+  'skosif_company_profile_v1', 'skosif_company_definitions_v1', 'skosif_cost_rules_v1', 'skosif_channel_lines_v1', 'skosif_inv_expiry_batches', 'skosif_ar_paste', 'skosif_company_platform_v1'];
 
 /* deliberately shared by the device or the user, not by a company (preferences, the companies' own registry, sessions,
    the audit files' registry, error and audit logs, the user's own AI keys and profile) */

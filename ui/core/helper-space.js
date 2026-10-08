@@ -22,7 +22,7 @@ const sessionGate=()=>{try{return sessionStorage.getItem(GATE)||""}catch{return 
    skosif_erp_finance_v1 / _payables_v1 / _inventory_v1 (the cash log, supplier payables, the inventory card) were never
    swapped and every company saw the same ones; the risk register, the tasks and the council's cases are company data too */
 const HELPER_KEY=k=>/^aghnam(?!-v12-theme|-pricing-auth|-pricing-pass|-pricing-ui|-typesafe|-v17-runtime|-v19-(leader|tabs|write)|-v21-)/.test(k)&&!/^aghnam_v29_jev_log$/.test(k)
-  ||/^skosif_(v3\d|v38)_/.test(k)||/^skosif_(ledger_v1|advances_v1|erp_[a-z0-9_]+|risks_v1|tasks_v1|council_v1|purchasing_v1|followup_v1|inv_[a-z_]+|rep_pl|report_pack_v1|ar_paste|commerce_warm_v1|cost_rules_v1|income_statements_v1|product_flow_v1|ops_[a-z_]+|company_profile_v1|company_definitions_v1|company_tools_v1|reporting_intake_v1)$/.test(k)
+  ||/^skosif_(v3\d|v38)_/.test(k)||/^skosif_(ledger_v1|advances_v1|erp_[a-z0-9_]+|risks_v1|tasks_v1|council_v1|purchasing_v1|followup_v1|inv_[a-z_]+|rep_pl|report_pack_v1|ar_paste|commerce_warm_v1|cost_rules_v1|channel_lines_v1|income_statements_v1|product_flow_v1|ops_[a-z_]+|company_profile_v1|company_definitions_v1|company_tools_v1|reporting_intake_v1)$/.test(k)
   ||/^sqc_(ptree|geo|jesim|salesup)_/.test(k)||k==="skosif_demo_v1"
   ||k==="skosif_company_platform_v1"||/^sales_customer_followup/.test(k); /* the original CRM V8.2 (الأنظمة الأصلية) */
 const reg=()=>{const r=load(REG,{})||{};return{active:r.active||null,spaces:r.spaces||{}}};
