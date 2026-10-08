@@ -921,7 +921,7 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 
 ### TASK CLAUDE-20261008-006 — Merge PR #143 (published-source replays) with P5 kept (R16)
 - Agent: Claude (Lead Development Agent)
-- Status: IN PROGRESS
+- Status: DONE — PR #227 merged and published (main ed42d99)
 - Owner request: «نفذ الدمج» / «ادمج» — integrate the other agent's PR #143 so the 14 recovered red test files get their engine wiring.
 - Merged: branch `codex/sqc-five-audit-source-models-20261005` into main. P&G, Home Depot, Mercedes, McDonald's and Volkswagen source replays are wired; the four large adapters are read on demand from `ui/data/engines-sources.js` (`registerReviewedSources` + lazy resolvers), so `ui/core/engines.js` stays 1.37 MB instead of 3.56 MB.
 - Conflict with the mandate: the branch closed every company without a reviewed source in three places (`companyTrialBalance` → null, `replayCompany` → null for all, and the current corpus-model CSVs quarantined as "legacy transports"). PRODUCT_MANDATE P5 wins: 42 pending companies open on their corpus model (labelled pending review, simulation only); the 4 reviewed companies open on their source replay; only L'Oréal and Panasonic (no statements in the bundle) stay closed. `corpusModelTrialBalance` feeds the corpus replay, lab and scorecard; `auditFile` in the catalog says whether a company opens.
@@ -949,3 +949,21 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Data: the v16 file's embedded PDF data was NOT committed (real company figures); exported for the owner as `استيراد_مبيعات_القنوات_v16.xlsx` and verified through the app's own import: revenue 32,593.78 · profit 5,121.50 · margin 15.71% = the PDF.
 - Decisions per capability: `docs/capabilities/CHANNEL_COSTING_ar.md`.
 - Branch / PR: `claude/channel-costing-20261008` (stacked on PR #228).
+
+
+### TASK CLAUDE-20261008-010 — Full review R17: every red check fixed, open PRs merged
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Owner request: «قم بمراجعة كاملة للتطبيق وطور كل شيء وكل القدرات والواجهات وادمج كل شيء».
+- Red on every PR, root-caused and fixed (no guard weakened; CI-only suites reproduced with own Edge probes on the preview build):
+  Mercury presentation (`SK.org().biz` empty without «هوية المنشأة» → falls back to the company name); preview accessibility
+  (closed «خيارات الصفحة» fields counted as tab stops; focus recovery after the fullscreen exit settles, and from controls in a
+  layer that went inert); review import guard (fixture lacked the helper user/company registry the import correctly requires);
+  workspace validation (repo now elkosif0-cmd/cloude); S.kosif + KOSIF Regression (think-mcp compat paths v0.18.4/v0.18.3 per
+  runtime-contract.json; `capabilityPacks` undefined in preflightTool). `unit-known-red.txt` is empty.
+- Honesty: a bundle company opened on its corpus model says inside its file that it is pending review and a simulation on published
+  figures (`tools/pending_model_note.test.mjs`).
+- Merged: PR #215 (Council-500 direct recovery behind mobileBridgeVerify) with its regression test kept on the contract's paths.
+  #228 / #229 were merged by the identity session (tasks 008/009).
+- Branch / PR: `claude/r17-full-review-20261008` (PR #230).
+
