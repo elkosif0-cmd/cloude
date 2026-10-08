@@ -239,9 +239,10 @@ S.KOSIF **ليس برنامج محاسبة فقط، وليس برنامج مرا
 ## 2) مصدر الحقيقة
 
 المستودع الإنتاجي الحالي لهذه المنصة هو:
-- Repository: `kosif199022-jpg/cloude`
+- Repository: `elkosif0-cmd/cloude` (نُقل من `kosif199022-jpg/cloude` في 2026-10-07؛ GitHub يحوّل الرابط القديم)
 - Production branch: `main`
-- Production site: `https://s-kosif.pages.dev/`
+- Production site: `https://s-kosif.pages.dev/` — مشروع Cloudflare Pages `s-kosif`؛ بعد النقل يُنشر `main` عبر `.github/workflows/pages-deploy.yml` (أو رفع `dist` يدوياً بـ wrangler حين لا يوجد `CLOUDFLARE_API_TOKEN`).
+- الالتزام بهذا الدستور يُقاس آلياً: `node tools/constitution_guard.mjs` («رادع الدستور») يكتب `docs/registry/CONSTITUTION_SCORECARD_ar.md`؛ كل قاعدة بلا فحص تظهر فيه «ثغرة».
 
 هذا المستودع هو مصدر الحقيقة للتطبيق المنشور. أي مستودعات أخرى تُعامل كمصادر لقدرات أو معرفة أو تكاملات، وليست منتجات إنتاجية منافسة ما لم يغيّر المستخدم ذلك صراحةً.
 

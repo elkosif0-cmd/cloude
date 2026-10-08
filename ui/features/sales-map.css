@@ -2,7 +2,7 @@
 .sm-shell{display:grid;gap:var(--sk-4)}
 .sm-shell>.sk-seg{justify-self:start}
 .sm-wrap{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:var(--sk-4);align-items:start}
-.sm-map{position:relative;border:1px solid var(--sk-line);border-radius:14px;background:linear-gradient(180deg,color-mix(in srgb,#13305a 5%,var(--sk-surface)),var(--sk-surface));overflow:hidden}
+.sm-map{position:relative;border:1px solid var(--sk-line);border-radius:14px;background:linear-gradient(180deg,color-mix(in srgb,#2340c4 5%,var(--sk-surface)),var(--sk-surface));overflow:hidden}
 .sm-svg{display:block;width:100%;height:auto;aspect-ratio:1000/820;touch-action:manipulation}
 .sm-land{fill:color-mix(in srgb,var(--sk-ink-3) 9%,var(--sk-surface));stroke:color-mix(in srgb,var(--sk-ink-3) 45%,transparent);stroke-width:1.5;vector-effect:non-scaling-stroke}
 .sm-m{cursor:pointer}

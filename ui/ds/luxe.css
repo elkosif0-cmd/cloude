@@ -165,7 +165,7 @@
 .skhm-grid{display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr));gap:4px}
 .skhm-grid .lab{font-size:var(--sk-fs-xs);color:var(--sk-ink-3);text-align:center;padding:2px 4px;white-space:nowrap}
 .skhm-grid .lab.row{text-align:end}
-.skhm-cell{display:grid;place-items:center;min-height:52px;border:0;border-radius:8px;font:700 16px var(--sk-font-latin);color:#0b1f3a;cursor:pointer;transition:transform var(--sk-t),box-shadow var(--sk-t)}
+.skhm-cell{display:grid;place-items:center;min-height:52px;border:0;border-radius:8px;font:700 16px var(--sk-font-latin);color:#0b1030;cursor:pointer;transition:transform var(--sk-t),box-shadow var(--sk-t)}
 .skhm-cell:hover{transform:scale(1.04);box-shadow:var(--sk-shadow-2)}
 .skhm-cell[aria-pressed="true"]{box-shadow:0 0 0 3px var(--sk-surface),0 0 0 5px var(--sk-brand)}
 .skhm-cell.h1{background:var(--sk-heat-1)}.skhm-cell.h2{background:var(--sk-heat-2)}.skhm-cell.h3{background:var(--sk-heat-3)}.skhm-cell.h4{background:var(--sk-heat-4)}
@@ -259,7 +259,7 @@ td.sktb-down{color:var(--sk-bad)!important;font-weight:600}td.sktb-down::after{c
 :root[data-look="kosif"]:not(#x) .rail{background:var(--sk-grad-rail)}
 :root[data-look="kosif"]:not(#x) .rail #app-name::before{font:800 31px/1 var(--sk-font-latin);letter-spacing:.05em}
 :root[data-look="kosif"]:not(#x) .rail #biz-name{font-weight:600}
-:root[data-look="kosif"]:not(#x) .rail::after{background:linear-gradient(180deg,transparent 30%,rgba(6,18,38,.82)),url(./art/kosif-sky.svg) center/cover no-repeat;min-height:150px;border-radius:16px;font-size:var(--sk-fs-l)}
+:root[data-look="kosif"]:not(#x) .rail::after{background:linear-gradient(180deg,transparent 30%,rgba(5,8,30,.82)),url(./art/kosif-sky.svg) center/cover no-repeat;min-height:150px;border-radius:16px;font-size:var(--sk-fs-l)}
 :root[data-look="kosif"] .nav-btn{min-height:44px;padding:0 14px;border-radius:12px;font-size:14.5px}
 :root[data-look="kosif"] .nav-btn svg{width:19px;height:19px}
 :root[data-look="kosif"] .nav-btn[aria-current="page"]{background:linear-gradient(270deg,color-mix(in srgb,var(--sk-brand-2) 24%,transparent),color-mix(in srgb,var(--sk-brand-2) 6%,transparent));box-shadow:inset -3px 0 0 var(--sk-brand-2)}

@@ -7,7 +7,7 @@
 
 /* hero + steps + tabs */
 .tbr-hero{position:relative;overflow:hidden;display:flex;align-items:flex-start;justify-content:space-between;gap:var(--sk-4);padding:22px 24px;border-radius:var(--sk-r-l);color:#fff;
-  background:var(--sk-grad-brand,linear-gradient(135deg,#0b2a5b,#13305a));box-shadow:var(--sk-shadow-2)}
+  background:var(--sk-grad-brand,linear-gradient(135deg,#1a2a8f,#2340c4));box-shadow:var(--sk-shadow-2)}
 /* the audit picture (ui/art/brand/audit.webp, generated with Higgsfield) on the far side, under the actions */
 .tbr-hero::before{content:"";position:absolute;inset-block:0;inset-inline-end:0;width:42%;background:url(./art/brand/audit.webp) center/cover no-repeat;opacity:.5;pointer-events:none;-webkit-mask-image:linear-gradient(to right,var(--sk-ink) 30%,transparent);mask-image:linear-gradient(to right,var(--sk-ink) 30%,transparent)}
 .tbr-hero>*{position:relative;z-index:1}
@@ -248,7 +248,7 @@
 .tbr-docs button{flex:1 0 auto;min-height:38px;padding:0 14px;border:0;border-radius:9px;background:transparent;color:var(--sk-ink-2);font:inherit;font-weight:700;cursor:pointer;white-space:nowrap}
 .tbr-docs button[aria-pressed="true"]{background:var(--sk-brand);color:var(--sk-on-brand,#fff)}
 .tbr-docs button:focus-visible{outline:2px solid var(--sk-focus,var(--sk-brand));outline-offset:2px}
-.rd-paper{max-width:960px;width:100%;margin:0 auto;padding:40px 44px;border-radius:14px;background:#fff;color:#14233a;box-shadow:var(--sk-shadow-2);border:1px solid var(--sk-line)}
+.rd-paper{max-width:960px;width:100%;margin:0 auto;padding:40px 44px;border-radius:14px;background:#fff;color:#12173a;box-shadow:var(--sk-shadow-2);border:1px solid var(--sk-line)}
 .tbr-sig{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 @media (max-width:900px){.tbr-sig{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:720px){.rd-paper{padding:20px 16px;border-radius:10px}.rd-paper .rd-t{display:block;overflow-x:auto;font-size:var(--sk-fs-xs)}.rd-paper .rd-t th,.rd-paper .rd-t td{padding:5px 6px}.rd-cover{padding:32px 18px}.rd-cover h1{font-size:24px}.tbr-docs button{flex:1 1 45%}}

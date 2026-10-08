@@ -39,7 +39,7 @@
 .pt-g{cursor:grab}
 .pt-g rect{fill:var(--sk-surface);stroke:var(--sk-line);stroke-width:1.2}
 .pt-g.supplier rect{fill:color-mix(in srgb,#b7791f 10%,var(--sk-surface));stroke:color-mix(in srgb,#b7791f 45%,var(--sk-line))}
-.pt-g.material rect{fill:color-mix(in srgb,#13305a 8%,var(--sk-surface));stroke:color-mix(in srgb,#13305a 40%,var(--sk-line))}
+.pt-g.material rect{fill:color-mix(in srgb,#2340c4 8%,var(--sk-surface));stroke:color-mix(in srgb,#2340c4 40%,var(--sk-line))}
 .pt-g.product rect{fill:color-mix(in srgb,#6b46c1 9%,var(--sk-surface));stroke:color-mix(in srgb,#6b46c1 42%,var(--sk-line))}
 .pt-g.customer rect{fill:color-mix(in srgb,#2f855a 10%,var(--sk-surface));stroke:color-mix(in srgb,#2f855a 42%,var(--sk-line))}
 .pt-g.from rect{stroke:var(--sk-brand);stroke-width:3}
@@ -48,7 +48,7 @@
 .pt-g text.l{font-size:13px;font-weight:700}
 .pt-g text.s{font-size:10.5px;fill:var(--sk-ink-3)}
 .pt-e path{fill:none;stroke:color-mix(in srgb,var(--sk-ink-3) 55%,transparent);stroke-width:1.6;cursor:pointer}
-.pt-e.supply path{stroke:#b7791f}.pt-e.sale path{stroke:#2f855a}.pt-e.component path{stroke:#13305a}
+.pt-e.supply path{stroke:#b7791f}.pt-e.sale path{stroke:#2f855a}.pt-e.component path{stroke:#2340c4}
 .pt-e:hover path{stroke-width:3}
 .pt-e text{font-size:11px;fill:var(--sk-ink-2);text-anchor:middle;font-family:var(--sk-font);paint-order:stroke;stroke:var(--sk-surface);stroke-width:3px}
 #pt-arrow path{fill:color-mix(in srgb,var(--sk-ink-3) 70%,transparent)}
