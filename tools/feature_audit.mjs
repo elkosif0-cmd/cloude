@@ -145,7 +145,7 @@ ok('الهوية والثيمات','نظام خطوط موحد (أرقام بع�
 await go('salesintel',1500);const S=await p.evaluate(()=>[...document.querySelectorAll('[data-slab]')].map(x=>x.dataset.slab));
 ok('المرفقات: لوحة المبيعات','مختبر المبيعات: التوقع والتوزيع والزخم والخرائط والإحصاء وأفكار النمو',['pulse','invoices','momentum','maps','stats','ideas'].every(x=>S.includes(x)));
 ok('المرفقات: وحدة الإدارة V40','تكاليف الأصناف حسب فترة السريان والقناة وربحية القنوات',S.includes('profit'));ok('المرفقات: وحدة الإدارة V40','شجرة الأصناف والأكواد',S.includes('tree'));
-await p.evaluate(()=>{const b=document.querySelector('.sk-stabs [data-tab="lab"]');if(b)b.click()});await p.waitForTimeout(300);await p.click('[data-slab="profit"]');await p.waitForTimeout(800);ok('المرفقات: وحدة الإدارة V40','الأعلى ربحاً والخاسرة والضعيفة',await has('[data-slab-pf="weak"]'));
+await p.evaluate(()=>{const b=document.querySelector('.sk-stabs [data-tab="lab"]');if(b)b.click()});await p.waitForTimeout(300);await p.click('[data-slab="profit"]');await p.waitForTimeout(800);ok('المرفقات: وحدة الإدارة V40','الأعلى ربحاً والخاسرة والضعيفة',await has('[data-cp-mode="loss"],[data-slab-pf="weak"]')); // the profit tab now delegates to «الربحية والقنوات» (#229)
 await go('followup');await p.click('[data-tab="report"]');await p.waitForTimeout(700);ok('المرفقات: CRM','خطة المتابعة المقترحة والمدن الأكثر احتياجاً',await txt('خطة المتابعة المقترحة'));
 ok('المرفقات: CRM','التسجيل اليومي وقائمة الاتصال وأولوية التواصل وتقرير الإنجاز',await p.evaluate(()=>['log','queue','priority','report'].every(k=>document.querySelector('[data-sk-tabs="fu"] [data-tab="'+k+'"]'))));
 
