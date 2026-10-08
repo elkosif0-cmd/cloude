@@ -38,7 +38,7 @@ jobs:
           : > unit.txt
           for f in tools/*.test.mjs capabilities-v2/*.test.mjs; do
             # a browser test named *.test.mjs runs where Playwright is installed (S.kosif, the browser suites), not here
-            if grep -qE "require\(['\"]playwright['\"]\)|from ['\"]playwright['\"]" "$f"; then echo "$f browser -" >> unit.txt; continue; fi
+            if grep -qE "\(['\"]playwright['\"]\)|from ['\"]playwright['\"]" "$f"; then echo "$f browser -" >> unit.txt; continue; fi
             out=$(NODE_PATH=/tmp/sqc-ui/node_modules timeout 300 node --test "$f" 2>&1)
             # TAP off a terminal («# pass N»), the spec reporter on one («ℹ pass N»)
             p=$(printf '%s\n' "$out" | sed -nE 's/^(#|ℹ) pass ([0-9]+)$/\2/p' | tail -1)
