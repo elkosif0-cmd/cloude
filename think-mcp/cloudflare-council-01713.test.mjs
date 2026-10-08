@@ -33,6 +33,6 @@ assert.equal(c.decisionSensitivity.singleVoteFlipCount,2);
 
 const self=mod.selfTestTool({});
 assert.equal(self.version,'0.18.6');
-assert.equal(self.allPassed,true);
+assert.equal(self.allPassed,true,JSON.stringify(self.tests));
 
 console.log(JSON.stringify({passed:true,runtime:'0.18.6',frontierAgents:mod.FRONTIER_AGENTS.map(a=>a.id),decisionSensitivity:true}));
