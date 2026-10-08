@@ -47,7 +47,7 @@ text=html.decode("utf-8")
 # Product branding: keep business data intact, rename only the application shell.
 text=re.sub(r"<title>[^<]*</title>","<title>SQC — Smart Quality Control</title>",text,count=1,flags=re.I)
 text=re.sub(r'<meta\s+name=["\']apple-mobile-web-app-title["\'][^>]*>', '<meta name="apple-mobile-web-app-title" content="SQC">', text, count=1, flags=re.I)
-text=re.sub(r"<meta\s+name=['\"]theme-color['\"][^>]*>", '<meta name="theme-color" content="#0c2340">', text, flags=re.I)
+text=re.sub(r"<meta\s+name=['\"]theme-color['\"][^>]*>", '<meta name="theme-color" content="#0b1030">', text, flags=re.I)
 head_end=text.find("</head>")
 if head_end<0: raise SystemExit("Page head close missing")
 head,tail=text[:head_end],text[head_end:]
@@ -101,10 +101,10 @@ for en,ar in (("champion:['أبطال',","champion:['الأعلى قيمة',"),(
 # The UI ships as one stylesheet and one script, in layer order:
 #   design system (ui/ds) → core services (ui/core) → components → layout → features.
 # ui/core/capabilities.json is the single list of screens; it is inlined for the registry.
-UI_CSS=["ds/fonts.css","ds/tokens.css","ds/components.css","ds/elements.css","ds/shell.css","ds/luxe.css","components/studio.css",
+UI_CSS=["ds/fonts.css","ds/tokens.css","ds/components.css","ds/elements.css","ds/shell.css","ds/luxe.css","core/save-state.css","components/studio.css",
         "features/offers.css","features/supply.css","features/smartmatch.css","features/meatops.css","features/kernel.css",
         "features/enterprise.css","features/reports.css","features/erp-plus.css","features/operations.css","features/capabilities-v2.css","features/devices.css","features/luxe-screens.css","features/tbreview.css","features/assistant.css","features/accounting-guidance.css","features/audit-bench.css","features/fieldwork.css","features/helper-center.css","features/corpus-lab.css","features/product-tree.css","features/sales-map.css","features/entry-sim.css","features/product-flow.css","features/customer-flow.css","features/pulse.css","features/benchmarks.css","features/advances.css","features/legacy-apps.css","features/management-report.css","features/sales-intel.css","ds/sqc.css"]
-UI_JS=["core/sk.js","core/output.js","core/bus.js","core/errors.js","core/store.js","core/services.js","core/engines.js","core/management-report-model.js","core/registry.js","core/perm.js","core/audit.js","core/device.js","core/ai.js","core/demo.js","core/helper-space.js","core/company.js","core/company-platform.js","core/gate.js","core/standards.js","core/templates.js","core/flow.js","core/screen-tabs.js","core/a11y.js","core/motion.js",
+UI_JS=["core/sk.js","core/output.js","core/bus.js","core/errors.js","core/store.js","core/save-state.js","core/services.js","core/engines.js","core/management-report-model.js","core/registry.js","core/perm.js","core/audit.js","core/device.js","core/ai.js","core/demo.js","core/helper-space.js","core/company.js","core/company-platform.js","core/gate.js","core/standards.js","core/templates.js","core/flow.js","core/screen-tabs.js","core/a11y.js","core/motion.js",
        "components/states.js","components/studio.js","layouts/shell.js","layouts/rail-audit.js","layouts/topbar.js","components/palette.js","components/keys.js","components/charts.js","components/table.js","components/xlsx.js","features/command-center.js",
        "features/jev.js","features/offers.js","features/inventory.js","features/supply.js","features/meatops.js","features/smartmatch.js",
        "features/pricing-core.js","features/kernel.js","features/tools.js","features/enterprise.js","features/reports.js","features/report-pack.js",

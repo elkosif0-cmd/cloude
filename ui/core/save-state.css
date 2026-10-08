@@ -1,0 +1,10 @@
+/* the save state chip (ui/core/save-state.js) — FOUNDATION §3.0 rule 8; tokens only */
+.sk-save{display:inline-flex;align-items:center;gap:var(--sk-2);min-height:36px;padding:0 var(--sk-3);border:1px solid var(--sk-line);border-radius:var(--sk-r-pill);background:var(--sk-surface);color:var(--sk-ink-3);font:inherit;font-size:var(--sk-fs-xs);font-weight:600;white-space:nowrap;cursor:pointer}
+.sk-save i{flex:0 0 8px;width:8px;height:8px;border-radius:50%;background:var(--sk-ok-mark)}
+.sk-save[data-state="saving"] i{background:var(--sk-brand-2);animation:sk-save-pulse .9s var(--sk-ease) infinite alternate}
+.sk-save[data-state="failed"]{border-color:var(--sk-bad);background:var(--sk-bad-soft);color:var(--sk-bad)}
+.sk-save[data-state="failed"] i{background:var(--sk-bad-mark)}
+.sk-save:focus-visible{outline:3px solid var(--sk-focus);outline-offset:2px}
+@keyframes sk-save-pulse{from{opacity:.35}to{opacity:1}}
+@media (max-width:900px){.sk-save{min-height:44px;min-width:44px;padding:0 var(--sk-3);justify-content:center}.sk-save span{display:none}}
+@media (prefers-reduced-motion:reduce){.sk-save[data-state="saving"] i{animation:none}}

@@ -320,7 +320,7 @@ async function newCompany(){
     {key:"cur",label:"العملة",type:"select",value:"SAR",options:[["SAR","ريال سعودي"],["EGP","جنيه مصري"],["AED","درهم إماراتي"],["USD","دولار أمريكي"]]}],{ok:"إنشاء والانتقال إليها",message:"تبدأ الشركة الجديدة بأدوات فارغة: أصنافها وموردوها ومخزونها ومبيعاتها وملاحظاتها لها وحدها."});
   if(!v)return;
   const id=SK.ui&&SK.ui.uid?SK.ui.uid("co"):"co-"+Date.now().toString(36);
-  const cd=load("skosif_companies_v1",{})||{};cd.companies=cd.companies||[];cd.periods=cd.periods||[];cd.companies.push({id,name:v.name,country:v.cur==="EGP"?"EG":"SA",currency:v.cur});save("skosif_companies_v1",cd);
+  const cd=load("skosif_companies_v1",{})||{};cd.companies=cd.companies||[];cd.periods=cd.periods||[];cd.companies.push({id,name:v.name,country:v.cur==="EGP"?"EG":"SA",currency:v.cur,ownerScope:"TOOLS_ONLY"});save("skosif_companies_v1",cd);
   await switchTo(id,v.name,{fresh:true,after:"masterdata"});
 }
 
@@ -449,7 +449,7 @@ async function applyIntent(){
   const sector=SK.caps&&SK.caps.sector&&SK.caps.sector(it.sector)?String(it.sector):"";
   const cd=load("skosif_companies_v1",{})||{};cd.companies=cd.companies||[];cd.periods=cd.periods||[];
   const rec=cd.companies.find(c=>c&&c.id===id);
-  if(it.create&&!rec&&!it.scratch&&gate!=="tools"){cd.companies.push({id,name,country:"SA",currency:"SAR",sector:sector||"trade",packPending:true,...(it.model?{model:true}:{})});save("skosif_companies_v1",cd)}
+  if(it.create&&!rec&&!it.scratch&&gate!=="tools"){cd.companies.push({id,name,country:"SA",currency:"SAR",sector:sector||"trade",packPending:true,ownerScope:"FULL_ACCOUNTING",...(it.model?{model:true}:{})});save("skosif_companies_v1",cd)}
   else if(rec&&sector&&!rec.sector){rec.sector=sector;save("skosif_companies_v1",cd)}
   land();
   /* explicit selection is an admission, also for the company already open (#143): the switch decides, and only an

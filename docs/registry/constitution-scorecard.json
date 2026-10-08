@@ -1,0 +1,311 @@
+{
+ "summary": {
+  "rules": 18,
+  "enforced": 17,
+  "pass": 17,
+  "fail": 0,
+  "knownRed": 0,
+  "gap": 1,
+  "partial": 3
+ },
+ "rules": [
+  {
+   "id": "F2",
+   "section": "§2",
+   "status": "pass",
+   "results": [
+    {
+     "kind": "check",
+     "id": "source_of_truth",
+     "ok": true,
+     "note": "الدستور: elkosif0-cmd/cloude · الفعلي: elkosif0-cmd/cloude"
+    }
+   ]
+  },
+  {
+   "id": "F3",
+   "section": "§3",
+   "status": "pass",
+   "results": [
+    {
+     "kind": "check",
+     "id": "three_gateways",
+     "ok": true,
+     "note": "الأقسام: accounting · audit · tools"
+    },
+    {
+     "kind": "test",
+     "id": "tools/gate_nav_contract.test.mjs",
+     "ok": true,
+     "note": "3 نجح · 0 فشل",
+     "knownRed": false
+    },
+    {
+     "kind": "test",
+     "id": "tools/company_entry.test.mjs",
+     "ok": true,
+     "note": "11 نجح · 0 فشل",
+     "knownRed": false
+    }
+   ]
+  },
+  {
+   "id": "F3.0-1",
+   "section": "§3.0‑1",
+   "status": "pass",
+   "results": [
+    {
+     "kind": "test",
+     "id": "tools/owner_scope.test.mjs",
+     "ok": true,
+     "note": "4 نجح · 0 فشل",
+     "knownRed": false
+    }
+   ]
+  },
+  {
+   "id": "F3.0-3",
+   "section": "§3.0‑3",
+   "status": "pass",
+   "results": [
+    {
+     "kind": "test",
+     "id": "tools/audit_context_independence.test.mjs",
+     "ok": true,
+     "note": "6 نجح · 0 فشل",
+     "knownRed": false
+    }
+   ]
+  },
+  {
+   "id": "F3.0-4",
+   "section": "§3.0‑4",
+   "status": "pass",
+   "results": [
+    {
+     "kind": "check",
+     "id": "tools_menu_own_space",
+     "ok": true,
+     "note": "قائمة الأدوات تعرض مساحتها ومستخدمها فقط"
+    }
+   ]
+  },
+  {
+   "id": "F3.0-5",
+   "section": "§3.0‑5",
+   "status": "pass",
+   "results": [
+    {
+     "kind": "check",
+     "id": "sector_pack_engine",
+     "ok": true,
+     "note": "10 قطاعات لها حزمة"
+    }
+   ]
+  },
+  {
+   "id": "F3.0-6",
+   "section": "§3.0‑6",
+   "status": "pass",
+   "results": [
+    {
+     "kind": "test",
+     "id": "tools/company_scope_keys.test.mjs",
+     "ok": true,
+     "note": "2 نجح · 0 فشل",
+     "knownRed": false
+    },
+    {
+     "kind": "test",
+     "id": "tools/company_context.test.mjs",
+     "ok": true,
+     "note": "5 نجح · 0 فشل",
+     "knownRed": false
+    },
+    {
+     "kind": "test",
+     "id": "tools/bootstrap_scope.test.mjs",
+     "ok": true,
+     "note": "42 نجح · 0 فشل",
+     "knownRed": false
+    }
+   ]
+  },
+  {
+   "id": "F3.0-7",
+   "section": "§3.0‑7",
+   "status": "pass",
+   "results": [
+    {
+     "kind": "check",
+     "id": "context_bar",
+     "ok": true,
+     "note": "الشريط يسمّي البرنامج والنشاط والشركة"
+    },
+    {
+     "kind": "test",
+     "id": "tools/context_display_regression.test.mjs",
+     "ok": true,
+     "note": "10 نجح · 0 فشل",
+     "knownRed": false
+    }
+   ]
+  },
+  {
+   "id": "F3.0-8",
+   "section": "§3.0‑8",
+   "status": "pass",
+   "results": [
+    {
+     "kind": "check",
+     "id": "save_state_wired",
+     "ok": true,
+     "note": "وحدة حالة الحفظ داخل الحزمة"
+    },
+    {
+     "kind": "test",
+     "id": "tools/save_state.test.mjs",
+     "ok": true,
+     "note": "5 نجح · 0 فشل",
+     "knownRed": false
+    }
+   ]
+  },
+  {
+   "id": "F3.0-9",
+   "section": "§3.0‑9",
+   "status": "pass",
+   "results": [
+    {
+     "kind": "test",
+     "id": "tools/assistant_scope.test.mjs",
+     "ok": true,
+     "note": "40 نجح · 0 فشل",
+     "knownRed": false
+    }
+   ]
+  },
+  {
+   "id": "F3.0-10",
+   "section": "§3.0‑10",
+   "status": "gap",
+   "results": []
+  },
+  {
+   "id": "F3.0-11",
+   "section": "§3.0‑11",
+   "status": "pass",
+   "results": [
+    {
+     "kind": "check",
+     "id": "health_art",
+     "ok": true,
+     "note": "صورة الصحة هلال (موثّقة)"
+    }
+   ]
+  },
+  {
+   "id": "F3.7",
+   "section": "§3.7",
+   "status": "pass",
+   "results": [
+    {
+     "kind": "check",
+     "id": "ten_sectors",
+     "ok": true,
+     "note": "10 قطاعات"
+    },
+    {
+     "kind": "test",
+     "id": "tools/brand_art.test.mjs",
+     "ok": true,
+     "note": "4 نجح · 0 فشل",
+     "knownRed": false
+    }
+   ]
+  },
+  {
+   "id": "F3.10",
+   "section": "§3.10",
+   "status": "pass",
+   "results": [
+    {
+     "kind": "test",
+     "id": "tools/corpus_same_results.test.mjs",
+     "ok": true,
+     "note": "1 نجح · 0 فشل",
+     "knownRed": false
+    }
+   ]
+  },
+  {
+   "id": "F3.11.1",
+   "section": "§3.11.1",
+   "status": "pass",
+   "results": [
+    {
+     "kind": "test",
+     "id": "tools/mercury_report_presentation.test.mjs",
+     "ok": true,
+     "note": "16 نجح · 0 فشل",
+     "knownRed": false
+    },
+    {
+     "kind": "test",
+     "id": "tools/report_pack_guard.test.mjs",
+     "ok": true,
+     "note": "34 نجح · 0 فشل",
+     "knownRed": false
+    }
+   ]
+  },
+  {
+   "id": "F3.11.2",
+   "section": "§3.11.2",
+   "status": "pass",
+   "results": [
+    {
+     "kind": "test",
+     "id": "tools/door_tokens.test.mjs",
+     "ok": true,
+     "note": "2 نجح · 0 فشل",
+     "knownRed": false
+    },
+    {
+     "kind": "test",
+     "id": "tools/identity_audit.test.mjs",
+     "ok": true,
+     "note": "3 نجح · 0 فشل",
+     "knownRed": false
+    }
+   ]
+  },
+  {
+   "id": "F6-ai",
+   "section": "§6",
+   "status": "pass",
+   "results": [
+    {
+     "kind": "test",
+     "id": "tools/harsh_review_guards.test.mjs",
+     "ok": true,
+     "note": "4 نجح · 0 فشل",
+     "knownRed": false
+    }
+   ]
+  },
+  {
+   "id": "F0.0.2",
+   "section": "§0.0.2",
+   "status": "pass",
+   "results": [
+    {
+     "kind": "check",
+     "id": "worklog",
+     "ok": true,
+     "note": "54 مهمة مسجلة"
+    }
+   ]
+  }
+ ]
+}

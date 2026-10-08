@@ -265,11 +265,11 @@ const PRINT_CSS='@page{size:A4;margin:12mm}*{box-sizing:border-box}body{margin:0
 /* the KOSIF Luxe letterhead (default look): navy band with the cloud mark and wordmark, document
    title and date on the band, identity numbers under it, navy table heads, numbered pages */
 const PRINT_KOSIF='@page{size:A4;margin:14mm 12mm 16mm;@bottom-center{content:"صفحة " counter(page) " من " counter(pages);font:9.5px "IBM Plex Sans Arabic",sans-serif;color:#8292a8}}'+
- '*{-webkit-print-color-adjust:exact;print-color-adjust:exact}body{padding:0;font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;color:#0b1f3a;font-size:12.5px;line-height:1.65}'+
- 'h1,h2,h3{font-family:"IBM Plex Sans Arabic","Segoe UI",sans-serif;color:#0b1f3a;font-weight:700}h2{font-size:16px;margin:18px 0 8px;padding-inline-start:10px;border-inline-start:4px solid #13305a}'+
- 'table{border:1px solid #e4eaf2;border-radius:10px;overflow:hidden;border-collapse:separate;border-spacing:0}th,td{border-bottom:1px solid #edf1f7;padding:7px 9px}th{background:#0b1f3a!important;color:#fff;font-weight:600;font-size:11.5px}'+
- 'tr:nth-child(even) td{background:#f8fafd}hr,.r,.skp-foot{border-color:#e4eaf2}small,.muted{color:#8292a8}b,strong{color:#0b1f3a}.t{border-top-color:#13305a}'+
- '.skp-lux{margin:0 0 16px}.skp-band{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;background:linear-gradient(120deg,#0b1f3a 0%,#123a6b 60%,#13305a 100%)!important;color:#fff}'+
+ '*{-webkit-print-color-adjust:exact;print-color-adjust:exact}body{padding:0;font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;color:#0b1030;font-size:12.5px;line-height:1.65}'+
+ 'h1,h2,h3{font-family:"IBM Plex Sans Arabic","Segoe UI",sans-serif;color:#0b1030;font-weight:700}h2{font-size:16px;margin:18px 0 8px;padding-inline-start:10px;border-inline-start:4px solid #2340c4}'+
+ 'table{border:1px solid #e4eaf2;border-radius:10px;overflow:hidden;border-collapse:separate;border-spacing:0}th,td{border-bottom:1px solid #edf1f7;padding:7px 9px}th{background:#0b1030!important;color:#fff;font-weight:600;font-size:11.5px}'+
+ 'tr:nth-child(even) td{background:#f8fafd}hr,.r,.skp-foot{border-color:#e4eaf2}small,.muted{color:#8292a8}b,strong{color:#0b1030}.t{border-top-color:#2340c4}'+
+ '.skp-lux{margin:0 0 16px}.skp-band{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;background:linear-gradient(120deg,#0b1030 0%,#2a3fae 60%,#2340c4 100%)!important;color:#fff}'+
  '.skp-band img{width:88px;height:32px}.skp-mark{flex:1}.skp-mark b{display:block;font:800 24px/1 Montserrat,"Segoe UI",sans-serif;letter-spacing:.06em;color:#fff}'+
  '.skp-mark span{display:block;margin-top:4px;font-size:12px;color:#cfe0f5}.skp-doc{text-align:left}.skp-doc b{display:block;font-size:15px;color:#fff}.skp-doc span{font-size:11px;color:#cfe0f5}'+
  '.skp-ids{display:flex;flex-wrap:wrap;gap:4px 14px;padding:8px 6px 0;font-size:10.5px;color:#8292a8}.skp-foot{margin-top:22px;padding-top:8px;border-top:1px solid #e4eaf2;font-size:10px;color:#8292a8;text-align:center}';
@@ -307,11 +307,11 @@ const MARG={narrow:"7mm",normal:"12mm",wide:"18mm"};
 function optCSS(o){
   return '@page{size:'+o.paper+' '+o.orient+';margin:'+MARG[o.margin]+(o.pages?';@bottom-center{content:"صفحة " counter(page) " من " counter(pages);font:9.5px sans-serif;color:#8292a8}':';@bottom-center{content:none}')+'}'+
     'body{zoom:'+(o.scale/100)+'}'+(o.gray?'html{filter:grayscale(1)}':'')+(o.head?'':'.skp-lux,.skp-head,.skp-orn{display:none!important}')+
-    (o.wm?'body::before{content:"'+String(o.wm).replace(/["\\]/g,"")+'";position:fixed;inset:0;display:grid;place-items:center;font:800 96px/1 "IBM Plex Sans Arabic",sans-serif;color:rgba(11,31,58,.07);transform:rotate(-28deg);pointer-events:none;z-index:0}':'');
+    (o.wm?'body::before{content:"'+String(o.wm).replace(/["\\]/g,"")+'";position:fixed;inset:0;display:grid;place-items:center;font:800 96px/1 "IBM Plex Sans Arabic",sans-serif;color:rgba(11,16,48,.07);transform:rotate(-28deg);pointer-events:none;z-index:0}':'');
 }
-const BAR_CSS='.skp-bar{position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 -4mm 12px;padding:10px 14px;background:#0b1f3a;color:#fff;font:600 12.5px "IBM Plex Sans Arabic","Segoe UI",sans-serif;box-shadow:0 6px 20px -10px rgba(0,0,0,.5)}'+
-  '.skp-bar b{font-size:14px;margin-inline-end:auto}.skp-bar label{display:inline-flex;align-items:center;gap:6px}.skp-bar select,.skp-bar input[type=text]{min-height:32px;padding:0 8px;border:1px solid #2a4a74;border-radius:8px;background:#122a4d;color:#fff;font:inherit}'+
-  '.skp-bar input[type=text]{width:110px}.skp-bar button{min-height:34px;padding:0 14px;border:0;border-radius:9px;font:inherit;cursor:pointer}.skp-bar .go{background:#c9a227;color:#06101f;font-weight:800}.skp-bar .x{background:#1e3a60;color:#fff}'+
+const BAR_CSS='.skp-bar{position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 -4mm 12px;padding:10px 14px;background:#0b1030;color:#fff;font:600 12.5px "IBM Plex Sans Arabic","Segoe UI",sans-serif;box-shadow:0 6px 20px -10px rgba(0,0,0,.5)}'+
+  '.skp-bar b{font-size:14px;margin-inline-end:auto}.skp-bar label{display:inline-flex;align-items:center;gap:6px}.skp-bar select,.skp-bar input[type=text]{min-height:32px;padding:0 8px;border:1px solid #323c74;border-radius:8px;background:#141a40;color:#fff;font:inherit}'+
+  '.skp-bar input[type=text]{width:110px}.skp-bar button{min-height:34px;padding:0 14px;border:0;border-radius:9px;font:inherit;cursor:pointer}.skp-bar .go{background:#19c3d9;color:#050719;font-weight:800}.skp-bar .x{background:#252d5e;color:#fff}'+
   '@media print{.skp-bar{display:none!important}}';
 function previewBar(w,d){
   const o=popts(),sel=(k,opts)=>'<select data-k="'+k+'">'+opts.map(([v,l])=>'<option value="'+v+'"'+(String(o[k])===String(v)?' selected':'')+'>'+l+'</option>').join("")+'</select>';

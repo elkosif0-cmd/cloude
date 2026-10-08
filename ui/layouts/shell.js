@@ -27,8 +27,10 @@ function identityMetadata(){
 /* ---------- preferences: theme (look) + density ----------
    look: kosif (default, the adopted KOSIF identity) | kosif-night | heritage | heritage-night | executive | audit | midnight | notebook | auto */
 const LOOKS=[
-  ["kosif","SQC","الهوية المعتمدة: شريط كحلي وأزرق SQC وبطاقات بيضاء وحلقات تقدّم",["#f3f6fb","#0c2340","#13305a","#1fb6e0"]],
-  ["kosif-night","SQC الليلي","نفس الهوية بإضاءة ليلية",["#0a1628","#071427","#8fb3e8","#d4af37"]],
+  ["kosif","SQC","الهوية المعتمدة «كوبالت وجليد»: كوبالت ليلي وأزرق الكوبالت ولمعة الجليد وبطاقات بيضاء",["#f4f6fb","#0b1030","#2340c4","#19c3d9"]],
+  ["kosif-night","SQC الليلي","نفس الهوية بإضاءة ليلية",["#070a1e","#050719","#9fb0ff","#5fdcea"]],
+  ["navygold","الكحلي والذهبي","هوية SQC السابقة: كحلي وذهبي وعاجي",["#f7f4ec","#0b1f3a","#13305a","#c9a227"]],
+  ["navygold-night","الكحلي والذهبي الليلي","الهوية السابقة بإضاءة ليلية",["#0a1424","#06101f","#8fb3e8","#d4af37"]],
   ["najd","نجد الفاخر","أخضر ملكي وذهب نجد وبطاقات بيضاء ناصعة وحلقات فخمة",["#f7faf7","#07381e","#006c35","#d4af37"],"pro"],
   ["najd-night","ليل نجد","نفس الفخامة بإضاءة ليلية خضراء داكنة",["#09150e","#07150d","#2ecc71","#f1c40f"],"pro"],
   ["heritage","تراث الوادي","الهوية الافتراضية: رَقّ وحبر بني ورسوم الوادي",["#f4ead8","#8a5a2b","#efe2cc","#2b1a0f"]],
@@ -45,9 +47,9 @@ const LOOKS=[
   ["oasis-night","الواحة الليلي","الواحة في ليل الصحراء",["#141915","#101511","#86b896","#e59a63"],"pro"],
   ["graphite","الجرافيت","داكن مركّز بخطوط دقيقة — للعمل الطويل",["#0e0f12","#0b0c0f","#8183ff","#5ee0c4"],"pro"],
   ["onyx","العقيق","أسود وذهبي وعناوين بخط النسخ — فخامة المصارف الخاصة",["#0b0b0c","#080808","#d4af5a","#f4efe4"],"pro"],
-  ["auto","حسب الجهاز","ثيمك المختار نهاراً ونسخته الليلية ليلاً",["#f3f6fb","#13305a","#0a1628","#d4af37"]]];
-const DARK=new Set(["kosif-night","najd-night","heritage-night","midnight","aurora-night","vivid-night","oasis-night","graphite","onyx"]);
-const NIGHT={kosif:"kosif-night",najd:"najd-night",heritage:"heritage-night",aurora:"aurora-night",vivid:"vivid-night",oasis:"oasis-night"};
+  ["auto","حسب الجهاز","ثيمك المختار نهاراً ونسخته الليلية ليلاً",["#f4f6fb","#2340c4","#070a1e","#5fdcea"]]];
+const DARK=new Set(["kosif-night","navygold-night","najd-night","heritage-night","midnight","aurora-night","vivid-night","oasis-night","graphite","onyx"]);
+const NIGHT={kosif:"kosif-night",navygold:"navygold-night",najd:"najd-night",heritage:"heritage-night",aurora:"aurora-night",vivid:"vivid-night",oasis:"oasis-night"};
 function prefs(){return Object.assign({look:"kosif",density:"cozy",lastLight:"kosif",rail:"full",font:"theme",scale:1,radius:"theme",accent:"",contrast:false},load(PREF_KEY,{}))}
 /* ---------- theme studio: typeface, text size, accent colour, corners, contrast ----------
    applied on top of any look as inline tokens on <html>, so every screen, chart and print follows */
@@ -123,7 +125,9 @@ function fonts(look){
 }
 function applyPrefs(){
   const de=document.documentElement,look=lookNow(),mode=resolved(),p=prefs();
-  de.setAttribute("data-look",look.replace(/-night$/,""));
+  /* «الكحلي والذهبي» is a brand variant of the kosif look (same layout rules, the previous colours) */
+  const fam=look.replace(/-night$/,""),brand=fam==="navygold"?"navygold":"";
+  de.setAttribute("data-look",brand?"kosif":fam);if(brand)de.setAttribute("data-brand",brand);else de.removeAttribute("data-brand");
   de.setAttribute("data-theme",mode);de.setAttribute("data-density",p.density==="compact"?"compact":"cozy");
   de.setAttribute("data-rail",p.rail==="mini"?"mini":"full");
   de.setAttribute("data-sidebar",p.sidebarHidden===true?"hidden":"visible");

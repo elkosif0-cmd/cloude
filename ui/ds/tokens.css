@@ -110,8 +110,8 @@ html.sk-theme-trans .maincol{
    slots 3–5 sit under 3:1 on white, so every chart ships a legend, tooltips and a table view */
 :root{--sk-c1:#2a78d6;--sk-c2:#eb6834;--sk-c3:#1baf7a;--sk-c4:#eda100;--sk-c5:#e87ba4;--sk-c6:#008300;--sk-c7:#4a3aa7;--sk-c8:#e34948}
 :root[data-theme="dark"]{--sk-c1:#3987e5;--sk-c2:#d95926;--sk-c3:#199e70;--sk-c4:#c98500;--sk-c5:#d55181;--sk-c6:#008300;--sk-c7:#9085e9;--sk-c8:#e66767}
-:root[data-look="kosif"]{--sk-c1:#13305a;--sk-c2:#c9a227}
-:root[data-look="kosif"][data-theme="dark"]{--sk-c1:#8fb3e8;--sk-c2:#d4af37}
+:root[data-look="kosif"]{--sk-c1:#2340c4;--sk-c2:#19c3d9}
+:root[data-look="kosif"][data-theme="dark"]{--sk-c1:#9fb0ff;--sk-c2:#3fd3e6}
 
 /* ================= themes =================
    html[data-look] picks a complete visual language; html[data-theme] (light|dark) follows it.
@@ -160,6 +160,54 @@ html.sk-theme-trans .maincol{
    pills, progress rings, and IBM Plex Sans Arabic (chosen with Jev, p=0.99) with tabular figures.
    Default look. */
 :root[data-look="kosif"]{
+  /* SQC identity 2026-10-08 «كوبالت وجليد» (owner: «غيّر الهوية البصرية»): the crystal world became the brand.
+     Night cobalt #0B1030 carries the rail and the headings, cobalt #2340C4 the buttons and links (8.1:1 on white),
+     ice #19C3D9 the accents (marks, highlights, the active state) and never body text — ice text uses #076F80 (5:1).
+     Backgrounds are a cool mist #F4F6FB with white cards. The previous navy & gold is kept as the brand variant
+     [data-brand="navygold"] («الكحلي والذهبي» in the look picker). */
+  --sk-bg:#f4f6fb;--sk-surface:#ffffff;--sk-surface-2:#f9fafe;--sk-surface-3:#eceff8;--sk-line:#e2e6f1;--sk-line-2:#cdd3e4;
+  --sk-ink:#111827;--sk-ink-2:#3b4252;--sk-ink-3:#585f6e;
+  --sk-brand:#2340c4;--sk-brand-2:#19c3d9;--sk-brand-soft:#e8ecfd;--sk-on-brand:#ffffff;
+  --sk-navy:#0b1030;--sk-gold:#19c3d9;--sk-gold-ink:#076f80;--sk-gold-soft:#dcf6fa;--sk-ivory:#f4f6fb;
+  --sk-ok:#15803d;--sk-ok-soft:#e6f4ea;--sk-ok-mark:#22a35a;
+  --sk-warn:#b45309;--sk-warn-soft:#fdf1dc;--sk-warn-mark:#e3a008;
+  --sk-bad:#b91c1c;--sk-bad-soft:#fbeaea;--sk-bad-mark:#e5484d;--sk-bad-row:#fff7f6;
+  --sk-info:#1d4f91;--sk-info-soft:#e8eef8;--sk-info-mark:#3567b3;
+  --sk-violet:#6b5bd6;--sk-violet-soft:#efedfd;--sk-violet-line:#d9d4f7;
+  --sk-rail:#0b1030;--sk-rail-2:rgba(255,255,255,.06);--sk-rail-ink:#eef1fb;--sk-rail-mute:#9aa8bf;--sk-rail-active:rgba(25,195,217,.18);
+  --sk-grid:#eaedf6;--sk-axis:#cdd3e4;--sk-s1:#19c3d9;--sk-s2:#2340c4;--sk-s3:#15803d;--sk-focus:#2340c4;
+  --sk-font:"IBM Plex Sans Arabic",-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,sans-serif;
+  --sk-font-display:"IBM Plex Sans Arabic",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --sk-font-latin:"Montserrat","IBM Plex Sans Arabic",-apple-system,"Segoe UI",sans-serif;
+  --sk-fs-xs:12px;--sk-fs-s:13.5px;--sk-fs:16px;--sk-fs-l:17px;--sk-fs-xl:22px;--sk-fs-2xl:28px;
+  --sk-r-s:10px;--sk-r:12px;--sk-r-l:18px;
+  --sk-shadow-1:0 1px 2px rgba(11,16,48,.05),0 12px 32px -24px rgba(11,16,48,.36);
+  --sk-shadow-2:0 18px 40px -22px rgba(11,16,48,.32);
+  --sk-shadow-3:0 32px 80px -28px rgba(11,16,48,.48);
+  --sk-topbar-h:68px;
+  /* luxe extras: gradients and the risk heatmap scale */
+  --sk-grad-brand:linear-gradient(135deg,#19c3d9 0%,#2340c4 52%,#0b1030 100%);
+  --sk-grad-rail:linear-gradient(180deg,#0b1030 0%,#121a55 55%,#0a0e2c 100%);
+  --sk-heat-1:#cfe8d6;--sk-heat-2:#f3e2a6;--sk-heat-3:#f1b98a;--sk-heat-4:#e98a86;
+}
+:root[data-look="kosif"][data-theme="dark"]{
+  /* dark: ice leads on night cobalt (buttons and the active state), ivory-white text */
+  --sk-bg:#070a1e;--sk-surface:#0f1433;--sk-surface-2:#141a40;--sk-surface-3:#1b2250;--sk-line:#252d5e;--sk-line-2:#323c74;
+  --sk-ink:#eef1fb;--sk-ink-2:#b8c0dc;--sk-ink-3:#8a93b8;
+  --sk-brand:#3fd3e6;--sk-brand-2:#9fb0ff;--sk-brand-soft:#0c2a33;--sk-on-brand:#0b1030;
+  --sk-navy:#0b1030;--sk-gold:#3fd3e6;--sk-gold-ink:#5fdcea;--sk-gold-soft:#0c2a33;--sk-ivory:#f4f6fb;
+  --sk-ok:#5fd394;--sk-ok-soft:#0f2e22;--sk-warn:#f7bd57;--sk-warn-soft:#33260c;--sk-bad:#ff8a80;--sk-bad-soft:#3a1618;--sk-bad-row:#2a1418;
+  --sk-info:#9fb0ff;--sk-info-soft:#161f55;
+  --sk-rail:#050719;--sk-rail-active:rgba(63,211,230,.18);
+  --sk-grid:#1b2250;--sk-axis:#323c74;--sk-focus:#3fd3e6;--sk-s1:#3fd3e6;--sk-s2:#9fb0ff;
+  --sk-violet:#b3a8ff;--sk-violet-soft:#241f4a;--sk-violet-line:#3a3470;
+  --sk-grad-brand:linear-gradient(135deg,#5fdcea 0%,#3fd3e6 45%,#076f80 100%);
+  --sk-grad-rail:linear-gradient(180deg,#050719,#0a0e2a);
+  --sk-heat-1:#1f5a3b;--sk-heat-2:#6b5a17;--sk-heat-3:#7a4219;--sk-heat-4:#7f2626;
+  --sk-shadow-1:0 1px 0 rgba(255,255,255,.03) inset,0 10px 26px -16px rgba(0,0,0,.7);--sk-shadow-2:0 16px 36px -16px rgba(0,0,0,.7);--sk-shadow-3:0 30px 70px -20px rgba(0,0,0,.8);
+}
+/* brand variant «الكحلي والذهبي» — the 2026-10 navy & gold identity, kept selectable after the 2026-10-08 change */
+:root[data-look="kosif"][data-brand="navygold"]{
   /* SQC identity 2026-10 (owner's choice in chat): navy and gold — the calm authority of an audit firm's annual report.
      Navy #0B1F3A carries the rail and the headings, a lighter navy #13305A the buttons and links (distinct from the near-black
      text), gold #C9A227 the accents (marks, highlights, the active state) and never body text — gold text uses #8A6A0E,
@@ -189,7 +237,7 @@ html.sk-theme-trans .maincol{
   --sk-grad-rail:linear-gradient(180deg,#0b1f3a 0%,#0f2747 55%,#0a1c36 100%);
   --sk-heat-1:#cfe8d6;--sk-heat-2:#f3e2a6;--sk-heat-3:#f1b98a;--sk-heat-4:#e98a86;
 }
-:root[data-look="kosif"][data-theme="dark"]{
+:root[data-look="kosif"][data-brand="navygold"][data-theme="dark"]{
   /* dark: gold leads on navy (buttons and the active state), ivory-white text */
   --sk-bg:#0a1424;--sk-surface:#102038;--sk-surface-2:#13284a;--sk-surface-3:#1a3156;--sk-line:#1f385c;--sk-line-2:#2a4870;
   --sk-ink:#eef1f6;--sk-ink-2:#b9c4d6;--sk-ink-3:#8a9ab3;
@@ -205,6 +253,9 @@ html.sk-theme-trans .maincol{
   --sk-heat-1:#1f5a3b;--sk-heat-2:#6b5a17;--sk-heat-3:#7a4219;--sk-heat-4:#7f2626;
   --sk-shadow-1:0 1px 0 rgba(255,255,255,.03) inset,0 10px 26px -16px rgba(0,0,0,.7);--sk-shadow-2:0 16px 36px -16px rgba(0,0,0,.7);--sk-shadow-3:0 30px 70px -20px rgba(0,0,0,.8);
 }
+:root[data-look="kosif"][data-brand="navygold"]{--sk-c1:#13305a;--sk-c2:#c9a227}
+:root[data-look="kosif"][data-brand="navygold"][data-theme="dark"]{--sk-c1:#8fb3e8;--sk-c2:#d4af37}
+
 :root[data-look="kosif"] body{font-feature-settings:"tnum" 1,"lnum" 1}
 
 
