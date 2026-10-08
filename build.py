@@ -84,6 +84,10 @@ for en,ar in (("System Health · Read Only","فحص للقراءة فقط"),("Sa
 n=text.count('<div class="d">Choice + Score + Noul</div>')
 if n!=1: raise SystemExit("Decision center Jev tile missing")
 text=text.replace('<div class="d">Choice + Score + Noul</div>','<div class="d">نعم/لا · اختيار من بدائل · تقييم</div>')
+# R14 (#26): «طرق التقطيع المطلوبة» drew an empty table when no order named a cutting method
+n=text.count("<tbody>${cutTable}</tbody>")
+if n!=1: raise SystemExit("Cutting methods table missing")
+text=text.replace("<tbody>${cutTable}</tbody>","<tbody>${cutTable||'<tr><td class=\"s\" colspan=\"3\">لا طلبات تذكر طريقة تقطيع في هذه الفترة.</td></tr>'}</tbody>")
 # R11 (#10): «ذكاء العملاء والطلب» segments by recency and frequency, «ذكاء المبيعات» by RFM; both said «أوفياء»,
 # «أبطال», «معرضون للفقد», «خاملون» for different groups (22 loyal customers on one screen, 4 on the next). The core's
 # operational segments get their own words; the RFM names stay with the RFM engine.

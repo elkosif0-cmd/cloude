@@ -20,7 +20,7 @@ import {
 
 const $ = (selector) => __kxRootR().querySelector(selector);
 const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
-const money = (value) => formatMoneyMinor(typeof value === 'bigint' ? value : BigInt(value || 0), 'SAR', 'ar-SA');
+const money = (value) => formatMoneyMinor(typeof value === 'bigint' ? value : BigInt(value || 0), 'SAR', 'ar-SA-u-nu-latn');
 const pct = (value) => `${Number(value || 0).toFixed(1)}%`;
 
 const state = {

@@ -462,3 +462,5 @@ details.ap-card>.card-b{overflow-x:auto}
 .tbr-r2card .sk-table td.num{text-align:center}
 .tbr-note{margin:10px 0 0;color:var(--sk-mute);font-size:13px}
 .tbr-req small.tbr-r2{color:color-mix(in srgb,var(--sk-brand) 70%,var(--sk-ink));font-weight:600}
+/* R14: the findings beyond the first three, folded */
+.tbr-more>summary{padding:var(--sk-2) 0;font-weight:700;cursor:pointer;color:var(--sk-brand)}

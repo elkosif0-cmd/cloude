@@ -470,7 +470,9 @@ function tbTab(c){
       tile("calc","warn",'الأهمية النسبية',sar(m.overall),(c.plan?c.plan.benchmarkAr+' × '+Math.round(c.plan.rate*10000)/100:m.benchmarkAr+' × '+(m.rate*100))+'% · التنفيذية '+sar(m.performance))+
       tile("risks",b.summary.high?"bad":"ok",'الملاحظات',b.findings.length,b.summary.high+' عالية · '+b.summary.medium+' متوسطة')+
     '</div>'+(window.SKosifAuditBench?SKosifAuditBench.materialityNote(m):'')+
-    (topF.length?'<section class="card"><div class="card-h"><div><h3>أهم ما اكتشفته المراجعة</h3><p>المحرك الآلي'+(c.session&&c.session.rounds.length?' و المراجع الذكي':'')+' — كل ملاحظة بأساسها الرقمي ومعيارها.</p></div></div><div class="card-b tbr-flist">'+topF.map(fItem).join("")+'</div></section>':'')+
+    (topF.length?'<section class="card"><div class="card-h"><div><h3>أهم ما اكتشفته المراجعة</h3><p>المحرك الآلي'+(c.session&&c.session.rounds.length?' و المراجع الذكي':'')+' — كل ملاحظة بأساسها الرقمي ومعيارها.</p></div></div><div class="card-b tbr-flist">'+topF.slice(0,3).map(fItem).join("")+
+      /* R14 (#24): the three most severe in full, the rest a click away (eight full cards ran ~600 px above the accounts) */
+      (topF.length>3?'<details class="tbr-more"><summary>بقية الملاحظات ('+(topF.length-3)+')</summary>'+topF.slice(3).map(fItem).join("")+'</details>':'')+'</div></section>':'')+
     '<section class="card"><div class="card-h"><div><h3>الحسابات ومعاييرها</h3><p>اضغط رقم المعيار بجوار الحساب لتعرف علاقته بالحساب ومتطلباته ومصدره الرسمي.</p></div><div class="sk-seg">'+[["all","الكل"],["flag","عليها ملاحظات"],["map","تحتاج تبويب"]].map(([v,l])=>'<button type="button" data-flt="'+v+'" aria-pressed="'+(filter===v)+'">'+l+'</button>').join("")+'</div></div>'+
     '<div class="card-b tbr-tw"><table class="sk-table tbr-t"><thead><tr><th>الرقم</th><th>الحساب</th><th>البند في القوائم</th><th>الرصيد</th><th>السابق</th><th>التغير</th><th>المعايير</th><th>ملاحظات</th></tr></thead><tbody>'+rows.map(row).join("")+'</tbody></table></div></section>';
 }

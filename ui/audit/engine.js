@@ -87,7 +87,7 @@ export function parseMoneyMinor(value, decimals = 2) {
   return negative ? -minor : minor;
 }
 
-export function formatMoneyMinor(value, currency = 'SAR', locale = 'ar-SA', decimals = 2) {
+export function formatMoneyMinor(value, currency = 'SAR', locale = 'ar-SA-u-nu-latn', decimals = 2) {
   const minor = typeof value === 'bigint' ? value : BigInt(value || 0);
   const scale = 10n ** BigInt(decimals);
   const sign = minor < 0n ? -1 : 1;

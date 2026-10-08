@@ -49,7 +49,9 @@ function sameTransport(t){const now=reviewTransport();return !sourceBlocked(now)
 const TOK=(m)=>":host .kx-body,:host .kx-body[data-theme]{"+Object.entries(m).map(([k,v])=>k+":var("+v+")!important").join(";")+"}";
 const BASE=":host .kx-body{background:transparent!important;color:var(--sk-ink)!important;font-family:var(--sk-font)!important;font-feature-settings:'tnum' 1}"+
   ":host .kx-body h1,:host .kx-body h2,:host .kx-body h3{font-family:var(--sk-font-display)!important;color:var(--sk-ink)!important}"+
-  ":host .kx-body button,:host .kx-body input,:host .kx-body select,:host .kx-body textarea{font-family:inherit!important}";
+  ":host .kx-body button,:host .kx-body input,:host .kx-body select,:host .kx-body textarea{font-family:inherit!important}"+
+  /* R13: the hero cards sit on the brand gradient with light ink; their titles keep it (the page ink above made them dark on dark) */
+  ":host .kx-body .hero-card :is(h1,h2,h3),:host .kx-body .hero .hero-copy :is(h1,h2,h3){color:inherit!important}";
 const THEME={
   classic:TOK({"--bg":"--sk-bg","--surface":"--sk-surface","--surface-2":"--sk-surface-2","--surface-3":"--sk-surface-3","--text":"--sk-ink","--muted":"--sk-ink-3","--line":"--sk-line","--line-strong":"--sk-line-2",
     "--primary":"--sk-brand","--primary-strong":"--sk-brand","--primary-soft":"--sk-brand-soft","--accent":"--sk-brand-2","--accent-soft":"--sk-info-soft","--danger":"--sk-bad","--danger-soft":"--sk-bad-soft",
@@ -58,8 +60,6 @@ const THEME={
     /* R13 (#2): the shell is a two-track grid (sidebar 248px · workspace); with the sidebar hidden the workspace fell into the
        248px track and the whole analytics studio ran in a narrow column */
     ":host .app-shell{display:block!important;grid-template-columns:none!important}"+
-    /* the hero cards sit on the brand gradient: their titles keep the card's own light ink, not the page ink BASE gives every heading */
-    ":host .kx-body .hero-card h1,:host .kx-body .hero-card h2,:host .kx-body .hero-card h3{color:inherit!important}"+
     ":host .sidebar,:host .sidebar-backdrop{display:none!important}:host .workspace{margin:0!important}:host .main-content{padding:8px 0 32px!important;max-width:none!important}",
   studio:TOK({"--bg":"--sk-bg","--surface":"--sk-surface","--surface2":"--sk-surface-2","--line":"--sk-line","--text":"--sk-ink","--muted":"--sk-ink-3","--brand":"--sk-brand","--brand2":"--sk-brand-2",
     "--green":"--sk-ok","--amber":"--sk-warn","--red":"--sk-bad","--blue":"--sk-info","--radius":"--sk-r-l","--kosif-ink":"--sk-ink","--kosif-purple":"--sk-brand","--kosif-purple-2":"--sk-brand-2","--kosif-cream":"--sk-bg","--kosif-line":"--sk-line","--kosif-gold":"--sk-warn-mark"})+BASE+

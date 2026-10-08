@@ -11,6 +11,12 @@
   const DB_NAME="aghnam-app-v7";
   const VAT=0.15, WASTE_STD=0.08;
   const $=id=>document.getElementById(id);
+  /* R14 (docs/rebuild/HARSH_REVIEW_20261008_ar.md #24): the ranking, the per-item comparison and the shipment log stacked
+     to 3,038 px; one switch shows one at a time (kept for the visit) */
+  let supPane="rank";
+  const paneBar=(panes)=>{const ok=panes.filter(x=>x[2]);if(!ok.length)return"";if(!ok.some(x=>x[0]===supPane))supPane=ok[0][0];
+    return '<div class="sk-seg sk31-panes" role="group" aria-label="عرض الموردين">'+ok.map(([k,l])=>'<button type="button" data-sk31-pane="'+k+'" aria-pressed="'+(k===supPane)+'">'+l+'</button>').join("")+'</div>'};
+  const pane=(k,html)=>html?'<div class="sk31-pane" data-pane="'+k+'"'+(k===supPane?'':' hidden')+'>'+html+'</div>':'';
   const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
   const num=v=>{const n=Number(String(v??"").replace(/,/g,""));return Number.isFinite(n)?n:0};
   const money=v=>new Intl.NumberFormat("ar-SA-u-nu-latn",{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(v)||0)+" ر.س";
@@ -134,13 +140,14 @@
         '<div class="sk-actions"><button id="sk31-add" class="sk-primary" type="button">حفظ الشحنة</button></div>',
       '</details>',
       rows.length?'':'<div class="sk-empty">لا توجد شحنات مسجلة بعد. سجّل أول شحنة لتظهر مقارنة الموردين.</div>',
-      stats.length?[
+      paneBar([["rank","ترتيب الموردين",stats.length],["compare","مقارنة الأصناف",comp.length],["log","سجل الشحنات",rows.length]]),
+      pane("rank",stats.length?[
         '<h4 class="sk31-h">ترتيب الموردين</h4>',
         '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>المورد</th><th>التصنيف</th><th>الشحنات</th><th>الكمية</th><th>هدر فعلي / متفق</th><th>تكلفة الوحدة الصافية</th><th>الجودة</th><th>المخاطر</th></tr></thead><tbody>',
         stats.map(s=>'<tr><td><b>'+esc(s.name)+'</b><small class="sk31-sub">'+esc(s.items.join("، "))+'</small></td><td><span class="sk31-tier sk31-t'+s.tier.replace("+","p")+'">'+s.tier+'</span></td><td>'+s.batches+'</td><td>'+qfmt(s.qty,s.unit)+'</td><td>'+pct(s.actual)+' / '+pct(s.agreed)+(s.variance>0.005?' <small class="sk31-bad">+'+pct(s.variance)+'</small>':'')+'</td><td>'+money(s.effCost)+'</td><td>'+(s.quality==null?'<span class="sk31-sub">غير مقيّم</span>':s.quality.toFixed(1)+' / 5')+'</td><td><span class="sk31-risk sk31-'+s.risk+'">'+riskAr[s.risk]+'</span></td></tr>').join(""),
         '</tbody></table></div>'
-      ].join(""):'',
-      comp.length?[
+      ].join(""):''),
+      pane("compare",comp.length?[
         '<h4 class="sk31-h">مقارنة الموردين لنفس الصنف</h4>',
         comp.map(it=>{
           const best=it.sups[0], c=it.cat;
@@ -155,17 +162,20 @@
               :'أفضل تكلفة فعلية أقل من افتراض الكتالوج بـ '+money(-gap)+' للكيلو.')+'</p>':'')+
             '</div>';
         }).join("")
-      ].join(""):'',
-      rows.length?[
+      ].join(""):''),
+      pane("log",rows.length?[
         '<h4 class="sk31-h">سجل الشحنات</h4>',
         '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>التاريخ</th><th>المورد</th><th>الصنف</th><th>الكمية</th><th>صافي الشحنة</th><th>هدر فعلي / متفق</th><th>الحالة</th><th></th></tr></thead><tbody>',
         rows.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(r=>'<tr><td>'+esc(r.date)+'</td><td>'+esc(r.supplier)+'</td><td>'+esc(r.itemName)+'</td><td>'+qfmt(r.qty,r.unit)+'</td><td>'+money(r.totalNet)+'</td><td>'+pct(r.actual)+' / '+pct(r.agreed)+'</td><td><span class="sk31-risk sk31-'+(r.status==="compliant"?"low":r.status==="minor"?"moderate":"critical")+'">'+statusAr[r.status]+'</span></td><td><button class="sk31-del" type="button" data-id="'+esc(r.id)+'" aria-label="حذف"></button></td></tr>').join(""),
         '</tbody></table></div>',
         '<div class="sk-actions"><button id="sk31-csv" class="sk-secondary" type="button">تصدير الشحنات CSV</button></div>'
-      ].join(""):''
+      ].join(""):'')
     ].join("");
   }
   function bindSuppliers(){
+    document.querySelectorAll("[data-sk31-pane]").forEach(b=>b.onclick=()=>{supPane=b.dataset.sk31Pane;
+      document.querySelectorAll("[data-sk31-pane]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+      document.querySelectorAll(".sk31-pane").forEach(x=>{x.hidden=x.dataset.pane!==supPane})});
     const itemSel=$("sk31-item"), other=$("sk31-item-other");
     const syncOther=()=>{if(other)other.closest(".sk-field").style.display=itemSel&&itemSel.value&&itemSel.value!=="__other"?"none":""};
     if(itemSel){itemSel.onchange=syncOther;syncOther();}

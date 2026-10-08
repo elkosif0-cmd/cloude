@@ -32,3 +32,6 @@ i.sk31-in{background:var(--sk-ok)}i.sk31-out{background:var(--sk-bad)}
 .sk31-sheet textarea{width:100%;border:1px solid var(--line,#e4e7ec);border-radius:12px;padding:10px;font:inherit;font-size:15px;background:var(--surface-2,#f8fafc);color:inherit;resize:vertical}
 .sk31-chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}
 .sk31-chip{border:1px dashed var(--line,#d0d5dd);background:transparent;color:inherit;border-radius:999px;padding:5px 10px;font:inherit;font-size:var(--sk-fs-xs);cursor:pointer}
+/* R14: one of ranking · comparison · shipment log at a time */
+.sk31-panes{margin:var(--sk-4) 0 var(--sk-2)}
+.sk31-pane[hidden]{display:none}

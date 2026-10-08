@@ -107,3 +107,5 @@
 #view[data-dash-tab="cash"] [data-dt]:not([data-dt="cash"]),
 #view[data-dash-tab="decide"] [data-dt]:not([data-dt="decide"]){display:none}
 #view[data-dash-tab]:not([data-dash-tab="today"]) .skc-world{display:none}
+/* R14: the Jev council's form, folded while no model is configured (ui/features/jev.js) */
+.th-form>summary{padding:var(--sk-2) 0;font-weight:700;cursor:pointer;color:var(--sk-ink-2)}
