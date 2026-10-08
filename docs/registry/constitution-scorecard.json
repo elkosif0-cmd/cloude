@@ -1,11 +1,11 @@
 {
  "summary": {
   "rules": 18,
-  "enforced": 17,
-  "pass": 17,
+  "enforced": 18,
+  "pass": 18,
   "fail": 0,
   "knownRed": 0,
-  "gap": 1,
+  "gap": 0,
   "partial": 3
  },
  "rules": [
@@ -54,6 +54,12 @@
    "section": "§3.0‑1",
    "status": "pass",
    "results": [
+    {
+     "kind": "check",
+     "id": "audit_registry_own",
+     "ok": true,
+     "note": "سجل ملفات المراجعة تقرؤه شاشة المراجعة وحدها"
+    },
     {
      "kind": "test",
      "id": "tools/owner_scope.test.mjs",
@@ -188,8 +194,16 @@
   {
    "id": "F3.0-10",
    "section": "§3.0‑10",
-   "status": "gap",
-   "results": []
+   "status": "pass",
+   "results": [
+    {
+     "kind": "test",
+     "id": "tools/capability_profile.test.mjs",
+     "ok": true,
+     "note": "5 نجح · 0 فشل",
+     "knownRed": false
+    }
+   ]
   },
   {
    "id": "F3.0-11",
@@ -303,7 +317,7 @@
      "kind": "check",
      "id": "worklog",
      "ok": true,
-     "note": "55 مهمة مسجلة"
+     "note": "المهام مسجلة في AGENT_WORKLOG.md"
     }
    ]
   }
