@@ -13,11 +13,13 @@ test('both catalog routes use all 50 verified identities and corrected physical 
  for(const r of input){const a=audit.find(x=>x.id===r.id),b=list.find(x=>x.id===r.id);assert.ok(a,r.id);assert.ok(b,r.id);assert.deepEqual(plain(a.pages),[r.from,r.to],r.id);assert.deepEqual([b.from,b.to],[r.from,r.to],r.id);assert.equal(a.reference.company_id,r.company_id);assert.equal(b.reference.review_status,r.review_status);}
  const sorted=[...audit].sort((a,b)=>a.pages[0]-b.pages[0]);let next=2;for(const r of sorted){assert.equal(r.pages[0],next,r.id);next=r.pages[1]+1;}assert.equal(next,12507);
 });
-test('CBA canonical FY2026 identity keeps legacy lookup and never opens an ordinary TB',async()=>{
+test('CBA canonical FY2026 identity keeps legacy lookup and opens one audit file under either id',async()=>{
  const {E,context:W}=harness(),B=E.audit.globalBenchmarks,C=E.reports.corpusCompanies,G=E.reports.globalCorpus;
  assert.equal(B.reportOf('cba-2025').id,'cba-2026');assert.equal(B.reportOf('cba-2026').fy,'FY2026 (ended 2026-06-30)');
  assert.equal(C.corpusCompany('cba-2025').id,'cba-2026');assert.equal(C.corpusCompany('cba-2026').yearEnd,'2026-06-30');assert.deepEqual(plain(G.reportStructure('cba-2025')),plain(G.reportStructure('cba-2026')));
- for(const id of ['cba-2025','cba-2026']){assert.equal(C.companyTrialBalance(id),null);assert.match(C.sourceUnavailableReason(id),/بانتظار/);for(const fn of ['openClient','loadCorpus','showcase'])assert.ok(!await W.SKosifTBReview[fn](id));}
+ /* R16 (P5): both ids open the one FY2026 audit file on the corpus model (#143 asserted they never open) */
+ const t=C.companyTrialBalance('cba-2026');assert.ok(t);assert.equal(C.companyTrialBalance('cba-2025').csv,t.csv);assert.equal(C.companyTrialBalance('cba-2025').ctx.corpusId,'cba-2026');
+ for(const id of ['cba-2025','cba-2026']){assert.equal(C.sourceUnavailableReason(id),null);assert.ok(await W.SKosifTBReview.openClient(id),id);assert.equal(W.__test.compute().d.tbText,t.csv);}
 });
 test('Panasonic is navigable but pending with unknown accounting and audit basis',async()=>{
  const {E,context:W}=harness(),p=E.audit.globalBenchmarks.reportOf('panasonic-2024');assert.ok(p);assert.equal(p.framework,'Unknown — not reviewed');assert.equal(p.standard,'unknown');assert.equal(p.auditor,'');
@@ -75,7 +77,11 @@ test('Audit pickers display source-review status independently from application-
   const c=catalog.find(r=>r.id===id),row=W.__test.bundleRows([c]),option=selector.match(new RegExp('<option value="'+id+'"[^>]*>[\\s\\S]*?</option>'))?.[0];assert.ok(option,id);
   assert.ok(row.includes(c.reference.review_label_ar),id+': row source review');assert.ok(option.includes(c.reference.review_label_ar),id+': selector source review');
   assert.match(row,/نموذج التطبيق:/);assert.match(option,/نموذج التطبيق:/);
-  if(id!=='apple-2024'){assert.equal(c.modelStatusAr,'بانتظار مراجعة واعتماد نموذج التطبيق');assert.equal(c.openable,false);assert.match(row,/disabled/);assert.doesNotMatch(row,/data-bundle-add|data-bundle-go/);assert.match(option,/disabled/);}
+  /* R16 (P5): pending review is the model's label, not a lock — a company with a corpus model opens as an audit file;
+     one without statements in the bundle (Panasonic) stays disabled */
+  if(id!=='apple-2024'){assert.equal(c.modelStatusAr,'بانتظار مراجعة واعتماد نموذج التطبيق');assert.equal(c.openable,false);
+   if(id==='panasonic-2024'){assert.equal(c.auditFile,false);assert.match(row,/disabled/);assert.doesNotMatch(row,/data-bundle-add|data-bundle-go/);assert.match(option,/disabled/);}
+   else{assert.equal(c.auditFile,true);assert.match(row,/data-bundle-add="[^"]+">فتح كملف مراجعة/);assert.doesNotMatch(option,/disabled/);}}
   if(['telekom-2025','bp-2025','unilever-2025'].includes(id)){assert.equal(c.reference.review_status,'complete_source_review');assert.doesNotMatch(row,/بانتظار مراجعة المصدر/);assert.doesNotMatch(option,/بانتظار مراجعة المصدر/);}
  }
  assert.deepEqual(plain(catalog.filter(r=>r.openable).map(r=>r.id).sort()),[...supported].sort());

@@ -23,10 +23,11 @@ test('the minimal source Excel guard composes with exact PR137 output without re
 
 test('blocked source Excel reports in the preview live region without extracting tables or downloading',async()=>{
  const code=fs.readFileSync(root+'/ui/core/output.js','utf8'),o=outputHarness('<article data-source-kind="published-statements"></article>'),notice={textContent:''};
- o.W.__sourceExcelTest.setSession({w:{document:o.doc},wrap:{querySelector:s=>s==='.skout-notice'?notice:null}});
+ o.W.__sourceExcelTest.setSession({active:true,w:{document:o.doc,closed:false},wrap:{querySelector:s=>s==='[data-output-status]'?notice:null}});
  await o.W.__sourceExcelTest.act('excel');
  assert.match(notice.textContent,/Excel.*غير متاح.*CSV/);
  assert.equal(o.calls.tables,0);assert.equal(o.calls.book,0);assert.equal(o.calls.downloads.length,0);
  assert.equal(o.calls.toasts.length,0,'modal refusal must not depend on a background toast');
- assert.match(code,/<p class="skout-notice" role="status" aria-live="polite" aria-atomic="true"><\/p>/);
+ /* R16: one status line in the preview bar — main's [data-output-status], styled as #143's notice */
+ assert.match(code,/<span class="skout-notice" data-output-status role="status" aria-live="polite" aria-atomic="true"><\/span>/);assert.doesNotMatch(code,/<p class="skout-notice"/);
 });

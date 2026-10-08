@@ -166,9 +166,12 @@ test('document-helper repositories retain pinned reuse evidence without claiming
   };
   for (const [repo, pin] of Object.entries(pins)) {
     const item = sources.repositories.find(item => item.repo === repo);
-    assert.equal(item.class, 'shared-document-reference-reuse-candidate');
-    assert.equal(item.status, 'candidate-source-inspected-runtime-unverified');
-    assert.deepEqual(item.target, ['tools', 'reporting']);
+    assert.equal(item.class, 'nonfinancial-current-scope');
+    assert.equal(item.status, 'out-of-scope');
+    assert.deepEqual(item.target, []);
+    assert.equal(item.reference_history[0].source_commit, '113f9ff9dab16058e9760dfd05435c576ad06d16');
+    assert.equal(item.reference_history[0].classification, 'shared-document-reference-reuse-candidate');
+    assert.deepEqual(item.reference_history[0].candidate_targets, ['tools','reporting']);
     assert.equal(item.source_commit, pin);
     assert.ok(item.evidence.length >= 3);
     assert.ok(item.evidence.every(url => url.startsWith(`https://github.com/kosif199022-jpg/${repo}/blob/${pin}/`)));
@@ -176,4 +179,23 @@ test('document-helper repositories retain pinned reuse evidence without claiming
     assert.match(item.caveats, /runtime.*unverified/i);
     assert.match(item.caveats, /tenant.*rights/i);
   }
+});
+
+test('helper tool installation controls preserve company-scoped toggling',async()=>{
+  const instance=app(),installed=new Set(),changes=[];
+  instance.context.SKosifCompanyPlatform={installed:id=>installed.has(id),setTool:(id,on)=>{on?installed.add(id):installed.delete(id);changes.push([id,on]);}};
+  instance.context.SK.toast=()=>{};instance.render();
+  assert.match(instance.element.innerHTML,/data-hd-toggle="productflow" aria-pressed="false"/);
+  await instance.listeners[0].fn({target:{closest:s=>s==='[data-hd-toggle]'?{dataset:{hdToggle:'productflow'}}:null}});
+  assert.deepEqual(changes,[['productflow',true]]);assert.match(instance.element.innerHTML,/data-hd-toggle="productflow" aria-pressed="true"/);
+  assert.equal(instance.listeners.length,1);
+});
+test('opening an uninstalled helper still permits use without installing it',async()=>{
+  const instance=app(),changes=[];instance.context.SKosifCompanyPlatform={installed:()=>false,setTool:(...v)=>changes.push(v)};
+  instance.context.SK.confirm=async()=>false;
+  await instance.listeners[0].fn({target:{closest:s=>s==='[data-hd-go]'?{dataset:{hdGo:'productflow'}}:null}});
+  assert.deepEqual(instance.navigation,['productflow']);assert.deepEqual(changes,[]);
+});
+test('production workflow executes permission-aware helper topology regressions',()=>{
+  assert.match(read('.github/workflows/S.kosif.yml'),/node --test [^\n]*tools\/helper_gateway\.test\.mjs/);
 });

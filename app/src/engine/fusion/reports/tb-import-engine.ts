@@ -2,7 +2,8 @@
    CSV / TSV / text pasted from Excel, Arabic or English headers, net-balance or debit/credit
    columns, and an optional prior-year column (net, or prior debit/credit) for comparatives.
    Classification by the chart-of-accounts first digit, then by account-name hints (Moon, SEE). */
-import { SOURCE_MARKER } from './published-source-engine';
+import { SOURCE_MARKER, identifyReviewedSourceTransport } from './published-source-engine';
+import { identifyLegacyCorpusTransport } from './source-data/corpus-transport-origins';
 import { normalizeDigits, parseMinor, type Minor } from './money-engine';
 
 export type AccountType = 'asset' | 'liability' | 'equity' | 'revenue' | 'expense' | 'suspense';
@@ -14,12 +15,14 @@ export type TbRow = {
   /** in the account's natural direction (credit-positive for liabilities, equity, revenue) */ net: Minor;
   /** prior-year debit − credit, or null when no comparative column */ prior: Minor | null;
 };
-export type TbError = { line: number; code: 'EMPTY_INPUT' | 'AMOUNT_NOT_NUMERIC' | 'DUPLICATE_ACCOUNT'; message: string };
+export type TbError = { line: number; code: 'EMPTY_INPUT' | 'AMOUNT_NOT_NUMERIC' | 'DUPLICATE_ACCOUNT' | 'SOURCE_REPORT_REIMPORT_UNSUPPORTED'; message: string };
 export type TrialBalance = {
   /** Origin survives adjustments and never establishes audit evidence. */
   sourceKind?: 'published-statements'; sourceId?: string;
-  /** the published source's original text, kept so a replay can prove it is the reviewed source (reports/source-replay-engine) */
+  /** Exact source carrier before numeric normalization; required for faithful replay. */
   sourceTransport?: string;
+  /** A report export is recognized only to reject it as an operational TB. */
+  sourceReportFormat?: string;
   ok: boolean; rows: TbRow[]; errors: TbError[];
   totals: { debit: Minor; credit: Minor }; difference: Minor; balanced: boolean;
   hasPrior: boolean; priorDifference: Minor | null; unclassified: number;
@@ -117,12 +120,24 @@ function finish(rows: TbRow[], errors: TbError[], columns: Record<string, number
 /** Parse tabular text into a trial balance. overrides: {accountCode: type} from the user's mapping review. */
 export function parseTrialBalance(text: string, opts: { delimiter?: string; overrides?: Record<string, AccountType> } = {}): TrialBalance {
   const raw = String(text ?? '').replace(/^﻿/, '');
+  const reportExport=(format:string,id?:string):TrialBalance=>({...finish([],[{line:1,code:'SOURCE_REPORT_REIMPORT_UNSUPPORTED',message:'هذا تصدير قوائم منشورة، وليس ميزان مراجعة. إعادة استيراد تقرير المصدر غير مدعومة؛ افتح نموذج المصدر باسمه من قسم المراجعة.'}],{},','),balanced:false,sourceKind:'published-statements',...(id?{sourceId:id}:{}),sourceTransport:raw,sourceReportFormat:format});
+  if(/data-source-kind=["']published-statements["']/.test(raw))return reportExport('SQC_PUBLISHED_REPORT_HTML_V1',raw.match(/data-source-model-id=["']([a-z0-9-]+)["']/)?.[1]);
+
   const marked = raw.split(/\r?\n/).find(l => l.startsWith(SOURCE_MARKER));
+  const knownSourceId=marked?marked.slice(SOURCE_MARKER.length).trim():identifyLegacyCorpusTransport(raw)??identifyReviewedSourceTransport(raw);
   const source = raw.split(/\r?\n/).filter(l => !l.startsWith(SOURCE_MARKER)).join('\n');
   const lines = source.split(/\r?\n/).filter((l) => l.trim());
   if (!lines.length) return finish([], [{ line: 0, code: 'EMPTY_INPUT', message: 'لا توجد بيانات للاستيراد' }], {}, ',');
   const delimiter = opts.delimiter || detectDelimiter(source);
   const head = splitLine(lines[0], delimiter), columns: Record<string, number> = {};
+  const reportHeaders=head.map(v=>v.trim().toLowerCase()),formatColumn=reportHeaders.indexOf('source_format'),modelColumn=reportHeaders.indexOf('source_model_id');
+  const legacySourceReport=['issuer','source_sha256','origin'].every(k=>reportHeaders.includes(k));
+  if(reportHeaders[0]==='source label'&&reportHeaders[1]==='unit'&&reportHeaders.slice(2).some(v=>/(duration|instant):.*\d{4}-\d{2}-\d{2}/.test(v)))return reportExport('SQC_PUBLISHED_SOURCE_TABLE_LEGACY');
+  if(formatColumn>=0&&modelColumn>=0||legacySourceReport){
+    const ids=modelColumn<0?[]:[...new Set(lines.slice(1).map(line=>splitLine(line,delimiter)[modelColumn]).filter(Boolean))];
+    return reportExport(formatColumn>=0?'SQC_PUBLISHED_REPORT_V1':'SQC_PUBLISHED_REPORT_LEGACY',ids.length===1&&/^[a-z0-9-]+$/.test(ids[0])?ids[0]:undefined);
+  }
+
   head.forEach((cell, i) => { const f = headerKey(cell); if (f && columns[f] === undefined) columns[f] = i; });
   const hasHeader = Object.keys(columns).length >= 2;
   if (!hasHeader) Object.assign(columns, { code: 0, name: 1, debit: 2, credit: 3 });
@@ -147,7 +162,7 @@ export function parseTrialBalance(text: string, opts: { delimiter?: string; over
     rows.push(makeRow(lineNo, code, name, debit, credit, prior, opts.overrides?.[code]));
   });
   const result = finish(rows, errors, columns, delimiter);
-  return marked ? {...result,sourceKind:'published-statements',sourceId:marked.slice(SOURCE_MARKER.length).trim(),sourceTransport:text} : result;
+  return knownSourceId ? {...result,sourceKind:'published-statements',sourceId:knownSourceId,sourceTransport:raw} : result;
 }
 
 /** Build a trial balance from rows the app already has (the ledger engine, the audit bridge). */

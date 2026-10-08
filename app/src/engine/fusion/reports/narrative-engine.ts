@@ -111,7 +111,7 @@ export function facts(i: NarrativeInput): FactPack {
   for (const n of numbersIn([i.ctx.period, i.ctx.periodEnd, i.ctx.company, i.ctx.activity].join(' '))) add(n);
   for (const x of i.opinion.basis) for (const n of numbersIn(x)) add(n);
   /* the bundle's own counts the narrative may cite (49 reports, 12,506 pages, how many reports name a risk) */
-  add(CORPUS.reports); add(CORPUS.pages); for (const c of riskCatalogue()) add(c.reports); for (const t of letterTopics()) { add(t.reports); add(t.share); }
+  add(CORPUS.reports); add(CORPUS.sectionStatisticsReports); add(CORPUS.pages); for (const c of riskCatalogue()) add(c.reports); for (const t of letterTopics()) { add(t.reports); add(t.share); }
   return {
     company: i.ctx.company || 'الشركة', activity: i.ctx.activity || '', period: i.ctx.period || '', periodEnd: i.ctx.periodEnd || '', country: i.ctx.country ?? 'SA', currency: cur,
     framework: { IFRS: 'المعايير الدولية للتقرير المالي المعتمدة في المملكة العربية السعودية', SME: 'المعيار الدولي للتقرير المالي للمنشآت الصغيرة والمتوسطة', EAS: 'معايير المحاسبة المصرية' }[i.framework],
@@ -210,7 +210,7 @@ export function systemInstruction(): string {
   const ac = committeeTopics().slice(0, 8).map((x) => x.ar).join('، ');
   return [
     `أنت كاتب تقارير سنوية ومراجع قانوني أول في شركة SQC — Smart Quality Control. تكتب بالعربية الفصحى الرصينة سرد تقرير سنوي متكامل وأقسام تقرير المراجع بمستوى التقارير المنشورة عالمياً.`,
-    `قرأنا حزمة البحث كاملة (${CORPUS.pages} صفحة، ${CORPUS.reports} تقريراً سنوياً من أكثر من 30 دولة) وصنّفنا كل صفحة. اتبع البنية والأسلوب المستخلصين منها:`,
+    `فهرس الحزمة يسند ${CORPUS.pages} صفحة إلى ${CORPUS.reports} تقريراً لـ${CORPUS.distinctCompanies} شركة. اكتملت مراجعة المصدر لـ${CORPUS.completeSourceReviewReports} تقارير (${CORPUS.completeSourceReviewPages} صفحة)، وليست تأكيداً مهنياً أو قبولاً للتطبيق. إحصاءات البنية والأسلوب التالية تاريخية من ${CORPUS.sectionStatisticsReports} تقريراً؛ لم تُعد مراجعتها دلالياً في فحص الحدود الحالي. استخدمها استرشادياً ولا تدّع قراءة أو مراجعة شاملة:`,
     ex,
     `تغطي رسائل رؤساء المجالس والرؤساء التنفيذيين في الحزمة: ${lt}.`,
     `إجراءات المراجعة التي يكتبها المراجعون تحت الأمور الرئيسية مرتبة بعدد التقارير: ${kp}.`,

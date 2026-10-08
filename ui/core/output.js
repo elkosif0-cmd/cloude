@@ -183,7 +183,7 @@ function toolbar(o){
       '<label>الهوامش '+sel("margin",[["narrow","ضيقة"],["normal","عادية"],["wide","واسعة"]])+'</label><label>الحجم '+sel("scale",[[85,"85%"],[90,"90%"],[100,"100%"],[110,"110%"],[125,"125%"]])+'</label>'+
       '<label>علامة مائية <input type="text" data-k="wm" list="skout-wm" value="'+esc(o.wm)+'" placeholder="بلا"><datalist id="skout-wm"><option value="مسودة"><option value="سري"><option value="نسخة"><option value="للمراجعة"></datalist></label>'+
       chk("gray","رمادي")+chk("head","الترويسة")+chk("pages","أرقام الصفحات")+'<label>العرض '+'<select data-z><option value="1">100%</option><option value="0.8">80%</option><option value="0.65">65%</option><option value="1.2">120%</option></select></label>'+
-    '</div></details><span data-output-status role="status" aria-live="polite"></span></div>';
+    '</div></details><span class="skout-notice" data-output-status role="status" aria-live="polite" aria-atomic="true"></span></div>';
 }
 function sheet(){
   const focused=document.activeElement,opener=cur&&(cur.wrap.contains(focused)||pres?.wrap.contains(focused))?cur.opener:focused;
@@ -207,7 +207,9 @@ function docHTML(d){
   c.querySelectorAll("img[src]").forEach(i=>{try{i.src=new URL(i.getAttribute("src"),location.href).href}catch{}});
   return "<!doctype html>\n"+c.outerHTML;
 }
+function sourceReportDocument(d){return !!d.querySelector?.('[data-source-kind="published-statements"], .rd-source');}
 function tablesOf(d){
+  if(sourceReportDocument(d))return [];
   return [...d.querySelectorAll("table")].filter(t=>t.rows.length>1).map((t,i)=>{
     let h=null,n=t;for(let k=0;k<30&&n;k++){n=n.previousElementSibling||n.parentElement;if(n&&/^H[1-4]$/.test(n.tagName)){h=n.textContent.trim();break}}
     const rows=[...t.rows].map(r=>[...r.cells].map(c=>c.textContent.replace(/\s+/g," ").trim()));
@@ -302,7 +304,7 @@ async function act(a){
   if(a==="print"){css(d);session.w.__skRealPrint?session.w.__skRealPrint():session.w.print();SK.audit&&SK.audit.log("report",{act:"print",title:title.slice(0,60)});return}
   if(a==="word"){const html=docHTML(d).replace("<html",'<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"').replace("<head>",'<head><meta charset="utf-8"><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View></w:WordDocument></xml><![endif]--><style>body{direction:rtl}table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:4px 6px}</style>');
     const blob=new Blob(["﻿"+html],{type:"application/msword"});if(session.guard&&!validSync(session))return;SK.download(filename+".doc",blob);SK.audit&&SK.audit.log("report",{act:"word"});return}
-  if(a==="excel"){const t=tablesOf(d);if(!t.length)return notice(session,"لا توجد جداول في هذا المستند");const blob=SKXlsx.book(t);if(session.guard&&!validSync(session))return;SK.download(filename+".xlsx",blob);notice(session,"صُدّر "+t.length+" جدولاً إلى Excel");SK.audit&&SK.audit.log("report",{act:"excel",tables:t.length});return}
+  if(a==="excel"){/* a published-source report loses its source detail in Excel (#143): CSV from the source model instead *//* the preview's one status line (no second live region); a window without the preview bar gets a toast */if(sourceReportDocument(d)){const m="تصدير Excel غير متاح لتقارير المصدر لأنه يفقد بيانات المصدر. استخدم CSV الموثق من نموذج المصدر.";if(session.wrap)notice(session,m);else SK.toast(m,"warn");return}const t=tablesOf(d);if(!t.length)return notice(session,"لا توجد جداول في هذا المستند");const blob=SKXlsx.book(t);if(session.guard&&!validSync(session))return;SK.download(filename+".xlsx",blob);notice(session,"صُدّر "+t.length+" جدولاً إلى Excel");SK.audit&&SK.audit.log("report",{act:"excel",tables:t.length});return}
   if(a==="html"){const blob=new Blob([docHTML(d)],{type:"text/html;charset=utf-8"});if(session.guard&&!validSync(session))return;SK.download(filename+".html",blob);return}
   if(a==="share"){try{const file=new File([docHTML(d)],(session.guard?filename:slug(title))+".html",{type:"text/html"});const fullFile=navigator.canShare&&navigator.canShare({files:[file]});
     if(session.guard){if(!validSync(session))return;if(!fullFile)return notice(session,"لم تتم المشاركة: الجهاز لا يدعم مشاركة ملف المسودة كاملاً. استخدم تنزيل HTML.")}

@@ -9,7 +9,7 @@ import vm from 'node:vm';
 
 const root = new URL('../', import.meta.url);
 const OUT = new URL('docs/registry/corpus/', root);
-const ctx = { window: {} }; vm.runInNewContext(fs.readFileSync(new URL('ui/core/engines.js', root), 'utf8'), ctx);
+const ctx = { window: {}, structuredClone }; /* the P&G source adapter copies its model (browsers have structuredClone) */ vm.runInNewContext(fs.readFileSync(new URL('ui/core/engines.js', root), 'utf8'), ctx);
 const R = ctx.window.SKEngines.audit.corpusReplay;
 const MODES = { none: false, sector: true, smoothed: 'smoothed' };
 
