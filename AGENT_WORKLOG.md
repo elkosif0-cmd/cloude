@@ -928,3 +928,24 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Also: one preview status line (main's `[data-output-status]`, styled as the branch's notice); a file bound to a source model is re-verified on every compute; the scorecard regenerated (metrics unchanged; FY labels and CBA's canonical id from the branch).
 - Tests: app 115 files / 545 tests; every unit file green except `helper_gateway` and `review_import_guard` (still known red) and four Windows-only files; the server security contract is green (12/12). Tests that asserted the branch's lock were rewritten to P5, keeping their honesty checks.
 - Branch: `claude/r16-merge-pr143-20261008`.
+
+### TASK CLAUDE-20261008-008 — Identity «كوبالت وجليد», the constitution review and its guard (رادع الدستور), owner scope, visible save state
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Owner request: «طوّر التطبيق ككل وراجع الدستور وكل شيء… وغيّر الهوية البصرية والقدرات وكل حاجة».
+- Identity: navy & gold → «كوبالت وجليد» (night cobalt #0B1030 rail, cobalt #2340C4 actions 8.1:1, ice #19C3D9 accents, mist #F4F6FB ground) from the tokens; new SQC mark (Q = a cut crystal whose tail is the audit tick) + PNG icons (`tools/brand/make_marks.py`); identity art, sector art and the two brand videos recoloured gold → ice by a deterministic hue-band shift (`tools/brand/recolor_ice.py`); crystal world shader on ice; the previous identity kept as the look «الكحلي والذهبي» (`data-brand="navygold"` over the kosif layout rules). Identity audit not worse on any metric.
+- Constitution: `docs/rebuild/CONSTITUTION_REVIEW_20261008_ar.md`; `tools/constitution_guard.mjs` + `docs/registry/constitution-rules.json` → `docs/registry/CONSTITUTION_SCORECARD_ar.md` (18 rules, 17 enforced, all passing, 1 gap); CI job in `foundation-guard.yml`; FOUNDATION §2 corrected to `elkosif0-cmd/cloude`.
+- Capabilities: §3.0‑1/12 `ownerScope` stamped at creation (tools → TOOLS_ONLY, door/accounting → FULL_ACCOUNTING), the accounting menu no longer lists tools-owned companies (`tools/owner_scope.test.mjs`); §3.0‑8 visible save state chip (`ui/core/save-state.js`, `tools/save_state.test.mjs`) — device only, says so.
+- Evidence: every unit file run locally — the only red files are red on untouched main too (header_names, management_report_build, shortcut_focus: Windows paths; sqc_accessibility: linkedom; sqc_audit_readability, vat_display_regression); headless Edge screenshots light / dark / phone, no page errors.
+- Branch / PR: `claude/identity-constitution-20261008`.
+
+### TASK CLAUDE-20261008-009 — Merge the owner's v16 sales/costs dashboard into «الربحية والقنوات»; surfaces v2 (cards, tiles, tables)
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Owner request: «ادمج وطوّر كل شيء في التطبيق، طوّر الأشكال والجداول والبطاقات وكل شيء» with `aghnam_alwadi_dashboard_v16_repaired.html`.
+- Engine: `app/src/engine/fusion/sales/channel-costing-engine.ts` (+15 tests) → `SKEngines.sales.channelCosting` — effective-dated rules per product and channel with the v16 cost components, order-fee sharing, evidence order (imported cost → imported profit → rule → catalog), coverage, rule-based recommendations.
+- UI: `ui/features/channel-profit.js` + `.css` replace the lab's «الربحية والقنوات» chapter (filters, channel chips, KPI tiles, recommendations, charts, per-channel table, product detail, grouped rule editor with a live preview, printable report via `SK.brandPrint`, CSV). Templates: «قواعد التكلفة» extended with the components, new «مبيعات القنوات (لوحة v16)», header aliases (`col.alt`). Storage `skosif_channel_lines_v1` is per company (HELPER_KEY + company_scope_keys test).
+- Surfaces v2: `ui/ds/surfaces.css` (loaded last, kosif look): one shape for KPI tiles (accent edge by tone, lift on hover), cards and tables (tinted head, zebra, totals row). Identity audit not worse.
+- Data: the v16 file's embedded PDF data was NOT committed (real company figures); exported for the owner as `استيراد_مبيعات_القنوات_v16.xlsx` and verified through the app's own import: revenue 32,593.78 · profit 5,121.50 · margin 15.71% = the PDF.
+- Decisions per capability: `docs/capabilities/CHANNEL_COSTING_ar.md`.
+- Branch / PR: `claude/channel-costing-20261008` (stacked on PR #228).

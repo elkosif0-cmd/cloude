@@ -4,10 +4,10 @@
 /* ================= Command Center ================= */
 .skc-luxe{gap:var(--sk-4)}
 /* the crystal world band (ui/art/crystal-world.js) */
-.skc-world{position:relative;height:190px;border-radius:var(--sk-r-l);overflow:hidden;background:url(./art/brand/banner.webp) center/cover no-repeat,radial-gradient(ellipse at 70% 0%,#16406e 0%,#0b1f3a 55%,#061226 100%);box-shadow:var(--sk-shadow-1)}
+.skc-world{position:relative;height:190px;border-radius:var(--sk-r-l);overflow:hidden;background:url(./art/brand/banner.webp) center/cover no-repeat,radial-gradient(ellipse at 70% 0%,#1b2a8a 0%,#0b1030 55%,#05071a 100%);box-shadow:var(--sk-shadow-1)}
 .skc-world-v{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.85}
 .skc-world-c{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity 1.4s ease}.skc-world-c.on{opacity:1}
-.skc-world-tx{position:absolute;inset-inline-start:22px;bottom:18px;display:grid;gap:4px;color:#fff;text-shadow:0 2px 14px rgba(6,18,38,.8)}
+.skc-world-tx{position:absolute;inset-inline-start:22px;bottom:18px;display:grid;gap:4px;color:#fff;text-shadow:0 2px 14px rgba(5,8,30,.8)}
 .skc-world-tx small{font:600 11.5px var(--sk-font-latin);letter-spacing:.14em;color:#9fc3ea}.skc-world-tx b{font-size:26px;font-weight:800;line-height:1.2}
 @media (max-width:600px){.skc-world{height:150px}.skc-world-tx b{font-size:21px}}
 @media (prefers-reduced-motion:reduce){.skc-world-c{transition:none}}
@@ -64,9 +64,9 @@
 /* ================= executive report pack (report-pack.js) ================= */
 .rp{display:flex;flex-direction:column;gap:var(--sk-4)}
 .rp-hero{display:flex;align-items:center;justify-content:space-between;gap:var(--sk-4);flex-wrap:wrap;padding:20px 22px;border-radius:var(--sk-r-l);color:#fff;
-  background:linear-gradient(110deg,rgba(11,31,58,.96),rgba(18,58,107,.9) 55%,color-mix(in srgb,var(--sk-brand) 82%,transparent)),url(./art/kosif-sky.svg) center/cover no-repeat}
+  background:linear-gradient(110deg,rgba(11,16,48,.96),rgba(18,58,107,.9) 55%,color-mix(in srgb,var(--sk-brand) 82%,transparent)),url(./art/kosif-sky.svg) center/cover no-repeat}
 .rp-hero h3{font-size:20px;color:#fff}.rp-hero p{max-width:640px;margin-top:4px;font-size:var(--sk-fs-s);line-height:1.8;color:#d6e4f5}
-.rp-hero .btn.primary{background:#fff!important;color:#0b1f3a!important;box-shadow:0 10px 24px -12px rgba(0,0,0,.6)}
+.rp-hero .btn.primary{background:#fff!important;color:#0b1030!important;box-shadow:0 10px 24px -12px rgba(0,0,0,.6)}
 .rp-opts{display:grid;gap:var(--sk-3);padding:18px;border:1px solid var(--sk-line);border-radius:var(--sk-r-l);background:var(--sk-surface-2)}
 .rp-sec{display:flex;flex-wrap:wrap;gap:6px 16px}
 /* مختبر المبيعات (sales-lab.js) */

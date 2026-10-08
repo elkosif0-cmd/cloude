@@ -22,7 +22,7 @@ const sessionGate=()=>{try{return sessionStorage.getItem(GATE)||""}catch{return 
    skosif_erp_finance_v1 / _payables_v1 / _inventory_v1 (the cash log, supplier payables, the inventory card) were never
    swapped and every company saw the same ones; the risk register, the tasks and the council's cases are company data too */
 const HELPER_KEY=k=>/^aghnam(?!-v12-theme|-pricing-auth|-pricing-pass|-pricing-ui|-typesafe|-v17-runtime|-v19-(leader|tabs|write)|-v21-)/.test(k)&&!/^aghnam_v29_jev_log$/.test(k)
-  ||/^skosif_(v3\d|v38)_/.test(k)||/^skosif_(ledger_v1|advances_v1|erp_[a-z0-9_]+|risks_v1|tasks_v1|council_v1|purchasing_v1|followup_v1|inv_[a-z_]+|rep_pl|report_pack_v1|ar_paste|commerce_warm_v1|cost_rules_v1|income_statements_v1|product_flow_v1|ops_[a-z_]+|company_profile_v1|company_definitions_v1|company_tools_v1|reporting_intake_v1)$/.test(k)
+  ||/^skosif_(v3\d|v38)_/.test(k)||/^skosif_(ledger_v1|advances_v1|erp_[a-z0-9_]+|risks_v1|tasks_v1|council_v1|purchasing_v1|followup_v1|inv_[a-z_]+|rep_pl|report_pack_v1|ar_paste|commerce_warm_v1|cost_rules_v1|channel_lines_v1|income_statements_v1|product_flow_v1|ops_[a-z_]+|company_profile_v1|company_definitions_v1|company_tools_v1|reporting_intake_v1)$/.test(k)
   ||/^sqc_(ptree|geo|jesim|salesup)_/.test(k)||k==="skosif_demo_v1"
   ||k==="skosif_company_platform_v1"||/^sales_customer_followup/.test(k); /* the original CRM V8.2 (الأنظمة الأصلية) */
 const reg=()=>{const r=load(REG,{})||{};return{active:r.active||null,spaces:r.spaces||{}}};
@@ -320,7 +320,7 @@ async function newCompany(){
     {key:"cur",label:"العملة",type:"select",value:"SAR",options:[["SAR","ريال سعودي"],["EGP","جنيه مصري"],["AED","درهم إماراتي"],["USD","دولار أمريكي"]]}],{ok:"إنشاء والانتقال إليها",message:"تبدأ الشركة الجديدة بأدوات فارغة: أصنافها وموردوها ومخزونها ومبيعاتها وملاحظاتها لها وحدها."});
   if(!v)return;
   const id=SK.ui&&SK.ui.uid?SK.ui.uid("co"):"co-"+Date.now().toString(36);
-  const cd=load("skosif_companies_v1",{})||{};cd.companies=cd.companies||[];cd.periods=cd.periods||[];cd.companies.push({id,name:v.name,country:v.cur==="EGP"?"EG":"SA",currency:v.cur});save("skosif_companies_v1",cd);
+  const cd=load("skosif_companies_v1",{})||{};cd.companies=cd.companies||[];cd.periods=cd.periods||[];cd.companies.push({id,name:v.name,country:v.cur==="EGP"?"EG":"SA",currency:v.cur,ownerScope:"TOOLS_ONLY"});save("skosif_companies_v1",cd);
   await switchTo(id,v.name,{fresh:true,after:"masterdata"});
 }
 
@@ -449,7 +449,7 @@ async function applyIntent(){
   const sector=SK.caps&&SK.caps.sector&&SK.caps.sector(it.sector)?String(it.sector):"";
   const cd=load("skosif_companies_v1",{})||{};cd.companies=cd.companies||[];cd.periods=cd.periods||[];
   const rec=cd.companies.find(c=>c&&c.id===id);
-  if(it.create&&!rec&&!it.scratch&&gate!=="tools"){cd.companies.push({id,name,country:"SA",currency:"SAR",sector:sector||"trade",packPending:true,...(it.model?{model:true}:{})});save("skosif_companies_v1",cd)}
+  if(it.create&&!rec&&!it.scratch&&gate!=="tools"){cd.companies.push({id,name,country:"SA",currency:"SAR",sector:sector||"trade",packPending:true,ownerScope:"FULL_ACCOUNTING",...(it.model?{model:true}:{})});save("skosif_companies_v1",cd)}
   else if(rec&&sector&&!rec.sector){rec.sector=sector;save("skosif_companies_v1",cd)}
   land();
   /* explicit selection is an admission, also for the company already open (#143): the switch decides, and only an

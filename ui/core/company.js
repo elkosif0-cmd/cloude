@@ -14,6 +14,13 @@
 const {load,save}=SK;
 const CO="skosif_companies_v1",PRIVATE="sqc_private_space",AFTER="sqc_company_after_open",DEMO={id:"demo-co",name:"شركة الوادي التجريبية للحوم",sector:"meat"};
 const space=()=>window.SKosifSpace||null;
+/* FOUNDATION §3.0 rule 1: the path that creates a company owns it — FULL_ACCOUNTING (the accounting entry, the widest
+   container), TOOLS_ONLY (a helper-tools space) or AUDIT_ONLY. A record from before the rule is an accounting company. Rule 12:
+   a company owned by the tools entry never shows up as an accounting company by itself (the open one stays listed, so the
+   context is never lost); the tools entry may still link an accounting company explicitly (ui/core/helper-space.js) */
+const SCOPES=Object.freeze({accounting:"FULL_ACCOUNTING",audit:"AUDIT_ONLY",tools:"TOOLS_ONLY"});
+const scopeOfRec=rec=>rec&&Object.values(SCOPES).includes(rec.ownerScope)?rec.ownerScope:SCOPES.accounting;
+const gateNow=()=>{try{return SK.gate&&SK.gate.current?SK.gate.current():"accounting"}catch{return "accounting"}};
 function books(){
   const d=load(CO,{})||{};
   return{companies:Array.isArray(d.companies)?d.companies.filter(c=>c&&c.id):[],periods:Array.isArray(d.periods)?d.periods.filter(p=>p&&p.id):[],
@@ -29,7 +36,7 @@ function current(){
   const periods=d.periods.filter(p=>p.companyId===id||!p.companyId),period=periods.find(p=>p.id===d.active.periodId)||null;
   /* the sector (FOUNDATION §3.7) is the company's own; the demo company is a meat company; a company recorded before
      sectors existed is general trade */
-  return Object.freeze({id,name,currency:(rec&&rec.currency)||"SAR",country:(rec&&rec.country)||"SA",sector:(rec&&rec.sector)||(id===DEMO.id?DEMO.sector:"trade"),packPending:!!(rec&&rec.packPending),model:!!(rec&&rec.model),locked:!!id&&privateId()===id,demo:id===DEMO.id,period,periods});
+  return Object.freeze({id,name,currency:(rec&&rec.currency)||"SAR",country:(rec&&rec.country)||"SA",sector:(rec&&rec.sector)||(id===DEMO.id?DEMO.sector:"trade"),packPending:!!(rec&&rec.packPending),model:!!(rec&&rec.model),locked:!!id&&privateId()===id,demo:id===DEMO.id,ownerScope:scopeOfRec(rec),period,periods});
 }
 /* every company this device knows: the open one first; the private one only while it is the open one */
 function list(){
@@ -39,7 +46,8 @@ function list(){
   ((space()&&space().list&&space().list())||[]).forEach(o=>{if(o&&o.id&&!seen.has(o.id)){seen.add(o.id);const b=fromBooks(o.id);out.push({id:o.id,name:clean(b&&b.name)||clean(o.name)||o.id,currency:b&&b.currency,demo:o.id===DEMO.id})}});
   d.companies.forEach(c=>{if(!seen.has(c.id)){seen.add(c.id);out.push({id:c.id,name:clean(c.name)||c.id,currency:c.currency,demo:c.id===DEMO.id})}});
   if(!seen.has(DEMO.id))out.push({id:DEMO.id,name:DEMO.name,demo:true});
-  return out;
+  out.forEach(o=>{o.ownerScope=scopeOfRec(fromBooks(o.id))});
+  return gateNow()==="tools"?out:out.filter(o=>o.open||o.ownerScope!==SCOPES.tools);
 }
 /* open a company: its data replaces the open one (the app reloads); the private company goes through the front door */
 async function open(id){
@@ -54,7 +62,7 @@ async function create(name,currency="SAR",sector="trade"){
   name=clean(name);if(!name)throw new Error("اسم الشركة مطلوب");
   const id=SK.ui&&SK.ui.uid?SK.ui.uid("co"):"co-"+Date.now().toString(36);
   sector=SK.caps&&SK.caps.sector&&SK.caps.sector(sector)?sector:"trade";
-  const d=books();d.rest.companies=[...d.companies,{id,name,country:currency==="EGP"?"EG":"SA",currency,sector}];save(CO,d.rest);
+  const d=books();d.rest.companies=[...d.companies,{id,name,country:currency==="EGP"?"EG":"SA",currency,sector,ownerScope:SCOPES.accounting}];save(CO,d.rest);
   try{sessionStorage.setItem(AFTER,"masterdata")}catch{}
   return space()&&space().switchTo?space().switchTo(id,name,{fresh:true,demo:false,after:"masterdata"}):false;
 }
@@ -113,5 +121,5 @@ async function boot(){
   try{const after=sessionStorage.getItem(AFTER);if(after){sessionStorage.removeItem(AFTER);setTimeout(()=>{const core=window.SKosifCore,cap=SK.caps&&SK.caps.get?SK.caps.get(after):null;if(core&&cap&&(!SK.perm||SK.perm.can(after)))core.go(after)},0)}}catch{}
 }
 boot();
-SK.company=Object.freeze({current,list,open,create,rename,setPeriod,updateMeta,reconcile,provisional,ready:()=>ready,DEMO});
+SK.company=Object.freeze({current,list,open,create,SCOPES,scopeOf:id=>scopeOfRec(books().companies.find(c=>c.id===id)),rename,setPeriod,updateMeta,reconcile,provisional,ready:()=>ready,DEMO});
 })();

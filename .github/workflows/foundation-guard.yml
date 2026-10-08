@@ -37,3 +37,18 @@ jobs:
           grep -q "FOUNDATION.md" .github/pull_request_template.md             || { echo "::error::PR template no longer requires foundation acknowledgment"; exit 1; }
 
           echo "Foundation guard passed."
+
+  constitution-guard:
+    # رادع الدستور: every FOUNDATION rule mapped to the test or check that enforces it (docs/registry/constitution-rules.json);
+    # fails when a checked rule fails or when fewer rules are enforced than tools/fixtures/constitution-baseline.json
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Constitution guard
+        run: node tools/constitution_guard.mjs --check
+      - name: Scorecard
+        if: always()
+        run: cat docs/registry/CONSTITUTION_SCORECARD_ar.md >> "$GITHUB_STEP_SUMMARY"

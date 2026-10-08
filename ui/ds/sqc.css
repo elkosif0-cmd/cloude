@@ -58,7 +58,7 @@ body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-r
 
 /* top bar: the avatar's initials and the notification count stay legible on their fills */
 .sk-av{text-shadow:0 1px 1px rgba(0,0,0,.28)}
-:root[data-look="kosif"]:not([data-theme="dark"]) .sk-av{background:linear-gradient(135deg,#0b2a5b,#13305a)}
+:root[data-look="kosif"]:not([data-theme="dark"]) .sk-av{background:linear-gradient(135deg,#1a2a8f,#2340c4)}
 .sk-tb-icon .dot{background:color-mix(in srgb,var(--sk-bad-mark) 82%,#000)}
 
 /* the phone top bar: the SQC mark already spells the name, so the text beside it is left to screen readers */
