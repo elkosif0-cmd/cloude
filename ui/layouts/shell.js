@@ -21,7 +21,7 @@ function identityMetadata(){
   manifest.href="./manifest.webmanifest";
   let theme=h.querySelector('meta[name="theme-color"]');
   if(!theme){theme=document.createElement("meta");theme.name="theme-color";h.appendChild(theme)}
-  if(!theme.content)theme.content="#0c2340";
+  if(!theme.content)theme.content="#0b1030";
 }
 
 /* ---------- preferences: theme (look) + density ----------

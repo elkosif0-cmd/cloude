@@ -65,6 +65,9 @@ try {
     });
     try {
       await page.goto(base+'index.html');
+      // the door asks the section, then the sector, then the company (FOUNDATION: section → sector → company)
+      await page.locator('[data-gate="accounting"]').click();
+      await page.locator('[data-sector="meat"]').click();
       await page.locator('#co-list .co[data-id="demo-co"]').click();
       await page.waitForURL(/app-safe\.html/);await ready(page);await companies(page);
       const initial=await snapshot(page);assert.equal(initial.company.id,'demo-co');assert.equal(initial.space,'demo-co');

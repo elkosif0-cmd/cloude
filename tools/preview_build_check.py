@@ -78,7 +78,7 @@ def check_preview(tmp, label, samples, placeholders):
     app = (tmp / "dist" / "app-safe.html").read_text(encoding="utf-8")
     head = app.split("</head>", 1)[0]
     ok(f"{label}: each private block ({len(placeholders)}) is replaced by its placeholder", all(ph in app for ph in placeholders))
-    ok(f"{label}: SQC theme color is canonical", 'name="theme-color" content="#0c2340"' in head)
+    ok(f"{label}: SQC theme color is canonical", 'name="theme-color" content="#0b1030"' in head)  # the «كوبالت وجليد» navy (build.py, tokens --sk-navy)
     ok(f"{label}: SQC favicon replaces legacy cloud mark", 'href="./art/sqc-icon.svg"' in head and "kosif-cloud.svg" not in head)
     ok(f"{label}: app shell advertises the PWA manifest", 'rel="manifest" href="./manifest.webmanifest"' in head)
     phones = public_phone_numbers(blob)

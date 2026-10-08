@@ -90,7 +90,6 @@ function mount(root){
 }
 document.addEventListener("click",e=>{
   const b=e.target.closest("[data-slab]");if(b){tab=b.dataset.slab;const h=document.querySelector("[data-slab-host]");if(h)paint(h);return}
-  const repaint=()=>{const h=document.querySelector("[data-slab-host]");if(h)paint(h)};
   if(e.target.closest("[data-slab-treecsv]")){let items=[];try{items=SKosifCore.catalog().items||[]}catch{}SK.csv.download("SQC-item-tree.csv",["الفئة","الصنف","النوع","التكلفة","السعر","الهامش"],items.map(i=>[i.cat,i.name,i.kind==="box"?"بوكس":"خام",i.cost,i.price,i.margin==null?"":Math.round(i.margin*1000)/10+"%"]));return}
   const t=e.target.closest("[data-slab-task]");if(t&&window.SKosifTasks&&SKosifTasks.add){SKosifTasks.add({title:"مبادرة: "+t.dataset.slabTask,cap:"salesintel",priority:"normal"});SK.toast("أُضيفت إلى المهام","ok")}
 });
