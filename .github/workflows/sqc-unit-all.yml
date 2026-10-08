@@ -38,8 +38,9 @@ jobs:
           : > unit.txt
           for f in tools/*.test.mjs capabilities-v2/*.test.mjs; do
             out=$(NODE_PATH=/tmp/sqc-ui/node_modules timeout 300 node --test "$f" 2>&1)
-            p=$(printf '%s\n' "$out" | sed -n 's/^ℹ pass \([0-9]*\)$/\1/p' | tail -1)
-            x=$(printf '%s\n' "$out" | sed -n 's/^ℹ fail \([0-9]*\)$/\1/p' | tail -1)
+            # TAP off a terminal («# pass N»), the spec reporter on one («ℹ pass N»)
+            p=$(printf '%s\n' "$out" | sed -nE 's/^(#|ℹ) pass ([0-9]+)$/\2/p' | tail -1)
+            x=$(printf '%s\n' "$out" | sed -nE 's/^(#|ℹ) fail ([0-9]+)$/\2/p' | tail -1)
             echo "$f ${p:-0} ${x:-?}" >> unit.txt
             if [ "${x:-?}" != "0" ]; then printf '%s\n' "$out" | grep -E '^not ok|^# Subtest|error:|Error' | head -30 > "fail-$(basename "$f").log"; fi
           done

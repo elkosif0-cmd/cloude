@@ -238,7 +238,9 @@ function updateZatcaQR(){
   const box=$("#sk38-qrcode-box");
   /* R10: no QR for an invoice that cannot be valid — a tax number of 15 digits, a seller and a total are required
      (the receipt used to carry a QR with an empty tax number and no lines) */
-  const missing=[!/^3\d{13}3$/.test(vatNo.trim())&&"رقم ضريبي من 15 رقماً يبدأ وينتهي بـ3",!seller.trim()&&"اسم المنشأة",!(amounts.grandTotal>0)&&"بند واحد على الأقل"].filter(Boolean);
+  const missing=[!/^3\d{13}3$/.test(vatNo.trim())&&"رقم ضريبي من 15 رقماً يبدأ وينتهي بـ3",!seller.trim()&&"اسم المنشأة",!(amounts.grandTotal>0)&&"بند واحد على الأقل",
+    /* R15: a TLV field holds at most 255 bytes (its length is one byte) — a longer name wrapped silently and corrupted the QR */
+    new TextEncoder().encode(seller.trim()).length>255&&"اسم منشأة أقصر (حد الرمز 255 بايتاً)"].filter(Boolean);
   if(box&&missing.length){box.innerHTML='<p class="sk38-qr-missing">لا يُصدر رمز QR بعد — ينقص: '+missing.map(esc).join("، ")+'</p>';return}
   const tlvB64=zatcaTLV(seller,vatNo,now,grandTotal,vatAmount);
   if(box&&window.QRCode){
