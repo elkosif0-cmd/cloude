@@ -8,6 +8,7 @@
    • the references (standards and notes), and whether the matter is new or continuing against last year's report
      («no longer included because…» — AstraZeneca).
    The suggestions are ranked; the partner chooses what the report carries. */
+import { canonicalReferenceId } from '../reports/reference-index-engine';
 import { formatMinor, type Minor } from '../reports/money-engine';
 import type { FinancialStatements } from '../reports/statements-engine';
 import { precedentsFor, themePrior, THEMES, type KamRow, type Sector, type Standard, type Theme } from './global-benchmarks-engine';
@@ -25,6 +26,7 @@ export function suggestKams(input: { fs: FinancialStatements; risks: KamRisk[]; 
   /** the auditing standard of the report (PCAOB reports carry fewer matters) */ standard?: Standard | '';
   /** leave this bundle report out of the precedents (the bundle testing itself) */ exclude?: string;
   /** how often auditors in the entity's sector reported each theme (0–1); computed from the bundle when not given */ sectorPrior?: Partial<Record<string, number>> }): Kam[] {
+  if (input.exclude) input = {...input, exclude: canonicalReferenceId(input.exclude)};
   const { fs, materiality } = input, cur = input.currency ?? 'ر.س', money = (m: Minor) => formatMinor(m, { decimals: 0 }) + ' ' + cur;
   const assets = Math.abs(fs.keys.assets.current) || 1;
   const byKey = new Map<string, Kam>();

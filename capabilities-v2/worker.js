@@ -257,7 +257,7 @@ function validateWorkspaceInput(input) {
   if (!/^[A-Z]{3}$/.test(currency)) return {error:"invalid_currency"};
   if (!/^[A-Za-z0-9._-]{3,80}$/.test(schemaVersion)) return {error:"invalid_schema_version"};
   if (!Number.isFinite(Date.parse(effectiveAt))) return {error:"invalid_effective_at"};
-  const sensitive = input?.sensitive === true || name.replace(/\\s+/g,"") === "تصيف";
+  const sensitive = input?.sensitive === true || name.replace(/\s+/g,"") === "تصيف";
   return {name,businessYear,currency,schemaVersion,effectiveAt:new Date(effectiveAt).toISOString(),sensitive};
 }
 

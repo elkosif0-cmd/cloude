@@ -88,6 +88,7 @@ export function taxProvision(fs: FinancialStatements, jurisdiction: 'SA' | 'EG' 
 /* ---------- non-GAAP / management-defined performance measures (Amazon) ---------- */
 export type Measure = { key: string; ar: string; rows: { ar: string; amount: Minor }[]; value: Minor; prior: Minor | null; note: string };
 export function performanceMeasures(fs: FinancialStatements): Measure[] {
+  if(fs.reconstructionStatus)return [];
   const out: Measure[] = [], cf = fs.cf, k = fs.keys;
   const cfRow = (key: string) => cf?.find((r) => r.key === key)?.current ?? 0;
   if (cf) {

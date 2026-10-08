@@ -1,3 +1,5 @@
+import { reviewedPublishedSource } from './published-source-engine';
+import { buildReplayStatements, reviewedTransportMatches, type ReplayResult } from './source-replay-engine';
 /* Financial statements from a trial balance — the layout of the annual reports of listed companies
    (Almarai, Nestlé, Aramco) under IFRS as endorsed in the Kingdom (SOCPA), IFRS 18-ready:
      • profit or loss in categories: operating → operating profit → investing → profit before
@@ -9,7 +11,6 @@
    Built on the line maps of kosif-audit-pro (statements.mjs) and SEE (classification: standards and
    assertions per account family). Deterministic; no model involved. Amounts in halalas. */
 import { type Minor } from './money-engine';
-import type { ReplayResult } from './source-replay-engine';
 import { norm, type AccountType, type TrialBalance, type TbRow } from './tb-import-engine';
 
 export type Statement = 'sfp' | 'pl';
@@ -97,11 +98,10 @@ export type FsLine = { key: string; ar: string; en: string; section: Section; no
 export type Row = { key: string; ar: string; en: string; current: Minor; prior: Minor | null; note?: number | null; level: 'line' | 'subtotal' | 'total' | 'heading'; };
 export type FinancialStatements = {
   sourceKind?: 'published-statements';
-  cashFlowStatus?: {status:'unavailable';check:'not-tested';reason:string};
-  soceStatus?: {status:'unavailable';reason:string};
-  /* a published-statement replay (reports/source-replay-engine) is not a reconstruction: its balance checks are not tested (null) */
   reconstructionStatus?: {status:'unavailable';reason:string};
   replay?: ReplayResult;
+  cashFlowStatus?: {status:'unavailable';check:'not-tested';reason:string};
+  soceStatus?: {status:'unavailable';reason:string};
   hasPrior: boolean; lines: FsLine[]; unmapped: { code: string; name: string; balance: Minor }[];
   pl: Row[]; sfp: Row[]; soce: { columns: string[]; rows: { ar: string; values: Minor[] }[] }; cf: Row[] | null;
   keys: Record<string, { current: Minor; prior: Minor | null }>;
@@ -116,7 +116,8 @@ const present = (l: LineDef, signed: Minor) => (l.section === 'disc' ? -signed :
 const TAX_WORDS = { zakat: { before: 'الربح قبل التمويل والزكاة', pbz: 'الربح قبل الزكاة', payable: 'زكاة مستحقة', paid: 'الزكاة المدفوعة' },
   income: { before: 'الربح قبل التمويل وضريبة الدخل', pbz: 'الربح قبل ضريبة الدخل', payable: 'ضريبة دخل مستحقة', paid: 'ضريبة الدخل المدفوعة' } };
 export function buildStatements(tb: TrialBalance, overrides: Record<string, string> = {}, opts: { tax?: 'zakat' | 'income' } = {}): FinancialStatements {
-  const sourceOnly = tb.sourceKind === 'published-statements';
+  const sourceOnly = tb.sourceKind !== undefined || tb.sourceId !== undefined || tb.sourceTransport !== undefined || tb.sourceReportFormat !== undefined;
+  if(sourceOnly){const source=reviewedPublishedSource(tb.sourceId??'');if(tb.sourceReportFormat||!source||'replay' in source.sourceModel||!reviewedTransportMatches(tb,overrides))return buildReplayStatements(tb,overrides);}
   const TW = TAX_WORDS[opts.tax ?? 'zakat'];
   const hasPrior = tb.hasPrior;
   const acc = new Map<string, FsLine>(); const unmapped: FinancialStatements['unmapped'] = [];

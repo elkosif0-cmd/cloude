@@ -13,7 +13,7 @@ const bytes=fs.readFileSync('tools/fixtures/apple-fy2024-source.json');
 assert.equal(createHash('sha256').update(bytes).digest('hex'),'f35bbc22c3438262c35b63d226d62b88c3e252a9da054d9b7a4da4093e46e7f5');
 const oracle=JSON.parse(bytes),fact=id=>oracle.items.find(x=>x.id===id).values['2024'];
 const require=createRequire(import.meta.url),{chromium}=require('playwright');
-const EXPECTED_CHECKS=4;
+const EXPECTED_CHECKS=6;
 const out='artifacts/apple-source',results=[];fs.mkdirSync(out,{recursive:true});
 const sources=Object.fromEntries(['ui/core/engines.js','ui/features/tb-review.js','ui/features/report-docs.js','ui/features/audit-bridge.js', 'tools/apple_source_browser_e2e.mjs','dist/app-safe.html','dist/skosif.js','dist/skosif.css'].map(p=>[p,createHash('sha256').update(fs.readFileSync(p)).digest('hex')]));
 const browser=await chromium.launch({headless:true});
@@ -34,13 +34,45 @@ try{
   await check('actual Apple picker selection and source report',async()=>{
     await page.evaluate(()=>SKosifTBReview.picker());
     await page.locator('[data-bundle-add="apple-2024"]').click();
-    await page.locator('#view [data-tab="fs"]').first().click();
+    assert.equal(await page.locator('#view .tbr-source-replay').count(),1);
+    assert.equal(await page.locator('#view [data-tab], #view [data-a="demo-audit"]').count(),0);
     const build=await page.locator('meta[name="sqc-build"]').getAttribute('content');assert.match(build,/^[a-f0-9]{10}$/);
     const report=page.locator('#view .rd-source');await report.waitFor();const text=await report.innerText();
     for(const value of ['Apple Inc.','US_GAAP','USD million','2024-09-28','2023-09-30',Number(fact('revenue')).toLocaleString('en-US'),Number(fact('operating_income')).toLocaleString('en-US')])assert.ok(text.includes(value),value);
     assert.doesNotMatch(text,/SOCPA|الريال السعودي|الزكاة|قمنا بمراجعة|أجرينا/);
     assert.equal(await page.locator('#view [data-studio-host]').count(),0);
     await page.screenshot({path:out+'/apple-source-report.png',fullPage:true});
+  });
+  await check('saved and repeated Apple opens retain the source-only shell',async()=>{
+    const assertSourceShell=async()=>{
+      await page.locator('#view .tbr-source-replay .rd-source').waitFor();
+      assert.match(await page.locator('#view .rd-source').innerText(),/Apple Inc\./);
+      assert.equal(await page.locator('#view [data-tab], #view [data-a="demo-audit"], #view [data-studio-host]').count(),0);
+    };
+    await page.locator('#view [data-bundle-open]').click();
+    await page.locator('[data-bundle-add="pg-2026"]').click();
+    await page.locator('#view [data-bundle-open]').click();
+    await page.locator('[data-bundle-go="apple-2024"]').click();await assertSourceShell();
+    await page.locator('#view [data-bundle-open]').click();
+    await page.locator('[data-bundle-add="apple-2024"]').click();await assertSourceShell();
+    await page.evaluate(()=>SKosifTBReview.open('tb'));await assertSourceShell();
+    await page.screenshot({path:out+'/apple-saved-source-reopen.png',fullPage:true});
+  });
+  await check('blocked Excel refusal is visible inside the preview and emits no download',async()=>{
+    const downloads=[],onDownload=download=>downloads.push(download);page.on('download',onDownload);
+    try{
+      await page.locator('#view [data-a="print"]').click();
+      const preview=page.getByRole('dialog',{name:'معاينة المستند',exact:true});
+      await preview.getByRole('button',{name:'Excel',exact:true}).click();
+      const notice=preview.getByRole('status');await notice.waitFor({state:'visible'});
+      assert.match(await notice.innerText(),/Excel.*غير متاح.*CSV/);
+      assert.equal(await notice.getAttribute('aria-live'),'polite');
+      assert.equal(await notice.evaluate(el=>{const r=el.getBoundingClientRect();return r.width>0&&r.height>0&&el.contains(document.elementFromPoint(r.left+r.width/2,r.top+r.height/2));}),true);
+      await preview.getByRole('button',{name:'Excel',exact:true}).press('Enter');
+      await page.screenshot({path:out+'/apple-excel-in-modal-refusal.png',fullPage:true});
+      assert.equal(downloads.length,0);
+      await preview.getByRole('button',{name:'إغلاق',exact:true}).click();
+    }finally{page.off('download',onDownload);}
   });
   await check('native CSV keeps source identity and unavailable cash flow',async()=>{
     const [download]=await Promise.all([page.waitForEvent('download'),page.locator('#view [data-a="fs-csv"]').click()]);

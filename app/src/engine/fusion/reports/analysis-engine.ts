@@ -69,6 +69,7 @@ const DEF: [string, RatioGroup, string, string, Ratio['unit'], Ratio['better'], 
 ];
 
 export function ratios(fs: FinancialStatements): Ratio[] {
+  if(fs.reconstructionStatus)return [];
   const s = snap(fs, false)!, p = snap(fs, true);
   const cur = ratiosOf(s, p, fs.keys.cfo?.current ?? null, fs.keys.capex?.current ?? null);
   const pri = p ? ratiosOf(p, null, null, null) : null;
@@ -104,6 +105,7 @@ export function horizontal(fs: FinancialStatements) {
 
 /** DuPont: ROE = net margin × asset turnover × equity multiplier (year-end balances). */
 export function dupont(fs: FinancialStatements) {
+  if(fs.reconstructionStatus)return {current:{netMargin:null,assetTurnover:null,equityMultiplier:null,roe:null},prior:null};
   const k = fs.keys, one = (rev: Minor, profit: Minor, ta: Minor, eq: Minor) => {
     const nm = div(profit, rev), at = div(rev, ta), em = div(ta, eq);
     return { netMargin: nm === null ? null : r2(nm * 100), assetTurnover: at === null ? null : r2(at), equityMultiplier: em === null ? null : r2(em),
@@ -115,6 +117,7 @@ export function dupont(fs: FinancialStatements) {
 
 /** Altman Z″ (1995, non-manufacturing and emerging-market firms): 6.56·X1 + 3.26·X2 + 6.72·X3 + 1.05·X4. */
 export function altmanZ(fs: FinancialStatements) {
+  if(fs.reconstructionStatus)return null;
   const k = fs.keys, ta = k.assets.current, tl = k.liabilities.current;
   if (!ta) return null;
   const retained = fs.lines.filter((l) => l.key === 'retained').reduce((a, l) => a + l.current, 0) + k.profit.current;
@@ -160,6 +163,7 @@ export function benford(amounts: Minor[]) {
 
 /** «The year at a glance» — the KPI strip that opens a global annual report. */
 export function highlights(fs: FinancialStatements) {
+  if(fs.reconstructionStatus)return [];
   const k = fs.keys, rs = ratios(fs), by = (x: string) => rs.find((r) => r.key === x)!;
   const money = (key: string, ar: string) => ({ key, ar, kind: 'money' as const, current: k[key]?.current ?? 0, prior: fs.hasPrior ? k[key]?.prior ?? 0 : null });
   const rat = (key: string) => { const r = by(key); return { key, ar: r.ar, kind: r.unit, current: r.current, prior: r.prior }; };
@@ -172,6 +176,7 @@ export function highlights(fs: FinancialStatements) {
 
 /** A deterministic management discussion: sentences generated from the numbers only. */
 export function mdna(fs: FinancialStatements, opts: { currency?: string; risks?: string[] } = {}): { title: string; body: string[] }[] {
+  if(fs.reconstructionStatus)return [];
   const cur = opts.currency ?? 'ريال', k = fs.keys, rs = ratios(fs), by = (x: string) => rs.find((r) => r.key === x)!;
   const m = (v: Minor) => Math.round(v / 100).toLocaleString('en-US') + ' ' + cur;
   const ch = (key: string) => { const x = k[key]; if (!x || x.prior === null || !x.prior) return null; return r2(((x.current - x.prior) / Math.abs(x.prior)) * 100); };

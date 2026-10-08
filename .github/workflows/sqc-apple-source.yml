@@ -1,4 +1,4 @@
-name: SQC Apple source boundary
+name: SQC published-source model boundary
 
 on:
   pull_request:
@@ -14,8 +14,15 @@ on:
       - 'build_mode.py'
       - 'private_blocks.py'
       - 'tools/build_engines.mjs'
+      - 'tools/build_reference_index.py'
+      - 'tools/verified_reference_catalog.test.mjs'
       - 'tools/apple-source-harness.mjs'
       - 'tools/apple_source*'
+      - 'tools/*source*'
+      - 'tools/fixtures/**'
+      - 'tools/workspace_validation*'
+      - 'tools/preview_build_check.py'
+      - 'tools/preview_phone_boundary.test.mjs'
       - 'tools/fixtures/apple-fy2024-source.json'
       - 'tools/fixtures/non-apple-statements-baseline.json'
       - '.github/workflows/sqc-apple-source.yml'
@@ -33,8 +40,15 @@ on:
       - 'build_mode.py'
       - 'private_blocks.py'
       - 'tools/build_engines.mjs'
+      - 'tools/build_reference_index.py'
+      - 'tools/verified_reference_catalog.test.mjs'
       - 'tools/apple-source-harness.mjs'
       - 'tools/apple_source*'
+      - 'tools/*source*'
+      - 'tools/fixtures/**'
+      - 'tools/workspace_validation*'
+      - 'tools/preview_build_check.py'
+      - 'tools/preview_phone_boundary.test.mjs'
       - 'tools/fixtures/apple-fy2024-source.json'
       - 'tools/fixtures/non-apple-statements-baseline.json'
       - '.github/workflows/sqc-apple-source.yml'
@@ -78,22 +92,25 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Check all TypeScript configurations and engine tests
         run: npm run check --prefix app
+      - name: Verify reference-index inputs and generated data are current
+        run: python3 tools/build_reference_index.py --check
       - name: Verify generated engine is current
         run: node tools/build_engines.mjs --check
       - name: Run source, bridge and CI-contract regression gates
         run: |
+          node --check ui/core/output.js
           node --check ui/features/tb-review.js
           node --check ui/features/report-docs.js
           node --check ui/features/audit-bridge.js
           node --check tools/apple_source_browser_e2e.mjs
           set -o pipefail
-          node --experimental-vm-modules --test --test-reporter=tap tools/apple_source_reporting.test.mjs tools/apple_source_bridge.test.mjs tools/apple_source_ci_contract.test.mjs | tee artifacts/apple-source/node-tests.tap
+          node --experimental-vm-modules --test --test-reporter=tap tools/pg_source_replay.test.mjs tools/home_depot_source_reporting.test.mjs tools/mcdonalds_source_reporting.test.mjs tools/mcdonalds_adapter.test.mjs tools/mercedes_source_replay.test.mjs tools/volkswagen_source_replay.test.mjs tools/volkswagen_source_reference.test.mjs tools/source_replay_contract.test.mjs tools/apple_source_reporting.test.mjs tools/apple_source_bridge.test.mjs tools/apple_source_ci_contract.test.mjs tools/workspace_validation.test.mjs tools/workspace_validation_contract.test.mjs tools/audit_source_catalog.test.mjs tools/verified_reference_catalog.test.mjs tools/source_report_reimport.test.mjs tools/pending_source_boundary.test.mjs tools/source_preview_excel.test.mjs tools/source_csv_fidelity.test.mjs tools/preview_phone_boundary.test.mjs | tee artifacts/apple-source/node-tests.tap
           python3 - <<'PYCOUNT'
           import re
           from pathlib import Path
           text=Path('artifacts/apple-source/node-tests.tap').read_text()
           counts={k:int(v) for k,v in re.findall(r'^# (tests|pass|fail|cancelled|skipped) (\d+)$',text,re.M)}
-          assert counts['tests'] >= 28, counts
+          assert counts['tests'] >= 223, counts
           assert counts['pass']==counts['tests'], counts
           assert counts['fail']==counts['cancelled']==counts['skipped']==0, counts
           PYCOUNT
@@ -115,6 +132,7 @@ jobs:
           npm install --no-save --no-package-lock --prefix /tmp/pw playwright@1.63.0
           npx --prefix /tmp/pw playwright install --with-deps chromium
           NODE_PATH=/tmp/pw/node_modules node -e "console.log(require('playwright/package.json').version)" > artifacts/apple-source/playwright-version.txt
+      # Additional company-model native acceptance remains pending; Node/VM replay is not a browser pass.
       - name: Run actual Apple UI and source-import boundaries in CI only
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 --directory dist > /tmp/apple-source-server.log 2>&1 &

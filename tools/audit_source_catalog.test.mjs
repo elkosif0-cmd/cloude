@@ -16,7 +16,9 @@ test('existing Audit picker displays support states and never presents all repor
  const{context:W}=harness(),list=W.__test.bundleList({clients:[]}),html=W.__test.bundleRows(list),selector=W.__test.corpusPicker();
  for(const id of REVIEWED){assert.match(html,new RegExp('data-model-id="'+id+'"'));assert.match(selector,new RegExp('value="'+id+'"'));}
  for(const status of ['source-replayed','partially-supported','pending-review','unavailable'])assert.match(html,new RegExp('data-model-status="'+status+'"'));
- const pending=html.match(/<tr[^>]+data-model-status="pending-review"[\s\S]*?<\/tr>/g)||[];assert.equal(pending.length,43);assert.ok(pending.every(r=>!r.includes('data-bundle-add')&&!r.includes('data-bundle-show')));
+ const pending=html.match(/<tr[^>]+data-model-status="pending-review"[\s\S]*?<\/tr>/g)||[];assert.equal(pending.length,43);
+ /* R16 (P5): a pending company with a corpus model opens as an audit file, labelled pending and simulation-only; Panasonic (no statements in the bundle) does not */
+ for(const r of pending){const model=!r.includes('data-model-id="panasonic-2024"');assert.equal(r.includes('data-bundle-add'),model);assert.equal(r.includes('data-bundle-show'),model);assert.match(r,/بانتظار مراجعة واعتماد نموذج التطبيق/);assert.match(r,model?/محاكاة على أرقام منشورة، لا تأكيد مهني/:/لا يُفتح كملف مراجعة/);assert.doesNotMatch(r,/تم إنجاز المراجعة|مراجعة مكتملة للشركة/);}
  assert.doesNotMatch(W.__test.filesBar(),/43 شركة|يراجعها كاملة|نموذج عرض القدرات/);assert.match(W.__test.filesBar(),/نماذج التقارير المنشورة/);
  const caps=JSON.parse(fs.readFileSync(root+'/ui/core/capabilities.json'));const all=JSON.stringify(caps);assert.match(all,/"id":"tbreview"/);assert.match(all,/"group":"audit"/);
 });

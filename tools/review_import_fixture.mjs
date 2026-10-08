@@ -21,7 +21,7 @@ export function harness({source='ledger',rounds=0,empty=false,saveMode='success'
  const errors=[],toasts=[],audit=[],navigation=[],views={},ui=dom();let mode=saveMode,bridgeAction=null;
  const storage={getItem:k=>data[k]??null,setItem(k,v){calls.setItem++;if(mode==='quota'&&k===KEY){const e=Error('synthetic full');e.name='QuotaExceededError';throw e}data[k]=v},removeItem(k){calls.removeItem++;delete data[k]}};
  const core={registerView:(k,v)=>views[k]=v,toast:(...a)=>toasts.push(a),view:()=>navigation.at(-1)||'ledger',go:v=>navigation.push(v),onView(){}};
- const context=vm.createContext({window:{SKosifCore:core},document:ui.doc,localStorage:storage,addEventListener(){},setInterval(){},setTimeout(){},console,TextEncoder,TextDecoder,getComputedStyle:()=>({visibility:'visible'}),__calls:calls});
+ const context=vm.createContext({window:{SKosifCore:core},document:ui.doc,localStorage:storage,addEventListener(){},setInterval(){},setTimeout(){},console,TextEncoder,TextDecoder,structuredClone,getComputedStyle:()=>({visibility:'visible'}),__calls:calls});
  context.window.indexedDB=context.indexedDB={open(){calls.idbOpen++;const q={result:{createObjectStore(){},transaction(){calls.idbTransaction++;const t={objectStore:()=>({openCursor(){const c={result:null};queueMicrotask(()=>{for(const key of [...docs.keys()])if(key.startsWith('synthetic-old-session|')){docs.delete(key);calls.idbDelete++}c.onsuccess?.();t.oncomplete?.()});return c}})};return t}}};queueMicrotask(()=>q.onsuccess?.());return q}};
  const productRead=p=>fs.readFileSync(path.join(['ui/features/tb-review.js','ui/features/ledger.js','ui/features/assistant.js','ui/core/sk.js'].includes(p)?(fs.existsSync(path.join(owner,root))?path.join(owner,root):baseline):baseline,p),'utf8');
  const execute=(p,transform=s=>s)=>vm.runInContext(transform(productRead(p)),context,{filename:p});
@@ -36,6 +36,12 @@ export function harness({source='ledger',rounds=0,empty=false,saveMode='success'
  execute('ui/features/tb-review.js',s=>s.replace('const fresh=d=>{','const fresh=d=>{__calls.fresh++;').replace('const put=d=>{','const put=d=>{__calls.put++;').replace('async function docClear(){','async function docClear(){__calls.docClear++;').replace('function register(){','function register(){__calls.register++;').replace('async function booksTB(){','async function booksTB(){__calls.booksTB++;').replace('function paint(){','function paint(){__calls.paint++;').replace('window.SKosifTBReview=Object.freeze({','window.__tbr={bind,state:()=>({tab,setup,confHTML,cache}),setState:v=>{tab=v.tab;setup=v.setup;confHTML=v.confHTML;cache=v.cache}};window.SKosifTBReview=Object.freeze({'));
  context.SKosifTBReview=context.window.SKosifTBReview;
  context.window.__tbr.setState({tab:'docs',setup:true,confHTML:{sig:'old',h:'old confidence'},cache:{old:true}});
+ // Actual workspace ownership getter, not a fake company-scoped chat adapter.
+ data.sqc_helper_users_v1=JSON.stringify({active:'synthetic-user',users:{'synthetic-user':{id:'synthetic-user',lastSpace:'source-co',spaces:{'source-co':{name:'Synthetic Source'}}}}});
+ data.sqc_helper_space_v1=JSON.stringify({active:'source-co',spaces:{'source-co':{name:'Synthetic Source'}}});
+ const subs=new Map();context.SK.bus={on(t,fn){if(!subs.has(t))subs.set(t,[]);subs.get(t).push(fn)},emit(t,e){for(const f of subs.get(t)||[])f(e)}};
+ context.sessionStorage={getItem:()=>null,removeItem(){}};
+ execute('ui/core/helper-space.js');context.SKosifSpace=context.window.SKosifSpace;
  execute('ui/features/assistant.js');context.SKosifAssistant=context.window.SKosifAssistant;
  execute('ui/features/month-close.js');
  execute('ui/core/templates.js',s=>s.replace('SK.templates=Object.freeze({','window.__templates=T;SK.templates=Object.freeze({'));

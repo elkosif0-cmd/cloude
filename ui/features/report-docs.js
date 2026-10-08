@@ -50,15 +50,36 @@ function measures(ms,cur){
 }
 const item=(no,title,body,id)=>'<section class="rd-item" id="'+(id||"")+'"><h3><span>'+esc(no)+'</span>'+esc(title)+'</h3>'+body+'</section>';
 
+/* Source values are not minor-unit ledger values. Each cell retains its own unit and period. */
+function replayTables(replay){
+  const value=cell=>cell.status==="blank"?"":cell.status==="unavailable"?"غير متاح":cell.display!==undefined?esc(cell.display):esc(new Intl.NumberFormat("en-US",{maximumFractionDigits:10}).format(cell.value));
+  return replay.tables.map(t=>'<section class="rd-replay-table" data-source-table="'+esc(t.id)+'"><h4>'+esc(t.title)+'</h4><p>صفحات المصدر: '+esc(t.sourcePages.join(", "))+'</p><table class="rd-t"><thead><tr><th>Source label</th><th>Unit</th>'+t.columns.map(c=>'<th>'+esc(c.label)+'<br><small>'+esc(c.period.kind)+': '+esc(c.period.start?c.period.start+' → ':"")+esc(c.period.end)+(c.unit?' · '+esc(c.unit):'')+'</small></th>').join("")+'</tr></thead><tbody>'+t.rows.map(r=>'<tr data-source-row="'+esc(r.id)+'"><td>'+esc(r.label)+(r.context?'<small> · '+esc(r.context)+'</small>':'')+'</td><td>'+esc(r.unit)+'</td>'+t.columns.map(c=>{const cell=r.cells[c.id],p=cell.period||c.period;return '<td class="n" data-cell-status="'+esc(cell.status)+'" data-period-end="'+esc(p.end)+'" data-period-kind="'+esc(p.kind)+'" data-unit="'+esc(c.unit||r.unit)+'">'+value(cell)+(cell.period?'<small> · '+esc(p.end)+'</small>':'')+'</td>';}).join("")+'</tr>').join("")+'</tbody></table></section>').join("");
+}
+function replayDisclosures(r){
+ const unavailable=r.unavailable.map(u=>'<li>'+esc(u.id)+': '+esc(u.reason)+(u.sourcePages?' · '+esc(u.sourcePages.join(", ")):'')+'</li>').join("");
+ const checks=r.checks.map(c=>'<tr><td>'+esc(c.id)+'</td><td>'+esc(c.reported)+'</td><td>'+esc(c.computed)+'</td><td>'+esc(c.residual)+'</td><td>'+esc(c.unit)+'</td><td>'+esc(c.status)+'</td></tr>').join("");
+ return '<h4>Separately recomputed arithmetic; no audit assurance</h4><p>Reported totals above remain unchanged. Nonzero residuals below are retained, never balancing entries.</p><table class="rd-t"><thead><tr><th>Check</th><th>Reported</th><th>Computed</th><th>Computed minus reported</th><th>Unit</th><th>Status</th></tr></thead><tbody>'+checks+'</tbody></table><h4>Unavailable and limited scope</h4><ul>'+unavailable+'</ul><ul>'+r.limitations.map(l=>'<li>'+esc(l)+'</li>').join("")+'</ul>';
+}
 /* Published-source output is a separate reference view. It never enters human-assurance
    or jurisdiction-specific templates; a missing/changed binding is an unavailable report. */
 function sourceDocument(x,kind){
   const s=x.sourceModel,valid=!!(s&&x.sourceVerified),title={annual:"ملخص القوائم المنشورة",release:"ملخص النتائج من المصدر",notes:"حدود الإيضاحات المتاحة",auditor:"مرجع تقرير المراجع الأصلي",committee:"حالة تقرير لجنة المراجعة",icfr:"حالة تقييم الرقابة الداخلية",peers:"حالة المقارنة"}[kind]||"مرجع المصدر";
   const identity=s?'<p>'+esc(s.issuer)+' · '+esc(s.accountingBasis)+' · '+esc(s.currency)+' '+esc(s.unit)+' · '+esc(s.scope)+'</p><p>الفترة الحالية: '+esc(s.periodEnd)+' · الفترة المقارنة: '+esc(s.priorPeriodEnd)+'</p><p>'+esc(s.entities)+'</p>':'<p>هوية المصدر والفترات غير متاحة.</p>';
-  const header='<article class="rd-doc rd-source"><header class="rd-h"><small>مرجع مصدر فقط · ليس دفتر أستاذ أو دليل مراجعة'+(x.simulation?' · محاكاة':'')+'</small><h2>'+esc(title)+'</h2>'+identity+'</header>';
+  const header='<article class="rd-doc rd-source" data-source-kind="published-statements" data-source-report-format="SQC_PUBLISHED_REPORT_HTML_V1" data-source-model-id="'+esc(s?.id||'')+'" data-source-sha256="'+esc(s?.sourceSha256||'')+'"><header class="rd-h"><small>مرجع مصدر فقط · ليس دفتر أستاذ أو دليل مراجعة'+(x.simulation?' · محاكاة':'')+'</small><h2>'+esc(title)+'</h2>'+identity+'</header>';
   const attribution=s?'<p class="rd-ref">المصدر: '+esc(s.sourceFile)+' · صفحات '+esc(s.sourcePages.join(", "))+' · SHA-256: '+esc(s.sourceSha256)+'</p>':'';
   const boundary='<p class="rd-note">هذا عرض محدود لبيانات القوائم المنشورة. لم ينفذ التطبيق إجراءات تأكيد، ولا يصدر رأياً مهنياً أو توقيعاً باسم المراجع الأصلي. الإيضاحات الكاملة والسياسات وقائمة التغيرات في حقوق الملكية غير متاحة في هذا العرض.</p>';
   if(!valid)return header+'<p class="rd-risk">غير متاح: بيانات النموذج أو هويته لا تطابق المصدر الذي تمت مراجعته. يلزم التحقق من المصدر قبل عرض الأرقام أو نسبتها إلى الشركة.</p>'+attribution+boundary+'</article>';
+  if(s.replay){
+    const r=x.fs&&x.fs.replay;
+    if(!r||r.status!=="available")return header+'<p class="rd-risk">غير متاح: فشل التحقق من مطابقة المصدر.</p>'+attribution+'</article>';
+    let content='';
+    if(kind==='annual'||kind==='release')content=replayTables(r)+replayDisclosures(r);
+    if(kind==='notes'||kind==='peers')content=replayDisclosures(r);
+    if(kind==='auditor'){const a=s.auditorReference;content='<p>Original source auditor reference: '+esc(a.name)+' · '+esc(a.opinion)+' · '+esc(a.date)+'.</p><p>'+esc(a.scope)+'</p><p>Source pages: '+esc(a.pages.join(', '))+'. This attribution does not assure the model, the compilation, transaction reconstruction or S-Kosif.</p>';}
+    if(kind==='icfr'||kind==='committee')content='<p>لم يُقيّم. No assurance procedures, human review or committee approval are established by this replay.</p>';
+    if(kind==='icfr'){const a=s.icfrReference||s.auditorReference?.internalControl;if(a)content+='<p>Original source ICFR reference only: '+esc(a.name||s.auditorReference.name)+' · '+esc(a.date||a.asOf)+' · '+esc(a.opinion)+'.</p><p>'+esc(a.scope||a.criteria||'')+'</p><p>Source pages: '+esc(a.pages?a.pages.join(', '):a.sourcePage)+'. This source opinion does not apply to S-Kosif or this model.</p>';}
+    return header+content+attribution+'<p class="rd-note">Faithful published-statement replay only; not reconstruction from underlying transactions and not audit assurance.</p></article>';
+  }
   let body='';
   if(kind==='annual'||kind==='release')body='<h4>قائمة الدخل</h4>'+stmt(x.fs.pl,x.fs.hasPrior,x.cur)+'<h4>المركز المالي</h4>'+stmt(x.fs.sfp,x.fs.hasPrior,x.cur)+
     '<h4>التدفقات النقدية: غير متاحة في النموذج</h4><p>لم يُستورد بيان التدفقات النقدية أو جسر مكتمل موثق. لم تُختبر مطابقة النقد، ولا تُعرض تدفقات التشغيل أو الإنفاق الرأسمالي أو التدفق الحر والنسب التابعة. بيان المصدر الأصلي موجود في الصفحة 129.</p>';

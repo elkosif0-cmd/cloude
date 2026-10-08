@@ -641,6 +641,7 @@ body.skn-locked{position:fixed;inset-inline:0;top:var(--skn-lock-top,0px);width:
 .skout-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 14px;background:var(--sk-surface);border-bottom:1px solid var(--sk-line);box-shadow:var(--sk-shadow-2)}
 .skout-t{flex:1 1 200px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--sk-fs)}
 .skout-acts{display:flex;flex-wrap:wrap;gap:6px}
+.skout-notice{flex:1 0 100%;margin:0;color:var(--sk-ink);font-size:var(--sk-fs-s);font-weight:700}.skout-notice:empty{flex-basis:0}
 .skout-opts{flex-basis:100%;font-size:var(--sk-fs-s)}.skout-opts summary{cursor:pointer;color:var(--sk-ink-2);font-weight:700}
 .skout-opts>div{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding-top:8px}
 .skout-opts label{display:inline-flex;align-items:center;gap:6px;color:var(--sk-ink-2)}

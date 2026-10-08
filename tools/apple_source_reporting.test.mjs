@@ -86,7 +86,7 @@ test('source equity displays reported accumulated deficit rather than its adapte
 });
 test('reopening source records preserves origin and another company does not inherit it',async()=>{
   const {context:W,state}=harness();const apple=await W.SKosifTBReview.openClient('apple-2024');const x=W.__test.docX(W.__test.compute());
-  await W.SKosifTBReview.openClient('aramco-2025');assert.equal(W.__test.compute().sourceOnly,false);
+  W.__test.newFile(W.__test.blank());await W.SKosifTBReview.load(W.SKEngines.reports.tbImport.SAMPLE_TB_CSV,'ordinary-ledger',{company:'Independent ordinary ledger',country:'SA'});assert.equal(W.__test.compute().sourceOnly,false);
   assert.match(W.SKosifReportDocs.annual(x),/Apple Inc/);assert.doesNotMatch(W.SKosifReportDocs.annual(x),/أرامكو|SAR/);
   await W.SKosifTBReview.openClient('apple-2024');assert.equal(W.__test.compute().sourceOnly,true);assert.equal(W.__test.docX(W.__test.compute()).sourceVerified,true);
   delete state.skosif_tbreview_v1.ctx.sourceModel;delete state.skosif_tbreview_v1.sourceKind;
@@ -138,7 +138,7 @@ test('direct assurance engine rejects source-only and saved simulated evidence',
   assert.equal(c.session.final.aiOpinion,'لم يُقيّم');
   assert.ok(c.session.rounds.every(r=>r.origin&&r.decision!=='sufficient'&&r.reviewed.every(d=>d.verdict!=='مقبول')));
   assert.doesNotMatch(JSON.stringify(c.session),/الأدلة كافية وملائمة|كل المخاطر الجوهرية|لا اعتراض على إصدار التقرير/);
-  await W.SKosifTBReview.openClient('aramco-2025');await W.SKosifTBReview.openClient('apple-2024');c=W.__test.compute();
+  W.__test.newFile(W.__test.blank());await W.SKosifTBReview.load(W.SKEngines.reports.tbImport.SAMPLE_TB_CSV,'ordinary-ledger',{company:'Independent ordinary ledger',country:'SA'});await W.SKosifTBReview.openClient('apple-2024');c=W.__test.compute();
   assert.deepEqual(plain(E.audit.aiReview.evidenceFromSession(c.base,c.session)),{});
   assert.equal(E.audit.aiReview.deriveOpinion(c.tb,c.base,c.session,[]).opinion,'not-assessed');
   // A saved legacy round must remain blocked even if it predates the origin flag.
@@ -168,11 +168,77 @@ test('explicit simulation origin cannot become professional evidence in an ordin
   const legacy=plain(s);delete legacy.origin;for(const r of legacy.rounds){delete r.origin;r.model='محاكاة SQC (دون مفتاح)';for(const d of r.reviewed)delete d.origin;}for(const u of legacy.uploads)delete u.origin;
   assert.equal(AI.deriveOpinion(tb,review,legacy,[]).opinion,'not-assessed');
 });
-test('other companies and unmarked operational source retain baseline math',()=>{
+test('pending legacy models fail closed while a genuine operational sample retains baseline math',()=>{
   const {E}=harness();const expected=JSON.parse(fs.readFileSync(root+'/tools/fixtures/non-apple-statements-baseline.json','utf8'));
   for(const [id,baseline] of Object.entries(expected)){
-    const t=E.reports.corpusCompanies.companyTrialBalance(id);assert.deepEqual(plain(E.reports.statements.buildStatements(E.reports.tbImport.parseTrialBalance(t.csv),t.overrides,{tax:'income'})),baseline,id);
+    const t=E.reports.corpusCompanies.companyTrialBalance(id);if(!t){assert.ok(E.reports.corpusCompanies.sourceUnavailableReason(id));continue;}if(t.ctx.sourceModel?.replay){const s=E.reports.statements.buildStatements(E.reports.tbImport.parseTrialBalance(t.csv),t.overrides);assert.equal(s.replay.status,'available',id);assert.equal(s.reconstructionStatus.status,'unavailable',id);continue;}assert.deepEqual(plain(E.reports.statements.buildStatements(E.reports.tbImport.parseTrialBalance(t.csv),t.overrides,{tax:'income'})),baseline,id);
   }
   const operational=E.reports.statements.buildStatements(E.reports.tbImport.parseTrialBalance(E.reports.tbImport.SAMPLE_TB_CSV));
   assert.equal(operational.checks.cashTies,true);assert.notEqual(operational.cf,null);
+});
+
+function renderReview(h) {
+  const node={innerHTML:'',querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){},dataset:{}};
+  h.context.scrollTo=()=>{};
+  h.context.__test.setTestRoot(node);
+  return node;
+}
+function assertSourceShell(node,issuer) {
+  assert.match(node.innerHTML,/tbr-source-replay/);
+  assert.match(node.innerHTML,/عرض القوائم المنشورة من المصدر/);
+  assert.ok(node.innerHTML.includes(issuer),issuer);
+  assert.match(node.innerHTML,/data-source-kind="published-statements"/);
+  assert.doesNotMatch(node.innerHTML,/data-tab=|data-a="demo-audit"|tbr-flowmap|data-studio-host/);
+}
+for(const [id,issuer] of [['apple-2024','Apple Inc.'],['pg-2026','Procter'],['homedepot-2025','Home Depot'],['mcdonalds-2022','McDonald'],['mercedes-2025','Mercedes']])
+  test(id+': initial, repeated, saved reopen and deep-linked tabs stay in the source-only shell',async()=>{
+    const h=harness(),W=h.context,node=renderReview(h);
+    const fid=await W.SKosifTBReview.openClient(id);assertSourceShell(node,issuer);
+    W.SKosifTBReview.open('tb');assertSourceShell(node,issuer);
+    W.__test.newFile(W.__test.blank());
+    assert.equal(await W.SKosifTBReview.openClient(id),fid);assertSourceShell(node,issuer);
+    W.__test.newFile(W.__test.blank());W.__test.openFile(fid);assertSourceShell(node,issuer);
+    for(const tab of ['plan','docs','ai','conf','adj','close','fs']){W.SKosifTBReview.open(tab);assertSourceShell(node,issuer);}
+    assert.equal(W.__test.docX(W.__test.compute()).sourceVerified,true);
+    assert.equal(h.state.skosif_tbreview_v1.session,null,'opening never runs a demo audit');
+  });
+test('ordinary trial balance still renders the audit shell after reopening an Apple source file',async()=>{
+  const h=harness(),W=h.context,node=renderReview(h);
+  const apple=await W.SKosifTBReview.openClient('apple-2024');const ordinary=W.__test.newFile(W.__test.blank());
+  await W.SKosifTBReview.load(h.E.reports.tbImport.SAMPLE_TB_CSV,'ordinary-ledger',{company:'Ordinary audit company',country:'SA'});
+  W.__test.openFile(apple);assertSourceShell(node,'Apple Inc.');W.__test.openFile(ordinary);
+  assert.match(node.innerHTML,/data-tab="tb"/);assert.match(node.innerHTML,/data-a="demo-audit"/);assert.doesNotMatch(node.innerHTML,/tbr-source-replay/);
+  assert.equal(W.__test.compute().sourceOnly,false);
+});
+test('blocked source selections preserve the current source screen and edited identity stays unavailable',async()=>{
+  const h=harness(),W=h.context,node=renderReview(h);await W.SKosifTBReview.openClient('apple-2024');
+  const saved=JSON.stringify(h.state.skosif_tbreview_v1);
+  /* R16 (P5): the blocked selections are the companies with no model; a pending company with a corpus model opens */
+  const blocked=h.E.reports.corpusCompanies.auditModelCatalog().filter(x=>!x.auditFile);assert.equal(blocked.length,2);
+  for(const model of blocked){
+    assert.equal(await W.SKosifTBReview.openClient(model.id),null,model.id);
+    assert.equal(JSON.stringify(h.state.skosif_tbreview_v1),saved);assertSourceShell(node,'Apple Inc.');
+  }
+  h.state.skosif_tbreview_v1.ctx.company='Tampered source identity';W.SKosifTBReview.open('tb');
+  assertSourceShell(node,'Apple Inc.');assert.equal(W.__test.docX(W.__test.compute()).sourceVerified,false);
+  assert.doesNotMatch(node.innerHTML,/391,035/);assert.equal(W.__test.sourceCsv(W.__test.compute()),null);
+});
+
+test('reconciled ordinary review keeps main company-document handoff controls',async()=>{
+  const h=harness(),W=h.context,node=renderReview(h);
+  W.SKosifCompanyPlatform={auditHandoffs:()=>[{id:'handoff-1',status:'pending',documentId:'doc-1',document:{name:'Company invoice.pdf',type:'invoice',size:2048,sha256:'abc123'}}]};
+  await W.SKosifTBReview.load(h.E.reports.tbImport.SAMPLE_TB_CSV,'ordinary-ledger',{company:'Company with reporting documents',country:'SA'});
+  W.SKosifTBReview.open('docs');
+  assert.match(node.innerHTML,/مصادر واردة من مساعد التقارير/);
+  assert.match(node.innerHTML,/Company invoice\.pdf/);
+  assert.match(node.innerHTML,/data-a="handoff-import"/);
+  assert.match(node.innerHTML,/data-handoff-request="handoff-1"/);
+  assert.equal(W.__test.compute().sourceOnly,false);
+});
+test('reconciled source-only screen does not expose operational document handoffs',async()=>{
+  const h=harness(),W=h.context,node=renderReview(h);let handoffReads=0;
+  W.SKosifCompanyPlatform={auditHandoffs:()=>{handoffReads++;return [{id:'handoff-1',status:'pending',document:{name:'Company invoice.pdf',type:'invoice',size:2048}}];}};
+  await W.SKosifTBReview.openClient('apple-2024');W.SKosifTBReview.open('docs');
+  assertSourceShell(node,'Apple Inc.');assert.doesNotMatch(node.innerHTML,/Company invoice\.pdf|data-a="handoff-import"/);
+  assert.equal(handoffReads,0,'source reference must not read ordinary company document handoffs');
 });
