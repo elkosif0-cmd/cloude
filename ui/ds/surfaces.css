@@ -43,3 +43,11 @@
 @media (prefers-reduced-motion:reduce){:root[data-look="kosif"] :is(button.sk-kpi,button.skbrief-t,button.skpulse-t,a.sk-kpi,.skk4-t){transition:none}
   :root[data-look="kosif"] :is(button.sk-kpi,button.skbrief-t,button.skpulse-t,a.sk-kpi,.skk4-t):hover{transform:none}}
 @media print{:root[data-look="kosif"] :is(.sk-kpi,.skbrief-t,.skpulse-t,.skslab-k,.stat,.card){box-shadow:none}}
+
+/* Arabic file fields (ui/components/file-input.js, HARSH_REVIEW #25): the app's button and the chosen name, the native input
+   kept in the page for focus and screen readers */
+.sk-file{display:inline-flex;align-items:center;gap:var(--sk-2);flex-wrap:wrap;max-width:100%}
+.sk-file .sk-file-input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip-path:inset(50%)}
+.sk-file .sk-file-input:focus-visible+.sk-file-btn{outline:3px solid var(--sk-focus);outline-offset:2px}
+.sk-file-btn{cursor:pointer}
+.sk-file-name{color:var(--sk-ink-3);font-size:var(--sk-fs-s);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px}

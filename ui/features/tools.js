@@ -92,22 +92,11 @@ function excelHTML(){
   const res=rows.map(c=>{
     const it=matchItem(c[0],items), xc=num(c[1]), xp=c[2]!=null?num(c[2]):null;
     if(!it||!(xc>0))return {name:c[0],it,xc,xp,err:!it?"لا يوجد صنف مطابق في الكتالوج":"تكلفة غير صالحة"};
-    const xcNet=excelVat==="gross"?xc/(1+d.vat):xc;
-    const price=xp>0?xp:it.price, pNet=price/(1+d.vat), base=d.netBase?pNet:price;
-    const gap=it.cost-xcNet, gapPct=xcNet>0?gap/xcNet:0;
-    let diag="مطابق";
-    if(Math.abs(gapPct)>0.003){
-      diag=gap>0?"إكسل يُظهر تكلفة أقل من الحقيقية":"إكسل يُظهر تكلفة أعلى من الحقيقية";
-      const r=it.kind==="raw"?raws.find(x=>String(x.id)===it.id):null, w=r?num(r.waste)/100:0;
-      if(w>0){
-        /* نسبة التكلفتين بين طريقتي الهدر: التشافي ÷ الإضافة = 1 / ((1−هدر)(1+هدر)) */
-        const ratio=1/((1-w)*(1+w)), got=it.cost/xcNet;
-        if(d.yieldMethod&&Math.abs(got-ratio)<0.004)diag="فرق طريقة الهدر: إكسل يضيف الهدر (×(1+هدر)) والتطبيق يقسم على (1−هدر) — إكسل يقلل التكلفة";
-        if(!d.yieldMethod&&Math.abs(got*ratio-1)<0.004)diag="فرق طريقة الهدر: إكسل يقسم على (1−هدر) والتطبيق يضيف الهدر (×(1+هدر))";
-      }
-      if(excelVat==="net"&&Math.abs(xc/(it.cost*(1+d.vat))-1)<0.01)diag="يبدو أن تكلفة إكسل شاملة الضريبة — غيّر خيار «التكلفة في الملف»";
-    }
-    return {name:c[0],it,xc,xcNet,price,gap,gapPct,xm:base>0?(pNet-xcNet)/base:null,tm:base>0?(pNet-it.cost)/base:null,diag};
+    /* R18 (#22): the diagnosis comes from the tested engine (app/src/engine/fusion/reports/excel-recon-engine.ts) */
+    const raw=it.kind==="raw"?raws.find(x=>String(x.id)===it.id):null;
+    const r=SKEngines.reports.excelRecon.excelCostDiagnosis({excelCost:xc,excelPrice:xp,vatMode:excelVat==="gross"?"gross":"net",vat:d.vat,
+      item:{name:it.name,cost:it.cost,price:it.price,kind:it.kind,waste:raw?num(raw.waste):0},netBase:!!d.netBase,yieldMethod:!!d.yieldMethod});
+    return {name:c[0],it,xc,xcNet:r.xcNet,price:r.price,gap:r.gap,gapPct:r.gapPct,xm:r.excelMargin,tm:r.trueMargin,diag:r.diag};
   });
   const ok=res.filter(r=>!r.err), under=ok.filter(r=>r.gapPct>0.003);
   return [
