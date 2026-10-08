@@ -929,7 +929,7 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Tests: app 115 files / 545 tests; every unit file green except `helper_gateway` and `review_import_guard` (still known red) and four Windows-only files; the server security contract is green (12/12). Tests that asserted the branch's lock were rewritten to P5, keeping their honesty checks.
 - Branch: `claude/r16-merge-pr143-20261008`.
 
-### TASK CLAUDE-20261008-006 — Identity «كوبالت وجليد», the constitution review and its guard (رادع الدستور), owner scope, visible save state
+### TASK CLAUDE-20261008-008 — Identity «كوبالت وجليد», the constitution review and its guard (رادع الدستور), owner scope, visible save state
 - Agent: Claude (Lead Development Agent)
 - Status: IN PROGRESS
 - Owner request: «طوّر التطبيق ككل وراجع الدستور وكل شيء… وغيّر الهوية البصرية والقدرات وكل حاجة».
