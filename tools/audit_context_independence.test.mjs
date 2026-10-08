@@ -118,7 +118,7 @@ test('TB review exposes Audit-owned newEngagement and keeps accounting import ex
   const s=read('ui/features/tb-review.js');
   assert.match(s,/function newEngagement\(\)\s*\{[\s\S]*?newFile\(blank\(\),\{source:"user"\}\)/);
   assert.match(s,/Object\.freeze\(\{newEngagement,fromBooks,loadCorpus/);
-  const body=s.slice(s.indexOf('function newEngagement()'),s.indexOf('/* open the engagement on a tab'));
+  const start=s.indexOf('function newEngagement()'),body=s.slice(start,s.indexOf('\n}\n',start)+2); // the function itself: fromBooks after it reads the chat scope on purpose (#143)
   assert.doesNotMatch(body,/SK\.company|SKosifSpace|skosif_companies_v1|switchTo\(/,'new engagement creation must not read or switch company context');
 });
 

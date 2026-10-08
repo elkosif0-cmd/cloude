@@ -77,33 +77,37 @@ function filesBar(){
   return '<section class="tbr-files" aria-label="ملفات المراجعة"><div class="tbr-files-h"><b>ملفات المراجعة</b><small>'+r.list.length+' ملف على هذا الجهاز</small></div><div class="tbr-files-l">'+
     L.map(e=>'<div class="tbr-file'+(e.id===r.active?' on':'')+'"><button type="button" data-file-open="'+esc(e.id)+'" title="فتح الملف"><b>'+esc(e.company)+'</b><small>'+esc([e.period,e.source==="bundle"?"من الحزمة العالمية":"",e.rounds?e.rounds+" جولة":"",e.hasTB?"":"بلا ميزان"].filter(Boolean).join(" · "))+'</small></button>'+
       (r.list.length>1?'<button type="button" class="tbr-file-x" data-file-close="'+esc(e.id)+'" aria-label="حذف الملف">×</button>':'')+'</div>').join("")+
-    '<button type="button" class="tbr-file-new" data-file-new>+ ملف جديد</button><button type="button" class="tbr-file-new tbr-file-show" data-bundle-open>▶ نموذج عرض القدرات: '+BUNDLE_COMPANIES+' شركة عالمية</button></div></section>';
+    '<button type="button" class="tbr-file-new" data-file-new>+ ملف جديد</button><button type="button" class="tbr-file-new tbr-file-show" data-bundle-open>نماذج التقارير المنشورة</button></div></section>';
 }
 /* ---------- the bundle's companies as audit clients (ui/data/bundle-clients.json, loaded on demand), and as the
    showcase of the whole app: pick one, and it is audited end to end without an AI key, then toured screen by screen ---------- */
-const BUNDLE_COUNT=47,BUNDLE_COMPANIES=43;let bundle=null;const pick={q:"",sector:""};
+let bundle=null;const pick={q:"",sector:""};
 async function bundleData(){if(bundle)return bundle;const r=await fetch("./data/bundle-clients.json");if(!r.ok)throw new Error("تعذر تحميل بيانات الشركات");bundle=await r.json();return bundle}
 /* each client with its sector from the corpus (banks and insurers included), named in Arabic */
 function bundleList(B){
-  const CC=E().reports.corpusCompanies,G=E().audit.globalBenchmarks,SA=(G&&G.SECTOR_AR)||{},by={};
-  try{(CC?CC.corpusCompanies():[]).forEach(c=>{by[c.id]=c.sector})}catch{/* the corpus engine is optional here */}
-  return B.clients.map(c=>({...c,sector:by[c.id]||"",sectorAr:SA[by[c.id]]||by[c.id]||""}));
+  const CC=E().reports.corpusCompanies;
+  return CC&&CC.auditModelCatalog?CC.auditModelCatalog():[];
 }
 function bundleRows(L){
   const have=new Set(reg().list.filter(e=>e.bundleId).map(e=>e.bundleId)),q=searchText(pick.q);
-  const list=L.filter(c=>(!pick.sector||c.sector===pick.sector)&&(!q||searchText([c.company,c.countryAr,c.auditor,c.sectorAr,c.fy].join(" ")).includes(q)));
-  return list.length?list.map(c=>'<tr><td><b>'+esc(c.company)+'</b><small>'+esc([c.sectorAr,c.fy,c.countryAr,c.auditor,c.unitAr].filter(Boolean).join(" · "))+'</small></td><td>'+esc(c.frameworkAr)+'</td>'+
-    '<td class="tbr-bundle-a"><button type="button" class="btn primary sm" data-bundle-show="'+esc(c.id)+'">عرض القدرات</button>'+
-    (have.has(c.id)?'<button type="button" class="btn sm" data-bundle-go="'+esc(c.id)+'">فتح الملف</button>':'<button type="button" class="btn sm" data-bundle-add="'+esc(c.id)+'">ملف فقط</button>')+'</td></tr>').join("")
-    :'<tr><td colspan="3" class="muted">لا توجد شركة بهذا البحث.</td></tr>';
+  const list=L.filter(c=>(!pick.sector||c.sector===pick.sector)&&(!q||searchText([c.company,c.countryAr,c.auditor,c.sectorAr,c.fy,c.modelStatusAr,c.reference?.review_label_ar].join(" ")).includes(q)));
+  return list.length?list.map(c=>'<tr data-model-id="'+esc(c.id)+'" data-model-status="'+esc(c.modelStatus)+'"><td><b>'+esc(c.company)+' — '+esc(c.fy)+'</b><small>'+esc([c.sectorAr,c.countryAr,c.unitAr].filter(Boolean).join(" · "))+'</small><p>'+esc(c.supportReason)+'</p></td><td>'+esc(c.frameworkAr)+'<br><strong>نموذج التطبيق: '+esc(c.modelStatusAr)+'</strong><small>حالة المصدر: '+esc(c.reference?.review_label_ar||'حالة مراجعة المصدر غير متاحة')+'</small></td><td class="tbr-bundle-a">'+(c.auditFile?'<button type="button" class="btn sm" data-bundle-show="'+esc(c.id)+'">عرض القدرات</button>':'')+
+    (c.auditFile?'<button type="button" class="btn primary sm" data-bundle-add="'+esc(c.id)+'">'+(c.modelStatus==='pending-review'?'فتح كملف مراجعة':c.modelStatus==='partially-supported'?'فتح النموذج الجزئي':'فتح نموذج المصدر')+'</button>'+(have.has(c.id)?'<button type="button" class="btn sm" data-bundle-go="'+esc(c.id)+'">إعادة فتح النموذج المحفوظ</button>':''):'<button type="button" class="btn sm" disabled>'+esc(c.modelStatusAr)+'</button>')+'</td></tr>').join("")
+    :'<tr><td colspan="3" class="muted">لا يوجد نموذج بهذا البحث.</td></tr>';
 }
+/* R16: the reviewed published sources (Home Depot, McDonald's, Mercedes, Volkswagen) live in ui/data/engines-sources.js and
+   join the engines on demand; the audit file asks for them before it opens or lists a bundle company, and repaints once
+   they arrive so a saved source file is verified against them */
+const sources=()=>{try{return window.SKEngines&&SKEngines.loadSources?SKEngines.loadSources():Promise.resolve()}catch{return Promise.resolve()}};
+let sourcesAsked=false;
 async function bundlePicker(){
+  try{await sources()}catch{}
   let B;try{B=await bundleData()}catch(e){toast(e.message,"bad");return}
   document.getElementById("tbr-bundle")?.remove();
   const L=bundleList(B),n={};L.forEach(c=>{if(c.sector)n[c.sector]=(n[c.sector]||0)+1});
   const w=document.createElement("div");w.className="skd-wrap";w.id="tbr-bundle";
-  w.innerHTML='<div class="skd tbr-bundle" role="dialog" aria-modal="true" aria-labelledby="tbr-bundle-t"><span class="eyebrow">نموذج عرض القدرات</span><h3 id="tbr-bundle-t">اختر شركة من الحزمة العالمية</h3><small class="muted">'+BUNDLE_COMPANIES+' شركة بقوائم '+BUNDLE_COUNT+' سنة مالية (بعضها لأكثر من سنة)</small>'+
-    '<p>«عرض القدرات» يفتح الشركة كملف مراجعة بميزانها من قوائمها المنشورة، ويراجعها كاملة دون مفتاح ذكاء اصطناعي — الطلبات والمستندات والجولات والتسويات حتى التقرير — ثم يأخذك في جولة على كل ما أنتجه التطبيق لها، مع مقارنته بتقرير مراجعها الفعلي. '+esc(B.note||"")+'</p>'+
+  w.innerHTML='<div class="skd tbr-bundle" role="dialog" aria-modal="true" aria-labelledby="tbr-bundle-t"><span class="eyebrow">المراجعة · نماذج المصادر</span><h3 id="tbr-bundle-t">نماذج التقارير المنشورة</h3><small class="muted">'+L.filter(c=>c.modelStatus==='source-replayed').length+' نماذج مطابقة للمصدر · '+L.filter(c=>c.modelStatus==='partially-supported').length+' مدعوم جزئياً · '+L.filter(c=>c.modelStatus==='pending-review').length+' بانتظار اعتماد نموذج التطبيق · '+L.filter(c=>c.modelStatus==='unavailable').length+' غير متاح</small>'+
+    '<p>القوائم المنشورة تُعرض كمرجع مصدر بفتراتها ووحداتها الأصلية، وليست دفتر أستاذ أو دليل مراجعة. السجلات الباقية ليست نماذج مكتملة الاختبار؛ تبقى حالتها معلنة ولا تثبت تنفيذ إجراءات تأكيد.</p>'+
     '<div class="tbr-bundle-f"><input type="search" data-bundle-q placeholder="ابحث باسم الشركة أو الدولة أو المراجع" aria-label="بحث في الشركات" value="'+esc(pick.q)+'">'+
     '<select data-bundle-sector aria-label="القطاع"><option value="">كل القطاعات ('+L.length+')</option>'+Object.keys(n).map(k=>'<option value="'+esc(k)+'"'+(k===pick.sector?' selected':'')+'>'+esc((L.find(c=>c.sector===k)||{}).sectorAr||k)+' ('+n[k]+')</option>').join("")+'</select></div>'+
     '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الشركة</th><th>الإطار</th><th></th></tr></thead><tbody data-bundle-rows>'+bundleRows(L)+'</tbody></table></div>'+
@@ -124,6 +128,7 @@ async function showcase(id){
   if(busy)return null;
   const fid=await openClient(id);if(!fid)return null;
   let d=st();
+  if(compute()?.sourceReplay){tab="fs";paint();return fid;}
   if(!(d.session&&d.session.final&&d.demoRun)){await runDemo();d=st()}
   if(!(d.session&&d.session.final))return null;
   d.showcase={at:new Date().toISOString()};put(d);tab="tb";paint();
@@ -160,6 +165,13 @@ function tourHTML(c){
    trial balance built from its published statements (line by line), its auditor, year end and report form, and
    the benchmark context (sector, currency, tax, framework, auditing standard) the key matters and requests use */
 async function openClient(id){
+  /* the reviewed adapters (ui/data/engines-sources.js) decide how a company opens; no wait once they have joined */
+  if(!(E().reports&&E().reports.volkswagenSource))try{await sources()}catch{}
+  /* R16: a company with a reviewed published source opens as its source replay (#143); every other bundle company with
+     statements still opens as an audit file from its corpus model, so the file reaches the corpus replay (PRODUCT_MANDATE,
+     P5). Only a company with no usable statements stays closed, with the reason. */
+  const CCx=E().reports.corpusCompanies,unavailable=CCx.sourceUnavailableReason?.(id);
+  if(unavailable&&!(CCx.companyTrialBalance&&CCx.companyTrialBalance(id))){toast(unavailable,"warn");return null;}
   const f=reg().list.find(x=>x.bundleId===id);if(f){openFile(f.id);if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");return f.id}
   let B=null;try{B=await bundleData()}catch{}
   const c=B&&B.clients.find(x=>x.id===id),CC=E().reports.corpusCompanies,t=CC&&CC.companyTrialBalance?CC.companyTrialBalance(id):null;
@@ -180,7 +192,7 @@ async function openClient(id){
     d.loadedFrom="نموذج قوائم منشورة — "+t.ctx.sourceModel.issuer;
   }
   d.fw={listedOrIssuing:true};
-  const fid=newFile(d,{bundleId:id,source:"bundle"});SK.audit&&SK.audit.log("tbreview",{act:"bundle-client",id});
+  const fid=newFile(d,{bundleId:id,source:"bundle"});if(d.sourceKind==="published-statements"){tab="fs";paint();}SK.audit&&SK.audit.log("tbreview",{act:"bundle-client",id});
   toast(d.sourceKind==="published-statements"?"فُتح نموذج القوائم المنشورة — ليس دفتر أستاذ أو دليل مراجعة":"فُتح ملف «"+d.ctx.company+"» — ميزانه من قوائمه المنشورة. جرّب «المراجعة التجريبية الكاملة» لترى الجولات حتى التقرير","ok");
   if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");
   return fid;
@@ -236,9 +248,15 @@ async function booksTB(){
 }
 /* Import-only commit: a save must acknowledge true before any success effects.
    Old document blobs are deliberately retained; no cross-store rollback or recovery is promised. */
+function sourceImportBlock(tb,ctx){
+  const ids=[tb&&tb.sourceId,ctx&&ctx.corpusId,ctx&&ctx.sourceId,ctx&&ctx.sourceModel&&ctx.sourceModel.id].filter(Boolean);
+  for(const id of ids){const reason=E().reports.corpusCompanies.sourceUnavailableReason(id);if(reason)return reason;}
+  return null;
+}
 function commitTB(text,label,ctx,overrides,stillCurrent,tb){
   try{if(!tb)tb=TI().parseTrialBalance(text)}catch{toast("تعذرت قراءة ميزان المصدر — لم يُستورد الميزان","bad");return false}
-  if(!tb.ok){toast("لم أتعرف على أعمدة الميزان","bad");return false}
+  const sourceBlock=sourceImportBlock(tb,ctx);if(sourceBlock){toast(sourceBlock,"warn");return false;}
+  if(!tb.ok){toast(tb.errors.find(e=>e.code==="SOURCE_REPORT_REIMPORT_UNSUPPORTED")?.message||"لم أتعرف على أعمدة الميزان","bad");return false}
   if(!stillCurrent()){toast("تغيّر ملف المراجعة أو مصدر الميزان — أعد الاستيراد لتأكيد البيانات الحالية","warn");return false}
   const d=st();
   if(!(ctx&&ctx.corpusId))["corpusId","curSym","taxKind","sector","reportingFramework","auditStandard"].forEach(k=>delete d.ctx[k]);
@@ -257,7 +275,8 @@ function commitTB(text,label,ctx,overrides,stillCurrent,tb){
 /* Other imports retain their existing confirmation boundary; only their save acknowledgement is fixed here. */
 async function loadTB(text,label,ctx,overrides){
   let tb;try{tb=TI().parseTrialBalance(text)}catch{toast("تعذرت قراءة ميزان المصدر — لم يُستورد الميزان","bad");return false}
-  if(!tb.ok){toast("لم أتعرف على أعمدة الميزان","bad");return false}
+  const sourceBlock=sourceImportBlock(tb,ctx);if(sourceBlock){toast(sourceBlock,"warn");return false;}
+  if(!tb.ok){toast(tb.errors.find(e=>e.code==="SOURCE_REPORT_REIMPORT_UNSUPPORTED")?.message||"لم أتعرف على أعمدة الميزان","bad");return false}
   const target=[localStorage.getItem(KEY),localStorage.getItem(ENG)],d=st();
   if(d.tbText&&d.session&&d.session.rounds&&d.session.rounds.length&&!await SK.confirm("توجد مراجعة جارية بجولات المراجع الذكي — استبدالها بميزان «"+label+"»؟",{danger:true,ok:"استبدال"}))return false;
   return commitTB(text,label,ctx,overrides,()=>target[0]===localStorage.getItem(KEY)&&target[1]===localStorage.getItem(ENG),tb);
@@ -288,7 +307,11 @@ function newEngagement(){
   if(window.SKosifCore&&SKosifCore.view()!=="tbreview")SKosifCore.go("tbreview");else paint();
   return id;
 }
-async function fromBooks(){
+async function fromBooks(contextCurrent=()=>true){
+  const scopeRead=()=>window.SKosifSpace&&SKosifSpace.chatScopeSnapshot?SKosifSpace.chatScopeSnapshot():null;
+  const importScope=scopeRead();
+  const lifecycleCurrent=()=>{try{const now=scopeRead();return!!(contextCurrent()&&importScope&&importScope.status==="stable"&&now&&now.status==="stable"&&now.token===importScope.token)}catch{return false}};
+  if(!lifecycleCurrent()){toast("تعذر تثبيت سياق المستخدم والشركة — افتح المساحة الحالية من جديد قبل الاستيراد","warn");return false}
   let snapshot,source,disclosure;
   try{
     snapshot=booksImportSnapshot();const {co,p}=activeCo(),L=window.SKosifLedger,LE=E().finance&&E().finance.ledger,posted=!!(L&&LE&&L.entries().length);
@@ -296,7 +319,7 @@ async function fromBooks(){
     disclosure=booksImportDisclosure(st(),source);
   }catch{toast("تعذرت قراءة مصدر الميزان أو ملف المراجعة — لم يُستورد الميزان","bad");return false}
   if(await SK.confirm(disclosure.message,disclosure.options)!==true)return false;
-  const stillCurrent=()=>{try{const now=booksImportSnapshot();return snapshot.every((v,i)=>v===now[i])}catch{return false}};
+  const stillCurrent=()=>{try{if(!lifecycleCurrent())return false;const now=booksImportSnapshot();return snapshot.every((v,i)=>v===now[i])}catch{return false}};
   if(!stillCurrent()){toast("تغيّر ملف المراجعة أو مصدر الميزان — أعد الاستيراد لتأكيد البيانات الحالية","warn");return false}
   let b;try{b=await booksTB()}catch{toast("تعذر بناء ميزان المصدر — لم يُستورد الميزان","bad");return false}
   if(!stillCurrent()){toast("تغيّر ملف المراجعة أو مصدر الميزان — أعد الاستيراد لتأكيد البيانات الحالية","warn");return false}
@@ -335,7 +358,10 @@ window.SKosifTBReview=Object.freeze({newEngagement,fromBooks,loadCorpus,openClie
 function compute(){
   const d=st();CUR=d.ctx.curSym||(d.source==="bundle"&&d.ctx.currency?d.ctx.currency:egypt(d)?"ج.م":"ر.س");if(!d.tbText)return null;
   const sig=JSON.stringify([MN().fingerprint(d.tbText),d.overrides,d.ctx,d.sourceKind,d.sourceId,d.bundleId,d.materiality,d.session&&d.session.rounds.length,d.session&&d.session.unavailable,d.accepted,d.rejected,!!(d.session&&d.session.final),d.ecl,d.confirm,d.field&&d.field.so,d.matPlanOn&&d.matPlan]);
-  if(cache&&cache.sig===sig)return cache;
+  /* a file bound to a published-source model is re-verified on every compute (#143): the signature serialises NaN as
+     null, so a tampered source value would otherwise ride a cached verified result. A corpus-model file (P5) keeps the cache. */
+  const sourceBound=d.sourceKind!==undefined||d.ctx.sourceKind!==undefined||d.ctx.sourceModel!==undefined;
+  if(cache&&cache.sig===sig&&!sourceBound)return cache;
   const tb=TI().parseTrialBalance(d.tbText);
   const PS=E().reports.publishedSource,sourceId=d.sourceId||d.bundleId||tb.sourceId||(d.ctx.sourceModel&&d.ctx.sourceModel.id)||d.ctx.corpusId||"";
   const reviewedSource=PS&&PS.reviewedPublishedSource?PS.reviewedPublishedSource(sourceId):null;
@@ -343,15 +369,23 @@ function compute(){
   const sourceOnly=tb.sourceKind==="published-statements"||hasSourceOrigin||!!reviewedSource;
   if(sourceOnly){tb.sourceKind="published-statements";tb.sourceId=sourceId;}
   const sourceModel=reviewedSource&&reviewedSource.sourceModel;
+  // Source context uses the disclosed basis; normalize the loaded clone, never persisted storage.
+  if(sourceModel&&sourceModel.sourceAuditLabel)d.ctx.auditStandard=sourceModel.sourceAuditLabel;
   const sortedMap=o=>JSON.stringify(Object.entries(o||{}).sort(([a],[b])=>a.localeCompare(b)));
   const sourceVerified=!!(sourceModel&&[d.sourceId,d.bundleId,tb.sourceId,d.ctx.corpusId,d.ctx.sourceModel&&d.ctx.sourceModel.id].filter(v=>v!==undefined&&v!==null&&v!=="").every(v=>v===sourceModel.id)&&[d.sourceKind,d.ctx.sourceKind].filter(v=>v!==undefined).every(v=>v==="published-statements")&&d.tbText===reviewedSource.csv&&sortedMap(d.overrides)===sortedMap(reviewedSource.overrides)&&
-    d.ctx.company===sourceModel.issuer&&d.ctx.periodEnd===sourceModel.periodEnd&&d.ctx.priorPeriodEnd===sourceModel.priorPeriodEnd&&
-    d.ctx.sourceModel&&JSON.stringify(d.ctx.sourceModel)===JSON.stringify(sourceModel)&&d.ctx.sourceModel.sourceSha256===sourceModel.sourceSha256&&d.ctx.sourceModel.accountingBasis===sourceModel.accountingBasis&&
+    d.ctx.company===sourceModel.issuer&&(!sourceModel.periodStart||d.ctx.periodStart===sourceModel.periodStart)&&d.ctx.periodEnd===sourceModel.periodEnd&&d.ctx.priorPeriodEnd===sourceModel.priorPeriodEnd&&
+    d.ctx.sourceModel&&E().reports.sourceReplay.sourceModelsEqual(d.ctx.sourceModel,sourceModel)&&d.ctx.sourceModel.sourceSha256===sourceModel.sourceSha256&&d.ctx.sourceModel.accountingBasis===sourceModel.accountingBasis&&
     d.ctx.sourceModel.currency===sourceModel.currency&&d.ctx.sourceModel.unit===sourceModel.unit&&
     d.ctx.sourceModel.issuer===sourceModel.issuer&&d.ctx.sourceModel.scope===sourceModel.scope&&d.ctx.sourceModel.issuerCountry===sourceModel.issuerCountry&&
     d.ctx.sourceModel.periodEnd===sourceModel.periodEnd&&d.ctx.sourceModel.priorPeriodEnd===sourceModel.priorPeriodEnd&&
     d.ctx.sourceModel.id===sourceModel.id&&d.ctx.sourceModel.kind===sourceModel.kind&&d.ctx.consolidated===true&&
     d.ctx.reportingFramework===sourceModel.accountingBasis&&d.ctx.currency===sourceModel.currency&&d.ctx.curSym===sourceModel.currency+" "+sourceModel.unit&&d.ctx.issuerCountry===sourceModel.issuerCountry);
+  if(sourceOnly&&(!sourceVerified||!reviewedSource||sourceModel&&sourceModel.replay||d.ctx.sourceModel&&d.ctx.sourceModel.replay)){
+    const fs=E().reports.sourceReplay.buildReplayStatements(tb,d.overrides),valid=sourceVerified&&!(d.accepted||[]).length&&fs.replay.status==="available";
+    if(!valid)fs.replay={...fs.replay,status:"unavailable",reason:"Source identity, observations, or adjustments do not match the reviewed source.",tables:[],checks:[]};
+    cache={sig,d,tb,sourceOnly:true,sourceReplay:true,sourceModel,sourceVerified:valid,base:{fs},fsBefore:fs,fsAfterAdj:fs,accepted:d.accepted||[],pool:[],session:AI().referenceSession(d.session||AI().newSession(d.ctx),tb),derived:{opinion:"not-assessed",ar:"مرجع مصدر فقط — لم يُجر تقييم تأكيد"}};
+    return cache;
+  }
   const fw=egypt(d)?"EAS":d.ctx.framework,tax=egypt(d)?"income":d.ctx.taxKind==="income"?"income":"zakat";
   const opts={framework:fw,currency:CUR,overrides:d.overrides,materiality:d.materiality||undefined,tax,unclassified:!!d.ctx.unclassified};
   let base=RV().reviewTrialBalance(tb,opts);
@@ -672,7 +706,7 @@ let docStyled=false;
 function fmtDate(iso,eg){if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||""))return "";try{return new Date(iso+"T12:00:00").toLocaleDateString(eg?"ar-EG-u-nu-latn":"ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"})}catch{return iso}}
 function docX(c){
   if(c.sourceOnly){
-    const model=c.sourceModel?structuredClone(c.sourceModel):null,ctx=structuredClone(c.d.ctx);
+    const model=c.sourceModel?structuredClone(c.sourceModel):null,ctx=structuredClone(c.d.ctx);ctx.auditFirm="";ctx.auditCity="";
     // Return before any Saudi policy, tax, narrative, audit-opinion or ICFR template runs.
     return {c,fs:structuredClone(fsAfter?c.fsAfterAdj:c.fsBefore),sourceOnly:true,sourceVerified:c.sourceVerified&&!c.accepted.length,
       sourceModel:model,ctx,fw:model?model.accountingBasis:"unavailable",cur:model?model.currency+" "+model.unit:"unavailable",
@@ -873,12 +907,24 @@ function printDoc(c,kind){
   SK.audit&&SK.audit.log("report",{act:"tbreview-"+kind});
   setTimeout(()=>{try{w.focus();w.print()}catch{}},700);
 }
+// The visible value preserves source notation; any normalized arithmetic carrier is technical only.
+function sourceCellCsv(cell){
+  const sourceStatus=cell.status==="unavailable"?"unavailable":/^[—–-]$/.test(cell.display||"")?"reported_dash":cell.status==="blank"?"blank":"reported_number";
+  const value=sourceStatus==="unavailable"?"unavailable":sourceStatus==="blank"?"":cell.display!==undefined?cell.display:cell.value;
+  return {value,normalizedValue:cell.value===null?"":cell.value,valueRole:sourceStatus==="reported_dash"&&cell.value!==null?"rendering_only_carrier":cell.value===null?"no_numeric_value":"normalized_model_value",sourceStatus,sourceValue:sourceStatus==="reported_number"?cell.value:"",sourceDisplay:value};
+}
 function sourceCsv(c){
   const x=docX(c),s=x.sourceModel;if(!x.sourceVerified||!s)return null;
+  if(s.replay){
+    if(x.fs.replay?.status!=="available")return null;
+    const headers=["issuer","accounting_basis","currency","scope","source_sha256","origin","statement","line","column","period_kind","period_start","period_end","unit","value","cell_status","source_page","source_fact_id","source_format","source_model_id","normalized_value","value_role","source_status","source_value","source_display"];
+    const rows=x.fs.replay.tables.flatMap(t=>t.rows.flatMap(r=>t.columns.map(col=>{const cell=r.cells[col.id],p=cell.period||col.period,f=sourceCellCsv(cell);return [s.issuer,s.accountingBasis,s.currency,s.scope,s.sourceSha256,"published-statement-replay; not ledger or assurance",t.title,r.label,col.label,p.kind,p.start||"",p.end,col.unit||r.unit,f.value,cell.status,r.sourcePage,cell.sourceFactId||"","SQC_PUBLISHED_REPORT_V1",s.id,f.normalizedValue,f.valueRole,f.sourceStatus,f.sourceValue,f.sourceDisplay];})));
+    return {filename:s.issuer+"-source-statements-"+s.periodEnd+".csv",headers,rows};
+  }
   const rows=[...x.fs.pl.map(r=>["income",r]),...x.fs.sfp.map(r=>["position",r])].filter(([,r])=>r.level!=="heading");
   const identity=[s.issuer,s.accountingBasis,s.currency,s.unit,s.scope,s.periodEnd,s.priorPeriodEnd,s.sourceSha256,"source-only; not ledger or audit evidence"];
-  return {filename:s.issuer+"-source-statements-"+s.periodEnd+".csv",headers:["issuer","accounting_basis","currency","unit","scope","current_period_end","prior_period_end","source_sha256","origin","statement","line","current","prior","status"],
-    rows:[...rows.map(([st,r])=>[...identity,st,r.en,(r.current/100).toFixed(2),r.prior===null?"":(r.prior/100).toFixed(2),"source-model"]),[...identity,"cash_flow","Source cash-flow statement has not been imported","","","unavailable; cash-tie not-tested"]]};
+  return {filename:s.issuer+"-source-statements-"+s.periodEnd+".csv",headers:["issuer","accounting_basis","currency","unit","scope","current_period_end","prior_period_end","source_sha256","origin","statement","line","current","prior","status","source_format","source_model_id"],
+    rows:[...rows.map(([st,r])=>[...identity,st,r.en,(r.current/100).toFixed(2),r.prior===null?"":(r.prior/100).toFixed(2),"source-model","SQC_PUBLISHED_REPORT_V1",s.id]),[...identity,"cash_flow","Source cash-flow statement has not been imported","","","unavailable; cash-tie not-tested","SQC_PUBLISHED_REPORT_V1",s.id]]};
 }
 const csvName=(c,x)=>(c.d.ctx.company||"مراجعة")+"-"+x+"-"+new Date().toISOString().slice(0,10)+".csv";
 
@@ -894,11 +940,11 @@ async function loadFile(file){
 }
 /* the companies of the global reports, grouped by sector, for the engagement picker */
 function corpusPicker(){
-  const CC=E().reports.corpusCompanies,GB=E().audit.globalBenchmarks;if(!CC)return"";
-  const list=CC.corpusCompanies(),by={};list.forEach(c=>{(by[c.sector]=by[c.sector]||[]).push(c)});
-  return '<span class="tbr-corpus"><select data-corpus aria-label="شركة من التقارير العالمية"><option value="">شركة من التقارير العالمية ('+list.length+')…</option>'+
-    Object.entries(by).map(([k,cs])=>'<optgroup label="'+esc(GB&&GB.SECTOR_AR[k]||k)+'">'+cs.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.company+" — "+c.fy)+'</option>').join("")+'</optgroup>').join("")+
-    '</select><button type="button" class="btn" data-a="corpus" title="قوائمها المنشورة كميزان بسنتين، ومراجعها وسنتها المالية — لتشغيل المراجعة كاملة ومقارنتها بتقرير مراجعها">افتح كملف مراجعة</button></span>';
+  const CC=E().reports.corpusCompanies;if(!CC||!CC.auditModelCatalog)return"";
+  const list=CC.auditModelCatalog(),by={};list.forEach(c=>{(by[c.modelStatusAr]=by[c.modelStatusAr]||[]).push(c)});
+  return '<span class="tbr-corpus"><select data-corpus aria-label="نموذج تقرير منشور في المراجعة"><option value="">اختر نموذج مصدر بحسب حالة دعمه…</option>'+
+    Object.entries(by).map(([status,models])=>'<optgroup label="'+esc(status)+'">'+models.map(c=>'<option value="'+esc(c.id)+'"'+(c.auditFile?'':' disabled')+'>'+esc(c.company+' — '+c.fy+' · نموذج التطبيق: '+c.modelStatusAr+' · حالة المصدر: '+(c.reference?.review_label_ar||'حالة مراجعة المصدر غير متاحة'))+'</option>').join('')+'</optgroup>').join('')+
+    '</select><button type="button" class="btn" data-a="corpus" title="افتح البيانات المدعومة كمراجع مصدر؛ ليست قيوداً أو رأياً مهنياً">فتح نموذج المصدر</button></span>';
 }
 function readCtx(d){root.querySelectorAll("[data-ctx]").forEach(i=>{d.ctx[i.dataset.ctx]=i.value.trim()});if(d.ctx.country==="INTL"){d.ctx.framework="IFRS";return d}d.ctx.framework=d.ctx.country==="EG"?"EAS":CX().frameworkApplicability(d.fw||{}).framework;d.ctx.currency=d.ctx.country==="EG"?"الجنيه المصري":"الريال السعودي";return d}
 async function upload(reqId,files){
@@ -940,8 +986,8 @@ async function runRound(){
 function narrBar(c){
   const x=docX(c),ready=window.SKosifAI&&SKosifAI.ready(),cf=ready?SKosifAI.conf():null,q=x.q,ai=x.narr&&Object.values(x.narr.source||{}).some(v=>v==="ai");
   const G=E().reports.globalCorpus,sum=G?G.summary():null;
-  return '<section class="card sqc-nb"><div class="card-b"><div class="sqc-nb-h"><div><span class="eyebrow">التقرير السنوي المتكامل — على بنية '+(sum?sum.reports:49)+' تقريراً عالمياً</span>'+
-    '<h3>'+(ai?'صاغه '+esc(x.narr.model||"الذكاء الاصطناعي"):'مسودة محرك SQC')+'</h3><p>قرأت SQC حزمة البحث كاملة ('+(sum?sum.pages.toLocaleString("en-US"):"12,506")+' صفحة) واستخرجت بنية التقارير المنشورة وأسلوب رسائلها ومخاطرها وأمورها الرئيسية. '+
+  return '<section class="card sqc-nb"><div class="card-b"><div class="sqc-nb-h"><div><span class="eyebrow">التقرير السنوي المتكامل — إحصاءات بنية تاريخية من '+(sum?sum.sectionStatisticsReports:49)+' تقريراً عالمياً</span>'+
+    '<h3>'+(ai?'صاغه '+esc(x.narr.model||"الذكاء الاصطناعي"):'مسودة محرك SQC')+'</h3><p>يتضمن فهرس الحزمة '+(sum?sum.reports:50)+' تقريراً ('+(sum?sum.pages.toLocaleString("en-US"):"12,506")+' صفحة). فحص حدود التقارير لا يعني مراجعتها كاملة أو قبول نماذجها؛ إحصاءات البنية التاريخية تحتاج مراجعة مستقلة. '+
     (ready?'يكتب '+esc(cf.label)+' السرد كاملاً بأرقام المنشأة فقط، ثم يُطابَق كل رقم ويُقاس التقرير بالحزمة.':'أضف مفتاح Gemini أو OpenAI أو Claude في «جولات المراجعة» ليكتب الذكاء الاصطناعي السرد؛ المسودة الحالية من المحرك وأرقامها من القوائم.')+'</p>'+
     (x.narrStale?'<p class="tbr-warn">تغيرت الأرقام بعد آخر صياغة — عُرضت مسودة المحرك؛ أعد الصياغة.</p>':'')+
     (x.narr&&x.narr.unverified&&x.narr.unverified.length?'<p class="tbr-warn">'+x.narr.unverified.reduce((a,u)=>a+u.numbers.length,0)+' رقماً في السرد لا يطابق أرقام المنشأة — مذكورة في الملحق.</p>':'')+'</div>'+
@@ -986,6 +1032,7 @@ async function runFull(){
 /* a demonstration engagement without an AI key: three council rounds written by the engine, the client's documents
    generated from the trial balance, the proposed entries accepted, and the final report — the whole cycle in one run */
 async function runDemo(){
+  if(compute()?.sourceReplay){tab="fs";paint();return;}
   if(busy)return;let c=compute();if(!c||!c.tb.ok){toast("حمّل الميزان أولاً","warn");return}
   let d=st();if(d.session&&d.session.rounds&&d.session.rounds.length&&!await SK.confirm("في الملف جولات سابقة — استبدالها بمراجعة تجريبية كاملة؟",{danger:true,ok:"استبدال"}))return;
   const DE=E().audit.demoEngagement,MODEL="محاكاة SQC (دون مفتاح)",pause=ms=>new Promise(r=>setTimeout(r,ms));
@@ -1070,7 +1117,8 @@ function bind(node){
       if(await loadTB(SC.WAHA_TB_CSV,"شركة الواحة الذهبية",{...SC.WAHA_CONTEXT})){const d=st();d.ctx={...d.ctx,...SC.WAHA_CONTEXT};d.fw={};put(d);paint()}return}
     if(a==="sample"){const ta=root.querySelector("[data-tbtext]");if(ta)ta.value=TI().SAMPLE_TB_CSV;const co=root.querySelector('[data-ctx="company"]');if(co&&!co.value)co.value="شركة تجريبية للتجارة";const pe=root.querySelector('[data-ctx="period"]');if(pe&&!pe.value)pe.value="السنة المنتهية في 31 ديسمبر 2025";return}
     if(a==="analyze"){const d=readCtx(st()),text=String((root.querySelector("[data-tbtext]")||{}).value||"").trim();if(!text){toast("ارفع ملف الميزان أو الصقه أولاً","warn");return}
-      const tb=TI().parseTrialBalance(text);if(!tb.ok){toast("لم أتعرف على أعمدة الميزان — تأكد من وجود رقم الحساب والمدين والدائن","bad");return}
+      const tb=TI().parseTrialBalance(text),sourceBlock=sourceImportBlock(tb,d.ctx);if(sourceBlock){toast(sourceBlock,"warn");return}if(!tb.ok){toast(tb.errors.find(e=>e.code==="SOURCE_REPORT_REIMPORT_UNSUPPORTED")?.message||"لم أتعرف على أعمدة الميزان — تأكد من وجود رقم الحساب والمدين والدائن","bad");return}
+      if(tb.sourceKind){d.sourceKind="published-statements";d.sourceId=tb.sourceId||d.sourceId||"";}
       d.tbText=text;d.loadedAt=new Date().toISOString();d.loadedFrom="ملف أو لصق";fresh(d);put(d);await docClear();tab="tb";setup=false;
       SK.audit&&SK.audit.log("tbreview",{act:"import",accounts:tb.rows.length,balanced:tb.balanced});paint();return}
     if(a==="setup"){setup=!setup;paint();return}
@@ -1123,6 +1171,7 @@ function paint(){
   let c=null;try{c=compute()}catch(e){SK.errors&&SK.errors.report(e,"tbreview");root.innerHTML=hero(null)+'<p class="empty">تعذر تحليل الميزان: '+esc(e.message)+'</p>'+setupHTML(st(),true);return}
   const y=window.scrollY;
   if(!c){root.innerHTML=filesBar()+hero(null)+setupHTML(st(),true)+(window.SKosifAI&&!SKosifAI.ready()?SKosifAI.cardHTML():'');return}
+  if(c.sourceOnly){root.innerHTML='<div class="tbr tbr-source-replay">'+filesBar()+'<h2>عرض القوائم المنشورة من المصدر</h2><p>ليست إعادة إنشاء من قيود أو دفتر أستاذ؛ حالة التأكيد: لم يُقيّم.</p>'+fsTab(c)+'</div>';return;}
   if(!ADV[tab]&&!TABS.some(x=>x[0]===tab))tab="tb";
   const conf=tab==="conf"&&CU();
   const body=conf?'<div class="tbc" data-tbc-body aria-busy="true">'+(confHTML.sig===c.sig&&confHTML.h||'<p class="empty">يحسب درجات الثقة والفحوص…</p>')+'</div>':tab==="plan"&&FW()?(AP()?AP().planCard(c)+AP().estCard(c):'')+FW().planTab(c):tab==="close"&&FW()?FW().closeTab(c)+(AP()?AP().gcCard(c):''):tab==="ai"?aiTab(c):tab==="docs"?docsTab(c):tab==="adj"?adjTab(c):tab==="fs"?fsTab(c):tbTab(c);
@@ -1138,5 +1187,6 @@ function paint(){
 FW()&&FW().init({st,put,paint,root:()=>root,print:k=>{const c=compute();if(c)printDoc(c,k)}});
 CU()&&CU().init({st,put,compute,session,paint,docGet,docPut,docKey,getBusy:()=>busy,setBusy:v=>{busy=v;paint()},setAbort:a=>{abort=a}});
 AP()&&AP().init({st,put,compute,paint});
-SK.view("tbreview",{render(node){root=node;if(!node.dataset.bound){bind(node);node.dataset.bound="1"}paint()}});
+SK.view("tbreview",{render(node){root=node;if(!node.dataset.bound){bind(node);node.dataset.bound="1"}paint();
+  if(!sourcesAsked){sourcesAsked=true;sources().then(()=>{cache=null;if(root&&root.isConnected)paint()}).catch(()=>{sourcesAsked=false})}}});
 })();

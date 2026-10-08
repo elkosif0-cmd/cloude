@@ -9,10 +9,11 @@
    • what the engine missed, counted over all companies — the gaps that tell where its judgement differs.
    The sector prior (how often auditors in the same sector reported each theme) is computed leave-one-out: the
    company being replayed never informs its own ranking. */
+import { canonicalReferenceId } from '../reports/reference-index-engine';
 import { KAMS, MATERIALITY, REPORTS, THEMES, type Sector, type Theme } from './global-benchmarks-engine';
 import { reviewTrialBalance } from './tb-review-engine';
 import { suggestKams } from './kam-engine';
-import { companyTrialBalance, corpusCompanies } from '../reports/corpus-companies-engine';
+import { corpusModelTrialBalance, corpusCompanies } from '../reports/corpus-companies-engine';
 import { parseTrialBalance } from '../reports/tb-import-engine';
 import { blueprint, reportStructure } from '../reports/global-corpus-engine';
 
@@ -31,7 +32,7 @@ const r2 = (x: number) => Math.round(x * 100) / 100;
 /** How often the auditors of a sector reported each theme (share of that sector's reports with KAMs), leaving one report out. */
 export function sectorPrior(sector: Sector | '', exclude?: string): Partial<Record<Theme, number>> {
   if (!sector) return {};
-  const reports = [...new Set(KAMS.map((k) => k.report))].filter((id) => id !== exclude && corpusSector(id) === sector);
+  const reports = [...new Set(KAMS.map((k) => k.report))].filter((id) => id !== (exclude ? canonicalReferenceId(exclude) : undefined) && corpusSector(id) === sector);
   if (!reports.length) return {};
   const out: Partial<Record<Theme, number>> = {};
   for (const t of Object.keys(THEMES) as Theme[]) {
@@ -42,12 +43,14 @@ export function sectorPrior(sector: Sector | '', exclude?: string): Partial<Reco
 }
 /** How many matters (distinct themes) auditors under a standard report — the mean over the bundle's reports, leaving one out. */
 export function typicalKamCount(standard: 'ISA' | 'PCAOB', exclude?: string): number {
-  const ids = [...new Set(KAMS.map((k) => k.report))].filter((id) => id !== exclude && REPORT_STD.get(id) === standard);
+  const ids = [...new Set(KAMS.map((k) => k.report))].filter((id) => id !== (exclude ? canonicalReferenceId(exclude) : undefined) && REPORT_STD.get(id) === standard);
   if (!ids.length) return 3;
   const mean = ids.reduce((s, id) => s + new Set(KAMS.filter((k) => k.report === id).map((k) => k.theme)).size, 0) / ids.length;
   return Math.max(1, Math.round(mean));
 }
 const REPORT_STD = new Map(REPORTS.map((r) => [r.id, r.standard]));
+/* a report whose auditing standard is not reviewed yet (#143: 'unknown') gives the KAM count no standard */
+const knownStandard = (id: string) => { const s = REPORT_STD.get(id); return s === 'unknown' ? undefined : s; };
 const SECTOR_OF = new Map<string, Sector>();
 function corpusSector(id: string): Sector | undefined {
   if (!SECTOR_OF.size) for (const c of corpusCompanies()) SECTOR_OF.set(c.id, c.sector);
@@ -55,15 +58,17 @@ function corpusSector(id: string): Sector | undefined {
 }
 
 /** Replay the audit of one company of the bundle. */
+/* R16: main's replay restored (PRODUCT_MANDATE P5 — every bundle company reproduces its auditors' results); #143 had it
+   return null for all. It runs on the corpus model; replayAll labels the whole set simulation-only (#143). */
 export function replayCompany(id: string, opts: { prior?: boolean | 'smoothed'; max?: number } = {}): Replay | null {
-  const t = companyTrialBalance(id);
+  const t = corpusModelTrialBalance(id);
   if (!t) return null;
   const c = t.company, tb = parseTrialBalance(t.csv);
   const review = reviewTrialBalance(tb, { framework: 'IFRS', currency: t.ctx.curSym, overrides: t.overrides, tax: t.ctx.taxKind as 'zakat' | 'income', unclassified: t.ctx.unclassified });
   /* no prior at all, the sector's own share (sector-only), or the smoothed prior (sector → standard → all reports); always leave-one-out */
   const prior = opts.prior === false ? {} : opts.prior === 'smoothed' ? undefined : sectorPrior(c.sector, c.id);
   const kams = suggestKams({ fs: review.fs, risks: review.risks, materiality: review.materiality.overall, currency: t.ctx.curSym, periodEnd: c.yearEnd, sector: c.sector, max: opts.max ?? 3, sectorPrior: prior,
-    exclude: c.id, standard: REPORT_STD.get(c.id) });
+    exclude: c.id, standard: knownStandard(c.id) });
   const rows = KAMS.filter((k) => k.report === id);
   const themes = [...new Set(rows.map((k) => k.theme))];
   const selected = new Set(kams.filter((k) => k.selected).map((k) => k.key)), ranked = new Set(kams.map((k) => k.key));
@@ -79,9 +84,10 @@ export function replayCompany(id: string, opts: { prior?: boolean | 'smoothed'; 
     precision: selected.size && themes.length ? r2(ours.filter((o) => o.selected && o.matched).length / selected.size) : null,
     materiality: { ours: oursMat, benchmark: review.materiality.benchmarkAr, disclosed: disc ? disc.overall / unit : null, disclosedBasis: disc ? disc.basis : null,
       ratio: disc ? r2(oursMat / (disc.overall / unit)) : null, page: disc ? disc.page : null },
-    requests: review.requests.length, findings: review.findings.length, balanced: t.balanced, structure: structureOf(id),
+    requests: review.requests.length, findings: review.findings.length, balanced: t.balanced === true, structure: structureOf(id),
   };
 }
+
 /* the sections SQC's integrated report lays out (the bundle blueprint) against the sections of the company's own report */
 const SQC_SECTIONS = new Set(blueprint().flatMap((p) => p.sections.map((x) => x.key)));
 function structureOf(id: string) {
@@ -103,6 +109,7 @@ export function replayAll(opts: { prior?: boolean | 'smoothed'; max?: number } =
   const mat = list.filter((r) => r.materiality.ratio !== null);
   const st = list.filter((r) => r.structure.theirs), stTheirs = st.reduce((a, r) => a + r.structure.theirs, 0), stCov = st.reduce((a, r) => a + r.structure.covered, 0);
   return {
+    status: list.length?'simulation-only':'unavailable', reason:'Published statement models do not establish an audit engagement or earned assurance.',
     companies: list.length, withKams: withKams.length, kamThemes: actualN,
     recall: actualN ? r2(sel / actualN) : 0, rankedRecall: actualN ? r2(rk / actualN) : 0, precision: oursSel ? r2(oursHit / oursSel) : 0,
     anyMatch: withKams.filter((r) => r.actual.some((a) => a.found === 'selected')).length,

@@ -37,7 +37,8 @@ jobs:
           set +e
           : > unit.txt
           for f in tools/*.test.mjs capabilities-v2/*.test.mjs; do
-            out=$(NODE_PATH=/tmp/sqc-ui/node_modules timeout 300 node --test "$f" 2>&1)
+            # the source-replay files load the studio through a dynamic import inside the vm (as sqc-apple-source.yml runs them)
+            out=$(NODE_PATH=/tmp/sqc-ui/node_modules timeout 300 node --experimental-vm-modules --test "$f" 2>&1)
             # TAP off a terminal («# pass N»), the spec reporter on one («ℹ pass N»)
             p=$(printf '%s\n' "$out" | sed -nE 's/^(#|ℹ) pass ([0-9]+)$/\2/p' | tail -1)
             x=$(printf '%s\n' "$out" | sed -nE 's/^(#|ℹ) fail ([0-9]+)$/\2/p' | tail -1)

@@ -918,6 +918,17 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - CI: `.github/workflows/sqc-unit-all.yml` runs every unit file on Linux (942 pass / 112 fail on main; 17 red files listed with reasons in `tools/fixtures/unit-known-red.txt`, 14 of them PR #143's partial recovery).
 - Branch / PR: `claude/r15-code-review-20261008` (PR #226).
 
+
+### TASK CLAUDE-20261008-006 — Merge PR #143 (published-source replays) with P5 kept (R16)
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Owner request: «نفذ الدمج» / «ادمج» — integrate the other agent's PR #143 so the 14 recovered red test files get their engine wiring.
+- Merged: branch `codex/sqc-five-audit-source-models-20261005` into main. P&G, Home Depot, Mercedes, McDonald's and Volkswagen source replays are wired; the four large adapters are read on demand from `ui/data/engines-sources.js` (`registerReviewedSources` + lazy resolvers), so `ui/core/engines.js` stays 1.37 MB instead of 3.56 MB.
+- Conflict with the mandate: the branch closed every company without a reviewed source in three places (`companyTrialBalance` → null, `replayCompany` → null for all, and the current corpus-model CSVs quarantined as "legacy transports"). PRODUCT_MANDATE P5 wins: 42 pending companies open on their corpus model (labelled pending review, simulation only); the 4 reviewed companies open on their source replay; only L'Oréal and Panasonic (no statements in the bundle) stay closed. `corpusModelTrialBalance` feeds the corpus replay, lab and scorecard; `auditFile` in the catalog says whether a company opens.
+- Also: one preview status line (main's `[data-output-status]`, styled as the branch's notice); a file bound to a source model is re-verified on every compute; the scorecard regenerated (metrics unchanged; FY labels and CBA's canonical id from the branch).
+- Tests: app 115 files / 545 tests; every unit file green except `helper_gateway` and `review_import_guard` (still known red) and four Windows-only files; the server security contract is green (12/12). Tests that asserted the branch's lock were rewritten to P5, keeping their honesty checks.
+- Branch: `claude/r16-merge-pr143-20261008`.
+
 ### TASK CLAUDE-20261008-006 — Identity «كوبالت وجليد», the constitution review and its guard (رادع الدستور), owner scope, visible save state
 - Agent: Claude (Lead Development Agent)
 - Status: IN PROGRESS

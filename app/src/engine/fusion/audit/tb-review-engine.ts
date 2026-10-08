@@ -118,6 +118,7 @@ export function reviewTrialBalance(tb: TrialBalance, opts: ReviewOptions = {}): 
   const framework = opts.framework ?? 'IFRS', egypt = framework === 'EAS', intl = !egypt && opts.tax === 'income', cur = opts.currency ?? (egypt ? 'ج.م' : 'ر.س');
   const money = (m: Minor) => formatMinor(m, { decimals: 0 }) + ' ' + cur;
   const fs = buildStatements(tb, opts.overrides ?? {}, { tax: opts.tax ?? (egypt ? 'income' : 'zakat') });
+  if(fs.reconstructionStatus)throw new Error('Published source replay: operational audit review is unavailable; use the source replay view.');
   const mat0 = materiality(fs, { overall: opts.materiality, ...(opts.materialityRates ?? {}) });
   /* an entity that pays income tax rather than zakat: the benchmark carries its name */
   const mat = opts.tax === 'income' && mat0.benchmark === 'pbz' ? { ...mat0, benchmarkAr: 'الربح قبل ضريبة الدخل' } : mat0;
