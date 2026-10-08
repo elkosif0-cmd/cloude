@@ -908,3 +908,12 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Scope: audit-bridge BASE keeps hero titles in the card's ink (they were dark on dark in the analytics studio and the research lab — measured with a local Edge probe); formatMoneyMinor defaults to Latin digits (three audit engine copies); research lab eyebrow in Arabic; the cash screen's hand-kept log named for what it is; the cutting-methods table's empty state (build patch); suppliers: one of ranking · comparison · shipment log at a time (3,038 → 1,562 px measured).
 - Branch / PR: `claude/r14-audit-studios-20261008` (stacked on R13).
 
+
+### TASK CLAUDE-20261008-005 — Code review of the whole codebase (R15)
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Owner request: «من مراجعتك السابقة وطور التطبيق ككل وفكرته وكل شيء — أريد مراجعة الكود بالكامل والنوافذ والقدرات وكل شيء».
+- Review: `docs/rebuild/CODE_REVIEW_20261008_ar.md` — layers and sizes, the idea, findings by severity, next steps; measured with storage-key, unescaped-insert and engine-usage scans and a Linux run of every unit file.
+- Fixes: company data isolation (`HELPER_KEY` missed skosif_erp_*_v1; risks, tasks and council cases added; demo admission rules) + `tools/company_scope_keys.test.mjs`; escaped the audit completion detail (stored rationale) and the receipt card reference; one ZATCA issue time and the 255-byte TLV limit; the events calculator on `sales.catering`; `modalFocus` without `closest`; a stale workspace expectation.
+- CI: `.github/workflows/sqc-unit-all.yml` runs every unit file on Linux (942 pass / 112 fail on main; 17 red files listed with reasons in `tools/fixtures/unit-known-red.txt`, 14 of them PR #143's partial recovery).
+- Branch / PR: `claude/r15-code-review-20261008` (PR #226).
