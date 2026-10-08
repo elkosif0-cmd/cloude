@@ -1165,6 +1165,16 @@ function bind(node){
     const w=e.target.closest("[data-fw]");if(w){const d=readCtx(st());d.fw={...d.fw,[w.dataset.fw]:w.checked};d.ctx.framework=d.ctx.country==="EG"?"EAS":CX().frameworkApplicability(d.fw).framework;put(d);paint();return}
   });
 }
+/* R17: a bundle company opened on its corpus model says what it is inside the file, not only in the picker (P5 keeps it
+   open; the label keeps it honest). Keyed on the id and whether the on-demand source adapters have joined. */
+let modelNoteMemo={key:null,h:""};
+function modelNote(c){
+  const id=c&&c.d&&(c.d.bundleId||c.d.ctx&&c.d.ctx.corpusId);if(!id)return "";
+  const key=id+(E().reports&&E().reports.volkswagenSource?"+":"");if(modelNoteMemo.key===key)return modelNoteMemo.h;
+  let h="";try{const CC=E().reports.corpusCompanies,cid=(CC.corpusCompany&&CC.corpusCompany(id)||{}).id||id,m=CC.auditModelCatalog().find(x=>x.id===cid);
+    if(m&&m.modelStatus==="pending-review")h='<p class="tbr-warn" role="note" data-model-note="'+esc(m.id)+'">'+esc(m.company+" — "+m.fy)+': نموذج التطبيق '+esc(m.modelStatusAr)+'. الميزان مبني من أرقام القوائم المنشورة في الحزمة، وما يُنتج في هذا الملف محاكاة لعمل المراجع للمقارنة بنتائجه — لا تأكيد مهني.</p>'}catch{}
+  modelNoteMemo={key,h};return h;
+}
 function paint(){
   if(!root)return;
   if(!window.SKEngines||!SKEngines.audit||!SKEngines.audit.tbReview){root.innerHTML='<p class="empty">محركات المراجعة غير محملة.</p>';return}
@@ -1176,7 +1186,7 @@ function paint(){
   const conf=tab==="conf"&&CU();
   const body=conf?'<div class="tbc" data-tbc-body aria-busy="true">'+(confHTML.sig===c.sig&&confHTML.h||'<p class="empty">يحسب درجات الثقة والفحوص…</p>')+'</div>':tab==="plan"&&FW()?(AP()?AP().planCard(c)+AP().estCard(c):'')+FW().planTab(c):tab==="close"&&FW()?FW().closeTab(c)+(AP()?AP().gcCard(c):''):tab==="ai"?aiTab(c):tab==="docs"?docsTab(c):tab==="adj"?adjTab(c):tab==="fs"?fsTab(c):tbTab(c);
   const adv=!c.sourceOnly&&window.SKosifAuditBridge&&ADV[tab]?advHTML(tab):"";
-  root.innerHTML='<div class="tbr">'+filesBar()+tourHTML(c)+hero(c)+(setup?setupHTML(c.d,false):'')+body+adv+'</div>';
+  root.innerHTML='<div class="tbr">'+filesBar()+modelNote(c)+tourHTML(c)+hero(c)+(setup?setupHTML(c.d,false):'')+body+adv+'</div>';
   /* the flow map scrolls sideways: bring the current step into view without moving the page */
   {const tr=root.querySelector(".tbr-flowtrack"),cu=tr&&tr.querySelector(".cur,.tbr-flow-node:not(.done)");if(tr&&cu){const a=tr.getBoundingClientRect(),b=cu.getBoundingClientRect();tr.scrollLeft+=(b.left+b.width/2)-(a.left+a.width/2)}}
   window.scrollTo(0,y);

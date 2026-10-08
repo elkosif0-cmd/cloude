@@ -259,7 +259,7 @@ function present(session){
   if(!validSync(session))return;
   if(pres)endPresent(false);
   const d=session.w.document,{title,subtitle,slides}=slidesOf(d),base=location.href.replace(/[^/?#]*([?#].*)?$/,""),mark=base+"art/sqc-mark.svg";
-  let biz=session.guard?session.guard.identity.name||"":"";if(!session.guard)try{biz=(SK.org&&SK.org().biz)||""}catch{}
+  let biz=session.guard?session.guard.identity.name||"":"";if(!session.guard)try{biz=(SK.org?SK.org().biz:(JSON.parse(localStorage.getItem("aghnam-pricing-v3")||"{}").settings||{}).biz)||""}catch{}
   const date=session.guard?session.guard.identity.date||"":new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"});
   const styles=[...d.querySelectorAll("style,link[rel=stylesheet]")].filter(x=>x.id!=="skout-paper"&&x.id!=="skp-opts").map(x=>x.outerHTML).join("");
   const html='<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">'+styles+'<style>'+PRES_CSS+'</style></head><body>'+
