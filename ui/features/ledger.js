@@ -15,7 +15,15 @@ const BASIC=[["1100","النقدية والبنوك","asset"],["1200","الذم�
 const packAccounts=()=>{try{const P=window.SKosifCompanyPlatform&&SKosifCompanyPlatform.sectorPack&&SKosifCompanyPlatform.sectorPack();return P?P.accounts:BASIC}catch{return BASIC}};
 const packLabel=()=>{try{const s=SK.company.current().sector,c=SK.caps&&SK.caps.sector&&SK.caps.sector(s);return c?c.label:""}catch{return ""}};
 const ISSUE={JOURNAL_UNBALANCED:"القيد غير متزن: المدين لا يساوي الدائن",LINE_BOTH_SIDES:"سطر فيه مدين ودائن معاً",LINE_NEGATIVE_AMOUNT:"مبلغ سالب",LINE_ZERO_AMOUNT:"سطر بلا مبلغ"};
-let tab="",draft=null,glAcc="",vatQ="";
+let tab="",draft=null,glAcc="",vatQ="",reviewVersion=0;
+/* A delayed advisory result belongs to one draft and company context. Even an away/back
+   transition invalidates it; no trace, queue record or dialog may outlive that context. */
+const invalidateReview=()=>{reviewVersion++};
+SK.bus?.on?.("company",invalidateReview);
+SK.bus?.on?.("nav",invalidateReview);
+SK.bus?.on?.("company-platform",e=>{if(e?.act==="profile.update")invalidateReview()});
+SK.bus?.on?.("data",e=>{if(e?.key===KEY)invalidateReview()});
+function reviewContext(d){return JSON.stringify({company:SK.company?.current?.()||{},profile:window.SKosifCompanyPlatform?.profile?.()||{},period:period(),draft,accounts:d.accounts,lockDate:d.lockDate})}
 /* R2 (docs/rebuild/DEEP_REVIEW_20261007_ar.md): the tabs sit in four families so that no strip carries more than six;
    the family follows the tab (open("vat") lands in «الضريبة والبنك»), and each family remembers its last tab */
 const lastTab={};
@@ -35,6 +43,7 @@ const postedSources=d=>new Set(d.entries.filter(e=>!e.reversedBy).map(e=>e.sourc
    the trail began stay «legacy» until sealed once; entries that appear in storage without passing through here are
    recorded as an integrity event before being sealed. Demo entries never enter the chain. */
 const put=d=>{
+  invalidateReview();
   const CH=E().journalChain;
   if(CH){const now=new Date().toISOString(),stored=(load(KEY,{})||{}).entries||[];
     if(!d.chain){const had=new Set(stored.map(e=>e.id));d.entries.forEach(e=>{if(!e.hash&&!e.demo&&had.has(e.id))e.legacy=true});d.chain={since:now,events:[]}}
@@ -59,6 +68,10 @@ function draftEntry(d){
     lines:draft.lines.filter(l=>l.accountId&&(Number(l.debit)||Number(l.credit))).map(l=>({accountId:l.accountId,debit:r2(l.debit),credit:r2(l.credit)}))};
 }
 async function reviewDraft(d){
+  const version=++reviewVersion,origin=reviewContext(d),company=SK.company?.current?.()||{},
+    aiEnabled=!!(window.SKosifAI&&SKosifAI.ready()),provider=aiEnabled?SKosifAI.provider():"deterministic",model=aiEnabled?(SKosifAI.conf()?.model||""):"",
+    current=()=>!!company.id&&version===reviewVersion&&!!draft&&!window.SKosifSpace?.busy?.()&&origin===reviewContext(d);
+  if(!current())return;
   const entry=draftEntry(d),v=E().ledger.validateJournalEntry(entry),issues=[...new Set((v.issues||[]).map(i=>ISSUE[i.code]||i.code))];
   if(entry.lines.length<2)issues.unshift("القيد يحتاج سطرين على الأقل بحسابات ومبالغ");
   if(locked(d,entry.date))issues.unshift("التاريخ داخل فترة مقفلة حتى "+d.lockDate);
@@ -73,26 +86,29 @@ async function reviewDraft(d){
     }
   }catch(err){det+="\nتعذر استخراج ربط المعايير: "+String(err.message||err)}
   let ai="لم يُشغّل AI؛ يمكنك حفظ القيد بعد اجتياز الفحص الحتمي أو تشغيله بعد ضبط مزود AI.";
-  if(window.SKosifAI&&SKosifAI.ready()){
+  if(aiEnabled){
     try{
       const lines=entry.lines.map(l=>{const a=d.accounts.find(x=>x.id===l.accountId)||{};return (a.code||"")+" "+(a.name||l.accountId)+" | مدين "+l.debit+" | دائن "+l.credit}).join("\n"),
-        company=SK.company?.current?.()||{},prompt="راجع هذا القيد كمساعد محاسبي فقط، ولا تنفذ أو تعدل شيئًا. الشركة: "+(company.name||"")+"؛ الدولة: "+(company.country||"")+"؛ العملة: "+(company.currency||"")+".\nالبيان: "+(entry.memo||"—")+"\n"+lines+"\nالمعايير التي ربطها المحرك الحتمي: "+(standards.join("، ")||"لم يحدد")+".\nاذكر: 1) هل المعالجة منطقية؟ 2) مخاطر أو مستندات ناقصة 3) التصحيح المقترح إن وجد 4) المعيار ذي الصلة. لا تعتبر اقتراحك اعتمادًا أو ترحيلًا.",
+        prompt="راجع هذا القيد كمساعد محاسبي فقط، ولا تنفذ أو تعدل شيئًا. الشركة: "+(company.name||"")+"؛ الدولة: "+(company.country||"")+"؛ العملة: "+(company.currency||"")+".\nالبيان: "+(entry.memo||"—")+"\n"+lines+"\nالمعايير التي ربطها المحرك الحتمي: "+(standards.join("، ")||"لم يحدد")+".\nاذكر: 1) هل المعالجة منطقية؟ 2) مخاطر أو مستندات ناقصة 3) التصحيح المقترح إن وجد 4) المعيار ذي الصلة. لا تعتبر اقتراحك اعتمادًا أو ترحيلًا.",
         res=await SKosifAI.generate({contents:[{role:"user",parts:[{text:prompt}]}]},{timeout:90000});
+      if(!current())return;
       ai=SKEngines.audit.aiReview.extractText(res).text||"لم يرجع AI تفسيرًا.";
-      window.SKosifCompanyPlatform?.addStandardTrace?.({operation:"journal-draft-review",standard:standards.join(", "),source:"deterministic mapping + AI suggestion",result:ai,provider:SKosifAI.provider(),approved:false});
-    }catch(err){ai="تعذر فحص AI: "+String(err.message||err)}
+      window.SKosifCompanyPlatform?.addStandardTrace?.({operation:"journal-draft-review",standard:standards.join(", "),source:"deterministic mapping + AI suggestion",result:ai,provider,approved:false});
+    }catch(err){if(!current()||err?.name==="AbortError")return;ai="تعذر فحص AI: "+String(err.message||err)}
   }
+  if(!current())return;
   try{
-    const cp=window.SKosifCompanyPlatform,aiRan=!!(window.SKosifAI&&SKosifAI.ready()&&!/^لم يُشغّل AI/.test(ai)),sig=entry.lines.map(l=>[l.accountId,l.debit,l.credit].join(":")).join("|");
+    const cp=window.SKosifCompanyPlatform,aiRan=aiEnabled,sig=entry.lines.map(l=>[l.accountId,l.debit,l.credit].join(":")).join("|");
     if(cp&&(issues.length||aiRan))cp.addAIException({
       source:"journal-draft-review",sourceId:[entry.date,entry.reference,entry.memo,sig].join("|"),
       dedupeKey:["journal-draft-review",entry.date,entry.reference,entry.memo,sig].join("|"),
       title:issues.length?"قيد يحتاج تصحيح قبل الحفظ":"ملاحظة AI على قيد مسودة",
       detail:det+"\n\nتفسير AI:\n"+ai,severity:issues.length?"high":"warning",confidence:issues.length?1:null,
       evidenceRefs:standards,proposedAction:issues.length?"صحّح مشكلات الفحص الحتمي ثم أعد الفحص قبل الحفظ.":"راجع تفسير AI والمستندات ذات الصلة، ثم اقبل أو ارفض الاقتراح يدويًا.",
-      provider:aiRan?SKosifAI.provider():"deterministic",model:aiRan?(SKosifAI.conf()?.model||""):""
+      provider,model
     });
   }catch(err){console.warn("AI exception queue",err)}
+  if(!current())return;
   await SK.form("فحص القيد — اقتراح لا يرحّل ولا يعتمد",[{key:"result",label:"النتيجة",type:"textarea",value:det+"\n\nتفسير AI:\n"+ai}],{ok:"إغلاق",cancel:"إغلاق",message:"الحفظ والترحيل يظلان قرارًا مستقلاً بعد الفحص."});
 }
 
@@ -1105,15 +1121,15 @@ function paint(root){
 }
 function bind(root){
   root.addEventListener("click",async e=>{
-    const t=e.target.closest("[data-tab]");if(t&&t.closest('[data-sk-tabs="ledger"]')){tab=t.dataset.tab;paint(root);return}
-    if(t&&t.closest('[data-sk-tabs="ledger-family"]')){const f=families(db()).find(([id])=>id===t.dataset.tab);if(f){tab=f[2].some(([id])=>id===lastTab[f[0]])?lastTab[f[0]]:f[2][0][0];paint(root)}return}
+    const t=e.target.closest("[data-tab]");if(t&&t.closest('[data-sk-tabs="ledger"]')){invalidateReview();tab=t.dataset.tab;paint(root);return}
+    if(t&&t.closest('[data-sk-tabs="ledger-family"]')){const f=families(db()).find(([id])=>id===t.dataset.tab);if(f){invalidateReview();tab=f[2].some(([id])=>id===lastTab[f[0]])?lastTab[f[0]]:f[2][0][0];paint(root)}return}
     const b=e.target.closest("[data-l]");if(!b)return;const a=b.dataset.l,d=db();
     if(a==="basic"||a==="pack-accounts"){packAccounts().forEach(([code,name,type])=>{if(!d.accounts.some(x=>x.code===code))d.accounts.push(E().accounts.createAccount({code,name,type}))});put(d);toast("أُنشئ دليل الحسابات الأساسي — عدّله حسب نشاطك","ok")}
     else if(a==="add-acc"){if(!SK.ui.validate(root))return;const acc=E().accounts.createAccount({code:$("#lg-code",root).value,name:$("#lg-name",root).value,type:$("#lg-type",root).value,parentId:$("#lg-parent",root).value});
       if(d.accounts.some(x=>x.code===acc.code))return toast("الرمز مستخدم لحساب آخر","warn");d.accounts.push(acc);put(d);toast("أُضيف الحساب","ok")}
     else if(a==="toggle"){const x=d.accounts.find(y=>y.id===b.dataset.id);if(x){x.active=!x.active;put(d)}}
-    else if(a==="add-line"){draft.lines.push({accountId:"",debit:"",credit:""})}
-    else if(a==="rm-line"){draft.lines.splice(+b.dataset.i,1)}
+    else if(a==="add-line"){invalidateReview();draft.lines.push({accountId:"",debit:"",credit:""})}
+    else if(a==="rm-line"){invalidateReview();draft.lines.splice(+b.dataset.i,1)}
     else if(a==="review-entry"){await reviewDraft(d);return}
     else if(a==="save-entry"){
       const entry={...draftEntry(d),id:SK.ui.uid("je")};
@@ -1242,6 +1258,7 @@ function bind(root){
     if(el.id==="proof-end"){if(e.type!=="change")return;proofEnd=/^\d{4}-\d{2}-\d{2}$/.test(el.value)?el.value:"";paint(root);return}
     if(el.id==="lg-terms"){if(e.type!=="change")return;const v=Math.round(Number(el.value));if(!(v>=0&&v<=365))return;const d=db();d.termsDays=v;put(d);paint(root);return}
     if(!draft)return;
+    if(el.dataset.ln!=null||["lg-date","lg-ref","lg-memo"].includes(el.id))invalidateReview();
     if(el.dataset.ln!=null)draft.lines[+el.dataset.ln][el.dataset.f]=el.value;
     if(el.id==="lg-date")draft.date=el.value;if(el.id==="lg-ref")draft.reference=el.value;if(el.id==="lg-memo")draft.memo=el.value;
     const td=draft.lines.reduce((s,l)=>s+(Number(l.debit)||0),0),tc=draft.lines.reduce((s,l)=>s+(Number(l.credit)||0),0);

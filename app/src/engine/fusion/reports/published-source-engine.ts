@@ -1,3 +1,20 @@
+import { procterGambleSource } from './sources/procter-gamble-source';
+/* The four large reviewed adapters (Home Depot, McDonald's, Mercedes, Volkswagen) and their source data ship in
+   ui/data/engines-sources.js (R4: 2.3 MB kept out of the app bundle; SKEngines.loadSources()). They are looked up when
+   called — from that bundle once it has joined SKEngines.reports, or registered directly (node tests, other hosts).
+   Importing them here put the data back into the app bundle (engines.js 1.15 → 3.56 MB). P&G's adapter is small and
+   stays imported. */
+type ReviewedResolver = (id: string) => ({ csv: string; overrides: Record<string, string>; sourceModel: any } | null | undefined);
+const registeredResolvers: ReviewedResolver[] = [];
+export function registerReviewedSources(...resolvers: ReviewedResolver[]) { registeredResolvers.push(...resolvers); }
+function loadedResolvers(): ReviewedResolver[] {
+  const R = (globalThis as any).SKEngines?.reports || {};
+  return [R.homeDepotSource?.reviewedHomeDepotSource, R.publishedMcdonaldsSource?.reviewedMcDonaldsSource,
+    R.mercedesSource?.reviewedMercedesSource, R.volkswagenSource?.reviewedVolkswagenSource]
+    .filter((f): f is ReviewedResolver => typeof f === 'function');
+}
+const resolvers = () => [...registeredResolvers, ...loadedResolvers()];
+function externalSource(id: string) { for (const r of resolvers()) { const x = r(id); if (x) return x; } return null; }
 /* Reviewed published-statement adapter. These are statement observations, not ledger
    records or audit evidence. The test oracle is independent and is never imported here.
    Apple 2024 Form 10-K, original verified bundle pp. 125, 127, 144–146. */
@@ -36,7 +53,7 @@ const APPLE_ROWS: readonly SourceRow[] = [
 ];
 /** A fresh value per caller prevents one open file from relabelling another. */
 export function reviewedPublishedSource(id: string) {
-  if (id !== 'apple-2024') return null;
+  if (id !== 'apple-2024') return procterGambleSource(id) ?? externalSource(id);
   const signed = (r: SourceRow, i: 4 | 5) => r[3] ? r[i] : -r[i];
   const csv = [SOURCE_MARKER + id, 'رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة', ...APPLE_ROWS.map(r => {
     const current = signed(r,4); return [r[0],r[1],current > 0 ? current : '',current < 0 ? -current : '',signed(r,5)].join(',');
@@ -54,4 +71,13 @@ export function reviewedPublishedSource(id: string) {
     cashFlow: {status:'unavailable',reason:'source-cash-flow-not-imported',sourcePage:129},
   };
   return {csv,overrides:Object.fromEntries(APPLE_ROWS.map(r=>[r[0],r[2]])),sourceModel};
+}
+
+const REVIEWED_SOURCE_IDS = ['apple-2024','pg-2026','homedepot-2025','mcdonalds-2022','mercedes-2025','volkswagen-2025'] as const;
+let reviewedCarrierIds:Map<string,string>|undefined,reviewedCarrierCount=-1;
+/** Lost transport markers never convert a known source carrier into a real ledger. */
+export function identifyReviewedSourceTransport(text:string):string|null{
+ const available=resolvers().length;if(available!==reviewedCarrierCount){reviewedCarrierIds=undefined;reviewedCarrierCount=available;}
+ if(!reviewedCarrierIds){reviewedCarrierIds=new Map();for(const id of REVIEWED_SOURCE_IDS){const source=reviewedPublishedSource(id);if(source){reviewedCarrierIds.set(source.csv.trim(),id);reviewedCarrierIds.set(source.csv.split('\n').filter(line=>!line.startsWith(SOURCE_MARKER)).join('\n').trim(),id);}}}
+ return reviewedCarrierIds.get(text.replace(/^﻿/,'').replace(/\r\n/g,'\n').trim())??null;
 }

@@ -7,6 +7,9 @@ describe('replaying the audit on the bundle companies', () => {
     expect(withPrior.companies).toBe(47);
     expect(withPrior.withKams).toBe(43);
     expect(withPrior.list.every((r) => r.balanced && r.requests > 0)).toBe(true);
+    /* #143: the replay is labelled for what it is — a simulation on published figures, not an audit engagement */
+    expect(withPrior.status).toBe('simulation-only');
+    expect(withPrior.reason).toMatch(/do not establish an audit engagement/);
   });
   it('reaches more of the reported matters when the sector practice of the bundle ranks them (leave-one-out)', () => {
     expect(withPrior.recall).toBeGreaterThan(without.recall);

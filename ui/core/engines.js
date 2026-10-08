@@ -501,11 +501,2870 @@ window.SKEngines = (function() {
 		return (h >>> 0).toString(16).padStart(8, "0");
 	}
 	//#endregion
+	//#region app/src/engine/fusion/reports/sources/procter-gamble-data.ts
+	function deepFreeze(value) {
+		if (value && typeof value === "object" && !Object.isFrozen(value)) {
+			Object.freeze(value);
+			for (const child of Object.values(value)) deepFreeze(child);
+		}
+		return value;
+	}
+	var PG_REVIEWED = deepFreeze({
+		"schemaVersion": "1.0",
+		"modelType": "source-published financial statement and note fixture, not transaction journal",
+		"issuer": "The Procter & Gamble Company",
+		"issuerScope": "Registrant and controlled subsidiaries; intercompany balances and transactions eliminated",
+		"fiscalYearEnd": "2026-06-30",
+		"fiscalYearLabel": 2026,
+		"comparativeFiscalYears": [2025, 2024],
+		"currency": "USD",
+		"defaultUnit": "millions except per-share amounts and explicit share counts",
+		"accountingBasis": "US GAAP",
+		"source": {
+			"bundleSha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+			"physicalPages": [1963, 2039],
+			"coverPhysicalPage": 1963,
+			"financialStatementPhysicalPages": [
+				2004,
+				2005,
+				2006,
+				2007
+			],
+			"notePhysicalPages": [2008, 2034],
+			"signatureDate": "2026-08-04"
+		},
+		"coverage": "77/77 physical pages freshly reviewed, 75 text-bearing and 2 visually blank; prior historical coverage not reconstructed",
+		"appAcceptance": "not performed; this deliverable establishes independent source facts only",
+		"statements": {
+			"income": {
+				"sourcePhysicalPage": 2004,
+				"printedPage": 38,
+				"periods": [
+					2026,
+					2025,
+					2024
+				],
+				"unit": "USD millions",
+				"basis": "consolidated US GAAP",
+				"rows": {
+					"net_sales": {
+						"2026": 87032,
+						"2025": 84284,
+						"2024": 84039
+					},
+					"cost_of_products_sold": {
+						"2026": 43362,
+						"2025": 41164,
+						"2024": 40848
+					},
+					"selling_general_administrative": {
+						"2026": 23922,
+						"2025": 22669,
+						"2024": 23305
+					},
+					"indefinite_lived_intangible_impairment": {
+						"2026": 0,
+						"2025": 0,
+						"2024": 1341
+					},
+					"operating_income": {
+						"2026": 19748,
+						"2025": 20451,
+						"2024": 18545
+					},
+					"interest_expense": {
+						"2026": -877,
+						"2025": -907,
+						"2024": -925
+					},
+					"interest_income": {
+						"2026": 430,
+						"2025": 469,
+						"2024": 473
+					},
+					"other_nonoperating_income_net": {
+						"2026": 1076,
+						"2025": 154,
+						"2024": 668
+					},
+					"earnings_before_tax": {
+						"2026": 20377,
+						"2025": 20167,
+						"2024": 18761
+					},
+					"income_tax": {
+						"2026": 4233,
+						"2025": 4102,
+						"2024": 3787
+					},
+					"net_earnings": {
+						"2026": 16144,
+						"2025": 16065,
+						"2024": 14974
+					},
+					"earnings_noncontrolling": {
+						"2026": 98,
+						"2025": 91,
+						"2024": 95
+					},
+					"earnings_attributable_pg": {
+						"2026": 16046,
+						"2025": 15974,
+						"2024": 14879
+					},
+					"basic_eps": {
+						"2026": 6.75,
+						"2025": 6.67,
+						"2024": 6.18
+					},
+					"diluted_eps": {
+						"2026": 6.62,
+						"2025": 6.51,
+						"2024": 6.02
+					}
+				},
+				"rowUnitOverrides": {
+					"basic_eps": "USD per common share",
+					"diluted_eps": "USD per common share"
+				}
+			},
+			"comprehensive_income": {
+				"sourcePhysicalPage": 2004,
+				"printedPage": 38,
+				"periods": [
+					2026,
+					2025,
+					2024
+				],
+				"unit": "USD millions",
+				"basis": "consolidated US GAAP",
+				"rows": {
+					"net_earnings": {
+						"2026": 16144,
+						"2025": 16065,
+						"2024": 14974
+					},
+					"fx_translation_net_of_tax": {
+						"2026": 96,
+						"2025": 1143,
+						"2024": -226
+					},
+					"investment_unrealized_net_of_tax": {
+						"2026": 1,
+						"2025": 0,
+						"2024": -3
+					},
+					"defined_benefit_plans_net_of_tax": {
+						"2026": -440,
+						"2025": -1390,
+						"2024": 546
+					},
+					"other_comprehensive_income": {
+						"2026": -343,
+						"2025": -248,
+						"2024": 317
+					},
+					"comprehensive_income": {
+						"2026": 15801,
+						"2025": 15817,
+						"2024": 15291
+					},
+					"comprehensive_income_noncontrolling": {
+						"2026": 77,
+						"2025": 87,
+						"2024": 92
+					},
+					"comprehensive_income_attributable_pg": {
+						"2026": 15724,
+						"2025": 15730,
+						"2024": 15199
+					}
+				}
+			},
+			"balance_sheet": {
+				"sourcePhysicalPage": 2005,
+				"printedPage": 39,
+				"periods": [2026, 2025],
+				"unit": "USD millions",
+				"basis": "consolidated US GAAP",
+				"rows": {
+					"cash_equivalents": {
+						"2026": 9942,
+						"2025": 9556
+					},
+					"accounts_receivable": {
+						"2026": 6056,
+						"2025": 6185
+					},
+					"inventory_materials": {
+						"2026": 2143,
+						"2025": 2022
+					},
+					"inventory_work_in_process": {
+						"2026": 1105,
+						"2025": 1012
+					},
+					"inventory_finished_goods": {
+						"2026": 4922,
+						"2025": 4516
+					},
+					"inventory_total": {
+						"2026": 8170,
+						"2025": 7551
+					},
+					"prepaid_and_other_current_assets": {
+						"2026": 2040,
+						"2025": 2100
+					},
+					"current_assets": {
+						"2026": 26208,
+						"2025": 25392
+					},
+					"property_plant_equipment_net": {
+						"2026": 25360,
+						"2025": 23897
+					},
+					"goodwill": {
+						"2026": 41276,
+						"2025": 41650
+					},
+					"intangibles_net": {
+						"2026": 21444,
+						"2025": 21910
+					},
+					"other_noncurrent_assets": {
+						"2026": 12231,
+						"2025": 12381
+					},
+					"total_assets": {
+						"2026": 126521,
+						"2025": 125231
+					},
+					"accounts_payable": {
+						"2026": 16306,
+						"2025": 15227
+					},
+					"accrued_and_other_current_liabilities": {
+						"2026": 11091,
+						"2025": 11318
+					},
+					"debt_due_one_year": {
+						"2026": 11296,
+						"2025": 9513
+					},
+					"current_liabilities": {
+						"2026": 38694,
+						"2025": 36058
+					},
+					"longterm_debt": {
+						"2026": 22842,
+						"2025": 24995
+					},
+					"deferred_income_taxes": {
+						"2026": 5760,
+						"2025": 5774
+					},
+					"other_noncurrent_liabilities": {
+						"2026": 4914,
+						"2025": 6120
+					},
+					"total_liabilities": {
+						"2026": 72210,
+						"2025": 72946
+					},
+					"preferred_class_a": {
+						"2026": 756,
+						"2025": 777
+					},
+					"preferred_class_b": {
+						"2026": 0,
+						"2025": 0
+					},
+					"common_stock": {
+						"2026": 4009,
+						"2025": 4009
+					},
+					"additional_paid_in_capital": {
+						"2026": 69533,
+						"2025": 68770
+					},
+					"esop_debt_retirement_reserve": {
+						"2026": -596,
+						"2025": -672
+					},
+					"accumulated_other_comprehensive_loss": {
+						"2026": -12465,
+						"2025": -12143
+					},
+					"treasury_stock": {
+						"2026": -143008,
+						"2025": -138702
+					},
+					"retained_earnings": {
+						"2026": 135852,
+						"2025": 129973
+					},
+					"noncontrolling_interest": {
+						"2026": 230,
+						"2025": 272
+					},
+					"total_equity": {
+						"2026": 54311,
+						"2025": 52284
+					},
+					"total_liabilities_equity": {
+						"2026": 126521,
+						"2025": 125231
+					}
+				}
+			},
+			"cash_flow": {
+				"sourcePhysicalPage": 2007,
+				"printedPage": 41,
+				"periods": [
+					2026,
+					2025,
+					2024
+				],
+				"unit": "USD millions",
+				"basis": "consolidated US GAAP",
+				"rows": {
+					"beginning_cash_equivalents_restricted": {
+						"2026": 9556,
+						"2025": 9482,
+						"2024": 8246
+					},
+					"net_earnings": {
+						"2026": 16144,
+						"2025": 16065,
+						"2024": 14974
+					},
+					"depreciation_amortization": {
+						"2026": 3160,
+						"2025": 2847,
+						"2024": 2896
+					},
+					"share_compensation": {
+						"2026": 524,
+						"2025": 476,
+						"2024": 562
+					},
+					"deferred_income_taxes": {
+						"2026": 51,
+						"2025": 149,
+						"2024": -244
+					},
+					"gain_loss_on_sale_assets": {
+						"2026": -351,
+						"2025": 755,
+						"2024": -215
+					},
+					"indefinite_intangible_impairment": {
+						"2026": 0,
+						"2025": 0,
+						"2024": 1341
+					},
+					"change_accounts_receivable": {
+						"2026": 84,
+						"2025": 45,
+						"2024": -766
+					},
+					"change_inventories": {
+						"2026": -641,
+						"2025": -324,
+						"2024": -70
+					},
+					"change_accounts_payable": {
+						"2026": 919,
+						"2025": -542,
+						"2024": 878
+					},
+					"other_operating": {
+						"2026": -333,
+						"2025": -1653,
+						"2024": 491
+					},
+					"operating_cash_flow": {
+						"2026": 19556,
+						"2025": 17817,
+						"2024": 19846
+					},
+					"capital_expenditure": {
+						"2026": -4409,
+						"2025": -3773,
+						"2024": -3322
+					},
+					"asset_sale_proceeds": {
+						"2026": 508,
+						"2025": 107,
+						"2024": 346
+					},
+					"acquisitions_net_of_cash": {
+						"2026": -85,
+						"2025": -11,
+						"2024": -21
+					},
+					"other_investing": {
+						"2026": -638,
+						"2025": -141,
+						"2024": -507
+					},
+					"investing_cash_flow": {
+						"2026": -4624,
+						"2025": -3818,
+						"2024": -3504
+					},
+					"dividends_cash": {
+						"2026": -10232,
+						"2025": -9872,
+						"2024": -9312
+					},
+					"short_debt_additions_gt_three_months": {
+						"2026": 7941,
+						"2025": 8020,
+						"2024": 3528
+					},
+					"short_debt_reductions_gt_three_months": {
+						"2026": -9984,
+						"2025": -6512,
+						"2024": -7689
+					},
+					"other_short_debt_net": {
+						"2026": 2674,
+						"2025": -1138,
+						"2024": 857
+					},
+					"long_debt_additions": {
+						"2026": 2652,
+						"2025": 2237,
+						"2024": 3197
+					},
+					"long_debt_reductions": {
+						"2026": -3390,
+						"2025": -1977,
+						"2024": -2335
+					},
+					"treasury_stock_cash": {
+						"2026": -5028,
+						"2025": -6500,
+						"2024": -5006
+					},
+					"stock_options_and_other": {
+						"2026": 907,
+						"2025": 1707,
+						"2024": 1905
+					},
+					"financing_cash_flow": {
+						"2026": -14460,
+						"2025": -14036,
+						"2024": -14855
+					},
+					"fx_effect_cash": {
+						"2026": -86,
+						"2025": 112,
+						"2024": -251
+					},
+					"cash_change": {
+						"2026": 386,
+						"2025": 75,
+						"2024": 1235
+					},
+					"ending_cash_equivalents_restricted": {
+						"2026": 9942,
+						"2025": 9556,
+						"2024": 9482
+					},
+					"cash_interest_paid": {
+						"2026": 866,
+						"2025": 896,
+						"2024": 878
+					}
+				},
+				"presentationNotes": [
+					"Indirect method",
+					"Certain prior-year operating lines reclassified; total operating cash flow unchanged.",
+					"Cash statement includes restricted cash; balance sheet title cash and equivalents. Values equal at shown dates but labels must remain distinct."
+				]
+			},
+			"equity_rollforward_total": {
+				"sourcePhysicalPage": 2006,
+				"printedPage": 40,
+				"periods": [
+					2026,
+					2025,
+					2024
+				],
+				"unit": "USD millions",
+				"basis": "consolidated US GAAP",
+				"rows": {
+					"opening_total_equity": {
+						"2026": 52284,
+						"2025": 50559,
+						"2024": 47065
+					},
+					"net_earnings": {
+						"2026": 16144,
+						"2025": 16065,
+						"2024": 14974
+					},
+					"other_comprehensive_income": {
+						"2026": -343,
+						"2025": -248,
+						"2024": 317
+					},
+					"common_dividends_declared": {
+						"2026": -9966,
+						"2025": -9606,
+						"2024": -9053
+					},
+					"preferred_dividends_declared": {
+						"2026": -292,
+						"2025": -291,
+						"2024": -284
+					},
+					"treasury_purchases": {
+						"2026": -5029,
+						"2025": -6517,
+						"2024": -5014
+					},
+					"employee_plans": {
+						"2026": 1470,
+						"2025": 2259,
+						"2024": 2478
+					},
+					"preferred_conversions": {
+						"2026": 0,
+						"2025": 0,
+						"2024": 0
+					},
+					"esop_impacts": {
+						"2026": 168,
+						"2025": 150,
+						"2024": 184
+					},
+					"noncontrolling_interest_net": {
+						"2026": -125,
+						"2025": -87,
+						"2024": -108
+					},
+					"closing_total_equity": {
+						"2026": 54311,
+						"2025": 52284,
+						"2024": 50559
+					},
+					"dividends_per_common_share": {
+						"2026": 4.2589,
+						"2025": 4.0763,
+						"2024": 3.8286
+					},
+					"common_shares_outstanding_thousands": {
+						"2026": 2323859,
+						"2025": 2341994,
+						"2024": 2357051
+					}
+				},
+				"rowUnitOverrides": {
+					"dividends_per_common_share": "USD per share",
+					"common_shares_outstanding_thousands": "thousand shares"
+				}
+			},
+			"equity_components": {
+				"sourcePhysicalPage": 2006,
+				"printedPage": 40,
+				"unit": "USD millions, common shares in thousands",
+				"basis": "consolidated US GAAP",
+				"nullMeaning": "blank source cell, not a reconstructed transaction; treat as no displayed movement solely for arithmetic",
+				"columns": [
+					"common_shares_thousands",
+					"common_stock",
+					"preferred_stock",
+					"additional_paid_in_capital",
+					"esop_debt_retirement_reserve",
+					"accumulated_other_comprehensive_income",
+					"treasury_stock",
+					"retained_earnings",
+					"noncontrolling_interest",
+					"total_equity"
+				],
+				"periods": {
+					"2024": { "rows": [
+						{
+							"label": "Opening balance June30 2023",
+							"values": {
+								"common_shares_thousands": 2362120,
+								"common_stock": 4009,
+								"preferred_stock": 819,
+								"additional_paid_in_capital": 66556,
+								"esop_debt_retirement_reserve": -821,
+								"accumulated_other_comprehensive_income": -12220,
+								"treasury_stock": -129736,
+								"retained_earnings": 118170,
+								"noncontrolling_interest": 288,
+								"total_equity": 47065
+							}
+						},
+						{
+							"label": "Net earnings",
+							"values": {
+								"common_shares_thousands": null,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": null,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": null,
+								"retained_earnings": 14879,
+								"noncontrolling_interest": 95,
+								"total_equity": 14974
+							}
+						},
+						{
+							"label": "Other comprehensive income",
+							"values": {
+								"common_shares_thousands": null,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": null,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": 320,
+								"treasury_stock": null,
+								"retained_earnings": null,
+								"noncontrolling_interest": -3,
+								"total_equity": 317
+							}
+						},
+						{
+							"label": "Common dividends",
+							"values": {
+								"common_shares_thousands": null,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": null,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": null,
+								"retained_earnings": -9053,
+								"noncontrolling_interest": null,
+								"total_equity": -9053
+							}
+						},
+						{
+							"label": "Preferred dividends",
+							"values": {
+								"common_shares_thousands": null,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": null,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": null,
+								"retained_earnings": -284,
+								"noncontrolling_interest": null,
+								"total_equity": -284
+							}
+						},
+						{
+							"label": "Treasury stock purchases",
+							"values": {
+								"common_shares_thousands": -31877,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": null,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": -5014,
+								"retained_earnings": null,
+								"noncontrolling_interest": null,
+								"total_equity": -5014
+							}
+						},
+						{
+							"label": "Employee stock plans",
+							"values": {
+								"common_shares_thousands": 24095,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": 1125,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": 1353,
+								"retained_earnings": null,
+								"noncontrolling_interest": null,
+								"total_equity": 2478
+							}
+						},
+						{
+							"label": "Preferred stock conversions",
+							"values": {
+								"common_shares_thousands": 2713,
+								"common_stock": null,
+								"preferred_stock": -21,
+								"additional_paid_in_capital": 3,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": 18,
+								"retained_earnings": null,
+								"noncontrolling_interest": null,
+								"total_equity": 0
+							}
+						},
+						{
+							"label": "ESOP debt impacts",
+							"values": {
+								"common_shares_thousands": null,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": null,
+								"esop_debt_retirement_reserve": 85,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": null,
+								"retained_earnings": 99,
+								"noncontrolling_interest": null,
+								"total_equity": 184
+							}
+						},
+						{
+							"label": "Noncontrolling interest, net",
+							"values": {
+								"common_shares_thousands": null,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": 0,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": null,
+								"retained_earnings": null,
+								"noncontrolling_interest": -108,
+								"total_equity": -108
+							}
+						},
+						{
+							"label": "Closing balance June30 2024",
+							"values": {
+								"common_shares_thousands": 2357051,
+								"common_stock": 4009,
+								"preferred_stock": 798,
+								"additional_paid_in_capital": 67684,
+								"esop_debt_retirement_reserve": -737,
+								"accumulated_other_comprehensive_income": -11900,
+								"treasury_stock": -133379,
+								"retained_earnings": 123811,
+								"noncontrolling_interest": 272,
+								"total_equity": 50559
+							}
+						}
+					] },
+					"2025": { "rows": [
+						{
+							"label": "Opening balance June30 2024",
+							"values": {
+								"common_shares_thousands": 2357051,
+								"common_stock": 4009,
+								"preferred_stock": 798,
+								"additional_paid_in_capital": 67684,
+								"esop_debt_retirement_reserve": -737,
+								"accumulated_other_comprehensive_income": -11900,
+								"treasury_stock": -133379,
+								"retained_earnings": 123811,
+								"noncontrolling_interest": 272,
+								"total_equity": 50559
+							}
+						},
+						{
+							"label": "Net earnings",
+							"values": {
+								"common_shares_thousands": null,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": null,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": null,
+								"retained_earnings": 15974,
+								"noncontrolling_interest": 91,
+								"total_equity": 16065
+							}
+						},
+						{
+							"label": "Other comprehensive income",
+							"values": {
+								"common_shares_thousands": null,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": null,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": -243,
+								"treasury_stock": null,
+								"retained_earnings": null,
+								"noncontrolling_interest": -4,
+								"total_equity": -248
+							}
+						},
+						{
+							"label": "Common dividends",
+							"values": {
+								"common_shares_thousands": null,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": null,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": null,
+								"retained_earnings": -9606,
+								"noncontrolling_interest": null,
+								"total_equity": -9606
+							}
+						},
+						{
+							"label": "Preferred dividends",
+							"values": {
+								"common_shares_thousands": null,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": null,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": null,
+								"retained_earnings": -291,
+								"noncontrolling_interest": null,
+								"total_equity": -291
+							}
+						},
+						{
+							"label": "Treasury stock purchases",
+							"values": {
+								"common_shares_thousands": -38552,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": null,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": -6517,
+								"retained_earnings": null,
+								"noncontrolling_interest": null,
+								"total_equity": -6517
+							}
+						},
+						{
+							"label": "Employee stock plans",
+							"values": {
+								"common_shares_thousands": 20940,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": 1084,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": 1175,
+								"retained_earnings": null,
+								"noncontrolling_interest": null,
+								"total_equity": 2259
+							}
+						},
+						{
+							"label": "Preferred stock conversions",
+							"values": {
+								"common_shares_thousands": 2555,
+								"common_stock": null,
+								"preferred_stock": -20,
+								"additional_paid_in_capital": 3,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": 18,
+								"retained_earnings": null,
+								"noncontrolling_interest": null,
+								"total_equity": 0
+							}
+						},
+						{
+							"label": "ESOP debt impacts",
+							"values": {
+								"common_shares_thousands": null,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": null,
+								"esop_debt_retirement_reserve": 64,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": null,
+								"retained_earnings": 86,
+								"noncontrolling_interest": null,
+								"total_equity": 150
+							}
+						},
+						{
+							"label": "Noncontrolling interest, net",
+							"values": {
+								"common_shares_thousands": null,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": 0,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": null,
+								"retained_earnings": null,
+								"noncontrolling_interest": -87,
+								"total_equity": -87
+							}
+						},
+						{
+							"label": "Closing balance June30 2025",
+							"values": {
+								"common_shares_thousands": 2341994,
+								"common_stock": 4009,
+								"preferred_stock": 777,
+								"additional_paid_in_capital": 68770,
+								"esop_debt_retirement_reserve": -672,
+								"accumulated_other_comprehensive_income": -12143,
+								"treasury_stock": -138702,
+								"retained_earnings": 129973,
+								"noncontrolling_interest": 272,
+								"total_equity": 52284
+							}
+						}
+					] },
+					"2026": { "rows": [
+						{
+							"label": "Opening balance June30 2025",
+							"values": {
+								"common_shares_thousands": 2341994,
+								"common_stock": 4009,
+								"preferred_stock": 777,
+								"additional_paid_in_capital": 68770,
+								"esop_debt_retirement_reserve": -672,
+								"accumulated_other_comprehensive_income": -12143,
+								"treasury_stock": -138702,
+								"retained_earnings": 129973,
+								"noncontrolling_interest": 272,
+								"total_equity": 52284
+							}
+						},
+						{
+							"label": "Net earnings",
+							"values": {
+								"common_shares_thousands": null,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": null,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": null,
+								"retained_earnings": 16046,
+								"noncontrolling_interest": 98,
+								"total_equity": 16144
+							}
+						},
+						{
+							"label": "Other comprehensive income",
+							"values": {
+								"common_shares_thousands": null,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": null,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": -322,
+								"treasury_stock": null,
+								"retained_earnings": null,
+								"noncontrolling_interest": -21,
+								"total_equity": -343
+							}
+						},
+						{
+							"label": "Common dividends",
+							"values": {
+								"common_shares_thousands": null,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": null,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": null,
+								"retained_earnings": -9966,
+								"noncontrolling_interest": null,
+								"total_equity": -9966
+							}
+						},
+						{
+							"label": "Preferred dividends",
+							"values": {
+								"common_shares_thousands": null,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": null,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": null,
+								"retained_earnings": -292,
+								"noncontrolling_interest": null,
+								"total_equity": -292
+							}
+						},
+						{
+							"label": "Treasury stock purchases",
+							"values": {
+								"common_shares_thousands": -33437,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": null,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": -5029,
+								"retained_earnings": null,
+								"noncontrolling_interest": null,
+								"total_equity": -5029
+							}
+						},
+						{
+							"label": "Employee stock plans",
+							"values": {
+								"common_shares_thousands": 12566,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": 764,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": 705,
+								"retained_earnings": null,
+								"noncontrolling_interest": null,
+								"total_equity": 1470
+							}
+						},
+						{
+							"label": "Preferred stock conversions",
+							"values": {
+								"common_shares_thousands": 2735,
+								"common_stock": null,
+								"preferred_stock": -22,
+								"additional_paid_in_capital": 3,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": 19,
+								"retained_earnings": null,
+								"noncontrolling_interest": null,
+								"total_equity": 0
+							}
+						},
+						{
+							"label": "ESOP debt impacts",
+							"values": {
+								"common_shares_thousands": null,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": null,
+								"esop_debt_retirement_reserve": 76,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": null,
+								"retained_earnings": 91,
+								"noncontrolling_interest": null,
+								"total_equity": 168
+							}
+						},
+						{
+							"label": "Noncontrolling interest, net",
+							"values": {
+								"common_shares_thousands": null,
+								"common_stock": null,
+								"preferred_stock": null,
+								"additional_paid_in_capital": -5,
+								"esop_debt_retirement_reserve": null,
+								"accumulated_other_comprehensive_income": null,
+								"treasury_stock": null,
+								"retained_earnings": null,
+								"noncontrolling_interest": -119,
+								"total_equity": -125
+							}
+						},
+						{
+							"label": "Closing balance June30 2026",
+							"values": {
+								"common_shares_thousands": 2323859,
+								"common_stock": 4009,
+								"preferred_stock": 756,
+								"additional_paid_in_capital": 69533,
+								"esop_debt_retirement_reserve": -596,
+								"accumulated_other_comprehensive_income": -12465,
+								"treasury_stock": -143008,
+								"retained_earnings": 135852,
+								"noncontrolling_interest": 230,
+								"total_equity": 54311
+							}
+						}
+					] }
+				}
+			}
+		},
+		"earnings_per_share": {
+			"sourcePhysicalPage": 2019,
+			"printedPage": 53,
+			"periods": [
+				2026,
+				2025,
+				2024
+			],
+			"unit": "earnings USD millions; shares millions; EPS USD/share",
+			"basis": "consolidated US GAAP",
+			"rows": {
+				"diluted_earnings_numerator": {
+					"2026": 16046,
+					"2025": 15974,
+					"2024": 14879
+				},
+				"preferred_dividends": {
+					"2026": 292,
+					"2025": 291,
+					"2024": 284
+				},
+				"basic_earnings_numerator": {
+					"2026": 15754,
+					"2025": 15682,
+					"2024": 14595
+				},
+				"basic_weighted_average_shares": {
+					"2026": 2333.7,
+					"2025": 2350.1,
+					"2024": 2360.1
+				},
+				"stock_options_and_unvested_awards": {
+					"2026": 20.5,
+					"2025": 33.3,
+					"2024": 38.3
+				},
+				"convertible_preferred_shares": {
+					"2026": 68.3,
+					"2025": 71,
+					"2024": 73.6
+				},
+				"diluted_weighted_average_shares": {
+					"2026": 2422.5,
+					"2025": 2454.4,
+					"2024": 2471.9
+				},
+				"excluded_antidilutive_options": {
+					"2026": 20,
+					"2025": 6,
+					"2024": 4
+				},
+				"basic_eps": {
+					"2026": 6.75,
+					"2025": 6.67,
+					"2024": 6.18
+				},
+				"diluted_eps": {
+					"2026": 6.62,
+					"2025": 6.51,
+					"2024": 6.02
+				}
+			}
+		},
+		"segments": {
+			"names": [
+				"Beauty",
+				"Grooming",
+				"Health Care",
+				"Fabric & Home Care",
+				"Baby, Feminine & Family Care",
+				"Corporate"
+			],
+			"basis": "Management segment results with blended statutory taxes; Corporate reconciles US GAAP, includes restructuring and nonoperating items. Segment capex accrual-basis; Corporate includes cash-basis reconciliation. No segment assets disclosed.",
+			"periods": {
+				"2026": {
+					"sourcePhysicalPage": 2011,
+					"unit": "USD millions",
+					"rows": {
+						"net_sales": {
+							"Beauty": 16023,
+							"Grooming": 6918,
+							"Health Care": 12456,
+							"Fabric & Home Care": 30314,
+							"Baby, Feminine & Family Care": 20401,
+							"Corporate": 919
+						},
+						"cost_of_sales": {
+							"Beauty": -6397,
+							"Grooming": -2845,
+							"Health Care": -5208,
+							"Fabric & Home Care": -16428,
+							"Baby, Feminine & Family Care": -11089,
+							"Corporate": -1395
+						},
+						"sga": {
+							"Beauty": -6152,
+							"Grooming": -2111,
+							"Health Care": -4087,
+							"Fabric & Home Care": -6597,
+							"Baby, Feminine & Family Care": -4167,
+							"Corporate": -808
+						},
+						"other_segment_items": {
+							"Beauty": 0,
+							"Grooming": 3,
+							"Health Care": 2,
+							"Fabric & Home Care": 0,
+							"Baby, Feminine & Family Care": 0,
+							"Corporate": 623
+						},
+						"pretax_income": {
+							"Beauty": 3473,
+							"Grooming": 1966,
+							"Health Care": 3163,
+							"Fabric & Home Care": 7290,
+							"Baby, Feminine & Family Care": 5145,
+							"Corporate": -660
+						},
+						"net_earnings": {
+							"Beauty": 2672,
+							"Grooming": 1529,
+							"Health Care": 2404,
+							"Fabric & Home Care": 5632,
+							"Baby, Feminine & Family Care": 3930,
+							"Corporate": -23
+						},
+						"depreciation_amortization": {
+							"Beauty": 410,
+							"Grooming": 320,
+							"Health Care": 439,
+							"Fabric & Home Care": 756,
+							"Baby, Feminine & Family Care": 835,
+							"Corporate": 400
+						},
+						"capital_expenditure": {
+							"Beauty": 415,
+							"Grooming": 540,
+							"Health Care": 592,
+							"Fabric & Home Care": 1250,
+							"Baby, Feminine & Family Care": 1520,
+							"Corporate": 93
+						}
+					}
+				},
+				"2025": {
+					"sourcePhysicalPage": 2012,
+					"unit": "USD millions",
+					"rows": {
+						"net_sales": {
+							"Beauty": 14964,
+							"Grooming": 6662,
+							"Health Care": 11998,
+							"Fabric & Home Care": 29617,
+							"Baby, Feminine & Family Care": 20248,
+							"Corporate": 794
+						},
+						"cost_of_sales": {
+							"Beauty": -5822,
+							"Grooming": -2675,
+							"Health Care": -4974,
+							"Fabric & Home Care": -15650,
+							"Baby, Feminine & Family Care": -10926,
+							"Corporate": -1118
+						},
+						"sga": {
+							"Beauty": -5687,
+							"Grooming": -2036,
+							"Health Care": -3886,
+							"Fabric & Home Care": -6509,
+							"Baby, Feminine & Family Care": -4108,
+							"Corporate": -443
+						},
+						"other_segment_items": {
+							"Beauty": -1,
+							"Grooming": 0,
+							"Health Care": 10,
+							"Fabric & Home Care": 1,
+							"Baby, Feminine & Family Care": 0,
+							"Corporate": -294
+						},
+						"pretax_income": {
+							"Beauty": 3454,
+							"Grooming": 1952,
+							"Health Care": 3149,
+							"Fabric & Home Care": 7459,
+							"Baby, Feminine & Family Care": 5214,
+							"Corporate": -1061
+						},
+						"net_earnings": {
+							"Beauty": 2715,
+							"Grooming": 1577,
+							"Health Care": 2440,
+							"Fabric & Home Care": 5848,
+							"Baby, Feminine & Family Care": 4013,
+							"Corporate": -527
+						},
+						"depreciation_amortization": {
+							"Beauty": 399,
+							"Grooming": 313,
+							"Health Care": 397,
+							"Fabric & Home Care": 723,
+							"Baby, Feminine & Family Care": 814,
+							"Corporate": 200
+						},
+						"capital_expenditure": {
+							"Beauty": 328,
+							"Grooming": 451,
+							"Health Care": 526,
+							"Fabric & Home Care": 1208,
+							"Baby, Feminine & Family Care": 1080,
+							"Corporate": 180
+						}
+					}
+				},
+				"2024": {
+					"sourcePhysicalPage": 2012,
+					"unit": "USD millions",
+					"rows": {
+						"net_sales": {
+							"Beauty": 15220,
+							"Grooming": 6654,
+							"Health Care": 11793,
+							"Fabric & Home Care": 29495,
+							"Baby, Feminine & Family Care": 20277,
+							"Corporate": 601
+						},
+						"cost_of_sales": {
+							"Beauty": -5722,
+							"Grooming": -2711,
+							"Health Care": -4967,
+							"Fabric & Home Care": -15535,
+							"Baby, Feminine & Family Care": -10831,
+							"Corporate": -1082
+						},
+						"sga": {
+							"Beauty": -5700,
+							"Grooming": -2105,
+							"Health Care": -3886,
+							"Fabric & Home Care": -6631,
+							"Baby, Feminine & Family Care": -4198,
+							"Corporate": -784
+						},
+						"other_segment_items": {
+							"Beauty": 8,
+							"Grooming": 7,
+							"Health Care": 1,
+							"Fabric & Home Care": 10,
+							"Baby, Feminine & Family Care": 6,
+							"Corporate": -1156
+						},
+						"pretax_income": {
+							"Beauty": 3805,
+							"Grooming": 1845,
+							"Health Care": 2941,
+							"Fabric & Home Care": 7339,
+							"Baby, Feminine & Family Care": 5253,
+							"Corporate": -2422
+						},
+						"net_earnings": {
+							"Beauty": 2963,
+							"Grooming": 1477,
+							"Health Care": 2258,
+							"Fabric & Home Care": 5687,
+							"Baby, Feminine & Family Care": 4020,
+							"Corporate": -1430
+						},
+						"depreciation_amortization": {
+							"Beauty": 399,
+							"Grooming": 335,
+							"Health Care": 381,
+							"Fabric & Home Care": 710,
+							"Baby, Feminine & Family Care": 824,
+							"Corporate": 247
+						},
+						"capital_expenditure": {
+							"Beauty": 280,
+							"Grooming": 337,
+							"Health Care": 524,
+							"Fabric & Home Care": 1076,
+							"Baby, Feminine & Family Care": 979,
+							"Corporate": 126
+						}
+					}
+				}
+			}
+		},
+		"geographic": {
+			"sourcePhysicalPage": 2011,
+			"printedPage": 45,
+			"periods": [
+				2026,
+				2025,
+				2024
+			],
+			"unit": "USD billions",
+			"basis": "consolidated US GAAP",
+			"rows": {
+				"us_sales": {
+					"2026": 41.7,
+					"2025": 41.6,
+					"2024": 40.5
+				},
+				"international_sales": {
+					"2026": 45.3,
+					"2025": 42.7,
+					"2024": 43.5
+				},
+				"us_ppe": {
+					"2026": 13.9,
+					"2025": 12.6,
+					"2024": 12
+				},
+				"international_ppe": {
+					"2026": 11.5,
+					"2025": 11.3,
+					"2024": 10.2
+				}
+			}
+		},
+		"non_gaap": {
+			"warning": "Supplemental management measures; not substitutes for US GAAP, not necessarily comparable to other issuers; do not extend financial-statement audit opinion to these schedules.",
+			"free_cash_flow": {
+				"sourcePhysicalPage": 1997,
+				"printedPage": 31,
+				"periods": [2026, 2025],
+				"unit": "USD millions",
+				"basis": "non-GAAP reconciliation",
+				"rows": {
+					"operating_cash_flow": {
+						"2026": 19556,
+						"2025": 17817
+					},
+					"capital_spending": {
+						"2026": -4409,
+						"2025": -3773
+					},
+					"transition_tax_payment_addback": {
+						"2026": 688,
+						"2025": 562
+					},
+					"adjusted_free_cash_flow": {
+						"2026": 15835,
+						"2025": 14606
+					},
+					"net_earnings": {
+						"2026": 16144,
+						"2025": 16065
+					},
+					"earnings_adjustment": {
+						"2026": -261,
+						"2025": 752
+					},
+					"adjusted_earnings_denominator": {
+						"2026": 15883,
+						"2025": 16817
+					},
+					"published_productivity_percent": {
+						"2026": 100,
+						"2025": 87
+					}
+				}
+			},
+			"core_2026": {
+				"sourcePhysicalPage": 1998,
+				"columns": [
+					"GAAP",
+					"incremental_restructuring_adjustment",
+					"Glad_gain_adjustment",
+					"core_non_GAAP"
+				],
+				"unit": "USD millions except EPS",
+				"rows": {
+					"cost_of_sales": [
+						43362,
+						-436,
+						0,
+						42927
+					],
+					"sga": [
+						23922,
+						-313,
+						0,
+						23608
+					],
+					"operating_income": [
+						19748,
+						749,
+						0,
+						20497
+					],
+					"other_nonoperating": [
+						1076,
+						161,
+						-343,
+						894
+					],
+					"income_tax": [
+						4233,
+						6,
+						-81,
+						4158
+					],
+					"net_earnings": [
+						16144,
+						904,
+						-261,
+						16786
+					],
+					"earnings_nci": [
+						98,
+						1,
+						0,
+						98
+					],
+					"earnings_pg": [
+						16046,
+						903,
+						-261,
+						16688
+					],
+					"diluted_eps": [
+						6.62,
+						.37,
+						-.11,
+						6.89
+					]
+				}
+			},
+			"core_2025": {
+				"sourcePhysicalPage": 1999,
+				"columns": [
+					"GAAP",
+					"incremental_restructuring_adjustment",
+					"core_non_GAAP"
+				],
+				"unit": "USD millions except EPS",
+				"rows": {
+					"cost_of_sales": [
+						41164,
+						20,
+						41184
+					],
+					"sga": [
+						22669,
+						-25,
+						22643
+					],
+					"operating_income": [
+						20451,
+						5,
+						20456
+					],
+					"other_nonoperating": [
+						154,
+						789,
+						943
+					],
+					"income_tax": [
+						4102,
+						-7,
+						4094
+					],
+					"earnings_pg": [
+						15974,
+						801,
+						16775
+					],
+					"diluted_eps": [
+						6.51,
+						.33,
+						6.83
+					]
+				}
+			}
+		},
+		"notes": {
+			"1_accounting": {
+				"sourcePhysicalPages": [
+					2008,
+					2009,
+					2010
+				],
+				"revenue": "Single point-in-time performance obligation on shipment or receipt; net returns, taxes collected and trade promotions",
+				"inventory": "FIFO lower of cost/net realizable value for products; average cost spare parts",
+				"depreciation": "Straight line; buildings40years, manufacturing equipment generally3–20years, computers/software3–5years",
+				"intangibles": "Indefinite brands/goodwill no amortization; annual impairment. Determinable brands/customer relationships generally5–30years",
+				"cashflow": "Net investment hedges investing; nonqualifying intercompany financing currency instruments financing; other derivatives and income taxes operating",
+				"income_tax_disclosure_standard": "ASU2023-09 adopted2025-07-01, retrospective all presented periods",
+				"unadopted_standards": [
+					"ASU2024-03 FY2028/interimsFY2029",
+					"ASU2025-06 FY2029",
+					"ASU2025-10 FY2030"
+				],
+				"research_development_billions": {
+					"2026": 2.1,
+					"2025": 2.1,
+					"2024": 2
+				},
+				"advertising_billions": {
+					"2026": 10.2,
+					"2025": 9.2,
+					"2024": 9.6
+				}
+			},
+			"2_segments": {
+				"sourcePhysicalPages": [
+					2010,
+					2011,
+					2012
+				],
+				"detail": "See segments and geographic structured tables. Five reportable and11 operating segments. Walmart about16% consolidated sales2026–2024; no other customer/country exceptUS above10%."
+			},
+			"3_supplemental": {
+				"sourcePhysicalPages": [
+					2012,
+					2013,
+					2014
+				],
+				"ppe": {
+					"sourcePhysicalPage": 2012,
+					"printedPage": 46,
+					"periods": [2026, 2025],
+					"unit": "USD millions",
+					"basis": "consolidated US GAAP",
+					"rows": {
+						"machinery": {
+							"2026": 42001,
+							"2025": 40077
+						},
+						"buildings": {
+							"2026": 9760,
+							"2025": 9190
+						},
+						"construction": {
+							"2026": 4448,
+							"2025": 3935
+						},
+						"land": {
+							"2026": 963,
+							"2025": 979
+						},
+						"gross": {
+							"2026": 57172,
+							"2025": 54181
+						},
+						"accumulated_depreciation": {
+							"2026": -31811,
+							"2025": -30284
+						},
+						"net": {
+							"2026": 25360,
+							"2025": 23897
+						}
+					}
+				},
+				"current_accruals": {
+					"sourcePhysicalPage": 2013,
+					"printedPage": 47,
+					"periods": [2026, 2025],
+					"unit": "USD millions",
+					"basis": "consolidated US GAAP",
+					"rows": {
+						"marketing": {
+							"2026": 4141,
+							"2025": 3851
+						},
+						"compensation": {
+							"2026": 2043,
+							"2025": 2007
+						},
+						"taxes": {
+							"2026": 778,
+							"2025": 1177
+						},
+						"restructuring": {
+							"2026": 336,
+							"2025": 189
+						},
+						"interest": {
+							"2026": 301,
+							"2025": 293
+						},
+						"lease": {
+							"2026": 246,
+							"2025": 255
+						},
+						"derivatives": {
+							"2026": 206,
+							"2025": 627
+						},
+						"other": {
+							"2026": 3040,
+							"2025": 2920
+						},
+						"total": {
+							"2026": 11091,
+							"2025": 11318
+						}
+					}
+				},
+				"noncurrent_liabilities": {
+					"sourcePhysicalPage": 2013,
+					"printedPage": 47,
+					"periods": [2026, 2025],
+					"unit": "USD millions",
+					"basis": "consolidated US GAAP",
+					"rows": {
+						"pension": {
+							"2026": 2204,
+							"2025": 3026
+						},
+						"other_retiree": {
+							"2026": 736,
+							"2025": 691
+						},
+						"uncertain_tax": {
+							"2026": 654,
+							"2025": 701
+						},
+						"leases": {
+							"2026": 641,
+							"2025": 701
+						},
+						"derivatives": {
+							"2026": 195,
+							"2025": 435
+						},
+						"other": {
+							"2026": 484,
+							"2025": 566
+						},
+						"total": {
+							"2026": 4914,
+							"2025": 6120
+						}
+					}
+				},
+				"restructuring": {
+					"sourcePhysicalPage": 2014,
+					"printedPage": 48,
+					"periods": [2026, 2025],
+					"unit": "USD millions",
+					"basis": "consolidated US GAAP",
+					"rows": {
+						"opening_reserve": {
+							"2026": 189,
+							"2025": 166
+						},
+						"cost_incurred": {
+							"2026": 1230,
+							"2025": 1114
+						},
+						"cost_settled": {
+							"2026": -1084,
+							"2025": -1090
+						},
+						"closing_reserve": {
+							"2026": 336,
+							"2025": 189
+						}
+					}
+				},
+				"restructuring_2026_by_type": {
+					"separation": 608,
+					"asset_related": 231,
+					"other": 391
+				},
+				"restructuring_2026_by_segment": [
+					76,
+					47,
+					132,
+					220,
+					201,
+					556
+				],
+				"2026_expense_locations_from_narrative": {
+					"cost_of_sales": 606,
+					"sga": 460,
+					"nonoperating": 165
+				},
+				"pakistan_liquidation_fx_2026": 131,
+				"argentina_liquidation_fx_2025": 752,
+				"productivity_plan": "FY2026–27 $1.5–2.0bn pretax, up to7000 nonmanufacturing role reductions; overhalf costsFY2026"
+			},
+			"4_goodwill_intangibles": {
+				"sourcePhysicalPages": [2015, 2016],
+				"goodwill_rollforward": {
+					"sourcePhysicalPage": 2015,
+					"printedPage": 49,
+					"periods": [2026, 2025],
+					"unit": "USD millions",
+					"basis": "consolidated US GAAP",
+					"rows": {
+						"opening": {
+							"2026": 41650,
+							"2025": 40303
+						},
+						"acquisition": {
+							"2026": 40,
+							"2025": 0
+						},
+						"translation_other": {
+							"2026": -414,
+							"2025": 1348
+						},
+						"closing": {
+							"2026": 41276,
+							"2025": 41650
+						}
+					}
+				},
+				"goodwill_2026_by_segment": {
+					"Beauty": 14073,
+					"Grooming": 12887,
+					"Health Care": 7884,
+					"Fabric & Home Care": 1838,
+					"Baby, Feminine & Family Care": 4595
+				},
+				"grooming_accumulated_impairment_billions": 7.9,
+				"intangibles": {
+					"sourcePhysicalPage": 2016,
+					"printedPage": 50,
+					"periods": [2026, 2025],
+					"unit": "USD millions",
+					"basis": "consolidated US GAAP",
+					"rows": {
+						"determinable_gross": {
+							"2026": 9164,
+							"2025": 9204
+						},
+						"accumulated_amortization": {
+							"2026": -7255,
+							"2025": -7008
+						},
+						"indefinite_brands": {
+							"2026": 19535,
+							"2025": 19714
+						},
+						"total_gross": {
+							"2026": 28699,
+							"2025": 28918
+						},
+						"total_net": {
+							"2026": 21444,
+							"2025": 21910
+						}
+					}
+				},
+				"amortization_expense": {
+					"2026": 308,
+					"2025": 320,
+					"2024": 338
+				},
+				"amortization_estimate_2027_2031": [
+					297,
+					256,
+					206,
+					181,
+					166
+				],
+				"gillette_brand_carrying_2026_billions": 12.8,
+				"gillette_impairment_2024": 1341,
+				"gillette_fair_value_sensitivity_page": 1996
+			},
+			"5_taxes": {
+				"sourcePhysicalPages": [
+					2016,
+					2017,
+					2018
+				],
+				"expense": {
+					"sourcePhysicalPage": 2016,
+					"printedPage": 50,
+					"periods": [
+						2026,
+						2025,
+						2024
+					],
+					"unit": "USD millions",
+					"basis": "consolidated US GAAP",
+					"rows": {
+						"us_pretax": {
+							"2026": 13728,
+							"2025": 13911,
+							"2024": 12246
+						},
+						"international_pretax": {
+							"2026": 6649,
+							"2025": 6256,
+							"2024": 6515
+						},
+						"total_pretax": {
+							"2026": 20377,
+							"2025": 20167,
+							"2024": 18761
+						},
+						"current_tax": {
+							"2026": 4182,
+							"2025": 3953,
+							"2024": 4031
+						},
+						"deferred_tax": {
+							"2026": 51,
+							"2025": 149,
+							"2024": -244
+						},
+						"total_tax": {
+							"2026": 4233,
+							"2025": 4102,
+							"2024": 3787
+						}
+					}
+				},
+				"cash_paid": {
+					"2026": 4678,
+					"2025": 4554,
+					"2024": 4363
+				},
+				"effective_rate_percent": {
+					"2026": 20.8,
+					"2025": 20.3,
+					"2024": 20.2
+				},
+				"uncertain_positions_2026": {
+					"opening": 634,
+					"prior_increase": 59,
+					"prior_decrease": -96,
+					"current_increase": 40,
+					"settlement": -73,
+					"lapse": -13,
+					"translation": -4,
+					"closing": 547,
+					"could_affect_rate": 438,
+					"interest_excluded": 142,
+					"penalties_excluded": 48
+				},
+				"deferred_assets_2026": 4927,
+				"deferred_liabilities_2026": 9106,
+				"valuation_allowance_2026": 330,
+				"net_operating_losses_2026_billions": 1.6,
+				"indefinite_carryforward_billions": 1.5
+			},
+			"6_eps": {
+				"sourcePhysicalPages": [2018, 2019],
+				"detail": "See earnings_per_share table. Basic preferred dividends deducted; diluted assumed preferred conversion. Period-end shares are not EPS weighted averages."
+			},
+			"7_share_compensation": {
+				"sourcePhysicalPages": [
+					2019,
+					2020,
+					2021
+				],
+				"expense": {
+					"2026": 524,
+					"2025": 476,
+					"2024": 562
+				},
+				"tax_benefit": {
+					"2026": 92,
+					"2025": 85,
+					"2024": 103
+				},
+				"options_2026_thousands": {
+					"opening": 96621,
+					"granted": 8769,
+					"exercised": -10188,
+					"forfeited": -657,
+					"closing": 94544,
+					"exercisable": 69692
+				},
+				"RSU_2026_thousands": {
+					"opening": 3361,
+					"granted": 1704,
+					"vested": -1556,
+					"forfeited": -114,
+					"closing": 3396
+				},
+				"PSU_2026_thousands": {
+					"opening": 924,
+					"granted": 585,
+					"vested": -506,
+					"forfeited": -30,
+					"closing": 973
+				},
+				"unrecognized_option_cost": 188,
+				"unrecognized_unit_cost": 250,
+				"remaining_recognition_years": 1.6,
+				"available_grant_shares_millions": 213,
+				"valuation": "Lattice stock options; Monte Carlo PSUs",
+				"2026_option_assumptions": {
+					"weighted_rate_percent": 4.1,
+					"dividend_yield_percent": 2.7,
+					"volatility_percent": 19,
+					"expected_life_years": 8.8
+				}
+			},
+			"8_benefits_esop": {
+				"sourcePhysicalPages": [
+					2021,
+					2022,
+					2023,
+					2024,
+					2025,
+					2026
+				],
+				"funding": {
+					"sourcePhysicalPage": 2022,
+					"printedPage": 56,
+					"periods": [2026, 2025],
+					"unit": "USD millions",
+					"basis": "consolidated US GAAP",
+					"rows": {
+						"pension_obligation": {
+							"2026": 12455,
+							"2025": 13156
+						},
+						"pension_assets": {
+							"2026": 12159,
+							"2025": 11672
+						},
+						"pension_funded_status": {
+							"2026": -296,
+							"2025": -1484
+						},
+						"retiree_obligation": {
+							"2026": 3734,
+							"2025": 3396
+						},
+						"retiree_assets": {
+							"2026": 7166,
+							"2025": 7787
+						},
+						"retiree_funded_status": {
+							"2026": 3432,
+							"2025": 4391
+						}
+					}
+				},
+				"net_periodic_cost": {
+					"sourcePhysicalPage": 2023,
+					"printedPage": 57,
+					"periods": [
+						2026,
+						2025,
+						2024
+					],
+					"unit": "USD millions",
+					"basis": "consolidated US GAAP",
+					"rows": {
+						"pension": {
+							"2026": 114,
+							"2025": 126,
+							"2024": 203
+						},
+						"retiree": {
+							"2026": -607,
+							"2025": -721,
+							"2024": -623
+						}
+					}
+				},
+				"2026_obligation_discount_percent": {
+					"pension": 4.6,
+					"retiree": 6
+				},
+				"2026_expense_discount_percent": {
+					"pension": 4.2,
+					"retiree": 5.9
+				},
+				"2026_expected_return_percent": {
+					"pension": 6,
+					"retiree": 8.5
+				},
+				"2027_company_funding_estimate": {
+					"pension": 200,
+					"retiree": 59
+				},
+				"2027_participant_payments_estimate": {
+					"pension": 712,
+					"retiree": 215
+				},
+				"series_B_2026_thousand_shares": {
+					"allocated": 36365,
+					"unallocated": 12277,
+					"total": 48642
+				},
+				"ESOP_internal_advance_2026": 596,
+				"detail": "SeriesA debt and company advances paid; SeriesB external debt repaid2021, internal advance recorded contraequity. Other-retiree assets mostly company shares. Plan assets not freely available corporate cash."
+			},
+			"9_financial_instruments": {
+				"sourcePhysicalPages": [
+					2026,
+					2027,
+					2028
+				],
+				"derivatives": {
+					"sourcePhysicalPage": 2028,
+					"printedPage": 62,
+					"periods": [2026, 2025],
+					"unit": "USD millions",
+					"basis": "consolidated US GAAP",
+					"rows": {
+						"notional": {
+							"2026": 22975,
+							"2025": 18730
+						},
+						"fair_value_assets": {
+							"2026": 176,
+							"2025": 19
+						},
+						"fair_value_liabilities": {
+							"2026": -401,
+							"2025": -1062
+						},
+						"fair_value_interest_notional": {
+							"2026": 5241,
+							"2025": 3280
+						},
+						"net_investment_notional": {
+							"2026": 13587,
+							"2025": 11874
+						},
+						"nonqualified_fx_notional": {
+							"2026": 4146,
+							"2025": 3576
+						}
+					}
+				},
+				"cash_equivalents_billions": {
+					"2026": 8.7,
+					"2025": 8.3
+				},
+				"longterm_debt_fair_value_billions_including_current": {
+					"2026": 28.3,
+					"2025": 29.5
+				},
+				"net_investment_debt_2026_billions": 12,
+				"commodity_hedges": "None2026/2025",
+				"classification": "Derivative fair valuesLevel2; debtfairvalue disclosure is not carrying value; notional not asset/liability amount."
+			},
+			"10_debt": {
+				"sourcePhysicalPages": [
+					2029,
+					2030,
+					2031
+				],
+				"debt": {
+					"sourcePhysicalPage": 2029,
+					"printedPage": 63,
+					"periods": [2026, 2025],
+					"unit": "USD millions",
+					"basis": "consolidated US GAAP",
+					"rows": {
+						"current_longterm": {
+							"2026": 6457,
+							"2025": 5377
+						},
+						"commercial_paper": {
+							"2026": 4837,
+							"2025": 4108
+						},
+						"other_current": {
+							"2026": 3,
+							"2025": 27
+						},
+						"total_current": {
+							"2026": 11296,
+							"2025": 9513
+						},
+						"longterm_excluding_current": {
+							"2026": 22842,
+							"2025": 24995
+						}
+					}
+				},
+				"maturities_2027_2031": [
+					6457,
+					2123,
+					1993,
+					3939,
+					2275
+				],
+				"undrawn_bank_facilities": {
+					"total": 8e3,
+					"five_year_to_2030_10": 3200,
+					"364_day_to_2026_10": 4800
+				},
+				"current_rate_percent": {
+					"2026": 3.3,
+					"2025": 3
+				},
+				"longterm_rate_percent": {
+					"2026": 3.3,
+					"2025": 3.3
+				}
+			},
+			"11_aoci": {
+				"sourcePhysicalPages": [2031],
+				"2026_components": {
+					"investment": 10,
+					"retirement": -1216,
+					"fx": -11259,
+					"total": -12465
+				},
+				"2025_total": -12143,
+				"2026_total_OCI": -343,
+				"2026_NCI_OCI": -21,
+				"detail": "Parent AOCI, excludes NCI. PakistanFX131 reclassified to earnings; Argentina752 inFY2025."
+			},
+			"12_leases": {
+				"sourcePhysicalPages": [2031, 2032],
+				"balances": {
+					"sourcePhysicalPage": 2032,
+					"printedPage": 66,
+					"periods": [2026, 2025],
+					"unit": "USD millions",
+					"basis": "consolidated US GAAP",
+					"rows": {
+						"rou_assets": {
+							"2026": 846,
+							"2025": 925
+						},
+						"current_liability": {
+							"2026": 246,
+							"2025": 255
+						},
+						"noncurrent_liability": {
+							"2026": 641,
+							"2025": 701
+						},
+						"total_liability": {
+							"2026": 887,
+							"2025": 956
+						}
+					}
+				},
+				"operating_cost_2026": 275,
+				"variable_cost_2026": 85,
+				"total_cost_2026": 361,
+				"future_payments_2027_2031_thereafter": [
+					246,
+					205,
+					171,
+					126,
+					82,
+					198
+				],
+				"undiscounted_payments": 1028,
+				"interest_deduction": 141,
+				"cash_paid_2026": 273,
+				"new_rou_2026": 168,
+				"weighted_term_years": 6,
+				"discount_percent": 5.6,
+				"scope": "No material finance lease/sublease; shortterm<=12monthsexcluded; variable costs excluded lease liability."
+			},
+			"13_commitments": {
+				"sourcePhysicalPages": [2032, 2033],
+				"take_or_pay_2027_2031_thereafter": [
+					1155,
+					764,
+					602,
+					349,
+					287,
+					494
+				],
+				"total": 3651,
+				"detail": "Indemnity maximum often not estimable. Routine supplier/customer loan guarantees immaterial; no materially impactful offbalance financing/VIE; litigation/environmental outcome not expected materially adverse, uncertainty retained."
+			},
+			"14_supplier_finance": {
+				"sourcePhysicalPages": [2033],
+				"rollforward": {
+					"sourcePhysicalPage": 2033,
+					"printedPage": 67,
+					"periods": [2026, 2025],
+					"unit": "USD millions",
+					"basis": "consolidated US GAAP",
+					"rows": {
+						"opening": {
+							"2026": 5790,
+							"2025": 5559
+						},
+						"confirmed": {
+							"2026": 18110,
+							"2025": 17132
+						},
+						"paid": {
+							"2026": -17741,
+							"2025": -16999
+						},
+						"translation": {
+							"2026": 16,
+							"2025": 98
+						},
+						"closing": {
+							"2026": 6176,
+							"2025": 5790
+						}
+					}
+				},
+				"classification": "Accounts payable, operating cashflow; already included in AP, no double count; no company guarantee. Payment terms60–180days."
+			},
+			"15_subsequent_event": {
+				"sourcePhysicalPages": [2034],
+				"target": "Thorne",
+				"agreement_date": "2026-08-04",
+				"purchase_price_USD_billions": 3.8,
+				"expected_close": "FY2027Q2, subject to regulatory approval/customary closing conditions",
+				"recognized_acquisition_at_2026_06_30": false
+			}
+		},
+		"assurance": {
+			"auditor": "Deloitte & Touche LLP",
+			"audit_report_date": "2026-08-04",
+			"financial_report_pages": [2001, 2002],
+			"financial_opinion": "unqualified; fairly presented in all material respects under US GAAP",
+			"financial_scope": "Consolidated balance sheets as of2026-06-30 and2025-06-30; earnings,comprehensive income,equity,cashflow and notes for three years ended2026-06-30",
+			"standards": "PCAOB (United States)",
+			"ICFR_report_page": 2003,
+			"ICFR_date": "2026-06-30",
+			"ICFR_framework": "COSO Internal Control – Integrated Framework2013",
+			"ICFR_opinion": "effective in all material respects",
+			"critical_audit_matter": {
+				"topic": "Gillette indefinite-lived brand valuation",
+				"pages": [2001, 2002],
+				"carrying_USD_billions": 12.8,
+				"valuation_date": "2025-10-01",
+				"procedures": [
+					"Controls over valuation and assumptions",
+					"Backtesting forecast net sales",
+					"Compared forecast to historical/internal/external information",
+					"Valuation specialists and independent discount range"
+				],
+				"separate_opinion": false
+			},
+			"boundaries": [
+				"Reasonable not absolute assurance",
+				"Opinion does not authenticate entire bundled compilation or independently verify current SEC filing authenticity",
+				"No extension to MD&A/nonGAAP, future projections, external incorporated exhibits, S-Kosif application, generated model or transaction ledger",
+				"No parent-only statements presented"
+			]
+		},
+		"source_exceptions": [
+			{
+				"id": "rounding",
+				"pages": [
+					1982,
+					1998,
+					1999,
+					2004,
+					2005,
+					2006,
+					2007,
+					2011,
+					2012,
+					2014,
+					2017,
+					2019,
+					2020,
+					2021,
+					2022,
+					2031,
+					2032,
+					2033
+				],
+				"finding": "Displayed rounded figures sometimes do not crossfoot. Source MD&A explicitly warns rows/columns may not add from rounding. Numerical oracles retain residuals; no balancing plugs."
+			},
+			{
+				"id": "equity_clipping",
+				"pages": [2006],
+				"finding": "Rendered source clips balance-year labels; text layer contains years. Amounts and sequence remain readable."
+			},
+			{
+				"id": "option_scope_gap",
+				"pages": [2020, 2035],
+				"finding": "Note7 closing options94,544 thousand versus PartIII options/SAR94,554,254 shares. Distinct titles/scope; 10,254-share difference is not a rounding-only reconciliation. Do not silently equate; source has no explicit bridge."
+			},
+			{
+				"id": "debt_basis_gap",
+				"pages": [
+					1993,
+					2029,
+					2030
+				],
+				"finding": "Contractual commitment debt34,490 differs from balance carrying current11,296 pluslongterm22,842=34,138. Different presentation bases; do not force-match without underlying adjustment bridge."
+			},
+			{
+				"id": "hidden_text_artifacts",
+				"pages": [1963],
+				"finding": "TRUE/False text artifacts absent from visible cover; visual content governs."
+			},
+			{
+				"id": "external_documents",
+				"pages": [
+					2034,
+					2035,
+					2036,
+					2037,
+					2038
+				],
+				"finding": "2026 proxy and most exhibits incorporated by reference are not in this assigned report range; index review is not underlying-document review."
+			}
+		],
+		"comparison_requirements": [
+			"Require exact issuer, consolidated scope, USGAAP, fiscal2026-06-30 and USDmillion identity before matching values.",
+			"Separate2025 comparatives from current2026; do not relabel source to app year.",
+			"Compare full statements before extending to notes.",
+			"Distinguish netearnings16144 from attributable16046 and basicEPSnumerator15754.",
+			"Preserve equity and cashflow sign conventions.",
+			"Separate GAAPdilutedEPS6.62 from core6.89, and OCF19556 from adjustedFCF15835.",
+			"Use published amounts as oracles; tolerance only documented rounding residuals, not material mismatch correction.",
+			"No inference of underlying transaction ledger or synthetic journals.",
+			"Publish/display source exceptions and assurance limits with any app comparison."
+		],
+		"digitizationScope": {
+			"primaryStatements": "All displayed income, comprehensive income, balance sheet and cashflow rows, plus total and component equity rollforwards.",
+			"notes": "All15 note topics reviewed; key numeric tables structured; complete original page text and financial-note renderings included for remaining detailed rows.",
+			"notCreated": "Raw journals, source transaction ledgers, invented postings, app fixture installation or actual app-acceptance results."
+		}
+	});
+	var PG_LABELS = deepFreeze({
+		"income": {
+			"net_sales": "NET SALES",
+			"cost_of_products_sold": "Cost of products sold",
+			"selling_general_administrative": "Selling, general and administrative expense",
+			"indefinite_lived_intangible_impairment": "Indefinite-lived intangible asset impairment charge",
+			"operating_income": "OPERATING INCOME",
+			"interest_expense": "Interest expense",
+			"interest_income": "Interest income",
+			"other_nonoperating_income_net": "Other non-operating income/(expense), net",
+			"earnings_before_tax": "EARNINGS BEFORE INCOME TAXES",
+			"income_tax": "Income taxes",
+			"net_earnings": "NET EARNINGS",
+			"earnings_noncontrolling": "Less: Net earnings attributable to noncontrolling interests",
+			"earnings_attributable_pg": "NET EARNINGS ATTRIBUTABLE TO PROCTER & GAMBLE",
+			"basic_eps": "Basic",
+			"diluted_eps": "Diluted"
+		},
+		"comprehensive_income": {
+			"net_earnings": "NET EARNINGS",
+			"fx_translation_net_of_tax": "Foreign currency translation",
+			"investment_unrealized_net_of_tax": "Unrealized gains/(losses) on investment securities",
+			"defined_benefit_plans_net_of_tax": "Unrealized gains/(losses) on defined benefit postretirement plans",
+			"other_comprehensive_income": "TOTAL OTHER COMPREHENSIVE INCOME/(LOSS), NET OF TAX",
+			"comprehensive_income": "COMPREHENSIVE INCOME",
+			"comprehensive_income_noncontrolling": "Less: Comprehensive income attributable to noncontrolling interests",
+			"comprehensive_income_attributable_pg": "COMPREHENSIVE INCOME ATTRIBUTABLE TO PROCTER & GAMBLE"
+		},
+		"balance_sheet": {
+			"cash_equivalents": "Cash and cash equivalents",
+			"accounts_receivable": "Accounts receivable",
+			"inventory_materials": "Materials and supplies",
+			"inventory_work_in_process": "Work in process",
+			"inventory_finished_goods": "Finished goods",
+			"inventory_total": "Total inventories",
+			"prepaid_and_other_current_assets": "Prepaid expenses and other current assets",
+			"current_assets": "TOTAL CURRENT ASSETS",
+			"property_plant_equipment_net": "PROPERTY, PLANT AND EQUIPMENT, NET",
+			"goodwill": "GOODWILL",
+			"intangibles_net": "TRADEMARKS AND OTHER INTANGIBLE ASSETS, NET",
+			"other_noncurrent_assets": "OTHER NONCURRENT ASSETS",
+			"total_assets": "TOTAL ASSETS",
+			"accounts_payable": "Accounts payable",
+			"accrued_and_other_current_liabilities": "Accrued and other liabilities",
+			"debt_due_one_year": "Debt due within one year",
+			"current_liabilities": "TOTAL CURRENT LIABILITIES",
+			"longterm_debt": "LONG-TERM DEBT",
+			"deferred_income_taxes": "DEFERRED INCOME TAXES",
+			"other_noncurrent_liabilities": "OTHER NONCURRENT LIABILITIES",
+			"total_liabilities": "TOTAL LIABILITIES",
+			"preferred_class_a": "Convertible Class A preferred stock, stated value $1 per share (600 shares authorized)",
+			"preferred_class_b": "Non-Voting Class B preferred stock, stated value $1 per share (200 shares authorized)",
+			"common_stock": "Common stock, stated value $1 per share (10,000 shares authorized; shares issued: 2026 - 4,009.2, 2025 - 4,009.2)",
+			"additional_paid_in_capital": "Additional paid-in capital",
+			"esop_debt_retirement_reserve": "Reserve for ESOP debt retirement",
+			"accumulated_other_comprehensive_loss": "Accumulated other comprehensive loss",
+			"treasury_stock": "Treasury stock (shares held: 2026 -1,685.4; 2025 - 1,667.3)",
+			"retained_earnings": "Retained earnings",
+			"noncontrolling_interest": "Noncontrolling interest",
+			"total_equity": "TOTAL SHAREHOLDERS' EQUITY",
+			"total_liabilities_equity": "TOTAL LIABILITIES AND SHAREHOLDERS' EQUITY"
+		},
+		"cash_flow": {
+			"beginning_cash_equivalents_restricted": "CASH, CASH EQUIVALENTS AND RESTRICTED CASH, BEGINNING OF YEAR",
+			"net_earnings": "Net earnings",
+			"depreciation_amortization": "Depreciation and amortization",
+			"share_compensation": "Share-based compensation expense",
+			"deferred_income_taxes": "Deferred income taxes",
+			"gain_loss_on_sale_assets": "(Gain)/loss on sale of assets",
+			"indefinite_intangible_impairment": "Indefinite-lived intangible asset impairment charge",
+			"change_accounts_receivable": "Change in accounts receivable",
+			"change_inventories": "Change in inventories",
+			"change_accounts_payable": "Change in accounts payable",
+			"other_operating": "Other",
+			"operating_cash_flow": "TOTAL OPERATING ACTIVITIES",
+			"capital_expenditure": "Capital expenditures",
+			"asset_sale_proceeds": "Proceeds from asset sales",
+			"acquisitions_net_of_cash": "Acquisitions, net of cash acquired",
+			"other_investing": "Other investing activity",
+			"investing_cash_flow": "TOTAL INVESTING ACTIVITIES",
+			"dividends_cash": "Dividends to shareholders",
+			"short_debt_additions_gt_three_months": "Additions to short-term debt with original maturities of more than three months",
+			"short_debt_reductions_gt_three_months": "Reductions in short-term debt with original maturities of more than three months",
+			"other_short_debt_net": "Net additions/(reductions) to other short-term debt",
+			"long_debt_additions": "Additions to long-term debt",
+			"long_debt_reductions": "Reductions in long-term debt",
+			"treasury_stock_cash": "Treasury stock purchases",
+			"stock_options_and_other": "Impact of stock options and other",
+			"financing_cash_flow": "TOTAL FINANCING ACTIVITIES",
+			"fx_effect_cash": "EFFECT OF EXCHANGE RATE CHANGES ON CASH, CASH EQUIVALENTS AND RESTRICTED CASH",
+			"cash_change": "CHANGE IN CASH, CASH EQUIVALENTS AND RESTRICTED CASH",
+			"ending_cash_equivalents_restricted": "CASH, CASH EQUIVALENTS AND RESTRICTED CASH, END OF YEAR",
+			"cash_interest_paid": "Cash payments for interest"
+		}
+	});
+	//#endregion
+	//#region app/src/engine/fusion/reports/sources/procter-gamble-source.ts
+	var period = (y, instant = false) => instant ? {
+		kind: "instant",
+		end: `${y}-06-30`
+	} : {
+		kind: "duration",
+		start: `${y - 1}-07-01`,
+		end: `${y}-06-30`
+	};
+	var titles = {
+		income: "Consolidated Statements of Earnings",
+		comprehensive_income: "Consolidated Statements of Comprehensive Income",
+		balance_sheet: "Consolidated Balance Sheets",
+		cash_flow: "Consolidated Statements of Cash Flows"
+	};
+	var TOTALS = {
+		income: /* @__PURE__ */ new Set(["net_earnings", "earnings_attributable_pg"]),
+		comprehensive_income: /* @__PURE__ */ new Set(["comprehensive_income", "comprehensive_income_attributable_pg"]),
+		balance_sheet: /* @__PURE__ */ new Set(["total_assets", "total_liabilities_equity"]),
+		cash_flow: /* @__PURE__ */ new Set(["ending_cash_equivalents_restricted"])
+	};
+	var SUBTOTALS = {
+		income: /* @__PURE__ */ new Set(["operating_income", "earnings_before_tax"]),
+		comprehensive_income: /* @__PURE__ */ new Set(["other_comprehensive_income"]),
+		balance_sheet: /* @__PURE__ */ new Set([
+			"inventory_total",
+			"current_assets",
+			"current_liabilities",
+			"total_liabilities",
+			"total_equity"
+		]),
+		cash_flow: /* @__PURE__ */ new Set([
+			"operating_cash_flow",
+			"investing_cash_flow",
+			"financing_cash_flow",
+			"cash_change"
+		])
+	};
+	var escapeCsv = (v) => "\"" + String(v ?? "").replace(/"/g, "\"\"") + "\"";
+	function procterGambleSource(id) {
+		if (id !== "pg-2026") return null;
+		const facts = structuredClone(PG_REVIEWED);
+		const tables = Object.entries(PG_LABELS).map(([key, labels]) => {
+			const statement = facts.statements[key];
+			return {
+				id: key,
+				title: titles[key],
+				sourcePages: [statement.sourcePhysicalPage],
+				columns: statement.periods.map((y) => ({
+					id: String(y),
+					label: String(y),
+					period: period(y, key === "balance_sheet")
+				})),
+				rows: Object.entries(labels).map(([rowId, label]) => ({
+					id: rowId,
+					label,
+					unit: statement.rowUnitOverrides?.[rowId] ?? "USD million",
+					sourcePage: statement.sourcePhysicalPage,
+					level: TOTALS[key].has(rowId) ? "total" : SUBTOTALS[key].has(rowId) ? "subtotal" : "line",
+					status: "reported",
+					...key === "income" && rowId.endsWith("_eps") ? { context: "NET EARNINGS PER COMMON SHARE; calculated on Net earnings attributable to Procter & Gamble" } : {},
+					...key === "comprehensive_income" && rowId.endsWith("_net_of_tax") ? { context: "OTHER COMPREHENSIVE INCOME/(LOSS), NET OF TAX; source tax qualifiers remain in reviewedFacts and source page 2004" } : {},
+					cells: Object.fromEntries(statement.periods.map((y) => {
+						const value = statement.rows[rowId][y];
+						const instant = key === "cash_flow" && ["beginning_cash_equivalents_restricted", "ending_cash_equivalents_restricted"].includes(rowId);
+						return [String(y), {
+							value,
+							status: "reported",
+							...value === 0 ? { display: "—" } : {},
+							...instant ? { period: period(rowId.startsWith("beginning") ? y - 1 : y, true) } : {},
+							sourceFactId: `statements.${key}.rows.${rowId}.${y}`
+						}];
+					}))
+				}))
+			};
+		});
+		const eq = facts.statements.equity_components;
+		const equityColumnLabels = [
+			"Common Stock Shares",
+			"Common Stock Amount",
+			"Preferred Stock",
+			"Additional Paid-In Capital",
+			"Reserve for ESOP Debt Retirement",
+			"Accumulated Other Comprehensive Income/(Loss)",
+			"Treasury Stock",
+			"Retained Earnings",
+			"Noncontrolling Interest",
+			"Total Shareholders’ Equity"
+		];
+		for (const [y, p] of Object.entries(eq.periods)) {
+			const labels = [
+				`BALANCE JUNE 30, ${+y - 1}`,
+				"Net earnings",
+				"Other comprehensive income/(loss)",
+				"Common",
+				"Preferred",
+				"Treasury stock purchases",
+				"Employee stock plans",
+				"Preferred stock conversions",
+				"ESOP debt impacts",
+				"Noncontrolling interest, net",
+				`BALANCE JUNE 30, ${y}`
+			];
+			tables.push({
+				id: "equity_" + y,
+				title: "Consolidated Statements of Shareholders' Equity — " + y,
+				sourcePages: [2006],
+				columns: eq.columns.map((col, i) => ({
+					id: col,
+					label: equityColumnLabels[i],
+					dimension: col,
+					period: period(+y),
+					unit: i === 0 ? "thousand shares" : "USD million"
+				})),
+				rows: p.rows.map((r, i) => ({
+					id: "movement_" + i,
+					label: labels[i],
+					unit: "USD million",
+					sourcePage: 2006,
+					level: i === 0 || i === p.rows.length - 1 ? "total" : "line",
+					status: "reported",
+					...i === 3 || i === 4 ? { context: `Dividends and dividend equivalents ($${facts.statements.equity_rollforward_total.rows.dividends_per_common_share[y]} per share)` } : {},
+					cells: Object.fromEntries(eq.columns.map((col) => {
+						const value = r.values[col];
+						return [col, {
+							value,
+							status: value === null ? "blank" : "reported",
+							...value === 0 ? { display: "—" } : {},
+							...i === 0 || i === p.rows.length - 1 ? { period: period(i === 0 ? +y - 1 : +y, true) } : {},
+							sourceFactId: `statements.equity_components.periods.${y}.rows.${i}.values.${col}`
+						}];
+					}))
+				}))
+			});
+		}
+		const checks = [];
+		function check(statement, year, total, terms) {
+			const st = facts.statements[statement], rows = st.rows, reported = rows[total][year], computed = terms.reduce((n, [k, sign]) => n + sign * rows[k][year], 0), residual = computed - reported;
+			checks.push({
+				id: `${statement}.${total}.${year}`,
+				reported,
+				computed,
+				residual,
+				unit: "USD million",
+				sourcePages: [st.sourcePhysicalPage],
+				status: residual === 0 ? "exact" : Math.abs(residual) <= (terms.length + 1) * .5 ? "rounding-residual" : "mismatch",
+				assurance: "none",
+				operands: terms.map(([id, sign]) => ({
+					sourceFactId: `statements.${statement}.rows.${id}.${year}`,
+					sign
+				})),
+				roundingBound: (terms.length + 1) * .5
+			});
+		}
+		for (const y of [
+			2026,
+			2025,
+			2024
+		]) {
+			check("income", y, "operating_income", [
+				["net_sales", 1],
+				["cost_of_products_sold", -1],
+				["selling_general_administrative", -1],
+				["indefinite_lived_intangible_impairment", -1]
+			]);
+			check("income", y, "earnings_before_tax", [
+				["operating_income", 1],
+				["interest_expense", 1],
+				["interest_income", 1],
+				["other_nonoperating_income_net", 1]
+			]);
+			check("income", y, "net_earnings", [["earnings_before_tax", 1], ["income_tax", -1]]);
+			check("income", y, "earnings_attributable_pg", [["net_earnings", 1], ["earnings_noncontrolling", -1]]);
+			check("comprehensive_income", y, "other_comprehensive_income", [
+				["fx_translation_net_of_tax", 1],
+				["investment_unrealized_net_of_tax", 1],
+				["defined_benefit_plans_net_of_tax", 1]
+			]);
+			check("cash_flow", y, "operating_cash_flow", [
+				"net_earnings",
+				"depreciation_amortization",
+				"share_compensation",
+				"deferred_income_taxes",
+				"gain_loss_on_sale_assets",
+				"indefinite_intangible_impairment",
+				"change_accounts_receivable",
+				"change_inventories",
+				"change_accounts_payable",
+				"other_operating"
+			].map((k) => [k, 1]));
+			check("cash_flow", y, "cash_change", [
+				"operating_cash_flow",
+				"investing_cash_flow",
+				"financing_cash_flow",
+				"fx_effect_cash"
+			].map((k) => [k, 1]));
+			check("cash_flow", y, "ending_cash_equivalents_restricted", [["beginning_cash_equivalents_restricted", 1], ["cash_change", 1]]);
+		}
+		for (const y of [2026, 2025]) {
+			check("balance_sheet", y, "inventory_total", [
+				"inventory_materials",
+				"inventory_work_in_process",
+				"inventory_finished_goods"
+			].map((k) => [k, 1]));
+			check("balance_sheet", y, "current_assets", [
+				"cash_equivalents",
+				"accounts_receivable",
+				"inventory_total",
+				"prepaid_and_other_current_assets"
+			].map((k) => [k, 1]));
+			check("balance_sheet", y, "current_liabilities", [
+				"accounts_payable",
+				"accrued_and_other_current_liabilities",
+				"debt_due_one_year"
+			].map((k) => [k, 1]));
+			check("balance_sheet", y, "total_liabilities", [
+				"current_liabilities",
+				"longterm_debt",
+				"deferred_income_taxes",
+				"other_noncurrent_liabilities"
+			].map((k) => [k, 1]));
+			check("balance_sheet", y, "total_equity", [
+				"preferred_class_a",
+				"preferred_class_b",
+				"common_stock",
+				"additional_paid_in_capital",
+				"esop_debt_retirement_reserve",
+				"accumulated_other_comprehensive_loss",
+				"treasury_stock",
+				"retained_earnings",
+				"noncontrolling_interest"
+			].map((k) => [k, 1]));
+			check("balance_sheet", y, "total_liabilities_equity", [["total_liabilities", 1], ["total_equity", 1]]);
+		}
+		const limitations = [
+			...facts.assurance.boundaries,
+			...facts.source_exceptions.map((x) => x.finding),
+			"The six prior unequal-value concept checks were not executed application-validator rejections. New tests, if run, are reported separately.",
+			"Source cash-flow rows are replayed as published; no transaction ledger, audit evidence or source assurance was reconstructed."
+		];
+		const replay = {
+			schemaVersion: "1.0",
+			mode: "published-statement-replay",
+			tables,
+			checks,
+			unavailable: [
+				{
+					id: "ledger-reconstruction",
+					reason: "Underlying transactions and ledger are not supplied."
+				},
+				{
+					id: "full-notes-rendering",
+					reason: "All 15 reviewed note topics and source facts are preserved in reviewedFacts; a standardized note renderer has not been implemented.",
+					sourcePages: Array.from({ length: 27 }, (_, i) => 2008 + i)
+				},
+				{
+					id: "unreported-2024-balance-sheet",
+					reason: "The source balance sheet presents 2026 and 2025 only."
+				},
+				{
+					id: "source-derived-analytics",
+					reason: "No validated source definitions of ratios, EBITDA or adjusted non-GAAP measures are admitted by this replay."
+				}
+			],
+			limitations
+		};
+		const transport = tables.filter((t) => Object.hasOwn(PG_LABELS, t.id)).flatMap((t) => t.rows.map((r) => ({
+			code: `PG_${t.id}_${r.id}`,
+			label: r.label,
+			current: r.cells["2026"].value,
+			prior: r.cells["2025"].value,
+			sourcePage: r.sourcePage,
+			id: `${t.id}.${r.id}`,
+			unit: r.unit,
+			cells: r.cells
+		})));
+		const csv = [
+			"# SQC source-only: " + id,
+			"code,name,balance,prior",
+			...transport.map((r) => [
+				r.code,
+				r.label,
+				r.current,
+				r.prior
+			].map(escapeCsv).join(","))
+		].join("\n");
+		const sourceModel = {
+			kind: "published-statements",
+			id,
+			issuer: facts.issuer,
+			issuerCountry: "US",
+			report: "2026 Form 10-K",
+			accountingBasis: "US_GAAP",
+			currency: "USD",
+			unit: "million",
+			scope: "consolidated",
+			entities: facts.issuerScope,
+			periodStart: "2025-07-01",
+			periodEnd: "2026-06-30",
+			priorPeriodEnd: "2025-06-30",
+			sourceFile: "global_financial_and_audit_research_bundle_extended_verified.pdf",
+			sourceSha256: facts.source.bundleSha256,
+			sourcePackageSha256: "c871ddf587f724d48654f6ebfecebd071df20bdb30ab04720116748844180792",
+			reviewedModelSha256: "2a5f3a67336ff1bead2b390a0ac860bc5ab5f0a2ae8484d3811c7f52011153a5",
+			sourcePages: Array.from({ length: 77 }, (_, i) => 1963 + i),
+			facts: transport.map((r) => ({
+				...r,
+				status: "reported"
+			})),
+			reviewedFacts: facts,
+			replay,
+			auditorReference: {
+				name: facts.assurance.auditor,
+				opinion: facts.assurance.financial_opinion,
+				date: facts.assurance.audit_report_date,
+				pages: facts.assurance.financial_report_pages,
+				scope: facts.assurance.financial_scope
+			},
+			cashFlow: {
+				status: "source-replay-only",
+				sourcePage: 2007,
+				reason: "Available only as exact published statement replay; not generated from transactions."
+			}
+		};
+		return {
+			csv,
+			overrides: Object.fromEntries(transport.map((r) => [r.code, "__source_observation__"])),
+			sourceModel
+		};
+	}
+	//#endregion
 	//#region app/src/engine/fusion/reports/published-source-engine.ts
 	var published_source_engine_exports = /* @__PURE__ */ __exportAll({
 		SOURCE_MARKER: () => SOURCE_MARKER,
+		identifyReviewedSourceTransport: () => identifyReviewedSourceTransport,
+		registerReviewedSources: () => registerReviewedSources,
 		reviewedPublishedSource: () => reviewedPublishedSource
 	});
+	var registeredResolvers = [];
+	function registerReviewedSources(...resolvers) {
+		registeredResolvers.push(...resolvers);
+	}
+	function loadedResolvers() {
+		const R = globalThis.SKEngines?.reports || {};
+		return [
+			R.homeDepotSource?.reviewedHomeDepotSource,
+			R.publishedMcdonaldsSource?.reviewedMcDonaldsSource,
+			R.mercedesSource?.reviewedMercedesSource,
+			R.volkswagenSource?.reviewedVolkswagenSource
+		].filter((f) => typeof f === "function");
+	}
+	var resolvers = () => [...registeredResolvers, ...loadedResolvers()];
+	function externalSource(id) {
+		for (const r of resolvers()) {
+			const x = r(id);
+			if (x) return x;
+		}
+		return null;
+	}
 	var SOURCE_MARKER = "# SQC source-only: ";
 	var APPLE_ROWS = [
 		[
@@ -781,7 +3640,7 @@ window.SKEngines = (function() {
 	];
 	/** A fresh value per caller prevents one open file from relabelling another. */
 	function reviewedPublishedSource(id) {
-		if (id !== "apple-2024") return null;
+		if (id !== "apple-2024") return procterGambleSource(id) ?? externalSource(id);
 		const signed = (r, i) => r[3] ? r[i] : -r[i];
 		const csv = [
 			SOURCE_MARKER + id,
@@ -845,6 +3704,90 @@ window.SKEngines = (function() {
 			overrides: Object.fromEntries(APPLE_ROWS.map((r) => [r[0], r[2]])),
 			sourceModel
 		};
+	}
+	var REVIEWED_SOURCE_IDS = [
+		"apple-2024",
+		"pg-2026",
+		"homedepot-2025",
+		"mcdonalds-2022",
+		"mercedes-2025",
+		"volkswagen-2025"
+	];
+	var reviewedCarrierIds;
+	var reviewedCarrierCount = -1;
+	/** Lost transport markers never convert a known source carrier into a real ledger. */
+	function identifyReviewedSourceTransport(text) {
+		const available = resolvers().length;
+		if (available !== reviewedCarrierCount) {
+			reviewedCarrierIds = void 0;
+			reviewedCarrierCount = available;
+		}
+		if (!reviewedCarrierIds) {
+			reviewedCarrierIds = /* @__PURE__ */ new Map();
+			for (const id of REVIEWED_SOURCE_IDS) {
+				const source = reviewedPublishedSource(id);
+				if (source) {
+					reviewedCarrierIds.set(source.csv.trim(), id);
+					reviewedCarrierIds.set(source.csv.split("\n").filter((line) => !line.startsWith(SOURCE_MARKER)).join("\n").trim(), id);
+				}
+			}
+		}
+		return reviewedCarrierIds.get(text.replace(/^﻿/, "").replace(/\r\n/g, "\n").trim()) ?? null;
+	}
+	//#endregion
+	//#region app/src/engine/fusion/reports/source-data/corpus-transport-origins.ts
+	var ids = /* @__PURE__ */ new Map([
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n1101,النقد وما في حكمه,29943,,29965\n1121,الذمم المدينة التجارية (بالصافي بعد مخصص الخسائر الائتمانية),33410,,29508\n1141,المخزون,7286,,6331\n1161,استثمارات قصيرة الأجل وموجودات متداولة أخرى,82348,,77762\n1501,ممتلكات وآلات ومعدات وحق استخدام,45680,,43715\n1901,استثمارات وأوراق مالية,126707,,132134\n1951,موجودات غير متداولة أخرى,39606,,33168\n2101,الذمم الدائنة التجارية,,68960,-62611\n2171,مطلوبات متداولة أخرى,,107432,-82697\n2201,القروض والتمويل طويلة الأجل,,106629,-111088\n2401,مطلوبات غير متداولة أخرى,,25009,-34041\n3101,حقوق الملكية في بداية السنة بعد التوزيعات والحركات الأخرى,36786,,34849\n4101,الإيرادات,,391035,-383285\n5101,تكلفة الإيرادات,210352,,214137\n5301,المصروفات التشغيلية (تشمل الاستهلاك والإطفاء),57467,,54847\n4201,صافي تكاليف التمويل والإيرادات غير التشغيلية,,269,565\n8101,ضريبة الدخل,29749,,16741", "apple-2024"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and cash equivalents,7613.0,,7141.0\n11901,موجودات متداولة أخرى — Short-term investments,273.0,,701.0\n11201,ذمم مدينة تجارية — Trade receivables  net of allowances for doubtful accounts,2072.0,,2224.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Prepaid expenses and other current assets,1274.0,,1018.0\n15001,ممتلكات وآلات ومعدات — Property and equipment  net,1936.0,,2030.0\n16001,موجودات حق الاستخدام — Operating lease right-of-use assets  net,281.0,,358.0\n17001,موجودات غير ملموسة — Goodwill,12788.0,,12805.0\n17002,موجودات غير ملموسة — Other intangibles  net,782.0,,1088.0\n19001,موجودات غير متداولة أخرى — Deferred income taxes,1657.0,,1191.0\n11602,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other assets,1554.0,,1223.0\n20101,ذمم دائنة تجارية — Trade payables,,361.0,-314.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Accrued expenses,,2336.0,-1942.0\n20701,قروض قصيرة الأجل والجزء المتداول — Debt (current),,1499.0,-0.0\n20301,مطلوبات عقود (دفعات مقدمة من عملاء) — Deferred revenue (current),,6131.0,-5837.0\n20501,زكاة مستحقة — Income taxes payable (current),,119.0,-85.0\n22101,التزامات عقود الإيجار — Operating lease liabilities (current),,75.0,-73.0\n22201,قروض طويلة الأجل — Debt (long-term),,4129.0,-3634.0\n20302,مطلوبات عقود (دفعات مقدمة من عملاء) — Deferred revenue (long-term),,128.0,-113.0\n20502,زكاة مستحقة — Income taxes payable (long-term),,548.0,-514.0\n22102,التزامات عقود الإيجار — Operating lease liabilities (long-term),,353.0,-373.0\n20202,مصروفات مستحقة ومطلوبات أخرى — Other liabilities,,446.0,-376.0\n32001,الاحتياطيات — Preferred stock,,,-0.0\n31001,رأس المال — Common stock,,,-0.0\n31002,رأس المال — Additional paid-in capital,,13419.0,-11586.0\n33001,الأرباح المبقاة — Retained earnings,,32910.0,-27918.0\n32002,الاحتياطيات — Accumulated other comprehensive income (loss),201.0,,285.0\n32003,الاحتياطيات — Treasury stock  at cost,37583.0,,28129.0\n41001,الإيرادات — Subscription revenue,,20521.0,-18284.0\n41002,الإيرادات — Product revenue,,386.0,-460.0\n41003,الإيرادات — Services and other revenue,,598.0,-665.0\n51001,تكلفة الإيرادات — Subscription cost of revenue,1799.0,,1822.0\n51002,تكلفة الإيرادات — Product cost of revenue,25.0,,29.0\n51003,تكلفة الإيرادات — Services and other cost of revenue,534.0,,503.0\n53001,المصروفات العمومية والإدارية — Research and development,3944.0,,3473.0\n52001,مصروفات البيع والتوزيع — Sales and marketing,5764.0,,5351.0\n53002,المصروفات العمومية والإدارية — General and administrative,1529.0,,1413.0\n53003,المصروفات العمومية والإدارية — Acquisition termination fee,1000.0,,0.0\n54001,الاستهلاك والإطفاء — Amortization of intangibles,169.0,,168.0\n71001,تكاليف التمويل — Interest expense,169.0,,113.0\n48001,إيرادات وأرباح أخرى — Investment gains (losses)  net,,48.0,-16.0\n48002,إيرادات وأرباح أخرى — Other income (expense)  net,,311.0,-246.0\n81001,الزكاة وضريبة الدخل — Provision for income taxes,1371.0,,1371.0", "adobe-2024"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n18001,استثمارات طويلة الأجل — Investments in subsidiaries and associates,20145.0,,20270.0\n18002,استثمارات طويلة الأجل — Long-term financial assets,4497.0,,2040.0\n18003,استثمارات طويلة الأجل — Non-current other financial assets,2280.0,,4233.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Non-current other assets,18.0,,14.0\n19001,موجودات غير متداولة أخرى — Deferred tax assets,,,0.0\n18004,استثمارات طويلة الأجل — Non-current securities,6986.0,,5662.0\n11201,ذمم مدينة تجارية — Trade receivables,12.0,,28.0\n11901,موجودات متداولة أخرى — Short-term financial assets,73.0,,35.0\n11902,موجودات متداولة أخرى — Current other financial assets,2029.0,,3596.0\n11903,موجودات متداولة أخرى — Current accounts Airbus companies,4663.0,,9670.0\n11602,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Current other assets,167.0,,139.0\n11904,موجودات متداولة أخرى — Current securities,1162.0,,1692.0\n11101,النقد وما في حكمه — Cash and cash equivalents,14618.0,,13283.0\n22201,مطلوبات غير متداولة أخرى — Long-term financing liabilities,,7719.0,-7903.0\n22202,مطلوبات غير متداولة أخرى — Non-current other financial liabilities,,3243.0,-5653.0\n22203,مطلوبات غير متداولة أخرى — Deferred tax liabilities,,,-0.0\n20901,مطلوبات متداولة أخرى — Short-term financing liabilities,,818.0,-0.0\n20902,مطلوبات متداولة أخرى — Current accounts Airbus companies,,28938.0,-35355.0\n20903,مطلوبات متداولة أخرى — Current other financial liabilities,,2049.0,-3602.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Current other liabilities,,171.0,-174.0\n31001,رأس المال — Capital stock,,791.0,-789.0\n31002,رأس المال — Share premium,,3983.0,-3837.0\n33001,الأرباح المبقاة — Retained earnings,815.0,,520.0\n32001,الاحتياطيات — Legal reserves,354.0,,634.0\n32002,الاحتياطيات — Treasury shares,390.0,,68.0\n32003,الاحتياطيات — Result of the year,,6884.0,-435.0\n41001,الإيرادات — Revenue,,65446.0,-58763.0\n51001,تكلفة الإيرادات — Cost of sales,55402.0,,48192.0\n52001,مصروفات البيع والتوزيع — Selling expenses,867.0,,788.0\n53001,المصروفات العمومية والإدارية — Administrative expenses,1654.0,,1452.0\n53002,المصروفات العمومية والإدارية — Research and development expenses,3257.0,,3079.0\n42001,إيرادات تشغيلية أخرى — Other income,,243.0,-471.0\n53003,المصروفات العمومية والإدارية — Other expenses,209.0,,590.0\n47001,إيرادات الاستثمار — Share of profit from investments accounted for under the equity method,,267.0,-134.0\n42002,إيرادات تشغيلية أخرى — Other income from investments,,36.0,-58.0\n47002,إيرادات الاستثمار — Interest income,,728.0,-180.0\n71001,تكاليف التمويل — Interest expense,753.0,,412.0\n48001,إيرادات وأرباح أخرى — Other financial result,,191.0,18.0\n81001,الزكاة وضريبة الدخل — Income taxes,1156.0,,939.0", "airbus-2023"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n19001,موجودات غير متداولة أخرى — Self-created industrial property rights  and similar rights and assets,4104.0,,5588.0\n17001,موجودات غير ملموسة — Licenses acquired against payment  industrial property rights  and similar rights and assets as well as licenses for such rights and assets,552.0,,796.0\n19002,موجودات غير متداولة أخرى — Real estate  real estate rights  and buildings  including buildings on land not owned by Allianz SE,385029.0,,333139.0\n18001,استثمارات طويلة الأجل — Investments in affiliated enterprises and participations,79340331.0,,78085726.0\n18002,استثمارات طويلة الأجل — Other investments,33792332.0,,33972989.0\n19003,موجودات غير متداولة أخرى — Funds held by others under reinsurance business assumed,16907748.0,,16791035.0\n11201,ذمم مدينة تجارية — Accounts receivable on reinsurance business,1788921.0,,1565425.0\n11202,ذمم مدينة تجارية — Other receivables,4163018.0,,4803917.0\n15001,ممتلكات وآلات ومعدات — Tangible fixed assets and inventories,12872.0,,13829.0\n11101,النقد وما في حكمه — Cash with banks  checks  and cash on hand,235400.0,,845752.0\n11901,موجودات متداولة أخرى — Miscellaneous assets,426342.0,,487234.0\n11902,موجودات متداولة أخرى — Accrued interest and rent,194908.0,,176600.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other deferred charges and prepaid expenses,67272.0,,73870.0\n22201,مطلوبات غير متداولة أخرى — Subordinated liabilities,,17893618.0,-18678128.0\n20301,مطلوبات عقود (دفعات مقدمة من عملاء) — Unearned premiums (net),,3548371.0,-3308769.0\n22202,مطلوبات غير متداولة أخرى — Aggregate policy reserves (net),,291766.0,-317865.0\n22203,مطلوبات غير متداولة أخرى — Reserves for loss and loss adjustment expenses (net),,20474934.0,-19549908.0\n22204,مطلوبات غير متداولة أخرى — Reserves for premium refunds,,31489.0,-37626.0\n22205,مطلوبات غير متداولة أخرى — Claims equalization and similar reserves,,3156917.0,-2810797.0\n22206,مطلوبات غير متداولة أخرى — Other insurance reserves (net),,50474.0,-61343.0\n20601,مخصصات — Other provisions,,11511962.0,-10508562.0\n22207,مطلوبات غير متداولة أخرى — Funds held with reinsurance business ceded,,1850680.0,-2306219.0\n20101,ذمم دائنة تجارية — Accounts payable on reinsurance business,,709925.0,-532341.0\n22208,قروض طويلة الأجل — Bonds,,2453150.0,-3157842.0\n20901,مطلوبات متداولة أخرى — Liabilities to banks,,287.0,-287.0\n20902,مطلوبات متداولة أخرى — Miscellaneous liabilities,,30724653.0,-32718149.0\n20903,مطلوبات متداولة أخرى — Deferred income,,1352.0,-1431.0\n31001,رأس المال — Issued capital,,1169920.0,-1169920.0\n32001,الاحتياطيات — Less: mathematical value of own shares,543.0,,749.0\n31002,رأس المال — Additional paid-in capital,,18708058.0,-19441084.0\n32002,الاحتياطيات — Statutory reserve,,1229.0,-1229.0\n32003,الاحتياطيات — Other revenue reserves,,8495364.0,-7589829.0\n32004,الاحتياطيات — Net earnings,,6892796.0,-6364106.0\n41001,الإيرادات — Gross premiums written,,19062885.0,-17885399.0\n53001,المصروفات العمومية والإدارية — Ceded premiums written,1472109.0,,1093152.0\n53002,المصروفات العمومية والإدارية — Change in gross unearned premiums,443805.0,,640065.0\n48001,إيرادات وأرباح أخرى — Change in ceded unearned premiums,,91226.0,2509.0\n48002,إيرادات وأرباح أخرى — Allocated interest return (net),,15595.0,-15657.0\n42001,إيرادات تشغيلية أخرى — Other underwriting income (net),,348.0,-330.0\n53003,المصروفات العمومية والإدارية — Claims paid (gross),11185460.0,,10692414.0\n48003,إيرادات وأرباح أخرى — Amounts ceded in reinsurance (claims paid),,1057782.0,-1062794.0\n53004,المصروفات العمومية والإدارية — Change in reserve for loss and loss adjustment expenses (gross),1032861.0,,1724729.0\n53005,المصروفات العمومية والإدارية — Amounts ceded in reinsurance (change in reserve),283633.0,,395547.0\n48004,إيرادات وأرباح أخرى — Change in other insurance reserves (net),,36080.0,-22838.0\n53006,المصروفات العمومية والإدارية — Expenses for premium refunds (net),27393.0,,24757.0\n53007,المصروفات العمومية والإدارية — Underwriting expenses (net),4897658.0,,4604441.0\n53008,المصروفات العمومية والإدارية — Other underwriting expenses (net),346120.0,,97243.0\n48005,إيرادات وأرباح أخرى — Change in claims equalization and similar reserves,,5908.0,-5979.0\n42002,إيرادات تشغيلية أخرى — Investment income,,11461555.0,-12059316.0\n53009,المصروفات العمومية والإدارية — Investment expenses,2175503.0,,2441392.0\n53010,المصروفات العمومية والإدارية — Allocated interest return,20790.0,,34688.0\n42003,إيرادات تشغيلية أخرى — Other income,,5194608.0,-5242658.0\n53011,المصروفات العمومية والإدارية — Other expenses,5652980.0,,6686976.0\n81001,الزكاة وضريبة الدخل — Other taxes,35247.0,,48493.0\n53901,المصروفات العمومية والإدارية — other items (balancing to net income),,,-792646.0\n32901,الاحتياطيات — rounding in the published statements,1.0,,-3.0", "allianz-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and cash equivalents,73387.0,,53888.0\n11901,موجودات متداولة أخرى — Marketable securities,13393.0,,16138.0\n11401,المخزون — Inventories,33318.0,,34405.0\n11201,ذمم مدينة تجارية — Accounts receivable  net and other,52253.0,,42360.0\n15001,ممتلكات وآلات ومعدات — Property and equipment  net,204177.0,,186715.0\n19001,موجودات غير متداولة أخرى — Operating leases,72513.0,,66123.0\n17001,موجودات غير ملموسة — Goodwill,22789.0,,20288.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other assets,56024.0,,42758.0\n20101,ذمم دائنة تجارية — Accounts payable,,84981.0,-79600.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Accrued expenses and other,,64709.0,-62566.0\n20301,مطلوبات عقود (دفعات مقدمة من عملاء) — Unearned revenue,,15227.0,-13227.0\n22101,التزامات عقود الإيجار — Long-term lease liabilities,,77297.0,-72968.0\n22201,قروض طويلة الأجل — Long-term debt,,58314.0,-67150.0\n22202,مطلوبات غير متداولة أخرى — Other long-term liabilities,,25451.0,-21121.0\n32001,الاحتياطيات — Preferred stock,,,-0.0\n31001,رأس المال — Common stock,,109.0,-108.0\n32002,الاحتياطيات — Treasury stock  at cost,7837.0,,7837.0\n31002,رأس المال — Additional paid-in capital,,99025.0,-75066.0\n32003,الاحتياطيات — Accumulated other comprehensive income (loss),3040.0,,4487.0\n33001,الأرباح المبقاة — Retained earnings,,83193.0,-85915.0\n41001,الإيرادات — Net product sales,,255887.0,-242901.0\n41002,الإيرادات — Net service sales,,318898.0,-271082.0\n51001,تكلفة الإيرادات — Cost of sales,304739.0,,288831.0\n52001,مصروفات البيع والتوزيع — Fulfillment,90619.0,,84299.0\n53001,المصروفات العمومية والإدارية — Technology and infrastructure,85622.0,,73213.0\n52002,مصروفات البيع والتوزيع — Sales and marketing,44370.0,,42238.0\n53002,المصروفات العمومية والإدارية — General and administrative,11816.0,,11891.0\n53003,المصروفات العمومية والإدارية — Other operating expense (income)  net,767.0,,1263.0\n47001,إيرادات الاستثمار — Interest income,,2949.0,-989.0\n71001,تكاليف التمويل — Interest expense,3182.0,,2367.0\n48001,إيرادات وأرباح أخرى — Other income (expense)  net,,938.0,16806.0\n81001,الزكاة وضريبة الدخل — Benefit (provision) for income taxes,7120.0,,-3217.0\n47002,إيرادات الاستثمار — Equity-method investment activity  net of tax,12.0,,3.0", "amazon-2023"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and cash equivalents,78779.0,,73387.0\n11901,موجودات متداولة أخرى — Marketable securities,22423.0,,13393.0\n11401,المخزون — Inventories,34214.0,,33318.0\n11201,ذمم مدينة تجارية — Accounts receivable  net and other,55451.0,,52253.0\n15001,ممتلكات وآلات ومعدات — Property and equipment  net,252665.0,,204177.0\n19001,موجودات غير متداولة أخرى — Operating leases,76141.0,,72513.0\n17001,موجودات غير ملموسة — Goodwill,23074.0,,22789.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other assets,82147.0,,56024.0\n20101,ذمم دائنة تجارية — Accounts payable,,94363.0,-84981.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Accrued expenses and other,,66965.0,-64709.0\n20301,مطلوبات عقود (دفعات مقدمة من عملاء) — Unearned revenue,,18103.0,-15227.0\n22101,التزامات عقود الإيجار — Long-term lease liabilities,,78277.0,-77297.0\n22201,قروض طويلة الأجل — Long-term debt,,52623.0,-58314.0\n22202,مطلوبات غير متداولة أخرى — Other long-term liabilities,,28593.0,-25451.0\n32001,الاحتياطيات — Preferred stock,,,-0.0\n31001,رأس المال — Common stock,,111.0,-109.0\n32002,الاحتياطيات — Treasury stock  at cost,7837.0,,7837.0\n31002,رأس المال — Additional paid-in capital,,120864.0,-99025.0\n32003,الاحتياطيات — Accumulated other comprehensive income (loss),34.0,,3040.0\n33001,الأرباح المبقاة — Retained earnings,,113618.0,-83193.0\n41001,الإيرادات — Net product sales,,272311.0,-255887.0\n41002,الإيرادات — Net service sales,,365648.0,-318898.0\n51001,تكلفة الإيرادات — Cost of sales,326288.0,,304739.0\n52001,مصروفات البيع والتوزيع — Fulfillment,98505.0,,90619.0\n53001,المصروفات العمومية والإدارية — Technology and infrastructure,88544.0,,85622.0\n52002,مصروفات البيع والتوزيع — Sales and marketing,43907.0,,44370.0\n53002,المصروفات العمومية والإدارية — General and administrative,11359.0,,11816.0\n53003,المصروفات العمومية والإدارية — Other operating expense (income)  net,763.0,,767.0\n47001,إيرادات الاستثمار — Interest income,,4677.0,-2949.0\n71001,تكاليف التمويل — Interest expense,2406.0,,3182.0\n53004,المصروفات العمومية والإدارية — Other income (expense)  net,2250.0,,-938.0\n81001,الزكاة وضريبة الدخل — Benefit (provision) for income taxes,9265.0,,7120.0\n47002,إيرادات الاستثمار — Equity-method investment activity  net of tax,101.0,,12.0", "amazon-2024"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and cash equivalents,38016.0,,48844.0\n11901,موجودات متداولة أخرى — Marketable securities,52927.0,,51713.0\n11201,ذمم مدينة تجارية — Accounts receivable  net,16120.0,,22926.0\n11401,المخزون — Inventories,4061.0,,4106.0\n11202,ذمم مدينة تجارية — Vendor non-trade receivables,21325.0,,22878.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other current assets,11264.0,,12352.0\n18001,استثمارات طويلة الأجل — Marketable securities,100887.0,,105341.0\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment  net,36766.0,,37378.0\n19001,موجودات غير متداولة أخرى — Other non-current assets,42522.0,,32978.0\n20101,ذمم دائنة تجارية — Accounts payable,,42296.0,-46236.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Other current liabilities,,42684.0,-37720.0\n20301,مطلوبات عقود (دفعات مقدمة من عملاء) — Deferred revenue,,6643.0,-5522.0\n20701,قروض قصيرة الأجل والجزء المتداول — Commercial paper,,4996.0,-5980.0\n20702,قروض قصيرة الأجل والجزء المتداول — Term debt,,8773.0,-10260.0\n22201,قروض طويلة الأجل — Term debt,,98667.0,-91807.0\n22202,مطلوبات غير متداولة أخرى — Other non-current liabilities,,54490.0,-50503.0\n31001,رأس المال — Common stock and additional paid-in capital  $0.00001 par value: 50 400 000 shares authorized; 16 976 763 and 17 772 945 shares issued and outstanding  respectively,,50779.0,-45174.0\n33001,الأرباح المبقاة — Retained earnings,42445.0,,9358.0\n32001,الاحتياطيات — Accumulated other comprehensive income/(loss),406.0,,584.0\n41001,الإيرادات — Products,,220747.0,-213883.0\n41002,الإيرادات — Services,,53768.0,-46291.0\n51001,تكلفة الإيرادات — Products,151286.0,,144996.0\n51002,تكلفة الإيرادات — Services,18273.0,,16786.0\n53001,المصروفات العمومية والإدارية — Research and development,18752.0,,16217.0\n52001,مصروفات البيع والتوزيع — Selling  general and administrative,19916.0,,18245.0\n42001,إيرادات تشغيلية أخرى — Other income/(expense)  net,,803.0,-1807.0\n81001,الزكاة وضريبة الدخل — Provision for income taxes,9680.0,,10481.0", "apple-2020"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and cash equivalents,29965.0,,23646.0\n11901,موجودات متداولة أخرى — Marketable securities,31590.0,,24658.0\n11201,ذمم مدينة تجارية — Accounts receivable  net,29508.0,,28184.0\n11202,ذمم مدينة تجارية — Vendor non-trade receivables,31477.0,,32748.0\n11401,المخزون — Inventories,6331.0,,4946.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other current assets,14695.0,,21223.0\n18001,استثمارات طويلة الأجل — Marketable securities,100544.0,,120805.0\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment  net,43715.0,,42117.0\n19001,موجودات غير متداولة أخرى — Other non-current assets,64758.0,,54428.0\n20101,ذمم دائنة تجارية — Accounts payable,,62611.0,-64115.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Other current liabilities,,58829.0,-60845.0\n20301,مطلوبات عقود (دفعات مقدمة من عملاء) — Deferred revenue,,8061.0,-7912.0\n20701,قروض قصيرة الأجل والجزء المتداول — Commercial paper,,5985.0,-9982.0\n20702,قروض قصيرة الأجل والجزء المتداول — Term debt,,9822.0,-11128.0\n22201,قروض طويلة الأجل — Term debt,,95281.0,-98959.0\n22202,مطلوبات غير متداولة أخرى — Other non-current liabilities,,49848.0,-49142.0\n31001,رأس المال — Common stock and additional paid-in capital  $0.00001 par value: 50 400 000 shares authorized; 15 550 061 and 15 943 425 shares issued and outstanding  respectively,,73812.0,-64849.0\n33001,الأرباح المبقاة — Accumulated deficit,97209.0,,102871.0\n32001,الاحتياطيات — Accumulated other comprehensive loss,11452.0,,11109.0\n41001,الإيرادات — Total net sales,,383285.0,-394328.0\n51001,تكلفة الإيرادات — Total cost of sales,214137.0,,223546.0\n53001,المصروفات العمومية والإدارية — Total operating expenses,54847.0,,51345.0\n53002,المصروفات العمومية والإدارية — Other income/(expense)  net,565.0,,334.0\n81001,الزكاة وضريبة الدخل — Provision for income taxes,16741.0,,19300.0", "apple-2023"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and cash equivalents,29943.0,,29965.0\n11901,موجودات متداولة أخرى — Marketable securities (current),35228.0,,31590.0\n11201,ذمم مدينة تجارية — Accounts receivable  net,33410.0,,29508.0\n11202,ذمم مدينة تجارية — Vendor non-trade receivables,32833.0,,31477.0\n11401,المخزون — Inventories,7286.0,,6331.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other current assets,14287.0,,14695.0\n18001,استثمارات طويلة الأجل — Marketable securities (non-current),91479.0,,100544.0\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment  net,45680.0,,43715.0\n19001,موجودات غير متداولة أخرى — Other non-current assets,74834.0,,64758.0\n20101,ذمم دائنة تجارية — Accounts payable,,68960.0,-62611.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Other current liabilities,,78304.0,-58829.0\n20301,مطلوبات عقود (دفعات مقدمة من عملاء) — Deferred revenue,,8249.0,-8061.0\n20701,قروض قصيرة الأجل والجزء المتداول — Commercial paper,,9967.0,-5985.0\n20702,قروض قصيرة الأجل والجزء المتداول — Term debt (current),,10912.0,-9822.0\n22201,قروض طويلة الأجل — Term debt (non-current),,85750.0,-95281.0\n22202,مطلوبات غير متداولة أخرى — Other non-current liabilities,,45888.0,-49848.0\n31001,رأس المال — Common stock and additional paid-in capital  $0.00001 par value,,83276.0,-73812.0\n33001,الأرباح المبقاة — Accumulated deficit,112890.0,,97209.0\n32001,الاحتياطيات — Accumulated other comprehensive loss,7172.0,,11452.0\n41001,الإيرادات — Products net sales,,294866.0,-298085.0\n41002,الإيرادات — Services net sales,,96169.0,-85200.0\n51001,تكلفة الإيرادات — Products cost of sales,185233.0,,189282.0\n51002,تكلفة الإيرادات — Services cost of sales,25119.0,,24855.0\n53001,المصروفات العمومية والإدارية — Research and development,31370.0,,29915.0\n52001,مصروفات البيع والتوزيع — Selling  general and administrative,26097.0,,24932.0\n48001,إيرادات وأرباح أخرى — Other income/(expense)  net,,269.0,565.0\n81001,الزكاة وضريبة الدخل — Provision for income taxes,29749.0,,16741.0", "apple-2024"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment,1590748.0,,1494318.0\n17001,موجودات غير ملموسة — Intangible assets,164825.0,,164581.0\n18001,استثمارات طويلة الأجل — Investments in joint ventures and associates,70254.0,,65261.0\n19001,موجودات غير متداولة أخرى — Deferred income tax assets,15885.0,,20659.0\n19002,موجودات غير متداولة أخرى — Post-employment benefits,24436.0,,27365.0\n11201,ذمم مدينة تجارية — Other assets and receivables,50744.0,,46844.0\n18002,استثمارات طويلة الأجل — Investments in securities,38795.0,,39206.0\n11401,المخزون — Inventories,70542.0,,83728.0\n11202,ذمم مدينة تجارية — Trade receivables,165444.0,,167884.0\n11203,ذمم مدينة تجارية — Due from the Government,29315.0,,38274.0\n11204,ذمم مدينة تجارية — Other assets and receivables,33839.0,,40730.0\n11901,موجودات متداولة أخرى — Investments in securities,30629.0,,1658.0\n11902,موجودات متداولة أخرى — Short-term investments,14643.0,,13186.0\n11101,النقد وما في حكمه — Cash and cash equivalents,243099.0,,216642.0\n11903,موجودات متداولة أخرى — Assets classified as held for sale,8766.0,,3294.0\n22201,قروض طويلة الأجل — Borrowings,,308466.0,-261733.0\n22202,مطلوبات غير متداولة أخرى — Deferred income tax liabilities,,160664.0,-153369.0\n23001,التزامات منافع الموظفين (نهاية الخدمة) — Post-employment benefits,,25951.0,-26866.0\n20601,مخصصات — Provisions and other liabilities,,36790.0,-31044.0\n20101,ذمم دائنة تجارية — Trade payables and other liabilities,,157708.0,-157467.0\n20501,زكاة مستحقة — Income taxes and zakat,,68412.0,-71951.0\n20901,مطلوبات متداولة أخرى — Royalties,,10634.0,-12288.0\n20701,قروض قصيرة الأجل والجزء المتداول — Borrowings,,55151.0,-57557.0\n20902,مطلوبات متداولة أخرى — Liabilities directly associated with assets classified as held for sale,,6444.0,-0.0\n31001,رأس المال — Share capital,,90000.0,-90000.0\n31002,رأس المال — Additional paid-in capital,,26981.0,-26981.0\n32001,الاحتياطيات — Treasury shares,2514.0,,3943.0\n33001,الأرباح المبقاة — Retained earnings: unappropriated,,1019847.0,-944020.0\n33002,الأرباح المبقاة — Retained earnings: appropriated,,6000.0,-6000.0\n32002,الاحتياطيات — Other reserves,,1472.0,3251.0\n32003,الاحتياطيات — Non-controlling interests,,229748.0,-193126.0\n41001,الإيرادات — Revenue,,1559342.0,-1637299.0\n42001,إيرادات تشغيلية أخرى — Other income related to sales,,111862.0,-164375.0\n53001,المصروفات العمومية والإدارية — Royalties and other taxes,151421.0,,200532.0\n51001,تكلفة الإيرادات — Purchases,456233.0,,509430.0\n51002,تكلفة الإيرادات — Producing and manufacturing,132132.0,,110275.0\n52001,مصروفات البيع والتوزيع — Selling  administrative and general,83496.0,,88931.0\n53002,المصروفات العمومية والإدارية — Exploration,10141.0,,8552.0\n53003,المصروفات العمومية والإدارية — Research and development,5443.0,,5816.0\n54001,الاستهلاك والإطفاء — Depreciation and amortization,93091.0,,91679.0\n56001,خسائر الانخفاض والخسائر الائتمانية المتوقعة — Impairment and held for sale remeasurement losses,32425.0,,11834.0\n47001,إيرادات الاستثمار — Share of results of joint ventures and associates,8375.0,,4966.0\n47002,إيرادات الاستثمار — Finance and other income,,15504.0,-22891.0\n71001,تكاليف التمويل — Finance costs,11091.0,,10540.0\n81001,الزكاة وضريبة الدخل — Income taxes and zakat,352650.0,,383588.0", "aramco-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment,12962.0,,10252.0\n16001,موجودات حق الاستخدام — Right-of-use assets,1741.0,,1395.0\n17001,موجودات غير ملموسة — Goodwill,21242.0,,21025.0\n17002,موجودات غير ملموسة — Intangible assets,37846.0,,37177.0\n18001,استثمارات طويلة الأجل — Investments in associates and joint ventures,302.0,,268.0\n18002,استثمارات طويلة الأجل — Other investments,2223.0,,1632.0\n18003,استثمارات طويلة الأجل — Derivative financial instruments,498.0,,182.0\n11201,ذمم مدينة تجارية — Other receivables,1327.0,,930.0\n19001,موجودات غير متداولة أخرى — Income tax receivable,1391.0,,0.0\n19002,موجودات غير متداولة أخرى — Deferred tax assets,5819.0,,5347.0\n11401,المخزون — Inventories,6557.0,,5288.0\n11202,ذمم مدينة تجارية — Trade and other receivables,15177.0,,12972.0\n11901,موجودات متداولة أخرى — Other investments,30.0,,166.0\n11902,موجودات متداولة أخرى — Derivative financial instruments,90.0,,54.0\n11903,موجودات متداولة أخرى — Income tax receivable,1158.0,,1859.0\n11101,النقد وما في حكمه — Cash and cash equivalents,5711.0,,5488.0\n20701,قروض قصيرة الأجل والجزء المتداول — Interest-bearing loans and borrowings,,3104.0,-2337.0\n22101,التزامات عقود الإيجار — Lease liabilities,,382.0,-339.0\n20101,ذمم دائنة تجارية — Trade and other payables,,25280.0,-22465.0\n20901,مطلوبات متداولة أخرى — Derivative financial instruments,,81.0,-50.0\n20601,مخصصات — Provisions,,686.0,-1269.0\n20501,زكاة مستحقة — Income tax payable,,1084.0,-1406.0\n22201,قروض طويلة الأجل — Interest-bearing loans and borrowings,,24715.0,-26506.0\n22102,التزامات عقود الإيجار — Lease liabilities,,1421.0,-1113.0\n22202,مطلوبات غير متداولة أخرى — Derivative financial instruments,,,-115.0\n22203,مطلوبات غير متداولة أخرى — Deferred tax liabilities,,3500.0,-3305.0\n23001,التزامات منافع الموظفين (نهاية الخدمة) — Retirement benefit obligations,,1105.0,-1330.0\n20602,مخصصات — Provisions,,918.0,-921.0\n20502,زكاة مستحقة — Income tax payable,,700.0,-238.0\n20102,ذمم دائنة تجارية — Other payables,,2379.0,-1770.0\n31001,رأس المال — Share capital,,388.0,-388.0\n31002,رأس المال — Share premium account,,35266.0,-35226.0\n32001,الاحتياطيات — Capital redemption reserve,,153.0,-153.0\n32002,الاحتياطيات — Merger reserve,,448.0,-448.0\n32003,الاحتياطيات — Other reserves,,1440.0,-1411.0\n33001,الأرباح المبقاة — Retained earnings,,739.0,3881.0\n32004,الاحتياطيات — Non-controlling interests,,52.0,-85.0\n41001,الإيرادات — Total Revenue,,58739.0,-54073.0\n51001,تكلفة الإيرادات — Cost of sales,10633.0,,10207.0\n53001,المصروفات العمومية والإدارية — Research and development expense,14232.0,,13583.0\n52001,مصروفات البيع والتوزيع — Selling  general and administrative expense,19933.0,,19977.0\n42001,إيرادات تشغيلية أخرى — Other operating income and expense,,381.0,-252.0\n52002,مصروفات البيع والتوزيع — Distribution expense,579.0,,555.0\n47001,إيرادات الاستثمار — Finance income,,360.0,-458.0\n71001,تكاليف التمويل — Finance expense,1694.0,,1742.0\n47002,إيرادات الاستثمار — Share of after tax losses in associates and joint ventures,7.0,,28.0\n81001,الزكاة وضريبة الدخل — Taxation,2169.0,,1650.0", "astrazeneca-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and cash equivalents,47719.0,,44333.0\n18001,استثمارات طويلة الأجل — Short-term investments in U.S. Treasury Bills,321434.0,,286472.0\n18002,استثمارات طويلة الأجل — Investments in fixed maturity securities,17816.0,,15364.0\n18003,استثمارات طويلة الأجل — Investments in equity securities,297778.0,,271588.0\n18004,استثمارات طويلة الأجل — Equity method investments,19978.0,,31134.0\n11201,ذمم مدينة تجارية — Loans and finance receivables,29836.0,,27798.0\n11202,ذمم مدينة تجارية — Other receivables,44331.0,,43887.0\n11401,المخزون — Inventories,24424.0,,24008.0\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment,31885.0,,30071.0\n15002,ممتلكات وآلات ومعدات — Equipment held for lease,18535.0,,17828.0\n17001,موجودات غير ملموسة — Goodwill,55945.0,,56860.0\n17002,موجودات غير ملموسة — Other intangible assets,33802.0,,34638.0\n11901,موجودات متداولة أخرى — Deferred charges - retroactive reinsurance,8104.0,,8797.0\n11902,موجودات متداولة أخرى — Other,24413.0,,24994.0\n11102,النقد وما في حكمه — Cash and cash equivalents,4158.0,,3396.0\n11203,ذمم مدينة تجارية — Receivables,4387.0,,4503.0\n15003,ممتلكات وآلات ومعدات — Property  plant and equipment,184740.0,,175030.0\n17003,موجودات غير ملموسة — Goodwill,27129.0,,27020.0\n11903,موجودات متداولة أخرى — Regulatory assets,4821.0,,5349.0\n11904,موجودات متداولة أخرى — Other,20941.0,,20811.0\n20901,مطلوبات متداولة أخرى — Unpaid losses and loss adjustment expenses,,120713.0,-115151.0\n20902,مطلوبات متداولة أخرى — Unpaid losses and loss adjustment expenses - retroactive reinsurance,,31048.0,-32443.0\n20301,مطلوبات عقود (دفعات مقدمة من عملاء) — Unearned insurance premiums,,31339.0,-30808.0\n20903,مطلوبات متداولة أخرى — Life  annuity and health insurance benefits,,17890.0,-17616.0\n20904,مطلوبات متداولة أخرى — Other insurance policyholder liabilities,,10312.0,-10703.0\n20101,ذمم دائنة تجارية — Accounts payable  accruals and other liabilities,,38019.0,-37489.0\n20905,مطلوبات متداولة أخرى — Payable for purchase of U.S. Treasury Bills,,167.0,-12769.0\n20302,مطلوبات عقود (دفعات مقدمة من عملاء) — Aircraft repurchase liabilities and unearned lease revenues,,10686.0,-9356.0\n22201,قروض طويلة الأجل — Notes payable and other borrowings,,45763.0,-44885.0\n20102,ذمم دائنة تجارية — Accounts payable  accruals and other liabilities,,19250.0,-18226.0\n20906,مطلوبات متداولة أخرى — Regulatory liabilities,,7013.0,-7033.0\n22202,قروض طويلة الأجل — Notes payable and other borrowings,,83318.0,-79877.0\n22203,مطلوبات غير متداولة أخرى — Income taxes  principally deferred,,86955.0,-85870.0\n31001,رأس المال — Common stock at par value,,8.0,-8.0\n32001,الاحتياطيات — Capital in excess of par value,,35612.0,-35665.0\n32002,الاحتياطيات — Accumulated other comprehensive income,2448.0,,3584.0\n33001,الأرباح المبقاة — Retained earnings,,695926.0,-606657.0\n32003,الاحتياطيات — Treasury stock  at cost,78939.0,,78939.0\n32004,الاحتياطيات — Noncontrolling interests,,2284.0,-2287.0\n41001,الإيرادات — Insurance premiums earned,,88902.0,-88257.0\n41002,الإيرادات — Sales and service revenues,,199524.0,-202334.0\n41003,الإيرادات — Leasing revenues,,10034.0,-9227.0\n42001,إيرادات تشغيلية أخرى — Interest  dividend and other investment income,,23261.0,-21825.0\n41004,الإيرادات — Railroad transportation revenues,,23330.0,-23355.0\n41005,الإيرادات — Utility and energy operating revenues,,21856.0,-21518.0\n42002,إيرادات تشغيلية أخرى — Service revenues and other income,,4537.0,-4917.0\n42003,إيرادات تشغيلية أخرى — Investment gains (losses),,39078.0,-52799.0\n51001,تكلفة الإيرادات — Insurance losses and loss adjustment expenses,57307.0,,56186.0\n51002,تكلفة الإيرادات — Life  annuity and health insurance benefits,4379.0,,3858.0\n53001,المصروفات العمومية والإدارية — Insurance underwriting expenses,17756.0,,16808.0\n51003,تكلفة الإيرادات — Cost of sales and services,160062.0,,163642.0\n51004,تكلفة الإيرادات — Cost of leasing,7685.0,,7069.0\n52001,مصروفات البيع والتوزيع — Selling  general and administrative expenses,29735.0,,25642.0\n71001,تكاليف التمويل — Interest expense,1329.0,,1594.0\n51005,تكلفة الإيرادات — Freight rail transportation expenses,15366.0,,16464.0\n51006,تكلفة الإيرادات — Utilities and energy cost of sales and other expenses,15965.0,,18399.0\n53002,المصروفات العمومية والإدارية — Other expenses,4155.0,,4016.0\n71002,تكاليف التمويل — Interest expense,4343.0,,3332.0\n47001,إيرادات الاستثمار — Equity method earnings (losses),9590.0,,-1841.0\n53003,المصروفات العمومية والإدارية — items not analysed on the face of the income statement,391.0,,-1313.0\n81001,الزكاة وضريبة الدخل — Income tax expense,15199.0,,20815.0", "berkshire-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and cash equivalents,11894.0,,12501.0\n11201,ذمم مدينة تجارية — Trade and other receivables,4116.0,,5169.0\n11901,موجودات متداولة أخرى — Other financial assets,561.0,,381.0\n11401,المخزون — Inventories,5538.0,,5828.0\n11902,موجودات متداولة أخرى — Current tax assets,545.0,,314.0\n11903,موجودات متداولة أخرى — Other,176.0,,145.0\n11202,ذمم مدينة تجارية — Trade and other receivables,137.0,,170.0\n18001,استثمارات طويلة الأجل — Other financial assets,1122.0,,1229.0\n11402,المخزون — Inventories,1440.0,,1211.0\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment,76457.0,,71629.0\n17001,موجودات غير ملموسة — Intangible assets,1924.0,,1718.0\n18002,استثمارات طويلة الأجل — Investments accounted for using the equity method,4107.0,,1662.0\n19001,موجودات غير متداولة أخرى — Deferred tax assets,78.0,,67.0\n19002,موجودات غير متداولة أخرى — Other,695.0,,338.0\n20101,ذمم دائنة تجارية — Trade and other payables,,6637.0,-6719.0\n20901,مطلوبات متداولة أخرى — Interest bearing liabilities,,2018.0,-2084.0\n20902,مطلوبات متداولة أخرى — Other financial liabilities,,214.0,-512.0\n20903,مطلوبات متداولة أخرى — Current tax payable,,900.0,-884.0\n20601,مخصصات — Provisions,,5823.0,-4007.0\n20904,مطلوبات متداولة أخرى — Deferred income,,47.0,-90.0\n20102,ذمم دائنة تجارية — Trade and other payables,,33.0,-45.0\n22201,مطلوبات غير متداولة أخرى — Interest bearing liabilities,,22478.0,-18634.0\n22202,مطلوبات غير متداولة أخرى — Other financial liabilities,,1364.0,-1759.0\n22203,مطلوبات غير متداولة أخرى — Non-current tax payable,,3.0,-40.0\n22204,مطلوبات غير متداولة أخرى — Deferred tax liabilities,,3506.0,-3332.0\n20602,مخصصات — Provisions,,13498.0,-15088.0\n22205,مطلوبات غير متداولة أخرى — Deferred income,,51.0,-48.0\n31001,رأس المال — Share capital,,5015.0,-4899.0\n32001,الاحتياطيات — Treasury shares,18.0,,36.0\n32002,الاحتياطيات — Reserves,2.0,,15.0\n33001,الأرباح المبقاة — Retained earnings,,31527.0,-30362.0\n32003,الاحتياطيات — Non-controlling interests,,4553.0,-4309.0\n41001,الإيرادات — Revenue,,51262.0,-55658.0\n42001,إيرادات تشغيلية أخرى — Other income,,368.0,-1285.0\n53001,المصروفات العمومية والإدارية — Expenses excluding net finance costs,32319.0,,36750.0\n47001,إيرادات الاستثمار — Profit/(loss) from equity accounted investments  related impairments and expenses,,153.0,2656.0\n71001,تكاليف التمويل — Financial expenses,1771.0,,2198.0\n47002,إيرادات الاستثمار — Financial income,,660.0,-709.0\n81001,الزكاة وضريبة الدخل — Total taxation expense,7210.0,,6447.0", "bhp-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and due from banks,28595.0,,26003.0\n11901,موجودات متداولة أخرى — Interest-bearing deposits with the Federal Reserve  non-U.S. central banks and other banks,203250.0,,264111.0\n18001,استثمارات طويلة الأجل — Time deposits placed and other short-term investments,7474.0,,6372.0\n18002,استثمارات طويلة الأجل — Federal funds sold and securities borrowed or purchased under agreements to resell,316578.0,,274709.0\n11902,موجودات متداولة أخرى — Trading account assets,366954.0,,314460.0\n18003,استثمارات طويلة الأجل — Derivative assets,40881.0,,40948.0\n18004,استثمارات طويلة الأجل — Debt securities carried at fair value,402975.0,,358607.0\n18005,استثمارات طويلة الأجل — Held-to-maturity debt securities,522660.0,,558677.0\n11201,ذمم مدينة تجارية — Loans and leases,1185700.0,,1095835.0\n11903,موجودات متداولة أخرى — Allowance for loan and lease losses,,13203.0,-13240.0\n15001,ممتلكات وآلات ومعدات — Premises and equipment  net,12516.0,,12168.0\n17001,موجودات غير ملموسة — Goodwill,69021.0,,69021.0\n11904,موجودات متداولة أخرى — Loans held-for-sale,5165.0,,9545.0\n11202,ذمم مدينة تجارية — Customer and other receivables,98186.0,,82247.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other assets,164986.0,,161836.0\n22201,قروض طويلة الأجل — Deposits in U.S. offices: noninterest-bearing,,517834.0,-507561.0\n22202,قروض طويلة الأجل — Deposits in U.S. offices: interest-bearing,,1361177.0,-1329014.0\n22203,قروض طويلة الأجل — Deposits in non-U.S. offices: noninterest-bearing,,14216.0,-16297.0\n22204,قروض طويلة الأجل — Deposits in non-U.S. offices: interest-bearing,,125502.0,-112595.0\n20901,مطلوبات متداولة أخرى — Federal funds purchased and securities loaned or sold under agreements to repurchase,,344716.0,-331758.0\n20902,مطلوبات متداولة أخرى — Trading account liabilities,,105996.0,-92543.0\n20903,مطلوبات متداولة أخرى — Derivative liabilities,,42076.0,-39353.0\n22205,قروض طويلة الأجل — Short-term borrowings,,48088.0,-43391.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Accrued expenses and other liabilities,,231074.0,-211545.0\n22206,قروض طويلة الأجل — Long-term debt,,317816.0,-283279.0\n32001,الاحتياطيات — Preferred stock,,25992.0,-23159.0\n31001,رأس المال — Common stock and additional paid-in capital,,26084.0,-45336.0\n33001,الأرباح المبقاة — Retained earnings,,231184.0,-213780.0\n32002,الاحتياطيات — Accumulated other comprehensive income (loss),10526.0,,15285.0\n41001,الإيرادات — Interest income,,138566.0,-146607.0\n51001,تكلفة الإيرادات — Interest expense,78470.0,,90547.0\n42001,إيرادات تشغيلية أخرى — Fees and commissions,,39402.0,-36291.0\n42002,إيرادات تشغيلية أخرى — Market making and similar activities,,12014.0,-12967.0\n42003,إيرادات تشغيلية أخرى — Other income (loss),,1585.0,-538.0\n56001,خسائر الانخفاض والخسائر الائتمانية المتوقعة — Provision for credit losses,5675.0,,5821.0\n53001,المصروفات العمومية والإدارية — Compensation and benefits,42346.0,,40182.0\n53002,المصروفات العمومية والإدارية — Information processing and communications,7453.0,,7231.0\n53003,المصروفات العمومية والإدارية — Occupancy and equipment,7448.0,,7289.0\n53004,المصروفات العمومية والإدارية — Product delivery and transaction related,3924.0,,3494.0\n53005,المصروفات العمومية والإدارية — Professional fees,2580.0,,2669.0\n52001,مصروفات البيع والتوزيع — Marketing,2204.0,,1956.0\n53006,المصروفات العمومية والإدارية — Other general operating,3772.0,,3991.0\n81001,الزكاة وضريبة الدخل — Income tax expense,7186.0,,6250.0", "bofa-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment,98633.0,,100238.0\n17001,موجودات غير ملموسة — Goodwill,10300.0,,14888.0\n17002,موجودات غير ملموسة — Intangible assets,8197.0,,9646.0\n18001,استثمارات طويلة الأجل — Investments in joint ventures,13400.0,,12291.0\n18002,استثمارات طويلة الأجل — Investments in associates,7325.0,,7741.0\n18003,استثمارات طويلة الأجل — Other investments,857.0,,1292.0\n19001,موجودات غير متداولة أخرى — Loans,1991.0,,1961.0\n11201,ذمم مدينة تجارية — Trade and other receivables,2376.0,,1815.0\n18004,استثمارات طويلة الأجل — Derivative financial instruments,20957.0,,16114.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Prepayments,608.0,,548.0\n19002,موجودات غير متداولة أخرى — Deferred tax assets,4325.0,,5403.0\n19003,موجودات غير متداولة أخرى — Defined benefit pension plan surpluses,7771.0,,7457.0\n11901,موجودات متداولة أخرى — Loans,457.0,,223.0\n11401,المخزون — Inventories,22499.0,,23232.0\n11202,ذمم مدينة تجارية — Trade and other receivables,26014.0,,27127.0\n11902,موجودات متداولة أخرى — Derivative financial instruments,5180.0,,5112.0\n11602,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Prepayments,3422.0,,2594.0\n11903,موجودات متداولة أخرى — Current tax receivable,1153.0,,1096.0\n11904,موجودات متداولة أخرى — Other investments,158.0,,165.0\n11101,النقد وما في حكمه — Cash and cash equivalents,36556.0,,39204.0\n11905,موجودات متداولة أخرى — Assets classified as held for sale,6347.0,,4081.0\n20101,ذمم دائنة تجارية — Trade and other payables,,56843.0,-58411.0\n20901,مطلوبات متداولة أخرى — Derivative financial instruments,,4413.0,-4347.0\n20902,مطلوبات متداولة أخرى — Accruals,,5572.0,-6071.0\n22101,التزامات عقود الإيجار — Lease liabilities,,2832.0,-2660.0\n20701,قروض قصيرة الأجل والجزء المتداول — Finance debt,,3356.0,-4474.0\n20903,مطلوبات متداولة أخرى — Current tax payable,,1262.0,-1573.0\n20601,مخصصات — Provisions,,4709.0,-3600.0\n20904,مطلوبات متداولة أخرى — Liabilities directly associated with assets classified as held for sale,,1594.0,-1105.0\n20102,ذمم دائنة تجارية — Other payables,,7975.0,-9409.0\n22201,مطلوبات غير متداولة أخرى — Derivative financial instruments,,19667.0,-18532.0\n22202,مطلوبات غير متداولة أخرى — Accruals,,1834.0,-1326.0\n22102,التزامات عقود الإيجار — Lease liabilities,,11739.0,-9340.0\n22203,قروض طويلة الأجل — Finance debt,,54602.0,-55073.0\n22204,مطلوبات غير متداولة أخرى — Deferred tax liabilities,,7642.0,-8428.0\n20602,مخصصات — Provisions,,15670.0,-14688.0\n23001,التزامات منافع الموظفين (نهاية الخدمة) — Defined benefit pension plan and other post-employment benefit plan deficits,,4816.0,-4873.0\n32001,الاحتياطيات — bp shareholders’ equity,,51757.0,-58017.0\n32002,الاحتياطيات — Non-controlling interests,,20948.0,-19072.0\n41001,الإيرادات — Sales and other operating revenues,,189335.0,-189185.0\n47001,إيرادات الاستثمار — Earnings from joint ventures – after interest and tax,300.0,,-909.0\n47002,إيرادات الاستثمار — Earnings from associates – after interest and tax,,918.0,-1084.0\n42001,إيرادات تشغيلية أخرى — Interest and other income,,1609.0,-2773.0\n42002,إيرادات تشغيلية أخرى — Gains on sale of businesses and fixed assets,,987.0,-678.0\n51001,تكلفة الإيرادات — Purchases,110640.0,,113941.0\n53001,المصروفات العمومية والإدارية — Production and manufacturing expenses,25646.0,,26584.0\n53002,المصروفات العمومية والإدارية — Production and similar taxes,1698.0,,1799.0\n54001,الاستهلاك والإطفاء — Depreciation  depletion and amortization,17822.0,,16622.0\n56001,خسائر الانخفاض والخسائر الائتمانية المتوقعة — Net impairment and losses on sale of businesses and fixed assets,6037.0,,6995.0\n53003,المصروفات العمومية والإدارية — Exploration expense,570.0,,974.0\n52001,مصروفات البيع والتوزيع — Distribution and administration expenses,17494.0,,16417.0\n71001,تكاليف التمويل — Finance costs,5106.0,,4683.0\n71002,تكاليف التمويل — Net finance (income) expense relating to pensions and other post-employment benefits,,210.0,-168.0\n81001,الزكاة وضريبة الدخل — Taxation,6451.0,,5553.0", "bp-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and liquid assets,72443.0,,83819.0\n11201,ذمم مدينة تجارية — Receivables from financial institutions,5967.0,,7604.0\n11901,موجودات متداولة أخرى — Assets at fair value through income statement,113238.0,,96370.0\n18001,استثمارات طويلة الأجل — Derivative assets,27514.0,,24719.0\n18002,استثمارات طويلة الأجل — Investment securities at amortised cost,390.0,,633.0\n18003,استثمارات طويلة الأجل — Investment securities at fair value through other comprehensive income,124108.0,,107018.0\n11202,ذمم مدينة تجارية — Loans and other receivables,1079452.0,,1007756.0\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment,3606.0,,3563.0\n17001,موجودات غير ملموسة — Intangible assets,8515.0,,8082.0\n11902,موجودات متداولة أخرى — Deferred tax assets,2910.0,,2599.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other assets,14313.0,,11636.0\n22201,قروض طويلة الأجل — Deposits and other public borrowings,,1012557.0,-937857.0\n20101,ذمم دائنة تجارية — Payables to financial institutions,,34733.0,-27956.0\n20901,مطلوبات متداولة أخرى — Liabilities at fair value through income statement,,64254.0,-49842.0\n20902,مطلوبات متداولة أخرى — Derivative liabilities,,25050.0,-25146.0\n20501,زكاة مستحقة — Current tax liabilities,,658.0,-780.0\n22202,مطلوبات غير متداولة أخرى — Deferred tax liabilities,,67.0,-64.0\n20601,مخصصات — Provisions,,2917.0,-2831.0\n20903,مطلوبات متداولة أخرى — Term funding from central banks,,,-1131.0\n22203,قروض طويلة الأجل — Debt issues,,170920.0,-170509.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Bills payable and other liabilities,,21121.0,-19934.0\n20904,مطلوبات متداولة أخرى — Loan capital,,41475.0,-38973.0\n31001,رأس المال — Ordinary share capital,,33531.0,-33560.0\n32001,الاحتياطيات — Reserves,1428.0,,-1242.0\n33001,الأرباح المبقاة — Retained profits,,35735.0,-33858.0\n41001,الإيرادات — Effective interest income,,61976.0,-61420.0\n41002,الإيرادات — Other interest income,,3756.0,-3690.0\n51001,تكلفة الإيرادات — Interest expense,40146.0,,41087.0\n42001,إيرادات تشغيلية أخرى — Net other operating income,,4567.0,-4267.0\n53001,المصروفات العمومية والإدارية — Operating expenses,13785.0,,13015.0\n56001,خسائر الانخفاض والخسائر الائتمانية المتوقعة — Loan impairment expense,788.0,,726.0\n81001,الزكاة وضريبة الدخل — Income tax expense,4669.0,,4416.0\n49501,الربح (الخسارة) من العمليات غير المستمرة — Net loss after income tax from discontinued operations,45.0,,17.0", "cba-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and cash equivalents,7508.0,,10123.0\n11901,موجودات متداولة أخرى — Investments,10346.0,,16023.0\n11201,ذمم مدينة تجارية — Accounts receivable  net of allowance of $87 at July 27  2024 and $85 at July 29  2023,6685.0,,5854.0\n11401,المخزون — Inventories,3373.0,,3644.0\n11202,ذمم مدينة تجارية — Financing receivables  net,3338.0,,3352.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other current assets,5612.0,,4352.0\n15001,ممتلكات وآلات ومعدات — Property and equipment  net,2090.0,,2085.0\n11203,ذمم مدينة تجارية — Financing receivables  net,3376.0,,3483.0\n17001,موجودات غير ملموسة — Goodwill,58660.0,,38535.0\n17002,موجودات غير ملموسة — Purchased intangible assets  net,11219.0,,1818.0\n19001,موجودات غير متداولة أخرى — Deferred tax assets,6262.0,,6576.0\n11602,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other assets,5944.0,,6007.0\n20701,قروض قصيرة الأجل والجزء المتداول — Short-term debt,,11341.0,-1733.0\n20101,ذمم دائنة تجارية — Accounts payable,,2304.0,-2313.0\n20501,زكاة مستحقة — Income taxes payable,,1439.0,-4235.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Accrued compensation,,3608.0,-3984.0\n20301,مطلوبات عقود (دفعات مقدمة من عملاء) — Deferred revenue,,16249.0,-13908.0\n20202,مصروفات مستحقة ومطلوبات أخرى — Other current liabilities,,5643.0,-5136.0\n22201,قروض طويلة الأجل — Long-term debt,,19621.0,-6658.0\n20502,زكاة مستحقة — Income taxes payable,,3985.0,-5756.0\n20302,مطلوبات عقود (دفعات مقدمة من عملاء) — Deferred revenue,,12226.0,-11642.0\n22202,مطلوبات غير متداولة أخرى — Other long-term liabilities,,2540.0,-2134.0\n32001,الاحتياطيات — Preferred stock  $0.001 par value: 5 shares authorized; none issued and outstanding,,,-0.0\n31001,رأس المال — Common stock and additional paid-in capital  $0.001 par value: 20 000 shares authorized; 4 007 and 4 066 shares issued and outstanding at July 27  2024 and July 29  2023  respectively,,45800.0,-44289.0\n33001,الأرباح المبقاة — Retained earnings,9233.0,,10974.0\n32002,الاحتياطيات — Accumulated other comprehensive loss,1430.0,,1575.0\n41001,الإيرادات — Product,,39253.0,-43142.0\n41002,الإيرادات — Services,,14550.0,-13856.0\n51001,تكلفة الإيرادات — Product cost of sales,14339.0,,16590.0\n51002,تكلفة الإيرادات — Services cost of sales,4636.0,,4655.0\n53001,المصروفات العمومية والإدارية — Research and development,7983.0,,7551.0\n52001,مصروفات البيع والتوزيع — Sales and marketing,10364.0,,9880.0\n53002,المصروفات العمومية والإدارية — General and administrative,2813.0,,2478.0\n54001,الاستهلاك والإطفاء — Amortization of purchased intangible assets,698.0,,282.0\n53003,المصروفات العمومية والإدارية — Restructuring and other charges,789.0,,531.0\n47001,إيرادات الاستثمار — Interest income,,1365.0,-962.0\n71001,تكاليف التمويل — Interest expense,1006.0,,427.0\n53004,المصروفات العمومية والإدارية — Other income (loss)  net,306.0,,248.0\n81001,الزكاة وضريبة الدخل — Provision for income taxes,1914.0,,2705.0", "cisco-2024"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n17001,موجودات غير ملموسة — Goodwill and other intangible assets,54299306.0,,43728088.0\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment,50392075.0,,44510998.0\n16001,موجودات حق الاستخدام — Right-of-use assets,3890625.0,,2813196.0\n18001,استثمارات طويلة الأجل — Investments in associates and joint ventures,20880707.0,,22428244.0\n18002,استثمارات طويلة الأجل — Other investments,10921029.0,,7223255.0\n11201,ذمم مدينة تجارية — Trade and other receivables,773903.0,,726065.0\n11202,ذمم مدينة تجارية — Finance lease receivables,1164730.0,,1316304.0\n18003,استثمارات طويلة الأجل — Derivative financial instruments,,,456722.0\n19001,موجودات غير متداولة أخرى — Contract assets,1151617.0,,863575.0\n19002,موجودات غير متداولة أخرى — Deferred tax assets,691715.0,,492388.0\n11401,المخزون — Inventories,1301605.0,,1200048.0\n11203,ذمم مدينة تجارية — Trade and other receivables,19163632.0,,17051602.0\n11901,موجودات متداولة أخرى — Current income tax assets,1090058.0,,1005138.0\n11204,ذمم مدينة تجارية — Finance lease receivables,162731.0,,169047.0\n11205,ذمم مدينة تجارية — Due from related parties,73744.0,,119765.0\n11902,موجودات متداولة أخرى — Contract assets,3362055.0,,2901242.0\n11903,موجودات متداولة أخرى — Other investments,1430834.0,,2448409.0\n11904,موجودات متداولة أخرى — Derivative financial instruments,412.0,,5612.0\n11101,النقد وما في حكمه — Cash and bank balances,34308361.0,,33628232.0\n11905,موجودات متداولة أخرى — Assets held for sale,,,238574.0\n20101,ذمم دائنة تجارية — Trade and other payables,,1572119.0,-1582181.0\n22201,قروض طويلة الأجل — Borrowings,,30750599.0,-33658532.0\n20102,ذمم دائنة تجارية — Payables related to investments and licenses,,592278.0,-1045331.0\n22202,مطلوبات غير متداولة أخرى — Conditional commitment to acquire NCI's share,,12003380.0,-8092091.0\n22203,مطلوبات غير متداولة أخرى — Derivative financial instruments,,38789.0,-0.0\n22204,مطلوبات غير متداولة أخرى — Deferred tax liabilities,,3015466.0,-2486883.0\n22101,التزامات عقود الإيجار — Lease liabilities,,4601508.0,-3590382.0\n20601,مخصصات — Provisions,,633575.0,-600351.0\n20602,مخصصات — Provision for employees' end of service benefits,,1482464.0,-1342162.0\n20301,مطلوبات عقود (دفعات مقدمة من عملاء) — Contract liabilities,,174762.0,-104091.0\n20103,ذمم دائنة تجارية — Trade and other payables,,38370532.0,-31382335.0\n20302,مطلوبات عقود (دفعات مقدمة من عملاء) — Contract liabilities,,3712600.0,-3167513.0\n20701,قروض قصيرة الأجل والجزء المتداول — Borrowings,,36888438.0,-35536446.0\n20104,ذمم دائنة تجارية — Payables related to investments and licenses,,980134.0,-572716.0\n20501,زكاة مستحقة — Current income tax liabilities,,1994520.0,-1262928.0\n22102,التزامات عقود الإيجار — Lease liabilities,,1052868.0,-806414.0\n20603,مخصصات — Provisions,,4407777.0,-3886633.0\n20901,مطلوبات متداولة أخرى — Derivative financial instruments,,779516.0,-0.0\n20902,مطلوبات متداولة أخرى — Due to related parties,,114546.0,-146890.0\n20604,مخصصات — Provision for employees' end of service benefits,,130661.0,-142293.0\n31001,رأس المال — Share capital,,8696754.0,-8696754.0\n32001,الاحتياطيات — Reserves,,24526498.0,-25247007.0\n33001,الأرباح المبقاة — Retained earnings,,2327905.0,-1073637.0\n32002,الاحتياطيات — Non-controlling interests,,10054959.0,-8319601.0\n41001,الإيرادات — Revenue,,72858461.0,-59202961.0\n53001,المصروفات العمومية والإدارية — Operating expenses,50414280.0,,39479411.0\n56001,خسائر الانخفاض والخسائر الائتمانية المتوقعة — Impairment loss on trade receivables and contract assets,1125142.0,,842405.0\n56002,خسائر الانخفاض والخسائر الائتمانية المتوقعة — Impairment loss on other assets - net,26807.0,,1295139.0\n47001,إيرادات الاستثمار — Share of results of associates and joint ventures,,1948486.0,-2475403.0\n47002,إيرادات الاستثمار — Finance and other income,,8167031.0,-2732530.0\n71001,تكاليف التمويل — Finance and other costs,4624409.0,,5211609.0\n81001,الزكاة وضريبة الدخل — Federal royalty,7423816.0,,5282497.0\n81002,الزكاة وضريبة الدخل — Corporate tax expenses,3203033.0,,1716500.0", "eand-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and deposits with central banks,124647.0,,104665.0\n11201,ذمم مدينة تجارية — Due from banks,136147.0,,132766.0\n18001,استثمارات طويلة الأجل — Investment securities,206608.0,,199223.0\n11202,ذمم مدينة تجارية — Loans and receivables,632847.0,,501627.0\n18002,استثمارات طويلة الأجل — Positive fair value of derivatives,12413.0,,12468.0\n11901,موجودات متداولة أخرى — Customer acceptances,9350.0,,9478.0\n15001,ممتلكات وآلات ومعدات — Property and equipment,8742.0,,7941.0\n17001,موجودات غير ملموسة — Goodwill and intangibles,5620.0,,5626.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other assets,28068.0,,22788.0\n22201,قروض طويلة الأجل — Due to banks,,66277.0,-55487.0\n22202,قروض طويلة الأجل — Customer deposits,,786024.0,-666777.0\n22203,قروض طويلة الأجل — Debt issued  sukuks payable and other borrowed funds,,90287.0,-79903.0\n20901,مطلوبات متداولة أخرى — Negative fair value of derivatives,,19208.0,-15897.0\n20902,مطلوبات متداولة أخرى — Customer acceptances,,9350.0,-9478.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Other liabilities,,48477.0,-42826.0\n31001,رأس المال — Issued capital,,6317.0,-6317.0\n32001,الاحتياطيات — Treasury shares,46.0,,46.0\n32002,الاحتياطيات — Tier 1 capital notes,,9129.0,-9129.0\n31002,رأس المال — Share premium reserve,,17954.0,-17954.0\n32003,الاحتياطيات — Legal and statutory reserve,,3158.0,-3158.0\n32004,الاحتياطيات — Other reserves,,2945.0,-2945.0\n32005,الاحتياطيات — Fair value reserve,1122.0,,1132.0\n32006,الاحتياطيات — Currency translation reserve,4438.0,,6071.0\n33001,الأرباح المبقاة — Retained earnings,,86678.0,-70728.0\n32007,الاحتياطيات — Non-controlling interests,,237.0,-224.0\n41001,الإيرادات — Interest and similar income,,70892.0,-69129.0\n51001,تكلفة الإيرادات — Interest and similar expense,42485.0,,42760.0\n41002,الإيرادات — Income from islamic financing and investment products,,11083.0,-9003.0\n51002,تكلفة الإيرادات — Distribution on islamic deposits and profit paid to sukuk holders,3988.0,,2976.0\n41003,الإيرادات — Fee and commission income,,15738.0,-13347.0\n51003,تكلفة الإيرادات — Fee and commission expense,7706.0,,6554.0\n42001,إيرادات تشغيلية أخرى — Net gain on trading securities,,2263.0,-838.0\n42002,إيرادات تشغيلية أخرى — Other operating income,,3522.0,-4107.0\n53001,المصروفات العمومية والإدارية — General and administrative expenses,15035.0,,13751.0\n56001,خسائر الانخفاض والخسائر الائتمانية المتوقعة — Net impairment,1468.0,,106.0\n53002,المصروفات العمومية والإدارية — Hyperinflation adjustment on net monetary position,2978.0,,3136.0\n81001,الزكاة وضريبة الدخل — Taxation charge,5831.0,,4133.0", "emiratesnbd-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment,9322.0,,9227.0\n16001,موجودات حق الاستخدام — Right of use assets,726.0,,846.0\n17001,موجودات غير ملموسة — Goodwill,7018.0,,6982.0\n17002,موجودات غير ملموسة — Other intangible assets,16748.0,,15515.0\n18001,استثمارات طويلة الأجل — Investments in associates and joint ventures,89.0,,96.0\n18002,استثمارات طويلة الأجل — Other investments,1037.0,,1100.0\n19001,موجودات غير متداولة أخرى — Deferred tax assets,6520.0,,6757.0\n18003,استثمارات طويلة الأجل — Derivative financial instruments,,,1.0\n19002,موجودات غير متداولة أخرى — Other non-current assets,2148.0,,1942.0\n11401,المخزون — Inventories,5924.0,,5669.0\n11901,موجودات متداولة أخرى — Current tax recoverable,288.0,,489.0\n11201,ذمم مدينة تجارية — Trade and other receivables,7471.0,,6836.0\n11902,موجودات متداولة أخرى — Derivative financial instruments,121.0,,109.0\n11903,موجودات متداولة أخرى — Liquid investments,9.0,,21.0\n11101,النقد وما في حكمه — Cash and cash equivalents,3397.0,,3870.0\n11904,موجودات متداولة أخرى — Assets held for sale,300.0,,3.0\n20701,قروض قصيرة الأجل والجزء المتداول — Short-term borrowings,,3012.0,-2349.0\n20901,مطلوبات متداولة أخرى — Contingent consideration liabilities,,1348.0,-1172.0\n20101,ذمم دائنة تجارية — Trade and other payables,,15381.0,-15335.0\n20902,مطلوبات متداولة أخرى — Derivative financial instruments,,75.0,-192.0\n20903,مطلوبات متداولة أخرى — Current tax payable,,498.0,-703.0\n20601,مخصصات — Short-term provisions,,938.0,-1946.0\n20904,مطلوبات متداولة أخرى — Liabilities relating to assets held for sale,,139.0,0.0\n22201,قروض طويلة الأجل — Long-term borrowings,,14708.0,-14637.0\n22202,مطلوبات غير متداولة أخرى — Deferred tax liabilities,,291.0,-382.0\n23001,التزامات منافع الموظفين (نهاية الخدمة) — Pensions and other post-employment benefits,,1687.0,-1864.0\n22203,مطلوبات غير متداولة أخرى — Derivative financial instruments,,67.0,0.0\n20602,مخصصات — Other provisions,,610.0,-589.0\n22204,مطلوبات غير متداولة أخرى — Contingent consideration liabilities,,5385.0,-6108.0\n22205,مطلوبات غير متداولة أخرى — Other non-current liabilities,,1023.0,-1100.0\n31001,رأس المال — Share capital,,1349.0,-1348.0\n31002,رأس المال — Share premium,,3498.0,-3473.0\n33001,الأرباح المبقاة — Retained earnings,,3920.0,-4845.0\n32001,الاحتياطيات — Other reserves,,1321.0,-1054.0\n32002,الاحتياطيات — Non-controlling interests,421.0,,585.0\n41001,الإيرادات — Turnover,,32667.0,-31376.0\n51001,تكلفة الإيرادات — Cost of sales,9017.0,,9048.0\n52001,مصروفات البيع والتوزيع — Selling  general and administration,9088.0,,11015.0\n53001,المصروفات العمومية والإدارية — Research and development,7525.0,,6401.0\n42001,إيرادات تشغيلية أخرى — Royalty income,,879.0,-639.0\n48001,إيرادات وأرباح أخرى — Other operating income/(expense),,16.0,1530.0\n48002,إيرادات وأرباح أخرى — Profit/(loss) on disposal of interests in associates and joint ventures,,,-6.0\n47001,إيرادات الاستثمار — Finance income,,169.0,-122.0\n71001,تكاليف التمويل — Finance expense,701.0,,669.0\n47002,إيرادات الاستثمار — Share of after tax profit/(loss) of associates and joint ventures,5.0,,-1.0\n81001,الزكاة وضريبة الدخل — Taxation,1112.0,,526.0\n53901,المصروفات العمومية والإدارية — other items (balancing to net income),,6.0,4.0", "gsk-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and cash equivalents,1389.0,,1659.0\n11201,ذمم مدينة تجارية — Receivables  net,5597.0,,4903.0\n11401,المخزون — Merchandise inventories,25817.0,,23451.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other current assets,1588.0,,1670.0\n15001,ممتلكات وآلات ومعدات — Net property and equipment,28021.0,,26702.0\n16001,موجودات حق الاستخدام — Operating lease right-of-use assets,9204.0,,8592.0\n17001,موجودات غير ملموسة — Goodwill,22344.0,,19475.0\n17002,موجودات غير ملموسة — Intangible assets  net,10329.0,,8983.0\n11602,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other assets,806.0,,684.0\n20701,قروض قصيرة الأجل والجزء المتداول — Short-term debt,,4464.0,-316.0\n20101,ذمم دائنة تجارية — Accounts payable,,11491.0,-11938.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Accrued salaries and related expenses,,2529.0,-2315.0\n20501,زكاة مستحقة — Sales taxes payable,,508.0,-628.0\n20301,مطلوبات عقود (دفعات مقدمة من عملاء) — Deferred revenue,,2575.0,-2610.0\n20502,زكاة مستحقة — Income taxes payable,,114.0,-832.0\n20702,قروض قصيرة الأجل والجزء المتداول — Current installments of long-term debt,,4967.0,-4582.0\n22101,التزامات عقود الإيجار — Current operating lease liabilities,,1418.0,-1274.0\n20202,مصروفات مستحقة ومطلوبات أخرى — Other accrued expenses,,4358.0,-4166.0\n22201,قروض طويلة الأجل — Long-term debt  excluding current installments,,46341.0,-48485.0\n22102,التزامات عقود الإيجار — Long-term operating lease liabilities,,8160.0,-7633.0\n22202,مطلوبات غير متداولة أخرى — Deferred income taxes,,2845.0,-1962.0\n22203,مطلوبات غير متداولة أخرى — Other long-term liabilities,,2512.0,-2738.0\n31001,رأس المال — Common stock,,90.0,-90.0\n31002,رأس المال — Paid-in capital,,14809.0,-14117.0\n33001,الأرباح المبقاة — Retained earnings,,80381.0,-74727.0\n32001,الاحتياطيات — Accumulated other comprehensive loss,652.0,,1129.0\n32002,الاحتياطيات — Treasury stock  at cost,95971.0,,95971.0\n41001,الإيرادات — Net sales,,164683.0,-159514.0\n51001,تكلفة الإيرادات — Cost of sales,109818.0,,106206.0\n52001,مصروفات البيع والتوزيع — Selling  general and administrative,30702.0,,28748.0\n54001,الاستهلاك والإطفاء — Depreciation and amortization,3273.0,,3034.0\n47001,إيرادات الاستثمار — Interest income and other  net,,124.0,-201.0\n71001,تكاليف التمويل — Interest expense,2412.0,,2321.0\n81001,الزكاة وضريبة الدخل — Provision for income taxes,4446.0,,4600.0", "homedepot-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and cash equivalents,3803014.0,,3674931.0\n11201,ذمم مدينة تجارية — Trade receivables,1060271.0,,896768.0\n11202,ذمم مدينة تجارية — Receivables from financial services,1899493.0,,1694113.0\n11901,موجودات متداولة أخرى — Other financial assets,263892.0,,217743.0\n11401,المخزون — Inventories,2167184.0,,1918548.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other current assets,384494.0,,439322.0\n18001,استثمارات طويلة الأجل — Investments accounted for using the equity method,915946.0,,967404.0\n11203,ذمم مدينة تجارية — Receivables from financial services,3995259.0,,3740383.0\n18002,استثمارات طويلة الأجل — Other financial assets,855070.0,,819654.0\n15001,ممتلكات وآلات ومعدات — Equipment on operating leases,4726292.0,,5159129.0\n15002,ممتلكات وآلات ومعدات — Property  plant and equipment,3168109.0,,3079407.0\n17001,موجودات غير ملموسة — Intangible assets,870900.0,,849507.0\n19001,موجودات غير متداولة أخرى — Deferred tax assets,105792.0,,91592.0\n19002,موجودات غير متداولة أخرى — Other non-current assets,454351.0,,424652.0\n20101,ذمم دائنة تجارية — Trade payables,,1426333.0,-1236233.0\n20901,مطلوبات متداولة أخرى — Financing liabilities,,3291195.0,-3118304.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Accrued expenses,,419570.0,-375601.0\n20902,مطلوبات متداولة أخرى — Other financial liabilities,,324110.0,-236900.0\n20501,زكاة مستحقة — Income taxes payable,,86252.0,-96116.0\n20601,مخصصات — Provisions,,362701.0,-268388.0\n20202,مصروفات مستحقة ومطلوبات أخرى — Other current liabilities,,741963.0,-672857.0\n22201,مطلوبات غير متداولة أخرى — Financing liabilities,,4373973.0,-4984252.0\n22202,مطلوبات غير متداولة أخرى — Other financial liabilities,,288736.0,-282083.0\n23001,التزامات منافع الموظفين (نهاية الخدمة) — Retirement benefit liabilities,,255852.0,-282054.0\n20602,مخصصات — Provisions,,270169.0,-253625.0\n22203,مطلوبات غير متداولة أخرى — Deferred tax liabilities,,877300.0,-990754.0\n22204,مطلوبات غير متداولة أخرى — Other non-current liabilities,,449622.0,-403440.0\n31001,رأس المال — Common stock,,86067.0,-86067.0\n31002,رأس المال — Capital surplus,,185589.0,-185495.0\n32001,الاحتياطيات — Treasury stock,484931.0,,328309.0\n33001,الأرباح المبقاة — Retained earnings,,9262819.0,-8778432.0\n32002,الاحتياطيات — Other components of equity,,1417397.0,-990438.0\n32003,الاحتياطيات — Non-controlling interests,,318041.0,-299722.0\n41001,الإيرادات — Sales revenue,,16907725.0,-14552696.0\n51001,تكلفة الإيرادات — Cost of sales,13576133.0,,11567923.0\n52001,مصروفات البيع والتوزيع — Selling  general and administrative,1669908.0,,1326485.0\n53001,المصروفات العمومية والإدارية — Research and development,880915.0,,787056.0\n47001,إيرادات الاستثمار — Share of profit of investments accounted for using the equity method,,117445.0,-202512.0\n47002,إيرادات الاستثمار — Interest income,,73071.0,-25627.0\n71001,تكاليف التمويل — Interest expense,36112.0,,16867.0\n53002,المصروفات العمومية والإدارية — Other  net,55608.0,,12314.0\n81001,الزكاة وضريبة الدخل — Income tax expense,162256.0,,309489.0", "honda-2023"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11901,موجودات متداولة أخرى — Current assets,3961827499.0,,3375765076.0\n18001,استثمارات طويلة الأجل — Fund and Long-term equity investments,197612722.0,,200117473.0\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment,543392999.0,,468837633.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other assets,401839003.0,,349779329.0\n20901,مطلوبات متداولة أخرى — Current liabilities,,2710848518.0,-2174817567.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Other liabilities,,423060350.0,-368093896.0\n31001,رأس المال — Share capital,,140034032.0,-138917019.0\n31002,رأس المال — Additional paid-in capital,,226699123.0,-197922008.0\n33001,الأرباح المبقاة — Retained earnings,,1244338994.0,-1179303018.0\n32001,الاحتياطيات — Other equity,53319814.0,,42604521.0\n32002,الاحتياطيات — Treasury Stock,15194.0,,15194.0\n32003,الاحتياطيات — Non-controlling interests,,197991728.0,-206386483.0\n41001,الإيرادات — Net Operating Revenue,,8103104763.0,-6859615493.0\n51001,تكلفة الإيرادات — Operating cost,7604943727.0,,6430669575.0\n53001,المصروفات العمومية والإدارية — Operating expenses,238938076.0,,228338691.0\n42001,إيرادات تشغيلية أخرى — Non-operating income,,34221906.0,-11267930.0\n81001,الزكاة وضريبة الدخل — Income tax benefit (expense),78410380.0,,40195922.0", "honhai-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and balances at central banks,242859.0,,267674.0\n11901,موجودات متداولة أخرى — Hong Kong Government certificates of indebtedness,44063.0,,42293.0\n11902,موجودات متداولة أخرى — Trading assets,366153.0,,314842.0\n18001,استثمارات طويلة الأجل — Financial assets designated and otherwise mandatorily measured at fair value through profit or loss,133063.0,,115769.0\n18002,استثمارات طويلة الأجل — Derivatives,237740.0,,268637.0\n11903,موجودات متداولة أخرى — Loans and advances to banks,108462.0,,102039.0\n11201,ذمم مدينة تجارية — Loans and advances to customers,988399.0,,930658.0\n11904,موجودات متداولة أخرى — Reverse repurchase agreements – non-trading,298392.0,,252549.0\n18003,استثمارات طويلة الأجل — Financial investments,567211.0,,493166.0\n11905,موجودات متداولة أخرى — Assets held for sale,11115.0,,27234.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Prepayments  accrued income and other assets,184794.0,,152740.0\n11906,موجودات متداولة أخرى — Current tax assets,864.0,,1313.0\n18004,استثمارات طويلة الأجل — Interests in associates and joint ventures,29577.0,,28909.0\n17001,موجودات غير ملموسة — Goodwill and intangible assets,13107.0,,12384.0\n11907,موجودات متداولة أخرى — Deferred tax assets,7235.0,,6841.0\n22201,قروض طويلة الأجل — Hong Kong currency notes in circulation,,44063.0,-42293.0\n22202,قروض طويلة الأجل — Deposits by banks,,97952.0,-73997.0\n20901,مطلوبات متداولة أخرى — Customer accounts,,1786828.0,-1654955.0\n20902,مطلوبات متداولة أخرى — Repurchase agreements – non-trading,,204974.0,-180880.0\n20903,مطلوبات متداولة أخرى — Trading liabilities,,72122.0,-65982.0\n20904,مطلوبات متداولة أخرى — Financial liabilities designated at fair value,,158456.0,-138727.0\n20905,مطلوبات متداولة أخرى — Derivatives,,237854.0,-264448.0\n22203,قروض طويلة الأجل — Debt securities in issue,,99675.0,-105785.0\n20906,مطلوبات متداولة أخرى — Liabilities of disposal groups held for sale,,23382.0,-29011.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Accruals  deferred income and other liabilities,,142123.0,-130340.0\n20501,زكاة مستحقة — Current tax liabilities,,3037.0,-1729.0\n20301,مطلوبات عقود (دفعات مقدمة من عملاء) — Insurance contract liabilities,,122955.0,-107629.0\n20601,مخصصات — Provisions,,3441.0,-1724.0\n22204,مطلوبات غير متداولة أخرى — Deferred tax liabilities,,2100.0,-1317.0\n20907,مطلوبات متداولة أخرى — Subordinated liabilities,,28406.0,-25958.0\n31001,رأس المال — Called up share capital,,8588.0,-8973.0\n31002,رأس المال — Share premium account,,111.0,-14810.0\n32001,الاحتياطيات — Other equity instruments,,20716.0,-19070.0\n32002,الاحتياطيات — Other reserves,795.0,,10282.0\n33001,الأرباح المبقاة — Retained earnings,,146474.0,-127403.0\n32003,الاحتياطيات — Non-controlling interests,,7441.0,-7300.0\n41001,الإيرادات — Net interest income,,34794.0,-32733.0\n41002,الإيرادات — Net fee income,,13343.0,-12301.0\n41003,الإيرادات — Net income from financial instruments held for trading or managed on a fair value basis,,19682.0,-21116.0\n41004,الإيرادات — Net income/(expense) from assets and liabilities of insurance businesses  including related derivatives  measured at fair value through profit or loss,,11175.0,-5901.0\n53001,المصروفات العمومية والإدارية — Insurance finance expense,11197.0,,5978.0\n41005,الإيرادات — Insurance service result,,1825.0,-1310.0\n42001,إيرادات تشغيلية أخرى — Gain on acquisition,,,-0.0\n53002,المصروفات العمومية والإدارية — Losses recognised on sale of business operations,47.0,,1752.0\n53003,المصروفات العمومية والإدارية — Other operating income/(expense),1301.0,,-223.0\n56001,خسائر الانخفاض والخسائر الائتمانية المتوقعة — Change in expected credit losses and other credit impairment charges,3850.0,,3414.0\n53004,المصروفات العمومية والإدارية — Employee compensation and benefits,19553.0,,18465.0\n53005,المصروفات العمومية والإدارية — General and administrative expenses,11959.0,,10498.0\n54001,الاستهلاك والإطفاء — Depreciation and impairment of property  plant and equipment and right-of-use assets,1971.0,,1845.0\n54002,الاستهلاك والإطفاء — Amortisation and impairment of intangible assets,2945.0,,2235.0\n47001,إيرادات الاستثمار — Share of profit in associates and joint ventures,,2911.0,-2912.0\n56002,خسائر الانخفاض والخسائر الائتمانية المتوقعة — Impairment of interest in associate,1000.0,,-0.0\n81001,الزكاة وضريبة الدخل — Tax expense,6776.0,,7310.0", "hsbc-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment,12651.0,,11778.0\n16001,موجودات حق الاستخدام — Right-of-use assets,6177.0,,6311.0\n19001,موجودات غير متداولة أخرى — Capital work-in-progress,526.0,,814.0\n17001,موجودات غير ملموسة — Goodwill,12117.0,,10106.0\n17002,موجودات غير ملموسة — Other intangible assets,2825.0,,2766.0\n18001,استثمارات طويلة الأجل — Investments,8930.0,,11059.0\n19002,موجودات غير متداولة أخرى — Loans,6.0,,16.0\n18002,استثمارات طويلة الأجل — Other financial assets,2776.0,,3511.0\n19003,موجودات غير متداولة أخرى — Deferred tax assets (net),2264.0,,1108.0\n19004,موجودات غير متداولة أخرى — Income tax assets (net),666.0,,1622.0\n19005,موجودات غير متداولة أخرى — Other non-current assets,3540.0,,2713.0\n11901,موجودات متداولة أخرى — Investments,12950.0,,12482.0\n11201,ذمم مدينة تجارية — Trade receivables,35234.0,,31158.0\n11101,النقد وما في حكمه — Cash and cash equivalents,22201.0,,24455.0\n11902,موجودات متداولة أخرى — Loans,234.0,,249.0\n11903,موجودات متداولة أخرى — Other financial assets,15890.0,,13840.0\n11904,موجودات متداولة أخرى — Income tax assets (net),1835.0,,2975.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other current assets,15145.0,,11940.0\n22101,التزامات عقود الإيجار — Lease liabilities,,6016.0,-5772.0\n22201,مطلوبات غير متداولة أخرى — Other financial liabilities,,2092.0,-2141.0\n22202,مطلوبات غير متداولة أخرى — Deferred tax liabilities (net),,1679.0,-1722.0\n22203,مطلوبات غير متداولة أخرى — Other non-current liabilities,,561.0,-215.0\n22102,التزامات عقود الإيجار — Lease liabilities,,3160.0,-2455.0\n20101,ذمم دائنة تجارية — Trade payables,,4744.0,-4164.0\n20901,مطلوبات متداولة أخرى — Other financial liabilities,,21483.0,-18138.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Other current liabilities,,15779.0,-11765.0\n20601,مخصصات — Provisions,,1512.0,-1475.0\n20501,زكاة مستحقة — Income tax liabilities (net),,5644.0,-4853.0\n31001,رأس المال — Equity share capital,,2024.0,-2073.0\n32001,الاحتياطيات — Other equity,,61354.0,-66995.0\n32002,الاحتياطيات — Non-controlling interests,,445.0,-385.0\n41001,الإيرادات — Revenue from operations,,178650.0,-162990.0\n42001,إيرادات تشغيلية أخرى — Other income  net,,4322.0,-3600.0\n53001,المصروفات العمومية والإدارية — Employee benefit expenses,95094.0,,85950.0\n53002,المصروفات العمومية والإدارية — Cost of technical sub-contractors,15421.0,,12937.0\n53003,المصروفات العمومية والإدارية — Travel expenses,2097.0,,1894.0\n53004,المصروفات العمومية والإدارية — Cost of software packages and others,15722.0,,15911.0\n53005,المصروفات العمومية والإدارية — Communication expenses,603.0,,620.0\n53006,المصروفات العمومية والإدارية — Consultancy and professional charges,2090.0,,1655.0\n54001,الاستهلاك والإطفاء — Depreciation and amortization expenses,4902.0,,4812.0\n71001,تكاليف التمويل — Finance cost,416.0,,416.0\n53007,المصروفات العمومية والإدارية — Other expenses,5343.0,,4787.0\n53008,المصروفات العمومية والإدارية — Impact of Labour Codes,1289.0,,0.0\n81001,الزكاة وضريبة الدخل — Current tax,11767.0,,12130.0\n81002,الزكاة وضريبة الدخل — Deferred tax,,1246.0,-1272.0", "infosys-2026"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and due from banks,29066.0,,27697.0\n11102,النقد وما في حكمه — Deposits with banks,595085.0,,539537.0\n18001,استثمارات طويلة الأجل — Federal funds sold and securities purchased under resale agreements,276152.0,,315592.0\n18002,استثمارات طويلة الأجل — Securities borrowed,200436.0,,185369.0\n11901,موجودات متداولة أخرى — Trading assets,540607.0,,453799.0\n18003,استثمارات طويلة الأجل — Available-for-sale securities,201704.0,,205857.0\n18004,استثمارات طويلة الأجل — Held-to-maturity securities,369848.0,,425305.0\n11902,موجودات متداولة أخرى — Loans,1323706.0,,1135647.0\n11903,موجودات متداولة أخرى — Allowance for loan losses,,22420.0,-19726.0\n11201,ذمم مدينة تجارية — Accrued interest and accounts receivable,107363.0,,125189.0\n15001,ممتلكات وآلات ومعدات — Premises and equipment,30157.0,,27734.0\n17001,موجودات غير ملموسة — Goodwill  MSRs and other intangible assets,64381.0,,60859.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other assets,159308.0,,182884.0\n22201,قروض طويلة الأجل — Deposits,,2400688.0,-2340179.0\n20901,مطلوبات متداولة أخرى — Federal funds purchased and securities loaned or sold under repurchase agreements,,216535.0,-202613.0\n22202,قروض طويلة الأجل — Short-term borrowings,,44712.0,-44027.0\n20902,مطلوبات متداولة أخرى — Trading liabilities,,180428.0,-177976.0\n20101,ذمم دائنة تجارية — Accounts payable and other liabilities,,290307.0,-300141.0\n20903,مطلوبات متداولة أخرى — Beneficial interests issued by consolidated VIEs,,23020.0,-12610.0\n22203,قروض طويلة الأجل — Long-term debt,,391825.0,-295865.0\n32001,الاحتياطيات — Preferred stock,,27404.0,-27404.0\n31001,رأس المال — Common stock,,4105.0,-4105.0\n31002,رأس المال — Additional paid-in capital,,90128.0,-89044.0\n33001,الأرباح المبقاة — Retained earnings,,283349.0,-258780.0\n32002,الاحتياطيات — Accumulated other comprehensive losses,10443.0,,17341.0\n32003,الاحتياطيات — Treasury stock  at cost,116217.0,,107336.0\n41001,الإيرادات — Investment banking fees,,6519.0,-6686.0\n41002,الإيرادات — Principal transactions,,24460.0,-19912.0\n41003,الإيرادات — Lending- and deposit-related fees,,7413.0,-7098.0\n41004,الإيرادات — Asset management fees,,15220.0,-14096.0\n41005,الإيرادات — Commissions and other fees,,6836.0,-6581.0\n53001,المصروفات العمومية والإدارية — Investment securities losses,3180.0,,2380.0\n41006,الإيرادات — Mortgage fees and related income,,1176.0,-1250.0\n41007,الإيرادات — Card income,,4784.0,-4420.0\n42001,إيرادات تشغيلية أخرى — Other income,,5609.0,-4322.0\n41008,الإيرادات — Interest income,,170588.0,-92807.0\n51001,تكلفة الإيرادات — Interest expense,81321.0,,26097.0\n56001,خسائر الانخفاض والخسائر الائتمانية المتوقعة — Provision for credit losses,9320.0,,6389.0\n53002,المصروفات العمومية والإدارية — Compensation expense,46465.0,,41636.0\n53003,المصروفات العمومية والإدارية — Occupancy expense,4590.0,,4696.0\n53004,المصروفات العمومية والإدارية — Technology  communications and equipment expense,9246.0,,9358.0\n53005,المصروفات العمومية والإدارية — Professional and outside services,10235.0,,10174.0\n52001,مصروفات البيع والتوزيع — Marketing,4591.0,,3911.0\n53006,المصروفات العمومية والإدارية — Other expense,12045.0,,6365.0\n81001,الزكاة وضريبة الدخل — Income tax expense,12060.0,,8490.0", "jpmorgan-2023"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and due from banks,21742.0,,23372.0\n11102,النقد وما في حكمه — Deposits with banks,321596.0,,445945.0\n18001,استثمارات طويلة الأجل — Federal funds sold and securities purchased under resale agreements,336426.0,,295001.0\n18002,استثمارات طويلة الأجل — Securities borrowed,286191.0,,219546.0\n11901,موجودات متداولة أخرى — Trading assets,802873.0,,637784.0\n18003,استثمارات طويلة الأجل — Available-for-sale securities,507198.0,,406852.0\n18004,استثمارات طويلة الأجل — Held-to-maturity securities,270134.0,,274468.0\n11201,ذمم مدينة تجارية — Loans  net of allowance for loan losses,1467664.0,,1323643.0\n11202,ذمم مدينة تجارية — Accrued interest and accounts receivable,111599.0,,101223.0\n15001,ممتلكات وآلات ومعدات — Premises and equipment,36244.0,,32223.0\n17001,موجودات غير ملموسة — Goodwill  MSRs and other intangible assets,64458.0,,64560.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other assets,198775.0,,178197.0\n22201,قروض طويلة الأجل — Deposits,,2559320.0,-2406032.0\n20901,مطلوبات متداولة أخرى — Federal funds purchased and securities loaned or sold under repurchase agreements,,442396.0,-296835.0\n22202,قروض طويلة الأجل — Short-term borrowings,,64776.0,-52893.0\n20902,مطلوبات متداولة أخرى — Trading liabilities,,216019.0,-192883.0\n20101,ذمم دائنة تجارية — Accounts payable and other liabilities,,316794.0,-280672.0\n20903,مطلوبات متداولة أخرى — Beneficial interests issued by consolidated VIEs,,27951.0,-27323.0\n22203,قروض طويلة الأجل — Long-term debt,,435206.0,-401418.0\n32001,الاحتياطيات — Preferred stock,,20045.0,-20050.0\n31001,رأس المال — Common stock,,4105.0,-4105.0\n31002,رأس المال — Additional paid-in capital,,91114.0,-90911.0\n33001,الأرباح المبقاة — Retained earnings,,359007.0,-317695.0\n32002,الاحتياطيات — Accumulated other comprehensive losses,4290.0,,12456.0\n32003,الاحتياطيات — Treasury stock  at cost,164591.0,,134018.0\n41001,الإيرادات — Investment banking fees,,9615.0,-8910.0\n41002,الإيرادات — Principal transactions,,27212.0,-24787.0\n41003,الإيرادات — Lending- and deposit-related fees,,9093.0,-7606.0\n41004,الإيرادات — Asset management fees,,20327.0,-17801.0\n41005,الإيرادات — Commissions and other fees,,8539.0,-7530.0\n41006,الإيرادات — Investment securities losses,57.0,,1021.0\n41007,الإيرادات — Mortgage fees and related income,,1381.0,-1401.0\n41008,الإيرادات — Card income,,4720.0,-5497.0\n42001,إيرادات تشغيلية أخرى — Other income,,6174.0,-12462.0\n41009,الإيرادات — Interest income,,193341.0,-193933.0\n71001,تكاليف التمويل — Interest expense,97898.0,,101350.0\n56001,خسائر الانخفاض والخسائر الائتمانية المتوقعة — Provision for credit losses,14212.0,,10678.0\n53001,المصروفات العمومية والإدارية — Compensation expense,54487.0,,51357.0\n53002,المصروفات العمومية والإدارية — Occupancy expense,5461.0,,5026.0\n53003,المصروفات العمومية والإدارية — Technology  communications and equipment expense,11029.0,,9831.0\n53004,المصروفات العمومية والإدارية — Professional and outside services,12356.0,,11057.0\n52001,مصروفات البيع والتوزيع — Marketing,5531.0,,4974.0\n53005,المصروفات العمومية والإدارية — Other expense,6776.0,,9552.0\n81001,الزكاة وضريبة الدخل — Income tax expense,15547.0,,16610.0", "jpmorgan-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n19001,موجودات غير متداولة أخرى — Non-current assets,39516.0,,39637.0\n11201,ذمم مدينة تجارية — Receivables  securities and other assets,19890.0,,29719.0\n11101,النقد وما في حكمه — Cash and cash equivalents,6974.0,,6552.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Prepaid expenses,179.0,,189.0\n23001,التزامات منافع الموظفين (نهاية الخدمة) — Provisions for pensions and similar obligations,,224.0,-256.0\n20601,مخصصات — Other provisions,,1630.0,-1833.0\n20701,قروض قصيرة الأجل والجزء المتداول — Notes/bonds and commercial paper,,11089.0,-11041.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Other liabilities,,16759.0,-23175.0\n31001,رأس المال — Share capital,,3070.0,-3070.0\n32001,الاحتياطيات — Calculated value of treasury shares,18.0,,-0.0\n32002,الاحتياطيات — Capital reserve,,11480.0,-11480.0\n33001,الأرباح المبقاة — Retained earnings,,13643.0,-10547.0\n32003,الاحتياطيات — Distributable profit,,3351.0,-4286.0\n41001,الإيرادات — Revenue,,132214.0,-145594.0\n51001,تكلفة الإيرادات — Cost of sales,109881.0,,117018.0\n52001,مصروفات البيع والتوزيع — Selling expenses,9718.0,,9993.0\n53001,المصروفات العمومية والإدارية — General administrative expenses,2477.0,,2529.0\n53002,المصروفات العمومية والإدارية — Research and non-capitalized development costs,6055.0,,5580.0\n42001,إيرادات تشغيلية أخرى — Other operating income,,1551.0,-2507.0\n53003,المصروفات العمومية والإدارية — Other operating expense,1025.0,,483.0\n47001,إيرادات الاستثمار — Gains/losses on equity-method investments  net,,1118.0,-1138.0\n47002,إيرادات الاستثمار — Other financial income/expense  net,,93.0,37.0\n47003,إيرادات الاستثمار — Interest income,,623.0,-738.0\n71001,تكاليف التمويل — Interest expense,159.0,,190.0\n81001,الزكاة وضريبة الدخل — Income taxes,953.0,,3738.0", "mercedes-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and due from banks,4366847.0,,4591186.0\n11901,موجودات متداولة أخرى — Interest-earning deposits in other banks,86003138.0,,104706928.0\n11902,موجودات متداولة أخرى — Call loans and funds sold,2169843.0,,1675996.0\n11201,ذمم مدينة تجارية — Receivables under resale agreements,16884970.0,,18781735.0\n11202,ذمم مدينة تجارية — Receivables under securities borrowing transactions,5493072.0,,5700568.0\n11903,موجودات متداولة أخرى — Trading account assets,83921911.0,,59417128.0\n18001,استثمارات طويلة الأجل — Available-for-sale debt securities,22634341.0,,30413168.0\n18002,استثمارات طويلة الأجل — Held-to-maturity debt securities,26012561.0,,23272185.0\n18003,استثمارات طويلة الأجل — Equity securities,5172605.0,,4633194.0\n11203,ذمم مدينة تجارية — Loans  net of unearned income  unamortized premiums and deferred loan fees,144819224.0,,131438515.0\n11904,موجودات متداولة أخرى — Allowance for credit losses,,1234340.0,-1243075.0\n15001,ممتلكات وآلات ومعدات — Premises and equipment—net,1084857.0,,919854.0\n11905,موجودات متداولة أخرى — Customers’ acceptance liability,447790.0,,538752.0\n17001,موجودات غير ملموسة — Intangible assets—net,1475018.0,,1402515.0\n17002,موجودات غير ملموسة — Goodwill,566536.0,,558164.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other assets,25763279.0,,19133398.0\n22201,قروض طويلة الأجل — Deposits,,260755340.0,-249415006.0\n20901,مطلوبات متداولة أخرى — Call money and funds purchased,,5257237.0,-5016678.0\n20101,ذمم دائنة تجارية — Payables under repurchase agreements,,39516053.0,-43663859.0\n20102,ذمم دائنة تجارية — Payables under securities lending transactions,,1252146.0,-718451.0\n22202,قروض طويلة الأجل — Due to trust account and other short-term borrowings,,14636254.0,-28399567.0\n20902,مطلوبات متداولة أخرى — Trading account liabilities,,41104659.0,-21502912.0\n20903,مطلوبات متداولة أخرى — Bank acceptances outstanding,,447790.0,-538752.0\n22203,قروض طويلة الأجل — Long-term debt,,21884349.0,-21022407.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Other liabilities,,19887767.0,-16412841.0\n31001,رأس المال — Capital stock,,2090270.0,-2090270.0\n31002,رأس المال — Capital surplus,,4014472.0,-4300021.0\n32001,الاحتياطيات — Appropriated for legal reserve,,239571.0,-239571.0\n33001,الأرباح المبقاة — Unappropriated retained earnings,,8819585.0,-8553721.0\n32002,الاحتياطيات — Accumulated other comprehensive income  net of taxes,,3460451.0,-2561190.0\n32003,الاحتياطيات — Treasury stock  at cost,935120.0,,726925.0\n32004,الاحتياطيات — Noncontrolling interests,,1266924.0,-964252.0\n41001,الإيرادات — Interest income: Loans  including fees,,4569238.0,-4596526.0\n41002,الإيرادات — Interest income: Deposits in other banks,,1074496.0,-788467.0\n41003,الإيرادات — Interest income: Investment securities: Interest,,730302.0,-657301.0\n41004,الإيرادات — Interest income: Investment securities: Dividends,,168451.0,-163004.0\n41005,الإيرادات — Interest income: Trading account assets,,1368774.0,-1133561.0\n41006,الإيرادات — Interest income: Call loans and funds sold,,32235.0,-35289.0\n41007,الإيرادات — Interest income: Receivables under resale agreements and securities borrowing transactions,,670369.0,-891426.0\n51001,تكلفة الإيرادات — Interest expense: Deposits,2616252.0,,2838601.0\n51002,تكلفة الإيرادات — Interest expense: Call money and funds purchased,33666.0,,14806.0\n51003,تكلفة الإيرادات — Interest expense: Payables under repurchase agreements and securities lending transactions,1280023.0,,1371417.0\n51004,تكلفة الإيرادات — Interest expense: Due to trust account  other short-term borrowings and trading account liabilities,486129.0,,448927.0\n51005,تكلفة الإيرادات — Interest expense: Long-term debt,513541.0,,503626.0\n56001,خسائر الانخفاض والخسائر الائتمانية المتوقعة — Provision for credit losses,226112.0,,121790.0\n42001,إيرادات تشغيلية أخرى — Fees and commissions income,,2422269.0,-2185727.0\n42002,إيرادات تشغيلية أخرى — Foreign exchange gains (losses)—net,636227.0,,-153959.0\n42003,إيرادات تشغيلية أخرى — Trading account profits (losses)—net,650573.0,,-32262.0\n42004,إيرادات تشغيلية أخرى — Investment securities gains (losses)—net,,666069.0,832533.0\n42005,إيرادات تشغيلية أخرى — Equity in earnings of equity method investees—net,,871185.0,-669400.0\n42006,إيرادات تشغيلية أخرى — Gains (losses) on sales of loans including valuation adjustment for loans held for sale,,4766.0,-41660.0\n42007,إيرادات تشغيلية أخرى — Unrealized gain on the contract to purchase equity shares of Shriram Finance Limited,,25111.0,-0.0\n42008,إيرادات تشغيلية أخرى — Other non-interest income,,550799.0,-320060.0\n53001,المصروفات العمومية والإدارية — Salaries and employee benefits,1593995.0,,1473650.0\n53002,المصروفات العمومية والإدارية — Occupancy expenses—net,162142.0,,160032.0\n53003,المصروفات العمومية والإدارية — Fees and commissions expenses,477741.0,,424618.0\n53004,المصروفات العمومية والإدارية — Outsourcing expenses  including data processing,396703.0,,325057.0\n54001,الاستهلاك والإطفاء — Depreciation of premises and equipment,87760.0,,88279.0\n54002,الاستهلاك والإطفاء — Amortization of intangible assets,337134.0,,295129.0\n56002,خسائر الانخفاض والخسائر الائتمانية المتوقعة — Impairment of intangible assets,8417.0,,14353.0\n53005,المصروفات العمومية والإدارية — Insurance premiums  including deposit insurance,100555.0,,98855.0\n53006,المصروفات العمومية والإدارية — Communications,68091.0,,64963.0\n53007,المصروفات العمومية والإدارية — Taxes and public charges,143251.0,,113107.0\n56003,خسائر الانخفاض والخسائر الائتمانية المتوقعة — Impairment of goodwill,97475.0,,150089.0\n48001,إيرادات وأرباح أخرى — Provision for (reversal of) off-balance sheet credit instruments,,23310.0,-727.0\n53008,المصروفات العمومية والإدارية — Other non-interest expenses,752092.0,,533961.0\n81001,الزكاة وضريبة الدخل — Income tax expense,625591.0,,527938.0", "mufg-2026"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and cash equivalents,4579.0,,5556.0\n11901,موجودات متداولة أخرى — Short-term investments,1651.0,,2315.0\n11401,المخزون — Inventories,12813.0,,13260.0\n11201,ذمم مدينة تجارية — Trade and other receivables,10561.0,,11251.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Prepayments,479.0,,543.0\n11902,موجودات متداولة أخرى — Derivative assets,295.0,,792.0\n11903,موجودات متداولة أخرى — Current income tax assets,1383.0,,1334.0\n11904,موجودات متداولة أخرى — Assets held for sale,208.0,,137.0\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment,32549.0,,33706.0\n17001,موجودات غير ملموسة — Goodwill,27636.0,,30595.0\n17002,موجودات غير ملموسة — Intangible assets,16673.0,,19245.0\n18001,استثمارات طويلة الأجل — Investments in associates and joint ventures,12096.0,,14326.0\n18002,استثمارات طويلة الأجل — Financial assets,3641.0,,3650.0\n18003,استثمارات طويلة الأجل — Derivative assets,229.0,,84.0\n19001,موجودات غير متداولة أخرى — Employee benefits assets and reimbursement rights,1412.0,,1475.0\n19002,موجودات غير متداولة أخرى — Deferred tax assets,946.0,,995.0\n20701,قروض قصيرة الأجل والجزء المتداول — Financial debt,,11606.0,-11863.0\n20901,مطلوبات متداولة أخرى — Derivative liabilities,,202.0,-408.0\n20101,ذمم دائنة تجارية — Trade and other payables,,20023.0,-21807.0\n20902,مطلوبات متداولة أخرى — Accruals,,5575.0,-5466.0\n20601,مخصصات — Provisions,,850.0,-865.0\n20501,زكاة مستحقة — Current income tax liabilities,,2338.0,-2435.0\n20903,مطلوبات متداولة أخرى — Liabilities directly associated with assets held for sale,,100.0,-19.0\n22201,قروض طويلة الأجل — Financial debt,,46246.0,-51697.0\n22202,مطلوبات غير متداولة أخرى — Derivative liabilities,,144.0,-307.0\n23001,التزامات منافع الموظفين (نهاية الخدمة) — Employee benefits liabilities,,2299.0,-2629.0\n20602,مخصصات — Provisions,,980.0,-1086.0\n22203,مطلوبات غير متداولة أخرى — Deferred tax liabilities,,3554.0,-3767.0\n20102,ذمم دائنة تجارية — Other payables,,176.0,-222.0\n31001,رأس المال — Share capital,,258.0,-262.0\n32001,الاحتياطيات — Treasury shares,388.0,,4283.0\n32002,الاحتياطيات — Translation reserve,29944.0,,26788.0\n32003,الاحتياطيات — Other reserves,667.0,,-363.0\n33001,الأرباح المبقاة — Retained earnings,,54297.0,-55189.0\n32004,الاحتياطيات — Non-controlling interests,,248.0,-776.0\n41001,الإيرادات — Sales,,89490.0,-91354.0\n42001,إيرادات تشغيلية أخرى — Other revenue,,395.0,-366.0\n51001,تكلفة الإيرادات — Cost of goods sold,48694.0,,48670.0\n52001,مصروفات البيع والتوزيع — Distribution expenses,7306.0,,7567.0\n52002,مصروفات البيع والتوزيع — Marketing and administration expenses,17883.0,,18112.0\n53001,المصروفات العمومية والإدارية — Research and development costs,1613.0,,1667.0\n42002,إيرادات تشغيلية أخرى — Other trading income,,135.0,-124.0\n53002,المصروفات العمومية والإدارية — Other trading expenses,1849.0,,1195.0\n42003,إيرادات تشغيلية أخرى — Other operating income,,253.0,-474.0\n53003,المصروفات العمومية والإدارية — Other operating expenses,651.0,,383.0\n47001,إيرادات الاستثمار — Financial income,,300.0,-358.0\n71001,تكاليف التمويل — Financial expense,1826.0,,1843.0\n81001,الزكاة وضريبة الدخل — Taxes,2640.0,,3314.0\n47002,إيرادات الاستثمار — Income from associates and joint ventures,,1143.0,-1249.0", "nestle-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment,10782.0,,9458.0\n16001,موجودات حق الاستخدام — Right-of-use assets,1570.0,,1415.0\n17001,موجودات غير ملموسة — Goodwill,25567.0,,24756.0\n17002,موجودات غير ملموسة — Intangible assets other than goodwill,29411.0,,26915.0\n18001,استثمارات طويلة الأجل — Investments in associated companies,98.0,,119.0\n19001,موجودات غير متداولة أخرى — Deferred tax assets,5438.0,,4359.0\n18002,استثمارات طويلة الأجل — Financial assets,2348.0,,2015.0\n19002,موجودات غير متداولة أخرى — Other non-current assets,5275.0,,3505.0\n11401,المخزون — Inventories,6269.0,,5723.0\n11201,ذمم مدينة تجارية — Trade receivables,8937.0,,7423.0\n11202,ذمم مدينة تجارية — Income tax receivables,205.0,,133.0\n11901,موجودات متداولة أخرى — Marketable securities  time deposits and derivative financial instruments,155.0,,1998.0\n11101,النقد وما في حكمه — Cash and cash equivalents,11435.0,,11459.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other current assets,3459.0,,2968.0\n22201,قروض طويلة الأجل — Financial debts,,27935.0,-21366.0\n22101,التزامات عقود الإيجار — Lease liabilities,,1657.0,-1568.0\n22202,مطلوبات غير متداولة أخرى — Deferred tax liabilities,,3397.0,-2419.0\n20601,مخصصات — Provisions and other non-current liabilities,,4133.0,-4075.0\n20101,ذمم دائنة تجارية — Trade payables,,4456.0,-4572.0\n20701,قروض قصيرة الأجل والجزء المتداول — Financial debts and derivative financial instruments,,5602.0,-8232.0\n22102,التزامات عقود الإيجار — Lease liabilities,,263.0,-235.0\n20501,زكاة مستحقة — Current income tax liabilities,,1969.0,-1599.0\n20602,مخصصات — Provisions and other current liabilities,,14988.0,-14054.0\n31001,رأس المال — Share capital,,766.0,-793.0\n32001,الاحتياطيات — Treasury shares,50.0,,53.0\n32002,الاحتياطيات — Reserves,,31430.0,-31365.0\n32003,الاحتياطيات — Non-controlling interests,,419.0,-80.0\n41001,الإيرادات — Net sales from continuing operations,,54532.0,-50317.0\n41002,الإيرادات — Other revenues,,2142.0,-1405.0\n51001,تكلفة الإيرادات — Cost of goods sold,13699.0,,12827.0\n52001,مصروفات البيع والتوزيع — Selling  general and administration,13248.0,,12566.0\n53001,المصروفات العمومية والإدارية — Research and development,11200.0,,10022.0\n42001,إيرادات تشغيلية أخرى — Other income,,1460.0,-1175.0\n53002,المصروفات العمومية والإدارية — Other expense,2343.0,,2938.0\n47001,إيرادات الاستثمار — Loss from associated companies,12.0,,38.0\n71001,تكاليف التمويل — Interest expense,1144.0,,1006.0\n53003,المصروفات العمومية والإدارية — Other financial income and expense,136.0,,-140.0\n81001,الزكاة وضريبة الدخل — Income taxes,2385.0,,1701.0\n49501,الربح (الخسارة) من العمليات غير المستمرة — Net income from discontinued operations,,,-0.0\n53901,المصروفات العمومية والإدارية — other items (balancing to net income),,17.0,-2.0", "novartis-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and cash equivalents,9159.0,,8505.0\n11901,موجودات متداولة أخرى — Short-term investments,371.0,,761.0\n11902,موجودات متداولة أخرى — Accounts and notes receivable  net,11506.0,,10333.0\n11903,موجودات متداولة أخرى — Raw materials and packaging,2581.0,,2440.0\n11904,موجودات متداولة أخرى — Work-in-process,143.0,,104.0\n11905,موجودات متداولة أخرى — Finished goods,3121.0,,2762.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Prepaid expenses and other current assets,1068.0,,921.0\n15001,ممتلكات وآلات ومعدات — Property  Plant and Equipment  net,29905.0,,28008.0\n17001,موجودات غير ملموسة — Amortizable Intangible Assets  net,1219.0,,1102.0\n17002,موجودات غير ملموسة — Goodwill,18916.0,,17534.0\n17003,موجودات غير ملموسة — Other Indefinite-Lived Intangible Assets,13847.0,,13699.0\n18001,استثمارات طويلة الأجل — Investments in Noncontrolled Affiliates,2038.0,,1985.0\n19001,موجودات غير متداولة أخرى — Deferred Income Taxes,4541.0,,4362.0\n11602,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other Assets,8984.0,,6951.0\n20701,قروض قصيرة الأجل والجزء المتداول — Short-term debt obligations,,6861.0,-7082.0\n20101,ذمم دائنة تجارية — Accounts payable and other current liabilities,,25903.0,-24454.0\n22201,قروض طويلة الأجل — Long-Term Debt Obligations,,42321.0,-37224.0\n22202,مطلوبات غير متداولة أخرى — Deferred Income Taxes,,3802.0,-3484.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Other Liabilities,,7965.0,-9052.0\n31001,رأس المال — Common stock,,23.0,-23.0\n32001,الاحتياطيات — Capital in excess of par value,,4451.0,-4385.0\n33001,الأرباح المبقاة — Retained earnings,,64548.0,-62688.0\n32002,الاحتياطيات — Accumulated other comprehensive loss,15024.0,,17612.0\n31002,رأس المال — Repurchased common stock,41832.0,,41021.0\n32003,الاحتياطيات — Noncontrolling interests,,141.0,-130.0\n41001,الإيرادات — Net Revenue,,93925.0,-91854.0\n51001,تكلفة الإيرادات — Cost of sales,43066.0,,41744.0\n52001,مصروفات البيع والتوزيع — Selling  general and administrative expenses,37368.0,,37190.0\n56001,خسائر الانخفاض والخسائر الائتمانية المتوقعة — Impairment of intangible assets,1993.0,,33.0\n53001,المصروفات العمومية والإدارية — Other pension and retiree medical benefits (expense)/income,133.0,,22.0\n71001,تكاليف التمويل — Net interest expense and other,1121.0,,919.0\n81001,الزكاة وضريبة الدخل — Provision for income taxes,1949.0,,2320.0\n53901,المصروفات العمومية والإدارية — other items (balancing to net income),55.0,,48.0", "pepsico-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and cash equivalents,9942.0,,9556.0\n11201,ذمم مدينة تجارية — Accounts receivable,6056.0,,6185.0\n11901,موجودات متداولة أخرى — Materials and supplies,2143.0,,2022.0\n11902,موجودات متداولة أخرى — Work in process,1105.0,,1012.0\n11903,موجودات متداولة أخرى — Finished goods,4922.0,,4516.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Prepaid expenses and other current assets,2040.0,,2100.0\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment  net,25360.0,,23897.0\n17001,موجودات غير ملموسة — Goodwill,41276.0,,41650.0\n17002,موجودات غير ملموسة — Trademarks and other intangible assets  net,21444.0,,21910.0\n19001,موجودات غير متداولة أخرى — Other noncurrent assets,12231.0,,12381.0\n20101,ذمم دائنة تجارية — Accounts payable,,16306.0,-15227.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Accrued and other liabilities,,11091.0,-11318.0\n20701,قروض قصيرة الأجل والجزء المتداول — Debt due within one year,,11296.0,-9513.0\n22201,قروض طويلة الأجل — Long-term debt,,22842.0,-24995.0\n22202,مطلوبات غير متداولة أخرى — Deferred income taxes,,5760.0,-5774.0\n22203,مطلوبات غير متداولة أخرى — Other noncurrent liabilities,,4914.0,-6120.0\n32001,الاحتياطيات — Convertible Class A preferred stock  stated value $1 per share,,756.0,-777.0\n32002,الاحتياطيات — Non-Voting Class B preferred stock  stated value $1 per share,,,-0.0\n31001,رأس المال — Common stock  stated value $1 per share,,4009.0,-4009.0\n31002,رأس المال — Additional paid-in capital,,69533.0,-68770.0\n32003,الاحتياطيات — Reserve for ESOP debt retirement,596.0,,672.0\n32004,الاحتياطيات — Accumulated other comprehensive loss,12465.0,,12143.0\n32005,الاحتياطيات — Treasury stock,143008.0,,138702.0\n33001,الأرباح المبقاة — Retained earnings,,119708.0,-113908.0\n32006,الاحتياطيات — Noncontrolling interest,,230.0,-272.0\n41001,الإيرادات — Net sales,,87032.0,-84284.0\n51001,تكلفة الإيرادات — Cost of products sold,43362.0,,41164.0\n52001,مصروفات البيع والتوزيع — Selling  general and administrative expense,23922.0,,22669.0\n56001,خسائر الانخفاض والخسائر الائتمانية المتوقعة — Indefinite-lived intangible asset impairment charge,,,0.0\n71001,تكاليف التمويل — Interest expense,877.0,,907.0\n47001,إيرادات الاستثمار — Interest income,,430.0,-469.0\n42001,إيرادات تشغيلية أخرى — Other non-operating income/(expense)  net,,1076.0,-154.0\n81001,الزكاة وضريبة الدخل — Income taxes,4233.0,,4102.0\n32901,الاحتياطيات — rounding in the published statements,1.0,,2.0", "pg-2026"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and due from banks,37024.0,,56723.0\n11102,النقد وما في حكمه — Interest-bearing deposits with banks,50364.0,,66020.0\n18001,استثمارات طويلة الأجل — Securities Trading,219067.0,,183300.0\n18002,استثمارات طويلة الأجل — Securities Investment  net of applicable allowance,342721.0,,256618.0\n18003,استثمارات طويلة الأجل — Assets purchased under reverse repurchase agreements and securities borrowed,309683.0,,350803.0\n11901,موجودات متداولة أخرى — Loans Retail,652344.0,,626978.0\n11902,موجودات متداولة أخرى — Loans Wholesale,397171.0,,360439.0\n11903,موجودات متداولة أخرى — Allowance for loan losses,,7093.0,-6037.0\n18004,استثمارات طويلة الأجل — Other Derivatives,177206.0,,150612.0\n15001,ممتلكات وآلات ومعدات — Other Premises and equipment,6819.0,,6852.0\n17001,موجودات غير ملموسة — Other Goodwill,19405.0,,19286.0\n17002,موجودات غير ملموسة — Other Other intangibles,7402.0,,7798.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other Other assets,112893.0,,92190.0\n22201,قروض طويلة الأجل — Deposits Personal,,529740.0,-522139.0\n22202,قروض طويلة الأجل — Deposits Business and government,,946314.0,-839670.0\n22203,قروض طويلة الأجل — Deposits Bank,,39562.0,-47722.0\n20901,مطلوبات متداولة أخرى — Other Obligations related to securities sold short,,49891.0,-35286.0\n20902,مطلوبات متداولة أخرى — Other Obligations related to assets sold under repurchase agreements and securities loaned,,289516.0,-305321.0\n20903,مطلوبات متداولة أخرى — Other Derivatives,,183953.0,-163763.0\n20301,مطلوبات عقود (دفعات مقدمة من عملاء) — Other Insurance contract liabilities,,24327.0,-22231.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Other Other liabilities,,108591.0,-94712.0\n20904,مطلوبات متداولة أخرى — Subordinated debentures,,13961.0,-13546.0\n32001,الاحتياطيات — Equity attributable to shareholders Preferred shares and other equity instruments,,11675.0,-9031.0\n32002,الاحتياطيات — Equity attributable to shareholders Common shares,,20753.0,-20952.0\n33001,الأرباح المبقاة — Equity attributable to shareholders Retained earnings,,76569.0,-72368.0\n32003,الاحتياطيات — Equity attributable to shareholders Other components of equity,,9726.0,-8498.0\n32004,الاحتياطيات — Non-controlling interests,,59.0,-103.0\n41001,الإيرادات — Interest and dividend income Loans,,56042.0,-54040.0\n41002,الإيرادات — Interest and dividend income Securities,,20055.0,-17668.0\n41003,الإيرادات — Interest and dividend income Assets purchased under reverse repurchase agreements and securities borrowed,,22367.0,-27121.0\n41004,الإيرادات — Interest and dividend income Deposits and other,,5361.0,-6122.0\n71001,تكاليف التمويل — Interest expense Deposits and other,44817.0,,47256.0\n71002,تكاليف التمويل — Interest expense Other liabilities,25371.0,,28967.0\n71003,تكاليف التمويل — Interest expense Subordinated debentures,637.0,,775.0\n41005,الإيرادات — Insurance service result,,867.0,-777.0\n41006,الإيرادات — Insurance investment result,,284.0,-294.0\n41007,الإيرادات — Trading revenue,,3125.0,-2327.0\n41008,الإيرادات — Investment management and custodial fees,,10647.0,-9325.0\n41009,الإيرادات — Mutual fund revenue,,5084.0,-4437.0\n41010,الإيرادات — Securities brokerage commissions,,1905.0,-1660.0\n41011,الإيرادات — Service charges,,2425.0,-2294.0\n41012,الإيرادات — Underwriting and other advisory fees,,2899.0,-2672.0\n41013,الإيرادات — Foreign exchange revenue  other than trading,,1301.0,-1142.0\n41014,الإيرادات — Card service revenue,,1333.0,-1273.0\n41015,الإيرادات — Credit fees,,1670.0,-1592.0\n41016,الإيرادات — Net gains on investment securities,,120.0,-170.0\n47001,إيرادات الاستثمار — Income (loss) from joint ventures and associates,,73.0,16.0\n42001,إيرادات تشغيلية أخرى — Other non-interest income,,1872.0,-1444.0\n56001,خسائر الانخفاض والخسائر الائتمانية المتوقعة — Provision for credit losses,4362.0,,3232.0\n53001,المصروفات العمومية والإدارية — Human resources,23122.0,,21083.0\n53002,المصروفات العمومية والإدارية — Equipment,2790.0,,2537.0\n53003,المصروفات العمومية والإدارية — Occupancy,1679.0,,1805.0\n53004,المصروفات العمومية والإدارية — Communications,1497.0,,1369.0\n53005,المصروفات العمومية والإدارية — Professional fees,2177.0,,2525.0\n54001,الاستهلاك والإطفاء — Amortization of other intangibles,1759.0,,1549.0\n53006,المصروفات العمومية والإدارية — Other non-interest expense,3568.0,,3382.0\n81001,الزكاة وضريبة الدخل — Income taxes,5282.0,,3622.0", "rbc-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n15001,ممتلكات وآلات ومعدات — Property  Plant and Equipment,751087.0,,683102.0\n19001,موجودات غير متداولة أخرى — Spectrum,188120.0,,147122.0\n17001,موجودات غير ملموسة — Other Intangible Assets,157126.0,,144639.0\n17002,موجودات غير ملموسة — Goodwill,28462.0,,24530.0\n19002,موجودات غير متداولة أخرى — Capital Work-in-Progress,192287.0,,169710.0\n19003,موجودات غير متداولة أخرى — Spectrum Under Development,8611.0,,54176.0\n17003,موجودات غير ملموسة — Other Intangible Assets Under Development,36788.0,,38472.0\n18001,استثمارات طويلة الأجل — Investments,150901.0,,123672.0\n19004,موجودات غير متداولة أخرى — Loans,826.0,,742.0\n18002,استثمارات طويلة الأجل — Other Financial Assets,4899.0,,6088.0\n22201,مطلوبات غير متداولة أخرى — Deferred Tax Liabilities (Net),,97961.0,-83453.0\n19005,موجودات غير متداولة أخرى — Deferred Tax Assets (Net),594.0,,408.0\n19006,موجودات غير متداولة أخرى — Other Non-Current Assets,64190.0,,58190.0\n11401,المخزون — Inventories,166941.0,,146062.0\n11901,موجودات متداولة أخرى — Investments,97431.0,,118709.0\n11201,ذمم مدينة تجارية — Trade Receivables,58491.0,,42121.0\n11101,النقد وما في حكمه — Cash and Cash Equivalents,145977.0,,106502.0\n11902,موجودات متداولة أخرى — Loans,4870.0,,5182.0\n11903,موجودات متداولة أخرى — Other Financial Assets,57926.0,,23546.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other Current Assets,62613.0,,57148.0\n22202,قروض طويلة الأجل — Borrowings,,270751.0,-236899.0\n22101,التزامات عقود الإيجار — Lease Liabilities,,16198.0,-17142.0\n22203,مطلوبات غير متداولة أخرى — Deferred Payment Liabilities,,99552.0,-104410.0\n22204,مطلوبات غير متداولة أخرى — Other Financial Liabilities,,37833.0,-10909.0\n20601,مخصصات — Provisions,,21793.0,-28304.0\n22205,مطلوبات غير متداولة أخرى — Other Non-Current Liabilities,,6932.0,-5641.0\n20701,قروض قصيرة الأجل والجزء المتداول — Borrowings,,103670.0,-110631.0\n22102,التزامات عقود الإيجار — Lease Liabilities,,7381.0,-4903.0\n20101,ذمم دائنة تجارية — Trade Payables,,158842.0,-186789.0\n20901,مطلوبات متداولة أخرى — Other Financial Liabilities,,64660.0,-57143.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Other Current Liabilities,,201503.0,-90124.0\n20602,مخصصات — Provisions,,5198.0,-4147.0\n31001,رأس المال — Equity Share Capital,,13532.0,-13532.0\n32001,الاحتياطيات — Other Equity,,794744.0,-748359.0\n32002,الاحتياطيات — Non-Controlling Interest,,181836.0,-166426.0\n41001,الإيرادات — Revenue from Operations,,1075675.0,-980136.0\n42001,إيرادات تشغيلية أخرى — Other Income,,28962.0,-17978.0\n51001,تكلفة الإيرادات — Cost of Materials Consumed,443101.0,,422127.0\n51002,تكلفة الإيرادات — Purchase of Stock-in-Trade,255829.0,,222686.0\n51003,تكلفة الإيرادات — Changes in Inventories of Finished Goods  Work-in-Progress and Stock-in-Trade,,10267.0,-15124.0\n53001,المصروفات العمومية والإدارية — Excise Duty,18456.0,,15443.0\n53002,المصروفات العمومية والإدارية — Employee Benefits Expense,30318.0,,28559.0\n71001,تكاليف التمويل — Finance Costs,27061.0,,24269.0\n54001,الاستهلاك والإطفاء — Depreciation / Amortisation and Depletion Expense,57688.0,,53136.0\n53003,المصروفات العمومية والإدارية — Other Expenses,159289.0,,141001.0\n81001,الزكاة وضريبة الدخل — Current Tax,9736.0,,12758.0\n81002,الزكاة وضريبة الدخل — Deferred Tax,17816.0,,12472.0\n47001,إيرادات الاستثمار — Share of Profit / (Loss) of Associate and Joint Ventures,,144.0,-522.0", "reliance-2026"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment,21949.0,,22557.0\n16001,موجودات حق الاستخدام — Right-of-use assets,985.0,,1183.0\n17001,موجودات غير ملموسة — Goodwill,7492.0,,7876.0\n17002,موجودات غير ملموسة — Intangible assets,19321.0,,17303.0\n19001,موجودات غير متداولة أخرى — Deferred tax assets,8411.0,,8569.0\n19002,موجودات غير متداولة أخرى — Defined benefit plan assets,1791.0,,2256.0\n19003,موجودات غير متداولة أخرى — Other non-current assets,2025.0,,2021.0\n11401,المخزون — Inventories,7479.0,,7606.0\n11201,ذمم مدينة تجارية — Accounts receivable,11506.0,,11297.0\n11901,موجودات متداولة أخرى — Current income tax assets,393.0,,415.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other current assets,3875.0,,3401.0\n11902,موجودات متداولة أخرى — Marketable securities,9894.0,,10342.0\n11101,النقد وما في حكمه — Cash and cash equivalents,5582.0,,6975.0\n22201,قروض طويلة الأجل — Long-term debt,,27430.0,-30722.0\n22202,مطلوبات غير متداولة أخرى — Deferred tax liabilities,,884.0,-832.0\n22203,مطلوبات غير متداولة أخرى — Defined benefit plan liabilities,,3950.0,-4381.0\n20601,مخصصات — Provisions,,1055.0,-1079.0\n22204,مطلوبات غير متداولة أخرى — Other non-current liabilities,,1503.0,-1603.0\n20701,قروض قصيرة الأجل والجزء المتداول — Short-term debt,,4206.0,-3932.0\n20501,زكاة مستحقة — Current income tax liabilities,,2867.0,-2923.0\n20602,مخصصات — Provisions,,1743.0,-1726.0\n20101,ذمم دائنة تجارية — Accounts payable,,5779.0,-4894.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Other current liabilities,,13406.0,-13548.0\n32001,الاحتياطيات — Capital and reserves attributable to Roche shareholders,,20003.0,-22580.0\n32002,الاحتياطيات — Equity attributable to non-controlling interests,,4078.0,-4394.0\n41001,الإيرادات — Sales,,61516.0,-60495.0\n42001,إيرادات تشغيلية أخرى — Other revenue,,1840.0,-1900.0\n51001,تكلفة الإيرادات — Cost of sales,16645.0,,16283.0\n53001,المصروفات العمومية والإدارية — Research and development,13352.0,,15304.0\n52001,مصروفات البيع والتوزيع — Selling  general and administration,15161.0,,14896.0\n48001,إيرادات وأرباح أخرى — Other operating income (expense),,278.0,2495.0\n71001,تكاليف التمويل — Financing costs,1349.0,,1412.0\n53002,المصروفات العمومية والإدارية — Other financial income (expense),154.0,,212.0\n81001,الزكاة وضريبة الدخل — Income taxes,3174.0,,2606.0", "roche-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and cash equivalents,57856378.0,,53705579.0\n11901,موجودات متداولة أخرى — Short-term financial instruments,67965021.0,,58909334.0\n11902,موجودات متداولة أخرى — Short-term financial assets at fair value through profit or loss,25715.0,,36877.0\n11201,ذمم مدينة تجارية — Trade receivables,51127642.0,,43623073.0\n11202,ذمم مدينة تجارية — Non-trade receivables,7481327.0,,9622974.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Prepaid expenses,3627172.0,,3362824.0\n11401,المخزون — Inventories,52636828.0,,51754865.0\n11602,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other current assets,6964529.0,,6046740.0\n18001,استثمارات طويلة الأجل — Financial assets at fair value through other comprehensive income,16295005.0,,10580932.0\n18002,استثمارات طويلة الأجل — Financial assets at fair value through profit or loss,1280501.0,,1175749.0\n18003,استثمارات طويلة الأجل — Investments in associates and joint ventures,13772121.0,,12592117.0\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment,215304784.0,,205945209.0\n17001,موجودات غير ملموسة — Intangible assets,29480565.0,,23738566.0\n19001,موجودات غير متداولة أخرى — Net defined benefit assets,4271547.0,,3089571.0\n19002,موجودات غير متداولة أخرى — Deferred income tax assets,18840559.0,,14236468.0\n19003,موجودات غير متداولة أخرى — Other non-current assets,20012416.0,,16111070.0\n20101,ذمم دائنة تجارية — Trade payables,,13039380.0,-12370177.0\n20701,قروض قصيرة الأجل والجزء المتداول — Short-term borrowings,,17574980.0,-13172504.0\n20102,ذمم دائنة تجارية — Other payables,,21365657.0,-18547365.0\n20901,مطلوبات متداولة أخرى — Advances received,,1933598.0,-1841420.0\n20902,مطلوبات متداولة أخرى — Withholdings,,1001885.0,-991812.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Accrued expenses,,32707431.0,-29613258.0\n20501,زكاة مستحقة — Current income tax liabilities,,7037174.0,-4340171.0\n20903,مطلوبات متداولة أخرى — Current portion of long-term liabilities,,1177508.0,-2207290.0\n20601,مخصصات — Provisions,,7690559.0,-8216469.0\n20202,مصروفات مستحقة ومطلوبات أخرى — Other current liabilities,,2883176.0,-2025833.0\n22201,مطلوبات غير متداولة أخرى — Debentures,,7134.0,-14530.0\n22202,قروض طويلة الأجل — Long-term borrowings,,6479517.0,-3935860.0\n20103,ذمم دائنة تجارية — Long-term other payables,,5602031.0,-5510455.0\n22203,مطلوبات غير متداولة أخرى — Net defined benefit liabilities,,558520.0,-521410.0\n22204,مطلوبات غير متداولة أخرى — Deferred income tax liabilities,,709226.0,-528231.0\n20602,مخصصات — Long-term provisions,,2900411.0,-3120044.0\n22205,مطلوبات غير متداولة أخرى — Other non-current liabilities,,7953586.0,-5383049.0\n32001,الاحتياطيات — Preference shares,,119467.0,-119467.0\n31001,رأس المال — Ordinary shares,,778047.0,-778047.0\n31002,رأس المال — Share premium,,4403893.0,-4403893.0\n33001,الأرباح المبقاة — Retained earnings,,356928795.0,-336061837.0\n32002,الاحتياطيات — Other components of equity,,16876248.0,-15873008.0\n32003,الاحتياطيات — Non-controlling interests,,12007082.0,-10504467.0\n41001,الإيرادات — Revenue,,333605938.0,-300870903.0\n51001,تكلفة الإيرادات — Cost of sales,202235513.0,,186562268.0\n52001,مصروفات البيع والتوزيع — Selling and administrative expenses,87769374.0,,81582674.0\n42001,إيرادات تشغيلية أخرى — Other non-operating income,,2267083.0,-1960338.0\n53001,المصروفات العمومية والإدارية — Other non-operating expense,1575901.0,,1625229.0\n47001,إيرادات الاستثمار — Share of net profit of associates and joint ventures,,682700.0,-751044.0\n47002,إيرادات الاستثمار — Financial income,,16240302.0,-16703304.0\n71001,تكاليف التمويل — Financial expense,11733764.0,,12985684.0\n81001,الزكاة وضريبة الدخل — Income tax expense,4274666.0,,3078383.0", "samsung-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment,10052.0,,10091.0\n16001,موجودات حق الاستخدام — Right-of-use assets,1459.0,,1510.0\n17001,موجودات غير ملموسة — Goodwill,41300.0,,43384.0\n17002,موجودات غير ملموسة — Other intangible assets,26261.0,,22629.0\n18001,استثمارات طويلة الأجل — Investments accounted for using the equity method,3259.0,,316.0\n19001,موجودات غير متداولة أخرى — Other non-current assets,4364.0,,3753.0\n19002,موجودات غير متداولة أخرى — Non-current income tax assets,550.0,,560.0\n19003,موجودات غير متداولة أخرى — Deferred tax assets,8608.0,,7967.0\n11401,المخزون — Inventories,10214.0,,9431.0\n11201,ذمم مدينة تجارية — Accounts receivable,8410.0,,7677.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other current assets,4066.0,,3826.0\n11901,موجودات متداولة أخرى — Current income tax assets,397.0,,724.0\n11101,النقد وما في حكمه — Cash and cash equivalents,7657.0,,7441.0\n11902,موجودات متداولة أخرى — Assets held for sale,208.0,,13489.0\n22201,قروض طويلة الأجل — Long-term debt,,14248.0,-11791.0\n22101,التزامات عقود الإيجار — Non-current lease liabilities,,1467.0,-1645.0\n22202,مطلوبات غير متداولة أخرى — Non-current liabilities related to business combinations and to non-controlling interests,,585.0,-569.0\n20601,مخصصات — Non-current provisions and other non-current liabilities,,6703.0,-8096.0\n20501,زكاة مستحقة — Non-current income tax liabilities,,2081.0,-1512.0\n22203,مطلوبات غير متداولة أخرى — Deferred tax liabilities,,1666.0,-2166.0\n20101,ذمم دائنة تجارية — Accounts payable,,7361.0,-7551.0\n20901,مطلوبات متداولة أخرى — Current liabilities related to business combinations and to non-controlling interests,,,-72.0\n20602,مخصصات — Current provisions and other current liabilities,,15565.0,-14241.0\n20502,زكاة مستحقة — Current income tax liabilities,,751.0,-697.0\n22102,التزامات عقود الإيجار — Current lease liabilities,,272.0,-261.0\n20701,قروض قصيرة الأجل والجزء المتداول — Short-term debt and current portion of long-term debt,,4342.0,-4209.0\n20902,مطلوبات متداولة أخرى — Liabilities related to assets held for sale,,54.0,-2131.0\n32001,الاحتياطيات — Equity attributable to equity holders of Sanofi,,63525.0,-71889.0\n32002,الاحتياطيات — Equity attributable to non-controlling interests,,334.0,-350.0\n41001,الإيرادات — Net sales,,43626.0,-41081.0\n42001,إيرادات تشغيلية أخرى — Other revenues,,3090.0,-3205.0\n51001,تكلفة الإيرادات — Cost of sales,13049.0,,13205.0\n53001,المصروفات العمومية والإدارية — Research and development expenses,7842.0,,7394.0\n52001,مصروفات البيع والتوزيع — Selling and general expenses,9543.0,,9183.0\n42002,إيرادات تشغيلية أخرى — Other operating income,,1231.0,-1089.0\n53002,المصروفات العمومية والإدارية — Other operating expenses,5655.0,,4382.0\n54001,الاستهلاك والإطفاء — Amortization of intangible assets,1776.0,,1749.0\n56001,خسائر الانخفاض والخسائر الائتمانية المتوقعة — Impairment of intangible assets,2241.0,,248.0\n53003,المصروفات العمومية والإدارية — Restructuring costs and similar items,104.0,,96.0\n53004,المصروفات العمومية والإدارية — Fair value remeasurement of contingent consideration,1138.0,,1396.0\n53005,المصروفات العمومية والإدارية — Other gains and losses  and litigation,255.0,,470.0\n71001,تكاليف التمويل — Financial expenses,563.0,,1073.0\n47001,إيرادات الاستثمار — Financial income,,394.0,-519.0\n81001,الزكاة وضريبة الدخل — Income tax expense,1043.0,,1204.0\n47002,إيرادات الاستثمار — Share of profit/(loss) from investments accounted for using the equity method,155.0,,-60.0\n49501,الربح (الخسارة) من العمليات غير المستمرة — Net income from discontinued operations,,2874.0,-64.0", "sanofi-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and due from banks,73696930.0,,75590583.0\n11901,موجودات متداولة أخرى — Call loans and bills bought,7882022.0,,5197978.0\n11201,ذمم مدينة تجارية — Receivables under resale agreements,20099101.0,,16205759.0\n11202,ذمم مدينة تجارية — Receivables under securities borrowing transactions,6247642.0,,5799821.0\n11902,موجودات متداولة أخرى — Monetary claims bought,6079754.0,,5618985.0\n11903,موجودات متداولة أخرى — Trading assets,16701913.0,,11976375.0\n11904,موجودات متداولة أخرى — Money held in trust,36902.0,,32272.0\n18001,استثمارات طويلة الأجل — Securities,39974120.0,,40760968.0\n11905,موجودات متداولة أخرى — Loans and bills discounted,117629215.0,,111136239.0\n11906,موجودات متداولة أخرى — Foreign exchanges,2030821.0,,2712573.0\n11203,ذمم مدينة تجارية — Lease receivables and investment assets,231429.0,,231199.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other assets,18240722.0,,13722960.0\n15001,ممتلكات وآلات ومعدات — Tangible fixed assets,1074673.0,,1006556.0\n17001,موجودات غير ملموسة — Intangible fixed assets,1151037.0,,1017322.0\n11907,موجودات متداولة أخرى — Net defined benefit asset,1299540.0,,987288.0\n11908,موجودات متداولة أخرى — Deferred tax assets,109614.0,,71261.0\n11909,موجودات متداولة أخرى — Customers' liabilities for acceptances and guarantees,17033172.0,,15139799.0\n11910,موجودات متداولة أخرى — Reserve for possible loan losses,,1007469.0,-925931.0\n22201,قروض طويلة الأجل — Deposits,,185674241.0,-171498651.0\n20901,مطلوبات متداولة أخرى — Negotiable certificates of deposit,,15667132.0,-17175391.0\n20902,مطلوبات متداولة أخرى — Call money and bills sold,,3656736.0,-4378276.0\n20101,ذمم دائنة تجارية — Payables under repurchase agreements,,23764473.0,-25797136.0\n20102,ذمم دائنة تجارية — Payables under securities lending transactions,,1136833.0,-2183655.0\n22202,قروض طويلة الأجل — Commercial paper,,3380389.0,-2686483.0\n20903,مطلوبات متداولة أخرى — Trading liabilities,,13089960.0,-9726615.0\n20904,مطلوبات متداولة أخرى — Borrowed money,,9370996.0,-11355209.0\n20905,مطلوبات متداولة أخرى — Foreign exchanges,,1436381.0,-1771839.0\n22203,قروض طويلة الأجل — Short-term bonds,,773500.0,-728200.0\n22204,قروض طويلة الأجل — Bonds,,15369164.0,-13352392.0\n20906,مطلوبات متداولة أخرى — Due to trust account,,956169.0,-1041660.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Other liabilities,,20103338.0,-13700199.0\n20907,مطلوبات متداولة أخرى — Reserve for employee bonuses,,146303.0,-130464.0\n20908,مطلوبات متداولة أخرى — Reserve for executive bonuses,,5973.0,-5433.0\n20909,مطلوبات متداولة أخرى — Net defined benefit liability,,34317.0,-33890.0\n23001,التزامات منافع الموظفين (نهاية الخدمة) — Reserve for executive retirement benefits,,907.0,-1007.0\n20910,مطلوبات متداولة أخرى — Reserve for point service program,,63254.0,-32656.0\n22205,قروض طويلة الأجل — Reserve for reimbursement of deposits,,35806.0,-5573.0\n20911,مطلوبات متداولة أخرى — Reserve for losses on interest repayment,,226742.0,-242127.0\n20912,مطلوبات متداولة أخرى — Reserves under the special laws,,6737.0,-5365.0\n22206,مطلوبات غير متداولة أخرى — Deferred tax liabilities,,619716.0,-422050.0\n22207,مطلوبات غير متداولة أخرى — Deferred tax liabilities for land revaluation,,25750.0,-26424.0\n20913,مطلوبات متداولة أخرى — Acceptances and guarantees,,17033172.0,-15139799.0\n31001,رأس المال — Capital stock,,2346888.0,-2345960.0\n31002,رأس المال — Capital surplus,,582909.0,-611423.0\n33001,الأرباح المبقاة — Retained earnings,,7286250.0,-7103293.0\n32001,الاحتياطيات — Treasury stock,48851.0,,38512.0\n32002,الاحتياطيات — Net unrealized gains (losses) on other securities,,2185092.0,-1930834.0\n32003,الاحتياطيات — Net deferred gains (losses) on hedges,300715.0,,168604.0\n32004,الاحتياطيات — Land revaluation excess,,29133.0,-32849.0\n32005,الاحتياطيات — Foreign currency translation adjustments,,1706949.0,-1411827.0\n32006,الاحتياطيات — Accumulated remeasurements of defined benefit plans,,412985.0,-287487.0\n32007,الاحتياطيات — Stock acquisition rights,,594.0,-767.0\n32008,الاحتياطيات — Non-controlling interests,,147092.0,-137306.0\n41001,الإيرادات — Ordinary income,,10790853.0,-10174894.0\n53001,المصروفات العمومية والإدارية — Ordinary expenses,8487502.0,,8455412.0\n48001,إيرادات وأرباح أخرى — Extraordinary gains,,9749.0,-3090.0\n53002,المصروفات العمومية والإدارية — Extraordinary losses,61374.0,,22630.0\n81001,الزكاة وضريبة الدخل — Income taxes,666910.0,,513065.0\n53901,المصروفات العمومية والإدارية — other items (balancing to net income),1.0,,-0.0\n32901,الاحتياطيات — rounding in the published statements,,8.0,-6.0", "smfg-2026"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and cash equivalents,5362150.0,,3713028.0\n11201,ذمم مدينة تجارية — Trade and other receivables,3302622.0,,3008144.0\n11901,موجودات متداولة أخرى — Derivative financial assets,44221.0,,111258.0\n11902,موجودات متداولة أخرى — Other financial assets,2135608.0,,1485877.0\n11401,المخزون — Inventories,240179.0,,198291.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other current assets,730821.0,,365880.0\n11903,موجودات متداولة أخرى — Assets classified as held for sale,,,550440.0\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment,3446559.0,,2830185.0\n16001,موجودات حق الاستخدام — Right-of-use assets,921612.0,,857961.0\n17001,موجودات غير ملموسة — Goodwill,7314532.0,,5781931.0\n17002,موجودات غير ملموسة — Intangible assets,2469843.0,,2414562.0\n19001,موجودات غير متداولة أخرى — Costs to obtain contracts,439265.0,,383022.0\n18001,استثمارات طويلة الأجل — Investments accounted for using the equity method,739274.0,,502995.0\n18002,استثمارات طويلة الأجل — Investments from SVF (FVTPL),23495706.0,,11410922.0\n18003,استثمارات طويلة الأجل — Investment securities,4264641.0,,8040068.0\n18004,استثمارات طويلة الأجل — Derivative financial assets,327547.0,,168248.0\n18005,استثمارات طويلة الأجل — Other financial assets,3701668.0,,2767625.0\n19002,موجودات غير متداولة أخرى — Deferred tax assets,273591.0,,207987.0\n19003,موجودات غير متداولة أخرى — Other non-current assets,1539708.0,,215332.0\n20701,قروض قصيرة الأجل والجزء المتداول — Interest-bearing debt,,7251630.0,-5629648.0\n22101,التزامات عقود الإيجار — Lease liabilities,,184666.0,-165355.0\n20702,قروض قصيرة الأجل والجزء المتداول — Deposits for banking business,,2550998.0,-1795965.0\n20101,ذمم دائنة تجارية — Trade and other payables,,3616646.0,-3036349.0\n20901,مطلوبات متداولة أخرى — Derivative financial liabilities,,137858.0,-840469.0\n20902,مطلوبات متداولة أخرى — Other financial liabilities,,39944.0,-5940.0\n20501,زكاة مستحقة — Income taxes payable,,182506.0,-444180.0\n20601,مخصصات — Provisions,,79296.0,-54047.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Other current liabilities,,790004.0,-629717.0\n22201,قروض طويلة الأجل — Interest-bearing debt,,17433486.0,-12376682.0\n22102,التزامات عقود الإيجار — Lease liabilities,,793784.0,-741665.0\n22202,مطلوبات غير متداولة أخرى — Third-party interests in SVF,,3746396.0,-3652797.0\n22203,مطلوبات غير متداولة أخرى — Derivative financial liabilities,,549000.0,-104197.0\n22204,مطلوبات غير متداولة أخرى — Other financial liabilities,,450847.0,-199284.0\n20602,مخصصات — Provisions,,216527.0,-155436.0\n22205,مطلوبات غير متداولة أخرى — Deferred tax liabilities,,1443678.0,-924392.0\n22206,مطلوبات غير متداولة أخرى — Other non-current liabilities,,813849.0,-304607.0\n31001,رأس المال — Common stock,,238772.0,-238772.0\n31002,رأس المال — Capital surplus,,3510713.0,-3376724.0\n32001,الاحتياطيات — Other equity instruments,,193199.0,-193199.0\n33001,الأرباح المبقاة — Retained earnings,,1691815.0,-1098684.0\n32002,الاحتياطيات — Treasury stock,24761.0,,256251.0\n32003,الاحتياطيات — Accumulated other comprehensive income,,6380109.0,-5307305.0\n32004,الاحتياطيات — Non-controlling interests,,2846609.0,-2391485.0\n41001,الإيرادات — Net sales,,7798650.0,-7243752.0\n51001,تكلفة الإيرادات — Cost of sales,3782511.0,,3489549.0\n42001,إيرادات تشغيلية أخرى — Gain on investments,,7286496.0,-3701107.0\n52001,مصروفات البيع والتوزيع — Selling  general and administrative expenses,4020928.0,,3024409.0\n71001,تكاليف التمويل — Finance cost,771790.0,,581559.0\n53001,المصروفات العمومية والإدارية — Foreign exchange gain (loss),271009.0,,-27055.0\n48001,إيرادات وأرباح أخرى — Derivative gain (loss) (excluding gain (loss) on investments),,204333.0,2034029.0\n53002,المصروفات العمومية والإدارية — Change in third-party interests in SVF,534613.0,,491898.0\n48002,إيرادات وأرباح أخرى — Other gain,,226277.0,-354251.0\n81001,الزكاة وضريبة الدخل — Income taxes,502929.0,,101613.0", "softbank-2026"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and cash equivalents,7818.0,,8472.0\n11201,ذمم مدينة تجارية — Trade receivables,16842.0,,16411.0\n11901,موجودات متداولة أخرى — Contract assets,3138.0,,2711.0\n11902,موجودات متداولة أخرى — Current recoverable income taxes,495.0,,445.0\n11903,موجودات متداولة أخرى — Other financial assets,4584.0,,4418.0\n11401,المخزون — Inventories,2866.0,,2451.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other assets,2284.0,,1996.0\n11904,موجودات متداولة أخرى — Non-current assets and disposal groups held for sale,3150.0,,256.0\n17001,موجودات غير ملموسة — Intangible assets,133650.0,,149115.0\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment,64791.0,,66612.0\n16001,موجودات حق الاستخدام — Right-of-use assets,28579.0,,32214.0\n19001,موجودات غير متداولة أخرى — Capitalized contract costs,3936.0,,3682.0\n18001,استثمارات طويلة الأجل — Investments accounted for using the equity method,11087.0,,7343.0\n18002,استثمارات طويلة الأجل — Other financial assets,3973.0,,3326.0\n19002,موجودات غير متداولة أخرى — Deferred tax assets,660.0,,3682.0\n11602,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other assets,1916.0,,1800.0\n20901,مطلوبات متداولة أخرى — Financial liabilities,,11328.0,-9852.0\n22101,التزامات عقود الإيجار — Lease liabilities,,5744.0,-5674.0\n20101,ذمم دائنة تجارية — Trade and other payables,,9581.0,-9489.0\n20501,زكاة مستحقة — Income tax liabilities,,563.0,-736.0\n20601,مخصصات — Other provisions,,3762.0,-3537.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Other liabilities,,3298.0,-3516.0\n20301,مطلوبات عقود (دفعات مقدمة من عملاء) — Contract liabilities,,2572.0,-2378.0\n20902,مطلوبات متداولة أخرى — Liabilities directly associated with non-current assets and disposal groups held for sale,,,-0.0\n22201,مطلوبات غير متداولة أخرى — Financial liabilities,,99011.0,-102339.0\n22102,التزامات عقود الإيجار — Lease liabilities,,30640.0,-34574.0\n23001,التزامات منافع الموظفين (نهاية الخدمة) — Provisions for pensions and other employee benefits,,1883.0,-3209.0\n20602,مخصصات — Other provisions,,4157.0,-4332.0\n22202,مطلوبات غير متداولة أخرى — Deferred tax liabilities,,22291.0,-24260.0\n20202,مصروفات مستحقة ومطلوبات أخرى — Other liabilities,,1633.0,-1366.0\n20302,مطلوبات عقود (دفعات مقدمة من عملاء) — Contract liabilities,,1076.0,-1032.0\n31001,رأس المال — Issued capital,,12557.0,-12765.0\n32001,الاحتياطيات — Treasury shares,172.0,,220.0\n32002,الاحتياطيات — Capital reserves,,53166.0,-55102.0\n33001,الأرباح المبقاة — Retained earnings including carryforwards,26172.0,,34616.0\n32003,الاحتياطيات — Other comprehensive income (accumulated),1744.0,,-1399.0\n32004,الاحتياطيات — Net profit (loss),,9609.0,-11209.0\n32005,الاحتياطيات — Non-controlling interests,,30061.0,-35344.0\n41001,الإيرادات — Net revenue,,119081.0,-115769.0\n42001,إيرادات تشغيلية أخرى — Other operating income,,1358.0,-3913.0\n53001,المصروفات العمومية والإدارية — Changes in inventories,23.0,,-4.0\n48001,إيرادات وأرباح أخرى — Own capitalized costs,,2706.0,-2628.0\n51001,تكلفة الإيرادات — Goods and services purchased,48747.0,,47374.0\n53002,المصروفات العمومية والإدارية — Personnel costs,19781.0,,19004.0\n53003,المصروفات العمومية والإدارية — Other operating expenses,5764.0,,5632.0\n54001,الاستهلاك والإطفاء — Depreciation  amortization and impairment losses,24009.0,,24027.0\n71001,تكاليف التمويل — Finance costs,5909.0,,5686.0\n47001,إيرادات الاستثمار — Share of profit (loss) of associates and joint ventures accounted for using the equity method,,765.0,-2534.0\n53004,المصروفات العمومية والإدارية — Other financial income (expense),179.0,,168.0\n81001,الزكاة وضريبة الدخل — Income taxes,4573.0,,5301.0\n53901,المصروفات العمومية والإدارية — other items (balancing to net income),,1.0,-1.0\n32901,الاحتياطيات — rounding in the published statements,1.0,,-0.0", "telekom-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment,149905.0,,80185.0\n19001,موجودات غير متداولة أخرى — Land use rights,22339.0,,23117.0\n16001,موجودات حق الاستخدام — Right-of-use assets,17367.0,,17679.0\n19002,موجودات غير متداولة أخرى — Construction in progress,9670.0,,12302.0\n18001,استثمارات طويلة الأجل — Investment properties,950.0,,801.0\n17001,موجودات غير ملموسة — Intangible assets,205999.0,,196127.0\n18002,استثمارات طويلة الأجل — Investments in associates,342409.0,,290343.0\n18003,استثمارات طويلة الأجل — Investments in joint ventures,6303.0,,7072.0\n18004,استثمارات طويلة الأجل — Financial assets at fair value through profit or loss,207157.0,,204999.0\n18005,استثمارات طويلة الأجل — Financial assets at fair value through other comprehensive income,356640.0,,302360.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Prepayments  deposits and other assets,24540.0,,42828.0\n18006,استثمارات طويلة الأجل — Other financial assets,1327.0,,1076.0\n19003,موجودات غير متداولة أخرى — Deferred income tax assets,28618.0,,28325.0\n19004,موجودات غير متداولة أخرى — Term deposits,70302.0,,77601.0\n11401,المخزون — Inventories,530.0,,440.0\n11201,ذمم مدينة تجارية — Accounts receivable,49930.0,,48203.0\n11602,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Prepayments  deposits and other assets,111270.0,,101044.0\n11901,موجودات متداولة أخرى — Other financial assets,4201.0,,4750.0\n11902,موجودات متداولة أخرى — Financial assets at fair value through profit or loss,35929.0,,9568.0\n11903,موجودات متداولة أخرى — Financial assets at fair value through other comprehensive income,8781.0,,3345.0\n11904,موجودات متداولة أخرى — Term deposits,236801.0,,192977.0\n11101,النقد وما في حكمه — Restricted cash,6977.0,,3334.0\n11102,النقد وما في حكمه — Cash and cash equivalents,141041.0,,132519.0\n22201,قروض طويلة الأجل — Borrowings,,208369.0,-146521.0\n22202,قروض طويلة الأجل — Notes payable,,126204.0,-130586.0\n20101,ذمم دائنة تجارية — Long-term payables,,10544.0,-10201.0\n22203,مطلوبات غير متداولة أخرى — Other financial liabilities,,2879.0,-4203.0\n22204,مطلوبات غير متداولة أخرى — Deferred income tax liabilities,,21684.0,-18546.0\n22101,التزامات عقود الإيجار — Lease liabilities,,13280.0,-13897.0\n20301,مطلوبات عقود (دفعات مقدمة من عملاء) — Deferred revenue,,2210.0,-6236.0\n20102,ذمم دائنة تجارية — Accounts payable,,121127.0,-118712.0\n20103,ذمم دائنة تجارية — Other payables and accruals,,96496.0,-84032.0\n20701,قروض قصيرة الأجل والجزء المتداول — Borrowings,,42618.0,-52885.0\n20702,قروض قصيرة الأجل والجزء المتداول — Notes payable,,10542.0,-8623.0\n20501,زكاة مستحقة — Current income tax liabilities,,18558.0,-16586.0\n20502,زكاة مستحقة — Other tax liabilities,,3723.0,-4038.0\n20901,مطلوبات متداولة أخرى — Other financial liabilities,,3992.0,-6336.0\n22102,التزامات عقود الإيجار — Lease liabilities,,5386.0,-5600.0\n20302,مطلوبات عقود (دفعات مقدمة من عملاء) — Deferred revenue,,110309.0,-100097.0\n31001,رأس المال — Share capital,,,-0.0\n31002,رأس المال — Share premium,,63796.0,-43079.0\n32001,الاحتياطيات — Treasury shares,3450.0,,3597.0\n32002,الاحتياطيات — Shares held for share award schemes,7124.0,,5093.0\n32003,الاحتياطيات — Other reserves,,90494.0,-47129.0\n33001,الأرباح المبقاة — Retained earnings,,780635.0,-695563.0\n32004,الاحتياطيات — Non-controlling interests,,86913.0,-80348.0\n41001,الإيرادات — Value-added Services,,369281.0,-319168.0\n41002,الإيرادات — Marketing Services,,144973.0,-121374.0\n41003,الإيرادات — FinTech and Business Services,,229435.0,-211956.0\n42001,إيرادات تشغيلية أخرى — Others,,8077.0,-7759.0\n51001,تكلفة الإيرادات — Cost of revenues,329173.0,,311011.0\n52001,مصروفات البيع والتوزيع — Selling and marketing expenses,41727.0,,36388.0\n53001,المصروفات العمومية والإدارية — General and administrative expenses,136127.0,,112761.0\n53002,المصروفات العمومية والإدارية — Other gains/(losses)  net,3177.0,,-8002.0\n48001,إيرادات وأرباح أخرى — Net gains/(losses) from investments and others,,10168.0,-4187.0\n47001,إيرادات الاستثمار — Interest income,,16909.0,-16004.0\n71001,تكاليف التمويل — Finance costs,15130.0,,11981.0\n47002,إيرادات الاستثمار — Share of profit/(loss) of associates and joint ventures  net,,23740.0,-25176.0\n81001,الزكاة وضريبة الدخل — Income tax expense,47448.0,,45018.0", "tencent-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n17001,موجودات غير ملموسة — Intangible assets  net,34238.0,,33083.0\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment  net,109095.0,,108916.0\n18001,استثمارات طويلة الأجل — Equity affiliates: investments and loans,34405.0,,30457.0\n18002,استثمارات طويلة الأجل — Other investments,1665.0,,1543.0\n18003,استثمارات طويلة الأجل — Non-current financial assets,2305.0,,2395.0\n19001,موجودات غير متداولة أخرى — Deferred income taxes,3202.0,,3418.0\n19002,موجودات غير متداولة أخرى — Other non-current assets,4006.0,,4313.0\n11401,المخزون — Inventories  net,18868.0,,19317.0\n11201,ذمم مدينة تجارية — Accounts receivable  net,19281.0,,23442.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other current assets,23687.0,,20821.0\n11901,موجودات متداولة أخرى — Current financial assets,6914.0,,6585.0\n11101,النقد وما في حكمه — Cash and cash equivalents,25844.0,,27263.0\n11902,موجودات متداولة أخرى — Assets classified as held for sale,1977.0,,2101.0\n22201,مطلوبات غير متداولة أخرى — Deferred income taxes,,12114.0,-11688.0\n23001,التزامات منافع الموظفين (نهاية الخدمة) — Employee benefits,,1753.0,-1993.0\n20601,مخصصات — Provisions and other non-current liabilities,,19872.0,-21257.0\n22202,قروض طويلة الأجل — Non-current financial debt,,43533.0,-40478.0\n20101,ذمم دائنة تجارية — Accounts payable,,39932.0,-41335.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Other creditors and accrued liabilities,,35961.0,-36727.0\n20701,قروض قصيرة الأجل والجزء المتداول — Current borrowings,,10024.0,-9590.0\n20901,مطلوبات متداولة أخرى — Other current financial liabilities,,664.0,-446.0\n20902,مطلوبات متداولة أخرى — Liabilities directly associated with the assets classified as held for sale,,1379.0,-687.0\n32001,الاحتياطيات — Common shares,,7577.0,-7616.0\n31001,رأس المال — Paid-in surplus and retained earnings,,119465.0,-105347.0\n32002,الاحتياطيات — Currency translation adjustment,15259.0,,13701.0\n32003,الاحتياطيات — Treasury shares,9956.0,,4019.0\n32004,الاحتياطيات — Non-controlling interests,,2397.0,-2700.0\n41001,الإيرادات — Sales,,214550.0,-237128.0\n53001,المصروفات العمومية والإدارية — Excise taxes,18940.0,,18183.0\n51001,تكلفة الإيرادات — Purchases  net of inventory variation,127664.0,,143041.0\n53002,المصروفات العمومية والإدارية — Other operating expenses,29860.0,,30419.0\n53003,المصروفات العمومية والإدارية — Exploration costs,999.0,,573.0\n54001,الاستهلاك والإطفاء — Depreciation  depletion and impairment of tangible assets and mineral interests,12025.0,,12762.0\n42001,إيرادات تشغيلية أخرى — Other income,,2112.0,-3677.0\n53004,المصروفات العمومية والإدارية — Other expense,1281.0,,2396.0\n71001,تكاليف التمويل — Financial interest on debt,3016.0,,2820.0\n47001,إيرادات الاستثمار — Financial income and expense from cash & cash equivalents,,1786.0,-1801.0\n47002,إيرادات الاستثمار — Other financial income,,1403.0,-1285.0\n71002,تكاليف التمويل — Other financial expense,835.0,,731.0\n47003,إيرادات الاستثمار — Net income (loss) from equity affiliates,,1575.0,-1845.0\n81001,الزكاة وضريبة الدخل — Income taxes,10775.0,,13301.0", "totalenergies-2024"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and cash equivalents,12659622.0,,8982404.0\n11201,ذمم مدينة تجارية — Trade accounts and other receivables,3795986.0,,3679722.0\n11202,ذمم مدينة تجارية — Receivables related to financial services,13478474.0,,11453249.0\n11901,موجودات متداولة أخرى — Other financial assets,3982445.0,,6935759.0\n11401,المخزون — Inventories,5134996.0,,4598232.0\n11902,موجودات متداولة أخرى — Income tax receivable,235425.0,,216528.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Other current assets,1520330.0,,1212783.0\n11903,موجودات متداولة أخرى — Assets held for sale,2016804.0,,0.0\n18001,استثمارات طويلة الأجل — Investments accounted for using the equity method,5342548.0,,5798051.0\n11203,ذمم مدينة تجارية — Receivables related to financial services,25488182.0,,22171786.0\n18002,استثمارات طويلة الأجل — Other financial assets,11135799.0,,9882841.0\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment  net,17067365.0,,15333693.0\n16001,موجودات حق الاستخدام — Right of use assets,901232.0,,583068.0\n17001,موجودات غير ملموسة — Intangible assets,1392755.0,,1363266.0\n19001,موجودات غير متداولة أخرى — Deferred tax assets,555596.0,,517869.0\n19002,موجودات غير متداولة أخرى — Other non-current assets,814773.0,,872101.0\n20101,ذمم دائنة تجارية — Trade accounts and other payables,,5856945.0,-5527347.0\n20701,قروض قصيرة الأجل والجزء المتداول — Short-term and current portion of long-term debt,,17581104.0,-15829516.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Accrued expenses,,2112571.0,-1827933.0\n20901,مطلوبات متداولة أخرى — Other financial liabilities,,2384008.0,-1869117.0\n20501,زكاة مستحقة — Income taxes payable,,711675.0,-505500.0\n20902,مطلوبات متداولة أخرى — Liabilities for quality assurance,,2097943.0,-1965748.0\n20601,مخصصات — Provisions,,431191.0,-413352.0\n20202,مصروفات مستحقة ومطلوبات أخرى — Other current liabilities,,1735034.0,-1495707.0\n20903,مطلوبات متداولة أخرى — Liabilities directly associated with assets held for sale,,694547.0,-0.0\n22201,قروض طويلة الأجل — Long-term debt,,25624365.0,-22963363.0\n22202,مطلوبات غير متداولة أخرى — Other financial liabilities,,1157413.0,-435594.0\n23001,التزامات منافع الموظفين (نهاية الخدمة) — Retirement benefit liabilities,,1022483.0,-1019568.0\n22203,مطلوبات غير متداولة أخرى — Deferred tax liabilities,,1584505.0,-1659433.0\n20602,مخصصات — Provisions,,498463.0,-301103.0\n22204,مطلوبات غير متداولة أخرى — Other non-current liabilities,,1010015.0,-909156.0\n31001,رأس المال — Common stock,,397050.0,-397050.0\n31002,رأس المال — Additional paid-in capital,,456742.0,-492368.0\n33001,الأرباح المبقاة — Retained earnings,,34724097.0,-31051463.0\n32001,الاحتياطيات — Other components of equity,,4544019.0,-3610133.0\n32002,الاحتياطيات — Other comprehensive income associated with assets held for sale,,266596.0,-0.0\n32003,الاحتياطيات — Treasury stock,4455410.0,,4415943.0\n32004,الاحتياطيات — Non-controlling interests,,1101214.0,-954088.0\n41001,الإيرادات — Sales of products,,45865949.0,-43598877.0\n41002,الإيرادات — Financial services,,4819003.0,-4437827.0\n51001,تكلفة الإيرادات — Cost of products sold,39141418.0,,35510157.0\n51002,تكلفة الإيرادات — Cost of financial services,3079794.0,,2948509.0\n52001,مصروفات البيع والتوزيع — Selling  general and administrative,4697524.0,,4782452.0\n47001,إيرادات الاستثمار — Share of profit (loss) of investments accounted for using the equity method,,552742.0,-591219.0\n47002,إيرادات الاستثمار — Other finance income,,594243.0,-556700.0\n71001,تكاليف التمويل — Other finance costs,86746.0,,190711.0\n48001,إيرادات وأرباح أخرى — Foreign exchange gain (loss)  net,,400780.0,-705292.0\n48002,إيرادات وأرباح أخرى — Other income (loss)  net,,74239.0,-43497.0\n53001,المصروفات العمومية والإدارية — items not analysed on the face of the income statement,148478.0,,86993.0\n81001,الزكاة وضريبة الدخل — Income tax expense,1167234.0,,1624835.0\n53901,المصروفات العمومية والإدارية — other items (balancing to net income),1.0,,-0.0\n32901,الاحتياطيات — rounding in the published statements,,1.0,-1.0", "toyota-2026"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and balances at central banks,209858.0,,223329.0\n11201,ذمم مدينة تجارية — Amounts due from banks,19649.0,,18903.0\n11202,ذمم مدينة تجارية — Receivables from securities financing transactions measured at amortized cost,83656.0,,118301.0\n11102,النقد وما في حكمه — Cash collateral receivables on derivative instruments,41552.0,,43959.0\n11203,ذمم مدينة تجارية — Loans and advances to customers,653846.0,,579967.0\n18001,استثمارات طويلة الأجل — Other financial assets measured at amortized cost,71897.0,,58835.0\n18002,استثمارات طويلة الأجل — Financial assets at fair value held for trading,174699.0,,159065.0\n18003,استثمارات طويلة الأجل — Derivative financial instruments,147778.0,,185551.0\n11204,ذمم مدينة تجارية — Brokerage receivables,35579.0,,25858.0\n18004,استثمارات طويلة الأجل — Financial assets at fair value not held for trading,107575.0,,95472.0\n18005,استثمارات طويلة الأجل — Financial assets measured at fair value through other comprehensive income,13868.0,,2195.0\n18006,استثمارات طويلة الأجل — Investments in associates,2332.0,,2306.0\n17001,موجودات غير ملموسة — Property  equipment and software,16057.0,,15498.0\n17002,موجودات غير ملموسة — Goodwill and intangible assets,6948.0,,6887.0\n11901,موجودات متداولة أخرى — Deferred tax assets,11525.0,,11134.0\n18007,استثمارات طويلة الأجل — Other non-financial assets,20609.0,,17766.0\n22201,قروض طويلة الأجل — Amounts due to banks,,24434.0,-23347.0\n20101,ذمم دائنة تجارية — Payables from securities financing transactions measured at amortized cost,,16225.0,-14833.0\n20102,ذمم دائنة تجارية — Cash collateral payables on derivative instruments,,34222.0,-35490.0\n22202,قروض طويلة الأجل — Customer deposits,,788367.0,-745777.0\n22203,قروض طويلة الأجل — Debt issued measured at amortized cost,,214706.0,-214219.0\n20901,مطلوبات متداولة أخرى — Other financial liabilities measured at amortized cost,,15862.0,-21033.0\n20902,مطلوبات متداولة أخرى — Financial liabilities at fair value held for trading,,53700.0,-35247.0\n20903,مطلوبات متداولة أخرى — Derivative financial instruments,,156243.0,-180636.0\n20103,ذمم دائنة تجارية — Brokerage payables designated at fair value,,62202.0,-49023.0\n22204,قروض طويلة الأجل — Debt issued designated at fair value,,113794.0,-107909.0\n20904,مطلوبات متداولة أخرى — Other financial liabilities designated at fair value,,28184.0,-28699.0\n20601,مخصصات — Provisions and contingent liabilities,,5035.0,-8409.0\n20905,مطلوبات متداولة أخرى — Other non-financial liabilities,,13970.0,-14834.0\n31001,رأس المال — Share capital,,334.0,-346.0\n31002,رأس المال — Share premium,,9217.0,-12012.0\n32001,الاحتياطيات — Treasury shares,7891.0,,6402.0\n33001,الأرباح المبقاة — Retained earnings,,74943.0,-72889.0\n32002,الاحتياطيات — Other comprehensive income recognized directly in equity  net of tax,,5813.0,-1088.0\n32003,الاحتياطيات — Equity attributable to non-controlling interests,,271.0,-494.0\n41001,الإيرادات — Interest income from financial instruments measured at amortized cost and fair value through other comprehensive income,,27948.0,-35994.0\n51001,تكلفة الإيرادات — Interest expense from financial instruments measured at amortized cost,26544.0,,35947.0\n41002,الإيرادات — Net interest income from financial instruments measured at fair value through profit or loss and other,,6343.0,-7061.0\n42001,إيرادات تشغيلية أخرى — Other net income from financial instruments measured at fair value through profit or loss,,14011.0,-14690.0\n41003,الإيرادات — Fee and commission income,,30581.0,-28730.0\n53001,المصروفات العمومية والإدارية — Fee and commission expense,2669.0,,2592.0\n42002,إيرادات تشغيلية أخرى — Other income,96.0,,-675.0\n56001,خسائر الانخفاض والخسائر الائتمانية المتوقعة — Credit loss expense / (release),524.0,,551.0\n53002,المصروفات العمومية والإدارية — Personnel expenses,27861.0,,27318.0\n53003,المصروفات العمومية والإدارية — General and administrative expenses,8807.0,,10124.0\n54001,الاستهلاك والإطفاء — Depreciation  amortization and impairment of non-financial assets,3529.0,,3798.0\n81001,الزكاة وضريبة الدخل — Tax expense / (benefit),1056.0,,1675.0\n53901,المصروفات العمومية والإدارية — other items (balancing to net income),,,-1.0\n32901,الاحتياطيات — rounding in the published statements,,,3.0", "ubs-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n17001,موجودات غير ملموسة — Goodwill,17709.0,,22311.0\n17002,موجودات غير ملموسة — Intangible assets,17055.0,,18590.0\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment,8992.0,,11669.0\n19001,موجودات غير متداولة أخرى — Pension asset for funded schemes in surplus,4462.0,,4164.0\n19002,موجودات غير متداولة أخرى — Deferred tax assets,1146.0,,1280.0\n18001,استثمارات طويلة الأجل — Financial assets,3065.0,,1571.0\n19003,موجودات غير متداولة أخرى — Other non-current assets,976.0,,971.0\n11401,المخزون — Inventories,4043.0,,5177.0\n11201,ذمم مدينة تجارية — Trade and other current receivables,7346.0,,6011.0\n11901,موجودات متداولة أخرى — Current tax assets,329.0,,373.0\n11101,النقد وما في حكمه — Cash and cash equivalents,3941.0,,6136.0\n11902,موجودات متداولة أخرى — Other financial assets,1121.0,,1330.0\n11903,موجودات متداولة أخرى — Assets held for sale,286.0,,167.0\n20901,مطلوبات متداولة أخرى — Financial liabilities,,2582.0,-6987.0\n20101,ذمم دائنة تجارية — Trade payables and other current liabilities,,16939.0,-16690.0\n20501,زكاة مستحقة — Current tax liabilities,,1439.0,-678.0\n20601,مخصصات — Provisions,,589.0,-831.0\n20902,مطلوبات متداولة أخرى — Liabilities held for sale,,113.0,-48.0\n22201,مطلوبات غير متداولة أخرى — Financial liabilities,,25696.0,-25066.0\n20502,زكاة مستحقة — Non-current tax liabilities,,303.0,-585.0\n23001,التزامات منافع الموظفين (نهاية الخدمة) — Pensions and post-retirement healthcare liabilities: Funded schemes in deficit,,100.0,-173.0\n22202,مطلوبات غير متداولة أخرى — Unfunded schemes,,844.0,-1021.0\n20602,مخصصات — Provisions,,539.0,-571.0\n22203,مطلوبات غير متداولة أخرى — Deferred tax liabilities,,3603.0,-4342.0\n22204,مطلوبات غير متداولة أخرى — Other non-current liabilities,,137.0,-203.0\n32001,الاحتياطيات — Shareholders’ equity,,5519.0,-13621.0\n32002,الاحتياطيات — Non-controlling interests,,2057.0,-2565.0\n41001,الإيرادات — Turnover,,50503.0,-52479.0\n53001,المصروفات العمومية والإدارية — items not analysed on the face of the income statement,41466.0,,43650.0\n71001,تكاليف التمويل — Net finance costs,503.0,,520.0\n47001,إيرادات الاستثمار — Share of net profit of joint ventures and associates,,245.0,-250.0\n53002,المصروفات العمومية والإدارية — items not analysed on the face of the income statement,86.0,,188.0\n81001,الزكاة وضريبة الدخل — Taxation,2481.0,,2332.0\n49501,الربح (الخسارة) من العمليات غير المستمرة — Profit after taxation from discontinued operations,,425.0,-330.0\n49502,الربح (الخسارة) من العمليات غير المستمرة — Gain on disposal of discontinued operations,,3373.0,-0.0\n53901,المصروفات العمومية والإدارية — other items (balancing to net income),,1.0,-0.0", "unilever-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n17001,موجودات غير ملموسة — Intangible assets,91474.0,,93333.0\n15001,ممتلكات وآلات ومعدات — Property  plant and equipment,73076.0,,71452.0\n16001,موجودات حق الاستخدام — Lease assets,82486.0,,73193.0\n18001,استثمارات طويلة الأجل — Investment property,609.0,,622.0\n18002,استثمارات طويلة الأجل — Equity-accounted investments,9996.0,,10269.0\n18003,استثمارات طويلة الأجل — Other equity investments,7366.0,,5731.0\n11201,ذمم مدينة تجارية — Financial services receivables,101230.0,,101087.0\n18004,استثمارات طويلة الأجل — Other financial assets,11692.0,,12129.0\n11202,ذمم مدينة تجارية — Other receivables,3651.0,,2868.0\n11203,ذمم مدينة تجارية — Tax receivables,411.0,,409.0\n19001,موجودات غير متداولة أخرى — Deferred tax assets,14611.0,,16581.0\n11401,المخزون — Inventories,56042.0,,56720.0\n11204,ذمم مدينة تجارية — Trade receivables,20760.0,,21130.0\n11205,ذمم مدينة تجارية — Financial services receivables,70026.0,,68855.0\n11901,موجودات متداولة أخرى — Other financial assets,20158.0,,18649.0\n11206,ذمم مدينة تجارية — Other receivables,9881.0,,10217.0\n11207,ذمم مدينة تجارية — Tax receivables,2674.0,,2038.0\n11902,موجودات متداولة أخرى — Marketable securities and time deposits,29522.0,,27326.0\n11101,النقد وما في حكمه — Cash and cash equivalents,38801.0,,40296.0\n22201,مطلوبات غير متداولة أخرى — Financial liabilities,,137214.0,-137061.0\n22202,مطلوبات غير متداولة أخرى — Other financial liabilities,,6422.0,-6548.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Other liabilities,,11420.0,-10584.0\n22203,مطلوبات غير متداولة أخرى — Deferred tax liabilities,,9963.0,-10900.0\n23001,التزامات منافع الموظفين (نهاية الخدمة) — Provisions for pensions,,22826.0,-27602.0\n20601,مخصصات — Provisions for taxes,,3367.0,-4084.0\n20602,مخصصات — Other provisions,,23676.0,-22355.0\n20901,مطلوبات متداولة أخرى — Financial liabilities,,127489.0,-117020.0\n20101,ذمم دائنة تجارية — Trade payables,,30490.0,-29772.0\n20102,ذمم دائنة تجارية — Tax payables,,497.0,-724.0\n20902,مطلوبات متداولة أخرى — Other financial liabilities,,13643.0,-14364.0\n20202,مصروفات مستحقة ومطلوبات أخرى — Other liabilities,,24427.0,-24752.0\n20603,مخصصات — Provisions for taxes,,1986.0,-1698.0\n20604,مخصصات — Other provisions,,27993.0,-28709.0\n32001,الاحتياطيات — Subscribed capital,,1283.0,-1283.0\n32002,الاحتياطيات — Capital reserve,,14551.0,-14551.0\n33001,الأرباح المبقاة — Retained earnings,,154453.0,-142736.0\n32003,الاحتياطيات — Other reserves,3190.0,,2560.0\n32004,الاحتياطيات — Equity attributable to Volkswagen AG hybrid capital investors,,14275.0,-13890.0\n32005,الاحتياطيات — Non-controlling interests,,14777.0,-14437.0\n41001,الإيرادات — Sales revenue,,321913.0,-324656.0\n51001,تكلفة الإيرادات — Cost of sales,270671.0,,265184.0\n52001,مصروفات البيع والتوزيع — Distribution expenses,22804.0,,22320.0\n53001,المصروفات العمومية والإدارية — Administrative expenses,12541.0,,12754.0\n42001,إيرادات تشغيلية أخرى — Other operating income,,13615.0,-14974.0\n53002,المصروفات العمومية والإدارية — Other operating expenses,20644.0,,20312.0\n47001,إيرادات الاستثمار — Share of the result of equity-accounted investments,,930.0,-375.0\n47002,إيرادات الاستثمار — Interest income,,1824.0,-2419.0\n71001,تكاليف التمويل — Interest expenses,3245.0,,3446.0\n48001,إيرادات وأرباح أخرى — Other financial result,,930.0,1602.0\n81001,الزكاة وضريبة الدخل — Income tax income/expense,2403.0,,4411.0\n53901,المصروفات العمومية والإدارية — other items (balancing to net income),,,1.0\n32901,الاحتياطيات — rounding in the published statements,,,-1.0", "volkswagen-2025"],
+		["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة\n11101,النقد وما في حكمه — Cash and cash equivalents,8625.0,,14760.0\n11201,ذمم مدينة تجارية — Receivables  net,7933.0,,8280.0\n11401,المخزون — Inventories,56576.0,,56511.0\n11601,مصروفات مدفوعة مقدماً وأرصدة مدينة أخرى — Prepaid expenses and other,2521.0,,1519.0\n15001,ممتلكات وآلات ومعدات — Property and equipment  net,100760.0,,94515.0\n16001,موجودات حق الاستخدام — Operating lease right-of-use assets,13555.0,,13758.0\n16002,موجودات حق الاستخدام — Finance lease right-of-use assets  net,4919.0,,4351.0\n17001,موجودات غير ملموسة — Goodwill,28174.0,,29014.0\n19001,موجودات غير متداولة أخرى — Other long-term assets,20134.0,,22152.0\n20701,قروض قصيرة الأجل والجزء المتداول — Short-term borrowings,,372.0,-410.0\n20101,ذمم دائنة تجارية — Accounts payable,,53742.0,-55261.0\n20201,مصروفات مستحقة ومطلوبات أخرى — Accrued liabilities,,31126.0,-26060.0\n20501,زكاة مستحقة — Accrued income taxes,,727.0,-851.0\n20702,قروض قصيرة الأجل والجزء المتداول — Long-term debt due within one year,,4191.0,-2803.0\n20901,مطلوبات متداولة أخرى — Operating lease obligations due within one year,,1473.0,-1483.0\n20902,مطلوبات متداولة أخرى — Finance lease obligations due within one year,,567.0,-511.0\n22201,قروض طويلة الأجل — Long-term debt,,34649.0,-34864.0\n22202,مطلوبات غير متداولة أخرى — Long-term operating lease obligations,,12828.0,-13009.0\n22203,مطلوبات غير متداولة أخرى — Long-term finance lease obligations,,4843.0,-4243.0\n22204,مطلوبات غير متداولة أخرى — Deferred income taxes and other,,14688.0,-13474.0\n22205,مطلوبات غير متداولة أخرى — Redeemable noncontrolling interest,,237.0,-0.0\n31001,رأس المال — Common stock,,269.0,-276.0\n32001,الاحتياطيات — Capital in excess of par value,,4969.0,-4839.0\n33001,الأرباح المبقاة — Retained earnings,,71843.0,-72964.0\n32002,الاحتياطيات — Accumulated other comprehensive loss,11680.0,,8766.0\n32003,الاحتياطيات — Noncontrolling interest,,7061.0,-8638.0\n41001,الإيرادات — Net sales,,605881.0,-567762.0\n41002,الإيرادات — Membership and other income,,5408.0,-4992.0\n51001,تكلفة الإيرادات — Cost of sales,463721.0,,429000.0\n52001,مصروفات البيع والتوزيع — Operating  selling  general and administrative expenses,127140.0,,117812.0\n71001,تكاليف التمويل — Debt,1787.0,,1674.0\n71002,تكاليف التمويل — Finance lease,341.0,,320.0\n47001,إيرادات الاستثمار — Interest income,,254.0,-158.0\n53001,المصروفات العمومية والإدارية — Loss on extinguishment of debt,,,2410.0\n53002,المصروفات العمومية والإدارية — Other (gains) and losses,1538.0,,3000.0\n81001,الزكاة وضريبة الدخل — Provision for income taxes,5724.0,,4756.0", "walmart-2023"]
+	]);
+	function identifyLegacyCorpusTransport(text) {
+		return ids.get(text.replace(/^﻿/, "").replace(/\r\n/g, "\n").trim()) ?? null;
 	}
 	//#endregion
 	//#region app/src/engine/fusion/reports/tb-import-engine.ts
@@ -1206,7 +4149,21 @@ window.SKEngines = (function() {
 	/** Parse tabular text into a trial balance. overrides: {accountCode: type} from the user's mapping review. */
 	function parseTrialBalance(text, opts = {}) {
 		const raw = String(text ?? "").replace(/^﻿/, "");
+		const reportExport = (format, id) => ({
+			...finish([], [{
+				line: 1,
+				code: "SOURCE_REPORT_REIMPORT_UNSUPPORTED",
+				message: "هذا تصدير قوائم منشورة، وليس ميزان مراجعة. إعادة استيراد تقرير المصدر غير مدعومة؛ افتح نموذج المصدر باسمه من قسم المراجعة."
+			}], {}, ","),
+			balanced: false,
+			sourceKind: "published-statements",
+			...id ? { sourceId: id } : {},
+			sourceTransport: raw,
+			sourceReportFormat: format
+		});
+		if (/data-source-kind=["']published-statements["']/.test(raw)) return reportExport("SQC_PUBLISHED_REPORT_HTML_V1", raw.match(/data-source-model-id=["']([a-z0-9-]+)["']/)?.[1]);
 		const marked = raw.split(/\r?\n/).find((l) => l.startsWith(SOURCE_MARKER));
+		const knownSourceId = marked ? marked.slice(SOURCE_MARKER.length).trim() : identifyLegacyCorpusTransport(raw) ?? identifyReviewedSourceTransport(raw);
 		const source = raw.split(/\r?\n/).filter((l) => !l.startsWith(SOURCE_MARKER)).join("\n");
 		const lines = source.split(/\r?\n/).filter((l) => l.trim());
 		if (!lines.length) return finish([], [{
@@ -1216,6 +4173,17 @@ window.SKEngines = (function() {
 		}], {}, ",");
 		const delimiter = opts.delimiter || detectDelimiter(source);
 		const head = splitLine(lines[0], delimiter), columns = {};
+		const reportHeaders = head.map((v) => v.trim().toLowerCase()), formatColumn = reportHeaders.indexOf("source_format"), modelColumn = reportHeaders.indexOf("source_model_id");
+		const legacySourceReport = [
+			"issuer",
+			"source_sha256",
+			"origin"
+		].every((k) => reportHeaders.includes(k));
+		if (reportHeaders[0] === "source label" && reportHeaders[1] === "unit" && reportHeaders.slice(2).some((v) => /(duration|instant):.*\d{4}-\d{2}-\d{2}/.test(v))) return reportExport("SQC_PUBLISHED_SOURCE_TABLE_LEGACY");
+		if (formatColumn >= 0 && modelColumn >= 0 || legacySourceReport) {
+			const ids = modelColumn < 0 ? [] : [...new Set(lines.slice(1).map((line) => splitLine(line, delimiter)[modelColumn]).filter(Boolean))];
+			return reportExport(formatColumn >= 0 ? "SQC_PUBLISHED_REPORT_V1" : "SQC_PUBLISHED_REPORT_LEGACY", ids.length === 1 && /^[a-z0-9-]+$/.test(ids[0]) ? ids[0] : void 0);
+		}
 		head.forEach((cell, i) => {
 			const f = headerKey(cell);
 			if (f && columns[f] === void 0) columns[f] = i;
@@ -1262,11 +4230,11 @@ window.SKEngines = (function() {
 			rows.push(makeRow(lineNo, code, name, debit, credit, prior, opts.overrides?.[code]));
 		});
 		const result = finish(rows, errors, columns, delimiter);
-		return marked ? {
+		return knownSourceId ? {
 			...result,
 			sourceKind: "published-statements",
-			sourceId: marked.slice(SOURCE_MARKER.length).trim(),
-			sourceTransport: text
+			sourceId: knownSourceId,
+			sourceTransport: raw
 		} : result;
 	}
 	/** Build a trial balance from rows the app already has (the ledger engine, the audit bridge). */
@@ -2572,6 +5540,152 @@ window.SKEngines = (function() {
 		].join(" ").toLowerCase().includes(q));
 	}
 	//#endregion
+	//#region app/src/engine/fusion/reports/source-replay-engine.ts
+	var source_replay_engine_exports = /* @__PURE__ */ __exportAll({
+		buildReplayStatements: () => buildReplayStatements,
+		reviewedTransportMatches: () => reviewedTransportMatches,
+		sourceModelsEqual: () => sourceModelsEqual,
+		validatePublishedReplay: () => validatePublishedReplay
+	});
+	/** Exact plain-JSON equality. JSON.stringify alone collapses NaN to null and
+	* hides unsupported objects, sparse arrays, undefined values and custom getters. */
+	function sourceModelsEqual(actual, expected) {
+		const active = /* @__PURE__ */ new WeakSet();
+		const plain = (v) => {
+			const p = Object.getPrototypeOf(v);
+			return p === null || Object.getPrototypeOf(p) === null && Object.prototype.hasOwnProperty.call(p, "constructor") && p.constructor?.name === "Object";
+		};
+		const same = (a, b, depth) => {
+			if (depth > 100 || typeof a !== typeof b) return false;
+			if (a === null || b === null) return a === b;
+			if (typeof a === "number") return Number.isFinite(a) && Number.isFinite(b) && Object.is(a, b);
+			if (typeof a === "string" || typeof a === "boolean") return a === b;
+			if (typeof a !== "object" || typeof b !== "object" || active.has(a)) return false;
+			if (Array.isArray(a) !== Array.isArray(b)) return false;
+			if (!Array.isArray(a) && (!plain(a) || !plain(b))) return false;
+			const ak = Reflect.ownKeys(a), bk = Reflect.ownKeys(b);
+			if (ak.some((k) => typeof k !== "string") || bk.some((k) => typeof k !== "string") || ak.length !== bk.length) return false;
+			if (Array.isArray(a) && (ak.length !== a.length + 1 || a.length !== b.length)) return false;
+			active.add(a);
+			for (const key of ak) {
+				const x = Object.getOwnPropertyDescriptor(a, key), y = Object.getOwnPropertyDescriptor(b, key);
+				if (!x || !y || !("value" in x) || !("value" in y) || !same(x.value, y.value, depth + 1)) {
+					active.delete(a);
+					return false;
+				}
+			}
+			active.delete(a);
+			return true;
+		};
+		try {
+			return same(actual, expected, 0);
+		} catch {
+			return false;
+		}
+	}
+	var periodValid = (p) => p && ["duration", "instant"].includes(p.kind) && /^\d{4}-\d{2}-\d{2}$/.test(p.end) && (p.kind === "instant" || !!p.start && /^\d{4}-\d{2}-\d{2}$/.test(p.start) && p.start <= p.end);
+	function contractValid(r) {
+		if (r.schemaVersion !== "1.0" || r.mode !== "published-statement-replay" || !Array.isArray(r.tables) || !Array.isArray(r.checks) || !Array.isArray(r.unavailable) || !Array.isArray(r.limitations)) return false;
+		const tableIds = /* @__PURE__ */ new Set();
+		for (const t of r.tables) {
+			if (!t.id || tableIds.has(t.id) || !t.title || !Array.isArray(t.sourcePages) || !t.sourcePages.length || !t.columns.length || !Array.isArray(t.rows)) return false;
+			tableIds.add(t.id);
+			const cols = new Set(t.columns.map((c) => c.id));
+			if (cols.size !== t.columns.length || t.columns.some((c) => !c.id || !c.label || !periodValid(c.period))) return false;
+			const rows = /* @__PURE__ */ new Set();
+			for (const row of t.rows) {
+				if (!row.id || rows.has(row.id) || !row.label || !row.unit || row.status !== "reported" || !t.sourcePages.includes(row.sourcePage) || Object.keys(row.cells).length !== cols.size) return false;
+				rows.add(row.id);
+				for (const id of cols) {
+					const cell = row.cells[id];
+					if (!cell || ![
+						"reported",
+						"blank",
+						"unavailable"
+					].includes(cell.status) || cell.status === "reported" && (typeof cell.value !== "number" || !Number.isFinite(cell.value)) || cell.status !== "reported" && cell.value !== null || cell.period && !periodValid(cell.period)) return false;
+				}
+			}
+		}
+		return r.checks.every((c) => c.assurance === "none" && [
+			c.reported,
+			c.computed,
+			c.residual
+		].every((v) => v === null || Number.isFinite(v)));
+	}
+	function matchingTransport(tb, overrides, source) {
+		if (tb.sourceKind !== "published-statements" || tb.sourceId !== source.sourceModel.id || tb.sourceTransport !== source.csv) return false;
+		const expected = parseTrialBalance(source.csv);
+		return tb.ok && !tb.errors.length && sourceModelsEqual(tb.rows, expected.rows) && tb.hasPrior === expected.hasPrior && sourceModelsEqual(overrides, source.overrides);
+	}
+	function reviewedTransportMatches(tb, overrides) {
+		const source = reviewedPublishedSource(tb.sourceId ?? "");
+		return !!source && matchingTransport(tb, overrides, source);
+	}
+	function validatePublishedReplay(tb, overrides) {
+		const source = reviewedPublishedSource(tb.sourceId ?? "");
+		const unavailable = (reason) => ({
+			schemaVersion: "1.0",
+			mode: "published-statement-replay",
+			status: "unavailable",
+			reason,
+			tables: [],
+			checks: [],
+			unavailable: [{
+				id: "source-fidelity",
+				reason
+			}],
+			limitations: ["No canonical figures are replayed for an unverified source transport."]
+		});
+		if (!source?.sourceModel.replay) return unavailable("Reviewed source replay is unavailable.");
+		if (tb.sourceKind !== "published-statements" || tb.sourceId !== source.sourceModel.id) return unavailable("Published source identity does not match.");
+		if (tb.sourceTransport !== source.csv) return unavailable("Original source transport is missing or changed; numeric normalization cannot establish source fidelity.");
+		if (!matchingTransport(tb, overrides, source)) return unavailable("Imported observations or classifications do not match the reviewed source transport.");
+		if (!contractValid(source.sourceModel.replay)) return unavailable("Published source replay contract is invalid.");
+		return {
+			...structuredClone(source.sourceModel.replay),
+			status: "available"
+		};
+	}
+	function buildReplayStatements(tb, overrides) {
+		return {
+			sourceKind: "published-statements",
+			reconstructionStatus: {
+				status: "unavailable",
+				reason: "Published statements are source observations, not a transaction ledger; operational reconstruction and inferred analytics are unavailable."
+			},
+			replay: validatePublishedReplay(tb, overrides),
+			hasPrior: false,
+			lines: [],
+			unmapped: [],
+			pl: [],
+			sfp: [],
+			soce: {
+				columns: [],
+				rows: []
+			},
+			cf: null,
+			keys: {},
+			checks: {
+				balanced: null,
+				difference: null,
+				priorBalanced: null,
+				cashTies: null,
+				cfDifference: null,
+				mappedPct: 0
+			},
+			notes: [],
+			cashFlowStatus: {
+				status: "unavailable",
+				check: "not-tested",
+				reason: "Generated cash flow is unavailable; exact published cash-flow rows may be available separately in replay."
+			},
+			soceStatus: {
+				status: "unavailable",
+				reason: "Generated changes in equity are unavailable; exact source movements may be available separately in replay."
+			}
+		};
+	}
+	//#endregion
 	//#region app/src/engine/fusion/reports/statements-engine.ts
 	var statements_engine_exports = /* @__PURE__ */ __exportAll({
 		LINE: () => LINE,
@@ -3549,7 +6663,11 @@ window.SKEngines = (function() {
 		}
 	};
 	function buildStatements(tb, overrides = {}, opts = {}) {
-		const sourceOnly = tb.sourceKind === "published-statements";
+		const sourceOnly = tb.sourceKind !== void 0 || tb.sourceId !== void 0 || tb.sourceTransport !== void 0 || tb.sourceReportFormat !== void 0;
+		if (sourceOnly) {
+			const source = reviewedPublishedSource(tb.sourceId ?? "");
+			if (tb.sourceReportFormat || !source || "replay" in source.sourceModel || !reviewedTransportMatches(tb, overrides)) return buildReplayStatements(tb, overrides);
+		}
 		const TW = TAX_WORDS[opts.tax ?? "zakat"];
 		const hasPrior = tb.hasPrior;
 		const acc = /* @__PURE__ */ new Map();
@@ -4303,6 +7421,7 @@ window.SKEngines = (function() {
 		]
 	];
 	function ratios(fs) {
+		if (fs.reconstructionStatus) return [];
 		const s = snap(fs, false), p = snap(fs, true);
 		const cur = ratiosOf(s, p, fs.keys.cfo?.current ?? null, fs.keys.capex?.current ?? null);
 		const pri = p ? ratiosOf(p, null, null, null) : null;
@@ -4356,6 +7475,15 @@ window.SKEngines = (function() {
 	}
 	/** DuPont: ROE = net margin × asset turnover × equity multiplier (year-end balances). */
 	function dupont(fs) {
+		if (fs.reconstructionStatus) return {
+			current: {
+				netMargin: null,
+				assetTurnover: null,
+				equityMultiplier: null,
+				roe: null
+			},
+			prior: null
+		};
 		const k = fs.keys, one = (rev, profit, ta, eq) => {
 			const nm = div$1(profit, rev), at = div$1(rev, ta), em = div$1(ta, eq);
 			return {
@@ -4372,6 +7500,7 @@ window.SKEngines = (function() {
 	}
 	/** Altman Z″ (1995, non-manufacturing and emerging-market firms): 6.56·X1 + 3.26·X2 + 6.72·X3 + 1.05·X4. */
 	function altmanZ(fs) {
+		if (fs.reconstructionStatus) return null;
 		const k = fs.keys, ta = k.assets.current, tl = k.liabilities.current;
 		if (!ta) return null;
 		const retained = fs.lines.filter((l) => l.key === "retained").reduce((a, l) => a + l.current, 0) + k.profit.current;
@@ -4466,6 +7595,7 @@ window.SKEngines = (function() {
 	}
 	/** «The year at a glance» — the KPI strip that opens a global annual report. */
 	function highlights(fs) {
+		if (fs.reconstructionStatus) return [];
 		const k = fs.keys, rs = ratios(fs), by = (x) => rs.find((r) => r.key === x);
 		const money = (key, ar) => ({
 			key,
@@ -4508,6 +7638,7 @@ window.SKEngines = (function() {
 	}
 	/** A deterministic management discussion: sentences generated from the numbers only. */
 	function mdna(fs, opts = {}) {
+		if (fs.reconstructionStatus) return [];
 		const cur = opts.currency ?? "ريال", k = fs.keys, rs = ratios(fs), by = (x) => rs.find((r) => r.key === x);
 		const m = (v) => Math.round(v / 100).toLocaleString("en-US") + " " + cur;
 		const ch = (key) => {
@@ -4552,6 +7683,2992 @@ window.SKEngines = (function() {
 		});
 		return out;
 	}
+	//#endregion
+	//#region app/src/engine/fusion/reports/source-data/reference-index.ts
+	var REFERENCE_REPORTS = [
+		{
+			"id": "amazon-2023",
+			"company_id": "amazon",
+			"name_en": "Amazon.com, Inc.",
+			"name_ar": "أمازون",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "retail",
+			"sector_en": "Retail and restaurants",
+			"sector_ar": "التجزئة والمطاعم",
+			"fy": "FY2023",
+			"report_year": 2023,
+			"to": 93,
+			"page_count": 92,
+			"cover_page": 2,
+			"document_type_en": "Annual report + 10-K",
+			"introduction_en": "Amazon combines online and physical retail, third-party seller services, advertising, digital content and AWS cloud services.",
+			"introduction_ar": "تجمع أمازون بين تجارة التجزئة الإلكترونية والفعلية وخدمات البائعين والإعلانات والمحتوى الرقمي وخدمات AWS السحابية.",
+			"summary_en": "The 2023 report explains the North America, International and AWS segments alongside the shareholder letter and Form 10-K disclosures.",
+			"summary_ar": "يعرض تقرير 2023 قطاعات أمريكا الشمالية والأسواق الدولية وAWS، إلى جانب رسالة المساهمين وإفصاحات نموذج 10-K.",
+			"selected_source_pages": [
+				2,
+				15,
+				16,
+				17
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 1,
+					"role": "previous_end",
+					"description_en": "End of preceding reference-directory page block."
+				},
+				{
+					"page": 2,
+					"role": "start",
+					"description_en": "Amazon.com, Inc. report cover."
+				},
+				{
+					"page": 93,
+					"role": "end",
+					"description_en": "Last physical page in the Amazon.com, Inc. block."
+				},
+				{
+					"page": 94,
+					"role": "next_start",
+					"description_en": "Start of Apple Inc. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 2
+		},
+		{
+			"id": "apple-2024",
+			"company_id": "apple",
+			"name_en": "Apple Inc.",
+			"name_ar": "آبل",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "tech",
+			"sector_en": "Technology",
+			"sector_ar": "التقنية",
+			"fy": "FY2024 (ended 2024-09-28)",
+			"report_year": 2024,
+			"to": 214,
+			"page_count": 121,
+			"cover_page": 94,
+			"document_type_en": "10-K",
+			"introduction_en": "Apple designs and markets smartphones, computers, tablets, wearables and accessories, with related digital services.",
+			"introduction_ar": "تصمم آبل وتسوق الهواتف الذكية والحواسيب والأجهزة اللوحية والأجهزة القابلة للارتداء والملحقات والخدمات الرقمية المرتبطة بها.",
+			"summary_en": "This Form 10-K covers the year ended September 28, 2024, including products, services, risks, financial statements and attached exhibits.",
+			"summary_ar": "يغطي نموذج 10-K السنة المنتهية في 28 سبتمبر 2024، ويشمل المنتجات والخدمات والمخاطر والقوائم المالية والمرفقات.",
+			"selected_source_pages": [
+				94,
+				96,
+				97,
+				98
+			],
+			"review_status": "partial_source_review",
+			"review_label_en": "Partial source review",
+			"review_label_ar": "مراجعة جزئية للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 93,
+					"role": "previous_end",
+					"description_en": "End of preceding Amazon.com, Inc. block."
+				},
+				{
+					"page": 94,
+					"role": "start",
+					"description_en": "Apple Inc. report cover."
+				},
+				{
+					"page": 214,
+					"role": "end",
+					"description_en": "Last physical page in the Apple Inc. block."
+				},
+				{
+					"page": 215,
+					"role": "next_start",
+					"description_en": "Start of Cisco Systems, Inc. report block."
+				}
+			],
+			"warnings_en": ["Apple FY2024 review work is partial; this status is not a claim of complete semantic review of this filing."],
+			"warnings_ar": ["مراجعة مصدر آبل للسنة المالية 2024 جزئية؛ ولا تعني هذه الحالة اكتمال المراجعة الدلالية لهذا الإفصاح."],
+			"from": 94
+		},
+		{
+			"id": "cisco-2024",
+			"company_id": "cisco",
+			"name_en": "Cisco Systems, Inc.",
+			"name_ar": "سيسكو سيستمز",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "tech",
+			"sector_en": "Technology",
+			"sector_ar": "التقنية",
+			"fy": "FY2024",
+			"report_year": 2024,
+			"to": 346,
+			"page_count": 132,
+			"cover_page": 215,
+			"document_type_en": "Annual report + 10-K",
+			"introduction_en": "Cisco supplies networking, security and observability technology that connects and protects digital infrastructure.",
+			"introduction_ar": "توفر سيسكو تقنيات الشبكات والأمن ومراقبة الأنظمة لربط البنية التحتية الرقمية وحمايتها.",
+			"summary_en": "Its 2024 report discusses the integration of Splunk and priorities in infrastructure, cybersecurity, AI and data, followed by its Form 10-K.",
+			"summary_ar": "يناقش تقرير 2024 دمج سبْلانك وأولويات البنية التحتية والأمن السيبراني والذكاء الاصطناعي والبيانات، ثم يتضمن نموذج 10-K.",
+			"selected_source_pages": [
+				215,
+				216,
+				217,
+				218
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 214,
+					"role": "previous_end",
+					"description_en": "End of preceding Apple Inc. block."
+				},
+				{
+					"page": 215,
+					"role": "start",
+					"description_en": "Cisco Systems, Inc. report cover."
+				},
+				{
+					"page": 346,
+					"role": "end",
+					"description_en": "Last physical page in the Cisco Systems, Inc. block."
+				},
+				{
+					"page": 347,
+					"role": "next_start",
+					"description_en": "Start of Walmart Inc. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 215
+		},
+		{
+			"id": "walmart-2023",
+			"company_id": "walmart",
+			"name_en": "Walmart Inc.",
+			"name_ar": "وولمارت",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "retail",
+			"sector_en": "Retail and restaurants",
+			"sector_ar": "التجزئة والمطاعم",
+			"fy": "FY2023 (ended 2023-01-31)",
+			"report_year": 2023,
+			"to": 446,
+			"page_count": 100,
+			"cover_page": 347,
+			"document_type_en": "Annual report and Form 10-K",
+			"introduction_en": "Walmart is an omnichannel retailer serving customers through stores, clubs and e-commerce.",
+			"introduction_ar": "وولمارت شركة تجزئة متعددة القنوات تخدم العملاء من خلال المتاجر وأندية العضوية والتجارة الإلكترونية.",
+			"summary_en": "The FY2023 report describes Walmart U.S., Walmart International and Sam’s Club, and the everyday-low-price operating approach.",
+			"summary_ar": "يصف تقرير السنة المالية 2023 قطاعات وولمارت الأمريكية والدولية وسامز كلوب، ونهج التشغيل القائم على الأسعار المنخفضة يومياً.",
+			"selected_source_pages": [
+				347,
+				348,
+				349,
+				354
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 346,
+					"role": "previous_end",
+					"description_en": "End of preceding Cisco Systems, Inc. block."
+				},
+				{
+					"page": 347,
+					"role": "start",
+					"description_en": "Walmart Inc. report cover."
+				},
+				{
+					"page": 446,
+					"role": "end",
+					"description_en": "Last physical page in the Walmart Inc. block."
+				},
+				{
+					"page": 447,
+					"role": "next_start",
+					"description_en": "Start of Adobe Inc. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 347
+		},
+		{
+			"id": "adobe-2024",
+			"company_id": "adobe",
+			"name_en": "Adobe Inc.",
+			"name_ar": "أدوبي",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "tech",
+			"sector_en": "Technology",
+			"sector_ar": "التقنية",
+			"fy": "FY2024",
+			"report_year": 2024,
+			"to": 547,
+			"page_count": 101,
+			"cover_page": 447,
+			"document_type_en": "10-K",
+			"introduction_en": "Adobe develops software and services for creative content, digital documents and customer experiences.",
+			"introduction_ar": "تطور أدوبي برمجيات وخدمات للمحتوى الإبداعي والمستندات الرقمية وتجارب العملاء.",
+			"summary_en": "Its FY2024 filing distinguishes Digital Media, Digital Experience, and Publishing and Advertising, including AI-related product development.",
+			"summary_ar": "يميز إفصاح السنة المالية 2024 بين الوسائط الرقمية والتجارب الرقمية والنشر والإعلان، ويتناول تطوير المنتجات المرتبطة بالذكاء الاصطناعي.",
+			"selected_source_pages": [
+				447,
+				449,
+				450
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 446,
+					"role": "previous_end",
+					"description_en": "End of preceding Walmart Inc. block."
+				},
+				{
+					"page": 447,
+					"role": "start",
+					"description_en": "Adobe Inc. report cover."
+				},
+				{
+					"page": 547,
+					"role": "end",
+					"description_en": "Last physical page in the Adobe Inc. block."
+				},
+				{
+					"page": 548,
+					"role": "next_start",
+					"description_en": "Start of JPMorgan Chase & Co. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 447
+		},
+		{
+			"id": "jpmorgan-2023",
+			"company_id": "jpmorgan",
+			"name_en": "JPMorgan Chase & Co.",
+			"name_ar": "جي بي مورغان تشيس",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "banking",
+			"sector_en": "Banking and finance",
+			"sector_ar": "الخدمات المصرفية والمالية",
+			"fy": "FY2023",
+			"report_year": 2023,
+			"to": 911,
+			"page_count": 364,
+			"cover_page": 548,
+			"document_type_en": "Annual report",
+			"introduction_en": "JPMorgan Chase provides consumer and commercial banking, investment banking, payments and asset management under the Chase and J.P. Morgan brands.",
+			"introduction_ar": "يقدم جي بي مورغان تشيس الخدمات المصرفية للأفراد والشركات والخدمات الاستثمارية والمدفوعات وإدارة الأصول تحت علامتي تشيس وجي بي مورغان.",
+			"summary_en": "The 2023 annual report combines shareholder discussion, business-line reviews, risk and capital disclosures, and financial reporting.",
+			"summary_ar": "يجمع التقرير السنوي لعام 2023 بين مناقشة المساهمين ومراجعات خطوط الأعمال وإفصاحات المخاطر ورأس المال والتقارير المالية.",
+			"selected_source_pages": [
+				548,
+				549,
+				552,
+				553
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 547,
+					"role": "previous_end",
+					"description_en": "End of preceding Adobe Inc. block."
+				},
+				{
+					"page": 548,
+					"role": "start",
+					"description_en": "JPMorgan Chase & Co. report cover."
+				},
+				{
+					"page": 911,
+					"role": "end",
+					"description_en": "Last physical page in the JPMorgan Chase & Co. block."
+				},
+				{
+					"page": 912,
+					"role": "next_start",
+					"description_en": "Start of Apple Inc. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 548
+		},
+		{
+			"id": "apple-2020",
+			"company_id": "apple",
+			"name_en": "Apple Inc.",
+			"name_ar": "آبل",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "tech",
+			"sector_en": "Technology",
+			"sector_ar": "التقنية",
+			"fy": "FY2020 (ended 2020-09-26)",
+			"report_year": 2020,
+			"to": 1016,
+			"page_count": 105,
+			"cover_page": 912,
+			"document_type_en": "10-K",
+			"introduction_en": "Apple combines iPhone, Mac, iPad and wearable-device businesses with services such as cloud storage and digital content.",
+			"introduction_ar": "تجمع آبل أعمال آيفون وماك وآيباد والأجهزة القابلة للارتداء مع خدمات مثل التخزين السحابي والمحتوى الرقمي.",
+			"summary_en": "This historical Form 10-K covers the year ended September 26, 2020; its product descriptions and risks belong to that reporting period.",
+			"summary_ar": "يغطي نموذج 10-K التاريخي السنة المنتهية في 26 سبتمبر 2020؛ وتخص أوصاف المنتجات والمخاطر الواردة فيه تلك الفترة.",
+			"selected_source_pages": [
+				912,
+				914,
+				915,
+				916
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 911,
+					"role": "previous_end",
+					"description_en": "End of preceding JPMorgan Chase & Co. block."
+				},
+				{
+					"page": 912,
+					"role": "start",
+					"description_en": "Apple Inc. report cover."
+				},
+				{
+					"page": 1016,
+					"role": "end",
+					"description_en": "Last physical page in the Apple Inc. block."
+				},
+				{
+					"page": 1017,
+					"role": "next_start",
+					"description_en": "Start of Amazon.com, Inc. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 912
+		},
+		{
+			"id": "amazon-2024",
+			"company_id": "amazon",
+			"name_en": "Amazon.com, Inc.",
+			"name_ar": "أمازون",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "retail",
+			"sector_en": "Retail and restaurants",
+			"sector_ar": "التجزئة والمطاعم",
+			"fy": "FY2024",
+			"report_year": 2024,
+			"to": 1107,
+			"page_count": 91,
+			"cover_page": 1017,
+			"document_type_en": "Annual report + 10-K",
+			"introduction_en": "Amazon operates retail stores and marketplaces alongside advertising, subscription, device and AWS cloud businesses.",
+			"introduction_ar": "تدير أمازون متاجر وأسواقاً للتجزئة إلى جانب أعمال الإعلانات والاشتراكات والأجهزة وخدمات AWS السحابية.",
+			"summary_en": "The 2024 report explains its three reporting segments and investment priorities, with the shareholder letter followed by the Form 10-K.",
+			"summary_ar": "يوضح تقرير 2024 قطاعاتها الثلاثة وأولويات الاستثمار، ويتضمن رسالة المساهمين ثم نموذج 10-K.",
+			"selected_source_pages": [
+				1017,
+				1018,
+				1030,
+				1031
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 1016,
+					"role": "previous_end",
+					"description_en": "End of preceding Apple Inc. block."
+				},
+				{
+					"page": 1017,
+					"role": "start",
+					"description_en": "Amazon.com, Inc. report cover."
+				},
+				{
+					"page": 1107,
+					"role": "end",
+					"description_en": "Last physical page in the Amazon.com, Inc. block."
+				},
+				{
+					"page": 1108,
+					"role": "next_start",
+					"description_en": "Start of Apple Inc. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 1017
+		},
+		{
+			"id": "apple-2023",
+			"company_id": "apple",
+			"name_en": "Apple Inc.",
+			"name_ar": "آبل",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "tech",
+			"sector_en": "Technology",
+			"sector_ar": "التقنية",
+			"fy": "FY2023 (ended 2023-09-30)",
+			"report_year": 2023,
+			"to": 1187,
+			"page_count": 80,
+			"cover_page": 1108,
+			"document_type_en": "10-K",
+			"introduction_en": "Apple sells integrated hardware, operating systems and services, including the iPhone, Mac, iPad and wearables.",
+			"introduction_ar": "تبيع آبل منظومة متكاملة من الأجهزة وأنظمة التشغيل والخدمات، تشمل آيفون وماك وآيباد والأجهزة القابلة للارتداء.",
+			"summary_en": "This Form 10-K covers the year ended September 30, 2023 and provides a separate historical reference from the 2020 and 2024 filings.",
+			"summary_ar": "يغطي نموذج 10-K السنة المنتهية في 30 سبتمبر 2023، ويوفر مرجعاً تاريخياً مستقلاً عن إفصاحي 2020 و2024.",
+			"selected_source_pages": [
+				1108,
+				1110,
+				1111,
+				1112
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 1107,
+					"role": "previous_end",
+					"description_en": "End of preceding Amazon.com, Inc. block."
+				},
+				{
+					"page": 1108,
+					"role": "start",
+					"description_en": "Apple Inc. report cover."
+				},
+				{
+					"page": 1187,
+					"role": "end",
+					"description_en": "Last physical page in the Apple Inc. block."
+				},
+				{
+					"page": 1188,
+					"role": "next_start",
+					"description_en": "Start of Berkshire Hathaway Inc. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 1108
+		},
+		{
+			"id": "berkshire-2025",
+			"company_id": "berkshire",
+			"name_en": "Berkshire Hathaway Inc.",
+			"name_ar": "بيركشاير هاثاواي",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "insurance",
+			"sector_en": "Insurance and holdings",
+			"sector_ar": "التأمين والشركات القابضة",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 1341,
+			"page_count": 154,
+			"cover_page": 1188,
+			"document_type_en": "Annual report + 10-K",
+			"introduction_en": "Berkshire Hathaway is a decentralized holding company spanning insurance, freight rail, utilities and energy, manufacturing, services and retail.",
+			"introduction_ar": "بيركشاير هاثاواي شركة قابضة ذات إدارة لامركزية تشمل التأمين والسكك الحديدية والمرافق والطاقة والتصنيع والخدمات والتجزئة.",
+			"summary_en": "The 2025 report pairs the CEO’s letter with a business-by-business Form 10-K and consolidated financial statements.",
+			"summary_ar": "يجمع تقرير 2025 بين رسالة الرئيس التنفيذي ونموذج 10-K الذي يعرض الأعمال المختلفة والقوائم المالية الموحدة.",
+			"selected_source_pages": [
+				1188,
+				1190,
+				1214
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 1187,
+					"role": "previous_end",
+					"description_en": "End of preceding Apple Inc. block."
+				},
+				{
+					"page": 1188,
+					"role": "start",
+					"description_en": "Berkshire Hathaway Inc. report cover."
+				},
+				{
+					"page": 1341,
+					"role": "end",
+					"description_en": "Last physical page in the Berkshire Hathaway Inc. block."
+				},
+				{
+					"page": 1342,
+					"role": "next_start",
+					"description_en": "Start of JPMorgan Chase & Co. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 1188
+		},
+		{
+			"id": "jpmorgan-2025",
+			"company_id": "jpmorgan",
+			"name_en": "JPMorgan Chase & Co.",
+			"name_ar": "جي بي مورغان تشيس",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "banking",
+			"sector_en": "Banking and finance",
+			"sector_ar": "الخدمات المصرفية والمالية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 1705,
+			"page_count": 364,
+			"cover_page": 1342,
+			"document_type_en": "Annual report",
+			"introduction_en": "JPMorgan Chase serves households, businesses and institutions through banking, payments, markets and investment-management services.",
+			"introduction_ar": "يخدم جي بي مورغان تشيس الأفراد والشركات والمؤسسات عبر الخدمات المصرفية والمدفوعات والأسواق وإدارة الاستثمارات.",
+			"summary_en": "The 2025 report includes the combined Commercial & Investment Bank alongside consumer banking and asset and wealth management discussions.",
+			"summary_ar": "يتناول تقرير 2025 قطاع الخدمات المصرفية التجارية والاستثمارية المدمج، إلى جانب الخدمات المصرفية للأفراد وإدارة الأصول والثروات.",
+			"selected_source_pages": [
+				1342,
+				1343,
+				1347,
+				1357
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 1341,
+					"role": "previous_end",
+					"description_en": "End of preceding Berkshire Hathaway Inc. block."
+				},
+				{
+					"page": 1342,
+					"role": "start",
+					"description_en": "JPMorgan Chase & Co. report cover."
+				},
+				{
+					"page": 1705,
+					"role": "end",
+					"description_en": "Last physical page in the JPMorgan Chase & Co. block."
+				},
+				{
+					"page": 1706,
+					"role": "next_start",
+					"description_en": "Start of Bank of America report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 1342
+		},
+		{
+			"id": "bofa-2025",
+			"company_id": "bofa",
+			"name_en": "Bank of America",
+			"name_ar": "بنك أوف أمريكا",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "banking",
+			"sector_en": "Banking and finance",
+			"sector_ar": "الخدمات المصرفية والمالية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 1818,
+			"page_count": 113,
+			"cover_page": 1706,
+			"document_type_en": "Annual report",
+			"introduction_en": "Bank of America provides consumer banking, wealth and investment management, business and corporate banking, and global markets services.",
+			"introduction_ar": "يقدم بنك أوف أمريكا الخدمات المصرفية للأفراد وإدارة الثروات والاستثمارات والخدمات المصرفية للأعمال والشركات وخدمات الأسواق العالمية.",
+			"summary_en": "Its 2025 annual report describes eight client-facing lines of business within four broader segments and combines strategy with financial disclosures.",
+			"summary_ar": "يصف تقريره السنوي لعام 2025 ثمانية خطوط أعمال موجهة للعملاء ضمن أربعة قطاعات أوسع، ويجمع بين الاستراتيجية والإفصاحات المالية.",
+			"selected_source_pages": [
+				1706,
+				1707,
+				1709,
+				1817
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 1705,
+					"role": "previous_end",
+					"description_en": "End of preceding JPMorgan Chase & Co. block."
+				},
+				{
+					"page": 1706,
+					"role": "start",
+					"description_en": "Bank of America report cover (image-only, visually verified)."
+				},
+				{
+					"page": 1818,
+					"role": "end",
+					"description_en": "Last physical page in the Bank of America block."
+				},
+				{
+					"page": 1819,
+					"role": "next_start",
+					"description_en": "Start of PepsiCo, Inc. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 1706
+		},
+		{
+			"id": "pepsico-2025",
+			"company_id": "pepsico",
+			"name_en": "PepsiCo, Inc.",
+			"name_ar": "بيبسيكو",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "fmcg",
+			"sector_en": "Consumer goods",
+			"sector_ar": "السلع الاستهلاكية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 1962,
+			"page_count": 144,
+			"cover_page": 1819,
+			"document_type_en": "Annual report + 10-K",
+			"introduction_en": "PepsiCo makes and markets beverages and convenient foods, with brands including Pepsi-Cola, Gatorade, Lay’s, Doritos and Quaker.",
+			"introduction_ar": "تصنع بيبسيكو وتسوق المشروبات والأغذية الخفيفة، وتشمل علاماتها بيبسي كولا وغاتوريد وليز ودوريتوس وكويكر.",
+			"summary_en": "The 2025 report explains its food and beverage portfolio, geographic businesses, distribution relationships and Form 10-K financial reporting.",
+			"summary_ar": "يوضح تقرير 2025 محفظة الأغذية والمشروبات والأعمال الجغرافية وعلاقات التوزيع والتقارير المالية ضمن نموذج 10-K.",
+			"selected_source_pages": [
+				1819,
+				1820,
+				1828,
+				1829
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 1818,
+					"role": "previous_end",
+					"description_en": "End of preceding Bank of America block."
+				},
+				{
+					"page": 1819,
+					"role": "start",
+					"description_en": "PepsiCo, Inc. report cover."
+				},
+				{
+					"page": 1962,
+					"role": "end",
+					"description_en": "Last physical page in the PepsiCo, Inc. block."
+				},
+				{
+					"page": 1963,
+					"role": "next_start",
+					"description_en": "Start of The Procter & Gamble Company report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 1819
+		},
+		{
+			"id": "pg-2026",
+			"company_id": "pg",
+			"name_en": "The Procter & Gamble Company",
+			"name_ar": "بروكتر آند غامبل",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "fmcg",
+			"sector_en": "Consumer goods",
+			"sector_ar": "السلع الاستهلاكية",
+			"fy": "FY2026 (ended 2026-06-30)",
+			"report_year": 2026,
+			"to": 2039,
+			"page_count": 77,
+			"cover_page": 1963,
+			"document_type_en": "10-K",
+			"introduction_en": "Procter & Gamble manufactures and distributes branded daily-use consumer products across personal, household and family-care categories.",
+			"introduction_ar": "تصنع بروكتر آند غامبل وتوزع منتجات استهلاكية ذات علامات تجارية للاستخدام اليومي في مجالات العناية الشخصية والمنزلية والأسرية.",
+			"summary_en": "The FY2026 Form 10-K has a completed source review, including financial statements, notes and the auditor’s focus on the Gillette intangible asset.",
+			"summary_ar": "اكتملت مراجعة مصدر نموذج 10-K للسنة المالية 2026، بما يشمل القوائم والإيضاحات وتركيز المراجع على أصل جيليت غير الملموس.",
+			"selected_source_pages": [
+				1963,
+				1965,
+				1967,
+				2001
+			],
+			"review_status": "complete_source_review",
+			"review_label_en": "Complete source review",
+			"review_label_ar": "مراجعة المصدر مكتملة",
+			"complete_source_review_page_count": 77,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 1962,
+					"role": "previous_end",
+					"description_en": "End of preceding PepsiCo, Inc. block."
+				},
+				{
+					"page": 1963,
+					"role": "start",
+					"description_en": "The Procter & Gamble Company report cover."
+				},
+				{
+					"page": 2039,
+					"role": "end",
+					"description_en": "Last physical page in the The Procter & Gamble Company block."
+				},
+				{
+					"page": 2040,
+					"role": "next_start",
+					"description_en": "Start of The Home Depot, Inc. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 1963
+		},
+		{
+			"id": "homedepot-2025",
+			"company_id": "homedepot",
+			"name_en": "The Home Depot, Inc.",
+			"name_ar": "هوم ديبوت",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "retail",
+			"sector_en": "Retail and restaurants",
+			"sector_ar": "التجزئة والمطاعم",
+			"fy": "FY2025 (ended 2026-02-01)",
+			"report_year": 2025,
+			"to": 2131,
+			"page_count": 92,
+			"cover_page": 2040,
+			"document_type_en": "Annual report and Form 10-K",
+			"introduction_en": "Home Depot sells home-improvement and building products and provides installation, tool rental and specialist trade-distribution services.",
+			"introduction_ar": "تبيع هوم ديبوت منتجات تحسين المنازل ومواد البناء، وتقدم خدمات التركيب وتأجير الأدوات وتوزيع مستلزمات الحرف المتخصصة.",
+			"summary_en": "The FY2025 source review preserves an important distinction: GMS is included in consolidated financial statements but excluded from that year’s internal-control audit scope.",
+			"summary_ar": "تحافظ مراجعة مصدر السنة المالية 2025 على تمييز مهم: تُدرج GMS في القوائم الموحدة، لكنها مستثناة من نطاق مراجعة الرقابة الداخلية لتلك السنة.",
+			"selected_source_pages": [
+				2040,
+				2044,
+				2048,
+				2084,
+				2085
+			],
+			"review_status": "complete_source_review",
+			"review_label_en": "Complete source review",
+			"review_label_ar": "مراجعة المصدر مكتملة",
+			"complete_source_review_page_count": 92,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 2039,
+					"role": "previous_end",
+					"description_en": "End of preceding The Procter & Gamble Company block."
+				},
+				{
+					"page": 2040,
+					"role": "start",
+					"description_en": "The Home Depot, Inc. report cover."
+				},
+				{
+					"page": 2131,
+					"role": "end",
+					"description_en": "Last physical page in the The Home Depot, Inc. block."
+				},
+				{
+					"page": 2132,
+					"role": "next_start",
+					"description_en": "Start of McDonald’s Corporation report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 2040
+		},
+		{
+			"id": "mcdonalds-2022",
+			"company_id": "mcdonalds",
+			"name_en": "McDonald’s Corporation",
+			"name_ar": "ماكدونالدز",
+			"country": "US",
+			"country_en": "United States",
+			"country_ar": "الولايات المتحدة",
+			"sector": "retail",
+			"sector_en": "Retail and restaurants",
+			"sector_ar": "التجزئة والمطاعم",
+			"fy": "FY2022",
+			"report_year": 2022,
+			"to": 2204,
+			"page_count": 73,
+			"cover_page": 2132,
+			"document_type_en": "2022 Annual Report and Form 10-K",
+			"introduction_en": "McDonald’s operates and franchises quick-service restaurants through a global network of company-operated and franchised locations.",
+			"introduction_ar": "تدير ماكدونالدز مطاعم الوجبات السريعة وتمنح امتيازاتها عبر شبكة عالمية من الفروع التابعة للشركة وفروع أصحاب الامتياز.",
+			"summary_en": "The FY2022 source review distinguishes restaurant sales, franchise revenue and systemwide sales, alongside the Accelerating the Arches strategy.",
+			"summary_ar": "تميز مراجعة مصدر السنة المالية 2022 بين مبيعات المطاعم وإيرادات الامتياز ومبيعات الشبكة ككل، إلى جانب استراتيجية تسريع نمو الأقواس.",
+			"selected_source_pages": [
+				2132,
+				2133,
+				2134,
+				2139
+			],
+			"review_status": "complete_source_review",
+			"review_label_en": "Complete source review",
+			"review_label_ar": "مراجعة المصدر مكتملة",
+			"complete_source_review_page_count": 73,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 2131,
+					"role": "previous_end",
+					"description_en": "End of preceding The Home Depot, Inc. block."
+				},
+				{
+					"page": 2132,
+					"role": "start",
+					"description_en": "McDonald’s Corporation report cover."
+				},
+				{
+					"page": 2204,
+					"role": "end",
+					"description_en": "Last physical page in the McDonald’s Corporation block."
+				},
+				{
+					"page": 2205,
+					"role": "next_start",
+					"description_en": "Start of Nestlé Group report block."
+				}
+			],
+			"warnings_en": ["Raw PDF text contains font-encoding corruption. The completed source review used recovered text and visual checks."],
+			"warnings_ar": ["يتضمن النص المستخرج من PDF تشوهاً في ترميز الخطوط؛ استخدمت مراجعة المصدر المكتملة نصاً مستعاداً وفحصاً بصرياً."],
+			"from": 2132
+		},
+		{
+			"id": "nestle-2025",
+			"company_id": "nestle",
+			"name_en": "Nestlé Group",
+			"name_ar": "نستله",
+			"country": "CH",
+			"country_en": "Switzerland",
+			"country_ar": "سويسرا",
+			"sector": "fmcg",
+			"sector_en": "Consumer goods",
+			"sector_ar": "السلع الاستهلاكية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 2342,
+			"page_count": 138,
+			"cover_page": 2205,
+			"document_type_en": "Financial statements",
+			"introduction_en": "Nestlé manufactures food, beverages, petcare and nutritional-health products, organized through geographic zones and globally managed businesses.",
+			"introduction_ar": "تصنع نستله الأغذية والمشروبات وأغذية الحيوانات الأليفة ومنتجات الصحة الغذائية، عبر مناطق جغرافية وأعمال تدار عالمياً.",
+			"summary_en": "This volume contains the Group’s 2025 consolidated financial statements and the separate Nestlé S.A. financial statements; it is a financial-statements volume.",
+			"summary_ar": "يتضمن هذا المجلد القوائم المالية الموحدة للمجموعة لعام 2025 والقوائم المنفصلة لشركة نستله إس إيه؛ وهو مجلد مخصص للقوائم المالية.",
+			"selected_source_pages": [
+				2205,
+				2207,
+				2223
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 2204,
+					"role": "previous_end",
+					"description_en": "End of preceding McDonald’s Corporation block."
+				},
+				{
+					"page": 2205,
+					"role": "start",
+					"description_en": "Nestlé Group report cover."
+				},
+				{
+					"page": 2342,
+					"role": "end",
+					"description_en": "Last physical page in the Nestlé Group block."
+				},
+				{
+					"page": 2343,
+					"role": "next_start",
+					"description_en": "Start of Roche Group report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 2205
+		},
+		{
+			"id": "roche-2025",
+			"company_id": "roche",
+			"name_en": "Roche Group",
+			"name_ar": "روش",
+			"country": "CH",
+			"country_en": "Switzerland",
+			"country_ar": "سويسرا",
+			"sector": "pharma",
+			"sector_en": "Pharmaceuticals and healthcare",
+			"sector_ar": "الأدوية والرعاية الصحية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 2539,
+			"page_count": 197,
+			"cover_page": 2343,
+			"document_type_en": "Finance report",
+			"introduction_en": "Roche is a healthcare group with Pharmaceuticals and Diagnostics divisions.",
+			"introduction_ar": "روش مجموعة للرعاية الصحية تضم قطاعي الأدوية والتشخيص.",
+			"summary_en": "The 2025 Finance Report separates divisional performance, IFRS results, core measures and the financial statements of the Group and Roche Holding Ltd.",
+			"summary_ar": "يفصل التقرير المالي لعام 2025 بين أداء القطاعين ونتائج IFRS والمقاييس الأساسية وقوائم المجموعة وقوائم روش القابضة.",
+			"selected_source_pages": [
+				2343,
+				2344,
+				2346,
+				2357
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 2342,
+					"role": "previous_end",
+					"description_en": "End of preceding Nestlé Group block."
+				},
+				{
+					"page": 2343,
+					"role": "start",
+					"description_en": "Roche Group report cover."
+				},
+				{
+					"page": 2539,
+					"role": "end",
+					"description_en": "Last physical page in the Roche Group block."
+				},
+				{
+					"page": 2540,
+					"role": "next_start",
+					"description_en": "Start of Novartis AG report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 2343
+		},
+		{
+			"id": "novartis-2025",
+			"company_id": "novartis",
+			"name_en": "Novartis AG",
+			"name_ar": "نوفارتس",
+			"country": "CH",
+			"country_en": "Switzerland",
+			"country_ar": "سويسرا",
+			"sector": "pharma",
+			"sector_en": "Pharmaceuticals and healthcare",
+			"sector_ar": "الأدوية والرعاية الصحية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 2804,
+			"page_count": 265,
+			"cover_page": 2540,
+			"document_type_en": "Annual report",
+			"introduction_en": "Novartis researches, develops, manufactures and commercializes innovative medicines.",
+			"introduction_ar": "تبحث نوفارتس الأدوية المبتكرة وتطورها وتصنعها وتسوقها.",
+			"summary_en": "Its 2025 annual report describes marketed medicines, the development pipeline, research and intellectual-property risks, and consolidated and parent-company reporting.",
+			"summary_ar": "يصف تقريرها السنوي لعام 2025 الأدوية المسوقة ومحفظة التطوير ومخاطر البحث والملكية الفكرية وتقارير المجموعة والشركة الأم.",
+			"selected_source_pages": [
+				2540,
+				2543,
+				2565
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 2539,
+					"role": "previous_end",
+					"description_en": "End of preceding Roche Group block."
+				},
+				{
+					"page": 2540,
+					"role": "start",
+					"description_en": "Novartis AG report cover."
+				},
+				{
+					"page": 2804,
+					"role": "end",
+					"description_en": "Last physical page in the Novartis AG block."
+				},
+				{
+					"page": 2805,
+					"role": "next_start",
+					"description_en": "Start of UBS Group AG report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 2540
+		},
+		{
+			"id": "ubs-2025",
+			"company_id": "ubs",
+			"name_en": "UBS Group AG",
+			"name_ar": "يو بي إس",
+			"country": "CH",
+			"country_en": "Switzerland",
+			"country_ar": "سويسرا",
+			"sector": "banking",
+			"sector_en": "Banking and finance",
+			"sector_ar": "الخدمات المصرفية والمالية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 3184,
+			"page_count": 380,
+			"cover_page": 2805,
+			"document_type_en": "Annual report",
+			"introduction_en": "UBS combines global wealth management, Swiss personal and corporate banking, asset management and investment banking.",
+			"introduction_ar": "يجمع يو بي إس بين إدارة الثروات العالمية والخدمات المصرفية للأفراد والشركات في سويسرا وإدارة الأصول والخدمات المصرفية الاستثمارية.",
+			"summary_en": "The 2025 report covers the Credit Suisse integration and separately presents Non-core and Legacy activities, alongside risk, capital and financial reporting.",
+			"summary_ar": "يغطي تقرير 2025 دمج كريدي سويس ويعرض الأنشطة غير الأساسية والموروثة بشكل مستقل، إلى جانب المخاطر ورأس المال والتقارير المالية.",
+			"selected_source_pages": [
+				2805,
+				2806,
+				2819,
+				2825
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 2804,
+					"role": "previous_end",
+					"description_en": "End of preceding Novartis AG block."
+				},
+				{
+					"page": 2805,
+					"role": "start",
+					"description_en": "UBS Group AG report cover."
+				},
+				{
+					"page": 3184,
+					"role": "end",
+					"description_en": "Last physical page in the UBS Group AG block."
+				},
+				{
+					"page": 3185,
+					"role": "next_start",
+					"description_en": "Start of Allianz SE report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 2805
+		},
+		{
+			"id": "allianz-2025",
+			"company_id": "allianz",
+			"name_en": "Allianz SE",
+			"name_ar": "أليانز إس إي",
+			"country": "DE",
+			"country_en": "Germany",
+			"country_ar": "ألمانيا",
+			"sector": "insurance",
+			"sector_en": "Insurance and holdings",
+			"sector_ar": "التأمين والشركات القابضة",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 3240,
+			"page_count": 56,
+			"cover_page": 3185,
+			"document_type_en": "Parent-company annual report",
+			"introduction_en": "Allianz SE is the Allianz Group’s holding and reinsurance company, based in Munich.",
+			"introduction_ar": "أليانز إس إي هي الشركة القابضة وشركة إعادة التأمين لمجموعة أليانز، ومقرها ميونيخ.",
+			"summary_en": "This is the parent company’s 2025 annual report under German commercial-law accounting, not the Allianz Group’s consolidated IFRS report.",
+			"summary_ar": "هذا هو التقرير السنوي للشركة الأم لعام 2025 وفق المحاسبة بموجب القانون التجاري الألماني، وليس تقرير مجموعة أليانز الموحد وفق IFRS.",
+			"selected_source_pages": [
+				3185,
+				3186,
+				3204
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 3184,
+					"role": "previous_end",
+					"description_en": "End of preceding UBS Group AG block."
+				},
+				{
+					"page": 3185,
+					"role": "start",
+					"description_en": "Allianz SE report cover."
+				},
+				{
+					"page": 3240,
+					"role": "end",
+					"description_en": "Last physical page in the Allianz SE block."
+				},
+				{
+					"page": 3241,
+					"role": "next_start",
+					"description_en": "Start of Mercedes-Benz Group AG report block."
+				}
+			],
+			"warnings_en": ["Parent-company report under HGB; do not classify this volume as consolidated IFRS."],
+			"warnings_ar": ["تقرير الشركة الأم وفق HGB؛ لا يصنف هذا المجلد كقوائم موحدة وفق IFRS."],
+			"from": 3185
+		},
+		{
+			"id": "mercedes-2025",
+			"company_id": "mercedes",
+			"name_en": "Mercedes-Benz Group AG",
+			"name_ar": "مجموعة مرسيدس بنز",
+			"country": "DE",
+			"country_en": "Germany",
+			"country_ar": "ألمانيا",
+			"sector": "auto",
+			"sector_en": "Automotive",
+			"sector_ar": "السيارات",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 3649,
+			"page_count": 409,
+			"cover_page": 3241,
+			"document_type_en": "Annual report",
+			"introduction_en": "Mercedes-Benz develops and sells premium passenger cars and vans and provides related financial services.",
+			"introduction_ar": "تطور مرسيدس بنز وتبيع سيارات الركوب الفاخرة والمركبات التجارية الخفيفة وتقدم الخدمات المالية المرتبطة بها.",
+			"summary_en": "The completed 2025 source review covers the business divisions, consolidated statements, governance, sustainability statement and condensed parent-company reporting.",
+			"summary_ar": "تغطي مراجعة مصدر 2025 المكتملة قطاعات الأعمال والقوائم الموحدة والحوكمة وبيان الاستدامة والتقارير المختصرة للشركة الأم.",
+			"selected_source_pages": [
+				3241,
+				3242,
+				3243,
+				3262
+			],
+			"review_status": "complete_source_review",
+			"review_label_en": "Complete source review",
+			"review_label_ar": "مراجعة المصدر مكتملة",
+			"complete_source_review_page_count": 409,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 3240,
+					"role": "previous_end",
+					"description_en": "End of preceding Allianz SE block."
+				},
+				{
+					"page": 3241,
+					"role": "start",
+					"description_en": "Mercedes-Benz Group AG report cover."
+				},
+				{
+					"page": 3649,
+					"role": "end",
+					"description_en": "Last physical page in the Mercedes-Benz Group AG block."
+				},
+				{
+					"page": 3650,
+					"role": "next_start",
+					"description_en": "Start of Volkswagen Group report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 3241
+		},
+		{
+			"id": "volkswagen-2025",
+			"company_id": "volkswagen",
+			"name_en": "Volkswagen Group",
+			"name_ar": "مجموعة فولكس فاغن",
+			"country": "DE",
+			"country_en": "Germany",
+			"country_ar": "ألمانيا",
+			"sector": "auto",
+			"sector_en": "Automotive",
+			"sector_ar": "السيارات",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 4322,
+			"page_count": 673,
+			"cover_page": 3650,
+			"document_type_en": "Annual report",
+			"introduction_en": "Volkswagen is a multi-brand vehicle group encompassing passenger cars, commercial vehicles and financial services.",
+			"introduction_ar": "فولكس فاغن مجموعة متعددة العلامات تشمل سيارات الركوب والمركبات التجارية والخدمات المالية.",
+			"summary_en": "The completed 2025 source review distinguishes consolidated reporting, brand and business-field disclosures, the sustainability report and Volkswagen AG’s parent-company information.",
+			"summary_ar": "تميز مراجعة مصدر 2025 المكتملة بين التقارير الموحدة وإفصاحات العلامات ومجالات الأعمال وتقرير الاستدامة ومعلومات الشركة الأم فولكس فاغن إيه جي.",
+			"selected_source_pages": [
+				3650,
+				3652,
+				3732,
+				3733
+			],
+			"review_status": "complete_source_review",
+			"review_label_en": "Complete source review",
+			"review_label_ar": "مراجعة المصدر مكتملة",
+			"complete_source_review_page_count": 673,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 3649,
+					"role": "previous_end",
+					"description_en": "End of preceding Mercedes-Benz Group AG block."
+				},
+				{
+					"page": 3650,
+					"role": "start",
+					"description_en": "Volkswagen Group report cover."
+				},
+				{
+					"page": 4322,
+					"role": "end",
+					"description_en": "Last physical page in the Volkswagen Group block."
+				},
+				{
+					"page": 4323,
+					"role": "next_start",
+					"description_en": "Start of Deutsche Telekom AG report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 3650
+		},
+		{
+			"id": "telekom-2025",
+			"company_id": "telekom",
+			"name_en": "Deutsche Telekom AG",
+			"name_ar": "دويتشه تيليكوم",
+			"country": "DE",
+			"country_en": "Germany",
+			"country_ar": "ألمانيا",
+			"sector": "telecom",
+			"sector_en": "Telecommunications",
+			"sector_ar": "الاتصالات",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 4704,
+			"page_count": 382,
+			"cover_page": 4323,
+			"document_type_en": "Annual report",
+			"introduction_en": "Deutsche Telekom provides mobile, fixed-network, broadband and TV services, plus ICT solutions for business customers.",
+			"introduction_ar": "توفر دويتشه تيليكوم خدمات الهاتف المحمول والشبكات الثابتة والنطاق العريض والتلفزيون، وحلول تقنية المعلومات والاتصالات للشركات.",
+			"summary_en": "The completed FY2025 source review covers international operating segments, network investment, the combined sustainability statement and consolidated financial reporting.",
+			"summary_ar": "تغطي مراجعة مصدر السنة المالية 2025 المكتملة القطاعات التشغيلية الدولية والاستثمار في الشبكات وبيان الاستدامة المشترك والتقارير المالية الموحدة.",
+			"selected_source_pages": [
+				4323,
+				4324,
+				4362,
+				4363
+			],
+			"review_status": "complete_source_review",
+			"review_label_en": "Complete source review",
+			"review_label_ar": "مراجعة المصدر مكتملة",
+			"complete_source_review_page_count": 382,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 4322,
+					"role": "previous_end",
+					"description_en": "End of preceding Volkswagen Group block."
+				},
+				{
+					"page": 4323,
+					"role": "start",
+					"description_en": "Deutsche Telekom AG report cover."
+				},
+				{
+					"page": 4704,
+					"role": "end",
+					"description_en": "Last physical page in the Deutsche Telekom AG block."
+				},
+				{
+					"page": 4705,
+					"role": "next_start",
+					"description_en": "Start of BP p.l.c. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 4323
+		},
+		{
+			"id": "bp-2025",
+			"company_id": "bp",
+			"name_en": "BP p.l.c.",
+			"name_ar": "بي بي",
+			"country": "UK",
+			"country_en": "United Kingdom",
+			"country_ar": "المملكة المتحدة",
+			"sector": "energy",
+			"sector_en": "Energy",
+			"sector_ar": "الطاقة",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 5100,
+			"page_count": 396,
+			"cover_page": 4705,
+			"document_type_en": "Annual report and Form 20-F",
+			"introduction_en": "BP operates across oil and gas production, refining, customer products and selected lower-carbon energy activities.",
+			"introduction_ar": "تعمل بي بي في إنتاج النفط والغاز والتكرير ومنتجات العملاء وبعض أنشطة الطاقة الأقل انبعاثاً للكربون.",
+			"summary_en": "The completed 2025 source review separates reported financial results from alternative measures and covers strategy, risks, reserves and parent-company disclosures.",
+			"summary_ar": "تفصل مراجعة مصدر 2025 المكتملة النتائج المالية المعلنة عن المقاييس البديلة، وتغطي الاستراتيجية والمخاطر والاحتياطيات وإفصاحات الشركة الأم.",
+			"selected_source_pages": [
+				4705,
+				4707,
+				4708,
+				4718
+			],
+			"review_status": "complete_source_review",
+			"review_label_en": "Complete source review",
+			"review_label_ar": "مراجعة المصدر مكتملة",
+			"complete_source_review_page_count": 396,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 4704,
+					"role": "previous_end",
+					"description_en": "End of preceding Deutsche Telekom AG block."
+				},
+				{
+					"page": 4705,
+					"role": "start",
+					"description_en": "BP p.l.c. report cover."
+				},
+				{
+					"page": 5100,
+					"role": "end",
+					"description_en": "Last physical page in the BP p.l.c. block."
+				},
+				{
+					"page": 5101,
+					"role": "next_start",
+					"description_en": "Start of Unilever PLC report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 4705
+		},
+		{
+			"id": "unilever-2025",
+			"company_id": "unilever",
+			"name_en": "Unilever PLC",
+			"name_ar": "يونيليفر",
+			"country": "UK",
+			"country_en": "United Kingdom",
+			"country_ar": "المملكة المتحدة",
+			"sector": "fmcg",
+			"sector_en": "Consumer goods",
+			"sector_ar": "السلع الاستهلاكية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 5385,
+			"page_count": 285,
+			"cover_page": 5102,
+			"document_type_en": "Annual report",
+			"introduction_en": "Unilever is a consumer-goods group focused on Beauty & Wellbeing, Personal Care, Home Care and Foods after the Ice Cream demerger.",
+			"introduction_ar": "يونيليفر مجموعة للسلع الاستهلاكية تركز على الجمال والرفاه والعناية الشخصية والعناية المنزلية والأغذية بعد فصل أعمال المثلجات.",
+			"summary_en": "The 2025 annual report includes the demerger presentation, strategic and governance reports, Group and parent-company accounts, and a sustainability statement. Source review is complete; this does not constitute independent audit assurance.",
+			"summary_ar": "يتضمن التقرير السنوي لعام 2025 عرض عملية الفصل والتقارير الاستراتيجية والحوكمة وحسابات المجموعة والشركة الأم وبيان الاستدامة. اكتملت مراجعة المصدر، ولا يمثل ذلك تأكيدًا مهنيًا مستقلًا.",
+			"selected_source_pages": [
+				5101,
+				5102,
+				5103,
+				5105
+			],
+			"review_status": "complete_source_review",
+			"review_label_en": "Completed source review",
+			"review_label_ar": "مراجعة المصدر مكتملة",
+			"complete_source_review_page_count": 285,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 5100,
+					"role": "previous_end",
+					"description_en": "End of preceding BP p.l.c. block."
+				},
+				{
+					"page": 5101,
+					"role": "start",
+					"description_en": "Unilever annual-report disclaimer."
+				},
+				{
+					"page": 5102,
+					"role": "cover",
+					"description_en": "Unilever front cover."
+				},
+				{
+					"page": 5385,
+					"role": "end",
+					"description_en": "Last physical page in the Unilever PLC block."
+				},
+				{
+					"page": 5386,
+					"role": "next_start",
+					"description_en": "Start of AstraZeneca PLC report block."
+				}
+			],
+			"warnings_en": ["Page 5101 is the Unilever disclaimer; its front cover is page 5102."],
+			"warnings_ar": ["الصفحة 5101 إخلاء مسؤولية يونيليفر؛ وغلافها في الصفحة 5102."],
+			"from": 5101
+		},
+		{
+			"id": "astrazeneca-2025",
+			"company_id": "astrazeneca",
+			"name_en": "AstraZeneca PLC",
+			"name_ar": "أسترازينيكا",
+			"country": "UK",
+			"country_en": "United Kingdom",
+			"country_ar": "المملكة المتحدة",
+			"sector": "pharma",
+			"sector_en": "Pharmaceuticals and healthcare",
+			"sector_ar": "الأدوية والرعاية الصحية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 5617,
+			"page_count": 232,
+			"cover_page": 5386,
+			"document_type_en": "Annual report and Form 20-F",
+			"introduction_en": "AstraZeneca researches, develops and commercializes prescription medicines across oncology, biopharmaceuticals and rare diseases.",
+			"introduction_ar": "تبحث أسترازينيكا الأدوية الموصوفة وتطورها وتسوقها في مجالات الأورام والأدوية الحيوية والأمراض النادرة.",
+			"summary_en": "Its 2025 annual report and Form 20-F information combine scientific and commercial strategy with governance, financial statements and sustainability disclosures.",
+			"summary_ar": "يجمع تقريرها السنوي ومعلومات نموذج 20-F لعام 2025 بين الاستراتيجية العلمية والتجارية والحوكمة والقوائم المالية وإفصاحات الاستدامة.",
+			"selected_source_pages": [
+				5386,
+				5387,
+				5388,
+				5413
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 5385,
+					"role": "previous_end",
+					"description_en": "End of preceding Unilever PLC block."
+				},
+				{
+					"page": 5386,
+					"role": "start",
+					"description_en": "AstraZeneca PLC report cover."
+				},
+				{
+					"page": 5617,
+					"role": "end",
+					"description_en": "Last physical page in the AstraZeneca PLC block."
+				},
+				{
+					"page": 5618,
+					"role": "next_start",
+					"description_en": "Start of GSK plc report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 5386
+		},
+		{
+			"id": "gsk-2025",
+			"company_id": "gsk",
+			"name_en": "GSK plc",
+			"name_ar": "جي إس كيه",
+			"country": "UK",
+			"country_en": "United Kingdom",
+			"country_ar": "المملكة المتحدة",
+			"sector": "pharma",
+			"sector_en": "Pharmaceuticals and healthcare",
+			"sector_ar": "الأدوية والرعاية الصحية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 5948,
+			"page_count": 331,
+			"cover_page": 5618,
+			"document_type_en": "Annual report",
+			"introduction_en": "GSK develops medicines and vaccines, with businesses in specialty medicines, vaccines and general medicines.",
+			"introduction_ar": "تطور جي إس كيه الأدوية واللقاحات، وتشمل أعمالها الأدوية التخصصية واللقاحات والأدوية العامة.",
+			"summary_en": "The 2025 report explains its pipeline-led business model and separates IFRS results from core performance measures.",
+			"summary_ar": "يوضح تقرير 2025 نموذج أعمالها المرتبط بمحفظة الأدوية قيد التطوير، ويفصل نتائج IFRS عن مقاييس الأداء الأساسية.",
+			"selected_source_pages": [
+				5618,
+				5619,
+				5620,
+				5621
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 5617,
+					"role": "previous_end",
+					"description_en": "End of preceding AstraZeneca PLC block."
+				},
+				{
+					"page": 5618,
+					"role": "start",
+					"description_en": "GSK plc report cover (image-only, visually verified)."
+				},
+				{
+					"page": 5948,
+					"role": "end",
+					"description_en": "Last physical page in the GSK plc block."
+				},
+				{
+					"page": 5949,
+					"role": "next_start",
+					"description_en": "Start of HSBC Holdings plc report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 5618
+		},
+		{
+			"id": "hsbc-2025",
+			"company_id": "hsbc",
+			"name_en": "HSBC Holdings plc",
+			"name_ar": "إتش إس بي سي",
+			"country": "UK",
+			"country_en": "United Kingdom",
+			"country_ar": "المملكة المتحدة",
+			"sector": "banking",
+			"sector_en": "Banking and finance",
+			"sector_ar": "الخدمات المصرفية والمالية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 6320,
+			"page_count": 372,
+			"cover_page": 5949,
+			"document_type_en": "Annual report",
+			"introduction_en": "HSBC is an international banking group serving personal, wealth, commercial and institutional customers.",
+			"introduction_ar": "إتش إس بي سي مجموعة مصرفية دولية تخدم عملاء الخدمات الشخصية والثروات والأعمال والمؤسسات.",
+			"summary_en": "The 2025 report describes a four-business structure: Hong Kong, UK, Corporate and Institutional Banking, and International Wealth and Premier Banking.",
+			"summary_ar": "يصف تقرير 2025 هيكلاً من أربعة أعمال: هونغ كونغ والمملكة المتحدة والخدمات المصرفية للشركات والمؤسسات والثروات الدولية والخدمات المصرفية المميزة.",
+			"selected_source_pages": [
+				5949,
+				5950,
+				5954
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 5948,
+					"role": "previous_end",
+					"description_en": "End of preceding GSK plc block."
+				},
+				{
+					"page": 5949,
+					"role": "start",
+					"description_en": "HSBC Holdings plc report cover (image-only, visually verified)."
+				},
+				{
+					"page": 6320,
+					"role": "end",
+					"description_en": "Last physical page in the HSBC Holdings plc block."
+				},
+				{
+					"page": 6321,
+					"role": "next_start",
+					"description_en": "Start of TotalEnergies SE report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 5949
+		},
+		{
+			"id": "totalenergies-2024",
+			"company_id": "totalenergies",
+			"name_en": "TotalEnergies SE",
+			"name_ar": "توتال إنرجيز",
+			"country": "FR",
+			"country_en": "France",
+			"country_ar": "فرنسا",
+			"sector": "energy",
+			"sector_en": "Energy",
+			"sector_ar": "الطاقة",
+			"fy": "FY2024",
+			"report_year": 2024,
+			"to": 6986,
+			"page_count": 666,
+			"cover_page": 6321,
+			"document_type_en": "Form 20-F",
+			"introduction_en": "TotalEnergies produces and markets oil, fuels, natural gas and electricity, including renewable-energy activities.",
+			"introduction_ar": "تنتج توتال إنرجيز وتسوق النفط والوقود والغاز الطبيعي والكهرباء، بما فيها أنشطة الطاقة المتجددة.",
+			"summary_en": "The 2024 Form 20-F includes financial statements and a Universal Registration Document presenting its integrated oil-and-gas and electricity strategy.",
+			"summary_ar": "يتضمن نموذج 20-F لعام 2024 القوائم المالية ووثيقة التسجيل الشاملة التي تعرض استراتيجيتها المتكاملة للنفط والغاز والكهرباء.",
+			"selected_source_pages": [
+				6321,
+				6322,
+				6324,
+				6510,
+				6519
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 6320,
+					"role": "previous_end",
+					"description_en": "End of preceding HSBC Holdings plc block."
+				},
+				{
+					"page": 6321,
+					"role": "start",
+					"description_en": "TotalEnergies SE report cover (image-only, visually verified)."
+				},
+				{
+					"page": 6986,
+					"role": "end",
+					"description_en": "Last physical page in the TotalEnergies SE block."
+				},
+				{
+					"page": 6987,
+					"role": "next_start",
+					"description_en": "Start of Airbus SE report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 6321
+		},
+		{
+			"id": "airbus-2023",
+			"company_id": "airbus",
+			"name_en": "Airbus SE",
+			"name_ar": "إيرباص",
+			"country": "NL",
+			"country_en": "Netherlands",
+			"country_ar": "هولندا",
+			"sector": "industrial",
+			"sector_en": "Industrial technology",
+			"sector_ar": "التقنية الصناعية",
+			"fy": "FY2023",
+			"report_year": 2023,
+			"to": 7427,
+			"page_count": 441,
+			"cover_page": 6987,
+			"document_type_en": "Annual report + URD",
+			"introduction_en": "Airbus develops commercial aircraft, helicopters, and defence and space products and services.",
+			"introduction_ar": "تطور إيرباص الطائرات التجارية والمروحيات ومنتجات وخدمات الدفاع والفضاء.",
+			"summary_en": "The 2023 package combines the annual overview, Universal Registration Document and financial statements, with separate divisional and sustainability discussions.",
+			"summary_ar": "تجمع حزمة 2023 بين العرض السنوي ووثيقة التسجيل الشاملة والقوائم المالية، مع مناقشات مستقلة للقطاعات والاستدامة.",
+			"selected_source_pages": [
+				6987,
+				6988,
+				6989,
+				7003,
+				7004,
+				7005
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 6986,
+					"role": "previous_end",
+					"description_en": "End of preceding TotalEnergies SE block."
+				},
+				{
+					"page": 6987,
+					"role": "start",
+					"description_en": "Airbus SE report cover."
+				},
+				{
+					"page": 7427,
+					"role": "end",
+					"description_en": "Last physical page in the Airbus SE block."
+				},
+				{
+					"page": 7428,
+					"role": "next_start",
+					"description_en": "Start of L'Oréal report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 6987
+		},
+		{
+			"id": "loreal-2024",
+			"company_id": "loreal",
+			"name_en": "L'Oréal",
+			"name_ar": "لوريال",
+			"country": "FR",
+			"country_en": "France",
+			"country_ar": "فرنسا",
+			"sector": "fmcg",
+			"sector_en": "Consumer goods",
+			"sector_ar": "السلع الاستهلاكية",
+			"fy": "FY2024",
+			"report_year": 2024,
+			"to": 7446,
+			"page_count": 19,
+			"cover_page": 7428,
+			"document_type_en": "Annual report (overview)",
+			"introduction_en": "L’Oréal is a beauty-products group operating across product categories, price points and distribution channels.",
+			"introduction_ar": "لوريال مجموعة لمنتجات التجميل تعمل عبر فئات منتجات ومستويات أسعار وقنوات توزيع متعددة.",
+			"summary_en": "This short 2024 “Essentials” overview summarizes strategy, governance and financial and sustainability highlights; it is not a complete financial-statements report.",
+			"summary_ar": "يلخص عرض «الأساسيات» الموجز لعام 2024 الاستراتيجية والحوكمة وأبرز المعلومات المالية والاستدامة؛ ولا يمثل تقريراً كاملاً للقوائم المالية.",
+			"selected_source_pages": [
+				7428,
+				7429,
+				7433,
+				7446
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 7427,
+					"role": "previous_end",
+					"description_en": "End of preceding Airbus SE block."
+				},
+				{
+					"page": 7428,
+					"role": "start",
+					"description_en": "L'Oréal report cover."
+				},
+				{
+					"page": 7446,
+					"role": "end",
+					"description_en": "Last physical page in the L'Oréal block."
+				},
+				{
+					"page": 7447,
+					"role": "next_start",
+					"description_en": "Start of Sanofi report block."
+				}
+			],
+			"warnings_en": ["Short annual-report overview; complete financial statements are not contained in this block."],
+			"warnings_ar": ["عرض سنوي موجز؛ لا يحتوي هذا المقطع على القوائم المالية الكاملة."],
+			"from": 7428
+		},
+		{
+			"id": "sanofi-2025",
+			"company_id": "sanofi",
+			"name_en": "Sanofi",
+			"name_ar": "سانوفي",
+			"country": "FR",
+			"country_en": "France",
+			"country_ar": "فرنسا",
+			"sector": "pharma",
+			"sector_en": "Pharmaceuticals and healthcare",
+			"sector_ar": "الأدوية والرعاية الصحية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 7746,
+			"page_count": 300,
+			"cover_page": 7447,
+			"document_type_en": "Form 20-F",
+			"introduction_en": "Sanofi researches and markets medicines and vaccines, with an emphasis on immune-system science.",
+			"introduction_ar": "تبحث سانوفي الأدوية واللقاحات وتسوقها، مع تركيز على علم الجهاز المناعي.",
+			"summary_en": "The 2025 Form 20-F describes the Biopharma segment, including specialty care, general medicines and vaccines, and the changed presentation following the Opella separation.",
+			"summary_ar": "يصف نموذج 20-F لعام 2025 قطاع الأدوية الحيوية، بما يشمل الرعاية التخصصية والأدوية العامة واللقاحات، وتغير العرض بعد فصل أوبيلا.",
+			"selected_source_pages": [
+				7447,
+				7449,
+				7471,
+				7473
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 7446,
+					"role": "previous_end",
+					"description_en": "End of preceding L'Oréal block."
+				},
+				{
+					"page": 7447,
+					"role": "start",
+					"description_en": "Sanofi report cover (image-only, visually verified)."
+				},
+				{
+					"page": 7746,
+					"role": "end",
+					"description_en": "Last physical page in the Sanofi block."
+				},
+				{
+					"page": 7747,
+					"role": "next_start",
+					"description_en": "Start of Toyota Motor Corporation report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 7447
+		},
+		{
+			"id": "toyota-2026",
+			"company_id": "toyota",
+			"name_en": "Toyota Motor Corporation",
+			"name_ar": "تويوتا موتور",
+			"country": "JP",
+			"country_en": "Japan",
+			"country_ar": "اليابان",
+			"sector": "auto",
+			"sector_en": "Automotive",
+			"sector_ar": "السيارات",
+			"fy": "FY2026 (ended 2026-03-31)",
+			"report_year": 2026,
+			"to": 8010,
+			"page_count": 264,
+			"cover_page": 7747,
+			"document_type_en": "Form 20-F",
+			"introduction_en": "Toyota designs, manufactures and sells vehicles and components and provides financing to dealers and customers.",
+			"introduction_ar": "تصمم تويوتا المركبات والمكونات وتصنعها وتبيعها، وتقدم التمويل للوكلاء والعملاء.",
+			"summary_en": "The Form 20-F for the year ended March 31, 2026 distinguishes automotive, financial-services and other operations.",
+			"summary_ar": "يميز نموذج 20-F للسنة المنتهية في 31 مارس 2026 بين عمليات السيارات والخدمات المالية والعمليات الأخرى.",
+			"selected_source_pages": [
+				7747,
+				7748,
+				7759
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 7746,
+					"role": "previous_end",
+					"description_en": "End of preceding Sanofi block."
+				},
+				{
+					"page": 7747,
+					"role": "start",
+					"description_en": "Toyota Motor Corporation report cover."
+				},
+				{
+					"page": 8010,
+					"role": "end",
+					"description_en": "Last physical page in the Toyota Motor Corporation block."
+				},
+				{
+					"page": 8011,
+					"role": "next_start",
+					"description_en": "Start of Honda Motor Co., Ltd. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 7747
+		},
+		{
+			"id": "honda-2023",
+			"company_id": "honda",
+			"name_en": "Honda Motor Co., Ltd.",
+			"name_ar": "هوندا موتور",
+			"country": "JP",
+			"country_en": "Japan",
+			"country_ar": "اليابان",
+			"sector": "auto",
+			"sector_en": "Automotive",
+			"sector_ar": "السيارات",
+			"fy": "FY2023 (ended 2023-03-31)",
+			"report_year": 2023,
+			"to": 8257,
+			"page_count": 247,
+			"cover_page": 8011,
+			"document_type_en": "Form 20-F",
+			"introduction_en": "Honda operates motorcycle, automobile, financial-services, power-products and other businesses.",
+			"introduction_ar": "تعمل هوندا في الدراجات النارية والسيارات والخدمات المالية ومنتجات الطاقة وغيرها من الأعمال.",
+			"summary_en": "This historical Form 20-F covers the year ended March 31, 2023 and explains business and geographic revenue categories alongside financial and risk disclosures.",
+			"summary_ar": "يغطي نموذج 20-F التاريخي السنة المنتهية في 31 مارس 2023، ويوضح فئات الإيرادات حسب الأعمال والجغرافيا إلى جانب الإفصاحات المالية والمخاطر.",
+			"selected_source_pages": [
+				8011,
+				8012,
+				8021
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 8010,
+					"role": "previous_end",
+					"description_en": "End of preceding Toyota Motor Corporation block."
+				},
+				{
+					"page": 8011,
+					"role": "start",
+					"description_en": "Honda Motor Co., Ltd. report cover."
+				},
+				{
+					"page": 8257,
+					"role": "end",
+					"description_en": "Last physical page in the Honda Motor Co., Ltd. block."
+				},
+				{
+					"page": 8258,
+					"role": "next_start",
+					"description_en": "Start of SoftBank Group Corp. report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 8011
+		},
+		{
+			"id": "softbank-2026",
+			"company_id": "softbank",
+			"name_en": "SoftBank Group Corp.",
+			"name_ar": "مجموعة سوفت بنك",
+			"country": "JP",
+			"country_en": "Japan",
+			"country_ar": "اليابان",
+			"sector": "tech",
+			"sector_en": "Technology",
+			"sector_ar": "التقنية",
+			"fy": "FY2025 (ended 2026-03-31); report 2026",
+			"report_year": 2026,
+			"to": 8369,
+			"page_count": 112,
+			"cover_page": 8258,
+			"document_type_en": "Annual report",
+			"introduction_en": "SoftBank Group is a strategic investment holding company with a portfolio of technology businesses, including Arm and the SoftBank Vision Funds.",
+			"introduction_ar": "مجموعة سوفت بنك شركة قابضة للاستثمارات الاستراتيجية تضم محفظة من الأعمال التقنية، منها آرم وصناديق سوفت بنك فيجن.",
+			"summary_en": "The report is titled 2026, but defines fiscal 2025 as the year ended March 31, 2026; it discusses its investment ecosystem, capital model and growth assets.",
+			"summary_ar": "يحمل التقرير عنوان 2026، لكنه يعرف السنة المالية 2025 بأنها المنتهية في 31 مارس 2026؛ ويتناول منظومة الاستثمارات ونموذج رأس المال وأصول النمو.",
+			"selected_source_pages": [
+				8258,
+				8260,
+				8267
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 8257,
+					"role": "previous_end",
+					"description_en": "End of preceding Honda Motor Co., Ltd. block."
+				},
+				{
+					"page": 8258,
+					"role": "start",
+					"description_en": "SoftBank Group Corp. report cover."
+				},
+				{
+					"page": 8369,
+					"role": "end",
+					"description_en": "Last physical page in the SoftBank Group Corp. block."
+				},
+				{
+					"page": 8370,
+					"role": "next_start",
+					"description_en": "Start of Panasonic Holdings Corporation report block."
+				}
+			],
+			"warnings_en": ["Cover/report year 2026 differs from the issuer’s fiscal-year label 2025."],
+			"warnings_ar": ["سنة عنوان التقرير 2026 تختلف عن تسمية الشركة للسنة المالية 2025."],
+			"from": 8258
+		},
+		{
+			"id": "panasonic-2024",
+			"company_id": "panasonic",
+			"name_en": "Panasonic Holdings Corporation",
+			"name_ar": "باناسونيك القابضة",
+			"country": "JP",
+			"country_en": "Japan",
+			"country_ar": "اليابان",
+			"sector": "industrial",
+			"sector_en": "Industrial technology",
+			"sector_ar": "التقنية الصناعية",
+			"fy": "FY2024 (ended 2024-03-31)",
+			"report_year": 2024,
+			"to": 8443,
+			"page_count": 74,
+			"cover_page": 8370,
+			"document_type_en": "Integrated report",
+			"introduction_en": "Panasonic is a diversified technology group with lifestyle, automotive, connected business solutions, industrial and energy operations.",
+			"introduction_ar": "باناسونيك مجموعة تقنية متنوعة تشمل أعمالها المنتجات المنزلية والسيارات وحلول الأعمال المتصلة والصناعة والطاقة.",
+			"summary_en": "The integrated report explains its operating-company structure, business portfolio, capital allocation and sustainability priorities.",
+			"summary_ar": "يعرض التقرير المتكامل هيكل الشركات التشغيلية ومحفظة الأعمال وتخصيص رأس المال وأولويات الاستدامة.",
+			"selected_source_pages": [
+				8370,
+				8371,
+				8372,
+				8373
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 8369,
+					"role": "previous_end",
+					"description_en": "End of preceding SoftBank Group Corp. block."
+				},
+				{
+					"page": 8370,
+					"role": "start",
+					"description_en": "Panasonic Holdings Corporation report cover (image-only, visually verified)."
+				},
+				{
+					"page": 8443,
+					"role": "end",
+					"description_en": "Last physical page in the Panasonic Holdings Corporation block."
+				},
+				{
+					"page": 8444,
+					"role": "next_start",
+					"description_en": "Start of Mitsubishi UFJ Financial Group report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 8370
+		},
+		{
+			"id": "mufg-2026",
+			"company_id": "mufg",
+			"name_en": "Mitsubishi UFJ Financial Group",
+			"name_ar": "مجموعة ميتسوبيشي يو إف جي المالية",
+			"country": "JP",
+			"country_en": "Japan",
+			"country_ar": "اليابان",
+			"sector": "banking",
+			"sector_en": "Banking and finance",
+			"sector_ar": "الخدمات المصرفية والمالية",
+			"fy": "Year ended 2026-03-31",
+			"report_year": 2026,
+			"to": 8795,
+			"page_count": 352,
+			"cover_page": 8444,
+			"document_type_en": "Form 20-F",
+			"introduction_en": "MUFG is a Japanese financial holding group providing commercial and trust banking, securities, cards, asset management and leasing.",
+			"introduction_ar": "إم يو إف جي مجموعة مالية قابضة يابانية تقدم الخدمات المصرفية التجارية وخدمات الأمانات والأوراق المالية والبطاقات وإدارة الأصول والتأجير.",
+			"summary_en": "Its Form 20-F for the year ended March 31, 2026 explains the holding-company structure, international network, regulation and financial reporting.",
+			"summary_ar": "يوضح نموذج 20-F للسنة المنتهية في 31 مارس 2026 هيكل الشركة القابضة والشبكة الدولية والتنظيم والتقارير المالية.",
+			"selected_source_pages": [
+				8444,
+				8445,
+				8462,
+				8464
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 8443,
+					"role": "previous_end",
+					"description_en": "End of preceding Panasonic Holdings Corporation block."
+				},
+				{
+					"page": 8444,
+					"role": "start",
+					"description_en": "Mitsubishi UFJ Financial Group report cover."
+				},
+				{
+					"page": 8795,
+					"role": "end",
+					"description_en": "Last physical page in the Mitsubishi UFJ Financial Group block."
+				},
+				{
+					"page": 8796,
+					"role": "next_start",
+					"description_en": "Start of Sumitomo Mitsui Financial Group report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 8444
+		},
+		{
+			"id": "smfg-2026",
+			"company_id": "smfg",
+			"name_en": "Sumitomo Mitsui Financial Group",
+			"name_ar": "مجموعة سوميتومو ميتسوي المالية",
+			"country": "JP",
+			"country_en": "Japan",
+			"country_ar": "اليابان",
+			"sector": "banking",
+			"sector_en": "Banking and finance",
+			"sector_ar": "الخدمات المصرفية والمالية",
+			"fy": "Year ended 2026-03-31",
+			"report_year": 2026,
+			"to": 8914,
+			"page_count": 119,
+			"cover_page": 8796,
+			"document_type_en": "Consolidated financial statements",
+			"introduction_en": "Sumitomo Mitsui Financial Group organizes its business around wholesale, retail, global and global-markets units.",
+			"introduction_ar": "تنظم مجموعة سوميتومو ميتسوي المالية أعمالها حول وحدات الشركات والأفراد والأعمال الدولية والأسواق العالمية.",
+			"summary_en": "This document contains consolidated financial statements for the year ended March 31, 2026, with notes and an independent auditor’s report.",
+			"summary_ar": "تتضمن هذه الوثيقة القوائم المالية الموحدة للسنة المنتهية في 31 مارس 2026، مع الإيضاحات وتقرير المراجع المستقل.",
+			"selected_source_pages": [
+				8796,
+				8797,
+				8891
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 8795,
+					"role": "previous_end",
+					"description_en": "End of preceding Mitsubishi UFJ Financial Group block."
+				},
+				{
+					"page": 8796,
+					"role": "start",
+					"description_en": "Sumitomo Mitsui Financial Group report cover."
+				},
+				{
+					"page": 8914,
+					"role": "end",
+					"description_en": "Last physical page in the Sumitomo Mitsui Financial Group block."
+				},
+				{
+					"page": 8915,
+					"role": "next_start",
+					"description_en": "Start of Samsung Electronics report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 8796
+		},
+		{
+			"id": "samsung-2025",
+			"company_id": "samsung",
+			"name_en": "Samsung Electronics",
+			"name_ar": "سامسونغ إلكترونيكس",
+			"country": "KR",
+			"country_en": "South Korea",
+			"country_ar": "كوريا الجنوبية",
+			"sector": "tech",
+			"sector_en": "Technology",
+			"sector_ar": "التقنية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 9010,
+			"page_count": 96,
+			"cover_page": 8915,
+			"document_type_en": "Consolidated financial statements",
+			"introduction_en": "Samsung Electronics combines consumer devices and appliances, semiconductors, display panels and Harman’s automotive and audio businesses.",
+			"introduction_ar": "تجمع سامسونغ إلكترونيكس بين الأجهزة والإلكترونيات المنزلية وأشباه الموصلات ولوحات العرض وأعمال هارمان للسيارات والصوتيات.",
+			"summary_en": "The 2025 consolidated financial-statements volume explains the DX, DS, SDC and Harman divisions and includes Korean-IFRS notes and the auditor’s report.",
+			"summary_ar": "يوضح مجلد القوائم الموحدة لعام 2025 قطاعات DX وDS وSDC وهارمان، ويتضمن إيضاحات وفق المعايير الدولية المعتمدة في كوريا وتقرير المراجع.",
+			"selected_source_pages": [
+				8915,
+				8916,
+				8931
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 8914,
+					"role": "previous_end",
+					"description_en": "End of preceding Sumitomo Mitsui Financial Group block."
+				},
+				{
+					"page": 8915,
+					"role": "start",
+					"description_en": "Samsung Electronics report cover."
+				},
+				{
+					"page": 9010,
+					"role": "end",
+					"description_en": "Last physical page in the Samsung Electronics block."
+				},
+				{
+					"page": 9011,
+					"role": "next_start",
+					"description_en": "Start of Hon Hai Precision (Foxconn) report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 8915
+		},
+		{
+			"id": "honhai-2025",
+			"company_id": "honhai",
+			"name_en": "Hon Hai Precision (Foxconn)",
+			"name_ar": "هون هاي للصناعات الدقيقة «فوكسكون»",
+			"country": "TW",
+			"country_en": "Taiwan",
+			"country_ar": "تايوان",
+			"sector": "tech",
+			"sector_en": "Technology",
+			"sector_ar": "التقنية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 9185,
+			"page_count": 175,
+			"cover_page": 9011,
+			"document_type_en": "Annual report",
+			"introduction_en": "Hon Hai, also known as Foxconn, provides electronics manufacturing and technology-platform services across consumer, computing, cloud and component products.",
+			"introduction_ar": "تقدم هون هاي، المعروفة أيضاً بفوكسكون، خدمات تصنيع الإلكترونيات والمنصات التقنية لمنتجات المستهلكين والحوسبة والسحابة والمكونات.",
+			"summary_en": "The 2025 report discusses its manufacturing-platform transformation, AI infrastructure, governance, operations and financial-position analysis.",
+			"summary_ar": "يناقش تقرير 2025 تحولها إلى منصة خدمات تصنيعية والبنية التحتية للذكاء الاصطناعي والحوكمة والعمليات وتحليل المركز المالي.",
+			"selected_source_pages": [
+				9011,
+				9012,
+				9015,
+				9016
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 9010,
+					"role": "previous_end",
+					"description_en": "End of preceding Samsung Electronics block."
+				},
+				{
+					"page": 9011,
+					"role": "start",
+					"description_en": "Hon Hai Precision (Foxconn) report cover (image-only, visually verified)."
+				},
+				{
+					"page": 9185,
+					"role": "end",
+					"description_en": "Last physical page in the Hon Hai Precision (Foxconn) block."
+				},
+				{
+					"page": 9186,
+					"role": "next_start",
+					"description_en": "Start of Tencent Holdings report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 9011
+		},
+		{
+			"id": "tencent-2025",
+			"company_id": "tencent",
+			"name_en": "Tencent Holdings",
+			"name_ar": "تنسنت",
+			"country": "CN",
+			"country_en": "China",
+			"country_ar": "الصين",
+			"sector": "tech",
+			"sector_en": "Technology",
+			"sector_ar": "التقنية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 9467,
+			"page_count": 282,
+			"cover_page": 9186,
+			"document_type_en": "Annual report",
+			"introduction_en": "Tencent operates communication and content platforms, online games, advertising, cloud services and financial-technology-related services.",
+			"introduction_ar": "تدير تنسنت منصات للتواصل والمحتوى والألعاب الإلكترونية والإعلانات والخدمات السحابية والخدمات المرتبطة بالتقنية المالية.",
+			"summary_en": "The 2025 report reviews Weixin/WeChat, games and enterprise services, alongside governance and consolidated financial statements; the company is incorporated in the Cayman Islands.",
+			"summary_ar": "يراجع تقرير 2025 ويشين/ويتشات والألعاب وخدمات الشركات، إلى جانب الحوكمة والقوائم الموحدة؛ والشركة مسجلة في جزر كايمان.",
+			"selected_source_pages": [
+				9186,
+				9188,
+				9190,
+				9191
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 9185,
+					"role": "previous_end",
+					"description_en": "End of preceding Hon Hai Precision (Foxconn) block."
+				},
+				{
+					"page": 9186,
+					"role": "start",
+					"description_en": "Tencent Holdings report cover."
+				},
+				{
+					"page": 9467,
+					"role": "end",
+					"description_en": "Last physical page in the Tencent Holdings block."
+				},
+				{
+					"page": 9468,
+					"role": "next_start",
+					"description_en": "Start of Reliance Industries report block."
+				}
+			],
+			"warnings_en": ["Country filter reflects the Shenzhen head office; legal incorporation is in the Cayman Islands."],
+			"warnings_ar": ["يعكس مرشح الدولة المقر الرئيسي في شنتشن؛ أما التسجيل القانوني ففي جزر كايمان."],
+			"from": 9186
+		},
+		{
+			"id": "reliance-2026",
+			"company_id": "reliance",
+			"name_en": "Reliance Industries",
+			"name_ar": "ريلاينس إندستريز",
+			"country": "IN",
+			"country_en": "India",
+			"country_ar": "الهند",
+			"sector": "energy",
+			"sector_en": "Energy",
+			"sector_ar": "الطاقة",
+			"fy": "FY2025–26",
+			"report_year": 2026,
+			"to": 9614,
+			"page_count": 147,
+			"cover_page": 9468,
+			"document_type_en": "Integrated annual report",
+			"introduction_en": "Reliance Industries operates in energy and materials, retail, digital services, media and entertainment, and newer technology and energy businesses.",
+			"introduction_ar": "تعمل ريلاينس إندستريز في الطاقة والمواد والتجزئة والخدمات الرقمية والإعلام والترفيه وأعمال التقنية والطاقة الجديدة.",
+			"summary_en": "The 2025–26 integrated report combines business and value-creation reviews with governance, sustainability information and standalone and consolidated financial reporting.",
+			"summary_ar": "يجمع التقرير المتكامل لعام 2025–2026 بين مراجعات الأعمال وخلق القيمة والحوكمة ومعلومات الاستدامة والتقارير المالية المنفصلة والموحدة.",
+			"selected_source_pages": [
+				9468,
+				9469,
+				9470
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 9467,
+					"role": "previous_end",
+					"description_en": "End of preceding Tencent Holdings block."
+				},
+				{
+					"page": 9468,
+					"role": "start",
+					"description_en": "Reliance Industries report cover."
+				},
+				{
+					"page": 9614,
+					"role": "end",
+					"description_en": "Last physical page in the Reliance Industries block."
+				},
+				{
+					"page": 9615,
+					"role": "next_start",
+					"description_en": "Start of Infosys Limited report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 9468
+		},
+		{
+			"id": "infosys-2026",
+			"company_id": "infosys",
+			"name_en": "Infosys Limited",
+			"name_ar": "إنفوسيس",
+			"country": "IN",
+			"country_en": "India",
+			"country_ar": "الهند",
+			"sector": "tech",
+			"sector_en": "Technology",
+			"sector_ar": "التقنية",
+			"fy": "FY2025–26",
+			"report_year": 2026,
+			"to": 9997,
+			"page_count": 383,
+			"cover_page": 9615,
+			"document_type_en": "Integrated annual report",
+			"introduction_en": "Infosys provides business consulting and technology services, with an AI-first approach to enterprise transformation.",
+			"introduction_ar": "تقدم إنفوسيس الاستشارات الإدارية والخدمات التقنية، مع نهج يضع الذكاء الاصطناعي في صميم تحول المؤسسات.",
+			"summary_en": "The 2025–26 integrated report presents client transformation examples, strategy and value creation, governance, and standalone and consolidated financial statements.",
+			"summary_ar": "يعرض التقرير المتكامل لعام 2025–2026 أمثلة لتحول العملاء والاستراتيجية وخلق القيمة والحوكمة والقوائم المالية المنفصلة والموحدة.",
+			"selected_source_pages": [
+				9615,
+				9616,
+				9622,
+				9624
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 9614,
+					"role": "previous_end",
+					"description_en": "End of preceding Reliance Industries block."
+				},
+				{
+					"page": 9615,
+					"role": "start",
+					"description_en": "Infosys Limited report cover (image-only, visually verified)."
+				},
+				{
+					"page": 9997,
+					"role": "end",
+					"description_en": "Last physical page in the Infosys Limited block."
+				},
+				{
+					"page": 9998,
+					"role": "next_start",
+					"description_en": "Start of Saudi Arabian Oil Company (Aramco) report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 9615
+		},
+		{
+			"id": "aramco-2025",
+			"company_id": "aramco",
+			"name_en": "Saudi Arabian Oil Company (Aramco)",
+			"name_ar": "أرامكو السعودية",
+			"country": "SA",
+			"country_en": "Saudi Arabia",
+			"country_ar": "السعودية",
+			"sector": "energy",
+			"sector_en": "Energy",
+			"sector_ar": "الطاقة",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 10243,
+			"page_count": 246,
+			"cover_page": 9998,
+			"document_type_en": "Annual report",
+			"introduction_en": "Saudi Aramco is an integrated energy and chemicals company spanning hydrocarbon production, refining and chemicals.",
+			"introduction_ar": "أرامكو السعودية شركة متكاملة للطاقة والكيميائيات تشمل أنشطتها إنتاج الهيدروكربونات والتكرير والكيميائيات.",
+			"summary_en": "Its 2025 report presents the integrated value chain, upstream and downstream activities, risk and governance disclosures, reserves information and consolidated statements.",
+			"summary_ar": "يعرض تقريرها لعام 2025 سلسلة القيمة المتكاملة وأعمال المنبع والمصب وإفصاحات المخاطر والحوكمة ومعلومات الاحتياطيات والقوائم الموحدة.",
+			"selected_source_pages": [
+				9998,
+				9999,
+				1e4,
+				10013
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 9997,
+					"role": "previous_end",
+					"description_en": "End of preceding Infosys Limited block."
+				},
+				{
+					"page": 9998,
+					"role": "start",
+					"description_en": "Saudi Arabian Oil Company (Aramco) report cover (image-only, visually verified)."
+				},
+				{
+					"page": 10243,
+					"role": "end",
+					"description_en": "Last physical page in the Saudi Arabian Oil Company (Aramco) block."
+				},
+				{
+					"page": 10244,
+					"role": "next_start",
+					"description_en": "Start of Emirates NBD Bank report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 9998
+		},
+		{
+			"id": "emiratesnbd-2025",
+			"company_id": "emiratesnbd",
+			"name_en": "Emirates NBD Bank",
+			"name_ar": "بنك الإمارات دبي الوطني",
+			"country": "AE",
+			"country_en": "United Arab Emirates",
+			"country_ar": "الإمارات العربية المتحدة",
+			"sector": "banking",
+			"sector_en": "Banking and finance",
+			"sector_ar": "الخدمات المصرفية والمالية",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 10375,
+			"page_count": 132,
+			"cover_page": 10244,
+			"document_type_en": "Annual report",
+			"introduction_en": "Emirates NBD provides retail, wealth, corporate and institutional banking, including Islamic banking and international subsidiaries.",
+			"introduction_ar": "يقدم الإمارات دبي الوطني الخدمات المصرفية للأفراد والثروات والشركات والمؤسسات، بما فيها الخدمات المصرفية الإسلامية والشركات التابعة الدولية.",
+			"summary_en": "The 2025 report explains its regional banking model, Emirates Islamic and DenizBank operations, risk management and consolidated financial statements.",
+			"summary_ar": "يوضح تقرير 2025 نموذجه المصرفي الإقليمي وعمليات الإمارات الإسلامي ودنيز بنك وإدارة المخاطر والقوائم المالية الموحدة.",
+			"selected_source_pages": [
+				10244,
+				10246,
+				10257,
+				10258
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 10243,
+					"role": "previous_end",
+					"description_en": "End of preceding Saudi Arabian Oil Company (Aramco) block."
+				},
+				{
+					"page": 10244,
+					"role": "start",
+					"description_en": "Emirates NBD Bank report cover."
+				},
+				{
+					"page": 10375,
+					"role": "end",
+					"description_en": "Last physical page in the Emirates NBD Bank block."
+				},
+				{
+					"page": 10376,
+					"role": "next_start",
+					"description_en": "Start of e& (Emirates Telecommunications Group) report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 10244
+		},
+		{
+			"id": "eand-2025",
+			"company_id": "eand",
+			"name_en": "e& (Emirates Telecommunications Group)",
+			"name_ar": "إي آند «مجموعة اتصالات»",
+			"country": "AE",
+			"country_en": "United Arab Emirates",
+			"country_ar": "الإمارات العربية المتحدة",
+			"sector": "telecom",
+			"sector_en": "Telecommunications",
+			"sector_ar": "الاتصالات",
+			"fy": "FY2025",
+			"report_year": 2025,
+			"to": 10604,
+			"page_count": 229,
+			"cover_page": 10376,
+			"document_type_en": "Integrated annual report",
+			"introduction_en": "e& combines telecommunications with enterprise digital solutions, consumer digital services and technology investments.",
+			"introduction_ar": "تجمع إي آند بين الاتصالات والحلول الرقمية للمؤسسات والخدمات الرقمية للمستهلكين والاستثمارات التقنية.",
+			"summary_en": "The 2025 integrated report describes five business verticals: e& UAE, international, enterprise, life and capital, followed by sustainability, governance and financial reporting.",
+			"summary_ar": "يصف التقرير المتكامل لعام 2025 خمسة مجالات أعمال: إي آند الإمارات والدولية والمؤسسات والحياة ورأس المال، ثم تقارير الاستدامة والحوكمة والمالية.",
+			"selected_source_pages": [
+				10376,
+				10378,
+				10385,
+				10396
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 10375,
+					"role": "previous_end",
+					"description_en": "End of preceding Emirates NBD Bank block."
+				},
+				{
+					"page": 10376,
+					"role": "start",
+					"description_en": "e& (Emirates Telecommunications Group) report cover."
+				},
+				{
+					"page": 10604,
+					"role": "end",
+					"description_en": "Last physical page in the e& (Emirates Telecommunications Group) block."
+				},
+				{
+					"page": 10605,
+					"role": "next_start",
+					"description_en": "Start of Royal Bank of Canada report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 10376
+		},
+		{
+			"id": "rbc-2025",
+			"company_id": "rbc",
+			"name_en": "Royal Bank of Canada",
+			"name_ar": "رويال بنك أوف كندا",
+			"country": "CA",
+			"country_en": "Canada",
+			"country_ar": "كندا",
+			"sector": "banking",
+			"sector_en": "Banking and finance",
+			"sector_ar": "الخدمات المصرفية والمالية",
+			"fy": "FY2025 (ended 2025-10-31)",
+			"report_year": 2025,
+			"to": 10850,
+			"page_count": 246,
+			"cover_page": 10605,
+			"document_type_en": "Annual report",
+			"introduction_en": "Royal Bank of Canada provides personal and commercial banking, wealth management, insurance and capital-markets services.",
+			"introduction_ar": "يقدم رويال بنك أوف كندا الخدمات المصرفية للأفراد والشركات وإدارة الثروات والتأمين وخدمات أسواق رأس المال.",
+			"summary_en": "The report covers the year ended October 31, 2025 and combines business-segment reviews, risk and capital information with consolidated financial statements.",
+			"summary_ar": "يغطي التقرير السنة المنتهية في 31 أكتوبر 2025، ويجمع مراجعات قطاعات الأعمال ومعلومات المخاطر ورأس المال مع القوائم المالية الموحدة.",
+			"selected_source_pages": [
+				10605,
+				10606,
+				10628,
+				10630
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 10604,
+					"role": "previous_end",
+					"description_en": "End of preceding e& (Emirates Telecommunications Group) block."
+				},
+				{
+					"page": 10605,
+					"role": "start",
+					"description_en": "Royal Bank of Canada report cover."
+				},
+				{
+					"page": 10850,
+					"role": "end",
+					"description_en": "Last physical page in the Royal Bank of Canada block."
+				},
+				{
+					"page": 10851,
+					"role": "next_start",
+					"description_en": "Start of BHP Group Limited report block."
+				}
+			],
+			"warnings_en": [],
+			"warnings_ar": [],
+			"from": 10605
+		},
+		{
+			"id": "bhp-2025",
+			"company_id": "bhp",
+			"name_en": "BHP Group Limited",
+			"name_ar": "مجموعة بي إتش بي",
+			"country": "AU",
+			"country_en": "Australia",
+			"country_ar": "أستراليا",
+			"sector": "mining",
+			"sector_en": "Mining and resources",
+			"sector_ar": "التعدين والموارد",
+			"fy": "FY2025 (ended 2025-06-30)",
+			"report_year": 2025,
+			"to": 12299,
+			"page_count": 1449,
+			"cover_page": 10851,
+			"document_type_en": "Form 20-F + S-K 1300 technical reports",
+			"introduction_en": "BHP is a resources group with copper, iron ore and steelmaking-coal operations and potash development projects.",
+			"introduction_ar": "بي إتش بي مجموعة للموارد تشمل عمليات النحاس وخام الحديد وفحم صناعة الصلب ومشروعات تطوير البوتاس.",
+			"summary_en": "The FY2025 Form 20-F bundle also contains the Fundão settlement exhibit and technical reports for Escondida, Western Australia Iron Ore and Jansen, whose own reporting dates differ.",
+			"summary_ar": "تتضمن حزمة نموذج 20-F للسنة المالية 2025 أيضاً ملحق تسوية فونداؤ وتقارير فنية لإسكونديدا وخام حديد غرب أستراليا ويانسن، وتختلف تواريخ تقاريرها الخاصة.",
+			"selected_source_pages": [
+				10851,
+				10852,
+				10862,
+				10866,
+				11221,
+				11665,
+				11885,
+				12138
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 10850,
+					"role": "previous_end",
+					"description_en": "End of preceding Royal Bank of Canada block."
+				},
+				{
+					"page": 10851,
+					"role": "start",
+					"description_en": "BHP Group Limited report cover."
+				},
+				{
+					"page": 12299,
+					"role": "end",
+					"description_en": "Last physical page in the BHP Group Limited block."
+				},
+				{
+					"page": 12300,
+					"role": "next_start",
+					"description_en": "Start of Commonwealth Bank of Australia report block."
+				}
+			],
+			"warnings_en": ["Includes a legal settlement exhibit and technical reports with separate 2022/2024 dates; do not treat every page as FY2025 financial reporting."],
+			"warnings_ar": ["يشمل ملحق تسوية قانونية وتقارير فنية بتواريخ مستقلة في 2022 و2024؛ لا تعامل جميع الصفحات كتقارير مالية للسنة 2025."],
+			"from": 10851
+		},
+		{
+			"id": "cba-2026",
+			"company_id": "cba",
+			"name_en": "Commonwealth Bank of Australia",
+			"name_ar": "بنك الكومنولث الأسترالي",
+			"country": "AU",
+			"country_en": "Australia",
+			"country_ar": "أستراليا",
+			"sector": "banking",
+			"sector_en": "Banking and finance",
+			"sector_ar": "الخدمات المصرفية والمالية",
+			"fy": "FY2026 (ended 2026-06-30)",
+			"report_year": 2026,
+			"to": 12506,
+			"page_count": 207,
+			"cover_page": 12300,
+			"document_type_en": "Annual report",
+			"introduction_en": "Commonwealth Bank provides retail, business and institutional banking, mainly in Australia and New Zealand through its ASB subsidiary.",
+			"introduction_ar": "يقدم بنك الكومنولث الخدمات المصرفية للأفراد والأعمال والمؤسسات، خصوصاً في أستراليا ونيوزيلندا عبر شركته التابعة ASB.",
+			"summary_en": "Despite the old catalog’s FY2025 label, the supplied report explicitly covers the year ended June 30, 2026 and includes business, sustainability, governance and financial reports.",
+			"summary_ar": "رغم تصنيف الفهرس القديم له ضمن السنة المالية 2025، يغطي التقرير المقدم صراحة السنة المنتهية في 30 يونيو 2026، ويتضمن تقارير الأعمال والاستدامة والحوكمة والمالية.",
+			"selected_source_pages": [
+				12300,
+				12301,
+				12303
+			],
+			"review_status": "introductory_source_inspection",
+			"review_label_en": "Introductory source inspection",
+			"review_label_ar": "فحص تعريفي للمصدر",
+			"complete_source_review_page_count": null,
+			"boundary_confidence": "high",
+			"boundary_method": "Source cover, adjacent-page and end-page inspection; image-only covers rendered.",
+			"boundary_evidence": [
+				{
+					"page": 12299,
+					"role": "previous_end",
+					"description_en": "End of preceding BHP Group Limited block."
+				},
+				{
+					"page": 12300,
+					"role": "start",
+					"description_en": "Commonwealth Bank of Australia report cover."
+				},
+				{
+					"page": 12506,
+					"role": "end",
+					"description_en": "Last physical page in the Commonwealth Bank of Australia block."
+				}
+			],
+			"warnings_en": ["Legacy catalog mislabeled this FY2026 report as FY2025."],
+			"warnings_ar": ["صنف الفهرس القديم تقرير السنة المالية 2026 خطأ ضمن السنة المالية 2025."],
+			"from": 12300,
+			"legacy_id": "cba-2025"
+		}
+	];
+	var REFERENCE_METADATA = {
+		"schema_version": 1,
+		"created_at_utc": "2026-10-05T17:14:01.664693+00:00",
+		"source_file": "global_financial_and_audit_research_bundle_extended_verified.pdf",
+		"source_sha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+		"source_bytes": 522178397,
+		"total_physical_pages": 12506,
+		"report_blocks": 50,
+		"distinct_companies": 46,
+		"country_market_classifications": 15,
+		"directory_pages": [1],
+		"company_block_pages": 12505,
+		"complete_source_review_reports": 8,
+		"complete_source_review_pages": 2387,
+		"review_status_counts": {
+			"introductory_source_inspection": 41,
+			"partial_source_review": 1,
+			"complete_source_review": 8
+		},
+		"corrected_report_ranges": 28,
+		"page_numbering_en": "All links and ranges use 1-based physical pages of the supplied PDF, not printed report page numbers. Some PDF pages contain two printed pages.",
+		"page_numbering_ar": "تستخدم جميع الروابط والنطاقات أرقام الصفحات الفعلية لملف PDF بدءاً من 1، لا أرقام صفحات التقارير المطبوعة. تحتوي بعض صفحات PDF على صفحتين مطبوعتين.",
+		"scope_en": "Bilingual introductions and summaries are source-grounded navigation aids, not a full translation. Boundary inspection and introductory reading do not imply complete source review. Completed source review is analytical work, not an independent audit, professional assurance or application acceptance. The supplied compilation has not been independently authenticated against every issuer publication.",
+		"scope_ar": "المقدمات والملخصات الثنائية اللغة أدوات تنقل مستندة إلى المصدر، وليست ترجمة كاملة. لا يعني فحص الحدود والقراءة التعريفية اكتمال مراجعة المصدر. مراجعة المصدر المكتملة عمل تحليلي، وليست تدقيقاً مستقلاً أو تأكيداً مهنياً أو قبولاً للتطبيق. لم تتم مطابقة التجميع المقدم بصورة مستقلة مع جميع منشورات الجهات المصدرة.",
+		"country_basis_en": "Country/market filters use the report’s issuer domicile or principal-head-office classification; Tencent’s Cayman incorporation is separately disclosed."
+	};
+	//#endregion
+	//#region app/src/engine/fusion/reports/reference-index-engine.ts
+	var byId = /* @__PURE__ */ new Map();
+	for (const report of REFERENCE_REPORTS) {
+		byId.set(report.id, report);
+		if (report.legacy_id) byId.set(report.legacy_id, report);
+	}
+	var referenceReport = (id) => byId.get(id);
+	var canonicalReferenceId = (id) => referenceReport(id)?.id ?? id;
+	var legacyReferenceId = (id) => referenceReport(id)?.legacy_id ?? id;
 	//#endregion
 	//#region app/src/engine/fusion/audit/global-benchmarks-engine.ts
 	var global_benchmarks_engine_exports = /* @__PURE__ */ __exportAll({
@@ -4759,7 +10876,7 @@ window.SKEngines = (function() {
 			kind: "audit-quality"
 		}
 	];
-	var R$1 = (id, company, country, sector, framework, standard, auditor, since, fy, kind, a, b) => ({
+	var R$1 = (id, company, country, sector, framework, standard, auditor, since, fy, kind, a, b, sourceAuditLabel) => ({
 		id,
 		company,
 		country,
@@ -4770,9 +10887,10 @@ window.SKEngines = (function() {
 		...since ? { since } : {},
 		fy,
 		kind,
-		pages: [a, b]
+		pages: [a, b],
+		...sourceAuditLabel ? { sourceAuditLabel } : {}
 	});
-	var REPORTS = [
+	var LEGACY_REPORTS = [
 		R$1("amazon-2023", "Amazon.com, Inc.", "US", "retail", "US GAAP", "PCAOB", "Ernst & Young LLP", 1996, "FY2023", "Annual report + 10-K", 2, 93),
 		R$1("apple-2024", "Apple Inc.", "US", "tech", "US GAAP", "PCAOB", "Ernst & Young LLP", 2009, "FY2024", "10-K", 94, 214),
 		R$1("cisco-2024", "Cisco Systems, Inc.", "US", "tech", "US GAAP", "PCAOB", "PricewaterhouseCoopers LLP", 1988, "FY2024", "Annual report + 10-K", 215, 348),
@@ -4788,14 +10906,14 @@ window.SKEngines = (function() {
 		R$1("pepsico-2025", "PepsiCo, Inc.", "US", "fmcg", "US GAAP", "PCAOB", "KPMG LLP", 1990, "FY2025", "Annual report + 10-K", 1819, 1962),
 		R$1("pg-2026", "The Procter & Gamble Company", "US", "fmcg", "US GAAP", "PCAOB", "Deloitte & Touche LLP", 1890, "FY2026", "10-K", 1963, 2043),
 		R$1("homedepot-2025", "The Home Depot, Inc.", "US", "retail", "US GAAP", "PCAOB", "KPMG LLP", 1979, "FY2025", "10-K", 2044, 2131),
-		R$1("mcdonalds-2025", "McDonald's Corporation", "US", "retail", "US GAAP", "PCAOB", "", void 0, "FY2025", "Annual report (letter and highlights)", 2132, 2204),
+		R$1("mcdonalds-2022", "McDonald’s Corporation", "US", "retail", "US GAAP", "PCAOB", "Ernst & Young LLP", 1964, "FY2022", "2022 Annual Report and Form 10-K", 2132, 2204),
 		R$1("nestle-2025", "Nestlé Group", "CH", "fmcg", "IFRS", "ISA", "Ernst & Young Ltd", void 0, "FY2025", "Financial statements", 2205, 2342),
 		R$1("roche-2025", "Roche Group", "CH", "pharma", "IFRS", "ISA", "KPMG AG", void 0, "FY2025", "Finance report", 2343, 2539),
 		R$1("novartis-2025", "Novartis AG", "CH", "pharma", "IFRS", "ISA", "KPMG AG", void 0, "FY2025", "Annual report", 2540, 2817),
 		R$1("ubs-2025", "UBS Group AG", "CH", "banking", "IFRS", "PCAOB", "Ernst & Young Ltd", void 0, "FY2025", "Annual report", 2818, 3184),
 		R$1("allianz-2025", "Allianz SE", "DE", "insurance", "IFRS", "ISA", "PricewaterhouseCoopers GmbH", void 0, "FY2025", "Annual report (extract)", 3185, 3240),
 		R$1("mercedes-2025", "Mercedes-Benz Group AG", "DE", "auto", "IFRS", "ISA", "PricewaterhouseCoopers GmbH", void 0, "FY2025", "Annual report", 3241, 3649),
-		R$1("volkswagen-2025", "Volkswagen Group", "DE", "auto", "IFRS", "ISA", "EY GmbH", void 0, "FY2025", "Annual report", 3650, 4322),
+		R$1("volkswagen-2025", "Volkswagen Group", "DE", "auto", "IFRS", "ISA", "EY GmbH", void 0, "FY2025", "Annual report", 3650, 4322, "HGB / EU Audit Regulation / IDW"),
 		R$1("telekom-2025", "Deutsche Telekom AG", "DE", "telecom", "IFRS", "ISA", "Deloitte GmbH", void 0, "FY2025", "Annual report", 4323, 4704),
 		R$1("bp-2025", "BP p.l.c.", "UK", "energy", "IFRS", "ISA", "Deloitte LLP", void 0, "FY2025", "Annual report and Form 20-F", 4705, 5101),
 		R$1("unilever-2025", "Unilever PLC", "UK", "fmcg", "IFRS", "ISA", "KPMG LLP", 2014, "FY2025", "Annual report", 5102, 5385),
@@ -4823,8 +10941,32 @@ window.SKEngines = (function() {
 		R$1("bhp-2025", "BHP Group Limited", "AU", "mining", "IFRS", "PCAOB", "Ernst & Young", void 0, "FY2025", "Form 20-F + S-K 1300 technical reports", 10851, 12300),
 		R$1("cba-2025", "Commonwealth Bank of Australia", "AU", "banking", "AASB (IFRS)", "ISA", "PricewaterhouseCoopers", void 0, "FY2025", "Annual report", 12301, 12506)
 	];
+	/** One verified ownership index feeds every live report catalog. Legacy audit
+	* classification is preserved; disclosed source labels are separate fields. */
+	var REPORTS = REFERENCE_REPORTS.map((reference) => {
+		const report = {
+			...LEGACY_REPORTS.find((r) => r.id === legacyReferenceId(reference.id)) ?? {
+				country: reference.country,
+				sector: reference.sector,
+				framework: "Unknown — not reviewed",
+				standard: "unknown",
+				auditor: ""
+			},
+			id: reference.id,
+			company: reference.name_en,
+			fy: reference.fy,
+			kind: reference.document_type_en,
+			pages: [reference.from, reference.to],
+			reference
+		};
+		if (reference.id === "allianz-2025") {
+			report.framework = "HGB";
+			report.sourceAuditLabel = "HGB / EU Audit Regulation / IDW";
+		}
+		return report;
+	});
 	var K$2 = (report, theme, page, title) => ({
-		report,
+		report: canonicalReferenceId(report),
 		title,
 		theme,
 		page
@@ -5247,7 +11389,7 @@ window.SKEngines = (function() {
 		conglomerate: "المجموعات المتنوعة"
 	};
 	var REPORT = Object.fromEntries(REPORTS.map((r) => [r.id, r]));
-	var reportOf = (id) => REPORT[id];
+	var reportOf = (id) => REPORT[canonicalReferenceId(id)];
 	var row$1 = (k) => {
 		const r = REPORT[k.report];
 		return {
@@ -5257,13 +11399,14 @@ window.SKEngines = (function() {
 			country: r.country,
 			sector: r.sector,
 			standard: r.standard,
+			...r.sourceAuditLabel ? { sourceAuditLabel: r.sourceAuditLabel } : {},
 			auditor: r.auditor,
 			themeAr: THEMES[k.theme].ar
 		};
 	};
 	function kamLibrary(f = {}) {
 		const q = (f.q || "").trim().toLowerCase();
-		return KAMS.map(row$1).filter((k) => (!f.theme || k.theme === f.theme) && (!f.sector || k.sector === f.sector) && (!f.standard || k.standard === f.standard) && (!q || [
+		return KAMS.map(row$1).filter((k) => (!f.theme || k.theme === f.theme) && (!f.sector || k.sector === f.sector) && (!f.standard || k.standard === f.standard) && (!f.sourceAuditLabel || (k.sourceAuditLabel ?? k.standard) === f.sourceAuditLabel) && (!q || [
 			k.title,
 			k.company,
 			k.auditor,
@@ -5306,7 +11449,7 @@ window.SKEngines = (function() {
 	for a sector the bundle does not cover, the share under the same standard, else across all reports. `exclude` leaves one report
 	out, so the bundle can test itself without seeing the answer (the replay measured the plain sector share ranking best). */
 	function themePrior(opts = {}) {
-		const reps = REPORTS.filter((r) => r.id !== opts.exclude && KAMS.some((k) => k.report === r.id));
+		const reps = REPORTS.filter((r) => r.id !== (opts.exclude ? canonicalReferenceId(opts.exclude) : void 0) && KAMS.some((k) => k.report === r.id));
 		const has = (r, t) => KAMS.some((k) => k.report === r.id && k.theme === t);
 		const inSector = reps.filter((r) => opts.sector && r.sector === opts.sector), inStd = reps.filter((r) => opts.standard && r.standard === opts.standard);
 		const pool = inSector.length ? inSector : inStd.length ? inStd : reps;
@@ -5413,6 +11556,11 @@ window.SKEngines = (function() {
 	/** Headline numbers for the reference screen. */
 	function summary$2() {
 		const auditors = /* @__PURE__ */ new Map();
+		const sourceCounts = /* @__PURE__ */ new Map();
+		for (const k of KAMS) {
+			const r = REPORT[k.report], label = r.sourceAuditLabel ?? r.standard;
+			sourceCounts.set(label, (sourceCounts.get(label) || 0) + 1);
+		}
 		for (const r of REPORTS) {
 			if (!r.auditor) continue;
 			const f = /Ernst|EY/.test(r.auditor) ? "EY" : /Pricewaterhouse|PwC/.test(r.auditor) ? "PwC" : /KPMG/.test(r.auditor) ? "KPMG" : /Deloitte/.test(r.auditor) ? "Deloitte" : r.auditor;
@@ -5423,6 +11571,10 @@ window.SKEngines = (function() {
 			pages: BUNDLE.pages,
 			countries: new Set(REPORTS.map((r) => r.country)).size,
 			kams: KAMS.length,
+			sourceAuditStandards: [...sourceCounts].map(([label, count]) => ({
+				label,
+				count
+			})),
 			pcaob: KAMS.filter((k) => REPORT[k.report].standard === "PCAOB").length,
 			isa: KAMS.filter((k) => REPORT[k.report].standard === "ISA").length,
 			materiality: MATERIALITY.length,
@@ -6207,6 +12359,7 @@ window.SKEngines = (function() {
 		const framework = opts.framework ?? "IFRS", egypt = framework === "EAS", intl = !egypt && opts.tax === "income", cur = opts.currency ?? (egypt ? "ج.م" : "ر.س");
 		const money = (m) => formatMinor(m, { decimals: 0 }) + " " + cur;
 		const fs = buildStatements(tb, opts.overrides ?? {}, { tax: opts.tax ?? (egypt ? "income" : "zakat") });
+		if (fs.reconstructionStatus) throw new Error("Published source replay: operational audit review is unavailable; use the source replay view.");
 		const mat0 = materiality(fs, {
 			overall: opts.materiality,
 			...opts.materialityRates ?? {}
@@ -8560,6 +14713,10 @@ window.SKEngines = (function() {
 	/** The revenue theme carries the presumed risk of fraud (ISA 240.26), so it ranks above an equal line risk. */
 	var FRAUD_THEMES = /* @__PURE__ */ new Set(["revenue-deductions", "revenue-recognition"]);
 	function suggestKams(input) {
+		if (input.exclude) input = {
+			...input,
+			exclude: canonicalReferenceId(input.exclude)
+		};
 		const { fs, materiality } = input, cur = input.currency ?? "ر.س", money = (m) => formatMinor(m, { decimals: 0 }) + " " + cur;
 		const assets = Math.abs(fs.keys.assets.current) || 1;
 		const byKey = /* @__PURE__ */ new Map();
@@ -8623,9 +14780,13 @@ window.SKEngines = (function() {
 	var corpus_companies_engine_exports = /* @__PURE__ */ __exportAll({
 		FIGURES: () => FIGURES,
 		NO_STATEMENTS: () => NO_STATEMENTS,
+		auditModelCatalog: () => auditModelCatalog,
 		companyTrialBalance: () => companyTrialBalance,
 		corpusCompanies: () => corpusCompanies,
-		corpusCompany: () => corpusCompany
+		corpusCompany: () => corpusCompany,
+		corpusModelTrialBalance: () => corpusModelTrialBalance,
+		publishedSourceCompanies: () => publishedSourceCompanies,
+		sourceUnavailableReason: () => sourceUnavailableReason
 	});
 	var FIGURES = {
 		"amazon-2023": {
@@ -9902,8 +16063,8 @@ window.SKEngines = (function() {
 		}
 	};
 	var NO_STATEMENTS = {
-		"mcdonalds-2025": "the bundle carries the letter and highlights only (pp. 2132–2204)",
-		"loreal-2024": "the bundle carries the overview only (pp. 7429–7448)"
+		"mcdonalds-2025": "Supplied pages 2132–2204 contain the complete FY2022 report, not FY2025. No FY2025 source model is verified.",
+		"loreal-2024": "the bundle carries the overview only (pp. 7428–7446)"
 	};
 	var YEAR_END = {
 		"apple-2024": "2024-09-28",
@@ -9924,7 +16085,7 @@ window.SKEngines = (function() {
 		"infosys-2026": "2026-03-31",
 		"rbc-2025": "2025-10-31",
 		"bhp-2025": "2025-06-30",
-		"cba-2025": "2025-06-30"
+		"cba-2025": "2026-06-30"
 	};
 	var CURRENCY_AR = {
 		USD: "دولار أمريكي",
@@ -9990,18 +16151,126 @@ window.SKEngines = (function() {
 	var unitAr = (f) => (f.unit === "crore" ? "كرور " : "مليون ") + (UNIT_SHORT[f.currency] ?? f.currency);
 	/** Every company with statements, in bundle order. */
 	function corpusCompanies() {
-		return REPORTS.filter((r) => FIGURES[r.id]).map((r) => {
-			const f = FIGURES[r.id];
+		return REPORTS.filter((r) => FIGURES[legacyReferenceId(r.id)]).map((r) => {
+			const f = FIGURES[legacyReferenceId(r.id)];
 			return {
 				...r,
 				figures: f,
-				yearEnd: YEAR_END[r.id] ?? (r.fy.match(/\d{4}/)?.[0] ?? "2025") + "-12-31",
+				yearEnd: YEAR_END[legacyReferenceId(r.id)] ?? (r.fy.match(/\d{4}/)?.[0] ?? "2025") + "-12-31",
 				unitAr: unitAr(f),
 				currencyAr: CURRENCY_AR[f.currency] ?? f.currency
 			};
 		});
 	}
-	var corpusCompany = (id) => corpusCompanies().find((c) => c.id === id) ?? null;
+	var corpusCompany = (id) => corpusCompanies().find((c) => c.id === canonicalReferenceId(id)) ?? null;
+	var SOURCE_CATALOG = [
+		{
+			id: "pg-2026",
+			fy: "FY2026",
+			sector: "fmcg",
+			standard: "PCAOB",
+			pages: [1963, 2039]
+		},
+		{
+			id: "homedepot-2025",
+			fy: "FY2025",
+			sector: "retail",
+			standard: "PCAOB",
+			pages: [2040, 2131]
+		},
+		{
+			id: "mcdonalds-2022",
+			fy: "FY2022",
+			sector: "retail",
+			standard: "PCAOB",
+			pages: [2132, 2204]
+		},
+		{
+			id: "mercedes-2025",
+			fy: "FY2025",
+			sector: "auto",
+			standard: "ISA",
+			pages: [3241, 3649]
+		},
+		{
+			id: "volkswagen-2025",
+			fy: "FY2025",
+			sector: "auto",
+			standard: "ISA",
+			pages: [3650, 4322]
+		}
+	];
+	function publishedSourceCompanies() {
+		return SOURCE_CATALOG.flatMap((meta) => {
+			const source = reviewedPublishedSource(meta.id);
+			if (!source || !("replay" in source.sourceModel)) return [];
+			const s = source.sourceModel;
+			return [{
+				...meta,
+				standard: "sourceAuditLabel" in s ? s.sourceAuditLabel : meta.standard,
+				company: s.issuer,
+				country: s.issuerCountry,
+				framework: s.accountingBasis,
+				auditor: s.auditorReference.name + " (original source attribution only)",
+				kind: s.report,
+				yearEnd: s.periodEnd,
+				periodStart: s.periodStart,
+				periodEnd: s.periodEnd,
+				priorPeriodEnd: s.priorPeriodEnd,
+				currencyAr: s.currency,
+				unitAr: s.currency + " " + s.unit,
+				unit: s.unit,
+				frameworkAr: s.accountingBasis,
+				countryAr: COUNTRY_AR[s.issuerCountry] ?? s.issuerCountry,
+				sourceOnly: true,
+				sourceKind: "published-statements"
+			}];
+		});
+	}
+	function sourceUnavailableReason(id) {
+		id = canonicalReferenceId(id);
+		if (reviewedPublishedSource(id)) return null;
+		if (id === "mcdonalds-2025") return "Supplied pages 2132–2204 are McDonald’s FY2022 annual report with complete statements, not FY2025. No FY2025 model is verified.";
+		if (corpusCompany(id)) return null;
+		return NO_STATEMENTS[id] ?? (REPORTS.some((r) => r.id === id) ? "نموذج المصدر بانتظار المراجعة؛ لا يمكن فتحه أو استيراده كميزان تشغيلي أو تكليف تأكيد." : "نموذج المصدر غير متاح أو هويته غير معروفة؛ لا يمكن تحويله إلى ميزان تشغيلي.");
+	}
+	function auditModelCatalog() {
+		const order = {
+			"source-replayed": 0,
+			"partially-supported": 1,
+			"pending-review": 2,
+			"unavailable": 3
+		};
+		return REPORTS.map((r) => {
+			const m = reviewedPublishedSource(r.id)?.sourceModel, f = FIGURES[legacyReferenceId(r.id)];
+			const file = !!m || !!corpusCompany(r.id);
+			const modelStatus = m && "replay" in m ? "source-replayed" : m ? "partially-supported" : NO_STATEMENTS[r.id] ? "unavailable" : "pending-review";
+			const modelStatusAr = {
+				"source-replayed": "تمت مراجعة المصدر وعرض قوائمه",
+				"partially-supported": "مدعوم جزئياً",
+				"pending-review": "بانتظار مراجعة واعتماد نموذج التطبيق",
+				"unavailable": "غير متاح"
+			}[modelStatus];
+			const supportReason = modelStatus === "source-replayed" ? "القوائم الأساسية المنشورة مطابقة للمصدر ضمن النطاق المعلن؛ التفاصيل غير المدعومة مذكورة داخل النموذج. لا يمثل ذلك تأكيداً مهنياً." : modelStatus === "partially-supported" ? "نموذج Apple يدعم قائمة الدخل والمركز المالي؛ التدفقات النقدية والتغيرات في حقوق الملكية والإيضاحات الكاملة غير متاحة. لا يمثل ذلك تأكيداً مهنياً." : modelStatus === "unavailable" ? NO_STATEMENTS[r.id] : file ? "نموذج التطبيق بانتظار مراجعة واعتماد مستقلة؛ يُفتح كملف مراجعة على أرقام القوائم المنشورة في الحزمة ويعيد نتائج المراجع للمقارنة — محاكاة على أرقام منشورة، لا تأكيد مهني." : "نموذج التطبيق بانتظار مراجعة واعتماد مستقلة؛ لا تحمل الحزمة أرقام قوائم لهذه الشركة بعد، فلا يُفتح كملف مراجعة.";
+			return {
+				...r,
+				standard: m && "sourceAuditLabel" in m ? m.sourceAuditLabel : r.standard,
+				company: m?.issuer ?? r.company,
+				fy: r.fy,
+				modelStatus,
+				modelStatusAr,
+				supportReason,
+				openable: !!m,
+				auditFile: file,
+				sourceOnly: !!m,
+				countryAr: COUNTRY_AR[r.country] ?? r.country,
+				frameworkAr: m?.accountingBasis ?? r.framework,
+				sectorAr: SECTOR_AR[r.sector],
+				unitAr: m ? m.currency + " " + m.unit : f ? unitAr(f) : "",
+				auditor: m ? m.auditorReference.name + " (original source reference only)" : r.auditor
+			};
+		}).sort((a, b) => order[a.modelStatus] - order[b.modelStatus]);
+	}
 	var pick = (p, i) => p ? p[i] : 0;
 	function accounts(c) {
 		const f = c.figures, bank = f.kind === "bank", ins = f.kind === "insurer";
@@ -10078,9 +16347,56 @@ window.SKEngines = (function() {
 	}
 	/** The trial balance as the engagement file imports it (CSV with the prior year), the line of each account, and the engagement context. */
 	function companyTrialBalance(id) {
+		id = canonicalReferenceId(id);
+		const source = reviewedPublishedSource(id);
+		if (source && "replay" in source.sourceModel) {
+			const m = source.sourceModel, c = publishedSourceCompanies().find((c) => c.id === id);
+			if (!c) return null;
+			return {
+				company: c,
+				csv: source.csv,
+				overrides: source.overrides,
+				ctx: {
+					company: m.issuer,
+					activity: SECTOR_AR[c.sector],
+					sector: c.sector,
+					period: c.fy + " — " + m.periodEnd,
+					periodStart: m.periodStart,
+					periodEnd: m.periodEnd,
+					priorPeriodEnd: m.priorPeriodEnd,
+					legalForm: "Listed company",
+					registeredOffice: COUNTRY_AR[m.issuerCountry] ?? m.issuerCountry,
+					principalPlace: COUNTRY_AR[m.issuerCountry] ?? m.issuerCountry,
+					country: "INTL",
+					issuerCountry: m.issuerCountry,
+					framework: "IFRS",
+					unclassified: false,
+					currency: m.currency,
+					curSym: m.currency + " " + m.unit,
+					taxKind: "income",
+					auditFirm: "",
+					auditCity: "",
+					corpusId: id,
+					reportingFramework: m.accountingBasis,
+					auditStandard: c.standard,
+					consolidated: true,
+					sourceKind: "published-statements",
+					sourceModel: m
+				},
+				year: c.fy.replace(/^FY/, ""),
+				balanced: null,
+				source: "Published source statement replay: pp. " + m.sourcePages.join(", ") + "; not ledger or audit evidence"
+			};
+		}
+		return corpusModelTrialBalance(id);
+	}
+	/** The bundle company's corpus model (FIGURES), or Apple's reviewed statement bridge. A reviewed source that is a
+	*  published-statement replay (#143) is not used here: the replay is read in the audit file (companyTrialBalance) and
+	*  cannot run an operational review, while the corpus replay (lab, scorecard, P5) needs one for all 47 companies. */
+	function corpusModelTrialBalance(id) {
 		const c = corpusCompany(id);
 		if (!c) return null;
-		const reviewed = reviewedPublishedSource(id);
+		const src = reviewedPublishedSource(canonicalReferenceId(id)), reviewed = src && !("replay" in src.sourceModel) ? src : null;
 		const accs = accounts(c), f = c.figures;
 		const signed = (a, v) => a.side === "dr" ? v : -v;
 		const csv = ["رقم الحساب,اسم الحساب,مدين,دائن,السنة السابقة", ...accs.map((a) => {
@@ -10128,11 +16444,12 @@ window.SKEngines = (function() {
 					...ctx,
 					company: sourceModel.issuer,
 					issuerCountry: sourceModel.issuerCountry,
+					..."periodStart" in sourceModel ? { periodStart: sourceModel.periodStart } : {},
 					periodEnd: sourceModel.periodEnd,
 					priorPeriodEnd: sourceModel.priorPeriodEnd,
 					reportingFramework: sourceModel.accountingBasis,
-					currency: "USD",
-					curSym: "USD million",
+					currency: sourceModel.currency,
+					curSym: sourceModel.currency + " " + sourceModel.unit,
 					taxKind: "income",
 					consolidated: true,
 					auditFirm: "",
@@ -10141,8 +16458,8 @@ window.SKEngines = (function() {
 					sourceModel
 				},
 				year,
-				balanced: true,
-				source: "Published statement source: pp. 125, 127; not ledger or audit evidence"
+				balanced: "replay" in sourceModel ? null : true,
+				source: "Published statement source: pp. " + sourceModel.sourcePages.join(", ") + "; not ledger or audit evidence"
 			};
 		}
 		return {
@@ -10169,6 +16486,7 @@ window.SKEngines = (function() {
 		blueprint: () => blueprint,
 		committeeTopics: () => committeeTopics,
 		compatibilitySummary: () => compatibilitySummary,
+		excludedLegacySections: () => excludedLegacySections,
 		kamProcedures: () => kamProcedures,
 		letterTopics: () => letterTopics,
 		reportCompatibility: () => reportCompatibility,
@@ -10179,11 +16497,19 @@ window.SKEngines = (function() {
 		summary: () => summary$1
 	});
 	var CORPUS = {
-		file: "global_financial_and_audit_research_bundle_extended_verified.pdf",
-		pages: 12506,
-		reports: 49,
+		file: REFERENCE_METADATA.source_file,
+		pages: REFERENCE_METADATA.total_physical_pages,
+		reports: REFERENCE_METADATA.report_blocks,
+		distinctCompanies: REFERENCE_METADATA.distinct_companies,
+		pagesAttributed: REFERENCE_METADATA.total_physical_pages,
 		pagesClassified: 12505,
-		sectionTypes: 54
+		sectionTypes: 54,
+		sectionStatisticsReports: 49,
+		sectionStatisticsStatus: "legacy-classification-not-revalidated",
+		completeSourceReviewReports: REFERENCE_METADATA.complete_source_review_reports,
+		completeSourceReviewPages: REFERENCE_METADATA.complete_source_review_pages,
+		scope: REFERENCE_METADATA.scope_en,
+		scopeAr: REFERENCE_METADATA.scope_ar
 	};
 	/** Every section type, in the median order it appears (pos = position through the report, 0 = first page, 1 = last). */
 	var SECTIONS = [
@@ -10886,7 +17212,7 @@ window.SKEngines = (function() {
 		}
 	];
 	/** Each report's own structure: section → first page (contents pages excluded). */
-	var REPORT_MAP = [
+	var LEGACY_REPORT_MAP = [
 		{
 			id: "amazon-2023",
 			c: "Amazon.com, Inc.",
@@ -11023,13 +17349,13 @@ window.SKEngines = (function() {
 			s: "mdna:2045 principal_risks:2045 provisions_note:2045 people:2054 capital_mgmt:2054 income_statement:2076 non_gaap:2078 strategy:2079 leases_note:2080 dividends:2081 governance:2084 auditor_report:2084 balance_sheet:2084 kam:2085 intangibles_note:2086 equity_statement:2089 cash_flow:2090 notes:2091 accounting_policies:2091 tax_note:2097 segment_note:2098 icfr:2120 remuneration:2127 exhibits:2128 eps:2129"
 		},
 		{
-			id: "mcdonalds-2025",
-			c: "McDonald's Corporation",
-			fy: "FY2025",
+			id: "mcdonalds-2022",
+			c: "McDonald’s Corporation",
+			fy: "FY2022",
 			fw: "US GAAP",
 			from: 2132,
 			to: 2204,
-			s: ""
+			s: "income_statement:2172 balance_sheet:2174 cash_flow:2175 equity_statement:2176 notes:2177 auditor_report:2195 icfr:2197"
 		},
 		{
 			id: "nestle-2025",
@@ -11329,8 +17655,31 @@ window.SKEngines = (function() {
 			s: "strategy:12302 people:12302 balance_sheet:12302 segment_review:12307 governance:12307 liquidity:12312 risk_management:12328 capital_mgmt:12328 remuneration:12329 principal_risks:12338 chair_letter:12346 sustainability:12346 outlook:12352 market:12360 business_model:12364 credit_risk:12370 dividends:12377 provisions_note:12388 income_statement:12394 equity_statement:12396 tax_note:12396 cash_flow:12397 notes:12398 fin_instruments:12398 ppe_note:12400 employee_benefits:12404 eps:12406 liquidity_risk:12410 intangibles_note:12425 market_risk:12437 subsequent_events:12465 kam:12469 leases_note:12489 estimates:12491"
 		}
 	];
+	var REPORT_MAP = REPORTS.map((report) => ({
+		id: report.id,
+		c: report.company,
+		fy: report.fy,
+		fw: report.framework,
+		from: report.pages[0],
+		to: report.pages[1],
+		reference: report.reference,
+		s: LEGACY_REPORT_MAP.find((r) => r.id === legacyReferenceId(report.id))?.s ?? ""
+	}));
+	/** Preserve raw observations, but do not navigate into a different report after
+	* a verified boundary correction. Their semantics still require source review. */
+	function excludedLegacySections(id) {
+		const r = REPORT_MAP.find((x) => x.id === canonicalReferenceId(id));
+		if (!r?.s) return [];
+		return r.s.split(" ").map((kv) => {
+			const [key, p] = kv.split(":");
+			return {
+				key,
+				page: Number(p)
+			};
+		}).filter((s) => s.page < r.from || s.page > r.to);
+	}
 	function reportStructure(id) {
-		const r = REPORT_MAP.find((x) => x.id === id);
+		const r = REPORT_MAP.find((x) => x.id === canonicalReferenceId(id));
 		if (!r || !r.s) return [];
 		return r.s.split(" ").map((kv) => {
 			const [key, p] = kv.split(":");
@@ -11339,18 +17688,20 @@ window.SKEngines = (function() {
 				ar: SECTIONS.find((s) => s.key === key)?.ar ?? key,
 				page: Number(p)
 			};
-		});
+		}).filter((s) => s.page >= r.from && s.page <= r.to);
 	}
 	var reportIds = () => REPORT_MAP.map((r) => r.id);
-	/** The 49 reports read: company, year, framework and page range in the bundle. */
+	/** All verified report identities, plus explicitly legacy section observations. */
 	var reportList = () => REPORT_MAP.map(({ s: _s, ...r }) => ({
 		...r,
 		company: r.c,
-		sections: _s ? _s.split(" ").length : 0
+		sections: reportStructure(r.id).length,
+		excludedLegacySections: excludedLegacySections(r.id),
+		structureStatus: _s ? "legacy-classification-unverified" : "not-classified"
 	}));
 	/**
-	* Compare a generated SQC report pack with every one of the 49 report structures
-	* read from the global bundle. This is structural coverage only — it never claims
+	* Compare a generated SQC report pack with historical section observations.
+	* A newly indexed report without section classification is explicitly unclassified. This is structural coverage only — it never claims
 	* that a company-specific disclosure is applicable merely because a peer has it.
 	*/
 	function reportCompatibility(generatedKeys) {
@@ -11367,23 +17718,27 @@ window.SKEngines = (function() {
 				framework: r.fw,
 				matched,
 				total,
+				structureStatus: r.s ? "legacy-classification-unverified" : "not-classified",
 				coveragePct: total ? Math.round(matched / total * 100) : 0,
 				matchedSections,
 				missingSections
 			};
 		}).sort((a, b) => b.coveragePct - a.coveragePct || b.total - a.total || a.company.localeCompare(b.company));
 	}
-	/** Aggregate the 49-company compatibility matrix for a generated pack. */
+	/** Aggregate available section observations; unclassified reports are not scored. */
 	function compatibilitySummary(generatedKeys) {
 		const rows = reportCompatibility(generatedKeys);
-		const avg = rows.length ? Math.round(rows.reduce((t, r) => t + r.coveragePct, 0) / rows.length) : 0;
+		const classified = rows.filter((r) => r.structureStatus !== "not-classified");
+		const avg = classified.length ? Math.round(classified.reduce((t, r) => t + r.coveragePct, 0) / classified.length) : 0;
 		return {
 			reports: rows.length,
+			classifiedReports: classified.length,
+			unclassifiedReports: rows.length - classified.length,
 			averageCoveragePct: avg,
 			atLeast80: rows.filter((r) => r.coveragePct >= 80).length,
 			atLeast60: rows.filter((r) => r.coveragePct >= 60).length,
-			best: rows.slice(0, 5),
-			weakest: [...rows].sort((a, b) => a.coveragePct - b.coveragePct || b.total - a.total).slice(0, 5)
+			best: classified.slice(0, 5),
+			weakest: [...classified].sort((a, b) => a.coveragePct - b.coveragePct || b.total - a.total).slice(0, 5)
 		};
 	}
 	var PROC_AR = {
@@ -11776,7 +18131,7 @@ window.SKEngines = (function() {
 			["berkshire-2025", 1190],
 			["jpmorgan-2025", 1345],
 			["pg-2026", 2041],
-			["mcdonalds-2025", 2133],
+			["mcdonalds-2022", 2133],
 			["novartis-2025", 2543],
 			["ubs-2025", 2998],
 			["mercedes-2025", 3246],
@@ -12195,7 +18550,7 @@ window.SKEngines = (function() {
 	/** How often the auditors of a sector reported each theme (share of that sector's reports with KAMs), leaving one report out. */
 	function sectorPrior(sector, exclude) {
 		if (!sector) return {};
-		const reports = [...new Set(KAMS.map((k) => k.report))].filter((id) => id !== exclude && corpusSector(id) === sector);
+		const reports = [...new Set(KAMS.map((k) => k.report))].filter((id) => id !== (exclude ? canonicalReferenceId(exclude) : void 0) && corpusSector(id) === sector);
 		if (!reports.length) return {};
 		const out = {};
 		for (const t of Object.keys(THEMES)) {
@@ -12206,12 +18561,16 @@ window.SKEngines = (function() {
 	}
 	/** How many matters (distinct themes) auditors under a standard report — the mean over the bundle's reports, leaving one out. */
 	function typicalKamCount(standard, exclude) {
-		const ids = [...new Set(KAMS.map((k) => k.report))].filter((id) => id !== exclude && REPORT_STD.get(id) === standard);
+		const ids = [...new Set(KAMS.map((k) => k.report))].filter((id) => id !== (exclude ? canonicalReferenceId(exclude) : void 0) && REPORT_STD.get(id) === standard);
 		if (!ids.length) return 3;
 		const mean = ids.reduce((s, id) => s + new Set(KAMS.filter((k) => k.report === id).map((k) => k.theme)).size, 0) / ids.length;
 		return Math.max(1, Math.round(mean));
 	}
 	var REPORT_STD = new Map(REPORTS.map((r) => [r.id, r.standard]));
+	var knownStandard = (id) => {
+		const s = REPORT_STD.get(id);
+		return s === "unknown" ? void 0 : s;
+	};
 	var SECTOR_OF = /* @__PURE__ */ new Map();
 	function corpusSector(id) {
 		if (!SECTOR_OF.size) for (const c of corpusCompanies()) SECTOR_OF.set(c.id, c.sector);
@@ -12219,7 +18578,7 @@ window.SKEngines = (function() {
 	}
 	/** Replay the audit of one company of the bundle. */
 	function replayCompany(id, opts = {}) {
-		const t = companyTrialBalance(id);
+		const t = corpusModelTrialBalance(id);
 		if (!t) return null;
 		const c = t.company;
 		const review = reviewTrialBalance(parseTrialBalance(t.csv), {
@@ -12240,7 +18599,7 @@ window.SKEngines = (function() {
 			max: opts.max ?? 3,
 			sectorPrior: prior,
 			exclude: c.id,
-			standard: REPORT_STD.get(c.id)
+			standard: knownStandard(c.id)
 		});
 		const rows = KAMS.filter((k) => k.report === id);
 		const themes = [...new Set(rows.map((k) => k.theme))];
@@ -12284,7 +18643,7 @@ window.SKEngines = (function() {
 			},
 			requests: review.requests.length,
 			findings: review.findings.length,
-			balanced: t.balanced,
+			balanced: t.balanced === true,
 			structure: structureOf(id)
 		};
 	}
@@ -12312,6 +18671,8 @@ window.SKEngines = (function() {
 		const mat = list.filter((r) => r.materiality.ratio !== null);
 		const st = list.filter((r) => r.structure.theirs), stTheirs = st.reduce((a, r) => a + r.structure.theirs, 0), stCov = st.reduce((a, r) => a + r.structure.covered, 0);
 		return {
+			status: list.length ? "simulation-only" : "unavailable",
+			reason: "Published statement models do not establish an audit engagement or earned assurance.",
 			companies: list.length,
 			withKams: withKams.length,
 			kamThemes: actualN,
@@ -21599,6 +27960,7 @@ window.SKEngines = (function() {
 		};
 	}
 	function performanceMeasures(fs) {
+		if (fs.reconstructionStatus) return [];
 		const out = [], cf = fs.cf, k = fs.keys;
 		const cfRow = (key) => cf?.find((r) => r.key === key)?.current ?? 0;
 		if (cf) {
@@ -23203,6 +29565,7 @@ window.SKEngines = (function() {
 		].join(" "))) add(n);
 		for (const x of i.opinion.basis) for (const n of numbersIn(x)) add(n);
 		add(CORPUS.reports);
+		add(CORPUS.sectionStatisticsReports);
 		add(CORPUS.pages);
 		for (const c of riskCatalogue()) add(c.reports);
 		for (const t of letterTopics()) {
@@ -23433,7 +29796,7 @@ window.SKEngines = (function() {
 		const ac = committeeTopics().slice(0, 8).map((x) => x.ar).join("، ");
 		return [
 			`أنت كاتب تقارير سنوية ومراجع قانوني أول في شركة SQC — Smart Quality Control. تكتب بالعربية الفصحى الرصينة سرد تقرير سنوي متكامل وأقسام تقرير المراجع بمستوى التقارير المنشورة عالمياً.`,
-			`قرأنا حزمة البحث كاملة (${CORPUS.pages} صفحة، ${CORPUS.reports} تقريراً سنوياً من أكثر من 30 دولة) وصنّفنا كل صفحة. اتبع البنية والأسلوب المستخلصين منها:`,
+			`فهرس الحزمة يسند ${CORPUS.pages} صفحة إلى ${CORPUS.reports} تقريراً لـ${CORPUS.distinctCompanies} شركة. اكتملت مراجعة المصدر لـ${CORPUS.completeSourceReviewReports} تقارير (${CORPUS.completeSourceReviewPages} صفحة)، وليست تأكيداً مهنياً أو قبولاً للتطبيق. إحصاءات البنية والأسلوب التالية تاريخية من ${CORPUS.sectionStatisticsReports} تقريراً؛ لم تُعد مراجعتها دلالياً في فحص الحدود الحالي. استخدمها استرشادياً ولا تدّع قراءة أو مراجعة شاملة:`,
 			ex,
 			`تغطي رسائل رؤساء المجالس والرؤساء التنفيذيين في الحزمة: ${lt}.`,
 			`إجراءات المراجعة التي يكتبها المراجعون تحت الأمور الرئيسية مرتبة بعدد التقارير: ${kp}.`,
@@ -24499,152 +30862,6 @@ window.SKEngines = (function() {
 			deltaProfit: money$11(scenarioProfit - baselineProfit),
 			contributionMarginPercent: pct(contribution * 100),
 			breakEvenRevenue: breakEven
-		};
-	}
-	//#endregion
-	//#region app/src/engine/fusion/reports/source-replay-engine.ts
-	var source_replay_engine_exports = /* @__PURE__ */ __exportAll({
-		buildReplayStatements: () => buildReplayStatements,
-		reviewedTransportMatches: () => reviewedTransportMatches,
-		sourceModelsEqual: () => sourceModelsEqual,
-		validatePublishedReplay: () => validatePublishedReplay
-	});
-	/** Exact plain-JSON equality. JSON.stringify alone collapses NaN to null and
-	* hides unsupported objects, sparse arrays, undefined values and custom getters. */
-	function sourceModelsEqual(actual, expected) {
-		const active = /* @__PURE__ */ new WeakSet();
-		const plain = (v) => {
-			const p = Object.getPrototypeOf(v);
-			return p === null || Object.getPrototypeOf(p) === null && Object.prototype.hasOwnProperty.call(p, "constructor") && p.constructor?.name === "Object";
-		};
-		const same = (a, b, depth) => {
-			if (depth > 100 || typeof a !== typeof b) return false;
-			if (a === null || b === null) return a === b;
-			if (typeof a === "number") return Number.isFinite(a) && Number.isFinite(b) && Object.is(a, b);
-			if (typeof a === "string" || typeof a === "boolean") return a === b;
-			if (typeof a !== "object" || typeof b !== "object" || active.has(a)) return false;
-			if (Array.isArray(a) !== Array.isArray(b)) return false;
-			if (!Array.isArray(a) && (!plain(a) || !plain(b))) return false;
-			const ak = Reflect.ownKeys(a), bk = Reflect.ownKeys(b);
-			if (ak.some((k) => typeof k !== "string") || bk.some((k) => typeof k !== "string") || ak.length !== bk.length) return false;
-			if (Array.isArray(a) && (ak.length !== a.length + 1 || a.length !== b.length)) return false;
-			active.add(a);
-			for (const key of ak) {
-				const x = Object.getOwnPropertyDescriptor(a, key), y = Object.getOwnPropertyDescriptor(b, key);
-				if (!x || !y || !("value" in x) || !("value" in y) || !same(x.value, y.value, depth + 1)) {
-					active.delete(a);
-					return false;
-				}
-			}
-			active.delete(a);
-			return true;
-		};
-		try {
-			return same(actual, expected, 0);
-		} catch {
-			return false;
-		}
-	}
-	var periodValid = (p) => p && ["duration", "instant"].includes(p.kind) && /^\d{4}-\d{2}-\d{2}$/.test(p.end) && (p.kind === "instant" || !!p.start && /^\d{4}-\d{2}-\d{2}$/.test(p.start) && p.start <= p.end);
-	function contractValid(r) {
-		if (r.schemaVersion !== "1.0" || r.mode !== "published-statement-replay" || !Array.isArray(r.tables) || !Array.isArray(r.checks) || !Array.isArray(r.unavailable) || !Array.isArray(r.limitations)) return false;
-		const tableIds = /* @__PURE__ */ new Set();
-		for (const t of r.tables) {
-			if (!t.id || tableIds.has(t.id) || !t.title || !Array.isArray(t.sourcePages) || !t.sourcePages.length || !t.columns.length || !Array.isArray(t.rows)) return false;
-			tableIds.add(t.id);
-			const cols = new Set(t.columns.map((c) => c.id));
-			if (cols.size !== t.columns.length || t.columns.some((c) => !c.id || !c.label || !periodValid(c.period))) return false;
-			const rows = /* @__PURE__ */ new Set();
-			for (const row of t.rows) {
-				if (!row.id || rows.has(row.id) || !row.label || !row.unit || row.status !== "reported" || !t.sourcePages.includes(row.sourcePage) || Object.keys(row.cells).length !== cols.size) return false;
-				rows.add(row.id);
-				for (const id of cols) {
-					const cell = row.cells[id];
-					if (!cell || ![
-						"reported",
-						"blank",
-						"unavailable"
-					].includes(cell.status) || cell.status === "reported" && (typeof cell.value !== "number" || !Number.isFinite(cell.value)) || cell.status !== "reported" && cell.value !== null || cell.period && !periodValid(cell.period)) return false;
-				}
-			}
-		}
-		return r.checks.every((c) => c.assurance === "none" && [
-			c.reported,
-			c.computed,
-			c.residual
-		].every((v) => v === null || Number.isFinite(v)));
-	}
-	function matchingTransport(tb, overrides, source) {
-		if (tb.sourceKind !== "published-statements" || tb.sourceId !== source.sourceModel.id || tb.sourceTransport !== source.csv) return false;
-		const expected = parseTrialBalance(source.csv);
-		return tb.ok && !tb.errors.length && sourceModelsEqual(tb.rows, expected.rows) && tb.hasPrior === expected.hasPrior && sourceModelsEqual(overrides, source.overrides);
-	}
-	function reviewedTransportMatches(tb, overrides) {
-		const source = reviewedPublishedSource(tb.sourceId ?? "");
-		return !!source && matchingTransport(tb, overrides, source);
-	}
-	function validatePublishedReplay(tb, overrides) {
-		const source = reviewedPublishedSource(tb.sourceId ?? "");
-		const unavailable = (reason) => ({
-			schemaVersion: "1.0",
-			mode: "published-statement-replay",
-			status: "unavailable",
-			reason,
-			tables: [],
-			checks: [],
-			unavailable: [{
-				id: "source-fidelity",
-				reason
-			}],
-			limitations: ["No canonical figures are replayed for an unverified source transport."]
-		});
-		if (!source?.sourceModel.replay) return unavailable("Reviewed source replay is unavailable.");
-		if (tb.sourceKind !== "published-statements" || tb.sourceId !== source.sourceModel.id) return unavailable("Published source identity does not match.");
-		if (tb.sourceTransport !== source.csv) return unavailable("Original source transport is missing or changed; numeric normalization cannot establish source fidelity.");
-		if (!matchingTransport(tb, overrides, source)) return unavailable("Imported observations or classifications do not match the reviewed source transport.");
-		if (!contractValid(source.sourceModel.replay)) return unavailable("Published source replay contract is invalid.");
-		return {
-			...structuredClone(source.sourceModel.replay),
-			status: "available"
-		};
-	}
-	function buildReplayStatements(tb, overrides) {
-		return {
-			sourceKind: "published-statements",
-			reconstructionStatus: {
-				status: "unavailable",
-				reason: "Published statements are source observations, not a transaction ledger; operational reconstruction and inferred analytics are unavailable."
-			},
-			replay: validatePublishedReplay(tb, overrides),
-			hasPrior: false,
-			lines: [],
-			unmapped: [],
-			pl: [],
-			sfp: [],
-			soce: {
-				columns: [],
-				rows: []
-			},
-			cf: null,
-			keys: {},
-			checks: {
-				balanced: null,
-				difference: null,
-				priorBalanced: null,
-				cashTies: null,
-				cfDifference: null,
-				mappedPct: 0
-			},
-			notes: [],
-			cashFlowStatus: {
-				status: "unavailable",
-				check: "not-tested",
-				reason: "Generated cash flow is unavailable; exact published cash-flow rows may be available separately in replay."
-			},
-			soceStatus: {
-				status: "unavailable",
-				reason: "Generated changes in equity are unavailable; exact source movements may be available separately in replay."
-			}
 		};
 	}
 	//#endregion

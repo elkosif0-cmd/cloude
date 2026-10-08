@@ -222,7 +222,7 @@
    "company": "Apple Inc.",
    "sector": "tech",
    "auditor": "Ernst & Young LLP",
-   "fy": "FY2024",
+   "fy": "FY2024 (ended 2024-09-28)",
    "unit": "مليون $",
    "balanced": true,
    "found": {
@@ -283,7 +283,7 @@
    "company": "Walmart Inc.",
    "sector": "retail",
    "auditor": "Ernst & Young LLP",
-   "fy": "FY2023",
+   "fy": "FY2023 (ended 2023-01-31)",
    "unit": "مليون $",
    "balanced": true,
    "found": {
@@ -374,7 +374,7 @@
    "company": "Apple Inc.",
    "sector": "tech",
    "auditor": "Ernst & Young LLP",
-   "fy": "FY2020",
+   "fy": "FY2020 (ended 2020-09-26)",
    "unit": "مليون $",
    "balanced": true,
    "found": {
@@ -434,7 +434,7 @@
    "company": "Apple Inc.",
    "sector": "tech",
    "auditor": "Ernst & Young LLP",
-   "fy": "FY2023",
+   "fy": "FY2023 (ended 2023-09-30)",
    "unit": "مليون $",
    "balanced": true,
    "found": {
@@ -585,7 +585,7 @@
    "company": "The Procter & Gamble Company",
    "sector": "fmcg",
    "auditor": "Deloitte & Touche LLP",
-   "fy": "FY2026",
+   "fy": "FY2026 (ended 2026-06-30)",
    "unit": "مليون $",
    "balanced": true,
    "found": {
@@ -615,7 +615,7 @@
    "company": "The Home Depot, Inc.",
    "sector": "retail",
    "auditor": "KPMG LLP",
-   "fy": "FY2025",
+   "fy": "FY2025 (ended 2026-02-01)",
    "unit": "مليون $",
    "balanced": true,
    "found": {
@@ -978,7 +978,7 @@
     "ratio": 1,
     "page": 5503
    },
-   "structure": 0.95,
+   "structure": 0.94,
    "requests": 64,
    "findings": 6,
    "recallNoPrior": 0.2
@@ -1146,7 +1146,7 @@
    "company": "Toyota Motor Corporation",
    "sector": "auto",
    "auditor": "PricewaterhouseCoopers Japan LLC",
-   "fy": "FY2026 (Mar)",
+   "fy": "FY2026 (ended 2026-03-31)",
    "unit": "مليون ¥",
    "balanced": true,
    "found": {
@@ -1177,7 +1177,7 @@
    "company": "Honda Motor Co., Ltd.",
    "sector": "auto",
    "auditor": "KPMG AZSA LLC",
-   "fy": "FY2023 (Mar)",
+   "fy": "FY2023 (ended 2023-03-31)",
    "unit": "مليون ¥",
    "balanced": true,
    "found": {
@@ -1209,7 +1209,7 @@
    "company": "SoftBank Group Corp.",
    "sector": "tech",
    "auditor": "",
-   "fy": "FY2026 (Mar)",
+   "fy": "FY2025 (ended 2026-03-31); report 2026",
    "unit": "مليون ¥",
    "balanced": true,
    "found": {},
@@ -1237,7 +1237,7 @@
    "company": "Mitsubishi UFJ Financial Group",
    "sector": "banking",
    "auditor": "Deloitte Touche Tohmatsu LLC",
-   "fy": "FY2026 (Mar)",
+   "fy": "Year ended 2026-03-31",
    "unit": "مليون ¥",
    "balanced": true,
    "found": {
@@ -1267,7 +1267,7 @@
    "company": "Sumitomo Mitsui Financial Group",
    "sector": "banking",
    "auditor": "KPMG AZSA LLC",
-   "fy": "FY2026 (Mar)",
+   "fy": "Year ended 2026-03-31",
    "unit": "مليون ¥",
    "balanced": true,
    "found": {
@@ -1388,7 +1388,7 @@
    "company": "Reliance Industries",
    "sector": "energy",
    "auditor": "Deloitte Haskins & Sells LLP · Chaturvedi & Shah LLP",
-   "fy": "FY2025-26",
+   "fy": "FY2025–26",
    "unit": "كرور روبية",
    "balanced": true,
    "found": {
@@ -1421,7 +1421,7 @@
    "company": "Infosys Limited",
    "sector": "tech",
    "auditor": "Deloitte Haskins & Sells LLP",
-   "fy": "FY2025-26",
+   "fy": "FY2025–26",
    "unit": "كرور روبية",
    "balanced": true,
    "found": {
@@ -1545,7 +1545,7 @@
    "company": "Royal Bank of Canada",
    "sector": "banking",
    "auditor": "PricewaterhouseCoopers LLP",
-   "fy": "FY2025",
+   "fy": "FY2025 (ended 2025-10-31)",
    "unit": "مليون C$",
    "balanced": true,
    "found": {
@@ -1576,7 +1576,7 @@
    "company": "BHP Group Limited",
    "sector": "mining",
    "auditor": "Ernst & Young",
-   "fy": "FY2025",
+   "fy": "FY2025 (ended 2025-06-30)",
    "unit": "مليون $",
    "balanced": true,
    "found": {
@@ -1603,11 +1603,11 @@
    "recallNoPrior": 0.5
   },
   {
-   "id": "cba-2025",
+   "id": "cba-2026",
    "company": "Commonwealth Bank of Australia",
    "sector": "banking",
    "auditor": "PricewaterhouseCoopers",
-   "fy": "FY2025",
+   "fy": "FY2026 (ended 2026-06-30)",
    "unit": "مليون A$",
    "balanced": true,
    "found": {

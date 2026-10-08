@@ -55,6 +55,16 @@ def build(tmp, env_extra):
 def dist_files(tmp):
     return [f for f in (tmp / "dist").rglob("*") if f.is_file()]
 
+def public_phone_numbers(text):
+    """Keep phone detection, excluding only complete 64-hex source-line digest fields.
+
+    Source provenance hashes can contain ten decimal digits by chance; they are
+    not contact numbers. Other fields, malformed digests and actual phones still
+    pass through the original detector and its existing synthetic-number list.
+    """
+    scanned = re.sub(r'("sourceLineSha256"\s*:\s*")[0-9a-fA-F]{64}(")', r'\1[source digest]\2', text)
+    return set(private_blocks.PHONE_RE.findall(scanned)) - {f"05000000{i:02d}" for i in range(100)}
+
 def check_preview(tmp, label, samples, placeholders):
     files = dist_files(tmp)
     names = [str(f.relative_to(tmp / "dist")) for f in files]
@@ -71,7 +81,7 @@ def check_preview(tmp, label, samples, placeholders):
     ok(f"{label}: SQC theme color is canonical", 'name="theme-color" content="#0c2340"' in head)
     ok(f"{label}: SQC favicon replaces legacy cloud mark", 'href="./art/sqc-icon.svg"' in head and "kosif-cloud.svg" not in head)
     ok(f"{label}: app shell advertises the PWA manifest", 'rel="manifest" href="./manifest.webmanifest"' in head)
-    phones = set(private_blocks.PHONE_RE.findall(blob)) - {f"05000000{i:02d}" for i in range(100)}
+    phones = public_phone_numbers(blob)
     ok(f"{label}: no real mobile numbers", not phones, f"{len(phones)} found")
     index = (tmp / "dist" / "index.html").read_text(encoding="utf-8")
     ok(f"{label}: index is the preview page, not the unlock page", "noindex" in index and "crypto.json" not in index and "app-safe.html" in index)

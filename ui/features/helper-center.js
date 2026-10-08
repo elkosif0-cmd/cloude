@@ -4,6 +4,9 @@
 "use strict";
 const {esc}=SK;
 const core=()=>window.SKosifCore,CP=()=>window.SKosifCompanyPlatform;
+let decisionVersion=0;
+SK.bus?.on?.("company",()=>{decisionVersion++});
+SK.bus?.on?.("nav",()=>{decisionVersion++});
 const isInstalled=id=>!!(CP()&&CP().installed(id));
 /* R13 (docs/rebuild/HARSH_REVIEW_20261008_ar.md #23): the map already opens each task's tools; the full list below it repeated
    the map tool by tool (1,300 px of «اربط بالشركة»). Linking tools to the company is configuration, so the list is folded. */
@@ -64,8 +67,10 @@ function render(root){
     const ex=e.target.closest("[data-hd-exc]");
     if(ex&&CP()){
       const status=ex.dataset.hdStatus,id=ex.dataset.hdExc,row=CP().aiExceptions().find(x=>x.id===id);if(!row)return;
+      const version=++decisionVersion,companyId=SK.company?.current?.().id,original=JSON.stringify(row);
       let note="";if(status!=="dismissed"){const v=await SK.form(status==="accepted"?"قبول الاقتراح للمتابعة":"رفض الاقتراح",[{key:"note",label:"ملاحظة القرار",type:"textarea",placeholder:"اختياري — سبب القرار أو الإجراء التالي"}],{ok:status==="accepted"?"حفظ كمتابعة":"رفض",message:"هذا القرار لا ينفذ قيدًا أو تعديلًا تلقائيًا."});if(!v)return;note=v.note||""}
-      try{CP().resolveAIException(id,status,note);SK.toast(status==="accepted"?"حُفظ كمقبول للمتابعة فقط":status==="rejected"?"تم رفض الاقتراح":"تم إغلاق التنبيه","ok");render(root)}catch(err){SK.toast(err.message,"bad")}return
+      if(!companyId||version!==decisionVersion||companyId!==SK.company?.current?.().id||window.SKosifSpace?.busy?.()||original!==JSON.stringify(CP().aiExceptions().find(x=>x.id===id)))return;
+      try{if(!CP().resolveAIException(id,status,note))return;SK.toast(status==="accepted"?"حُفظ كمقبول للمتابعة فقط":status==="rejected"?"تم رفض الاقتراح":"تم إغلاق التنبيه","ok");render(root)}catch(err){SK.toast(err.message,"bad")}return
     }
     const toggle=e.target.closest("[data-hd-toggle]");
     if(toggle&&CP()){const id=toggle.dataset.hdToggle,on=!isInstalled(id);try{CP().setTool(id,on);SK.toast(on?"أضيفت الأداة إلى الشركة":"أزيلت الأداة من الشركة","ok");render(root)}catch(err){SK.toast(err.message,"bad")}return}
