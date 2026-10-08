@@ -49,7 +49,17 @@ const defaultPOs=[];
 /* ==========================================================================
    Tab 1: Catering & BBQ Party Engine
    ========================================================================== */
+/* R15 (docs/rebuild/CODE_REVIEW_20261008_ar.md H4): the reviewed engine prices the event (SKEngines.sales.catering, with its
+   tests); the copy below runs only if the engines did not load. The screen keeps its 5–90% margin bounds. */
 function bbqCalc(f){
+  const CE=window.SKEngines&&SKEngines.sales&&SKEngines.sales.catering;
+  if(CE){
+    const guests=Math.max(1,num(f.guests)),margin=Math.min(90,Math.max(5,num(f.marginPct)));
+    const c=CE.calculateCatering({id:"ops-event",title:"",guests,profile:["bbq","family","formal","keto"].includes(f.profile)?f.profile:"family",
+      meatCostPerKg:num(f.meatCostKg),marginPercent:margin,vatRate:SK.vatRate(),marinated:!!f.marinated,marinationCostPerKg:6,toolsPack:!!f.toolsPack,toolsCostPerGuest:4,createdAt:""});
+    return {guests,gPerPerson:c.gramsPerGuest,totalRawKg:c.totalRawKg,meatCost:c.meatCost,marinateCost:c.marinationCost,toolsCost:c.toolsCost,
+      totalCost:c.totalCostExVat,margin,targetPrice:c.targetPriceExVat,vat:c.vat,finalPrice:c.finalPriceIncVat,pricePerGuest:c.pricePerGuestIncVat};
+  }
   const guests=Math.max(1,num(f.guests));
   let gPerPerson=350;
   if(f.profile==="bbq")gPerPerson=450;
