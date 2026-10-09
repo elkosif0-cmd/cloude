@@ -303,3 +303,7 @@ bdi,[dir=ltr],a[href^="tel:"],a[href^="mailto:"],.sk-number{unicode-bidi:isolate
 :root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .skbrief-t.tone-ok{border-inline-start-color:var(--sk-ok)}
 :root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .skbrief-t.tone-warn{border-inline-start-color:var(--sk-warn)}
 :root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .skbrief-t.tone-bad{border-inline-start-color:var(--sk-bad)}
+/* R20 (FOUNDATION §3.11.2, one identity): the command centre's band — its banner and film are the navy-and-gold Higgsfield art;
+   in «دفتر KOSIF» they are toned to ink and saffron, as the door's film, and the crystals turn to amber glass (crystal-world.js) */
+:root[data-look="kosif"][data-brand="ledger"] .skc-world{background:linear-gradient(160deg,rgba(217,83,14,.55),rgba(29,24,20,.9)),url(./art/brand/banner.webp) center/cover no-repeat,#1d1814;background-blend-mode:color,normal,normal}
+:root[data-look="kosif"][data-brand="ledger"] .skc-world video{filter:grayscale(1) sepia(.5) saturate(1.35) hue-rotate(-8deg) contrast(1.05) brightness(.82)}

@@ -1,10 +1,10 @@
 {
- "avgContentTopDesktop": 321,
+ "avgContentTopDesktop": 317,
  "maxContentTopDesktop": 348,
- "avgContentTopPhone": 389,
- "avgChromeRowsDesktop": 2.73,
+ "avgContentTopPhone": 386,
+ "avgChromeRowsDesktop": 2.7,
  "avgChromeControlsDesktop": 13,
- "screensRepeatingSidebar": 3,
+ "screensRepeatingSidebar": 5,
  "recordedAt": "2026-10-09",
- "recordedOn": "GitHub Actions ubuntu-latest Chromium (SQC Browser Suites, run 37695075061): R10–R12 lowered the content top on desktop and phone and the screens repeating the sidebar 7 → 3; «ذكاء المبيعات» gained its tab strip (rows 2.72 → 2.73) in exchange for four short tabs. 2026-10-09 (R19, local Edge, identical on main daca398): chrome controls 12 → 13 is the save-state chip «تم الحفظ» (#228, FOUNDATION §3.0 rule 8 — a visible save state); the phone content top 410 → 389 is recorded as the new floor"
+ "recordedOn": "GitHub Actions ubuntu-latest Chromium (SQC Browser Suites, run 37695075061): R10–R12 lowered the content top on desktop and phone and the screens repeating the sidebar 7 → 3; «ذكاء المبيعات» gained its tab strip (rows 2.72 → 2.73) in exchange for four short tabs. 2026-10-09 (R19, local Edge, identical on main daca398): chrome controls 12 → 13 is the save-state chip «تم الحفظ» (#228, FOUNDATION §3.0 rule 8 — a visible save state); the phone content top 410 → 389 is recorded as the new floor · 2026-10-09 R20 (local Edge, owner: «إعادة تنظيم المنيو حسب الدستور»): the menus follow FOUNDATION §3.12, so the accounting sections «التسويات والإقفال» and the audit stages link straight to the ledger's and the audit file's own tabs by their names — the ledger (الإقفال الشهري · صحة الروابط) and the audit file (جولات المراجعة) now repeat a sidebar label (3 → 5); ZATCA invoicing and the audit analytics became their own entries so they no longer repeat; content top 321 → 317 (desktop), 389 → 386 (phone), chrome rows 2.73 → 2.69 · R20 later: the audit analytics went back inside the audit file («المنظومة الواحدة», feature_audit), so its screen carries the file's tab strip again — chrome rows 2.69 → 2.70 (still under the 2.73 before R20)"
 }

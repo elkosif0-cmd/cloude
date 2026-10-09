@@ -165,7 +165,7 @@
 .skhm-grid{display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr));gap:4px}
 .skhm-grid .lab{font-size:var(--sk-fs-xs);color:var(--sk-ink-3);text-align:center;padding:2px 4px;white-space:nowrap}
 .skhm-grid .lab.row{text-align:end}
-.skhm-cell{display:grid;place-items:center;min-height:52px;border:0;border-radius:8px;font:700 16px var(--sk-font-latin);color:#0b1030;cursor:pointer;transition:transform var(--sk-t),box-shadow var(--sk-t)}
+.skhm-cell{display:grid;place-items:center;min-height:52px;border:0;border-radius:8px;font:700 16px var(--sk-font-latin);color:var(--sk-navy,#0b1030);cursor:pointer;transition:transform var(--sk-t),box-shadow var(--sk-t)}
 .skhm-cell:hover{transform:scale(1.04);box-shadow:var(--sk-shadow-2)}
 .skhm-cell[aria-pressed="true"]{box-shadow:0 0 0 3px var(--sk-surface),0 0 0 5px var(--sk-brand)}
 .skhm-cell.h1{background:var(--sk-heat-1)}.skhm-cell.h2{background:var(--sk-heat-2)}.skhm-cell.h3{background:var(--sk-heat-3)}.skhm-cell.h4{background:var(--sk-heat-4)}

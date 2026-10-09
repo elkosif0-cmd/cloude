@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 64" role="img" aria-label="KOSIF">
   <defs>
     <linearGradient id="kc" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#3fd3e6"/>
-      <stop offset="1" stop-color="#2340c4"/>
+      <stop offset="0" stop-color="#f2a36b"/>
+      <stop offset="1" stop-color="#d9530e"/>
     </linearGradient>
   </defs>
   <path d="M26 54h46a16 16 0 0 0 1.6-31.9A22 22 0 0 0 31.4 17 14.5 14.5 0 0 0 12 30.5 12 12 0 0 0 26 54z" fill="none" stroke="url(#kc)" stroke-width="6.5" stroke-linejoin="round" stroke-linecap="round"/>

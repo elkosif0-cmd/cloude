@@ -999,3 +999,38 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Blocker: GitHub Actions refuses every job on elkosif0-cmd («recent account payments have failed or your spending limit needs to be
   increased»), so CI and the Pages build (which carries the private password) cannot run until the owner fixes billing. Verified locally.
 - Branch: `claude/r19-kosif-ledger-20261009` (on top of R17, PR #230).
+
+
+### TASK CLAUDE-20261009-014 — Merge all branches, then the menus in the constitution's order (§3.12)
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Owner request: «ادمج كل الفروع ... وبعد كده تعمل إعادة هيكلة للتطبيق ... وتعيد تنظيم المنيو حسب الدستور».
+- Done: PR #234 (merge d628256) — all 210 branches are ancestors of main; journal risk signals ported (UNBALANCED,
+  JUST_BELOW_MATERIALITY, LARGE_AMOUNT); per-branch decisions in docs/registry/BRANCH_MERGE_ALL_20261009.md.
+- Now: each entry's menu follows FOUNDATION §3.12. Accounting gains «مراكز التكلفة والتكاليف القطاعية», «الضرائب وZATCA»,
+  «التسويات والإقفال» (ledger tabs), «أدوات هذه الشركة» (installedTools) and «راجع هذه الشركة»; Audit follows the audit file's
+  stages; Tools follow the eight families of §3.3.1. Menu items may now be a hub, a page of a hub, or a tab of a screen.
+- Files: ui/core/capabilities.json, ui/core/registry.js, ui/layouts/shell.js, ui/features/ledger.js, tools/*menu* tests.
+- Branch: `claude/constitution-restructure-20261009`.
+- Update (014): the tax section is «الضرائب والزكاة والامتثال» (the Latin «ZATCA» broke the line in RTL). Audit menu items open
+  the audit file's own stages (tb-review TABS via SKosifTBReview.open/current), not the hidden studio pages. Found on the live
+  site and fixed: the demo company's «متابعة» in «لأي شركة؟» was refused («لم يُثبت سياق الشركة», dialog stuck) because the
+  admission check did not know the core's own first-use writes (v15 master lists, automatic price-list snapshots + meta);
+  tools/demo_master_lists.test.mjs.
+
+### TASK CLAUDE-20261009-015 — One identity from the door to the printed page; the owner's decisions checked against the code
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Owner request: «راجع الهوية بتاعة التطبيق وتتأكد إن الهوية كلها موحدة وتراجع كمان كل القرارات وتتأكد إن كلهم موجودين، الفروع تأكد إنها تم دمجها».
+- Found: the app wore «دفتر KOSIF» (R19) but the door, the logo files, the PWA icons, the manifest, the crystal world, the command
+  centre band and every printed/presented document were still «كوبالت وجليد».
+- Done: door → ledger tokens (door_tokens now compares to data-brand="ledger"; SQC:AUTH byte-identical), its film and section art
+  toned; brand SVGs recoloured; PWA icons re-rendered from sqc-icon.svg (Edge); manifest #1d1814; crystal-world PALETTES (ledger
+  amber / cobalt ice, by data-brand or {palette}); SK.brandCSS maps the cobalt print palette by role for every print/presentation
+  path (letterhead, preview bar, report docs, report pack, channel profit, presentation, chart print); in-app literals → tokens
+  (--sk-navy, --sk-brand, --sk-grad-brand, new --sk-orb/--sk-orb-hi). Guard tools/identity_unity.test.mjs; identity doc §8.3;
+  identity baseline colours 440 → 438.
+- Decisions: tools/owner_decisions.mjs → docs/registry/OWNER_DECISIONS_ar.md (23 decisions checked in code). Conflict left for the
+  owner: whatsapp-bridge MCP has `list_whatsapp_messages` («Read messages received on WhatsApp», recovered from PR #96 on
+  2026-10-06) against the rule «no WhatsApp message-reading tools» — not removed without the owner's decision.
+- Branch: `claude/constitution-restructure-20261009` (PR #235).

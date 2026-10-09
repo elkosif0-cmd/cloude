@@ -261,6 +261,7 @@ html.sk-theme-trans .maincol{
    #A53E07 (5.9:1). Status colours stay semantic and separate from the accent. The cobalt identity of 2026-10-08 stays
    selectable as «كوبالت وجليد» (the base kosif tokens); navy & gold stays as [data-brand="navygold"]. */
 :root[data-look="kosif"][data-brand="ledger"]{
+  --sk-orb:#d9530e;--sk-orb-hi:#f6c39b;
   --sk-bg:#fbf8f3;--sk-surface:#fffdf9;--sk-surface-2:#f8f3ec;--sk-surface-3:#f1e9de;--sk-line:#e3d9cc;--sk-line-2:#cbbfb0;
   --sk-ink:#1d1814;--sk-ink-2:#4b4139;--sk-ink-3:#6f6358;
   --sk-brand:#1d1814;--sk-brand-2:#d9530e;--sk-brand-soft:#fbe9dc;--sk-on-brand:#fbf8f3;
@@ -281,6 +282,7 @@ html.sk-theme-trans .maincol{
   --sk-c1:#1d1814;--sk-c2:#d9530e;
 }
 :root[data-look="kosif"][data-brand="ledger"][data-theme="dark"]{
+  --sk-orb:#f2732d;--sk-orb-hi:#f6c39b;
   /* dark: saffron leads on warm charcoal (buttons and the active state), cream text */
   --sk-bg:#161310;--sk-surface:#1c1814;--sk-surface-2:#221d19;--sk-surface-3:#2b2520;--sk-line:#39312a;--sk-line-2:#4a4038;
   --sk-ink:#f5ede3;--sk-ink-2:#d4c6b6;--sk-ink-3:#a8998a;

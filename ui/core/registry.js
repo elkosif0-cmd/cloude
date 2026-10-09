@@ -42,18 +42,41 @@ const members=id=>{const c=byId[id];if(!c)return[];const h=byId[c.hub];return[h,
    (gateways[].menu = [{id,label,icon,hubs:[hub ids]}]). Only hubs of that entry are kept; a hub of the entry that no
    section lists lands in «أخرى», so the menu can never lose a screen. An entry without a menu falls back to the groups. */
 const hubsOf=gid=>caps.filter(c=>inGw(c,gid)&&c.hub===c.id&&!c.hidden&&fits(c));
+/* R20 (FOUNDATION §3.12): a menu item is
+   - a hub id (the hub once, its pages as tabs on top),
+   - a page id of a hub, listed in its own section («نقطة البيع والفاتورة الضريبية» under taxes while its hub sits under sales),
+   - {go, tab, label, icon}: a tab of a screen («إقرار الضريبة» is the ledger's tab «vat»; "@ops" is a family's first tab),
+   - {installed:true}: the tools the open company added from the tools library (§3.1 «الأدوات المساعدة التي يختار المستخدم
+     إضافتها»), which then live in the accounting menu of that company.
+   So each constitution section is reached without a second copy of a screen. Only screens of the entry (or installed in the
+   company) are kept; a hub of the entry that no section lists lands in «أخرى», so the menu can never lose a screen. */
+const installedNow=()=>{try{const P=window.SKosifCompanyPlatform,s=P&&P.state?P.state():null;return s&&Array.isArray(s.installedTools)?s.installedTools.slice():[]}catch{return[]}};
+function itemOf(x,gid,all){
+  if(typeof x==="string"){const c=byId[x];if(!c||!fits(c))return null;
+    if(c.hub===c.id)return all.includes(c)?c:null;
+    return inGw(c,gid)?Object.freeze({...c,page:true,hubLabel:c.label}):null}
+  if(x&&x.go&&x.tab){const c=byId[x.go];if(!c||!inGw(c,gid)||!fits(c))return null;
+    return Object.freeze({...c,id:x.go+">"+x.tab,view:x.go,tab:x.tab,link:true,hubLabel:x.label||c.label,icon:x.icon||c.id})}
+  return null;
+}
 const menuCache={};
 function menu(gid){
-  const key=gid+"|"+sectorNow();if(menuCache[key])return menuCache[key];
+  const inst=installedNow(),key=gid+"|"+sectorNow()+"|"+inst.join(",");if(menuCache[key])return menuCache[key];
   const g=gwById[gid];if(!g||!Array.isArray(g.menu)||!g.menu.length)return null;
-  const all=hubsOf(gid),seen=new Set();
-  const out=g.menu.map(s=>({id:s.id,label:s.label,icon:s.icon,hubs:(s.hubs||[]).map(id=>byId[id]).filter(c=>c&&all.includes(c)&&!seen.has(c.id)&&seen.add(c.id))})).filter(s=>s.hubs.length);
+  const all=hubsOf(gid),seen=new Set(),listed=new Set();
+  const out=g.menu.map(s=>{
+    const raw=(s.hubs||[]).flatMap(x=>x&&x.installed?inst.map(id=>byId[id]).filter(c=>c&&c.hub===c.id&&!c.hidden&&fits(c)&&!listed.has(c.id)).map(c=>Object.freeze({...c,installed:true})):[itemOf(x,gid,all)]);
+    const hubs=raw.filter(c=>c&&!seen.has(c.id)&&seen.add(c.id));hubs.forEach(c=>listed.add(c.link?c.view:c.id));
+    return {id:s.id,label:s.label,icon:s.icon,hubs};
+  }).filter(s=>s.hubs.length);
   const rest=all.filter(c=>!seen.has(c.id));
   if(rest.length)out.push({id:gid+"-more",label:"أخرى",icon:"action",hubs:rest});
   return(menuCache[key]=Object.freeze(out.map(s=>Object.freeze({...s,hubs:Object.freeze(s.hubs)}))));
 }
-/* the menu section of a screen in an entry (its hub's section) */
-const sectionOf=(id,gid)=>{const c=byId[id],m=c&&menu(gid);return m?m.find(s=>s.hubs.some(h=>h.id===c.hub))||null:null};
+/* the menu section of a screen in an entry: the section that lists the page itself, else its hub's */
+const sectionOf=(id,gid)=>{const c=byId[id],m=c&&menu(gid);if(!m)return null;return m.find(s=>s.hubs.some(h=>!h.link&&h.id===c.id))||m.find(s=>s.hubs.some(h=>!h.link&&h.id===c.hub))||null};
+/* whether an entry's menu offers the screen (a hub, one of its pages, a tab of it, or a tool installed in the company) */
+const inMenu=(id,gid)=>{const c=byId[id],m=c&&menu(gid);return!!m&&m.some(s=>s.hubs.some(h=>(h.link?h.view:h.id)===c.id||h.id===c.hub))};
 SK.caps=Object.freeze({
   all:()=>caps,
   gateways:()=>gateways,
@@ -83,6 +106,7 @@ SK.caps=Object.freeze({
   hub:id=>{const c=byId[id];return c?byId[c.hub]:null},
   members,
   menu,
+  inMenu,
   section:sectionOf,
   /* "البرنامج المحاسبي الكامل › القيود والدفاتر › الدفاتر المحاسبية" — in the entry the user is in (its menu section),
      else the screen's own entry and group */

@@ -24,6 +24,12 @@ test('every entry menu has distinct section names and lists only known screens',
     if (!g.menu) continue;
     const names = g.menu.map((s) => s.label);
     assert.equal(new Set(names).size, names.length, g.id + ' repeats a section name');
-    for (const s of g.menu) for (const h of s.hubs) assert.ok(ids.has(h), g.id + ' › ' + s.label + ' lists an unknown screen ' + h);
+    /* R20: an item is a screen id, a tab of a screen {go, tab, label}, or the open company's installed tools {installed} */
+    for (const s of g.menu) for (const h of s.hubs) {
+      if (h && h.installed) continue;
+      const id = typeof h === 'string' ? h : h && h.go;
+      assert.ok(ids.has(id), g.id + ' › ' + s.label + ' lists an unknown screen ' + JSON.stringify(h));
+      if (typeof h !== 'string') assert.ok(h.tab && h.label, g.id + ' › ' + s.label + ': a tab link needs a tab and a label');
+    }
   }
 });

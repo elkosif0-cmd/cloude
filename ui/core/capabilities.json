@@ -350,7 +350,10 @@
     "execreports"
    ],
    "company": true,
-   "gateway": "tools"
+   "gateway": "tools",
+   "also": [
+    "accounting"
+   ]
   },
   {
    "id": "decision",
@@ -517,28 +520,6 @@
     "customers",
     "receivables",
     "salesintel",
-    "ledger"
-   ],
-   "gateway": "accounting"
-  },
-  {
-   "id": "zatca",
-   "label": "نقطة البيع والفاتورة الضريبية",
-   "sub": "فاتورة مبسطة برمز QR ودفع مجزأ",
-   "group": "customer",
-   "hub": "commerce",
-   "tier": "CORE",
-   "module": "ui/enterprise.js",
-   "data": [
-    "skosif_v32_cart"
-   ],
-   "legacy": "الفاتورة الضريبية",
-   "decision": "Keep",
-   "kw": "زاتكا ضريبة فاتورة qr كاشير",
-   "adv": false,
-   "en": "POS & Tax Invoice",
-   "feeds": [
-    "commerce",
     "ledger"
    ],
    "gateway": "accounting"
@@ -887,6 +868,9 @@
    "gateway": "tools",
    "sectors": [
     "meat"
+   ],
+   "also": [
+    "accounting"
    ]
   },
   {
@@ -930,6 +914,9 @@
    "gateway": "tools",
    "sectors": [
     "meat"
+   ],
+   "also": [
+    "accounting"
    ]
   },
   {
@@ -1159,7 +1146,10 @@
     "suppliers",
     "customers"
    ],
-   "gateway": "tools"
+   "gateway": "tools",
+   "also": [
+    "accounting"
+   ]
   },
   {
    "id": "productflow",
@@ -1184,7 +1174,10 @@
     "sim",
     "memo"
    ],
-   "gateway": "tools"
+   "gateway": "tools",
+   "also": [
+    "accounting"
+   ]
   },
   {
    "id": "catalog",
@@ -1419,7 +1412,10 @@
     "customers",
     "catalog"
    ],
-   "gateway": "accounting"
+   "gateway": "accounting",
+   "also": [
+    "tools"
+   ]
   },
   {
    "id": "excelrecon",
@@ -1439,6 +1435,30 @@
     "catalog"
    ],
    "gateway": "accounting"
+  },
+  {
+   "id": "zatca",
+   "label": "نقطة البيع والفاتورة الضريبية",
+   "sub": "فاتورة مبسطة برمز QR ودفع مجزأ",
+   "group": "books",
+   "tier": "CORE",
+   "module": "ui/enterprise.js",
+   "data": [
+    "skosif_v32_cart"
+   ],
+   "legacy": "الفاتورة الضريبية",
+   "decision": "Keep",
+   "kw": "زاتكا ضريبة فاتورة qr كاشير",
+   "adv": false,
+   "en": "POS & Tax Invoice",
+   "feeds": [
+    "commerce",
+    "ledger"
+   ],
+   "gateway": "accounting",
+   "also": [
+    "tools"
+   ]
   },
   {
    "id": "reportingintake",
@@ -1809,11 +1829,11 @@
    "kw": "بنفورد عينة",
    "adv": false,
    "en": "Financial Analytics & Risk",
-   "hub": "tbreview",
    "feeds": [
     "tbreview"
    ],
-   "gateway": "audit"
+   "gateway": "audit",
+   "hub": "tbreview"
   },
   {
    "id": "auditlab",
@@ -2054,15 +2074,21 @@
     },
     {
      "id": "acc-setup",
-     "label": "الإعداد والتعريفات",
+     "label": "التعريفات وشجرة الحسابات",
      "icon": "companies",
      "hubs": [
-      "companies"
+      "companies",
+      {
+       "go": "ledger",
+       "tab": "accounts",
+       "label": "دليل الحسابات",
+       "icon": "ledger"
+      }
      ]
     },
     {
      "id": "acc-books",
-     "label": "القيود والدفاتر",
+     "label": "القيود والترحيل والأستاذ",
      "icon": "ledger",
      "hubs": [
       "ledger",
@@ -2072,7 +2098,7 @@
     },
     {
      "id": "acc-sales",
-     "label": "المبيعات والتحصيل",
+     "label": "المبيعات والعملاء والتحصيل",
      "icon": "commerce",
      "hubs": [
       "commerce",
@@ -2081,7 +2107,7 @@
     },
     {
      "id": "acc-supply",
-     "label": "المشتريات والمخزون",
+     "label": "المشتريات والموردون والمخزون",
      "icon": "inventory",
      "hubs": [
       "suppliers",
@@ -2089,18 +2115,73 @@
      ]
     },
     {
+     "id": "acc-costs",
+     "label": "مراكز التكلفة والتكاليف القطاعية",
+     "icon": "productflow",
+     "hubs": [
+      {
+       "go": "ledger",
+       "tab": "@ops",
+       "label": "تشغيل النشاط وتكاليفه",
+       "icon": "operations"
+      },
+      "productflow",
+      "ptree",
+      "carcass",
+      "blending"
+     ]
+    },
+    {
+     "id": "acc-tax",
+     "label": "الضرائب والزكاة والامتثال",
+     "icon": "zatca",
+     "hubs": [
+      {
+       "go": "ledger",
+       "tab": "vat",
+       "label": "إقرار ضريبة القيمة المضافة",
+       "icon": "zatca"
+      },
+      "zatca"
+     ]
+    },
+    {
      "id": "acc-close",
-     "label": "التسويات والمطابقة",
+     "label": "التسويات والإقفال",
      "icon": "smartmatch",
      "hubs": [
-      "smartmatch"
+      {
+       "go": "ledger",
+       "tab": "close",
+       "label": "الإقفال الشهري",
+       "icon": "ledger"
+      },
+      {
+       "go": "ledger",
+       "tab": "recon",
+       "label": "المطابقة البنكية",
+       "icon": "smartmatch"
+      },
+      "smartmatch",
+      {
+       "go": "ledger",
+       "tab": "links",
+       "label": "صحة الروابط",
+       "icon": "health"
+      }
      ]
     },
     {
      "id": "acc-reports",
-     "label": "القوائم والتقارير",
+     "label": "القوائم المالية والتقارير",
      "icon": "execreports",
      "hubs": [
+      {
+       "go": "ledger",
+       "tab": "tb",
+       "label": "ميزان المراجعة",
+       "icon": "execreports"
+      },
       "reportingintake",
       "execreports",
       "reports",
@@ -2119,8 +2200,19 @@
      ]
     },
     {
+     "id": "acc-tools",
+     "label": "أدوات هذه الشركة",
+     "icon": "helperdesk",
+     "hubs": [
+      {
+       "installed": true
+      },
+      "helperdesk"
+     ]
+    },
+    {
      "id": "acc-decision",
-     "label": "القرار والمعايير",
+     "label": "القرار والمعايير والمراجعة",
      "icon": "jev",
      "hubs": [
       "decision",
@@ -2148,26 +2240,102 @@
    "menu": [
     {
      "id": "aud-file",
-     "label": "ملف المراجعة",
+     "label": "ملفات المراجعة",
      "icon": "tbreview",
      "hubs": [
       "tbreview"
      ]
     },
     {
-     "id": "aud-standards",
-     "label": "المعايير والمدونة",
-     "icon": "codex",
+     "id": "aud-plan",
+     "label": "التخطيط والأهمية والمخاطر",
+     "icon": "risks",
      "hubs": [
-      "codex"
+      {
+       "go": "tbreview",
+       "tab": "tb",
+       "label": "الميزان والقوائم",
+       "icon": "execreports"
+      },
+      {
+       "go": "tbreview",
+       "tab": "plan",
+       "label": "الأهمية والخطة",
+       "icon": "risks"
+      }
      ]
     },
     {
-     "id": "aud-decision",
-     "label": "المجلس والقرار",
-     "icon": "jev",
+     "id": "aud-work",
+     "label": "الإجراءات والاختبارات",
+     "icon": "auditanalytics",
      "hubs": [
+      {
+       "go": "tbreview",
+       "tab": "ai",
+       "label": "جولات المراجعة",
+       "icon": "auditcouncil"
+      }
+     ]
+    },
+    {
+     "id": "aud-evidence",
+     "label": "المستندات والأدلة",
+     "icon": "auditdocs",
+     "hubs": [
+      {
+       "go": "tbreview",
+       "tab": "docs",
+       "label": "المستندات وطلبات الأدلة",
+       "icon": "auditdocs"
+      }
+     ]
+    },
+    {
+     "id": "aud-council",
+     "label": "مجلس المراجعين وJev",
+     "icon": "auditcouncil",
+     "hubs": [
+      {
+       "go": "tbreview",
+       "tab": "conf",
+       "label": "الثقة ومجلس المراجعين",
+       "icon": "auditcouncil"
+      },
       "decision"
+     ]
+    },
+    {
+     "id": "aud-report",
+     "label": "التسويات والإكمال والتقرير النهائي",
+     "icon": "auditreport",
+     "hubs": [
+      {
+       "go": "tbreview",
+       "tab": "adj",
+       "label": "التسويات والملاحظات",
+       "icon": "auditissues"
+      },
+      {
+       "go": "tbreview",
+       "tab": "close",
+       "label": "الإكمال والإقرارات",
+       "icon": "tasks"
+      },
+      {
+       "go": "tbreview",
+       "tab": "fs",
+       "label": "القوائم والتقرير النهائي",
+       "icon": "auditreport"
+      }
+     ]
+    },
+    {
+     "id": "aud-standards",
+     "label": "المعايير والمراجع والمقارنة",
+     "icon": "codex",
+     "hubs": [
+      "codex"
      ]
     },
     {
@@ -2201,7 +2369,7 @@
    "menu": [
     {
      "id": "tl-home",
-     "label": "الأدوات والمتابعة",
+     "label": "مكتبة الأدوات والمتابعة",
      "icon": "helperdesk",
      "hubs": [
       "helperdesk",
@@ -2210,21 +2378,38 @@
      ]
     },
     {
+     "id": "tl-data",
+     "label": "البيانات والملفات",
+     "icon": "archive",
+     "hubs": [
+      "reportingintake",
+      "companies",
+      "archive"
+     ]
+    },
+    {
+     "id": "tl-match",
+     "label": "المطابقات والتسويات",
+     "icon": "smartmatch",
+     "hubs": [
+      "smartmatch"
+     ]
+    },
+    {
      "id": "tl-costs",
-     "label": "التكاليف والتسعير والإنتاج",
+     "label": "التكاليف والتسعير",
      "icon": "productflow",
      "hubs": [
       "productflow",
       "ptree",
       "blending",
-      "carcass",
-      "labels"
+      "carcass"
      ]
     },
     {
      "id": "tl-sales",
      "label": "العملاء والمبيعات",
-     "icon": "customers",
+     "icon": "commerce",
      "hubs": [
       "customers",
       "salesmap",
@@ -2243,19 +2428,9 @@
      ]
     },
     {
-     "id": "tl-data",
-     "label": "البيانات والملفات",
-     "icon": "reportingintake",
-     "hubs": [
-      "reportingintake",
-      "companies",
-      "archive"
-     ]
-    },
-    {
      "id": "tl-analysis",
      "label": "التحليل والتنبؤ",
-     "icon": "finance",
+     "icon": "cash",
      "hubs": [
       "risklab",
       "finance",
@@ -2263,21 +2438,37 @@
      ]
     },
     {
-     "id": "tl-reports",
-     "label": "التقارير والطباعة",
-     "icon": "execreports",
+     "id": "tl-control",
+     "label": "الرقابة والجودة والقرار",
+     "icon": "risks",
      "hubs": [
-      "execreports",
-      "reports"
+      "risks",
+      "decision"
      ]
     },
     {
-     "id": "tl-control",
-     "label": "الرقابة والقرار",
-     "icon": "decision",
+     "id": "tl-tax",
+     "label": "الضرائب والامتثال",
+     "icon": "zatca",
      "hubs": [
-      "risks",
-      "decision",
+      "zatca"
+     ]
+    },
+    {
+     "id": "tl-productivity",
+     "label": "الإنتاجية والأتمتة",
+     "icon": "reports",
+     "hubs": [
+      "execreports",
+      "reports",
+      "labels"
+     ]
+    },
+    {
+     "id": "tl-dev",
+     "label": "المطور والتكامل",
+     "icon": "governance",
+     "hubs": [
       "governance"
      ]
     },

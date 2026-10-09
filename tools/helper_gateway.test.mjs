@@ -16,7 +16,9 @@ const sectionTargets = {
   product: ['blending', 'carcass', 'ptree', 'productflow', 'labels'],
   customer: ['salesmap', 'customers', 'offers', 'operations', 'salesintel'],
   supply: ['inventory', 'suppliers'],
-  books: ['risklab', 'benchmarks', 'finance'],
+  /* R20: the bank/sales reconciliation is a helper tool too (§3.3, «المطابقات والتسويات») */
+  /* R20: ZATCA invoicing is its own tool under taxes (§3.3.1 «الضرائب والامتثال»), in the books group */
+  books: ['risklab', 'benchmarks', 'finance', 'smartmatch', 'zatca'],
   reports: ['reportingintake', 'execreports', 'reports', 'archive'],
   decision: ['jev', 'council', 'decision', 'sensitivity', 'risks'],
 };

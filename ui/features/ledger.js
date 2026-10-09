@@ -1346,7 +1346,9 @@ function ensureAccounts(list){const d=db(),has=c=>d.accounts.find(x=>String(x.co
   if(plan.accounts.length){d.accounts.push(...plan.accounts);put(d)}
   return Object.fromEntries(list.map(([code])=>[code,has(code).id]))}
 window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().accounts,lockDate:()=>db().lockDate,ensureAccounts,postEntry,saleEntry:(d,x)=>saleEntry(d,x,costResolver()),
-  open:(t,o={})=>{tab=t||"accounts";if(o.q)vatQ=o.q;window.SKosifCore.go("ledger")},tabs:()=>allTabs(db()),families:()=>families(db()).map(([id,label,tabs])=>({id,label,tabs:tabs.map(([t])=>t)})),
+  open:(t,o={})=>{tab=t||"accounts";if(o.q)vatQ=o.q;window.SKosifCore.go("ledger")},tabs:()=>allTabs(db()),
+  /* the tab on screen (the menu marks «إقرار الضريبة» or «الإقفال» current — R20) */
+  current:()=>tab||(db().accounts.length?"close":"accounts"),families:()=>families(db()).map(([id,label,tabs])=>({id,label,tabs:tabs.map(([t])=>t)})),
   /* read-only views of the books for the month-end close, the morning brief and the alerts */
   snapshot:()=>db(),proof:end=>proofOf(db(),end),pending:until=>pendingOps(db(),until),parties:(kind,asOf)=>partiesOf(db(),kind,asOf||today()),
   vat:qid=>vatCalc(db(),qid),quarters:y=>quarters(y),balance:(code,asOf)=>balanceOf(db(),code,asOf||today()),
