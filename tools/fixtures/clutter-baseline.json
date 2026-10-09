@@ -1,10 +1,10 @@
 {
  "avgContentTopDesktop": 321,
  "maxContentTopDesktop": 348,
- "avgContentTopPhone": 410,
+ "avgContentTopPhone": 389,
  "avgChromeRowsDesktop": 2.73,
- "avgChromeControlsDesktop": 12,
+ "avgChromeControlsDesktop": 13,
  "screensRepeatingSidebar": 3,
- "recordedAt": "2026-10-08",
- "recordedOn": "GitHub Actions ubuntu-latest Chromium (SQC Browser Suites, run 37695075061): R10–R12 lowered the content top on desktop and phone and the screens repeating the sidebar 7 → 3; «ذكاء المبيعات» gained its tab strip (rows 2.72 → 2.73) in exchange for four short tabs"
+ "recordedAt": "2026-10-09",
+ "recordedOn": "GitHub Actions ubuntu-latest Chromium (SQC Browser Suites, run 37695075061): R10–R12 lowered the content top on desktop and phone and the screens repeating the sidebar 7 → 3; «ذكاء المبيعات» gained its tab strip (rows 2.72 → 2.73) in exchange for four short tabs. 2026-10-09 (R19, local Edge, identical on main daca398): chrome controls 12 → 13 is the save-state chip «تم الحفظ» (#228, FOUNDATION §3.0 rule 8 — a visible save state); the phone content top 410 → 389 is recorded as the new floor"
 }

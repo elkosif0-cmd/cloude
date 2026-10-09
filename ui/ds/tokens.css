@@ -254,6 +254,49 @@ html.sk-theme-trans .maincol{
   --sk-shadow-1:0 1px 0 rgba(255,255,255,.03) inset,0 10px 26px -16px rgba(0,0,0,.7);--sk-shadow-2:0 16px 36px -16px rgba(0,0,0,.7);--sk-shadow-3:0 30px 70px -20px rgba(0,0,0,.8);
 }
 :root[data-look="kosif"][data-brand="navygold"]{--sk-c1:#13305a;--sk-c2:#c9a227}
+
+/* brand variant «دفتر KOSIF» — the default identity from 2026-10-09 (owner: «استفد من فكرة التنظيم والالوان» of the KOSIF app).
+   Ledger paper: cream stock #FBF8F3 with warm white cards, charcoal ink #1D1814 for the rail rules, headings and the primary
+   buttons (17:1 on cream), and one saffron accent #D9530E for marks, highlights and the active state — saffron text uses
+   #A53E07 (5.9:1). Status colours stay semantic and separate from the accent. The cobalt identity of 2026-10-08 stays
+   selectable as «كوبالت وجليد» (the base kosif tokens); navy & gold stays as [data-brand="navygold"]. */
+:root[data-look="kosif"][data-brand="ledger"]{
+  --sk-bg:#fbf8f3;--sk-surface:#fffdf9;--sk-surface-2:#f8f3ec;--sk-surface-3:#f1e9de;--sk-line:#e3d9cc;--sk-line-2:#cbbfb0;
+  --sk-ink:#1d1814;--sk-ink-2:#4b4139;--sk-ink-3:#6f6358;
+  --sk-brand:#1d1814;--sk-brand-2:#d9530e;--sk-brand-soft:#fbe9dc;--sk-on-brand:#fbf8f3;
+  --sk-navy:#1d1814;--sk-gold:#d9530e;--sk-gold-ink:#a53e07;--sk-gold-soft:#fbe9dc;--sk-ivory:#fbf8f3;
+  --sk-ok:#2c7a4b;--sk-ok-soft:#e1f0e6;--sk-ok-mark:#33995c;
+  --sk-warn:#a76a10;--sk-warn-soft:#f8ead0;--sk-warn-mark:#d99a1e;
+  --sk-bad:#b3261e;--sk-bad-soft:#f8e0dd;--sk-bad-mark:#d9473d;--sk-bad-row:#fdf3f1;
+  --sk-info:#2f5f8f;--sk-info-soft:#e3ebf4;--sk-info-mark:#3f74aa;
+  --sk-violet:#6b5bd6;--sk-violet-soft:#efedfd;--sk-violet-line:#d9d4f7;
+  --sk-rail:#f3ece2;--sk-rail-2:rgba(29,24,20,.05);--sk-rail-ink:#1d1814;--sk-rail-mute:#6f6358;--sk-rail-active:rgba(217,83,14,.13);
+  --sk-grid:#eee5d9;--sk-axis:#cbbfb0;--sk-s1:#d9530e;--sk-s2:#1d1814;--sk-s3:#2c7a4b;--sk-focus:#d9530e;
+  --sk-shadow-1:0 1px 2px rgba(29,24,20,.05),0 12px 30px -24px rgba(29,24,20,.30);
+  --sk-shadow-2:0 18px 40px -22px rgba(29,24,20,.26);
+  --sk-shadow-3:0 32px 80px -28px rgba(29,24,20,.40);
+  --sk-grad-brand:linear-gradient(135deg,#d9530e 0%,#a53e07 52%,#1d1814 100%);
+  --sk-grad-rail:linear-gradient(180deg,#f3ece2 0%,#efe6da 100%);
+  --sk-heat-1:#d7ead9;--sk-heat-2:#f2e3b0;--sk-heat-3:#f0bf95;--sk-heat-4:#e3928a;
+  --sk-c1:#1d1814;--sk-c2:#d9530e;
+}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="dark"]{
+  /* dark: saffron leads on warm charcoal (buttons and the active state), cream text */
+  --sk-bg:#161310;--sk-surface:#1c1814;--sk-surface-2:#221d19;--sk-surface-3:#2b2520;--sk-line:#39312a;--sk-line-2:#4a4038;
+  --sk-ink:#f5ede3;--sk-ink-2:#d4c6b6;--sk-ink-3:#a8998a;
+  --sk-brand:#f2732d;--sk-brand-2:#f5ede3;--sk-brand-soft:#3a2316;--sk-on-brand:#161310;
+  --sk-navy:#0f0d0b;--sk-gold:#f2732d;--sk-gold-ink:#ff9a5f;--sk-gold-soft:#3a2316;--sk-ivory:#fbf8f3;
+  --sk-ok:#6fcf97;--sk-ok-soft:#17301f;--sk-warn:#f0b85a;--sk-warn-soft:#33270f;--sk-bad:#ff8a80;--sk-bad-soft:#3a1714;--sk-bad-row:#2a1512;
+  --sk-info:#8fbfee;--sk-info-soft:#152434;
+  --sk-rail:#110f0d;--sk-rail-2:rgba(255,255,255,.05);--sk-rail-ink:#f5ede3;--sk-rail-mute:#a8998a;--sk-rail-active:rgba(242,115,45,.18);
+  --sk-grid:#2b2520;--sk-axis:#4a4038;--sk-focus:#f2732d;--sk-s1:#f2732d;--sk-s2:#d4c6b6;
+  --sk-violet:#b3a8ff;--sk-violet-soft:#241f4a;--sk-violet-line:#3a3470;
+  --sk-grad-brand:linear-gradient(135deg,#ff9a5f 0%,#f2732d 45%,#a53e07 100%);
+  --sk-grad-rail:linear-gradient(180deg,#110f0d,#171410);
+  --sk-heat-1:#1f5a3b;--sk-heat-2:#6b5a17;--sk-heat-3:#7a4219;--sk-heat-4:#7f2626;
+  --sk-shadow-1:0 1px 0 rgba(255,255,255,.03) inset,0 10px 26px -16px rgba(0,0,0,.7);--sk-shadow-2:0 16px 36px -16px rgba(0,0,0,.7);--sk-shadow-3:0 30px 70px -20px rgba(0,0,0,.8);
+  --sk-c1:#f2732d;--sk-c2:#d4c6b6;
+}
 :root[data-look="kosif"][data-brand="navygold"][data-theme="dark"]{--sk-c1:#8fb3e8;--sk-c2:#d4af37}
 
 :root[data-look="kosif"] body{font-feature-settings:"tnum" 1,"lnum" 1}

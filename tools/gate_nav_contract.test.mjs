@@ -101,7 +101,7 @@ test('shell tabIds() resolves dynamically based on active gate', () => {
 
   // 1. Accounting default
   currentGate = 'accounting';
-  assert.deepEqual([...shell.tabs()], ['ledger', 'commerce', 'inventory', 'execreports']);
+  assert.deepEqual([...shell.tabs()], ['dash', 'ledger', 'commerce', 'execreports']); // R19: Home first (KOSIF organisation)
 
   // 2. Audit default
   currentGate = 'audit';
@@ -109,7 +109,7 @@ test('shell tabIds() resolves dynamically based on active gate', () => {
 
   // 3. Tools default
   currentGate = 'tools';
-  assert.deepEqual([...shell.tabs()], ['helperdesk', 'costs', 'salesintel', 'decision']);
+  assert.deepEqual([...shell.tabs()], ['dash', 'helperdesk', 'costs', 'salesintel']); // R19: Home first (KOSIF organisation)
 
   // 4. Custom tabs filtering per gateway
   customPrefs.skosif_prefs = {

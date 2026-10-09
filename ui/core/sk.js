@@ -163,7 +163,8 @@ function modalFocus(root,invoker=document.activeElement,options={}){
   // Recover only this live registration and never overwrite a meaningful target.
   entry.recover=()=>{
     if(released||!root.isConnected||modalStack.at(-1)!==entry||document.hasFocus?.()===false||document.visibilityState==="hidden")return;
-    if(document.activeElement!==document.body&&document.activeElement!==document.documentElement)return;
+    /* a control left inside a layer that just went inert (the presentation under a palette) is not a meaningful target (R17) */
+    const at=document.activeElement;if(at&&at!==document.body&&at!==document.documentElement&&!at.closest?.('[inert]'))return;
     const items=focusable();if(items.includes(lastFocus))lastFocus.focus({preventScroll:true});else first();
   };
   /* Embedded documents supply their own cross-document keyboard handling, but
@@ -244,7 +245,11 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState===
    Feature modules build their print window as before and then call SK.brandPrint(w):
    their ad-hoc <style> blocks are replaced by the heritage print style and the
    letterhead (emblem, business name, VAT/CR numbers from «الإعدادات») is added on top. */
-function org(){try{return(JSON.parse(localStorage.getItem("aghnam-pricing-v3")||"{}").settings)||{}}catch{return{}}}
+/* the open company's identity settings; a company that never saved «هوية المنشأة» still carries its own name (R17: letterheads
+   and readiness checks read org().biz, which was empty for every company created without pricing settings) */
+function org(){let o={};try{o=(JSON.parse(localStorage.getItem("aghnam-pricing-v3")||"{}").settings)||{}}catch{}
+  if(!String(o.biz||"").trim())try{const n=window.SK&&SK.company&&SK.company.current&&SK.company.current().name;if(n)o={...o,biz:n}}catch{}
+  return o}
 /* the name a receipt, a label or a message signs with: the report identity of the open company, else its name — never
    a fixed name (R10: one business's name was printed on every company's receipts) */
 function bizName(){const b=String(org().biz||"").trim();if(b)return b;try{return(window.SK&&SK.company&&SK.company.current().name)||""}catch{return""}}

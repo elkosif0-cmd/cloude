@@ -7,7 +7,7 @@ import {createRequire} from 'node:module';
 import {spawnSync} from 'node:child_process';
 
 assert.equal(process.env.GITHUB_ACTIONS, 'true', 'Workspace browser acceptance is CI-only');
-assert.equal(process.env.GITHUB_REPOSITORY, 'kosif199022-jpg/cloude');
+assert.equal(process.env.GITHUB_REPOSITORY, 'elkosif0-cmd/cloude'); // the repository's home since 2026-10 (was kosif199022-jpg/cloude)
 assert.equal(process.env.SQC_BUILD_MODE, 'preview', 'Only the data-free preview is allowed');
 const head = process.env.SQC_TESTED_SHA || '';
 assert.match(head, /^[a-f0-9]{40}$/);
@@ -22,7 +22,7 @@ const out = 'artifacts/workspace-validation';
 fs.mkdirSync(out, {recursive:true});
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 const files = ['ui/features/workspace.js','ui/components/states.js','ui/core/company.js','ui/core/helper-space.js','ui/core/engines.js','tools/workspace_validation_e2e.mjs','.github/workflows/sqc-workspace-validation.yml'];
-const sources = Object.fromEntries(files.map(file => [file,{sha256:sha256(fs.readFileSync(file)),url:`https://github.com/kosif199022-jpg/cloude/blob/${head}/${file}`} ]));
+const sources = Object.fromEntries(files.map(file => [file,{sha256:sha256(fs.readFileSync(file)),url:`https://github.com/${process.env.GITHUB_REPOSITORY}/blob/${head}/${file}`} ]));
 const results = [], screenshots = [], blockedNetwork = [];
 const flush = () => fs.writeFileSync(`${out}/results.json`, JSON.stringify({head,sources,results,screenshots,blockedNetwork,
   runUrl:`https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
@@ -65,6 +65,9 @@ try {
     });
     try {
       await page.goto(base+'index.html');
+      // the door asks the section, then the sector, then the company (FOUNDATION: section → sector → company)
+      await page.locator('[data-gate="accounting"]').click();
+      await page.locator('[data-sector="meat"]').click();
       await page.locator('#co-list .co[data-id="demo-co"]').click();
       await page.waitForURL(/app-safe\.html/);await ready(page);await companies(page);
       const initial=await snapshot(page);assert.equal(initial.company.id,'demo-co');assert.equal(initial.space,'demo-co');

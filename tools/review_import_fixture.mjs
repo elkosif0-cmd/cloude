@@ -1,8 +1,9 @@
+import {fileURLToPath} from 'node:url';
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 export const KEY='skosif_tbreview_v1',ENG='skosif_engagements_v1',CO='skosif_companies_v1',LEDGER='skosif_ledger_v1';
-const owner=path.resolve(path.dirname(new URL(import.meta.url).pathname),'..');
+const owner=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'); // fileURLToPath: a URL pathname is not a Windows path
 // A standalone candidate carries its untouched dependencies in preview/. An integrated repository uses its own root.
 const baseline=process.env.GUARD_SOURCE_ROOT||(fs.existsSync(path.join(owner,'preview'))?path.join(owner,'preview'):owner);
 export const oldReview=()=>({ctx:{company:'شركة الهدف السابقة',period:'2025',periodStart:'2025-01-01',periodEnd:'2025-12-31',country:'SA',corpusId:'old-corpus',curSym:'USD',taxKind:'old',sector:'old',reportingFramework:'old',auditStandard:'old'},tbText:'رقم الحساب,اسم الحساب,مدين,دائن\n1100,النقدية,100,0\n3000,رأس المال,0,100',session:{id:'synthetic-old-session',rounds:[],uploads:[{requestId:'old-request',fileName:'synthetic-evidence.pdf'}]},accepted:['accepted-1'],rejected:['rejected-1'],overrides:{1100:'cash'},engagement:{status:'old'},checklists:{old:1},exceptions:[{old:true}],thOverrides:{old:2},evidenceMeta:{old:true},journalSource:'old',journalMeta:{old:1},letterResponses:{old:'yes'},fw:{cash:{signed:true}},materiality:12345,ecl:{keep:1},confirm:{independence:false,edition:false,compliance:false,unrecognized:false,partner:true},narrative:'retained narrative'});

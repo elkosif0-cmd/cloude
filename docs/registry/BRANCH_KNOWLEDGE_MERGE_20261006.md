@@ -778,3 +778,43 @@
 - القرار: **CURRENT-IS-SUPERSET — core audit-engine knowledge from #38 preserved and extended.**
 
 الحالة: **COMPLETE — #47 إلى #38 تمت مراجعتها. الاستخراج الوظيفي الصافي في هذه الدفعة كان Hybrid PR #43 + #96، بينما #38 ثبت ملفيًا أنه موجود أو أوسع في main.**
+
+
+## متابعة PR #97 — Slice الاسترداد المباشر الآمن
+- الفكرة المفيدة المتبقية من runtime 0.27.3: القدرة على **استكمال الخبراء المفقودين** بدل ترك Full Pro عالقًا إذا فشلت بعض رسائل Queue.
+- تم نقل `c500DirectRecover` انتقائيًا إلى runtime الحالي، بدون نقل مسار Host Image القديم أو أي bypass للـSecure Executor.
+- الاسترداد:
+  - يفحص فقط خبراء Council-500 الذين لا يملكون `c500_complete=true`.
+  - يمر عبر `c500ExpertAdvance` نفسها، وبالتالي يحتفظ بالـlease claim ومنع التكرار.
+  - يحد العدد إلى 1..100 لكل دفعة.
+  - يعيد reconciliation مع Secure Executor/KV/Audit بعد المحاولة.
+  - لا يعمل على طلب cancelled / bypass_detected / complete.
+- تمت إتاحته فقط كـ`c500_direct_recover` **بعد** `mobileBridgeVerify`، وليس كمسار نصي غير موثق.
+- أضيف اختبار `think-mcp/direct-recovery-contract.test.mjs` وربطه بـKOSIF Regression.
+- لم يتم استرجاع Host Image QA القديم لأنه كان يعتمد `CHATGPT_IMAGE_GEN` كمنفذ افتراضي مستقل، بينما السياسة الحالية fail-closed هي `KOSIF_SECURE_EXECUTOR_ONLY` مع artifact QA؛ الفكرة (فحص الصورة وإعادة المحاولة) موجودة الآن بصورة أقوى داخل Secure Executor.
+
+القرار: **FUNCTIONAL SLICE RECOVERED — safe missing-expert recovery added; insecure/superseded host-image path not restored.**
+
+## دفعة PR #37 → PR #34 — مراجعة المعرفة والتنفيذ
+
+### PR #37 — Global financial intelligence → accounting guidance
+- رأس الفرع أصبح ancestor كاملًا لـmain (`ahead=0`).
+- محركات/إرشادات التحليل المالي التي أطلقها الفرع استوعبتها طبقات reports/finance/guidance الحالية وتطورت بعدها.
+- القرار: **VERIFIED-IN-MAIN / EXTENDED-LATER**.
+
+### PR #36 — Fuse audit studio into engagement file
+- رأس الفرع ancestor كامل لـmain.
+- دمج الاستوديو داخل ملف المراجعة موجود في الخط الحالي، ثم تطورت استقلالية engagement والسياقات لاحقًا.
+- القرار: **VERIFIED-IN-MAIN / EXTENDED-LATER**.
+
+### PR #35 — Visual product flow + grouped tools
+- رأس الفرع ancestor كامل لـmain.
+- فكرة تجميع الأدوات/المسارات البصرية محفوظة، ثم تطورت إلى task-first helper gateway والاستوديوهات المشتركة.
+- القرار: **VERIFIED-IN-MAIN / CURRENT-UX-IS-SUPERSET**.
+
+### PR #34 — Publish pending S.kosif updates
+- رأس الفرع ancestor كامل لـmain.
+- لا توجد file delta صافية؛ كل محتواه التاريخي في lineage الحالي.
+- القرار: **VERIFIED-IN-MAIN**.
+
+الحالة: **COMPLETE — PR #37 إلى #34 لا تحتوي شفرة صافية مفقودة؛ الخط الحالي descendant مباشر منها.**

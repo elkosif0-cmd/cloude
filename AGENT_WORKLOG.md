@@ -921,7 +921,7 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 
 ### TASK CLAUDE-20261008-006 — Merge PR #143 (published-source replays) with P5 kept (R16)
 - Agent: Claude (Lead Development Agent)
-- Status: IN PROGRESS
+- Status: DONE — PR #227 merged and published (main ed42d99)
 - Owner request: «نفذ الدمج» / «ادمج» — integrate the other agent's PR #143 so the 14 recovered red test files get their engine wiring.
 - Merged: branch `codex/sqc-five-audit-source-models-20261005` into main. P&G, Home Depot, Mercedes, McDonald's and Volkswagen source replays are wired; the four large adapters are read on demand from `ui/data/engines-sources.js` (`registerReviewedSources` + lazy resolvers), so `ui/core/engines.js` stays 1.37 MB instead of 3.56 MB.
 - Conflict with the mandate: the branch closed every company without a reviewed source in three places (`companyTrialBalance` → null, `replayCompany` → null for all, and the current corpus-model CSVs quarantined as "legacy transports"). PRODUCT_MANDATE P5 wins: 42 pending companies open on their corpus model (labelled pending review, simulation only); the 4 reviewed companies open on their source replay; only L'Oréal and Panasonic (no statements in the bundle) stay closed. `corpusModelTrialBalance` feeds the corpus replay, lab and scorecard; `auditFile` in the catalog says whether a company opens.
@@ -965,3 +965,37 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - #22: the screen's cost diagnosis (waste method, VAT-inclusive cost, both margins) moved unchanged into `SKEngines.reports.excelRecon.excelCostDiagnosis` (+5 tests); `ui/features/tools.js` calls it. Evidence: «مطابقة الإكسل» on the built-in sample, main vs branch — identical, cell by cell (4 rows, 4 KPIs).
 - #25: `ui/components/file-input.js` + styles in `ui/ds/surfaces.css`: every visible file field gets «اختر ملفاً» and the chosen name; fields inside the screen's own button or drop zone are left alone; no nested labels (a button that clicks the input). Evidence: devices enhanced, reporting intake untouched, choosing a file shows its name.
 - Branch / PR: `claude/next-20261009`.
+
+### TASK CLAUDE-20261008-010 — Full review R17: every red check fixed, open PRs merged
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Owner request: «قم بمراجعة كاملة للتطبيق وطور كل شيء وكل القدرات والواجهات وادمج كل شيء».
+- Red on every PR, root-caused and fixed (no guard weakened; CI-only suites reproduced with own Edge probes on the preview build):
+  Mercury presentation (`SK.org().biz` empty without «هوية المنشأة» → falls back to the company name); preview accessibility
+  (closed «خيارات الصفحة» fields counted as tab stops; focus recovery after the fullscreen exit settles, and from controls in a
+  layer that went inert); review import guard (fixture lacked the helper user/company registry the import correctly requires);
+  workspace validation (repo now elkosif0-cmd/cloude); S.kosif + KOSIF Regression (think-mcp compat paths v0.18.4/v0.18.3 per
+  runtime-contract.json; `capabilityPacks` undefined in preflightTool). `unit-known-red.txt` is empty.
+- Honesty: a bundle company opened on its corpus model says inside its file that it is pending review and a simulation on published
+  figures (`tools/pending_model_note.test.mjs`).
+- Merged: PR #215 (Council-500 direct recovery behind mobileBridgeVerify) with its regression test kept on the contract's paths.
+  #228 / #229 were merged by the identity session (tasks 008/009).
+- Branch / PR: `claude/r17-full-review-20261008` (PR #230).
+
+
+
+### TASK CLAUDE-20261009-013 — R19: the KOSIF app's organisation and colours in SQC
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Owner request: «طور تطبيق s kosif استفد من فكرة التنظيم والالوان» (from the KOSIF web app, artifact MN6p4QfsTc9uq2Mc1MVxFs).
+- Colours: «دفتر KOSIF» is the default identity — `html[data-look="kosif"][data-brand="ledger"]` (cream paper #FBF8F3, charcoal ink
+  #1D1814, one saffron accent #D9530E; dark: warm charcoal and saffron). «كوبالت وجليد» stays selectable (family `cobalt`, the base
+  kosif tokens), «الكحلي والذهبي» unchanged. Ledger overrides re-assert paper and ink over the calm light layer (sqc.css), KOSIF's ink
+  edge on briefing tiles and KPI cards, ink-ringed active menu item with a saffron icon. Fonts unchanged. App-shell theme-color
+  #F3ECE2 (the door and the manifest stay cobalt). Identity doc §8.2; identity baseline re-recorded (colours 425 → 440, the palette).
+- Organisation: the phone tab bar is fixed to the screen (it was `sticky` inside a body that scrolls itself, so it never stuck and
+  sat at the end of every page); Home first in accounting and tools; «المزيد» always labelled.
+- Also: helper_gateway's fake click answered every selector, so #231's AI-settings link check caught it — narrowed to the card.
+- Blocker: GitHub Actions refuses every job on elkosif0-cmd («recent account payments have failed or your spending limit needs to be
+  increased»), so CI and the Pages build (which carries the private password) cannot run until the owner fixes billing. Verified locally.
+- Branch: `claude/r19-kosif-ledger-20261009` (on top of R17, PR #230).
