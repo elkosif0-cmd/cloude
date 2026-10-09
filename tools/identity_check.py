@@ -41,7 +41,7 @@ ok("rail tagline is audit-first", bool(tag) and "المراجعة" in tag.group(
 ok("manifest description is audit-first", "المراجعة" in manifest["description"] and not any(s in manifest["description"] for s in SALES_FIRST))
 ok("manifest theme matches canonical SQC night cobalt", manifest.get("theme_color") == "#0b1030", str(manifest.get("theme_color")))
 ok("unlock / landing page carries no sales-first product line", not any(s in index for s in SALES_FIRST))
-ok("app shell uses canonical SQC theme color", 'name="theme-color" content="#0b1030"' in app_head)
+ok("app shell uses canonical SQC theme color («دفتر KOSIF» paper rail)", 'name="theme-color" content="#f3ece2"' in app_head)
 ok("app shell uses SQC favicon", 'href="./art/sqc-icon.svg"' in app_head and "kosif-cloud.svg" not in app_head)
 ok("app shell advertises manifest", 'rel="manifest" href="./manifest.webmanifest"' in app_head)
 ok("unlock page has audit-first meta description", 'name="description"' in unlock_head and "المراجعة" in unlock_head)

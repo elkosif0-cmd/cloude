@@ -982,3 +982,20 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   #228 / #229 were merged by the identity session (tasks 008/009).
 - Branch / PR: `claude/r17-full-review-20261008` (PR #230).
 
+
+
+### TASK CLAUDE-20261009-013 — R19: the KOSIF app's organisation and colours in SQC
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Owner request: «طور تطبيق s kosif استفد من فكرة التنظيم والالوان» (from the KOSIF web app, artifact MN6p4QfsTc9uq2Mc1MVxFs).
+- Colours: «دفتر KOSIF» is the default identity — `html[data-look="kosif"][data-brand="ledger"]` (cream paper #FBF8F3, charcoal ink
+  #1D1814, one saffron accent #D9530E; dark: warm charcoal and saffron). «كوبالت وجليد» stays selectable (family `cobalt`, the base
+  kosif tokens), «الكحلي والذهبي» unchanged. Ledger overrides re-assert paper and ink over the calm light layer (sqc.css), KOSIF's ink
+  edge on briefing tiles and KPI cards, ink-ringed active menu item with a saffron icon. Fonts unchanged. App-shell theme-color
+  #F3ECE2 (the door and the manifest stay cobalt). Identity doc §8.2; identity baseline re-recorded (colours 425 → 440, the palette).
+- Organisation: the phone tab bar is fixed to the screen (it was `sticky` inside a body that scrolls itself, so it never stuck and
+  sat at the end of every page); Home first in accounting and tools; «المزيد» always labelled.
+- Also: helper_gateway's fake click answered every selector, so #231's AI-settings link check caught it — narrowed to the card.
+- Blocker: GitHub Actions refuses every job on elkosif0-cmd («recent account payments have failed or your spending limit needs to be
+  increased»), so CI and the Pages build (which carries the private password) cannot run until the owner fixes billing. Verified locally.
+- Branch: `claude/r19-kosif-ledger-20261009` (on top of R17, PR #230).

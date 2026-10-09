@@ -21,14 +21,16 @@ function identityMetadata(){
   manifest.href="./manifest.webmanifest";
   let theme=h.querySelector('meta[name="theme-color"]');
   if(!theme){theme=document.createElement("meta");theme.name="theme-color";h.appendChild(theme)}
-  if(!theme.content)theme.content="#0b1030";
+  if(!theme.content)theme.content="#f3ece2";
 }
 
 /* ---------- preferences: theme (look) + density ----------
-   look: kosif (default, the adopted KOSIF identity) | kosif-night | heritage | heritage-night | executive | audit | midnight | notebook | auto */
+   look: kosif (default «دفتر KOSIF», 2026-10-09) | kosif-night | cobalt («كوبالت وجليد», 2026-10-08) | cobalt-night | navygold | … | auto */
 const LOOKS=[
-  ["kosif","SQC","الهوية المعتمدة «كوبالت وجليد»: كوبالت ليلي وأزرق الكوبالت ولمعة الجليد وبطاقات بيضاء",["#f4f6fb","#0b1030","#2340c4","#19c3d9"]],
-  ["kosif-night","SQC الليلي","نفس الهوية بإضاءة ليلية",["#070a1e","#050719","#9fb0ff","#5fdcea"]],
+  ["kosif","دفتر KOSIF","الهوية المعتمدة: ورق كريمي وحبر فحمي ولمسة زعفران واحدة — من تطبيق KOSIF",["#fbf8f3","#1d1814","#f3ece2","#d9530e"]],
+  ["kosif-night","دفتر KOSIF الليلي","نفس الهوية بإضاءة ليلية: فحم دافئ وزعفران",["#161310","#110f0d","#f5ede3","#f2732d"]],
+  ["cobalt","كوبالت وجليد","هوية 2026-10-08: كوبالت ليلي وأزرق الكوبالت ولمعة الجليد وبطاقات بيضاء",["#f4f6fb","#0b1030","#2340c4","#19c3d9"]],
+  ["cobalt-night","كوبالت وجليد الليلي","هوية الكوبالت بإضاءة ليلية",["#070a1e","#050719","#9fb0ff","#5fdcea"]],
   ["navygold","الكحلي والذهبي","هوية SQC السابقة: كحلي وذهبي وعاجي",["#f7f4ec","#0b1f3a","#13305a","#c9a227"]],
   ["navygold-night","الكحلي والذهبي الليلي","الهوية السابقة بإضاءة ليلية",["#0a1424","#06101f","#8fb3e8","#d4af37"]],
   ["najd","نجد الفاخر","أخضر ملكي وذهب نجد وبطاقات بيضاء ناصعة وحلقات فخمة",["#f7faf7","#07381e","#006c35","#d4af37"],"pro"],
@@ -47,9 +49,9 @@ const LOOKS=[
   ["oasis-night","الواحة الليلي","الواحة في ليل الصحراء",["#141915","#101511","#86b896","#e59a63"],"pro"],
   ["graphite","الجرافيت","داكن مركّز بخطوط دقيقة — للعمل الطويل",["#0e0f12","#0b0c0f","#8183ff","#5ee0c4"],"pro"],
   ["onyx","العقيق","أسود وذهبي وعناوين بخط النسخ — فخامة المصارف الخاصة",["#0b0b0c","#080808","#d4af5a","#f4efe4"],"pro"],
-  ["auto","حسب الجهاز","ثيمك المختار نهاراً ونسخته الليلية ليلاً",["#f4f6fb","#2340c4","#070a1e","#5fdcea"]]];
-const DARK=new Set(["kosif-night","navygold-night","najd-night","heritage-night","midnight","aurora-night","vivid-night","oasis-night","graphite","onyx"]);
-const NIGHT={kosif:"kosif-night",navygold:"navygold-night",najd:"najd-night",heritage:"heritage-night",aurora:"aurora-night",vivid:"vivid-night",oasis:"oasis-night"};
+  ["auto","حسب الجهاز","ثيمك المختار نهاراً ونسخته الليلية ليلاً",["#fbf8f3","#1d1814","#161310","#f2732d"]]];
+const DARK=new Set(["kosif-night","cobalt-night","navygold-night","najd-night","heritage-night","midnight","aurora-night","vivid-night","oasis-night","graphite","onyx"]);
+const NIGHT={kosif:"kosif-night",cobalt:"cobalt-night",navygold:"navygold-night",najd:"najd-night",heritage:"heritage-night",aurora:"aurora-night",vivid:"vivid-night",oasis:"oasis-night"};
 function prefs(){return Object.assign({look:"kosif",density:"cozy",lastLight:"kosif",rail:"full",font:"theme",scale:1,radius:"theme",accent:"",contrast:false},load(PREF_KEY,{}))}
 /* ---------- theme studio: typeface, text size, accent colour, corners, contrast ----------
    applied on top of any look as inline tokens on <html>, so every screen, chart and print follows */
@@ -125,9 +127,10 @@ function fonts(look){
 }
 function applyPrefs(){
   const de=document.documentElement,look=lookNow(),mode=resolved(),p=prefs();
-  /* «الكحلي والذهبي» is a brand variant of the kosif look (same layout rules, the previous colours) */
-  const fam=look.replace(/-night$/,""),brand=fam==="navygold"?"navygold":"";
-  de.setAttribute("data-look",brand?"kosif":fam);if(brand)de.setAttribute("data-brand",brand);else de.removeAttribute("data-brand");
+  /* the kosif look carries three brand variants on one set of layout rules: «دفتر KOSIF» (the default family "kosif",
+     data-brand="ledger"), «كوبالت وجليد» (family "cobalt", the base kosif tokens) and «الكحلي والذهبي» (data-brand="navygold") */
+  const fam=look.replace(/-night$/,""),brand={kosif:"ledger",navygold:"navygold"}[fam]||"",kosifFamily=fam==="kosif"||fam==="cobalt"||fam==="navygold";
+  de.setAttribute("data-look",kosifFamily?"kosif":fam);if(brand)de.setAttribute("data-brand",brand);else de.removeAttribute("data-brand");
   de.setAttribute("data-theme",mode);de.setAttribute("data-density",p.density==="compact"?"compact":"cozy");
   de.setAttribute("data-rail",p.rail==="mini"?"mini":"full");
   de.setAttribute("data-sidebar",p.sidebarHidden===true?"hidden":"visible");
@@ -274,11 +277,12 @@ function paintTop(){
 }
 /* phones: bottom tab bar — in the page flow (sticky), never over content. Four screens the user
    picks in «الأجهزة والمزامنة» (prefs.tabs), then «المزيد» opens the drawer. */
-/* default tabs are section-aware (FOUNDATION §3): accounting · audit · tools */
+/* default tabs are section-aware (FOUNDATION §3): accounting · audit · tools. R19 (the KOSIF app's organisation): Home first —
+   the company dashboard, shared by every section — then the section's own screens; audit keeps its file as its home */
 const TABS_BY_GATE={
-  accounting:["ledger","commerce","inventory","execreports"],
+  accounting:["dash","ledger","commerce","execreports"],
   audit:["tbreview","auditdesk","auditbench","auditcouncil"],
-  tools:["helperdesk","costs","salesintel","decision"]
+  tools:["dash","helperdesk","costs","salesintel"]
 };
 const TABS=TABS_BY_GATE.accounting;
 const SHORT={dash:"الرئيسية",helperdesk:"الخريطة",tbreview:"المراجعة",codex:"المعايير",auditbench:"المرجع",auditdesk:"الاستوديو",auditcouncil:"المجلس",commerce:"الطلبات",tasks:"المهام",inventory:"المخزون",zatca:"الفاتورة",customers:"العملاء",followup:"المتابعة",offers:"العروض",
@@ -306,9 +310,9 @@ function paintTabs(){
     bar=document.createElement("nav");bar.id="skb";bar.className="skb";bar.setAttribute("aria-label","تنقل سريع");host.appendChild(bar);
     bar.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.more){sidebar.opener=b;sidebar.openerMore=true;toggleSidebar()}else c.go(b.dataset.v)});
   }
-  const cur=c.view(),cap=SK.caps.get(cur),tabs=tabIds().filter(id=>SK.perm.can(id)).map(id=>[id,tabLabel(id)]);
+  const cur=c.view(),tabs=tabIds().filter(id=>SK.perm.can(id)).map(id=>[id,tabLabel(id)]);
   const html=tabs.map(([id,l])=>'<button type="button" data-v="'+id+'"'+(id===cur?' aria-current="page"':'')+'>'+(SK.icons[id]||c.navIcon(id)||"")+(c.navBadge(id)||"")+'<span>'+esc(l)+'</span></button>').join("")+
-    '<button type="button" data-more="1"'+(tabs.some(([id])=>id===cur)?'':' aria-current="page"')+'><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg><span>'+(cap&&!tabs.some(([id])=>id===cur)?esc(tabLabel(cur)):"المزيد")+'</span></button>';
+    '<button type="button" data-more="1"'+(tabs.some(([id])=>id===cur)?'':' aria-current="page"')+'><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg><span>المزيد</span></button>';
   if(bar.innerHTML!==html)bar.innerHTML=html;
 }
 /* laptops: the rail folds to an icon column (Ctrl/⌘+B or the button under the brand) */

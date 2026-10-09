@@ -19,6 +19,9 @@ light = block(':root[data-look="kosif"]')
 dark = block(':root[data-look="kosif"][data-theme="dark"]')
 base = block(":root")
 def t(k, d=light): return d.get(k) or base.get(k) or "—"
+ledger = block(':root[data-look="kosif"][data-brand="ledger"]')
+ledger_dark = block(':root[data-look="kosif"][data-brand="ledger"][data-theme="dark"]')
+def lg(k, d=None): return (d or ledger).get(k) or t(k)
 
 palette = [
     ("العلامة", "--sk-brand", "زر الإجراء الأول في الشاشة، الروابط، الحلقات، التحديد"),
@@ -91,6 +94,12 @@ doc = f"""# هوية SQC — المرجع الواحد (يولَّد من `ui/ds
 - الشعار: حرف S بتدرّج الجليد، وQ بلّورة مقطوعة سداسية ذيلها **علامة صح المراجعة**، وC بالكوبالت أو الأبيض؛ النقطة معيّن جليدي. المصدر الواحد: `ui/art/sqc-*.svg` (نسخة الشريط العلوي داخل `ui/layouts/topbar.js`)، وأيقونات PNG مولّدة من `sqc-icon.svg` بـ `tools/brand/make_marks.py`.
 - صور العلامة وصور القطاعات وفيديو الباب واللوحة أعيد تلوينها من الذهبي إلى الجليدي بتحويل لون انتقائي حتمي (`tools/brand/recolor_ice.py`) — انظر `docs/design/HIGGSFIELD_VISUALS_ar.md`.
 - الهوية السابقة باقية كاختيار «الكحلي والذهبي» في منتقي الثيم: `html[data-look="kosif"][data-brand="navygold"]` يعيد ألوانها فوق نفس قواعد التخطيط.
+
+### 8.2 هوية «دفتر KOSIF» — الافتراضية منذ 2026-10-09
+بطلب المالك «طوّر تطبيق s kosif استفد من فكرة التنظيم والألوان» أخذ SQC ألوان تطبيق KOSIF وتنظيمه: ورق كريمي `{lg("--sk-bg")}` وبطاقات `{lg("--sk-surface")}`، حبر فحمي `{lg("--sk-ink")}` للعناوين وحواف القائمة والأزرار الأساسية (17:1)، ولون مميز واحد هو الزعفران `{lg("--sk-brand-2")}` للعلامات والحالة النشطة، ونصه `{lg("--sk-gold-ink")}` (5.9:1). القائمة ورقية `{lg("--sk-rail")}` بحافة حبر، والعنصر النشط إطار حبر وأيقونة زعفرانية كما في KOSIF؛ بطاقات الملخص بحافة حبر مع شريط الحالة. الليلي: فحم دافئ `{lg("--sk-bg", ledger_dark)}` وزعفران `{lg("--sk-brand", ledger_dark)}`.
+- تُطبَّق كمتغير علامة `html[data-look="kosif"][data-brand="ledger"]` فوق قواعد التخطيط نفسها؛ الخطوط كما هي (IBM Plex Sans Arabic وMontserrat).
+- «كوبالت وجليد» باقية في منتقي الثيم (عائلة `cobalt`، رموز `:root[data-look="kosif"]` الأساسية)، و«الكحلي والذهبي» كما هي.
+- التنظيم: شريط تبويبات ثابت أسفل الشاشة على الجوال يبدأ بـ«الرئيسية» ثم شاشات القسم ثم «المزيد» (كان ملتصقاً داخل جسم صفحة يمرّر نفسه فلا يظهر إلا في آخر الصفحة).
 
 ## 9. كيف يُقاس الالتزام
 `node tools/identity_audit.mjs` يطبع: ألوان مكتوبة يدوياً خارج الرموز، مسافات خارج شبكة 4، أقطار حرفية، ألوان داخل JS، `!important`، أوزان ثقيلة، تعدد حلقات التركيز. الخط الأساس في `tools/fixtures/identity-baseline.json` ولا يُسمح بأن يسوء أي رقم (CI).

@@ -128,7 +128,7 @@ test('repeat render and role change recompute topology without duplicate click h
   instance.render();
   assertTopology(instance, Object.entries(sectionTargets).filter(([, ids]) => ids.some(id => instance.context.SK.perm.can(id))).map(([id]) => id));
   assert.equal(instance.listeners.length, 1);
-  instance.listeners[0].fn({ target: { closest: () => ({ dataset: { hdGo: 'productflow' } }) } });
+  instance.listeners[0].fn({ target: { closest: (sel) => (sel === '[data-hd-go]' ? { dataset: { hdGo: 'productflow' } } : null) } }); // a card, not the AI-settings link (#231)
   assert.deepEqual(instance.navigation, ['productflow']);
 });
 test('three entries (FOUNDATION §3) and every registered capability remain navigable by their IDs', () => {
