@@ -721,7 +721,10 @@ function journalParameters() {
   return {
     periodEnd: $('#journalPeriodEnd')?.value || state.journalReview?.parameters?.periodEnd || null,
     periodEndWindowDays: Number($('#journalWindowDays')?.value ?? state.journalReview?.parameters?.periodEndWindowDays ?? 5),
-    rareUserMaxEntries: 1
+    rareUserMaxEntries: 1,
+    /* the engagement's overall materiality drives «أقل مباشرة من الأهمية النسبية» and «قيد مرتفع القيمة» (ISA 320 / ISA 240);
+       without a materiality only the balance check runs */
+    materialityMinor: runtime.materiality?.overall ?? state.journalReview?.parameters?.materialityMinor ?? 0n
   };
 }
 
