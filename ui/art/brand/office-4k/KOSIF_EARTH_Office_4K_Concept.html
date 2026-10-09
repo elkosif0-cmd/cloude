@@ -1,0 +1,118 @@
+﻿<!doctype html>
+<html lang="ar" dir="rtl">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KOSIF EARTH — Office 4K Concept</title>
+<style>
+@font-face{font-family:Plex;src:url("../../fonts/plex-400-arabic.woff2") format("woff2");font-style:normal;font-weight:400;unicode-range:U+0600-06FF,U+0750-077F,U+FB50-FDFF,U+FE70-FEFC}
+@font-face{font-family:Plex;src:url("../../fonts/plex-400-latin.woff2") format("woff2");font-style:normal;font-weight:400;unicode-range:U+0000-024F}
+@font-face{font-family:Plex;src:url("../../fonts/plex-600-arabic.woff2") format("woff2");font-style:normal;font-weight:600;unicode-range:U+0600-06FF,U+0750-077F,U+FB50-FDFF,U+FE70-FEFC}
+@font-face{font-family:Plex;src:url("../../fonts/plex-600-latin.woff2") format("woff2");font-style:normal;font-weight:600;unicode-range:U+0000-024F}
+@font-face{font-family:Plex;src:url("../../fonts/plex-700-arabic.woff2") format("woff2");font-style:normal;font-weight:700;unicode-range:U+0600-06FF,U+0750-077F,U+FB50-FDFF,U+FE70-FEFC}
+@font-face{font-family:Plex;src:url("../../fonts/plex-700-latin.woff2") format("woff2");font-style:normal;font-weight:700;unicode-range:U+0000-024F}
+@font-face{font-family:Mont;src:url("../../fonts/montserrat-700-latin.woff2") format("woff2");font-weight:700}
+@font-face{font-family:Mont;src:url("../../fonts/montserrat-800-latin.woff2") format("woff2");font-weight:800}
+:root{--green:#125c43;--jade:#50b98a;--ink:#0b1d19;--cream:#f4f8f2;--gold:#e8ca92}
+*{box-sizing:border-box}
+html,body{width:3840px;height:2160px;margin:0;overflow:hidden}
+body{position:relative;background:#233a31 url("KOSIF_EARTH_Office_Background_TrueSource_4K.jpg") 50% 46%/cover no-repeat;font-family:Plex,"Segoe UI",sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
+body:before{content:"";position:absolute;inset:0;background:
+linear-gradient(90deg,rgba(1,22,17,.93) 0%,rgba(3,28,22,.77) 29%,rgba(3,32,24,.43) 54%,rgba(2,35,24,.06) 86%),
+linear-gradient(0deg,rgba(0,23,18,.82),rgba(5,35,28,.08) 44%,rgba(0,25,20,.28) 100%);pointer-events:none}
+body:after{content:"";position:absolute;inset:0;pointer-events:none;background:
+radial-gradient(ellipse at 83% 21%,rgba(241,213,152,.29),transparent 28%),
+radial-gradient(ellipse at 32% 100%,rgba(58,172,118,.18),transparent 50%);
+mix-blend-mode:screen}
+.sidebar{position:absolute;z-index:2;right:52px;top:56px;bottom:54px;width:330px;border:1px solid rgba(218,244,226,.3);
+border-radius:34px;background:linear-gradient(165deg,rgba(1,29,23,.95),rgba(4,40,31,.88));backdrop-filter:blur(28px);box-shadow:0 20px 100px rgba(0,0,0,.30);padding:45px 29px;display:flex;flex-direction:column;align-items:stretch}
+.brand{display:flex;align-items:center;gap:16px;direction:ltr;justify-content:center;margin-bottom:100px}
+.brand .mark{width:58px;height:68px;position:relative}
+.brand .mark svg{width:100%;height:100%}
+.brand .word{display:flex;flex-direction:column;align-items:start}
+.brand .word b{font:800 48px/.97 Mont,sans-serif;letter-spacing:.06em;color:#fff}
+.brand .word small{font:700 21px Mont,sans-serif;letter-spacing:.43em;margin-top:6px;color:#91ddad}
+.nav{display:flex;flex-direction:column;gap:18px}
+.nav-item{display:flex;align-items:center;gap:17px;padding:23px 24px;border-radius:22px;font-size:32px;font-weight:600;color:rgba(234,248,239,.76);white-space:nowrap}
+.nav-item svg{width:33px;height:33px;flex:none}
+.nav-item.active{color:#fff;background:linear-gradient(90deg,rgba(52,165,104,.66),rgba(20,86,66,.42));border:1px solid rgba(173,246,197,.40);box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+.sidebar-bottom{margin-top:auto;border-top:1px solid rgba(225,250,235,.23);padding-top:29px;text-align:center;color:rgba(240,253,245,.61);font-size:21px;line-height:1.6}
+.sidebar-bottom strong{display:block;color:#bdebd2;font-size:26px;font-weight:700}
+.page{position:absolute;z-index:1;left:62px;right:415px;top:50px;bottom:52px;direction:rtl}
+.topbar{height:102px;display:flex;align-items:center;justify-content:space-between;gap:30px}
+.utility{display:flex;align-items:center;gap:26px;flex-shrink:0}
+.utility .pill{height:76px;min-width:76px;padding:0 24px;border:1px solid rgba(235,249,239,.45);background:rgba(4,39,31,.44);border-radius:22px;display:flex;align-items:center;gap:18px;backdrop-filter:blur(12px);font-size:26px}
+.utility svg{width:29px;height:29px}
+.utility .profile{height:76px;padding:7px 8px 7px 26px;display:flex;align-items:center;gap:15px;border:1px solid rgba(235,249,239,.5);border-radius:46px;background:rgba(3,36,28,.55)}
+.avatar{width:61px;height:61px;border-radius:50%;display:grid;place-items:center;color:#053625;background:linear-gradient(145deg,#f2dec2,#8db9a0);font:800 27px Mont}
+.profile-text{display:grid;gap:3px;text-align:right}
+.profile-text b{font-size:25px}.profile-text small{font-size:18px;color:rgba(255,255,255,.68)}
+.search{height:79px;width:680px;border-radius:22px;border:1px solid rgba(255,255,255,.30);background:rgba(6,39,32,.42);backdrop-filter:blur(18px);display:flex;align-items:center;gap:19px;padding:0 25px;font-size:26px;color:rgba(255,255,255,.82)}
+.search svg{width:31px;height:31px}
+.hero{position:absolute;top:365px;right:95px;left:80px;min-height:820px}
+.eyebrow{display:inline-flex;align-items:center;gap:15px;border-radius:99px;border:1px solid rgba(168,238,195,.55);background:rgba(2,52,35,.32);padding:14px 29px;font-size:27px;color:#d8ffe7}
+.leaf-dot{width:18px;height:18px;background:#a9ebad;border-radius:0 80% 0 80%;transform:rotate(-12deg)}
+.hero-word{margin:44px 0 13px;direction:ltr;display:flex;align-items:baseline;gap:31px;font:800 165px/.96 Mont,sans-serif;letter-spacing:-.038em;text-shadow:0 20px 65px rgba(0,22,17,.37)}
+.hero-word span:nth-child(2){color:#a9e5b8}
+.hero-title{font-size:83px;line-height:1.25;font-weight:700;letter-spacing:-.02em;text-shadow:0 4px 20px rgba(0,0,0,.20);margin:31px 0 0}
+.hero-desc{margin:24px 0 35px;font-size:35px;color:#d9f0e1;line-height:1.75}
+.actions{display:flex;align-items:center;gap:27px}
+.cta{background:linear-gradient(130deg,#9cec9d,#42b987 65%,#167753);box-shadow:0 17px 48px rgba(0,34,18,.28),inset 0 2px 0 rgba(255,255,255,.44);
+display:inline-flex;align-items:center;gap:32px;color:#083927;font-size:35px;font-weight:700;padding:22px 48px;border-radius:90px;min-height:101px}
+.cta .arrow{font-size:48px;font-family:sans-serif;line-height:1}
+.secondary{display:inline-flex;align-items:center;gap:22px;font-weight:600;font-size:27px;color:#fff;padding:16px 28px}
+.secondary .play{width:63px;height:63px;border:2px solid rgba(255,255,255,.8);border-radius:50%;display:grid;place-items:center;font-size:25px}
+.kicker{position:absolute;top:305px;left:50px;min-width:470px;max-width:555px;padding:38px 43px;border-radius:29px;background:rgba(4,39,33,.45);border:1px solid rgba(243,255,250,.47);backdrop-filter:blur(17px);box-shadow:0 16px 55px rgba(0,0,0,.15);direction:rtl}
+.kicker strong{display:block;font-size:36px;color:#f5fff7}.kicker span{display:block;margin-top:12px;font-size:25px;color:#d0ebd7;line-height:1.7}
+.cards-label{position:absolute;bottom:650px;right:80px;display:flex;align-items:center;gap:20px;color:#f1fff6}
+.cards-label strong{font-size:42px}
+.cards-label span{font-size:25px;color:rgba(245,255,249,.83)}
+.cards{position:absolute;bottom:109px;left:34px;right:65px;display:grid;grid-template-columns:repeat(3,1fr);gap:30px}
+.card{height:490px;padding:41px 46px;position:relative;border-radius:32px;background:linear-gradient(145deg,rgba(251,255,249,.93),rgba(232,244,235,.82));backdrop-filter:blur(24px);border:1.5px solid rgba(255,255,255,.88);color:#122d25;box-shadow:0 30px 75px rgba(0,27,18,.27);overflow:hidden}
+.card:after{content:"";position:absolute;left:-110px;top:-120px;width:500px;height:500px;background:radial-gradient(circle,rgba(60,166,115,.2),transparent 70%);pointer-events:none}
+.iconbox{width:96px;height:96px;border-radius:26px;display:grid;place-items:center;background:linear-gradient(155deg,#155841,#0b3529);box-shadow:0 14px 28px rgba(10,58,42,.23);color:#d1f8df}
+.iconbox svg{width:55px;height:55px}
+.card-index{position:absolute;top:55px;left:47px;font:800 40px Mont;color:rgba(20,84,57,.14)}
+.card h3{font-size:61px;letter-spacing:-.03em;margin:40px 0 12px;font-weight:700}
+.card p{font-size:31px;font-weight:400;color:#52695e;line-height:1.72;margin:0;max-width:740px}
+.card-bottom{position:absolute;left:45px;bottom:38px;width:66px;height:66px;display:grid;place-items:center;border-radius:50%;background:#d8eede;color:#135741;font:700 38px sans-serif}
+.bottom-note{position:absolute;bottom:14px;right:80px;font-size:23px;letter-spacing:.01em;color:rgba(234,253,242,.90)}
+</style></head>
+<body>
+<aside class="sidebar">
+  <div class="brand">
+    <div class="mark"><svg viewBox="0 0 62 74" fill="none"><path d="M10 62C12 35 35 14 59 6 60 33 40 59 10 62Z" fill="#9BEDAF"/><path d="M9 67C20 46 32 36 52 21" stroke="#0B4F34" stroke-width="4" stroke-linecap="round"/><path d="M8 55C-1 44-1 29 3 19 18 27 23 40 19 48Z" fill="#59B97D"/></svg></div>
+    <div class="word"><b>KOSIF</b><small>EARTH</small></div>
+  </div>
+  <nav class="nav">
+    <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11 12 3l9 8v9a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>الرئيسية</div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/></svg>المحاسبة</div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 2 9 4v6c0 6-4 9-9 10-5-1-9-4-9-10V6l9-4z"/><path d="m8 12 3 3 5-6"/></svg>المراجعة</div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></svg>الأدوات</div>
+  </nav>
+  <div class="sidebar-bottom"><strong>أرض الأفكار الواضحة</strong>كل شركة عالم مستقل</div>
+</aside>
+<div class="page">
+  <header class="topbar">
+    <div class="utility">
+      <div class="profile"><div class="avatar">K</div><span class="profile-text"><b>مرحبًا بك</b><small>منصة KOSIF EARTH</small></span></div>
+      <div class="pill">AR</div>
+      <div class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a16 16 0 0 1 0 18M12 3a16 16 0 0 0 0 18"/></svg></div>
+    </div>
+    <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="7"/><path d="m15 15 6 6"/></svg>ابحث عن مهمة أو قسم...</div>
+  </header>
+  <div class="hero">
+    <div class="eyebrow"><i class="leaf-dot"></i>مساحة أذكى لأعمالك المالية</div>
+    <div class="hero-word"><span>KOSIF</span><span>EARTH</span></div>
+    <h1 class="hero-title">من الأرقام إلى قرارات تنمو.</h1>
+    <p class="hero-desc">منصة واحدة للمحاسبة والمراجعة والأدوات الذكية.<br>وضوح في البداية. خطوات مفهومة. نتيجة يمكنك الوثوق بها.</p>
+    <div class="actions"><span class="cta"><span>ابدأ الآن</span><span class="arrow">←</span></span><span class="secondary"><span class="play">▶</span>شاهد التجربة</span></div>
+  </div>
+  <div class="kicker"><strong>عالمك المالي... بصورة أوضح</strong><span>كل قسم يبدأ بهدف محدد، ثم يرشدك خطوة بخطوة حتى تصل إلى النتيجة.</span></div>
+  <div class="cards-label"><strong>ماذا تريد أن تنجز اليوم؟</strong><span>اختر المجال، وسنرتب لك الطريق.</span></div>
+  <div class="cards">
+    <article class="card"><span class="card-index">01</span><span class="iconbox"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"><rect x="13" y="12" width="38" height="42" rx="6"/><path d="M21 23h22M21 33h11M21 42h6M37 42h8M35 49h10"/></svg></span><h3>المحاسبة</h3><p>سجّل العمليات، تابع الحسابات،<br>واستخرج القوائم المالية بثقة.</p><span class="card-bottom">←</span></article>
+    <article class="card"><span class="card-index">02</span><span class="iconbox"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"><path d="M32 5 55 15v18c0 16-12 23-23 26C20 56 9 49 9 33V15L32 5z"/><path d="m22 32 7 7 15-17"/></svg></span><h3>المراجعة</h3><p>حدّد نطاق العمل، اختبر الأدلة،<br>وأنجز تقرير المراجعة.</p><span class="card-bottom">←</span></article>
+    <article class="card"><span class="card-index">03</span><span class="iconbox"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.8" stroke-linejoin="round"><path d="M32 5 55 18v28L32 59 9 46V18L32 5zM9 18l23 13 23-13M32 31v28"/></svg></span><h3>الأدوات</h3><p>أضف قدرات متخصصة عند الحاجة،<br>بدون زحمة أو تكرار.</p><span class="card-bottom">←</span></article>
+  </div>
+  <div class="bottom-note">KOSIF EARTH · CONCEPT PREVIEW · 3840 × 2160</div>
+</div>
+</body></html>
