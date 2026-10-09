@@ -29314,6 +29314,7 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/reports/excel-recon-engine.ts
 	var excel_recon_engine_exports = /* @__PURE__ */ __exportAll({
+		excelCostDiagnosis: () => excelCostDiagnosis,
 		parseExcelReconText: () => parseExcelReconText,
 		reconcileExcelRows: () => reconcileExcelRows
 	});
@@ -29376,6 +29377,43 @@ window.SKEngines = (function() {
 				status
 			};
 		});
+	}
+	function excelCostDiagnosis(input) {
+		const { excelCost: xc, item: it, vat } = input, tol = input.tolerance ?? .003;
+		const xcNet = input.vatMode === "gross" ? xc / (1 + vat) : xc;
+		const price = input.excelPrice && input.excelPrice > 0 ? input.excelPrice : it.price, pNet = price / (1 + vat), base = input.netBase ? pNet : price;
+		const gap = it.cost - xcNet, gapPct = xcNet > 0 ? gap / xcNet : 0;
+		let code = "MATCH", diag = "مطابق";
+		if (Math.abs(gapPct) > tol) {
+			code = gap > 0 ? "UNDER" : "OVER";
+			diag = gap > 0 ? "إكسل يُظهر تكلفة أقل من الحقيقية" : "إكسل يُظهر تكلفة أعلى من الحقيقية";
+			const w = it.kind === "raw" ? (Number(it.waste) || 0) / 100 : 0;
+			if (w > 0) {
+				const ratio = 1 / ((1 - w) * (1 + w)), got = it.cost / xcNet;
+				if (input.yieldMethod && Math.abs(got - ratio) < .004) {
+					code = "WASTE_EXCEL_ADDS";
+					diag = "فرق طريقة الهدر: إكسل يضيف الهدر (×(1+هدر)) والتطبيق يقسم على (1−هدر) — إكسل يقلل التكلفة";
+				}
+				if (!input.yieldMethod && Math.abs(got * ratio - 1) < .004) {
+					code = "WASTE_EXCEL_DIVIDES";
+					diag = "فرق طريقة الهدر: إكسل يقسم على (1−هدر) والتطبيق يضيف الهدر (×(1+هدر))";
+				}
+			}
+			if (input.vatMode === "net" && Math.abs(xc / (it.cost * (1 + vat)) - 1) < .01) {
+				code = "VAT_INCLUSIVE";
+				diag = "يبدو أن تكلفة إكسل شاملة الضريبة — غيّر خيار «التكلفة في الملف»";
+			}
+		}
+		return {
+			xcNet,
+			price,
+			gap,
+			gapPct,
+			excelMargin: base > 0 ? (pNet - xcNet) / base : null,
+			trueMargin: base > 0 ? (pNet - it.cost) / base : null,
+			code,
+			diag
+		};
 	}
 	//#endregion
 	//#region app/src/engine/fusion/reports/export-engine.ts

@@ -152,12 +152,44 @@ function removeDefinition(type,id){
   s.definitions[type]=s.definitions[type].filter(x=>x.id!==id);
   if(s.definitions[type].length===before)return false;commit(s,"definition.remove",{type,id});return true;
 }
+/* ---------- the company's Capability Profile (FOUNDATION §3.0‑10; owner 2026-10-09: «existing keep all») ----------
+   A company created after the ownership stamp (SK.company records with ownerScope, PR #228) is an opt-in company: it starts with
+   the everyday tools (tier CORE) and its own sector's tools, the rest are enabled per company from «مكتبة الأدوات»; AI starts
+   off until enabled for it. A company from before — and the demo company — keeps every tool and AI as it had them («all»).
+   Home, administration and the tools library itself are never switched off. Screens outside the tools entry (the books,
+   the audit file) are not tools and are never gated here. */
+const inToolsGate=c=>!!c&&(SK.caps&&SK.caps.inGatewayOf?SK.caps.inGatewayOf(c,"tools"):c.gateway==="tools");
+const alwaysOn=c=>!c||c.group==="home"||c.tier==="ADMIN"||c.id==="helperdesk";
+function companyRecord(){const id=cur().id,d=load("skosif_companies_v1",{})||{};return (d.companies||[]).find(x=>x&&x.id===id)||null}
+function capMode(){const p=state().capabilityProfile;if(p&&(p.mode==="all"||p.mode==="opt-in"))return p.mode;const r=companyRecord();return r&&r.ownerScope?"opt-in":"all"}
+/* the tools a new company of this sector starts with: the everyday tier, and the screens made for its sector */
+function coreTools(sector=cur().sector){
+  const all=SK.caps&&SK.caps.all?SK.caps.all():[];
+  return all.filter(c=>inToolsGate(c)&&!alwaysOn(c)&&(Array.isArray(c.sectors)?c.sectors.includes(sector):c.tier==="CORE")).map(c=>c.id);
+}
+function enabledTools(){const s=state(),p=s.capabilityProfile||{};return new Set(p.custom?s.installedTools:[...coreTools(),...s.installedTools])}
+function capEnabled(id){
+  const c=SK.caps&&SK.caps.get?SK.caps.get(id):null;
+  if(!c||!inToolsGate(c)||alwaysOn(c)||capMode()==="all")return true;
+  return enabledTools().has(id);
+}
+function aiEnabled(){const p=state().capabilityProfile;if(p&&typeof p.ai==="boolean")return p.ai;return capMode()==="all"}
+function setAI(on){const s=state();s.capabilityProfile={...(s.capabilityProfile||{}),mode:capMode(),ai:!!on};commit(s,on?"ai.enable":"ai.disable");return !!on}
+function capabilityProfile(){
+  const mode=capMode(),all=(SK.caps&&SK.caps.all?SK.caps.all():[]).filter(c=>inToolsGate(c)&&!alwaysOn(c)&&(!Array.isArray(c.sectors)||c.sectors.includes(cur().sector)));
+  const on=all.filter(c=>capEnabled(c.id)).map(c=>c.id);
+  return Object.freeze({mode,custom:!!(state().capabilityProfile||{}).custom,sector:cur().sector||"",tools:all.map(c=>c.id),enabled:on,
+    ai:aiEnabled(),aiConfigured:!!(window.SKosifAI&&window.SKosifAI.ready&&window.SKosifAI.ready())});
+}
 function installed(id){return state().installedTools.includes(id)}
 function setTool(id,on){
   const cap=SK.caps&&SK.caps.get?SK.caps.get(id):null;
   /* a tool is anything the helper-tools entry offers: its own screens and the screens shared with it (suppliers, inventory, reports…) */
   if(!cap||!(SK.caps.inGatewayOf?SK.caps.inGatewayOf(cap,"tools"):cap.gateway==="tools"))throw new Error("الأداة ليست ضمن بوابة الأدوات المساعدة");
-  const s=state(),set=new Set(s.installedTools);on?set.add(id):set.delete(id);s.installedTools=[...set];
+  const s=state(),opt=capMode()==="opt-in";
+  /* an opt-in company's first change writes out what it had (its sector's core tools) so nothing it uses disappears */
+  const set=new Set(opt&&!(s.capabilityProfile||{}).custom?[...coreTools(),...s.installedTools]:s.installedTools);on?set.add(id):set.delete(id);s.installedTools=[...set];
+  if(opt)s.capabilityProfile={...(s.capabilityProfile||{}),mode:"opt-in",custom:true};
   commit(s,on?"tool.install":"tool.remove",{capabilityId:id});return on;
 }
 function reportingTarget(id){if(!REPORT_TARGETS[id])return false;const s=state();s.reporting.target=id;commit(s,"reporting.target",{target:id});return true}
@@ -333,5 +365,5 @@ function searchCompany(query){
   const limited=hits.slice(0,20),text=limited.length?("نتائج داخل «"+c.name+"»:\n"+limited.map(x=>"• "+x.title+(x.detail?" — "+x.detail:"")).join("\n")):"لم أجد نتيجة مطابقة داخل بيانات الشركة الحالية.";
   return{text,matches:limited};
 }
-window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,vatPolicy,sectorPack,applySectorPack,ensureSectorPack,definitions,addDefinition,removeDefinition,assetDepreciation,fixedAssetSummary,fixedAssetJournal,installed,setTool,reportingTarget,reportingStatus,mpms,registerMpm,removeMpm,approveMpm,mpmReconciliation,mpmSubtotals:()=>MPM_SUBTOTALS,lineage,lineageFor,addLineage,inferType,ingestFiles,documents,readDocument,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,markAuditHandoff,setAuditHandoffStatus,addStandardTrace,aiExceptions,addAIException,resolveAIException,saveReportResult,search:searchCompany,setDocumentRemote});
+window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,vatPolicy,sectorPack,applySectorPack,ensureSectorPack,definitions,addDefinition,removeDefinition,assetDepreciation,fixedAssetSummary,fixedAssetJournal,installed,setTool,capabilityProfile,capEnabled,capMode,coreTools,aiEnabled,setAI,reportingTarget,reportingStatus,mpms,registerMpm,removeMpm,approveMpm,mpmReconciliation,mpmSubtotals:()=>MPM_SUBTOTALS,lineage,lineageFor,addLineage,inferType,ingestFiles,documents,readDocument,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,markAuditHandoff,setAuditHandoffStatus,addStandardTrace,aiExceptions,addAIException,resolveAIException,saveReportResult,search:searchCompany,setDocumentRemote});
 })();

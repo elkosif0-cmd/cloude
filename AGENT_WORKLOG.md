@@ -950,6 +950,21 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Decisions per capability: `docs/capabilities/CHANNEL_COSTING_ar.md`.
 - Branch / PR: `claude/channel-costing-20261008` (stacked on PR #228).
 
+### TASK CLAUDE-20261008-011 — Capability Profile per company (FOUNDATION §3.0‑10); identity leftovers; stable scorecard
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Owner: «كمل»; decision on §3.0‑10 (asked in chat): opt-in, existing companies keep all.
+- Scope: `ui/core/company-platform.js` (capabilityProfile, capEnabled, capMode, coreTools, aiEnabled, setAI; setTool writes out the core list on an opt-in company's first change), `ui/features/capability-gate.js` + `.css` (dim menu items, gate card, enable-and-open), `ui/features/helper-center.js` («ملف قدرات الشركة» card, opt-in toggles), `ui/core/ai.js` (AI gate outside the audit entry), `tools/capability_profile.test.mjs`; constitution guard maps §3.0‑10 (18/18, baseline 18) and checks that only the audit file screen reads the audit registry; scorecard no longer carries the worklog count; identity leftovers (accent picker, custom accent default, vendor_audit gradients). sales-lab line 67 carries the same `window.` fix as R17 (#230) so this PR lints on its own.
+- Evidence: Edge probe — demo unchanged (all, 0 dimmed, AI on); a new company opt-in 14/37 tools, 12 dimmed, gate card, enable opens the tool, AI refused with `ai-disabled`.
+- Branch / PR: `claude/capability-profile-20261009`.
+
+### TASK CLAUDE-20261009-012 — Harsh review leftovers R18: Excel recon on the engine (#22), Arabic file fields (#25)
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Owner: «طوّر».
+- #22: the screen's cost diagnosis (waste method, VAT-inclusive cost, both margins) moved unchanged into `SKEngines.reports.excelRecon.excelCostDiagnosis` (+5 tests); `ui/features/tools.js` calls it. Evidence: «مطابقة الإكسل» on the built-in sample, main vs branch — identical, cell by cell (4 rows, 4 KPIs).
+- #25: `ui/components/file-input.js` + styles in `ui/ds/surfaces.css`: every visible file field gets «اختر ملفاً» and the chosen name; fields inside the screen's own button or drop zone are left alone; no nested labels (a button that clicks the input). Evidence: devices enhanced, reporting intake untouched, choosing a file shows its name.
+- Branch / PR: `claude/next-20261009`.
 
 ### TASK CLAUDE-20261008-010 — Full review R17: every red check fixed, open PRs merged
 - Agent: Claude (Lead Development Agent)

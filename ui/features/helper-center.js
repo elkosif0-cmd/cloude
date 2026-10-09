@@ -7,7 +7,18 @@ const core=()=>window.SKosifCore,CP=()=>window.SKosifCompanyPlatform;
 let decisionVersion=0;
 SK.bus?.on?.("company",()=>{decisionVersion++});
 SK.bus?.on?.("nav",()=>{decisionVersion++});
-const isInstalled=id=>!!(CP()&&CP().installed(id));
+/* opt-in companies (FOUNDATION §3.0‑10): «added» = enabled for the company; a company from before keeps the old meaning, «linked» */
+const optIn=()=>!!(CP()&&CP().capMode&&CP().capMode()==="opt-in");
+const isInstalled=id=>!!(CP()&&(optIn()?CP().capEnabled(id):CP().installed(id)));
+function profileCard(){
+  const cp=CP();if(!cp||!cp.capabilityProfile)return"";
+  const p=cp.capabilityProfile(),co=SK.company&&SK.company.current?SK.company.current():{name:""};
+  const tools=p.mode==="all"?'<b>كل الأدوات متاحة</b><span class="sksev info">شركة سابقة — تبقى كما كانت</span>':'<b>'+p.enabled.length+' من '+p.tools.length+' أداة مفعّلة</b><span class="sksev ok">أدوات العمل اليومي ونشاط الشركة، والبقية عند الحاجة</span>';
+  const ai=p.ai?(p.aiConfigured?'<span class="sksev ok">مفعّل ومتصل</span>':'<span class="sksev warn">مفعّل — لم يُضبط مزود بعد</span>'):'<span class="sksev info">غير مفعّل لهذه الشركة</span>';
+  return '<section class="card hd-profile"><div class="card-h"><div><span class="eyebrow">ملف قدرات الشركة</span><h3>'+esc(co.name||"الشركة المفتوحة")+'</h3><p>ما تستخدمه هذه الشركة من الأدوات والذكاء الاصطناعي (الدستور §3.0‑10). لكل شركة ملفها، ولا ينتقل شيء بين الشركات.</p></div></div>'+
+    '<div class="card-b"><div class="hd-prof-row">'+tools+'</div><div class="hd-prof-row"><b>الذكاء الاصطناعي</b>'+ai+'<button type="button" class="btn sm'+(p.ai?'':' primary')+'" data-hd-ai="'+(p.ai?"off":"on")+'">'+(p.ai?"إيقاف لهذه الشركة":"تفعيل لهذه الشركة")+'</button>'+
+    (p.ai&&!p.aiConfigured?'<button type="button" class="linkish" data-hd-ailink>ربط مزود الذكاء الاصطناعي</button>':'')+'</div></div></section>';
+}
 /* R13 (docs/rebuild/HARSH_REVIEW_20261008_ar.md #23): the map already opens each task's tools; the full list below it repeated
    the map tool by tool (1,300 px of «اربط بالشركة»). Linking tools to the company is configuration, so the list is folded. */
 let allOpen=false;
@@ -58,7 +69,7 @@ function exceptionQueue(){
 function render(root){
   const S=SECTIONS();
   root.innerHTML='<div class="hd-shell"><section class="card hd-hero"><div><span class="eyebrow">أدوات مستقلة</span><h2>مساحة الأدوات المساعدة</h2><p>ابدأ بالأداة التي تحتاجها أولاً. تعمل الأدوات كبوابة مستقلة، ويمكن ربط مساحة العمل بشركة فقط عندما تحتاج بياناتها. هذا الربط لا يحوّل الأداة إلى جزء من المحاسبة ولا يجعل نتائجها دليل مراجعة تلقائيًا.</p><div class="hd-context-row">'+contextBadge()+'</div></div><span class="hd-badge">الأداة أولاً · الشركة اختيارية</span></section>'+
-  '<section class="card hd-map"><div class="hd-map-head"><div><h3>ماذا تريد أن تنجز؟</h3><p>اختر نوع المهمة؛ كل فرع يفتح الأدوات المناسبة مباشرة مع الحفاظ على نفس الروابط والصلاحيات.</p></div></div><div class="hd-canvas">'+lines(S)+'<div class="hd-center"><span>'+(SK.icons.helperdesk||SK.icons.productflow||"")+'</span><b>مساحة الأدوات</b><small>سياق الشركة اختياري</small></div>'+S.map(point).join("")+'</div></section>'+
+  profileCard()+'<section class="card hd-map"><div class="hd-map-head"><div><h3>ماذا تريد أن تنجز؟</h3><p>اختر نوع المهمة؛ كل فرع يفتح الأدوات المناسبة مباشرة مع الحفاظ على نفس الروابط والصلاحيات.</p></div></div><div class="hd-canvas">'+lines(S)+'<div class="hd-center"><span>'+(SK.icons.helperdesk||SK.icons.productflow||"")+'</span><b>مساحة الأدوات</b><small>سياق الشركة اختياري</small></div>'+S.map(point).join("")+'</div></section>'+
   exceptionQueue()+'<details class="card hd-all"'+(allOpen?' open':'')+'><summary>كل الأدوات وربطها بالشركة <small>'+S.reduce((n,x)=>n+x.targets.length,0)+'</small></summary><div class="hd-grid">'+table()+'</div></details></div>';
   const all=root.querySelector&&root.querySelector(".hd-all");if(all)all.ontoggle=()=>{allOpen=all.open};
   if(root.dataset.hdBound==="1")return;
@@ -72,14 +83,19 @@ function render(root){
       if(!companyId||version!==decisionVersion||companyId!==SK.company?.current?.().id||window.SKosifSpace?.busy?.()||original!==JSON.stringify(CP().aiExceptions().find(x=>x.id===id)))return;
       try{if(!CP().resolveAIException(id,status,note))return;SK.toast(status==="accepted"?"حُفظ كمقبول للمتابعة فقط":status==="rejected"?"تم رفض الاقتراح":"تم إغلاق التنبيه","ok");render(root)}catch(err){SK.toast(err.message,"bad")}return
     }
+    if(e.target.closest("[data-hd-ailink]")){core()&&core().go("settings");return}
+    const aiB=e.target.closest("[data-hd-ai]");
+    if(aiB&&CP()){try{CP().setAI(aiB.dataset.hdAi==="on");SK.toast(aiB.dataset.hdAi==="on"?"فُعّل الذكاء الاصطناعي لهذه الشركة":"أُوقف الذكاء الاصطناعي لهذه الشركة","ok");render(root)}catch(err){SK.toast(err.message,"bad")}return}
     const toggle=e.target.closest("[data-hd-toggle]");
     if(toggle&&CP()){const id=toggle.dataset.hdToggle,on=!isInstalled(id);try{CP().setTool(id,on);SK.toast(on?"أضيفت الأداة إلى الشركة":"أزيلت الأداة من الشركة","ok");render(root)}catch(err){SK.toast(err.message,"bad")}return}
     const b=e.target.closest("[data-hd-go]");
     if(b){
       const id=b.dataset.hdGo;
       if(CP()&&!isInstalled(id)){
-        const add=await SK.confirm("يمكنك استخدام الأداة الآن بدون تغيير إعدادات الشركة. هل تريد إضافتها أيضًا إلى أدوات هذه الشركة؟",{title:"أداة مستقلة",ok:"إضافة وفتح",cancel:"فتح فقط"});
-        if(add)try{CP().setTool(id,true)}catch{}
+        if(optIn()){const ok=await SK.confirm("هذه الأداة غير مفعّلة لهذه الشركة. فعّلها لها وافتحها؟",{title:"ملف قدرات الشركة",ok:"تفعيل وفتح",cancel:"إلغاء"});
+          if(!ok)return;try{CP().setTool(id,true)}catch(err){SK.toast(err.message,"bad");return}}
+        else{const add=await SK.confirm("يمكنك استخدام الأداة الآن بدون تغيير إعدادات الشركة. هل تريد إضافتها أيضًا إلى أدوات هذه الشركة؟",{title:"أداة مستقلة",ok:"إضافة وفتح",cancel:"فتح فقط"});
+        if(add)try{CP().setTool(id,true)}catch{}}
       }
       core()&&core().go(id);
     }

@@ -64,7 +64,7 @@ const FONTS=[
   ["naskh","نسخ Noto Naskh","Noto+Naskh+Arabic:wght@400;500;600;700",'"Noto Naskh Arabic"'],
   ["system","خط الجهاز","",'system-ui']];
 const FALLBACK=',-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,sans-serif';
-const ACCENTS=[["","حسب الثيم"],["#13305a","أزرق SQC"],["#0f9d6c","زمردي"],["#006c35","أخضر وطني"],["#0e8a9a","فيروزي"],["#6b4ee6","ملكي"],["#c2410c","عنبري"],["#b8862b","ذهبي"],["#d0343f","قرمزي"],["#3b4a5e","فحمي"]];
+const ACCENTS=[["","حسب الثيم"],["#2340c4","كوبالت SQC"],["#0f9d6c","زمردي"],["#006c35","أخضر وطني"],["#0e8a9a","فيروزي"],["#6b4ee6","ملكي"],["#c2410c","عنبري"],["#b8862b","ذهبي"],["#d0343f","قرمزي"],["#3b4a5e","فحمي"]];
 const hexRgb=h=>{const m=/^#?([0-9a-f]{6})$/i.exec(String(h||"").trim());if(!m)return null;const n=parseInt(m[1],16);return[n>>16&255,n>>8&255,n&255]};
 const rgbHex=c=>"#"+c.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,"0")).join("");
 const lum=c=>{const f=v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)};return .2126*f(c[0])+.7152*f(c[1])+.0722*f(c[2])};
@@ -458,7 +458,7 @@ function studioHTML(p){
     '<div class="sk-field"><span>الخط</span><div class="skx-fonts">'+FONTS.map(([id,name,,stack])=>'<button type="button" data-font="'+id+'" aria-pressed="'+(p.font===id)+'"'+(stack?' style="font-family:'+esc(stack+FALLBACK).replace(/"/g,"&quot;")+'"':'')+'><b>'+esc(name)+'</b><small>المراجعة أذكى · ١٢٣٤ 1234</small></button>').join("")+'</div></div>'+
     '<div class="sk-field"><span>حجم النص في الصفحات</span>'+seg("scale",p.scale,[[0.9,"أصغر"],[1,"عادي"],[1.1,"أكبر"],[1.2,"كبير جداً"]])+'</div>'+
     '<div class="sk-field"><span>لون التمييز — الأزرار والروابط والتحديد والتدرجات</span><div class="skx-accents">'+ACCENTS.map(([hex,name])=>'<button type="button" data-accent="'+hex+'" aria-pressed="'+((p.accent||"")===hex)+'" title="'+esc(name)+'"><i style="background:'+(hex||"var(--sk-grad-brand)")+'"></i><span>'+esc(name)+'</span></button>').join("")+
-      '<label class="skx-custom" title="لون مخصص"><input type="color" id="skx-accent" value="'+esc(p.accent||"#13305a")+'"><span>مخصص</span></label></div><small class="hint" id="skx-accent-note"></small></div>'+
+      '<label class="skx-custom" title="لون مخصص"><input type="color" id="skx-accent" value="'+esc(p.accent||"#2340c4")+'"><span>مخصص</span></label></div><small class="hint" id="skx-accent-note"></small></div>'+
     '<div class="sk-field"><span>الزوايا</span>'+seg("radius",p.radius,[["sharp","حادة"],["theme","حسب الثيم"],["round","دائرية"]])+'</div>'+
     '<label class="checkline"><input type="checkbox" id="skx-contrast"'+(p.contrast?' checked':'')+'> تباين عالٍ — حدود أوضح ونص أغمق وتركيز ظاهر (لضعف النظر والشاشات الساطعة)</label>'+
     '<label class="checkline"><input type="checkbox" id="skx-preview"'+(SK.print&&SK.print.options().preview?' checked':'')+'> معاينة قبل الطباعة — الورق والاتجاه والهوامش والحجم والعلامة المائية والترويسة وأرقام الصفحات</label>'+
