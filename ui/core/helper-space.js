@@ -183,6 +183,16 @@ function demoSnapshotEligible(snap,demo,co){
     /* the inventory card writes its defaults (stock and reorder points read from the expiry radar) on every visit; recorded
        movements or counts are the user's own */
     if(k==="skosif_erp_inventory_v1"){if(!only(v,["stock","reorder","moves","counts"])||(v.moves||[]).length||(v.counts||[]).length)return false;continue}
+    /* R20: the price list's master lists (core v15MasterDefaults) are written on first use — the one SAR currency and the
+       suppliers named on the demo's own raw materials. Without this the demo company could never be confirmed in the chooser
+       («لم يُثبت سياق الشركة» and the dialog stayed open). A currency or a supplier the user added is the user's. */
+    if(k==="aghnam-v15-master-lists"){
+      const sar=[{code:"SAR",name:"ريال سعودي",symbol:"ر.س",rate:1,active:true}],raws=obj(data["aghnam-pricing-v3"])&&Array.isArray(data["aghnam-pricing-v3"].raws)?data["aghnam-pricing-v3"].raws:[];
+      const named=new Set(raws.filter(r=>obj(r)&&r.demo===true).map(r=>String(r.supplier||"").trim()).filter(Boolean));
+      if(!only(v,["currencies","suppliers"])||v.currencies!=null&&JSON.stringify(v.currencies)!==JSON.stringify(sar)||
+        v.suppliers!=null&&(!Array.isArray(v.suppliers)||v.suppliers.some(s=>typeof s!=="string"||!named.has(s))))return false;
+      continue;
+    }
     if(k==="skosif_rep_pl"){if(!section("reports")||v.demo!==true)return false;continue}
     if(k==="skosif_ar_paste"){
       const names=["مطعم الديرة للمشويات","مطبخ الضيافة الملكية","مطعم نجد الأصيل","مطاعم سفرة الخير","مطعم البحر الأحمر"],lines=v.split("\n");
@@ -214,9 +224,19 @@ function demoSnapshotEligible(snap,demo,co){
     }
     return false;
   }
+  /* R20: the core snapshots the price list on its own (actor "", «لقطة تأسيس v7») and keeps the last hash in meta. Such a
+     snapshot of the demo holds only the demo's own rows (by id), so it is not the user's data; a snapshot a user made (an
+     actor) or one holding any other row still refuses. */
+  const pr=obj(data["aghnam-pricing-v3"])?data["aghnam-pricing-v3"]:{},PF=["raws","boxes","exps"];
+  const demoIds=Object.fromEntries(PF.map(f=>[f,new Set((Array.isArray(pr[f])?pr[f]:[]).filter(r=>obj(r)&&r.demo===true).map(r=>r.id))]));
+  const autoSnap=v=>only(v,["id","effectiveFrom","hash","reason","actor","payload"])&&v.actor===""&&obj(v.payload)&&
+    PF.every(f=>v.payload[f]==null||Array.isArray(v.payload[f])&&v.payload[f].every(r=>obj(r)&&demoIds[f].has(r.id)))&&
+    (!PF.some(f=>(v.payload[f]||[]).length)||section("catalog"));
   for(const [name,store] of Object.entries(snap.app||{})){
     if(!store||!Array.isArray(store.vals))return false;
-    if(name==="meta"){if(store.vals.some(v=>!obj(v)||v.key!=="dataset"||!obj(v.value)||v.value.demo!==true))return false}
+    if(name==="meta"){if(store.vals.some(v=>!obj(v)||!(v.key==="dataset"&&obj(v.value)&&v.value.demo===true||
+      v.key==="pricing_snapshot_meta"&&only(v.value,["lastHash","lastAt"]))))return false}
+    else if(name==="pricing_snapshots"){if(store.vals.some(v=>!autoSnap(v)))return false}
     else if(!rows(store.vals)||store.vals.length&&!section("sales"))return false;
   }
   return true;
