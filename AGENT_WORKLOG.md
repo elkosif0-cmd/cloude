@@ -1012,3 +1012,8 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   stages; Tools follow the eight families of §3.3.1. Menu items may now be a hub, a page of a hub, or a tab of a screen.
 - Files: ui/core/capabilities.json, ui/core/registry.js, ui/layouts/shell.js, ui/features/ledger.js, tools/*menu* tests.
 - Branch: `claude/constitution-restructure-20261009`.
+- Update (014): the tax section is «الضرائب والزكاة والامتثال» (the Latin «ZATCA» broke the line in RTL). Audit menu items open
+  the audit file's own stages (tb-review TABS via SKosifTBReview.open/current), not the hidden studio pages. Found on the live
+  site and fixed: the demo company's «متابعة» in «لأي شركة؟» was refused («لم يُثبت سياق الشركة», dialog stuck) because the
+  admission check did not know the core's own first-use writes (v15 master lists, automatic price-list snapshots + meta);
+  tools/demo_master_lists.test.mjs.
