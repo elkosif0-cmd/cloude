@@ -17,8 +17,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | المخاطر | `risklab` | البرنامج المحاسبي الكامل › المالية والدفاتر › المخاطر والحساسية › المخاطر وجسر الربحية | ADVANCED | admin |
 | مختبر الحساسية | `sensitivity` | البرنامج المحاسبي الكامل › المالية والدفاتر › المخاطر والحساسية › مختبر الحساسية | ADVANCED | admin, accountant |
 | جديد — خريطة جغرافية للعملاء وتحليل المبيعات وتقرير الصنف | `salesmap` | الأدوات المساعدة › المبيعات والعملاء › خريطة العملاء وتحليل المبيعات | CORE | admin |
-| الطلبات والتحصيل | `commerce` | البرنامج المحاسبي الكامل › المبيعات والعملاء › الطلبات والفوترة › الطلبات والتحصيل | CORE | admin, accountant, sales |
-| الفاتورة الضريبية | `zatca` | البرنامج المحاسبي الكامل › المبيعات والعملاء › الطلبات والفوترة › نقطة البيع والفاتورة الضريبية | CORE | admin, accountant, sales |
+| الطلبات والتحصيل | `commerce` | البرنامج المحاسبي الكامل › المبيعات والعملاء › الطلبات والتحصيل | CORE | admin, accountant, sales |
 | السوق والعملاء | `customers` | الأدوات المساعدة › المبيعات والعملاء › العملاء والائتمان › العملاء | CORE | admin, accountant, sales |
 | تعميم «استوديو المنتج» (البند E من برنامج الشركة أولاً) | `customerflow` | الأدوات المساعدة › المبيعات والعملاء › العملاء والائتمان › استوديو العميل | CORE | admin, accountant, sales |
 | متابعة العملاء الاحترافية V8.2 (وحدة v25 crm) | `followup` | الأدوات المساعدة › المبيعات والعملاء › العملاء والائتمان › متابعة العملاء | CORE | admin, accountant, sales |
@@ -58,6 +57,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | ماسح الباركود | `scanner` | الأدوات المساعدة › المنتج والتكلفة › الملصقات والباركود › ماسح الباركود | UTILITIES | admin, warehouse, sales |
 | مطابقة المبيعات | `smartmatch` | البرنامج المحاسبي الكامل › المالية والدفاتر › المطابقة › مطابقة المبيعات | UTILITIES | admin, accountant, sales |
 | مطابقة الإكسل | `excelrecon` | البرنامج المحاسبي الكامل › المالية والدفاتر › المطابقة › مطابقة الإكسل | UTILITIES | admin, accountant |
+| الفاتورة الضريبية | `zatca` | البرنامج المحاسبي الكامل › المالية والدفاتر › نقطة البيع والفاتورة الضريبية | CORE | admin, accountant, sales |
 | التصور الموحد 2026 — مساعد إعداد القوائم من بيانات خارجية | `reportingintake` | البرنامج المحاسبي الكامل › التقارير والبيانات › استلام البيانات وإعداد القوائم | CORE | admin, accountant, viewer |
 | التقارير التنفيذية | `execreports` | البرنامج المحاسبي الكامل › التقارير والبيانات › التقارير التنفيذية | MANAGEMENT | admin, accountant, sales, viewer |
 | مركز التقارير | `reports` | البرنامج المحاسبي الكامل › التقارير والبيانات › الطباعة والتصدير › مركز الطباعة | UTILITIES | admin, accountant, sales, viewer |
@@ -74,7 +74,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | KOSIF Audit Studio | `auditcouncil` | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › مجلس المراجعين | ADVANCED | admin, accountant |
 | KOSIF Audit Studio | `auditfin` | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › القوائم والقيود | ADVANCED | admin, accountant |
 | KOSIF Audit Studio | `auditreport` | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › التقارير والإصدار | ADVANCED | admin, accountant |
-| KOSIF Audit Studio (classic) | `auditanalytics` | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › التحليل والاختبارات | ADVANCED | admin, accountant |
+| KOSIF Audit Studio (classic) | `auditanalytics` | المراجعة والتدقيق › المراجعة والمراجعة المالية › التحليل والاختبارات | ADVANCED | admin, accountant |
 | KOSIF Audit Studio (lab) | `auditlab` | المراجعة والتدقيق › المراجعة والمراجعة المالية › المعايير والمدونة › مختبر المعايير والأبحاث | ADVANCED | admin, accountant |
 | الإعدادات | `settings` | الأدوات المساعدة › العام › الإعدادات والأجهزة › الإعدادات والمظهر | ADMIN | admin, accountant, warehouse, sales, viewer |
 | جديد — تعليمات التثبيت (INSTALL-iPHONE-ar.txt) + نسخة v27 للابتوب وv28–v30 للآيفون | `devices` | الأدوات المساعدة › العام › الإعدادات والأجهزة › الأجهزة والمزامنة | UTILITIES | admin, accountant, warehouse, sales, viewer |
@@ -92,7 +92,7 @@ The front door and the sidebar expose exactly three entries (FOUNDATION §3): th
 | Entry | Internal domain | Menu entry | Pages | Shared with |
 |---|---|---|---|---|
 | البرنامج المحاسبي الكامل | العام | إعداد الشركة والتعريفات | `companies` الشركات والفترات · `masterdata` التعريفات | الأدوات المساعدة |
-| البرنامج المحاسبي الكامل | المبيعات والعملاء | الطلبات والفوترة | `commerce` الطلبات والتحصيل · `zatca` نقطة البيع والفاتورة الضريبية | — |
+| البرنامج المحاسبي الكامل | المبيعات والعملاء | الطلبات والفوترة | `commerce` الطلبات والتحصيل | — |
 | البرنامج المحاسبي الكامل | المخزون والموردون | المخزون والتتبع | `inventory` المخزون · `traceability` التتبع والتبريد | الأدوات المساعدة |
 | البرنامج المحاسبي الكامل | المخزون والموردون | الموردون والمشتريات | `suppliers` الموردون والمشتريات · `purchasing` أوامر الشراء والاستلام | الأدوات المساعدة |
 | البرنامج المحاسبي الكامل | المالية والدفاتر | المخاطر والحساسية | `risklab` المخاطر وجسر الربحية · `sensitivity` مختبر الحساسية | الأدوات المساعدة |
@@ -104,12 +104,14 @@ The front door and the sidebar expose exactly three entries (FOUNDATION §3): th
 | البرنامج المحاسبي الكامل | المالية والدفاتر | السلف والدفعات المقدمة | `advances` السلف والدفعات المقدمة | — |
 | البرنامج المحاسبي الكامل | المالية والدفاتر | الهندسة المالية | `finance` الهندسة المالية | الأدوات المساعدة |
 | البرنامج المحاسبي الكامل | المالية والدفاتر | المطابقة | `smartmatch` مطابقة المبيعات · `excelrecon` مطابقة الإكسل | الأدوات المساعدة |
+| البرنامج المحاسبي الكامل | المالية والدفاتر | نقطة البيع والفاتورة الضريبية | `zatca` نقطة البيع والفاتورة الضريبية | الأدوات المساعدة |
 | البرنامج المحاسبي الكامل | التقارير والبيانات | استلام البيانات وإعداد القوائم | `reportingintake` استلام البيانات وإعداد القوائم | الأدوات المساعدة |
 | البرنامج المحاسبي الكامل | التقارير والبيانات | التقارير التنفيذية | `execreports` التقارير التنفيذية | الأدوات المساعدة |
 | البرنامج المحاسبي الكامل | التقارير والبيانات | الطباعة والتصدير | `reports` مركز الطباعة · `exports` مركز التصدير | الأدوات المساعدة |
 | البرنامج المحاسبي الكامل | التقارير والبيانات | الأرشيف والأنظمة الأصلية | `archive` الأرشيف والتغييرات · `legacyapps` الأنظمة الأصلية | الأدوات المساعدة |
-| المراجعة والتدقيق | المراجعة والمراجعة المالية | مركز المراجعة | `tbreview` ملف المراجعة · `auditinbox` صندوق استلام المراجعة · `auditdesk` الاستوديو المتقدم · `auditdocs` المستندات والأدلة · `auditissues` الملاحظات والقضايا · `auditcouncil` مجلس المراجعين · `auditfin` القوائم والقيود · `auditreport` التقارير والإصدار · `auditanalytics` التحليل والاختبارات | — |
+| المراجعة والتدقيق | المراجعة والمراجعة المالية | مركز المراجعة | `tbreview` ملف المراجعة · `auditinbox` صندوق استلام المراجعة · `auditdesk` الاستوديو المتقدم · `auditdocs` المستندات والأدلة · `auditissues` الملاحظات والقضايا · `auditcouncil` مجلس المراجعين · `auditfin` القوائم والقيود · `auditreport` التقارير والإصدار | — |
 | المراجعة والتدقيق | المراجعة والمراجعة المالية | المعايير والمدونة | `codex` المدونة المحاسبية والمعايير · `auditbench` المرجع العالمي للمراجعة · `corpuslab` مختبر الشركات العالمية · `auditlab` مختبر المعايير والأبحاث | البرنامج المحاسبي الكامل |
+| المراجعة والتدقيق | المراجعة والمراجعة المالية | التحليل والاختبارات | `auditanalytics` التحليل والاختبارات | — |
 | الأدوات المساعدة | العام | مركز القيادة | `dash` مركز القيادة | البرنامج المحاسبي الكامل، المراجعة والتدقيق |
 | الأدوات المساعدة | العام | المهام والإشعارات | `tasks` المهام · `notifications` مركز الإشعارات | البرنامج المحاسبي الكامل، المراجعة والتدقيق |
 | الأدوات المساعدة | العام | المخاطر والملاحظات | `risks` المخاطر والملاحظات | البرنامج المحاسبي الكامل، المراجعة والتدقيق |
@@ -143,11 +145,11 @@ The front door and the sidebar expose exactly three entries (FOUNDATION §3): th
 | `agriculture` الزراعة والمزارع | — | المواسم والحظائر كمراكز تكلفة، الأعلاف، النفوق، تكلفة الدورة |
 | `trade` التجارة والخدمات العامة | — | فروع ومستودعات، شراء وبيع، هوامش ومخزون وائتمان — وكل نشاط آخر |
 
-78 screens in 36 menu entries.
+78 screens in 38 menu entries.
 
 ## By tier
 
-- **CORE** — العمل اليومي الأساسي (26): `dash`, `notifications`, `salesmap`, `commerce`, `zatca`, `customers`, `customerflow`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `jesim`, `cash`, `receivables`, `advances`, `ptree`, `productflow`, `catalog`, `sim`, `builder`, `reportingintake`, `tbreview`, `auditinbox`, `masterdata`
+- **CORE** — العمل اليومي الأساسي (26): `dash`, `notifications`, `salesmap`, `commerce`, `customers`, `customerflow`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `jesim`, `cash`, `receivables`, `advances`, `ptree`, `productflow`, `catalog`, `sim`, `builder`, `zatca`, `reportingintake`, `tbreview`, `auditinbox`, `masterdata`
 - **MANAGEMENT** — الإدارة والمتابعة (12): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `benchmarks`, `memo`, `execreports`, `archive`, `codex`, `auditbench`, `corpuslab`
 - **INTELLIGENCE** — التحليل والذكاء (7): `decision`, `jev`, `council`, `salesintel`, `intelligence`, `economics`, `compare`
 - **ADVANCED** — الهندسة المتقدمة (17): `risklab`, `sensitivity`, `carcass`, `yieldlab`, `nrv`, `finance`, `costs`, `kernel`, `analyzer`, `auditdesk`, `auditdocs`, `auditissues`, `auditcouncil`, `auditfin`, `auditreport`, `auditanalytics`, `auditlab`

@@ -525,31 +525,6 @@
    "gateway": "accounting"
   },
   {
-   "id": "zatca",
-   "label": "نقطة البيع والفاتورة الضريبية",
-   "sub": "فاتورة مبسطة برمز QR ودفع مجزأ",
-   "group": "customer",
-   "hub": "commerce",
-   "tier": "CORE",
-   "module": "ui/enterprise.js",
-   "data": [
-    "skosif_v32_cart"
-   ],
-   "legacy": "الفاتورة الضريبية",
-   "decision": "Keep",
-   "kw": "زاتكا ضريبة فاتورة qr كاشير",
-   "adv": false,
-   "en": "POS & Tax Invoice",
-   "feeds": [
-    "commerce",
-    "ledger"
-   ],
-   "gateway": "accounting",
-   "also": [
-    "tools"
-   ]
-  },
-  {
    "id": "customers",
    "label": "العملاء",
    "sub": "ملف العميل الشامل (360°): المبيعات والطلبات والتحصيل، واستيراد العملاء",
@@ -1462,6 +1437,30 @@
    "gateway": "accounting"
   },
   {
+   "id": "zatca",
+   "label": "نقطة البيع والفاتورة الضريبية",
+   "sub": "فاتورة مبسطة برمز QR ودفع مجزأ",
+   "group": "books",
+   "tier": "CORE",
+   "module": "ui/enterprise.js",
+   "data": [
+    "skosif_v32_cart"
+   ],
+   "legacy": "الفاتورة الضريبية",
+   "decision": "Keep",
+   "kw": "زاتكا ضريبة فاتورة qr كاشير",
+   "adv": false,
+   "en": "POS & Tax Invoice",
+   "feeds": [
+    "commerce",
+    "ledger"
+   ],
+   "gateway": "accounting",
+   "also": [
+    "tools"
+   ]
+  },
+  {
    "id": "reportingintake",
    "label": "استلام البيانات وإعداد القوائم",
    "sub": "رفع الميزان والدفاتر والمبيعات والمشتريات والبنوك، وكشف الناقص قبل القوائم",
@@ -1830,7 +1829,6 @@
    "kw": "بنفورد عينة",
    "adv": false,
    "en": "Financial Analytics & Risk",
-   "hub": "tbreview",
    "feeds": [
     "tbreview"
    ],
@@ -2079,7 +2077,6 @@
      "icon": "companies",
      "hubs": [
       "companies",
-      "masterdata",
       {
        "go": "ledger",
        "tab": "accounts",
@@ -2245,8 +2242,7 @@
      "label": "ملفات المراجعة",
      "icon": "tbreview",
      "hubs": [
-      "tbreview",
-      "auditinbox"
+      "tbreview"
      ]
     },
     {
@@ -2473,8 +2469,7 @@
      "label": "المطور والتكامل",
      "icon": "governance",
      "hubs": [
-      "governance",
-      "capabilitiesv2"
+      "governance"
      ]
     },
     {

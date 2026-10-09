@@ -82,3 +82,11 @@ test('sector screens follow the company sector inside the cost section', () => {
   assert.ok(ids('meat').includes('carcass'), 'a meat company costs its carcasses');
   assert.ok(!ids('bakery').includes('carcass'), 'a bakery does not see the carcass lab');
 });
+
+test('a page is not listed beside its own hub (the hub already shows it as a tab)', () => {
+  const caps = registry();
+  for (const g of ['accounting', 'audit', 'tools']) for (const s of caps.menu(g)) {
+    const hubs = new Set(s.hubs.filter((h) => !h.page && !h.link).map((h) => h.id));
+    for (const h of s.hubs.filter((x) => x.page)) assert.ok(!hubs.has(h.hub), g + ' › ' + s.label + ' lists ' + h.id + ' next to its hub ' + h.hub);
+  }
+});
