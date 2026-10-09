@@ -35,7 +35,7 @@ try {
     await page.goto(base + 'index.html');
     await page.waitForSelector('#gate-list .gate', { timeout: 30000 });
     const doorFirst = await page.evaluate(() => ({ gates: [...document.querySelectorAll('#gate-list .gate')].map((b) => b.dataset.gate), companiesHidden: document.getElementById('companies').hidden, sectorsHidden: document.getElementById('sectors').hidden, title: document.title }));
-    check(`${tag}: the door shows the three sections first and no company`, doorFirst.gates.join('|') === 'accounting|audit|tools' && doorFirst.companiesHidden && doorFirst.sectorsHidden && doorFirst.title === 'SQC — اختر القسم', JSON.stringify(doorFirst));
+    check(`${tag}: the door shows the three sections first and no company`, doorFirst.gates.join('|') === 'accounting|audit|tools' && doorFirst.companiesHidden && doorFirst.sectorsHidden && doorFirst.title === 'KOSIF EARTH — اختر القسم', JSON.stringify(doorFirst));
     check(`${tag}: the door has no horizontal overflow`, (await overflow(page)) <= 2, String(await overflow(page)));
     await page.click('#gate-list .gate[data-gate="accounting"]');
     await page.waitForSelector('#sector-list .sector', { timeout: 10000 });

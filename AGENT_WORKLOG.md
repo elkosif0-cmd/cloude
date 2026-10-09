@@ -1034,3 +1034,29 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   owner: whatsapp-bridge MCP has `list_whatsapp_messages` («Read messages received on WhatsApp», recovered from PR #96 on
   2026-10-06) against the rule «no WhatsApp message-reading tools» — not removed without the owner's decision.
 - Branch: `claude/constitution-restructure-20261009` (PR #235).
+
+### TASK CHATGPT-20261009-EARTH-INTRO — Cinematic front door, desktop 4K-safe media
+- Agent: ChatGPT
+- Status: HANDOFF — preview verified; production publication pending coordinated merge and deployment checks.
+- Goal: User-directed KOSIF EARTH welcome with founder portrait, globe cinematic, clear three sections, native company isolation.
+- Scope: Front-door copy and isolated decorative overlay only; no accounting/audit/business data, routing logic or protected AUTH edits.
+- Files: `unlock.html`; `ui/art/brand/earth-intro-20261009.{css,js,mp4,webp}`; `earth-intro-20261009-4k.mp4`; bounded media test; title assertions; design provenance.
+- Branch: `chatgpt/kosif-earth-cinematic-entry-20261009` from main a9dbde0.
+- Art provenance: Earlier owner-authorized Higgsfield Seedance 2.5 Image-to-Video 5.056s/720p, locally encoded with audio as 1280x720 0.80MB mobile and 3840x2160 5.44MB desktop Lanczos upscale (NOT native 4K). Native Seedance 2.0 4k request was submitted once and returned `failed`: insufficient account credit; never retried.
+- Privacy: Private original founder portrait and Higgsfield credentials never committed. The public videos contain the user-requested likeness only.
+- Controls: 4K chosen only on wider/faster desktop, auto 720 fallback, skip and enter, optional sound, session single-play, reduced motion, save-data and low-memory bypass, no WebGL dependency.
+- Tests: Protected auth script checked byte-identical by source compare; preview build 187 entries; node targeted 12/12 (pending title assertion update retest); browser desktop/mobile+reduced motion 20/20; real rendered screenshots inspected and mobile face cropping refined.
+- Risk: 4K is local upscale and cannot be represented as native model generation. GitHub/Cloudflare publishing requires current coordination and acceptance; other agents may be editing the shell.
+- NEXT ACTION: Re-run final title adjusted tests, commit branch, open PR for coordination; merge/deploy only after actual gating and production secret checks. Generate original 4K only after account credit is restored and the owner requests another paid attempt.
+
+### UPDATE CHATGPT-20261009-EARTH-INTRO — secured production reconstruction / validation
+- Status: VERIFIED_STAGING; NOT DEPLOYED TO PRODUCTION. Draft PR #236 remains open pending account billing/required GitHub Checks.
+- Preview confirmed live at https://5bd6d43e.s-kosif.pages.dev, deployment 5bd6d43e-102d-408b-948b-03ade5a29821, 20/20 live Edge desktop/mobile/reduced-motion checks.
+- Original production pin: Cloudflare deployment 3d4e0540-7f1c-4634-9503-e479f4ed4e03, Git SHA a9dbde0d94b9d305f5b0e1b607ab0acc2ffd6f1e; same SHA is the PR base. Cloudflare reported 180 public manifest paths and nine /secure/ encrypted protected paths.
+- Production staging was reconstructed read-only from that exact pinned deployment on the owner's authorized laptop, then modified with the front-door delta: five new public cinematic assets, updated index.html, sw.js cache token only, existing deploy _headers. The original 180 paths were checked: only index.html and sw.js differ; every other file, including all nine protected encrypted assets, preserved byte-for-byte. AUTH region inside index.html was compared for strict byte equality before/after. No private payload decrypted or printed. Staging remains local and is not uploaded to a preview URL.
+- Production-like Edge browser tests: 22/22 pass (1440x900 desktop, 390x844 mobile and reduced-motion); the private company remains a locked card and requires the protected password form; demo and all three entry gates remain visible. No password was entered or exposed.
+- Expanded manual acceptance after fixing session-key classification: Gateway, Constitution 18/18, capability documentation, core unit, production security-contract, preview non-leakage and git diff checks all pass. The cinematic intro's sessionStorage preference was explicitly added to device-level allowlist; company records remain protected by HELPER_KEY as before. The constitution scorecard records brand-art test count 5. App npm install and build completed successfully: 116 test files / 565 tests green.
+- GitHub Actions issue confirmed from exact-run annotation: "The job was not started because recent account payments have failed or your spending limit needs to be increased"; job steps empty. This does not establish a product test failure or CI pass.
+- Cloudflare Pages source remains linked to former owner kosif199022-jpg for repo ID 1352281400 (new owner elkosif0-cmd). Source connect POST failed because existing connection; PATCH accepted but did not change source. The existing subdomain, production deployment and production secrets remain unchanged.
+- Rollback: previously successful production deployment ID 3d4e0540-7f1c-4634-9503-e479f4ed4e03 is retained and can be restored if a future release fails, subject to verification.
+- Unfinished: Owner fixes GitHub billing/Actions availability (or explicitly authorizes a reviewed manual production release), then PR #236 can be merged and main published from the verified safe production package. Do not replace the protected production with an unencrypted/no-private-data preview dist.

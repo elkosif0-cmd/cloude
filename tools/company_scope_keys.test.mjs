@@ -21,7 +21,7 @@ const COMPANY_DATA = ['aghnam-pricing-v3', 'aghnam-v12-manual-sales', 'aghnam_v2
 
 /* deliberately shared by the device or the user, not by a company (preferences, the companies' own registry, sessions,
    the audit files' registry, error and audit logs, the user's own AI keys and profile) */
-const DEVICE = new Set(['aghnam_v29_jev_log', 'aghnam-v12-theme', 'aghnam-v21-density', 'aghnam-v21-pins', 'kosif-night', 'kosif-operating-model',
+const DEVICE = new Set(['aghnam_v29_jev_log', 'aghnam-v12-theme', 'aghnam-v21-density', 'aghnam-v21-pins', 'kosif-earth-intro-seen-v1', 'kosif-night', 'kosif-operating-model',
   'kosif-think', 'kosif-v5-safety', 'skosif_ai_keys', 'skosif_audit_trail', 'skosif_autolock_min', 'skosif_cap_v2_config',
   'skosif_cap_v2_local_workspace', 'skosif_cap_v2_preview_role', 'skosif_codex_updates_v1', 'skosif_companies_v1', 'skosif_customer_flow_v1',
   'skosif_engagements_v1', 'skosif_error_log', 'skosif_jev_draft', 'skosif_legacy_v1', 'skosif_nav_v1', 'skosif_notify_v1',

@@ -22,7 +22,10 @@ test('every brand file the door and the screens name exists, and stays light', (
   assert.ok(named.size >= 6, [...named].join(','));
   for (const f of named) {
     assert.ok(existsSync(art(f)), f);
-    assert.ok(statSync(art(f)).size < (f.endsWith('.mp4') ? 1.5e6 : 160e3), f + ' is too heavy for the door');
+    // A single 5-second 4K desktop-only cinematic is intentionally allowed a larger media budget.
+    // All previous brand assets retain the original tight limits.
+    const budget = f === 'earth-intro-20261009-4k.mp4' ? 8e6 : (f.endsWith('.mp4') ? 1.5e6 : 160e3);
+    assert.ok(statSync(art(f)).size < budget, f + ' exceeds its explicit media budget');
   }
 });
 
@@ -36,4 +39,23 @@ test('the door film only plays where it should, and the poster is the still', ()
 
 test('the service worker lets video and range requests through to the network', () => {
   assert.ok(read('sw.js').includes("if(r.headers.has('range')||/\\.(mp4|webm)(\\?|$)/.test(r.url))return;"));
+});
+
+test('KOSIF EARTH presents one optional media intro with adaptive 4K desktop and safe mobile fallback', () => {
+  const door = read('unlock.html');
+  const script = read('ui/art/brand/earth-intro-20261009.js');
+  assert.match(door, /id="kosif-earth-intro"/);
+  assert.match(door, /data-src4k="\.\/art\/brand\/earth-intro-20261009-4k\.mp4"/);
+  assert.match(door, /data-src="\.\/art\/brand\/earth-intro-20261009\.mp4"/);
+  assert.match(door, /id="kosif-earth-skip"/);
+  assert.match(door, /id="kosif-earth-enter"/);
+  assert.match(door, /id="kosif-earth-sound"/);
+  assert.match(script, /prefers-reduced-motion: reduce/);
+  assert.match(script, /connection\.saveData/);
+  assert.match(script, /sessionStorage\.setItem\('kosif-earth-intro-seen-v1'/);
+  assert.match(script, /usingHigh && mobileSrc/);
+  assert.match(script, /shell\.inert/);
+  assert.ok(statSync(art('earth-intro-20261009.mp4')).size < 1.5e6);
+  assert.ok(statSync(art('earth-intro-20261009-4k.mp4')).size < 8e6);
+  assert.ok(!existsSync(art('owner-source-hq.jpg')), 'the private portrait must not be published');
 });
