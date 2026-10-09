@@ -148,7 +148,7 @@ async function printReport(){
   w.document.write('<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>تقرير الربحية حسب القنوات</title><body>'+html+'</body></html>');w.document.close();
   /* the app's own letterhead and print identity (FOUNDATION §3.11.1), then this report's few layout rules */
   if(SK.brandPrint)SK.brandPrint(w,"تقرير الربحية حسب القنوات");
-  const st=w.document.createElement("style");st.textContent=PRINT;(w.document.head||w.document.documentElement).appendChild(st);
+  const st=w.document.createElement("style");st.textContent=(window.SK&&SK.brandCSS?SK.brandCSS:String)(PRINT);(w.document.head||w.document.documentElement).appendChild(st);
 }
 const PRINT='body{font-family:"IBM Plex Sans Arabic",Tahoma,sans-serif;color:#0b1030;margin:12mm}h1{margin:0;font-size:22px}h3{margin:18px 0 8px;font-size:14px;border-inline-start:4px solid #19c3d9;padding-inline-start:8px}.skcp-ph{border-bottom:3px solid #2340c4;padding-bottom:10px;margin-bottom:14px}.skcp-ph p{margin:4px 0 0;color:#585f6e;font-size:11px}.skcp-pk{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.skcp-pk div{border:1px solid #e2e6f1;border-radius:10px;padding:8px}.skcp-pk small{display:block;color:#585f6e;font-size:10px}.skcp-pk b{font-size:15px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#0b1030;color:#fff}th,td{border:1px solid #e2e6f1;padding:5px;text-align:center}td:first-child{text-align:start}.skcp-pn{font-size:9px;color:#585f6e;margin-top:14px}@page{size:A4;margin:8mm}';
 

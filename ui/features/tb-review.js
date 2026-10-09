@@ -747,7 +747,7 @@ function docX(c){
 /* the narrative belongs to the figures it was written on */
 const narrSig=pack=>MN().fingerprint([pack.facts.map(f=>[f.key,f.value,f.prior]),pack.kams.map(k=>k.title),pack.opinion.ar]);
 function docView(c,kind){
-  if(!docStyled&&window.SKosifReportDocs){const st=document.createElement("style");st.id="rd-css";st.textContent=SKosifReportDocs.CSS+(window.SKosifIntegrated?SKosifIntegrated.CSS:"");document.head.appendChild(st);docStyled=true}
+  if(!docStyled&&window.SKosifReportDocs){const st=document.createElement("style");st.id="rd-css";st.textContent=(window.SK&&SK.brandCSS?SK.brandCSS:String)(SKosifReportDocs.CSS+(window.SKosifIntegrated?SKosifIntegrated.CSS:""));document.head.appendChild(st);docStyled=true}
   const ctx=c.d.ctx;
   if(kind==="integrated"&&window.SKosifIntegrated)return narrBar(c)+'<div class="rd-paper">'+SKosifIntegrated.render(docX(c))+'</div>';
   return (kind==="auditor"?'<section class="card"><div class="card-h"><div><h3>بيانات التوقيع</h3><p>تظهر في تقرير المراجع؛ الخانات الفارغة تبقى بين قوسين لتُستكمل.</p></div></div><div class="card-b"><div class="tbr-sig">'+
@@ -907,7 +907,7 @@ function printDoc(c,kind){
   const title=(fw?fw[1]:{integrated:"التقرير السنوي المتكامل",annual:"التقرير السنوي",release:"بيان النتائج",auditor:"تقرير المراجع المستقل",notes:"الإيضاحات المتممة",committee:"تقرير لجنة المراجعة",icfr:"تقرير الرقابة الداخلية",peers:"المقارنة بالنظراء العالميين"}[kind]||"مستند")+" — "+(c.d.ctx.company||"");
   w.document.open();w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>'+esc(title)+'</title></head><body>'+render(docX(c))+'</body></html>');w.document.close();
   if(!c.sourceOnly)SK.brandPrint(w,title);
-  const st=w.document.createElement("style");st.textContent=SKosifReportDocs.CSS+(window.SKosifIntegrated?SKosifIntegrated.CSS:"")+"body{background:#fff}";w.document.head.appendChild(st);
+  const st=w.document.createElement("style");st.textContent=(window.SK&&SK.brandCSS?SK.brandCSS:String)(SKosifReportDocs.CSS+(window.SKosifIntegrated?SKosifIntegrated.CSS:""))+"body{background:#fff}";w.document.head.appendChild(st);
   SK.audit&&SK.audit.log("report",{act:"tbreview-"+kind});
   setTimeout(()=>{try{w.focus();w.print()}catch{}},700);
 }

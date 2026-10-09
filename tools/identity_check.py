@@ -27,6 +27,7 @@ app = (DIST / "app-safe.html").read_text(encoding="utf-8")
 css = (DIST / "skosif.css").read_text(encoding="utf-8")
 index = (DIST / "index.html").read_text(encoding="utf-8")
 manifest = json.loads((DIST / "manifest.webmanifest").read_text(encoding="utf-8"))
+manifest_raw = (DIST / "manifest.webmanifest").read_text(encoding="utf-8")
 headers = (DIST / "_headers").read_text(encoding="utf-8")
 caps = {c["id"]: c for c in json.loads(Path("ui/core/capabilities.json").read_text(encoding="utf-8"))["capabilities"]}
 
@@ -39,7 +40,9 @@ ok("page description is audit-first", bool(desc) and "المراجعة" in desc.
 tag = re.search(r'#biz-name::after\{content:"([^"]*)"', css)
 ok("rail tagline is audit-first", bool(tag) and "المراجعة" in tag.group(1) and not any(s in tag.group(1) for s in SALES_FIRST), tag.group(1) if tag else "missing")
 ok("manifest description is audit-first", "المراجعة" in manifest["description"] and not any(s in manifest["description"] for s in SALES_FIRST))
-ok("manifest theme matches canonical SQC night cobalt", manifest.get("theme_color") == "#0b1030", str(manifest.get("theme_color")))
+ok("manifest theme is the «دفتر KOSIF» ink of the door (R20)", manifest.get("theme_color") == "#1d1814" and manifest.get("background_color") == "#1d1814", str(manifest.get("theme_color")))
+ok("unlock page wears the «دفتر KOSIF» ink (R20: one identity from the first screen)", 'name="theme-color" content="#1d1814"' in unlock_head)
+ok("no cobalt left in the brand art, the door and the manifest (R20)", not any(c in t.lower() for t in [index, manifest_raw] + [Path(f).read_text(encoding="utf-8").lower() for f in ("ui/art/sqc-icon.svg","ui/art/sqc-logo.svg","ui/art/sqc-mark.svg","ui/art/sqc-mark-dark.svg")] for c in ("#2340c4","#0b1030","#19c3d9")))
 ok("unlock / landing page carries no sales-first product line", not any(s in index for s in SALES_FIRST))
 ok("app shell uses canonical SQC theme color («دفتر KOSIF» paper rail)", 'name="theme-color" content="#f3ece2"' in app_head)
 ok("app shell uses SQC favicon", 'href="./art/sqc-icon.svg"' in app_head and "kosif-cloud.svg" not in app_head)

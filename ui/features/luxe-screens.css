@@ -66,7 +66,7 @@
 .rp-hero{display:flex;align-items:center;justify-content:space-between;gap:var(--sk-4);flex-wrap:wrap;padding:20px 22px;border-radius:var(--sk-r-l);color:#fff;
   background:linear-gradient(110deg,rgba(11,16,48,.96),rgba(18,58,107,.9) 55%,color-mix(in srgb,var(--sk-brand) 82%,transparent)),url(./art/kosif-sky.svg) center/cover no-repeat}
 .rp-hero h3{font-size:20px;color:#fff}.rp-hero p{max-width:640px;margin-top:4px;font-size:var(--sk-fs-s);line-height:1.8;color:#d6e4f5}
-.rp-hero .btn.primary{background:#fff!important;color:#0b1030!important;box-shadow:0 10px 24px -12px rgba(0,0,0,.6)}
+.rp-hero .btn.primary{background:#fff!important;color:var(--sk-navy,#0b1030)!important;box-shadow:0 10px 24px -12px rgba(0,0,0,.6)}
 .rp-opts{display:grid;gap:var(--sk-3);padding:18px;border:1px solid var(--sk-line);border-radius:var(--sk-r-l);background:var(--sk-surface-2)}
 .rp-sec{display:flex;flex-wrap:wrap;gap:6px 16px}
 /* مختبر المبيعات (sales-lab.js) */

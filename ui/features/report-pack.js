@@ -117,7 +117,7 @@ async function print(){
     w.document.open();w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>مسودة تنفيذية محدودة — '+esc(s.identity.name)+'</title><meta name="sqc-company" content="'+esc(captured.input.context.entityId)+'"><meta name="sqc-period" content="'+esc(captured.input.context.start+"/"+captured.input.context.end)+'"><meta name="sqc-source-sha256" content="'+esc(captured.inputHash)+'"></head><body>'+content+'</body></html>');w.document.close();
     SK.brandPrint(w,"مسودة تنفيذية محدودة",s.identity);
     if(s.calm){w.document.body.classList.add("rp-paper");const mark=w.document.querySelector(".skp-band img");if(mark)mark.src=base+"art/sqc-mark-dark.svg"}
-    const st=w.document.createElement("style");st.textContent=PACK_CSS.replace("ART",base+"art/kosif-sky.svg")+(s.calm?CALM_PACK_CSS:"");w.document.head.appendChild(st);
+    const st=w.document.createElement("style");st.textContent=(window.SK&&SK.brandCSS?SK.brandCSS:String)(PACK_CSS.replace("ART",base+"art/kosif-sky.svg")+(s.calm?CALM_PACK_CSS:""));w.document.head.appendChild(st);
     /* document.open clears event listeners: the output guard is installed only after final close/branding. */
     if(!SK.output.guard(w,guard)){close(s);return}
     if(!sync(s)){SK.output.invalidate(w);return}

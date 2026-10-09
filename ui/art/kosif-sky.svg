@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
   <!-- KOSIF sky — vector recreation of the Canva-generated artwork (media MAHWPvhoRuY):
-       bright cumulus over a sky that deepens to KOSIF navy #0b1030. -->
+       bright cumulus over a sky that deepens to KOSIF navy #1d1814. -->
   <defs>
     <linearGradient id="s" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#f1e3bf"/><stop offset=".3" stop-color="#d4b06a"/>
-      <stop offset=".62" stop-color="#3655e0"/><stop offset="1" stop-color="#0b1030"/>
+      <stop offset=".62" stop-color="#f2732d"/><stop offset="1" stop-color="#1d1814"/>
     </linearGradient>
     <radialGradient id="sun" cx=".62" cy=".18" r=".55">
       <stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset=".35" stop-color="#fff" stop-opacity=".25"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>

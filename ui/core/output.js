@@ -262,7 +262,7 @@ function present(session){
   let biz=session.guard?session.guard.identity.name||"":"";if(!session.guard)try{biz=(SK.org?SK.org().biz:(JSON.parse(localStorage.getItem("aghnam-pricing-v3")||"{}").settings||{}).biz)||""}catch{}
   const date=session.guard?session.guard.identity.date||"":new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"long",year:"numeric"});
   const styles=[...d.querySelectorAll("style,link[rel=stylesheet]")].filter(x=>x.id!=="skout-paper"&&x.id!=="skp-opts").map(x=>x.outerHTML).join("");
-  const html='<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">'+styles+'<style>'+PRES_CSS+'</style></head><body>'+
+  const html='<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">'+styles+'<style>'+(window.SK&&SK.brandCSS?SK.brandCSS:String)(PRES_CSS)+'</style></head><body>'+
     '<section class="sl t on"><img src="'+mark+'" alt="SQC"><h1>'+esc(title)+'</h1>'+(subtitle?'<p>'+esc(subtitle)+'</p>':biz?'<p>'+esc(biz)+'</p>':'')+'<p>'+esc(date)+'</p></section>'+
     slides.map(s=>'<section class="sl"><header class="sl-h"><img src="'+mark+'" alt=""><span>SQC</span><b>'+esc(s.h)+'</b></header><div class="sl-b">'+s.nodes.map(n=>n.outerHTML).join("")+'</div></section>').join("")+'</body></html>';
   const wrap=document.createElement("div");wrap.className="skpres";wrap.setAttribute("role","dialog");wrap.setAttribute("aria-modal","true");wrap.setAttribute("aria-label","عرض تقديمي: "+title);

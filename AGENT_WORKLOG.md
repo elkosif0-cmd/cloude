@@ -1017,3 +1017,20 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   site and fixed: the demo company's «متابعة» in «لأي شركة؟» was refused («لم يُثبت سياق الشركة», dialog stuck) because the
   admission check did not know the core's own first-use writes (v15 master lists, automatic price-list snapshots + meta);
   tools/demo_master_lists.test.mjs.
+
+### TASK CLAUDE-20261009-015 — One identity from the door to the printed page; the owner's decisions checked against the code
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Owner request: «راجع الهوية بتاعة التطبيق وتتأكد إن الهوية كلها موحدة وتراجع كمان كل القرارات وتتأكد إن كلهم موجودين، الفروع تأكد إنها تم دمجها».
+- Found: the app wore «دفتر KOSIF» (R19) but the door, the logo files, the PWA icons, the manifest, the crystal world, the command
+  centre band and every printed/presented document were still «كوبالت وجليد».
+- Done: door → ledger tokens (door_tokens now compares to data-brand="ledger"; SQC:AUTH byte-identical), its film and section art
+  toned; brand SVGs recoloured; PWA icons re-rendered from sqc-icon.svg (Edge); manifest #1d1814; crystal-world PALETTES (ledger
+  amber / cobalt ice, by data-brand or {palette}); SK.brandCSS maps the cobalt print palette by role for every print/presentation
+  path (letterhead, preview bar, report docs, report pack, channel profit, presentation, chart print); in-app literals → tokens
+  (--sk-navy, --sk-brand, --sk-grad-brand, new --sk-orb/--sk-orb-hi). Guard tools/identity_unity.test.mjs; identity doc §8.3;
+  identity baseline colours 440 → 438.
+- Decisions: tools/owner_decisions.mjs → docs/registry/OWNER_DECISIONS_ar.md (23 decisions checked in code). Conflict left for the
+  owner: whatsapp-bridge MCP has `list_whatsapp_messages` («Read messages received on WhatsApp», recovered from PR #96 on
+  2026-10-06) against the rule «no WhatsApp message-reading tools» — not removed without the owner's decision.
+- Branch: `claude/constitution-restructure-20261009` (PR #235).

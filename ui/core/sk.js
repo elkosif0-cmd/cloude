@@ -332,7 +332,7 @@ function previewBar(w,d){
     '<button type="button" class="go" data-a="print">طباعة / حفظ PDF</button><button type="button" class="x" data-a="close">إغلاق</button>';
   d.body.insertBefore(bar,d.body.firstChild);
   const st=d.createElement("style");st.id="skp-opts";(d.head||d.documentElement).appendChild(st);
-  const apply=()=>{const x=popts();st.textContent=optCSS(x);(d.head||d.documentElement).appendChild(st)};
+  const apply=()=>{const x=popts();st.textContent=brandCSS(optCSS(x));(d.head||d.documentElement).appendChild(st)};
   const set=(k,v)=>{const x=popts();x[k]=v;save(PKEY,x);apply()};
   bar.addEventListener("change",e=>{const el=e.target;if(!el.dataset.k)return;set(el.dataset.k,el.type==="checkbox"?el.checked:el.dataset.k==="scale"?Number(el.value):el.value)});
   bar.addEventListener("input",e=>{if(e.target.dataset.k==="wm")set("wm",e.target.value.slice(0,24))});
@@ -341,24 +341,42 @@ function previewBar(w,d){
   /* features add their own styles after brandPrint: the options stay last */
   setTimeout(apply,60);w.addEventListener&&w.addEventListener("load",apply);
 }
+/* R20 (FOUNDATION §3.11.1–2, one identity): printed and presented documents wear the identity on screen. The print styles
+   are written once in the cobalt palette; with «دفتر KOSIF» (data-brand="ledger", the default) brandCSS maps them to ink,
+   paper and saffron — the cobalt brand colour by its role: text → readable saffron, a filled background → ink (as the
+   app's primary buttons), a rule or accent → saffron. With «كوبالت وجليد» chosen, the styles stay as written. */
+const LEDGER_HEX=[["#0b1030","#1d1814"],["#04061a","#110e0b"],["#050719","#110e0b"],["#070a1e","#161310"],["#0a1f3a","#110e0b"],["#141c5c","#3a2f27"],["#0d1442","#1d1814"],["#141a40","#2b241e"],
+  ["#1b2470","#3a2f27"],["#1b2a8a","#3a2f27"],["#1a2a8f","#a53e07"],["#2a46d6","#3a2f27"],["#2a3fae","#a53e07"],["#3655e0","#f2732d"],["#1557d6","#d9530e"],["#252d5e","#3a2f27"],["#323c74","#4b4139"],
+  ["#19c3d9","#f2732d"],["#0a8aa0","#a53e07"],["#b6f3fa","#f6c39b"],["#9beef7","#f6c39b"],["#5fdcea","#f2a36b"],["#3fd3e6","#f2a36b"],["#7cc4ff","#f6c39b"],["#bfe9ff","#f6c39b"],
+  ["#d4dbf5","#f1e3d3"],["#cfe0f5","#f1e3d3"],["#dce8f7","#f1e3d3"],["#dcf6fa","#fbe9dc"],["#e8ecfd","#fbe9dc"],["#f9fafe","#f8f3ec"],["#f8fafd","#f8f3ec"],["#f4f6fb","#fbf8f3"],
+  ["#dde2ef","#e3d9cc"],["#e2e6f1","#e3d9cc"],["#e4eaf2","#e3d9cc"],["#e7ecf3","#e3d9cc"],["#cdd3e4","#cbbfb0"],["#c3cadf","#cbbfb0"],["#8292a8","#6f6358"],["#5a6a80","#6f6358"],["#44566f","#4b4139"],["#585f6e","#6f6358"]];
+const LEDGER_RGB=[["35,64,196","217,83,14"],["11,16,48","29,24,20"],["5,8,30","22,19,16"],["4,12,28","22,19,16"]];
+const ledgerOn=()=>{try{return document.documentElement.dataset.brand==="ledger"}catch{return false}};
+function brandCSS(css){
+  if(!css||!ledgerOn())return css;
+  let s=String(css).replace(/(^|[^-\w])(color\s*:\s*)#2340c4(?=(?:[0-9a-f]{2})?(?![0-9a-f]))/gi,"$1$2#a53e07").replace(/(background(?:-color)?\s*:\s*)#2340c4(?=(?:[0-9a-f]{2})?(?![0-9a-f]))/gi,"$1#1d1814").replace(/#2340c4(?=(?:[0-9a-f]{2})?(?![0-9a-f]))/gi,"#d9530e");
+  for(const [a,b] of LEDGER_HEX)s=s.replace(new RegExp(a+"(?=(?:[0-9a-f]{2})?(?![0-9a-f]))","gi"),b);
+  for(const [a,b] of LEDGER_RGB)s=s.replace(new RegExp("rgba\\(\\s*"+a.split(",").join("\\s*,\\s*")+"\\s*,","g"),"rgba("+b+",");
+  return s;
+}
 function brandPrint(w,title,identity){
   try{
     const d=w.document;if(!d||!d.body)return;
     d.querySelectorAll("style").forEach(x=>x.remove());
-    const st=d.createElement("style");st.id="sk-print-brand";st.textContent=PRINT_CSS+(kosifLook()?PRINT_KOSIF:"");(d.head||d.documentElement).appendChild(st);
+    const st=d.createElement("style");st.id="sk-print-brand";st.textContent=brandCSS(PRINT_CSS+(kosifLook()?PRINT_KOSIF:""));(d.head||d.documentElement).appendChild(st);
     const f=d.createElement("link");f.rel="stylesheet";f.href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Montserrat:wght@800&display=swap";(d.head||d.documentElement).appendChild(f);
     d.documentElement.setAttribute("dir","rtl");
     if(title&&!d.title)d.title=title;
-    d.body.insertAdjacentHTML("afterbegin",letterhead(title||d.title,identity));
+    d.body.insertAdjacentHTML("afterbegin",brandCSS(letterhead(title||d.title,identity)));
     const pr=identity?identity.preparer:preparer();d.body.insertAdjacentHTML("beforeend",'<footer class="skp-foot">'+esc(identity?identity.name:issuer().name)+' · صدر من '+'SQC — Smart Quality Control · AI-Powered Audit &amp; Assurance'+(pr?' · أعدّه: '+esc(pr):'')+'</footer>');
     /* in the app's own preview (SK.output) the toolbar lives outside the page */
-    if(w.__skEmbedded){if(window.SKCharts&&d.querySelector(".skch-fig,.skch,.skhb")){const cs=d.createElement("style");cs.id="sk-print-charts";cs.textContent=SKCharts.printCSS;(d.head||d.documentElement).appendChild(cs)}
+    if(w.__skEmbedded){if(window.SKCharts&&d.querySelector(".skch-fig,.skch,.skhb")){const cs=d.createElement("style");cs.id="sk-print-charts";cs.textContent=brandCSS(SKCharts.printCSS);(d.head||d.documentElement).appendChild(cs)}
       setTimeout(()=>SK.output&&SK.output.css(d),0);return}
     /* the preview: options apply live; the window's own print() waits for «طباعة» */
-    const bs=d.createElement("style");bs.textContent=BAR_CSS;(d.head||d.documentElement).appendChild(bs);
+    const bs=d.createElement("style");bs.textContent=brandCSS(BAR_CSS);(d.head||d.documentElement).appendChild(bs);
     if(!w.__skRealPrint){const real=w.print.bind(w);w.__skRealPrint=()=>{try{w.focus();real()}catch{}};
       if(popts().preview)w.print=()=>{try{w.focus();const b=d.querySelector(".skp-bar .go");if(b)b.focus()}catch{}};else w.print=w.__skRealPrint}
-    if(window.SKCharts&&d.querySelector(".skch-fig,.skch,.skhb")){const cs=d.createElement("style");cs.id="sk-print-charts";cs.textContent=SKCharts.printCSS;(d.head||d.documentElement).appendChild(cs)}
+    if(window.SKCharts&&d.querySelector(".skch-fig,.skch,.skhb")){const cs=d.createElement("style");cs.id="sk-print-charts";cs.textContent=brandCSS(SKCharts.printCSS);(d.head||d.documentElement).appendChild(cs)}
     previewBar(w,d);
   }catch(e){report(e,"print")}
 }
@@ -371,7 +389,7 @@ function askJev(opts){save("skosif_jev_draft",opts||{});if(core())core().go("jev
 
 window.SK={$,$$,esc,num,load,save,onSave,money,pct,toast,view,redact,askJev,vatRate,vatPct,icon,icons:ICONS,download,
   confirm:confirmDialog,notify,form:formDialog,modalFocus,brandPrint,org,bizName,sector:sectorNow,
-  print:Object.freeze({options:popts,set:(k,v)=>{const x=popts();x[k]=v;save(PKEY,x)},css:optCSS}),
+  print:Object.freeze({options:popts,set:(k,v)=>{const x=popts();x[k]=v;save(PKEY,x)},css:o=>brandCSS(optCSS(o))}),brandCSS,
   csv:Object.freeze({cell:safeCell,build:csv,download:downloadCsv}),
   lock:Object.freeze({now:lockNow,key:LOCK_KEY,touch:()=>{last=Date.now()}}),
   _flush:flush,version:"2.0"};
