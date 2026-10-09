@@ -1034,3 +1034,18 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   owner: whatsapp-bridge MCP has `list_whatsapp_messages` («Read messages received on WhatsApp», recovered from PR #96 on
   2026-10-06) against the rule «no WhatsApp message-reading tools» — not removed without the owner's decision.
 - Branch: `claude/constitution-restructure-20261009` (PR #235).
+
+
+### TASK KOSIF-EARTH-ISOLATION-20261009 — Goal-first UX and absolute single-company operating context
+- Agent: ChatGPT (design/inventory sub-scope, coordinated with Claude lead)
+- Status: ACTIVE — design and source audit only; no shared runtime edits or production deployment
+- Owner: Accepted KOSIF EARTH / عالم المحاسبة الذكي. Explicit follow-up: opening a company must show only that company's work, without mixing data from another company or treating the app as a combined archive; assistant must assess feature purpose, destination, duplication, and optional-tool installation.
+- Scope: Acceptance contract, inventory evidence and risk identification for company isolation, context-scoped audit, and optional tool install. No competing architecture: obey FOUNDATION.md three entries and owner scope rules.
+- Expected touch set: docs/design/KOSIF_EARTH_SINGLE_COMPANY_CONTEXT_ar.md and this worklog only. Existing ui/core/company.js, ui/core/helper-space.js, ui/core/company-platform.js, ui/features/tb-review.js, ui/core/capabilities.json inspected read-only.
+- Branch / PR: chatgpt/kosif-earth-goal-first-ux-20261009; no PR opened or publication requested.
+- Current progress: Registry has 78 capabilities (37 root hubs and 41 hub children), 39 cross-gateway capabilities. Company selector exists, but the active company must remain the only operational context. Current company() periods can include ownerless historical periods, and several storage keys are device-level; both require proof-based audit, not assumed leakage or safety.
+- Evidence / tests: Existing tools/company_scope_keys.test.mjs, tools/audit_context_independence.test.mjs and tools/capability_profile.test.mjs located; have not run tests or browser cross-company probes in this task. Production remains unchanged.
+- Risks / conflicts: Claude is concurrently modifying constitution navigation and company capability profiles; do not touch those runtime files without explicit handoff. Never read or publish company content or API secrets. The source's current local snapshot mechanism is not proof of backend multi-tenant security.
+- Unfinished: Full backend/storage trace, browser company A→B→A switching tests, report/AI/export scope tests, installation isolation, implementation and staged visual verification.
+- NEXT ACTION: Review design acceptance contract with lead developer, verify any ownerless period migration and device-scoped keys, then implement separately behind tests and preview.
+- Commit(s): Documentation-only branch, pending changes.
