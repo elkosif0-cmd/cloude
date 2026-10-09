@@ -1,0 +1,41 @@
+/* KOSIF EARTH — isolated cinematic overlay. No financial data, authentication, or app routing. */
+.earth-intro[hidden]{display:none!important}
+.earth-intro{position:fixed;inset:0;z-index:9999;isolation:isolate;overflow:hidden;background:var(--sk-ink,#1d1814);color:#fff;font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;direction:rtl}
+.earth-intro__movie,.earth-intro__poster,.earth-intro__veil{position:absolute;inset:0;width:100%;height:100%}
+.earth-intro__movie{object-fit:cover;object-position:50% 50%;background:transparent}
+.earth-intro__veil{pointer-events:none;background:linear-gradient(90deg,rgba(4,9,17,.78),rgba(4,9,17,.18) 58%,rgba(4,9,17,.24)),linear-gradient(0deg,rgba(4,9,17,.85),transparent 57%)}
+.earth-intro__top{position:absolute;z-index:2;top:max(22px,env(safe-area-inset-top));inset-inline:clamp(20px,5vw,78px);display:flex;align-items:center;justify-content:space-between;gap:18px}
+.earth-intro__wordmark{display:inline-flex;direction:ltr;gap:8px;align-items:center;font-family:Montserrat,Arial,sans-serif;font-weight:800;font-size:clamp(15px,2.2vw,24px);letter-spacing:.09em;text-shadow:0 2px 16px rgba(0,0,0,.35)}
+.earth-intro__wordmark b{font-weight:800;color:#e8bd76}
+.earth-intro__skip{font:600 14px 'IBM Plex Sans Arabic',sans-serif;color:#fff;border:1px solid rgba(255,255,255,.5);background:rgba(0,0,0,.25);border-radius:999px;padding:9px 20px;cursor:pointer;min-height:44px}
+.earth-intro__skip:hover{background:rgba(255,255,255,.15)}
+.earth-intro__story{position:absolute;z-index:2;bottom:max(40px,env(safe-area-inset-bottom));inset-inline-start:clamp(22px,6vw,110px);width:min(560px,calc(100% - 44px));text-align:start;pointer-events:none}
+.earth-intro__eyebrow{margin:0 0 12px;font-size:12px;font-weight:700;letter-spacing:.16em;color:#ffdc9f}
+.earth-intro__story h2{font-size:clamp(31px,4.9vw,65px);line-height:1.18;letter-spacing:-.035em;font-weight:700;margin:0 0 14px;color:#fff;text-wrap:balance;text-shadow:0 3px 30px rgba(0,0,0,.45)}
+.earth-intro__story p.earth-intro__description{font-size:clamp(13px,1.7vw,17px);line-height:1.9;color:rgba(255,255,255,.9);margin:0 0 23px;max-width:460px}
+.earth-intro__enter{pointer-events:auto;display:inline-flex;align-items:center;gap:12px;min-height:52px;padding:11px 28px;border:0;border-radius:999px;background:#f9f1e8;color:#1d1814;font:700 15px 'IBM Plex Sans Arabic',sans-serif;cursor:pointer;box-shadow:0 10px 35px rgba(0,0,0,.23)}
+.earth-intro__enter:hover{transform:translateY(-2px)}
+.earth-intro__enter:focus-visible,.earth-intro__skip:focus-visible{outline:3px solid #ffcc80;outline-offset:4px}
+.earth-intro__progress{position:absolute;z-index:3;bottom:0;inset-inline:0;height:3px;background:rgba(255,255,255,.19)}
+.earth-intro__progress::before{content:"";position:absolute;inset-block:0;inset-inline-start:0;width:0;background:#e8bd76}
+.earth-intro.is-playing .earth-intro__progress::before{animation:earthIntroProgress 5.06s linear forwards}
+.earth-intro.is-complete .earth-intro__progress::before{width:100%;animation:none}
+@keyframes earthIntroProgress{to{width:100%}}
+body.earth-intro-open{overflow:hidden!important}
+@media (max-width:700px){
+  .earth-intro__movie{object-position:83% center}
+  .earth-intro__veil{background:linear-gradient(0deg,rgba(4,9,17,.92),rgba(4,9,17,.2) 76%),linear-gradient(90deg,rgba(4,9,17,.20),transparent)}
+  .earth-intro__story{inset-inline:20px;width:auto;bottom:max(32px,env(safe-area-inset-bottom))}
+  .earth-intro__story h2{font-size:clamp(29px,8vw,42px)}
+  .earth-intro__story p.earth-intro__description{max-width:360px}
+  .earth-intro__top{inset-inline:18px}
+}
+@media (prefers-reduced-motion:reduce){
+  .earth-intro *, .earth-intro *::before{animation:none!important;transition:none!important}
+}
+
+.earth-intro__actions{display:flex;align-items:center;gap:10px}
+.earth-intro__sound{font:600 14px 'IBM Plex Sans Arabic',sans-serif;min-height:44px;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.15);color:#fff;padding:8px 17px;border-radius:999px;cursor:pointer}
+.earth-intro__sound:hover{background:rgba(255,255,255,.15)}
+.earth-intro__sound:focus-visible{outline:3px solid #ffcc80;outline-offset:4px}
+@media(max-width:480px){.earth-intro__actions{gap:5px}.earth-intro__skip,.earth-intro__sound{padding:8px 10px;font-size:12px}}

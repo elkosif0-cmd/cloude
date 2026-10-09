@@ -1034,3 +1034,17 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   owner: whatsapp-bridge MCP has `list_whatsapp_messages` («Read messages received on WhatsApp», recovered from PR #96 on
   2026-10-06) against the rule «no WhatsApp message-reading tools» — not removed without the owner's decision.
 - Branch: `claude/constitution-restructure-20261009` (PR #235).
+
+### TASK CHATGPT-20261009-EARTH-INTRO — Cinematic front door, desktop 4K-safe media
+- Agent: ChatGPT
+- Status: HANDOFF — preview verified; production publication pending coordinated merge and deployment checks.
+- Goal: User-directed KOSIF EARTH welcome with founder portrait, globe cinematic, clear three sections, native company isolation.
+- Scope: Front-door copy and isolated decorative overlay only; no accounting/audit/business data, routing logic or protected AUTH edits.
+- Files: `unlock.html`; `ui/art/brand/earth-intro-20261009.{css,js,mp4,webp}`; `earth-intro-20261009-4k.mp4`; bounded media test; title assertions; design provenance.
+- Branch: `chatgpt/kosif-earth-cinematic-entry-20261009` from main a9dbde0.
+- Art provenance: Earlier owner-authorized Higgsfield Seedance 2.5 Image-to-Video 5.056s/720p, locally encoded with audio as 1280x720 0.80MB mobile and 3840x2160 5.44MB desktop Lanczos upscale (NOT native 4K). Native Seedance 2.0 4k request was submitted once and returned `failed`: insufficient account credit; never retried.
+- Privacy: Private original founder portrait and Higgsfield credentials never committed. The public videos contain the user-requested likeness only.
+- Controls: 4K chosen only on wider/faster desktop, auto 720 fallback, skip and enter, optional sound, session single-play, reduced motion, save-data and low-memory bypass, no WebGL dependency.
+- Tests: Protected auth script checked byte-identical by source compare; preview build 187 entries; node targeted 12/12 (pending title assertion update retest); browser desktop/mobile+reduced motion 20/20; real rendered screenshots inspected and mobile face cropping refined.
+- Risk: 4K is local upscale and cannot be represented as native model generation. GitHub/Cloudflare publishing requires current coordination and acceptance; other agents may be editing the shell.
+- NEXT ACTION: Re-run final title adjusted tests, commit branch, open PR for coordination; merge/deploy only after actual gating and production secret checks. Generate original 4K only after account credit is restored and the owner requests another paid attempt.

@@ -49,7 +49,7 @@ test('the door opens on the three sections, in the registry\'s order, and on not
   const g=page();
   assert.deepEqual(g.visible(),['gates']);
   assert.deepEqual(g.gates(),['accounting','audit','tools']);
-  assert.equal(g.title(),'SQC — اختر القسم');
+  assert.equal(g.title(),'KOSIF EARTH — اختر القسم');
   assert.equal(g.cards().length,0,'no company before a section is chosen');
   assert.ok(g.els['gate-list'].innerHTML.includes('البرنامج المحاسبي الكامل'));
 });
@@ -57,7 +57,7 @@ test('the door opens on the three sections, in the registry\'s order, and on not
 test('accounting asks for the sector first: every registry sector in order, with how many companies it holds',()=>{
   const g=page({local:device});
   g.gate('accounting');
-  assert.deepEqual(g.visible(),['sectors']);assert.equal(g.title(),'SQC — اختر القطاع');
+  assert.deepEqual(g.visible(),['sectors']);assert.equal(g.title(),'KOSIF EARTH — اختر القطاع');
   const s=g.sectors();
   assert.deepEqual(s.map(x=>x.id),reg.sectors.map(x=>x.id));
   assert.equal(s.find(x=>x.id==='meat').n,'2 شركة','the private company and the demo company are meat companies');
