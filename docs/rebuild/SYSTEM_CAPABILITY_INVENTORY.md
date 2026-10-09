@@ -74,7 +74,7 @@ Total capabilities: **78** (screens). Cross-cutting capabilities are listed afte
 | `auditcouncil` | مجلس المراجعين | ui/audit (v5) | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › يومي | `audit studio IDB` | SKosifCore | Working | Keep |
 | `auditfin` | القوائم والقيود | ui/audit (v5) | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › يومي | `audit studio IDB` | SKosifCore | Working | Keep |
 | `auditreport` | التقارير والإصدار | ui/audit (v5) | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › يومي | `audit studio IDB` | SKosifCore | Working | Keep |
-| `auditanalytics` | التحليل والاختبارات | ui/audit/classic | المراجعة والتدقيق › المراجعة والمراجعة المالية › يومي | `audit classic storage` | SKosifCore | Working | Keep |
+| `auditanalytics` | التحليل والاختبارات | ui/audit/classic | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › يومي | `audit classic storage` | SKosifCore | Working | Keep |
 | `auditlab` | مختبر المعايير والأبحاث | ui/audit/lab | المراجعة والتدقيق › المراجعة والمراجعة المالية › المعايير والمدونة › يومي (مشترك مع: البرنامج المحاسبي الكامل) | `audit lab storage` | SKosifCore | Working | Keep |
 | `settings` | الإعدادات والمظهر | core + ui/shell.js | الأدوات المساعدة › العام › الإعدادات والأجهزة › يومي (مشترك مع: البرنامج المحاسبي الكامل، المراجعة والتدقيق) | `aghnam-pricing-v3`, `skosif_prefs` | SKosifCore, Engine | Working | Keep |
 | `devices` | الأجهزة والمزامنة | ui/features/devices.js + ui/core/device.js + ui/components/keys.js | الأدوات المساعدة › العام › الإعدادات والأجهزة › يومي (مشترك مع: البرنامج المحاسبي الكامل، المراجعة والتدقيق) | `skosif_prefs`, `sk-device-log`, `IDB aghnam-app-v7` | SKosifCore, IndexedDB | Working | Rebuild |

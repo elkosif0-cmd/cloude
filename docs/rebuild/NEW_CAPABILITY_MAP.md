@@ -74,7 +74,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | KOSIF Audit Studio | `auditcouncil` | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › مجلس المراجعين | ADVANCED | admin, accountant |
 | KOSIF Audit Studio | `auditfin` | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › القوائم والقيود | ADVANCED | admin, accountant |
 | KOSIF Audit Studio | `auditreport` | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › التقارير والإصدار | ADVANCED | admin, accountant |
-| KOSIF Audit Studio (classic) | `auditanalytics` | المراجعة والتدقيق › المراجعة والمراجعة المالية › التحليل والاختبارات | ADVANCED | admin, accountant |
+| KOSIF Audit Studio (classic) | `auditanalytics` | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › التحليل والاختبارات | ADVANCED | admin, accountant |
 | KOSIF Audit Studio (lab) | `auditlab` | المراجعة والتدقيق › المراجعة والمراجعة المالية › المعايير والمدونة › مختبر المعايير والأبحاث | ADVANCED | admin, accountant |
 | الإعدادات | `settings` | الأدوات المساعدة › العام › الإعدادات والأجهزة › الإعدادات والمظهر | ADMIN | admin, accountant, warehouse, sales, viewer |
 | جديد — تعليمات التثبيت (INSTALL-iPHONE-ar.txt) + نسخة v27 للابتوب وv28–v30 للآيفون | `devices` | الأدوات المساعدة › العام › الإعدادات والأجهزة › الأجهزة والمزامنة | UTILITIES | admin, accountant, warehouse, sales, viewer |
@@ -109,9 +109,8 @@ The front door and the sidebar expose exactly three entries (FOUNDATION §3): th
 | البرنامج المحاسبي الكامل | التقارير والبيانات | التقارير التنفيذية | `execreports` التقارير التنفيذية | الأدوات المساعدة |
 | البرنامج المحاسبي الكامل | التقارير والبيانات | الطباعة والتصدير | `reports` مركز الطباعة · `exports` مركز التصدير | الأدوات المساعدة |
 | البرنامج المحاسبي الكامل | التقارير والبيانات | الأرشيف والأنظمة الأصلية | `archive` الأرشيف والتغييرات · `legacyapps` الأنظمة الأصلية | الأدوات المساعدة |
-| المراجعة والتدقيق | المراجعة والمراجعة المالية | مركز المراجعة | `tbreview` ملف المراجعة · `auditinbox` صندوق استلام المراجعة · `auditdesk` الاستوديو المتقدم · `auditdocs` المستندات والأدلة · `auditissues` الملاحظات والقضايا · `auditcouncil` مجلس المراجعين · `auditfin` القوائم والقيود · `auditreport` التقارير والإصدار | — |
+| المراجعة والتدقيق | المراجعة والمراجعة المالية | مركز المراجعة | `tbreview` ملف المراجعة · `auditinbox` صندوق استلام المراجعة · `auditdesk` الاستوديو المتقدم · `auditdocs` المستندات والأدلة · `auditissues` الملاحظات والقضايا · `auditcouncil` مجلس المراجعين · `auditfin` القوائم والقيود · `auditreport` التقارير والإصدار · `auditanalytics` التحليل والاختبارات | — |
 | المراجعة والتدقيق | المراجعة والمراجعة المالية | المعايير والمدونة | `codex` المدونة المحاسبية والمعايير · `auditbench` المرجع العالمي للمراجعة · `corpuslab` مختبر الشركات العالمية · `auditlab` مختبر المعايير والأبحاث | البرنامج المحاسبي الكامل |
-| المراجعة والتدقيق | المراجعة والمراجعة المالية | التحليل والاختبارات | `auditanalytics` التحليل والاختبارات | — |
 | الأدوات المساعدة | العام | مركز القيادة | `dash` مركز القيادة | البرنامج المحاسبي الكامل، المراجعة والتدقيق |
 | الأدوات المساعدة | العام | المهام والإشعارات | `tasks` المهام · `notifications` مركز الإشعارات | البرنامج المحاسبي الكامل، المراجعة والتدقيق |
 | الأدوات المساعدة | العام | المخاطر والملاحظات | `risks` المخاطر والملاحظات | البرنامج المحاسبي الكامل، المراجعة والتدقيق |
@@ -145,7 +144,7 @@ The front door and the sidebar expose exactly three entries (FOUNDATION §3): th
 | `agriculture` الزراعة والمزارع | — | المواسم والحظائر كمراكز تكلفة، الأعلاف، النفوق، تكلفة الدورة |
 | `trade` التجارة والخدمات العامة | — | فروع ومستودعات، شراء وبيع، هوامش ومخزون وائتمان — وكل نشاط آخر |
 
-78 screens in 38 menu entries.
+78 screens in 37 menu entries.
 
 ## By tier
 

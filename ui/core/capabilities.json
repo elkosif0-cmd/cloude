@@ -1832,7 +1832,8 @@
    "feeds": [
     "tbreview"
    ],
-   "gateway": "audit"
+   "gateway": "audit",
+   "hub": "tbreview"
   },
   {
    "id": "auditlab",
@@ -2269,7 +2270,6 @@
      "label": "الإجراءات والاختبارات",
      "icon": "auditanalytics",
      "hubs": [
-      "auditanalytics",
       {
        "go": "tbreview",
        "tab": "ai",
