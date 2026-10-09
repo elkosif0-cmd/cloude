@@ -156,18 +156,45 @@ migrate();applyPrefs();
 
 /* ---------- rail ---------- */
 /* one entry per hub: it opens the first page the role may see, and stays current on every page of the hub */
-function navButton(c,cur,pages){
-  const go=pages[0],on=pages.some(x=>x.id===cur);
-  const icon=SK.icons[c.id]||(core()&&core().navIcon(c.id))||SK.icons.action;
-  const badge=core()?core().navBadge(go.id):"";
-  const more=pages.length>1?'<i class="skn-hubn" title="'+pages.length+' صفحات">'+pages.length+'</i>':"";
-  return '<button type="button" class="nav-btn" data-act="nav" data-v="'+go.id+'" data-hub="'+c.id+'" title="'+esc(c.hubLabel)+'"'+(on?' aria-current="page"':'')+'>'+icon+'<span>'+esc(c.hubLabel)+'</span>'+(badge||more)+'</button>';
+function navButton(c,cur,pages,on=pages.some(x=>x.id===cur)){
+  const go=pages[0],key=c.link?c.icon:c.id;
+  const icon=SK.icons[key]||(core()&&core().navIcon(key))||SK.icons.action;
+  const badge=core()&&!c.link?core().navBadge(go.id):"";
+  const more=!c.page&&!c.link&&pages.length>1?'<i class="skn-hubn" title="'+pages.length+' صفحات">'+pages.length+'</i>':"";
+  /* a tab of a screen opens that screen on the tab (R20: «إقرار الضريبة» is the ledger's tab) */
+  const act=c.link?'data-act="navtab" data-v="'+esc(c.view)+'" data-tab="'+esc(c.tab)+'"':'data-act="nav" data-v="'+go.id+'"';
+  return '<button type="button" class="nav-btn" '+act+' data-hub="'+esc(c.id)+'" title="'+esc(c.hubLabel)+'"'+(on?' aria-current="page"':'')+'>'+icon+'<span>'+esc(c.hubLabel)+'</span>'+(badge||more)+'</button>';
 }
 /* the pages of a hub this user may open in the current mode */
 function hubPages(id,cur){
   const adv=core()&&core().mode()==="advanced";
   return SK.caps.members(id).filter(x=>(adv||x.primary||x.id===cur)&&SK.perm.can(x.id));
 }
+/* the pages a menu item opens: a hub's pages, one page of a hub, or the screen a tab belongs to */
+function itemPages(h,cur){
+  if(h.link)return SK.perm.can(h.view)?[SK.caps.get(h.view)]:[];
+  if(h.page){const adv=core()&&core().mode()==="advanced";return(adv||h.primary||h.id===cur)&&SK.perm.can(h.id)?[SK.caps.get(h.id)]:[]}
+  return hubPages(h.id,cur);
+}
+/* the screens whose tabs the menu can open (R20), and which tab each one is showing */
+const TAB_LINKS={ledger:{
+  open:t=>{const L=window.SKosifLedger;if(!L)return core().go("ledger");
+    /* "@ops": the first tab of a family (the operations family starts with the sector's own tab) */
+    if(t[0]==="@"){const f=(L.families()||[]).find(x=>x.id===t.slice(1));t=f&&f.tabs[0]||"accounts"}L.open(t)},
+  current:()=>{const L=window.SKosifLedger;return L&&L.current?L.current():""},
+  family:t=>{const L=window.SKosifLedger,f=L&&L.families?(L.families()||[]).find(x=>x.tabs.includes(t)):null;return f?f.id:""}},
+  /* the audit file's stages (tb-review.js TABS) */
+  tbreview:{open:t=>{const A=window.SKosifTBReview;if(A&&A.open)A.open(t);else core().go("tbreview")},
+    current:()=>{const A=window.SKosifTBReview;try{return A&&A.current?A.current():""}catch{return""}},family:()=>""}};
+function linkOn(h,cur){
+  if(!h.link||h.view!==cur)return false;const T=TAB_LINKS[h.view],now=T?T.current():"";if(!now)return false;
+  return h.tab[0]==="@"?T.family(now)===h.tab.slice(1):h.tab===now;
+}
+document.addEventListener("click",e=>{const b=e.target.closest('[data-act="navtab"]');if(!b||!core())return;
+  const T=TAB_LINKS[b.dataset.v];if(T)T.open(b.dataset.tab);else core().go(b.dataset.v);setTimeout(paintNav,60)});
+/* a tab chosen inside the screen itself moves the menu's current item too (the screens repaint without a "nav"); read in the
+   capture phase, before the screen's own handler repaints it and detaches the clicked tab */
+document.addEventListener("click",e=>{if(core()&&TAB_LINKS[core().view()]&&e.target.closest("#view [data-tab]"))setTimeout(paintNav,60)},true);
 let lastSig="";
 /* the menu: collapsible domains (icon · name · count), the current screen's domain always open,
    and a filter box above it; open/closed state per device (skosif_nav_v1) */
@@ -183,19 +210,25 @@ function paintNav(){
   const nav=$("#nav");if(!nav||!core())return;
   const cur=core().view(),open=navState(),gateways=SK.caps.gateways?SK.caps.gateways():[],cap=SK.caps.get(cur);
   let gate=gateways.length&&SK.gate?SK.gate.current():"";
-  if(gate&&cap&&!SK.caps.inGatewayOf(cap,gate)){if(!SK.gate.pinned()){gate=cap.gateway;SK.gate.set(gate,{go:false,silent:true})}}
+  /* a tool installed in the open company stays in the accounting entry's own menu (R20), so opening it does not switch entries */
+  if(gate&&cap&&!SK.caps.inGatewayOf(cap,gate)&&!(SK.caps.inMenu&&SK.caps.inMenu(cap.id,gate))){if(!SK.gate.pinned()){gate=cap.gateway;SK.gate.set(gate,{go:false,silent:true})}}
   else if(gate&&cap&&SK.gate.pinned()===cur)SK.gate.unpin(); /* the door's section arrived on its first screen */
   let html="";
   if(gate)html+='<div class="skn-gates" role="group" aria-label="القسم" data-gate="'+esc(gate)+'">'+gateways.map(g=>'<button type="button" class="skn-gate" data-gate="'+esc(g.id)+'" aria-pressed="'+(g.id===gate)+'" title="'+esc(g.label)+'">'+(SK.icons[g.icon]||"")+'<span>'+esc(g.short||g.label)+'</span></button>').join("")+'</div>';
   /* R3: the entry's own menu (the constitution's order) when it declares one, else the registry's groups */
   const menu=gate&&SK.caps.menu?SK.caps.menu(gate):null;
   const domains=menu||(gate?SK.caps.groupsInGateway(gate):SK.caps.groups());
+  /* one item is current: the tab the screen shows, else the page itself, else its hub (a page or a tab may be listed in
+     another section than its hub) */
+  const listedAll=menu?menu.flatMap(s=>s.hubs):[];
+  const active=menu?(listedAll.find(h=>linkOn(h,cur))||listedAll.find(h=>h.page&&h.id===cur)||listedAll.find(h=>!h.link&&!h.page&&hubPages(h.id,cur).some(x=>x.id===cur))||{}).id:null;
+  const isOn=(c,pg)=>menu?c.id===active:pg.some(x=>x.id===cur);
   domains.forEach(gr=>{
-    const items=(menu?gr.hubs:SK.caps.hubsInGroup(gr.id).filter(c=>!gate||SK.caps.inGatewayOf(c,gate))).map(c=>[c,hubPages(c.id,cur)]).filter(([,pg])=>pg.length);
+    const items=(menu?gr.hubs:SK.caps.hubsInGroup(gr.id).filter(c=>!gate||SK.caps.inGatewayOf(c,gate))).map(c=>[c,itemPages(c,cur)]).filter(([,pg])=>pg.length);
     if(!items.length)return;
-    const here=items.some(([,pg])=>pg.some(x=>x.id===cur)),isOpen=here||(open[gr.id]!==undefined?open[gr.id]:true);
+    const here=items.some(([c,pg])=>isOn(c,pg)),isOpen=here||(open[gr.id]!==undefined?open[gr.id]:true);
     html+='<div class="skn-group'+(isOpen?'':' closed')+(here?' here':'')+'" role="group" aria-label="'+esc(gr.label)+'" data-g="'+esc(gr.id)+'"><button type="button" class="nav-group skn-gh" data-g="'+esc(gr.id)+'" aria-expanded="'+isOpen+'"><span class="skn-gi">'+(SK.icons[gr.icon]||"")+'</span><span>'+esc(gr.label)+'</span><i class="skn-gc">'+items.length+'</i>'+CHEV+'</button>'+
-      '<div class="skn-subgroup" data-sg="'+esc(gr.id)+'">'+items.map(([c,pg])=>navButton(c,cur,pg)).join("")+'</div></div>';
+      '<div class="skn-subgroup" data-sg="'+esc(gr.id)+'">'+items.map(([c,pg])=>navButton(c,cur,pg,isOn(c,pg))).join("")+'</div></div>';
   });
   if(html!==lastSig||!nav.querySelector(".skn-group")){nav.innerHTML=html;lastSig=html}
   navSearch();filterNav();
@@ -236,7 +269,7 @@ function stripItems(id){
   if(pages.length>1)return{hub:true,items:pages.map(x=>({id:x.id,go:x.id,label:x.label,primary:x.primary||hubAdv,on:x.id===id}))};
   /* the hubs of the screen's menu section in the entry the user is in (R3), else of its group */
   const gate=SK.gate&&SK.gate.current?SK.gate.current():"",sec=gate&&SK.caps.section?SK.caps.section(id,gate):null;
-  const items=(sec?sec.hubs:SK.caps.hubsInGroup(cap.group)).map(h=>[h,hubPages(h.id,id)]).filter(([,pg])=>pg.length)
+  const items=(sec?sec.hubs.filter(h=>!h.link):SK.caps.hubsInGroup(cap.group)).map(h=>[h,itemPages(h,id)]).filter(([,pg])=>pg.length)
     .map(([h,pg])=>({id:h.id,go:pg[0].id,label:h.hubLabel,primary:h.primary,on:pg.some(x=>x.id===id)}));
   return{hub:false,items};
 }

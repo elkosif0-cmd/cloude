@@ -999,3 +999,16 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Blocker: GitHub Actions refuses every job on elkosif0-cmd («recent account payments have failed or your spending limit needs to be
   increased»), so CI and the Pages build (which carries the private password) cannot run until the owner fixes billing. Verified locally.
 - Branch: `claude/r19-kosif-ledger-20261009` (on top of R17, PR #230).
+
+
+### TASK CLAUDE-20261009-014 — Merge all branches, then the menus in the constitution's order (§3.12)
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS
+- Owner request: «ادمج كل الفروع ... وبعد كده تعمل إعادة هيكلة للتطبيق ... وتعيد تنظيم المنيو حسب الدستور».
+- Done: PR #234 (merge d628256) — all 210 branches are ancestors of main; journal risk signals ported (UNBALANCED,
+  JUST_BELOW_MATERIALITY, LARGE_AMOUNT); per-branch decisions in docs/registry/BRANCH_MERGE_ALL_20261009.md.
+- Now: each entry's menu follows FOUNDATION §3.12. Accounting gains «مراكز التكلفة والتكاليف القطاعية», «الضرائب وZATCA»,
+  «التسويات والإقفال» (ledger tabs), «أدوات هذه الشركة» (installedTools) and «راجع هذه الشركة»; Audit follows the audit file's
+  stages; Tools follow the eight families of §3.3.1. Menu items may now be a hub, a page of a hub, or a tab of a screen.
+- Files: ui/core/capabilities.json, ui/core/registry.js, ui/layouts/shell.js, ui/features/ledger.js, tools/*menu* tests.
+- Branch: `claude/constitution-restructure-20261009`.

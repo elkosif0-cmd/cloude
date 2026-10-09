@@ -16,7 +16,8 @@ const sectionTargets = {
   product: ['blending', 'carcass', 'ptree', 'productflow', 'labels'],
   customer: ['salesmap', 'customers', 'offers', 'operations', 'salesintel'],
   supply: ['inventory', 'suppliers'],
-  books: ['risklab', 'benchmarks', 'finance'],
+  /* R20: the bank/sales reconciliation is a helper tool too (§3.3, «المطابقات والتسويات») */
+  books: ['risklab', 'benchmarks', 'finance', 'smartmatch'],
   reports: ['reportingintake', 'execreports', 'reports', 'archive'],
   decision: ['jev', 'council', 'decision', 'sensitivity', 'risks'],
 };
