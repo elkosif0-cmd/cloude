@@ -49,7 +49,7 @@ function companyOwnedRows(rows,companyId){
   ));
 }
 const REAL={loaded:false,loading:false,companyId:"",generation:0,customers:[],lines:[]};
-function idbAll(store){return new Promise(res=>{let q;try{q=indexedDB.open("aghnam-app-v7")}catch{return res([])}q.onerror=()=>res([]);q.onsuccess=()=>{const db=q.result;if(!db.objectStoreNames.contains(store)){db.close();return res([])}const g=db.transaction(store,"readonly").objectStore(store).getAll();g.onsuccess=()=>{db.close();res(g.result||[])};g.onerror=()=>{db.close();res([])}}})}
+function idbAll(store){return SK.legacyCompanyData.read(store)}
 function loadReal(){
   const companyId=reportCompanyId();
   if(REAL.companyId===companyId&&(REAL.loaded||REAL.loading))return;

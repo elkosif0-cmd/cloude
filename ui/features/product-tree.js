@@ -21,14 +21,14 @@ const put=t=>{save(KEY,t);SK.audit&&SK.audit.log("ptree",{act:"save",materials:t
 /* ---------- the app's own data: the pricing workbook's items and boxes, the orders ---------- */
 function workbook(){try{const s=JSON.parse(localStorage.getItem("aghnam-pricing-v3")||"{}");return PT().fromWorkbook(s.raws||[],s.boxes||[])}catch{return PT().emptyTree()}}
 async function orderLines(){
-  try{if(indexedDB.databases&&!(await indexedDB.databases()).some(d=>d.name==="aghnam-app-v7"))return[];
-    const db=await new Promise((res,rej)=>{const q=indexedDB.open("aghnam-app-v7");q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)});
-    if(!db.objectStoreNames.contains("order_items")||!db.objectStoreNames.contains("orders")){db.close();return[]}
-    const all=s=>new Promise(res=>{const t=db.transaction(s);const q=t.objectStore(s).getAll();q.onsuccess=()=>res(q.result||[]);q.onerror=()=>res([])});
-    const [items,orders]=await Promise.all([all("order_items"),all("orders")]);db.close();
-    const who=new Map(orders.map(o=>[o.id,o.customerName||o.phone||""]));
-    return items.map(i=>({product:i.productName||i.descriptionOriginal||"",customer:who.get(i.orderId)||"",qty:+i.qty||0,amount:+i.amount||0}));
-  }catch{return[]}
+  const [orders,items]=await Promise.all([
+    SK.legacyCompanyData.read("orders"),SK.legacyCompanyData.read("order_items")
+  ]);
+  const who=new Map(orders.map(o=>[o.id,o.customerName||o.phone||""]));
+  return items.filter(i=>who.has(i.orderId)).map(i=>({
+    product:i.productName||i.descriptionOriginal||"",
+    customer:who.get(i.orderId)||"",qty:+i.qty||0,amount:+i.amount||0
+  }));
 }
 /* the suppliers the app already knows for each material: shipments received and the suppliers' price list (latest price) */
 function knownSupply(t){

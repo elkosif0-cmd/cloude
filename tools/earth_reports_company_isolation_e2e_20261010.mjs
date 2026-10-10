@@ -25,10 +25,22 @@ try{
       selected:window.SKosifReports.scopedLegacyRows(rows).map(x=>x.id)
     }),seeds);
     await page.evaluate(()=>SKosifCore.go('execreports'));
-    await page.waitForFunction(()=>!!document.querySelector('.sk-rep-nav button[data-t="eod"]'),null,{timeout:12000});
-    /* Exercise the registered report handler even if navigation shell currently hides the tab; visibility is recorded separately. */
+    await page.waitForFunction(()=>{
+      if(window.SKosifCore?.view?.()!=='execreports')return false;
+      const enabled=window.SKosifCompanyPlatform?.capEnabled?.('execreports');
+      return enabled===false?!!document.querySelector('[data-skcap-on="execreports"]'):
+        enabled===true&&!!document.querySelector('.sk-rep-nav button[data-t="eod"]')?.getClientRects().length;
+    },null,{timeout:12000});
+    /* Opt-in companies must explicitly activate the report; never click a hidden
+       tool or bypass the company's capability permissions. */
+    const gateWasLocked=await page.evaluate(()=>!window.SKosifCompanyPlatform?.capEnabled?.('execreports'));
+    if(gateWasLocked){
+      await page.locator('[data-skcap-on="execreports"]').click();
+      await page.waitForFunction(()=>!document.querySelector('#view')?.classList.contains('skcap-locked'),null,{timeout:12000});
+    }
+    await page.locator('.sk-rep-nav button[data-t="eod"]').waitFor({state:'visible',timeout:12000});
     const reportTabVisible=await page.locator('.sk-rep-nav button[data-t="eod"]').isVisible();
-    await page.evaluate(()=>document.querySelector('.sk-rep-nav button[data-t="eod"]')?.click());
+    await page.locator('.sk-rep-nav button[data-t="eod"]').click();
     const eod=await page.evaluate(()=>({html:document.querySelector('#sk-rep-body')?.textContent?.slice(0,450),
       loaded:!!document.querySelector('#sk-rep-body')}));
     /* This company is deliberately synthetic; all seeded records are browser-only. */
@@ -43,9 +55,10 @@ try{
       demoIsolation:JSON.stringify(demo.selected)==='["D"]',
       syntheticCompany:another.company.startsWith('co-'),
       otherCompanyIsolation:another.selected.length===0,
+      reportTabVisible,capabilityActivated:!gateWasLocked||reportTabVisible,
       reportRendered:eod.loaded,
       responsive:another.overflow<=8,noJsErrors:errors.length===0},errors:errors.slice(0,3),demo,another});
-  }catch(e){results.push({viewport:vp.name,error:String(e),errors:errors.slice(0,3)})}
+  }catch(e){const debug=await page.evaluate(()=>({company:window.SK?.company?.current?.()?.id,view:window.SKosifCore?.view?.(),locked:document.querySelector('#view')?.classList.contains('skcap-locked'),enabled:window.SKosifCompanyPlatform?.capEnabled?.('execreports'),mode:window.SKosifCompanyPlatform?.capabilityProfile?.()?.mode,gate:!!document.querySelector('[data-skcap-on="execreports"]'),tab:!!document.querySelector('.sk-rep-nav button[data-t="eod"]')?.getClientRects().length})).catch(()=>null);results.push({viewport:vp.name,error:String(e),debug,errors:errors.slice(0,3)})}
   await ctx.close();
  }
 }finally{await browser.close()}

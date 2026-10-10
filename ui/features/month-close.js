@@ -99,8 +99,7 @@ function alerts(){
 }
 
 /* ---------- the morning brief on the command centre ---------- */
-function idbAll(store){return new Promise(res=>{let q;try{q=indexedDB.open("aghnam-app-v7")}catch{return res([])}q.onerror=()=>res([]);q.onsuccess=()=>{const db=q.result;
-  if(!db.objectStoreNames.contains(store)){db.close();return res([])}const r=db.transaction(store).objectStore(store).getAll();r.onsuccess=()=>{db.close();res(r.result||[])};r.onerror=()=>{db.close();res([])}}})}
+function idbAll(store){return SK.legacyCompanyData.read(store)}
 async function briefHTML(){
   const l=L(),t=today(),y=iso(Date.now()-DAY),tiles=[];
   const tile=(k,title,value,sub,tone,go)=>tiles.push('<button type="button" class="skbrief-t tone-'+tone+'" '+(go.tab?'data-cl="go" data-go-tab="'+go.tab+'" data-q="'+esc(go.q||"")+'"':'data-flow-go="'+go.view+'"')+'><span class="k">'+esc(title)+'</span><b>'+esc(value)+'</b><small>'+esc(sub)+'</small></button>');

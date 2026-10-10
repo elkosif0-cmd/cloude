@@ -17,11 +17,11 @@ const W=1000,H=820;
 
 /* ---------- data: the orders of the app, plus the uploaded sales ---------- */
 async function idb(){
-  try{if(indexedDB.databases&&!(await indexedDB.databases()).some(d=>d.name==="aghnam-app-v7"))return{orders:[],items:[]};
-    const db=await new Promise((res,rej)=>{const q=indexedDB.open("aghnam-app-v7");q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)});
-    const all=s=>db.objectStoreNames.contains(s)?new Promise(res=>{const t=db.transaction(s);const q=t.objectStore(s).getAll();q.onsuccess=()=>res(q.result||[]);q.onerror=()=>res([])}):Promise.resolve([]);
-    const [orders,items]=await Promise.all([all("orders"),all("order_items")]);db.close();return{orders,items};
-  }catch{return{orders:[],items:[]}}
+  const [orders,items]=await Promise.all([
+    SK.legacyCompanyData.read("orders"),SK.legacyCompanyData.read("order_items")
+  ]);
+  const orderIds=new Set(orders.map(o=>o.id));
+  return {orders,items:items.filter(i=>orderIds.has(i.orderId))};
 }
 async function loadData(){
   const {orders,items}=await idb(),up=(load(UP,{})||{}).rows||[];
