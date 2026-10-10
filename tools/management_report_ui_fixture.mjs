@@ -16,7 +16,7 @@ export function uiHarness(){
   click(){if(this.tagName==='A'){if(frameMode==='download-throw')throw Error('blocked download');calls.download++;downloads.push(this)}}
  }
  const body=new Node('body');body.isConnected=true;
- const document={body,activeElement:null,createElement(tag){const n=new Node(tag);if(tag==='iframe'){n.contentDocument={fonts:{get ready(){return frameMode==='stall-font'?new Promise(()=>{}):frameMode==='font-throw'?Promise.reject(Error('font fail')):Promise.resolve()}}};n.contentWindow={focus(){},addEventListener(k,f){n.printEvent=f},print(){if(frameMode==='print-throw')throw Error('blocked print');calls.print++;n.printEvent?.()}}}return n},querySelector(){return null},importNode:n=>n};
+ const document={body,activeElement:null,querySelector:()=>null,createElement(tag){const n=new Node(tag);if(tag==='iframe'){n.contentDocument={fonts:{get ready(){return frameMode==='stall-font'?new Promise(()=>{}):frameMode==='font-throw'?Promise.reject(Error('font fail')):Promise.resolve()}}};n.contentWindow={focus(){},addEventListener(k,f){n.printEvent=f},print(){if(frameMode==='print-throw')throw Error('blocked print');calls.print++;n.printEvent?.()}}}return n},querySelector(){return null},importNode:n=>n};
  const context=vm.createContext({window:{},document,DOMParser:class{parseFromString(){return{querySelector:()=>new Node('main')}}},Blob,URL:{createObjectURL:b=>{downloads.blob=b;return'blob:synthetic'},revokeObjectURL(){}},setTimeout:(f,ms)=>{timers.set(++tid,{f,ms});return tid},clearTimeout:id=>timers.delete(id),console});
  context.SK={perm:{can:(_id,action)=>permission&&(action!=='export'||exportPermission)},toast(){},bus:{on(){}}};
  const cap={ok:true,input:{context:{entityName:'Synthetic',entityId:'c1',start:'2026-01-01',end:'2026-12-31',currency:'SAR'}},inputHash:'1'.repeat(64),contextHash:'2'.repeat(64),evidenceHash:'3'.repeat(64),scopeToken:'s',capturedAt:'2026-10-04T12:00:00.000Z'};
@@ -30,7 +30,7 @@ export function uiHarness(){
 export function ledgerHookHarness(ledger){
  const views={},calls={open:[],csv:[],writes:0},root={dataset:{},innerHTML:'',listeners:{},addEventListener(k,f){this.listeners[k]=f},querySelector(){return null}};
  const data={skosif_ledger_v1:ledger,skosif_companies_v1:{active:{periodId:'p'},periods:[{id:'p',label:'Synthetic',startDate:'2026-01-01',endDate:'2026-12-31'}]}};
- const context=vm.createContext({window:{},document:{addEventListener(){}},TextEncoder});
+ const context=vm.createContext({window:{},document:{addEventListener(){},querySelector(){return null}},TextEncoder});
  context.SK={$:()=>null,esc:String,load:(k,d)=>data[k]?JSON.parse(JSON.stringify(data[k])):d,save(){calls.writes++;return true},money:String,toast(){},icon:()=>'',view:(id,v)=>views[id]=v,ui:{tabs:()=>'',state:{empty:()=>''}},csv:{download:(...args)=>calls.csv.push(args)}};
  context.window.SKosifCore={go:()=>views.ledger.render(root)};context.window.SKosifManagementReport={open:async o=>calls.open.push(o)};context.SKosifManagementReport=context.window.SKosifManagementReport;
  vm.runInContext(fs.readFileSync(new URL('../ui/core/engines.js',import.meta.url),'utf8'),context);vm.runInContext(fs.readFileSync(new URL('../ui/features/ledger.js',import.meta.url),'utf8'),context);context.window.SKosifLedger.open('tb');
