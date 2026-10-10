@@ -465,3 +465,39 @@ html.sk-theme-trans .maincol{
   body{background:#fff!important}
   :root[data-look][data-theme],:root[data-theme]{--sk-c1:#2a78d6;--sk-c2:#eb6834;--sk-c3:#1baf7a;--sk-c4:#eda100;--sk-c5:#e87ba4;--sk-c6:#008300;--sk-c7:#4a3aa7;--sk-c8:#e34948}
 }
+
+
+/* KOSIF EARTH optional Copper Executive palette. Not the default daylight office.
+   Brand contrast: #9c4a29 on white; dark #e7a574 on #142033. */
+:root[data-look="copper"]{
+  --sk-bg:#f8f4ee;--sk-surface:#fffdfa;--sk-surface-2:#f5f0e8;--sk-surface-3:#ece5da;
+  --sk-line:#ddd5c9;--sk-line-2:#cfc3b3;
+  --sk-ink:#1c2739;--sk-ink-2:#425065;--sk-ink-3:#58667a;
+  --sk-brand:#9c4a29;--sk-brand-2:#ba704b;--sk-brand-soft:#f5e3d7;--sk-on-brand:#ffffff;
+  --sk-rail:#172236;--sk-rail-2:#24334b;--sk-rail-ink:#f9f5ef;--sk-rail-mute:#b9c6d7;
+  --sk-rail-active:rgba(231,165,116,.22);
+  --sk-grid:#eae1d6;--sk-axis:#cabeb0;--sk-s1:#9c4a29;--sk-s2:#436688;--sk-s3:#278374;
+  --sk-focus:#9c4a29;--sk-c1:#9c4a29;--sk-c2:#436688;
+  --sk-grad-brand:linear-gradient(135deg,#9c4a29,#b96c43);
+  --sk-grad-rail:linear-gradient(175deg,#172236,#243752);
+  --sk-shadow-1:0 1px 2px rgba(20,30,45,.05),0 12px 28px -19px rgba(28,39,57,.27);
+  --sk-shadow-2:0 18px 38px -20px rgba(28,39,57,.3);
+}
+:root[data-look="copper"][data-theme="dark"]{
+  --sk-bg:#0e1420;--sk-surface:#172234;--sk-surface-2:#1c2a3d;--sk-surface-3:#233249;
+  --sk-line:#304058;--sk-line-2:#40516a;
+  --sk-ink:#f5ede5;--sk-ink-2:#cad5e3;--sk-ink-3:#aebbd0;
+  --sk-brand:#e7a574;--sk-brand-2:#f0c19c;--sk-brand-soft:#453127;--sk-on-brand:#142033;
+  --sk-rail:#101a2a;--sk-rail-2:#21314a;--sk-rail-ink:#f5ede5;--sk-rail-mute:#bac6d5;
+  --sk-rail-active:rgba(231,165,116,.23);
+  --sk-grid:#25344b;--sk-axis:#3b4c65;--sk-s1:#e7a574;--sk-s2:#86b2df;--sk-s3:#65cfb3;
+  --sk-focus:#e7a574;--sk-c1:#e7a574;--sk-c2:#86b2df;
+  --sk-ok:#63d8a0;--sk-ok-soft:#18372a;--sk-warn:#ffcf7b;--sk-warn-soft:#3c2b17;
+  --sk-bad:#ff9a94;--sk-bad-soft:#421f25;--sk-bad-row:#321b23;
+  --sk-info:#8ec9fa;--sk-info-soft:#1c324d;
+  --sk-grad-brand:linear-gradient(135deg,#e7a574,#f0bd99);
+  --sk-grad-rail:linear-gradient(175deg,#101a2a,#1c2b40);
+  --sk-shadow-1:0 12px 30px -20px rgba(0,0,0,.85);
+  --sk-shadow-2:0 20px 44px -20px rgba(0,0,0,.9);
+  color-scheme:dark;
+}

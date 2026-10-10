@@ -1060,3 +1060,15 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Cloudflare Pages source remains linked to former owner kosif199022-jpg for repo ID 1352281400 (new owner elkosif0-cmd). Source connect POST failed because existing connection; PATCH accepted but did not change source. The existing subdomain, production deployment and production secrets remain unchanged.
 - Rollback: previously successful production deployment ID 3d4e0540-7f1c-4634-9503-e479f4ed4e03 is retained and can be restored if a future release fails, subject to verification.
 - Unfinished: Owner fixes GitHub billing/Actions availability (or explicitly authorizes a reviewed manual production release), then PR #236 can be merged and main published from the verified safe production package. Do not replace the protected production with an unencrypted/no-private-data preview dist.
+
+
+### 2026-10-10 — KOSIF EARTH isolated QA continuation (draft; no production)
+- Base a973a5c / PR #243. Worktree kosif-earth-qa-handoff-20261010, isolated from concurrent staged/unstaged work.
+- Fixed demo startup busy-handoff hang with bounded 160×250ms retry, fail-closed timeout and three regression cases.
+- Added optional Copper Executive light/night styles; preserved daylight office default and 4K original.
+- Focused Node 47/47 PASS; browser add/remove/reload 32/32 PASS; theme matrix 87/87 PASS and save/reload 3/3, 29 selectable looks across 3 viewports.
+- Preview build 191 entries, dist/secure absent; constitution 18/18 PASS (3 partial), identity audit 3/3 PASS, diff --check PASS.
+- The report-scope status for demo-co remains unknown without a selected period; do not claim report readiness.
+- Complete details/reproduction/next phase: docs/rebuild/KOSIF_EARTH_QA_HANDOFF_20261010_AR.md.
+- Open: full suite 27 prior failures, all-repo branch/PR classification, report/export stress, model-earth-industrial E2E, published Preview deployment with exact SHA.
+- No main merge, production deploy, checkout/reset/stash/clean of original dirty worktree.

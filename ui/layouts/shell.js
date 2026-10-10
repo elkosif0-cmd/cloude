@@ -33,6 +33,8 @@ const LOOKS=[
   ["cobalt-night","كوبالت وجليد الليلي","هوية الكوبالت بإضاءة ليلية",["#070a1e","#050719","#9fb0ff","#5fdcea"]],
   ["navygold","الكحلي والذهبي","هوية SQC السابقة: كحلي وذهبي وعاجي",["#f7f4ec","#0b1f3a","#13305a","#c9a227"]],
   ["navygold-night","الكحلي والذهبي الليلي","الهوية السابقة بإضاءة ليلية",["#0a1424","#06101f","#8fb3e8","#d4af37"]],
+  ["copper","كحلي ونحاس","تنفيذي عصري: ورق عاجي وكحلي عميق ونحاس دافئ",["#f8f4ee","#172236","#ad552e","#ffffff"]],
+  ["copper-night","كحلي ونحاس ليلي","تباين ليلي هادئ مع لمسات نحاسية",["#0e1420","#131e2d","#e7a574","#f5ede5"]],
   ["najd","نجد الفاخر","أخضر ملكي وذهب نجد وبطاقات بيضاء ناصعة وحلقات فخمة",["#f7faf7","#07381e","#006c35","#d4af37"],"pro"],
   ["najd-night","ليل نجد","نفس الفخامة بإضاءة ليلية خضراء داكنة",["#09150e","#07150d","#2ecc71","#f1c40f"],"pro"],
   ["heritage","تراث الوادي","الهوية الافتراضية: رَقّ وحبر بني ورسوم الوادي",["#f4ead8","#8a5a2b","#efe2cc","#2b1a0f"]],
@@ -50,8 +52,8 @@ const LOOKS=[
   ["graphite","الجرافيت","داكن مركّز بخطوط دقيقة — للعمل الطويل",["#0e0f12","#0b0c0f","#8183ff","#5ee0c4"],"pro"],
   ["onyx","العقيق","أسود وذهبي وعناوين بخط النسخ — فخامة المصارف الخاصة",["#0b0b0c","#080808","#d4af5a","#f4efe4"],"pro"],
   ["auto","حسب الجهاز","ثيمك المختار نهاراً ونسخته الليلية ليلاً",["#fbf8f3","#1d1814","#161310","#f2732d"]]];
-const DARK=new Set(["kosif-night","cobalt-night","navygold-night","najd-night","heritage-night","midnight","aurora-night","vivid-night","oasis-night","graphite","onyx"]);
-const NIGHT={kosif:"kosif-night",cobalt:"cobalt-night",navygold:"navygold-night",najd:"najd-night",heritage:"heritage-night",aurora:"aurora-night",vivid:"vivid-night",oasis:"oasis-night"};
+const DARK=new Set(["kosif-night","cobalt-night","navygold-night","copper-night","najd-night","heritage-night","midnight","aurora-night","vivid-night","oasis-night","graphite","onyx"]);
+const NIGHT={kosif:"kosif-night",cobalt:"cobalt-night",navygold:"navygold-night",copper:"copper-night",najd:"najd-night",heritage:"heritage-night",aurora:"aurora-night",vivid:"vivid-night",oasis:"oasis-night"};
 function prefs(){return Object.assign({look:"kosif",density:"cozy",lastLight:"kosif",rail:"full",font:"theme",scale:1,radius:"theme",accent:"",contrast:false},load(PREF_KEY,{}))}
 /* ---------- theme studio: typeface, text size, accent colour, corners, contrast ----------
    applied on top of any look as inline tokens on <html>, so every screen, chart and print follows */
