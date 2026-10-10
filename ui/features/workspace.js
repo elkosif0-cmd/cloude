@@ -86,11 +86,16 @@ SK.view("council",{render(n){if(!n.dataset.bound){councilBind(n);n.dataset.bound
 
 /* ================= مركز التصدير ================= */
 const flat=o=>{const r={};Object.entries(o||{}).forEach(([k,v])=>{r[k]=v!==null&&typeof v==="object"?JSON.stringify(v):v});return r};
-function toCsv(name,rows){
+function toCsv(name,rows,ownerId){
+  if(!ownerId||SK.company?.current?.()?.id!==ownerId||window.SKosifSpace?.busy?.())return toast('تغيرت الشركة أثناء إعداد التصدير','warn');
   if(!rows.length)return toast("لا توجد بيانات للتصدير","info");
   const list=rows.map(flat),cols=[...new Set(list.flatMap(r=>Object.keys(r)))];
-  SK.csv.download(window.SKEngines.reports.export.safeExportName("skosif-"+name+"-"+today()),cols,list.map(r=>cols.map(c=>r[c])));
+  const safeValue=v=>{const s=String(v??'');return /^[\s\x00-\x1f\u200b-\u200f\u202a-\u202e\ufeff]*[=+\-@]/u.test(s)?"'"+s:s};
+  SK.csv.download(window.SKEngines.reports.export.safeExportName("skosif-"+ownerId+"-"+name+"-"+today()),cols,list.map(r=>cols.map(c=>safeValue(r[c]))));
 }
+/* Sources below are retained for future verified company migration, but only
+   explicitly owner-tagged legacy IDB records may be exported from this view. */
+const VERIFIED_EXPORTS=new Set(["customers","sales","orders"]);
 const SOURCES=[
   ["items","الأصناف والأسعار (من محرك التسعير)",async()=>window.SKosifCore.catalog().items],
   ["customers","العملاء",()=>SK.legacyCompanyData.read("customers")],
@@ -109,18 +114,29 @@ const SOURCES=[
 ];
 async function exportsPaint(root){
   root.innerHTML=SK.ui.state.loading({text:"جارٍ عدّ السجلات…"});
-  const counts=await Promise.all(SOURCES.map(async([,,f])=>{try{const r=await f();return Array.isArray(r)?r.length:0}catch{return 0}}));
-  root.innerHTML='<section class="card"><div class="card-h"><div><h3>مركز التصدير</h3><p>كل جدول إلى CSV يفتح في Excel (محمي من حقن المعادلات)، أو نسخة كاملة JSON.</p></div><button type="button" class="btn primary" data-x="all">نسخة كاملة للتطبيق</button></div><div class="card-b">'+
+  const counts=await Promise.all(SOURCES.map(async([id,,f])=>{if(!VERIFIED_EXPORTS.has(id))return null;try{const r=await f();return Array.isArray(r)?r.length:0}catch{return 0}}));
+  root.innerHTML='<section class="card"><div class="card-h"><div><h3>مركز التصدير</h3><p>تصدير محدود للسجلات المرتبطة بالشركة الحالية. المصادر مجهولة الملكية معلقة دون حذف. الملف الناتج محلي غير قابل للاستعادة الكاملة، ولا يعد إثبات صلاحية من الخادم.</p></div><button type="button" class="btn primary" data-x="all">تصدير بيانات الشركة المؤكدة فقط</button></div><div class="card-b">'+
     '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>البيانات</th><th>السجلات</th><th></th></tr></thead><tbody>'+
-    SOURCES.map(([id,label],i)=>'<tr><td>'+esc(label)+'</td><td class="n">'+counts[i]+'</td><td>'+(counts[i]?'<button type="button" class="btn sm" data-x="'+id+'">تصدير CSV</button>':'<span class="hint">لا بيانات</span>')+'</td></tr>').join("")+'</tbody></table></div></div></section>'+
+    SOURCES.map(([id,label],i)=>'<tr><td>'+esc(label)+'</td><td class="n">'+(counts[i]===null?'—':counts[i])+'</td><td>'+(counts[i]===null?'<span class="hint">بانتظار تحقق ملكية بيانات الشركة</span>':counts[i]?'<button type="button" class="btn sm" data-x="'+id+'">تنزيل CSV</button>':'<span class="hint">لا بيانات مؤكدة الملكية</span>')+'</td></tr>')+'</tbody></table></div></div></section>'+
     (SK.templates?'<section class="card"><div class="card-h"><div><h3>قوالب الاستيراد</h3><p>قالب Excel لكل قسم: الأعمدة المطلوبة وصفّا مثال وورقة تعليمات. املأه ثم استورده — كل صف يُفحص قبل الحفظ ويُضاف دون حذف الموجود.</p></div></div><div class="card-b"><div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>القسم</th><th>الأعمدة</th><th></th></tr></thead><tbody>'+
       SK.templates.list().map(t=>'<tr><td>'+esc(t.label)+'</td><td><small>'+esc(t.columns.join("، "))+'</small></td><td style="white-space:nowrap"><button type="button" class="btn sm" data-tpl-dl="'+t.id+'">تحميل '+(t.format==="csv"?"CSV":"Excel")+'</button> <button type="button" class="btn sm primary" data-tpl-in="'+t.id+'">استيراد</button></td></tr>').join("")+'</tbody></table></div></div></section>':'');
 }
 function exportsBind(root){
   root.addEventListener("click",async e=>{const b=e.target.closest("[data-x]");if(!b)return;
     if(!SK.perm.can("exports","export"))return toast("التصدير غير متاح لهذا الدور","warn");
-    if(b.dataset.x==="all")return SK.store.backup().catch(err=>SK.errors.report(err,"backup"));
-    const s=SOURCES.find(x=>x[0]===b.dataset.x);if(s)toCsv(s[0],await s[2]());
+    const companyId=SK.company?.current?.()?.id;
+    if(!companyId||window.SKosifSpace?.busy?.())return toast('اختر شركة وانتظر انتهاء تحميلها','warn');
+    if(b.dataset.x==="all"){
+      try{
+        const result=await SK.legacyCompanyData.snapshot();
+        if(SK.company?.current?.()?.id!==companyId||window.SKosifSpace?.busy?.())throw Error('COMPANY_EXPORT_SCOPE_CHANGED');
+        SK.download('KOSIF-company-local-'+companyId+'-'+today()+'.json',new Blob([JSON.stringify(result)],{type:'application/json'}));
+        return toast('تم تنزيل سجل محلي محدود لشركتك. لا يصلح للاستعادة الكاملة.','ok');
+      }catch(err){return SK.errors?.report?.(err,'company-scoped-export')||toast('تعذر التصدير الآمن','warn')}
+    }
+    if(!VERIFIED_EXPORTS.has(b.dataset.x))return toast('تصدير هذا المصدر معلّق حتى التحقق من ملكية الشركة','warn');
+    const s=SOURCES.find(x=>x[0]===b.dataset.x);
+    if(s)toCsv(s[0],(await s[2]()).filter(r=>r?.companyId===companyId),companyId);
   });
 }
 SK.view("exports",{render(n){if(!n.dataset.bound){exportsBind(n);n.dataset.bound="1"}exportsPaint(n)}});

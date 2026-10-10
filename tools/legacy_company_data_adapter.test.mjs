@@ -93,3 +93,41 @@ test('order maps and product-tree require owned parents and owned line items',()
  const reports=fs.readFileSync(root+'ui/features/reports.js','utf8');
  assert.match(reports,/legacyCompanyData\.read\(store\)/);
 });
+
+test('scoped snapshot keeps only rows owned by the current company',async()=>{
+ const o=setup({customers:[{id:'a',companyId:'company-A'},{id:'b',companyId:'company-B'},{id:'none'},{id:'nested',companyId:'company-A',meta:{companyId:'company-B'}}],
+ sales_lines:[{id:'line-A',companyId:'company-A'}],orders:[{id:'order-A',companyId:'company-A'}]});
+ const snap=await o.adapter.snapshot();
+ assert.equal(snap.format,'kosif-company-scoped-local-export');
+ assert.equal(snap.restorable,false);
+ assert.deepEqual(snap.stores.customers.map(r=>r.id),['a']);
+ assert.deepEqual(snap.stores.orders.map(r=>r.id),['order-A']);
+ assert.equal(snap.counts.customers,1);
+ assert.equal(Object.keys(snap.stores).length,3);
+});
+test('demo-only untagged records remain excluded from snapshot',async()=>{
+ const o=setup({customers:[{id:'demo',demo:true},{id:'tagged',companyId:'demo-co'}],sales_lines:[],orders:[]},{initial:'demo-co'});
+ const snap=await o.adapter.snapshot();
+ assert.deepEqual(snap.stores.customers.map(r=>r.id),['tagged']);
+ o.setBusy(true);
+ await assert.rejects(o.adapter.snapshot(),/COMPANY_EXPORT_SCOPE_NOT_READY/);
+});
+
+test('A B A lifecycle change cancels an in-flight snapshot',async()=>{
+ const o=setup({customers:[{id:'a',companyId:'company-A'}],sales_lines:[],orders:[]},{wait:true});
+ const task=o.adapter.snapshot();
+ await new Promise(resolve=>setImmediate(resolve));
+ o.setCompany('company-B');o.setToken('scope-2');
+ o.setCompany('company-A');o.setToken('scope-3');
+ o.flush();
+ await assert.rejects(task,/COMPANY_EXPORT_SCOPE_CHANGED/);
+});
+test('company exports never call device-wide backup and unverified legacy sources are disabled',()=>{
+ const text=fs.readFileSync(root+'ui/features/workspace.js','utf8');
+ assert.doesNotMatch(text,/SK\.store\.backup\(\)/);
+ assert.match(text,/SK\.legacyCompanyData\.snapshot\(\)/);
+ assert.match(text,/VERIFIED_EXPORTS=new Set\(\["customers","sales","orders"\]\)/);
+ assert.match(text,/if\(!VERIFIED_EXPORTS\.has\(b\.dataset\.x\)\)/);
+ assert.match(text,/counts\[i\]===null/);
+ assert.match(text,/\.filter\(r=>r\?\.companyId===companyId\)/);
+});
