@@ -107,3 +107,11 @@ test('write path rejects a stale cross-company record before mutating its owner'
   assert.ok(checked>=0 && checked<mutated && mutated<saved,
     'ownership check must precede any mutation and the company-scoped write');
 });
+
+test('add-on UI waits for both company handoff and demo seeding before permitting edits',()=>{
+  const addon=readFileSync(new URL('../ui/features/earth-company-addons.js',import.meta.url),'utf8');
+  assert.match(addon,/SKosifSpace\?\.busy\?\.\(\)/,'front-door company handoff blocks edits');
+  assert.match(addon,/SK\?\.demo\?\.settled/,'asynchronous demo seed blocks edits');
+  assert.match(addon,/if\(pending\)refreshWhenReady\(\)/,'disabled CTA becomes available after initialization');
+  assert.match(addon,/if\(!activeCompany\(companyId\)\)/,'live context is verified before any add-on action');
+});

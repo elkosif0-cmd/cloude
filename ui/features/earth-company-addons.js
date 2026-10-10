@@ -7,10 +7,25 @@
 const P=()=>window.SKosifCompanyPlatform;
 const company=()=>window.SK?.company?.current?.();
 const ownerIsAccounting=c=>!!(c&&c.id&&c.ownerScope==="FULL_ACCOUNTING");
-/* The front-door selection replaces client data and schedules a page reload.
-   Never allow an add-on write during that handoff (especially on mobile). */
-const switching=()=>!!window.SKosifSpace?.busy?.();
+/* The front door and the one-time demo seeder both schedule page reloads.
+   Disable editing until both initializers have finished, especially on mobile. */
+const switching=()=>!!window.SKosifSpace?.busy?.()||
+  (!!window.SK?.demo?.settled&&!window.SK.demo.settled());
 const activeCompany=id=>{const c=company();return !switching()&&ownerIsAccounting(c)&&c.id===id&&window.SK?.gate?.current?.()==="accounting"&&P()?.state()?.companyId===id};
+/* The demo initializer finishes after the window load event. Refresh the CTA
+   when it settles without requiring users to navigate away and back. */
+let readyTimer=0,readyAttempts=0;
+function refreshWhenReady(){
+  if(readyTimer)return;
+  const check=()=>{
+    readyTimer=0;
+    const box=document.querySelector("#earth-goal-journey");
+    if(!box||!box.isConnected)return;
+    if(!switching()){readyAttempts=0;attach(box,{gate:"accounting"});return}
+    if(++readyAttempts<160)readyTimer=setTimeout(check,250);
+  };
+  readyTimer=setTimeout(check,250);
+}
 const node=(tag,cl,text)=>{const e=document.createElement(tag);if(cl)e.className=cl;if(text!=null)e.textContent=text;return e};
 const groups=Object.freeze({
   product:"التكاليف والمنتجات",customer:"المبيعات والعملاء",supply:"المشتريات والمخزون",books:"المطابقات والدفاتر",
@@ -58,13 +73,15 @@ function attach(box,ctx){
   }
   section.dataset.companyId=c.id;
   const button=section.querySelector(".earth-addon-entry__action");
+  const pending=switching();
   if(button){
     button.dataset.companyId=c.id;
-    button.disabled=switching();
-    button.textContent=switching()?"جاري فتح الشركة...":"إدارة الأدوات  +";
+    button.disabled=pending;
+    button.textContent=pending?"جاري فتح الشركة...":"إدارة الأدوات  +";
   }
   const sub=section.querySelector(".earth-addon-entry__sub");
-  if(sub)sub.textContent=switching()?"بانتظار اكتمال انتقال الشركة قبل تعديل أدواتها.":countInstalled(catalog)+" مرتبطة · "+catalog.length+" متاحة للإضافة · البيانات مستقلة لكل شركة";
+  if(sub)sub.textContent=pending?"بانتظار اكتمال تجهيز الشركة قبل تعديل أدواتها.":countInstalled(catalog)+" مرتبطة · "+catalog.length+" متاحة للإضافة · البيانات مستقلة لكل شركة";
+  if(pending)refreshWhenReady();
 }
 function open(companyId){
   if(!activeCompany(companyId)){SK.toast?.("غيّر الشركة من شاشة الشركة قبل إضافة أدوات","bad");return}
