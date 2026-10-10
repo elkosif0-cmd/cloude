@@ -167,11 +167,13 @@ function sync(){
   if(lastGate!==current.gate){active=0;lastGate=current.gate;}
   if(existing&&existing.dataset.gateway===current.gate){
     condenseDuplicateMap(main);
+    window.KOSIFEarthAddons?.attach?.(existing,current);
     return;
   }
   if(existing)existing.remove();
   main.prepend(create(current));
   condenseDuplicateMap(main);
+  window.KOSIFEarthAddons?.attach?.($("#earth-goal-journey",main),current);
 }
 function boot(){
   if(installed)return;installed=true;
