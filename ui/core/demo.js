@@ -411,10 +411,21 @@ async function seedModel(co){
 
 /* ---------- first run: a brand-new device fills itself once ---------- */
 /* true once the first run has finished on this page load (no fill, or a fill that needed no reload) */
-let settled=false;
+let settled=false,bootRetries=0;
 async function boot(){
-  /* the front door may be switching this device to another company right now: that company decides, after its reload */
-  if(window.SKosifSpace&&SKosifSpace.intent){await SKosifSpace.intent();if(SKosifSpace.busy())return}
+  if(settled)return;
+  /* Company handoff may still be in progress when the load callback fires.
+     Retry after it completes; otherwise the old early return left demo.settled() false forever
+     and the accounting add-on controls permanently disabled. Fail closed on prolonged stalls. */
+  if(window.SKosifSpace&&SKosifSpace.intent){
+    await SKosifSpace.intent();
+    if(SKosifSpace.busy()){
+      if(++bootRetries<=160)setTimeout(()=>boot().catch(e=>SK.errors&&SK.errors.report(e,"demo:boot-retry")),250);
+      else SK.errors&&SK.errors.report(new Error("Company handoff did not settle before demo initialization"),"demo:boot-timeout");
+      return;
+    }
+  }
+  bootRetries=0;
   /* a model company is filled from its own books, never with the meat demo company's data */
   const co=SK.company&&SK.company.current?SK.company.current():null;
   if(co&&co.model){if(await seedModel(co)){setTimeout(()=>location.reload(),200);return}bar();settled=true;return}
