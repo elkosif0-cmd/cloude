@@ -239,23 +239,50 @@ function paintNav(){
 }
 function filterNav(){
   const nav=$("#nav");if(!nav)return;const q=nq(navQ);
-  nav.classList.toggle("skn-searching",!!q);
-  $$(".skn-group",nav).forEach(g=>{
-    let any=false;
-    $$(".nav-btn",g).forEach(b=>{const txt=SK.caps.members(b.dataset.hub||b.dataset.v).map(c=>c.label+" "+c.hubLabel+" "+c.kw+" "+c.en+" "+c.sub).join(" "),hit=!q||nq(txt).includes(q);b.classList.toggle("skn-miss",!hit);if(hit)any=true});
-    g.classList.toggle("skn-none",!!q&&!any);
+  // Match real item labels before descriptions of whole hubs. Otherwise
+  // searching a named ledger tab (e.g. trial balance) returns every ledger
+  // tab because their shared parent mentions the same words.
+  const groups=$$(".skn-group",nav),rows=groups.flatMap(g=>$$(".nav-btn",g));
+  const matches=rows.map(b=>{
+    const label=nq((b.textContent||"")+" "+(b.title||"")+" "+(b.dataset.tab||""));
+    const pages=b.dataset.act==="navtab"?[]:(SK.caps.members(b.dataset.hub||b.dataset.v)||[]);
+    const target=SK.caps.get(b.dataset.v);
+    const desc=nq([...pages,...(target?[target]:[])].map(c=>(c.label||"")+" "+(c.hubLabel||"")+" "+(c.kw||"")+" "+(c.en||"")+" "+(c.sub||"")).join(" "));
+    return {b,labelHit:!q||label.includes(q),descHit:!q||desc.includes(q)};
   });
+  const named=q&&matches.some(x=>x.labelHit);
+  let found=0;
+  nav.classList.toggle("skn-searching",!!q);
+  for(const x of matches){
+    const hit=named?x.labelHit:(x.labelHit||x.descHit);
+    x.b.classList.toggle("skn-miss",!hit);
+    if(hit)found++;
+  }
+  groups.forEach(g=>g.classList.toggle("skn-none",!!q&&!$$(".nav-btn",g).some(b=>!b.classList.contains("skn-miss"))));
+  const status=$("#skn-search-status");
+  if(status){
+    status.hidden=!q;
+    status.textContent=q?(found===0?"لا توجد نتائج":found+" نتيجة"):"";
+  }
 }
 function navSearch(){
   const nav=$("#nav");if(!nav||$("#skn-q"))return;
   const w=document.createElement("div");w.className="skn-search";
-  w.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg><input id="skn-q" type="search" autocomplete="off" placeholder="تصفية القائمة…" aria-label="تصفية شاشات القائمة">';
+  w.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg><input id="skn-q" type="search" autocomplete="off" placeholder="ابحث عن مهمة أو شاشة…" aria-label="البحث في شاشات هذا القسم" aria-describedby="skn-search-status"><span class="skn-search-status" id="skn-search-status" aria-live="polite" aria-atomic="true" hidden></span>';
   nav.before(w);
   const inp=$("#skn-q",w);
   inp.addEventListener("input",()=>{navQ=inp.value;paintNav()});
   inp.addEventListener("keydown",e=>{
     if(e.key==="Escape"){inp.value="";navQ="";paintNav();inp.blur()}
-    if(e.key==="Enter"){const b=$$(".nav-btn",nav).find(x=>!x.classList.contains("skn-miss")&&!x.closest(".skn-none"));if(b){core().go(b.dataset.v);inp.value="";navQ="";paintNav()}}
+    if(e.key==="Enter"){
+      e.preventDefault();
+      const b=$$(".nav-btn",nav).find(x=>!x.classList.contains("skn-miss")&&!x.closest(".skn-none"));
+      if(b){
+        // Reuse the existing click path; links to ledger/audit tabs need
+        // data-tab, not just core.go(data-v) which loses the chosen tab.
+        b.click();inp.value="";navQ="";paintNav();inp.blur();
+      }
+    }
   });
   nav.addEventListener("click",e=>{
     const gb=e.target.closest(".skn-gate");if(gb&&nav.contains(gb)){if(SK.gate)SK.gate.set(gb.dataset.gate,{go:true});return}
