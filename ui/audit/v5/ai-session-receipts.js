@@ -73,6 +73,43 @@ function responseProjection(response, allowedEvidence) {
   if (claims.length > 60) throw new RangeError('TOO_MANY_CLAIMS');
   return { kind, seatId, status, providerId: provider, modelId: model, claims, receivedAt: String(response.receivedAt || ''), errorCode: status === 'completed' ? null : String(response.errorCode || 'NOT_AVAILABLE').slice(0,120) };
 }
+/**
+ * A declared model/provider identity is NOT independent proof of a live API run.
+ * A repeated provider+model identity never counts as an additional source.
+ * Distinct labels may still share upstream training/data/model; server provenance
+ * remains a separate release gate.
+ */
+export function assessCouncilResponseIndependence(responses = []) {
+  if (!Array.isArray(responses)) throw new TypeError('RESPONSES_INVALID');
+  const byIdentity = new Map();
+  let deterministicCount = 0, declaredProviderResponses = 0, unavailableCount = 0;
+  for (const response of responses) {
+    if (!response || typeof response !== 'object') throw new TypeError('RESPONSE_INVALID');
+    if (response.status !== 'completed') { unavailableCount++; continue; }
+    if (response.kind === 'deterministic') { deterministicCount++; continue; }
+    if (response.kind !== 'provider') throw new RangeError('RESPONSE_KIND_INVALID');
+    const providerId = needId(response.providerId,'PROVIDER_ID').toLowerCase();
+    const modelId = needId(response.modelId,'MODEL_ID').toLowerCase();
+    const seatId = needId(response.seatId,'SEAT_ID');
+    const key = JSON.stringify([providerId,modelId]);
+    if (!byIdentity.has(key)) byIdentity.set(key,{providerId,modelId,seatIds:[]});
+    byIdentity.get(key).seatIds.push(seatId);
+    declaredProviderResponses++;
+  }
+  const groups = [...byIdentity.values()].map(g=>({...g,seatIds:g.seatIds.sort()}))
+    .sort((a,b)=>a.providerId.localeCompare(b.providerId)||a.modelId.localeCompare(b.modelId));
+  return {
+    basis:'self-declared-provider-model-only',
+    independenceVerified:false,
+    liveInvocationVerified:false,
+    deterministicCount,
+    declaredProviderResponses,
+    unavailableCount,
+    uniqueDeclaredProviderModelPairs:groups.length,
+    potentiallyCorrelatedResponses:declaredProviderResponses-groups.length,
+    duplicateProviderModelGroups:groups.filter(g=>g.seatIds.length>1)
+  };
+}
 export async function createCouncilReceipt({ engagement, companyId, roundId, responses = [], at = new Date().toISOString() }) {
   const binding = scope(engagement, companyId, roundId);
   const round = engagement.councilRounds.find(r => r.id === roundId);
@@ -84,8 +121,11 @@ export async function createCouncilReceipt({ engagement, companyId, roundId, res
   const evidence = evidenceSnapshot(engagement, round);
   const allowedEvidence = new Set(evidence.map(e => e.id));
   const projectedResponses = responses.map(r => responseProjection(r, allowedEvidence));
-  const seatIds = projectedResponses.map(r => r.seatId + ':' + r.kind + ':' + (r.providerId || 'rule'));
+  // Each council seat has exactly one answer per round, regardless of which
+  // provider label it declares. Count reused model identities separately.
+  const seatIds = projectedResponses.map(r => r.seatId.toLowerCase());
   if (new Set(seatIds).size !== seatIds.length) throw new Error('DUPLICATE_INDEPENDENT_SEAT');
+  const responseIndependence = assessCouncilResponseIndependence(projectedResponses);
   const evidenceComplete = evidence.length > 0 && evidence.every(e => (e.sha256 || e.documents.some(d => d.sha256)) && e.documents.every(d => d.sha256));
   const previousHash = old.at(-1)?.receiptHash || null;
   const snapshotHash = await digest({ binding, evidence });
@@ -94,7 +134,7 @@ export async function createCouncilReceipt({ engagement, companyId, roundId, res
     sourceType: 'advisory-not-authorized', humanReview: 'required',
     evidenceStatus: evidenceComplete ? 'hashes-present' : 'missing-source-hashes',
     evidenceSnapshot: evidence, snapshotHash, previousHash,
-    responses: projectedResponses, responseCount: projectedResponses.length
+    responses: projectedResponses, responseCount: projectedResponses.length, responseIndependence
   };
   return { ...receipt, receiptHash: await digest(receipt) };
 }
@@ -119,6 +159,15 @@ export async function verifyCouncilReceipts(engagement) {
     if (!(engagement.councilRounds || []).some(r => r.id === receipt.scope.roundId)) return false;
     const { receiptHash, ...rest } = receipt;
     if (await digest(rest) !== receiptHash) return false;
+    // Keep old v1 receipts valid; for new receipts the counted identities must
+    // agree with the immutable response list, even if the summary is forged.
+    if (Object.hasOwn(receipt, 'responseIndependence')) {
+      let recalculated;
+      try { recalculated = assessCouncilResponseIndependence(receipt.responses); }
+      catch { return false; }
+      if (JSON.stringify(stable(receipt.responseIndependence)) !==
+          JSON.stringify(stable(recalculated))) return false;
+    }
     if (await digest({ binding: receipt.scope, evidence: receipt.evidenceSnapshot }) !== receipt.snapshotHash) return false;
     previousHash = receiptHash;
   }
