@@ -107,3 +107,44 @@
     transition:none;animation:none;scroll-behavior:auto;
   }
 }
+
+/* Real in-context sub-screens; links dispatch only registered, authorized
+   capability routes and do not read/write company or audit records. */
+.earth-screen-guide__links{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+}
+.earth-screen-guide__link{
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+  min-height:44px;
+  max-width:100%;
+  padding:8px 12px;
+  border:1px solid var(--sk-line-2);
+  border-radius:var(--sk-r);
+  background:var(--sk-brand-soft);
+  color:var(--sk-brand);
+  font:600 13px/1.55 var(--sk-font);
+  cursor:pointer;
+  text-align:center;
+  white-space:normal;
+}
+.earth-screen-guide__link:hover{
+  background:var(--sk-surface-3);
+}
+.earth-screen-guide__source{
+  margin:0;
+  padding:12px 16px;
+  font-size:12px;
+  line-height:1.8;
+  color:var(--sk-ink-3);
+  border-inline-start:3px solid var(--sk-line-2);
+  background:var(--sk-surface-2);
+}
+@media(max-width:650px){
+  .earth-screen-guide__links{display:grid;grid-template-columns:minmax(0,1fr)}
+  .earth-screen-guide__link{width:100%}
+}
