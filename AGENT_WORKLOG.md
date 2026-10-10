@@ -1060,3 +1060,37 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Cloudflare Pages source remains linked to former owner kosif199022-jpg for repo ID 1352281400 (new owner elkosif0-cmd). Source connect POST failed because existing connection; PATCH accepted but did not change source. The existing subdomain, production deployment and production secrets remain unchanged.
 - Rollback: previously successful production deployment ID 3d4e0540-7f1c-4634-9503-e479f4ed4e03 is retained and can be restored if a future release fails, subject to verification.
 - Unfinished: Owner fixes GitHub billing/Actions availability (or explicitly authorizes a reviewed manual production release), then PR #236 can be merged and main published from the verified safe production package. Do not replace the protected production with an unencrypted/no-private-data preview dist.
+
+
+### 2026-10-10 — KOSIF EARTH isolated QA continuation (draft; no production)
+- Base a973a5c / PR #243. Worktree kosif-earth-qa-handoff-20261010, isolated from concurrent staged/unstaged work.
+- Fixed demo startup busy-handoff hang with bounded 160×250ms retry, fail-closed timeout and three regression cases.
+- Added optional Copper Executive light/night styles; preserved daylight office default and 4K original.
+- Focused Node 47/47 PASS; browser add/remove/reload 32/32 PASS; theme matrix 87/87 PASS and save/reload 3/3, 29 selectable looks across 3 viewports.
+- Preview build 191 entries, dist/secure absent; constitution 18/18 PASS (3 partial), identity audit 3/3 PASS, diff --check PASS.
+- The report-scope status for demo-co remains unknown without a selected period; do not claim report readiness.
+- Complete details/reproduction/next phase: docs/rebuild/KOSIF_EARTH_QA_HANDOFF_20261010_AR.md.
+- Open: full suite 27 prior failures, all-repo branch/PR classification, report/export stress, model-earth-industrial E2E, published Preview deployment with exact SHA.
+- No main merge, production deploy, checkout/reset/stash/clean of original dirty worktree.
+
+
+### UPDATE CHATGPT-20261010-EARTH-INTELLIGENT-SCOPED-AUDIT — independent integration for owner review
+- Status: LOCAL_VALIDATED; DRAFT_REVIEW_PENDING; do NOT merge main or deploy production.
+- Branch: chatgpt/kosif-earth-intelligent-ui-20261010, based on verified QA HEAD 7be19a7; separate clean worktree so concurrent uncommitted work is untouched.
+- Intelligent UI: registry-grounded, accessible contextual next actions with authorization, company and gateway revalidation; no external model or client data calls.
+- Inspired by SEE: adapted a company-scoped activity audit to three real ownership modes: accounting company, independent audit engagement ID (not accounting company), and helper user+workspace. Previous device-global trail remains untouched and never misassigned.
+- Evidence: scoped activity tests 10/10 PASS; focused Node integration 101/101 PASS; preview build 191 entries PASS, dist/secure absent; adaptive Edge desktop/phone 22/22 PASS (before scoped trail integration).
+- Cross-account inventory: 21 repositories, 342 branches, 0 metadata read errors. Branch SHA CSV + candidate reuse matrix in docs/rebuild/KOSIF_EARTH_INTELLIGENT_UI_REPO_REUSE_HANDOFF_20261010_AR.md; no bulk cherry-picks.
+- NEXT ACTION: rerun browser acceptance with scoped audit, push branch to GitHub and open draft PR; compare remote-branch diff inventories, separately stress-test audit report exports and server authorization.
+- Risks: client-local audit logs are not a server-enforced RBAC or immutable audit ledger. The previous full-suite 27 historical failures are not resolved by focused green tests. Keep all production, secrets, original dirty worktrees unchanged.
+
+### 2026-10-10 — MANUAL MERGE INTEGRATION, local Windows QA (NOT PRODUCTION)
+- Git worktree/branch: kosif-earth-manual-merge-20261010 / chatgpt/kosif-earth-manual-merge-20261010; starting base origin/main 441d699. Full 13-commit chain ending e156cf4 merged with --no-commit/--no-ff without git conflicts; user authorized manual merging/QA because GitHub Actions is blocked by billing.
+- Security/architecture repaired before commit: core activity trail obtains audit file ID only from SKosifTBReview.activeEngagementId (audit workspace owns registry); accounting ID and helper user+workspace remain isolated. Audit registry never accessed by non-audit UI. The global legacy log is untouched.
+- Design ratchet repaired (adaptive CSS now uses 4px spacing, existing focus token, no needless important). Did NOT loosen or reset ratchet.
+- Manual constitution 18/18 PASS; identity 3/3 PASS; focused adaptive+scoped audit 15/15 PASS.
+- Manual app/npm check: 116 engine test files and 565/565 tests PASS (reusing an existing dependency folder for offline validation).
+- Manual broad tools test under Windows path environment: 1157 tests, 1143 passed, **14 FAILED**. Initial unrestricted run had 118 fails, mostly Windows URL encoded path errors; SQC_OUTPUT_ROOT fixed most. The 14 remaining are NOT waived or counted as passing.
+- Preview build in Windows SQC_BUILD_MODE=preview: 191 entries PASS; dist/secure absent. Original protected production and dirty worktrees untouched.
+- Blocking release conditions: reproduce/resolve 14 failed tool tests with exact receipts, rerun real Edge e2e on this merged snapshot, validate report/export and auth/branch guard, obtain owner manual review. GitHub Actions still blocked by account billing; never set false green checks or bypass branch policy. No merge into main and no production deployment.
+- Cross-repo audit: metadata enumerated 21 repos/342 branches; high-value source-level review is incomplete. Separate triage 214 non-ancestor refs within cloude and 119 other-repo refs; metadata cannot prove missing capabilities.

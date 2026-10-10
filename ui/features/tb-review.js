@@ -353,6 +353,7 @@ function canonicalStatements(c){
     limitation:"عرض تحليلي من ربط الميزان في الملف الرئيسي، وليس نسخة كاملة من التقرير المنشور أو إثبات امتثال للإطار. التقرير الكامل وفق إطار المصدر غير مدعوم هنا؛ غير صالح للإصدار. تبقى التسويات والأدلة والاعتمادات في الملف الرئيسي."}));
 }
 window.SKosifTBReview=Object.freeze({newEngagement,fromBooks,loadCorpus,
+  activeEngagementId:()=>{const r=reg();return r.list.some(e=>e.id===r.active)?r.active:""},
   /* R20: the audit menu opens a stage of the open file (FOUNDATION §3.12 «داخل ملف المراجعة»); with no file open the
      register shows, and no stage is current */
   open:t=>{if(TABS.some(([k])=>k===t))tab=t;window.SKosifCore.go("tbreview");paint()},current:()=>compute()?tab:"",
