@@ -93,9 +93,9 @@ function toCsv(name,rows){
 }
 const SOURCES=[
   ["items","الأصناف والأسعار (من محرك التسعير)",async()=>window.SKosifCore.catalog().items],
-  ["customers","العملاء",()=>SK.store.idbAll("customers")],
-  ["sales","سطور المبيعات المستوردة",()=>SK.store.idbAll("sales_lines")],
-  ["orders","الطلبات",()=>SK.store.idbAll("orders")],
+  ["customers","العملاء",()=>SK.legacyCompanyData.read("customers")],
+  ["sales","سطور المبيعات المستوردة",()=>SK.legacyCompanyData.read("sales_lines")],
+  ["orders","الطلبات",()=>SK.legacyCompanyData.read("orders")],
   ["manual-sales","عمليات البيع اليدوية",async()=>load("aghnam-v12-manual-sales",[])],
   ["suppliers","شحنات الموردين",async()=>load("skosif_v31_supplier_batches",[])],
   ["purchase-orders","أوامر الشراء",async()=>load("skosif_purchasing_v1",{}).orders||[]],

@@ -59,11 +59,13 @@ test('busy switching prevents database reads and stale scopes cannot leak',async
 test('all migrated report readers delegate to the shared company adapter',()=>{
  const modules=['ui/features/audit-bridge.js','ui/features/command-center.js',
  'ui/features/channel-profit.js','ui/features/month-close.js','ui/features/sales-intel.js',
- 'ui/features/sales-lab.js','ui/core/flow.js'];
+ 'ui/features/sales-lab.js','ui/core/flow.js','ui/features/customer-flow.js',
+ 'ui/features/pulse.js','ui/features/followup.js','ui/features/workspace.js'];
  for(const f of modules){
    const t=fs.readFileSync(root+f,'utf8');
    assert.match(t,/legacyCompanyData\.read\(/,f);
    assert.doesNotMatch(t,/indexedDB\.open\("aghnam-app-v7"\)/,f);
+   assert.doesNotMatch(t,/SK\.store\.idbAll\(/,f);
  }
  const build=fs.readFileSync(root+'build.py','utf8');
  assert.ok(build.indexOf('"core/legacy-company-data.js"')>build.indexOf('"core/company.js"'));

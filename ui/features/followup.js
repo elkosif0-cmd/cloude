@@ -44,7 +44,7 @@ function queueHTML(d){
     (open.length?'<div class="skc-list">'+open.map(q=>'<div class="skc-row" style="cursor:default"><span class="tx"><b dir="ltr">'+esc(q.phone)+'</b><small>'+esc(q.note||"")+'</small></span><a class="btn sm" href="tel:'+esc(normPhone(q.phone))+'">اتصال</a><a class="btn sm" href="'+wa(q.phone)+'" target="_blank" rel="noopener">واتساب</a><button type="button" class="btn sm" data-f="q-reg" data-id="'+esc(q.id)+'">سجّل</button><button type="button" class="btn sm primary" data-f="q-done" data-id="'+esc(q.id)+'">تم</button></div>').join("")+'</div>':SK.ui.state.empty({title:"القائمة فارغة"}))+'</div></section>';
 }
 async function priorityHTML(){
-  if(!risk){const cs=await SK.store.idbAll("customers").catch(()=>[]);const now=Date.now();
+  if(!risk){const cs=await SK.legacyCompanyData.read("customers").catch(()=>[]);const now=Date.now();
     risk=cs.filter(c=>c.phone&&c.lastPurchase).map(c=>({name:c.name||"",phone:c.phone,days:Math.floor((now-Date.parse(c.lastPurchase))/864e5),orders:Number(c.summaryOrders)||0,sales:Number(c.summarySales)||0}))
       .filter(c=>c.days>=21&&c.orders>=2).sort((a,b)=>b.sales-a.sales).slice(0,60)}
   return '<section class="card"><div class="card-h"><div><h3>أولوية التواصل</h3><p>عملاء اشتروا مرتين على الأقل وتوقفوا 21 يوماً فأكثر، مرتبون بقيمة مشترياتهم — من بيانات المبيعات المستوردة.</p></div></div><div class="card-b">'+

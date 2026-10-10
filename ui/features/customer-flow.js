@@ -23,7 +23,7 @@ let root=null,ctl=null,data=null,loading=null,loadedAt=0,selected="",q="",cur=nu
 
 /* ---------- the numbers ---------- */
 async function loadAll(){
-  const idb=s=>SK.store&&SK.store.idbAll?SK.store.idbAll(s).catch(()=>[]):Promise.resolve([]);
+  const idb=s=>SK.legacyCompanyData?.read?SK.legacyCompanyData.read(s).catch(()=>[]):Promise.resolve([]);
   const [res,orders,payments,lines]=await Promise.all([window.SKosifSalesIntel?SKosifSalesIntel.snapshot("all"):null,idb("orders"),idb("payments"),idb("sales_lines")]);
   const fu=load(FU,{})||{};
   return{res:res&&!res.empty?res:{empty:true,customers:[],followup:[],segments:[]},orders:orders||[],payments:payments||[],lines:lines||[],records:fu.records||[]};
