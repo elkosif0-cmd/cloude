@@ -11,7 +11,8 @@ const CONTENT=Object.freeze({
     goals:[
       {title:"أسجّل القيود",route:"ledger",action:"فتح الدفاتر",steps:["راجع دليل الحسابات الخاص بالشركة","أنشئ القيد ثم تحقّق من توازنه","راجع الأستاذ وميزان المراجعة"],result:"قيود متوازنة ودفاتر قابلة للمراجعة."},
       {title:"أطابق الحسابات",route:"smartmatch",action:"بدء المطابقة",steps:["جهّز ملفات البنك والدفتر","طابق المعاملات وحدّد الفروق","صدّر كشف الاستثناءات للتسوية"],result:"فروق واضحة وقائمة تسويات قابلة للمتابعة."},
-      {title:"أُصدر القوائم",route:"reports",action:"فتح التقارير",steps:["تحقّق من أرصدة الفترة","اختر القوائم والفترة المناسبة","راجع النتائج وصدّر التقرير"],result:"قوائم مالية جاهزة للفحص والاعتماد."}
+      {title:"أُصدر القوائم",route:"reports",action:"فتح التقارير",steps:["تحقّق من أرصدة الفترة","اختر القوائم والفترة المناسبة","راجع النتائج وصدّر التقرير"],result:"قوائم مالية جاهزة للفحص والاعتماد."},
+      {title:"أراجع حسابات شركتي",route:"ledger",tab:"tb",action:"مراجعة الميزان",steps:["افتح ميزان المراجعة للشركة والفترة الحالية فقط","افحص اتزان الميزان وتفاصيل الحسابات في دفتر الأستاذ","راجع سلامة القيود والمطابقات قبل اعتماد النتائج"],result:"مراجعة داخلية لبيانات شركتك فقط؛ لا يُنشأ ملف مراجعة مستقل ولا تُنقل البيانات."}
     ]
   },
   audit:{
@@ -35,6 +36,29 @@ const CONTENT=Object.freeze({
 });
 const $=(s,r=document)=>r.querySelector(s);
 let lastGate="", active=0, installed=false;
+let readyTimer=0, readyAttempts=0;
+/* Demo seeding and a company handoff can replace the page asynchronously.
+   The guide must not offer a live action until both are settled. */
+const isReady=(sk,gate)=>{
+  if(gate!=="accounting")return true;
+  const c=sk.company?.current?.();
+  return !!(c?.id&&c.ownerScope==="FULL_ACCOUNTING"&&
+    !window.SKosifSpace?.busy?.()&&
+    (!sk.demo?.settled||sk.demo.settled()));
+};
+function scheduleReady(){
+  if(readyTimer)return;
+  const check=()=>{
+    readyTimer=0;
+    const s=state();
+    if(!s||s.gate!=="accounting"){readyAttempts=0;return}
+    sync();
+    if(!isReady(s.sk,s.gate)&&++readyAttempts<160)
+      readyTimer=setTimeout(check,250);
+    else readyAttempts=0;
+  };
+  readyTimer=setTimeout(check,250);
+}
 let watchedMain=null, mainObserver=null, scheduled=false;
 function schedule(){
   if(scheduled)return;
@@ -57,6 +81,12 @@ const state=()=>{
   const gate=sk.gate.current(),home=sk.caps&&sk.caps.gatewayHome&&sk.caps.gatewayHome(gate);
   const view=core.view();
   if(!CONTENT[gate]||!home||home!==view)return null;
+  // Ledger is the accounting gateway home, but its TB, journal, reconciliations
+  // and other tabs are real work screens — never cover them with the home guide.
+  if(gate==="accounting"&&view==="ledger"){
+    const tab=window.SKosifLedger?.current?.();
+    if(tab&&!["close","accounts"].includes(tab))return null;
+  }
   return {sk,core,gate,home};
 };
 function allowed(sk,route){
@@ -87,19 +117,43 @@ function buildPlan(box,gate,sk,core){
     item.append(number,node("span","",step));
     steps.append(item);
   }
+  const companyAtRender=gate==="accounting"?sk.company?.current?.():null;
+  const companyId=companyAtRender?.id||"";
+  const ready=isReady(sk,gate);
   const footer=node("div","earth-journey__outcome");
   const result=node("div","earth-journey__result");
   result.append(node("strong","","النتيجة"),node("span","",goal.result));
   const go=node("button","earth-journey__go",goal.action+" ←");
   go.type="button";
-  const available=allowed(sk,goal.route);
+  const available=ready&&allowed(sk,goal.route);
   go.disabled=!available;
-  if(!available)go.title="هذه الوظيفة غير متاحة لصلاحيات المستخدم الحالية";
+  if(!ready){
+    go.textContent=companyId?"جاري تجهيز الشركة...":"اختر شركة أولًا";
+    go.title=companyId?"انتظر اكتمال تجهيز الشركة قبل بدء المهمة":"اختر شركة محاسبية أولًا";
+  }else if(!available){
+    go.title="هذه الوظيفة غير متاحة لصلاحيات المستخدم الحالية";
+  }
+  if(gate==="accounting")box.dataset.ready=String(ready);
   go.addEventListener("click",()=>{
     // The main router can be replaced during async company initialization,
     // particularly on slower touch devices. Always use the live router.
     const live=state();
     if(!live||live.gate!==gate||!allowed(live.sk,goal.route))return;
+    if(gate==="accounting"){
+      const now=live.sk.company?.current?.();
+      // A stale home or delayed tap cannot accidentally act on another company.
+      if(!companyId||now?.id!==companyId||now.ownerScope!=="FULL_ACCOUNTING"||
+        window.SKosifSpace?.busy?.()||
+        (live.sk.demo?.settled&&!live.sk.demo.settled()))return;
+    }
+    if(goal.tab&&goal.route==="ledger"){
+      // Internal bookkeeping review opens ONLY the current company's ledger TB.
+      // Never auto-import into SKosifTBReview or change the Audit gateway.
+      const L=window.SKosifLedger;
+      if(!L?.open){live.sk.toast?.("شاشة ميزان المراجعة غير جاهزة بعد","warn");return}
+      L.open(goal.tab);
+      return;
+    }
     if(live.core.view()!==goal.route)live.core.go(goal.route);
     else{
       const work=nextWork(root());
@@ -115,6 +169,8 @@ function create(s){
   const data=CONTENT[s.gate],box=node("section","earth-journey");
   box.id="earth-goal-journey";
   box.dataset.gateway=s.gate;
+  const company=s.gate==="accounting"?s.sk.company?.current?.():null;
+  box.dataset.companyId=company?.id||"";
   box.setAttribute("aria-label","ابدأ بهدف واضح، ثم الخطوات والنتيجة");
   const inner=node("div","earth-journey__inner");
   inner.append(
@@ -122,6 +178,14 @@ function create(s){
     node("h2","earth-journey__heading",data.heading),
     node("p","earth-journey__lead",data.lead)
   );
+  const scope=node("p","earth-journey__scope");
+  if(s.gate==="accounting")
+    scope.textContent=company?.id?"الشركة الحالية: "+company.name+" · مراجعة دفاتر هذه الشركة فقط":"اختر شركة محاسبية أولًا، ثم ابدأ هدفك";
+  else if(s.gate==="audit")
+    scope.textContent="مراجعة مستقلة: ملفاتها منفصلة عن دفتر أي شركة حتى تختار الربط صراحةً";
+  else
+    scope.textContent="مساحة أدوات مستقلة؛ شركات المحاسبة لا تُضاف تلقائيًا";
+  inner.append(scope);
   const choices=node("div","earth-journey__choices");
   choices.setAttribute("role","group");
   choices.setAttribute("aria-label","اختر ما تريد إنجازه");
@@ -165,13 +229,26 @@ function sync(){
     return;
   }
   if(lastGate!==current.gate){active=0;lastGate=current.gate;}
-  if(existing&&existing.dataset.gateway===current.gate){
+  const expectedCompany=current.gate==="accounting"?current.sk.company?.current?.()?.id||"":"";
+  if(existing&&existing.dataset.gateway===current.gate&&existing.dataset.companyId===expectedCompany){
+    if(current.gate==="accounting"&&
+      existing.dataset.ready!==String(isReady(current.sk,current.gate))){
+      buildPlan(existing,current.gate,current.sk,current.core);
+    }
     condenseDuplicateMap(main);
+    window.KOSIFEarthAddons?.attach?.(existing,current);
+    if(current.gate==="accounting"&&current.sk.company?.current?.()?.id&&
+      !isReady(current.sk,current.gate))
+      scheduleReady();
     return;
   }
   if(existing)existing.remove();
   main.prepend(create(current));
   condenseDuplicateMap(main);
+  window.KOSIFEarthAddons?.attach?.($("#earth-goal-journey",main),current);
+  if(current.gate==="accounting"&&current.sk.company?.current?.()?.id&&
+    !isReady(current.sk,current.gate))
+    scheduleReady();
 }
 function boot(){
   if(installed)return;installed=true;

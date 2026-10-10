@@ -332,3 +332,17 @@
   height:36px;
   background:url(./art/brand/kosif-earth-mark.svg) center/contain no-repeat;
 }
+
+/* One visible owner scope, never a selector listing other companies. */
+.earth-journey__scope{
+  display:inline-flex;
+  max-width:100%;
+  margin:0 0 16px;
+  padding:8px 12px;
+  border:1px solid rgba(255,255,255,.27);
+  border-radius:var(--sk-r);
+  background:rgba(18,43,31,.48);
+  color:var(--sk-rail-ink);
+  font:600 13px/1.7 var(--sk-font);
+  overflow-wrap:anywhere;
+}

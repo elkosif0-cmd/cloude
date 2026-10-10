@@ -60,7 +60,8 @@ test('enabling one tool keeps everything the company had, and survives as its ow
   assert.equal(api.capEnabled(core), true, 'the core tools are written out, not lost');
   api.setTool(core, false);
   assert.equal(api.capEnabled(core), false, 'a core tool can be switched off once the list is the company\'s own');
-  const saved = store.get('skosif_company_platform_v1');
+  const saved = store.get(api.storageKey('co-a'));
+  assert.equal(store.has('skosif_company_platform_v1'),false,'new company must never write to old global key');
   assert.equal(saved.capabilityProfile.custom, true);
   assert.equal(saved.companyId, 'co-a');
 });
