@@ -107,6 +107,12 @@ function sectorOf(cap){try{const c=SK.company.current();return cap&&cap.group===
 function sectorLabel(id){const s=SK.caps.sectors().find(x=>x.id===id);return s?s.label:""}
 function paint(){
   if(!build())return;
+  /* KOSIF EARTH uses its own accessible wordmark in the default identity.
+     The other optional appearance families keep their existing artwork. */
+  const earth=document.documentElement.dataset.brand==="ledger";
+  const brandBtn=$(".sk-tb-brand"),brandText=brandBtn&&brandBtn.querySelector("b");
+  if(brandBtn)brandBtn.setAttribute("aria-label",earth?"KOSIF EARTH — الصفحة الرئيسية":"SQC — مركز القيادة");
+  if(brandText)brandText.textContent=earth?"KOSIF":"SQC";
   const c=core(),view=c?c.view():"",cap=SK.caps.get(view),pr=profile(),x=ctx();
   /* page head */
   const ic=$(".sk-ph-ic"),en=$(".sk-ph-en");
@@ -236,7 +242,12 @@ function profileDialog(){
 function onClick(e){
   const b=e.target.closest("[data-sktb]");if(!b)return;
   const a=b.dataset.sktb;
-  if(a==="home")core().go("dash");
+  if(a==="home"){
+    // Brand navigation stays inside the current product gateway and company.
+    const gate=SK.gate&&SK.gate.current?SK.gate.current():"accounting";
+    const home=SK.caps&&SK.caps.gatewayHome?SK.caps.gatewayHome(gate):null;
+    core().go(home||"dash");
+  }
   else if(a==="co")coMenu(b);
   else if(a==="pe")peMenu(b);
   else if(a==="user")userMenu(b);
