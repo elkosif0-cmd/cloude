@@ -131,3 +131,75 @@ test('company exports never call device-wide backup and unverified legacy source
  assert.match(text,/counts\[i\]===null/);
  assert.match(text,/\.filter\(r=>r\?\.companyId===companyId\)/);
 });
+
+test('read-only restore preview compares only owner-scoped IDs and never writes data',async()=>{
+ const fixture={customers:[{id:'C-1',companyId:'company-A',name:'original'}],
+  sales_lines:[{id:'L-1',companyId:'company-A',orderId:'O-1'}],
+  orders:[{id:'O-1',companyId:'company-A'}]};
+ const client=setup(fixture),original=JSON.stringify(fixture);
+ const pack=await client.adapter.snapshot();
+ pack.stores.customers.push({id:'C-2',companyId:'company-A',name:'new'});
+ pack.counts.customers=2;
+ const r=await client.adapter.previewRestore(JSON.stringify(pack));
+ assert.equal(r.status,'checked-for-local-preview-only');
+ assert.equal(r.restoreAllowed,false);
+ assert.equal(r.writesPerformed,0);
+ assert.equal(r.rollbackUsed,false);
+ assert.equal(r.integrity,'no-server-signature-or-authority');
+ assert.deepEqual(JSON.parse(JSON.stringify(r.counts.customers)),{
+   candidate:2,current:1,newIdentifiers:1,overlappingIdentifiers:1,currentIdentifiersAbsentFromFile:0
+ });
+ assert.equal(JSON.stringify(fixture),original,'no existing record was modified');
+ assert.equal(Object.hasOwn(r,'stores'),false,'original data cannot leak through preview');
+});
+test('restore preview rejects wrong company, missing scope, forged metadata and untrusted manifests',async()=>{
+ const o=setup({customers:[],sales_lines:[],orders:[]});
+ const source=await o.adapter.snapshot();
+ for(const modified of [
+  {...source,scope:{companyId:'company-B'}},
+  {...source,scope:{}},
+  {...source,restorable:true},
+  {...source,authorization:'server-approved'},
+  {...source,idb:{secrets:[]}},
+  {...source,stores:{...source.stores,private:[]}},
+  {...source,counts:{...source.counts,private:0}}
+ ]){
+  await assert.rejects(o.adapter.previewRestore(JSON.stringify(modified)),/RESTORE_PREVIEW_/);
+ }
+ await assert.rejects(o.adapter.previewRestore('{not json'),/RESTORE_PREVIEW_JSON_INVALID/);
+ await assert.rejects(o.adapter.previewRestore(' '.repeat(3*1024*1024+1)),/RESTORE_PREVIEW_FILE_SIZE/);
+});
+test('restore preview rejects foreign nested owners, duplicates and mismatched counts',async()=>{
+ const o=setup({customers:[],sales_lines:[],orders:[]});
+ const source=await o.adapter.snapshot();
+ const hostile=(items)=>JSON.stringify({...source,
+   counts:{...source.counts,customers:items.length},
+   stores:{...source.stores,customers:items}});
+ await assert.rejects(o.adapter.previewRestore(hostile([{id:'C',companyId:'company-B'}])),/RESTORE_PREVIEW_/);
+ await assert.rejects(o.adapter.previewRestore(hostile([{id:'C',companyId:'company-A',meta:{companyId:'company-B'}}])),/RESTORE_PREVIEW_CROSS_COMPANY_NESTED/);
+ await assert.rejects(o.adapter.previewRestore(hostile([{id:'C',companyId:'company-A'},{id:'c',companyId:'company-A'}])),/RESTORE_PREVIEW_DUPLICATE_ROW_ID/);
+ await assert.rejects(o.adapter.previewRestore(hostile([{companyId:'company-A'}])),/RESTORE_PREVIEW_ROW_ID_INVALID/);
+ await assert.rejects(o.adapter.previewRestore(JSON.stringify({...source,counts:{...source.counts,customers:1}})),/RESTORE_PREVIEW_COUNTS_INVALID/);
+ const pollution=JSON.stringify(source).replace('"createdAt":', '"__proto__":{"polluted":true},"createdAt":');
+ await assert.rejects(o.adapter.previewRestore(pollution),/RESTORE_PREVIEW_UNSAFE_KEY/);
+});
+test('preview identifies orphan sales lines rather than treating them as valid restorations',async()=>{
+ const o=setup({customers:[],sales_lines:[],orders:[]});
+ const source=await o.adapter.snapshot();
+ source.stores.sales_lines.push({id:'L-1',companyId:'company-A',orderId:'missing'});
+ source.counts.sales_lines=1;
+ await assert.rejects(o.adapter.previewRestore(JSON.stringify(source)),/RESTORE_PREVIEW_ORPHAN_ORDER_ITEM/);
+});
+test('restore preview discards A-to-B-to-A in-flight results using lifecycle token',async()=>{
+ const o=setup({customers:[{id:'C-1',companyId:'company-A'}],sales_lines:[],orders:[]},{wait:true});
+ const source={format:'kosif-company-scoped-local-export',version:1,restorable:false,
+  createdAt:'2026-10-11T00:00:00.000Z',scope:{companyId:'company-A'},
+  authorization:'local-owner-markers-only-not-server-verified',
+  counts:{customers:0,sales_lines:0,orders:0},stores:{customers:[],sales_lines:[],orders:[]}};
+ const task=o.adapter.previewRestore(JSON.stringify(source));
+ await new Promise(resolve=>setImmediate(resolve));
+ o.setCompany('company-B');o.setToken('scope-2');
+ o.setCompany('company-A');o.setToken('scope-3');
+ o.flush();
+ await assert.rejects(task,/RESTORE_PREVIEW_SCOPE_CHANGED/);
+});

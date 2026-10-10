@@ -17,10 +17,18 @@ try{
    await page.locator('#co-list .co[data-id="demo-co"]').click();
    await page.waitForFunction(()=>window.SK?.demo?.settled?.()===true&&!window.SKosifSpace?.busy?.(),null,{timeout:30000});
    await page.evaluate(()=>SKosifCore.go('exports'));
-   await page.waitForFunction(()=>document.querySelector('[data-x="all"]')!==null||
-     document.querySelector('[data-skcap-on="exports"]')!==null,null,{timeout:18000});
-   const gate=page.locator('[data-skcap-on="exports"]');
-   if(await gate.isVisible()){await gate.click();await page.waitForFunction(()=>!!document.querySelector('[data-x="all"]'),null,{timeout:12000})}
+   await page.waitForFunction(()=>{
+     if(window.SKosifCore?.view?.()!=='exports')return false;
+     const enabled=window.SKosifCompanyPlatform?.capEnabled?.('exports');
+     return enabled===false?!!document.querySelector('[data-skcap-on="exports"]'):
+       enabled===true&&!!document.querySelector('[data-x="all"]')?.getClientRects().length;
+   },null,{timeout:18000});
+   const needsActivation=await page.evaluate(()=>!window.SKosifCompanyPlatform?.capEnabled?.('exports'));
+   if(needsActivation){
+     await page.locator('[data-skcap-on="exports"]').click();
+     await page.waitForFunction(()=>window.SKosifCompanyPlatform?.capEnabled?.('exports')===true,null,{timeout:12000});
+   }
+   await page.locator('[data-x="all"]').waitFor({state:'visible',timeout:12000});
    assert.equal(await page.locator('[data-x="all"]').isVisible(),true);
    await page.evaluate(()=>localStorage.setItem('skosif_extra_company_canary','FOREIGN_COMPANY_MARKER'));
    const labels=await page.locator('[data-x="all"]').evaluate(button=>button.closest('.card')?.innerText||'');
@@ -39,9 +47,29 @@ try{
    assert.equal(body.restorable,false);
    assert.deepEqual(Object.keys(body.stores).sort(),['customers','orders','sales_lines']);
    assert.doesNotMatch(JSON.stringify(body),/FOREIGN_COMPANY_MARKER/);
+   const previewFile=page.locator('#sk-restore-preview-file');
+   const previewButton=page.locator('[data-x="restore-preview"]');
+   assert.equal(await previewFile.isVisible(),true);
+   const supply=async content=>previewFile.setInputFiles({
+      name:'company-test-preview.json',mimeType:'application/json',
+      buffer:Buffer.from(JSON.stringify(content),'utf8')
+   });
+   await supply(body);
+   await previewButton.click();
+   await page.waitForFunction(()=>/نتيجة فحص|تم رفض المعاينة/.test(
+      document.querySelector('#sk-restore-preview-status')?.textContent||''),null,{timeout:18000});
+   const approvedMessage=await page.locator('#sk-restore-preview-status').textContent();
+   assert.match(approvedMessage,/نتيجة فحص للقراءة فقط/);
+   const different={...body,scope:{companyId:'foreign-company'}};
+   await supply(different);
+   await previewButton.click();
+   await page.waitForFunction(()=>/RESTORE_PREVIEW_CROSS_COMPANY_MANIFEST/.test(
+      document.querySelector('#sk-restore-preview-status')?.textContent||''),null,{timeout:18000});
+   assert.match(await page.locator('#sk-restore-preview-status').textContent(),/تم رفض المعاينة/);
+   assert.equal(await page.locator('[data-x="restore"]').count(),0);
    assert.deepEqual(errors,[]);
    results.push({viewport:shape.name,download:filename,company:body.scope.companyId,stores:Object.keys(body.stores),errors:errors.length});
   }finally{await context.close()}
  }
 }finally{await browser.close()}
-console.log('COMPANY_EXPORT_UI_E2E',JSON.stringify({passed:results.length*8,results,synthetic:true,serverAuthorizationTested:false}));
+console.log('COMPANY_EXPORT_UI_E2E',JSON.stringify({passed:results.length*13,results,synthetic:true,serverAuthorizationTested:false}));
