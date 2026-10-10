@@ -891,7 +891,7 @@ h1,h2,h3,h4,h5,.section-heading,.title,.page-title{color:#1e293b!important;font-
 .secondary:hover,button.secondary:hover{background:#e0e7ff!important;color:#4338ca!important}
 .ghost,button.ghost,a.ghost{background:#f1f5f9!important;color:#64748b!important;border:none!important;box-shadow:none!important}
 .ghost:hover,button.ghost:hover,a.ghost:hover{background:#e2e8f0!important;color:#334155!important}
-button,.primary,.secondary,.ghost,input,select,textarea{border-radius:12px!important;transition:all .25s ease!important}
+button,.primary,.secondary,.ghost,input,select,textarea{border-radius:12px!important;transition:background-color .25s ease,color .25s ease,border-color .25s ease,box-shadow .25s ease,transform .25s ease!important}
 input,select,textarea,.recipe-form input,dialog select,dialog input[type=file]{background:#fff!important;color:#1e293b!important;border:1.5px solid #e2e8f0!important}
 input:focus,select:focus,textarea:focus{border-color:#818cf8!important;box-shadow:0 0 0 4px rgba(99,102,241,.12)!important;outline:none!important}
 input::placeholder,textarea::placeholder{color:#94a3b8!important}
