@@ -11,7 +11,8 @@ const CONTENT=Object.freeze({
     goals:[
       {title:"أسجّل القيود",route:"ledger",action:"فتح الدفاتر",steps:["راجع دليل الحسابات الخاص بالشركة","أنشئ القيد ثم تحقّق من توازنه","راجع الأستاذ وميزان المراجعة"],result:"قيود متوازنة ودفاتر قابلة للمراجعة."},
       {title:"أطابق الحسابات",route:"smartmatch",action:"بدء المطابقة",steps:["جهّز ملفات البنك والدفتر","طابق المعاملات وحدّد الفروق","صدّر كشف الاستثناءات للتسوية"],result:"فروق واضحة وقائمة تسويات قابلة للمتابعة."},
-      {title:"أُصدر القوائم",route:"reports",action:"فتح التقارير",steps:["تحقّق من أرصدة الفترة","اختر القوائم والفترة المناسبة","راجع النتائج وصدّر التقرير"],result:"قوائم مالية جاهزة للفحص والاعتماد."}
+      {title:"أُصدر القوائم",route:"reports",action:"فتح التقارير",steps:["تحقّق من أرصدة الفترة","اختر القوائم والفترة المناسبة","راجع النتائج وصدّر التقرير"],result:"قوائم مالية جاهزة للفحص والاعتماد."},
+      {title:"أراجع حسابات شركتي",route:"ledger",tab:"tb",action:"مراجعة الميزان",steps:["افتح ميزان المراجعة للشركة والفترة الحالية فقط","افحص اتزان الميزان وتفاصيل الحسابات في دفتر الأستاذ","راجع سلامة القيود والمطابقات قبل اعتماد النتائج"],result:"مراجعة داخلية لبيانات شركتك فقط؛ لا يُنشأ ملف مراجعة مستقل ولا تُنقل البيانات."}
     ]
   },
   audit:{
@@ -57,6 +58,12 @@ const state=()=>{
   const gate=sk.gate.current(),home=sk.caps&&sk.caps.gatewayHome&&sk.caps.gatewayHome(gate);
   const view=core.view();
   if(!CONTENT[gate]||!home||home!==view)return null;
+  // Ledger is the accounting gateway home, but its TB, journal, reconciliations
+  // and other tabs are real work screens — never cover them with the home guide.
+  if(gate==="accounting"&&view==="ledger"){
+    const tab=window.SKosifLedger?.current?.();
+    if(tab&&!["close","accounts"].includes(tab))return null;
+  }
   return {sk,core,gate,home};
 };
 function allowed(sk,route){
@@ -87,19 +94,37 @@ function buildPlan(box,gate,sk,core){
     item.append(number,node("span","",step));
     steps.append(item);
   }
+  const companyAtRender=gate==="accounting"?sk.company?.current?.():null;
+  const companyId=companyAtRender?.id||"";
+  const accountingReady=gate!=="accounting"||!!(companyId&&companyAtRender.ownerScope==="FULL_ACCOUNTING");
   const footer=node("div","earth-journey__outcome");
   const result=node("div","earth-journey__result");
   result.append(node("strong","","النتيجة"),node("span","",goal.result));
   const go=node("button","earth-journey__go",goal.action+" ←");
   go.type="button";
-  const available=allowed(sk,goal.route);
+  const available=accountingReady&&allowed(sk,goal.route);
   go.disabled=!available;
-  if(!available)go.title="هذه الوظيفة غير متاحة لصلاحيات المستخدم الحالية";
+  if(!available)go.title=accountingReady?"هذه الوظيفة غير متاحة لصلاحيات المستخدم الحالية":"افتح شركة محاسبية قبل بدء العمل";
   go.addEventListener("click",()=>{
     // The main router can be replaced during async company initialization,
     // particularly on slower touch devices. Always use the live router.
     const live=state();
     if(!live||live.gate!==gate||!allowed(live.sk,goal.route))return;
+    if(gate==="accounting"){
+      const now=live.sk.company?.current?.();
+      // A stale home or delayed tap cannot accidentally act on another company.
+      if(!companyId||now?.id!==companyId||now.ownerScope!=="FULL_ACCOUNTING"||
+        window.SKosifSpace?.busy?.()||
+        (live.sk.demo?.settled&&!live.sk.demo.settled()))return;
+    }
+    if(goal.tab&&goal.route==="ledger"){
+      // Internal bookkeeping review opens ONLY the current company's ledger TB.
+      // Never auto-import into SKosifTBReview or change the Audit gateway.
+      const L=window.SKosifLedger;
+      if(!L?.open){live.sk.toast?.("شاشة ميزان المراجعة غير جاهزة بعد","warn");return}
+      L.open(goal.tab);
+      return;
+    }
     if(live.core.view()!==goal.route)live.core.go(goal.route);
     else{
       const work=nextWork(root());
@@ -115,6 +140,8 @@ function create(s){
   const data=CONTENT[s.gate],box=node("section","earth-journey");
   box.id="earth-goal-journey";
   box.dataset.gateway=s.gate;
+  const company=s.gate==="accounting"?s.sk.company?.current?.():null;
+  box.dataset.companyId=company?.id||"";
   box.setAttribute("aria-label","ابدأ بهدف واضح، ثم الخطوات والنتيجة");
   const inner=node("div","earth-journey__inner");
   inner.append(
@@ -122,6 +149,14 @@ function create(s){
     node("h2","earth-journey__heading",data.heading),
     node("p","earth-journey__lead",data.lead)
   );
+  const scope=node("p","earth-journey__scope");
+  if(s.gate==="accounting")
+    scope.textContent=company?.id?"الشركة الحالية: "+company.name+" · مراجعة دفاتر هذه الشركة فقط":"اختر شركة محاسبية أولًا، ثم ابدأ هدفك";
+  else if(s.gate==="audit")
+    scope.textContent="مراجعة مستقلة: ملفاتها منفصلة عن دفتر أي شركة حتى تختار الربط صراحةً";
+  else
+    scope.textContent="مساحة أدوات مستقلة؛ شركات المحاسبة لا تُضاف تلقائيًا";
+  inner.append(scope);
   const choices=node("div","earth-journey__choices");
   choices.setAttribute("role","group");
   choices.setAttribute("aria-label","اختر ما تريد إنجازه");
@@ -165,7 +200,8 @@ function sync(){
     return;
   }
   if(lastGate!==current.gate){active=0;lastGate=current.gate;}
-  if(existing&&existing.dataset.gateway===current.gate){
+  const expectedCompany=current.gate==="accounting"?current.sk.company?.current?.()?.id||"":"";
+  if(existing&&existing.dataset.gateway===current.gate&&existing.dataset.companyId===expectedCompany){
     condenseDuplicateMap(main);
     window.KOSIFEarthAddons?.attach?.(existing,current);
     return;
