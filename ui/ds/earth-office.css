@@ -346,3 +346,21 @@
   font:600 13px/1.7 var(--sk-font);
   overflow-wrap:anywhere;
 }
+
+/* Small preparation row inside the existing goal panel; no additional card. */
+.earth-journey__requirements{
+  display:flex;align-items:baseline;flex-wrap:wrap;gap:8px;
+  padding:12px 0 16px;
+  margin:0 0 16px;
+  border-bottom:1px solid var(--sk-line);
+  font:400 13px/1.8 var(--sk-font);
+  color:var(--sk-ink-2);
+}
+.earth-journey__requirements strong{
+  color:var(--sk-brand);font-weight:700;
+  white-space:nowrap;
+}
+.earth-journey__requirements span{min-width:0;overflow-wrap:anywhere}
+@media(max-width:650px){
+  .earth-journey__requirements{align-items:flex-start;gap:4px;padding-bottom:12px}
+}

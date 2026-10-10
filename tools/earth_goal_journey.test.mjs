@@ -14,7 +14,7 @@ test('all goals open real screens in exactly their own gateway',()=>{
   const known={
     accounting:['ledger','smartmatch','reports'],
     audit:['tbreview','auditissues','auditreport'],
-    tools:['helperdesk','tasks','analyzer']
+    tools:['helperdesk','tasks','productflow']
   };
   for(const [gateway,routes] of Object.entries(known)){
     for(const route of routes){
@@ -79,4 +79,21 @@ test('KOSIF EARTH navigation logo is a valid nonempty vector, not a broken place
   assert.match(source,/<path\s/);
   assert.ok(read('ui/layouts/topbar.js').includes('KOSIF EARTH — الصفحة الرئيسية'));
   assert.ok(css.includes('kosif-earth-mark.svg'));
+});
+
+test('goal descriptions match real registered capabilities and show prerequisites',()=>{
+  assert.equal((journey.match(/needs:\[/g)||[]).length,10,"10 existing goals require explicit preparation");
+  assert.match(journey,/className.*earth-journey__requirements|node\("p","earth-journey__requirements"\)/);
+  assert.match(journey,/goal\.needs\.join/);
+  assert.match(css,/\.earth-journey__requirements\{/);
+  assert.match(journey,/title:"أطابق أوصاف المبيعات",route:"smartmatch"/);
+  assert.match(journey,/title:"أجهّز تقارير للطباعة",route:"reports"/);
+  assert.match(journey,/title:"أحسب تكلفة البوكس",route:"productflow"/);
+  assert.equal(byId.smartmatch.label,"مطابقة المبيعات");
+  assert.equal(byId.reports.label,"مركز الطباعة");
+  assert.equal(byId.productflow.label,"استوديو المنتج");
+  assert.doesNotMatch(journey,/جهّز ملفات البنك والدفتر/);
+  assert.doesNotMatch(journey,/قوائم مالية جاهزة للفحص والاعتماد/);
+  assert.match(journey,/ملف مراجعة مستقل/);
+  assert.match(journey,/لا يُنشأ ملف مراجعة مستقل/);
 });
