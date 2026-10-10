@@ -1072,3 +1072,14 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Complete details/reproduction/next phase: docs/rebuild/KOSIF_EARTH_QA_HANDOFF_20261010_AR.md.
 - Open: full suite 27 prior failures, all-repo branch/PR classification, report/export stress, model-earth-industrial E2E, published Preview deployment with exact SHA.
 - No main merge, production deploy, checkout/reset/stash/clean of original dirty worktree.
+
+
+### UPDATE CHATGPT-20261010-EARTH-INTELLIGENT-SCOPED-AUDIT — independent integration for owner review
+- Status: LOCAL_VALIDATED; DRAFT_REVIEW_PENDING; do NOT merge main or deploy production.
+- Branch: chatgpt/kosif-earth-intelligent-ui-20261010, based on verified QA HEAD 7be19a7; separate clean worktree so concurrent uncommitted work is untouched.
+- Intelligent UI: registry-grounded, accessible contextual next actions with authorization, company and gateway revalidation; no external model or client data calls.
+- Inspired by SEE: adapted a company-scoped activity audit to three real ownership modes: accounting company, independent audit engagement ID (not accounting company), and helper user+workspace. Previous device-global trail remains untouched and never misassigned.
+- Evidence: scoped activity tests 10/10 PASS; focused Node integration 101/101 PASS; preview build 191 entries PASS, dist/secure absent; adaptive Edge desktop/phone 22/22 PASS (before scoped trail integration).
+- Cross-account inventory: 21 repositories, 342 branches, 0 metadata read errors. Branch SHA CSV + candidate reuse matrix in docs/rebuild/KOSIF_EARTH_INTELLIGENT_UI_REPO_REUSE_HANDOFF_20261010_AR.md; no bulk cherry-picks.
+- NEXT ACTION: rerun browser acceptance with scoped audit, push branch to GitHub and open draft PR; compare remote-branch diff inventories, separately stress-test audit report exports and server authorization.
+- Risks: client-local audit logs are not a server-enforced RBAC or immutable audit ledger. The previous full-suite 27 historical failures are not resolved by focused green tests. Keep all production, secrets, original dirty worktrees unchanged.
