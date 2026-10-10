@@ -70,3 +70,13 @@ test('brand home action respects the active gateway instead of jumping to generi
   assert.match(src,/SK\.caps\.gatewayHome\(gate\)/);
   assert.match(src,/core\(\)\.go\(home\|\|"dash"\)/);
 });
+
+test('KOSIF EARTH navigation logo is a valid nonempty vector, not a broken placeholder',()=>{
+  const source=read('ui/art/brand/kosif-earth-mark.svg');
+  assert.ok(Buffer.byteLength(source,'utf8')>=500,'real SVG asset, not an empty image');
+  assert.match(source,/<svg\s[^>]*xmlns="http:\/\/www\.w3\.org\/2000\/svg"/);
+  assert.match(source,/<circle\s/);
+  assert.match(source,/<path\s/);
+  assert.ok(read('ui/layouts/topbar.js').includes('KOSIF EARTH — الصفحة الرئيسية'));
+  assert.ok(css.includes('kosif-earth-mark.svg'));
+});

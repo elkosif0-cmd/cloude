@@ -1,1 +1,13 @@
-²ø1šYì
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" role="img" aria-labelledby="t">
+  <title id="t">KOSIF EARTH</title>
+  <defs><linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1">
+    <stop stop-color="#d0f3c9"/>
+    <stop offset=".42" stop-color="#8adaab"/>
+    <stop offset="1" stop-color="#2ca277"/>
+  </linearGradient></defs>
+  <circle cx="36" cy="36" r="33" fill="#12382a"/>
+  <path d="M35 51C32 38 37 24 53 16c2 18-4 29-18 35Z" fill="url(#leaf)"/>
+  <path d="M32 46C18 45 13 35 14 22c15 2 23 10 18 24Z" fill="#68c597"/>
+  <path d="M33 57c1-16 7-25 16-34" stroke="#d7f7dd" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M33 56c0-13-6-21-13-27" stroke="#d7f7dd" stroke-width="3.5" stroke-linecap="round"/>
+</svg>
