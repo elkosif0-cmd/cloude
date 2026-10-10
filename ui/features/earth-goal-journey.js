@@ -36,6 +36,29 @@ const CONTENT=Object.freeze({
 });
 const $=(s,r=document)=>r.querySelector(s);
 let lastGate="", active=0, installed=false;
+let readyTimer=0, readyAttempts=0;
+/* Demo seeding and a company handoff can replace the page asynchronously.
+   The guide must not offer a live action until both are settled. */
+const isReady=(sk,gate)=>{
+  if(gate!=="accounting")return true;
+  const c=sk.company?.current?.();
+  return !!(c?.id&&c.ownerScope==="FULL_ACCOUNTING"&&
+    !window.SKosifSpace?.busy?.()&&
+    (!sk.demo?.settled||sk.demo.settled()));
+};
+function scheduleReady(){
+  if(readyTimer)return;
+  const check=()=>{
+    readyTimer=0;
+    const s=state();
+    if(!s||s.gate!=="accounting"){readyAttempts=0;return}
+    sync();
+    if(!isReady(s.sk,s.gate)&&++readyAttempts<160)
+      readyTimer=setTimeout(check,250);
+    else readyAttempts=0;
+  };
+  readyTimer=setTimeout(check,250);
+}
 let watchedMain=null, mainObserver=null, scheduled=false;
 function schedule(){
   if(scheduled)return;
@@ -96,15 +119,21 @@ function buildPlan(box,gate,sk,core){
   }
   const companyAtRender=gate==="accounting"?sk.company?.current?.():null;
   const companyId=companyAtRender?.id||"";
-  const accountingReady=gate!=="accounting"||!!(companyId&&companyAtRender.ownerScope==="FULL_ACCOUNTING");
+  const ready=isReady(sk,gate);
   const footer=node("div","earth-journey__outcome");
   const result=node("div","earth-journey__result");
   result.append(node("strong","","النتيجة"),node("span","",goal.result));
   const go=node("button","earth-journey__go",goal.action+" ←");
   go.type="button";
-  const available=accountingReady&&allowed(sk,goal.route);
+  const available=ready&&allowed(sk,goal.route);
   go.disabled=!available;
-  if(!available)go.title=accountingReady?"هذه الوظيفة غير متاحة لصلاحيات المستخدم الحالية":"افتح شركة محاسبية قبل بدء العمل";
+  if(!ready){
+    go.textContent=companyId?"جاري تجهيز الشركة...":"اختر شركة أولًا";
+    go.title=companyId?"انتظر اكتمال تجهيز الشركة قبل بدء المهمة":"اختر شركة محاسبية أولًا";
+  }else if(!available){
+    go.title="هذه الوظيفة غير متاحة لصلاحيات المستخدم الحالية";
+  }
+  if(gate==="accounting")box.dataset.ready=String(ready);
   go.addEventListener("click",()=>{
     // The main router can be replaced during async company initialization,
     // particularly on slower touch devices. Always use the live router.
@@ -202,14 +231,24 @@ function sync(){
   if(lastGate!==current.gate){active=0;lastGate=current.gate;}
   const expectedCompany=current.gate==="accounting"?current.sk.company?.current?.()?.id||"":"";
   if(existing&&existing.dataset.gateway===current.gate&&existing.dataset.companyId===expectedCompany){
+    if(current.gate==="accounting"&&
+      existing.dataset.ready!==String(isReady(current.sk,current.gate))){
+      buildPlan(existing,current.gate,current.sk,current.core);
+    }
     condenseDuplicateMap(main);
     window.KOSIFEarthAddons?.attach?.(existing,current);
+    if(current.gate==="accounting"&&current.sk.company?.current?.()?.id&&
+      !isReady(current.sk,current.gate))
+      scheduleReady();
     return;
   }
   if(existing)existing.remove();
   main.prepend(create(current));
   condenseDuplicateMap(main);
   window.KOSIFEarthAddons?.attach?.($("#earth-goal-journey",main),current);
+  if(current.gate==="accounting"&&current.sk.company?.current?.()?.id&&
+    !isReady(current.sk,current.gate))
+    scheduleReady();
 }
 function boot(){
   if(installed)return;installed=true;

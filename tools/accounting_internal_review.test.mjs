@@ -38,3 +38,15 @@ test('goal guide does not make storage writes or company-list crosslinks',()=>{
     assert.equal(src.includes(bad),false,bad);
   }
 });
+
+test('accounting home actions wait for asynchronous company handoff and demo initialization',()=>{
+  assert.match(src,/const isReady=\(sk,gate\)=>/);
+  assert.match(src,/!window\.SKosifSpace\?\.busy\?\.\(\)/);
+  assert.match(src,/!sk\.demo\?\.settled\|\|sk\.demo\.settled\(\)/);
+  assert.match(src,/const available=ready&&allowed\(sk,goal\.route\)/);
+  assert.match(src,/go\.disabled=!available/);
+  assert.match(src,/go\.textContent=companyId\?/);
+  assert.match(src,/existing\.dataset\.ready!==String\(isReady\(current\.sk,current\.gate\)\)/);
+  assert.match(src,/scheduleReady\(\)/);
+  assert.match(src,/readyTimer=setTimeout\(check,250\)/);
+});
