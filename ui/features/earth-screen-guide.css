@@ -1,0 +1,109 @@
+/* Quiet, optional guidance on non-home screens.
+   The goal-first home already contains its own guide; never duplicate it.
+   All copy and menu labels are grounded in the live capability registry. */
+.earth-screen-guide__trigger{
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:8px;
+  border:1px solid var(--sk-line-2);
+  border-radius:var(--sk-r-pill);
+  background:var(--sk-surface);
+  color:var(--sk-brand);
+  font:600 12px/1.5 var(--sk-font);
+  min-height:32px;padding:4px 12px;
+  cursor:pointer;
+}
+.earth-screen-guide__trigger:hover{background:var(--sk-brand-soft)}
+.earth-screen-guide__trigger[hidden]{display:none}
+.earth-screen-guide{
+  position:fixed;inset:0;
+  margin:auto;
+  padding:0;
+  width:min(92vw,620px);
+  max-height:min(86dvh,750px);
+  overflow-y:auto;overflow-x:hidden;
+  border:1px solid var(--sk-line-2);
+  border-radius:var(--sk-r-l);
+  background:var(--sk-surface);
+  color:var(--sk-ink);
+  box-shadow:var(--sk-shadow-3);
+  font:400 14px/1.85 var(--sk-font);
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+}
+.earth-screen-guide::backdrop{
+  background:rgba(9,28,20,.67);
+  backdrop-filter:blur(5px);
+}
+.earth-screen-guide__body{display:grid;gap:16px;padding:clamp(20px,3vw,32px)}
+.earth-screen-guide__header{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:16px;
+  padding-bottom:16px;border-bottom:1px solid var(--sk-line);
+}
+.earth-screen-guide__header h2{
+  margin:4px 0 0;
+  font-size:clamp(22px,2.2vw,30px);
+  line-height:1.5;font-weight:700;
+}
+.earth-screen-guide__header small{
+  font-weight:700;font-size:12px;color:var(--sk-brand);
+}
+.earth-screen-guide__close{
+  flex:0 0 auto;
+  min-height:44px;padding:8px 16px;
+  font:600 13px var(--sk-font);
+  border-radius:var(--sk-r);
+  border:1px solid var(--sk-line-2);
+  background:var(--sk-surface-2);
+  color:var(--sk-ink);
+  cursor:pointer;
+}
+.earth-screen-guide__path{
+  margin:0;padding:8px 12px;
+  border-radius:var(--sk-r);
+  color:var(--sk-ink-2);
+  font-size:12px;background:var(--sk-surface-2);
+  overflow-wrap:anywhere;
+}
+.earth-screen-guide__field{
+  border:1px solid var(--sk-line);
+  border-radius:var(--sk-r);
+  padding:12px 16px;
+  background:var(--sk-surface);
+}
+.earth-screen-guide__field h3{
+  font-weight:700;color:var(--sk-brand);
+  font-size:15px;line-height:1.6;
+  margin:0 0 4px;
+}
+.earth-screen-guide__field p{
+  font-size:14px;color:var(--sk-ink-2);
+  margin:0;line-height:1.85;
+}
+.earth-screen-guide__field ol{
+  margin:0;padding-inline-start:20px;
+  display:grid;gap:8px;
+  color:var(--sk-ink-2);
+}
+.earth-screen-guide__field li{padding-inline-start:4px}
+.earth-screen-guide__note{
+  margin:0;padding:12px 16px;
+  border-radius:var(--sk-r);
+  color:var(--sk-ink-3);
+  background:var(--sk-surface-2);
+  font-size:12px;
+}
+@media(max-width:650px){
+  .earth-screen-guide__trigger{min-height:32px;padding:4px 8px;font-size:11px}
+  .earth-screen-guide{
+    width:calc(100vw - 24px);
+    max-height:calc(100dvh - 52px);
+  }
+  .earth-screen-guide__body{gap:12px;padding:16px}
+  .earth-screen-guide__header{gap:12px}
+}
+@media(prefers-reduced-motion:reduce){
+  .earth-screen-guide,.earth-screen-guide *{
+    transition:none;animation:none;scroll-behavior:auto;
+  }
+}

@@ -201,7 +201,8 @@ let lastSig="";
 const NAV_KEY="skosif_nav_v1";
 const CHEV='<svg class="skn-ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
 const navState=()=>{const d=load(NAV_KEY,{})||{};return d.open&&typeof d.open==="object"?d.open:{}};
-function setNavOpen(g,v){const d=load(NAV_KEY,{})||{};d.open={...(d.open||{}),[g]:v};save(NAV_KEY,d)}
+const navPrefKey=(gate,group)=>String(gate||'')+'/'+String(group||'');
+function setNavOpen(g,v){const d=load(NAV_KEY,{})||{},gate=SK.gate?.current?.()||'';d.open={...(d.open||{}),[navPrefKey(gate,g)]:v};save(NAV_KEY,d)}
 let navQ="";
 const nq=s=>String(s||"").toLowerCase().replace(/[ً-ٰٟ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").trim();
 /* the menu is the chosen entry's alone (FOUNDATION §3): a switcher for the three entries on top, then that entry's
@@ -226,7 +227,10 @@ function paintNav(){
   domains.forEach(gr=>{
     const items=(menu?gr.hubs:SK.caps.hubsInGroup(gr.id).filter(c=>!gate||SK.caps.inGatewayOf(c,gate))).map(c=>[c,itemPages(c,cur)]).filter(([,pg])=>pg.length);
     if(!items.length)return;
-    const here=items.some(([c,pg])=>isOn(c,pg)),isOpen=here||(open[gr.id]!==undefined?open[gr.id]:true);
+    const here=items.some(([c,pg])=>isOn(c,pg)),key=navPrefKey(gate,gr.id);
+    /* Active group opens. Other groups begin collapsed, but users may expand
+       them within this gateway. Search temporarily opens matching groups. */
+    const isOpen=here||!!navQ||(open[key]===true);
     html+='<div class="skn-group'+(isOpen?'':' closed')+(here?' here':'')+'" role="group" aria-label="'+esc(gr.label)+'" data-g="'+esc(gr.id)+'"><button type="button" class="nav-group skn-gh" data-g="'+esc(gr.id)+'" aria-expanded="'+isOpen+'"><span class="skn-gi">'+(SK.icons[gr.icon]||"")+'</span><span>'+esc(gr.label)+'</span><i class="skn-gc">'+items.length+'</i>'+CHEV+'</button>'+
       '<div class="skn-subgroup" data-sg="'+esc(gr.id)+'">'+items.map(([c,pg])=>navButton(c,cur,pg,isOn(c,pg))).join("")+'</div></div>';
   });
@@ -248,10 +252,10 @@ function navSearch(){
   w.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg><input id="skn-q" type="search" autocomplete="off" placeholder="تصفية القائمة…" aria-label="تصفية شاشات القائمة">';
   nav.before(w);
   const inp=$("#skn-q",w);
-  inp.addEventListener("input",()=>{navQ=inp.value;filterNav()});
+  inp.addEventListener("input",()=>{navQ=inp.value;paintNav()});
   inp.addEventListener("keydown",e=>{
-    if(e.key==="Escape"){inp.value="";navQ="";filterNav();inp.blur()}
-    if(e.key==="Enter"){const b=$$(".nav-btn",nav).find(x=>!x.classList.contains("skn-miss"));if(b){core().go(b.dataset.v);inp.value="";navQ="";filterNav()}}
+    if(e.key==="Escape"){inp.value="";navQ="";paintNav();inp.blur()}
+    if(e.key==="Enter"){const b=$$(".nav-btn",nav).find(x=>!x.classList.contains("skn-miss")&&!x.closest(".skn-none"));if(b){core().go(b.dataset.v);inp.value="";navQ="";paintNav()}}
   });
   nav.addEventListener("click",e=>{
     const gb=e.target.closest(".skn-gate");if(gb&&nav.contains(gb)){if(SK.gate)SK.gate.set(gb.dataset.gate,{go:true});return}
@@ -305,7 +309,7 @@ function paintTop(){
     }
   }
   else if(cr)cr.textContent="";
-  document.title=(cap?cap.label:(t&&t.textContent)||"")+" · SQC";
+  document.title=(cap?cap.label:(t&&t.textContent)||"")+" · KOSIF EARTH";
   /* Drawer scroll locking is owned by syncSidebar so it can capture/restore scroll atomically. */
 }
 /* phones: bottom tab bar — in the page flow (sticky), never over content. Four screens the user
