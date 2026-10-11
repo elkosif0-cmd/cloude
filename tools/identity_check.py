@@ -45,7 +45,7 @@ ok("unlock page wears the «دفتر KOSIF» ink (R20: one identity from the fir
 ok("no cobalt left in the brand art, the door and the manifest (R20)", not any(c in t.lower() for t in [index, manifest_raw] + [Path(f).read_text(encoding="utf-8").lower() for f in ("ui/art/sqc-icon.svg","ui/art/sqc-logo.svg","ui/art/sqc-mark.svg","ui/art/sqc-mark-dark.svg")] for c in ("#2340c4","#0b1030","#19c3d9")))
 ok("unlock / landing page carries no sales-first product line", not any(s in index for s in SALES_FIRST))
 ok("app shell uses canonical SQC theme color («دفتر KOSIF» paper rail)", 'name="theme-color" content="#f3ece2"' in app_head)
-ok("app shell uses KOSIF EARTH favicon", 'href="./art/brand/kosif-earth-icon.svg"' in app_head and not any("kosif-cloud.svg" in tag for tag in re.findall(r"<link\\b[^>]*>", app_head, flags=re.I) if 'rel="icon"' in tag.lower()))
+ok("app shell uses KOSIF EARTH favicon", 'href="./art/brand/kosif-earth-icon.svg"' in app_head and not any("kosif-cloud.svg" in tag for tag in re.findall(r"<link\b[^>]*>", app_head, flags=re.I) if 'rel="icon"' in tag.lower()))
 ok("app shell advertises manifest", 'rel="manifest" href="./manifest.webmanifest"' in app_head)
 ok("unlock page has audit-first meta description", 'name="description"' in unlock_head and "المراجعة" in unlock_head)
 ok("unlock page advertises manifest", 'rel="manifest" href="./manifest.webmanifest"' in unlock_head)
