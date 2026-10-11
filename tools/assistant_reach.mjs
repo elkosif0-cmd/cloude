@@ -8,12 +8,20 @@ const URL_ = process.argv[2] || 'http://localhost:8765/app-safe.html';
 const watchdog = setTimeout(() => { console.error('[assistant-reach] HARD TIMEOUT'); process.exit(2); }, 600000);
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1280, height: 850 } });
-await ctx.addInitScript(() => { try { sessionStorage.setItem('sqc_space_chosen', '1'); } catch {} });
 const p = await ctx.newPage(), errs = [];
 p.on('pageerror', (e) => errs.push(e.message.slice(0, 120)));
-const ready = () => p.waitForFunction(() => window.SKosifAssistant && window.SKosifCore && window.SK && SK.caps && !document.querySelector('.skdemo-overlay'), { timeout: 90000 });
-await p.goto(URL_); await ready();
-await p.waitForTimeout(3000); await ready(); // the demo company may reload the page once after its first load
+const ready = () => p.waitForFunction(() => window.SKosifAssistant && window.SKosifCore && window.SK?.caps && window.SKosifSpace?.current?.()?.id === 'demo-co' && window.SK?.demo?.settled?.() && !window.SKosifSpace?.busy?.() && !document.querySelector('.skdemo-overlay'), { timeout: 90000 });
+// Start from the real three-step front door. A sessionStorage flag is NOT company
+// admission and must not bypass the current company's owner/selection guard.
+const doorURL = new URL(URL_);
+doorURL.pathname = doorURL.pathname.replace(/\\/app-safe(?:\\.html)?$/, '/index.html');
+await p.goto(doorURL.href);
+await p.locator('#gate-list .gate[data-gate="accounting"]').click();
+await p.locator('#sector-list .sector[data-sector="meat"]').click();
+await p.locator('#co-list .co[data-id="demo-co"]').click();
+await p.waitForURL(/\\/app-safe(?:\\.html)?(?:[?#]|$)/, { timeout: 30000 });
+await ready();
+await p.waitForTimeout(800); await ready();
 const caps = await p.evaluate(() => SK.caps.all().map((c) => ({ id: c.id, group: c.group, label: c.label, hubLabel: c.hubLabel, hub: c.hub || null })));
 const fails = [];
 let n = 0;
